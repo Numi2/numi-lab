@@ -1,0 +1,105 @@
+[
+  {
+    "command": [
+      "/Users/n/Developer/numi-crow-rl-20261107/build/crow-motor-contact-git-recovery-01/.numi/retained-runtime/motor-contact-20261108/probe",
+      "/Users/n/Developer/numi-crow-rl-20261107/build/crow-motor-contact-git-recovery-01/.numi/retained-runtime/motor-contact-20261108/metalrobo/MetalRobo.metallib",
+      "/Users/n/Developer/numi-crow-rl-20261107/build/crow-motor-contact-git-recovery-01/original.tsv"
+    ],
+    "exit_code": 0,
+    "expected_exit_code": 0,
+    "loader_lines": [
+      "dyld[37075]: <4D68CA38-6DDA-3802-BB55-2A7181993869> /Users/n/Developer/numi-crow-rl-20261107/build/crow-motor-contact-git-recovery-01/.numi/retained-runtime/motor-contact-20261108/libmetalrobo.dylib"
+    ],
+    "name": "original-split",
+    "seconds": 0.761571208
+  },
+  {
+    "command": [
+      "/Users/n/Developer/numi-crow-rl-20261107/build/crow-motor-contact-git-recovery-01/.numi/retained-runtime/motor-contact-20261108/coupled-probe",
+      "/Users/n/Developer/numi-crow-rl-20261107/build/crow-motor-contact-git-recovery-01/.numi/retained-runtime/motor-contact-20261108/metalrobo/MetalRobo.metallib",
+      "/Users/n/Developer/numi-crow-rl-20261107/build/crow-motor-contact-git-recovery-01/empty-factor.tsv",
+      "--coupled"
+    ],
+    "exit_code": 1,
+    "expected_exit_code": 1,
+    "loader_lines": [
+      "dyld[37080]: <4D68CA38-6DDA-3802-BB55-2A7181993869> /Users/n/Developer/numi-crow-rl-20261107/build/crow-motor-contact-git-recovery-01/.numi/retained-runtime/motor-contact-20261108/libmetalrobo.dylib"
+    ],
+    "name": "original-empty-factor-failure",
+    "seconds": 0.3656367079999999
+  },
+  {
+    "command": [
+      "/Users/n/Developer/numi-crow-rl-20261107/build/crow-motor-contact-git-recovery-01/.numi/retained-runtime/motor-contact-factor-fix-20261108/probe",
+      "/Users/n/Developer/numi-crow-rl-20261107/build/crow-motor-contact-git-recovery-01/.numi/retained-runtime/motor-contact-factor-fix-20261108/metalrobo/MetalRobo.metallib",
+      "/Users/n/Developer/numi-crow-rl-20261107/build/crow-motor-contact-git-recovery-01/factor-fixed.tsv",
+      "--coupled-unused"
+    ],
+    "exit_code": 1,
+    "expected_exit_code": 1,
+    "loader_lines": [
+      "dyld[37082]: <A05C8436-FB94-3E34-86E5-519DECA2653D> /Users/n/Developer/numi-crow-rl-20261107/build/crow-motor-contact-git-recovery-01/.numi/retained-runtime/motor-contact-factor-fix-20261108/libmetalrobo.dylib"
+    ],
+    "name": "fixed-factor-momentum-failure",
+    "seconds": 0.774473083
+  },
+  {
+    "command": [
+      "/Users/n/Developer/numi-crow-rl-20261107/build/crow-motor-contact-git-recovery-01/.numi/retained-runtime/motor-contact-factor-fix-20261108/probe-precision",
+      "/Users/n/Developer/numi-crow-rl-20261107/build/crow-motor-contact-git-recovery-01/.numi/retained-runtime/motor-contact-factor-fix-20261108/metalrobo/MetalRobo.metallib",
+      "/Users/n/Developer/numi-crow-rl-20261107/build/crow-motor-contact-git-recovery-01/momentum.tsv",
+      "--momentum-replay"
+    ],
+    "exit_code": 0,
+    "expected_exit_code": 0,
+    "loader_lines": [
+      "dyld[37085]: <A05C8436-FB94-3E34-86E5-519DECA2653D> /Users/n/Developer/numi-crow-rl-20261107/build/crow-motor-contact-git-recovery-01/.numi/retained-runtime/motor-contact-factor-fix-20261108/libmetalrobo.dylib"
+    ],
+    "name": "tight-momentum-replay",
+    "seconds": 0.36707908300000014
+  },
+  {
+    "command": [
+      "/Users/n/Developer/numi-crow-rl-20261107/build/crow-motor-contact-git-recovery-01/.numi/retained-runtime/motor-contact-factor-fix-20261108/probe-precision",
+      "/Users/n/Developer/numi-crow-rl-20261107/build/crow-motor-contact-git-recovery-01/.numi/retained-runtime/motor-contact-factor-fix-20261108/metalrobo/MetalRobo.metallib",
+      "/Users/n/Developer/numi-crow-rl-20261107/build/crow-motor-contact-git-recovery-01/joint.tsv",
+      "--coupled-precision"
+    ],
+    "exit_code": 0,
+    "expected_exit_code": 0,
+    "loader_lines": [
+      "dyld[37086]: <A05C8436-FB94-3E34-86E5-519DECA2653D> /Users/n/Developer/numi-crow-rl-20261107/build/crow-motor-contact-git-recovery-01/.numi/retained-runtime/motor-contact-factor-fix-20261108/libmetalrobo.dylib"
+    ],
+    "name": "tight-joint-comparison",
+    "seconds": 0.21065037500000017
+  },
+  {
+    "command": [
+      "/Users/n/Developer/numi-crow-rl-20261107/build/crow-motor-contact-git-recovery-01/.numi/retained-runtime/motor-contact-factor-fix-20261108/contact-probe",
+      "/Users/n/Developer/numi-crow-rl-20261107/build/crow-motor-contact-git-recovery-01/.numi/retained-runtime/motor-contact-factor-fix-20261108/metalrobo/MetalRobo.metallib"
+    ],
+    "exit_code": 0,
+    "expected_exit_code": 0,
+    "loader_lines": [
+      "dyld[37087]: <A05C8436-FB94-3E34-86E5-519DECA2653D> /Users/n/Developer/numi-crow-rl-20261107/build/crow-motor-contact-git-recovery-01/.numi/retained-runtime/motor-contact-factor-fix-20261108/libmetalrobo.dylib"
+    ],
+    "name": "contact-owner",
+    "seconds": 0.9020119590000002
+  },
+  {
+    "command": [
+      "/Users/n/Developer/numi-crow-rl-20261107/build/crow-motor-contact-git-recovery-01/build/crow-motor-contact-build-01/fixture-default",
+      "/Users/n/Developer/numi-crow-rl-20261107/build/crow-motor-contact-git-recovery-01/default-crow",
+      "0",
+      "1",
+      "32"
+    ],
+    "exit_code": 0,
+    "expected_exit_code": 0,
+    "loader_lines": [
+      "dyld[37088]: <A05C8436-FB94-3E34-86E5-519DECA2653D> /Users/n/Developer/numi-crow-rl-20261107/build/crow-motor-contact-git-recovery-01/.numi/retained-runtime/motor-contact-factor-fix-20261108/libmetalrobo.dylib"
+    ],
+    "name": "default-crow",
+    "seconds": 17.022426083000003
+  }
+]

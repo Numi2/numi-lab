@@ -1,0 +1,986 @@
+[
+  {
+    "archive_source": ".numi/retained-runtime/motor-contact-20261108/coupled-probe",
+    "bytes": 77872,
+    "mode": 493,
+    "mtime_ns": 1794133902340322952,
+    "path": "build/crow-motor-contact-git-recovery-01/.numi/retained-runtime/motor-contact-20261108/coupled-probe",
+    "sha256": "36f902347d9dea3338ccb7937c275b3de96b151b7e06ab536ea5378953698ee9"
+  },
+  {
+    "archive_source": ".numi/retained-runtime/motor-contact-20261108/libmetalrobo.dylib",
+    "bytes": 5694000,
+    "mode": 493,
+    "mtime_ns": 1794131534172128509,
+    "path": "build/crow-motor-contact-git-recovery-01/.numi/retained-runtime/motor-contact-20261108/libmetalrobo.dylib",
+    "sha256": "b24ad4015c718e0c688eaf95b4b207ceacafa9f650f20894fefa5581b1698fd5"
+  },
+  {
+    "archive_source": ".numi/retained-runtime/motor-contact-20261108/metalrobo/MetalRobo.metallib",
+    "bytes": 4244353,
+    "mode": 420,
+    "mtime_ns": 1794131509801187796,
+    "path": "build/crow-motor-contact-git-recovery-01/.numi/retained-runtime/motor-contact-20261108/metalrobo/MetalRobo.metallib",
+    "sha256": "6eb48053118d0e54850d21241e499100787de13af84e54e5b48ddc8130876be2"
+  },
+  {
+    "archive_source": ".numi/retained-runtime/motor-contact-20261108/probe",
+    "bytes": 59712,
+    "mode": 493,
+    "mtime_ns": 1794133518863230473,
+    "path": "build/crow-motor-contact-git-recovery-01/.numi/retained-runtime/motor-contact-20261108/probe",
+    "sha256": "481c5c26f306267e87c56ec2aff5c687ea1b286458bbc3e3546211800277ae3e"
+  },
+  {
+    "archive_source": ".numi/retained-runtime/motor-contact-factor-fix-20261108/contact-probe",
+    "bytes": 97472,
+    "mode": 493,
+    "mtime_ns": 1794134205152035298,
+    "path": "build/crow-motor-contact-git-recovery-01/.numi/retained-runtime/motor-contact-factor-fix-20261108/contact-probe",
+    "sha256": "bd0777b062295b4e08a4722124665725cb6842506054d05357a6346a76d39293"
+  },
+  {
+    "archive_source": ".numi/retained-runtime/motor-contact-factor-fix-20261108/libmetalrobo.dylib",
+    "bytes": 5694000,
+    "mode": 493,
+    "mtime_ns": 1794134205073366767,
+    "path": "build/crow-motor-contact-git-recovery-01/.numi/retained-runtime/motor-contact-factor-fix-20261108/libmetalrobo.dylib",
+    "sha256": "18caa3e31857028b159c1cd287ac4721c7cd2b3c014885e3871650412f8562d4"
+  },
+  {
+    "archive_source": ".numi/retained-runtime/motor-contact-20261108/metalrobo/MetalRobo.metallib",
+    "bytes": 4244353,
+    "mode": 420,
+    "mtime_ns": 1794131509801187796,
+    "path": "build/crow-motor-contact-git-recovery-01/.numi/retained-runtime/motor-contact-factor-fix-20261108/metalrobo/MetalRobo.metallib",
+    "sha256": "6eb48053118d0e54850d21241e499100787de13af84e54e5b48ddc8130876be2"
+  },
+  {
+    "archive_source": ".numi/retained-runtime/motor-contact-factor-fix-20261108/probe",
+    "bytes": 78784,
+    "mode": 493,
+    "mtime_ns": 1794134206444040887,
+    "path": "build/crow-motor-contact-git-recovery-01/.numi/retained-runtime/motor-contact-factor-fix-20261108/probe",
+    "sha256": "cf2cad02deaab0dc5b2c1908a04930e94ac60acf2c2a6df75bb09eded0921086"
+  },
+  {
+    "archive_source": ".numi/retained-runtime/motor-contact-factor-fix-20261108/probe-precision",
+    "bytes": 79296,
+    "mode": 493,
+    "mtime_ns": 1794134420784114870,
+    "path": "build/crow-motor-contact-git-recovery-01/.numi/retained-runtime/motor-contact-factor-fix-20261108/probe-precision",
+    "sha256": "2deeb6824428ac380bb1bb074ac8d4a83f070543a21eca531bf807eab9b721c3"
+  },
+  {
+    "archive_source": "build/crow-motor-contact-build-01/MetalWorld-before-quality-factor.mm",
+    "bytes": 844156,
+    "mode": 420,
+    "mtime_ns": 1794134200805282269,
+    "path": "build/crow-motor-contact-git-recovery-01/build/crow-motor-contact-build-01/MetalWorld-before-quality-factor.mm",
+    "sha256": "1d822d400e1c1341557fa561ade3c151487d53288feb4e1a210642b1f06d4833"
+  },
+  {
+    "archive_source": "build/crow-motor-contact-build-01/local-drafts/analyze_precision.py",
+    "bytes": 1218,
+    "mode": 420,
+    "mtime_ns": 1794134591773058268,
+    "path": "build/crow-motor-contact-git-recovery-01/build/crow-motor-contact-build-01/analyze_precision.py",
+    "sha256": "0f6c3cfd0a420b428de2e6d30572d43982c131cc62ef6bd8a0b1c45e12081e65"
+  },
+  {
+    "archive_source": "build/crow-motor-contact-build-01/quality-factor-full-build.stderr",
+    "bytes": 0,
+    "mode": 420,
+    "mtime_ns": 1794133518144092025,
+    "path": "build/crow-motor-contact-git-recovery-01/build/crow-motor-contact-build-01/build-v2.stderr",
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  {
+    "archive_source": "build/crow-motor-contact-build-01/precision-build.stdout",
+    "bytes": 165,
+    "mode": 420,
+    "mtime_ns": 1794133518864913861,
+    "path": "build/crow-motor-contact-git-recovery-01/build/crow-motor-contact-build-01/build-v2.stdout",
+    "sha256": "094f3c656f05c8a69ea82c38de26e602fe7c8b576fd12191dc410e05c88527f7"
+  },
+  {
+    "archive_source": "build/crow-motor-contact-build-01/quality-factor-full-build.stderr",
+    "bytes": 0,
+    "mode": 420,
+    "mtime_ns": 1794133474733441116,
+    "path": "build/crow-motor-contact-git-recovery-01/build/crow-motor-contact-build-01/build.stderr",
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  {
+    "archive_source": "build/crow-motor-contact-build-01/build.stdout",
+    "bytes": 1490,
+    "mode": 420,
+    "mtime_ns": 1794133475319600511,
+    "path": "build/crow-motor-contact-git-recovery-01/build/crow-motor-contact-build-01/build.stdout",
+    "sha256": "4bf39602ad2afd71efb3c811dab100e5d944dc83db8bc8bc5b760dcf4a9d563b"
+  },
+  {
+    "archive_source": "build/crow-motor-contact-build-01/quality-factor-full-build.stderr",
+    "bytes": 0,
+    "mode": 420,
+    "mtime_ns": 1794133518865830076,
+    "path": "build/crow-motor-contact-git-recovery-01/build/crow-motor-contact-build-01/calibration.stderr",
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  {
+    "archive_source": "build/crow-motor-contact-build-01/calibration.stdout",
+    "bytes": 40,
+    "mode": 420,
+    "mtime_ns": 1794133519259025578,
+    "path": "build/crow-motor-contact-git-recovery-01/build/crow-motor-contact-build-01/calibration.stdout",
+    "sha256": "8223b5bfa4346a29ab7cff7344de59eef4d32734c0ca7d439ff6aeac0b3caaa0"
+  },
+  {
+    "archive_source": "build/crow-motor-contact-build-01/coupled-precision.tsv",
+    "bytes": 33955,
+    "mode": 420,
+    "mtime_ns": 1794134515650886969,
+    "path": "build/crow-motor-contact-git-recovery-01/build/crow-motor-contact-build-01/coupled-precision.tsv",
+    "sha256": "2157a7825b052afa654555c006f3cb14f3009c5ad8a9cfde48f54f5c8b592c16"
+  },
+  {
+    "archive_source": "build/crow-motor-contact-build-01/coupled-unused.tsv",
+    "bytes": 15125,
+    "mode": 420,
+    "mtime_ns": 1794134334188321697,
+    "path": "build/crow-motor-contact-git-recovery-01/build/crow-motor-contact-build-01/coupled-unused.tsv",
+    "sha256": "cf11f2b5005d3c7e1111359fad67caf57872c8865d40d1d8ddcf082db3de8fae"
+  },
+  {
+    "archive_source": "build/crow-motor-contact-build-01/coupled.stderr",
+    "bytes": 85826,
+    "mode": 420,
+    "mtime_ns": 1794133994147821282,
+    "path": "build/crow-motor-contact-git-recovery-01/build/crow-motor-contact-build-01/coupled.stderr",
+    "sha256": "75d4d59e4c86357ecc5cf54092fb736652e7b65988464a4f87090e99461c364c"
+  },
+  {
+    "archive_source": "build/crow-motor-contact-build-01/coupled.stdout",
+    "bytes": 100,
+    "mode": 420,
+    "mtime_ns": 1794133994143700875,
+    "path": "build/crow-motor-contact-git-recovery-01/build/crow-motor-contact-build-01/coupled.stdout",
+    "sha256": "8378b5c9eea72d1186d76c2ae1ea52a357af4b3e4e6618e8eb2b89c6b3cbe2a9"
+  },
+  {
+    "archive_source": "build/crow-motor-contact-build-01/coupled.tsv",
+    "bytes": 411,
+    "mode": 420,
+    "mtime_ns": 1794133994143656625,
+    "path": "build/crow-motor-contact-git-recovery-01/build/crow-motor-contact-build-01/coupled.tsv",
+    "sha256": "542638791a55d9814a26281564a1b0b8d40767b67daebce3240e16167a23f547"
+  },
+  {
+    "archive_source": "build/crow-motor-contact-build-01/local-drafts/coupled_function.cpp",
+    "bytes": 5921,
+    "mode": 420,
+    "mtime_ns": 1794133828975853276,
+    "path": "build/crow-motor-contact-git-recovery-01/build/crow-motor-contact-build-01/coupled_function.cpp",
+    "sha256": "f7396cbeb2e4bd33c8b5d04ec18b052fa98033fb454593b83f014c058ef070cb"
+  },
+  {
+    "archive_source": "build/crow-motor-contact-build-01/default-contact-owner.stderr",
+    "bytes": 84599,
+    "mode": 420,
+    "mtime_ns": 1794134333486711634,
+    "path": "build/crow-motor-contact-git-recovery-01/build/crow-motor-contact-build-01/default-contact-owner.stderr",
+    "sha256": "31e7f064747544e87228447182618105155e235c616c9a887f3f819974e24497"
+  },
+  {
+    "archive_source": "build/crow-motor-contact-build-01/default-contact-owner.stdout",
+    "bytes": 855,
+    "mode": 420,
+    "mtime_ns": 1794134334062840592,
+    "path": "build/crow-motor-contact-git-recovery-01/build/crow-motor-contact-build-01/default-contact-owner.stdout",
+    "sha256": "7e4fab57b06dd8ef746c6ba1a640e9405dd40e8deb77bdc0bcbaf26679300fc5"
+  },
+  {
+    "archive_source": "build/crow-motor-contact-build-01/default-crow/final-q.f32",
+    "bytes": 368,
+    "mode": 420,
+    "mtime_ns": 1794134532702029711,
+    "path": "build/crow-motor-contact-git-recovery-01/build/crow-motor-contact-build-01/default-crow/final-q.f32",
+    "sha256": "4e2e5c58b6a0480f8598fc89078001a646f40c42cad195fb2151ccd03fa2dd42"
+  },
+  {
+    "archive_source": "build/crow-motor-contact-build-01/default-crow/final-scene.bin",
+    "bytes": 1024,
+    "mode": 420,
+    "mtime_ns": 1794134532702156545,
+    "path": "build/crow-motor-contact-git-recovery-01/build/crow-motor-contact-build-01/default-crow/final-scene.bin",
+    "sha256": "e17303c190a55c2485cf89dc4fedcc213fdcad7b17ed95e0e71affdb3240f090"
+  },
+  {
+    "archive_source": "build/crow-motor-contact-build-01/default-crow/final-v.f32",
+    "bytes": 352,
+    "mode": 420,
+    "mtime_ns": 1794134532702113586,
+    "path": "build/crow-motor-contact-git-recovery-01/build/crow-motor-contact-build-01/default-crow/final-v.f32",
+    "sha256": "a1a1ec18b8e3f9c0dd21a8089e5bb2a7fabc41590a2cbf6d24ccdf2fadfb9a27"
+  },
+  {
+    "archive_source": "build/crow-motor-contact-build-01/default-crow/initial-geometry.json",
+    "bytes": 545,
+    "mode": 420,
+    "mtime_ns": 1794134516018247963,
+    "path": "build/crow-motor-contact-git-recovery-01/build/crow-motor-contact-build-01/default-crow/initial-geometry.json",
+    "sha256": "f3fbd6a4f092ad15217f903bd9c6019120cf6460ae86334981373554d2035af7"
+  },
+  {
+    "archive_source": "build/crow-motor-contact-build-01/default-crow/initial-q.f32",
+    "bytes": 368,
+    "mode": 420,
+    "mtime_ns": 1794134516018400839,
+    "path": "build/crow-motor-contact-git-recovery-01/build/crow-motor-contact-build-01/default-crow/initial-q.f32",
+    "sha256": "012493a2009920bf13b46924788f4473314584704e8857f9bedfd13700e12b28"
+  },
+  {
+    "archive_source": "build/crow-motor-contact-build-01/default-crow/initial-scene.bin",
+    "bytes": 1024,
+    "mode": 420,
+    "mtime_ns": 1794134516018590757,
+    "path": "build/crow-motor-contact-git-recovery-01/build/crow-motor-contact-build-01/default-crow/initial-scene.bin",
+    "sha256": "7e108f9bf6b038494639e99ef211d6fc51f527a33c0aa430c587d4da3563ea57"
+  },
+  {
+    "archive_source": "build/crow-motor-contact-build-01/default-crow/initial-v.f32",
+    "bytes": 352,
+    "mode": 420,
+    "mtime_ns": 1794134516018498090,
+    "path": "build/crow-motor-contact-git-recovery-01/build/crow-motor-contact-build-01/default-crow/initial-v.f32",
+    "sha256": "627f6149015f853f26db2f3dffba1b7c30b3b74b87c5cfb9f346c1616e3636d0"
+  },
+  {
+    "archive_source": "build/crow-motor-contact-build-01/default-crow/runtime.json",
+    "bytes": 210,
+    "mode": 420,
+    "mtime_ns": 1794134532702426547,
+    "path": "build/crow-motor-contact-git-recovery-01/build/crow-motor-contact-build-01/default-crow/runtime.json",
+    "sha256": "110e008893fe26e15bacc62bae82e56b77146173e106d4fdd93d4c73bd770b17"
+  },
+  {
+    "archive_source": "build/crow-motor-contact-build-01/default-crow/scene.bin",
+    "bytes": 163840,
+    "mode": 420,
+    "mtime_ns": 1794134532702306380,
+    "path": "build/crow-motor-contact-git-recovery-01/build/crow-motor-contact-build-01/default-crow/scene.bin",
+    "sha256": "097626c065e50e37de0ee98a27615074704765f6106dbcd9ae8c08057557183e"
+  },
+  {
+    "archive_source": "build/crow-motor-contact-build-01/default-crow/summary.json",
+    "bytes": 757,
+    "mode": 420,
+    "mtime_ns": 1794134532702402339,
+    "path": "build/crow-motor-contact-git-recovery-01/build/crow-motor-contact-build-01/default-crow/summary.json",
+    "sha256": "765c15edef424eb00d3468993f7c7cd044aac3a3fc5b0104fc7a05649948e9c9"
+  },
+  {
+    "archive_source": "build/crow-motor-contact-build-01/default-crow/trace.tsv",
+    "bytes": 141362,
+    "mode": 420,
+    "mtime_ns": 1794134532702434672,
+    "path": "build/crow-motor-contact-git-recovery-01/build/crow-motor-contact-build-01/default-crow/trace.tsv",
+    "sha256": "8507cc679736d3d7685068427e49fe089bcad120a9e709cbdfe56271c9b3c921"
+  },
+  {
+    "archive_source": "build/crow-motor-contact-build-01/default-crow-replay.stderr",
+    "bytes": 84726,
+    "mode": 420,
+    "mtime_ns": 1794134516025719521,
+    "path": "build/crow-motor-contact-git-recovery-01/build/crow-motor-contact-build-01/default-crow-replay.stderr",
+    "sha256": "bc7796ddf6b824bacc893a948c14fcaaa994a78698a1df7be25532e08f42a631"
+  },
+  {
+    "archive_source": "build/crow-motor-contact-build-01/quality-factor-full-build.stderr",
+    "bytes": 0,
+    "mode": 420,
+    "mtime_ns": 1794134515704567763,
+    "path": "build/crow-motor-contact-git-recovery-01/build/crow-motor-contact-build-01/default-crow-replay.stdout",
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  {
+    "archive_source": "build/crow-motor-contact-build-01/empty-quality-replay.stderr",
+    "bytes": 84591,
+    "mode": 420,
+    "mtime_ns": 1794134333146286101,
+    "path": "build/crow-motor-contact-git-recovery-01/build/crow-motor-contact-build-01/empty-quality-replay.stderr",
+    "sha256": "01ac5b70708857a7df08b8ce20fca83822b06e5de5a2ae2fcd73638bf1704a76"
+  },
+  {
+    "archive_source": "build/crow-motor-contact-build-01/empty-quality-replay.stdout",
+    "bytes": 108,
+    "mode": 420,
+    "mtime_ns": 1794134333177645846,
+    "path": "build/crow-motor-contact-git-recovery-01/build/crow-motor-contact-build-01/empty-quality-replay.stdout",
+    "sha256": "fd7371707df90deddedf2964e216b172f4a68ceaf34ef25fd99f4e40b5c296f0"
+  },
+  {
+    "archive_source": "build/crow-motor-contact-build-01/empty-quality.tsv",
+    "bytes": 409,
+    "mode": 420,
+    "mtime_ns": 1794134333176048958,
+    "path": "build/crow-motor-contact-git-recovery-01/build/crow-motor-contact-build-01/empty-quality.tsv",
+    "sha256": "8e621c940f312d80fb47bdd718792c618c1ca4ba006cbf1b693372524de0c4ad"
+  },
+  {
+    "archive_source": "build/crow-motor-contact-build-01/local-drafts/extend_precision.py",
+    "bytes": 3053,
+    "mode": 420,
+    "mtime_ns": 1794134419742517486,
+    "path": "build/crow-motor-contact-git-recovery-01/build/crow-motor-contact-build-01/extend_precision.py",
+    "sha256": "7b361555c65e281e08b9ae54acb60883196756bef3ddedc225d0b6c0e97392d3"
+  },
+  {
+    "archive_source": "build/crow-motor-contact-build-01/local-drafts/extend_probe.py",
+    "bytes": 717,
+    "mode": 420,
+    "mtime_ns": 1794133829015960547,
+    "path": "build/crow-motor-contact-git-recovery-01/build/crow-motor-contact-build-01/extend_probe.py",
+    "sha256": "4f08549c7199fc097f297e10eb27bd6d9310036a9d96dc6b98ef03fc1ce07168"
+  },
+  {
+    "archive_source": "build/crow-motor-contact-build-01/fix_quality_factor.py",
+    "bytes": 1942,
+    "mode": 420,
+    "mtime_ns": 1794134166227099236,
+    "path": "build/crow-motor-contact-git-recovery-01/build/crow-motor-contact-build-01/fix_quality_factor.py",
+    "sha256": "f22927d1955c8a58f01cb301b6cab0d7fa59757b489594cd475f647a357312fc"
+  },
+  {
+    "archive_source": "build/crow-motor-contact-build-01/fix_quality_factor_v2.py",
+    "bytes": 1651,
+    "mode": 420,
+    "mtime_ns": 1794134183646447353,
+    "path": "build/crow-motor-contact-git-recovery-01/build/crow-motor-contact-build-01/fix_quality_factor_v2.py",
+    "sha256": "bd023a2ec716c29c61c857c18bfac86e261eb8309c449a4747a8e6fe6c4ec528"
+  },
+  {
+    "archive_source": "build/crow-motor-contact-build-01/local-drafts/fix_quality_factor.py",
+    "bytes": 1739,
+    "mode": 420,
+    "mtime_ns": 1794134200536402544,
+    "path": "build/crow-motor-contact-git-recovery-01/build/crow-motor-contact-build-01/fix_quality_factor_v3.py",
+    "sha256": "cfd39b83297fa02cc1140e3b74b2e93f6160b38fedcd04ef0ea6e6b532b77d0e"
+  },
+  {
+    "archive_source": "build/crow-motor-contact-build-01/fixture-default",
+    "bytes": 99776,
+    "mode": 493,
+    "mtime_ns": 1794134329680646953,
+    "path": "build/crow-motor-contact-git-recovery-01/build/crow-motor-contact-build-01/fixture-default",
+    "sha256": "a76e0b2a726b9ab2504b4a55b6d557d10a85feaaf94e4cb580de33103e45c63a"
+  },
+  {
+    "archive_source": "build/crow-motor-contact-build-01/quality-factor-full-build.stderr",
+    "bytes": 0,
+    "mode": 420,
+    "mtime_ns": 1794133901512185276,
+    "path": "build/crow-motor-contact-git-recovery-01/build/crow-motor-contact-build-01/ir-build-v2.stderr",
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  {
+    "archive_source": "build/crow-motor-contact-build-01/precision-build.stdout",
+    "bytes": 165,
+    "mode": 420,
+    "mtime_ns": 1794133902342044799,
+    "path": "build/crow-motor-contact-git-recovery-01/build/crow-motor-contact-build-01/ir-build-v2.stdout",
+    "sha256": "094f3c656f05c8a69ea82c38de26e602fe7c8b576fd12191dc410e05c88527f7"
+  },
+  {
+    "archive_source": "build/crow-motor-contact-build-01/quality-factor-full-build.stderr",
+    "bytes": 0,
+    "mode": 420,
+    "mtime_ns": 1794133829260124829,
+    "path": "build/crow-motor-contact-git-recovery-01/build/crow-motor-contact-build-01/ir-build.stderr",
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  {
+    "archive_source": "build/crow-motor-contact-build-01/precision-build.stdout",
+    "bytes": 165,
+    "mode": 420,
+    "mtime_ns": 1794133830081497285,
+    "path": "build/crow-motor-contact-git-recovery-01/build/crow-motor-contact-build-01/ir-build.stdout",
+    "sha256": "094f3c656f05c8a69ea82c38de26e602fe7c8b576fd12191dc410e05c88527f7"
+  },
+  {
+    "archive_source": "build/crow-motor-contact-build-01/quality-factor-full-build.stderr",
+    "bytes": 0,
+    "mode": 420,
+    "mtime_ns": 1794133902342965889,
+    "path": "build/crow-motor-contact-git-recovery-01/build/crow-motor-contact-build-01/ir-calibration-v2.stderr",
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  {
+    "archive_source": "build/crow-motor-contact-build-01/ir-calibration.stdout",
+    "bytes": 73,
+    "mode": 420,
+    "mtime_ns": 1794133902716812350,
+    "path": "build/crow-motor-contact-git-recovery-01/build/crow-motor-contact-build-01/ir-calibration-v2.stdout",
+    "sha256": "6e0fe308690afd1db01ebd5fad8805d02f5dc6ffabf9ae48a8259bd9c3fff405"
+  },
+  {
+    "archive_source": "build/crow-motor-contact-build-01/quality-factor-full-build.stderr",
+    "bytes": 0,
+    "mode": 420,
+    "mtime_ns": 1794133830082407750,
+    "path": "build/crow-motor-contact-git-recovery-01/build/crow-motor-contact-build-01/ir-calibration.stderr",
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  {
+    "archive_source": "build/crow-motor-contact-build-01/ir-calibration.stdout",
+    "bytes": 73,
+    "mode": 420,
+    "mtime_ns": 1794133830475779239,
+    "path": "build/crow-motor-contact-git-recovery-01/build/crow-motor-contact-build-01/ir-calibration.stdout",
+    "sha256": "6e0fe308690afd1db01ebd5fad8805d02f5dc6ffabf9ae48a8259bd9c3fff405"
+  },
+  {
+    "archive_source": "build/crow-motor-contact-build-01/joint-precision.stderr",
+    "bytes": 84601,
+    "mode": 420,
+    "mtime_ns": 1794134515451730622,
+    "path": "build/crow-motor-contact-git-recovery-01/build/crow-motor-contact-build-01/joint-precision.stderr",
+    "sha256": "2f3dd5d73ad35a51c3dffff0d6b47b2afc2983ed2bc9cb3371138424a80308f3"
+  },
+  {
+    "archive_source": "build/crow-motor-contact-build-01/joint-precision.stdout",
+    "bytes": 7260,
+    "mode": 420,
+    "mtime_ns": 1794134515652164271,
+    "path": "build/crow-motor-contact-git-recovery-01/build/crow-motor-contact-build-01/joint-precision.stdout",
+    "sha256": "ede181613f621fb4fda289c32a29483c9cc3009651fc073a014c2c23137400ee"
+  },
+  {
+    "archive_source": "build/crow-motor-contact-build-01/joint-unused.stderr",
+    "bytes": 84635,
+    "mode": 420,
+    "mtime_ns": 1794134334190040002,
+    "path": "build/crow-motor-contact-git-recovery-01/build/crow-motor-contact-build-01/joint-unused.stderr",
+    "sha256": "119b73a6524956757b19d9346715aee6a744f9a63a0a9403543142235fde9baf"
+  },
+  {
+    "archive_source": "build/crow-motor-contact-build-01/joint-unused.stdout",
+    "bytes": 3076,
+    "mode": 420,
+    "mtime_ns": 1794134334187682067,
+    "path": "build/crow-motor-contact-git-recovery-01/build/crow-motor-contact-build-01/joint-unused.stdout",
+    "sha256": "59f6b04e679aab77fde5a8d0503b34c321ee40490915aaa4c3e9c9926113a558"
+  },
+  {
+    "archive_source": "build/crow-motor-contact-build-01/local-drafts/analyze_precision.py",
+    "bytes": 1218,
+    "mode": 420,
+    "mtime_ns": 1794134591000000000,
+    "path": "build/crow-motor-contact-git-recovery-01/build/crow-motor-contact-build-01/local-drafts/analyze_precision.py",
+    "sha256": "0f6c3cfd0a420b428de2e6d30572d43982c131cc62ef6bd8a0b1c45e12081e65"
+  },
+  {
+    "archive_source": "build/crow-motor-contact-build-01/local-drafts/cleanup_git_recovery.py",
+    "bytes": 2663,
+    "mode": 420,
+    "mtime_ns": 1794135013000000000,
+    "path": "build/crow-motor-contact-git-recovery-01/build/crow-motor-contact-build-01/local-drafts/cleanup_git_recovery.py",
+    "sha256": "3325dde48ad43eb919d2c5e919779f4f9e3f5f11e5764fccacfee66bd3686db1"
+  },
+  {
+    "archive_source": "build/crow-motor-contact-build-01/local-drafts/cleanup_local_recovery.py",
+    "bytes": 2429,
+    "mode": 420,
+    "mtime_ns": 1794134987000000000,
+    "path": "build/crow-motor-contact-git-recovery-01/build/crow-motor-contact-build-01/local-drafts/cleanup_local_recovery.py",
+    "sha256": "c5d5bbe407c4fc646964d19bc59a029dacd21e44884aa7a92e08cf3b04d2379a"
+  },
+  {
+    "archive_source": "build/crow-motor-contact-build-01/local-drafts/coupled_function.cpp",
+    "bytes": 5921,
+    "mode": 420,
+    "mtime_ns": 1794133828000000000,
+    "path": "build/crow-motor-contact-git-recovery-01/build/crow-motor-contact-build-01/local-drafts/coupled_function.cpp",
+    "sha256": "f7396cbeb2e4bd33c8b5d04ec18b052fa98033fb454593b83f014c058ef070cb"
+  },
+  {
+    "archive_source": "build/crow-motor-contact-build-01/local-drafts/execute_git_recovery.py",
+    "bytes": 6829,
+    "mode": 420,
+    "mtime_ns": 1794134987000000000,
+    "path": "build/crow-motor-contact-git-recovery-01/build/crow-motor-contact-build-01/local-drafts/execute_git_recovery.py",
+    "sha256": "624f71eb0d70a07307a3dbfcc5066b5b036f4b15279c8c360837a4d685f66c8c"
+  },
+  {
+    "archive_source": "build/crow-motor-contact-build-01/local-drafts/extend_precision.py",
+    "bytes": 3053,
+    "mode": 420,
+    "mtime_ns": 1794134419000000000,
+    "path": "build/crow-motor-contact-git-recovery-01/build/crow-motor-contact-build-01/local-drafts/extend_precision.py",
+    "sha256": "7b361555c65e281e08b9ae54acb60883196756bef3ddedc225d0b6c0e97392d3"
+  },
+  {
+    "archive_source": "build/crow-motor-contact-build-01/local-drafts/extend_probe.py",
+    "bytes": 717,
+    "mode": 420,
+    "mtime_ns": 1794133828000000000,
+    "path": "build/crow-motor-contact-git-recovery-01/build/crow-motor-contact-build-01/local-drafts/extend_probe.py",
+    "sha256": "4f08549c7199fc097f297e10eb27bd6d9310036a9d96dc6b98ef03fc1ce07168"
+  },
+  {
+    "archive_source": "build/crow-motor-contact-build-01/local-drafts/fix_quality_factor.py",
+    "bytes": 1739,
+    "mode": 420,
+    "mtime_ns": 1794134200000000000,
+    "path": "build/crow-motor-contact-git-recovery-01/build/crow-motor-contact-build-01/local-drafts/fix_quality_factor.py",
+    "sha256": "cfd39b83297fa02cc1140e3b74b2e93f6160b38fedcd04ef0ea6e6b532b77d0e"
+  },
+  {
+    "archive_source": "build/crow-motor-contact-build-01/local-drafts/motor_contact_probe.cpp",
+    "bytes": 8250,
+    "mode": 420,
+    "mtime_ns": 1794133473000000000,
+    "path": "build/crow-motor-contact-git-recovery-01/build/crow-motor-contact-build-01/local-drafts/motor_contact_probe.cpp",
+    "sha256": "499e76a63481ccfa69865eac8fa8908ecd642b7631a51e753dbc008bcd71971d"
+  },
+  {
+    "archive_source": "build/crow-motor-contact-build-01/local-drafts/motor_contact_probe_current.cpp",
+    "bytes": 8248,
+    "mode": 420,
+    "mtime_ns": 1794133828000000000,
+    "path": "build/crow-motor-contact-git-recovery-01/build/crow-motor-contact-build-01/local-drafts/motor_contact_probe_current.cpp",
+    "sha256": "3991a467d63d148fd8cc492c2822b783756ea7b40694d7735963b8633879c09e"
+  },
+  {
+    "archive_source": "build/crow-motor-contact-build-01/local-drafts/prepare.py",
+    "bytes": 4264,
+    "mode": 420,
+    "mtime_ns": 1794133612000000000,
+    "path": "build/crow-motor-contact-git-recovery-01/build/crow-motor-contact-build-01/local-drafts/prepare.py",
+    "sha256": "6bc3e1a0c9877c24a44a0a5a936c1081d82aa2ae34f959d9a84dfb7b4d2c31b2"
+  },
+  {
+    "archive_source": "build/crow-motor-contact-build-01/local-drafts/prepare_factor_fix.py",
+    "bytes": 4885,
+    "mode": 420,
+    "mtime_ns": 1794134328000000000,
+    "path": "build/crow-motor-contact-git-recovery-01/build/crow-motor-contact-build-01/local-drafts/prepare_factor_fix.py",
+    "sha256": "49dd363e7590b6db6ec11cb21d8236bb37d09ad78713efae124f032b217d34ce"
+  },
+  {
+    "archive_source": "build/crow-motor-contact-build-01/local-drafts/prepare_ir.py",
+    "bytes": 4634,
+    "mode": 420,
+    "mtime_ns": 1794133990000000000,
+    "path": "build/crow-motor-contact-git-recovery-01/build/crow-motor-contact-build-01/local-drafts/prepare_ir.py",
+    "sha256": "23076d2c4e3eab92d7c23a3487403c8e711f5bda04a63c3b8a577b3ff25219fb"
+  },
+  {
+    "archive_source": "build/crow-motor-contact-build-01/local-drafts/prepare_precision.py",
+    "bytes": 3612,
+    "mode": 420,
+    "mtime_ns": 1794134511000000000,
+    "path": "build/crow-motor-contact-git-recovery-01/build/crow-motor-contact-build-01/local-drafts/prepare_precision.py",
+    "sha256": "c76656e20652e9554bf3113e4819c0537f95b060eff640892147512159d5a83d"
+  },
+  {
+    "archive_source": "build/crow-motor-contact-build-01/local-drafts/run.py",
+    "bytes": 2807,
+    "mode": 420,
+    "mtime_ns": 1794133612000000000,
+    "path": "build/crow-motor-contact-git-recovery-01/build/crow-motor-contact-build-01/local-drafts/run.py",
+    "sha256": "5223708562b534c74c3cd4d988b4b6792fcf3fb205c56317e411096db8d3b8d7"
+  },
+  {
+    "archive_source": "build/crow-motor-contact-build-01/local-drafts/run_factor_fix.py",
+    "bytes": 3896,
+    "mode": 420,
+    "mtime_ns": 1794134328000000000,
+    "path": "build/crow-motor-contact-git-recovery-01/build/crow-motor-contact-build-01/local-drafts/run_factor_fix.py",
+    "sha256": "056277c98ecb5749e1c71a5d03686f533384e18a1c21bfe3f7f7090ac3cff1ea"
+  },
+  {
+    "archive_source": "build/crow-motor-contact-build-01/local-drafts/run_ir.py",
+    "bytes": 3093,
+    "mode": 420,
+    "mtime_ns": 1794133990000000000,
+    "path": "build/crow-motor-contact-git-recovery-01/build/crow-motor-contact-build-01/local-drafts/run_ir.py",
+    "sha256": "e8f0e2816e2265a0adaf3b95317d6169d2615f78dd07d180ad6784005c2de9a0"
+  },
+  {
+    "archive_source": "build/crow-motor-contact-build-01/local-drafts/run_precision.py",
+    "bytes": 3935,
+    "mode": 420,
+    "mtime_ns": 1794134511000000000,
+    "path": "build/crow-motor-contact-git-recovery-01/build/crow-motor-contact-build-01/local-drafts/run_precision.py",
+    "sha256": "bbf776e506023ea427afff8af4056160b9cfd942c40d6bbc08ced9384f2e9902"
+  },
+  {
+    "archive_source": "build/crow-motor-contact-build-01/local-drafts/summarize.py",
+    "bytes": 5566,
+    "mode": 420,
+    "mtime_ns": 1794134740000000000,
+    "path": "build/crow-motor-contact-git-recovery-01/build/crow-motor-contact-build-01/local-drafts/summarize.py",
+    "sha256": "a2cd6af3cfac5e64bec893568c28ed78506518a74bf68b1b1c2285d9f4541039"
+  },
+  {
+    "archive_source": "build/crow-motor-contact-build-01/local-drafts/theory.py",
+    "bytes": 1222,
+    "mode": 420,
+    "mtime_ns": 1794133990000000000,
+    "path": "build/crow-motor-contact-git-recovery-01/build/crow-motor-contact-build-01/local-drafts/theory.py",
+    "sha256": "a0498e3bdfdf8d908cebb7cc25fa0671a114e92423465ec64491cc9bc619a872"
+  },
+  {
+    "archive_source": "build/crow-motor-contact-build-01/local-drafts/verify_local_recovery.py",
+    "bytes": 1496,
+    "mode": 420,
+    "mtime_ns": 1794134987000000000,
+    "path": "build/crow-motor-contact-git-recovery-01/build/crow-motor-contact-build-01/local-drafts/verify_local_recovery.py",
+    "sha256": "82592c2952a9e3b2ecc7c1881fc11bcc1f4c134301ae9131c1bdf8b5cdafbf61"
+  },
+  {
+    "archive_source": "build/crow-motor-contact-build-01/momentum-replay.stderr",
+    "bytes": 84601,
+    "mode": 420,
+    "mtime_ns": 1794134515376070740,
+    "path": "build/crow-motor-contact-git-recovery-01/build/crow-motor-contact-build-01/momentum-replay.stderr",
+    "sha256": "5c3118602102103c0feb26487652cd6e8689e01523fad052384600c84e2547b6"
+  },
+  {
+    "archive_source": "build/crow-motor-contact-build-01/momentum-replay.stdout",
+    "bytes": 108,
+    "mode": 420,
+    "mtime_ns": 1794134515408012781,
+    "path": "build/crow-motor-contact-git-recovery-01/build/crow-motor-contact-build-01/momentum-replay.stdout",
+    "sha256": "c1a0342fe63f051352c92a2a653ed09a8d01ddd42457c5ebaf452800832e6373"
+  },
+  {
+    "archive_source": "build/crow-motor-contact-build-01/momentum-replay.tsv",
+    "bytes": 413,
+    "mode": 420,
+    "mtime_ns": 1794134515406071057,
+    "path": "build/crow-motor-contact-git-recovery-01/build/crow-motor-contact-build-01/momentum-replay.tsv",
+    "sha256": "1a68fb6532f390ac90ac5e9cbd483401099ff2271ce1ff1d9c090bcddd6d6886"
+  },
+  {
+    "archive_source": "build/crow-motor-contact-build-01/native.stderr",
+    "bytes": 84569,
+    "mode": 420,
+    "mtime_ns": 1794133617256875529,
+    "path": "build/crow-motor-contact-git-recovery-01/build/crow-motor-contact-build-01/native.stderr",
+    "sha256": "0fe19497953de637d2eb3442159845bb0a260fcc9b4f67fa785f5c41977de904"
+  },
+  {
+    "archive_source": "build/crow-motor-contact-build-01/native.stdout",
+    "bytes": 2061,
+    "mode": 420,
+    "mtime_ns": 1794133617320568860,
+    "path": "build/crow-motor-contact-git-recovery-01/build/crow-motor-contact-build-01/native.stdout",
+    "sha256": "de5f86282d0a84b78e22b5ed11168857003b2dc21b77fe6ff8500d6e4e40bc23"
+  },
+  {
+    "archive_source": "build/crow-motor-contact-build-01/native.tsv",
+    "bytes": 29881,
+    "mode": 420,
+    "mtime_ns": 1794133617319102890,
+    "path": "build/crow-motor-contact-git-recovery-01/build/crow-motor-contact-build-01/native.tsv",
+    "sha256": "7874291e470c85c04facd183997d9332168bc65dd6be48249eccaff34b497c61"
+  },
+  {
+    "archive_source": "build/crow-motor-contact-build-01/quality-factor-full-build.stderr",
+    "bytes": 0,
+    "mode": 420,
+    "mtime_ns": 1794134419980830806,
+    "path": "build/crow-motor-contact-git-recovery-01/build/crow-motor-contact-build-01/precision-build.stderr",
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  {
+    "archive_source": "build/crow-motor-contact-build-01/precision-build.stdout",
+    "bytes": 165,
+    "mode": 420,
+    "mtime_ns": 1794134420785833926,
+    "path": "build/crow-motor-contact-git-recovery-01/build/crow-motor-contact-build-01/precision-build.stdout",
+    "sha256": "094f3c656f05c8a69ea82c38de26e602fe7c8b576fd12191dc410e05c88527f7"
+  },
+  {
+    "archive_source": "build/crow-motor-contact-build-01/quality-factor-full-build.stderr",
+    "bytes": 0,
+    "mode": 420,
+    "mtime_ns": 1794134420786812933,
+    "path": "build/crow-motor-contact-git-recovery-01/build/crow-motor-contact-build-01/precision-calibration.stderr",
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  {
+    "archive_source": "build/crow-motor-contact-build-01/precision-calibration.stdout",
+    "bytes": 73,
+    "mode": 420,
+    "mtime_ns": 1794134421305832362,
+    "path": "build/crow-motor-contact-git-recovery-01/build/crow-motor-contact-build-01/precision-calibration.stdout",
+    "sha256": "d1a2336331e65c7d9c864befbea9fdb04a7f61b8401afc77d7aef6250f4dd7b2"
+  },
+  {
+    "archive_source": "build/crow-motor-contact-build-01/local-drafts/prepare.py",
+    "bytes": 4264,
+    "mode": 420,
+    "mtime_ns": 1794133613583063303,
+    "path": "build/crow-motor-contact-git-recovery-01/build/crow-motor-contact-build-01/prepare.py",
+    "sha256": "6bc3e1a0c9877c24a44a0a5a936c1081d82aa2ae34f959d9a84dfb7b4d2c31b2"
+  },
+  {
+    "archive_source": "build/crow-motor-contact-build-01/local-drafts/prepare_factor_fix.py",
+    "bytes": 4885,
+    "mode": 420,
+    "mtime_ns": 1794134329363116431,
+    "path": "build/crow-motor-contact-git-recovery-01/build/crow-motor-contact-build-01/prepare_factor_fix.py",
+    "sha256": "49dd363e7590b6db6ec11cb21d8236bb37d09ad78713efae124f032b217d34ce"
+  },
+  {
+    "archive_source": "build/crow-motor-contact-build-01/local-drafts/prepare_ir.py",
+    "bytes": 4634,
+    "mode": 420,
+    "mtime_ns": 1794133990642573409,
+    "path": "build/crow-motor-contact-git-recovery-01/build/crow-motor-contact-build-01/prepare_ir.py",
+    "sha256": "23076d2c4e3eab92d7c23a3487403c8e711f5bda04a63c3b8a577b3ff25219fb"
+  },
+  {
+    "archive_source": "build/crow-motor-contact-build-01/local-drafts/prepare_precision.py",
+    "bytes": 3612,
+    "mode": 420,
+    "mtime_ns": 1794134512143750872,
+    "path": "build/crow-motor-contact-git-recovery-01/build/crow-motor-contact-build-01/prepare_precision.py",
+    "sha256": "c76656e20652e9554bf3113e4819c0537f95b060eff640892147512159d5a83d"
+  },
+  {
+    "archive_source": "build/crow-motor-contact-build-01/local-drafts/motor_contact_probe_current.cpp",
+    "bytes": 8248,
+    "mode": 420,
+    "mtime_ns": 1794133829257772394,
+    "path": "build/crow-motor-contact-git-recovery-01/build/crow-motor-contact-build-01/probe-baseline.cpp",
+    "sha256": "3991a467d63d148fd8cc492c2822b783756ea7b40694d7735963b8633879c09e"
+  },
+  {
+    "archive_source": "build/crow-motor-contact-build-01/probe-before-precision.cpp",
+    "bytes": 14633,
+    "mode": 420,
+    "mtime_ns": 1794134419978573913,
+    "path": "build/crow-motor-contact-git-recovery-01/build/crow-motor-contact-build-01/probe-before-precision.cpp",
+    "sha256": "1e4cafd2ed90697f20e0ca1b90ce59ede451c92a573ddd3a98d68960b9920bfb"
+  },
+  {
+    "archive_source": "build/crow-motor-contact-build-01/probe-before-quality-factor.cpp",
+    "bytes": 14186,
+    "mode": 420,
+    "mtime_ns": 1794134200806591488,
+    "path": "build/crow-motor-contact-git-recovery-01/build/crow-motor-contact-build-01/probe-before-quality-factor.cpp",
+    "sha256": "b94690d0e6694d70aad564b0b4ac7d36890264dd708cacae2628214bf40d7292"
+  },
+  {
+    "archive_source": "build/crow-motor-contact-build-01/local-drafts/motor_contact_probe.cpp",
+    "bytes": 8250,
+    "mode": 420,
+    "mtime_ns": 1794133517921928689,
+    "path": "build/crow-motor-contact-git-recovery-01/build/crow-motor-contact-build-01/probe-compile-failure.cpp",
+    "sha256": "499e76a63481ccfa69865eac8fa8908ecd642b7631a51e753dbc008bcd71971d"
+  },
+  {
+    "archive_source": "build/crow-motor-contact-build-01/probe-ir-unused-reference.cpp",
+    "bytes": 14334,
+    "mode": 420,
+    "mtime_ns": 1794133901304926283,
+    "path": "build/crow-motor-contact-git-recovery-01/build/crow-motor-contact-build-01/probe-ir-unused-reference.cpp",
+    "sha256": "91d74e605964337363ffa343b4cf39b69ab96eb3e7feb775049c71a7bbc564db"
+  },
+  {
+    "archive_source": "build/crow-motor-contact-build-01/quality-factor-full-build.stderr",
+    "bytes": 0,
+    "mode": 420,
+    "mtime_ns": 1794134200808410960,
+    "path": "build/crow-motor-contact-git-recovery-01/build/crow-motor-contact-build-01/quality-factor-full-build.stderr",
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  {
+    "archive_source": "build/crow-motor-contact-build-01/quality-factor-full-build.stdout",
+    "bytes": 8484,
+    "mode": 420,
+    "mtime_ns": 1794134206446408614,
+    "path": "build/crow-motor-contact-git-recovery-01/build/crow-motor-contact-build-01/quality-factor-full-build.stdout",
+    "sha256": "f603b3647a6aa4acd6ac7c0c7cbce1efbf5c63a515254bcaca3a9235375ad6f4"
+  },
+  {
+    "archive_source": "build/crow-motor-contact-build-01/local-drafts/run.py",
+    "bytes": 2807,
+    "mode": 420,
+    "mtime_ns": 1794133613818972770,
+    "path": "build/crow-motor-contact-git-recovery-01/build/crow-motor-contact-build-01/run.py",
+    "sha256": "5223708562b534c74c3cd4d988b4b6792fcf3fb205c56317e411096db8d3b8d7"
+  },
+  {
+    "archive_source": "build/crow-motor-contact-build-01/local-drafts/run_factor_fix.py",
+    "bytes": 3896,
+    "mode": 420,
+    "mtime_ns": 1794134329404663298,
+    "path": "build/crow-motor-contact-git-recovery-01/build/crow-motor-contact-build-01/run_factor_fix.py",
+    "sha256": "056277c98ecb5749e1c71a5d03686f533384e18a1c21bfe3f7f7090ac3cff1ea"
+  },
+  {
+    "archive_source": "build/crow-motor-contact-build-01/local-drafts/run_ir.py",
+    "bytes": 3093,
+    "mode": 420,
+    "mtime_ns": 1794133990691659959,
+    "path": "build/crow-motor-contact-git-recovery-01/build/crow-motor-contact-build-01/run_ir.py",
+    "sha256": "e8f0e2816e2265a0adaf3b95317d6169d2615f78dd07d180ad6784005c2de9a0"
+  },
+  {
+    "archive_source": "build/crow-motor-contact-build-01/local-drafts/run_precision.py",
+    "bytes": 3935,
+    "mode": 420,
+    "mtime_ns": 1794134512186069786,
+    "path": "build/crow-motor-contact-git-recovery-01/build/crow-motor-contact-build-01/run_precision.py",
+    "sha256": "bbf776e506023ea427afff8af4056160b9cfd942c40d6bbc08ced9384f2e9902"
+  },
+  {
+    "archive_source": "build/crow-motor-contact-build-01/local-drafts/summarize.py",
+    "bytes": 5566,
+    "mode": 420,
+    "mtime_ns": 1794134741120790619,
+    "path": "build/crow-motor-contact-git-recovery-01/build/crow-motor-contact-build-01/summarize.py",
+    "sha256": "a2cd6af3cfac5e64bec893568c28ed78506518a74bf68b1b1c2285d9f4541039"
+  },
+  {
+    "archive_source": "build/crow-motor-contact-build-01/local-drafts/theory.py",
+    "bytes": 1222,
+    "mode": 420,
+    "mtime_ns": 1794133990610495283,
+    "path": "build/crow-motor-contact-git-recovery-01/build/crow-motor-contact-build-01/theory.py",
+    "sha256": "a0498e3bdfdf8d908cebb7cc25fa0671a114e92423465ec64491cc9bc619a872"
+  },
+  {
+    "archive_source": "build/crow-motor-contact-build-01/default-crow/final-q.f32",
+    "bytes": 368,
+    "mode": 420,
+    "mtime_ns": 1794135092997555341,
+    "path": "build/crow-motor-contact-git-recovery-01/default-crow/final-q.f32",
+    "sha256": "4e2e5c58b6a0480f8598fc89078001a646f40c42cad195fb2151ccd03fa2dd42"
+  },
+  {
+    "archive_source": "build/crow-motor-contact-build-01/default-crow/final-scene.bin",
+    "bytes": 1024,
+    "mode": 420,
+    "mtime_ns": 1794135092997683132,
+    "path": "build/crow-motor-contact-git-recovery-01/default-crow/final-scene.bin",
+    "sha256": "e17303c190a55c2485cf89dc4fedcc213fdcad7b17ed95e0e71affdb3240f090"
+  },
+  {
+    "archive_source": "build/crow-motor-contact-build-01/default-crow/final-v.f32",
+    "bytes": 352,
+    "mode": 420,
+    "mtime_ns": 1794135092997642716,
+    "path": "build/crow-motor-contact-git-recovery-01/default-crow/final-v.f32",
+    "sha256": "a1a1ec18b8e3f9c0dd21a8089e5bb2a7fabc41590a2cbf6d24ccdf2fadfb9a27"
+  },
+  {
+    "archive_source": "build/crow-motor-contact-build-01/default-crow/initial-geometry.json",
+    "bytes": 545,
+    "mode": 420,
+    "mtime_ns": 1794135076305663625,
+    "path": "build/crow-motor-contact-git-recovery-01/default-crow/initial-geometry.json",
+    "sha256": "f3fbd6a4f092ad15217f903bd9c6019120cf6460ae86334981373554d2035af7"
+  },
+  {
+    "archive_source": "build/crow-motor-contact-build-01/default-crow/initial-q.f32",
+    "bytes": 368,
+    "mode": 420,
+    "mtime_ns": 1794135076305819791,
+    "path": "build/crow-motor-contact-git-recovery-01/default-crow/initial-q.f32",
+    "sha256": "012493a2009920bf13b46924788f4473314584704e8857f9bedfd13700e12b28"
+  },
+  {
+    "archive_source": "build/crow-motor-contact-build-01/default-crow/initial-scene.bin",
+    "bytes": 1024,
+    "mode": 420,
+    "mtime_ns": 1794135076306017623,
+    "path": "build/crow-motor-contact-git-recovery-01/default-crow/initial-scene.bin",
+    "sha256": "7e108f9bf6b038494639e99ef211d6fc51f527a33c0aa430c587d4da3563ea57"
+  },
+  {
+    "archive_source": "build/crow-motor-contact-build-01/default-crow/initial-v.f32",
+    "bytes": 352,
+    "mode": 420,
+    "mtime_ns": 1794135076305922999,
+    "path": "build/crow-motor-contact-git-recovery-01/default-crow/initial-v.f32",
+    "sha256": "627f6149015f853f26db2f3dffba1b7c30b3b74b87c5cfb9f346c1616e3636d0"
+  },
+  {
+    "bytes": 211,
+    "mode": 420,
+    "mtime_ns": 1794135092997938047,
+    "path": "build/crow-motor-contact-git-recovery-01/default-crow/runtime.json",
+    "recovery_blob": "artifacts/crow-rl-git-recovery-motor-contact-20261108/recovery-blobs/86b38bb0db957dcd7460cf427a8cc06b85397d82a8ac56562d3662338b072651.gz",
+    "sha256": "86b38bb0db957dcd7460cf427a8cc06b85397d82a8ac56562d3662338b072651"
+  },
+  {
+    "archive_source": "build/crow-motor-contact-build-01/default-crow/scene.bin",
+    "bytes": 163840,
+    "mode": 420,
+    "mtime_ns": 1794135092997831506,
+    "path": "build/crow-motor-contact-git-recovery-01/default-crow/scene.bin",
+    "sha256": "097626c065e50e37de0ee98a27615074704765f6106dbcd9ae8c08057557183e"
+  },
+  {
+    "archive_source": "build/crow-motor-contact-build-01/default-crow/summary.json",
+    "bytes": 757,
+    "mode": 420,
+    "mtime_ns": 1794135092997917506,
+    "path": "build/crow-motor-contact-git-recovery-01/default-crow/summary.json",
+    "sha256": "765c15edef424eb00d3468993f7c7cd044aac3a3fc5b0104fc7a05649948e9c9"
+  },
+  {
+    "archive_source": "build/crow-motor-contact-build-01/default-crow/trace.tsv",
+    "bytes": 141362,
+    "mode": 420,
+    "mtime_ns": 1794135092997944881,
+    "path": "build/crow-motor-contact-git-recovery-01/default-crow/trace.tsv",
+    "sha256": "8507cc679736d3d7685068427e49fe089bcad120a9e709cbdfe56271c9b3c921"
+  },
+  {
+    "archive_source": "build/crow-motor-contact-build-01/coupled.tsv",
+    "bytes": 411,
+    "mode": 420,
+    "mtime_ns": 1794135073717443348,
+    "path": "build/crow-motor-contact-git-recovery-01/empty-factor.tsv",
+    "sha256": "542638791a55d9814a26281564a1b0b8d40767b67daebce3240e16167a23f547"
+  },
+  {
+    "archive_source": "build/crow-motor-contact-build-01/coupled-unused.tsv",
+    "bytes": 15125,
+    "mode": 420,
+    "mtime_ns": 1794135074468682916,
+    "path": "build/crow-motor-contact-git-recovery-01/factor-fixed.tsv",
+    "sha256": "cf11f2b5005d3c7e1111359fad67caf57872c8865d40d1d8ddcf082db3de8fae"
+  },
+  {
+    "archive_source": "build/crow-motor-contact-build-01/coupled-precision.tsv",
+    "bytes": 33955,
+    "mode": 420,
+    "mtime_ns": 1794135075102340941,
+    "path": "build/crow-motor-contact-git-recovery-01/joint.tsv",
+    "sha256": "2157a7825b052afa654555c006f3cb14f3009c5ad8a9cfde48f54f5c8b592c16"
+  },
+  {
+    "archive_source": "build/crow-motor-contact-build-01/momentum-replay.tsv",
+    "bytes": 413,
+    "mode": 420,
+    "mtime_ns": 1794135074881664559,
+    "path": "build/crow-motor-contact-git-recovery-01/momentum.tsv",
+    "sha256": "1a68fb6532f390ac90ac5e9cbd483401099ff2271ce1ff1d9c090bcddd6d6886"
+  },
+  {
+    "archive_source": "build/crow-motor-contact-build-01/native.tsv",
+    "bytes": 29881,
+    "mode": 420,
+    "mtime_ns": 1794135073345117544,
+    "path": "build/crow-motor-contact-git-recovery-01/original.tsv",
+    "sha256": "7874291e470c85c04facd183997d9332168bc65dd6be48249eccaff34b497c61"
+  }
+]

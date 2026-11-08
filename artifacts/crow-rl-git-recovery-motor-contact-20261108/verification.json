@@ -1,0 +1,15 @@
+{
+  "all_compared_bytes_exact": true,
+  "byte_exact_comparisons": 15,
+  "limits": "Scoped native recovery of existing observations; no new scientific qualification. Old uninitialized-factor failure is checked by its typed diagnostic, with its defined one-row prefix compared exactly.",
+  "manifest": "artifacts/crow-rl-motor-contact-20261108/payload/manifest.json",
+  "manifest_sha256": "995bf24b97426b4afcee04c0fc5ec8dab22e3a992150a80a217c47e9d2a69f45",
+  "native_commands": 7,
+  "new_recovery_blobs": 1,
+  "open_handles": 0,
+  "policy_or_profile_promoted": false,
+  "restored_bytes": 22501062,
+  "restored_files": 107,
+  "temporary_bytes": 22891050,
+  "temporary_files": 123
+}

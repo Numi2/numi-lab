@@ -1,0 +1,92 @@
+[
+  {
+    "actual": "original.tsv",
+    "byte_exact": true,
+    "reference": "build/crow-motor-contact-build-01/native.tsv",
+    "sha256": "7874291e470c85c04facd183997d9332168bc65dd6be48249eccaff34b497c61"
+  },
+  {
+    "actual": "empty-factor.tsv",
+    "byte_exact": true,
+    "reference": "build/crow-motor-contact-build-01/coupled.tsv",
+    "sha256": "542638791a55d9814a26281564a1b0b8d40767b67daebce3240e16167a23f547"
+  },
+  {
+    "actual": "factor-fixed.tsv",
+    "byte_exact": true,
+    "reference": "build/crow-motor-contact-build-01/coupled-unused.tsv",
+    "sha256": "cf11f2b5005d3c7e1111359fad67caf57872c8865d40d1d8ddcf082db3de8fae"
+  },
+  {
+    "actual": "momentum.tsv",
+    "byte_exact": true,
+    "reference": "build/crow-motor-contact-build-01/momentum-replay.tsv",
+    "sha256": "1a68fb6532f390ac90ac5e9cbd483401099ff2271ce1ff1d9c090bcddd6d6886"
+  },
+  {
+    "actual": "joint.tsv",
+    "byte_exact": true,
+    "reference": "build/crow-motor-contact-build-01/coupled-precision.tsv",
+    "sha256": "2157a7825b052afa654555c006f3cb14f3009c5ad8a9cfde48f54f5c8b592c16"
+  },
+  {
+    "actual": "default-crow/final-q.f32",
+    "byte_exact": true,
+    "reference": "build/crow-motor-contact-build-01/default-crow/final-q.f32",
+    "sha256": "4e2e5c58b6a0480f8598fc89078001a646f40c42cad195fb2151ccd03fa2dd42"
+  },
+  {
+    "actual": "default-crow/final-scene.bin",
+    "byte_exact": true,
+    "reference": "build/crow-motor-contact-build-01/default-crow/final-scene.bin",
+    "sha256": "e17303c190a55c2485cf89dc4fedcc213fdcad7b17ed95e0e71affdb3240f090"
+  },
+  {
+    "actual": "default-crow/final-v.f32",
+    "byte_exact": true,
+    "reference": "build/crow-motor-contact-build-01/default-crow/final-v.f32",
+    "sha256": "a1a1ec18b8e3f9c0dd21a8089e5bb2a7fabc41590a2cbf6d24ccdf2fadfb9a27"
+  },
+  {
+    "actual": "default-crow/initial-geometry.json",
+    "byte_exact": true,
+    "reference": "build/crow-motor-contact-build-01/default-crow/initial-geometry.json",
+    "sha256": "f3fbd6a4f092ad15217f903bd9c6019120cf6460ae86334981373554d2035af7"
+  },
+  {
+    "actual": "default-crow/initial-q.f32",
+    "byte_exact": true,
+    "reference": "build/crow-motor-contact-build-01/default-crow/initial-q.f32",
+    "sha256": "012493a2009920bf13b46924788f4473314584704e8857f9bedfd13700e12b28"
+  },
+  {
+    "actual": "default-crow/initial-scene.bin",
+    "byte_exact": true,
+    "reference": "build/crow-motor-contact-build-01/default-crow/initial-scene.bin",
+    "sha256": "7e108f9bf6b038494639e99ef211d6fc51f527a33c0aa430c587d4da3563ea57"
+  },
+  {
+    "actual": "default-crow/initial-v.f32",
+    "byte_exact": true,
+    "reference": "build/crow-motor-contact-build-01/default-crow/initial-v.f32",
+    "sha256": "627f6149015f853f26db2f3dffba1b7c30b3b74b87c5cfb9f346c1616e3636d0"
+  },
+  {
+    "actual": "default-crow/scene.bin",
+    "byte_exact": true,
+    "reference": "build/crow-motor-contact-build-01/default-crow/scene.bin",
+    "sha256": "097626c065e50e37de0ee98a27615074704765f6106dbcd9ae8c08057557183e"
+  },
+  {
+    "actual": "default-crow/summary.json",
+    "byte_exact": true,
+    "reference": "build/crow-motor-contact-build-01/default-crow/summary.json",
+    "sha256": "765c15edef424eb00d3468993f7c7cd044aac3a3fc5b0104fc7a05649948e9c9"
+  },
+  {
+    "actual": "default-crow/trace.tsv",
+    "byte_exact": true,
+    "reference": "build/crow-motor-contact-build-01/default-crow/trace.tsv",
+    "sha256": "8507cc679736d3d7685068427e49fe089bcad120a9e709cbdfe56271c9b3c921"
+  }
+]

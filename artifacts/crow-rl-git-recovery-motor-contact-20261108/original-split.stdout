@@ -1,0 +1,25 @@
+phase=0 variant=0 h=0.00025 contact=0 accepted=4 device=Apple M4 Pro gpu_ms=4.55375
+phase=0 variant=0 h=0.00025 contact=1 accepted=4 device=Apple M4 Pro gpu_ms=1.23637
+phase=0 variant=0 h=0.000625 contact=0 accepted=4 device=Apple M4 Pro gpu_ms=0.635167
+phase=0 variant=0 h=0.000625 contact=1 accepted=4 device=Apple M4 Pro gpu_ms=1.24838
+phase=0 variant=0 h=0.001 contact=0 accepted=4 device=Apple M4 Pro gpu_ms=0.659
+phase=0 variant=0 h=0.001 contact=1 accepted=4 device=Apple M4 Pro gpu_ms=1.21188
+phase=0 variant=1 h=0.00025 contact=0 accepted=4 device=Apple M4 Pro gpu_ms=0.6605
+phase=0 variant=1 h=0.00025 contact=1 accepted=4 device=Apple M4 Pro gpu_ms=1.25521
+phase=0 variant=1 h=0.000625 contact=0 accepted=4 device=Apple M4 Pro gpu_ms=0.66025
+phase=0 variant=1 h=0.000625 contact=1 accepted=4 device=Apple M4 Pro gpu_ms=1.16567
+phase=0 variant=1 h=0.001 contact=0 accepted=4 device=Apple M4 Pro gpu_ms=0.622583
+phase=0 variant=1 h=0.001 contact=1 accepted=4 device=Apple M4 Pro gpu_ms=1.23942
+phase=1 variant=0 h=0.00025 contact=0 accepted=4 device=Apple M4 Pro gpu_ms=0.821625
+phase=1 variant=0 h=0.000625 contact=0 accepted=4 device=Apple M4 Pro gpu_ms=0.817875
+phase=1 variant=0 h=0.001 contact=0 accepted=4 device=Apple M4 Pro gpu_ms=0.81425
+phase=1 variant=1 h=0.00025 contact=0 accepted=4 device=Apple M4 Pro gpu_ms=0.804375
+phase=1 variant=1 h=0.000625 contact=0 accepted=4 device=Apple M4 Pro gpu_ms=0.801375
+phase=1 variant=1 h=0.001 contact=0 accepted=4 device=Apple M4 Pro gpu_ms=0.798625
+phase=2 variant=0 h=0.00025 contact=1 accepted=4 device=Apple M4 Pro gpu_ms=1.36175
+phase=2 variant=0 h=0.000625 contact=1 accepted=4 device=Apple M4 Pro gpu_ms=1.39875
+phase=2 variant=0 h=0.001 contact=1 accepted=4 device=Apple M4 Pro gpu_ms=1.36137
+phase=2 variant=1 h=0.00025 contact=1 accepted=4 device=Apple M4 Pro gpu_ms=1.34421
+phase=2 variant=1 h=0.000625 contact=1 accepted=4 device=Apple M4 Pro gpu_ms=1.3775
+phase=2 variant=1 h=0.001 contact=1 accepted=4 device=Apple M4 Pro gpu_ms=1.37525
+96 accepted native slider conditions completed
