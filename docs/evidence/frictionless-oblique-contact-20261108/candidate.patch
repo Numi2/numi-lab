@@ -1,0 +1,43 @@
+--- a/src/metal/MetalWorldContact.metal
++++ b/src/metal/MetalWorldContact.metal
+@@ -1101,6 +1101,16 @@
+     return projected;
+ }
+ 
++inline void frictionlessNormalBlock(
++    thread float effective[3][3],
++    device const MREvaluatedConstraintIRConeGPU& cone
++) {
++    if (cone.effectiveFrictionU == 0.0f && cone.effectiveFrictionV == 0.0f) {
++        effective[0][1] = effective[0][2] = 0.0f;
++        effective[1][0] = effective[2][0] = 0.0f;
++    }
++}
++
+ inline bool invert3x3(
+     thread const float matrix[3][3],
+     thread float inverse[3][3]
+@@ -6715,6 +6725,7 @@
+                     effective[row][column] = value;
+                 }
+             }
++            frictionlessNormalBlock(effective, evaluatedCones[constraintBase + localConstraint]);
+             float inverse[3][3];
+             if (!invert3x3(effective, inverse)) {
+                 failure = MR_STEP_FACTORIZATION_FAILED;
+@@ -8152,6 +8163,7 @@
+                 effective[row][column] = value;
+             }
+         }
++        frictionlessNormalBlock(effective, evaluatedCones[constraintBase + localConstraint]);
+         float inverse[3][3];
+         if (!invert3x3(effective, inverse)) {
+             localFailure = MR_STEP_FACTORIZATION_FAILED;
+@@ -10547,6 +10559,7 @@
+                     effective[row][column] = value;
+                 }
+             }
++            frictionlessNormalBlock(effective, evaluatedCones[constraintBase + localConstraint]);
+             float inverse[3][3];
+             if (!invert3x3(effective, inverse)) {
+                 status.code = MR_STEP_FACTORIZATION_FAILED;

@@ -1,0 +1,1 @@
+all 12 match baseline exactly excluding timing; four thin impacts reject; four near misses accepted with zero impulse; repeats and exposed rollback pass
