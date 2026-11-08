@@ -1,0 +1,13 @@
+{
+  "already_executed_repair_commands": 6,
+  "comparison_rule": "Require precisely bit 10 old-to-new in flags, every other byte exact. No physical field or acceptance tolerance is masked.",
+  "continuation_source_sha256": "e93d46ea83bd7426ad2e50833f4904298e75b0fdcade1acd6d36c8b92c3e60ed",
+  "finding": "Only public world status flags differ: inspection bit 10 is enabled and copied into four records at offset 28 in 48-byte records; all ten other files are exact",
+  "fp64_analysis": "Existing sealed exploratory script executed once on the 98,864-byte captured problem; known-value and derivative calibration passed before target input read; no native settings changed",
+  "new_budget_unchanged": 10,
+  "prior_strict_comparison": "preserved repair-comparisons.json false entry and repair-execution.json; first six commands terminal",
+  "purpose": "posthoc engineering correction of the comparison instrument; no native solver change",
+  "remaining_native_commands": 4,
+  "schema": "crow-quality-capture-status-metadata-amendment-v1",
+  "stop": "First unexpected stamp, metadata bit, byte comparison, exit or budget; preserve all outputs."
+}

@@ -1,0 +1,104 @@
+[
+  {
+    "actual": "build/crow-quality-first-failure-build-01/repair-01/zero.tsv",
+    "byte_exact": true,
+    "reference": "build/crow-quality-first-failure-build-01/reference/build/crow-native-drive-ir-build-01/zero-new.tsv",
+    "sha256": "d0c101a4720d76f965bd6602badede2e336cda24d58fdd5d9c12ad48a86442d8"
+  },
+  {
+    "actual": "build/crow-quality-first-failure-build-01/repair-01/crow-off/failure-contact-status.bin",
+    "byte_exact": true,
+    "reference": "build/crow-quality-first-failure-build-01/reference/build/crow-native-drive-ir-build-01/crow-mode2-zero/failure-contact-status.bin",
+    "sha256": "77ee7956419fb21264cae1d6a494125f89e4341bd8e3901ab610dc3797e9e667"
+  },
+  {
+    "actual": "build/crow-quality-first-failure-build-01/repair-01/crow-off/failure-q.f32",
+    "byte_exact": true,
+    "reference": "build/crow-quality-first-failure-build-01/reference/build/crow-native-drive-ir-build-01/crow-mode2-zero/failure-q.f32",
+    "sha256": "012493a2009920bf13b46924788f4473314584704e8857f9bedfd13700e12b28"
+  },
+  {
+    "actual": "build/crow-quality-first-failure-build-01/repair-01/crow-off/failure-scene.bin",
+    "byte_exact": true,
+    "reference": "build/crow-quality-first-failure-build-01/reference/build/crow-native-drive-ir-build-01/crow-mode2-zero/failure-scene.bin",
+    "sha256": "7e108f9bf6b038494639e99ef211d6fc51f527a33c0aa430c587d4da3563ea57"
+  },
+  {
+    "actual": "build/crow-quality-first-failure-build-01/repair-01/crow-off/failure-v.f32",
+    "byte_exact": true,
+    "reference": "build/crow-quality-first-failure-build-01/reference/build/crow-native-drive-ir-build-01/crow-mode2-zero/failure-v.f32",
+    "sha256": "627f6149015f853f26db2f3dffba1b7c30b3b74b87c5cfb9f346c1616e3636d0"
+  },
+  {
+    "actual": "build/crow-quality-first-failure-build-01/repair-01/crow-off/failure-world-status.bin",
+    "byte_exact": true,
+    "reference": "build/crow-quality-first-failure-build-01/reference/build/crow-native-drive-ir-build-01/crow-mode2-zero/failure-world-status.bin",
+    "sha256": "343fbf4bce348bbccee41765fdb4a2f6683f223590c650b525adf61e862a7ab2"
+  },
+  {
+    "actual": "build/crow-quality-first-failure-build-01/repair-01/crow-off/failure.json",
+    "byte_exact": true,
+    "reference": "build/crow-quality-first-failure-build-01/reference/build/crow-native-drive-ir-build-01/crow-mode2-zero/failure.json",
+    "sha256": "fb0290946c7c329596e7d80e2d71f3f1ad2beca33b013883cd1a381782cb9d14"
+  },
+  {
+    "actual": "build/crow-quality-first-failure-build-01/repair-01/crow-off/initial-geometry.json",
+    "byte_exact": true,
+    "reference": "build/crow-quality-first-failure-build-01/reference/build/crow-native-drive-ir-build-01/crow-mode2-zero/initial-geometry.json",
+    "sha256": "f3fbd6a4f092ad15217f903bd9c6019120cf6460ae86334981373554d2035af7"
+  },
+  {
+    "actual": "build/crow-quality-first-failure-build-01/repair-01/crow-off/initial-q.f32",
+    "byte_exact": true,
+    "reference": "build/crow-quality-first-failure-build-01/reference/build/crow-native-drive-ir-build-01/crow-mode2-zero/initial-q.f32",
+    "sha256": "012493a2009920bf13b46924788f4473314584704e8857f9bedfd13700e12b28"
+  },
+  {
+    "actual": "build/crow-quality-first-failure-build-01/repair-01/crow-off/initial-scene.bin",
+    "byte_exact": true,
+    "reference": "build/crow-quality-first-failure-build-01/reference/build/crow-native-drive-ir-build-01/crow-mode2-zero/initial-scene.bin",
+    "sha256": "7e108f9bf6b038494639e99ef211d6fc51f527a33c0aa430c587d4da3563ea57"
+  },
+  {
+    "actual": "build/crow-quality-first-failure-build-01/repair-01/crow-off/initial-v.f32",
+    "byte_exact": true,
+    "reference": "build/crow-quality-first-failure-build-01/reference/build/crow-native-drive-ir-build-01/crow-mode2-zero/initial-v.f32",
+    "sha256": "627f6149015f853f26db2f3dffba1b7c30b3b74b87c5cfb9f346c1616e3636d0"
+  },
+  {
+    "actual": "build/crow-quality-first-failure-build-01/repair-01/crow-off/trace.tsv",
+    "byte_exact": true,
+    "reference": "build/crow-quality-first-failure-build-01/reference/build/crow-native-drive-ir-build-01/crow-mode2-zero/trace.tsv",
+    "sha256": "0683495ecae84f4fa9e31f9230e6604e57a3863311f98d52750a6fbfec95a8b0"
+  },
+  {
+    "actual": "build/crow-quality-first-failure-build-01/repair-01/crow-one/failure-contact-status.bin",
+    "byte_exact": true,
+    "reference": "build/crow-quality-first-failure-build-01/reference/build/crow-native-drive-ir-build-01/crow-mode2-zero/failure-contact-status.bin",
+    "sha256": "77ee7956419fb21264cae1d6a494125f89e4341bd8e3901ab610dc3797e9e667"
+  },
+  {
+    "actual": "build/crow-quality-first-failure-build-01/repair-01/crow-one/failure-q.f32",
+    "byte_exact": true,
+    "reference": "build/crow-quality-first-failure-build-01/reference/build/crow-native-drive-ir-build-01/crow-mode2-zero/failure-q.f32",
+    "sha256": "012493a2009920bf13b46924788f4473314584704e8857f9bedfd13700e12b28"
+  },
+  {
+    "actual": "build/crow-quality-first-failure-build-01/repair-01/crow-one/failure-scene.bin",
+    "byte_exact": true,
+    "reference": "build/crow-quality-first-failure-build-01/reference/build/crow-native-drive-ir-build-01/crow-mode2-zero/failure-scene.bin",
+    "sha256": "7e108f9bf6b038494639e99ef211d6fc51f527a33c0aa430c587d4da3563ea57"
+  },
+  {
+    "actual": "build/crow-quality-first-failure-build-01/repair-01/crow-one/failure-v.f32",
+    "byte_exact": true,
+    "reference": "build/crow-quality-first-failure-build-01/reference/build/crow-native-drive-ir-build-01/crow-mode2-zero/failure-v.f32",
+    "sha256": "627f6149015f853f26db2f3dffba1b7c30b3b74b87c5cfb9f346c1616e3636d0"
+  },
+  {
+    "actual": "build/crow-quality-first-failure-build-01/repair-01/crow-one/failure-world-status.bin",
+    "byte_exact": false,
+    "reference": "build/crow-quality-first-failure-build-01/reference/build/crow-native-drive-ir-build-01/crow-mode2-zero/failure-world-status.bin",
+    "sha256": "0dda58816e372b387318630d283cad95baa0de18b7b101695ea4692a2794bc1a"
+  }
+]
