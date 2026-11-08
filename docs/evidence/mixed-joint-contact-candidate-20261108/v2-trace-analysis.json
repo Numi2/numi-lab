@@ -1,0 +1,490 @@
+{
+  "exposed_traces_equal": true,
+  "rows": 60,
+  "all_rows_marked_joint_update": true,
+  "max_normal_m_s": 2.337619662e-07,
+  "max_tangent_m_s": 5.164603828588999e-06,
+  "max_cone_excess": 1.6431811467043644e-10,
+  "records": [
+    {
+      "step": 0,
+      "row": 0,
+      "joint_marker": 2,
+      "normal_residual": 2.328306437e-07,
+      "tangent_residual": 1.011010461197022e-12,
+      "cone_excess": 0.0
+    },
+    {
+      "step": 0,
+      "row": 1,
+      "joint_marker": 2,
+      "normal_residual": 2.337619662e-07,
+      "tangent_residual": 3.458456785381334e-07,
+      "cone_excess": 0.0
+    },
+    {
+      "step": 0,
+      "row": 2,
+      "joint_marker": 2,
+      "normal_residual": 2.337619662e-07,
+      "tangent_residual": 5.164603828588999e-06,
+      "cone_excess": 0.0
+    },
+    {
+      "step": 1,
+      "row": 0,
+      "joint_marker": 2,
+      "normal_residual": 7.357448339e-08,
+      "tangent_residual": 6.120300848655712e-08,
+      "cone_excess": 0.0
+    },
+    {
+      "step": 1,
+      "row": 1,
+      "joint_marker": 2,
+      "normal_residual": 0.0,
+      "tangent_residual": 0.0,
+      "cone_excess": 0.0
+    },
+    {
+      "step": 1,
+      "row": 2,
+      "joint_marker": 2,
+      "normal_residual": 1.941807568e-07,
+      "tangent_residual": 3.382624289988813e-07,
+      "cone_excess": 0.0
+    },
+    {
+      "step": 2,
+      "row": 0,
+      "joint_marker": 2,
+      "normal_residual": 9.313225746e-10,
+      "tangent_residual": 0.0,
+      "cone_excess": 0.0
+    },
+    {
+      "step": 2,
+      "row": 1,
+      "joint_marker": 2,
+      "normal_residual": 0.0,
+      "tangent_residual": 0.0,
+      "cone_excess": 0.0
+    },
+    {
+      "step": 2,
+      "row": 2,
+      "joint_marker": 2,
+      "normal_residual": 6.053596735e-09,
+      "tangent_residual": 9.186442750898618e-09,
+      "cone_excess": 0.0
+    },
+    {
+      "step": 3,
+      "row": 0,
+      "joint_marker": 2,
+      "normal_residual": 2.328306437e-09,
+      "tangent_residual": 5.05505230598511e-13,
+      "cone_excess": 0.0
+    },
+    {
+      "step": 3,
+      "row": 1,
+      "joint_marker": 2,
+      "normal_residual": 0.0,
+      "tangent_residual": 0.0,
+      "cone_excess": 0.0
+    },
+    {
+      "step": 3,
+      "row": 2,
+      "joint_marker": 2,
+      "normal_residual": 2.328306437e-09,
+      "tangent_residual": 2.1360390021734827e-18,
+      "cone_excess": 0.0
+    },
+    {
+      "step": 4,
+      "row": 0,
+      "joint_marker": 2,
+      "normal_residual": 1.862645149e-09,
+      "tangent_residual": 5.05505230598511e-13,
+      "cone_excess": 0.0
+    },
+    {
+      "step": 4,
+      "row": 1,
+      "joint_marker": 2,
+      "normal_residual": 0.0,
+      "tangent_residual": 0.0,
+      "cone_excess": 0.0
+    },
+    {
+      "step": 4,
+      "row": 2,
+      "joint_marker": 2,
+      "normal_residual": 3.259629011e-09,
+      "tangent_residual": 2.5181243915661928e-12,
+      "cone_excess": 1.6431811467043644e-10
+    },
+    {
+      "step": 5,
+      "row": 0,
+      "joint_marker": 2,
+      "normal_residual": 0,
+      "tangent_residual": 4.706251671206771e-10,
+      "cone_excess": 0.0
+    },
+    {
+      "step": 5,
+      "row": 1,
+      "joint_marker": 2,
+      "normal_residual": 0.0,
+      "tangent_residual": 0.0,
+      "cone_excess": 0.0
+    },
+    {
+      "step": 5,
+      "row": 2,
+      "joint_marker": 2,
+      "normal_residual": 1.862645149e-09,
+      "tangent_residual": 5.716298265383585e-09,
+      "cone_excess": 0.0
+    },
+    {
+      "step": 6,
+      "row": 0,
+      "joint_marker": 2,
+      "normal_residual": 1.396983862e-09,
+      "tangent_residual": 2.354136847818405e-09,
+      "cone_excess": 0.0
+    },
+    {
+      "step": 6,
+      "row": 1,
+      "joint_marker": 2,
+      "normal_residual": 0.0,
+      "tangent_residual": 0.0,
+      "cone_excess": 0.0
+    },
+    {
+      "step": 6,
+      "row": 2,
+      "joint_marker": 2,
+      "normal_residual": 0,
+      "tangent_residual": 2.321142018419854e-10,
+      "cone_excess": 0.0
+    },
+    {
+      "step": 7,
+      "row": 0,
+      "joint_marker": 5,
+      "normal_residual": 9.313225746e-10,
+      "tangent_residual": 0.0,
+      "cone_excess": 0.0
+    },
+    {
+      "step": 7,
+      "row": 1,
+      "joint_marker": 5,
+      "normal_residual": 1.676380634e-08,
+      "tangent_residual": 7.664017941300397e-08,
+      "cone_excess": 0.0
+    },
+    {
+      "step": 7,
+      "row": 2,
+      "joint_marker": 5,
+      "normal_residual": 0.0,
+      "tangent_residual": 0.0,
+      "cone_excess": 0.0
+    },
+    {
+      "step": 8,
+      "row": 0,
+      "joint_marker": 2,
+      "normal_residual": 2.328306437e-10,
+      "tangent_residual": 5.05505230598511e-13,
+      "cone_excess": 0.0
+    },
+    {
+      "step": 8,
+      "row": 1,
+      "joint_marker": 2,
+      "normal_residual": 6.519258022e-09,
+      "tangent_residual": 9.13307381866168e-09,
+      "cone_excess": 0.0
+    },
+    {
+      "step": 8,
+      "row": 2,
+      "joint_marker": 2,
+      "normal_residual": 0.0,
+      "tangent_residual": 0.0,
+      "cone_excess": 0.0
+    },
+    {
+      "step": 9,
+      "row": 0,
+      "joint_marker": 2,
+      "normal_residual": 4.423782229e-09,
+      "tangent_residual": 8.029212849938535e-09,
+      "cone_excess": 0.0
+    },
+    {
+      "step": 9,
+      "row": 1,
+      "joint_marker": 2,
+      "normal_residual": 4.796311259e-08,
+      "tangent_residual": 3.1898231060913074e-08,
+      "cone_excess": 0.0
+    },
+    {
+      "step": 9,
+      "row": 2,
+      "joint_marker": 2,
+      "normal_residual": 0.0,
+      "tangent_residual": 0.0,
+      "cone_excess": 0.0
+    },
+    {
+      "step": 10,
+      "row": 0,
+      "joint_marker": 2,
+      "normal_residual": 4.423782229e-09,
+      "tangent_residual": 5.0576588250000184e-08,
+      "cone_excess": 0.0
+    },
+    {
+      "step": 10,
+      "row": 1,
+      "joint_marker": 2,
+      "normal_residual": 2.109445632e-07,
+      "tangent_residual": 1.7732817066510175e-07,
+      "cone_excess": 0.0
+    },
+    {
+      "step": 10,
+      "row": 2,
+      "joint_marker": 2,
+      "normal_residual": 0.0,
+      "tangent_residual": 0.0,
+      "cone_excess": 0.0
+    },
+    {
+      "step": 11,
+      "row": 0,
+      "joint_marker": 2,
+      "normal_residual": 1.164153218e-09,
+      "tangent_residual": 1.8438601337993986e-12,
+      "cone_excess": 0.0
+    },
+    {
+      "step": 11,
+      "row": 1,
+      "joint_marker": 2,
+      "normal_residual": 2.328306437e-09,
+      "tangent_residual": 0.0,
+      "cone_excess": 0.0
+    },
+    {
+      "step": 11,
+      "row": 2,
+      "joint_marker": 2,
+      "normal_residual": 0.0,
+      "tangent_residual": 0.0,
+      "cone_excess": 0.0
+    },
+    {
+      "step": 12,
+      "row": 0,
+      "joint_marker": 2,
+      "normal_residual": 7.916241884e-09,
+      "tangent_residual": 1.3573950991839735e-12,
+      "cone_excess": 0.0
+    },
+    {
+      "step": 12,
+      "row": 1,
+      "joint_marker": 2,
+      "normal_residual": 3.46917659e-08,
+      "tangent_residual": 2.4894292241367686e-12,
+      "cone_excess": 1.2236256452524685e-10
+    },
+    {
+      "step": 12,
+      "row": 2,
+      "joint_marker": 2,
+      "normal_residual": 1.862645149e-09,
+      "tangent_residual": 0.0,
+      "cone_excess": 0.0
+    },
+    {
+      "step": 13,
+      "row": 0,
+      "joint_marker": 2,
+      "normal_residual": 1.164153218e-09,
+      "tangent_residual": 3.9337876709978146e-11,
+      "cone_excess": 0.0
+    },
+    {
+      "step": 13,
+      "row": 1,
+      "joint_marker": 2,
+      "normal_residual": 1.073349267e-07,
+      "tangent_residual": 1.6722453448491137e-07,
+      "cone_excess": 0.0
+    },
+    {
+      "step": 13,
+      "row": 2,
+      "joint_marker": 2,
+      "normal_residual": 1.769512892e-08,
+      "tangent_residual": 5.3081027284722306e-08,
+      "cone_excess": 0.0
+    },
+    {
+      "step": 14,
+      "row": 0,
+      "joint_marker": 2,
+      "normal_residual": 2.328306437e-10,
+      "tangent_residual": 3.540167291002602e-12,
+      "cone_excess": 0.0
+    },
+    {
+      "step": 14,
+      "row": 1,
+      "joint_marker": 2,
+      "normal_residual": 2.56113708e-09,
+      "tangent_residual": 1.5786921893200795e-08,
+      "cone_excess": 0.0
+    },
+    {
+      "step": 14,
+      "row": 2,
+      "joint_marker": 2,
+      "normal_residual": 3.259629011e-09,
+      "tangent_residual": 3.944357531737927e-08,
+      "cone_excess": 0.0
+    },
+    {
+      "step": 15,
+      "row": 0,
+      "joint_marker": 2,
+      "normal_residual": 9.662471712e-09,
+      "tangent_residual": 1.0663683480184877e-12,
+      "cone_excess": 0.0
+    },
+    {
+      "step": 15,
+      "row": 1,
+      "joint_marker": 2,
+      "normal_residual": 1.396983862e-09,
+      "tangent_residual": 2.4743403705628872e-12,
+      "cone_excess": 0.0
+    },
+    {
+      "step": 15,
+      "row": 2,
+      "joint_marker": 2,
+      "normal_residual": 5.355104804e-09,
+      "tangent_residual": 3.1492711918657425e-08,
+      "cone_excess": 0.0
+    },
+    {
+      "step": 16,
+      "row": 0,
+      "joint_marker": 2,
+      "normal_residual": 4.540197551e-09,
+      "tangent_residual": 4.7760406721663334e-14,
+      "cone_excess": 0.0
+    },
+    {
+      "step": 16,
+      "row": 1,
+      "joint_marker": 2,
+      "normal_residual": 1.396983862e-09,
+      "tangent_residual": 2.2444752590934676e-09,
+      "cone_excess": 0.0
+    },
+    {
+      "step": 16,
+      "row": 2,
+      "joint_marker": 2,
+      "normal_residual": 1.862645149e-09,
+      "tangent_residual": 1.9082557664260566e-08,
+      "cone_excess": 0.0
+    },
+    {
+      "step": 17,
+      "row": 0,
+      "joint_marker": 2,
+      "normal_residual": 4.423782229e-09,
+      "tangent_residual": 8.253406638938834e-13,
+      "cone_excess": 0.0
+    },
+    {
+      "step": 17,
+      "row": 1,
+      "joint_marker": 2,
+      "normal_residual": 3.259629011e-09,
+      "tangent_residual": 2.9132484150008077e-08,
+      "cone_excess": 0.0
+    },
+    {
+      "step": 17,
+      "row": 2,
+      "joint_marker": 2,
+      "normal_residual": 1.629814506e-09,
+      "tangent_residual": 3.360074821242579e-09,
+      "cone_excess": 0.0
+    },
+    {
+      "step": 18,
+      "row": 0,
+      "joint_marker": 2,
+      "normal_residual": 1.059379429e-08,
+      "tangent_residual": 3.7357252710006415e-12,
+      "cone_excess": 0.0
+    },
+    {
+      "step": 18,
+      "row": 1,
+      "joint_marker": 2,
+      "normal_residual": 3.608874977e-09,
+      "tangent_residual": 3.0194632400432584e-08,
+      "cone_excess": 0.0
+    },
+    {
+      "step": 18,
+      "row": 2,
+      "joint_marker": 2,
+      "normal_residual": 1.187436283e-08,
+      "tangent_residual": 0.0,
+      "cone_excess": 0.0
+    },
+    {
+      "step": 19,
+      "row": 0,
+      "joint_marker": 2,
+      "normal_residual": 2.328306437e-09,
+      "tangent_residual": 9.70873555197948e-13,
+      "cone_excess": 0.0
+    },
+    {
+      "step": 19,
+      "row": 1,
+      "joint_marker": 2,
+      "normal_residual": 3.492459655e-10,
+      "tangent_residual": 2.2323438838249382e-08,
+      "cone_excess": 0.0
+    },
+    {
+      "step": 19,
+      "row": 2,
+      "joint_marker": 2,
+      "normal_residual": 6.98491931e-10,
+      "tangent_residual": 1.1160146677613191e-08,
+      "cone_excess": 0.0
+    }
+  ]
+}
