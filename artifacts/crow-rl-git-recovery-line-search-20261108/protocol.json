@@ -1,0 +1,15 @@
+{
+  "schema": "crow-line-search-git-recovery-protocol-v1",
+  "native_commands": 16,
+  "scope": [
+    "One observer-only status-6 native witness",
+    "Six unique candidate captured operators, checked independently",
+    "Eight production regressions including 624 motor records and 640 default crow transitions",
+    "One full coupled API trial; duplicate repeat verified from Git"
+  ],
+  "all_raw_files": "Actual Git blob recovery plus exact SHA-256, byte count, mode and nanosecond mtime",
+  "timeout_prefix": "Recover and hash verify; wall-clock cutoff is not replayed as deterministic physics",
+  "cleanup": "Only after push, scoped native replay, actual Git restoration and exact open-handle-free inventory verification",
+  "shared_git_provider": "Protected; never GC, copy, remove or compact",
+  "goal_complete": false
+}
