@@ -1,0 +1,22 @@
+[0/2] Re-checking globbed directories...
+[1/2] Re-running CMake...
+-- MetalRobo Python tests disabled: no interpreter with NumPy and SciPy
+-- Configuring done (0.6s)
+-- Generating done (0.1s)
+-- Build files have been written to: /Users/numi/numi-reconciliation-build-20261108
+[0/4] Re-checking globbed directories...
+[1/18] Building CXX object CMakeFiles/metalrobo.dir/src/core/NumiHumanTissueBinding.cpp.o
+[2/18] Building OBJCXX object CMakeFiles/metalrobo.dir/src/metal/NumanXRuntimeV1.mm.o
+[3/18] Building CXX object CMakeFiles/numi_human_costal_binding_test.dir/tests/human/costal_binding.cpp.o
+[4/18] Building OBJCXX object matter/CMakeFiles/numi_matter_runtime_objects.dir/src/numi_human.mm.o
+[5/18] Building CXX object CMakeFiles/numi_human_costal_cook_ownership_test.dir/tests/human/costal_cook_ownership.cpp.o
+[6/18] Building OBJCXX object CMakeFiles/numi_human_costal_ownership_native.dir/tests/human/costal_ownership_native.mm.o
+[7/18] Building OBJCXX object CMakeFiles/numi_human_costal_v5_admission_probe.dir/apps/numanx_costal_v5_synthetic_admission_probe.mm.o
+[8/18] Linking CXX shared library lib/libmetalrobo.dylib
+[9/18] Linking CXX executable bin/numi_human_tissue_mass_probe
+[10/18] Linking CXX executable numi_human_costal_binding_test
+[11/18] Linking CXX executable numi_human_costal_cook_ownership_test
+[12/18] Linking OBJCXX executable numi_human_costal_ownership_native
+[13/18] Linking OBJCXX executable numi_human_costal_v5_admission_probe
+[14/18] Building OBJCXX object CMakeFiles/numi_human_costal_real_owner_probe.dir/apps/numanx_human_costal_owner_probe.mm.o
+[15/18] Linking OBJCXX executable numi_human_costal_real_owner_probe

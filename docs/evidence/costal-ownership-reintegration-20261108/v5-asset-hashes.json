@@ -1,0 +1,47 @@
+{
+  "rigid.nhrigid": {
+    "path": "/Users/numi/numi-v5-admission-artifacts-20261107/v5-continuation-aggregate-status-diagnostic/rigid.nhrigid",
+    "expected": "2c78cb4150b97cea6e8169dad9e8f5dd59af667b247e07b56e48e857435560e4",
+    "actual": "2c78cb4150b97cea6e8169dad9e8f5dd59af667b247e07b56e48e857435560e4"
+  },
+  "muscle.nhmyo": {
+    "path": "/Users/numi/numi-v5-admission-artifacts-20261107/v5-continuation-aggregate-status-diagnostic/muscle.nhmyo",
+    "expected": "e5bb8a8168706bb3b23cf42b1d849659569ba2e6027bcc85729c3110fdbb8c4b",
+    "actual": "e5bb8a8168706bb3b23cf42b1d849659569ba2e6027bcc85729c3110fdbb8c4b"
+  },
+  "support.nhcnt": {
+    "path": "/Users/numi/numi-v5-admission-artifacts-20261107/v5-continuation-aggregate-status-diagnostic/support.nhcnt",
+    "expected": "4d54f8155cd83baaee7af536099824ac0da61e5d5e77544b42c6e5ce1b48c907",
+    "actual": "4d54f8155cd83baaee7af536099824ac0da61e5d5e77544b42c6e5ce1b48c907"
+  },
+  "equality.nheq": {
+    "path": "/Users/numi/numi-v5-admission-artifacts-20261107/v5-continuation-aggregate-status-diagnostic/equality.nheq",
+    "expected": "c99f69b6c217e0bce518cb4db7b27416be0d36f9a1cef26490cf8773850847df",
+    "actual": "c99f69b6c217e0bce518cb4db7b27416be0d36f9a1cef26490cf8773850847df"
+  },
+  "retained-visual.mrvpack": {
+    "path": "/Users/numi/numi-v5-admission-artifacts-20261107/v5-continuation-aggregate-status-diagnostic/retained-visual.mrvpack",
+    "expected": "b8ab7cd8deead1e2af3137a727eaad74cd7e4238d77d9116d774bbf304936e37",
+    "actual": "b8ab7cd8deead1e2af3137a727eaad74cd7e4238d77d9116d774bbf304936e37"
+  },
+  "retained-vision.json": {
+    "path": "/Users/numi/numi-v5-admission-artifacts-20261107/v5-continuation-aggregate-status-diagnostic/retained-vision.json",
+    "expected": "166220533c6c78695f6e55412f2e832eaaa4ec94ddf791b476111dc323c652a6",
+    "actual": "166220533c6c78695f6e55412f2e832eaaa4ec94ddf791b476111dc323c652a6"
+  },
+  "synthetic.nmatterpack": {
+    "path": "/Users/numi/numi-v5-admission-artifacts-20261107/v5-continuation-aggregate-status-diagnostic/synthetic.nmatterpack",
+    "expected": "0187d2ce30cac21273b1cdbaee6c00ed373a4c428354d2295719e8fe39975a6a",
+    "actual": "0187d2ce30cac21273b1cdbaee6c00ed373a4c428354d2295719e8fe39975a6a"
+  },
+  "synthetic.nhtbind": {
+    "path": "/Users/numi/numi-v5-admission-artifacts-20261107/v5-continuation-aggregate-status-diagnostic/synthetic.nhtbind",
+    "expected": "0a8c24b4e1ae919188095858763698d9f2cfa5991a64954015030da201c2a59d",
+    "actual": "0a8c24b4e1ae919188095858763698d9f2cfa5991a64954015030da201c2a59d"
+  },
+  "synthetic.nhcartilage": {
+    "path": "/Users/numi/numi-v5-admission-artifacts-20261107/v5-continuation-aggregate-status-diagnostic/synthetic.nhcartilage",
+    "expected": "4241e17f251f70b279d25dcf97b2484ed81f77bf6597f5ca39c7e9b97d3d8374",
+    "actual": "4241e17f251f70b279d25dcf97b2484ed81f77bf6597f5ca39c7e9b97d3d8374"
+  }
+}

@@ -1,0 +1,19 @@
+Test project /Users/numi/numi-reconciliation-build-20261108
+    Start 137: numanx.integration.human_coupled_candidate
+1/4 Test #137: numanx.integration.human_coupled_candidate ...........   Passed    0.08 sec
+    Start 138: numanx.integration.human_matter_owner_transaction
+2/4 Test #138: numanx.integration.human_matter_owner_transaction ....   Passed    0.47 sec
+    Start 141: numanx.integration.human_matter_adapter
+3/4 Test #141: numanx.integration.human_matter_adapter ..............   Passed    2.17 sec
+    Start 145: numanx.integration.human_matter_attachment_runtime
+4/4 Test #145: numanx.integration.human_matter_attachment_runtime ...   Passed    0.38 sec
+
+100% tests passed out of 4
+
+Label Time Summary:
+human      =   3.10 sec*proc (4 tests)
+metal      =   3.10 sec*proc (4 tests)
+numanx     =   3.10 sec*proc (4 tests)
+physics    =   3.10 sec*proc (4 tests)
+
+Total Test time (real) =   3.10 sec

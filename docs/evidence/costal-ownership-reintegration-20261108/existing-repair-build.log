@@ -1,0 +1,13 @@
+[0/2] Re-checking globbed directories...
+[1/2] Re-running CMake...
+-- MetalRobo Python tests disabled: no interpreter with NumPy and SciPy
+-- Configuring done (0.6s)
+-- Generating done (0.1s)
+-- Build files have been written to: /Users/numi/numi-reconciliation-build-20261108
+[0/4] Re-checking globbed directories...
+[1/9] Building OBJCXX object CMakeFiles/metalrobo_numanx_human_matter_owner_probe.dir/apps/numanx_human_matter_owner_probe.mm.o
+[2/9] Building OBJCXX object CMakeFiles/metalrobo_numanx_human_matter_adapter_probe.dir/apps/numanx_human_matter_adapter_probe.mm.o
+[3/9] Linking OBJCXX executable bin/metalrobo_numanx_human_matter_owner_probe
+[4/9] Linking OBJCXX executable bin/metalrobo_numanx_human_matter_adapter_probe
+[5/9] Building OBJCXX object CMakeFiles/metalrobo_numanx_matter_attachment_runtime_probe.dir/apps/numanx_matter_attachment_runtime_probe.mm.o
+[6/9] Linking OBJCXX executable bin/metalrobo_numanx_matter_attachment_runtime_probe
