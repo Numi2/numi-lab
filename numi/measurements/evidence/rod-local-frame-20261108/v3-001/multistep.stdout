@@ -1,0 +1,2 @@
+offset_m=0 accepted=41 max_position_error_m=2.3650704664840427e-07 max_velocity_error_m_s=2.3841602724006261e-06 max_force_error_N=1.3671759719641186e-05 work_J=1.01296827197075e-06 energy_change_J=0.00021927014888853091 work_relative_error=0.99538027279542873 passed=0
+offset_m=16 accepted=41 max_position_error_m=2.365030340456542e-07 max_velocity_error_m_s=2.3841201723939776e-06 max_force_error_N=1.3671436767961898e-05 work_J=1.0129682719702268e-06 energy_change_J=0.00021927014888853091 work_relative_error=0.99538027279543106 passed=0

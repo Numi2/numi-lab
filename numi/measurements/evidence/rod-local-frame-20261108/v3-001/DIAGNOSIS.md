@@ -1,0 +1,1 @@
+The 41-step work check failed because the diagnostic mistakenly subtracted the previous applied force in its trapezoidal accumulation. The motion and force measurements remain retained; this result is not evidence of an energy defect. The work accumulator must be corrected and rerun under the same preregistered gates.
