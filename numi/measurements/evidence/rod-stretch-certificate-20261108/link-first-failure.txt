@@ -1,0 +1,1 @@
+First link preparation stopped before metallib execution: expected production-named rod AIR, but the earlier pinned object list already uses a task-local rod.air. Corrected to replace that single entry.
