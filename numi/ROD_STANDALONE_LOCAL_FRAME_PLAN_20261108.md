@@ -7,3 +7,5 @@ Pin the helper and unchanged candidate shader before testing the previously regi
 The first preparation attempt stopped before compilation because the sparse worktree had not materialized the existing stress source. The preparation was repeated using the same already pinned source from its owning worktree; no test ran in the failed attempt.
 
 The first compilation stopped on an inaccessible internal Vec3 alias; the attempted executable launch consequently also failed before dispatch. Both errors are retained. The isolated helper now uses the public array representation and will be separately repinned before running.
+
+A subsequent review identified an ambiguous underlying-success-without-publication case. The adapter now converts that case to an explicit internal failure and always reports unpublished when the staged call fails. This changes the helper after the preliminary runs; those runs remain bound to their earlier source identity. Repeat the force matrix and contract on the revised source, including malformed packing and nonfinite inputs, before claiming the revised helper passed.

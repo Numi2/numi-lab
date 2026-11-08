@@ -63,7 +63,15 @@ inline metalrobo::MetalDiscreteElasticRodDiagnostics run(
     localInput.attachments=attachments;
     MetalDiscreteElasticRodResult staged;
     auto d=runMetalDiscreteElasticRod(model,localInput,staged,config);
-    if (!d.succeeded() || !d.published) return d;
+    if (!d.succeeded()) {
+        d.published=false;
+        return d;
+    }
+    if (!d.published) {
+        d.status=MetalDiscreteElasticRodHostStatus::internalFailure;
+        d.message="standalone solver reported success without publication";
+        return d;
+    }
     if (staged.states.size()!=count) {
         d.status=MetalDiscreteElasticRodHostStatus::internalFailure;
         d.message="local-frame result has invalid environment count"; d.published=false; return d;
