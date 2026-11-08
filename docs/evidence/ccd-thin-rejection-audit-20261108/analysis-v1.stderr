@@ -1,0 +1,5 @@
+Traceback (most recent call last):
+  File "/Users/numi/ccd-thin-rejection-audit-20261108/analyze.py", line 31, in <module>
+    assert (index is not None)==thin and r["accepted"]!=thin
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError
