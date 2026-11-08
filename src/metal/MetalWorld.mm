@@ -21145,6 +21145,7 @@ MetalWorldDiagnostics MetalWorldContext::submitImpl(
                         .worldStatuses = (__bridge void*)selectedState->buffers[kEnvironmentStatuses],
                         .contactStatuses = (__bridge void*)selectedState->buffers[kContactStatuses],
                         .environmentCount = static_cast<std::uint32_t>(batch.environmentCount),
+                        .actorFrameSize = config.taskProgram.layout().actorFrameSize,
                         .actorHistoryLength = config.taskProgram.layout().actorHistoryLength,
                         .controlStep = controlStep,
                         .contactMode = contactMode,

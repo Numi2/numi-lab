@@ -185,12 +185,14 @@ the reservation. During the reservation, competing render/encode, readback,
 tracker reset and renderer recompilation requests fail rather than observing or
 overwriting provisional host state. A second tracker cannot acquire the same
 renderer. Borrowed raw buffers and owner lifetime remain the caller's
-responsibility. During a MetalWorld rollout, the tracker also snapshots its
-object-track and masked-depth histories before each observation. After the
-physical substeps it restores those histories for each failed environment,
-while successful environments retain their updates. This does not roll back
-the shared host sensor sequence, rendered frames, task actor history, policy
-state or work from a failed GPU command. Recurrent-state and sensor-clock
+responsibility. During a MetalWorld rollout, the tracker snapshots its
+object-track and masked-depth histories and the task actor history immediately
+before the visual callback. After the physical substeps it restores those
+snapshots for each failed environment, while successful environments retain
+their updates. This undoes visual writes to actor history; it does not undo
+earlier task observation or reset changes. It also does not roll back actor
+output packets, the shared host sensor sequence, rendered frames, policy state
+or work from a failed GPU command. Recurrent-state and sensor-clock
 transactionality therefore remain unqualified, including for mixed-success
 batches and retried episodes. A committed command releases the host lease
 before GPU completion; callers must still serialize use of the tracker and its

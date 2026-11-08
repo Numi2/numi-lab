@@ -7414,6 +7414,13 @@ struct MetalHybridObjectTracker::State {
     // Each begun submission owns a backup retained by its command buffer.
     __strong id<MTLBuffer> pendingHistoryBackup = nil;
     __strong id<MTLBuffer> pendingDepthBackup = nil;
+    __strong id<MTLBuffer> pendingActorBackup = nil;
+    __strong id<MTLBuffer> pendingActorSource = nil;
+    std::uint32_t pendingFrameSize = 0u;
+    std::uint32_t pendingHistoryLength = 0u;
+    std::uint32_t pendingEnvironmentCount = 0u;
+    std::uint32_t pendingControlStep = 0u;
+    bool pendingStepOpen = false;
     __strong id<MTLBuffer> bindings = nil;
     __strong id<MTLBuffer> history = nil;
     __strong id<MTLBuffer> maskedDepthInstances = nil;
@@ -7843,6 +7850,13 @@ void MetalHybridObjectTracker::finishObservation(void* context, void* command, b
         state->pendingCommand = nullptr;
         state->pendingHistoryBackup = nil;
         state->pendingDepthBackup = nil;
+        state->pendingActorBackup = nil;
+        state->pendingActorSource = nil;
+        state->pendingFrameSize = 0u;
+        state->pendingHistoryLength = 0u;
+        state->pendingEnvironmentCount = 0u;
+        state->pendingControlStep = 0u;
+        state->pendingStepOpen = false;
     } catch (...) {}
 }
 
@@ -7972,14 +7986,38 @@ bool MetalHybridObjectTracker::encodeObservation(
         .frameAgeSeconds = 0.0,
     };
     if (state->pendingCommand != nullptr) {
+        state->pendingStepOpen = false;
         if (state->pendingHistoryBackup == nil || state->pendingDepthBackup == nil) return false;
+        id<MTLBuffer> actorHistory = (__bridge id<MTLBuffer>)pass.actorHistory;
+        const std::uint64_t actorStride = std::uint64_t(pass.actorFrameSize) *
+            pass.actorHistoryLength;
+        if (actorHistory == nil || actorStride >
+                std::numeric_limits<std::uint32_t>::max() / pass.environmentCount) return false;
+        const std::uint64_t actorBytes = actorStride * pass.environmentCount * sizeof(float);
+        if (actorBytes > actorHistory.length) return false;
+        const NSUInteger backupBytes = static_cast<NSUInteger>(std::max<std::uint64_t>(actorBytes, sizeof(float)));
+        if (state->pendingActorBackup == nil) {
+            state->pendingActorBackup = [state->device newBufferWithLength:backupBytes
+                options:MTLResourceStorageModePrivate];
+            state->pendingActorSource = actorHistory;
+        }
+        if (state->pendingActorBackup == nil || state->pendingActorSource != actorHistory ||
+            state->pendingActorBackup.length != backupBytes) return false;
         id<MTLBlitCommandEncoder> snapshot = [command blitCommandEncoder];
         if (snapshot == nil) return false;
         [snapshot copyFromBuffer:state->history sourceOffset:0
             toBuffer:state->pendingHistoryBackup destinationOffset:0 size:state->history.length];
         [snapshot copyFromBuffer:state->maskedDepthHistory sourceOffset:0
             toBuffer:state->pendingDepthBackup destinationOffset:0 size:state->maskedDepthHistory.length];
+        if (actorBytes != 0u) {
+            [snapshot copyFromBuffer:actorHistory sourceOffset:0
+                toBuffer:state->pendingActorBackup destinationOffset:0 size:static_cast<NSUInteger>(actorBytes)];
+        }
         [snapshot endEncoding];
+        state->pendingFrameSize = pass.actorFrameSize;
+        state->pendingHistoryLength = pass.actorHistoryLength;
+        state->pendingEnvironmentCount = pass.environmentCount;
+        state->pendingControlStep = pass.controlStep;
     }
     id<MTLComputeCommandEncoder> observationEncoder =
         [command computeCommandEncoder];
@@ -8203,6 +8241,7 @@ bool MetalHybridObjectTracker::encodeObservation(
     if (sampleSensor) {
         state->lastSensorSequence = sensorSequence;
     }
+    if (state->pendingCommand != nullptr) state->pendingStepOpen = true;
     return true;
 }
 
@@ -8215,7 +8254,12 @@ bool MetalHybridObjectTracker::finishPhysicalStep(
     if (!state->compiled || state->pendingCommand != pass.commandBuffer ||
         pass.worldStatuses == nullptr || (pass.contactMode && pass.contactStatuses == nullptr) ||
         state->restoreHistoryPipeline == nil || state->pendingHistoryBackup == nil ||
-        state->pendingDepthBackup == nil || pass.environmentCount == 0u ||
+        state->pendingDepthBackup == nil || state->pendingActorBackup == nil ||
+        state->pendingActorSource == nil || !state->pendingStepOpen || pass.environmentCount == 0u ||
+        pass.controlStep != state->pendingControlStep ||
+        pass.environmentCount != state->pendingEnvironmentCount ||
+        pass.actorFrameSize != state->pendingFrameSize ||
+        pass.actorHistoryLength != state->pendingHistoryLength ||
         pass.environmentCount > state->config.capacity || pass.actorHistoryLength == 0u ||
         pass.actorHistoryLength > state->config.maximumActorHistoryLength) return false;
     const std::uint64_t tracks = std::uint64_t(pass.actorHistoryLength) *
@@ -8229,6 +8273,7 @@ bool MetalHybridObjectTracker::finishPhysicalStep(
         depth * pass.environmentCount > std::numeric_limits<std::uint32_t>::max()) return false;
     const mr_uint4 counts{pass.environmentCount, static_cast<std::uint32_t>(tracks),
         static_cast<std::uint32_t>(depth), pass.contactMode ? 1u : 0u};
+    const std::uint32_t actorStride = pass.actorFrameSize * pass.actorHistoryLength;
     id<MTLCommandBuffer> command = (__bridge id<MTLCommandBuffer>)pass.commandBuffer;
     id<MTLComputeCommandEncoder> encoder = [command computeCommandEncoder];
     if (encoder == nil) return false;
@@ -8240,10 +8285,14 @@ bool MetalHybridObjectTracker::finishPhysicalStep(
         (__bridge id<MTLBuffer>)(pass.contactMode ? pass.contactStatuses : pass.worldStatuses)}};
     for (NSUInteger i=0u; i<buffers.size(); ++i) [encoder setBuffer:buffers[i] offset:0u atIndex:i];
     [encoder setBytes:&counts length:sizeof(counts) atIndex:6u];
+    [encoder setBuffer:state->pendingActorSource offset:0u atIndex:7u];
+    [encoder setBuffer:state->pendingActorBackup offset:0u atIndex:8u];
+    [encoder setBytes:&actorStride length:sizeof(actorStride) atIndex:9u];
     const NSUInteger width = std::min<NSUInteger>(state->restoreHistoryPipeline.maxTotalThreadsPerThreadgroup, 256u);
     [encoder dispatchThreadgroups:MTLSizeMake(pass.environmentCount, 1u, 1u)
         threadsPerThreadgroup:MTLSizeMake(width, 1u, 1u)];
     [encoder endEncoding];
+    state->pendingStepOpen = false;
     return true;
 }
 

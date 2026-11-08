@@ -867,6 +867,9 @@ int main() {
             require(trackerProgram.begin && trackerProgram.finish && trackerProgram.afterStep,
                     "tracker physical-step hooks missing");
             const std::vector<float> initial(tracked, tracked + trackElements);
+            const auto* actorHistoryValues = static_cast<const float*>(historyBuffer.contents);
+            const std::size_t actorStride = kActorFrameSize * kActorHistoryLength;
+            const std::vector<float> initialHistory(actorHistoryValues, actorHistoryValues + kEnvironmentCount * actorStride);
             auto* bodyValues = static_cast<MRBodyStateGPU*>(bodyBuffer.contents);
             auto* taskValues = static_cast<MRTaskStateGPU*>(taskStateBuffer.contents);
             auto* masks = static_cast<std::uint32_t*>(resetBuffer.contents);
@@ -892,11 +895,19 @@ int main() {
                     .worldStatuses = (__bridge void*)statuses,
                     .contactStatuses = nullptr,
                     .environmentCount = kEnvironmentCount,
+                    .actorFrameSize = kActorFrameSize,
                     .actorHistoryLength = kActorHistoryLength,
                     .controlStep = 0u,
                     .contactMode = false,
                 };
+                auto invalidOutcome = outcome;
+                invalidOutcome.actorFrameSize += 1u;
+                require(!trackerProgram.afterStep(trackerProgram.context, invalidOutcome), "mismatched history layout admitted");
+                invalidOutcome = outcome;
+                invalidOutcome.controlStep += 1u;
+                require(!trackerProgram.afterStep(trackerProgram.context, invalidOutcome), "mismatched step admitted");
                 require(trackerProgram.afterStep(trackerProgram.context, outcome), "step result");
+                require(!trackerProgram.afterStep(trackerProgram.context, outcome), "duplicate step result admitted");
                 [stepCommand commit];
                 trackerProgram.finish(trackerProgram.context, trackerPass.commandBuffer, true);
                 [stepCommand waitUntilCompleted];
@@ -905,6 +916,10 @@ int main() {
                 return std::vector<float>(values, values + trackElements);
             };
             const auto middle = observeStep(1u);
+            require(std::equal(initialHistory.begin(), initialHistory.begin()+actorStride, actorHistoryValues),
+                    "failed environment actor history was not restored");
+            require(!std::equal(initialHistory.begin()+actorStride, initialHistory.end(), actorHistoryValues+actorStride),
+                    "successful environment actor history did not advance");
             std::memset(statusValues, 0, statuses.length);
             const auto next = observeStep(2u);
             for (std::uint32_t e=0u; e<kEnvironmentCount; ++e) {
@@ -925,7 +940,7 @@ int main() {
             const std::size_t acceptedDepth = kTrackWidth+kActorFrameSize*kActorHistoryLength;
             require(!std::equal(initial.begin()+acceptedDepth, initial.begin()+acceptedDepth+visualPixels,
                                 middle.begin()+acceptedDepth), "accepted depth history did not change");
-            std::cout << "per_environment_object_and_masked_depth_rollback=pass\n";
+            std::cout << "per_environment_actor_object_and_masked_depth_rollback=pass\n";
             return 0;
         }
         const std::vector<float> firstDepth(
