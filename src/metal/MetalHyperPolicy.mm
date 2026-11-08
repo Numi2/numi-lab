@@ -142,6 +142,7 @@ struct MetalHyperPolicyRuntime::State {
     id<MTLComputePipelineState> adapterDownPipeline = nil;
     id<MTLComputePipelineState> adapterUpPipeline = nil;
     id<MTLComputePipelineState> finalizePipeline = nil;
+    id<MTLComputePipelineState> restorePipeline = nil;
 
     id<MTLBuffer> programHeader = nil;
     id<MTLBuffer> programArena = nil;
@@ -156,6 +157,8 @@ struct MetalHyperPolicyRuntime::State {
     id<MTLBuffer> scratchA = nil;
     id<MTLBuffer> scratchB = nil;
     id<MTLBuffer> previousActions = nil;
+    id<MTLBuffer> savedPhaseStates = nil;
+    id<MTLBuffer> savedPreviousActions = nil;
     id<MTLBuffer> phaseTrajectory = nil;
     id<MTLBuffer> actionTrajectory = nil;
     id<MTLBuffer> latentTrajectory = nil;
@@ -174,7 +177,7 @@ struct MetalHyperPolicyRuntime::State {
         return device != nil && library != nil &&
             signaturePipeline != nil && phasePipeline != nil &&
             adapterDownPipeline != nil && adapterUpPipeline != nil &&
-            finalizePipeline != nil && programHeader != nil &&
+            finalizePipeline != nil && restorePipeline != nil && programHeader != nil &&
             programArena != nil && actionLower != nil &&
             actionUpper != nil && maximumActionRate != nil &&
             header.policyFingerprint != 0u &&
@@ -276,6 +279,10 @@ struct MetalHyperPolicyRuntime::State {
             nextEnvironmentCapacity * sizeof(MRHyperPolicyPhaseStateGPU),
             @"HyperPolicy phase states"
         );
+        savedPhaseStates = makePrivate(
+            nextEnvironmentCapacity * sizeof(MRHyperPolicyPhaseStateGPU),
+            @"HyperPolicy saved phase states"
+        );
         signatures = makePrivate(
             signatureElements * sizeof(float),
             @"HyperPolicy live phase signatures"
@@ -299,6 +306,9 @@ struct MetalHyperPolicyRuntime::State {
         previousActions = makePrivate(
             actionElements * sizeof(float),
             @"HyperPolicy previous task actions"
+        );
+        savedPreviousActions = makePrivate(
+            actionElements * sizeof(float), @"HyperPolicy saved previous actions"
         );
         phaseTrajectory = [device
             newBufferWithLength:std::max<std::size_t>(
@@ -327,7 +337,8 @@ struct MetalHyperPolicyRuntime::State {
         if (phaseStates == nil || signatures == nil ||
             contactMasks == nil || rankWorkspace == nil ||
             scratchA == nil || scratchB == nil ||
-            previousActions == nil || phaseTrajectory == nil ||
+            previousActions == nil || savedPhaseStates == nil ||
+            savedPreviousActions == nil || phaseTrajectory == nil ||
             actionTrajectory == nil || latentTrajectory == nil ||
             logProbabilityTrajectory == nil) {
             return false;
@@ -338,8 +349,8 @@ struct MetalHyperPolicyRuntime::State {
         }
         for (id<MTLBuffer> buffer in @[
                 phaseStates, signatures, contactMasks, rankWorkspace,
-                scratchA, scratchB, previousActions,
-                phaseTrajectory, actionTrajectory, latentTrajectory,
+                scratchA, scratchB, previousActions, savedPhaseStates,
+                savedPreviousActions, phaseTrajectory, actionTrajectory, latentTrajectory,
                 logProbabilityTrajectory
              ]) {
             [blit fillBuffer:buffer
@@ -406,6 +417,20 @@ struct MetalHyperPolicyRuntime::State {
             )) {
             return false;
         }
+
+        // Snapshot accepted per-environment policy state before the signature
+        // kernel can reset phase or the finalizer advances action history.
+        id<MTLBlitCommandEncoder> snapshot = [commandBuffer blitCommandEncoder];
+        if (snapshot == nil) return false;
+        const std::size_t phaseBytes =
+            pass.environmentCount * sizeof(MRHyperPolicyPhaseStateGPU);
+        const std::size_t actionBytes =
+            static_cast<std::size_t>(pass.environmentCount) * pass.actionCount * sizeof(float);
+        [snapshot copyFromBuffer:phaseStates sourceOffset:0u
+                       toBuffer:savedPhaseStates destinationOffset:0u size:phaseBytes];
+        [snapshot copyFromBuffer:previousActions sourceOffset:0u
+                       toBuffer:savedPreviousActions destinationOffset:0u size:actionBytes];
+        [snapshot endEncoding];
 
         MRHyperPolicySignatureDispatchGPU signatureDispatch{};
         signatureDispatch.counts = {
@@ -624,6 +649,36 @@ struct MetalHyperPolicyRuntime::State {
 
         return true;
     }
+    bool afterStep(const MetalWorldDeviceObservationStepResult& result) {
+        const std::lock_guard lock(mutex);
+        if (!valid() || result.commandBuffer == nullptr ||
+            result.worldStatuses == nullptr || result.environmentCount == 0u ||
+            result.environmentCount > environmentCapacity ||
+            (result.contactMode && result.contactStatuses == nullptr) ||
+            phaseStates == nil || previousActions == nil ||
+            savedPhaseStates == nil || savedPreviousActions == nil) return false;
+        id<MTLCommandBuffer> command = (__bridge id<MTLCommandBuffer>)result.commandBuffer;
+        id<MTLBuffer> world = (__bridge id<MTLBuffer>)result.worldStatuses;
+        id<MTLBuffer> contact = result.contactMode
+            ? (__bridge id<MTLBuffer>)result.contactStatuses : world;
+        if (!sameDevice(device, world) || !sameDevice(device, contact)) return false;
+        id<MTLComputeCommandEncoder> encoder = [command computeCommandEncoder];
+        if (encoder == nil) return false;
+        encoder.label = @"HyperPolicy rejected-step state restore";
+        const mr_uint4 counts = {result.environmentCount, header.counts0.z,
+                                 result.contactMode ? 1u : 0u, 0u};
+        [encoder setComputePipelineState:restorePipeline];
+        [encoder setBuffer:phaseStates offset:0u atIndex:0u];
+        [encoder setBuffer:savedPhaseStates offset:0u atIndex:1u];
+        [encoder setBuffer:previousActions offset:0u atIndex:2u];
+        [encoder setBuffer:savedPreviousActions offset:0u atIndex:3u];
+        [encoder setBuffer:world offset:0u atIndex:4u];
+        [encoder setBuffer:contact offset:0u atIndex:5u];
+        [encoder setBytes:&counts length:sizeof(counts) atIndex:6u];
+        dispatchThreads(encoder, restorePipeline, result.environmentCount);
+        [encoder endEncoding];
+        return true;
+    }
 };
 
 
@@ -643,6 +698,16 @@ bool MetalHyperPolicyRuntime::encodeCallback(
     }
 }
 
+
+bool MetalHyperPolicyRuntime::afterStepCallback(
+    void* context, const MetalWorldDeviceObservationStepResult& result
+) noexcept {
+    if (context == nullptr) return false;
+    @autoreleasepool {
+        try { return static_cast<State*>(context)->afterStep(result); }
+        catch (...) { return false; }
+    }
+}
 
 MetalHyperPolicyRuntime::~MetalHyperPolicyRuntime() = default;
 MetalHyperPolicyRuntime::MetalHyperPolicyRuntime(
@@ -674,6 +739,8 @@ void MetalHyperPolicyRuntime::reset() noexcept {
         state_->scratchA = nil;
         state_->scratchB = nil;
         state_->previousActions = nil;
+        state_->savedPhaseStates = nil;
+        state_->savedPreviousActions = nil;
         state_->phaseTrajectory = nil;
         state_->actionTrajectory = nil;
         state_->latentTrajectory = nil;
@@ -697,6 +764,7 @@ MetalHyperPolicyRuntime::actionProgram() noexcept {
         .actionCount = state_->header.counts0.z,
         .stochastic =
             (state_->header.counts2.z & MR_HYPER_POLICY_STOCHASTIC) != 0u,
+        .afterStep = &MetalHyperPolicyRuntime::afterStepCallback,
     };
 }
 
@@ -850,7 +918,10 @@ MetalHyperPolicyDiagnostics createMetalHyperPolicyRuntime(
         staged->finalizePipeline = makePipeline(
             device, library, @"mr_hyper_policy_sample_and_finalize", &error
         );
-        if (staged->signaturePipeline == nil || staged->phasePipeline == nil ||
+        staged->restorePipeline = makePipeline(
+            device, library, @"mr_hyper_policy_restore_failed_step", &error
+        );
+        if (staged->restorePipeline == nil || staged->signaturePipeline == nil || staged->phasePipeline == nil ||
             staged->adapterDownPipeline == nil ||
             staged->adapterUpPipeline == nil ||
             staged->finalizePipeline == nil) {

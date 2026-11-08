@@ -1,0 +1,9 @@
+{
+  "baseline_unchanged_by_instrumentation": true,
+  "repaired_unchanged_by_instrumentation": true,
+  "repaired_ordinary_output_matches_baseline": true,
+  "initial_nonreset_failures_advancing_both_state_values": 3,
+  "failed_rows_with_full_restore": 5,
+  "accepted_rows_with_full_candidate_state": 55,
+  "replay_equal": true
+}

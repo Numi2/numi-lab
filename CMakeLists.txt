@@ -1600,6 +1600,27 @@ endif()
 
 if(BUILD_TESTING)
     find_package(Python3 REQUIRED COMPONENTS Interpreter)
+    add_executable(hyper-policy-rejection-probe tests/hyper_policy_rejection_probe.mm)
+    target_link_libraries(hyper-policy-rejection-probe PRIVATE
+        metalrobo "${FOUNDATION_FRAMEWORK}" "${METAL_FRAMEWORK}")
+    target_compile_options(hyper-policy-rejection-probe PRIVATE -fobjc-arc)
+    set_target_properties(hyper-policy-rejection-probe PROPERTIES
+        BUILD_RPATH "${CMAKE_CURRENT_BINARY_DIR}/lib")
+    add_test(NAME hyper_policy_physical_rejection
+        COMMAND "${Python3_EXECUTABLE}"
+            "${CMAKE_CURRENT_SOURCE_DIR}/tests/hyper_policy_rejection_test.py"
+            $<TARGET_FILE:hyper-policy-rejection-probe> "${METALROBO_HYPER_POLICY_METALLIB}")
+    set_tests_properties(hyper_policy_physical_rejection PROPERTIES
+        LABELS "robotics;policy;metal" TIMEOUT 120)
+    add_executable(hyper-policy-restore-test tests/hyper_policy_restore_test.mm)
+    target_include_directories(hyper-policy-restore-test PRIVATE "${CMAKE_CURRENT_SOURCE_DIR}/include")
+    target_link_libraries(hyper-policy-restore-test PRIVATE "${FOUNDATION_FRAMEWORK}" "${METAL_FRAMEWORK}")
+    target_compile_options(hyper-policy-restore-test PRIVATE -fobjc-arc)
+    add_dependencies(hyper-policy-restore-test metalrobo_hyper_policy_shaders)
+    add_test(NAME hyper_policy_restore_statuses
+        COMMAND hyper-policy-restore-test "${METALROBO_HYPER_POLICY_METALLIB}")
+    set_tests_properties(hyper_policy_restore_statuses PROPERTIES
+        LABELS "robotics;policy;metal" TIMEOUT 60)
     add_executable(hyper-policy-capacity-probe tests/hyper_policy_capacity_probe.mm)
     target_link_libraries(hyper-policy-capacity-probe PRIVATE
         metalrobo "${FOUNDATION_FRAMEWORK}" "${METAL_FRAMEWORK}")

@@ -1,0 +1,30 @@
+Test project /Users/numi/hyper-policy-capacity-build-20261108
+      Start 178: metalrobo.visual.tracker_encode_retry
+ 1/10 Test #178: metalrobo.visual.tracker_encode_retry ..........   Passed    0.37 sec
+      Start 185: metalrobo.visual.world_step_callback
+ 2/10 Test #185: metalrobo.visual.world_step_callback ...........   Passed    0.07 sec
+      Start 186: metalrobo.visual.world_step_callback_abort
+ 3/10 Test #186: metalrobo.visual.world_step_callback_abort .....   Passed    0.07 sec
+      Start 187: metalrobo.visual.history_step_rollback
+ 4/10 Test #187: metalrobo.visual.history_step_rollback .........   Passed    0.07 sec
+      Start 188: metalrobo.visual.reset_frame_materialized
+ 5/10 Test #188: metalrobo.visual.reset_frame_materialized ......   Passed    0.09 sec
+      Start 189: metalrobo.visual.reset_frame_fresh
+ 6/10 Test #189: metalrobo.visual.reset_frame_fresh .............   Passed    0.08 sec
+      Start 190: metalrobo.visual.reset_frame_rollback
+ 7/10 Test #190: metalrobo.visual.reset_frame_rollback ..........   Passed    0.09 sec
+      Start 191: metalrobo.visual.reset_frame_sampled_failure
+ 8/10 Test #191: metalrobo.visual.reset_frame_sampled_failure ...   Passed    0.08 sec
+      Start 192: metalrobo.visual.reset_frame_direct
+ 9/10 Test #192: metalrobo.visual.reset_frame_direct ............   Passed    0.07 sec
+      Start 193: metalrobo.visual.observation_lease
+10/10 Test #193: metalrobo.visual.observation_lease .............   Passed    0.06 sec
+
+100% tests passed out of 10
+
+Label Time Summary:
+metal        =   1.05 sec*proc (10 tests)
+metalrobo    =   1.05 sec*proc (10 tests)
+visual       =   1.05 sec*proc (10 tests)
+
+Total Test time (real) =   1.06 sec

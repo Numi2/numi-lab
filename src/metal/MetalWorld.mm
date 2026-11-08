@@ -21138,8 +21138,11 @@ MetalWorldDiagnostics MetalWorldContext::submitImpl(
                 }
 
                 pass.physicsSubstep = MR_INVALID_INDEX;
-                if (nativeTask && config.deviceObservationProgram.valid() &&
-                    config.deviceObservationProgram.afterStep != nullptr) {
+                if (nativeTask &&
+                    ((config.deviceActionProgram.valid() &&
+                      config.deviceActionProgram.afterStep != nullptr) ||
+                     (config.deviceObservationProgram.valid() &&
+                      config.deviceObservationProgram.afterStep != nullptr))) {
                     const MetalWorldDeviceObservationStepResult outcome{
                         .commandBuffer = (__bridge void*)commandBuffer,
                         .worldStatuses = (__bridge void*)selectedState->buffers[kEnvironmentStatuses],
@@ -21150,7 +21153,17 @@ MetalWorldDiagnostics MetalWorldContext::submitImpl(
                         .controlStep = controlStep,
                         .contactMode = contactMode,
                     };
-                    if (!config.deviceObservationProgram.afterStep(
+                    if (config.deviceActionProgram.valid() &&
+                        config.deviceActionProgram.afterStep != nullptr &&
+                        !config.deviceActionProgram.afterStep(
+                            config.deviceActionProgram.context, outcome)) {
+                        return reject(std::move(diagnostics),
+                            MetalWorldHostStatus::metalCommandFailure,
+                            "device action program rejected physical-step outcome");
+                    }
+                    if (config.deviceObservationProgram.valid() &&
+                        config.deviceObservationProgram.afterStep != nullptr &&
+                        !config.deviceObservationProgram.afterStep(
                             config.deviceObservationProgram.context, outcome)) {
                         return reject(std::move(diagnostics),
                             MetalWorldHostStatus::metalCommandFailure,

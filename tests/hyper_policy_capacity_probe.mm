@@ -43,6 +43,13 @@ static bool capturePolicy(void *opaque,
   [b endEncoding];
   return true;
 }
+static bool
+captureAfterStep(void *opaque,
+                 const MetalWorldDeviceObservationStepResult &result) noexcept {
+  auto *capture = static_cast<Capture *>(opaque);
+  return capture->inner.afterStep == nullptr ||
+         capture->inner.afterStep(capture->inner.context, result);
+}
 template <class T> void req(const T &d, const char *where) {
   if (!d.succeeded())
     throw std::runtime_error(std::string(where) + ": " + d.message);
@@ -149,6 +156,7 @@ int main(int argc, char **argv) {
         cfg.deviceActionProgram = original;
         cfg.deviceActionProgram.context = &cap;
         cfg.deviceActionProgram.encode = &capturePolicy;
+        cfg.deviceActionProgram.afterStep = &captureAfterStep;
         cfg.ccdMode = MetalWorldCCDMode::disabled;
         std::vector<float> q = run.model().defaultQ, v(run.world().nv(), 0);
         auto sceneSpan = run.defaultSceneBodies();

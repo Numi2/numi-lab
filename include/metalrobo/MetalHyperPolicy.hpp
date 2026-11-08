@@ -40,6 +40,10 @@ struct MetalHyperPolicyDiagnostics {
 // ARDY and the MLX hypernetwork are absent at execution time. The callback
 // consumes accepted q/v, native actor observations, and solved support loads,
 // then writes the task action row before the actuator program is applied.
+// The action program must retain its afterStep callback: it restores phase and
+// previous actions for individual environments whose physical step is rejected.
+// As with the execution state itself, callers must serialize submissions using
+// the same runtime and must not treat command-buffer failure as a completed step.
 class MetalHyperPolicyRuntime {
 public:
     MetalHyperPolicyRuntime() = default;
@@ -75,6 +79,10 @@ private:
     static bool encodeCallback(
         void* context,
         const MetalWorldDeviceActionPass& pass
+    ) noexcept;
+    static bool afterStepCallback(
+        void* context,
+        const MetalWorldDeviceObservationStepResult& result
     ) noexcept;
 
     friend MetalHyperPolicyDiagnostics createMetalHyperPolicyRuntime(

@@ -597,6 +597,13 @@ using MetalWorldDeviceActionEncode = bool (*)(
     const MetalWorldDeviceActionPass& pass
 ) noexcept;
 
+// Optional GPU callback after a physical step, using the same per-environment
+// status contract as observation owners. The callback borrows all resources;
+// wrappers that replace context must forward this callback to the same owner.
+using MetalWorldDeviceActionAfterStep = bool (*)(
+    void*, const MetalWorldDeviceObservationStepResult&
+) noexcept;
+
 struct MetalWorldDeviceActionProgram {
     void* context = nullptr;
     MetalWorldDeviceActionEncode encode = nullptr;
@@ -604,11 +611,12 @@ struct MetalWorldDeviceActionProgram {
     std::uint64_t taskFingerprint = 0u;
     std::uint32_t actionCount = 0u;
     bool stochastic = false;
+    MetalWorldDeviceActionAfterStep afterStep = nullptr;
 
     [[nodiscard]] bool configured() const noexcept {
         return context != nullptr || encode != nullptr ||
             policyRevision != 0u || taskFingerprint != 0u ||
-            actionCount != 0u || stochastic;
+            actionCount != 0u || stochastic || afterStep != nullptr;
     }
 
     [[nodiscard]] bool valid() const noexcept {
