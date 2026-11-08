@@ -1,0 +1,65 @@
+{
+  "alternatives": [
+    "The named implicit mode may intentionally define a different approximate saturation algorithm; that still requires explicit semantics and numerical qualification.",
+    "Crow release differences may additionally arise from contact integration, friction, other actuators or event segmentation. This isolated result cannot resolve their contributions."
+  ],
+  "budget": {
+    "native_invocations": 1,
+    "native_one_microstep_environments": 96,
+    "new_output_max_bytes": 1000000,
+    "stop": "One invocation, no retries/tuning. No native source change, new crow motor trial or deployment promotion.",
+    "timeout_seconds": 90
+  },
+  "calibration": {
+    "effective_inertia": 5.999999984851456e-06,
+    "fp64_mass_acceleration_error": 2.842170943040401e-14,
+    "model_valid": true,
+    "scalar_closed_form_vs_bisection_256_max_velocity_error": 4.440892098500626e-16
+  },
+  "command": [
+    "build/crow-implicit-drive-audit-build-01/probe",
+    ".numi/retained-runtime/implicit-drive-audit-20261108/metalrobo/MetalRobo.metallib",
+    "build/crow-implicit-drive-audit-build-01/native.tsv"
+  ],
+  "conditions": {
+    "durations_seconds": [
+      0.00125,
+      0.000625,
+      0.0003125,
+      0.00015625
+    ],
+    "initial_states": "Eight deterministic named lanes: neutral, tiny positive error, small damped velocity, positive/negative saturated error, two opposing initial velocities under saturation, and offset same-target damped motion.",
+    "paths": [
+      "freeMotionABA CCD disabled",
+      "temporalCone CCD disabled",
+      "temporalCone hybrid CCD, no contact/events"
+    ],
+    "replication": "Deterministic mechanism conditions, not biological or independent training replicates; no statistical population inference."
+  },
+  "inputs": {
+    ".numi/retained-runtime/implicit-drive-audit-20261108/libmetalrobo.dylib": "5b8766012ae4da995cbd26e9832ebd7a9bccbfb67e2af2bc72b960e028e2ec5f",
+    ".numi/retained-runtime/implicit-drive-audit-20261108/metalrobo/MetalRobo.metallib": "ea6fbf5e8365d6332251d27928202911604d3145636454abb2df560900b73372",
+    "build/crow-implicit-drive-audit-build-01/probe": "58288ac8e8d00c665142e1db621dad15e4f2675d2c1610b92ade33655b6358f9",
+    "build/crow-implicit-drive-audit-build-01/probe.cpp": "600ee7c7427ddce4a7d3bf726d009840b7b301de2cb5c101842efcb282ad0143",
+    "include/metalrobo/engine_types.h": "d6aade125399cc1dc8a8aa4604a68c4bb63f8a400adbd7f586228e3b57fa9ffd",
+    "src/metal/ArticulatedABA.metal": "a603370e8d2edb9764ffa36d66f4ff5110926463fc58fca02619ba71ffcf019c",
+    "src/metal/ArticulatedInverseMass.metal": "4833d1701012e516954191e86843d5c09a6e0a8be74605f06304361254169090",
+    "src/metal/ArticulatedParallelABA.metal": "1c96247b537f8a2e9b58988b44a1ef578a9cb156c052e3f8d5dddbaace6fe51a",
+    "src/metal/MetalWorld.metal": "caa9b200ebcfdccd6a0a987638b7dea59f04397074dde10248b1e0959f395ce5",
+    "src/metal/MetalWorld.mm": "ccfe99b968d544895fed0addf231b472bb9c1d4428bb4bc28bd043a6bf897f41",
+    "src/metal/MetalWorldContact.metal": "1e4ebcbf32218b0a6dd89c1de1c472d8e985eec2ef70a95180c9986a50bef476"
+  },
+  "mechanism": "Current refresh clamps K(target-q-h*v)-D*v; ABA always augments inertia by hD+h^2K. Saturating implicit dynamics instead requires M*(v_next-v)/h=clip(K*(target-q-h*v_next)-D*v_next, +/-limit).",
+  "model": "Fixed-root single revolute hinge, COM at hinge, inertia4e-6kg*m2 plus armature2e-6, K=.30Nm/rad,D=.015Nm*s/rad,limit=.01Nm; no body damping/gravity/colliders/profile/native task. Stored FP32 parameters are promoted to FP64 for predictions.",
+  "notebook": "tools/numi science unavailable (unknown capability); equivalent sealed Git plan, exact inputs/calibration, native command/raw observations and revisions retained.",
+  "prediction": {
+    "all24_zero_initial_velocity_saturated_cases_have_realized_torque_deficit_fraction_at_least": 0.25,
+    "all48_unsaturated_controls_match_independent_saturated_backward_Euler_velocity_max_absolute_error": 2e-06,
+    "all96_native_rows_match_current_clamp_then_augmented_inertia_formula_absolute_velocity_error_max": 2e-06,
+    "native_q_matches_q_plus_h_vnext_absolute_error_max": 2e-07
+  },
+  "purpose": "Mechanism qualification of the native torque-limited implicit position drive; diagnose a possible source of cadence dependence without claiming the crow release root cause.",
+  "question": "Does clamping the pre-integration drive before applying unconditional implicit mass augmentation disagree with the actual saturated backward-Euler drive equation?",
+  "refutation": "Any valid observation violating a prediction contradicts that part. Native rejection/missing row or failed mass/reference calibration makes the study inconclusive. All outcomes retained.",
+  "source_commit": "14d8e8649cc6fdedff90c70affcd89eee745042d"
+}
