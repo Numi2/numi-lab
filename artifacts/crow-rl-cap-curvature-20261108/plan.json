@@ -1,0 +1,98 @@
+{
+  "baseline_revision": "88e37ae2f0237fa0936ca65bfe90893c80fbbbeb",
+  "budget": {
+    "closure_cases_per_command": 10,
+    "native_commands": 8,
+    "projection_cases_per_command": 33,
+    "raw_bytes_max": 15000000,
+    "timeout_seconds_each": 60
+  },
+  "candidate_patch": {
+    "new": "                    capAlpha *",
+    "old": "                    capAlpha / radius *"
+  },
+  "candidate_sha256": "48c3ce600907519b28b59e4ba68a549cb518c11d138bf1785c8274f87e9fa427",
+  "controls": [
+    "isotropic closed form at radii .25,1,2,4",
+    "adhesive radius .25",
+    "unit-radius control",
+    "cap-interior and uncapped interior/vertex/boundary controls",
+    "independent finite-difference calibration of weighted capped-ball derivative",
+    "both direct and PCG full-solver Newton closure",
+    "exact repeated submissions"
+  ],
+  "experimental_units": "33 fixed constitutive inputs and ten deterministic solver probes; repeats are determinism controls, not ecological or independent training replicates.",
+  "inputs": {
+    "build/crow-cap-curvature-build-01/cases.bin": {
+      "bytes": 5032,
+      "sha256": "255bcbadb8106a5ac559156fdfba6127e621a865d997d7c734b049ae5e760807"
+    },
+    "build/crow-cap-curvature-build-01/fixed/MetalUnifiedQualitySolver.metal": {
+      "bytes": 93649,
+      "sha256": "48c3ce600907519b28b59e4ba68a549cb518c11d138bf1785c8274f87e9fa427"
+    },
+    "build/crow-cap-curvature-build-01/old/MetalUnifiedQualitySolver.metal": {
+      "bytes": 93658,
+      "sha256": "0ead26f0181754bdbc33ab4c02a7b5a91f3f65e97a98be5cd0919388306c0168"
+    },
+    "build/crow-cap-curvature-build-01/runtime/libmetalrobo.dylib": {
+      "bytes": 5711408,
+      "sha256": "1368fa931e24c336953fcda6fb904734391f3ebe56063dd53eb237bcc1a3bbc6"
+    }
+  },
+  "limits": "Corrects a capped projection derivative only; current crow captured problems are uncapped. Does not solve their precision rejection, qualify physical feeding or authorize tolerance changes.",
+  "mechanism": "Ball root returns y_t=-c_t/(d_t+alpha). The norm-constraint multiplier is alpha*radius; its tangential curvature is alpha*(I-u*uT). Dividing alpha by radius again is inconsistent.",
+  "order": [
+    "old-0",
+    "fixed-0",
+    "fixed-1",
+    "old-1"
+  ],
+  "owner": "src/metal/MetalUnifiedQualitySolver.metal",
+  "owner_sha256": "0ead26f0181754bdbc33ab4c02a7b5a91f3f65e97a98be5cd0919388306c0168",
+  "predictions": {
+    "baseline_nonunit_closed_derivative_abs_error_min": 0.005,
+    "baseline_nonunit_one_newton_rejections": 8,
+    "baseline_unit_one_newton_closure_passes": 2,
+    "candidate_derivative_abs_error_max": 2e-05,
+    "candidate_one_newton_closure_passes": 10,
+    "projection_impulses_and_merits_bit_exact": true,
+    "repeated_binary_and_typed_outputs_exact": true,
+    "unaffected_control_derivatives_bit_exact": true,
+    "unit_control_baseline_abs_error_max": 2e-05
+  },
+  "production_changes_before_qualification": false,
+  "question": "Does capped-cone ball KKT use curvature alpha rather than alpha/radius, and does correcting it restore one-step Newton closure?",
+  "schema": "crow-cap-derivative-study-v1",
+  "sources": {
+    "cases.json": {
+      "bytes": 14085,
+      "sha256": "8c9e5b975527806e83db63bec40826f578256f35e0f4f2daf7bceae6f5979bef"
+    },
+    "closure.cpp": {
+      "bytes": 2496,
+      "sha256": "f9e92122e2cbb4ed3536b17741e814af03a149e2343982f081e52b51230812e7"
+    },
+    "independent-reference.py": {
+      "bytes": 8244,
+      "sha256": "89f85b795eb8a5d0f1041e00a9a99ccf871636b1dacf6ffd61038565de98d4b0"
+    },
+    "prepare.py": {
+      "bytes": 5208,
+      "sha256": "46b7f9f14992b3834f186294d3401ee1165a16fc421cb13fc5e58c5eec4b49bc"
+    },
+    "project.metal": {
+      "bytes": 708,
+      "sha256": "5ebe790c75e89d791a8eb211aa8b7b9be4583230a11f7daef6572416ffac3b8d"
+    },
+    "project.mm": {
+      "bytes": 2711,
+      "sha256": "554c5fa9536273f5fde76d8a00d2444c65368c4a097dd054b4ebac5b49fa21a5"
+    },
+    "run.py": {
+      "bytes": 6310,
+      "sha256": "38de9fbfca0c4a81784f9df29d4244f38847c7ab1c69e370fd136b3fa581dcd6"
+    }
+  },
+  "stopping": "Stop unexpected process, malformed or nonfinite output. Preserve scientific prediction failures, no new candidates or budget extension."
+}
