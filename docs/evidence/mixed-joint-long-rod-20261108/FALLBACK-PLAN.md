@@ -1,0 +1,3 @@
+# Forced denied-block fallback control
+
+Before claiming the selected-inverse guard fails closed, generate a diagnostic-only shader that forces its joint-block admission predicate false for the existing five- and nine-node fixtures. Compare its full exposed 20-step traces against the prior v2 shader, whose three-node limit also disables the joint block on these fixtures. Require matching non-scratch physical state, contact status, impulses and rejection patterns, plus capture-free/repeat checks. Keep this forced guard denial separate from the 12 native guard-input tests: neither this artificial denial nor a standalone predicate test is an actual physical out-of-band contact island. Record all differences or failures without changing tolerances.
