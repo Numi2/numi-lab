@@ -1,0 +1,11 @@
+Test project /Users/numi/numi-reconciliation-build-20261108
+    Start 118: metalrobo.runtime.run_program
+1/1 Test #118: metalrobo.runtime.run_program ....   Passed    0.21 sec
+
+100% tests passed out of 1
+
+Label Time Summary:
+metalrobo    =   0.21 sec*proc (1 test)
+runtime      =   0.21 sec*proc (1 test)
+
+Total Test time (real) =   0.22 sec

@@ -1,0 +1,22 @@
+Test project /Users/numi/numi-reconciliation-build-20261108
+    Start  13: hyper_policy_physical_rejection
+1/5 Test  #13: hyper_policy_physical_rejection ....   Passed    0.62 sec
+    Start  14: hyper_policy_restore_statuses
+2/5 Test  #14: hyper_policy_restore_statuses ......   Passed    0.01 sec
+    Start  15: hyper_policy_capacity_continuity
+3/5 Test  #15: hyper_policy_capacity_continuity ...   Passed    0.45 sec
+    Start  16: hyper_policy_environment_growth
+4/5 Test  #16: hyper_policy_environment_growth ....   Passed    0.37 sec
+    Start 118: metalrobo.runtime.run_program
+5/5 Test #118: metalrobo.runtime.run_program ......   Passed    0.08 sec
+
+100% tests passed out of 5
+
+Label Time Summary:
+metal        =   1.46 sec*proc (4 tests)
+metalrobo    =   0.08 sec*proc (1 test)
+policy       =   1.46 sec*proc (4 tests)
+robotics     =   1.46 sec*proc (4 tests)
+runtime      =   0.08 sec*proc (1 test)
+
+Total Test time (real) =   1.54 sec

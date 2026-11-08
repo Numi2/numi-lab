@@ -1,0 +1,22 @@
+Test project /Users/numi/numi-tracker-step-rollback-build-20261108
+    Start   5: hyper_policy_physical_rejection
+1/5 Test   #5: hyper_policy_physical_rejection ....   Passed    0.81 sec
+    Start   6: hyper_policy_restore_statuses
+2/5 Test   #6: hyper_policy_restore_statuses ......   Passed    0.08 sec
+    Start   7: hyper_policy_capacity_continuity
+3/5 Test   #7: hyper_policy_capacity_continuity ...   Passed    0.59 sec
+    Start   8: hyper_policy_environment_growth
+4/5 Test   #8: hyper_policy_environment_growth ....   Passed    0.52 sec
+    Start 110: metalrobo.runtime.run_program
+5/5 Test #110: metalrobo.runtime.run_program ......   Passed    0.19 sec
+
+100% tests passed out of 5
+
+Label Time Summary:
+metal        =   2.00 sec*proc (4 tests)
+metalrobo    =   0.19 sec*proc (1 test)
+policy       =   2.00 sec*proc (4 tests)
+robotics     =   2.00 sec*proc (4 tests)
+runtime      =   0.19 sec*proc (1 test)
+
+Total Test time (real) =   2.20 sec
