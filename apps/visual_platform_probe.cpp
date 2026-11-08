@@ -892,7 +892,7 @@ int main() {
                 return values;
             };
             auto previous = pixels();
-            bool held = true, sampledChange = false;
+            bool held = true, sampledChange = false, historyOK = true;
             for (std::uint32_t step=1; step<=3; ++step) {
                 for (std::uint32_t e=0; e<kEnvironmentCount; ++e) tasks[e].episode.x=step;
                 if (step == 2) bodies[trackedBody].position.x += 0.20f;
@@ -908,6 +908,12 @@ int main() {
                 [cb waitUntilCompleted];require(cb.status==MTLCommandBufferStatusCompleted,"hold completion");
                 metalrobo::HybridObservationBatch capture;require(renderer.readback(capture),"hold metadata");
                 auto current=pixels();
+                const auto* output = static_cast<const float*>(observationBuffer.contents);
+                for (std::uint32_t e=0; e<kEnvironmentCount; ++e) {
+                    const auto* prior = output + e*kTrackWidth + kActorFrameSize*kActorHistoryLength + visualPixels;
+                    historyOK = historyOK && std::equal(prior, prior + visualPixels,
+                                                       previous.begin() + e*visualPixels);
+                }
                 const auto changed = static_cast<std::size_t>(std::inner_product(
                     previous.begin(),previous.end(),current.begin(),std::size_t{0},std::plus<>(),
                     [](float x,float y){return std::memcmp(&x,&y,sizeof(float)) != 0 ? std::size_t{1} : std::size_t{0};}));
@@ -917,6 +923,7 @@ int main() {
                 previous=std::move(current);
             }
             require(sampledChange, "fresh sample did not change");
+            require(historyOK, "masked depth sparse history changed");
             require(held, "unsampled masked depth changed");
             return 0;
         }

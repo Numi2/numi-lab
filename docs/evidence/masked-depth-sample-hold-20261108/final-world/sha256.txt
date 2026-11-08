@@ -1,0 +1,7 @@
+a7b91174f6486b23c4294ceb6404fe7b9bfc658e4cb9dc270156fe797a4ffb06  docs/evidence/masked-depth-sample-hold-20261108/pre-fingerprint-captures.tar.gz
+df3c492fb55509c20934a4d31ffae0467d3904184bcbb2ac6632c40d2e9caaaa  docs/evidence/masked-depth-sample-hold-20261108/final-world/captures.tar.gz
+d8bd1d10177b72004f29360e2ec979b4c72ff3b8da2a708dfddfd0aa85e64e61  /Users/numi/numi-reconciliation-build-20261108/lib/libmetalrobo.dylib
+3272d1b3799d29504d7d90b3330f17162a0d6c79e687ef366ca741f8dc8e3f3d  /Users/numi/numi-reconciliation-build-20261108/shaders/MetalRobo.metallib
+ea6ef1896547433f6270a81d9b345861fb28b865b72c1104b6a4cb1c01d862e6  /Users/numi/numi-reconciliation-build-20261108/bin/metalrobo_visual_platform_probe
+27165d0b72729e7e5af0d7d23ec84242d6604b6b026a9284e72f0f1879f539ba  /Users/numi/numi-reconciliation-build-20261108/metalrobo_masked_depth_validity_test
+8d0a12cbe5fd0fb35da3507d2da68216302e8a1b55ba415d8ba28940fe62f0aa  /Users/numi/Work/masked-depth-hold-world-final-20261108/probe
