@@ -1,0 +1,5 @@
+[0/2] Re-checking globbed directories...
+[1/5] Building CXX object CMakeFiles/metalrobo.dir/src/core/TaskProgram.cpp.o
+[2/5] Linking CXX shared library lib/libmetalrobo.dylib
+[3/5] Linking CXX executable metalrobo_masked_depth_hold_fingerprint_test
+[4/5] Linking OBJCXX executable bin/metalrobo_visual_platform_probe

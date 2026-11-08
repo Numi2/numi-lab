@@ -4511,6 +4511,10 @@ TaskCompileDiagnostics compileTaskProgram(
     // Old policies may have observed corrupted clear values as near depth.
     if (hasVisualProgram) {
         observationHash.scalar(std::uint32_t{0x44505601u});
+        // Masked-depth measurements now hold their noise and dropout until
+        // the next camera capture. Policies bound to the old per-control-step
+        // redraw semantics must be requalified against this sensor contract.
+        observationHash.scalar(std::uint32_t{0x44485301u});
     }
     // Object tracks use the complete per-environment actor observation
     // stride when actorCurrent or visual suffixes extend compact history.
