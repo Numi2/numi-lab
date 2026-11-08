@@ -1,0 +1,10 @@
+f52e8701f377fb2b9886b52e25ff7d5cc2185ececfd3ad6c212d7a3ee30c9099  docs/evidence/rod-production-coupled-20261108/PLAN.md
+7ce04423f1f012d5b47c56f376223fdf8662bfae85ca0e5d6f571bed526f508c  docs/evidence/rod-production-coupled-20261108/probe.mm
+3d092fd492588215e9fee12feb451f7f40e528439a7b425945e815338109d2ca  docs/evidence/rod-production-coupled-20261108/run.py
+41b45da8b6009c04d92f17de31becfdd9c3a19b1059ad519fc6ab63a3178a225  docs/evidence/rod-production-coupled-20261108/build.sh
+0613f58b0e5b9176823bdd0987c82da0efbbaf83a23ef48ac9b126c953a39ea4  /Users/numi/rod-production-coupled-20261108/probe
+047d5a96405944adae405546127355b71834553239ab90c7f7b84b7bdb541f1c  /Users/numi/numi-tracker-step-rollback-build-20261108/lib/libmetalrobo.dylib
+3452340ef76cb6e851f1fb3b971342528a95ea7da0fb9dcbf9d097d90cdfb4aa  /Users/numi/numi-tracker-step-rollback-build-20261108/shaders/MetalRobo.metallib
+8f788c6f2221dcb77df85667fb9968c7c726a923369498a7723f0684c4c2242d  docs/evidence/rod-coupled-bend-20261108/solve-cases.json
+4e970668508e12b57412a67e72128caea12ed5f31145d3a3e40583b1cd971196  docs/evidence/rod-coupled-bend-20261108/solve-analysis.json
+a86644d9e1c88991726e487422f68969fedef562148ef29b42213150affeec40  docs/evidence/rod-coupled-bend-20261108/native-full-energy
