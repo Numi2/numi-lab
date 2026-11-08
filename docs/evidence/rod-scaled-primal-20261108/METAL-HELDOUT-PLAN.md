@@ -1,0 +1,5 @@
+# Metal vector held-out fixtures
+
+Generate twelve previously unused deterministic fixtures with seed 20261109, 5/9/13/17 nodes, random 3D orientations, curved initial geometries, finite translations, asymmetric moving middle nodes, moving hard endpoints and optional interior soft anchors. Retain every generated input and obtain a dense FP64 full-Newton reference before dispatch. Require the same all-node position, support-reaction and independent published-coordinate local-force gates as the registered primary screen. A reference that does not reach 1e-8 N local residual is reported as unqualified; a candidate status other than zero fails. Run the same Metal binary once and repeat its output byte-for-byte. Do not retune the seed, cases or gates after inspection.
+
+This remains an isolated stretch/attachment test, without bending, twist, contact, force transfer into articulated bodies, persistent ownership, or performance claims. Passing it does not promote the prototype. Both named experimental collision/contact options remain disabled.
