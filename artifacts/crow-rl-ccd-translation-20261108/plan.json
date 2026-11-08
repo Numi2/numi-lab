@@ -1,0 +1,146 @@
+{
+  "analysis": "Retain every raw record; compare flags/status, qualified reference crossings and pair order. Initial overlap, literal stationary and any rotating box are exact byte controls. Do not count a typed unresolved record as unsafe no-impact; it still fails success target. Any unsafe no-impact contradicts the repair.",
+  "budget": {
+    "captured_replays": 4,
+    "native_grid_executions": 3,
+    "raw_max_bytes": 33554432,
+    "stop": "One baseline, candidate and candidate repeat on grid, four candidate captured replays. No retries, tolerance/budget changes, learning run or production replacement. Further revisions require new sealed plan and unused conditions.",
+    "timeout_seconds_each": 180
+  },
+  "candidate_sha256": "d94b6fa5a8bfb67539da1d3d5269fb223a451665053bf9ec4313ea109a6e2eec",
+  "experimental_units": "4096 distinct synthetic projected geometries, both pair orders (8192 records); four retained real failing sweeps are development replication. Frames and pair orders are not independent biological replicates.",
+  "inputs": {
+    "build/crow-ccd-translation-build-01/Collision.candidate.metal": {
+      "bytes": 411540,
+      "sha256": "d94b6fa5a8bfb67539da1d3d5269fb223a451665053bf9ec4313ea109a6e2eec"
+    },
+    "build/crow-ccd-translation-build-01/baseline-query.metallib": {
+      "bytes": 947199,
+      "sha256": "aee7541a8ce2ca40ce9bfbff1d10f3d13459d3e844756257d4028023374c1d1d"
+    },
+    "build/crow-ccd-translation-build-01/baseline.metallib": {
+      "bytes": 4210978,
+      "sha256": "80b9c0535c353fa1cd98d381e92f7cd0bf869da328eb419839d8310e6925ebd0"
+    },
+    "build/crow-ccd-translation-build-01/candidate_probe.metal": {
+      "bytes": 1439,
+      "sha256": "851e429c2e17c0c2d484663a7c67feb544f588fd3a3f35279504da94f3886ec2"
+    },
+    "build/crow-ccd-translation-build-01/cases.bin": {
+      "bytes": 1310724,
+      "sha256": "a866d9c9f795da34ce176c0f74d3022c05e9c4ad6158b256873126c5c16de357"
+    },
+    "build/crow-ccd-translation-build-01/cases_probe": {
+      "bytes": 57976,
+      "sha256": "8587ecde51ef2182265d13aa2d19efbef0bbdbd59a3cf35d0b97bf3467814057"
+    },
+    "build/crow-ccd-translation-build-01/cases_probe.mm": {
+      "bytes": 4240,
+      "sha256": "001ba2fc2f212dd72ced380ee2c55b7f28d5d3ba8f4afe7db7b51065d5b7d974"
+    },
+    "build/crow-ccd-translation-build-01/groups.json": {
+      "bytes": 61699,
+      "sha256": "818993079bd29237be8213e4376aecf17d1703b1ce330eaa47d53cfcc959dad4"
+    },
+    "build/crow-ccd-translation-build-01/input/clamp-replay.bin": {
+      "bytes": 4240,
+      "sha256": "0c96bb130fb6c4e2cbd22236718a5f977d4977ef4c3256d2354782d36581b99a"
+    },
+    "build/crow-ccd-translation-build-01/input/clamp-replay.json": {
+      "bytes": 2186,
+      "sha256": "5c3bc5ec8d6324ceda4f540b2a0a8cce2be8d51a568d11c72ea3d016ea395ad9"
+    },
+    "build/crow-ccd-translation-build-01/input/clamp.ccdsweep": {
+      "bytes": 13344,
+      "sha256": "6c861cdda4886db37534a25d45e5fbdd13db978177f0ea1538d6c9bad4df63d7"
+    },
+    "build/crow-ccd-translation-build-01/input/open-replay.bin": {
+      "bytes": 4240,
+      "sha256": "2bb2ead449be64b268a2b2d10733614df1a2217fee2cbdf2c864cdc8731ef8d7"
+    },
+    "build/crow-ccd-translation-build-01/input/open-replay.json": {
+      "bytes": 2188,
+      "sha256": "5cb23f8fffd1e9c625e45490f4402a804be4d8b85df3e3d6b06cab26c3b2e942"
+    },
+    "build/crow-ccd-translation-build-01/input/open.ccdsweep": {
+      "bytes": 13344,
+      "sha256": "acecf558a50153eb36078073e03dc0edde8b2e7b5ed90a2b4399e5a924839307"
+    },
+    "build/crow-ccd-translation-build-01/input/refinement-replay.bin": {
+      "bytes": 4240,
+      "sha256": "7b0251935c0ccfa7eaddc5bbc91852d6f3eb9b00ac6b7f739a608fe7006f400f"
+    },
+    "build/crow-ccd-translation-build-01/input/refinement-replay.json": {
+      "bytes": 2196,
+      "sha256": "125829c8f025e4e49859d4c4d76d3e11ed947170321c26228f78a70c8d788e4a"
+    },
+    "build/crow-ccd-translation-build-01/input/refinement.ccdsweep": {
+      "bytes": 13344,
+      "sha256": "8d8532d4c635b031ee37e6e0077022ef7d9cd6ac35ec2d7e19adb06f48180e6d"
+    },
+    "build/crow-ccd-translation-build-01/input/zero-friction-replay.bin": {
+      "bytes": 4240,
+      "sha256": "db8ffa66d77fd6963b4778eb7b391244bb114be32a78ab771202df91150be8fc"
+    },
+    "build/crow-ccd-translation-build-01/input/zero-friction-replay.json": {
+      "bytes": 2172,
+      "sha256": "707f7e20ac80134b120b9e844e2c28fedbdd1f3a54f7384baf20debdf8e7c1aa"
+    },
+    "build/crow-ccd-translation-build-01/input/zero-friction.ccdsweep": {
+      "bytes": 13344,
+      "sha256": "de83e92d87bddcc1769c37cbf2d8dedca67362e8837291e694d9342462633deb"
+    },
+    "build/crow-ccd-translation-build-01/oracle.json": {
+      "bytes": 603823,
+      "sha256": "2c8234e705ed034a3f619ff69616ecfb86ef4b60bb819c1963c0b4924d3354b8"
+    },
+    "build/crow-ccd-translation-build-01/oracle.py": {
+      "bytes": 2532,
+      "sha256": "fda0a00e435792ed644bf0cead5d33446cf59d6da29416f552c41a1d247e59da"
+    },
+    "build/crow-ccd-translation-build-01/preparation-attempt1.json": {
+      "bytes": 245,
+      "sha256": "43b4d8f9c05162b876dbefc13dcf5d4bd331b928607c723dc88832cde027560b"
+    },
+    "build/crow-ccd-translation-build-01/prepare-v1.py": {
+      "bytes": 7656,
+      "sha256": "141c5efa31a888b0ca4658d3ff759fdc34192b967ef8e7dbaf0636e02c498e23"
+    },
+    "build/crow-ccd-translation-build-01/prepare.py": {
+      "bytes": 7827,
+      "sha256": "ee31acab0cd3c581038e2069a653943e79b99248a4878c728e1a722b5f79aa99"
+    },
+    "build/crow-ccd-translation-build-01/run.py": {
+      "bytes": 6225,
+      "sha256": "3279f188f3aca5df2b1329885363a5e9860549e6aaf69c4160d7075fa1aaab31"
+    },
+    "build/crow-ccd-translation-build-01/sweep_probe": {
+      "bytes": 95704,
+      "sha256": "29a4276b74e0b31410b14eb31b3cb90b53b994f2759b85895009eec7d5584326"
+    }
+  },
+  "model": "Candidate changes CA denominator to -dot(query.normal, relative endpoint displacement) only for analytic sphere-box with literal box-quaternion endpoint equality. Nonpositive closure certifies separation on that plane. Existing initial-overlap/stationary/speculative guards, distance queries, minimum step, tolerance, sixteen-iteration budget and rotating-box path unchanged.",
+  "oracle": "Independent continuous FP64 point-to-AABB piecewise quadratic cast. Known face/edge/corner first contact, tangent null and initial overlap calibrated before native trials. 0.5 micrometre ambiguity band acknowledges float32 pose interpolation; all grey cases and records retained.",
+  "prediction": {
+    "all_257_native_distance_query_records_per_capture_byte_exact": true,
+    "all_four_captured_pairs_resolve": true,
+    "candidate_repetition_byte_exact": true,
+    "eligible_unambiguous_native_success_fraction_at_least": 0.99,
+    "eligible_unresolved_count_reduction_at_least_fraction": 0.5,
+    "initial_overlap_stationary_rotating_baseline_records_byte_exact": true,
+    "zero_successful_unprotected_no_impact_records_for_FP64_reference_crossings_deeper_than_0_5_um": true
+  },
+  "preparation_sealing_note": "No native trial observations yet. Closed preparation logs and rebuildable Python bytecode are evidence, not experiment input; excluded from immutable input bindings before Git sealing.",
+  "purpose": "engineering exploration; exact failure diagnosis plus unused synthetic conditions, no biological claim",
+  "question": "Can a translating fixed-orientation sphere-box pair advance from its separating plane without treating tangential motion or sphere spin as normal closing motion?",
+  "seed": 2651521101,
+  "source_commit": "d094ba5b41e16ce6cc2127a0a99012d39798a1ec",
+  "source_path": "src/metal/Collision.metal",
+  "unused_followup_seed": 2651521901,
+  "validity": [
+    "Actual native mr_world_resolve_ccd from baseline/candidate shaders, no replacement host physics.",
+    "Native distance query bytes unchanged on exact captures.",
+    "Every missing, rejected or mismatched control blocks promotion.",
+    "No claim of general rotating-body correctness or physical beak capability from synthetic grid."
+  ]
+}
