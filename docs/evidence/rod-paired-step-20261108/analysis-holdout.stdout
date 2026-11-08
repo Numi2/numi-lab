@@ -1,0 +1,31 @@
+{
+  "x": {
+    "cases": 9,
+    "accepted": 9,
+    "passed_all_gates": 9,
+    "rejected": 0,
+    "repeat_equal": 9,
+    "identical_prior": 0,
+    "max_position_error_m": 2.9371644005848907e-13,
+    "max_velocity_error_m_s": 7.0418274544792325e-09,
+    "max_force_error_N": 9.795794286837634e-09,
+    "max_work_error_J": 2.2239648909285858e-13,
+    "max_local_residual_m_s": 1.6667599625763696e-06,
+    "max_gradient_disagreement_m_s": 3.335157574557712e-07
+  },
+  "oblique3": {
+    "cases": 0,
+    "accepted": 0,
+    "passed_all_gates": 0,
+    "rejected": 0,
+    "repeat_equal": 0,
+    "identical_prior": 0,
+    "max_position_error_m": null,
+    "max_velocity_error_m_s": null,
+    "max_force_error_N": null,
+    "max_work_error_J": null,
+    "max_local_residual_m_s": null,
+    "max_gradient_disagreement_m_s": null
+  }
+}
+Failures: []
