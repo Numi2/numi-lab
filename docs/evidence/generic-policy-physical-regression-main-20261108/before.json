@@ -1,0 +1,97 @@
+{
+  "incumbent": {
+    "task": "grasp",
+    "world_source": "world_pack",
+    "termination_count_by_environment": [
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0
+    ],
+    "termination_count": 0,
+    "failed_environment_steps": 0,
+    "mean_task_reward": 0.1,
+    "mean_reward": 0.1
+  },
+  "candidate": {
+    "task": "grasp",
+    "world_source": "world_pack",
+    "termination_count_by_environment": [
+      1,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0
+    ],
+    "termination_count": 1,
+    "failed_environment_steps": 0,
+    "mean_task_reward": 0.2,
+    "mean_reward": 0.2,
+    "termination_reason_counts": {
+      "3": 1
+    }
+  },
+  "decision": {
+    "schema": "numi.policy-selection.v1",
+    "task": "grasp",
+    "selected": "candidate",
+    "candidate_advanced_deployment": true,
+    "regressions": [
+      "termination rate increased"
+    ],
+    "improvements": [
+      "authored task outcome increased",
+      "total task reward increased"
+    ],
+    "candidate_retained": true,
+    "selection_score": 0.3625,
+    "selection_method": "continuous_authored_task_outcome",
+    "metrics": {
+      "world_source": "world_pack",
+      "incumbent_termination_rate": 0.0,
+      "candidate_termination_rate": 0.0625,
+      "incumbent_physical_failure_rate": 0.0,
+      "candidate_physical_failure_rate": 0.0625,
+      "incumbent_clean_horizon_environment_rate": 0.0,
+      "candidate_clean_horizon_environment_rate": 0.0,
+      "incumbent_mean_tilt": 0.0,
+      "candidate_mean_tilt": 0.0,
+      "incumbent_mean_root_height": 0.0,
+      "candidate_mean_root_height": 0.0,
+      "incumbent_mean_peak_forward_progress_m": 0.0,
+      "candidate_mean_peak_forward_progress_m": 0.0,
+      "incumbent_mean_final_forward_progress_m": 0.0,
+      "candidate_mean_final_forward_progress_m": 0.0,
+      "incumbent_mean_task_reward": 0.1,
+      "candidate_mean_task_reward": 0.2,
+      "incumbent_mean_reward": 0.1,
+      "candidate_mean_reward": 0.2,
+      "incumbent_mean_tracking_score": 0.0,
+      "candidate_mean_tracking_score": 0.0,
+      "adult_authored_outcomes": {}
+    }
+  }
+}

@@ -1,0 +1,14 @@
+.......................E.......
+======================================================================
+ERROR: test_selector_cli_preserves_incumbent_on_physical_regression (__main__.PolicySelectionTest.test_selector_cli_preserves_incumbent_on_physical_regression)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/numi/numi-lab-policy-repair-main-20261108/tests/policy_selection_test.py", line 515, in test_selector_cli_preserves_incumbent_on_physical_regression
+    completed = subprocess.run(
+                ^^^^^^^^^^
+NameError: name 'subprocess' is not defined. Did you forget to import 'subprocess'?
+
+----------------------------------------------------------------------
+Ran 31 tests in 0.201s
+
+FAILED (errors=1)
