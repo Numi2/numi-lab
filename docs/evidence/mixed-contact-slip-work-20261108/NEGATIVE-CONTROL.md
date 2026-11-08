@@ -1,0 +1,3 @@
+# Direction-check negative control
+
+After the native runs, test the existing preregistered analyzer with an explicitly corrupted copy of the traced output: replace the final tangential velocity of an active 64-sweep frictional sphere-plane row by its tangential impulse. All other fields and the baseline remain unchanged. The injected vector makes the signed tangential impulse-velocity product positive and contradicts the independent rigid-point reconstruction. The analyzer must report both failures without treating the mutation as a physical simulation. Retain the mutated JSON and results separately.

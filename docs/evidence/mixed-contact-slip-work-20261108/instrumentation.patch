@@ -1,0 +1,14 @@
+--- split-research.metal
++++ slip-trace.metal
+@@ -8957,6 +8957,11 @@
+             ? abs(normalEquation)
+             : max(-normalEquation, 0.0f)
+         );
++        // Diagnostic-only: preserve the physical final row velocities.
++        contact.friction.xyz = float3(
++            dot(localRows[0].direction.xyz, relative),
++            dot(localRows[1].direction.xyz, relative),
++            dot(localRows[2].direction.xyz, relative));
+         const MREvaluatedConstraintIRConeGPU cone =
+             evaluatedCones[
+                 constraintBase + localConstraint
