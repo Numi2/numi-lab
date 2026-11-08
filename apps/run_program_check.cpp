@@ -704,6 +704,10 @@ int main() {
                 compiledActiveNavigation.model().bodies.size() ==
                     compiledNavigation.model().bodies.size() + 3u &&
                 compiledActiveNavigation.task().actionBindings().size() == 18u &&
+                (compiledActiveNavigation.task().header().schedule.w &
+                    MR_TASK_PROGRAM_AVIAN_CROW_NAVIGATION_TEACHER_FEEDBACK) != 0u &&
+                (compiledNavigation.task().header().schedule.w &
+                    MR_TASK_PROGRAM_AVIAN_CROW_NAVIGATION_TEACHER_FEEDBACK) == 0u &&
                 compiledActiveNavigation.task().layout().actorObservationSize ==
                     compiledNavigation.task().layout().actorObservationSize + 9u &&
                 compiledActiveNavigation.task().layout().criticObservationSize ==

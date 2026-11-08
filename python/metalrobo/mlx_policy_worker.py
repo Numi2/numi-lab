@@ -116,6 +116,7 @@ def _configuration(
         maximum_gradient_norm=arguments.maximum_gradient_norm,
         target_kl=target_kl,
         adaptive_learning_rate=not arguments.fixed_learning_rate,
+        strict_navigation_teacher_gating=arguments.strict_navigation_teacher_gating,
         minimum_learning_rate=arguments.minimum_learning_rate,
         maximum_learning_rate=arguments.maximum_learning_rate,
         discount=arguments.discount,
@@ -134,6 +135,8 @@ def _configuration_record(learner: MLXPolicyLearner) -> str:
     # configuration. An explicit new mode is part of the strict restore contract.
     if record.get("adaptive_kl_mode") == "legacy-pre-step":
         record.pop("adaptive_kl_mode")
+    if not record.get("strict_navigation_teacher_gating", False):
+        record.pop("strict_navigation_teacher_gating", None)
     return json.dumps(
         record,
         sort_keys=True,
@@ -1277,6 +1280,9 @@ def _serve(arguments: argparse.Namespace) -> int:
                     navigation_return_weighted_self_imitation=(
                         arguments.navigation_return_weighted_self_imitation
                     ),
+                    strict_navigation_teacher_gating=(
+                        learner.configuration.strict_navigation_teacher_gating
+                    ),
                 )
             if retention_reference is not None:
                 retention_weights = None
@@ -1535,6 +1541,7 @@ def _add_ppo_arguments(parser: argparse.ArgumentParser) -> None:
         type=float,
         default=1.0e-2,
     )
+    parser.add_argument("--strict-navigation-teacher-gating", action="store_true")
     parser.add_argument("--discount", type=float, default=0.99)
     parser.add_argument("--gae-lambda", type=float, default=0.95)
     parser.add_argument(

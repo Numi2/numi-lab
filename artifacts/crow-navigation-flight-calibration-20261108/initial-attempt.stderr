@@ -1,0 +1,5 @@
+Traceback (most recent call last):
+  File "/Users/n/Developer/numi-crow-rl-20261107/artifacts/crow-navigation-flight-calibration-20261108/run.py", line 5, in <module>
+    assert original.count(needle)==1
+           ^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError

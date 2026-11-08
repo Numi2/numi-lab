@@ -132,6 +132,7 @@ class NativePolicyRollout:
         rewards: np.ndarray | None = None,
         navigation_teacher_minimum_waypoint: int = 5,
         navigation_return_weighted_self_imitation: bool = False,
+        strict_navigation_teacher_gating: bool = False,
     ) -> "MLXPolicyBatch":
         """Compute terminal-safe GAE and publish only learner tensors to MLX."""
 
@@ -396,18 +397,26 @@ class NativePolicyRollout:
             interaction_teacher = (
                 flags.astype(np.uint32) & np.uint32(1 << 22)
             ) != 0
-            navigation_teacher = np.logical_and(
-                interaction_teacher,
-                np.logical_or(
-                    navigation_waypoints > 0.0,
-                    navigation_completion > 0.0,
-                ),
-            )
-            # A navigation teacher is useful only when its accepted physical
-            # episode actually reaches the terminal waypoint. Do not distill
-            # stable-looking partial routes or failure prefixes. Back-label
-            # the realized successful episode, including its completion step,
-            # while keeping teacher-executed actions out of the PPO ratio.
+            if strict_navigation_teacher_gating:
+                if ("navigation_waypoints_reached" not in self.outcomes or
+                    "navigation_completion" not in self.outcomes):
+                    raise ValueError("Strict navigation teacher gating requires native navigation outcomes")
+                # Remove generic get-up/interaction weights for the *whole*
+                # navigation episode, including its pre-waypoint prefix.
+                teacher_weights[interaction_teacher] = 0.0
+                navigation_teacher = interaction_teacher
+            else:
+                navigation_teacher = np.logical_and(
+                    interaction_teacher,
+                    np.logical_or(
+                        navigation_waypoints > 0.0,
+                        navigation_completion > 0.0,
+                    ),
+                )
+            # Back-label only episodes that reach the configured physical
+            # waypoint threshold. Strict gating ends the demonstration at that
+            # threshold, so a later failure cannot become a training target.
+            # Teacher-executed actions remain outside the PPO ratio.
             for environment in range(environments):
                 if not np.any(navigation_teacher[:, environment]):
                     continue
@@ -436,6 +445,23 @@ class NativePolicyRollout:
                             )
                         )
                     )
+                    if strict_navigation_teacher_gating and realized:
+                        reached = np.flatnonzero(
+                            (navigation_waypoints[segment, environment] >=
+                             float(navigation_teacher_minimum_waypoint)) |
+                            ((navigation_completion[segment, environment] > 0.0) &
+                             (navigation_teacher_minimum_waypoint == 5))
+                        )
+                        first = episode_start + int(reached[0])
+                        reason = int(self.transitions["termination_reason"].reshape(steps, environments)[first, environment])
+                        # Contact, fall, projectile, and numerical failures at
+                        # the very threshold cannot qualify a success prefix.
+                        realized = (not bool(physics_error[first, environment]) and
+                                    reason not in (1, 2, 3, 5, 6))
+                        # A partial-waypoint curriculum may fail afterwards;
+                        # only the physical prefix through the threshold is a
+                        # demonstration of the requested milestone.
+                        eligible = eligible & (np.arange(episode_start, upper) <= first)
                     if realized and np.any(eligible):
                         stability = np.clip(
                             1.0
@@ -1278,6 +1304,7 @@ class MLXPPOConfiguration:
     maximum_gradient_norm: float = 1.0
     target_kl: float | None = 0.01
     adaptive_learning_rate: bool = True
+    strict_navigation_teacher_gating: bool = False
     minimum_learning_rate: float = 1.0e-5
     maximum_learning_rate: float = 1.0e-2
     discount: float = 0.99

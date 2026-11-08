@@ -4402,6 +4402,10 @@ TaskCompileDiagnostics compileTaskProgram(
             MR_TASK_PROGRAM_AVIAN_CROW_NAVIGATION_TURN_PREVIEW_SLALOMS |
             MR_TASK_PROGRAM_AVIAN_CROW_NAVIGATION_POST_SECOND_GATE_ADAPTER;
     }
+    if (pack.id == "american_crow_active_head_navigation_development_v1") {
+        staged->header.schedule.w |=
+            MR_TASK_PROGRAM_AVIAN_CROW_NAVIGATION_TEACHER_FEEDBACK;
+    }
     if (threatGroup != MR_INVALID_INDEX) {
         staged->header.schedule.w |=
             MR_TASK_PROGRAM_THREAT_TEACHER;

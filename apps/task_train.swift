@@ -1312,6 +1312,9 @@ private func initializePolicyIfRequested(
         String(options.initialLogStandardDeviation),
         "--adaptive-kl-mode", options.adaptiveKLMode,
     ]
+    if options.birdFlowJourneyVariant == .v15ActiveHeadNavigation {
+        arguments.append("--strict-navigation-teacher-gating")
+    }
     if let width = options.recurrentHiddenSize {
         arguments.append(contentsOf: ["--recurrent-hidden-size", String(width),
             "--recurrent-sequence-length", String(options.recurrentSequenceLength),
@@ -1566,6 +1569,9 @@ private final class MLXLearnerWorker {
                 "--train-actor-route-residual-output-actions",
                 actions,
             ])
+        }
+        if options.birdFlowJourneyVariant == .v15ActiveHeadNavigation {
+            arguments.append("--strict-navigation-teacher-gating")
         }
         arguments.append(contentsOf: [
             "--navigation-self-imitation-minimum-waypoint",

@@ -6553,7 +6553,8 @@ kernel void mr_locomotion_task_complete_history2(
     const float yawDelta =
         baseAngular.z - state.commandAndPhase.z;
     const float yawError = yawDelta * yawDelta;
-    if (avianJourneyShowcase && !avianJourneyTakeoffCruise) {
+    if (avianJourneyShowcase && !avianJourneyTakeoffCruise &&
+        (program.schedule.w & MR_TASK_PROGRAM_AVIAN_CROW_NAVIGATION_TEACHER_FEEDBACK) == 0u) {
         // Accepted-state tracking feedback for the next native teacher action.
         // These lanes are task-private and never replace the actor's command,
         // phase, root-state, or velocity observations.
@@ -6847,7 +6848,11 @@ kernel void mr_locomotion_task_complete_history2(
          MR_TASK_PROGRAM_AVIAN_CROW_APPROACH_ENVELOPE) == 0u;
     const bool shadowApproachActive = neuralOnlyAvianJourney &&
         state.commandExtension.w >= (18.0f / 32.0f);
-    const float shadowAbsolutePitch = abs(state.threatGeometry.w);
+    const float shadowAbsolutePitch =
+        (program.schedule.w & MR_TASK_PROGRAM_AVIAN_CROW_NAVIGATION_TEACHER_FEEDBACK) != 0u
+        ? abs(asin(clamp(2.0f * (orientation.w * orientation.y -
+                                 orientation.z * orientation.x), -1.0f, 1.0f)))
+        : abs(state.threatGeometry.w);
     bool navigationConfigured = false;
     uint navigationCourseStart = MR_INVALID_INDEX;
     float navigationReachRadius = 0.0f;

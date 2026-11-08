@@ -1,0 +1,11 @@
+{
+  "failed_environment_steps": 0,
+  "legacy_nonzero_teacher_weights": 512,
+  "max_actor_weight_delta": 0.0,
+  "max_waypoint": 0.0,
+  "samples": 512,
+  "strict_mode_saved_in_learner": true,
+  "strict_nonzero_policy_weights": 0,
+  "strict_nonzero_teacher_weights": 0,
+  "updates": 2
+}

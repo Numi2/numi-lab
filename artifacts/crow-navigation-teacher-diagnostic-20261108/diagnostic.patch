@@ -1,0 +1,13 @@
+diff --git a/src/c_api.cpp b/src/c_api.cpp
+index ed07107d..317323e6 100644
+--- a/src/c_api.cpp
++++ b/src/c_api.cpp
+@@ -3378,7 +3378,7 @@ static MRTaskRolloutHandle* createBirdFlowAmericanCrowRun(
+         const bool feeding=retinal || (journey && config->birdflow_journey_variant==MR_BIRDFLOW_JOURNEY_V12_FEEDING_STATION);
+         const bool embodied = journey && (config->birdflow_journey_variant ==
+             MR_BIRDFLOW_JOURNEY_V11_EMBODIED || feeding || activeNavigation);
+-        if (embodied && config->birdflow_journey_teacher != 0u) {
++        if (embodied && !activeNavigation && config->birdflow_journey_teacher != 0u) {
+             throw std::invalid_argument("Active-head variants have no admitted teacher action contract");
+         }
+         if (embodied && !retinal && !activeNavigation && visual_sensor!=nullptr)

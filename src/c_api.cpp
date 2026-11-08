@@ -3378,7 +3378,7 @@ static MRTaskRolloutHandle* createBirdFlowAmericanCrowRun(
         const bool feeding=retinal || (journey && config->birdflow_journey_variant==MR_BIRDFLOW_JOURNEY_V12_FEEDING_STATION);
         const bool embodied = journey && (config->birdflow_journey_variant ==
             MR_BIRDFLOW_JOURNEY_V11_EMBODIED || feeding || activeNavigation);
-        if (embodied && config->birdflow_journey_teacher != 0u) {
+        if (embodied && !activeNavigation && config->birdflow_journey_teacher != 0u) {
             throw std::invalid_argument("Active-head variants have no admitted teacher action contract");
         }
         if (embodied && !retinal && !activeNavigation && visual_sensor!=nullptr)

@@ -92,6 +92,10 @@ enum MRTaskProgramFlags : mr_u32 {
     // inherited WP2 arrival distribution while isolating later steering.
     MR_TASK_PROGRAM_AVIAN_CROW_NAVIGATION_POST_SECOND_GATE_ADAPTER =
         1u << 24u,
+    // Active-head navigation keeps route-specific teacher state distinct from
+    // generic journey feedback; this changes teacher labels, so fingerprint it.
+    MR_TASK_PROGRAM_AVIAN_CROW_NAVIGATION_TEACHER_FEEDBACK =
+        1u << 26u,
     // The transferred parent has structurally zero weights for the thirteen
     // V10 route-suffix inputs. A late-route adapter may train those columns
     // while this fingerprinted semantic gates them to zero before waypoint
