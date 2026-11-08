@@ -106,3 +106,12 @@ stop and 600-second process-group wall stop. An estimated 1–2 GiB and
 throughput or safety from the smaller preceding n4/n8 transfer. Stop on
 failure, timeout or cap and retain the result. Coordinate with the parent
 before execution and do not overlap queued native correctness checks.
+
+## First transfer attempt
+
+The first registered transfer exited 1 after 1.02 s before any force result or
+resource limit. The quadratic-control interpolation failed in scikit-fem
+element finding with “Point is outside of the mesh.” The manifest and complete
+stderr are retained in the transfer evidence. No numerical comparison is
+valid from this attempt. Diagnose the point ownership before preparing a
+separately identified corrected attempt; do not silently repeat it.

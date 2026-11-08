@@ -1,0 +1,16 @@
+Traceback (most recent call last):
+  File "/Users/numi/numi-lab-contact-reference-20261107/tests/contact/fem_p2_onset_transfer.py", line 31, in <module>
+    zz=transfer(src,dst,poly(x,i),1e-12);q=y[mask].copy();q[:,2]+=1e-12
+  File "/Users/numi/numi-lab-contact-reference-20261107/tests/contact/fem_p2_onset_transfer.py", line 19, in transfer
+    val=np.concatenate([fn(pts[j:j+32].T) for j in range(0,len(pts),32)])
+                        ~~^^^^^^^^^^^^^^^
+  File "/private/tmp/numi-fem-py313b-20261107/lib/python3.13/site-packages/skfem/assembly/basis/cell_basis.py", line 228, in interpfun
+    out = self.probes(x) @ y
+          ~~~~~~~~~~~^^^
+  File "/private/tmp/numi-fem-py313b-20261107/lib/python3.13/site-packages/skfem/assembly/basis/cell_basis.py", line 185, in probes
+    cells = self.mesh.element_finder(mapping=self.mapping)(*x)
+  File "/private/tmp/numi-fem-py313b-20261107/lib/python3.13/site-packages/skfem/mesh/mesh_tet_1.py", line 78, in finder
+    return finder(x, y, z, _search_all=True)
+  File "/private/tmp/numi-fem-py313b-20261107/lib/python3.13/site-packages/skfem/mesh/mesh_tet_1.py", line 77, in finder
+    raise ValueError("Point is outside of the mesh.")
+ValueError: Point is outside of the mesh.
