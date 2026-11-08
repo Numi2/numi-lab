@@ -1,0 +1,14 @@
+{
+  "n8_peak_bin_N": 0.08743226330345472,
+  "max_force_reproduction_relative": 0.0,
+  "bin_reproduction_relative": 0.0,
+  "min_sampled_gap_m": 9.612708188442717e-05,
+  "min_sampled_J": 0.9759037527949085,
+  "duffy_48_64_relative": 5.260661270062541e-12,
+  "order18_64_relative": 2.8065278043317092e-08,
+  "momentum_relative": 7.854553289565445e-14,
+  "energy_relative": 9.082648618766787e-09,
+  "contact_work_relative": 6.419270747903021e-07,
+  "shapes_and_finite_pass": true,
+  "capture_pass": true
+}

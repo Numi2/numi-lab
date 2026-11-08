@@ -76,3 +76,15 @@ automatically. Transfer will be separately bounded and monitored after capture,
 with a separately sealed command and resource plan. Coordinate the host with
 the parent before starting; other native gates take precedence. No full n=16
 trajectory is proposed.
+
+## Capture outcome
+
+The capture and monitor exited successfully: 450.66 s elapsed and 3,177,216
+KiB peak sampled RSS; neither cap was reached. The six captured force samples
+and first-bin impulse reproduce the retained n=16 fine output exactly.
+Displacement and velocity arrays have the declared dimensions and finite
+values. All declared sampled clearance, Jacobian, quadrature, momentum,
+energy and contact-work checks pass. Raw output, host and RSS records,
+identities and analysis are retained in
+[evidence](evidence/contact-p2-n16-capture-20261108/). This captures states
+for the separate transfer diagnosis; it is not force qualification.
