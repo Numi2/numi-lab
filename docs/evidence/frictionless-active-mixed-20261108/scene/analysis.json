@@ -1,0 +1,114 @@
+{
+  "baseline": [
+    {
+      "active": 0,
+      "case": 0,
+      "residual": 1.7839161174934635,
+      "reported_error": 1.2094346346636087e-07,
+      "momentum_error": 1.0000333894311098e-12,
+      "impulse": 0.474909722806,
+      "sliding_velocity_error": 6.52966356277
+    },
+    {
+      "active": 0,
+      "case": 1,
+      "residual": 0.4822693254874076,
+      "reported_error": 2.1226592428202906e-08,
+      "momentum_error": 3.999994779846361e-13,
+      "impulse": 0.1078115180134,
+      "sliding_velocity_error": 1.48232984543
+    },
+    {
+      "active": 0,
+      "case": 2,
+      "residual": 0.0,
+      "reported_error": 0.0,
+      "momentum_error": 0.0,
+      "impulse": 0.0,
+      "sliding_velocity_error": 0
+    },
+    {
+      "active": 1,
+      "case": 0,
+      "residual": 2.167831337906165,
+      "reported_error": 1.5542616482733251e-07,
+      "momentum_error": 1.490099998946448e-08,
+      "impulse": 0.865209758282,
+      "sliding_velocity_error": null
+    },
+    {
+      "active": 1,
+      "case": 1,
+      "residual": 0.8661849548775638,
+      "reported_error": 5.0025636966211096e-09,
+      "momentum_error": 0.0,
+      "impulse": 0.49811166524899997,
+      "sliding_velocity_error": null
+    },
+    {
+      "active": 1,
+      "case": 2,
+      "residual": 0.43546193263124056,
+      "reported_error": 5.749759446338487e-09,
+      "momentum_error": 1.4901399947309102e-08,
+      "impulse": 0.1310134381056,
+      "sliding_velocity_error": null
+    }
+  ],
+  "candidate": [
+    {
+      "active": 0,
+      "case": 0,
+      "residual": 0.0,
+      "reported_error": 0.0,
+      "momentum_error": 0.0,
+      "impulse": 0.0,
+      "sliding_velocity_error": 0
+    },
+    {
+      "active": 0,
+      "case": 1,
+      "residual": 0.0,
+      "reported_error": 0.0,
+      "momentum_error": 0.0,
+      "impulse": 0.0,
+      "sliding_velocity_error": 0
+    },
+    {
+      "active": 0,
+      "case": 2,
+      "residual": 0.0,
+      "reported_error": 0.0,
+      "momentum_error": 0.0,
+      "impulse": 0.0,
+      "sliding_velocity_error": 0
+    },
+    {
+      "active": 1,
+      "case": 0,
+      "residual": 8.822105624452237e-05,
+      "reported_error": 1.2686036776323123e-09,
+      "momentum_error": 2.9802000034440113e-08,
+      "impulse": 0.25380012393,
+      "sliding_velocity_error": null
+    },
+    {
+      "active": 1,
+      "case": 1,
+      "residual": 8.822105624452237e-05,
+      "reported_error": 1.2686036776323123e-09,
+      "momentum_error": 2.9802000034440113e-08,
+      "impulse": 0.25380012393,
+      "sliding_velocity_error": null
+    },
+    {
+      "active": 1,
+      "case": 2,
+      "residual": 8.822105624452237e-05,
+      "reported_error": 1.2686036776323123e-09,
+      "momentum_error": 2.9802000034440113e-08,
+      "impulse": 0.25380012393,
+      "sliding_velocity_error": null
+    }
+  ]
+}

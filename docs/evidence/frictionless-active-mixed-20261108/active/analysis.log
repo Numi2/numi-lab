@@ -1,0 +1,9 @@
+baseline max residual mismatch 1.0311141496188725e-07 max momentum error 1.0430899999303023e-07
+baseline max residual by iterations [(2, 1.875727398991415), (8, 1.9262932090953262), (32, 1.9262934658308946)]
+baseline energy change bounds -0.13252562791503675 0.35536253358324243
+candidate max residual mismatch 5.132569022565403e-09 max momentum error 8.94080000590769e-08
+candidate max residual by iterations [(2, 8.82037681019382e-05), (8, 3.49348914102654e-08), (32, 3.49348914102654e-08)]
+candidate energy change bounds -0.15064404867150227 -0.13960054618861506
+baseline max normal/angular response change under tangent variation 5.65783929823
+candidate max normal/angular response change under tangent variation 0
+candidate analytic checks PASS
