@@ -1,0 +1,28 @@
+{
+  "exposed_capture_equivalence": true,
+  "positive_factor_diagonals": true,
+  "translation_diagonal": [
+    0.02061179467,
+    0.01684015617,
+    0.01683877222,
+    0.02834129892,
+    0.02384875901,
+    0.02384680323,
+    0.01998806372,
+    0.01683939435,
+    0.01683857292
+  ],
+  "twist_diagonal": [
+    5.272912676e-05,
+    5.253944255e-05
+  ],
+  "max_absolute_difference": 0.0005027830793551402,
+  "max_reference_entry": 4979.889021011825,
+  "relative_difference": 1.0096270764945352e-07,
+  "absolute_gate": 0.01,
+  "relative_gate": 1e-05,
+  "gate_passed": true,
+  "negative_control_rejected": true,
+  "rigid_contribution_independently_validated": false,
+  "note": "FP64 reconstruction validates rod response of this captured factor and witness; articulated response remains from runtime helper."
+}
