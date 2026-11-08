@@ -26,8 +26,9 @@ int main(int argc,char**argv) {
     metalrobo::MetalWorldStepConfig cfg;
     cfg.timestepSeconds=.001f; cfg.physicsSubsteps=1;
     cfg.solverMode=metalrobo::MetalWorldSolverMode::freeMotionABA;
-    cfg.deterministic=true; cfg.metallibPath=argv[1];
-    metalrobo::MetalWorldContext ctx;
+    cfg.deterministic=true;
+    metalrobo::MetalWorldConfig contextConfig; contextConfig.metallibPath=argv[1];
+    metalrobo::MetalWorldContext ctx(contextConfig);
     metalrobo::MetalWorldResult result;
     auto d=ctx.run(world,batch,cfg,result);
     std::cout<<std::setprecision(17)<<"success="<<d.succeeded()<<" published="<<d.published
