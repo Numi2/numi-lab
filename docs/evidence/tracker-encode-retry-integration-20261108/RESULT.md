@@ -1,0 +1,3 @@
+# Integrated tracker retry verification
+
+The integration merge `d8764b03adea7ae3af36d266b2c27e4a28fabc3c` includes main `e1f50c9ba` and the prior integration branch. On Apple M6, the integrated renderer, native visual probe, depth-validity test, fingerprint test, and task-program check were rebuilt. All four CTests passed, including the new materialized and direct-winner callback retry tests. This verifies coexistence with the integrated task contracts, not rejection after callback success or GPU execution. The main evidence retains the pre-fix failure and the initial direct-fixture setup failure. No performance claim is made.

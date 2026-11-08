@@ -1,0 +1,19 @@
+Test project /Users/numi/numi-reconciliation-build-20261108
+    Start 111: metalrobo.runtime.task_program
+1/4 Test #111: metalrobo.runtime.task_program .............   Passed    2.97 sec
+    Start 177: metalrobo.visual.masked_depth_validity
+2/4 Test #177: metalrobo.visual.masked_depth_validity .....   Passed    0.02 sec
+    Start 178: metalrobo.visual.observation_fingerprint
+3/4 Test #178: metalrobo.visual.observation_fingerprint ...   Passed    0.23 sec
+    Start 179: metalrobo.visual.tracker_encode_retry
+4/4 Test #179: metalrobo.visual.tracker_encode_retry ......   Passed    0.33 sec
+
+100% tests passed out of 4
+
+Label Time Summary:
+metal        =   0.35 sec*proc (2 tests)
+metalrobo    =   3.55 sec*proc (4 tests)
+runtime      =   3.20 sec*proc (2 tests)
+visual       =   0.58 sec*proc (3 tests)
+
+Total Test time (real) =   3.55 sec
