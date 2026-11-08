@@ -1,0 +1,28 @@
+UpdateCTestConfiguration  from :/Users/numi/numi-matter-midpoint-reference-build-20261108/DartConfiguration.tcl
+Parse Config file:/Users/numi/numi-matter-midpoint-reference-build-20261108/DartConfiguration.tcl
+Test project /Users/numi/numi-matter-midpoint-reference-build-20261108
+Constructing a list of tests
+Done constructing a list of tests
+Updating test list for fixtures
+Added 0 tests to meet fixture requirements
+Checking test dependency graph...
+Checking test dependency graph end
+test 11
+    Start 11: numi.contact.midpoint_dynamic_guard
+
+11: Test command: /Users/numi/numi-matter-midpoint-reference-build-20261108/numi_midpoint_dynamic_guard "/Users/numi/numi-matter-midpoint-reference-build-20261108/NumiMatter.metallib"
+11: Working Directory: /Users/numi/numi-matter-midpoint-reference-build-20261108
+11: Test timeout computed to be: 180
+11: compiled Matter layout is invalid: physical impulse residual policy requires pure FEM mechanical rows
+11: midpoint_dynamic_guard_probe: world compilation failed
+1/1 Test #11: numi.contact.midpoint_dynamic_guard ...***Failed    0.30 sec
+
+0% tests passed, 1 tests failed out of 1
+
+Total Test time (real) =   0.30 sec
+
+The following tests FAILED:
+	 11 - numi.contact.midpoint_dynamic_guard (Failed)
+Errors while running CTest
+Output from these tests are in: /Users/numi/numi-matter-midpoint-reference-build-20261108/Testing/Temporary/LastTest.log
+Use "--rerun-failed --output-on-failure" to re-run the failed cases verbosely.

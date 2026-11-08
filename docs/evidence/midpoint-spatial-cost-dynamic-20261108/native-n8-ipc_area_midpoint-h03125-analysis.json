@@ -1,0 +1,12 @@
+{
+  "area_sum_abs_error_m2": 1.9199930003082483e-11,
+  "area_sum_m2": 0.00039999998080007,
+  "area_valid": true,
+  "arm": "ipc_area_midpoint",
+  "complete": false,
+  "h": 3.125e-05,
+  "maximum_weight_error_normalized_area": 2.471100000885323e-09,
+  "mesh": 8,
+  "passes": false,
+  "physical_valid": false
+}

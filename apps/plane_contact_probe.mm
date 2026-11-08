@@ -152,7 +152,7 @@ FixtureResidual fixtureResidual(const numi::matter::CompiledWorld& world,
     }
     r.l2=std::sqrt(r.l2);return r;
 }
-numi::matter::CompiledWorld model(int divisions,double h,double startGap,bool physical,bool freefall,bool reference,double initialVelocity,double toleranceFactor){
+numi::matter::CompiledWorld model(int divisions,double h,double startGap,bool physical,bool freefall,bool reference,double initialVelocity,double toleranceFactor,bool articulatedPlane=false){
     auto parsed=numi::matter::parseMatter(R"MAT(
 material test_pad {
  parameter density : kg/m^3 = 1100 in [1000,1200];
@@ -175,6 +175,7 @@ material test_pad {
     source.mixedSolver.relativeResidual=1.e-9;
     source.mixedSolver.minimumContactSeparationRatio=1.e-3;
     numi::matter::RigidProxySource plane;plane.shape=NM_RIGID_PLANE;plane.localCenter={0,0,1};
+    if(articulatedPlane){plane.bodyIndex=1u;plane.articulated=true;}
     if(!freefall)source.rigidProxies.push_back(plane);
     numi::matter::ObjectSource object;object.name="frictionless_fem_pad";
     object.materialIndex=0;object.mixedFEM=false;object.representation=numi::matter::Representation::fem;

@@ -30,7 +30,7 @@ normalized by its final impulse. Raw 2 us force/impulse traces and the
 [analysis](spatial-analysis.json) and [follow-up](spatial-followup-analysis.json)
 are retained. In particular, the 27-node solution is not a spatially
 converged result, and the finer follow-up did not establish convergence either.
-The cause of the discrepancies remains unproven.
+The cause of the discrepancies remains unproven. A separate preregistered 32-division CPU reference is in progress.
 
 ## Native temporal qualification and timing
 
@@ -56,7 +56,7 @@ the median accepted simulated seconds per wall second was approximately
 0.0003536. Initialization and the final verification snapshot are outside
 the timer; GPU diagnostic collection and normal per-step log output remain
 inside it. These standalone results are not an integrator comparison.
-At 4 divisions, midpoint also passed at 15.625 us: 0.1151% binned force, 0.2411% sampled peak, 0.0194% final impulse, and 0.0871% maximum cumulative impulse. Three standalone 4-division midpoint costs were 30.6918, 30.6668 and 30.4342 s per 10 ms rollout; each final digest matched its accuracy trace. The corresponding backward Euler and 8-division searches are still in progress.
+At 4 divisions, midpoint also passed at 15.625 us: 0.1151% binned force, 0.2411% sampled peak, 0.0194% final impulse, and 0.0871% maximum cumulative impulse. Three standalone 4-division midpoint costs were 30.6918, 30.6668 and 30.4342 s per 10 ms rollout; each final digest matched its accuracy trace. At 4 divisions, backward Euler found no qualifying step in the prescribed ladder: 7.8125 us failed the accuracy gates, while the 3.90625 us attempt rejected with status 10 after 815 accepted steps, before contact, and restored the prior physical state. The 8-division search is still in progress.
 
 ## Transactions and dynamic owner
 
@@ -67,6 +67,8 @@ authoritative physical state and success status. This isolates the effect of
 diagnostic ordering on the next step; it is not a dynamic-owner test. Earlier
 retained inverted-element tests established matching failure category and
 physical restoration even when the first offending index differed.
+
+A native guard regression confirms that the supported fixed-plane fixture initializes while an articulated-plane fixture is rejected at the fixed-plane boundary. The articulated case uses the legacy residual policy solely to reach that boundary; the initial attempt with the physically scaled policy was rejected earlier by world validation and is retained. These are guard tests, not evidence of two-way dynamics.
 
 A two-way midpoint body has not been implemented or qualified. The
 [owner audit](DYNAMIC_OWNER_AUDIT.md) records why the existing full-step rigid

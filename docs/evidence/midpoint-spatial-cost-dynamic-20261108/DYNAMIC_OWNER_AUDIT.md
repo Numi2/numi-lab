@@ -2,6 +2,8 @@
 
 This is an implementation audit, not a dynamically coupled result. The
 experimental midpoint option remains disabled and rejects coupled candidates.
+An attempted articulated-plane fixture using the existing physically scaled residual policy failed world validation: that policy currently requires pure FEM mechanical rows and excludes nonzero rigid generalized capacity. The failed native guard attempt is retained in `dynamic-guard-attempt-001.log`. A genuine coupled extension needs an appropriate mixed-owner residual certificate, not a disabled accuracy check.
+
 The existing reference-area IPC path requires a fixed, bodyless plane; its
 midpoint specialization also rejects prepared-state and accepted-extension
 owners. The ordinary FEM/articulated foot-pad probe is a genuine two-way owner,
