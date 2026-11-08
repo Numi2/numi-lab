@@ -1,0 +1,119 @@
+{
+  "schema": "numi.ccd.segment-geometry.v1",
+  "accepted_runs": [
+    {
+      "limit": 16,
+      "mode": 0,
+      "fixture": 13,
+      "scale": 1,
+      "completed_seconds": 0.009999999776,
+      "segments": [
+        {
+          "pass": 0,
+          "sample_min_gap_m": 0.0002998902053673928,
+          "discrete_acceleration_path_envelope_m": 0.0,
+          "whole_interval_lower_bound_m": 0.0002971622355735066
+        }
+      ],
+      "qualified": true
+    },
+    {
+      "limit": 16,
+      "mode": 0,
+      "fixture": 15,
+      "scale": 1,
+      "completed_seconds": 0.009999999776,
+      "segments": [
+        {
+          "pass": 0,
+          "sample_min_gap_m": 0.00029989021529049797,
+          "discrete_acceleration_path_envelope_m": 0.0,
+          "whole_interval_lower_bound_m": 0.0002979004127468275
+        }
+      ],
+      "qualified": true
+    },
+    {
+      "limit": 16,
+      "mode": 0,
+      "fixture": 1,
+      "scale": 0.5,
+      "completed_seconds": 0.009999999776,
+      "segments": [
+        {
+          "pass": 0,
+          "sample_min_gap_m": 0.0002670469878568416,
+          "discrete_acceleration_path_envelope_m": 0.0,
+          "whole_interval_lower_bound_m": 0.00026610144791054603
+        },
+        {
+          "pass": 1,
+          "sample_min_gap_m": 9.872231154458829e-05,
+          "discrete_acceleration_path_envelope_m": 3.165841191300582e-08,
+          "whole_interval_lower_bound_m": 9.798530088427009e-05
+        }
+      ],
+      "qualified": true
+    },
+    {
+      "limit": 16,
+      "mode": 0,
+      "fixture": 2,
+      "scale": 0.5,
+      "completed_seconds": 0.009999999776,
+      "segments": [
+        {
+          "pass": 0,
+          "sample_min_gap_m": 0.00016020875654033492,
+          "discrete_acceleration_path_envelope_m": 0.0,
+          "whole_interval_lower_bound_m": 0.0001592564203718864
+        },
+        {
+          "pass": 1,
+          "sample_min_gap_m": 4.2234020637760146e-05,
+          "discrete_acceleration_path_envelope_m": 1.3894335066607301e-09,
+          "whole_interval_lower_bound_m": 4.189303409981768e-05
+        }
+      ],
+      "qualified": true
+    },
+    {
+      "limit": 16,
+      "mode": 0,
+      "fixture": 13,
+      "scale": 0.5,
+      "completed_seconds": 0.009999999776,
+      "segments": [
+        {
+          "pass": 0,
+          "sample_min_gap_m": 0.00014994510286972835,
+          "discrete_acceleration_path_envelope_m": 0.0,
+          "whole_interval_lower_bound_m": 0.00014848111797278774
+        }
+      ],
+      "qualified": true
+    },
+    {
+      "limit": 16,
+      "mode": 0,
+      "fixture": 15,
+      "scale": 0.5,
+      "completed_seconds": 0.009999999776,
+      "segments": [
+        {
+          "pass": 0,
+          "sample_min_gap_m": 0.0001499451077018012,
+          "discrete_acceleration_path_envelope_m": 0.0,
+          "whole_interval_lower_bound_m": 0.00014885020642996846
+        }
+      ],
+      "qualified": true
+    }
+  ],
+  "all_accepted_segments_qualified": true,
+  "method": "100001 FP64 endpoint-geodesic/linear samples per literal segment, whole-interval Lipschitz enclosure, H^2/4 discrete acceleration envelope and 0.2 micrometre rounding guard.",
+  "limits": [
+    "This observer is limited to the force-free single floating box fixtures; it does not certify arbitrary articulated link interpolation.",
+    "Rejected-step trial segments are not accepted trajectories."
+  ]
+}
