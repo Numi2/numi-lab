@@ -1,0 +1,16 @@
+field=actor count=492 nonfinite=0 first=492
+field=critic count=414 nonfinite=0 first=414
+field=motion count=0 nonfinite=0 first=0
+field=teacher count=0 nonfinite=0 first=0
+field=latent count=18 nonfinite=0 first=18
+field=logprob count=2 nonfinite=0 first=2
+field=value count=2 nonfinite=0 first=2
+world env=0 code=12 aba=0 substeps=0 failing=0
+world env=1 code=12 aba=0 substeps=0 failing=0
+contact env=0 code=12 required_raw=0 active=0
+contact env=1 code=12 required_raw=0 active=0
+expected_policy_revision=1
+transition=0 policy_revision=0 termination=0,0,0,0 reward=0,0,0,0 breakdown0=0,0,0,0 breakdown1=0,0,0,0 outcomes0=0,0,0,0 outcomes1=0,0,0,0
+transition=1 policy_revision=0 termination=0,0,0,0 reward=0,0,0,0 breakdown0=0,0,0,0 breakdown1=0,0,0,0 outcomes0=0,0,0,0 outcomes1=0,0,0,0
+diagnostic_message=GPU published a malformed native task transition
+error=validated completed result unavailable
