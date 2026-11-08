@@ -4,7 +4,7 @@ import numpy as np
 p=Path(__file__).resolve().parent
 native=sys.argv[1]
 src=ast.parse((p/'free_3d_globalized.py').read_text())
-ns=dict(np=np,subprocess=subprocess,native=native,L=.11758755785232791,R=2e-5,RHO=1100.)
+ns=dict(np=np,json=json,subprocess=subprocess,native=native,L=.11758755785232791,R=2e-5,RHO=1100.)
 for name in ('invoke','line','gradient','native_rows','mass'):
     f=next(x for x in src.body if isinstance(x,ast.FunctionDef) and x.name==name)
     exec(compile(ast.Module(body=[f],type_ignores=[]),'reference', 'exec'),ns)
