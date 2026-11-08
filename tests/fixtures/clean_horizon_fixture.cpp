@@ -94,6 +94,13 @@ void createFixture() {
     metalrobo::TaskObservationProgram frankaObservations;
     metalrobo::TaskResetProgram frankaReset;
     metalrobo::TaskPack frankaTask;
+    if (std::getenv("NUMI_HORIZON_AUTHORED_RESET")) {
+        frankaReset.operators.push_back({
+            .operation = metalrobo::TaskRandomizationOperator::sceneBodyPosition,
+            .target = "pick_object", .component = 0u,
+            .parameters = {0.9f, 0.9f, 0.0f, 0.0f},
+        });
+    }
     frankaTask.id = "franka_typed_actuator_pipeline_v1";
     metalrobo::RobotActuatorPack frankaActuators;
     frankaActuators.id = "franka_typed_actuators";

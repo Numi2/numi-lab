@@ -1,0 +1,3 @@
+# Main initial-reset diagnostic
+
+The first main check failed: disabling periodic resets left host reset count zero because the main branch initializes its pending reset mask differently from integration. On main, request the initial reset for the no-periodic mode while retaining its prior default behavior. In a separate fixture author an exact x=0.9 reset for the pick object (model default x=0.5). Independently observe the first-step state trace with and without scheduled resets: expect x approximately 0.9 and 0.5 respectively, with no physics error. Then repeat the full matrix on main, including same-runtime policy inference. This is a synthetic contract test, not validation of a learned policy.

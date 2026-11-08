@@ -1,0 +1,3 @@
+# Initial-reset observation amendment
+
+The first state-based check found x=0.9 with host scheduling disabled, contrary to the initial prediction of x=0.5. The runtime therefore has an initialization path in addition to host-requested masks. Retain the failed prediction and output. The amended control requires the authored-reset fixture to expose x=0.9 with and without host scheduling; the same no-periodic mode must report one explicit initial host reset only when host scheduling is enabled. These observations do not establish the internal reset implementation or reset distributions beyond this fixture.
