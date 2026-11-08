@@ -1,0 +1,3 @@
+unified-only sha256=cbb70963e176d8ce30118c869243a25fcf0d3aa3397c9ad44a9bc5f567698076 output=6815f11d0162c87d
+illustrative-fingerprint sha256=7309c93836263641a981f840fa021353bc4a747d22e70ef812937c45bbcae600 output=7b623de77e7b23e8
+Apple clang version 21.0.0 (clang-2100.3.34.2)
