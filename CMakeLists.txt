@@ -1805,6 +1805,14 @@ endif()
 
 if(BUILD_TESTING)
     find_package(Python3 REQUIRED COMPONENTS Interpreter)
+    add_executable(wave32-status-reduction-test tests/wave32_status_reduction.mm)
+    target_include_directories(wave32-status-reduction-test PRIVATE "${CMAKE_CURRENT_SOURCE_DIR}/include")
+    target_link_libraries(wave32-status-reduction-test PRIVATE "${FOUNDATION_FRAMEWORK}" "${METAL_FRAMEWORK}")
+    target_compile_options(wave32-status-reduction-test PRIVATE -fobjc-arc)
+    add_dependencies(wave32-status-reduction-test metalrobo_shaders)
+    add_test(NAME wave32_status_reduction
+        COMMAND wave32-status-reduction-test "${METALROBO_METALLIB}")
+    set_tests_properties(wave32_status_reduction PROPERTIES LABELS "contact;metal" TIMEOUT 60)
     add_executable(hyper-policy-rejection-probe tests/hyper_policy_rejection_probe.mm)
     target_link_libraries(hyper-policy-rejection-probe PRIVATE
         metalrobo "${FOUNDATION_FRAMEWORK}" "${METAL_FRAMEWORK}")

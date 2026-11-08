@@ -9275,6 +9275,11 @@ kernel void mr_world_reduce_wave32_status(
          ++island) {
         const MRWave32IslandStatusGPU source =
             waveStatuses[islandBase + island];
+        // A failing island still executed work. Preserve its count unless
+        // the field is the invalid-packet sentinel rather than a count.
+        if (source.iterations != MR_INVALID_INDEX) {
+            iterations = max(iterations, source.iterations);
+        }
         if (source.code != MR_STEP_SUCCESS) {
             status.code = source.code;
             if (source.iterations == MR_INVALID_INDEX) {
@@ -9294,7 +9299,6 @@ kernel void mr_world_reduce_wave32_status(
             break;
         }
         residuals = max(residuals, source.residuals);
-        iterations = max(iterations, source.iterations);
     }
     status.solverIterations = iterations;
     status.residuals = residuals;
