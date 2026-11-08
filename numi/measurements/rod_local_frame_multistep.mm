@@ -118,7 +118,7 @@ int main(int argc,char**argv) {
                 out.states[e].velocities[i][0]*out.states[e].velocities[i][0];
             const double target=at[2*e+1].targetPosition[0];
             if(step==0) firstEnergy[e]=energy;
-            else work[e]+=.5*(-actualRight-oldForce[e])*(target-oldTarget[e]);
+            else work[e]+=.5*(-actualRight+oldForce[e])*(target-oldTarget[e]);
             oldForce[e]=-actualRight;oldTarget[e]=target;
             if(step==40) {
                 const double delta=energy-firstEnergy[e];
