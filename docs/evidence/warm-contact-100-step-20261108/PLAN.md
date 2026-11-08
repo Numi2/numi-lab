@@ -1,0 +1,5 @@
+# Long warm-contact containment control
+
+Compare the retained warm-row containment shader against the published main shader using the same resident-owner 1 kg box probe and two velocity sweeps. Extend its existing ten submissions to 100; preserve the model and all other probe behavior. Record exact source, binary, library and shader hashes, output and failure. There are five cases: two impacts, a force-free near miss, a gravity-supported box, and gravity-supported sliding.
+
+Candidate containment may reject the two impacts after the first step, but promotion requires all 100 ordinary near-miss and support steps accepted with deterministic duplicate replay; the near miss must remain impulse-free, the stationary support must sustain gravity-consistent impulse, and momentum checks must pass. The sliding case must complete with finite state and momentum accounting. Compare main without treating accepted status as proof of accurate response. A rejection of ordinary valid motion fails this gate and is retained. These are bounded discrete tests, not swept CCD, general friction, or performance qualification. Fine CPU contact reference runs concurrently.

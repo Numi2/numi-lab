@@ -1,0 +1,9 @@
+# Warm-row containment: 100-step ordinary-motion gate
+
+The retained containment shader was tested against the published main shader using a single 1 kg box, a static plane, 0.01 s steps, two solver sweeps and duplicate resident owners. The probe and analysis are included; inputs and executable identities are pinned in `inputs.sha256`. Main shader `d7d37bce197e77e3056ba00abbba303d4c96cbf7fc6eeb95a7f765d101380866` matches the retained control; candidate shader `e384da5eaab9bcd3ea19b15efae975f13bb8244be8774534a81bb6004af6f4b7` is the existing unpromoted warm-row containment. The fine CPU contact reference ran concurrently; no timing claim is made.
+
+The candidate rejects both impact trajectories on step 2 and preserves state on all 99 retries; its near miss and stationary gravity-supported box each complete 100 steps with duplicate replay, zero near-miss impulse, and static normal impulse within 9.61e-6 N s of the 0.0981 N s gravity reference.
+
+**The ordinary sliding gate fails:** 65 steps are accepted, step 66 rejects with status 11 and a 0.00148697 m/s reported normal residual, and all 35 attempts from that restored state reject. Duplicate runs and rejected-state full manifold/state comparisons agree in this fixture. Main accepts all 100 sliding steps, but acceptance alone does not establish physical accuracy. On the separate impacts, main still accepts a 0.560104 N s step-2 normal impulse and approximately 0.562429 m/s maximum normal residual.
+
+Do not promote the containment candidate on this evidence. It prevents the observed spurious impact from being published but also prevents ordinary supported sliding from completing. Rejected trial impulses and work are not accepted dynamics. This fixed fixture uses discrete collisions and does not establish swept CCD, general contact robustness, or force accuracy. Both experimental CCD and augmented-Lagrangian options remain disabled.
