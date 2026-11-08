@@ -25,6 +25,7 @@ contact = run(common + ['ipc_area_midpoint', '0.00009', 'physical', 'contact', '
 control = run(common + ['ipc_area', '0.00009', 'physical', 'contact', 'reference'], True)
 for x in (noncontact, contact, control):
     assert x['accepted_steps'] == 1 and x['rejected_steps'] == 0
+    assert x['replay_status_bytes_exact'] and x['continuation_status_bytes_exact']
     assert x['position_velocity_max_defect_m'] < 1e-11
     assert x['independent_max_local_scaled_residual'] < .005
     assert x['momentum_max_absolute_error_Ns'] < 1e-7

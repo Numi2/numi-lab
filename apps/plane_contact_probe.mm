@@ -339,16 +339,30 @@ int main(int argc,char** argv){
     const auto final=runtime.snapshot();
     auto restored=runtime.restore(initial);require(restored.encoded,"restore initial: "+restored.message);
     for(int i=0;i<accepted+rejected;++i)(void)step(i);
-    const auto continued=runtime.snapshot();const bool replay=physicalEqual(final,continued) && final.controlStep==continued.controlStep && final.physicsSubstep==continued.physicsSubstep && bytesEqual(final.statuses,continued.statuses);
+    const auto continued=runtime.snapshot();
+    const auto sameStatusCodes=[](const auto& a,const auto& b) {
+        if(a.size()!=b.size())return false;
+        for(size_t i=0;i<a.size();++i)if(a[i].code!=b[i].code)return false;
+        return true;
+    };
+    const bool replayStatusExact=bytesEqual(final.statuses,continued.statuses);
+    // Parallel invalid-element checks can report different first offending
+    // elements. The failure category and restored physical state still must
+    // agree; accepted continuation additionally requires exact status bytes.
+    const bool replay=physicalEqual(final,continued) && final.controlStep==continued.controlStep &&
+        final.physicsSubstep==continued.physicsSubstep && sameStatusCodes(final.statuses,continued.statuses) &&
+        (rejected!=0 || replayStatusExact);
     auto mismatch=initial;mismatch.deviceProgramFingerprint^=1u;
     const bool identityRejected=!runtime.restore(mismatch).encoded;
     restored=runtime.restore(final);require(restored.encoded,"restore for continuation failed");
     (void)step(steps);const auto next=runtime.snapshot();
     restored=runtime.restore(final);require(restored.encoded,"restore for continuation replay failed");
     (void)step(steps);const auto repeatedNext=runtime.snapshot();
+    const bool continuationStatusExact=bytesEqual(next.statuses,repeatedNext.statuses);
+    const bool nextAccepted=!next.statuses.empty() && next.statuses[0].code==NM_STATUS_SUCCESS;
     const bool continuationReplay=physicalEqual(next,repeatedNext) &&
         next.controlStep==repeatedNext.controlStep && next.physicsSubstep==repeatedNext.physicsSubstep &&
-        bytesEqual(next.statuses,repeatedNext.statuses);
+        sameStatusCodes(next.statuses,repeatedNext.statuses) && (!nextAccepted || continuationStatusExact);
     restored=runtime.restore(final);require(restored.encoded,"restore for rollback failed");
     const auto beforeRollback=runtime.snapshot();
     (void)step(steps,true);const auto rolled=runtime.snapshot();
@@ -362,6 +376,10 @@ int main(int argc,char** argv){
         <<",\"accepted_simulated_seconds_per_wall_second\":"<<accepted*h/wall<<",\"minimum_gap\":"<<minimumGap
         <<",\"rejected_state_unchanged\":"<<(rejectionRestored?"true":"false")
         <<",\"continuation_replay\":"<<(continuationReplay?"true":"false")
+        <<",\"replay_status_bytes_exact\":"<<(replayStatusExact?"true":"false")
+        <<",\"continuation_status_bytes_exact\":"<<(continuationStatusExact?"true":"false")
+        <<",\"replay_failure_indices\":["<<(final.statuses.empty()?0:final.statuses[0].failingIndex)
+        <<","<<(continued.statuses.empty()?0:continued.statuses[0].failingIndex)<<"]"
         <<",\"final_nodes\":[";
     for(size_t i=0;i<final.femNodes.size();++i) {
         const auto& n=final.femNodes[i];
