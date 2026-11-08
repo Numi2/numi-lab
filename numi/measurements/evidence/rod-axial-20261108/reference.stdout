@@ -1,0 +1,4 @@
+nodes=5 reference_valid=1 accepted=1 host=success gpu=0 max_position_error_m=8.6133855048409202e-09 max_velocity_error_m_s=7.5360856362505224e-06 max_force_error_N=6.9241617564608227e-07 left_ref_N=0.098484582282756528 right_ref_N=-0.098496489714637953 replay=1 passed=1
+nodes=7 reference_valid=1 accepted=1 host=success gpu=0 max_position_error_m=9.4049637938686814e-09 max_velocity_error_m_s=1.0688688181381689e-05 max_force_error_N=6.2335695552584447e-07 left_ref_N=0.096447532214611276 right_ref_N=-0.096452457201140401 replay=1 passed=1
+nodes=17 reference_valid=1 accepted=1 host=success gpu=0 max_position_error_m=9.2224438433263778e-09 max_velocity_error_m_s=9.1628209243910241e-06 max_force_error_N=8.681193863352421e-07 left_ref_N=0.098487194754270216 right_ref_N=-0.098492288410327075 replay=1 passed=1
+reversed_targets_rejected=1 host=gpu_environment_failure gpu=2
