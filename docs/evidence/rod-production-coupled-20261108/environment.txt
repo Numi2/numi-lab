@@ -1,0 +1,6 @@
+ProductName:		macOS
+ProductVersion:		27.0
+BuildVersion:		26A425
+Apple M6
+Apple clang version 21.0.0 (clang-2100.3.34.2)
+29e84f66399729715d88dfe17588533b4587d3ce
