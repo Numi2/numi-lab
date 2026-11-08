@@ -1,0 +1,89 @@
+[
+  {
+    "object": "e48f0c6872c7ad7f4b627a7feeb7452ea31324f3",
+    "documents": [
+      {
+        "name": "inputs.sha256",
+        "size": 786,
+        "text": "912dc9264a79881ccf2b5305ad11b10c9c8073f95efd319ab206a70c8fd6709f  /Users/numi/suture-archive-search-20261107/fresh-approach-20261108/bin/metalrobo_dual_psm_suture_handoff_probe\n83974ddcb828d44c6beb559a47032489ff254100f11b3b83dac063a36a98f45d  /Users/numi/suture-archive-search-20261107/fresh-approach-20261108/lib/libmetalrobo.dylib\na983c833a26fbd3014f1a57079cf0f3a5b389786a3f16ad66c5794dab5831568  /Users/numi/numi-lab-skin-suture-restoration-build/matter/shaders/NumiMatter.metallib\n94bea3483bebc5d5634f03d8b56fb82830767ffea0a8f7820476703783de8b28  /Users/numi/numi-lab-skin-suture-restoration-build/shaders/MetalRobo.metallib\n379945f593f12396b44c7148026f0250344a86278e01b7b26cb5f6d823a51e35  /Users/numi/numi-lab-skin-suture-restoration/matter/materials/synthetic_skin_wound.nmatter\n"
+      },
+      {
+        "name": "outputs.sha256",
+        "size": 491,
+        "text": "a6448627449ceeb932bfd54ef435de9aed0848db365bfc40bc3361a03bf97afd  results/tissue-robot-first-bite-approach.12200025473249405896.matter.bin\naae16c75c7a39eb00643a386b601e176cf5faf05e3efe6b93ca532188433bec2  results/tissue-robot-first-bite-approach.tsv\nef94705b7cd9a561b506bcc928fe8fa1794f66432ff802f5bd346c5b048746a6  results/tissue-robot-first-bite-grip.9591081349169995094.matter.bin\ne13091a39a91d6070a9727349d852da81391eeda8c3e4fc7242a20627f44590a  results/tissue-robot-first-bite-grip.tsv\n"
+      },
+      {
+        "name": "launch.txt",
+        "size": 110,
+        "text": "args=--tissue-robot-first-bite-drive-only --synthetic-skin --state-output-dir results\nDYLD_LIBRARY_PATH=./lib\n"
+      },
+      {
+        "name": "precheck.log",
+        "size": 476,
+        "text": "/Users/numi/suture-archive-search-20261107/fresh-approach-20261108/bin/metalrobo_dual_psm_suture_handoff_probe: OK\n/Users/numi/suture-archive-search-20261107/fresh-approach-20261108/lib/libmetalrobo.dylib: OK\n/Users/numi/numi-lab-skin-suture-restoration-build/matter/shaders/NumiMatter.metallib: OK\n/Users/numi/numi-lab-skin-suture-restoration-build/shaders/MetalRobo.metallib: OK\n/Users/numi/numi-lab-skin-suture-restoration/matter/materials/synthetic_skin_wound.nmatter: OK\n"
+      },
+      {
+        "name": "postcheck.log",
+        "size": 476,
+        "text": "/Users/numi/suture-archive-search-20261107/fresh-approach-20261108/bin/metalrobo_dual_psm_suture_handoff_probe: OK\n/Users/numi/suture-archive-search-20261107/fresh-approach-20261108/lib/libmetalrobo.dylib: OK\n/Users/numi/numi-lab-skin-suture-restoration-build/matter/shaders/NumiMatter.metallib: OK\n/Users/numi/numi-lab-skin-suture-restoration-build/shaders/MetalRobo.metallib: OK\n/Users/numi/numi-lab-skin-suture-restoration/matter/materials/synthetic_skin_wound.nmatter: OK\n"
+      },
+      {
+        "name": "source-revision.txt",
+        "size": 41,
+        "text": "9cc78d2280e6526017e253bec392d0c1052fc1d1\n"
+      },
+      {
+        "name": "source-status.txt",
+        "size": 0,
+        "text": ""
+      },
+      {
+        "name": "post-source-status.txt",
+        "size": 0,
+        "text": ""
+      }
+    ],
+    "errors": []
+  },
+  {
+    "object": "b154df8dfe61bf393bba59b3d16da3197ae3a365",
+    "documents": [
+      {
+        "name": "outputs.sha256",
+        "size": 3372,
+        "text": "35950923469f5bbc05603cb656e32229106df6a527f2784366de1fcbb12bae54  results/advance/partial-owner-capsule/manifest.tsv\n84fc05949dc1e486652a4ed316afb6434e9437eb30b714594a1d0b4205776602  results/advance/partial-owner-capsule/manifold-counts.bin\n478caf6bc481c17d0d68a7d9d07f211dfc1ac6ed33d853f36ae00e26c4e02758  results/advance/partial-owner-capsule/manifold-headers.bin\n850e79f322ddeeed321a2f090844416c564cb66591326e4f4a9a6d050975e7f2  results/advance/partial-owner-capsule/manifold-points.bin\n6778fced0c4c0a31fb3371405831e46a700c610094a1c22407652efc88fc977c  results/advance/partial-owner-capsule/q.bin\nfa6ba0785c2dddf8bea9c1ca6f1decf0bce17f84c709f0b7b523bc9b1401b32e  results/advance/partial-owner-capsule/rod-edges.bin\n8b71f0352f87dfb10b9780a2829fce7644bf3b573cdb7f668b00fe9fea08448d  results/advance/partial-owner-capsule/rod-nodes.bin\n056154b4bfc123d705de89b995227a398db205871444c8db0da0bd67e3b38b41  results/advance/partial-owner-capsule/rod-tool-witnesses.bin\nca6722ae1fd222c2d42db0765e22c7ae7281321298eb0e279899361b7474495b  results/advance/partial-owner-capsule/scene-bodies.bin\ne88bdd1bb0237d6c10fbf8dd5229fcf5ed4f36438a8de237018d0aacbf29afe3  results/advance/partial-owner-capsule/v.bin\n056154b4bfc123d705de89b995227a398db205871444c8db0da0bd67e3b38b41  results/advance/rod-tool-witnesses.bin\nf28eea045e2da04198124923e2fc871595be8d6b3a8869f38d16bb2114906be4  results/advance/tissue-robot-first-bite-contact-rigid-contact-cache.bin\n5d51c7754da5e0eb03b71158f1206650b90b6a2b95cb0ce94b0629dd4dd40848  results/advance/tissue-robot-first-bite-contact.4197498030444627838.matter.bin\n21c38887c75df8b619398f4d65086b48017ffb7d3e426735ea83e5abb9528b0a  results/advance/tissue-robot-first-bite-contact.tsv\n3ab56765dbcd6908efa8c5c50ebb1c30197fe427afaa6e101b90a557709cc9f4  results/entry/partial-owner-capsule/manifest.tsv\n84fc05949dc1e486652a4ed316afb6434e9437eb30b714594a1d0b4205776602  results/entry/partial-owner-capsule/manifold-counts.bin\n632cdda01ea84fd9c0f084ad5dd9e621e81c7348dfa66c00620800d5a5ab5327  results/entry/partial-owner-capsule/manifold-headers.bin\n720bd70af35438b04f5df1b17e17ad2f8f0dfe48c0aedb0477760287ddd6d8fd  results/entry/partial-owner-capsule/manifold-points.bin\nc3cc2c312d1b28b0cb8c1df0322bf49bbbc8e66a6e8c70c8fea8dd5edc168882  results/entry/partial-owner-capsule/q.bin\n6d467c54f0c076df77a7e52841cd08a1c58b238cc13b59b0c55a2d625d4b5754  results/entry/partial-owner-capsule/rod-edges.bin\n2809cc5524417777a6df51aeac1c203f665f6db03c176fbe18876ff819bd5f42  results/entry/partial-owner-capsule/rod-nodes.bin\n1f7f8d63c81b12f7ba4c1fb8a300fe38408ce1d1e94b98dd89376bb753bfcdca  results/entry/partial-owner-capsule/rod-tool-witnesses.bin\nf30d020eef53defbb0781d8216cdbbefc833dc86254ffb52397e18eeee6bcfad  results/entry/partial-owner-capsule/scene-bodies.bin\n09f2fb08e384aa0054d9720533d3507614464070157f81688d988a176cadb80d  results/entry/partial-owner-capsule/v.bin\n1f7f8d63c81b12f7ba4c1fb8a300fe38408ce1d1e94b98dd89376bb753bfcdca  results/entry/rod-tool-witnesses.bin\n781947d9eac4b4339364e35dee2ecf10aab4d78147ed13ef4e1eeb51b8b616e8  results/entry/tissue-robot-first-bite-contact-rigid-contact-cache.bin\n18ade16b07d2550c1d90678ebe97bfa60f10af52667f43e5db4c91b6b1ffddbe  results/entry/tissue-robot-first-bite-contact.4004270562076127246.matter.bin\n9253d9ab71962cd510ec19c3542273dab63d48b95f15000f57e8c9394afd300a  results/entry/tissue-robot-first-bite-contact.tsv\n"
+      },
+      {
+        "name": "source-revision.txt",
+        "size": 41,
+        "text": "0cba39b21e8adf7d8e95f705d386dac63b6a3d9b\n"
+      },
+      {
+        "name": "inputs.sha256",
+        "size": 1212,
+        "text": "914bea11d6da0ae476d44a8af353efedd6a03de25a62c7b16e89d1f9b2419ed3  /Users/numi/suture-archive-search-20261107/fresh-approach-20261108/partial-owner-capsule-001/candidate-bin/metalrobo_dual_psm_suture_handoff_probe\nb0114bd12d057d0cb2f2c493fbbef6e656d548f37ec130050a21139abb5910fb  /Users/numi/suture-archive-search-20261107/fresh-approach-20261108/partial-owner-capsule-001/candidate-lib/libmetalrobo.dylib\na983c833a26fbd3014f1a57079cf0f3a5b389786a3f16ad66c5794dab5831568  /Users/numi/numi-lab-skin-suture-restoration-build/matter/shaders/NumiMatter.metallib\n94bea3483bebc5d5634f03d8b56fb82830767ffea0a8f7820476703783de8b28  /Users/numi/numi-lab-skin-suture-restoration-build/shaders/MetalRobo.metallib\n379945f593f12396b44c7148026f0250344a86278e01b7b26cb5f6d823a51e35  /Users/numi/numi-lab-skin-suture-restoration/matter/materials/synthetic_skin_wound.nmatter\nfcb17521fe412a0c18691b875998bfd097b9eddf8cea8267462256eace5571e1  /Users/numi/numi-lab-skin-suture-restoration/numi/evidence/fresh-robot-approach-20261108/verify_partial_capsule.py\n45ef189e31d9d0c00153ea67fcf7eec9717fdaf4638d3ead160f88de364bc951  /Users/numi/suture-archive-search-20261107/fresh-approach-20261108/partial-owner-capsule-001/run-pinned.sh\n"
+      },
+      {
+        "name": "post-source-status.txt",
+        "size": 0,
+        "text": ""
+      },
+      {
+        "name": "source-status.txt",
+        "size": 0,
+        "text": ""
+      },
+      {
+        "name": "results/advance/partial-owner-capsule/manifest.tsv",
+        "size": 1322,
+        "text": "schema\tnumi.surgical-partial-owner-capsule.v1\ncomplete\t0\nrestorable\t0\nlineage\tsynthetic_same_resident_input_bound_by_hash\ninput_checkpoint_name\ttissue-robot-first-bite-approach.tsv\ninput_checkpoint_size\t32047\ninput_checkpoint_fnv64\t7795590006264357315\ninput_state_step\t1389\ncompiled_world_fingerprint\t7537437529895409791\naccepted_state_step\t1773\ntimestep_seconds\t0.00100000005\nphysics_substeps\t16\nmissing\tconvex_cache,reset_state,owner_transaction_state,atomic_matter_reservation,other_unverified_owner_state\nbinding\tcheckpoint\ttissue-robot-first-bite-contact.tsv\t32095\t11931323499408084702\nbinding\tmatter\ttissue-robot-first-bite-contact.4197498030444627838.matter.bin\t30316840\t11078700779599819662\nbinding\trigid_cache\ttissue-robot-first-bite-contact-rigid-contact-cache.bin\t5524\t7533347915559790807\ncomponent\tq.bin\t30\t4\t120\t1553544013229150265\ncomponent\tv.bin\t28\t4\t112\t7013414070607340560\ncomponent\tscene-bodies.bin\t2\t128\t256\t1748525451574692812\ncomponent\trod-nodes.bin\t128\t32\t4096\t5256480691113855719\ncomponent\trod-edges.bin\t127\t16\t2032\t9185961636644030450\ncomponent\tmanifold-headers.bin\t15359\t64\t982976\t390626087627136640\ncomponent\tmanifold-points.bin\t61436\t64\t3931904\t17746366646027960250\ncomponent\tmanifold-counts.bin\t1\t4\t4\t10449577217997946290\ncomponent\trod-tool-witnesses.bin\t48956\t144\t7049664\t10880587348759647400\n"
+      },
+      {
+        "name": "results/entry/partial-owner-capsule/manifest.tsv",
+        "size": 1323,
+        "text": "schema\tnumi.surgical-partial-owner-capsule.v1\ncomplete\t0\nrestorable\t0\nlineage\tsynthetic_same_resident_input_bound_by_hash\ninput_checkpoint_name\ttissue-robot-first-bite-approach.tsv\ninput_checkpoint_size\t32047\ninput_checkpoint_fnv64\t7795590006264357315\ninput_state_step\t1389\ncompiled_world_fingerprint\t7537437529895409791\naccepted_state_step\t1645\ntimestep_seconds\t0.00100000005\nphysics_substeps\t16\nmissing\tconvex_cache,reset_state,owner_transaction_state,atomic_matter_reservation,other_unverified_owner_state\nbinding\tcheckpoint\ttissue-robot-first-bite-contact.tsv\t31989\t8253259793139355195\nbinding\tmatter\ttissue-robot-first-bite-contact.4004270562076127246.matter.bin\t30316840\t17668432653259222271\nbinding\trigid_cache\ttissue-robot-first-bite-contact-rigid-contact-cache.bin\t5524\t15271915052811241723\ncomponent\tq.bin\t30\t4\t120\t9027609760156151843\ncomponent\tv.bin\t28\t4\t112\t10692910629835960941\ncomponent\tscene-bodies.bin\t2\t128\t256\t4061101367037249187\ncomponent\trod-nodes.bin\t128\t32\t4096\t7209875391209386749\ncomponent\trod-edges.bin\t127\t16\t2032\t6231465321914962958\ncomponent\tmanifold-headers.bin\t15359\t64\t982976\t3408863457203937460\ncomponent\tmanifold-points.bin\t61436\t64\t3931904\t2245477046192130167\ncomponent\tmanifold-counts.bin\t1\t4\t4\t10449577217997946290\ncomponent\trod-tool-witnesses.bin\t48956\t144\t7049664\t17077408609634043711\n"
+      }
+    ],
+    "errors": []
+  }
+]

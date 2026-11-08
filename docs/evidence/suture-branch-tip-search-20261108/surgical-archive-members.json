@@ -1,0 +1,811 @@
+{
+  "archive_count": 18,
+  "archives": [
+    {
+      "object": "07406d18300127d8688d40fc74c59d8d5062a49f",
+      "bytes": 2537283,
+      "paths": [
+        "numi/evidence/fresh-robot-approach-20261108/contact-advance-002-cache.tar.gz"
+      ],
+      "members": [
+        {
+          "name": "candidate-bin/metalrobo_dual_psm_suture_handoff_probe",
+          "size": 1413784,
+          "type": "0"
+        },
+        {
+          "name": "results/tissue-robot-first-bite-contact-rigid-contact-cache.bin",
+          "size": 5524,
+          "type": "0"
+        },
+        {
+          "name": "results/tissue-robot-first-bite-contact.tsv",
+          "size": 32062,
+          "type": "0"
+        },
+        {
+          "name": "results/tissue-robot-first-bite-contact.14690462259074833537.matter.bin",
+          "size": 30316840,
+          "type": "0"
+        },
+        {
+          "name": "checkpoint-inputs.sha256",
+          "size": 353,
+          "type": "0"
+        },
+        {
+          "name": "checkpoint-precheck.log",
+          "size": 167,
+          "type": "0"
+        },
+        {
+          "name": "checkpoint-postcheck.log",
+          "size": 167,
+          "type": "0"
+        },
+        {
+          "name": "receipt.log",
+          "size": 254,
+          "type": "0"
+        }
+      ],
+      "errors": [],
+      "sha256": "969fb7b2087c4a0db5443583879b66a5a9c8712d4b679e300cd24286ae17db1e",
+      "member_count": 17
+    },
+    {
+      "object": "1b7cc96eb8d5e9d3d6148eebb41e7d8131405349",
+      "bytes": 2534914,
+      "paths": [
+        "numi/evidence/fresh-robot-approach-20261108/contact-advance-001-partial-state.tar.gz"
+      ],
+      "members": [
+        {
+          "name": "candidate-bin/metalrobo_dual_psm_suture_handoff_probe",
+          "size": 1413512,
+          "type": "0"
+        },
+        {
+          "name": "results/tissue-robot-first-bite-contact.16656443927740495184.matter.bin",
+          "size": 30316840,
+          "type": "0"
+        },
+        {
+          "name": "results/tissue-robot-first-bite-contact-rigid-contact-cache.bin",
+          "size": 5524,
+          "type": "0"
+        },
+        {
+          "name": "results/tissue-robot-first-bite-contact.tsv",
+          "size": 31938,
+          "type": "0"
+        },
+        {
+          "name": "checkpoint-inputs.sha256",
+          "size": 353,
+          "type": "0"
+        },
+        {
+          "name": "checkpoint-precheck.log",
+          "size": 167,
+          "type": "0"
+        },
+        {
+          "name": "checkpoint-postcheck.log",
+          "size": 167,
+          "type": "0"
+        },
+        {
+          "name": "receipt.log",
+          "size": 230,
+          "type": "0"
+        }
+      ],
+      "errors": [],
+      "sha256": "200d779733638fe9758456c307b9e1a099d1b6e0b6685bfec447cfdc8dee7459",
+      "member_count": 17
+    },
+    {
+      "object": "298630738c140d1d238665f60cf4ab0c55e0165a",
+      "bytes": 3303,
+      "paths": [
+        "numi/evidence/fresh-robot-approach-20261108/entry-001-rejected.tar.gz"
+      ],
+      "members": [
+        {
+          "name": "checkpoint-inputs.sha256",
+          "size": 234,
+          "type": "0"
+        },
+        {
+          "name": "checkpoint-precheck.log",
+          "size": 110,
+          "type": "0"
+        },
+        {
+          "name": "checkpoint-postcheck.log",
+          "size": 110,
+          "type": "0"
+        },
+        {
+          "name": "receipt.log",
+          "size": 230,
+          "type": "0"
+        }
+      ],
+      "errors": [],
+      "sha256": "5863f9844dbaacbba467b8e83684633950c3fe8202d6f6f3f6f3a781a4a6ec3e",
+      "member_count": 11
+    },
+    {
+      "object": "3aecef87311844acdcca07dfbde4c9b07369427a",
+      "bytes": 2533437,
+      "paths": [
+        "numi/evidence/fresh-robot-approach-20261108/entry-002-contact-fix.tar.gz"
+      ],
+      "members": [
+        {
+          "name": "candidate-bin/metalrobo_dual_psm_suture_handoff_probe",
+          "size": 1413512,
+          "type": "0"
+        },
+        {
+          "name": "results/tissue-robot-first-bite-contact.4004270562076127246.matter.bin",
+          "size": 30316840,
+          "type": "0"
+        },
+        {
+          "name": "results/tissue-robot-first-bite-contact-rigid-contact-cache.bin",
+          "size": 5524,
+          "type": "0"
+        },
+        {
+          "name": "results/tissue-robot-first-bite-contact.tsv",
+          "size": 31989,
+          "type": "0"
+        },
+        {
+          "name": "checkpoint-inputs.sha256",
+          "size": 234,
+          "type": "0"
+        },
+        {
+          "name": "checkpoint-precheck.log",
+          "size": 110,
+          "type": "0"
+        },
+        {
+          "name": "checkpoint-postcheck.log",
+          "size": 110,
+          "type": "0"
+        },
+        {
+          "name": "receipt.log",
+          "size": 230,
+          "type": "0"
+        }
+      ],
+      "errors": [],
+      "sha256": "b123a0f96b84d637d8e18561de8833d8d36612eedf96a2409f8af59556d3af26",
+      "member_count": 17
+    },
+    {
+      "object": "68fc3bd91cea3bf9e5948875dd1a09a22a1f217e",
+      "bytes": 7199309,
+      "paths": [
+        "numi/evidence/fresh-robot-approach-20261108/rod-witness-readback-001.tar.gz"
+      ],
+      "members": [
+        {
+          "name": "candidate-bin/metalrobo_dual_psm_suture_handoff_probe",
+          "size": 1436264,
+          "type": "0"
+        },
+        {
+          "name": "results/advance/tissue-robot-first-bite-contact-rigid-contact-cache.bin",
+          "size": 5524,
+          "type": "0"
+        },
+        {
+          "name": "results/advance/tissue-robot-first-bite-contact.4197498030444627838.matter.bin",
+          "size": 30316840,
+          "type": "0"
+        },
+        {
+          "name": "results/advance/tissue-robot-first-bite-contact.tsv",
+          "size": 32095,
+          "type": "0"
+        },
+        {
+          "name": "results/entry/tissue-robot-first-bite-contact.4004270562076127246.matter.bin",
+          "size": 30316840,
+          "type": "0"
+        },
+        {
+          "name": "results/entry/tissue-robot-first-bite-contact-rigid-contact-cache.bin",
+          "size": 5524,
+          "type": "0"
+        },
+        {
+          "name": "results/entry/tissue-robot-first-bite-contact.tsv",
+          "size": 31989,
+          "type": "0"
+        },
+        {
+          "name": "checkpoint-inputs.sha256",
+          "size": 234,
+          "type": "0"
+        },
+        {
+          "name": "checkpoint-precheck.log",
+          "size": 110,
+          "type": "0"
+        },
+        {
+          "name": "checkpoint-postcheck.log",
+          "size": 110,
+          "type": "0"
+        },
+        {
+          "name": "receipt.log",
+          "size": 272,
+          "type": "0"
+        }
+      ],
+      "errors": [],
+      "sha256": "877de2e49513dd12fcf2fbbc4e6630c48f292d29c4dd27b5997b9f1eedf0666a",
+      "member_count": 27
+    },
+    {
+      "object": "729dcabedd571338c6005540dbca9c275ddb688b",
+      "bytes": 1917277,
+      "paths": [
+        "numi/evidence/fresh-robot-approach-20261108/continuation-001.tar.gz"
+      ],
+      "members": [
+        {
+          "name": "results/tissue-robot-first-bite-approach.4439547654137896886.matter.bin",
+          "size": 30316840,
+          "type": "0"
+        },
+        {
+          "name": "results/tissue-robot-first-bite-approach.tsv",
+          "size": 31943,
+          "type": "0"
+        },
+        {
+          "name": "checkpoint-inputs.sha256",
+          "size": 234,
+          "type": "0"
+        },
+        {
+          "name": "checkpoint-precheck.log",
+          "size": 110,
+          "type": "0"
+        },
+        {
+          "name": "checkpoint-postcheck.log",
+          "size": 110,
+          "type": "0"
+        },
+        {
+          "name": "receipt.log",
+          "size": 212,
+          "type": "0"
+        }
+      ],
+      "errors": [],
+      "sha256": "ad83da609a093e14a466837c16931bbba8fdd73bce75dc5ecc272fade3242549",
+      "member_count": 12
+    },
+    {
+      "object": "7c3e4c04ac3f336380da2a45e693c71582a39027",
+      "bytes": 57839,
+      "paths": [
+        "numi/evidence/fresh-robot-approach-20261108/witness-device-roundtrip-001.tar.gz"
+      ],
+      "members": [
+        {
+          "name": "receipt.log",
+          "size": 209,
+          "type": "0"
+        },
+        {
+          "name": "suture-witness-device-invalid-args.log",
+          "size": 44,
+          "type": "0"
+        },
+        {
+          "name": "suture-witness-device-truncated.log",
+          "size": 29,
+          "type": "0"
+        }
+      ],
+      "errors": [],
+      "sha256": "eaa092839ba6e2a70f9e2d80856b65d15ddb91f09580bb4fea45169285a56ed3",
+      "member_count": 13
+    },
+    {
+      "object": "7efa5d3ee03966644d98424c7a1f00c41c488731",
+      "bytes": 1929307,
+      "paths": [
+        "numi/evidence/fresh-robot-approach-20261108/continuation-003.tar.gz"
+      ],
+      "members": [
+        {
+          "name": "results/tissue-robot-first-bite-approach.12396299253965864512.matter.bin",
+          "size": 30316840,
+          "type": "0"
+        },
+        {
+          "name": "results/tissue-robot-first-bite-approach.tsv",
+          "size": 32047,
+          "type": "0"
+        },
+        {
+          "name": "checkpoint-inputs.sha256",
+          "size": 234,
+          "type": "0"
+        },
+        {
+          "name": "checkpoint-precheck.log",
+          "size": 110,
+          "type": "0"
+        },
+        {
+          "name": "checkpoint-postcheck.log",
+          "size": 110,
+          "type": "0"
+        },
+        {
+          "name": "receipt.log",
+          "size": 212,
+          "type": "0"
+        }
+      ],
+      "errors": [],
+      "sha256": "6222befffa45f28d6de6722191d271fc568667b9e759d4b0a9ec2e4af741f269",
+      "member_count": 12
+    },
+    {
+      "object": "80317e0927a32dcbf28054f8a76d640e4a3ebc2f",
+      "bytes": 5161837,
+      "paths": [
+        "numi/evidence/fresh-robot-approach-20261108/no-step-continuation-guard-001.tar.gz"
+      ],
+      "members": [
+        {
+          "name": "./receipt.log",
+          "size": 59,
+          "type": "0"
+        }
+      ],
+      "errors": [],
+      "sha256": "273d2440aed8818cf2852a8b8f13cb9d4a23e864ece2d873545fb86008ade2b3",
+      "member_count": 49
+    },
+    {
+      "object": "8bacfb18e4bb19e73adaeaa8de9c79fecff897b9",
+      "bytes": 5149062,
+      "paths": [
+        "numi/evidence/fresh-robot-approach-20261108/populated-convex-control-001.tar.gz"
+      ],
+      "members": [
+        {
+          "name": "./receipt.log",
+          "size": 59,
+          "type": "0"
+        }
+      ],
+      "errors": [],
+      "sha256": "347cd3203b789e373a6b2605eb6091e8467ec7aa2dc1b2724fde5b2bb19e2a45",
+      "member_count": 32
+    },
+    {
+      "object": "90c8b95f848f83e50f54d85617f692f0798a82d2",
+      "bytes": 2206,
+      "paths": [
+        "numi/evidence/fresh-robot-approach-20261108/continuation-004-guard-stop.tar.gz"
+      ],
+      "members": [
+        {
+          "name": "checkpoint-inputs.sha256",
+          "size": 234,
+          "type": "0"
+        },
+        {
+          "name": "checkpoint-precheck.log",
+          "size": 110,
+          "type": "0"
+        },
+        {
+          "name": "checkpoint-postcheck.log",
+          "size": 110,
+          "type": "0"
+        },
+        {
+          "name": "receipt.log",
+          "size": 230,
+          "type": "0"
+        }
+      ],
+      "errors": [],
+      "sha256": "d205b6e17b3511fae15107a4d133c1e1f63e73cfe3630199bf7affc9c634079d",
+      "member_count": 11
+    },
+    {
+      "object": "92722a337a8f7a49838018a93de31e83078fdd56",
+      "bytes": 5161648,
+      "paths": [
+        "numi/evidence/fresh-robot-approach-20261108/no-step-manifold-fault-001.tar.gz"
+      ],
+      "members": [
+        {
+          "name": "./receipt.log",
+          "size": 59,
+          "type": "0"
+        }
+      ],
+      "errors": [],
+      "sha256": "6a7bc4a61b14df04f21536c04b4a91b6b0858931f76f6a867e82c0ac3cf968af",
+      "member_count": 49
+    },
+    {
+      "object": "9fe625693fedebd7d0c37501651a57ac2a0e1272",
+      "bytes": 12695104,
+      "paths": [
+        "numi/evidence/fresh-robot-approach-20261108/convex-owner-capture-001.tar.gz"
+      ],
+      "members": [
+        {
+          "name": "./checkpoint-precheck.log",
+          "size": 110,
+          "type": "0"
+        },
+        {
+          "name": "./checkpoint-inputs.sha256",
+          "size": 234,
+          "type": "0"
+        },
+        {
+          "name": "./tissue-robot-first-bite-approach.12396299253965864512.matter.bin",
+          "size": 30316840,
+          "type": "0"
+        },
+        {
+          "name": "./checkpoint-postcheck.log",
+          "size": 110,
+          "type": "0"
+        },
+        {
+          "name": "./tissue-robot-first-bite-approach.tsv",
+          "size": 32047,
+          "type": "0"
+        },
+        {
+          "name": "./receipt.log",
+          "size": 440,
+          "type": "0"
+        },
+        {
+          "name": "./results/advance/tissue-robot-first-bite-contact-rigid-contact-cache.bin",
+          "size": 5524,
+          "type": "0"
+        },
+        {
+          "name": "./results/advance/tissue-robot-first-bite-contact.4197498030444627838.matter.bin",
+          "size": 30316840,
+          "type": "0"
+        },
+        {
+          "name": "./results/advance/tissue-robot-first-bite-contact.tsv",
+          "size": 32095,
+          "type": "0"
+        },
+        {
+          "name": "./results/advance/owner-boundary-evidence/manifest.tsv",
+          "size": 981,
+          "type": "0"
+        },
+        {
+          "name": "./results/advance/partial-owner-capsule/manifest.tsv",
+          "size": 1322,
+          "type": "0"
+        },
+        {
+          "name": "./results/entry/tissue-robot-first-bite-contact.4004270562076127246.matter.bin",
+          "size": 30316840,
+          "type": "0"
+        },
+        {
+          "name": "./results/entry/tissue-robot-first-bite-contact-rigid-contact-cache.bin",
+          "size": 5524,
+          "type": "0"
+        },
+        {
+          "name": "./results/entry/tissue-robot-first-bite-contact.tsv",
+          "size": 31989,
+          "type": "0"
+        },
+        {
+          "name": "./results/entry/owner-boundary-evidence/manifest.tsv",
+          "size": 983,
+          "type": "0"
+        },
+        {
+          "name": "./results/entry/partial-owner-capsule/manifest.tsv",
+          "size": 1323,
+          "type": "0"
+        },
+        {
+          "name": "./candidate-bin/metalrobo_dual_psm_suture_handoff_probe",
+          "size": 1471368,
+          "type": "0"
+        }
+      ],
+      "errors": [],
+      "sha256": "258e0cec9c22328bab31a13f4d0acea4a0918bbbf81394ae44fbefa6ff64e9ed",
+      "member_count": 78
+    },
+    {
+      "object": "b154df8dfe61bf393bba59b3d16da3197ae3a365",
+      "bytes": 12686507,
+      "paths": [
+        "numi/evidence/fresh-robot-approach-20261108/partial-owner-capsule-001.tar.gz"
+      ],
+      "members": [
+        {
+          "name": "./checkpoint-precheck.log",
+          "size": 110,
+          "type": "0"
+        },
+        {
+          "name": "./checkpoint-inputs.sha256",
+          "size": 234,
+          "type": "0"
+        },
+        {
+          "name": "./tissue-robot-first-bite-approach.12396299253965864512.matter.bin",
+          "size": 30316840,
+          "type": "0"
+        },
+        {
+          "name": "./checkpoint-postcheck.log",
+          "size": 110,
+          "type": "0"
+        },
+        {
+          "name": "./tissue-robot-first-bite-approach.tsv",
+          "size": 32047,
+          "type": "0"
+        },
+        {
+          "name": "./receipt.log",
+          "size": 366,
+          "type": "0"
+        },
+        {
+          "name": "./results/advance/tissue-robot-first-bite-contact-rigid-contact-cache.bin",
+          "size": 5524,
+          "type": "0"
+        },
+        {
+          "name": "./results/advance/tissue-robot-first-bite-contact.4197498030444627838.matter.bin",
+          "size": 30316840,
+          "type": "0"
+        },
+        {
+          "name": "./results/advance/tissue-robot-first-bite-contact.tsv",
+          "size": 32095,
+          "type": "0"
+        },
+        {
+          "name": "./results/advance/partial-owner-capsule/manifest.tsv",
+          "size": 1322,
+          "type": "0"
+        },
+        {
+          "name": "./results/entry/tissue-robot-first-bite-contact.4004270562076127246.matter.bin",
+          "size": 30316840,
+          "type": "0"
+        },
+        {
+          "name": "./results/entry/tissue-robot-first-bite-contact-rigid-contact-cache.bin",
+          "size": 5524,
+          "type": "0"
+        },
+        {
+          "name": "./results/entry/tissue-robot-first-bite-contact.tsv",
+          "size": 31989,
+          "type": "0"
+        },
+        {
+          "name": "./results/entry/partial-owner-capsule/manifest.tsv",
+          "size": 1323,
+          "type": "0"
+        },
+        {
+          "name": "./candidate-bin/metalrobo_dual_psm_suture_handoff_probe",
+          "size": 1454328,
+          "type": "0"
+        }
+      ],
+      "errors": [],
+      "sha256": "939255ea06e88fb945646ddbf8f3f8650c3c1e65a302bd35c19cec8e35b7bd76",
+      "member_count": 68
+    },
+    {
+      "object": "b7cd8a3a7aacb7d6c0109b9c72ae5c97ba2e0be5",
+      "bytes": 4468394,
+      "paths": [
+        "numi/evidence/fresh-robot-approach-20261108/same-resident-control-001.tar.gz"
+      ],
+      "members": [
+        {
+          "name": "candidate-bin/metalrobo_dual_psm_suture_handoff_probe",
+          "size": 1435240,
+          "type": "0"
+        },
+        {
+          "name": "results/advance/tissue-robot-first-bite-contact-rigid-contact-cache.bin",
+          "size": 5524,
+          "type": "0"
+        },
+        {
+          "name": "results/advance/tissue-robot-first-bite-contact.4197498030444627838.matter.bin",
+          "size": 30316840,
+          "type": "0"
+        },
+        {
+          "name": "results/advance/tissue-robot-first-bite-contact.tsv",
+          "size": 32095,
+          "type": "0"
+        },
+        {
+          "name": "results/entry/tissue-robot-first-bite-contact.4004270562076127246.matter.bin",
+          "size": 30316840,
+          "type": "0"
+        },
+        {
+          "name": "results/entry/tissue-robot-first-bite-contact-rigid-contact-cache.bin",
+          "size": 5524,
+          "type": "0"
+        },
+        {
+          "name": "results/entry/tissue-robot-first-bite-contact.tsv",
+          "size": 31989,
+          "type": "0"
+        },
+        {
+          "name": "checkpoint-inputs.sha256",
+          "size": 234,
+          "type": "0"
+        },
+        {
+          "name": "checkpoint-precheck.log",
+          "size": 110,
+          "type": "0"
+        },
+        {
+          "name": "checkpoint-postcheck.log",
+          "size": 110,
+          "type": "0"
+        },
+        {
+          "name": "receipt.log",
+          "size": 254,
+          "type": "0"
+        },
+        {
+          "name": "suture-same-resident-invalid-mode.log",
+          "size": 117,
+          "type": "0"
+        },
+        {
+          "name": "suture-same-resident-duplicate.log",
+          "size": 86,
+          "type": "0"
+        }
+      ],
+      "errors": [],
+      "sha256": "d3c060ad2c1e31f3f1044ccdb9c250ad95bc9bb9d1184ef94b78d924bcc3e40b",
+      "member_count": 24
+    },
+    {
+      "object": "cc04c66d61f4c55ad8d05ff5160b75f43e9a1d23",
+      "bytes": 5159404,
+      "paths": [
+        "numi/evidence/fresh-robot-approach-20261108/no-step-owner-seed-001.tar.gz"
+      ],
+      "members": [
+        {
+          "name": "./receipt.log",
+          "size": 59,
+          "type": "0"
+        }
+      ],
+      "errors": [],
+      "sha256": "3b4c5b722b4d0a1f356d52c5167690e0124611d25430b409ab1524286ee3f743",
+      "member_count": 35
+    },
+    {
+      "object": "df91b76c12cf052041cfb2b2d080071875f03330",
+      "bytes": 1929003,
+      "paths": [
+        "numi/evidence/fresh-robot-approach-20261108/continuation-002.tar.gz"
+      ],
+      "members": [
+        {
+          "name": "results/tissue-robot-first-bite-approach.11765248113345440876.matter.bin",
+          "size": 30316840,
+          "type": "0"
+        },
+        {
+          "name": "results/tissue-robot-first-bite-approach.tsv",
+          "size": 32085,
+          "type": "0"
+        },
+        {
+          "name": "checkpoint-inputs.sha256",
+          "size": 233,
+          "type": "0"
+        },
+        {
+          "name": "checkpoint-precheck.log",
+          "size": 109,
+          "type": "0"
+        },
+        {
+          "name": "checkpoint-postcheck.log",
+          "size": 109,
+          "type": "0"
+        },
+        {
+          "name": "receipt.log",
+          "size": 212,
+          "type": "0"
+        }
+      ],
+      "errors": [],
+      "sha256": "469e46972a4bcfe5af715916445a02beb5216ae505c7ddc8fcb0b496ab7fd4a2",
+      "member_count": 12
+    },
+    {
+      "object": "e48f0c6872c7ad7f4b627a7feeb7452ea31324f3",
+      "bytes": 10618125,
+      "paths": [
+        "numi/evidence/fresh-robot-approach-20261108/trajectory-inputs-outputs.tar.gz"
+      ],
+      "members": [
+        {
+          "name": "bin/metalrobo_dual_psm_suture_handoff_probe",
+          "size": 1413240,
+          "type": "0"
+        },
+        {
+          "name": "results/tissue-robot-first-bite-grip.9591081349169995094.matter.bin",
+          "size": 30316840,
+          "type": "0"
+        },
+        {
+          "name": "results/tissue-robot-first-bite-grip.tsv",
+          "size": 31848,
+          "type": "0"
+        },
+        {
+          "name": "results/tissue-robot-first-bite-approach.12200025473249405896.matter.bin",
+          "size": 30316840,
+          "type": "0"
+        },
+        {
+          "name": "results/tissue-robot-first-bite-approach.tsv",
+          "size": 31823,
+          "type": "0"
+        }
+      ],
+      "errors": [],
+      "sha256": "2d39c80705d0b15997dbfe77f2bd259c245a3289aca55ae76321bee5e3d2c426",
+      "member_count": 23
+    }
+  ]
+}
