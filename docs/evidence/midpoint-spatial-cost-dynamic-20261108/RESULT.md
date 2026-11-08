@@ -56,7 +56,7 @@ the median accepted simulated seconds per wall second was approximately
 0.0003536. Initialization and the final verification snapshot are outside
 the timer; GPU diagnostic collection and normal per-step log output remain
 inside it. These standalone results are not an integrator comparison.
-At 4 divisions, midpoint also passed at 15.625 us: 0.1151% binned force, 0.2411% sampled peak, 0.0194% final impulse, and 0.0871% maximum cumulative impulse. Three standalone 4-division midpoint costs were 30.6918, 30.6668 and 30.4342 s per 10 ms rollout; each final digest matched its accuracy trace. At 4 divisions, backward Euler found no qualifying step in the prescribed ladder: 7.8125 us failed the accuracy gates, while the 3.90625 us attempt rejected with status 10 after 815 accepted steps, before contact, and restored the prior physical state. The 8-division search is still in progress.
+At 4 divisions, midpoint also passed at 15.625 us: 0.1151% binned force, 0.2411% sampled peak, 0.0194% final impulse, and 0.0871% maximum cumulative impulse. Three standalone 4-division midpoint costs were 30.6918, 30.6668 and 30.4342 s per 10 ms rollout; each final digest matched its accuracy trace. At 4 divisions, backward Euler found no qualifying step in the prescribed ladder: 7.8125 us failed the accuracy gates, while the 3.90625 us attempt rejected with status 10 after 815 accepted steps, before contact, and restored the prior physical state. At 8 divisions, midpoint at 125, 31.25 and 15.625 us rejected with nonlinear-solver status 10 and restored the previous physical state; 62.5 us completed but failed the accuracy gates. Smaller-step trials and the backward Euler search are still in progress.
 
 ## Transactions and dynamic owner
 
