@@ -1,0 +1,5 @@
+{
+  "all_native_checks": true,
+  "predictor_indefinite_all_long_h": true,
+  "axial_spd_all_long_h": true
+}
