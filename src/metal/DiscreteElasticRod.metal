@@ -1795,6 +1795,7 @@ kernel void mr_discrete_elastic_rod_step(
     threadgroup atomic_uint projectedContactCount;
     threadgroup uint completedIterations;
     threadgroup uint converged;
+    threadgroup uint exactPinned;
     threadgroup uint selfFrictionContactCount;
 
     if (lane == 0u) {
@@ -1830,6 +1831,7 @@ kernel void mr_discrete_elastic_rod_step(
         );
         completedIterations = 0u;
         converged = 0u;
+        exactPinned = 0u;
         selfFrictionContactCount = 0u;
         if (dispatch.abiVersion != MR_ROD_GPU_ABI_VERSION ||
             dispatch.environmentCount == 0u ||
@@ -1948,8 +1950,55 @@ kernel void mr_discrete_elastic_rod_step(
     }
     threadgroup_barrier(mem_flags::mem_threadgroup);
 
+    // Exact end-of-step solution for a single edge with two prescribed,
+    // uncoupled, hard endpoints. Momentum and elastic reaction are staged in
+    // targetImpulses; normal output publication and failure paths remain in
+    // force. General, damped, event, collision and rigid-coupled rods retain
+    // the existing solve.
+    if (lane == 0u && !eventSegment && dispatch.nodeCount == 2u &&
+        dispatch.attachmentCount == 2u && dispatch.rigidBodyCount == 0u &&
+        dispatch.flags == 0u && dispatch.dampingDerivativeTolerance.x == 0.0f &&
+        atomic_load_explicit(&failure, memory_order_relaxed) == MR_ROD_GPU_SUCCESS) {
+        const uint base = environment * dispatch.attachmentCount;
+        const MRRodGPUAttachment a = attachments[base];
+        const MRRodGPUAttachment b = attachments[base + 1u];
+        if (a.nodeIndex < 2u && b.nodeIndex < 2u && a.nodeIndex != b.nodeIndex &&
+            a.targetAndCompliance.w == 0.0f && b.targetAndCompliance.w == 0.0f) {
+            exactPinned = 1u;
+            positions[a.nodeIndex] = a.targetAndCompliance.xyz;
+            positions[b.nodeIndex] = b.targetAndCompliance.xyz;
+            const float3 delta = positions[1] - positions[0];
+            const float currentLength = length(delta);
+            if (!(currentLength > kGeometryFloor) || !isfinite(currentLength)) {
+                recordFailure(failure, MR_ROD_GPU_DEGENERATE_GEOMETRY);
+            } else {
+                const float h = dispatch.gravityAndTimestep.w;
+                const float extension = currentLength - restLengths[0];
+                const float3 force = delta / currentLength *
+                    (stretchStiffness[0] / restLengths[0]) * extension;
+                const MRRodGPUAttachment anchors[2] = {a, b};
+                for (uint i = 0u; i < 2u; ++i) {
+                    const uint node = anchors[i].nodeIndex;
+                    const float3 projectedVelocity =
+                        (positions[node] - originalPositions[node]) / h;
+                    const float3 elasticImpulse = (node == 0u ? force : -force) * h;
+                    // Finalization subtracts the target-velocity correction.
+                    targetImpulses[i] = elasticImpulse +
+                        (velocities[node] - projectedVelocity) / inverseMasses[node];
+                    if (!all(isfinite(targetImpulses[i]))) {
+                        recordFailure(failure, MR_ROD_GPU_NONFINITE_RESULT);
+                    }
+                }
+                recordPositiveMaximum(maximumErrorBits, abs(extension));
+                completedIterations = 1u;
+                converged = 1u;
+            }
+        }
+    }
+    threadgroup_barrier(mem_flags::mem_threadgroup);
+
     for (uint iteration = 0u;
-         iteration < dispatch.solverIterations;
+         iteration < dispatch.solverIterations && exactPinned == 0u;
          ++iteration) {
         if (lane == 0u) {
             atomic_store_explicit(
