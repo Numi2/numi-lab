@@ -1857,6 +1857,19 @@ if(BUILD_TESTING)
     set_tests_properties(hyper_policy_capacity_continuity PROPERTIES
         LABELS "robotics;policy;metal" TIMEOUT 120)
 
+    add_executable(hyper-policy-environment-growth-probe tests/hyper_policy_environment_growth_probe.mm)
+    target_link_libraries(hyper-policy-environment-growth-probe PRIVATE
+        metalrobo "${FOUNDATION_FRAMEWORK}" "${METAL_FRAMEWORK}")
+    target_compile_options(hyper-policy-environment-growth-probe PRIVATE -fobjc-arc)
+    set_target_properties(hyper-policy-environment-growth-probe PROPERTIES
+        BUILD_RPATH "${CMAKE_CURRENT_BINARY_DIR}/lib")
+    add_test(NAME hyper_policy_environment_growth
+        COMMAND "${Python3_EXECUTABLE}"
+            "${CMAKE_CURRENT_SOURCE_DIR}/tests/hyper_policy_environment_growth_test.py"
+            $<TARGET_FILE:hyper-policy-environment-growth-probe> "${METALROBO_HYPER_POLICY_METALLIB}")
+    set_tests_properties(hyper_policy_environment_growth PROPERTIES
+        LABELS "robotics;policy;metal" TIMEOUT 120)
+
     add_executable(numi-human-constraint-response-check
         tests/numi_human_constraint_response_check.mm)
     target_link_libraries(numi-human-constraint-response-check PRIVATE
