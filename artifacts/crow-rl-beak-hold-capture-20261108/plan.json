@@ -1,0 +1,74 @@
+{
+  "analysis": "All paired accepted traces byte compared; replay records and protected stamp checked by native owning probe. Sample distance along captured projection is descriptive, not swept-volume proof.",
+  "budget": {
+    "raw_trial_bytes_maximum": 8388608,
+    "replay_timeout_seconds_each": 60,
+    "runs": 4,
+    "stopping": "One run per listed parent condition; no retry or physics repair. Retain every failure/missing snapshot. No policy promotion.",
+    "timeout_seconds_each": 180
+  },
+  "calibration": "Existing protected capture ABI and overwrite/null controls, artifacts/crow-rl-ccd-protected-sweep-20261108. This use requires native isolated replay of every new captured candidate.",
+  "cases": [
+    {
+      "arm": 0,
+      "chunk": 1,
+      "name": "clamp",
+      "parent_trace_sha256": "725da54b48d72fe73a1c0c5ccd881e6721168f4e7948f2128c3107278caae662",
+      "substeps": 32
+    },
+    {
+      "arm": 1,
+      "chunk": 1,
+      "name": "open",
+      "parent_trace_sha256": "c750d4e2d57ac4a1ac4f015c32afd727f9522e8ad68ff25548f51ac13401c9b5",
+      "substeps": 32
+    },
+    {
+      "arm": 3,
+      "chunk": 1,
+      "name": "zero-friction",
+      "parent_trace_sha256": "3280b2ef5a7fb5ab69dc543003787b743d4c58c02cc82d545163ef8a95093b74",
+      "substeps": 32
+    },
+    {
+      "arm": 0,
+      "chunk": 1,
+      "name": "refinement",
+      "parent_trace_sha256": "399cc323d54a0dbf0754d0c480f26d873b3d7a22c55102f55f8adb48dd198577",
+      "substeps": 64
+    }
+  ],
+  "limits": "Failure diagnosis only. Parent is invalid for qualification (native rejections and unsupported direct-action final checkpoint); partial lift is not a completed contact capability.",
+  "parent": "artifacts/crow-rl-beak-hold-repair-20261108",
+  "prediction": "Each command exits1 at same accepted tick, and accepted trace bytes remain identical. Failure snapshot <=1MiB, v2 protected first-failure identity; isolated native resolver reproduces stored candidate byte exactly using protected event. If not, capture cannot explain parent failure.",
+  "purpose": "diagnostic replication, no new mechanical prediction or success selection",
+  "question": "Which protected native projected sweep caused each retained failure?",
+  "revision": "No mechanics, controls, tolerances, solver budgets or native binary changes. Enable existing failure-only observation; fix loader logging by setting DYLD variables after protected /usr/bin/time has launched.",
+  "runtime": {
+    "build/bin/metalrobo_ccd_sweep_probe": {
+      "bytes": 95704,
+      "sha256": "29a4276b74e0b31410b14eb31b3cb90b53b994f2759b85895009eec7d5584326"
+    },
+    "build/crow-beak-hold-build-01/probe-v5": {
+      "bytes": 720872,
+      "sha256": "3ec4b61e79fb42b57cfc9215af783b2dbbf94c06a03ddef8392a2ff27957b437"
+    },
+    "build/crow-beak-hold-build-01/probe-v5.mm": {
+      "bytes": 13123,
+      "sha256": "c6c69e7921a485e66b824746d94a9411c77c9e57ecd4cad02960549ba08d9756"
+    },
+    "build/lib/libmetalrobo.dylib": {
+      "bytes": 5693648,
+      "sha256": "cdca44609a3cee9747c96895ffff431702d685075621ec5013414910adfba49c"
+    },
+    "build/shaders/CCDSweepProbe.metallib": {
+      "bytes": 947199,
+      "sha256": "aee7541a8ce2ca40ce9bfbff1d10f3d13459d3e844756257d4028023374c1d1d"
+    },
+    "build/shaders/MetalRobo.metallib": {
+      "bytes": 4210978,
+      "sha256": "80b9c0535c353fa1cd98d381e92f7cd0bf869da328eb419839d8310e6925ebd0"
+    }
+  },
+  "source_commit": "9f03b8c8306eb883f599019deeca25c671451786"
+}
