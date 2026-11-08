@@ -1,0 +1,428 @@
+{
+  "commit": "bd9d591177fdd0c91b27c3e7ff6d9e452d79650d",
+  "df_after": "Filesystem   1024-blocks      Used Available Capacity iused      ifree %iused  Mounted on\n/dev/disk3s5   482797652 299494388 157854752    66% 3496284 1578547520    0%   /System/Volumes/Data\n",
+  "df_before_unavailable": true,
+  "limit": "Reconstructed from committed objects/index and observed absence after failure; no original pre-deletion receipt or immediate df_before survived.",
+  "omitted_files": [
+    {
+      "bytes": 12,
+      "content_sha256": "dc867bfa424d5804f4b790b2901bb95c32df7bb3341b3aac822dfc76751093fe",
+      "git_blob": "57cdc50305d07f35133f80962644debd6b846bf3",
+      "mode": "100644",
+      "observed": "absent_with_skip_worktree",
+      "path": "artifacts/crow-rl-object-continuation-failure-20261108/.gitattributes"
+    },
+    {
+      "bytes": 0,
+      "content_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "git_blob": "e69de29bb2d1d6434b8b29ae775ad8c2e48c5391",
+      "mode": "100644",
+      "observed": "absent_with_skip_worktree",
+      "path": "artifacts/crow-rl-object-continuation-failure-20261108/archive-capture.stderr"
+    },
+    {
+      "bytes": 542,
+      "content_sha256": "b69aaec922b1062d8fcac1afb793124e200a4ab7c85761e340074e95b6035016",
+      "git_blob": "476f0e183d45430831d325c68313592f94540523",
+      "mode": "100644",
+      "observed": "absent_with_skip_worktree",
+      "path": "artifacts/crow-rl-object-continuation-failure-20261108/archive-capture.stdout"
+    },
+    {
+      "bytes": 4635,
+      "content_sha256": "2c8969893549a090183f84c7e2ec4c5a256a18b95e45121b11405f74abcf176f",
+      "git_blob": "fe49d602bcc560fe639ac1a23d2c8ca6d869a21d",
+      "mode": "100644",
+      "observed": "absent_with_skip_worktree",
+      "path": "artifacts/crow-rl-object-continuation-failure-20261108/auxiliary-cleanup-before.json"
+    },
+    {
+      "bytes": 4843,
+      "content_sha256": "ebcceb5ca9c17acd6cec7821fcdbbfa59cf0907b3e05baafa122c7089f475f9a",
+      "git_blob": "9ae81271883c7aafca24ab37fa2d7c0018c47737",
+      "mode": "100644",
+      "observed": "absent_with_skip_worktree",
+      "path": "artifacts/crow-rl-object-continuation-failure-20261108/auxiliary-cleanup.json"
+    },
+    {
+      "bytes": 306,
+      "content_sha256": "601b861f63a3967700173d98b732c0fe61ac4b9ce9b09500aed61bdb629f75af",
+      "git_blob": "ffdf25fc1f1216077134b91513435d10f893bdbf",
+      "mode": "100644",
+      "observed": "absent_with_skip_worktree",
+      "path": "artifacts/crow-rl-object-continuation-failure-20261108/blobs/0d9288c9910d45e781c23c3e9b0d6935be574bc333f4587448b1c3df5dd872c4.gz"
+    },
+    {
+      "bytes": 185107,
+      "content_sha256": "785470e3c773d3d9c1c5c6d35945e44b645f003f3d7ab5b4ff3c0fb68f373c8a",
+      "git_blob": "442dbe6e4e135fad33187bf202a45b31b89d1c56",
+      "mode": "100644",
+      "observed": "absent_with_skip_worktree",
+      "path": "artifacts/crow-rl-object-continuation-failure-20261108/blobs/123bf71a3fcd66b4ec2f4642f0dcfeab51c8821fbdc46cec8ba6bf155ab3b66a.gz"
+    },
+    {
+      "bytes": 854,
+      "content_sha256": "3f9d59fe173b34ce836268771c898be141878d77ce7b3af7268ae3db0f32a961",
+      "git_blob": "4b4ef962085e6db080305e7b6ade6ad6783897fe",
+      "mode": "100644",
+      "observed": "absent_with_skip_worktree",
+      "path": "artifacts/crow-rl-object-continuation-failure-20261108/blobs/19deff546478d7a0e86fddd52f6b50d01748d1256fe52d9bb028bcc40b3e8df7.gz"
+    },
+    {
+      "bytes": 25742174,
+      "content_sha256": "9b65f60749d9fb39815475c8a7e21c8a11fbcd75eba702168e5af4e0a4e1710f",
+      "git_blob": "262389c3f4d4522c3a1aa62827229eb21d35b3c4",
+      "mode": "100644",
+      "observed": "absent_with_skip_worktree",
+      "path": "artifacts/crow-rl-object-continuation-failure-20261108/blobs/32eb872f389253c85ec24b6824304ed21e096aa3e76843a7fd40995de0ad7af6.gz"
+    },
+    {
+      "bytes": 1504,
+      "content_sha256": "c31f9051213064f1f786e33ecb81000074c555401231b4c8337aacedf1898fe4",
+      "git_blob": "c4e5283958ac7609394c9481c0644af1aeff9292",
+      "mode": "100644",
+      "observed": "absent_with_skip_worktree",
+      "path": "artifacts/crow-rl-object-continuation-failure-20261108/blobs/3356ad895b328a4d1093a9a0ea9b11dfd245304ed904c5c87e229099659b7a57.gz"
+    },
+    {
+      "bytes": 995,
+      "content_sha256": "298df78220b9619a7c0aa11e98976e3fb410eab15919901dbc4cdad58e621068",
+      "git_blob": "8b595b186c90e819d0b4821a2dc1d80fcfecee00",
+      "mode": "100644",
+      "observed": "absent_with_skip_worktree",
+      "path": "artifacts/crow-rl-object-continuation-failure-20261108/blobs/39be2f71b6c87243207d9e2551dac4a39e556e4aae9f3344ec32739b2d19386f.gz"
+    },
+    {
+      "bytes": 617,
+      "content_sha256": "e06fcda3413eb6bea12cd178af4d4364c381633dfe1c6cb280e2565c436f3781",
+      "git_blob": "c428c671207681890750aad30b1a53eb53bd073e",
+      "mode": "100644",
+      "observed": "absent_with_skip_worktree",
+      "path": "artifacts/crow-rl-object-continuation-failure-20261108/blobs/3ddd765524b38f7e9176aba6c39ac9cc0ecf116040c9e20200c309822597cb26.gz"
+    },
+    {
+      "bytes": 172965,
+      "content_sha256": "85a0c28fda1026bfc39ddfe25b2af7970e98964f9a4a5b355cf9bd8fd5a4b8ba",
+      "git_blob": "60715d218c181304f50b45273359915e3b8684f2",
+      "mode": "100644",
+      "observed": "absent_with_skip_worktree",
+      "path": "artifacts/crow-rl-object-continuation-failure-20261108/blobs/41c82e96d9fa7a23f41fd81e86b3f801b8faa229e35e92fa576730546cd9317b.gz"
+    },
+    {
+      "bytes": 1435,
+      "content_sha256": "252e903d9ab7fcc9ed0fd8f859776f79d1b6690280266c91836f811028bdb8a6",
+      "git_blob": "35094bf066afd1781c4fbf5e6cd5cdd3fef509d7",
+      "mode": "100644",
+      "observed": "absent_with_skip_worktree",
+      "path": "artifacts/crow-rl-object-continuation-failure-20261108/blobs/42d744af75c9c7f7836a9f418a81b03a4964df85cff3ad102e254fbb3d7aa73b.gz"
+    },
+    {
+      "bytes": 925,
+      "content_sha256": "69685ae96de09c38a031a5f16e4a8872fe1a710bffc59c608e685eb561fff420",
+      "git_blob": "7f58ed58a0a24db6c43fb8ea6d581554511f4228",
+      "mode": "100644",
+      "observed": "absent_with_skip_worktree",
+      "path": "artifacts/crow-rl-object-continuation-failure-20261108/blobs/47ef9d6e268b08d41bb438672ca3b8d937b7edd90581d6fc5f1ede444c5e55bb.gz"
+    },
+    {
+      "bytes": 4571,
+      "content_sha256": "38315c96a9ff38b7e79e8660348e9d18c912cf22e09f17c177a67638aa5d2891",
+      "git_blob": "be362e4b9d60cf11e810fb94a789bbe46cb079c8",
+      "mode": "100644",
+      "observed": "absent_with_skip_worktree",
+      "path": "artifacts/crow-rl-object-continuation-failure-20261108/blobs/508880ea6ffdf6add3b779c3fd390a3ac5fab93e5cb2a2d1ff3259783fe7382b.gz"
+    },
+    {
+      "bytes": 1092,
+      "content_sha256": "7290262ddf90da37a3691b1e116896b04cbcb6da0e3e9f1a20232c8b0ef692eb",
+      "git_blob": "89af9c6afb1e820630b3c365851ba3320c5e8473",
+      "mode": "100644",
+      "observed": "absent_with_skip_worktree",
+      "path": "artifacts/crow-rl-object-continuation-failure-20261108/blobs/661bb899ab9b17f7e79372e8e5725e2418bd2d0e2663bb94fb851245f29bc523.gz"
+    },
+    {
+      "bytes": 2007,
+      "content_sha256": "8408062ae5792a30c3e60fdbb356a6aa299994900011218d8ce51159287de80f",
+      "git_blob": "5507f75d0ca04d2af303b12de5384de5e4ed8dee",
+      "mode": "100644",
+      "observed": "absent_with_skip_worktree",
+      "path": "artifacts/crow-rl-object-continuation-failure-20261108/blobs/6c23d9d116d4c630d3b4371c55ea2f424e35d8005007f2fe398f19f3eb49e1a5.gz"
+    },
+    {
+      "bytes": 22960216,
+      "content_sha256": "3957fa75dc6eb51e3e54441c07ea9bee2d29d8971ba7e3d78dcc1c88ad9514ea",
+      "git_blob": "edb757729ab1d892dac3b1d3557a9e312d5430e4",
+      "mode": "100644",
+      "observed": "absent_with_skip_worktree",
+      "path": "artifacts/crow-rl-object-continuation-failure-20261108/blobs/8febee6b7e8de24ac109c09a105777f2730ff0411b2e4dddfca5da6d2916d53c.gz"
+    },
+    {
+      "bytes": 50152,
+      "content_sha256": "784428ecce7dcb9954fcf7ef61cfc62edf8b14496dd5abb76ad55c5800a6e1a1",
+      "git_blob": "f683f22d03265d3af049e9a72e4032080abf1ef1",
+      "mode": "100644",
+      "observed": "absent_with_skip_worktree",
+      "path": "artifacts/crow-rl-object-continuation-failure-20261108/blobs/9ea2ed4efc27e31c468cb92f6ac085fa5baba66313f979895879e4007784a910.gz"
+    },
+    {
+      "bytes": 25779085,
+      "content_sha256": "847b4afe0076cb9b1b90b790a0f13ac626bff7c7b0f934e38f47a34d8a2799ca",
+      "git_blob": "9afdbf5dfef35f753e2395e5f41070f13e3ce05e",
+      "mode": "100644",
+      "observed": "absent_with_skip_worktree",
+      "path": "artifacts/crow-rl-object-continuation-failure-20261108/blobs/a0abada9f560ae0f40f1bb033d6c3604ff4d6f0008ec4ec187d51bb17c53366f.gz"
+    },
+    {
+      "bytes": 3659,
+      "content_sha256": "76d0c16472b6cac3275860638df73882d8ea994ca036a3ec3f3aa995a6d4e030",
+      "git_blob": "46e527907d3e3ead39921aab3e655ebe727fa89d",
+      "mode": "100644",
+      "observed": "absent_with_skip_worktree",
+      "path": "artifacts/crow-rl-object-continuation-failure-20261108/blobs/a6ba94364891e4292be0648aac055ec72d34e90a7c9d627a506a95f19eaf4bc2.gz"
+    },
+    {
+      "bytes": 989,
+      "content_sha256": "2ff04394ab0976beb9df8d9e55e32578e7e5b650c16217354948d437c1f59821",
+      "git_blob": "9bd9e65af9b41d29bb597e03d11af82c28f7431f",
+      "mode": "100644",
+      "observed": "absent_with_skip_worktree",
+      "path": "artifacts/crow-rl-object-continuation-failure-20261108/blobs/ab51f4298a1036daa4036e88338ef981988d90b2e751bffcbe1024253482b2d6.gz"
+    },
+    {
+      "bytes": 232,
+      "content_sha256": "3cf057339c8a65968434cffb7d227d81a9131c8ef801aad0fe9081732c60c760",
+      "git_blob": "de531c12cbf7fe5476b1db76dd08dec332cef15d",
+      "mode": "100644",
+      "observed": "absent_with_skip_worktree",
+      "path": "artifacts/crow-rl-object-continuation-failure-20261108/blobs/b623beb7ced5dd67178e3d8632a9456667433c6cbcc6dd279a75e54d9e70152a.gz"
+    },
+    {
+      "bytes": 231,
+      "content_sha256": "bdabb0869d0ee81bd3a603c9724e220b0b54ca897544245fe8429962efe1c688",
+      "git_blob": "1f596c3c03b41184f96d285ce1159c3a4935e8bc",
+      "mode": "100644",
+      "observed": "absent_with_skip_worktree",
+      "path": "artifacts/crow-rl-object-continuation-failure-20261108/blobs/be3a5cd8123355e5f53bdc217b1dbbe797cb7287e1207e6838849454f40a8b45.gz"
+    },
+    {
+      "bytes": 528190,
+      "content_sha256": "5319957d3e5218ea6a22ba0949491e2b74c4f6789457ceadb73a33835ac8d174",
+      "git_blob": "454d50d680acbae148b345ffe66beb03438ca317",
+      "mode": "100644",
+      "observed": "absent_with_skip_worktree",
+      "path": "artifacts/crow-rl-object-continuation-failure-20261108/blobs/bf6a81d5a44befe196b73c87e70c9c3774a5d85cc15b45e5eaf9cd08152237cf.gz"
+    },
+    {
+      "bytes": 11784660,
+      "content_sha256": "7a469fb900406bc859f28fa472d0b617ab5618e221cd45bb9987930d45d18e3c",
+      "git_blob": "17177d12da1825d544cb7c20700407804110bcf6",
+      "mode": "100644",
+      "observed": "absent_with_skip_worktree",
+      "path": "artifacts/crow-rl-object-continuation-failure-20261108/blobs/ce3d8e2c5a54fc1a5671b2ed62410ebd45156378b002ec80ccbaf72fa7161b1d.gz"
+    },
+    {
+      "bytes": 165,
+      "content_sha256": "e576a9ffaa36265b30dcca50f8f7d5c7a43bde4565ab3f32cfaa04ac86e92ef1",
+      "git_blob": "0f54c99c211bbc09fdc189990fc47f0b93a86ba2",
+      "mode": "100644",
+      "observed": "absent_with_skip_worktree",
+      "path": "artifacts/crow-rl-object-continuation-failure-20261108/blobs/d0701afd2a68309299b953a52b41e16318a671fedcadba0581bea27b5b5db025.gz"
+    },
+    {
+      "bytes": 4059,
+      "content_sha256": "dc9397637b86497ad946b414f61a02efcb24a34189e39b41e1866e9a68a78e70",
+      "git_blob": "01a0d26125cf18425436cf592827949e00f83976",
+      "mode": "100644",
+      "observed": "absent_with_skip_worktree",
+      "path": "artifacts/crow-rl-object-continuation-failure-20261108/blobs/ec91220e356e917c48783ac746a522a03372091332f4c5a1afb85dfb6053fb8a.gz"
+    },
+    {
+      "bytes": 2648,
+      "content_sha256": "ad57ba91deae69e47d156dba4db1e9b9658f3d2c91fc2b151395010a5a995077",
+      "git_blob": "2c068eaa10f2478445f3251c4c4f1e686661a4fb",
+      "mode": "100644",
+      "observed": "absent_with_skip_worktree",
+      "path": "artifacts/crow-rl-object-continuation-failure-20261108/cleanup_auxiliary.py"
+    },
+    {
+      "bytes": 2396,
+      "content_sha256": "2cebbf35f7b9db2e34e1ed30d8b66a19bf329fa0ecaad3cd6b862c55531b5230",
+      "git_blob": "28c5e413fd53820b947633da6dc6a8fcb1c06a30",
+      "mode": "100644",
+      "observed": "absent_with_skip_worktree",
+      "path": "artifacts/crow-rl-object-continuation-failure-20261108/failure-reproduction.command.json"
+    },
+    {
+      "bytes": 232,
+      "content_sha256": "e68c7498f9db81a6b0a4052b2b75d7695ef4833e43159c3dbf1bc8c9c782078e",
+      "git_blob": "c41168af39e2c1cd77b4a8161f225bc243f3447d",
+      "mode": "100644",
+      "observed": "absent_with_skip_worktree",
+      "path": "artifacts/crow-rl-object-continuation-failure-20261108/failure-reproduction.receipt.json"
+    },
+    {
+      "bytes": 187138,
+      "content_sha256": "61dbc834803540110c7573b2c72354b0bbbb45b125c1a66fc546177c3670af00",
+      "git_blob": "1a443b7b42cb89ed294b87d00b66569582984be8",
+      "mode": "100644",
+      "observed": "absent_with_skip_worktree",
+      "path": "artifacts/crow-rl-object-continuation-failure-20261108/failure-reproduction.stderr"
+    },
+    {
+      "bytes": 0,
+      "content_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "git_blob": "e69de29bb2d1d6434b8b29ae775ad8c2e48c5391",
+      "mode": "100644",
+      "observed": "absent_with_skip_worktree",
+      "path": "artifacts/crow-rl-object-continuation-failure-20261108/failure-reproduction.stdout"
+    },
+    {
+      "bytes": 0,
+      "content_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "git_blob": "e69de29bb2d1d6434b8b29ae775ad8c2e48c5391",
+      "mode": "100644",
+      "observed": "absent_with_skip_worktree",
+      "path": "artifacts/crow-rl-object-continuation-failure-20261108/pair-identity-build.stderr"
+    },
+    {
+      "bytes": 0,
+      "content_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "git_blob": "e69de29bb2d1d6434b8b29ae775ad8c2e48c5391",
+      "mode": "100644",
+      "observed": "absent_with_skip_worktree",
+      "path": "artifacts/crow-rl-object-continuation-failure-20261108/pair-identity-build.stdout"
+    },
+    {
+      "bytes": 367,
+      "content_sha256": "1e688c3723624e2a0d1754de033da03a95193d45e7534d8a8b0ea457bf809905",
+      "git_blob": "8ca4bcaa23f2a8f2599fe0b0039e6079b969d627",
+      "mode": "100644",
+      "observed": "absent_with_skip_worktree",
+      "path": "artifacts/crow-rl-object-continuation-failure-20261108/pair-identity.json"
+    },
+    {
+      "bytes": 1110,
+      "content_sha256": "22a8b6234fdfff21907770487ea43fe559b58bcf43229f0f6d897ca0638616ab",
+      "git_blob": "8cef418b298bcc1c4c4694cc2b9d34afd6f0c7dd",
+      "mode": "100644",
+      "observed": "absent_with_skip_worktree",
+      "path": "artifacts/crow-rl-object-continuation-failure-20261108/pair-identity.receipt.json"
+    },
+    {
+      "bytes": 0,
+      "content_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "git_blob": "e69de29bb2d1d6434b8b29ae775ad8c2e48c5391",
+      "mode": "100644",
+      "observed": "absent_with_skip_worktree",
+      "path": "artifacts/crow-rl-object-continuation-failure-20261108/pair-identity.stderr"
+    },
+    {
+      "bytes": 390432,
+      "content_sha256": "b2908df990da0d33e421be0e9b07e9bdd1f387313eeaaa2d2961c2f6835d7b38",
+      "git_blob": "8d1c99dc13c0996c87bd2efb06f82c74ae465cfb",
+      "mode": "100755",
+      "observed": "absent_with_skip_worktree",
+      "path": "artifacts/crow-rl-object-continuation-failure-20261108/pair_identity"
+    },
+    {
+      "bytes": 1345,
+      "content_sha256": "7fbfe2f0f46069853e914f0da7addc066ac507fa1ddc658d6526017447e7f8e5",
+      "git_blob": "040163deddfa7a4130a98d91819fd3e7516434b8",
+      "mode": "100644",
+      "observed": "absent_with_skip_worktree",
+      "path": "artifacts/crow-rl-object-continuation-failure-20261108/pair_identity.cpp"
+    },
+    {
+      "bytes": 0,
+      "content_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "git_blob": "e69de29bb2d1d6434b8b29ae775ad8c2e48c5391",
+      "mode": "100644",
+      "observed": "absent_with_skip_worktree",
+      "path": "artifacts/crow-rl-object-continuation-failure-20261108/prune-wrapper.stderr"
+    },
+    {
+      "bytes": 1296,
+      "content_sha256": "2ebe75b2e2435b1da8bd230cc3b578defff17ab51d33645c1422f4e423f54876",
+      "git_blob": "513e13cba90f7da55d786aeddcbecf3464b48a3f",
+      "mode": "100644",
+      "observed": "absent_with_skip_worktree",
+      "path": "artifacts/crow-rl-object-continuation-failure-20261108/prune-wrapper.stdout"
+    },
+    {
+      "bytes": 0,
+      "content_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "git_blob": "e69de29bb2d1d6434b8b29ae775ad8c2e48c5391",
+      "mode": "100644",
+      "observed": "absent_with_skip_worktree",
+      "path": "artifacts/crow-rl-object-continuation-failure-20261108/restore-wrapper.stderr"
+    },
+    {
+      "bytes": 72,
+      "content_sha256": "f848c8e7f6cdae9996b684e10edba3d720b9140b66c2bbd97870fa3bb1f2c2bf",
+      "git_blob": "512a425cc929842938ded57094092ba414553a75",
+      "mode": "100644",
+      "observed": "absent_with_skip_worktree",
+      "path": "artifacts/crow-rl-object-continuation-failure-20261108/restore-wrapper.stdout"
+    },
+    {
+      "bytes": 6725,
+      "content_sha256": "89eae37d5adf376dbc0840d5b3a07e917631809ab30fee886da51be7cbf04fea",
+      "git_blob": "b83ae4acee1da8f4249bef93bfa6c5bc29d23965",
+      "mode": "100644",
+      "observed": "absent_with_skip_worktree",
+      "path": "artifacts/crow-rl-object-continuation-failure-20261108/update_failure_docs.py"
+    },
+    {
+      "bytes": 40028,
+      "content_sha256": "c23f1fb0826356aeb2c349b5af767341a3d944ac6796fbedb67eedd5aee9b350",
+      "git_blob": "dc043e0cc7f61ffc020f0fd75c893dff696f7a4b",
+      "mode": "100644",
+      "observed": "absent_with_skip_worktree",
+      "path": "artifacts/crow-rl-object-continuation-failure-20261108/verification-before-cleanup.json"
+    },
+    {
+      "bytes": 743,
+      "content_sha256": "71cf99d54132d95d964fedc39f8dfb59ac818f8b163d48ac04c0fa3090d6e33c",
+      "git_blob": "f49721ec2bfe93e5009ec675ab87a46bf071f4f2",
+      "mode": "100644",
+      "observed": "absent_with_skip_worktree",
+      "path": "artifacts/crow-rl-object-continuation-failure-20261108/verification-plan.json"
+    },
+    {
+      "bytes": 0,
+      "content_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "git_blob": "e69de29bb2d1d6434b8b29ae775ad8c2e48c5391",
+      "mode": "100644",
+      "observed": "absent_with_skip_worktree",
+      "path": "artifacts/crow-rl-object-continuation-failure-20261108/verify-wrapper.stderr"
+    },
+    {
+      "bytes": 118,
+      "content_sha256": "1751429ae4ff26c47631cc31fd6aa029fb5ee795d40c1545f2e1adb7ba5cfb9f",
+      "git_blob": "7c5dacab64570682082635543e53f7078aaefb17",
+      "mode": "100644",
+      "observed": "absent_with_skip_worktree",
+      "path": "artifacts/crow-rl-object-continuation-failure-20261108/verify-wrapper.stdout"
+    },
+    {
+      "bytes": 6514,
+      "content_sha256": "79a8152354f4f0a1299a696f234eac2968b25094bea5cf940bfa35b918f20756",
+      "git_blob": "8b051c4e0971fa14de73e5300cd547332c7b9c4a",
+      "mode": "100644",
+      "observed": "absent_with_skip_worktree",
+      "path": "artifacts/crow-rl-object-continuation-failure-20261108/verify_recovery.py"
+    }
+  ],
+  "omitted_logical_bytes": 87877386,
+  "publication_failure": {
+    "message": "Receipt parent was removed by the same empty-directory cleanup before final receipt writing.",
+    "operation_stage": "All tracked-file content/open-handle checks, skip-worktree updates and unlinks had completed; failure occurred in final write_json.",
+    "original_tool_git_blob": "01993ef3c0db58ad5454ffe8fbaaa22e5d2febbc",
+    "requested_receipt": "artifacts/crow-rl-git-recovery-object-continuation-failure-20261108/checkout-omission-receipt.json",
+    "type": "FileNotFoundError"
+  },
+  "remote_commit": "bd9d591177fdd0c91b27c3e7ff6d9e452d79650d",
+  "schema": "numi.reconstructed-checkout-omission-receipt.v1",
+  "status": "checkout_omitted_receipt_reconstructed",
+  "verification": "Read every missing current-archive content blob from actual committed Git; confirmed each missing path has skip-worktree. No additional deletion or scientific execution."
+}

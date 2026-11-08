@@ -324,6 +324,16 @@ def omit_archives(receipt):
         if h.hexdigest() != oid:
             raise ValueError(f"Uncommitted archive content: {name}")
         files.append({"path": name, "git_blob": oid, "bytes": s.st_size})
+    # Publish the exact deletion set before changing the checkout. Besides
+    # retaining recovery evidence on interruption, this anchors a new receipt
+    # directory so the empty-directory cleanup below cannot remove it.
+    receipt.parent.mkdir(parents=True, exist_ok=True)
+    report = {"commit": current, "remote_commit": remote,
+              "omitted_files": files,
+              "omitted_logical_bytes": sum(f["bytes"] for f in files),
+              "preserved_input_prefixes": list(keep), "open_handles": 0,
+              "df_before": before, "status": "validated"}
+    write_json(receipt, report)
     git("update-index", "--skip-worktree", "-z", "--stdin",
         input=b"".join(f["path"].encode() + b"\0" for f in files))
     for f in files:
@@ -333,10 +343,8 @@ def omit_archives(receipt):
             Path(directory).rmdir()
         except OSError:
             pass
-    write_json(receipt, {"commit": current, "remote_commit": remote,
-                        "omitted_files": files, "omitted_logical_bytes": sum(f["bytes"] for f in files),
-                        "preserved_input_prefixes": list(keep), "open_handles": 0,
-                        "df_before": before, "df_after": subprocess.check_output(["df", "-k", "."]).decode()})
+    report.update(status="omitted", df_after=subprocess.check_output(["df", "-k", "."]).decode())
+    write_json(receipt, report)
     print(json.dumps({"omitted_files": len(files), "omitted_logical_bytes": sum(f["bytes"] for f in files),
                       "receipt": str(receipt)}), flush=True)
 
