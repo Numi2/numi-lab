@@ -1,0 +1,20 @@
+{
+  "clang": "Apple clang version 21.0.0 (clang-2100.1.1.101)\nTarget: arm64-apple-darwin25.6.0\nThread model: posix\nInstalledDir: /Applications/Xcode-26.6.0.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin\n",
+  "files": {
+    "build/crow-grasp-controls-build-01/crow-fixture": {
+      "bytes": 118912,
+      "sha256": "9b21fd7c04cd6f3ba51dfc570d2dfc4e983bf5835b8589db1e40beecb4bb01d5"
+    },
+    "build/crow-grasp-controls-build-01/runtime/libmetalrobo.dylib": {
+      "bytes": 5711408,
+      "sha256": "652f43415f24be1fce73eb91589e35d558d6dec7fb610965942239fc49771f61"
+    },
+    "build/crow-grasp-controls-build-01/runtime/metalrobo/MetalRobo.metallib": {
+      "bytes": 4458160,
+      "sha256": "b5a84cbf77b00ec94a31757e9ce6e87cd970cb4ba0d4ee029d1351d36577dae7"
+    }
+  },
+  "plan_sha256": "afd8b608ee31b0e85f468b4c17795c80a71ef2ec5394b15653de64477884efaa",
+  "production_changed": false,
+  "source_commit": "d36fc33f455b90b6c3061b4bb1ef0651b174a11c"
+}

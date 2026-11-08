@@ -1,0 +1,21 @@
+{
+  "argv": [
+    "clang++",
+    "-std=c++20",
+    "-O2",
+    "-fobjc-arc",
+    "-Iinclude",
+    "/Users/n/Developer/numi-crow-rl-20261107/artifacts/crow-rl-grasp-controls-20261108/crow-fixture.mm",
+    "-L/Users/n/Developer/numi-crow-rl-20261107/build/crow-grasp-controls-build-01/runtime",
+    "-lmetalrobo",
+    "-Wl,-rpath,@executable_path/runtime",
+    "-framework",
+    "Foundation",
+    "-framework",
+    "Metal",
+    "-o",
+    "/Users/n/Developer/numi-crow-rl-20261107/build/crow-grasp-controls-build-01/crow-fixture"
+  ],
+  "returncode": 0,
+  "seconds": 1.4023740840493701
+}
