@@ -15098,8 +15098,17 @@ bool encodeHybridContactSubstep(
             const uint traceContacts=uint(std::min<NSUInteger>(8u,context.buffers[kContacts].length/sizeof(MRContactConstraintGPU)));
             const NSUInteger qBytes=7u*sizeof(float),vBytes=6u*sizeof(float);
             const NSUInteger stateOffset=64u,pairOffset=128u,statusOffset=256u,accelerationOffset=768u,contactsOffset=1024u;
+            const NSUInteger rowsOffset=contactsOffset+traceContacts*sizeof(MRContactConstraintGPU);
+            const NSUInteger rowBytes=3u*traceContacts*sizeof(MRConstraintIRRowGPU);
+            const NSUInteger evaluatedOffset=rowsOffset+rowBytes;
+            const NSUInteger evaluatedBytes=3u*traceContacts*sizeof(MREvaluatedConstraintIRRowGPU);
+            const NSUInteger jacobianOffset=evaluatedOffset+evaluatedBytes;
+            const NSUInteger jacobianBytes=traceContacts*2u*3u*6u*sizeof(float);
+            if(context.buffers[kIRRows].length<rowBytes ||
+               context.buffers[kEvaluatedRows].length<evaluatedBytes ||
+               context.buffers[kPointJacobians].length<jacobianBytes)return false;
             id<MTLBuffer> trace=[context.device newBufferWithLength:
-                contactsOffset+traceContacts*sizeof(MRContactConstraintGPU) options:MTLResourceStorageModeShared];
+                jacobianOffset+jacobianBytes options:MTLResourceStorageModeShared];
             if(trace==nil)return false;
             id<MTLBlitCommandEncoder> blit=[commandBuffer blitCommandEncoder];
             [blit copyFromBuffer:context.buffers[kCandidateQ] sourceOffset:0 toBuffer:trace destinationOffset:0 size:qBytes];
@@ -15109,6 +15118,9 @@ bool encodeHybridContactSubstep(
             [blit copyFromBuffer:context.buffers[kCCDPairs] sourceOffset:0 toBuffer:trace destinationOffset:pairOffset size:sizeof(MRCCDPairGPU)];
             [blit copyFromBuffer:context.buffers[kContactStatuses] sourceOffset:0 toBuffer:trace destinationOffset:statusOffset size:sizeof(MRMetalWorldContactStatusGPU)];
             [blit copyFromBuffer:context.buffers[kContacts] sourceOffset:0 toBuffer:trace destinationOffset:contactsOffset size:traceContacts*sizeof(MRContactConstraintGPU)];
+            [blit copyFromBuffer:context.buffers[kIRRows] sourceOffset:0 toBuffer:trace destinationOffset:rowsOffset size:rowBytes];
+            [blit copyFromBuffer:context.buffers[kEvaluatedRows] sourceOffset:0 toBuffer:trace destinationOffset:evaluatedOffset size:evaluatedBytes];
+            [blit copyFromBuffer:context.buffers[kPointJacobians] sourceOffset:0 toBuffer:trace destinationOffset:jacobianOffset size:jacobianBytes];
             [blit endEncoding];
             const uint capturedPass=eventPass;
             [commandBuffer addCompletedHandler:^(id<MTLCommandBuffer> completed) {
@@ -15127,12 +15139,25 @@ bool encodeHybridContactSubstep(
                 out<<"],\"time\":["<<e->time.x<<','<<e->time.y<<','<<e->time.z<<','<<e->time.w
                    <<"],\"status\":"<<status->code<<",\"unresolved\":"<<status->unresolvedCCDCount
                    <<",\"pair_flags\":"<<p->flags<<",\"pair_time\":["<<p->intervalAndDistance.x<<','<<p->intervalAndDistance.y
-                   <<"],\"pair_work\":"<<p->normalAndIteration.w<<",\"contacts\":[";
+                   <<"],\"pair_work\":"<<p->normalAndIteration.w
+                   <<",\"residuals\":["<<status->residuals.x<<','<<status->residuals.y<<','<<status->residuals.z<<','<<status->residuals.w
+                   <<"],\"contacts\":[";
                 const auto* contacts=reinterpret_cast<const MRContactConstraintGPU*>(bytes+contactsOffset);
+                const auto* rows=reinterpret_cast<const MRConstraintIRRowGPU*>(bytes+rowsOffset);
+                const auto* evaluated=reinterpret_cast<const MREvaluatedConstraintIRRowGPU*>(bytes+evaluatedOffset);
+                const auto* jacobians=reinterpret_cast<const float*>(bytes+jacobianOffset);
                 for(uint i=0;i<std::min(status->activeContacts,traceContacts);++i) {
                     if(i)out<<',';const auto& c=contacts[i];
                     out<<"{\"gap\":"<<c.pointAndSeparation.w<<",\"pre_vn\":"<<c.targetVelocityAndPreSolveNormal.w
-                       <<",\"J\":"<<c.impulses.x<<",\"point\":["<<c.pointAndSeparation.x<<','<<c.pointAndSeparation.y<<','<<c.pointAndSeparation.z<<"]}";
+                       <<",\"J\":"<<c.impulses.x<<",\"point\":["<<c.pointAndSeparation.x<<','<<c.pointAndSeparation.y<<','<<c.pointAndSeparation.z<<"]";
+                    const auto& row=rows[3u*i];const auto& eval=evaluated[3u*i];
+                    out<<",\"body_a\":"<<c.bodyA<<",\"body_b\":"<<c.bodyB
+                       <<",\"normal\":["<<c.normal.x<<','<<c.normal.y<<','<<c.normal.z<<"]"
+                       <<",\"row_target\":"<<row.targetVelocity<<",\"row_gap\":"<<row.positionError
+                       <<",\"evaluated_target\":"<<eval.targetVelocity<<",\"regularization\":"<<eval.regularization
+                       <<",\"evaluated_pre_velocity\":"<<eval.preSolveVelocity<<",\"evaluated_relative_velocity\":"<<eval.relativeVelocity
+                       <<",\"jacobians\":[";
+                    for(uint j=0;j<36u;++j){if(j)out<<',';out<<jacobians[36u*i+j];}out<<"]}";
                 }
                 out<<"]}\n";
                 const auto text=out.str();std::fwrite(text.data(),1,text.size(),stderr);

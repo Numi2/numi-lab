@@ -1,0 +1,3 @@
+[0/2] Re-checking globbed directories...
+[1/3] Building OBJCXX object CMakeFiles/metalrobo.dir/src/metal/MetalWorld.mm.o
+[2/3] Linking CXX shared library lib/libmetalrobo.dylib
