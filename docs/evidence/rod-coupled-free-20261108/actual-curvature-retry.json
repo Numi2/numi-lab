@@ -1,0 +1,83 @@
+[
+  {
+    "seed": 92101,
+    "eigenvalues": [
+      0.9999999985923264,
+      0.9999999999999655
+    ],
+    "max_matrix_difference": 2.703860491060084e-08,
+    "passed": true
+  },
+  {
+    "seed": 92102,
+    "eigenvalues": [
+      0.9999820772643634,
+      0.9999819688223047
+    ],
+    "max_matrix_difference": 1.0819923978999668e-07,
+    "passed": true
+  },
+  {
+    "seed": 92103,
+    "eigenvalues": [
+      0.9999999999998901,
+      0.9999999999998758
+    ],
+    "max_matrix_difference": 4.3405238581151195e-07,
+    "passed": true
+  },
+  {
+    "seed": 92104,
+    "eigenvalues": [
+      0.9999999978380387,
+      0.9999999991860135
+    ],
+    "max_matrix_difference": 4.331052485539999e-07,
+    "passed": true
+  },
+  {
+    "seed": 92105,
+    "eigenvalues": [
+      0.9995221384954206,
+      0.9995203608159449
+    ],
+    "max_matrix_difference": 1.7314827593928328e-06,
+    "passed": true
+  },
+  {
+    "seed": 92106,
+    "eigenvalues": [
+      0.9993380533272808,
+      0.9993360095484228
+    ],
+    "max_matrix_difference": 6.922603299264196e-06,
+    "passed": true
+  },
+  {
+    "seed": 92107,
+    "eigenvalues": [
+      0.9999999999999898,
+      0.9999999999998984
+    ],
+    "max_matrix_difference": 4.059058258398807e-06,
+    "passed": true
+  },
+  {
+    "seed": 92108,
+    "eigenvalues": [
+      0.9999999863802609,
+      0.999999993944655
+    ],
+    "max_matrix_difference": 1.623026048158671e-05,
+    "passed": true
+  },
+  {
+    "seed": 92109,
+    "eigenvalues": [
+      0.9999999999992717,
+      0.9999999844644925
+    ],
+    "max_matrix_difference": 6.492173899363962e-05,
+    "passed": true
+  }
+]
