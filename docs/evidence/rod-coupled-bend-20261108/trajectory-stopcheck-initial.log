@@ -1,0 +1,5 @@
+Traceback (most recent call last):
+  File "/Users/numi/numi-lab-tracker-step-rollback-20261108/docs/evidence/rod-coupled-bend-20261108/trajectory-stopcheck.py", line 17, in <module>
+    assert text.count(old)==1
+           ^^^^^^^^^^^^^^^^^^
+AssertionError
