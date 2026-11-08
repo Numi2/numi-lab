@@ -1,0 +1,9 @@
+Test project /Users/numi/numi-rod-integrated-build-20261108
+    Start 72: coupled_rod_publication_probe
+1/2 Test #72: coupled_rod_publication_probe ....   Passed    0.03 sec
+    Start 73: coupled_rod_axial_reference
+2/2 Test #73: coupled_rod_axial_reference ......   Passed    0.16 sec
+
+100% tests passed out of 2
+
+Total Test time (real) =   0.20 sec

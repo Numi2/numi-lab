@@ -1,0 +1,13 @@
+[0/2] Re-checking globbed directories...
+[1/2] Re-running CMake...
+-- MetalRobo Python tests disabled: no interpreter with NumPy and SciPy
+-- Configuring done (0.5s)
+-- Generating done (0.1s)
+-- Build files have been written to: /Users/numi/numi-rod-integrated-build-20261108
+[0/4] Re-checking globbed directories...
+[1/9] Building OBJCXX object CMakeFiles/metalrobo_coupled_rod_axial_reference.dir/docs/evidence/rod-native-api-20261108/axial_reference.mm.o
+[2/9] Building OBJCXX object CMakeFiles/metalrobo_coupled_rod_publication_probe.dir/docs/evidence/rod-native-api-20261108/publication_probe.mm.o
+[3/9] Building OBJCXX object CMakeFiles/metalrobo.dir/src/metal/MetalCoupledRod.mm.o
+[4/9] Linking CXX shared library lib/libmetalrobo.dylib
+[5/9] Linking OBJCXX executable metalrobo_coupled_rod_publication_probe
+[6/9] Linking OBJCXX executable metalrobo_coupled_rod_axial_reference

@@ -1,0 +1,5 @@
+[0/2] Re-checking globbed directories...
+[1/5] Building CXX object CMakeFiles/metalrobo_discrete_elastic_rod_probe.dir/apps/discrete_elastic_rod_probe.cpp.o
+[2/5] Linking CXX executable bin/metalrobo_discrete_elastic_rod_probe
+[3/5] Building OBJCXX object CMakeFiles/metalrobo_metal_discrete_elastic_rod_probe.dir/apps/metal_discrete_elastic_rod_probe.mm.o
+[4/5] Linking OBJCXX executable bin/metalrobo_metal_discrete_elastic_rod_probe

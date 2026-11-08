@@ -1,0 +1,4 @@
+Traceback (most recent call last):
+  File "/Users/numi/numi-lab-rod-integrated-coupled-20261108/docs/evidence/rod-coupled-metal-force-20261108/run.py", line 4, in <module>
+    import numpy as np
+ModuleNotFoundError: No module named 'numpy'. Did you mean: 'runpy'?

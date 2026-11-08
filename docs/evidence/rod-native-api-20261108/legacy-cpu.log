@@ -1,0 +1,1 @@
+discrete_elastic_rod=ok nodes=9 edges=8 iterations=44 stretch=2.79081e-05 bend=1.26483e-06 twist=7.94936e-12 max_error=0.394173 anchor_force_n=0.00466138 self_contacts=2 self_penetration=0.0003 self_contact_clearance_m=0.0003 frictionless_slip_mps=0.0205093 frictional_slip_mps=0 deterministic=yes transactional=yes
