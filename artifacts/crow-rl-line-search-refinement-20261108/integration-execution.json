@@ -1,0 +1,98 @@
+[
+  {
+    "argv": [
+      "/Users/n/Developer/numi-crow-rl-20261107/build/bin/metalrobo_metal_unified_quality_probe"
+    ],
+    "name": "unified-owner",
+    "returncode": 0,
+    "seconds": 0.587719000002835
+  },
+  {
+    "argv": [
+      "/Users/n/Developer/numi-crow-rl-20261107/build/bin/metalrobo_constraint_ir_probe"
+    ],
+    "name": "ir-owner",
+    "returncode": 0,
+    "seconds": 0.3137119159800932
+  },
+  {
+    "argv": [
+      "/Users/n/Developer/numi-crow-rl-20261107/build/bin/metalrobo_metal_world_contact_probe",
+      "/Users/n/Developer/numi-crow-rl-20261107/build/crow-line-search-refinement-build-01/runtime/metalrobo/MetalRobo.metallib"
+    ],
+    "name": "contact-owner",
+    "returncode": 0,
+    "seconds": 4.283088667027187
+  },
+  {
+    "argv": [
+      "/Users/n/Developer/numi-crow-rl-20261107/build/bin/metalrobo_motor_contact_probe",
+      "/Users/n/Developer/numi-crow-rl-20261107/build/crow-line-search-refinement-build-01/runtime/metalrobo/MetalRobo.metallib",
+      "/Users/n/Developer/numi-crow-rl-20261107/build/crow-line-search-refinement-build-01/integration-observations/motor.tsv",
+      "--native-drive"
+    ],
+    "name": "motor",
+    "returncode": 0,
+    "seconds": 0.42767616698984057
+  },
+  {
+    "argv": [
+      "/Users/n/Developer/numi-crow-rl-20261107/build/bin/metalrobo_motor_contact_probe",
+      "/Users/n/Developer/numi-crow-rl-20261107/build/crow-line-search-refinement-build-01/runtime/metalrobo/MetalRobo.metallib",
+      "/Users/n/Developer/numi-crow-rl-20261107/build/crow-line-search-refinement-build-01/integration-observations/zero.tsv",
+      "--zero-gain"
+    ],
+    "name": "zero",
+    "returncode": 0,
+    "seconds": 0.09025416697841138
+  },
+  {
+    "argv": [
+      "/Users/n/Developer/numi-crow-rl-20261107/build/crow-line-search-refinement-build-01/reference/crow-fixture",
+      "--calibrate"
+    ],
+    "name": "calibration",
+    "returncode": 0,
+    "seconds": 0.25114858394954354
+  },
+  {
+    "argv": [
+      "/Users/n/Developer/numi-crow-rl-20261107/build/crow-line-search-refinement-build-01/reference/fixture-default",
+      "/Users/n/Developer/numi-crow-rl-20261107/build/crow-line-search-refinement-build-01/integration-observations/default",
+      "0",
+      "1",
+      "32"
+    ],
+    "name": "default",
+    "returncode": 0,
+    "seconds": 16.987566374999005
+  },
+  {
+    "argv": [
+      "/Users/n/Developer/numi-crow-rl-20261107/build/crow-line-search-refinement-build-01/reference/crow-fixture",
+      "/Users/n/Developer/numi-crow-rl-20261107/build/crow-line-search-refinement-build-01/integration-observations/strict",
+      "0",
+      "1",
+      "32",
+      "2",
+      "strict"
+    ],
+    "name": "strict",
+    "returncode": 1,
+    "seconds": 3.8712819580105133
+  },
+  {
+    "argv": [
+      "/Users/n/Developer/numi-crow-rl-20261107/build/crow-line-search-refinement-build-01/reference/crow-fixture",
+      "/Users/n/Developer/numi-crow-rl-20261107/build/crow-line-search-refinement-build-01/integration-observations/api-0",
+      "0",
+      "1",
+      "32",
+      "2",
+      "api-default"
+    ],
+    "name": "api-0",
+    "returncode": null,
+    "seconds": 180.01202908402774
+  }
+]

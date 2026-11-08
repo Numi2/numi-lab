@@ -1,0 +1,24 @@
+{
+  "coupled_trial": {
+    "complete_trace_rows": 267,
+    "first_unreported_partial_tick_not_bounded": true,
+    "has_failure_file": false,
+    "last_complete_tick": 66,
+    "max_sampled_penetration_m": 1.63651669708e-05,
+    "seconds": 180.01202908402774,
+    "status": "wall_time_limit"
+  },
+  "default_physical_files_exact": 10,
+  "goal_complete": false,
+  "motor_physical_records_exact": 624,
+  "native_commands": 9,
+  "owning_regressions_pass": true,
+  "qualification_complete": false,
+  "regression_commands": 8,
+  "schema": "crow-line-search-bounded-integration-v1",
+  "strict_capture_diff_only_hessian_stride": true,
+  "strict_different_offsets": [
+    88,
+    89
+  ]
+}
