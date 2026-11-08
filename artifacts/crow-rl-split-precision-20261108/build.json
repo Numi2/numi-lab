@@ -17,5 +17,60 @@
     ],
     "returncode": 1,
     "seconds": 0.38058637500000003
+  },
+  {
+    "name": "build_metal",
+    "attempt": 2,
+    "argv": [
+      "xcrun",
+      "-sdk",
+      "macosx",
+      "metal",
+      "-std=metal3.1",
+      "-O3",
+      "-fno-fast-math",
+      "-Iinclude",
+      "-c",
+      "artifacts/crow-rl-split-precision-20261108/split.metal",
+      "-o",
+      "build/crow-split-precision-build-01/split.air"
+    ],
+    "returncode": 0,
+    "seconds": 0.047802082999999995
+  },
+  {
+    "name": "build_library",
+    "attempt": 2,
+    "argv": [
+      "xcrun",
+      "-sdk",
+      "macosx",
+      "metallib",
+      "build/crow-split-precision-build-01/split.air",
+      "-o",
+      "build/crow-split-precision-build-01/split.metallib"
+    ],
+    "returncode": 0,
+    "seconds": 0.023466292
+  },
+  {
+    "name": "build_probe",
+    "attempt": 2,
+    "argv": [
+      "xcrun",
+      "clang++",
+      "-std=c++20",
+      "-O2",
+      "-fobjc-arc",
+      "-framework",
+      "Metal",
+      "-framework",
+      "Foundation",
+      "artifacts/crow-rl-split-precision-20261108/probe.mm",
+      "-o",
+      "build/crow-split-precision-build-01/probe"
+    ],
+    "returncode": 0,
+    "seconds": 0.617044708
   }
 ]

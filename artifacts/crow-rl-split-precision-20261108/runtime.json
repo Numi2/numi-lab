@@ -1,0 +1,15 @@
+{
+  "files": {
+    "build/crow-split-precision-build-01/probe": {
+      "bytes": 58264,
+      "sha256": "7f1523c6b172bed5e1d3790c95e74198af6d747e0f27a49ebde8a903d5139cb2"
+    },
+    "build/crow-split-precision-build-01/split.metallib": {
+      "bytes": 20490,
+      "sha256": "92d4dfca8cd2f6dcdcff60787e72fb1f974544ecf854d4ab5bb73a788eeab81f"
+    }
+  },
+  "metal_version": "Apple metal version 32023.883 (metalfe-32023.883)\nTarget: air64-apple-darwin25.6.0\nThread model: posix\nInstalledDir: /private/var/run/com.apple.security.cryptexd/mnt/com.apple.MobileAsset.MetalToolchain-v17.6.109.0.UbUdZg/Metal.xctoolchain/usr/metal/current/bin\n",
+  "production_baseline": "3c133a5653fc5ed7b9b071179956e3feb2ac20dd",
+  "toolchain": "Apple clang version 21.0.0 (clang-2100.1.1.101)\nTarget: arm64-apple-darwin25.6.0\nThread model: posix\nInstalledDir: /Applications/Xcode-26.6.0.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin\n"
+}
