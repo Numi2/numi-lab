@@ -1,0 +1,27 @@
+{
+  "excluded_tsv_columns": [
+    "gpu_ms"
+  ],
+  "expected_defined_byte_comparisons": 41,
+  "expected_physical_tsv_records": 576,
+  "fp64_analysis_commands": 1,
+  "limits": "Recovery repeats existing conditions only. The old missing-entry-point shader rejection is Git-byte verified but not re-executed. No new physical observation, tolerance change, solver change, promotion or full crow qualification.",
+  "manifest": "artifacts/crow-rl-quality-first-failure-20261108/payload/manifest.json",
+  "manifest_sha256": "1387ff33eea545a4243cfe1b276a4b2b6cd6fdf90a20effa60be4a7be36e1dd6",
+  "native_commands": 9,
+  "restore_max_bytes": 67108864,
+  "schema": "crow-quality-first-failure-git-recovery-v1",
+  "scope": [
+    "original diagnostic admission rejection",
+    "576 motor / 48 zero-gain finite regressions",
+    "first quality capture at one control and all eleven public failure files",
+    "first quality capture at eight controls and all eleven public failure files",
+    "exact isolated native record replay",
+    "default 640 transitions and ten physical files",
+    "constraint IR / native contact owners",
+    "independent FP64 analysis and three reference arrays"
+  ],
+  "stop": "First unexpected return, binding, typed failure, byte/physical comparison, handle or budget result; retain all outputs.",
+  "temporary_budget_bytes": 83886080,
+  "timeout_seconds_each": 120
+}
