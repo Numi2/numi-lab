@@ -21,6 +21,9 @@ kernel void mr_hybrid_restore_failed_observation_history(
     device float* actorHistory [[buffer(7)]],
     device const float* savedActorHistory [[buffer(8)]],
     constant uint& actorStride [[buffer(9)]],
+    device uint* frameFresh [[buffer(10)]],
+    device const uint* savedFrameFresh [[buffer(11)]],
+    constant uint& sampledFrame [[buffer(12)]],
     uint environment [[threadgroup_position_in_grid]],
     uint lane [[thread_index_in_threadgroup]],
     uint lanes [[threads_per_threadgroup]]
@@ -36,10 +39,24 @@ kernel void mr_hybrid_restore_failed_observation_history(
         const uint index = environment * counts.z + i;
         depthHistory[index] = savedDepth[index];
     }
+    if (lane == 0u) frameFresh[environment] = sampledFrame != 0u ? 0u : savedFrameFresh[environment];
     for (uint i = lane; i < actorStride; i += lanes) {
         const uint index = environment * actorStride + i;
         actorHistory[index] = savedActorHistory[index];
     }
+}
+
+// Reset cannot expose pixels belonging to the previous episode while the
+// batch camera waits for its next nominal sample.
+kernel void mr_hybrid_update_frame_freshness(
+    device uint* fresh [[buffer(0)]],
+    device const uint* resetMasks [[buffer(1)]],
+    constant uint4& config [[buffer(2)]],
+    uint environment [[thread_position_in_grid]]
+) {
+    if (environment >= config.x) return;
+    if (config.z != 0u) fresh[environment] = 1u;
+    else if (resetMasks[config.y * config.x + environment] != 0u) fresh[environment] = 0u;
 }
 
 kernel void mr_hybrid_reduce_object_tracks(
@@ -56,6 +73,7 @@ kernel void mr_hybrid_reduce_object_tracks(
     device const MRWorldInstanceHeaderGPU* instances [[buffer(10)]],
     device const MRWorldSensorInstanceGPU* sensors [[buffer(11)]],
     constant MRHybridObjectTrackUniformsGPU& uniforms [[buffer(12)]],
+    device const uint* frameFresh [[buffer(13)]],
     const uint group [[threadgroup_position_in_grid]],
     const uint lane [[thread_index_in_threadgroup]],
     const uint lanes [[threads_per_threadgroup]]
@@ -130,7 +148,7 @@ kernel void mr_hybrid_reduce_object_tracks(
         all(isfinite(root.position.xyz)) &&
         all(isfinite(root.orientation));
     const bool visible =
-        visiblePixels >= uint(binding.transform.z) &&
+        frameFresh[environment] != 0u && visiblePixels >= uint(binding.transform.z) &&
         all(focal > 0.0f) && validFrames;
     float3 rootPosition = float3(0.0f);
     if (visible) {
@@ -218,8 +236,10 @@ kernel void mr_hybrid_reduce_object_tracks(
     for (uint history = 0u; history < historyCount; ++history) {
         const uint source = trackBase +
             history * uniforms.counts.y * 2u;
-        const float4 measuredPosition = trackHistory[source];
-        const float4 measuredVelocity = trackHistory[source + 1u];
+        const float4 measuredPosition = frameFresh[environment] != 0u
+            ? trackHistory[source] : float4(0.0f);
+        const float4 measuredVelocity = frameFresh[environment] != 0u
+            ? trackHistory[source + 1u] : float4(0.0f);
         const uint destination = environmentHistoryBase +
             history * uniforms.layout.x + binding.identity.y;
         const float values[7] = {
@@ -316,6 +336,7 @@ kernel void mr_hybrid_masked_depth_history(
     device const MRWorldInstanceHeaderGPU* instances [[buffer(14)]],
     device const MRWorldSensorInstanceGPU* sensors [[buffer(15)]],
     constant MRHybridRenderUniformsGPU& renderUniforms [[buffer(16)]],
+    device const uint* frameFresh [[buffer(17)]],
     const uint environment [[threadgroup_position_in_grid]],
     const uint lane [[thread_index_in_threadgroup]],
     const uint lanes [[threads_per_threadgroup]]
@@ -350,7 +371,7 @@ kernel void mr_hybrid_masked_depth_history(
     const bool reset = resetMasks[resetIndex] != 0u;
     const ulong randomSeed =
         (ulong(uniforms.output.w) << 32u) | ulong(uniforms.output.z);
-    const bool fullDropout = maskedDepthRandom(
+    const bool fullDropout = frameFresh[environment] == 0u || maskedDepthRandom(
         randomSeed,
         environment,
         episodeStep,
@@ -597,9 +618,9 @@ kernel void mr_hybrid_masked_depth_history(
             const uint sourceSlot =
                 (ringSlot + uniforms.history.x -
                  (offset % uniforms.history.x)) % uniforms.history.x;
-            const float value = depthHistory[
+            const float value = frameFresh[environment] != 0u ? depthHistory[
                 historyBase + sourceSlot * pixelCount + pixel
-            ];
+            ] : 1.0f;
             const uint destination =
                 environment * uniforms.layout.x + uniforms.history.z +
                 frame * pixelCount + pixel;
@@ -616,7 +637,7 @@ kernel void mr_hybrid_masked_depth_history(
         for (uint feature = 0u; feature < featureCount; ++feature) {
             features[feature] = 0.0f;
         }
-        for (uint frame = 0u; frame < uniforms.history.y; ++frame) {
+        for (uint frame = 0u; frame < uniforms.history.y && frameFresh[environment] != 0u; ++frame) {
             const uint offset = min(sparseOffsets[frame], episodeStep);
             const uint sourceSlot =
                 (ringSlot + uniforms.history.x -

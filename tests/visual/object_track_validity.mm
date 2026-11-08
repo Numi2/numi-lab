@@ -97,6 +97,8 @@ int main(int argc, char** argv) {
             [encoder setComputePipelineState:pipeline];
             for (unsigned i = 0; i < 12; ++i) [encoder setBuffer:b[i] offset:0 atIndex:i];
             [encoder setBytes:&u length:sizeof u atIndex:12];
+            const std::uint32_t fresh[envs] = {1u, 1u};
+            [encoder setBytes:fresh length:sizeof fresh atIndex:13];
             [encoder dispatchThreadgroups:MTLSizeMake(envs, 1, 1)
                     threadsPerThreadgroup:MTLSizeMake(32, 1, 1)];
             [encoder endEncoding];
@@ -152,6 +154,8 @@ int main(int argc, char** argv) {
             [encoder setComputePipelineState:pipeline];
             for (unsigned i = 0; i < 12; ++i) [encoder setBuffer:b[i] offset:0 atIndex:i];
             [encoder setBytes:&u length:sizeof u atIndex:12];
+            const std::uint32_t fresh[envs] = {1u, 1u};
+            [encoder setBytes:fresh length:sizeof fresh atIndex:13];
             [encoder dispatchThreadgroups:MTLSizeMake(envs, 1, 1)
                     threadsPerThreadgroup:MTLSizeMake(32, 1, 1)];
             [encoder endEncoding];

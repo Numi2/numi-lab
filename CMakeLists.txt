@@ -6804,6 +6804,23 @@ if(BUILD_TESTING)
                 $<TARGET_FILE:metalrobo_visual_platform_probe>)
     set_tests_properties(metalrobo.visual.history_step_rollback
         PROPERTIES LABELS "metalrobo;visual;metal" TIMEOUT 120)
+    add_test(NAME metalrobo.visual.reset_frame_materialized
+        COMMAND ${CMAKE_COMMAND} -E env NUMI_TEST_RESET_FRAME=1 NUMI_TEST_LONG_RATE=1
+                $<TARGET_FILE:metalrobo_visual_platform_probe>)
+    add_test(NAME metalrobo.visual.reset_frame_fresh
+        COMMAND ${CMAKE_COMMAND} -E env NUMI_TEST_RESET_FRAME=1
+                $<TARGET_FILE:metalrobo_visual_platform_probe>)
+    add_test(NAME metalrobo.visual.reset_frame_rollback
+        COMMAND ${CMAKE_COMMAND} -E env NUMI_TEST_RESET_FRAME=1 NUMI_TEST_LONG_RATE=1 NUMI_TEST_RESET_ROLLBACK=1
+                $<TARGET_FILE:metalrobo_visual_platform_probe>)
+    add_test(NAME metalrobo.visual.reset_frame_sampled_failure
+        COMMAND ${CMAKE_COMMAND} -E env NUMI_TEST_RESET_FRAME=1 NUMI_TEST_RESET_SAMPLED_FAILURE=1
+                $<TARGET_FILE:metalrobo_visual_platform_probe>)
+    add_test(NAME metalrobo.visual.reset_frame_direct
+        COMMAND ${CMAKE_COMMAND} -E env NUMI_TEST_DIRECT_RESET_FRAME=1
+                $<TARGET_FILE:metalrobo_visual_platform_probe>)
+    set_tests_properties(metalrobo.visual.reset_frame_materialized metalrobo.visual.reset_frame_direct metalrobo.visual.reset_frame_rollback metalrobo.visual.reset_frame_fresh metalrobo.visual.reset_frame_sampled_failure
+        PROPERTIES LABELS "metalrobo;visual;metal" TIMEOUT 120)
     add_test(NAME metalrobo.visual.observation_lease
         COMMAND ${CMAKE_COMMAND} -E env NUMI_TEST_TRACKER_LEASE=1
                 $<TARGET_FILE:metalrobo_visual_platform_probe>)

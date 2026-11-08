@@ -451,6 +451,9 @@ int main() {
         constexpr std::uint32_t kActorHistoryLength = 5u;
         trackerConfig.maximumActorHistoryLength = kActorHistoryLength;
         trackerConfig.timestepSeconds = 0.02f;
+        if (std::getenv("NUMI_TEST_RESET_FRAME") != nullptr)
+            trackerConfig.nominalSensorRateHz = std::getenv("NUMI_TEST_LONG_RATE") != nullptr ? 10.0f :
+                (std::getenv("NUMI_TEST_RESET_SAMPLED_FAILURE") != nullptr ? 25.0f : 50.0f);
         trackerConfig.bindings.push_back({
             .instanceId = observations[0].identities[visibleIndex].y,
             .actorFrameOffset = 0u,
@@ -863,6 +866,63 @@ int main() {
             depthFeatures[23u] == 0.0f,
             "device masked-depth reset history is invalid"
         );
+        if (std::getenv("NUMI_TEST_RESET_FRAME") != nullptr) {
+            auto* bodies = static_cast<MRBodyStateGPU*>(bodyBuffer.contents);
+            auto* tasks = static_cast<MRTaskStateGPU*>(taskStateBuffer.contents);
+            auto* masks = static_cast<std::uint32_t*>(resetBuffer.contents);
+            const std::size_t last=(kActorHistoryLength-1u)*kActorFrameSize;
+            std::cout.precision(9);
+            auto report=[&](int step) {
+                metalrobo::HybridObservationBatch capture; require(renderer.readback(capture), "readback");
+                const auto* output=static_cast<const float*>(observationBuffer.contents);
+                const auto* first=output+kActorFrameSize*kActorHistoryLength;
+                const std::size_t env0Far=std::count(first,first+visualPixels,1.0f);
+                const auto* features=first+2u*visualPixels;
+                float featureAbs=0; for(unsigned i=0;i<MR_TASK_MASKED_DEPTH_FEATURE_COUNT;i++) featureAbs+=std::abs(features[i]);
+                std::cout << "CHECK step=" << step << " frame=" << capture.metadata.identity.z
+                          << " env0_visible=" << output[last] << " env0_x=" << output[last+1u]
+                          << " env0_far=" << env0Far << " pixels=" << visualPixels << " features_abs=" << featureAbs
+                          << " env1_visible=" << output[kTrackWidth+last] << " env1_x=" << output[kTrackWidth+last+1u] << '\n';
+                require(output[kTrackWidth+last]>0.5f && std::isfinite(output[kTrackWidth+last+1u]),"env1 invalid");
+                const bool failedReset = std::getenv("NUMI_TEST_RESET_ROLLBACK") != nullptr;
+                bool stale=(std::getenv("NUMI_TEST_LONG_RATE") && step>0 && step<5 && !(failedReset && step==2)) ||
+                    (std::getenv("NUMI_TEST_SLOW_RATE") && !std::getenv("NUMI_TEST_LONG_RATE") && step==1) ||
+                    (std::getenv("NUMI_TEST_RESET_SAMPLED_FAILURE") && step==3);
+                if (stale) {
+                    require(output[last]==0.0f && output[last+1u]==0.0f && env0Far==visualPixels && featureAbs==0.0f,"stale reset frame leaked");
+                    for (std::uint32_t h=0;h<kActorHistoryLength;++h)
+                        require(std::all_of(output+h*kActorFrameSize,output+h*kActorFrameSize+7u,[](float x){return x==0.0f;}),"stale track history leaked");
+                    require(std::all_of(first,first+2u*visualPixels,[](float x){return x==1.0f;}),"stale depth history leaked");
+                }
+                else require(output[last]>0.5f && std::isfinite(output[last+1u]),"fresh env0 track invalid");
+            };
+            report(0);
+            std::fill_n(masks,kEnvironmentCount,0u);
+            bodies[trackedBody].position.x += 0.20f;
+            id<MTLBuffer> statuses=[device newBufferWithLength:kEnvironmentCount*sizeof(MRMetalWorldStatusGPU) options:MTLResourceStorageModeShared];
+            require(statuses!=nil,"statuses"); std::memset(statuses.contents,0,statuses.length);
+            for (std::uint32_t step=1; step<=5; ++step) {
+                const bool failedReset = std::getenv("NUMI_TEST_RESET_ROLLBACK") != nullptr;
+                const bool sampledFailure = std::getenv("NUMI_TEST_RESET_SAMPLED_FAILURE") != nullptr;
+                masks[0]=(sampledFailure ? step==2 : (step==1 || (failedReset && step==3))) ? 1u : 0u;
+                auto* codes = static_cast<MRMetalWorldStatusGPU*>(statuses.contents);
+                codes[0].code = ((failedReset && step==1) || (sampledFailure && step==2))
+                    ? MR_STEP_FACTORIZATION_FAILED : MR_STEP_SUCCESS;
+                tasks[0].episode.x=step-1u; tasks[0].episode.y=1u; tasks[1].episode.x=step;
+                id<MTLCommandBuffer> cb=[queue commandBuffer]; trackerPass.commandBuffer=(__bridge void*)cb;
+                require(trackerProgram.begin(trackerProgram.context,trackerPass.commandBuffer),"begin");
+                require(trackerProgram.encode(trackerProgram.context,trackerPass),"encode");
+                const metalrobo::MetalWorldDeviceObservationStepResult outcome{
+                    .commandBuffer=trackerPass.commandBuffer,.worldStatuses=(__bridge void*)statuses,
+                    .environmentCount=kEnvironmentCount,.actorFrameSize=kActorFrameSize,
+                    .actorHistoryLength=kActorHistoryLength,.controlStep=0u,.contactMode=false};
+                require(trackerProgram.afterStep(trackerProgram.context,outcome),"afterStep");
+                [cb commit];trackerProgram.finish(trackerProgram.context,trackerPass.commandBuffer,true);
+                [cb waitUntilCompleted];require(cb.status==MTLCommandBufferStatusCompleted,"completion");
+                report(step);
+            }
+            return 0;
+        }
         if (std::getenv("NUMI_TEST_TRACKER_STEP_ROLLBACK") != nullptr) {
             require(trackerProgram.begin && trackerProgram.finish && trackerProgram.afterStep,
                     "tracker physical-step hooks missing");
@@ -1040,6 +1100,7 @@ int main() {
             worldTemplate.engineModel.articulations.front().firstBody;
         directConfig.maximumActorHistoryLength = kActorHistoryLength;
         directConfig.timestepSeconds = 0.02f;
+        if (std::getenv("NUMI_TEST_DIRECT_RESET_FRAME") != nullptr) directConfig.nominalSensorRateHz = 10.0f;
         directConfig.maskedDepthInstanceIds = {
             observations[0].identities[visibleIndex].y};
         directConfig.maskedDepthWidth = 16u;
@@ -1049,8 +1110,25 @@ int main() {
         directConfig.maskedDepthFrameOffsets = {0u, 1u};
         directConfig.maskedDepthNearMeters = 0.1f;
         directConfig.maskedDepthFarMeters = 5.0f;
+        metalrobo::MetalWorldFamilyContext directSmallWorlds;
+        if (std::getenv("NUMI_TEST_DIRECT_RESET_FRAME") != nullptr) {
+            auto directEpisode = metalrobo::makeFrankaPickPlaceEpisodeTwin();
+            directEpisode.sensors[0].width = 16u;
+            directEpisode.sensors[0].height = 9u;
+            directEpisode.sensors[0].intrinsics = {14.0f, 10.5f, 8.0f, 4.5f};
+            metalrobo::WorldTemplate directTemplate;
+            require(metalrobo::compileEpisodeTwin(directEpisode, metalrobo::makeFrankaPickPlaceEngineModel(),
+                        directTemplate), "direct small camera episode");
+            metalrobo::WorldFamily directFamily;
+            require(metalrobo::compileWorldFamily(directTemplate, metalrobo::makeFrankaPickPlaceWorldProgram(),
+                        directFamily), "direct small camera family");
+            require(directSmallWorlds.compile(directFamily,kEnvironmentCount), "direct small camera world");
+            require(directSmallWorlds.sample(kEnvironmentCount,0x5eed1234ull), "direct small camera sample");
+        }
         metalrobo::MetalHybridObjectTracker directTracker;
-        require(directTracker.compile(directRenderer, worlds, std::move(directConfig)),
+        const auto& directTrackerWorlds = std::getenv("NUMI_TEST_DIRECT_RESET_FRAME") != nullptr
+            ? directSmallWorlds : worlds;
+        require(directTracker.compile(directRenderer, directTrackerWorlds, std::move(directConfig)),
                 "direct-winner tracker compile");
         const auto directProgram = directTracker.observationProgram();
         require(directProgram.valid(), "direct-winner tracker program");
@@ -1066,6 +1144,45 @@ int main() {
         [directFirst waitUntilCompleted];
         require(directFirst.status == MTLCommandBufferStatusCompleted,
                 "direct-winner first completion");
+        if (std::getenv("NUMI_TEST_DIRECT_RESET_FRAME") != nullptr) {
+            auto* directMasks=static_cast<std::uint32_t*>(resetBuffer.contents);
+            auto* directTasks=static_cast<MRTaskStateGPU*>(taskStateBuffer.contents);
+            auto* directValues=static_cast<float*>(observationBuffer.contents);
+            constexpr std::size_t pixels=16u*9u;
+            const std::size_t offset=kActorFrameSize*kActorHistoryLength;
+            const auto old0=std::vector<float>(directValues+offset,directValues+offset+pixels);
+            const auto old1=std::vector<float>(directValues+kTrackWidth+offset,directValues+kTrackWidth+offset+pixels);
+            require(std::any_of(old0.begin(),old0.end(),[](float x){return x<1.0f;}), "direct initial scene has no returns");
+            std::fill_n(directMasks,kEnvironmentCount,0u);
+            deviceBodies[trackedBody].position.x += 0.2f;
+            id<MTLBuffer> statuses=[device newBufferWithLength:kEnvironmentCount*sizeof(MRMetalWorldStatusGPU) options:MTLResourceStorageModeShared];
+            require(statuses!=nil,"direct status buffer"); std::memset(statuses.contents,0,statuses.length);
+            for (std::uint32_t step=1;step<=5;++step) {
+                directMasks[0]=step==1 ? 1u : 0u;
+                directTasks[0].episode.x=step-1;directTasks[0].episode.y=1u;directTasks[1].episode.x=step;
+                id<MTLCommandBuffer> cb=[queue commandBuffer];directPass.commandBuffer=(__bridge void*)cb;
+                require(directProgram.begin(directProgram.context,directPass.commandBuffer),"direct reset begin");
+                require(directProgram.encode(directProgram.context,directPass),"direct reset encode");
+                const metalrobo::MetalWorldDeviceObservationStepResult outcome{
+                    .commandBuffer=directPass.commandBuffer,.worldStatuses=(__bridge void*)statuses,
+                    .environmentCount=kEnvironmentCount,.actorFrameSize=kActorFrameSize,
+                    .actorHistoryLength=kActorHistoryLength,.controlStep=0u,.contactMode=false};
+                require(directProgram.afterStep(directProgram.context,outcome),"direct reset result");
+                [cb commit];directProgram.finish(directProgram.context,directPass.commandBuffer,true);
+                [cb waitUntilCompleted];require(cb.status==MTLCommandBufferStatusCompleted,"direct reset completion");
+                const float* d0=directValues+offset;
+                const float* d1=directValues+kTrackWidth+offset;
+                if (step<5) {
+                    require(std::all_of(d0,d0+pixels,[](float x){return x==1.0f;}),"direct stale reset depth leaked");
+                    require(std::equal(old1.begin(),old1.end(),d1),"direct other environment changed without sampling");
+                } else {
+                    require(std::any_of(d0,d0+pixels,[](float x){return x<1.0f;}),"direct fresh depth absent");
+                    require(!std::equal(old0.begin(),old0.end(),d0),"direct reset recovery reused old frame");
+                }
+            }
+            std::cout << "direct_reset_stale_depth_suppressed=pass\n";
+            return 0;
+        }
         id<MTLCommandBuffer> directDiscarded = [queue commandBuffer];
         auto directDiscardedPass = directPass;
         directDiscardedPass.commandBuffer = (__bridge void*)directDiscarded;
