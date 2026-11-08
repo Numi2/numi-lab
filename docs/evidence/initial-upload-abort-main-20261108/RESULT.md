@@ -1,0 +1,3 @@
+# Invalid baseline fixture: device policy missing
+
+The pinned baseline private control ran 01:09:42.589090–01:09:42.795555 UTC on 8 November 2026 and exited 2. Pre/post hashes passed. Current main rejected the configuration with status 4, before the observation callback was invoked, because a device-observation program requires a native task and device policy; this fixture used externally supplied actions. The matrix correctly stopped before retry or candidate arms. It provides no evidence on upload cache repair or retry. A separately registered corrected fixture must bind a policy to the exact task contract and use native policy actions. The original failure remains retained.
