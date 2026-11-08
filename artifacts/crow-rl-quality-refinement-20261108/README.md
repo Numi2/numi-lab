@@ -47,3 +47,5 @@ The source candidate is retained because old qualified behavior remains exact
 and new publications meet the same three certificate gates. Integration,
 new-failure handling, reset/checkpoint partition behavior, biological fidelity
 and end-to-end learning performance remain unfinished.
+
+Executed Git recovery reproduces all35 native commands, four scientific reports,143 physical/numerical files and624 motor physical records. All252 raw files (17,789,998 bytes) and551 temporary files (47,371,303 bytes) were verified recoverable from actual Git blobs before exact hash/mode/mtime and zero-handle cleanup. The raw archive adds5,246,425 compressed bytes and reuses prior inputs/runtimes. A recovery-driver preparation assertion stopped before any replay; its failed command and corrected source are preserved. Final source/runtime/policy and archive checks are in verification.json. The candidate remains physically unqualified and no policy/profile is promoted.
