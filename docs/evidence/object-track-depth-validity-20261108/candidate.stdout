@@ -1,0 +1,9 @@
+retry_sensor_sequence=1
+direct_winner_retry=pass
+bound_env=0 reference_visible=1 actual_visible=1 track=1 history=1 depth_pixels=1
+bound_env=1 reference_visible=2 actual_visible=2 track=1 history=1 depth_pixels=2
+dropout_reference_env=0 geometry=1 valid_depth=0
+dropout_reference_env=1 geometry=2 valid_depth=0
+dropout_env=0 confidence=0 history_confidence=0
+dropout_env=1 confidence=0 history_confidence=0
+device="Apple M6" environments=2 views=2 triangles=4 clusters=1 fixed_visible_pixels=1114 wrist_visible_pixels=7312 deployable_width=4 truth_objects=10 episode_fingerprint=2069278249981525536

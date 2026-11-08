@@ -6599,6 +6599,22 @@ if(BUILD_TESTING)
         metalrobo.visual.masked_depth_validity
         PROPERTIES LABELS "metalrobo;visual;metal" TIMEOUT 60
     )
+    add_executable(metalrobo_object_track_validity_test tests/visual/object_track_validity.mm)
+    target_include_directories(metalrobo_object_track_validity_test PRIVATE "${CMAKE_CURRENT_SOURCE_DIR}/include")
+    target_compile_options(metalrobo_object_track_validity_test PRIVATE -fobjc-arc)
+    target_link_libraries(metalrobo_object_track_validity_test PRIVATE "${FOUNDATION_FRAMEWORK}" "${METAL_FRAMEWORK}")
+    add_dependencies(metalrobo_object_track_validity_test metalrobo_shaders)
+    add_test(NAME metalrobo.visual.object_track_validity
+             COMMAND metalrobo_object_track_validity_test "${METALROBO_METALLIB}")
+    set_tests_properties(metalrobo.visual.object_track_validity
+                         PROPERTIES LABELS "metalrobo;visual;metal" TIMEOUT 60)
+    add_executable(metalrobo_object_track_fingerprint_test tests/visual/object_track_fingerprint.cpp)
+    target_link_libraries(metalrobo_object_track_fingerprint_test PRIVATE metalrobo)
+    add_test(NAME metalrobo.visual.object_track_fingerprint
+             COMMAND metalrobo_object_track_fingerprint_test read
+                     "${CMAKE_CURRENT_SOURCE_DIR}/tests/visual/object_track_fixtures")
+    set_tests_properties(metalrobo.visual.object_track_fingerprint
+                         PROPERTIES LABELS "metalrobo;visual;runtime" TIMEOUT 60)
     add_executable(
         metalrobo_visual_observation_fingerprint_test
         tests/visual/observation_fingerprint.cpp
