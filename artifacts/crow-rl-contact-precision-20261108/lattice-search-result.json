@@ -1,0 +1,990 @@
+{
+  "calibration": [
+    {
+      "dimensions": 2,
+      "operations": 2,
+      "unimodular_determinant": -1
+    },
+    {
+      "dimensions": 3,
+      "operations": 3,
+      "unimodular_determinant": 1
+    }
+  ],
+  "goal_complete": false,
+  "history": [
+    {
+      "attempt": 0,
+      "basis_reductions": 1020,
+      "best_scaled_optimality": 2.13944147877172e-10,
+      "candidates": [
+        {
+          "distance": 5.665231863849485e-06,
+          "grid_exact": true,
+          "scaled_optimality": 2.3954244089924675e-10
+        },
+        {
+          "distance": 5.665231863849485e-06,
+          "grid_exact": true,
+          "scaled_optimality": 2.3954244089924675e-10
+        },
+        {
+          "distance": 5.665231863849485e-06,
+          "grid_exact": true,
+          "scaled_optimality": 2.3954244089924675e-10
+        },
+        {
+          "distance": 5.665231863849485e-06,
+          "grid_exact": true,
+          "scaled_optimality": 2.3954244089924675e-10
+        },
+        {
+          "distance": 5.665231863849485e-06,
+          "grid_exact": true,
+          "scaled_optimality": 2.3954244089924675e-10
+        },
+        {
+          "distance": 5.665231863849485e-06,
+          "grid_exact": true,
+          "scaled_optimality": 2.3954244089924675e-10
+        },
+        {
+          "distance": 5.665231863849485e-06,
+          "grid_exact": true,
+          "scaled_optimality": 2.3954244089924675e-10
+        },
+        {
+          "distance": 5.665231863849485e-06,
+          "grid_exact": true,
+          "scaled_optimality": 2.3954244089924675e-10
+        },
+        {
+          "distance": 5.665231863849485e-06,
+          "grid_exact": true,
+          "scaled_optimality": 2.3954244089924675e-10
+        },
+        {
+          "distance": 5.665231863849485e-06,
+          "grid_exact": true,
+          "scaled_optimality": 2.3954244089924675e-10
+        },
+        {
+          "distance": 5.665231863849485e-06,
+          "grid_exact": true,
+          "scaled_optimality": 2.3954244089924675e-10
+        },
+        {
+          "distance": 5.665231863849485e-06,
+          "grid_exact": true,
+          "scaled_optimality": 2.3954244089924675e-10
+        },
+        {
+          "distance": 5.665231863849485e-06,
+          "grid_exact": true,
+          "scaled_optimality": 2.3954244089924675e-10
+        },
+        {
+          "distance": 5.665231863849485e-06,
+          "grid_exact": true,
+          "scaled_optimality": 2.3954244089924675e-10
+        },
+        {
+          "distance": 5.665231863849485e-06,
+          "grid_exact": true,
+          "scaled_optimality": 2.3954244089924675e-10
+        },
+        {
+          "distance": 5.665231863849485e-06,
+          "grid_exact": true,
+          "scaled_optimality": 2.3954244089924675e-10
+        },
+        {
+          "distance": 5.665231863849485e-06,
+          "grid_exact": true,
+          "scaled_optimality": 2.3954244089924675e-10
+        },
+        {
+          "distance": 5.665231863849485e-06,
+          "grid_exact": true,
+          "scaled_optimality": 2.3954244089924675e-10
+        },
+        {
+          "distance": 5.665231863849485e-06,
+          "grid_exact": true,
+          "scaled_optimality": 2.3954244089924675e-10
+        },
+        {
+          "distance": 5.665231863849485e-06,
+          "grid_exact": true,
+          "scaled_optimality": 2.3954244089924675e-10
+        },
+        {
+          "distance": 5.665231863849485e-06,
+          "grid_exact": true,
+          "scaled_optimality": 2.3954244089924675e-10
+        },
+        {
+          "distance": 5.665231863849485e-06,
+          "grid_exact": true,
+          "scaled_optimality": 2.3954244089924675e-10
+        },
+        {
+          "distance": 5.665231863849485e-06,
+          "grid_exact": true,
+          "scaled_optimality": 2.3954244089924675e-10
+        },
+        {
+          "distance": 5.665231863849485e-06,
+          "grid_exact": true,
+          "scaled_optimality": 2.3954244089924675e-10
+        },
+        {
+          "distance": 5.665231863849485e-06,
+          "grid_exact": true,
+          "scaled_optimality": 2.3954244089924675e-10
+        },
+        {
+          "distance": 5.665231863849485e-06,
+          "grid_exact": true,
+          "scaled_optimality": 2.3954244089924675e-10
+        },
+        {
+          "distance": 5.665231863849485e-06,
+          "grid_exact": true,
+          "scaled_optimality": 2.3954244089924675e-10
+        },
+        {
+          "distance": 5.665231863849485e-06,
+          "grid_exact": true,
+          "scaled_optimality": 2.3954244089924675e-10
+        },
+        {
+          "distance": 5.665231863849485e-06,
+          "grid_exact": true,
+          "scaled_optimality": 2.3954244089924675e-10
+        },
+        {
+          "distance": 5.665231863849485e-06,
+          "grid_exact": true,
+          "scaled_optimality": 2.395354610623243e-10
+        },
+        {
+          "distance": 5.665231863849485e-06,
+          "grid_exact": true,
+          "scaled_optimality": 2.39538949518593e-10
+        },
+        {
+          "distance": 5.665231863849485e-06,
+          "grid_exact": true,
+          "scaled_optimality": 2.3954592932916214e-10
+        },
+        {
+          "distance": 5.665231863849485e-06,
+          "grid_exact": true,
+          "scaled_optimality": 2.3954941818072927e-10
+        },
+        {
+          "distance": 5.665231863849485e-06,
+          "grid_exact": true,
+          "scaled_optimality": 2.3954244089924675e-10
+        },
+        {
+          "distance": 5.665231863849485e-06,
+          "grid_exact": true,
+          "scaled_optimality": 2.3954244089924675e-10
+        },
+        {
+          "distance": 5.665231863849485e-06,
+          "grid_exact": true,
+          "scaled_optimality": 2.3954244089924675e-10
+        },
+        {
+          "distance": 5.665231863849485e-06,
+          "grid_exact": true,
+          "scaled_optimality": 2.3954244089924675e-10
+        },
+        {
+          "distance": 5.665231863849485e-06,
+          "grid_exact": true,
+          "scaled_optimality": 2.4079506529100175e-10
+        },
+        {
+          "distance": 5.665231863849485e-06,
+          "grid_exact": true,
+          "scaled_optimality": 2.40168749840912e-10
+        },
+        {
+          "distance": 5.665231863849485e-06,
+          "grid_exact": true,
+          "scaled_optimality": 2.3891612674128885e-10
+        },
+        {
+          "distance": 5.665231863849485e-06,
+          "grid_exact": true,
+          "scaled_optimality": 2.3828981360945993e-10
+        },
+        {
+          "distance": 5.665231863849485e-06,
+          "grid_exact": true,
+          "scaled_optimality": 2.393002294708225e-10
+        },
+        {
+          "distance": 5.665231863849485e-06,
+          "grid_exact": true,
+          "scaled_optimality": 2.394213344072025e-10
+        },
+        {
+          "distance": 5.665231863849485e-06,
+          "grid_exact": true,
+          "scaled_optimality": 2.3966354328018687e-10
+        },
+        {
+          "distance": 5.665231863849485e-06,
+          "grid_exact": true,
+          "scaled_optimality": 2.3978464779573873e-10
+        },
+        {
+          "distance": 5.903650442951047e-06,
+          "grid_exact": true,
+          "scaled_optimality": 2.3953546106217867e-10
+        },
+        {
+          "distance": 5.784441153400266e-06,
+          "grid_exact": true,
+          "scaled_optimality": 2.3953894951852015e-10
+        },
+        {
+          "distance": 5.5460225742987035e-06,
+          "grid_exact": true,
+          "scaled_optimality": 2.39545929329235e-10
+        },
+        {
+          "distance": 5.426813284747922e-06,
+          "grid_exact": true,
+          "scaled_optimality": 2.395494181800514e-10
+        },
+        {
+          "distance": 5.665231863849485e-06,
+          "grid_exact": true,
+          "scaled_optimality": 2.3953546106739213e-10
+        },
+        {
+          "distance": 5.665231863849485e-06,
+          "grid_exact": true,
+          "scaled_optimality": 2.395389495211269e-10
+        },
+        {
+          "distance": 5.665231863849485e-06,
+          "grid_exact": true,
+          "scaled_optimality": 2.3954592932662817e-10
+        },
+        {
+          "distance": 5.665231863849485e-06,
+          "grid_exact": true,
+          "scaled_optimality": 2.395494181756612e-10
+        },
+        {
+          "distance": 5.665231863849485e-06,
+          "grid_exact": true,
+          "scaled_optimality": 2.6409428429700854e-10
+        },
+        {
+          "distance": 5.665231863849485e-06,
+          "grid_exact": true,
+          "scaled_optimality": 2.518183608987505e-10
+        },
+        {
+          "distance": 5.665231863849485e-06,
+          "grid_exact": true,
+          "scaled_optimality": 2.272665193193838e-10
+        },
+        {
+          "distance": 5.665231863849485e-06,
+          "grid_exact": true,
+          "scaled_optimality": 2.1499059694811174e-10
+        },
+        {
+          "distance": 4.949976126544797e-06,
+          "grid_exact": true,
+          "scaled_optimality": 2.394935854069581e-10
+        },
+        {
+          "distance": 5.307603995197141e-06,
+          "grid_exact": true,
+          "scaled_optimality": 2.3951801332481007e-10
+        },
+        {
+          "distance": 6.0228597325018285e-06,
+          "grid_exact": true,
+          "scaled_optimality": 2.3956686736767146e-10
+        },
+        {
+          "distance": 6.380487601154172e-06,
+          "grid_exact": true,
+          "scaled_optimality": 2.3959129386162605e-10
+        },
+        {
+          "distance": 2.8042089146307347e-06,
+          "grid_exact": true,
+          "scaled_optimality": 2.2790417788577944e-10
+        },
+        {
+          "distance": 4.23472038924011e-06,
+          "grid_exact": true,
+          "scaled_optimality": 2.337233073990756e-10
+        },
+        {
+          "distance": 7.09574333845886e-06,
+          "grid_exact": true,
+          "scaled_optimality": 2.4536156884807033e-10
+        },
+        {
+          "distance": 8.526254813068235e-06,
+          "grid_exact": true,
+          "scaled_optimality": 2.5118070110083126e-10
+        },
+        {
+          "distance": 1.6121160191229222e-06,
+          "grid_exact": true,
+          "scaled_optimality": 2.613364774475742e-10
+        },
+        {
+          "distance": 3.6386739414862035e-06,
+          "grid_exact": true,
+          "scaled_optimality": 2.1509876944053325e-10
+        },
+        {
+          "distance": 7.691789786212766e-06,
+          "grid_exact": true,
+          "scaled_optimality": 2.639861114801391e-10
+        },
+        {
+          "distance": 9.718347708576047e-06,
+          "grid_exact": true,
+          "scaled_optimality": 2.8842979095861175e-10
+        },
+        {
+          "distance": 2.4500299612872922e-05,
+          "grid_exact": true,
+          "scaled_optimality": 2.13944147877172e-10
+        },
+        {
+          "distance": 1.5082765738361203e-05,
+          "grid_exact": true,
+          "scaled_optimality": 2.267432898969645e-10
+        },
+        {
+          "distance": 3.752302010662234e-06,
+          "grid_exact": true,
+          "scaled_optimality": 2.5234159060790556e-10
+        },
+        {
+          "distance": 1.3169835885173953e-05,
+          "grid_exact": true,
+          "scaled_optimality": 2.6514073182686185e-10
+        },
+        {
+          "distance": 3.415067084611145e-05,
+          "grid_exact": true,
+          "scaled_optimality": 2.1682713904252062e-10
+        },
+        {
+          "distance": 1.4242719491130984e-05,
+          "grid_exact": true,
+          "scaled_optimality": 2.2818478923271796e-10
+        },
+        {
+          "distance": 2.5573183218829953e-05,
+          "grid_exact": true,
+          "scaled_optimality": 2.5090009109219203e-10
+        },
+        {
+          "distance": 4.548113457381042e-05,
+          "grid_exact": true,
+          "scaled_optimality": 2.622577417336928e-10
+        },
+        {
+          "distance": 6.618906180255735e-06,
+          "grid_exact": true,
+          "scaled_optimality": 2.190359061439473e-10
+        },
+        {
+          "distance": 6.14206902205261e-06,
+          "grid_exact": true,
+          "scaled_optimality": 2.2369691239922362e-10
+        },
+        {
+          "distance": 5.18839470564636e-06,
+          "grid_exact": true,
+          "scaled_optimality": 2.5538796550937107e-10
+        },
+        {
+          "distance": 4.711557547443235e-06,
+          "grid_exact": true,
+          "scaled_optimality": 2.712334899445785e-10
+        },
+        {
+          "distance": 1.4486719290607297e-05,
+          "grid_exact": true,
+          "scaled_optimality": 5.436283934637072e-10
+        },
+        {
+          "distance": 1.0075975577228391e-05,
+          "grid_exact": true,
+          "scaled_optimality": 2.151920499600303e-10
+        },
+        {
+          "distance": 1.3735985443777865e-06,
+          "grid_exact": true,
+          "scaled_optimality": 5.679694897886538e-10
+        },
+        {
+          "distance": 3.1562555629083278e-06,
+          "grid_exact": true,
+          "scaled_optimality": 8.963965429327059e-10
+        },
+        {
+          "distance": 2.4500299612872922e-05,
+          "grid_exact": true,
+          "scaled_optimality": 7.467962260775465e-10
+        },
+        {
+          "distance": 1.5082765738361203e-05,
+          "grid_exact": true,
+          "scaled_optimality": 4.486561707419592e-10
+        },
+        {
+          "distance": 3.752302010662234e-06,
+          "grid_exact": true,
+          "scaled_optimality": 4.58894644643975e-10
+        },
+        {
+          "distance": 1.3169835885173953e-05,
+          "grid_exact": true,
+          "scaled_optimality": 6.782468565785324e-10
+        },
+        {
+          "distance": 1.1242823867578012e-05,
+          "grid_exact": true,
+          "scaled_optimality": 1.2250831954784972e-09
+        },
+        {
+          "distance": 6.3083712770454115e-06,
+          "grid_exact": true,
+          "scaled_optimality": 6.877996569365016e-10
+        },
+        {
+          "distance": 1.2460161368244016e-05,
+          "grid_exact": true,
+          "scaled_optimality": 4.509501650023743e-10
+        },
+        {
+          "distance": 1.9255090872638547e-05,
+          "grid_exact": true,
+          "scaled_optimality": 9.240509757094985e-10
+        }
+      ],
+      "dimensions": 23,
+      "original_column_norm_max": 1.7425258173716137e-07,
+      "original_column_norm_min": 1.8980606930874002e-17,
+      "projection_branches": {
+        "interior": 126,
+        "scalar_bound": 17,
+        "scalar_free": 15,
+        "vertex": 2
+      },
+      "reduced_gram_norm_max": 8.286377420470804e-10,
+      "reduced_gram_norm_min": 1.8980606930874002e-17
+    },
+    {
+      "attempt": 1,
+      "basis_reductions": 1020,
+      "best_scaled_optimality": 2.13944147877172e-10,
+      "candidates": [
+        {
+          "distance": 5.665231863849485e-06,
+          "grid_exact": true,
+          "scaled_optimality": 2.3954244089924675e-10
+        },
+        {
+          "distance": 5.665231863849485e-06,
+          "grid_exact": true,
+          "scaled_optimality": 2.3954244089924675e-10
+        },
+        {
+          "distance": 5.665231863849485e-06,
+          "grid_exact": true,
+          "scaled_optimality": 2.3954244089924675e-10
+        },
+        {
+          "distance": 5.665231863849485e-06,
+          "grid_exact": true,
+          "scaled_optimality": 2.3954244089924675e-10
+        },
+        {
+          "distance": 5.665231863849485e-06,
+          "grid_exact": true,
+          "scaled_optimality": 2.3954244089924675e-10
+        },
+        {
+          "distance": 5.665231863849485e-06,
+          "grid_exact": true,
+          "scaled_optimality": 2.3954244089924675e-10
+        },
+        {
+          "distance": 5.665231863849485e-06,
+          "grid_exact": true,
+          "scaled_optimality": 2.3954244089924675e-10
+        },
+        {
+          "distance": 5.665231863849485e-06,
+          "grid_exact": true,
+          "scaled_optimality": 2.3954244089924675e-10
+        },
+        {
+          "distance": 5.665231863849485e-06,
+          "grid_exact": true,
+          "scaled_optimality": 2.3954244089924675e-10
+        },
+        {
+          "distance": 5.665231863849485e-06,
+          "grid_exact": true,
+          "scaled_optimality": 2.3954244089924675e-10
+        },
+        {
+          "distance": 5.665231863849485e-06,
+          "grid_exact": true,
+          "scaled_optimality": 2.3954244089924675e-10
+        },
+        {
+          "distance": 5.665231863849485e-06,
+          "grid_exact": true,
+          "scaled_optimality": 2.3954244089924675e-10
+        },
+        {
+          "distance": 5.665231863849485e-06,
+          "grid_exact": true,
+          "scaled_optimality": 2.3954244089924675e-10
+        },
+        {
+          "distance": 5.665231863849485e-06,
+          "grid_exact": true,
+          "scaled_optimality": 2.3954244089924675e-10
+        },
+        {
+          "distance": 5.665231863849485e-06,
+          "grid_exact": true,
+          "scaled_optimality": 2.3954244089924675e-10
+        },
+        {
+          "distance": 5.665231863849485e-06,
+          "grid_exact": true,
+          "scaled_optimality": 2.3954244089924675e-10
+        },
+        {
+          "distance": 5.665231863849485e-06,
+          "grid_exact": true,
+          "scaled_optimality": 2.3954244089924675e-10
+        },
+        {
+          "distance": 5.665231863849485e-06,
+          "grid_exact": true,
+          "scaled_optimality": 2.3954244089924675e-10
+        },
+        {
+          "distance": 5.665231863849485e-06,
+          "grid_exact": true,
+          "scaled_optimality": 2.3954244089924675e-10
+        },
+        {
+          "distance": 5.665231863849485e-06,
+          "grid_exact": true,
+          "scaled_optimality": 2.3954244089924675e-10
+        },
+        {
+          "distance": 5.665231863849485e-06,
+          "grid_exact": true,
+          "scaled_optimality": 2.3954244089924675e-10
+        },
+        {
+          "distance": 5.665231863849485e-06,
+          "grid_exact": true,
+          "scaled_optimality": 2.3954244089924675e-10
+        },
+        {
+          "distance": 5.665231863849485e-06,
+          "grid_exact": true,
+          "scaled_optimality": 2.3954244089924675e-10
+        },
+        {
+          "distance": 5.665231863849485e-06,
+          "grid_exact": true,
+          "scaled_optimality": 2.3954244089924675e-10
+        },
+        {
+          "distance": 5.665231863849485e-06,
+          "grid_exact": true,
+          "scaled_optimality": 2.3954244089924675e-10
+        },
+        {
+          "distance": 5.665231863849485e-06,
+          "grid_exact": true,
+          "scaled_optimality": 2.3954244089924675e-10
+        },
+        {
+          "distance": 5.665231863849485e-06,
+          "grid_exact": true,
+          "scaled_optimality": 2.3954244089924675e-10
+        },
+        {
+          "distance": 5.665231863849485e-06,
+          "grid_exact": true,
+          "scaled_optimality": 2.3954244089924675e-10
+        },
+        {
+          "distance": 5.665231863849485e-06,
+          "grid_exact": true,
+          "scaled_optimality": 2.3954244089924675e-10
+        },
+        {
+          "distance": 5.665231863849485e-06,
+          "grid_exact": true,
+          "scaled_optimality": 2.395354610623243e-10
+        },
+        {
+          "distance": 5.665231863849485e-06,
+          "grid_exact": true,
+          "scaled_optimality": 2.39538949518593e-10
+        },
+        {
+          "distance": 5.665231863849485e-06,
+          "grid_exact": true,
+          "scaled_optimality": 2.3954592932916214e-10
+        },
+        {
+          "distance": 5.665231863849485e-06,
+          "grid_exact": true,
+          "scaled_optimality": 2.3954941818072927e-10
+        },
+        {
+          "distance": 5.665231863849485e-06,
+          "grid_exact": true,
+          "scaled_optimality": 2.3954244089924675e-10
+        },
+        {
+          "distance": 5.665231863849485e-06,
+          "grid_exact": true,
+          "scaled_optimality": 2.3954244089924675e-10
+        },
+        {
+          "distance": 5.665231863849485e-06,
+          "grid_exact": true,
+          "scaled_optimality": 2.3954244089924675e-10
+        },
+        {
+          "distance": 5.665231863849485e-06,
+          "grid_exact": true,
+          "scaled_optimality": 2.3954244089924675e-10
+        },
+        {
+          "distance": 5.665231863849485e-06,
+          "grid_exact": true,
+          "scaled_optimality": 2.4079506529100175e-10
+        },
+        {
+          "distance": 5.665231863849485e-06,
+          "grid_exact": true,
+          "scaled_optimality": 2.40168749840912e-10
+        },
+        {
+          "distance": 5.665231863849485e-06,
+          "grid_exact": true,
+          "scaled_optimality": 2.3891612674128885e-10
+        },
+        {
+          "distance": 5.665231863849485e-06,
+          "grid_exact": true,
+          "scaled_optimality": 2.3828981360945993e-10
+        },
+        {
+          "distance": 5.665231863849485e-06,
+          "grid_exact": true,
+          "scaled_optimality": 2.393002294708225e-10
+        },
+        {
+          "distance": 5.665231863849485e-06,
+          "grid_exact": true,
+          "scaled_optimality": 2.394213344072025e-10
+        },
+        {
+          "distance": 5.665231863849485e-06,
+          "grid_exact": true,
+          "scaled_optimality": 2.3966354328018687e-10
+        },
+        {
+          "distance": 5.665231863849485e-06,
+          "grid_exact": true,
+          "scaled_optimality": 2.3978464779573873e-10
+        },
+        {
+          "distance": 5.903650442951047e-06,
+          "grid_exact": true,
+          "scaled_optimality": 2.3953546106217867e-10
+        },
+        {
+          "distance": 5.784441153400266e-06,
+          "grid_exact": true,
+          "scaled_optimality": 2.3953894951852015e-10
+        },
+        {
+          "distance": 5.5460225742987035e-06,
+          "grid_exact": true,
+          "scaled_optimality": 2.39545929329235e-10
+        },
+        {
+          "distance": 5.426813284747922e-06,
+          "grid_exact": true,
+          "scaled_optimality": 2.395494181800514e-10
+        },
+        {
+          "distance": 5.665231863849485e-06,
+          "grid_exact": true,
+          "scaled_optimality": 2.3953546106739213e-10
+        },
+        {
+          "distance": 5.665231863849485e-06,
+          "grid_exact": true,
+          "scaled_optimality": 2.395389495211269e-10
+        },
+        {
+          "distance": 5.665231863849485e-06,
+          "grid_exact": true,
+          "scaled_optimality": 2.3954592932662817e-10
+        },
+        {
+          "distance": 5.665231863849485e-06,
+          "grid_exact": true,
+          "scaled_optimality": 2.395494181756612e-10
+        },
+        {
+          "distance": 5.665231863849485e-06,
+          "grid_exact": true,
+          "scaled_optimality": 2.6409428429700854e-10
+        },
+        {
+          "distance": 5.665231863849485e-06,
+          "grid_exact": true,
+          "scaled_optimality": 2.518183608987505e-10
+        },
+        {
+          "distance": 5.665231863849485e-06,
+          "grid_exact": true,
+          "scaled_optimality": 2.272665193193838e-10
+        },
+        {
+          "distance": 5.665231863849485e-06,
+          "grid_exact": true,
+          "scaled_optimality": 2.1499059694811174e-10
+        },
+        {
+          "distance": 4.949976126544797e-06,
+          "grid_exact": true,
+          "scaled_optimality": 2.394935854069581e-10
+        },
+        {
+          "distance": 5.307603995197141e-06,
+          "grid_exact": true,
+          "scaled_optimality": 2.3951801332481007e-10
+        },
+        {
+          "distance": 6.0228597325018285e-06,
+          "grid_exact": true,
+          "scaled_optimality": 2.3956686736767146e-10
+        },
+        {
+          "distance": 6.380487601154172e-06,
+          "grid_exact": true,
+          "scaled_optimality": 2.3959129386162605e-10
+        },
+        {
+          "distance": 2.8042089146307347e-06,
+          "grid_exact": true,
+          "scaled_optimality": 2.2790417788577944e-10
+        },
+        {
+          "distance": 4.23472038924011e-06,
+          "grid_exact": true,
+          "scaled_optimality": 2.337233073990756e-10
+        },
+        {
+          "distance": 7.09574333845886e-06,
+          "grid_exact": true,
+          "scaled_optimality": 2.4536156884807033e-10
+        },
+        {
+          "distance": 8.526254813068235e-06,
+          "grid_exact": true,
+          "scaled_optimality": 2.5118070110083126e-10
+        },
+        {
+          "distance": 1.6121160191229222e-06,
+          "grid_exact": true,
+          "scaled_optimality": 2.613364774475742e-10
+        },
+        {
+          "distance": 3.6386739414862035e-06,
+          "grid_exact": true,
+          "scaled_optimality": 2.1509876944053325e-10
+        },
+        {
+          "distance": 7.691789786212766e-06,
+          "grid_exact": true,
+          "scaled_optimality": 2.639861114801391e-10
+        },
+        {
+          "distance": 9.718347708576047e-06,
+          "grid_exact": true,
+          "scaled_optimality": 2.8842979095861175e-10
+        },
+        {
+          "distance": 2.4500299612872922e-05,
+          "grid_exact": true,
+          "scaled_optimality": 2.13944147877172e-10
+        },
+        {
+          "distance": 1.5082765738361203e-05,
+          "grid_exact": true,
+          "scaled_optimality": 2.267432898969645e-10
+        },
+        {
+          "distance": 3.752302010662234e-06,
+          "grid_exact": true,
+          "scaled_optimality": 2.5234159060790556e-10
+        },
+        {
+          "distance": 1.3169835885173953e-05,
+          "grid_exact": true,
+          "scaled_optimality": 2.6514073182686185e-10
+        },
+        {
+          "distance": 3.415067084611145e-05,
+          "grid_exact": true,
+          "scaled_optimality": 2.1682713904252062e-10
+        },
+        {
+          "distance": 1.4242719491130984e-05,
+          "grid_exact": true,
+          "scaled_optimality": 2.2818478923271796e-10
+        },
+        {
+          "distance": 2.5573183218829953e-05,
+          "grid_exact": true,
+          "scaled_optimality": 2.5090009109219203e-10
+        },
+        {
+          "distance": 4.548113457381042e-05,
+          "grid_exact": true,
+          "scaled_optimality": 2.622577417336928e-10
+        },
+        {
+          "distance": 6.618906180255735e-06,
+          "grid_exact": true,
+          "scaled_optimality": 2.190359061439473e-10
+        },
+        {
+          "distance": 6.14206902205261e-06,
+          "grid_exact": true,
+          "scaled_optimality": 2.2369691239922362e-10
+        },
+        {
+          "distance": 5.18839470564636e-06,
+          "grid_exact": true,
+          "scaled_optimality": 2.5538796550937107e-10
+        },
+        {
+          "distance": 4.711557547443235e-06,
+          "grid_exact": true,
+          "scaled_optimality": 2.712334899445785e-10
+        },
+        {
+          "distance": 1.4486719290607297e-05,
+          "grid_exact": true,
+          "scaled_optimality": 5.436283934637072e-10
+        },
+        {
+          "distance": 1.0075975577228391e-05,
+          "grid_exact": true,
+          "scaled_optimality": 2.151920499600303e-10
+        },
+        {
+          "distance": 1.3735985443777865e-06,
+          "grid_exact": true,
+          "scaled_optimality": 5.679694897886538e-10
+        },
+        {
+          "distance": 3.1562555629083278e-06,
+          "grid_exact": true,
+          "scaled_optimality": 8.963965429327059e-10
+        },
+        {
+          "distance": 2.4500299612872922e-05,
+          "grid_exact": true,
+          "scaled_optimality": 7.467962260775465e-10
+        },
+        {
+          "distance": 1.5082765738361203e-05,
+          "grid_exact": true,
+          "scaled_optimality": 4.486561707419592e-10
+        },
+        {
+          "distance": 3.752302010662234e-06,
+          "grid_exact": true,
+          "scaled_optimality": 4.58894644643975e-10
+        },
+        {
+          "distance": 1.3169835885173953e-05,
+          "grid_exact": true,
+          "scaled_optimality": 6.782468565785324e-10
+        },
+        {
+          "distance": 1.1242823867578012e-05,
+          "grid_exact": true,
+          "scaled_optimality": 1.2250831954784972e-09
+        },
+        {
+          "distance": 6.3083712770454115e-06,
+          "grid_exact": true,
+          "scaled_optimality": 6.877996569365016e-10
+        },
+        {
+          "distance": 1.2460161368244016e-05,
+          "grid_exact": true,
+          "scaled_optimality": 4.509501650023743e-10
+        },
+        {
+          "distance": 1.9255090872638547e-05,
+          "grid_exact": true,
+          "scaled_optimality": 9.240509757094985e-10
+        }
+      ],
+      "dimensions": 23,
+      "original_column_norm_max": 1.7425258173716137e-07,
+      "original_column_norm_min": 1.8980606930874002e-17,
+      "projection_branches": {
+        "interior": 126,
+        "scalar_bound": 17,
+        "scalar_free": 15,
+        "vertex": 2
+      },
+      "reduced_gram_norm_max": 8.286377420470804e-10,
+      "reduced_gram_norm_min": 1.8980606930874002e-17
+    }
+  ],
+  "limits": "One exposed problem, bounded offline lattice diagnosis and full independent reprojection. No native state feedback or setting changes.",
+  "policy_or_profile_promoted": false,
+  "reference_difference_max": 2.4500299612872922e-05,
+  "representable_state_found": false,
+  "scaled_optimality": 2.13944147877172e-10,
+  "schema": "crow-contact-lattice-search-v1",
+  "seconds": 1.2751908330246806
+}

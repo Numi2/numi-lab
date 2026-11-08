@@ -1,0 +1,14 @@
+{
+  "budget": {
+    "process_seconds": 120,
+    "raw_bytes_max": 2000000
+  },
+  "decision": "A valid scoped lower bound distinguishes a search limitation from an infeasible branch/lattice target. It does not authorize a tolerance change or establish physical accuracy.",
+  "instrument": "Exact Fraction reconstruction of compiled mass/J/bias/free/regularization, exact branch checks at base, exact LDL solve and integer dual identities",
+  "native_settings_changed": false,
+  "prediction": "The scaled stationarity lower bound in the explicitly stated region exceeds 1e-10",
+  "purpose": "Exposed numerical diagnosis: obtain an exact rational dual witness for the affine FP32 spacing lattice around the reference",
+  "schema": "crow-contact-exact-certificate-plan-v1",
+  "scope": "Constant projection branches, base spacing lattice, fixed excluded coordinates, local 1e-4 box for denominator bound; no global-floor claim without proving all hypotheses",
+  "source_sha256": "0abcedb465b6976820fd5318ab05391f8906fe061ab97602940635b4997583e1"
+}
