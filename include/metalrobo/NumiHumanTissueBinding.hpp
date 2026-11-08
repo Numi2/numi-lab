@@ -17,6 +17,9 @@ struct NumiHumanCostalBinding {
     std::array<double,16> atlasToWorld{};
     std::array<std::uint8_t,32> registrationSHA256{};
     std::vector<NumiHumanCostalRegionBinding> regions;
+    // NHTBIND2: an explicit donor for each cooked source node. Empty for
+    // legacy NHTBIND1, whose region donor owns every node in that region.
+    std::vector<std::uint32_t> nodeDonorBodies;
 };
 // The caller must hash the actual payload bytes, not trust manifest hashes.
 [[nodiscard]] bool decodeNumiHumanCostalBinding(
@@ -24,6 +27,14 @@ struct NumiHumanCostalBinding {
     std::span<const std::uint8_t,32> cartilageSHA256,
     std::span<const std::uint8_t,32> rigidSHA256,
     NumiHumanCostalBinding& result, std::string& error);
+
+// Shared by runtime asset admission and CPU qualification. Checks the cooked
+// attachment table against the source flags and region endpoint identities;
+// neither source nor cooked world is mutated on success or failure.
+[[nodiscard]] bool validateNumiHumanCostalAttachmentOwnership(
+    const NumiHumanCostalCartilagePayload& cartilage,
+    const NumiHumanCostalBinding& binding,
+    const numi::matter::CompiledWorld& world, std::string& error);
 
 struct NumiHumanCostalCompilation {
     numi::matter::CompileResult matter;

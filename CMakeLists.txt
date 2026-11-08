@@ -2926,7 +2926,7 @@ add_dependencies(
 target_compile_definitions(
     metalrobo_numilab_human_tendon_fem_load_probe
     PRIVATE
-        NUMI_HUMAN_TENDON_FEM_PROBE_MATERIAL="${CMAKE_CURRENT_SOURCE_DIR}/matter/materials/silicone.nmatter"
+        NUMI_HUMAN_TENDON_FEM_PROBE_MATERIAL="${CMAKE_CURRENT_SOURCE_DIR}/tests/fixtures/material_column_silicone.nmatter"
         NUMI_MATTER_METALLIB="${CMAKE_CURRENT_BINARY_DIR}/matter/shaders/NumiMatter.metallib"
 )
 target_compile_options(
@@ -3690,7 +3690,7 @@ add_dependencies(metalrobo_matter_physics_probe numi_matter_shaders)
 target_compile_definitions(
     metalrobo_matter_physics_probe
     PRIVATE
-        NUMI_MATTER_MATERIAL="${CMAKE_CURRENT_SOURCE_DIR}/matter/materials/silicone.nmatter"
+        NUMI_MATTER_MATERIAL="${CMAKE_CURRENT_SOURCE_DIR}/tests/fixtures/material_column_silicone.nmatter"
         NUMI_MATTER_STATEFUL_MATERIAL="${CMAKE_CURRENT_SOURCE_DIR}/matter/materials/damageable_silicone.nmatter"
         NUMI_MATTER_METALLIB="${CMAKE_CURRENT_BINARY_DIR}/matter/shaders/NumiMatter.metallib"
 )
@@ -4531,7 +4531,7 @@ if(APPLE AND EXISTS "${NUMANX_FULLBODY_RIGID_ASSET}" AND
             MRNX_FULLBODY_VISION_PROFILE="${NUMANX_FULLBODY_VISION_PROFILE_ASSET}"
             MRNX_METALROBO_METALLIB="${METALROBO_METALLIB}"
             MRNX_MATTER_METALLIB="${CMAKE_CURRENT_BINARY_DIR}/matter/shaders/NumiMatter.metallib"
-            MRNX_MATTER_MATERIAL="${CMAKE_CURRENT_SOURCE_DIR}/matter/materials/silicone.nmatter"
+            MRNX_MATTER_MATERIAL="${CMAKE_CURRENT_SOURCE_DIR}/tests/fixtures/material_column_silicone.nmatter"
     )
     target_compile_options(
         metalrobo_numanx_fullbody_bridge_probe
@@ -4575,7 +4575,7 @@ if(APPLE AND EXISTS "${NUMANX_FULLBODY_RIGID_ASSET}" AND
             MRNX_FULLBODY_VISION_PROFILE="${NUMANX_FULLBODY_VISION_PROFILE_ASSET}"
             MRNX_METALROBO_METALLIB="${METALROBO_METALLIB}"
             MRNX_MATTER_METALLIB="${CMAKE_CURRENT_BINARY_DIR}/matter/shaders/NumiMatter.metallib"
-            MRNX_MATTER_MATERIAL="${CMAKE_CURRENT_SOURCE_DIR}/matter/materials/silicone.nmatter"
+            MRNX_MATTER_MATERIAL="${CMAKE_CURRENT_SOURCE_DIR}/tests/fixtures/material_column_silicone.nmatter"
     )
     target_compile_features(
         metalrobo_numanx_exact_runtime_v3_lifecycle_probe
@@ -4623,7 +4623,7 @@ if(APPLE AND EXISTS "${NUMANX_FULLBODY_RIGID_ASSET}" AND
             MRNX_FULLBODY_VISION_PROFILE="${NUMANX_FULLBODY_VISION_PROFILE_ASSET}"
             MRNX_METALROBO_METALLIB="${METALROBO_METALLIB}"
             MRNX_MATTER_METALLIB="${CMAKE_CURRENT_BINARY_DIR}/matter/shaders/NumiMatter.metallib"
-            MRNX_MATTER_MATERIAL="${CMAKE_CURRENT_SOURCE_DIR}/matter/materials/silicone.nmatter"
+            MRNX_MATTER_MATERIAL="${CMAKE_CURRENT_SOURCE_DIR}/tests/fixtures/material_column_silicone.nmatter"
             MRNX_SOURCE_GIT_REVISION="${NUMI_SOURCE_REVISION}"
     )
     target_compile_features(
@@ -4661,7 +4661,7 @@ add_dependencies(
 target_compile_definitions(
     metalrobo_numanx_human_matter_adapter_probe
     PRIVATE
-        NUMI_MATTER_MATERIAL="${CMAKE_CURRENT_SOURCE_DIR}/matter/materials/silicone.nmatter"
+        NUMI_MATTER_MATERIAL="${CMAKE_CURRENT_SOURCE_DIR}/tests/fixtures/material_column_silicone.nmatter"
         NUMI_MATTER_METALLIB="${CMAKE_CURRENT_BINARY_DIR}/matter/shaders/NumiMatter.metallib"
         NUMANX_ADAPTER_METALLIB="${METALROBO_METALLIB}"
 )
@@ -4700,7 +4700,7 @@ add_dependencies(
 target_compile_definitions(
     metalrobo_numanx_matter_accepted_state_proof_probe
     PRIVATE
-        NUMI_MATTER_MATERIAL="${CMAKE_CURRENT_SOURCE_DIR}/matter/materials/silicone.nmatter"
+        NUMI_MATTER_MATERIAL="${CMAKE_CURRENT_SOURCE_DIR}/tests/fixtures/material_column_silicone.nmatter"
         NUMI_MATTER_METALLIB="${CMAKE_CURRENT_BINARY_DIR}/matter/shaders/NumiMatter.metallib"
         NUMANX_ADAPTER_METALLIB="${METALROBO_METALLIB}"
 )
@@ -4739,7 +4739,7 @@ add_dependencies(
 target_compile_definitions(
     metalrobo_numanx_matter_exact_accepted_state_proof_probe
     PRIVATE
-        NUMI_MATTER_MATERIAL="${CMAKE_CURRENT_SOURCE_DIR}/matter/materials/silicone.nmatter"
+        NUMI_MATTER_MATERIAL="${CMAKE_CURRENT_SOURCE_DIR}/tests/fixtures/material_column_silicone.nmatter"
         NUMI_MATTER_METALLIB="${CMAKE_CURRENT_BINARY_DIR}/matter/shaders/NumiMatter.metallib"
         NUMANX_ADAPTER_METALLIB="${METALROBO_METALLIB}"
 )
@@ -4778,7 +4778,7 @@ add_dependencies(
 target_compile_definitions(
     metalrobo_numanx_human_matter_exact_v2_lifecycle_probe
     PRIVATE
-        NUMI_MATTER_MATERIAL="${CMAKE_CURRENT_SOURCE_DIR}/matter/materials/silicone.nmatter"
+        NUMI_MATTER_MATERIAL="${CMAKE_CURRENT_SOURCE_DIR}/tests/fixtures/material_column_silicone.nmatter"
         NUMI_MATTER_METALLIB="${CMAKE_CURRENT_BINARY_DIR}/matter/shaders/NumiMatter.metallib"
         NUMANX_ADAPTER_METALLIB="${METALROBO_METALLIB}"
 )
@@ -4820,7 +4820,7 @@ add_dependencies(
 target_compile_definitions(
     metalrobo_numanx_matter_attachment_runtime_probe
     PRIVATE
-        NUMI_MATTER_MATERIAL="${CMAKE_CURRENT_SOURCE_DIR}/matter/materials/silicone.nmatter"
+        NUMI_MATTER_MATERIAL="${CMAKE_CURRENT_SOURCE_DIR}/tests/fixtures/material_column_silicone.nmatter"
         NUMI_MATTER_METALLIB="${CMAKE_CURRENT_BINARY_DIR}/matter/shaders/NumiMatter.metallib"
 )
 target_compile_options(
@@ -4853,7 +4853,7 @@ add_executable(
 target_compile_definitions(
     metalrobo_numanx_matter_capacity_probe
     PRIVATE
-        NUMI_MATTER_MATERIAL="${CMAKE_CURRENT_SOURCE_DIR}/matter/materials/silicone.nmatter"
+        NUMI_MATTER_MATERIAL="${CMAKE_CURRENT_SOURCE_DIR}/tests/fixtures/material_column_silicone.nmatter"
 )
 target_compile_options(
     metalrobo_numanx_matter_capacity_probe
@@ -7042,6 +7042,15 @@ target_link_libraries(numi_human_tissue_mass_probe PRIVATE metalrobo)
 target_compile_options(numi_human_tissue_mass_probe PRIVATE -Wall -Wextra -Wpedantic -Werror)
 set_target_properties(numi_human_tissue_mass_probe PROPERTIES RUNTIME_OUTPUT_DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}/bin")
 add_test(NAME numi_human_tissue_mass_partition COMMAND numi_human_tissue_mass_probe)
+
+add_executable(numi_human_costal_binding_test tests/human/costal_binding.cpp)
+target_link_libraries(numi_human_costal_binding_test PRIVATE metalrobo)
+target_compile_options(numi_human_costal_binding_test PRIVATE -Wall -Wextra -Wpedantic -Werror)
+add_test(NAME numi_human_costal_binding COMMAND numi_human_costal_binding_test)
+add_executable(numi_human_costal_cook_ownership_test tests/human/costal_cook_ownership.cpp)
+target_link_libraries(numi_human_costal_cook_ownership_test PRIVATE metalrobo)
+target_compile_options(numi_human_costal_cook_ownership_test PRIVATE -Wall -Wextra -Wpedantic -Werror)
+add_test(NAME numi_human_costal_cook_ownership COMMAND numi_human_costal_cook_ownership_test)
 add_executable(numi_human_whole_body_mass_reference_check tests/whole_body_mass_reference.cpp)
 target_include_directories(numi_human_whole_body_mass_reference_check PRIVATE apps include)
 target_link_libraries(numi_human_whole_body_mass_reference_check PRIVATE metalrobo)
@@ -7819,3 +7828,25 @@ endif()
 
 # A small standalone-capable project also serves the integrated native test.
 add_subdirectory(tests/ccd)
+
+# Synthetic, explicitly invoked native gate; not a full Human or anatomy test.
+add_executable(numi_human_costal_ownership_native tests/human/costal_ownership_native.mm)
+target_link_libraries(numi_human_costal_ownership_native PRIVATE metalrobo "${FOUNDATION_FRAMEWORK}" "${METAL_FRAMEWORK}")
+add_dependencies(numi_human_costal_ownership_native numi_matter_shaders)
+target_compile_options(numi_human_costal_ownership_native PRIVATE -fobjc-arc -Wall -Wextra -Wpedantic -Werror)
+
+# Real 160-DoF synthetic owner path; explicit native research probe.
+add_executable(numi_human_costal_real_owner_probe apps/numanx_human_costal_owner_probe.mm)
+target_link_libraries(numi_human_costal_real_owner_probe PRIVATE metalrobo "${FOUNDATION_FRAMEWORK}" "${METAL_FRAMEWORK}")
+add_dependencies(numi_human_costal_real_owner_probe metalrobo_shaders numi_matter_shaders)
+target_compile_definitions(numi_human_costal_real_owner_probe PRIVATE
+    NUMI_MATTER_MATERIAL="${CMAKE_CURRENT_SOURCE_DIR}/docs/evidence/contact-al-20261107/silicone.nmatter"
+    NUMI_MATTER_METALLIB="${CMAKE_CURRENT_BINARY_DIR}/matter/shaders/NumiMatter.metallib"
+    NUMANX_ADAPTER_METALLIB="${METALROBO_METALLIB}")
+target_compile_options(numi_human_costal_real_owner_probe PRIVATE -fobjc-arc -Wall -Wextra -Wpedantic -Werror)
+
+# Explicit constructor admission of source-bound synthetic NHTBIND2 fixtures.
+add_executable(numi_human_costal_v5_admission_probe apps/numanx_costal_v5_synthetic_admission_probe.mm)
+target_link_libraries(numi_human_costal_v5_admission_probe PRIVATE metalrobo "${FOUNDATION_FRAMEWORK}" "${METAL_FRAMEWORK}")
+add_dependencies(numi_human_costal_v5_admission_probe metalrobo_shaders numi_matter_shaders)
+target_compile_options(numi_human_costal_v5_admission_probe PRIVATE -fobjc-arc -Wall -Wextra -Wpedantic -Werror)

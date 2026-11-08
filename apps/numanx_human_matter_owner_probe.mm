@@ -153,10 +153,24 @@ id<MTLComputePipelineState> pipeline(
     id<MTLLibrary> library,
     NSString* name
 ) {
-    id<MTLFunction> function = [library newFunctionWithName:name];
-    require(function != nil, "missing Metal function " +
-        std::string{name.UTF8String});
     NSError* error = nil;
+    id<MTLFunction> function = nil;
+    if ([name isEqualToString:@"mr_numi_human_stand_step"]) {
+        MTLFunctionConstantValues* constants = [MTLFunctionConstantValues new];
+        const bool disabled = false;
+        const float distance = 0.0f;
+        [constants setConstantValue:&disabled type:MTLDataTypeBool atIndex:0u];
+        [constants setConstantValue:&disabled type:MTLDataTypeBool atIndex:2u];
+        [constants setConstantValue:&distance type:MTLDataTypeFloat atIndex:8u];
+        [constants setConstantValue:&disabled type:MTLDataTypeBool atIndex:9u];
+        [constants setConstantValue:&disabled type:MTLDataTypeBool atIndex:18u];
+        function = [library newFunctionWithName:name constantValues:constants error:&error];
+    } else {
+        function = [library newFunctionWithName:name];
+    }
+    require(function != nil, "missing or unspecialized Metal function " +
+        std::string{name.UTF8String});
+    error = nil;
     id<MTLComputePipelineState> result = [device
         newComputePipelineStateWithFunction:function error:&error];
     const char* pipelineError = error.localizedDescription.UTF8String;
