@@ -1,0 +1,9 @@
+[0/2] Re-checking globbed directories...
+[1/9] Building CXX object CMakeFiles/metalrobo_visual_observation_fingerprint_test.dir/tests/visual/observation_fingerprint.cpp.o
+[2/9] Building CXX object CMakeFiles/metalrobo_object_track_fingerprint_test.dir/tests/visual/object_track_fingerprint.cpp.o
+[3/9] Building OBJCXX object CMakeFiles/metalrobo.dir/src/metal/MetalHybridRenderer.mm.o
+[4/9] Building OBJCXX object CMakeFiles/metalrobo_visual_platform_probe.dir/apps/visual_platform_probe.cpp.o
+[5/9] Linking CXX shared library lib/libmetalrobo.dylib
+[6/9] Linking CXX executable metalrobo_visual_observation_fingerprint_test
+[7/9] Linking CXX executable metalrobo_object_track_fingerprint_test
+[8/9] Linking OBJCXX executable bin/metalrobo_visual_platform_probe
