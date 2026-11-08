@@ -183,5 +183,56 @@
     "scratch_bytes": 80,
     "seconds": 0.023638332961127162,
     "thread_width": 32
+  },
+  {
+    "argv": [
+      "/Users/n/Developer/numi-crow-rl-20261107/build/crow-split-precision-build-01/probe",
+      "solve",
+      "/Users/n/Developer/numi-crow-rl-20261107/build/crow-split-precision-build-01/split.metallib",
+      "/Users/n/Developer/numi-crow-rl-20261107/build/crow-split-precision-build-01/observations/spd-0",
+      "/Users/n/Developer/numi-crow-rl-20261107/build/crow-split-precision-build-01/spd.input"
+    ],
+    "code": 0,
+    "device": "Apple M4 Pro",
+    "gpu_seconds": 5.22499904e-05,
+    "name": "spd-0",
+    "returncode": 0,
+    "scratch_bytes": 128,
+    "seconds": 0.02374445798341185,
+    "thread_width": 32
+  },
+  {
+    "argv": [
+      "/Users/n/Developer/numi-crow-rl-20261107/build/crow-split-precision-build-01/probe",
+      "solve",
+      "/Users/n/Developer/numi-crow-rl-20261107/build/crow-split-precision-build-01/split.metallib",
+      "/Users/n/Developer/numi-crow-rl-20261107/build/crow-split-precision-build-01/observations/scalar-bound-0",
+      "/Users/n/Developer/numi-crow-rl-20261107/build/crow-split-precision-build-01/scalar-bound.input"
+    ],
+    "code": 0,
+    "device": "Apple M4 Pro",
+    "gpu_seconds": 4.17500269e-05,
+    "name": "scalar-bound-0",
+    "returncode": 0,
+    "scratch_bytes": 56,
+    "seconds": 0.023561917012557387,
+    "thread_width": 32
+  },
+  {
+    "argv": [
+      "/Users/n/Developer/numi-crow-rl-20261107/build/crow-split-precision-build-01/probe",
+      "solve",
+      "/Users/n/Developer/numi-crow-rl-20261107/build/crow-split-precision-build-01/split.metallib",
+      "/Users/n/Developer/numi-crow-rl-20261107/build/crow-split-precision-build-01/observations/unsupported-boundary-0",
+      "/Users/n/Developer/numi-crow-rl-20261107/build/crow-split-precision-build-01/unsupported-boundary.input"
+    ],
+    "code": 3,
+    "device": "Apple M4 Pro",
+    "gpu_seconds": 4.60416777e-05,
+    "name": "unsupported-boundary-0",
+    "returncode": 0,
+    "scratch_bytes": 216,
+    "seconds": 0.023488667036872357,
+    "thread_width": 32
   }
 ]

@@ -1,0 +1,34 @@
+{
+  "all_predictions_supported": true,
+  "canonical_state_or_production_changed": false,
+  "goal_complete": false,
+  "limits": "A successful split solve alone cannot qualify canonical FP32 output or coupled world. Production needs an explicit end-to-end representation contract, physical validation and performance assessment; no tolerance relaxation.",
+  "native_submissions": 14,
+  "observations": {
+    "calibration_pass": true,
+    "repeated_binary_outputs_exact": true,
+    "split_captures_gate_pass": true,
+    "split_independent_scaled_residual_max": 2.571811830321171e-15,
+    "split_reported_gradient_abs_error_max": 3.058317488147111e-15,
+    "split_velocity_reference_max_error": 3.3306690738754696e-15,
+    "substep7_rounded_gate_pass": false,
+    "unsupported_boundary_code": 3
+  },
+  "predictions_supported": {
+    "calibration_pass": true,
+    "repeated_binary_outputs_exact": true,
+    "split_captures_gate_pass": true,
+    "split_independent_scaled_residual_max": true,
+    "split_reported_gradient_abs_error_max": true,
+    "split_velocity_reference_max_error": true,
+    "substep7_rounded_gate_pass": true,
+    "unsupported_boundary_code": true
+  },
+  "raw_bytes": 869433,
+  "reference_calibration": {
+    "euclidean_closed_form_cases": 5,
+    "passed": true,
+    "weighted_boundary_derivative_max_error": 7.482731101404738e-11
+  },
+  "schema": "crow-native-split-precision-result-v1"
+}

@@ -313,5 +313,80 @@
     "state_low_max": 0.0,
     "unsupported_block": 4294967295,
     "velocity_reference_max_error": 0.0
+  },
+  {
+    "canonical_rounded_scaled_residual": 1.7891472972884483e-08,
+    "case": "spd",
+    "code": 0,
+    "gradient_abs_error": 0.0,
+    "impulse_abs_error": 0.0,
+    "independent_feasibility": 0.0,
+    "independent_gate_pass": true,
+    "independent_projection_branches": {
+      "scalar_free": 2
+    },
+    "independent_scaled_residual": 1.4218865183044008e-15,
+    "iterations": 1,
+    "name": "spd-0",
+    "native_gate_pass": true,
+    "projection_counts": {
+      "interior": 0,
+      "scalar_bound": 0,
+      "scalar_free": 2,
+      "vertex": 0
+    },
+    "reported_max_gradient": 1.7763568394002505e-15,
+    "reported_scaled_residual": 1.4218865741058898e-15,
+    "rounding": 0,
+    "row_abs_error": 0.0,
+    "state_low_max": 4.407385123528229e-09,
+    "unsupported_block": 4294967295,
+    "velocity_reference_max_error": 5.828670879282072e-16
+  },
+  {
+    "canonical_rounded_scaled_residual": 0.0,
+    "case": "scalar-bound",
+    "code": 0,
+    "gradient_abs_error": 0.0,
+    "impulse_abs_error": 0.0,
+    "independent_feasibility": 0.0,
+    "independent_gate_pass": true,
+    "independent_projection_branches": {
+      "scalar_bound": 1
+    },
+    "independent_scaled_residual": 0.0,
+    "iterations": 1,
+    "name": "scalar-bound-0",
+    "native_gate_pass": true,
+    "projection_counts": {
+      "interior": 0,
+      "scalar_bound": 1,
+      "scalar_free": 0,
+      "vertex": 0
+    },
+    "reported_max_gradient": 0.0,
+    "reported_scaled_residual": 0.0,
+    "rounding": 0,
+    "row_abs_error": 0.0,
+    "state_low_max": 0.0,
+    "unsupported_block": 4294967295,
+    "velocity_reference_max_error": 0.0
+  },
+  {
+    "case": "unsupported-boundary",
+    "code": 3,
+    "iterations": 0,
+    "name": "unsupported-boundary-0",
+    "negative_control_typed_and_unchanged": true,
+    "projection_counts": {
+      "interior": 0,
+      "scalar_bound": 0,
+      "scalar_free": 0,
+      "vertex": 0
+    },
+    "reported_max_gradient": 0.0,
+    "reported_scaled_residual": 0.0,
+    "rounding": 0,
+    "unsupported_block": 0
   }
 ]

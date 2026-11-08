@@ -1,0 +1,28 @@
+{
+  "baseline": "0f1ed00dbc3d16f3fe0f8dbfc973f313dd432b44",
+  "df": "Filesystem   1024-blocks      Used Available Capacity iused      ifree %iused  Mounted on\n/dev/disk3s5   482797652 300341748 157007392    66% 3497940 1570073920    0%   /System/Volumes/Data\n",
+  "files": {
+    "build/bin/metalrobo_motor_contact_probe": {
+      "bytes": 116464,
+      "sha256": "746cb30844dcca6937bd22e7c70c6e64af579b5ef3cc87b6fe708a99c607e3f2"
+    },
+    "build/lib/libmetalrobo.dylib": {
+      "bytes": 5711408,
+      "sha256": "1368fa931e24c336953fcda6fb904734391f3ebe56063dd53eb237bcc1a3bbc6"
+    },
+    "build/shaders/MetalRobo.metallib": {
+      "bytes": 4320944,
+      "sha256": "bcbd1f080aa8891b1e09e029be724d7eb28fc76e075e7579218f9d6c93984851"
+    },
+    "environments/american-crow/action-holds-v1/policies/deployment97.policypack": {
+      "bytes": 602144,
+      "sha256": "6a009417eac3e04831c95f46c24e78f943e825892124b972a58b5ee9eeed0389"
+    },
+    "include/metalrobo/unified_quality_shared.h": {
+      "bytes": 5472,
+      "sha256": "36ee38b144e5490922dc179855338de8eaa1934782a2559e99ff700b7b8b2fef"
+    }
+  },
+  "native_role": "standalone Metal arithmetic instrument; no world transition",
+  "production_diff_outside_artifacts": []
+}

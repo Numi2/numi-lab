@@ -1,0 +1,16 @@
+{
+  "binary_files": 26,
+  "excluded_administrative_fields": [
+    "result.json:raw_bytes"
+  ],
+  "manifest": "artifacts/crow-rl-split-precision-20261108/payload/manifest.json",
+  "manifest_sha256": "a30cd5e398f1857147bcf7ee9cdfd38cd043535c1c3e483ffe6875b1315b09fb",
+  "native_submissions": 14,
+  "production_baseline": "0f1ed00dbc3d16f3fe0f8dbfc973f313dd432b44",
+  "restore_max_bytes": 2000000,
+  "schema": "crow-split-precision-git-recovery-plan-v1",
+  "scientific_reports": 2,
+  "scope": "Restore every raw input/failure/runtime/output from actual Git; execute all14 native submissions and both exact scientific reports in an isolated workspace. Preserve all originals and compare them after execution. Cleanup only after separate no-handle/exact-metadata verification.",
+  "temporary_budget_bytes": 8000000,
+  "timeout_seconds": 120
+}
