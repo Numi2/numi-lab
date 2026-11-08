@@ -477,3 +477,22 @@ execution. They do not establish universal agreement with an external
 simulator, complete unilateral joint-limit behavior, high-speed impact
 accuracy, real-hardware fidelity, safety, or sim-to-real transfer. Those
 claims require their own pinned comparisons and physical evidence.
+
+## Adjacent FP32 quality refinement
+
+After an otherwise unsuccessful Newton budget, feasible small problems can
+search adjacent representable FP32 velocities. The generalized Hessian ranks
+single-coordinate and distinct-coordinate pair moves in SIMD32; every winner
+is reprojected through the full constitutive equations. The search is bounded
+to eight refinements and 64 velocities, starts only within 16 times the existing
+optimality tolerance, and requires a full checked Hessian scratch arena. Legacy
+PCG dispatches with one-float scratch skip it. No acceptance gate or Newton/PCG
+budget changes. Already-converged problems execute no refinement.
+
+The retained crow problem and four predeclared free-velocity variants satisfy
+the unchanged 1e-10 native gate and independent FP64 reprojection after this
+correction. The 624 motor controls and ten default crow physical files remain
+identical. The coupled crow still rejects at control zero, physics substep seven
+(previously substep two), so these numerical results do not qualify the complete
+environment. See artifacts/crow-rl-quality-representability-20261108/README.md
+for exact plans, results and recovery provenance.

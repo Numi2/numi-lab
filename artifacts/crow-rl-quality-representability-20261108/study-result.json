@@ -1,0 +1,105 @@
+{
+  "accepted_coupled_control_transitions": 0,
+  "chunk_first_failure_capture_exact": true,
+  "crow": [
+    {
+      "capture_sha256": "abd531b3e9f580c7f5c208c358e87821c51470d3671367571c8a713f3885b441",
+      "case": "old-crow",
+      "public": {
+        "failed_steps": 4,
+        "first_failing_lane": 0,
+        "first_failing_local_tick": 0,
+        "first_gpu_status": 11,
+        "host_status": 16,
+        "submission_begin_tick": 0,
+        "submission_ticks": 1,
+        "successful_steps": 0
+      },
+      "quality": {
+        "code": 7,
+        "control_step": 0,
+        "environment": 0,
+        "feasibility": 0.0,
+        "newton": 20,
+        "pcg": 77,
+        "physics_substep": 2,
+        "scaled_optimality": 2.2179388881049533e-10
+      },
+      "trace_records": 0
+    },
+    {
+      "capture_sha256": "08bcd99d486addeed6f39b9a265ef35e3208ea8cc884c12d5549830be0108d0f",
+      "case": "corrected-crow-one",
+      "public": {
+        "failed_steps": 4,
+        "first_failing_lane": 0,
+        "first_failing_local_tick": 0,
+        "first_gpu_status": 11,
+        "host_status": 16,
+        "submission_begin_tick": 0,
+        "submission_ticks": 1,
+        "successful_steps": 0
+      },
+      "quality": {
+        "code": 7,
+        "control_step": 0,
+        "environment": 0,
+        "feasibility": 0.0,
+        "newton": 20,
+        "pcg": 173,
+        "physics_substep": 7,
+        "scaled_optimality": 5.1471452877649426e-08
+      },
+      "trace_records": 0
+    },
+    {
+      "capture_sha256": "08bcd99d486addeed6f39b9a265ef35e3208ea8cc884c12d5549830be0108d0f",
+      "case": "corrected-crow-eight",
+      "public": {
+        "failed_steps": 32,
+        "first_failing_lane": 0,
+        "first_failing_local_tick": 0,
+        "first_gpu_status": 11,
+        "host_status": 16,
+        "submission_begin_tick": 0,
+        "submission_ticks": 8,
+        "successful_steps": 0
+      },
+      "quality": {
+        "code": 7,
+        "control_step": 0,
+        "environment": 0,
+        "feasibility": 0.0,
+        "newton": 20,
+        "pcg": 173,
+        "physics_substep": 7,
+        "scaled_optimality": 5.1471452877649426e-08
+      },
+      "trace_records": 0
+    }
+  ],
+  "default_physical_files": 10,
+  "default_physical_files_exact": true,
+  "first_failed_substep_after": 7,
+  "first_failed_substep_before": 2,
+  "full_release_build_passed": true,
+  "goal_complete": false,
+  "independent_accepted_residual_max": 9.723268394131896e-11,
+  "known_preexisting_issue": "evaluateState does not initialize impulses in uncovered capacity-padding rows. All captured padding impulses/J/bias are zero here; no attribution or fix is claimed.",
+  "legacy_scratch_capture_exact": true,
+  "limits": "Exposed engineering fixture, one retained problem and four predeclared numerical variants; no ecological generalization or complete crow qualification.",
+  "numerical_cases": 5,
+  "numerical_corrected_accepted": 5,
+  "numerical_old_accepted": 1,
+  "owner_checks_passed": [
+    "constraint IR",
+    "native world contact"
+  ],
+  "performance_limit": "Single cold invocation timings are retained; no general throughput improvement claimed. Refinement adds bounded work only after otherwise-rejected small solves.",
+  "physical_regression_records": 624,
+  "physical_regressions_exact": true,
+  "policy_or_profile_promoted": false,
+  "preflight_failure": "Initial warm-plan preparation referenced nonexistent build/lib/metalrobo/MetalRobo.metallib. It failed before any native command; corrected to actual build/shaders/MetalRobo.metallib before sealing native plan.",
+  "schema": "crow-quality-adjacent-refinement-study-v1",
+  "source_commit": "abad6a82"
+}

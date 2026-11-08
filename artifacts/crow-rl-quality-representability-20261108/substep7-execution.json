@@ -1,0 +1,8 @@
+{
+  "argv": [
+    "python/.venv/bin/python",
+    "artifacts/crow-rl-quality-representability-20261108/substep7_reference.py"
+  ],
+  "returncode": 0,
+  "seconds": 0.08968420804012567
+}

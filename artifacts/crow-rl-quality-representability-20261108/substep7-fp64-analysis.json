@@ -1,0 +1,89 @@
+{
+  "blocks": 160,
+  "calibration": {
+    "euclidean_closed_form_cases": 5,
+    "passed": true,
+    "weighted_boundary_derivative_max_error": 7.482731101404738e-11
+  },
+  "capture_bytes": 98864,
+  "capture_sha256": "08bcd99d486addeed6f39b9a265ef35e3208ea8cc884c12d5549830be0108d0f",
+  "captured_gradient_fp64_fixed_impulse_difference_max": 7.214318760440097e-10,
+  "captured_impulse_fp64_projection_difference_max": 1.1470058085185503e-08,
+  "captured_row_velocity_fp64_difference_max": 7.044946181977707e-08,
+  "failed_to_reference_impulse_max": 2.0829341508787598e-08,
+  "failed_to_reference_velocity_max": 1.760233241387965e-07,
+  "fp64_reference_converged": true,
+  "fp64_reference_iterations": 1,
+  "fp64_reference_scaled_optimality": 7.589730578261075e-17,
+  "fp64_reprojected_failed_scaled_optimality": 7.057216762131094e-08,
+  "fp64_rounded_to_fp32_scaled_optimality": 5.832786183264644e-08,
+  "goal_complete": false,
+  "history": [
+    {
+      "backtracks": 0,
+      "gradient_max": 7.258549491301856e-08,
+      "iteration": 0,
+      "objective": 0.0002639112632997742,
+      "projection_branches": {
+        "interior": 126,
+        "scalar_bound": 17,
+        "scalar_free": 15,
+        "vertex": 2
+      },
+      "scaled_optimality": 7.057216762131094e-08,
+      "step_length": 1.0,
+      "step_max": 1.760233242017415e-07
+    },
+    {
+      "gradient_max": 7.806255641895632e-17,
+      "iteration": 1,
+      "objective": 0.00026391126329974033,
+      "projection_branches": {
+        "interior": 126,
+        "scalar_bound": 17,
+        "scalar_free": 15,
+        "vertex": 2
+      },
+      "scaled_optimality": 7.589730578261075e-17
+    }
+  ],
+  "limitations": "One retained problem. FP64 analysis and rounding are diagnostic; they do not prove a global FP32 accuracy floor, identify a causal padding defect, or qualify physical crow behavior.",
+  "mass_condition": 624999904.9191957,
+  "mass_eigen_max": 1.0,
+  "mass_eigen_min": 1.600000243406896e-09,
+  "mass_symmetry_error": 0.0,
+  "native_certificates0": [
+    5.1471452877649426e-08,
+    0.0,
+    0.0,
+    3.1282929739973042e-06
+  ],
+  "native_certificates1": [
+    5.1471452877649426e-08,
+    1.9946524103262852e-17,
+    0.0,
+    0.0002639112644828856
+  ],
+  "native_numerics": [
+    0.02927173487842083,
+    0.0,
+    0.0,
+    0.0
+  ],
+  "nv": 34,
+  "padding_impulse_max": 0.0,
+  "padding_jacobian_bias_warm_are_zero": true,
+  "padding_rows": 64,
+  "policy_or_profile_promoted": false,
+  "public_stamp": {
+    "control_step": 0,
+    "environment": 0,
+    "newton": 20,
+    "pcg": 173,
+    "physics_substep": 7,
+    "quality_code": 7
+  },
+  "purpose": "exploratory analysis of one previously exposed failure; no native trajectory or numerical setting changed",
+  "rows": 480,
+  "schema": "crow-quality-substep7-fp64-analysis-v1"
+}
