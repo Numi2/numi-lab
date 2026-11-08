@@ -1,0 +1,38 @@
+[0/2] Re-checking globbed directories...
+[1/16] Generating shaders/MetalRobo.metallib
+/Users/numi/numi-lab-reconciliation-20261108/src/metal/NumiHumanStand.metal:2696:16: warning: unused variable 'responseColumns' [-Wunused-variable]
+    const uint responseColumns = (equalityColumnsEnd + nv) * nv;
+               ^
+/Users/numi/numi-lab-reconciliation-20261108/src/metal/NumiHumanStand.metal:2811:16: warning: unused variable 'responseColumns' [-Wunused-variable]
+    const uint responseColumns =
+               ^
+2 warnings generated.
+/Users/numi/numi-lab-reconciliation-20261108/src/metal/MujocoMuscleReference.metal:340:10: warning: unused variable 'finiteJacobian' [-Wunused-variable]
+    bool finiteJacobian = true;
+         ^
+/Users/numi/numi-lab-reconciliation-20261108/src/metal/MujocoMuscleReference.metal:1021:10: warning: unused variable 'finiteForceRows' [-Wunused-variable]
+    bool finiteForceRows = true;
+         ^
+2 warnings generated.
+In file included from /Users/numi/numi-lab-reconciliation-20261108/src/metal/MujocoMuscleReferenceCompensated.metal:4:
+/Users/numi/numi-lab-reconciliation-20261108/src/metal/MujocoMuscleReference.metal:340:10: warning: unused variable 'finiteJacobian' [-Wunused-variable]
+    bool finiteJacobian = true;
+         ^
+/Users/numi/numi-lab-reconciliation-20261108/src/metal/MujocoMuscleReference.metal:1021:10: warning: unused variable 'finiteForceRows' [-Wunused-variable]
+    bool finiteForceRows = true;
+         ^
+2 warnings generated.
+[2/16] Building OBJCXX object CMakeFiles/metalrobo_object_track_validity_test.dir/tests/visual/object_track_validity.mm.o
+[3/16] Building OBJCXX object CMakeFiles/metalrobo_masked_depth_validity_test.dir/tests/visual/masked_depth_validity.mm.o
+[4/16] Building CXX object CMakeFiles/metalrobo_visual_observation_fingerprint_test.dir/tests/visual/observation_fingerprint.cpp.o
+[5/16] Building CXX object CMakeFiles/metalrobo_object_track_fingerprint_test.dir/tests/visual/object_track_fingerprint.cpp.o
+[6/16] Building OBJCXX object CMakeFiles/metalrobo_visual_history_restore_probe.dir/tests/visual_history_restore_probe.mm.o
+[7/16] Linking OBJCXX executable metalrobo_masked_depth_validity_test
+[8/16] Linking OBJCXX executable metalrobo_object_track_validity_test
+[9/16] Building OBJCXX object CMakeFiles/metalrobo.dir/src/metal/MetalHybridRenderer.mm.o
+[10/16] Linking CXX shared library lib/libmetalrobo.dylib
+[11/16] Linking CXX executable metalrobo_object_track_fingerprint_test
+[12/16] Linking CXX executable metalrobo_visual_observation_fingerprint_test
+[13/16] Linking OBJCXX executable metalrobo_visual_history_restore_probe
+[14/16] Building OBJCXX object CMakeFiles/metalrobo_visual_platform_probe.dir/apps/visual_platform_probe.cpp.o
+[15/16] Linking OBJCXX executable bin/metalrobo_visual_platform_probe
