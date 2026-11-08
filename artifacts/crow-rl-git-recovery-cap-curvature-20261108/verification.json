@@ -1,0 +1,18 @@
+{
+  "all_original_raw_byte_exact_after_execution": true,
+  "closure_handle_check": "Pending separate process after executor exits",
+  "comparison_records": 40,
+  "constitutive_outputs_byte_exact": 8,
+  "coupled_failure_captures_exact": 2,
+  "default_physical_outputs_byte_exact": 20,
+  "goal_complete": false,
+  "limits": "Exact scoped numerical/physics regression replay; no independent ecological qualification",
+  "motor_records_physical_exact": 1248,
+  "native_commands": 19,
+  "original_files_restored": 138,
+  "owning_native_probes_passed": 3,
+  "schema": "crow-cap-curvature-executed-git-recovery-v1",
+  "scientific_reports_exact": 3,
+  "temporary_bytes": 47378884,
+  "temporary_files": 276
+}

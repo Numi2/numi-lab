@@ -1,0 +1,2210 @@
+[
+  {
+    "bytes": 2598,
+    "mode": 420,
+    "mtime_ns": 1794145819407472565,
+    "path": "build/crow-cap-curvature-git-recovery-01/artifacts/crow-rl-cap-curvature-20261108/README.md",
+    "recovery_blob": "artifacts/crow-rl-git-recovery-cap-curvature-20261108/recovery-blobs/6d633577cd7501f16b2ae910907223c2858222b888a9c7da6a7894c6ae54759b.gz",
+    "sha256": "6d633577cd7501f16b2ae910907223c2858222b888a9c7da6a7894c6ae54759b"
+  },
+  {
+    "bytes": 2308,
+    "mode": 420,
+    "mtime_ns": 1794145819407621565,
+    "path": "build/crow-cap-curvature-git-recovery-01/artifacts/crow-rl-cap-curvature-20261108/build.json",
+    "recovery_blob": "artifacts/crow-rl-git-recovery-cap-curvature-20261108/recovery-blobs/7d63fa68f93770f46932fdb885d8e6051f1a17cdef87941dc6ad16a481e2ce1a.gz",
+    "sha256": "7d63fa68f93770f46932fdb885d8e6051f1a17cdef87941dc6ad16a481e2ce1a"
+  },
+  {
+    "bytes": 3954,
+    "mode": 420,
+    "mtime_ns": 1794145819407758608,
+    "path": "build/crow-cap-curvature-git-recovery-01/artifacts/crow-rl-cap-curvature-20261108/cap_regression.cpp.inc",
+    "recovery_blob": "artifacts/crow-rl-git-recovery-cap-curvature-20261108/recovery-blobs/1732d01e3fcb9026527262a4de080bccf4795562b152528ba825125793e962ce.gz",
+    "sha256": "1732d01e3fcb9026527262a4de080bccf4795562b152528ba825125793e962ce"
+  },
+  {
+    "bytes": 14085,
+    "mode": 420,
+    "mtime_ns": 1794145819407912984,
+    "path": "build/crow-cap-curvature-git-recovery-01/artifacts/crow-rl-cap-curvature-20261108/cases.json",
+    "recovery_blob": "artifacts/crow-rl-git-recovery-cap-curvature-20261108/recovery-blobs/8c9e5b975527806e83db63bec40826f578256f35e0f4f2daf7bceae6f5979bef.gz",
+    "sha256": "8c9e5b975527806e83db63bec40826f578256f35e0f4f2daf7bceae6f5979bef"
+  },
+  {
+    "bytes": 6853,
+    "mode": 420,
+    "mtime_ns": 1794145820933945116,
+    "path": "build/crow-cap-curvature-git-recovery-01/artifacts/crow-rl-cap-curvature-20261108/closure-analysis.json",
+    "recovery_blob": "artifacts/crow-rl-git-recovery-cap-curvature-20261108/recovery-blobs/caf5f2ab46b8ba0aef8f2d45f084a7564f6a8a20f8457d4fa92a8a7c2aa862c1.gz",
+    "sha256": "caf5f2ab46b8ba0aef8f2d45f084a7564f6a8a20f8457d4fa92a8a7c2aa862c1"
+  },
+  {
+    "bytes": 2496,
+    "mode": 420,
+    "mtime_ns": 1794145819408161527,
+    "path": "build/crow-cap-curvature-git-recovery-01/artifacts/crow-rl-cap-curvature-20261108/closure.cpp",
+    "recovery_blob": "artifacts/crow-rl-git-recovery-cap-curvature-20261108/recovery-blobs/f9e92122e2cbb4ed3536b17741e814af03a149e2343982f081e52b51230812e7.gz",
+    "sha256": "f9e92122e2cbb4ed3536b17741e814af03a149e2343982f081e52b51230812e7"
+  },
+  {
+    "bytes": 5009,
+    "mode": 420,
+    "mtime_ns": 1794145820930024175,
+    "path": "build/crow-cap-curvature-git-recovery-01/artifacts/crow-rl-cap-curvature-20261108/execution.json",
+    "recovery_blob": "artifacts/crow-rl-git-recovery-cap-curvature-20261108/recovery-blobs/d59a91078f0d730c83f8eb1fb3604371acae1534e80c83cab13395c34aab2e1d.gz",
+    "sha256": "d59a91078f0d730c83f8eb1fb3604371acae1534e80c83cab13395c34aab2e1d"
+  },
+  {
+    "bytes": 8244,
+    "mode": 420,
+    "mtime_ns": 1794145819408405404,
+    "path": "build/crow-cap-curvature-git-recovery-01/artifacts/crow-rl-cap-curvature-20261108/independent-reference.py",
+    "recovery_blob": "artifacts/crow-rl-git-recovery-cap-curvature-20261108/recovery-blobs/89f85b795eb8a5d0f1041e00a9a99ccf871636b1dacf6ffd61038565de98d4b0.gz",
+    "sha256": "89f85b795eb8a5d0f1041e00a9a99ccf871636b1dacf6ffd61038565de98d4b0"
+  },
+  {
+    "bytes": 1118,
+    "mode": 420,
+    "mtime_ns": 1794145819408524238,
+    "path": "build/crow-cap-curvature-git-recovery-01/artifacts/crow-rl-cap-curvature-20261108/integrated-runtime.json",
+    "recovery_blob": "artifacts/crow-rl-git-recovery-cap-curvature-20261108/recovery-blobs/3731901cc6fdaf6ce7980deef7da3cae740a82f2aec58f988fb6e087193a5a31.gz",
+    "sha256": "3731901cc6fdaf6ce7980deef7da3cae740a82f2aec58f988fb6e087193a5a31"
+  },
+  {
+    "bytes": 7709,
+    "mode": 420,
+    "mtime_ns": 1794145819408665989,
+    "path": "build/crow-cap-curvature-git-recovery-01/artifacts/crow-rl-cap-curvature-20261108/integration-execution.json",
+    "recovery_blob": "artifacts/crow-rl-git-recovery-cap-curvature-20261108/recovery-blobs/be7ca214b6af8b1496b6120ee752cf0164e13579352714f632ac6f858ae4e880.gz",
+    "sha256": "be7ca214b6af8b1496b6120ee752cf0164e13579352714f632ac6f858ae4e880"
+  },
+  {
+    "bytes": 2379,
+    "mode": 420,
+    "mtime_ns": 1794145819408790365,
+    "path": "build/crow-cap-curvature-git-recovery-01/artifacts/crow-rl-cap-curvature-20261108/integration-plan.json",
+    "recovery_blob": "artifacts/crow-rl-git-recovery-cap-curvature-20261108/recovery-blobs/d5d5515fb2483dd82f22d08286bff1956bc6573781ba1c901d8749b6d402db7f.gz",
+    "sha256": "d5d5515fb2483dd82f22d08286bff1956bc6573781ba1c901d8749b6d402db7f"
+  },
+  {
+    "bytes": 3223,
+    "mode": 420,
+    "mtime_ns": 1794145819408921574,
+    "path": "build/crow-cap-curvature-git-recovery-01/artifacts/crow-rl-cap-curvature-20261108/integration-result.json",
+    "recovery_blob": "artifacts/crow-rl-git-recovery-cap-curvature-20261108/recovery-blobs/3490364bef3ae1da39f71fd57aff9faa60fb59821a16993f8a6c4e4e0b622fbd.gz",
+    "sha256": "3490364bef3ae1da39f71fd57aff9faa60fb59821a16993f8a6c4e4e0b622fbd"
+  },
+  {
+    "bytes": 9243,
+    "mode": 420,
+    "mtime_ns": 1794145819409074408,
+    "path": "build/crow-cap-curvature-git-recovery-01/artifacts/crow-rl-cap-curvature-20261108/integration.py",
+    "recovery_blob": "artifacts/crow-rl-git-recovery-cap-curvature-20261108/recovery-blobs/5986683a4ffbf847052d51891215e8a860f7d57b7284e7a07e852f6e63fb9c4a.gz",
+    "sha256": "5986683a4ffbf847052d51891215e8a860f7d57b7284e7a07e852f6e63fb9c4a"
+  },
+  {
+    "bytes": 4213,
+    "mode": 420,
+    "mtime_ns": 1794145819409311951,
+    "path": "build/crow-cap-curvature-git-recovery-01/artifacts/crow-rl-cap-curvature-20261108/plan.json",
+    "recovery_blob": "artifacts/crow-rl-git-recovery-cap-curvature-20261108/recovery-blobs/ecd9941b76cbb2f4bda26209be9f0b231261896a649dcc503bf9f73018fd18ec.gz",
+    "sha256": "ecd9941b76cbb2f4bda26209be9f0b231261896a649dcc503bf9f73018fd18ec"
+  },
+  {
+    "bytes": 5208,
+    "mode": 420,
+    "mtime_ns": 1794145819409432869,
+    "path": "build/crow-cap-curvature-git-recovery-01/artifacts/crow-rl-cap-curvature-20261108/prepare.py",
+    "recovery_blob": "artifacts/crow-rl-git-recovery-cap-curvature-20261108/recovery-blobs/46b7f9f14992b3834f186294d3401ee1165a16fc421cb13fc5e58c5eec4b49bc.gz",
+    "sha256": "46b7f9f14992b3834f186294d3401ee1165a16fc421cb13fc5e58c5eec4b49bc"
+  },
+  {
+    "bytes": 1257,
+    "mode": 420,
+    "mtime_ns": 1794145819409547328,
+    "path": "build/crow-cap-curvature-git-recovery-01/artifacts/crow-rl-cap-curvature-20261108/production-bindings.json",
+    "recovery_blob": "artifacts/crow-rl-git-recovery-cap-curvature-20261108/recovery-blobs/a843bdb7a1041dbc00f289f767579c9567a63492bbc9b9120b59cffecacff5a2.gz",
+    "sha256": "a843bdb7a1041dbc00f289f767579c9567a63492bbc9b9120b59cffecacff5a2"
+  },
+  {
+    "bytes": 708,
+    "mode": 420,
+    "mtime_ns": 1794145819409661912,
+    "path": "build/crow-cap-curvature-git-recovery-01/artifacts/crow-rl-cap-curvature-20261108/project.metal",
+    "recovery_blob": "artifacts/crow-rl-git-recovery-cap-curvature-20261108/recovery-blobs/5ebe790c75e89d791a8eb211aa8b7b9be4583230a11f7daef6572416ffac3b8d.gz",
+    "sha256": "5ebe790c75e89d791a8eb211aa8b7b9be4583230a11f7daef6572416ffac3b8d"
+  },
+  {
+    "bytes": 2711,
+    "mode": 420,
+    "mtime_ns": 1794145819409776037,
+    "path": "build/crow-cap-curvature-git-recovery-01/artifacts/crow-rl-cap-curvature-20261108/project.mm",
+    "recovery_blob": "artifacts/crow-rl-git-recovery-cap-curvature-20261108/recovery-blobs/554c5fa9536273f5fde76d8a00d2444c65368c4a097dd054b4ebac5b49fa21a5.gz",
+    "sha256": "554c5fa9536273f5fde76d8a00d2444c65368c4a097dd054b4ebac5b49fa21a5"
+  },
+  {
+    "bytes": 15666,
+    "mode": 420,
+    "mtime_ns": 1794145820933807115,
+    "path": "build/crow-cap-curvature-git-recovery-01/artifacts/crow-rl-cap-curvature-20261108/projection-analysis.json",
+    "recovery_blob": "artifacts/crow-rl-git-recovery-cap-curvature-20261108/recovery-blobs/227010d9417509d823884c877e5dd33896834e5f7aa4cfc8f50f9d6535dc9779.gz",
+    "sha256": "227010d9417509d823884c877e5dd33896834e5f7aa4cfc8f50f9d6535dc9779"
+  },
+  {
+    "bytes": 1687,
+    "mode": 420,
+    "mtime_ns": 1794145820934024658,
+    "path": "build/crow-cap-curvature-git-recovery-01/artifacts/crow-rl-cap-curvature-20261108/result.json",
+    "recovery_blob": "artifacts/crow-rl-git-recovery-cap-curvature-20261108/recovery-blobs/ad2f87dcd0cdd1a2710dd376297833bad757c4790137268af7c9914b4a9d65e0.gz",
+    "sha256": "ad2f87dcd0cdd1a2710dd376297833bad757c4790137268af7c9914b4a9d65e0"
+  },
+  {
+    "bytes": 6310,
+    "mode": 420,
+    "mtime_ns": 1794145819410160040,
+    "path": "build/crow-cap-curvature-git-recovery-01/artifacts/crow-rl-cap-curvature-20261108/run.py",
+    "recovery_blob": "artifacts/crow-rl-git-recovery-cap-curvature-20261108/recovery-blobs/38de9fbfca0c4a81784f9df29d4244f38847c7ab1c69e370fd136b3fa581dcd6.gz",
+    "sha256": "38de9fbfca0c4a81784f9df29d4244f38847c7ab1c69e370fd136b3fa581dcd6"
+  },
+  {
+    "bytes": 1219,
+    "mode": 420,
+    "mtime_ns": 1794145819410274832,
+    "path": "build/crow-cap-curvature-git-recovery-01/artifacts/crow-rl-cap-curvature-20261108/runtime.json",
+    "recovery_blob": "artifacts/crow-rl-git-recovery-cap-curvature-20261108/recovery-blobs/ad842a171d8a6d6057cb7ed7b105b174cb0da9ad65b8841212ff5a7c365ea6dc.gz",
+    "sha256": "ad842a171d8a6d6057cb7ed7b105b174cb0da9ad65b8841212ff5a7c365ea6dc"
+  },
+  {
+    "archive_source": "build/crow-cap-curvature-build-01/cases.bin",
+    "bytes": 5032,
+    "mode": 420,
+    "mtime_ns": 1794145819455564282,
+    "path": "build/crow-cap-curvature-git-recovery-01/build/crow-cap-curvature-build-01/cases.bin",
+    "sha256": "255bcbadb8106a5ac559156fdfba6127e621a865d997d7c734b049ae5e760807"
+  },
+  {
+    "archive_source": "build/crow-cap-curvature-build-01/closure-probe",
+    "bytes": 40400,
+    "mode": 493,
+    "mtime_ns": 1794145819454251774,
+    "path": "build/crow-cap-curvature-git-recovery-01/build/crow-cap-curvature-build-01/closure-probe",
+    "sha256": "866d199a6aa4b06ab04f566067dec5adc92c9d5442036d8f96dbb1a99ba030b8"
+  },
+  {
+    "archive_source": "build/crow-cap-curvature-build-01/fixed/MetalUnifiedQualitySolver.metal",
+    "bytes": 93649,
+    "mode": 420,
+    "mtime_ns": 1794145819457150500,
+    "path": "build/crow-cap-curvature-git-recovery-01/build/crow-cap-curvature-build-01/fixed/MetalUnifiedQualitySolver.metal",
+    "sha256": "48c3ce600907519b28b59e4ba68a549cb518c11d138bf1785c8274f87e9fa427"
+  },
+  {
+    "archive_source": "build/crow-cap-curvature-build-01/fixed.metallib",
+    "bytes": 171587,
+    "mode": 420,
+    "mtime_ns": 1794145819456209786,
+    "path": "build/crow-cap-curvature-git-recovery-01/build/crow-cap-curvature-build-01/fixed.metallib",
+    "sha256": "711675f6b8591b2cfc0e80026ce80194d8bbdbd0be7d6488c6cf04ea88ca51e5"
+  },
+  {
+    "archive_source": "build/crow-cap-curvature-build-01/integrated/contact-probe",
+    "bytes": 97472,
+    "mode": 493,
+    "mtime_ns": 1794145819457960214,
+    "path": "build/crow-cap-curvature-git-recovery-01/build/crow-cap-curvature-build-01/integrated/contact-probe",
+    "sha256": "bd0777b062295b4e08a4722124665725cb6842506054d05357a6346a76d39293"
+  },
+  {
+    "archive_source": "build/crow-cap-curvature-build-01/integrated/ir-probe",
+    "bytes": 58416,
+    "mode": 493,
+    "mtime_ns": 1794145819454478984,
+    "path": "build/crow-cap-curvature-git-recovery-01/build/crow-cap-curvature-build-01/integrated/ir-probe",
+    "sha256": "80a77b7789e61262ef09f5a4377106e7f41994ae6774b45a9e1926a2a377646a"
+  },
+  {
+    "archive_source": "build/crow-cap-curvature-build-01/integrated/libmetalrobo.dylib",
+    "bytes": 5711408,
+    "mode": 493,
+    "mtime_ns": 1794145819455400448,
+    "path": "build/crow-cap-curvature-git-recovery-01/build/crow-cap-curvature-build-01/integrated/libmetalrobo.dylib",
+    "sha256": "1368fa931e24c336953fcda6fb904734391f3ebe56063dd53eb237bcc1a3bbc6"
+  },
+  {
+    "archive_source": "build/crow-cap-curvature-build-01/integrated/metalrobo/MetalRobo.metallib",
+    "bytes": 4320928,
+    "mode": 420,
+    "mtime_ns": 1794145819456050660,
+    "path": "build/crow-cap-curvature-git-recovery-01/build/crow-cap-curvature-build-01/integrated/metalrobo/MetalRobo.metallib",
+    "sha256": "91416d391489b37c1c79918c1ec51ad81dbaa26ef99e6536f8a57d9f720cf8d7"
+  },
+  {
+    "archive_source": "build/crow-cap-curvature-build-01/integrated/motor-probe",
+    "bytes": 116464,
+    "mode": 493,
+    "mtime_ns": 1794145819454712235,
+    "path": "build/crow-cap-curvature-git-recovery-01/build/crow-cap-curvature-build-01/integrated/motor-probe",
+    "sha256": "746cb30844dcca6937bd22e7c70c6e64af579b5ef3cc87b6fe708a99c607e3f2"
+  },
+  {
+    "archive_source": "build/crow-cap-curvature-build-01/integrated/unified-probe",
+    "bytes": 55176,
+    "mode": 493,
+    "mtime_ns": 1794145819454567151,
+    "path": "build/crow-cap-curvature-git-recovery-01/build/crow-cap-curvature-build-01/integrated/unified-probe",
+    "sha256": "df2f144721ff04692399afa7316ca7c88a189689acdbfb4358030ef570c0f687"
+  },
+  {
+    "archive_source": "build/crow-cap-curvature-build-01/integration-observations/old-default.stdout",
+    "bytes": 0,
+    "mode": 420,
+    "mtime_ns": 1794145820628435288,
+    "path": "build/crow-cap-curvature-git-recovery-01/build/crow-cap-curvature-build-01/observations/fixed-0-closure.stderr",
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  {
+    "archive_source": "build/crow-cap-curvature-build-01/integration-observations/old-default.stdout",
+    "bytes": 0,
+    "mode": 420,
+    "mtime_ns": 1794145820628369912,
+    "path": "build/crow-cap-curvature-git-recovery-01/build/crow-cap-curvature-build-01/observations/fixed-0-closure.stdout",
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  {
+    "archive_source": "build/crow-cap-curvature-build-01/integration-observations/old-default.stdout",
+    "bytes": 0,
+    "mode": 420,
+    "mtime_ns": 1794145820579411356,
+    "path": "build/crow-cap-curvature-git-recovery-01/build/crow-cap-curvature-build-01/observations/fixed-0-project.stderr",
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  {
+    "bytes": 66,
+    "mode": 420,
+    "mtime_ns": 1794145820608603164,
+    "path": "build/crow-cap-curvature-git-recovery-01/build/crow-cap-curvature-build-01/observations/fixed-0-project.stdout",
+    "recovery_blob": "artifacts/crow-rl-git-recovery-cap-curvature-20261108/recovery-blobs/ee56bf4dee173530e4bc0293d195ba5ebbe653f7aa98a5c8bca1831d136f4e14.gz",
+    "sha256": "ee56bf4dee173530e4bc0293d195ba5ebbe653f7aa98a5c8bca1831d136f4e14"
+  },
+  {
+    "archive_source": "build/crow-cap-curvature-build-01/observations/fixed-1.f32",
+    "bytes": 6336,
+    "mode": 420,
+    "mtime_ns": 1794145820607977201,
+    "path": "build/crow-cap-curvature-git-recovery-01/build/crow-cap-curvature-build-01/observations/fixed-0.f32",
+    "sha256": "5f9fce5fc1d78816ea2e188ad642a44d239fe65d69d3ccff185649b498d8a3eb"
+  },
+  {
+    "archive_source": "build/crow-cap-curvature-build-01/observations/fixed-1.jsonl",
+    "bytes": 2352,
+    "mode": 420,
+    "mtime_ns": 1794145820685594395,
+    "path": "build/crow-cap-curvature-git-recovery-01/build/crow-cap-curvature-build-01/observations/fixed-0.jsonl",
+    "sha256": "acb2e71dc856774588b124acb7b47f00a546538b6e6f0a94a63743304cb50763"
+  },
+  {
+    "archive_source": "build/crow-cap-curvature-build-01/integration-observations/old-default.stdout",
+    "bytes": 0,
+    "mode": 420,
+    "mtime_ns": 1794145820767314740,
+    "path": "build/crow-cap-curvature-git-recovery-01/build/crow-cap-curvature-build-01/observations/fixed-1-closure.stderr",
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  {
+    "archive_source": "build/crow-cap-curvature-build-01/integration-observations/old-default.stdout",
+    "bytes": 0,
+    "mode": 420,
+    "mtime_ns": 1794145820767263656,
+    "path": "build/crow-cap-curvature-git-recovery-01/build/crow-cap-curvature-build-01/observations/fixed-1-closure.stdout",
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  {
+    "archive_source": "build/crow-cap-curvature-build-01/integration-observations/old-default.stdout",
+    "bytes": 0,
+    "mode": 420,
+    "mtime_ns": 1794145820718980979,
+    "path": "build/crow-cap-curvature-git-recovery-01/build/crow-cap-curvature-build-01/observations/fixed-1-project.stderr",
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  {
+    "bytes": 66,
+    "mode": 420,
+    "mtime_ns": 1794145820742466210,
+    "path": "build/crow-cap-curvature-git-recovery-01/build/crow-cap-curvature-build-01/observations/fixed-1-project.stdout",
+    "recovery_blob": "artifacts/crow-rl-git-recovery-cap-curvature-20261108/recovery-blobs/a9350b801c1bd1ca139ead25d82e956fa873efd5b1fea2f740779b66bb00a4a9.gz",
+    "sha256": "a9350b801c1bd1ca139ead25d82e956fa873efd5b1fea2f740779b66bb00a4a9"
+  },
+  {
+    "archive_source": "build/crow-cap-curvature-build-01/observations/fixed-1.f32",
+    "bytes": 6336,
+    "mode": 420,
+    "mtime_ns": 1794145820741887706,
+    "path": "build/crow-cap-curvature-git-recovery-01/build/crow-cap-curvature-build-01/observations/fixed-1.f32",
+    "sha256": "5f9fce5fc1d78816ea2e188ad642a44d239fe65d69d3ccff185649b498d8a3eb"
+  },
+  {
+    "archive_source": "build/crow-cap-curvature-build-01/observations/fixed-1.jsonl",
+    "bytes": 2352,
+    "mode": 420,
+    "mtime_ns": 1794145820824005261,
+    "path": "build/crow-cap-curvature-git-recovery-01/build/crow-cap-curvature-build-01/observations/fixed-1.jsonl",
+    "sha256": "acb2e71dc856774588b124acb7b47f00a546538b6e6f0a94a63743304cb50763"
+  },
+  {
+    "archive_source": "build/crow-cap-curvature-build-01/integration-observations/old-default.stdout",
+    "bytes": 0,
+    "mode": 420,
+    "mtime_ns": 1794145819939977105,
+    "path": "build/crow-cap-curvature-git-recovery-01/build/crow-cap-curvature-build-01/observations/old-0-closure.stderr",
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  {
+    "archive_source": "build/crow-cap-curvature-build-01/integration-observations/old-default.stdout",
+    "bytes": 0,
+    "mode": 420,
+    "mtime_ns": 1794145819939890063,
+    "path": "build/crow-cap-curvature-git-recovery-01/build/crow-cap-curvature-build-01/observations/old-0-closure.stdout",
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  {
+    "archive_source": "build/crow-cap-curvature-build-01/integration-observations/old-default.stdout",
+    "bytes": 0,
+    "mode": 420,
+    "mtime_ns": 1794145819516917166,
+    "path": "build/crow-cap-curvature-git-recovery-01/build/crow-cap-curvature-build-01/observations/old-0-project.stderr",
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  {
+    "bytes": 65,
+    "mode": 420,
+    "mtime_ns": 1794145819916405707,
+    "path": "build/crow-cap-curvature-git-recovery-01/build/crow-cap-curvature-build-01/observations/old-0-project.stdout",
+    "recovery_blob": "artifacts/crow-rl-git-recovery-cap-curvature-20261108/recovery-blobs/ebddcaa2ab1f2cdaa06f10e0b8ec16339d494e8ed3a0429fabd5fb6da7bf8acb.gz",
+    "sha256": "ebddcaa2ab1f2cdaa06f10e0b8ec16339d494e8ed3a0429fabd5fb6da7bf8acb"
+  },
+  {
+    "archive_source": "build/crow-cap-curvature-build-01/observations/old-1.f32",
+    "bytes": 6336,
+    "mode": 420,
+    "mtime_ns": 1794145819915722662,
+    "path": "build/crow-cap-curvature-git-recovery-01/build/crow-cap-curvature-build-01/observations/old-0.f32",
+    "sha256": "f2132f25daf4eecbc1084f8a34685e8af651193102cd72c75bc7c71b28dcb348"
+  },
+  {
+    "archive_source": "build/crow-cap-curvature-build-01/observations/old-1.jsonl",
+    "bytes": 1709,
+    "mode": 420,
+    "mtime_ns": 1794145820567107862,
+    "path": "build/crow-cap-curvature-git-recovery-01/build/crow-cap-curvature-build-01/observations/old-0.jsonl",
+    "sha256": "2a9bb6045ed87be5cb0b9dc5ab7fd00c52b22d74e26f6977c7e6e298ed7d34e9"
+  },
+  {
+    "archive_source": "build/crow-cap-curvature-build-01/integration-observations/old-default.stdout",
+    "bytes": 0,
+    "mode": 420,
+    "mtime_ns": 1794145820881997291,
+    "path": "build/crow-cap-curvature-git-recovery-01/build/crow-cap-curvature-build-01/observations/old-1-closure.stderr",
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  {
+    "archive_source": "build/crow-cap-curvature-build-01/integration-observations/old-default.stdout",
+    "bytes": 0,
+    "mode": 420,
+    "mtime_ns": 1794145820881943207,
+    "path": "build/crow-cap-curvature-git-recovery-01/build/crow-cap-curvature-build-01/observations/old-1-closure.stdout",
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  {
+    "archive_source": "build/crow-cap-curvature-build-01/integration-observations/old-default.stdout",
+    "bytes": 0,
+    "mode": 420,
+    "mtime_ns": 1794145820857686097,
+    "path": "build/crow-cap-curvature-git-recovery-01/build/crow-cap-curvature-build-01/observations/old-1-project.stderr",
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  {
+    "bytes": 66,
+    "mode": 420,
+    "mtime_ns": 1794145820879010439,
+    "path": "build/crow-cap-curvature-git-recovery-01/build/crow-cap-curvature-build-01/observations/old-1-project.stdout",
+    "recovery_blob": "artifacts/crow-rl-git-recovery-cap-curvature-20261108/recovery-blobs/1230c26bd60e0d4b162709fc78540dd14dd132af5ec2bf4d52ec45dd5e9f1154.gz",
+    "sha256": "1230c26bd60e0d4b162709fc78540dd14dd132af5ec2bf4d52ec45dd5e9f1154"
+  },
+  {
+    "archive_source": "build/crow-cap-curvature-build-01/observations/old-1.f32",
+    "bytes": 6336,
+    "mode": 420,
+    "mtime_ns": 1794145820878460102,
+    "path": "build/crow-cap-curvature-git-recovery-01/build/crow-cap-curvature-build-01/observations/old-1.f32",
+    "sha256": "f2132f25daf4eecbc1084f8a34685e8af651193102cd72c75bc7c71b28dcb348"
+  },
+  {
+    "archive_source": "build/crow-cap-curvature-build-01/observations/old-1.jsonl",
+    "bytes": 1709,
+    "mode": 420,
+    "mtime_ns": 1794145820927593660,
+    "path": "build/crow-cap-curvature-git-recovery-01/build/crow-cap-curvature-build-01/observations/old-1.jsonl",
+    "sha256": "2a9bb6045ed87be5cb0b9dc5ab7fd00c52b22d74e26f6977c7e6e298ed7d34e9"
+  },
+  {
+    "archive_source": "build/crow-cap-curvature-build-01/old/MetalUnifiedQualitySolver.metal",
+    "bytes": 93658,
+    "mode": 420,
+    "mtime_ns": 1794145819458082090,
+    "path": "build/crow-cap-curvature-git-recovery-01/build/crow-cap-curvature-build-01/old/MetalUnifiedQualitySolver.metal",
+    "sha256": "0ead26f0181754bdbc33ab4c02a7b5a91f3f65e97a98be5cd0919388306c0168"
+  },
+  {
+    "archive_source": "build/crow-cap-curvature-build-01/old.metallib",
+    "bytes": 171587,
+    "mode": 420,
+    "mtime_ns": 1794145819457244126,
+    "path": "build/crow-cap-curvature-git-recovery-01/build/crow-cap-curvature-build-01/old.metallib",
+    "sha256": "2fbd001fc69a0499bccb543857c1c65bff1fb91407fbe2b8025e3abf2c3588af"
+  },
+  {
+    "archive_source": "build/crow-cap-curvature-build-01/project-probe",
+    "bytes": 56720,
+    "mode": 493,
+    "mtime_ns": 1794145819457866797,
+    "path": "build/crow-cap-curvature-git-recovery-01/build/crow-cap-curvature-build-01/project-probe",
+    "sha256": "17c64dc5cce1e1ecae0b986b19c06fcd2ba066b354576a9d9893b7f635b2917c"
+  },
+  {
+    "archive_source": "build/crow-cap-curvature-build-01/reference/crow-fixture",
+    "bytes": 101472,
+    "mode": 493,
+    "mtime_ns": 1794145819458172257,
+    "path": "build/crow-cap-curvature-git-recovery-01/build/crow-cap-curvature-build-01/reference/crow-fixture",
+    "sha256": "f5a82cae406eec0bfa42a9df48967f10bcd4a16a9b27a007f420b5ef06455e08"
+  },
+  {
+    "archive_source": "build/crow-cap-curvature-build-01/reference/fixture-default",
+    "bytes": 99776,
+    "mode": 493,
+    "mtime_ns": 1794145819454370233,
+    "path": "build/crow-cap-curvature-git-recovery-01/build/crow-cap-curvature-build-01/reference/fixture-default",
+    "sha256": "a76e0b2a726b9ab2504b4a55b6d557d10a85feaaf94e4cb580de33103e45c63a"
+  },
+  {
+    "archive_source": "build/crow-cap-curvature-build-01/integrated/libmetalrobo.dylib",
+    "bytes": 5711408,
+    "mode": 493,
+    "mtime_ns": 1794145819456958166,
+    "path": "build/crow-cap-curvature-git-recovery-01/build/crow-cap-curvature-build-01/runtime/libmetalrobo.dylib",
+    "sha256": "1368fa931e24c336953fcda6fb904734391f3ebe56063dd53eb237bcc1a3bbc6"
+  },
+  {
+    "archive_source": "build/crow-cap-curvature-build-01/runtime/metalrobo/MetalRobo.metallib",
+    "bytes": 4320944,
+    "mode": 420,
+    "mtime_ns": 1794145819457726421,
+    "path": "build/crow-cap-curvature-git-recovery-01/build/crow-cap-curvature-build-01/runtime/metalrobo/MetalRobo.metallib",
+    "sha256": "bcbd1f080aa8891b1e09e029be724d7eb28fc76e075e7579218f9d6c93984851"
+  },
+  {
+    "archive_source": "build/crow-cap-curvature-build-01/integrated/motor-probe",
+    "bytes": 116464,
+    "mode": 493,
+    "mtime_ns": 1794145819454828153,
+    "path": "build/crow-cap-curvature-git-recovery-01/build/crow-cap-curvature-build-01/runtime/motor-probe",
+    "sha256": "746cb30844dcca6937bd22e7c70c6e64af579b5ef3cc87b6fe708a99c607e3f2"
+  },
+  {
+    "archive_source": "build/crow-cap-curvature-build-01/candidate-owner-probe.cpp",
+    "bytes": 19717,
+    "mode": 420,
+    "mtime_ns": 1794145447784458575,
+    "path": "build/crow-cap-curvature-git-recovery-01/original/build/crow-cap-curvature-build-01/candidate-owner-probe.cpp",
+    "sha256": "134707f772b22f18e12bd2be43a2c6fd22142ab4f781187ff481e0be7a1004e5"
+  },
+  {
+    "archive_source": "build/crow-cap-curvature-build-01/cases.bin",
+    "bytes": 5032,
+    "mode": 420,
+    "mtime_ns": 1794145166229145123,
+    "path": "build/crow-cap-curvature-git-recovery-01/original/build/crow-cap-curvature-build-01/cases.bin",
+    "sha256": "255bcbadb8106a5ac559156fdfba6127e621a865d997d7c734b049ae5e760807"
+  },
+  {
+    "archive_source": "build/crow-cap-curvature-build-01/closure-probe",
+    "bytes": 40400,
+    "mode": 493,
+    "mtime_ns": 1794145201501156951,
+    "path": "build/crow-cap-curvature-git-recovery-01/original/build/crow-cap-curvature-build-01/closure-probe",
+    "sha256": "866d199a6aa4b06ab04f566067dec5adc92c9d5442036d8f96dbb1a99ba030b8"
+  },
+  {
+    "archive_source": "build/crow-cap-curvature-build-01/integration-observations/old-default.stdout",
+    "bytes": 0,
+    "mode": 420,
+    "mtime_ns": 1794145201107867198,
+    "path": "build/crow-cap-curvature-git-recovery-01/original/build/crow-cap-curvature-build-01/closure-probe.stderr",
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  {
+    "archive_source": "build/crow-cap-curvature-build-01/integration-observations/old-default.stdout",
+    "bytes": 0,
+    "mode": 420,
+    "mtime_ns": 1794145201107816865,
+    "path": "build/crow-cap-curvature-git-recovery-01/original/build/crow-cap-curvature-build-01/closure-probe.stdout",
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  {
+    "archive_source": "build/crow-cap-curvature-build-01/fixed/MetalUnifiedQualitySolver.metal",
+    "bytes": 93649,
+    "mode": 420,
+    "mtime_ns": 1794145166222675165,
+    "path": "build/crow-cap-curvature-git-recovery-01/original/build/crow-cap-curvature-build-01/fixed/MetalUnifiedQualitySolver.metal",
+    "sha256": "48c3ce600907519b28b59e4ba68a549cb518c11d138bf1785c8274f87e9fa427"
+  },
+  {
+    "archive_source": "build/crow-cap-curvature-build-01/fixed.air",
+    "bytes": 48656,
+    "mode": 420,
+    "mtime_ns": 1794145200438107341,
+    "path": "build/crow-cap-curvature-git-recovery-01/original/build/crow-cap-curvature-build-01/fixed.air",
+    "sha256": "93c472070e7d11545c732917cf12e7ed193ae871381fc8480e6f46545b85438c"
+  },
+  {
+    "archive_source": "build/crow-cap-curvature-build-01/fixed.metallib",
+    "bytes": 171587,
+    "mode": 420,
+    "mtime_ns": 1794145200527625068,
+    "path": "build/crow-cap-curvature-git-recovery-01/original/build/crow-cap-curvature-build-01/fixed.metallib",
+    "sha256": "711675f6b8591b2cfc0e80026ce80194d8bbdbd0be7d6488c6cf04ea88ca51e5"
+  },
+  {
+    "archive_source": "build/crow-cap-curvature-build-01/integrated/contact-probe",
+    "bytes": 97472,
+    "mode": 493,
+    "mtime_ns": 1794140622390530666,
+    "path": "build/crow-cap-curvature-git-recovery-01/original/build/crow-cap-curvature-build-01/integrated/contact-probe",
+    "sha256": "bd0777b062295b4e08a4722124665725cb6842506054d05357a6346a76d39293"
+  },
+  {
+    "archive_source": "build/crow-cap-curvature-build-01/integrated/ir-probe",
+    "bytes": 58416,
+    "mode": 493,
+    "mtime_ns": 1794140623367343330,
+    "path": "build/crow-cap-curvature-git-recovery-01/original/build/crow-cap-curvature-build-01/integrated/ir-probe",
+    "sha256": "80a77b7789e61262ef09f5a4377106e7f41994ae6774b45a9e1926a2a377646a"
+  },
+  {
+    "archive_source": "build/crow-cap-curvature-build-01/integrated/libmetalrobo.dylib",
+    "bytes": 5711408,
+    "mode": 493,
+    "mtime_ns": 1794140615665350233,
+    "path": "build/crow-cap-curvature-git-recovery-01/original/build/crow-cap-curvature-build-01/integrated/libmetalrobo.dylib",
+    "sha256": "1368fa931e24c336953fcda6fb904734391f3ebe56063dd53eb237bcc1a3bbc6"
+  },
+  {
+    "archive_source": "build/crow-cap-curvature-build-01/integrated/metalrobo/MetalRobo.metallib",
+    "bytes": 4320928,
+    "mode": 420,
+    "mtime_ns": 1794145481837513944,
+    "path": "build/crow-cap-curvature-git-recovery-01/original/build/crow-cap-curvature-build-01/integrated/metalrobo/MetalRobo.metallib",
+    "sha256": "91416d391489b37c1c79918c1ec51ad81dbaa26ef99e6536f8a57d9f720cf8d7"
+  },
+  {
+    "archive_source": "build/crow-cap-curvature-build-01/integrated/motor-probe",
+    "bytes": 116464,
+    "mode": 493,
+    "mtime_ns": 1794140623772356093,
+    "path": "build/crow-cap-curvature-git-recovery-01/original/build/crow-cap-curvature-build-01/integrated/motor-probe",
+    "sha256": "746cb30844dcca6937bd22e7c70c6e64af579b5ef3cc87b6fe708a99c607e3f2"
+  },
+  {
+    "archive_source": "build/crow-cap-curvature-build-01/integrated/unified-probe",
+    "bytes": 55176,
+    "mode": 493,
+    "mtime_ns": 1794145482264476282,
+    "path": "build/crow-cap-curvature-git-recovery-01/original/build/crow-cap-curvature-build-01/integrated/unified-probe",
+    "sha256": "df2f144721ff04692399afa7316ca7c88a189689acdbfb4358030ef570c0f687"
+  },
+  {
+    "archive_source": "build/crow-cap-curvature-build-01/integration-observations/old-default.stdout",
+    "bytes": 0,
+    "mode": 420,
+    "mtime_ns": 1794145459274063801,
+    "path": "build/crow-cap-curvature-git-recovery-01/original/build/crow-cap-curvature-build-01/integration-baseline.stderr",
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  {
+    "archive_source": "build/crow-cap-curvature-build-01/integration-baseline.stdout",
+    "bytes": 2563,
+    "mode": 420,
+    "mtime_ns": 1794145477632850759,
+    "path": "build/crow-cap-curvature-git-recovery-01/original/build/crow-cap-curvature-build-01/integration-baseline.stdout",
+    "sha256": "3a8d78e9bc4386b65610b745f49185f66ffa64b1d74a68f0d7d5b5fe0e21f980"
+  },
+  {
+    "archive_source": "build/crow-cap-curvature-build-01/integration-observations/old-default.stdout",
+    "bytes": 0,
+    "mode": 420,
+    "mtime_ns": 1794145477635230274,
+    "path": "build/crow-cap-curvature-git-recovery-01/original/build/crow-cap-curvature-build-01/integration-driver.stderr",
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  {
+    "archive_source": "build/crow-cap-curvature-build-01/integration-driver.stdout",
+    "bytes": 7066,
+    "mode": 420,
+    "mtime_ns": 1794145505715446145,
+    "path": "build/crow-cap-curvature-git-recovery-01/original/build/crow-cap-curvature-build-01/integration-driver.stdout",
+    "sha256": "4983d32133214f7970eb60d8e4da4884f6e30b45c89762da3f7fb6bf161c1b3a"
+  },
+  {
+    "archive_source": "build/crow-cap-curvature-build-01/integration-observations/contact-owner.stderr",
+    "bytes": 84575,
+    "mode": 420,
+    "mtime_ns": 1794145505073828213,
+    "path": "build/crow-cap-curvature-git-recovery-01/original/build/crow-cap-curvature-build-01/integration-observations/contact-owner.stderr",
+    "sha256": "75740ccf0b0a00228f104c468409fdb984121221361ce5846b1082a517aefa5a"
+  },
+  {
+    "archive_source": "build/crow-cap-curvature-build-01/integration-observations/contact-owner.stdout",
+    "bytes": 855,
+    "mode": 420,
+    "mtime_ns": 1794145505657926993,
+    "path": "build/crow-cap-curvature-git-recovery-01/original/build/crow-cap-curvature-build-01/integration-observations/contact-owner.stdout",
+    "sha256": "658b33a93a07f3d85bcab33191064864714969692b3ba89a7cd5d17cee864fbd"
+  },
+  {
+    "archive_source": "build/crow-cap-curvature-build-01/integration-observations/old-default.stdout",
+    "bytes": 0,
+    "mode": 420,
+    "mtime_ns": 1794145477668455191,
+    "path": "build/crow-cap-curvature-git-recovery-01/original/build/crow-cap-curvature-build-01/integration-observations/full-release-build.stderr",
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  {
+    "archive_source": "build/crow-cap-curvature-build-01/integration-observations/full-release-build.stdout",
+    "bytes": 233,
+    "mode": 420,
+    "mtime_ns": 1794145482266147084,
+    "path": "build/crow-cap-curvature-git-recovery-01/original/build/crow-cap-curvature-build-01/integration-observations/full-release-build.stdout",
+    "sha256": "80349fcd5d80c17086985b80ffa70e30bf279a73b3d79a5408b864c6e033a40a"
+  },
+  {
+    "archive_source": "build/crow-cap-curvature-build-01/integration-observations/ir-owner.stderr",
+    "bytes": 84324,
+    "mode": 420,
+    "mtime_ns": 1794145504769565393,
+    "path": "build/crow-cap-curvature-git-recovery-01/original/build/crow-cap-curvature-build-01/integration-observations/ir-owner.stderr",
+    "sha256": "010ca505cb75e74920b6d833ab74458cd99dfcf349a81f3b355504bfd338cd2d"
+  },
+  {
+    "archive_source": "build/crow-cap-curvature-build-01/integration-observations/ir-owner.stdout",
+    "bytes": 406,
+    "mode": 420,
+    "mtime_ns": 1794145504774013837,
+    "path": "build/crow-cap-curvature-git-recovery-01/original/build/crow-cap-curvature-build-01/integration-observations/ir-owner.stdout",
+    "sha256": "3d0d4401f8b242a3091cd6d128081c51bf49797bd23edc641d9ecf30202fe3b1"
+  },
+  {
+    "archive_source": "build/crow-cap-curvature-build-01/integration-observations/old-coupled/failure-contact-status.bin",
+    "bytes": 1152,
+    "mode": 420,
+    "mtime_ns": 1794145502651086471,
+    "path": "build/crow-cap-curvature-git-recovery-01/original/build/crow-cap-curvature-build-01/integration-observations/new-coupled/failure-contact-status.bin",
+    "sha256": "672147c6a1822c8882227848139edb8646f7bde085987de79e98828029f37534"
+  },
+  {
+    "archive_source": "build/crow-cap-curvature-build-01/integration-observations/old-coupled/initial-q.f32",
+    "bytes": 368,
+    "mode": 420,
+    "mtime_ns": 1794145502650883886,
+    "path": "build/crow-cap-curvature-git-recovery-01/original/build/crow-cap-curvature-build-01/integration-observations/new-coupled/failure-q.f32",
+    "sha256": "012493a2009920bf13b46924788f4473314584704e8857f9bedfd13700e12b28"
+  },
+  {
+    "archive_source": "build/crow-cap-curvature-build-01/integration-observations/old-coupled/initial-scene.bin",
+    "bytes": 1024,
+    "mode": 420,
+    "mtime_ns": 1794145502650984178,
+    "path": "build/crow-cap-curvature-git-recovery-01/original/build/crow-cap-curvature-build-01/integration-observations/new-coupled/failure-scene.bin",
+    "sha256": "7e108f9bf6b038494639e99ef211d6fc51f527a33c0aa430c587d4da3563ea57"
+  },
+  {
+    "archive_source": "build/crow-cap-curvature-build-01/integration-observations/old-coupled/initial-v.f32",
+    "bytes": 352,
+    "mode": 420,
+    "mtime_ns": 1794145502650934636,
+    "path": "build/crow-cap-curvature-git-recovery-01/original/build/crow-cap-curvature-build-01/integration-observations/new-coupled/failure-v.f32",
+    "sha256": "627f6149015f853f26db2f3dffba1b7c30b3b74b87c5cfb9f346c1616e3636d0"
+  },
+  {
+    "archive_source": "build/crow-cap-curvature-build-01/integration-observations/old-coupled/failure-world-status.bin",
+    "bytes": 192,
+    "mode": 420,
+    "mtime_ns": 1794145502651036470,
+    "path": "build/crow-cap-curvature-git-recovery-01/original/build/crow-cap-curvature-build-01/integration-observations/new-coupled/failure-world-status.bin",
+    "sha256": "6c7c369c4f8134f5e6b6584e5bf1b3da87b080b9d8eb58ddc7d352555c41b4af"
+  },
+  {
+    "archive_source": "build/crow-cap-curvature-build-01/integration-observations/old-coupled/failure.json",
+    "bytes": 178,
+    "mode": 420,
+    "mtime_ns": 1794145502651150221,
+    "path": "build/crow-cap-curvature-git-recovery-01/original/build/crow-cap-curvature-build-01/integration-observations/new-coupled/failure.json",
+    "sha256": "fb0290946c7c329596e7d80e2d71f3f1ad2beca33b013883cd1a381782cb9d14"
+  },
+  {
+    "archive_source": "build/crow-cap-curvature-build-01/integration-observations/old-coupled/initial-geometry.json",
+    "bytes": 545,
+    "mode": 420,
+    "mtime_ns": 1794145500954406562,
+    "path": "build/crow-cap-curvature-git-recovery-01/original/build/crow-cap-curvature-build-01/integration-observations/new-coupled/initial-geometry.json",
+    "sha256": "f3fbd6a4f092ad15217f903bd9c6019120cf6460ae86334981373554d2035af7"
+  },
+  {
+    "archive_source": "build/crow-cap-curvature-build-01/integration-observations/old-coupled/initial-q.f32",
+    "bytes": 368,
+    "mode": 420,
+    "mtime_ns": 1794145500954475104,
+    "path": "build/crow-cap-curvature-git-recovery-01/original/build/crow-cap-curvature-build-01/integration-observations/new-coupled/initial-q.f32",
+    "sha256": "012493a2009920bf13b46924788f4473314584704e8857f9bedfd13700e12b28"
+  },
+  {
+    "archive_source": "build/crow-cap-curvature-build-01/integration-observations/old-coupled/initial-scene.bin",
+    "bytes": 1024,
+    "mode": 420,
+    "mtime_ns": 1794145500954569313,
+    "path": "build/crow-cap-curvature-git-recovery-01/original/build/crow-cap-curvature-build-01/integration-observations/new-coupled/initial-scene.bin",
+    "sha256": "7e108f9bf6b038494639e99ef211d6fc51f527a33c0aa430c587d4da3563ea57"
+  },
+  {
+    "archive_source": "build/crow-cap-curvature-build-01/integration-observations/old-coupled/initial-v.f32",
+    "bytes": 352,
+    "mode": 420,
+    "mtime_ns": 1794145500954523896,
+    "path": "build/crow-cap-curvature-git-recovery-01/original/build/crow-cap-curvature-build-01/integration-observations/new-coupled/initial-v.f32",
+    "sha256": "627f6149015f853f26db2f3dffba1b7c30b3b74b87c5cfb9f346c1616e3636d0"
+  },
+  {
+    "archive_source": "build/crow-cap-curvature-build-01/integration-observations/old-coupled/trace.tsv",
+    "bytes": 104,
+    "mode": 420,
+    "mtime_ns": 1794145502651175013,
+    "path": "build/crow-cap-curvature-git-recovery-01/original/build/crow-cap-curvature-build-01/integration-observations/new-coupled/trace.tsv",
+    "sha256": "0683495ecae84f4fa9e31f9230e6604e57a3863311f98d52750a6fbfec95a8b0"
+  },
+  {
+    "archive_source": "build/crow-cap-curvature-build-01/integration-observations/old-coupled.bin",
+    "bytes": 98864,
+    "mode": 384,
+    "mtime_ns": 1794145502650439050,
+    "path": "build/crow-cap-curvature-git-recovery-01/original/build/crow-cap-curvature-build-01/integration-observations/new-coupled.bin",
+    "sha256": "08bcd99d486addeed6f39b9a265ef35e3208ea8cc884c12d5549830be0108d0f"
+  },
+  {
+    "archive_source": "build/crow-cap-curvature-build-01/integration-observations/new-coupled.stderr",
+    "bytes": 86061,
+    "mode": 420,
+    "mtime_ns": 1794145502652640938,
+    "path": "build/crow-cap-curvature-git-recovery-01/original/build/crow-cap-curvature-build-01/integration-observations/new-coupled.stderr",
+    "sha256": "8e565bba58792c7cca3bddf5c97a0cc4ae4dc17be2ab7f80232ff5a084dca5e2"
+  },
+  {
+    "archive_source": "build/crow-cap-curvature-build-01/integration-observations/old-default.stdout",
+    "bytes": 0,
+    "mode": 420,
+    "mtime_ns": 1794145500942911074,
+    "path": "build/crow-cap-curvature-git-recovery-01/original/build/crow-cap-curvature-build-01/integration-observations/new-coupled.stdout",
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  {
+    "archive_source": "build/crow-cap-curvature-build-01/integration-observations/new-default/final-q.f32",
+    "bytes": 368,
+    "mode": 420,
+    "mtime_ns": 1794145500919408885,
+    "path": "build/crow-cap-curvature-git-recovery-01/original/build/crow-cap-curvature-build-01/integration-observations/new-default/final-q.f32",
+    "sha256": "4e2e5c58b6a0480f8598fc89078001a646f40c42cad195fb2151ccd03fa2dd42"
+  },
+  {
+    "archive_source": "build/crow-cap-curvature-build-01/integration-observations/new-default/final-scene.bin",
+    "bytes": 1024,
+    "mode": 420,
+    "mtime_ns": 1794145500919542802,
+    "path": "build/crow-cap-curvature-git-recovery-01/original/build/crow-cap-curvature-build-01/integration-observations/new-default/final-scene.bin",
+    "sha256": "e17303c190a55c2485cf89dc4fedcc213fdcad7b17ed95e0e71affdb3240f090"
+  },
+  {
+    "archive_source": "build/crow-cap-curvature-build-01/integration-observations/new-default/final-v.f32",
+    "bytes": 352,
+    "mode": 420,
+    "mtime_ns": 1794145500919503261,
+    "path": "build/crow-cap-curvature-git-recovery-01/original/build/crow-cap-curvature-build-01/integration-observations/new-default/final-v.f32",
+    "sha256": "a1a1ec18b8e3f9c0dd21a8089e5bb2a7fabc41590a2cbf6d24ccdf2fadfb9a27"
+  },
+  {
+    "archive_source": "build/crow-cap-curvature-build-01/integration-observations/old-coupled/initial-geometry.json",
+    "bytes": 545,
+    "mode": 420,
+    "mtime_ns": 1794145484233130434,
+    "path": "build/crow-cap-curvature-git-recovery-01/original/build/crow-cap-curvature-build-01/integration-observations/new-default/initial-geometry.json",
+    "sha256": "f3fbd6a4f092ad15217f903bd9c6019120cf6460ae86334981373554d2035af7"
+  },
+  {
+    "archive_source": "build/crow-cap-curvature-build-01/integration-observations/old-coupled/initial-q.f32",
+    "bytes": 368,
+    "mode": 420,
+    "mtime_ns": 1794145484233195893,
+    "path": "build/crow-cap-curvature-git-recovery-01/original/build/crow-cap-curvature-build-01/integration-observations/new-default/initial-q.f32",
+    "sha256": "012493a2009920bf13b46924788f4473314584704e8857f9bedfd13700e12b28"
+  },
+  {
+    "archive_source": "build/crow-cap-curvature-build-01/integration-observations/old-coupled/initial-scene.bin",
+    "bytes": 1024,
+    "mode": 420,
+    "mtime_ns": 1794145484233285226,
+    "path": "build/crow-cap-curvature-git-recovery-01/original/build/crow-cap-curvature-build-01/integration-observations/new-default/initial-scene.bin",
+    "sha256": "7e108f9bf6b038494639e99ef211d6fc51f527a33c0aa430c587d4da3563ea57"
+  },
+  {
+    "archive_source": "build/crow-cap-curvature-build-01/integration-observations/old-coupled/initial-v.f32",
+    "bytes": 352,
+    "mode": 420,
+    "mtime_ns": 1794145484233244268,
+    "path": "build/crow-cap-curvature-git-recovery-01/original/build/crow-cap-curvature-build-01/integration-observations/new-default/initial-v.f32",
+    "sha256": "627f6149015f853f26db2f3dffba1b7c30b3b74b87c5cfb9f346c1616e3636d0"
+  },
+  {
+    "archive_source": "build/crow-cap-curvature-build-01/integration-observations/new-default/runtime.json",
+    "bytes": 211,
+    "mode": 420,
+    "mtime_ns": 1794145500919797554,
+    "path": "build/crow-cap-curvature-git-recovery-01/original/build/crow-cap-curvature-build-01/integration-observations/new-default/runtime.json",
+    "sha256": "6ea82d02faf957342d7f8630bebc0a0f7613ade4c38719e9227bbda4f90fb5ee"
+  },
+  {
+    "archive_source": "build/crow-cap-curvature-build-01/integration-observations/new-default/scene.bin",
+    "bytes": 163840,
+    "mode": 420,
+    "mtime_ns": 1794145500919686762,
+    "path": "build/crow-cap-curvature-git-recovery-01/original/build/crow-cap-curvature-build-01/integration-observations/new-default/scene.bin",
+    "sha256": "097626c065e50e37de0ee98a27615074704765f6106dbcd9ae8c08057557183e"
+  },
+  {
+    "archive_source": "build/crow-cap-curvature-build-01/integration-observations/new-default/summary.json",
+    "bytes": 757,
+    "mode": 420,
+    "mtime_ns": 1794145500919781846,
+    "path": "build/crow-cap-curvature-git-recovery-01/original/build/crow-cap-curvature-build-01/integration-observations/new-default/summary.json",
+    "sha256": "765c15edef424eb00d3468993f7c7cd044aac3a3fc5b0104fc7a05649948e9c9"
+  },
+  {
+    "archive_source": "build/crow-cap-curvature-build-01/integration-observations/new-default/trace.tsv",
+    "bytes": 141362,
+    "mode": 420,
+    "mtime_ns": 1794145500919810929,
+    "path": "build/crow-cap-curvature-git-recovery-01/original/build/crow-cap-curvature-build-01/integration-observations/new-default/trace.tsv",
+    "sha256": "8507cc679736d3d7685068427e49fe089bcad120a9e709cbdfe56271c9b3c921"
+  },
+  {
+    "archive_source": "build/crow-cap-curvature-build-01/integration-observations/new-default.stderr",
+    "bytes": 84712,
+    "mode": 420,
+    "mtime_ns": 1794145484237012875,
+    "path": "build/crow-cap-curvature-git-recovery-01/original/build/crow-cap-curvature-build-01/integration-observations/new-default.stderr",
+    "sha256": "12f3efaff28088f628a882d218840f4e00881c31659d3509768c7b1d526b7699"
+  },
+  {
+    "archive_source": "build/crow-cap-curvature-build-01/integration-observations/old-default.stdout",
+    "bytes": 0,
+    "mode": 420,
+    "mtime_ns": 1794145484221571570,
+    "path": "build/crow-cap-curvature-git-recovery-01/original/build/crow-cap-curvature-build-01/integration-observations/new-default.stdout",
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  {
+    "archive_source": "build/crow-cap-curvature-build-01/integration-observations/new-motor.stderr",
+    "bytes": 84573,
+    "mode": 420,
+    "mtime_ns": 1794145482671690247,
+    "path": "build/crow-cap-curvature-git-recovery-01/original/build/crow-cap-curvature-build-01/integration-observations/new-motor.stderr",
+    "sha256": "b28c7a0b20bea2ad2bad34d62208a51b2a56ee4ed55becc2efa771c9d5c8209c"
+  },
+  {
+    "archive_source": "build/crow-cap-curvature-build-01/integration-observations/old-motor.stdout",
+    "bytes": 4786,
+    "mode": 420,
+    "mtime_ns": 1794145484097712086,
+    "path": "build/crow-cap-curvature-git-recovery-01/original/build/crow-cap-curvature-build-01/integration-observations/new-motor.stdout",
+    "sha256": "f7b98c4da67c1c8218e3fcf9b3ca5cb88a2f3d05047acdf7c6f0a655476f8cfd"
+  },
+  {
+    "archive_source": "build/crow-cap-curvature-build-01/integration-observations/new-motor.tsv",
+    "bytes": 194707,
+    "mode": 420,
+    "mtime_ns": 1794145484096134660,
+    "path": "build/crow-cap-curvature-git-recovery-01/original/build/crow-cap-curvature-build-01/integration-observations/new-motor.tsv",
+    "sha256": "921f882417a32aaf3eecda97e45f4ec14657ccabf72d65d80bdaa48d87cc7b0a"
+  },
+  {
+    "archive_source": "build/crow-cap-curvature-build-01/integration-observations/new-zero.stderr",
+    "bytes": 84573,
+    "mode": 420,
+    "mtime_ns": 1794145484147539898,
+    "path": "build/crow-cap-curvature-git-recovery-01/original/build/crow-cap-curvature-build-01/integration-observations/new-zero.stderr",
+    "sha256": "e0c3d6ad5a27a4f3238b5f8f0a40a9f9e411a09bff84d88b4d79bd4175899053"
+  },
+  {
+    "archive_source": "build/crow-cap-curvature-build-01/integration-observations/old-zero.stdout",
+    "bytes": 1073,
+    "mode": 420,
+    "mtime_ns": 1794145484190069831,
+    "path": "build/crow-cap-curvature-git-recovery-01/original/build/crow-cap-curvature-build-01/integration-observations/new-zero.stdout",
+    "sha256": "a6c2ca5f8b59da21cad23a174799c039ffdaaca83bce4b8560d12df87acd5bf9"
+  },
+  {
+    "archive_source": "build/crow-cap-curvature-build-01/integration-observations/old-zero.tsv",
+    "bytes": 7949,
+    "mode": 420,
+    "mtime_ns": 1794145484190062289,
+    "path": "build/crow-cap-curvature-git-recovery-01/original/build/crow-cap-curvature-build-01/integration-observations/new-zero.tsv",
+    "sha256": "d0c101a4720d76f965bd6602badede2e336cda24d58fdd5d9c12ad48a86442d8"
+  },
+  {
+    "archive_source": "build/crow-cap-curvature-build-01/integration-observations/old-coupled/failure-contact-status.bin",
+    "bytes": 1152,
+    "mode": 420,
+    "mtime_ns": 1794145477608745317,
+    "path": "build/crow-cap-curvature-git-recovery-01/original/build/crow-cap-curvature-build-01/integration-observations/old-coupled/failure-contact-status.bin",
+    "sha256": "672147c6a1822c8882227848139edb8646f7bde085987de79e98828029f37534"
+  },
+  {
+    "archive_source": "build/crow-cap-curvature-build-01/integration-observations/old-coupled/initial-q.f32",
+    "bytes": 368,
+    "mode": 420,
+    "mtime_ns": 1794145477608553983,
+    "path": "build/crow-cap-curvature-git-recovery-01/original/build/crow-cap-curvature-build-01/integration-observations/old-coupled/failure-q.f32",
+    "sha256": "012493a2009920bf13b46924788f4473314584704e8857f9bedfd13700e12b28"
+  },
+  {
+    "archive_source": "build/crow-cap-curvature-build-01/integration-observations/old-coupled/initial-scene.bin",
+    "bytes": 1024,
+    "mode": 420,
+    "mtime_ns": 1794145477608649608,
+    "path": "build/crow-cap-curvature-git-recovery-01/original/build/crow-cap-curvature-build-01/integration-observations/old-coupled/failure-scene.bin",
+    "sha256": "7e108f9bf6b038494639e99ef211d6fc51f527a33c0aa430c587d4da3563ea57"
+  },
+  {
+    "archive_source": "build/crow-cap-curvature-build-01/integration-observations/old-coupled/initial-v.f32",
+    "bytes": 352,
+    "mode": 420,
+    "mtime_ns": 1794145477608604941,
+    "path": "build/crow-cap-curvature-git-recovery-01/original/build/crow-cap-curvature-build-01/integration-observations/old-coupled/failure-v.f32",
+    "sha256": "627f6149015f853f26db2f3dffba1b7c30b3b74b87c5cfb9f346c1616e3636d0"
+  },
+  {
+    "archive_source": "build/crow-cap-curvature-build-01/integration-observations/old-coupled/failure-world-status.bin",
+    "bytes": 192,
+    "mode": 420,
+    "mtime_ns": 1794145477608694858,
+    "path": "build/crow-cap-curvature-git-recovery-01/original/build/crow-cap-curvature-build-01/integration-observations/old-coupled/failure-world-status.bin",
+    "sha256": "6c7c369c4f8134f5e6b6584e5bf1b3da87b080b9d8eb58ddc7d352555c41b4af"
+  },
+  {
+    "archive_source": "build/crow-cap-curvature-build-01/integration-observations/old-coupled/failure.json",
+    "bytes": 178,
+    "mode": 420,
+    "mtime_ns": 1794145477608804192,
+    "path": "build/crow-cap-curvature-git-recovery-01/original/build/crow-cap-curvature-build-01/integration-observations/old-coupled/failure.json",
+    "sha256": "fb0290946c7c329596e7d80e2d71f3f1ad2beca33b013883cd1a381782cb9d14"
+  },
+  {
+    "archive_source": "build/crow-cap-curvature-build-01/integration-observations/old-coupled/initial-geometry.json",
+    "bytes": 545,
+    "mode": 420,
+    "mtime_ns": 1794145477318370917,
+    "path": "build/crow-cap-curvature-git-recovery-01/original/build/crow-cap-curvature-build-01/integration-observations/old-coupled/initial-geometry.json",
+    "sha256": "f3fbd6a4f092ad15217f903bd9c6019120cf6460ae86334981373554d2035af7"
+  },
+  {
+    "archive_source": "build/crow-cap-curvature-build-01/integration-observations/old-coupled/initial-q.f32",
+    "bytes": 368,
+    "mode": 420,
+    "mtime_ns": 1794145477318531168,
+    "path": "build/crow-cap-curvature-git-recovery-01/original/build/crow-cap-curvature-build-01/integration-observations/old-coupled/initial-q.f32",
+    "sha256": "012493a2009920bf13b46924788f4473314584704e8857f9bedfd13700e12b28"
+  },
+  {
+    "archive_source": "build/crow-cap-curvature-build-01/integration-observations/old-coupled/initial-scene.bin",
+    "bytes": 1024,
+    "mode": 420,
+    "mtime_ns": 1794145477318723627,
+    "path": "build/crow-cap-curvature-git-recovery-01/original/build/crow-cap-curvature-build-01/integration-observations/old-coupled/initial-scene.bin",
+    "sha256": "7e108f9bf6b038494639e99ef211d6fc51f527a33c0aa430c587d4da3563ea57"
+  },
+  {
+    "archive_source": "build/crow-cap-curvature-build-01/integration-observations/old-coupled/initial-v.f32",
+    "bytes": 352,
+    "mode": 420,
+    "mtime_ns": 1794145477318633627,
+    "path": "build/crow-cap-curvature-git-recovery-01/original/build/crow-cap-curvature-build-01/integration-observations/old-coupled/initial-v.f32",
+    "sha256": "627f6149015f853f26db2f3dffba1b7c30b3b74b87c5cfb9f346c1616e3636d0"
+  },
+  {
+    "archive_source": "build/crow-cap-curvature-build-01/integration-observations/old-coupled/trace.tsv",
+    "bytes": 104,
+    "mode": 420,
+    "mtime_ns": 1794145477608824901,
+    "path": "build/crow-cap-curvature-git-recovery-01/original/build/crow-cap-curvature-build-01/integration-observations/old-coupled/trace.tsv",
+    "sha256": "0683495ecae84f4fa9e31f9230e6604e57a3863311f98d52750a6fbfec95a8b0"
+  },
+  {
+    "archive_source": "build/crow-cap-curvature-build-01/integration-observations/old-coupled.bin",
+    "bytes": 98864,
+    "mode": 384,
+    "mtime_ns": 1794145477608143771,
+    "path": "build/crow-cap-curvature-git-recovery-01/original/build/crow-cap-curvature-build-01/integration-observations/old-coupled.bin",
+    "sha256": "08bcd99d486addeed6f39b9a265ef35e3208ea8cc884c12d5549830be0108d0f"
+  },
+  {
+    "archive_source": "build/crow-cap-curvature-build-01/integration-observations/old-coupled.stderr",
+    "bytes": 86055,
+    "mode": 420,
+    "mtime_ns": 1794145477610284868,
+    "path": "build/crow-cap-curvature-git-recovery-01/original/build/crow-cap-curvature-build-01/integration-observations/old-coupled.stderr",
+    "sha256": "558a195f74e148f6ad7c135eb832cc371a02c3b5fb7c4058662a483459018020"
+  },
+  {
+    "archive_source": "build/crow-cap-curvature-build-01/integration-observations/old-default.stdout",
+    "bytes": 0,
+    "mode": 420,
+    "mtime_ns": 1794145477007699723,
+    "path": "build/crow-cap-curvature-git-recovery-01/original/build/crow-cap-curvature-build-01/integration-observations/old-coupled.stdout",
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  {
+    "archive_source": "build/crow-cap-curvature-build-01/integration-observations/new-default/final-q.f32",
+    "bytes": 368,
+    "mode": 420,
+    "mtime_ns": 1794145476965139748,
+    "path": "build/crow-cap-curvature-git-recovery-01/original/build/crow-cap-curvature-build-01/integration-observations/old-default/final-q.f32",
+    "sha256": "4e2e5c58b6a0480f8598fc89078001a646f40c42cad195fb2151ccd03fa2dd42"
+  },
+  {
+    "archive_source": "build/crow-cap-curvature-build-01/integration-observations/new-default/final-scene.bin",
+    "bytes": 1024,
+    "mode": 420,
+    "mtime_ns": 1794145476965278291,
+    "path": "build/crow-cap-curvature-git-recovery-01/original/build/crow-cap-curvature-build-01/integration-observations/old-default/final-scene.bin",
+    "sha256": "e17303c190a55c2485cf89dc4fedcc213fdcad7b17ed95e0e71affdb3240f090"
+  },
+  {
+    "archive_source": "build/crow-cap-curvature-build-01/integration-observations/new-default/final-v.f32",
+    "bytes": 352,
+    "mode": 420,
+    "mtime_ns": 1794145476965234165,
+    "path": "build/crow-cap-curvature-git-recovery-01/original/build/crow-cap-curvature-build-01/integration-observations/old-default/final-v.f32",
+    "sha256": "a1a1ec18b8e3f9c0dd21a8089e5bb2a7fabc41590a2cbf6d24ccdf2fadfb9a27"
+  },
+  {
+    "archive_source": "build/crow-cap-curvature-build-01/integration-observations/old-coupled/initial-geometry.json",
+    "bytes": 545,
+    "mode": 420,
+    "mtime_ns": 1794145460294299269,
+    "path": "build/crow-cap-curvature-git-recovery-01/original/build/crow-cap-curvature-build-01/integration-observations/old-default/initial-geometry.json",
+    "sha256": "f3fbd6a4f092ad15217f903bd9c6019120cf6460ae86334981373554d2035af7"
+  },
+  {
+    "archive_source": "build/crow-cap-curvature-build-01/integration-observations/old-coupled/initial-q.f32",
+    "bytes": 368,
+    "mode": 420,
+    "mtime_ns": 1794145460294469686,
+    "path": "build/crow-cap-curvature-git-recovery-01/original/build/crow-cap-curvature-build-01/integration-observations/old-default/initial-q.f32",
+    "sha256": "012493a2009920bf13b46924788f4473314584704e8857f9bedfd13700e12b28"
+  },
+  {
+    "archive_source": "build/crow-cap-curvature-build-01/integration-observations/old-coupled/initial-scene.bin",
+    "bytes": 1024,
+    "mode": 420,
+    "mtime_ns": 1794145460294649312,
+    "path": "build/crow-cap-curvature-git-recovery-01/original/build/crow-cap-curvature-build-01/integration-observations/old-default/initial-scene.bin",
+    "sha256": "7e108f9bf6b038494639e99ef211d6fc51f527a33c0aa430c587d4da3563ea57"
+  },
+  {
+    "archive_source": "build/crow-cap-curvature-build-01/integration-observations/old-coupled/initial-v.f32",
+    "bytes": 352,
+    "mode": 420,
+    "mtime_ns": 1794145460294558103,
+    "path": "build/crow-cap-curvature-git-recovery-01/original/build/crow-cap-curvature-build-01/integration-observations/old-default/initial-v.f32",
+    "sha256": "627f6149015f853f26db2f3dffba1b7c30b3b74b87c5cfb9f346c1616e3636d0"
+  },
+  {
+    "archive_source": "build/crow-cap-curvature-build-01/integration-observations/old-default/runtime.json",
+    "bytes": 211,
+    "mode": 420,
+    "mtime_ns": 1794145476965547751,
+    "path": "build/crow-cap-curvature-git-recovery-01/original/build/crow-cap-curvature-build-01/integration-observations/old-default/runtime.json",
+    "sha256": "5067542867f5201970e2ab94ed36d2555af7f82b2b7041e0c2cc315ffb43b6a4"
+  },
+  {
+    "archive_source": "build/crow-cap-curvature-build-01/integration-observations/new-default/scene.bin",
+    "bytes": 163840,
+    "mode": 420,
+    "mtime_ns": 1794145476965426125,
+    "path": "build/crow-cap-curvature-git-recovery-01/original/build/crow-cap-curvature-build-01/integration-observations/old-default/scene.bin",
+    "sha256": "097626c065e50e37de0ee98a27615074704765f6106dbcd9ae8c08057557183e"
+  },
+  {
+    "archive_source": "build/crow-cap-curvature-build-01/integration-observations/new-default/summary.json",
+    "bytes": 757,
+    "mode": 420,
+    "mtime_ns": 1794145476965527001,
+    "path": "build/crow-cap-curvature-git-recovery-01/original/build/crow-cap-curvature-build-01/integration-observations/old-default/summary.json",
+    "sha256": "765c15edef424eb00d3468993f7c7cd044aac3a3fc5b0104fc7a05649948e9c9"
+  },
+  {
+    "archive_source": "build/crow-cap-curvature-build-01/integration-observations/new-default/trace.tsv",
+    "bytes": 141362,
+    "mode": 420,
+    "mtime_ns": 1794145476965554834,
+    "path": "build/crow-cap-curvature-git-recovery-01/original/build/crow-cap-curvature-build-01/integration-observations/old-default/trace.tsv",
+    "sha256": "8507cc679736d3d7685068427e49fe089bcad120a9e709cbdfe56271c9b3c921"
+  },
+  {
+    "archive_source": "build/crow-cap-curvature-build-01/integration-observations/old-default.stderr",
+    "bytes": 84706,
+    "mode": 420,
+    "mtime_ns": 1794145460301144353,
+    "path": "build/crow-cap-curvature-git-recovery-01/original/build/crow-cap-curvature-build-01/integration-observations/old-default.stderr",
+    "sha256": "9cb1c2729728a9ab199d18b80337adf75634121a1934a59b498e31e1b08c1516"
+  },
+  {
+    "archive_source": "build/crow-cap-curvature-build-01/integration-observations/old-default.stdout",
+    "bytes": 0,
+    "mode": 420,
+    "mtime_ns": 1794145459986129007,
+    "path": "build/crow-cap-curvature-git-recovery-01/original/build/crow-cap-curvature-build-01/integration-observations/old-default.stdout",
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  {
+    "archive_source": "build/crow-cap-curvature-build-01/integration-observations/old-motor.stderr",
+    "bytes": 84567,
+    "mode": 420,
+    "mtime_ns": 1794145459738567000,
+    "path": "build/crow-cap-curvature-git-recovery-01/original/build/crow-cap-curvature-build-01/integration-observations/old-motor.stderr",
+    "sha256": "8fa75038ac0160bb24d040388e99db8e162730693d2720c2c00d3ce51d0f55fc"
+  },
+  {
+    "archive_source": "build/crow-cap-curvature-build-01/integration-observations/old-motor.stdout",
+    "bytes": 4786,
+    "mode": 420,
+    "mtime_ns": 1794145459839287130,
+    "path": "build/crow-cap-curvature-git-recovery-01/original/build/crow-cap-curvature-build-01/integration-observations/old-motor.stdout",
+    "sha256": "f7b98c4da67c1c8218e3fcf9b3ca5cb88a2f3d05047acdf7c6f0a655476f8cfd"
+  },
+  {
+    "archive_source": "build/crow-cap-curvature-build-01/integration-observations/old-motor.tsv",
+    "bytes": 194755,
+    "mode": 420,
+    "mtime_ns": 1794145459836900198,
+    "path": "build/crow-cap-curvature-git-recovery-01/original/build/crow-cap-curvature-build-01/integration-observations/old-motor.tsv",
+    "sha256": "a0c9c3b765b7dadebed65ad7c6ecbbe9be04edb614bb128080b6e574b9623936"
+  },
+  {
+    "archive_source": "build/crow-cap-curvature-build-01/integration-observations/old-zero.stderr",
+    "bytes": 84567,
+    "mode": 420,
+    "mtime_ns": 1794145459926356508,
+    "path": "build/crow-cap-curvature-git-recovery-01/original/build/crow-cap-curvature-build-01/integration-observations/old-zero.stderr",
+    "sha256": "d489da79e9bb3c47552c4c1842d1ff47a51936ff06ca20734be4c4abb872e84d"
+  },
+  {
+    "archive_source": "build/crow-cap-curvature-build-01/integration-observations/old-zero.stdout",
+    "bytes": 1073,
+    "mode": 420,
+    "mtime_ns": 1794145459981422103,
+    "path": "build/crow-cap-curvature-git-recovery-01/original/build/crow-cap-curvature-build-01/integration-observations/old-zero.stdout",
+    "sha256": "a6c2ca5f8b59da21cad23a174799c039ffdaaca83bce4b8560d12df87acd5bf9"
+  },
+  {
+    "archive_source": "build/crow-cap-curvature-build-01/integration-observations/old-zero.tsv",
+    "bytes": 7949,
+    "mode": 420,
+    "mtime_ns": 1794145459981418269,
+    "path": "build/crow-cap-curvature-git-recovery-01/original/build/crow-cap-curvature-build-01/integration-observations/old-zero.tsv",
+    "sha256": "d0c101a4720d76f965bd6602badede2e336cda24d58fdd5d9c12ad48a86442d8"
+  },
+  {
+    "archive_source": "build/crow-cap-curvature-build-01/integration-observations/unified-owner.stderr",
+    "bytes": 84575,
+    "mode": 420,
+    "mtime_ns": 1794145503031589143,
+    "path": "build/crow-cap-curvature-git-recovery-01/original/build/crow-cap-curvature-build-01/integration-observations/unified-owner.stderr",
+    "sha256": "31c58792d9b03a1ccb6345d6045085a98b178eec69020c570efc9f460c39acf3"
+  },
+  {
+    "archive_source": "build/crow-cap-curvature-build-01/integration-observations/unified-owner.stdout",
+    "bytes": 288,
+    "mode": 420,
+    "mtime_ns": 1794145504440424417,
+    "path": "build/crow-cap-curvature-git-recovery-01/original/build/crow-cap-curvature-build-01/integration-observations/unified-owner.stdout",
+    "sha256": "55c08bb1abda60c6dbd8d14e06f98c989cef0f3eba65bca35698eacd5d8c7d1b"
+  },
+  {
+    "archive_source": "build/crow-cap-curvature-build-01/integration-observations/old-default.stdout",
+    "bytes": 0,
+    "mode": 420,
+    "mtime_ns": 1794145200496871917,
+    "path": "build/crow-cap-curvature-git-recovery-01/original/build/crow-cap-curvature-build-01/library-fixed.stderr",
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  {
+    "archive_source": "build/crow-cap-curvature-build-01/integration-observations/old-default.stdout",
+    "bytes": 0,
+    "mode": 420,
+    "mtime_ns": 1794145200496816708,
+    "path": "build/crow-cap-curvature-git-recovery-01/original/build/crow-cap-curvature-build-01/library-fixed.stdout",
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  {
+    "archive_source": "build/crow-cap-curvature-build-01/integration-observations/old-default.stdout",
+    "bytes": 0,
+    "mode": 420,
+    "mtime_ns": 1794145200301533320,
+    "path": "build/crow-cap-curvature-git-recovery-01/original/build/crow-cap-curvature-build-01/library-old.stderr",
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  {
+    "archive_source": "build/crow-cap-curvature-build-01/integration-observations/old-default.stdout",
+    "bytes": 0,
+    "mode": 420,
+    "mtime_ns": 1794145200301468778,
+    "path": "build/crow-cap-curvature-git-recovery-01/original/build/crow-cap-curvature-build-01/library-old.stdout",
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  {
+    "archive_source": "build/crow-cap-curvature-build-01/integration-observations/old-default.stdout",
+    "bytes": 0,
+    "mode": 420,
+    "mtime_ns": 1794145200349300077,
+    "path": "build/crow-cap-curvature-git-recovery-01/original/build/crow-cap-curvature-build-01/metal-fixed.stderr",
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  {
+    "archive_source": "build/crow-cap-curvature-build-01/integration-observations/old-default.stdout",
+    "bytes": 0,
+    "mode": 420,
+    "mtime_ns": 1794145200349254660,
+    "path": "build/crow-cap-curvature-git-recovery-01/original/build/crow-cap-curvature-build-01/metal-fixed.stdout",
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  {
+    "archive_source": "build/crow-cap-curvature-build-01/integration-observations/old-default.stdout",
+    "bytes": 0,
+    "mode": 420,
+    "mtime_ns": 1794145200151367172,
+    "path": "build/crow-cap-curvature-git-recovery-01/original/build/crow-cap-curvature-build-01/metal-old.stderr",
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  {
+    "archive_source": "build/crow-cap-curvature-build-01/integration-observations/old-default.stdout",
+    "bytes": 0,
+    "mode": 420,
+    "mtime_ns": 1794145200151293755,
+    "path": "build/crow-cap-curvature-git-recovery-01/original/build/crow-cap-curvature-build-01/metal-old.stdout",
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  {
+    "archive_source": "build/crow-cap-curvature-build-01/integration-observations/old-default.stdout",
+    "bytes": 0,
+    "mode": 420,
+    "mtime_ns": 1794145222175108645,
+    "path": "build/crow-cap-curvature-git-recovery-01/original/build/crow-cap-curvature-build-01/observations/fixed-0-closure.stderr",
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  {
+    "archive_source": "build/crow-cap-curvature-build-01/integration-observations/old-default.stdout",
+    "bytes": 0,
+    "mode": 420,
+    "mtime_ns": 1794145222175067228,
+    "path": "build/crow-cap-curvature-git-recovery-01/original/build/crow-cap-curvature-build-01/observations/fixed-0-closure.stdout",
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  {
+    "archive_source": "build/crow-cap-curvature-build-01/integration-observations/old-default.stdout",
+    "bytes": 0,
+    "mode": 420,
+    "mtime_ns": 1794145222025049331,
+    "path": "build/crow-cap-curvature-git-recovery-01/original/build/crow-cap-curvature-build-01/observations/fixed-0-project.stderr",
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  {
+    "archive_source": "build/crow-cap-curvature-build-01/observations/fixed-0-project.stdout",
+    "bytes": 66,
+    "mode": 420,
+    "mtime_ns": 1794145222135339896,
+    "path": "build/crow-cap-curvature-git-recovery-01/original/build/crow-cap-curvature-build-01/observations/fixed-0-project.stdout",
+    "sha256": "93d75c72d4b1a067c6fd7ecaecde106441e602cc3b5df8c9676f0f7db19f3a6f"
+  },
+  {
+    "archive_source": "build/crow-cap-curvature-build-01/observations/fixed-1.f32",
+    "bytes": 6336,
+    "mode": 420,
+    "mtime_ns": 1794145222134588599,
+    "path": "build/crow-cap-curvature-git-recovery-01/original/build/crow-cap-curvature-build-01/observations/fixed-0.f32",
+    "sha256": "5f9fce5fc1d78816ea2e188ad642a44d239fe65d69d3ccff185649b498d8a3eb"
+  },
+  {
+    "archive_source": "build/crow-cap-curvature-build-01/observations/fixed-1.jsonl",
+    "bytes": 2352,
+    "mode": 420,
+    "mtime_ns": 1794145223575484782,
+    "path": "build/crow-cap-curvature-git-recovery-01/original/build/crow-cap-curvature-build-01/observations/fixed-0.jsonl",
+    "sha256": "acb2e71dc856774588b124acb7b47f00a546538b6e6f0a94a63743304cb50763"
+  },
+  {
+    "archive_source": "build/crow-cap-curvature-build-01/integration-observations/old-default.stdout",
+    "bytes": 0,
+    "mode": 420,
+    "mtime_ns": 1794145223609446870,
+    "path": "build/crow-cap-curvature-git-recovery-01/original/build/crow-cap-curvature-build-01/observations/fixed-1-closure.stderr",
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  {
+    "archive_source": "build/crow-cap-curvature-build-01/integration-observations/old-default.stdout",
+    "bytes": 0,
+    "mode": 420,
+    "mtime_ns": 1794145223609410661,
+    "path": "build/crow-cap-curvature-git-recovery-01/original/build/crow-cap-curvature-build-01/observations/fixed-1-closure.stdout",
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  {
+    "archive_source": "build/crow-cap-curvature-build-01/integration-observations/old-default.stdout",
+    "bytes": 0,
+    "mode": 420,
+    "mtime_ns": 1794145223585579887,
+    "path": "build/crow-cap-curvature-git-recovery-01/original/build/crow-cap-curvature-build-01/observations/fixed-1-project.stderr",
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  {
+    "archive_source": "build/crow-cap-curvature-build-01/observations/fixed-1-project.stdout",
+    "bytes": 66,
+    "mode": 420,
+    "mtime_ns": 1794145223602126741,
+    "path": "build/crow-cap-curvature-git-recovery-01/original/build/crow-cap-curvature-build-01/observations/fixed-1-project.stdout",
+    "sha256": "3b363da6634375ac7aeb84059ee75d182c47d8f0dd35656ebac4c6435647734d"
+  },
+  {
+    "archive_source": "build/crow-cap-curvature-build-01/observations/fixed-1.f32",
+    "bytes": 6336,
+    "mode": 420,
+    "mtime_ns": 1794145223601407194,
+    "path": "build/crow-cap-curvature-git-recovery-01/original/build/crow-cap-curvature-build-01/observations/fixed-1.f32",
+    "sha256": "5f9fce5fc1d78816ea2e188ad642a44d239fe65d69d3ccff185649b498d8a3eb"
+  },
+  {
+    "archive_source": "build/crow-cap-curvature-build-01/observations/fixed-1.jsonl",
+    "bytes": 2352,
+    "mode": 420,
+    "mtime_ns": 1794145223653077226,
+    "path": "build/crow-cap-curvature-git-recovery-01/original/build/crow-cap-curvature-build-01/observations/fixed-1.jsonl",
+    "sha256": "acb2e71dc856774588b124acb7b47f00a546538b6e6f0a94a63743304cb50763"
+  },
+  {
+    "archive_source": "build/crow-cap-curvature-build-01/integration-observations/old-default.stdout",
+    "bytes": 0,
+    "mode": 420,
+    "mtime_ns": 1794145219698846067,
+    "path": "build/crow-cap-curvature-git-recovery-01/original/build/crow-cap-curvature-build-01/observations/old-0-closure.stderr",
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  {
+    "archive_source": "build/crow-cap-curvature-build-01/integration-observations/old-default.stdout",
+    "bytes": 0,
+    "mode": 420,
+    "mtime_ns": 1794145219698801942,
+    "path": "build/crow-cap-curvature-git-recovery-01/original/build/crow-cap-curvature-build-01/observations/old-0-closure.stdout",
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  {
+    "archive_source": "build/crow-cap-curvature-build-01/integration-observations/old-default.stdout",
+    "bytes": 0,
+    "mode": 420,
+    "mtime_ns": 1794145219137273970,
+    "path": "build/crow-cap-curvature-git-recovery-01/original/build/crow-cap-curvature-build-01/observations/old-0-project.stderr",
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  {
+    "archive_source": "build/crow-cap-curvature-build-01/observations/old-0-project.stdout",
+    "bytes": 66,
+    "mode": 420,
+    "mtime_ns": 1794145219651084560,
+    "path": "build/crow-cap-curvature-git-recovery-01/original/build/crow-cap-curvature-build-01/observations/old-0-project.stdout",
+    "sha256": "6bf487041ad42a9b11509af3f9293de5b9b45c63742ad281351eba25384c809f"
+  },
+  {
+    "archive_source": "build/crow-cap-curvature-build-01/observations/old-1.f32",
+    "bytes": 6336,
+    "mode": 420,
+    "mtime_ns": 1794145219650345597,
+    "path": "build/crow-cap-curvature-git-recovery-01/original/build/crow-cap-curvature-build-01/observations/old-0.f32",
+    "sha256": "f2132f25daf4eecbc1084f8a34685e8af651193102cd72c75bc7c71b28dcb348"
+  },
+  {
+    "archive_source": "build/crow-cap-curvature-build-01/observations/old-1.jsonl",
+    "bytes": 1709,
+    "mode": 420,
+    "mtime_ns": 1794145221974120345,
+    "path": "build/crow-cap-curvature-git-recovery-01/original/build/crow-cap-curvature-build-01/observations/old-0.jsonl",
+    "sha256": "2a9bb6045ed87be5cb0b9dc5ab7fd00c52b22d74e26f6977c7e6e298ed7d34e9"
+  },
+  {
+    "archive_source": "build/crow-cap-curvature-build-01/integration-observations/old-default.stdout",
+    "bytes": 0,
+    "mode": 420,
+    "mtime_ns": 1794145223681155110,
+    "path": "build/crow-cap-curvature-git-recovery-01/original/build/crow-cap-curvature-build-01/observations/old-1-closure.stderr",
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  {
+    "archive_source": "build/crow-cap-curvature-build-01/integration-observations/old-default.stdout",
+    "bytes": 0,
+    "mode": 420,
+    "mtime_ns": 1794145223681124110,
+    "path": "build/crow-cap-curvature-git-recovery-01/original/build/crow-cap-curvature-build-01/observations/old-1-closure.stdout",
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  {
+    "archive_source": "build/crow-cap-curvature-build-01/integration-observations/old-default.stdout",
+    "bytes": 0,
+    "mode": 420,
+    "mtime_ns": 1794145223657304336,
+    "path": "build/crow-cap-curvature-git-recovery-01/original/build/crow-cap-curvature-build-01/observations/old-1-project.stderr",
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  {
+    "archive_source": "build/crow-cap-curvature-build-01/observations/old-1-project.stdout",
+    "bytes": 66,
+    "mode": 420,
+    "mtime_ns": 1794145223672883975,
+    "path": "build/crow-cap-curvature-git-recovery-01/original/build/crow-cap-curvature-build-01/observations/old-1-project.stdout",
+    "sha256": "2f3ed95b1c3d05a85d39190474d69a67ae7e5268d0c57af9524217d5a6fdb80c"
+  },
+  {
+    "archive_source": "build/crow-cap-curvature-build-01/observations/old-1.f32",
+    "bytes": 6336,
+    "mode": 420,
+    "mtime_ns": 1794145223672454430,
+    "path": "build/crow-cap-curvature-git-recovery-01/original/build/crow-cap-curvature-build-01/observations/old-1.f32",
+    "sha256": "f2132f25daf4eecbc1084f8a34685e8af651193102cd72c75bc7c71b28dcb348"
+  },
+  {
+    "archive_source": "build/crow-cap-curvature-build-01/observations/old-1.jsonl",
+    "bytes": 1709,
+    "mode": 420,
+    "mtime_ns": 1794145223723200206,
+    "path": "build/crow-cap-curvature-git-recovery-01/original/build/crow-cap-curvature-build-01/observations/old-1.jsonl",
+    "sha256": "2a9bb6045ed87be5cb0b9dc5ab7fd00c52b22d74e26f6977c7e6e298ed7d34e9"
+  },
+  {
+    "archive_source": "build/crow-cap-curvature-build-01/old/MetalUnifiedQualitySolver.metal",
+    "bytes": 93658,
+    "mode": 420,
+    "mtime_ns": 1794145166222551665,
+    "path": "build/crow-cap-curvature-git-recovery-01/original/build/crow-cap-curvature-build-01/old/MetalUnifiedQualitySolver.metal",
+    "sha256": "0ead26f0181754bdbc33ab4c02a7b5a91f3f65e97a98be5cd0919388306c0168"
+  },
+  {
+    "archive_source": "build/crow-cap-curvature-build-01/old.air",
+    "bytes": 48656,
+    "mode": 420,
+    "mtime_ns": 1794145200246212890,
+    "path": "build/crow-cap-curvature-git-recovery-01/original/build/crow-cap-curvature-build-01/old.air",
+    "sha256": "2c631710fab41cca6a6fd99fba09c51b92d2c6ab24dac186d0495cee26a662dd"
+  },
+  {
+    "archive_source": "build/crow-cap-curvature-build-01/old.metallib",
+    "bytes": 171587,
+    "mode": 420,
+    "mtime_ns": 1794145200331503549,
+    "path": "build/crow-cap-curvature-git-recovery-01/original/build/crow-cap-curvature-build-01/old.metallib",
+    "sha256": "2fbd001fc69a0499bccb543857c1c65bff1fb91407fbe2b8025e3abf2c3588af"
+  },
+  {
+    "archive_source": "build/crow-cap-curvature-build-01/original-owner-probe.cpp",
+    "bytes": 15631,
+    "mode": 420,
+    "mtime_ns": 1794145447784326324,
+    "path": "build/crow-cap-curvature-git-recovery-01/original/build/crow-cap-curvature-build-01/original-owner-probe.cpp",
+    "sha256": "8dd7f0f85b1835a66de454194acb741ed3a7ba6896a5682e6c968256d7df6a57"
+  },
+  {
+    "archive_source": "build/crow-cap-curvature-build-01/project-probe",
+    "bytes": 56720,
+    "mode": 493,
+    "mtime_ns": 1794145201089322499,
+    "path": "build/crow-cap-curvature-git-recovery-01/original/build/crow-cap-curvature-build-01/project-probe",
+    "sha256": "17c64dc5cce1e1ecae0b986b19c06fcd2ba066b354576a9d9893b7f635b2917c"
+  },
+  {
+    "archive_source": "build/crow-cap-curvature-build-01/integration-observations/old-default.stdout",
+    "bytes": 0,
+    "mode": 420,
+    "mtime_ns": 1794145200545270845,
+    "path": "build/crow-cap-curvature-git-recovery-01/original/build/crow-cap-curvature-build-01/project-probe.stderr",
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  {
+    "archive_source": "build/crow-cap-curvature-build-01/integration-observations/old-default.stdout",
+    "bytes": 0,
+    "mode": 420,
+    "mtime_ns": 1794145200545220178,
+    "path": "build/crow-cap-curvature-git-recovery-01/original/build/crow-cap-curvature-build-01/project-probe.stdout",
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  {
+    "archive_source": "build/crow-cap-curvature-build-01/reference/crow-fixture",
+    "bytes": 101472,
+    "mode": 493,
+    "mtime_ns": 1794145447782458896,
+    "path": "build/crow-cap-curvature-git-recovery-01/original/build/crow-cap-curvature-build-01/reference/crow-fixture",
+    "sha256": "f5a82cae406eec0bfa42a9df48967f10bcd4a16a9b27a007f420b5ef06455e08"
+  },
+  {
+    "archive_source": "build/crow-cap-curvature-build-01/reference/fixture-default",
+    "bytes": 99776,
+    "mode": 493,
+    "mtime_ns": 1794145447782887607,
+    "path": "build/crow-cap-curvature-git-recovery-01/original/build/crow-cap-curvature-build-01/reference/fixture-default",
+    "sha256": "a76e0b2a726b9ab2504b4a55b6d557d10a85feaaf94e4cb580de33103e45c63a"
+  },
+  {
+    "archive_source": "build/crow-cap-curvature-build-01/integration-observations/old-default.stdout",
+    "bytes": 0,
+    "mode": 420,
+    "mtime_ns": 1794145219038514977,
+    "path": "build/crow-cap-curvature-git-recovery-01/original/build/crow-cap-curvature-build-01/run.stderr",
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  {
+    "archive_source": "build/crow-cap-curvature-build-01/run.stdout",
+    "bytes": 4968,
+    "mode": 420,
+    "mtime_ns": 1794145223732448514,
+    "path": "build/crow-cap-curvature-git-recovery-01/original/build/crow-cap-curvature-build-01/run.stdout",
+    "sha256": "096248f37a5c5089a307337bc1bf4cdea9ad0e4f10f3b35e5ac6c2dd9da9a455"
+  },
+  {
+    "archive_source": "build/crow-cap-curvature-build-01/integrated/libmetalrobo.dylib",
+    "bytes": 5711408,
+    "mode": 493,
+    "mtime_ns": 1794140615665350233,
+    "path": "build/crow-cap-curvature-git-recovery-01/original/build/crow-cap-curvature-build-01/runtime/libmetalrobo.dylib",
+    "sha256": "1368fa931e24c336953fcda6fb904734391f3ebe56063dd53eb237bcc1a3bbc6"
+  },
+  {
+    "archive_source": "build/crow-cap-curvature-build-01/runtime/metalrobo/MetalRobo.metallib",
+    "bytes": 4320944,
+    "mode": 420,
+    "mtime_ns": 1794140608370091246,
+    "path": "build/crow-cap-curvature-git-recovery-01/original/build/crow-cap-curvature-build-01/runtime/metalrobo/MetalRobo.metallib",
+    "sha256": "bcbd1f080aa8891b1e09e029be724d7eb28fc76e075e7579218f9d6c93984851"
+  },
+  {
+    "archive_source": "build/crow-cap-curvature-build-01/integrated/motor-probe",
+    "bytes": 116464,
+    "mode": 493,
+    "mtime_ns": 1794140623772356093,
+    "path": "build/crow-cap-curvature-git-recovery-01/original/build/crow-cap-curvature-build-01/runtime/motor-probe",
+    "sha256": "746cb30844dcca6937bd22e7c70c6e64af579b5ef3cc87b6fe708a99c607e3f2"
+  },
+  {
+    "bytes": 84657,
+    "mode": 420,
+    "mtime_ns": 1794145857798045899,
+    "path": "build/crow-cap-curvature-git-recovery-01/world-replay/contact-owner.stderr",
+    "recovery_blob": "artifacts/crow-rl-git-recovery-cap-curvature-20261108/recovery-blobs/c2f533a9ccf578b9708aa2f0dd0ecb2229b02cff6c37a8e29088498d7b8963bc.gz",
+    "sha256": "c2f533a9ccf578b9708aa2f0dd0ecb2229b02cff6c37a8e29088498d7b8963bc"
+  },
+  {
+    "bytes": 854,
+    "mode": 420,
+    "mtime_ns": 1794145858384137549,
+    "path": "build/crow-cap-curvature-git-recovery-01/world-replay/contact-owner.stdout",
+    "recovery_blob": "artifacts/crow-rl-git-recovery-cap-curvature-20261108/recovery-blobs/b5aee4b59b4c410f45986213870dcdce4e1cd15f130eafdf6288f6f4072f0f64.gz",
+    "sha256": "b5aee4b59b4c410f45986213870dcdce4e1cd15f130eafdf6288f6f4072f0f64"
+  },
+  {
+    "bytes": 84406,
+    "mode": 420,
+    "mtime_ns": 1794145857449241779,
+    "path": "build/crow-cap-curvature-git-recovery-01/world-replay/ir-owner.stderr",
+    "recovery_blob": "artifacts/crow-rl-git-recovery-cap-curvature-20261108/recovery-blobs/8247efebb42f62abb21db4586c3031a8d425e744d9dd7fd8b915b00fa2258282.gz",
+    "sha256": "8247efebb42f62abb21db4586c3031a8d425e744d9dd7fd8b915b00fa2258282"
+  },
+  {
+    "archive_source": "build/crow-cap-curvature-build-01/integration-observations/ir-owner.stdout",
+    "bytes": 406,
+    "mode": 420,
+    "mtime_ns": 1794145857456211123,
+    "path": "build/crow-cap-curvature-git-recovery-01/world-replay/ir-owner.stdout",
+    "sha256": "3d0d4401f8b242a3091cd6d128081c51bf49797bd23edc641d9ecf30202fe3b1"
+  },
+  {
+    "archive_source": "build/crow-cap-curvature-build-01/integration-observations/old-coupled/failure-contact-status.bin",
+    "bytes": 1152,
+    "mode": 420,
+    "mtime_ns": 1794145856637500549,
+    "path": "build/crow-cap-curvature-git-recovery-01/world-replay/new-coupled/failure-contact-status.bin",
+    "sha256": "672147c6a1822c8882227848139edb8646f7bde085987de79e98828029f37534"
+  },
+  {
+    "archive_source": "build/crow-cap-curvature-build-01/integration-observations/old-coupled/initial-q.f32",
+    "bytes": 368,
+    "mode": 420,
+    "mtime_ns": 1794145856637311095,
+    "path": "build/crow-cap-curvature-git-recovery-01/world-replay/new-coupled/failure-q.f32",
+    "sha256": "012493a2009920bf13b46924788f4473314584704e8857f9bedfd13700e12b28"
+  },
+  {
+    "archive_source": "build/crow-cap-curvature-build-01/integration-observations/old-coupled/initial-scene.bin",
+    "bytes": 1024,
+    "mode": 420,
+    "mtime_ns": 1794145856637408259,
+    "path": "build/crow-cap-curvature-git-recovery-01/world-replay/new-coupled/failure-scene.bin",
+    "sha256": "7e108f9bf6b038494639e99ef211d6fc51f527a33c0aa430c587d4da3563ea57"
+  },
+  {
+    "archive_source": "build/crow-cap-curvature-build-01/integration-observations/old-coupled/initial-v.f32",
+    "bytes": 352,
+    "mode": 420,
+    "mtime_ns": 1794145856637367093,
+    "path": "build/crow-cap-curvature-git-recovery-01/world-replay/new-coupled/failure-v.f32",
+    "sha256": "627f6149015f853f26db2f3dffba1b7c30b3b74b87c5cfb9f346c1616e3636d0"
+  },
+  {
+    "archive_source": "build/crow-cap-curvature-build-01/integration-observations/old-coupled/failure-world-status.bin",
+    "bytes": 192,
+    "mode": 420,
+    "mtime_ns": 1794145856637453967,
+    "path": "build/crow-cap-curvature-git-recovery-01/world-replay/new-coupled/failure-world-status.bin",
+    "sha256": "6c7c369c4f8134f5e6b6584e5bf1b3da87b080b9d8eb58ddc7d352555c41b4af"
+  },
+  {
+    "archive_source": "build/crow-cap-curvature-build-01/integration-observations/old-coupled/failure.json",
+    "bytes": 178,
+    "mode": 420,
+    "mtime_ns": 1794145856637560339,
+    "path": "build/crow-cap-curvature-git-recovery-01/world-replay/new-coupled/failure.json",
+    "sha256": "fb0290946c7c329596e7d80e2d71f3f1ad2beca33b013883cd1a381782cb9d14"
+  },
+  {
+    "archive_source": "build/crow-cap-curvature-build-01/integration-observations/old-coupled/initial-geometry.json",
+    "bytes": 545,
+    "mode": 420,
+    "mtime_ns": 1794145856371576202,
+    "path": "build/crow-cap-curvature-git-recovery-01/world-replay/new-coupled/initial-geometry.json",
+    "sha256": "f3fbd6a4f092ad15217f903bd9c6019120cf6460ae86334981373554d2035af7"
+  },
+  {
+    "archive_source": "build/crow-cap-curvature-build-01/integration-observations/old-coupled/initial-q.f32",
+    "bytes": 368,
+    "mode": 420,
+    "mtime_ns": 1794145856371644950,
+    "path": "build/crow-cap-curvature-git-recovery-01/world-replay/new-coupled/initial-q.f32",
+    "sha256": "012493a2009920bf13b46924788f4473314584704e8857f9bedfd13700e12b28"
+  },
+  {
+    "archive_source": "build/crow-cap-curvature-build-01/integration-observations/old-coupled/initial-scene.bin",
+    "bytes": 1024,
+    "mode": 420,
+    "mtime_ns": 1794145856371727657,
+    "path": "build/crow-cap-curvature-git-recovery-01/world-replay/new-coupled/initial-scene.bin",
+    "sha256": "7e108f9bf6b038494639e99ef211d6fc51f527a33c0aa430c587d4da3563ea57"
+  },
+  {
+    "archive_source": "build/crow-cap-curvature-build-01/integration-observations/old-coupled/initial-v.f32",
+    "bytes": 352,
+    "mode": 420,
+    "mtime_ns": 1794145856371687532,
+    "path": "build/crow-cap-curvature-git-recovery-01/world-replay/new-coupled/initial-v.f32",
+    "sha256": "627f6149015f853f26db2f3dffba1b7c30b3b74b87c5cfb9f346c1616e3636d0"
+  },
+  {
+    "archive_source": "build/crow-cap-curvature-build-01/integration-observations/old-coupled/trace.tsv",
+    "bytes": 104,
+    "mode": 420,
+    "mtime_ns": 1794145856637581505,
+    "path": "build/crow-cap-curvature-git-recovery-01/world-replay/new-coupled/trace.tsv",
+    "sha256": "0683495ecae84f4fa9e31f9230e6604e57a3863311f98d52750a6fbfec95a8b0"
+  },
+  {
+    "archive_source": "build/crow-cap-curvature-build-01/integration-observations/old-coupled.bin",
+    "bytes": 98864,
+    "mode": 384,
+    "mtime_ns": 1794145856636885771,
+    "path": "build/crow-cap-curvature-git-recovery-01/world-replay/new-coupled.bin",
+    "sha256": "08bcd99d486addeed6f39b9a265ef35e3208ea8cc884c12d5549830be0108d0f"
+  },
+  {
+    "bytes": 86184,
+    "mode": 420,
+    "mtime_ns": 1794145856638992432,
+    "path": "build/crow-cap-curvature-git-recovery-01/world-replay/new-coupled.stderr",
+    "recovery_blob": "artifacts/crow-rl-git-recovery-cap-curvature-20261108/recovery-blobs/c774ad59bec3ab13080b2ac025b8243235ddbc915c20f63a1bc95f5120aae3e1.gz",
+    "sha256": "c774ad59bec3ab13080b2ac025b8243235ddbc915c20f63a1bc95f5120aae3e1"
+  },
+  {
+    "archive_source": "build/crow-cap-curvature-build-01/integration-observations/old-default.stdout",
+    "bytes": 0,
+    "mode": 420,
+    "mtime_ns": 1794145856360359327,
+    "path": "build/crow-cap-curvature-git-recovery-01/world-replay/new-coupled.stdout",
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  {
+    "archive_source": "build/crow-cap-curvature-build-01/integration-observations/new-default/final-q.f32",
+    "bytes": 368,
+    "mode": 420,
+    "mtime_ns": 1794145856346290100,
+    "path": "build/crow-cap-curvature-git-recovery-01/world-replay/new-default/final-q.f32",
+    "sha256": "4e2e5c58b6a0480f8598fc89078001a646f40c42cad195fb2151ccd03fa2dd42"
+  },
+  {
+    "archive_source": "build/crow-cap-curvature-build-01/integration-observations/new-default/final-scene.bin",
+    "bytes": 1024,
+    "mode": 420,
+    "mtime_ns": 1794145856346418431,
+    "path": "build/crow-cap-curvature-git-recovery-01/world-replay/new-default/final-scene.bin",
+    "sha256": "e17303c190a55c2485cf89dc4fedcc213fdcad7b17ed95e0e71affdb3240f090"
+  },
+  {
+    "archive_source": "build/crow-cap-curvature-build-01/integration-observations/new-default/final-v.f32",
+    "bytes": 352,
+    "mode": 420,
+    "mtime_ns": 1794145856346370223,
+    "path": "build/crow-cap-curvature-git-recovery-01/world-replay/new-default/final-v.f32",
+    "sha256": "a1a1ec18b8e3f9c0dd21a8089e5bb2a7fabc41590a2cbf6d24ccdf2fadfb9a27"
+  },
+  {
+    "archive_source": "build/crow-cap-curvature-build-01/integration-observations/old-coupled/initial-geometry.json",
+    "bytes": 545,
+    "mode": 420,
+    "mtime_ns": 1794145839687140667,
+    "path": "build/crow-cap-curvature-git-recovery-01/world-replay/new-default/initial-geometry.json",
+    "sha256": "f3fbd6a4f092ad15217f903bd9c6019120cf6460ae86334981373554d2035af7"
+  },
+  {
+    "archive_source": "build/crow-cap-curvature-build-01/integration-observations/old-coupled/initial-q.f32",
+    "bytes": 368,
+    "mode": 420,
+    "mtime_ns": 1794145839687205999,
+    "path": "build/crow-cap-curvature-git-recovery-01/world-replay/new-default/initial-q.f32",
+    "sha256": "012493a2009920bf13b46924788f4473314584704e8857f9bedfd13700e12b28"
+  },
+  {
+    "archive_source": "build/crow-cap-curvature-build-01/integration-observations/old-coupled/initial-scene.bin",
+    "bytes": 1024,
+    "mode": 420,
+    "mtime_ns": 1794145839687299164,
+    "path": "build/crow-cap-curvature-git-recovery-01/world-replay/new-default/initial-scene.bin",
+    "sha256": "7e108f9bf6b038494639e99ef211d6fc51f527a33c0aa430c587d4da3563ea57"
+  },
+  {
+    "archive_source": "build/crow-cap-curvature-build-01/integration-observations/old-coupled/initial-v.f32",
+    "bytes": 352,
+    "mode": 420,
+    "mtime_ns": 1794145839687251415,
+    "path": "build/crow-cap-curvature-git-recovery-01/world-replay/new-default/initial-v.f32",
+    "sha256": "627f6149015f853f26db2f3dffba1b7c30b3b74b87c5cfb9f346c1616e3636d0"
+  },
+  {
+    "bytes": 211,
+    "mode": 420,
+    "mtime_ns": 1794145856346678925,
+    "path": "build/crow-cap-curvature-git-recovery-01/world-replay/new-default/runtime.json",
+    "recovery_blob": "artifacts/crow-rl-git-recovery-cap-curvature-20261108/recovery-blobs/06e995ccf6b425377d1cefd6e71a963c8e87e9cebe29fb4fd407af1596acf430.gz",
+    "sha256": "06e995ccf6b425377d1cefd6e71a963c8e87e9cebe29fb4fd407af1596acf430"
+  },
+  {
+    "archive_source": "build/crow-cap-curvature-build-01/integration-observations/new-default/scene.bin",
+    "bytes": 163840,
+    "mode": 420,
+    "mtime_ns": 1794145856346569635,
+    "path": "build/crow-cap-curvature-git-recovery-01/world-replay/new-default/scene.bin",
+    "sha256": "097626c065e50e37de0ee98a27615074704765f6106dbcd9ae8c08057557183e"
+  },
+  {
+    "archive_source": "build/crow-cap-curvature-build-01/integration-observations/new-default/summary.json",
+    "bytes": 757,
+    "mode": 420,
+    "mtime_ns": 1794145856346657842,
+    "path": "build/crow-cap-curvature-git-recovery-01/world-replay/new-default/summary.json",
+    "sha256": "765c15edef424eb00d3468993f7c7cd044aac3a3fc5b0104fc7a05649948e9c9"
+  },
+  {
+    "archive_source": "build/crow-cap-curvature-build-01/integration-observations/new-default/trace.tsv",
+    "bytes": 141362,
+    "mode": 420,
+    "mtime_ns": 1794145856346685966,
+    "path": "build/crow-cap-curvature-git-recovery-01/world-replay/new-default/trace.tsv",
+    "sha256": "8507cc679736d3d7685068427e49fe089bcad120a9e709cbdfe56271c9b3c921"
+  },
+  {
+    "bytes": 84835,
+    "mode": 420,
+    "mtime_ns": 1794145839691397614,
+    "path": "build/crow-cap-curvature-git-recovery-01/world-replay/new-default.stderr",
+    "recovery_blob": "artifacts/crow-rl-git-recovery-cap-curvature-20261108/recovery-blobs/e6f3e7032092a5f8f77bce5096f00ba5d982c398d3cfff816405fffc685d5449.gz",
+    "sha256": "e6f3e7032092a5f8f77bce5096f00ba5d982c398d3cfff816405fffc685d5449"
+  },
+  {
+    "archive_source": "build/crow-cap-curvature-build-01/integration-observations/old-default.stdout",
+    "bytes": 0,
+    "mode": 420,
+    "mtime_ns": 1794145839673984920,
+    "path": "build/crow-cap-curvature-git-recovery-01/world-replay/new-default.stdout",
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  {
+    "bytes": 84655,
+    "mode": 420,
+    "mtime_ns": 1794145839463303303,
+    "path": "build/crow-cap-curvature-git-recovery-01/world-replay/new-motor.stderr",
+    "recovery_blob": "artifacts/crow-rl-git-recovery-cap-curvature-20261108/recovery-blobs/0fe73cd93c65267e8ba500c4e6bab3a72532730b77b7df113574f78cace501f5.gz",
+    "sha256": "0fe73cd93c65267e8ba500c4e6bab3a72532730b77b7df113574f78cace501f5"
+  },
+  {
+    "archive_source": "build/crow-cap-curvature-build-01/integration-observations/old-motor.stdout",
+    "bytes": 4786,
+    "mode": 420,
+    "mtime_ns": 1794145839523154838,
+    "path": "build/crow-cap-curvature-git-recovery-01/world-replay/new-motor.stdout",
+    "sha256": "f7b98c4da67c1c8218e3fcf9b3ca5cb88a2f3d05047acdf7c6f0a655476f8cfd"
+  },
+  {
+    "bytes": 195355,
+    "mode": 420,
+    "mtime_ns": 1794145839521302338,
+    "path": "build/crow-cap-curvature-git-recovery-01/world-replay/new-motor.tsv",
+    "recovery_blob": "artifacts/crow-rl-git-recovery-cap-curvature-20261108/recovery-blobs/7181e8806a6a21a5a539be9a197b4e4d7fed0ae2788bd5e1a630dd598f33c144.gz",
+    "sha256": "7181e8806a6a21a5a539be9a197b4e4d7fed0ae2788bd5e1a630dd598f33c144"
+  },
+  {
+    "bytes": 84655,
+    "mode": 420,
+    "mtime_ns": 1794145839605119170,
+    "path": "build/crow-cap-curvature-git-recovery-01/world-replay/new-zero.stderr",
+    "recovery_blob": "artifacts/crow-rl-git-recovery-cap-curvature-20261108/recovery-blobs/0c528a56295f92730237222a62f2a4b30035c069ea275d7e6bef9ebcff77949a.gz",
+    "sha256": "0c528a56295f92730237222a62f2a4b30035c069ea275d7e6bef9ebcff77949a"
+  },
+  {
+    "archive_source": "build/crow-cap-curvature-build-01/integration-observations/old-zero.stdout",
+    "bytes": 1073,
+    "mode": 420,
+    "mtime_ns": 1794145839643462812,
+    "path": "build/crow-cap-curvature-git-recovery-01/world-replay/new-zero.stdout",
+    "sha256": "a6c2ca5f8b59da21cad23a174799c039ffdaaca83bce4b8560d12df87acd5bf9"
+  },
+  {
+    "archive_source": "build/crow-cap-curvature-build-01/integration-observations/old-zero.tsv",
+    "bytes": 7949,
+    "mode": 420,
+    "mtime_ns": 1794145839643459187,
+    "path": "build/crow-cap-curvature-git-recovery-01/world-replay/new-zero.tsv",
+    "sha256": "d0c101a4720d76f965bd6602badede2e336cda24d58fdd5d9c12ad48a86442d8"
+  },
+  {
+    "archive_source": "build/crow-cap-curvature-build-01/integration-observations/old-coupled/failure-contact-status.bin",
+    "bytes": 1152,
+    "mode": 420,
+    "mtime_ns": 1794145839079745098,
+    "path": "build/crow-cap-curvature-git-recovery-01/world-replay/old-coupled/failure-contact-status.bin",
+    "sha256": "672147c6a1822c8882227848139edb8646f7bde085987de79e98828029f37534"
+  },
+  {
+    "archive_source": "build/crow-cap-curvature-build-01/integration-observations/old-coupled/initial-q.f32",
+    "bytes": 368,
+    "mode": 420,
+    "mtime_ns": 1794145839079555561,
+    "path": "build/crow-cap-curvature-git-recovery-01/world-replay/old-coupled/failure-q.f32",
+    "sha256": "012493a2009920bf13b46924788f4473314584704e8857f9bedfd13700e12b28"
+  },
+  {
+    "archive_source": "build/crow-cap-curvature-build-01/integration-observations/old-coupled/initial-scene.bin",
+    "bytes": 1024,
+    "mode": 420,
+    "mtime_ns": 1794145839079654434,
+    "path": "build/crow-cap-curvature-git-recovery-01/world-replay/old-coupled/failure-scene.bin",
+    "sha256": "7e108f9bf6b038494639e99ef211d6fc51f527a33c0aa430c587d4da3563ea57"
+  },
+  {
+    "archive_source": "build/crow-cap-curvature-build-01/integration-observations/old-coupled/initial-v.f32",
+    "bytes": 352,
+    "mode": 420,
+    "mtime_ns": 1794145839079604060,
+    "path": "build/crow-cap-curvature-git-recovery-01/world-replay/old-coupled/failure-v.f32",
+    "sha256": "627f6149015f853f26db2f3dffba1b7c30b3b74b87c5cfb9f346c1616e3636d0"
+  },
+  {
+    "archive_source": "build/crow-cap-curvature-build-01/integration-observations/old-coupled/failure-world-status.bin",
+    "bytes": 192,
+    "mode": 420,
+    "mtime_ns": 1794145839079698933,
+    "path": "build/crow-cap-curvature-git-recovery-01/world-replay/old-coupled/failure-world-status.bin",
+    "sha256": "6c7c369c4f8134f5e6b6584e5bf1b3da87b080b9d8eb58ddc7d352555c41b4af"
+  },
+  {
+    "archive_source": "build/crow-cap-curvature-build-01/integration-observations/old-coupled/failure.json",
+    "bytes": 178,
+    "mode": 420,
+    "mtime_ns": 1794145839079808139,
+    "path": "build/crow-cap-curvature-git-recovery-01/world-replay/old-coupled/failure.json",
+    "sha256": "fb0290946c7c329596e7d80e2d71f3f1ad2beca33b013883cd1a381782cb9d14"
+  },
+  {
+    "archive_source": "build/crow-cap-curvature-build-01/integration-observations/old-coupled/initial-geometry.json",
+    "bytes": 545,
+    "mode": 420,
+    "mtime_ns": 1794145838784213257,
+    "path": "build/crow-cap-curvature-git-recovery-01/world-replay/old-coupled/initial-geometry.json",
+    "sha256": "f3fbd6a4f092ad15217f903bd9c6019120cf6460ae86334981373554d2035af7"
+  },
+  {
+    "archive_source": "build/crow-cap-curvature-build-01/integration-observations/old-coupled/initial-q.f32",
+    "bytes": 368,
+    "mode": 420,
+    "mtime_ns": 1794145838784377836,
+    "path": "build/crow-cap-curvature-git-recovery-01/world-replay/old-coupled/initial-q.f32",
+    "sha256": "012493a2009920bf13b46924788f4473314584704e8857f9bedfd13700e12b28"
+  },
+  {
+    "archive_source": "build/crow-cap-curvature-build-01/integration-observations/old-coupled/initial-scene.bin",
+    "bytes": 1024,
+    "mode": 420,
+    "mtime_ns": 1794145838784557415,
+    "path": "build/crow-cap-curvature-git-recovery-01/world-replay/old-coupled/initial-scene.bin",
+    "sha256": "7e108f9bf6b038494639e99ef211d6fc51f527a33c0aa430c587d4da3563ea57"
+  },
+  {
+    "archive_source": "build/crow-cap-curvature-build-01/integration-observations/old-coupled/initial-v.f32",
+    "bytes": 352,
+    "mode": 420,
+    "mtime_ns": 1794145838784467001,
+    "path": "build/crow-cap-curvature-git-recovery-01/world-replay/old-coupled/initial-v.f32",
+    "sha256": "627f6149015f853f26db2f3dffba1b7c30b3b74b87c5cfb9f346c1616e3636d0"
+  },
+  {
+    "archive_source": "build/crow-cap-curvature-build-01/integration-observations/old-coupled/trace.tsv",
+    "bytes": 104,
+    "mode": 420,
+    "mtime_ns": 1794145839079832930,
+    "path": "build/crow-cap-curvature-git-recovery-01/world-replay/old-coupled/trace.tsv",
+    "sha256": "0683495ecae84f4fa9e31f9230e6604e57a3863311f98d52750a6fbfec95a8b0"
+  },
+  {
+    "archive_source": "build/crow-cap-curvature-build-01/integration-observations/old-coupled.bin",
+    "bytes": 98864,
+    "mode": 384,
+    "mtime_ns": 1794145839079140445,
+    "path": "build/crow-cap-curvature-git-recovery-01/world-replay/old-coupled.bin",
+    "sha256": "08bcd99d486addeed6f39b9a265ef35e3208ea8cc884c12d5549830be0108d0f"
+  },
+  {
+    "bytes": 86178,
+    "mode": 420,
+    "mtime_ns": 1794145839081263898,
+    "path": "build/crow-cap-curvature-git-recovery-01/world-replay/old-coupled.stderr",
+    "recovery_blob": "artifacts/crow-rl-git-recovery-cap-curvature-20261108/recovery-blobs/b2f78187c12eea860e7d8f4cbf726fb75f4fd9f15a9670629960b1e96a78472b.gz",
+    "sha256": "b2f78187c12eea860e7d8f4cbf726fb75f4fd9f15a9670629960b1e96a78472b"
+  },
+  {
+    "archive_source": "build/crow-cap-curvature-build-01/integration-observations/old-default.stdout",
+    "bytes": 0,
+    "mode": 420,
+    "mtime_ns": 1794145838474175197,
+    "path": "build/crow-cap-curvature-git-recovery-01/world-replay/old-coupled.stdout",
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  {
+    "archive_source": "build/crow-cap-curvature-build-01/integration-observations/new-default/final-q.f32",
+    "bytes": 368,
+    "mode": 420,
+    "mtime_ns": 1794145838418930142,
+    "path": "build/crow-cap-curvature-git-recovery-01/world-replay/old-default/final-q.f32",
+    "sha256": "4e2e5c58b6a0480f8598fc89078001a646f40c42cad195fb2151ccd03fa2dd42"
+  },
+  {
+    "archive_source": "build/crow-cap-curvature-build-01/integration-observations/new-default/final-scene.bin",
+    "bytes": 1024,
+    "mode": 420,
+    "mtime_ns": 1794145838419056598,
+    "path": "build/crow-cap-curvature-git-recovery-01/world-replay/old-default/final-scene.bin",
+    "sha256": "e17303c190a55c2485cf89dc4fedcc213fdcad7b17ed95e0e71affdb3240f090"
+  },
+  {
+    "archive_source": "build/crow-cap-curvature-build-01/integration-observations/new-default/final-v.f32",
+    "bytes": 352,
+    "mode": 420,
+    "mtime_ns": 1794145838419013099,
+    "path": "build/crow-cap-curvature-git-recovery-01/world-replay/old-default/final-v.f32",
+    "sha256": "a1a1ec18b8e3f9c0dd21a8089e5bb2a7fabc41590a2cbf6d24ccdf2fadfb9a27"
+  },
+  {
+    "archive_source": "build/crow-cap-curvature-build-01/integration-observations/old-coupled/initial-geometry.json",
+    "bytes": 545,
+    "mode": 420,
+    "mtime_ns": 1794145821834245000,
+    "path": "build/crow-cap-curvature-git-recovery-01/world-replay/old-default/initial-geometry.json",
+    "sha256": "f3fbd6a4f092ad15217f903bd9c6019120cf6460ae86334981373554d2035af7"
+  },
+  {
+    "archive_source": "build/crow-cap-curvature-build-01/integration-observations/old-coupled/initial-q.f32",
+    "bytes": 368,
+    "mode": 420,
+    "mtime_ns": 1794145821834420459,
+    "path": "build/crow-cap-curvature-git-recovery-01/world-replay/old-default/initial-q.f32",
+    "sha256": "012493a2009920bf13b46924788f4473314584704e8857f9bedfd13700e12b28"
+  },
+  {
+    "archive_source": "build/crow-cap-curvature-build-01/integration-observations/old-coupled/initial-scene.bin",
+    "bytes": 1024,
+    "mode": 420,
+    "mtime_ns": 1794145821834616335,
+    "path": "build/crow-cap-curvature-git-recovery-01/world-replay/old-default/initial-scene.bin",
+    "sha256": "7e108f9bf6b038494639e99ef211d6fc51f527a33c0aa430c587d4da3563ea57"
+  },
+  {
+    "archive_source": "build/crow-cap-curvature-build-01/integration-observations/old-coupled/initial-v.f32",
+    "bytes": 352,
+    "mode": 420,
+    "mtime_ns": 1794145821834531168,
+    "path": "build/crow-cap-curvature-git-recovery-01/world-replay/old-default/initial-v.f32",
+    "sha256": "627f6149015f853f26db2f3dffba1b7c30b3b74b87c5cfb9f346c1616e3636d0"
+  },
+  {
+    "bytes": 210,
+    "mode": 420,
+    "mtime_ns": 1794145838419342092,
+    "path": "build/crow-cap-curvature-git-recovery-01/world-replay/old-default/runtime.json",
+    "recovery_blob": "artifacts/crow-rl-git-recovery-cap-curvature-20261108/recovery-blobs/6f73e6dc3d6b3f569095b7afe88489dbf092d0a5b833ab631b0ae352889080b3.gz",
+    "sha256": "6f73e6dc3d6b3f569095b7afe88489dbf092d0a5b833ab631b0ae352889080b3"
+  },
+  {
+    "archive_source": "build/crow-cap-curvature-build-01/integration-observations/new-default/scene.bin",
+    "bytes": 163840,
+    "mode": 420,
+    "mtime_ns": 1794145838419214886,
+    "path": "build/crow-cap-curvature-git-recovery-01/world-replay/old-default/scene.bin",
+    "sha256": "097626c065e50e37de0ee98a27615074704765f6106dbcd9ae8c08057557183e"
+  },
+  {
+    "archive_source": "build/crow-cap-curvature-build-01/integration-observations/new-default/summary.json",
+    "bytes": 757,
+    "mode": 420,
+    "mtime_ns": 1794145838419318425,
+    "path": "build/crow-cap-curvature-git-recovery-01/world-replay/old-default/summary.json",
+    "sha256": "765c15edef424eb00d3468993f7c7cd044aac3a3fc5b0104fc7a05649948e9c9"
+  },
+  {
+    "archive_source": "build/crow-cap-curvature-build-01/integration-observations/new-default/trace.tsv",
+    "bytes": 141362,
+    "mode": 420,
+    "mtime_ns": 1794145838419349842,
+    "path": "build/crow-cap-curvature-git-recovery-01/world-replay/old-default/trace.tsv",
+    "sha256": "8507cc679736d3d7685068427e49fe089bcad120a9e709cbdfe56271c9b3c921"
+  },
+  {
+    "bytes": 84829,
+    "mode": 420,
+    "mtime_ns": 1794145821841734296,
+    "path": "build/crow-cap-curvature-git-recovery-01/world-replay/old-default.stderr",
+    "recovery_blob": "artifacts/crow-rl-git-recovery-cap-curvature-20261108/recovery-blobs/f1f88fc86e7fb2c0609bcfd8d66b6dcffee56668af14b37779e71e3f4017f7da.gz",
+    "sha256": "f1f88fc86e7fb2c0609bcfd8d66b6dcffee56668af14b37779e71e3f4017f7da"
+  },
+  {
+    "archive_source": "build/crow-cap-curvature-build-01/integration-observations/old-default.stdout",
+    "bytes": 0,
+    "mode": 420,
+    "mtime_ns": 1794145821517755352,
+    "path": "build/crow-cap-curvature-git-recovery-01/world-replay/old-default.stdout",
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  {
+    "bytes": 84649,
+    "mode": 420,
+    "mtime_ns": 1794145821308311583,
+    "path": "build/crow-cap-curvature-git-recovery-01/world-replay/old-motor.stderr",
+    "recovery_blob": "artifacts/crow-rl-git-recovery-cap-curvature-20261108/recovery-blobs/7deb71e9115806e0ef20b453c54c45f645707533eb2ca321a7a5d20de9c9ade5.gz",
+    "sha256": "7deb71e9115806e0ef20b453c54c45f645707533eb2ca321a7a5d20de9c9ade5"
+  },
+  {
+    "archive_source": "build/crow-cap-curvature-build-01/integration-observations/old-motor.stdout",
+    "bytes": 4786,
+    "mode": 420,
+    "mtime_ns": 1794145821408997047,
+    "path": "build/crow-cap-curvature-git-recovery-01/world-replay/old-motor.stdout",
+    "sha256": "f7b98c4da67c1c8218e3fcf9b3ca5cb88a2f3d05047acdf7c6f0a655476f8cfd"
+  },
+  {
+    "bytes": 194803,
+    "mode": 420,
+    "mtime_ns": 1794145821406222446,
+    "path": "build/crow-cap-curvature-git-recovery-01/world-replay/old-motor.tsv",
+    "recovery_blob": "artifacts/crow-rl-git-recovery-cap-curvature-20261108/recovery-blobs/dad18be951c5c327893f894c57a1beb2c9560d7a5beddc5376c9126fdb7b430e.gz",
+    "sha256": "dad18be951c5c327893f894c57a1beb2c9560d7a5beddc5376c9126fdb7b430e"
+  },
+  {
+    "bytes": 84649,
+    "mode": 420,
+    "mtime_ns": 1794145821448602170,
+    "path": "build/crow-cap-curvature-git-recovery-01/world-replay/old-zero.stderr",
+    "recovery_blob": "artifacts/crow-rl-git-recovery-cap-curvature-20261108/recovery-blobs/0964b12d2d30ec5f632d9cd704483ede3a6bc4b7f9d14f464d14a3035d96fa82.gz",
+    "sha256": "0964b12d2d30ec5f632d9cd704483ede3a6bc4b7f9d14f464d14a3035d96fa82"
+  },
+  {
+    "archive_source": "build/crow-cap-curvature-build-01/integration-observations/old-zero.stdout",
+    "bytes": 1073,
+    "mode": 420,
+    "mtime_ns": 1794145821501897003,
+    "path": "build/crow-cap-curvature-git-recovery-01/world-replay/old-zero.stdout",
+    "sha256": "a6c2ca5f8b59da21cad23a174799c039ffdaaca83bce4b8560d12df87acd5bf9"
+  },
+  {
+    "archive_source": "build/crow-cap-curvature-build-01/integration-observations/old-zero.tsv",
+    "bytes": 7949,
+    "mode": 420,
+    "mtime_ns": 1794145821501893337,
+    "path": "build/crow-cap-curvature-git-recovery-01/world-replay/old-zero.tsv",
+    "sha256": "d0c101a4720d76f965bd6602badede2e336cda24d58fdd5d9c12ad48a86442d8"
+  },
+  {
+    "archive_source": "build/crow-cap-curvature-build-01/integration-observations/old-default.stdout",
+    "bytes": 0,
+    "mode": 420,
+    "mtime_ns": 1794145819458884261,
+    "path": "build/crow-cap-curvature-git-recovery-01/world-replay/paired-constitutive-replay.stderr",
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  {
+    "bytes": 6121,
+    "mode": 420,
+    "mtime_ns": 1794145820934055283,
+    "path": "build/crow-cap-curvature-git-recovery-01/world-replay/paired-constitutive-replay.stdout",
+    "recovery_blob": "artifacts/crow-rl-git-recovery-cap-curvature-20261108/recovery-blobs/e6f35d133034f38c6ff043a169b62c4599d41f4c0e6cc9671da929db8e89bde6.gz",
+    "sha256": "e6f35d133034f38c6ff043a169b62c4599d41f4c0e6cc9671da929db8e89bde6"
+  },
+  {
+    "bytes": 84657,
+    "mode": 420,
+    "mtime_ns": 1794145857014775491,
+    "path": "build/crow-cap-curvature-git-recovery-01/world-replay/unified-owner.stderr",
+    "recovery_blob": "artifacts/crow-rl-git-recovery-cap-curvature-20261108/recovery-blobs/d509306f0454ad9abc328057fe422d447bf31ff3a6f08548d03865d0dc09d11f.gz",
+    "sha256": "d509306f0454ad9abc328057fe422d447bf31ff3a6f08548d03865d0dc09d11f"
+  },
+  {
+    "archive_source": "build/crow-cap-curvature-build-01/integration-observations/unified-owner.stdout",
+    "bytes": 288,
+    "mode": 420,
+    "mtime_ns": 1794145857112496931,
+    "path": "build/crow-cap-curvature-git-recovery-01/world-replay/unified-owner.stdout",
+    "sha256": "55c08bb1abda60c6dbd8d14e06f98c989cef0f3eba65bca35698eacd5d8c7d1b"
+  }
+]

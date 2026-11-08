@@ -1,0 +1,163 @@
+[
+  {
+    "argv": [
+      "/Users/n/Developer/numi-crow-rl-20261107/python/.venv/bin/python",
+      "/Users/n/Developer/numi-crow-rl-20261107/build/crow-cap-curvature-git-recovery-01/artifacts/crow-rl-cap-curvature-20261108/run.py"
+    ],
+    "name": "paired-constitutive-replay",
+    "returncode": 0,
+    "seconds": 1.518553
+  },
+  {
+    "argv": [
+      "/Users/n/Developer/numi-crow-rl-20261107/build/crow-cap-curvature-git-recovery-01/build/crow-cap-curvature-build-01/runtime/motor-probe",
+      "/Users/n/Developer/numi-crow-rl-20261107/build/crow-cap-curvature-git-recovery-01/build/crow-cap-curvature-build-01/runtime/metalrobo/MetalRobo.metallib",
+      "/Users/n/Developer/numi-crow-rl-20261107/build/crow-cap-curvature-git-recovery-01/world-replay/old-motor.tsv",
+      "--native-drive"
+    ],
+    "loader_lines": [
+      "dyld[58064]: <FC6B5BA3-A31D-380A-8291-2A5E3080BF33> /Users/n/Developer/numi-crow-rl-20261107/build/crow-cap-curvature-git-recovery-01/build/crow-cap-curvature-build-01/runtime/libmetalrobo.dylib"
+    ],
+    "name": "old-motor",
+    "returncode": 0,
+    "seconds": 0.44057075000000023
+  },
+  {
+    "argv": [
+      "/Users/n/Developer/numi-crow-rl-20261107/build/crow-cap-curvature-git-recovery-01/build/crow-cap-curvature-build-01/runtime/motor-probe",
+      "/Users/n/Developer/numi-crow-rl-20261107/build/crow-cap-curvature-git-recovery-01/build/crow-cap-curvature-build-01/runtime/metalrobo/MetalRobo.metallib",
+      "/Users/n/Developer/numi-crow-rl-20261107/build/crow-cap-curvature-git-recovery-01/world-replay/old-zero.tsv",
+      "--zero-gain"
+    ],
+    "loader_lines": [
+      "dyld[58065]: <FC6B5BA3-A31D-380A-8291-2A5E3080BF33> /Users/n/Developer/numi-crow-rl-20261107/build/crow-cap-curvature-git-recovery-01/build/crow-cap-curvature-build-01/runtime/libmetalrobo.dylib"
+    ],
+    "name": "old-zero",
+    "returncode": 0,
+    "seconds": 0.09049237499999974
+  },
+  {
+    "argv": [
+      "/Users/n/Developer/numi-crow-rl-20261107/build/crow-cap-curvature-git-recovery-01/build/crow-cap-curvature-build-01/reference/fixture-default",
+      "/Users/n/Developer/numi-crow-rl-20261107/build/crow-cap-curvature-git-recovery-01/world-replay/old-default",
+      "0",
+      "1",
+      "32"
+    ],
+    "loader_lines": [
+      "dyld[58066]: <FC6B5BA3-A31D-380A-8291-2A5E3080BF33> /Users/n/Developer/numi-crow-rl-20261107/build/crow-cap-curvature-git-recovery-01/build/crow-cap-curvature-build-01/runtime/libmetalrobo.dylib"
+    ],
+    "name": "old-default",
+    "returncode": 0,
+    "seconds": 17.078290916
+  },
+  {
+    "argv": [
+      "/Users/n/Developer/numi-crow-rl-20261107/build/crow-cap-curvature-git-recovery-01/build/crow-cap-curvature-build-01/reference/crow-fixture",
+      "/Users/n/Developer/numi-crow-rl-20261107/build/crow-cap-curvature-git-recovery-01/world-replay/old-coupled",
+      "0",
+      "1",
+      "32",
+      "2"
+    ],
+    "loader_lines": [
+      "dyld[58093]: <FC6B5BA3-A31D-380A-8291-2A5E3080BF33> /Users/n/Developer/numi-crow-rl-20261107/build/crow-cap-curvature-git-recovery-01/build/crow-cap-curvature-build-01/runtime/libmetalrobo.dylib"
+    ],
+    "name": "old-coupled",
+    "returncode": 1,
+    "seconds": 0.6240501250000001
+  },
+  {
+    "argv": [
+      "/Users/n/Developer/numi-crow-rl-20261107/build/crow-cap-curvature-git-recovery-01/build/crow-cap-curvature-build-01/integrated/motor-probe",
+      "/Users/n/Developer/numi-crow-rl-20261107/build/crow-cap-curvature-git-recovery-01/build/crow-cap-curvature-build-01/integrated/metalrobo/MetalRobo.metallib",
+      "/Users/n/Developer/numi-crow-rl-20261107/build/crow-cap-curvature-git-recovery-01/world-replay/new-motor.tsv",
+      "--native-drive"
+    ],
+    "loader_lines": [
+      "dyld[58094]: <FC6B5BA3-A31D-380A-8291-2A5E3080BF33> /Users/n/Developer/numi-crow-rl-20261107/build/crow-cap-curvature-git-recovery-01/build/crow-cap-curvature-build-01/integrated/libmetalrobo.dylib"
+    ],
+    "name": "new-motor",
+    "returncode": 0,
+    "seconds": 0.4763237499999988
+  },
+  {
+    "argv": [
+      "/Users/n/Developer/numi-crow-rl-20261107/build/crow-cap-curvature-git-recovery-01/build/crow-cap-curvature-build-01/integrated/motor-probe",
+      "/Users/n/Developer/numi-crow-rl-20261107/build/crow-cap-curvature-git-recovery-01/build/crow-cap-curvature-build-01/integrated/metalrobo/MetalRobo.metallib",
+      "/Users/n/Developer/numi-crow-rl-20261107/build/crow-cap-curvature-git-recovery-01/world-replay/new-zero.tsv",
+      "--zero-gain"
+    ],
+    "loader_lines": [
+      "dyld[58095]: <FC6B5BA3-A31D-380A-8291-2A5E3080BF33> /Users/n/Developer/numi-crow-rl-20261107/build/crow-cap-curvature-git-recovery-01/build/crow-cap-curvature-build-01/integrated/libmetalrobo.dylib"
+    ],
+    "name": "new-zero",
+    "returncode": 0,
+    "seconds": 0.09087875000000167
+  },
+  {
+    "argv": [
+      "/Users/n/Developer/numi-crow-rl-20261107/build/crow-cap-curvature-git-recovery-01/build/crow-cap-curvature-build-01/reference/fixture-default",
+      "/Users/n/Developer/numi-crow-rl-20261107/build/crow-cap-curvature-git-recovery-01/world-replay/new-default",
+      "0",
+      "1",
+      "32"
+    ],
+    "loader_lines": [
+      "dyld[58096]: <FC6B5BA3-A31D-380A-8291-2A5E3080BF33> /Users/n/Developer/numi-crow-rl-20261107/build/crow-cap-curvature-git-recovery-01/build/crow-cap-curvature-build-01/integrated/libmetalrobo.dylib"
+    ],
+    "name": "new-default",
+    "returncode": 0,
+    "seconds": 16.685947208
+  },
+  {
+    "argv": [
+      "/Users/n/Developer/numi-crow-rl-20261107/build/crow-cap-curvature-git-recovery-01/build/crow-cap-curvature-build-01/reference/crow-fixture",
+      "/Users/n/Developer/numi-crow-rl-20261107/build/crow-cap-curvature-git-recovery-01/world-replay/new-coupled",
+      "0",
+      "1",
+      "32",
+      "2"
+    ],
+    "loader_lines": [
+      "dyld[58119]: <FC6B5BA3-A31D-380A-8291-2A5E3080BF33> /Users/n/Developer/numi-crow-rl-20261107/build/crow-cap-curvature-git-recovery-01/build/crow-cap-curvature-build-01/integrated/libmetalrobo.dylib"
+    ],
+    "name": "new-coupled",
+    "returncode": 1,
+    "seconds": 0.3300489580000061
+  },
+  {
+    "argv": [
+      "/Users/n/Developer/numi-crow-rl-20261107/build/crow-cap-curvature-git-recovery-01/build/crow-cap-curvature-build-01/integrated/unified-probe"
+    ],
+    "loader_lines": [
+      "dyld[58120]: <FC6B5BA3-A31D-380A-8291-2A5E3080BF33> /Users/n/Developer/numi-crow-rl-20261107/build/crow-cap-curvature-git-recovery-01/build/crow-cap-curvature-build-01/integrated/libmetalrobo.dylib"
+    ],
+    "name": "unified-owner",
+    "returncode": 0,
+    "seconds": 0.4451178750000011
+  },
+  {
+    "argv": [
+      "/Users/n/Developer/numi-crow-rl-20261107/build/crow-cap-curvature-git-recovery-01/build/crow-cap-curvature-build-01/integrated/ir-probe"
+    ],
+    "loader_lines": [
+      "dyld[58134]: <FC6B5BA3-A31D-380A-8291-2A5E3080BF33> /Users/n/Developer/numi-crow-rl-20261107/build/crow-cap-curvature-git-recovery-01/build/crow-cap-curvature-build-01/integrated/libmetalrobo.dylib"
+    ],
+    "name": "ir-owner",
+    "returncode": 0,
+    "seconds": 0.32771424999999965
+  },
+  {
+    "argv": [
+      "/Users/n/Developer/numi-crow-rl-20261107/build/crow-cap-curvature-git-recovery-01/build/crow-cap-curvature-build-01/integrated/contact-probe",
+      "/Users/n/Developer/numi-crow-rl-20261107/build/crow-cap-curvature-git-recovery-01/build/crow-cap-curvature-build-01/integrated/metalrobo/MetalRobo.metallib"
+    ],
+    "loader_lines": [
+      "dyld[58135]: <FC6B5BA3-A31D-380A-8291-2A5E3080BF33> /Users/n/Developer/numi-crow-rl-20261107/build/crow-cap-curvature-git-recovery-01/build/crow-cap-curvature-build-01/integrated/libmetalrobo.dylib"
+    ],
+    "name": "contact-owner",
+    "returncode": 0,
+    "seconds": 0.9673619579999979
+  }
+]
