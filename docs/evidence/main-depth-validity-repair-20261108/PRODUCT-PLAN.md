@@ -1,0 +1,3 @@
+# Product-runtime renderer retest
+
+After compiling the checked-in main candidate and its permanent regression targets, repeat the same fixed four-environment native renderer comparison with the rebuilt complete product metallib and dylib as the candidate, using the retained main baseline standalone shader as control. Continue using the same CPU reference, authored scene, selected identity and gate. Record exact new product library, full shader, executable and source hashes. This confirms these tested calls are serviced by the assembled product artifact; it does not expand the evidence to failed-physics transactions or direct-winner missing-frame detection.

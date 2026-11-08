@@ -1,0 +1,9 @@
+FINGERPRINT-PLAN.md: OK
+fingerprint_probe.cpp: OK
+TaskProgram.baseline.cpp: OK
+TaskProgram.candidate.cpp: OK
+baseline.task.o: OK
+candidate.task.o: OK
+baseline.fingerprint: OK
+candidate.fingerprint: OK
+/Users/numi/numi-lab-horizon-main-build-20261108/lib/libmetalrobo.dylib: OK

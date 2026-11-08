@@ -1,0 +1,13 @@
+accepted_instance_ids=1,
+scene=normal dimensions=160x120 envs=4 depth_valid=3700 geometry_without_depth=186
+scene=normal flicker=0 arm=original mismatch=0 reference_filled=0
+scene=normal flicker=0 arm=candidate mismatch=0 reference_filled=0
+scene=normal flicker=1 arm=original mismatch=186 reference_filled=811
+scene=normal flicker=1 arm=candidate mismatch=0 reference_filled=811
+accepted_instance_ids=1,
+scene=dropout dimensions=160x120 envs=4 depth_valid=0 geometry_without_depth=3886
+scene=dropout flicker=0 arm=original mismatch=0 reference_filled=0
+scene=dropout flicker=0 arm=candidate mismatch=0 reference_filled=0
+scene=dropout flicker=1 arm=original mismatch=0 reference_filled=0
+scene=dropout flicker=1 arm=candidate mismatch=0 reference_filled=0
+device="Apple M6" environments=4 resolution=160x120 center_depth=0.998 center_semantic=42 render_ms=0.459667 private_bytes=7445492

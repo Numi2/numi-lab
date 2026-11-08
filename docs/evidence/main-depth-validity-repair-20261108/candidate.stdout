@@ -1,0 +1,9 @@
+valid 4x2 direct=0 selected_bad=0 unselected_bad=0
+missing_frame 4x2 false_near=0 total=16
+invalid 4x2 direct=0 false_near=0 nonfinite=0 total=16
+valid 20x20 direct=0 selected_bad=0 unselected_bad=0
+missing_frame 20x20 false_near=0 total=800
+invalid 20x20 direct=0 false_near=0 nonfinite=0 total=800
+valid 4x2 direct=1 selected_bad=0 unselected_bad=0
+invalid 4x2 direct=1 false_near=0 nonfinite=0 total=16
+failures=0

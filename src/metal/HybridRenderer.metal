@@ -393,6 +393,7 @@ kernel void mr_hybrid_masked_depth_history(
                             )) {
                             measured =
                                 renderUniforms.clearColorAndDepth.w;
+                            segmented = false;
                         }
                     }
                 }
@@ -402,7 +403,9 @@ kernel void mr_hybrid_masked_depth_history(
             } else {
                 measuredDepths[pixel] = depth[source];
                 segmentedPixels[pixel] =
-                    validity[source] != 0u &&
+                    (validity[source] &
+                     (MR_VISUAL_VALIDITY_FRAME | MR_VISUAL_VALIDITY_DEPTH)) ==
+                        (MR_VISUAL_VALIDITY_FRAME | MR_VISUAL_VALIDITY_DEPTH) &&
                     maskedDepthAcceptedInstance(
                         identities[source].y,
                         acceptedInstances,
@@ -418,7 +421,9 @@ kernel void mr_hybrid_masked_depth_history(
         const uint source = environment * pixelCount + pixel;
         const bool segmented = cacheSensorPlane
             ? segmentedPixels[pixel] != 0u
-            : validity[source] != 0u &&
+            : (validity[source] &
+                     (MR_VISUAL_VALIDITY_FRAME | MR_VISUAL_VALIDITY_DEPTH)) ==
+                        (MR_VISUAL_VALIDITY_FRAME | MR_VISUAL_VALIDITY_DEPTH) &&
                 maskedDepthAcceptedInstance(
                     identities[source].y,
                     acceptedInstances,
@@ -464,6 +469,8 @@ kernel void mr_hybrid_masked_depth_history(
                 uniforms.range.y
             );
         } else if (!fullDropout && !segmented &&
+                   (geometricWinnerSource ||
+                    (validity[source] & MR_VISUAL_VALIDITY_FRAME) != 0u) &&
                    uniforms.range.w > 0.0f) {
             const int x = int(pixel % uniforms.counts.z);
             const int y = int(pixel / uniforms.counts.z);
@@ -489,7 +496,9 @@ kernel void mr_hybrid_masked_depth_history(
                         : depth[neighborSource];
                     const bool neighborAccepted = cacheSensorPlane
                         ? segmentedPixels[neighbor] != 0u
-                        : validity[neighborSource] != 0u &&
+                        : (validity[neighborSource] &
+                             (MR_VISUAL_VALIDITY_FRAME | MR_VISUAL_VALIDITY_DEPTH)) ==
+                                (MR_VISUAL_VALIDITY_FRAME | MR_VISUAL_VALIDITY_DEPTH) &&
                             maskedDepthAcceptedInstance(
                                 identities[neighborSource].y,
                                 acceptedInstances,

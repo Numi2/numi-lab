@@ -1,0 +1,9 @@
+PLAN.md: OK
+FRAME-PLAN.md: OK
+FLICKER-PLAN.md: OK
+probe.mm: OK
+probe: OK
+baseline.metal: OK
+baseline.metallib: OK
+candidate.metal: OK
+candidate.metallib: OK

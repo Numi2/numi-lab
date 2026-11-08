@@ -1,0 +1,3 @@
+# Exact main-owner retest
+
+The initial standalone shader was copied from the integration checkout, which differs from main in unrelated presentation code. Repeat the same fixed v3 regression and renderer comparison with shaders compiled from exact main-owner baseline and the targeted main candidate, using main headers and includes. Preserve the integration-derived results separately and do not infer main qualification from them. The runtime library, complete renderer metallib and policy-compatibility probe in the earlier tests were already from the main owner. No thresholds, fixture data or CCD/contact options are changed.

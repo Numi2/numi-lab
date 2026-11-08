@@ -1,0 +1,4 @@
+args=['/Users/numi/main-depth-validity-repair-20261108/renderer_probe', '/Users/numi/numi-lab-horizon-main-build-20261108/shaders/MetalRobo.metallib', '/Users/numi/main-depth-validity-repair-20261108/main.baseline.metallib', '/Users/numi/numi-lab-horizon-main-build-20261108/shaders/MetalRobo.metallib', '/Users/numi/main-depth-validity-repair-20261108/product-planes.bin']
+start=2026-11-08T04:39:20.544739+00:00
+end=2026-11-08T04:39:20.608906+00:00
+exit=0

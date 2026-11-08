@@ -1,0 +1,7 @@
+BRANCH-PLAN.md: OK
+renderer_probe.mm: OK
+renderer_probe: OK
+main.baseline.metallib: OK
+main.candidate.metallib: OK
+/Users/numi/numi-lab-horizon-main-build-20261108/shaders/MetalRobo.metallib: OK
+/Users/numi/numi-lab-horizon-main-build-20261108/lib/libmetalrobo.dylib: OK

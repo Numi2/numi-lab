@@ -4622,6 +4622,11 @@ TaskCompileDiagnostics compileTaskProgram(
         std::ranges::any_of(staged->criticOperators, readsDelayedAction)) {
         observationHash.scalar(std::uint32_t{0x444c4101u});
     }
+    // Visual depth now excludes samples without a valid frame and depth.
+    // Old policies may have observed corrupted clear values as near depth.
+    if (hasVisualProgram) {
+        observationHash.scalar(std::uint32_t{0x44505601u});
+    }
     staged->observationFingerprint = observationHash.finish();
 
     Hash hash;
