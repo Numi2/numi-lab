@@ -1,0 +1,318 @@
+{
+  "arms": {
+    "residual32": {
+      "phases": {
+        "(0, 31)": {
+          "ccd_advances": {
+            "maximum": 0.0,
+            "median": 0.0
+          },
+          "cone_violation": {
+            "maximum": 1.78813877483e-07,
+            "median": 0.0
+          },
+          "factor_residual": {
+            "maximum": 0.0,
+            "median": 0.0
+          },
+          "maximum_penetration": {
+            "maximum": 0.000314104370773,
+            "median": 0.0001753666438165
+          },
+          "normal_residual": {
+            "maximum": 0.0311350878328,
+            "median": 3.706105053425e-05
+          },
+          "zero_replays": {
+            "maximum": 0.0,
+            "median": 0.0
+          }
+        },
+        "(128, 159)": {
+          "ccd_advances": {
+            "maximum": 1.0,
+            "median": 0.0
+          },
+          "cone_violation": {
+            "maximum": 1.78813877483e-07,
+            "median": 0.0
+          },
+          "factor_residual": {
+            "maximum": 0.0,
+            "median": 0.0
+          },
+          "maximum_penetration": {
+            "maximum": 5.53573081561e-05,
+            "median": 5.51412413188e-05
+          },
+          "normal_residual": {
+            "maximum": 0.00395820010453,
+            "median": 9.775394573805e-07
+          },
+          "zero_replays": {
+            "maximum": 0.0,
+            "median": 0.0
+          }
+        },
+        "(32, 63)": {
+          "ccd_advances": {
+            "maximum": 0.0,
+            "median": 0.0
+          },
+          "cone_violation": {
+            "maximum": 1.78813877483e-07,
+            "median": 0.0
+          },
+          "factor_residual": {
+            "maximum": 0.0,
+            "median": 0.0
+          },
+          "maximum_penetration": {
+            "maximum": 0.000159689225256,
+            "median": 0.0001011374406515
+          },
+          "normal_residual": {
+            "maximum": 0.00367476791143,
+            "median": 0.000267055700533
+          },
+          "zero_replays": {
+            "maximum": 0.0,
+            "median": 0.0
+          }
+        },
+        "(64, 95)": {
+          "ccd_advances": {
+            "maximum": 0.0,
+            "median": 0.0
+          },
+          "cone_violation": {
+            "maximum": 1.78813877483e-07,
+            "median": 0.0
+          },
+          "factor_residual": {
+            "maximum": 0.0,
+            "median": 0.0
+          },
+          "maximum_penetration": {
+            "maximum": 0.000172534957528,
+            "median": 0.0001685982570055
+          },
+          "normal_residual": {
+            "maximum": 0.000258515123278,
+            "median": 2.552941441535e-05
+          },
+          "zero_replays": {
+            "maximum": 0.0,
+            "median": 0.0
+          }
+        },
+        "(96, 127)": {
+          "ccd_advances": {
+            "maximum": 0.0,
+            "median": 0.0
+          },
+          "cone_violation": {
+            "maximum": 1.19209261129e-07,
+            "median": 0.0
+          },
+          "factor_residual": {
+            "maximum": 0.0,
+            "median": 0.0
+          },
+          "maximum_penetration": {
+            "maximum": 5.8869325585e-05,
+            "median": 5.84064582654e-05
+          },
+          "normal_residual": {
+            "maximum": 2.994784154e-06,
+            "median": 1.91084109247e-06
+          },
+          "zero_replays": {
+            "maximum": 0.0,
+            "median": 0.0
+          }
+        }
+      },
+      "physical_replay_exact": true
+    },
+    "residual64": {
+      "phases": {
+        "(0, 31)": {
+          "ccd_advances": {
+            "maximum": 0.0,
+            "median": 0.0
+          },
+          "cone_violation": {
+            "maximum": 0.0,
+            "median": 0.0
+          },
+          "factor_residual": {
+            "maximum": 0.0,
+            "median": 0.0
+          },
+          "maximum_penetration": {
+            "maximum": 6.42612576485e-05,
+            "median": 5.77745959163e-05
+          },
+          "normal_residual": {
+            "maximum": 0.0307748913765,
+            "median": 3.5669712815450004e-05
+          },
+          "zero_replays": {
+            "maximum": 0.0,
+            "median": 0.0
+          }
+        },
+        "(128, 159)": {
+          "ccd_advances": {
+            "maximum": 0.0,
+            "median": 0.0
+          },
+          "cone_violation": {
+            "maximum": 1.78813877483e-07,
+            "median": 0.0
+          },
+          "factor_residual": {
+            "maximum": 0.0,
+            "median": 0.0
+          },
+          "maximum_penetration": {
+            "maximum": 2.28923345276e-05,
+            "median": 2.276800296385e-05
+          },
+          "normal_residual": {
+            "maximum": 6.24405220151e-06,
+            "median": 1.502688974145e-06
+          },
+          "zero_replays": {
+            "maximum": 0.0,
+            "median": 0.0
+          }
+        },
+        "(32, 63)": {
+          "ccd_advances": {
+            "maximum": 0.0,
+            "median": 0.0
+          },
+          "cone_violation": {
+            "maximum": 0.0,
+            "median": 0.0
+          },
+          "factor_residual": {
+            "maximum": 0.0,
+            "median": 0.0
+          },
+          "maximum_penetration": {
+            "maximum": 5.06527721882e-05,
+            "median": 3.71225178242e-05
+          },
+          "normal_residual": {
+            "maximum": 0.000411197310314,
+            "median": 5.10562676936e-05
+          },
+          "zero_replays": {
+            "maximum": 0.0,
+            "median": 0.0
+          }
+        },
+        "(64, 95)": {
+          "ccd_advances": {
+            "maximum": 0.0,
+            "median": 0.0
+          },
+          "cone_violation": {
+            "maximum": 1.78813877483e-07,
+            "median": 0.0
+          },
+          "factor_residual": {
+            "maximum": 0.0,
+            "median": 0.0
+          },
+          "maximum_penetration": {
+            "maximum": 5.68516552448e-05,
+            "median": 5.56162558496e-05
+          },
+          "normal_residual": {
+            "maximum": 0.000149367027916,
+            "median": 2.853831392715e-05
+          },
+          "zero_replays": {
+            "maximum": 0.0,
+            "median": 0.0
+          }
+        },
+        "(96, 127)": {
+          "ccd_advances": {
+            "maximum": 0.0,
+            "median": 0.0
+          },
+          "cone_violation": {
+            "maximum": 5.960463767e-08,
+            "median": 0.0
+          },
+          "factor_residual": {
+            "maximum": 0.0,
+            "median": 0.0
+          },
+          "maximum_penetration": {
+            "maximum": 2.48592896241e-05,
+            "median": 2.38441480178e-05
+          },
+          "normal_residual": {
+            "maximum": 0.00135681056418,
+            "median": 4.1063743992700004e-05
+          },
+          "zero_replays": {
+            "maximum": 0.0,
+            "median": 0.0
+          }
+        }
+      },
+      "physical_replay_exact": true
+    }
+  },
+  "commands": [
+    {
+      "command": [
+        "clang++",
+        "-std=c++20",
+        "-O3",
+        "-fno-fast-math",
+        "-fobjc-arc",
+        "-I",
+        "/Users/n/Developer/numi-crow-rl-20261107/include",
+        "/Users/n/Developer/numi-crow-rl-20261107/build/crow-ccd-articulated-sweep-build-01/fixture-residual.mm",
+        "/Users/n/Developer/numi-crow-rl-20261107/.numi/retained-runtime/ccd-event-capture-20261108/integrated128/libmetalrobo.dylib",
+        "-Wl,-rpath,@loader_path/runtime",
+        "-framework",
+        "Foundation",
+        "-o",
+        "/Users/n/Developer/numi-crow-rl-20261107/build/crow-ccd-articulated-sweep-build-01/probe-residual"
+      ],
+      "exit_code": 0,
+      "seconds": 1.3527815000270493
+    },
+    {
+      "command": [
+        "/Users/n/Developer/numi-crow-rl-20261107/build/crow-ccd-articulated-sweep-build-01/probe-residual",
+        "/Users/n/Developer/numi-crow-rl-20261107/build/crow-ccd-articulated-sweep-build-01/residual32",
+        "0",
+        "1",
+        "32"
+      ],
+      "exit_code": 0,
+      "seconds": 17.147994500002824
+    },
+    {
+      "command": [
+        "/Users/n/Developer/numi-crow-rl-20261107/build/crow-ccd-articulated-sweep-build-01/probe-residual",
+        "/Users/n/Developer/numi-crow-rl-20261107/build/crow-ccd-articulated-sweep-build-01/residual64",
+        "0",
+        "1",
+        "64"
+      ],
+      "exit_code": 0,
+      "seconds": 33.12544216698734
+    }
+  ]
+}

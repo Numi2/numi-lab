@@ -5,12 +5,12 @@
         {
           "first_ground_near_tick": 124,
           "first_sustained_0_1mm_separation_tick": 113,
-          "free_flight_vertical_acceleration_range_m_s2": [
+          "lane": 0,
+          "last_sampled_jaw_impulse_tick": 112,
+          "post_separation_until_first_sample_near_ground_acceleration_range_m_s2": [
             -9.80653190612793,
             -9.788942337036133
           ],
-          "lane": 0,
-          "last_sampled_jaw_impulse_tick": 112,
           "release_trace": [
             {
               "jaw": 0.226000785828,
@@ -231,12 +231,12 @@
         {
           "first_ground_near_tick": 124,
           "first_sustained_0_1mm_separation_tick": 113,
-          "free_flight_vertical_acceleration_range_m_s2": [
+          "lane": 1,
+          "last_sampled_jaw_impulse_tick": 112,
+          "post_separation_until_first_sample_near_ground_acceleration_range_m_s2": [
             -9.806737899780273,
             -9.789109230041504
           ],
-          "lane": 1,
-          "last_sampled_jaw_impulse_tick": 112,
           "release_trace": [
             {
               "jaw": 0.221928238869,
@@ -457,12 +457,12 @@
         {
           "first_ground_near_tick": 124,
           "first_sustained_0_1mm_separation_tick": 113,
-          "free_flight_vertical_acceleration_range_m_s2": [
+          "lane": 2,
+          "last_sampled_jaw_impulse_tick": 112,
+          "post_separation_until_first_sample_near_ground_acceleration_range_m_s2": [
             -9.806476593017578,
             -9.788894653320312
           ],
-          "lane": 2,
-          "last_sampled_jaw_impulse_tick": 112,
           "release_trace": [
             {
               "jaw": 0.226510971785,
@@ -683,12 +683,12 @@
         {
           "first_ground_near_tick": 124,
           "first_sustained_0_1mm_separation_tick": 113,
-          "free_flight_vertical_acceleration_range_m_s2": [
+          "lane": 3,
+          "last_sampled_jaw_impulse_tick": 112,
+          "post_separation_until_first_sample_near_ground_acceleration_range_m_s2": [
             -9.806694030761719,
             -9.789073944091797
           ],
-          "lane": 3,
-          "last_sampled_jaw_impulse_tick": 112,
           "release_trace": [
             {
               "jaw": 0.222400143743,
@@ -913,12 +913,12 @@
         {
           "first_ground_near_tick": 136,
           "first_sustained_0_1mm_separation_tick": 117,
-          "free_flight_vertical_acceleration_range_m_s2": [
+          "lane": 0,
+          "last_sampled_jaw_impulse_tick": 116,
+          "post_separation_until_first_sample_near_ground_acceleration_range_m_s2": [
             -9.816551208496094,
             144.80813598632812
           ],
-          "lane": 0,
-          "last_sampled_jaw_impulse_tick": 116,
           "release_trace": [
             {
               "jaw": 0.216396957636,
@@ -1217,12 +1217,12 @@
         {
           "first_ground_near_tick": 128,
           "first_sustained_0_1mm_separation_tick": 117,
-          "free_flight_vertical_acceleration_range_m_s2": [
+          "lane": 1,
+          "last_sampled_jaw_impulse_tick": 116,
+          "post_separation_until_first_sample_near_ground_acceleration_range_m_s2": [
             -9.807452201843262,
             -9.78972339630127
           ],
-          "lane": 1,
-          "last_sampled_jaw_impulse_tick": 116,
           "release_trace": [
             {
               "jaw": 0.212488934398,
@@ -1469,12 +1469,12 @@
         {
           "first_ground_near_tick": 128,
           "first_sustained_0_1mm_separation_tick": 117,
-          "free_flight_vertical_acceleration_range_m_s2": [
+          "lane": 2,
+          "last_sampled_jaw_impulse_tick": 116,
+          "post_separation_until_first_sample_near_ground_acceleration_range_m_s2": [
             -9.80727767944336,
             -9.789520263671875
           ],
-          "lane": 2,
-          "last_sampled_jaw_impulse_tick": 116,
           "release_trace": [
             {
               "jaw": 0.216884493828,
@@ -1721,12 +1721,12 @@
         {
           "first_ground_near_tick": 128,
           "first_sustained_0_1mm_separation_tick": 117,
-          "free_flight_vertical_acceleration_range_m_s2": [
+          "lane": 3,
+          "last_sampled_jaw_impulse_tick": 116,
+          "post_separation_until_first_sample_near_ground_acceleration_range_m_s2": [
             -9.807390213012695,
             -9.789657592773438
           ],
-          "lane": 3,
-          "last_sampled_jaw_impulse_tick": 116,
           "release_trace": [
             {
               "jaw": 0.212931931019,
@@ -1977,12 +1977,12 @@
         {
           "first_ground_near_tick": 125,
           "first_sustained_0_1mm_separation_tick": 114,
-          "free_flight_vertical_acceleration_range_m_s2": [
+          "lane": 0,
+          "last_sampled_jaw_impulse_tick": 113,
+          "post_separation_until_first_sample_near_ground_acceleration_range_m_s2": [
             -9.807332992553711,
             -9.789729118347168
           ],
-          "lane": 0,
-          "last_sampled_jaw_impulse_tick": 113,
           "release_trace": [
             {
               "jaw": 0.22270616889,
@@ -2203,12 +2203,12 @@
         {
           "first_ground_near_tick": 132,
           "first_sustained_0_1mm_separation_tick": 115,
-          "free_flight_vertical_acceleration_range_m_s2": [
+          "lane": 1,
+          "last_sampled_jaw_impulse_tick": 113,
+          "post_separation_until_first_sample_near_ground_acceleration_range_m_s2": [
             -9.814091682434082,
             139.97964477539062
           ],
-          "lane": 1,
-          "last_sampled_jaw_impulse_tick": 113,
           "release_trace": [
             {
               "jaw": 0.21868622303,
@@ -2481,12 +2481,12 @@
         {
           "first_ground_near_tick": 125,
           "first_sustained_0_1mm_separation_tick": 114,
-          "free_flight_vertical_acceleration_range_m_s2": [
+          "lane": 2,
+          "last_sampled_jaw_impulse_tick": 113,
+          "post_separation_until_first_sample_near_ground_acceleration_range_m_s2": [
             -9.807286262512207,
             -9.789693832397461
           ],
-          "lane": 2,
-          "last_sampled_jaw_impulse_tick": 113,
           "release_trace": [
             {
               "jaw": 0.223205819726,
@@ -2707,12 +2707,12 @@
         {
           "first_ground_near_tick": 129,
           "first_sustained_0_1mm_separation_tick": 115,
-          "free_flight_vertical_acceleration_range_m_s2": [
+          "lane": 3,
+          "last_sampled_jaw_impulse_tick": 113,
+          "post_separation_until_first_sample_near_ground_acceleration_range_m_s2": [
             -9.810786247253418,
             123.4121322631836
           ],
-          "lane": 3,
-          "last_sampled_jaw_impulse_tick": 113,
           "release_trace": [
             {
               "jaw": 0.219151645899,
@@ -2959,6 +2959,7 @@
       ]
     }
   },
+  "interpretation_correction": "Earlier free_flight label was too strong: a discrete height sample can miss first ground contact and include a bounce. These are post-separation acceleration ranges, not certified free-flight intervals. The originally labeled report and original analysis code remain recoverable from Git commit3e68f251.",
   "matched_phase_component_max_errors": {
     "integrated32-integrated64": {
       "(0, 31)": {

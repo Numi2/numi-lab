@@ -99,6 +99,11 @@
       "seconds": 65.54659791698214
     }
   ],
+  "diagnostic_replays": {
+    "additional_published_final_substep_solver_and_joint_velocity_observations": "residual-replay-results.json",
+    "interpretation": "Final-substep diagnostics alone do not establish a cause. Low sampled release residuals coexist with cadence-sensitive jaw path and separation; aggregate residuals do not localize jaw rows and omit earlier microsteps.",
+    "physical32_and64_all_original_trace_final_state_scene_trajectory_and_summary_bytes_exact": true
+  },
   "fine_lanes": [
     {
       "maximum_penetration_before96_m": 3.96112574322e-05,
@@ -153,6 +158,7 @@
       "seconds": 0.49554662499576807
     }
   },
+  "integration_decision": "Contact-time and projection correctness repairs integrated on research branch; no crow profile or protected policy promotion. Full release trajectory fails unchanged numerical convergence gate. No further substep escalation or solver iteration tuning from these data.",
   "legacy32_and64_complete_trace_final_states_scene_trajectory_and_summary_exact": true,
   "maximum_64vs128_position_error_m": 0.06260651242386177,
   "native_contact_regression_passed": true,

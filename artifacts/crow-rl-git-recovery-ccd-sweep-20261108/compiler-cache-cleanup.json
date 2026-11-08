@@ -1,0 +1,50 @@
+{
+  "df_after": "Filesystem   1024-blocks      Used Available Capacity iused      ifree %iused  Mounted on\n/dev/disk3s5   482797652 300316340 157032800    66% 3497909 1570328000    0%   /System/Volumes/Data\n",
+  "df_before": "Filesystem   1024-blocks      Used Available Capacity iused      ifree %iused  Mounted on\n/dev/disk3s5   482797652 300316916 157032224    66% 3497913 1570322240    0%   /System/Volumes/Data\n",
+  "files": [
+    {
+      "bytes": 6599,
+      "mode": 420,
+      "mtime_ns": 1794123027742646022,
+      "path": "build/crow-ccd-event-capture-build-01/__pycache__/oracle.cpython-313.pyc",
+      "sha256": "e483d4ce31bd0db83cf4a9b139171236f707eb829cb70444e9c737b782d1e161"
+    },
+    {
+      "bytes": 299520,
+      "mode": 420,
+      "mtime_ns": 1794123341579419372,
+      "path": "build/crow-ccd-contact-time-build-01/candidate.air",
+      "sha256": "63ed61dc7f3e906095fa43e8040771a1ece2c5f814aaa581dd5e484f588becaf"
+    },
+    {
+      "bytes": 6598,
+      "mode": 420,
+      "mtime_ns": 1794123338375238089,
+      "path": "build/crow-ccd-contact-time-build-01/__pycache__/oracle.cpython-313.pyc",
+      "sha256": "14ce4bbd56e05c19fd5f0de6ead5e63ad534a6c6c7edbcc31c0f7046ddc28d61"
+    },
+    {
+      "bytes": 299536,
+      "mode": 420,
+      "mtime_ns": 1794123883949812530,
+      "path": "build/crow-ccd-articulated-sweep-build-01/candidate.air",
+      "sha256": "ec0316af6357a05c26bf09cf7f88ae4404343c181986c1783de5a16e835fbda7"
+    }
+  ],
+  "open_handle_checks": [
+    {
+      "open_handles": 0,
+      "root": "build/crow-ccd-event-capture-build-01"
+    },
+    {
+      "open_handles": 0,
+      "root": "build/crow-ccd-contact-time-build-01"
+    },
+    {
+      "open_handles": 0,
+      "root": "build/crow-ccd-articulated-sweep-build-01"
+    }
+  ],
+  "removed_bytes": 612253,
+  "retained": "All source inputs, plans, final native binaries, metallibs, toolchain/link receipts and physical outputs remain. Ordinary production build is untouched."
+}
