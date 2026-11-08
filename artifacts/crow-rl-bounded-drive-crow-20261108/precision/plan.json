@@ -1,0 +1,32 @@
+{
+  "analysis": "Report allmechanicalgates forcompletedruns, plusfull160tickunused64vs128 trajectory convergence againstunchanged5mm. Those physicaloutcomesremainseparate frommotorconvergenceprediction. Recordnativewall/GPU/submissiontime,retainedbytes; noend-to-end performanceclaim.",
+  "budget": {
+    "expected_native_environment_steps": 2434,
+    "maximum_new_output_bytes": 6000000,
+    "native_invocations": 4,
+    "stop": "Firstnative/GPU/hostfailure or timeout;retainpartialstates andunrunarms,no retry,tuning orpromotion. Mechanicalgatefailure doesnot stopvalidremainingarms.",
+    "timeout_seconds_each": 300
+  },
+  "calibration": "UnchangedFP64mass/constitutivecalibration128casespassed. IndependentFP64coordinate reference48casesvalidatedbyexhaustive5regionenumeration. Capturedfixturequantizationstudy: nearestFP32reference torque has3.19e-8scaledresidual and3.16e-8rad/svelocityerror, demonstratingfeasibility ofunchanged4eps certificate.",
+  "conditions": "Exposedconstitutivegrid; originalcrow32 (prefixthrough20 exposed,suffixunusedinnewmode); two still-unused posegrids64/128. Samegeometry,gains,actions,controller,seed,task andfixed mechanicalgates asparent. Fourmanufacturedlanes,notbiologicalreplicates.",
+  "inputs": {
+    ".numi/retained-runtime/bounded-drive-precision-20261108/libmetalrobo.dylib": "7f5ce8781fe1cb85d52736b8bcd640484fd8225a612cc9317805e906cbb78d16",
+    ".numi/retained-runtime/bounded-drive-precision-20261108/metalrobo/MetalRobo.metallib": "6b7b0274688c211876709125b047a487b1d7293820348821a7acae5c90ad570e",
+    ".numi/retained-runtime/bounded-drive-precision-20261108/probe": "b16fa83771f3fc0820dc2699d66debc7fc0b4bd219128c4af4121ebd7c39b04c",
+    "artifacts/crow-rl-bounded-drive-crow-20261108/precision/run_precision.py": "bf2fd6ecb159a781d70e09951039e2bcafe6eb38f325472c561f664b2605334f",
+    "build/crow-bounded-drive-integration-build-01/fixture-bounded": "116dfb25a90cccb35f32400509c0119ac634962be4cb93cd41c805af7a3b49ea",
+    "build/crow-bounded-drive-integration-build-01/fixture-unused": "f6227010b1e255b85892d36af9c35b6cd4057c0d690f5ec7b80361299baef700",
+    "build/crow-bounded-drive-integration-build-01/native-v2.tsv": "251b4ad249202e8e87caeb1992e70d1ef2f586a126289fba56eba4b5c6bd4a7d",
+    "build/crow-bounded-drive-integration-build-01/precision-host-calibration.stdout": "d8a4edeb3b57fc33800738d49c2342c649e45dce841092c1acaa2a462a445b92",
+    "src/metal/MetalWorldContact.metal": "096eab5703ee86151fcced1e824130d7dc1933b297bc33373cf0ff7f0b3d2b5e"
+  },
+  "parent": "ecc844a0 protecteddiagnosis: originalcrowfailureexactlyreplayed. Captured masscondition96580; FP64reference40sweeps, torqueerror6.82e-9Nm,velocitydifference8.86e-7rad/s; native accelerationreconstructionerror.00286rad/s2. FP64evaluation ofoldnativeiterate stillfails4eps, so failurecannot be blamed oncertificateevaluation alone.",
+  "prediction": {
+    "numerical": "All514nativeconstitutivesteps/976rows passunchanged2e-6rad/s velocity,2e-7rad q,1e-7Nm torque gates;legacy448rows unchanged. All640original32 and640unused64/128transitions accepted, withno256sweepmotorfailures.",
+    "physical_distinction": "Precisionalone will not resolve exposedcontactpenetration: maximumgap penetration onoriginalticks0..20 remainsin[.0015,.0025]m,above.0008m gate. A numerical pass isnot a physical-contact qualification."
+  },
+  "promotion": false,
+  "protected_policy_sha256": "6a009417eac3e04831c95f46c24e78f943e825892124b972a58b5ee9eeed0389",
+  "question": "Can compensated SIMD motor iteration satisfy the unchanged certificate through actual crow trajectories, while separating numerical convergence from the residual physical contact defect?",
+  "revision": "Twofold FMA/two-sum accumulation of inverse-response dotproducts,coordinate RHS,denominator/division,and certificate. Excluding coordinate is recomputed fromsourcefreeacceleration andallother currenttorques,avoiding subtraction oftwolarge roundedaccelerations. SIMD32lanes cooperate on everydotproduct and own distinctresidual rows; no lane0serial massvector sweep. Same physicalinverse,constitutivelaw,caps,friction,256sweepbound and4eps threshold. Output remainsFP32."
+}

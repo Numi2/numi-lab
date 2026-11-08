@@ -1,0 +1,7 @@
+{
+  "exploratory_model_quantization_check": true,
+  "nearest_float_torque_scaled_residual_fp64": 3.187717661143045e-08,
+  "nearest_float_torque_maximum_velocity_error": 3.156086289173355e-08,
+  "fp32_published_acceleration_scaled_residual_fp64": 4.7455693769526194e-07,
+  "nearest_tau_difference_Nm": 9.123571932667662e-10
+}
