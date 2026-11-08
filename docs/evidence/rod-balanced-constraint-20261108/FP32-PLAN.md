@@ -1,0 +1,3 @@
+# FP32 conditioning screen for the coupled axial model
+
+Using the separately validated FP64 reference, evaluate the same eight matrix cases with all matrix inputs, assembly and solve in NumPy float32. Compare node positions within 1e-6 m and both support reactions within max(1e-6 N, 1% of the FP64 reaction), the unchanged native fixture gates. Include the raw and normalized linear residual. This is a CPU-library arithmetic screen, not an Apple GPU implementation, a Metal precision guarantee, a runtime fallback, or a performance test. Do not use its outcome to qualify a general rod solver or contact. Preserve every result.
