@@ -1,0 +1,7 @@
+[0/2] Re-checking globbed directories...
+[1/7] Building Swift Module 'metalrobo_task_rollout' with 5 sources
+[2/7] Building CXX object CMakeFiles/metalrobo.dir/src/c_api.cpp.o
+[3/7] Building Swift Module 'metalrobo_task_train' with 5 sources
+[4/7] Linking CXX shared library lib/libmetalrobo.dylib
+[5/7] Linking Swift executable bin/metalrobo_task_rollout
+[6/7] Linking Swift executable bin/metalrobo_task_train

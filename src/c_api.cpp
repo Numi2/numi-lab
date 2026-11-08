@@ -3379,6 +3379,7 @@ static MRTaskRolloutHandle* createNumiflyRun(
 
 static MRTaskRolloutHandle* createUnitreeG1TeacherRun(
     const MRTaskRolloutConfigC* config,
+    const MRTaskRolloutConfigC* policy_source,
     const uint32_t surface_value,
     const uint32_t task_value,
     const char* interaction_pack_path,
@@ -3398,6 +3399,13 @@ static MRTaskRolloutHandle* createUnitreeG1TeacherRun(
     MRTaskRolloutHandle* result = nullptr;
     const int status = translateErrors([&] {
         validateTaskRolloutConfiguration(*config);
+        if (policy_source != nullptr) {
+            validateTaskRolloutConfiguration(*policy_source);
+            if (config->interaction_reference_mode != MR_INTERACTION_REFERENCE_RESET_ONLY ||
+                policy_source->interaction_reference_mode != MR_INTERACTION_REFERENCE_GUIDE) {
+                throw std::invalid_argument("policy source requires guide source and reset-only target");
+            }
+        }
         metalrobo::InteractionPack interactions;
         const metalrobo::LearningPackResult loaded =
             metalrobo::readInteractionPack(
@@ -3490,6 +3498,34 @@ static MRTaskRolloutHandle* createUnitreeG1TeacherRun(
             compatiblePolicySource.task.interactionControlReference = true;
             compatiblePolicySourcePointer = &compatiblePolicySource;
             manifest.task.interactionControlReference = false;
+        }
+        if (policy_source != nullptr) {
+            // Re-author the guide: physics gating can depend on reference mode.
+            compatiblePolicySource = makeUnitreeG1RunManifest(
+                locomotionSurface(surface_value), task, *policy_source);
+            if (task == metalrobo::UnitreeG1Task::velocity) {
+                authorG1InteractionTrackingTask(compatiblePolicySource.task,
+                    compatiblePolicySource.sensors.observation,
+                    compatiblePolicySource.reality.reset, interactions, clip,
+                    *policy_source);
+            } else {
+                authorG1ImaginedTask(compatiblePolicySource.task,
+                    compatiblePolicySource.sensors.observation, interactions,
+                    clip, *policy_source,
+                    task != metalrobo::UnitreeG1Task::ballDodge);
+            }
+            auto& sourceTask = compatiblePolicySource.task;
+            sourceTask.interactionControlReference = true;
+            if (policy_source->override_interaction_student_authority)
+                sourceTask.interactionStudentAuthority = policy_source->interaction_student_authority;
+            if (policy_source->override_interaction_reset_phase_fraction)
+                sourceTask.interactionResetPhaseFraction = policy_source->interaction_reset_phase_fraction;
+            if (policy_source->override_interaction_reset_phase_probability)
+                sourceTask.interactionResetPhaseProbability = policy_source->interaction_reset_phase_probability;
+            if (policy_source->override_interaction_reset_maximum_phase)
+                sourceTask.interactionResetMaximumPhase = policy_source->interaction_reset_maximum_phase;
+            compatiblePolicySource.teacher = manifest.teacher;
+            compatiblePolicySourcePointer = &compatiblePolicySource;
         }
         auto handle = createCompiledRunTaskRollout(
             std::move(manifest),
@@ -3793,11 +3829,19 @@ static MRTaskRolloutHandle* createWorldPackRun(
     return status == 0 ? result : nullptr;
 }
 
-MRTaskRolloutHandle* mr_create_task_rollout(
-    const MRRunManifestC* manifest
+MRTaskRolloutHandle* mr_create_task_rollout_with_policy_source(
+    const MRRunManifestC* manifest,
+    const MRTaskRolloutConfigC* policy_source
 ) {
     if (manifest == nullptr) {
         gLastError = "run manifest is null.";
+        return nullptr;
+    }
+    if (policy_source != nullptr &&
+        (manifest->source != MR_RUN_SOURCE_UNITREE_G1 ||
+         manifest->teacher_pack_path == nullptr ||
+         manifest->teacher_pack_path[0] == 0)) {
+        gLastError = "policy source profile is unsupported for this owner";
         return nullptr;
     }
     MRTaskRolloutHandle* result = nullptr;
@@ -3807,6 +3851,7 @@ MRTaskRolloutHandle* mr_create_task_rollout(
             manifest->teacher_pack_path[0] != '\0') {
             result = createUnitreeG1TeacherRun(
                 &manifest->profile,
+                policy_source,
                 manifest->surface,
                 manifest->task,
                 manifest->teacher_pack_path,
@@ -3920,6 +3965,12 @@ MRTaskRolloutHandle* mr_create_task_rollout(
         }
     }
     return result;
+}
+
+MRTaskRolloutHandle* mr_create_task_rollout(
+    const MRRunManifestC* manifest
+) {
+    return mr_create_task_rollout_with_policy_source(manifest, nullptr);
 }
 
 void mr_task_rollout_destroy(MRTaskRolloutHandle* handle) {

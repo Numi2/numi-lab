@@ -220,6 +220,10 @@ private struct Options {
     var interactionResetPhaseFraction: Float?
     var interactionResetPhaseProbability: Float?
     var interactionResetMaximumPhase: Float?
+    var policySourceGuide = false
+    var policySourceResetPhaseFraction: Float?
+    var policySourceResetPhaseProbability: Float?
+    var policySourceResetMaximumPhase: Float?
     var interactionPushMaximumVelocity: Float?
     var interactionPushIntervalSeconds: Float?
     var stateTrace: String?
@@ -378,6 +382,22 @@ private struct Options {
                 index += 1
             case "--interaction-reset-only":
                 interactionResetOnly = true
+            case "--policy-source-guide":
+                policySourceGuide = true
+            case "--policy-source-interaction-reset-phase-fraction",
+                 "--policy-source-interaction-reset-phase-probability",
+                 "--policy-source-interaction-reset-maximum-phase":
+                guard let parsed = Float(try value()), parsed.isFinite,
+                      parsed >= 0, parsed <= 1 else {
+                    throw MetalRoboTaskRolloutError.invalidShape(
+                        "\(option) must be in [0, 1].")
+                }
+                if option == "--policy-source-interaction-reset-phase-fraction" {
+                    policySourceResetPhaseFraction = parsed
+                } else if option == "--policy-source-interaction-reset-phase-probability" {
+                    policySourceResetPhaseProbability = parsed
+                } else { policySourceResetMaximumPhase = parsed }
+                index += 1
             case "--interaction-student-authority":
                 guard let parsed = Float(try value()),
                       parsed.isFinite,
@@ -687,6 +707,12 @@ private struct Options {
             throw MetalRoboTaskRolloutError.invalidShape(
                 "InteractionPack path and clip identity cannot be empty."
             )
+        }
+        if (policySourceGuide || policySourceResetPhaseFraction != nil ||
+            policySourceResetPhaseProbability != nil || policySourceResetMaximumPhase != nil) &&
+            (!policySourceGuide || !interactionResetOnly || interactionPack == nil) {
+            throw MetalRoboTaskRolloutError.invalidShape(
+                "Policy source requires --policy-source-guide, --interaction-reset-only and an InteractionPack.")
         }
         if interactionResetOnly && interactionPack == nil {
             throw MetalRoboTaskRolloutError.invalidShape(
@@ -1022,6 +1048,10 @@ private func makeContext(
             options.interactionResetPhaseProbability,
         interactionResetMaximumPhase:
             options.interactionResetMaximumPhase,
+        policySourceGuide: options.policySourceGuide,
+        policySourceResetPhaseFraction: options.policySourceResetPhaseFraction,
+        policySourceResetPhaseProbability: options.policySourceResetPhaseProbability,
+        policySourceResetMaximumPhase: options.policySourceResetMaximumPhase,
         interactionPush: options.interactionPushMaximumVelocity.map {
             (maximumVelocity: $0,
              intervalSeconds: options.interactionPushIntervalSeconds!)

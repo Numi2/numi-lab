@@ -628,6 +628,12 @@ MR_API int mr_compile_episode_manifest(
 MR_API MRTaskRolloutHandle* mr_create_task_rollout(
     const MRRunManifestC* manifest
 );
+// Opt-in guide-source identity for reset-only evaluation. Existing layouts
+// remain unchanged; unsupported owners and invalid combinations reject.
+MR_API MRTaskRolloutHandle* mr_create_task_rollout_with_policy_source(
+    const MRRunManifestC* manifest,
+    const MRTaskRolloutConfigC* policy_source
+);
 MR_API void mr_task_rollout_destroy(MRTaskRolloutHandle* handle);
 MR_API int mr_task_rollout_reset(
     MRTaskRolloutHandle* handle,

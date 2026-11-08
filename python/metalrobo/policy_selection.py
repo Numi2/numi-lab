@@ -348,6 +348,11 @@ def evaluation_arguments(
         training_arguments, "--interaction-student-authority"
     )
     if student_authority is not None and float(student_authority) == 0.0:
+        if "--interaction-reset-only" in training_arguments:
+            raise ValueError(
+                "zero-authority reset-only training source is not supported "
+                "by guided-source evaluation"
+            )
         # A zero-authority rollout measures the teacher, not the learned actor.
         # Keep the zero authority in the task contract, keep the teacher's
         # accepted reset state, then evaluate autonomously. Removing the
@@ -379,7 +384,18 @@ def evaluation_arguments(
             "--interaction-student-authority",
             "0",
             "--interaction-reset-only",
+            "--policy-source-guide",
         ]
+        # Canonical target resets must not erase the source task identity.
+        # The distinct source profile is checked by native policy admission.
+        for option in (
+            "--interaction-reset-phase-fraction",
+            "--interaction-reset-phase-probability",
+            "--interaction-reset-maximum-phase",
+        ):
+            original = _option_value(training_arguments, option)
+            if original is not None:
+                projected.extend(("--policy-source-" + option[2:], original))
 
     # Curriculum training deliberately mixes previous and current bands so
     # the learner retains earlier skills. Promotion evidence must answer a

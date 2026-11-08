@@ -14,7 +14,7 @@ source = a.source.resolve()
 text = (source / "src/c_api.cpp").read_text()
 anchor = text.index("static MRTaskRolloutHandle* createUnitreeG1TeacherRun(")
 start = text.index("        if (config->override_interaction_student_authority != 0u)", anchor)
-end = text.index("        auto handle = createCompiledRunTaskRollout(", start)
+end = text.index("        if (policy_source != nullptr) {", start)
 block = text[start:end]
 if "<<<<<<<" in block or "compatiblePolicySource = manifest;" not in block:
     raise SystemExit("C API assignment block is incomplete or unresolved")

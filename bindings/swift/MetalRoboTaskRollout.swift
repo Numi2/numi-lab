@@ -655,6 +655,10 @@ public struct MetalRoboTaskRolloutConfiguration: Sendable {
     public var interactionResetPhaseFraction: Float?
     public var interactionResetPhaseProbability: Float?
     public var interactionResetMaximumPhase: Float?
+    public var policySourceGuide: Bool
+    public var policySourceResetPhaseFraction: Float?
+    public var policySourceResetPhaseProbability: Float?
+    public var policySourceResetMaximumPhase: Float?
     public var interactionPush: (maximumVelocity: Float, intervalSeconds: Float)?
     public var unitreeG1Task: MetalRoboUnitreeG1Task
 
@@ -676,6 +680,10 @@ public struct MetalRoboTaskRolloutConfiguration: Sendable {
         interactionResetPhaseFraction: Float? = nil,
         interactionResetPhaseProbability: Float? = nil,
         interactionResetMaximumPhase: Float? = nil,
+        policySourceGuide: Bool = false,
+        policySourceResetPhaseFraction: Float? = nil,
+        policySourceResetPhaseProbability: Float? = nil,
+        policySourceResetMaximumPhase: Float? = nil,
         interactionPush: (maximumVelocity: Float, intervalSeconds: Float)? = nil,
         unitreeG1Task: MetalRoboUnitreeG1Task = .velocity
     ) {
@@ -697,6 +705,10 @@ public struct MetalRoboTaskRolloutConfiguration: Sendable {
         self.interactionResetPhaseProbability =
             interactionResetPhaseProbability
         self.interactionResetMaximumPhase = interactionResetMaximumPhase
+        self.policySourceGuide = policySourceGuide
+        self.policySourceResetPhaseFraction = policySourceResetPhaseFraction
+        self.policySourceResetPhaseProbability = policySourceResetPhaseProbability
+        self.policySourceResetMaximumPhase = policySourceResetMaximumPhase
         self.interactionPush = interactionPush
         self.unitreeG1Task = unitreeG1Task
     }
@@ -1247,9 +1259,29 @@ public final class MetalRoboTaskRolloutContext: @unchecked Sendable {
                                             manifest.inspection_visual_program =
                                                 inspectionVisual
                                             manifest.metallib_path = metallib
-                                            return mr_create_task_rollout(
-                                                &manifest
-                                            )
+                                            if configuration.policySourceGuide {
+                                                var sourceProfile = config.pointee
+                                                sourceProfile.interaction_reference_mode =
+                                                    MR_INTERACTION_REFERENCE_GUIDE.rawValue
+                                                sourceProfile.override_interaction_reset_phase_fraction = 0
+                                                sourceProfile.override_interaction_reset_phase_probability = 0
+                                                sourceProfile.override_interaction_reset_maximum_phase = 0
+                                                if let value = configuration.policySourceResetPhaseFraction {
+                                                    sourceProfile.interaction_reset_phase_fraction = value
+                                                    sourceProfile.override_interaction_reset_phase_fraction = 1
+                                                }
+                                                if let value = configuration.policySourceResetPhaseProbability {
+                                                    sourceProfile.interaction_reset_phase_probability = value
+                                                    sourceProfile.override_interaction_reset_phase_probability = 1
+                                                }
+                                                if let value = configuration.policySourceResetMaximumPhase {
+                                                    sourceProfile.interaction_reset_maximum_phase = value
+                                                    sourceProfile.override_interaction_reset_maximum_phase = 1
+                                                }
+                                                return mr_create_task_rollout_with_policy_source(
+                                                    &manifest, &sourceProfile)
+                                            }
+                                            return mr_create_task_rollout(&manifest)
                                         }
                                     }
                                 }

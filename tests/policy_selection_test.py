@@ -783,6 +783,10 @@ class PolicySelectionTest(unittest.TestCase):
                 "0",
                 "--interaction-reset-phase-fraction",
                 "0.8",
+                "--interaction-reset-phase-probability",
+                "0.4",
+                "--interaction-reset-maximum-phase",
+                "0.9",
             ],
             policy_pack=Path("candidate.policypack"),
             metallib=Path("MetalRobo.metallib"),
@@ -791,12 +795,21 @@ class PolicySelectionTest(unittest.TestCase):
             held_out_seed=42,
             evaluation_steps=103,
         )
-        self.assertNotIn("--interaction-reset-only", arguments)
+        self.assertIn("--interaction-reset-only", arguments)
+        self.assertIn("--policy-source-guide", arguments)
+        source_phase = arguments.index("--policy-source-interaction-reset-phase-fraction")
+        self.assertEqual(arguments[source_phase + 1], "0.8")
         authority_index = len(arguments) - 1 - arguments[::-1].index(
             "--interaction-student-authority"
         )
         self.assertEqual(arguments[authority_index + 1], "0")
         self.assertNotIn("--interaction-reset-phase-fraction", arguments)
+        for suffix, value in (("probability", "0.4"), ("maximum-phase", "0.9")):
+            original = ("--interaction-reset-phase-" + suffix
+                        if suffix == "probability" else "--interaction-reset-maximum-phase")
+            self.assertNotIn(original, arguments)
+            source = arguments.index("--policy-source-" + original[2:])
+            self.assertEqual(arguments[source + 1], value)
         environment_index = len(arguments) - 1 - arguments[::-1].index(
             "--envs"
         )
@@ -805,6 +818,17 @@ class PolicySelectionTest(unittest.TestCase):
         self.assertEqual(arguments[seed_index + 1], "42")
         steps_index = len(arguments) - 1 - arguments[::-1].index("--steps")
         self.assertEqual(arguments[steps_index + 1], "103")
+
+    def test_zero_authority_reset_only_source_fails_closed(self) -> None:
+        with self.assertRaisesRegex(ValueError, "reset-only training source"):
+            evaluation_arguments(
+                ["--interaction-student-authority", "0", "--interaction-reset-only"],
+                policy_pack=Path("candidate.policypack"),
+                metallib=Path("MetalRobo.metallib"),
+                state_trace=Path("candidate.tsv"),
+                maximum_environments=1,
+                held_out_seed=42,
+            )
 
     def test_interaction_push_contract_is_preserved_for_evaluation(self) -> None:
         arguments = evaluation_arguments(
