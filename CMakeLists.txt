@@ -6844,6 +6844,23 @@ set_target_properties(
 )
 
 if(BUILD_TESTING)
+    # Keep the native mixed-status depth fixture with its retained evidence.
+    add_executable(metalrobo_visual_world_depth_probe
+        docs/evidence/tracker-world-depth-20261108/world_depth_probe.mm)
+    target_link_libraries(metalrobo_visual_world_depth_probe PRIVATE
+        metalrobo "${FOUNDATION_FRAMEWORK}" "${METAL_FRAMEWORK}")
+    target_compile_options(metalrobo_visual_world_depth_probe PRIVATE
+        -fobjc-arc -Wall -Wextra -Wpedantic -Werror)
+    add_dependencies(metalrobo_visual_world_depth_probe metalrobo_shaders)
+    set_target_properties(metalrobo_visual_world_depth_probe PROPERTIES
+        RUNTIME_OUTPUT_DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}/bin"
+        BUILD_RPATH "${CMAKE_CURRENT_BINARY_DIR}/lib")
+    add_test(NAME metalrobo.visual.world_masked_depth_transaction
+        COMMAND "${Python3_EXECUTABLE}"
+            "${CMAKE_CURRENT_SOURCE_DIR}/tests/visual/world_masked_depth_transaction.py"
+            $<TARGET_FILE:metalrobo_visual_world_depth_probe>)
+    set_tests_properties(metalrobo.visual.world_masked_depth_transaction PROPERTIES
+        LABELS "metalrobo;visual;metal" TIMEOUT 240 RUN_SERIAL TRUE)
     add_executable(metalrobo_visual_history_restore_probe tests/visual_history_restore_probe.mm)
     target_include_directories(metalrobo_visual_history_restore_probe PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/include)
     target_compile_options(metalrobo_visual_history_restore_probe PRIVATE -fobjc-arc -Wall -Wextra -Wpedantic -Werror)
