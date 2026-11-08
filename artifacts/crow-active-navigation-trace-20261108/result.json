@@ -1,0 +1,97 @@
+{
+  "course": "held-out-a",
+  "difficulty_band": 10,
+  "environment": 0,
+  "failed_simulation_steps": 0,
+  "first_episode_contact_termination_step": 1411,
+  "interpretation": "Sampled root position moves away from the initial gate midpoint after takeoff. Contact type and causal reason for wrong steering are not identified by this trace.",
+  "physics_substeps": 4,
+  "samples": [
+    {
+      "distance_to_gate_midpoint_m": 1.771337765104555,
+      "gate_midpoint_xyz": [
+        1.6369696249999999,
+        -0.070768416,
+        0.804035366
+      ],
+      "root_xyz": [
+        -0.0192784201,
+        0.0340806581,
+        0.184772447
+      ],
+      "step": 1
+    },
+    {
+      "distance_to_gate_midpoint_m": 1.7763941829082,
+      "gate_midpoint_xyz": [
+        1.6369696249999999,
+        -0.070768416,
+        0.804035366
+      ],
+      "root_xyz": [
+        -0.0213881135,
+        0.0352517627,
+        0.176193327
+      ],
+      "step": 200
+    },
+    {
+      "distance_to_gate_midpoint_m": 2.8130215874284796,
+      "gate_midpoint_xyz": [
+        1.6369696249999999,
+        -0.070768416,
+        0.804035366
+      ],
+      "root_xyz": [
+        -1.15709162,
+        0.102889359,
+        1.07999766
+      ],
+      "step": 400
+    },
+    {
+      "distance_to_gate_midpoint_m": 4.160022331412785,
+      "gate_midpoint_xyz": [
+        1.6369696249999999,
+        -0.070768416,
+        0.804035366
+      ],
+      "root_xyz": [
+        -0.828578949,
+        -3.41676855,
+        0.627572536
+      ],
+      "step": 800
+    },
+    {
+      "distance_to_gate_midpoint_m": 14.897025879165646,
+      "gate_midpoint_xyz": [
+        1.6369696249999999,
+        -0.070768416,
+        0.804035366
+      ],
+      "root_xyz": [
+        -8.14807796,
+        -11.2881069,
+        0.216207892
+      ],
+      "step": 1200
+    },
+    {
+      "distance_to_gate_midpoint_m": 21.11867337107527,
+      "gate_midpoint_xyz": [
+        1.6369696249999999,
+        -0.070768416,
+        0.804035366
+      ],
+      "root_xyz": [
+        -11.3701162,
+        -16.6956387,
+        0.149993062
+      ],
+      "step": 1410
+    }
+  ],
+  "seed": 20261109,
+  "trace_sha256": "8564ec93ef79a4c5f5883260df56fd680507d48413b50215f09352c8c1faaad0"
+}
