@@ -1,0 +1,10 @@
+Traceback (most recent call last):
+  File "/Users/numi/numi-lab-tracker-step-rollback-20261108/docs/evidence/residual-teacher-physics-boundary-20261108/packed_control.py", line 18, in <module>
+    original = read_policy_rollout_pack(fixture, library_path=library)
+  File "/Users/numi/numi-lab-tracker-step-rollback-20261108/python/metalrobo/mlx_policy_learning.py", line 833, in read_policy_rollout_pack
+    if source.stat().st_size < _LEARNING_PACK_HEADER.size:
+       ~~~~~~~~~~~^^
+  File "/opt/homebrew/Cellar/python@3.13/3.13.16/Frameworks/Python.framework/Versions/3.13/lib/python3.13/pathlib/_local.py", line 515, in stat
+    return os.stat(self, follow_symlinks=follow_symlinks)
+           ~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+FileNotFoundError: [Errno 2] No such file or directory: 'docs/evidence/window-integration-20261107/command-train/run/rollout.rolloutpack'
