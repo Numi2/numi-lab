@@ -1,0 +1,10 @@
+[0/2] Re-checking globbed directories...
+[1/10] Building Swift Module 'metalrobo_numi_policy_status_check' with 2 sources
+[2/10] Building OBJCXX object CMakeFiles/metalrobo_numanx_human_matter_owner_probe.dir/apps/numanx_human_matter_owner_probe.mm.o
+[3/10] Linking Swift executable bin/metalrobo_numi_window_check
+[4/10] Linking Swift executable bin/metalrobo_numi_policy_status_check
+[5/10] Linking OBJCXX executable bin/metalrobo_numanx_human_matter_owner_probe
+[6/10] Linking CXX executable numi_human_costal_binding_test
+[7/10] Linking CXX executable numi_human_costal_cook_ownership_test
+[8/10] Building OBJCXX object CMakeFiles/metalrobo_matter_physics_probe.dir/apps/matter_physics_probe.mm.o
+[9/10] Linking OBJCXX executable bin/metalrobo_matter_physics_probe
