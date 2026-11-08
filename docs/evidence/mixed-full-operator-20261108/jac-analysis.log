@@ -1,0 +1,5 @@
+Traceback (most recent call last):
+  File "/Users/numi/numi-lab-reconciliation-20261108/docs/evidence/mixed-full-operator-20261108/analyze_jacobian.py", line 29, in <module>
+    assert error<=1e-4 and relative<=1e-5,(error,relative)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: (5.4362225381021645e-05, 5.430791549304173e-05)
