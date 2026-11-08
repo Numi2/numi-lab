@@ -1,0 +1,13 @@
+{
+  "input_sha256": "08bcd99d486addeed6f39b9a265ef35e3208ea8cc884c12d5549830be0108d0f",
+  "maximum_reference_iterations": 80,
+  "nearest_fp32_rounding": "Measure without assuming acceptance",
+  "policy_promoted": false,
+  "predicted_fp64_scaled_optimality_max": 1e-10,
+  "predicted_newton_iterations_max": 20,
+  "purpose": "Exposed engineering diagnosis of next native rejection, no change to native state/settings",
+  "same_calibrated_projection_math": true,
+  "schema": "crow-quality-substep7-fp64-plan-v1",
+  "source_sha256": "89f85b795eb8a5d0f1041e00a9a99ccf871636b1dacf6ffd61038565de98d4b0",
+  "timeout_seconds": 120
+}

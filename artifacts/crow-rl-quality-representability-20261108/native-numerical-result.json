@@ -1,0 +1,125 @@
+[
+  {
+    "case": "old-expanded",
+    "code": 7,
+    "device": "Apple M4 Pro",
+    "feasibility": 0,
+    "gpu_ms": 32.3532,
+    "newton": 20,
+    "optimality": 2.21794e-10,
+    "pcg": 77
+  },
+  {
+    "capture_exact": true,
+    "case": "corrected-legacy",
+    "code": 7,
+    "device": "Apple M4 Pro",
+    "feasibility": 0,
+    "gpu_ms": 27.2868,
+    "newton": 20,
+    "optimality": 2.21794e-10,
+    "pcg": 77
+  },
+  {
+    "case": "corrected-original",
+    "code": 0,
+    "device": "Apple M4 Pro",
+    "feasibility": 0,
+    "gpu_ms": 35.0051,
+    "independent_impulse_max_difference": 1.1998647781899413e-14,
+    "independent_scaled_optimality": 7.216500344744634e-11,
+    "newton": 20,
+    "optimality": 7.52185e-11,
+    "pcg": 77
+  },
+  {
+    "case": "old-free-0p81",
+    "code": 7,
+    "device": "Apple M4 Pro",
+    "feasibility": 0,
+    "gpu_ms": 30.9551,
+    "newton": 20,
+    "optimality": 1.52192e-10,
+    "pcg": 72
+  },
+  {
+    "case": "corrected-free-0p81",
+    "code": 0,
+    "device": "Apple M4 Pro",
+    "feasibility": 0,
+    "gpu_ms": 37.3127,
+    "independent_impulse_max_difference": 1.6078085060831958e-14,
+    "independent_scaled_optimality": 7.749770956152342e-11,
+    "newton": 20,
+    "optimality": 7.16281e-11,
+    "pcg": 72
+  },
+  {
+    "case": "old-free-0p93",
+    "code": 7,
+    "device": "Apple M4 Pro",
+    "feasibility": 0,
+    "gpu_ms": 16.9953,
+    "newton": 20,
+    "optimality": 3.22739e-10,
+    "pcg": 71
+  },
+  {
+    "case": "corrected-free-0p93",
+    "code": 0,
+    "device": "Apple M4 Pro",
+    "feasibility": 0,
+    "gpu_ms": 47.2432,
+    "independent_impulse_max_difference": 4.9667896562206404e-14,
+    "independent_scaled_optimality": 6.493897718964479e-11,
+    "newton": 20,
+    "optimality": 6.98701e-11,
+    "pcg": 71
+  },
+  {
+    "case": "old-free-1p07",
+    "code": 0,
+    "device": "Apple M4 Pro",
+    "feasibility": 0,
+    "gpu_ms": 5.97112,
+    "independent_impulse_max_difference": 1.0196721400101719e-14,
+    "independent_scaled_optimality": 5.955935008717236e-11,
+    "newton": 5,
+    "optimality": 5.58461e-11,
+    "pcg": 27
+  },
+  {
+    "case": "corrected-free-1p07",
+    "code": 0,
+    "device": "Apple M4 Pro",
+    "feasibility": 0,
+    "gpu_ms": 5.94,
+    "independent_impulse_max_difference": 1.0196721400101719e-14,
+    "independent_scaled_optimality": 5.955935008717236e-11,
+    "newton": 5,
+    "optimality": 5.58461e-11,
+    "pcg": 27
+  },
+  {
+    "case": "old-free-1p19",
+    "code": 7,
+    "device": "Apple M4 Pro",
+    "feasibility": 0,
+    "gpu_ms": 18.0766,
+    "newton": 20,
+    "optimality": 1.69877e-10,
+    "pcg": 78
+  },
+  {
+    "case": "corrected-free-1p19",
+    "code": 0,
+    "device": "Apple M4 Pro",
+    "feasibility": 0,
+    "gpu_ms": 26.5224,
+    "independent_impulse_max_difference": 8.180395092192245e-14,
+    "independent_scaled_optimality": 9.723268394131896e-11,
+    "newton": 20,
+    "optimality": 9.6589e-11,
+    "pcg": 78
+  }
+]

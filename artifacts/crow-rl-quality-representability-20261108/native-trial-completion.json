@@ -1,0 +1,13 @@
+{
+  "executed_commands": 23,
+  "goal_complete": false,
+  "policy_or_profile_promoted": false,
+  "raw_bytes": 3870833,
+  "runtime": {
+    ".numi/retained-runtime/quality-adjacent-refinement-20261108/contact-probe": "bd0777b062295b4e08a4722124665725cb6842506054d05357a6346a76d39293",
+    ".numi/retained-runtime/quality-adjacent-refinement-20261108/ir-probe": "80a77b7789e61262ef09f5a4377106e7f41994ae6774b45a9e1926a2a377646a",
+    ".numi/retained-runtime/quality-adjacent-refinement-20261108/libmetalrobo.dylib": "1368fa931e24c336953fcda6fb904734391f3ebe56063dd53eb237bcc1a3bbc6",
+    ".numi/retained-runtime/quality-adjacent-refinement-20261108/metalrobo/MetalRobo.metallib": "bcbd1f080aa8891b1e09e029be724d7eb28fc76e075e7579218f9d6c93984851",
+    ".numi/retained-runtime/quality-adjacent-refinement-20261108/probe": "746cb30844dcca6937bd22e7c70c6e64af579b5ef3cc87b6fe708a99c607e3f2"
+  }
+}
