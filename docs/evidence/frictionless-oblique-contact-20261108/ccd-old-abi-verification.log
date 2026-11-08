@@ -1,0 +1,5 @@
+Traceback (most recent call last):
+  File "/Users/numi/ccd-frictionless-oblique-20261108/verify_ccd.py", line 9, in <module>
+    assert x['repeat_identical'] and x['rejected_state_restored'] and x['rejected_contact_cache_empty']
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError
