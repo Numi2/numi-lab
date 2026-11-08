@@ -716,6 +716,7 @@ enum MRMetalWorldFlags : mr_u32 {
     MR_METAL_WORLD_BOUNDED_POSITION_DRIVES = 1u << 8u,
     // Optional protected diagnostics. No input to the physical solve.
     MR_METAL_WORLD_CAPTURE_BOUNDED_DRIVE_FAILURE = 1u << 9u,
+    MR_METAL_WORLD_CAPTURE_QUALITY_FAILURE = 1u << 10u,
 };
 
 // Immutable strides and dimensions for one environment-major rollout.

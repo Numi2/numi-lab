@@ -1,6 +1,7 @@
 #include <metal_stdlib>
 
 #include "metalrobo/unified_quality_shared.h"
+#include "metalrobo/unified_quality_capture_shared.h"
 
 using namespace metal;
 
@@ -2393,6 +2394,117 @@ kernel void mr_unified_quality_solve_queued(
         lane,
         workspace
     );
+    if (lane == 0u) {
+        device atomic_uint* processed =
+            reinterpret_cast<device atomic_uint*>(
+                &queue.packetsProcessed
+            );
+        atomic_fetch_add_explicit(
+            processed,
+            1u,
+            memory_order_relaxed
+        );
+    }
+}
+
+// Optional MetalWorld inspection variant; no normal-path extra binding.
+kernel void mr_unified_quality_solve_queued_capture(
+    device const MRUnifiedQualityDispatchGPU& dispatch
+        [[buffer(0)]],
+    device const MRUnifiedQualityBlockGPU* blocks
+        [[buffer(1)]],
+    device const float* dynamicsMatrices [[buffer(2)]],
+    device const float* jacobianMatrices [[buffer(3)]],
+    device const float* biasVectors [[buffer(4)]],
+    device const float* freeVelocities [[buffer(5)]],
+    device const float* warmVelocities [[buffer(6)]],
+    device const float* warmImpulses [[buffer(7)]],
+    device float* outputVelocities [[buffer(8)]],
+    device float* outputImpulses [[buffer(9)]],
+    device float* derivativeScratch [[buffer(10)]],
+    device float* hessianScratch [[buffer(11)]],
+    device MRUnifiedQualityStatusGPU* statuses [[buffer(12)]],
+    device const MRUnifiedQualityWorkPacketGPU* packets
+        [[buffer(13)]],
+    device MRUnifiedQualityWorkQueueGPU& queue [[buffer(14)]],
+    device uchar* failureSnapshots [[buffer(15)]],
+    constant MRUnifiedQualityFailurePassGPU& capturePass [[buffer(16)]],
+    const uint packetSlot [[threadgroup_position_in_grid]],
+    const uint lane [[thread_index_in_threadgroup]]
+) {
+    if (packetSlot >= queue.count) {
+        return;
+    }
+    threadgroup MRUnifiedQualityThreadgroupWorkspace workspace;
+    const uint problem = packets[packetSlot].identity.x;
+    mrUnifiedQualitySolveWithWorkspace(
+        dispatch,
+        blocks,
+        dynamicsMatrices,
+        jacobianMatrices,
+        biasVectors,
+        freeVelocities,
+        warmVelocities,
+        warmImpulses,
+        outputVelocities,
+        outputImpulses,
+        derivativeScratch,
+        hessianScratch,
+        statuses,
+        problem,
+        lane,
+        workspace
+    );
+    // The ordinary solver above is unchanged. Preserve the first completed
+    // nonconvergence evaluation before another encoded substep reuses scratch.
+    threadgroup_barrier(mem_flags::mem_threadgroup | mem_flags::mem_device);
+    device MRUnifiedQualityFailureHeaderGPU* saved =
+        reinterpret_cast<device MRUnifiedQualityFailureHeaderGPU*>(
+            failureSnapshots + problem * capturePass.recordBytes);
+    if (statuses[problem].code == MR_UNIFIED_QUALITY_DID_NOT_CONVERGE &&
+        saved->valid == 0u && capturePass.recordBytes ==
+            mrUnifiedQualityFailureRecordBytes(dispatch.generalizedVelocityCount,
+                dispatch.rowCount, dispatch.blockCount)) {
+        const uint nv=dispatch.generalizedVelocityCount, rows=dispatch.rowCount;
+        device MRUnifiedQualityBlockGPU* savedBlocks =
+            reinterpret_cast<device MRUnifiedQualityBlockGPU*>(saved + 1);
+        const uint blockBase=dispatch.blockStride == 0u ? 0u : problem*dispatch.blockStride;
+        for (uint i=lane;i<dispatch.blockCount;i+=kWidth)
+            savedBlocks[i]=blocks[blockBase+i];
+        device float* a=reinterpret_cast<device float*>(savedBlocks+dispatch.blockCount);
+        device float* j=a+nv*nv;
+        device float* b=j+rows*nv;
+        device float* free=b+rows;
+        device float* warmV=free+nv;
+        device float* warmP=warmV+nv;
+        device float* failed=warmP+rows;
+        device float* impulse=failed+nv;
+        device float* rowV=impulse+rows;
+        device float* grad=rowV+rows;
+        for(uint i=lane;i<nv*nv;i+=kWidth) a[i]=dynamicsMatrices[problem*dispatch.dynamicsStride+i];
+        for(uint i=lane;i<rows*nv;i+=kWidth) j[i]=jacobianMatrices[problem*dispatch.jacobianStride+i];
+        for(uint i=lane;i<nv;i+=kWidth) {
+            free[i]=freeVelocities[problem*dispatch.vectorStride+i];
+            warmV[i]=warmVelocities[problem*dispatch.vectorStride+i];
+            failed[i]=workspace.velocity[i];grad[i]=workspace.gradient[i];
+        }
+        for(uint i=lane;i<rows;i+=kWidth) {
+            b[i]=biasVectors[problem*dispatch.vectorStride+i];
+            warmP[i]=warmImpulses[problem*dispatch.vectorStride+i];
+            impulse[i]=workspace.impulses[i];rowV[i]=workspace.rowVelocity[i];
+        }
+        threadgroup_barrier(mem_flags::mem_device);
+        if(lane==0u) {
+            MRUnifiedQualityFailureHeaderGPU header={};
+            header.valid=MR_UNIFIED_QUALITY_FAILURE_MAGIC;
+            header.version=MR_UNIFIED_QUALITY_FAILURE_VERSION;
+            header.environment=problem;header.controlStep=capturePass.controlStep;
+            header.physicsSubstep=capturePass.physicsSubstep;
+            header.recordBytes=capturePass.recordBytes;header.dispatch=dispatch;
+            header.status=statuses[problem];header.packet=packets[packetSlot];
+            *saved=header;
+        }
+    }
     if (lane == 0u) {
         device atomic_uint* processed =
             reinterpret_cast<device atomic_uint*>(

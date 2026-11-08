@@ -7,6 +7,7 @@
 #include "metalrobo/OpenSimSpatialTransform.hpp"
 #include "metalrobo/ParallelABASchedule.hpp"
 #include "metalrobo/unified_quality_shared.h"
+#include "metalrobo/unified_quality_capture_shared.h"
 
 #include <dlfcn.h>
 
@@ -44,7 +45,7 @@
 namespace metalrobo {
 namespace {
 
-constexpr std::size_t kRawBufferCount = 267u;
+constexpr std::size_t kRawBufferCount = 268u;
 constexpr NSUInteger kABAThreadsPerThreadgroup = 32u;
 constexpr NSUInteger kOperatorThreadsPerThreadgroup = 32u;
 constexpr NSUInteger kWorldThreadsPerThreadgroup = 64u;
@@ -371,6 +372,7 @@ enum BufferIndex : std::size_t {
     kDriveFreeAcceleration = 264u,
     kDriveEffectiveEffort = 265u,
     kDriveFailureSnapshot = 266u,
+    kQualityFailureSnapshot = 267u,
 };
 
 struct BufferRequirement {
@@ -623,6 +625,8 @@ struct MetalWorldContextState {
     std::vector<MRArticulatedOperatorDispatchGPU>
         boundFactorDispatches;
     MRMetalWorldContactDispatchGPU boundContactDispatch{};
+    MRUnifiedQualityDispatchGPU boundQualityDispatch{};
+    bool captureQualityFailure = false;
     bool useTaskBodyParameters = false;
     bool useBoundedDrives = false;
     bool useCoupledDrives = false;
@@ -2323,6 +2327,13 @@ bool buildRequirements(
     std::size_t qualityVectorElements = 0u;
     std::size_t qualityDerivativeElements = 0u;
     std::size_t qualityHessianElements = 0u;
+    std::size_t qualityCaptureBytes = 0u;
+    if ((layout.dispatch.flags & MR_METAL_WORLD_CAPTURE_QUALITY_FAILURE) != 0u &&
+        (!checkedMultiply(qualityEnvironments, mrUnifiedQualityFailureRecordBytes(
+            layout.qualityDispatch.generalizedVelocityCount,
+            layout.qualityDispatch.rowCount, layout.qualityDispatch.blockCount),
+            qualityCaptureBytes) ||
+         qualityCaptureBytes > MR_UNIFIED_QUALITY_FAILURE_MAX_BYTES)) return false;
     std::size_t rodPairStateElements = 0u;
     std::size_t rodWitnessElements = 0u;
     std::size_t rodContactMetadataElements = 0u;
@@ -3175,6 +3186,9 @@ bool buildRequirements(
             qualityEnvironments == 0u ? 0u : 1u,
             requirements.entries[kQualityWorkQueue]
         ) ||
+        !makeRequirement<mr_u32>("protected quality failure inspection",
+            qualityCaptureBytes / sizeof(mr_u32),
+            requirements.entries[kQualityFailureSnapshot]) ||
         !makeRequirement<MRUnifiedQualityWorkPacketGPU>(
             "unified quality work packets",
             qualityEnvironments,
@@ -4281,6 +4295,9 @@ MetalWorldDiagnostics validateAndBuildLayout(
          std::getenv("METALROBO_BOUNDED_FAILURE_CAPTURE") != nullptr
              ? static_cast<mr_u32>(MR_METAL_WORLD_CAPTURE_BOUNDED_DRIVE_FAILURE)
              : 0u) |
+        (qualityMode && std::getenv("METALROBO_QUALITY_FAILURE_CAPTURE") != nullptr &&
+         *std::getenv("METALROBO_QUALITY_FAILURE_CAPTURE") != '\0'
+             ? static_cast<mr_u32>(MR_METAL_WORLD_CAPTURE_QUALITY_FAILURE) : 0u) |
         (nativeTask
              ? static_cast<mr_u32>(
                    MR_METAL_WORLD_NATIVE_TASK
@@ -4784,6 +4801,16 @@ MetalWorldDiagnostics validateAndBuildLayout(
             1.0e-20f,
             64.0f,
         };
+        if ((dispatch.flags & MR_METAL_WORLD_CAPTURE_QUALITY_FAILURE) != 0u) {
+            const auto bytes=mrUnifiedQualityFailureRecordBytes(
+                quality.generalizedVelocityCount,quality.rowCount,quality.blockCount);
+            std::size_t total=0u;
+            if (bytes==0u || !checkedMultiply(dispatch.environmentCount,bytes,total) ||
+                total>MR_UNIFIED_QUALITY_FAILURE_MAX_BYTES) {
+                return reject(std::move(diagnostics),MetalWorldHostStatus::invalidDimensions,
+                    "quality failure inspection exceeds the 16 MiB batch budget");
+            }
+        }
     }
 
     if (!checkedMultiply(
@@ -5558,6 +5585,7 @@ NSString* bufferLabel(const std::size_t index) {
     case kDriveFreeAcceleration: return @"MetalWorld physical free acceleration";
     case kDriveEffectiveEffort: return @"MetalWorld bounded effective effort";
     case kDriveFailureSnapshot: return @"MetalWorld bounded first failure witness";
+    case kQualityFailureSnapshot: return @"MetalWorld protected quality first failure";
     case kBodyWrenchPlaceholder:
         return @"MetalWorld external body wrenches";
     case kMulticopterRotors:
@@ -6780,7 +6808,9 @@ MetalWorldDiagnostics initializeContext(
         @"mr_world_build_unified_quality_queue"
     );
     qualitySolve = createContactPipeline(
-        @"mr_unified_quality_solve_queued"
+        (diagnostics.layout.dispatch.flags & MR_METAL_WORLD_CAPTURE_QUALITY_FAILURE) != 0u
+            ? @"mr_unified_quality_solve_queued_capture"
+            : @"mr_unified_quality_solve_queued"
     );
     qualityApply = createContactPipeline(
         @"mr_world_apply_unified_quality"
@@ -7322,6 +7352,7 @@ bool privateTransientBuffer(const std::size_t index) {
     case kDriveFreeAcceleration:
     case kDriveEffectiveEffort:
     case kDriveFailureSnapshot:
+    case kQualityFailureSnapshot:
     case kMillardResults:
     case kMillardGeneralizedForces:
     case kBodyWrenchPlaceholder:
@@ -9540,6 +9571,9 @@ void uploadBatch(
     );
     context.boundFactorDispatches = layout.factorDispatches;
     context.boundContactDispatch = layout.contactDispatch;
+    context.boundQualityDispatch = layout.qualityDispatch;
+    context.captureQualityFailure =
+        (layout.dispatch.flags & MR_METAL_WORLD_CAPTURE_QUALITY_FAILURE) != 0u;
     if (uploadInitialState) {
         copyToBuffer(
             context.buffers[kInitialSceneBodies],
@@ -9779,6 +9813,7 @@ void uploadBatch(
         kDriveFreeAcceleration,
         kDriveEffectiveEffort,
         kDriveFailureSnapshot,
+        kQualityFailureSnapshot,
         kBodyWrenchPlaceholder,
         kCandidateAcceleration,
         kCandidateV,
@@ -9928,6 +9963,7 @@ bool encodeResidentStateInitialization(
     };
     clear(kStateQB);
     clear(kStateVB);
+    clear(kQualityFailureSnapshot);
     if (contactMode) {
         clear(kSceneBodiesB);
         clear(kManifoldHeadersA);
@@ -16067,6 +16103,7 @@ bool encodeHybridContactSubstep(
 bool encodeUnifiedQualitySolve(
     detail::MetalWorldContextState& context,
     id<MTLCommandBuffer> commandBuffer,
+    const MRMetalWorldPassGPU& pass,
     const std::size_t candidateRodNodes,
     const std::size_t candidateRodEdges,
     const std::size_t environmentCount
@@ -16246,6 +16283,14 @@ bool encodeUnifiedQualitySolve(
                          ]
                   offset:0u
                  atIndex:argument];
+    }
+    if (context.captureQualityFailure) {
+        const auto& quality=context.boundQualityDispatch;
+        const MRUnifiedQualityFailurePassGPU capturePass{pass.controlStep, pass.physicsSubstep,
+            mrUnifiedQualityFailureRecordBytes(quality.generalizedVelocityCount,
+                quality.rowCount, quality.blockCount),0u};
+        [solve setBuffer:context.buffers[kQualityFailureSnapshot] offset:0u atIndex:15u];
+        [solve setBytes:&capturePass length:sizeof(capturePass) atIndex:16u];
     }
     [solve
         dispatchThreadgroupsWithIndirectBuffer:
@@ -16706,6 +16751,7 @@ bool encodeContactSubstep(
               ? encodeUnifiedQualitySolve(
                     context,
                     commandBuffer,
+                    solverPass,
                     candidateRodNodes,
                     candidateRodEdges,
                     environmentCount
@@ -20195,6 +20241,7 @@ bool MetalWorldSubmission::valid() const noexcept {
 
 #include "CCDFailureCapture.inc"
 #include "BoundedDriveFailureCapture.inc"
+#include "QualityFailureCapture.inc"
 
 MetalWorldDiagnostics MetalWorldSubmission::wait(
     MetalWorldResult& result
@@ -20613,6 +20660,7 @@ MetalWorldDiagnostics MetalWorldSubmission::wait(
         if (pending->contactMode) {
             captureCCDFailure(*pending->context, staged);
             captureBoundedDriveFailure(*pending->context, staged);
+            captureQualityFailure(*pending->context, staged);
         }
 
         return validateAndPublish(
