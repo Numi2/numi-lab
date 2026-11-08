@@ -1,0 +1,7 @@
+# Standalone local-frame continuation and rejection gate
+
+The pinned [contract fixture](measurements/rod_local_frame_contract.mm) ran three uncoupled five-node environments at world offsets 0, 1 and 16 m for six consecutive accepted steps. Every step replayed identically from the same input; the checked translated positions, velocities and support forces matched across the three environments at the printed precision. The returned host states, not a resident MetalWorld snapshot, were supplied to the next step.
+
+The helper explicitly rejected self-contact, tool contact, rigid coupling and a supplied tool-contact cache with invalid-configuration status and left a pre-existing caller output marker unchanged. Reversed targets produced GPU environment failure without publishing and likewise preserved the marker. Raw outputs and exact source, executable and shader hashes are [retained](measurements/evidence/rod-local-frame-contract-20261108).
+
+Together with the [independent force/state matrix](ROD_STANDALONE_LOCAL_FRAME_PRELIMINARY_20261108.md), this supports a limited host-mediated, uncoupled standalone capability. It does not establish resident-state restoration, contact geometry, general bend/twist accuracy, material calibration or surgery. It is a research helper invoked explicitly by the fixture, not a production default or integrated MetalWorld implementation. Additional nonfinite-input, malformed-packing, multistep independent force/work and realistic coupled cases remain unqualified.
