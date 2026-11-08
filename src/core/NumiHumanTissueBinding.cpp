@@ -159,6 +159,8 @@ NumiHumanCostalCompilation compileNumiHumanCostalTissue(
     for(std::uint32_t index=0;index<cartilage.nodes.size();++index) {
         const auto& n=cartilage.nodes[index];
         if(n.regionIndex>=binding.regions.size()) return fail("costal node region out of range");
+        if((n.flags & ~3u) != 0u || n.flags == 3u)
+            return fail("costal source attachment flags invalid");
         Vec point{};
         for(int i=0;i<3;++i) point[i]=static_cast<float>(a[4*i]*n.restPosition[0]+a[4*i+1]*n.restPosition[1]+a[4*i+2]*n.restPosition[2]+a[4*i+3]);
         object.femNodes.push_back(point);
@@ -218,6 +220,8 @@ NumiHumanCostalCompilation compileNumiHumanCostalTissue(
         if(std::memcmp(&rebased.world.fem.nodes[i].positionAndMass,
                        &world.fem.nodes[i].positionAndMass,sizeof(nm_float4))!=0)
             return fail("COM rebase changed cooked tissue mass or rest position");
+    if(!validateNumiHumanCostalAttachmentOwnership(cartilage,binding,rebased.world,error))
+        return fail("rebased costal attachment admission failed: "+error);
     result.matter=std::move(rebased);
     return result;
 }

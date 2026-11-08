@@ -184,6 +184,19 @@ int main() {
  badWorld.fem.humanAttachments[0].identity.y=1;
  if(validateNumiHumanCostalAttachmentOwnership(cart,binding,badWorld,error) || error.empty()) return 5;
  if(!validateNumiHumanCostalAttachmentOwnership(cart,binding,world,error)) return 6;
+ // Direct compiler callers may construct the decoded structures in memory.
+ // Their success contract must not return a world the runtime rejects for
+ // ambiguous or unknown source attachment flags.
+ for (const std::uint32_t invalidFlags : {3u, 4u}) {
+     auto malformedCart=cart;
+     malformedCart.nodes[0].flags=invalidFlags;
+     const auto malformed=compileNumiHumanCostalTissue(
+         malformedCart,binding,model,material.material,1e-4);
+     if(malformed.succeeded() || !malformed.mass.partitions.empty()) {
+         std::cerr<<"accepted malformed source attachment flags "<<invalidFlags<<"\n";
+         return 18;
+     }
+ }
  auto badBinding=binding;badBinding.nodeDonorBodies[2]=2;
  const auto rejected=compileNumiHumanCostalTissue(cart,badBinding,model,material.material,1e-4);
  if(rejected.succeeded() || !rejected.mass.partitions.empty()) return 7;
