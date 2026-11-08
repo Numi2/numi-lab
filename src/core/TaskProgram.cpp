@@ -4330,7 +4330,8 @@ TaskCompileDiagnostics compileTaskProgram(
         pack.id == "birdflow_american_crow_navigation_v10_world_model" ||
         pack.id == "american_crow_embodied_development_v11" ||
         pack.id == "american_crow_feeding_station_v12" ||
-        pack.id == "american_crow_retinal_feeding_v13") {
+        pack.id == "american_crow_retinal_feeding_v13" ||
+        pack.id == "american_crow_object_push_v14") {
         // Stage zero and stage one are grounded support tasks. Wing actuation
         // begins only in the lift-off band, keeping the curriculum physically
         // possible before flight practice.

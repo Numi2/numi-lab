@@ -1,5 +1,6 @@
 #include "metalrobo/RetinalObserver.hpp"
 #include "metalrobo/CrowForaging.hpp"
+#include "metalrobo/CrowManipulation.hpp"
 #include "metalrobo/detail/Checkpoint.hpp"
 #include "metalrobo/c_api.h"
 
@@ -671,7 +672,7 @@ void validateTaskRolloutConfiguration(
         );
     }
     if (config.birdflow_journey_variant >
-        MR_BIRDFLOW_JOURNEY_V13_RETINAL_FEEDING) {
+        MR_BIRDFLOW_JOURNEY_V14_OBJECT_PUSH) {
         throw std::invalid_argument(
             "task-rollout BirdFlow journey variant is invalid"
         );
@@ -2351,7 +2352,9 @@ std::unique_ptr<MRTaskVisualRuntime> compileTaskVisualRuntime(
                 : MR_WORLD_RENDER_NONE,
             dynamics
         );
-        if (tracked) {
+        // Retinal packs already contain metric geometry bound to the actual
+        // collider. The legacy nonretinal tracker uses a unit-radius mesh.
+        if (tracked && !retinal) {
             const auto sphereShape = std::ranges::find_if(
                 asset.shapeIndices,
                 [&](const std::uint32_t shape) {
@@ -3306,12 +3309,13 @@ static MRTaskRolloutHandle* createBirdFlowAmericanCrowRun(
     MRTaskRolloutHandle* result = nullptr;
     const int status = translateErrors([&] {
         validateTaskRolloutConfiguration(*config);
-        const bool retinal=journey && config->birdflow_journey_variant==MR_BIRDFLOW_JOURNEY_V13_RETINAL_FEEDING;
+        const bool manipulation=journey && config->birdflow_journey_variant==MR_BIRDFLOW_JOURNEY_V14_OBJECT_PUSH;
+        const bool retinal=journey && (config->birdflow_journey_variant==MR_BIRDFLOW_JOURNEY_V13_RETINAL_FEEDING || manipulation);
         static_assert(sizeof(MRCrowCuedForagingConfigC)==64);
         if(cueConfig && (!retinal || cueConfig->struct_size!=sizeof(*cueConfig) || cueConfig->abi_version!=1 || cueConfig->reserved || cueConfig->occluded>1))
             throw std::invalid_argument("Unsupported native cue-foraging configuration");
         if (retinal != (retinalConfig!=nullptr) || (retinal && visual_sensor==nullptr))
-            throw std::invalid_argument("V13 requires the additive retinal entry and both explicit visual and retinal programs");
+            throw std::invalid_argument("Retinal crow variants require the additive entry and explicit visual and retinal programs");
         metalrobo::RetinalSensorProgram retina;
         if (retinal) {
             static_assert(sizeof(MRRetinalSensorConfigC)==64);
@@ -3325,6 +3329,24 @@ static MRTaskRolloutHandle* createBirdFlowAmericanCrowRun(
             retina.minimumDepthMeters=c.minimum_depth_meters;retina.maximumDepthMeters=c.maximum_depth_meters;
             if(cueConfig)for(unsigned side=0;side<2;++side)
                 retina.resourceCues.push_back({{cueConfig->cue_mesh_instances[side],side,metalrobo::crowForagingCueEndTick,0}});
+        }
+        if(manipulation) {
+            if(config->physics_substeps!=32)
+                throw std::invalid_argument("Object push requires its admitted32-substep contact quality profile");
+            if(cueConfig || config->birdflow_journey_teacher)
+                throw std::invalid_argument("Object push requires exclusive policy authority and no resource cues");
+            auto manifest=metalrobo::makeAmericanCrowObjectPushFixtureManifest();
+            manifest.sensors.observation={};
+            manifest.task=metalrobo::makeAmericanCrowObjectPushTaskPack(
+                manifest.sensors.observation,manifest.reality.reset,&retina);
+            auto p=visualSensorProgram(*visual_sensor);p.retinal=retina;
+            p.fingerprint=metalrobo::visualSensorProgramFingerprint(p);
+            manifest.sensors.deviceVisual=std::move(p);
+            if(config->disable_task_terminations)manifest.task.terminations.clear();
+            applyRunProfile(manifest,*config);metalrobo::applyAmericanCrowForagingFixtureLimits(manifest);
+            result=createCompiledRunTaskRollout(std::move(manifest),metallib_path,
+                "American-crow native object push",nullptr).release();
+            return;
         }
         const bool feeding=retinal || (journey && config->birdflow_journey_variant==MR_BIRDFLOW_JOURNEY_V12_FEEDING_STATION);
         const bool embodied = journey && (config->birdflow_journey_variant ==
@@ -4008,8 +4030,9 @@ MRTaskRolloutHandle* mr_create_task_rollout(
 
 MRTaskRolloutHandle* mr_create_task_rollout_retinal(const MRRunManifestC* manifest,const MRRetinalSensorConfigC* retinal) {
     if (!manifest || !retinal || manifest->source!=MR_RUN_SOURCE_BIRDFLOW_AMERICAN_CROW_JOURNEY ||
-        manifest->profile.birdflow_journey_variant!=MR_BIRDFLOW_JOURNEY_V13_RETINAL_FEEDING) {
-        gLastError="Retinal entry requires an explicit v13 American-crow journey manifest and retinal configuration";return nullptr;
+        (manifest->profile.birdflow_journey_variant!=MR_BIRDFLOW_JOURNEY_V13_RETINAL_FEEDING &&
+         manifest->profile.birdflow_journey_variant!=MR_BIRDFLOW_JOURNEY_V14_OBJECT_PUSH)) {
+        gLastError="Retinal entry requires an explicit v13/v14 American-crow manifest and retinal configuration";return nullptr;
     }
     auto* result=createBirdFlowAmericanCrowRun(&manifest->profile,manifest->visual_sensor_program,manifest->metallib_path,true,retinal);
     if (result && manifest->inspection_visual_program) {

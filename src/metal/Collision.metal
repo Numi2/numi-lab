@@ -6800,6 +6800,21 @@ MRCCDPairGPU resolveCCDPair(
         return record;
     }
 
+    // A near contact whose complete predicted sweep is already covered by
+    // both speculative envelopes belongs to the ordinary manifold solve.
+    // Apply the same coverage certificate used below for unresolved CA to
+    // resolved near contacts, too. Otherwise advancing to CA's conservative
+    // lower endpoint repeatedly redetects a tiny positive gap and exhausts
+    // the event budget while a resting body still has unconsumed time.
+    // Distant or uncovered impacts retain literal CCD and all budgets.
+    if (query.separation <= sourceA.contactRestAndBoundingRadius.x +
+            sourceB.contactRestAndBoundingRadius.x &&
+        speculativeEnvelopeCoversCCDPair(sourceA,sourceB,startA,startB,
+            endA,endB,tolerance)) {
+        record.flags |= MR_CCD_PAIR_SPECULATIVE_FALLBACK;
+        return record;
+    }
+
     if (sourceA.shapeType == MR_SHAPE_SPHERE &&
         sourceB.shapeType == MR_SHAPE_SPHERE) {
         record.flags |= MR_CCD_PAIR_ANALYTIC;

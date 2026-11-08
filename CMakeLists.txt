@@ -778,6 +778,7 @@ add_library(
     src/core/RunProgram.cpp
     src/core/CrowEmbodiment.cpp
     src/core/CrowForaging.cpp
+    src/core/CrowManipulation.cpp
     src/core/CollisionVisualProxy.cpp
     src/core/ParallelABASchedule.cpp
     src/core/CompiledMetalMultiArticulatedProgram.cpp
@@ -1158,6 +1159,16 @@ target_compile_options(metalrobo_crow_temporal_history_check PRIVATE -fobjc-arc 
 target_link_libraries(metalrobo_crow_temporal_history_check PRIVATE metalrobo "${METAL_FRAMEWORK}" "${FOUNDATION_FRAMEWORK}")
 add_dependencies(metalrobo_crow_temporal_history_check metalrobo_shaders metalrobo_retinal_shaders)
 set_target_properties(metalrobo_crow_temporal_history_check PROPERTIES RUNTIME_OUTPUT_DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}/bin" BUILD_WITH_INSTALL_RPATH TRUE INSTALL_RPATH "@loader_path/../lib")
+add_executable(metalrobo_crow_object_push_compile apps/crow_object_push_compile.cpp)
+target_compile_options(metalrobo_crow_object_push_compile PRIVATE -Wall -Wextra -Wpedantic)
+target_link_libraries(metalrobo_crow_object_push_compile PRIVATE metalrobo)
+set_target_properties(metalrobo_crow_object_push_compile PROPERTIES RUNTIME_OUTPUT_DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}/bin" BUILD_WITH_INSTALL_RPATH TRUE INSTALL_RPATH "@loader_path/../lib")
+add_executable(metalrobo_crow_object_push_check apps/crow_object_push_check.mm)
+target_compile_options(metalrobo_crow_object_push_check PRIVATE -fobjc-arc -Wall -Wextra -Wpedantic)
+target_link_libraries(metalrobo_crow_object_push_check PRIVATE metalrobo "${METAL_FRAMEWORK}" "${FOUNDATION_FRAMEWORK}")
+add_dependencies(metalrobo_crow_object_push_check metalrobo_shaders metalrobo_retinal_shaders)
+set_target_properties(metalrobo_crow_object_push_check PROPERTIES RUNTIME_OUTPUT_DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}/bin" BUILD_WITH_INSTALL_RPATH TRUE INSTALL_RPATH "@loader_path/../lib")
+
 add_executable(metalrobo_crow_foraging_compile apps/crow_foraging_compile.cpp)
 target_compile_options(metalrobo_crow_foraging_compile PRIVATE -Wall -Wextra -Wpedantic)
 target_link_libraries(metalrobo_crow_foraging_compile PRIVATE metalrobo)
@@ -2501,6 +2512,13 @@ if(BUILD_TESTING)
             "-DOUTPUT_PARENT=${CMAKE_CURRENT_BINARY_DIR}"
             "-DLEGACY_METALLIB=${CMAKE_CURRENT_SOURCE_DIR}/artifacts/crow-rl-retinal-contract-20261107/inputs/legacy-MetalRobo.metallib"
             -P "${CMAKE_CURRENT_SOURCE_DIR}/cmake/CheckCrowRetinalContract.cmake")
+    add_test(NAME metalrobo.crow.object_push
+        COMMAND "${CMAKE_COMMAND}"
+            "-DPROGRAM=$<TARGET_FILE:metalrobo_crow_object_push_check>"
+            "-DOUTPUT_PARENT=${CMAKE_CURRENT_BINARY_DIR}"
+            -P "${CMAKE_CURRENT_SOURCE_DIR}/cmake/CheckCrowObjectPush.cmake")
+    set_tests_properties(metalrobo.crow.object_push PROPERTIES
+        LABELS "metalrobo;crow;native;manipulation;persistence;visual" TIMEOUT 200)
     add_test(NAME metalrobo.crow.temporal_history
         COMMAND "${CMAKE_COMMAND}"
             "-DPROGRAM=$<TARGET_FILE:metalrobo_crow_temporal_history_check>"

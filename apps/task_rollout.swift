@@ -595,9 +595,11 @@ private struct Options {
                     birdFlowJourneyVariant = .v12FeedingStation
                 case "v13", "v13-retinal-feeding":
                     birdFlowJourneyVariant = .v13RetinalFeeding
+                case "v14", "v14-object-push":
+                    birdFlowJourneyVariant = .v14ObjectPush
                 default:
                     throw MetalRoboTaskRolloutError.invalidShape(
-                        "--birdflow-journey-variant requires v7-hierarchical, v8-neural, v9-visual-neural, v10-world-model, v11-embodied, v12-feeding-station, or v13-retinal-feeding."
+                        "--birdflow-journey-variant requires v7-hierarchical, v8-neural, v9-visual-neural, v10-world-model, v11-embodied, v12-feeding-station, v13-retinal-feeding, or v14-object-push."
                     )
                 }
                 index += 1
@@ -747,6 +749,10 @@ private struct Options {
                 )
             }
             index += 1
+        }
+        if birdFlowJourneyVariant == .v14ObjectPush &&
+            !arguments.contains("--physics-substeps") {
+            physicsSubsteps = 32
         }
         guard environments > 0,
               steps > 0,
@@ -1117,7 +1123,8 @@ private struct Options {
         if birdFlowAmericanCrowJourney &&
             (birdFlowJourneyVariant == .v9VisualNeural ||
              birdFlowJourneyVariant == .v10WorldModelNavigation ||
-             birdFlowJourneyVariant == .v13RetinalFeeding) &&
+             birdFlowJourneyVariant == .v13RetinalFeeding ||
+             birdFlowJourneyVariant == .v14ObjectPush) &&
             visualObservationConfig == nil
         {
             throw MetalRoboTaskRolloutError.invalidShape(
@@ -3749,7 +3756,9 @@ private enum TaskRolloutMain {
                 "birdflow_wing_pulse_duration_steps":
                     options.birdFlowWingPulseDurationSteps ?? 0,
                 "action_carrier": options.birdFlowAmericanCrowJourney
-                    ? options.birdFlowJourneyVariant == .v13RetinalFeeding
+                    ? options.birdFlowJourneyVariant == .v14ObjectPush
+                        ? "v14_object_push_native_rgb"
+                        : options.birdFlowJourneyVariant == .v13RetinalFeeding
                         ? "v13_retinal_feeding_native_rgb"
                         : options.birdFlowJourneyVariant == .v12FeedingStation
                         ? "v12_feeding_station_neural_nutrition"

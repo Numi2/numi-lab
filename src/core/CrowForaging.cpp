@@ -50,7 +50,7 @@ RunManifest makeAmericanCrowForagingFixtureManifest(bool blocked) {
 }
 
 CrowForagingVisual authorAmericanCrowForagingVisual(const CompiledRun& run,const std::filesystem::path& output,
-    bool foodPortIndicators) {
+    bool foodPortIndicators,mr_float4 cameraOrientation) {
     require(run.valid() && std::filesystem::is_directory(output),"Visual authoring requires a compiled run and existing output directory");
     const auto& model=run.model();CrowForagingVisual result;
     const auto find=[&](const std::string& name) {
@@ -58,7 +58,10 @@ CrowForagingVisual authorAmericanCrowForagingVisual(const CompiledRun& run,const
         require(at!=model.bodyNames.end(),"Missing camera body: "+name);
         return static_cast<unsigned>(at-model.bodyNames.begin());
     };
-    result.head=find("crow_head");result.target=find("camera_target");
+    result.head=find("crow_head");
+    const auto target=std::find(model.bodyNames.begin(),model.bodyNames.end(),"camera_target");
+    if(target!=model.bodyNames.end())result.target=unsigned(target-model.bodyNames.begin());
+    require(!foodPortIndicators || result.target!=MR_INVALID_INDEX,"Food indicators require their target fixture");
     EpisodeTwin episode;episode.id="crow_head_proxy_camera_v1";
     WorldAsset robot;robot.id="robot";robot.semanticClass="estimated_crow_collision_proxy";
     robot.role=MR_WORLD_ASSET_ROBOT;robot.render=MR_WORLD_RENDER_MESH_PBR;
@@ -73,7 +76,10 @@ CrowForagingVisual authorAmericanCrowForagingVisual(const CompiledRun& run,const
         const auto body=sceneBodies[local];WorldAsset asset;
         asset.id=model.bodyNames[body];asset.semanticClass="calibration_fixture";asset.role=MR_WORLD_ASSET_FIXTURE;
         asset.render=MR_WORLD_RENDER_MESH_PBR;asset.collision=MR_WORLD_COLLISION_PRIMITIVES;
-        asset.dynamics=MR_WORLD_DYNAMICS_STATIC;asset.bodyIndices={body};
+        asset.dynamics=model.bodies[body].motionType==MR_MOTION_DYNAMIC
+            ? MR_WORLD_DYNAMICS_RIGID : MR_WORLD_DYNAMICS_STATIC;
+        if(asset.dynamics==MR_WORLD_DYNAMICS_RIGID){asset.role=MR_WORLD_ASSET_CLUTTER;asset.semanticClass="movable_object";}
+        asset.bodyIndices={body};
         asset.initialPose.position=run.defaultSceneBodies()[local].position;
         asset.initialPose.orientation=run.defaultSceneBodies()[local].orientation;
         episode.assets.push_back(asset);
@@ -98,7 +104,7 @@ CrowForagingVisual authorAmericanCrowForagingVisual(const CompiledRun& run,const
         // Parallel mechanical stereo fixture outside the head collider. These
         // engineering optics/origins are NOT measured American-crow eyes.
         sensor.localPose.position={.018f,camera==0 ? .026f : -.026f,.012f,0};
-        sensor.localPose.orientation={-.5f,.5f,-.5f,.5f};
+        sensor.localPose.orientation=cameraOrientation;
         sensor.width=crowForagingCameraWidth;sensor.height=crowForagingCameraHeight;
         const float focal=.5f*crowForagingCameraHeight/std::tan(22.5f*3.14159265358979323846f/180.0f);
         sensor.intrinsics={focal,focal,.5f*crowForagingCameraWidth,.5f*crowForagingCameraHeight};sensor.minimumDepthMeters=.01;
@@ -115,7 +121,8 @@ CrowForagingVisual authorAmericanCrowForagingVisual(const CompiledRun& run,const
         const auto& asset=episode.assets[index];
         const mr_float4 color=index==0 ? mr_float4{.035f,.035f,.04f,1} : asset.id=="camera_target"
             ? mr_float4{.85f,.08f,.025f,1} : asset.id=="camera_occluder"
-            ? mr_float4{.03f,.12f,.8f,1} : mr_float4{.25f,.29f,.25f,1};
+            ? mr_float4{.03f,.12f,.8f,1} : asset.id=="crow_manipulandum"
+            ? mr_float4{.85f,.35f,.03f,1} : mr_float4{.25f,.29f,.25f,1};
         auto pack=makeCollisionProxyVisualAssetPack(model,asset.bodyIndices,run.world().fingerprint(),
                                                         asset.id+"_collision_proxy",color,16.0f);
         if (foodPortIndicators && asset.id=="camera_target") {

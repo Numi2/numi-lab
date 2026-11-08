@@ -40,6 +40,42 @@ physical solid-object manipulation, social individuals/information, broader
 layouts and sustainable end-to-end performance. The historical dated sections
 below preserve failures and the narrower qualification state at each phase.
 
+## Object manipulation engineering frontier (8 November 2026)
+
+`environments/american-crow/object-push-v1` adds an estimated v14 native rigid
+sphere/support task to ordinary Swift rollout and recurrent MLX training.
+Actor1247 is proprioception/history plus genuine delayed RGB; privileged object
+visibility/relative position/velocity appears only in critic100. All18 actions
+remain available. There is no host restaging, launch, grasp latch or hidden actor
+object target. Native accepted-state goal reward has an independent FP64 check.
+
+The admitted profile explicitly uses32 physics substeps at50Hz with hybrid CCD.
+The C API rejects a different count. Resting depth error is44.4micrometers;
+32-versus64 push paths differ by at most4.86mm, without monotonic convergence.
+The coarse4-substep push is substantially different and8 substeps rejected a CCD
+step. All attempts are retained; geometry/target development is not held-out data.
+This supports a bounded engineering fixture, not general contact calibration.
+
+Native positive/opposite/neutral/contact-disabled controls, real initial RGB,
+full chunk1/8 state and streaming observations, and fresh world+retina continuation
+pass7296 transitions with zero reported physics rejections/terminations. The8
+identical lanes verify batching, not8 independent physical challenges. A metric
+sphere visual-proxy fix enables the ordinary retinal C API; inactive manifold
+tails are canonicalized only in checkpoint readback. Near-contact hybrid CCD
+uses the existing complete-sweep coverage certificate to avoid repeated events;
+distant/uncovered impacts retain literal CCD and budgets. The generic native
+contact probe (including high-speed CCD and overflow isolation) and9 focused
+crow regressions pass with the changed shader.
+
+The final ordinary two-update8-lane160-tick learner admits2560 samples and emits
+final per-factor KL, joint clip scaling and actual actor Adam displacement.
+No adaptive learning-rate trial or learned manipulation result is selected.
+Whole-life v14 learner/physical checkpoint integration, calibrated solid-food
+pickup/carrying, broader layouts and social learning remain pending. Exact
+runtime, every failed attempt and Git recovery are archived under
+`artifacts/crow-rl-object-push-20261108`. See its report for measured throughput
+and memory; bounded trials do not qualify sustained production performance.
+
 ## Current native history contract (8 November 2026)
 
 Current executable task ABIs are51 (base),52 (retinal),53 (memory choice), and54

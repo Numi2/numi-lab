@@ -59,6 +59,7 @@ typedef enum MRBirdFlowJourneyVariantC {
     MR_BIRDFLOW_JOURNEY_V11_EMBODIED = 4,
     MR_BIRDFLOW_JOURNEY_V12_FEEDING_STATION = 5,
     MR_BIRDFLOW_JOURNEY_V13_RETINAL_FEEDING = 6,
+    MR_BIRDFLOW_JOURNEY_V14_OBJECT_PUSH = 7,
 } MRBirdFlowJourneyVariantC;
 
 typedef enum MRBirdFlowNavigationCourseC {

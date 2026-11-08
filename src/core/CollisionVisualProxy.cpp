@@ -20,6 +20,41 @@ void face(VisualAssetPackV2& pack,mr_float4 center,mr_float4 u,mr_float4 v,mr_fl
     }
     for (const unsigned index : {0u,1u,2u,0u,2u,3u}) pack.indices.push_back(base+index);
 }
+void sphere(VisualAssetPackV2& pack,float radius) {
+    // Smooth, outward-wound render tessellation of the analytic collider.
+    // Physics continues to use the sphere; this mesh has no collision authority.
+    constexpr unsigned rings=16,slices=32;
+    const auto base=static_cast<std::uint32_t>(pack.vertices.size());
+    auto vertex=[&](float x,float y,float z,float tx,float ty) {
+        pack.vertices.push_back({{radius*x,radius*y,radius*z,1},
+            {x,y,z,1},{tx,ty,0,0},{0,0,0,0},{1,1,1,1}});
+    };
+    vertex(0,0,1,0,1);
+    for(unsigned i=1;i<rings;++i) {
+        const float phi=3.14159265358979323846f*i/rings;
+        for(unsigned j=0;j<slices;++j) {
+            const float theta=2*3.14159265358979323846f*j/slices;
+            vertex(std::sin(phi)*std::cos(theta),std::sin(phi)*std::sin(theta),
+                std::cos(phi),-std::sin(theta),std::cos(theta));
+        }
+    }
+    const auto south=static_cast<std::uint32_t>(pack.vertices.size())-base;
+    vertex(0,0,-1,0,1);
+    auto triangle=[&](unsigned a,unsigned b,unsigned c) {
+        for(auto index:{a,b,c})pack.indices.push_back(base+index);
+    };
+    for(unsigned j=0;j<slices;++j) {
+        const auto next=(j+1)%slices;
+        triangle(0,1+j,1+next);
+        for(unsigned i=0;i<rings-2;++i) {
+            const auto upper=1+i*slices,lower=upper+slices;
+            triangle(upper+j,lower+j,lower+next);
+            triangle(upper+j,lower+next,upper+next);
+        }
+        const auto last=1+(rings-2)*slices;
+        triangle(last+j,south,last+next);
+    }
+}
 }
 VisualAssetPackV2 makeCollisionProxyVisualAssetPack(
     const EngineModel& model,std::span<const std::uint32_t> bodyIndices,
@@ -51,8 +86,8 @@ VisualAssetPackV2 makeCollisionProxyVisualAssetPack(
         if (!bodies.contains(shape.bodyIndex)) continue;
         if (shape.flags & MR_SHAPE_FLAG_SIMULATION_DISABLED)
             throw std::invalid_argument("Collision proxy refuses simulation-disabled geometry");
-        if (shape.shapeType!=MR_SHAPE_BOX && shape.shapeType!=MR_SHAPE_PLANE)
-            throw std::invalid_argument("Collision proxy currently admits exact boxes and bounded +Y planes only");
+        if (shape.shapeType!=MR_SHAPE_BOX && shape.shapeType!=MR_SHAPE_PLANE && shape.shapeType!=MR_SHAPE_SPHERE)
+            throw std::invalid_argument("Collision proxy admits boxes, bounded +Y planes and tessellated spheres only");
         const auto firstIndex=static_cast<std::uint32_t>(pack.indices.size());
         mr_float4 lower{},upper{};
         if (shape.shapeType==MR_SHAPE_BOX) {
@@ -66,6 +101,12 @@ VisualAssetPackV2 makeCollisionProxyVisualAssetPack(
             face(pack,{0,0,h.z,0},{h.x,0,0,0},{0,h.y,0,0},{0,0,1,0});
             face(pack,{0,0,-h.z,0},{h.x,0,0,0},{0,-h.y,0,0},{0,0,-1,0});
             lower={-h.x,-h.y,-h.z,0};upper={h.x,h.y,h.z,0};
+        } else if(shape.shapeType==MR_SHAPE_SPHERE) {
+            const float radius=shape.dimensions.x;
+            if(!std::isfinite(radius) || !(radius>0))throw std::invalid_argument("Invalid proxy sphere radius");
+            sphere(pack,radius);
+            lower={-radius,-radius,-radius,0};upper={radius,radius,radius,0};
+            pack.preprocessingProvenance+="; sphere render tessellation16x32 (analytic collision unchanged)";
         } else {
             const float h=planeHalfExtentMeters;
             face(pack,{0,0,0,0},{0,0,h,0},{h,0,0,0},{0,1,0,0});

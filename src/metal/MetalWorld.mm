@@ -20419,7 +20419,35 @@ std::vector<std::byte> MetalWorldContext::checkpointResident(
         if (size) [blit copyFromBuffer:context->buffers[i] sourceOffset:0 toBuffer:staging destinationOffset:offset size:size];offset+=size;
     }
     [blit endEncoding];[command commit];[command waitUntilCompleted];
-    checkpoint::require(command.status==MTLCommandBufferStatusCompleted,"Resident checkpoint GPU readback failed");offset=0;
+    checkpoint::require(command.status==MTLCommandBufferStatusCompleted,"Resident checkpoint GPU readback failed");
+    // The compact manifold count is the sole authority for readable cache
+    // slots. Scatter/commit may retain expired records beyond that count;
+    // those bytes are never consumed and depend on transient arena history.
+    // Canonicalize only the serialized readback, preserving every live record
+    // and leaving resident device state untouched. Restored checkpoints then
+    // remain byte-exact after contacts appear and disappear, too.
+    std::array<std::size_t,kRawBufferCount> sectionOffsets{};offset=0;
+    for(std::size_t i=0;i<kRawBufferCount;++i)if(privatePersistentBuffer(i)) {
+        sectionOffsets[i]=offset;offset+=context->checkpointLogicalBytes[i];
+    }
+    auto* serialized=static_cast<std::byte*>(staging.contents);
+    for(const auto cache:std::array<std::array<std::size_t,3>,2>{{
+        {kManifoldHeadersA,kManifoldPointsA,kManifoldCountsA},
+        {kManifoldHeadersB,kManifoldPointsB,kManifoldCountsB}}}) {
+        const auto headers=context->checkpointLogicalBytes[cache[0]],points=context->checkpointLogicalBytes[cache[1]],counts=context->checkpointLogicalBytes[cache[2]];
+        if(!headers){checkpoint::require(!points,"Empty manifold headers have points");continue;}
+        const auto lanes=resident->environmentCount;
+        checkpoint::require(lanes && headers%(lanes*sizeof(MRManifoldHeaderGPU))==0 && counts==lanes*sizeof(std::uint32_t),"Invalid manifold checkpoint layout");
+        const auto stride=headers/(lanes*sizeof(MRManifoldHeaderGPU));
+        checkpoint::require(points==lanes*stride*MR_METAL_WORLD_MANIFOLD_POINT_CAPACITY*sizeof(MRManifoldPointGPU),"Invalid manifold point checkpoint layout");
+        for(std::size_t e=0;e<lanes;++e){std::uint32_t live=0;
+            std::memcpy(&live,serialized+sectionOffsets[cache[2]]+e*sizeof(live),sizeof(live));
+            checkpoint::require(live<=stride,"Manifold count exceeds checkpoint capacity");
+            std::memset(serialized+sectionOffsets[cache[0]]+(e*stride+live)*sizeof(MRManifoldHeaderGPU),0,(stride-live)*sizeof(MRManifoldHeaderGPU));
+            std::memset(serialized+sectionOffsets[cache[1]]+(e*stride+live)*MR_METAL_WORLD_MANIFOLD_POINT_CAPACITY*sizeof(MRManifoldPointGPU),0,(stride-live)*MR_METAL_WORLD_MANIFOLD_POINT_CAPACITY*sizeof(MRManifoldPointGPU));
+        }
+    }
+    offset=0;
     for (std::size_t i=0;i<kRawBufferCount;++i) if (privatePersistentBuffer(i)) {
         const auto size=context->checkpointLogicalBytes[i];checkpoint::append(bytes,std::uint32_t(i));
         checkpoint::appendBlob(bytes,{static_cast<const std::byte*>(staging.contents)+offset,size});offset+=size;

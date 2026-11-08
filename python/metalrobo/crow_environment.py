@@ -60,6 +60,8 @@ def runtime(root: Path) -> dict:
         "temporal_history_check": build / "bin/metalrobo_crow_temporal_history_check",
         "memory_causal_check": build / "bin/metalrobo_crow_memory_causal_check",
         "foraging_compile": build / "bin/metalrobo_crow_foraging_compile",
+        "object_push_compile": build / "bin/metalrobo_crow_object_push_compile",
+        "object_push_check": build / "bin/metalrobo_crow_object_push_check",
         "eye_check": build / "bin/metalrobo_crow_eye_check",
         "retinal_check": build / "bin/metalrobo_retinal_stream_check",
         "retinal_api_check": build / "bin/metalrobo_crow_retinal_api_check",
@@ -1209,6 +1211,8 @@ def main() -> int:
     commands.add_parser("memory-choice-admission").add_argument("--output", type=Path, required=True)
     commands.add_parser("action-holds-admission").add_argument("--output", type=Path, required=True)
     commands.add_parser("temporal-history-admission").add_argument("--output", type=Path, required=True)
+    commands.add_parser("object-push-admission").add_argument("--output", type=Path, required=True)
+    commands.add_parser("prepare-object-push").add_argument("--output", type=Path, required=True)
     causal = commands.add_parser("memory-causal-admission")
     causal.add_argument("--output", type=Path, required=True)
     causal.add_argument("--policy", type=Path, required=True)
@@ -1561,6 +1565,17 @@ def main() -> int:
                              ([str(x) for x in holds] if holds[0] is not None else []), root, 60)
             if result.get("status") != "passed" or result.get("simulation_steps") != 0:
                 raise RuntimeError("Native cue environment authoring failed")
+        elif args.command == "prepare-object-push":
+            result = execute(output, "compile-object-push", [str(runtime(root)["object_push_compile"]),
+                str(output / "environment")], root, 60)
+            if result.get("status") != "passed" or result.get("simulation_steps") != 0 or result.get("actor_features") != 1247 or result.get("critic_features") != 100:
+                raise RuntimeError("Native object-push environment authoring failed")
+        elif args.command == "object-push-admission":
+            execute(output, "object-push", [str(runtime(root)["object_push_check"]),
+                str(output / "native-evidence")], root, 600, json_output=False)
+            result = json.loads((output / "native-evidence/summary.json").read_text())
+            if result.get("status") != "passed_engineering_controls" or result.get("accepted_transitions") != 7296 or result.get("world_retina_future_restore_exact") is not True:
+                raise RuntimeError("Native object-push engineering admission failed")
         elif args.command == "memory-causal-admission":
             policy = args.policy.resolve(strict=True)
             execute(output, "memory-causal", [str(runtime(root)["memory_causal_check"]),

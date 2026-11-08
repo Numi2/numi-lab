@@ -22,7 +22,8 @@ struct CrowForagingVisual {
 // Writes collision-proxy packs plus optional authored visual-only port
 // indicators. Paths are immutable per run; existing files are rejected.
 [[nodiscard]] CrowForagingVisual authorAmericanCrowForagingVisual(
-    const CompiledRun& run,const std::filesystem::path& output,bool foodPortIndicators=false);
+    const CompiledRun& run,const std::filesystem::path& output,bool foodPortIndicators=false,
+    mr_float4 cameraOrientation={-.5f,.5f,-.5f,.5f});
 
 struct CrowCuedForagingProgram {
     FiniteResourceConfig resources;

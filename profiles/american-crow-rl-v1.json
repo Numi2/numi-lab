@@ -80,7 +80,8 @@
     "weather_and_seasonal_ecology": "pending",
     "retinal_stream_timing": "native-GPU-RGB-cadence-latency-reset-partition-and-pending-frame-fresh-process-restore-controls-passed-including-live-head-renderer",
     "retinal_actor_contract": "native v131251actor/97critic/18actions; live pixel/contract controls;128-lane learning5203transitions/s at382185480B MLX peak; deterministic97 fixed-fixture feeding192/192; ecology and production scaling unqualified",
-    "native_working_memory": "native recurrent actor, selected-factor rollout9/PPO and repaired ABI51..54;128-lane53-tensor and native future exact; causal fixed two-cue memory qualified for policies81/97; broader lifelong memory unqualified"
+    "native_working_memory": "native recurrent actor, selected-factor rollout9/PPO and repaired ABI51..54;128-lane53-tensor and native future exact; causal fixed two-cue memory qualified for policies81/97; broader lifelong memory unqualified",
+    "physical_object_manipulation": "estimated native v14 RGB/proprioception object-push fixture; solved-contact/miss/reward/partition/future controls and ordinary recurrent learning passed; learned manipulation, broader geometry/materials and whole-life integration pending"
   },
   "release_requirements": [
     "deterministic accepted-state execution across submission chunks",
@@ -677,5 +678,50 @@
     "Gaussian_intake_improvement_conclusive": false,
     "adaptive_learning_rate_causal_benefit_qualified": false,
     "new_optimizer_trials": 0
+  },
+  "object_push_development": {
+    "configuration": "environments/american-crow/object-push-v1/retinal-observation.json",
+    "evidence": "artifacts/crow-rl-object-push-20261108",
+    "variant": "v14-object-push",
+    "actor_features": 1247,
+    "critic_features": 100,
+    "critic_only_object_channels": 7,
+    "action_count": 18,
+    "physics_substeps": 32,
+    "control_rate_hz": 50,
+    "retinal_rate_hz": 15,
+    "CCD_mode": "hybrid",
+    "native_control_transitions": 7296,
+    "identical_batch_lanes": 8,
+    "physics_rejections_in_final_native_controls": 0,
+    "chunk1_8_world_retina_streams_exact": true,
+    "native_world_retina_fresh_restore_exact": true,
+    "ordinary_learning_samples": 2560,
+    "ordinary_learning_updates": 2,
+    "fixed_learning_rate": 0.0003,
+    "discount": 0.999,
+    "GAE_lambda": 1,
+    "focused_native_regressions_passed": 9,
+    "resting_depth_error_m": 4.44e-05,
+    "maximum_32_64_substep_push_trajectory_difference_m": 0.0048624285551,
+    "strict_monotonic_trajectory_convergence_qualified": false,
+    "all_development_failures_preserved": true,
+    "coupled_life_learner_checkpoint_supported": false,
+    "learned_manipulation_qualified": false,
+    "material_calibration_qualified": false,
+    "ecological_environment_qualified": false,
+    "production_performance_qualified": false,
+    "bounded_performance": {
+      "environments": 128,
+      "updates": 2,
+      "accepted_training_samples": 40960,
+      "end_to_end_transitions_per_second": 734.6891036312454,
+      "elapsed_seconds": 55.751473375,
+      "MLX_peak_memory_bytes": 579605392,
+      "MLX_peak_scope": "learner allocations only, not whole-system memory",
+      "swap_used_bytes": 0,
+      "physics_rejections": 0,
+      "sustained_performance_qualified": false
+    }
   }
 }

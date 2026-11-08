@@ -326,11 +326,11 @@ int main(int argc,char** argv) {@autoreleasepool {
             const auto index=shape-source.shapes.begin();
             auto bad=source;bad.shapes[index].flags|=MR_SHAPE_FLAG_SIMULATION_DISABLED;
             rejects([&]{cook(bad,body,run.world().fingerprint(),16);});
-            bad=source;bad.shapes[index].shapeType=MR_SHAPE_SPHERE;
+            bad=source;bad.shapes[index].shapeType=MR_SHAPE_CAPSULE;
             rejects([&]{cook(bad,body,run.world().fingerprint(),16);});
             bad=source;bad.shapes[index].dimensions.x=-1;
             rejects([&]{cook(bad,body,run.world().fingerprint(),16);});
-            std::ofstream(output/"authoring-controls.json")<<R"({"status":"passed","rejected_cases":7,"cases":["missing-world-identity","zero-plane-extent","duplicate-body","outside-body","disabled-shape","unsupported-sphere","negative-box-extent"]})";
+            std::ofstream(output/"authoring-controls.json")<<R"({"status":"passed","rejected_cases":7,"cases":["missing-world-identity","zero-plane-extent","duplicate-body","outside-body","disabled-shape","unsupported-capsule","negative-box-extent"]})";
         }
         std::ofstream report(output/"measurements.jsonl");
         for (const auto& control : std::array<std::string,4>{"neutral","occluded","yaw","pitch"}) {
