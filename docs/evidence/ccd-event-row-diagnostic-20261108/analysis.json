@@ -1,0 +1,281 @@
+{
+  "schema": "numi.ccd.event-row-diagnostic.v1",
+  "trace_on_off_physical_results_identical": true,
+  "matches_retained_physical_results": true,
+  "repeated_trace_identical": true,
+  "cases": [
+    {
+      "fixture": 1,
+      "scale": 1,
+      "accepted": true,
+      "first_failure_pass": null,
+      "selected_pass": 0,
+      "solver_status": 0,
+      "reported_normal_residual_m_s": 4.305634499,
+      "contacts": [
+        {
+          "jacobian_normal_velocity_m_s": -2.929492086839225,
+          "geometric_normal_velocity_m_s": -2.9294938583540997,
+          "evaluated_target_m_s": 0.3721598685,
+          "impulse_Ns": 0.1714150608,
+          "normal_equation_residual_m_s": 3.3016519553392247
+        },
+        {
+          "jacobian_normal_velocity_m_s": -3.876238612503468,
+          "geometric_normal_velocity_m_s": -3.8762386125034682,
+          "evaluated_target_m_s": 0.4293960333,
+          "impulse_Ns": 0.4131577313,
+          "normal_equation_residual_m_s": 4.305634645803468
+        },
+        {
+          "jacobian_normal_velocity_m_s": -2.9294921075734273,
+          "geometric_normal_velocity_m_s": -2.9294938790883016,
+          "evaluated_target_m_s": 0.3721598685,
+          "impulse_Ns": 0.1714150608,
+          "normal_equation_residual_m_s": 3.301651976073427
+        },
+        {
+          "jacobian_normal_velocity_m_s": -3.87623863323767,
+          "geometric_normal_velocity_m_s": -3.87623863323767,
+          "evaluated_target_m_s": 0.4293960333,
+          "impulse_Ns": 0.4131577313,
+          "normal_equation_residual_m_s": 4.30563466653767
+        }
+      ]
+    },
+    {
+      "fixture": 2,
+      "scale": 1,
+      "accepted": true,
+      "first_failure_pass": null,
+      "selected_pass": 0,
+      "solver_status": 0,
+      "reported_normal_residual_m_s": 2.699082136,
+      "contacts": [
+        {
+          "jacobian_normal_velocity_m_s": -1.7658192864892106,
+          "geometric_normal_velocity_m_s": -1.7658180217762287,
+          "evaluated_target_m_s": 0.2224045098,
+          "impulse_Ns": 0.0935831517,
+          "normal_equation_residual_m_s": 1.9882237962892106
+        },
+        {
+          "jacobian_normal_velocity_m_s": -2.4425288780618963,
+          "geometric_normal_velocity_m_s": -2.4425276133489144,
+          "evaluated_target_m_s": 0.2565532029,
+          "impulse_Ns": 0.2590826154,
+          "normal_equation_residual_m_s": 2.6990820809618965
+        },
+        {
+          "jacobian_normal_velocity_m_s": -1.765819285854406,
+          "geometric_normal_velocity_m_s": -1.765818021141424,
+          "evaluated_target_m_s": 0.2224045098,
+          "impulse_Ns": 0.0935831517,
+          "normal_equation_residual_m_s": 1.988223795654406
+        },
+        {
+          "jacobian_normal_velocity_m_s": -2.4425288774270917,
+          "geometric_normal_velocity_m_s": -2.4425276127141093,
+          "evaluated_target_m_s": 0.2565532029,
+          "impulse_Ns": 0.2590826154,
+          "normal_equation_residual_m_s": 2.699082080327092
+        }
+      ]
+    },
+    {
+      "fixture": 12,
+      "scale": 1,
+      "accepted": false,
+      "first_failure_pass": 2,
+      "selected_pass": 1,
+      "solver_status": 0,
+      "reported_normal_residual_m_s": 1.815061808,
+      "contacts": [
+        {
+          "jacobian_normal_velocity_m_s": -1.6486150404489985,
+          "geometric_normal_velocity_m_s": -1.6486151426351532,
+          "evaluated_target_m_s": 0.1664467901,
+          "impulse_Ns": 0.03371554241,
+          "normal_equation_residual_m_s": 1.8150618305489985
+        },
+        {
+          "jacobian_normal_velocity_m_s": -1.6486150379916429,
+          "geometric_normal_velocity_m_s": -1.6486151401777975,
+          "evaluated_target_m_s": 0.1664467901,
+          "impulse_Ns": 0.03371554241,
+          "normal_equation_residual_m_s": 1.8150618280916428
+        }
+      ]
+    },
+    {
+      "fixture": 13,
+      "scale": 1,
+      "accepted": true,
+      "first_failure_pass": null,
+      "selected_pass": 0,
+      "solver_status": 0,
+      "reported_normal_residual_m_s": 0,
+      "contacts": []
+    },
+    {
+      "fixture": 14,
+      "scale": 1,
+      "accepted": false,
+      "first_failure_pass": 3,
+      "selected_pass": 2,
+      "solver_status": 0,
+      "reported_normal_residual_m_s": 1.090721011,
+      "contacts": [
+        {
+          "jacobian_normal_velocity_m_s": -0.9952449588534681,
+          "geometric_normal_velocity_m_s": -0.9952436242700587,
+          "evaluated_target_m_s": 0.09547597915,
+          "impulse_Ns": 0.002539219335,
+          "normal_equation_residual_m_s": 1.0907209380034681
+        },
+        {
+          "jacobian_normal_velocity_m_s": -0.9952449567726259,
+          "geometric_normal_velocity_m_s": -0.9952436221892166,
+          "evaluated_target_m_s": 0.09547597915,
+          "impulse_Ns": 0.002539219335,
+          "normal_equation_residual_m_s": 1.090720935922626
+        }
+      ]
+    },
+    {
+      "fixture": 15,
+      "scale": 1,
+      "accepted": true,
+      "first_failure_pass": null,
+      "selected_pass": 0,
+      "solver_status": 0,
+      "reported_normal_residual_m_s": 0,
+      "contacts": []
+    },
+    {
+      "fixture": 1,
+      "scale": 0.5,
+      "accepted": true,
+      "first_failure_pass": null,
+      "selected_pass": 0,
+      "solver_status": 0,
+      "reported_normal_residual_m_s": 2.052065611,
+      "contacts": [
+        {
+          "jacobian_normal_velocity_m_s": -1.8373675907717606,
+          "geometric_normal_velocity_m_s": -1.8373675907717606,
+          "evaluated_target_m_s": 0.2146980166,
+          "impulse_Ns": 0.3330596089,
+          "normal_equation_residual_m_s": 2.0520656073717607
+        },
+        {
+          "jacobian_normal_velocity_m_s": -1.8373675921582138,
+          "geometric_normal_velocity_m_s": -1.8373675921582138,
+          "evaluated_target_m_s": 0.2146980166,
+          "impulse_Ns": 0.3330596089,
+          "normal_equation_residual_m_s": 2.052065608758214
+        }
+      ]
+    },
+    {
+      "fixture": 2,
+      "scale": 0.5,
+      "accepted": true,
+      "first_failure_pass": null,
+      "selected_pass": 0,
+      "solver_status": 0,
+      "reported_normal_residual_m_s": 1.282279372,
+      "contacts": [
+        {
+          "jacobian_normal_velocity_m_s": -1.1540027760469063,
+          "geometric_normal_velocity_m_s": -1.1540021481989973,
+          "evaluated_target_m_s": 0.1282766014,
+          "impulse_Ns": 0.204352811,
+          "normal_equation_residual_m_s": 1.2822793774469063
+        },
+        {
+          "jacobian_normal_velocity_m_s": -1.1540027722783317,
+          "geometric_normal_velocity_m_s": -1.154002144430423,
+          "evaluated_target_m_s": 0.1282766014,
+          "impulse_Ns": 0.204352811,
+          "normal_equation_residual_m_s": 1.2822793736783318
+        }
+      ]
+    },
+    {
+      "fixture": 12,
+      "scale": 0.5,
+      "accepted": false,
+      "first_failure_pass": 2,
+      "selected_pass": 1,
+      "solver_status": 0,
+      "reported_normal_residual_m_s": 0.9075309038,
+      "contacts": [
+        {
+          "jacobian_normal_velocity_m_s": -0.8243075201531317,
+          "geometric_normal_velocity_m_s": -0.8243075713674551,
+          "evaluated_target_m_s": 0.08322339505,
+          "impulse_Ns": 0.0168577712,
+          "normal_equation_residual_m_s": 0.9075309152031317
+        },
+        {
+          "jacobian_normal_velocity_m_s": -0.8243075189244539,
+          "geometric_normal_velocity_m_s": -0.8243075701387773,
+          "evaluated_target_m_s": 0.08322339505,
+          "impulse_Ns": 0.0168577712,
+          "normal_equation_residual_m_s": 0.9075309139744538
+        }
+      ]
+    },
+    {
+      "fixture": 13,
+      "scale": 0.5,
+      "accepted": true,
+      "first_failure_pass": null,
+      "selected_pass": 0,
+      "solver_status": 0,
+      "reported_normal_residual_m_s": 0,
+      "contacts": []
+    },
+    {
+      "fixture": 14,
+      "scale": 0.5,
+      "accepted": false,
+      "first_failure_pass": 3,
+      "selected_pass": 2,
+      "solver_status": 0,
+      "reported_normal_residual_m_s": 0.495531112,
+      "contacts": [
+        {
+          "jacobian_normal_velocity_m_s": -0.4976224793910062,
+          "geometric_normal_velocity_m_s": -0.4976218121850294,
+          "evaluated_target_m_s": -0.002091377974,
+          "impulse_Ns": 0.001269609667,
+          "normal_equation_residual_m_s": 0.4955311014170062
+        },
+        {
+          "jacobian_normal_velocity_m_s": -0.4976224783505851,
+          "geometric_normal_velocity_m_s": -0.4976218111446083,
+          "evaluated_target_m_s": -0.002091377974,
+          "impulse_Ns": 0.001269609667,
+          "normal_equation_residual_m_s": 0.4955311003765851
+        }
+      ]
+    },
+    {
+      "fixture": 15,
+      "scale": 0.5,
+      "accepted": true,
+      "first_failure_pass": null,
+      "selected_pass": 0,
+      "solver_status": 0,
+      "reported_normal_residual_m_s": 0,
+      "contacts": []
+    }
+  ],
+  "limitations": [
+    "The trace is a read-only snapshot of the selected event boundary; events in ultimately rejected steps are not published trajectories.",
+    "Matching the normal residual does not by itself explain the cause of incomplete solver convergence.",
+    "This covers the single-floating-box hybrid CCD fixture only; no performance or general contact qualification follows."
+  ]
+}

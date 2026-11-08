@@ -1,0 +1,40 @@
+{
+  "schema": "numi.ccd.complete-analysis.v1",
+  "repeated_final_q_v_byte_identical": true,
+  "rejected_q_v_byte_restored": true,
+  "interval_local_accepted_steps": 58,
+  "interval_local_unresponded_swept_hits": 0,
+  "accepted_unresponded_swept_hits": [],
+  "production_cap_original_and_unused_rotation_impacts_accept": true,
+  "production_cap_clear_controls_accept": true,
+  "all_impact_resolution_gate_passed": false,
+  "remaining_rejected_production_cap_cases": [
+    {
+      "scale": 1,
+      "fixture": 12,
+      "status": 11
+    },
+    {
+      "scale": 1,
+      "fixture": 14,
+      "status": 9
+    },
+    {
+      "scale": 0.5,
+      "fixture": 12,
+      "status": 11
+    },
+    {
+      "scale": 0.5,
+      "fixture": 14,
+      "status": 11
+    }
+  ],
+  "decision": "Original and unused-rotation impacts and clear controls accept at cap16. Thinner impact stresses remain rejected/restored; all-impact resolution is incomplete.",
+  "limits": [
+    "Hybrid CCD mode with the production iteration cap of 16; production default CCD mode is speculative.",
+    "Zero impulse is a failure here because a force-free principal-axis box sweep analytically crosses the fixed plane.",
+    "Positive endpoint gap cannot certify the transient sweep.",
+    "Wall times include initialization and are not performance comparisons."
+  ]
+}
