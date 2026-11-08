@@ -1,0 +1,35 @@
+{
+  "actual_git_files_verified": 215,
+  "actual_git_unique_contents_verified": 135,
+  "build_open_handles": 0,
+  "data_available_GiB": 149.76733016967773,
+  "df": "Filesystem   1024-blocks      Used Available Capacity iused      ifree %iused  Mounted on\n/dev/disk3s5   482797652 300306712 157042428    66% 3499362 1570424280    0%   /System/Volumes/Data\n",
+  "goal_complete": false,
+  "manifest_sha256": "5ecd16c1ae04e86e6034d16e9103fa808ec0cae1a68cfdadcb1ebc8664e69f76",
+  "original_raw_and_temporary_scopes_absent": [
+    "build/crow-quality-representability-build-01",
+    "build/crow-quality-representability-git-recovery-01",
+    ".numi/retained-runtime/quality-representability-base-20261108",
+    ".numi/retained-runtime/quality-adjacent-refinement-20261108"
+  ],
+  "own_native_workers": [],
+  "policy_or_profile_promoted": false,
+  "protected_policy_sha256": "6a009417eac3e04831c95f46c24e78f943e825892124b972a58b5ee9eeed0389",
+  "recovery_files_verified": 348,
+  "recovery_unique_contents_verified": 163,
+  "remote_commit": "ebe089424936edb9f16897a5a2213542b45cb857",
+  "source_and_current_runtime_sha256": {
+    "build/bin/metalrobo_motor_contact_probe": "746cb30844dcca6937bd22e7c70c6e64af579b5ef3cc87b6fe708a99c607e3f2",
+    "build/lib/libmetalrobo.dylib": "1368fa931e24c336953fcda6fb904734391f3ebe56063dd53eb237bcc1a3bbc6",
+    "build/shaders/MetalRobo.metallib": "bcbd1f080aa8891b1e09e029be724d7eb28fc76e075e7579218f9d6c93984851",
+    "include/metalrobo/engine_types.h": "891b9ccd844b0da9210f52d6c86e06823230b9c8be65666fb61d724e5566e495",
+    "include/metalrobo/unified_quality_capture_shared.h": "5ee8449a678a25b164b717bede06d02b9e294d3dcec0f10cbd8ae0feeacd7c6c",
+    "include/metalrobo/unified_quality_shared.h": "36ee38b144e5490922dc179855338de8eaa1934782a2559e99ff700b7b8b2fef",
+    "src/metal/MetalUnifiedQualitySolver.metal": "0ead26f0181754bdbc33ab4c02a7b5a91f3f65e97a98be5cd0919388306c0168",
+    "src/metal/MetalUnifiedQualitySolver.mm": "701f3cc8d7970bea96eb583de257e5f305d3eaed651de306269c61ed16021c93",
+    "src/metal/MetalWorld.metal": "76808bafadbdf8f7a46c61fa3f73f77e571c12fb656a5cb935415b52b2f3838f",
+    "src/metal/MetalWorld.mm": "b3ffe5be3647222c0093ec875d462755d54d79ea16d5135cc9c8236d39fbcaf7",
+    "src/metal/QualityFailureCapture.inc": "13b9b9ddc7a22ac335ace7ba875a8ffc2dd38f329b22f7d2f2ee4df6f8ea295d"
+  },
+  "verification_commit": "ebe089424936edb9f16897a5a2213542b45cb857"
+}
