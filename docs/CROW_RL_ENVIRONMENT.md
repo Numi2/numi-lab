@@ -1933,3 +1933,18 @@ rare joint groups, padding, identical whole-update model/Adam state versus fixed
 rate, bounds, disabled/absent decisions, strict mode restore and exact future
 updates after restart. The actual archived65→66 rollout reproduces all53 model/Adam
 arrays and historical configuration bytes under the unchanged default.
+
+
+The sealed post-final-step feedback comparison (`d2fe55be`, source `328ca242`)
+fails its behavioral prediction: initial/fixed/adaptive choice371/482/466 and
+intake69/105/98 of576 matched unused-seed Gaussian lifetimes. Adaptive choice
+is lower (9-seed sign-flip p=.015625); intake gain is absent and inconclusive
+(p=.6328125). Both32-update histories accept655360 transitions in171.1s each,
+zero failure. Final actor Adam displacement increases.0622→.3941 despite
+critic-dominated adaptive clipping. Actual gamma=.999/lambda1 head-return
+credit is informative. Larger updates do not improve these held-out endpoints.
+No promotion or held-out tuning; default/protected deployment is unchanged.
+Full plans, failures, all outcomes, exact last-update/native continuation and
+scoped executed Git recovery are in `artifacts/crow-rl-post-step-rate-20261108`.
+This one matched training pair does not qualify broad optimizer superiority or
+the lifelong ecological environment.

@@ -677,7 +677,38 @@
     "lifetimes_per_policy_arm": 192,
     "Gaussian_intake_improvement_conclusive": false,
     "adaptive_learning_rate_causal_benefit_qualified": false,
-    "new_optimizer_trials": 0
+    "new_optimizer_trials": 1,
+    "post_final_step_adaptive_comparison": {
+      "evidence": "artifacts/crow-rl-post-step-rate-20261108",
+      "source_revision": "328ca242",
+      "plan_revision": "d2fe55be",
+      "prediction": "contradicted",
+      "training_updates_per_arm": 32,
+      "accepted_training_transitions": 1310720,
+      "accepted_evaluation_transitions": 2211840,
+      "evaluation_seeds": 9,
+      "lifetimes_per_policy_arm": 576,
+      "policy_order": [
+        "initial65",
+        "fixed97",
+        "adaptive97"
+      ],
+      "correct_choice": [
+        371,
+        482,
+        466
+      ],
+      "intake": [
+        69,
+        105,
+        98
+      ],
+      "adaptive_vs_fixed_seed_choice_p": 0.015625,
+      "adaptive_vs_fixed_seed_intake_p": 0.6328125,
+      "new_policy_promotions": 0,
+      "independent_training_replicates": 1,
+      "broader_ecological_qualification": false
+    }
   },
   "object_push_development": {
     "configuration": "environments/american-crow/object-push-v1/retinal-observation.json",

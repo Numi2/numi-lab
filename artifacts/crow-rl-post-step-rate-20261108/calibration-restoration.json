@@ -1,0 +1,42 @@
+[
+  {
+    "bytes": 659528,
+    "destination": ".numi/runs/american-crow/post-step-rate-01/calibration/before.policypack",
+    "mode": 384,
+    "sha256": "4dd8fe29b72ccb540170788945dd238c0c11e3b9db3fb0e014393710ceb505a1",
+    "source": ".numi/runs/american-crow/optimizer-audit-01/fixed65/before.policypack",
+    "source_manifest": "artifacts/crow-rl-optimizer-audit-20261108/manifest.json"
+  },
+  {
+    "bytes": 1977367,
+    "destination": ".numi/runs/american-crow/post-step-rate-01/calibration/before.safetensors",
+    "mode": 420,
+    "sha256": "a0222be598003e875a1e2c5f2c7c8d977526f31fdd07ff76617b14a4196722b2",
+    "source": ".numi/runs/american-crow/optimizer-audit-01/fixed65/before.safetensors",
+    "source_manifest": "artifacts/crow-rl-optimizer-audit-20261108/manifest.json"
+  },
+  {
+    "bytes": 1977367,
+    "destination": ".numi/runs/american-crow/post-step-rate-01/calibration/after.safetensors",
+    "mode": 420,
+    "sha256": "b9176946d383ca858274d5cc4afb78b6d34f357e190e9e649436b1ead6aaaeef",
+    "source": ".numi/runs/american-crow/optimizer-audit-01/fixed65/after.safetensors",
+    "source_manifest": "artifacts/crow-rl-optimizer-audit-20261108/manifest.json"
+  },
+  {
+    "bytes": 119276279,
+    "destination": ".numi/runs/american-crow/post-step-rate-01/calibration/rollout.rolloutpack",
+    "mode": 384,
+    "sha256": "e19013f4ae7526d16daa91a6f5d6bb917819aae4a00ab2cb4a18e154aeae1833",
+    "source": ".numi/runs/american-crow/optimizer-audit-01/fixed65/rollout.rolloutpack",
+    "source_manifest": "artifacts/crow-rl-optimizer-audit-20261108/manifest.json"
+  },
+  {
+    "bytes": 2409,
+    "destination": ".numi/runs/american-crow/post-step-rate-01/calibration/command.json",
+    "mode": 420,
+    "sha256": "180b5d9aa2f8a89e7590fb487139697910037b1488fb40b4c425874151ce0f91",
+    "source": ".numi/runs/american-crow/optimizer-audit-01/fixed65/command.json",
+    "source_manifest": "artifacts/crow-rl-optimizer-audit-20261108/manifest.json"
+  }
+]

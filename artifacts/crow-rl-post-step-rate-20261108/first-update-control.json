@@ -1,0 +1,16 @@
+{
+  "status": "measured_exact_first_update_scientific_metrics",
+  "keys": {
+    "actor_gradient_norm": 0.10290231928229332,
+    "critic_gradient_norm": 0.7884227931499481,
+    "gradient_clip_scale": 1,
+    "actor_total_parameter_delta_norm": 0.2155327827329863,
+    "post_update_action_15_kl": 0.003623269498348236,
+    "post_update_action_17_kl": 0.002996710827574134,
+    "mean_reward": 0.0016113277524709702,
+    "learning_rate_used": 0.0003000000142492354
+  },
+  "fixed_next_rate": 0.0003000000142492354,
+  "adaptive_next_rate": 0.0004500000213738531,
+  "scope": "Actual first native batch and whole-update scientific metrics agree; first-update model/Adam tensors are covered by the independent engineering twin test, not a retained production checkpoint1."
+}

@@ -1,0 +1,32 @@
+{
+  "status": "passed",
+  "results": {
+    "fixed": {
+      "status": "four_canonical_files_byte_exact",
+      "compared": {
+        "updated.policypack": "98787bdd7a5a19b0243d4c181fc43b133aec708898fff27c73640a8a02b7f834",
+        "deployment.policypack": "f17c4e660a4c06bcaa0f788be819a184645a6340d4effaebe2357442aa9bf6e6",
+        "training.rolloutpack": "32e465cd47f3851ecdcb6772774ec85bfc525feff239f57012be858983ff67ce",
+        "learner.safetensors": "8f401cf9e3fa5afeee6bd98070fd40e3261e429d5d22b407ef94e304b3d346e8"
+      },
+      "physics_failures": 0,
+      "engineering_replayed_transitions": 20480,
+      "final_native_checkpoint": ".numi/runs/american-crow/post-step-rate-01/native-continuation/fixed/checkpoints/revision-00000097.trainingcheckpoint",
+      "process_local_incumbent_compared": false
+    },
+    "adaptive": {
+      "status": "four_canonical_files_byte_exact",
+      "compared": {
+        "updated.policypack": "bd51a613da04b21da7198781b6564945a9de0bf10e0b6bffe9fe6c1483404b4d",
+        "deployment.policypack": "5ddc86d2a215ed08c85f6a9c6af7bdb908c2252c9e798a54726df3c18232a15d",
+        "training.rolloutpack": "ee65c5fe5486e5a983b9629bd28613a5f3f5a5d48fb0087f957cbabb97dbdf55",
+        "learner.safetensors": "622b7293ad6e595e3348d803ac515110f46e604c8f045a3a926d55e50e36a9c4"
+      },
+      "physics_failures": 0,
+      "engineering_replayed_transitions": 20480,
+      "final_native_checkpoint": ".numi/runs/american-crow/post-step-rate-01/native-continuation/adaptive/checkpoints/revision-00000097.trainingcheckpoint",
+      "process_local_incumbent_compared": false
+    }
+  },
+  "scope": "Exact next-update continuation of both original native+learner states on the original runtime. These40960 engineering transitions reproduce trial outcomes; they are not extra independent learning data or new heldout evaluations."
+}
