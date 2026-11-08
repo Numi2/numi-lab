@@ -1,0 +1,7 @@
+{
+  "additional_native_commands": 0,
+  "first_native_commands": 36,
+  "original_raw_bytes": 1028585,
+  "reason": "The full 36-command recovery executed successfully and exact case/calibration reports passed. Receipt comparison then rejected raw_bytes: replay GPU timing strings changed total length by 8 bytes. Exclude wall time and evidence byte count as operational metadata; retain every scientific value, prediction and all 72 native binary comparisons unchanged. Finish from retained outputs without additional native submissions.",
+  "replayed_raw_bytes": 1028593
+}

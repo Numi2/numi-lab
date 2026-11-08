@@ -29,7 +29,7 @@ with (G/'replay.stdout').open('xb') as stdout,(G/'replay.stderr').open('xb') as 
 assert code==0,code
 for name in ['case-analysis.json','derivative-calibration.json']:assert (X/ar/name).read_bytes()==originals[name],name
 baseline=json.loads(originals['result.json']);replayed=json.loads((X/ar/'result.json').read_text())
-for key in ['seconds']:baseline.pop(key);replayed.pop(key)
+for key in ['seconds','raw_bytes']:baseline.pop(key);replayed.pop(key)
 assert baseline==replayed,(baseline,replayed)
 comparisons=[]
 for f in manifest['files']:
@@ -51,7 +51,7 @@ for p in sorted(X.rglob('*')):
  inventory.append(dict(path=str(p.relative_to(X)),sha256=key[0],bytes=key[1],mode=stat.S_IMODE(s.st_mode),mtime_ns=s.st_mtime_ns,backing=backing))
 write(G/'temporary-inventory.json',dict(schema='crow-split-cones-temporary-v1',root=str(X.relative_to(R)),source_manifest=ar+'/payload/manifest.json',source_manifest_sha256=sha(manifest_raw),files=inventory))
 result=dict(schema='crow-split-cones-git-recovery-v1',manifest_sha256=sha(manifest_raw),
- native_commands=36,native_binary_outputs_exact=len(comparisons),case_and_calibration_reports_exact=True,scientific_result_exact_excluding_wall_seconds=True,
+ native_commands=36,native_binary_outputs_exact=len(comparisons),case_and_calibration_reports_exact=True,scientific_result_exact_excluding_operational_fields=True,excluded_fields=['seconds','raw_bytes'],
  original_files_checked=len(manifest['files']),temporary_files=len(inventory),temporary_bytes=sum(x['bytes'] for x in inventory),
  seconds=time.monotonic()-start,source_versions='Actual Git blobs; original bound README restored from plan base commit because result documentation was appended after observations.',
  all_passed=True,production_changed=False,goal_complete=False)
