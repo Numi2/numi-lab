@@ -722,6 +722,16 @@
       "swap_used_bytes": 0,
       "physics_rejections": 0,
       "sustained_performance_qualified": false
+    },
+    "Git_recovery": {
+      "status": "passed",
+      "native_files_byte_exact": 74,
+      "native_owner_verified_relocated_manifests": 2,
+      "policy_rollout_files_byte_exact": 9,
+      "model_Adam_arrays_exact_across_three_files": 123,
+      "learner_metadata_files_exact": 3,
+      "scientific_metrics_exact": true,
+      "temporary_bytes_removed": 269199820
     }
   }
 }

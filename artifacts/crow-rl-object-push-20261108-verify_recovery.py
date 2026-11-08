@@ -1,23 +1,36 @@
 from pathlib import Path
-import importlib.util,json,os,stat,subprocess
+import importlib.util,json,os,stat,subprocess,sys,math
 r=Path.cwd();base=r/'artifacts/crow-rl-object-push-20261108';tmp=Path('/private/tmp/crow-object-push-git-recovery-20261108')
 spec=importlib.util.spec_from_file_location('archive',r/'tools/crow_evidence_archive.py');a=importlib.util.module_from_spec(spec);spec.loader.exec_module(a)
 m=json.loads((base/'runtime-recovery.json').read_text());plan={'budget':'One complete7296-transition native replay and two ordinary160-tick128-lane fixed-rate learner updates; no tuning or retries.', 'prediction':'Native contact/sensor/reward/partition/continuation files reproduce from actual Git-restored runtime, with native-owner explanations for path-bound visual identities only. Fresh ordinary trainer reproduces policy/rollout bytes and all model/Adam arrays plus finite scientific metrics.', 'scope':'Estimated fixed object-push apparatus; no learned manipulation or production performance claim.'}
+reuse='--verify-existing' in sys.argv
+plan['execution_mode']='reverify preserved successful executions after correcting allocator-statistics equality' if reuse else 'fresh execution'
+plan['allocator_peak_scope']='Record original/recovered finite positive process-dependent allocator peaks; exclude from causal scientific equality along with elapsed update time.'
 (base/'verification-plan.json').write_text(json.dumps(plan,indent=2)+'\n')
 env={k:v for k,v in os.environ.items() if not k.startswith('DYLD_')};env['DYLD_PRINT_LIBRARIES']='1';env['METALROBO_LIBRARY']=str(tmp/'lib/libmetalrobo.dylib');env['METALROBO_METALLIB']=str(tmp/'shaders/MetalRobo.metallib');env['PYTHONPATH']=str(tmp/'python')
 def run(name,c,timeout):
- (base/(name+'.command.json')).write_text(json.dumps(c,indent=2)+'\n')
- p=subprocess.run(c,capture_output=True,text=True,env=env,timeout=timeout,cwd=tmp)
- (base/(name+'.stdout')).write_text(p.stdout);(base/(name+'.stderr')).write_text(p.stderr);(base/(name+'.receipt.json')).write_text(json.dumps({'returncode':p.returncode},indent=2)+'\n')
- if p.returncode:raise RuntimeError('Recovered native execution failed: '+name)
- loaded=[line for line in p.stderr.splitlines() if line.startswith('dyld[') and 'libmetalrobo.dylib' in line]
+ if not reuse:(base/(name+'.command.json')).write_text(json.dumps(c,indent=2)+'\n')
+ if reuse:
+  if json.loads((base/(name+'.command.json')).read_text())!=c:raise RuntimeError('Prior execution command differs: '+name)
+  if json.loads((base/(name+'.receipt.json')).read_text())['returncode']!=0:raise RuntimeError('Prior execution did not succeed: '+name)
+  stdout=(base/(name+'.stdout')).read_text();stderr=(base/(name+'.stderr')).read_text()
+ else:
+  p=subprocess.run(c,capture_output=True,text=True,env=env,timeout=timeout,cwd=tmp)
+  (base/(name+'.stdout')).write_text(p.stdout);(base/(name+'.stderr')).write_text(p.stderr);(base/(name+'.receipt.json')).write_text(json.dumps({'returncode':p.returncode},indent=2)+'\n')
+  if p.returncode:raise RuntimeError('Recovered native execution failed: '+name)
+  stdout,stderr=p.stdout,p.stderr
+ loaded=[line for line in stderr.splitlines() if line.startswith('dyld[') and 'libmetalrobo.dylib' in line]
  if not loaded or any(not line.endswith(str(tmp/'lib/libmetalrobo.dylib')) for line in loaded):raise RuntimeError('Wrong recovery library: '+name)
- return {'stdout':p.stdout,'loaded_library':loaded}
+ return {'stdout':stdout,'loaded_library':loaded,'reused_preserved_execution':reuse}
 try:
  compiler=['clang++','-std=c++20','-fobjc-arc','-I'+str(tmp/'source/include'),str(tmp/'source/identity_oracle.mm'),'-L'+str(tmp/'lib'),'-lmetalrobo','-framework','Foundation','-Wl,-rpath,@loader_path/../lib','-o',str(tmp/'bin/identity_oracle')]
- built=subprocess.run(compiler,capture_output=True,text=True,timeout=120)
- (base/'oracle-build.json').write_text(json.dumps({'command':compiler,'returncode':built.returncode,'stdout':built.stdout,'stderr':built.stderr},indent=2)+'\n')
- if built.returncode:raise RuntimeError('Native fingerprint oracle compilation failed')
+ if reuse:
+  built=json.loads((base/'oracle-build.json').read_text())
+  if built['command']!=compiler or built['returncode']!=0:raise RuntimeError('Prior oracle compilation differs or failed')
+ else:
+  built=subprocess.run(compiler,capture_output=True,text=True,timeout=120)
+  (base/'oracle-build.json').write_text(json.dumps({'command':compiler,'returncode':built.returncode,'stdout':built.stdout,'stderr':built.stderr},indent=2)+'\n')
+  if built.returncode:raise RuntimeError('Native fingerprint oracle compilation failed')
  dest=tmp/'native-replay';ref=m['native_reference']
  execution=run('native-recovery',[str(tmp/'bin/metalrobo_crow_object_push_check'),str(dest)],600)
  oracle=run('native-identity',[str(tmp/'bin/identity_oracle'),ref['original_root'],str(dest),str(tmp/'oracle-assets')],120)
@@ -36,7 +49,8 @@ try:
     if a.file_hash(dest/name)!=record['sha256']:raise RuntimeError('Recovered native evidence differs: '+name)
     exact+=1
   if {str(p.relative_to(dest)) for p in dest.rglob('*')if p.is_file()}!=set(ref['files']):raise RuntimeError('Recovered native file set differs')
- target=tmp/'learning-replay';target.mkdir()
+ target=tmp/'learning-replay'
+ if not reuse:target.mkdir()
  c=list(m['learning_reference']['command']);c[0]=str(tmp/'bin/metalrobo_task_train')
  for option in ('--policy-pack','--updated-policy-pack','--deployment-policy-pack','--incumbent-policy-pack','--rollout-pack','--output-learner-state','--checkpoint-directory'):
   i=c.index(option)+1;c[i]=str(target/Path(c[i]).name)
@@ -44,9 +58,13 @@ try:
   c[c.index(option)+1]=str(path)
  learning=run('learning-recovery',c,300);v=json.loads(learning['stdout']);expected=m['learning_reference']['summary']
  if v['failed_environment_steps']!=0 or v['training_samples']!=40960:raise RuntimeError('Recovered learning failed native sample/status checks')
+ allocator_peaks=[]
  for got,want in zip(v['learning_update_history'],expected['learning_update_history'],strict=True):
   got=got.copy();want=want.copy()
-  for key in ('update_seconds',):got.pop(key);want.pop(key)
+  allocator_peaks.append({'original':want['mlx_peak_memory_bytes'],'recovered':got['mlx_peak_memory_bytes']})
+  for key in ('update_seconds','mlx_peak_memory_bytes'):
+   if not math.isfinite(got[key]) or got[key]<0 or (key=='mlx_peak_memory_bytes' and got[key]==0):raise RuntimeError('Invalid recovered process measurement')
+   got.pop(key);want.pop(key)
   if got!=want:raise RuntimeError('Recovered scientific learner metrics differ')
  import mlx.core as mx
  import numpy as np
@@ -64,7 +82,7 @@ try:
   else:
    if a.file_hash(p)!=record['sha256']:raise RuntimeError('Recovered policy/rollout bytes differ: '+name)
    binary_exact.append(name)
- results={'native':{'execution':execution,'identity_oracle':oracle,'byte_exact_reference_files':exact,'relocated_manifests_verified':relocations},'learning':{'execution':learning,'policy_rollout_bytes_exact':binary_exact,'learner_metadata_exact':metadata_exact,'model_Adam_tensors_exact':tensors,'scientific_metrics_exact':True}}
+ results={'native':{'execution':execution,'identity_oracle':oracle,'byte_exact_reference_files':exact,'relocated_manifests_verified':relocations},'learning':{'execution':learning,'policy_rollout_bytes_exact':binary_exact,'learner_metadata_exact':metadata_exact,'model_Adam_tensors_exact':tensors,'scientific_metrics_exact':True,'process_dependent_allocator_peaks':allocator_peaks}}
  files=[];dirs=[]
  for directory,subdirs,names in os.walk(tmp,followlinks=False):
   for name in subdirs:

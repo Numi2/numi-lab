@@ -1,0 +1,5 @@
+Traceback (most recent call last):
+  File "/Users/n/Developer/numi-crow-rl-20261107/artifacts/crow-rl-object-push-20261108-verify_recovery.py", line 50, in <module>
+    if got!=want:raise RuntimeError('Recovered scientific learner metrics differ')
+                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+RuntimeError: Recovered scientific learner metrics differ

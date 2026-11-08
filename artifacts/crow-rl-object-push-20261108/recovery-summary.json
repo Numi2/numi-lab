@@ -1,0 +1,21 @@
+{
+  "status": "passed",
+  "native_files_byte_exact": 74,
+  "native_owner_verified_relocated_manifests": 2,
+  "policy_rollout_files_byte_exact": 9,
+  "model_Adam_arrays_exact_across_three_files": 123,
+  "learner_metadata_files_exact": 3,
+  "scientific_metrics_exact": true,
+  "allocator_peaks": [
+    {
+      "original": 579605392,
+      "recovered": 574015092
+    },
+    {
+      "original": 575943752,
+      "recovered": 576418124
+    }
+  ],
+  "initial_instrument_failure": "Overstrict equality of process-dependent MLX allocator peaks; all native executions succeeded. Preserved attempted checker and outputs, corrected verification from the same completed executions without repeating simulation/optimization.",
+  "temporary_bytes_removed": 269199820
+}

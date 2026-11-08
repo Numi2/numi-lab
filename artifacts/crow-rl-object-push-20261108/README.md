@@ -105,10 +105,19 @@ chunks are reused without recreating their checkout. Canonical product assets
 remain present. The recovery helpers restore from Git objects, isolate the
 actually loaded library, rerun the full native controls and the128-lane ordinary
 learner, and compare policy/rollout bytes, all model/Adam tensors/metadata and
-scientific metrics. Only measured update time is excluded from learner equality.
+scientific metrics. Measured update time and process-dependent allocator peaks are recorded separately
+and excluded from causal learner equality. The initial overstrict allocator
+equality failure is preserved in recovery-attempt-01.
 Path-bound visual identities must be explained by native owning fingerprint
 functions; all remaining fields/files are exact.
 
 Raw/duplicate removal is permitted only after pushed Git recovery succeeds and
 hash/mode/mtime/closed-handle checks pass. Recovery and cleanup receipts carry
 the observed results. No shared Git provider cleanup or unrelated deletion.
+
+Git recovery passes:74 native files byte-exact,2 path-bound visual manifests
+explained by native owning fingerprints,8 policy/rollout files byte-exact, and
+123 model/Adam arrays across3 learner files with exact metadata/scientific metrics.
+The corrected check reuses the same successful native/learner executions; it
+does not rerun or select a new training result.269199820 temporary bytes are
+removed after hash/mode/mtime/closed-handle validation.
