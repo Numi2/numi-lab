@@ -1,0 +1,7 @@
+75e882ed8597a806423325516d43a88a18fa4422f492603f692651f2cc674942  /Users/numi/numi-lab-reconciliation-20261108/src/metal/MetalWorldContact.metal
+859b811e8983c2f49acb215db043469542029bde3eef146c0ae90e48d556da58  /Users/numi/ccd-frictionless-oblique-20261108/baseline/shaders/MetalRobo.metallib
+de4b28c6bee9d50c54dea783bd03d7cd2053ada158834b5b8a9fce2920df2c02  /Users/numi/ccd-frictionless-oblique-20261108/candidate/shaders/MetalRobo.metallib
+2c3c88d26e7d141d965b61d5c76826674d42055e4ab8036669879bc3106e585e  /Users/numi/ccd-frictionless-oblique-20261108/candidate/lib/libmetalrobo.dylib
+5b5924857783d98442adc2ab002297adf61655b64ecd8624e95b1270f28b2cae  /Users/numi/frictionless-active-normal-20261108/probe
+af621ebc5579c040f52fc09e34686f7d44a3a8289cdb76f8537c87cce20d8d5f  /Users/numi/frictionless-scene-body-20261108/probe
+212192fd02ac7e28c91f76198451db3d5d97e1b7e63daf8dee1c1303e1479992  /Users/numi/frictionless-mixed-rod-20261108/probe

@@ -1,0 +1,5 @@
+# Gravity correction before zero-gravity rerun
+
+The first execution followed the retained fixture unchanged, but inspection of the composed state and `EngineModelComposeConfig` after observing an unexplained 0.00981 N s momentum discrepancy showed that the composition default is gravity (0, 0, -9.81) m/s², regardless of the component model's zero gravity. The output directly confirms the body acquired -0.00981 m/s z velocity in 1 ms. Thus the PLAN zero-gravity assumption was wrong. Preserve that output as `default-gravity-*.json`; it is not the registered zero-gravity condition and its uncorrected momentum residual is not a contact error. Its mixed residuals remain diagnostic for that gravity setting, with zero-friction candidate failing 0.002 m/s in two of three cases.
+
+To execute the originally intended zero-gravity test, set `EngineModelComposeConfig.gravityAndTimestep` explicitly to (0,0,0,0.001), preserve every other setting, and rerun both arms. The old finite-friction mixed results used default gravity, so comparisons across these two fixtures must not be attributed solely to contact-law changes. Retain both variants and do not relax any gate.

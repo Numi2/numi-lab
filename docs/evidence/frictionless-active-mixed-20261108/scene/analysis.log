@@ -1,0 +1,3 @@
+baseline slide errors [6.52966356277, 1.48232984543, 0] active normal residual [2.167831337906165, 0.8661849548775638, 0.43546193263124056] max impulse balance error 1.4901399947309102e-08
+candidate slide errors [0, 0, 0] active normal residual [8.822105624452237e-05, 8.822105624452237e-05, 8.822105624452237e-05] max impulse balance error 2.9802000034440113e-08
+candidate scene checks PASS; tangential dependence 0 0.0

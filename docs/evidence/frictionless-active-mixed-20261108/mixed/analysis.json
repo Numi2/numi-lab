@@ -1,0 +1,17 @@
+{
+  "finite_friction_identical": true,
+  "max_candidate_momentum_error_Ns": 4.461543204e-08,
+  "independent_rigid_normal_residual_m_s": 0.453348804287,
+  "reported_rigid_normal_residual_m_s": 0.4533488154,
+  "candidate_zero_friction_normal_gate_failures": [
+    {
+      "initial_vn": -1,
+      "residual_m_s": 0.4533488154
+    },
+    {
+      "initial_vn": 0,
+      "residual_m_s": 0.004494271241
+    }
+  ],
+  "mixed_qualified": false
+}
