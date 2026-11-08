@@ -15,31 +15,31 @@
       "instance_id": 11
     },
     {
-      "path": "gate-left.mrvpack",
+      "path": "gate-left.active-head.mrvpack",
       "asset_id": "crow_course_gate_left",
       "semantic_id": 7,
       "instance_id": 12
     },
     {
-      "path": "gate-right.mrvpack",
+      "path": "gate-right.active-head.mrvpack",
       "asset_id": "crow_course_gate_right",
       "semantic_id": 7,
       "instance_id": 13
     },
     {
-      "path": "slalom-a.mrvpack",
+      "path": "slalom-a.active-head.mrvpack",
       "asset_id": "crow_course_slalom_a",
       "semantic_id": 7,
       "instance_id": 14
     },
     {
-      "path": "slalom-b.mrvpack",
+      "path": "slalom-b.active-head.mrvpack",
       "asset_id": "crow_course_slalom_b",
       "semantic_id": 7,
       "instance_id": 15
     },
     {
-      "path": "perch.mrvpack",
+      "path": "perch.active-head.mrvpack",
       "asset_id": "crow_course_perch",
       "semantic_id": 8,
       "instance_id": 16

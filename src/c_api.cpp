@@ -2591,6 +2591,21 @@ std::unique_ptr<MRTaskVisualRuntime> compileTaskVisualRuntime(
                 source.path
             );
         }
+        if (handle.taskId == "american_crow_active_head_navigation_development_v1" &&
+            source.assetId.starts_with("crow_course_")) {
+            const auto body = std::ranges::find(handle.model.bodyNames, source.assetId);
+            if (body == handle.model.bodyNames.end())
+                throw std::invalid_argument("unknown active-head navigation course body: " + source.assetId);
+            const auto expected = static_cast<std::uint32_t>(body - handle.model.bodyNames.begin());
+            if (pack.instances.empty() ||
+                std::ranges::any_of(pack.instances, [expected](const auto& instance) {
+                    return instance.binding.y != expected;
+                }) ||
+                std::ranges::any_of(pack.symbolicBindings, [expected](const auto& binding) {
+                    return binding.bodyIndex != expected;
+                }))
+                throw std::invalid_argument("navigation visual pack is bound to the wrong physics body: " + source.assetId);
+        }
         const bool robotPresentationPack =
             program.captureWidth != 0u &&
             source.instanceId == 1u &&

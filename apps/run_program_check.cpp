@@ -731,6 +731,40 @@ int main() {
                     compiledNavigation.world().fingerprint(),
             "Active-head navigation lost its physical bodies or distinct policy ABI");
 
+        // The policy identity binds policy-visible geometry and camera, but
+        // capture dimensions and memory budget are presentation-only.
+        auto navVisual = activeNavigation;
+        metalrobo::VisualSensorProgram navSensor;
+        navSensor.assets.push_back({"fixture.visualpack", "robot", "hash-a", 1u, 1u});
+        navSensor.cameraParentBody = "crow_head";
+        navSensor.width = 16u; navSensor.height = 9u;
+        navSensor.minimumVisiblePixels = 1u; navSensor.nominalRateHz = 15.0f;
+        navSensor.verticalFieldOfViewDegrees = 55.0f;
+        navSensor.fingerprint = metalrobo::visualSensorProgramFingerprint(navSensor);
+        navVisual.sensors.deviceVisual = navSensor;
+        auto compileNavVisual = [](metalrobo::RunManifest m) {
+            m.sensors.deviceVisual->fingerprint =
+                metalrobo::visualSensorProgramFingerprint(*m.sensors.deviceVisual);
+            metalrobo::CompiledRun r;
+            auto status = metalrobo::compileRun(m, r);
+            require(status.succeeded(), "active navigation visual contract: " + status.message);
+            return r.task().observationFingerprint();
+        };
+        const auto navObservation = compileNavVisual(navVisual);
+        auto movedCamera = navVisual;
+        movedCamera.sensors.deviceVisual->cameraPosition.x += 0.01f;
+        auto changedAsset = navVisual;
+        changedAsset.sensors.deviceVisual->assets[0].contentHash = "hash-b";
+        auto captureOnly = navVisual;
+        captureOnly.sensors.deviceVisual->captureWidth = 160u;
+        captureOnly.sensors.deviceVisual->captureHeight = 90u;
+        captureOnly.sensors.deviceVisual->capturePolicyCamera = true;
+        captureOnly.sensors.deviceVisual->maximumRetainedBytes = 123456u;
+        require(navObservation != compileNavVisual(movedCamera) &&
+                navObservation != compileNavVisual(changedAsset) &&
+                navObservation == compileNavVisual(captureOnly),
+            "active navigation policy sensor identity does not track sensory semantics");
+
         std::cout
             << "run_program_check=ok"
             << " run=" << compiled.fingerprint()

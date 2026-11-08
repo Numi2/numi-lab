@@ -1155,6 +1155,21 @@ RunCompileDiagnostics compileRun(
                     "retinal observation metadata disagrees with its SensorPack identity");
             executableObservations.deviceSensorProgramFingerprint=fingerprint;
         }
+        if (manifest.task.id == "american_crow_active_head_navigation_development_v1" &&
+            manifest.sensors.deviceVisual) {
+            // Capture and retention settings do not change policy observations.
+            auto visual = *manifest.sensors.deviceVisual;
+            visual.captureWidth = 0u;
+            visual.captureHeight = 0u;
+            visual.capturePolicyCamera = false;
+            visual.maximumRetainedBytes = 0u;
+            const auto fingerprint = visualSensorProgramFingerprint(visual);
+            if (executableObservations.deviceSensorProgramFingerprint != 0u &&
+                executableObservations.deviceSensorProgramFingerprint != fingerprint)
+                return reject(RunCompileStatus::invalidManifest, manifest.sensors.id,
+                    "masked-depth observation metadata disagrees with its SensorPack identity");
+            executableObservations.deviceSensorProgramFingerprint = fingerprint;
+        }
         const TaskCompileDiagnostics taskStatus =
             manifest.teacher.interactions
             ? compileTaskProgram(

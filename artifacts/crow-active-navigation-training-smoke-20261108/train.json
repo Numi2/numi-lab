@@ -1,0 +1,541 @@
+{
+  "action_carrier" : "v15_active_head_navigation_rgbd_history",
+  "birdflow_journey_student_authority" : 0,
+  "birdflow_journey_teacher" : false,
+  "birdflow_journey_variant" : "v15-active-head-navigation",
+  "birdflow_navigation_curriculum" : false,
+  "birdflow_navigation_curriculum_stage" : -1,
+  "candidate_deployment_policy_pack" : "\/Users\/n\/Developer\/numi-crow-rl-20261107\/build\/crow-active-navigation-train-smoke-01\/updated.policypack.deployment.policypack",
+  "checkpoint_directory" : "",
+  "checkpoint_interval" : 0,
+  "control_steps_per_submission" : 1,
+  "deployment_policy_pack" : "\/Users\/n\/Developer\/numi-crow-rl-20261107\/build\/crow-active-navigation-train-smoke-01\/updated.policypack.deployment.policypack",
+  "deployment_selection_performed" : false,
+  "device" : "Apple M4 Pro",
+  "difficulty_sampling_exponent_override" : 0,
+  "elapsed_seconds" : 0.61645391599999999,
+  "end_to_end_environment_steps_per_second" : 415.27840663437365,
+  "environments" : 4,
+  "failed_environment_steps" : 0,
+  "final_physical_evidence" : {
+    "control_steps" : 64,
+    "evidence_windows" : 0,
+    "last_balance_failure_rate" : 0,
+    "last_clean_miss_rate" : 0,
+    "last_completed_episode_count" : 0,
+    "last_contact_rate" : 0,
+    "last_mean_tracking_per_million" : 0,
+    "pending_completed_episode_count" : 0,
+    "pending_timeout_episode_count" : 0
+  },
+  "final_policy_revision" : 3,
+  "gpu_milliseconds" : 339.82845832360908,
+  "host_requested_resets" : 0,
+  "incumbent_policy_pack" : "\/Users\/n\/Developer\/numi-crow-rl-20261107\/build\/crow-active-navigation-train-smoke-01\/updated.policypack.incumbent.policypack",
+  "independent_cued_lifetimes" : false,
+  "independent_lifetime_history" : [
+
+  ],
+  "initial_policy_revision" : 1,
+  "last_learning_update" : {
+    "actor_gradient_norm" : 9.705888032913208,
+    "approximate_kl" : 0.12283364264294505,
+    "behavior_policy_fingerprint" : 11662840145210133000,
+    "clip_fraction" : 0.5859375,
+    "critic_gradient_norm" : 1.5406375452876091,
+    "deployment_policy_pack" : "\/Users\/n\/Developer\/numi-crow-rl-20261107\/build\/crow-active-navigation-train-smoke-01\/updated.policypack.deployment.policypack",
+    "done_count" : 0,
+    "entropy" : -3.4258836209774017,
+    "gradient_norm" : 9.8769899010658264,
+    "imagination_fraction" : 0,
+    "imagination_loss" : 0,
+    "impact_sequence_metrics" : [
+
+    ],
+    "kl_divergence" : 0.11813004035502672,
+    "learner_state" : "\/Users\/n\/Developer\/numi-crow-rl-20261107\/build\/crow-active-navigation-train-smoke-01\/updated.policypack.learner.safetensors",
+    "learning_rate" : 0.0010000000474974513,
+    "loss" : 0.49950370192527771,
+    "maximum_reward" : 0.12466138601303101,
+    "mean_action_standard_deviation" : 0.20017212629318237,
+    "mean_contact_reward" : 0,
+    "mean_dodge_cbf_buffer_reward" : 0,
+    "mean_dodge_cbf_correction_reward" : 0,
+    "mean_dodge_evasion_reward" : 0,
+    "mean_dodge_link_clearance_reward" : 0,
+    "mean_dodge_miss_reward" : 0,
+    "mean_dodge_predicted_clearance_reward" : 0,
+    "mean_dodge_safe_action_rate_reward" : 0,
+    "mean_dodge_safe_stillness_reward" : 0,
+    "mean_reward" : 0.084576770663261414,
+    "mean_root_height" : 0.76595306396484375,
+    "mean_task_reward" : 0.033758744597434998,
+    "mean_tilt" : 0,
+    "mean_tracking_score" : 0.62922918796539307,
+    "minibatch_updates" : 8,
+    "minimum_reward" : 0.045301258563995361,
+    "mlx_active_memory_bytes" : 9715204,
+    "mlx_cache_memory_bytes" : 0,
+    "mlx_cache_released_bytes" : 34647034,
+    "mlx_peak_memory_bytes" : 39908528,
+    "outcomes" : {
+      "approach_pitch_full_envelope_fraction" : {
+        "direction" : 2,
+        "mean" : 0,
+        "unit" : "ratio"
+      },
+      "approach_pitch_warning_fraction" : {
+        "direction" : 2,
+        "mean" : 0,
+        "unit" : "ratio"
+      },
+      "done" : {
+        "direction" : 2,
+        "mean" : 0,
+        "unit" : "bool"
+      },
+      "figure_eight_tracking" : {
+        "direction" : 1,
+        "mean" : 0,
+        "unit" : "ratio"
+      },
+      "forward_flight_tracking" : {
+        "direction" : 1,
+        "mean" : 0.01400391198694706,
+        "unit" : "ratio"
+      },
+      "ground_support" : {
+        "direction" : 1,
+        "mean" : 0.0051093748770654202,
+        "unit" : "ratio"
+      },
+      "liftoff" : {
+        "direction" : 1,
+        "mean" : 0.019625931978225708,
+        "unit" : "ratio"
+      },
+      "navigation_completion" : {
+        "direction" : 1,
+        "mean" : 0,
+        "unit" : "ratio"
+      },
+      "navigation_progress" : {
+        "direction" : 1,
+        "mean" : -0.075058355927467346,
+        "unit" : "m"
+      },
+      "navigation_waypoints_reached" : {
+        "direction" : 1,
+        "mean" : 0,
+        "unit" : "count"
+      },
+      "physics_error" : {
+        "direction" : 2,
+        "mean" : 0,
+        "unit" : "bool"
+      },
+      "push_off" : {
+        "direction" : 1,
+        "mean" : 0.028284169733524323,
+        "unit" : "m\/s"
+      },
+      "reward" : {
+        "direction" : 1,
+        "mean" : 0.084576770663261414,
+        "unit" : "reward"
+      },
+      "root_height" : {
+        "direction" : 0,
+        "mean" : 0.76595306396484375,
+        "unit" : "m"
+      },
+      "task_reward" : {
+        "direction" : 1,
+        "mean" : 0.033758744597434998,
+        "unit" : "reward"
+      },
+      "timeout" : {
+        "direction" : 0,
+        "mean" : 0,
+        "unit" : "bool"
+      },
+      "tracking" : {
+        "direction" : 1,
+        "mean" : 0.62922918796539307,
+        "unit" : "ratio"
+      },
+      "walking_contact" : {
+        "direction" : 1,
+        "mean" : 0.0087890625,
+        "unit" : "ratio"
+      }
+    },
+    "policy_loss" : 0.042518301634117961,
+    "policy_pack" : "\/Users\/n\/Developer\/numi-crow-rl-20261107\/build\/crow-active-navigation-train-smoke-01\/updated.policypack",
+    "policy_revision" : 3,
+    "policy_revision_after" : 3,
+    "policy_revision_before" : 2,
+    "recovery_phase_rates_by_difficulty_band" : {
+      "0" : {
+        "brace" : 0,
+        "foot_support" : 0,
+        "mean_root_height" : 0.17721924185752869,
+        "mean_tilt" : 0,
+        "quiet_stand" : 0,
+        "restored" : 0,
+        "rise" : 0,
+        "standing" : 0,
+        "support_transfer" : 0,
+        "transition_count" : 32,
+        "trunk_clear" : 0
+      },
+      "1" : {
+        "brace" : 0,
+        "foot_support" : 0,
+        "mean_root_height" : 0.17794185876846313,
+        "mean_tilt" : 0,
+        "quiet_stand" : 0,
+        "restored" : 0,
+        "rise" : 0,
+        "standing" : 0,
+        "support_transfer" : 0,
+        "transition_count" : 32,
+        "trunk_clear" : 0
+      },
+      "3" : {
+        "brace" : 0,
+        "foot_support" : 0,
+        "mean_root_height" : 1.3419597148895264,
+        "mean_tilt" : 0,
+        "quiet_stand" : 0,
+        "restored" : 0,
+        "rise" : 0,
+        "standing" : 0,
+        "support_transfer" : 0,
+        "transition_count" : 32,
+        "trunk_clear" : 0
+      },
+      "6" : {
+        "brace" : 0,
+        "foot_support" : 0,
+        "mean_root_height" : 1.3666915893554688,
+        "mean_tilt" : 0,
+        "quiet_stand" : 0,
+        "restored" : 0,
+        "rise" : 0,
+        "standing" : 0,
+        "support_transfer" : 0,
+        "transition_count" : 32,
+        "trunk_clear" : 0
+      }
+    },
+    "reward_standard_deviation" : 0.01599079929292202,
+    "samples" : 128,
+    "status" : "updated",
+    "task_fingerprint" : 7218085609339478701,
+    "termination_reason_counts" : {
+
+    },
+    "timeout_count" : 0,
+    "update_seconds" : 0.007312208996154368,
+    "value_loss" : 0.4535595215857029
+  },
+  "learner" : "mlx",
+  "learner_execution_identity" : "",
+  "learner_state" : "\/Users\/n\/Developer\/numi-crow-rl-20261107\/build\/crow-active-navigation-train-smoke-01\/updated.policypack.learner.safetensors",
+  "learner_state_restored" : false,
+  "learning_update_history" : [
+    {
+      "actor_gradient_norm" : 7.3600901961326599,
+      "approximate_kl" : 0.086852449690923095,
+      "clip_fraction" : 0.4609375,
+      "critic_gradient_norm" : 0.60827495064586401,
+      "done_count" : 0,
+      "gradient_norm" : 7.5538274943828583,
+      "kl_divergence" : 0.093754050321877003,
+      "learning_rate" : 0.0010000000474974513,
+      "maximum_reward" : 0.1302109956741333,
+      "mean_action_standard_deviation" : 0.19995240867137909,
+      "mean_reward" : 0.095827788114547729,
+      "minibatch_updates" : 8,
+      "minimum_reward" : 0.053879611194133759,
+      "mlx_peak_memory_bytes" : 39880300,
+      "outcomes" : {
+        "approach_pitch_full_envelope_fraction" : {
+          "direction" : 2,
+          "mean" : 0,
+          "unit" : "ratio"
+        },
+        "approach_pitch_warning_fraction" : {
+          "direction" : 2,
+          "mean" : 0,
+          "unit" : "ratio"
+        },
+        "done" : {
+          "direction" : 2,
+          "mean" : 0,
+          "unit" : "bool"
+        },
+        "figure_eight_tracking" : {
+          "direction" : 1,
+          "mean" : 0,
+          "unit" : "ratio"
+        },
+        "forward_flight_tracking" : {
+          "direction" : 1,
+          "mean" : 0.026599578559398651,
+          "unit" : "ratio"
+        },
+        "ground_support" : {
+          "direction" : 1,
+          "mean" : 0.004781249910593033,
+          "unit" : "ratio"
+        },
+        "liftoff" : {
+          "direction" : 1,
+          "mean" : 0.019525805488228798,
+          "unit" : "ratio"
+        },
+        "navigation_completion" : {
+          "direction" : 1,
+          "mean" : 0,
+          "unit" : "ratio"
+        },
+        "navigation_progress" : {
+          "direction" : 1,
+          "mean" : 0.022677060216665268,
+          "unit" : "m"
+        },
+        "navigation_waypoints_reached" : {
+          "direction" : 1,
+          "mean" : 0,
+          "unit" : "count"
+        },
+        "physics_error" : {
+          "direction" : 2,
+          "mean" : 0,
+          "unit" : "bool"
+        },
+        "push_off" : {
+          "direction" : 1,
+          "mean" : 0.008928461000323296,
+          "unit" : "m\/s"
+        },
+        "reward" : {
+          "direction" : 1,
+          "mean" : 0.095827788114547729,
+          "unit" : "reward"
+        },
+        "root_height" : {
+          "direction" : 0,
+          "mean" : 0.53003531694412231,
+          "unit" : "m"
+        },
+        "task_reward" : {
+          "direction" : 1,
+          "mean" : 0.061546146869659424,
+          "unit" : "reward"
+        },
+        "timeout" : {
+          "direction" : 0,
+          "mean" : 0,
+          "unit" : "bool"
+        },
+        "tracking" : {
+          "direction" : 1,
+          "mean" : 0.80754768848419189,
+          "unit" : "ratio"
+        },
+        "walking_contact" : {
+          "direction" : 1,
+          "mean" : 0.008578125387430191,
+          "unit" : "ratio"
+        }
+      },
+      "policy_revision_after" : 2,
+      "policy_revision_before" : 1,
+      "samples" : 128,
+      "timeout_count" : 0,
+      "update_seconds" : 0.060961667040828615
+    },
+    {
+      "actor_gradient_norm" : 9.705888032913208,
+      "approximate_kl" : 0.12283364264294505,
+      "clip_fraction" : 0.5859375,
+      "critic_gradient_norm" : 1.5406375452876091,
+      "done_count" : 0,
+      "gradient_norm" : 9.8769899010658264,
+      "kl_divergence" : 0.11813004035502672,
+      "learning_rate" : 0.0010000000474974513,
+      "maximum_reward" : 0.12466138601303101,
+      "mean_action_standard_deviation" : 0.20017212629318237,
+      "mean_reward" : 0.084576770663261414,
+      "minibatch_updates" : 8,
+      "minimum_reward" : 0.045301258563995361,
+      "mlx_peak_memory_bytes" : 39908528,
+      "outcomes" : {
+        "approach_pitch_full_envelope_fraction" : {
+          "direction" : 2,
+          "mean" : 0,
+          "unit" : "ratio"
+        },
+        "approach_pitch_warning_fraction" : {
+          "direction" : 2,
+          "mean" : 0,
+          "unit" : "ratio"
+        },
+        "done" : {
+          "direction" : 2,
+          "mean" : 0,
+          "unit" : "bool"
+        },
+        "figure_eight_tracking" : {
+          "direction" : 1,
+          "mean" : 0,
+          "unit" : "ratio"
+        },
+        "forward_flight_tracking" : {
+          "direction" : 1,
+          "mean" : 0.01400391198694706,
+          "unit" : "ratio"
+        },
+        "ground_support" : {
+          "direction" : 1,
+          "mean" : 0.0051093748770654202,
+          "unit" : "ratio"
+        },
+        "liftoff" : {
+          "direction" : 1,
+          "mean" : 0.019625931978225708,
+          "unit" : "ratio"
+        },
+        "navigation_completion" : {
+          "direction" : 1,
+          "mean" : 0,
+          "unit" : "ratio"
+        },
+        "navigation_progress" : {
+          "direction" : 1,
+          "mean" : -0.075058355927467346,
+          "unit" : "m"
+        },
+        "navigation_waypoints_reached" : {
+          "direction" : 1,
+          "mean" : 0,
+          "unit" : "count"
+        },
+        "physics_error" : {
+          "direction" : 2,
+          "mean" : 0,
+          "unit" : "bool"
+        },
+        "push_off" : {
+          "direction" : 1,
+          "mean" : 0.028284169733524323,
+          "unit" : "m\/s"
+        },
+        "reward" : {
+          "direction" : 1,
+          "mean" : 0.084576770663261414,
+          "unit" : "reward"
+        },
+        "root_height" : {
+          "direction" : 0,
+          "mean" : 0.76595306396484375,
+          "unit" : "m"
+        },
+        "task_reward" : {
+          "direction" : 1,
+          "mean" : 0.033758744597434998,
+          "unit" : "reward"
+        },
+        "timeout" : {
+          "direction" : 0,
+          "mean" : 0,
+          "unit" : "bool"
+        },
+        "tracking" : {
+          "direction" : 1,
+          "mean" : 0.62922918796539307,
+          "unit" : "ratio"
+        },
+        "walking_contact" : {
+          "direction" : 1,
+          "mean" : 0.0087890625,
+          "unit" : "ratio"
+        }
+      },
+      "policy_revision_after" : 3,
+      "policy_revision_before" : 2,
+      "samples" : 128,
+      "timeout_count" : 0,
+      "update_seconds" : 0.007312208996154368
+    }
+  ],
+  "life_checkpoint_count" : 0,
+  "life_checkpoint_enabled" : false,
+  "life_checkpoint_seconds" : 0,
+  "life_state_restored" : false,
+  "lifetime_updates_completed" : 2,
+  "maximum_active_contacts" : 8,
+  "maximum_episode_steps" : 1600,
+  "maximum_manifolds" : 2,
+  "minibatch_size" : 32,
+  "minibatches_per_epoch" : 4,
+  "motion_minibatch_size" : 0,
+  "native_submission_count" : 64,
+  "navigation_return_weighted_self_imitation" : false,
+  "navigation_self_imitation_minimum_waypoint" : 5,
+  "object_push_curriculum" : "",
+  "operation" : "swift_native_policy_training",
+  "physics" : "metal",
+  "policy_pack" : "\/Users\/n\/Developer\/numi-crow-rl-20261107\/build\/crow-active-navigation-train-smoke-01\/updated.policypack",
+  "resumed_exploration_overridden" : false,
+  "resumed_learning_rate_overridden" : false,
+  "retained_buffer_bytes" : 8731894,
+  "retention_maximum_difficulty_band" : -1,
+  "retention_policy_pack" : "",
+  "retention_protected_actor_only" : false,
+  "retention_rollout_teacher_blend" : 0,
+  "rollout_pack" : "\/Users\/n\/Developer\/numi-crow-rl-20261107\/build\/crow-active-navigation-train-smoke-01\/rollout.bin",
+  "samples_per_update" : 128,
+  "scheduler" : "swift",
+  "stage_high_water" : {
+    "articulation_point_queries" : 0,
+    "candidate_pairs" : 2,
+    "ccd_candidates" : 0,
+    "ccd_events" : 0,
+    "constraint_blocks" : 8,
+    "constraint_rows" : 24,
+    "dynamic_nodes" : 0,
+    "endpoint_runtime_records" : 0,
+    "hard_convex_pairs" : 0,
+    "island_constraint_references" : 0,
+    "island_node_references" : 0,
+    "islands" : 1,
+    "manifolds" : 2,
+    "mesh_triangle_candidates" : 0,
+    "operator_velocity_elements" : 0,
+    "quality_direct_tiles" : 0,
+    "quality_generalized_velocities" : 0,
+    "quality_krylov_vectors" : 0,
+    "quality_rows" : 0,
+    "raw_contacts" : 8,
+    "rod_candidate_pairs" : 0,
+    "rod_ccd_events" : 0,
+    "rod_factor_blocks" : 0,
+    "rod_manifolds" : 0,
+    "rod_raw_contacts" : 0,
+    "solver_tiles" : 1,
+    "spill_rows" : 0
+  },
+  "steps_per_update" : 32,
+  "submission_milliseconds" : 352.72033199999993,
+  "training_samples" : 256,
+  "transient_private_bytes" : 1757180,
+  "updates" : 2,
+  "visual_observation" : true,
+  "visual_observation_config" : "assets\/crow_navigation_course\/crow-navigation.active-head.visual-observation.json",
+  "visual_scene_fingerprint" : 11279328382246347246,
+  "world_source" : "american_crow_active_head_navigation_development_v1"
+}

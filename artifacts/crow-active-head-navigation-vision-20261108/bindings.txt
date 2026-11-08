@@ -1,0 +1,35 @@
+assets/crow_navigation_course/gate-left.mrvpack bind_asset=0 body=15 kind=3 local=(0,0,0)
+assets/crow_navigation_course/gate-right.mrvpack bind_asset=0 body=16 kind=3 local=(0,0,0)
+assets/crow_navigation_course/slalom-a.mrvpack bind_asset=0 body=17 kind=3 local=(0,0,0)
+assets/crow_navigation_course/slalom-b.mrvpack bind_asset=0 body=18 kind=3 local=(0,0,0)
+assets/crow_navigation_course/perch.mrvpack bind_asset=0 body=19 kind=3 local=(0,0,0)
+environments/american-crow/object-push-v1/robot.mrvpack bind_asset=0 body=0 kind=3 local=(-0.0113493,0,0.0100982)
+environments/american-crow/object-push-v1/robot.mrvpack bind_asset=0 body=5 kind=3 local=(0,0.0758333,0)
+environments/american-crow/object-push-v1/robot.mrvpack bind_asset=0 body=6 kind=3 local=(0,-0.0758333,0)
+environments/american-crow/object-push-v1/robot.mrvpack bind_asset=0 body=7 kind=3 local=(-0.092,0,0)
+environments/american-crow/object-push-v1/robot.mrvpack bind_asset=0 body=8 kind=3 local=(0,0,0)
+environments/american-crow/object-push-v1/robot.mrvpack bind_asset=0 body=9 kind=3 local=(0,0,0)
+environments/american-crow/object-push-v1/robot.mrvpack bind_asset=0 body=11 kind=3 local=(0,0,0)
+environments/american-crow/object-push-v1/robot.mrvpack bind_asset=0 body=12 kind=3 local=(0,0,0)
+environments/american-crow/object-push-v1/robot.mrvpack bind_asset=0 body=10 kind=3 local=(0,0,0)
+environments/american-crow/object-push-v1/robot.mrvpack bind_asset=0 body=13 kind=3 local=(0,0,0)
+environments/american-crow/object-push-v1/robot.mrvpack bind_asset=0 body=15 kind=3 local=(0,0,0)
+environments/american-crow/object-push-v1/robot.mrvpack bind_asset=0 body=15 kind=3 local=(0.045,0,-0.003)
+environments/american-crow/object-push-v1/robot.mrvpack bind_asset=0 body=16 kind=3 local=(0,0,0)
+robot body 0 crow_body
+robot body 1 crow_left_wing_sweep
+robot body 2 crow_right_wing_sweep
+robot body 3 crow_left_wing_flap_link
+robot body 4 crow_right_wing_flap_link
+robot body 5 crow_left_wing
+robot body 6 crow_right_wing
+robot body 7 crow_tail
+robot body 8 crow_left_thigh
+robot body 9 crow_left_shank
+robot body 10 crow_left_foot
+robot body 11 crow_right_thigh
+robot body 12 crow_right_shank
+robot body 13 crow_right_foot
+robot body 14 crow_neck_yaw_link
+robot body 15 crow_head
+robot body 16 crow_lower_beak

@@ -2611,7 +2611,10 @@ TaskCompileDiagnostics compileTaskProgram(
         return op.source==TaskObservationSource::retinalRGB;
     };
     const auto retinalCount=static_cast<std::size_t>(std::ranges::count_if(observations.actorCurrent,isRetinal));
-    if ((observations.retinalFeatureCount!=0u)!=(observations.deviceSensorProgramFingerprint!=0u) ||
+    const bool activeHeadMaskedDepth =
+        pack.id == "american_crow_active_head_navigation_development_v1" && hasVisualProgram;
+    if ((!activeHeadMaskedDepth &&
+         (observations.retinalFeatureCount!=0u)!=(observations.deviceSensorProgramFingerprint!=0u)) ||
         std::ranges::any_of(observations.actorFrame,isRetinal) ||
         std::ranges::any_of(observations.critic,isRetinal) ||
         retinalCount!=observations.retinalFeatureCount ||
@@ -4863,6 +4866,10 @@ TaskCompileDiagnostics compileTaskProgram(
     if (observations.retinalFeatureCount!=0u) {
         observationHash.string("retinal-rgb-current-v1");
         observationHash.scalar(observations.retinalFeatureCount);
+        observationHash.scalar(observations.deviceSensorProgramFingerprint);
+    }
+    if (activeHeadMaskedDepth && observations.deviceSensorProgramFingerprint != 0u) {
+        observationHash.string("active-head-masked-depth-sensor-v1");
         observationHash.scalar(observations.deviceSensorProgramFingerprint);
     }
     if(memoryChoice) {

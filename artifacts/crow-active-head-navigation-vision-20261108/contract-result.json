@@ -1,0 +1,19 @@
+{
+  "old_misbound_assets": {
+    "returncode": 1,
+    "stderr": "task_rollout failed: navigation visual pack is bound to the wrong physics body: crow_course_gate_left\n"
+  },
+  "shifted_sensor_with_old_policy": {
+    "returncode": 1,
+    "stderr": "task_rollout failed: PolicyPack compile failed [incompatible_contract]: contract: policy=(world=1118982794686842073,task=8687229917770684858,observation=12117069781132968511,action=4748075326542083682) task=(world=1118982794686842073,task=8687229917770684858,observation=3974142065863184649,action=4748075326542083682)\n"
+  },
+  "same_sensor_without_capture": {
+    "returncode": 0,
+    "stderr": ""
+  },
+  "checks": {
+    "old_misbound_assets_rejected": true,
+    "shifted_sensor_rejected": true,
+    "same_sensor_capture_optional": true
+  }
+}
