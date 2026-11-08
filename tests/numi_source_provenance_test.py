@@ -71,14 +71,14 @@ class ProvenanceTest(unittest.TestCase):
             provenance.audit(self.prefix, self.digest, self.revision)
 
     def test_neuron_consumer_audits_real_receipt_and_artifacts(self):
-        provenance.stamp(self.archive, self.digest, self.revision, self.bundle / "source", self.prefix)
         helper = self.prefix / "libexec/numi/numi_source_provenance.py"
-        helper.parent.mkdir(parents=True)
+        helper.parent.mkdir(parents=True, exist_ok=True)
         shutil.copy2(MODULE, helper)
         helper.chmod(0o755)
         probe = self.prefix / "bin/metalrobo_neuron_culture_probe"
         probe.write_text('#!/bin/sh\nprintf "%s\\n" "${NUMI_NEURON_METALROBO_REVISION-unset}"\n')
         probe.chmod(0o755)
+        provenance.stamp(self.archive, self.digest, self.revision, self.bundle / "source", self.prefix)
         workspace = self.root / "workspace"
         workspace.mkdir()
         env = {k: v for k, v in os.environ.items() if not k.startswith(("NUMI_", "NUMANX_"))}
@@ -93,6 +93,22 @@ class ProvenanceTest(unittest.TestCase):
         env["NUMI_SOURCE_EXPECTED_ARCHIVE_SHA256"] = self.digest
         (self.prefix / provenance.ARTIFACTS[0]).write_bytes(b"changed")
         self.assertEqual(call(), "unknown")
+
+    def test_installed_mode_and_type_mutations_fail_audit(self):
+        provenance.stamp(self.archive, self.digest, self.revision, self.bundle / "source", self.prefix)
+        path = self.prefix / provenance.ARTIFACTS[0]
+        original_mode = path.stat().st_mode & 0o777
+        path.chmod(original_mode ^ 0o100)
+        with self.assertRaisesRegex(ValueError, "artifact hash mismatch"):
+            provenance.audit(self.prefix, self.digest, self.revision)
+        path.chmod(original_mode)
+        data = path.read_bytes()
+        path.unlink()
+        target = self.root / "replacement"
+        target.write_bytes(data)
+        path.symlink_to(target)
+        with self.assertRaisesRegex(ValueError, "not a regular file"):
+            provenance.audit(self.prefix, self.digest, self.revision)
 
     def test_tampered_build_source_does_not_stamp(self):
         (self.bundle / "source/CMakeLists.txt").write_text("changed")

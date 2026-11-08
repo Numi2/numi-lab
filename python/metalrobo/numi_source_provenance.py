@@ -148,8 +148,27 @@ def verify_archive(archive, expected_sha, expected_revision, source=None):
             "source_files": len([n for n in expected_files if n.startswith("source/")])}
 
 
-ARTIFACTS = ("bin/metalrobo_task_rollout", "bin/metalrobo_task_train", "lib/libmetalrobo.dylib",
-             "lib/metalrobo/MetalRobo.metallib", "share/numi/python/metalrobo/policy_selection.py")
+ARTIFACTS = (
+    "bin/numi", "bin/metalrobo_task_rollout", "bin/metalrobo_task_train",
+    "bin/metalrobo_world_pack", "bin/metalrobo_episode_compile",
+    "bin/metalrobo_numi_window_check", "bin/metalrobo_neuron_culture_probe",
+    "lib/libmetalrobo.dylib", "lib/metalrobo/MetalRobo.metallib",
+    "lib/metalrobo/NumiNeuron.metallib", "libexec/numi/train", "libexec/numi/neurons",
+    "libexec/numi/numi_source_provenance.py",
+    "share/numi/python/metalrobo/policy_selection.py",
+    "share/numi/python/metalrobo/mlx_policy_worker.py",
+)
+
+
+def artifact_manifest(prefix):
+    result = {}
+    for name in ARTIFACTS:
+        path = prefix / name
+        if path.is_symlink() or not path.is_file():
+            raise ValueError("installed artifact is missing or not a regular file: " + name)
+        result[name] = {"sha256": sha256(path.read_bytes()),
+                        "mode": oct(path.stat().st_mode & 0o777)}
+    return result
 
 
 def atomic_write(path, data):
@@ -166,7 +185,7 @@ def atomic_write(path, data):
 
 def stamp(archive, expected_sha, expected_revision, source, prefix):
     verified = verify_archive(archive, expected_sha, expected_revision, source)
-    artifacts = {name: sha256((prefix / name).read_bytes()) for name in ARTIFACTS}
+    artifacts = artifact_manifest(prefix)
     verified.update({"schema": "numi.installed-source-provenance.v1", "artifacts": artifacts,
                      "limitations": "source identity and installed hashes only; not authorship or a build attestation"})
     dest = prefix / "share/numi"
@@ -188,7 +207,7 @@ def audit(prefix, expected_sha, expected_revision):
         raise ValueError("installed receipt mismatch")
     if (dest / "REVISION").read_text().strip() != "verified-source:" + expected_revision:
         raise ValueError("installed revision mismatch")
-    if receipt.get("artifacts") != {name: sha256((prefix / name).read_bytes()) for name in ARTIFACTS}:
+    if receipt.get("artifacts") != artifact_manifest(prefix):
         raise ValueError("installed artifact hash mismatch")
     print(json.dumps(receipt, sort_keys=True))
 

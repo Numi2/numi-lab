@@ -23,11 +23,14 @@ manifest lengths and modes, and Git commit/tree/blob hashes. It verifies that
 the source used for stamping equals the archive and rejects extras, missing
 files, symlinks and changed modes. The installed archive and receipt carry the
 verified source identity, manifest/archive digests and selected installed
-artifact hashes. Verification happens before the revision marker is written.
+artifact hashes and modes. Verification happens before the revision marker is written.
 This validates identity of the sparse selection, not completeness of a whole
 checkout, trusted authorship, or a claim that binaries were built from the
 verified source; the build process and other dependencies need their own
 records. The expected hashes must not be taken solely from the archive itself.
+For independent verification, run an independently obtained trusted copy of
+the verifier; the installed verifier cannot defend against its own malicious
+replacement. Audit is not atomic against concurrent installation changes.
 
 A stamped install's `REVISION` is marked `verified-source:COMMIT`. Its Neuron
 command reports the commit only if `NUMI_SOURCE_EXPECTED_REVISION` and
