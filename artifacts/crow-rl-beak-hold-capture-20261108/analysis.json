@@ -1,0 +1,162 @@
+{
+  "capture_equivalence_passed": true,
+  "qualification": "failed parent, not qualified",
+  "results": [
+    {
+      "actual_loader_lines": [
+        "dyld[6572]: <BF906436-36A2-35D8-81F1-697461ABACB4> /Users/n/Developer/numi-crow-rl-20261107/build/lib/libmetalrobo.dylib"
+      ],
+      "command": [
+        "/usr/bin/time",
+        "-lp",
+        "/usr/bin/env",
+        "DYLD_PRINT_LIBRARIES=1",
+        "DYLD_LIBRARY_PATH=/Users/n/Developer/numi-crow-rl-20261107/build/lib",
+        "METALROBO_METALLIB=/Users/n/Developer/numi-crow-rl-20261107/build/shaders/MetalRobo.metallib",
+        "METALROBO_CCD_FAILURE_CAPTURE=/Users/n/Developer/numi-crow-rl-20261107/build/crow-beak-hold-build-01/capture-clamp.ccdsweep",
+        "/Users/n/Developer/numi-crow-rl-20261107/build/crow-beak-hold-build-01/probe-v5",
+        "/Users/n/Developer/numi-crow-rl-20261107/build/crow-beak-hold-build-01/capture-clamp",
+        "0",
+        "1",
+        "32"
+      ],
+      "exit_code": 1,
+      "header": [
+        2,
+        0,
+        0,
+        1,
+        91,
+        11
+      ],
+      "name": "clamp",
+      "replay_exit_code": 0,
+      "replay_matches": [
+        true,
+        true
+      ],
+      "seconds": 11.058151583999999,
+      "snapshot_bytes": 13344,
+      "snapshot_present": true,
+      "snapshot_sha256": "6c861cdda4886db37534a25d45e5fbdd13db978177f0ea1538d6c9bad4df63d7",
+      "trace_exact": true
+    },
+    {
+      "actual_loader_lines": [
+        "dyld[6610]: <BF906436-36A2-35D8-81F1-697461ABACB4> /Users/n/Developer/numi-crow-rl-20261107/build/lib/libmetalrobo.dylib"
+      ],
+      "command": [
+        "/usr/bin/time",
+        "-lp",
+        "/usr/bin/env",
+        "DYLD_PRINT_LIBRARIES=1",
+        "DYLD_LIBRARY_PATH=/Users/n/Developer/numi-crow-rl-20261107/build/lib",
+        "METALROBO_METALLIB=/Users/n/Developer/numi-crow-rl-20261107/build/shaders/MetalRobo.metallib",
+        "METALROBO_CCD_FAILURE_CAPTURE=/Users/n/Developer/numi-crow-rl-20261107/build/crow-beak-hold-build-01/capture-open.ccdsweep",
+        "/Users/n/Developer/numi-crow-rl-20261107/build/crow-beak-hold-build-01/probe-v5",
+        "/Users/n/Developer/numi-crow-rl-20261107/build/crow-beak-hold-build-01/capture-open",
+        "1",
+        "1",
+        "32"
+      ],
+      "exit_code": 1,
+      "header": [
+        2,
+        0,
+        0,
+        6,
+        93,
+        11
+      ],
+      "name": "open",
+      "replay_exit_code": 0,
+      "replay_matches": [
+        true,
+        true
+      ],
+      "seconds": 0.8689430829999996,
+      "snapshot_bytes": 13344,
+      "snapshot_present": true,
+      "snapshot_sha256": "acecf558a50153eb36078073e03dc0edde8b2e7b5ed90a2b4399e5a924839307",
+      "trace_exact": true
+    },
+    {
+      "actual_loader_lines": [
+        "dyld[6616]: <BF906436-36A2-35D8-81F1-697461ABACB4> /Users/n/Developer/numi-crow-rl-20261107/build/lib/libmetalrobo.dylib"
+      ],
+      "command": [
+        "/usr/bin/time",
+        "-lp",
+        "/usr/bin/env",
+        "DYLD_PRINT_LIBRARIES=1",
+        "DYLD_LIBRARY_PATH=/Users/n/Developer/numi-crow-rl-20261107/build/lib",
+        "METALROBO_METALLIB=/Users/n/Developer/numi-crow-rl-20261107/build/shaders/MetalRobo.metallib",
+        "METALROBO_CCD_FAILURE_CAPTURE=/Users/n/Developer/numi-crow-rl-20261107/build/crow-beak-hold-build-01/capture-zero-friction.ccdsweep",
+        "/Users/n/Developer/numi-crow-rl-20261107/build/crow-beak-hold-build-01/probe-v5",
+        "/Users/n/Developer/numi-crow-rl-20261107/build/crow-beak-hold-build-01/capture-zero-friction",
+        "3",
+        "1",
+        "32"
+      ],
+      "exit_code": 1,
+      "header": [
+        2,
+        0,
+        0,
+        20,
+        93,
+        11
+      ],
+      "name": "zero-friction",
+      "replay_exit_code": 0,
+      "replay_matches": [
+        true,
+        true
+      ],
+      "seconds": 0.3271532500000003,
+      "snapshot_bytes": 13344,
+      "snapshot_present": true,
+      "snapshot_sha256": "de83e92d87bddcc1769c37cbf2d8dedca67362e8837291e694d9342462633deb",
+      "trace_exact": true
+    },
+    {
+      "actual_loader_lines": [
+        "dyld[6619]: <BF906436-36A2-35D8-81F1-697461ABACB4> /Users/n/Developer/numi-crow-rl-20261107/build/lib/libmetalrobo.dylib"
+      ],
+      "command": [
+        "/usr/bin/time",
+        "-lp",
+        "/usr/bin/env",
+        "DYLD_PRINT_LIBRARIES=1",
+        "DYLD_LIBRARY_PATH=/Users/n/Developer/numi-crow-rl-20261107/build/lib",
+        "METALROBO_METALLIB=/Users/n/Developer/numi-crow-rl-20261107/build/shaders/MetalRobo.metallib",
+        "METALROBO_CCD_FAILURE_CAPTURE=/Users/n/Developer/numi-crow-rl-20261107/build/crow-beak-hold-build-01/capture-refinement.ccdsweep",
+        "/Users/n/Developer/numi-crow-rl-20261107/build/crow-beak-hold-build-01/probe-v5",
+        "/Users/n/Developer/numi-crow-rl-20261107/build/crow-beak-hold-build-01/capture-refinement",
+        "0",
+        "1",
+        "64"
+      ],
+      "exit_code": 1,
+      "header": [
+        2,
+        0,
+        0,
+        20,
+        91,
+        11
+      ],
+      "name": "refinement",
+      "replay_exit_code": 0,
+      "replay_matches": [
+        true,
+        true
+      ],
+      "seconds": 22.261836292000005,
+      "snapshot_bytes": 13344,
+      "snapshot_present": true,
+      "snapshot_sha256": "8d8532d4c635b031ee37e6e0077022ef7d9cd6ac35ec2d7e19adb06f48180e6d",
+      "trace_exact": true
+    }
+  ]
+}

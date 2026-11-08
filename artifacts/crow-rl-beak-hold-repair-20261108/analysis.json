@@ -1,0 +1,4 @@
+{
+  "reason": "Native contact rejections invalidate capability. Direct-action checkpoint unsupported by retained runtime (requires device retinal observer and native policy); successful no-contact gravity trajectory ended at checkpoint failure. Partial lift is descriptive only.",
+  "verdict": "inconclusive, instrument or native validity failure"
+}

@@ -1,0 +1,28 @@
+{
+  "diagnostic_root": "build/crow-beak-hold-build-01",
+  "manifest": "artifacts/crow-rl-beak-hold-capture-20261108/payload/manifest.json",
+  "native": {
+    "CCDSweepProbe.metallib": {
+      "archive_source": ".numi/retained-runtime/beak-hold-capture-20261108/CCDSweepProbe.metallib",
+      "sha256": "aee7541a8ce2ca40ce9bfbff1d10f3d13459d3e844756257d4028023374c1d1d"
+    },
+    "MetalRobo.metallib": {
+      "archive_source": ".numi/retained-runtime/beak-hold-capture-20261108/MetalRobo.metallib",
+      "sha256": "80b9c0535c353fa1cd98d381e92f7cd0bf869da328eb419839d8310e6925ebd0"
+    },
+    "libmetalrobo.dylib": {
+      "archive_source": ".numi/retained-runtime/beak-hold-capture-20261108/libmetalrobo.dylib",
+      "sha256": "cdca44609a3cee9747c96895ffff431702d685075621ec5013414910adfba49c"
+    },
+    "probe": {
+      "archive_source": ".numi/retained-runtime/beak-hold-capture-20261108/probe",
+      "sha256": "3ec4b61e79fb42b57cfc9215af783b2dbbf94c06a03ddef8392a2ff27957b437"
+    },
+    "sweep-probe": {
+      "archive_source": ".numi/retained-runtime/beak-hold-capture-20261108/sweep-probe",
+      "sha256": "29a4276b74e0b31410b14eb31b3cb90b53b994f2759b85895009eec7d5584326"
+    }
+  },
+  "scope": "Retain every failed source/build/trial, actual native binaries/library/shaders and protected first-failure projected inputs. Native replay and parent traces are exact; no contact capability qualified.",
+  "source_commit": "cdd87e5efa16c1b163d8cafb34cb7216de763fda"
+}

@@ -1,0 +1,4 @@
+{
+  "reason": "All six initial attempts failed before native physics due diagnostic output span including scene bodies; zero physical transitions. Observer repaired in child.",
+  "verdict": "inconclusive, instrument or native validity failure"
+}
