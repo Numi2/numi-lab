@@ -164,6 +164,11 @@ int main(int argc, char** argv) {
         check(occupiedRejected, "occupied destination was not preserved");
         const std::vector<float> efforts(world.nv(),0.f);
         metalrobo::MetalWorldBatch next{.environmentCount=1u,.controlStepCount=1u,.efforts=efforts};
+        metalrobo::MetalWorldSubmission badContinuation;
+        const auto changed=seedContext.submitResident(world,next,wrongConfig,seeded,badContinuation);
+        const bool changedRejected=!changed.succeeded() && !badContinuation.valid() && seeded.valid();
+        std::cout<<"seeded_changed_config_rejected="<<changedRejected<<" message="<<changed.message<<std::endl;
+        check(changedRejected, "seeded changed-configuration continuation was not rejected");
         metalrobo::MetalWorldSubmission continuation;
         const auto submitted=seedContext.submitResident(world,next,config,seeded,continuation);
         check(submitted.succeeded() && continuation.valid(), "seeded continuation submit failed");

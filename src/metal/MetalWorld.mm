@@ -616,6 +616,8 @@ struct MetalWorldResidentStateData {
     std::weak_ptr<MetalWorldContextPool> ownerPool;
     std::shared_ptr<MetalWorldContextState> context;
     std::uint64_t worldFingerprint = 0u;
+    // Nonzero only for the narrowly supported no-step seed contract.
+    std::uint64_t noStepConfigurationFingerprint = 0u;
     std::uint64_t taskFingerprint = 0u;
     std::uint64_t devicePhysicsFingerprint = 0u;
     std::uint64_t millardProgramFingerprint = 0u;
@@ -20074,7 +20076,9 @@ MetalWorldDiagnostics MetalWorldContext::seedResidentNoStep(
             }
             auto owner=std::make_shared<detail::MetalWorldResidentStateData>();
             owner->ownerPool=pool_; owner->context=selected;
-            owner->worldFingerprint=world.fingerprint(); owner->taskFingerprint=0u;
+            owner->worldFingerprint=world.fingerprint();
+            owner->noStepConfigurationFingerprint=seed.configurationFingerprint;
+            owner->taskFingerprint=0u;
             owner->devicePhysicsFingerprint=0u; owner->millardProgramFingerprint=0u;
             owner->taskSeed=config.taskSeed; owner->environmentCount=1u;
             owner->stateArenaGeneration=selected->stateArenaGeneration;
@@ -20252,6 +20256,12 @@ MetalWorldDiagnostics MetalWorldContext::submitImpl(
                     MetalWorldHostStatus::invalidDimensions,
                     "resident world, task, device physics, seed, or environment count changed"
                 );
+            }
+            if (residentData->noStepConfigurationFingerprint != 0u &&
+                residentData->noStepConfigurationFingerprint != noStepConfigurationFingerprint(
+                    config, residentData->context->config.preferParallelABA)) {
+                return reject(std::move(diagnostics), MetalWorldHostStatus::invalidDimensions,
+                    "seeded resident configuration changed");
             }
             if (!batch.resetMasks.empty() &&
                 !residentData->supportsReset) {
