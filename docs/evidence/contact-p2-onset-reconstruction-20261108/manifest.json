@@ -1,0 +1,40 @@
+{
+  "prediction_commit": "ca41910951ff95c71a6a590e1998e8502047ef5b",
+  "source_sha256": "5cc2ea81b4363827d0db304a05a74250b76a8d5abc170ad73abc804f3c666dae",
+  "model_sha256": "726dbf72ff85ceec348df396b6a26c4db90583bc7843d8c8303035d6580f96bb",
+  "reference_sha256": "b92ee66251b0c3f2bf6ca67927f9aa097b5b5b9d76fa72f65c1a93286e21b100",
+  "runs": [
+    {
+      "variant": "coarse",
+      "cmd": [
+        "/private/tmp/numi-fem-py313b-20261107/bin/python",
+        "/Users/numi/numi-lab-contact-reference-20261107/tests/contact/fem_p2_onset_segment.py",
+        "8",
+        "coarse"
+      ],
+      "exit": 0,
+      "limit_reason": null,
+      "timeout_s": 300,
+      "rss_limit_kib": 4194304,
+      "peak_rss_kib": 599408,
+      "elapsed_s": 28.350986458011903,
+      "output_sha256": "cbc2c6622ce4bc4a11aa1a322cd1ef2792e2b09792d102fa0bba89404905e4e5"
+    },
+    {
+      "variant": "fine",
+      "cmd": [
+        "/private/tmp/numi-fem-py313b-20261107/bin/python",
+        "/Users/numi/numi-lab-contact-reference-20261107/tests/contact/fem_p2_onset_segment.py",
+        "8",
+        "fine"
+      ],
+      "exit": 0,
+      "limit_reason": null,
+      "timeout_s": 600,
+      "rss_limit_kib": 4194304,
+      "peak_rss_kib": 564096,
+      "elapsed_s": 48.5755012499867,
+      "output_sha256": "998428bba53303b403ecfcbc120427061c1fefceb006d93d372d49c5d2e533b7"
+    }
+  ]
+}

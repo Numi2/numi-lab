@@ -36,3 +36,21 @@ launching, a separately coordinated n=16 segment. Neither segment can
 establish full 10 ms spatial convergence or clearance between quadrature
 points/evaluations. The unchanged full-force and impulse 0.25% gates remain
 unmet.
+
+## Result
+
+Both n=8 runs completed: 28.4 s coarse and 48.6 s fine, with sampled peak
+RSS 599,408 and 564,096 KiB. The reconstructed fine first bin was
+0.02702469123 N versus 0.02702469141 N in the retained full trajectory,
+a difference of 2.09e-9 of retained peak bin. Coarse versus fine difference
+was 4.44e-8. Both satisfy the registered 0.25% checks.
+
+Minimum sampled gap was 95.16 µm; sampled Jacobian, Duffy quadrature,
+momentum, energy and contact-work checks all passed. This validates the
+shortened-start method for the retained n=8 first bin. It does not qualify
+the full trajectory, spatial convergence, between-sample clearance or a
+future n=16 segment.
+
+[Evidence](evidence/contact-p2-onset-reconstruction-20261108/) retains
+input hashes, resource samples, outputs and gate calculations. No GPU or
+n=16 trajectory ran.

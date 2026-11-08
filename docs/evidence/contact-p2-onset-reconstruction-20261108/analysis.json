@@ -1,0 +1,29 @@
+{
+  "peak_bin_N": 0.08743226330345472,
+  "retained_bin4_N": 0.027024691413559464,
+  "temporal_bin_relative": 4.435754341740061e-08,
+  "retained_bin_relative": 2.0877974620888416e-09,
+  "runs": {
+    "coarse": {
+      "min_gap_m": 9.516249897629323e-05,
+      "min_J": 0.9777105376593748,
+      "duffy_reference_relative": 8.797766705810253e-09,
+      "order18_relative": 2.548258166674706e-06,
+      "momentum_relative": 4.194904054807536e-15,
+      "energy_relative": 4.445691727388852e-08,
+      "contact_work_relative": 2.4841733871289e-06,
+      "pass": true
+    },
+    "fine": {
+      "min_gap_m": 9.516250215486301e-05,
+      "min_J": 0.9777105323545289,
+      "duffy_reference_relative": 8.793450822352842e-09,
+      "order18_relative": 2.5481931141847208e-06,
+      "momentum_relative": 4.008187257115805e-15,
+      "energy_relative": 1.5166323800348049e-09,
+      "contact_work_relative": 8.472576202243693e-08,
+      "pass": true
+    }
+  },
+  "segment_checks_pass": true
+}
