@@ -1,0 +1,9 @@
+{
+  "acceptance": "Full independent projection must improve each step; no physics settings changed",
+  "maximum_iterations": 8,
+  "maximum_seconds": 120,
+  "predicted_scaled_optimality_max": 1e-10,
+  "purpose": "Exposed engineering diagnosis: test same search from the actual failed FP32 iterate before implementing it natively",
+  "schema": "crow-quality-failed-start-neighbor-plan-v1",
+  "source_sha256": "e4b80e27e6f4249c0d729113c388b2d73cb9d9f6b48d8552c9abd37c2130a452"
+}

@@ -1,0 +1,46 @@
+{
+  "cases": [
+    {
+      "capture_exact": true,
+      "case": "original",
+      "code": 7,
+      "device": "Apple M4 Pro",
+      "feasibility": 0,
+      "gpu_ms": 28.1167,
+      "newton": 20,
+      "optimality": 2.21794e-10,
+      "pcg": 77
+    },
+    {
+      "case": "rounded",
+      "code": 7,
+      "device": "Apple M4 Pro",
+      "feasibility": 0,
+      "gpu_ms": 15.178,
+      "newton": 20,
+      "optimality": 2.21794e-10,
+      "pcg": 59
+    },
+    {
+      "case": "neighbor",
+      "code": 0,
+      "device": "Apple M4 Pro",
+      "feasibility": 0,
+      "gpu_ms": 0.43225,
+      "independent_impulse_max_difference": 3.300448950020686e-14,
+      "independent_scaled_optimality": 3.9843373149908556e-11,
+      "newton": 0,
+      "optimality": 3.94941e-11,
+      "pcg": 0,
+      "warm_output_exact": true
+    }
+  ],
+  "limits": "One exposed problem. Warm states are diagnostics; no transition is fed back to the world.",
+  "policy_or_profile_promoted": false,
+  "predictions_satisfied": [
+    true,
+    true,
+    true
+  ],
+  "schema": "crow-quality-native-warm-validation-result-v1"
+}
