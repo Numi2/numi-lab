@@ -97,6 +97,11 @@ int main(int argc,char**argv) {
     rejectCase("tool_cache",badInput,cfg,true);
     auto invalid=attachments;invalid[0].targetPosition[0]=invalid[1].targetPosition[0]+.01;
     badInput=input;badInput.attachments=invalid;rejectCase("reversed",badInput,cfg,false);
+    badInput=input;badInput.attachmentCount=3;rejectCase("malformed_packing",badInput,cfg,false);
+    auto nonfinite=states;nonfinite[0].positions[0][0]=std::numeric_limits<double>::quiet_NaN();
+    badInput=input;badInput.states=nonfinite;rejectCase("nonfinite_origin",badInput,cfg,false);
+    nonfinite=states;nonfinite[0].positions[2][0]=std::numeric_limits<double>::quiet_NaN();
+    badInput=input;badInput.states=nonfinite;rejectCase("nonfinite_node",badInput,cfg,false);
     std::cout<<std::setprecision(17)<<"max_translation_position_error_m="<<maxPosition
              <<" max_translation_velocity_error_m_s="<<maxVelocity
              <<" max_translation_force_error_N="<<maxForce<<" passed="<<all<<"\n";
