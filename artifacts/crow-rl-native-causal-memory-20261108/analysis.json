@@ -1,0 +1,195 @@
+{
+  "status": "analyzed",
+  "native_engineering_controls_passed": true,
+  "policy_sha256": "21de3d792f6aafb4d1fdfdbdd7916f10179321030b31d069ba5f44687d9afbf4",
+  "policy_revision": 81,
+  "predeclared_plan": {
+    "primary": "Paired intake and correct-head-side differences between intact and GRU-cleared native lifetimes, corroborated by absent and swapped rendered cues. Exact two-sided discordant-pair binomial tests, alpha0.05; all contrasts and per-seed outcomes reported.",
+    "qualification": "Scope restricted to this fixed geometry, native causal controls, and three previously unused allocation/action seeds. No model update, checkpoint selection, physics or observation contract change. Broader memory/ecology/manipulation/social learning remain unqualified."
+  },
+  "arms": [
+    {
+      "name": "intact",
+      "lifetimes": 192,
+      "intake_lifetimes": 38,
+      "intake_rate": 0.19791666666666666,
+      "intake_Wilson95": [
+        0.14772674973803623,
+        0.2599574010106277
+      ],
+      "correct_head_side": 157,
+      "correct_head_side_rate": 0.8177083333333334,
+      "correct_head_side_Wilson95": [
+        0.7570457669581838,
+        0.8659071089785664
+      ],
+      "consumed_micrograms": 1405000
+    },
+    {
+      "name": "GRU-cleared40",
+      "lifetimes": 192,
+      "intake_lifetimes": 12,
+      "intake_rate": 0.0625,
+      "intake_Wilson95": [
+        0.03611064877145607,
+        0.1060526040369538
+      ],
+      "correct_head_side": 80,
+      "correct_head_side_rate": 0.4166666666666667,
+      "correct_head_side_Wilson95": [
+        0.34923432270749655,
+        0.4873682016369626
+      ],
+      "consumed_micrograms": 450000
+    },
+    {
+      "name": "cue-absent",
+      "lifetimes": 192,
+      "intake_lifetimes": 13,
+      "intake_rate": 0.06770833333333333,
+      "intake_Wilson95": [
+        0.03999268563113287,
+        0.1123829094057483
+      ],
+      "correct_head_side": 82,
+      "correct_head_side_rate": 0.4270833333333333,
+      "correct_head_side_Wilson95": [
+        0.35922044749936993,
+        0.4978067613020318
+      ],
+      "consumed_micrograms": 490000
+    },
+    {
+      "name": "cue-swapped",
+      "lifetimes": 192,
+      "intake_lifetimes": 5,
+      "intake_rate": 0.026041666666666668,
+      "intake_Wilson95": [
+        0.01117360901615741,
+        0.05950324819295327
+      ],
+      "correct_head_side": 25,
+      "correct_head_side_rate": 0.13020833333333334,
+      "correct_head_side_Wilson95": [
+        0.08977422474351011,
+        0.18514947703502682
+      ],
+      "consumed_micrograms": 190000
+    }
+  ],
+  "paired_intact_vs_controls": {
+    "GRU-cleared40": {
+      "intake": {
+        "intact_only": 38,
+        "control_only": 12,
+        "paired_rate_difference": 0.13541666666666666,
+        "exact_two_sided_p": 0.00030586400160359517
+      },
+      "correct_side": {
+        "intact_only": 77,
+        "control_only": 0,
+        "paired_rate_difference": 0.4010416666666667,
+        "exact_two_sided_p": 1.3234889800848443e-23
+      }
+    },
+    "cue-absent": {
+      "intake": {
+        "intact_only": 38,
+        "control_only": 13,
+        "paired_rate_difference": 0.13020833333333334,
+        "exact_two_sided_p": 0.0006210434562277101
+      },
+      "correct_side": {
+        "intact_only": 75,
+        "control_only": 0,
+        "paired_rate_difference": 0.390625,
+        "exact_two_sided_p": 5.293955920339377e-23
+      }
+    },
+    "cue-swapped": {
+      "intake": {
+        "intact_only": 38,
+        "control_only": 5,
+        "paired_rate_difference": 0.171875,
+        "exact_two_sided_p": 2.4995097192004323e-07
+      },
+      "correct_side": {
+        "intact_only": 132,
+        "control_only": 0,
+        "paired_rate_difference": 0.6875,
+        "exact_two_sided_p": 3.6734198463196485e-40
+      }
+    }
+  },
+  "per_seed": [
+    {
+      "seed": 2651213402,
+      "left_allocations": 27,
+      "intake_lifetimes": [
+        13,
+        3,
+        2,
+        3
+      ],
+      "correct_head_side": [
+        53,
+        28,
+        28,
+        10
+      ],
+      "food_micrograms": [
+        435000,
+        105000,
+        85000,
+        130000
+      ]
+    },
+    {
+      "seed": 2651213403,
+      "left_allocations": 27,
+      "intake_lifetimes": [
+        11,
+        4,
+        5,
+        1
+      ],
+      "correct_head_side": [
+        49,
+        26,
+        27,
+        7
+      ],
+      "food_micrograms": [
+        360000,
+        150000,
+        190000,
+        20000
+      ]
+    },
+    {
+      "seed": 2651213404,
+      "left_allocations": 31,
+      "intake_lifetimes": [
+        14,
+        5,
+        6,
+        1
+      ],
+      "correct_head_side": [
+        55,
+        26,
+        27,
+        8
+      ],
+      "food_micrograms": [
+        610000,
+        195000,
+        215000,
+        40000
+      ]
+    }
+  ],
+  "learned_causal_memory_qualified_in_fixed_fixture": true,
+  "broader_lifelong_goal_complete": false,
+  "source_commit": "5501ca22fca78a26159a99bc3a3977cec54d91a8"
+}
