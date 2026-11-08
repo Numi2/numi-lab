@@ -1,0 +1,12 @@
+[
+  {
+    "native_commands": 25,
+    "returncode": 0,
+    "script": "run.py"
+  },
+  {
+    "native_commands": 10,
+    "returncode": 0,
+    "script": "integration-run.py"
+  }
+]

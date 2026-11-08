@@ -1,0 +1,35 @@
+{"name": "unified-owner", "argv": ["/Users/n/Developer/numi-crow-rl-20261107/build/crow-quality-refinement-recovery-01/build/bin/metalrobo_metal_unified_quality_probe"], "returncode": 0, "seconds": 0.7338884999626316}
+{"name": "ir-owner", "argv": ["/Users/n/Developer/numi-crow-rl-20261107/build/crow-quality-refinement-recovery-01/build/bin/metalrobo_constraint_ir_probe"], "returncode": 0, "seconds": 0.3231887079891749}
+{"name": "contact-owner", "argv": ["/Users/n/Developer/numi-crow-rl-20261107/build/crow-quality-refinement-recovery-01/build/bin/metalrobo_metal_world_contact_probe", "/Users/n/Developer/numi-crow-rl-20261107/build/crow-quality-refinement-recovery-01/build/crow-quality-refinement-build-01/runtime/metalrobo/MetalRobo.metallib"], "returncode": 0, "seconds": 0.9025195419671945}
+{"name": "motor", "argv": ["/Users/n/Developer/numi-crow-rl-20261107/build/crow-quality-refinement-recovery-01/build/bin/metalrobo_motor_contact_probe", "/Users/n/Developer/numi-crow-rl-20261107/build/crow-quality-refinement-recovery-01/build/crow-quality-refinement-build-01/runtime/metalrobo/MetalRobo.metallib", "/Users/n/Developer/numi-crow-rl-20261107/build/crow-quality-refinement-recovery-01/build/crow-quality-refinement-build-01/integration-observations/motor.tsv", "--native-drive"], "returncode": 0, "seconds": 0.44108370802132413}
+{"name": "zero", "argv": ["/Users/n/Developer/numi-crow-rl-20261107/build/crow-quality-refinement-recovery-01/build/bin/metalrobo_motor_contact_probe", "/Users/n/Developer/numi-crow-rl-20261107/build/crow-quality-refinement-recovery-01/build/crow-quality-refinement-build-01/runtime/metalrobo/MetalRobo.metallib", "/Users/n/Developer/numi-crow-rl-20261107/build/crow-quality-refinement-recovery-01/build/crow-quality-refinement-build-01/integration-observations/zero.tsv", "--zero-gain"], "returncode": 0, "seconds": 0.09045745799085125}
+{"name": "calibration", "argv": ["/Users/n/Developer/numi-crow-rl-20261107/build/crow-quality-refinement-recovery-01/build/crow-quality-refinement-build-01/reference/crow-fixture", "--calibrate"], "returncode": 0, "seconds": 0.3263232089811936}
+{"name": "default", "argv": ["/Users/n/Developer/numi-crow-rl-20261107/build/crow-quality-refinement-recovery-01/build/crow-quality-refinement-build-01/reference/fixture-default", "/Users/n/Developer/numi-crow-rl-20261107/build/crow-quality-refinement-recovery-01/build/crow-quality-refinement-build-01/integration-observations/default", "0", "1", "32"], "returncode": 0, "seconds": 17.056016625021584}
+{"name": "strict", "argv": ["/Users/n/Developer/numi-crow-rl-20261107/build/crow-quality-refinement-recovery-01/build/crow-quality-refinement-build-01/reference/crow-fixture", "/Users/n/Developer/numi-crow-rl-20261107/build/crow-quality-refinement-recovery-01/build/crow-quality-refinement-build-01/integration-observations/strict", "0", "1", "32", "2", "strict"], "returncode": 1, "seconds": 0.3297287910245359}
+{"name": "api-0", "argv": ["/Users/n/Developer/numi-crow-rl-20261107/build/crow-quality-refinement-recovery-01/build/crow-quality-refinement-build-01/reference/crow-fixture", "/Users/n/Developer/numi-crow-rl-20261107/build/crow-quality-refinement-recovery-01/build/crow-quality-refinement-build-01/integration-observations/api-0", "0", "1", "32", "2", "api-default"], "returncode": 1, "seconds": 3.744509709009435}
+{"name": "api-1", "argv": ["/Users/n/Developer/numi-crow-rl-20261107/build/crow-quality-refinement-recovery-01/build/crow-quality-refinement-build-01/reference/crow-fixture", "/Users/n/Developer/numi-crow-rl-20261107/build/crow-quality-refinement-recovery-01/build/crow-quality-refinement-build-01/integration-observations/api-1", "0", "1", "32", "2", "api-default"], "returncode": 1, "seconds": 3.7505536659737118}
+{
+  "all_predictions_supported": false,
+  "goal_complete": false,
+  "native_commands": 10,
+  "observations": {
+    "api_default_complete_640_twice": false,
+    "api_default_penetration_max_m": 2.18242453566e-07,
+    "default_physical_files_exact": 10,
+    "motor_physical_records_exact": 624,
+    "owning_regressions_pass": true,
+    "repeated_api_physical_outputs_exact": true,
+    "strict_capture_diff_only_hessian_stride": true
+  },
+  "policy_or_profile_promoted": false,
+  "predictions_supported": {
+    "api_default_complete_640_twice": false,
+    "api_default_penetration_max_m": true,
+    "default_physical_files_exact": true,
+    "motor_physical_records_exact": true,
+    "owning_regressions_pass": true,
+    "repeated_api_physical_outputs_exact": true,
+    "strict_capture_diff_only_hessian_stride": true
+  }
+}
+

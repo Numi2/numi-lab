@@ -1,0 +1,20 @@
+{
+  "all_passed": true,
+  "goal_complete": false,
+  "manifest_sha256": "5b638c7eefe457a6356c53bb89168ea91e8f1188e81804169d813f623dbbec0a",
+  "motor_physical_records_exact": 624,
+  "native_commands": 35,
+  "original_files_checked": 252,
+  "physical_and_numerical_files_exact": 143,
+  "production_changed": true,
+  "schema": "crow-quality-refinement-git-recovery-v1",
+  "scientific_reports_exact": [
+    "component-analysis.json",
+    "component-result.json",
+    "integration-analysis.json",
+    "integration-result.json"
+  ],
+  "seconds": 31.03519912500633,
+  "temporary_bytes": 47371303,
+  "temporary_files": 551
+}
