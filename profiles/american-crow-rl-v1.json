@@ -1011,7 +1011,9 @@
       "adaptive_LR_selected": false,
       "learned_manipulation_qualified": false,
       "ecological_environment_qualified": false,
-      "next": "Separate exploration and update-size mechanisms prospectively, judge physical held-out behavior; preserve the independent v13 cue-conditioned choice/intake criteria."
+      "next": "Separate exploration and update-size mechanisms prospectively, judge physical held-out behavior; preserve the independent v13 cue-conditioned choice/intake criteria.",
+      "Git_restored_repaired_sweep_and_8194_control_records_exact": true,
+      "full_learner_restoration_independently_executed": false
     }
   }
 }

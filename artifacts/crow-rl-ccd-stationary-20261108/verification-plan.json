@@ -1,0 +1,5 @@
+{
+  "prediction": "Actual Git-restored native probe and both shaders reproduce the all 4240 repaired-sweep stream bytes and all 8194 stationary/moving-control records exactly twice from the Git-restored snapshot.",
+  "budget": "Four native executions timeout180s each including cold compilation; temporary<=64MiB; no trajectory or training.",
+  "scope": "Causal repaired-sweep and independent-controls reproduction from exact Git bytes. Full learner recovery is not independently executed for this diagnostic capture."
+}
