@@ -1,0 +1,27 @@
+{
+  "archive_commit": "55be6fe8f4babbbb80eb5138e82802e20106dedc",
+  "df_after": "Filesystem   1024-blocks      Used Available Capacity iused      ifree %iused  Mounted on\n/dev/disk3s5   482797652 298893332 158455808    66% 3496036 1584558080    0%   /System/Volumes/Data\n",
+  "df_before": "Filesystem   1024-blocks      Used Available Capacity iused      ifree %iused  Mounted on\n/dev/disk3s5   482797652 299658924 157690216    66% 3496135 1576902160    0%   /System/Volumes/Data\n",
+  "manifest": "artifacts/crow-rl-precision-training-20261108/manifest.json",
+  "manifest_sha256": "b4a94ca9a834986b7cabcd7ade648844ff239f90c8b515b231fee6fc3fc057be",
+  "open_handle_checks": [
+    {
+      "exit_code": 1,
+      "open_handles": 0,
+      "root": ".numi/runs/american-crow"
+    },
+    {
+      "exit_code": 1,
+      "open_handles": 0,
+      "root": ".numi/retained-runtime"
+    },
+    {
+      "exit_code": 1,
+      "open_handles": 0,
+      "root": "build"
+    }
+  ],
+  "remote_commit": "55be6fe8f4babbbb80eb5138e82802e20106dedc",
+  "removed_files": 79,
+  "removed_logical_bytes": 1508971478
+}
