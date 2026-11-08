@@ -613,8 +613,16 @@ kernel void mr_hybrid_masked_depth_history(
                 );
             }
         }
-        const float normalized =
-            (metric - uniforms.range.x) * uniforms.range.z;
+        // The renderer samples less often than the control loop. Corruption
+        // belongs to the camera capture, so retain that complete measurement
+        // on intermediate observations instead of drawing new sensor noise.
+        // A reset or invalidated frame must never reuse the prior episode.
+        const uint priorSlot = ringSlot == 0u ? uniforms.history.x - 1u : ringSlot - 1u;
+        const bool hold = uniforms.curriculum.w == 0.0f && !reset &&
+            frameFresh[environment] != 0u;
+        const float normalized = hold
+            ? depthHistory[historyBase + priorSlot * pixelCount + pixel]
+            : (metric - uniforms.range.x) * uniforms.range.z;
         if (reset) {
             for (uint slot = 0u; slot < uniforms.history.x; ++slot) {
                 depthHistory[historyBase + slot * pixelCount + pixel] =
