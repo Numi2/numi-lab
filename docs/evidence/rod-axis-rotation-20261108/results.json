@@ -1,0 +1,42 @@
+{
+  "baseline-x": {
+    "command": [
+      "./probe",
+      "/Users/numi/numi-reconciliation-build-20261108/shaders/MetalRobo.metallib",
+      "x"
+    ],
+    "exit": 1,
+    "stdout": "case=symmetric reference_valid=1 accepted=1 host=success gpu=0 x_ref=0.060999999999999992 x_actual=0.061437636613845825 v_ref=-6.9388939039072284e-15 v_actual=0.43763589859008789 force_left_ref=0.089379112368462105 force_left_actual=0.00062158540822565556 force_right_ref=-0.08937911236846266 force_right_actual=-0.00065715186065062881 state_gate=0 force_gate=0 passed=0\ncase=asymmetric reference_valid=1 accepted=0 host=gpu_environment_failure gpu=4 x_ref=0.06099899796815271 x_actual=0 v_ref=0.99899796815271225 v_actual=0 force_left_ref=0.089338517743500406 force_left_actual=0 force_right_ref=-0.089419706993424358 force_right_actual=0 state_gate=0 force_gate=0 passed=0\ncase=moving reference_valid=1 accepted=0 host=gpu_environment_failure gpu=4 x_ref=0.060999007988471181 x_actual=0 v_ref=0.99900798847118299 v_actual=0 force_left_ref=0.089338923689749938 force_left_actual=0 force_right_ref=-0.089419301047174826 force_right_actual=0 state_gate=0 force_gate=0 passed=0\n",
+    "stderr": ""
+  },
+  "baseline-y": {
+    "command": [
+      "./probe",
+      "/Users/numi/numi-reconciliation-build-20261108/shaders/MetalRobo.metallib",
+      "y"
+    ],
+    "exit": 1,
+    "stdout": "case=symmetric reference_valid=1 accepted=1 host=success gpu=0 x_ref=0.060999999999999992 x_actual=0.061437636613845825 v_ref=-6.9388939039072284e-15 v_actual=0.43763589859008789 force_left_ref=0.089379112368462105 force_left_actual=0.00062158540822565556 force_right_ref=-0.08937911236846266 force_right_actual=-0.00065715186065062881 state_gate=0 force_gate=0 passed=0\ncase=asymmetric reference_valid=1 accepted=0 host=gpu_environment_failure gpu=4 x_ref=0.06099899796815271 x_actual=0 v_ref=0.99899796815271225 v_actual=0 force_left_ref=0.089338517743500406 force_left_actual=0 force_right_ref=-0.089419706993424358 force_right_actual=0 state_gate=0 force_gate=0 passed=0\ncase=moving reference_valid=1 accepted=0 host=gpu_environment_failure gpu=4 x_ref=0.060999007988471181 x_actual=0 v_ref=0.99900798847118299 v_actual=0 force_left_ref=0.089338923689749938 force_left_actual=0 force_right_ref=-0.089419301047174826 force_right_actual=0 state_gate=0 force_gate=0 passed=0\n",
+    "stderr": ""
+  },
+  "candidate-x": {
+    "command": [
+      "./probe",
+      "/Users/numi/rod-axis-probe-20261108/candidate.metallib",
+      "x"
+    ],
+    "exit": 0,
+    "stdout": "case=symmetric reference_valid=1 accepted=1 host=success gpu=0 x_ref=0.060999999999999992 x_actual=0.061000000685453415 v_ref=-6.9388939039072284e-15 v_actual=0 force_left_ref=0.089379112368462105 force_left_actual=0.089379116892814636 force_right_ref=-0.08937911236846266 force_right_actual=-0.089379116892814636 state_gate=1 force_gate=1 passed=1\ncase=asymmetric reference_valid=1 accepted=1 host=success gpu=0 x_ref=0.06099899796815271 x_actual=0.060998998582363129 v_ref=0.99899796815271225 v_actual=0.99899983406066895 force_left_ref=0.089338517743500406 force_left_actual=0.089338518679141998 force_right_ref=-0.089419706993424358 force_right_actual=-0.089419864118099213 state_gate=1 force_gate=1 passed=1\ncase=moving reference_valid=1 accepted=1 host=success gpu=0 x_ref=0.060999007988471181 x_actual=0.060999009758234024 v_ref=0.99900798847118299 v_actual=0.99901103973388672 force_left_ref=0.089338923689749938 force_left_actual=0.089338965713977814 force_right_ref=-0.089419301047174826 force_right_actual=-0.089419260621070862 state_gate=1 force_gate=1 passed=1\n",
+    "stderr": ""
+  },
+  "candidate-y": {
+    "command": [
+      "./probe",
+      "/Users/numi/rod-axis-probe-20261108/candidate.metallib",
+      "y"
+    ],
+    "exit": 1,
+    "stdout": "case=symmetric reference_valid=1 accepted=0 host=gpu_environment_failure gpu=4 x_ref=0.060999999999999992 x_actual=0 v_ref=-6.9388939039072284e-15 v_actual=0 force_left_ref=0.089379112368462105 force_left_actual=0 force_right_ref=-0.08937911236846266 force_right_actual=0 state_gate=0 force_gate=0 passed=0\ncase=asymmetric reference_valid=1 accepted=0 host=gpu_environment_failure gpu=4 x_ref=0.06099899796815271 x_actual=0 v_ref=0.99899796815271225 v_actual=0 force_left_ref=0.089338517743500406 force_left_actual=0 force_right_ref=-0.089419706993424358 force_right_actual=0 state_gate=0 force_gate=0 passed=0\ncase=moving reference_valid=1 accepted=0 host=gpu_environment_failure gpu=4 x_ref=0.060999007988471181 x_actual=0 v_ref=0.99900798847118299 v_actual=0 force_left_ref=0.089338923689749938 force_left_actual=0 force_right_ref=-0.089419301047174826 force_right_actual=0 state_gate=0 force_gate=0 passed=0\n",
+    "stderr": ""
+  }
+}
