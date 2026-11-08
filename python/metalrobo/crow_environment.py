@@ -1212,6 +1212,7 @@ def main() -> int:
     causal = commands.add_parser("memory-causal-admission")
     causal.add_argument("--output", type=Path, required=True)
     causal.add_argument("--policy", type=Path, required=True)
+    causal.add_argument("--seed-base", type=int, default=2651213402)
     calibration = commands.add_parser("calibrate-retinal-initialization")
     calibration.add_argument("--output", type=Path, required=True)
     calibration.add_argument("--policy", type=Path, required=True)
@@ -1265,6 +1266,8 @@ def main() -> int:
     args = parser.parse_args()
     if args.command == "calibrate-retinal-initialization" and (not math.isfinite(args.minimum_rgb_standard_deviation) or not .01 <= args.minimum_rgb_standard_deviation <= 1):
         parser.error("minimum RGB standard deviation must be finite in[0.01,1]")
+    if args.command == "memory-causal-admission" and not 0 <= args.seed_base <= 2**64-3:
+        parser.error("seed base must be an unsigned64-bit integer with room for3 seeds")
     root = args.root.resolve(strict=True)
     profile = json.loads((root / "profiles/american-crow-rl-v1.json").read_text())
     if args.command == "status":
@@ -1562,7 +1565,7 @@ def main() -> int:
             policy = args.policy.resolve(strict=True)
             execute(output, "memory-causal", [str(runtime(root)["memory_causal_check"]),
                     str(output / "native-evidence"), str(policy),
-                    str(root / "environments/american-crow/cued-foraging-v1/calibrated-ports.bin")],
+                    str(root / "environments/american-crow/cued-foraging-v1/calibrated-ports.bin"), str(args.seed_base)],
                     root, 600, json_output=False)
             result = json.loads((output / "native-evidence/summary.json").read_text())
             if result.get("status") != "passed_engineering_controls" or result.get("accepted_transitions") != 245760 or result.get("policy_sha256") != sha(policy):

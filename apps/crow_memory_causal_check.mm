@@ -6,6 +6,7 @@
 #include "metalrobo/LearningPacks.hpp"
 #include "metalrobo/detail/Checkpoint.hpp"
 #include <cstring>
+#include <charconv>
 #include <fstream>
 #include <iomanip>
 #include <iostream>
@@ -149,13 +150,20 @@ Evidence execute(const PolicyPack& policy,const std::array<mr_float4,2>& ports,
 }}
 }
 int main(int argc,char** argv) {@autoreleasepool {try {
-    require(argc==4,"Usage: crow_memory_causal_check NEW_OUTPUT POLICY PORTS");
+    require(argc==4 || argc==5,"Usage: crow_memory_causal_check NEW_OUTPUT POLICY PORTS [SEED_BASE]");
+    std::uint64_t seedBase=2651213402ull;
+    if(argc==5) {
+        const std::string raw=argv[4];const auto parsed=std::from_chars(raw.data(),raw.data()+raw.size(),seedBase);
+        require(!raw.empty() && parsed.ec==std::errc{} && parsed.ptr==raw.data()+raw.size() &&
+            seedBase<=std::numeric_limits<std::uint64_t>::max()-2,"Seed base requires an unsigned64-bit integer with room for3 seeds");
+    }
     const std::filesystem::path out=argv[1];require(std::filesystem::create_directory(out),"Output exists");
     PolicyPack policy;check(readPolicyPack(argv[2],policy),"Read unchanged input policy");
     std::array<mr_float4,2> ports;std::ifstream input(argv[3],std::ios::binary);require(bool(input.read(reinterpret_cast<char*>(ports.data()),sizeof(ports))) && input.peek()==std::char_traits<char>::eof(),"Invalid food ports");
-    std::ofstream(out/"plan.json")<<R"({"budget":"Exactly3 held-out allocation/action seeds x4 matched64-lane320-tick arms=245760 accepted transitions, no learning or retries; bounded tabular evidence, no video/full rollouts","arms":["intact","clear_GRU_only_at40","absent_rendered_cue","swapped_rendered_cue"],"seeds":[2651213402,2651213403,2651213404],"prediction":"Native memory intervention preserves every resident field except GRU, plus complete retina/food bytes. Pre-choice physics/proprioception and postcue RGB agree across arms. Cue interventions change only rendered indicator visibility; trained stochastic policy bytes/contracts are unchanged.","limits":"Fixed head-reachable fixture and allocation/action-seed generalization only; broader geometry, natural ecology, manipulation/social learning and biological fidelity unqualified"})";
+    std::ofstream(out/"plan.json")<<R"({"budget":"Exactly3 held-out allocation/action seeds x4 matched64-lane320-tick arms=245760 accepted transitions, no learning or retries; bounded tabular evidence, no video/full rollouts","arms":["intact","clear_GRU_only_at40","absent_rendered_cue","swapped_rendered_cue"],"seeds":[)"<<seedBase<<','<<seedBase+1<<','<<seedBase+2<<R"(],"prediction":"Native memory intervention preserves every resident field except GRU, plus complete retina/food bytes. Pre-choice physics/proprioception and postcue RGB agree across arms. Cue interventions change only rendered indicator visibility; trained stochastic policy bytes/contracts are unchanged.","limits":"Fixed head-reachable fixture and allocation/action-seed generalization only; broader geometry, natural ecology, manipulation/social learning and biological fidelity unqualified"})";
     std::array<unsigned,4> intake{},correct{};std::array<std::uint64_t,4> food{};
-    for(std::uint64_t seed:{2651213402ull,2651213403ull,2651213404ull}) {
+    for(std::uint64_t offset=0;offset<3;++offset) {
+        const auto seed=seedBase+offset;
         std::array<Evidence,4> arms;
         for(unsigned arm=0;arm<4;++arm) {
             arms[arm]=execute(policy,ports,out/(std::to_string(seed)+"-arm"+std::to_string(arm)),seed,arm);
