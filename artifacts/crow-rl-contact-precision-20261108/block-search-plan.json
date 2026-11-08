@@ -1,0 +1,18 @@
+{
+  "budgets": {
+    "iterations_each": 64,
+    "maximum_velocity_change_each": 0.0001,
+    "process_seconds": 120
+  },
+  "candidate": "Every single/pair coordinate least-squares correction using normalized Hessian columns; nearest FP32 and adjacent values; select residual-infinity/L2 lexicographically and fully reproject",
+  "limits": "Failure is inconclusive. This is not native physical execution.",
+  "prediction": "At least one start reaches the unchanged 1e-10 independently computed stationarity gate",
+  "purpose": "Exposed numerical diagnosis: replace tiny adjacent moves with coupled-coordinate least-squares corrections, rounded to FP32",
+  "schema": "crow-contact-block-search-plan-v1",
+  "source_sha256": "efa5e2f84e6f8fe0b0c118286180babeb1b8b3680d5a845b8984d389dd60b976",
+  "starts": [
+    "native failed iterate",
+    "nearest rounding of FP64 reference"
+  ],
+  "stop": "Nonfinite or nonrepresentable state, failed full reprojection, no improving candidate, or budget. No native feedback or setting changes."
+}

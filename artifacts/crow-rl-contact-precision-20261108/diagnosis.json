@@ -1,0 +1,3013 @@
+{
+  "arithmetic_calibrations": [
+    {
+      "compensated": 1.0,
+      "exact": 1.0
+    },
+    {
+      "compensated": 8.58306884765625e-06,
+      "exact": 8.58306884765625e-06
+    }
+  ],
+  "capture_sha256": "08bcd99d486addeed6f39b9a265ef35e3208ea8cc884c12d5549830be0108d0f",
+  "failed": {
+    "coordinates": [
+      {
+        "diagonal_gradient_per_ulp": 1.0888513499853663e-08,
+        "dof": 0,
+        "gradient": -7.258549491301856e-08,
+        "hessian_diagonal": 187.06323753570393,
+        "positive_ulp": 5.820766091346741e-11,
+        "velocity": -0.000592077907640487
+      },
+      {
+        "diagonal_gradient_per_ulp": 1.7421621599765914e-07,
+        "dof": 2,
+        "gradient": 5.874704982547496e-08,
+        "hessian_diagonal": 187.0632375357045,
+        "positive_ulp": 9.313225746154785e-10,
+        "velocity": -0.014308485202491283
+      },
+      {
+        "diagonal_gradient_per_ulp": 1.1807891396751216e-08,
+        "dof": 4,
+        "gradient": 1.3614658627857015e-08,
+        "hessian_diagonal": 6.339313422970779,
+        "positive_ulp": 1.862645149230957e-09,
+        "velocity": -0.02820747159421444
+      },
+      {
+        "diagonal_gradient_per_ulp": 7.907662939743584e-09,
+        "dof": 16,
+        "gradient": 8.06637508025772e-09,
+        "hessian_diagonal": 2.1226971071243694,
+        "positive_ulp": 3.725290298461914e-09,
+        "velocity": -0.036264531314373016
+      },
+      {
+        "diagonal_gradient_per_ulp": 1.2060026761581069e-08,
+        "dof": 17,
+        "gradient": 5.306413196117612e-09,
+        "hessian_diagonal": 0.8093346957793044,
+        "positive_ulp": 1.4901161193847656e-08,
+        "velocity": 0.12965059280395508
+      },
+      {
+        "diagonal_gradient_per_ulp": 1.7013302343521408e-10,
+        "dof": 1,
+        "gradient": 4.637797136751904e-09,
+        "hessian_diagonal": 187.0632375357046,
+        "positive_ulp": 9.094947017729282e-13,
+        "velocity": 7.67796427680878e-06
+      },
+      {
+        "diagonal_gradient_per_ulp": 7.907423887395717e-09,
+        "dof": 13,
+        "gradient": 4.1332454405264735e-09,
+        "hessian_diagonal": 2.122632936998362,
+        "positive_ulp": 3.725290298461914e-09,
+        "velocity": -0.03606228157877922
+      },
+      {
+        "diagonal_gradient_per_ulp": 1.2059682290070158e-08,
+        "dof": 14,
+        "gradient": 2.695387134265614e-09,
+        "hessian_diagonal": 0.8093115786875268,
+        "positive_ulp": 1.4901161193847656e-08,
+        "velocity": 0.1292455494403839
+      },
+      {
+        "diagonal_gradient_per_ulp": 8.59373662054501e-10,
+        "dof": 18,
+        "gradient": 1.931007209435108e-09,
+        "hessian_diagonal": 0.23068636084798988,
+        "positive_ulp": 3.725290298461914e-09,
+        "velocity": -0.046923037618398666
+      },
+      {
+        "diagonal_gradient_per_ulp": 4.4664938583174294e-14,
+        "dof": 5,
+        "gradient": -1.3044051496148537e-09,
+        "hessian_diagonal": 0.7857539092176166,
+        "positive_ulp": 5.684341886080802e-14,
+        "velocity": -6.584285188182548e-07
+      },
+      {
+        "diagonal_gradient_per_ulp": 8.593626403447855e-10,
+        "dof": 15,
+        "gradient": 9.621432832317983e-10,
+        "hessian_diagonal": 0.2306834022303165,
+        "positive_ulp": 3.725290298461914e-09,
+        "velocity": -0.046719953417778015
+      },
+      {
+        "diagonal_gradient_per_ulp": 2.246383596774891e-11,
+        "dof": 3,
+        "gradient": 2.492186520455801e-10,
+        "hessian_diagonal": 6.174812212748165,
+        "positive_ulp": 3.637978807091713e-12,
+        "velocity": -4.334397817729041e-05
+      }
+    ],
+    "scaled_optimality": 7.057216762131094e-08
+  },
+  "failed_row_arithmetic": {
+    "compensated_correctly_rounded_rows": 480,
+    "compensated_error_max": 4.875982773100418e-08,
+    "naive_error_max": 7.044946181977707e-08,
+    "rows": 480
+  },
+  "fixed_velocity_scaled_residuals": {
+    "exact_dynamics_native_impulses": 5.150627549605032e-08,
+    "exact_projection_compensated_rows": 7.057151240801645e-08,
+    "exact_projection_exact_rows": 7.057216762131094e-08,
+    "exact_projection_native_rows": 5.1510969575995444e-08,
+    "native_reported": 5.1471452877649426e-08
+  },
+  "goal_complete": false,
+  "largest_row_errors": [
+    {
+      "absolute_term_sum": 1.3050137408898106,
+      "cancellation_ratio": 1.1763599695697617,
+      "compensated": 1.1093659400939941,
+      "error": 7.044946181977707e-08,
+      "exact": 1.1093659888538219,
+      "native": 1.1093660593032837,
+      "row": 120
+    },
+    {
+      "absolute_term_sum": 0.9002583511173725,
+      "cancellation_ratio": 1.0,
+      "compensated": 0.9002583622932434,
+      "error": 1.1175870895385742e-08,
+      "exact": 0.9002583511173725,
+      "native": 0.9002583622932434,
+      "row": 66
+    },
+    {
+      "absolute_term_sum": 0.12973300570592983,
+      "cancellation_ratio": 1.0,
+      "compensated": 0.12973301112651825,
+      "error": 5.420588422566652e-09,
+      "exact": 0.12973300570592983,
+      "native": 0.12973301112651825,
+      "row": 72
+    },
+    {
+      "absolute_term_sum": 0.12932796234235866,
+      "cancellation_ratio": 1.0,
+      "compensated": 0.12932796776294708,
+      "error": 5.420588422566652e-09,
+      "exact": 0.12932796234235866,
+      "native": 0.12932796776294708,
+      "row": 93
+    },
+    {
+      "absolute_term_sum": 0.3457447622427946,
+      "cancellation_ratio": 2.670631199552313,
+      "compensated": 0.12946180999279022,
+      "error": -4.989657742537901e-09,
+      "exact": 0.12946181498244796,
+      "native": 0.12946180999279022,
+      "row": 123
+    },
+    {
+      "absolute_term_sum": 0.10947369172390609,
+      "cancellation_ratio": 1.000488376045326,
+      "compensated": -0.10942025482654572,
+      "error": -1.3333192327991128e-09,
+      "exact": -0.10942025349322648,
+      "native": -0.10942025482654572,
+      "row": 15
+    },
+    {
+      "absolute_term_sum": 0.03641088955919258,
+      "cancellation_ratio": 1.0081044101836336,
+      "compensated": -0.036118172109127045,
+      "error": 9.604264050722122e-10,
+      "exact": -0.03611817306955345,
+      "native": -0.036118172109127045,
+      "row": 9
+    },
+    {
+      "absolute_term_sum": 0.03620863982359879,
+      "cancellation_ratio": 1.008150047735578,
+      "compensated": -0.03591592237353325,
+      "error": 9.604264050722122e-10,
+      "exact": -0.035915923333959654,
+      "native": -0.03591592237353325,
+      "row": 84
+    },
+    {
+      "absolute_term_sum": 0.022144918576406908,
+      "cancellation_ratio": 14214.049178457499,
+      "compensated": 1.5579598766635172e-06,
+      "error": -7.530807102366027e-10,
+      "exact": 1.5579598957606858e-06,
+      "native": 1.5572068150504492e-06,
+      "row": 113
+    },
+    {
+      "absolute_term_sum": 0.01124771037446784,
+      "cancellation_ratio": 2.4134716033970918,
+      "compensated": -0.0046603865921497345,
+      "error": -6.009593734104812e-10,
+      "exact": -0.004660386456851648,
+      "native": -0.004660387057811022,
+      "row": 122
+    },
+    {
+      "absolute_term_sum": 0.04677864106997731,
+      "cancellation_ratio": 1.0025154762193609,
+      "compensated": -0.046661265194416046,
+      "error": 5.711626727133989e-10,
+      "exact": -0.04666126576557872,
+      "native": -0.046661265194416046,
+      "row": 54
+    },
+    {
+      "absolute_term_sum": 0.04677864106997731,
+      "cancellation_ratio": 1.0025154762193609,
+      "compensated": -0.046661265194416046,
+      "error": 5.711626727133989e-10,
+      "exact": -0.04666126576557872,
+      "native": -0.046661265194416046,
+      "row": 48
+    }
+  ],
+  "limits": "Exposed numerical diagnosis only. Neighbor-search failure is not a proof of a representability floor; emulated compensated arithmetic is not native physics.",
+  "native_row_fma32_emulation_exact": true,
+  "native_settings_changed": false,
+  "policy_or_profile_promoted": false,
+  "projection_exact_rows_vs_native_impulse_max": 1.1470058085185503e-08,
+  "projection_native_rows_vs_native_impulse_max": 1.1389327154998075e-10,
+  "reference_calibration": {
+    "euclidean_closed_form_cases": 5,
+    "passed": true,
+    "weighted_boundary_derivative_max_error": 7.482731101404738e-11
+  },
+  "rounded_reference": {
+    "coordinates": [
+      {
+        "diagonal_gradient_per_ulp": 1.7421621599765914e-07,
+        "dof": 2,
+        "gradient": -5.999188274624645e-08,
+        "hessian_diagonal": 187.0632375357045,
+        "positive_ulp": 9.313225746154785e-10,
+        "velocity": -0.014308486133813858
+      },
+      {
+        "diagonal_gradient_per_ulp": 1.0888513499853663e-08,
+        "dof": 0,
+        "gradient": -1.085547404896213e-08,
+        "hessian_diagonal": 187.06323753570393,
+        "positive_ulp": 5.820766091346741e-11,
+        "velocity": -0.0005920788971707225
+      },
+      {
+        "diagonal_gradient_per_ulp": 7.907423887395717e-09,
+        "dof": 13,
+        "gradient": 3.996507887034519e-09,
+        "hessian_diagonal": 2.122632936998362,
+        "positive_ulp": 3.725290298461914e-09,
+        "velocity": -0.0360623262822628
+      },
+      {
+        "diagonal_gradient_per_ulp": 1.1807891396751216e-08,
+        "dof": 4,
+        "gradient": 2.7476606369379424e-09,
+        "hessian_diagonal": 6.339313422970779,
+        "positive_ulp": 1.862645149230957e-09,
+        "velocity": -0.02820746600627899
+      },
+      {
+        "diagonal_gradient_per_ulp": 7.907662939743584e-09,
+        "dof": 16,
+        "gradient": -2.6688964914703558e-09,
+        "hessian_diagonal": 2.1226971071243694,
+        "positive_ulp": 3.725290298461914e-09,
+        "velocity": -0.0362645648419857
+      },
+      {
+        "diagonal_gradient_per_ulp": 1.2059682290070158e-08,
+        "dof": 14,
+        "gradient": 2.1539565188017574e-09,
+        "hessian_diagonal": 0.8093115786875268,
+        "positive_ulp": 1.4901161193847656e-08,
+        "velocity": 0.1292456090450287
+      },
+      {
+        "diagonal_gradient_per_ulp": 1.2060026761581069e-08,
+        "dof": 17,
+        "gradient": -1.962251666082687e-09,
+        "hessian_diagonal": 0.8093346957793044,
+        "positive_ulp": 1.4901161193847656e-08,
+        "velocity": 0.12965062260627747
+      },
+      {
+        "diagonal_gradient_per_ulp": 4.4664938583174294e-14,
+        "dof": 5,
+        "gradient": 1.492441809858004e-09,
+        "hessian_diagonal": 0.7857539092176166,
+        "positive_ulp": 5.684341886080802e-14,
+        "velocity": -6.572556117134809e-07
+      },
+      {
+        "diagonal_gradient_per_ulp": 8.593626403447855e-10,
+        "dof": 15,
+        "gradient": 8.518186928972913e-10,
+        "hessian_diagonal": 0.2306834022303165,
+        "positive_ulp": 3.725290298461914e-09,
+        "velocity": -0.046719975769519806
+      },
+      {
+        "diagonal_gradient_per_ulp": 8.59373662054501e-10,
+        "dof": 18,
+        "gradient": -7.351124004298981e-10,
+        "hessian_diagonal": 0.23068636084798988,
+        "positive_ulp": 3.725290298461914e-09,
+        "velocity": -0.04692304879426956
+      },
+      {
+        "diagonal_gradient_per_ulp": 1.7013302343521408e-10,
+        "dof": 1,
+        "gradient": 5.094594220603633e-11,
+        "hessian_diagonal": 187.0632375357046,
+        "positive_ulp": 9.094947017729282e-13,
+        "velocity": 7.678054316784255e-06
+      },
+      {
+        "diagonal_gradient_per_ulp": 2.246383596774891e-11,
+        "dof": 3,
+        "gradient": -2.2981598148657655e-12,
+        "hessian_diagonal": 6.174812212748165,
+        "positive_ulp": 3.637978807091713e-12,
+        "velocity": -4.334475670475513e-05
+      }
+    ],
+    "scaled_optimality": 5.832786183264644e-08
+  },
+  "rounded_reference_row_arithmetic": {
+    "compensated_correctly_rounded_rows": 480,
+    "compensated_error_max": 5.780750100825571e-08,
+    "naive_error_max": 6.140178854252554e-08,
+    "rows": 480
+  },
+  "schema": "crow-contact-precision-diagnosis-v1",
+  "searches": [
+    {
+      "final": {
+        "coordinates": [
+          {
+            "diagonal_gradient_per_ulp": 1.7013302343521408e-10,
+            "dof": 1,
+            "gradient": 2.186252729512901e-09,
+            "hessian_diagonal": 187.0632375357046,
+            "positive_ulp": 9.094947017729282e-13,
+            "velocity": 7.677952453377657e-06
+          },
+          {
+            "diagonal_gradient_per_ulp": 1.1807891396751216e-08,
+            "dof": 4,
+            "gradient": 2.185315847822323e-09,
+            "hessian_diagonal": 6.339313422970779,
+            "positive_ulp": 1.862645149230957e-09,
+            "velocity": -0.028207462280988693
+          },
+          {
+            "diagonal_gradient_per_ulp": 1.7421621599765914e-07,
+            "dof": 2,
+            "gradient": 2.184677144051461e-09,
+            "hessian_diagonal": 187.0632375357045,
+            "positive_ulp": 9.313225746154785e-10,
+            "velocity": -0.014308485202491283
+          },
+          {
+            "diagonal_gradient_per_ulp": 8.593626403447855e-10,
+            "dof": 15,
+            "gradient": 1.6646722934521128e-09,
+            "hessian_diagonal": 0.2306834022303165,
+            "positive_ulp": 3.725290298461914e-09,
+            "velocity": -0.04671994596719742
+          },
+          {
+            "diagonal_gradient_per_ulp": 1.2059682290070158e-08,
+            "dof": 14,
+            "gradient": 1.5630815887352543e-09,
+            "hessian_diagonal": 0.8093115786875268,
+            "positive_ulp": 1.4901161193847656e-08,
+            "velocity": 0.1292455494403839
+          },
+          {
+            "diagonal_gradient_per_ulp": 7.907423887395717e-09,
+            "dof": 13,
+            "gradient": 1.475155349144107e-09,
+            "hessian_diagonal": 2.122632936998362,
+            "positive_ulp": 3.725290298461914e-09,
+            "velocity": -0.036062292754650116
+          },
+          {
+            "diagonal_gradient_per_ulp": 4.4664938583174294e-14,
+            "dof": 5,
+            "gradient": -6.641134568696646e-10,
+            "hessian_diagonal": 0.7857539092176166,
+            "positive_ulp": 5.684341886080802e-14,
+            "velocity": -6.584282914445794e-07
+          },
+          {
+            "diagonal_gradient_per_ulp": 7.907662939743584e-09,
+            "dof": 16,
+            "gradient": 5.759993766216734e-10,
+            "hessian_diagonal": 2.1226971071243694,
+            "positive_ulp": 3.725290298461914e-09,
+            "velocity": -0.03626452758908272
+          },
+          {
+            "diagonal_gradient_per_ulp": 2.246383596774891e-11,
+            "dof": 3,
+            "gradient": 5.331008419745072e-10,
+            "hessian_diagonal": 6.174812212748165,
+            "positive_ulp": 3.637978807091713e-12,
+            "velocity": -4.3343985453248024e-05
+          },
+          {
+            "diagonal_gradient_per_ulp": 1.0888513499853663e-08,
+            "dof": 0,
+            "gradient": -4.0433533338981795e-10,
+            "hessian_diagonal": 187.06323753570393,
+            "positive_ulp": 5.820766091346741e-11,
+            "velocity": -0.0005920774419791996
+          },
+          {
+            "diagonal_gradient_per_ulp": 1.2060026761581069e-08,
+            "dof": 17,
+            "gradient": 3.534497899531348e-10,
+            "hessian_diagonal": 0.8093346957793044,
+            "positive_ulp": 1.4901161193847656e-08,
+            "velocity": 0.1296505630016327
+          },
+          {
+            "diagonal_gradient_per_ulp": 8.59373662054501e-10,
+            "dof": 18,
+            "gradient": 1.8786000846357617e-10,
+            "hessian_diagonal": 0.23068636084798988,
+            "positive_ulp": 3.725290298461914e-09,
+            "velocity": -0.04692302644252777
+          }
+        ],
+        "scaled_optimality": 2.125611819039662e-09
+      },
+      "history": [
+        {
+          "actual_gradient_max": 4.4603049821276275e-08,
+          "changed_dofs": [
+            4,
+            17
+          ],
+          "full_reprojection_accepted": true,
+          "gradient_max": 7.258549491301856e-08,
+          "iteration": 0,
+          "linearized_gradient_max": 4.46030498217572e-08,
+          "objective": 0.0002639112632997742,
+          "projection_branches": {
+            "interior": 126,
+            "scalar_bound": 17,
+            "scalar_free": 15,
+            "vertex": 2
+          },
+          "scaled_optimality": 7.057216762131094e-08
+        },
+        {
+          "actual_gradient_max": 3.045904981707759e-08,
+          "changed_dofs": [
+            4,
+            17
+          ],
+          "full_reprojection_accepted": true,
+          "gradient_max": 4.4603049821276275e-08,
+          "iteration": 1,
+          "linearized_gradient_max": 3.045904981755851e-08,
+          "objective": 0.00026391126329977904,
+          "projection_branches": {
+            "interior": 126,
+            "scalar_bound": 17,
+            "scalar_free": 15,
+            "vertex": 2
+          },
+          "scaled_optimality": 4.336588004208236e-08
+        },
+        {
+          "actual_gradient_max": 2.358265463985043e-08,
+          "changed_dofs": [
+            0,
+            4
+          ],
+          "full_reprojection_accepted": true,
+          "gradient_max": 3.045904981707759e-08,
+          "iteration": 2,
+          "linearized_gradient_max": 2.3582654638390007e-08,
+          "objective": 0.00026391126329990095,
+          "projection_branches": {
+            "interior": 126,
+            "scalar_bound": 17,
+            "scalar_free": 15,
+            "vertex": 2
+          },
+          "scaled_optimality": 2.9614196511704362e-08
+        },
+        {
+          "actual_gradient_max": 2.189651756787092e-08,
+          "changed_dofs": [
+            0,
+            15
+          ],
+          "full_reprojection_accepted": true,
+          "gradient_max": 2.358265463985043e-08,
+          "iteration": 3,
+          "linearized_gradient_max": 2.189651756934328e-08,
+          "objective": 0.00026391126329989515,
+          "projection_branches": {
+            "interior": 126,
+            "scalar_bound": 17,
+            "scalar_free": 15,
+            "vertex": 2
+          },
+          "scaled_optimality": 2.2928534156986095e-08
+        },
+        {
+          "actual_gradient_max": 2.0210380497626135e-08,
+          "changed_dofs": [
+            0,
+            15
+          ],
+          "full_reprojection_accepted": true,
+          "gradient_max": 2.189651756787092e-08,
+          "iteration": 4,
+          "linearized_gradient_max": 2.021038049736377e-08,
+          "objective": 0.00026391126329990925,
+          "projection_branches": {
+            "interior": 126,
+            "scalar_bound": 17,
+            "scalar_free": 15,
+            "vertex": 2
+          },
+          "scaled_optimality": 2.1289166034053146e-08
+        },
+        {
+          "actual_gradient_max": 1.8719785091688364e-08,
+          "changed_dofs": [
+            0,
+            18
+          ],
+          "full_reprojection_accepted": true,
+          "gradient_max": 2.0210380497626135e-08,
+          "iteration": 5,
+          "linearized_gradient_max": 1.8719785091680748e-08,
+          "objective": 0.0002639112632999264,
+          "projection_branches": {
+            "interior": 126,
+            "scalar_bound": 17,
+            "scalar_free": 15,
+            "vertex": 2
+          },
+          "scaled_optimality": 1.9649797918178023e-08
+        },
+        {
+          "actual_gradient_max": 1.793958049833349e-08,
+          "changed_dofs": [
+            0,
+            18
+          ],
+          "full_reprojection_accepted": true,
+          "gradient_max": 1.8719785091688364e-08,
+          "iteration": 6,
+          "linearized_gradient_max": 1.7939580498352978e-08,
+          "objective": 0.00026391126329990697,
+          "projection_branches": {
+            "interior": 126,
+            "scalar_bound": 17,
+            "scalar_free": 15,
+            "vertex": 2
+          },
+          "scaled_optimality": 1.82005476623309e-08
+        },
+        {
+          "actual_gradient_max": 1.540525408166805e-08,
+          "changed_dofs": [
+            4,
+            13
+          ],
+          "full_reprojection_accepted": true,
+          "gradient_max": 1.793958049833349e-08,
+          "iteration": 7,
+          "linearized_gradient_max": 1.5405254081685117e-08,
+          "objective": 0.0002639112632998906,
+          "projection_branches": {
+            "interior": 126,
+            "scalar_bound": 17,
+            "scalar_free": 15,
+            "vertex": 2
+          },
+          "scaled_optimality": 1.744198385655071e-08
+        },
+        {
+          "actual_gradient_max": 1.2464402142364772e-08,
+          "changed_dofs": [
+            0,
+            15
+          ],
+          "full_reprojection_accepted": true,
+          "gradient_max": 1.540525408166805e-08,
+          "iteration": 8,
+          "linearized_gradient_max": 1.2464402142627139e-08,
+          "objective": 0.00026391126329983455,
+          "projection_branches": {
+            "interior": 126,
+            "scalar_bound": 17,
+            "scalar_free": 15,
+            "vertex": 2
+          },
+          "scaled_optimality": 1.4977952881699628e-08
+        },
+        {
+          "actual_gradient_max": 9.796880593663376e-09,
+          "changed_dofs": [
+            4,
+            13
+          ],
+          "full_reprojection_accepted": true,
+          "gradient_max": 1.2464402142364772e-08,
+          "iteration": 9,
+          "linearized_gradient_max": 9.796880593680443e-09,
+          "objective": 0.00026391126329981986,
+          "projection_branches": {
+            "interior": 126,
+            "scalar_bound": 17,
+            "scalar_free": 15,
+            "vertex": 2
+          },
+          "scaled_optimality": 1.2118672454412242e-08
+        },
+        {
+          "actual_gradient_max": 7.986852462379956e-09,
+          "changed_dofs": [
+            15,
+            20
+          ],
+          "full_reprojection_accepted": true,
+          "gradient_max": 9.796880593663376e-09,
+          "iteration": 10,
+          "linearized_gradient_max": 7.986852462642323e-09,
+          "objective": 0.0002639112632997814,
+          "projection_branches": {
+            "interior": 126,
+            "scalar_bound": 17,
+            "scalar_free": 15,
+            "vertex": 2
+          },
+          "scaled_optimality": 9.525140872120335e-09
+        },
+        {
+          "actual_gradient_max": 6.852688512784636e-09,
+          "changed_dofs": [
+            0,
+            18
+          ],
+          "full_reprojection_accepted": true,
+          "gradient_max": 7.986852462379956e-09,
+          "iteration": 11,
+          "linearized_gradient_max": 6.852688512777016e-09,
+          "objective": 0.00026391126329977443,
+          "projection_branches": {
+            "interior": 126,
+            "scalar_bound": 17,
+            "scalar_free": 15,
+            "vertex": 2
+          },
+          "scaled_optimality": 7.765318177960629e-09
+        },
+        {
+          "actual_gradient_max": 6.0724839194839714e-09,
+          "changed_dofs": [
+            0,
+            18
+          ],
+          "full_reprojection_accepted": true,
+          "gradient_max": 6.852688512784636e-09,
+          "iteration": 12,
+          "linearized_gradient_max": 6.072483919449246e-09,
+          "objective": 0.00026391126329976787,
+          "projection_branches": {
+            "interior": 126,
+            "scalar_bound": 17,
+            "scalar_free": 15,
+            "vertex": 2
+          },
+          "scaled_optimality": 6.662612942922703e-09
+        },
+        {
+          "actual_gradient_max": 5.613177405522363e-09,
+          "changed_dofs": [
+            13,
+            16
+          ],
+          "full_reprojection_accepted": true,
+          "gradient_max": 6.0724839194839714e-09,
+          "iteration": 13,
+          "linearized_gradient_max": 5.613177405508036e-09,
+          "objective": 0.0002639112632997644,
+          "projection_branches": {
+            "interior": 126,
+            "scalar_bound": 17,
+            "scalar_free": 15,
+            "vertex": 2
+          },
+          "scaled_optimality": 5.9040491649215965e-09
+        },
+        {
+          "actual_gradient_max": 4.467669899209807e-09,
+          "changed_dofs": [
+            1,
+            18
+          ],
+          "full_reprojection_accepted": true,
+          "gradient_max": 5.613177405522363e-09,
+          "iteration": 14,
+          "linearized_gradient_max": 4.467669899208957e-09,
+          "objective": 0.00026391126329975003,
+          "projection_branches": {
+            "interior": 126,
+            "scalar_bound": 17,
+            "scalar_free": 15,
+            "vertex": 2
+          },
+          "scaled_optimality": 5.457482607291244e-09
+        },
+        {
+          "actual_gradient_max": 4.177206724868354e-09,
+          "changed_dofs": [
+            1,
+            3
+          ],
+          "full_reprojection_accepted": true,
+          "gradient_max": 4.467669899209807e-09,
+          "iteration": 15,
+          "linearized_gradient_max": 4.177206724867879e-09,
+          "objective": 0.00026391126329975556,
+          "projection_branches": {
+            "interior": 126,
+            "scalar_bound": 17,
+            "scalar_free": 15,
+            "vertex": 2
+          },
+          "scaled_optimality": 4.343748463415935e-09
+        },
+        {
+          "actual_gradient_max": 3.886743550526054e-09,
+          "changed_dofs": [
+            1,
+            3
+          ],
+          "full_reprojection_accepted": true,
+          "gradient_max": 4.177206724868354e-09,
+          "iteration": 16,
+          "linearized_gradient_max": 3.886743550526426e-09,
+          "objective": 0.00026391126329975556,
+          "projection_branches": {
+            "interior": 126,
+            "scalar_bound": 17,
+            "scalar_free": 15,
+            "vertex": 2
+          },
+          "scaled_optimality": 4.061341975092399e-09
+        },
+        {
+          "actual_gradient_max": 3.886052903719664e-09,
+          "changed_dofs": [
+            3,
+            5
+          ],
+          "full_reprojection_accepted": true,
+          "gradient_max": 3.886743550526054e-09,
+          "iteration": 17,
+          "linearized_gradient_max": 3.886052893716232e-09,
+          "objective": 0.0002639112632997555,
+          "projection_branches": {
+            "interior": 126,
+            "scalar_bound": 17,
+            "scalar_free": 15,
+            "vertex": 2
+          },
+          "scaled_optimality": 3.778935486768042e-09
+        },
+        {
+          "actual_gradient_max": 3.766623148395956e-09,
+          "changed_dofs": [
+            0,
+            15
+          ],
+          "full_reprojection_accepted": true,
+          "gradient_max": 3.886052903719664e-09,
+          "iteration": 18,
+          "linearized_gradient_max": 3.766623148490951e-09,
+          "objective": 0.0002639112632997555,
+          "projection_branches": {
+            "interior": 126,
+            "scalar_bound": 17,
+            "scalar_free": 15,
+            "vertex": 2
+          },
+          "scaled_optimality": 3.778263996691177e-09
+        },
+        {
+          "actual_gradient_max": 3.6790281592686755e-09,
+          "changed_dofs": [
+            1,
+            20
+          ],
+          "full_reprojection_accepted": true,
+          "gradient_max": 3.766623148395956e-09,
+          "iteration": 19,
+          "linearized_gradient_max": 3.679028156070279e-09,
+          "objective": 0.00026391126329975686,
+          "projection_branches": {
+            "interior": 126,
+            "scalar_bound": 17,
+            "scalar_free": 15,
+            "vertex": 2
+          },
+          "scaled_optimality": 3.6621469032890397e-09
+        },
+        {
+          "actual_gradient_max": 3.5964902259863044e-09,
+          "changed_dofs": [
+            0,
+            18
+          ],
+          "full_reprojection_accepted": true,
+          "gradient_max": 3.6790281592686755e-09,
+          "iteration": 20,
+          "linearized_gradient_max": 3.5964902259130965e-09,
+          "objective": 0.0002639112632997555,
+          "projection_branches": {
+            "interior": 126,
+            "scalar_bound": 17,
+            "scalar_free": 15,
+            "vertex": 2
+          },
+          "scaled_optimality": 3.5769815690115977e-09
+        },
+        {
+          "actual_gradient_max": 3.306027051645275e-09,
+          "changed_dofs": [
+            1,
+            3
+          ],
+          "full_reprojection_accepted": true,
+          "gradient_max": 3.5964902259863044e-09,
+          "iteration": 21,
+          "linearized_gradient_max": 3.3060270516443754e-09,
+          "objective": 0.0002639112632997501,
+          "projection_branches": {
+            "interior": 126,
+            "scalar_bound": 17,
+            "scalar_free": 15,
+            "vertex": 2
+          },
+          "scaled_optimality": 3.4967330272112936e-09
+        },
+        {
+          "actual_gradient_max": 3.0325542459130883e-09,
+          "changed_dofs": [
+            1,
+            3
+          ],
+          "full_reprojection_accepted": true,
+          "gradient_max": 3.306027051645275e-09,
+          "iteration": 22,
+          "linearized_gradient_max": 3.0325543493305408e-09,
+          "objective": 0.0002639112632997501,
+          "projection_branches": {
+            "interior": 126,
+            "scalar_bound": 17,
+            "scalar_free": 15,
+            "vertex": 2
+          },
+          "scaled_optimality": 3.214326538916619e-09
+        },
+        {
+          "actual_gradient_max": 2.929176652968768e-09,
+          "changed_dofs": [
+            1,
+            20
+          ],
+          "full_reprojection_accepted": true,
+          "gradient_max": 3.0325542459130883e-09,
+          "iteration": 23,
+          "linearized_gradient_max": 2.9291766408257036e-09,
+          "objective": 0.00026391126329975003,
+          "projection_branches": {
+            "interior": 126,
+            "scalar_bound": 17,
+            "scalar_free": 15,
+            "vertex": 2
+          },
+          "scaled_optimality": 2.948439151002023e-09
+        },
+        {
+          "actual_gradient_max": 2.8257990565550006e-09,
+          "changed_dofs": [
+            1,
+            20
+          ],
+          "full_reprojection_accepted": true,
+          "gradient_max": 2.929176652968768e-09,
+          "iteration": 24,
+          "linearized_gradient_max": 2.8257990478813833e-09,
+          "objective": 0.0002639112632997514,
+          "projection_branches": {
+            "interior": 126,
+            "scalar_bound": 17,
+            "scalar_free": 15,
+            "vertex": 2
+          },
+          "scaled_optimality": 2.8479289814259615e-09
+        },
+        {
+          "actual_gradient_max": 2.711228613144767e-09,
+          "changed_dofs": [
+            20,
+            21
+          ],
+          "full_reprojection_accepted": true,
+          "gradient_max": 2.8257990565550006e-09,
+          "iteration": 25,
+          "linearized_gradient_max": 2.7112286122774054e-09,
+          "objective": 0.0002639112632997531,
+          "projection_branches": {
+            "interior": 126,
+            "scalar_bound": 17,
+            "scalar_free": 15,
+            "vertex": 2
+          },
+          "scaled_optimality": 2.7474188084564825e-09
+        },
+        {
+          "actual_gradient_max": 2.6078510184657233e-09,
+          "changed_dofs": [
+            1,
+            20
+          ],
+          "full_reprojection_accepted": true,
+          "gradient_max": 2.711228613144767e-09,
+          "iteration": 26,
+          "linearized_gradient_max": 2.6078510080573825e-09,
+          "objective": 0.0002639112632997558,
+          "projection_branches": {
+            "interior": 126,
+            "scalar_bound": 17,
+            "scalar_free": 15,
+            "vertex": 2
+          },
+          "scaled_optimality": 2.6360262486923524e-09
+        },
+        {
+          "actual_gradient_max": 2.5044733370505057e-09,
+          "changed_dofs": [
+            1,
+            20
+          ],
+          "full_reprojection_accepted": true,
+          "gradient_max": 2.6078510184657233e-09,
+          "iteration": 27,
+          "linearized_gradient_max": 2.5044734133783386e-09,
+          "objective": 0.00026391126329975844,
+          "projection_branches": {
+            "interior": 126,
+            "scalar_bound": 17,
+            "scalar_free": 15,
+            "vertex": 2
+          },
+          "scaled_optimality": 2.5355160773668834e-09
+        },
+        {
+          "actual_gradient_max": 2.3899028919055487e-09,
+          "changed_dofs": [
+            20,
+            21
+          ],
+          "full_reprojection_accepted": true,
+          "gradient_max": 2.5044733370505057e-09,
+          "iteration": 28,
+          "linearized_gradient_max": 2.3899028927729105e-09,
+          "objective": 0.0002639112632997615,
+          "projection_branches": {
+            "interior": 126,
+            "scalar_bound": 17,
+            "scalar_free": 15,
+            "vertex": 2
+          },
+          "scaled_optimality": 2.4350058216908695e-09
+        },
+        {
+          "actual_gradient_max": 2.3019932867459486e-09,
+          "changed_dofs": [
+            1,
+            20
+          ],
+          "full_reprojection_accepted": true,
+          "gradient_max": 2.3899028919055487e-09,
+          "iteration": 29,
+          "linearized_gradient_max": 2.30199328750489e-09,
+          "objective": 0.0002639112632997658,
+          "projection_branches": {
+            "interior": 126,
+            "scalar_bound": 17,
+            "scalar_free": 15,
+            "vertex": 2
+          },
+          "scaled_optimality": 2.323613260170532e-09
+        },
+        {
+          "actual_gradient_max": 2.2977890963647024e-09,
+          "changed_dofs": [
+            12,
+            21
+          ],
+          "full_reprojection_accepted": true,
+          "gradient_max": 2.3019932867459486e-09,
+          "iteration": 30,
+          "linearized_gradient_max": 2.2977890963647024e-09,
+          "objective": 0.0002639112632997698,
+          "projection_branches": {
+            "interior": 126,
+            "scalar_bound": 17,
+            "scalar_free": 15,
+            "vertex": 2
+          },
+          "scaled_optimality": 2.2381420368838356e-09
+        },
+        {
+          "actual_gradient_max": 2.2935849059834562e-09,
+          "changed_dofs": [
+            12,
+            21
+          ],
+          "full_reprojection_accepted": true,
+          "gradient_max": 2.2977890963647024e-09,
+          "iteration": 31,
+          "linearized_gradient_max": 2.2935849059834562e-09,
+          "objective": 0.000263911263299769,
+          "projection_branches": {
+            "interior": 126,
+            "scalar_bound": 17,
+            "scalar_free": 15,
+            "vertex": 2
+          },
+          "scaled_optimality": 2.2340544597049316e-09
+        },
+        {
+          "actual_gradient_max": 2.28938071560221e-09,
+          "changed_dofs": [
+            12,
+            21
+          ],
+          "full_reprojection_accepted": true,
+          "gradient_max": 2.2935849059834562e-09,
+          "iteration": 32,
+          "linearized_gradient_max": 2.28938071560221e-09,
+          "objective": 0.0002639112632997683,
+          "projection_branches": {
+            "interior": 126,
+            "scalar_bound": 17,
+            "scalar_free": 15,
+            "vertex": 2
+          },
+          "scaled_optimality": 2.22996688252603e-09
+        },
+        {
+          "actual_gradient_max": 2.2873865815234255e-09,
+          "changed_dofs": [
+            3,
+            12
+          ],
+          "full_reprojection_accepted": true,
+          "gradient_max": 2.28938071560221e-09,
+          "iteration": 33,
+          "linearized_gradient_max": 2.2873865811494067e-09,
+          "objective": 0.00026391126329976765,
+          "projection_branches": {
+            "interior": 126,
+            "scalar_bound": 17,
+            "scalar_free": 15,
+            "vertex": 2
+          },
+          "scaled_optimality": 2.225879305347131e-09
+        },
+        {
+          "actual_gradient_max": 2.2852289193705703e-09,
+          "changed_dofs": [
+            12,
+            21
+          ],
+          "full_reprojection_accepted": true,
+          "gradient_max": 2.2873865815234255e-09,
+          "iteration": 34,
+          "linearized_gradient_max": 2.2852289193701e-09,
+          "objective": 0.0002639112632997677,
+          "projection_branches": {
+            "interior": 126,
+            "scalar_bound": 17,
+            "scalar_free": 15,
+            "vertex": 2
+          },
+          "scaled_optimality": 2.223940483335596e-09
+        },
+        {
+          "actual_gradient_max": 2.281188325964443e-09,
+          "changed_dofs": [
+            1,
+            12
+          ],
+          "full_reprojection_accepted": true,
+          "gradient_max": 2.2852289193705703e-09,
+          "iteration": 35,
+          "linearized_gradient_max": 2.2811883267233844e-09,
+          "objective": 0.00026391126329976716,
+          "projection_branches": {
+            "interior": 126,
+            "scalar_bound": 17,
+            "scalar_free": 15,
+            "vertex": 2
+          },
+          "scaled_optimality": 2.2218426690651965e-09
+        },
+        {
+          "actual_gradient_max": 2.2769841355831967e-09,
+          "changed_dofs": [
+            12,
+            21
+          ],
+          "full_reprojection_accepted": true,
+          "gradient_max": 2.281188325964443e-09,
+          "iteration": 36,
+          "linearized_gradient_max": 2.2769841355831967e-09,
+          "objective": 0.0002639112632997672,
+          "projection_branches": {
+            "interior": 126,
+            "scalar_bound": 17,
+            "scalar_free": 15,
+            "vertex": 2
+          },
+          "scaled_optimality": 2.2179141511349517e-09
+        },
+        {
+          "actual_gradient_max": 2.2727799452019505e-09,
+          "changed_dofs": [
+            12,
+            21
+          ],
+          "full_reprojection_accepted": true,
+          "gradient_max": 2.2769841355831967e-09,
+          "iteration": 37,
+          "linearized_gradient_max": 2.2727799452019505e-09,
+          "objective": 0.0002639112632997669,
+          "projection_branches": {
+            "interior": 126,
+            "scalar_bound": 17,
+            "scalar_free": 15,
+            "vertex": 2
+          },
+          "scaled_optimality": 2.213826573955972e-09
+        },
+        {
+          "actual_gradient_max": 2.2685757548207043e-09,
+          "changed_dofs": [
+            12,
+            21
+          ],
+          "full_reprojection_accepted": true,
+          "gradient_max": 2.2727799452019505e-09,
+          "iteration": 38,
+          "linearized_gradient_max": 2.2685757548207043e-09,
+          "objective": 0.00026391126329976657,
+          "projection_branches": {
+            "interior": 126,
+            "scalar_bound": 17,
+            "scalar_free": 15,
+            "vertex": 2
+          },
+          "scaled_optimality": 2.2097389967769953e-09
+        },
+        {
+          "actual_gradient_max": 2.266581622856114e-09,
+          "changed_dofs": [
+            3,
+            12
+          ],
+          "full_reprojection_accepted": true,
+          "gradient_max": 2.2685757548207043e-09,
+          "iteration": 39,
+          "linearized_gradient_max": 2.266581620367901e-09,
+          "objective": 0.00026391126329976635,
+          "projection_branches": {
+            "interior": 126,
+            "scalar_bound": 17,
+            "scalar_free": 15,
+            "vertex": 2
+          },
+          "scaled_optimality": 2.2056514195980207e-09
+        },
+        {
+          "actual_gradient_max": 2.262377432474868e-09,
+          "changed_dofs": [
+            12,
+            21
+          ],
+          "full_reprojection_accepted": true,
+          "gradient_max": 2.266581622856114e-09,
+          "iteration": 40,
+          "linearized_gradient_max": 2.262377432474868e-09,
+          "objective": 0.00026391126329976657,
+          "projection_branches": {
+            "interior": 126,
+            "scalar_bound": 17,
+            "scalar_free": 15,
+            "vertex": 2
+          },
+          "scaled_optimality": 2.2037125996417845e-09
+        },
+        {
+          "actual_gradient_max": 2.2581732420936217e-09,
+          "changed_dofs": [
+            12,
+            21
+          ],
+          "full_reprojection_accepted": true,
+          "gradient_max": 2.262377432474868e-09,
+          "iteration": 41,
+          "linearized_gradient_max": 2.2581732420936217e-09,
+          "objective": 0.00026391126329976646,
+          "projection_branches": {
+            "interior": 126,
+            "scalar_bound": 17,
+            "scalar_free": 15,
+            "vertex": 2
+          },
+          "scaled_optimality": 2.19962502246277e-09
+        },
+        {
+          "actual_gradient_max": 2.256179186836335e-09,
+          "changed_dofs": [
+            5,
+            12
+          ],
+          "full_reprojection_accepted": true,
+          "gradient_max": 2.2581732420936217e-09,
+          "iteration": 42,
+          "linearized_gradient_max": 2.25617917640106e-09,
+          "objective": 0.00026391126329976646,
+          "projection_branches": {
+            "interior": 126,
+            "scalar_bound": 17,
+            "scalar_free": 15,
+            "vertex": 2
+          },
+          "scaled_optimality": 2.195537445283758e-09
+        },
+        {
+          "actual_gradient_max": 2.251974996455089e-09,
+          "changed_dofs": [
+            12,
+            21
+          ],
+          "full_reprojection_accepted": true,
+          "gradient_max": 2.256179186836335e-09,
+          "iteration": 43,
+          "linearized_gradient_max": 2.251974996455089e-09,
+          "objective": 0.0002639112632997667,
+          "projection_branches": {
+            "interior": 126,
+            "scalar_bound": 17,
+            "scalar_free": 15,
+            "vertex": 2
+          },
+          "scaled_optimality": 2.19359869990704e-09
+        },
+        {
+          "actual_gradient_max": 2.2477708060738427e-09,
+          "changed_dofs": [
+            12,
+            21
+          ],
+          "full_reprojection_accepted": true,
+          "gradient_max": 2.251974996455089e-09,
+          "iteration": 44,
+          "linearized_gradient_max": 2.2477708060738427e-09,
+          "objective": 0.00026391126329976684,
+          "projection_branches": {
+            "interior": 126,
+            "scalar_bound": 17,
+            "scalar_free": 15,
+            "vertex": 2
+          },
+          "scaled_optimality": 2.1895111227279877e-09
+        },
+        {
+          "actual_gradient_max": 2.2457767260967466e-09,
+          "changed_dofs": [
+            5,
+            12
+          ],
+          "full_reprojection_accepted": true,
+          "gradient_max": 2.2477708060738427e-09,
+          "iteration": 45,
+          "linearized_gradient_max": 2.245776740381281e-09,
+          "objective": 0.00026391126329976705,
+          "projection_branches": {
+            "interior": 126,
+            "scalar_bound": 17,
+            "scalar_free": 15,
+            "vertex": 2
+          },
+          "scaled_optimality": 2.185423545548938e-09
+        },
+        {
+          "actual_gradient_max": 2.2415725357155004e-09,
+          "changed_dofs": [
+            12,
+            21
+          ],
+          "full_reprojection_accepted": true,
+          "gradient_max": 2.2457767260967466e-09,
+          "iteration": 46,
+          "linearized_gradient_max": 2.2415725357155004e-09,
+          "objective": 0.00026391126329976743,
+          "projection_branches": {
+            "interior": 126,
+            "scalar_bound": 17,
+            "scalar_free": 15,
+            "vertex": 2
+          },
+          "scaled_optimality": 2.183484776137947e-09
+        },
+        {
+          "actual_gradient_max": 2.2373683453342542e-09,
+          "changed_dofs": [
+            12,
+            21
+          ],
+          "full_reprojection_accepted": true,
+          "gradient_max": 2.2415725357155004e-09,
+          "iteration": 47,
+          "linearized_gradient_max": 2.2373683453342542e-09,
+          "objective": 0.0002639112632997677,
+          "projection_branches": {
+            "interior": 126,
+            "scalar_bound": 17,
+            "scalar_free": 15,
+            "vertex": 2
+          },
+          "scaled_optimality": 2.179397198958857e-09
+        },
+        {
+          "actual_gradient_max": 2.235374280156518e-09,
+          "changed_dofs": [
+            1,
+            12
+          ],
+          "full_reprojection_accepted": true,
+          "gradient_max": 2.2373683453342542e-09,
+          "iteration": 48,
+          "linearized_gradient_max": 2.2353742809154593e-09,
+          "objective": 0.0002639112632997682,
+          "projection_branches": {
+            "interior": 126,
+            "scalar_bound": 17,
+            "scalar_free": 15,
+            "vertex": 2
+          },
+          "scaled_optimality": 2.1753096217797692e-09
+        },
+        {
+          "actual_gradient_max": 2.2311700897752716e-09,
+          "changed_dofs": [
+            12,
+            21
+          ],
+          "full_reprojection_accepted": true,
+          "gradient_max": 2.235374280156518e-09,
+          "iteration": 49,
+          "linearized_gradient_max": 2.2311700897752716e-09,
+          "objective": 0.0002639112632997685,
+          "projection_branches": {
+            "interior": 126,
+            "scalar_bound": 17,
+            "scalar_free": 15,
+            "vertex": 2
+          },
+          "scaled_optimality": 2.173370866757516e-09
+        },
+        {
+          "actual_gradient_max": 2.230967900898262e-09,
+          "changed_dofs": [
+            3,
+            12
+          ],
+          "full_reprojection_accepted": true,
+          "gradient_max": 2.2311700897752716e-09,
+          "iteration": 50,
+          "linearized_gradient_max": 2.230967902534058e-09,
+          "objective": 0.00026391126329976917,
+          "projection_branches": {
+            "interior": 126,
+            "scalar_bound": 17,
+            "scalar_free": 15,
+            "vertex": 2
+          },
+          "scaled_optimality": 2.1692832895783887e-09
+        },
+        {
+          "actual_gradient_max": 2.2291358969198788e-09,
+          "changed_dofs": [
+            15,
+            18
+          ],
+          "full_reprojection_accepted": true,
+          "gradient_max": 2.230967900898262e-09,
+          "iteration": 51,
+          "linearized_gradient_max": 2.229135896894825e-09,
+          "objective": 0.00026391126329976955,
+          "projection_branches": {
+            "interior": 126,
+            "scalar_bound": 17,
+            "scalar_free": 15,
+            "vertex": 2
+          },
+          "scaled_optimality": 2.1690867089129114e-09
+        },
+        {
+          "actual_gradient_max": 2.2249317065386326e-09,
+          "changed_dofs": [
+            12,
+            21
+          ],
+          "full_reprojection_accepted": true,
+          "gradient_max": 2.2291358969198788e-09,
+          "iteration": 52,
+          "linearized_gradient_max": 2.2249317065386326e-09,
+          "objective": 0.0002639112632997718,
+          "projection_branches": {
+            "interior": 126,
+            "scalar_bound": 17,
+            "scalar_free": 15,
+            "vertex": 2
+          },
+          "scaled_optimality": 2.167305519914322e-09
+        },
+        {
+          "actual_gradient_max": 2.2207275161573864e-09,
+          "changed_dofs": [
+            12,
+            21
+          ],
+          "full_reprojection_accepted": true,
+          "gradient_max": 2.2249317065386326e-09,
+          "iteration": 53,
+          "linearized_gradient_max": 2.2207275161573864e-09,
+          "objective": 0.0002639112632997726,
+          "projection_branches": {
+            "interior": 126,
+            "scalar_bound": 17,
+            "scalar_free": 15,
+            "vertex": 2
+          },
+          "scaled_optimality": 2.163217942735155e-09
+        },
+        {
+          "actual_gradient_max": 2.21652332577614e-09,
+          "changed_dofs": [
+            12,
+            21
+          ],
+          "full_reprojection_accepted": true,
+          "gradient_max": 2.2207275161573864e-09,
+          "iteration": 54,
+          "linearized_gradient_max": 2.21652332577614e-09,
+          "objective": 0.00026391126329977334,
+          "projection_branches": {
+            "interior": 126,
+            "scalar_bound": 17,
+            "scalar_free": 15,
+            "vertex": 2
+          },
+          "scaled_optimality": 2.1591303655559907e-09
+        },
+        {
+          "actual_gradient_max": 2.21452919375734e-09,
+          "changed_dofs": [
+            3,
+            12
+          ],
+          "full_reprojection_accepted": true,
+          "gradient_max": 2.21652332577614e-09,
+          "iteration": 55,
+          "linearized_gradient_max": 2.214529191323337e-09,
+          "objective": 0.00026391126329977426,
+          "projection_branches": {
+            "interior": 126,
+            "scalar_bound": 17,
+            "scalar_free": 15,
+            "vertex": 2
+          },
+          "scaled_optimality": 2.1550427883768287e-09
+        },
+        {
+          "actual_gradient_max": 2.2103250033760936e-09,
+          "changed_dofs": [
+            12,
+            21
+          ],
+          "full_reprojection_accepted": true,
+          "gradient_max": 2.21452919375734e-09,
+          "iteration": 56,
+          "linearized_gradient_max": 2.2103250033760936e-09,
+          "objective": 0.00026391126329977475,
+          "projection_branches": {
+            "interior": 126,
+            "scalar_bound": 17,
+            "scalar_free": 15,
+            "vertex": 2
+          },
+          "scaled_optimality": 2.1531039683672543e-09
+        },
+        {
+          "actual_gradient_max": 2.2061208129948474e-09,
+          "changed_dofs": [
+            12,
+            21
+          ],
+          "full_reprojection_accepted": true,
+          "gradient_max": 2.2103250033760936e-09,
+          "iteration": 57,
+          "linearized_gradient_max": 2.2061208129948474e-09,
+          "objective": 0.0002639112632997758,
+          "projection_branches": {
+            "interior": 126,
+            "scalar_bound": 17,
+            "scalar_free": 15,
+            "vertex": 2
+          },
+          "scaled_optimality": 2.1490163911880526e-09
+        },
+        {
+          "actual_gradient_max": 2.2041266750671452e-09,
+          "changed_dofs": [
+            3,
+            12
+          ],
+          "full_reprojection_accepted": true,
+          "gradient_max": 2.2061208129948474e-09,
+          "iteration": 58,
+          "linearized_gradient_max": 2.204126678542044e-09,
+          "objective": 0.00026391126329977687,
+          "projection_branches": {
+            "interior": 126,
+            "scalar_bound": 17,
+            "scalar_free": 15,
+            "vertex": 2
+          },
+          "scaled_optimality": 2.144928814008853e-09
+        },
+        {
+          "actual_gradient_max": 2.199922484685899e-09,
+          "changed_dofs": [
+            12,
+            21
+          ],
+          "full_reprojection_accepted": true,
+          "gradient_max": 2.2041266750671452e-09,
+          "iteration": 59,
+          "linearized_gradient_max": 2.199922484685899e-09,
+          "objective": 0.00026391126329977746,
+          "projection_branches": {
+            "interior": 126,
+            "scalar_bound": 17,
+            "scalar_free": 15,
+            "vertex": 2
+          },
+          "scaled_optimality": 2.1429899882541485e-09
+        },
+        {
+          "actual_gradient_max": 2.195718294304653e-09,
+          "changed_dofs": [
+            12,
+            21
+          ],
+          "full_reprojection_accepted": true,
+          "gradient_max": 2.199922484685899e-09,
+          "iteration": 60,
+          "linearized_gradient_max": 2.195718294304653e-09,
+          "objective": 0.0002639112632997787,
+          "projection_branches": {
+            "interior": 126,
+            "scalar_bound": 17,
+            "scalar_free": 15,
+            "vertex": 2
+          },
+          "scaled_optimality": 2.1389024110749087e-09
+        },
+        {
+          "actual_gradient_max": 2.1937242285848153e-09,
+          "changed_dofs": [
+            5,
+            12
+          ],
+          "full_reprojection_accepted": true,
+          "gradient_max": 2.195718294304653e-09,
+          "iteration": 61,
+          "linearized_gradient_max": 2.193724228612091e-09,
+          "objective": 0.00026391126329978007,
+          "projection_branches": {
+            "interior": 126,
+            "scalar_bound": 17,
+            "scalar_free": 15,
+            "vertex": 2
+          },
+          "scaled_optimality": 2.1348148338956714e-09
+        },
+        {
+          "actual_gradient_max": 2.189520038203569e-09,
+          "changed_dofs": [
+            12,
+            21
+          ],
+          "full_reprojection_accepted": true,
+          "gradient_max": 2.1937242285848153e-09,
+          "iteration": 62,
+          "linearized_gradient_max": 2.189520038203569e-09,
+          "objective": 0.00026391126329978066,
+          "projection_branches": {
+            "interior": 126,
+            "scalar_bound": 17,
+            "scalar_free": 15,
+            "vertex": 2
+          },
+          "scaled_optimality": 2.132876078345848e-09
+        },
+        {
+          "actual_gradient_max": 2.186252729512901e-09,
+          "changed_dofs": [
+            12,
+            21
+          ],
+          "full_reprojection_accepted": true,
+          "gradient_max": 2.189520038203569e-09,
+          "iteration": 63,
+          "linearized_gradient_max": 2.1862527295132778e-09,
+          "objective": 0.0002639112632997821,
+          "projection_branches": {
+            "interior": 126,
+            "scalar_bound": 17,
+            "scalar_free": 15,
+            "vertex": 2
+          },
+          "scaled_optimality": 2.1287885011665707e-09
+        }
+      ],
+      "iterations": 64,
+      "representable_state_found": false,
+      "scaled_optimality": 2.125611819039662e-09,
+      "seconds": 0.13309891702374443,
+      "start": "failed",
+      "stopping_reason": "iteration_budget"
+    },
+    {
+      "final": {
+        "coordinates": [
+          {
+            "diagonal_gradient_per_ulp": 1.1807891396751216e-08,
+            "dof": 4,
+            "gradient": -3.1588376425760283e-09,
+            "hessian_diagonal": 6.339313422970779,
+            "positive_ulp": 1.862645149230957e-09,
+            "velocity": -0.028207477182149887
+          },
+          {
+            "diagonal_gradient_per_ulp": 1.7421621599765914e-07,
+            "dof": 2,
+            "gradient": -3.1505947052645755e-09,
+            "hessian_diagonal": 187.0632375357045,
+            "positive_ulp": 9.313225746154785e-10,
+            "velocity": -0.014308486133813858
+          },
+          {
+            "diagonal_gradient_per_ulp": 7.907423887395717e-09,
+            "dof": 13,
+            "gradient": -2.7415211608169824e-09,
+            "hessian_diagonal": 2.122632936998362,
+            "positive_ulp": 3.725290298461914e-09,
+            "velocity": -0.036062318831682205
+          },
+          {
+            "diagonal_gradient_per_ulp": 1.0888513499853663e-08,
+            "dof": 0,
+            "gradient": -2.641005067036909e-09,
+            "hessian_diagonal": 187.06323753570393,
+            "positive_ulp": 5.820766091346741e-11,
+            "velocity": -0.0005920793628320098
+          },
+          {
+            "diagonal_gradient_per_ulp": 8.59373662054501e-10,
+            "dof": 18,
+            "gradient": -2.517958892370071e-09,
+            "hessian_diagonal": 0.23068636084798988,
+            "positive_ulp": 3.725290298461914e-09,
+            "velocity": -0.04692307114601135
+          },
+          {
+            "diagonal_gradient_per_ulp": 1.2059682290070158e-08,
+            "dof": 14,
+            "gradient": -1.8365961466916097e-09,
+            "hessian_diagonal": 0.8093115786875268,
+            "positive_ulp": 1.4901161193847656e-08,
+            "velocity": 0.1292456090450287
+          },
+          {
+            "diagonal_gradient_per_ulp": 1.7013302343521408e-10,
+            "dof": 1,
+            "gradient": -1.3930212310901638e-09,
+            "hessian_diagonal": 187.0632375357046,
+            "positive_ulp": 9.094947017729282e-13,
+            "velocity": 7.678054316784255e-06
+          },
+          {
+            "diagonal_gradient_per_ulp": 1.2060026761581069e-08,
+            "dof": 17,
+            "gradient": -1.3348871325726392e-09,
+            "hessian_diagonal": 0.8093346957793044,
+            "positive_ulp": 1.4901161193847656e-08,
+            "velocity": 0.12965063750743866
+          },
+          {
+            "diagonal_gradient_per_ulp": 4.4664938583174294e-14,
+            "dof": 5,
+            "gradient": -1.2601017893915563e-09,
+            "hessian_diagonal": 0.7857539092176166,
+            "positive_ulp": 5.684341886080802e-14,
+            "velocity": -6.572556117134809e-07
+          },
+          {
+            "diagonal_gradient_per_ulp": 2.246383596774891e-11,
+            "dof": 3,
+            "gradient": -9.158655125135038e-10,
+            "hessian_diagonal": 6.174812212748165,
+            "positive_ulp": 3.637978807091713e-12,
+            "velocity": -4.334480036050081e-05
+          },
+          {
+            "diagonal_gradient_per_ulp": 8.593626403447855e-10,
+            "dof": 15,
+            "gradient": -7.356882168765597e-10,
+            "hessian_diagonal": 0.2306834022303165,
+            "positive_ulp": 3.725290298461914e-09,
+            "velocity": -0.046719975769519806
+          },
+          {
+            "diagonal_gradient_per_ulp": 7.907662939743584e-09,
+            "dof": 16,
+            "gradient": -2.790804982232421e-10,
+            "hessian_diagonal": 2.1226971071243694,
+            "positive_ulp": 3.725290298461914e-09,
+            "velocity": -0.036264557391405106
+          }
+        ],
+        "scaled_optimality": 3.0712197511498956e-09
+      },
+      "history": [
+        {
+          "actual_gradient_max": 5.3012109962197185e-08,
+          "changed_dofs": [
+            4,
+            20
+          ],
+          "full_reprojection_accepted": true,
+          "gradient_max": 5.999188274624645e-08,
+          "iteration": 0,
+          "linearized_gradient_max": 5.3012109962471484e-08,
+          "objective": 0.0002639112632997557,
+          "projection_branches": {
+            "interior": 126,
+            "scalar_bound": 17,
+            "scalar_free": 15,
+            "vertex": 2
+          },
+          "scaled_optimality": 5.832786183264644e-08
+        },
+        {
+          "actual_gradient_max": 3.886810995973322e-08,
+          "changed_dofs": [
+            4,
+            17
+          ],
+          "full_reprojection_accepted": true,
+          "gradient_max": 5.3012109962197185e-08,
+          "iteration": 1,
+          "linearized_gradient_max": 3.886810995847942e-08,
+          "objective": 0.0002639112632997618,
+          "projection_branches": {
+            "interior": 126,
+            "scalar_bound": 17,
+            "scalar_free": 15,
+            "vertex": 2
+          },
+          "scaled_optimality": 5.1541690376627244e-08
+        },
+        {
+          "actual_gradient_max": 3.280753843593054e-08,
+          "changed_dofs": [
+            4,
+            16
+          ],
+          "full_reprojection_accepted": true,
+          "gradient_max": 3.886810995973322e-08,
+          "iteration": 2,
+          "linearized_gradient_max": 3.280753843838677e-08,
+          "objective": 0.0002639112632997657,
+          "projection_branches": {
+            "interior": 126,
+            "scalar_bound": 17,
+            "scalar_free": 15,
+            "vertex": 2
+          },
+          "scaled_optimality": 3.779000907531864e-08
+        },
+        {
+          "actual_gradient_max": 2.6746966915597303e-08,
+          "changed_dofs": [
+            4,
+            16
+          ],
+          "full_reprojection_accepted": true,
+          "gradient_max": 3.280753843593054e-08,
+          "iteration": 3,
+          "linearized_gradient_max": 2.6746966914584086e-08,
+          "objective": 0.0002639112632997955,
+          "projection_branches": {
+            "interior": 126,
+            "scalar_bound": 17,
+            "scalar_free": 15,
+            "vertex": 2
+          },
+          "scaled_optimality": 3.189754232438661e-08
+        },
+        {
+          "actual_gradient_max": 2.506082984708724e-08,
+          "changed_dofs": [
+            0,
+            15
+          ],
+          "full_reprojection_accepted": true,
+          "gradient_max": 2.6746966915597303e-08,
+          "iteration": 4,
+          "linearized_gradient_max": 2.5060829845090152e-08,
+          "objective": 0.00026391126329984094,
+          "projection_branches": {
+            "interior": 126,
+            "scalar_bound": 17,
+            "scalar_free": 15,
+            "vertex": 2
+          },
+          "scaled_optimality": 2.6005075507657703e-08
+        },
+        {
+          "actual_gradient_max": 2.3374692776842454e-08,
+          "changed_dofs": [
+            0,
+            15
+          ],
+          "full_reprojection_accepted": true,
+          "gradient_max": 2.506082984708724e-08,
+          "iteration": 5,
+          "linearized_gradient_max": 2.337469277658009e-08,
+          "objective": 0.0002639112632998521,
+          "projection_branches": {
+            "interior": 126,
+            "scalar_bound": 17,
+            "scalar_free": 15,
+            "vertex": 2
+          },
+          "scaled_optimality": 2.436570754292343e-08
+        },
+        {
+          "actual_gradient_max": 2.158517809977556e-08,
+          "changed_dofs": [
+            15,
+            20
+          ],
+          "full_reprojection_accepted": true,
+          "gradient_max": 2.3374692776842454e-08,
+          "iteration": 6,
+          "linearized_gradient_max": 2.1585178101247918e-08,
+          "objective": 0.0002639112632998663,
+          "projection_branches": {
+            "interior": 126,
+            "scalar_bound": 17,
+            "scalar_free": 15,
+            "vertex": 2
+          },
+          "scaled_optimality": 2.2726339571131334e-08
+        },
+        {
+          "actual_gradient_max": 1.9899041031265496e-08,
+          "changed_dofs": [
+            0,
+            15
+          ],
+          "full_reprojection_accepted": true,
+          "gradient_max": 2.158517809977556e-08,
+          "iteration": 7,
+          "linearized_gradient_max": 1.9899041029268408e-08,
+          "objective": 0.00026391126329988523,
+          "projection_branches": {
+            "interior": 126,
+            "scalar_bound": 17,
+            "scalar_free": 15,
+            "vertex": 2
+          },
+          "scaled_optimality": 2.098646141091347e-08
+        },
+        {
+          "actual_gradient_max": 1.8699100588402494e-08,
+          "changed_dofs": [
+            0,
+            18
+          ],
+          "full_reprojection_accepted": true,
+          "gradient_max": 1.9899041031265496e-08,
+          "iteration": 8,
+          "linearized_gradient_max": 1.8699100588421983e-08,
+          "objective": 0.0002639112632999054,
+          "projection_branches": {
+            "interior": 126,
+            "scalar_bound": 17,
+            "scalar_free": 15,
+            "vertex": 2
+          },
+          "scaled_optimality": 1.934709343006567e-08
+        },
+        {
+          "actual_gradient_max": 1.7918895995074725e-08,
+          "changed_dofs": [
+            0,
+            18
+          ],
+          "full_reprojection_accepted": true,
+          "gradient_max": 1.8699100588402494e-08,
+          "iteration": 9,
+          "linearized_gradient_max": 1.7918895995067108e-08,
+          "objective": 0.00026391126329989103,
+          "projection_branches": {
+            "interior": 126,
+            "scalar_bound": 17,
+            "scalar_free": 15,
+            "vertex": 2
+          },
+          "scaled_optimality": 1.8180436241433548e-08
+        },
+        {
+          "actual_gradient_max": 1.6527468674892853e-08,
+          "changed_dofs": [
+            15,
+            18
+          ],
+          "full_reprojection_accepted": true,
+          "gradient_max": 1.7918895995074725e-08,
+          "iteration": 10,
+          "linearized_gradient_max": 1.6527468675979e-08,
+          "objective": 0.00026391126329987965,
+          "projection_branches": {
+            "interior": 126,
+            "scalar_bound": 17,
+            "scalar_free": 15,
+            "vertex": 2
+          },
+          "scaled_optimality": 1.742187251995382e-08
+        },
+        {
+          "actual_gradient_max": 1.5483729289638527e-08,
+          "changed_dofs": [
+            0,
+            18
+          ],
+          "full_reprojection_accepted": true,
+          "gradient_max": 1.6527468674892853e-08,
+          "iteration": 11,
+          "linearized_gradient_max": 1.548372928963091e-08,
+          "objective": 0.00026391126329985157,
+          "projection_branches": {
+            "interior": 126,
+            "scalar_bound": 17,
+            "scalar_free": 15,
+            "vertex": 2
+          },
+          "scaled_optimality": 1.6069039767326756e-08
+        },
+        {
+          "actual_gradient_max": 1.4353707083374426e-08,
+          "changed_dofs": [
+            4,
+            13
+          ],
+          "full_reprojection_accepted": true,
+          "gradient_max": 1.5483729289638527e-08,
+          "iteration": 12,
+          "linearized_gradient_max": 1.4353707083391492e-08,
+          "objective": 0.0002639112632998465,
+          "projection_branches": {
+            "interior": 126,
+            "scalar_bound": 17,
+            "scalar_free": 15,
+            "vertex": 2
+          },
+          "scaled_optimality": 1.5054251017110305e-08
+        },
+        {
+          "actual_gradient_max": 1.0467393458946095e-08,
+          "changed_dofs": [
+            0,
+            15
+          ],
+          "full_reprojection_accepted": true,
+          "gradient_max": 1.4353707083374426e-08,
+          "iteration": 13,
+          "linearized_gradient_max": 1.0467393459208462e-08,
+          "objective": 0.0002639112632998048,
+          "projection_branches": {
+            "interior": 126,
+            "scalar_bound": 17,
+            "scalar_free": 15,
+            "vertex": 2
+          },
+          "scaled_optimality": 1.3955572761919561e-08
+        },
+        {
+          "actual_gradient_max": 8.745333595369751e-09,
+          "changed_dofs": [
+            4,
+            13
+          ],
+          "full_reprojection_accepted": true,
+          "gradient_max": 1.0467393458946095e-08,
+          "iteration": 14,
+          "linearized_gradient_max": 8.745333595386817e-09,
+          "objective": 0.00026391126329979053,
+          "projection_branches": {
+            "interior": 126,
+            "scalar_bound": 17,
+            "scalar_free": 15,
+            "vertex": 2
+          },
+          "scaled_optimality": 1.017705530398187e-08
+        },
+        {
+          "actual_gradient_max": 5.9898437806960025e-09,
+          "changed_dofs": [
+            15,
+            20
+          ],
+          "full_reprojection_accepted": true,
+          "gradient_max": 8.745333595369751e-09,
+          "iteration": 15,
+          "linearized_gradient_max": 5.989843780958369e-09,
+          "objective": 0.00026391126329976646,
+          "projection_branches": {
+            "interior": 126,
+            "scalar_bound": 17,
+            "scalar_free": 15,
+            "vertex": 2
+          },
+          "scaled_optimality": 8.502760933109203e-09
+        },
+        {
+          "actual_gradient_max": 4.396837304118472e-09,
+          "changed_dofs": [
+            0,
+            18
+          ],
+          "full_reprojection_accepted": true,
+          "gradient_max": 5.9898437806960025e-09,
+          "iteration": 16,
+          "linearized_gradient_max": 4.396837304137957e-09,
+          "objective": 0.00026391126329975974,
+          "projection_branches": {
+            "interior": 126,
+            "scalar_bound": 17,
+            "scalar_free": 15,
+            "vertex": 2
+          },
+          "scaled_optimality": 5.8237011830333804e-09
+        },
+        {
+          "actual_gradient_max": 4.304174565372687e-09,
+          "changed_dofs": [
+            15,
+            18
+          ],
+          "full_reprojection_accepted": true,
+          "gradient_max": 4.396837304118472e-09,
+          "iteration": 17,
+          "linearized_gradient_max": 4.304174568193561e-09,
+          "objective": 0.00026391126329976456,
+          "projection_branches": {
+            "interior": 126,
+            "scalar_bound": 17,
+            "scalar_free": 15,
+            "vertex": 2
+          },
+          "scaled_optimality": 4.274880545977501e-09
+        },
+        {
+          "actual_gradient_max": 4.18960412022773e-09,
+          "changed_dofs": [
+            20,
+            21
+          ],
+          "full_reprojection_accepted": true,
+          "gradient_max": 4.304174565372687e-09,
+          "iteration": 18,
+          "linearized_gradient_max": 4.189604121095092e-09,
+          "objective": 0.00026391126329976803,
+          "projection_branches": {
+            "interior": 126,
+            "scalar_bound": 17,
+            "scalar_free": 15,
+            "vertex": 2
+          },
+          "scaled_optimality": 4.184788029059831e-09
+        },
+        {
+          "actual_gradient_max": 4.075033676817497e-09,
+          "changed_dofs": [
+            20,
+            21
+          ],
+          "full_reprojection_accepted": true,
+          "gradient_max": 4.18960412022773e-09,
+          "iteration": 19,
+          "linearized_gradient_max": 4.075033675950135e-09,
+          "objective": 0.00026391126329976993,
+          "projection_branches": {
+            "interior": 126,
+            "scalar_bound": 17,
+            "scalar_free": 15,
+            "vertex": 2
+          },
+          "scaled_optimality": 4.073395467722543e-09
+        },
+        {
+          "actual_gradient_max": 3.96046323167254e-09,
+          "changed_dofs": [
+            20,
+            21
+          ],
+          "full_reprojection_accepted": true,
+          "gradient_max": 4.075033676817497e-09,
+          "iteration": 20,
+          "linearized_gradient_max": 3.960463232539901e-09,
+          "objective": 0.00026391126329977253,
+          "projection_branches": {
+            "interior": 126,
+            "scalar_bound": 17,
+            "scalar_free": 15,
+            "vertex": 2
+          },
+          "scaled_optimality": 3.962002908096677e-09
+        },
+        {
+          "actual_gradient_max": 3.845892788262306e-09,
+          "changed_dofs": [
+            20,
+            21
+          ],
+          "full_reprojection_accepted": true,
+          "gradient_max": 3.96046323167254e-09,
+          "iteration": 21,
+          "linearized_gradient_max": 3.8458927873949444e-09,
+          "objective": 0.0002639112632997757,
+          "projection_branches": {
+            "interior": 126,
+            "scalar_bound": 17,
+            "scalar_free": 15,
+            "vertex": 2
+          },
+          "scaled_optimality": 3.8506103468090225e-09
+        },
+        {
+          "actual_gradient_max": 3.731322343117349e-09,
+          "changed_dofs": [
+            20,
+            21
+          ],
+          "full_reprojection_accepted": true,
+          "gradient_max": 3.845892788262306e-09,
+          "iteration": 22,
+          "linearized_gradient_max": 3.731322343984711e-09,
+          "objective": 0.0002639112632997795,
+          "projection_branches": {
+            "interior": 126,
+            "scalar_bound": 17,
+            "scalar_free": 15,
+            "vertex": 2
+          },
+          "scaled_optimality": 3.739217787232791e-09
+        },
+        {
+          "actual_gradient_max": 3.6167518997071157e-09,
+          "changed_dofs": [
+            20,
+            21
+          ],
+          "full_reprojection_accepted": true,
+          "gradient_max": 3.731322343117349e-09,
+          "iteration": 23,
+          "linearized_gradient_max": 3.616751898839754e-09,
+          "objective": 0.000263911263299784,
+          "projection_branches": {
+            "interior": 126,
+            "scalar_bound": 17,
+            "scalar_free": 15,
+            "vertex": 2
+          },
+          "scaled_optimality": 3.6278252259947686e-09
+        },
+        {
+          "actual_gradient_max": 3.5021814545621588e-09,
+          "changed_dofs": [
+            20,
+            21
+          ],
+          "full_reprojection_accepted": true,
+          "gradient_max": 3.6167518997071157e-09,
+          "iteration": 24,
+          "linearized_gradient_max": 3.5021814554295205e-09,
+          "objective": 0.00026391126329978906,
+          "projection_branches": {
+            "interior": 126,
+            "scalar_bound": 17,
+            "scalar_free": 15,
+            "vertex": 2
+          },
+          "scaled_optimality": 3.51643266646817e-09
+        },
+        {
+          "actual_gradient_max": 3.3876110111519253e-09,
+          "changed_dofs": [
+            20,
+            21
+          ],
+          "full_reprojection_accepted": true,
+          "gradient_max": 3.5021814545621588e-09,
+          "iteration": 25,
+          "linearized_gradient_max": 3.3876110102845636e-09,
+          "objective": 0.00026391126329979486,
+          "projection_branches": {
+            "interior": 126,
+            "scalar_bound": 17,
+            "scalar_free": 15,
+            "vertex": 2
+          },
+          "scaled_optimality": 3.405040105279781e-09
+        },
+        {
+          "actual_gradient_max": 3.2878720161483473e-09,
+          "changed_dofs": [
+            12,
+            20
+          ],
+          "full_reprojection_accepted": true,
+          "gradient_max": 3.3876110111519253e-09,
+          "iteration": 26,
+          "linearized_gradient_max": 3.2878720161483473e-09,
+          "objective": 0.00026391126329980115,
+          "projection_branches": {
+            "interior": 126,
+            "scalar_bound": 17,
+            "scalar_free": 15,
+            "vertex": 2
+          },
+          "scaled_optimality": 3.293647545802816e-09
+        },
+        {
+          "actual_gradient_max": 3.283667825767101e-09,
+          "changed_dofs": [
+            12,
+            21
+          ],
+          "full_reprojection_accepted": true,
+          "gradient_max": 3.2878720161483473e-09,
+          "iteration": 27,
+          "linearized_gradient_max": 3.283667825767101e-09,
+          "objective": 0.00026391126329980684,
+          "projection_branches": {
+            "interior": 126,
+            "scalar_bound": 17,
+            "scalar_free": 15,
+            "vertex": 2
+          },
+          "scaled_optimality": 3.196675049186194e-09
+        },
+        {
+          "actual_gradient_max": 3.279463635385855e-09,
+          "changed_dofs": [
+            12,
+            21
+          ],
+          "full_reprojection_accepted": true,
+          "gradient_max": 3.283667825767101e-09,
+          "iteration": 28,
+          "linearized_gradient_max": 3.279463635385855e-09,
+          "objective": 0.00026391126329980554,
+          "projection_branches": {
+            "interior": 126,
+            "scalar_bound": 17,
+            "scalar_free": 15,
+            "vertex": 2
+          },
+          "scaled_optimality": 3.1925874720467676e-09
+        },
+        {
+          "actual_gradient_max": 3.2752594450046087e-09,
+          "changed_dofs": [
+            12,
+            21
+          ],
+          "full_reprojection_accepted": true,
+          "gradient_max": 3.279463635385855e-09,
+          "iteration": 29,
+          "linearized_gradient_max": 3.2752594450046087e-09,
+          "objective": 0.0002639112632998043,
+          "projection_branches": {
+            "interior": 126,
+            "scalar_bound": 17,
+            "scalar_free": 15,
+            "vertex": 2
+          },
+          "scaled_optimality": 3.1884998949073388e-09
+        },
+        {
+          "actual_gradient_max": 3.2732653104921433e-09,
+          "changed_dofs": [
+            3,
+            12
+          ],
+          "full_reprojection_accepted": true,
+          "gradient_max": 3.2752594450046087e-09,
+          "iteration": 30,
+          "linearized_gradient_max": 3.2732653105518054e-09,
+          "objective": 0.0002639112632998032,
+          "projection_branches": {
+            "interior": 126,
+            "scalar_bound": 17,
+            "scalar_free": 15,
+            "vertex": 2
+          },
+          "scaled_optimality": 3.1844123177679075e-09
+        },
+        {
+          "actual_gradient_max": 3.269061120110897e-09,
+          "changed_dofs": [
+            12,
+            21
+          ],
+          "full_reprojection_accepted": true,
+          "gradient_max": 3.2732653104921433e-09,
+          "iteration": 31,
+          "linearized_gradient_max": 3.269061120110897e-09,
+          "objective": 0.00026391126329980327,
+          "projection_branches": {
+            "interior": 126,
+            "scalar_bound": 17,
+            "scalar_free": 15,
+            "vertex": 2
+          },
+          "scaled_optimality": 3.1824734952954673e-09
+        },
+        {
+          "actual_gradient_max": 3.264856929729651e-09,
+          "changed_dofs": [
+            12,
+            21
+          ],
+          "full_reprojection_accepted": true,
+          "gradient_max": 3.269061120110897e-09,
+          "iteration": 32,
+          "linearized_gradient_max": 3.264856929729651e-09,
+          "objective": 0.0002639112632998023,
+          "projection_branches": {
+            "interior": 126,
+            "scalar_bound": 17,
+            "scalar_free": 15,
+            "vertex": 2
+          },
+          "scaled_optimality": 3.178385918156076e-09
+        },
+        {
+          "actual_gradient_max": 3.2628627955966563e-09,
+          "changed_dofs": [
+            3,
+            12
+          ],
+          "full_reprojection_accepted": true,
+          "gradient_max": 3.264856929729651e-09,
+          "iteration": 33,
+          "linearized_gradient_max": 3.2628627952768476e-09,
+          "objective": 0.0002639112632998015,
+          "projection_branches": {
+            "interior": 126,
+            "scalar_bound": 17,
+            "scalar_free": 15,
+            "vertex": 2
+          },
+          "scaled_optimality": 3.1742983410166825e-09
+        },
+        {
+          "actual_gradient_max": 3.25865860521541e-09,
+          "changed_dofs": [
+            12,
+            21
+          ],
+          "full_reprojection_accepted": true,
+          "gradient_max": 3.2628627955966563e-09,
+          "iteration": 34,
+          "linearized_gradient_max": 3.25865860521541e-09,
+          "objective": 0.0002639112632998016,
+          "projection_branches": {
+            "interior": 126,
+            "scalar_bound": 17,
+            "scalar_free": 15,
+            "vertex": 2
+          },
+          "scaled_optimality": 3.172359518913315e-09
+        },
+        {
+          "actual_gradient_max": 3.254454414834164e-09,
+          "changed_dofs": [
+            12,
+            21
+          ],
+          "full_reprojection_accepted": true,
+          "gradient_max": 3.25865860521541e-09,
+          "iteration": 35,
+          "linearized_gradient_max": 3.254454414834164e-09,
+          "objective": 0.00026391126329980083,
+          "projection_branches": {
+            "interior": 126,
+            "scalar_bound": 17,
+            "scalar_free": 15,
+            "vertex": 2
+          },
+          "scaled_optimality": 3.1682719417739614e-09
+        },
+        {
+          "actual_gradient_max": 3.252460279508547e-09,
+          "changed_dofs": [
+            3,
+            12
+          ],
+          "full_reprojection_accepted": true,
+          "gradient_max": 3.254454414834164e-09,
+          "iteration": 36,
+          "linearized_gradient_max": 3.2524602803813606e-09,
+          "objective": 0.0002639112632998002,
+          "projection_branches": {
+            "interior": 126,
+            "scalar_bound": 17,
+            "scalar_free": 15,
+            "vertex": 2
+          },
+          "scaled_optimality": 3.1641843646346054e-09
+        },
+        {
+          "actual_gradient_max": 3.2482560891273007e-09,
+          "changed_dofs": [
+            12,
+            21
+          ],
+          "full_reprojection_accepted": true,
+          "gradient_max": 3.252460279508547e-09,
+          "iteration": 37,
+          "linearized_gradient_max": 3.2482560891273007e-09,
+          "objective": 0.00026391126329980034,
+          "projection_branches": {
+            "interior": 126,
+            "scalar_bound": 17,
+            "scalar_free": 15,
+            "vertex": 2
+          },
+          "scaled_optimality": 3.162245541371822e-09
+        },
+        {
+          "actual_gradient_max": 3.2440518987460545e-09,
+          "changed_dofs": [
+            12,
+            21
+          ],
+          "full_reprojection_accepted": true,
+          "gradient_max": 3.2482560891273007e-09,
+          "iteration": 38,
+          "linearized_gradient_max": 3.2440518987460545e-09,
+          "objective": 0.00026391126329979985,
+          "projection_branches": {
+            "interior": 126,
+            "scalar_bound": 17,
+            "scalar_free": 15,
+            "vertex": 2
+          },
+          "scaled_optimality": 3.158157964232506e-09
+        },
+        {
+          "actual_gradient_max": 3.24205776461306e-09,
+          "changed_dofs": [
+            3,
+            12
+          ],
+          "full_reprojection_accepted": true,
+          "gradient_max": 3.2440518987460545e-09,
+          "iteration": 39,
+          "linearized_gradient_max": 3.2420577642932512e-09,
+          "objective": 0.0002639112632997994,
+          "projection_branches": {
+            "interior": 126,
+            "scalar_bound": 17,
+            "scalar_free": 15,
+            "vertex": 2
+          },
+          "scaled_optimality": 3.1540703870931876e-09
+        },
+        {
+          "actual_gradient_max": 3.2378535742318137e-09,
+          "changed_dofs": [
+            12,
+            21
+          ],
+          "full_reprojection_accepted": true,
+          "gradient_max": 3.24205776461306e-09,
+          "iteration": 40,
+          "linearized_gradient_max": 3.2378535742318137e-09,
+          "objective": 0.0002639112632997997,
+          "projection_branches": {
+            "interior": 126,
+            "scalar_bound": 17,
+            "scalar_free": 15,
+            "vertex": 2
+          },
+          "scaled_optimality": 3.1521315649900728e-09
+        },
+        {
+          "actual_gradient_max": 3.2336493838505675e-09,
+          "changed_dofs": [
+            12,
+            21
+          ],
+          "full_reprojection_accepted": true,
+          "gradient_max": 3.2378535742318137e-09,
+          "iteration": 41,
+          "linearized_gradient_max": 3.2336493838505675e-09,
+          "objective": 0.00026391126329979936,
+          "projection_branches": {
+            "interior": 126,
+            "scalar_bound": 17,
+            "scalar_free": 15,
+            "vertex": 2
+          },
+          "scaled_optimality": 3.1480439878507945e-09
+        },
+        {
+          "actual_gradient_max": 3.231655247711799e-09,
+          "changed_dofs": [
+            3,
+            12
+          ],
+          "full_reprojection_accepted": true,
+          "gradient_max": 3.2336493838505675e-09,
+          "iteration": 42,
+          "linearized_gradient_max": 3.2316552493977642e-09,
+          "objective": 0.00026391126329979915,
+          "projection_branches": {
+            "interior": 126,
+            "scalar_bound": 17,
+            "scalar_free": 15,
+            "vertex": 2
+          },
+          "scaled_optimality": 3.1439564107115138e-09
+        },
+        {
+          "actual_gradient_max": 3.2274510573305527e-09,
+          "changed_dofs": [
+            12,
+            21
+          ],
+          "full_reprojection_accepted": true,
+          "gradient_max": 3.231655247711799e-09,
+          "iteration": 43,
+          "linearized_gradient_max": 3.2274510573305527e-09,
+          "objective": 0.00026391126329979947,
+          "projection_branches": {
+            "interior": 126,
+            "scalar_bound": 17,
+            "scalar_free": 15,
+            "vertex": 2
+          },
+          "scaled_optimality": 3.1420175866583852e-09
+        },
+        {
+          "actual_gradient_max": 3.2232468669493065e-09,
+          "changed_dofs": [
+            12,
+            21
+          ],
+          "full_reprojection_accepted": true,
+          "gradient_max": 3.2274510573305527e-09,
+          "iteration": 44,
+          "linearized_gradient_max": 3.2232468669493065e-09,
+          "objective": 0.00026391126329979936,
+          "projection_branches": {
+            "interior": 126,
+            "scalar_bound": 17,
+            "scalar_free": 15,
+            "vertex": 2
+          },
+          "scaled_optimality": 3.137930009519145e-09
+        },
+        {
+          "actual_gradient_max": 3.2212527349847163e-09,
+          "changed_dofs": [
+            3,
+            12
+          ],
+          "full_reprojection_accepted": true,
+          "gradient_max": 3.2232468669493065e-09,
+          "iteration": 45,
+          "linearized_gradient_max": 3.2212527324965032e-09,
+          "objective": 0.0002639112632997993,
+          "projection_branches": {
+            "interior": 126,
+            "scalar_bound": 17,
+            "scalar_free": 15,
+            "vertex": 2
+          },
+          "scaled_optimality": 3.133842432379902e-09
+        },
+        {
+          "actual_gradient_max": 3.21704854460347e-09,
+          "changed_dofs": [
+            12,
+            21
+          ],
+          "full_reprojection_accepted": true,
+          "gradient_max": 3.2212527349847163e-09,
+          "iteration": 46,
+          "linearized_gradient_max": 3.21704854460347e-09,
+          "objective": 0.0002639112632997998,
+          "projection_branches": {
+            "interior": 126,
+            "scalar_bound": 17,
+            "scalar_free": 15,
+            "vertex": 2
+          },
+          "scaled_optimality": 3.131903612385298e-09
+        },
+        {
+          "actual_gradient_max": 3.212844354222224e-09,
+          "changed_dofs": [
+            12,
+            21
+          ],
+          "full_reprojection_accepted": true,
+          "gradient_max": 3.21704854460347e-09,
+          "iteration": 47,
+          "linearized_gradient_max": 3.212844354222224e-09,
+          "objective": 0.00026391126329979985,
+          "projection_branches": {
+            "interior": 126,
+            "scalar_bound": 17,
+            "scalar_free": 15,
+            "vertex": 2
+          },
+          "scaled_optimality": 3.127816035246095e-09
+        },
+        {
+          "actual_gradient_max": 3.2108502180834553e-09,
+          "changed_dofs": [
+            3,
+            12
+          ],
+          "full_reprojection_accepted": true,
+          "gradient_max": 3.212844354222224e-09,
+          "iteration": 48,
+          "linearized_gradient_max": 3.2108502197694206e-09,
+          "objective": 0.0002639112632998001,
+          "projection_branches": {
+            "interior": 126,
+            "scalar_bound": 17,
+            "scalar_free": 15,
+            "vertex": 2
+          },
+          "scaled_optimality": 3.12372845810689e-09
+        },
+        {
+          "actual_gradient_max": 3.206646027702209e-09,
+          "changed_dofs": [
+            12,
+            21
+          ],
+          "full_reprojection_accepted": true,
+          "gradient_max": 3.2108502180834553e-09,
+          "iteration": 49,
+          "linearized_gradient_max": 3.206646027702209e-09,
+          "objective": 0.00026391126329980056,
+          "projection_branches": {
+            "interior": 126,
+            "scalar_bound": 17,
+            "scalar_free": 15,
+            "vertex": 2
+          },
+          "scaled_optimality": 3.1217896340540143e-09
+        },
+        {
+          "actual_gradient_max": 3.202499619658905e-09,
+          "changed_dofs": [
+            12,
+            21
+          ],
+          "full_reprojection_accepted": true,
+          "gradient_max": 3.206646027702209e-09,
+          "iteration": 50,
+          "linearized_gradient_max": 3.202499619658905e-09,
+          "objective": 0.0002639112632998009,
+          "projection_branches": {
+            "interior": 126,
+            "scalar_bound": 17,
+            "scalar_free": 15,
+            "vertex": 2
+          },
+          "scaled_optimality": 3.1177020569148493e-09
+        },
+        {
+          "actual_gradient_max": 3.2004477037300694e-09,
+          "changed_dofs": [
+            3,
+            12
+          ],
+          "full_reprojection_accepted": true,
+          "gradient_max": 3.202499619658905e-09,
+          "iteration": 51,
+          "linearized_gradient_max": 3.2004477028681596e-09,
+          "objective": 0.00026391126329980137,
+          "projection_branches": {
+            "interior": 126,
+            "scalar_bound": 17,
+            "scalar_free": 15,
+            "vertex": 2
+          },
+          "scaled_optimality": 3.113670659382754e-09
+        },
+        {
+          "actual_gradient_max": 3.196243513348823e-09,
+          "changed_dofs": [
+            12,
+            21
+          ],
+          "full_reprojection_accepted": true,
+          "gradient_max": 3.2004477037300694e-09,
+          "iteration": 52,
+          "linearized_gradient_max": 3.196243513348823e-09,
+          "objective": 0.00026391126329980186,
+          "projection_branches": {
+            "interior": 126,
+            "scalar_bound": 17,
+            "scalar_free": 15,
+            "vertex": 2
+          },
+          "scaled_optimality": 3.1116756582001363e-09
+        },
+        {
+          "actual_gradient_max": 3.192243743649348e-09,
+          "changed_dofs": [
+            12,
+            21
+          ],
+          "full_reprojection_accepted": true,
+          "gradient_max": 3.196243513348823e-09,
+          "iteration": 53,
+          "linearized_gradient_max": 3.192243743649348e-09,
+          "objective": 0.00026391126329980245,
+          "projection_branches": {
+            "interior": 126,
+            "scalar_bound": 17,
+            "scalar_free": 15,
+            "vertex": 2
+          },
+          "scaled_optimality": 3.107588081061009e-09
+        },
+        {
+          "actual_gradient_max": 3.1900451884009015e-09,
+          "changed_dofs": [
+            3,
+            12
+          ],
+          "full_reprojection_accepted": true,
+          "gradient_max": 3.192243743649348e-09,
+          "iteration": 54,
+          "linearized_gradient_max": 3.1900451885147737e-09,
+          "objective": 0.0002639112632998031,
+          "projection_branches": {
+            "interior": 126,
+            "scalar_bound": 17,
+            "scalar_free": 15,
+            "vertex": 2
+          },
+          "scaled_optimality": 3.1036992545087917e-09
+        },
+        {
+          "actual_gradient_max": 3.1858409980196553e-09,
+          "changed_dofs": [
+            12,
+            21
+          ],
+          "full_reprojection_accepted": true,
+          "gradient_max": 3.1900451884009015e-09,
+          "iteration": 55,
+          "linearized_gradient_max": 3.1858409980196553e-09,
+          "objective": 0.00026391126329980365,
+          "projection_branches": {
+            "interior": 126,
+            "scalar_bound": 17,
+            "scalar_free": 15,
+            "vertex": 2
+          },
+          "scaled_optimality": 3.101561681397743e-09
+        },
+        {
+          "actual_gradient_max": 3.1819877479438707e-09,
+          "changed_dofs": [
+            12,
+            21
+          ],
+          "full_reprojection_accepted": true,
+          "gradient_max": 3.1858409980196553e-09,
+          "iteration": 56,
+          "linearized_gradient_max": 3.1819877479438707e-09,
+          "objective": 0.00026391126329980446,
+          "projection_branches": {
+            "interior": 126,
+            "scalar_bound": 17,
+            "scalar_free": 15,
+            "vertex": 2
+          },
+          "scaled_optimality": 3.0974741042586535e-09
+        },
+        {
+          "actual_gradient_max": 3.1796426735596246e-09,
+          "changed_dofs": [
+            3,
+            12
+          ],
+          "full_reprojection_accepted": true,
+          "gradient_max": 3.1819877479438707e-09,
+          "iteration": 57,
+          "linearized_gradient_max": 3.179642673185606e-09,
+          "objective": 0.0002639112632998053,
+          "projection_branches": {
+            "interior": 126,
+            "scalar_bound": 17,
+            "scalar_free": 15,
+            "vertex": 2
+          },
+          "scaled_optimality": 3.0937277332591597e-09
+        },
+        {
+          "actual_gradient_max": 3.1754384831783784e-09,
+          "changed_dofs": [
+            12,
+            21
+          ],
+          "full_reprojection_accepted": true,
+          "gradient_max": 3.1796426735596246e-09,
+          "iteration": 58,
+          "linearized_gradient_max": 3.1754384831783784e-09,
+          "objective": 0.00026391126329980603,
+          "projection_branches": {
+            "interior": 126,
+            "scalar_bound": 17,
+            "scalar_free": 15,
+            "vertex": 2
+          },
+          "scaled_optimality": 3.0914477050699105e-09
+        },
+        {
+          "actual_gradient_max": 3.17173187019959e-09,
+          "changed_dofs": [
+            12,
+            21
+          ],
+          "full_reprojection_accepted": true,
+          "gradient_max": 3.1754384831783784e-09,
+          "iteration": 59,
+          "linearized_gradient_max": 3.17173187019959e-09,
+          "objective": 0.000263911263299807,
+          "projection_branches": {
+            "interior": 126,
+            "scalar_bound": 17,
+            "scalar_free": 15,
+            "vertex": 2
+          },
+          "scaled_optimality": 3.0873601279308585e-09
+        },
+        {
+          "actual_gradient_max": 3.169240155845212e-09,
+          "changed_dofs": [
+            3,
+            12
+          ],
+          "full_reprojection_accepted": true,
+          "gradient_max": 3.17173187019959e-09,
+          "iteration": 60,
+          "linearized_gradient_max": 3.169240158344329e-09,
+          "objective": 0.0002639112632998081,
+          "projection_branches": {
+            "interior": 126,
+            "scalar_bound": 17,
+            "scalar_free": 15,
+            "vertex": 2
+          },
+          "scaled_optimality": 3.0837563266989886e-09
+        },
+        {
+          "actual_gradient_max": 3.1650359654639658e-09,
+          "changed_dofs": [
+            12,
+            21
+          ],
+          "full_reprojection_accepted": true,
+          "gradient_max": 3.169240155845212e-09,
+          "iteration": 61,
+          "linearized_gradient_max": 3.1650359654639658e-09,
+          "objective": 0.0002639112632998088,
+          "projection_branches": {
+            "interior": 126,
+            "scalar_bound": 17,
+            "scalar_free": 15,
+            "vertex": 2
+          },
+          "scaled_optimality": 3.0813337259488366e-09
+        },
+        {
+          "actual_gradient_max": 3.1614760150067145e-09,
+          "changed_dofs": [
+            12,
+            21
+          ],
+          "full_reprojection_accepted": true,
+          "gradient_max": 3.1650359654639658e-09,
+          "iteration": 62,
+          "linearized_gradient_max": 3.1614760150067145e-09,
+          "objective": 0.0002639112632998101,
+          "projection_branches": {
+            "interior": 126,
+            "scalar_bound": 17,
+            "scalar_free": 15,
+            "vertex": 2
+          },
+          "scaled_optimality": 3.0772461488098223e-09
+        },
+        {
+          "actual_gradient_max": 3.1588376425760283e-09,
+          "changed_dofs": [
+            3,
+            12
+          ],
+          "full_reprojection_accepted": true,
+          "gradient_max": 3.1614760150067145e-09,
+          "iteration": 63,
+          "linearized_gradient_max": 3.1588376406299163e-09,
+          "objective": 0.00026391126329981134,
+          "projection_branches": {
+            "interior": 126,
+            "scalar_bound": 17,
+            "scalar_free": 15,
+            "vertex": 2
+          },
+          "scaled_optimality": 3.073784942064904e-09
+        }
+      ],
+      "iterations": 64,
+      "representable_state_found": false,
+      "scaled_optimality": 3.0712197511498956e-09,
+      "seconds": 0.1310393750318326,
+      "start": "rounded",
+      "stopping_reason": "iteration_budget"
+    }
+  ]
+}
