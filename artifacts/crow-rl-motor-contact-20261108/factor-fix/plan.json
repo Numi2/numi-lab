@@ -1,0 +1,81 @@
+{
+  "budget": {
+    "artifact_growth_max_bytes": 20000000,
+    "new_comparison_native_conditions": 141,
+    "timeouts_seconds_each": 120
+  },
+  "calibration": "Parent24-case independent force mapping error3.39545e-10 N; full Release build completed118 targets with exit0.",
+  "classification": "Native owner repair; exact replay of one failed engineering control, then confirmation on all47 previously unexecuted paired conditions.",
+  "commands": [
+    {
+      "args": [
+        "/Users/n/Developer/numi-crow-rl-20261107/.numi/retained-runtime/motor-contact-factor-fix-20261108/probe",
+        "/Users/n/Developer/numi-crow-rl-20261107/.numi/retained-runtime/motor-contact-factor-fix-20261108/metalrobo/MetalRobo.metallib",
+        "/Users/n/Developer/numi-crow-rl-20261107/build/crow-motor-contact-build-01/empty-quality.tsv",
+        "--empty-quality-replay"
+      ],
+      "expected_exit": 0,
+      "name": "empty-quality-replay"
+    },
+    {
+      "args": [
+        "/Users/n/Developer/numi-crow-rl-20261107/.numi/retained-runtime/motor-contact-factor-fix-20261108/contact-probe"
+      ],
+      "expected_exit": 0,
+      "name": "default-contact-owner"
+    },
+    {
+      "args": [
+        "/Users/n/Developer/numi-crow-rl-20261107/.numi/retained-runtime/motor-contact-factor-fix-20261108/probe",
+        "/Users/n/Developer/numi-crow-rl-20261107/.numi/retained-runtime/motor-contact-factor-fix-20261108/metalrobo/MetalRobo.metallib",
+        "/Users/n/Developer/numi-crow-rl-20261107/build/crow-motor-contact-build-01/coupled-unused.tsv",
+        "--coupled-unused"
+      ],
+      "expected_exit": 0,
+      "name": "joint-unused"
+    },
+    {
+      "args": [
+        "/Users/n/Developer/numi-crow-rl-20261107/build/crow-motor-contact-build-01/fixture-default",
+        "/Users/n/Developer/numi-crow-rl-20261107/build/crow-motor-contact-build-01/default-crow",
+        "0",
+        "1",
+        "32"
+      ],
+      "expected_exit": 0,
+      "name": "default-crow-replay"
+    }
+  ],
+  "comparison": "Same three arms and held-fixed variables as parent ir/plan.json; all47 remaining paired initial conditions were not executed in the stopped parent. Parent mathematical reference and calibration remain unchanged.",
+  "default_reference_manifest": "artifacts/crow-rl-bounded-drive-integration-20261108/payload/manifest.json",
+  "default_reference_manifest_sha256": "5a64d7d4f0443a836723d3c41c8f48a8c32a96b55bc57107f0128c8134c1346f",
+  "default_reference_prefix": "build/crow-bounded-drive-integration-build-01/default-crow32/",
+  "dynamic_library": "/Users/n/Developer/numi-crow-rl-20261107/.numi/retained-runtime/motor-contact-factor-fix-20261108/libmetalrobo.dylib",
+  "exposed_unit_excluded_from_confirmation": {
+    "contact": false,
+    "h": 0.000375,
+    "lane": 0,
+    "variant": 2
+  },
+  "limits": "Fixed-root1-DoF mechanism only. Motor impulse rows are authored by the probe, not integrated into native crow drive generation. No hybrid CCD, dry-friction, multi-joint, biological, learning or throughput qualification.",
+  "metallib": "/Users/n/Developer/numi-crow-rl-20261107/.numi/retained-runtime/motor-contact-factor-fix-20261108/metalrobo/MetalRobo.metallib",
+  "parent_analysis_sha256": "1f51123cccae85236f219bc84d34e030d04375948b386c0ea5bd1aac78a54412",
+  "parent_plan_sha256": "39aa7d2d1f29fcef10d3c69be6229988b2cf775c967daf8283239176cfbb7868",
+  "policy_or_profile_promoted": false,
+  "prediction": "Empty quality free-flight control succeeds, native contact owner succeeds, and the141-state comparison completes. Candidate force-law error <=1e-7 N; momentum <=2e-9 Ns; q-hv <=2e-9 m; >=99% force-law error reduction in each of six primary contact conditions. Default640-transition crow replay matches all6 archived files byte for byte.",
+  "repair": "The ordinary quality path now always encodes the articulated factor, even when the contact point prefix is empty. TemporalCone retains its prior indirect dispatch. No physical coefficient, acceptance tolerance or solver limit changes.",
+  "schema": "crow-scientific-plan-v1",
+  "source_and_runtime_sha256": {
+    ".numi/retained-runtime/motor-contact-factor-fix-20261108/contact-probe": "bd0777b062295b4e08a4722124665725cb6842506054d05357a6346a76d39293",
+    ".numi/retained-runtime/motor-contact-factor-fix-20261108/libmetalrobo.dylib": "18caa3e31857028b159c1cd287ac4721c7cd2b3c014885e3871650412f8562d4",
+    ".numi/retained-runtime/motor-contact-factor-fix-20261108/metalrobo/MetalRobo.metallib": "6eb48053118d0e54850d21241e499100787de13af84e54e5b48ddc8130876be2",
+    ".numi/retained-runtime/motor-contact-factor-fix-20261108/probe": "cf2cad02deaab0dc5b2c1908a04930e94ac60acf2c2a6df75bb09eded0921086",
+    "CMakeLists.txt": "bc43495b80b53b9d8feb9be952afb2a8c7efe7350cedda8c0049a4164e899769",
+    "apps/motor_contact_probe.cpp": "1e4cafd2ed90697f20e0ca1b90ce59ede451c92a573ddd3a98d68960b9920bfb",
+    "artifacts/crow-rl-motor-contact-20261108/factor-fix/prediction.json": "14fbf5541814d8210f898ef8b66e2a3b5600944f517ff9c19cb99750b329ae0e",
+    "artifacts/crow-rl-motor-contact-20261108/factor-fix/theory.py": "a0498e3bdfdf8d908cebb7cc25fa0671a114e92423465ec64491cc9bc619a872",
+    "build/crow-motor-contact-build-01/fixture-default": "a76e0b2a726b9ab2504b4a55b6d557d10a85feaaf94e4cb580de33103e45c63a",
+    "src/metal/MetalWorld.mm": "1a8aba2c7cf8ee5c0b1937ee4ab376a3f9f96eeaaeccab51358f87c7156a758c"
+  },
+  "stop_rule": "Stop on the first unexpected exit, identity failure or validity failure. Retain partial outcomes; no tolerance relaxation or additional exposed conditions."
+}

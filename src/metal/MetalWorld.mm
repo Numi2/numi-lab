@@ -16534,7 +16534,7 @@ bool encodeContactSubstep(
             kBodyPoses,
             environmentCount,
             @"MetalWorld articulated factor/Jacobians",
-            true
+            !useQuality
         ) ||
         !encodeContactThreadKernel(
             context,

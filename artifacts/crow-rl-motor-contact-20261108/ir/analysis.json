@@ -1,0 +1,12 @@
+{
+  "accepted_native_conditions": 1,
+  "exit_code": 1,
+  "expected_conditions": 144,
+  "failure": [
+    "dyld[34928]: <F08F0073-2F35-30D9-9C3E-261CC6B9AF60> /System/Library/PrivateFrameworks/IOGPU.framework/Versions/A/IOGPU",
+    "host=16 gpu=3 message=one or more MetalWorld control steps rolled back after a GPU environment failure: status=3 environment=0 control_step=0 aba_status=0 failing_substep=0 failing_index=0 aba_diagnostic_0=0.000000 aba_diagnostic_1=0.000000 aba_diagnostic_2=0.000000 aba_diagnostic_3=0.000000 contact_status=3 required_pairs=0 pair_capacity=1 required_raw_contacts=0 raw_contact_capacity=1 required_manifolds=0 manifold_capacity=1 required_constraints=0 constraint_capacity=1 failing_constraint=0 failing_stable_key=0,0 diagnostic_0=1.000000 diagnostic_1=0.000000 diagnostic_2=0.000000 diagnostic_3=0.000000 contact_residuals=0.000000,0.000000,0.000000,0.000000 contact_quality_certificates=0.000000,0.000000,0.000000,0.000000 contact_quality_diagnostics=10.000000,0.000000,0.000000,0.000000 solver_iterations=0 quality_newton=0 quality_pcg=0 quality_backtracks=0 quality_path=0 quality_status=0 quality_path=0 quality_block=0 quality_key=0,0,0,0 quality_newton=0 quality_pcg=0 quality_backtracks=0 quality_retries=0 quality_cert0=0.000000,0.000000,0.000000,0.000000 quality_cert1=0.000000,0.000000,0.000000,0.000000 quality_numerics=0.000000,0.000000,0.000000,0.000000 contact_code=3 constraint=0 residuals=0,0,0,0",
+    "Native coupled invocation failed"
+  ],
+  "policy_or_profile_promoted": false,
+  "verdict": "contradicted_native_acceptance_or_validity"
+}

@@ -95,10 +95,12 @@ void calibrateIR(){
  }
  need(maxForceError<1e-7,"Motor IR analytic reference gate failed");std::cout<<std::setprecision(17)<<"{\"conditions\":"<<cases<<",\"maximum_force_mapping_error_N\":"<<maxForceError<<"}\n";
 }
-void executeCoupled(const char* shader,const char* output){
+void executeCoupled(const char* shader,const char* output,unsigned selection=0){
  MetalWorldConfig cfg;cfg.metallibPath=shader;MetalWorldContext context(cfg);std::ofstream out(output);need(bool(out),"Cannot create coupled output");
  out<<std::setprecision(17)<<"variant\tcontact\tarm\tlane\th\tmass\ttarget\tq\tv\tapplied_force\tfinal_law_force\tcontact_impulse_y\tmotor_impulse\tmomentum_residual\tq_residual\tcontacts\tquality_optimality\tquality_feasibility\n";unsigned accepted=0;
  for(unsigned variant:{2u,3u})for(float h:{.000375f,.00075f,.000875f})for(bool contact:{false,true})for(unsigned lane=0;lane<4;++lane)for(unsigned arm=0;arm<3;++arm){
+  const bool exposed=variant==2 && h==.000375f && !contact && lane==0;
+  if((selection==1 && exposed)||(selection==2 && !(exposed && arm==1)))continue;
   const std::array<float,4> targets{-.00003f,-.00008f,-.003f,.00003f};const float target=targets[lane];auto m=model(variant,contact);m.materials[0].friction={.5f,.5f,0,0};const double M=mass(m);
   if(arm==2)addMotorIR(m,h,target);
   CompiledWorld world;const auto c=compileMetalWorld(m,0,world);need(c.succeeded(),c.message);
@@ -117,7 +119,7 @@ void executeCoupled(const char* shader,const char* output){
   out<<variant<<'\t'<<contact<<'\t'<<arm<<'\t'<<lane<<'\t'<<h<<'\t'<<M<<'\t'<<target<<'\t'<<r.finalQ[0]<<'\t'<<r.finalV[0]<<'\t'<<force<<'\t'<<law<<'\t'<<p<<'\t'<<motor<<'\t'<<balance<<'\t'<<qr<<'\t'<<status.requiredConstraints<<'\t'<<status.residuals.y<<'\t'<<status.residuals.z<<'\n'<<std::flush;
   need(std::isfinite(force)&&std::isfinite(law)&&std::abs(balance)<=2e-9&&std::abs(qr)<=2e-9,"Coupled force/momentum validity gate failed");
  }
- need(accepted==144,"Coupled sample budget mismatch");std::cout<<"144 accepted native coupled comparison conditions completed\n";
+ const unsigned expected=selection==2?1:selection==1?141:144;need(accepted==expected,"Coupled sample budget mismatch");std::cout<<expected<<" accepted native coupled comparison conditions completed\n";
 }
 }
-int main(int argc,char** argv){try{if(argc==2&&std::string(argv[1])=="--calibrate-ir"){calibrateIR();return 0;}if(argc==4&&std::string(argv[3])=="--coupled"){executeCoupled(argv[1],argv[2]);return 0;}if(argc==2&&std::string(argv[1])=="--calibrate"){calibrate();return 0;}need(argc==3||argc==4,"Usage: motor-contact-probe --calibrate OR METALLIB NEW_TSV [--followup]");need(argc!=4||std::string(argv[3])=="--followup","Unknown selector");execute(argv[1],argv[2],argc==4);return 0;}catch(const std::exception&e){std::cerr<<e.what()<<'\n';return 1;}}
+int main(int argc,char** argv){try{if(argc==4&&std::string(argv[3])=="--coupled-unused"){executeCoupled(argv[1],argv[2],1);return 0;}if(argc==4&&std::string(argv[3])=="--empty-quality-replay"){executeCoupled(argv[1],argv[2],2);return 0;}if(argc==2&&std::string(argv[1])=="--calibrate-ir"){calibrateIR();return 0;}if(argc==4&&std::string(argv[3])=="--coupled"){executeCoupled(argv[1],argv[2]);return 0;}if(argc==2&&std::string(argv[1])=="--calibrate"){calibrate();return 0;}need(argc==3||argc==4,"Usage: motor-contact-probe --calibrate OR METALLIB NEW_TSV [--followup]");need(argc!=4||std::string(argv[3])=="--followup","Unknown selector");execute(argv[1],argv[2],argc==4);return 0;}catch(const std::exception&e){std::cerr<<e.what()<<'\n';return 1;}}
