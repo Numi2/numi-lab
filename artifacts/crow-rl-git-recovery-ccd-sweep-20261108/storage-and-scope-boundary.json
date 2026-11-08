@@ -1,0 +1,11 @@
+{
+  "df_data": "Filesystem   1024-blocks      Used Available Capacity iused      ifree %iused  Mounted on\n/dev/disk3s5   482797652 300198128 157151012    66% 3496863 1571510120    0%   /System/Volumes/Data\n",
+  "diff_check_passed": true,
+  "owned_native_workers": [],
+  "protected_policy_sha256": "6a009417eac3e04831c95f46c24e78f943e825892124b972a58b5ee9eeed0389",
+  "qualification": "Full mechanical release convergence still fails62.607mm versus5mm at64/128. No policy/profile promotion. Broad lifelong environment goal remains unfinished.",
+  "remote_head_before_receipt": "4a3702c9c088f1424fa1224ddf9e8d552ee1e862",
+  "scope": "Storage closure for this set of four studies; all494 raw files and original failures archived in actual Git bytes, nine scoped restored native executions verified.",
+  "verified_head_before_receipt": "4a3702c9c088f1424fa1224ddf9e8d552ee1e862",
+  "worktree_clean_before_receipt": true
+}
