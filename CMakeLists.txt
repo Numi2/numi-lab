@@ -6351,6 +6351,45 @@ set_target_properties(
         BUILD_RPATH "${CMAKE_CURRENT_BINARY_DIR}/lib"
 )
 
+if(BUILD_TESTING)
+    add_executable(
+        metalrobo_masked_depth_validity_test
+        tests/visual/masked_depth_validity.mm
+    )
+    target_include_directories(
+        metalrobo_masked_depth_validity_test
+        PRIVATE "${CMAKE_CURRENT_SOURCE_DIR}/include"
+    )
+    target_compile_options(metalrobo_masked_depth_validity_test PRIVATE -fobjc-arc)
+    target_link_libraries(
+        metalrobo_masked_depth_validity_test
+        PRIVATE "${FOUNDATION_FRAMEWORK}" "${METAL_FRAMEWORK}"
+    )
+    add_dependencies(metalrobo_masked_depth_validity_test metalrobo_shaders)
+    add_test(
+        NAME metalrobo.visual.masked_depth_validity
+        COMMAND metalrobo_masked_depth_validity_test "${METALROBO_METALLIB}"
+    )
+    set_tests_properties(
+        metalrobo.visual.masked_depth_validity
+        PROPERTIES LABELS "metalrobo;visual;metal" TIMEOUT 60
+    )
+    add_executable(
+        metalrobo_visual_observation_fingerprint_test
+        tests/visual/observation_fingerprint.cpp
+    )
+    target_link_libraries(metalrobo_visual_observation_fingerprint_test PRIVATE metalrobo)
+    add_test(
+        NAME metalrobo.visual.observation_fingerprint
+        COMMAND metalrobo_visual_observation_fingerprint_test read
+                "${CMAKE_CURRENT_SOURCE_DIR}/tests/visual/fixtures"
+    )
+    set_tests_properties(
+        metalrobo.visual.observation_fingerprint
+        PROPERTIES LABELS "metalrobo;visual;runtime" TIMEOUT 60
+    )
+endif()
+
 add_executable(
     metalrobo_visual_platform_probe
     apps/visual_platform_probe.cpp

@@ -1,0 +1,4 @@
+args=['/Users/numi/numi-lab-horizon-main-build-20261108/bin/metalrobo_visual_platform_probe']
+start=2026-11-08T04:39:05.411057+00:00
+end=2026-11-08T04:39:05.753383+00:00
+exit=0

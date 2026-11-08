@@ -4507,6 +4507,11 @@ TaskCompileDiagnostics compileTaskProgram(
     observationHash.scalar(observations.visual.edgeFlickerProbability);
     observationHash.scalar(observations.visual.difficultyCorruptionGain);
     observationHash.scalar(observations.visual.includeDerivedFeatures);
+    // Visual depth now excludes samples without a valid frame and depth.
+    // Old policies may have observed corrupted clear values as near depth.
+    if (hasVisualProgram) {
+        observationHash.scalar(std::uint32_t{0x44505601u});
+    }
     staged->observationFingerprint = observationHash.finish();
 
     Hash hash;

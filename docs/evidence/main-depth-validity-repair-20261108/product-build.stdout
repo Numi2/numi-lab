@@ -1,0 +1,40 @@
+[0/2] Re-checking globbed directories...
+[1/2] Re-running CMake...
+-- MetalRobo Python tests disabled: no interpreter with NumPy and SciPy
+-- Configuring done (0.5s)
+-- Generating done (0.1s)
+-- Build files have been written to: /Users/numi/numi-lab-horizon-main-build-20261108
+[0/4] Re-checking globbed directories...
+[1/14] Generating shaders/MetalRobo.metallib
+/Users/numi/numi-lab-policy-repair-main-20261108/src/metal/NumiHumanStand.metal:2696:16: warning: unused variable 'responseColumns' [-Wunused-variable]
+    const uint responseColumns = (equalityColumnsEnd + nv) * nv;
+               ^
+/Users/numi/numi-lab-policy-repair-main-20261108/src/metal/NumiHumanStand.metal:2811:16: warning: unused variable 'responseColumns' [-Wunused-variable]
+    const uint responseColumns =
+               ^
+2 warnings generated.
+/Users/numi/numi-lab-policy-repair-main-20261108/src/metal/MujocoMuscleReference.metal:340:10: warning: unused variable 'finiteJacobian' [-Wunused-variable]
+    bool finiteJacobian = true;
+         ^
+/Users/numi/numi-lab-policy-repair-main-20261108/src/metal/MujocoMuscleReference.metal:1021:10: warning: unused variable 'finiteForceRows' [-Wunused-variable]
+    bool finiteForceRows = true;
+         ^
+2 warnings generated.
+In file included from /Users/numi/numi-lab-policy-repair-main-20261108/src/metal/MujocoMuscleReferenceCompensated.metal:4:
+/Users/numi/numi-lab-policy-repair-main-20261108/src/metal/MujocoMuscleReference.metal:340:10: warning: unused variable 'finiteJacobian' [-Wunused-variable]
+    bool finiteJacobian = true;
+         ^
+/Users/numi/numi-lab-policy-repair-main-20261108/src/metal/MujocoMuscleReference.metal:1021:10: warning: unused variable 'finiteForceRows' [-Wunused-variable]
+    bool finiteForceRows = true;
+         ^
+2 warnings generated.
+[2/14] Building CXX object CMakeFiles/metalrobo.dir/src/core/TaskProgram.cpp.o
+[3/14] Linking CXX shared library lib/libmetalrobo.dylib
+[4/14] Building CXX object CMakeFiles/metalrobo_task_program_check.dir/apps/task_program_check.cpp.o
+[5/14] Building OBJCXX object CMakeFiles/metalrobo_masked_depth_validity_test.dir/tests/visual/masked_depth_validity.mm.o
+[6/14] Building CXX object CMakeFiles/metalrobo_visual_observation_fingerprint_test.dir/tests/visual/observation_fingerprint.cpp.o
+[7/14] Linking CXX executable bin/metalrobo_task_program_check
+[8/14] Linking OBJCXX executable metalrobo_masked_depth_validity_test
+[9/14] Linking CXX executable metalrobo_visual_observation_fingerprint_test
+[10/14] Building OBJCXX object CMakeFiles/metalrobo_visual_platform_probe.dir/apps/visual_platform_probe.cpp.o
+[11/14] Linking OBJCXX executable bin/metalrobo_visual_platform_probe

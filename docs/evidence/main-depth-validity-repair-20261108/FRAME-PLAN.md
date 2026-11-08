@@ -1,0 +1,3 @@
+# Frame flag amendment
+
+The visual-platform contract also requires a frame for a depth value. Before running the candidate, extend the retained main-specific baseline probe with a materialized DEPTH|GEOMETRY-but-no-FRAME case at both image sizes, with zero corruption and zero flicker. All such pixels must remain far. Require both FRAME and DEPTH for materialized source and neighbor admission in the candidate; the direct-winner path does not expose an independent frame flag and is not qualified for missing-frame detection. Preserve the first baseline and run the amended exact binary once on both shaders. This does not change the edge-flicker rule or its contract.
