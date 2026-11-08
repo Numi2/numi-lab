@@ -1,0 +1,3 @@
+# Full-tangent stopping diagnostic
+
+The full-tangent screen passes 9/10 but the moving hard endpoint meets the 1e-5 N force threshold while missing the unchanged 1e-6 m position gate. Repeat all ten fixtures with an internal candidate stopping threshold of 1e-6 N, preserving the same external position, reaction and 1e-5 N independently recomputed force gates. Keep the original output and reference. Report stalls, rejection and all physical errors; a tighter threshold is a diagnostic, not proof of a general scale policy. This remains a CPU FP32 numerical experiment and does not qualify Metal, bending, twist or contact.
