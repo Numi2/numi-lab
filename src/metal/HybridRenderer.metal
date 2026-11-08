@@ -199,7 +199,8 @@ kernel void mr_hybrid_reduce_object_tracks(
         for (uint component = 0u; component < 7u; ++component) {
             actorHistory[destination + component] = values[component];
             actorObservations[
-                actorOutputOffset + destination + component
+                actorOutputOffset + ulong(environment) * uniforms.output.z +
+                ulong(history) * uniforms.layout.x + binding.identity.y + component
             ] = values[component];
         }
     }

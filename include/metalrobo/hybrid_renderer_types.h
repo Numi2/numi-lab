@@ -160,7 +160,7 @@ typedef struct MR_ALIGN16 MRHybridObjectTrackUniformsGPU {
     mr_uint4 layout;
     // global body count, root body index, active camera index, reserved.
     mr_uint4 roots;
-    // Actor observation element offset low/high, reserved, reserved.
+    // Actor observation element offset low/high, environment stride, reserved.
     mr_uint4 output;
     // Timestep seconds, maximum accepted track speed in m/s, reserved,
     // reserved.

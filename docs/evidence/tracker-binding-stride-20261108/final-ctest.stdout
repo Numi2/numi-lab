@@ -1,0 +1,21 @@
+Test project /Users/numi/numi-lab-horizon-main-build-20261108
+    Start 103: metalrobo.runtime.task_program
+1/5 Test #103: metalrobo.runtime.task_program ................   Passed    2.37 sec
+    Start 169: metalrobo.visual.masked_depth_validity
+2/5 Test #169: metalrobo.visual.masked_depth_validity ........   Passed    0.02 sec
+    Start 170: metalrobo.visual.observation_fingerprint
+3/5 Test #170: metalrobo.visual.observation_fingerprint ......   Passed    0.02 sec
+    Start 171: metalrobo.visual.tracker_stride_fingerprint
+4/5 Test #171: metalrobo.visual.tracker_stride_fingerprint ...   Passed    0.02 sec
+    Start 172: metalrobo.visual.tracker_encode_retry
+5/5 Test #172: metalrobo.visual.tracker_encode_retry .........   Passed    0.12 sec
+
+100% tests passed out of 5
+
+Label Time Summary:
+metal        =   0.13 sec*proc (2 tests)
+metalrobo    =   2.55 sec*proc (5 tests)
+runtime      =   2.42 sec*proc (3 tests)
+visual       =   0.18 sec*proc (4 tests)
+
+Total Test time (real) =   2.56 sec

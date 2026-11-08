@@ -4627,6 +4627,22 @@ TaskCompileDiagnostics compileTaskProgram(
     if (hasVisualProgram) {
         observationHash.scalar(std::uint32_t{0x44505601u});
     }
+    // Object tracks use the complete per-environment actor observation
+    // stride when actorCurrent or visual suffixes extend compact history.
+    // Policies from the old multi-environment layout are incompatible.
+    const bool objectTrackWithExtendedStride =
+        static_cast<std::uint64_t>(staged->layout.actorFrameSize) *
+                staged->layout.actorHistoryLength !=
+            staged->layout.actorObservationSize &&
+        std::ranges::any_of(
+            staged->actorOperators,
+            [](const MRTaskObservationOperatorGPU& operation) {
+                return operation.source.x == MR_TASK_OBSERVE_OBJECT_TRACK;
+            }
+        );
+    if (objectTrackWithExtendedStride) {
+        observationHash.scalar(std::uint32_t{0x4f545301u});
+    }
     staged->observationFingerprint = observationHash.finish();
 
     Hash hash;

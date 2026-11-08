@@ -1,0 +1,4 @@
+retry_sensor_sequence=1
+direct_winner_retry=pass
+bound_instance=3 geometry=0 pixels=288
+bound_visible=0 bound_track=0 bound_depth_pixels=0

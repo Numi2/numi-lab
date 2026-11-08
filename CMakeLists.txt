@@ -6613,6 +6613,15 @@ if(BUILD_TESTING)
         metalrobo.visual.observation_fingerprint
         PROPERTIES LABELS "metalrobo;visual;runtime" TIMEOUT 60
     )
+    add_test(
+        NAME metalrobo.visual.tracker_stride_fingerprint
+        COMMAND metalrobo_visual_observation_fingerprint_test read
+                "${CMAKE_CURRENT_SOURCE_DIR}/tests/visual/tracker_stride_fixtures"
+    )
+    set_tests_properties(
+        metalrobo.visual.tracker_stride_fingerprint
+        PROPERTIES LABELS "metalrobo;visual;runtime" TIMEOUT 60
+    )
 endif()
 
 add_executable(
