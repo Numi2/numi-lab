@@ -1,0 +1,21 @@
+{
+  "analysis_commands": 3,
+  "limits": "Repeat existing observations from exact Git-recovered runtimes and inputs; no new ecology, rebuild, tolerance change, or qualification.",
+  "manifest": "artifacts/crow-rl-quality-representability-20261108/payload/manifest.json",
+  "manifest_sha256": "5ecd16c1ae04e86e6034d16e9103fa808ec0cae1a68cfdadcb1ebc8664e69f76",
+  "native_commands": 20,
+  "restore_max_bytes": 40000000,
+  "schema": "crow-quality-representability-git-recovery-v1",
+  "scope": [
+    "eleven original/corrected numerical cases and scratch negative control",
+    "native zero-Newton warm neighbor acceptance",
+    "624 physical motor records, GPU timing excluded",
+    "default 640 transitions, ten physical files",
+    "old/corrected actual crow rejection and chunk equivalence",
+    "IR and contact owning probes",
+    "three independent numerical analyses"
+  ],
+  "stop": "First unexpected process return, typed status, artifact, physical comparison, loader, handle or budget result; retain all outputs.",
+  "temporary_budget_bytes": 80000000,
+  "timeout_seconds_each": 120
+}
