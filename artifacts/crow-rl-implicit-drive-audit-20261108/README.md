@@ -93,3 +93,7 @@ The 54-file temporary tree (11,151,073 bytes) was inventory/hash/mode/mtime
 validated with zero open handles, then removed. The 43 original source files
 (10,761,036 bytes) are verified from actual committed Git objects; new
 compressed payload is 173,961 bytes through reuse of existing runtime blobs.
+
+After actual Git verification, remote HEAD parity and zero open handles,
+all 43 raw files (10,761,036 logical bytes) were removed under the exact
+manifest. The current production build and protected crow policy are retained.

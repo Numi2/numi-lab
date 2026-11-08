@@ -1,0 +1,27 @@
+{
+  "archive_commit": "00e301aad7bdb827e08168ca6e07662ff18bf562",
+  "df_after": "Filesystem   1024-blocks      Used Available Capacity iused      ifree %iused  Mounted on\n/dev/disk3s5   482797652 300213496 157135644    66% 3497142 1571356440    0%   /System/Volumes/Data\n",
+  "df_before": "Filesystem   1024-blocks      Used Available Capacity iused      ifree %iused  Mounted on\n/dev/disk3s5   482797652 300224036 157125104    66% 3497189 1571251040    0%   /System/Volumes/Data\n",
+  "manifest": "artifacts/crow-rl-implicit-drive-audit-20261108/payload/manifest.json",
+  "manifest_sha256": "04cc8fa363c16b76edc722bf9e6cb0cc7e6d7931aa060b59f2aec22aca21ad97",
+  "open_handle_checks": [
+    {
+      "exists": false,
+      "open_handles": 0,
+      "root": ".numi/runs/american-crow"
+    },
+    {
+      "exit_code": 1,
+      "open_handles": 0,
+      "root": ".numi/retained-runtime"
+    },
+    {
+      "exit_code": 1,
+      "open_handles": 0,
+      "root": "build"
+    }
+  ],
+  "remote_commit": "00e301aad7bdb827e08168ca6e07662ff18bf562",
+  "removed_files": 43,
+  "removed_logical_bytes": 10761036
+}
