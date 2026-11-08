@@ -48,7 +48,11 @@ bool physicalEqual(const numi::matter::RuntimeStateSnapshot& a,const numi::matte
         bytesEqual(a.vascularState,b.vascularState)&&bytesEqual(a.vascularClock,b.vascularClock)&&
         bytesEqual(a.learnedWeights,b.learnedWeights)&&bytesEqual(a.identification,b.identification)&&
         bytesEqual(a.environmentParameters,b.environmentParameters)&&
-        bytesEqual(a.sutureProxyEdges,b.sutureProxyEdges);
+        bytesEqual(a.sutureProxyEdges,b.sutureProxyEdges)&&
+        // Static proxy projection is diagnostic cache, reconstructed from the
+        // immutable plane; reactions and generalized state are authoritative.
+        bytesEqual(a.reactions,b.reactions)&&
+        bytesEqual(a.rigidGeneralizedCandidate,b.rigidGeneralizedCandidate);
 }
 
 // Independent FP64 evaluation of the fixture equations, without integration.
