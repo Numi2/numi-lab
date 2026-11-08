@@ -1,0 +1,34 @@
+{
+  "arms": [
+    "strict",
+    "api-default",
+    "opt7",
+    "opt5",
+    "opt6"
+  ],
+  "base_commit": "d365dd991832ee328958bae0d8a1cecbd891180d",
+  "limits": {
+    "native_commands": 11,
+    "per_command_seconds": 180,
+    "raw_bytes": 25000000,
+    "total_seconds": 900
+  },
+  "policy_or_profile_promoted": false,
+  "predictions": {
+    "api_default_physical_completion": true,
+    "repeated_physical_files_exact": true,
+    "sampled_penetration_max_m": 0.0008,
+    "strict_capture_sha256": "08bcd99d486addeed6f39b9a265ef35e3208ea8cc884c12d5549830be0108d0f"
+  },
+  "production_changed": false,
+  "repeats": 2,
+  "schema": "crow-quality-tolerances-plan-v1",
+  "sources": {
+    "analyze.py": "00a5a95ca2e811f07b7f5650f7805e42d51dc62cfa654becdbac731d4eabe5c3",
+    "build.py": "2e98fc1fbc49efde960837887d3b887086c0515f500faa969d9ce66e7380d241",
+    "crow-fixture.mm": "f2e5fb335ddfe533a89be141684385e1669d2ee5be0540f5ff8fffa40372afb1",
+    "original-fixture.mm": "4484b1924331ffc63e5af1bef0a71ce0d15415e3315a00254c4725cc82e05766",
+    "production-seal.json": "6a2066bcaaf7bb559e230ef0bb39171860b50d38f10cf31467a046d3bf629436",
+    "run.py": "29d63cd9245c16537fcb4bdfe1ca61ff7f3fac11fb4712a56c3f52d6a94bd9e5"
+  }
+}

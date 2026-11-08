@@ -1,0 +1,33 @@
+{
+  "base_commit": "d365dd991832ee328958bae0d8a1cecbd891180d",
+  "files": {
+    "build/lib/libmetalrobo.dylib": {
+      "bytes": 5711408,
+      "sha256": "1368fa931e24c336953fcda6fb904734391f3ebe56063dd53eb237bcc1a3bbc6"
+    },
+    "build/shaders/MetalRobo.metallib": {
+      "bytes": 4320928,
+      "sha256": "91416d391489b37c1c79918c1ec51ad81dbaa26ef99e6536f8a57d9f720cf8d7"
+    },
+    "environments/american-crow/action-holds-v1/policies/deployment97.policypack": {
+      "bytes": 602144,
+      "sha256": "6a009417eac3e04831c95f46c24e78f943e825892124b972a58b5ee9eeed0389"
+    },
+    "include/metalrobo/MetalWorld.hpp": {
+      "bytes": 52928,
+      "sha256": "e613136de2a63762434d2eb44dfff5b65f9cb51002a9a7d6a3c7c3ec657e5282"
+    },
+    "src/metal/MetalUnifiedQualitySolver.metal": {
+      "bytes": 93649,
+      "sha256": "48c3ce600907519b28b59e4ba68a549cb518c11d138bf1785c8274f87e9fa427"
+    },
+    "src/metal/MetalWorld.mm": {
+      "bytes": 856661,
+      "sha256": "b3ffe5be3647222c0093ec875d462755d54d79ea16d5135cc9c8236d39fbcaf7"
+    },
+    "src/metal/MetalWorldContact.metal": {
+      "bytes": 527683,
+      "sha256": "9d989471ee4e62c8547dbf8ca59b9bb55d5311de9a14dd72a4770de7fbb49a88"
+    }
+  }
+}
