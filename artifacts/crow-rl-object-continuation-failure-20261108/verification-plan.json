@@ -1,0 +1,6 @@
+{
+  "prediction": "One exact Git-restored coupled checkpoint16 continuation reproduces the same declared error line (lane111, local control6, substep31, stable key106,111), final partial canonical policies/rollout and all model/Adam arrays and metadata.",
+  "validity": "The exact scientific failure must recur; a successful or different failing run is not recovery success. Verify actual loaded native library and every restored input hash before execution.",
+  "budget": "One original16-update command, expected to fail after3 completed updates; timeout240s. No retry/tuning. Temporary raw<=384MiB. No video.",
+  "scope": "Same host/device/OS/Python/MLX. Failure reproduction, not a successful continuation or independent behavior result."
+}

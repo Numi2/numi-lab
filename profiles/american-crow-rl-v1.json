@@ -879,7 +879,44 @@
       "amplitude_control_prediction": "supported",
       "adaptive_LR_selected": false,
       "learned_manipulation_qualified": false,
-      "next": "fixed-LR continuation on fresh episodes, new held-out physical endpoint comparison; no promotion by KL target"
+      "next": "Fixed-rate continuation attempted; native CCD failure below must be diagnosed before further learning."
+    },
+    "fixed_rate_continuation_attempt": {
+      "evidence": "artifacts/crow-rl-object-continuation-failure-20261108",
+      "status": "inconclusive_native_physics_failure",
+      "source_update": 16,
+      "planned_new_updates": 16,
+      "last_saved_policy_revision": 20,
+      "completed_new_learner_updates": 3,
+      "new_coupled_checkpoints": 0,
+      "held_out_evaluations_run": 0,
+      "fixed_learning_rate": 0.0003,
+      "gamma": 0.999,
+      "lambda": 1,
+      "native_failure_status": 11,
+      "native_failure_name": "MR_STEP_DID_NOT_CONVERGE",
+      "environment": 111,
+      "submission_local_control_step": 6,
+      "failing_substep": 31,
+      "compiled_pair_index": 106,
+      "pair_colliders": [
+        "crow_lower_beak/collision",
+        "crow_manipulandum/collision"
+      ],
+      "pair_shape_types": [
+        "box",
+        "sphere"
+      ],
+      "eligible_pairs": 109,
+      "pair_mapping_simulation_steps": 0,
+      "capacities_exceeded": false,
+      "exact_Git_restored_failure_reproduced": true,
+      "partial_model_Adam_arrays_exact": 41,
+      "canonical_partial_artifacts_exact": 4,
+      "temporary_recovery_bytes_removed": 264003714,
+      "adaptive_LR_selected": false,
+      "learned_manipulation_qualified": false,
+      "next": "Instrument the native box-sphere CCD query/advancement failure, preserve a regression, and validate physics/contact/replay before learning resumes."
     }
   }
 }

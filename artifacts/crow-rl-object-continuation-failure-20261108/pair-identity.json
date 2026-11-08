@@ -1,0 +1,1 @@
+{"world_fingerprint":6600400359852534321,"simulation_steps":0,"pair_index":106,"eligible_pair_count":109,"colliders":[{"index":12,"name":"crow_lower_beak/collision","body":"crow_lower_beak","shape_type":2,"flags":0,"contact_rest_m":0.001},{"index":15,"name":"crow_manipulandum/collision","body":"crow_manipulandum","shape_type":0,"flags":2,"contact_rest_m":0.0005}]}

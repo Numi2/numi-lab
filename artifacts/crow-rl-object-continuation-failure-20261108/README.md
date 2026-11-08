@@ -34,8 +34,9 @@ submission-local control step6, physics substep31, failing index106 and stable
 key106,111. Required pairs/raw contacts/manifolds/constraints are5/12/5/12,
 below capacities109/256/109/160. Quality-Newton counters are zero. The source
 mapping is consistent with an unsafe unresolved rigid CCD candidate106, rather
-than capacity overflow. The exact collider pair and distance-query failure
-mechanism still require instrumentation. Actor or critic metrics cannot explain
+than capacity overflow. A zero-simulation-step compiler inspection of the exact physical world identifies
+pair106 as the lower-beak **box** and movable-object **sphere** (`pair-identity.json`).
+The distance-query/advancement failure mechanism still requires instrumentation. Actor or critic metrics cannot explain
 away a native collision failure.
 
 The pre-run and post-failure swap queries both report0. No video or images are
@@ -70,3 +71,11 @@ distance/advancement reason, preserve the reproducer, then test any correction
 with physical contact/miss and deterministic replay controls before resuming
 learning. Adaptive LR remains unselected. Full lifelong ecology, solid-food
 handling, broad manipulation/generalization and social learning remain open.
+
+## Completed committed-object reproduction
+
+`verification.json` records successful reproduction of the exact native failure,
+all4 partial canonical policy/rollout files and all41 model/Adam arrays and metadata.
+The restored run publishes no new coupled checkpoint. Its verified264003714B
+temporary copy is removed after exact hash/mode/mtime/closed-handle checks.
+No held-out behavioral evaluation or learning-rate trial is added.

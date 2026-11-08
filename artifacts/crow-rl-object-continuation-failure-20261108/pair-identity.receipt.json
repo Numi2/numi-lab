@@ -1,0 +1,23 @@
+{
+  "scope": "Zero-step compiled-pair identity inspection; no dynamics or physics-accuracy test.",
+  "source_sha256": "7fbfe2f0f46069853e914f0da7addc066ac507fa1ddc658d6526017447e7f8e5",
+  "executable_sha256": "b2908df990da0d33e421be0e9b07e9bdd1f387313eeaaa2d2961c2f6835d7b38",
+  "native_library_sha256": "5dac60d448d66c0872ebdffb96260c92956aab677f4210e3f8ed7c1ac195bd6b",
+  "result_sha256": "1e688c3723624e2a0d1754de033da03a95193d45e7534d8a8b0ea457bf809905",
+  "compile_command": [
+    "xcrun",
+    "clang++",
+    "-std=c++20",
+    "-Iinclude",
+    "artifacts/crow-rl-object-continuation-failure-20261108/pair_identity.cpp",
+    "-Lbuild/lib",
+    "-lmetalrobo",
+    "-Wl,-rpath,/Users/n/Developer/numi-crow-rl-20261107/build/lib",
+    "-o",
+    "/private/tmp/crow-ccd-pair-identity-20261108"
+  ],
+  "execution_command": [
+    "/private/tmp/crow-ccd-pair-identity-20261108"
+  ],
+  "compiler": "Apple clang version 21.0.0 (clang-2100.1.1.101)\nTarget: arm64-apple-darwin25.6.0\nThread model: posix\nInstalledDir: /Applications/Xcode-26.6.0.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin\n"
+}

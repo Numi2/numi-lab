@@ -229,6 +229,48 @@ streams; observed placement streams are development evidence. Physical outcomes,
 not KL target attainment, decide whether it improves. Full lifelong ecology,
 solid-food handling and social learning remain open.
 
+## Fixed-rate object continuation: native failure (8 November 2026)
+
+The next prospectively bounded comparison restores the exact update16/revision17
+coupled checkpoint from Git and attempts16 new updates on episodes16..31 at the
+same fixedLR.0003,gamma.999,lambda1. No scripted head offset enters the learner.
+The planned frozen-policy comparison on64 fresh placements requires both>=20mm
+mean endpoint improvement and>=20 percentage-point success gain within20mm.
+
+The result is **inconclusive**, because native physics rejects a control step.
+The trainer exits1 after89.200s; the last saved model/candidate is revision20,
+consistent with three new completed learner updates. No new coupled checkpoint
+or held-out evaluation is produced. The intended evaluation seeds2651317903/904
+remain unused. No final trainer JSON/accepted-lifetime ledger exists, so these
+partial files do not establish complete sample accounting, throughput, physical
+improvement or a resumable coupled life. They remain preserved as evidence.
+
+Status11 (`MR_STEP_DID_NOT_CONVERGE`) occurs in lane111, submission-local tick6,
+substep31, failing pair106. Capacity counts5/12/5/12 remain below limits
+109/256/109/160, and quality-Newton counters are zero. A zero-simulation-step
+native compiler inspection with the exact world fingerprint identifies pair106
+as **lower-beak box / movable-object sphere**. The source failure path is
+consistent with unresolved rigid CCD; the precise distance-query/advancement
+cause is not yet established. This is a physics correction priority, not an
+actor/critic or adaptive-learning-rate result.
+
+The complete failed study, planned but unexecuted analysis helpers and exact
+runtime are archived at `artifacts/crow-rl-object-continuation-failure-20261108`.
+Actual Git-restored execution reproduces the exact failure line, all4 partial
+canonical policy/rollout files, all41 model/Adam arrays and metadata. It publishes
+no new coupled checkpoint. This is reproduction of failure, not a retry for a
+passing behavioral result. The verified264003714B recovery copy is removed after
+hash/mode/mtime/closed-handle checks. Pre-run and post-failure swap both report0.
+The selected42 raw/runtime/helper files total261831236B and add87226190 new
+compressed Git bytes; no video or image capture is produced.
+
+The next work instruments the native box-sphere CCD owner, preserves this case
+as a regression and qualifies any correction with physical contact/miss and
+deterministic replay controls before learning resumes. AdaptiveLR remains
+unselected, and the deployment97 feeding policy is unchanged. Full lifelong
+ecology, solid-food handling, generalized manipulation and social learning
+remain unfinished.
+
 ## Current native history contract (8 November 2026)
 
 Current executable task ABIs are51 (base),52 (retinal),53 (memory choice), and54
