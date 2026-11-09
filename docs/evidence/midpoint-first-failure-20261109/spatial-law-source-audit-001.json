@@ -1,0 +1,58 @@
+{
+  "cases": [
+    {
+      "execution": "docs/evidence/midpoint-spatial-cost-dynamic-20261108/rk4-n32-h025-execution.json",
+      "execution_record_binary_sha256": null,
+      "execution_record_contains_binary_sha256": false,
+      "manifest": "docs/evidence/midpoint-spatial-cost-dynamic-20261108/N32_INPUTS.sha256",
+      "name": "n32_serial",
+      "revision": "b7447ca88",
+      "source_path": "tests/contact/fem_plane_fp64_reference.cpp",
+      "source_sha256": "01a8fb10156de380c13ec7df0761f21cb033041d18d22820b043bf47a3bd23db"
+    },
+    {
+      "execution": "docs/evidence/midpoint-first-failure-20261109/rk4-n64-h050-execution.json",
+      "execution_record_binary_sha256": null,
+      "execution_record_contains_binary_sha256": false,
+      "manifest": "docs/evidence/midpoint-first-failure-20261109/n64-inputs.sha256",
+      "name": "n64_serial",
+      "revision": "564855bb1",
+      "source_path": "tests/contact/fem_plane_fp64_reference.cpp",
+      "source_sha256": "c4847b86546b85d3c63da91124fd5a5075fd7e3ee2bdc3203a1ff1fe8a6f3daf"
+    },
+    {
+      "execution": "docs/evidence/midpoint-first-failure-20261109/rk4-n64-parallel-h025-execution.json",
+      "execution_record_binary_sha256": null,
+      "execution_record_contains_binary_sha256": false,
+      "manifest": "docs/evidence/midpoint-first-failure-20261109/fp64-parallel-inputs.sha256",
+      "name": "n64_parallel",
+      "revision": "d00717ebe",
+      "source_path": "tests/contact/fem_plane_fp64_reference_parallel.cpp",
+      "source_sha256": "01b59053d091879fe4768c704f841d52022ade9f53c7cbf9722519af8184a55a"
+    },
+    {
+      "execution": "docs/evidence/midpoint-first-failure-20261109/rk4-n128-retry1-h050-execution.json",
+      "execution_record_binary_sha256": "7f8b311536d8bb7cfd8bf4eb053649da020d0c9a20dc621071284d9e207c2394",
+      "execution_record_contains_binary_sha256": true,
+      "manifest": "docs/evidence/midpoint-first-failure-20261109/n128-final-inputs.sha256",
+      "name": "n128_parallel",
+      "revision": "968f49d1d",
+      "source_path": "tests/contact/fem_plane_fp64_reference_parallel.cpp",
+      "source_sha256": "019371ad99f9cfd0ff0a7c3b08e77d493f698f7b3f7d0ef528dd4695097edc1f"
+    }
+  ],
+  "parameters": {
+    "activation_width_m": 0.0001,
+    "contact_coefficient": 1e+16,
+    "cube_side_m": 0.02,
+    "density_kg_per_m3": 1100,
+    "gravity_m_per_s2": -9.81,
+    "initial_gap_m": 0.0002,
+    "lame_lambda_Pa": 5000,
+    "reference_area_m2": 0.0004,
+    "shear_modulus_Pa": 2000
+  },
+  "schema": "numi.spatial-law-source-audit.v1",
+  "scope": "Hash-matched recorded source revisions contain matching pressure and energy functions and the listed input expressions. Historical execution records without binary hashes do not independently bind the executable used. This audit is not a simulation or a spatial-convergence claim.",
+  "source_checks_pass": true
+}
