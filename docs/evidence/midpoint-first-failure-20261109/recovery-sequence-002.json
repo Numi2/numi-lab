@@ -1,0 +1,29 @@
+{
+  "schema": "numi.matter.recovery-sequence.v1",
+  "n64_supervisor_pid": 60929,
+  "input_sha256": {
+    "/Users/numi/numi-lab-midpoint-compensated-20261109/tests/contact/run_recovery_sequence_002.py": "2c9e05492fb3da72a437e2861f36fd03fcdde7db11a512d3ec397cb2ac06bff8",
+    "/Users/numi/numi-lab-midpoint-compensated-20261109/tests/contact/run_be_compressed_ladder_007.py": "bd82c682e53bd5843ed286e29b845b9aa4b0ad34281f22c65ae1280cc1311c13",
+    "/Users/numi/numi-lab-midpoint-compensated-20261109/tests/contact/run_accuracy_adjusted_cost_002.py": "63b4c0051cb5cc45eea6ae0da0c134b105703ecf30e708553fd2f7969a909aaf",
+    "/Users/numi/numi-lab-midpoint-compensated-20261109/tests/contact/run_large_spatial_continuation_002.py": "2fb69ef9b2ae90cfee6e4fc9ae5c25144916b057764ff5e40fb89408206e6411",
+    "/Users/numi/numi-lab-midpoint-compensated-20261109/tests/contact/large_spatial_reference.py": "2da963618c6f9517afcef8e818efd32a84d737bd9fd3e20a3f01bfd06b5365e1",
+    "/Users/numi/numi-lab-midpoint-compensated-20261109/tests/contact/cost_provenance.py": "42b055050a55c1a120858f3a5ff08b701816ab0decb3b764c25e2499d1858161",
+    "/Users/numi/numi-lab-midpoint-compensated-20261109/tests/contact/cost_selection.py": "8125281277d0a276eccaa174d6e839974d0d2e36aa5929bf9d8bf725b93afc41",
+    "/Users/numi/numi-lab-midpoint-compensated-20261109/tests/contact/cost_summary.py": "d3bf17ccb664404510c9d436ee0c5349b0eef06ee059805fdd25beab67ddf1e0",
+    "/Users/numi/numi-lab-midpoint-compensated-20261109/tests/contact/native_trace_analysis.py": "3e8ea213da85697a399bd3ce651f266626fcd37749fc0846fac33e89da566bd8",
+    "/Users/numi/numi-lab-midpoint-compensated-20261109/docs/evidence/midpoint-first-failure-20261109/be-precision-005-inputs.sha256": "204d91e082016756224600ab0ff3c95c9bd5f969c923305b3a716e994b2c504a"
+  },
+  "phases": [
+    {
+      "name": "control",
+      "returncode": 1,
+      "log": "recovery-sequence-002-control.log",
+      "log_sha256": "f656815e9ec5c7698ca212f9ff2541e82c3254d8f2aee8c4898634fd4a22c7d2"
+    }
+  ],
+  "status": "finished_inspect_individual_results",
+  "n64_receipt_sha256": "90295bfbf6b69ecdc8ba615f59b72b5ab7d59a490953262db11922226a8ac217",
+  "n64_reason": "reference incomplete or executable changed",
+  "cost_not_run": "ValueError('incomplete ladder attempt: /Users/numi/numi-lab-midpoint-compensated-20261109/docs/evidence/midpoint-first-failure-20261109/be-precision-007-n2-h00003125')",
+  "spatial_not_run": "n64 prerequisite did not complete"
+}

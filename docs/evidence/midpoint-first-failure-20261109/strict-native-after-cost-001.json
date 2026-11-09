@@ -1,0 +1,11 @@
+{
+  "status": "no_passing_audits",
+  "coordinator_pid": 61100,
+  "inputs_sha256": {
+    "/Users/numi/numi-lab-midpoint-compensated-20261109/tests/contact/run_strict_native_after_cost.py": "ecf5151fbe51352c62bba947ed2b3bf7f305984d95391943c71201ed8647a0ea",
+    "/Users/numi/numi-lab-midpoint-compensated-20261109/tests/contact/strict_native_trace_audit.py": "44f263e5e70698965e992ace1af53e18a45345acc210554bb1528b72334e1645",
+    "/Users/numi/numi-lab-midpoint-compensated-20261109/tests/contact/large_spatial_reference.py": "2da963618c6f9517afcef8e818efd32a84d737bd9fd3e20a3f01bfd06b5365e1",
+    "/Users/numi/numi-lab-midpoint-compensated-20261109/docs/evidence/midpoint-spatial-cost-dynamic-20261108/rk4-n2-h025.json": "a37f254053b30e97b70223fc1f2f3d26028a0472aba0bf2136a92e9a7e11700e"
+  },
+  "audits": []
+}

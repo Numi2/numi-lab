@@ -1,0 +1,10 @@
+{
+  "status": "stopped",
+  "coordinator_pid": 61100,
+  "inputs_sha256": {
+    "/Users/numi/numi-lab-midpoint-compensated-20261109/tests/contact/run_physical_time_after_cost.py": "80977c720a3a3b772ee1d99b77765634e809dcb801fb55014e5f49acb33f01d8",
+    "/Users/numi/numi-lab-midpoint-compensated-20261109/tests/contact/audit_cost_physical_time.py": "973afa4b5d18bd00b1f8c67203a7b64f7a469ecbd25096481aa953f9d447281a",
+    "/Users/numi/numi-lab-midpoint-compensated-20261109/tests/contact/cost_summary.py": "d3bf17ccb664404510c9d436ee0c5349b0eef06ee059805fdd25beab67ddf1e0"
+  },
+  "error": "RuntimeError('no completed cost comparison')"
+}

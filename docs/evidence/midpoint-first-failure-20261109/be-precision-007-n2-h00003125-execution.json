@@ -1,0 +1,45 @@
+{
+  "command": [
+    "/Users/numi/numi-matter-midpoint-compensated-build-20261109/evidence-be-precision-005/numi_plane_contact_probe_scaled",
+    "/Users/numi/numi-matter-midpoint-compensated-build-20261109/evidence-be-precision-005/NumiMatter.metallib",
+    "0.00000003125",
+    "320000",
+    "2",
+    "ipc_area",
+    "0.0002",
+    "physical",
+    "contact",
+    "reference"
+  ],
+  "input_sha256": {
+    "/Users/numi/numi-matter-midpoint-compensated-build-20261109/evidence-be-precision-005/numi_plane_contact_probe_scaled": "f801a5d2532a6a51f0c9baea3c4cca2fbddc047911ca71c07dc91d95628bf734",
+    "/Users/numi/numi-matter-midpoint-compensated-build-20261109/evidence-be-precision-005/NumiMatter.metallib": "eebb5247813e6f510efedd6ef5f2d0d7a3bea840cb38966b3f2db48735ddb97f",
+    "/Users/numi/numi-lab-midpoint-compensated-20261109/docs/evidence/midpoint-spatial-cost-dynamic-20261108/rk4-n2-h025.json": "a37f254053b30e97b70223fc1f2f3d26028a0472aba0bf2136a92e9a7e11700e"
+  },
+  "flag": "NM_MATTER_BE_VELOCITY_COMPENSATION=1",
+  "returncode": -15,
+  "stopped_reason": "free-space limit",
+  "wall_seconds_observational_only": 2475.590943166055,
+  "peak_rss_kib": 150336,
+  "free_bytes_after": 3298697216,
+  "limits": {
+    "rss_kib": 4194304,
+    "free_bytes": 3328599654,
+    "wall_seconds": 86400
+  },
+  "diagnostic_stdout": {
+    "uncompressed_bytes": 45826048,
+    "uncompressed_sha256": "7233fa4a66bcb4b8339d6939bef5985b14305a71598b43fdd6c890fe5be551ec",
+    "compressed_bytes": 5190112,
+    "compressed_sha256": "f3fb6a64a975ed926e135b10e924f426a07643500d0fc1775beba84e2af2e3f4"
+  },
+  "diagnostic_stderr": {
+    "uncompressed_bytes": 14405743,
+    "uncompressed_sha256": "c1392becd5ee062d3974dee286e66c5ac4785f364a9340aa0da0824e66318c47",
+    "compressed_bytes": 387647,
+    "compressed_sha256": "06073537ca178f4dc4a14a8c8ec07b93e750746078e3b6a477c086c5ddbde4ce"
+  },
+  "compression_errors": [],
+  "all_gates_pass": false,
+  "analysis_error": "JSONDecodeError('Expecting value: line 1 column 45826049 (char 45826048)')"
+}

@@ -1,0 +1,14 @@
+{
+  "path": "/private/tmp/numi-fem-py313-20261107",
+  "configuration": "home = /opt/homebrew/opt/python@3.13/bin\ninclude-system-site-packages = false\nversion = 3.13.16\nexecutable = /opt/homebrew/Cellar/python@3.13/3.13.16/Frameworks/Python.framework/Versions/3.13/bin/python3.13\ncommand = /opt/homebrew/opt/python@3.13/bin/python3.13 -m venv /tmp/numi-fem-py313-20261107\n",
+  "packages": [
+    "numpy==2.2.6",
+    "pip==26.2.1",
+    "scikit-fem==11.0.0",
+    "scipy==1.15.3"
+  ],
+  "open_handles": false,
+  "reason": "unused temporary package-only environment; exact versions retained",
+  "before_free_bytes": 3394564096,
+  "after_free_bytes": 3549597696
+}
