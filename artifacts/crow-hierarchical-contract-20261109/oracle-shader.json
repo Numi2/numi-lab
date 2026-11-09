@@ -1,0 +1,6 @@
+{
+  "mode": "oracle",
+  "source_sha256": "302c81119049217b6ff84882c198cf9d5e3f18f8085f302aa7a418c6eff47bf1",
+  "shader_sha256": "1fcf4524b6eea37a800934c0414f65b42d1524b8afdd2b71fa08ae02cac5b379",
+  "frozen_controller_sha256": "aa2fe10901cb0494d80ae445902303a17ce0e73d030072bab09461d8f3593ebe"
+}

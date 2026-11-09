@@ -1,0 +1,122 @@
+{
+  "course": "held-out-a",
+  "seed": "20261207",
+  "argv": [
+    "/Users/n/Developer/numi-crow-rl-20261107/build/bin/metalrobo_task_rollout",
+    "--birdflow-american-crow-journey",
+    "--birdflow-journey-variant",
+    "v15",
+    "--metallib",
+    "/Users/n/Developer/numi-crow-rl-20261107/build/crow-hierarchical-contract-20261109/actor.metallib",
+    "--birdflow-navigation-course",
+    "held-out-a",
+    "--envs",
+    "8",
+    "--steps",
+    "3000",
+    "--repeats",
+    "1",
+    "--chunk",
+    "1",
+    "--physics-substeps",
+    "4",
+    "--seed",
+    "20261207",
+    "--no-scheduled-resets",
+    "--minimum-difficulty-band",
+    "10",
+    "--maximum-difficulty-band",
+    "10",
+    "--policy-pack",
+    "/Users/n/Developer/numi-crow-rl-20261107/build/crow-hierarchical-contract-20261109/hierarchical-initial.policypack",
+    "--visual-observation-config",
+    "assets/crow_navigation_course/crow-navigation.active-head.visual-observation.json",
+    "--state-trace",
+    "/Users/n/Developer/numi-crow-rl-20261107/build/crow-hierarchical-demonstrations-20261109/held-out-a.tsv",
+    "--state-trace-environment",
+    "1",
+    "--birdflow-journey-teacher",
+    "--birdflow-journey-student-authority",
+    "0",
+    "--rollout-pack",
+    "/Users/n/Developer/numi-crow-rl-20261107/build/crow-hierarchical-demonstrations-20261109/held-out-a.rollout"
+  ],
+  "raw_pack_bytes": 95424956,
+  "raw_pack_sha256": "74e9083c938e8e731b3926484f21515e0fd126472d5f4d408d8ab572c358c448",
+  "compressed_pack_bytes": 42873535,
+  "compressed_pack_sha256": "9e805c3196d89d944848eaf9032a47e3991566e8038c5ffb7fe85d368b948b0f",
+  "round_trip_verified": true,
+  "frozen_controller_sha256": "aa2fe10901cb0494d80ae445902303a17ce0e73d030072bab09461d8f3593ebe",
+  "shader_sha256": "941aef69c7e3ed512320b0faf6a9a9484d2e875df12ab2fd5f3b5640bdee5814",
+  "library_sha256": "28b1078ab0a52968ba31252d1b3818c1a4a8e74d6edf9d0e324429126b45cee8",
+  "policy_sha256": "838dfde443863758a048927679a0724e20248a42acab7e65d08be8b28267af60",
+  "failed_environment_steps": 0,
+  "lanes": [
+    {
+      "lane": 0,
+      "steps": 3000,
+      "waypoints": 5,
+      "physical_failure": false,
+      "terminal_support_steps": 25,
+      "eligible": true
+    },
+    {
+      "lane": 1,
+      "steps": 3000,
+      "waypoints": 5,
+      "physical_failure": false,
+      "terminal_support_steps": 25,
+      "eligible": true
+    },
+    {
+      "lane": 2,
+      "steps": 3000,
+      "waypoints": 5,
+      "physical_failure": false,
+      "terminal_support_steps": 25,
+      "eligible": true
+    },
+    {
+      "lane": 3,
+      "steps": 3000,
+      "waypoints": 5,
+      "physical_failure": false,
+      "terminal_support_steps": 25,
+      "eligible": true
+    },
+    {
+      "lane": 4,
+      "steps": 3000,
+      "waypoints": 5,
+      "physical_failure": false,
+      "terminal_support_steps": 25,
+      "eligible": true
+    },
+    {
+      "lane": 5,
+      "steps": 3000,
+      "waypoints": 5,
+      "physical_failure": false,
+      "terminal_support_steps": 25,
+      "eligible": true
+    },
+    {
+      "lane": 6,
+      "steps": 3000,
+      "waypoints": 5,
+      "physical_failure": false,
+      "terminal_support_steps": 25,
+      "eligible": true
+    },
+    {
+      "lane": 7,
+      "steps": 3000,
+      "waypoints": 5,
+      "physical_failure": false,
+      "terminal_support_steps": 25,
+      "eligible": true
+    }
+  ],
+  "eligible_lanes": 8,
+  "sampling": "teacher on, student authority zero; first episode only"
+}

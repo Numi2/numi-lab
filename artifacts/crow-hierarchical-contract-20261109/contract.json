@@ -1,0 +1,14 @@
+{
+  "old_policy_rejected": true,
+  "task_id": "american_crow_v15_hierarchical_navigation_development_v1",
+  "world": 12704294952255580436,
+  "task": 13798971993577307474,
+  "observation": 15113761242167882437,
+  "action": 10335628214131907515,
+  "old_policy_sha256": "3828c0741900a5dc778f8acfcfb455dcd10493783cefd1f78cf25399ed9f6ffd",
+  "new_policy_sha256": "838dfde443863758a048927679a0724e20248a42acab7e65d08be8b28267af60",
+  "library_sha256": "8783480c5ffea69e48817d61fc3d01b52e3612360e44b9d71bbae439d1d96a17",
+  "first_four_action_heads": "zero weights, constant initial speed 0.25 m/s, lateral 0, heading error 0, height 1.20 m",
+  "other_action_heads": "unchanged",
+  "note": "new policy has new task semantics; explicit warm start, not a qualified or trained navigator"
+}

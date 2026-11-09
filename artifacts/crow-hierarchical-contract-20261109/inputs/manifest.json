@@ -1,0 +1,32 @@
+{
+  "hierarchical-initial.policypack.gz": {
+    "raw_sha256": "838dfde443863758a048927679a0724e20248a42acab7e65d08be8b28267af60",
+    "compressed_sha256": "e8651ac66b25c3fcecbe52eed269f7eb6e257b5105c4f63ea9bf7eb9c410bdd7",
+    "verified": true
+  },
+  "actor.metallib.gz": {
+    "raw_sha256": "941aef69c7e3ed512320b0faf6a9a9484d2e875df12ab2fd5f3b5640bdee5814",
+    "compressed_sha256": "cff34c6147969d0ac0daace47125a3786aea5dc79b48732de525f810faa87a95",
+    "verified": true
+  },
+  "bounded-libmetalrobo.dylib.gz": {
+    "raw_sha256": "28b1078ab0a52968ba31252d1b3818c1a4a8e74d6edf9d0e324429126b45cee8",
+    "compressed_sha256": "aab7fcd60b28f3dfc1dc2cd00f1473b98d335781b95d49e3ec65f210f73cbd19",
+    "verified": true
+  },
+  "oracle-off.rollout.gz": {
+    "raw_sha256": "d8aac5630302436ecdb1cc803e1255b08d522c9883b8a1eafdc2f3ef9b28f36b",
+    "compressed_sha256": "7e06a8266bbca9fe99d7bdd08d88510d457f4d90dc0bddd3439a0fb533451ddf",
+    "verified": true
+  },
+  "oracle-teacher.rollout.gz": {
+    "raw_sha256": "efafb3f066c20262537f01680e2d47ef71d38b5dc9b2fe4966592efa13e348d0",
+    "compressed_sha256": "d5226ba1f45eb051c424ff913d755552c0ece8c9ff17ebd7a0eec10ba968a9a4",
+    "verified": true
+  },
+  "teacher-smoke.rollout.gz": {
+    "raw_sha256": "67690aa46791996c4940eaf5928782b423902bede015d5c9bb232179021e8fa6",
+    "compressed_sha256": "7784c74d22971365ad1912659db9b700e8fd136abc3d76bf8a76a3b573f9df00",
+    "verified": true
+  }
+}

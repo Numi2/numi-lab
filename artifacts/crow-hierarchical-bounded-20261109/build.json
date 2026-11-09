@@ -1,0 +1,8 @@
+{
+  "task_id": "american_crow_v15_hierarchical_navigation_development_v1",
+  "schedule_bit": 28,
+  "task_program_sha256": "79a1eb624fb4039651558fff945eab43b0d36c545411829259d3e72de013fd90",
+  "api_sha256": "38323b106f5578ac15dead681f2ce14dcfa463bf8552db7bbe2292d466f36c55",
+  "library_sha256": "28b1078ab0a52968ba31252d1b3818c1a4a8e74d6edf9d0e324429126b45cee8",
+  "frozen_controller_sha256": "aa2fe10901cb0494d80ae445902303a17ce0e73d030072bab09461d8f3593ebe"
+}

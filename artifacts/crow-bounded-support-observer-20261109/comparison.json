@@ -1,0 +1,8 @@
+{
+  "sample_count": 480,
+  "sample_mismatches": 0,
+  "first_episode_equal": true,
+  "terminal_finish_equal": true,
+  "full_support_samples": 17850,
+  "bounded_support_samples": 1723
+}
