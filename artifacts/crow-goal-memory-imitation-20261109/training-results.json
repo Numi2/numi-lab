@@ -1,0 +1,236 @@
+{
+  "input_rollout_sha256": {
+    "training": "4e8108c2361403f255ffea07c7aa0cf007383cab97c6055928075a938abe0c2b",
+    "held-out-a": "34a660de65e49be7095b0f449a49e0d76fb9e9104e4e3ba7f71f528d509811ed",
+    "held-out-b": "7243ae6e75f55138f644247b01e4eef0e4c73f3d75c3cc4f2449247c8f0a4801"
+  },
+  "initial_policy_sha256": "1f08bc51bcd881d4f860ad07475a615ebec349ee0d461c1811c55b7c23deec24",
+  "output_policy_sha256": "3204389d2621225b52ff4b420df2b17a01780006f5c558fc8ab081a0a34e52a0",
+  "seed": 20261220,
+  "stride": 5,
+  "training_samples": 10800,
+  "validation_samples": 3600,
+  "training_stage_counts": [
+    2980,
+    866,
+    785,
+    613,
+    401,
+    5155
+  ],
+  "validation_stage_counts": [
+    992,
+    292,
+    276,
+    176,
+    120,
+    1744
+  ],
+  "teacher_action_indices": [
+    0,
+    1,
+    2,
+    3
+  ],
+  "epochs": 120,
+  "learning_rate": 0.0001,
+  "history": [
+    {
+      "epoch": 1,
+      "train_loss": 0.05876460603692315,
+      "validation_command_mae": [
+        0.036595847457647324,
+        0.08283036202192307,
+        0.03675776347517967,
+        0.12384100258350372
+      ],
+      "validation_head_mse": 0.0,
+      "seconds": 0.06
+    },
+    {
+      "epoch": 10,
+      "train_loss": 0.040354675190015274,
+      "validation_command_mae": [
+        0.03397921100258827,
+        0.07677078247070312,
+        0.036110859364271164,
+        0.11922933906316757
+      ],
+      "validation_head_mse": 0.0,
+      "seconds": 0.25
+    },
+    {
+      "epoch": 20,
+      "train_loss": 0.0351199209690094,
+      "validation_command_mae": [
+        0.03226328641176224,
+        0.07260265946388245,
+        0.035676922649145126,
+        0.1139543429017067
+      ],
+      "validation_head_mse": 0.0,
+      "seconds": 0.43
+    },
+    {
+      "epoch": 40,
+      "train_loss": 0.02809028225866231,
+      "validation_command_mae": [
+        0.030087433755397797,
+        0.06762029975652695,
+        0.03511034697294235,
+        0.10681074112653732
+      ],
+      "validation_head_mse": 0.0,
+      "seconds": 0.77
+    },
+    {
+      "epoch": 60,
+      "train_loss": 0.023221476511521774,
+      "validation_command_mae": [
+        0.028983455151319504,
+        0.06452666223049164,
+        0.03406364098191261,
+        0.10058630257844925
+      ],
+      "validation_head_mse": 0.0,
+      "seconds": 1.11
+    },
+    {
+      "epoch": 80,
+      "train_loss": 0.019141870466145603,
+      "validation_command_mae": [
+        0.027215681970119476,
+        0.06339952349662781,
+        0.033615998923778534,
+        0.09757126122713089
+      ],
+      "validation_head_mse": 0.0,
+      "seconds": 1.45
+    },
+    {
+      "epoch": 100,
+      "train_loss": 0.016072948717258194,
+      "validation_command_mae": [
+        0.027143359184265137,
+        0.06205606833100319,
+        0.032627418637275696,
+        0.099758081138134
+      ],
+      "validation_head_mse": 0.0,
+      "seconds": 1.8
+    },
+    {
+      "epoch": 120,
+      "train_loss": 0.013919842514124784,
+      "validation_command_mae": [
+        0.02594253420829773,
+        0.061092257499694824,
+        0.03266468271613121,
+        0.09506498277187347
+      ],
+      "validation_head_mse": 0.0,
+      "seconds": 2.14
+    }
+  ],
+  "training_lanes": [
+    [
+      "training",
+      0
+    ],
+    [
+      "training",
+      1
+    ],
+    [
+      "training",
+      2
+    ],
+    [
+      "training",
+      3
+    ],
+    [
+      "training",
+      4
+    ],
+    [
+      "training",
+      5
+    ],
+    [
+      "held-out-a",
+      0
+    ],
+    [
+      "held-out-a",
+      1
+    ],
+    [
+      "held-out-a",
+      2
+    ],
+    [
+      "held-out-a",
+      3
+    ],
+    [
+      "held-out-a",
+      4
+    ],
+    [
+      "held-out-a",
+      5
+    ],
+    [
+      "held-out-b",
+      0
+    ],
+    [
+      "held-out-b",
+      1
+    ],
+    [
+      "held-out-b",
+      2
+    ],
+    [
+      "held-out-b",
+      3
+    ],
+    [
+      "held-out-b",
+      4
+    ],
+    [
+      "held-out-b",
+      5
+    ]
+  ],
+  "validation_lanes": [
+    [
+      "training",
+      6
+    ],
+    [
+      "training",
+      7
+    ],
+    [
+      "held-out-a",
+      6
+    ],
+    [
+      "held-out-a",
+      7
+    ],
+    [
+      "held-out-b",
+      6
+    ],
+    [
+      "held-out-b",
+      7
+    ]
+  ],
+  "note": "supervised teacher imitation only; no autonomous success claim"
+}

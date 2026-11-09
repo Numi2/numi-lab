@@ -1,0 +1,3 @@
+# Teacher-off recovery-imitation development evaluation
+
+Evaluate the fixed recovery-imitation policy from full starts, with teacher off and no intermediate resets, for 16 lanes on each of the three previously used development layouts with respective seeds 20261217, 20261218 and 20261219. Require all five waypoints, no physical failure and 25 final accepted samples with positive upward foot support and bounded velocity. Report contacts and failure location where available. These layouts and seeds are development and do not establish final unseen-layout success. Minimum collider clearance is not yet measured.

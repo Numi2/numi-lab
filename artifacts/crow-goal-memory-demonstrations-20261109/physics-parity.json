@@ -1,0 +1,17 @@
+{
+  "training": {
+    "samples": 240,
+    "mismatches": 0,
+    "first_mismatches": []
+  },
+  "held-out-a": {
+    "samples": 240,
+    "mismatches": 0,
+    "first_mismatches": []
+  },
+  "held-out-b": {
+    "samples": 240,
+    "mismatches": 0,
+    "first_mismatches": []
+  }
+}

@@ -1,0 +1,38 @@
+--- a/hierarchical-actor.metal
++++ b/goal-memory-actor.metal
+@@ -1827,6 +1827,18 @@
+                 float(kCrowNavigationWaypointCount);
+         } else if (routeComponent == 7u) {
+             value = state.navigation.w;
++        } else if (routeComponent >= 8u && routeComponent <= 10u &&
++                   (program.schedule.w & (1u << 28u)) != 0u) {
++            // Memory of the previously issued goal, not obstacle geometry.
++            const uint previous = waypoint > 0u ? min(waypoint-1u,kCrowNavigationWaypointCount-1u) : 0u;
++            const float3 relative = rotateInverse(
++                orientation,
++                crowNavigationWaypointTarget(sceneBodies,operation.source.y,previous) -
++                    rootWorldPosition(program,q));
++            value = waypoint > 0u ? 0.25f*relative[routeComponent-8u] : 0.0f;
++        } else if (routeComponent == 11u &&
++                   (program.schedule.w & (1u << 28u)) != 0u) {
++            value = 0.5f*state.threatTeacher.w;
+         } else if (routeComponent < 13u) {
+             value = routeComponent - 8u == waypoint ? 1.0f : 0.0f;
+         } else if (routeComponent < 29u) {
+@@ -6625,7 +6637,6 @@
+         const float roll = atan2(2.0f*(orientation.w*orientation.x+orientation.y*orientation.z),1.0f-2.0f*(orientation.x*orientation.x+orientation.y*orientation.y));
+         float phase=state.threatTeacher.w;
+         if (state.navigation.z >= float(kCrowNavigationWaypointCount)) {
+-            phase=max(phase,1.0f);
+             uint course=MR_INVALID_INDEX;
+             for (uint i=0u;i<program.counts1.w;++i) {
+                 const MRTaskRewardOperatorGPU operation=rewards[i];
+@@ -6636,6 +6647,8 @@
+                 // The fifth waypoint is an explicit goal observation; no
+                 // obstacle collision geometry or teacher route is consulted.
+                 const float3 finalGoal=crowNavigationWaypointTarget(sceneState+sceneBase,course,4u);
++                if (phase < 0.5f && length(finalGoal.xy-pos.xy)<0.08f &&
++                    length(yawFrameLinear.xy)<0.08f) phase=1.0f;
+                 uint loadedFeet=0u;
+                 for (uint gi=0u;gi<program.counts0.w;++gi) {
+                     const MRTaskContactGroupGPU group=contactGroups[gi];

@@ -1,0 +1,14 @@
+{
+  "old_policy_rejected": true,
+  "task_id": "american_crow_v15_goal_memory_navigation_development_v1",
+  "world": 12704294952255580436,
+  "task": 9237788363011609745,
+  "observation": 15113761242167882437,
+  "action": 10335628214131907515,
+  "old_policy_sha256": "4152322ee101f95620a3b99a9868a057b9c84d8305d5f85938667d06605000d9",
+  "new_policy_sha256": "1f08bc51bcd881d4f860ad07475a615ebec349ee0d461c1811c55b7c23deec24",
+  "library_sha256": "1b8a102b5ff2d6ba8c37ea754d629ae41c17f8b7af8caf4ab3239abe4f425a02",
+  "first_four_action_heads": "unchanged warm start, to be retrained under new observation semantics",
+  "other_action_heads": "unchanged",
+  "note": "new policy has new task semantics; explicit warm start, not a qualified or trained navigator"
+}

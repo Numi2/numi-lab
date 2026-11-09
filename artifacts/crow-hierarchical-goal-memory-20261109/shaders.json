@@ -1,0 +1,14 @@
+{
+  "actor": {
+    "source": "0e3575f52c1a2d7030192bdf81e9ee13370a65e4dc7cd4d1f39b78c7c4b9b49a",
+    "shader": "dcbc3c1e621db7d93b81b6a8e4756d4fff2b98531129eedd585f8adf90f17bcc"
+  },
+  "oracle": {
+    "source": "dc87bdf6403e0ee4eef7ef4ebc49661a83b1f2d2d5d4ec5713f1be265af409e7",
+    "shader": "fb0d9c6e553d7ad332c55d4dda09306f009dd47eb1c847ce2c5dd97c305938a3"
+  },
+  "dagger": {
+    "source": "e2b6fc12af17e1d80820c8825a14903f24bd7cc60fa89ab295f9b3aca2d80079",
+    "shader": "5c890f957f528ea30e80f52e6c75d69e7e1db88375cc41d06afd7004de981715"
+  }
+}

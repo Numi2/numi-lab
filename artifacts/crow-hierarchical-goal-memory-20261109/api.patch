@@ -1,0 +1,10 @@
+--- a/extended-observer-c_api.cpp
++++ b/hierarchy-c_api.cpp
+@@ -3484,6 +3484,7 @@
+         }
+         applyRunProfile(manifest, *config);
+         if (activeNavigation) manifest.task.maximumEpisodeSteps = 3000u;
++        if (activeNavigation) manifest.task.id = "american_crow_v15_goal_memory_navigation_development_v1";
+         manifest.profile.capacities = manifest.task.capacities;
+         std::optional<metalrobo::FiniteResourceConfig> resources;
+         if(cueConfig) {

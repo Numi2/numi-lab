@@ -1,0 +1,52 @@
+--- a/src/core/TaskProgram.cpp
++++ b/src/core/TaskProgram.cpp
+@@ -2612,7 +2612,7 @@
+     };
+     const auto retinalCount=static_cast<std::size_t>(std::ranges::count_if(observations.actorCurrent,isRetinal));
+     const bool activeHeadMaskedDepth =
+-        pack.id == "american_crow_active_head_navigation_development_v1" && hasVisualProgram;
++        (pack.id == "american_crow_active_head_navigation_development_v1" || pack.id == "american_crow_v15_goal_memory_navigation_development_v1") && hasVisualProgram;
+     if ((!activeHeadMaskedDepth &&
+          (observations.retinalFeatureCount!=0u)!=(observations.deviceSensorProgramFingerprint!=0u)) ||
+         std::ranges::any_of(observations.actorFrame,isRetinal) ||
+@@ -4331,7 +4331,7 @@
+         pack.id == "birdflow_american_crow_journey_v8_neural" ||
+         pack.id == "birdflow_american_crow_journey_v9_visual_neural" ||
+         pack.id == "birdflow_american_crow_navigation_v10_world_model" ||
+-        pack.id == "american_crow_active_head_navigation_development_v1" ||
++        (pack.id == "american_crow_active_head_navigation_development_v1" || pack.id == "american_crow_v15_goal_memory_navigation_development_v1") ||
+         pack.id == "american_crow_embodied_development_v11" ||
+         pack.id == "american_crow_feeding_station_v12" ||
+         pack.id == "american_crow_retinal_feeding_v13" ||
+@@ -4384,7 +4384,7 @@
+     if (pack.id == "birdflow_american_crow_journey_v8_neural" ||
+         pack.id == "birdflow_american_crow_journey_v9_visual_neural" ||
+         pack.id == "birdflow_american_crow_navigation_v10_world_model" ||
+-        pack.id == "american_crow_active_head_navigation_development_v1" ||
++        (pack.id == "american_crow_active_head_navigation_development_v1" || pack.id == "american_crow_v15_goal_memory_navigation_development_v1") ||
+         pack.id == "american_crow_embodied_development_v11") {
+         // V8 deliberately omits AVIAN_CROW_APPROACH_ENVELOPE. The policy is
+         // the sole deployment action authority; the task only records shadow
+@@ -4392,7 +4392,7 @@
+         staged->header.schedule.w |= MR_TASK_PROGRAM_AVIAN_CROW_JOURNEY;
+     }
+     if (pack.id == "birdflow_american_crow_navigation_v10_world_model" ||
+-        pack.id == "american_crow_active_head_navigation_development_v1") {
++        (pack.id == "american_crow_active_head_navigation_development_v1" || pack.id == "american_crow_v15_goal_memory_navigation_development_v1")) {
+         // Previewing the outgoing turn at both slaloms changes the task command
+         // reference while retaining the authored waypoint geometry, reward,
+         // reach radius, and policy action authority. Make that semantic
+@@ -4402,11 +4402,12 @@
+             MR_TASK_PROGRAM_AVIAN_CROW_NAVIGATION_TURN_PREVIEW_SLALOMS |
+             MR_TASK_PROGRAM_AVIAN_CROW_NAVIGATION_POST_SECOND_GATE_ADAPTER;
+     }
+-    if (pack.id == "american_crow_active_head_navigation_development_v1") {
++    if ((pack.id == "american_crow_active_head_navigation_development_v1" || pack.id == "american_crow_v15_goal_memory_navigation_development_v1")) {
+         staged->header.schedule.w |=
+             MR_TASK_PROGRAM_AVIAN_CROW_NAVIGATION_TEACHER_FEEDBACK |
+             MR_TASK_PROGRAM_AVIAN_CROW_NAVIGATION_FLIGHT_PHASE;
+     }
++    if (pack.id == "american_crow_v15_goal_memory_navigation_development_v1") staged->header.schedule.w |= (1u << 28u);
+     if (threatGroup != MR_INVALID_INDEX) {
+         staged->header.schedule.w |=
+             MR_TASK_PROGRAM_THREAT_TEACHER;

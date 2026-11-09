@@ -1,0 +1,8 @@
+{
+  "task_id": "american_crow_v15_goal_memory_navigation_development_v1",
+  "schedule_bit": 28,
+  "task_program_sha256": "2eaa60830a8ac0eef2a88d2ecd8e8dc3e763b296807a6bf3a046bca123a0d694",
+  "api_sha256": "49222f5f0ce2efa639d36aedfe601c700af97d3aad64aa096cd820b99bff14fa",
+  "library_sha256": "1b8a102b5ff2d6ba8c37ea754d629ae41c17f8b7af8caf4ab3239abe4f425a02",
+  "frozen_controller_sha256": "aa2fe10901cb0494d80ae445902303a17ce0e73d030072bab09461d8f3593ebe"
+}
