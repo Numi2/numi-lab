@@ -4186,6 +4186,14 @@ MetalWorldDiagnostics validateAndBuildLayout(
         return reject(std::move(diagnostics), MetalWorldHostStatus::invalidDimensions,
             "hierarchical crow stage selection requires deterministic actor-only policies");
     }
+    if (nativeTask &&
+        (config.taskProgram.header().schedule.w &
+         MR_TASK_PROGRAM_AVIAN_CROW_WAYPOINT_EXPERT_NAVIGATION) != 0u &&
+        (config.policyProgram.layout().stochastic ||
+         !config.policyProgram.criticLayers().empty())) {
+        return reject(std::move(diagnostics), MetalWorldHostStatus::invalidDimensions,
+            "crow waypoint expert execution requires a deterministic actor-only policy");
+    }
     if (qualityMode &&
         config.ccdMode == MetalWorldCCDMode::hybrid) {
         return reject(

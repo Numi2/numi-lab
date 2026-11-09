@@ -1,0 +1,25 @@
+{
+  "sha256": "38db4fc00c3b8c5c3f3c013dc8bbd1b3ad9f6e7264d2831273f2071025e45759",
+  "route_max_abs_error": 0.0,
+  "expert_max_abs_error": 0.0,
+  "layer_shapes": [
+    [
+      1024,
+      816
+    ],
+    [
+      512,
+      1024
+    ],
+    [
+      256,
+      512
+    ],
+    [
+      18,
+      256
+    ]
+  ],
+  "expert_path": "/Users/n/Developer/numi-crow-rl-20261107/build/crow-route-no-vision-diagnostic-20261109/frozen-route-actor.policypack",
+  "semantics": "experimental specialized waypoint-two output head"
+}

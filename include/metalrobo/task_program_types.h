@@ -109,6 +109,8 @@ enum MRTaskProgramFlags : mr_u32 {
         1u << 27u,
     // Goal-memory command policy and frozen v15 flight controller.
     MR_TASK_PROGRAM_AVIAN_CROW_HIERARCHICAL_NAVIGATION = 1u << 28u,
+    // Route outputs 4..7 are active only at waypoint index two.
+    MR_TASK_PROGRAM_AVIAN_CROW_WAYPOINT_EXPERT_NAVIGATION = 1u << 29u,
 };
 
 enum MRTaskInteractionFlags : mr_u32 {

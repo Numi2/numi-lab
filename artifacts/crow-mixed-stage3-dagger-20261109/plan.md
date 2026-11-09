@@ -1,0 +1,3 @@
+# Correct physically reached later-waypoint states
+
+The mixed visual/goal-proprioception route achieved 42/48 supported finishes on fresh development starts; four failures were waypoint-three timeouts on the training course, after the student completed the turn. For each known development course, run eight full-start student trajectories using the mixed actor and collect teacher corrective labels until recovery at steps 1300, 1400, 1500 or 1600. Verify student q/v against teacher-off controls before takeover; include only full first episodes physically recovered through all waypoints to supported landings. Seeds 20270301–20270303 are development data. Fit the waypoint-three-gated adapter while retaining all other route and landing parameters, then test on new seeds.

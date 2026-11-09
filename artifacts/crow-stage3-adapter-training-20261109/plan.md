@@ -1,0 +1,3 @@
+# Localized later-waypoint correction
+
+Start from the visual route actor used by the mixed policy; preserve the goal/proprioception expert and landing actor. Fit only the first-layer columns 163–184, which are gated to waypoint index 3, against successful recovery and teacher trajectories, including mixed student-visited states. Use the actor-time stage observation (component 169), not the post-step outcome at boundaries. Hold eligible lanes for validation. Prove all other actor weights are unchanged and the gated inputs are exactly zero outside the stage. Combine the revised route with the unchanged turn expert; evaluate full-start teacher-off execution on fresh development seeds.

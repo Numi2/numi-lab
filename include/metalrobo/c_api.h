@@ -63,6 +63,8 @@ typedef enum MRBirdFlowJourneyVariantC {
     MR_BIRDFLOW_JOURNEY_V15_ACTIVE_HEAD_NAVIGATION = 8,
     // Same v15 body, distinct high-level command and goal-memory contract.
     MR_BIRDFLOW_JOURNEY_V15_HIERARCHICAL_NAVIGATION = 9,
+    // Deterministic waypoint-specific command head; distinct task contract.
+    MR_BIRDFLOW_JOURNEY_V15_WAYPOINT_EXPERT_NAVIGATION = 10,
 } MRBirdFlowJourneyVariantC;
 
 typedef enum MRBirdFlowNavigationCourseC {
