@@ -12,6 +12,9 @@ name="be-n2-h0009765625";paths={s:p/(name+s) for s in (".json",".log","-executio
 if any(q.exists() for q in paths.values()):raise SystemExit("attempt exists")
 exe=b/"metalrobo_plane_contact_probe";shader=b/"NumiMatter.metallib"
 hashes={str(q):hashlib.sha256(q.read_bytes()).hexdigest() for q in (exe,shader)}
+for q in (exe,shader):
+ expected=next((v for k,v in previous["input_sha256"].items() if pathlib.Path(k).name==q.name),None)
+ if hashes[str(q)]!=expected:raise SystemExit("frozen input does not match previous trial: "+q.name)
 cmd=[str(exe),str(shader),"0.0000009765625","10240","2","ipc_area","0.0002","physical","contact","reference"]
 env=os.environ.copy();env.pop("NM_MATTER_MIDPOINT_VELOCITY_COMPENSATION",None);env.pop("NM_MATTER_MIDPOINT_STAGE_COMPENSATION",None)
 start=time.monotonic()
