@@ -1,0 +1,14 @@
+{
+  "schema": "numi.slider-float-velocity-resolution.v1",
+  "trajectory": "slider-near-small-failure-checkpoint-001.json",
+  "trajectory_sha256": "957c938d9778b2170e7517fed75bfcb24f85c0f7cc8e4b13d68308871efa674a",
+  "candidate_capture": "slider-near-small-candidate-capture-001.json",
+  "candidate_sha256": "4011c3e1f3db1932ae7deb24e30648dc355703e14fdd252b358cfc3544c14b9e",
+  "assumptions": "One-step FP64 estimate from previously accepted binary32 velocity, measured binary32 wrench and gravity, and body mass; the postcommit certificate uses its own reaction impulse.",
+  "ideal_endpoint_velocity_mps": -0.04629385655505383,
+  "nearest_binary32_velocity_mps": -0.04629385471343994,
+  "actual_candidate_velocity_mps": -0.04629385471343994,
+  "nearest_momentum_error_Ns": 1.8416138480008728e-11,
+  "certificate_error_Ns": 1.8395066719856246e-11,
+  "certificate_limit_Ns": 1.756347671466596e-11
+}

@@ -34,7 +34,9 @@ free-motion midpoint estimate gives 1.0362519002604653e-11 m as the error of
 the nearest binary32 position to the estimated endpoint, consistent with the
 certificate. This estimate uses the previous accepted state and gravity; the
 certificate uses its actual computed stage increment. See
-`slider-position-resolution-001.json`.
+`slider-position-resolution-001.json`. The new pre-rollback candidate readback
+shows that MetalWorld actually published this nearest binary32 position. See
+`slider-primary-candidate-capture-001.json`.
 
 For the 95 µm, 7.8125 µs attempt, the retained step-748 checkpoint also
 reproduces its original status and certificate. This time the momentum error
@@ -42,7 +44,10 @@ is 1.8395066719856246e-11 N s against a 1.756347671466596e-11 N s limit;
 position error 1.0087755283882949e-12 m is below its 7.62939451198763e-12 m
 limit. The previous accepted step had nonzero contact. This is a distinct
 late rigid-certificate failure, not proof that every smaller-step or other
-fixture failure has the same cause.
+fixture failure has the same cause. Pre-rollback readback shows the candidate
+velocity is also the nearest binary32 velocity under an independent measured-
+wrench estimate; the estimate gives 1.84161e-11 N s minimum momentum error.
+See `slider-velocity-resolution-001.json`.
 
 The separate preregistered per-step contact impulse-balance gate fails in the
 accepted prefixes even though the independently captured contact body wrench

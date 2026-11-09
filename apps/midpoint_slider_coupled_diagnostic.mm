@@ -9,13 +9,26 @@
 
 struct SliderObservation {
  metalrobo::MetalWorldDevicePhysicsProgram inner{};
- id<MTLBuffer> wrench=nil, support=nil;
+ id<MTLBuffer> wrench=nil, support=nil, candidateQ=nil, candidateV=nil;
  bool injectLateFailure=false;
  std::uint32_t failureFlags=0u;
 };
 static bool observeSlider(void* opaque,const metalrobo::MetalWorldDevicePhysicsPass& pass){
  auto& o=*static_cast<SliderObservation*>(opaque);
  if(std::getenv("NM_SLIDER_ENCODE_DIAGNOSTICS")) std::cerr << "slider callback phase=" << static_cast<unsigned>(pass.phase) << " begin\n";
+ if(pass.phase==metalrobo::MetalWorldDevicePhysicsPhase::postCommit){
+  // Read the published rigid candidate before Matter can reject it and the
+  // enclosing owner restores q/v. These copies do not affect acceptance.
+  id<MTLCommandBuffer> cmd=(__bridge id<MTLCommandBuffer>)pass.commandBuffer;
+  id<MTLBuffer> sourceQ=(__bridge id<MTLBuffer>)pass.q,sourceV=(__bridge id<MTLBuffer>)pass.v;
+  o.candidateQ=[cmd.commandQueue.device newBufferWithLength:sizeof(float) options:MTLResourceStorageModeShared];
+  o.candidateV=[cmd.commandQueue.device newBufferWithLength:sizeof(float) options:MTLResourceStorageModeShared];
+  if(!sourceQ||!sourceV||!o.candidateQ||!o.candidateV||sourceQ.length<sizeof(float)||sourceV.length<sizeof(float))return false;
+  id<MTLBlitCommandEncoder> capture=[cmd blitCommandEncoder];if(!capture)return false;
+  [capture copyFromBuffer:sourceQ sourceOffset:0 toBuffer:o.candidateQ destinationOffset:0 size:sizeof(float)];
+  [capture copyFromBuffer:sourceV sourceOffset:0 toBuffer:o.candidateV destinationOffset:0 size:sizeof(float)];
+  [capture endEncoding];
+ }
  if(o.injectLateFailure && pass.phase==metalrobo::MetalWorldDevicePhysicsPhase::postCommit){
   id<MTLCommandBuffer> cmd=(__bridge id<MTLCommandBuffer>)pass.commandBuffer;
   id<MTLBuffer> dst=(__bridge id<MTLBuffer>)pass.environmentStatuses;
@@ -199,6 +212,12 @@ int main(int argc,char**argv){@autoreleasepool{try{
        <<" gpu="<<ran.firstGPUStatusCode<<" matter="<<now.statuses[0].code
        <<" index="<<now.statuses[0].failingIndex<<"\n";
    const auto& failed=now.statuses[0];
+   if(obs.candidateQ && obs.candidateV){
+    std::cout<<",\"candidate_q\":"<<*static_cast<const float*>(obs.candidateQ.contents)
+             <<",\"candidate_v\":"<<*static_cast<const float*>(obs.candidateV.contents);
+   }
+   if(obs.wrench){const auto& w=*static_cast<const MRABABodyWrenchGPU*>(obs.wrench.contents);
+    std::cout<<",\"candidate_body_force_z\":"<<w.force.z;}
    std::cout<<",\"host_status\":"<<int(ran.status)<<",\"failure_index\":"<<failed.failingIndex
        <<",\"failure_object\":"<<failed.objectIndex<<",\"fgmres_iterations\":"<<failed.fgmresIterations
        <<",\"diagnostics\":["<<failed.diagnostics.x<<","<<failed.diagnostics.y<<","<<failed.diagnostics.z<<","<<failed.diagnostics.w<<"]}";break;
