@@ -1,0 +1,320 @@
+{
+  "rows": [
+    {
+      "raw_path": "build/crow-four-expert-eval-20261109/stage4-independent-160-landing-baseline/reserved-final-e-trace.tsv",
+      "archive_path": "artifacts/crow-four-expert-trace-archive-20261109/stage4-independent-160-landing-baseline/reserved-final-e-trace.tsv.gz",
+      "sha256": "fc26b0c40bdd32d5ff0ea8d08491cecf6915e33c28f2cede6db455b637ab4a2c",
+      "bytes": 1832144,
+      "completed_result": "artifacts/crow-four-expert-eval-20261109/stage4-independent-160-landing-baseline/reserved-final-e/results.json"
+    },
+    {
+      "raw_path": "build/crow-four-expert-eval-20261109/stage4-independent-160-landing-baseline/reserved-final-f-trace.tsv",
+      "archive_path": "artifacts/crow-four-expert-trace-archive-20261109/stage4-independent-160-landing-baseline/reserved-final-f-trace.tsv.gz",
+      "sha256": "c2380abe68289ffb5fd3f549f107823846da5fefa922cd2ca32184e3b6706d2b",
+      "bytes": 1828510,
+      "completed_result": "artifacts/crow-four-expert-eval-20261109/stage4-independent-160-landing-baseline/reserved-final-f/results.json"
+    },
+    {
+      "raw_path": "build/crow-four-expert-eval-20261109/stage4-independent-20-landing-80/held-out-a-seed-20270306-trace.tsv",
+      "archive_path": "artifacts/crow-four-expert-trace-archive-20261109/stage4-independent-20-landing-80/held-out-a-seed-20270306-trace.tsv.gz",
+      "sha256": "4e7149480680ba39d9e18e94b21ab2ab4053e927830dc144c7be75fd916c2af7",
+      "bytes": 1834177,
+      "completed_result": "artifacts/crow-four-expert-eval-20261109/stage4-independent-20-landing-80/held-out-a-seed-20270306/results.json"
+    },
+    {
+      "raw_path": "build/crow-four-expert-eval-20261109/stage4-independent-20-landing-80/reserved-final-e-seed-20270403-trace.tsv",
+      "archive_path": "artifacts/crow-four-expert-trace-archive-20261109/stage4-independent-20-landing-80/reserved-final-e-seed-20270403-trace.tsv.gz",
+      "sha256": "124bc0df733ff0a2a51898c89ec0523bb77b154ec62317eb2d03ad800d065bee",
+      "bytes": 1811985,
+      "completed_result": "artifacts/crow-four-expert-eval-20261109/stage4-independent-20-landing-80/reserved-final-e-seed-20270403/results.json"
+    },
+    {
+      "raw_path": "build/crow-four-expert-eval-20261109/stage4-independent-20-landing-80/reserved-final-e-seed-3212483193-trace.tsv",
+      "archive_path": "artifacts/crow-four-expert-trace-archive-20261109/stage4-independent-20-landing-80/reserved-final-e-seed-3212483193-trace.tsv.gz",
+      "sha256": "658dcedb39a10a3c96cef6275af763c873f8c095a9bd002245cdb4f69f8cd8bc",
+      "bytes": 1832523,
+      "completed_result": "artifacts/crow-four-expert-eval-20261109/stage4-independent-20-landing-80/reserved-final-e-seed-3212483193/results.json"
+    },
+    {
+      "raw_path": "build/crow-four-expert-eval-20261109/stage4-independent-20-landing-80/reserved-final-f-seed-20270404-trace.tsv",
+      "archive_path": "artifacts/crow-four-expert-trace-archive-20261109/stage4-independent-20-landing-80/reserved-final-f-seed-20270404-trace.tsv.gz",
+      "sha256": "e3af9b048296228f0b8d64a8960c634a651349f47f97fb02339b5cc2cb6b60f0",
+      "bytes": 1820952,
+      "completed_result": "artifacts/crow-four-expert-eval-20261109/stage4-independent-20-landing-80/reserved-final-f-seed-20270404/results.json"
+    },
+    {
+      "raw_path": "build/crow-four-expert-eval-20261109/stage4-independent-20-landing-80/reserved-final-f-seed-3614144078-trace.tsv",
+      "archive_path": "artifacts/crow-four-expert-trace-archive-20261109/stage4-independent-20-landing-80/reserved-final-f-seed-3614144078-trace.tsv.gz",
+      "sha256": "c69f933e8143f5fa3c809eaebd7db14c7989758ad28f53448db6460f55e7a44c",
+      "bytes": 1828139,
+      "completed_result": "artifacts/crow-four-expert-eval-20261109/stage4-independent-20-landing-80/reserved-final-f-seed-3614144078/results.json"
+    },
+    {
+      "raw_path": "build/crow-four-expert-eval-20261109/stage4-independent-20-landing-baseline/held-out-a-trace.tsv",
+      "archive_path": "artifacts/crow-four-expert-trace-archive-20261109/stage4-independent-20-landing-baseline/held-out-a-trace.tsv.gz",
+      "sha256": "8e0e7bc9c2250876b74309cf1b9dcc5f1730ffaf9af61bc059017bf4e3141c1d",
+      "bytes": 1835060,
+      "completed_result": "artifacts/crow-four-expert-eval-20261109/stage4-independent-20-landing-baseline/held-out-a/results.json"
+    },
+    {
+      "raw_path": "build/crow-four-expert-eval-20261109/stage4-independent-20-landing-baseline/held-out-b-seed-20270307-trace.tsv",
+      "archive_path": "artifacts/crow-four-expert-trace-archive-20261109/stage4-independent-20-landing-baseline/held-out-b-seed-20270307-trace.tsv.gz",
+      "sha256": "79e7f1ddff3e23152264ff53d932766c3085e96185991991ee166aba8f10708d",
+      "bytes": 1819215,
+      "completed_result": "artifacts/crow-four-expert-eval-20261109/stage4-independent-20-landing-baseline/held-out-b-seed-20270307/results.json"
+    },
+    {
+      "raw_path": "build/crow-four-expert-eval-20261109/stage4-independent-20-landing-baseline/reserved-final-c-seed-20860117-trace.tsv",
+      "archive_path": "artifacts/crow-four-expert-trace-archive-20261109/stage4-independent-20-landing-baseline/reserved-final-c-seed-20860117-trace.tsv.gz",
+      "sha256": "01058b9578f4a192ea8363c41f173e0b86afa7475bb365df58a11d0dc1cc2f81",
+      "bytes": 1825097,
+      "completed_result": "artifacts/crow-four-expert-eval-20261109/stage4-independent-20-landing-baseline/reserved-final-c-seed-20860117/results.json"
+    },
+    {
+      "raw_path": "build/crow-four-expert-eval-20261109/stage4-independent-20-landing-baseline/reserved-final-d-seed-20860118-trace.tsv",
+      "archive_path": "artifacts/crow-four-expert-trace-archive-20261109/stage4-independent-20-landing-baseline/reserved-final-d-seed-20860118-trace.tsv.gz",
+      "sha256": "ab300aba8a92f540bf836b0c95a4bc99d4647f11832a46ff0894f5b4a21dbda2",
+      "bytes": 1830105,
+      "completed_result": "artifacts/crow-four-expert-eval-20261109/stage4-independent-20-landing-baseline/reserved-final-d-seed-20860118/results.json"
+    },
+    {
+      "raw_path": "build/crow-four-expert-eval-20261109/stage4-independent-20-landing-baseline/reserved-final-e-seed-20270403-trace.tsv",
+      "archive_path": "artifacts/crow-four-expert-trace-archive-20261109/stage4-independent-20-landing-baseline/reserved-final-e-seed-20270403-trace.tsv.gz",
+      "sha256": "124bc0df733ff0a2a51898c89ec0523bb77b154ec62317eb2d03ad800d065bee",
+      "bytes": 1811985,
+      "completed_result": "artifacts/crow-four-expert-eval-20261109/stage4-independent-20-landing-baseline/reserved-final-e-seed-20270403/results.json"
+    },
+    {
+      "raw_path": "build/crow-four-expert-eval-20261109/stage4-independent-20-landing-baseline/reserved-final-e-trace.tsv",
+      "archive_path": "artifacts/crow-four-expert-trace-archive-20261109/stage4-independent-20-landing-baseline/reserved-final-e-trace.tsv.gz",
+      "sha256": "17a5190cafaee9910ab90a3affd9b9826fde953e0f32c79d56b3c2d4af3a0b9c",
+      "bytes": 1834244,
+      "completed_result": "artifacts/crow-four-expert-eval-20261109/stage4-independent-20-landing-baseline/reserved-final-e/results.json"
+    },
+    {
+      "raw_path": "build/crow-four-expert-eval-20261109/stage4-independent-20-landing-baseline/reserved-final-f-seed-20270404-trace.tsv",
+      "archive_path": "artifacts/crow-four-expert-trace-archive-20261109/stage4-independent-20-landing-baseline/reserved-final-f-seed-20270404-trace.tsv.gz",
+      "sha256": "3c7d015e521a9751568152ed87c9d844c824693d32ac5607f9a29564670803ee",
+      "bytes": 1822227,
+      "completed_result": "artifacts/crow-four-expert-eval-20261109/stage4-independent-20-landing-baseline/reserved-final-f-seed-20270404/results.json"
+    },
+    {
+      "raw_path": "build/crow-four-expert-eval-20261109/stage4-independent-20-landing-baseline/reserved-final-f-trace.tsv",
+      "archive_path": "artifacts/crow-four-expert-trace-archive-20261109/stage4-independent-20-landing-baseline/reserved-final-f-trace.tsv.gz",
+      "sha256": "853f595c220390ee7efb8b2c0948407433064a8544ff2d076a31241a2f8910c1",
+      "bytes": 1825001,
+      "completed_result": "artifacts/crow-four-expert-eval-20261109/stage4-independent-20-landing-baseline/reserved-final-f/results.json"
+    },
+    {
+      "raw_path": "build/crow-four-expert-eval-20261109/stage4-independent-20-landing-baseline/training-seed-20270305-trace.tsv",
+      "archive_path": "artifacts/crow-four-expert-trace-archive-20261109/stage4-independent-20-landing-baseline/training-seed-20270305-trace.tsv.gz",
+      "sha256": "a001c27284580f1686af0904d07aa900c8bc8f17ccf835f13130952f0c9343c1",
+      "bytes": 1821468,
+      "completed_result": "artifacts/crow-four-expert-eval-20261109/stage4-independent-20-landing-baseline/training-seed-20270305/results.json"
+    },
+    {
+      "raw_path": "build/crow-four-expert-eval-20261109/stage4-independent-20-stage3-mix25-landing-baseline/held-out-a-seed-20270306-trace.tsv",
+      "archive_path": "artifacts/crow-four-expert-trace-archive-20261109/stage4-independent-20-stage3-mix25-landing-baseline/held-out-a-seed-20270306-trace.tsv.gz",
+      "sha256": "40b22f58464dfadc17acbbab5be92086d3e0c26206c29c8ce27586ba77358146",
+      "bytes": 1836487,
+      "completed_result": "artifacts/crow-four-expert-eval-20261109/stage4-independent-20-stage3-mix25-landing-baseline/held-out-a-seed-20270306/results.json"
+    },
+    {
+      "raw_path": "build/crow-four-expert-eval-20261109/stage4-independent-20-stage3-mix25-landing-baseline/reserved-final-e-seed-20270403-trace.tsv",
+      "archive_path": "artifacts/crow-four-expert-trace-archive-20261109/stage4-independent-20-stage3-mix25-landing-baseline/reserved-final-e-seed-20270403-trace.tsv.gz",
+      "sha256": "07c4c069bf01f079d1d902d837df9d259eddd31e72d6091980194689fa47fa77",
+      "bytes": 1825446,
+      "completed_result": "artifacts/crow-four-expert-eval-20261109/stage4-independent-20-stage3-mix25-landing-baseline/reserved-final-e-seed-20270403/results.json"
+    },
+    {
+      "raw_path": "build/crow-four-expert-eval-20261109/stage4-independent-20-stage3-mix25-landing-baseline/reserved-final-e-seed-3212483193-trace.tsv",
+      "archive_path": "artifacts/crow-four-expert-trace-archive-20261109/stage4-independent-20-stage3-mix25-landing-baseline/reserved-final-e-seed-3212483193-trace.tsv.gz",
+      "sha256": "62b80acc0138044db92361290867b98955e44b427bc3081ec46784390128cf49",
+      "bytes": 1829347,
+      "completed_result": "artifacts/crow-four-expert-eval-20261109/stage4-independent-20-stage3-mix25-landing-baseline/reserved-final-e-seed-3212483193/results.json"
+    },
+    {
+      "raw_path": "build/crow-four-expert-eval-20261109/stage4-independent-20-stage3-mix25-landing-baseline/reserved-final-f-seed-3614144078-trace.tsv",
+      "archive_path": "artifacts/crow-four-expert-trace-archive-20261109/stage4-independent-20-stage3-mix25-landing-baseline/reserved-final-f-seed-3614144078-trace.tsv.gz",
+      "sha256": "47e5c12ce3ebcc07097a7ea94b5591bfed132fe3238a78f9cf04c00cc93f339f",
+      "bytes": 1824557,
+      "completed_result": "artifacts/crow-four-expert-eval-20261109/stage4-independent-20-stage3-mix25-landing-baseline/reserved-final-f-seed-3614144078/results.json"
+    },
+    {
+      "raw_path": "build/crow-four-expert-eval-20261109/stage4-independent-20-stage3-mix50-landing-baseline/held-out-a-seed-20270306-trace.tsv",
+      "archive_path": "artifacts/crow-four-expert-trace-archive-20261109/stage4-independent-20-stage3-mix50-landing-baseline/held-out-a-seed-20270306-trace.tsv.gz",
+      "sha256": "9febeeef2bfc1d2046eff324ef962d0bfc183a9b28f40060aafd2d2942097ba0",
+      "bytes": 1831450,
+      "completed_result": "artifacts/crow-four-expert-eval-20261109/stage4-independent-20-stage3-mix50-landing-baseline/held-out-a-seed-20270306/results.json"
+    },
+    {
+      "raw_path": "build/crow-four-expert-eval-20261109/stage4-independent-20-stage3-mix50-landing-baseline/held-out-b-seed-20270307-trace.tsv",
+      "archive_path": "artifacts/crow-four-expert-trace-archive-20261109/stage4-independent-20-stage3-mix50-landing-baseline/held-out-b-seed-20270307-trace.tsv.gz",
+      "sha256": "0c49f29ddee7c632c35b5176da98b13cb258fdb4f720a374a864a864f8143ee7",
+      "bytes": 1818308,
+      "completed_result": "artifacts/crow-four-expert-eval-20261109/stage4-independent-20-stage3-mix50-landing-baseline/held-out-b-seed-20270307/results.json"
+    },
+    {
+      "raw_path": "build/crow-four-expert-eval-20261109/stage4-independent-20-stage3-mix50-landing-baseline/reserved-final-c-seed-20860117-trace.tsv",
+      "archive_path": "artifacts/crow-four-expert-trace-archive-20261109/stage4-independent-20-stage3-mix50-landing-baseline/reserved-final-c-seed-20860117-trace.tsv.gz",
+      "sha256": "2465630f279819f891978a8735ecaf205410a6ac3ce31576f181f958072d299b",
+      "bytes": 1827087,
+      "completed_result": "artifacts/crow-four-expert-eval-20261109/stage4-independent-20-stage3-mix50-landing-baseline/reserved-final-c-seed-20860117/results.json"
+    },
+    {
+      "raw_path": "build/crow-four-expert-eval-20261109/stage4-independent-20-stage3-mix50-landing-baseline/reserved-final-d-seed-20860118-trace.tsv",
+      "archive_path": "artifacts/crow-four-expert-trace-archive-20261109/stage4-independent-20-stage3-mix50-landing-baseline/reserved-final-d-seed-20860118-trace.tsv.gz",
+      "sha256": "64827e1c29e2d03cecabd110149b73f4443db19de028af2f3c6b7415a27fdb97",
+      "bytes": 1831371,
+      "completed_result": "artifacts/crow-four-expert-eval-20261109/stage4-independent-20-stage3-mix50-landing-baseline/reserved-final-d-seed-20860118/results.json"
+    },
+    {
+      "raw_path": "build/crow-four-expert-eval-20261109/stage4-independent-20-stage3-mix50-landing-baseline/reserved-final-e-seed-20270403-trace.tsv",
+      "archive_path": "artifacts/crow-four-expert-trace-archive-20261109/stage4-independent-20-stage3-mix50-landing-baseline/reserved-final-e-seed-20270403-trace.tsv.gz",
+      "sha256": "86dae9b6b63d8b4ef545b6fef370ce07e5b52a7ae5119bdd319a860958a6a9a3",
+      "bytes": 1824603,
+      "completed_result": "artifacts/crow-four-expert-eval-20261109/stage4-independent-20-stage3-mix50-landing-baseline/reserved-final-e-seed-20270403/results.json"
+    },
+    {
+      "raw_path": "build/crow-four-expert-eval-20261109/stage4-independent-20-stage3-mix50-landing-baseline/reserved-final-e-seed-3212483193-trace.tsv",
+      "archive_path": "artifacts/crow-four-expert-trace-archive-20261109/stage4-independent-20-stage3-mix50-landing-baseline/reserved-final-e-seed-3212483193-trace.tsv.gz",
+      "sha256": "dc0b6d1e28078e3d93fe17e6d5e3fca9242e0b774b0bb00eb792e0c7625b0835",
+      "bytes": 1832590,
+      "completed_result": "artifacts/crow-four-expert-eval-20261109/stage4-independent-20-stage3-mix50-landing-baseline/reserved-final-e-seed-3212483193/results.json"
+    },
+    {
+      "raw_path": "build/crow-four-expert-eval-20261109/stage4-independent-20-stage3-mix50-landing-baseline/reserved-final-f-seed-20270404-trace.tsv",
+      "archive_path": "artifacts/crow-four-expert-trace-archive-20261109/stage4-independent-20-stage3-mix50-landing-baseline/reserved-final-f-seed-20270404-trace.tsv.gz",
+      "sha256": "2a8ab62ecfa0dba9a963cbd51baf8b0a1245740f2a36b1b79160a6ba8c4989f2",
+      "bytes": 1818425,
+      "completed_result": "artifacts/crow-four-expert-eval-20261109/stage4-independent-20-stage3-mix50-landing-baseline/reserved-final-f-seed-20270404/results.json"
+    },
+    {
+      "raw_path": "build/crow-four-expert-eval-20261109/stage4-independent-20-stage3-mix50-landing-baseline/reserved-final-f-seed-3614144078-trace.tsv",
+      "archive_path": "artifacts/crow-four-expert-trace-archive-20261109/stage4-independent-20-stage3-mix50-landing-baseline/reserved-final-f-seed-3614144078-trace.tsv.gz",
+      "sha256": "ec105b8ec9a3e1d25eeded192efc39bcd350c7f14443be8321410a1b86035355",
+      "bytes": 1827312,
+      "completed_result": "artifacts/crow-four-expert-eval-20261109/stage4-independent-20-stage3-mix50-landing-baseline/reserved-final-f-seed-3614144078/results.json"
+    },
+    {
+      "raw_path": "build/crow-four-expert-eval-20261109/stage4-independent-20-stage3-mix50-landing-baseline/training-seed-20270305-trace.tsv",
+      "archive_path": "artifacts/crow-four-expert-trace-archive-20261109/stage4-independent-20-stage3-mix50-landing-baseline/training-seed-20270305-trace.tsv.gz",
+      "sha256": "f57c3e5cb15a7bb07cf93fe8f51cb3b0f8ad171bcc7441c934e374d770ed53f2",
+      "bytes": 1823107,
+      "completed_result": "artifacts/crow-four-expert-eval-20261109/stage4-independent-20-stage3-mix50-landing-baseline/training-seed-20270305/results.json"
+    },
+    {
+      "raw_path": "build/crow-four-expert-eval-20261109/stage4-independent-20-stage3-mix75-landing-baseline/reserved-final-e-seed-20270403-trace.tsv",
+      "archive_path": "artifacts/crow-four-expert-trace-archive-20261109/stage4-independent-20-stage3-mix75-landing-baseline/reserved-final-e-seed-20270403-trace.tsv.gz",
+      "sha256": "28b06086ec6f468157ac17abd222c5a43fb3544a63b5307a99655f9be3e838a0",
+      "bytes": 1825112,
+      "completed_result": "artifacts/crow-four-expert-eval-20261109/stage4-independent-20-stage3-mix75-landing-baseline/reserved-final-e-seed-20270403/results.json"
+    },
+    {
+      "raw_path": "build/crow-four-expert-eval-20261109/stage4-independent-40-landing-160/held-out-a-trace.tsv",
+      "archive_path": "artifacts/crow-four-expert-trace-archive-20261109/stage4-independent-40-landing-160/held-out-a-trace.tsv.gz",
+      "sha256": "1596984bd35ab325213372adbb1b1d6c698783607ec88a1ae1702b7793628c93",
+      "bytes": 1834899,
+      "completed_result": "artifacts/crow-four-expert-eval-20261109/stage4-independent-40-landing-160/held-out-a/results.json"
+    },
+    {
+      "raw_path": "build/crow-four-expert-eval-20261109/stage4-independent-40-landing-20/held-out-a-trace.tsv",
+      "archive_path": "artifacts/crow-four-expert-trace-archive-20261109/stage4-independent-40-landing-20/held-out-a-trace.tsv.gz",
+      "sha256": "0150eb8185ece854e35349249fe75de1a9c719a129f860eedcef1e22ce5bf695",
+      "bytes": 1834111,
+      "completed_result": "artifacts/crow-four-expert-eval-20261109/stage4-independent-40-landing-20/held-out-a/results.json"
+    },
+    {
+      "raw_path": "build/crow-four-expert-eval-20261109/stage4-independent-40-landing-40/held-out-a-trace.tsv",
+      "archive_path": "artifacts/crow-four-expert-trace-archive-20261109/stage4-independent-40-landing-40/held-out-a-trace.tsv.gz",
+      "sha256": "51ca52933770a941bef20e76c434e40e7d2b1333c52acc525e910aee6b1dd24b",
+      "bytes": 1831358,
+      "completed_result": "artifacts/crow-four-expert-eval-20261109/stage4-independent-40-landing-40/held-out-a/results.json"
+    },
+    {
+      "raw_path": "build/crow-four-expert-eval-20261109/stage4-independent-40-landing-80/held-out-a-trace.tsv",
+      "archive_path": "artifacts/crow-four-expert-trace-archive-20261109/stage4-independent-40-landing-80/held-out-a-trace.tsv.gz",
+      "sha256": "bbc10ec71fa0e60e4a4e412c03fabc203bc3b87d512fdd495b0af4dddb100670",
+      "bytes": 1832126,
+      "completed_result": "artifacts/crow-four-expert-eval-20261109/stage4-independent-40-landing-80/held-out-a/results.json"
+    },
+    {
+      "raw_path": "build/crow-four-expert-eval-20261109/stage4-independent-40-landing-baseline/held-out-a-trace.tsv",
+      "archive_path": "artifacts/crow-four-expert-trace-archive-20261109/stage4-independent-40-landing-baseline/held-out-a-trace.tsv.gz",
+      "sha256": "f814e41920e771ba7733c63aee802526320d2608015b048531bddd69b42ad498",
+      "bytes": 1824237,
+      "completed_result": "artifacts/crow-four-expert-eval-20261109/stage4-independent-40-landing-baseline/held-out-a/results.json"
+    },
+    {
+      "raw_path": "build/crow-four-expert-eval-20261109/stage4-independent-40-landing-baseline/held-out-b-trace.tsv",
+      "archive_path": "artifacts/crow-four-expert-trace-archive-20261109/stage4-independent-40-landing-baseline/held-out-b-trace.tsv.gz",
+      "sha256": "13e3236ad3ff6ab5ff7c2bf19bb6a4a8bb36a925cba7ce535cde2b8dcfddca01",
+      "bytes": 1820245,
+      "completed_result": "artifacts/crow-four-expert-eval-20261109/stage4-independent-40-landing-baseline/held-out-b/results.json"
+    },
+    {
+      "raw_path": "build/crow-four-expert-eval-20261109/stage4-independent-40-landing-baseline/reserved-final-c-trace.tsv",
+      "archive_path": "artifacts/crow-four-expert-trace-archive-20261109/stage4-independent-40-landing-baseline/reserved-final-c-trace.tsv.gz",
+      "sha256": "f011be36f13c83b3b7aa5bc1e6bca821ffc4b2e3839f313b86ebc966f42160e4",
+      "bytes": 1831486,
+      "completed_result": "artifacts/crow-four-expert-eval-20261109/stage4-independent-40-landing-baseline/reserved-final-c/results.json"
+    },
+    {
+      "raw_path": "build/crow-four-expert-eval-20261109/stage4-independent-40-landing-baseline/reserved-final-d-trace.tsv",
+      "archive_path": "artifacts/crow-four-expert-trace-archive-20261109/stage4-independent-40-landing-baseline/reserved-final-d-trace.tsv.gz",
+      "sha256": "ecf1ddc2af50269e15a692501cdd62a4855f0f442e11bfff716d009230f81075",
+      "bytes": 1828307,
+      "completed_result": "artifacts/crow-four-expert-eval-20261109/stage4-independent-40-landing-baseline/reserved-final-d/results.json"
+    },
+    {
+      "raw_path": "build/crow-four-expert-eval-20261109/stage4-independent-40-landing-baseline/reserved-final-e-seed-3212483193-trace.tsv",
+      "archive_path": "artifacts/crow-four-expert-trace-archive-20261109/stage4-independent-40-landing-baseline/reserved-final-e-seed-3212483193-trace.tsv.gz",
+      "sha256": "d4269592fbf045ad6bf42c5c88f4ad88c63b4825e268237bf73ec56047a53e74",
+      "bytes": 1832595,
+      "completed_result": "artifacts/crow-four-expert-eval-20261109/stage4-independent-40-landing-baseline/reserved-final-e-seed-3212483193/results.json"
+    },
+    {
+      "raw_path": "build/crow-four-expert-eval-20261109/stage4-independent-40-landing-baseline/reserved-final-e-trace.tsv",
+      "archive_path": "artifacts/crow-four-expert-trace-archive-20261109/stage4-independent-40-landing-baseline/reserved-final-e-trace.tsv.gz",
+      "sha256": "124bc0df733ff0a2a51898c89ec0523bb77b154ec62317eb2d03ad800d065bee",
+      "bytes": 1811985,
+      "completed_result": "artifacts/crow-four-expert-eval-20261109/stage4-independent-40-landing-baseline/reserved-final-e/results.json"
+    },
+    {
+      "raw_path": "build/crow-four-expert-eval-20261109/stage4-independent-40-landing-baseline/reserved-final-f-seed-3614144078-trace.tsv",
+      "archive_path": "artifacts/crow-four-expert-trace-archive-20261109/stage4-independent-40-landing-baseline/reserved-final-f-seed-3614144078-trace.tsv.gz",
+      "sha256": "a816f196cf694d3535fc55523077c92a8a51491202d2eec5419d38c2a7e2cd9b",
+      "bytes": 1828519,
+      "completed_result": "artifacts/crow-four-expert-eval-20261109/stage4-independent-40-landing-baseline/reserved-final-f-seed-3614144078/results.json"
+    },
+    {
+      "raw_path": "build/crow-four-expert-eval-20261109/stage4-independent-40-landing-baseline/reserved-final-f-trace.tsv",
+      "archive_path": "artifacts/crow-four-expert-trace-archive-20261109/stage4-independent-40-landing-baseline/reserved-final-f-trace.tsv.gz",
+      "sha256": "ee4977abf28ef5227b23a86480957d0a57e5177a76ea9378db58073e25049481",
+      "bytes": 1816005,
+      "completed_result": "artifacts/crow-four-expert-eval-20261109/stage4-independent-40-landing-baseline/reserved-final-f/results.json"
+    },
+    {
+      "raw_path": "build/crow-four-expert-eval-20261109/stage4-independent-40-landing-baseline/training-trace.tsv",
+      "archive_path": "artifacts/crow-four-expert-trace-archive-20261109/stage4-independent-40-landing-baseline/training-trace.tsv.gz",
+      "sha256": "75090a850f02797cbca3ed1d0d4ff095df66cf557cffa3660f8dfc317ca229b6",
+      "bytes": 1821353,
+      "completed_result": "artifacts/crow-four-expert-eval-20261109/stage4-independent-40-landing-baseline/training/results.json"
+    },
+    {
+      "raw_path": "build/crow-four-expert-eval-20261109/stage4-independent-80-landing-baseline/reserved-final-e-trace.tsv",
+      "archive_path": "artifacts/crow-four-expert-trace-archive-20261109/stage4-independent-80-landing-baseline/reserved-final-e-trace.tsv.gz",
+      "sha256": "0c63533b2dbe4f0d7b828969dfdde3b8bd8ce03343b1c39615d702204f8392fc",
+      "bytes": 1833483,
+      "completed_result": "artifacts/crow-four-expert-eval-20261109/stage4-independent-80-landing-baseline/reserved-final-e/results.json"
+    },
+    {
+      "raw_path": "build/crow-four-expert-eval-20261109/stage4-independent-80-landing-baseline/reserved-final-f-trace.tsv",
+      "archive_path": "artifacts/crow-four-expert-trace-archive-20261109/stage4-independent-80-landing-baseline/reserved-final-f-trace.tsv.gz",
+      "sha256": "9193006f82cc81515e047fb262975f998330a09cfb8a08d82e52a6fefc745fff",
+      "bytes": 1827639,
+      "completed_result": "artifacts/crow-four-expert-eval-20261109/stage4-independent-80-landing-baseline/reserved-final-f/results.json"
+    }
+  ],
+  "scope": "single-lane diagnostic traces; entries without completed_result are incomplete stopped diagnostics"
+}

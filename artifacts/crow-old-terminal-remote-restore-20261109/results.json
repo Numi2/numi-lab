@@ -1,0 +1,79 @@
+{
+  "remote_revision": "51cdc203",
+  "rows": [
+    {
+      "path": "artifacts/crow-goal-memory-demonstrations-20261109/training/rollout.bin.gz",
+      "raw_sha256": "4e8108c2361403f255ffea07c7aa0cf007383cab97c6055928075a938abe0c2b",
+      "raw_bytes": 95424956,
+      "removed_raw_copy": "build/crow-goal-memory-demonstrations-20261109/training.rollout"
+    },
+    {
+      "path": "artifacts/crow-goal-memory-demonstrations-20261109/held-out-a/rollout.bin.gz",
+      "raw_sha256": "34a660de65e49be7095b0f449a49e0d76fb9e9104e4e3ba7f71f528d509811ed",
+      "raw_bytes": 95424956,
+      "removed_raw_copy": "build/crow-goal-memory-demonstrations-20261109/held-out-a.rollout"
+    },
+    {
+      "path": "artifacts/crow-goal-memory-demonstrations-20261109/held-out-b/rollout.bin.gz",
+      "raw_sha256": "7243ae6e75f55138f644247b01e4eef0e4c73f3d75c3cc4f2449247c8f0a4801",
+      "raw_bytes": 95424956,
+      "removed_raw_copy": "build/crow-goal-memory-demonstrations-20261109/held-out-b.rollout"
+    },
+    {
+      "path": "artifacts/crow-goal-memory-terminal-dagger-20261109/training/rollout.bin.gz",
+      "raw_sha256": "3bc3f63975a4ada0c35017e0028351390c26513ea24111db2b7c21db4e0c8b6a",
+      "raw_bytes": 47712940,
+      "removed_raw_copy": "build/crow-goal-memory-terminal-dagger-20261109/training.rollout"
+    },
+    {
+      "path": "artifacts/crow-goal-memory-terminal-dagger-20261109/held-out-a/rollout.bin.gz",
+      "raw_sha256": "f1eb969563d46a963cdbc2c9809244112c2ee80dd81a04178da6dc5f4247887d",
+      "raw_bytes": 47712940,
+      "removed_raw_copy": "build/crow-goal-memory-terminal-dagger-20261109/held-out-a.rollout"
+    },
+    {
+      "path": "artifacts/crow-goal-memory-terminal-dagger-20261109/held-out-b/rollout.bin.gz",
+      "raw_sha256": "1d3ea404db22342d79b57c5a58618f491ec2969d59e80843aa98b65c2d455e84",
+      "raw_bytes": 47712940,
+      "removed_raw_copy": "build/crow-goal-memory-terminal-dagger-20261109/held-out-b.rollout"
+    },
+    {
+      "path": "artifacts/crow-deterministic-terminal-dagger-20261109/training/rollout.bin.gz",
+      "raw_sha256": "f736559bda71384e25028406b10b61d34153f849e1c9469946e4099263fd2931",
+      "raw_bytes": 95424956,
+      "removed_raw_copy": "build/crow-deterministic-terminal-dagger-20261109/training.rollout"
+    },
+    {
+      "path": "artifacts/crow-deterministic-terminal-dagger-20261109/held-out-a/rollout.bin.gz",
+      "raw_sha256": "34826d648b73c8069fa42f323b63e8fa5f3952594232c08ead99e34c3eab1f58",
+      "raw_bytes": 95424956,
+      "removed_raw_copy": "build/crow-deterministic-terminal-dagger-20261109/held-out-a.rollout"
+    },
+    {
+      "path": "artifacts/crow-deterministic-terminal-dagger-20261109/held-out-b/rollout.bin.gz",
+      "raw_sha256": "2c578bac03058e50439175f1f34a84668ada860cdee37191e434c330a7907bca",
+      "raw_bytes": 95424956,
+      "removed_raw_copy": "build/crow-deterministic-terminal-dagger-20261109/held-out-b.rollout"
+    },
+    {
+      "path": "artifacts/crow-full-student-dagger-20261109/training/rollout.bin.gz",
+      "raw_sha256": "973561e68a438ce7a44bb30c56b526f60fb84a06dcfdf518678528175112c2b9",
+      "raw_bytes": 95424956,
+      "removed_raw_copy": "build/crow-full-student-dagger-20261109/training.rollout"
+    },
+    {
+      "path": "artifacts/crow-full-student-dagger-20261109/held-out-a/rollout.bin.gz",
+      "raw_sha256": "1a07f47208ed1b26f338facd0b71f640ec381af9fb8e539078c7e81ae912df28",
+      "raw_bytes": 95424956,
+      "removed_raw_copy": "build/crow-full-student-dagger-20261109/held-out-a.rollout"
+    },
+    {
+      "path": "artifacts/crow-full-student-dagger-20261109/held-out-b/rollout.bin.gz",
+      "raw_sha256": "c218cbcd037a8fce793e635076931bef80a0ff78a81b64c5b39346d887619953",
+      "raw_bytes": 95424956,
+      "removed_raw_copy": "build/crow-full-student-dagger-20261109/held-out-b.rollout"
+    }
+  ],
+  "retired_bytes": 1001963424,
+  "method": "independent GitHub HTTPS decompression, SHA-256 and open-handle check before deletion"
+}
