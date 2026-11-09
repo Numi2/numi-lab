@@ -1,0 +1,9 @@
+{
+  "commit": "5729da1d8",
+  "git_blob": "022cf83a8495e6148eafca30ccff3b5361cf39c1",
+  "remote_download_and_restore_verified": true,
+  "archive_sha256": "182e40f6c46988987eabd0b5632ac3b9312a6109ac692e054bed7d70853d87ec",
+  "restored_sha256": "f71ee714e85c40987f25665e16f59f5f5b8a793ac7d4e3646f09ae8ffe1433a4",
+  "restored_bytes": 24700266,
+  "archive_path": "be-first-failure-001.log.gz"
+}
