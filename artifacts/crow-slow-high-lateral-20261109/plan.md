@@ -1,0 +1,5 @@
+# Combined slow high-altitude lateral flight
+
+Before using combined low-speed and high-altitude commands around obstacles, test the unchanged frozen flight controller. Use 80 lanes with the same eight disturbed ground starts, development seed 20261126, 1600 control steps, four substeps, teacher off and course collisions disabled. All groups command 0.15 m/s forward and fixed world heading zero. Five groups by lane modulo five: lateral +0.30 or -0.30 m/s at height 1.15 m; lateral +0.30 or -0.30 at height 1.30 m; and zero lateral at height 1.15 m. Cross each group with all eight perturbations. Commands start after 6 s, with height 0.85 m before then.
+
+Each 16-lane group passes only with zero physical failures and zero failed simulator steps, all first episodes reaching the horizon, and every sample at 20–30 s every 2 s satisfying heading error <=0.15 rad, lateral-speed error <=0.12 m/s, forward-speed error <=0.15 m/s, and height error <=0.15 m. Record each lane, including any failures. Passing establishes a sampled flight envelope only, not clearance or stopping; no final layouts/seeds are used.
