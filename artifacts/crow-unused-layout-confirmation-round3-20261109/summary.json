@@ -1,0 +1,36 @@
+{
+  "preregistered_gate_met": true,
+  "rows": [
+    {
+      "layout": "reserved-final-g",
+      "seed": 1014083284,
+      "supported_finishes": 15,
+      "waypoint_completions": 16,
+      "physical_failures": 0,
+      "failed_environment_steps": 0,
+      "minimum_sampled_clearance_m": 0.0297450082385,
+      "elapsed_seconds": 18.142973834,
+      "environment_control_steps_per_second": 2645.6522750447793,
+      "trace_sha256": "dea8e16c4a9096d9bfb585f5bd9b461243a18e14057e4de260663a71d67ae46e",
+      "trace_bytes": 1834470
+    },
+    {
+      "layout": "reserved-final-h",
+      "seed": 2099253799,
+      "supported_finishes": 16,
+      "waypoint_completions": 16,
+      "physical_failures": 0,
+      "failed_environment_steps": 0,
+      "minimum_sampled_clearance_m": 0.0669286880801,
+      "elapsed_seconds": 17.967619792,
+      "environment_control_steps_per_second": 2671.472379517502,
+      "trace_sha256": "675c2a64d59bac293c297f712446997b9b560dc077cf79e8d816a6eec96098ba",
+      "trace_bytes": 1834423
+    }
+  ],
+  "scope": "Continuous first episodes on current v15 simulated body, teacher off, no scheduled resets; 25 consecutive terminal supported foot-only contacts and low velocity; obstacle clearance only at accepted control-step endpoints and excludes perch. Goals include simulator-issued coordinates, so this is not pure visual navigation or biological validation.",
+  "failure": "G lane 13 reached all waypoints but had zero qualifying terminal support steps at step 3000; last sampled position [4.97834969, 0.742425561, 1.14081979] m and velocity [-0.160551116, 0.00191996899, -0.0487723649] m/s, with no physical termination.",
+  "flight_law_sha256": "aa2fe10901cb0494d80ae445902303a17ce0e73d030072bab09461d8f3593ebe",
+  "qualification": "frozen v15 flight law; see artifacts/crow-frozen-flight-law-20261109",
+  "performance_scope": "observer-enabled 16-lane end-to-end runs on macmini; environment control steps per second includes sensor, physics, policy, and observer cost; not a cross-hardware comparison"
+}

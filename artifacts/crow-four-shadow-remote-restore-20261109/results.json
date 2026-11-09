@@ -1,0 +1,8 @@
+{
+  "remote_revision": "b52f9147",
+  "path": "artifacts/crow-four-expert-native-integration-20261109/shadow.rollout.gz",
+  "raw_sha256": "72e7d93a656b40928222cf40bddeb3a9be3f6b201ddebc50bea8e0f0da04dbc7",
+  "raw_bytes": 31808940,
+  "removed_raw_copy": "build/crow-four-expert-native-integration-20261109/shadow.rollout",
+  "method": "independent GitHub HTTPS decompression, hash and open-handle check before deletion"
+}
