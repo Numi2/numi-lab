@@ -1,0 +1,38 @@
+{
+  "status": "preregistered before executing either layout",
+  "layout_authoring_commit": "51cdc203",
+  "layouts": {
+    "reserved-final-i": 4038889268,
+    "reserved-final-j": 3193706597
+  },
+  "seed_check": "independently generated uniform 32-bit positive seeds; git grep across tracked text found neither prior to registration",
+  "prior_revision": "d3d3638d1c8dbcbf9eea58c1cb388f63d474c5da",
+  "bound_sha256": {
+    "src/metal/CrowFlightControllerV1.metal": "aa2fe10901cb0494d80ae445902303a17ce0e73d030072bab09461d8f3593ebe",
+    "src/metal/LocomotionTask.metal": "9a751bdb9acfb98842d63381772c5a26583cea31f46387fcb70ade49a7ce3efd",
+    "src/c_api.cpp": "d0fc9eb78e0ab290002c869f4fc37363ea52710d87f7781570399584476ec8ed",
+    "src/core/TaskProgram.cpp": "a72f798f0e24d13d29a279bd87d5f983e99ea115b7e3953c5415694e2950b426",
+    "include/metalrobo/task_program_types.h": "8e5c954cda64047447729a23c696d2151e3aa1cfa0c4dff292656c65e34e0172",
+    "include/metalrobo/c_api.h": "a640b6e7c8393f44311899dc587d8b51b495fc329b5fa6f32f22d6bd0bf45500",
+    "apps/task_rollout.swift": "f5320a1d4507104c9e3bdbf6d33f903b6ec323b993c401c46d1f134371b7d1ce",
+    "apps/task_train.swift": "372a6ed33c078069a8633016096ebeb98c85ba6ebbba61ff960be781b95f2434",
+    "bindings/swift/MetalRoboTaskRollout.swift": "18d07b5c2ac0083de667defc6dc6e441a1b9f42a86d8d0386688ebeb39829e79",
+    "assets/crow_navigation_course/crow-navigation.active-head.visual-observation.json": "d19ff0f9d360b4ffc84bac6a5f3d2be048234b6c03097af7d43fe5f85b316f8f",
+    "build/bin/metalrobo_task_rollout": "5ee04a98f25f7149701bc21ede235428876e535f843366e78dea16fce6035d1d",
+    "build/lib/libmetalrobo.dylib": "97e275ebfb15c73e5d411681e1909c2ed110c6ccccc37a14ecd0360dec39094e",
+    "build/shaders/MetalRobo.metallib": "69023c5dcd83c3a10bdc62a5a14d3a9c56d75797de36c95ed090b0f41ef9e135",
+    "build/crow-conditional-native-observer-20261109/libmetalrobo.dylib": "6d671dca1dfaf25f29bbad304da20decaa89302d9e665c10d092ee60cb73e067",
+    "build/crow-conditional-landing-native-20261109/route.policypack": "cf52b0b26c3ac4efc2c8f248c974a433d827a8f51a3b9decfcdf8450555eecf9",
+    "build/crow-conditional-landing-native-20261109/landing.policypack": "8f42144661f68be5e85734bcbf3445753def8d3326441e1b322f0774277991b4",
+    "artifacts/crow-conditional-landing-native-20261109/selection.json": "cad137f556c7a1de3656e3740d2740c93aa50f3b352d54c9684661d3e5543500",
+    "artifacts/crow-conditional-landing-native-20261109/contract.json": "358a58468bd1644d947d44f16c7d793fa94875372a320c937de8a1adb777fafd",
+    "artifacts/crow-unused-layout-confirmation-round4-20261109/run.py": "8836783d905fa5c54b9d87b91c5c50fd742a4044ab2ec74403828ac4d9ea41e7",
+    "artifacts/crow-unused-layout-confirmation-round4-20261109/register.py": "50bd5a13a14fbf54b40f0b60767587e71b915b7d4951fc335e01425a0a19c59d"
+  },
+  "controls": "16 full starts per layout, teacher off, first episodes only, no scheduled or intermediate resets; 3000 control steps; native v15 body and frozen flight law",
+  "success": "all five waypoints in order and at least 25 terminal accepted steps of foot-only support with positive upward impulse and low velocity; no physical failure and no simulator failure",
+  "prediction": "all 16 supported finishes out of 16 on each layout",
+  "failure_reporting": "every attempted lane, first fatal contact or last sampled state if stalled, and exact box distance sampled at each accepted 20 ms control-step endpoint; perch excluded from obstacle clearance",
+  "development_results": "see separately committed round-four selection report; known failures are retained",
+  "caveat": "two unused nominal layouts and one unused seed per layout provide bounded generalization evidence, not universal reliability; policy receives simulator-issued goal coordinates alongside visual and proprioceptive observations"
+}
