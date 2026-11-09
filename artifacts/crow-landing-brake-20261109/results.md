@@ -1,0 +1,3 @@
+# Landing-brake adapter exploration
+
+No group met the preregistered <=0.10 m/s speed-reference error screen: the median lane-maximum error was about 0.107–0.114 m/s. There were no physical failures or failed simulator steps. The -0.10 m/s internal reference nevertheless yielded approximately +0.008 m/s median true forward velocity over 20–30 s, with sampled world-X velocity -0.003 to +0.026 m/s across those lanes. This is an observed calibration offset, not a pass against the original reference-tracking prediction. A new independent hover screen can test the calibrated reference against an actual zero-speed target. It remains obstacle-free flight and does not establish contact or landing.
