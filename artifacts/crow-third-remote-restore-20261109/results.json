@@ -1,0 +1,43 @@
+{
+  "remote_revision": "ce997292d1d8faf8d2f9b4807dd0e54ef956252a",
+  "method": "independent GitHub HTTPS decompression and SHA-256, local hash and open-handle check before deletion",
+  "rows": [
+    {
+      "path": "artifacts/crow-third-dagger-20261109/early/layout-e/rollout.bin.gz",
+      "raw_bytes": 190848988,
+      "raw_sha256": "26f6d2dfd1f4322c7df7a8818863bd6c1422a551ae9ada071b6fd9fb647c1b94",
+      "removed_raw_copy": "build/crow-third-dagger-20261109/early/layout-e.rollout"
+    },
+    {
+      "path": "artifacts/crow-third-dagger-20261109/early/layout-f/rollout.bin.gz",
+      "raw_bytes": 190848988,
+      "raw_sha256": "787d04063a897d064f70e3aa88e2a9ca24f1676a78b9e1eaaf219a8cb22b2872",
+      "removed_raw_copy": "build/crow-third-dagger-20261109/early/layout-f.rollout"
+    },
+    {
+      "path": "artifacts/crow-third-dagger-20261109/late/layout-e/rollout.bin.gz",
+      "raw_bytes": 190848988,
+      "raw_sha256": "2a263964daf05a6deee5524cbe546642d594ed8a02616d750b82e26cce992d49",
+      "removed_raw_copy": "build/crow-third-dagger-20261109/late/layout-e.rollout"
+    },
+    {
+      "path": "artifacts/crow-third-dagger-20261109/late/layout-f/rollout.bin.gz",
+      "raw_bytes": 190848988,
+      "raw_sha256": "17a2d646394c30f9e14edf4408263b1756838f5fab560528e61eb7d4b6e3cf7f",
+      "removed_raw_copy": "build/crow-third-dagger-20261109/late/layout-f.rollout"
+    },
+    {
+      "path": "artifacts/crow-third-dagger-20261109/terminal/layout-e/rollout.bin.gz",
+      "raw_bytes": 190848988,
+      "raw_sha256": "9e7c961796651944e03f4fd120c7e9b7f4aea6b46a52245560743350aa4dec4f",
+      "removed_raw_copy": "build/crow-third-dagger-20261109/terminal/layout-e.rollout"
+    },
+    {
+      "path": "artifacts/crow-third-dagger-20261109/terminal/layout-f/rollout.bin.gz",
+      "raw_bytes": 190848988,
+      "raw_sha256": "7c5d1544e2292debd5c0615cb4b89d3c8446a02a9afab395a63373446d485ce9",
+      "removed_raw_copy": "build/crow-third-dagger-20261109/terminal/layout-f.rollout"
+    }
+  ],
+  "total_retired_bytes": 1145093928
+}
