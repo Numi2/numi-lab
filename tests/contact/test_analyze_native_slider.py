@@ -63,6 +63,10 @@ with tempfile.NamedTemporaryFile(mode='w',suffix='.json') as f:
   code,out=run();assert code!=0,(field,out);d['steps'][100][field]=old
  old=d['steps'][100]['fem_work_nodes'][0][1];d['steps'][100]['fem_work_nodes'][0][1]+=1e-5
  code,out=run();assert code!=0,('corrupt node',out);d['steps'][100]['fem_work_nodes'][0][1]=old
+ for field,check in (('q','slider_position'),('v','slider_velocity')):
+  old=d['steps'][-1][field];d['steps'][-1][field]=old+.01
+  code,out=run();assert code!=0 and not out['checks'][check],(field,out)
+  d['steps'][-1][field]=old
  # At a zero-velocity node pair, opposing bad impulses cancel in total
  # and perform no work, but must still fail the direct per-node law check.
  nodes=d['steps'][100]['fem_work_nodes']

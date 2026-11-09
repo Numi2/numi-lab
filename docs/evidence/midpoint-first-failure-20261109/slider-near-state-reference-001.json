@@ -1,0 +1,23 @@
+{
+  "inputs_sha256": {
+    "slider-near-rk4-h025.json": "4a2f3424950e60e4aa25fe67c3acb1c964e3798d379961cb841f0b91b9fb933b",
+    "slider-near-rk4-h050.json": "276e738eda2d3f968884f20c6e1060dc2558b6abea4c5b74ca4cde8bb7fa96ad"
+  },
+  "passes": true,
+  "schema": "numi.slider-near-state-reference.v1",
+  "scope": "Independent FP64 endpoint temporal refinement only; no native rollout qualification.",
+  "state": {
+    "position": {
+      "absolute_error": 2.5326962749261384e-16,
+      "normalization": 0.0003800872200752642,
+      "passes": true,
+      "relative_error": 6.663460756256468e-13
+    },
+    "velocity": {
+      "absolute_error": 1.0702549957386509e-13,
+      "normalization": 0.08823505694742481,
+      "passes": true,
+      "relative_error": 1.2129589221848254e-12
+    }
+  }
+}

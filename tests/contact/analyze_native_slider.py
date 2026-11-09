@@ -16,6 +16,15 @@ elif abs(gap-.0002)<1e-12:
  q=json.loads(qualification.read_text());reference_ok=q['passes']
 else:raise SystemExit('unregistered initial gap')
 r=json.loads(refpath.read_text());steps=d['steps'];h=d['h'];duration=.01
+if abs(gap-.000095)<1e-12:
+ state_qualification=json.loads((evidence/'slider-near-state-reference-001.json').read_text())
+ if set(state_qualification['inputs_sha256'])!={'slider-near-rk4-h050.json','slider-near-rk4-h025.json'}:
+  raise SystemExit('near-contact state reference inputs missing')
+ for name,expected in state_qualification['inputs_sha256'].items():
+  if hashlib.sha256((evidence/name).read_bytes()).hexdigest()!=expected:
+   raise SystemExit('near-contact state reference changed')
+ if not state_qualification['passes']:
+  raise SystemExit('near-contact state reference is not time-qualified')
 work_label='near' if abs(gap-.000095)<1e-12 else 'primary'
 work_path=evidence/('slider-work-history-002-'+work_label+'-h025.json')
 work_qualification=evidence/'slider-work-history-reference-002-analysis.json'
@@ -106,8 +115,8 @@ results={'reference_qualification_passed':reference_ok,'work_history_comparison'
  'maximum_fem_work_reconstruction_gate_ratio':fem_work_ratio,
  'max_independent_joint_residual_Ns':max(s['independent_joint_residual_Ns'] for s in steps),
  'physical_residual_limit_Ns':d['physical_residual_limit_Ns'],
- 'slider_position_relative_error':rel(steps[-1]['q'],r['slider_final_z_m']),
- 'slider_velocity_relative_error':rel(steps[-1]['v'],r['slider_final_v_mps']),
+ 'slider_position_relative_error':abs(steps[-1]['q']-r['slider_final_z_m'])/max(abs(r['slider_final_z_m']),1e-8),
+ 'slider_velocity_relative_error':abs(steps[-1]['v']-r['slider_final_v_mps'])/max(abs(r['slider_final_v_mps']),1e-6),
  'fem_work_absolute_error_J':abs(sum(s['fem_contact_work'] for s in steps)-r['fem_contact_work_J']),
  'slider_work_absolute_error_J':abs(sum(s['owner_contact_work'] for s in steps)-r['slider_contact_work_J']),
  'pair_work_absolute_error_J':abs(sum(s['owner_contact_work']+s['fem_contact_work'] for s in steps)-r['relative_contact_work_J']),
@@ -125,9 +134,8 @@ checks={'force_bin':force_error<=.0025,'sampled_peak':peak_error<=.01,'total_imp
  'slider_work_history':work_results['slider']['maximum_normalized_error']<=.01,
  'relative_work_history':work_results['relative']['maximum_normalized_error']<=.01,
  'independent_residual':results['max_independent_joint_residual_Ns']<=results['physical_residual_limit_Ns']}
-if abs(gap-.0002)<1e-12:
- checks['slider_position']=results['slider_position_relative_error']<=.0025
- checks['slider_velocity']=results['slider_velocity_relative_error']<=.0025
+checks['slider_position']=results['slider_position_relative_error']<=.0025
+checks['slider_velocity']=results['slider_velocity_relative_error']<=.0025
 out={'schema':'numi.native-slider-gates.v1','input_sha256':hashlib.sha256(path.read_bytes()).hexdigest(),
  'reference':refpath.name,'reference_sha256':hashlib.sha256(refpath.read_bytes()).hexdigest(),
  'qualification':qualification.name,'work_reference':work_path.name,

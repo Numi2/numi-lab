@@ -34,3 +34,12 @@ impulse/work check, as recorded in
 the independent rigid momentum gate by 4.692 times its bound. No complete
 native reacting-body rollout has passed, and work-history comparison cannot
 replace exact whole-environment restoration and retry.
+
+
+The initially active reference now also passes the registered temporal
+refinement for final slider position and velocity: relative changes were
+6.67e-13 and 1.22e-12 respectively. The native analyzer requires the same
+0.25% final-state gates for both initial-gap fixtures, after checking the
+near-contact reference inputs. The synthetic test independently perturbs
+position and velocity and confirms that each state gate rejects its error.
+This does not imply a native trajectory has completed.
