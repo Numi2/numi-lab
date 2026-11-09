@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """Run one complete cost pair only after both accuracy gates pass."""
-import gzip,hashlib,json,math,os,pathlib,subprocess,sys,time
+import gzip,hashlib,json,math,os,pathlib,shutil,signal,subprocess,sys,time
 root=pathlib.Path(__file__).resolve().parents[2];p=root/"docs/evidence/midpoint-first-failure-20261109"
 b=pathlib.Path("/Users/numi/numi-matter-midpoint-compensated-build-20261109/evidence-be-precision-005")
 if len(sys.argv)!=4:raise SystemExit("usage: cost.py MIDPOINT_PREFIX BE_PREFIX OUTPUT_TAG")
@@ -23,8 +23,21 @@ for key in ("mechanical_absolute_tolerance_Ns","mechanical_impulse_scale_Ns"):
  if not math.isclose(m[key]/m["h"],c[key]/c["h"],rel_tol=2e-6):raise SystemExit("inconsistent per-time impulse scale: "+key)
 exe=b/"metalrobo_plane_contact_benchmark";shader=b/"NumiMatter.metallib"
 hashes={str(q):hashlib.sha256(q.read_bytes()).hexdigest() for q in (exe,shader)}
+def active_numi_workers():
+ lines=subprocess.check_output(["ps","-Ao","pid=,comm="],text=True).splitlines()
+ workers=[]
+ for line in lines:
+  parts=line.strip().split(None,1)
+  if len(parts)==2 and (pathlib.Path(parts[1]).name.startswith("numi_") or
+                         pathlib.Path(parts[1]).name.startswith("metalrobo_")):
+   workers.append({"pid":int(parts[0]),"executable":parts[1]})
+ return workers
 results=[]
 for name,d,arm in ((be,c,"ipc_area"),(mid,m,"ipc_area_midpoint")):
+ workers=active_numi_workers()
+ if workers:raise SystemExit("recognized Numi workload is active; wait for an isolated measurement: "+json.dumps(workers))
+ if shutil.disk_usage("/System/Volumes/Data").free<3.1*1024**3:raise SystemExit("storage safety stop before benchmark")
+ thermal=subprocess.run(["pmset","-g","therm"],capture_output=True,text=True).stdout.strip()
  path=p/(tag+"-"+arm+".json");log=p/(tag+"-"+arm+".log");meta=p/(tag+"-"+arm+"-execution.json")
  if any(q.exists() for q in (path,log,meta)):raise SystemExit("attempt exists: "+str(path))
  env=os.environ.copy()
@@ -33,9 +46,25 @@ for name,d,arm in ((be,c,"ipc_area"),(mid,m,"ipc_area_midpoint")):
  else:env["NM_MATTER_MIDPOINT_VELOCITY_COMPENSATION"]="1";env["NM_MATTER_MIDPOINT_STAGE_COMPENSATION"]="1"
  cmd=[str(exe),str(shader),str(d["h"]),str(d["accepted_steps"]),str(d["divisions"]),arm];start=time.monotonic()
  with path.open("w") as out,log.open("w") as err:
-  try:r=subprocess.run(cmd,env=env,stdout=out,stderr=err,timeout=24*3600);code=r.returncode;timeout=False
-  except subprocess.TimeoutExpired:code=None;timeout=True
- record={"command":cmd,"input_sha256":hashes,"accuracy_prefix":name,"returncode":code,"timed_out":timeout,"outer_wall_seconds":time.monotonic()-start}
+  r=subprocess.Popen(cmd,env=env,stdout=out,stderr=err,start_new_session=True);reason="";conflicts=[];next_scan=start+10
+  while r.poll() is None:
+   if shutil.disk_usage("/System/Volumes/Data").free<3.1*1024**3:reason="storage safety stop"
+   elif time.monotonic()-start>24*3600:reason="24 hour safety stop"
+   elif time.monotonic()>=next_scan:
+    conflicts=[w for w in active_numi_workers() if w["pid"]!=r.pid]
+    if conflicts:reason="recognized competing Numi workload"
+    next_scan=time.monotonic()+10
+   if reason:
+    os.killpg(r.pid,signal.SIGTERM)
+    try:r.wait(timeout=10)
+    except subprocess.TimeoutExpired:os.killpg(r.pid,signal.SIGKILL)
+    break
+   time.sleep(1)
+  code=r.wait()
+ record={"command":cmd,"input_sha256":hashes,"accuracy_prefix":name,"returncode":code,
+         "stopped_reason":reason,"thermal_snapshot_before":thermal,
+         "recognized_numi_workers_before":workers,"recognized_conflicts_during":conflicts,"worker_check_scope":"process names beginning numi_ or metalrobo_; not a comprehensive GPU activity detector",
+         "outer_wall_seconds":time.monotonic()-start}
  try:
   result=json.loads(path.read_text());record["accepted_and_matches_accuracy_state"]=code==0 and result["accepted_steps"]==d["accepted_steps"] and result["rejected_steps"]==0 and result["status"]==0 and result["per_step_snapshots"]==0 and result["final_physical_sha256"]==d["final_physical_sha256"] and result["device_fingerprint"]==d["device_fingerprint"]
  except (ValueError,KeyError) as e:record.update({"accepted_and_matches_accuracy_state":False,"parse_error":repr(e)})
