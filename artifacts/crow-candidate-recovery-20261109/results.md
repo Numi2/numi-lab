@@ -1,0 +1,5 @@
+# Candidate perturbed-start recheck and feedback validity
+
+The two preregistered runs passed 159/160 sampled lanes with no physical failures or failed simulator steps. Seed 20261121 lane 70 missed the altitude error limit by 0.00186 m. Audit found a diagnostic-harness validity issue: the lane recorded waypoint five at step 796, after which the real course code stopped refreshing vertical-speed and pitch feedback; the bench override held the controller active but only refreshed height error, leaving the other components stale. Across these two runs, four lanes recorded waypoint five. Their apparent results cannot establish behavior with the intended continuously refreshed feedback.
+
+The same limitation affects any earlier continuous flight-bench lane after recorded waypoint five, including the matched handoff lane and eight lanes across the three ground-start studies. The runs' raw outcomes remain unchanged. Other lanes never reached that boundary and retain their stated sampled evidence. A matched corrected-feedback control is required; this does not imply the actual route has a working landing or continuous autonomous controller.
