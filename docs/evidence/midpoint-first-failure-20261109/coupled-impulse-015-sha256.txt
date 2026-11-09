@@ -1,0 +1,5 @@
+a7b524f90f0c6ffa4e880ad76b0a5507447cb8a78e0535a4e702cd358ac0fb03  apps/matter_physics_probe.mm
+9163493d4a2c263618abaa89867249709b4e080cfd352b2eaef8bf196c907707  /Users/numi/numi-matter-slider-owner-build-20261109/bin/metalrobo_matter_physics_probe
+9157ed3dafbbf21f09be5b705a83098bf125248f8abae10c0a6750984463ec78  /Users/numi/numi-matter-slider-owner-build-20261109/lib/libmetalrobo.dylib
+f3926d9d659689d9c4c2227346494dbb4d72b8f1744bd344414cd50dc9b868ee  /Users/numi/numi-matter-slider-owner-build-20261109/shaders/MetalRobo.metallib
+7232f06472bccffc7162a643fe46788f349c3d1cfec54b79a7697b890fb74f9b  /Users/numi/numi-matter-slider-owner-build-20261109/matter/shaders/NumiMatter.metallib

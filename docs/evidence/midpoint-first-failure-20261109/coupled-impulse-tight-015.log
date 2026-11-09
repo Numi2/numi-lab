@@ -1,0 +1,8 @@
+[NumiMatter] mixed-field smoother enabled: multiphysics_objects=1 field_boundaries=4; mechanical and vascular solve unchanged
+matter_stateless_material_specialization requested=0 eligible=1 material_count=1
+matter_all_native_float requested=0 eligible=1 enabled=0 materials=1 diagnostic_vm=0
+matter_empty_mpm_krylov_domain=1 capacity_proof=storage_active_rows_and_representation_zero
+matter_canonical_precision_materials=0 source=compiler_exact_energy_proof tangent_policy=unchanged
+matter_fgmres_gpu_indirect_dispatch_count=encoded step=0 node=2080 element=800 environment_count=1
+LATE_BASELINE_FAILURE matter_status=10 object=0 index=4294967295 diagnostics=1.34402e-07,0.0123025,1.87503e-05,1.01434e-07
+matter_physics_probe: baseline: one or more MetalWorld control steps rolled back after a GPU environment failure: status=11 environment=0 control_step=0

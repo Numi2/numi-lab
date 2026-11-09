@@ -610,7 +610,8 @@ numi::matter::CompiledWorld compilePoroelasticCompressionCase() {
 
 numi::matter::CompiledWorld compileArticulatedFootPadScene(
     const bool contactBoundary = false,
-    const bool staticProxy = false
+    const bool staticProxy = false,
+    const double residualTolerance = 1.0e-4
 ) {
     auto parsed = numi::matter::parseMatterFile(NUMI_MATTER_MATERIAL);
     require(parsed.succeeded(), "foot-pad material did not parse");
@@ -635,6 +636,7 @@ numi::matter::CompiledWorld compileArticulatedFootPadScene(
     // Retain enough nonlinear iterations to qualify that solve rather than a
     // single Newton update.
     source.mixedSolver.newtonIterations = 16u;
+    source.mixedSolver.relativeResidual = residualTolerance;
     source.mixedSolver.minimumContactSeparationRatio =
         contactBoundary ? 0.5 : 0.05;
     source.mixedSolver.fieldSmootherPasses = 3u;
@@ -4240,9 +4242,9 @@ void abortLateFailureFixture(void *opaque, void *command) {
   auto &fixture = *static_cast<LateFailureFixture *>(opaque);
   fixture.inner.abort(fixture.inner.context, command);
 }
-void runCoupledLateRollback(const bool crossing) {
+void runCoupledLateRollback(const bool crossing, const double tolerance = 1.0e-4) {
   @autoreleasepool {
-    const auto world = compileArticulatedFootPadScene(false);
+    const auto world = compileArticulatedFootPadScene(false, false, tolerance);
     numi::matter::Runtime matter;
     const auto initialized =
         matter.initialize(world, {.metallib = NUMI_MATTER_METALLIB,
@@ -4343,14 +4345,36 @@ void runCoupledLateRollback(const bool crossing) {
     metalrobo::MetalWorldContext context;
     metalrobo::MetalWorldResult good;
     const auto first = context.run(rigid, batch, config, good);
+    if (!first.succeeded()) {
+      const auto failure = matter.snapshot();
+      if (failure.available && !failure.statuses.empty()) {
+        const auto status = failure.statuses[0];
+        std::cerr << "LATE_BASELINE_FAILURE matter_status=" << status.code
+                  << " object=" << status.objectIndex << " index=" << status.failingIndex
+                  << " diagnostics=" << status.diagnostics.x << "," << status.diagnostics.y
+                  << "," << status.diagnostics.z << "," << status.diagnostics.w << std::endl;
+      }
+    }
     require(first.succeeded(), "baseline: " + first.message);
     const auto accepted = matter.snapshot();
     require(accepted.available, "missing baseline snapshot");
-    double contactImpulse = 0.0;
-    for (const auto &sample : accepted.contactSamples)
-      if ((sample.identity.w & NM_CONTACT_VALID) != 0u)
-        contactImpulse += sample.impulseAndNormal.w;
-    std::cout << "LATE_BASELINE contact_impulse=" << contactImpulse
+    double contactImpulse = 0.0, contactZ = 0.0, torqueX = 0.0, torqueY = 0.0;
+    for (const auto &sample : accepted.contactSamples) {
+      if ((sample.identity.w & NM_CONTACT_VALID) == 0u) continue;
+      contactImpulse += sample.impulseAndNormal.w;
+      contactZ += sample.impulseAndNormal.z;
+      torqueX += sample.angularImpulseAndTangent.x;
+      torqueY += sample.angularImpulseAndTangent.y;
+    }
+    const double reactionZ = accepted.reactions.empty() ? NAN : accepted.reactions[0].impulseAndCount.z;
+    const double rigidMomentum = double(good.finalV[0]) - double(model.defaultV[0]);
+    const double certificate = accepted.solverCertificates.empty() ? NAN : accepted.solverCertificates[0].nonlinear.x;
+    const double candidate = accepted.rigidGeneralizedCandidate.empty() ? NAN : accepted.rigidGeneralizedCandidate[0];
+    std::cout << "LATE_BASELINE tolerance=" << tolerance << " certificate=" << certificate
+              << " candidate=" << candidate << " contact_impulse=" << contactImpulse
+              << " contact_z=" << contactZ << " reaction_z=" << reactionZ
+              << " rigid_momentum_change=" << rigidMomentum
+              << " torque_x=" << torqueX << " torque_y=" << torqueY
               << " rigid_v=" << good.finalV[0] << std::endl;
     require(contactImpulse > 0.0 && good.finalV[0] != model.defaultV[0],
             "fixture did not produce a dynamically reacting contact");
@@ -4490,6 +4514,9 @@ int main(int argc, const char* argv[]) {
         }
         if (argc==2 && std::string_view(argv[1])=="--coupled-late-crossing-rollback") {
             runCoupledLateRollback(true); return 0;
+        }
+        if (argc==2 && std::string_view(argv[1])=="--coupled-late-crossing-tight") {
+            runCoupledLateRollback(true, 1.0e-7); return 0;
         }
         if (argc==2 && std::string_view(argv[1])=="--human-support-loaded") {
             runHumanSupportLoaded(); return 0;
