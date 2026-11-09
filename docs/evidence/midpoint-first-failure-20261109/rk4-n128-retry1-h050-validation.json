@@ -1,0 +1,10 @@
+{
+  "schema": "numi.spatial-128-coarse-validation.v1",
+  "sha256": "6f7acdab751182fa410579302bf4d7b57915abe9356ec2dc04a5dcca3fd3a09d",
+  "reference_area_m2": 0.0003999999999999661,
+  "minimum_gap_m": 9.627706582700097e-05,
+  "sampled_peak_force_N": 0.10161944567851239,
+  "total_impulse_Ns": 0.00041068101653780144,
+  "pointwise_area_weights_valid": true,
+  "temporal_qualification": "pending h=0.25 microseconds"
+}
