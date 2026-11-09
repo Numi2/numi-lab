@@ -1,0 +1,25 @@
+{
+  "command": [
+    "/Users/numi/numi-matter-midpoint-reference-build-20261108/metalrobo_plane_contact_probe",
+    "/Users/numi/numi-matter-midpoint-reference-build-20261108/NumiMatter.metallib",
+    "0.000001953125",
+    "5120",
+    "2",
+    "ipc_area",
+    "0.0002",
+    "physical",
+    "contact",
+    "reference"
+  ],
+  "input_sha256": {
+    "/Users/numi/numi-matter-midpoint-reference-build-20261108/metalrobo_plane_contact_probe": "ba64715ca0105085ac07e4c8bbf71cd55212b61bbed0c447615213622d28de6a",
+    "/Users/numi/numi-matter-midpoint-reference-build-20261108/NumiMatter.metallib": "92549a8f004a3869215d1a39564ac95cdbeb9156fcf3f2e12d74fa02d9431d11",
+    "/Users/numi/numi-lab-matter-midpoint-reference-20261108/apps/plane_contact_probe.mm": "ce74234ababb116fef42bfe4fbd7b1483a2f804f0926ca705a25dae8d1c6b8e3",
+    "/Users/numi/numi-lab-matter-midpoint-reference-20261108/tests/contact/native_trace_analysis.py": "a15e8a6af9e59d31a788130392103b7202606df6cc05dd6b8aaa8dcf023fc530"
+  },
+  "returncode": 0,
+  "timed_out": false,
+  "wall_seconds_observational_only": 483.1349499170901,
+  "analysis_returncode": 1,
+  "analysis_stderr": ""
+}
