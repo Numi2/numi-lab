@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 """Resume independent studies after the recorded storage stop, without overlap."""
+import argparse
 import hashlib
 import json
 from pathlib import Path
@@ -11,7 +12,12 @@ from cost_provenance import verify_accuracy_provenance
 from cost_selection import select_largest_certified
 
 root = Path(__file__).resolve().parents[2]
-e = root / "docs/evidence/midpoint-first-failure-20261109"
+parser=argparse.ArgumentParser(description=__doc__)
+parser.add_argument("--evidence-dir",type=Path,default=root / "docs/evidence/midpoint-first-failure-20261109")
+parser.add_argument("n64_supervisor_pid",type=int)
+args=parser.parse_args()
+e=args.evidence_dir.expanduser().resolve()
+if not e.is_dir():raise SystemExit("evidence directory must already exist")
 b = Path("/Users/numi/numi-matter-midpoint-compensated-build-20261109/evidence-be-precision-005")
 receipt = e / "recovery-sequence-005.json"
 files = [Path(__file__).resolve(), root / "tests/contact/run_be_compressed_ladder_008.py",
@@ -19,13 +25,13 @@ files = [Path(__file__).resolve(), root / "tests/contact/run_be_compressed_ladde
          root / "tests/contact/run_large_spatial_continuation_006.py",
          root / "tests/contact/large_spatial_reference.py", root / "tests/contact/cost_provenance.py",
          root / "tests/contact/cost_selection.py", root / "tests/contact/cost_summary.py",
-         root / "tests/contact/native_trace_analysis.py", e / "be-precision-005-inputs.sha256",
+         root / "tests/contact/native_trace_analysis.py", root / "tests/contact/streamed_native_trace.py", e / "be-precision-005-inputs.sha256",
          root / "tests/contact/strict_native_trace_audit.py", root / "tests/contact/audit_cost_physical_time.py",
          root / "tests/contact/test_recovery_006_alignment.py",
          root / "docs/evidence/midpoint-spatial-cost-dynamic-20261108/rk4-n2-h025.json"]
-if len(sys.argv) != 2 or not sys.argv[1].isdigit() or receipt.exists():
-    raise SystemExit("usage: run_recovery_sequence_004.py N64_SUPERVISOR_PID (fresh receipt required)")
-pid = int(sys.argv[1])
+if args.n64_supervisor_pid <= 0 or receipt.exists():
+    raise SystemExit("positive supervisor PID and fresh receipt required")
+pid = args.n64_supervisor_pid
 def digest(path):
     h = hashlib.sha256()
     with path.open("rb") as f:
@@ -33,7 +39,7 @@ def digest(path):
             h.update(block)
     return h.hexdigest()
 hashes = {str(p): digest(p) for p in files}
-record = {"schema": "numi.matter.recovery-sequence.v1", "n64_supervisor_pid": pid,
+record = {"schema": "numi.matter.recovery-sequence.v1", "evidence_directory": str(e), "n64_supervisor_pid": pid,
           "input_sha256": hashes, "phases": [], "status": "waiting_for_n64"}
 def save():
     tmp = receipt.with_suffix(".tmp")
@@ -82,7 +88,7 @@ try:
     n64 = json.loads(n64_receipt.read_text())
     record["n64_receipt_sha256"] = digest(n64_receipt)
     record["n64_reason"] = n64.get("reason")
-    invoke("control", [root / "tests/contact/run_be_compressed_ladder_008.py"])
+    invoke("control", [root / "tests/contact/run_be_compressed_ladder_008.py", "--evidence-dir", e])
     try:
         verify = lambda item: verify_accuracy_provenance(item, e / "be-precision-005-inputs.sha256", b)
         midpoint, ml = select_largest_certified(e, "stage-ladder-n2-h*", "ipc_area_midpoint", verify)
@@ -90,7 +96,7 @@ try:
         record["selected"] = {"midpoint": midpoint, "control": control,
                               "midpoint_ladder": ml, "control_ladder": bl}
         cost_status = invoke("cost", [root / "tests/contact/run_accuracy_adjusted_cost_003.py",
-                                      midpoint, control, "cost-fair-n2-003"])
+                                      "--evidence-dir", e, midpoint, control, "cost-fair-n2-003"])
         # Complete these independent checks before starting the potentially
         # multi-day spatial continuation. No diagnostic snapshots are added to
         # the timed cost loop; the strict audits consume already saved traces.
@@ -115,7 +121,7 @@ try:
         record["cost_not_run"] = repr(error)
         save()
     if n64.get("reason") == "both hash-bound references completed and analyzed":
-        invoke("spatial", [root / "tests/contact/run_large_spatial_continuation_006.py"])
+        invoke("spatial", [root / "tests/contact/run_large_spatial_continuation_006.py", "--evidence-dir", e])
     else:
         record["spatial_not_run"] = "n64 prerequisite did not complete"
     record["status"] = "finished_inspect_individual_results"

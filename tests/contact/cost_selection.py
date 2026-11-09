@@ -1,7 +1,7 @@
 """Select the largest certified timestep from a declared native ladder."""
-import gzip
 import json
 from pathlib import Path
+from streamed_native_trace import read_native
 
 
 def _read_state(prefix):
@@ -9,10 +9,7 @@ def _read_state(prefix):
     compressed = Path(str(prefix) + ".json.gz")
     if plain.exists() == compressed.exists():
         raise ValueError("missing or ambiguous ladder state: " + str(prefix))
-    if compressed.exists():
-        with gzip.open(compressed, "rt") as f:
-            return json.load(f)
-    return json.loads(plain.read_text())
+    return read_native(compressed if compressed.exists() else plain)[0]
 
 
 def select_largest_certified(directory, pattern, arm, verify):

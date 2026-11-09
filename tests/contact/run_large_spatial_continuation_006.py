@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 """Conditionally run the frozen bounded-memory reference after other studies."""
+import argparse
 import gzip
 import hashlib
 import json
@@ -15,7 +16,11 @@ import time
 from large_spatial_reference import read_reference, compare
 
 root = Path(__file__).resolve().parents[2]
-e = root / "docs/evidence/midpoint-first-failure-20261109"
+parser=argparse.ArgumentParser(description=__doc__)
+parser.add_argument("--evidence-dir",type=Path,default=root / "docs/evidence/midpoint-first-failure-20261109")
+args=parser.parse_args()
+e=args.evidence_dir.expanduser().resolve()
+if not e.is_dir():raise SystemExit("evidence directory must already exist")
 exe = Path("/Users/numi/numi-matter-midpoint-compensated-build-20261109/evidence-compact-005/numi_contact_fem_fp64_reference_compact")
 plan = e / "LARGE_SPATIAL_CONTINUATION_PLAN.md"
 receipt = e / "large-spatial-continuation-006-supervisor.json"
@@ -69,7 +74,7 @@ def run_reference(n, h, label):
     if any(p.exists() for p in (out, log, meta)):
         raise RuntimeError("refusing to overwrite " + str(prefix))
     active = workers()
-    if active or shutil.disk_usage(e).free < free_limit:
+    if active or min(shutil.disk_usage(e).free, shutil.disk_usage("/System/Volumes/Data").free) < free_limit:
         raise RuntimeError("worker or storage guard before run: " + json.dumps(active))
     argv = [str(exe), str(n), h, "0.01"]
     start = time.monotonic()
@@ -91,7 +96,7 @@ def run_reference(n, h, label):
                 reason = "recognized competing Numi worker: " + json.dumps(active)
             elif peak > rss_limit:
                 reason = "6 GiB resident-memory limit"
-            elif shutil.disk_usage(e).free < free_limit:
+            elif min(shutil.disk_usage(e).free, shutil.disk_usage("/System/Volumes/Data").free) < free_limit:
                 reason = "3.1 GiB free-space limit"
             elif time.monotonic() - start > run_limit:
                 reason = "seven-day per-run limit"

@@ -21,7 +21,7 @@ class SelectionTest(unittest.TestCase):
                               "0.0002", "physical", "contact", "reference"],
                   "all_gates_pass": passed}
         Path(str(prefix) + "-execution.json").write_text(json.dumps(record))
-        state = {"arm": self.arm, "h": h, "accepted_steps": steps, "rejected_steps": 0}
+        state = {"arm": self.arm, "h": h, "accepted_steps": steps, "rejected_steps": 0, "traces": []}
         path = Path(str(prefix) + (".json.gz" if compressed else ".json"))
         if compressed:
             with gzip.open(path, "wt") as f:

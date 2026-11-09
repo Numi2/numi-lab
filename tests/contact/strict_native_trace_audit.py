@@ -8,6 +8,7 @@ from pathlib import Path
 import sys
 
 from large_spatial_reference import read_reference
+from streamed_native_trace import read_native
 
 
 def digest(path):
@@ -51,8 +52,7 @@ def audit(trace, execution, reference):
         record.get("stopped_reason") is not None or
         record.get("diagnostic_stdout", {}).get("compressed_sha256") != digest(trace)):
         raise ValueError("native execution is incomplete or trace identity differs")
-    with gzip.open(trace, "rt") as source:
-        data = json.load(source)
+    data, count = read_native(trace)
     if not finite_tree(data):
         raise ValueError("non-finite native numeric field")
     h = data["h"]
@@ -60,11 +60,18 @@ def audit(trace, execution, reference):
     if (data.get("schema") != "numi.matter.plane-contact.v1" or data.get("arm") != "ipc_area" or
         data.get("divisions") != 2 or abs(h * steps - .01) > 1e-12 or
         data.get("accepted_steps") != steps or data.get("rejected_steps") != 0 or
-        len(data["traces"]) != steps or not data.get("restore_replay") or
+        count != steps or not data.get("restore_replay") or
         not data.get("continuation_replay") or not data.get("forced_rollback_exact") or
         not data.get("identity_mismatch_rejected")):
         raise ValueError("native rollout is incomplete or not the declared control")
-    check_rows(data["traces"], h)
+    def check_one(meta, row, index):
+        if not finite_tree(row): raise ValueError("non-finite native numeric field")
+        # Reuse the same row certificate, retaining its original index.
+        if (row.get("step") != index): raise ValueError("invalid accepted native sample at step " + str(index))
+        copy = dict(row); copy["step"] = 0
+        check_rows([copy], h)
+    again, checked = read_native(trace, check_one)
+    if checked != steps or again != data: raise ValueError("native trace changed during audit")
     ref = read_reference(reference, 2, .00000025)
     return {"valid": True, "steps": steps, "h": h, "native_sha256": digest(trace),
             "execution_sha256": digest(execution), "reference_sha256": digest(reference),

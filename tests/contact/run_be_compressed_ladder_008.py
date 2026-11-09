@@ -4,6 +4,7 @@
 Each producer remains exactly the frozen native program and physical setup.
 Compression is streaming and outside the measured cost benchmark.
 """
+import argparse
 import gzip
 import hashlib
 import json
@@ -14,6 +15,7 @@ import subprocess
 import sys
 import threading
 import time
+from streamed_native_trace import read_native
 
 ROOT = Path(__file__).resolve().parents[2]
 EVIDENCE = ROOT / "docs/evidence/midpoint-first-failure-20261109"
@@ -61,13 +63,17 @@ def pump(pipe, path, errors, counts):
         pipe.close()
 
 def main():
+    parser=argparse.ArgumentParser(description=__doc__)
+    parser.add_argument("--evidence-dir", type=Path, default=EVIDENCE)
+    parser.add_argument("--audit", action="store_true")
+    args=parser.parse_args()
+    evidence=args.evidence_dir.expanduser().resolve()
+    if not evidence.is_dir(): raise SystemExit("evidence directory must already exist")
     hashes = {str(p): digest(p) for p in (EXE, SHADER, REFERENCE)}
-    if sys.argv[1:] == ["--audit"]:
+    if args.audit:
         print(json.dumps({"inputs_sha256": hashes, "ladder": LADDER,
-                          "free_bytes_limit": LIMIT_FREE}, indent=2))
+                          "evidence_directory": str(evidence), "free_bytes_limit": LIMIT_FREE}, indent=2))
         return 0
-    if sys.argv[1:]:
-        raise SystemExit("usage: run_be_compressed_ladder.py [--audit]")
     env = os.environ.copy()
     env["NM_MATTER_BE_VELOCITY_COMPENSATION"] = "1"
     for key in ("NM_MATTER_MIDPOINT_VELOCITY_COMPENSATION",
@@ -76,13 +82,13 @@ def main():
                 "NM_MATTER_MIDPOINT_DIAGNOSTIC_ROOT"):
         env.pop(key, None)
     for label, timestep, steps in LADDER:
-        prefix = EVIDENCE / ("be-precision-008-n2-h" + label)
+        prefix = evidence / ("be-precision-008-n2-h" + label)
         paths = {suffix: Path(str(prefix) + suffix) for suffix in
                  (".json.gz", ".log.gz", "-execution.json", "-analysis.json")}
         if any(path.exists() for path in paths.values()):
             raise SystemExit("refusing to overwrite " + str(prefix))
-        if shutil.disk_usage(EVIDENCE).free < LIMIT_FREE:
-            raise SystemExit("free-space limit before " + str(prefix))
+        if min(shutil.disk_usage(evidence).free, shutil.disk_usage("/System/Volumes/Data").free) < LIMIT_FREE:
+            raise SystemExit("evidence or system free-space limit before " + str(prefix))
         command = [str(EXE), str(SHADER), timestep, str(steps), "2", "ipc_area",
                    "0.0002", "physical", "contact", "reference"]
         print("starting " + str(prefix), flush=True)
@@ -104,8 +110,8 @@ def main():
                 reason = "diagnostic compression failure"
             elif peak > LIMIT_RSS_KIB:
                 reason = "resident-memory limit"
-            elif shutil.disk_usage(EVIDENCE).free < LIMIT_FREE:
-                reason = "free-space limit"
+            elif min(shutil.disk_usage(evidence).free, shutil.disk_usage("/System/Volumes/Data").free) < LIMIT_FREE:
+                reason = "evidence or system free-space limit"
             elif time.monotonic() - start > LIMIT_SECONDS:
                 reason = "24-hour limit"
             if reason:
@@ -123,14 +129,13 @@ def main():
                   "flag": "NM_MATTER_BE_VELOCITY_COMPENSATION=1",
                   "returncode": code, "stopped_reason": reason,
                   "wall_seconds_observational_only": time.monotonic()-start,
-                  "peak_rss_kib": peak, "free_bytes_after": shutil.disk_usage(EVIDENCE).free,
+                  "peak_rss_kib": peak, "free_bytes_after": shutil.disk_usage(evidence).free,
                   "limits": {"rss_kib": LIMIT_RSS_KIB, "free_bytes": LIMIT_FREE,
                              "wall_seconds": LIMIT_SECONDS},
                   "diagnostic_stdout": out_counts, "diagnostic_stderr": err_counts,
                   "compression_errors": errors, "all_gates_pass": False}
         try:
-            with gzip.open(paths[".json.gz"], "rt") as f:
-                state = json.load(f)
+            state, trace_count = read_native(paths[".json.gz"])
             check = subprocess.run(["python3", str(ROOT / "tests/contact/native_trace_analysis.py"),
                                     str(paths[".json.gz"]), str(REFERENCE)],
                                    capture_output=True, text=True)
@@ -138,11 +143,11 @@ def main():
             record.update({"analysis_returncode": check.returncode, "analysis_stderr": check.stderr,
                            "all_gates_pass": code == 0 and reason is None and not errors
                            and check.returncode == 0 and state["accepted_steps"] == steps
-                           and state["rejected_steps"] == 0
+                           and state["rejected_steps"] == 0 and trace_count == steps
                            and state["independent_max_local_scaled_without_floor"] <= .005
                            and state["restore_replay"] and state["continuation_replay"]
                            and state["forced_rollback_exact"] and state["identity_mismatch_rejected"]})
-        except (OSError, ValueError, KeyError) as error:
+        except (EOFError, OSError, ValueError, KeyError) as error:
             record["analysis_error"] = repr(error)
         paths["-execution.json"].write_text(json.dumps(record, indent=2) + "\n")
         print(json.dumps(record), flush=True)

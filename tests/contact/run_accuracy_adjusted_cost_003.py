@@ -1,7 +1,13 @@
 #!/usr/bin/env python3
 """Run three alternating cost pairs only after both accuracy gates pass."""
-import gzip,hashlib,json,math,os,pathlib,shutil,signal,subprocess,sys,time
-root=pathlib.Path(__file__).resolve().parents[2];p=root/"docs/evidence/midpoint-first-failure-20261109"
+import argparse,gzip,hashlib,json,math,os,pathlib,shutil,signal,subprocess,sys,time
+from streamed_native_trace import read_native
+root=pathlib.Path(__file__).resolve().parents[2]
+parser=argparse.ArgumentParser(description=__doc__)
+parser.add_argument("--evidence-dir",type=pathlib.Path,default=root/"docs/evidence/midpoint-first-failure-20261109")
+parser.add_argument("midpoint");parser.add_argument("control");parser.add_argument("tag")
+args=parser.parse_args();p=args.evidence_dir.expanduser().resolve()
+if not p.is_dir():raise SystemExit("evidence directory must already exist")
 b=pathlib.Path("/Users/numi/numi-matter-midpoint-compensated-build-20261109/evidence-be-precision-005")
 manifest=p/"be-precision-005-inputs.sha256"
 reference=root/"docs/evidence/midpoint-spatial-cost-dynamic-20261108/rk4-n2-h025.json"
@@ -10,12 +16,13 @@ analysis_tool=root/"tests/contact/native_trace_analysis.py"
 from cost_provenance import verify_accuracy_provenance
 from cost_selection import select_largest_certified
 from cost_summary import summarize
-if len(sys.argv)!=4:raise SystemExit("usage: cost.py MIDPOINT_PREFIX BE_PREFIX OUTPUT_TAG")
-mid,be,tag=sys.argv[1:]
+mid,be,tag=args.midpoint,args.control,args.tag
 if not tag.replace("-","").isalnum() or any("/" in x for x in (mid,be)):raise SystemExit("invalid evidence name")
 def load(name,suffix):
  path=p/(name+suffix); compressed=path.with_name(path.name+".gz")
  if path.exists() and compressed.exists():raise SystemExit("ambiguous evidence: "+str(path))
+ selected=compressed if compressed.exists() else path
+ if suffix==".json":return read_native(selected)[0]
  if compressed.exists():
   with gzip.open(compressed,"rt") as f:return json.load(f)
  return json.loads(path.read_text())
@@ -41,6 +48,9 @@ for prefix in (mid,be):
 
 for key in ("divisions","nodes","initial_gap","contact_area_m2","contact_area_weights_m2","area_ipc_k_N_per_m5","residual_policy","coordinate_mode","freefall_control","mechanical_relative_tolerance"):
  if m[key]!=c[key]:raise SystemExit("mismatched physical input: "+key)
+if m.get("graded_z",False)!=c.get("graded_z",False):raise SystemExit("mismatched graded mesh")
+if m.get("graded_z",False) or m.get("surface_quadrature",False) or c.get("surface_quadrature",False):
+ raise SystemExit("this historical cost runner requires a newly qualified reference for graded or quadrature inputs")
 for key in ("mechanical_absolute_tolerance_Ns","mechanical_impulse_scale_Ns"):
  if not math.isclose(m[key]/m["h"],c[key]/c["h"],rel_tol=2e-6):raise SystemExit("inconsistent per-time impulse scale: "+key)
 exe=b/"metalrobo_plane_contact_benchmark";shader=b/"NumiMatter.metallib"
@@ -69,7 +79,7 @@ schedule=[(1,control),(1,midpoint),(2,midpoint),(2,control),(3,control),(3,midpo
 for repetition,(name,d,arm) in schedule:
  workers=active_numi_workers()
  if workers:stop("recognized Numi workload is active; wait for an isolated measurement: "+json.dumps(workers))
- if shutil.disk_usage("/System/Volumes/Data").free<3.1*1024**3:stop("storage safety stop before benchmark")
+ if min(shutil.disk_usage(p).free,shutil.disk_usage("/System/Volumes/Data").free)<3.1*1024**3:stop("evidence or system storage safety stop before benchmark")
  thermal=subprocess.run(["pmset","-g","therm"],capture_output=True,text=True).stdout.strip()
  path=p/(tag+"-"+arm+"-r"+str(repetition)+".json");log=path.with_suffix(".log");meta=path.with_name(path.stem+"-execution.json")
  if any(q.exists() for q in (path,log,meta)):stop("attempt exists: "+str(path))
@@ -77,11 +87,12 @@ for repetition,(name,d,arm) in schedule:
  for k in ("NM_MATTER_BE_VELOCITY_COMPENSATION","NM_MATTER_MIDPOINT_VELOCITY_COMPENSATION","NM_MATTER_MIDPOINT_STAGE_COMPENSATION","NM_MATTER_MIDPOINT_PRECONTACT_POLISH","NM_MATTER_MIDPOINT_DIAGNOSTIC_ROOT"):env.pop(k,None)
  if arm=="ipc_area":env["NM_MATTER_BE_VELOCITY_COMPENSATION"]="1"
  else:env["NM_MATTER_MIDPOINT_VELOCITY_COMPENSATION"]="1";env["NM_MATTER_MIDPOINT_STAGE_COMPENSATION"]="1"
- cmd=[str(exe),str(shader),str(d["h"]),str(d["accepted_steps"]),str(d["divisions"]),arm];start=time.monotonic()
+ cmd=[str(exe),str(shader),str(d["h"]),str(d["accepted_steps"]),str(d["divisions"]),arm]
+ start=time.monotonic()
  with path.open("w") as out,log.open("w") as err:
   r=subprocess.Popen(cmd,env=env,stdout=out,stderr=err,start_new_session=True);reason="";conflicts=[];next_scan=start+10
   while r.poll() is None:
-   if shutil.disk_usage("/System/Volumes/Data").free<3.1*1024**3:reason="storage safety stop"
+   if min(shutil.disk_usage(p).free,shutil.disk_usage("/System/Volumes/Data").free)<3.1*1024**3:reason="evidence or system storage safety stop"
    elif time.monotonic()-start>24*3600:reason="24 hour safety stop"
    elif time.monotonic()>=next_scan:
     conflicts=[w for w in active_numi_workers() if w["pid"]!=r.pid]
