@@ -1,0 +1,25 @@
+{
+  "remote_revision": "2513cb4d7695c274a8deaf0326aa236cdf735c2f",
+  "method": "independent GitHub HTTPS decompression and SHA-256, local hash and open-handle check before deletion",
+  "rows": [
+    {
+      "path": "artifacts/crow-mixed-stage3-dagger-20261109/training/rollout.bin.gz",
+      "raw_bytes": 95424956,
+      "raw_sha256": "ab5a0f4a0a5f5614c21118754c366e8baa96dba87c91ceb188fc6ea1221ab30c",
+      "removed_raw_copy": "build/crow-mixed-stage3-dagger-20261109/training.rollout"
+    },
+    {
+      "path": "artifacts/crow-mixed-stage3-dagger-20261109/held-out-a/rollout.bin.gz",
+      "raw_bytes": 95424956,
+      "raw_sha256": "ebc153cf52acd047b6ae6f978372e06affa13675dc520d565c6165a33df01af0",
+      "removed_raw_copy": "build/crow-mixed-stage3-dagger-20261109/held-out-a.rollout"
+    },
+    {
+      "path": "artifacts/crow-mixed-stage3-dagger-20261109/held-out-b/rollout.bin.gz",
+      "raw_bytes": 95424956,
+      "raw_sha256": "c115b012bc12229c42ad7e472065c085bcf3e9fe7c0985eb0d5138f214b2032f",
+      "removed_raw_copy": "build/crow-mixed-stage3-dagger-20261109/held-out-b.rollout"
+    }
+  ],
+  "total_retired_bytes": 286274868
+}
