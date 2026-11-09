@@ -47,6 +47,9 @@ int main(int argc,char**argv) {try{
  const double initialForce=sliderRhs(m,s).impulse;
  double peak=initialForce,minGap=initialGap,first=initialForce>0?0:-1;std::array<double,10> bins{};
  std::vector<std::array<double,5>> trace{{0,initialForce,0,0,.02}};
+#ifdef NUMI_SLIDER_WORK_HISTORY
+ std::vector<std::array<double,4>> workTrace{{0,0,0,0}};
+#endif
  const long steps=std::lround(duration/h),stride=std::lround(.000002/h);
  for(long n=0;n<steps;++n){
   auto a=sliderRhs(m,s),b=sliderRhs(m,advanceState(s,a,h/2)),
@@ -65,7 +68,12 @@ int main(int argc,char**argv) {try{
   for(const auto& x:s.fem.x)minGap=std::min(minGap,x.z-s.z);
   const double f=sliderRhs(m,s).impulse;peak=std::max(peak,f);
   if(first<0 && f>0)first=(n+1)*h;
-  if((n+1)%stride==0)trace.push_back({(n+1)*h,f,s.impulse,s.z,s.vz});
+  if((n+1)%stride==0) {
+   trace.push_back({(n+1)*h,f,s.impulse,s.z,s.vz});
+#ifdef NUMI_SLIDER_WORK_HISTORY
+   workTrace.push_back({(n+1)*h,s.femWork,s.sliderWork,s.work});
+#endif
+  }
  }
  double p=sliderMass*s.vz;for(size_t i=0;i<m.mass.size();++i)p+=m.mass[i]*s.fem.v[i].z;
  const double momentumError=p-(sliderMass*.02-totalMass*9.81*duration);
@@ -81,5 +89,9 @@ int main(int argc,char**argv) {try{
  for(size_t i=0;i<bins.size();++i)std::cout<<(i?",":"")<<bins[i];
  std::cout<<"],\"trace\":[";for(size_t i=0;i<trace.size();++i){std::cout<<(i?",[":"[");
   for(int j=0;j<5;++j)std::cout<<(j?",":"")<<trace[i][j];std::cout<<"]";}
+#ifdef NUMI_SLIDER_WORK_HISTORY
+ std::cout<<"],\"work_trace\":[";for(size_t i=0;i<workTrace.size();++i){std::cout<<(i?",[":"[");
+  for(int j=0;j<4;++j)std::cout<<(j?",":"")<<workTrace[i][j];std::cout<<"]";}
+#endif
  std::cout<<"]}\n";
  }catch(const std::exception& e){std::cerr<<e.what()<<"\n";return 1;}}
