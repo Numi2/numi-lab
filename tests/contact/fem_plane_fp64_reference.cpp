@@ -46,12 +46,12 @@ struct Model {
  std::vector<Tet> tets;std::vector<double> mass,area;
  double d=1e-4,k=1e16,mu=2000,lambda=5000;
  State initial;
- explicit Model(int n){
+ explicit Model(int n, double initialGap=.0002){
   int count=(n+1)*(n+1)*(n+1);initial.x.resize(count);initial.v.resize(count);
   mass.assign(count,0);area.assign(count,0);
   auto id=[n](int x,int y,int z){return (z*(n+1)+y)*(n+1)+x;};
   for(int z=0;z<=n;++z)for(int y=0;y<=n;++y)for(int x=0;x<=n;++x)
-   initial.x[id(x,y,z)]={.02*x/n,.02*y/n,.0002+.02*z/n};
+   initial.x[id(x,y,z)]={.02*x/n,.02*y/n,initialGap+.02*z/n};
   constexpr int mesh[6][4]={{0,1,3,7},{0,3,2,7},{0,2,6,7},{0,6,4,7},{0,4,5,7},{0,5,1,7}};
   for(int z=0;z<n;++z)for(int y=0;y<n;++y)for(int x=0;x<n;++x){
    int v[8]={id(x,y,z),id(x+1,y,z),id(x,y+1,z),id(x+1,y+1,z),
@@ -139,15 +139,18 @@ int main(int argc,char**argv){
    if(maxerr/std::max(maxforce,1e-30)>1e-6)throw std::runtime_error("force/energy mismatch");
    return 0;
   }
-  if(argc!=4)throw std::runtime_error("usage: reference divisions h duration");
+  if(argc!=4 && argc!=5)throw std::runtime_error("usage: reference divisions h duration [initial_gap]");
   int n=std::atoi(argv[1]);double h=std::atof(argv[2]),duration=std::atof(argv[3]);
   if(n<1||n>NUMI_FEM_REFERENCE_MAX_DIVISIONS||h<=0||duration!=.01||std::abs(std::round(duration/h)*h-duration)>1e-12
      ||std::abs(std::round(.001/h)*h-.001)>1e-12)throw std::runtime_error("invalid arguments");
-  Model m(n);State s=m.initial;std::array<double,10> bins{};double minGap=1,peak=0,first=-1,lastForce=0;
+  const double initialGap=argc==5?std::atof(argv[4]):.0002;
+  if(!(initialGap>0.)||!std::isfinite(initialGap))throw std::runtime_error("invalid initial gap");
+  Model m(n,initialGap);State s=m.initial;std::array<double,10> bins{};double minGap=1,peak=0,first=-1,lastForce=0;
+  if(argc==5){lastForce=m.rhs(s).impulse;peak=lastForce;if(lastForce>0)first=0;}
   const long requestedStride=std::lround(.000002/h);
   const long traceStride=requestedStride>=1 && std::abs(requestedStride*h-.000002)<=1e-12 ? requestedStride : 0;
   std::vector<std::array<double,3>> trace{{0.,m.rhs(s).impulse,0.}};
-  std::vector<std::array<double,2>> episodes;double episodeStart=-1;
+  std::vector<std::array<double,2>> episodes;double episodeStart=argc==5 && lastForce>0 ? 0 : -1;
   long steps=std::lround(duration/h);
   for(long i=0;i<steps;++i){
    Change a=m.rhs(s),b=m.rhs(add(s,a,h/2)),c=m.rhs(add(s,b,h/2)),d=m.rhs(add(s,c,h));
@@ -173,7 +176,8 @@ int main(int argc,char**argv){
    <<",\"onset_time_s\":"<<first<<",\"peak_force_N\":"<<peak<<",\"impulse_Ns\":"<<s.impulse
    <<",\"final_momentum_Ns\":"<<pz<<",\"final_center_z_m\":"<<com/totalMass<<",\"force_bins_N\":[";
   for(int i=0;i<10;++i)std::cout<<(i?",":"")<<bins[i];
-  std::cout<<"],\"contact_area_weights_m2\":[";
+  if(argc==5)std::cout<<"],\"initial_gap_m\":"<<initialGap<<",\"contact_area_weights_m2\":[";
+  else std::cout<<"],\"contact_area_weights_m2\":[";
   for(size_t i=0;i<m.area.size();++i)std::cout<<(i?",":"")<<m.area[i];
   std::cout<<"],\"trace\":[";
   for(size_t i=0;i<trace.size();++i)std::cout<<(i?",":"")<<"["<<trace[i][0]<<","<<trace[i][1]<<","<<trace[i][2]<<"]";
