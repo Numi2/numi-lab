@@ -54,6 +54,15 @@ constexpr Quadrature quadrature[7]={
  {{{.101286507323456,.101286507323456,.797426985353087}},.125939180544827}
 };
 struct State { std::vector<V> x,v; double impulse=0; };
+// Linear gap has its minimum at a vertex, not at an interior quadrature
+// point. This is an endpoint certificate; swept validity is separate.
+void requireTriangleClearance(const Triangle& triangle, const State& state) {
+ for(int node:triangle.id) {
+  const double gap=state.x[node].z;
+  if(!(gap>0.0) || !std::isfinite(gap))
+   throw std::runtime_error("nonpositive or nonfinite triangle vertex gap");
+ }
+}
 struct Change { std::vector<V> x,v; double impulse=0; };
 struct Model {
  std::vector<Tet> tets;std::vector<Triangle> triangles;std::vector<double> mass,area;
@@ -111,10 +120,13 @@ struct Model {
     double q=g*g-d*d;out-=area[i]*k*q*q*std::log(g*g/(d*d));
    }
   }
-  if(surfaceQuadrature)for(const auto& triangle:triangles)for(const auto& q:quadrature){
+  if(surfaceQuadrature)for(const auto& triangle:triangles){
+   requireTriangleClearance(triangle,s);
+   for(const auto& q:quadrature){
    double g=0;for(int j=0;j<3;++j)g+=q.n[j]*s.x[triangle.id[j]].z;
    if(g<d){if(g<=0)throw std::runtime_error("nonpositive gap");
     const double off=g*g-d*d;out-=triangle.area*q.w*k*off*off*std::log(g*g/(d*d));}
+   }
   }
   return out;
  }
@@ -134,10 +146,13 @@ struct Model {
     f[e.id[j+1]]+=v;f[e.id[0]]+=v*(-1);
    }
   }
-  if(surfaceQuadrature)for(const auto& triangle:triangles)for(const auto& q:quadrature){
+  if(surfaceQuadrature)for(const auto& triangle:triangles){
+   requireTriangleClearance(triangle,s);
+   for(const auto& q:quadrature){
    double g=0;for(int j=0;j<3;++j)g+=q.n[j]*s.x[triangle.id[j]].z;
    const double force=triangle.area*q.w*pressure(g);r.impulse+=force;
    for(int j=0;j<3;++j)f[triangle.id[j]].z+=q.n[j]*force;
+   }
   }
   for(size_t i=0;i<mass.size();++i){
    if(!surfaceQuadrature && area[i]){double fz=area[i]*pressure(s.x[i].z);f[i].z+=fz;r.impulse+=fz;}

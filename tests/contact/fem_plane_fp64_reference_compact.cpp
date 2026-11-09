@@ -115,10 +115,13 @@ struct CompactModel {
     });
    if(ctx.invalid.load(std::memory_order_relaxed))throw std::runtime_error("invalid element");
   }
-  if(surfaceQuadrature)for(const auto& triangle:triangles)for(const auto& q:quadrature){
+  if(surfaceQuadrature)for(const auto& triangle:triangles){
+   requireTriangleClearance(triangle,s);
+   for(const auto& q:quadrature){
    double gap=0;for(int j=0;j<3;++j)gap+=q.n[j]*s.x[triangle.id[j]].z;
    const double force=triangle.area*q.w*pressure(gap);r.impulse+=force;
    for(int j=0;j<3;++j)f[triangle.id[j]].z+=q.n[j]*force;
+   }
   }
   for(size_t i=0;i<mass.size();++i){
    if(!surfaceQuadrature && area[i]){const double force=area[i]*pressure(s.x[i].z);f[i].z+=force;r.impulse+=force;}
@@ -157,6 +160,19 @@ int main(int argc,char** argv){try{
    <<",\"force_N\":"<<finalForce<<",\"rk4_step\":"<<(rk4?"true":"false")
    <<",\"max_velocity_error_mps\":"<<velocityError<<",\"max_position_error_m\":"<<positionError<<"}\n";
   return 0;
+ }
+ if(argc==2 && std::string(argv[1])=="--clearance-selftest"){
+  CompactModel m(2,true,true);State s=m.initial;
+  for(size_t i=0;i<m.area.size();++i)if(m.area[i]>0)s.x[i].z=10e-6;
+  const auto& triangle=m.triangles.front();s.x[triangle.id[0]].z=-1e-6;
+  for(const auto& q:quadrature){double gap=0;for(int j=0;j<3;++j)gap+=q.n[j]*s.x[triangle.id[j]].z;
+   if(!(gap>0))throw std::runtime_error("counterexample samples must all be positive");}
+  try{(void)m.rhs(s);}catch(const std::runtime_error& e){
+   if(std::string(e.what())=="nonpositive or nonfinite triangle vertex gap"){
+    std::cout<<"compact triangle vertex penetration rejected despite positive quadrature gaps\n";return 0;}
+   throw;
+  }
+  throw std::runtime_error("compact triangle vertex penetration accepted");
  }
  if(argc==2 && (std::string(argv[1])=="--parity" || std::string(argv[1])=="--parity-quadrature")){
   const bool q=std::string(argv[1])=="--parity-quadrature";

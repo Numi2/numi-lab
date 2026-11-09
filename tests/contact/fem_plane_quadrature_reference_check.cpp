@@ -16,6 +16,16 @@ int main() {
   if(!(low>0 && low<high)) return 3;
   for(const auto& t:mesh.tets)if(!(t.volume>0) || !std::isfinite(t.volume))return 4;
  }
+ Model clearance(2,.0002,true,true);State penetrating=clearance.initial;
+ for(size_t i=0;i<clearance.area.size();++i)if(clearance.area[i]>0)penetrating.x[i].z=10e-6;
+ const auto& bad=clearance.triangles.front();penetrating.x[bad.id[0]].z=-1e-6;
+ for(const auto& q:quadrature){double gap=0;for(int j=0;j<3;++j)gap+=q.n[j]*penetrating.x[bad.id[j]].z;
+  if(!(gap>0))return 7;}
+ for(bool energy:{false,true}){
+  bool rejected=false;try{if(energy)(void)clearance.energy(penetrating);else (void)clearance.rhs(penetrating);}
+  catch(const std::runtime_error& e){rejected=std::string(e.what())=="nonpositive or nonfinite triangle vertex gap";}
+  if(!rejected)return 8;
+ }
  Model m(2,.0002,true,true),zero(2,.0002,true,true);zero.k=0;
  State s=m.initial;
  for(size_t i=0;i<s.x.size();++i){s.x[i].z-=.000105;if(m.area[i])s.x[i].z+=1e-6*(double(i%3)-1);}
