@@ -136,7 +136,7 @@ results={'reference_qualification_passed':reference_ok,'work_history_comparison'
  'maximum_torque_balance_gate_ratio':torque_ratio,
  'maximum_owner_work_reconstruction_gate_ratio':work_ratio,
  'maximum_fem_work_reconstruction_gate_ratio':fem_work_ratio,
- 'max_independent_joint_residual_Ns':max(s['independent_joint_residual_Ns'] for s in steps),
+ 'max_independent_joint_residual_Ns':max(abs(s['independent_joint_residual_Ns']) for s in steps),
  'physical_residual_limit_Ns':d['physical_residual_limit_Ns'],
  'slider_position_relative_error':abs(steps[-1]['q']-r['slider_final_z_m'])/max(abs(r['slider_final_z_m']),1e-8),
  'slider_velocity_relative_error':abs(steps[-1]['v']-r['slider_final_v_mps'])/max(abs(r['slider_final_v_mps']),1e-6),
@@ -146,7 +146,7 @@ results={'reference_qualification_passed':reference_ok,'work_history_comparison'
  'fem_contact_work_J':sum(s['fem_contact_work'] for s in steps),
  'slider_contact_work_J':sum(s['owner_contact_work'] for s in steps),
  'max_slider_kinematic_defect_m':max(abs(s['slider_kinematic_defect_m']) for s in steps),
- 'max_fem_kinematic_defect_m':max(s['fem_kinematic_defect_m'] for s in steps)}
+ 'max_fem_kinematic_defect_m':max(abs(s['fem_kinematic_defect_m']) for s in steps)}
 checks={'force_bin':force_error<=.0025,'sampled_peak':peak_error<=.01,'total_impulse':imp_error<=.0025,
  'cumulative_impulse':cum_error<=.01,'clearance':results['minimum_gap_m']>1e-7 and results['minimum_midpoint_gap_m']>1e-7,
  'equal_opposite_impulse':impulse_ratio<=1,'equal_opposite_wrench_impulse':wrench_impulse_ratio<=1,
