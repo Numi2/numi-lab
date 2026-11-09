@@ -1,0 +1,7 @@
+{
+  "source": "/Users/n/Developer/numi-crow-rl-20261107/build/crow-third-landing-training-20261109/checkpoint-40.policypack",
+  "source_sha256": "6c3ff3e9a69b4a0523f9e4108c6c01df39e14b49b05e1127d547623812585deb",
+  "candidate_sha256": "bc649a37387d5e6870bc990bc40534ceaa5d301c7c513c9f396962f8f854af2c",
+  "max_actor_error": 0.0,
+  "task_fingerprint": 14097176100681672934
+}
