@@ -1,0 +1,26 @@
+{
+  "command": [
+    "/Users/numi/numi-matter-slider-owner-build-20261109/bin/numi_midpoint_slider_coupled_diagnostic",
+    "/Users/numi/numi-matter-slider-owner-build-20261109/matter/shaders/NumiMatter.metallib",
+    "/Users/numi/numi-matter-slider-owner-build-20261109/shaders/MetalRobo.metallib",
+    "0.000015625",
+    "0.0002",
+    "640"
+  ],
+  "source_revision": "193d2ab99",
+  "environment": {
+    "NM_MATTER_MIDPOINT_VELOCITY_COMPENSATION": "1",
+    "NM_MATTER_MIDPOINT_STAGE_COMPENSATION": "1",
+    "NM_SLIDER_FAILURE_SNAPSHOT": "/Users/numi/numi-lab-midpoint-compensated-20261109/docs/evidence/midpoint-first-failure-20261109/slider-primary-failure-checkpoint-001-before.bin"
+  },
+  "exit_code": -15,
+  "reason": "storage safety stop",
+  "wall_seconds": 62.267190125072375,
+  "checkpoint_sha256": null,
+  "inputs": {
+    "/Users/numi/numi-matter-slider-owner-build-20261109/bin/numi_midpoint_slider_coupled_diagnostic": "25e65603e93a3ab1a15880302a2b017a2adc7b26cf916a230f6c336d93d21363",
+    "/Users/numi/numi-matter-slider-owner-build-20261109/matter/shaders/NumiMatter.metallib": "72d2e238344e967f767b93cda4a5c1de6963d2212d219ed00e6b8a2b36b1b8ba",
+    "/Users/numi/numi-matter-slider-owner-build-20261109/shaders/MetalRobo.metallib": "f32b410bddf52679d06e66bd14263dcedcf25bf0fd1593375b8dece449f274f9",
+    "/Users/numi/numi-matter-slider-owner-build-20261109/lib/libmetalrobo.dylib": "c94797265c854d146bff975988bfbedb68b60e5da462fd6e3470e8b4cc2b2fd0"
+  }
+}

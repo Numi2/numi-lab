@@ -1,0 +1,42 @@
+{
+  "method": "For each accepted step, start from the stored velocity, use the measured body-wrench impulse and gravity, and round the resulting ideal velocity to the nearest binary32. Compare the resulting best possible impulse balance with the predeclared per-step gate. This does not assess unobserved state or prove the nonlinear rejection cause.",
+  "schema": "numi.slider-float-resolution.v1",
+  "traces": [
+    {
+      "accepted_steps": 576,
+      "largest_best_possible_gate_ratio": 32.56073754450223,
+      "largest_best_possible_impulse_error_Ns": 3.256073754450223e-11,
+      "sha256": "3e95ed4e83178faa6844b7c36d514cb096116f2922e1136ce565dd5f06278b59",
+      "steps_when_nearest_float_is_insufficient": 442,
+      "steps_when_published_velocity_is_nearest": 477,
+      "trace": "slider-primary-h15625-001.json"
+    },
+    {
+      "accepted_steps": 503,
+      "largest_best_possible_gate_ratio": 29.98841649587793,
+      "largest_best_possible_impulse_error_Ns": 2.998841649587793e-11,
+      "sha256": "dff9f4cd6642cd1c86abdfdfa7aac3c92a5b198e05ec1054032a724334ed76d1",
+      "steps_when_nearest_float_is_insufficient": 379,
+      "steps_when_published_velocity_is_nearest": 447,
+      "trace": "slider-near-h15625-001.json"
+    },
+    {
+      "accepted_steps": 676,
+      "largest_best_possible_gate_ratio": 9.042776845874346,
+      "largest_best_possible_impulse_error_Ns": 1.6909024704943443e-11,
+      "sha256": "e8ed2d5ecde1d261cc4ac982bd1c5ee9bbe8ee7160201131ccf21381bade69b0",
+      "steps_when_nearest_float_is_insufficient": 557,
+      "steps_when_published_velocity_is_nearest": 580,
+      "trace": "slider-primary-h078125-001.json"
+    },
+    {
+      "accepted_steps": 748,
+      "largest_best_possible_gate_ratio": 17.51183554825639,
+      "largest_best_possible_impulse_error_Ns": 1.7511835548256388e-11,
+      "sha256": "20031ded30599ac02865b0e45e780e7265eeb5b32a0b12c1820ac719213a34a5",
+      "steps_when_nearest_float_is_insufficient": 586,
+      "steps_when_published_velocity_is_nearest": 649,
+      "trace": "slider-near-h078125-001.json"
+    }
+  ]
+}
