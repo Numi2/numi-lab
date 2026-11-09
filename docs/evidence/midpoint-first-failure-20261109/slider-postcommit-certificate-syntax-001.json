@@ -1,0 +1,17 @@
+{
+  "sources_sha256": {
+    "matter/src/metal/contact.metalinc": "538268804b59aace5d191ae01d5aadfb65440f3fe38cd2ba6e0abaf5318effbf",
+    "matter/src/runtime.mm": "0bf2e6457d862ede0c90dbbd29a53d711e466a997cbb914aaed6a1b2572900b6"
+  },
+  "checks": [
+    {
+      "command": "xcrun -sdk macosx metal -std=metal4.0 -O3 -fno-fast-math -I matter/include -I include -w -fsyntax-only matter/src/matter_kernels.metal",
+      "returncode": 0
+    },
+    {
+      "command": "/usr/bin/clang++ -I matter/include -I include -F /Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/System/Library/Frameworks -x objective-c++ -std=gnu++23 -arch arm64 -fobjc-arc -w -fsyntax-only matter/src/runtime.mm",
+      "returncode": 0
+    }
+  ],
+  "scope": "syntax only, no running dynamic transaction, existing body guard remains closed"
+}

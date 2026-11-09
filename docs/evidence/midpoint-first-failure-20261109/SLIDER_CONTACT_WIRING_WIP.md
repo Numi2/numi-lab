@@ -26,3 +26,14 @@ unsupported rigid capacities. This covers the stage equation only; rounding
 in the owner's actual published endpoint still needs an independent check.
 The changed shader passed syntax only; see
 slider-rigid-stage-certificate-syntax-001.json.
+
+A guarded post-commit certificate has now been wired into the transaction. It
+captures the projected starting plane before Newton and, after the rigid owner
+publishes, checks the actual plane's full-step kinematics, normal momentum,
+and start/end FEM clearances before status latching and rollback. Its input is
+the owner's realized state, not a prescribed support trajectory. It is
+syntax-checked only (slider-postcommit-certificate-syntax-001.json). It has
+not yet been exercised in a native coupled run, and it does not establish
+independent support-moment or interface-work conservation. The preliminary
+midpoint scratch check also needs its moving-plane start/end inputs; the
+admission guard remains closed.

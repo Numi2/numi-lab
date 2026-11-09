@@ -3904,6 +3904,8 @@ struct Runtime::State {
     std::uint64_t mutationFingerprint = 0u;
     std::uint64_t learnedFingerprint = 0u;
     id<MTLBuffer> rigidStates = nil;
+    // Scratch for the scoped one-body midpoint transaction, captured before Newton.
+    id<MTLBuffer> midpointRigidStart = nil;
     id<MTLBuffer> prescribedRigidEndpoints = nil;
     id<MTLBuffer> prescribedRigidPrevious = nil;
     id<MTLBuffer> rigidStatesPreparedCheckpoint = nil;
@@ -8874,6 +8876,7 @@ RuntimeDiagnostics Runtime::initialize(
             "nm_fem_midpoint_reflect_velocity_low",
             "nm_fem_midpoint_certify_compensated",
             "nm_fem_midpoint_reflect_endpoint_scratch",
+            "nm_fem_midpoint_certify_slider_postcommit",
             "nm_fem_midpoint_certify_transaction",
             "nm_fem_midpoint_promote_endpoint",
             "nm_contact_midpoint_publish_physical",
@@ -13032,6 +13035,11 @@ RuntimeDiagnostics Runtime::initialize(
         candidate->rigidStatesPreparedCheckpoint = uploads.repeated(
             std::span<const NMRigidStateGPU>(initialRigidStates),
             environments, valid, candidate->residentBytes);
+        if (configuration.experimentalFEMPlaneMidpoint) {
+            candidate->midpointRigidStart = uploads.repeated(
+                std::span<const NMRigidStateGPU>(initialRigidStates),
+                environments, valid, candidate->residentBytes);
+        }
         const std::vector<nm_float4> initialContactHistories(
             world.dispatch.contactPairCount
         );
@@ -23316,6 +23324,26 @@ RuntimeDiagnostics Runtime::encodeImpl(
                     bindPrimalContactArguments(16u);
                 }
             );
+            if (state.experimentalFEMPlaneMidpoint && state.requiresCoupledCandidate) {
+                // This consumes the actual rigid state MetalWorld published,
+                // before either owner is allowed to retain the transaction.
+                [encoder memoryBarrierWithScope:MTLBarrierScopeBuffers];
+                const float sliderMass=request.sliderMidpointMassKg;
+                const float sliderGravity=request.sliderMidpointGravityForceNewtons;
+                dispatchThreads("nm_fem_midpoint_certify_slider_postcommit", 1u, [&] {
+                    setDispatch();
+                    [encoder setBuffer:state.mixedSolver offset:0u atIndex:1u];
+                    [encoder setBuffer:state.midpointRigidStart offset:0u atIndex:2u];
+                    [encoder setBuffer:state.rigidStates offset:0u atIndex:3u];
+                    [encoder setBuffer:state.femCheckpoint offset:0u atIndex:4u];
+                    [encoder setBuffer:state.femAccepted offset:0u atIndex:5u];
+                    [encoder setBuffer:state.coupledGeneralizedCandidate offset:0u atIndex:6u];
+                    [encoder setBuffer:state.frameReactions offset:0u atIndex:7u];
+                    [encoder setBytes:&sliderMass length:sizeof(sliderMass) atIndex:8u];
+                    [encoder setBytes:&sliderGravity length:sizeof(sliderGravity) atIndex:9u];
+                    [encoder setBuffer:state.statuses offset:0u atIndex:10u];
+                });
+            }
             // postCommit can reject a candidate that already received a
             // successful preDynamics certificate.  The frame is rolled back
             // below, so its publication bit must not survive that rejection.
@@ -24074,8 +24102,17 @@ RuntimeDiagnostics Runtime::encodeImpl(
             [encoder setBuffer:rodNodes offset:0u atIndex:5u];
             [encoder setBuffer:rodInverseMasses offset:0u atIndex:6u];
         });
-        if (stationaryBoxEndpointGateRequested)
+        if (stationaryBoxEndpointGateRequested ||
+            (state.experimentalFEMPlaneMidpoint && state.requiresCoupledCandidate))
             [encoder memoryBarrierWithScope:MTLBarrierScopeBuffers];
+        if (state.experimentalFEMPlaneMidpoint && state.requiresCoupledCandidate) {
+            dispatchThreads("nm_contact_capture_prescribed_endpoint", proxyTotal, [&] {
+                setDispatch();
+                [encoder setBuffer:state.rigidStates offset:0u atIndex:1u];
+                [encoder setBuffer:state.midpointRigidStart offset:0u atIndex:2u];
+            });
+            [encoder memoryBarrierWithScope:MTLBarrierScopeBuffers];
+        }
         if (state.hasPrescribedTranslation) {
             dispatchThreads("nm_contact_capture_prescribed_endpoint", proxyTotal, [&] {
                 setDispatch();

@@ -13893,6 +13893,90 @@ inline NMContactInterval nmMidpointReferencePlaneProjection(
     return sum;
 }
 
+// This late certificate observes the rigid owner's published endpoint. A
+// failure is latched into MetalWorld before both owners roll back. It is scoped
+// to one fixed-root, world-z prismatic body and one frictionless plane; the
+// host admission guard remains closed until the complete transaction passes.
+kernel void nm_fem_midpoint_certify_slider_postcommit(
+    constant NMMatterDispatchGPU& dispatch [[buffer(0)]],
+    constant NMMixedSolverGPU& solver [[buffer(1)]],
+    device const NMRigidStateGPU* startRigid [[buffer(2)]],
+    device const NMRigidStateGPU* endRigid [[buffer(3)]],
+    device const NMFEMNodeStateGPU* startNodes [[buffer(4)]],
+    device const NMFEMNodeStateGPU* endNodes [[buffer(5)]],
+    device const float* stageIncrement [[buffer(6)]],
+    device const NMRigidReactionGPU* reactions [[buffer(7)]],
+    constant float& mass [[buffer(8)]],
+    constant float& gravityForce [[buffer(9)]],
+    device NMMatterStatusGPU* statuses [[buffer(10)]],
+    uint tid [[thread_position_in_grid]]) {
+    if (tid != 0u || !environmentHealthy(statuses,0u)) return;
+    const auto start=startRigid[0],end=endRigid[0];
+    const float4 plane0=start.centerAndRadius,plane1=end.centerAndRadius;
+    const float h=dispatch.gravityAndTimestep.w;
+    const float v0=start.linearVelocityAndInverseMass.z;
+    const float v1=end.linearVelocityAndInverseMass.z;
+    const float dv=stageIncrement[0];
+    const float3 impulse=reactions[0].impulseAndCount.xyz;
+    if (dispatch.environmentCount!=1u || dispatch.rigidProxyCount!=1u ||
+        dispatch.rigidGeneralizedCapacity!=1u || !all(isfinite(plane0)) ||
+        !all(isfinite(plane1)) || any(plane0.xyz!=float3(0,0,1)) ||
+        any(plane1.xyz!=plane0.xyz) || !isfinite(h) || !(h>0.0f) ||
+        !isfinite(mass) || !(mass>0.0f) || !isfinite(gravityForce) ||
+        !isfinite(v0) || !isfinite(v1) || !isfinite(dv) ||
+        !finite3(impulse) || impulse.x!=0.0f || impulse.y!=0.0f ||
+        any(start.angularVelocity.xyz!=float3(0.0f)) ||
+        any(end.angularVelocity.xyz!=float3(0.0f))) {
+        recordFailure(statuses[0],NM_STATUS_INVALID_DISPATCH,0u,0u,float4(0));
+        return;
+    }
+    const auto midpointVelocity=mrCompensatedAdd({v0,0.0f},{dv,0.0f});
+    const auto displacement=mrCompensatedAdd({plane1.w,0.0f},{-plane0.w,0.0f});
+    const auto expectedDisplacement=mrCompensatedMultiply({h,0.0f},midpointVelocity);
+    const auto positionResidual=mrCompensatedAdd(displacement,
+        mrCompensatedNegate(expectedDisplacement));
+    const float positionError=abs(positionResidual.high)+abs(positionResidual.low);
+    const float positionLimit=64.0f*kEpsilon*
+        max(abs(expectedDisplacement.high)+abs(expectedDisplacement.low),1.0e-6f);
+    const auto velocityChange=mrCompensatedAdd({v1,0.0f},{-v0,0.0f});
+    auto momentum=mrCompensatedMultiply({mass,0.0f},velocityChange);
+    momentum=mrCompensatedAdd(momentum,mrCompensatedNegate(
+        mrCompensatedProduct(h,gravityForce)));
+    momentum=mrCompensatedAdd(momentum,{-impulse.z,0.0f});
+    const float momentumError=abs(momentum.high)+abs(momentum.low);
+    const float momentumLimit=2.0f*(solver.contactAcceptance.y+
+        solver.contactAcceptance.z*solver.contactAcceptance.w);
+    if (!isfinite(positionError) || !isfinite(positionLimit) ||
+        !isfinite(momentumError) || !isfinite(momentumLimit) ||
+        !(momentumLimit>0.0f) || positionError>positionLimit ||
+        momentumError>momentumLimit) {
+        recordFailure(statuses[0],NM_STATUS_NONLINEAR_SOLVER_FAILURE,0u,0u,
+            float4(momentumError,momentumLimit,positionError,positionLimit));
+        return;
+    }
+    const float clearance=solver.contactAcceptance.x*dispatch.numericalLimits.x;
+    if (!isfinite(clearance) || clearance<0.0f) {
+        recordFailure(statuses[0],NM_STATUS_INVALID_DISPATCH,0u,0u,float4(clearance));
+        return;
+    }
+    for (uint i=0u;i<dispatch.femNodeCount;++i) {
+        const auto a=startNodes[i],e=endNodes[i];
+        if (a.referenceDisplacementAndMode.w!=1.0f ||
+            e.referenceDisplacementAndMode.w!=1.0f) {
+            recordFailure(statuses[0],NM_STATUS_INVALID_DISPATCH,0u,i,float4(0));
+            return;
+        }
+        const auto g0=nmMidpointReferencePlaneProjection(a,plane0.xyz,plane0.w);
+        const auto g1=nmMidpointReferencePlaneProjection(e,plane1.xyz,plane1.w);
+        if (!isfinite(g0.lower) || !isfinite(g1.lower) ||
+            !(g0.lower>clearance) || !(g1.lower>clearance)) {
+            recordFailure(statuses[0],NM_STATUS_CONTACT_FAILURE,0u,i,
+                float4(g0.lower,g1.lower,clearance,0));
+            return;
+        }
+    }
+}
+
 // An opt-in midpoint precontact repair: try nearby representable stage
 // velocities only if the unchanged physical momentum test would fail. This
 // never certifies or publishes; the owner recomputes forces and certifies the
