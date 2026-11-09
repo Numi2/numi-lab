@@ -1,0 +1,5 @@
+# Exploratory articulated steering probe
+
+Starting from the fixed +0.55/-0.55 pronation-offset arm, test adding equal-sign +0.30/+0.30 or -0.30/-0.30 normalized offsets to left/right pronation commands after 6 s. These are clamped to [-1,1] before the normal actuator filter. Keep the v15 body, all physics parameters, speed trim, heading gains, 32 matched lane starts, 20261111 development seed, five turn commands and 1600-step horizon identical. Each lane is paired with the fixed-speed control; sampled accepted state is recorded every two seconds.
+
+Prediction: at least one bias lowers median maximum absolute heading error in -0.03 rad/s lanes by >=0.15 rad from the fixed-speed control without causing physical failures in those lanes. Report all turn conditions, speed, height and terminations. Missing samples or any simulator-step failures invalidate the corresponding comparison. The previously defined strict screen stays fixed. Stop after these two interventions. Any favorable result remains exploratory; no independent validation or recovery perturbation is claimed.
