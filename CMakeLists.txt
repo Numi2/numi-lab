@@ -3740,6 +3740,16 @@ set_target_properties(
         BUILD_RPATH "${CMAKE_CURRENT_BINARY_DIR}/lib"
 )
 
+# Native rigid-owner baseline for the scoped Matter midpoint research fixture.
+add_executable(numi_midpoint_slider_rigid_baseline apps/midpoint_slider_rigid_baseline.cpp)
+target_compile_options(numi_midpoint_slider_rigid_baseline PRIVATE -Wall -Wextra -Wpedantic -Werror)
+target_link_libraries(numi_midpoint_slider_rigid_baseline PRIVATE metalrobo)
+set_target_properties(numi_midpoint_slider_rigid_baseline PROPERTIES
+    RUNTIME_OUTPUT_DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}/bin"
+    BUILD_RPATH "${CMAKE_CURRENT_BINARY_DIR}/lib")
+add_test(NAME numi.midpoint.slider_rigid_baseline COMMAND numi_midpoint_slider_rigid_baseline
+    "${CMAKE_CURRENT_BINARY_DIR}/shaders/MetalRobo.metallib")
+
 add_executable(
     metalrobo_matter_snapshot_archive_probe
     apps/matter_snapshot_archive_probe.cpp

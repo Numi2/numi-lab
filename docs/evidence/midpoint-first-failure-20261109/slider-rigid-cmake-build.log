@@ -1,0 +1,9 @@
+[0/2] Re-checking globbed directories...
+[1/2] Re-running CMake...
+-- MetalRobo Python tests disabled: no interpreter with NumPy and SciPy
+-- Configuring done (0.9s)
+-- Generating done (0.1s)
+-- Build files have been written to: /Users/numi/numi-matter-slider-owner-build-20261109
+[0/4] Re-checking globbed directories...
+[1/5] Building CXX object CMakeFiles/numi_midpoint_slider_rigid_baseline.dir/apps/midpoint_slider_rigid_baseline.cpp.o
+[2/5] Linking CXX executable bin/numi_midpoint_slider_rigid_baseline
