@@ -1,0 +1,26 @@
+{
+  "controller": "crow-flight-controller-v1",
+  "source": "src/metal/CrowFlightControllerV1.metal",
+  "source_sha256": "aa2fe10901cb0494d80ae445902303a17ce0e73d030072bab09461d8f3593ebe",
+  "matched_trials": [
+    {
+      "seed": 20261120,
+      "reference_samples": 1280,
+      "frozen_source_samples": 1280,
+      "matched_samples": 1280,
+      "qv_differences": 0,
+      "first_differences": [],
+      "nonempty_teacher_labels": 0
+    },
+    {
+      "seed": 20261121,
+      "reference_samples": 1280,
+      "frozen_source_samples": 1280,
+      "matched_samples": 1280,
+      "qv_differences": 0,
+      "first_differences": [],
+      "nonempty_teacher_labels": 0
+    }
+  ],
+  "frozen_scope": "v15 body, flight only, command limits and conditions in plan; not landing or autonomous navigation"
+}
