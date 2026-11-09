@@ -1,0 +1,5 @@
+# Branch-sized landing-target trial
+
+All four one-lane first episodes (two development-exposed obstacle layouts, force-aware and sensor-zero arms) reached five waypoints but suffered physical failure between trace steps 2488 and 2520. None produced three consecutive opposing loaded front/rear toe contacts on both feet or 25 terminal supported endpoints. The active layout I trace shows intermittent rear-toe/branch contacts, followed by movement away from the branch and eventual course collision. Changing perch width alone did not solve landing or grip.
+
+The landing surface was changed from 20 cm to 5 cm across the toe span; the camera therefore saw a different environment. The same actor weights were explicitly rebound to a new fingerprint and remain unqualified on this geometry. Plans, original rejection, code, actions, replays, contact evidence and failures are retained. The control-step observer reports toe body contacts, but the inherited foot-support group did not include toe bodies; subsequent experiments must account for them.

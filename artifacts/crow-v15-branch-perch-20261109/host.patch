@@ -1,0 +1,23 @@
+--- a/reactive.cpp
++++ b/branch-perch.cpp
+@@ -3543,6 +3543,20 @@
+         manifest.scene = cueConfig ? metalrobo::makeAmericanCrowForagingFixtureManifest(cueConfig->occluded!=0).scene : worldModelNavigation
+             ? metalrobo::makeBirdFlowAmericanCrowNavigationScenePack()
+             : metalrobo::makeBirdFlowAmericanCrowFlightScenePack();
++        if (activeNavigation) {
++            bool foundPerch=false;
++            for (auto& object : manifest.scene.objects) {
++                for (std::size_t i=0;i<object.mechanics.shapeNames.size();++i) {
++                    if (object.mechanics.shapeNames[i]!="crow_course_perch/collision") continue;
++                    auto& shape=object.mechanics.shapes.at(i);
++                    if (std::abs(shape.dimensions.x-0.10f)>1e-6f) throw std::logic_error("unexpected original perch width");
++                    shape.dimensions.x=0.025f;
++                    shape.contactRestAndBoundingRadius.z=std::sqrt(shape.dimensions.x*shape.dimensions.x+shape.dimensions.y*shape.dimensions.y+shape.dimensions.z*shape.dimensions.z);
++                    foundPerch=true;
++                }
++            }
++            if (!foundPerch) throw std::logic_error("navigation perch shape not found");
++        }
+         manifest.sensors.id = cueConfig ? "camera_admission_proprioception" : journey
+             ? activeNavigation ? "american_crow_active_head_navigation_rgbd_sensors"
+             : retinal ? "american_crow_retinal_v13_rgb_proprioception_nutrition"
