@@ -1,0 +1,3 @@
+# Descent-height follow-up
+
+Lowering perch-relative descent command from +0.36 m to +0.34 m increased sampled supported landings from 14 to 45 of 64, without physical failure. Prediction: +0.33 m will increase reliable bilateral foot loading; +0.32 m may further improve it but increases risk of body/perch contact. Run both on the identical 64 full-start 20261124 training-layout episodes, collision enabled, 3000 steps, unchanged centered contact handoff and frozen flight law. Require 64/64 sustained sampled support and zero physical failures. Retain both outcomes and avoid promoting either if the requirement fails. This is development data.

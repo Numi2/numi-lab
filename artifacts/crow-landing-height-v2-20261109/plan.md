@@ -1,0 +1,3 @@
+# Lower perch-relative descent target
+
+On the preceding matched run the stable hovering lanes converged to root height about 0.248 m above the perch center, while successfully supported lanes settled at about 0.232 m. Prediction: lowering only the descent command by 0.02 m, from perch center +0.36 m to +0.34 m, will establish foot load in more lanes without causing body contact before the existing cautious support handoff. Repeat all 64 full-start 20261124 training-layout episodes, collision enabled, 3000 steps, all other controls and criteria unchanged. Report all contact and failure outcomes; require 64 sampled supported landings and no physical failures. This is development only.
