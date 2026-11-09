@@ -1,0 +1,24 @@
+{
+  "collision-on": {
+    "old_rejected": true,
+    "payload_equal": true,
+    "world": 12704294952255580436,
+    "task": 834232888989841086,
+    "observation": 11246202251672230696,
+    "action": 10335628214131907515,
+    "old_policy_sha256": "78818e256daff256dd06b730377335647b69985d69edeaa34357af3615d24208",
+    "new_policy_sha256": "3828c0741900a5dc778f8acfcfb455dcd10493783cefd1f78cf25399ed9f6ffd",
+    "library_sha256": "0a237d50ca2163cc47702411a35ba8182f6a0da4cd347adcb463d519ef0858dd"
+  },
+  "collision-off": {
+    "old_rejected": true,
+    "payload_equal": true,
+    "world": 2538803335211058858,
+    "task": 14609397488682259590,
+    "observation": 12347588443474666224,
+    "action": 13017575468937512255,
+    "old_policy_sha256": "07971fcbc960e3461421e2685325eb967786462ab97d422a55c916fd58efa2b2",
+    "new_policy_sha256": "cd4c8cd772b401bd4e81b8b8b1187a638707c7f202b351ce99f0ef5e1a90cc70",
+    "library_sha256": "a5d21f38210f2cf97e585b5a44b64516b5f493e7665e922f469eec0d3555f08d"
+  }
+}
