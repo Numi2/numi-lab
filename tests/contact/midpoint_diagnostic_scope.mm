@@ -72,11 +72,43 @@ int main(int argc, char** argv) {
         g.message.find("midpoint precontact polish")!=std::string::npos,
         "polish accepted outside the midpoint fixture");
     unsetenv(polishName);
-    std::cout<<"midpoint capture and polish scope and fingerprints verified\n";
+    constexpr const char* lowName="NM_MATTER_MIDPOINT_VELOCITY_COMPENSATION";
+    constexpr const char* stageName="NM_MATTER_MIDPOINT_STAGE_COMPENSATION";
+    unsetenv(lowName);setenv(stageName,"1",1);
+    numi::matter::Runtime stageWithoutLow;
+    auto h=stageWithoutLow.initialize(world,config);
+    require(!h.encoded && !stageWithoutLow.valid(),"stage low accepted without endpoint low");
+    setenv(lowName,"1",1);unsetenv(stageName);
+    numi::matter::Runtime low;
+    auto i=low.initialize(world,config);
+    require(i.encoded && low.valid() && low.deviceProgramFingerprint()!=base,"low mode unavailable or not fingerprinted");
+    setenv(stageName,"1",1);
+    numi::matter::Runtime stage;
+    auto j=stage.initialize(world,config);
+    require(j.encoded && stage.valid() && stage.deviceProgramFingerprint()!=low.deviceProgramFingerprint(),
+        "stage mode unavailable or not fingerprinted: "+j.message);
+    auto snapshot=stage.snapshot();
+    require(snapshot.available && snapshot.femMidpointVelocityLow.size()==world.dispatch.femNodeCount,
+        "compensated physical state missing velocity low word");
+    auto malformed=snapshot;malformed.femMidpointVelocityLow.pop_back();
+    require(!stage.restore(malformed).encoded,"malformed low arena accepted");
+    malformed=snapshot;malformed.femMidpointVelocityLow[0].x=std::numeric_limits<float>::quiet_NaN();
+    require(!stage.restore(malformed).encoded,"nonfinite low velocity accepted");
+    require(stage.restore(snapshot).encoded,"valid compensated snapshot rejected");
+    setenv(name,"1",1);
+    numi::matter::Runtime capturedStage;
+    require(!capturedStage.initialize(world,config).encoded,"unsupported stage capture accepted");
+    unsetenv(name);setenv(stageName,"0",1);
+    numi::matter::Runtime invalidStage;
+    require(!invalidStage.initialize(world,config).encoded,"invalid stage opt-in accepted");
+    unsetenv(stageName);unsetenv(lowName);
+    std::cout<<"midpoint scope, state validation and fingerprints verified\n";
     return 0;
  } catch(const std::exception& e) {
     unsetenv("NM_MATTER_MIDPOINT_DIAGNOSTIC_ROOT");
     unsetenv("NM_MATTER_MIDPOINT_PRECONTACT_POLISH");
+    unsetenv("NM_MATTER_MIDPOINT_VELOCITY_COMPENSATION");
+    unsetenv("NM_MATTER_MIDPOINT_STAGE_COMPENSATION");
     std::cerr<<"midpoint_diagnostic_scope: "<<e.what()<<"\n"; return 1;
  } }
 }
