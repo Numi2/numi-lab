@@ -1,6 +1,6 @@
 from pathlib import Path
 import difflib,hashlib,json,os,subprocess
-R=Path.cwd();schedule=os.environ['CROW_SCHEDULE'];base_step,delta={'early':(1000,50),'late':(1300,100),'terminal':(2100,100)}[schedule]
+R=Path.cwd();schedule=os.environ['CROW_SCHEDULE'];base_step,delta={'early':(1000,50),'nearcritical':(1050,25),'critical':(1100,25),'late':(1300,100),'recovery':(1600,50),'terminal':(2100,100)}[schedule]
 A=R/'artifacts/crow-third-dagger-20261109'/schedule;B=R/'build/crow-third-dagger-20261109'/schedule;A.mkdir(parents=True,exist_ok=True);B.mkdir(parents=True,exist_ok=True)
 base=(R/'build/crow-teacher-late-recovery-20261109/teacher.metal').read_text()
 old='const bool privilegedCommand = (dispatch.sampling.w != 0u && dispatch.assistance.x < 0.5f);'

@@ -1,12 +1,13 @@
 from pathlib import Path
 import gzip,hashlib,json,math,os,shutil,subprocess
-R=Path.cwd();schedule=os.environ['CROW_SCHEDULE'];base_step,delta={'early':(1000,50),'late':(1300,100),'terminal':(2100,100)}[schedule]
+R=Path.cwd();schedule=os.environ['CROW_SCHEDULE'];base_step,delta={'early':(1000,50),'nearcritical':(1050,25),'critical':(1100,25),'late':(1300,100),'recovery':(1600,50),'terminal':(2100,100)}[schedule]
 A=R/'artifacts/crow-third-dagger-20261109'/schedule;B=R/'build/crow-third-dagger-20261109'/schedule;B.mkdir(parents=True,exist_ok=True)
 course=os.environ['CROW_DEV_COURSE'];seed=os.environ['CROW_START_SEED'];batch=os.environ['CROW_BATCH'];O=A/batch;O.mkdir(exist_ok=True)
 lib=R/'build/crow-third-native-observer-20261109/libmetalrobo.dylib'
+base_pack=(R/'build/crow-third-policy-candidates-20261109/stage2-80-stage3-baseline.policypack') if schedule in ('nearcritical','critical','recovery') else (R/'build/crow-dual-expert-native-integration-20261109/route.policypack')
 cmd=json.loads((R/'artifacts/crow-unused-layout-confirmation-round2-20261109/reserved-final-e/results.json').read_text())['argv'].copy()
 pack=B/(batch+'.rollout')
-for k,v in [('--metallib',str(B/'recovery.metallib')),('--policy-pack',str(R/'build/crow-dual-expert-native-integration-20261109/landing.policypack')),('--base-policy-pack',str(R/'build/crow-dual-expert-native-integration-20261109/route.policypack')),('--envs','16'),('--seed',seed),('--birdflow-navigation-course',course),('--state-trace',str(B/(course+'.tsv')))]:cmd[cmd.index(k)+1]=v
+for k,v in [('--metallib',str(B/'recovery.metallib')),('--policy-pack',str(R/'build/crow-dual-expert-native-integration-20261109/landing.policypack')),('--base-policy-pack',str(base_pack)),('--envs','16'),('--seed',seed),('--birdflow-navigation-course',course),('--state-trace',str(B/(course+'.tsv')))]:cmd[cmd.index(k)+1]=v
 assert cmd[cmd.index('--birdflow-journey-variant')+1]=='v15-dual-waypoint-expert-navigation'
 cmd+=['--birdflow-journey-teacher','--birdflow-journey-student-authority','1','--rollout-pack',str(pack)]
 env={**os.environ,'CROW_CONTACT_TRACE':'1','CROW_SUPPORT_TRACE':'1','DYLD_LIBRARY_PATH':str(lib.parent),'PYTHONDONTWRITEBYTECODE':'1'}
@@ -65,6 +66,6 @@ h=hashlib.sha256()
 with gzip.open(compressed,'rb') as z:
  for block in iter(lambda:z.read(1024*1024),b''):h.update(block)
 if h.hexdigest()!=rawhash:raise RuntimeError('compressed pack did not round-trip')
-report={'course':course,'seed':seed,'argv':cmd,'raw_pack_bytes':pack.stat().st_size,'raw_pack_sha256':rawhash,'compressed_pack_bytes':compressed.stat().st_size,'compressed_pack_sha256':sha(compressed),'round_trip_verified':True,'frozen_controller_sha256':sha(R/'src/metal/CrowFlightControllerV1.metal'),'shader_sha256':sha(B/'recovery.metallib'),'library_sha256':sha(lib),'policy_sha256':sha(R/'build/crow-dual-expert-native-integration-20261109/landing.policypack'),'base_policy_sha256':sha(R/'build/crow-dual-expert-native-integration-20261109/route.policypack'),'failed_environment_steps':data['failed_environment_steps'],'lanes':rows,'eligible_lanes':sum(x['eligible'] for x in rows),'sampling':'teacher labels on; full student route and landing until lane-specific physical recovery; first episode only','student_takeover_steps':[base_step+delta*(i%4) for i in range(16)],'student_prefix_compared_samples':len(compared),'student_prefix_mismatches':len(mismatches)}
+report={'course':course,'seed':seed,'argv':cmd,'raw_pack_bytes':pack.stat().st_size,'raw_pack_sha256':rawhash,'compressed_pack_bytes':compressed.stat().st_size,'compressed_pack_sha256':sha(compressed),'round_trip_verified':True,'frozen_controller_sha256':sha(R/'src/metal/CrowFlightControllerV1.metal'),'shader_sha256':sha(B/'recovery.metallib'),'library_sha256':sha(lib),'policy_sha256':sha(R/'build/crow-dual-expert-native-integration-20261109/landing.policypack'),'base_policy_sha256':sha(base_pack),'failed_environment_steps':data['failed_environment_steps'],'lanes':rows,'eligible_lanes':sum(x['eligible'] for x in rows),'sampling':'teacher labels on; full student route and landing until lane-specific physical recovery; first episode only','student_takeover_steps':[base_step+delta*(i%4) for i in range(16)],'student_prefix_compared_samples':len(compared),'student_prefix_mismatches':len(mismatches)}
 (O/'manifest.json').write_text(json.dumps(report,indent=2)+'\n')
 print(course,'eligible',report['eligible_lanes'],'raw MB',round(report['raw_pack_bytes']/1e6,1),'compressed MB',round(report['compressed_pack_bytes']/1e6,1),flush=True)
