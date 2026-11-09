@@ -33,7 +33,12 @@ if type(record.get("returncode")) is not int or "stopped_reason" not in record:
     raise SystemExit("execution record does not establish an exited producer")
 if not source.is_file() or source.stat().st_size == 0:
     raise SystemExit("completed trace is missing or empty")
-if shutil.disk_usage(evidence).free < 3 * 1024**3:
+# Compression may temporarily need as much space as the input. Keep that
+# full upper bound in addition to a 2.5 GiB system reserve; the source is
+# never removed by this script. This admits bounded archival of a stopped
+# producer on a nearly full volume without relaxing any experiment guard.
+minimum_free = 5 * 1024**3 // 2 + source.stat().st_size
+if shutil.disk_usage(evidence).free < minimum_free:
     raise SystemExit("free-space guard")
 
 def identity(s):
@@ -76,7 +81,8 @@ try:
             "producer_returncode":record["returncode"], "producer_stopped_reason":record["stopped_reason"],
             "archive":archive.name, "archive_sha256":digest_file(temporary),
             "archive_bytes":temporary.stat().st_size,
-            "decompressed_sha256_verified":True, "original_retained":True}
+            "decompressed_sha256_verified":True, "original_retained":True,
+            "free_space_minimum_before_bytes":minimum_free}
     # Hard-link publication is exclusive: never overwrite an unrelated file.
     os.link(temporary, archive)
     with manifest.open("x") as out:
