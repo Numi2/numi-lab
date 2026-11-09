@@ -1,0 +1,11 @@
+{
+  "route_input": "/Users/n/Developer/numi-crow-rl-20261107/build/crow-stage2-adapter-training-20261109/frozen-route-actor.policypack",
+  "expert_input": "/Users/n/Developer/numi-crow-rl-20261107/build/crow-expanded-stage2-specialist-20261109/checkpoint-160.policypack",
+  "route_sha256": "b54a34d1e9de7d39ff2ffd624d2d0260c3441f797d5f64a983f29093e9d25ad2",
+  "expert_sha256": "eef2bcb40207e6720bc82ffae518191c8798537c53da71ca97189f848b18fdc4",
+  "candidate_sha256": "80839e85119efd2fef8a96bf06c8b8baed40ff89a686094a7d1d7c39a9176bf6",
+  "route_max_error": 0.0,
+  "expert_max_error": 0.0,
+  "native_contract_from": "06a5a8b187145615a92697412a156358e727b69f1d0aa75308e6c208f48322ac",
+  "critic_and_stochastic_head_removed": true
+}
