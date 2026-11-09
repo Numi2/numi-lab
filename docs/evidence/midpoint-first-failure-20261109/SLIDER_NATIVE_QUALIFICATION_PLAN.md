@@ -86,3 +86,12 @@ state-accuracy gates as the primary fixture. Use fixed normalization floors of
 temporal check passes, require the native near-contact trajectory to meet the
 same final position and velocity gates. This adds state qualification before a
 new full native rollout and does not change existing force or work gates.
+
+
+For both initial-gap fixtures, also time-qualify the reference total contact
+torque impulse about the common fixed origin in each transverse direction.
+Use a 1% tolerance normalized by the greater of its absolute fine-reference
+value and 1e-12 N m s; the resulting 1e-14 N m s floor is the existing local
+absolute torque bound. Once the temporal reference passes, apply the same
+criterion to the accumulated native FEM torque impulse. Keep the independent
+per-step equal-and-opposite contact and support torque checks.
