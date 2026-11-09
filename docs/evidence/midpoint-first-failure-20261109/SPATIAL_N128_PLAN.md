@@ -26,3 +26,11 @@ step, understanding that a single evaluation is only a rough lower-bound
 planning estimate; enforce the same six-hour wall limit in the supervisor.
 Any stopped or failed attempt remains evidence. Native Matter runs and speed
 claims are separate work. There is no change to the runtime contact law.
+
+The first 0.5 microsecond rollout was stopped by its free-space guard after a
+separate task-created sparse checkout unexpectedly materialized large tracked
+example data. That incomplete checkout was removed, free space recovered, and
+the stopped run and reason are retained. It produced no physical result.
+A uniquely named retry uses the identical frozen binary, timestep, memory and
+free-space limits. Do not start another checkout or storage-heavy build while
+this reference is active. The retry is not a timing benchmark.
