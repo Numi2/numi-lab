@@ -1,8 +1,11 @@
 #pragma once
 #include "numi/matter/matter.hpp"
 #include <array>
+#include <cstdint>
+#include <limits>
 #include <cmath>
 #include <string>
+#include <utility>
 #include <vector>
 
 namespace numi::matter::detail {
@@ -26,6 +29,62 @@ struct FEMPlaneReferenceTriangle {
     std::array<unsigned,3> nodes;
     double referenceArea;
 };
+
+struct FEMPlaneQuadratureLayout {
+    std::vector<NMPlaneQuadratureRowGPU> rows;
+    // offsets has nodeCount+1 entries; incidence is ordered first by node,
+    // then by row index. No GPU floating-point atomic scatter is necessary.
+    std::vector<std::uint32_t> offsets;
+    std::vector<NMPlaneQuadratureIncidenceGPU> incidence;
+};
+
+// Build privately, publishing only a complete validated layout. A row is a
+// geometric integration point, not a certificate that a face is clear.
+inline bool femPlaneQuadratureLayout(
+        std::size_t nodeCount, const std::vector<FEMPlaneReferenceTriangle>& triangles,
+        FEMPlaneQuadratureLayout& output, std::string& error) {
+    constexpr std::size_t limit=std::numeric_limits<std::uint32_t>::max();
+    if (nodeCount>=limit || triangles.size()>limit/(3u*femPlaneQuadrature.size())) {
+        error="plane quadrature incidence capacity exceeded";return false;
+    }
+    FEMPlaneQuadratureLayout result;
+    result.offsets.assign(nodeCount+1u,0u);
+    result.rows.reserve(triangles.size()*femPlaneQuadrature.size());
+    for(const auto& t:triangles) {
+        if(t.nodes[0]>=nodeCount || t.nodes[1]>=nodeCount || t.nodes[2]>=nodeCount ||
+           t.nodes[0]==t.nodes[1] || t.nodes[1]==t.nodes[2] || t.nodes[2]==t.nodes[0] ||
+           !std::isfinite(t.referenceArea) || !(t.referenceArea>0.0)) {
+            error="invalid plane quadrature triangle";return false;
+        }
+        for(const auto& q:femPlaneQuadrature) {
+            const float area=static_cast<float>(t.referenceArea*q.weight);
+            if(!std::isfinite(area) || !(area>0.0f)) {
+                error="unrepresentable weighted plane reference area";return false;
+            }
+            const float shape[3]{static_cast<float>(q.barycentric[0]),
+                static_cast<float>(q.barycentric[1]),static_cast<float>(q.barycentric[2])};
+            const float shapeLow[3]{static_cast<float>(q.barycentric[0]-double(shape[0])),
+                static_cast<float>(q.barycentric[1]-double(shape[1])),
+                static_cast<float>(q.barycentric[2]-double(shape[2]))};
+            const float areaLow=static_cast<float>(t.referenceArea*q.weight-double(area));
+            result.rows.push_back({{t.nodes[0],t.nodes[1],t.nodes[2],0u},
+                {shape[0],shape[1],shape[2],area},
+                {shapeLow[0],shapeLow[1],shapeLow[2],areaLow}});
+        }
+        for(unsigned node:t.nodes) result.offsets[node+1u]+=femPlaneQuadrature.size();
+    }
+    for(std::size_t i=1;i<result.offsets.size();++i)result.offsets[i]+=result.offsets[i-1];
+    result.incidence.resize(result.offsets.back());
+    auto cursor=result.offsets;
+    for(std::uint32_t row=0;row<result.rows.size();++row) {
+        const auto nodes=result.rows[row].nodes;
+        const unsigned ids[3]{nodes.x,nodes.y,nodes.z};
+        for(std::uint32_t corner=0;corner<3;++corner)
+            result.incidence[cursor[ids[corner]]++]={row,corner};
+    }
+    output=std::move(result);
+    error.clear();return true;
+}
 
 // Reference-area mass-lumping of a *single planar* exposed face patch.
 // Nodes which do not belong to the patch receive zero contact area.

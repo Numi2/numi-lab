@@ -1385,6 +1385,22 @@ typedef struct NM_ALIGN16 NMRigidStateGPU {
     nm_float4 inverseInertiaRow2;
 } NMRigidStateGPU;
 
+// One immutable reference-area quadrature row for an admitted FEM/plane
+// triangle. Nodes xyz are the three FEM nodes; w is reserved zero. The
+// shape coefficients are xyz and the reference area times quadrature weight
+// is w. Each has a low word for compensated assembly. Per-node gathers use
+// NMPlaneQuadratureIncidenceGPU below.
+typedef struct NM_ALIGN16 NMPlaneQuadratureRowGPU {
+    nm_uint4 nodes;
+    nm_float4 shapeAndWeightedArea;
+    nm_float4 shapeAndWeightedAreaLow;
+} NMPlaneQuadratureRowGPU;
+
+typedef struct NMPlaneQuadratureIncidenceGPU {
+    nm_u32 row;
+    nm_u32 corner;
+} NMPlaneQuadratureIncidenceGPU;
+
 typedef struct NM_ALIGN16 NMContactPairGPU {
     // Unified node index: MPM nodes first, then FEM nodes.
     nm_u32 continuumNode;
