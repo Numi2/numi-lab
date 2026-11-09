@@ -26,6 +26,7 @@ int main(int argc, char** argv) {
     double gpu=0;int accepted=0,rejected=0;std::string failure;
     const auto start=std::chrono::steady_clock::now();
     for(int i=0;i<steps;++i){
+      @autoreleasepool {
         *outer={};outer->code=MR_STEP_SUCCESS;
         id<MTLCommandBuffer> command=[queue commandBuffer];numi::matter::EncodeRequest request;
         request.commandBuffer=(__bridge void*)command;request.environmentStatuses=(__bridge void*)statuses;
@@ -39,6 +40,7 @@ int main(int argc, char** argv) {
         gpu+=command.GPUEndTime-command.GPUStartTime;
         if(outer->code!=MR_STEP_SUCCESS){failure="outer transaction rejected";++rejected;break;}
         ++accepted;
+      }
     }
     const double wall=std::chrono::duration<double>(std::chrono::steady_clock::now()-start).count();
     // One completion-boundary snapshot after the timed interval checks the

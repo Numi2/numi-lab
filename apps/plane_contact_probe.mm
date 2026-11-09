@@ -291,6 +291,7 @@ int main(int argc,char** argv){
     id<MTLBuffer> statuses=[device newBufferWithLength:sizeof(MRMetalWorldStatusGPU) options:MTLResourceStorageModeShared];
     auto* outer=static_cast<MRMetalWorldStatusGPU*>(statuses.contents);
     auto step=[&](int i,bool forceRollback=false){
+      @autoreleasepool {
         *outer={};outer->code=MR_STEP_SUCCESS;
         id<MTLCommandBuffer> command=[queue commandBuffer];numi::matter::EncodeRequest request;
         request.commandBuffer=(__bridge void*)command;request.environmentStatuses=(__bridge void*)statuses;
@@ -306,6 +307,7 @@ int main(int argc,char** argv){
         require(encoded.encoded,"encode post: "+encoded.message);[command commit];[command waitUntilCompleted];
         require(command.status==MTLCommandBufferStatusCompleted,"GPU command failed");
         return command.GPUEndTime-command.GPUStartTime;
+      }
     };
     std::vector<float> area;std::string areaError;
     if(config.experimentalFEMPlaneAreaIPC)
