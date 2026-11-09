@@ -93,6 +93,8 @@ if(BUILD_TESTING)
     # qualify a Matter midpoint integration path.
     add_executable(numi_contact_fem_fp64_reference fem_plane_fp64_reference.cpp)
     add_executable(numi_contact_fem_slider_fp64_reference fem_slider_fp64_reference.cpp)
+    add_executable(numi_contact_slider_midpoint_discrete fem_slider_midpoint_discrete.cpp)
+    add_test(NAME numi.contact.slider_midpoint_discrete COMMAND numi_contact_slider_midpoint_discrete)
     add_executable(numi_contact_fem_fp64_reference_parallel fem_plane_fp64_reference_parallel.cpp)
     target_compile_definitions(numi_contact_fem_fp64_reference_parallel PRIVATE NUMI_FEM_REFERENCE_MAX_DIVISIONS=64)
     add_executable(numi_contact_fem_fp64_reference_n128 fem_plane_fp64_reference_parallel.cpp)
