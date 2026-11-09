@@ -1,0 +1,100 @@
+{
+  "source_sha256": "f4240c33f4b932bc01a5d08e12ead59c0c6e022f9f7eac0f8420aa5f064b427c",
+  "included_model_sha256": "6d75d723f79ba704788e506e81e5a214ebf105079d9cb0d4ef78cfe842d1a237",
+  "plan_sha256": "8bc002c37e36b0c4ec9125a12d68b2408c6bd793549e0766ba5fd0603b7a817f",
+  "historical_primary_source_sha256": "db502b2a3dd4347da624ba6eeb0966195b0f94fb73a75732baf7a6bc2545bfb3",
+  "instrumented_primary_source_sha256": "9fd6e37fa87f5d772b31f50b0b12c1e783f6198f1080c2cdd2ebc7944da8fa83",
+  "runner_sha256": "69f3450ac1e7ad5684cee767fdf09909eeca5669b5847c82e3714c6aaabe1301",
+  "git_revision": "f3dfd5933218f835a12c17b46d78009315bec46e",
+  "runs": [
+    {
+      "command": [
+        "/Users/numi/numi-matter-midpoint-compensated-build-20261109/evidence-slider-work-history-primary-002",
+        "0.0000005"
+      ],
+      "returncode": 0,
+      "stderr": "",
+      "wall_seconds_observational_only": 0.39625145809259266,
+      "output_sha256": "cb89bff51943a0a8d36d0e49583ca32153703f26a875f7343479c14485261fec",
+      "historical_sha256": "82d3c96de6b7bbd70ed29d83a39ed56dceb7ab8e1aa720b77a19a06c59e3ca26",
+      "historic_fields_exact_match": true,
+      "work_trace_rows": 5001
+    },
+    {
+      "command": [
+        "/Users/numi/numi-matter-midpoint-compensated-build-20261109/evidence-slider-work-history-primary-002",
+        "0.00000025"
+      ],
+      "returncode": 0,
+      "stderr": "",
+      "wall_seconds_observational_only": 0.2076557909604162,
+      "output_sha256": "22a873d21277c711c92ec96f8df6958c9721d5409b03dc4aa18200a2e25f9228",
+      "historical_sha256": "da676618379daa22290845b0efb6e31fdfa2bba7e11093e747d28123e1db8d23",
+      "historic_fields_exact_match": true,
+      "work_trace_rows": 5001
+    },
+    {
+      "command": [
+        "/Users/numi/numi-matter-midpoint-compensated-build-20261109/evidence-slider-work-history-near-002",
+        "0.0000005",
+        "0.000095"
+      ],
+      "returncode": 0,
+      "stderr": "",
+      "wall_seconds_observational_only": 0.3861776669509709,
+      "output_sha256": "47516a8796a68c28ffbf657d12ff691f948353b730e68531bc2d6a5724ed6e7d",
+      "historical_sha256": "276e738eda2d3f968884f20c6e1060dc2558b6abea4c5b74ca4cde8bb7fa96ad",
+      "historic_fields_exact_match": true,
+      "work_trace_rows": 5001
+    },
+    {
+      "command": [
+        "/Users/numi/numi-matter-midpoint-compensated-build-20261109/evidence-slider-work-history-near-002",
+        "0.00000025",
+        "0.000095"
+      ],
+      "returncode": 0,
+      "stderr": "",
+      "wall_seconds_observational_only": 0.2154135419987142,
+      "output_sha256": "620b8477c096795921c802961322a001cd7c5846b45d65a2f084567e769b8836",
+      "historical_sha256": "4a2f3424950e60e4aa25fe67c3acb1c964e3798d379961cb841f0b91b9fb933b",
+      "historic_fields_exact_match": true,
+      "work_trace_rows": 5001
+    }
+  ],
+  "compile_command": [
+    "xcrun",
+    "clang++",
+    "-O3",
+    "-DNDEBUG",
+    "-std=gnu++23",
+    "-arch",
+    "arm64",
+    "-DNUMI_SLIDER_WORK_HISTORY=1",
+    "/Users/numi/numi-lab-midpoint-compensated-20261109/tests/contact/fem_slider_fp64_reference.cpp",
+    "-o",
+    "/Users/numi/numi-matter-midpoint-compensated-build-20261109/evidence-slider-work-history-near-002"
+  ],
+  "compiler_returncode": 0,
+  "compiler_stderr": "",
+  "compiler_version": "Apple clang version 21.0.0 (clang-2100.3.34.2)",
+  "binary_sha256": "892fbcb972ebcae4320c622c816d2bf56bdb0e997341d29cc542fbe54007e00d",
+  "primary_compile_command": [
+    "xcrun",
+    "clang++",
+    "-O3",
+    "-DNDEBUG",
+    "-std=gnu++23",
+    "-arch",
+    "arm64",
+    "-I",
+    "/Users/numi/numi-lab-midpoint-compensated-20261109/tests/contact",
+    "/Users/numi/numi-lab-midpoint-compensated-20261109/docs/evidence/midpoint-first-failure-20261109/slider-work-history-primary-source-002.cpp",
+    "-o",
+    "/Users/numi/numi-matter-midpoint-compensated-build-20261109/evidence-slider-work-history-primary-002"
+  ],
+  "primary_compiler_returncode": 0,
+  "primary_compiler_stderr": "",
+  "primary_binary_sha256": "8678bc08e9ddee3a8f3548fc2eac4aef69a44d86fc17a3f7bdb2b6185bf151b1",
+  "result": "four references completed with exact historical-field parity"
+}

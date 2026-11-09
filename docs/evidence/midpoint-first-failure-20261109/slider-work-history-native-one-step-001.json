@@ -1,0 +1,19 @@
+{
+  "schema": "numi.slider-work-validator-retrospective.v1",
+  "validator_sha256": "9e92196d2823b5592d9fbccba3d76f58fe773cd044d0ef149bb61a7c6dc79d1f",
+  "scope": "Existing one-step instrument traces only; not a complete trajectory or qualification.",
+  "cases": [
+    {
+      "input": "slider-fem-work-far-003.json",
+      "sha256": "369619c732de5f9c5b5daeb877f14da4faa5332986b90fa221b80f8e0c1c0c18",
+      "accepted_step": true,
+      "maximum_local_work_gate_ratio": 0.0
+    },
+    {
+      "input": "slider-fem-work-near-003.json",
+      "sha256": "5acf887a51c87732f0e5de788ac5954f07780f200ccbfbcb56c7e2bcdc765947",
+      "accepted_step": true,
+      "maximum_local_work_gate_ratio": 0.005811900466063627
+    }
+  ]
+}

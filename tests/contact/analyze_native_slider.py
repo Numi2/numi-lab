@@ -16,6 +16,21 @@ elif abs(gap-.0002)<1e-12:
  q=json.loads(qualification.read_text());reference_ok=q['passes']
 else:raise SystemExit('unregistered initial gap')
 r=json.loads(refpath.read_text());steps=d['steps'];h=d['h'];duration=.01
+work_label='near' if abs(gap-.000095)<1e-12 else 'primary'
+work_path=evidence/('slider-work-history-002-'+work_label+'-h025.json')
+work_qualification=evidence/'slider-work-history-reference-002-analysis.json'
+work_receipt=evidence/'slider-work-history-reference-002-execution.json'
+work_audit=json.loads(work_qualification.read_text());work_execution=json.loads(work_receipt.read_text())
+if not (work_audit['passes'] and work_audit['fixtures'][work_label]['passes'] and
+        work_execution['result']=='four references completed with exact historical-field parity'):
+ raise SystemExit('work reference is not qualified')
+for label,index in (('050',2 if work_label=='near' else 0),('025',3 if work_label=='near' else 1)):
+ candidate=evidence/('slider-work-history-002-'+work_label+'-h'+label+'.json')
+ run=work_execution['runs'][index]
+ if not (run['historic_fields_exact_match'] and run['output_sha256']==hashlib.sha256(candidate.read_bytes()).hexdigest()):
+  raise SystemExit('work reference is not hash-bound')
+work_reference=json.loads(work_path.read_text())
+
 area_reference=json.loads((evidence/'compact-reference-parity-n2-ordered-001.json').read_text())['contact_area_weights_m2']
 if not reference_ok or not steps or not all(s['accepted'] for s in steps):raise SystemExit('reference or native acceptance incomplete')
 if not any(math.isclose(h,x,rel_tol=1e-6) for x in (15.625e-6,7.8125e-6)):
@@ -54,10 +69,31 @@ for s in steps:
  bound=max(1e-12,1e-5*abs(s['fem_impulse']))*abs(midpoint_v)+1e-24
  work_ratio=max(work_ratio,abs(s['owner_contact_work']-s['owner_wrench_work'])/bound)
  previous_v=s['v']
+# Compare cumulative work as independently reconstructed native step integrals.
+# Signed pair work can approach zero, so normalize each history to its own
+# maximum reference magnitude with the predeclared absolute floor.
+native_work=[[0.],[0.],[0.]]
+for step in steps:
+ fem,slider=step['fem_contact_work'],step['owner_contact_work']
+ for values,increment in zip(native_work,(fem,slider,fem+slider)):
+  values.append(values[-1]+increment)
+def sample_work(t,values):
+ i=bisect.bisect_left(times,t)
+ if i==0:return values[0]
+ if i>=len(times):return values[-1]
+ return values[i-1]+(values[i]-values[i-1])*(t-times[i-1])/h
+work_results={}
+for col,name in enumerate(('fem','slider','relative'),1):
+ values=native_work[col-1]; reference=work_reference['work_trace']
+ maximum=max(abs(sample_work(row[0],values)-row[col]) for row in reference)
+ scale=max(max(abs(row[col]) for row in reference),1e-12)
+ work_results[name]={'maximum_absolute_error_J':maximum,'reference_history_scale_J':scale,
+                     'maximum_normalized_error':maximum/scale,
+                     'final_absolute_error_J':abs(values[-1]-reference[-1][col])}
 torque_ratio=max(max(abs(s['fem_torque_impulse_'+a]+s['owner_moment_impulse_'+a]),
  abs(s['owner_moment_impulse_'+a]+s['support_moment_impulse_'+a]))/
  max(1e-14,1e-5*abs(s['fem_torque_impulse_'+a])) for s in steps for a in ('x','y'))
-results={'reference_qualification_passed':reference_ok,'force_bin_relative_error':force_error,
+results={'reference_qualification_passed':reference_ok,'work_history_comparison':work_results,'force_bin_relative_error':force_error,
  'sampled_peak_force_relative_error':peak_error,'total_impulse_relative_error':imp_error,
  'maximum_cumulative_impulse_relative_error':cum_error,'minimum_gap_m':min(s['gap'] for s in steps),
  'minimum_midpoint_gap_m':min(s['midpoint_gap'] for s in steps),
@@ -85,12 +121,16 @@ checks={'force_bin':force_error<=.0025,'sampled_peak':peak_error<=.01,'total_imp
  'contact_and_support_torque':torque_ratio<=1,
  'owner_work_reconstruction':work_ratio<=1,
  'fem_work_reconstruction':fem_work_ratio<=1,
+ 'fem_work_history':work_results['fem']['maximum_normalized_error']<=.01,
+ 'slider_work_history':work_results['slider']['maximum_normalized_error']<=.01,
+ 'relative_work_history':work_results['relative']['maximum_normalized_error']<=.01,
  'independent_residual':results['max_independent_joint_residual_Ns']<=results['physical_residual_limit_Ns']}
 if abs(gap-.0002)<1e-12:
  checks['slider_position']=results['slider_position_relative_error']<=.0025
  checks['slider_velocity']=results['slider_velocity_relative_error']<=.0025
 out={'schema':'numi.native-slider-gates.v1','input_sha256':hashlib.sha256(path.read_bytes()).hexdigest(),
  'reference':refpath.name,'reference_sha256':hashlib.sha256(refpath.read_bytes()).hexdigest(),
- 'qualification':qualification.name,'checks':checks,'results':results,'passes':all(checks.values()),
- 'limitations':'Does not establish rollback, spatial convergence, or a performance benefit; both work reconstructions use the impulse gate, with FEM checked per node, while reference-work and potential-energy differences are reported without a new absolute threshold.'}
+ 'qualification':qualification.name,'work_reference':work_path.name,
+ 'work_reference_sha256':hashlib.sha256(work_path.read_bytes()).hexdigest(),'checks':checks,'results':results,'passes':all(checks.values()),
+ 'limitations':'Does not establish rollback, spatial convergence, or a performance benefit; both work reconstructions use the impulse gate, with FEM checked per node, the three work histories use the predeclared 1% normalized gate, while potential-energy differences are diagnostic.'}
 print(json.dumps(out,indent=2,sort_keys=True));sys.exit(0 if out['passes'] else 1)

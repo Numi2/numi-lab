@@ -1,0 +1,65 @@
+{
+  "fixtures": {
+    "near": {
+      "histories": {
+        "fem": {
+          "final_coarse_fine_absolute_J": 1.5670914205504448e-16,
+          "fine_maximum_absolute_cumulative_J": 1.6314968824667203e-06,
+          "maximum_coarse_fine_absolute_J": 3.4698069409561973e-16,
+          "maximum_normalized_error": 2.1267628386209773e-10,
+          "passes": true
+        },
+        "relative": {
+          "final_coarse_fine_absolute_J": 3.699389927353555e-17,
+          "fine_maximum_absolute_cumulative_J": 3.9008550381145906e-07,
+          "maximum_coarse_fine_absolute_J": 6.314635915736729e-17,
+          "maximum_normalized_error": 1.6187825115359316e-10,
+          "passes": true
+        },
+        "slider": {
+          "final_coarse_fine_absolute_J": 1.1971047822118062e-16,
+          "fine_maximum_absolute_cumulative_J": 1.2414113786552658e-06,
+          "maximum_coarse_fine_absolute_J": 3.1228294232341297e-16,
+          "maximum_normalized_error": 2.5155476072862104e-10,
+          "passes": true
+        }
+      },
+      "largest_work_component_balance_ratio": 0.002859887119488713,
+      "passes": true
+    },
+    "primary": {
+      "histories": {
+        "fem": {
+          "final_coarse_fine_absolute_J": 4.622258793166717e-18,
+          "fine_maximum_absolute_cumulative_J": 2.9207715957102245e-06,
+          "maximum_coarse_fine_absolute_J": 3.200598694495099e-17,
+          "maximum_normalized_error": 1.0958058819785363e-11,
+          "passes": true
+        },
+        "relative": {
+          "final_coarse_fine_absolute_J": 8.174347498964126e-18,
+          "fine_maximum_absolute_cumulative_J": 3.4458912079991746e-07,
+          "maximum_coarse_fine_absolute_J": 1.2327254293196057e-17,
+          "maximum_normalized_error": 3.577377679417153e-11,
+          "passes": true
+        },
+        "slider": {
+          "final_coarse_fine_absolute_J": 1.279993838243336e-17,
+          "fine_maximum_absolute_cumulative_J": 2.9204877996214674e-06,
+          "maximum_coarse_fine_absolute_J": 4.047419883512586e-17,
+          "maximum_normalized_error": 1.385871183586928e-11,
+          "passes": true
+        }
+      },
+      "largest_work_component_balance_ratio": 0.002139980334487313,
+      "passes": true
+    }
+  },
+  "limits": {
+    "history_relative_to_max_or_floor": 0.01,
+    "work_absolute_floor_J": 1e-12
+  },
+  "passes": true,
+  "schema": "numi.slider-work-reference-refinement.v1",
+  "scope": "Independent FP64 reference histories only; no native transaction, material calibration, or rollout performance result."
+}

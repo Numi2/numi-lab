@@ -57,3 +57,23 @@ gate and retain numerical values; do not change a tolerance after observing a
 result. These experiments do not establish spatial convergence or a cost
 benefit. The separate spatial and accuracy-adjusted cost milestones remain
 independent.
+
+For a subsequent native rollout, also compare each owners cumulative
+
+For a subsequent native rollout, also compare each owner's cumulative
+interface-work history and their sum with the separately time-qualified FP64
+work histories. At the 2 µs reference clock, linearly interpolate native
+step-integrated work. For FEM, slider and relative work separately, require the
+largest absolute difference to be at most 1% of the greater of the reference
+history's maximum absolute cumulative work and 1e-12 J. This adopts the
+existing 1% cumulative-history accuracy scale and a fixed absolute floor; it
+is added before a new rollout and does not replace the local work, impulse,
+force, torque or replay checks. Report final absolute errors as well.
+
+
+Per-node qualification also checks the measured normal impulse directly
+against the independently reconstructed law impulse with the existing
+impulse bound, even when the node velocity is zero. The sum of retained nodal
+impulses must reproduce the reported FEM impulse within a double-precision
+roundoff bound. This closes a zero-work blind spot without changing the
+physical impulse tolerance.

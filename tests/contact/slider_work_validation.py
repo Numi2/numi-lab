@@ -28,6 +28,14 @@ def validate_fem_work_rows(step, fixture):
         expected = h * areas[int(node)] * pressure
         if not math.isclose(recorded, expected, rel_tol=1e-12, abs_tol=1e-28):
             raise ValueError("recorded nodal impulse disagrees with independently evaluated law")
+    impulse_sum = sum(row[1] for row in rows)
+    impulse_magnitude = sum(abs(row[1]) for row in rows)
+    impulse_roundoff = 64 * sys.float_info.epsilon * impulse_magnitude + 1e-28
+    if not math.isfinite(step["fem_impulse"]) or abs(impulse_sum - step["fem_impulse"]) > impulse_roundoff:
+        raise ValueError("per-node impulses do not reproduce FEM normal impulse")
+    for _, measured, expected, _, _ in rows:
+        if abs(measured - expected) > max(1e-12, 1e-5 * abs(expected)):
+            raise ValueError("per-node normal impulse exceeds existing tolerance")
     observed = sum(row[1] * row[3] for row in rows)
     reconstructed = sum(row[2] * row[3] for row in rows)
     magnitude = sum(abs(row[1] * row[3]) + abs(row[2] * row[3]) for row in rows)
