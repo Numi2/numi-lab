@@ -1,0 +1,3 @@
+# Accepted-state roll feedback
+
+Both roll-feedback arms produced zero physical terminations and zero failed simulator steps in the 32 nominal lanes. In -0.03 rad/s lanes, median maximum sampled lateral speed decreased from 0.742 m/s in the bank-1.40 control to 0.017 m/s at gain 1.5 and 0.015 m/s at gain 3.0. However median maximum heading error increased from 0.434 to 0.559 and 0.562 rad respectively, so the combined preregistered prediction was contradicted. Each arm passed the original screen only in the seven straight and seven +0.03 lanes; no right-turn or +0.06 lane passed. This separates lateral stabilization from insufficient heading authority under this feedback design.
