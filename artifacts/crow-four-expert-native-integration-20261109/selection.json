@@ -78,6 +78,6 @@
   "supported_total": 141,
   "trials_total": 144,
   "evidence_caveat": "seed-specific results are not independent final assessment",
-  "rejected_candidate": "mix25 yielded 14/16 on development layout E with seed 3212483193; its next partial diagnostic was stopped without scoring",
+  "rejected_candidate": "mix25 yielded 14/16 on development layout E with seed 3212483193 and 14/16 on held-out-a with seed 20270306; an unfinished additional diagnostic was stopped without scoring",
   "previous_seed_output_correction": "A prior comparison wrote two seed sets to the same path; final candidate trials are preserved in seed-specific directories; the affected comparison was rerun."
 }
