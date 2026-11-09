@@ -1,0 +1,30 @@
+{
+  "n32_temporal": {
+    "binned_force": 8.276673045420913e-10,
+    "total_impulse": 1.5176522153915173e-10,
+    "peak_force": 2.9852938305702775e-06,
+    "cumulative_impulse": 1.7385810751880203e-10,
+    "passes": true
+  },
+  "n64_temporal": {
+    "binned_force": 2.9955833480059635e-10,
+    "total_impulse": 4.342885821027018e-11,
+    "peak_force": 7.845973706410392e-10,
+    "cumulative_impulse": 1.8503232378343543e-10,
+    "passes": true
+  },
+  "n32_to_64": {
+    "binned_force": 0.05160413171206911,
+    "total_impulse": 0.005248696211903469,
+    "peak_force": 0.43843911751030296,
+    "cumulative_impulse": 0.015206913359805499,
+    "passes": false
+  },
+  "spatial_test_valid": true,
+  "spatial_qualified": false,
+  "n64_peak_force_N": 0.12264729757406326,
+  "n64_impulse_Ns": 0.000410016697282882,
+  "n64_reference_area_m2": 0.0003999999999999718,
+  "n64_min_gap_m": 9.446055591356473e-05,
+  "n64_fine_file": "docs/evidence/midpoint-first-failure-20261109/rk4-n64-parallel-h025.json"
+}
