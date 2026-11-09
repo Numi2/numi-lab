@@ -1,0 +1,3 @@
+# Heading-to-bank coupling comparison
+
+In the fixed-speed control, median maximum -0.03 rad/s heading error was 0.654 rad. Zeroing heading-to-bank reduced it to 0.560 rad; reversing its sign reduced it to 0.497 rad, a 0.157 rad improvement, meeting the preregistered exploratory prediction with zero -0.03-lane failures. The zero-gain arm had one physical termination in a straight lane, while the reversed-sign arm had none across 32 lanes. No simulator steps failed. Reversal also reduced the +0.06/-0.06 median maximum heading errors from 0.541/1.546 to 0.416/1.173 rad. These errors remain well outside the 0.15 rad screen, and zero right-turn lanes passed. Reversal is a useful experimental lead, not a qualified controller.
