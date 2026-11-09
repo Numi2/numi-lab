@@ -782,6 +782,8 @@ public enum MetalRoboBirdFlowNavigationCourse: UInt32, Sendable {
     case reservedFinalD = 5
     case reservedFinalE = 6
     case reservedFinalF = 7
+    case reservedFinalG = 8
+    case reservedFinalH = 9
 }
 
 public struct MetalRoboTaskRolloutConfiguration: Sendable {

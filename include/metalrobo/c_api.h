@@ -78,9 +78,12 @@ typedef enum MRBirdFlowNavigationCourseC {
     // Previously assessed layouts: development only after policy revision.
     MR_BIRDFLOW_NAVIGATION_COURSE_RESERVED_FINAL_C = 4,
     MR_BIRDFLOW_NAVIGATION_COURSE_RESERVED_FINAL_D = 5,
-    // Newly reserved layouts: do not use before the next registered evaluation.
+    // Assessed layouts: development only after policy revision.
     MR_BIRDFLOW_NAVIGATION_COURSE_RESERVED_FINAL_E = 6,
     MR_BIRDFLOW_NAVIGATION_COURSE_RESERVED_FINAL_F = 7,
+    // Untouched layouts reserved for the next assessment.
+    MR_BIRDFLOW_NAVIGATION_COURSE_RESERVED_FINAL_G = 8,
+    MR_BIRDFLOW_NAVIGATION_COURSE_RESERVED_FINAL_H = 9,
 } MRBirdFlowNavigationCourseC;
 
 typedef struct MRTaskRolloutDynamicSphereC {

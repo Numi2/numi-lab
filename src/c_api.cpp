@@ -565,7 +565,7 @@ void applyCrowNavigationCourseSplit(
         "crow_course_slalom_b",
         "crow_course_perch",
     }};
-    constexpr std::array<std::array<mr_float4, 5u>, 7u> positions{{
+    constexpr std::array<std::array<mr_float4, 5u>, 9u> positions{{
         {{{1.55f, 0.58f, 0.80f, 1.0f},
           {1.55f, -0.76f, 0.80f, 1.0f},
           {2.75f, -0.28f, 0.65f, 1.0f},
@@ -596,7 +596,7 @@ void applyCrowNavigationCourseSplit(
           {2.62f, 0.40f, 0.65f, 1.0f},
           {3.83f, -0.39f, 0.65f, 1.0f},
           {5.04f, -0.10f, 0.77f, 1.0f}}},
-        // Untouched assessment layouts; never use for fitting or selection.
+        // Former assessment layouts, now development only.
         {{{1.36f, 0.68f, 0.80f, 1.0f},
           {1.36f, -0.70f, 0.80f, 1.0f},
           {2.56f, -0.34f, 0.65f, 1.0f},
@@ -607,6 +607,17 @@ void applyCrowNavigationCourseSplit(
           {2.78f, 0.37f, 0.65f, 1.0f},
           {3.91f, -0.35f, 0.65f, 1.0f},
           {5.16f, -0.13f, 0.75f, 1.0f}}},
+        // Untouched assessment layouts; never use for fitting or selection.
+        {{{1.45f, 0.71f, 0.80f, 1.0f},
+          {1.45f, -0.67f, 0.80f, 1.0f},
+          {2.67f, 0.32f, 0.65f, 1.0f},
+          {3.78f, -0.38f, 0.65f, 1.0f},
+          {5.03f, 0.03f, 0.84f, 1.0f}}},
+        {{{1.31f, 0.70f, 0.80f, 1.0f},
+          {1.31f, -0.64f, 0.80f, 1.0f},
+          {2.57f, -0.42f, 0.65f, 1.0f},
+          {3.82f, 0.39f, 0.65f, 1.0f},
+          {5.08f, -0.17f, 0.78f, 1.0f}}},
     }};
     const auto sceneBodies = handle.world.sceneBodyIndices();
     for (std::size_t index = 0u; index < names.size(); ++index) {
@@ -701,7 +712,7 @@ void validateTaskRolloutConfiguration(
         );
     }
     if (config.birdflow_navigation_course >
-        MR_BIRDFLOW_NAVIGATION_COURSE_RESERVED_FINAL_F) {
+        MR_BIRDFLOW_NAVIGATION_COURSE_RESERVED_FINAL_H) {
         throw std::invalid_argument(
             "task-rollout BirdFlow navigation course split is invalid"
         );
