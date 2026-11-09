@@ -1,0 +1,8 @@
+{
+  "lane15_matched_samples_before_handoff": 8,
+  "lane15_pre_handoff_all_identical": true,
+  "other_lanes_matched_samples": 1264,
+  "other_lanes_all_identical": true,
+  "lane15_original_failure_step": 970,
+  "lane15_repeated_steps": 1600
+}
