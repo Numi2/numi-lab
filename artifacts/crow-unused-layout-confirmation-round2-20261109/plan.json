@@ -1,0 +1,33 @@
+{
+  "status": "preregistered before executing either layout",
+  "layout_authoring_commit": "5389a6c1",
+  "layouts": {
+    "reserved-final-e": 3212483193,
+    "reserved-final-f": 3614144078
+  },
+  "seed_check": "git grep across tracked artifacts and project sources found neither seed before registration",
+  "prior_revision": "aebe1f36dd959788cd455a242f85365170147c94",
+  "bound_sha256": {
+    "src/metal/CrowFlightControllerV1.metal": "aa2fe10901cb0494d80ae445902303a17ce0e73d030072bab09461d8f3593ebe",
+    "src/metal/LocomotionTask.metal": "8d9dd4b44933969bba3026d2ef27df1358596591b8e6f3545bf1932a959a886d",
+    "src/c_api.cpp": "2ef6812e0a9c37e7aada504fa3e9e6fda1c668386187cc303f80c09ed9322a7f",
+    "src/core/TaskProgram.cpp": "595e56aba2f6bbf5a48cea374c9d33acf44cf80e8f9cd6ee967a2ed8bdd28f0f",
+    "include/metalrobo/task_program_types.h": "99bacef7e5b7a2a714c41d277de18c94bc69643296d2d868ad3ea35be5618ae5",
+    "apps/task_rollout.swift": "4cb8947b7228465ace1241d06c4ca3db7d6e23b54cbe0829563c89b974ef3ef5",
+    "assets/crow_navigation_course/crow-navigation.active-head.visual-observation.json": "d19ff0f9d360b4ffc84bac6a5f3d2be048234b6c03097af7d43fe5f85b316f8f",
+    "build/bin/metalrobo_task_rollout": "f5853d3bbfd1bc70358e1943e81a019783a7d1eae94f5dd2db265b9532a42d0b",
+    "build/lib/libmetalrobo.dylib": "7563b9d2bb1eebae6126eb2541d714b77a89fb6183bcc4fc9831d3160617ad8e",
+    "build/shaders/MetalRobo.metallib": "abfbcda16dc64ef22371fc733614f6d4286379f102eb5da0c00353d38682279d",
+    "build/crow-dual-expert-native-observer-20261109/libmetalrobo.dylib": "2b942898e9da978f76d512cc0f9ca0406033e60942ce85e342bc7c74ded5209e",
+    "build/crow-dual-expert-native-integration-20261109/route.policypack": "0c80421a7e4094f4baf0df642bf1028dad958b6e8a13a1d386ef9e6f5b246405",
+    "build/crow-dual-expert-native-integration-20261109/landing.policypack": "cea641bb3ce93963c131b676b26d1b462d662f6ed49ee41ff1f4e4352507f302",
+    "artifacts/crow-dual-native-parity-20261109/integrated/reserved-final-c/results.json": "af99ecb1d3324bc93fee905c328dd991d15fd97a48a32c702be982e25be2608d",
+    "artifacts/crow-unused-layout-confirmation-round2-20261109/run.py": "8c46411b527f5edbc85904f13f7661cadaeca4a90742a4ffb66123bdabef7859"
+  },
+  "controls": "16 full starts per layout, teacher off, first episodes only, no scheduled or intermediate resets; 3000 control steps; native v15 body and frozen flight law",
+  "success": "all five waypoints in order and at least 25 terminal accepted steps of foot-only support with positive upward impulse and low velocity; no physical failure and no simulator failure",
+  "prediction": "at least 15 supported finishes out of 16 on each layout",
+  "failure_reporting": "every attempted lane, first fatal contact or last sampled state if stalled, and exact box distance sampled at each accepted 20 ms control-step endpoint; perch excluded from obstacle clearance",
+  "development_results": "32/32 matched starts on former final-c and final-d, and 79/80 starts across five development courses with fresh seeds; one body-first perch contact",
+  "caveat": "two unused nominal layouts and one unused seed per layout provide bounded generalization evidence, not a universal reliability guarantee"
+}
