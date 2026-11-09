@@ -1,0 +1,21 @@
+{
+  "command": [
+    "/Users/numi/numi-matter-midpoint-compensated-build-20261109/evidence-be-precision-005/numi_plane_contact_probe_scaled",
+    "/Users/numi/numi-matter-midpoint-compensated-build-20261109/evidence-be-precision-005/NumiMatter.metallib",
+    "0.000125",
+    "80",
+    "2",
+    "ipc_area_midpoint",
+    "0.0002",
+    "physical",
+    "contact",
+    "reference"
+  ],
+  "input_hashes": "be-precision-005-inputs.sha256",
+  "returncode": 0,
+  "timed_out": false,
+  "wall_seconds_observational_only": 7.714470417005941,
+  "analysis_returncode": 1,
+  "analysis_stderr": "",
+  "all_gates_pass": false
+}
