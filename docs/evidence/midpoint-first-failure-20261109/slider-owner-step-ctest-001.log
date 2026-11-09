@@ -1,0 +1,9 @@
+Test project /Users/numi/numi-matter-slider-owner-build-20261109
+    Start 84: numi.midpoint.slider_candidate_owner
+1/2 Test #84: numi.midpoint.slider_candidate_owner ...   Passed    0.39 sec
+    Start 85: numi.midpoint.slider_owner_step
+2/2 Test #85: numi.midpoint.slider_owner_step ........   Passed    0.38 sec
+
+100% tests passed out of 2
+
+Total Test time (real) =   0.77 sec

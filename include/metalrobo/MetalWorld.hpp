@@ -326,6 +326,9 @@ enum MetalWorldDevicePhysicsFlags : std::uint32_t {
     // Initially admitted only for scene-only worlds without rigid colliders,
     // body damping, or a second body-wrench producer.
     MetalWorldDevicePhysicsOwnsFreeBodyCandidate = 1u << 4u,
+    // Experimental one-axis midpoint transaction. Explicit admission and
+    // exact owner topology validation are required; never a default path.
+    MetalWorldDevicePhysicsOwnsSliderMidpoint = 1u << 5u,
 };
 
 inline constexpr std::uint32_t kMetalWorldDevicePhysicsKnownFlags =
@@ -333,7 +336,8 @@ inline constexpr std::uint32_t kMetalWorldDevicePhysicsKnownFlags =
     MetalWorldDevicePhysicsRequiresRigidContactEvidence |
     MetalWorldDevicePhysicsOwnsCoupledCandidate |
     MetalWorldDevicePhysicsCouplesRodNodes |
-    MetalWorldDevicePhysicsOwnsFreeBodyCandidate;
+    MetalWorldDevicePhysicsOwnsFreeBodyCandidate |
+    MetalWorldDevicePhysicsOwnsSliderMidpoint;
 
 struct MetalWorldDevicePhysicsPass;
 
@@ -354,6 +358,9 @@ enum class MetalWorldCoupledCandidateOperation : std::uint32_t {
     // a midpoint transaction, change the free-motion integrator, or prove
     // compatibility with a particular articulated topology.
     candidateHalfStepKinematics = 4u,
+    // Publish a complete stage increment only under the explicitly admitted
+    // one-axis midpoint owner contract.
+    publishSliderMidpoint = 5u,
 };
 
 // Borrowed primal articulated operator. Buffers are environment-major and
@@ -470,8 +477,15 @@ struct MetalWorldDevicePhysicsProgram {
             (flags & MetalWorldDevicePhysicsOwnsCoupledCandidate) != 0u;
         const bool ownsFreeBodyCandidate =
             (flags & MetalWorldDevicePhysicsOwnsFreeBodyCandidate) != 0u;
+        const bool ownsSliderMidpoint =
+            (flags & MetalWorldDevicePhysicsOwnsSliderMidpoint) != 0u;
         return context != nullptr && encode != nullptr && abort != nullptr &&
             fingerprint != 0u &&
+            (!ownsSliderMidpoint || (ownsCoupledCandidate &&
+                !ownsFreeBodyCandidate &&
+                (flags & (MetalWorldDevicePhysicsWritesBodyWrenches |
+                          MetalWorldDevicePhysicsRequiresRigidContactEvidence |
+                          MetalWorldDevicePhysicsCouplesRodNodes)) == 0u)) &&
             (flags & ~kMetalWorldDevicePhysicsKnownFlags) == 0u &&
             (!ownsFreeBodyCandidate ||
              ((flags & MetalWorldDevicePhysicsWritesBodyWrenches) != 0u &&

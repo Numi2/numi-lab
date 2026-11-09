@@ -1,0 +1,14 @@
+Test project /Users/numi/numi-matter-slider-owner-build-20261109
+    Start 112: matter.integration.coupled_late_failure_rollback
+1/2 Test #112: matter.integration.coupled_late_failure_rollback ....   Passed    0.42 sec
+    Start 113: matter.integration.coupled_late_crossing_rollback
+2/2 Test #113: matter.integration.coupled_late_crossing_rollback ...   Passed    0.41 sec
+
+100% tests passed out of 2
+
+Label Time Summary:
+matter     =   0.83 sec*proc (2 tests)
+metal      =   0.83 sec*proc (2 tests)
+physics    =   0.83 sec*proc (2 tests)
+
+Total Test time (real) =   0.83 sec

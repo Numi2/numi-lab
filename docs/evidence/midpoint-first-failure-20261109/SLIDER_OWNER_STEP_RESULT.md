@@ -1,0 +1,11 @@
+# Bounded native slider-owner midpoint result
+
+The explicitly opted-in MetalWorld-only slider path passed the preregistered owner experiment in `SLIDER_OWNER_MIDPOINT_PLAN.md`. It accepts only one fixed-root world-z prismatic body, one environment and a single step with no competing mechanics or effort producer. It is disabled unless explicitly requested; it is not wired to Matter.
+
+Eight accepted native steps cover two timesteps, two starting velocities and two analytically specified constant loads. Maximum endpoint position error is 6.89e-12 m and maximum velocity error is 2.32e-9 m/s. The owner uses the submitted midpoint velocity increment to form the endpoint position and physical velocity change, and avoids applying gravity twice. A nonzero initial-position late-failure run reports the injected failure category, restores position and velocity byte-for-byte and produces a byte-identical accepted retry. Rotating joints, extra effort, a missing stage increment and a competing legacy publisher were rejected. The execution fingerprint distinguishes this mode from the caller's original fingerprint.
+
+The first late-failure test used an invalid injected status record, which was correctly rejected as malformed before the intended failure category could be evaluated; this failed calibration is retained in `slider-owner-step-003.log`. The corrected injection copies the actual dispatch flags from a successful baseline and is retained in `slider-owner-step-005.json` and its log. The rejected-state test covers MetalWorld's two physical state arrays only; it is not whole-environment Matter rollback.
+
+The two owner CTests and two existing legacy Matter late-failure/crossing rollback CTests passed. `slider-owner-step-005.sha256` binds the probe, library, shader and relevant sources. The existing legacy tests do not establish midpoint contact coupling.
+
+This result does not establish FEM/slider contact, impulse or torque balance, interface work, two-owner restoration, spatial convergence, or an integrator speed advantage. Matter continues to reject dynamic proxies in its experimental fixed-plane midpoint mode. The two-owner equations and further gates remain in `DYNAMIC_MIDPOINT_EQUATIONS.md`.

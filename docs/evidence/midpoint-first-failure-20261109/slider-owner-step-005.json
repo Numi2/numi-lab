@@ -1,0 +1,1 @@
+{"schema":"numi.slider-owner-midpoint-step.v1","accepted_steps":8,"max_position_error_m":6.8808532683499804e-12,"max_velocity_error_mps":2.3177080255010196e-09,"rotating_joint_rejected":true,"extra_effort_rejected":true,"missing_candidate_rejected":true,"late_rejection_and_retry_exact":true,"legacy_publish_rejected":true,"scope":"MetalWorld only; no Matter contact"}

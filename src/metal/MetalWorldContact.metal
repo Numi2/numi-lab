@@ -888,7 +888,8 @@ kernel void mr_world_publish_coupled_candidate(
     const uint local = global - environment * dispatch.nv;
     if (statuses[environment].code != MR_STEP_SUCCESS) return;
     const uint index = environment * dispatch.vStride + dispatch.vOffset + local;
-    const float force = generalizedImpulse[index] * dispatch.timestepAndInverse.y;
+    const float force = generalizedImpulse[index] * dispatch.timestepAndInverse.y +
+        dispatch.timestepAndInverse.z;
     if (!isfinite(force)) {
         MRMetalWorldContactStatusGPU status = statuses[environment];
         status.code = MR_STEP_NONFINITE_RESULT;

@@ -565,6 +565,10 @@ struct MetalWorldContextState {
     std::size_t readbackBytes = 0u;
     // Immutable host metadata used only while encoding the command graph.
     // Dynamic work counts and physical state remain entirely device-resident.
+    // Encoding-only lease: valid only during one admitted midpoint prepass.
+    __strong id<MTLBuffer> sliderMidpointStageIncrement = nil;
+    bool sliderMidpointActive = false;
+    float sliderMidpointGravityForce = 0.0f;
     std::vector<MRArticulationGPU> boundArticulations;
     std::vector<MRArticulatedOperatorDispatchGPU>
         boundFactorDispatches;
@@ -3590,6 +3594,22 @@ bool buildRequirements(
     return true;
 }
 
+// The owner's execution contract is part of resident-state identity even if a
+// caller accidentally reuses its application fingerprint for another mode.
+std::uint64_t devicePhysicsExecutionFingerprint(
+    const MetalWorldDevicePhysicsProgram& program
+) {
+    if (!program.valid()) return 0u;
+    if ((program.flags & MetalWorldDevicePhysicsOwnsSliderMidpoint) == 0u)
+        return program.fingerprint;
+    std::uint64_t hash = program.fingerprint;
+    const std::uint64_t tag = 0x4d4944504f494e54ull;
+    hashValue(hash, tag);
+    if (hash == 0u || hash == program.fingerprint)
+        hash = program.fingerprint == UINT64_MAX ? 1u : program.fingerprint + 1u;
+    return hash;
+}
+
 MetalWorldDiagnostics validateAndBuildLayout(
     const CompiledWorld& world,
     const MetalWorldBatch& batch,
@@ -3718,6 +3738,61 @@ MetalWorldDiagnostics validateAndBuildLayout(
         world.sceneBodyCount() != 0u;
     const bool qualityMode =
         config.solverMode == MetalWorldSolverMode::qualityNewton;
+    const bool ownsSliderMidpoint = config.devicePhysicsProgram.valid() &&
+        (config.devicePhysicsProgram.flags &
+         MetalWorldDevicePhysicsOwnsSliderMidpoint) != 0u;
+    if (ownsSliderMidpoint) {
+        const auto& model = world.model();
+        const bool shape = model.articulations.size() == 1u &&
+            model.joints.size() == 1u && model.dofs.size() == 1u &&
+            model.bodies.size() == 2u && model.world.nq == 1u &&
+            model.world.nv == 1u && world.sceneBodyCount() == 0u &&
+            world.colliderCount() == 0u && world.rodCount() == 0u &&
+            model.constraintProgram.blocks.empty() &&
+            model.functionBasedJointPrograms.empty();
+        bool simple = false;
+        if (shape) {
+            const auto& a = model.articulations[0];
+            const auto& j = model.joints[0];
+            const auto& d = model.dofs[0];
+            const auto& body = model.bodies[1];
+            simple = a.rootType == MR_ROOT_FIXED && a.rootBody == 0u &&
+                a.firstBody == 0u && a.bodyCount == 2u && a.firstJoint == 0u &&
+                a.jointCount == 1u && a.qOffset == 0u && a.vOffset == 0u &&
+                a.nq == 1u && a.nv == 1u && j.parentBody == 0u &&
+                j.childBody == 1u && j.jointType == MR_JOINT_PRISMATIC &&
+                j.qOffset == 0u && j.vOffset == 0u && j.nq == 1u && j.nv == 1u &&
+                j.axis0.x == 0.0f && j.axis0.y == 0.0f && j.axis0.z == 1.0f &&
+                j.parentRotation.x == 0.0f && j.parentRotation.y == 0.0f &&
+                j.parentRotation.z == 0.0f && j.parentRotation.w == 1.0f &&
+                j.childRotation.x == 0.0f && j.childRotation.y == 0.0f &&
+                j.childRotation.z == 0.0f && j.childRotation.w == 1.0f &&
+                d.flags == 0u && d.drive.x == 0.0f && d.drive.y == 0.0f &&
+                d.drive.z == 0.0f && d.drive.w == 0.0f &&
+                body.motionType == MR_MOTION_DYNAMIC &&
+                body.dampingAndSpeedLimits.x == 0.0f &&
+                body.dampingAndSpeedLimits.y == 0.0f &&
+                body.dampingAndSpeedLimits.z == 0.0f &&
+                body.dampingAndSpeedLimits.w == 0.0f &&
+                std::isfinite(body.massAndInverseMass.x) &&
+                body.massAndInverseMass.x > 0.0f &&
+                std::isfinite(model.world.gravityAndTimestep.z) &&
+                std::isfinite(body.massAndInverseMass.x * model.world.gravityAndTimestep.z) &&
+                std::isfinite(2.0f / config.timestepSeconds);
+        }
+        const bool unloaded = std::all_of(batch.efforts.begin(), batch.efforts.end(),
+            [](float value) { return value == 0.0f; });
+        if (!simple || !unloaded || batch.environmentCount != 1u ||
+            batch.controlStepCount != 1u || config.physicsSubsteps != 1u ||
+            config.solverMode != MetalWorldSolverMode::freeMotionABA ||
+            config.ccdMode != MetalWorldCCDMode::disabled || nativeTask ||
+            nativePolicy || deviceAction || hasMillardProgram ||
+            config.multicopterProgram.valid() || config.deviceMechanicsProgram.valid() ||
+            !batch.resetMasks.empty()) {
+            return reject(std::move(diagnostics), MetalWorldHostStatus::unsupportedTopology,
+                "slider midpoint requires one unloaded fixed-root world-z prismatic body, one environment and one step without other owners");
+        }
+    }
     const bool ownsFreeCandidate = config.devicePhysicsProgram.valid() &&
         (config.devicePhysicsProgram.flags &
          MetalWorldDevicePhysicsOwnsFreeBodyCandidate) != 0u;
@@ -4031,9 +4106,7 @@ MetalWorldDiagnostics validateAndBuildLayout(
 
     MetalWorldLayout layout{};
     layout.devicePhysicsFingerprint =
-        config.devicePhysicsProgram.valid()
-        ? config.devicePhysicsProgram.fingerprint
-        : 0u;
+        devicePhysicsExecutionFingerprint(config.devicePhysicsProgram);
     layout.millardProgramFingerprint =
         hasMillardProgram
         ? millardProgramFingerprint(config.millardProgram)
@@ -8680,9 +8753,7 @@ void uploadBatch(
     const bool nativePolicy = config.policyProgram.valid();
     const bool deviceAction = config.deviceActionProgram.valid();
     context.boundDevicePhysicsFingerprint =
-        config.devicePhysicsProgram.valid()
-        ? config.devicePhysicsProgram.fingerprint
-        : 0u;
+        devicePhysicsExecutionFingerprint(config.devicePhysicsProgram);
     if (nativeTask &&
         context.boundTaskFingerprint !=
             config.taskProgram.fingerprint()) {
@@ -11400,9 +11471,16 @@ bool encodeBorrowedCoupledCandidate(
         return true;
     }
 
+    const bool midpointPublish = operation ==
+        MetalWorldCoupledCandidateOperation::publishSliderMidpoint;
+    if (midpointPublish && (!context->sliderMidpointActive ||
+        context->sliderMidpointStageIncrement != nil || pass.nv != 1u)) return false;
+    // A midpoint owner must be the only producer of the endpoint effort.
+    if (context->sliderMidpointActive && operation ==
+        MetalWorldCoupledCandidateOperation::publishCandidate) return false;
     if (operation != MetalWorldCoupledCandidateOperation::massAction &&
-        operation != MetalWorldCoupledCandidateOperation::publishCandidate)
-        return false;
+        operation != MetalWorldCoupledCandidateOperation::publishCandidate &&
+        !midpointPublish) return false;
     id<MTLBuffer> massQ = q;
     if (query.candidateQ != nullptr) {
         if (query.candidateQStride != pass.qStride ||
@@ -11468,8 +11546,8 @@ bool encodeBorrowedCoupledCandidate(
 
         const MRCoupledCandidateDispatchGPU dispatch{
             .abiVersion = MR_COUPLED_CANDIDATE_ABI_VERSION,
-            .operation = operation ==
-                    MetalWorldCoupledCandidateOperation::publishCandidate
+            .operation = (midpointPublish || operation ==
+                    MetalWorldCoupledCandidateOperation::publishCandidate)
                 ? MR_COUPLED_CANDIDATE_PUBLISH
                 : MR_COUPLED_CANDIDATE_MASS_ACTION,
             .environmentCount = pass.environmentCount,
@@ -11490,8 +11568,8 @@ bool encodeBorrowedCoupledCandidate(
             .reserved0 = 0u,
             .timestepAndInverse = {
                 pass.timestepSeconds,
-                1.0f / pass.timestepSeconds,
-                0.0f,
+                (midpointPublish ? 2.0f : 1.0f) / pass.timestepSeconds,
+                midpointPublish ? -context->sliderMidpointGravityForce : 0.0f,
                 0.0f,
             },
         };
@@ -11510,7 +11588,7 @@ bool encodeBorrowedCoupledCandidate(
             action, context->coupledCandidateMassPipeline,
             pass.environmentCount);
         [action endEncoding];
-        if (operation ==
+        if (midpointPublish || operation ==
             MetalWorldCoupledCandidateOperation::publishCandidate) {
             id<MTLComputeCommandEncoder> publish =
                 [commandBuffer computeCommandEncoder];
@@ -11532,6 +11610,50 @@ bool encodeBorrowedCoupledCandidate(
             [publish endEncoding];
         }
     }
+    if (midpointPublish) context->sliderMidpointStageIncrement = input;
+    return true;
+}
+
+// Replace only the private ABA candidate position before the transactional
+// commit. The fixed-root one-axis topology was admitted on the host. ABA still
+// owns the endpoint velocity; the position is integrated from the supplied
+// midpoint velocity and is discarded by the ordinary commit on failure.
+bool encodeSliderMidpointPosition(
+    detail::MetalWorldContextState& context, id<MTLCommandBuffer> commandBuffer,
+    const float timestep, const std::size_t sourceQ, const std::size_t sourceV
+) {
+    if (!context.sliderMidpointActive || context.sliderMidpointStageIncrement == nil ||
+        context.boundArticulations.size() != 1u || !(timestep > 0.0f) ||
+        !std::isfinite(timestep) || !std::isfinite(1.0f / timestep)) return false;
+    const auto& a = context.boundArticulations[0];
+    const MRCoupledCandidateDispatchGPU work{
+        .abiVersion = MR_COUPLED_CANDIDATE_ABI_VERSION,
+        .operation = MR_COUPLED_CANDIDATE_KINEMATICS,
+        .environmentCount = 1u, .articulationIndex = 0u,
+        .qStride = 1u, .vStride = 1u, .bodyStride = 2u, .statusStride = 1u,
+        .qOffset = a.qOffset, .vOffset = a.vOffset, .firstBody = a.firstBody,
+        .bodyCount = a.bodyCount, .nq = a.nq, .nv = a.nv,
+        .pointCount = 0u, .pointStride = 0u, .pointJacobianStride = 0u,
+        .reserved0 = 0u, .timestepAndInverse = {timestep, 1.0f/timestep, 0.0f, 0.0f},
+    };
+    id<MTLComputeCommandEncoder> encoder = [commandBuffer computeCommandEncoder];
+    if (encoder == nil) return false;
+    encoder.label = @"MetalWorld slider midpoint position candidate";
+    [encoder setComputePipelineState:context.coupledCandidateIntegratePipeline];
+    [encoder setBytes:&work length:sizeof(work) atIndex:0u];
+    [encoder setBuffer:context.buffers[kArticulations] offset:0u atIndex:1u];
+    [encoder setBuffer:context.buffers[kJoints] offset:0u atIndex:2u];
+    [encoder setBuffer:context.buffers[kDofs] offset:0u atIndex:3u];
+    [encoder setBuffer:context.buffers[sourceQ] offset:0u atIndex:4u];
+    [encoder setBuffer:context.buffers[sourceV] offset:0u atIndex:5u];
+    [encoder setBuffer:context.sliderMidpointStageIncrement offset:0u atIndex:6u];
+    [encoder setBuffer:context.buffers[kCandidateQ] offset:0u atIndex:7u];
+    [encoder setBuffer:context.buffers[kContactStatuses] offset:0u atIndex:8u];
+    const std::uint32_t stride = 1u;
+    [encoder setBytes:&stride length:sizeof(stride) atIndex:9u];
+    dispatchWorldThreads(encoder, context.coupledCandidateIntegratePipeline, 1u);
+    [encoder endEncoding];
+    context.sliderMidpointStageIncrement = nil;
     return true;
 }
 
@@ -11551,6 +11673,14 @@ bool encodeDevicePhysicsProgram(
 ) {
     if (!config.devicePhysicsProgram.valid()) {
         return true;
+    }
+    if (phase == MetalWorldDevicePhysicsPhase::preDynamics) {
+        context.sliderMidpointStageIncrement = nil;
+        context.sliderMidpointActive =
+            (config.devicePhysicsProgram.flags & MetalWorldDevicePhysicsOwnsSliderMidpoint) != 0u;
+        context.sliderMidpointGravityForce = context.sliderMidpointActive
+            ? world.model().bodies[1].massAndInverseMass.x *
+                world.model().world.gravityAndTimestep.z : 0.0f;
     }
     const MetalWorldDevicePhysicsPass physics{
         .commandBuffer = (__bridge void*)commandBuffer,
@@ -11599,10 +11729,10 @@ bool encodeDevicePhysicsProgram(
         .resetMaskStepStride = layout.dispatch.resetMaskStepStride,
         .timestepSeconds = layout.contactDispatch.timestepAndBias.x,
     };
-    return config.devicePhysicsProgram.encode(
-        config.devicePhysicsProgram.context,
-        physics
-    );
+    const bool encoded = config.devicePhysicsProgram.encode(
+        config.devicePhysicsProgram.context, physics);
+    return encoded && (phase != MetalWorldDevicePhysicsPhase::preDynamics ||
+        !context.sliderMidpointActive || context.sliderMidpointStageIncrement != nil);
 }
 
 bool encodeTaskThreatSelect(
@@ -20179,9 +20309,7 @@ MetalWorldDiagnostics MetalWorldContext::submitImpl(
                 residentData->taskFingerprint !=
                     config.taskProgram.fingerprint() ||
                 residentData->devicePhysicsFingerprint !=
-                    (config.devicePhysicsProgram.valid()
-                         ? config.devicePhysicsProgram.fingerprint
-                         : 0u) ||
+                    devicePhysicsExecutionFingerprint(config.devicePhysicsProgram) ||
                 residentData->deviceMechanicsFingerprint !=
                     (config.deviceMechanicsProgram.valid()
                          ? config.deviceMechanicsProgram.fingerprint
@@ -20347,9 +20475,7 @@ MetalWorldDiagnostics MetalWorldContext::submitImpl(
                 residentData->taskFingerprint =
                     config.taskProgram.fingerprint();
                 residentData->devicePhysicsFingerprint =
-                    config.devicePhysicsProgram.valid()
-                    ? config.devicePhysicsProgram.fingerprint
-                    : 0u;
+                    devicePhysicsExecutionFingerprint(config.devicePhysicsProgram);
                 residentData->deviceMechanicsFingerprint =
                     config.deviceMechanicsProgram.valid()
                     ? config.deviceMechanicsProgram.fingerprint
@@ -21124,8 +21250,13 @@ MetalWorldDiagnostics MetalWorldContext::submitImpl(
                                       batch.environmentCount
                                   ))
                         );
+                    const bool encodedMidpointPosition = encodedABA &&
+                        ((config.devicePhysicsProgram.flags &
+                          MetalWorldDevicePhysicsOwnsSliderMidpoint) == 0u ||
+                         encodeSliderMidpointPosition(*selectedState, commandBuffer,
+                             config.timestepSeconds, sourceQ, sourceV));
                     const bool encodedRod =
-                        encodedABA &&
+                        encodedMidpointPosition &&
                         (
                             useHybridContact ||
                             encodeRodSubstep(
@@ -21376,7 +21507,7 @@ MetalWorldDiagnostics MetalWorldContext::submitImpl(
                          encodeLateFailureReconciliation(*selectedState,
                              commandBuffer, destinationQ, destinationV,
                              batch.environmentCount));
-                    if (!encodedABA ||
+                    if (!encodedABA || !encodedMidpointPosition ||
                         !encodedRod ||
                         !encodedPublication ||
                         !encodedRodPublication ||

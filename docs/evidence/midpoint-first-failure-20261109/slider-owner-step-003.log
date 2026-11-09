@@ -1,0 +1,2 @@
+fault pre=1 post=1 succeeded=0 steps=0 code=0 message=GPU returned a malformed MetalWorld status record
+late failure category not retained
