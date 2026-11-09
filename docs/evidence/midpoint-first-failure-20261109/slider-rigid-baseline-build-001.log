@@ -1,0 +1,4 @@
+apps/midpoint_slider_rigid_baseline.cpp:37:50: error: no member named 'metallibPath' in 'metalrobo::MetalWorldStepConfig'
+   37 |  metalrobo::MetalWorldStepConfig config{};config.metallibPath=argv[1];config.timestepSeconds=h;config.physicsSubsteps=1;
+      |                                           ~~~~~~ ^
+1 error generated.

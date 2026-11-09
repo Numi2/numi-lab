@@ -1,0 +1,14 @@
+{
+  "command": [
+    "cmake",
+    "--build",
+    "/Users/numi/numi-matter-slider-owner-build-20261109",
+    "--target",
+    "metalrobo_matter_physics_probe",
+    "-j1"
+  ],
+  "returncode": 0,
+  "stopped_reason": null,
+  "wall_seconds": 180.86087658302858,
+  "free_bytes_after": 4557443072
+}
