@@ -465,8 +465,18 @@ private:
 
     [[nodiscard]] bool validateMixedAuthorities() {
         const NMMixedSolverGPU& solver = world_.mixedSolver;
+        // The sole rigid shape admitted by the physical-residual schema is
+        // the one-axis plane research fixture. Runtime execution separately
+        // requires an explicit midpoint-slider opt-in and owner validation.
+        const bool sliderCandidate=world_.dispatch.environmentCount==1u &&
+            world_.dispatch.rigidGeneralizedCapacity==1u &&
+            world_.dispatch.rigidQCapacity==1u &&
+            world_.contact.rigidProxies.size()==1u &&
+            world_.contact.rigidProxies[0].shapeKind==NM_RIGID_PLANE &&
+            world_.contact.rigidProxies[0].flags==NM_RIGID_ARTICULATED &&
+            world_.contact.rigidProxies[0].bodyIndex==1u;
         if (solver.contactAcceptance.w>0.0f &&
-            (world_.dispatch.rigidGeneralizedCapacity!=0u || world_.dispatch.particleCount!=0u ||
+            ((world_.dispatch.rigidGeneralizedCapacity!=0u && !sliderCandidate) || world_.dispatch.particleCount!=0u ||
              std::any_of(world_.objects.begin(),world_.objects.end(),[](const auto& object) {
                  return object.representation!=NM_REPRESENTATION_FEM ||
                      (object.flags&(NM_OBJECT_MIXED_FEM|NM_OBJECT_MULTIPHYSICS))!=0u;

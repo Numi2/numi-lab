@@ -1150,6 +1150,9 @@ struct RuntimeConfiguration {
     float experimentalFEMPlaneAreaIPCK = 1.0e16f;
     // Restricted full-transaction midpoint research path, disabled by default.
     bool experimentalFEMPlaneMidpoint = false;
+    // Separate, non-production one-axis reacting-plane research admission.
+    // Requires midpoint, reference-area IPC and the full two-owner contract.
+    bool experimentalFEMPlaneSliderMidpoint = false;
 };
 
 struct HumanSupportConsequencesView {
@@ -2433,6 +2436,7 @@ public:
     [[nodiscard]] bool requiresBodyWrenches() const noexcept;
     [[nodiscard]] bool requiresRodNodes() const noexcept;
     [[nodiscard]] bool requiresCoupledCandidate() const noexcept;
+    [[nodiscard]] bool requiresSliderMidpointOwner() const noexcept;
     [[nodiscard]] bool humanHybridCoordinatesEnabled() const noexcept;
     [[nodiscard]] std::uint32_t coupledCandidatePointCapacity() const noexcept;
     // Immutable cooked dimensions used to bind external same-device programs

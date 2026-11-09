@@ -822,6 +822,8 @@ constexpr std::size_t kFEMOperatorFDParameterCaptureValuesPerSlot = 4u;
     hash = mixFingerprint(hash, configuration.externalCoupledCandidatePointCapacity);
     if (configuration.experimentalFEMPlaneMidpoint)
         hash = mixFingerprint(hash, 0x46454d4d49443031ull); // FEMMID01
+    if (configuration.experimentalFEMPlaneSliderMidpoint)
+        hash = mixFingerprint(hash, 0x46454d534c494431ull); // FEMSLID1
     if (configuration.experimentalFEMPlaneAreaIPC) {
         hash = mixFingerprint(hash, 0x46454d4152454131ull); // FEMAREA1
         hash = mixFingerprint(hash, detail::hashBytes(
@@ -3309,6 +3311,7 @@ struct Runtime::State {
     bool femReferenceContactPlaneCCDEnabled = false;
     bool experimentalFEMPlaneAL = false;
     bool experimentalFEMPlaneMidpoint = false;
+    bool experimentalFEMPlaneSliderMidpoint = false;
     bool midpointVelocityCompensation = false;
     bool midpointStageVelocityCompensation = false;
     bool experimentalFEMPlaneBEPrecision = false;
@@ -5025,6 +5028,28 @@ RuntimeDiagnostics Runtime::initialize(
                 layoutError;
             return diagnostics;
         }
+        const bool sliderResearch = configuration.experimentalFEMPlaneSliderMidpoint;
+        if (sliderResearch && (!configuration.experimentalFEMPlaneMidpoint ||
+            !configuration.experimentalFEMPlaneAreaIPC ||
+            configuration.experimentalFEMPlaneAugmentedLagrangian ||
+            configuration.coupledCandidateCompensatedTranslation ||
+            world.dispatch.environmentCount != 1u ||
+            world.dispatch.rigidGeneralizedCapacity != 1u ||
+            world.dispatch.rigidQCapacity != 1u)) {
+            diagnostics.message = "slider midpoint research requires the restricted one-axis reference-area owner";
+            return diagnostics;
+        }
+        // The explicit capability is reserved but cannot execute until the
+        // independent owner torque/work and rollback requirements are met.
+        if (sliderResearch) {
+            diagnostics.message = "slider midpoint research is not yet qualified for execution";
+            return diagnostics;
+        }
+        if (world.mixedSolver.contactAcceptance.w > 0.0f &&
+            world.dispatch.rigidGeneralizedCapacity != 0u && !sliderResearch) {
+            diagnostics.message = "physical residual with a rigid owner requires explicit slider midpoint research admission";
+            return diagnostics;
+        }
         std::vector<float> femPlaneReferenceAreas;
         if (configuration.experimentalFEMPlaneAugmentedLagrangian ||
             configuration.experimentalFEMPlaneAreaIPC) {
@@ -5036,7 +5061,7 @@ RuntimeDiagnostics Runtime::initialize(
                 world.dispatch.contactPairCount != 0u &&
                 world.dispatch.particleCount == 0u &&
                 world.dispatch.maximumRateExponent == 0u &&
-                world.dispatch.rigidGeneralizedCapacity == 0u &&
+                world.dispatch.rigidGeneralizedCapacity == (sliderResearch ? 1u : 0u) &&
                 world.dispatch.mutationCommandCount == 0u &&
                 world.dispatch.deformableContactCapacity == 0u &&
                 world.fem.humanAttachments.empty() &&
@@ -5051,9 +5076,12 @@ RuntimeDiagnostics Runtime::initialize(
                     return m.interfaceResponse.x == 0.0f && m.interfaceResponse.y == 0.0f &&
                         m.interfaceResponse.z == 0.0f && m.interfaceResponse.w == 0.0f;
                 }) &&
-                std::all_of(world.contact.rigidProxies.begin(),world.contact.rigidProxies.end(),[](const auto& p) {
-                    return p.shapeKind == NM_RIGID_PLANE && p.flags == 0u &&
-                        p.bodyIndex == NM_INVALID_INDEX && p.adaptiveObjectIndex == NM_INVALID_INDEX &&
+                std::all_of(world.contact.rigidProxies.begin(),world.contact.rigidProxies.end(),[&](const auto& p) {
+                    const bool owner=sliderResearch
+                        ? p.flags==NM_RIGID_ARTICULATED && p.bodyIndex==1u
+                        : p.flags==0u && p.bodyIndex==NM_INVALID_INDEX;
+                    return p.shapeKind == NM_RIGID_PLANE && owner &&
+                        p.adaptiveObjectIndex == NM_INVALID_INDEX &&
                         p.generalizedFreeBodyIndex == NM_INVALID_INDEX && p.reserved2 == 0u;
                 });
             const bool badAL=configuration.experimentalFEMPlaneAugmentedLagrangian &&
@@ -7938,6 +7966,7 @@ RuntimeDiagnostics Runtime::initialize(
 
         candidate->experimentalFEMPlaneAL = configuration.experimentalFEMPlaneAugmentedLagrangian;
         candidate->experimentalFEMPlaneMidpoint = configuration.experimentalFEMPlaneMidpoint;
+        candidate->experimentalFEMPlaneSliderMidpoint = sliderResearch;
         if (const char* value = std::getenv("NM_MATTER_MIDPOINT_VELOCITY_COMPENSATION")) {
             if (std::strcmp(value,"1") != 0 || !configuration.experimentalFEMPlaneMidpoint ||
                 !configuration.captureDiagnostics || world.dispatch.environmentCount != 1u ||
@@ -19069,7 +19098,9 @@ RuntimeDiagnostics Runtime::encodeImpl(
              request.mutationCommandCount != 0u || request.cohesiveActivationCommands != nullptr ||
              request.cohesiveActivationCommandCount != 0u || request.learnedWeightUpdate != nullptr ||
              request.runIdentification || request.runAdaptiveTransfer || request.enablePreparedState ||
-             request.encodeCoupledCandidate != nullptr || request.encodeAcceptedStepExtension != nullptr ||
+             (request.encodeCoupledCandidate != nullptr && !state.experimentalFEMPlaneSliderMidpoint) ||
+             (state.experimentalFEMPlaneSliderMidpoint && request.encodeCoupledCandidate == nullptr) ||
+             request.encodeAcceptedStepExtension != nullptr ||
              state.femNewtonTailICBRequested || state.fgmresOperatorICBRequested ||
              state.fgmresFlatColumnICBRequested || state.fgmresAggregateCycleICBRequested ||
              state.fgmresPrefixPreconditionerICBRequested || state.fgmresCGS2ICBEnabled ||
@@ -57987,6 +58018,10 @@ bool Runtime::requiresRodNodes() const noexcept {
 
 bool Runtime::requiresCoupledCandidate() const noexcept {
     return state_ != nullptr && state_->requiresCoupledCandidate;
+}
+bool Runtime::requiresSliderMidpointOwner() const noexcept {
+    return state_ != nullptr && state_->experimentalFEMPlaneSliderMidpoint &&
+        state_->requiresCoupledCandidate;
 }
 
 bool Runtime::humanHybridCoordinatesEnabled() const noexcept {

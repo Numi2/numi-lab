@@ -252,6 +252,9 @@ makeMetalWorldDevicePhysicsProgram(Runtime& runtime) noexcept {
              : 0u) |
         (runtime.requiresRodNodes()
              ? metalrobo::MetalWorldDevicePhysicsCouplesRodNodes
+             : 0u) |
+        (runtime.requiresSliderMidpointOwner()
+             ? metalrobo::MetalWorldDevicePhysicsOwnsSliderMidpoint
              : 0u);
     program.coupledCandidatePointCapacity =
         runtime.coupledCandidatePointCapacity();
