@@ -1,0 +1,3 @@
+# Conservative route updates
+
+The full second correction overfits development routes: the first two matched integrated courses changed from 10/16 and 10/16 supported finishes to 12/16 and 3/16. Test 25%, 50%, and 75% parameter interpolation between the previous and corrected route actors, retaining identical observation/action contracts and the unchanged landing actor. Compare teacher-off, full-start results on the same development seeds; seek an improvement in supported completion without a substantial course-specific regression. Any selected candidate must then be assessed on fresh development seeds before any reserved final evaluation.

@@ -1,0 +1,18 @@
+{
+  "old_sha256": "fa44fb6dbf7039e8d9a5ac1004a43a476a8583d08f85c4945a28851e78d5bbd9",
+  "new_sha256": "7c4abc97e8fc46445fea10e17784fc7cf4abc5bb93daf1f7fcdd0b9be82b6da0",
+  "results": [
+    {
+      "alpha": 0.25,
+      "policy_sha256": "86f98042bb6260974d480743d7adeb6cfcec754a67a7d8fd157aa6973cfcd1d4"
+    },
+    {
+      "alpha": 0.5,
+      "policy_sha256": "476e711c53da0070a3115836e9eaed842826a5a122b18d0ef61d0fb318fbec5c"
+    },
+    {
+      "alpha": 0.75,
+      "policy_sha256": "d042ef363e8cc82770754dcf69df444df22906960c762244b17876008a5222ec"
+    }
+  ]
+}
