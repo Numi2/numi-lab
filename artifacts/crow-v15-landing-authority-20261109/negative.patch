@@ -1,0 +1,14 @@
+--- a/toe-active.metal
++++ b/hip-balance-negative.metal
+@@ -5079,6 +5079,11 @@
+         // execution still has no teacher authority.
+         if (fixedFlightController && state.threatTeacher.w >= 1.5f && action < 15u)
+             navigationTeacherRequested = 0.0f;
++        // Experimental hip balance; enabled only on bilateral measured support.
++        if (fixedFlightController && state.episode.z==10u && state.navigation.z>=5.0f &&
++            (action==7u || action==10u) && state.nutrition.x>0.05f && state.nutrition.y>0.05f && (state.status.w & 63u)>=30u && ((state.status.w>>6u)&63u)>=30u) {
++            navigationTeacherRequested=clamp(-1.0f*(0.20f*state.threatGeometry.z+0.10f*state.threatGeometry.w),-0.08f,0.08f);
++        }
+         const float navigationTeacherBlend = fixedFlightController
+             ? 1.0f
+             : avianNavigationTeacher

@@ -1,0 +1,3 @@
+# Post-landing leg authority screen
+
+Task-state telemetry observed sustained bilateral rear contact counters and foot loads during the hold, and the diagnostic replay matched baseline q/v exactly. Source inspection shows the earlier reflex was positioned before an existing landing-phase command reset, so it was overwritten in that phase. Before running, move the unchanged delayed small bilateral hip law after that reset, retain toe-contact and support gating, and test both signs on the exposed full-start layout J. Preserve the frozen flight controller. Compare accepted-state trajectories and contact endpoints to the baseline; the complete pass remains all waypoints, no physical failure, bilateral opposing grip, observed release, and stable support.
