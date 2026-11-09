@@ -29,6 +29,13 @@ check was inconclusive: the available November 8 library lacked an earlier
 required late-failure reconciliation entry point and could not initialize.
 Its failure is retained in `slider-stage-velocity-oldshader-001.log`; it is
 not evidence of either compatibility or incompatibility of the new functions.
+A subsequent targeted test rebuilt the previous MetalWorldContact shader
+from commit `34522612c` alongside the current remaining shader objects. The
+resulting library retained the earlier reconciliation entry point and lacked
+both new midpoint functions. The legacy owner probe succeeded, and the
+explicitly enabled midpoint owner refused to encode. The library and source
+hashes and both outputs are recorded in
+`slider-stage-velocity-optional-shader-001.json`.
 
 This repairs a necessary owner contract only. The moving-plane Matter guard
 remains closed; these tests do not qualify a two-owner contact transaction,

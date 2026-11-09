@@ -1,0 +1,22 @@
+{
+  "schema": "numi.slider-optional-shader-compatibility.v1",
+  "prior_source_commit": "34522612c",
+  "library_sha256": "eae2d3ac5f095629c4947e3a4a9c706b7462e84d4b733fe74f8bbf1ab00412f3",
+  "prior_source_sha256": "e3cbb6898c7e10af02c3407f9a3bf41c7983a93ea6333eede60e6136c2e7ea0d",
+  "new_functions_absent": true,
+  "previous_reconcile_present": true,
+  "results": [
+    {
+      "probe": "numi_midpoint_slider_rigid_baseline",
+      "returncode": 0,
+      "stdout": "{\"schema\":\"numi.rigid-slider.free-baseline.v1\",\"h\":0.0010000000474974513,\"mass_kg\":0.01,\"initial_v\":0.019999999552965164,\"gravity\":-9.8100004196166992,\"actual_q\":1.0190000466536731e-05,\"actual_v\":0.01018999982625246,\"endpoint_velocity_q\":1.0189999151397413e-05,\"midpoint_q\":1.509499982715579e-05,\"midpoint_position_defect_m\":-4.9049993606190598e-06}\n",
+      "stderr": ""
+    },
+    {
+      "probe": "numi_midpoint_slider_owner_step_probe",
+      "returncode": 1,
+      "stdout": "",
+      "stderr": "midpoint owner step: failed to encode MetalWorld substep graph\n"
+    }
+  ]
+}
