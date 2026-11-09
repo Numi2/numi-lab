@@ -25,10 +25,13 @@ for i in range(640):
   'fem_torque_impulse_z':0.,'owner_moment_impulse_z':0.,'support_moment_impulse_z':0.,
   'fem_contact_work':0.,'owner_contact_work':0.,
   'independent_fem_residual_Ns':0.,'independent_joint_residual_Ns':0.,'slider_kinematic_defect_m':0.,'fem_kinematic_defect_m':0.})
-# Build a discrete midpoint position history from the reference velocities;
-# interpolated continuous positions alone need not obey the discrete equation.
+# Construct a physical body trajectory from the independently tabulated
+# contact impulse and gravity, then integrate position with midpoint velocity.
 q=0.;previous_v=.02
 for step in steps:
+ step['v']=previous_v+(-step['fem_impulse']+h*.01*(-9.81))/.01
+ step['owner_momentum_impulse']=.01*(step['v']-previous_v)-h*.01*(-9.81)
+ step['independent_joint_residual_Ns']=abs(step['owner_momentum_impulse']-step['owner_wrench_impulse'])
  q+=h*.5*(previous_v+step['v']);step['q']=q;previous_v=step['v']
 a=json.loads((p/'compact-reference-parity-n2-ordered-001.json').read_text())['contact_area_weights_m2']
 active=[i for i,x in enumerate(a) if x>0]
@@ -53,12 +56,12 @@ for i,step in enumerate(steps):
  step['fem_contact_work']=sum(row[1]*row[3] for row in step['fem_work_nodes'])
  step['fem_law_work']=sum(row[2]*row[3] for row in step['fem_work_nodes'])
  step['fem_work_reconstruction_gate_ratio']=max(abs((row[1]-row[2])*vm)/(max(1e-12,1e-5*abs(row[2]))*abs(vm)+1e-24) for row in step['fem_work_nodes'])
- midpoint_v=.5*(at(i*h,4)+step['v'])
+ midpoint_v=.5*((.02 if i==0 else steps[i-1]['v'])+step['v'])
  step['owner_contact_work']=-j*midpoint_v
  step['owner_wrench_work']=step['owner_contact_work']
 
 d={'schema':'numi.slider-coupled-diagnostic.v1','initial_gap':.000095,'h':h,'slider_mass_kg':.01,
- 'initial_slider_velocity_mps':.02,'reference_area_m2':.0004,'reference_area_weights_m2':a,
+ 'initial_slider_velocity_mps':.02,'slider_gravity_mps2':-9.81,'reference_area_m2':.0004,'reference_area_weights_m2':a,
  'activation_width_m':.0001,'contact_coefficient':1e16,'physical_residual_limit_Ns':2*(.00025+.00225)*9.81*h*(.0088/96.),'steps':steps}
 with tempfile.NamedTemporaryFile(mode='w',suffix='.json') as f:
  def run():
@@ -78,7 +81,7 @@ with tempfile.NamedTemporaryFile(mode='w',suffix='.json') as f:
  d['steps'][100]['independent_joint_residual_Ns']=1e-9
  code,out=run();assert code!=0 and not out['checks']['independent_residual'],('large FEM residual accepted',out)
  d['steps'][100]['independent_fem_residual_Ns']=0.
- d['steps'][100]['independent_joint_residual_Ns']=0.
+ d['steps'][100]['independent_joint_residual_Ns']=abs(d['steps'][100]['owner_momentum_impulse']-d['steps'][100]['owner_wrench_impulse'])
  # A rejected or missing step may never be upgraded to a full rollout.
  d['steps'][-1]['accepted']=False
  d['steps'][-1]['world_status']=11;d['steps'][-1]['matter_status']=10;d['steps'][-1]['failure_index']=7
@@ -118,7 +121,11 @@ with tempfile.NamedTemporaryFile(mode='w',suffix='.json') as f:
  d['steps'][100]['q']=old
  for field,check in (('q','slider_position'),('v','slider_velocity')):
   old=d['steps'][-1][field];d['steps'][-1][field]=old+.01
-  code,out=run();assert code!=0 and not out['checks'][check],(field,out)
+  code,out=run()
+  if field=='v':
+   assert code!=0 and 'body impulse disagrees' in out['error'],(field,out)
+  else:
+   assert code!=0 and not out['checks'][check],(field,out)
   d['steps'][-1][field]=old
  # At a zero-velocity node pair, opposing bad impulses cancel in total
  # and perform no work, but must still fail the direct per-node law check.

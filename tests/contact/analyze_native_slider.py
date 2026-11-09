@@ -74,7 +74,7 @@ reported_limit=d.get('physical_residual_limit_Ns')
 if (not isinstance(reported_limit,(int,float)) or not math.isfinite(reported_limit) or
     reported_limit<=0 or not math.isclose(reported_limit,expected_residual_limit,rel_tol=2e-6,abs_tol=0.0)):
  raise SystemExit('physical residual limit differs from the registered fixture')
-if not (math.isclose(d['slider_mass_kg'],.01,rel_tol=1e-6) and math.isclose(d['initial_slider_velocity_mps'],.02,rel_tol=1e-6)
+if not (math.isclose(d['slider_mass_kg'],.01,rel_tol=1e-6) and math.isclose(d['slider_gravity_mps2'],-9.81,rel_tol=1e-6) and math.isclose(d['initial_slider_velocity_mps'],.02,rel_tol=1e-6)
  and math.isclose(d['reference_area_m2'],.0004,rel_tol=2e-6) and math.isclose(sum(d['reference_area_weights_m2']),.0004,rel_tol=2e-6)
  and len(d['reference_area_weights_m2'])==len(area_reference)==27
  and all(abs(a-b)<=1e-11 for a,b in zip(d['reference_area_weights_m2'],area_reference))
@@ -86,9 +86,14 @@ if not all(math.isfinite(v) for s in steps for v in s.values() if isinstance(v,(
 # This fixture starts at q=0; a future compensated owner must publish the sum
 # of its high and low words here, not merely its high projection.
 previous_q=0.0;previous_v=d['initial_slider_velocity_mps'];slider_reconstructed_defect=0.0
+body_impulse_disagreement=0.0
 for step in steps:
  defect=math.fsum((step['q'],-previous_q,-0.5*h*previous_v,-0.5*h*step['v']))
  slider_reconstructed_defect=max(slider_reconstructed_defect,abs(defect))
+ expected_impulse=d['slider_mass_kg']*(step['v']-previous_v)-h*d['slider_mass_kg']*d['slider_gravity_mps2']
+ body_impulse_disagreement=max(body_impulse_disagreement,abs(expected_impulse-step['owner_momentum_impulse']))
+ if not math.isclose(expected_impulse,step['owner_momentum_impulse'],rel_tol=1e-11,abs_tol=1e-22):
+  raise SystemExit('body impulse disagrees with its physical velocity change')
  previous_q,previous_v=step['q'],step['v']
 imp=[s['fem_impulse'] for s in steps];times=[0.];cumulative=[0.]
 for x in imp:times.append(times[-1]+h);cumulative.append(cumulative[-1]+x)
@@ -185,6 +190,7 @@ results={'reference_qualification_passed':reference_ok,'work_history_comparison'
  'max_independent_joint_residual_Ns':max(abs(s['independent_joint_residual_Ns']) for s in steps),
  'max_independent_fem_residual_Ns':max(s['independent_fem_residual_Ns'] for s in steps),
  'max_residual_reconstruction_disagreement_Ns':residual_consistency,
+ 'max_body_impulse_reconstruction_disagreement_Ns':body_impulse_disagreement,
  'physical_residual_limit_Ns':d['physical_residual_limit_Ns'],
  'slider_position_relative_error':abs(steps[-1]['q']-r['slider_final_z_m'])/max(abs(r['slider_final_z_m']),1e-8),
  'slider_velocity_relative_error':abs(steps[-1]['v']-r['slider_final_v_mps'])/max(abs(r['slider_final_v_mps']),1e-6),

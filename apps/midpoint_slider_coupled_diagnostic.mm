@@ -185,7 +185,7 @@ int main(int argc,char**argv){@autoreleasepool{try{
  std::cout<<std::setprecision(17)<<"{\"schema\":\"numi.slider-coupled-diagnostic.v1\",\"h\":"<<physicalH
    <<",\"initial_gap\":"<<gap<<",\"matter_fingerprint\":"<<matter.deviceProgramFingerprint()
    <<",\"source_fingerprint\":"<<femWorld.physicsFingerprint
-   <<",\"slider_mass_kg\":"<<sliderMass<<",\"initial_slider_velocity_mps\":"<<double(rigid.defaultV[0])
+   <<",\"slider_mass_kg\":"<<sliderMass<<",\"slider_gravity_mps2\":"<<sliderGravity<<",\"initial_slider_velocity_mps\":"<<double(rigid.defaultV[0])
    <<",\"reference_area_m2\":"<<totalArea
    <<",\"activation_width_m\":"<<femWorld.dispatch.numericalLimits.x
    <<",\"contact_coefficient\":"<<mc.experimentalFEMPlaneAreaIPCK

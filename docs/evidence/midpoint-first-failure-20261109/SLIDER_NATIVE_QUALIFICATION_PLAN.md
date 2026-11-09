@@ -106,3 +106,13 @@ not satisfy this geometric restriction. Compute FEM work from the full impulse
 and midpoint velocity vectors. The existing per-node normal-law work and
 impulse checks still apply. Earlier attempts did not capture all of these
 components and remain incomplete historical evidence, not all-axis passes.
+
+For a new native trace, record the actual compiled world-z gravity alongside
+the body mass and initial velocity. Independently recompute the body contact
+impulse at every accepted step as `mass * (v1 - v0) - h * mass * gravity` and
+require agreement with the reported momentum impulse to double-output
+roundoff. This must use the full physical high-plus-low velocity when a
+compensated owner exists. It is an input-integrity cross-check in addition to,
+not a replacement for, the local residual, owner-wrench balance, and force
+reference gates. The old high-only partial traces were checked using their
+compiled FP32 gravity; they do not establish a complete coupled rollout.
