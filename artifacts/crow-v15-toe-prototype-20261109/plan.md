@@ -1,0 +1,9 @@
+# Exploratory toe embodiment admission, registered before execution
+
+Question: Can the current v15 active-head mechanism admit four independently hinged, collision-bearing toes per foot while preserving its neutral rigid-body mass properties and legacy generalized coordinates? The current rigid soles cannot grip. Alternative: added tiny links make the native articulated model invalid or numerically inaccurate even in free space.
+
+Construct an explicitly estimated prototype: three forward and one rearward box toe on each foot, one flexion joint each. Mass is partitioned from each foot, with a zero first moment and subtraction of toe inertia and parallel-axis terms. Replace the old full sole collision box by a central palm; append distinct toe collision boxes. No unmeasured geometry or inertias are claimed biological. Keep all prior coordinates and the frozen flight controller unchanged. This phase tests mechanics only, without a grip or walking claim.
+
+Admit only if model validation succeeds, original versus neutral-toe spatial invariants agree to 2e-7 relative/absolute across 36 translating/rotating poses with locked toes, all eight joints generate finite nonzero motion with bounded applied efforts, and a 12-lane native GPU free-space step agrees with independent FP64 articulated dynamics within 5e-5 scaled acceleration error. Preserve any error or failed arm. No contact, grip, controlled landing, learning compatibility or biological realism can be inferred. Follow-up requires actual contact tests and explicit controls before use in the journey.
+
+Revision after the initial admission failed before any simulation: resolve physical foot links and sole shapes by semantic names. The initial hardcoded indices belonged to the older dove topology. The declared admission thresholds and controls remain unchanged.

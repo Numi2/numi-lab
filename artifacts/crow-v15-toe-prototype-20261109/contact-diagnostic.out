@@ -1,0 +1,24 @@
+arm=disabled contacts=8
+crow_left_foot locomotion_ground impulse=0 separation=0.000112734
+crow_left_foot locomotion_ground impulse=0 separation=0.000112734
+crow_left_foot locomotion_ground impulse=0 separation=0.000112736
+crow_left_foot locomotion_ground impulse=0 separation=0.000112736
+crow_right_foot locomotion_ground impulse=0 separation=0.00011273
+crow_right_foot locomotion_ground impulse=0 separation=0.00011273
+crow_right_foot locomotion_ground impulse=0 separation=0.000112732
+crow_right_foot locomotion_ground impulse=0 separation=0.000112732
+toe_contacts=0 positive=0 impulse=0 final_root_z=0.177342
+arm=enabled contacts=12
+crow_left_shank crow_left_rear_toe impulse=0.00301128 separation=-0.000528
+crow_left_shank crow_left_rear_toe impulse=0.00301128 separation=-0.000528
+crow_right_shank crow_right_rear_toe impulse=0.00301126 separation=-0.000528
+crow_right_shank crow_right_rear_toe impulse=0.00301126 separation=-0.000528
+crow_left_foot locomotion_ground impulse=0 separation=0.000112734
+crow_left_foot locomotion_ground impulse=1.60022e-05 separation=0.000112734
+crow_left_foot locomotion_ground impulse=0 separation=0.000112736
+crow_left_foot locomotion_ground impulse=1.60419e-05 separation=0.000112736
+crow_right_foot locomotion_ground impulse=0 separation=0.00011273
+crow_right_foot locomotion_ground impulse=1.60716e-05 separation=0.00011273
+crow_right_foot locomotion_ground impulse=0 separation=0.000112732
+crow_right_foot locomotion_ground impulse=1.60093e-05 separation=0.000112732
+toe_contacts=4 positive=4 impulse=0.0120451 final_root_z=0.177345

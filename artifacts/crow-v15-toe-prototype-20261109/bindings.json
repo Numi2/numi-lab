@@ -1,0 +1,12 @@
+{
+  "git_parent": "fd7292a350166c95dbfad92736586ec93f3efe58",
+  "system": "ProductName:\t\tmacOS\nProductVersion:\t\t26.6\nBuildVersion:\t\t25G72",
+  "compiler": "Apple clang version 21.0.0 (clang-2100.1.1.101)",
+  "files": {
+    "src/metal/CrowFlightControllerV1.metal": "aa2fe10901cb0494d80ae445902303a17ce0e73d030072bab09461d8f3593ebe",
+    "build/lib/libmetalrobo.dylib": "97e275ebfb15c73e5d411681e1909c2ed110c6ccccc37a14ecd0360dec39094e",
+    "build/bin/metalrobo_task_rollout": "5ee04a98f25f7149701bc21ede235428876e535f843366e78dea16fce6035d1d"
+  },
+  "device": "Apple M4 Pro",
+  "scope": "exploratory native probes; no production integration, realistic grasp or full sequence qualification"
+}
