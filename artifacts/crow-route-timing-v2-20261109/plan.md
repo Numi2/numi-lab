@@ -1,0 +1,3 @@
+# Earlier crossing follow-up
+
+Prediction: starting the first-to-second slalom transition another 0.08 m earlier than the 63/64 timing trial will allow the remaining lane to clear the second slalom without creating first-slalom contacts. Repeat the identical 64 collision-enabled full-start training-layout episodes at seed 20261124, unchanged waypoint-three timing, flight law, speed, height and 3000-step horizon. Require 64/64 all five waypoints, no physical failures and no failed simulator steps. Record contact candidates and negative outcomes. This tests the privileged teacher on development data only.

@@ -1,0 +1,3 @@
+# Supported landing contact observer
+
+Add a read-only diagnostic to the extended collision-enabled runtime that records accepted last-substep perch contacts at each control step, including both body names, normal, solved normal and tangential impulses, separation, and the accepted q/v state. This does not alter action, integration, contacts or termination. Run matched observer-on/off trials and compare all sampled q/v and first-episode outcomes before relying on the instrumentation. A supported landing requires sustained upward foot-perch load, settled body motion and no non-foot collision or physical termination; a waypoint latch or a single touching sample is insufficient. Last-substep observations cannot establish unsampled contact continuity.

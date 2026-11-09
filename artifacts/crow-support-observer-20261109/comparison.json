@@ -1,0 +1,12 @@
+{
+  "samples_off": 128,
+  "samples_on": 128,
+  "mismatches": 0,
+  "first_mismatches": [],
+  "first_episode_equal": true,
+  "physical_failure_counts": [
+    0,
+    0
+  ],
+  "note": "last-substep observer; equality of sampled q/v and first-episode outcomes"
+}

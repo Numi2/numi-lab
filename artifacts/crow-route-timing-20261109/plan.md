@@ -1,0 +1,3 @@
+# Earlier lateral transitions without braking
+
+Prediction: initiate the crossing toward waypoint two 0.13 m earlier than v4 and start returning toward waypoint three 0.15 m earlier; keep forward speed, altitude, frozen law and all other settings unchanged. Earlier crossing may cause first-slalom contact and the earlier return may cause second-slalom contact, so explicitly retain those outcomes. Repeat the 64 matched training-layout first episodes at seed 20261124 with collision enabled and extended 3000-step horizon. Require all 64 reach five waypoints, zero physical failures and zero failed simulator steps. This is a privileged teacher development test, not autonomous navigation or landing.

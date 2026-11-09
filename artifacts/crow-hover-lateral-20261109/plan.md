@@ -1,0 +1,3 @@
+# Lateral motion while braking
+
+Prediction: the calibrated zero-forward-speed adapter can hold its forward bound while simultaneously commanding lateral travel, enabling a deliberate pause before a slalom or perch. On new development seed 20261202 run 80 disturbed-start first episodes, teacher off, collisions off, 1600 steps. After 6 seconds command lateral 0, +0.15, -0.15, +0.30, -0.30 m/s across the five groups, height 1.15 m except the zero group at 1.30 m. Require every lane survive and every sample at 20–30 s meet heading <=0.15 rad, true forward speed <=0.05 m/s, lateral command error <=0.12 m/s and height error <=0.15 m, with no simulator failures. Record group errors and all samples. This tests sampled tracking, not obstacle avoidance or landing.
