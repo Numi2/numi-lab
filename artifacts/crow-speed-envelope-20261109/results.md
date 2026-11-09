@@ -1,0 +1,3 @@
+# Candidate speed and turn envelope
+
+The three straight speed groups passed 20/20 lanes each at 0.40, 0.55 and 0.85 m/s, respectively. Both stronger-turn groups failed 0/20: median of lane-maximum sampled heading error was 0.457 rad for +0.06 rad/s and 0.421 rad for -0.06 rad/s against the 0.15 rad screen. All 100 first episodes survived without physical failures or failed simulator steps. The feedback candidate therefore does not demonstrate the stronger turns needed for a compact course. Sampled tracking screens are not continuous safety evidence. See tracking-results.json and compressed samples.
