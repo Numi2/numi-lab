@@ -21,8 +21,9 @@ Continuation replay, full restore replay, fingerprint mismatch rejection and
 forced rollback passed exactly for the captured physical state and status.
 Normal contact work was +2.63692262e-7 J, compared with +2.63692249e-7 J from
 an independently accumulated impulse/midpoint-velocity product. This begins
-with stored barrier potential and is not a complete energy balance or proof
-of energy injection. The original physics input executable and Metal library
+with approximately 3.900855e-7 J of barrier potential, computed from the
+initial area, gap, activation width and unchanged pressure potential. It is
+not a complete discrete energy balance or proof of energy injection. The original physics input executable and Metal library
 are identified in `stage-native-001-inputs.sha256`; the execution record,
 full trace, logs and analysis are retained. The measured wall time includes
 diagnostic capture and replay and is not a performance benchmark. This is a
