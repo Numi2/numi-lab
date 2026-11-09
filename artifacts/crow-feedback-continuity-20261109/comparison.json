@@ -1,0 +1,38 @@
+[
+  {
+    "seed": 20261120,
+    "matched_samples_before_completion_or_other_lanes": 1264,
+    "different_before_completion": 0,
+    "first_differences": [],
+    "samples_after_completion": 16,
+    "differences_after_completion": 16,
+    "completion_lanes": [
+      [
+        8,
+        828
+      ],
+      [
+        50,
+        814
+      ]
+    ]
+  },
+  {
+    "seed": 20261121,
+    "matched_samples_before_completion_or_other_lanes": 1263,
+    "different_before_completion": 0,
+    "first_differences": [],
+    "samples_after_completion": 17,
+    "differences_after_completion": 17,
+    "completion_lanes": [
+      [
+        63,
+        845
+      ],
+      [
+        70,
+        796
+      ]
+    ]
+  }
+]

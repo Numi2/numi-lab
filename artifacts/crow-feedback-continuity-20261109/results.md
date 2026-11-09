@@ -1,0 +1,3 @@
+# Matched live-feedback control result
+
+All 160 first episodes across the two matched seeds passed their original sampled screens with no physical failures or failed simulator steps, including seed 20261121 lane 70. The full q/v/filtered-action samples were identical at all 2,527 matched observations before waypoint completion or in lanes that never completed; all 33 samples after completion differed because the corrected feedback continued updating. This establishes the observed effect of the benchmark correction for these runs. It remains a flight-only diagnostic, using a training-time teacher path and no obstacle collisions; it does not establish continuous navigation or landing.
