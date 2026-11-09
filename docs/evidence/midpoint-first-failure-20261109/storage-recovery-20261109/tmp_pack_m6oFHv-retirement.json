@@ -1,0 +1,12 @@
+{
+  "status": "retired_after_independent_restore",
+  "asset": "tmp_pack_m6oFHv",
+  "sha256": "b8620c8c0dddf28f10514e2835b8fa9c8343edb9c8c7c04588e856de6e00ea1a",
+  "bytes": 698048511,
+  "source_identity_and_no_open_handles_verified": true,
+  "remote_size_and_digest_verified": true,
+  "free_bytes_before_removal": 1555587072,
+  "free_bytes_after_removal": 2952556544,
+  "pack_validity": "not established",
+  "post_fsck": "passed connectivity-only without lazy fetch"
+}

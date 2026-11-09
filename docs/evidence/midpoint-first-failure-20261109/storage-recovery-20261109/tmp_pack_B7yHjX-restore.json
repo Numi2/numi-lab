@@ -1,0 +1,11 @@
+{
+  "status": "PASS_EXACT_INDEPENDENT_RESTORE",
+  "manifest_sha256": "8d63c0fd4e58feb3182cf2e34d341e1ff24bc67a5e90eddc525ca47196ee8919",
+  "asset": "tmp_pack_B7yHjX",
+  "bytes": 1444814847,
+  "sha256": "80493b04df30a42dd77ec4797e33bc6b9e209325d25f1d632b82b8f38fd66c50",
+  "mode": 292,
+  "mtime_ns": 1794076575054023059,
+  "destination": "/Users/numi/storage-cleanup-20261109-ccd-pack-recovery/verify-restored-B7yHjX",
+  "pack_validity": "not established"
+}

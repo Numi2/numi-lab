@@ -1,0 +1,12 @@
+{
+  "status": "retired_after_independent_restore",
+  "asset": "tmp_pack_B7yHjX",
+  "sha256": "80493b04df30a42dd77ec4797e33bc6b9e209325d25f1d632b82b8f38fd66c50",
+  "bytes": 1444814847,
+  "source_identity_and_no_open_handles_verified": true,
+  "remote_size_and_digest_verified": true,
+  "free_bytes_before_removal": 2809208832,
+  "free_bytes_after_removal": 5699698688,
+  "pack_validity": "not established",
+  "post_fsck": "passed connectivity-only without lazy fetch"
+}

@@ -1,0 +1,8 @@
+{
+  "command": "GIT_NO_LAZY_FETCH=1 git fsck --full --no-dangling",
+  "returncode": 143,
+  "stopped_reason": "terminated after observed RSS reached 5755616 KiB to avoid memory and disk pressure",
+  "full_fsck_passed": false,
+  "log": "canonical-full-fsck-after-first.log",
+  "connectivity_only_check": "canonical-post-m6oFHv-fsck.status"
+}

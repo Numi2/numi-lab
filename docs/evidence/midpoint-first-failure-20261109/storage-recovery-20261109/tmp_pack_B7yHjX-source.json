@@ -1,0 +1,15 @@
+{
+  "source": "/Users/numi/numi-lab-ccd-20261107/.git/objects/pack/tmp_pack_B7yHjX",
+  "bytes": 1444814847,
+  "sha256": "80493b04df30a42dd77ec4797e33bc6b9e209325d25f1d632b82b8f38fd66c50",
+  "mode": 292,
+  "mtime_ns": 1794076575054023059,
+  "inode": 7072125,
+  "device": 16777232,
+  "links": 1,
+  "allocated_bytes": 1444814848,
+  "archive_repo": "Numi2/workstation-checkpoint-archive",
+  "release": "numi-ccd-pack-fragments-20261109",
+  "asset": "tmp_pack_B7yHjX",
+  "source_pack_validity": "not established; exact bytes only"
+}
