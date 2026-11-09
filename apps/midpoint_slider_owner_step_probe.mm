@@ -5,11 +5,11 @@
 #undef main
 #import <Foundation/Foundation.h>
 #import <Metal/Metal.h>
-struct OwnerProbe {float acceleration=0;id<MTLBuffer> increment=nil;id<MTLBuffer> output=nil;id<MTLBuffer> stageQ=nil;id<MTLBuffer> stageBodies=nil;bool pre=false,post=false,skip=false,inject=false,legacyPublish=false,poison=false;std::uint32_t statusFlags=0;};
+struct OwnerProbe {float acceleration=0;float expectedMass=0;id<MTLBuffer> increment=nil;id<MTLBuffer> output=nil;id<MTLBuffer> stageQ=nil;id<MTLBuffer> stageBodies=nil;bool pre=false,post=false,skip=false,inject=false,legacyPublish=false,poison=false;std::uint32_t statusFlags=0;};
 static bool encodeOwner(void* opaque,const metalrobo::MetalWorldDevicePhysicsPass& pass){
  auto& p=*static_cast<OwnerProbe*>(opaque);
  if(!pass.sliderMidpointMechanicalDataValid ||
-    !std::isfinite(pass.sliderMidpointMassKg) || !(pass.sliderMidpointMassKg>0) ||
+    !std::isfinite(pass.sliderMidpointMassKg) || pass.sliderMidpointMassKg!=p.expectedMass ||
     pass.sliderMidpointGravityForceNewtons != pass.sliderMidpointMassKg * -9.81f)return false;
  if(pass.phase==metalrobo::MetalWorldDevicePhysicsPhase::postCommit){
   p.post=true;
@@ -70,7 +70,8 @@ static metalrobo::MetalWorldDiagnostics run(const std::string& shader,metalrobo:
  metalrobo::MetalWorldStepConfig config{};config.timestepSeconds=h;config.physicsSubsteps=1;
  config.solverMode=metalrobo::MetalWorldSolverMode::freeMotionABA;config.ccdMode=metalrobo::MetalWorldCCDMode::disabled;
  config.matrixFreeArticulatedContact=false;config.streamedArticulatedContactResponses=false;config.captureContactEvidence=false;
- probe.acceleration=-9.81f+force/model.bodies[1].massAndInverseMass.x;config.devicePhysicsProgram.context=&probe;
+ probe.expectedMass=model.bodies[1].massAndInverseMass.x;
+ probe.acceleration=-9.81f+force/probe.expectedMass;config.devicePhysicsProgram.context=&probe;
  config.devicePhysicsProgram.encode=&encodeOwner;config.devicePhysicsProgram.abort=&abortOwner;
  config.devicePhysicsProgram.fingerprint=0x5ee124f0a9bdfc10ull;
  config.devicePhysicsProgram.flags=metalrobo::MetalWorldDevicePhysicsOwnsCoupledCandidate|metalrobo::MetalWorldDevicePhysicsOwnsSliderMidpoint;
