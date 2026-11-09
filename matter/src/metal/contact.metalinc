@@ -469,12 +469,17 @@ inline float4 ipcBarrierResponse(
 }
 
 
-// Same unshifted IPC law, retaining the reference-position gap and cancellation
-// residuals in the radial derivatives. The final impulse/tangent remain FP32.
-inline float4 ipcReferencePlaneResponse(MRCompensatedScalar separation,float thickness,
-    float stiffness,float dt) {
+// Same unshifted IPC law, retaining both radial derivative words so the
+// quadrature owner can perform weighted force and curvature assembly without
+// first rounding the law. The legacy wrapper below retains its old rounding.
+struct NMReferencePlaneExpandedResponse {
+    MRCompensatedScalar force;
+    MRCompensatedScalar curvature;
+};
+inline NMReferencePlaneExpandedResponse ipcReferencePlaneExpandedResponse(
+    MRCompensatedScalar separation,float thickness,float stiffness) {
     if(mrCompensatedCompare(separation,{thickness,0})>=0||!(stiffness>0))
-        return float4(0,0,thickness,stiffness);
+        return {{0.f,0.f},{0.f,0.f}};
     const float cutoff=1e-4f*thickness;
     const bool below=mrCompensatedCompare(separation,{cutoff,0})<0;
     const auto d=below?MRCompensatedScalar{cutoff,0}:separation;
@@ -491,8 +496,15 @@ inline float4 ipcReferencePlaneResponse(MRCompensatedScalar separation,float thi
     const auto force=mrCompensatedMultiply({-2,0},mrCompensatedMultiply(d,first));
     const auto tangent=mrCompensatedAdd(mrCompensatedMultiply({4,0},mrCompensatedMultiply(D,second)),
         mrCompensatedMultiply({2,0},first));
-    return float4(max(0.f,force.high+force.low)*dt,
-        below?0.f:max(0.f,tangent.high+tangent.low)*dt*dt,thickness,stiffness);
+    return {force,below?MRCompensatedScalar{0.f,0.f}:tangent};
+}
+inline float4 ipcReferencePlaneResponse(MRCompensatedScalar separation,float thickness,
+    float stiffness,float dt) {
+    if(mrCompensatedCompare(separation,{thickness,0})>=0||!(stiffness>0))
+        return float4(0,0,thickness,stiffness);
+    const auto response=ipcReferencePlaneExpandedResponse(separation,thickness,stiffness);
+    return float4(max(0.f,response.force.high+response.force.low)*dt,
+        max(0.f,response.curvature.high+response.curvature.low)*dt*dt,thickness,stiffness);
 }
 
 // Safeguarded quadratic interpolation proposes a smaller step; the existing
