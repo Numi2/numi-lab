@@ -31,3 +31,9 @@ and the maximum ratio from those records and reject missing, altered or
 inconsistent data before applying the same unchanged bound. Repeat the same
 two one-step native checks with a new named build and retain the earlier
 outputs. This fixes the instrument and does not change the physical hypothesis.
+
+The follow-up executable must also repeat the existing late-rejection/retry
+checks before contact and after a nonzero contact, to ensure that retaining the
+new node data did not change either physical owner or its failure category.
+The test remains one accepted continuation in each condition, not a complete
+10 ms rollout.
