@@ -1,0 +1,48 @@
+{
+  "cumulative_interpolation": "linear interpolation of midpoint step integrals at the 2 us reference clock",
+  "reference": "slider-v2-rk4-h025.json",
+  "results": [
+    {
+      "binned_force_relative_error": 1.7801265333057874e-05,
+      "comparison_gates_pass": true,
+      "contact_cross_symmetry_relative_error": 2.7230044208864037e-13,
+      "cumulative_impulse_relative_error": 0.0008514091568260154,
+      "fem_torque_x_relative_error": 2.0202170928330454e-05,
+      "fem_torque_y_relative_error": 2.0202170927869363e-05,
+      "fem_work_relative_error": 6.510591994096532e-05,
+      "h_s": 1.5625e-05,
+      "max_fem_momentum_residual_Ns": 1.2780762859599909e-12,
+      "max_slider_momentum_residual_Ns": 4.518093789056464e-12,
+      "max_total_momentum_residual_Ns": 7.003953604534991e-16,
+      "minimum_gap_m": 9.453675558776845e-05,
+      "pair_work_absolute_error_J": 6.041259886384665e-12,
+      "sampled_peak_force_relative_error": 0.0010818081860404496,
+      "slider_position_relative_error": 2.9740692653385983e-06,
+      "slider_velocity_relative_error": 1.3687885209572614e-06,
+      "slider_work_relative_error": 6.718082561147988e-05,
+      "total_impulse_relative_error": 1.5788477957750694e-05
+    },
+    {
+      "binned_force_relative_error": 4.589442416104146e-06,
+      "comparison_gates_pass": true,
+      "contact_cross_symmetry_relative_error": 5.531580034957824e-13,
+      "cumulative_impulse_relative_error": 0.00021281849715381812,
+      "fem_torque_x_relative_error": 5.01329496572906e-06,
+      "fem_torque_y_relative_error": 5.013294965267961e-06,
+      "fem_work_relative_error": 1.655823479419242e-05,
+      "h_s": 7.8125e-06,
+      "max_fem_momentum_residual_Ns": 5.804617983175201e-14,
+      "max_slider_momentum_residual_Ns": 2.3658502691304713e-13,
+      "max_total_momentum_residual_Ns": 1.2806527848737577e-15,
+      "minimum_gap_m": 9.453764421030731e-05,
+      "pair_work_absolute_error_J": 1.7122309941634023e-12,
+      "sampled_peak_force_relative_error": 0.00026188202676691465,
+      "slider_position_relative_error": 7.314752630661597e-07,
+      "slider_velocity_relative_error": 3.605146957967032e-07,
+      "slider_work_relative_error": 1.7146126365231194e-05,
+      "total_impulse_relative_error": 4.175233544521083e-06
+    }
+  ],
+  "schema": "numi.slider-fp64-midpoint-comparison.v1",
+  "scope": "independent CPU discrete comparison only; neither a native Matter step nor a replay test"
+}

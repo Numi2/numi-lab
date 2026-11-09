@@ -1,0 +1,9 @@
+Test project /Users/numi/numi-matter-midpoint-compensated-build-20261109
+    Start 5: numi.contact.slider_fp64_midpoint
+1/2 Test #5: numi.contact.slider_fp64_midpoint .......   Passed    0.15 sec
+    Start 6: numi.contact.slider_midpoint_discrete
+2/2 Test #6: numi.contact.slider_midpoint_discrete ...   Passed    0.00 sec
+
+100% tests passed out of 2
+
+Total Test time (real) =   0.15 sec
