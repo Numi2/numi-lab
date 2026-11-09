@@ -1,0 +1,3 @@
+# Speed-recovery comparison
+
+The trim14 arm passed all 80 airborne recovery lanes, with zero physical failures and zero failed simulator steps. The trim07 arm passed 79/80 and the pitch18 arm passed 72/80; their individual failures remain recorded in each arm's results. The stronger trim feedback met the preregistered development screen, including the previously failing positive-pitch cases. This is not an independent qualification, and the original source states are shared with the earlier screen. The candidate must still be tested across fresh full ground starts, bounded speed and turn commands, and a deployment path without teacher authority.

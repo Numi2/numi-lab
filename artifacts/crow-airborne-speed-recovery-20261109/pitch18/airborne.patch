@@ -1,0 +1,190 @@
+--- a/src/metal/LocomotionTask.metal
++++ b/src/metal/LocomotionTask.metal
+@@ -8,6 +8,36 @@
+ #include "FiniteResource.metal"
+ 
+ namespace {
++constant float kAirQ[8][23] = {
++  {2.48839402f,0.0109565891f,0.743942559f,-0.000659347861f,0.0492864661f,0.00869360194f,0.998746634f,0.00168342236f,0.000131966866f,0.820694506f,0.820777655f,0.179944262f,-0.150385901f,-0.190431476f,-0.189933747f,0.415017098f,-0.211973816f,-0.189932108f,0.415017605f,-0.211973846f,0.00155989383f,0.131209955f,0.0364673585f},
++  {2.45937133f,-0.0107786534f,0.743269742f,-0.000553611957f,0.0491951443f,0.00820504688f,0.998755336f,0.00211361772f,-0.000291986071f,0.819725871f,0.821552634f,0.177465692f,-0.152396962f,-0.19251661f,-0.189928442f,0.415019512f,-0.211972326f,-0.189926043f,0.415020257f,-0.211972445f,0.0274500791f,0.13165015f,0.0103790592f},
++  {2.54593587f,0.0479863994f,0.744013309f,-0.000470047613f,0.0486551225f,0.00745614478f,0.998787701f,0.00224985112f,-0.000440767239f,0.820911944f,0.820860624f,0.173429966f,-0.156588182f,-0.185851574f,-0.189932674f,0.415017784f,-0.211973116f,-0.189929798f,0.415018678f,-0.211973131f,0.0816713572f,0.158919767f,0.0219462756f},
++  {2.52432132f,0.00411928585f,0.743039846f,-0.000416252413f,0.0492514595f,0.00781162735f,0.998755753f,0.00180885638f,5.70004704e-06f,0.821318924f,0.820574164f,0.175801277f,-0.154428154f,-0.194089636f,-0.189930901f,0.415018409f,-0.211973056f,-0.189929381f,0.415018857f,-0.211972952f,0.067267485f,0.10664653f,0.0152734062f},
++  {2.50278497f,0.0435367562f,0.742971718f,-0.000417524367f,0.0487792529f,0.00990113802f,0.998760402f,0.00243340083f,-0.000612111762f,0.819507182f,0.822031319f,0.181906775f,-0.147623941f,-0.191450328f,-0.189927518f,0.415020019f,-0.211972043f,-0.189925477f,0.415020645f,-0.211972117f,-0.0512263551f,0.168629467f,0.0112942923f},
++  {2.55346441f,0.0467159748f,0.743347943f,-0.000553232618f,0.0483266748f,0.00934396312f,0.998787701f,0.00183544098f,-2.4499177e-05f,0.820613682f,0.821312606f,0.181327999f,-0.148689017f,-0.191006884f,-0.189930975f,0.415018409f,-0.211972967f,-0.189929768f,0.415018767f,-0.211972967f,-0.0332584865f,0.156480998f,0.00591774238f},
++  {2.49790907f,0.0414602309f,0.741772592f,-0.000406851963f,0.0495903045f,0.00972575787f,0.998722196f,0.00180536788f,2.10762246e-05f,0.820352077f,0.820407629f,0.182841972f,-0.147218734f,-0.202965215f,-0.189930424f,0.415018797f,-0.211973071f,-0.18992947f,0.415019065f,-0.211973026f,-0.0317728296f,0.086056456f,0.0693270341f},
++  {2.46515703f,0.0265732631f,0.742827296f,-0.000276971143f,0.0497168563f,0.00759074092f,0.998734474f,0.00238840375f,-0.000571500801f,0.819525778f,0.822198689f,0.175376147f,-0.154321626f,-0.194096103f,-0.189924479f,0.415021598f,-0.211971164f,-0.18992281f,0.415022075f,-0.211971194f,0.0410437211f,0.0809165984f,0.0666228086f},
++};
++constant float kAirV[8][22] = {
++  {0.844951332f,0.0150029492f,0.162974581f,0.00412815111f,0.00370381516f,0.0288901608f,-0.0273074433f,-0.046548482f,3.91225886f,3.92840934f,-0.407203764f,-0.370687693f,-0.533925533f,-0.00258365297f,-0.000326510926f,-0.0019230264f,-0.00262303138f,-0.000339048187f,-0.0019349365f,-0.625245333f,-0.955107093f,1.23232126f},
++  {0.846612751f,0.0138515085f,0.16691719f,0.00330025889f,-0.00987610593f,0.0126274452f,-0.0176895186f,-0.0565851443f,3.90501952f,3.93418026f,-0.550904691f,-0.514186919f,-0.533348501f,-0.00190861977f,-6.95437338e-05f,-0.00177791936f,-0.00202618586f,-0.000105670093f,-0.00181776984f,-0.254198313f,-0.277528554f,0.0871265233f},
++  {0.840577364f,0.0141673563f,0.164929181f,0.00424590195f,-0.00100541755f,0.0245230459f,-0.0346669741f,-0.0409547798f,3.93563151f,3.90754819f,-0.480736554f,-0.471182436f,-0.522566378f,-0.00230670511f,-0.000208358251f,-0.00186012615f,-0.00249644252f,-0.000276109175f,-0.00188439258f,-0.377711743f,-0.490930676f,-0.0535606705f},
++  {0.848487735f,0.014028661f,0.164320648f,0.0030349528f,-0.00149813714f,0.0288601313f,-0.0435501449f,-0.0317810103f,3.9360373f,3.90764046f,-0.360884309f,-0.34871015f,-0.525000215f,-0.00239652302f,-0.000238726585f,-0.00188270747f,-0.00243370933f,-0.00025543978f,-0.00186635484f,-0.460992634f,-0.593998671f,0.125954553f},
++  {0.846097648f,0.0128831193f,0.167644992f,0.00407661078f,-0.0111275036f,0.00536098378f,-0.0320832729f,-0.0427721888f,3.90599108f,3.93308425f,-0.274257183f,-0.245673522f,-0.52448535f,-0.0018998998f,-5.93261757e-05f,-0.00178336271f,-0.00203437661f,-9.99653275e-05f,-0.00180527742f,-0.21706818f,-0.24891521f,0.0698807389f},
++  {0.846012771f,0.0153382653f,0.164043501f,0.00549573312f,-0.00182918832f,0.025119476f,-0.0370608568f,-0.0371623635f,3.92104268f,3.92710733f,-0.278754801f,-0.252835542f,-0.509842992f,-0.00237361155f,-0.000222554081f,-0.00185750076f,-0.00245325174f,-0.000250005163f,-0.00186688232f,-0.585974991f,-0.625291348f,0.191594481f},
++  {0.856740773f,0.0150675597f,0.166101247f,0.00533176307f,0.00204576831f,0.0220688172f,-0.0400803983f,-0.0349408835f,3.92647433f,3.90446997f,-0.211657539f,-0.194692135f,-0.528751731f,-0.0026716718f,-0.000393305352f,-0.00197586813f,-0.00270203571f,-0.00040877951f,-0.00195978303f,-0.543504834f,-0.920903623f,0.870193243f},
++  {0.847997487f,0.0103640081f,0.168254316f,-0.00237221061f,-0.0139942747f,-0.0158371944f,-0.0209752228f,-0.0534126423f,3.89536047f,3.93996692f,-0.547104418f,-0.500419378f,-0.542351663f,-0.00202190829f,-0.000116086747f,-0.00180664216f,-0.00193432695f,-8.66162227e-05f,-0.00181676634f,0.581536889f,-0.0763003826f,-0.151307672f},
++};
++constant float kAirActions[8][18] = {
++  {-0.130187541f,-0.129769534f,0.0033465228f,-0.0033465228f,0.585557163f,-0.514469624f,-0.441051155f,-0.099999994f,0.180000007f,-0.0799999982f,-0.099999994f,0.180000007f,-0.0799999982f,-0.272368252f,-0.571664512f,-0.0907471627f,0.00977510028f,0.178025544f},
++  {-0.131964132f,-0.128348336f,0.00560415583f,-0.00560415583f,0.572304428f,-0.526153326f,-0.445702106f,-0.099999994f,0.180000007f,-0.0799999982f,-0.099999994f,0.180000007f,-0.0799999982f,-0.257237405f,-0.582655728f,-0.0128009329f,0.0898073167f,-0.115046024f},
++  {-0.129416391f,-0.129985049f,0.00544178765f,-0.00544178765f,0.561222434f,-0.538713157f,-0.430476606f,-0.099999994f,0.180000007f,-0.0799999982f,-0.099999994f,0.180000007f,-0.0799999982f,-0.229538321f,-0.551739573f,0.0246951561f,0.0562914871f,-0.0796773508f},
++  {-0.128715023f,-0.130472764f,0.00318678725f,-0.00318678725f,0.573378444f,-0.527172625f,-0.44886598f,-0.099999994f,0.180000007f,-0.0799999982f,-0.099999994f,0.180000007f,-0.0799999982f,-0.244203061f,-0.588867068f,0.00161202857f,-0.101263076f,0.00869522057f},
++  {-0.13232027f,-0.1275509f,0.00708181644f,-0.00708181644f,0.596782386f,-0.500852346f,-0.443027347f,-0.099999994f,0.180000007f,-0.0799999982f,-0.099999994f,0.180000007f,-0.0799999982f,-0.311798364f,-0.578302205f,-0.0851731077f,0.138999909f,-0.0413632132f},
++  {-0.13017492f,-0.128879532f,0.0039974493f,-0.0039974493f,0.594710112f,-0.504639089f,-0.44148609f,-0.099999994f,0.180000007f,-0.0799999982f,-0.099999994f,0.180000007f,-0.0799999982f,-0.292509943f,-0.57198137f,-0.119964063f,-0.165587619f,-0.0929704681f},
++  {-0.130528241f,-0.130811438f,0.00385283539f,-0.00385283539f,0.602141321f,-0.497687519f,-0.468728662f,-0.099999994f,0.180000007f,-0.0799999982f,-0.099999994f,0.180000007f,-0.0799999982f,-0.307370663f,-0.625229895f,-0.110866442f,-0.0195480455f,0.184340164f},
++  {-0.132470801f,-0.127147362f,0.00638096686f,-0.00638096686f,0.565410316f,-0.532176197f,-0.449543178f,-0.099999994f,0.180000007f,-0.0799999982f,-0.099999994f,0.180000007f,-0.0799999982f,-0.245663032f,-0.589850485f,0.127619192f,0.0386470445f,0.0542702116f},
++};
+ 
+ constant float kPi = 3.14159265358979323846f;
+ constant float kTwoPi = 2.0f * kPi;
+@@ -4150,6 +4180,44 @@
+                 }
+             }
+         }
++        // Diagnostic initialization from physically reached airborne states.
++        if ((program.schedule.w & MR_TASK_PROGRAM_AVIAN_CROW_NAVIGATION_FLIGHT_PHASE) != 0u) {
++            const uint source = environment / 10u;
++            const uint perturb = environment % 10u;
++            for (uint i=0u; i<min(dispatch.counts.z,23u); ++i) resetQ[qBase+i]=kAirQ[source][i];
++            for (uint i=0u; i<min(dispatch.counts.w,22u); ++i) resetV[vBase+i]=kAirV[source][i];
++            const float roll = perturb==1u ? 0.15f : perturb==2u ? -0.15f : perturb==9u ? 0.10f : 0.0f;
++            const float pitch = perturb==3u ? 0.10f : perturb==4u ? -0.10f : perturb==9u ? -0.08f : 0.0f;
++            const float yaw = perturb==5u ? 0.15f : perturb==6u ? -0.15f : perturb==9u ? 0.12f : 0.0f;
++            const float4 qx=float4(sin(0.5f*roll),0.0f,0.0f,cos(0.5f*roll));
++            const float4 qy=float4(0.0f,sin(0.5f*pitch),0.0f,cos(0.5f*pitch));
++            const float4 qz=float4(0.0f,0.0f,sin(0.5f*yaw),cos(0.5f*yaw));
++            const float4 existing=float4(resetQ[qBase+program.root.z+3u],resetQ[qBase+program.root.z+4u],resetQ[qBase+program.root.z+5u],resetQ[qBase+program.root.z+6u]);
++            const float4 disturbed=quaternionProduct(quaternionProduct(qz,quaternionProduct(qy,qx)),existing);
++            for (uint j=0u;j<4u;++j) resetQ[qBase+program.root.z+3u+j]=disturbed[j];
++            resetV[vBase+program.root.w+1u] += perturb==7u ? 0.15f : perturb==8u ? -0.15f : perturb==9u ? 0.12f : 0.0f;
++            if (perturb==9u) resetV[vBase+program.root.w+3u] += 0.20f;
++            for (uint a=0u;a<min(program.counts0.x,18u);++a) {
++                for (uint d=0u;d<program.layout.w;++d) actionHistory[delayBase+d*program.counts0.x+a]=kAirActions[source][a];
++                rawPolicyActions[environment*program.counts0.x+a]=kAirActions[source][a];
++                const uint vi=actions[a].indices.w;
++                const uint qi=actions[a].indices.z;
++                previousJointVelocity[previousVelocityBase+a]=vi==MR_INVALID_INDEX ? 0.0f : resetV[vBase+vi];
++                previousJointVelocity[previousVelocityBase+program.counts0.x+a]=qi==MR_INVALID_INDEX ? 0.0f : resetQ[qBase+qi];
++            }
++            state.episode.x=700u;
++            state.commandAndPhase=float4(0.70f,0.0f,0.0f,fmod(700.0f*kTwoPi*dispatch.timing.x/program.locomotion.y,kTwoPi));
++            const float3 lin=rootWorldLinearVelocity(program,resetQ+qBase,resetV+vBase);
++            const float3 ang=rotateInverse(disturbed,rootWorldAngularVelocity(program,resetV+vBase));
++            const float angle=atan2(2.0f*(disturbed.w*disturbed.z+disturbed.x*disturbed.y),1.0f-2.0f*(disturbed.y*disturbed.y+disturbed.z*disturbed.z));
++            const float fw=cos(angle)*lin.x+sin(angle)*lin.y;
++            const float lat=-sin(angle)*lin.x+cos(angle)*lin.y;
++            const float pitchAngle=asin(clamp(2.0f*(disturbed.w*disturbed.y-disturbed.z*disturbed.x),-1.0f,1.0f));
++            const float rollAngle=atan2(2.0f*(disturbed.w*disturbed.x+disturbed.y*disturbed.z),1.0f-2.0f*(disturbed.x*disturbed.x+disturbed.y*disturbed.y));
++            state.commandExtension.xyz=float3(-angle,ang.z,fw);
++            state.threatGeometry=float4(0.85f-resetQ[qBase+program.root.z+2u],lin.z,pitchAngle,ang.y);
++            state.threatTeacher=float4(lat,rollAngle,ang.x,0.0f);
++        }
+         const bool projectileEpisode = randomUnit(
+             dispatch,
+             environment,
+@@ -4644,18 +4712,14 @@
+     const float yawRate = straightCruise || navigation
+         ? state.commandExtension.y
+         : state.threatGeometry.z;
++    const float targetRoll = clamp(0.25f * lateralSpeedError, -0.12f, 0.12f);
+     const float navigationBankCorrection = navigation
+-        ? clamp(
+-              -0.70f * headingError + 0.12f * yawRate +
+-                  0.18f * lateralSpeedError,
+-              -0.45f,
+-              0.45f
+-          )
++        ? clamp(1.50f * (targetRoll - state.threatTeacher.y) - 0.25f * state.threatTeacher.z, -0.45f, 0.45f)
+         : 0.0f;
+     const float navigationPitchTarget = navigation
+         ? clamp(
+               0.10f + 0.35f * heightError -
+-                  0.12f * verticalRate,
++                  0.12f * verticalRate - 1.80f * forwardSpeedError,
+               -0.25f,
+               0.25f
+           )
+@@ -4750,7 +4814,7 @@
+     if ((straightCruise || navigation) &&
+         action == 13u && airborne) {
+         return clamp(
+-            3.00f * headingError - 0.50f * yawRate -
++            16.00f * headingError - 0.50f * yawRate -
+                 (navigation ? 0.35f * lateralSpeedError : 0.0f),
+             -1.00f,
+             1.00f
+@@ -4961,33 +5025,20 @@
+                   0.45f
+               )
+             : 0.0f;
+-        const float navigationTeacherRequested = !avianNavigationTeacher
+-            ? teacherRequested
+-            : action == 0u || action == 4u
+-            ? clamp(
+-                  studentRequested +
+-                      (action == 0u ? 1.0f : 0.5f) *
+-                          navigationWingResidual,
+-                  -1.0f,
+-                  1.0f
+-              )
+-            : action == 1u || action == 5u
+-            ? clamp(
+-                  studentRequested -
+-                      (action == 1u ? 1.0f : 0.5f) *
+-                          navigationWingResidual,
+-                  -1.0f,
+-                  1.0f
+-              )
+-            : action == 13u
+-            ? teacherRequested
+-            : studentRequested;
++        float navigationTeacherRequested = avianNavigationTeacher && action >= 15u
++            ? studentRequested : teacherRequested;
++        if (avianNavigationTeacher && float(state.episode.x) * dispatch.timing.x >= 6.0f && (action == 4u || action == 5u)) {
++            const float speedBias = 0.55f;
++            const float yawDemand = clamp(16.0f * state.commandExtension.x - 0.50f * state.commandExtension.y - 0.35f * state.threatTeacher.x, -1.0f, 1.0f);
++            const float phaseOffset = 0.60f * clamp(-yawDemand, 0.0f, 1.0f) * sin(state.commandAndPhase.w);
++            navigationTeacherRequested = clamp(navigationTeacherRequested + (action == 4u ? speedBias : -speedBias) + phaseOffset, -1.0f, 1.0f);
++        }
+         // Keep the training-only teacher active through the final target.
+         // Ending at waypoint four taught an aggressive approach crossing but
+         // handed the student a poor terminal arrival geometry. Autonomous
+         // execution still has no teacher authority.
+         const float navigationTeacherBlend = avianNavigationTeacher
+-            ? (state.navigation.z >= 5.0f ? 0.0f : 1.0f)
++            ? 1.0f
+             : 1.0f;
+         const float effectiveTeacherRequested =
+             avianJourneyLandedActorHandoff
+@@ -5076,6 +5127,7 @@
+             filterSlot * program.counts0.x +
+             action
+         ];
++        if (avianJourneyTeacher) { teacherActions[actionBase + action] = filtered; }
+         if (binding.actuator.x != MR_TASK_ACTUATOR_JOINT_POSITION &&
+             binding.actuator.x != MR_TASK_ACTUATOR_GRIPPER_POSITION &&
+             binding.actuator.x != MR_TASK_ACTUATOR_FLAPPING_POSITION) {
+@@ -6535,6 +6587,23 @@
+             state.commandAndPhase.xyz = float3(0.0f);
+             state.commandExtension.xyz = float3(0.0f);
+         }
++    }
++    // Exploratory fixed-command flight bench. Not a deployment controller.
++    if ((program.schedule.w & MR_TASK_PROGRAM_AVIAN_CROW_NAVIGATION_FLIGHT_PHASE) != 0u) {
++        const uint mode = environment % 5u;
++        const float seconds = float(state.episode.x + 1u) * dispatch.timing.x;
++        const float rate = 0.0f;
++        const float targetHeight = 0.85f;
++        const float desired = rate * max(seconds - 6.0f, 0.0f);
++        const float heading = atan2(yawBasis.y, yawBasis.x);
++        const float error = atan2(sin(desired-heading), cos(desired-heading));
++        state.commandAndPhase.xyz = float3(0.70f, 0.0f, rate);
++        state.commandExtension.xyz = float3(error, baseAngular.z, yawFrameLinear.x);
++        state.threatGeometry.x = targetHeight - rootWorldPosition(program, q).z;
++        state.threatTeacher.x = yawFrameLinear.y;
++        state.threatTeacher.y = atan2(2.0f * (orientation.w * orientation.x + orientation.y * orientation.z),
++                                     1.0f - 2.0f * (orientation.x * orientation.x + orientation.y * orientation.y));
++        state.threatTeacher.z = baseAngular.x;
+     }
+     if (avianJourneyTakeoffCruise) {
+         // Feed the next teacher action from accepted state without a host
