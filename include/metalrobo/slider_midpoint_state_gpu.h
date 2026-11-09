@@ -11,7 +11,16 @@ struct MRSliderMidpointState {
     MRCompensatedScalar velocity;
 };
 
-inline MRSliderMidpointState mrSliderMidpointCandidate(
+// This is a kinematic target derived from a Newton increment. In particular,
+// its endpoint velocity is not the independently realized ABA result and must
+// not be published in place of that result. The enclosing transaction still
+// has to certify the real body momentum and contact wrench before acceptance.
+struct MRSliderMidpointKinematicTarget {
+    MRCompensatedScalar position;
+    MRCompensatedScalar velocity;
+};
+
+inline MRSliderMidpointKinematicTarget mrSliderMidpointKinematicTarget(
     MRSliderMidpointState source, MRCompensatedScalar velocityIncrement,
     float fullTimestep, bool endpoint
 ) {
@@ -28,4 +37,9 @@ inline MRSliderMidpointState mrSliderMidpointCandidate(
 inline bool mrSliderMidpointStateCanonical(MRSliderMidpointState state) {
     return mrCompensatedCanonicalScalar(state.position.high, state.position.low) &&
         mrCompensatedCanonicalScalar(state.velocity.high, state.velocity.low);
+}
+
+inline bool mrSliderMidpointTargetCanonical(MRSliderMidpointKinematicTarget target) {
+    return mrCompensatedCanonicalScalar(target.position.high, target.position.low) &&
+        mrCompensatedCanonicalScalar(target.velocity.high, target.velocity.low);
 }
