@@ -1,0 +1,11 @@
+{
+  "schema": "numi.slider-float-position-resolution.v1",
+  "input": "slider-primary-failure-checkpoint-002.json",
+  "input_sha256": "871c059f8e2e060f015b62a6913a47ee337f2600c8d23d6ad3237f1f25831184",
+  "assumptions": "Free motion approximation to the rejected step: previous accepted state, zero contact impulse immediately before rejection, and midpoint gravity. The certificate uses its actual computed stage increment.",
+  "ideal_endpoint_position_m": -0.0002448463159396034,
+  "nearest_binary32_position_m": -0.0002448463055770844,
+  "best_position_error_m": 1.0362519002604653e-11,
+  "certificate_error_m": 1.0362491247029038e-11,
+  "certificate_limit_m": 9.01076002007839e-12
+}

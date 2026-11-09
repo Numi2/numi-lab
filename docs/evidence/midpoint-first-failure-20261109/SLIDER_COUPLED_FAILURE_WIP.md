@@ -29,7 +29,12 @@ reports the position error 1.0362491247029038e-11 m against limit
 its 3.512695342933192e-11 N s certificate limit. Therefore the generic status
 10 is, for this specific failure, a post-commit slider position-certificate
 failure, not evidence that Newton itself stalled. No conclusion is drawn about
-what caused the other three failures without equivalent captures.
+what caused the other three failures without equivalent captures. A separate
+free-motion midpoint estimate gives 1.0362519002604653e-11 m as the error of
+the nearest binary32 position to the estimated endpoint, consistent with the
+certificate. This estimate uses the previous accepted state and gravity; the
+certificate uses its actual computed stage increment. See
+`slider-position-resolution-001.json`.
 
 The separate preregistered per-step contact impulse-balance gate fails in the
 accepted prefixes even though the independently captured contact body wrench
