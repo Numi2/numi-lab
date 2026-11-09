@@ -1,0 +1,7 @@
+# Exploratory controlled lateral velocity at lower forward speed
+
+Prediction: the existing roll feedback can track commanded lateral velocity at a 0.40 m/s forward speed while maintaining heading and altitude, providing an independently testable maneuver primitive for a compact slalom. This is a physical maneuver screen, not an autonomous navigation or realism claim.
+
+Use the unchanged v15 body and candidate trim14 controller, seed 20261119, 100 lanes, 1600 steps, four substeps, normal ground starts, obstacle collisions disabled. All groups have forward speed 0.40 m/s, heading reference zero, height 0.85 m. The five groups by lane modulo five command lateral velocity 0, +0.15, -0.15, +0.30 and -0.30 m/s after 6 s, using the existing lateral velocity feedback error and roll controller. Keep teacher selected throughout this flight-only diagnostic and otherwise retain the same action limits, filtering and controller.
+
+A group passes if all 20 first episodes reach the horizon with no physical failures or failed simulator steps, and every lane's samples at 20–30 s every 2 s have absolute heading <=0.15 rad, lateral-speed error <=0.12 m/s, forward-speed error <=0.20 m/s and height error <=0.15 m. Report all lane data and compare commanded and actual velocity; successful sampled tests do not establish continuous obstacle clearance or supported landing. No final navigation seeds/layouts are used.
