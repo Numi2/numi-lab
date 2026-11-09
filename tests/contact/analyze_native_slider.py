@@ -41,7 +41,14 @@ for label,index in (('050',2 if work_label=='near' else 0),('025',3 if work_labe
 work_reference=json.loads(work_path.read_text())
 
 area_reference=json.loads((evidence/'compact-reference-parity-n2-ordered-001.json').read_text())['contact_area_weights_m2']
-if not reference_ok or not steps or not all(s['accepted'] for s in steps):raise SystemExit('reference or native acceptance incomplete')
+if not reference_ok:raise SystemExit('independent force reference did not qualify')
+if not steps:raise SystemExit('native rollout has no recorded steps')
+for index,step in enumerate(steps):
+ if not step.get('accepted',False):
+  raise SystemExit('native step {} rejected: world_status={} matter_status={} host_status={} failure_index={}'.format(
+   step.get('step',index),step.get('world_status','unavailable'),
+   step.get('matter_status','unavailable'),step.get('host_status','unavailable'),
+   step.get('failure_index','unavailable')))
 if not any(math.isclose(h,x,rel_tol=1e-6) for x in (15.625e-6,7.8125e-6)):
  raise SystemExit('timestep outside the preregistered native comparison')
 if [s['step'] for s in steps]!=list(range(len(steps))) or abs(len(steps)*h-duration)>1e-8:

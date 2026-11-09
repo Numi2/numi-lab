@@ -60,7 +60,8 @@ with tempfile.NamedTemporaryFile(mode='w',suffix='.json') as f:
  code,out=run();assert code==0,(code,out)
  # A rejected or missing step may never be upgraded to a full rollout.
  d['steps'][-1]['accepted']=False
- code,out=run();assert code!=0,('rejected step accepted',out)
+ d['steps'][-1]['world_status']=11;d['steps'][-1]['matter_status']=10;d['steps'][-1]['failure_index']=7
+ code,out=run();assert code!=0 and 'native step 639 rejected' in out['error'] and 'matter_status=10' in out['error'] and 'failure_index=7' in out['error'],('rejected step accepted or failure category lost',out)
  d['steps'][-1]['accepted']=True
  last=d['steps'].pop()
  code,out=run();assert code!=0,('incomplete trajectory accepted',out)

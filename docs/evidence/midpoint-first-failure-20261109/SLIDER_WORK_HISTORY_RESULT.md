@@ -43,3 +43,11 @@ refinement for final slider position and velocity: relative changes were
 near-contact reference inputs. The synthetic test independently perturbs
 position and velocity and confirms that each state gate rejects its error.
 This does not imply a native trajectory has completed.
+
+
+The native analyzer now reports the first rejected step and its available
+world, Matter, host and diagnostic-index fields rather than collapsing all
+failures into an incomplete-result message. Applied to the retained primary
+15.625 µs prefix, it reports step 576, world status 11, Matter status 10, host
+status 16 and index 0. The test also checks that a missing step cannot pass.
+Diagnostic index remains explanatory only; it does not decide acceptance.
