@@ -2,8 +2,8 @@
 """Losslessly archive a completed trace without changing the retained original.
 
 Only use after the producer and its execution-record writer have exited.  The
-execution record must report a normal completion, and a changing input or
-existing output fails closed.  Hashes cover both the exact source bytes and the
+execution record must report an exited producer, including a failed or stopped
+run; a changing input or existing output fails closed.  Hashes cover both the exact source bytes and the
 archive; a full decompression is checked before the manifest is published.
 """
 import argparse
@@ -29,8 +29,8 @@ manifest = evidence / (a.prefix + "-archive.json")
 if archive.exists() or manifest.exists():
     raise SystemExit("archive or manifest already exists")
 record = json.loads(execution.read_text())
-if record.get("returncode") != 0 or record.get("stopped_reason") is not None:
-    raise SystemExit("execution record does not establish normal completion")
+if type(record.get("returncode")) is not int or "stopped_reason" not in record:
+    raise SystemExit("execution record does not establish an exited producer")
 if not source.is_file() or source.stat().st_size == 0:
     raise SystemExit("completed trace is missing or empty")
 if shutil.disk_usage(evidence).free < 3 * 1024**3:
@@ -73,6 +73,7 @@ try:
     data = {"schema":"numi.completed-trace-archive.v1", "source":source.name,
             "source_sha256":source_hash.hexdigest(), "source_bytes":before[2],
             "execution_record":execution.name, "execution_sha256":digest_file(execution),
+            "producer_returncode":record["returncode"], "producer_stopped_reason":record["stopped_reason"],
             "archive":archive.name, "archive_sha256":digest_file(temporary),
             "archive_bytes":temporary.stat().st_size,
             "decompressed_sha256_verified":True, "original_retained":True}
