@@ -9,3 +9,5 @@ The recovery schedule was added after matched evaluation showed the later-waypoi
 Critical and recovery schedules use the newly evaluated stage-two candidate as the student, retaining its full state distribution until takeover. Earlier schedules retain the original assessed student; every pack records its exact actor hash.
 
 A nearcritical takeover was added after intervention at step 1100 still collided for the target lane; the measured failure remains excluded.
+
+The approach schedule uses the newest combined student to sample its physically reached state before the observed body-perch contact. It is retained only when the teacher recovers through supported landing.

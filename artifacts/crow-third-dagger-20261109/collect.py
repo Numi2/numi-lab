@@ -1,10 +1,10 @@
 from pathlib import Path
 import gzip,hashlib,json,math,os,shutil,subprocess
-R=Path.cwd();schedule=os.environ['CROW_SCHEDULE'];base_step,delta={'early':(1000,50),'nearcritical':(1050,25),'critical':(1100,25),'late':(1300,100),'recovery':(1600,50),'terminal':(2100,100)}[schedule]
+R=Path.cwd();schedule=os.environ['CROW_SCHEDULE'];base_step,delta={'early':(1000,50),'nearcritical':(1050,25),'critical':(1100,25),'late':(1300,100),'recovery':(1600,50),'approach':(1450,25),'terminal':(2100,100)}[schedule]
 A=R/'artifacts/crow-third-dagger-20261109'/schedule;B=R/'build/crow-third-dagger-20261109'/schedule;B.mkdir(parents=True,exist_ok=True)
 course=os.environ['CROW_DEV_COURSE'];seed=os.environ['CROW_START_SEED'];batch=os.environ['CROW_BATCH'];O=A/batch;O.mkdir(exist_ok=True)
 lib=R/'build/crow-third-native-observer-20261109/libmetalrobo.dylib'
-base_pack=(R/'build/crow-third-policy-candidates-20261109/stage2-80-stage3-baseline.policypack') if schedule in ('nearcritical','critical','recovery') else (R/'build/crow-dual-expert-native-integration-20261109/route.policypack')
+base_pack=(R/'build/crow-fourth-policy-candidates-20261109/stage2-160-stage3-160.policypack') if schedule=='approach' else (R/'build/crow-third-policy-candidates-20261109/stage2-80-stage3-baseline.policypack') if schedule in ('nearcritical','critical','recovery') else (R/'build/crow-dual-expert-native-integration-20261109/route.policypack')
 cmd=json.loads((R/'artifacts/crow-unused-layout-confirmation-round2-20261109/reserved-final-e/results.json').read_text())['argv'].copy()
 pack=B/(batch+'.rollout')
 for k,v in [('--metallib',str(B/'recovery.metallib')),('--policy-pack',str(R/'build/crow-dual-expert-native-integration-20261109/landing.policypack')),('--base-policy-pack',str(base_pack)),('--envs','16'),('--seed',seed),('--birdflow-navigation-course',course),('--state-trace',str(B/(course+'.tsv')))]:cmd[cmd.index(k)+1]=v

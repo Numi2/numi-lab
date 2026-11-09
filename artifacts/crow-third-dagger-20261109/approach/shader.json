@@ -1,0 +1,7 @@
+{
+  "schedule": "approach",
+  "source_sha256": "5f5a9d62f91991d518d0f28fefd5b63d6720f2fea64f8ba767edeab90a422bba",
+  "shader_sha256": "7d8e9863efc4c0b643290ddb276cf8d83f7b2aba391603bcf745f44f09a0b3a2",
+  "frozen_flight_sha256": "aa2fe10901cb0494d80ae445902303a17ce0e73d030072bab09461d8f3593ebe",
+  "scope": "diagnostic teacher takeover; teacher-disabled student behavior must match production"
+}

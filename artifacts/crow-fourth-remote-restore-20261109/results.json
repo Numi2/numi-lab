@@ -1,0 +1,37 @@
+{
+  "remote_revision": "1348de1ae3877fccdf1932fcf90d90f84d48d1c1",
+  "method": "independent GitHub HTTPS decompression and SHA-256, local hash and open-handle check before deletion",
+  "rows": [
+    {
+      "path": "artifacts/crow-third-dagger-20261109/critical/layout-e/rollout.bin.gz",
+      "raw_bytes": 190848988,
+      "raw_sha256": "c8d5d83c1a861245cec11c78163f0af6f040d31d3bf4a0c280a19ebaf25ab5cc",
+      "removed_raw_copy": "build/crow-third-dagger-20261109/critical/layout-e.rollout"
+    },
+    {
+      "path": "artifacts/crow-third-dagger-20261109/critical/layout-f/rollout.bin.gz",
+      "raw_bytes": 190848988,
+      "raw_sha256": "f42099cbeb9514a58d841459ba5c3ef68baa15f21dd4c4d5614c5803beb75096",
+      "removed_raw_copy": "build/crow-third-dagger-20261109/critical/layout-f.rollout"
+    },
+    {
+      "path": "artifacts/crow-third-dagger-20261109/recovery/layout-e/rollout.bin.gz",
+      "raw_bytes": 190848988,
+      "raw_sha256": "851b02d37ecde7a7d4ba7985012cb057a9cf4e76e923a02111ab06c18222529f",
+      "removed_raw_copy": "build/crow-third-dagger-20261109/recovery/layout-e.rollout"
+    },
+    {
+      "path": "artifacts/crow-third-dagger-20261109/recovery/layout-f/rollout.bin.gz",
+      "raw_bytes": 190848988,
+      "raw_sha256": "651f37e12d537e8f93c333b5f2056c914028389cb1b5491c354f35abc9ae4ea2",
+      "removed_raw_copy": "build/crow-third-dagger-20261109/recovery/layout-f.rollout"
+    },
+    {
+      "path": "artifacts/crow-third-dagger-20261109/nearcritical/layout-e/rollout.bin.gz",
+      "raw_bytes": 190848988,
+      "raw_sha256": "a7269efc2abadd066f83cfed12261f3fd786e1a0475b7f2d240aeb1b587d6997",
+      "removed_raw_copy": "build/crow-third-dagger-20261109/nearcritical/layout-e.rollout"
+    }
+  ],
+  "total_retired_bytes": 954244940
+}
