@@ -24,3 +24,12 @@ Record source, included model, binary, command and output hashes. Add the
 additional histories without changing or weakening the previously declared
 force, impulse, work-reconstruction, torque, clearance or replay gates. Retain
 any parity or temporal failure rather than replacing the historical reference.
+
+The first instrumented primary run numerically reproduced all old fields, but
+its newer source also emitted `initial_gap_m`, absent from the historical
+primary schema. The strict exact-parity test correctly stopped; its output and
+receipt remain evidence. For a separately named repeat, derive the primary
+instrument from the exact hash-matched historical primary source and add only
+work-history collection and output. Use the separately hash-matched current
+near-contact source for the near fixture. Continue to require exact equality
+after removing only `work_trace`.

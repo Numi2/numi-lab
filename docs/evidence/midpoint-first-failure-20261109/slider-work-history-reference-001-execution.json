@@ -1,0 +1,40 @@
+{
+  "source_sha256": "f4240c33f4b932bc01a5d08e12ead59c0c6e022f9f7eac0f8420aa5f064b427c",
+  "included_model_sha256": "6d75d723f79ba704788e506e81e5a214ebf105079d9cb0d4ef78cfe842d1a237",
+  "plan_sha256": "08d85cafc69b99b8cb43a16f97dd8393398737cfcd9437cc3c971359e0921fe4",
+  "runner_sha256": "f0dc40c180b3a10199065c9f8824b80bbf82efa18bb62aab67264abc53145d95",
+  "git_revision": "8e76a877dc12a41f8995781d93619dcc72eb7105",
+  "runs": [
+    {
+      "command": [
+        "/Users/numi/numi-matter-midpoint-compensated-build-20261109/evidence-slider-work-history-001",
+        "0.0000005"
+      ],
+      "returncode": 0,
+      "stderr": "",
+      "wall_seconds_observational_only": 0.39169012499041855,
+      "output_sha256": "10f7bbca2431c0d998bd1ac4ec84f2c3017d9e1716ee80536c0ec41f2d733534",
+      "historical_sha256": "82d3c96de6b7bbd70ed29d83a39ed56dceb7ab8e1aa720b77a19a06c59e3ca26",
+      "historic_fields_exact_match": false,
+      "work_trace_rows": 5001
+    }
+  ],
+  "compile_command": [
+    "xcrun",
+    "clang++",
+    "-O3",
+    "-DNDEBUG",
+    "-std=gnu++23",
+    "-arch",
+    "arm64",
+    "-DNUMI_SLIDER_WORK_HISTORY=1",
+    "/Users/numi/numi-lab-midpoint-compensated-20261109/tests/contact/fem_slider_fp64_reference.cpp",
+    "-o",
+    "/Users/numi/numi-matter-midpoint-compensated-build-20261109/evidence-slider-work-history-001"
+  ],
+  "compiler_returncode": 0,
+  "compiler_stderr": "",
+  "compiler_version": "Apple clang version 21.0.0 (clang-2100.3.34.2)",
+  "binary_sha256": "ae8ea31f82ca16438b21b9cd3101afa9c3041a6d323a3ec5f53f09b349c80925",
+  "result": "historic parity or work history count failed"
+}
