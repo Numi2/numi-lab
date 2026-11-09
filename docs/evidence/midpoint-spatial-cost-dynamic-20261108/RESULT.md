@@ -84,4 +84,3 @@ candidate cannot safely be used as the half-step FEM candidate, and the
 requirements for impulse, torque, work, swept clearance and whole-environment
 rollback. The guard remains in force. Prescribed supports are not counted as
 a two-way result.
-EOF'

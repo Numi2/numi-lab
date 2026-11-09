@@ -39,4 +39,3 @@ conservative swept clearance certificate, or an explicitly narrower derived
 motion domain with a proof. Whole-environment acceptance must occur only after
 both owners pass it. The existing fixed-plane endpoint certificate does not
 provide that proof. No dynamic feature flag was loosened by this audit.
-EOF'
