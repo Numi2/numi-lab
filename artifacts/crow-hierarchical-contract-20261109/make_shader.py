@@ -1,7 +1,7 @@
 from pathlib import Path
 import difflib,hashlib,json,os,subprocess
 R=Path.cwd();A=R/'artifacts/crow-hierarchical-contract-20261109'; B=R/'build/crow-hierarchical-contract-20261109';mode=os.environ['CROW_HIERARCHY_MODE']
-assert mode in ('oracle','actor')
+assert mode in ('oracle','actor','dagger')
 base=(R/'build/crow-hierarchical-oracle-20261109/tracking.metal').read_text()
 s=base.replace('if (length(float2(xError,yError)) < 0.08f &&','if (landingPhase < 0.5f && length(float2(xError,yError)) < 0.08f &&')
 def sub(old,new):
@@ -14,7 +14,10 @@ sub('''        const float4 oracleCommand = state.nutrition;''','''        const
         const float4 actorCommand = float4(
             0.10f+0.30f*actorLatent.x,0.30f*actorLatent.y,
             0.15f*actorLatent.z,0.975f+0.325f*actorLatent.w);
-        const bool privilegedCommand = HIERARCHY_ORACLE || (dispatch.sampling.w != 0u && dispatch.assistance.x < 0.5f);
+        const uint recoveryTakeover = 700u + 150u*(environment % 4u);
+        const bool privilegedCommand = HIERARCHY_ORACLE ||
+            (dispatch.sampling.w != 0u &&
+             (dispatch.assistance.x < 0.5f || (HIERARCHY_RECOVER && state.episode.x >= recoveryTakeover)));
         const float4 oracleCommand = privilegedCommand ? state.nutrition : actorCommand;''')
 sub('''        if (avianJourneyTeacher) { teacherActions[actionBase + action] = filtered; }''','''        if (avianJourneyTeacher) {
             const float4 label = float4(
@@ -85,7 +88,7 @@ sub('''        } else if (routeComponent < 6u &&
                 ? visibleWaypoint
                 : min(visibleWaypoint + 1u,
                       kCrowNavigationWaypointCount - 1u);''')
-s=('#define HIERARCHY_ORACLE '+('true' if mode=='oracle' else 'false')+'\n')+s
+s=('#define HIERARCHY_ORACLE '+('true' if mode=='oracle' else 'false')+'\n#define HIERARCHY_RECOVER '+('true' if mode=='dagger' else 'false')+'\n')+s
 src=B/(mode+'.metal');src.write_text(s)
 (A/(mode+'.patch')).write_text(''.join(difflib.unified_diff(base.splitlines(True),s.splitlines(True),fromfile='a/oracle-tracking.metal',tofile='b/hierarchical-'+mode+'.metal')))
 air=B/(mode+'.air');shader=B/(mode+'.metallib')
