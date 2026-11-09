@@ -1,0 +1,3 @@
+# Wingbeat steering authority result
+
+No direction/waveform group met the preregistered +/-0.055 rad/s median-yaw screen. The strongest sampled negative group was 0.55*(sin+cos), median -0.04892 rad/s; the strongest positive group was -0.80*cos, median +0.04776 rad/s. All 128 first episodes survived without physical failures and the simulator reported zero failed environment steps. No lane reached waypoint five, so the task's teacher handoff did not intervene in this study. The groups are unpaired and the samples do not establish continuous safety. Exact source, identities, individual data and all negative results are retained.
