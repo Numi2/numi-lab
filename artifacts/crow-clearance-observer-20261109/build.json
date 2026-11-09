@@ -1,0 +1,7 @@
+{
+  "api_sha256": "5ff44e5941b4c97a26b0eef53fbc97282ad8540b946e5a68dab936db03ce68e8",
+  "library_sha256": "05abed3e37ca8d95737436add021777a9d9b492732060c736fa3163883992338",
+  "box_distance_sha256": "35c84e319a076bdd07f1d825c433031a01a9cf218beafdf1d171e19c0dffaa09",
+  "sampling": "accepted control-step endpoints only; not a claim of continuous substep minimum",
+  "scope": "four gate/slalom obstacle colliders; landing perch is the support target, not an obstacle"
+}

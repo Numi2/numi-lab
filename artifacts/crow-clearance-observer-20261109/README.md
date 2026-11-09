@@ -1,0 +1,7 @@
+# Articulated box clearance diagnostic
+
+The current v15 bird uses thirteen box colliders. The course obstacles are the two gate boxes and two slalom boxes; the perch is a landing support target and is excluded. This read-only diagnostic reconstructs accepted body transforms and applies each collider's local pose, then calculates Euclidean distance between the oriented boxes. Intersection is reported as zero. The calculation uses box separating axes plus vertex-to-box and edge-to-edge features; 80 randomized cases were checked against an independently enumerated convex least-squares reference, in addition to fixed fixtures.
+
+The runtime records each lane's running minimum at every accepted control-step endpoint, plus the body/collider pair and step where it occurred. It does not sample the intermediate physics substeps, so the result is explicitly a sampled minimum and is not a bound on the continuous trajectory. Contact termination can be reported one submission after the first-episode evidence boundary. The first version of the comparison assumed identical numbering and failed on lane 3 (first-episode boundary 1155, contact transition 1156); the corrected comparison accepts that documented alignment and retains the contact witness. It matches accepted q/v against an observer-disabled full run before first-episode end.
+
+This is an opt-in development observer, built in a separate library. Its body reconstruction and CPU geometry work are not enabled in the ordinary physics path.

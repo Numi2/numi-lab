@@ -1,0 +1,6 @@
+{
+  "random_seed": 82736,
+  "fixtures": 80,
+  "independent_reference": "exhaustive bound/free active-set convex least-squares",
+  "max_absolute_error": 1.5543122344752192e-15
+}

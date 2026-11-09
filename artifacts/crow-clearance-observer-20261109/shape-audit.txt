@@ -1,0 +1,13 @@
+crow_body/collision_body body=crow_body type=2 flags=0 group=1 mask=4294967295 dims=0.1300,0.0575,0.0632
+crow_left_wing/collision body=crow_left_wing type=2 flags=0 group=1 mask=4294967295 dims=0.0926,0.0853,0.0138
+crow_right_wing/collision body=crow_right_wing type=2 flags=0 group=1 mask=4294967295 dims=0.0926,0.0853,0.0138
+crow_tail/collision body=crow_tail type=2 flags=0 group=1 mask=4294967295 dims=0.0345,0.1265,0.0115
+crow_left_thigh/collision body=crow_left_thigh type=2 flags=0 group=1 mask=4294967295 dims=0.0126,0.0103,0.0316
+crow_left_shank/collision body=crow_left_shank type=2 flags=0 group=1 mask=4294967295 dims=0.0126,0.0103,0.0316
+crow_right_thigh/collision body=crow_right_thigh type=2 flags=0 group=1 mask=4294967295 dims=0.0126,0.0103,0.0316
+crow_right_shank/collision body=crow_right_shank type=2 flags=0 group=1 mask=4294967295 dims=0.0126,0.0103,0.0316
+crow_left_foot/sole body=crow_left_foot type=2 flags=0 group=1 mask=4294967295 dims=0.0518,0.0172,0.0092
+crow_right_foot/sole body=crow_right_foot type=2 flags=0 group=1 mask=4294967295 dims=0.0518,0.0172,0.0092
+crow_head/collision body=crow_head type=2 flags=0 group=1 mask=4294967295 dims=0.0300,0.0250,0.0250
+crow_head/upper_beak_collision body=crow_head type=2 flags=0 group=1 mask=4294967295 dims=0.0250,0.0090,0.0030
+crow_lower_beak/collision body=crow_lower_beak type=2 flags=0 group=1 mask=4294967295 dims=0.0250,0.0090,0.0040

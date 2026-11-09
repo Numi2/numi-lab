@@ -1,0 +1,98 @@
+--- a/goal-memory-c_api.cpp
++++ b/clearance-c_api.cpp
+@@ -1,3 +1,4 @@
++#include "box_distance.hpp"
+ #include "metalrobo/RetinalObserver.hpp"
+ #include "metalrobo/CrowForaging.hpp"
+ #include "metalrobo/CrowManipulation.hpp"
+@@ -103,7 +104,14 @@
+     std::uint32_t direction = MR_TASK_OUTCOME_NEUTRAL;
+ };
+ 
++struct CrowClearanceRecord {
++    double distance = std::numeric_limits<double>::infinity();
++    unsigned long long step = 0;
++    std::size_t birdShape = 0, obstacleShape = 0;
++    bool closed = false;
++};
+ struct MRTaskRolloutHandle {
++    std::vector<CrowClearanceRecord> crowClearance;
+     explicit MRTaskRolloutHandle(
+         metalrobo::MetalWorldConfig config,
+         metalrobo::CompiledRun compiled
+@@ -4795,6 +4803,75 @@
+                     diagnostics.status
+                 ) + "]: " + diagnostics.message
+             );
++        }
++
++        if (std::getenv("CROW_CLEARANCE_TRACE") != nullptr &&
++            control_step_count == 1u) {
++            if (handle->crowClearance.empty())
++                handle->crowClearance.resize(environmentCount);
++            if (handle->crowClearance.size()!=environmentCount)
++                throw std::runtime_error("clearance observer lane count changed");
++            std::vector<MRBodyStateGPU> composed;
++            std::string reason;
++            if (!metalrobo::composeVisualBodyStates(handle->model,environmentCount,
++                    published.finalQ,published.finalV,published.finalSceneBodies,
++                    composed,&reason))
++                throw std::runtime_error("clearance body composition failed: "+reason);
++            const auto& model=handle->model;
++            const std::size_t bodyCount=model.bodies.size();
++            std::vector<std::size_t> birds,obstacles;
++            for (std::size_t i=0;i<model.shapes.size();++i) {
++                const auto& shape=model.shapes[i];
++                const auto& name=model.bodyNames.at(shape.bodyIndex);
++                if (name.starts_with("crow_course_gate_") ||
++                    name.starts_with("crow_course_slalom_")) obstacles.push_back(i);
++                else if (name.starts_with("crow_") &&
++                         !name.starts_with("crow_course_")) birds.push_back(i);
++            }
++            if (birds.empty() || obstacles.size()!=4u)
++                throw std::runtime_error("clearance observer collider contract mismatch");
++            const auto makeBox=[&](std::size_t lane,std::size_t index) {
++                const auto& shape=model.shapes[index];
++                if (shape.shapeType!=MR_SHAPE_BOX)
++                    throw std::runtime_error("clearance observer requires box colliders");
++                const auto& body=composed[lane*bodyCount+shape.bodyIndex];
++                const auto &p=body.position,&q=body.orientation,
++                           &lp=shape.localPosition,&lq=shape.localRotation,&d=shape.dimensions;
++                return crowclear::box({p.x,p.y,p.z},{q.x,q.y,q.z,q.w},
++                    {lp.x,lp.y,lp.z},{lq.x,lq.y,lq.z,lq.w},{d.x,d.y,d.z});
++            };
++            const auto step=static_cast<unsigned long long>(handle->submittedControlSteps+1u);
++            for (std::size_t lane=0;lane<environmentCount;++lane) {
++                auto& record=handle->crowClearance[lane];
++                if(record.closed)continue;
++                for (const auto j:obstacles) {
++                    const auto obstacle=makeBox(lane,j);
++                    for (const auto i:birds) {
++                        const auto bird=makeBox(lane,i);
++                        const double bound=std::sqrt(crowclear::norm2(bird.c-obstacle.c))-
++                            std::sqrt(bird.h[0]*bird.h[0]+bird.h[1]*bird.h[1]+bird.h[2]*bird.h[2])-
++                            std::sqrt(obstacle.h[0]*obstacle.h[0]+obstacle.h[1]*obstacle.h[1]+obstacle.h[2]*obstacle.h[2]);
++                        if (bound>=record.distance)continue;
++                        const auto distance=crowclear::distance(bird,obstacle);
++                        if (distance<record.distance) {
++                            record.distance=distance;record.step=step;
++                            record.birdShape=i;record.obstacleShape=j;
++                        }
++                    }
++                }
++                const bool terminated=lane<published.transitions.size() &&
++                   published.transitions[lane].termination.w!=MR_TASK_TERMINATION_CONTINUING;
++                if(terminated || step%500u==0u) {
++                    record.closed=terminated;
++                    const auto& bs=model.shapes[record.birdShape];
++                    const auto& os=model.shapes[record.obstacleShape];
++                    std::fprintf(stderr,
++                        "CROW_CLEARANCE_SAMPLE {\"lane\":%zu,\"end_step\":%llu,\"minimum_step\":%llu,\"minimum_m\":%.12g,\"bird_shape\":\"%s\",\"obstacle_shape\":\"%s\",\"bird_body\":\"%s\",\"obstacle_body\":\"%s\",\"sampling\":\"accepted_control_steps\"}\n",
++                        lane,step,record.step,record.distance,
++                        model.shapeNames[record.birdShape].c_str(),model.shapeNames[record.obstacleShape].c_str(),
++                        model.bodyNames[bs.bodyIndex].c_str(),model.bodyNames[os.bodyIndex].c_str());
++                }
++            }
+         }
+         if (handle->visualRuntime && handle->visualRuntime->retinal) {
+             handle->rejectedRetinalBatch=true;

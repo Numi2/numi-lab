@@ -1,0 +1,57 @@
+{
+  "steps": 500,
+  "lanes": 4,
+  "matched_physics_samples": 20,
+  "mismatches": 0,
+  "clearance": [
+    {
+      "lane": 0,
+      "end_step": 500,
+      "minimum_step": 101,
+      "minimum_m": 1.07318899837,
+      "bird_shape": "crow_head/upper_beak_collision",
+      "obstacle_shape": "crow_course_gate_right/collision",
+      "bird_body": "crow_head",
+      "obstacle_body": "crow_course_gate_right",
+      "sampling": "accepted_control_steps"
+    },
+    {
+      "lane": 1,
+      "end_step": 500,
+      "minimum_step": 85,
+      "minimum_m": 1.09231123357,
+      "bird_shape": "crow_head/upper_beak_collision",
+      "obstacle_shape": "crow_course_gate_right/collision",
+      "bird_body": "crow_head",
+      "obstacle_body": "crow_course_gate_right",
+      "sampling": "accepted_control_steps"
+    },
+    {
+      "lane": 2,
+      "end_step": 500,
+      "minimum_step": 1,
+      "minimum_m": 1.08895500141,
+      "bird_shape": "crow_lower_beak/collision",
+      "obstacle_shape": "crow_course_gate_right/collision",
+      "bird_body": "crow_lower_beak",
+      "obstacle_body": "crow_course_gate_right",
+      "sampling": "accepted_control_steps"
+    },
+    {
+      "lane": 3,
+      "end_step": 500,
+      "minimum_step": 100,
+      "minimum_m": 1.08564802089,
+      "bird_shape": "crow_head/upper_beak_collision",
+      "obstacle_shape": "crow_course_gate_left/collision",
+      "bird_body": "crow_head",
+      "obstacle_body": "crow_course_gate_left",
+      "sampling": "accepted_control_steps"
+    }
+  ],
+  "seconds": {
+    "disabled": 3.1093463329598308,
+    "enabled": 2.3282532079610974
+  },
+  "scope": "endpoint-sampled geometry, not continuous substep minimum"
+}
