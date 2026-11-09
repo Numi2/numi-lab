@@ -1,0 +1,105 @@
+{
+  "revision": "186623176aecade49e7bd19541167aa0c187f503",
+  "commands": [
+    [
+      "/usr/bin/clang++",
+      "-I/Users/numi/numi-lab-midpoint-compensated-20261109/include",
+      "-I/Users/numi/numi-lab-midpoint-compensated-20261109/matter/include",
+      "-x",
+      "objective-c++",
+      "-O3",
+      "-DNDEBUG",
+      "-std=c++23",
+      "-arch",
+      "arm64",
+      "-fPIE",
+      "-fobjc-arc",
+      "-Wall",
+      "-Wextra",
+      "-Wpedantic",
+      "-c",
+      "/Users/numi/numi-lab-midpoint-compensated-20261109/apps/midpoint_slider_coupled_diagnostic.mm",
+      "-o",
+      "/Users/numi/numi-matter-slider-owner-build-20261109/evidence-work-check-002/probe.o"
+    ],
+    [
+      "/usr/bin/clang++",
+      "-O3",
+      "-DNDEBUG",
+      "-arch",
+      "arm64",
+      "-Wl,-rpath,/Users/numi/numi-matter-slider-owner-build-20261109/lib",
+      "/Users/numi/numi-matter-slider-owner-build-20261109/evidence-work-check-002/probe.o",
+      "-o",
+      "/Users/numi/numi-matter-slider-owner-build-20261109/evidence-work-check-002/probe",
+      "/Users/numi/numi-matter-slider-owner-build-20261109/lib/libmetalrobo.dylib",
+      "-framework",
+      "Foundation",
+      "-framework",
+      "Metal"
+    ]
+  ],
+  "build": [
+    {
+      "exit_code": 0,
+      "stderr": "",
+      "wall_seconds_observational_only": 2.3845620419597253
+    },
+    {
+      "exit_code": 0,
+      "stderr": "",
+      "wall_seconds_observational_only": 0.07621662493329495
+    }
+  ],
+  "runs": [
+    {
+      "name": "far",
+      "command": [
+        "/Users/numi/numi-matter-slider-owner-build-20261109/evidence-work-check-002/probe",
+        "/Users/numi/numi-matter-slider-owner-build-20261109/matter/shaders/NumiMatter.metallib",
+        "/Users/numi/numi-matter-slider-owner-build-20261109/shaders/MetalRobo.metallib",
+        "0.000015625",
+        "0.0002",
+        "1"
+      ],
+      "exit_code": 0,
+      "stdout_sha256": "3b34e1a8a0796385f5bab3f729103afd2726d4f5e1c6f07a8d6001d2ea4690e5",
+      "stderr_sha256": "683a0f591e02f87e0fecc9de883b025ac90e742e63a374f55dd2abb0b788312e",
+      "independent_gate_ratio": 0.0,
+      "gate_ratio": 0,
+      "fem_impulse_Ns": 0,
+      "fem_work_J": 0,
+      "fem_law_work_J": 0,
+      "passes": true
+    },
+    {
+      "name": "near",
+      "command": [
+        "/Users/numi/numi-matter-slider-owner-build-20261109/evidence-work-check-002/probe",
+        "/Users/numi/numi-matter-slider-owner-build-20261109/matter/shaders/NumiMatter.metallib",
+        "/Users/numi/numi-matter-slider-owner-build-20261109/shaders/MetalRobo.metallib",
+        "0.000015625",
+        "0.000095",
+        "1"
+      ],
+      "exit_code": 0,
+      "stdout_sha256": "fa370f48cecdbc0eb4f00f6c289b19f5722a4ccbf37995487e2f0f30f642eebe",
+      "stderr_sha256": "683a0f591e02f87e0fecc9de883b025ac90e742e63a374f55dd2abb0b788312e",
+      "independent_gate_ratio": 0.005811900466063627,
+      "gate_ratio": 0.005811900466063627,
+      "fem_impulse_Ns": 3.8390845986668864e-06,
+      "fem_work_J": 3.448130602207425e-09,
+      "fem_law_work_J": 3.448130573395531e-09,
+      "passes": true
+    }
+  ],
+  "scope": "one accepted step, diagnostic only; no performance or complete-rollout claim",
+  "inputs_sha256": {
+    "/Users/numi/numi-lab-midpoint-compensated-20261109/apps/midpoint_slider_coupled_diagnostic.mm": "371381c70bbb4b88b394c5dec63b33b5b633e6bbdbf097910baf26dc2621af5d",
+    "/Users/numi/numi-matter-slider-owner-build-20261109/evidence-work-check-002/probe": "1190d004a06f88aee54566c5818c52daa67fe4a6d8e8b83110045bb2c65e5c2b",
+    "/Users/numi/numi-matter-slider-owner-build-20261109/lib/libmetalrobo.dylib": "c94797265c854d146bff975988bfbedb68b60e5da462fd6e3470e8b4cc2b2fd0",
+    "/Users/numi/numi-matter-slider-owner-build-20261109/matter/shaders/NumiMatter.metallib": "72d2e238344e967f767b93cda4a5c1de6963d2212d219ed00e6b8a2b36b1b8ba",
+    "/Users/numi/numi-matter-slider-owner-build-20261109/shaders/MetalRobo.metallib": "f32b410bddf52679d06e66bd14263dcedcf25bf0fd1593375b8dece449f274f9"
+  },
+  "passes": true
+}

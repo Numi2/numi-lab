@@ -16,3 +16,13 @@ corrupted FEM work gate. These are two one-step checks, not a complete
 reacting-body rollout, proof of spatial convergence, an energy-accuracy
 qualification, or a performance result. Historical traces without this new
 per-node field are not silently promoted by the new analyzer.
+
+
+The initial instrument check recorded a maximum ratio but the complete-rollout
+analyzer did not actually apply it. The follow-up records all per-node impulse
+and velocity terms and independently reconstructs both work sums and the
+gate in the analyzer. The same two one-step native cases passed again; the
+maximum near-contact ratio remained 0.005812. Missing or corrupted per-node
+terms are rejected by the analyzer test. See the separately retained
+`slider-fem-work-check-002-execution.json` and its corresponding outputs.
+This repair does not upgrade either one-step test to a complete rollout.
