@@ -1,0 +1,20 @@
+--- a/toe-active.metal
++++ b/release-positive.metal
+@@ -5474,7 +5474,7 @@
+     if ((program.schedule.w & MR_TASK_PROGRAM_AVIAN_CROW_HIERARCHICAL_NAVIGATION) != 0u &&
+         state.episode.z == 10u && program.counts0.w >= 5u && dispatch.counts.w == 30u) {
+         const float seconds=float(state.episode.x)*dispatch.timing.x;
+-        const bool closing=state.navigation.z>=5.0f && seconds<55.0f;
++        const bool closing=state.navigation.z>=5.0f && seconds<45.0f;
+         for (uint side=0u;side<2u;++side) {
+             const uint ramp=(state.status.w>>(side*6u)) & 63u;
+             for (uint toe=0u;toe<4u;++toe) {
+@@ -9305,7 +9305,7 @@
+         if (program.counts0.w>=5u && dispatch.counts.w==30u) {
+             const float seconds=float(state.episode.x)*dispatch.timing.x;
+             uint packed=0u;
+-            if (state.navigation.z>=5.0f && seconds<55.0f) {
++            if (state.navigation.z>=5.0f && seconds<45.0f) {
+                 for (uint side=0u;side<2u;++side) {
+                     const uint w=compactBase+contactGroups[3u+side].reference.y;
+                     const float3 force=float3(compactContact[w],compactContact[w+1u],compactContact[w+2u]);
