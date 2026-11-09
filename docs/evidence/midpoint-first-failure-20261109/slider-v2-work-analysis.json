@@ -1,0 +1,15 @@
+{
+  "v1_absolute_differences": {
+    "impulse_Ns": 0.0,
+    "torque_impulse_x_Nms": 0.0,
+    "torque_impulse_y_Nms": 0.0,
+    "slider_final_z_m": 0.0,
+    "slider_final_v_mps": 0.0,
+    "relative_contact_work_J": 0.0
+  },
+  "fem_contact_work_J": -2.9207715957102245e-06,
+  "slider_contact_work_J": 2.9204877996214674e-06,
+  "relative_contact_work_J": -2.8379608875280974e-10,
+  "work_sum_error_J": 4.284330283930122e-21,
+  "passes": true
+}

@@ -25,3 +25,11 @@ the executable is copied under `evidence-slider-reference` in the native build
 directory. This independent CPU trajectory is a validation target only. It
 is not a native two-way midpoint transaction, a rotating-body test, or a
 whole-environment rollback/retry result. The production guard remains active.
+
+A later instrumented reference separately accumulated each owner contact
+work. FEM contact work was -2.9207716e-6 J and slider contact work was
++2.9204878e-6 J; their sum agrees with the separately accumulated relative
+work to 4.3e-21 J. At both timesteps every pre-existing physical and trace
+field matches the first reference exactly. The additional fields and input
+hashes are retained as `slider-v2-*`. This checks bookkeeping in the reference,
+not the interface work of the unimplemented native coupling.
