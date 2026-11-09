@@ -29,6 +29,7 @@ struct Fixture {
     NMFEMNodeStateGPU accepted, mid;
     nm_float4 plane{0,0,1,0};
     float clearance=1e-5f;
+    float endpointOffsetDelta=0;
     std::uint32_t expected=0;
 };
 int main(int argc, const char** argv) {
@@ -46,7 +47,7 @@ int main(int argc, const char** argv) {
     require(pipeline != nil,error ? error.localizedDescription.UTF8String : "pipeline error");
     id<MTLCommandQueue> queue=[device newCommandQueue];
     require(queue != nil,"queue unavailable");
-    Fixture f[12];
+    Fixture f[17];
     for(auto& x:f) { x.accepted=node(0,0,.001f); x.mid=x.accepted; }
     f[0].name="free"; f[0].mid.referenceDisplacementAndMode.z=-.0001f;
     f[0].accepted.velocityAndInverseMass.z=-.1f; f[0].mid.velocityAndInverseMass.z=-.2f;
@@ -65,6 +66,14 @@ int main(int argc, const char** argv) {
     f[9].name="overflow"; f[9].mid.velocityAndInverseMass.x=std::numeric_limits<float>::max(); f[9].expected=1;
     f[10].name="metadata"; f[10].mid.restAndFixed.x=1; f[10].expected=1;
     f[11].name="zero-normal"; f[11].plane={0,0,0,0}; f[11].expected=1;
+    f[12].name="advancing-plane-crossing"; f[12].endpointOffsetDelta=.0011f; f[12].expected=2;
+    f[13].name="advancing-plane-clear"; f[13].endpointOffsetDelta=.0005f;
+    f[14].name="receding-plane-initially-unsafe"; f[14].plane.w=.0011f;
+    f[14].endpointOffsetDelta=-.001f; f[14].expected=2;
+    f[15].name="tilted-moving-plane-clear"; f[15].plane={1,0,1,0};
+    f[15].endpointOffsetDelta=.0001f;
+    f[16].name="nonfinite-endpoint-plane";
+    f[16].endpointOffsetDelta=std::numeric_limits<float>::infinity(); f[16].expected=1;
     std::uint32_t count=1;
     for(const auto& test:f) {
         NMFEMNodeStateGPU sentinel; std::memset(&sentinel,0xa5,sizeof(sentinel));
@@ -89,6 +98,8 @@ int main(int argc, const char** argv) {
         [encoder setBuffer:mid offset:0 atIndex:4];
         [encoder setBuffer:end offset:0 atIndex:5];
         [encoder setBuffer:status offset:0 atIndex:6];
+        nm_float4 endPlane=test.plane; endPlane.w+=test.endpointOffsetDelta;
+        [encoder setBytes:&endPlane length:sizeof(endPlane) atIndex:7];
         [encoder dispatchThreads:MTLSizeMake(1,1,1) threadsPerThreadgroup:MTLSizeMake(1,1,1)];
         [encoder endEncoding]; [command commit]; [command waitUntilCompleted];
         require(command.status==MTLCommandBufferStatusCompleted,"command failed");
@@ -152,6 +163,7 @@ int main(int argc, const char** argv) {
     [enc setBytes:&batchCount length:sizeof(batchCount) atIndex:2];
     [enc setBuffer:ab offset:0 atIndex:3]; [enc setBuffer:mb offset:0 atIndex:4];
     [enc setBuffer:eb offset:0 atIndex:5]; [enc setBuffer:rb offset:0 atIndex:6];
+    [enc setBytes:&plane length:sizeof(plane) atIndex:7];
     [enc dispatchThreads:MTLSizeMake(batchSize,1,1) threadsPerThreadgroup:MTLSizeMake(64,1,1)];
     [enc endEncoding]; [cmd commit]; [cmd waitUntilCompleted];
     require(cmd.status==MTLCommandBufferStatusCompleted,"batch command failed");
@@ -193,7 +205,7 @@ int main(int argc, const char** argv) {
     }
     require(passed>0 && rejected>0,"batch did not exercise both outcomes");
     std::cout<<"mixed_batch certified="<<passed<<" rejected="<<rejected<<"\n";
-    std::cout<<"device="<<device.name.UTF8String<<" endpoint_cases=12 PASS\n";
+    std::cout<<"device="<<device.name.UTF8String<<" endpoint_cases=17 PASS\n";
     return 0;
  } catch(const std::exception& e) {
     std::cerr<<"endpoint gate: "<<e.what()<<"\n"; return 1;

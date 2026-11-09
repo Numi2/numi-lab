@@ -13972,13 +13972,16 @@ kernel void nm_fem_midpoint_reflect_endpoint_scratch(
     device const NMFEMNodeStateGPU* midpoint [[buffer(4)]],
     device NMFEMNodeStateGPU* endpoint [[buffer(5)]],
     device uint* result [[buffer(6)]],
+    constant float4& endpointPlane [[buffer(7)]],
     uint i [[thread_position_in_grid]]
 ) {
     if (i >= count) return;
     // 0: certified; 1: malformed/nonfinite; 2: clearance not certified.
     result[i] = 1u;
     const NMFEMNodeStateGPU a = accepted[i], m = midpoint[i];
-    if (!all(isfinite(plane)) || !isfinite(clearance) || clearance < 0.0f ||
+    if (!all(isfinite(plane)) || !all(isfinite(endpointPlane)) ||
+        any(plane.xyz != endpointPlane.xyz) ||
+        !isfinite(clearance) || clearance < 0.0f ||
         !all(isfinite(a.positionAndMass)) || !all(isfinite(m.positionAndMass)) ||
         !all(isfinite(a.velocityAndInverseMass)) ||
         !all(isfinite(m.velocityAndInverseMass)) ||
@@ -14040,7 +14043,8 @@ kernel void nm_fem_midpoint_reflect_endpoint_scratch(
         !all(isfinite(e.referenceDisplacementAndMode)) ||
         !all(isfinite(e.referenceDisplacementLow))) return;
     const NMContactInterval start = nmMidpointReferencePlaneProjection(a, plane.xyz, plane.w);
-    const NMContactInterval finish = nmMidpointReferencePlaneProjection(e, plane.xyz, plane.w);
+    const NMContactInterval finish = nmMidpointReferencePlaneProjection(
+        e, endpointPlane.xyz, endpointPlane.w);
     if (!isfinite(start.lower) || !isfinite(start.upper) ||
         !isfinite(finish.lower) || !isfinite(finish.upper) ||
         !(start.lower > threshold) || !(finish.lower > threshold)) {

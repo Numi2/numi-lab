@@ -86,3 +86,21 @@ slider-gravity-residual-inputs-001.sha256,
 slider-gravity-integrated-ctest-001.log and slider-gravity-legacy-ctest-001.log.
 These checks do not exercise the currently guarded Matter-to-slider contact
 path and do not establish its force, impulse, torque, work, or replay gates.
+
+## Distinct endpoint planes in the clearance check
+
+The existing reflected-endpoint clearance operator now accepts separate start
+and endpoint plane offsets, while requiring a common normal. The admitted
+fixed-plane runtime binds the same state at both ends. This makes the
+clearance calculation usable for a translating plane only after the future
+rigid owner supplies its actual initial and committed endpoint positions; it
+does not supply those positions or open the dynamic contact guard.
+
+The Metal check rejects an advancing plane that crosses a stationary node,
+accepts a clear approach, rejects an initially unsafe receding plane, and
+rejects a nonfinite endpoint. Existing fixed and tilted plane cases and a
+257-node mixed batch also pass. The rebuilt fixed-plane native transaction,
+midpoint gravity operator and dynamic admission guard pass. See
+endpoint-moving-plane-001.log, endpoint-moving-plane-ctest-001.log and
+endpoint-moving-plane-inputs-001.sha256. These are geometric operator and
+fixed-plane transaction checks, not evidence of a two-way contact rollout.

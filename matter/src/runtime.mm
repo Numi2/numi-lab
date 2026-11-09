@@ -52583,6 +52583,10 @@ RuntimeDiagnostics Runtime::encodeImpl(
                     [encoder setBuffer:state.femCandidate offset:0u atIndex:4u];
                     [encoder setBuffer:state.femMidpointEndpoint offset:0u atIndex:5u];
                     [encoder setBuffer:state.femMidpointResults offset:0u atIndex:6u];
+                    // The admitted plane is stationary, so both endpoints
+                    // are the same. A reacting owner must provide its actual
+                    // start and committed endpoint before its guard opens.
+                    [encoder setBuffer:state.rigidStates offset:0u atIndex:7u];
                 });
                 [encoder memoryBarrierWithScope:MTLBarrierScopeBuffers];
                 if (state.midpointVelocityCompensation) {
