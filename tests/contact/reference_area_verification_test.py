@@ -3,6 +3,7 @@
 import contextlib
 import io
 import json
+import math
 from pathlib import Path
 import runpy
 import sys
@@ -16,16 +17,16 @@ with contextlib.redirect_stdout(io.StringIO()):
 x = json.loads((root / "docs/evidence/midpoint-first-failure-20261109/rk4-n64-h050.json").read_text())
 w = x["contact_area_weights_m2"]
 verify(w,64)
-for name, mutate in (
-    ("surface redistribution", lambda a: (a.__setitem__(0, a[0]*2), a.__setitem__(1, a[1]-a[0]/2))),
-    ("wrong layer", lambda a: (a.__setitem__(0,0), a.__setitem__(65*65,a[0]))),
-    ("nonfinite", lambda a: a.__setitem__(0,float("nan"))),
-):
+for name in ("surface redistribution", "wrong layer", "nonfinite"):
     bad = w.copy()
-    if name == "wrong layer":
+    if name == "surface redistribution":
+        value = bad[0]; bad[0] += value; bad[1] -= value
+    elif name == "wrong layer":
         value = bad[0]; bad[0] = 0; bad[65*65] = value
     else:
-        mutate(bad)
+        bad[0] = float("nan")
+    if name != "nonfinite":
+        assert math.isclose(math.fsum(bad),math.fsum(w),rel_tol=0,abs_tol=1e-19)
     try: verify(bad,64)
     except AssertionError: pass
     else: raise AssertionError(name + " was admitted")

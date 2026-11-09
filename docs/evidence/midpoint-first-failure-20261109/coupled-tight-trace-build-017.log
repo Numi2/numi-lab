@@ -1,0 +1,81 @@
+[0/2] Re-checking globbed directories...
+[1/4] Building OBJCXX object matter/CMakeFiles/numi_matter_runtime_objects.dir/src/runtime.mm.o
+/Users/numi/numi-lab-midpoint-compensated-20261109/matter/src/runtime.mm:10973:21: warning: format specifies type 'size_t' (aka 'unsigned long') but the argument has type 'nm_u32' (aka 'unsigned int') [-Wformat]
+ 10969 |                     "matter_graph_due_row_identity={\"schema\":1,\"enabled\":true,\"patches\":%zu,\"active_tets\":%zu,\"objects\":%zu}\n",
+       |                                                                                                                                   ~~~
+       |                                                                                                                                   %u
+ 10970 |                     graphSchwarz.layout.patches.size(),
+ 10971 |                     static_cast<std::size_t>(std::count(
+ 10972 |                         activeTets.begin(), activeTets.end(), 1u)),
+ 10973 |                     world.dispatch.objectCount);
+       |                     ^~~~~~~~~~~~~~~~~~~~~~~~~~
+/Users/numi/numi-lab-midpoint-compensated-20261109/matter/src/runtime.mm:20950:72: warning: '&&' within '||' [-Wlogical-op-parentheses]
+ 20950 |                 } else if ((femNewtonTailDispatchEnabledForCurrentRoot &&
+       |                             ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^~
+ 20951 |                     workDomain == WorkDomain::newtonAssemblyFemNodes ||
+       |                     ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ ~~
+/Users/numi/numi-lab-midpoint-compensated-20261109/matter/src/runtime.mm:20950:72: note: place parentheses around the '&&' expression to silence this warning
+ 20950 |                 } else if ((femNewtonTailDispatchEnabledForCurrentRoot &&
+       |                                                                        ^
+       |                             (
+ 20951 |                     workDomain == WorkDomain::newtonAssemblyFemNodes ||
+       |                                                                     )
+/Users/numi/numi-lab-midpoint-compensated-20261109/matter/src/runtime.mm:20952:67: warning: '&&' within '||' [-Wlogical-op-parentheses]
+ 20951 |                     workDomain == WorkDomain::newtonAssemblyFemNodes ||
+       |                                                                      ~~
+ 20952 |                     femGlobalCoarseTailDispatchForCurrentOperator &&
+       |                     ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^~
+ 20953 |                     workDomain == WorkDomain::femNodes) &&
+       |                     ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/Users/numi/numi-lab-midpoint-compensated-20261109/matter/src/runtime.mm:20952:67: note: place parentheses around the '&&' expression to silence this warning
+ 20952 |                     femGlobalCoarseTailDispatchForCurrentOperator &&
+       |                                                                   ^
+       |                     (
+ 20953 |                     workDomain == WorkDomain::femNodes) &&
+       |                                                       
+       |                                                       )
+/Users/numi/numi-lab-midpoint-compensated-20261109/matter/src/runtime.mm:20957:72: warning: '&&' within '||' [-Wlogical-op-parentheses]
+ 20957 |                 } else if ((femNewtonTailDispatchEnabledForCurrentRoot &&
+       |                             ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^~
+ 20958 |                     workDomain == WorkDomain::newtonAssemblyTetrahedra ||
+       |                     ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ ~~
+/Users/numi/numi-lab-midpoint-compensated-20261109/matter/src/runtime.mm:20957:72: note: place parentheses around the '&&' expression to silence this warning
+ 20957 |                 } else if ((femNewtonTailDispatchEnabledForCurrentRoot &&
+       |                                                                        ^
+       |                             (
+ 20958 |                     workDomain == WorkDomain::newtonAssemblyTetrahedra ||
+       |                                                                       )
+/Users/numi/numi-lab-midpoint-compensated-20261109/matter/src/runtime.mm:20959:67: warning: '&&' within '||' [-Wlogical-op-parentheses]
+ 20958 |                     workDomain == WorkDomain::newtonAssemblyTetrahedra ||
+       |                                                                        ~~
+ 20959 |                     femGlobalCoarseTailDispatchForCurrentOperator &&
+       |                     ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^~
+ 20960 |                     workDomain == WorkDomain::tetrahedra) &&
+       |                     ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/Users/numi/numi-lab-midpoint-compensated-20261109/matter/src/runtime.mm:20959:67: note: place parentheses around the '&&' expression to silence this warning
+ 20959 |                     femGlobalCoarseTailDispatchForCurrentOperator &&
+       |                                                                   ^
+       |                     (
+ 20960 |                     workDomain == WorkDomain::tetrahedra) &&
+       |                                                         
+       |                                                         )
+/Users/numi/numi-lab-midpoint-compensated-20261109/matter/src/runtime.mm:24570:33: warning: variable 'reason' set but not used [-Wunused-but-set-variable]
+ 24570 |                 if (const char* reason = femNewtonTraceScope(false, 4096u))
+       |                                 ^
+/Users/numi/numi-lab-midpoint-compensated-20261109/matter/src/runtime.mm:29468:28: warning: unused variable 'capturedEnvironmentCount' [-Wunused-variable]
+ 29468 |                 const auto capturedEnvironmentCount = environments;
+       |                            ^~~~~~~~~~~~~~~~~~~~~~~~
+/Users/numi/numi-lab-midpoint-compensated-20261109/matter/src/runtime.mm:40144:60: warning: values of type 'NSUInteger' should not be used as format arguments; add an explicit cast to 'unsigned long' instead [-Wformat]
+ 40142 |                     "fgmres_terminal_cache_capture_not_due={\"schema\":1,\"physics_substep\":%u,\"physics_substeps\":%u,\"microtick\":%u,\"microtick_count\":%u,\"environment_count\":%u,\"preflight_enabled\":%s,\"preconditioner_enabled\":%s,\"preconditioner_apply_enabled\":%s,\"fresh_rhs_may_skip\":%s,\"selector\":%u}\n",
+       |                                                                                                                                                                                       ~~
+       |                                                                                                                                                                                       %lu
+ 40143 |                     request.physicsSubstep, request.physicsSubsteps,
+ 40144 |                     micro.microtick, micro.microtickCount, environments,
+       |                                                            ^~~~~~~~~~~~
+       |                                                            static_cast<unsigned long>( )
+/Users/numi/numi-lab-midpoint-compensated-20261109/matter/src/runtime.mm:45721:35: warning: unused variable 'oldTailConstants' [-Wunused-variable]
+ 45721 |                     id<MTLBuffer> oldTailConstants =
+       |                                   ^~~~~~~~~~~~~~~~
+9 warnings generated.
+[2/4] Linking CXX shared library lib/libmetalrobo.dylib
+[3/4] Linking OBJCXX executable bin/metalrobo_matter_physics_probe

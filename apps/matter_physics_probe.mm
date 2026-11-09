@@ -16,6 +16,7 @@
 #include <cstddef>
 #include <cstring>
 #include <filesystem>
+#include <fstream>
 #include <iostream>
 #include <limits>
 #include <stdexcept>
@@ -4358,6 +4359,24 @@ void runCoupledLateRollback(const bool crossing, const double tolerance = 1.0e-4
     require(first.succeeded(), "baseline: " + first.message);
     const auto accepted = matter.snapshot();
     require(accepted.available, "missing baseline snapshot");
+    // Read-only test artifact, not a restart archive or solver input.
+    if (const char* path = std::getenv("NM_FEM_COUPLED_AUDIT_STATE_PATH")) {
+      require(*path != 0 && !std::filesystem::exists(path),
+              "audit state path must be new and nonempty");
+      std::ofstream output(path, std::ios::binary | std::ios::out);
+      const auto write = [&output](const auto& values) {
+        using Value = typename std::decay_t<decltype(values)>::value_type;
+        const std::uint64_t count = values.size();
+        output.write(reinterpret_cast<const char*>(&count), sizeof(count));
+        if (!values.empty()) output.write(
+            reinterpret_cast<const char*>(values.data()), count * sizeof(Value));
+      };
+      write(good.finalQ); write(good.finalV); write(accepted.femNodes);
+      write(accepted.femFields); write(accepted.contactHistories);
+      write(accepted.femMaterialState); write(accepted.schedulers);
+      write(accepted.rigidGeneralizedCandidate);
+      require(output.good(), "failed to write diagnostic physical state");
+    }
     double contactImpulse = 0.0, contactZ = 0.0, torqueX = 0.0, torqueY = 0.0;
     for (const auto &sample : accepted.contactSamples) {
       if ((sample.identity.w & NM_CONTACT_VALID) == 0u) continue;

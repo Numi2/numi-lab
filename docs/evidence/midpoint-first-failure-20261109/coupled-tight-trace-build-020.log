@@ -1,0 +1,3 @@
+[0/2] Re-checking globbed directories...
+[1/3] Building OBJCXX object CMakeFiles/metalrobo_matter_physics_probe.dir/apps/matter_physics_probe.mm.o
+[2/3] Linking OBJCXX executable bin/metalrobo_matter_physics_probe

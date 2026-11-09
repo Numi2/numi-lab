@@ -29156,7 +29156,30 @@ RuntimeDiagnostics Runtime::encodeImpl(
                         emitFEMNewtonTraceSkip(root, "newton_iteration_cap_32");
                     return true;
                 }
-                if (const char* reason = boundedHumanAlphaTrace ? nullptr : diagnosticNewtonTraceScopeFailure()) {
+                // Read-only scalar trace for the small articulated mixed-FEM
+                // failure fixture. This does not admit its operator into any
+                // of the pure-FEM residual or replay paths above.
+                const char* mixedTraceSetting = std::getenv(
+                    "NM_FEM_NEWTON_TRACE_MIXED_ARTICULATED");
+                const bool boundedMixedArticulatedTrace =
+                    mixedTraceSetting != nullptr &&
+                    std::strcmp(mixedTraceSetting, "1") == 0 &&
+                    request.physicsSubsteps == 1u && request.physicsSubstep == 0u &&
+                    microtick == 0u && environments == 1u && objectTotal == 1u &&
+                    state.dispatch.maximumRateExponent == 0u &&
+                    state.dispatch.femNodeCount > 0u && state.dispatch.femNodeCount <= 125u &&
+                    state.dispatch.tetrahedronCount > 0u && state.dispatch.tetrahedronCount <= 384u &&
+                    state.dispatch.rigidGeneralizedCapacity >= 1u &&
+                    state.dispatch.rigidGeneralizedCapacity <= NM_MATTER_MAX_ARTICULATED_DOFS &&
+                    coupledArticulatedNv == 1u && state.requiresCoupledCandidate &&
+                    state.dispatch.particleCount == 0u &&
+                    state.dispatch.mpmActiveNodeCapacity == 0u &&
+                    state.dispatch.femHumanAttachmentCount == 0u &&
+                    state.dispatch.mutationCommandCount == 0u &&
+                    state.environmentLineSearch != nil && state.femLineSearch != nil &&
+                    state.fgmresStates != nil && state.statuses != nil;
+                if (const char* reason = (boundedHumanAlphaTrace || boundedMixedArticulatedTrace)
+                        ? nullptr : diagnosticNewtonTraceScopeFailure()) {
                     if (std::strcmp(stage, "before_contact_limits") == 0)
                         emitFEMNewtonTraceSkip(root, reason);
                     return true;

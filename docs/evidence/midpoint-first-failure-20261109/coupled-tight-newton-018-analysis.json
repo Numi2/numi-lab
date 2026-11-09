@@ -1,0 +1,157 @@
+{
+  "rows": [
+    {
+      "iteration": 0,
+      "alpha": 1,
+      "reassembled_nonlinear_norm": 0.500015974,
+      "reported_linear_metric": 0.000104596445,
+      "reported_cycle_accepted": true,
+      "object_limit": 1,
+      "status": 0
+    },
+    {
+      "iteration": 1,
+      "alpha": 1,
+      "reassembled_nonlinear_norm": 0.00030785639,
+      "reported_linear_metric": 2.63341317e-05,
+      "reported_cycle_accepted": true,
+      "object_limit": 1,
+      "status": 0
+    },
+    {
+      "iteration": 2,
+      "alpha": 1,
+      "reassembled_nonlinear_norm": 4.57814349e-05,
+      "reported_linear_metric": 2.19860681e-06,
+      "reported_cycle_accepted": true,
+      "object_limit": 1,
+      "status": 0
+    },
+    {
+      "iteration": 3,
+      "alpha": 1,
+      "reassembled_nonlinear_norm": 1.02742852e-05,
+      "reported_linear_metric": 5.21042125e-07,
+      "reported_cycle_accepted": false,
+      "object_limit": 1,
+      "status": 0
+    },
+    {
+      "iteration": 4,
+      "alpha": 1,
+      "reassembled_nonlinear_norm": 4.53919984e-06,
+      "reported_linear_metric": 1.12863916e-07,
+      "reported_cycle_accepted": false,
+      "object_limit": 1,
+      "status": 0
+    },
+    {
+      "iteration": 5,
+      "alpha": 1,
+      "reassembled_nonlinear_norm": 2.87657508e-06,
+      "reported_linear_metric": 2.28777406e-08,
+      "reported_cycle_accepted": true,
+      "object_limit": 1,
+      "status": 0
+    },
+    {
+      "iteration": 6,
+      "alpha": 1,
+      "reassembled_nonlinear_norm": 1.96184715e-06,
+      "reported_linear_metric": 3.84754024e-08,
+      "reported_cycle_accepted": false,
+      "object_limit": 1,
+      "status": 0
+    },
+    {
+      "iteration": 7,
+      "alpha": 1,
+      "reassembled_nonlinear_norm": 1.39606288e-06,
+      "reported_linear_metric": 6.79852974e-08,
+      "reported_cycle_accepted": false,
+      "object_limit": 1,
+      "status": 0
+    },
+    {
+      "iteration": 8,
+      "alpha": 1,
+      "reassembled_nonlinear_norm": 9.71949476e-07,
+      "reported_linear_metric": 1.01484922e-07,
+      "reported_cycle_accepted": false,
+      "object_limit": 1,
+      "status": 0
+    },
+    {
+      "iteration": 9,
+      "alpha": 1,
+      "reassembled_nonlinear_norm": 7.06279366e-07,
+      "reported_linear_metric": 7.73854154e-08,
+      "reported_cycle_accepted": false,
+      "object_limit": 1,
+      "status": 0
+    },
+    {
+      "iteration": 10,
+      "alpha": 1,
+      "reassembled_nonlinear_norm": 5.05137905e-07,
+      "reported_linear_metric": 5.44704548e-08,
+      "reported_cycle_accepted": false,
+      "object_limit": 1,
+      "status": 0
+    },
+    {
+      "iteration": 11,
+      "alpha": 1,
+      "reassembled_nonlinear_norm": 5.22186099e-07,
+      "reported_linear_metric": 4.62447218e-08,
+      "reported_cycle_accepted": false,
+      "object_limit": 1,
+      "status": 0
+    },
+    {
+      "iteration": 12,
+      "alpha": 1,
+      "reassembled_nonlinear_norm": 4.00156068e-07,
+      "reported_linear_metric": 7.92300003e-09,
+      "reported_cycle_accepted": false,
+      "object_limit": 1,
+      "status": 0
+    },
+    {
+      "iteration": 13,
+      "alpha": 1,
+      "reassembled_nonlinear_norm": 3.4863811e-07,
+      "reported_linear_metric": 5.88041349e-09,
+      "reported_cycle_accepted": false,
+      "object_limit": 1,
+      "status": 0
+    },
+    {
+      "iteration": 14,
+      "alpha": 1,
+      "reassembled_nonlinear_norm": 1.51719789e-07,
+      "reported_linear_metric": 1.04794946e-08,
+      "reported_cycle_accepted": false,
+      "object_limit": 1,
+      "status": 0
+    },
+    {
+      "iteration": 15,
+      "alpha": 1,
+      "reassembled_nonlinear_norm": 1.43790231e-07,
+      "reported_linear_metric": 8.58100258e-09,
+      "reported_cycle_accepted": false,
+      "object_limit": 1,
+      "status": 0
+    }
+  ],
+  "all_selected_alpha_one": true,
+  "all_object_limits_one": true,
+  "last_assembled_nonlinear_norm": 1.43790231e-07,
+  "limitations": [
+    "solver metrics combine mixed coordinate units",
+    "linear metric is runtime-reported, not independently recomputed",
+    "line-search samples do not certify the full Armijo decision process",
+    "this is legacy mixed FEM with a reacting body, not the reference-area midpoint fixture"
+  ]
+}
