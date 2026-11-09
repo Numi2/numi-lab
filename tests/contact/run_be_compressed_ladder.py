@@ -27,7 +27,9 @@ LADDER = [("00003125", "0.00000003125", 320000),
           ("00025", "0.00000025", 40000),
           ("0005", "0.0000005", 20000),
           ("001", "0.000001", 10000)]
-LIMIT_FREE = int(3.2 * 1024**3)
+# Compressed output is bounded by a guard 0.1 GiB above the concurrent
+# reference guard; see the preregistered resource rationale.
+LIMIT_FREE = int(3.1 * 1024**3)
 LIMIT_RSS_KIB = 4 * 1024 * 1024
 LIMIT_SECONDS = 24 * 3600
 

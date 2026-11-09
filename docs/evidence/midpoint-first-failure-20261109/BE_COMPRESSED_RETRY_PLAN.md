@@ -9,8 +9,13 @@ It does not alter the native binary or turn this diagnostic run into a cost
 benchmark. Both compressed and uncompressed byte hashes are retained; failed
 or interrupted output remains evidence. Stop at the first failed rung.
 
-The existing 3.2 GiB free-space, 4 GiB producer RSS and 24-hour guards remain.
-Do not start while the guard cannot be met. If a producer completes, require
+For this compressed retry the free-space guard is 3.1 GiB, while the 4 GiB
+producer RSS and 24-hour guards remain. The previous 3.2 GiB guard protected
+the much larger uncompressed trace; the compressed retry checks space every
+two seconds and stops 0.1 GiB above the concurrent spatial reference's 3.0 GiB
+guard. Its earlier partial trace compressed to 19.1 MiB plus 1.4 MiB log;
+this is a storage forecast, not a guaranteed bound. Preserve all streams if
+the guard stops the run. Do not start while the guard cannot be met. If a producer completes, require
 the original geometry, local mechanical, independently scaled residual,
 force-bin, sampled peak, total and cumulative impulse, replay, restoration,
 and identity gates before trying the next timestep. Record tested timesteps
