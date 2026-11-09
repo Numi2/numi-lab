@@ -23,7 +23,7 @@ for name,d,arm in ((be,c,"ipc_area"),(mid,m,"ipc_area_midpoint")):
  path=p/(tag+"-"+arm+".json");log=p/(tag+"-"+arm+".log");meta=p/(tag+"-"+arm+"-execution.json")
  if any(q.exists() for q in (path,log,meta)):raise SystemExit("attempt exists: "+str(path))
  env=os.environ.copy()
- for k in ("NM_MATTER_BE_VELOCITY_COMPENSATION","NM_MATTER_MIDPOINT_VELOCITY_COMPENSATION","NM_MATTER_MIDPOINT_STAGE_COMPENSATION"):env.pop(k,None)
+ for k in ("NM_MATTER_BE_VELOCITY_COMPENSATION","NM_MATTER_MIDPOINT_VELOCITY_COMPENSATION","NM_MATTER_MIDPOINT_STAGE_COMPENSATION","NM_MATTER_MIDPOINT_PRECONTACT_POLISH","NM_MATTER_MIDPOINT_DIAGNOSTIC_ROOT"):env.pop(k,None)
  if arm=="ipc_area":env["NM_MATTER_BE_VELOCITY_COMPENSATION"]="1"
  else:env["NM_MATTER_MIDPOINT_VELOCITY_COMPENSATION"]="1";env["NM_MATTER_MIDPOINT_STAGE_COMPENSATION"]="1"
  cmd=[str(exe),str(shader),str(d["h"]),str(d["accepted_steps"]),str(d["divisions"]),arm];start=time.monotonic()
