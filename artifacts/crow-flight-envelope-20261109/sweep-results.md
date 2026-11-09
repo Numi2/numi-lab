@@ -1,0 +1,3 @@
+# Sweep-joint authority probe
+
+The +0.30/+0.30 sweep offset reduced -0.03 lane median maximum heading error from 0.559 to 0.373 rad, with no physical terminations and median maximum sampled lateral speed 0.075 m/s. The preregistered steering-specific prediction was met. However, straight-lane median maximum speed error rose from 0.188 to 3.689 m/s and median maximum height error from 0.108 to 0.676 m; no lane passed the full screen. The negative offset caused physical failure in all 32 lanes. Thus the observed yaw authority is strongly coupled to forward/vertical dynamics and neither intervention is a usable controller.
