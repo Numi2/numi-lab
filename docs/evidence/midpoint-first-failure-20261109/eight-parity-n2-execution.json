@@ -1,0 +1,10 @@
+{
+  "mesh": 2,
+  "h": "0.00000025",
+  "returncode": 0,
+  "timed_out": false,
+  "wall_seconds_observational_only": 0.2733203750103712,
+  "byte_identical": true,
+  "sha256": "a37f254053b30e97b70223fc1f2f3d26028a0472aba0bf2136a92e9a7e11700e",
+  "inputs": "n128-eight-inputs.sha256"
+}

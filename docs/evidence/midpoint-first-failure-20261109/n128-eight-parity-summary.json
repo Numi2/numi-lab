@@ -1,0 +1,32 @@
+{
+  "2": {
+    "mesh": 2,
+    "h": "0.00000025",
+    "returncode": 0,
+    "timed_out": false,
+    "wall_seconds_observational_only": 0.2733203750103712,
+    "byte_identical": true,
+    "sha256": "a37f254053b30e97b70223fc1f2f3d26028a0472aba0bf2136a92e9a7e11700e",
+    "inputs": "n128-eight-inputs.sha256"
+  },
+  "8": {
+    "mesh": 8,
+    "h": "0.00000025",
+    "returncode": 0,
+    "timed_out": false,
+    "wall_seconds_observational_only": 12.600776665960439,
+    "byte_identical": true,
+    "sha256": "a5322e0e1baa78533551411815c7681b95b6ddb2a97837b3e426c5ff50eac6b8",
+    "inputs": "n128-eight-inputs.sha256"
+  },
+  "32": {
+    "mesh": 32,
+    "h": "0.0000005",
+    "returncode": 0,
+    "timed_out": false,
+    "wall_seconds_observational_only": 147.83273170900065,
+    "byte_identical": true,
+    "sha256": "eda9420292a73a338b22dd49e450b663068a05f67395e10e743632820c0fe151",
+    "inputs": "n128-eight-inputs.sha256"
+  }
+}
