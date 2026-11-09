@@ -5,3 +5,10 @@ The 1 microsecond trace has completed but its replay and final gate analysis are
 After that run finishes, use the same n=2 geometry, material, initial gap, 100 micrometre activation width, reference-area coefficient, physical tolerances and stateless precision mode. Test h=0.03125 microseconds (320,000 steps over 10 ms) first. Require full replay, rollback, all requested steps accepted, geometric and local mechanical checks, separately reported peak, 1 ms bins, total and cumulative impulse using the existing registered limits. Do not relax the gates or infer spatial accuracy from this 27-node fixture. If this fine run passes, test coarser powers of two until the first failure; if it fails, record the cause before selecting a smaller step. The largest passing result is largest only within the tested ladder. Performance measurements require a separate complete no-per-step-snapshot rollout on the same mesh and law, with source/binary fingerprints.
 
 Runs retain stdout, stderr, hashes and execution metadata, including interrupted or rejected runs. A free-space guard protects concurrent work. The initial h=0.03125 microsecond choice is a hypothesis, not a claim that it passes or is optimal.
+
+The follow-on supervisor `tests/contact/run_be_qualified_ladder.py` implements
+this predeclared doubling sequence only after the fine control passes every
+physical and replay gate with the same frozen inputs. It stops at the first
+failure, interruption, or storage/memory limit. Passing a tested rung does not
+establish that an untested intermediate timestep would pass; no timing result
+is produced by this accuracy supervisor.

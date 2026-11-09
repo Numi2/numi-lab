@@ -1,0 +1,34 @@
+{
+  "inputs_sha256": {
+    "/Users/numi/numi-matter-midpoint-compensated-build-20261109/evidence-be-precision-005/numi_plane_contact_probe_scaled": "f801a5d2532a6a51f0c9baea3c4cca2fbddc047911ca71c07dc91d95628bf734",
+    "/Users/numi/numi-matter-midpoint-compensated-build-20261109/evidence-be-precision-005/NumiMatter.metallib": "eebb5247813e6f510efedd6ef5f2d0d7a3bea840cb38966b3f2db48735ddb97f",
+    "/Users/numi/numi-lab-midpoint-compensated-20261109/docs/evidence/midpoint-spatial-cost-dynamic-20261108/rk4-n2-h025.json": "a37f254053b30e97b70223fc1f2f3d26028a0472aba0bf2136a92e9a7e11700e"
+  },
+  "ladder": [
+    [
+      "0000625",
+      "0.0000000625",
+      160000
+    ],
+    [
+      "000125",
+      "0.000000125",
+      80000
+    ],
+    [
+      "00025",
+      "0.00000025",
+      40000
+    ],
+    [
+      "0005",
+      "0.0000005",
+      20000
+    ],
+    [
+      "001",
+      "0.000001",
+      10000
+    ]
+  ]
+}
