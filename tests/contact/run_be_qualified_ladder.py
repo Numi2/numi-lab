@@ -35,13 +35,22 @@ if sys.argv[1:]:
 
 previous = evidence / "be-precision-005-n2-h00003125-execution.json"
 # Wait only for the already running, separately supervised fine control.
-while not previous.exists():
+# The producer writes JSON directly, so the pathname can appear before the
+# write completes. Do not interpret that short window as a failed experiment.
+producer_exit = None
+while True:
     try:
-        os.kill(94632, 0)
-    except ProcessLookupError:
-        raise SystemExit("fine-control supervisor exited without its execution record")
-    time.sleep(30)
-initial = json.loads(previous.read_text())
+        initial = json.loads(previous.read_text())
+        break
+    except (FileNotFoundError, json.JSONDecodeError):
+        try:
+            os.kill(94632, 0)
+        except ProcessLookupError:
+            if producer_exit is None:
+                producer_exit = time.monotonic()
+            elif time.monotonic() - producer_exit > 30:
+                raise SystemExit("fine-control supervisor exited without a complete execution record")
+        time.sleep(1 if producer_exit is not None else 30)
 if not initial.get("all_gates_pass"):
     print("fine-control accuracy/replay gate failed; no coarser run started", flush=True)
     raise SystemExit(1)
