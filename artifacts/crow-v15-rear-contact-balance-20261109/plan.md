@@ -1,0 +1,3 @@
+# Rear-contact balance screen
+
+Both signs of the previous delayed controller produced exactly identical accepted positions and velocities to the baseline across all 3000 published frames, indicating that its gated intervention had no measurable effect. Before running, use a threshold of one rear-contact increment on each side, retaining independent bilateral support gates, and reduce the hip correction to clamp(sign*(0.05*pitch+0.02*pitch_rate), -0.04, 0.04). Compare both signs to the identical no-balance baseline on the full-start exposed layout J. This is a contact-gated experiment, not proof of bird-realistic balance. The full gate remains all five waypoints, no physical failure, opposing toe loads and observed release, and 25 low-speed supported final samples.

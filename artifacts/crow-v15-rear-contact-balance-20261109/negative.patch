@@ -1,0 +1,14 @@
+--- a/toe-active.metal
++++ b/hip-balance-negative.metal
+@@ -5073,6 +5073,11 @@
+                     : bilateral ? mix(crouched,extended,smoothstep(4.96f,5.00f,seconds)) : crouched;
+             }
+         }
++        // Experimental hip balance; enabled only on bilateral measured support.
++        if (fixedFlightController && state.episode.z==10u && state.navigation.z>=5.0f &&
++            (action==7u || action==10u) && state.nutrition.x>0.05f && state.nutrition.y>0.05f && (state.status.w & 63u)>=1u && ((state.status.w>>6u)&63u)>=1u) {
++            navigationTeacherRequested=clamp(-1.0f*(0.05f*state.threatGeometry.z+0.02f*state.threatGeometry.w),-0.04f,0.04f);
++        }
+         // Keep the training-only teacher active through the final target.
+         // Ending at waypoint four taught an aggressive approach crossing but
+         // handed the student a poor terminal arrival geometry. Autonomous
