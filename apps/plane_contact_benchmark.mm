@@ -10,7 +10,7 @@ int main(int argc, char** argv) {
     const double h=std::stod(argv[2]);
     const int steps=std::stoi(argv[3]), divisions=std::stoi(argv[4]);
     const std::string arm=argv[5];
-    require(h>0 && steps>0 && steps<=10000 && divisions>=1 && divisions<=8,"invalid workload");
+    require(h>0 && steps>0 && steps<=320000 && divisions>=1 && divisions<=8,"invalid workload");
     require(arm=="ipc_area" || arm=="ipc_area_midpoint","invalid arm");
     const auto world=model(divisions,h,2.e-4,true,false,true,0.,1.);
     numi::matter::Runtime runtime;numi::matter::RuntimeConfiguration config;

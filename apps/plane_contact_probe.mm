@@ -265,7 +265,7 @@ int main(int argc,char** argv){
  @autoreleasepool {try{
     require(argc>=5,"usage: plane_contact_probe METALLIB timestep steps divisions [ipc|al|ipc_area] [initial-gap] [legacy|physical] [contact|freefall] [world|reference]");
     const double h=std::stod(argv[2]);const int steps=std::stoi(argv[3]),divisions=std::stoi(argv[4]);
-    require(h>0&&steps>0&&steps<=10000&&divisions>0&&divisions<=8,"invalid workload");
+    require(h>0&&steps>0&&steps<=320000&&divisions>0&&divisions<=8,"invalid workload");
     const std::string arm=argc>5?argv[5]:"ipc";require(arm=="ipc"||arm=="al"||arm=="ipc_area"||arm=="ipc_area_midpoint","invalid arm");
     const double startGap=argc>6?std::stod(argv[6]):2.e-4;
     const std::string policy=argc>7?argv[7]:"legacy";
