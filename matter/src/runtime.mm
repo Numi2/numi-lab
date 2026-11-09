@@ -60603,6 +60603,16 @@ void* Runtime::femAcceptedNodeBuffer() const noexcept {
     return state_ ? (__bridge void*)state_->femAccepted : nullptr;
 }
 
+void* Runtime::femMidpointCandidateDiagnosticBuffer() const noexcept {
+    return state_ && state_->captureDiagnostics && state_->experimentalFEMPlaneMidpoint
+        ? (__bridge void*)state_->femCandidate : nullptr;
+}
+
+void* Runtime::femMidpointEndpointDiagnosticBuffer() const noexcept {
+    return state_ && state_->captureDiagnostics && state_->experimentalFEMPlaneMidpoint
+        ? (__bridge void*)state_->femMidpointEndpoint : nullptr;
+}
+
 void* Runtime::parameterBuffer() const noexcept {
     return state_ ? (__bridge void*)state_->environmentParameters : nullptr;
 }
