@@ -1,0 +1,103 @@
+{
+  "revision": "49d38ab10dbb26036d1d6c0f515c7910d62fae7c",
+  "commands": [
+    [
+      "/usr/bin/clang++",
+      "-I/Users/numi/numi-lab-midpoint-compensated-20261109/include",
+      "-I/Users/numi/numi-lab-midpoint-compensated-20261109/matter/include",
+      "-x",
+      "objective-c++",
+      "-O3",
+      "-DNDEBUG",
+      "-std=c++23",
+      "-arch",
+      "arm64",
+      "-fPIE",
+      "-fobjc-arc",
+      "-Wall",
+      "-Wextra",
+      "-Wpedantic",
+      "-c",
+      "/Users/numi/numi-lab-midpoint-compensated-20261109/apps/midpoint_slider_coupled_diagnostic.mm",
+      "-o",
+      "/Users/numi/numi-matter-slider-owner-build-20261109/evidence-work-check-001/probe.o"
+    ],
+    [
+      "/usr/bin/clang++",
+      "-O3",
+      "-DNDEBUG",
+      "-arch",
+      "arm64",
+      "-Wl,-rpath,/Users/numi/numi-matter-slider-owner-build-20261109/lib",
+      "/Users/numi/numi-matter-slider-owner-build-20261109/evidence-work-check-001/probe.o",
+      "-o",
+      "/Users/numi/numi-matter-slider-owner-build-20261109/evidence-work-check-001/probe",
+      "/Users/numi/numi-matter-slider-owner-build-20261109/lib/libmetalrobo.dylib",
+      "-framework",
+      "Foundation",
+      "-framework",
+      "Metal"
+    ]
+  ],
+  "build": [
+    {
+      "exit_code": 0,
+      "stderr": "",
+      "wall_seconds_observational_only": 2.344481416977942
+    },
+    {
+      "exit_code": 0,
+      "stderr": "",
+      "wall_seconds_observational_only": 0.06873954203911126
+    }
+  ],
+  "runs": [
+    {
+      "name": "far",
+      "command": [
+        "/Users/numi/numi-matter-slider-owner-build-20261109/evidence-work-check-001/probe",
+        "/Users/numi/numi-matter-slider-owner-build-20261109/matter/shaders/NumiMatter.metallib",
+        "/Users/numi/numi-matter-slider-owner-build-20261109/shaders/MetalRobo.metallib",
+        "0.000015625",
+        "0.0002",
+        "1"
+      ],
+      "exit_code": 0,
+      "stdout_sha256": "06366038a3f841f32ad010bd774b2f452e3b6d0c21b8e62379567d61e631ca29",
+      "stderr_sha256": "683a0f591e02f87e0fecc9de883b025ac90e742e63a374f55dd2abb0b788312e",
+      "gate_ratio": 0,
+      "fem_impulse_Ns": 0,
+      "fem_work_J": 0,
+      "fem_law_work_J": 0,
+      "passes": true
+    },
+    {
+      "name": "near",
+      "command": [
+        "/Users/numi/numi-matter-slider-owner-build-20261109/evidence-work-check-001/probe",
+        "/Users/numi/numi-matter-slider-owner-build-20261109/matter/shaders/NumiMatter.metallib",
+        "/Users/numi/numi-matter-slider-owner-build-20261109/shaders/MetalRobo.metallib",
+        "0.000015625",
+        "0.000095",
+        "1"
+      ],
+      "exit_code": 0,
+      "stdout_sha256": "ce866c0e80991cd58df4484094f2bd02658dc15bf2667adb44357799fa5c3338",
+      "stderr_sha256": "683a0f591e02f87e0fecc9de883b025ac90e742e63a374f55dd2abb0b788312e",
+      "gate_ratio": 0.005811900466063627,
+      "fem_impulse_Ns": 3.8390845986668864e-06,
+      "fem_work_J": 3.448130602207425e-09,
+      "fem_law_work_J": 3.448130573395531e-09,
+      "passes": true
+    }
+  ],
+  "scope": "one accepted step, diagnostic only; no performance or complete-rollout claim",
+  "inputs_sha256": {
+    "/Users/numi/numi-lab-midpoint-compensated-20261109/apps/midpoint_slider_coupled_diagnostic.mm": "acb511f62af71ef25491e887700fe31d0143309347fe63fbf788c486cd907152",
+    "/Users/numi/numi-matter-slider-owner-build-20261109/evidence-work-check-001/probe": "98504902edc185f3f648a1ddd9d260cc7f9238f5d9cfaafd0e53bdf1d1cf3af6",
+    "/Users/numi/numi-matter-slider-owner-build-20261109/lib/libmetalrobo.dylib": "c94797265c854d146bff975988bfbedb68b60e5da462fd6e3470e8b4cc2b2fd0",
+    "/Users/numi/numi-matter-slider-owner-build-20261109/matter/shaders/NumiMatter.metallib": "72d2e238344e967f767b93cda4a5c1de6963d2212d219ed00e6b8a2b36b1b8ba",
+    "/Users/numi/numi-matter-slider-owner-build-20261109/shaders/MetalRobo.metallib": "f32b410bddf52679d06e66bd14263dcedcf25bf0fd1593375b8dece449f274f9"
+  },
+  "passes": true
+}
