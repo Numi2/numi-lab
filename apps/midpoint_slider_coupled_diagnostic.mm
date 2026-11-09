@@ -9,9 +9,21 @@
 struct SliderObservation {
  metalrobo::MetalWorldDevicePhysicsProgram inner{};
  id<MTLBuffer> wrench=nil, support=nil;
+ bool injectLateFailure=false;
+ std::uint32_t failureFlags=0u;
 };
 static bool observeSlider(void* opaque,const metalrobo::MetalWorldDevicePhysicsPass& pass){
  auto& o=*static_cast<SliderObservation*>(opaque);
+ if(o.injectLateFailure && pass.phase==metalrobo::MetalWorldDevicePhysicsPhase::postCommit){
+  id<MTLCommandBuffer> cmd=(__bridge id<MTLCommandBuffer>)pass.commandBuffer;
+  id<MTLBuffer> dst=(__bridge id<MTLBuffer>)pass.environmentStatuses;
+  MRMetalWorldStatusGPU failure{};failure.code=MR_STEP_DID_NOT_CONVERGE;failure.flags=o.failureFlags;
+  id<MTLBuffer> src=[cmd.commandQueue.device newBufferWithBytes:&failure length:sizeof(failure) options:MTLResourceStorageModeShared];
+  if(!src||!dst||dst.length<sizeof(failure))return false;
+  id<MTLBlitCommandEncoder> inject=[cmd blitCommandEncoder];if(!inject)return false;
+  [inject copyFromBuffer:src sourceOffset:0 toBuffer:dst destinationOffset:0 size:sizeof(failure)];[inject endEncoding];
+  [cmd addCompletedHandler:^(id<MTLCommandBuffer> done){(void)done;(void)src;}];
+ }
  if(!o.inner.encode(o.inner.context,pass))return false;
  if(pass.phase!=metalrobo::MetalWorldDevicePhysicsPhase::postCommit)return true;
  id<MTLCommandBuffer> command=(__bridge id<MTLCommandBuffer>)pass.commandBuffer;
@@ -48,15 +60,22 @@ static metalrobo::EngineModel makeSlider(float h){
  m.defaultQ={0};m.defaultV={0};return m;
 }
 int main(int argc,char**argv){@autoreleasepool{try{
- require(argc==6,"usage: midpoint_slider_coupled_diagnostic MATTER_METALLIB WORLD_METALLIB h initial_gap steps");
+ require(argc==6 || argc==7,"usage: midpoint_slider_coupled_diagnostic MATTER_METALLIB WORLD_METALLIB h initial_gap steps [rollback|rollback_precontact]");
+ const bool precontact=argc==7 && std::string(argv[6])=="rollback_precontact";
+ const bool rollback=precontact || (argc==7 && std::string(argv[6])=="rollback");
+ require(argc==6 || rollback,"unknown diagnostic mode");
  const double h=std::stod(argv[3]),gap=std::stod(argv[4]);const int steps=std::stoi(argv[5]);
- require(h>0&&gap>0&&steps>0,"invalid fixture arguments");
+ require(h>0&&gap>0&&(steps>0 || (precontact && steps==0)),"invalid fixture arguments");
  const auto femWorld=model(2,h,gap,true,false,true,0.,1.,true);
  numi::matter::RuntimeConfiguration mc;mc.metallib=argv[1];mc.environmentCount=1;mc.captureDiagnostics=true;
  mc.adaptiveTransfer=false;mc.experimentalFEMPlaneAreaIPC=true;mc.experimentalFEMPlaneMidpoint=true;
  mc.experimentalFEMPlaneSliderMidpoint=true;numi::matter::Runtime matter;
  const auto init=matter.initialize(femWorld,mc);require(init.encoded&&matter.valid(),"Matter initialize: "+init.message);
- const auto rigid=makeSlider(float(h));metalrobo::CompiledWorld world;
+ const auto rigid=makeSlider(float(h));
+ const double physicalH=double(float(h));
+ const double sliderMass=double(rigid.bodies[1].massAndInverseMass.x);
+ const double sliderGravity=double(rigid.world.gravityAndTimestep.z);
+ metalrobo::CompiledWorld world;
  const auto cooked=metalrobo::compileMetalWorld(rigid,0,world);require(cooked.succeeded(),"rigid compile: "+cooked.message);
  metalrobo::MetalWorldConfig ownerConfig{};ownerConfig.metallibPath=argv[2];metalrobo::MetalWorldContext owner(ownerConfig);
  SliderObservation obs;obs.inner=numi::matter::makeMetalWorldDevicePhysicsProgram(matter);require(obs.inner.valid(),"invalid Matter owner program");
@@ -66,7 +85,47 @@ int main(int argc,char**argv){@autoreleasepool{try{
  config.matrixFreeArticulatedContact=false;config.streamedArticulatedContactResponses=false;config.captureContactEvidence=false;
  config.devicePhysicsProgram=program;std::vector<float> q=rigid.defaultQ,v=rigid.defaultV,effort(1,0.f);
  auto previous=matter.snapshot();require(previous.available,"initial snapshot unavailable");
- std::cout<<std::setprecision(17)<<"{\"schema\":\"numi.slider-coupled-diagnostic.v1\",\"h\":"<<h
+ if(rollback){
+  // Warm up through real accepted contact. The selected checkpoint, candidate,
+  // forced late rejection and subsequent retry all use the same two owners.
+  auto advance=[&](metalrobo::MetalWorldResult& result){
+   const metalrobo::MetalWorldBatch batch{.environmentCount=1,.controlStepCount=1,
+       .initialQ=q,.initialV=v,.efforts=effort};
+   return owner.run(world,batch,config,result);
+  };
+  bool contactSeen=false;
+  for(int i=0;i<steps;++i){metalrobo::MetalWorldResult r;const auto d=advance(r);
+   require(d.succeeded() && r.finalQ.size()==1 && r.finalV.size()==1,"warmup failed: "+d.message);
+   q=r.finalQ;v=r.finalV;previous=matter.snapshot();require(previous.available,"warmup snapshot unavailable");
+   for(const auto& sample:previous.contactSamples)
+    contactSeen|=(sample.identity.w&NM_CONTACT_VALID) && sample.impulseAndNormal.w>0.f;
+  }
+  require(precontact ? !contactSeen : contactSeen,
+      precontact ? "precontact rollback checkpoint has contact" : "rollback checkpoint must follow nonzero contact");
+  const auto checkpoint=previous;const auto checkpointQ=q,checkpointV=v;
+  metalrobo::MetalWorldResult good;const auto goodStatus=advance(good);
+  require(goodStatus.succeeded(),"baseline continuation failed: "+goodStatus.message);
+  const auto goodMatter=matter.snapshot();require(goodMatter.available,"baseline snapshot unavailable");
+  obs.failureFlags=good.layout.dispatch.flags;
+  const auto restored=matter.restore(checkpoint);require(restored.encoded,"restore checkpoint failed: "+restored.message);
+  obs.injectLateFailure=true;metalrobo::MetalWorldResult rejected;const auto failure=advance(rejected);obs.injectLateFailure=false;
+  const auto failedMatter=matter.snapshot();require(failedMatter.available,"rejected snapshot unavailable");
+  const bool rigidRestored=bytesEqual(rejected.finalQ,checkpointQ)&&bytesEqual(rejected.finalV,checkpointV);
+  const bool matterRestored=physicalEqual(checkpoint,failedMatter)&&checkpoint.controlStep==failedMatter.controlStep &&
+      checkpoint.physicsSubstep==failedMatter.physicsSubstep;
+  require(!failure.succeeded()&&failure.firstGPUStatusCode==MR_STEP_DID_NOT_CONVERGE && rigidRestored && matterRestored,
+      "late failure category or whole-environment restoration failed: "+failure.message);
+  metalrobo::MetalWorldResult retry;const auto retryStatus=advance(retry);const auto retryMatter=matter.snapshot();
+  const bool exact=retryStatus.succeeded() && retryMatter.available &&
+      bytesEqual(good.finalQ,retry.finalQ)&&bytesEqual(good.finalV,retry.finalV)&&
+      physicalEqual(goodMatter,retryMatter)&&goodMatter.controlStep==retryMatter.controlStep &&
+      goodMatter.physicsSubstep==retryMatter.physicsSubstep;
+  require(exact,"accepted retry differs from uninterrupted continuation");
+  std::cout<<"{\"after_nonzero_contact\":"<<(contactSeen?"true":"false")<<",\"failure_category\":"<<failure.firstGPUStatusCode
+      <<",\"rigid_restored\":true,\"matter_restored\":true,\"retry_exact\":true}\n";
+  return 0;
+ }
+ std::cout<<std::setprecision(17)<<"{\"schema\":\"numi.slider-coupled-diagnostic.v1\",\"h\":"<<physicalH
    <<",\"initial_gap\":"<<gap<<",\"matter_fingerprint\":"<<matter.deviceProgramFingerprint()<<",\"steps\":[";
  for(int step=0;step<steps;step++){
   const auto startQ=q,startV=v;const metalrobo::MetalWorldBatch batch{.environmentCount=1,.controlStepCount=1,
@@ -89,13 +148,13 @@ int main(int argc,char**argv){@autoreleasepool{try{
    const double vm=.5*(physicalVelocity(previous,node,2)+physicalVelocity(now,node,2));work+=jz*vm;
   }
   for(const auto& n:now.femNodes)low=std::min(low,double(n.restAndFixed.z)+n.referenceDisplacementAndMode.z+n.referenceDisplacementLow.z-double(q[0]));
-  const double ownerImpulse=.01*(double(v[0])-double(startV[0]))-h*.01*(-9.81);
+  const double ownerImpulse=sliderMass*(double(v[0])-double(startV[0]))-physicalH*sliderMass*sliderGravity;
   const double ownerWork=ownerImpulse*.5*(double(startV[0])+double(v[0]));
   std::cout<<",\"gap\":"<<low<<",\"q\":"<<q[0]<<",\"v\":"<<v[0]<<",\"fem_impulse\":"<<impulse
-   <<",\"owner_momentum_impulse\":"<<ownerImpulse<<",\"owner_wrench_impulse\":"<<double(body.force.z)*h
+   <<",\"owner_momentum_impulse\":"<<ownerImpulse<<",\"owner_wrench_impulse\":"<<double(body.force.z)*physicalH
    <<",\"fem_torque_impulse_x\":"<<torqueX<<",\"fem_torque_impulse_y\":"<<torqueY
-   <<",\"owner_moment_impulse_x\":"<<double(body.torque.x)*h<<",\"owner_moment_impulse_y\":"<<double(body.torque.y)*h
-   <<",\"support_moment_impulse_x\":"<<double(support.torque.x)*h<<",\"support_moment_impulse_y\":"<<double(support.torque.y)*h
+   <<",\"owner_moment_impulse_x\":"<<double(body.torque.x)*physicalH<<",\"owner_moment_impulse_y\":"<<double(body.torque.y)*physicalH
+   <<",\"support_moment_impulse_x\":"<<double(support.torque.x)*physicalH<<",\"support_moment_impulse_y\":"<<double(support.torque.y)*physicalH
    <<",\"fem_contact_work\":"<<work<<",\"owner_contact_work\":"<<ownerWork<<"}";
   previous=std::move(now);
  }

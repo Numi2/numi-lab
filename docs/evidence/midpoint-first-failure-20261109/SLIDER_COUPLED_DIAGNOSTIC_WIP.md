@@ -14,8 +14,11 @@ contact works. It captures the owner data after the transaction rather than
 pretending a prescribed plane is dynamic. Its source and both diagnostic and
 default runtime branches pass host syntax checks.
 
-The fixture has not been built or run with full MetalWorld and Matter shader
-libraries. It does not yet exercise the requested whole-environment failure
-and retry, nor establish force accuracy, work convergence, torque balance, or
-spatial convergence. All predeclared gates remain in force and the production
-guard remains closed.
+The fixture now also has separate pre-contact and after-nonzero-contact
+late-failure modes. They compare the entire physical Matter snapshot and rigid
+q/v with the checkpoint, and compare a retry to an uninterrupted continuation.
+Those modes have passed host syntax checking but have not been run. The fixture
+has not been built or run with full MetalWorld and Matter shader libraries, so
+it establishes no whole-environment restoration, force accuracy, work
+convergence, torque balance, or spatial convergence. All predeclared gates
+remain in force and the production guard remains closed.
