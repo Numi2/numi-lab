@@ -1,12 +1,17 @@
 #!/usr/bin/env python3
 """Run one complete cost pair only after both accuracy gates pass."""
-import hashlib,json,math,os,pathlib,subprocess,sys,time
+import gzip,hashlib,json,math,os,pathlib,subprocess,sys,time
 root=pathlib.Path(__file__).resolve().parents[2];p=root/"docs/evidence/midpoint-first-failure-20261109"
 b=pathlib.Path("/Users/numi/numi-matter-midpoint-compensated-build-20261109/evidence-be-precision-005")
 if len(sys.argv)!=4:raise SystemExit("usage: cost.py MIDPOINT_PREFIX BE_PREFIX OUTPUT_TAG")
 mid,be,tag=sys.argv[1:]
 if not tag.replace("-","").isalnum() or any("/" in x for x in (mid,be)):raise SystemExit("invalid evidence name")
-def load(name,suffix):return json.loads((p/(name+suffix)).read_text())
+def load(name,suffix):
+ path=p/(name+suffix); compressed=path.with_name(path.name+".gz")
+ if path.exists() and compressed.exists():raise SystemExit("ambiguous evidence: "+str(path))
+ if compressed.exists():
+  with gzip.open(compressed,"rt") as f:return json.load(f)
+ return json.loads(path.read_text())
 def qualified(name,arm):
  d=load(name,".json");a=load(name,"-analysis.json");e=load(name,"-execution.json")
  if not (a.get("passes") and e.get("all_gates_pass") and d["arm"]==arm and d["rejected_steps"]==0 and d["restore_replay"] and d["continuation_replay"] and d["forced_rollback_exact"] and d["identity_mismatch_rejected"]):raise SystemExit("accuracy gate not satisfied: "+name)

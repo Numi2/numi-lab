@@ -1,0 +1,32 @@
+{
+  "compressed_trace_matches_plain": true,
+  "same_exit_code": 1,
+  "failed_producer_exit_preserved": 7,
+  "stdout_bytes": 4194304,
+  "stdout_sha256": "2b07811057df887086f06a67edc6ebf911de8b6741156e7a2eb1416a4b8b1b2e",
+  "stderr_preserved": "failure preserved",
+  "cost_loader_accepts_gzip": true,
+  "cost_loader_rejects_ambiguous_evidence": true,
+  "normal_accuracy_result": {
+    "area_sum_abs_error_m2": 3.9208799997979965e-11,
+    "area_sum_m2": 0.0003999999607912,
+    "area_valid": true,
+    "arm": "ipc_area",
+    "binned_force_error": 0.051849195177721415,
+    "complete": true,
+    "cumulative_impulse_error": 0.011446927896292746,
+    "cumulative_reference_sampling_seconds": 2e-06,
+    "h": 1e-06,
+    "maximum_weight_error_normalized_area": 2.4505500032618796e-08,
+    "mesh": 2,
+    "native_impulse_Ns": 0.0005007765762454542,
+    "native_peak_force_N": 0.719553877815,
+    "passes": false,
+    "peak_force_error": 0.007065616743764044,
+    "peak_sampling_seconds": 1e-06,
+    "physical_valid": true,
+    "reference_impulse_Ns": 0.0005065753072617215,
+    "reference_peak_force_N": 0.7246741476060986,
+    "total_impulse_error": 0.011446927896292746
+  }
+}

@@ -1,8 +1,10 @@
 #!/usr/bin/env python3
 """Compare accepted native force impulses to one temporally qualified mesh."""
-import json,math,sys
-with open(sys.argv[1]) as f: a=json.load(f)
-with open(sys.argv[2]) as f: r=json.load(f)
+import gzip,json,math,sys
+def load(path):
+ with (gzip.open(path, "rt") if path.endswith(".gz") else open(path)) as f: return json.load(f)
+a=load(sys.argv[1])
+r=load(sys.argv[2])
 assert a['divisions']==r['mesh_divisions']
 steps=round(.01/a['h'])
 complete=a['accepted_steps']==steps and a['rejected_steps']==0 and len(a['traces'])==steps
