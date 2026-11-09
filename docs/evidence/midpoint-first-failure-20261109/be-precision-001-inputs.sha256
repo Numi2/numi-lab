@@ -1,0 +1,6 @@
+76d901d443cc05440a07b69cf29be5c350d563e9babd4c9f3914fd058043e53e  matter/src/runtime.mm
+ad457a85390cd187e01fd2856945156da9d88a00a67d2c663962a65c329fac31  matter/src/metal/fem.metalinc
+32e9f80deeaeed30b5e8b27e68159fcaa32a6abeba04614741e036e030e5e990  matter/src/metal/contact.metalinc
+18443d003677dcb73fd3fe65e0ad7d0e2717557c9172622fd9e71189ed931cc6  apps/plane_contact_probe.mm
+eebb5247813e6f510efedd6ef5f2d0d7a3bea840cb38966b3f2db48735ddb97f  /Users/numi/numi-matter-midpoint-compensated-build-20261109/evidence-be-precision-001/NumiMatter.metallib
+42d2e97bb978191fd1258d322583198f3f4364861ea3aba408c95ee2f2a9c47b  /Users/numi/numi-matter-midpoint-compensated-build-20261109/evidence-be-precision-001/numi_plane_contact_probe_scaled

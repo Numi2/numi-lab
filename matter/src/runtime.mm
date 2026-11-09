@@ -3311,6 +3311,7 @@ struct Runtime::State {
     bool experimentalFEMPlaneMidpoint = false;
     bool midpointVelocityCompensation = false;
     bool midpointStageVelocityCompensation = false;
+    bool experimentalFEMPlaneBEPrecision = false;
     id<MTLBuffer> femMidpointVelocityStageLow = nil;
     id<MTLBuffer> femMidpointVelocityLowAccepted = nil;
     id<MTLBuffer> femMidpointVelocityLowEndpoint = nil;
@@ -7956,6 +7957,33 @@ RuntimeDiagnostics Runtime::initialize(
             }
             candidate->midpointStageVelocityCompensation = true;
         }
+        if (const char* value = std::getenv("NM_MATTER_BE_VELOCITY_COMPENSATION")) {
+            const bool eligible = std::strcmp(value,"1") == 0 &&
+                configuration.experimentalFEMPlaneAreaIPC &&
+                !configuration.experimentalFEMPlaneMidpoint &&
+                !configuration.experimentalFEMPlaneAugmentedLagrangian &&
+                configuration.captureDiagnostics && !configuration.enablePhysicalStateDigest &&
+                world.dispatch.environmentCount == 1u && world.objects.size() == 1u &&
+                world.contact.rigidProxies.size() == 1u &&
+                world.dispatch.deformableContactCapacity == 0u &&
+                world.mixedSolver.contactAcceptance.w > 0.0f &&
+                std::isfinite(world.mixedSolver.contactAcceptance.w) &&
+                std::isfinite(world.mixedSolver.contactAcceptance.y) &&
+                std::isfinite(world.mixedSolver.contactAcceptance.z) &&
+                world.mixedSolver.contactAcceptance.y >= 0.0f &&
+                world.mixedSolver.contactAcceptance.z > 0.0f &&
+                std::getenv("NM_MATTER_MIDPOINT_VELOCITY_COMPENSATION") == nullptr &&
+                std::getenv("NM_MATTER_MIDPOINT_STAGE_COMPENSATION") == nullptr &&
+                std::getenv("NM_MATTER_MIDPOINT_PRECONTACT_POLISH") == nullptr &&
+                std::getenv("NM_MATTER_MIDPOINT_DIAGNOSTIC_ROOT") == nullptr;
+            if (!eligible) {
+                diagnostics.message = "backward Euler precision research requires the scoped physical fixed-plane fixture";
+                return diagnostics;
+            }
+            candidate->experimentalFEMPlaneBEPrecision = true;
+            candidate->midpointVelocityCompensation = true;
+            candidate->midpointStageVelocityCompensation = true;
+        }
         if (const char* polish = std::getenv("NM_MATTER_MIDPOINT_PRECONTACT_POLISH")) {
             if (std::strcmp(polish,"1") != 0 || !configuration.experimentalFEMPlaneMidpoint ||
                 !configuration.captureDiagnostics || world.dispatch.environmentCount != 1u) {
@@ -8487,6 +8515,8 @@ RuntimeDiagnostics Runtime::initialize(
             candidate->executionFingerprint = mixFingerprint(candidate->executionFingerprint, 0x4d504c4f57563031ull);
         if (candidate->midpointStageVelocityCompensation)
             candidate->executionFingerprint = mixFingerprint(candidate->executionFingerprint, 0x4d50535441474531ull);
+        if (candidate->experimentalFEMPlaneBEPrecision)
+            candidate->executionFingerprint = mixFingerprint(candidate->executionFingerprint, 0x4245505245433031ull);
         if (candidate->midpointPrecontactPolishEnabled)
             candidate->executionFingerprint = mixFingerprint(candidate->executionFingerprint, 0x4d50504f4c495348ull);
         if (candidate->midpointDiagnosticCaptureEnabled) {
@@ -12707,23 +12737,23 @@ RuntimeDiagnostics Runtime::initialize(
                 candidate->device, world.fem.nodes.size(), valid, candidate->residentBytes);
             candidate->femMidpointResults = privateScratch<std::uint32_t>(
                 candidate->device, world.fem.nodes.size(), valid, candidate->residentBytes);
-            if (candidate->midpointVelocityCompensation) {
-                const std::vector<nm_float4> zeros(world.fem.nodes.size());
-                candidate->femMidpointVelocityStageLow = uploads.repeated(
-                    std::span<const nm_float4>(zeros), environments, valid, candidate->residentBytes);
-                candidate->femMidpointVelocityLowAccepted = uploads.repeated(
-                    std::span<const nm_float4>(zeros), environments, valid, candidate->residentBytes);
-                candidate->femMidpointVelocityLowEndpoint = uploads.repeated(
-                    std::span<const nm_float4>(zeros), environments, valid, candidate->residentBytes);
-                candidate->femMidpointVelocityLowCheckpoint = uploads.repeated(
-                    std::span<const nm_float4>(zeros), environments, valid, candidate->residentBytes);
-            }
             if (candidate->midpointDiagnosticCaptureEnabled) {
                 candidate->femMidpointDiagnosticCandidate = privateScratch<NMFEMNodeStateGPU>(
                     candidate->device, world.fem.nodes.size(), valid, candidate->residentBytes);
                 candidate->femMidpointDiagnosticResidual = privateScratch<nm_float4>(
                     candidate->device, world.fem.nodes.size(), valid, candidate->residentBytes);
             }
+        }
+        if (candidate->midpointVelocityCompensation) {
+            const std::vector<nm_float4> zeros(world.fem.nodes.size());
+            candidate->femMidpointVelocityStageLow = uploads.repeated(
+                std::span<const nm_float4>(zeros), environments, valid, candidate->residentBytes);
+            candidate->femMidpointVelocityLowAccepted = uploads.repeated(
+                std::span<const nm_float4>(zeros), environments, valid, candidate->residentBytes);
+            candidate->femMidpointVelocityLowEndpoint = uploads.repeated(
+                std::span<const nm_float4>(zeros), environments, valid, candidate->residentBytes);
+            candidate->femMidpointVelocityLowCheckpoint = uploads.repeated(
+                std::span<const nm_float4>(zeros), environments, valid, candidate->residentBytes);
         }
         candidate->femCheckpoint = uploads.repeated(
             std::span<const NMFEMNodeStateGPU>(world.fem.nodes),
@@ -19000,7 +19030,7 @@ RuntimeDiagnostics Runtime::encodeImpl(
             diagnostics.message = "unknown Matter encode phase";
             return diagnostics;
         }
-        if (state.experimentalFEMPlaneMidpoint &&
+        if ((state.experimentalFEMPlaneMidpoint || state.experimentalFEMPlaneBEPrecision) &&
             (request.physicsSubsteps != 1u || request.physicsSubstep != 0u ||
              request.resetMasks != nullptr || request.resetMaskStepStride != 0u ||
              request.femExternalForces != nullptr || request.femKinematicTargets != nullptr ||
@@ -52850,7 +52880,9 @@ RuntimeDiagnostics Runtime::encodeImpl(
                     [encoder setBytes:&count length:sizeof(count) atIndex:0u];
                     [encoder setBuffer:state.statuses offset:0u atIndex:1u];
                     [encoder setBuffer:state.femMidpointVelocityLowAccepted offset:0u atIndex:2u];
-                    [encoder setBuffer:state.femMidpointVelocityLowEndpoint offset:0u atIndex:3u];
+                    [encoder setBuffer:(state.experimentalFEMPlaneBEPrecision
+                        ? state.femMidpointVelocityStageLow : state.femMidpointVelocityLowEndpoint)
+                                 offset:0u atIndex:3u];
                 });
             }
             dispatchThreads("nm_fem_commit_microstep", femTransactionalTotal, [&] {
