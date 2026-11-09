@@ -1,0 +1,209 @@
+{
+  "course": "reserved-final-d",
+  "seed": "20860118",
+  "argv": [
+    "/Users/n/Developer/numi-crow-rl-20261107/build/bin/metalrobo_task_rollout",
+    "--birdflow-american-crow-journey",
+    "--birdflow-journey-variant",
+    "v15-hierarchical-navigation",
+    "--metallib",
+    "/Users/n/Developer/numi-crow-rl-20261107/build/crow-expanded-gate-dagger-20261109/recovery.metallib",
+    "--birdflow-navigation-course",
+    "reserved-final-d",
+    "--envs",
+    "16",
+    "--steps",
+    "3000",
+    "--repeats",
+    "1",
+    "--chunk",
+    "1",
+    "--physics-substeps",
+    "4",
+    "--seed",
+    "20860118",
+    "--no-scheduled-resets",
+    "--minimum-difficulty-band",
+    "10",
+    "--maximum-difficulty-band",
+    "10",
+    "--policy-pack",
+    "/Users/n/Developer/numi-crow-rl-20261107/build/crow-gate-terminal-training-20261109/landing-actor.policypack",
+    "--visual-observation-config",
+    "assets/crow_navigation_course/crow-navigation.active-head.visual-observation.json",
+    "--state-trace",
+    "/Users/n/Developer/numi-crow-rl-20261107/build/crow-expanded-gate-dagger-20261109/reserved-final-d.tsv",
+    "--state-trace-environment",
+    "1",
+    "--base-policy-pack",
+    "/Users/n/Developer/numi-crow-rl-20261107/build/crow-stage2-ablation-expert-20261109/combined-expert.policypack",
+    "--birdflow-journey-teacher",
+    "--birdflow-journey-student-authority",
+    "1",
+    "--rollout-pack",
+    "/Users/n/Developer/numi-crow-rl-20261107/build/crow-expanded-gate-dagger-20261109/layout-d.rollout"
+  ],
+  "raw_pack_bytes": 190848988,
+  "raw_pack_sha256": "258432e20506e140a07470881a835d0335cb892d8ddfc4682962541ad24e9fd8",
+  "compressed_pack_bytes": 78453190,
+  "compressed_pack_sha256": "30797634d51cb96393cd0f17d6efc2ebf8c8a262be9ce050cc3f7a0dff268487",
+  "round_trip_verified": true,
+  "frozen_controller_sha256": "aa2fe10901cb0494d80ae445902303a17ce0e73d030072bab09461d8f3593ebe",
+  "shader_sha256": "6e42126940fc6ea0542913c48e57e81b50457621f812581fae62aa74007a5e55",
+  "library_sha256": "63b977cfbc8af3725cfb19dbb117e5f397b033d2db3bfeaf78d46f41721e784c",
+  "policy_sha256": "7dde7051cb1e4537a6a2b3932f29c370130d4a85f339b4c65c292fcd2c6201be",
+  "base_policy_sha256": "f2bf7fece70d4cdddf399f623e7d4bed3f46127376422216c42fe8436d536511",
+  "failed_environment_steps": 0,
+  "lanes": [
+    {
+      "lane": 0,
+      "steps": 3000,
+      "waypoints": 5,
+      "physical_failure": false,
+      "terminal_support_steps": 25,
+      "eligible": true
+    },
+    {
+      "lane": 1,
+      "steps": 3000,
+      "waypoints": 5,
+      "physical_failure": false,
+      "terminal_support_steps": 25,
+      "eligible": true
+    },
+    {
+      "lane": 2,
+      "steps": 3000,
+      "waypoints": 5,
+      "physical_failure": false,
+      "terminal_support_steps": 25,
+      "eligible": true
+    },
+    {
+      "lane": 3,
+      "steps": 3000,
+      "waypoints": 5,
+      "physical_failure": false,
+      "terminal_support_steps": 25,
+      "eligible": true
+    },
+    {
+      "lane": 4,
+      "steps": 3000,
+      "waypoints": 5,
+      "physical_failure": false,
+      "terminal_support_steps": 25,
+      "eligible": true
+    },
+    {
+      "lane": 5,
+      "steps": 3000,
+      "waypoints": 5,
+      "physical_failure": false,
+      "terminal_support_steps": 25,
+      "eligible": true
+    },
+    {
+      "lane": 6,
+      "steps": 3000,
+      "waypoints": 5,
+      "physical_failure": false,
+      "terminal_support_steps": 25,
+      "eligible": true
+    },
+    {
+      "lane": 7,
+      "steps": 3000,
+      "waypoints": 5,
+      "physical_failure": false,
+      "terminal_support_steps": 25,
+      "eligible": true
+    },
+    {
+      "lane": 8,
+      "steps": 3000,
+      "waypoints": 5,
+      "physical_failure": false,
+      "terminal_support_steps": 25,
+      "eligible": true
+    },
+    {
+      "lane": 9,
+      "steps": 3000,
+      "waypoints": 5,
+      "physical_failure": false,
+      "terminal_support_steps": 25,
+      "eligible": true
+    },
+    {
+      "lane": 10,
+      "steps": 3000,
+      "waypoints": 5,
+      "physical_failure": false,
+      "terminal_support_steps": 25,
+      "eligible": true
+    },
+    {
+      "lane": 11,
+      "steps": 3000,
+      "waypoints": 5,
+      "physical_failure": false,
+      "terminal_support_steps": 25,
+      "eligible": true
+    },
+    {
+      "lane": 12,
+      "steps": 3000,
+      "waypoints": 5,
+      "physical_failure": false,
+      "terminal_support_steps": 25,
+      "eligible": true
+    },
+    {
+      "lane": 13,
+      "steps": 3000,
+      "waypoints": 5,
+      "physical_failure": false,
+      "terminal_support_steps": 25,
+      "eligible": true
+    },
+    {
+      "lane": 14,
+      "steps": 3000,
+      "waypoints": 5,
+      "physical_failure": false,
+      "terminal_support_steps": 25,
+      "eligible": true
+    },
+    {
+      "lane": 15,
+      "steps": 3000,
+      "waypoints": 5,
+      "physical_failure": false,
+      "terminal_support_steps": 25,
+      "eligible": true
+    }
+  ],
+  "eligible_lanes": 16,
+  "sampling": "teacher labels on; full student route and landing until lane-specific physical recovery; first episode only",
+  "student_takeover_steps": [
+    1000,
+    1050,
+    1100,
+    1150,
+    1000,
+    1050,
+    1100,
+    1150,
+    1000,
+    1050,
+    1100,
+    1150,
+    1000,
+    1050,
+    1100,
+    1150
+  ],
+  "student_prefix_compared_samples": 168,
+  "student_prefix_mismatches": 0
+}
