@@ -1,0 +1,19 @@
+{
+  "commit": "0155fcd4e",
+  "source": "independent GitHub content API download",
+  "remote_download_and_restore_verified": true,
+  "records": [
+    {
+      "archive": "be-precision-005-n2-h00003125.json.gz",
+      "archive_sha256": "411f44cd5275c98b7febf52972cec53774c6261e4be549ff76398b18c0228f68",
+      "restored_sha256": "310a31067a3648f46df31a8856636225edeedacf1588a8e84eadacc458e3d299",
+      "restored_bytes": 167034880
+    },
+    {
+      "archive": "be-precision-005-n2-h00003125.log.gz",
+      "archive_sha256": "165900580cbe9f414e80b3f83764d9b2ff7cd74e979e3271d04f8fc933bdc263",
+      "restored_sha256": "d9f78f38ea597ea4a5419dca1db60340a476dcf12ba2419983cac2856f30a4d5",
+      "restored_bytes": 51491798
+    }
+  ]
+}
