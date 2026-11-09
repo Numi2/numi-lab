@@ -1,0 +1,3 @@
+# New-seed paired waypoint correction
+
+Compare the 75%-interpolated route and the waypoint-two-only correction on the production task with the same frozen flight and landing policies. Use three known development courses and fresh seeds 20270219, 20270220 and 20270221, 16 full starts each, teacher off and no intermediate resets. The correction was fitted using a seed from the preceding comparison, so these seeds are a new development check. Predict at least as many supported finishes on each course and an overall reduction in slalom collisions. Report every first-episode outcome and endpoint-sampled clearance; final layouts remain unused.
