@@ -20,6 +20,8 @@ struct CandidateProbe {
 };
 static bool candidateProbeEncode(void* opaque,const metalrobo::MetalWorldDevicePhysicsPass& pass){
  auto& p=*static_cast<CandidateProbe*>(opaque);
+ if(pass.sliderMidpointMechanicalDataValid || pass.sliderMidpointMassKg != 0.0f ||
+    pass.sliderMidpointGravityForceNewtons != 0.0f)return false;
  if(pass.phase==metalrobo::MetalWorldDevicePhysicsPhase::postCommit){p.post=true;return true;}
  if(pass.environmentCount!=1 || pass.nv!=1 || pass.qStride!=1 || pass.bodyStateStride<2 ||
     pass.encodeCoupledCandidate==nullptr || pass.coupledCandidateContext==nullptr)return false;

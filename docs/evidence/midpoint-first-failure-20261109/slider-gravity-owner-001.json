@@ -1,0 +1,27 @@
+{
+  "results": [
+    {
+      "command": [
+        "/Users/numi/numi-matter-slider-owner-build-20261109/bin/numi_midpoint_slider_owner_step_probe",
+        "/Users/numi/numi-matter-slider-owner-build-20261109/shaders/MetalRobo.metallib"
+      ],
+      "exit": 0,
+      "stdout": "{\"schema\":\"numi.slider-owner-midpoint-step.v1\",\"accepted_steps\":16,\"owner_mass_and_gravity_metadata_checked\":true,\"max_position_error_m\":6.8808532683499804e-12,\"max_velocity_error_mps\":2.3177080255010196e-09,\"max_stage_velocity_error_mps\":1.7488794301634414e-09,\"rotating_joint_rejected\":true,\"extra_effort_rejected\":true,\"missing_candidate_rejected\":true,\"late_rejection_and_retry_exact\":true,\"legacy_publish_rejected\":true,\"nonfinite_stage_rejected_restored\":true,\"scope\":\"MetalWorld only; no Matter contact\"}\n",
+      "stderr": "nonfinite status=3 succeeded=0 qsize=1 vsize=1 q=0 v=0.02 message=one or more MetalWorld control steps rolled back after a GPU environment failure: status=3 environment=0 control_step=0\nfault pre=1 post=1 succeeded=0 steps=1 code=11 message=one or more MetalWorld control steps rolled back after a GPU environment failure: status=11 environment=0 control_step=0\n"
+    },
+    {
+      "command": [
+        "/Users/numi/numi-matter-slider-owner-build-20261109/bin/numi_midpoint_slider_candidate_owner_probe",
+        "/Users/numi/numi-matter-slider-owner-build-20261109/shaders/MetalRobo.metallib"
+      ],
+      "exit": 0,
+      "stdout": "{\"schema\":\"numi.slider-owner-half-step-candidate.v1\",\"half_q\":1.3500000022759195e-05,\"full_q\":2.7000000045518391e-05,\"half_body_z\":1.3500000022759195e-05,\"full_body_z\":2.7000000045518391e-05,\"half_point_jacobian_z\":1,\"full_point_jacobian_z\":1,\"underflow_rejected\":true,\"owner_final_q\":1.0190000466536731e-05,\"owner_final_v\":0.01018999982625246,\"scope\":\"borrowed scratch kinematics; not a coupled midpoint transaction\"}\n",
+      "stderr": ""
+    }
+  ],
+  "hashes": {
+    "/Users/numi/numi-matter-slider-owner-build-20261109/shaders/MetalRobo.metallib": "86c460874ae5eed46d49ab930c15bc80a5a61480ce14d6824df79371a5e91809",
+    "/Users/numi/numi-matter-slider-owner-build-20261109/bin/numi_midpoint_slider_owner_step_probe": "7d6e744f5c4cf0ad59373f12b34226c3dbc5313859024ec0a7a614ccbc10e425",
+    "/Users/numi/numi-matter-slider-owner-build-20261109/bin/numi_midpoint_slider_candidate_owner_probe": "8b2e528372bd33f354485e6302bc64f66fedfaf4830cd7c23d3b35316de8b5e8"
+  }
+}

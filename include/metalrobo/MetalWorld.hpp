@@ -446,6 +446,13 @@ struct MetalWorldDevicePhysicsPass {
     std::uint32_t articulatedInverseMassFlags = 0u;
     std::uint32_t resetMaskStepStride = 0u;
     float timestepSeconds = 0.0f;
+    // Valid only for the explicitly admitted one-axis midpoint owner. These
+    // are the same compiled-body mass and world-z gravity force used by its
+    // publisher, not a general articulation force or a free-motion predictor.
+    // Non-midpoint passes expose false and canonical zero values.
+    bool sliderMidpointMechanicalDataValid = false;
+    float sliderMidpointMassKg = 0.0f;
+    float sliderMidpointGravityForceNewtons = 0.0f;
 };
 
 using MetalWorldDevicePhysicsEncode = bool (*)(

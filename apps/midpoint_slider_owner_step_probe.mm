@@ -8,6 +8,9 @@
 struct OwnerProbe {float acceleration=0;id<MTLBuffer> increment=nil;id<MTLBuffer> output=nil;id<MTLBuffer> stageQ=nil;id<MTLBuffer> stageBodies=nil;bool pre=false,post=false,skip=false,inject=false,legacyPublish=false,poison=false;std::uint32_t statusFlags=0;};
 static bool encodeOwner(void* opaque,const metalrobo::MetalWorldDevicePhysicsPass& pass){
  auto& p=*static_cast<OwnerProbe*>(opaque);
+ if(!pass.sliderMidpointMechanicalDataValid ||
+    !std::isfinite(pass.sliderMidpointMassKg) || !(pass.sliderMidpointMassKg>0) ||
+    pass.sliderMidpointGravityForceNewtons != pass.sliderMidpointMassKg * -9.81f)return false;
  if(pass.phase==metalrobo::MetalWorldDevicePhysicsPhase::postCommit){
   p.post=true;
   if(p.inject){
@@ -44,7 +47,7 @@ static bool encodeOwner(void* opaque,const metalrobo::MetalWorldDevicePhysicsPas
  return pass.encodeCoupledCandidate(pass.coupledCandidateContext,pass,q);
 }
 static void abortOwner(void*,void*){}
-static metalrobo::EngineModel slider(float h,float v,bool rotate=false){
+static metalrobo::EngineModel slider(float h,float v,bool rotate=false,float mass=.01f){
  metalrobo::EngineModel model;model.name="midpoint_slider_owner_step";
  model.world.abiVersion=MR_ENGINE_ABI_VERSION;model.world.bodyCount=2;model.world.articulationCount=1;
  model.world.jointCount=1;model.world.nq=1;model.world.nv=1;model.world.pairCapacity=1;
@@ -53,7 +56,7 @@ static metalrobo::EngineModel slider(float h,float v,bool rotate=false){
  model.world.gravityAndTimestep={0,0,-9.81f,h};model.world.solverScales={1e-8f,1e-9f,2,1e-4f};
  MRArticulationGPU a{};a.rootBody=0;a.rootType=MR_ROOT_FIXED;a.firstBody=0;a.bodyCount=2;a.firstJoint=0;
  a.jointCount=1;a.qOffset=0;a.nq=1;a.vOffset=0;a.nv=1;model.articulations.push_back(a);
- model.bodies.push_back(body(MR_INVALID_INDEX,MR_INVALID_INDEX,1));model.bodies.push_back(body(0,0,.01f));
+ model.bodies.push_back(body(MR_INVALID_INDEX,MR_INVALID_INDEX,1));model.bodies.push_back(body(0,0,mass));
  model.bodies[1].dampingAndSpeedLimits={0,0,0,0};
  MRJointDescriptorGPU j{};j.parentBody=0;j.childBody=1;j.jointType=rotate?MR_JOINT_REVOLUTE:MR_JOINT_PRISMATIC;
  j.qOffset=0;j.nq=1;j.vOffset=0;j.nv=1;j.axis0={0,0,1,0};j.parentRotation={0,0,0,1};j.childRotation={0,0,0,1};model.joints.push_back(j);
@@ -67,7 +70,7 @@ static metalrobo::MetalWorldDiagnostics run(const std::string& shader,metalrobo:
  metalrobo::MetalWorldStepConfig config{};config.timestepSeconds=h;config.physicsSubsteps=1;
  config.solverMode=metalrobo::MetalWorldSolverMode::freeMotionABA;config.ccdMode=metalrobo::MetalWorldCCDMode::disabled;
  config.matrixFreeArticulatedContact=false;config.streamedArticulatedContactResponses=false;config.captureContactEvidence=false;
- probe.acceleration=-9.81f+force/.01f;config.devicePhysicsProgram.context=&probe;
+ probe.acceleration=-9.81f+force/model.bodies[1].massAndInverseMass.x;config.devicePhysicsProgram.context=&probe;
  config.devicePhysicsProgram.encode=&encodeOwner;config.devicePhysicsProgram.abort=&abortOwner;
  config.devicePhysicsProgram.fingerprint=0x5ee124f0a9bdfc10ull;
  config.devicePhysicsProgram.flags=metalrobo::MetalWorldDevicePhysicsOwnsCoupledCandidate|metalrobo::MetalWorldDevicePhysicsOwnsSliderMidpoint;
@@ -77,11 +80,11 @@ static metalrobo::MetalWorldDiagnostics run(const std::string& shader,metalrobo:
 }
 int main(int argc,char**argv){@autoreleasepool{try{
  require(argc==2,"usage: midpoint_slider_owner_step_probe METALLIB");
- double maxQ=0,maxV=0,maxStageV=0;for(float h:{.001f,.002f})for(float v:{.02f,-.03f})for(float force:{0.f,.015f}){
-  OwnerProbe p;metalrobo::MetalWorldResult result;auto d=run(argv[1],slider(h,v),h,force,p,result);
+ double maxQ=0,maxV=0,maxStageV=0;for(float mass:{.01f,.025f})for(float h:{.001f,.002f})for(float v:{.02f,-.03f})for(float force:{0.f,.015f}){
+  OwnerProbe p;metalrobo::MetalWorldResult result;auto d=run(argv[1],slider(h,v,false,mass),h,force,p,result);
   require(d.succeeded(),"midpoint owner step: "+d.message);require(p.pre&&p.post&&result.finalQ.size()==1&&result.finalV.size()==1,"missing midpoint output");
   require(result.layout.devicePhysicsFingerprint!=0x5ee124f0a9bdfc10ull,"midpoint execution fingerprint aliases original");
-  const double acceleration=double(-9.81f)+double(force)/double(.01f);
+  const double acceleration=double(-9.81f)+double(force)/double(mass);
   const double expectedQ=double(h)*double(v)+.5*double(h)*double(h)*acceleration;
   const double expectedV=double(v)+double(h)*acceleration;
   const double expectedStageV=double(v)+.5*double(h)*acceleration;
@@ -119,5 +122,5 @@ int main(int argc,char**argv){@autoreleasepool{try{
  auto restored=initial;restored.defaultQ=rejected.finalQ;restored.defaultV=rejected.finalV;
  OwnerProbe retryProbe;metalrobo::MetalWorldResult retry;auto retried=run(argv[1],restored,.001f,.015f,retryProbe,retry,0,&reusable);
  require(retried.succeeded()&&sameBytes(retry.finalQ,good.finalQ)&&sameBytes(retry.finalV,good.finalV),"restored slider retry differs from accepted state");
- std::cout<<std::setprecision(17)<<"{\"schema\":\"numi.slider-owner-midpoint-step.v1\",\"accepted_steps\":8,\"max_position_error_m\":"<<maxQ<<",\"max_velocity_error_mps\":"<<maxV<<",\"max_stage_velocity_error_mps\":"<<maxStageV<<",\"rotating_joint_rejected\":true,\"extra_effort_rejected\":true,\"missing_candidate_rejected\":true,\"late_rejection_and_retry_exact\":true,\"legacy_publish_rejected\":true,\"nonfinite_stage_rejected_restored\":true,\"scope\":\"MetalWorld only; no Matter contact\"}\n";return 0;
+ std::cout<<std::setprecision(17)<<"{\"schema\":\"numi.slider-owner-midpoint-step.v1\",\"accepted_steps\":16,\"owner_mass_and_gravity_metadata_checked\":true,\"max_position_error_m\":"<<maxQ<<",\"max_velocity_error_mps\":"<<maxV<<",\"max_stage_velocity_error_mps\":"<<maxStageV<<",\"rotating_joint_rejected\":true,\"extra_effort_rejected\":true,\"missing_candidate_rejected\":true,\"late_rejection_and_retry_exact\":true,\"legacy_publish_rejected\":true,\"nonfinite_stage_rejected_restored\":true,\"scope\":\"MetalWorld only; no Matter contact\"}\n";return 0;
  }catch(const std::exception&e){std::cerr<<e.what()<<"\n";return 1;}}}

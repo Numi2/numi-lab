@@ -40,3 +40,23 @@ hashes and both outputs are recorded in
 This repairs a necessary owner contract only. The moving-plane Matter guard
 remains closed; these tests do not qualify a two-owner contact transaction,
 its impulses, moments, interface work or full-environment replay.
+
+
+## Owner mass and gravity handoff
+
+The explicitly admitted slider owner now reports the compiled dynamic body
+mass and the world-z gravitational force it uses in midpoint publication.
+They are read-only pass metadata, and ordinary owner calls report an invalid
+marker and zero values. This supplies a single owner-derived source for a
+future coupled residual; Matter does not yet consume it and its dynamic
+admission guard remains closed.
+
+The native owner probe passed sixteen steps across two masses, two timesteps,
+two initial velocities, and two loads. It checked the reported force against
+its owner mass and gravity, the full-step position and velocity, and stage
+velocity. The worst errors were 6.89e-12 m, 2.32e-9 m/s and 1.75e-9 m/s,
+respectively. The ordinary candidate probe verified the absence of midpoint
+metadata. The native trace and binary/shader hashes are in
+`slider-gravity-owner-001.json`; the three focused CTests passed in
+`slider-gravity-owner-ctest-001.log`. These tests still do not exercise Matter
+contact or establish coupled impulse, torque, work, or restoration.

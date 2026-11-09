@@ -11769,6 +11769,11 @@ bool encodeDevicePhysicsProgram(
         .articulatedInverseMassFlags = layout.inverseMassDispatch.flags,
         .resetMaskStepStride = layout.dispatch.resetMaskStepStride,
         .timestepSeconds = layout.contactDispatch.timestepAndBias.x,
+        .sliderMidpointMechanicalDataValid = context.sliderMidpointActive,
+        .sliderMidpointMassKg = context.sliderMidpointActive
+            ? world.model().bodies[1].massAndInverseMass.x : 0.0f,
+        .sliderMidpointGravityForceNewtons = context.sliderMidpointActive
+            ? context.sliderMidpointGravityForce : 0.0f,
     };
     const bool encoded = config.devicePhysicsProgram.encode(
         config.devicePhysicsProgram.context, physics);
