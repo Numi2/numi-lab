@@ -1,0 +1,29 @@
+[
+  {
+    "trial": "ground-20261122",
+    "teacher_samples": 1280,
+    "teacher_off_samples": 1280,
+    "matched_keys": 1280,
+    "qv_differences": 0,
+    "first_differences": [],
+    "teacher_off_nonempty_labels": 0
+  },
+  {
+    "trial": "ground-20261123",
+    "teacher_samples": 1280,
+    "teacher_off_samples": 1280,
+    "matched_keys": 1280,
+    "qv_differences": 0,
+    "first_differences": [],
+    "teacher_off_nonempty_labels": 0
+  },
+  {
+    "trial": "airborne",
+    "teacher_samples": 640,
+    "teacher_off_samples": 640,
+    "matched_keys": 640,
+    "qv_differences": 0,
+    "first_differences": [],
+    "teacher_off_nonempty_labels": 0
+  }
+]
