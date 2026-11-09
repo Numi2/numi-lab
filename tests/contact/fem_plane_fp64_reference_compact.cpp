@@ -16,6 +16,8 @@
 
 struct CompactModel {
  int n;
+ bool surfaceQuadrature=false,gradedZ=false;
+ std::vector<Triangle> triangles;
  std::vector<double> mass,area;
  State initial;
 #ifdef NUMI_COMPACT_TEMPLATE_INVERSE
@@ -28,7 +30,8 @@ struct CompactModel {
   v[0]=id(x,y,z);v[1]=id(x+1,y,z);v[2]=id(x,y+1,z);v[3]=id(x+1,y+1,z);
   v[4]=id(x,y,z+1);v[5]=id(x+1,y,z+1);v[6]=id(x,y+1,z+1);v[7]=id(x+1,y+1,z+1);
  }
- explicit CompactModel(int divisions):n(divisions) {
+ explicit CompactModel(int divisions,bool quadratureEnabled=false,bool graded=false):
+  n(divisions),surfaceQuadrature(quadratureEnabled),gradedZ(graded) {
   if(n<1||n>256)throw std::runtime_error("invalid mesh capacity");
   const int count=(n+1)*(n+1)*(n+1);
   initial.x.resize(count);initial.v.resize(count);mass.assign(count,0);area.assign(count,0);
@@ -42,7 +45,8 @@ struct CompactModel {
   }
 #endif
   for(int z=0;z<=n;++z)for(int y=0;y<=n;++y)for(int x=0;x<=n;++x)
-   initial.x[id(x,y,z)]={.02*x/n,.02*y/n,.0002+.02*z/n};
+   {const double u=double(z)/n;const double depth=gradedZ?(u+u*u)*.5:u;
+    initial.x[id(x,y,z)]={.02*x/n,.02*y/n,.0002+.02*depth};}
   for(int z=0;z<n;++z)for(int y=0;y<n;++y)for(int x=0;x<n;++x) {
    int v[8];vertices(x,y,z,v);
    for(const auto& t:mesh) {
@@ -51,7 +55,10 @@ struct CompactModel {
     for(int i:t)mass[v[i]]+=1100*volume/4;
    }
    if(z==0){const double share=.02*.02/(n*n*6.);
-    for(int i:{0,1,3,0,3,2})area[v[i]]+=share;}
+    for(int i:{0,1,3,0,3,2})area[v[i]]+=share;
+    if(surfaceQuadrature){const double triangleArea=.02*.02/(2.*n*n);
+     triangles.push_back({{v[0],v[1],v[3]},triangleArea});
+     triangles.push_back({{v[0],v[3],v[2]},triangleArea});}}
   }
  }
  double pressure(double g)const {
@@ -108,8 +115,13 @@ struct CompactModel {
     });
    if(ctx.invalid.load(std::memory_order_relaxed))throw std::runtime_error("invalid element");
   }
+  if(surfaceQuadrature)for(const auto& triangle:triangles)for(const auto& q:quadrature){
+   double gap=0;for(int j=0;j<3;++j)gap+=q.n[j]*s.x[triangle.id[j]].z;
+   const double force=triangle.area*q.w*pressure(gap);r.impulse+=force;
+   for(int j=0;j<3;++j)f[triangle.id[j]].z+=q.n[j]*force;
+  }
   for(size_t i=0;i<mass.size();++i){
-   if(area[i]){const double force=area[i]*pressure(s.x[i].z);f[i].z+=force;r.impulse+=force;}
+   if(!surfaceQuadrature && area[i]){const double force=area[i]*pressure(s.x[i].z);f[i].z+=force;r.impulse+=force;}
    r.v[i]=f[i]*(1./mass[i]);r.v[i].z-=9.81;
   }
   return r;
@@ -146,9 +158,10 @@ int main(int argc,char** argv){try{
    <<",\"max_velocity_error_mps\":"<<velocityError<<",\"max_position_error_m\":"<<positionError<<"}\n";
   return 0;
  }
- if(argc==2 && std::string(argv[1])=="--parity"){
+ if(argc==2 && (std::string(argv[1])=="--parity" || std::string(argv[1])=="--parity-quadrature")){
+  const bool q=std::string(argv[1])=="--parity-quadrature";
   double maxRelative=0,maxMass=0,maxArea=0,maxImpulse=0;
-  for(int n:{2,4,8}){Model reference(n);CompactModel compact(n);State s=reference.initial;
+  for(int n:{2,4,8}){Model reference(n,.0002,q,q);CompactModel compact(n,q,q);State s=reference.initial;
    for(size_t i=0;i<s.x.size();++i){s.x[i].z-=.000105;
     s.x[i].x+=1e-5*std::sin(double(i)*.13);s.x[i].z+=1e-6*std::cos(double(i)*.37);
     s.v[i]={.01*std::sin(double(i)),.02*std::cos(double(i)),0};}
@@ -167,11 +180,14 @@ int main(int argc,char** argv){try{
   if(maxRelative>1e-10||maxMass!=0||maxArea!=0||maxImpulse!=0)throw std::runtime_error("reference parity failed");
   return 0;
  }
- if(argc!=4)throw std::runtime_error("usage: compact divisions timestep duration");
+ if(argc<4)throw std::runtime_error("usage: compact divisions timestep duration [--surface-quadrature] [--graded-z]");
  const int n=std::stoi(argv[1]);const double h=std::stod(argv[2]),duration=std::stod(argv[3]);
+ bool q=false,graded=false;for(int i=4;i<argc;++i){const std::string flag=argv[i];
+  if(flag=="--surface-quadrature")q=true;else if(flag=="--graded-z")graded=true;
+  else throw std::runtime_error("unknown option: "+flag);}
  if(!(h>0)||duration!=.01||std::abs(std::round(duration/h)*h-duration)>1e-12||
     std::abs(std::round(.000002/h)*h-.000002)>1e-12)throw std::runtime_error("invalid time grid");
- CompactModel m(n);State s=m.initial;std::array<double,10> bins{};double minGap=1,peak=0,first=-1,lastForce=0;
+ CompactModel m(n,q,graded);State s=m.initial;std::array<double,10> bins{};double minGap=1,peak=0,first=-1,lastForce=0;
  const long traceStride=std::lround(.000002/h),steps=std::lround(duration/h);
  std::vector<std::array<double,3>> trace{{0.,m.rhs(s).impulse,0.}};
  for(long i=0;i<steps;++i){
@@ -195,6 +211,6 @@ int main(int argc,char** argv){try{
  for(size_t i=0;i<m.area.size();++i)std::cout<<(i?",":"")<<m.area[i];
  std::cout<<"],\"trace\":[";
  for(size_t i=0;i<trace.size();++i)std::cout<<(i?",":"")<<"["<<trace[i][0]<<","<<trace[i][1]<<","<<trace[i][2]<<"]";
- std::cout<<"]}\n";
+ std::cout<<"]";if(q||graded)std::cout<<",\"surface_quadrature\":"<<(q?"true":"false")<<",\"graded_z\":"<<(graded?"true":"false");std::cout<<"}\n";
  return 0;
  }catch(const std::exception& e){std::cerr<<e.what()<<"\n";return 1;}}

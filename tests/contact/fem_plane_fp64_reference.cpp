@@ -40,18 +40,34 @@ M edges(V p0,V p1,V p2,V p3) {
  return m;
 }
 struct Tet { std::array<int,4> id; M inv; double volume; };
+// Independent reference implementation: constants deliberately do not share
+// the production quadrature header. Weights integrate over unit area.
+struct Triangle { std::array<int,3> id; double area; };
+struct Quadrature { std::array<double,3> n; double w; };
+constexpr Quadrature quadrature[7]={
+ {{{1./3,1./3,1./3}},.225},
+ {{{.059715871789770,.470142064105115,.470142064105115}},.132394152788506},
+ {{{.470142064105115,.059715871789770,.470142064105115}},.132394152788506},
+ {{{.470142064105115,.470142064105115,.059715871789770}},.132394152788506},
+ {{{.797426985353087,.101286507323456,.101286507323456}},.125939180544827},
+ {{{.101286507323456,.797426985353087,.101286507323456}},.125939180544827},
+ {{{.101286507323456,.101286507323456,.797426985353087}},.125939180544827}
+};
 struct State { std::vector<V> x,v; double impulse=0; };
 struct Change { std::vector<V> x,v; double impulse=0; };
 struct Model {
- std::vector<Tet> tets;std::vector<double> mass,area;
+ std::vector<Tet> tets;std::vector<Triangle> triangles;std::vector<double> mass,area;
+ bool surfaceQuadrature=false,gradedZ=false;
  double d=1e-4,k=1e16,mu=2000,lambda=5000;
  State initial;
- explicit Model(int n, double initialGap=.0002){
+ explicit Model(int n, double initialGap=.0002,bool quadratureEnabled=false,bool graded=false):
+  surfaceQuadrature(quadratureEnabled),gradedZ(graded){
   int count=(n+1)*(n+1)*(n+1);initial.x.resize(count);initial.v.resize(count);
   mass.assign(count,0);area.assign(count,0);
   auto id=[n](int x,int y,int z){return (z*(n+1)+y)*(n+1)+x;};
   for(int z=0;z<=n;++z)for(int y=0;y<=n;++y)for(int x=0;x<=n;++x)
-   initial.x[id(x,y,z)]={.02*x/n,.02*y/n,initialGap+.02*z/n};
+   {const double u=double(z)/n;const double depth=gradedZ?(u+u*u)*.5:u;
+    initial.x[id(x,y,z)]={.02*x/n,.02*y/n,initialGap+.02*depth};}
   constexpr int mesh[6][4]={{0,1,3,7},{0,3,2,7},{0,2,6,7},{0,6,4,7},{0,4,5,7},{0,5,1,7}};
   for(int z=0;z<n;++z)for(int y=0;y<n;++y)for(int x=0;x<n;++x){
    int v[8]={id(x,y,z),id(x+1,y,z),id(x,y+1,z),id(x+1,y+1,z),
@@ -64,6 +80,9 @@ struct Model {
    }
    if(z==0){
     const double share=.02*.02/(n*n*6.);
+    if(surfaceQuadrature){const double triangleArea=.02*.02/(2.*n*n);
+      triangles.push_back({{v[0],v[1],v[3]},triangleArea});
+      triangles.push_back({{v[0],v[3],v[2]},triangleArea});}
     for(int i:{0,1,3,0,3,2})area[v[i]]+=share;
    }
   }
@@ -87,10 +106,15 @@ struct Model {
   for(size_t i=0;i<mass.size();++i){
    out+=mass[i]*9.81*s.x[i].z;
    double g=s.x[i].z;
-   if(area[i] && g<d){
+   if(!surfaceQuadrature && area[i] && g<d){
     if(g<=0)throw std::runtime_error("nonpositive gap");
     double q=g*g-d*d;out-=area[i]*k*q*q*std::log(g*g/(d*d));
    }
+  }
+  if(surfaceQuadrature)for(const auto& triangle:triangles)for(const auto& q:quadrature){
+   double g=0;for(int j=0;j<3;++j)g+=q.n[j]*s.x[triangle.id[j]].z;
+   if(g<d){if(g<=0)throw std::runtime_error("nonpositive gap");
+    const double off=g*g-d*d;out-=triangle.area*q.w*k*off*off*std::log(g*g/(d*d));}
   }
   return out;
  }
@@ -110,8 +134,13 @@ struct Model {
     f[e.id[j+1]]+=v;f[e.id[0]]+=v*(-1);
    }
   }
+  if(surfaceQuadrature)for(const auto& triangle:triangles)for(const auto& q:quadrature){
+   double g=0;for(int j=0;j<3;++j)g+=q.n[j]*s.x[triangle.id[j]].z;
+   const double force=triangle.area*q.w*pressure(g);r.impulse+=force;
+   for(int j=0;j<3;++j)f[triangle.id[j]].z+=q.n[j]*force;
+  }
   for(size_t i=0;i<mass.size();++i){
-   if(area[i]){double fz=area[i]*pressure(s.x[i].z);f[i].z+=fz;r.impulse+=fz;}
+   if(!surfaceQuadrature && area[i]){double fz=area[i]*pressure(s.x[i].z);f[i].z+=fz;r.impulse+=fz;}
    r.v[i]=f[i]*(1./mass[i]);r.v[i].z-=9.81;
   }
   return r;
@@ -124,9 +153,11 @@ State add(const State& s,const Change& k,double h) {
 }
 int main(int argc,char**argv){
  try{
-  if(argc==2 && std::string(argv[1])=="--selftest"){
-   Model m(2);State s=m.initial;
+  if(argc==2 && (std::string(argv[1])=="--selftest" || std::string(argv[1])=="--selftest-quadrature")){
+   const bool quadratic=std::string(argv[1])=="--selftest-quadrature";
+   Model m(2,.0002,quadratic,quadratic);State s=m.initial;
    for(auto& p:s.x){p.z=.000095+(p.z-.0002)*.98;p.x+=.02*(p.z-.000095);}
+   if(quadratic)for(size_t i=0;i<s.x.size();++i)if(m.area[i])s.x[i].z+=1.e-6*(double(i%3)-1);
    Change f=m.rhs(s);double maxerr=0,maxforce=0;const double eps=1e-9;
    for(size_t i=0;i<s.x.size();++i)for(int j=0;j<3;++j){
     State a=s,b=s;double *u=j==0?&a.x[i].x:j==1?&a.x[i].y:&a.x[i].z;
@@ -139,18 +170,24 @@ int main(int argc,char**argv){
    if(maxerr/std::max(maxforce,1e-30)>1e-6)throw std::runtime_error("force/energy mismatch");
    return 0;
   }
-  if(argc!=4 && argc!=5)throw std::runtime_error("usage: reference divisions h duration [initial_gap]");
+  if(argc<4)throw std::runtime_error("usage: reference divisions h duration [initial_gap] [--surface-quadrature] [--graded-z]");
   int n=std::atoi(argv[1]);double h=std::atof(argv[2]),duration=std::atof(argv[3]);
   if(n<1||n>NUMI_FEM_REFERENCE_MAX_DIVISIONS||h<=0||duration!=.01||std::abs(std::round(duration/h)*h-duration)>1e-12
      ||std::abs(std::round(.001/h)*h-.001)>1e-12)throw std::runtime_error("invalid arguments");
-  const double initialGap=argc==5?std::atof(argv[4]):.0002;
+  double initialGap=.0002;bool suppliedGap=false,quadratureEnabled=false,graded=false;
+  for(int i=4;i<argc;++i){const std::string a=argv[i];
+   if(a=="--surface-quadrature")quadratureEnabled=true;
+   else if(a=="--graded-z")graded=true;
+   else if(!suppliedGap && !a.empty() && a[0]!='-'){initialGap=std::atof(argv[i]);suppliedGap=true;}
+   else throw std::runtime_error("invalid reference option");
+  }
   if(!(initialGap>0.)||!std::isfinite(initialGap))throw std::runtime_error("invalid initial gap");
-  Model m(n,initialGap);State s=m.initial;std::array<double,10> bins{};double minGap=1,peak=0,first=-1,lastForce=0;
-  if(argc==5){lastForce=m.rhs(s).impulse;peak=lastForce;if(lastForce>0)first=0;}
+  Model m(n,initialGap,quadratureEnabled,graded);State s=m.initial;std::array<double,10> bins{};double minGap=1,peak=0,first=-1,lastForce=0;
+  if(suppliedGap){lastForce=m.rhs(s).impulse;peak=lastForce;if(lastForce>0)first=0;}
   const long requestedStride=std::lround(.000002/h);
   const long traceStride=requestedStride>=1 && std::abs(requestedStride*h-.000002)<=1e-12 ? requestedStride : 0;
   std::vector<std::array<double,3>> trace{{0.,m.rhs(s).impulse,0.}};
-  std::vector<std::array<double,2>> episodes;double episodeStart=argc==5 && lastForce>0 ? 0 : -1;
+  std::vector<std::array<double,2>> episodes;double episodeStart=suppliedGap && lastForce>0 ? 0 : -1;
   long steps=std::lround(duration/h);
   for(long i=0;i<steps;++i){
    Change a=m.rhs(s),b=m.rhs(add(s,a,h/2)),c=m.rhs(add(s,b,h/2)),d=m.rhs(add(s,c,h));
@@ -176,13 +213,14 @@ int main(int argc,char**argv){
    <<",\"onset_time_s\":"<<first<<",\"peak_force_N\":"<<peak<<",\"impulse_Ns\":"<<s.impulse
    <<",\"final_momentum_Ns\":"<<pz<<",\"final_center_z_m\":"<<com/totalMass<<",\"force_bins_N\":[";
   for(int i=0;i<10;++i)std::cout<<(i?",":"")<<bins[i];
-  if(argc==5)std::cout<<"],\"initial_gap_m\":"<<initialGap<<",\"contact_area_weights_m2\":[";
+  if(suppliedGap)std::cout<<"],\"initial_gap_m\":"<<initialGap<<",\"contact_area_weights_m2\":[";
   else std::cout<<"],\"contact_area_weights_m2\":[";
   for(size_t i=0;i<m.area.size();++i)std::cout<<(i?",":"")<<m.area[i];
   std::cout<<"],\"trace\":[";
   for(size_t i=0;i<trace.size();++i)std::cout<<(i?",":"")<<"["<<trace[i][0]<<","<<trace[i][1]<<","<<trace[i][2]<<"]";
   std::cout<<"],\"contact_episodes_s\":[";
   for(size_t i=0;i<episodes.size();++i)std::cout<<(i?",":"")<<"["<<episodes[i][0]<<","<<episodes[i][1]<<"]";
-  std::cout<<"]}\n";
+  std::cout<<"]";if(quadratureEnabled||graded)std::cout<<",\"surface_quadrature\":"<<(quadratureEnabled?"true":"false")<<",\"graded_z\":"<<(graded?"true":"false");std::cout<<"}\n";
+  return 0;
  }catch(const std::exception& e){std::cerr<<e.what()<<"\n";return 1;}
 }

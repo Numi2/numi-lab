@@ -6,13 +6,14 @@
 
 int main(int argc, char** argv) {
  @autoreleasepool { try {
-    require(argc==6,"usage: plane_contact_benchmark METALLIB timestep steps divisions ipc_area|ipc_area_midpoint");
+    require(argc==6 || (argc==7 && std::string(argv[6])=="--graded-z"),"usage: plane_contact_benchmark METALLIB timestep steps divisions ipc_area|ipc_area_midpoint [--graded-z]");
+    const bool gradedZ=argc==7;
     const double h=std::stod(argv[2]);
     const int steps=std::stoi(argv[3]), divisions=std::stoi(argv[4]);
     const std::string arm=argv[5];
     require(h>0 && steps>0 && steps<=320000 && divisions>=1 && divisions<=8,"invalid workload");
     require(arm=="ipc_area" || arm=="ipc_area_midpoint","invalid arm");
-    const auto world=model(divisions,h,2.e-4,true,false,true,0.,1.);
+    const auto world=model(divisions,h,2.e-4,true,false,true,0.,1.,false,gradedZ);
     numi::matter::Runtime runtime;numi::matter::RuntimeConfiguration config;
     config.metallib=argv[1];config.environmentCount=1;config.captureDiagnostics=true;
     config.adaptiveTransfer=false;config.experimentalFEMPlaneAreaIPC=true;
@@ -49,7 +50,7 @@ int main(int argc, char** argv) {
     const unsigned status=final.statuses.empty()?NM_STATUS_INVALID_DISPATCH:final.statuses[0].code;
     std::cout<<std::setprecision(17)<<"{\"schema\":\"numi.matter.rollout-cost.v1\",\"device\":\""<<device.name.UTF8String
       <<"\",\"arm\":\""<<arm<<"\",\"h\":"<<h<<",\"divisions\":"<<divisions
-      <<",\"requested_steps\":"<<steps<<",\"accepted_steps\":"<<accepted<<",\"rejected_steps\":"<<rejected
+      <<",\"graded_z\":"<<(gradedZ?"true":"false")<<",\"requested_steps\":"<<steps<<",\"accepted_steps\":"<<accepted<<",\"rejected_steps\":"<<rejected
       <<",\"status\":"<<status<<",\"wall_seconds\":"<<wall<<",\"gpu_seconds\":"<<gpu
       <<",\"accepted_simulated_seconds\":"<<accepted*h<<",\"accepted_seconds_per_wall_second\":"<<accepted*h/wall
       <<",\"final_physical_sha256\":\""<<physicalDigest(final)<<"\""

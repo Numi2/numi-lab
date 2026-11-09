@@ -198,7 +198,7 @@ FixtureResidual fixtureResidual(const numi::matter::CompiledWorld& world,
     }
     r.l2=std::sqrt(r.l2);r.frozenVelocityMinimum=std::sqrt(r.frozenVelocityMinimum);return r;
 }
-numi::matter::CompiledWorld model(int divisions,double h,double startGap,bool physical,bool freefall,bool reference,double initialVelocity,double toleranceFactor,bool articulatedPlane=false){
+numi::matter::CompiledWorld model(int divisions,double h,double startGap,bool physical,bool freefall,bool reference,double initialVelocity,double toleranceFactor,bool articulatedPlane=false,bool gradedZ=false){
     auto parsed=numi::matter::parseMatter(R"MAT(
 material test_pad {
  parameter density : kg/m^3 = 1100 in [1000,1200];
@@ -233,7 +233,8 @@ material test_pad {
     object.femInitialVelocity={0,0,initialVelocity};
     const auto index=[&](int x,int y,int z){return std::uint32_t((z*(divisions+1)+y)*(divisions+1)+x);};
     for(int z=0;z<=divisions;++z)for(int y=0;y<=divisions;++y)for(int x=0;x<=divisions;++x)
-        object.femNodes.push_back({.02*x/divisions,.02*y/divisions,startGap+.02*z/divisions});
+        {const double u=double(z)/divisions;const double depth=gradedZ?(u+u*u)*.5:u;
+         object.femNodes.push_back({.02*x/divisions,.02*y/divisions,startGap+.02*depth});}
     const int tetra[6][4]={{0,1,3,7},{0,3,2,7},{0,2,6,7},{0,6,4,7},{0,4,5,7},{0,5,1,7}};
     for(int z=0;z<divisions;++z)for(int y=0;y<divisions;++y)for(int x=0;x<divisions;++x){
         const std::uint32_t v[8]={index(x,y,z),index(x+1,y,z),index(x,y+1,z),index(x+1,y+1,z),
@@ -253,7 +254,18 @@ material test_pad {
     if(physical) {
         std::vector<double> nodalMass(object.femNodes.size(),0.0);
         const double portion=1100.*.02*.02*.02/(24.*divisions*divisions*divisions);
-        for(const auto& tet:object.tetrahedra)for(auto id:tet.nodes)nodalMass[id]+=portion;
+        for(const auto& tet:object.tetrahedra){
+            double contribution=portion;
+            if(gradedZ){const auto& a=object.femNodes[tet.nodes[0]];const auto& b=object.femNodes[tet.nodes[1]];
+                const auto& c=object.femNodes[tet.nodes[2]];const auto& d=object.femNodes[tet.nodes[3]];
+                const double bx=b[0]-a[0],by=b[1]-a[1],bz=b[2]-a[2];
+                const double cx=c[0]-a[0],cy=c[1]-a[1],cz=c[2]-a[2];
+                const double dx=d[0]-a[0],dy=d[1]-a[1],dz=d[2]-a[2];
+                const double sixV=std::abs(bx*(cy*dz-cz*dy)-by*(cx*dz-cz*dx)+bz*(cx*dy-cy*dx));
+                require(std::isfinite(sixV)&&sixV>0.,"invalid graded tetrahedron");contribution=1100.*sixV/24.;
+            }
+            for(auto id:tet.nodes)nodalMass[id]+=contribution;
+        }
         double sum=0.;for(double m:nodalMass)sum+=m*m;
         source.mixedSolver.mechanicalAbsoluteImpulseTolerance=toleranceFactor*.00025*9.81*h*(*std::min_element(nodalMass.begin(),nodalMass.end()));
         source.mixedSolver.mechanicalRelativeImpulseTolerance=.00225*(*std::min_element(nodalMass.begin(),nodalMass.end()))/std::sqrt(sum);
@@ -279,7 +291,9 @@ int main(int argc,char** argv){
     const double initialVelocity=argc>11?std::stod(argv[11]):0.;
     const double toleranceFactor=argc>13?std::stod(argv[13]):1.;
     require(toleranceFactor>0 && std::isfinite(toleranceFactor),"invalid tolerance factor");
-    const auto world=model(divisions,h,startGap,policy=="physical",freefall,reference,initialVelocity,toleranceFactor);
+    const bool gradedZ=argc>14 && std::string(argv[14])=="graded-z";
+    require(argc<=15 && (argc<=14 || gradedZ),"invalid mesh option");
+    const auto world=model(divisions,h,startGap,policy=="physical",freefall,reference,initialVelocity,toleranceFactor,false,gradedZ);
     numi::matter::Runtime runtime;numi::matter::RuntimeConfiguration config;
     config.metallib=argv[1];config.environmentCount=1;config.captureDiagnostics=true;config.adaptiveTransfer=false;
     config.experimentalFEMPlaneAugmentedLagrangian=arm=="al";
@@ -351,7 +365,7 @@ int main(int argc,char** argv){
         <<",\"contact_area_m2\":"<<totalArea<<",\"contact_area_weights_m2\":[";
     for(size_t i=0;i<area.size();++i)std::cout<<(i?",":"")<<area[i];
     std::cout<<"]"
-        <<",\"area_ipc_k_N_per_m5\":"<<(config.experimentalFEMPlaneAreaIPC?config.experimentalFEMPlaneAreaIPCK:0.f)<<",\"residual_policy\":\""<<policy<<"\",\"coordinate_mode\":\""<<(reference?"reference_displacement":"world_position")<<"\",\"freefall_control\":"<<(freefall?"true":"false")<<",\"mechanical_absolute_tolerance_Ns\":"<<world.mixedSolver.contactAcceptance.y<<",\"mechanical_relative_tolerance\":"<<world.mixedSolver.contactAcceptance.z<<",\"mechanical_impulse_scale_Ns\":"<<world.mixedSolver.contactAcceptance.w<<",\"source_fingerprint\":"<<world.physicsFingerprint<<",\"device_fingerprint\":"<<runtime.deviceProgramFingerprint()<<",\"traces\":[";
+        <<",\"graded_z\":"<<(gradedZ?"true":"false")<<",\"area_ipc_k_N_per_m5\":"<<(config.experimentalFEMPlaneAreaIPC?config.experimentalFEMPlaneAreaIPCK:0.f)<<",\"residual_policy\":\""<<policy<<"\",\"coordinate_mode\":\""<<(reference?"reference_displacement":"world_position")<<"\",\"freefall_control\":"<<(freefall?"true":"false")<<",\"mechanical_absolute_tolerance_Ns\":"<<world.mixedSolver.contactAcceptance.y<<",\"mechanical_relative_tolerance\":"<<world.mixedSolver.contactAcceptance.z<<",\"mechanical_impulse_scale_Ns\":"<<world.mixedSolver.contactAcceptance.w<<",\"source_fingerprint\":"<<world.physicsFingerprint<<",\"device_fingerprint\":"<<runtime.deviceProgramFingerprint()<<",\"traces\":[";
     auto previous=initial;bool rejectionRestored=true;
     double totalWork=0,totalKineticWork=0,maxLawError=0,maxMomentumError=0,maxAcceptedDual=0,maxLocalResidual=0,maxLocalWithoutFloor=0,maxKinematicDefect=0,maxFreefallVelocityDefect=0;
     const auto start=std::chrono::steady_clock::now();

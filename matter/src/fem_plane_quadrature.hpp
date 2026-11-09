@@ -6,12 +6,34 @@
 #include <vector>
 
 namespace numi::matter::detail {
+// Reference triangle coordinates and weights. Weights sum to one, so each
+// physical contribution is referenceArea * weight * integrand. The positive
+// seven-point rule integrates every triangle polynomial through degree five.
+struct FEMPlaneQuadraturePoint {
+    std::array<double, 3> barycentric;
+    double weight;
+};
+inline constexpr std::array<FEMPlaneQuadraturePoint, 7> femPlaneQuadrature{{
+    {{{1.0/3.0,1.0/3.0,1.0/3.0}},0.225},
+    {{{0.059715871789770,0.470142064105115,0.470142064105115}},0.132394152788506},
+    {{{0.470142064105115,0.059715871789770,0.470142064105115}},0.132394152788506},
+    {{{0.470142064105115,0.470142064105115,0.059715871789770}},0.132394152788506},
+    {{{0.797426985353087,0.101286507323456,0.101286507323456}},0.125939180544827},
+    {{{0.101286507323456,0.797426985353087,0.101286507323456}},0.125939180544827},
+    {{{0.101286507323456,0.101286507323456,0.797426985353087}},0.125939180544827},
+}};
+struct FEMPlaneReferenceTriangle {
+    std::array<unsigned,3> nodes;
+    double referenceArea;
+};
+
 // Reference-area mass-lumping of a *single planar* exposed face patch.
 // Nodes which do not belong to the patch receive zero contact area.
 // Reject arbitrary meshes: their projected patches require a full surface
 // quadrature and are outside this deliberately narrow research owner.
 inline bool femFixedPlaneReferenceAreas(const CompiledWorld& world,
-        std::vector<float>& areas, std::string& error) {
+        std::vector<float>& areas, std::string& error,
+        std::vector<FEMPlaneReferenceTriangle>* triangles = nullptr) {
     if (world.contact.rigidProxies.size()!=1u) {
         error="fixed-area plane model requires exactly one plane";return false;
     }
@@ -29,6 +51,7 @@ inline bool femFixedPlaneReferenceAreas(const CompiledWorld& world,
     auto cross=[](V a,V b){return V{a[1]*b[2]-a[2]*b[1],a[2]*b[0]-a[0]*b[2],a[0]*b[1]-a[1]*b[0]};};
     const auto coord=[&](unsigned i){const auto& n=world.fem.nodes[i].restAndFixed;return V{n.x,n.y,n.z};};
     areas.assign(world.fem.nodes.size(),0.f);
+    if (triangles) triangles->clear();
     double patchHeight=0;bool found=false;
     for(const auto& f:world.fem.surfaceFaces) {
         if(f.adjacency.y!=NM_INVALID_INDEX)continue;
@@ -50,6 +73,7 @@ inline bool femFixedPlaneReferenceAreas(const CompiledWorld& world,
             if(std::abs(height-patchHeight)>1e-7){error="contact patch must be coplanar";return false;}
             areas[id]+=float(projected/6.0);
         }
+        if (triangles) triangles->push_back({{face[0],face[1],face[2]},projected/2.0});
     }
     if(!found){error="no plane-facing contact patch";return false;}
     for(float area:areas)if(!std::isfinite(area)||area<0){error="invalid quadrature area";return false;}
