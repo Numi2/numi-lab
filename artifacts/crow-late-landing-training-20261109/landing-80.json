@@ -1,0 +1,7 @@
+{
+  "source": "/Users/n/Developer/numi-crow-rl-20261107/build/crow-late-landing-training-20261109/checkpoint-80.policypack",
+  "source_sha256": "a1bb5c401f7e4783d7bf8d7ae60d043785267469c5b862b2c602c6ec83a5fad8",
+  "candidate_sha256": "53435383f568b4b836bba951bdf082543f22286d5bc1c5e562e2ca5e4be7a6b3",
+  "max_actor_error": 0.0,
+  "task_fingerprint": 9476321555442531446
+}

@@ -1,0 +1,8 @@
+{
+  "remote_revision": "1f27e0b7",
+  "path": "artifacts/crow-landing-recovery-20261109/layout-g/rollout.bin.gz",
+  "raw_sha256": "1f704a7a80b319fecff8347dbfc35bb033cce39dc064ef18f3599b58ab435f71",
+  "raw_bytes": 190848988,
+  "removed_raw_copy": "build/crow-landing-recovery-20261109/layout-g.rollout",
+  "method": "independent GitHub HTTPS decompression, hash and open-handle check before deletion"
+}
