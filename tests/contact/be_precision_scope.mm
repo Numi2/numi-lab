@@ -27,10 +27,11 @@ int main(int argc,char**argv){@autoreleasepool{try{
  auto noArea=config;noArea.experimentalFEMPlaneAreaIPC=false;numi::matter::Runtime outside;
  require(!outside.initialize(world,noArea).encoded,"non-area law accepted BE precision option");
  auto otherMaterial=world;otherMaterial.materials[0].constitutiveKind=NM_CONSTITUTIVE_COROTATED;
+ otherMaterial.fingerprint=numi::matter::compiledWorldFingerprint(otherMaterial);
  numi::matter::Runtime unsupportedMaterial;auto rejectedMaterial=unsupportedMaterial.initialize(otherMaterial,config);
  require(!rejectedMaterial.encoded && rejectedMaterial.message==
    "backward Euler precision research requires the scoped physical fixed-plane fixture",
-   "unqualified material accepted or rejected outside the BE precision scope");
+   "unqualified material accepted or rejected outside the BE precision scope: "+rejectedMaterial.message);
  auto noCapture=config;noCapture.captureDiagnostics=false;numi::matter::Runtime uncaptured;
  require(!uncaptured.initialize(world,noCapture).encoded,"unqualified capture mode accepted");
  unsetenv(name);std::cout<<"BE precision scope, fingerprints and state validation verified\n";return 0;
