@@ -1,0 +1,16 @@
+# Coupled midpoint equations for the reacting-slider fixture
+
+This is the implementation and verification contract for the existing 10 g vertical slider reference, not a claim that native coupling is implemented. The runtime continues to reject the dynamic owner. The contact patch and slider have one frictionless normal, the slider is free in z and constrained in the other five coordinates. The same material, area weights, activation width and pressure coefficient as the fixed-plane case apply.
+
+Write tau=h/2. Let ui be FEM node stage velocities and w the slider stage velocity. Candidate positions are xi,m=xi,0+tau ui and z_m=z_0+tau w; signed gaps are gi=xi,m,z-z_m. For the area-weighted potential phi_i(gi), let Pi=-phi_i prime. The stage momentum residuals are
+
+    ri = mi (ui-vi,0) - tau (f_internal,i + mi gravity + Pi n)
+    rs = ms (w-vs,0) - tau (ms gravity - sum_i Pi).
+
+The contact portion of the stage Jacobian for a direction (di, ds) is tau squared times Ki(di,z-ds) in FEM z, and minus its sum in the slider row, where Ki=phi_i double-prime. This defines both equal-and-opposite cross blocks and the slider diagonal; adding only a reaction after a fixed-plane solve does not solve these equations. The internal-force tangent and actual mass action must use the same stage state and units. Physical endpoint residuals are twice the stage impulse residuals. A mixed FEM/slider convergence certificate must account for every row in physical impulse units and keep the separately scaled local and global checks.
+
+On acceptance, xi,1=2 xi,m-xi,0, vi,1=2 ui-vi,0, z_1=2 z_m-z_0 and vs,1=2 w-vs,0. The current borrowed MetalWorld service uses its own full-step endpoint-velocity update, so it needs an explicit midpoint-aware candidate and endpoint publication contract. Changing only the candidate query timestep does not satisfy this requirement. The final contact impulse is h Pi n on FEM and its opposite on the slider. Record each side about the same fixed origin, including the zero-work constraint reaction moment, and separately record the two owner works h sum(Pi ui,z) and -h w sum(Pi). Their sum is contact work on the pair; a comparison to barrier potential must account for midpoint quadrature error.
+
+For this fixture only, a fixed normal and linearly interpolated accepted positions make each gap affine in physical step fraction. Therefore positive clearance at both committed endpoints certifies the whole interval. The test must also check stage feasibility and reject candidates that violate the solver clearance restriction. This argument cannot be used for rotating or nonlinear-interpolation geometry.
+
+The native qualification must independently evaluate both owners, not infer the slider reaction from the FEM result. Save all state owners and borrowed rigid state, force a whole-environment rejection after candidate work, prove restoration of physical state and failure category, then retry from that state and compare the accepted continuation. Diagnostic first-offender ordering is not a physical owner and must not affect execution. Compare force, impulse, peak, cumulative impulse, slider motion and both works against the retained independent FP64 slider reference and report temporal gates and geometry; no standalone residual check substitutes for an accepted native transaction.
