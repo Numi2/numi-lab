@@ -1,0 +1,66 @@
+{
+  "course": "reserved-final-i",
+  "seed": 4038889268,
+  "lanes": [
+    {
+      "lane": 0,
+      "terminal_supported_foot_only_samples": 0,
+      "terminal_support_gate": false,
+      "terminal_sample_count": 0,
+      "first_physical_failure": false
+    },
+    {
+      "lane": 1,
+      "terminal_supported_foot_only_samples": 0,
+      "terminal_support_gate": false,
+      "terminal_sample_count": 0,
+      "first_physical_failure": false
+    }
+  ],
+  "failed_environment_steps": 0,
+  "first_episode_navigation": {
+    "boundary": "waypoint completion; does not establish supported landing",
+    "closed_by_environment": [
+      true,
+      true
+    ],
+    "closed_episode_count": 2,
+    "completion_seen_by_environment": [
+      true,
+      true
+    ],
+    "completion_seen_count": 2,
+    "environment_count": 2,
+    "first_completion_step_by_environment": [
+      1551,
+      1657
+    ],
+    "horizon_censored_count": 0,
+    "maximum_waypoints_by_environment": [
+      5,
+      5
+    ],
+    "physical_failure_by_environment": [
+      false,
+      false
+    ],
+    "physical_failure_count": 0,
+    "safe_completion_by_environment": [
+      true,
+      true
+    ],
+    "safe_completion_count": 2,
+    "schema": "numi.crow-first-episode-evidence.v1",
+    "steps_by_environment": [
+      3000,
+      3000
+    ],
+    "termination_reason_by_environment": [
+      4,
+      4
+    ],
+    "unit": "first episode of each environment since context creation"
+  },
+  "observed_replay_frames": 3000,
+  "scope": "development layout; support on flat perch is not grasp"
+}

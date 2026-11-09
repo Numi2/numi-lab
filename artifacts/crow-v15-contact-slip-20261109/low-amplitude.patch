@@ -1,0 +1,11 @@
+--- a/feedback_live.metal
++++ b/low-amplitude.metal
+@@ -5045,7 +5045,7 @@
+             const float carrier = sin(kTwoPi*seconds/0.50f)*(leg == 0u ? 1.0f : -1.0f);
+             const float swing = seconds >= 2.0f && seconds < 5.0f && support > 0.05f ? carrier : 0.0f;
+             const float lift = max(swing,0.0f);
+-            navigationTeacherRequested = joint == 0u ? -0.30f*swing : joint == 1u ? 0.40f*lift : -0.15f*lift;
++            navigationTeacherRequested = joint == 0u ? -0.20f*swing : joint == 1u ? 0.32f*lift : -0.12f*lift;
+         }
+         // Keep the training-only teacher active through the final target.
+         // Ending at waypoint four taught an aggressive approach crossing but

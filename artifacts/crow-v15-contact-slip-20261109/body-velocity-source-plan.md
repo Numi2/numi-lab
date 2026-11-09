@@ -1,0 +1,3 @@
+# Check task-update body-velocity source
+
+Known-constant controls confirmed the feedback state lane and observer readout, but the computed foot-patch velocity reported zero in all 150 sampled endpoints. Publish, solely as diagnostic transition fields, the task-update left foot body's world-x linear velocity and the generalized root world-x linear velocity at those endpoints. Compare with the independently retained accepted-state replay foot and root velocities at corresponding steps and require exact physical-state parity with the baseline. This determines whether the task-update body-state buffer contains usable moving-link velocity; it does not modify physical control or establish a fix.

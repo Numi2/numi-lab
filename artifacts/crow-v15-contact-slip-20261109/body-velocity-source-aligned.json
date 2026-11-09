@@ -1,0 +1,36 @@
+{
+  "trace_offset": 1,
+  "samples": 150,
+  "fields": {
+    "task_foot_x": {
+      "min": 0,
+      "max": 0,
+      "nonzero": 0
+    },
+    "task_root_x": {
+      "min": -0.0215743762,
+      "max": 0.0973601192,
+      "nonzero": 150
+    },
+    "replay_foot_x": {
+      "min": -0.003545880550518632,
+      "max": 0.18775735795497894,
+      "nonzero": 149
+    },
+    "replay_root_x": {
+      "min": -0.02157437615096569,
+      "max": 0.09736011922359467,
+      "nonzero": 150
+    }
+  },
+  "max_root_velocity_error": 4.9831389015153604e-11,
+  "largest_foot_disagreement": {
+    "trace_step": 104,
+    "frame_step": 103,
+    "task_foot_x": 0,
+    "task_root_x": 0.0768514648,
+    "replay_foot_x": 0.18775735795497894,
+    "replay_root_x": 0.07685146480798721
+  },
+  "scope": "task-update body buffer versus accepted replay; contact substep timing remains a limitation"
+}

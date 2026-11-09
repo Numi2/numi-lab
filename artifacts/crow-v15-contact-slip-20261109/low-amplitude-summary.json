@@ -1,0 +1,23 @@
+{
+  "window_net_displacement_m": 0.042362833276576764,
+  "feet": {
+    "crow_left_foot": {
+      "sample_count": 139,
+      "median_m_s": 0.002964409670440278,
+      "p95_m_s": 0.08046723352019394,
+      "max_m_s": 0.18767634080736253
+    },
+    "crow_right_foot": {
+      "sample_count": 147,
+      "median_m_s": 0.0045027925357951784,
+      "p95_m_s": 0.08829734694100966,
+      "max_m_s": 0.2258870629555992
+    }
+  },
+  "left_only_steps": 53,
+  "right_only_steps": 40,
+  "nonfoot_steps": 0,
+  "failed_environment_steps": 0,
+  "physical_failure_count": 0,
+  "necessary_screen_pass": false
+}

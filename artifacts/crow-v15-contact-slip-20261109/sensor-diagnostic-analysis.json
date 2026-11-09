@@ -1,0 +1,6 @@
+{
+  "state_parity_q_v_bodies": true,
+  "frames": 350,
+  "changed_outcomes": {},
+  "scope": "diagnostic-only report; no inference if channels unavailable"
+}

@@ -1,3 +1,5 @@
+> **Timing correction:** the original contact-to-replay analyses in this directory paired trace step N with replay frame N. The matching physical state is frame N-1. Therefore the earlier foot-center speed statistics are not reliable. Recomputed contact-point statistics, validated by matching q/v at every sample, are in `../crow-v15-contact-slip-20261109/aligned-analysis.json`. The terminal support result was independently rechecked against the correctly aligned final 25 replay frames; see `../crow-v15-contact-slip-20261109/terminal-support-aligned.json`. The original reports are retained for provenance.
+
 # v15 physical ground-contact investigation
 
 Status: experimental. Walking acts on the simulated v15 leg joints and is gated by solver-reported foot loads; leg-powered takeoff and articulated landing grip are not complete. None of the experimental shaders has been deployed or frozen. The original `src/metal/CrowFlightControllerV1.metal` is unchanged, SHA-256 `aa2fe10901cb0494d80ae445902303a17ce0e73d030072bab09461d8f3593ebe`.

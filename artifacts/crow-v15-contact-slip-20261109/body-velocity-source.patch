@@ -1,0 +1,35 @@
+--- a/feedback_live.metal
++++ b/body-velocity-source.metal
+@@ -5046,6 +5046,8 @@
+             const float swing = seconds >= 2.0f && seconds < 5.0f && support > 0.05f ? carrier : 0.0f;
+             const float lift = max(swing,0.0f);
+             navigationTeacherRequested = joint == 0u ? -0.30f*swing : joint == 1u ? 0.40f*lift : -0.15f*lift;
++            const float ownLoad = leg == 0u ? state.nutrition.x : state.nutrition.y;
++            if (joint == 0u && carrier < 0.0f && seconds >= 2.0f && seconds < 5.0f && ownLoad > 0.05f) navigationTeacherRequested += 1.50f * clamp(state.nutrition[2u+leg], -0.15f, 0.15f);
+         }
+         // Keep the training-only teacher active through the final target.
+         // Ending at waypoint four taught an aggressive approach crossing but
+@@ -9264,6 +9266,15 @@
+     // the navigation actor and observation publishing have already run.
+     if ((program.schedule.w & MR_TASK_PROGRAM_AVIAN_CROW_HIERARCHICAL_NAVIGATION) != 0u && state.episode.z == 1u && program.counts0.w >= 2u) {
+         state.nutrition.xy = float2(compactContact[compactBase+contactGroups[0].members.w], compactContact[compactBase+contactGroups[1].members.w]);
++        // Previous solved center of pressure and body state estimate the stance patch velocity.
++        for (uint foot=0u;foot<2u;++foot) {
++            const MRTaskContactGroupGPU group=contactGroups[foot];
++            const uint metric=compactBase+group.members.w;
++            const MRBodyStateGPU body=bodyStates[bodyBase+group.reference.x];
++            const float3 r=rotate(body.orientation,float3(compactContact[metric+4u],compactContact[metric+5u],-0.008f));
++            const float3 velocity=body.linearVelocityAndInverseMass.xyz+cross(body.angularVelocity.xyz,r);
++            state.nutrition[foot+2u]=dot(velocity.xy,yawBasis);
++        }
+     }
+     taskStates[environment] = state;
+ 
+@@ -9282,6 +9293,7 @@
+     transition.rewardBreakdown1 = rewardBreakdown1;
+     transition.outcomeChannels0 = outcomeChannels0;
+     transition.outcomeChannels1 = outcomeChannels1;
++    if (state.episode.z == 1u) transition.outcomeChannels1.zw = float2(bodyStates[bodyBase+contactGroups[0].reference.x].linearVelocityAndInverseMass.x,vState[vBase+program.root.w]);
+     transition.policyRevision =
+         dispatch.policyRevision;
+     transition.episodeTrackingScore =

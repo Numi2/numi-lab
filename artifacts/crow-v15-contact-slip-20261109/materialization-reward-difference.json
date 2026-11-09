@@ -1,0 +1,18 @@
+{
+  "frames": 350,
+  "reward_delta_min": -0.0007107332348823547,
+  "reward_delta_max": 0.0,
+  "reward_delta_sum": -0.017565853893756866,
+  "outcomes_with_differences": {
+    "reward": {
+      "first_difference_step": 1,
+      "min_delta": -0.0007107332348823547,
+      "max_delta": 0.0
+    },
+    "task_reward": {
+      "first_difference_step": 1,
+      "min_delta": -0.0007107257843017578,
+      "max_delta": 0.0
+    }
+  }
+}

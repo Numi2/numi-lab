@@ -1,0 +1,9 @@
+baseline distance 0.0534 p95 0.0181 0.0217 pass True
+low-amplitude distance 0.0424 p95 0.0723 0.0373 pass False
+slow-cycle distance 0.0527 p95 0.079 0.0401 pass False
+slow-low distance 0.087 p95 0.2077 0.1867 pass False
+stance-gain-05 distance 0.0534 p95 0.0181 0.0217 pass True
+stance-gain-15 distance 0.0534 p95 0.0181 0.0217 pass True
+stance-gain-30 distance 0.0534 p95 0.0181 0.0217 pass True
+stance-activation distance 0.1968 p95 0.3002 0.264 pass False
+velocity-signal distance 0.1214 p95 0.0685 0.1195 pass False

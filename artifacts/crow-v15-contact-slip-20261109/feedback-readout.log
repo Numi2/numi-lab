@@ -1,0 +1,17 @@
+{
+  "state_parity_q_v_body_states": true,
+  "samples": 150,
+  "minimum": [
+    0,
+    0
+  ],
+  "maximum": [
+    0,
+    0
+  ],
+  "nonzero_samples": [
+    0,
+    0
+  ],
+  "scope": "on-device computed proxy at accepted endpoints; not exact continuous contact velocity"
+}

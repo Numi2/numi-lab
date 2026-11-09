@@ -1,0 +1,34 @@
+{
+  "state_parity": true,
+  "samples": 150,
+  "fields": {
+    "task_foot_x": {
+      "min": 0,
+      "max": 0,
+      "nonzero": 0
+    },
+    "task_root_x": {
+      "min": -0.0215743762,
+      "max": 0.0973601192,
+      "nonzero": 150
+    },
+    "replay_foot_x": {
+      "min": -0.003545880550518632,
+      "max": 0.18775735795497894,
+      "nonzero": 150
+    },
+    "replay_root_x": {
+      "min": -0.02157437615096569,
+      "max": 0.09736011922359467,
+      "nonzero": 150
+    }
+  },
+  "largest_foot_disagreement": {
+    "step": 103,
+    "task_foot_x": 0,
+    "task_root_x": 0.0248171296,
+    "replay_foot_x": 0.18775735795497894,
+    "replay_root_x": 0.07685146480798721
+  },
+  "scope": "task-update inputs and captured replay may be sampled at different substep boundaries"
+}

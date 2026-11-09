@@ -1,0 +1,6 @@
+baseline {"window_net_displacement_m": 0.0534448653486041, "feet": {"crow_left_foot": {"sample_count": 164, "median_m_s": 0.0006629198223826532, "p95_m_s": 0.06702553638758615, "max_m_s": 0.18952199233777856}, "crow_right_foot": {"sample_count": 156, "median_m_s": 0.0005916089509719709, "p95_m_s": 0.06732420609152014, "max_m_s": 0.11646573064257476}}, "left_only_steps": 61, "right_only_steps": 63, "nonfoot_steps": 0, "failed_environment_steps": 0, "physical_failure_count": 0, "necessary_screen_pass": false}
+/Users/n/Developer/numi-crow-rl-20261107/build/crow-v15-contact-slip-20261109/velocity-signal.metal:9275:26: warning: unused variable 'velocity' [-Wunused-variable]
+            const float3 velocity=body.linearVelocityAndInverseMass.xyz+cross(body.angularVelocity.xyz,r);
+                         ^
+1 warning generated.
+velocity-signal {"window_net_displacement_m": 0.1213689756044664, "feet": {"crow_left_foot": {"sample_count": 140, "median_m_s": 0.000611730715328176, "p95_m_s": 0.07565228504865132, "max_m_s": 0.18648881050821609}, "crow_right_foot": {"sample_count": 154, "median_m_s": 0.0008563997757486046, "p95_m_s": 0.1199794131447722, "max_m_s": 0.43909136259751164}}, "left_only_steps": 60, "right_only_steps": 57, "nonfoot_steps": 0, "failed_environment_steps": 0, "physical_failure_count": 0, "necessary_screen_pass": false}

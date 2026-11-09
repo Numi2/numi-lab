@@ -1,0 +1,23 @@
+--- a/src/metal/LocomotionTask.metal
++++ b/crouch-wings-off-no-push.metal
+@@ -5250,7 +5250,8 @@
+             )
+             : filtered;
+         const float avianWingAmplitude =
+-            fixedFlightController && state.threatTeacher.w >= 1.5f &&
++            fixedFlightController && state.episode.z == 10u && float(state.episode.x)*dispatch.timing.x >= 4.4f && float(state.episode.x)*dispatch.timing.x < 5.4f && binding.actuator.x == MR_TASK_ACTUATOR_FLAPPING_POSITION
++            ? 0.0f : fixedFlightController && state.threatTeacher.w >= 1.5f &&
+             binding.actuator.x == MR_TASK_ACTUATOR_FLAPPING_POSITION
+             ? 0.0f
+             : avianGroundCurriculum &&
+@@ -9250,6 +9251,10 @@
+             criticObservations + criticOutputBase
+         );
+     }
++    // Accepted foot force diagnostic feedback for this isolated band-10 bench.
++    if ((program.schedule.w & MR_TASK_PROGRAM_AVIAN_CROW_HIERARCHICAL_NAVIGATION) != 0u && state.episode.z == 10u && program.counts0.w >= 2u) {
++        state.nutrition.xy=float2(compactContact[compactBase+contactGroups[0].members.w],compactContact[compactBase+contactGroups[1].members.w]);
++    }
+     taskStates[environment] = state;
+ 
+     const uint transitionIndex =

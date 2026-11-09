@@ -1,0 +1,18 @@
+{
+  "state_parity": true,
+  "samples": 150,
+  "reported_values": [
+    [
+      [
+        12.3400002,
+        56.7799988
+      ],
+      150
+    ]
+  ],
+  "expected_approx": [
+    12.34,
+    56.78
+  ],
+  "scope": "diagnostic constant control"
+}

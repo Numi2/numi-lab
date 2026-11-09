@@ -1,0 +1,14 @@
+{
+  "state_parity": true,
+  "samples": 150,
+  "reported_values": [
+    [
+      [
+        10,
+        0
+      ],
+      150
+    ]
+  ],
+  "replay_body_10_name": "crow_left_foot"
+}

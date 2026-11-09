@@ -1,0 +1,3 @@
+# Read the diagnostic foot-velocity channels
+
+The transition outcome fields added by the prior instrumentation were not exposed by the replay outcome mapper, despite unchanged q, v and body states. Extend the already parity-checked contact observer to print those two diagnostic transition components at accepted contact endpoints, then repeat the same 1.5-gain diagnostic shader. Check full q/v/body-state parity against the previous diagnostic run before inspecting the reported range and nonzero counts. This is read-only host telemetry; it does not alter physics, observations, rewards or actions.

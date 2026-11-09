@@ -1,0 +1,13 @@
+--- a/src/metal/LocomotionTask.metal
++++ b/crouch-wings-normal-no-push.metal
+@@ -9250,6 +9250,10 @@
+             criticObservations + criticOutputBase
+         );
+     }
++    // Accepted foot force diagnostic feedback for this isolated band-10 bench.
++    if ((program.schedule.w & MR_TASK_PROGRAM_AVIAN_CROW_HIERARCHICAL_NAVIGATION) != 0u && state.episode.z == 10u && program.counts0.w >= 2u) {
++        state.nutrition.xy=float2(compactContact[compactBase+contactGroups[0].members.w],compactContact[compactBase+contactGroups[1].members.w]);
++    }
+     taskStates[environment] = state;
+ 
+     const uint transitionIndex =

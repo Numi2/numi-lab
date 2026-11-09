@@ -1,0 +1,4 @@
+Traceback (most recent call last):
+  File "/Users/n/Developer/numi-crow-rl-20261107/artifacts/crow-v15-contact-slip-20261109/run.py", line 4, in <module>
+    old=r'''"impulses":[%.9g,%.9g,%.9g],"separation":%.9g}''';new=r'''"impulses":[%.9g,%.9g,%.9g],"point":[%.9g,%.9g,%.9g],"separation":%.9g}''';assert base.count(old)==1,base.count(old);s=base.replace(old,new)
+AssertionError: 0

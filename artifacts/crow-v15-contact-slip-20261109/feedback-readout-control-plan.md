@@ -1,0 +1,3 @@
+# Validate feedback readout with known constants
+
+The prior readout reported zero in both diagnostic fields at all 150 selected endpoints. Before interpreting that as a zero computed velocity, replace only the two diagnostic transition output values with the known constants 12.34 and 56.78 in the same shader and repeat the same run with the same read-only observer. Verify all q/v/body states match the previous diagnostic run. If the observer reports those constants, the readout path works and the computed signal was zero at these sampled endpoints; otherwise the readout path itself is not validated. This control is diagnostic only and does not control the bird.

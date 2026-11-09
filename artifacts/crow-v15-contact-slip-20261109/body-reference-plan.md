@@ -1,0 +1,3 @@
+# Resolve zero task-update foot velocity
+
+The aligned diagnostic shows task-update generalized root velocity agrees with replay, while the task-update referenced left-foot x velocity is zero and captured left-foot velocity changes. Publish the compiled left-foot contact-group reference body index and, independently, x velocity at world body index 10 (the replay names this crow_left_foot) using the validated diagnostic readout. Repeat the same reference run and verify physical-state parity. This distinguishes an incorrect group reference from the task-update body buffer lacking moving-link velocity; it is an instrumentation test, not a solver fix.

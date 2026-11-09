@@ -1,0 +1,14 @@
+{
+  "same_physical_states_as_original_library": false,
+  "samples": 150,
+  "task_foot_x_range": [
+    -0.0633816496,
+    0.186412513
+  ],
+  "nonzero_task_foot_samples": 149,
+  "max_foot_velocity_disagreement_m_s": 4.4645561220191254e-08,
+  "max_root_velocity_disagreement_m_s": 4.676780768209099e-10,
+  "failed_environment_steps": 0,
+  "physical_failure_count": 0,
+  "scope": "isolated host variant; task-visible signals may change, no production qualification"
+}

@@ -1,0 +1,33 @@
+{
+  "full_replay_parity": true,
+  "frames": 350,
+  "foot_contact_point_tangential_speed_m_s": {
+    "crow_left_foot": {
+      "n": 272,
+      "median": 0.0006360627516195841,
+      "p95": 0.06693112149128015,
+      "maximum": 0.18952199233777856
+    },
+    "crow_right_foot": {
+      "n": 291,
+      "median": 0.0007389665176340801,
+      "p95": 0.11492240136182674,
+      "maximum": 0.11660126330738373
+    }
+  },
+  "tangential_to_normal_impulse_ratio": {
+    "crow_left_foot": {
+      "n": 179,
+      "median": 0.25188037895170406,
+      "p95": 0.5792848386367125,
+      "maximum": 0.5998496833654413
+    },
+    "crow_right_foot": {
+      "n": 180,
+      "median": 0.2439420228903298,
+      "p95": 0.5989041342213345,
+      "maximum": 0.5999954214622223
+    }
+  },
+  "scope": "endpoint estimate, not integrated slip; contact point and body velocities may have substep timing difference"
+}

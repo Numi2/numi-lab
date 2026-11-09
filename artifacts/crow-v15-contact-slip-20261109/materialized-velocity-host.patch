@@ -1,0 +1,33 @@
+--- a/src/metal/MetalWorld.mm
++++ b/experimental-MetalWorld.mm
+@@ -11488,7 +11488,8 @@
+     const MetalWorldLayout& layout,
+     const std::size_t sourceQ,
+     const std::size_t sourceV,
+-    const std::size_t environmentCount
++    const std::size_t environmentCount,
++    const std::size_t destinationBodies = kCurrentBodies
+ ) {
+     if (context.boundArticulations.empty() ||
+         context.boundArticulations.size() !=
+@@ -11534,7 +11535,7 @@
+         [encoder setBuffer:context.buffers[sourceV]
+                      offset:articulation.vOffset * sizeof(float)
+                     atIndex:7u];
+-        [encoder setBuffer:context.buffers[kCurrentBodies]
++        [encoder setBuffer:context.buffers[destinationBodies]
+                      offset:articulation.firstBody *
+                          sizeof(MRBodyStateGPU)
+                     atIndex:8u];
+@@ -22081,6 +22082,11 @@
+                              sourceV,
+                              batch.environmentCount
+                          ) ||
++                         !encodeDevicePhysicsBodyVelocities(
++                             *selectedState, commandBuffer, diagnostics.layout,
++                             sourceQ, sourceV, batch.environmentCount,
++                             kCandidateBodies
++                         ) ||
+                          !encodeTaskComplete(
+                              *selectedState,
+                              commandBuffer,

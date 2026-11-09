@@ -1,0 +1,3 @@
+# Verify stance correction is actually active
+
+All three velocity-feedback gains produced byte-identical accepted replays, so the prior result is inconclusive about whether the speed feedback improved gait. Before further tuning, run one diagnostic variant identical to the stance-feedback experiment but add a fixed +0.20 normalized hip target during the same loaded-stance condition. Compare its full replay with the original candidate. A changed replay shows the condition and correction can affect execution; unchanged replay means the gate or execution path is inactive. This deliberate diagnostic perturbation is not a candidate gait or qualification. Preserve all outcomes.
