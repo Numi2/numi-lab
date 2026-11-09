@@ -7966,6 +7966,17 @@ RuntimeDiagnostics Runtime::initialize(
                 world.dispatch.environmentCount == 1u && world.objects.size() == 1u &&
                 world.contact.rigidProxies.size() == 1u &&
                 world.dispatch.deformableContactCapacity == 0u &&
+                world.fem.cohesiveFaces.empty() && world.fem.punctureChannels.empty() &&
+                world.learnedMaterials.empty() && world.identification.empty() &&
+                world.vascular.layout.ranges.z == 0u &&
+                std::all_of(world.materials.begin(), world.materials.end(), [](const auto& m) {
+                    return m.constitutiveKind == NM_CONSTITUTIVE_NEO_HOOKEAN && m.stateCount == 0u &&
+                        m.dissipationProgram == NM_INVALID_INDEX &&
+                        m.viscousStressProgramOffset == NM_INVALID_INDEX &&
+                        m.viscousTangentProgramOffset == NM_INVALID_INDEX &&
+                        m.implicitResidualProgramOffset == NM_INVALID_INDEX &&
+                        m.implicitJacobianProgramOffset == NM_INVALID_INDEX;
+                }) &&
                 world.mixedSolver.contactAcceptance.w > 0.0f &&
                 std::isfinite(world.mixedSolver.contactAcceptance.w) &&
                 std::isfinite(world.mixedSolver.contactAcceptance.y) &&
