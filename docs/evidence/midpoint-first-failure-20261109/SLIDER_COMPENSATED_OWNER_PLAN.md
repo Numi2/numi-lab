@@ -44,4 +44,3 @@ geometry it cannot represent. Do not remove that guard until the owner supplies
 and consumes the low words end to end. The diagnostic admission remains off
 by default during this work. The previous CCD and augmented-Lagrangian
 experiments also remain disabled.
-EOF'

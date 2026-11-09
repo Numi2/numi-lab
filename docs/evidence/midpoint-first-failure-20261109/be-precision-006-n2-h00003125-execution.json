@@ -1,0 +1,45 @@
+{
+  "command": [
+    "/Users/numi/numi-matter-midpoint-compensated-build-20261109/evidence-be-precision-005/numi_plane_contact_probe_scaled",
+    "/Users/numi/numi-matter-midpoint-compensated-build-20261109/evidence-be-precision-005/NumiMatter.metallib",
+    "0.00000003125",
+    "320000",
+    "2",
+    "ipc_area",
+    "0.0002",
+    "physical",
+    "contact",
+    "reference"
+  ],
+  "input_sha256": {
+    "/Users/numi/numi-matter-midpoint-compensated-build-20261109/evidence-be-precision-005/numi_plane_contact_probe_scaled": "f801a5d2532a6a51f0c9baea3c4cca2fbddc047911ca71c07dc91d95628bf734",
+    "/Users/numi/numi-matter-midpoint-compensated-build-20261109/evidence-be-precision-005/NumiMatter.metallib": "eebb5247813e6f510efedd6ef5f2d0d7a3bea840cb38966b3f2db48735ddb97f",
+    "/Users/numi/numi-lab-midpoint-compensated-20261109/docs/evidence/midpoint-spatial-cost-dynamic-20261108/rk4-n2-h025.json": "a37f254053b30e97b70223fc1f2f3d26028a0472aba0bf2136a92e9a7e11700e"
+  },
+  "flag": "NM_MATTER_BE_VELOCITY_COMPENSATION=1",
+  "returncode": -15,
+  "stopped_reason": "free-space limit",
+  "wall_seconds_observational_only": 17188.491836,
+  "peak_rss_kib": 150576,
+  "free_bytes_after": 3327680512,
+  "limits": {
+    "rss_kib": 4194304,
+    "free_bytes": 3328599654,
+    "wall_seconds": 86400
+  },
+  "diagnostic_stdout": {
+    "uncompressed_bytes": 236191744,
+    "uncompressed_sha256": "8947ba425dc5e178e8dffa3afeb5697412e5f064aff041e500360b9da03a9feb",
+    "compressed_bytes": 30452134,
+    "compressed_sha256": "058ddfeb97c760347d8322db87adc35a73c352b77d7904328a72be04f1b5076e"
+  },
+  "diagnostic_stderr": {
+    "uncompressed_bytes": 77922241,
+    "uncompressed_sha256": "09015b80bb5efb291fe767e02aa2372ee7516b2244396246ef836e4e6b70caa8",
+    "compressed_bytes": 2079388,
+    "compressed_sha256": "dc50bd5b41601b98e37706c2c6e49ac0dc5f9e246652b99ebae149f6c9052377"
+  },
+  "compression_errors": [],
+  "all_gates_pass": false,
+  "analysis_error": "JSONDecodeError('Unterminated string starting at: line 1 column 236191731 (char 236191730)')"
+}

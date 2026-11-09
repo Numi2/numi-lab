@@ -1,0 +1,16 @@
+{
+  "input_sha256": {
+    "/Users/numi/numi-lab-midpoint-compensated-20261109/tests/contact/run_cost_after_qualification.py": "a7f5d2369432674cdd787a4b39a6509cde670d2817fe8ed95d687cda61276838",
+    "/Users/numi/numi-lab-midpoint-compensated-20261109/tests/contact/run_accuracy_adjusted_cost.py": "1e828c672063dcc05eae436b6d9f49f440c8bca841adb62e3da0664c6acc17e2",
+    "/Users/numi/numi-lab-midpoint-compensated-20261109/tests/contact/cost_provenance.py": "42b055050a55c1a120858f3a5ff08b701816ab0decb3b764c25e2499d1858161",
+    "/Users/numi/numi-lab-midpoint-compensated-20261109/tests/contact/cost_selection.py": "8125281277d0a276eccaa174d6e839974d0d2e36aa5929bf9d8bf725b93afc41",
+    "/Users/numi/numi-lab-midpoint-compensated-20261109/tests/contact/cost_summary.py": "d3bf17ccb664404510c9d436ee0c5349b0eef06ee059805fdd25beab67ddf1e0",
+    "/Users/numi/numi-lab-midpoint-compensated-20261109/tests/contact/native_trace_analysis.py": "3e8ea213da85697a399bd3ce651f266626fcd37749fc0846fac33e89da566bd8",
+    "/Users/numi/numi-lab-midpoint-compensated-20261109/docs/evidence/midpoint-first-failure-20261109/be-precision-005-inputs.sha256": "204d91e082016756224600ab0ff3c95c9bd5f969c923305b3a716e994b2c504a"
+  },
+  "wait_limit_seconds": 172800,
+  "scope": "conditional launch only; accuracy and timing are established by separate retained evidence",
+  "reason": "no eligible completed control",
+  "wait_seconds": 7780.091882582987,
+  "error": "ValueError('incomplete ladder attempt: /Users/numi/numi-lab-midpoint-compensated-20261109/docs/evidence/midpoint-first-failure-20261109/be-precision-006-n2-h00003125')"
+}
