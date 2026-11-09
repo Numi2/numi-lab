@@ -1,0 +1,22 @@
+[
+  {
+    "path": "positive.air",
+    "sha256": "2801b0a19a9f5cf09d41be2f438dccb6b12efca97b3753b23bac88420fc58c4a",
+    "bytes": 198112
+  },
+  {
+    "path": "positive.metallib",
+    "sha256": "a464fdcca6bf832495fe0ca51152366aff9e1f7136ab743f842ef77eac271e43",
+    "bytes": 4469616
+  },
+  {
+    "path": "negative.air",
+    "sha256": "f92cc4d210d61a94fc9997cb7dd4e547e4949fabb9747c0bd64c5cbcf4921e8a",
+    "bytes": 198112
+  },
+  {
+    "path": "negative.metallib",
+    "sha256": "1d8ba15068d981ce33d1810df7bd90a2e6898d3339e174b13bf4c33427cd3552",
+    "bytes": 4469616
+  }
+]

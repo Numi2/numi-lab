@@ -1,0 +1,3 @@
+# Early post-contact leg balance screen
+
+After moving the balance correction after the landing command reset, q/v first diverged from baseline at step 2136. The positive and negative small correction arms both failed tilt, at 2402 and 2409 respectively, versus baseline 2404. Before running, use the negative sign for both arms, increase gain by fourfold and tenfold, permit up to 0.60 normalized hip command, and engage once each contact ramp reaches five increments with bilateral support. Compare the unchanged full-start exposed layout J and retain both failures and full physical evidence. Full pass still requires all waypoints, no physical failure, measured bilateral grip and subsequent release, then low-speed support.
