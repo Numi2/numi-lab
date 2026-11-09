@@ -1,0 +1,10 @@
+{
+  "student_samples_compared": 64,
+  "student_qv_mismatches": 0,
+  "first_mismatches": [],
+  "specialist_interior_samples": 923,
+  "specialist_label_mismatches": 0,
+  "raw_rollout_sha256": "c4624f2cf1eaf80933c436a678c52125d83fdf88fee9837f9cede05d9945812c",
+  "teacher_sampling": "labels on, student authority one; exact q/v check through first episode",
+  "note": "label check is not a PPO likelihood or stage-aware learner qualification"
+}

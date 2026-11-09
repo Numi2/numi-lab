@@ -1,0 +1,25 @@
+{
+  "status": "preregistered before executing either layout",
+  "layout_authoring_commit": "aef51b91",
+  "layouts": {
+    "reserved-final-c": 20860117,
+    "reserved-final-d": 20860118
+  },
+  "seed_check": "git grep across tracked artifacts and project sources found neither seed before registration",
+  "prior_revision": "ba238bd6f81cf810aa7ffc62c3632584c92bee9d",
+  "bound_sha256": {
+    "src/metal/CrowFlightControllerV1.metal": "aa2fe10901cb0494d80ae445902303a17ce0e73d030072bab09461d8f3593ebe",
+    "src/metal/LocomotionTask.metal": "51def1f313b5faf6d61dcbb985e8e5b9c8d0b70cca7639018789178a391c75cb",
+    "src/c_api.cpp": "eeb48b5a09d82431a83f96f10b164a1277044862e384127c3d32a658e9ea0dd9",
+    "build/bin/metalrobo_task_rollout": "5bd200ed498789275b462ffcbf9191a45eb66586b0ca227ca51f36be14d0a1f1",
+    "build/shaders/MetalRobo.metallib": "73760d9f7ce179cada82d216da6d06e58b3855c2d509d072f5481c96d9a79b40",
+    "build/crow-mixed-native-observer-20261109/libmetalrobo.dylib": "63b977cfbc8af3725cfb19dbb117e5f397b033d2db3bfeaf78d46f41721e784c",
+    "build/crow-mixed-native-integration-20261109/route.policypack": "06a5a8b187145615a92697412a156358e727b69f1d0aa75308e6c208f48322ac",
+    "build/crow-mixed-native-integration-20261109/landing.policypack": "aa34a508ac3c4914e7e5f49a6d5acc48680a161ea2b6162131d348933aafee8e"
+  },
+  "controls": "16 full starts per layout, teacher off, first episodes only, no scheduled or intermediate resets; 3000 control steps; native v15 body and frozen flight law",
+  "success": "all five waypoints in order and at least 25 terminal accepted steps of foot-only support with positive upward impulse and low velocity; no physical failure and no simulator failure",
+  "prediction": "at least 15 supported finishes out of 16 on each layout",
+  "failure_reporting": "every attempted lane, first fatal contact or last sampled state if stalled, and exact box distance sampled at each accepted 20 ms control-step endpoint; perch excluded from obstacle clearance",
+  "caveat": "two unused nominal layouts and one unused seed per layout provide bounded generalization evidence, not a universal reliability guarantee"
+}
