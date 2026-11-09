@@ -3768,6 +3768,12 @@ MetalWorldDiagnostics validateAndBuildLayout(
                 j.childBody == 1u && j.jointType == MR_JOINT_PRISMATIC &&
                 j.qOffset == 0u && j.vOffset == 0u && j.nq == 1u && j.nv == 1u &&
                 j.axis0.x == 0.0f && j.axis0.y == 0.0f && j.axis0.z == 1.0f &&
+                // A compensated owner must project its low q word
+                // into body translation without losing it in anchor offsets.
+                // Offset joints need a separately qualified projection.
+                j.parentAnchor.x == 0.0f && j.parentAnchor.y == 0.0f &&
+                j.parentAnchor.z == 0.0f && j.childAnchor.x == 0.0f &&
+                j.childAnchor.y == 0.0f && j.childAnchor.z == 0.0f &&
                 j.parentRotation.x == 0.0f && j.parentRotation.y == 0.0f &&
                 j.parentRotation.z == 0.0f && j.parentRotation.w == 1.0f &&
                 j.childRotation.x == 0.0f && j.childRotation.y == 0.0f &&
@@ -3795,7 +3801,7 @@ MetalWorldDiagnostics validateAndBuildLayout(
             config.multicopterProgram.valid() || config.deviceMechanicsProgram.valid() ||
             !batch.resetMasks.empty()) {
             return reject(std::move(diagnostics), MetalWorldHostStatus::unsupportedTopology,
-                "slider midpoint requires one unloaded fixed-root world-z prismatic body, one environment and one step without other owners");
+                "slider midpoint requires one unloaded fixed-root world-z prismatic body with coincident zero joint anchors, one environment and one step without other owners");
         }
     }
     const bool ownsFreeCandidate = config.devicePhysicsProgram.valid() &&

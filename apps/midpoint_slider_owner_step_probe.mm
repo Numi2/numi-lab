@@ -135,6 +135,15 @@ int main(int argc,char**argv){@autoreleasepool{try{
          "transverse body force was not rejected and restored");
  OwnerProbe bad;metalrobo::MetalWorldResult ignored;auto rotating=run(argv[1],slider(.001f,.02f,true),.001f,0,bad,ignored);
  require(!rotating.succeeded()&&!bad.pre,"rotating joint not rejected before callback");
+ for (unsigned anchor=0;anchor<2;++anchor) for (unsigned axis=0;axis<3;++axis) {
+  auto offsetModel=slider(.001f,.02f);
+  auto& offset=anchor==0 ? offsetModel.joints[0].parentAnchor : offsetModel.joints[0].childAnchor;
+  if(axis==0)offset.x=.001f;else if(axis==1)offset.y=.001f;else offset.z=.001f;
+  OwnerProbe offsetProbe;metalrobo::MetalWorldResult offsetResult;
+  const auto offsetStatus=run(argv[1],offsetModel,.001f,0,offsetProbe,offsetResult);
+  require(offsetStatus.status==metalrobo::MetalWorldHostStatus::unsupportedTopology && !offsetProbe.pre,
+      "offset joint accepted by scoped midpoint owner");
+ }
  OwnerProbe loaded;auto nonzero=run(argv[1],slider(.001f,.02f),.001f,0,loaded,ignored,.1f);
  require(!nonzero.succeeded()&&!loaded.pre,"extra effort not rejected before callback");
  OwnerProbe missing;missing.skip=true;auto noCandidate=run(argv[1],slider(.001f,.02f),.001f,0,missing,ignored);
