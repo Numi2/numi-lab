@@ -1,0 +1,17 @@
+{
+  "binned_force_difference_relative_to_fine_peak_bin": 0.017273715072479448,
+  "coarse_divisions": 64,
+  "coarse_sampled_peak_force_N": 0.122647297670292,
+  "fine_divisions": 128,
+  "fine_sampled_peak_force_N": 0.10161944567851239,
+  "input_sha256": {
+    "rk4-n128-retry1-h050.json": "6f7acdab751182fa410579302bf4d7b57915abe9356ec2dc04a5dcca3fd3a09d",
+    "rk4-n64-h050.json": "28234a94bbcf6908d636ff36a31e5744bb94974faad4df683d883c8a881e81f6"
+  },
+  "max_cumulative_impulse_difference_relative_to_fine_total": 0.005037072220977711,
+  "sampled_peak_difference_relative_to_fine": 0.2069274423942857,
+  "schema": "numi.spatial-coarse-exploratory.v1",
+  "scope": "CPU fixed-law coarse-timestep comparison; n128 temporal qualification pending; not a spatial qualification",
+  "timestep_s": 5e-07,
+  "total_impulse_difference_relative_to_fine": 0.0016176039562610697
+}
