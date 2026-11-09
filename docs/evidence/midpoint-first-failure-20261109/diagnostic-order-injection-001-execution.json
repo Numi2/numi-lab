@@ -1,0 +1,27 @@
+{
+  "command": [
+    "/Users/numi/numi-matter-midpoint-compensated-build-20261109/numi_plane_contact_probe_scaled",
+    "/Users/numi/numi-matter-midpoint-compensated-build-20261109/NumiMatter.metallib",
+    "0.000015625",
+    "1",
+    "2",
+    "ipc_area_midpoint",
+    "0.000095",
+    "physical",
+    "contact",
+    "reference"
+  ],
+  "inputs_sha256": {
+    "/Users/numi/numi-matter-midpoint-compensated-build-20261109/numi_plane_contact_probe_scaled": "3b8b617ad5b654bf211bb0bbe4b24dcca982bfea4b307d7a58ba0aec2e6a83cc",
+    "/Users/numi/numi-matter-midpoint-compensated-build-20261109/NumiMatter.metallib": "cbfd7857267f14266f4b2fc61bbd729c3e1dd612f4a2cd167e58935b348bb8ca",
+    "apps/plane_contact_probe.mm": "83ac780daf737b7c26ae210c2b42c392581c3c1ca317d98e1f5b7b32f0578d17"
+  },
+  "returncode": 0,
+  "timed_out": false,
+  "wall_seconds": 0.9922343749785796,
+  "free_bytes_after": 3422453760,
+  "diagnostic_ordering_invariant": true,
+  "accepted_steps": 1,
+  "forced_rollback_exact": true,
+  "continuation_replay": true
+}

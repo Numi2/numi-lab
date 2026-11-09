@@ -290,7 +290,7 @@ int main(int argc,char** argv){
     id<MTLDevice> device=MTLCreateSystemDefaultDevice();id<MTLCommandQueue> queue=[device newCommandQueue];
     id<MTLBuffer> statuses=[device newBufferWithLength:sizeof(MRMetalWorldStatusGPU) options:MTLResourceStorageModeShared];
     auto* outer=static_cast<MRMetalWorldStatusGPU*>(statuses.contents);
-    auto step=[&](int i,bool forceRollback=false){
+    auto step=[&](int i,bool forceRollback=false,int injectedMatterIndex=-1){
       @autoreleasepool {
         *outer={};outer->code=MR_STEP_SUCCESS;
         id<MTLCommandBuffer> command=[queue commandBuffer];numi::matter::EncodeRequest request;
@@ -301,6 +301,23 @@ int main(int argc,char** argv){
         if(forceRollback){
             id<MTLBlitCommandEncoder> blit=[command blitCommandEncoder];
             [blit fillBuffer:statuses range:NSMakeRange(0,sizeof(MRMetalWorldStatusGPU)) value:2];
+            [blit endEncoding];
+        }
+        if(injectedMatterIndex>=0) {
+            // Inject after the real candidate is encoded, before post-commit
+            // reconciliation, varying only the reported diagnostic identity and data.
+            NMMatterStatusGPU failure{};
+            failure.code=NM_STATUS_NONLINEAR_SOLVER_FAILURE;
+            failure.objectIndex=0u;
+            failure.failingIndex=static_cast<std::uint32_t>(injectedMatterIndex);
+            failure.diagnostics.z=float(injectedMatterIndex+1);
+            id<MTLBuffer> src=[device newBufferWithBytes:&failure length:sizeof(failure)
+                options:MTLResourceStorageModeShared];
+            id<MTLBuffer> dst=(__bridge id<MTLBuffer>)runtime.statusBuffer();
+            require(src!=nil && dst!=nil && dst.length>=sizeof(failure),"failure injection buffers unavailable");
+            id<MTLBlitCommandEncoder> blit=[command blitCommandEncoder];
+            require(blit!=nil,"failure injection encoder unavailable");
+            [blit copyFromBuffer:src sourceOffset:0 toBuffer:dst destinationOffset:0 size:sizeof(failure)];
             [blit endEncoding];
         }
         request.phase=numi::matter::EncodePhase::postCommit;encoded=runtime.encode(request);
@@ -439,6 +456,29 @@ int main(int argc,char** argv){
     (void)step(steps,true);const auto rolled=runtime.snapshot();
     const bool rollback=physicalEqual(beforeRollback,rolled) &&
         beforeRollback.controlStep==rolled.controlStep && beforeRollback.physicsSubstep==rolled.physicsSubstep;
+    // Use two late failures with the same category and different offending
+    // indices. Independently restore the same accepted state, require the
+    // rollback to preserve it, and compare the following real retry with an
+    // uninterrupted continuation. This is a fixture-specific diagnostic
+    // ordering check, not a canonical offender-selection rule.
+    bool diagnosticOrderingInvariant=true,diagnosticOrderingTested=false;
+    if(config.experimentalFEMPlaneMidpoint && rejected==0) {
+        diagnosticOrderingTested=true;
+        for(const int index : {0, int(world.dispatch.tetrahedronCount)-1}) {
+            require(index>=0,"diagnostic fixture requires tetrahedra");
+            restored=runtime.restore(final);require(restored.encoded,"restore for diagnostic failure failed");
+            (void)step(steps,false,index);const auto failed=runtime.snapshot();
+            const bool category=!failed.statuses.empty() &&
+                failed.statuses[0].code==NM_STATUS_NONLINEAR_SOLVER_FAILURE &&
+                failed.statuses[0].failingIndex==static_cast<std::uint32_t>(index);
+            const bool physical=physicalEqual(final,failed) &&
+                final.controlStep==failed.controlStep && final.physicsSubstep==failed.physicsSubstep;
+            (void)step(steps);const auto retried=runtime.snapshot();
+            diagnosticOrderingInvariant &= category && physical && physicalEqual(next,retried) &&
+                next.controlStep==retried.controlStep && next.physicsSubstep==retried.physicsSubstep &&
+                sameStatusCodes(next.statuses,retried.statuses);
+        }
+    }
     restored=runtime.restore(initial);require(restored.encoded,"restore before reset failed");
     // Snapshot restore is exercised above with both nodes and persistent duals.
 
@@ -447,6 +487,7 @@ int main(int argc,char** argv){
         <<",\"accepted_simulated_seconds_per_wall_second\":"<<accepted*h/wall<<",\"minimum_gap\":"<<minimumGap
         <<",\"final_physical_sha256\":\""<<physicalDigest(final)<<"\""
         <<",\"rejected_state_unchanged\":"<<(rejectionRestored?"true":"false")
+        <<",\"diagnostic_ordering_invariant\":"<<(diagnosticOrderingTested ? (diagnosticOrderingInvariant?"true":"false") : "null")
         <<",\"continuation_replay\":"<<(continuationReplay?"true":"false")
         <<",\"replay_status_bytes_exact\":"<<(replayStatusExact?"true":"false")
         <<",\"continuation_status_bytes_exact\":"<<(continuationStatusExact?"true":"false")
@@ -463,6 +504,6 @@ int main(int argc,char** argv){
     }
     std::cout<<"]"
         <<",\"law_max_relative_error\":"<<maxLawError<<",\"momentum_max_absolute_error_Ns\":"<<maxMomentumError<<",\"independent_max_local_scaled_residual\":"<<maxLocalResidual<<",\"independent_max_local_scaled_without_floor\":"<<maxLocalWithoutFloor<<",\"position_velocity_max_defect_m\":"<<maxKinematicDefect<<",\"freefall_velocity_max_defect_mps\":"<<maxFreefallVelocityDefect<<",\"maximum_accepted_multiplier_impulse_Ns\":"<<maxAcceptedDual<<",\"identity_mismatch_rejected\":"<<(identityRejected?"true":"false")<<",\"forced_rollback_exact\":"<<(rollback?"true":"false")<<",\"restore_replay\":"<<(replay?"true":"false")<<"}\n";
-    return rejected||!replay||!continuationReplay||!rollback||!identityRejected||maxLawError>1e-4||maxMomentumError>1e-7||(policy=="physical"&&maxLocalResidual>.005)?1:0;
+    return rejected||!replay||!continuationReplay||!rollback||!identityRejected||!diagnosticOrderingInvariant||maxLawError>1e-4||maxMomentumError>1e-7||(policy=="physical"&&maxLocalResidual>.005)?1:0;
  }catch(const std::exception& e){std::cerr<<"plane_contact_probe: "<<e.what()<<"\n";return 1;}}
 }
