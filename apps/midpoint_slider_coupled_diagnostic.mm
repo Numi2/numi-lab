@@ -166,7 +166,8 @@ int main(int argc,char**argv){@autoreleasepool{try{
       now.solverCertificates.size()==1,"missing owner data or certificate");
   q=result.finalQ;v=result.finalV;const auto body=*static_cast<const MRABABodyWrenchGPU*>(obs.wrench.contents);
   const auto support=*static_cast<const MRABABodyWrenchGPU*>(obs.support.contents);
-  double impulse=0,torqueX=0,torqueY=0,work=0,low=1e100;
+  double impulse=0,torqueX=0,torqueY=0,work=0,low=1e100,midLow=1e100;
+  double oldContactPotential=0,newContactPotential=0;
   for(const auto& s:now.contactSamples)if(s.identity.w&NM_CONTACT_VALID){
    require(s.identity.x>=femWorld.dispatch.gridNodeCount,"contact is not a FEM node");
    const auto node=s.identity.x-femWorld.dispatch.gridNodeCount;require(node<now.femNodes.size(),"contact node out of range");
@@ -174,7 +175,15 @@ int main(int argc,char**argv){@autoreleasepool{try{
    const double x=s.pointAndSeparation.x,y=s.pointAndSeparation.y;torqueX+=y*jz;torqueY-=x*jz;
    const double vm=.5*(physicalVelocity(previous,node,2)+physicalVelocity(now,node,2));work+=jz*vm;
   }
-  for(const auto& n:now.femNodes)low=std::min(low,double(n.restAndFixed.z)+n.referenceDisplacementAndMode.z+n.referenceDisplacementLow.z-double(q[0]));
+  for(std::size_t i=0;i<now.femNodes.size();++i){
+   const auto& n=now.femNodes[i];const auto& old=previous.femNodes[i];
+   const double z=double(n.restAndFixed.z)+n.referenceDisplacementAndMode.z+n.referenceDisplacementLow.z-double(q[0]);
+   const double oldZ=double(old.restAndFixed.z)+old.referenceDisplacementAndMode.z+old.referenceDisplacementLow.z-double(startQ[0]);
+   low=std::min(low,z);midLow=std::min(midLow,.5*(oldZ+z));
+   const double d=femWorld.dispatch.numericalLimits.x,k=mc.experimentalFEMPlaneAreaIPCK;
+   auto potential=[&](double g){if(area[i]<=0 || g>=d)return 0.;require(g>0,"nonpositive clearance in potential");const double v=g*g-d*d;return -double(area[i])*k*v*v*std::log(g*g/(d*d));};
+   oldContactPotential+=potential(oldZ);newContactPotential+=potential(z);
+  }
   const double ownerImpulse=sliderMass*(double(v[0])-double(startV[0]))-physicalH*sliderMass*sliderGravity;
   const double ownerWork=ownerImpulse*.5*(double(startV[0])+double(v[0]));
   const auto independent=fixtureResidual(femWorld,previous,now,physicalH,true);
@@ -182,12 +191,14 @@ int main(int argc,char**argv){@autoreleasepool{try{
   const double jointResidual=std::hypot(independent.l2,ownerResidual);
   const double sliderKinematic=double(q[0])-double(startQ[0])-
       physicalH*.5*(double(startV[0])+double(v[0]));
-  std::cout<<",\"gap\":"<<low<<",\"q\":"<<q[0]<<",\"v\":"<<v[0]<<",\"fem_impulse\":"<<impulse
+  std::cout<<",\"gap\":"<<low<<",\"midpoint_gap\":"<<midLow<<",\"q\":"<<q[0]<<",\"v\":"<<v[0]<<",\"fem_impulse\":"<<impulse
    <<",\"owner_momentum_impulse\":"<<ownerImpulse<<",\"owner_wrench_impulse\":"<<double(body.force.z)*physicalH
    <<",\"fem_torque_impulse_x\":"<<torqueX<<",\"fem_torque_impulse_y\":"<<torqueY
    <<",\"owner_moment_impulse_x\":"<<double(body.torque.x)*physicalH<<",\"owner_moment_impulse_y\":"<<double(body.torque.y)*physicalH
    <<",\"support_moment_impulse_x\":"<<double(support.torque.x)*physicalH<<",\"support_moment_impulse_y\":"<<double(support.torque.y)*physicalH
    <<",\"fem_contact_work\":"<<work<<",\"owner_contact_work\":"<<ownerWork
+   <<",\"owner_wrench_work\":"<<double(body.force.z)*physicalH*.5*(double(startV[0])+double(v[0]))
+   <<",\"contact_potential_before_J\":"<<oldContactPotential<<",\"contact_potential_after_J\":"<<newContactPotential
    <<",\"independent_fem_residual_Ns\":"<<independent.l2
    <<",\"independent_joint_residual_Ns\":"<<jointResidual
    <<",\"fem_kinematic_defect_m\":"<<independent.kinematic

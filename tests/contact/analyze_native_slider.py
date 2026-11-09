@@ -49,6 +49,10 @@ torque_ratio=max(max(abs(s['fem_torque_impulse_'+a]+s['owner_moment_impulse_'+a]
 results={'reference_qualification_passed':reference_ok,'force_bin_relative_error':force_error,
  'sampled_peak_force_relative_error':peak_error,'total_impulse_relative_error':imp_error,
  'maximum_cumulative_impulse_relative_error':cum_error,'minimum_gap_m':min(s['gap'] for s in steps),
+ 'minimum_midpoint_gap_m':min(s['midpoint_gap'] for s in steps),
+ 'contact_work_plus_potential_change_J':sum(s['owner_contact_work']+s['fem_contact_work'] for s in steps)+steps[-1]['contact_potential_after_J']-steps[0]['contact_potential_before_J'],
+ 'maximum_step_work_plus_potential_change_J':max(abs(s['owner_contact_work']+s['fem_contact_work']+s['contact_potential_after_J']-s['contact_potential_before_J']) for s in steps),
+ 'maximum_owner_work_reconstruction_error_J':max(abs(s['owner_contact_work']-s['owner_wrench_work']) for s in steps),
  'maximum_impulse_balance_gate_ratio':impulse_ratio,'maximum_torque_balance_gate_ratio':torque_ratio,
  'max_independent_joint_residual_Ns':max(s['independent_joint_residual_Ns'] for s in steps),
  'physical_residual_limit_Ns':d['physical_residual_limit_Ns'],
@@ -62,7 +66,7 @@ results={'reference_qualification_passed':reference_ok,'force_bin_relative_error
  'max_slider_kinematic_defect_m':max(abs(s['slider_kinematic_defect_m']) for s in steps),
  'max_fem_kinematic_defect_m':max(s['fem_kinematic_defect_m'] for s in steps)}
 checks={'force_bin':force_error<=.0025,'sampled_peak':peak_error<=.01,'total_impulse':imp_error<=.0025,
- 'cumulative_impulse':cum_error<=.01,'clearance':results['minimum_gap_m']>1e-7,
+ 'cumulative_impulse':cum_error<=.01,'clearance':results['minimum_gap_m']>1e-7 and results['minimum_midpoint_gap_m']>1e-7,
  'equal_opposite_impulse':impulse_ratio<=1,'contact_and_support_torque':torque_ratio<=1,
  'independent_residual':results['max_independent_joint_residual_Ns']<=results['physical_residual_limit_Ns']}
 if abs(gap-.0002)<1e-12:

@@ -11,7 +11,7 @@ def at(t,col):
 h=15.625e-6;steps=[]
 for i in range(640):
  t=i*h;u=(i+1)*h;j=at(u,2)-at(t,2);x=.01*j;y=-x
- steps.append({'step':i,'accepted':True,'gap':.00009,'q':at(u,3),'v':at(u,4),
+ steps.append({'step':i,'accepted':True,'gap':.00009,'midpoint_gap':.00009,'contact_potential_before_J':0.,'contact_potential_after_J':0.,'owner_wrench_work':0.,'q':at(u,3),'v':at(u,4),
   'fem_impulse':j,'owner_momentum_impulse':-j,'owner_wrench_impulse':-j,
   'fem_torque_impulse_x':x,'fem_torque_impulse_y':y,'owner_moment_impulse_x':-x,'owner_moment_impulse_y':-y,
   'support_moment_impulse_x':x,'support_moment_impulse_y':y,'fem_contact_work':0.,'owner_contact_work':0.,
@@ -26,7 +26,7 @@ with tempfile.NamedTemporaryFile(mode='w',suffix='.json') as f:
   result=subprocess.run([sys.executable,str(root/'tests/contact/analyze_native_slider.py'),f.name],capture_output=True,text=True)
   return result.returncode,json.loads(result.stdout) if result.stdout else {'error':result.stderr}
  code,out=run();assert code==0,(code,out)
- for field in ('owner_momentum_impulse','support_moment_impulse_x','independent_joint_residual_Ns'):
-  old=d['steps'][100][field];d['steps'][100][field]=old+1e-5
+ for field in ('owner_momentum_impulse','support_moment_impulse_x','independent_joint_residual_Ns','midpoint_gap'):
+  old=d['steps'][100][field];d['steps'][100][field]=0. if field=='midpoint_gap' else old+1e-5
   code,out=run();assert code!=0,(field,out);d['steps'][100][field]=old
  print('baseline synthetic analysis passed; impulse, torque, and residual perturbations rejected')
