@@ -21,7 +21,7 @@ for i in range(640):
   'fem_impulse':j,'owner_momentum_impulse':-j,'owner_wrench_impulse':-j,
   'fem_torque_impulse_x':x,'fem_torque_impulse_y':y,'owner_moment_impulse_x':-x,'owner_moment_impulse_y':-y,
   'support_moment_impulse_x':x,'support_moment_impulse_y':y,'fem_contact_work':0.,'owner_contact_work':0.,
-  'independent_joint_residual_Ns':0.,'slider_kinematic_defect_m':0.,'fem_kinematic_defect_m':0.})
+  'independent_fem_residual_Ns':0.,'independent_joint_residual_Ns':0.,'slider_kinematic_defect_m':0.,'fem_kinematic_defect_m':0.})
 # Build a discrete midpoint position history from the reference velocities;
 # interpolated continuous positions alone need not obey the discrete equation.
 q=0.;previous_v=.02
@@ -56,13 +56,26 @@ for i,step in enumerate(steps):
 
 d={'schema':'numi.slider-coupled-diagnostic.v1','initial_gap':.000095,'h':h,'slider_mass_kg':.01,
  'initial_slider_velocity_mps':.02,'reference_area_m2':.0004,'reference_area_weights_m2':a,
- 'activation_width_m':.0001,'contact_coefficient':1e16,'physical_residual_limit_Ns':1e-10,'steps':steps}
+ 'activation_width_m':.0001,'contact_coefficient':1e16,'physical_residual_limit_Ns':2*(.00025+.00225)*9.81*h*(.0088/96.),'steps':steps}
 with tempfile.NamedTemporaryFile(mode='w',suffix='.json') as f:
  def run():
   f.seek(0);f.truncate();json.dump(d,f);f.flush()
   result=subprocess.run([sys.executable,str(root/'tests/contact/analyze_native_slider.py'),f.name],capture_output=True,text=True)
   return result.returncode,json.loads(result.stdout) if result.stdout else {'error':result.stderr}
  code,out=run();assert code==0,(code,out)
+ for bad in (1e-3,float('inf'),float('nan'),0.):
+  old=d['physical_residual_limit_Ns'];d['physical_residual_limit_Ns']=bad
+  code,out=run();assert code!=0,('invalid physical residual limit accepted',bad,out)
+  d['physical_residual_limit_Ns']=old
+ old=d['steps'][100]['independent_fem_residual_Ns'];d['steps'][100]['independent_fem_residual_Ns']=1e-9
+ code,out=run();assert code!=0 and 'combined residual disagrees' in out['error'],('hidden FEM error',out)
+ d['steps'][100]['independent_fem_residual_Ns']=old
+ # A consistent but too-large local FEM residual also fails the physical norm.
+ d['steps'][100]['independent_fem_residual_Ns']=1e-9
+ d['steps'][100]['independent_joint_residual_Ns']=1e-9
+ code,out=run();assert code!=0 and not out['checks']['independent_residual'],('large FEM residual accepted',out)
+ d['steps'][100]['independent_fem_residual_Ns']=0.
+ d['steps'][100]['independent_joint_residual_Ns']=0.
  # A rejected or missing step may never be upgraded to a full rollout.
  d['steps'][-1]['accepted']=False
  d['steps'][-1]['world_status']=11;d['steps'][-1]['matter_status']=10;d['steps'][-1]['failure_index']=7

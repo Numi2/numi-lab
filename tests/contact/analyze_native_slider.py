@@ -66,6 +66,14 @@ if not any(math.isclose(h,x,rel_tol=1e-6) for x in (15.625e-6,7.8125e-6)):
  raise SystemExit('timestep outside the preregistered native comparison')
 if [s['step'] for s in steps]!=list(range(len(steps))) or abs(len(steps)*h-duration)>1e-8:
  raise SystemExit('trace is not a complete ordered 10 ms rollout')
+# The registered fixture limit derives from its least nodal mass, gravity,
+# and separate absolute and relative impulse tolerances. Do not permit a
+# self-reported or nonfinite limit to silently relax that contract.
+expected_residual_limit=2.0*(.00025+.00225)*9.81*h*(.0088/96.0)
+reported_limit=d.get('physical_residual_limit_Ns')
+if (not isinstance(reported_limit,(int,float)) or not math.isfinite(reported_limit) or
+    reported_limit<=0 or not math.isclose(reported_limit,expected_residual_limit,rel_tol=2e-6,abs_tol=0.0)):
+ raise SystemExit('physical residual limit differs from the registered fixture')
 if not (math.isclose(d['slider_mass_kg'],.01,rel_tol=1e-6) and math.isclose(d['initial_slider_velocity_mps'],.02,rel_tol=1e-6)
  and math.isclose(d['reference_area_m2'],.0004,rel_tol=2e-6) and math.isclose(sum(d['reference_area_weights_m2']),.0004,rel_tol=2e-6)
  and len(d['reference_area_weights_m2'])==len(area_reference)==27
@@ -96,6 +104,19 @@ force_error=max(abs(a-b) for a,b in zip(bins,r['force_bins_N']))/max(r['force_bi
 peak_error=rel(max(x/h for x in imp),refpeak)
 imp_error=rel(cumulative[-1],refimp)
 cum_error=max(abs(sample(t[0])-t[2]) for t in r['trace'])/abs(refimp)
+# Reconstruct the combined norm from the separately evaluated FEM norm and
+# rigid momentum-versus-wrench residual. Summed momentum alone is not a local
+# convergence certificate.
+residual_consistency=0.0
+for step in steps:
+ fem=step['independent_fem_residual_Ns']
+ combined=step['independent_joint_residual_Ns']
+ if fem<0 or combined<0: raise SystemExit('negative residual norm')
+ owner=step['owner_momentum_impulse']-step['owner_wrench_impulse']
+ reconstructed=math.hypot(fem,owner)
+ residual_consistency=max(residual_consistency,abs(combined-reconstructed))
+ if not math.isclose(combined,reconstructed,rel_tol=1e-10,abs_tol=1e-24):
+  raise SystemExit('combined residual disagrees with local components')
 impulse_ratio=max(abs(s['fem_impulse']+s['owner_momentum_impulse'])/max(1e-12,1e-5*abs(s['fem_impulse'])) for s in steps)
 wrench_impulse_ratio=max(abs(s['fem_impulse']+s['owner_wrench_impulse'])/max(1e-12,1e-5*abs(s['fem_impulse'])) for s in steps)
 # The existing impulse gate induces a work-reconstruction bound: impulse
@@ -151,6 +172,8 @@ results={'reference_qualification_passed':reference_ok,'work_history_comparison'
  'maximum_owner_work_reconstruction_gate_ratio':work_ratio,
  'maximum_fem_work_reconstruction_gate_ratio':fem_work_ratio,
  'max_independent_joint_residual_Ns':max(abs(s['independent_joint_residual_Ns']) for s in steps),
+ 'max_independent_fem_residual_Ns':max(s['independent_fem_residual_Ns'] for s in steps),
+ 'max_residual_reconstruction_disagreement_Ns':residual_consistency,
  'physical_residual_limit_Ns':d['physical_residual_limit_Ns'],
  'slider_position_relative_error':abs(steps[-1]['q']-r['slider_final_z_m'])/max(abs(r['slider_final_z_m']),1e-8),
  'slider_velocity_relative_error':abs(steps[-1]['v']-r['slider_final_v_mps'])/max(abs(r['slider_final_v_mps']),1e-6),
