@@ -1,0 +1,3 @@
+# Lower-speed lateral maneuver result
+
+All 100 first episodes passed their preregistered sampled screens, with zero physical failures and zero failed simulator steps. At +0.30 and -0.30 m/s lateral commands, the median of lane-mean lateral velocity was +0.239 and -0.242 m/s; at +0.15 and -0.15 it was +0.120 and -0.123 m/s. Absolute heading remained within 0.15 rad, sampled forward-speed error within 0.20 m/s, and height error within 0.15 m for all lanes. The ±0.30 commands therefore produced measured lateral translation but did not perfectly track the requested speed. The test used no obstacles and does not establish slalom completion, continuous clearance, landing, biological realism, or a frozen controller.
