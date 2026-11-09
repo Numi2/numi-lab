@@ -4941,14 +4941,21 @@ kernel void mr_locomotion_task_apply_actions(
                   abs(state.threatGeometry.w)
               )
             : 0.0f;
-        const float studentRequested = actionStream[actionBase + action];
+        // Slot 15 carries stage-four command in the triple-expert contract.
+        // The physical head action is held at zero until the landing actor takes over.
+        const float studentRequested =
+            (program.schedule.w & MR_TASK_PROGRAM_AVIAN_CROW_TRIPLE_WAYPOINT_EXPERT_NAVIGATION) != 0u &&
+            fixedFlightController && state.navigation.z < 5.0f && action == 15u
+            ? 0.0f : actionStream[actionBase + action];
         MRTaskStateGPU carrierState = state;
         carrierState.episode.x = min(carrierState.episode.x, 1500u);
         const uint commandOffset =
             (program.schedule.w & MR_TASK_PROGRAM_AVIAN_CROW_WAYPOINT_EXPERT_NAVIGATION) != 0u &&
             state.navigation.z >= 2.0f && state.navigation.z < 3.0f ? 4u :
             ((program.schedule.w & MR_TASK_PROGRAM_AVIAN_CROW_DUAL_WAYPOINT_EXPERT_NAVIGATION) != 0u &&
-             state.navigation.z >= 3.0f && state.navigation.z < 4.0f ? 8u : 0u);
+             state.navigation.z >= 3.0f && state.navigation.z < 4.0f ? 8u :
+             ((program.schedule.w & MR_TASK_PROGRAM_AVIAN_CROW_TRIPLE_WAYPOINT_EXPERT_NAVIGATION) != 0u &&
+              state.navigation.z >= 4.0f && state.navigation.z < 5.0f ? 12u : 0u));
         const float4 actorLatent = fixedFlightController
             ? clamp(float4(actionStream[actionBase+commandOffset+0u],actionStream[actionBase+commandOffset+1u],
                            actionStream[actionBase+commandOffset+2u],actionStream[actionBase+commandOffset+3u]),-1.0f,1.0f)

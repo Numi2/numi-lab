@@ -67,6 +67,8 @@ typedef enum MRBirdFlowJourneyVariantC {
     MR_BIRDFLOW_JOURNEY_V15_WAYPOINT_EXPERT_NAVIGATION = 10,
     // Distinct deterministic stage-two and stage-three command heads.
     MR_BIRDFLOW_JOURNEY_V15_DUAL_WAYPOINT_EXPERT_NAVIGATION = 11,
+    // Separate deterministic experts at waypoint indices two through four.
+    MR_BIRDFLOW_JOURNEY_V15_TRIPLE_WAYPOINT_EXPERT_NAVIGATION = 12,
 } MRBirdFlowJourneyVariantC;
 
 typedef enum MRBirdFlowNavigationCourseC {

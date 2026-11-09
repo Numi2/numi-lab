@@ -113,6 +113,8 @@ enum MRTaskProgramFlags : mr_u32 {
     MR_TASK_PROGRAM_AVIAN_CROW_WAYPOINT_EXPERT_NAVIGATION = 1u << 29u,
     // Route outputs 8..11 are active only at waypoint index three.
     MR_TASK_PROGRAM_AVIAN_CROW_DUAL_WAYPOINT_EXPERT_NAVIGATION = 1u << 30u,
+    // Stage four uses actor slots 12..15; physical head slot 15 is zero before landing.
+    MR_TASK_PROGRAM_AVIAN_CROW_TRIPLE_WAYPOINT_EXPERT_NAVIGATION = 1u << 31u,
 };
 
 enum MRTaskInteractionFlags : mr_u32 {

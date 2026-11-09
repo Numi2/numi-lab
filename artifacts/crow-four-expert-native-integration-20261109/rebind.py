@@ -4,7 +4,7 @@ import numpy as np
 from metalrobo.mlx_policy_learning import read_policy_pack
 from metalrobo.native import PolicyDenseLayerArtifact,write_policy_pack
 R=Path.cwd();A=R/'artifacts/crow-four-expert-native-integration-20261109';B=R/'build/crow-four-expert-native-integration-20261109';lib=R/'build/lib/libmetalrobo.dylib'
-oldroute=R/'build/crow-four-expert-experiment-20261109/stage4-independent-40.policypack';oldlanding=R/'build/crow-dual-expert-native-integration-20261109/landing.policypack'
+oldroute=R/'build/crow-four-expert-experiment-20261109/stage4-independent-20.policypack';oldlanding=R/'build/crow-dual-expert-native-integration-20261109/landing.policypack'
 cmd=json.loads((R/'artifacts/crow-expanded-candidate-eval-20261109/baseline/reserved-final-c/results.json').read_text())['argv'].copy()
 for k,v in [('--birdflow-journey-variant','v15-triple-waypoint-expert-navigation'),('--steps','1'),('--metallib',str(R/'build/shaders/MetalRobo.metallib')),('--state-trace',str(B/'contract.tsv'))]:cmd[cmd.index(k)+1]=v
 env={**os.environ,'DYLD_LIBRARY_PATH':str(lib.parent),'PYTHONDONTWRITEBYTECODE':'1'}

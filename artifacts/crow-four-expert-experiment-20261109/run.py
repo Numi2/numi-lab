@@ -1,9 +1,9 @@
 from pathlib import Path
 import gzip,hashlib,json,math,os,subprocess
 R=Path.cwd();A=R/'artifacts/crow-four-expert-eval-20261109'/(os.environ['CROW_CANDIDATE']+'-landing-'+os.environ.get('CROW_LANDING','baseline'));B=R/'build/crow-four-expert-eval-20261109'/(os.environ['CROW_CANDIDATE']+'-landing-'+os.environ.get('CROW_LANDING','baseline'));A.mkdir(parents=True,exist_ok=True);B.mkdir(parents=True,exist_ok=True)
-mode='actor';course=os.environ['CROW_DEV_COURSE'];seed=os.environ['CROW_START_SEED'];O=A/course;O.mkdir(exist_ok=True)
+mode='actor';course=os.environ['CROW_DEV_COURSE'];seed=os.environ['CROW_START_SEED'];O=A/(course+'-seed-'+seed);O.mkdir(exist_ok=True)
 cmd=json.loads((R/'artifacts/crow-latched-joint-dev-20261109/training/route-results.json').read_text())['argv']
-for k,v in [('--metallib',str(R/'build/crow-four-expert-experiment-20261109/stage4.metallib')),('--policy-pack',str((R/'build/crow-dual-expert-native-integration-20261109/landing.policypack') if os.environ.get('CROW_LANDING','baseline')=='baseline' else (R/'build/crow-third-policy-candidates-20261109'/('landing-'+os.environ['CROW_LANDING']+'.policypack')))),('--state-trace',str(B/(course+'-trace.tsv')))]:cmd[cmd.index(k)+1]=v
+for k,v in [('--metallib',str(R/'build/crow-four-expert-experiment-20261109/stage4.metallib')),('--policy-pack',str((R/'build/crow-dual-expert-native-integration-20261109/landing.policypack') if os.environ.get('CROW_LANDING','baseline')=='baseline' else (R/'build/crow-third-policy-candidates-20261109'/('landing-'+os.environ['CROW_LANDING']+'.policypack')))),('--state-trace',str(B/(course+'-seed-'+seed+'-trace.tsv')))]:cmd[cmd.index(k)+1]=v
 cmd[cmd.index('--birdflow-journey-variant')+1]='v15-dual-waypoint-expert-navigation'
 cmd+=['--base-policy-pack',str((R/'build/crow-dual-expert-native-integration-20261109/route.policypack') if os.environ['CROW_CANDIDATE']=='baseline' else (R/'build/crow-four-expert-experiment-20261109'/(os.environ['CROW_CANDIDATE']+'.policypack')))]
 cmd[cmd.index('--birdflow-navigation-course')+1]=course
