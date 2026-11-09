@@ -63,10 +63,11 @@ static metalrobo::EngineModel makeSlider(float h){
  m.defaultQ={0};m.defaultV={.02f};return m;
 }
 int main(int argc,char**argv){@autoreleasepool{try{
- require(argc==6 || argc==7,"usage: midpoint_slider_coupled_diagnostic MATTER_METALLIB WORLD_METALLIB h initial_gap steps [rollback|rollback_precontact]");
+ require(argc==6 || argc==7,"usage: midpoint_slider_coupled_diagnostic MATTER_METALLIB WORLD_METALLIB h initial_gap steps [rollback|rollback_precontact|reset_guard]");
  const bool precontact=argc==7 && std::string(argv[6])=="rollback_precontact";
  const bool rollback=precontact || (argc==7 && std::string(argv[6])=="rollback");
- require(argc==6 || rollback,"unknown diagnostic mode");
+ const bool resetGuard=argc==7 && std::string(argv[6])=="reset_guard";
+ require(argc==6 || rollback || resetGuard,"unknown diagnostic mode");
  const double h=std::stod(argv[3]),gap=std::stod(argv[4]);const int steps=std::stoi(argv[5]);
  require(h>0&&gap>0&&(steps>0 || (precontact && steps==0)),"invalid fixture arguments");
  for(const char* key:{"NM_MATTER_MIDPOINT_VELOCITY_COMPENSATION","NM_MATTER_MIDPOINT_STAGE_COMPENSATION"}) {
@@ -111,6 +112,17 @@ int main(int argc,char**argv){@autoreleasepool{try{
  std::vector<float> area;std::string areaError;
  require(numi::matter::detail::femFixedPlaneReferenceAreas(femWorld,area,areaError),"reference areas: "+areaError);
  double totalArea=0;for(float value:area)totalArea+=double(value);
+ if(resetGuard){
+  const std::vector<std::uint32_t> resetMask{1u};const std::vector<float> resetQ{0.f},resetV{.02f};
+  const metalrobo::MetalWorldBatch batch{.environmentCount=1,.controlStepCount=1,
+    .initialQ=q,.initialV=v,.efforts=effort,.resetMasks=resetMask,.resetQ=resetQ,.resetV=resetV};
+  metalrobo::MetalWorldResult result;const auto ran=owner.run(world,batch,config,result);
+  const auto after=matter.snapshot();
+  require(ran.status==metalrobo::MetalWorldHostStatus::unsupportedTopology && after.available && physicalEqual(previous,after) &&
+      previous.controlStep==after.controlStep && previous.physicsSubstep==after.physicsSubstep,
+      "live reset stream did not reject with Matter state preserved");
+  std::cout<<"{\"live_reset_rejected\":true,\"matter_restored\":true,\"host_status\":"<<int(ran.status)<<"}\n";return 0;
+ }
  if(rollback){
   // Warm up through real accepted contact. The selected checkpoint, candidate,
   // forced late rejection and subsequent retry all use the same two owners.
