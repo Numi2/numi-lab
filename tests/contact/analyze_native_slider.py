@@ -57,6 +57,11 @@ for index,step in enumerate(steps):
    step.get('step',index),step.get('world_status','unavailable'),
    step.get('matter_status','unavailable'),step.get('host_status','unavailable'),
    step.get('failure_index','unavailable')))
+# An accepted row must agree with both native owners' status codes.
+if any(s.get('accepted') is not True or type(s.get('world_status')) is not int or
+       type(s.get('matter_status')) is not int or s['world_status'] != 0 or s['matter_status'] != 0
+       for s in steps):
+ raise SystemExit('accepted trace has a missing or non-success owner status')
 if not any(math.isclose(h,x,rel_tol=1e-6) for x in (15.625e-6,7.8125e-6)):
  raise SystemExit('timestep outside the preregistered native comparison')
 if [s['step'] for s in steps]!=list(range(len(steps))) or abs(len(steps)*h-duration)>1e-8:
@@ -68,6 +73,15 @@ if not (math.isclose(d['slider_mass_kg'],.01,rel_tol=1e-6) and math.isclose(d['i
  and math.isclose(d['activation_width_m'],.0001,rel_tol=1e-6)
  and math.isclose(d['contact_coefficient'],1e16,rel_tol=1e-6)):raise SystemExit('fixture inputs differ from reference')
 if not all(math.isfinite(v) for s in steps for v in s.values() if isinstance(v,(float,int))):raise SystemExit('nonfinite trace')
+# Independently reconstruct the full-step slider kinematics from the
+# published physical positions and velocities, using the device timestep.
+# This fixture starts at q=0; a future compensated owner must publish the sum
+# of its high and low words here, not merely its high projection.
+previous_q=0.0;previous_v=d['initial_slider_velocity_mps'];slider_reconstructed_defect=0.0
+for step in steps:
+ defect=math.fsum((step['q'],-previous_q,-0.5*h*previous_v,-0.5*h*step['v']))
+ slider_reconstructed_defect=max(slider_reconstructed_defect,abs(defect))
+ previous_q,previous_v=step['q'],step['v']
 imp=[s['fem_impulse'] for s in steps];times=[0.];cumulative=[0.]
 for x in imp:times.append(times[-1]+h);cumulative.append(cumulative[-1]+x)
 def sample(t):
@@ -161,6 +175,8 @@ checks={'force_bin':force_error<=.0025,'sampled_peak':peak_error<=.01,'total_imp
  'independent_residual':results['max_independent_joint_residual_Ns']<=results['physical_residual_limit_Ns']}
 # The same 1e-11 m full-step kinematic bound used by the static midpoint
 # fixture; defects are independently reconstructed from accepted states.
+results['max_reconstructed_slider_kinematic_defect_m']=slider_reconstructed_defect
+checks['reconstructed_slider_midpoint_kinematics']=slider_reconstructed_defect<=1e-11
 checks['slider_midpoint_kinematics']=results['max_slider_kinematic_defect_m']<=1e-11
 checks['fem_midpoint_kinematics']=results['max_fem_kinematic_defect_m']<=1e-11
 checks['slider_position']=results['slider_position_relative_error']<=.0025

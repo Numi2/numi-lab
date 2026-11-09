@@ -17,11 +17,16 @@ def work_at(t,col):
 h=15.625e-6;steps=[]
 for i in range(640):
  t=i*h;u=(i+1)*h;j=at(u,2)-at(t,2);x=j*r['torque_impulse_x_Nms']/r['impulse_Ns'];y=j*r['torque_impulse_y_Nms']/r['impulse_Ns']
- steps.append({'step':i,'accepted':True,'gap':.00009,'midpoint_gap':.00009,'contact_potential_before_J':0.,'contact_potential_after_J':0.,'owner_wrench_work':0.,'q':at(u,3),'v':at(u,4),
+ steps.append({'step':i,'accepted':True,'world_status':0,'matter_status':0,'gap':.00009,'midpoint_gap':.00009,'contact_potential_before_J':0.,'contact_potential_after_J':0.,'owner_wrench_work':0.,'q':at(u,3),'v':at(u,4),
   'fem_impulse':j,'owner_momentum_impulse':-j,'owner_wrench_impulse':-j,
   'fem_torque_impulse_x':x,'fem_torque_impulse_y':y,'owner_moment_impulse_x':-x,'owner_moment_impulse_y':-y,
   'support_moment_impulse_x':x,'support_moment_impulse_y':y,'fem_contact_work':0.,'owner_contact_work':0.,
   'independent_joint_residual_Ns':0.,'slider_kinematic_defect_m':0.,'fem_kinematic_defect_m':0.})
+# Build a discrete midpoint position history from the reference velocities;
+# interpolated continuous positions alone need not obey the discrete equation.
+q=0.;previous_v=.02
+for step in steps:
+ q+=h*.5*(previous_v+step['v']);step['q']=q;previous_v=step['v']
 a=json.loads((p/'compact-reference-parity-n2-ordered-001.json').read_text())['contact_area_weights_m2']
 active=[i for i,x in enumerate(a) if x>0]
 def impulse(gap,node):
@@ -63,6 +68,10 @@ with tempfile.NamedTemporaryFile(mode='w',suffix='.json') as f:
  d['steps'][-1]['world_status']=11;d['steps'][-1]['matter_status']=10;d['steps'][-1]['failure_index']=7
  code,out=run();assert code!=0 and 'native step 639 rejected' in out['error'] and 'matter_status=10' in out['error'] and 'failure_index=7' in out['error'],('rejected step accepted or failure category lost',out)
  d['steps'][-1]['accepted']=True
+ d['steps'][-1]['world_status']=0;d['steps'][-1]['matter_status']=0
+ d['steps'][100]['matter_status']=10
+ code,out=run();assert code!=0 and 'non-success owner status' in out['error'],('inconsistent accepted status',out)
+ d['steps'][100]['matter_status']=0
  last=d['steps'].pop()
  code,out=run();assert code!=0,('incomplete trajectory accepted',out)
  d['steps'].append(last)
@@ -77,6 +86,11 @@ with tempfile.NamedTemporaryFile(mode='w',suffix='.json') as f:
   d['steps'][100][field]=old
  old=d['steps'][100]['fem_work_nodes'][0][1];d['steps'][100]['fem_work_nodes'][0][1]+=1e-5
  code,out=run();assert code!=0,('corrupt node',out);d['steps'][100]['fem_work_nodes'][0][1]=old
+ # A corrupted interior position cannot hide behind an unchanged endpoint or
+ # a falsely small precomputed defect.
+ old=d['steps'][100]['q'];d['steps'][100]['q']=old+1e-5
+ code,out=run();assert code!=0 and not out['checks']['reconstructed_slider_midpoint_kinematics'],('interior q',out)
+ d['steps'][100]['q']=old
  for field,check in (('q','slider_position'),('v','slider_velocity')):
   old=d['steps'][-1][field];d['steps'][-1][field]=old+.01
   code,out=run();assert code!=0 and not out['checks'][check],(field,out)
