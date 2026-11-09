@@ -11,7 +11,7 @@ struct SliderObservation {
  metalrobo::MetalWorldDevicePhysicsProgram inner{};
  id<MTLBuffer> wrench=nil, support=nil, candidateQ=nil, candidateV=nil;
  bool injectLateFailure=false;
- std::uint32_t failureFlags=0u;
+ std::uint32_t failureFlags=0u, failureIndex=0u;
 };
 static bool observeSlider(void* opaque,const metalrobo::MetalWorldDevicePhysicsPass& pass){
  auto& o=*static_cast<SliderObservation*>(opaque);
@@ -33,6 +33,7 @@ static bool observeSlider(void* opaque,const metalrobo::MetalWorldDevicePhysicsP
   id<MTLCommandBuffer> cmd=(__bridge id<MTLCommandBuffer>)pass.commandBuffer;
   id<MTLBuffer> dst=(__bridge id<MTLBuffer>)pass.environmentStatuses;
   MRMetalWorldStatusGPU failure{};failure.code=MR_STEP_DID_NOT_CONVERGE;failure.flags=o.failureFlags;
+  failure.failingIndex=o.failureIndex;failure.diagnostics={float(o.failureIndex),0.f,0.f,0.f};
   id<MTLBuffer> src=[cmd.commandQueue.device newBufferWithBytes:&failure length:sizeof(failure) options:MTLResourceStorageModeShared];
   if(!src||!dst||dst.length<sizeof(failure))return false;
   id<MTLBlitCommandEncoder> inject=[cmd blitCommandEncoder];if(!inject)return false;
@@ -158,22 +159,26 @@ int main(int argc,char**argv){@autoreleasepool{try{
   require(goodStatus.succeeded(),"baseline continuation failed: "+goodStatus.message);
   const auto goodMatter=matter.snapshot();require(goodMatter.available,"baseline snapshot unavailable");
   obs.failureFlags=good.layout.dispatch.flags;
-  const auto restored=matter.restore(checkpoint);require(restored.encoded,"restore checkpoint failed: "+restored.message);
-  obs.injectLateFailure=true;metalrobo::MetalWorldResult rejected;const auto failure=advance(rejected);obs.injectLateFailure=false;
-  const auto failedMatter=matter.snapshot();require(failedMatter.available,"rejected snapshot unavailable");
-  const bool rigidRestored=bytesEqual(rejected.finalQ,checkpointQ)&&bytesEqual(rejected.finalV,checkpointV);
-  const bool matterRestored=physicalEqual(checkpoint,failedMatter)&&checkpoint.controlStep==failedMatter.controlStep &&
-      checkpoint.physicsSubstep==failedMatter.physicsSubstep;
-  require(!failure.succeeded()&&failure.firstGPUStatusCode==MR_STEP_DID_NOT_CONVERGE && rigidRestored && matterRestored,
-      "late failure category or whole-environment restoration failed: "+failure.message);
-  metalrobo::MetalWorldResult retry;const auto retryStatus=advance(retry);const auto retryMatter=matter.snapshot();
-  const bool exact=retryStatus.succeeded() && retryMatter.available &&
-      bytesEqual(good.finalQ,retry.finalQ)&&bytesEqual(good.finalV,retry.finalV)&&
-      physicalEqual(goodMatter,retryMatter)&&goodMatter.controlStep==retryMatter.controlStep &&
-      goodMatter.physicsSubstep==retryMatter.physicsSubstep;
-  require(exact,"accepted retry differs from uninterrupted continuation");
-  std::cout<<"{\"after_nonzero_contact\":"<<(contactSeen?"true":"false")<<",\"failure_category\":"<<failure.firstGPUStatusCode
-      <<",\"rigid_restored\":true,\"matter_restored\":true,\"retry_exact\":true}\n";
+  for(const std::uint32_t index:{1u,7u}) {
+   const auto restored=matter.restore(checkpoint);require(restored.encoded,"restore checkpoint failed: "+restored.message);
+   obs.failureIndex=index;obs.injectLateFailure=true;metalrobo::MetalWorldResult rejected;
+   const auto failure=advance(rejected);obs.injectLateFailure=false;
+   const auto failedMatter=matter.snapshot();require(failedMatter.available,"rejected snapshot unavailable");
+   const bool rigidRestored=bytesEqual(rejected.finalQ,checkpointQ)&&bytesEqual(rejected.finalV,checkpointV);
+   const bool matterRestored=physicalEqual(checkpoint,failedMatter)&&checkpoint.controlStep==failedMatter.controlStep &&
+       checkpoint.physicsSubstep==failedMatter.physicsSubstep;
+   require(!failure.succeeded()&&failure.firstGPUStatusCode==MR_STEP_DID_NOT_CONVERGE &&
+       rejected.statuses.size()==1 && rejected.statuses[0].failingIndex==index && rigidRestored && matterRestored,
+       "late failure category, index, or whole-environment restoration failed: "+failure.message);
+   metalrobo::MetalWorldResult retry;const auto retryStatus=advance(retry);const auto retryMatter=matter.snapshot();
+   const bool exact=retryStatus.succeeded() && retryMatter.available &&
+       bytesEqual(good.finalQ,retry.finalQ)&&bytesEqual(good.finalV,retry.finalV)&&
+       physicalEqual(goodMatter,retryMatter)&&goodMatter.controlStep==retryMatter.controlStep &&
+       goodMatter.physicsSubstep==retryMatter.physicsSubstep;
+   require(exact,"diagnostic ordering changed the accepted retry");
+  }
+  std::cout<<"{\"after_nonzero_contact\":"<<(contactSeen?"true":"false")<<",\"failure_category\":"<<MR_STEP_DID_NOT_CONVERGE
+      <<",\"failure_indices\":[1,7],\"rigid_restored\":true,\"matter_restored\":true,\"retry_exact\":true,\"diagnostic_ordering_invariant\":true}\n";
   return 0;
  }
  bool anyRejected=false;

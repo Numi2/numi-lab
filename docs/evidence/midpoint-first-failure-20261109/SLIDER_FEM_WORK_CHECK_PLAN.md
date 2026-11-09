@@ -37,3 +37,13 @@ checks before contact and after a nonzero contact, to ensure that retaining the
 new node data did not change either physical owner or its failure category.
 The test remains one accepted continuation in each condition, not a complete
 10 ms rollout.
+
+
+For the diagnostic-order follow-up, restore the same two-owner checkpoint
+before each of two forced late failures with the same category and distinct
+reported indices 1 and 7. Verify the actual reported indices, unchanged
+failure category, bytewise restored rigid and Matter physical states, and
+bytewise-identical accepted retry against the same uninterrupted continuation.
+Run once before contact and once after a nonzero contact with the existing
+fixture inputs. Preserve either failure; this is a focused diagnostic-order
+check, not proof that all possible failure sources are equivalent.
