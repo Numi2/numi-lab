@@ -820,14 +820,35 @@ kernel void mr_world_slider_midpoint_candidate_velocity(
 // Free-motion commit consumes environment status, while borrowed candidate
 // operations report through contact status. Promote a candidate failure before
 // commit so an invalid midpoint cannot become a successful ABA endpoint.
-kernel void mr_world_slider_midpoint_promote_candidate_status(
+kernel void mr_world_slider_midpoint_promote_status_with_wrench_guard(
     constant MRMetalWorldPassGPU& pass [[buffer(0)]],
     device const MRMetalWorldContactStatusGPU* candidateStatus [[buffer(1)]],
     device MRMetalWorldStatusGPU* worldStatus [[buffer(2)]],
+    device const MRABABodyWrenchGPU* bodyWrenches [[buffer(3)]],
+    constant uint& hasBodyWrenches [[buffer(4)]],
     const uint environment [[thread_position_in_grid]]
 ) {
     if (environment != 0u) return;
-    const MRMetalWorldContactStatusGPU candidate = candidateStatus[0];
+    MRMetalWorldContactStatusGPU candidate = candidateStatus[0];
+    // The axial effort is already published through the mass operator. An
+    // extra force here would be counted twice. Only a finite torque on the
+    // moving body is admitted; there is no other body-wrench producer.
+    if (candidate.code == MR_STEP_SUCCESS && hasBodyWrenches != 0u) {
+        for (uint body = 0u; body < 2u; ++body) {
+            const MRABABodyWrenchGPU wrench = bodyWrenches[body];
+            if (!all(isfinite(wrench.force)) || !all(isfinite(wrench.torque))) {
+                candidate.code = MR_STEP_NONFINITE_INPUT;
+                candidate.firstFailingConstraint = body;
+                break;
+            }
+            if (any(wrench.force != float4(0.0f)) || wrench.torque.w != 0.0f ||
+                (body == 0u && any(wrench.torque != float4(0.0f)))) {
+                candidate.code = MR_STEP_UNSUPPORTED;
+                candidate.firstFailingConstraint = body;
+                break;
+            }
+        }
+    }
     MRMetalWorldStatusGPU world = worldStatus[0];
     if (world.code == MR_STEP_SUCCESS && candidate.code != MR_STEP_SUCCESS) {
         world.code = candidate.code;

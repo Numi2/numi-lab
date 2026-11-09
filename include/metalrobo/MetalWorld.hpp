@@ -328,6 +328,8 @@ enum MetalWorldDevicePhysicsFlags : std::uint32_t {
     MetalWorldDevicePhysicsOwnsFreeBodyCandidate = 1u << 4u,
     // Experimental one-axis midpoint transaction. Explicit admission and
     // exact owner topology validation are required; never a default path.
+    // If body wrenches are enabled, only the owned body moment is permitted;
+    // the axial force is already supplied by the generalized effort owner.
     MetalWorldDevicePhysicsOwnsSliderMidpoint = 1u << 5u,
 };
 
@@ -490,8 +492,7 @@ struct MetalWorldDevicePhysicsProgram {
             fingerprint != 0u &&
             (!ownsSliderMidpoint || (ownsCoupledCandidate &&
                 !ownsFreeBodyCandidate &&
-                (flags & (MetalWorldDevicePhysicsWritesBodyWrenches |
-                          MetalWorldDevicePhysicsRequiresRigidContactEvidence |
+                (flags & (MetalWorldDevicePhysicsRequiresRigidContactEvidence |
                           MetalWorldDevicePhysicsCouplesRodNodes)) == 0u)) &&
             (flags & ~kMetalWorldDevicePhysicsKnownFlags) == 0u &&
             (!ownsFreeBodyCandidate ||

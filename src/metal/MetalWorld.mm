@@ -6526,7 +6526,7 @@ MetalWorldDiagnostics initializeContext(
         device, library, @"mr_world_slider_midpoint_candidate_velocity", nullptr
     );
     sliderMidpointStatus = makePipeline(
-        device, library, @"mr_world_slider_midpoint_promote_candidate_status", nullptr
+        device, library, @"mr_world_slider_midpoint_promote_status_with_wrench_guard", nullptr
     );
     coupledCandidateMass = createContactPipeline(
         @"mr_world_apply_coupled_candidate_mass"
@@ -11692,6 +11692,10 @@ bool encodeSliderMidpointPosition(
     [promote setBytes:&pass length:sizeof(pass) atIndex:0u];
     [promote setBuffer:context.buffers[kContactStatuses] offset:0u atIndex:1u];
     [promote setBuffer:context.buffers[kEnvironmentStatuses] offset:0u atIndex:2u];
+    [promote setBuffer:context.buffers[kBodyWrenchPlaceholder] offset:0u atIndex:3u];
+    const std::uint32_t hasBodyWrenches =
+        (context.boundContactDispatch.flags & MR_METAL_WORLD_CONTACT_BODY_WRENCHES) != 0u;
+    [promote setBytes:&hasBodyWrenches length:sizeof(hasBodyWrenches) atIndex:4u];
     dispatchWorldThreads(promote, context.sliderMidpointStatusPipeline, 1u);
     [promote endEncoding];
     context.sliderMidpointStageIncrement = nil;

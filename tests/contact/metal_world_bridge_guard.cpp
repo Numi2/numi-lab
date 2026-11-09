@@ -11,6 +11,8 @@ bool owner(void*, const metalrobo::MetalWorldDevicePhysicsPass&,
            const metalrobo::MetalWorldCoupledCandidateQuery& q) {
     ++calls; captured = q; return true;
 }
+bool encodeProgram(void*, const metalrobo::MetalWorldDevicePhysicsPass&) { return true; }
+void abortProgram(void*, void*) {}
 void require(bool value, const char* message) {
     if (!value) { std::cerr << message << '\n'; std::exit(1); }
 }
@@ -54,5 +56,19 @@ int main() {
     REJECT_VALUE(recordSourceMassOperationICB, true);
     REJECT_VALUE(sourceMassOperationICBRecordOutput, pointer);
 #undef REJECT_VALUE
-    std::cout << "unsupported precision and ownership requests rejected before owner callback\n";
+    metalrobo::MetalWorldDevicePhysicsProgram program{};
+    program.context=&calls; program.encode=&encodeProgram; program.abort=&abortProgram;
+    program.fingerprint=1u; program.coupledCandidatePointCapacity=1u;
+    program.flags=metalrobo::MetalWorldDevicePhysicsOwnsCoupledCandidate |
+        metalrobo::MetalWorldDevicePhysicsOwnsSliderMidpoint |
+        metalrobo::MetalWorldDevicePhysicsWritesBodyWrenches;
+    require(program.valid(),"restricted slider moment capability rejected");
+    program.flags|=metalrobo::MetalWorldDevicePhysicsRequiresRigidContactEvidence;
+    require(!program.valid(),"slider admitted unrelated rigid contact owner");
+    program.flags=metalrobo::MetalWorldDevicePhysicsOwnsCoupledCandidate |
+        metalrobo::MetalWorldDevicePhysicsOwnsSliderMidpoint |
+        metalrobo::MetalWorldDevicePhysicsWritesBodyWrenches |
+        metalrobo::MetalWorldDevicePhysicsCouplesRodNodes;
+    require(!program.valid(),"slider admitted rod owner");
+    std::cout << "unsupported precision and ownership requests rejected; slider moment capability admitted\n";
 }
