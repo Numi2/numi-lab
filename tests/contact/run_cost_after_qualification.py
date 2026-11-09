@@ -36,9 +36,9 @@ def process_command(pid):
     return r.stdout.strip() if r.returncode == 0 else ""
 
 while True:
-    cpu = process_command(23698)
+    cpu = process_command(23696)
     be = process_command(25005)
-    if cpu and "numi_contact_fem_fp64_reference_n128" not in cpu:
+    if cpu and "run_n128_retry2.py" not in cpu:
         raise SystemExit(finish("reference process identity changed", observed=cpu))
     if be and "run_be_compressed_ladder.py" not in be:
         raise SystemExit(finish("control supervisor identity changed", observed=be))
