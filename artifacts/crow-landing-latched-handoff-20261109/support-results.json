@@ -1,0 +1,584 @@
+{
+  "lanes": [
+    {
+      "lane": 0,
+      "terminal_qualifying_contact_run": 1331,
+      "terminal_supported_finish": true,
+      "contact_samples": 1332,
+      "foot_samples": 1332,
+      "longest_qualifying_contact_run": 1331,
+      "candidate_supported_landing": true
+    },
+    {
+      "lane": 1,
+      "terminal_qualifying_contact_run": 1274,
+      "terminal_supported_finish": true,
+      "contact_samples": 1277,
+      "foot_samples": 1277,
+      "longest_qualifying_contact_run": 1274,
+      "candidate_supported_landing": true
+    },
+    {
+      "lane": 2,
+      "terminal_qualifying_contact_run": 1350,
+      "terminal_supported_finish": true,
+      "contact_samples": 1353,
+      "foot_samples": 1353,
+      "longest_qualifying_contact_run": 1350,
+      "candidate_supported_landing": true
+    },
+    {
+      "lane": 3,
+      "terminal_qualifying_contact_run": 1103,
+      "terminal_supported_finish": true,
+      "contact_samples": 1128,
+      "foot_samples": 1128,
+      "longest_qualifying_contact_run": 1103,
+      "candidate_supported_landing": true
+    },
+    {
+      "lane": 4,
+      "terminal_qualifying_contact_run": 1092,
+      "terminal_supported_finish": true,
+      "contact_samples": 1107,
+      "foot_samples": 1107,
+      "longest_qualifying_contact_run": 1092,
+      "candidate_supported_landing": true
+    },
+    {
+      "lane": 5,
+      "terminal_qualifying_contact_run": 1303,
+      "terminal_supported_finish": true,
+      "contact_samples": 1303,
+      "foot_samples": 1303,
+      "longest_qualifying_contact_run": 1303,
+      "candidate_supported_landing": true
+    },
+    {
+      "lane": 6,
+      "terminal_qualifying_contact_run": 999,
+      "terminal_supported_finish": true,
+      "contact_samples": 1029,
+      "foot_samples": 1029,
+      "longest_qualifying_contact_run": 999,
+      "candidate_supported_landing": true
+    },
+    {
+      "lane": 7,
+      "terminal_qualifying_contact_run": 1119,
+      "terminal_supported_finish": true,
+      "contact_samples": 1137,
+      "foot_samples": 1137,
+      "longest_qualifying_contact_run": 1119,
+      "candidate_supported_landing": true
+    },
+    {
+      "lane": 8,
+      "terminal_qualifying_contact_run": 1342,
+      "terminal_supported_finish": true,
+      "contact_samples": 1344,
+      "foot_samples": 1344,
+      "longest_qualifying_contact_run": 1342,
+      "candidate_supported_landing": true
+    },
+    {
+      "lane": 9,
+      "terminal_qualifying_contact_run": 477,
+      "terminal_supported_finish": true,
+      "contact_samples": 569,
+      "foot_samples": 569,
+      "longest_qualifying_contact_run": 477,
+      "candidate_supported_landing": true
+    },
+    {
+      "lane": 10,
+      "terminal_qualifying_contact_run": 1316,
+      "terminal_supported_finish": true,
+      "contact_samples": 1319,
+      "foot_samples": 1319,
+      "longest_qualifying_contact_run": 1316,
+      "candidate_supported_landing": true
+    },
+    {
+      "lane": 11,
+      "terminal_qualifying_contact_run": 988,
+      "terminal_supported_finish": true,
+      "contact_samples": 1014,
+      "foot_samples": 1014,
+      "longest_qualifying_contact_run": 988,
+      "candidate_supported_landing": true
+    },
+    {
+      "lane": 12,
+      "terminal_qualifying_contact_run": 1097,
+      "terminal_supported_finish": true,
+      "contact_samples": 1118,
+      "foot_samples": 1118,
+      "longest_qualifying_contact_run": 1097,
+      "candidate_supported_landing": true
+    },
+    {
+      "lane": 13,
+      "terminal_qualifying_contact_run": 1298,
+      "terminal_supported_finish": true,
+      "contact_samples": 1303,
+      "foot_samples": 1303,
+      "longest_qualifying_contact_run": 1298,
+      "candidate_supported_landing": true
+    },
+    {
+      "lane": 14,
+      "terminal_qualifying_contact_run": 1363,
+      "terminal_supported_finish": true,
+      "contact_samples": 1363,
+      "foot_samples": 1363,
+      "longest_qualifying_contact_run": 1363,
+      "candidate_supported_landing": true
+    },
+    {
+      "lane": 15,
+      "terminal_qualifying_contact_run": 1322,
+      "terminal_supported_finish": true,
+      "contact_samples": 1327,
+      "foot_samples": 1327,
+      "longest_qualifying_contact_run": 1322,
+      "candidate_supported_landing": true
+    },
+    {
+      "lane": 16,
+      "terminal_qualifying_contact_run": 1350,
+      "terminal_supported_finish": true,
+      "contact_samples": 1353,
+      "foot_samples": 1353,
+      "longest_qualifying_contact_run": 1350,
+      "candidate_supported_landing": true
+    },
+    {
+      "lane": 17,
+      "terminal_qualifying_contact_run": 1326,
+      "terminal_supported_finish": true,
+      "contact_samples": 1332,
+      "foot_samples": 1332,
+      "longest_qualifying_contact_run": 1326,
+      "candidate_supported_landing": true
+    },
+    {
+      "lane": 18,
+      "terminal_qualifying_contact_run": 1032,
+      "terminal_supported_finish": true,
+      "contact_samples": 1059,
+      "foot_samples": 1059,
+      "longest_qualifying_contact_run": 1032,
+      "candidate_supported_landing": true
+    },
+    {
+      "lane": 19,
+      "terminal_qualifying_contact_run": 1295,
+      "terminal_supported_finish": true,
+      "contact_samples": 1298,
+      "foot_samples": 1298,
+      "longest_qualifying_contact_run": 1295,
+      "candidate_supported_landing": true
+    },
+    {
+      "lane": 20,
+      "terminal_qualifying_contact_run": 1301,
+      "terminal_supported_finish": true,
+      "contact_samples": 1305,
+      "foot_samples": 1305,
+      "longest_qualifying_contact_run": 1301,
+      "candidate_supported_landing": true
+    },
+    {
+      "lane": 21,
+      "terminal_qualifying_contact_run": 1353,
+      "terminal_supported_finish": true,
+      "contact_samples": 1356,
+      "foot_samples": 1356,
+      "longest_qualifying_contact_run": 1353,
+      "candidate_supported_landing": true
+    },
+    {
+      "lane": 22,
+      "terminal_qualifying_contact_run": 1037,
+      "terminal_supported_finish": true,
+      "contact_samples": 1057,
+      "foot_samples": 1057,
+      "longest_qualifying_contact_run": 1037,
+      "candidate_supported_landing": true
+    },
+    {
+      "lane": 23,
+      "terminal_qualifying_contact_run": 1316,
+      "terminal_supported_finish": true,
+      "contact_samples": 1319,
+      "foot_samples": 1319,
+      "longest_qualifying_contact_run": 1316,
+      "candidate_supported_landing": true
+    },
+    {
+      "lane": 24,
+      "terminal_qualifying_contact_run": 1326,
+      "terminal_supported_finish": true,
+      "contact_samples": 1331,
+      "foot_samples": 1331,
+      "longest_qualifying_contact_run": 1326,
+      "candidate_supported_landing": true
+    },
+    {
+      "lane": 25,
+      "terminal_qualifying_contact_run": 1092,
+      "terminal_supported_finish": true,
+      "contact_samples": 1115,
+      "foot_samples": 1115,
+      "longest_qualifying_contact_run": 1092,
+      "candidate_supported_landing": true
+    },
+    {
+      "lane": 26,
+      "terminal_qualifying_contact_run": 1086,
+      "terminal_supported_finish": true,
+      "contact_samples": 1110,
+      "foot_samples": 1110,
+      "longest_qualifying_contact_run": 1086,
+      "candidate_supported_landing": true
+    },
+    {
+      "lane": 27,
+      "terminal_qualifying_contact_run": 1086,
+      "terminal_supported_finish": true,
+      "contact_samples": 1108,
+      "foot_samples": 1108,
+      "longest_qualifying_contact_run": 1086,
+      "candidate_supported_landing": true
+    },
+    {
+      "lane": 28,
+      "terminal_qualifying_contact_run": 1298,
+      "terminal_supported_finish": true,
+      "contact_samples": 1302,
+      "foot_samples": 1302,
+      "longest_qualifying_contact_run": 1298,
+      "candidate_supported_landing": true
+    },
+    {
+      "lane": 29,
+      "terminal_qualifying_contact_run": 977,
+      "terminal_supported_finish": true,
+      "contact_samples": 1010,
+      "foot_samples": 1010,
+      "longest_qualifying_contact_run": 977,
+      "candidate_supported_landing": true
+    },
+    {
+      "lane": 30,
+      "terminal_qualifying_contact_run": 1305,
+      "terminal_supported_finish": true,
+      "contact_samples": 1311,
+      "foot_samples": 1311,
+      "longest_qualifying_contact_run": 1305,
+      "candidate_supported_landing": true
+    },
+    {
+      "lane": 31,
+      "terminal_qualifying_contact_run": 1059,
+      "terminal_supported_finish": true,
+      "contact_samples": 1081,
+      "foot_samples": 1081,
+      "longest_qualifying_contact_run": 1059,
+      "candidate_supported_landing": true
+    },
+    {
+      "lane": 32,
+      "terminal_qualifying_contact_run": 480,
+      "terminal_supported_finish": true,
+      "contact_samples": 551,
+      "foot_samples": 551,
+      "longest_qualifying_contact_run": 480,
+      "candidate_supported_landing": true
+    },
+    {
+      "lane": 33,
+      "terminal_qualifying_contact_run": 1295,
+      "terminal_supported_finish": true,
+      "contact_samples": 1299,
+      "foot_samples": 1299,
+      "longest_qualifying_contact_run": 1295,
+      "candidate_supported_landing": true
+    },
+    {
+      "lane": 34,
+      "terminal_qualifying_contact_run": 407,
+      "terminal_supported_finish": true,
+      "contact_samples": 495,
+      "foot_samples": 495,
+      "longest_qualifying_contact_run": 407,
+      "candidate_supported_landing": true
+    },
+    {
+      "lane": 35,
+      "terminal_qualifying_contact_run": 1328,
+      "terminal_supported_finish": true,
+      "contact_samples": 1331,
+      "foot_samples": 1331,
+      "longest_qualifying_contact_run": 1328,
+      "candidate_supported_landing": true
+    },
+    {
+      "lane": 36,
+      "terminal_qualifying_contact_run": 1333,
+      "terminal_supported_finish": true,
+      "contact_samples": 1336,
+      "foot_samples": 1336,
+      "longest_qualifying_contact_run": 1333,
+      "candidate_supported_landing": true
+    },
+    {
+      "lane": 37,
+      "terminal_qualifying_contact_run": 999,
+      "terminal_supported_finish": true,
+      "contact_samples": 1038,
+      "foot_samples": 1038,
+      "longest_qualifying_contact_run": 999,
+      "candidate_supported_landing": true
+    },
+    {
+      "lane": 38,
+      "terminal_qualifying_contact_run": 1268,
+      "terminal_supported_finish": true,
+      "contact_samples": 1271,
+      "foot_samples": 1271,
+      "longest_qualifying_contact_run": 1268,
+      "candidate_supported_landing": true
+    },
+    {
+      "lane": 39,
+      "terminal_qualifying_contact_run": 1304,
+      "terminal_supported_finish": true,
+      "contact_samples": 1306,
+      "foot_samples": 1306,
+      "longest_qualifying_contact_run": 1304,
+      "candidate_supported_landing": true
+    },
+    {
+      "lane": 40,
+      "terminal_qualifying_contact_run": 1064,
+      "terminal_supported_finish": true,
+      "contact_samples": 1086,
+      "foot_samples": 1086,
+      "longest_qualifying_contact_run": 1064,
+      "candidate_supported_landing": true
+    },
+    {
+      "lane": 41,
+      "terminal_qualifying_contact_run": 1103,
+      "terminal_supported_finish": true,
+      "contact_samples": 1122,
+      "foot_samples": 1122,
+      "longest_qualifying_contact_run": 1103,
+      "candidate_supported_landing": true
+    },
+    {
+      "lane": 42,
+      "terminal_qualifying_contact_run": 1298,
+      "terminal_supported_finish": true,
+      "contact_samples": 1298,
+      "foot_samples": 1298,
+      "longest_qualifying_contact_run": 1298,
+      "candidate_supported_landing": true
+    },
+    {
+      "lane": 43,
+      "terminal_qualifying_contact_run": 999,
+      "terminal_supported_finish": true,
+      "contact_samples": 1021,
+      "foot_samples": 1021,
+      "longest_qualifying_contact_run": 999,
+      "candidate_supported_landing": true
+    },
+    {
+      "lane": 44,
+      "terminal_qualifying_contact_run": 1316,
+      "terminal_supported_finish": true,
+      "contact_samples": 1318,
+      "foot_samples": 1318,
+      "longest_qualifying_contact_run": 1316,
+      "candidate_supported_landing": true
+    },
+    {
+      "lane": 45,
+      "terminal_qualifying_contact_run": 1263,
+      "terminal_supported_finish": true,
+      "contact_samples": 1266,
+      "foot_samples": 1266,
+      "longest_qualifying_contact_run": 1263,
+      "candidate_supported_landing": true
+    },
+    {
+      "lane": 46,
+      "terminal_qualifying_contact_run": 1284,
+      "terminal_supported_finish": true,
+      "contact_samples": 1289,
+      "foot_samples": 1289,
+      "longest_qualifying_contact_run": 1284,
+      "candidate_supported_landing": true
+    },
+    {
+      "lane": 47,
+      "terminal_qualifying_contact_run": 1070,
+      "terminal_supported_finish": true,
+      "contact_samples": 1097,
+      "foot_samples": 1097,
+      "longest_qualifying_contact_run": 1070,
+      "candidate_supported_landing": true
+    },
+    {
+      "lane": 48,
+      "terminal_qualifying_contact_run": 1336,
+      "terminal_supported_finish": true,
+      "contact_samples": 1336,
+      "foot_samples": 1336,
+      "longest_qualifying_contact_run": 1336,
+      "candidate_supported_landing": true
+    },
+    {
+      "lane": 49,
+      "terminal_qualifying_contact_run": 1289,
+      "terminal_supported_finish": true,
+      "contact_samples": 1292,
+      "foot_samples": 1292,
+      "longest_qualifying_contact_run": 1289,
+      "candidate_supported_landing": true
+    },
+    {
+      "lane": 50,
+      "terminal_qualifying_contact_run": 1070,
+      "terminal_supported_finish": true,
+      "contact_samples": 1095,
+      "foot_samples": 1095,
+      "longest_qualifying_contact_run": 1070,
+      "candidate_supported_landing": true
+    },
+    {
+      "lane": 51,
+      "terminal_qualifying_contact_run": 1262,
+      "terminal_supported_finish": true,
+      "contact_samples": 1265,
+      "foot_samples": 1265,
+      "longest_qualifying_contact_run": 1262,
+      "candidate_supported_landing": true
+    },
+    {
+      "lane": 52,
+      "terminal_qualifying_contact_run": 940,
+      "terminal_supported_finish": true,
+      "contact_samples": 974,
+      "foot_samples": 974,
+      "longest_qualifying_contact_run": 940,
+      "candidate_supported_landing": true
+    },
+    {
+      "lane": 53,
+      "terminal_qualifying_contact_run": 1314,
+      "terminal_supported_finish": true,
+      "contact_samples": 1314,
+      "foot_samples": 1314,
+      "longest_qualifying_contact_run": 1314,
+      "candidate_supported_landing": true
+    },
+    {
+      "lane": 54,
+      "terminal_qualifying_contact_run": 1037,
+      "terminal_supported_finish": true,
+      "contact_samples": 1061,
+      "foot_samples": 1061,
+      "longest_qualifying_contact_run": 1037,
+      "candidate_supported_landing": true
+    },
+    {
+      "lane": 55,
+      "terminal_qualifying_contact_run": 1312,
+      "terminal_supported_finish": true,
+      "contact_samples": 1318,
+      "foot_samples": 1318,
+      "longest_qualifying_contact_run": 1312,
+      "candidate_supported_landing": true
+    },
+    {
+      "lane": 56,
+      "terminal_qualifying_contact_run": 1010,
+      "terminal_supported_finish": true,
+      "contact_samples": 1039,
+      "foot_samples": 1039,
+      "longest_qualifying_contact_run": 1010,
+      "candidate_supported_landing": true
+    },
+    {
+      "lane": 57,
+      "terminal_qualifying_contact_run": 1053,
+      "terminal_supported_finish": true,
+      "contact_samples": 1076,
+      "foot_samples": 1076,
+      "longest_qualifying_contact_run": 1053,
+      "candidate_supported_landing": true
+    },
+    {
+      "lane": 58,
+      "terminal_qualifying_contact_run": 994,
+      "terminal_supported_finish": true,
+      "contact_samples": 1029,
+      "foot_samples": 1029,
+      "longest_qualifying_contact_run": 994,
+      "candidate_supported_landing": true
+    },
+    {
+      "lane": 59,
+      "terminal_qualifying_contact_run": 1021,
+      "terminal_supported_finish": true,
+      "contact_samples": 1038,
+      "foot_samples": 1038,
+      "longest_qualifying_contact_run": 1021,
+      "candidate_supported_landing": true
+    },
+    {
+      "lane": 60,
+      "terminal_qualifying_contact_run": 1282,
+      "terminal_supported_finish": true,
+      "contact_samples": 1283,
+      "foot_samples": 1283,
+      "longest_qualifying_contact_run": 1282,
+      "candidate_supported_landing": true
+    },
+    {
+      "lane": 61,
+      "terminal_qualifying_contact_run": 994,
+      "terminal_supported_finish": true,
+      "contact_samples": 1019,
+      "foot_samples": 1019,
+      "longest_qualifying_contact_run": 994,
+      "candidate_supported_landing": true
+    },
+    {
+      "lane": 62,
+      "terminal_qualifying_contact_run": 1059,
+      "terminal_supported_finish": true,
+      "contact_samples": 1079,
+      "foot_samples": 1079,
+      "longest_qualifying_contact_run": 1059,
+      "candidate_supported_landing": true
+    },
+    {
+      "lane": 63,
+      "terminal_qualifying_contact_run": 423,
+      "terminal_supported_finish": true,
+      "contact_samples": 496,
+      "foot_samples": 496,
+      "longest_qualifying_contact_run": 423,
+      "candidate_supported_landing": true
+    }
+  ],
+  "candidate_supported_landings": 64,
+  "terminal_supported_finishes": 64,
+  "support_samples": 74372,
+  "scope": "last-substep diagnostic samples, not continuous-contact proof"
+}

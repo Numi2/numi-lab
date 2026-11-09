@@ -1,0 +1,3 @@
+# Bilateral support handoff with a wider vertical-speed gate
+
+Prediction: allowing the neutral landing handoff during a bilateral touch with vertical speed below 0.20 m/s, rather than 0.12 m/s, will capture more of the observed wingbeat-cycle contacts while preserving the strict 0.08 m/s planar-speed and centered-position gates. Repeat the 64 matched full-start seed 20261124 training-layout trials, 3000 steps, collision enabled and unchanged frozen flight law. The trigger is not the success criterion: require the last 25 accepted samples to demonstrate positive upward foot load, no non-foot perch contact, planar speed <=0.12, |vertical speed| <=0.12, all waypoints reached and no physical failure. Retain every outcome.

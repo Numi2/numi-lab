@@ -1,0 +1,3 @@
+# Landing handoff state diagnostic
+
+The sensitive handoff leaves five matched lanes without a supported finish even though recorded foot contacts sometimes meet the apparent handoff gates. Instrument only the diagnostic transition output with the high-level landing phase and loaded-foot count, and print phase changes from the accepted CPU result. Confirm all sampled q/v and physical first-episode outcomes match the uninstrumented 64-lane seed 20261124 trial exactly before interpreting phase changes. This changes diagnostic output only, not actions, physical state, collision handling or termination. Preserve all failures and do not treat it as a landing test.

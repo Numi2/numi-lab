@@ -1,0 +1,152 @@
+{
+  "lanes": [
+    {
+      "lane": 0,
+      "terminal_qualifying_contact_run": 1016,
+      "terminal_supported_finish": true,
+      "contact_samples": 1031,
+      "foot_samples": 1031,
+      "longest_qualifying_contact_run": 1016,
+      "candidate_supported_landing": true
+    },
+    {
+      "lane": 1,
+      "terminal_qualifying_contact_run": 0,
+      "terminal_supported_finish": false,
+      "contact_samples": 140,
+      "foot_samples": 140,
+      "longest_qualifying_contact_run": 3,
+      "candidate_supported_landing": false
+    },
+    {
+      "lane": 2,
+      "terminal_qualifying_contact_run": 983,
+      "terminal_supported_finish": true,
+      "contact_samples": 1022,
+      "foot_samples": 1022,
+      "longest_qualifying_contact_run": 983,
+      "candidate_supported_landing": true
+    },
+    {
+      "lane": 3,
+      "terminal_qualifying_contact_run": 1059,
+      "terminal_supported_finish": true,
+      "contact_samples": 1092,
+      "foot_samples": 1092,
+      "longest_qualifying_contact_run": 1059,
+      "candidate_supported_landing": true
+    },
+    {
+      "lane": 4,
+      "terminal_qualifying_contact_run": 923,
+      "terminal_supported_finish": true,
+      "contact_samples": 957,
+      "foot_samples": 957,
+      "longest_qualifying_contact_run": 923,
+      "candidate_supported_landing": true
+    },
+    {
+      "lane": 5,
+      "terminal_qualifying_contact_run": 1146,
+      "terminal_supported_finish": true,
+      "contact_samples": 1166,
+      "foot_samples": 1166,
+      "longest_qualifying_contact_run": 1146,
+      "candidate_supported_landing": true
+    },
+    {
+      "lane": 6,
+      "terminal_qualifying_contact_run": 1021,
+      "terminal_supported_finish": true,
+      "contact_samples": 1045,
+      "foot_samples": 1045,
+      "longest_qualifying_contact_run": 1021,
+      "candidate_supported_landing": true
+    },
+    {
+      "lane": 7,
+      "terminal_qualifying_contact_run": 483,
+      "terminal_supported_finish": true,
+      "contact_samples": 550,
+      "foot_samples": 550,
+      "longest_qualifying_contact_run": 483,
+      "candidate_supported_landing": true
+    },
+    {
+      "lane": 8,
+      "terminal_qualifying_contact_run": 1021,
+      "terminal_supported_finish": true,
+      "contact_samples": 1052,
+      "foot_samples": 1052,
+      "longest_qualifying_contact_run": 1021,
+      "candidate_supported_landing": true
+    },
+    {
+      "lane": 9,
+      "terminal_qualifying_contact_run": 983,
+      "terminal_supported_finish": true,
+      "contact_samples": 1003,
+      "foot_samples": 1003,
+      "longest_qualifying_contact_run": 983,
+      "candidate_supported_landing": true
+    },
+    {
+      "lane": 10,
+      "terminal_qualifying_contact_run": 972,
+      "terminal_supported_finish": true,
+      "contact_samples": 991,
+      "foot_samples": 991,
+      "longest_qualifying_contact_run": 972,
+      "candidate_supported_landing": true
+    },
+    {
+      "lane": 11,
+      "terminal_qualifying_contact_run": 369,
+      "terminal_supported_finish": true,
+      "contact_samples": 451,
+      "foot_samples": 451,
+      "longest_qualifying_contact_run": 369,
+      "candidate_supported_landing": true
+    },
+    {
+      "lane": 12,
+      "terminal_qualifying_contact_run": 999,
+      "terminal_supported_finish": true,
+      "contact_samples": 1026,
+      "foot_samples": 1026,
+      "longest_qualifying_contact_run": 999,
+      "candidate_supported_landing": true
+    },
+    {
+      "lane": 13,
+      "terminal_qualifying_contact_run": 1021,
+      "terminal_supported_finish": true,
+      "contact_samples": 1059,
+      "foot_samples": 1059,
+      "longest_qualifying_contact_run": 1021,
+      "candidate_supported_landing": true
+    },
+    {
+      "lane": 14,
+      "terminal_qualifying_contact_run": 456,
+      "terminal_supported_finish": true,
+      "contact_samples": 543,
+      "foot_samples": 543,
+      "longest_qualifying_contact_run": 456,
+      "candidate_supported_landing": true
+    },
+    {
+      "lane": 15,
+      "terminal_qualifying_contact_run": 227,
+      "terminal_supported_finish": true,
+      "contact_samples": 334,
+      "foot_samples": 334,
+      "longest_qualifying_contact_run": 227,
+      "candidate_supported_landing": true
+    }
+  ],
+  "candidate_supported_landings": 15,
+  "terminal_supported_finishes": 15,
+  "support_samples": 13477,
+  "scope": "last-substep diagnostic samples, not continuous-contact proof"
+}

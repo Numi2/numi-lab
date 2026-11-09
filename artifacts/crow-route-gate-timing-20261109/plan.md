@@ -1,0 +1,3 @@
+# Earlier first-slalom approach, original crossing timing
+
+The mirrored-course trial that delayed crossing past slalom A created eight slalom B collisions, so it is rejected. Prediction: retaining the previous -0.16 m first-to-second crossing timing but starting gate-to-first-slalom steering 0.15 m earlier can address the original mirrored first-slalom failures without losing second-slalom clearance. Repeat the same three 64-lane development conditions and seeds with frozen flight law, 3000 steps and collision enabled. Require all 192 first episodes complete all five without physical failure; record every failure and contact.

@@ -1,0 +1,3 @@
+# Lower bilateral contact trigger
+
+The 0.05 N bilateral-load trigger produced 59 of 64 sampled supported first-episode finishes with no failures. Prediction: some remaining lanes bounce because load is brief at the fixed sampling point; accepting both feet above 0.005 N as the trigger while retaining the same centered, low-speed physical gates will improve handoff. This threshold is not a success measure: require the unchanged 25 consecutive final accepted samples with actual positive upward foot load, low velocities, all waypoints, no non-foot contact and no physical failure. Repeat 64 matched seed 20261124 full-start training-layout episodes, 3000 steps. Record all outcomes.
