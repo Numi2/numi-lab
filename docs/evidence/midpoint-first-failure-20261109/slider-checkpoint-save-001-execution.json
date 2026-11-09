@@ -1,0 +1,21 @@
+{
+  "command": [
+    "/Users/numi/numi-matter-slider-owner-build-20261109/bin/numi_midpoint_slider_coupled_diagnostic",
+    "/Users/numi/numi-matter-slider-owner-build-20261109/matter/shaders/NumiMatter.metallib",
+    "/Users/numi/numi-matter-slider-owner-build-20261109/shaders/MetalRobo.metallib",
+    "0.000015625",
+    "0.000095",
+    "1"
+  ],
+  "source_revision": "1ff01c74d plus checkpoint source changes",
+  "environment": {
+    "NM_MATTER_MIDPOINT_VELOCITY_COMPENSATION": "1",
+    "NM_MATTER_MIDPOINT_STAGE_COMPENSATION": "1",
+    "NM_SLIDER_SAVE_INITIAL_SNAPSHOT": "/Users/numi/numi-lab-midpoint-compensated-20261109/docs/evidence/midpoint-first-failure-20261109/slider-initial-checkpoint-001.bin"
+  },
+  "exit_code": 0,
+  "reason": "",
+  "checkpoint_sha256": "e498b9036df75735ed846b0965b0dfc43f59dcafede5fe4257fd985111e6e87b",
+  "binary_sha256": "25e65603e93a3ab1a15880302a2b017a2adc7b26cf916a230f6c336d93d21363",
+  "wall_seconds": 0.6579722079914063
+}

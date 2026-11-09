@@ -1,0 +1,25 @@
+{
+  "command": [
+    "/Users/numi/numi-matter-slider-owner-build-20261109/bin/numi_midpoint_slider_coupled_diagnostic",
+    "/Users/numi/numi-matter-slider-owner-build-20261109/matter/shaders/NumiMatter.metallib",
+    "/Users/numi/numi-matter-slider-owner-build-20261109/shaders/MetalRobo.metallib",
+    "0.0000078125",
+    "0.000095",
+    "1280"
+  ],
+  "source_revision": "1ff01c74d",
+  "environment": {
+    "NM_MATTER_MIDPOINT_VELOCITY_COMPENSATION": "1",
+    "NM_MATTER_MIDPOINT_STAGE_COMPENSATION": "1"
+  },
+  "exit_code": 2,
+  "reason": "",
+  "wall_seconds": 112.63096554204822,
+  "inputs": {
+    "/Users/numi/numi-matter-slider-owner-build-20261109/bin/numi_midpoint_slider_coupled_diagnostic": "82f94df017158e1117e19223d2d213c526b977d3016a3e643c55d6b37fd1e02d",
+    "/Users/numi/numi-matter-slider-owner-build-20261109/matter/shaders/NumiMatter.metallib": "72d2e238344e967f767b93cda4a5c1de6963d2212d219ed00e6b8a2b36b1b8ba",
+    "/Users/numi/numi-matter-slider-owner-build-20261109/shaders/MetalRobo.metallib": "f32b410bddf52679d06e66bd14263dcedcf25bf0fd1593375b8dece449f274f9",
+    "/Users/numi/numi-matter-slider-owner-build-20261109/lib/libmetalrobo.dylib": "c94797265c854d146bff975988bfbedb68b60e5da462fd6e3470e8b4cc2b2fd0",
+    "tests/contact/analyze_native_slider.py": "414dceb553e60c2afbf010cdda3fccb4e3fa2f557670d9f3d916cb2421ab21d1"
+  }
+}

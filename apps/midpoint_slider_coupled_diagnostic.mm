@@ -5,6 +5,7 @@
 #undef main
 #include "numi/matter/metal_world.hpp"
 #include "metalrobo/MetalWorld.hpp"
+#include "midpoint_slider_snapshot.hpp"
 
 struct SliderObservation {
  metalrobo::MetalWorldDevicePhysicsProgram inner{};
@@ -91,6 +92,22 @@ int main(int argc,char**argv){@autoreleasepool{try{
  config.matrixFreeArticulatedContact=false;config.streamedArticulatedContactResponses=false;config.captureContactEvidence=false;
  config.devicePhysicsProgram=program;std::vector<float> q=rigid.defaultQ,v=rigid.defaultV,effort(1,0.f);
  auto previous=matter.snapshot();require(previous.available,"initial snapshot unavailable");
+ if(const char* path=std::getenv("NM_SLIDER_RESTORE_SNAPSHOT")){
+  auto saved=previous;slider_checkpoint::load(path,saved,q,v);
+  require(saved.sourcePhysicsFingerprint==previous.sourcePhysicsFingerprint &&
+      saved.deviceProgramFingerprint==previous.deviceProgramFingerprint,"slider snapshot fingerprint mismatch");
+  const auto restored=matter.restore(saved);require(restored.encoded,"slider snapshot restore: "+restored.message);
+  previous=matter.snapshot();require(previous.available && physicalEqual(saved,previous) &&
+      saved.controlStep==previous.controlStep && saved.physicsSubstep==previous.physicsSubstep,
+      "slider snapshot restore mismatch");
+ }
+ if(const char* path=std::getenv("NM_SLIDER_SAVE_INITIAL_SNAPSHOT")){
+  slider_checkpoint::save(path,previous,q,v);
+  auto check=previous;std::vector<float> checkQ,checkV;slider_checkpoint::load(path,check,checkQ,checkV);
+  require(physicalEqual(previous,check) && previous.controlStep==check.controlStep &&
+      previous.physicsSubstep==check.physicsSubstep && bytesEqual(q,checkQ) && bytesEqual(v,checkV),
+      "initial slider checkpoint round-trip mismatch");
+ }
  std::vector<float> area;std::string areaError;
  require(numi::matter::detail::femFixedPlaneReferenceAreas(femWorld,area,areaError),"reference areas: "+areaError);
  double totalArea=0;for(float value:area)totalArea+=double(value);
@@ -157,10 +174,22 @@ int main(int argc,char**argv){@autoreleasepool{try{
    <<",\"world_status\":"<<ran.firstGPUStatusCode<<",\"matter_status\":"<<now.statuses[0].code;
   if(!accepted){
    anyRejected=true;
+   if(const char* path=std::getenv("NM_SLIDER_FAILURE_SNAPSHOT")){
+    slider_checkpoint::save(path,previous,startQ,startV);
+    auto roundtrip=previous;std::vector<float> checkQ,checkV;
+    slider_checkpoint::load(path,roundtrip,checkQ,checkV);
+    require(physicalEqual(previous,roundtrip) && previous.controlStep==roundtrip.controlStep &&
+        previous.physicsSubstep==roundtrip.physicsSubstep && bytesEqual(startQ,checkQ) && bytesEqual(startV,checkV),
+        "slider failure snapshot round-trip mismatch");
+    std::cerr<<"saved verified accepted-state slider checkpoint: "<<path<<"\n";
+   }
    std::cerr<<"step "<<step<<" rejected: host="<<int(ran.status)<<" message="<<ran.message
        <<" gpu="<<ran.firstGPUStatusCode<<" matter="<<now.statuses[0].code
        <<" index="<<now.statuses[0].failingIndex<<"\n";
-   std::cout<<",\"host_status\":"<<int(ran.status)<<",\"failure_index\":"<<now.statuses[0].failingIndex<<"}";break;
+   const auto& failed=now.statuses[0];
+   std::cout<<",\"host_status\":"<<int(ran.status)<<",\"failure_index\":"<<failed.failingIndex
+       <<",\"failure_object\":"<<failed.objectIndex<<",\"fgmres_iterations\":"<<failed.fgmresIterations
+       <<",\"diagnostics\":["<<failed.diagnostics.x<<","<<failed.diagnostics.y<<","<<failed.diagnostics.z<<","<<failed.diagnostics.w<<"]}";break;
   }
   require(result.finalQ.size()==1&&result.finalV.size()==1&&obs.wrench&&obs.support &&
       now.solverCertificates.size()==1,"missing owner data or certificate");
