@@ -19,3 +19,12 @@ needed to remove that provenance limitation. The 1 ms-binned force measure
 and sampled peak are distinct quantities. The result is a reference-fixture
 comparison, not a spatially converged native Matter result or calibrated
 physical material.
+
+`n128-force-curves-001.json` retains the curves examination separately from the
+refinement gates. At common 2 µs sample times the largest instantaneous force
+difference is 66.51% of the n=128 step-sampled peak. The largest binned-force
+difference occurs in the 4–5 ms bin (0.02386 N at n=64, 0.02542 N at n=128).
+The largest cumulative-impulse difference occurs at 5.078 ms. The peak times
+in that record use the 2 µs trace and are not claimed to be the times of the
+finer 0.25 µs step-sampled peaks. These are comparisons of the retained
+numerical trajectories; they do not by themselves identify a physical cause.
