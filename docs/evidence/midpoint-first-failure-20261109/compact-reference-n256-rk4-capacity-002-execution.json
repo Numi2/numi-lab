@@ -1,0 +1,21 @@
+{
+  "command": [
+    "/Users/numi/numi-matter-midpoint-compensated-build-20261109/evidence-compact-005/numi_contact_fem_fp64_reference_compact",
+    "--rk4-capacity-check",
+    "256"
+  ],
+  "binary_sha256": "8b1cc61827aa63660320011e6f6e9f3c3deaab9fa838aa1706d428aa1bc177ac",
+  "returncode": 0,
+  "stopped_reason": null,
+  "peak_rss_kib_sampled": 4542752,
+  "wall_seconds_observational_only": 6.059168042032979,
+  "free_bytes_after": 4295303168,
+  "scope": "model construction and one complete noncontact RK4 step; full contact trajectory, spatial/temporal accuracy and runtime not qualified",
+  "limits": {
+    "rss_kib": 6291456,
+    "free_bytes": 3435973836,
+    "wall_seconds": 300
+  },
+  "peak_rss_bytes_self": 4755046400,
+  "basic_invariants_pass": true
+}

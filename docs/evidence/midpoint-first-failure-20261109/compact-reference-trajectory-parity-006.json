@@ -1,0 +1,29 @@
+{
+  "scope": "same equations at n=2 and n=8; does not qualify larger meshes or temporal error",
+  "input_sha256": {
+    "/Users/numi/numi-matter-midpoint-compensated-build-20261109/evidence-n128-001/numi_contact_fem_fp64_reference_n128": "7f8b311536d8bb7cfd8bf4eb053649da020d0c9a20dc621071284d9e207c2394",
+    "/Users/numi/numi-matter-midpoint-compensated-build-20261109/evidence-compact-005/numi_contact_fem_fp64_reference_compact": "8b1cc61827aa63660320011e6f6e9f3c3deaab9fa838aa1706d428aa1bc177ac",
+    "/Users/numi/numi-lab-midpoint-compensated-20261109/tests/contact/fem_plane_fp64_reference_compact.cpp": "f32ce000b8f5001c664684725a3ed055a75af0cbc9b17634fbddbf752e3b0bc1",
+    "/Users/numi/numi-lab-midpoint-compensated-20261109/tests/contact/fem_plane_fp64_reference.cpp": "6d75d723f79ba704788e506e81e5a214ebf105079d9cb0d4ef78cfe842d1a237"
+  },
+  "runs": [
+    {
+      "divisions": 2,
+      "max_force_relative_to_ordered_peak": 0.0,
+      "max_cumulative_impulse_relative_to_ordered_total": 0.0,
+      "peak_force_relative_difference": 0.0,
+      "total_impulse_relative_difference": 0.0,
+      "same_area_weights_and_total_mass": true,
+      "passes": true
+    },
+    {
+      "divisions": 8,
+      "max_force_relative_to_ordered_peak": 2.210381361374979e-14,
+      "max_cumulative_impulse_relative_to_ordered_total": 9.927370973939853e-16,
+      "peak_force_relative_difference": 0.0,
+      "total_impulse_relative_difference": 9.927370973939853e-16,
+      "same_area_weights_and_total_mass": true,
+      "passes": true
+    }
+  ]
+}

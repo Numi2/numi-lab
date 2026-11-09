@@ -1,0 +1,20 @@
+{
+  "command": [
+    "/Users/numi/numi-matter-midpoint-compensated-build-20261109/evidence-compact-002/numi_contact_fem_fp64_reference_compact",
+    "--capacity-check",
+    "256"
+  ],
+  "binary_sha256": "2db096650d013477707d4f281263795be98bd7a8c49846c56c76d919f44984f4",
+  "returncode": 0,
+  "stopped_reason": null,
+  "peak_rss_kib_sampled": 29808,
+  "wall_seconds_observational_only": 2.0147986250231043,
+  "free_bytes_after": 4304252928,
+  "scope": "model construction and one RHS; full RK4 memory, spatial/temporal accuracy and runtime not qualified",
+  "limits": {
+    "rss_kib": 4194304,
+    "free_bytes": 3435973836,
+    "wall_seconds": 300
+  },
+  "basic_invariants_pass": true
+}
