@@ -1,0 +1,3 @@
+# Initial route-teacher diagnostic
+
+With the frozen controller and course-object collisions disabled, 63 of 64 continuous full-start first episodes reached all five authored waypoint gates; one reached two. There were zero physical failures or failed simulator steps, so the stated obstacle-free exploration screen passed. All-five completions occurred at steps 949–1021. The teacher used privileged waypoint positions and a fixed zero heading with bounded lateral-speed and height commands. These are not autonomous learned-policy results and do not establish obstacle clearance or a supported landing. The single missed route is preserved in route-results.json.
