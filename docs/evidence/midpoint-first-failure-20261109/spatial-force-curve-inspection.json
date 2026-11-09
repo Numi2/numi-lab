@@ -1,0 +1,105 @@
+{
+  "schema": "numi.spatial-force-curves.v1",
+  "scope": "exploratory inspection of retained CPU reference; not native qualification or an identified mechanism",
+  "input_sha256": {
+    "midpoint-spatial-cost-dynamic-20261108/rk4-n32-h025.json": "3bbb12e5b2d7e7f93542728295e266218fd2c5940921915fcb367d422ab5dbc7",
+    "midpoint-first-failure-20261109/rk4-n64-parallel-h025.json": "b852430fa01c26513cfa193d8d74fee23e7f536cdc928e977edd20d66b97e323"
+  },
+  "n32_peak_over_integrator_samples_N": 0.17642067048745907,
+  "n64_peak_over_integrator_samples_N": 0.12264729757406326,
+  "n32_peak_at_2us_output_clock": [
+    0.004974,
+    0.1764201436895562,
+    2.4116863656003397e-05
+  ],
+  "n64_peak_at_2us_output_clock": [
+    0.009857999999999999,
+    0.12263108973918746,
+    0.0003976090937071535
+  ],
+  "largest_aligned_force_difference": {
+    "time_s": 0.00598,
+    "n32": [
+      0.16651964782973472,
+      8.791462593226905e-05
+    ],
+    "n64": [
+      0.025972284745254263,
+      8.73941659325918e-05
+    ]
+  },
+  "largest_aligned_cumulative_impulse_difference": {
+    "time_s": 0.006044,
+    "n32": [
+      0.0824111031127002,
+      9.653112393028284e-05
+    ],
+    "n64": [
+      0.08124973099854696,
+      9.029603553862845e-05
+    ]
+  },
+  "bins": [
+    {
+      "start_s": 0.0,
+      "n32_N": 0,
+      "n64_N": 0,
+      "n32_minus_n64_N": 0
+    },
+    {
+      "start_s": 0.001,
+      "n32_N": 0,
+      "n64_N": 0,
+      "n32_minus_n64_N": 0
+    },
+    {
+      "start_s": 0.002,
+      "n32_N": 0,
+      "n64_N": 0,
+      "n32_minus_n64_N": 0
+    },
+    {
+      "start_s": 0.003,
+      "n32_N": 0,
+      "n64_N": 0,
+      "n32_minus_n64_N": 0
+    },
+    {
+      "start_s": 0.004,
+      "n32_N": 0.02850078185046584,
+      "n64_N": 0.02386171197161675,
+      "n32_minus_n64_N": 0.00463906987884909
+    },
+    {
+      "start_s": 0.005,
+      "n32_N": 0.06267351404957465,
+      "n64_N": 0.06409394323054993,
+      "n32_minus_n64_N": -0.0014204291809752773
+    },
+    {
+      "start_s": 0.006,
+      "n32_N": 0.07124464645414945,
+      "n64_N": 0.07163306104023953,
+      "n32_minus_n64_N": -0.00038841458609008284
+    },
+    {
+      "start_s": 0.007,
+      "n32_N": 0.0760966354516385,
+      "n64_N": 0.07710020349786886,
+      "n32_minus_n64_N": -0.0010035680462303631
+    },
+    {
+      "start_s": 0.008,
+      "n32_N": 0.08010279200370275,
+      "n64_N": 0.08343052077384354,
+      "n32_minus_n64_N": -0.0033277287701407865
+    },
+    {
+      "start_s": 0.009000000000000001,
+      "n32_N": 0.09355038055919977,
+      "n64_N": 0.08989725676876587,
+      "n32_minus_n64_N": 0.003653123790433907
+    }
+  ],
+  "normalization": "peak and cumulative errors normalized by n64 full-step peak and final total impulse in the retained spatial gate; 2 us aligned data shown here"
+}
