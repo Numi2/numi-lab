@@ -28,8 +28,8 @@ The generic primal residual rebuild subtracts articulated mass action and
 adds contact, but does not add the slider gravity impulse. It does this at the
 Newton iterate and final certificate; private Armijo trials have their own
 assembly path. A future admitted slider path must include the same stage
-force at every relevant evaluation and use the same multiplier and units in
-its convergence test. The MetalWorld midpoint pass now exposes the validated
+force at every relevant evaluation and use consistent stage-to-full-step
+impulse scaling in its convergence test. The MetalWorld midpoint pass now exposes the validated
 body mass and gravity force; Matter does not yet use them.
 
 The compensated reference-area contact response currently selects only an
