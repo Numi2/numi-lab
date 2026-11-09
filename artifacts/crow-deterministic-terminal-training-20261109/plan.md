@@ -1,0 +1,3 @@
+# Deterministic terminal recovery training
+
+Continue from the previous landing actor using successful teacher demonstrations and qualified early and terminal recoveries, plus physically reached deterministic-student terminal corrections. Exclude failed first episodes. Hold out the highest eligible recovery lane per course and source for development validation. Weight deterministic student terminal states twelvefold, prior terminal student states eightfold, early student prefixes fourfold, and balance stages. Sample every fifth step excluding the first; preserve head and beak outputs. Use fixed Adam 0.0001 for 300 epochs and deploy only after waypoint five. Evaluate complete teacher-off trajectories, not imitation error.

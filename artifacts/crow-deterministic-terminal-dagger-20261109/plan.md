@@ -1,0 +1,3 @@
+# Deterministic terminal correction curriculum
+
+From eight full starts on each development course, use the teacher to physically reach all five waypoints, then hand the terminal approach to the deterministic landing actor. Teacher recovery takes over at lane-specific steps 2100-2400; record corrective labels on student-visited terminal states. Compare accepted teacher-controlled approach samples with a same-seed teacher-only control. Only demonstrations completing all waypoints and finishing with supported landing without physical failure are eligible. Seeds 20270117-20270119 are development data.

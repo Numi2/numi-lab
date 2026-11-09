@@ -1,0 +1,455 @@
+{
+  "input_rollout_sha256": {
+    "demonstrations/training": "4e8108c2361403f255ffea07c7aa0cf007383cab97c6055928075a938abe0c2b",
+    "demonstrations/held-out-a": "34a660de65e49be7095b0f449a49e0d76fb9e9104e4e3ba7f71f528d509811ed",
+    "demonstrations/held-out-b": "7243ae6e75f55138f644247b01e4eef0e4c73f3d75c3cc4f2449247c8f0a4801",
+    "dagger/training": "898216990f69e468455d7cb3dda0737e2057355b101f38e89dfb12a6cf8d252d",
+    "dagger/held-out-a": "0bc610a2ff2d7cc06945cb32660daf7d61ff38a08dc126d68b5933c3dab824d7",
+    "dagger/held-out-b": "7b225787a5503530db0cebc8e37e9bd6f9697b0d010ccea79a1c3a4022dad07d",
+    "terminal-dagger/training": "3bc3f63975a4ada0c35017e0028351390c26513ea24111db2b7c21db4e0c8b6a",
+    "terminal-dagger/held-out-a": "f1eb969563d46a963cdbc2c9809244112c2ee80dd81a04178da6dc5f4247887d",
+    "terminal-dagger/held-out-b": "1d3ea404db22342d79b57c5a58618f491ec2969d59e80843aa98b65c2d455e84",
+    "deterministic-terminal-dagger/training": "f736559bda71384e25028406b10b61d34153f849e1c9469946e4099263fd2931",
+    "deterministic-terminal-dagger/held-out-a": "34826d648b73c8069fa42f323b63e8fa5f3952594232c08ead99e34c3eab1f58",
+    "deterministic-terminal-dagger/held-out-b": "2c578bac03058e50439175f1f34a84668ada860cdee37191e434c330a7907bca"
+  },
+  "initial_policy_sha256": "95a56f46dfca71d99003dbf56c632547e39ada58cf11061909fb63c79edbe5ea",
+  "output_policy_sha256": "e024e8981e353fffd46a8eb73b02794d169a13241e128e353bf311d8c039acd7",
+  "seed": 20270120,
+  "stride": 5,
+  "training_samples": 27000,
+  "validation_samples": 9000,
+  "training_stage_counts": [
+    7471,
+    2205,
+    2016,
+    1482,
+    977,
+    12849
+  ],
+  "validation_stage_counts": [
+    2518,
+    709,
+    713,
+    460,
+    291,
+    4309
+  ],
+  "epochs": 300,
+  "learning_rate": 0.0001,
+  "history": [
+    {
+      "epoch": 1,
+      "train_loss": 0.028060564529840595,
+      "validation_command_mae": [
+        0.02625570446252823,
+        0.08531016856431961,
+        0.06339754909276962,
+        0.0672256350517273
+      ],
+      "validation_head_mse": 0.0,
+      "seconds": 0.35
+    },
+    {
+      "epoch": 20,
+      "train_loss": 0.010099371515766339,
+      "validation_command_mae": [
+        0.025307433679699898,
+        0.08096500486135483,
+        0.06254130601882935,
+        0.053534045815467834
+      ],
+      "validation_head_mse": 0.0,
+      "seconds": 1.2
+    },
+    {
+      "epoch": 40,
+      "train_loss": 0.008335012632111708,
+      "validation_command_mae": [
+        0.024855725467205048,
+        0.0793030858039856,
+        0.06254582107067108,
+        0.051477935165166855
+      ],
+      "validation_head_mse": 0.0,
+      "seconds": 2.09
+    },
+    {
+      "epoch": 80,
+      "train_loss": 0.006453215420522072,
+      "validation_command_mae": [
+        0.02291119284927845,
+        0.07713507860898972,
+        0.06140059232711792,
+        0.05096650496125221
+      ],
+      "validation_head_mse": 0.0,
+      "seconds": 3.86
+    },
+    {
+      "epoch": 120,
+      "train_loss": 0.00537297195168557,
+      "validation_command_mae": [
+        0.021677836775779724,
+        0.07466592639684677,
+        0.06158039718866348,
+        0.047244369983673096
+      ],
+      "validation_head_mse": 0.0,
+      "seconds": 5.63
+    },
+    {
+      "epoch": 160,
+      "train_loss": 0.004567093655673994,
+      "validation_command_mae": [
+        0.02043730765581131,
+        0.07214765250682831,
+        0.06058543547987938,
+        0.046825580298900604
+      ],
+      "validation_head_mse": 0.0,
+      "seconds": 7.4
+    },
+    {
+      "epoch": 200,
+      "train_loss": 0.003765625404883866,
+      "validation_command_mae": [
+        0.019114922732114792,
+        0.07048480957746506,
+        0.06097818911075592,
+        0.04683521389961243
+      ],
+      "validation_head_mse": 0.0,
+      "seconds": 9.17
+    },
+    {
+      "epoch": 250,
+      "train_loss": 0.0033101360141127197,
+      "validation_command_mae": [
+        0.01813124679028988,
+        0.06913881003856659,
+        0.06049051880836487,
+        0.044503651559352875
+      ],
+      "validation_head_mse": 0.0,
+      "seconds": 11.38
+    },
+    {
+      "epoch": 300,
+      "train_loss": 0.0028103721690260703,
+      "validation_command_mae": [
+        0.017143426463007927,
+        0.06762716174125671,
+        0.06037188693881035,
+        0.04394562169909477
+      ],
+      "validation_head_mse": 0.0,
+      "seconds": 13.57
+    }
+  ],
+  "training_lanes": [
+    [
+      "demonstrations",
+      "training",
+      0
+    ],
+    [
+      "demonstrations",
+      "training",
+      1
+    ],
+    [
+      "demonstrations",
+      "training",
+      2
+    ],
+    [
+      "demonstrations",
+      "training",
+      3
+    ],
+    [
+      "demonstrations",
+      "training",
+      4
+    ],
+    [
+      "demonstrations",
+      "training",
+      5
+    ],
+    [
+      "demonstrations",
+      "held-out-a",
+      0
+    ],
+    [
+      "demonstrations",
+      "held-out-a",
+      1
+    ],
+    [
+      "demonstrations",
+      "held-out-a",
+      2
+    ],
+    [
+      "demonstrations",
+      "held-out-a",
+      3
+    ],
+    [
+      "demonstrations",
+      "held-out-a",
+      4
+    ],
+    [
+      "demonstrations",
+      "held-out-a",
+      5
+    ],
+    [
+      "demonstrations",
+      "held-out-b",
+      0
+    ],
+    [
+      "demonstrations",
+      "held-out-b",
+      1
+    ],
+    [
+      "demonstrations",
+      "held-out-b",
+      2
+    ],
+    [
+      "demonstrations",
+      "held-out-b",
+      3
+    ],
+    [
+      "demonstrations",
+      "held-out-b",
+      4
+    ],
+    [
+      "demonstrations",
+      "held-out-b",
+      5
+    ],
+    [
+      "dagger",
+      "training",
+      0
+    ],
+    [
+      "dagger",
+      "held-out-a",
+      0
+    ],
+    [
+      "dagger",
+      "held-out-b",
+      0
+    ],
+    [
+      "terminal-dagger",
+      "training",
+      1
+    ],
+    [
+      "terminal-dagger",
+      "held-out-a",
+      0
+    ],
+    [
+      "terminal-dagger",
+      "held-out-a",
+      1
+    ],
+    [
+      "terminal-dagger",
+      "held-out-a",
+      2
+    ],
+    [
+      "terminal-dagger",
+      "held-out-b",
+      1
+    ],
+    [
+      "deterministic-terminal-dagger",
+      "training",
+      0
+    ],
+    [
+      "deterministic-terminal-dagger",
+      "training",
+      1
+    ],
+    [
+      "deterministic-terminal-dagger",
+      "training",
+      2
+    ],
+    [
+      "deterministic-terminal-dagger",
+      "training",
+      3
+    ],
+    [
+      "deterministic-terminal-dagger",
+      "training",
+      4
+    ],
+    [
+      "deterministic-terminal-dagger",
+      "training",
+      5
+    ],
+    [
+      "deterministic-terminal-dagger",
+      "training",
+      6
+    ],
+    [
+      "deterministic-terminal-dagger",
+      "held-out-a",
+      0
+    ],
+    [
+      "deterministic-terminal-dagger",
+      "held-out-a",
+      1
+    ],
+    [
+      "deterministic-terminal-dagger",
+      "held-out-a",
+      2
+    ],
+    [
+      "deterministic-terminal-dagger",
+      "held-out-a",
+      4
+    ],
+    [
+      "deterministic-terminal-dagger",
+      "held-out-a",
+      5
+    ],
+    [
+      "deterministic-terminal-dagger",
+      "held-out-b",
+      0
+    ],
+    [
+      "deterministic-terminal-dagger",
+      "held-out-b",
+      1
+    ],
+    [
+      "deterministic-terminal-dagger",
+      "held-out-b",
+      2
+    ],
+    [
+      "deterministic-terminal-dagger",
+      "held-out-b",
+      3
+    ],
+    [
+      "deterministic-terminal-dagger",
+      "held-out-b",
+      4
+    ],
+    [
+      "deterministic-terminal-dagger",
+      "held-out-b",
+      5
+    ],
+    [
+      "deterministic-terminal-dagger",
+      "held-out-b",
+      6
+    ]
+  ],
+  "validation_lanes": [
+    [
+      "demonstrations",
+      "training",
+      6
+    ],
+    [
+      "demonstrations",
+      "training",
+      7
+    ],
+    [
+      "demonstrations",
+      "held-out-a",
+      6
+    ],
+    [
+      "demonstrations",
+      "held-out-a",
+      7
+    ],
+    [
+      "demonstrations",
+      "held-out-b",
+      6
+    ],
+    [
+      "demonstrations",
+      "held-out-b",
+      7
+    ],
+    [
+      "dagger",
+      "training",
+      1
+    ],
+    [
+      "dagger",
+      "held-out-a",
+      1
+    ],
+    [
+      "dagger",
+      "held-out-b",
+      1
+    ],
+    [
+      "terminal-dagger",
+      "training",
+      2
+    ],
+    [
+      "terminal-dagger",
+      "held-out-a",
+      3
+    ],
+    [
+      "terminal-dagger",
+      "held-out-b",
+      3
+    ],
+    [
+      "deterministic-terminal-dagger",
+      "training",
+      7
+    ],
+    [
+      "deterministic-terminal-dagger",
+      "held-out-a",
+      6
+    ],
+    [
+      "deterministic-terminal-dagger",
+      "held-out-b",
+      7
+    ]
+  ],
+  "note": "supervised teacher and successful recovery imitation only; no autonomous success claim"
+}
