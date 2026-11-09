@@ -1,0 +1,11 @@
+{
+  "binned_force": 4.798780122205058e-10,
+  "total_impulse": 8.575927633232178e-11,
+  "peak_force": 0.0,
+  "cumulative_impulse": 1.5090197670465652e-10,
+  "passes": true,
+  "initial_gap_m": 9.5e-05,
+  "initial_force_N": 0.23208595614364688,
+  "reference_peak_includes_initial": true,
+  "minimum_gap_m": 9.207299942100714e-05
+}
