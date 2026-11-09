@@ -3,6 +3,8 @@
 import gzip,hashlib,json,math,os,pathlib,shutil,signal,subprocess,sys,time
 root=pathlib.Path(__file__).resolve().parents[2];p=root/"docs/evidence/midpoint-first-failure-20261109"
 b=pathlib.Path("/Users/numi/numi-matter-midpoint-compensated-build-20261109/evidence-be-precision-005")
+manifest=p/"be-precision-005-inputs.sha256"
+from cost_provenance import verify_accuracy_provenance
 if len(sys.argv)!=4:raise SystemExit("usage: cost.py MIDPOINT_PREFIX BE_PREFIX OUTPUT_TAG")
 mid,be,tag=sys.argv[1:]
 if not tag.replace("-","").isalnum() or any("/" in x for x in (mid,be)):raise SystemExit("invalid evidence name")
@@ -14,6 +16,7 @@ def load(name,suffix):
  return json.loads(path.read_text())
 def qualified(name,arm):
  d=load(name,".json");a=load(name,"-analysis.json");e=load(name,"-execution.json")
+ verify_accuracy_provenance(e, manifest, b)
  if not (a.get("passes") and e.get("all_gates_pass") and d["arm"]==arm and d["rejected_steps"]==0 and d["restore_replay"] and d["continuation_replay"] and d["forced_rollback_exact"] and d["identity_mismatch_rejected"]):raise SystemExit("accuracy gate not satisfied: "+name)
  return d
 m=qualified(mid,"ipc_area_midpoint");c=qualified(be,"ipc_area")
@@ -61,7 +64,7 @@ for name,d,arm in ((be,c,"ipc_area"),(mid,m,"ipc_area_midpoint")):
     break
    time.sleep(1)
   code=r.wait()
- record={"command":cmd,"input_sha256":hashes,"accuracy_prefix":name,"returncode":code,
+ record={"command":cmd,"input_sha256":hashes,"accuracy_manifest_sha256":hashlib.sha256(manifest.read_bytes()).hexdigest(),"accuracy_prefix":name,"returncode":code,
          "stopped_reason":reason,"thermal_snapshot_before":thermal,
          "recognized_numi_workers_before":workers,"recognized_conflicts_during":conflicts,"worker_check_scope":"process names beginning numi_ or metalrobo_; not a comprehensive GPU activity detector",
          "outer_wall_seconds":time.monotonic()-start}
