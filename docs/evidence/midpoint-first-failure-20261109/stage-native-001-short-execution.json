@@ -1,0 +1,18 @@
+{
+  "command": [
+    "/Users/numi/numi-matter-midpoint-compensated-build-20261109/evidence-stage-native-001/numi_plane_contact_probe_scaled",
+    "/Users/numi/numi-matter-midpoint-compensated-build-20261109/evidence-stage-native-001/NumiMatter.metallib",
+    "0.00000390625",
+    "205",
+    "8",
+    "ipc_area_midpoint",
+    "0.0002",
+    "physical",
+    "contact",
+    "reference"
+  ],
+  "returncode": 0,
+  "timed_out": false,
+  "wall_seconds_observational_only": 29.912843792000785,
+  "input_hashes": "stage-native-001-inputs.sha256"
+}
