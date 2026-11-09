@@ -1,0 +1,9 @@
+# Recovery sequence 002
+
+Attempt 006 stopped at the free-space limit; it is retained and excluded from selection as incomplete. After clearing only the regenerable pip HTTP cache, retry the same frozen control binary, shader, six-step ladder, references, physical inputs, acceptance gates and resource limits as attempt 007. The attempt name is the only change to the control runner.
+
+The hash-bound n64 repeats run first, without another recognized Numi worker. After that process exits, the coordinator runs the control ladder. The cost runner uses only completed, provenance-checked 007 attempts and the existing midpoint ladder, selecting the largest tested passing step for each law; its code differs from the earlier runner only by the control-attempt prefix. It measures three alternating snapshot-free pairs and retains the predeclared 10% median and all-pairs gates. Incomplete attempts cannot count as failures or as passing rungs.
+
+After the cost runner exits, the bounded larger reference can start only if the n64 retry receipt and both temporally qualified mesh references validate and their spatial comparison fails. It preserves the same-grid compact n128 parity check and all original geometry, law, timestep, memory, storage and seven-day-per-run limits. The larger reference does not depend on cost success.
+
+The coordinator records hashes of its scripts and inputs, checks them before each phase, never overwrites a prior attempt, and records each subprocess outcome. Worker detection is limited to process names beginning `numi_` or `metalrobo_`; it is not a complete GPU-activity monitor. Any resource stop, incomplete run, failed gate or changed input prevents that phase from being claimed as qualified. No speed or spatial-convergence result is implied by starting this sequence.
