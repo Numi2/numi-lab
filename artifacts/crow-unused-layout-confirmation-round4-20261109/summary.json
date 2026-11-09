@@ -1,0 +1,36 @@
+{
+  "preregistered_gate_met": true,
+  "rows": [
+    {
+      "layout": "reserved-final-i",
+      "seed": 4038889268,
+      "supported_finishes": 16,
+      "waypoint_completions": 16,
+      "physical_failures": 0,
+      "failed_environment_steps": 0,
+      "minimum_sampled_clearance_m": 0.0817980847324,
+      "elapsed_seconds": 18.295896833,
+      "environment_control_steps_per_second": 2623.5390611420157,
+      "trace_sha256": "90da65eda1f0ecc5db6546b57d31f4b11c3bc73d809fe83a6eb9da3213743a5d",
+      "trace_bytes": 1829723
+    },
+    {
+      "layout": "reserved-final-j",
+      "seed": 3193706597,
+      "supported_finishes": 16,
+      "waypoint_completions": 16,
+      "physical_failures": 0,
+      "failed_environment_steps": 0,
+      "minimum_sampled_clearance_m": 0.0554148408842,
+      "elapsed_seconds": 18.813920208,
+      "environment_control_steps_per_second": 2551.3024116892757,
+      "trace_sha256": "7a2ae95cba247f7f7415866f1a354454c90fa545e11d9607af60ea1ea377a6cb",
+      "trace_bytes": 1836461
+    }
+  ],
+  "scope": "Continuous first episodes on current v15 simulated body, teacher off, no scheduled resets; 25 consecutive terminal supported foot-only contacts and low velocity; obstacle clearance only at accepted control-step endpoints and excludes perch. Goals include simulator-issued coordinates, so this is not pure visual navigation or biological validation.",
+  "flight_law_sha256": "aa2fe10901cb0494d80ae445902303a17ce0e73d030072bab09461d8f3593ebe",
+  "qualification": "frozen v15 flight law; see artifacts/crow-frozen-flight-law-20261109",
+  "previous_assessment": "round three produced 31/32 supported finishes and led to the independently trained conditional landing recovery; that failure remains archived",
+  "performance_scope": "observer-enabled 16-lane end-to-end runs on macmini; environment control steps per second includes sensor, physics, policy, and observer cost; not a cross-hardware comparison"
+}
