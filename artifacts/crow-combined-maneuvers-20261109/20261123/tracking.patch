@@ -1,0 +1,134 @@
+--- a/src/metal/LocomotionTask.metal
++++ b/src/metal/LocomotionTask.metal
+@@ -4150,6 +4150,24 @@
+                 }
+             }
+         }
++        // Diagnostic reset perturbations; body, solver and joint limits unchanged.
++        if ((program.schedule.w & MR_TASK_PROGRAM_AVIAN_CROW_NAVIGATION_FLIGHT_PHASE) != 0u) {
++            const uint perturb = environment % 8u;
++            const float roll = perturb == 1u ? 0.12f : perturb == 2u ? -0.12f : perturb == 7u ? 0.08f : 0.0f;
++            const float pitch = perturb == 3u ? 0.08f : perturb == 4u ? -0.08f : perturb == 7u ? -0.06f : 0.0f;
++            const float yaw = perturb == 5u ? 0.12f : perturb == 6u ? -0.12f : perturb == 7u ? 0.10f : 0.0f;
++            const float4 qx = float4(sin(0.5f*roll), 0.0f, 0.0f, cos(0.5f*roll));
++            const float4 qy = float4(0.0f, sin(0.5f*pitch), 0.0f, cos(0.5f*pitch));
++            const float4 qz = float4(0.0f, 0.0f, sin(0.5f*yaw), cos(0.5f*yaw));
++            const float4 existing = float4(resetQ[qBase+program.root.z+3u],resetQ[qBase+program.root.z+4u],resetQ[qBase+program.root.z+5u],resetQ[qBase+program.root.z+6u]);
++            const float4 disturbed = quaternionProduct(quaternionProduct(qz,quaternionProduct(qy,qx)),existing);
++            for (uint j=0u; j<4u; ++j) resetQ[qBase+program.root.z+3u+j] = disturbed[j];
++            if (perturb != 0u) resetQ[qBase+program.root.z+2u] += 0.04f;
++            if (perturb == 7u) {
++                resetV[vBase+program.root.w+1u] += 0.08f;
++                resetV[vBase+program.root.w+3u] += 0.15f;
++            }
++        }
+         const bool projectileEpisode = randomUnit(
+             dispatch,
+             environment,
+@@ -4644,18 +4662,14 @@
+     const float yawRate = straightCruise || navigation
+         ? state.commandExtension.y
+         : state.threatGeometry.z;
++    const float targetRoll = clamp(0.25f * lateralSpeedError, -0.12f, 0.12f);
+     const float navigationBankCorrection = navigation
+-        ? clamp(
+-              -0.70f * headingError + 0.12f * yawRate +
+-                  0.18f * lateralSpeedError,
+-              -0.45f,
+-              0.45f
+-          )
++        ? clamp(1.50f * (targetRoll - state.threatTeacher.y) - 0.25f * state.threatTeacher.z, -0.45f, 0.45f)
+         : 0.0f;
+     const float navigationPitchTarget = navigation
+         ? clamp(
+               0.10f + 0.35f * heightError -
+-                  0.12f * verticalRate,
++                  0.12f * verticalRate - 1.20f * forwardSpeedError,
+               -0.25f,
+               0.25f
+           )
+@@ -4750,7 +4764,7 @@
+     if ((straightCruise || navigation) &&
+         action == 13u && airborne) {
+         return clamp(
+-            3.00f * headingError - 0.50f * yawRate -
++            16.00f * headingError - 0.50f * yawRate -
+                 (navigation ? 0.35f * lateralSpeedError : 0.0f),
+             -1.00f,
+             1.00f
+@@ -4961,33 +4975,20 @@
+                   0.45f
+               )
+             : 0.0f;
+-        const float navigationTeacherRequested = !avianNavigationTeacher
+-            ? teacherRequested
+-            : action == 0u || action == 4u
+-            ? clamp(
+-                  studentRequested +
+-                      (action == 0u ? 1.0f : 0.5f) *
+-                          navigationWingResidual,
+-                  -1.0f,
+-                  1.0f
+-              )
+-            : action == 1u || action == 5u
+-            ? clamp(
+-                  studentRequested -
+-                      (action == 1u ? 1.0f : 0.5f) *
+-                          navigationWingResidual,
+-                  -1.0f,
+-                  1.0f
+-              )
+-            : action == 13u
+-            ? teacherRequested
+-            : studentRequested;
++        float navigationTeacherRequested = avianNavigationTeacher && action >= 15u
++            ? studentRequested : teacherRequested;
++        if (avianNavigationTeacher && float(state.episode.x) * dispatch.timing.x >= 6.0f && (action == 4u || action == 5u)) {
++            const float speedBias = clamp(0.55f + 1.40f * (state.commandExtension.z - max(state.commandAndPhase.x, 0.15f)), 0.25f, 0.95f);
++            const float yawDemand = clamp(16.0f * state.commandExtension.x - 0.50f * state.commandExtension.y - 0.35f * state.threatTeacher.x, -1.0f, 1.0f);
++            const float phaseOffset = 0.60f * clamp(-yawDemand, 0.0f, 1.0f) * sin(state.commandAndPhase.w);
++            navigationTeacherRequested = clamp(navigationTeacherRequested + (action == 4u ? speedBias : -speedBias) + phaseOffset, -1.0f, 1.0f);
++        }
+         // Keep the training-only teacher active through the final target.
+         // Ending at waypoint four taught an aggressive approach crossing but
+         // handed the student a poor terminal arrival geometry. Autonomous
+         // execution still has no teacher authority.
+         const float navigationTeacherBlend = avianNavigationTeacher
+-            ? (state.navigation.z >= 5.0f ? 0.0f : 1.0f)
++            ? 1.0f
+             : 1.0f;
+         const float effectiveTeacherRequested =
+             avianJourneyLandedActorHandoff
+@@ -5076,6 +5077,7 @@
+             filterSlot * program.counts0.x +
+             action
+         ];
++        if (avianJourneyTeacher) { teacherActions[actionBase + action] = filtered; }
+         if (binding.actuator.x != MR_TASK_ACTUATOR_JOINT_POSITION &&
+             binding.actuator.x != MR_TASK_ACTUATOR_GRIPPER_POSITION &&
+             binding.actuator.x != MR_TASK_ACTUATOR_FLAPPING_POSITION) {
+@@ -6535,6 +6537,24 @@
+             state.commandAndPhase.xyz = float3(0.0f);
+             state.commandExtension.xyz = float3(0.0f);
+         }
++    }
++    // Exploratory fixed-command flight bench. Not a deployment controller.
++    if ((program.schedule.w & MR_TASK_PROGRAM_AVIAN_CROW_NAVIGATION_FLIGHT_PHASE) != 0u) {
++        const uint mode = environment % 5u;
++        const float seconds = float(state.episode.x + 1u) * dispatch.timing.x;
++        const float rate = mode == 0u || mode == 2u ? 0.02f : mode == 1u || mode == 3u ? -0.02f : 0.0f;
++        const float targetHeight = seconds >= 6.0f ? (mode == 0u ? 0.95f : mode == 1u ? 0.75f : 0.85f) : 0.85f;
++        const float desired = rate * max(seconds - 6.0f, 0.0f);
++        const float heading = atan2(yawBasis.y, yawBasis.x);
++        const float error = atan2(sin(desired-heading), cos(desired-heading));
++        state.commandAndPhase.xyz = float3(0.40f, 0.0f, rate);
++        state.commandExtension.xyz = float3(error, baseAngular.z, yawFrameLinear.x);
++        const float benchPitch = asin(clamp(2.0f * (orientation.w * orientation.y - orientation.z * orientation.x), -1.0f, 1.0f));
++        state.threatGeometry = float4(targetHeight - rootWorldPosition(program, q).z, rootLinearVelocity.z, benchPitch, baseAngular.y);
++        state.threatTeacher.x = yawFrameLinear.y - (seconds >= 6.0f ? (mode == 0u ? 0.20f : mode == 1u ? -0.20f : mode == 2u ? 0.30f : mode == 3u ? -0.30f : 0.0f) : 0.0f);
++        state.threatTeacher.y = atan2(2.0f * (orientation.w * orientation.x + orientation.y * orientation.z),
++                                     1.0f - 2.0f * (orientation.x * orientation.x + orientation.y * orientation.y));
++        state.threatTeacher.z = baseAngular.x;
+     }
+     if (avianJourneyTakeoffCruise) {
+         // Feed the next teacher action from accepted state without a host
