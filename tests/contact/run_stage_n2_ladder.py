@@ -3,7 +3,7 @@
 import json,os,pathlib,subprocess,time
 root=pathlib.Path(__file__).resolve().parents[2]
 p=root/"docs/evidence/midpoint-first-failure-20261109"
-b=pathlib.Path("/Users/numi/numi-matter-midpoint-compensated-build-20261109/evidence-be-precision-004")
+b=pathlib.Path("/Users/numi/numi-matter-midpoint-compensated-build-20261109/evidence-be-precision-005")
 ref=root/"docs/evidence/midpoint-spatial-cost-dynamic-20261108/rk4-n2-h025.json"
 env=os.environ.copy();env["NM_MATTER_MIDPOINT_VELOCITY_COMPENSATION"]="1";env["NM_MATTER_MIDPOINT_STAGE_COMPENSATION"]="1"
 for tag,h in [("125","0.000125"),("0625","0.0000625"),("03125","0.00003125"),("015625","0.000015625"),("0078125","0.0000078125")]:
@@ -15,7 +15,7 @@ for tag,h in [("125","0.000125"),("0625","0.0000625"),("03125","0.00003125"),("0
  with paths[".json"].open("w") as out,paths[".log"].open("w") as err:
   try:r=subprocess.run(cmd,env=env,stdout=out,stderr=err,timeout=2400);code=r.returncode;timedout=False
   except subprocess.TimeoutExpired:code=None;timedout=True
- meta={"command":cmd,"input_hashes":"be-precision-004-inputs.sha256","returncode":code,"timed_out":timedout,"wall_seconds_observational_only":time.monotonic()-start}
+ meta={"command":cmd,"input_hashes":"be-precision-005-inputs.sha256","returncode":code,"timed_out":timedout,"wall_seconds_observational_only":time.monotonic()-start}
  try:
   state=json.loads(paths[".json"].read_text())
   analysis=subprocess.run(["python3",str(root/"tests/contact/native_trace_analysis.py"),str(paths[".json"]),str(ref)],capture_output=True,text=True)

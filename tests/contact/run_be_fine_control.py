@@ -3,9 +3,9 @@
 import hashlib,json,os,pathlib,shutil,subprocess,time
 root=pathlib.Path(__file__).resolve().parents[2]
 p=root/"docs/evidence/midpoint-first-failure-20261109"
-b=pathlib.Path("/Users/numi/numi-matter-midpoint-compensated-build-20261109/evidence-be-precision-004")
+b=pathlib.Path("/Users/numi/numi-matter-midpoint-compensated-build-20261109/evidence-be-precision-005")
 ref=root/"docs/evidence/midpoint-spatial-cost-dynamic-20261108/rk4-n2-h025.json"
-name="be-precision-004-n2-h00003125"; paths={s:p/(name+s) for s in (".json",".log","-execution.json","-analysis.json")}
+name="be-precision-005-n2-h00003125"; paths={s:p/(name+s) for s in (".json",".log","-execution.json","-analysis.json")}
 if any(q.exists() for q in paths.values()):raise SystemExit("attempt already exists")
 exe=b/"numi_plane_contact_probe_scaled";shader=b/"NumiMatter.metallib"
 hashes={str(q):hashlib.sha256(q.read_bytes()).hexdigest() for q in (exe,shader,ref)}
