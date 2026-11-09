@@ -1,0 +1,3 @@
+# Gate corrections, second iteration
+
+Start from the gate-recovery actor. Fit successful teacher-corrected demonstrations and student-visited prefixes, including the second near-gate batch. Weight the new physically visited prefixes 16 times while maintaining all route stages and prior demonstrations. Hold one eligible lane per correction batch and course for validation; failed demonstrations remain excluded. Reassess the revised actor using independent development seeds with teacher off and supported landing. Improvement is fewer gate/slalom failures without reducing full supported completion; validation loss alone is not success.

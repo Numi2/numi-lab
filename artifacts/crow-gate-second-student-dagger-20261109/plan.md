@@ -1,0 +1,3 @@
+# Second near-gate student-state corrections
+
+Use the gate-corrected deterministic route actor and newly trained terminal actor. On eight lanes per development course, retain corrective teacher labels on states physically reached by the full student until steps 850, 950, 1050 or 1150. Match q/v against a teacher-off student control before takeover. Retain all outcomes; include a demonstration in training only if its first episode completes all five waypoints and ends with 25 consecutive physically supported samples. Seeds 20270206, 20270207 and 20270208 are development data. Predict fewer gate and slalom first failures, without reducing matched supported finishes. Final layouts remain untouched.
