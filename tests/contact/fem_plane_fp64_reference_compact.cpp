@@ -18,6 +18,9 @@ struct CompactModel {
  int n;
  std::vector<double> mass,area;
  State initial;
+#ifdef NUMI_COMPACT_TEMPLATE_INVERSE
+ std::array<M,6> templateInverse{};
+#endif
  double d=1e-4,k=1e16,mu=2000,lambda=5000;
  static constexpr int mesh[6][4]={{0,1,3,7},{0,3,2,7},{0,2,6,7},{0,6,4,7},{0,4,5,7},{0,5,1,7}};
  int id(int x,int y,int z) const {return (z*(n+1)+y)*(n+1)+x;}
@@ -29,6 +32,15 @@ struct CompactModel {
   if(n<1||n>256)throw std::runtime_error("invalid mesh capacity");
   const int count=(n+1)*(n+1)*(n+1);
   initial.x.resize(count);initial.v.resize(count);mass.assign(count,0);area.assign(count,0);
+#ifdef NUMI_COMPACT_TEMPLATE_INVERSE
+  const V unit[8]={{0,0,0},{1,0,0},{0,1,0},{1,1,0},
+                   {0,0,1},{1,0,1},{0,1,1},{1,1,1}};
+  for(size_t i=0;i<6;++i){const auto& t=mesh[i];
+   const M dm=edges(unit[t[0]],unit[t[1]],unit[t[2]],unit[t[3]]);
+   if(std::abs(determinant(dm))!=1.)throw std::runtime_error("non-unit template");
+   templateInverse[i]=inverse(dm);
+  }
+#endif
   for(int z=0;z<=n;++z)for(int y=0;y<=n;++y)for(int x=0;x<=n;++x)
    initial.x[id(x,y,z)]={.02*x/n,.02*y/n,.0002+.02*z/n};
   for(int z=0;z<n;++z)for(int y=0;y<n;++y)for(int x=0;x<n;++x) {
@@ -61,12 +73,26 @@ struct CompactModel {
      for(size_t idx=begin;idx<end;++idx){
       const int x=2*int(idx%nx)+c.cx,y=2*int((idx/nx)%ny)+c.cy,z=2*int(idx/(size_t(nx)*ny))+c.cz;
       int v[8];m.vertices(x,y,z,v);
-      for(const auto& t:mesh) {
+      for(size_t ti=0;ti<6;++ti) {
+       const auto& t=mesh[ti];
        const int a=v[t[0]],b=v[t[1]],d=v[t[2]],e=v[t[3]];
+#ifdef NUMI_COMPACT_TEMPLATE_INVERSE
+       // The structured reference cell is diag(dx,dy,dz) times this
+       // tetrahedron template. Axis lengths come from the original rounded
+       // node coordinates, rather than an assumed perfectly uniform grid.
+       const double dx=m.initial.x[v[1]].x-m.initial.x[v[0]].x;
+       const double dy=m.initial.x[v[2]].y-m.initial.x[v[0]].y;
+       const double dz=m.initial.x[v[4]].z-m.initial.x[v[0]].z;
+       const double volume=std::abs(dx*dy*dz)/6;
+       M inv=m.templateInverse[ti];
+       for(int row=0;row<3;++row){inv.a[row][0]/=dx;inv.a[row][1]/=dy;inv.a[row][2]/=dz;}
+#else
        const M dm=edges(m.initial.x[a],m.initial.x[b],m.initial.x[d],m.initial.x[e]);
        const double volume=std::abs(determinant(dm))/6;
+       const M inv=inverse(dm);
+#endif
        if(!(volume>0)){c.invalid.store(true,std::memory_order_relaxed);continue;}
-       const M inv=inverse(dm),ds=edges(c.s->x[a],c.s->x[b],c.s->x[d],c.s->x[e]);M F;
+       const M ds=edges(c.s->x[a],c.s->x[b],c.s->x[d],c.s->x[e]);M F;
        for(int i=0;i<3;++i)for(int j=0;j<3;++j)for(int q=0;q<3;++q)F.a[i][j]+=ds.a[i][q]*inv.a[q][j];
        const double J=determinant(F);if(!(J>1e-30)||!std::isfinite(J)){c.invalid.store(true,std::memory_order_relaxed);continue;}
        const M invF=inverse(F);M P;

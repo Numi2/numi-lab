@@ -1,0 +1,25 @@
+{
+  "scope": "complete n32 trajectory parity at the same h; not a spatial or temporal qualification or timing benchmark",
+  "command": [
+    "/Users/numi/numi-matter-midpoint-compensated-build-20261109/evidence-compact-005/numi_contact_fem_fp64_reference_compact",
+    "32",
+    "0.0000005",
+    "0.01"
+  ],
+  "compact_binary_sha256": "8b1cc61827aa63660320011e6f6e9f3c3deaab9fa838aa1706d428aa1bc177ac",
+  "retained_reference_sha256": "eda9420292a73a338b22dd49e450b663068a05f67395e10e743632820c0fe151",
+  "compact_source_sha256": "f32ce000b8f5001c664684725a3ed055a75af0cbc9b17634fbddbf752e3b0bc1",
+  "included_source_sha256": "6d75d723f79ba704788e506e81e5a214ebf105079d9cb0d4ef78cfe842d1a237",
+  "returncode": 0,
+  "stopped_reason": null,
+  "sampled_peak_rss_kib": 25120,
+  "wall_seconds_observational_only": 261.809319041,
+  "max_force_difference_over_reference_peak": 5.506429852696473e-14,
+  "max_cumulative_impulse_difference_over_reference_total": 2.367433131483416e-15,
+  "peak_force_relative_difference": 1.5732656721989922e-16,
+  "total_impulse_relative_difference": 6.576203143009489e-16,
+  "max_contact_weight_abs_difference_m2": 0.0,
+  "total_area_difference_m2": 0.0,
+  "total_mass_difference_kg": 0.0,
+  "passes": true
+}
