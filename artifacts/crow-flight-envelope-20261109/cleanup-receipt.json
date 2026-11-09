@@ -1,0 +1,19 @@
+{
+  "archive_commit": "a9cd63cdecba032a667ef6a8ae64a5c07a82eb56",
+  "remote_commit_verified": "a9cd63cdecba032a667ef6a8ae64a5c07a82eb56",
+  "removed_source_roots": [
+    "build/crow-flight-envelope-20261109",
+    "build/crow-envelope-restore-lib",
+    "build/crow-envelope-restore-policy"
+  ],
+  "removed_source_files": 152,
+  "removed_source_bytes": 262321438,
+  "removed_temporary_restore_directory": "build/crow-envelope-restore-verification-20261109",
+  "manifest": "artifacts/crow-flight-envelope-recovery-20261109/manifest.json",
+  "checks": [
+    "committed archive content verified",
+    "Git-restored native replay matched",
+    "source set, SHA256, size, mode and mtime matched manifest",
+    "lsof found no open handles"
+  ]
+}

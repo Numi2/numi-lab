@@ -1,0 +1,7 @@
+{
+  "first_episode_results_identical": true,
+  "selected_lane_trace_byte_identical": true,
+  "trace_sha256": "596b942e53b36e38de7f633554c0cdff1f62215838df5026922055200256417c",
+  "failed_environment_steps": 0,
+  "scope": "Git-restored modified-body diagnostic; not current-v15 qualification"
+}
