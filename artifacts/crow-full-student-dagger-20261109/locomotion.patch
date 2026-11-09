@@ -1,0 +1,11 @@
+--- a/goal-memory-dagger.metal
++++ b/full-student-dagger.metal
+@@ -4948,7 +4948,7 @@
+         const float4 actorCommand = float4(
+             0.10f+0.30f*actorLatent.x,0.30f*actorLatent.y,
+             0.15f*actorLatent.z,0.975f+0.325f*actorLatent.w);
+-        const uint recoveryTakeover = 700u + 150u*(environment % 4u);
++        const uint recoveryTakeover = 1900u + 100u*(environment % 4u);
+         const bool privilegedCommand = HIERARCHY_ORACLE ||
+             (dispatch.sampling.w != 0u &&
+              (dispatch.assistance.x < 0.5f || (HIERARCHY_RECOVER && state.episode.x >= recoveryTakeover)));
