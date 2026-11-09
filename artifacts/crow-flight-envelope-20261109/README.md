@@ -1,0 +1,13 @@
+# v15 flight-control development — 2026-11-09
+
+No controller in this directory is qualified or frozen. These are exploratory, obstacle-free, teacher-controlled tests on the development seed 20261111 and the training course. They do not establish autonomous navigation, recovery from deliberately perturbed starts, supported landing, continuous clearance, or performance on unused layouts and seeds.
+
+The fixed +0.55/-0.55 pronation trim reduced straight-flight overspeed. Seven straight and seven +0.03 rad/s lanes passed the preregistered sampled screen, but no right-turn lane did. The roll-feedback candidate substantially reduced lateral drift but did not improve right-turn heading. At the existing -1 normalized yaw limit, its median yaw response over 20–30 s was -0.00954 rad/s. See the individual plans and results, especially `speed-results.md`, `roll-results.md`, and `yaw-authority-results.md`.
+
+A read-only diagnostic observer showed the expected yaw command reaches the body wrench. Observer on/off controls were byte-identical for the selected trajectories, and the Metal known-value fixture and actuator projection checks passed. Do not use the first, rejected instrument that modified the aerodynamic kernel. The valid observer is still not a complete angular-momentum balance; see `observer-results.md`.
+
+An experimental change to the inherited isotropic root angular damping from 0.50 to 0.05 increased median negative yaw response to -0.0432 rad/s in matched nominal lanes. This is a causal diagnostic on a *different fingerprinted body*, not a corrected or qualified current v15 body. No production model or controller change is made. See `damping-plan.md`, `damping-results.md`, and `damping-summary.json`.
+
+Each study retains its plan, controls, source patch, native command, first-episode result, simulator-failure status and compressed samples. For all-straight yaw probes, use the dedicated yaw or damping summary; the generic turn-mode heading screen in their per-arm analysis JSON does not describe that probe's commands. The horizon samples are spaced two seconds apart except for the short moment window and cannot establish continuous clearance or safety. Failed and invalid experiments remain recorded.
+
+Next required work remains: establish a useful left/right/straight/climb/descent envelope and recovery on the unchanged v15 body, validate on unused flight conditions, freeze the carrier, then train the high-level navigator and evaluate all waypoints plus physically supported landing without teacher or intermediate resets on genuinely unused layouts and seeds. Existing waypoint-only `safe_completion` evidence is not this final gate.
