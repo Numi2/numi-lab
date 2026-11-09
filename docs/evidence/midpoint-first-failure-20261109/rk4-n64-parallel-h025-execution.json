@@ -1,0 +1,9 @@
+{
+  "mesh": 64,
+  "h": 2.5e-07,
+  "returncode": 0,
+  "timed_out": false,
+  "wall_seconds": 2128.0012902079616,
+  "workers": 4,
+  "concurrent_coarse_reference": true
+}
