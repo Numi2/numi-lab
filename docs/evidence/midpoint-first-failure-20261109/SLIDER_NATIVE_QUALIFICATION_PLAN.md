@@ -95,3 +95,14 @@ value and 1e-12 N m s; the resulting 1e-14 N m s floor is the existing local
 absolute torque bound. Once the temporal reference passes, apply the same
 criterion to the accumulated native FEM torque impulse. Keep the independent
 per-step equal-and-opposite contact and support torque checks.
+
+Before any new native rollout, the instrument must record all three
+components of FEM contact impulse, body-wrench impulse and contact/support
+moment. For this frictionless world-z plane, the x/y contact impulse components
+on each side and their balance must remain within the existing per-step
+impulse bound. The z contact and support moments must each be at most the
+existing 1e-14 N m s absolute torque floor; balancing nonzero axial moments do
+not satisfy this geometric restriction. Compute FEM work from the full impulse
+and midpoint velocity vectors. The existing per-node normal-law work and
+impulse checks still apply. Earlier attempts did not capture all of these
+components and remain incomplete historical evidence, not all-axis passes.

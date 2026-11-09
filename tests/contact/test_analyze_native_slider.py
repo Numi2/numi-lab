@@ -19,8 +19,11 @@ for i in range(640):
  t=i*h;u=(i+1)*h;j=at(u,2)-at(t,2);x=j*r['torque_impulse_x_Nms']/r['impulse_Ns'];y=j*r['torque_impulse_y_Nms']/r['impulse_Ns']
  steps.append({'step':i,'accepted':True,'world_status':0,'matter_status':0,'gap':.00009,'midpoint_gap':.00009,'contact_potential_before_J':0.,'contact_potential_after_J':0.,'owner_wrench_work':0.,'q':at(u,3),'v':at(u,4),
   'fem_impulse':j,'owner_momentum_impulse':-j,'owner_wrench_impulse':-j,
+  'fem_impulse_x':0.,'fem_impulse_y':0.,'owner_wrench_impulse_x':0.,'owner_wrench_impulse_y':0.,
   'fem_torque_impulse_x':x,'fem_torque_impulse_y':y,'owner_moment_impulse_x':-x,'owner_moment_impulse_y':-y,
-  'support_moment_impulse_x':x,'support_moment_impulse_y':y,'fem_contact_work':0.,'owner_contact_work':0.,
+  'support_moment_impulse_x':x,'support_moment_impulse_y':y,
+  'fem_torque_impulse_z':0.,'owner_moment_impulse_z':0.,'support_moment_impulse_z':0.,
+  'fem_contact_work':0.,'owner_contact_work':0.,
   'independent_fem_residual_Ns':0.,'independent_joint_residual_Ns':0.,'slider_kinematic_defect_m':0.,'fem_kinematic_defect_m':0.})
 # Build a discrete midpoint position history from the reference velocities;
 # interpolated continuous positions alone need not obey the discrete equation.
@@ -88,7 +91,7 @@ with tempfile.NamedTemporaryFile(mode='w',suffix='.json') as f:
  last=d['steps'].pop()
  code,out=run();assert code!=0,('incomplete trajectory accepted',out)
  d['steps'].append(last)
- for field in ('owner_momentum_impulse','owner_wrench_impulse','support_moment_impulse_x','independent_joint_residual_Ns','midpoint_gap','owner_wrench_work','fem_work_reconstruction_gate_ratio'):
+ for field in ('owner_momentum_impulse','owner_wrench_impulse','support_moment_impulse_x','support_moment_impulse_z','fem_torque_impulse_z','fem_impulse_x','owner_wrench_impulse_y','independent_joint_residual_Ns','midpoint_gap','owner_wrench_work','fem_work_reconstruction_gate_ratio'):
   old=d['steps'][100][field];d['steps'][100][field]=0. if field=='midpoint_gap' else 2. if field=='fem_work_reconstruction_gate_ratio' else old+1e-5
   code,out=run();assert code!=0,(field,out);d['steps'][100][field]=old
  for field,check in (('slider_kinematic_defect_m','slider_midpoint_kinematics'),('fem_kinematic_defect_m','fem_midpoint_kinematics')):
@@ -99,6 +102,15 @@ with tempfile.NamedTemporaryFile(mode='w',suffix='.json') as f:
   d['steps'][100][field]=old
  old=d['steps'][100]['fem_work_nodes'][0][1];d['steps'][100]['fem_work_nodes'][0][1]+=1e-5
  code,out=run();assert code!=0,('corrupt node',out);d['steps'][100]['fem_work_nodes'][0][1]=old
+ # Equal-and-opposite transverse impulses and balanced axial moments are
+ # still physically invalid for this frictionless world-z fixture.
+ step=d['steps'][100]
+ step['fem_impulse_x']=1e-5;step['owner_wrench_impulse_x']=-1e-5
+ code,out=run();assert code!=0 and not out['checks']['frictionless_transverse_impulse'],('balanced transverse impulse',out)
+ step['fem_impulse_x']=0.;step['owner_wrench_impulse_x']=0.
+ step['fem_torque_impulse_z']=1e-8;step['owner_moment_impulse_z']=-1e-8;step['support_moment_impulse_z']=1e-8
+ code,out=run();assert code!=0 and out['checks']['contact_and_support_torque'] and not out['checks']['frictionless_axial_torque'],('balanced axial torque',out)
+ step['fem_torque_impulse_z']=0.;step['owner_moment_impulse_z']=0.;step['support_moment_impulse_z']=0.
  # A corrupted interior position cannot hide behind an unchanged endpoint or
  # a falsely small precomputed defect.
  old=d['steps'][100]['q'];d['steps'][100]['q']=old+1e-5

@@ -119,6 +119,11 @@ for step in steps:
   raise SystemExit('combined residual disagrees with local components')
 impulse_ratio=max(abs(s['fem_impulse']+s['owner_momentum_impulse'])/max(1e-12,1e-5*abs(s['fem_impulse'])) for s in steps)
 wrench_impulse_ratio=max(abs(s['fem_impulse']+s['owner_wrench_impulse'])/max(1e-12,1e-5*abs(s['fem_impulse'])) for s in steps)
+# The admitted law is frictionless and the plane normal is world z. Inspect
+# both independently measured transverse impulse components explicitly.
+transverse_impulse_ratio=max(max(abs(s['fem_impulse_'+a]),abs(s['owner_wrench_impulse_'+a]),
+ abs(s['fem_impulse_'+a]+s['owner_wrench_impulse_'+a]))/
+ max(1e-12,1e-5*abs(s['fem_impulse'])) for s in steps for a in ('x','y'))
 # The existing impulse gate induces a work-reconstruction bound: impulse
 # tolerance times the actual midpoint speed, plus a double roundoff floor.
 previous_v=d['initial_slider_velocity_mps'];work_ratio=0.
@@ -151,7 +156,11 @@ for col,name in enumerate(('fem','slider','relative'),1):
                      'final_absolute_error_J':abs(values[-1]-reference[-1][col])}
 torque_ratio=max(max(abs(s['fem_torque_impulse_'+a]+s['owner_moment_impulse_'+a]),
  abs(s['owner_moment_impulse_'+a]+s['support_moment_impulse_'+a]))/
- max(1e-14,1e-5*abs(s['fem_torque_impulse_'+a])) for s in steps for a in ('x','y'))
+ max(1e-14,1e-5*abs(s['fem_torque_impulse_'+a])) for s in steps for a in ('x','y','z'))
+# A world-z normal produces no moment about z; cancellation between three
+# incorrect owners must not hide a spurious axial contact moment.
+axial_torque_ratio=max(max(abs(s['fem_torque_impulse_z']),abs(s['owner_moment_impulse_z']),
+ abs(s['support_moment_impulse_z']))/1e-14 for s in steps)
 torque_reference_results={}
 for axis in ('x','y'):
  value=sum(step['fem_torque_impulse_'+axis] for step in steps)
@@ -169,6 +178,8 @@ results={'reference_qualification_passed':reference_ok,'work_history_comparison'
  'maximum_owner_work_reconstruction_error_J':max(abs(s['owner_contact_work']-s['owner_wrench_work']) for s in steps),
  'maximum_impulse_balance_gate_ratio':impulse_ratio,'maximum_wrench_impulse_balance_gate_ratio':wrench_impulse_ratio,
  'maximum_torque_balance_gate_ratio':torque_ratio,
+ 'maximum_transverse_impulse_gate_ratio':transverse_impulse_ratio,
+ 'maximum_axial_torque_gate_ratio':axial_torque_ratio,
  'maximum_owner_work_reconstruction_gate_ratio':work_ratio,
  'maximum_fem_work_reconstruction_gate_ratio':fem_work_ratio,
  'max_independent_joint_residual_Ns':max(abs(s['independent_joint_residual_Ns']) for s in steps),
@@ -187,7 +198,8 @@ results={'reference_qualification_passed':reference_ok,'work_history_comparison'
 checks={'force_bin':force_error<=.0025,'sampled_peak':peak_error<=.01,'total_impulse':imp_error<=.0025,
  'cumulative_impulse':cum_error<=.01,'clearance':results['minimum_gap_m']>1e-7 and results['minimum_midpoint_gap_m']>1e-7,
  'equal_opposite_impulse':impulse_ratio<=1,'equal_opposite_wrench_impulse':wrench_impulse_ratio<=1,
- 'contact_and_support_torque':torque_ratio<=1,
+ 'contact_and_support_torque':torque_ratio<=1,'frictionless_transverse_impulse':transverse_impulse_ratio<=1,
+ 'frictionless_axial_torque':axial_torque_ratio<=1,
  'torque_x_reference':torque_reference_results['x']['normalized_error']<=.01,
  'torque_y_reference':torque_reference_results['y']['normalized_error']<=.01,
  'owner_work_reconstruction':work_ratio<=1,

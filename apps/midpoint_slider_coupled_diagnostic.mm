@@ -231,16 +231,21 @@ int main(int argc,char**argv){@autoreleasepool{try{
       now.solverCertificates.size()==1,"missing owner data or certificate");
   q=result.finalQ;v=result.finalV;const auto body=*static_cast<const MRABABodyWrenchGPU*>(obs.wrench.contents);
   const auto support=*static_cast<const MRABABodyWrenchGPU*>(obs.support.contents);
-  double impulse=0,torqueX=0,torqueY=0,work=0,low=1e100,midLow=1e100;
+  double impulse=0,impulseX=0,impulseY=0,torqueX=0,torqueY=0,torqueZ=0,work=0,low=1e100,midLow=1e100;
   double oldContactPotential=0,newContactPotential=0,femLawWork=0,femWorkGateRatio=0;
   std::vector<double> nodalContactImpulse(now.femNodes.size(),0.0);
   std::vector<std::array<double,5>> femWorkNodes;
   for(const auto& s:now.contactSamples)if(s.identity.w&NM_CONTACT_VALID){
    require(s.identity.x>=femWorld.dispatch.gridNodeCount,"contact is not a FEM node");
    const auto node=s.identity.x-femWorld.dispatch.gridNodeCount;require(node<now.femNodes.size(),"contact node out of range");
-   const double jz=-double(s.impulseAndNormal.z);impulse+=jz;nodalContactImpulse[node]+=jz;
-   const double x=s.pointAndSeparation.x,y=s.pointAndSeparation.y;torqueX+=y*jz;torqueY-=x*jz;
-   const double vm=.5*(physicalVelocity(previous,node,2)+physicalVelocity(now,node,2));work+=jz*vm;
+   const double jx=-double(s.impulseAndNormal.x),jy=-double(s.impulseAndNormal.y),jz=-double(s.impulseAndNormal.z);
+   impulseX+=jx;impulseY+=jy;impulse+=jz;nodalContactImpulse[node]+=jz;
+   const double x=s.pointAndSeparation.x,y=s.pointAndSeparation.y,z=s.pointAndSeparation.z;
+   torqueX+=y*jz-z*jy;torqueY+=z*jx-x*jz;torqueZ+=x*jy-y*jx;
+   const double vx=.5*(physicalVelocity(previous,node,0)+physicalVelocity(now,node,0));
+   const double vy=.5*(physicalVelocity(previous,node,1)+physicalVelocity(now,node,1));
+   const double vz=.5*(physicalVelocity(previous,node,2)+physicalVelocity(now,node,2));
+   work+=jx*vx+jy*vy+jz*vz;
   }
   for(std::size_t i=0;i<now.femNodes.size();++i){
    const auto& n=now.femNodes[i];const auto& old=previous.femNodes[i];
@@ -278,9 +283,11 @@ int main(int argc,char**argv){@autoreleasepool{try{
       physicalH*.5*(double(startV[0])+double(v[0]));
   std::cout<<",\"gap\":"<<low<<",\"midpoint_gap\":"<<midLow<<",\"q\":"<<q[0]<<",\"v\":"<<v[0]<<",\"fem_impulse\":"<<impulse
    <<",\"owner_momentum_impulse\":"<<ownerImpulse<<",\"owner_wrench_impulse\":"<<double(body.force.z)*physicalH
-   <<",\"fem_torque_impulse_x\":"<<torqueX<<",\"fem_torque_impulse_y\":"<<torqueY
-   <<",\"owner_moment_impulse_x\":"<<double(body.torque.x)*physicalH<<",\"owner_moment_impulse_y\":"<<double(body.torque.y)*physicalH
-   <<",\"support_moment_impulse_x\":"<<double(support.torque.x)*physicalH<<",\"support_moment_impulse_y\":"<<double(support.torque.y)*physicalH
+   <<",\"fem_impulse_x\":"<<impulseX<<",\"fem_impulse_y\":"<<impulseY
+   <<",\"owner_wrench_impulse_x\":"<<double(body.force.x)*physicalH<<",\"owner_wrench_impulse_y\":"<<double(body.force.y)*physicalH
+   <<",\"fem_torque_impulse_x\":"<<torqueX<<",\"fem_torque_impulse_y\":"<<torqueY<<",\"fem_torque_impulse_z\":"<<torqueZ
+   <<",\"owner_moment_impulse_x\":"<<double(body.torque.x)*physicalH<<",\"owner_moment_impulse_y\":"<<double(body.torque.y)*physicalH<<",\"owner_moment_impulse_z\":"<<double(body.torque.z)*physicalH
+   <<",\"support_moment_impulse_x\":"<<double(support.torque.x)*physicalH<<",\"support_moment_impulse_y\":"<<double(support.torque.y)*physicalH<<",\"support_moment_impulse_z\":"<<double(support.torque.z)*physicalH
    <<",\"fem_contact_work\":"<<work<<",\"fem_law_work\":"<<femLawWork
    <<",\"fem_work_reconstruction_gate_ratio\":"<<femWorkGateRatio<<",\"owner_contact_work\":"<<ownerWork
    <<",\"fem_work_nodes\":[";
