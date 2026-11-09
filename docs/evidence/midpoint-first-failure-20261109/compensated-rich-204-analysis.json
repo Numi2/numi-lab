@@ -1,0 +1,40 @@
+{
+  "description": "FP32 velocity plus unit-alpha proposed correction at the captured boundary; not independent b-Ax",
+  "iterations": {
+    "3": {
+      "x": {
+        "maximum_absolute_proposal_m_per_s": 1.9698819127538653e-13,
+        "nonzero_proposals": 729,
+        "rounded_unchanged": 0
+      },
+      "y": {
+        "maximum_absolute_proposal_m_per_s": 2.2153558555757652e-13,
+        "nonzero_proposals": 729,
+        "rounded_unchanged": 0
+      },
+      "z": {
+        "maximum_absolute_proposal_m_per_s": 4.5593154252010493e-10,
+        "nonzero_proposals": 729,
+        "rounded_unchanged": 729
+      }
+    },
+    "4": {
+      "x": {
+        "maximum_absolute_proposal_m_per_s": 1.0582461183663173e-14,
+        "nonzero_proposals": 729,
+        "rounded_unchanged": 0
+      },
+      "y": {
+        "maximum_absolute_proposal_m_per_s": 1.2425720073369357e-14,
+        "nonzero_proposals": 729,
+        "rounded_unchanged": 0
+      },
+      "z": {
+        "maximum_absolute_proposal_m_per_s": 4.4440345847718277e-10,
+        "nonzero_proposals": 729,
+        "rounded_unchanged": 729
+      }
+    }
+  },
+  "trace_sha256": "b6d0ce9e7b824cc7ff9badc70a3b3b84442fe31b685fe7654ba78a5fdc132247"
+}

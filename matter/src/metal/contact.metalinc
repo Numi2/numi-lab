@@ -14051,6 +14051,45 @@ kernel void nm_fem_midpoint_reflect_endpoint_scratch(
     result[i] = 0u;
 }
 
+// Low velocity limbs are owned transactionally only by the scoped midpoint mode.
+kernel void nm_fem_midpoint_velocity_low_checkpoint(
+    constant uint& count [[buffer(0)]], device const float4* accepted [[buffer(1)]],
+    device float4* checkpoint [[buffer(2)]], uint i [[thread_position_in_grid]]) {
+    if(i<count) checkpoint[i]=accepted[i];
+}
+kernel void nm_fem_midpoint_velocity_low_rollback(
+    constant uint& count [[buffer(0)]], device const NMMatterStatusGPU* statuses [[buffer(1)]],
+    device float4* accepted [[buffer(2)]], device const float4* checkpoint [[buffer(3)]],
+    uint i [[thread_position_in_grid]]) {
+    if(i<count && !environmentHealthy(statuses,0u)) accepted[i]=checkpoint[i];
+}
+kernel void nm_fem_midpoint_velocity_low_commit(
+    constant uint& count [[buffer(0)]], device const NMMatterStatusGPU* statuses [[buffer(1)]],
+    device float4* accepted [[buffer(2)]], device const float4* endpoint [[buffer(3)]],
+    uint i [[thread_position_in_grid]]) {
+    if(i<count && environmentHealthy(statuses,0u)) accepted[i]=endpoint[i];
+}
+kernel void nm_fem_midpoint_reflect_velocity_low(
+    constant uint& count [[buffer(0)]], device const NMFEMNodeStateGPU* accepted [[buffer(1)]],
+    device const NMFEMNodeStateGPU* midpoint [[buffer(2)]],
+    device NMFEMNodeStateGPU* endpoint [[buffer(3)]], device const float4* acceptedLow [[buffer(4)]],
+    device float4* endpointLow [[buffer(5)]], device uint* result [[buffer(6)]],
+    uint i [[thread_position_in_grid]]) {
+    if(i>=count || result[i]!=0u)return;
+    const auto a=accepted[i],m=midpoint[i];auto e=endpoint[i];
+    const float4 low=acceptedLow[i];float4 out=float4(0.0f);
+    if(!all(isfinite(low)) || low.w!=0.0f) {result[i]=1u;return;}
+    for(uint j=0u;j<3u;++j) {
+        const auto doubled=mrCompensatedAdd({m.velocityAndInverseMass[j],0.0f},
+            {m.velocityAndInverseMass[j],0.0f});
+        const auto v=mrCompensatedAdd(doubled,{-a.velocityAndInverseMass[j],-low[j]});
+        if(!isfinite(v.high) || !isfinite(v.low)){result[i]=1u;return;}
+        e.velocityAndInverseMass[j]=v.high;out[j]=v.low;
+        e.deltaVelocity[j]=v.high-a.velocityAndInverseMass[j];
+    }
+    endpoint[i]=e;endpointLow[i]=out;
+}
+
 // Publish physical full-step impulses after final midpoint residual assembly.
 // The ordinary transaction alone can publish these candidate-owned histories.
 kernel void nm_contact_midpoint_publish_physical(
@@ -14095,6 +14134,74 @@ kernel void nm_fem_midpoint_certify_transaction(
         const float3 r=2.0f*midpointResidual[i].xyz +
             2.0f*a.positionAndMass.w*(m.velocityAndInverseMass.xyz-a.velocityAndInverseMass.xyz) -
             a.positionAndMass.w*(e.velocityAndInverseMass.xyz-a.velocityAndInverseMass.xyz);
+        if (!all(isfinite(r))) {
+            recordFailure(statuses[0],NM_STATUS_NONLINEAR_SOLVER_FAILURE,0u,i,float4(r,0)); return;
+        }
+        sumSquared += dot(r,r);
+        for (uint axis=0u; axis<3u; ++axis) {
+            const MRCompensatedScalar dx=mrCompensatedAdd(
+                {e.referenceDisplacementAndMode[axis],e.referenceDisplacementLow[axis]},
+                {-a.referenceDisplacementAndMode[axis],-a.referenceDisplacementLow[axis]});
+            const MRCompensatedScalar hv=mrCompensatedProduct(h,m.velocityAndInverseMass[axis]);
+            const MRCompensatedScalar defect=mrCompensatedAdd(dx,{-hv.high,-hv.low});
+            const float error=abs(defect.high)+abs(defect.low);
+            const float tolerance=64.0f*kEpsilon*max(abs(hv.high)+abs(hv.low),1.0e-6f);
+            maxKinematic=max(maxKinematic,error);
+            if (!isfinite(error) || error > tolerance) {
+                recordFailure(statuses[0],NM_STATUS_NONLINEAR_SOLVER_FAILURE,0u,i,
+                    float4(error,tolerance,float(axis),h)); return;
+            }
+        }
+    }
+    const float norm=sqrt(sumSquared);
+    const float limit=2.0f*(solver.contactAcceptance.y+
+        solver.contactAcceptance.z*solver.contactAcceptance.w);
+    if (!isfinite(norm) || !isfinite(limit) || !(limit>0.0f) || norm>limit)
+        recordFailure(statuses[0],NM_STATUS_NONLINEAR_SOLVER_FAILURE,0u,0u,
+            float4(norm,limit,maxKinematic,h));
+}
+
+kernel void nm_fem_midpoint_certify_compensated(
+    constant NMMatterDispatchGPU& dispatch [[buffer(0)]],
+    constant NMMixedSolverGPU& solver [[buffer(1)]],
+    device const NMFEMNodeStateGPU* accepted [[buffer(2)]],
+    device const NMFEMNodeStateGPU* midpoint [[buffer(3)]],
+    device const NMFEMNodeStateGPU* endpoint [[buffer(4)]],
+    device const uint* result [[buffer(5)]],
+    device const float4* midpointResidual [[buffer(6)]],
+    device NMMatterStatusGPU* statuses [[buffer(7)]],
+    device const float4* acceptedLow [[buffer(8)]],
+    device const float4* endpointLow [[buffer(9)]],
+    uint tid [[thread_position_in_grid]]) {
+    if (tid != 0u || !environmentHealthy(statuses, 0u)) return;
+    const float h = dispatch.gravityAndTimestep.w;
+    float sumSquared = 0.0f;
+    float maxKinematic = 0.0f;
+    for (uint i=0u; i<dispatch.femNodeCount; ++i) {
+        if (result[i] != 0u) {
+            recordFailure(statuses[0], result[i] == 2u ? NM_STATUS_CONTACT_FAILURE :
+                NM_STATUS_INVALID_DISPATCH, 0u, i, float4(float(result[i]),0,0,0));
+            return;
+        }
+        const NMFEMNodeStateGPU a=accepted[i], m=midpoint[i], e=endpoint[i];
+        if (a.restAndFixed.w == 1.0f) continue;
+        const float4 oldLow=acceptedLow[i],newLow=endpointLow[i];
+        if (!all(isfinite(oldLow)) || !all(isfinite(newLow)) || oldLow.w!=0.0f || newLow.w!=0.0f) {
+            recordFailure(statuses[0],NM_STATUS_NONLINEAR_SOLVER_FAILURE,0u,i,float4(0));return;
+        }
+        float3 r;
+        for(uint axis=0u;axis<3u;++axis) {
+            const auto old=MRCompensatedScalar{a.velocityAndInverseMass[axis],oldLow[axis]};
+            const auto mid=MRCompensatedScalar{m.velocityAndInverseMass[axis],0.0f};
+            const auto end=MRCompensatedScalar{e.velocityAndInverseMass[axis],newLow[axis]};
+            const auto dm=mrCompensatedAdd(mid,mrCompensatedNegate(old));
+            const auto de=mrCompensatedAdd(end,mrCompensatedNegate(old));
+            const auto correction=mrCompensatedAdd(
+                mrCompensatedMultiply({2.0f*a.positionAndMass.w,0.0f},dm),
+                mrCompensatedNegate(mrCompensatedMultiply({a.positionAndMass.w,0.0f},de)));
+            const auto full=mrCompensatedAdd({2.0f*midpointResidual[i][axis],0.0f},correction);
+            r[axis]=full.high+full.low;
+        }
         if (!all(isfinite(r))) {
             recordFailure(statuses[0],NM_STATUS_NONLINEAR_SOLVER_FAILURE,0u,i,float4(r,0)); return;
         }

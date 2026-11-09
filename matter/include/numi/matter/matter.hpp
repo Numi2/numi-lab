@@ -2168,6 +2168,9 @@ struct RuntimeStateSnapshot {
     // selector 2's componentwise diagonal fallback. This is diagnostic data,
     // not accepted physical state.
     std::vector<nm_float4> femRegionalGalerkinNodeBlockInverse;
+    // Authoritative low velocity limb for the scoped compensated-midpoint
+    // mode, in FEM-node order. Empty for every other execution mode.
+    std::vector<nm_float4> femMidpointVelocityLow;
 };
 
 // This opt-in wrapper keeps the ordinary RuntimeStateSnapshot layout and
@@ -2532,6 +2535,7 @@ public:
     [[nodiscard]] void* femMidpointCandidateDiagnosticBuffer() const noexcept;
     [[nodiscard]] void* femMidpointEndpointDiagnosticBuffer() const noexcept;
     [[nodiscard]] void* femMidpointResidualDiagnosticBuffer() const noexcept;
+    [[nodiscard]] void* femMidpointEndpointVelocityLowDiagnosticBuffer() const noexcept;
     [[nodiscard]] void* parameterBuffer() const noexcept;
     [[nodiscard]] void* identificationLossBuffer() const noexcept;
 

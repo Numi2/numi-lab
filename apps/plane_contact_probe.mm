@@ -35,6 +35,7 @@ bool physicalEqual(const numi::matter::RuntimeStateSnapshot& a,const numi::matte
         a.newtonIterationBudgetOverride==b.newtonIterationBudgetOverride &&
         a.materialStateStride==b.materialStateStride &&
         bytesEqual(a.particles,b.particles)&&bytesEqual(a.femNodes,b.femNodes)&&
+        bytesEqual(a.femMidpointVelocityLow,b.femMidpointVelocityLow)&&
         bytesEqual(a.particleMaterialState,b.particleMaterialState)&&
         bytesEqual(a.femMaterialState,b.femMaterialState)&&bytesEqual(a.femFields,b.femFields)&&
         bytesEqual(a.femTopologyNodes,b.femTopologyNodes)&&
@@ -62,6 +63,7 @@ std::string physicalDigest(const numi::matter::RuntimeStateSnapshot& s){
         if(!values.empty())CC_SHA256_Update(&ctx,values.data(),CC_LONG(values.size()*sizeof(values[0])));
     };
     update(s.femNodes);update(s.femMaterialState);update(s.contactHistories);
+    update(s.femMidpointVelocityLow);
     update(s.schedulers);update(s.adaptive);update(s.femFields);update(s.reactions);
     update(s.femTopologyNodes);update(s.femTopologyTetrahedra);update(s.topologyStates);
     CC_SHA256_Update(&ctx,&s.controlStep,sizeof(s.controlStep));
@@ -70,6 +72,15 @@ std::string physicalDigest(const numi::matter::RuntimeStateSnapshot& s){
     static constexpr char hex[]="0123456789abcdef";std::string out;out.reserve(2*sizeof(bytes));
     for(unsigned char byte:bytes){out.push_back(hex[byte>>4]);out.push_back(hex[byte&15]);}
     return out;
+}
+
+double physicalVelocity(const numi::matter::RuntimeStateSnapshot& s,size_t i,int j) {
+    const auto& v=s.femNodes[i].velocityAndInverseMass;
+    const double high=j==0?v.x:j==1?v.y:v.z;
+    if(s.femMidpointVelocityLow.empty())return high;
+    require(s.femMidpointVelocityLow.size()==s.femNodes.size(),"velocity low limb size mismatch");
+    const auto& low=s.femMidpointVelocityLow[i];
+    return high+(j==0?low.x:j==1?low.y:low.z);
 }
 
 // Independent FP64 evaluation of the fixture equations, without integration.
@@ -143,8 +154,8 @@ FixtureResidual fixtureResidual(const numi::matter::CompiledWorld& world,
             double(a.referenceDisplacementAndMode.y)+a.referenceDisplacementLow.y,
             double(a.referenceDisplacementAndMode.z)+a.referenceDisplacementLow.z} :
             V{a.positionAndMass.x,a.positionAndMass.y,a.positionAndMass.z};
-        const V v={b.velocityAndInverseMass.x,b.velocityAndInverseMass.y,b.velocityAndInverseMass.z};
-        const V u={a.velocityAndInverseMass.x,a.velocityAndInverseMass.y,a.velocityAndInverseMass.z};
+        const V v={physicalVelocity(cur,i,0),physicalVelocity(cur,i,1),physicalVelocity(cur,i,2)};
+        const V u={physicalVelocity(old,i,0),physicalVelocity(old,i,1),physicalVelocity(old,i,2)};
         double sum=0;for(int j=0;j<3;++j) {
             const double e=h*(force[i][j]+(j==2?mass*g:0))-mass*(v[j]-u[j])+impulse[i][j];
             sum+=e*e;
@@ -323,7 +334,7 @@ int main(int argc,char** argv){
         const bool ok=!snap.statuses.empty()&&snap.statuses[0].code==NM_STATUS_SUCCESS&&outer->code==MR_STEP_SUCCESS;
         if(ok)++accepted;else { ++rejected; rejectionRestored &= physicalEqual(previous,snap); }
         double low=1.e100,high=-1.e100,force=0,momentum=0,com=0,mass=0;int contacts=0;
-        for(const auto& node:snap.femNodes){low=std::min(low,double(node.positionAndMass.z));high=std::max(high,double(node.positionAndMass.z));mass+=node.positionAndMass.w;com+=node.positionAndMass.w*double(node.positionAndMass.z);momentum+=node.positionAndMass.w*double(node.velocityAndInverseMass.z);}
+        for(size_t ni=0;ni<snap.femNodes.size();++ni){const auto& node=snap.femNodes[ni];low=std::min(low,double(node.positionAndMass.z));high=std::max(high,double(node.positionAndMass.z));mass+=node.positionAndMass.w;com+=node.positionAndMass.w*double(node.positionAndMass.z);momentum+=node.positionAndMass.w*physicalVelocity(snap,ni,2);}
         for(const auto& sample:snap.contactSamples)if(sample.identity.w&NM_CONTACT_VALID){force+=sample.impulseAndNormal.w/h;++contacts;}
         double expectedEnergy=0;
         if(config.experimentalFEMPlaneAreaIPC) for(const auto& sample:snap.contactSamples) {
@@ -361,7 +372,7 @@ int main(int argc,char** argv){
             std::abs(expectedEnergy-snap.solverCertificates[0].contact.w)/std::max(1e-12,expectedEnergy));
         if(ok){
             double previousMomentum=0;
-            for(const auto& node:previous.femNodes)previousMomentum+=double(node.positionAndMass.w)*node.velocityAndInverseMass.z;
+            for(size_t ni=0;ni<previous.femNodes.size();++ni)previousMomentum+=double(previous.femNodes[ni].positionAndMass.w)*physicalVelocity(previous,ni,2);
             maxMomentumError=std::max(maxMomentumError,std::abs(momentum-previousMomentum+mass*9.81*h-force*h));
             for(const auto& dual:snap.contactHistories)maxAcceptedDual=std::max(maxAcceptedDual,double(dual.w));
         }
@@ -377,7 +388,7 @@ int main(int argc,char** argv){
             const double dx[3]={reference ? double(b.referenceDisplacementAndMode.x)-a.referenceDisplacementAndMode.x+double(b.referenceDisplacementLow.x)-a.referenceDisplacementLow.x : b.positionAndMass.x-a.positionAndMass.x,
                 reference ? double(b.referenceDisplacementAndMode.y)-a.referenceDisplacementAndMode.y+double(b.referenceDisplacementLow.y)-a.referenceDisplacementLow.y : b.positionAndMass.y-a.positionAndMass.y,
                 reference ? double(b.referenceDisplacementAndMode.z)-a.referenceDisplacementAndMode.z+double(b.referenceDisplacementLow.z)-a.referenceDisplacementLow.z : b.positionAndMass.z-a.positionAndMass.z};
-            const double v[3]={double(a.velocityAndInverseMass.x)+b.velocityAndInverseMass.x,double(a.velocityAndInverseMass.y)+b.velocityAndInverseMass.y,double(a.velocityAndInverseMass.z)+b.velocityAndInverseMass.z};
+            const double v[3]={physicalVelocity(previous,i,0)+physicalVelocity(snap,i,0),physicalVelocity(previous,i,1)+physicalVelocity(snap,i,1),physicalVelocity(previous,i,2)+physicalVelocity(snap,i,2)};
             for(int axis=0;axis<3;++axis){contactWork+=j[axis]*dx[axis]/h;kineticWork+=.5*j[axis]*v[axis];}
         }
         totalWork+=contactWork;totalKineticWork+=kineticWork;
@@ -443,7 +454,7 @@ int main(int argc,char** argv){
         const double x=ref ? double(n.restAndFixed.x)+n.referenceDisplacementAndMode.x+n.referenceDisplacementLow.x : n.positionAndMass.x;
         const double y=ref ? double(n.restAndFixed.y)+n.referenceDisplacementAndMode.y+n.referenceDisplacementLow.y : n.positionAndMass.y;
         const double z=ref ? double(n.restAndFixed.z)+n.referenceDisplacementAndMode.z+n.referenceDisplacementLow.z : n.positionAndMass.z;
-        std::cout<<(i?",":"")<<"["<<x<<","<<y<<","<<z<<","<<n.velocityAndInverseMass.x<<","<<n.velocityAndInverseMass.y<<","<<n.velocityAndInverseMass.z<<"]";
+        std::cout<<(i?",":"")<<"["<<x<<","<<y<<","<<z<<","<<physicalVelocity(final,i,0)<<","<<physicalVelocity(final,i,1)<<","<<physicalVelocity(final,i,2)<<"]";
     }
     std::cout<<"]"
         <<",\"law_max_relative_error\":"<<maxLawError<<",\"momentum_max_absolute_error_Ns\":"<<maxMomentumError<<",\"independent_max_local_scaled_residual\":"<<maxLocalResidual<<",\"independent_max_local_scaled_without_floor\":"<<maxLocalWithoutFloor<<",\"position_velocity_max_defect_m\":"<<maxKinematicDefect<<",\"freefall_velocity_max_defect_mps\":"<<maxFreefallVelocityDefect<<",\"maximum_accepted_multiplier_impulse_Ns\":"<<maxAcceptedDual<<",\"identity_mismatch_rejected\":"<<(identityRejected?"true":"false")<<",\"forced_rollback_exact\":"<<(rollback?"true":"false")<<",\"restore_replay\":"<<(replay?"true":"false")<<"}\n";

@@ -3194,6 +3194,152 @@ kernel void nm_fem_build_mechanical_residual(
     direction[global] = preconditioned[global];
 }
 
+// Scoped midpoint variant: accepted low velocity is physical state.
+kernel void nm_fem_midpoint_compensated_mechanical_residual(
+    constant NMMatterDispatchGPU& dispatch [[buffer(0)]],
+    constant NMMicrostepGPU& microstep [[buffer(1)]],
+    device const NMContinuumObjectGPU* objects [[buffer(2)]],
+    device const NMFEMNodeStateGPU* accepted [[buffer(3)]],
+    device NMFEMNodeStateGPU* candidate [[buffer(4)]],
+    device const NMTetrahedronGPU* tetrahedra [[buffer(5)]],
+    device const NMFEMElementVectorGPU* elementForces [[buffer(6)]],
+    device const uint* nodeIncidence [[buffer(7)]],
+    device const NMIncidenceRangeGPU* nodeRanges [[buffer(8)]],
+    device const NMSchedulerStateGPU* schedulers [[buffer(9)]],
+    device const NMAdaptiveStateGPU* adaptive [[buffer(10)]],
+    device float4* solution [[buffer(11)]],
+    device float4* residual [[buffer(12)]],
+    device float4* preconditioned [[buffer(13)]],
+    device float4* direction [[buffer(14)]],
+    device float4* operatorValue [[buffer(15)]],
+    device NMMatterStatusGPU* statuses [[buffer(16)]],
+    constant NMMixedSolverGPU& solver [[buffer(17)]],
+    device const NMMixedMaterialGPU* mixedMaterials [[buffer(18)]],
+    device const NMFEMFieldStateGPU* fields [[buffer(19)]],
+    constant uint& preserveSolution [[buffer(20)]],
+    device const float4* externalForces [[buffer(21)]],
+    constant uint& hasExternalForces [[buffer(22)]],
+    device float4* constraintReactions [[buffer(23)]],
+    device const float4* acceptedVelocityLow [[buffer(24)]],
+    uint global [[thread_position_in_grid]]
+) {
+    const uint total = dispatch.environmentCount * dispatch.femNodeCount;
+    if (global >= total || dispatch.femNodeCount == 0u) {
+        return;
+    }
+    const uint environment = global / dispatch.femNodeCount;
+    const uint nodeIndex = global - environment * dispatch.femNodeCount;
+    constraintReactions[global] = float4(0.0f);
+    const NMFEMNodeStateGPU node = accepted[global];
+    const NMFEMNodeStateGPU current = candidate[global];
+    if (preserveSolution == 0u) {
+        solution[global] = float4(0.0f);
+    }
+    residual[global] = float4(0.0f);
+    preconditioned[global] = float4(0.0f);
+    direction[global] = float4(0.0f);
+    operatorValue[global] = float4(0.0f);
+    const NMIncidenceRangeGPU range = nodeRanges[global];
+    if (range.objectIndex == NM_INVALID_INDEX ||
+        range.objectIndex >= dispatch.objectCount ||
+        !environmentHealthy(statuses, environment)) {
+        return;
+    }
+    const NMContinuumObjectGPU object = objects[range.objectIndex];
+    const NMSchedulerStateGPU scheduler =
+        schedulers[environment * dispatch.objectCount + range.objectIndex];
+    const NMAdaptiveStateGPU adaptiveState =
+        adaptive[environment * dispatch.objectCount + range.objectIndex];
+    if (object.representation != NM_REPRESENTATION_FEM ||
+        !objectDue(object, scheduler, adaptiveState, microstep)) {
+        return;
+    }
+    float3 internalForce = float3(0.0f);
+    const uint elementBase = environment * dispatch.tetrahedronCount;
+    for (uint local = 0u; local < range.count; ++local) {
+        const uint tetrahedronIndex = nodeIncidence[range.first + local];
+        internalForce += elementNodeValue(
+            elementForces[elementBase + tetrahedronIndex],
+            environmentTetrahedron(dispatch, tetrahedra, environment,
+                tetrahedronIndex),
+            nodeIndex
+        );
+    }
+    const float dt = objectTimestep(dispatch, scheduler);
+    const float3 momentumCorrection = node.positionAndMass.w *
+        (current.velocityAndInverseMass.xyz -
+         node.velocityAndInverseMass.xyz);
+    const bool fixedVelocity = femStaticConstraint(current.restAndFixed.w) ||
+        node.positionAndMass.w <= 0.0f;
+    const float3 externalForce = hasExternalForces != 0u
+        ? externalForces[global].xyz
+        : float3(0.0f);
+    const float3 unconstrainedRhs = dt * (
+        internalForce + externalForce +
+        node.positionAndMass.w * dispatch.gravityAndTimestep.xyz
+    ) - momentumCorrection + node.positionAndMass.w * acceptedVelocityLow[global].xyz;
+    // For a prescribed node, unconstrainedRhs is the impulse that its owning
+    // boundary receives from the continuum over this microstep. Publishing
+    // force (rather than constraint impulse on the node) gives the caller the
+    // action on the bone with the correct sign for J^T projection.
+    if (fixedVelocity) {
+        constraintReactions[global] = float4(unconstrainedRhs / dt, 0.0f);
+    }
+    const float3 rhs = fixedVelocity ? float3(0.0f) : unconstrainedRhs;
+    const float inverseMass = current.velocityAndInverseMass.w;
+    const float3 z = fixedVelocity ? float3(0.0f) : inverseMass * rhs;
+    float pressureResidual = 0.0f;
+    float pressureDiagonal = 1.0f;
+    if ((object.flags & NM_OBJECT_MIXED_FEM) != 0u &&
+        object.materialIndex < dispatch.mixedMaterialCount) {
+        pressureDiagonal = 0.0f;
+        const NMMixedMaterialGPU mixed = mixedMaterials[object.materialIndex];
+        const float bulk = max(mixed.mechanics.x, 1.0e-12f);
+        const float nodalQ = fields[global].primary.x / bulk;
+        uint active = 0u;
+        for (uint local = 0u; local < range.count; ++local) {
+            const uint tetIndex = nodeIncidence[range.first + local];
+            if (tetIndex >= dispatch.tetrahedronCount) continue;
+            const NMTetrahedronGPU tet = environmentTetrahedron(
+                dispatch, tetrahedra, environment, tetIndex
+            );
+            if ((tet.identity.w & NM_OBJECT_ACTIVE) == 0u) continue;
+            const float determinantValue = determinant(
+                tetrahedronDeformation(tet, candidate,
+                    environment * dispatch.femNodeCount)
+            );
+            if (!(determinantValue > dispatch.numericalLimits.z)) continue;
+            float temperature = 0.0f;
+            float averageQ = 0.0f;
+            for (uint slot = 0u; slot < 4u; ++slot) {
+                const NMFEMFieldStateGPU field = fields[
+                    environment * dispatch.femNodeCount + tet.nodes[slot]
+                ];
+                temperature += field.primary.y;
+                averageQ += field.primary.x / bulk;
+            }
+            temperature *= 0.25f;
+            averageQ *= 0.25f;
+            pressureResidual -= log(determinantValue) -
+                3.0f * mixed.mechanics.y *
+                    (temperature - mixed.mechanics.w) +
+                averageQ + solver.globalization.w * (nodalQ - averageQ);
+            pressureDiagonal += 0.25f +
+                0.75f * solver.globalization.w;
+            ++active;
+        }
+        if (active > 0u) {
+            pressureResidual /= float(active);
+            pressureDiagonal /= float(active);
+        } else {
+            pressureDiagonal = 1.0f;
+        }
+    }
+    residual[global] = float4(rhs, pressureResidual);
+    preconditioned[global] = float4(z, pressureResidual / pressureDiagonal);
+    direction[global] = preconditioned[global];
+}
+
 // Build a per-tetrahedron, full unsymmetric material-frame dP/dF cache for one
 // fixed Newton linearization. Each column is evaluated through the same
 // production projection/tangent path as an ordinary operator application;

@@ -26,7 +26,7 @@ int main(int argc,char** argv) {
         options:MTLResourceStorageModeShared];
     const size_t n=world.dispatch.femNodeCount;
     const size_t nodesBytes=n*sizeof(NMFEMNodeStateGPU),residualBytes=n*sizeof(nm_float4);
-    id<MTLBuffer> capture=[device newBufferWithLength:2*nodesBytes+residualBytes
+    id<MTLBuffer> capture=[device newBufferWithLength:2*nodesBytes+2*residualBytes
         options:MTLResourceStorageModeShared];
     require(statuses && capture,"diagnostic allocation failed");
     auto* outer=static_cast<MRMetalWorldStatusGPU*>(statuses.contents);
@@ -49,6 +49,12 @@ int main(int argc,char** argv) {
             [blit copyFromBuffer:midpoint sourceOffset:0 toBuffer:capture destinationOffset:0 size:nodesBytes];
             [blit copyFromBuffer:endpoint sourceOffset:0 toBuffer:capture destinationOffset:nodesBytes size:nodesBytes];
             [blit copyFromBuffer:residual sourceOffset:0 toBuffer:capture destinationOffset:2*nodesBytes size:residualBytes];
+            if(!before.femMidpointVelocityLow.empty()) {
+                require(before.femMidpointVelocityLow.size()==n,"accepted velocity low size mismatch");
+                id<MTLBuffer> endpointLow=(__bridge id<MTLBuffer>)runtime.femMidpointEndpointVelocityLowDiagnosticBuffer();
+                require(endpointLow,"endpoint low velocity buffer unavailable");
+                [blit copyFromBuffer:endpointLow sourceOffset:0 toBuffer:capture destinationOffset:2*nodesBytes+residualBytes size:residualBytes];
+            }
             [blit endEncoding];
         }
         request.phase=numi::matter::EncodePhase::postCommit;
@@ -69,12 +75,17 @@ int main(int argc,char** argv) {
     std::memcpy(midpoint.data(),bytes,nodesBytes);
     std::memcpy(endpoint.data(),bytes+nodesBytes,nodesBytes);
     std::memcpy(residual.data(),bytes+2*nodesBytes,residualBytes);
+    std::vector<nm_float4> endpointLow;
+    if(!before.femMidpointVelocityLow.empty()) {
+        endpointLow.resize(n);
+        std::memcpy(endpointLow.data(),bytes+2*nodesBytes+residualBytes,residualBytes);
+    }
     double stage2=0,round2=0,total2=0,maxStage=0,maxRound=0,maxTotal=0;
     for(size_t i=0;i<n;++i) {
         const auto& a=before.femNodes[i];const auto& m=midpoint[i];const auto& e=endpoint[i];
-        const double av[3]={a.velocityAndInverseMass.x,a.velocityAndInverseMass.y,a.velocityAndInverseMass.z};
+        const double av[3]={physicalVelocity(before,i,0),physicalVelocity(before,i,1),physicalVelocity(before,i,2)};
         const double mv[3]={m.velocityAndInverseMass.x,m.velocityAndInverseMass.y,m.velocityAndInverseMass.z};
-        const double ev[3]={e.velocityAndInverseMass.x,e.velocityAndInverseMass.y,e.velocityAndInverseMass.z};
+        const double ev[3]={double(e.velocityAndInverseMass.x)+(endpointLow.empty()?0:endpointLow[i].x),double(e.velocityAndInverseMass.y)+(endpointLow.empty()?0:endpointLow[i].y),double(e.velocityAndInverseMass.z)+(endpointLow.empty()?0:endpointLow[i].z)};
         const double rv[3]={residual[i].x,residual[i].y,residual[i].z};
         for(int j=0;j<3;++j) {
             const double stage=2*rv[j];
@@ -86,20 +97,24 @@ int main(int argc,char** argv) {
             maxTotal=std::max(maxTotal,std::abs(total));
         }
     }
-    auto endpointSnapshot=after;endpointSnapshot.femNodes=endpoint;
+    auto endpointSnapshot=after;endpointSnapshot.femNodes=endpoint;endpointSnapshot.femMidpointVelocityLow=endpointLow;
     // The retained failure is before contact, so candidate samples cannot
     // contribute a physically accepted contact impulse to this reconstruction.
     endpointSnapshot.contactSamples.clear();
     const auto physical=fixtureResidual(world,before,endpointSnapshot,h,true);
     std::ofstream binary(argv[2],std::ios::binary|std::ios::out|std::ios::trunc);
     require(bool(binary),"cannot create capture binary");
-    const std::uint32_t header[4]={0x4e4d4d31u,std::uint32_t(n),
+    const std::uint32_t header[4]={endpointLow.empty()?0x4e4d4d31u:0x4e4d4d32u,std::uint32_t(n),
         std::uint32_t(sizeof(NMFEMNodeStateGPU)),std::uint32_t(sizeof(nm_float4))};
     binary.write(reinterpret_cast<const char*>(header),sizeof(header));
     binary.write(reinterpret_cast<const char*>(before.femNodes.data()),nodesBytes);
     binary.write(reinterpret_cast<const char*>(midpoint.data()),nodesBytes);
     binary.write(reinterpret_cast<const char*>(endpoint.data()),nodesBytes);
     binary.write(reinterpret_cast<const char*>(residual.data()),residualBytes);
+    if(!endpointLow.empty()) {
+        binary.write(reinterpret_cast<const char*>(before.femMidpointVelocityLow.data()),residualBytes);
+        binary.write(reinterpret_cast<const char*>(endpointLow.data()),residualBytes);
+    }
     binary.close();require(bool(binary),"failed to write capture binary");
     const auto d=after.statuses[0].diagnostics;
     const double reconstructed=std::sqrt(total2);
@@ -108,7 +123,7 @@ int main(int argc,char** argv) {
     const bool physicalMatches=std::abs(physical.l2-double(d.x)) <=
         .01*std::max(double(d.x),1e-30);
     std::cout<<std::setprecision(17)<<"{\"step\":"<<failingStep<<",\"nodes\":"<<n
-       <<",\"status\":"<<after.statuses[0].code<<",\"outer_status\":"<<outer->code
+       <<",\"compensated\":"<<(endpointLow.empty()?"false":"true")<<",\"status\":"<<after.statuses[0].code<<",\"outer_status\":"<<outer->code
        <<",\"restored_exact\":true,\"accepted_sha256\":\""<<physicalDigest(before)<<"\""
        <<",\"gpu_reported_norm_Ns\":"<<d.x<<",\"gpu_limit_Ns\":"<<d.y
        <<",\"gpu_max_kinematic_defect_m\":"<<d.z
