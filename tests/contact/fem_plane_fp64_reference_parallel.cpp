@@ -10,6 +10,7 @@
 #include <cstdlib>
 #include <iomanip>
 #include <iostream>
+#include <limits>
 #include <stdexcept>
 #include <string>
 #include <vector>
@@ -157,6 +158,20 @@ State add(const State& s,const Change& k,double h) {
 }
 int main(int argc,char**argv){
  try{
+  if(argc==3 && std::string(argv[1])=="--capacity-check"){
+   const int n=std::stoi(argv[2]);
+   if(n<1 || n>NUMI_FEM_REFERENCE_MAX_DIVISIONS) throw std::runtime_error("invalid mesh capacity");
+   const Model m(n); const Change r=m.rhs(m.initial);
+   double totalArea=0,totalMass=0,minMass=std::numeric_limits<double>::infinity();
+   for(double a:m.area) totalArea+=a;
+   for(double a:m.mass){totalMass+=a;minMass=std::min(minMass,a);}
+   if(!(minMass>0) || !std::isfinite(r.impulse)) throw std::runtime_error("invalid reference capacity state");
+   std::cout<<std::setprecision(17)<<"{\"mesh_divisions\":"<<n<<",\"nodes\":"<<m.mass.size()
+     <<",\"tetrahedra\":"<<m.tets.size()<<",\"area\":"<<totalArea
+     <<",\"mass\":"<<totalMass<<",\"minimum_nodal_mass\":"<<minMass
+     <<",\"initial_normal_force\":"<<r.impulse<<"}\n";
+   return 0;
+  }
   if(argc==2 && std::string(argv[1])=="--selftest"){
    Model m(2);State s=m.initial;
    for(auto& p:s.x){p.z=.000095+(p.z-.0002)*.98;p.x+=.02*(p.z-.000095);}
