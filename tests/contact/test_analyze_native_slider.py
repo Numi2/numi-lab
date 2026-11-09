@@ -58,6 +58,13 @@ with tempfile.NamedTemporaryFile(mode='w',suffix='.json') as f:
   result=subprocess.run([sys.executable,str(root/'tests/contact/analyze_native_slider.py'),f.name],capture_output=True,text=True)
   return result.returncode,json.loads(result.stdout) if result.stdout else {'error':result.stderr}
  code,out=run();assert code==0,(code,out)
+ # A rejected or missing step may never be upgraded to a full rollout.
+ d['steps'][-1]['accepted']=False
+ code,out=run();assert code!=0,('rejected step accepted',out)
+ d['steps'][-1]['accepted']=True
+ last=d['steps'].pop()
+ code,out=run();assert code!=0,('incomplete trajectory accepted',out)
+ d['steps'].append(last)
  for field in ('owner_momentum_impulse','owner_wrench_impulse','support_moment_impulse_x','independent_joint_residual_Ns','midpoint_gap','owner_wrench_work','fem_work_reconstruction_gate_ratio'):
   old=d['steps'][100][field];d['steps'][100][field]=0. if field=='midpoint_gap' else 2. if field=='fem_work_reconstruction_gate_ratio' else old+1e-5
   code,out=run();assert code!=0,(field,out);d['steps'][100][field]=old
@@ -84,4 +91,4 @@ with tempfile.NamedTemporaryFile(mode='w',suffix='.json') as f:
  step['fem_law_work']=sum(row[2]*row[3] for row in step['fem_work_nodes'])
  step['fem_work_reconstruction_gate_ratio']=max(abs((row[1]-row[2])*row[3])/(max(1e-12,1e-5*abs(row[2]))*abs(row[3])+1e-24) for row in step['fem_work_nodes'])
  code,out=run();assert code!=0 and not out['checks']['fem_work_history'],('corrupt work history',out)
- print('synthetic analysis rejects impulse, torque, residual, clearance, local work and cumulative-work failures')
+ print('synthetic analysis rejects incomplete or rejected rollouts, impulse, torque, residual, clearance, local work and cumulative-work failures')
