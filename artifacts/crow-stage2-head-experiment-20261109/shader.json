@@ -1,0 +1,6 @@
+{
+  "source_sha256": "7ffc28e5a512c57958e5754f8157b4f9fd16042ef351af029083a534d198fbba",
+  "shader_sha256": "64f8d8c56f22f8683281d05ee6ad40e3e291cf7c32c2fa14567798ca52210774",
+  "frozen_flight_sha256": "aa2fe10901cb0494d80ae445902303a17ce0e73d030072bab09461d8f3593ebe",
+  "scope": "development-only alternative action mapping; same physical model"
+}

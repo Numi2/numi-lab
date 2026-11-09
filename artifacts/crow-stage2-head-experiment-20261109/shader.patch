@@ -1,0 +1,15 @@
+--- a/src/metal/LocomotionTask.metal
++++ b/development-stage2-head.metal
+@@ -4944,9 +4944,10 @@
+         const float studentRequested = actionStream[actionBase + action];
+         MRTaskStateGPU carrierState = state;
+         carrierState.episode.x = min(carrierState.episode.x, 1500u);
++        const uint commandOffset = state.navigation.z >= 2.0f && state.navigation.z < 3.0f ? 4u : 0u;
+         const float4 actorLatent = fixedFlightController
+-            ? clamp(float4(actionStream[actionBase+0u],actionStream[actionBase+1u],
+-                           actionStream[actionBase+2u],actionStream[actionBase+3u]),-1.0f,1.0f)
++            ? clamp(float4(actionStream[actionBase+commandOffset+0u],actionStream[actionBase+commandOffset+1u],
++                           actionStream[actionBase+commandOffset+2u],actionStream[actionBase+commandOffset+3u]),-1.0f,1.0f)
+             : float4(0.0f);
+         const float4 actorCommand = float4(
+             0.10f+0.30f*actorLatent.x,0.30f*actorLatent.y,
