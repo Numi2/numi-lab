@@ -34,6 +34,11 @@ as a candidate:
   clearance, work and restoration gates. The 27-node result is not spatial
   convergence and diagnostic snapshots are not a performance benchmark.
 
+The current midpoint admission already requires a world-z plane with zero local
+offset, so the present fixture does not exercise addition of a nonzero proxy
+offset. Keep that restriction unless the compensated plane projection also
+preserves the offset and its low word through every contact evaluation.
+
 The existing generic candidate adapter explicitly rejects compensated body
 geometry it cannot represent. Do not remove that guard until the owner supplies
 and consumes the low words end to end. The diagnostic admission remains off
