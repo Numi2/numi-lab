@@ -1,0 +1,20 @@
+[
+  {
+    "seed": 20261120,
+    "samples_teacher": 1280,
+    "samples_teacher_off": 1280,
+    "matched_sample_keys": 1280,
+    "qv_differences": 0,
+    "first_differences": [],
+    "teacher_action_arrays_nonempty": 0
+  },
+  {
+    "seed": 20261121,
+    "samples_teacher": 1280,
+    "samples_teacher_off": 1280,
+    "matched_sample_keys": 1280,
+    "qv_differences": 0,
+    "first_differences": [],
+    "teacher_action_arrays_nonempty": 0
+  }
+]

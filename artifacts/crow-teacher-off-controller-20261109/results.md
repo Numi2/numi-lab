@@ -1,0 +1,3 @@
+# Teacher-off ground-start flight equivalence
+
+All 160 teacher-off first episodes passed the matched straight/left/right/climb/descent screens with no physical failures or failed simulator steps. All 2,560 sampled q/v pairs were exactly equal to the corresponding corrected teacher-enabled runs; teacher-action arrays were empty throughout. The diagnostic flight law directly controlled physical channels 0–14 and the actor retained head/beak channels. This establishes equivalence for these flight-bench commands and starts, not autonomous navigation or supported landing. The isolated shader path has not yet been installed as a versioned task/PolicyPack contract.
