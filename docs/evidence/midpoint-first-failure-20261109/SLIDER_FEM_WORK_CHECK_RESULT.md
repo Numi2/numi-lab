@@ -51,3 +51,13 @@ unchanged bound. Previously the measured-wrench comparison was indirect and
 could be ineffective when the interface velocity was zero. A synthetic
 perturbation of the wrench impulse is rejected by the analyzer. Neither
 one-step result is a complete reacting-body qualification.
+
+
+The later diagnostic-order follow-up injected the same category 11 failure
+with reported indices 1 and 7 from the same checkpoint, first before contact
+and then after a nonzero contact. In both conditions the reported indices and
+failure category matched the injection, the rigid and Matter physical states
+were restored byte-for-byte, and each retry matched the same uninterrupted
+continuation. The exact evidence is `slider-diagnostic-order-001-execution.json`
+and its two outputs. This covers two deliberate index choices, not every
+possible failure source or the still-incomplete 10 ms trajectory.
