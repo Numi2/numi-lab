@@ -1,0 +1,42 @@
+--- a/src/metal/FlappingWingDynamics.metal
++++ b/src/metal/FlappingWingDynamics.metal
+@@ -53,6 +53,7 @@
+     device MRABABodyWrenchGPU* wrenches [[buffer(4)]],
+     constant const MRAeroTailGPU& tail [[buffer(5)]],
+     constant const MRAeroFuselageGPU& fuselage [[buffer(6)]],
++    device float* diagnosticTeacherActions [[buffer(7)]],
+     const uint environment [[thread_position_in_grid]]
+ ) {
+     if (environment >= dispatch.environmentCount ||
+@@ -125,6 +126,9 @@
+             wrenches[wrenchIndex] = wrench;
+         }
+     }
++    const uint debugRoot = environment * dispatch.bodyStride + dispatch.rootBodyIndex;
++    const float debugBeforeAeroYaw = wrenches[debugRoot].torque.z;
++    float debugWingYawAboutRoot = 0.0f;
+     float wingStrokeSpeedSquared = 0.0f;
+     float2 sideStrokeSpeedSquared = float2(0.0f);
+     constexpr uint bladeElementCount = 8u;
+@@ -350,6 +354,7 @@
+         const float3 rootToWingCOM = rootToWingOrigin + rotate(
+             wingOrientation, wing.bodyCenterOfMass.xyz
+         );
++        debugWingYawAboutRoot += torque.z;
+         const float3 wingTorque = torque - cross(rootToWingCOM, force);
+         if (!all(isfinite(rootToWingCOM)) || !all(isfinite(wingTorque))) {
+             continue;
+@@ -471,4 +476,12 @@
+         wrench.force.xyz += tailForce;
+         wrenches[wrenchIndex] = wrench;
+     }
+-}
++    // Measurement only: chunk=1, v15 has exactly 18 task actions.
++    // The final slot's tail moment uses the aero reference point, not the
++    // actual tail COM, and is therefore an approximation.
++    diagnosticTeacherActions[environment * 18u + 15u] = debugBeforeAeroYaw;
++    diagnosticTeacherActions[environment * 18u + 16u] = debugWingYawAboutRoot;
++    diagnosticTeacherActions[environment * 18u + 17u] =
++        wrenches[debugRoot].torque.z - debugBeforeAeroYaw +
++        cross(rootToTail, tailForce).z;
++}
