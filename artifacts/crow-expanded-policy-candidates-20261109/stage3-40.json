@@ -1,0 +1,11 @@
+{
+  "route_input": "/Users/n/Developer/numi-crow-rl-20261107/build/crow-expanded-stage3-training-20261109/checkpoint-40.policypack",
+  "expert_input": "/Users/n/Developer/numi-crow-rl-20261107/build/crow-route-no-vision-diagnostic-20261109/frozen-route-actor.policypack",
+  "route_sha256": "ea496a6de55feeaa08b2f75a257fdc34e1e666de9caa86ef4d2f1b645c44571e",
+  "expert_sha256": "8d6356083545ba5fac6cb14be8ccc7559009d8f328eda2cf3910d72e17f46bcd",
+  "candidate_sha256": "9d0c0424a2c5c5a55990a3173aadcab38ae88e99daad1e203babebf2ed6e4de3",
+  "route_max_error": 0.0,
+  "expert_max_error": 0.0,
+  "native_contract_from": "06a5a8b187145615a92697412a156358e727b69f1d0aa75308e6c208f48322ac",
+  "critic_and_stochastic_head_removed": true
+}

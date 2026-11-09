@@ -1,0 +1,13 @@
+--- a/src/metal/LocomotionTask.metal
++++ b/development/specialist.metal
+@@ -4946,7 +4946,9 @@
+         carrierState.episode.x = min(carrierState.episode.x, 1500u);
+         const uint commandOffset =
+             (program.schedule.w & MR_TASK_PROGRAM_AVIAN_CROW_WAYPOINT_EXPERT_NAVIGATION) != 0u &&
+-            state.navigation.z >= 2.0f && state.navigation.z < 3.0f ? 4u : 0u;
++            state.navigation.z >= 2.0f && state.navigation.z < 3.0f ? 4u :
++            ((program.schedule.w & MR_TASK_PROGRAM_AVIAN_CROW_WAYPOINT_EXPERT_NAVIGATION) != 0u &&
++             state.navigation.z >= 3.0f && state.navigation.z < 4.0f ? 8u : 0u);
+         const float4 actorLatent = fixedFlightController
+             ? clamp(float4(actionStream[actionBase+commandOffset+0u],actionStream[actionBase+commandOffset+1u],
+                            actionStream[actionBase+commandOffset+2u],actionStream[actionBase+commandOffset+3u]),-1.0f,1.0f)

@@ -1,0 +1,23 @@
+{
+  "sources": [
+    {
+      "path": "/Users/n/Developer/numi-crow-rl-20261107/build/crow-stage2-adapter-training-20261109/frozen-route-actor.policypack",
+      "sha256": "b54a34d1e9de7d39ff2ffd624d2d0260c3441f797d5f64a983f29093e9d25ad2"
+    },
+    {
+      "path": "/Users/n/Developer/numi-crow-rl-20261107/build/crow-route-no-vision-diagnostic-20261109/frozen-route-actor.policypack",
+      "sha256": "8d6356083545ba5fac6cb14be8ccc7559009d8f328eda2cf3910d72e17f46bcd"
+    },
+    {
+      "path": "/Users/n/Developer/numi-crow-rl-20261107/build/crow-expanded-stage3-specialist-20261109/checkpoint-40.policypack",
+      "sha256": "e41bfde8c1b44706e4e71908af514a9957d66dcbbf5daa2fd277270998be730f"
+    }
+  ],
+  "candidate_sha256": "5c10c2d45e3af86605ce32e55d09e1e33e9d03ad2feabaf0d9aacd956ac7415c",
+  "max_output_error": [
+    0.0,
+    0.0,
+    0.0
+  ],
+  "scope": "diagnostic shader only; output slots 8-11 are stage3 expert"
+}

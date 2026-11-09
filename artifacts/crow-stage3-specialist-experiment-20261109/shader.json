@@ -1,0 +1,6 @@
+{
+  "source_sha256": "9eed4120b0393776fd954c07d0d2795f22eb0a28662c7db4f8f939abfcd48f81",
+  "shader_sha256": "d6cdc74545efa6b288d2f13e57d3e840ca382cf62bb99c8ff3909c5446ef0a38",
+  "frozen_flight_sha256": "aa2fe10901cb0494d80ae445902303a17ce0e73d030072bab09461d8f3593ebe",
+  "scope": "development-only stage3 expert routing; not production task contract"
+}

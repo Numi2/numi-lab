@@ -1,0 +1,31 @@
+{
+  "remote_revision": "c282932488f434583b78a3848284d0c818cb2e16",
+  "method": "independent GitHub HTTPS decompression and SHA-256, local hash and open-handle check before deletion",
+  "rows": [
+    {
+      "path": "artifacts/crow-expanded-dagger-20261109/layout-c/rollout.bin.gz",
+      "raw_bytes": 190848988,
+      "raw_sha256": "610f4343ca2052bdc39f223eeabb1384f096196e764a15a5201423b517471f4d",
+      "removed_raw_copy": "build/crow-expanded-dagger-20261109/layout-c.rollout"
+    },
+    {
+      "path": "artifacts/crow-expanded-dagger-20261109/layout-d/rollout.bin.gz",
+      "raw_bytes": 190848988,
+      "raw_sha256": "78965eba25494bbd283c4c7ac0b5e2d1b99019d2e0ff74763c092aaf7e270e19",
+      "removed_raw_copy": "build/crow-expanded-dagger-20261109/layout-d.rollout"
+    },
+    {
+      "path": "artifacts/crow-expanded-gate-dagger-20261109/layout-c/rollout.bin.gz",
+      "raw_bytes": 190848988,
+      "raw_sha256": "ef0ab03b6518910de52cb796da9de6027b92b295bf0b67779d8b7421eda02f13",
+      "removed_raw_copy": "build/crow-expanded-gate-dagger-20261109/layout-c.rollout"
+    },
+    {
+      "path": "artifacts/crow-expanded-gate-dagger-20261109/layout-d/rollout.bin.gz",
+      "raw_bytes": 190848988,
+      "raw_sha256": "258432e20506e140a07470881a835d0335cb892d8ddfc4682962541ad24e9fd8",
+      "removed_raw_copy": "build/crow-expanded-gate-dagger-20261109/layout-d.rollout"
+    }
+  ],
+  "total_retired_bytes": 763395952
+}
