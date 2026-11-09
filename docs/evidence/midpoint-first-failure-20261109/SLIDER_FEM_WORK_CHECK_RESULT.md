@@ -32,3 +32,22 @@ before contact and after a nonzero contact. The failure category remained 11
 and both the rigid state and Matter physical state were restored. See
 `slider-fem-work-rollback-002-execution.json`. This remains a short retry
 check, not complete-trajectory qualification.
+
+
+A separate retrospective impulse check of these two accepted steps found that
+on the 95 µm contact step, the measured body-wrench impulse differed from the
+opposite FEM impulse by 0.00616 of the existing bound, and the independently
+inferred rigid momentum impulse differed by 0.223 of that bound. On the 200 µm
+pre-contact step, the measured contact impulses were zero but the independently
+inferred momentum impulse was 4.692e-12 N s, exceeding the existing 1e-12 N s
+bound by a factor of 4.692. Thus that accepted step does not pass the full
+independent impulse gate. This is consistent with the retained FP32
+representability diagnosis; it does not establish an exact cause for every
+failure. See `slider-work-impulse-retrospective-001.json`.
+
+The full-rollout analyzer now separately requires both the measured wrench
+impulse and the momentum-derived impulse to oppose the FEM impulse under the
+unchanged bound. Previously the measured-wrench comparison was indirect and
+could be ineffective when the interface velocity was zero. A synthetic
+perturbation of the wrench impulse is rejected by the analyzer. Neither
+one-step result is a complete reacting-body qualification.

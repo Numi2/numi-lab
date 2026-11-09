@@ -1,0 +1,26 @@
+{
+  "scope": "retrospective analysis of two retained one-step diagnostics; not a complete rollout",
+  "cases": [
+    {
+      "name": "far",
+      "input_sha256": "3b34e1a8a0796385f5bab3f729103afd2726d4f5e1c6f07a8d6001d2ea4690e5",
+      "fem_impulse_Ns": 0,
+      "owner_wrench_impulse_Ns": 0,
+      "owner_momentum_impulse_Ns": 4.692164555499545e-12,
+      "impulse_bound_Ns": 1e-12,
+      "wrench_ratio": 0.0,
+      "momentum_ratio": 4.692164555499545
+    },
+    {
+      "name": "near",
+      "input_sha256": "fa370f48cecdbc0eb4f00f6c289b19f5722a4ccbf37995487e2f0f30f642eebe",
+      "fem_impulse_Ns": 3.8390845986668864e-06,
+      "owner_wrench_impulse_Ns": -3.839084362418664e-06,
+      "owner_momentum_impulse_Ns": -3.839093139104845e-06,
+      "impulse_bound_Ns": 3.8390845986668866e-11,
+      "wrench_ratio": 0.006153764433135145,
+      "momentum_ratio": 0.22246026986258963
+    }
+  ],
+  "passes": false
+}

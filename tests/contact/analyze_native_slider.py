@@ -44,6 +44,7 @@ peak_error=rel(max(x/h for x in imp),refpeak)
 imp_error=rel(cumulative[-1],refimp)
 cum_error=max(abs(sample(t[0])-t[2]) for t in r['trace'])/abs(refimp)
 impulse_ratio=max(abs(s['fem_impulse']+s['owner_momentum_impulse'])/max(1e-12,1e-5*abs(s['fem_impulse'])) for s in steps)
+wrench_impulse_ratio=max(abs(s['fem_impulse']+s['owner_wrench_impulse'])/max(1e-12,1e-5*abs(s['fem_impulse'])) for s in steps)
 # The existing impulse gate induces a work-reconstruction bound: impulse
 # tolerance times the actual midpoint speed, plus a double roundoff floor.
 previous_v=d['initial_slider_velocity_mps'];work_ratio=0.
@@ -63,7 +64,8 @@ results={'reference_qualification_passed':reference_ok,'force_bin_relative_error
  'contact_work_plus_potential_change_J':sum(s['owner_contact_work']+s['fem_contact_work'] for s in steps)+steps[-1]['contact_potential_after_J']-steps[0]['contact_potential_before_J'],
  'maximum_step_work_plus_potential_change_J':max(abs(s['owner_contact_work']+s['fem_contact_work']+s['contact_potential_after_J']-s['contact_potential_before_J']) for s in steps),
  'maximum_owner_work_reconstruction_error_J':max(abs(s['owner_contact_work']-s['owner_wrench_work']) for s in steps),
- 'maximum_impulse_balance_gate_ratio':impulse_ratio,'maximum_torque_balance_gate_ratio':torque_ratio,
+ 'maximum_impulse_balance_gate_ratio':impulse_ratio,'maximum_wrench_impulse_balance_gate_ratio':wrench_impulse_ratio,
+ 'maximum_torque_balance_gate_ratio':torque_ratio,
  'maximum_owner_work_reconstruction_gate_ratio':work_ratio,
  'maximum_fem_work_reconstruction_gate_ratio':fem_work_ratio,
  'max_independent_joint_residual_Ns':max(s['independent_joint_residual_Ns'] for s in steps),
@@ -79,7 +81,8 @@ results={'reference_qualification_passed':reference_ok,'force_bin_relative_error
  'max_fem_kinematic_defect_m':max(s['fem_kinematic_defect_m'] for s in steps)}
 checks={'force_bin':force_error<=.0025,'sampled_peak':peak_error<=.01,'total_impulse':imp_error<=.0025,
  'cumulative_impulse':cum_error<=.01,'clearance':results['minimum_gap_m']>1e-7 and results['minimum_midpoint_gap_m']>1e-7,
- 'equal_opposite_impulse':impulse_ratio<=1,'contact_and_support_torque':torque_ratio<=1,
+ 'equal_opposite_impulse':impulse_ratio<=1,'equal_opposite_wrench_impulse':wrench_impulse_ratio<=1,
+ 'contact_and_support_torque':torque_ratio<=1,
  'owner_work_reconstruction':work_ratio<=1,
  'fem_work_reconstruction':fem_work_ratio<=1,
  'independent_residual':results['max_independent_joint_residual_Ns']<=results['physical_residual_limit_Ns']}
