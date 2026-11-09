@@ -1,0 +1,16 @@
+[
+  {
+    "layout": "i",
+    "frame_count": 3000,
+    "all_frames_match": true,
+    "original_sha256": "f834a895221145b235d03eaae647d1f33dffaaf374c0be50739205ad66cdf518",
+    "canonical_sha256": "b1d92ab5d977c17f4687b3cdc0a6cb844caf51ff0d9efcd6206c018e45269400"
+  },
+  {
+    "layout": "j",
+    "frame_count": 3000,
+    "all_frames_match": true,
+    "original_sha256": "80947c7bc55e1474dc1ce56f77038e627518a3fa79d767de2a4c3e5a7b8fd4d6",
+    "canonical_sha256": "838ff6d744813f8c02a317042fbb7e5a2bb1219cb1c5d6bb9ef9035e24853842"
+  }
+]

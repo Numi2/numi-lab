@@ -1,0 +1,302 @@
+{
+  "trace_step_offset": 1,
+  "results": [
+    {
+      "course": "reserved-final-i",
+      "arm": "control",
+      "lanes": [
+        {
+          "lane": 0,
+          "terminal_replay_frames": [
+            2976,
+            2977,
+            2978,
+            2979,
+            2980,
+            2981,
+            2982,
+            2983,
+            2984,
+            2985,
+            2986,
+            2987,
+            2988,
+            2989,
+            2990,
+            2991,
+            2992,
+            2993,
+            2994,
+            2995,
+            2996,
+            2997,
+            2998,
+            2999,
+            3000
+          ],
+          "accepted_supported_frames": 25,
+          "first_episode_gate": true
+        },
+        {
+          "lane": 1,
+          "terminal_replay_frames": [
+            2976,
+            2977,
+            2978,
+            2979,
+            2980,
+            2981,
+            2982,
+            2983,
+            2984,
+            2985,
+            2986,
+            2987,
+            2988,
+            2989,
+            2990,
+            2991,
+            2992,
+            2993,
+            2994,
+            2995,
+            2996,
+            2997,
+            2998,
+            2999,
+            3000
+          ],
+          "accepted_supported_frames": 25,
+          "first_episode_gate": true
+        }
+      ],
+      "completion_steps": [
+        1631,
+        1722
+      ]
+    },
+    {
+      "course": "reserved-final-i",
+      "arm": "push",
+      "lanes": [
+        {
+          "lane": 0,
+          "terminal_replay_frames": [
+            2976,
+            2977,
+            2978,
+            2979,
+            2980,
+            2981,
+            2982,
+            2983,
+            2984,
+            2985,
+            2986,
+            2987,
+            2988,
+            2989,
+            2990,
+            2991,
+            2992,
+            2993,
+            2994,
+            2995,
+            2996,
+            2997,
+            2998,
+            2999,
+            3000
+          ],
+          "accepted_supported_frames": 25,
+          "first_episode_gate": true
+        },
+        {
+          "lane": 1,
+          "terminal_replay_frames": [
+            2976,
+            2977,
+            2978,
+            2979,
+            2980,
+            2981,
+            2982,
+            2983,
+            2984,
+            2985,
+            2986,
+            2987,
+            2988,
+            2989,
+            2990,
+            2991,
+            2992,
+            2993,
+            2994,
+            2995,
+            2996,
+            2997,
+            2998,
+            2999,
+            3000
+          ],
+          "accepted_supported_frames": 25,
+          "first_episode_gate": true
+        }
+      ],
+      "completion_steps": [
+        1472,
+        1638
+      ]
+    },
+    {
+      "course": "reserved-final-j",
+      "arm": "control",
+      "lanes": [
+        {
+          "lane": 0,
+          "terminal_replay_frames": [
+            2976,
+            2977,
+            2978,
+            2979,
+            2980,
+            2981,
+            2982,
+            2983,
+            2984,
+            2985,
+            2986,
+            2987,
+            2988,
+            2989,
+            2990,
+            2991,
+            2992,
+            2993,
+            2994,
+            2995,
+            2996,
+            2997,
+            2998,
+            2999,
+            3000
+          ],
+          "accepted_supported_frames": 25,
+          "first_episode_gate": true
+        },
+        {
+          "lane": 1,
+          "terminal_replay_frames": [
+            2976,
+            2977,
+            2978,
+            2979,
+            2980,
+            2981,
+            2982,
+            2983,
+            2984,
+            2985,
+            2986,
+            2987,
+            2988,
+            2989,
+            2990,
+            2991,
+            2992,
+            2993,
+            2994,
+            2995,
+            2996,
+            2997,
+            2998,
+            2999,
+            3000
+          ],
+          "accepted_supported_frames": 25,
+          "first_episode_gate": true
+        }
+      ],
+      "completion_steps": [
+        1568,
+        1553
+      ]
+    },
+    {
+      "course": "reserved-final-j",
+      "arm": "push",
+      "lanes": [
+        {
+          "lane": 0,
+          "terminal_replay_frames": [
+            2976,
+            2977,
+            2978,
+            2979,
+            2980,
+            2981,
+            2982,
+            2983,
+            2984,
+            2985,
+            2986,
+            2987,
+            2988,
+            2989,
+            2990,
+            2991,
+            2992,
+            2993,
+            2994,
+            2995,
+            2996,
+            2997,
+            2998,
+            2999,
+            3000
+          ],
+          "accepted_supported_frames": 25,
+          "first_episode_gate": true
+        },
+        {
+          "lane": 1,
+          "terminal_replay_frames": [
+            2976,
+            2977,
+            2978,
+            2979,
+            2980,
+            2981,
+            2982,
+            2983,
+            2984,
+            2985,
+            2986,
+            2987,
+            2988,
+            2989,
+            2990,
+            2991,
+            2992,
+            2993,
+            2994,
+            2995,
+            2996,
+            2997,
+            2998,
+            2999,
+            3000
+          ],
+          "accepted_supported_frames": 25,
+          "first_episode_gate": true
+        }
+      ],
+      "completion_steps": [
+        1370,
+        1363
+      ]
+    }
+  ],
+  "scope": "previously exposed development courses; rigid-foot perch support, not toe grip; no generalization or biological qualification"
+}

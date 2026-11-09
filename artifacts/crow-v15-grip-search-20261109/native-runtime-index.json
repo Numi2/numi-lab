@@ -1,0 +1,377 @@
+{
+  "files": [
+    {
+      "path": "build/crow-v15-grip-search-20261109/crouch65-wings-off.air",
+      "size": 196080,
+      "sha256": "2dc0b706b5178a91fa40745c04ed4e653c48933657da4e0cbca6b92dece52853"
+    },
+    {
+      "path": "build/crow-v15-grip-search-20261109/crouch85-wings-off.air",
+      "size": 196080,
+      "sha256": "fdd475e5a4afd98807c9f627e37b63ca3423540fc3da99a87fab4f608a05e27c"
+    },
+    {
+      "path": "build/crow-v15-grip-search-20261109/extension100-wings-off.air",
+      "size": 196080,
+      "sha256": "294380b0890277991f36ce1109c5ba0fe55f122ad846b9ac3a1261ee9e58a004"
+    },
+    {
+      "path": "build/crow-v15-grip-search-20261109/extension70-wings-off.air",
+      "size": 196080,
+      "sha256": "21a2fa734f75bbf976d2373f2978c198c500715f70cbf7211b32d843d329e6e0"
+    },
+    {
+      "path": "build/crow-v15-grip-search-20261109/launch-perturb-control.air",
+      "size": 196480,
+      "sha256": "754c0d77296cdf2f85dbfe50c5b4157384f69a4322e16adcd92c0b1ec1aa3f9b"
+    },
+    {
+      "path": "build/crow-v15-grip-search-20261109/launch-perturb-push.air",
+      "size": 196848,
+      "sha256": "a0f36258676ab97735f5f18fc4a4e22ebf10c180fb4959bb30b827571b2a356e"
+    },
+    {
+      "path": "build/crow-v15-grip-search-20261109/launch-wing-on-control.air",
+      "size": 196384,
+      "sha256": "b8373d833c4df7a49cdf00ded584c0d5b28776b0ce56de5864cf05350fcc3be1"
+    },
+    {
+      "path": "build/crow-v15-grip-search-20261109/launch-wing-on-push.air",
+      "size": 196768,
+      "sha256": "0a0310c28f737350eb00242f504a0265e180b7a1cbc0d99a0894550bf6b1bbee"
+    },
+    {
+      "path": "build/crow-v15-grip-search-20261109/symmetric-launch-wings-off-control.air",
+      "size": 196736,
+      "sha256": "a9eb246da828b32d83e147c1ddb159bfb5579fad9d3eca8408a15e2d2f6b57b6"
+    },
+    {
+      "path": "build/crow-v15-grip-search-20261109/symmetric-launch-wings-off-push.air",
+      "size": 197072,
+      "sha256": "cad17ae78f4bcce302c63b0f5bfd4d0eda8d10d29e2adac6a2285d1c5f28f612"
+    },
+    {
+      "path": "build/crow-v15-grip-search-20261109/symmetric-launch-wings-on-control.air",
+      "size": 196656,
+      "sha256": "215eae6e9a2a020539b253f09ced480a817b9684940f4c45256057d8a376f8c2"
+    },
+    {
+      "path": "build/crow-v15-grip-search-20261109/symmetric-launch-wings-on-push.air",
+      "size": 196992,
+      "sha256": "9dbbd7b2f18efc30d80701c56ae76d0d7f67c7a417344de57c16c77278d1ecf8"
+    },
+    {
+      "path": "build/crow-v15-grip-search-20261109/walk-launch-wings-off-control.air",
+      "size": 196720,
+      "sha256": "4f530573c271bdd4ce13b4433531f773fb033002ad797fd39733c71021c7ab8f"
+    },
+    {
+      "path": "build/crow-v15-grip-search-20261109/walk-launch-wings-off-push.air",
+      "size": 197040,
+      "sha256": "7aeb1d8fb3afeb63d6ae88214ed694226c6eca2043a53446fc8135a1cd7a6b8e"
+    },
+    {
+      "path": "build/crow-v15-grip-search-20261109/walk-launch-wings-on-control.air",
+      "size": 196640,
+      "sha256": "f431fd9b087f729e6d4bb29775e3019c7ba9524b28bc1e8c31d44a2c794746da"
+    },
+    {
+      "path": "build/crow-v15-grip-search-20261109/walk-launch-wings-on-push.air",
+      "size": 196960,
+      "sha256": "eb486cebfaeec0467ac31b9dc6b4694076900212261183b48801bc91ba883a54"
+    },
+    {
+      "path": "build/shaders/MetalRoboArticulatedABA.air",
+      "size": 35392,
+      "sha256": "d36018565cb83dc2ab22819bb485193f529029b05f11e42623a6920b154b2ff3"
+    },
+    {
+      "path": "build/shaders/MetalRoboArticulatedABASmall.air",
+      "size": 35408,
+      "sha256": "933a1599d41b38d1a5c11c30e476068131d29089d4ee47e66687d52e14d9435e"
+    },
+    {
+      "path": "build/shaders/MetalRoboArticulatedInverseMass.air",
+      "size": 36432,
+      "sha256": "1c0d528b9195af5d890439dc4f824cbd9d08157aafbec7b964bf10a71d1f8ec2"
+    },
+    {
+      "path": "build/shaders/MetalRoboArticulatedOperator.air",
+      "size": 55040,
+      "sha256": "51da42b25f3702b791dfa168f87a34142743aa357b7878ebb2c36467bb4ccb16"
+    },
+    {
+      "path": "build/shaders/MetalRoboBoundedDrive.air",
+      "size": 33392,
+      "sha256": "304c4402d6e507665a007dd65f7b7dc215b0e7ecc8369009f19b91b33fb34b3c"
+    },
+    {
+      "path": "build/shaders/MetalRoboCollision.air",
+      "size": 299424,
+      "sha256": "671b88b069c5ad639d0b9f1aaeb02f61e497fd54e83ccb185b9fbdc78036e22b"
+    },
+    {
+      "path": "build/shaders/MetalRoboConstraintSolver.air",
+      "size": 29536,
+      "sha256": "c854f4b894d21f08cc55f7450bd4287682a109d2e0d8e40e26296b11f9de1738"
+    },
+    {
+      "path": "build/shaders/MetalRoboDeterministicBroadphase.air",
+      "size": 22848,
+      "sha256": "baaecdb07aa325a9a5a710041d0405ae3e8bc50387823c4e06c6c7fa8732f60c"
+    },
+    {
+      "path": "build/shaders/MetalRoboDiscreteElasticRod.air",
+      "size": 70544,
+      "sha256": "5147d63ca066ba8bae51c3c71f78739d39f8d8d2d592c6684c255d2968a68cbd"
+    },
+    {
+      "path": "build/shaders/MetalRoboEnvironmentPrefilter.air",
+      "size": 14480,
+      "sha256": "9da494ffe2f430585eaec69f8eaef79a3f473ee670a91049b922903dc3c32bf5"
+    },
+    {
+      "path": "build/shaders/MetalRoboFlappingWingDynamics.air",
+      "size": 16400,
+      "sha256": "42aab29240f9081dc46d1fc8c01471e2771f35b09055bc8c1297b1d21d4ce527"
+    },
+    {
+      "path": "build/shaders/MetalRoboFreeBodyDynamics.air",
+      "size": 21216,
+      "sha256": "eef0a48e6ae0e579de5f5a84cc37671f2b7bae07bcbaf61d91d04c28e2a4d5d0"
+    },
+    {
+      "path": "build/shaders/MetalRoboFunctionBasedDenseDynamics.air",
+      "size": 61808,
+      "sha256": "60a83103dcbfb654f6ca3549779ce0f550b2a008027888416c039e98cbf608c7"
+    },
+    {
+      "path": "build/shaders/MetalRoboGeneralizedConstraints.air",
+      "size": 34416,
+      "sha256": "3d05dfe18b85b632c6f8001a782b8e0900b4d9cd04cd2956b5fe11dc3f0905c4"
+    },
+    {
+      "path": "build/shaders/MetalRoboHybridRenderer.air",
+      "size": 142592,
+      "sha256": "e60106180dd12718ad8f6235d0e15844a59126ce6c1e64e491a6cf6cf79dbcdb"
+    },
+    {
+      "path": "build/shaders/MetalRoboLocomotionTask.air",
+      "size": 192000,
+      "sha256": "5571abc510a7debbe5ffc8c16d3fc071ede333ba602a29c0eceaf93fdec3e988"
+    },
+    {
+      "path": "build/shaders/MetalRoboMillardMuscleReference.air",
+      "size": 29648,
+      "sha256": "828f6ce4615fade167af7fece66a8b397ccf0556466a6e3faa9e880763858045"
+    },
+    {
+      "path": "build/shaders/MetalRoboMujocoMuscleReference.air",
+      "size": 34336,
+      "sha256": "0478711a2d6300bda69ca81156840b7be30ac2162f87bbb6106fed9f0b3275f8"
+    },
+    {
+      "path": "build/shaders/MetalRoboMultiArticulatedABA.air",
+      "size": 36080,
+      "sha256": "67a77ad997c23eb6efbbf0a80cf0ec5b92892165bd7acf39cd8c88ac0cd7b8c3"
+    },
+    {
+      "path": "build/shaders/MetalRoboMultiArticulatedContact.air",
+      "size": 38384,
+      "sha256": "e651ef05dcdad714d8048112bf3a376388b18584fe279a45c2121839546f246d"
+    },
+    {
+      "path": "build/shaders/MetalRoboMultiArticulatedInverseMass.air",
+      "size": 69632,
+      "sha256": "7dccb6729cbb9416c54af95ceb694ffc7423ef8a68c1473c3adfd8fc4671b50e"
+    },
+    {
+      "path": "build/shaders/MetalRoboMulticopterDynamics.air",
+      "size": 19888,
+      "sha256": "5617f715a12f1237e3e0412cf429dafdd77143d259764f817e36307493a55a73"
+    },
+    {
+      "path": "build/shaders/MetalRoboNumiHumanStand.air",
+      "size": 32512,
+      "sha256": "4e1e3e1f998922e17e12b8312000c62da0cff492bfc4e9416831b9facfaef7fb"
+    },
+    {
+      "path": "build/shaders/MetalRoboNumiHumanTendonTransfer.air",
+      "size": 14464,
+      "sha256": "9b6ca4159d88dcb5db14d862ec6c843f03fd5020dbd9bccbd056fa17a34f4098"
+    },
+    {
+      "path": "build/shaders/MetalRoboOpenSimSpatialTransform.air",
+      "size": 14688,
+      "sha256": "283427af9777cde36b76d59f536880e3352b316af1e0d4a754b53209f021d9c9"
+    },
+    {
+      "path": "build/shaders/MetalRoboParallelArticulatedABA.air",
+      "size": 42336,
+      "sha256": "7802884a5ae2c8cbd265ae4f2f0a7f31de1b4a90126b3c70851f15cfa67ff730"
+    },
+    {
+      "path": "build/shaders/MetalRoboParallelArticulatedABASmall.air",
+      "size": 42368,
+      "sha256": "b26bafa3587268a5f1a836419d91d4048316003e1f40435ace7183916e39dc05"
+    },
+    {
+      "path": "build/shaders/MetalRoboParallelMultiArticulatedABA.air",
+      "size": 43072,
+      "sha256": "abd9b8a1ce63eca2917c13e1b5e98bf71adc01055f475b6d1e03da06371ce61b"
+    },
+    {
+      "path": "build/shaders/MetalRoboParallelParameterizedArticulatedABA.air",
+      "size": 43184,
+      "sha256": "1fad7c102855e29d420e4e9c10578ecbe8d681a0375920749541e29759410d76"
+    },
+    {
+      "path": "build/shaders/MetalRoboParameterizedArticulatedABA.air",
+      "size": 36032,
+      "sha256": "9b4dc4369d84a7c8f5feb5cb8d858eb17f8d06b4a07d25ee195a9a1ae110ee20"
+    },
+    {
+      "path": "build/shaders/MetalRoboParameterizedArticulatedOperator.air",
+      "size": 48048,
+      "sha256": "8101e45d050a202174922fe9d01511486749733720b9219068a6b69c7324c8b8"
+    },
+    {
+      "path": "build/shaders/MetalRoboParameterizedMultiArticulatedInverseMass.air",
+      "size": 73104,
+      "sha256": "6efcc4e3e7aa89a73c738c9842af3845e5291c4226b53a48b2fe573325d50296"
+    },
+    {
+      "path": "build/shaders/MetalRoboPolicyInference.air",
+      "size": 14992,
+      "sha256": "9ce95a971fe1bcbc2c9c6058fa82b1f6c8df5620efe761aa1cde8dfd07c15582"
+    },
+    {
+      "path": "build/shaders/MetalRoboQualityContactSolver.air",
+      "size": 21744,
+      "sha256": "10e8ae44239bdb7497c7f444e9a6fa77a87b6cdcd71fc469cf6beb6a309e7985"
+    },
+    {
+      "path": "build/shaders/MetalRoboSceneQuery.air",
+      "size": 39872,
+      "sha256": "3f638c96c29556212edd448aa05b406f9147453e4d38b7e26d5bb8ba80d4f60b"
+    },
+    {
+      "path": "build/shaders/MetalRoboStreamingArticulatedInverseMass.air",
+      "size": 87696,
+      "sha256": "61666ca07ffc84a339dc1811c9688a5756d2a7237ebf5568ffa629972b628f52"
+    },
+    {
+      "path": "build/shaders/MetalRoboTactile.air",
+      "size": 32352,
+      "sha256": "f05f13bfd135ceba0ca9559c4ed48ac999f7613bd889ba93806567a3ac2d9fad"
+    },
+    {
+      "path": "build/shaders/MetalRoboUnifiedQualitySolver.air",
+      "size": 79504,
+      "sha256": "b794a517f911e93872312ab153d51ea009e2c720979a83bd253d90dd42abc734"
+    },
+    {
+      "path": "build/shaders/MetalRoboVisualAssetCook.air",
+      "size": 5904,
+      "sha256": "d9f4fff2c451afac47fd5bd2e3a25e875648b7d678da41bdd44313225a380226"
+    },
+    {
+      "path": "build/shaders/MetalRoboWorld.air",
+      "size": 41808,
+      "sha256": "376e0c2c23c4577e535070220d6d308c2d7cfcf843b803df5a85e0ff5ee9cb50"
+    },
+    {
+      "path": "build/shaders/MetalRoboWorldCompiler.air",
+      "size": 20544,
+      "sha256": "b2950f3477f7502808e3e16d5254db0307d51d530661adf27c108b8c33a022a9"
+    },
+    {
+      "path": "build/shaders/MetalRoboWorldContact.air",
+      "size": 297344,
+      "sha256": "466e505782aef35062d044b17996c111ae963b0a3476d4c0c5f0577303db197a"
+    },
+    {
+      "path": "build/crow-v15-grip-search-20261109/symmetric-launch-wings-off-control.metallib",
+      "size": 4468128,
+      "sha256": "d15360f7bbca8992b9a549ce8883cf0b2deaaff52266f20a187250b9f78f4d8e"
+    },
+    {
+      "path": "build/crow-v15-grip-search-20261109/symmetric-launch-wings-off-push.metallib",
+      "size": 4468448,
+      "sha256": "090c994d0eca6ec0fd5c4bf54db11865ae42d7fc8ff45115ebb5419ff457dec9"
+    },
+    {
+      "path": "build/crow-v15-grip-search-20261109/symmetric-launch-wings-on-control.metallib",
+      "size": 4468048,
+      "sha256": "438a145bc19c6160f438c5de5ed73d84054911b89ffb88bd6c07bdd0e41545c7"
+    },
+    {
+      "path": "build/crow-v15-grip-search-20261109/symmetric-launch-wings-on-push.metallib",
+      "size": 4468368,
+      "sha256": "995b2e1e3dfe067e70418f488a43b6217e85bf3b92a1109263cc778f81c8fc24"
+    },
+    {
+      "path": "build/crow-v15-grip-search-20261109/materialized/libmetalrobo.dylib",
+      "size": 5746032,
+      "sha256": "2e46bc91c575a536330579e754715252a29f6f78066aebe9adeda378e7c199b1"
+    },
+    {
+      "path": "build/crow-v15-grip-search-20261109/complete-observer/libmetalrobo.dylib",
+      "size": 5746032,
+      "sha256": "e935492b70dd3b42c4cce5c3ea45c0869b14df7f4d7fd9e6433545419e1fc630"
+    },
+    {
+      "path": "build/crow-v15-grip-search-20261109/toe-envelope/libmetalrobo.dylib",
+      "size": 5746976,
+      "sha256": "6220097a8f0bee303386226deb5c59cb728a4d55bc5cd15d5b491d0e27171ffd"
+    },
+    {
+      "path": "build/bin/metalrobo_task_rollout",
+      "size": 1081736,
+      "sha256": "5ee04a98f25f7149701bc21ede235428876e535f843366e78dea16fce6035d1d"
+    },
+    {
+      "path": "tmp/crow-v15-grip-screen-20261109",
+      "size": 99216,
+      "sha256": "63bf95ddc0d540ee7d9294230214412d9b0ccf3c0dd8fdedb829edbd3150d249"
+    },
+    {
+      "path": "tmp/crow-v15-coordinated-screen-20261109",
+      "size": 99224,
+      "sha256": "fc70477ce1a470bb046832239f8b6ff26499bc32cd6fe1d8db59c934130df28d"
+    },
+    {
+      "path": "tmp/crow-v15-resident-trace-20261109",
+      "size": 100656,
+      "sha256": "45a9cc6de1d6922d5236332c03e2ab81b18cad5ca7cc8def12250d640696f3c1"
+    },
+    {
+      "path": "tmp/crow-v15-feedback-probe-20261109",
+      "size": 100432,
+      "sha256": "7d2dc571e6cee1d94c206f40e08a96355495a51367a896faa8650655fade88de"
+    },
+    {
+      "path": "tmp/crow-v15-perch-offset-20261109",
+      "size": 100432,
+      "sha256": "fe6abf86b3ae1f6fda2bee7213d0547ab2d0d71bb74693fa36e0a70bdba1a583"
+    },
+    {
+      "path": "tmp/crow-v15-perch-control-20261109",
+      "size": 100432,
+      "sha256": "78d92d4f8271689c8100cddaf27aa8e3233335dd1d24c982ec6cdf1ce141a1c2"
+    },
+    {
+      "path": "tmp/crow-v15-perch-identity-20261109",
+      "size": 100432,
+      "sha256": "5f7994823d089971281292239f0908680566ed1901aadc6c80b0d5bdb33a4afd"
+    },
+    {
+      "path": "tmp/crow-v15-perch-perturb-20261109",
+      "size": 100496,
+      "sha256": "3f48d5498c5258940442059eda22a920605157222fd3ba759e5856f259e1b62e"
+    }
+  ],
+  "tar_sha256": "501540674374b5ccc9e5200f8635d5bcf0a58d0dd6304ddaf03e151d2a422c99",
+  "base_revision": "24c9bc4933bfb929127c7de1ef5fc8202984c955",
+  "flight_source_sha256": "aa2fe10901cb0494d80ae445902303a17ce0e73d030072bab09461d8f3593ebe"
+}

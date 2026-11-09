@@ -1,0 +1,4 @@
+{
+  "returncode": 1,
+  "stderr_tail": "task_rollout failed: PolicyPack compile failed [incompatible_contract]: contract: policy=(world=12704294952255580436,task=8482680149520961739,observation=15113761242167882437,action=10335628214131907515) task=(world=5270204394071889157,task=12413004358712410261,observation=171007847896926799,action=10388245812787257665)\n"
+}

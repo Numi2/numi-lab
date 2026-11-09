@@ -1,0 +1,5 @@
+symmetric-launch-wings-off-control endpoint_success 0 of 8
+[(0, [], 0.0), (1, [], 0.0), (2, [], 0.0), (3, [], 0.0), (4, [], 0.0), (5, [], 0.0), (6, [], 0.0), (7, [], 0.0)]
+symmetric-launch-wings-off-push endpoint_success 8 of 8
+[(0, [255, 265], 0.446), (1, [255, 265], 0.446), (2, [255, 265], 0.446), (3, [255, 265], 0.446), (4, [255, 265], 0.446), (5, [255, 265], 0.446), (6, [255, 265], 0.446), (7, [255, 265], 0.446)]
+selected lane geometry [[{'trace_step': 255, 'replay_frame': 254, 'foot_box_bottom_above_ground_m': [0.006916313084677701, 0.0069309913609785345], 'root_vz_m_s': 0.1342131346464157}, {'trace_step': 256, 'replay_frame': 255, 'foot_box_bottom_above_ground_m': [0.0048752517252164534, 0.004923536490136774], 'root_vz_m_s': -0.07074084132909775}], [{'trace_step': 265, 'replay_frame': 264, 'foot_box_bottom_above_ground_m': [0.0042958069416007705, 0.004306865371704025], 'root_vz_m_s': 0.13662029802799225}, {'trace_step': 266, 'replay_frame': 265, 'foot_box_bottom_above_ground_m': [0.003441870731432057, 0.003461348558895192], 'root_vz_m_s': -0.06167260929942131}]]

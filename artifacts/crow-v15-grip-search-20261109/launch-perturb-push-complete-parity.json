@@ -1,0 +1,6 @@
+{
+  "source": "launch-perturb-push",
+  "frames": 350,
+  "physical_state_replay_equal": true,
+  "scope": "selected lane q/v and body states; does not establish parity of every lane"
+}

@@ -1,0 +1,31 @@
+{
+  "video_sha256": "cfc01f2ffc11b5cdf64e168e4c9c7d6a13c388c346b60b6b106d1abe75bcfa3e",
+  "frames": 3000,
+  "fps": 50,
+  "scope": "recorded rigid-foot push-arm runs, sampled without dropping states; toe grip not shown; support and feather appearance partly estimated",
+  "renderer_revision": "6cadad7bade86245a99a4e83a4e1b0393733faca",
+  "renderer_binary_sha256": "5024f3eb217c61e5ffb533bc38635d0e80ed128fd10edeac32447d24ffa5db87",
+  "source_replays": [
+    {
+      "layout": "i",
+      "frame_count": 3000,
+      "all_frames_match": true,
+      "original_sha256": "f834a895221145b235d03eaae647d1f33dffaaf374c0be50739205ad66cdf518",
+      "canonical_sha256": "b1d92ab5d977c17f4687b3cdc0a6cb844caf51ff0d9efcd6206c018e45269400"
+    },
+    {
+      "layout": "j",
+      "frame_count": 3000,
+      "all_frames_match": true,
+      "original_sha256": "80947c7bc55e1474dc1ce56f77038e627518a3fa79d767de2a4c3e5a7b8fd4d6",
+      "canonical_sha256": "838ff6d744813f8c02a317042fbb7e5a2bb1219cb1c5d6bb9ef9035e24853842"
+    }
+  ],
+  "renderer_flags": [
+    "CROW_EXPERIMENTAL_FLIGHT_REMEX=1",
+    "CROW_EXPERIMENTAL_WING_JOINTS=1",
+    "CROW_EXPERIMENTAL_SUPPORT_PLANT=1",
+    "CROW_EXPERIMENTAL_FLIGHT_DIGITS=1",
+    "CROW_EXPERIMENTAL_PRELANDING_LEGS=1"
+  ]
+}

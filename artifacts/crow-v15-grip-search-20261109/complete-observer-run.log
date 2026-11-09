@@ -1,0 +1,2 @@
+launch-perturb-control-complete {'source': 'launch-perturb-control', 'frames': 350, 'physical_state_replay_equal': True, 'scope': 'selected lane q/v and body states; does not establish parity of every lane'}
+launch-perturb-push-complete {'source': 'launch-perturb-push', 'frames': 350, 'physical_state_replay_equal': True, 'scope': 'selected lane q/v and body states; does not establish parity of every lane'}

@@ -1,0 +1,55 @@
+contact -0.02 0.04 0.85 0 crow_left_front_toe_1 locomotion_ground -0.00143994 -0.999999 0.000764594 -1.78559e-05
+contact -0.02 0.04 0.85 0 crow_left_front_toe_1 locomotion_ground -0.00143994 -0.999999 0.000775816 -1.77863e-05
+contact -0.02 0.04 0.85 0 crow_left_front_toe_2 locomotion_ground -0.000316661 -1 0.000209264 -3.7461e-06
+contact -0.02 0.04 0.85 0 crow_left_front_toe_2 locomotion_ground -0.000316661 -1 0.000214887 -3.6735e-06
+contact -0.02 0.04 0.85 0 crow_left_front_toe_3 locomotion_ground -0.000141074 -1 0.000160638 -1.39628e-06
+contact -0.02 0.04 0.85 0 crow_left_front_toe_3 locomotion_ground -0.000141074 -1 0.000162529 -1.32644e-06
+contact -0.02 0.04 0.85 0 crow_left_rear_toe locomotion_ground 0.00676324 -0.999977 0.00339247 -7.47457e-06
+contact -0.02 0.04 0.85 0 crow_left_rear_toe locomotion_ground 0.00676324 -0.999977 0.00344532 -7.40205e-06
+contact -0.02 0.04 0.85 0 crow_right_front_toe_1 locomotion_ground -0.000461095 -1 0.000284045 -8.36043e-06
+contact -0.02 0.04 0.85 0 crow_right_front_toe_1 locomotion_ground -0.000461095 -1 0.000282962 -8.29157e-06
+contact -0.02 0.04 0.85 0 crow_right_front_toe_2 locomotion_ground -0.000408177 -1 0.000255143 -7.53584e-06
+contact -0.02 0.04 0.85 0 crow_right_front_toe_2 locomotion_ground -0.000408177 -1 0.000253848 -7.46418e-06
+contact -0.02 0.04 0.85 0 crow_right_front_toe_3 locomotion_ground -0.000601546 -1 0.000322809 -9.76515e-06
+contact -0.02 0.04 0.85 0 crow_right_front_toe_3 locomotion_ground -0.000601546 -1 0.000323481 -9.69631e-06
+contact -0.02 0.04 0.85 0 crow_right_rear_toe locomotion_ground 0.00687907 -0.999976 0.00351428 -7.58172e-06
+contact -0.02 0.04 0.85 0 crow_right_rear_toe locomotion_ground 0.00687907 -0.999976 0.00345075 -7.51013e-06
+result -0.02 0.04 0.85 0 accepted 16 0 0 0.0178128 0.0178128 -0.0187573 -3.56371e-06 0.177227 -4.56317e-05 8.66765e-07 -3.62578e-06 0.00149022 0.000338777 0.000162717 0.00673751 0.000428219 0.000374899 0.000568893 0.00691156
+contact -0.02 0.04 0.85 1 crow_left_front_toe_1 locomotion_ground -0.620814 -0.783958 0.00184995 -0.000290515
+contact -0.02 0.04 0.85 1 crow_left_front_toe_1 locomotion_ground -0.620814 -0.783958 0.00185478 -0.000290832
+contact -0.02 0.04 0.85 1 crow_left_front_toe_1 locomotion_ground -0.620814 -0.783958 9.71407e-05 -0.000721366
+contact -0.02 0.04 0.85 1 crow_left_front_toe_2 locomotion_ground -0.620673 -0.784069 0.00176508 -0.000283959
+result -0.02 0.04 0.85 1 accepted 4 0 0.00556695 0.00556695 0.00556695 -0.0373401 -7.11185e-05 0.179997 -0.0223026 -0.000271823 0.000325157 0.794875 0.794724 0.794465 0.493246 0.791692 0.795987 0.795926 0.488417
+result -0.02 0.04 0.85 2 accepted 0 0 0 0 0 -0.0596044 1.25701e-06 0.164294 -0.0483561 -1.25137e-05 -0.021873 0.86366 0.86366 0.86366 0.747577 0.86365 0.86365 0.86365 0.747586
+contact -0.02 0.04 0.85 3 crow_left_front_toe_1 locomotion_ground -0.629963 -0.776626 0.000201253 -9.62757e-05
+contact -0.02 0.04 0.85 3 crow_left_front_toe_1 locomotion_ground -0.629963 -0.776626 0.000207027 -9.65956e-05
+contact -0.02 0.04 0.85 3 crow_left_front_toe_1 locomotion_ground -0.629963 -0.776626 0.000132408 -0.000442223
+contact -0.02 0.04 0.85 3 crow_left_front_toe_2 locomotion_ground -0.632819 -0.7743 3.82776e-05 -7.75444e-05
+contact -0.02 0.04 0.85 3 crow_left_front_toe_2 locomotion_ground -0.632819 -0.7743 3.9189e-05 -7.78669e-05
+contact -0.02 0.04 0.85 3 crow_left_front_toe_2 locomotion_ground -0.632819 -0.7743 0.000197786 -0.000495212
+contact -0.02 0.04 0.85 3 crow_left_front_toe_3 locomotion_ground -0.632599 -0.77448 1.12544e-05 -4.76825e-05
+contact -0.02 0.04 0.85 3 crow_left_front_toe_3 locomotion_ground -0.632599 -0.77448 1.17676e-05 -4.8001e-05
+contact -0.02 0.04 0.85 3 crow_left_front_toe_3 locomotion_ground -0.632599 -0.77448 0.000206066 -0.000491993
+contact -0.02 0.04 0.85 3 crow_left_rear_toe locomotion_ground 0.0563922 -0.998409 0.00526207 -0.000130527
+contact -0.02 0.04 0.85 3 crow_left_rear_toe locomotion_ground 0.0563922 -0.998409 0.0052453 -0.000129437
+result -0.02 0.04 0.85 3 accepted 11 0 0.00104503 0.0115524 0.0115524 -0.0337425 -4.32942e-05 0.176131 -0.0121438 0.000126314 0.00141263 0.814758 0.81826 0.817985 -0.0744343 0.815944 0.815824 0.816407 -0.0748234
+contact -0.02 0.04 0.85 4 crow_left_front_toe_1 locomotion_ground -4.37581e-10 -1 5.25154e-13 0.000247343
+contact -0.02 0.04 0.85 4 crow_left_front_toe_1 locomotion_ground -4.37581e-10 -1 3.70651e-13 0.000247356
+contact -0.02 0.04 0.85 4 crow_left_front_toe_2 locomotion_ground 2.1771e-10 -1 2.02559e-13 0.000247379
+contact -0.02 0.04 0.85 4 crow_left_front_toe_2 locomotion_ground 2.1771e-10 -1 1.20421e-13 0.000247392
+contact -0.02 0.04 0.85 4 crow_left_front_toe_3 locomotion_ground 6.40625e-10 -1 5.14074e-14 0.000247414
+contact -0.02 0.04 0.85 4 crow_left_front_toe_3 locomotion_ground 6.40625e-10 -1 2.56904e-14 0.000247427
+contact -0.02 0.04 0.85 4 crow_left_rear_toe locomotion_ground 0.680538 -0.732713 0.00267418 -7.40442e-05
+contact -0.02 0.04 0.85 4 crow_left_rear_toe locomotion_ground 0.680538 -0.732713 0.00266985 -7.36771e-05
+result -0.02 0.04 0.85 4 accepted 8 0.00534403 0 0.00534403 0.00534403 -0.027632 3.36224e-07 0.176441 -0.0161094 1.1832e-05 -0.00243244 0.00657818 0.00654202 0.00649536 0.729061 0.00643601 0.00650467 0.00655335 0.727225
+result -0.02 0.04 0.85 5 accepted 0 0 0 0 0 -0.0409185 -3.74285e-05 0.178832 -0.0497199 -0.000139085 -0.00381081 0.642117 0.641983 0.641761 0.658082 0.641551 0.64183 0.642045 0.655083
+contact -0.02 0.04 0.85 6 crow_left_front_toe_1 locomotion_ground -0.630562 -0.776139 0.000922389 -0.000274046
+contact -0.02 0.04 0.85 6 crow_left_front_toe_1 locomotion_ground -0.630562 -0.776139 0.000948672 -0.000273729
+contact -0.02 0.04 0.85 6 crow_left_front_toe_1 locomotion_ground -0.630562 -0.776139 9.21329e-05 -0.000691095
+contact -0.02 0.04 0.85 6 crow_left_front_toe_2 locomotion_ground -0.628995 -0.77741 0.0013009 -0.000277765
+result -0.02 0.04 0.85 6 accepted 4 0 0.0032641 0.0032641 0.0032641 -0.0357325 -4.80715e-05 0.178882 -0.018295 -0.000187185 0.00221493 0.808118 0.806111 0.803451 0.311571 0.803029 0.805987 0.807394 0.308736
+contact -0.02 0.04 0.85 7 crow_left_front_toe_1 locomotion_ground -0.244244 -0.969714 0.00108064 -0.000121397
+contact -0.02 0.04 0.85 7 crow_left_front_toe_1 locomotion_ground -0.244244 -0.969714 0.00104897 -0.000121077
+contact -0.02 0.04 0.85 7 crow_left_front_toe_2 locomotion_ground -0.244295 -0.969701 0.00110591 -0.000121649
+contact -0.02 0.04 0.85 7 crow_left_front_toe_2 locomotion_ground -0.244295 -0.969701 0.00108803 -0.000121328
+result -0.02 0.04 0.85 7 accepted 4 0 0 0.00432355 0.00432355 -0.0372065 -1.56442e-05 0.177033 -0.0247612 4.92753e-06 -0.00423992 0.332138 0.33217 0.332149 0.703614 0.331778 0.331859 0.331864 0.702208

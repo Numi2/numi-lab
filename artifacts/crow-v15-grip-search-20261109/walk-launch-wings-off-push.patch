@@ -1,0 +1,73 @@
+--- a/src/metal/LocomotionTask.metal
++++ b/walk-launch-wings-off-push.metal
+@@ -3737,6 +3737,18 @@
+                     ) * program.interactionTiming.x;
+             }
+         }
++        // Initial-state perturbation only; no mid-episode state edits or injected force.
++        if ((program.schedule.w & MR_TASK_PROGRAM_AVIAN_CROW_HIERARCHICAL_NAVIGATION) != 0u && curriculum == 10u) {
++            const float roll=0.06f*randomSigned(dispatch,environment,episode,0u,8990u);
++            const float4 orientation=float4(resetQ[qBase+program.root.z+3u],resetQ[qBase+program.root.z+4u],resetQ[qBase+program.root.z+5u],resetQ[qBase+program.root.z+6u]);
++            const float4 qroll=quaternionProduct(orientation,float4(sin(0.5f*roll),0.0f,0.0f,cos(0.5f*roll)));
++            for (uint k=0u;k<4u;++k) resetQ[qBase+program.root.z+3u+k]=qroll[k];
++            for (uint a=7u;a<=12u;++a) {
++                const MRTaskActionBindingGPU binding=actions[a];
++                resetQ[qBase+binding.indices.z]=clamp(resetQ[qBase+binding.indices.z]+0.04f*randomSigned(dispatch,environment,episode,0u,9000u+a),binding.parameters.y,binding.parameters.z);
++            }
++            for (uint k=0u;k<2u;++k) resetV[vBase+program.root.w+k]+=0.025f*randomSigned(dispatch,environment,episode,0u,9020u+k);
++        }
+         controllerParameters[environment].z =
+             float(actionDelay) * dispatch.timing.x;
+ 
+@@ -5037,6 +5049,30 @@
+         float navigationTeacherRequested = fixedFlightController
+             ? (avianNavigationTeacher && action >= 15u ? studentRequested : teacherRequested)
+             : legacyNavigationTeacherRequested;
++        // Experimental gait ends before the launch crouch takes control.
++        if (fixedFlightController && state.episode.z == 10u && action >= 7u && action <= 12u) {
++            const float seconds=float(state.episode.x)*dispatch.timing.x;
++            const uint leg=(action-7u)/3u, joint=(action-7u)%3u;
++            const float support=leg==0u ? state.nutrition.y : state.nutrition.x;
++            const float carrier=sin(kTwoPi*seconds/0.50f)*(leg==0u ? 1.0f : -1.0f);
++            const float swing=seconds >= 2.0f && seconds < 4.3f && support > 0.05f ? carrier : 0.0f;
++            const float lift=max(swing,0.0f);
++            if (seconds >= 2.0f && seconds < 4.3f)
++                navigationTeacherRequested=joint==0u ? -0.30f*swing : joint==1u ? 0.40f*lift : -0.15f*lift;
++        }
++        // Experimental launch leg targets; accepted ground load gates each leg.
++        if (fixedFlightController && state.episode.z == 10u && action >= 7u && action <= 12u) {
++            const float seconds = float(state.episode.x)*dispatch.timing.x;
++            const uint leg=(action-7u)/3u, joint=(action-7u)%3u;
++            const float footLoad=leg==0u ? state.nutrition.x : state.nutrition.y;
++            if (seconds >= 4.3f && seconds < 5.2f && footLoad > 0.05f) {
++                const float crouched=joint==0u ? -0.85f : joint==1u ? 1.00f : -0.50f;
++                const float extended=joint==0u ? 0.10f : joint==1u ? -0.70f : 0.18f;
++                navigationTeacherRequested=seconds<4.96f
++                    ? mix(navigationTeacherRequested,crouched,smoothstep(4.3f,4.55f,seconds))
++                    : mix(crouched,extended,smoothstep(4.96f,5.00f,seconds));
++            }
++        }
+         // Keep the training-only teacher active through the final target.
+         // Ending at waypoint four taught an aggressive approach crossing but
+         // handed the student a poor terminal arrival geometry. Autonomous
+@@ -5250,7 +5286,8 @@
+             )
+             : filtered;
+         const float avianWingAmplitude =
+-            fixedFlightController && state.threatTeacher.w >= 1.5f &&
++            fixedFlightController && state.episode.z == 10u && float(state.episode.x)*dispatch.timing.x >= 4.4f && float(state.episode.x)*dispatch.timing.x < 5.4f && binding.actuator.x == MR_TASK_ACTUATOR_FLAPPING_POSITION
++            ? 0.0f : fixedFlightController && state.threatTeacher.w >= 1.5f &&
+             binding.actuator.x == MR_TASK_ACTUATOR_FLAPPING_POSITION
+             ? 0.0f
+             : avianGroundCurriculum &&
+@@ -9250,6 +9287,10 @@
+             criticObservations + criticOutputBase
+         );
+     }
++    // Accepted foot force diagnostic feedback for this isolated band-10 bench.
++    if ((program.schedule.w & MR_TASK_PROGRAM_AVIAN_CROW_HIERARCHICAL_NAVIGATION) != 0u && state.episode.z == 10u && program.counts0.w >= 2u) {
++        state.nutrition.xy=float2(compactContact[compactBase+contactGroups[0].members.w],compactContact[compactBase+contactGroups[1].members.w]);
++    }
+     taskStates[environment] = state;
+ 
+     const uint transitionIndex =

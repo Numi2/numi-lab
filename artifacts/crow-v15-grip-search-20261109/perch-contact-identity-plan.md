@@ -1,0 +1,3 @@
+# Contact identity audit
+
+The center-width controlled screen reports opposing horizontal toe/perch impulses and release, while the sensor-clamped and collision-off controls do not advance. This aggregation pooled both feet and all toes, so it is not sufficient to establish that individual feet pinch opposing sides. Repeat the four controlled arms byte-for-byte except for observing each accepted contact's toe name, normal and impulse. Compare the existing trace to the previous run, then measure opposing contacts per foot and per front/rear group during the hold. No new success is claimed if only pooled loads oppose each other. Preserve every contact record and do not interpret visual toe motion as a force measurement.

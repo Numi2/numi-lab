@@ -1,0 +1,11 @@
+--- a/toe-integration.cpp
++++ b/toe-envelope.cpp
+@@ -3383,7 +3383,7 @@
+     parent.massAndInverseMass={pm,1/pm,0,0}; crowToeDiagonal(parent,parent.inertiaRow0.x-sx,parent.inertiaRow1.y-sy,parent.inertiaRow2.z-sz);
+     for (unsigned s=0;s<m.shapeNames.size();s++) if (m.shapeNames[s]==(side==0?"crow_left_foot/sole":"crow_right_foot/sole")) {
+       auto& shape=m.shapes[s]; shape.dimensions.x=.010f;
+-      shape.contactRestAndBoundingRadius.z=std::sqrt(.010f*.010f+shape.dimensions.y*shape.dimensions.y+shape.dimensions.z*shape.dimensions.z);
++      // Keep the parent sole bounding envelope conservative for legacy observations.
+     }
+     for (int t=0;t<4;t++) {
+       const unsigned bi=m.bodies.size(), ji=m.joints.size(), qi=m.defaultQ.size(), vi=m.defaultV.size();

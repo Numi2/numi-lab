@@ -1,0 +1,5 @@
+/Users/n/Developer/numi-crow-rl-20261107/build/crow-v15-grip-search-20261109/toe-integration/c_api.cpp:3365:13: warning: unused function 'close' [-Wunused-function]
+ 3365 | static void close(double a, double b, const char* why) { crowToeNeed(std::abs(a-b)<=2e-7*(1+std::abs(a)),why); }
+      |             ^~~~~
+1 warning generated.
+built /Users/n/Developer/numi-crow-rl-20261107/build/crow-v15-grip-search-20261109/toe-integration/libmetalrobo.dylib dc6d3e5528d9f63d302063da12fa40cc4c18bf86741215f4ee28be3bcfc9eef6

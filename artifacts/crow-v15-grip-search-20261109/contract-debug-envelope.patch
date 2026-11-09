@@ -1,0 +1,24 @@
+--- a/envelope.cpp
++++ b/envelope-debug.cpp
+@@ -3622,6 +3622,21 @@
+             std::move(manifest), metallib_path,
+             "BirdFlow American-crow estimated hybrid", retinal ? nullptr : visual_sensor,nullptr,std::move(resources)
+         );
++        if (std::getenv("CROW_CONTRACT_DIAGNOSTIC")) {
++            auto signature=[](const auto& span) {
++                const auto* p=reinterpret_cast<const unsigned char*>(span.data());
++                std::uint64_t h=1469598103934665603ull;
++                for (std::size_t i=0;i<span.size_bytes();++i) {h^=p[i];h*=1099511628211ull;}
++                return h;
++            };
++            const auto& p=handle->taskProgram;
++            const auto& l=p.layout();
++            std::fprintf(stderr,"CROW_CONTRACT layout %u %u %u %u %u %u %u %u %u %u %u %u %u\n",l.actionCount,l.actorFrameSize,l.actorHistoryLength,l.actorObservationSize,l.criticFrameSize,l.criticHistoryLength,l.criticObservationSize,l.contactMetricCount,l.biasCount,l.delayStateCount,l.motionFeatureCount,l.interactionFrameCount,l.interactionContactCount);
++            auto dump=[&](const char* name,const auto& value){std::fprintf(stderr,"CROW_CONTRACT %s %zu %llu\n",name,value.size(),static_cast<unsigned long long>(signature(value)));};
++            dump("actions",p.actionBindings());dump("actor",p.actorOperators());dump("critic",p.criticOperators());dump("contacts",p.contactGroups());dump("members",p.contactMembers());dump("radii",p.contactMemberRadii());dump("bias",p.biasSpecs());dump("terrain",p.terrainSampleOffsets());dump("motion",p.motionBodies());
++            const auto& q=handle->run.model().defaultQ;
++            dump("first_q",std::span<const float>(q.data(),std::min(q.size(),std::size_t(23))));
++        }
+         if (feeding && !cueConfig) {
+             handle->resourceRuntime=std::make_unique<metalrobo::FiniteResourceContext>(
+                 metalrobo::makeAmericanCrowFeedingResourceConfig(handle->run,config->environment_count));

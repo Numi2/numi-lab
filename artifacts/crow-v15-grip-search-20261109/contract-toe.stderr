@@ -1,0 +1,1 @@
+task_rollout failed: task-rollout publication failed [invalid_dimensions]: device observation program requires a complete callback, native task, and native policy

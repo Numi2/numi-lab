@@ -1,0 +1,182 @@
+{
+  "cases": [
+    {
+      "case": 0,
+      "matched_result": "case_result 0 completed transition 36 success 74 release 84",
+      "both_feet_opposing_hold_steps": [
+        75,
+        76,
+        77,
+        78,
+        79,
+        80,
+        81,
+        82,
+        83
+      ],
+      "max_consecutive_hold": 9,
+      "release_step": 84,
+      "post_release_loss": {
+        "left": 86,
+        "right": 86
+      },
+      "passes": true
+    },
+    {
+      "case": 1,
+      "matched_result": "case_result 1 completed transition 27 success 59 release 69",
+      "both_feet_opposing_hold_steps": [
+        60,
+        61,
+        62,
+        63,
+        64,
+        65,
+        66,
+        67,
+        68
+      ],
+      "max_consecutive_hold": 9,
+      "release_step": 69,
+      "post_release_loss": {
+        "left": 74,
+        "right": 76
+      },
+      "passes": true
+    },
+    {
+      "case": 2,
+      "matched_result": "case_result 2 completed transition 36 success 74 release 84",
+      "both_feet_opposing_hold_steps": [
+        75,
+        76,
+        77,
+        78,
+        79,
+        80,
+        81,
+        82,
+        83
+      ],
+      "max_consecutive_hold": 9,
+      "release_step": 84,
+      "post_release_loss": {
+        "left": 86,
+        "right": 86
+      },
+      "passes": true
+    },
+    {
+      "case": 3,
+      "matched_result": "case_result 3 completed transition 27 success 59 release 69",
+      "both_feet_opposing_hold_steps": [
+        60,
+        61,
+        62,
+        63,
+        64,
+        65,
+        66,
+        67,
+        68
+      ],
+      "max_consecutive_hold": 9,
+      "release_step": 69,
+      "post_release_loss": {
+        "left": 76,
+        "right": 75
+      },
+      "passes": true
+    },
+    {
+      "case": 4,
+      "matched_result": "case_result 4 completed transition 36 success 74 release 84",
+      "both_feet_opposing_hold_steps": [
+        75,
+        76,
+        77,
+        78,
+        79,
+        80,
+        81,
+        82,
+        83
+      ],
+      "max_consecutive_hold": 9,
+      "release_step": 84,
+      "post_release_loss": {
+        "left": 86,
+        "right": 86
+      },
+      "passes": true
+    },
+    {
+      "case": 5,
+      "matched_result": "case_result 5 completed transition 27 success 59 release 69",
+      "both_feet_opposing_hold_steps": [
+        60,
+        61,
+        62,
+        63,
+        64,
+        65,
+        66,
+        67,
+        68
+      ],
+      "max_consecutive_hold": 9,
+      "release_step": 69,
+      "post_release_loss": {
+        "left": 74,
+        "right": 76
+      },
+      "passes": true
+    },
+    {
+      "case": 6,
+      "matched_result": "case_result 6 completed transition 36 success 74 release 84",
+      "both_feet_opposing_hold_steps": [
+        75,
+        76,
+        77,
+        78,
+        79,
+        80,
+        81,
+        82,
+        83
+      ],
+      "max_consecutive_hold": 9,
+      "release_step": 84,
+      "post_release_loss": {
+        "left": 86,
+        "right": 86
+      },
+      "passes": true
+    },
+    {
+      "case": 7,
+      "matched_result": "case_result 7 completed transition 27 success 59 release 69",
+      "both_feet_opposing_hold_steps": [
+        60,
+        61,
+        62,
+        63,
+        64,
+        65,
+        66,
+        67,
+        68
+      ],
+      "max_consecutive_hold": 9,
+      "release_step": 69,
+      "post_release_loss": {
+        "left": 75,
+        "right": 75
+      },
+      "passes": true
+    }
+  ],
+  "pass_count": 8,
+  "scope": "eight initial perturbations on isolated estimated toe body; no dynamic perturbation, landing or whole-sequence qualification"
+}

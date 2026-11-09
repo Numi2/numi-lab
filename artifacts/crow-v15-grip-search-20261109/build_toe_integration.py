@@ -1,0 +1,14 @@
+from pathlib import Path
+import difflib,shlex,subprocess,hashlib,json
+R=Path.cwd();A=R/'artifacts/crow-v15-grip-search-20261109';B=R/'build/crow-v15-grip-search-20261109';C=B/'toe-integration';C.mkdir(exist_ok=True)
+proto=(R/'artifacts/crow-v15-toe-prototype-20261109/toe_admission_armature.cpp').read_text();a=proto.index('static void need(');b=proto.index('\nint main()',a);helper=proto[a:b];helper=helper.replace('static void need(', 'static void crowToeNeed(').replace('need(', 'crowToeNeed(').replace('crowToeNeed(', 'crowToeNeed(').replace('static void diagonal(', 'static void crowToeDiagonal(').replace('diagonal(', 'crowToeDiagonal(').replace('crowToeDiagonal(', 'crowToeDiagonal(').replace('static RobotPack toeModel()', 'static RobotPack crowToeModel()');helper=helper.replace('crowToeNeedcrowToeNeed','crowToeNeed').replace('crowToeDiagonalcrowToeDiagonal','crowToeDiagonal')
+source=(B/'complete-observer/c_api.cpp').read_text();marker='static MRTaskRolloutHandle* createBirdFlowAmericanCrowRun(';assert source.count(marker)==1;source=source.replace(marker,'namespace { using namespace metalrobo;\n'+helper+'\n}\n\n'+marker)
+needle='''        manifest.robot = std::move(*robot);
+        manifest.scene = cueConfig ?''';assert source.count(needle)==1;source=source.replace(needle,'''        manifest.robot = activeNavigation ? crowToeModel() : std::move(*robot);
+        manifest.scene = cueConfig ?''');src=C/'c_api.cpp';src.write_text(source)
+(A/'toe-integration-host.patch').write_text(''.join(difflib.unified_diff((R/'src/c_api.cpp').read_text().splitlines(True),source.splitlines(True),fromfile='a/src/c_api.cpp',tofile='b/toe-integration-c_api.cpp')))
+lines=subprocess.check_output(['/opt/homebrew/bin/ninja','-C',str(R/'build'),'-t','commands'],text=True).splitlines();line=next(x for x in lines if ' -c '+str(R/'src/c_api.cpp') in x);args=shlex.split(line);obj=C/'c_api.cpp.o'
+for k,v in [('-o',str(obj)),('-MF',str(obj)+'.d'),('-MT',str(obj))]:args[args.index(k)+1]=v
+args[-1]=str(src);args.insert(1,'-I'+str(R/'artifacts/crow-clearance-observer-20261109'));subprocess.run(args,cwd=R/'build',check=True)
+line=next(x for x in lines if x.startswith(': && /usr/bin/c++') and '-dynamiclib' in x and ' -o lib/libmetalrobo.dylib ' in x);args=shlex.split(line[len(': && '):-len(' && :')]);lib=C/'libmetalrobo.dylib';args[args.index('-o')+1]=str(lib);args[args.index('CMakeFiles/metalrobo.dir/src/c_api.cpp.o')]=str(obj);args[args.index('CMakeFiles/metalrobo.dir/src/metal/MetalWorld.mm.o')]=str(B/'complete-observer/MetalWorld.mm.o');subprocess.run(args,cwd=R/'build',check=True)
+h=lambda p:hashlib.sha256(p.read_bytes()).hexdigest();(A/'toe-integration-build.json').write_text(json.dumps({'library_sha256':h(lib),'patch_sha256':h(A/'toe-integration-host.patch'),'plan_sha256':h(A/'toe-integration-plan.md')},indent=2)+'\n');print('built',lib,h(lib))

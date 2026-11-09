@@ -1,0 +1,8 @@
+In file included from artifacts/crow-v15-grip-search-20261109/resident_trace.cpp:2:
+artifacts/crow-v15-grip-search-20261109/../crow-v15-toe-prototype-20261109/toe_admission_armature.cpp:82:78: warning: non-void function does not return a value in all control paths [-Wreturn-type]
+   82 |   } catch(const std::exception& e){std::cerr<<e.what()<<std::endl;return 1;} }
+      |                                                                              ^
+artifacts/crow-v15-grip-search-20261109/resident_trace.cpp:9:91: error: 'auto' deduced as 'std::vector<float>' in declaration of 'q' and deduced as 'std::span<const MRBodyStateGPU>' (aka 'span<const MRBodyStateGPU>') in declaration of 'scene'
+    9 |  CompiledRun run;auto compile=compileRun(m,run);need(compile.succeeded(),compile.message);auto q=run.model().defaultQ,v=run.model().defaultV,scene=run.defaultSceneBodies();const unsigned nq=q.size(),nv=v.size();std::vector<float> commands(60*nv,0);
+      |                                                                                           ^      ~~~~~~~~~~~~~~~~~~~~                              ~~~~~~~~~~~~~~~~~~~~~~~~
+1 warning and 1 error generated.

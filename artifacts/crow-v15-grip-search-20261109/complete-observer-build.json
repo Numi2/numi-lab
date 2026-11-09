@@ -1,0 +1,6 @@
+{
+  "library_sha256": "e935492b70dd3b42c4cce5c3ea45c0869b14df7f4d7fd9e6433545419e1fc630",
+  "observer_patch_sha256": "4bd67de3d91ce7efcc6dfb333f5f28af5849b2b5470f23627f84db70c60c9909",
+  "materialization_patch_sha256": "fe7cdb9d99bae77f180b699efc1bcea9935929485bed61b3ab3ea87e43c4ad19",
+  "plan_sha256": "865a7b94edac1775732a81cc3cc6817ce168ce6576a34270bb7c9d72e5ecf527"
+}

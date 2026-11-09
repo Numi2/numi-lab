@@ -1,0 +1,293 @@
+{
+  "preintervention_max_abs_qv_difference_by_lane": [
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0
+  ],
+  "records_per_lane_window": 41,
+  "arms": {
+    "walk-launch-wings-off-control": [
+      {
+        "lane": 0,
+        "initial_q_at_first_observation": [
+          -0.00408058427,
+          -0.000128550208,
+          0.18439725,
+          -0.0146896737,
+          0.000875139027,
+          -5.86598544e-05,
+          0.999891698
+        ],
+        "max_vz_window_m_s": 0.000135343493,
+        "unloaded_upward_pair_first_steps": [],
+        "nonfoot_ground_contact_steps": [],
+        "first_episode_physical_failure": false,
+        "exploratory_endpoint_gate_pass": false
+      },
+      {
+        "lane": 1,
+        "initial_q_at_first_observation": [
+          -0.0253116433,
+          -0.00622478314,
+          0.184390113,
+          -0.00641584164,
+          -0.000292255078,
+          3.80157944e-05,
+          0.999979377
+        ],
+        "max_vz_window_m_s": 0.000123911886,
+        "unloaded_upward_pair_first_steps": [],
+        "nonfoot_ground_contact_steps": [],
+        "first_episode_physical_failure": false,
+        "exploratory_endpoint_gate_pass": false
+      },
+      {
+        "lane": 2,
+        "initial_q_at_first_observation": [
+          -0.000935993448,
+          -0.0315793641,
+          0.184085056,
+          0.0239532962,
+          8.55156832e-05,
+          -0.000170594445,
+          0.999713123
+        ],
+        "max_vz_window_m_s": 7.64183569e-05,
+        "unloaded_upward_pair_first_steps": [],
+        "nonfoot_ground_contact_steps": [],
+        "first_episode_physical_failure": false,
+        "exploratory_endpoint_gate_pass": false
+      },
+      {
+        "lane": 3,
+        "initial_q_at_first_observation": [
+          -0.00450005336,
+          0.0493284948,
+          0.184531361,
+          -0.0167275108,
+          -8.3994928e-05,
+          4.58823342e-06,
+          0.999860108
+        ],
+        "max_vz_window_m_s": 0.000122500103,
+        "unloaded_upward_pair_first_steps": [],
+        "nonfoot_ground_contact_steps": [],
+        "first_episode_physical_failure": false,
+        "exploratory_endpoint_gate_pass": false
+      },
+      {
+        "lane": 4,
+        "initial_q_at_first_observation": [
+          -0.00890382007,
+          -0.0366437063,
+          0.184836909,
+          0.0239539966,
+          0.000283283764,
+          5.18489242e-06,
+          0.999713004
+        ],
+        "max_vz_window_m_s": 0.000130765256,
+        "unloaded_upward_pair_first_steps": [],
+        "nonfoot_ground_contact_steps": [],
+        "first_episode_physical_failure": false,
+        "exploratory_endpoint_gate_pass": false
+      },
+      {
+        "lane": 5,
+        "initial_q_at_first_observation": [
+          -0.00276149367,
+          0.00712977862,
+          0.183793142,
+          -0.0277515482,
+          0.000501880655,
+          -2.97997849e-05,
+          0.999614716
+        ],
+        "max_vz_window_m_s": 0.000131089488,
+        "unloaded_upward_pair_first_steps": [],
+        "nonfoot_ground_contact_steps": [],
+        "first_episode_physical_failure": false,
+        "exploratory_endpoint_gate_pass": false
+      },
+      {
+        "lane": 6,
+        "initial_q_at_first_observation": [
+          0.0287134573,
+          -0.0263718367,
+          0.184549838,
+          0.0243420638,
+          -0.000320728985,
+          4.17223491e-05,
+          0.999703646
+        ],
+        "max_vz_window_m_s": 0.000142500474,
+        "unloaded_upward_pair_first_steps": [],
+        "nonfoot_ground_contact_steps": [],
+        "first_episode_physical_failure": false,
+        "exploratory_endpoint_gate_pass": false
+      },
+      {
+        "lane": 7,
+        "initial_q_at_first_observation": [
+          -0.0409336314,
+          -0.005213439,
+          0.184954479,
+          -0.0276630614,
+          0.000398087344,
+          -6.31242656e-05,
+          0.999617219
+        ],
+        "max_vz_window_m_s": 7.19556992e-05,
+        "unloaded_upward_pair_first_steps": [],
+        "nonfoot_ground_contact_steps": [],
+        "first_episode_physical_failure": false,
+        "exploratory_endpoint_gate_pass": false
+      }
+    ],
+    "walk-launch-wings-off-push": [
+      {
+        "lane": 0,
+        "initial_q_at_first_observation": [
+          -0.00408058427,
+          -0.000128550208,
+          0.18439725,
+          -0.0146896737,
+          0.000875139027,
+          -5.86598544e-05,
+          0.999891698
+        ],
+        "max_vz_window_m_s": 0.258556902,
+        "unloaded_upward_pair_first_steps": [],
+        "nonfoot_ground_contact_steps": [],
+        "first_episode_physical_failure": false,
+        "exploratory_endpoint_gate_pass": false
+      },
+      {
+        "lane": 1,
+        "initial_q_at_first_observation": [
+          -0.0253116433,
+          -0.00622478314,
+          0.184390113,
+          -0.00641584164,
+          -0.000292255078,
+          3.80157944e-05,
+          0.999979377
+        ],
+        "max_vz_window_m_s": 0.212102249,
+        "unloaded_upward_pair_first_steps": [],
+        "nonfoot_ground_contact_steps": [],
+        "first_episode_physical_failure": false,
+        "exploratory_endpoint_gate_pass": false
+      },
+      {
+        "lane": 2,
+        "initial_q_at_first_observation": [
+          -0.000935993448,
+          -0.0315793641,
+          0.184085056,
+          0.0239532962,
+          8.55156832e-05,
+          -0.000170594445,
+          0.999713123
+        ],
+        "max_vz_window_m_s": 0.211817384,
+        "unloaded_upward_pair_first_steps": [],
+        "nonfoot_ground_contact_steps": [],
+        "first_episode_physical_failure": false,
+        "exploratory_endpoint_gate_pass": false
+      },
+      {
+        "lane": 3,
+        "initial_q_at_first_observation": [
+          -0.00450005336,
+          0.0493284948,
+          0.184531361,
+          -0.0167275108,
+          -8.3994928e-05,
+          4.58823342e-06,
+          0.999860108
+        ],
+        "max_vz_window_m_s": 0.257568628,
+        "unloaded_upward_pair_first_steps": [],
+        "nonfoot_ground_contact_steps": [],
+        "first_episode_physical_failure": false,
+        "exploratory_endpoint_gate_pass": false
+      },
+      {
+        "lane": 4,
+        "initial_q_at_first_observation": [
+          -0.00890382007,
+          -0.0366437063,
+          0.184836909,
+          0.0239539966,
+          0.000283283764,
+          5.18489242e-06,
+          0.999713004
+        ],
+        "max_vz_window_m_s": 0.211913779,
+        "unloaded_upward_pair_first_steps": [],
+        "nonfoot_ground_contact_steps": [],
+        "first_episode_physical_failure": false,
+        "exploratory_endpoint_gate_pass": false
+      },
+      {
+        "lane": 5,
+        "initial_q_at_first_observation": [
+          -0.00276149367,
+          0.00712977862,
+          0.183793142,
+          -0.0277515482,
+          0.000501880655,
+          -2.97997849e-05,
+          0.999614716
+        ],
+        "max_vz_window_m_s": 0.257945895,
+        "unloaded_upward_pair_first_steps": [],
+        "nonfoot_ground_contact_steps": [],
+        "first_episode_physical_failure": false,
+        "exploratory_endpoint_gate_pass": false
+      },
+      {
+        "lane": 6,
+        "initial_q_at_first_observation": [
+          0.0287134573,
+          -0.0263718367,
+          0.184549838,
+          0.0243420638,
+          -0.000320728985,
+          4.17223491e-05,
+          0.999703646
+        ],
+        "max_vz_window_m_s": 0.212006748,
+        "unloaded_upward_pair_first_steps": [],
+        "nonfoot_ground_contact_steps": [],
+        "first_episode_physical_failure": false,
+        "exploratory_endpoint_gate_pass": false
+      },
+      {
+        "lane": 7,
+        "initial_q_at_first_observation": [
+          -0.0409336314,
+          -0.005213439,
+          0.184954479,
+          -0.0276630614,
+          0.000398087344,
+          -6.31242656e-05,
+          0.999617219
+        ],
+        "max_vz_window_m_s": 0.211756915,
+        "unloaded_upward_pair_first_steps": [],
+        "nonfoot_ground_contact_steps": [],
+        "first_episode_physical_failure": false,
+        "exploratory_endpoint_gate_pass": false
+      }
+    ]
+  },
+  "selected_lane_1_geometry": [],
+  "scope": "exploratory endpoint measurements; selected-lane clearance sampled only; perturbations are at initialization, not at launch; walk-to-launch development screen; no autonomous route, articulated toes or grip"
+}
