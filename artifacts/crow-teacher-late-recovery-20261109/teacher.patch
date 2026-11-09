@@ -1,0 +1,16 @@
+--- a/src/metal/LocomotionTask.metal
++++ b/development/teacher-route-recovery.metal
+@@ -6631,7 +6631,13 @@
+             float landingPhase = state.threatTeacher.w;
+             float desiredLateral = lateralCommand;
+             float desiredHeight = heightTarget;
++            // Recovery only after passing a later waypoint; slalom approach
++            // remains the original qualified teacher behavior.
+             float errorOffset = 0.0f;
++            if (wp >= 3u && pos.x > target.x + 0.10f) {
++                const float recoveryForward = clamp(0.55f * (target.x - pos.x), -0.20f, 0.25f);
++                errorOffset = 0.25f - recoveryForward;
++            }
+             if (landing) {
+                 const float3 perch = sceneState[sceneBase+course+4u].position.xyz;
+                 const float3 landingTarget = perch + float3(0.0f,0.55f,0.0f);
