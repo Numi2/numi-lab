@@ -1,0 +1,5 @@
+# Exploratory lateral feedback sign test
+
+Question: does the existing +0.80 lateral-speed coefficient in the bounded bank correction reinforce the lateral drift seen at increased reversed-bank gain? Compare replacing it by 0.00 and -0.80, matched against the +0.80 bank-1.40 arm. Keep heading coefficient +1.40, yaw damping +0.12, bounded correction +/-0.45, speed trim +0.55/-0.55, 0.70 m/s reference, all physical and actuator limits, same five commands, 32 lane starts, 1600-step horizon and development seed 20261111. Only accepted-state samples before each first-episode termination count.
+
+Prediction: one alternative decreases median across -0.03 lanes of the per-lane maximum absolute yaw-frame lateral speed over sampled 12–32 s by at least 0.30 m/s compared with +0.80, without increasing median maximum heading error or introducing physical terminations in those lanes. Report all modes, first-episode failures and strict screen outcomes. Zero simulator failed steps and complete samples are validity requirements. Stop after the two alternatives. This is an exploratory system-identification test, not a qualification trial.

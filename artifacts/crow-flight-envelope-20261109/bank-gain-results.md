@@ -1,0 +1,3 @@
+# Reversed-bank gain exploration
+
+Median maximum heading error in -0.03 rad/s lanes fell from 0.497 rad at gain +0.70 to 0.434 at +1.40 and 0.343 at +2.80; the +2.80 arm met the preregistered 0.10 rad improvement condition for that mode with no failures in those lanes. However +2.80 caused physical failure in all six -0.06 lanes and one +0.03 lane, so it is rejected as a flight candidate. The +1.40 arm had no physical terminations in 32 lanes but no additional lanes passed the strict screen. In the -0.06 lanes, +1.40 generated large lateral velocity; the +2.80 arm's first episodes terminated during stronger lateral runaway. Data after automatic episode reset is not evidence for the failed episode.
