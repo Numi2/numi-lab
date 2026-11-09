@@ -1,0 +1,22 @@
+{
+  "area_sum_abs_error_m2": 1.9199930003082483e-11,
+  "area_sum_m2": 0.00039999998080007,
+  "area_valid": true,
+  "arm": "ipc_area_midpoint",
+  "binned_force_error": 4.8068089866866533e-05,
+  "complete": true,
+  "cumulative_impulse_error": 1.4945214609016474e-05,
+  "cumulative_reference_sampling_seconds": 2e-06,
+  "h": 3.90625e-06,
+  "maximum_weight_error_normalized_area": 2.471100000885323e-09,
+  "mesh": 8,
+  "native_impulse_Ns": 0.0005108273470332929,
+  "native_peak_force_N": 0.231937551803,
+  "passes": true,
+  "peak_force_error": 0.000639436970305249,
+  "peak_sampling_seconds": 3.90625e-06,
+  "physical_valid": true,
+  "reference_impulse_Ns": 0.0005108271248870275,
+  "reference_peak_force_N": 0.23208595614364688,
+  "total_impulse_error": 4.348756253061225e-07
+}
