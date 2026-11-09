@@ -22,3 +22,18 @@ has not been built or run with full MetalWorld and Matter shader libraries, so
 it establishes no whole-environment restoration, force accuracy, work
 convergence, torque balance, or spatial convergence. All predeclared gates
 remain in force and the production guard remains closed.
+
+The first fixture draft incorrectly initialized the slider at rest. Before any
+native run, review against `fem_slider_fp64_reference.cpp` caught this mismatch;
+it now uses the reference's 0.02 m/s upward initial velocity. It also requires
+the two compensated midpoint diagnostic settings, emits the actual float
+timestep, contact coefficient, activation width and every reference-area
+weight, and records an independent combined FEM/rigid physical residual.
+
+`tests/contact/analyze_native_slider.py` applies the preregistered temporal,
+force, impulse, clearance, balance and residual gates; it separately reports
+contact work and does not invent a work threshold. A synthetic trace produced
+from the retained reference passed, while separate injected impulse, torque
+and residual failures were rejected by
+`tests/contact/test_analyze_native_slider.py`. This checks analysis behavior,
+not native physics.

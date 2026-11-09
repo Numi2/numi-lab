@@ -57,7 +57,7 @@ static metalrobo::EngineModel makeSlider(float h){
  MRJointDescriptorGPU j{};j.parentBody=0;j.childBody=1;j.jointType=MR_JOINT_PRISMATIC;
  j.nq=1;j.nv=1;j.axis0={0,0,1,0};j.parentRotation={0,0,0,1};j.childRotation={0,0,0,1};m.joints.push_back(j);
  MRDofPropertiesGPU d{};d.articulationIndex=0;d.jointIndex=0;m.dofs.push_back(d);
- m.defaultQ={0};m.defaultV={0};return m;
+ m.defaultQ={0};m.defaultV={.02f};return m;
 }
 int main(int argc,char**argv){@autoreleasepool{try{
  require(argc==6 || argc==7,"usage: midpoint_slider_coupled_diagnostic MATTER_METALLIB WORLD_METALLIB h initial_gap steps [rollback|rollback_precontact]");
@@ -66,6 +66,10 @@ int main(int argc,char**argv){@autoreleasepool{try{
  require(argc==6 || rollback,"unknown diagnostic mode");
  const double h=std::stod(argv[3]),gap=std::stod(argv[4]);const int steps=std::stoi(argv[5]);
  require(h>0&&gap>0&&(steps>0 || (precontact && steps==0)),"invalid fixture arguments");
+ for(const char* key:{"NM_MATTER_MIDPOINT_VELOCITY_COMPENSATION","NM_MATTER_MIDPOINT_STAGE_COMPENSATION"}) {
+  const char* value=std::getenv(key);
+  require(value && std::strcmp(value,"1")==0,std::string("required diagnostic mode missing: ")+key);
+ }
  const auto femWorld=model(2,h,gap,true,false,true,0.,1.,true);
  numi::matter::RuntimeConfiguration mc;mc.metallib=argv[1];mc.environmentCount=1;mc.captureDiagnostics=true;
  mc.adaptiveTransfer=false;mc.experimentalFEMPlaneAreaIPC=true;mc.experimentalFEMPlaneMidpoint=true;
@@ -85,6 +89,9 @@ int main(int argc,char**argv){@autoreleasepool{try{
  config.matrixFreeArticulatedContact=false;config.streamedArticulatedContactResponses=false;config.captureContactEvidence=false;
  config.devicePhysicsProgram=program;std::vector<float> q=rigid.defaultQ,v=rigid.defaultV,effort(1,0.f);
  auto previous=matter.snapshot();require(previous.available,"initial snapshot unavailable");
+ std::vector<float> area;std::string areaError;
+ require(numi::matter::detail::femFixedPlaneReferenceAreas(femWorld,area,areaError),"reference areas: "+areaError);
+ double totalArea=0;for(float value:area)totalArea+=double(value);
  if(rollback){
   // Warm up through real accepted contact. The selected checkpoint, candidate,
   // forced late rejection and subsequent retry all use the same two owners.
@@ -126,7 +133,17 @@ int main(int argc,char**argv){@autoreleasepool{try{
   return 0;
  }
  std::cout<<std::setprecision(17)<<"{\"schema\":\"numi.slider-coupled-diagnostic.v1\",\"h\":"<<physicalH
-   <<",\"initial_gap\":"<<gap<<",\"matter_fingerprint\":"<<matter.deviceProgramFingerprint()<<",\"steps\":[";
+   <<",\"initial_gap\":"<<gap<<",\"matter_fingerprint\":"<<matter.deviceProgramFingerprint()
+   <<",\"source_fingerprint\":"<<femWorld.physicsFingerprint
+   <<",\"slider_mass_kg\":"<<sliderMass<<",\"initial_slider_velocity_mps\":"<<double(rigid.defaultV[0])
+   <<",\"reference_area_m2\":"<<totalArea
+   <<",\"activation_width_m\":"<<femWorld.dispatch.numericalLimits.x
+   <<",\"contact_coefficient\":"<<mc.experimentalFEMPlaneAreaIPCK
+   <<",\"reference_area_weights_m2\":[";
+ for(std::size_t i=0;i<area.size();++i)std::cout<<(i?",":"")<<area[i];
+ std::cout<<"],\"physical_residual_limit_Ns\":"<<2.0*(double(femWorld.mixedSolver.contactAcceptance.y)+
+       double(femWorld.mixedSolver.contactAcceptance.z)*femWorld.mixedSolver.contactAcceptance.w)
+   <<",\"steps\":[";
  for(int step=0;step<steps;step++){
   const auto startQ=q,startV=v;const metalrobo::MetalWorldBatch batch{.environmentCount=1,.controlStepCount=1,
     .initialQ=q,.initialV=v,.efforts=effort};metalrobo::MetalWorldResult result;
@@ -136,7 +153,8 @@ int main(int argc,char**argv){@autoreleasepool{try{
   if(step)std::cout<<",";std::cout<<"{\"step\":"<<step<<",\"accepted\":"<<(accepted?"true":"false")
    <<",\"world_status\":"<<ran.firstGPUStatusCode<<",\"matter_status\":"<<now.statuses[0].code;
   if(!accepted){std::cout<<",\"failure_index\":"<<now.statuses[0].failingIndex<<"}";break;}
-  require(result.finalQ.size()==1&&result.finalV.size()==1&&obs.wrench&&obs.support,"missing owner data");
+  require(result.finalQ.size()==1&&result.finalV.size()==1&&obs.wrench&&obs.support &&
+      now.solverCertificates.size()==1,"missing owner data or certificate");
   q=result.finalQ;v=result.finalV;const auto body=*static_cast<const MRABABodyWrenchGPU*>(obs.wrench.contents);
   const auto support=*static_cast<const MRABABodyWrenchGPU*>(obs.support.contents);
   double impulse=0,torqueX=0,torqueY=0,work=0,low=1e100;
@@ -150,12 +168,22 @@ int main(int argc,char**argv){@autoreleasepool{try{
   for(const auto& n:now.femNodes)low=std::min(low,double(n.restAndFixed.z)+n.referenceDisplacementAndMode.z+n.referenceDisplacementLow.z-double(q[0]));
   const double ownerImpulse=sliderMass*(double(v[0])-double(startV[0]))-physicalH*sliderMass*sliderGravity;
   const double ownerWork=ownerImpulse*.5*(double(startV[0])+double(v[0]));
+  const auto independent=fixtureResidual(femWorld,previous,now,physicalH,true);
+  const double ownerResidual=ownerImpulse-double(body.force.z)*physicalH;
+  const double jointResidual=std::hypot(independent.l2,ownerResidual);
+  const double sliderKinematic=double(q[0])-double(startQ[0])-
+      physicalH*.5*(double(startV[0])+double(v[0]));
   std::cout<<",\"gap\":"<<low<<",\"q\":"<<q[0]<<",\"v\":"<<v[0]<<",\"fem_impulse\":"<<impulse
    <<",\"owner_momentum_impulse\":"<<ownerImpulse<<",\"owner_wrench_impulse\":"<<double(body.force.z)*physicalH
    <<",\"fem_torque_impulse_x\":"<<torqueX<<",\"fem_torque_impulse_y\":"<<torqueY
    <<",\"owner_moment_impulse_x\":"<<double(body.torque.x)*physicalH<<",\"owner_moment_impulse_y\":"<<double(body.torque.y)*physicalH
    <<",\"support_moment_impulse_x\":"<<double(support.torque.x)*physicalH<<",\"support_moment_impulse_y\":"<<double(support.torque.y)*physicalH
-   <<",\"fem_contact_work\":"<<work<<",\"owner_contact_work\":"<<ownerWork<<"}";
+   <<",\"fem_contact_work\":"<<work<<",\"owner_contact_work\":"<<ownerWork
+   <<",\"independent_fem_residual_Ns\":"<<independent.l2
+   <<",\"independent_joint_residual_Ns\":"<<jointResidual
+   <<",\"fem_kinematic_defect_m\":"<<independent.kinematic
+   <<",\"slider_kinematic_defect_m\":"<<sliderKinematic
+   <<",\"solver_contact_potential_J\":"<<now.solverCertificates[0].contact.w<<"}";
   previous=std::move(now);
  }
  std::cout<<"]}\n";return 0;
