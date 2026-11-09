@@ -1,7 +1,7 @@
 from pathlib import Path
 import gzip,hashlib,json,os,subprocess
 R=Path.cwd();A=R/'artifacts/crow-four-expert-native-integration-20261109';B=R/'build/crow-four-expert-native-integration-20261109';O=R/'build/crow-four-native-observer-20261109'
-prior=R/'artifacts/crow-four-expert-eval-20261109/stage4-independent-20-landing-baseline/reserved-final-c-seed-20860117';d=json.loads((prior/'results.json').read_text());cmd=d['argv'].copy()
+prior=R/'artifacts/crow-four-expert-eval-20261109/stage4-independent-20-stage3-mix50-landing-baseline/reserved-final-c-seed-20860117';d=json.loads((prior/'results.json').read_text());cmd=d['argv'].copy()
 for k,v in [('--birdflow-journey-variant','v15-triple-waypoint-expert-navigation'),('--metallib',str(R/'build/shaders/MetalRobo.metallib')),('--policy-pack',str(B/'landing.policypack')),('--base-policy-pack',str(B/'route.policypack'))]:cmd[cmd.index(k)+1]=v
 runs={}
 for mode in ['ordinary','observer']:

@@ -3,7 +3,7 @@ import gzip,hashlib,json,os,shutil,subprocess
 import numpy as np
 from metalrobo.mlx_policy_learning import read_policy_rollout_pack
 R=Path.cwd();A=R/'artifacts/crow-four-expert-native-integration-20261109';B=R/'build/crow-four-expert-native-integration-20261109';lib=R/'build/crow-four-native-observer-20261109/libmetalrobo.dylib'
-cmd=json.loads((R/'artifacts/crow-four-expert-eval-20261109/stage4-independent-20-landing-baseline/reserved-final-c-seed-20860117/results.json').read_text())['argv'].copy()
+cmd=json.loads((R/'artifacts/crow-four-expert-eval-20261109/stage4-independent-20-stage3-mix50-landing-baseline/reserved-final-c-seed-20860117/results.json').read_text())['argv'].copy()
 for k,v in [('--birdflow-journey-variant','v15-triple-waypoint-expert-navigation'),('--metallib',str(R/'build/shaders/MetalRobo.metallib')),('--policy-pack',str(B/'landing.policypack')),('--base-policy-pack',str(B/'route.policypack')),('--envs','4'),('--steps','2000'),('--seed','20270308')]:cmd[cmd.index(k)+1]=v
 env={**os.environ,'CROW_CONTACT_TRACE':'1','DYLD_LIBRARY_PATH':str(lib.parent),'PYTHONDONTWRITEBYTECODE':'1'}
 runs={}

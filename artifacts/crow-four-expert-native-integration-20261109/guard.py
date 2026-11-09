@@ -8,7 +8,7 @@ src=read_policy_pack(R/'build/crow-stage2-adapter-training-20261109/recovery-imi
 def ls(xs):return [PolicyDenseLayerArtifact(weights=x.weights,bias=x.bias,activation=x.activation) for x in xs]
 pack=B/'incompatible-stochastic.policypack'
 write_policy_pack(pack,policy_id='crow_expert_guard_test',revision=src.revision+1,contract_version=src.contract_version,world_fingerprint=f['world'],task_fingerprint=f['task'],observation_fingerprint=f['observation'],action_fingerprint=f['action'],layers=ls(src.layers),critic_layers=ls(src.critic_layers),observation_mean=src.observation_mean,observation_inverse_standard_deviation=src.observation_inverse_standard_deviation,critic_observation_mean=src.critic_observation_mean,critic_observation_inverse_standard_deviation=src.critic_observation_inverse_standard_deviation,action_log_standard_deviation=src.action_log_standard_deviation,action_bias=src.action_bias,action_scale=src.action_scale,observation_clip=src.observation_clip,action_clip=src.action_clip,library_path=str(lib))
-cmd=json.loads((R/'artifacts/crow-four-expert-eval-20261109/stage4-independent-20-landing-baseline/reserved-final-c-seed-20860117/results.json').read_text())['argv'].copy()
+cmd=json.loads((R/'artifacts/crow-four-expert-eval-20261109/stage4-independent-20-stage3-mix50-landing-baseline/reserved-final-c-seed-20860117/results.json').read_text())['argv'].copy()
 i=cmd.index('--base-policy-pack');del cmd[i:i+2]
 for k,v in [('--birdflow-journey-variant','v15-triple-waypoint-expert-navigation'),('--metallib',str(R/'build/shaders/MetalRobo.metallib')),('--steps','1'),('--policy-pack',str(pack))]:cmd[cmd.index(k)+1]=v
 env={**os.environ,'DYLD_LIBRARY_PATH':str(lib.parent)}

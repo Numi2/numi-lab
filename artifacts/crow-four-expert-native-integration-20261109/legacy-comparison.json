@@ -1,0 +1,10 @@
+{
+  "steps": 800,
+  "q_max_absolute_difference": 0.0,
+  "q_exact": true,
+  "first_episode_equal": true,
+  "legacy_shader_sha256": "e87bab9bd0ac5dce28dd0c352beb75fa0c4c1999ffd3e912830f48a9cc2bd139",
+  "legacy_library_sha256": "db32ee38c85bc94f78fad45f2f84c008d52508b067b94bd07e8cf956c1bcfa62",
+  "production_shader_sha256": "55e5ef0a0f34ea39e9f42dd8c45dc429d1ec1bc36d408a2de7f27e304845d731",
+  "production_library_sha256": "a8abac2c7a836a85c4d9b924c4618e7b4b6367f98073f89ccb98a54c9b2ad366"
+}

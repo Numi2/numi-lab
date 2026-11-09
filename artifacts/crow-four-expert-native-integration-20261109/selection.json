@@ -1,0 +1,83 @@
+{
+  "candidate": "stage4-independent-20-stage3-mix50",
+  "selection_scope": "development data only; layouts G and H remain unused",
+  "seed_sets": [
+    {
+      "course": "held-out-a",
+      "seed": 20270306,
+      "supported": 15,
+      "physical_failures": 1,
+      "failed_environment_steps": 0,
+      "results": "artifacts/crow-four-expert-eval-20261109/stage4-independent-20-stage3-mix50-landing-baseline/held-out-a-seed-20270306/results.json"
+    },
+    {
+      "course": "held-out-b",
+      "seed": 20270307,
+      "supported": 16,
+      "physical_failures": 0,
+      "failed_environment_steps": 0,
+      "results": "artifacts/crow-four-expert-eval-20261109/stage4-independent-20-stage3-mix50-landing-baseline/held-out-b-seed-20270307/results.json"
+    },
+    {
+      "course": "reserved-final-c",
+      "seed": 20860117,
+      "supported": 15,
+      "physical_failures": 1,
+      "failed_environment_steps": 0,
+      "results": "artifacts/crow-four-expert-eval-20261109/stage4-independent-20-stage3-mix50-landing-baseline/reserved-final-c-seed-20860117/results.json"
+    },
+    {
+      "course": "reserved-final-d",
+      "seed": 20860118,
+      "supported": 16,
+      "physical_failures": 0,
+      "failed_environment_steps": 0,
+      "results": "artifacts/crow-four-expert-eval-20261109/stage4-independent-20-stage3-mix50-landing-baseline/reserved-final-d-seed-20860118/results.json"
+    },
+    {
+      "course": "reserved-final-e",
+      "seed": 20270403,
+      "supported": 16,
+      "physical_failures": 0,
+      "failed_environment_steps": 0,
+      "results": "artifacts/crow-four-expert-eval-20261109/stage4-independent-20-stage3-mix50-landing-baseline/reserved-final-e-seed-20270403/results.json"
+    },
+    {
+      "course": "reserved-final-e",
+      "seed": 3212483193,
+      "supported": 15,
+      "physical_failures": 0,
+      "failed_environment_steps": 0,
+      "results": "artifacts/crow-four-expert-eval-20261109/stage4-independent-20-stage3-mix50-landing-baseline/reserved-final-e-seed-3212483193/results.json"
+    },
+    {
+      "course": "reserved-final-f",
+      "seed": 20270404,
+      "supported": 16,
+      "physical_failures": 0,
+      "failed_environment_steps": 0,
+      "results": "artifacts/crow-four-expert-eval-20261109/stage4-independent-20-stage3-mix50-landing-baseline/reserved-final-f-seed-20270404/results.json"
+    },
+    {
+      "course": "reserved-final-f",
+      "seed": 3614144078,
+      "supported": 16,
+      "physical_failures": 0,
+      "failed_environment_steps": 0,
+      "results": "artifacts/crow-four-expert-eval-20261109/stage4-independent-20-stage3-mix50-landing-baseline/reserved-final-f-seed-3614144078/results.json"
+    },
+    {
+      "course": "training",
+      "seed": 20270305,
+      "supported": 16,
+      "physical_failures": 0,
+      "failed_environment_steps": 0,
+      "results": "artifacts/crow-four-expert-eval-20261109/stage4-independent-20-stage3-mix50-landing-baseline/training-seed-20270305/results.json"
+    }
+  ],
+  "supported_total": 141,
+  "trials_total": 144,
+  "evidence_caveat": "seed-specific results are not independent final assessment",
+  "rejected_candidate": "mix25 yielded 14/16 on development layout E with seed 3212483193; its next partial diagnostic was stopped without scoring",
+  "previous_seed_output_correction": "A prior comparison wrote two seed sets to the same path; final candidate trials are preserved in seed-specific directories; the affected comparison was rerun."
+}
