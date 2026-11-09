@@ -1,0 +1,17 @@
+{
+  "physical_failures": 58,
+  "waypoint_distribution": {
+    "0": 0,
+    "1": 36,
+    "2": 17,
+    "3": 5,
+    "4": 1,
+    "5": 5
+  },
+  "lanes_by_final_published_contact_pair": {
+    "crow_right_wing / crow_course_slalom_b": 5,
+    "crow_left_wing / crow_course_slalom_a": 17,
+    "crow_right_wing / crow_course_gate_right": 36
+  },
+  "scope": "candidate final-substep contacts, not unique first fatal microstep"
+}
