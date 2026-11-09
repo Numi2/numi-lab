@@ -1,0 +1,22 @@
+{
+  "old_pack_rejected": true,
+  "world": 6840128802941214577,
+  "task": 14842793109457370156,
+  "observation": 15825595134705776931,
+  "action": 3705052593810635848,
+  "actors": [
+    {
+      "label": "route",
+      "source_sha256": "b88816da503d43b78a64bceae95d9423c013752fa16033df9c613bd74667bb42",
+      "rebound_sha256": "c4fc084d6ba9fd526f8ec0687766d0efa83b8ebddc1edcd288e92d129ab345bc",
+      "actor_weights_and_transforms_equal": true
+    },
+    {
+      "label": "landing",
+      "source_sha256": "31cb9a75dcd1e4359beb0b1dae83dc876723e2f3d54b2d2a7947b0668146c9f9",
+      "rebound_sha256": "cfe0fce093baddcd41e7547fb5ebe0486280c84882a1a38c1a72fc59d3bc4cc4",
+      "actor_weights_and_transforms_equal": true
+    }
+  ],
+  "scope": "unqualified warm start with changed contact observations"
+}

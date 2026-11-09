@@ -1,0 +1,5 @@
+# Physical toe support integration trial
+
+All four one-lane first episodes reached five waypoints but failed physically before the 55 s release command. On layout I both force-aware and sensor-zero arms hit the branch with the body. On layout J the active arm produced 148 consecutive accepted samples (about 2.96 s) of opposing fore/rear toe normal impulses independently on both feet, then the body pitched to approximately 69 degrees and terminated. The sensor-zero arm had no consecutive opposing-load event and later failed. None completed the required supported finish or release, and the layouts had already been used in development.
+
+Toe collisions were added to the existing per-foot physical support groups. The input and action operator bytes remained unchanged, but the support observations themselves intentionally changed; the unchanged actor weights were only an unqualified warm start. The small branch is a new environment, not the original 20 cm perch. No production or biological qualification is implied.
