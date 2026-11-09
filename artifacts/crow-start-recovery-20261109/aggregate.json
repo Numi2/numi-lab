@@ -1,0 +1,60 @@
+{
+  "n": 240,
+  "pass_count": 240,
+  "physical_failures": 0,
+  "failed_environment_steps": [
+    0,
+    0,
+    0
+  ],
+  "by_perturbation": [
+    {
+      "perturbation": 0,
+      "count": 30,
+      "passed": 30,
+      "physical_failures": 0
+    },
+    {
+      "perturbation": 1,
+      "count": 30,
+      "passed": 30,
+      "physical_failures": 0
+    },
+    {
+      "perturbation": 2,
+      "count": 30,
+      "passed": 30,
+      "physical_failures": 0
+    },
+    {
+      "perturbation": 3,
+      "count": 30,
+      "passed": 30,
+      "physical_failures": 0
+    },
+    {
+      "perturbation": 4,
+      "count": 30,
+      "passed": 30,
+      "physical_failures": 0
+    },
+    {
+      "perturbation": 5,
+      "count": 30,
+      "passed": 30,
+      "physical_failures": 0
+    },
+    {
+      "perturbation": 6,
+      "count": 30,
+      "passed": 30,
+      "physical_failures": 0
+    },
+    {
+      "perturbation": 7,
+      "count": 30,
+      "passed": 30,
+      "physical_failures": 0
+    }
+  ]
+}

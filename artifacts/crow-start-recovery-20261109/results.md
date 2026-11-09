@@ -1,0 +1,3 @@
+# Perturbed ground-start results
+
+All 240 first episodes across three development seeds passed the preregistered sampled flight-command screen: zero physical failures and zero failed environment steps. Every one of the eight start conditions passed 30/30; every one of the five commands passed 48/48. The combined climb and descent remain about 0.40 m apart in median sampled altitude. The step-one trace for lane 1 in each run records a perturbed start; complete sampled q, v, actions, first-episode outcomes, source patch and shader/policy identities are retained. These were modest initial disturbances before takeoff, with obstacle collisions disabled. They do not establish airborne disturbance recovery, continuous clearance, qualified navigation or landing.
