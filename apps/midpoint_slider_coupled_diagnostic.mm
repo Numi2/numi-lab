@@ -14,6 +14,7 @@ struct SliderObservation {
 };
 static bool observeSlider(void* opaque,const metalrobo::MetalWorldDevicePhysicsPass& pass){
  auto& o=*static_cast<SliderObservation*>(opaque);
+ if(std::getenv("NM_SLIDER_ENCODE_DIAGNOSTICS")) std::cerr << "slider callback phase=" << static_cast<unsigned>(pass.phase) << " begin\n";
  if(o.injectLateFailure && pass.phase==metalrobo::MetalWorldDevicePhysicsPhase::postCommit){
   id<MTLCommandBuffer> cmd=(__bridge id<MTLCommandBuffer>)pass.commandBuffer;
   id<MTLBuffer> dst=(__bridge id<MTLBuffer>)pass.environmentStatuses;
@@ -24,7 +25,8 @@ static bool observeSlider(void* opaque,const metalrobo::MetalWorldDevicePhysicsP
   [inject copyFromBuffer:src sourceOffset:0 toBuffer:dst destinationOffset:0 size:sizeof(failure)];[inject endEncoding];
   [cmd addCompletedHandler:^(id<MTLCommandBuffer> done){(void)done;(void)src;}];
  }
- if(!o.inner.encode(o.inner.context,pass))return false;
+ if(!o.inner.encode(o.inner.context,pass)){std::cerr << "slider inner encode failed phase=" << static_cast<unsigned>(pass.phase) << "\n";return false;}
+ if(std::getenv("NM_SLIDER_ENCODE_DIAGNOSTICS")) std::cerr << "slider inner encode succeeded phase=" << static_cast<unsigned>(pass.phase) << "\n";
  if(pass.phase!=metalrobo::MetalWorldDevicePhysicsPhase::postCommit)return true;
  id<MTLCommandBuffer> command=(__bridge id<MTLCommandBuffer>)pass.commandBuffer;
  id<MTLBuffer> wrench=(__bridge id<MTLBuffer>)pass.bodyWrenches;

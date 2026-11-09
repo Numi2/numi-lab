@@ -1,6 +1,10 @@
 #include "numi/matter/metal_world.hpp"
 
 #include <cmath>
+#ifdef NM_ENABLE_UNQUALIFIED_SLIDER_DIAGNOSTIC
+#include <cstdio>
+#include <cstdlib>
+#endif
 
 static_assert(
     NM_MATTER_MAX_ARTICULATED_DOFS >= MR_ARTICULATED_ABA_MAX_DOFS,
@@ -182,7 +186,10 @@ bool encodeMetalWorldDevicePhysics(
     const bool firstPrePass =
         request.phase == EncodePhase::preDynamics &&
         matterPhysicsSubstep == 0u;
-    request.resetMasks = firstPrePass ? pass.resetMasks : nullptr;
+    // MetalWorld supplies a placeholder when no reset stream exists.
+    // The stride identifies whether there is a live reset stream.
+    request.resetMasks = firstPrePass && pass.resetMaskStepStride != 0u
+        ? pass.resetMasks : nullptr;
     request.resetMaskStepStride = firstPrePass
         ? pass.resetMaskStepStride
         : 0u;
@@ -207,7 +214,13 @@ bool encodeMetalWorldDevicePhysics(
         runtime.adaptiveTransferEnabled() &&
         request.phase == EncodePhase::postCommit &&
         matterPhysicsSubstep + 1u == matterPhysicsSubsteps;
-    return runtime.encode(request).encoded;
+    const auto diagnostics = runtime.encode(request);
+#ifdef NM_ENABLE_UNQUALIFIED_SLIDER_DIAGNOSTIC
+    if (!diagnostics.encoded && std::getenv("NM_SLIDER_ENCODE_DIAGNOSTICS") != nullptr) {
+        std::fprintf(stderr, "Matter borrowed encode failed: %s\n", diagnostics.message.c_str());
+    }
+#endif
+    return diagnostics.encoded;
 }
 
 namespace {
