@@ -1,0 +1,12 @@
+{
+  "head": "81f393745e7b57d15073d2f3b3d8b056629bfabd",
+  "remote": "81f393745e7b57d15073d2f3b3d8b056629bfabd",
+  "source_manifest": "artifacts/crow-flight-envelope-recovery-20261109/manifest.json",
+  "source_manifest_sha256": "989fcd94a5a9170b8bd78d2335ad581b3f373490f061ef0674e12dd2dde10b29",
+  "removed_copy_root": "build/crow-phase-restore-20261109",
+  "files_verified_and_removed": 150,
+  "logical_bytes": 253385549,
+  "open_handles": 0,
+  "df_before": "Filesystem   1024-blocks      Used Available Capacity iused      ifree %iused  Mounted on\n/dev/disk3s5   482797652 301810164 155538976    66% 3503401 1555389760    0%   /System/Volumes/Data\n",
+  "df_after": "Filesystem   1024-blocks      Used Available Capacity iused      ifree %iused  Mounted on\n/dev/disk3s5   482797652 301562408 155786732    66% 3503245 1557867320    0%   /System/Volumes/Data\n"
+}
