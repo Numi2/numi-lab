@@ -1,0 +1,99 @@
+--- a/src/metal/LocomotionTask.metal
++++ b/src/metal/LocomotionTask.metal
+@@ -4644,18 +4644,14 @@
+     const float yawRate = straightCruise || navigation
+         ? state.commandExtension.y
+         : state.threatGeometry.z;
++    const float targetRoll = clamp(0.25f * lateralSpeedError, -0.12f, 0.12f);
+     const float navigationBankCorrection = navigation
+-        ? clamp(
+-              -0.70f * headingError + 0.12f * yawRate +
+-                  0.18f * lateralSpeedError,
+-              -0.45f,
+-              0.45f
+-          )
++        ? clamp(1.50f * (targetRoll - state.threatTeacher.y) - 0.25f * state.threatTeacher.z, -0.45f, 0.45f)
+         : 0.0f;
+     const float navigationPitchTarget = navigation
+         ? clamp(
+               0.10f + 0.35f * heightError -
+-                  0.12f * verticalRate,
++                  0.12f * verticalRate - 1.20f * forwardSpeedError,
+               -0.25f,
+               0.25f
+           )
+@@ -4750,7 +4746,7 @@
+     if ((straightCruise || navigation) &&
+         action == 13u && airborne) {
+         return clamp(
+-            3.00f * headingError - 0.50f * yawRate -
++            16.00f * headingError - 0.50f * yawRate -
+                 (navigation ? 0.35f * lateralSpeedError : 0.0f),
+             -1.00f,
+             1.00f
+@@ -4961,27 +4957,13 @@
+                   0.45f
+               )
+             : 0.0f;
+-        const float navigationTeacherRequested = !avianNavigationTeacher
+-            ? teacherRequested
+-            : action == 0u || action == 4u
+-            ? clamp(
+-                  studentRequested +
+-                      (action == 0u ? 1.0f : 0.5f) *
+-                          navigationWingResidual,
+-                  -1.0f,
+-                  1.0f
+-              )
+-            : action == 1u || action == 5u
+-            ? clamp(
+-                  studentRequested -
+-                      (action == 1u ? 1.0f : 0.5f) *
+-                          navigationWingResidual,
+-                  -1.0f,
+-                  1.0f
+-              )
+-            : action == 13u
+-            ? teacherRequested
+-            : studentRequested;
++        float navigationTeacherRequested = avianNavigationTeacher && action >= 15u
++            ? studentRequested : teacherRequested;
++        if (avianNavigationTeacher && float(state.episode.x) * dispatch.timing.x >= 6.0f && (action == 4u || action == 5u)) {
++            const float speedBias = 0.55f;
++            navigationTeacherRequested = clamp(navigationTeacherRequested + (action == 4u ? speedBias : -speedBias), -1.0f, 1.0f);
++        }
++        if (avianNavigationTeacher && float(state.episode.x) * dispatch.timing.x >= 6.0f && action == 13u) navigationTeacherRequested = 1.00f;
+         // Keep the training-only teacher active through the final target.
+         // Ending at waypoint four taught an aggressive approach crossing but
+         // handed the student a poor terminal arrival geometry. Autonomous
+@@ -5076,6 +5058,7 @@
+             filterSlot * program.counts0.x +
+             action
+         ];
++        if (avianJourneyTeacher) { teacherActions[actionBase + action] = filtered; }
+         if (binding.actuator.x != MR_TASK_ACTUATOR_JOINT_POSITION &&
+             binding.actuator.x != MR_TASK_ACTUATOR_GRIPPER_POSITION &&
+             binding.actuator.x != MR_TASK_ACTUATOR_FLAPPING_POSITION) {
+@@ -6535,6 +6518,22 @@
+             state.commandAndPhase.xyz = float3(0.0f);
+             state.commandExtension.xyz = float3(0.0f);
+         }
++    }
++    // Exploratory fixed-command flight bench. Not a deployment controller.
++    if ((program.schedule.w & MR_TASK_PROGRAM_AVIAN_CROW_NAVIGATION_FLIGHT_PHASE) != 0u) {
++        const uint mode = environment % 5u;
++        const float seconds = float(state.episode.x + 1u) * dispatch.timing.x;
++        const float rate = 0.0f;
++        const float desired = rate * max(seconds - 6.0f, 0.0f);
++        const float heading = atan2(yawBasis.y, yawBasis.x);
++        const float error = atan2(sin(desired-heading), cos(desired-heading));
++        state.commandAndPhase.xyz = float3(0.70f, 0.0f, rate);
++        state.commandExtension.xyz = float3(error, baseAngular.z, yawFrameLinear.x);
++        state.threatGeometry.x = 0.85f - rootWorldPosition(program, q).z;
++        state.threatTeacher.x = yawFrameLinear.y;
++        state.threatTeacher.y = atan2(2.0f * (orientation.w * orientation.x + orientation.y * orientation.z),
++                                     1.0f - 2.0f * (orientation.x * orientation.x + orientation.y * orientation.y));
++        state.threatTeacher.z = baseAngular.x;
+     }
+     if (avianJourneyTakeoffCruise) {
+         // Feed the next teacher action from accepted state without a host

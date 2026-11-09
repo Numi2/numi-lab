@@ -1,0 +1,5 @@
+# Yaw authority with stabilized roll
+
+All three 32-lane arms had zero first-episode physical terminations, no failed simulator steps and all samples required by the plan. Across lanes, median mean yaw rates over 20–30 s were -0.00954 rad/s at yaw action -1, +0.01611 at 0, and +0.04270 at +1. The preregistered -0.03 rad/s prediction was contradicted. At 0.70 m/s, the magnitude of this tested -1 response corresponds to a rough 73 m turn radius if sustained; it is not a suitable demonstrated envelope for a five-metre course. This characterizes only the current feedback, trim and states, not every possible controller or a fundamental v15 limit.
+
+The generic per-arm analysis JSON uses the earlier five-mode heading references and is invalid for yaw-screen interpretation in this all-straight-reference probe. Use `yaw-authority-summary.json` and `analyze-yaw.py`, which derive mean wrapped yaw rates from the actual straight-reference first-episode samples. Physical-failure and simulator counts in the generic JSON remain valid.

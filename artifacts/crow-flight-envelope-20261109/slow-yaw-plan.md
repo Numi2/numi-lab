@@ -1,0 +1,5 @@
+# Exploratory low-speed yaw authority
+
+The maximum negative yaw action under +0.55/-0.55 pronation trim produced only -0.00954 rad/s median mean yaw rate at the measured states. Test whether higher opposing pronation offsets (+0.75/-0.75 and +0.95/-0.95) reduce forward speed and improve negative yaw response relative to the matched yaw-negative control. Preserve the straight heading reference, -1 normalized yaw action after 6 s, bounded actions, fixed speed target 0.70 m/s, roll-1.5, current v15 body and all solver/aero limits, 32 native starts, seed 20261111, 1600 steps and sample cadence.
+
+Prediction: an arm has no first-episode physical failures, reduces the median forward speed at t=30 s by >=0.10 m/s from the control, and achieves median mean yaw rate over t=20–30 s <=-0.03 rad/s. Report all first episodes and speed, height, lateral drift, yaw rate and zero simulator failure status. Complete t=20–30 samples are required. Stop after both arms. This is exploratory; no independent qualification or final layouts are used.
