@@ -12,3 +12,9 @@ reference evaluation; its elapsed time is not benchmark evidence. A passing
 accuracy trial would require a separate uncontended, snapshot-free comparison
 and the largest qualifying *tested* step, not an inference of speedup from
 this attempt. A failed trial leaves smaller steps unknown.
+
+The first attempt was rejected before initialization: the unchanged instrument
+allows at most 10,000 steps, so 10,240 steps is invalid. That failure is
+retained. The revised, pre-run choice is 1 microsecond for exactly 10,000
+steps, the smallest 10 ms step accepted by this instrument. All other gates,
+inputs and the diagnostic-only timing interpretation remain unchanged.

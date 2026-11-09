@@ -1,0 +1,23 @@
+{
+  "command": [
+    "/Users/numi/numi-matter-midpoint-reference-build-20261108/evidence-be-h001953125/metalrobo_plane_contact_probe",
+    "/Users/numi/numi-matter-midpoint-reference-build-20261108/evidence-be-h001953125/NumiMatter.metallib",
+    "0.0000009765625",
+    "10240",
+    "2",
+    "ipc_area",
+    "0.0002",
+    "physical",
+    "contact",
+    "reference"
+  ],
+  "hashes": {
+    "/Users/numi/numi-matter-midpoint-reference-build-20261108/evidence-be-h001953125/metalrobo_plane_contact_probe": "ba64715ca0105085ac07e4c8bbf71cd55212b61bbed0c447615213622d28de6a",
+    "/Users/numi/numi-matter-midpoint-reference-build-20261108/evidence-be-h001953125/NumiMatter.metallib": "92549a8f004a3869215d1a39564ac95cdbeb9156fcf3f2e12d74fa02d9431d11"
+  },
+  "returncode": 1,
+  "timed_out": false,
+  "wall_seconds_observational_only": 0.2770860829623416,
+  "analysis_error": "JSONDecodeError('Expecting value: line 1 column 1 (char 0)')",
+  "all_gates_pass": false
+}
