@@ -1,0 +1,3 @@
+# Faster high-altitude lateral flight
+
+Before accelerating the frozen flight controller after the slalom, repeat the slow-high-lateral screen at 0.40 m/s forward command, preserving the same five height/lateral groups, disturbed start construction, 80 lanes, four physics substeps, teacher-off flight-only diagnostic and sample limits. Use development seed 20261127; all other mechanics and the frozen law remain unchanged. Each group requires 16/16 horizon survival, no physical or simulator failures, and sampled heading <=0.15 rad, lateral command error <=0.12 m/s, speed command error <=0.15 m/s and altitude error <=0.15 m. Passing does not establish clearance, stopping or landing, and final layouts/seeds remain unused.
