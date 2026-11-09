@@ -350,6 +350,10 @@ enum class MetalWorldCoupledCandidateOperation : std::uint32_t {
     // effort stream. ABA and generalized-coordinate integration remain owned
     // by MetalWorld and source q/v are never modified by the extension.
     publishCandidate = 3u,
+    // Private half-substep kinematics only. This does not publish or certify
+    // a midpoint transaction, change the free-motion integrator, or prove
+    // compatibility with a particular articulated topology.
+    candidateHalfStepKinematics = 4u,
 };
 
 // Borrowed primal articulated operator. Buffers are environment-major and

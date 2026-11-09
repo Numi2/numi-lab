@@ -11101,7 +11101,15 @@ bool encodeBorrowedCoupledCandidate(
         !validBuffer(query.input, vectorBytes)) return false;
 
     const auto operation = query.operation;
-    if (operation == MetalWorldCoupledCandidateOperation::candidateKinematics) {
+    const bool halfStepKinematics = operation ==
+        MetalWorldCoupledCandidateOperation::candidateHalfStepKinematics;
+    if (operation == MetalWorldCoupledCandidateOperation::candidateKinematics ||
+        halfStepKinematics) {
+        const float candidateTimestep = halfStepKinematics
+            ? 0.5f * pass.timestepSeconds : pass.timestepSeconds;
+        if (halfStepKinematics && (!(candidateTimestep > 0.0f) ||
+            !std::isfinite(candidateTimestep) ||
+            !std::isfinite(1.0f / candidateTimestep))) return false;
         if (query.candidateQStride != pass.qStride ||
             query.candidateBodyStride < pass.bodyStateStride ||
             !validBuffer(query.candidateQ, qElements * sizeof(float)) ||
@@ -11181,8 +11189,8 @@ bool encodeBorrowedCoupledCandidate(
                 .pointJacobianStride = query.pointJacobianStride,
                 .reserved0 = 0u,
                 .timestepAndInverse = {
-                    pass.timestepSeconds,
-                    1.0f / pass.timestepSeconds,
+                    candidateTimestep,
+                    1.0f / candidateTimestep,
                     0.0f,
                     0.0f,
                 },

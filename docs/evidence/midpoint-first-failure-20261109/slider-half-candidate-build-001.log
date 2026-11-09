@@ -1,0 +1,139 @@
+[0/2] Re-checking globbed directories...
+[1/2] Re-running CMake...
+-- MetalRobo Python tests disabled: no interpreter with NumPy and SciPy
+-- Configuring done (0.9s)
+-- Generating done (0.1s)
+-- Build files have been written to: /Users/numi/numi-matter-slider-owner-build-20261109
+[0/4] Re-checking globbed directories...
+[1/40] Building CXX object CMakeFiles/metalrobo.dir/src/core/FrankaWorld.cpp.o
+[2/40] Building CXX object CMakeFiles/metalrobo.dir/src/core/MatterSnapshotArchive.cpp.o
+[3/40] Building CXX object CMakeFiles/metalrobo.dir/src/core/RunProgram.cpp.o
+[4/40] Building CXX object CMakeFiles/metalrobo.dir/src/core/VisualPlatform.cpp.o
+[5/40] Building CXX object CMakeFiles/metalrobo.dir/src/core/LocomotionWorld.cpp.o
+[6/40] Building CXX object CMakeFiles/metalrobo.dir/src/core/TaskProgram.cpp.o
+[7/40] Building CXX object CMakeFiles/metalrobo.dir/src/core/NumiHumanSourceConstraints.cpp.o
+[8/40] Building CXX object CMakeFiles/metalrobo.dir/src/core/HumanBehaviorNativeAudit.cpp.o
+[9/40] Building CXX object CMakeFiles/metalrobo.dir/src/core/NumiHumanMuscleEquilibrium.cpp.o
+[10/40] Building CXX object CMakeFiles/metalrobo.dir/src/core/NumiHumanTissueBinding.cpp.o
+[11/40] Building CXX object CMakeFiles/metalrobo.dir/src/core/NumiHumanLoadedKnee.cpp.o
+[12/40] Building OBJCXX object CMakeFiles/metalrobo.dir/src/metal/NumiHumanLoadedKneeBinding.mm.o
+[13/40] Building OBJCXX object CMakeFiles/metalrobo.dir/src/metal/MetalArticulatedOperator.mm.o
+/Users/numi/numi-lab-midpoint-compensated-20261109/src/metal/MetalArticulatedOperator.mm:4944:29: warning: 'fastMathEnabled' is deprecated: first deprecated in macOS 15.0 - Use mathMode instead [-Wdeprecated-declarations]
+ 4944 |         standCompileOptions.fastMathEnabled = NO;
+      |                             ^
+/Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/System/Library/Frameworks/Metal.framework/Headers/MTLLibrary.h:326:39: note: 'fastMathEnabled' has been explicitly marked deprecated here
+  326 | @property (readwrite, nonatomic) BOOL fastMathEnabled API_DEPRECATED("Use mathMode instead", macos(10.11, 15.0), ios(8.0, 18.0));
+      |                                       ^
+1 warning generated.
+[14/40] Building OBJCXX object CMakeFiles/metalrobo.dir/src/metal/NumanXRuntimeV1.mm.o
+[15/40] Building OBJCXX object CMakeFiles/metalrobo.dir/src/metal/MetalNumanXHumanMatter.mm.o
+/Users/numi/numi-lab-midpoint-compensated-20261109/src/metal/MetalNumanXHumanMatter.mm:4654:14: warning: unused variable 'compileTestSource' [-Wunused-variable]
+ 4654 |         bool compileTestSource = false;
+      |              ^~~~~~~~~~~~~~~~~
+/Users/numi/numi-lab-midpoint-compensated-20261109/src/metal/MetalNumanXHumanMatter.mm:4656:19: warning: unused variable 'sourceText' [-Wunused-variable]
+ 4656 |         NSString* sourceText = nil;
+      |                   ^~~~~~~~~~
+2 warnings generated.
+[16/40] Building OBJCXX object CMakeFiles/metalrobo.dir/src/metal/MetalMeasuredSurfaceMechanics.mm.o
+[17/40] Building OBJCXX object CMakeFiles/metalrobo.dir/src/metal/MetalHyperPolicy.mm.o
+[18/40] Building OBJCXX object CMakeFiles/metalrobo.dir/src/metal/MetalHybridRenderer.mm.o
+[19/40] Building OBJCXX object CMakeFiles/metalrobo.dir/src/metal/MetalWorld.mm.o
+[20/40] Building OBJCXX object CMakeFiles/metalrobo.dir/src/metal/MetalRunInspector.mm.o
+[21/40] Building CXX object matter/CMakeFiles/numi_matter_compiler_objects.dir/src/matter.cpp.o
+[22/40] Building CXX object matter/CMakeFiles/numi_matter_compiler_objects.dir/src/language_impl.cpp.o
+[23/40] Building CXX object matter/CMakeFiles/numi_matter_compiler_objects.dir/src/constitutive_impl.cpp.o
+/Users/numi/numi-lab-midpoint-compensated-20261109/matter/src/constitutive_impl.cpp:1220:16: warning: unused variable 'isBinary' [-Wunused-variable]
+ 1220 |     const auto isBinary = [&](const std::uint32_t node, const ExprKind kind,
+      |                ^~~~~~~~
+1 warning generated.
+[24/40] Building CXX object CMakeFiles/metalrobo.dir/src/c_api.cpp.o
+[25/40] Building CXX object matter/CMakeFiles/numi_matter_compiler_objects.dir/src/vascular_impl.cpp.o
+[26/40] Building CXX object matter/CMakeFiles/numi_matter_compiler_objects.dir/src/compiler_impl.cpp.o
+[27/40] Building CXX object matter/CMakeFiles/numi_matter_compiler_objects.dir/src/fingerprint_impl.cpp.o
+[28/40] Building CXX object matter/CMakeFiles/numi_matter_compiler_objects.dir/src/validation_impl.cpp.o
+[29/40] Building CXX object matter/CMakeFiles/numi_matter_compiler_objects.dir/src/package_impl.cpp.o
+[30/40] Building CXX object matter/CMakeFiles/numi_matter_compiler_objects.dir/src/surgical_tissue.cpp.o
+[31/40] Building OBJCXX object matter/CMakeFiles/numi_matter_runtime_objects.dir/src/human_physiology.mm.o
+[32/40] Building CXX object matter/CMakeFiles/numi_matter_runtime_objects.dir/src/metal_world.cpp.o
+[33/40] Building OBJCXX object matter/CMakeFiles/numi_matter_runtime_objects.dir/src/numi_human.mm.o
+[34/40] Building OBJCXX object CMakeFiles/numi_midpoint_slider_candidate_owner_probe.dir/apps/midpoint_slider_candidate_owner_probe.mm.o
+[35/40] Building OBJCXX object matter/CMakeFiles/numi_matter_runtime_objects.dir/src/runtime.mm.o
+/Users/numi/numi-lab-midpoint-compensated-20261109/matter/src/runtime.mm:10973:21: warning: format specifies type 'size_t' (aka 'unsigned long') but the argument has type 'nm_u32' (aka 'unsigned int') [-Wformat]
+ 10969 |                     "matter_graph_due_row_identity={\"schema\":1,\"enabled\":true,\"patches\":%zu,\"active_tets\":%zu,\"objects\":%zu}\n",
+       |                                                                                                                                   ~~~
+       |                                                                                                                                   %u
+ 10970 |                     graphSchwarz.layout.patches.size(),
+ 10971 |                     static_cast<std::size_t>(std::count(
+ 10972 |                         activeTets.begin(), activeTets.end(), 1u)),
+ 10973 |                     world.dispatch.objectCount);
+       |                     ^~~~~~~~~~~~~~~~~~~~~~~~~~
+/Users/numi/numi-lab-midpoint-compensated-20261109/matter/src/runtime.mm:20950:72: warning: '&&' within '||' [-Wlogical-op-parentheses]
+ 20950 |                 } else if ((femNewtonTailDispatchEnabledForCurrentRoot &&
+       |                             ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^~
+ 20951 |                     workDomain == WorkDomain::newtonAssemblyFemNodes ||
+       |                     ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ ~~
+/Users/numi/numi-lab-midpoint-compensated-20261109/matter/src/runtime.mm:20950:72: note: place parentheses around the '&&' expression to silence this warning
+ 20950 |                 } else if ((femNewtonTailDispatchEnabledForCurrentRoot &&
+       |                                                                        ^
+       |                             (
+ 20951 |                     workDomain == WorkDomain::newtonAssemblyFemNodes ||
+       |                                                                     )
+/Users/numi/numi-lab-midpoint-compensated-20261109/matter/src/runtime.mm:20952:67: warning: '&&' within '||' [-Wlogical-op-parentheses]
+ 20951 |                     workDomain == WorkDomain::newtonAssemblyFemNodes ||
+       |                                                                      ~~
+ 20952 |                     femGlobalCoarseTailDispatchForCurrentOperator &&
+       |                     ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^~
+ 20953 |                     workDomain == WorkDomain::femNodes) &&
+       |                     ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/Users/numi/numi-lab-midpoint-compensated-20261109/matter/src/runtime.mm:20952:67: note: place parentheses around the '&&' expression to silence this warning
+ 20952 |                     femGlobalCoarseTailDispatchForCurrentOperator &&
+       |                                                                   ^
+       |                     (
+ 20953 |                     workDomain == WorkDomain::femNodes) &&
+       |                                                       
+       |                                                       )
+/Users/numi/numi-lab-midpoint-compensated-20261109/matter/src/runtime.mm:20957:72: warning: '&&' within '||' [-Wlogical-op-parentheses]
+ 20957 |                 } else if ((femNewtonTailDispatchEnabledForCurrentRoot &&
+       |                             ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^~
+ 20958 |                     workDomain == WorkDomain::newtonAssemblyTetrahedra ||
+       |                     ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ ~~
+/Users/numi/numi-lab-midpoint-compensated-20261109/matter/src/runtime.mm:20957:72: note: place parentheses around the '&&' expression to silence this warning
+ 20957 |                 } else if ((femNewtonTailDispatchEnabledForCurrentRoot &&
+       |                                                                        ^
+       |                             (
+ 20958 |                     workDomain == WorkDomain::newtonAssemblyTetrahedra ||
+       |                                                                       )
+/Users/numi/numi-lab-midpoint-compensated-20261109/matter/src/runtime.mm:20959:67: warning: '&&' within '||' [-Wlogical-op-parentheses]
+ 20958 |                     workDomain == WorkDomain::newtonAssemblyTetrahedra ||
+       |                                                                        ~~
+ 20959 |                     femGlobalCoarseTailDispatchForCurrentOperator &&
+       |                     ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^~
+ 20960 |                     workDomain == WorkDomain::tetrahedra) &&
+       |                     ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/Users/numi/numi-lab-midpoint-compensated-20261109/matter/src/runtime.mm:20959:67: note: place parentheses around the '&&' expression to silence this warning
+ 20959 |                     femGlobalCoarseTailDispatchForCurrentOperator &&
+       |                                                                   ^
+       |                     (
+ 20960 |                     workDomain == WorkDomain::tetrahedra) &&
+       |                                                         
+       |                                                         )
+/Users/numi/numi-lab-midpoint-compensated-20261109/matter/src/runtime.mm:24570:33: warning: variable 'reason' set but not used [-Wunused-but-set-variable]
+ 24570 |                 if (const char* reason = femNewtonTraceScope(false, 4096u))
+       |                                 ^
+/Users/numi/numi-lab-midpoint-compensated-20261109/matter/src/runtime.mm:29495:28: warning: unused variable 'capturedEnvironmentCount' [-Wunused-variable]
+ 29495 |                 const auto capturedEnvironmentCount = environments;
+       |                            ^~~~~~~~~~~~~~~~~~~~~~~~
+/Users/numi/numi-lab-midpoint-compensated-20261109/matter/src/runtime.mm:40171:60: warning: values of type 'NSUInteger' should not be used as format arguments; add an explicit cast to 'unsigned long' instead [-Wformat]
+ 40169 |                     "fgmres_terminal_cache_capture_not_due={\"schema\":1,\"physics_substep\":%u,\"physics_substeps\":%u,\"microtick\":%u,\"microtick_count\":%u,\"environment_count\":%u,\"preflight_enabled\":%s,\"preconditioner_enabled\":%s,\"preconditioner_apply_enabled\":%s,\"fresh_rhs_may_skip\":%s,\"selector\":%u}\n",
+       |                                                                                                                                                                                       ~~
+       |                                                                                                                                                                                       %lu
+ 40170 |                     request.physicsSubstep, request.physicsSubsteps,
+ 40171 |                     micro.microtick, micro.microtickCount, environments,
+       |                                                            ^~~~~~~~~~~~
+       |                                                            static_cast<unsigned long>( )
+/Users/numi/numi-lab-midpoint-compensated-20261109/matter/src/runtime.mm:45748:35: warning: unused variable 'oldTailConstants' [-Wunused-variable]
+ 45748 |                     id<MTLBuffer> oldTailConstants =
+       |                                   ^~~~~~~~~~~~~~~~
+9 warnings generated.
+[36/40] Linking CXX shared library lib/libmetalrobo.dylib
+[37/40] Linking OBJCXX executable bin/numi_midpoint_slider_candidate_owner_probe
