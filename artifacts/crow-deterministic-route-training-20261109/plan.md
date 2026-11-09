@@ -1,0 +1,3 @@
+# Deterministic route recovery training
+
+Continue from the prior route actor using qualified teacher demonstrations, prior early student recoveries, and qualified deterministic-student recoveries. Exclude all failed full episodes. Reserve the highest eligible recovery lane per course and source for development validation; preserve original teacher lane splits. Weight deterministic student prefixes eightfold, earlier student prefixes fourfold, and balance waypoint stages. Sample every fifth control step except the first; retain the head and beak outputs. Fixed Adam 0.0001 for 200 epochs. Deploy as the deterministic early actor and separately test full-route teacher-off behavior with the unchanged landing actor.

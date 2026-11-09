@@ -1,0 +1,5 @@
+# Deterministic stage-selected actor evaluation
+
+Evaluate deterministic actor means, no exploration noise. The prior recovery-trained actor exclusively controls bounded flight commands until all five goals are physically reached; the separately trained terminal actor then takes over, with no teacher or reset. Compare every 100-step q/v sample prior to completion to an independent route-only control with identical initial conditions. Test 16 full starts per development layout using seeds 20270107, 20270108, 20270109. Report supported landings, first failures and trajectory parity; these layouts are development only. This selector is a deterministic execution experiment and is not a valid PPO likelihood model.
+
+The initial parity attempt used different compiled inference shaders for control and selector and diverged at float-rounding scale by step 200; its full traces are retained in training-initial-parity. The control now uses the identical compiled shader library as the selector to isolate the protected policy path.
