@@ -621,9 +621,13 @@ private struct Options {
                 case "held-out-b": birdFlowNavigationCourse = .heldOutB
                 case "development-reference":
                     birdFlowNavigationCourse = .developmentReference
+                case "reserved-final-c":
+                    birdFlowNavigationCourse = .reservedFinalC
+                case "reserved-final-d":
+                    birdFlowNavigationCourse = .reservedFinalD
                 default:
                     throw MetalRoboTaskRolloutError.invalidShape(
-                        "--birdflow-navigation-course requires training, held-out-a, held-out-b, or development-reference."
+                        "--birdflow-navigation-course requires training, held-out-a, held-out-b, development-reference, reserved-final-c, or reserved-final-d."
                     )
                 }
                 index += 1
@@ -3262,7 +3266,11 @@ private enum TaskRolloutMain {
                     ],
                     "body_names": context.bodyNames,
                     "navigation_course":
-                        options.birdFlowNavigationCourse == .developmentReference
+                        options.birdFlowNavigationCourse == .reservedFinalC
+                        ? "reserved-final-c"
+                        : options.birdFlowNavigationCourse == .reservedFinalD
+                        ? "reserved-final-d"
+                        : options.birdFlowNavigationCourse == .developmentReference
                         ? "development-reference"
                         : options.birdFlowNavigationCourse == .heldOutA
                         ? "held-out-a"
@@ -3281,7 +3289,10 @@ private enum TaskRolloutMain {
                             options.birdFlowNavigationCourse ==
                                 .developmentReference
                             ? "paired-development-only"
-                            : "training-or-held-out-qualification",
+                            : (options.birdFlowNavigationCourse == .reservedFinalC ||
+                               options.birdFlowNavigationCourse == .reservedFinalD)
+                            ? "reserved-final-only"
+                            : "development-only",
                         "ranges_m": [
                             "crow_course_gate_left": [0.12, 0.12, 0.08],
                             "crow_course_gate_right": [0.12, 0.12, 0.08],
@@ -3388,7 +3399,11 @@ private enum TaskRolloutMain {
                     "policy_revision": installedPolicyRevision,
                     "policy_pack": options.policyPack ?? "",
                     "navigation_course":
-                        options.birdFlowNavigationCourse ==
+                        options.birdFlowNavigationCourse == .reservedFinalC
+                        ? "reserved-final-c"
+                        : options.birdFlowNavigationCourse == .reservedFinalD
+                        ? "reserved-final-d"
+                        : options.birdFlowNavigationCourse ==
                             .developmentReference
                         ? "development-reference"
                         : options.birdFlowNavigationCourse == .heldOutA
@@ -3786,7 +3801,11 @@ private enum TaskRolloutMain {
                 "birdflow_journey_variant":
                     options.birdFlowJourneyVariant.commandName,
                 "birdflow_navigation_course":
-                    options.birdFlowNavigationCourse == .developmentReference
+                    options.birdFlowNavigationCourse == .reservedFinalC
+                    ? "reserved-final-c"
+                    : options.birdFlowNavigationCourse == .reservedFinalD
+                    ? "reserved-final-d"
+                    : options.birdFlowNavigationCourse == .developmentReference
                     ? "development-reference"
                     : options.birdFlowNavigationCourse == .heldOutA
                     ? "held-out-a"
@@ -3795,7 +3814,10 @@ private enum TaskRolloutMain {
                 "birdflow_navigation_course_role":
                     options.birdFlowNavigationCourse == .developmentReference
                     ? "paired-development-only"
-                    : "training-or-held-out-qualification",
+                    : (options.birdFlowNavigationCourse == .reservedFinalC ||
+                       options.birdFlowNavigationCourse == .reservedFinalD)
+                    ? "reserved-final-only"
+                    : "development-only",
                 "action_stream": options.actionStream ?? "",
                 "birdflow_stroke_amplitude": options.birdFlowStrokeAmplitude ?? 0,
                 "birdflow_tail_pitch": options.birdFlowTailPitch ?? 0,

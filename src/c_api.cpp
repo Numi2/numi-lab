@@ -565,7 +565,7 @@ void applyCrowNavigationCourseSplit(
         "crow_course_slalom_b",
         "crow_course_perch",
     }};
-    constexpr std::array<std::array<mr_float4, 5u>, 3u> positions{{
+    constexpr std::array<std::array<mr_float4, 5u>, 5u> positions{{
         {{{1.55f, 0.58f, 0.80f, 1.0f},
           {1.55f, -0.76f, 0.80f, 1.0f},
           {2.75f, -0.28f, 0.65f, 1.0f},
@@ -584,6 +584,18 @@ void applyCrowNavigationCourseSplit(
           {2.4459667206f, 0.4744514823f, 0.6441041827f, 1.0f},
           {3.6380522251f, -0.2306721509f, 0.5702749491f, 1.0f},
           {4.9732704163f, -0.0928055048f, 0.8553680778f, 1.0f}}},
+        // Reserved final-c: defined before assessment, never a training split.
+        {{{1.48f, 0.72f, 0.80f, 1.0f},
+          {1.48f, -0.62f, 0.80f, 1.0f},
+          {2.69f, -0.40f, 0.65f, 1.0f},
+          {3.88f, 0.35f, 0.65f, 1.0f},
+          {5.11f, 0.08f, 0.79f, 1.0f}}},
+        // Reserved final-d: mirrored slalom ordering, independently held out.
+        {{{1.42f, 0.75f, 0.80f, 1.0f},
+          {1.42f, -0.65f, 0.80f, 1.0f},
+          {2.62f, 0.40f, 0.65f, 1.0f},
+          {3.83f, -0.39f, 0.65f, 1.0f},
+          {5.04f, -0.10f, 0.77f, 1.0f}}},
     }};
     const auto sceneBodies = handle.world.sceneBodyIndices();
     for (std::size_t index = 0u; index < names.size(); ++index) {
@@ -678,7 +690,7 @@ void validateTaskRolloutConfiguration(
         );
     }
     if (config.birdflow_navigation_course >
-        MR_BIRDFLOW_NAVIGATION_COURSE_DEVELOPMENT_REFERENCE) {
+        MR_BIRDFLOW_NAVIGATION_COURSE_RESERVED_FINAL_D) {
         throw std::invalid_argument(
             "task-rollout BirdFlow navigation course split is invalid"
         );

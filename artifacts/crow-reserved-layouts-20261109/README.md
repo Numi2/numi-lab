@@ -1,0 +1,5 @@
+# Reserved final course layouts
+
+The two nominal layouts named `reserved-final-c` and `reserved-final-d` were authored and committed before any final evaluation. They retain the existing gate, slalom and perch collider types, sizes, obstacle dynamics and deterministic per-episode position randomization; they differ in nominal gate/slalom/perch positions and mirror the slalom ordering. Neither layout is used by the training CLI, teacher demonstration collection, policy fitting, development evaluation or model selection. The earlier training, held-out-a, held-out-b and development-reference layouts are all development data and are not final evidence.
+
+Do not execute these reserved layouts until the flight law and navigation policy are frozen, the measurement and no-reset contract is recorded, and previously unused final seeds are registered. Report every attempted final trial, including failures; do not tune on these layouts and continue to call them held out. If final outcomes motivate any revision, these layouts become development data and different unused layouts and seeds are required for the next final assessment.

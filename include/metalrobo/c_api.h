@@ -67,9 +67,11 @@ typedef enum MRBirdFlowNavigationCourseC {
     MR_BIRDFLOW_NAVIGATION_COURSE_TRAINING = 0,
     MR_BIRDFLOW_NAVIGATION_COURSE_HELD_OUT_A = 1,
     MR_BIRDFLOW_NAVIGATION_COURSE_HELD_OUT_B = 2,
-    // Captured accepted-state geometry used only for paired development
-    // regression. Qualification must continue to use the held-out splits.
+    // Captured accepted-state geometry used only for paired development.
     MR_BIRDFLOW_NAVIGATION_COURSE_DEVELOPMENT_REFERENCE = 3,
+    // Reserved nominal layouts: do not use for training or model selection.
+    MR_BIRDFLOW_NAVIGATION_COURSE_RESERVED_FINAL_C = 4,
+    MR_BIRDFLOW_NAVIGATION_COURSE_RESERVED_FINAL_D = 5,
 } MRBirdFlowNavigationCourseC;
 
 typedef struct MRTaskRolloutDynamicSphereC {
