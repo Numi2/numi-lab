@@ -16,7 +16,7 @@ def work_at(t,col):
  a,b=wr[i-1],wr[i];return a[col]+(b[col]-a[col])*(t-a[0])/(b[0]-a[0])
 h=15.625e-6;steps=[]
 for i in range(640):
- t=i*h;u=(i+1)*h;j=at(u,2)-at(t,2);x=.01*j;y=-x
+ t=i*h;u=(i+1)*h;j=at(u,2)-at(t,2);x=j*r['torque_impulse_x_Nms']/r['impulse_Ns'];y=j*r['torque_impulse_y_Nms']/r['impulse_Ns']
  steps.append({'step':i,'accepted':True,'gap':.00009,'midpoint_gap':.00009,'contact_potential_before_J':0.,'contact_potential_after_J':0.,'owner_wrench_work':0.,'q':at(u,3),'v':at(u,4),
   'fem_impulse':j,'owner_momentum_impulse':-j,'owner_wrench_impulse':-j,
   'fem_torque_impulse_x':x,'fem_torque_impulse_y':y,'owner_moment_impulse_x':-x,'owner_moment_impulse_y':-y,
@@ -84,6 +84,16 @@ with tempfile.NamedTemporaryFile(mode='w',suffix='.json') as f:
  nodes[0][1],nodes[1][1]=old0,old1
  old=d['steps'][100]['fem_work_nodes'][0][4];d['steps'][100]['fem_work_nodes'][0][4]=old*.9
  code,out=run();assert code!=0,('corrupt gap',out);d['steps'][100]['fem_work_nodes'][0][4]=old
+ # Preserve both local torque balances while corrupting the accumulated
+ # reference torque; the independent total-torque gate must catch it.
+ step=max(d['steps'],key=lambda x:x['fem_impulse'])
+ step['fem_torque_impulse_x']+=1e-7
+ step['owner_moment_impulse_x']-=1e-7
+ step['support_moment_impulse_x']+=1e-7
+ code,out=run();assert code!=0 and out['checks']['contact_and_support_torque'] and not out['checks']['torque_x_reference'],('corrupt total torque',out)
+ step['fem_torque_impulse_x']-=1e-7
+ step['owner_moment_impulse_x']+=1e-7
+ step['support_moment_impulse_x']-=1e-7
  # Change all nodal velocities coherently so local work reconstruction remains
  # consistent but the cumulative history must fail against the reference.
  step=max(d['steps'],key=lambda x:x['fem_impulse'])
@@ -92,4 +102,4 @@ with tempfile.NamedTemporaryFile(mode='w',suffix='.json') as f:
  step['fem_law_work']=sum(row[2]*row[3] for row in step['fem_work_nodes'])
  step['fem_work_reconstruction_gate_ratio']=max(abs((row[1]-row[2])*row[3])/(max(1e-12,1e-5*abs(row[2]))*abs(row[3])+1e-24) for row in step['fem_work_nodes'])
  code,out=run();assert code!=0 and not out['checks']['fem_work_history'],('corrupt work history',out)
- print('synthetic analysis rejects incomplete or rejected rollouts, impulse, torque, residual, clearance, local work and cumulative-work failures')
+ print('synthetic analysis rejects incomplete or rejected rollouts, impulse, local and reference torque, residual, clearance, local work and cumulative-work failures')

@@ -39,6 +39,14 @@ for label,index in (('050',2 if work_label=='near' else 0),('025',3 if work_labe
  if not (run['historic_fields_exact_match'] and run['output_sha256']==hashlib.sha256(candidate.read_bytes()).hexdigest()):
   raise SystemExit('work reference is not hash-bound')
 work_reference=json.loads(work_path.read_text())
+torque_qualification=json.loads((evidence/'slider-torque-reference-001.json').read_text())
+torque_ref=torque_qualification['fixtures'][work_label]
+expected_torque_files={('slider-near-rk4-h' if work_label=='near' else 'slider-v2-rk4-h')+label+'.json' for label in ('050','025')}
+if not torque_qualification['passes'] or not torque_ref['passes'] or set(torque_ref['inputs_sha256'])!=expected_torque_files:
+ raise SystemExit('torque reference is not qualified')
+for name,expected in torque_ref['inputs_sha256'].items():
+ if hashlib.sha256((evidence/name).read_bytes()).hexdigest()!=expected:
+  raise SystemExit('torque reference changed')
 
 area_reference=json.loads((evidence/'compact-reference-parity-n2-ordered-001.json').read_text())['contact_area_weights_m2']
 if not reference_ok:raise SystemExit('independent force reference did not qualify')
@@ -109,7 +117,15 @@ for col,name in enumerate(('fem','slider','relative'),1):
 torque_ratio=max(max(abs(s['fem_torque_impulse_'+a]+s['owner_moment_impulse_'+a]),
  abs(s['owner_moment_impulse_'+a]+s['support_moment_impulse_'+a]))/
  max(1e-14,1e-5*abs(s['fem_torque_impulse_'+a])) for s in steps for a in ('x','y'))
-results={'reference_qualification_passed':reference_ok,'work_history_comparison':work_results,'force_bin_relative_error':force_error,
+torque_reference_results={}
+for axis in ('x','y'):
+ value=sum(step['fem_torque_impulse_'+axis] for step in steps)
+ reference=r['torque_impulse_'+axis+'_Nms']
+ error=abs(value-reference)
+ torque_reference_results[axis]={'native_total_Nms':value,'reference_total_Nms':reference,
+                                'absolute_error_Nms':error,
+                                'normalized_error':error/max(abs(reference),1e-12)}
+results={'reference_qualification_passed':reference_ok,'work_history_comparison':work_results,'torque_reference_comparison':torque_reference_results,'force_bin_relative_error':force_error,
  'sampled_peak_force_relative_error':peak_error,'total_impulse_relative_error':imp_error,
  'maximum_cumulative_impulse_relative_error':cum_error,'minimum_gap_m':min(s['gap'] for s in steps),
  'minimum_midpoint_gap_m':min(s['midpoint_gap'] for s in steps),
@@ -135,6 +151,8 @@ checks={'force_bin':force_error<=.0025,'sampled_peak':peak_error<=.01,'total_imp
  'cumulative_impulse':cum_error<=.01,'clearance':results['minimum_gap_m']>1e-7 and results['minimum_midpoint_gap_m']>1e-7,
  'equal_opposite_impulse':impulse_ratio<=1,'equal_opposite_wrench_impulse':wrench_impulse_ratio<=1,
  'contact_and_support_torque':torque_ratio<=1,
+ 'torque_x_reference':torque_reference_results['x']['normalized_error']<=.01,
+ 'torque_y_reference':torque_reference_results['y']['normalized_error']<=.01,
  'owner_work_reconstruction':work_ratio<=1,
  'fem_work_reconstruction':fem_work_ratio<=1,
  'fem_work_history':work_results['fem']['maximum_normalized_error']<=.01,

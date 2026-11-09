@@ -51,3 +51,12 @@ failures into an incomplete-result message. Applied to the retained primary
 15.625 µs prefix, it reports step 576, world status 11, Matter status 10, host
 status 16 and index 0. The test also checks that a missing step cannot pass.
 Diagnostic index remains explanatory only; it does not decide acceptance.
+
+
+The independent torque impulses also pass 0.5-to-0.25 µs refinement for both
+initial gaps and both transverse axes. The largest normalized difference was
+2.23e-11. The native analyzer now checks accumulated FEM torque against those
+references in addition to its per-step FEM/rigid/support torque balances.
+A synthetic test preserves the local balances while corrupting accumulated
+torque, and the new reference gate rejects it. No complete native trajectory
+is implied.
