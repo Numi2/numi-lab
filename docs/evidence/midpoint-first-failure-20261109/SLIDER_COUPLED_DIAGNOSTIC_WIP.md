@@ -17,9 +17,9 @@ default runtime branches pass host syntax checks.
 The fixture now also has separate pre-contact and after-nonzero-contact
 late-failure modes. They compare the entire physical Matter snapshot and rigid
 q/v with the checkpoint, and compare a retry to an uninterrupted continuation.
-Those modes have passed host syntax checking but have not been run. The fixture
-has not been built or run with full MetalWorld and Matter shader libraries, so
-it establishes no whole-environment restoration, force accuracy, work
+Those modes have passed host syntax checking but have not been run. The later
+first coupled attempt is recorded below; no accepted step has been established.
+The fixture establishes no whole-environment restoration, force accuracy, work
 convergence, torque balance, or spatial convergence. All predeclared gates
 remain in force and the production guard remains closed.
 
@@ -37,3 +37,11 @@ from the retained reference passed, while separate injected impulse, torque
 and residual failures were rejected by
 `tests/contact/test_analyze_native_slider.py`. This checks analysis behavior,
 not native physics.
+
+The first near-contact native coupled attempt (`slider-coupled-near-step-001`)
+did not accept its first step, although both readback status codes were zero.
+The original harness did not print the host rejection message and returned zero
+after a rejected step; that result is retained as an unqualified failed attempt.
+The harness has been corrected to print the host status and message and return a
+nonzero exit on rejection before a new attempt. No force or conservation claim
+is made from that initial trace.

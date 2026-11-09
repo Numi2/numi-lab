@@ -20,8 +20,14 @@ test executable SHA-256:
 `6a826e6693f18ea110a6a7f28ccf74511563ce37a38fc0b70898ae9469a29408`.
 
 The MetalWorld host and slider owner fixture passed syntax checks. A new
-owner-only transaction case is staged to check applied moment and rejected
-transverse force against the complete rebuilt owner; it has not run yet. The
+owner-only transaction case was staged to check applied moment and rejected
+transverse force against the complete rebuilt owner; the later result is below. The
 borrowed reaction is scratch, is meaningful only with successful ABA status,
 and must not be treated as an accepted physical state or retained across the
 callback. Whole-owner rollback and the native FEM/slider gates remain open.
+
+The rebuilt complete MetalWorld owner fixture subsequently passed its 48
+existing accepted cases and its new applied-moment, invalid-transverse-force
+and restoration assertions. The exact output, log and input hashes are
+`slider-owner-reaction-native-001.*`. This is still an owner-only result, not
+a Matter contact or coupled rollback qualification.

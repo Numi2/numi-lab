@@ -68,6 +68,8 @@ add_dependencies(numi_midpoint_retry_order numi_plane_contact_shader)
 
 if(BUILD_TESTING)
     find_package(Python3 REQUIRED COMPONENTS Interpreter)
+    add_test(NAME numi.contact.native_slider_analysis
+        COMMAND "${Python3_EXECUTABLE}" "${CMAKE_CURRENT_SOURCE_DIR}/test_analyze_native_slider.py")
     add_executable(numi_contact_slider_aba_reaction slider_aba_reaction_metal.mm)
     target_include_directories(numi_contact_slider_aba_reaction PRIVATE "${NUMI_CONTACT_ROOT}/include")
     target_compile_options(numi_contact_slider_aba_reaction PRIVATE -fobjc-arc -Wall -Wextra -Wpedantic)

@@ -132,6 +132,7 @@ int main(int argc,char**argv){@autoreleasepool{try{
       <<",\"rigid_restored\":true,\"matter_restored\":true,\"retry_exact\":true}\n";
   return 0;
  }
+ bool anyRejected=false;
  std::cout<<std::setprecision(17)<<"{\"schema\":\"numi.slider-coupled-diagnostic.v1\",\"h\":"<<physicalH
    <<",\"initial_gap\":"<<gap<<",\"matter_fingerprint\":"<<matter.deviceProgramFingerprint()
    <<",\"source_fingerprint\":"<<femWorld.physicsFingerprint
@@ -152,7 +153,13 @@ int main(int argc,char**argv){@autoreleasepool{try{
   const bool accepted=ran.succeeded() && now.statuses[0].code==NM_STATUS_SUCCESS;
   if(step)std::cout<<",";std::cout<<"{\"step\":"<<step<<",\"accepted\":"<<(accepted?"true":"false")
    <<",\"world_status\":"<<ran.firstGPUStatusCode<<",\"matter_status\":"<<now.statuses[0].code;
-  if(!accepted){std::cout<<",\"failure_index\":"<<now.statuses[0].failingIndex<<"}";break;}
+  if(!accepted){
+   anyRejected=true;
+   std::cerr<<"step "<<step<<" rejected: host="<<int(ran.status)<<" message="<<ran.message
+       <<" gpu="<<ran.firstGPUStatusCode<<" matter="<<now.statuses[0].code
+       <<" index="<<now.statuses[0].failingIndex<<"\n";
+   std::cout<<",\"host_status\":"<<int(ran.status)<<",\"failure_index\":"<<now.statuses[0].failingIndex<<"}";break;
+  }
   require(result.finalQ.size()==1&&result.finalV.size()==1&&obs.wrench&&obs.support &&
       now.solverCertificates.size()==1,"missing owner data or certificate");
   q=result.finalQ;v=result.finalV;const auto body=*static_cast<const MRABABodyWrenchGPU*>(obs.wrench.contents);
@@ -186,5 +193,5 @@ int main(int argc,char**argv){@autoreleasepool{try{
    <<",\"solver_contact_potential_J\":"<<now.solverCertificates[0].contact.w<<"}";
   previous=std::move(now);
  }
- std::cout<<"]}\n";return 0;
+ std::cout<<"]}\n";return anyRejected?2:0;
  }catch(const std::exception&e){std::cerr<<"coupled diagnostic: "<<e.what()<<"\n";return 1;}}}

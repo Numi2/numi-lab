@@ -1,0 +1,16 @@
+{
+  "command": [
+    "/Users/numi/numi-matter-slider-owner-build-20261109/bin/numi_midpoint_slider_owner_step_probe",
+    "/Users/numi/numi-matter-slider-owner-build-20261109/shaders/MetalRobo.metallib"
+  ],
+  "source_revision": "24ced1eec",
+  "exit_code": 0,
+  "reason": "",
+  "wall_seconds": 2.076555166975595,
+  "free_bytes_after": 3383746560,
+  "inputs": {
+    "/Users/numi/numi-matter-slider-owner-build-20261109/bin/numi_midpoint_slider_owner_step_probe": "902f3058fa5883f788a6ac0307991b47c7843ff8e0dc3e4f76d29dd5571e3670",
+    "/Users/numi/numi-matter-slider-owner-build-20261109/shaders/MetalRobo.metallib": "f32b410bddf52679d06e66bd14263dcedcf25bf0fd1593375b8dece449f274f9",
+    "/Users/numi/numi-matter-slider-owner-build-20261109/lib/libmetalrobo.dylib": "2d70b853041d9f2b0d0c5fecd807c8803ec24a4e3463bbca6195a96b58ffcf01"
+  }
+}
