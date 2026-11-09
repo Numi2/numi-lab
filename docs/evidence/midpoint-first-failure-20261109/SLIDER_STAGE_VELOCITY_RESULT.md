@@ -57,6 +57,6 @@ its owner mass and gravity, the full-step position and velocity, and stage
 velocity. The worst errors were 6.89e-12 m, 2.32e-9 m/s and 1.75e-9 m/s,
 respectively. The ordinary candidate probe verified the absence of midpoint
 metadata. The native trace and binary/shader hashes are in
-`slider-gravity-owner-001.json`; the three focused CTests passed in
-`slider-gravity-owner-ctest-001.log`. These tests still do not exercise Matter
+`slider-gravity-owner-001.json`; the six owner, admission and existing
+late-rollback CTests passed in `slider-gravity-owner-ctest-002.log`. These tests still do not exercise Matter
 contact or establish coupled impulse, torque, work, or restoration.

@@ -1,0 +1,22 @@
+Test project /Users/numi/numi-matter-slider-owner-build-20261109
+    Start  83: numi.midpoint.slider_rigid_baseline
+1/6 Test  #83: numi.midpoint.slider_rigid_baseline .................   Passed    0.03 sec
+    Start  84: numi.midpoint.slider_candidate_owner
+2/6 Test  #84: numi.midpoint.slider_candidate_owner ................   Passed    0.04 sec
+    Start  85: numi.midpoint.dynamic_guard
+3/6 Test  #85: numi.midpoint.dynamic_guard .........................   Passed    0.09 sec
+    Start  86: numi.midpoint.slider_owner_step
+4/6 Test  #86: numi.midpoint.slider_owner_step .....................   Passed    0.30 sec
+    Start 113: matter.integration.coupled_late_failure_rollback
+5/6 Test #113: matter.integration.coupled_late_failure_rollback ....   Passed    0.40 sec
+    Start 114: matter.integration.coupled_late_crossing_rollback
+6/6 Test #114: matter.integration.coupled_late_crossing_rollback ...   Passed    0.40 sec
+
+100% tests passed out of 6
+
+Label Time Summary:
+matter     =   0.80 sec*proc (2 tests)
+metal      =   0.80 sec*proc (2 tests)
+physics    =   0.80 sec*proc (2 tests)
+
+Total Test time (real) =   1.27 sec
