@@ -1,0 +1,51 @@
+{
+  "limitations": "Historical measured forces are held fixed. This does not run or qualify a native transaction, Metal arithmetic, contact feedback, work, replay, or position.",
+  "method": "Exact decimal evaluation of stored binary inputs; ideal endpoint split into nearest binary32 high plus nearest binary32 remainder independently at each recorded starting velocity.",
+  "schema": "numi.slider-split-representability.v1",
+  "traces": [
+    {
+      "accepted_steps": 576,
+      "sha256": "3e95ed4e83178faa6844b7c36d514cb096116f2922e1136ce565dd5f06278b59",
+      "single_exceeds_gate": 442,
+      "single_max_gate_ratio": 32.56073759654394,
+      "single_max_residual_Ns": 3.256073759654393e-11,
+      "split_exceeds_gate": 0,
+      "split_max_gate_ratio": 3.697510024373405e-07,
+      "split_max_residual_Ns": 5.226170504780445e-19,
+      "trace": "slider-primary-h15625-001.json"
+    },
+    {
+      "accepted_steps": 503,
+      "sha256": "dff9f4cd6642cd1c86abdfdfa7aac3c92a5b198e05ec1054032a724334ed76d1",
+      "single_exceeds_gate": 379,
+      "single_max_gate_ratio": 29.98841644804138,
+      "single_max_residual_Ns": 2.9988416448041385e-11,
+      "split_exceeds_gate": 0,
+      "split_max_gate_ratio": 1.0671814870473282e-06,
+      "split_max_residual_Ns": 1.0684148133406448e-18,
+      "trace": "slider-near-h15625-001.json"
+    },
+    {
+      "accepted_steps": 676,
+      "sha256": "e8ed2d5ecde1d261cc4ac982bd1c5ee9bbe8ee7160201131ccf21381bade69b0",
+      "single_exceeds_gate": 557,
+      "single_max_gate_ratio": 9.042776834744249,
+      "single_max_residual_Ns": 1.690902469839516e-11,
+      "split_exceeds_gate": 0,
+      "split_max_gate_ratio": 2.528029122130096e-07,
+      "split_max_residual_Ns": 5.042055626218498e-19,
+      "trace": "slider-primary-h078125-001.json"
+    },
+    {
+      "accepted_steps": 748,
+      "sha256": "20031ded30599ac02865b0e45e780e7265eeb5b32a0b12c1820ac719213a34a5",
+      "single_exceeds_gate": 586,
+      "single_max_gate_ratio": 17.511835587440693,
+      "single_max_residual_Ns": 1.7511835587440696e-11,
+      "split_exceeds_gate": 0,
+      "split_max_gate_ratio": 5.465059280177608e-07,
+      "split_max_residual_Ns": 5.465059280177608e-19,
+      "trace": "slider-near-h078125-001.json"
+    }
+  ]
+}
