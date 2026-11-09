@@ -74,6 +74,10 @@ if(BUILD_TESTING)
     add_dependencies(numi_be_precision_scope numi_plane_contact_shader)
     add_test(NAME numi.contact.be_precision_scope COMMAND numi_be_precision_scope "${_shader}")
     set_tests_properties(numi.contact.be_precision_scope PROPERTIES TIMEOUT 120)
+    add_test(NAME numi.contact.be_precision_step COMMAND "${Python3_EXECUTABLE}"
+        "${CMAKE_CURRENT_SOURCE_DIR}/be_precision_step_regression.py"
+        "$<TARGET_FILE:numi_plane_contact_probe_scaled>" "${_shader}")
+    set_tests_properties(numi.contact.be_precision_step PROPERTIES TIMEOUT 180)
     add_executable(numi_midpoint_diagnostic_scope midpoint_diagnostic_scope.mm)
     target_compile_options(numi_midpoint_diagnostic_scope PRIVATE -fobjc-arc -Wall -Wextra -Wpedantic)
     target_link_libraries(numi_midpoint_diagnostic_scope PRIVATE numi_plane_contact_owner)
