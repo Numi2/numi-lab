@@ -44,3 +44,32 @@ geometry it cannot represent. Do not remove that guard until the owner supplies
 and consumes the low words end to end. The diagnostic admission remains off
 by default during this work. The previous CCD and augmented-Lagrangian
 experiments also remain disabled.
+
+## Data-path audit for the low word
+
+The existing precision protections for the FEM node are not sufficient for a
+moving plane. In `matter/src/metal/contact.metalinc`, `projectProxy` stores the
+plane offset in the single float `NMRigidStateGPU.centerAndRadius.w`. The
+reference-plane gap subtracts that float from a compensated FEM point. The
+normal force and tangent then use the compensated gap, so their input must
+include the rigid offset low word as well. Merely correcting the published
+body position after the solve would leave these force and tangent evaluations
+at the old plane.
+
+The required rigid data is needed at all three projections in
+`matter/src/runtime.mm`: accepted pre-dynamics, each Newton candidate, and
+post-commit reconciliation. Candidate propagation must cover every trial that
+can produce an accepted line-search step, not just the final candidate. The
+existing midpoint endpoint clearance routine constructs interval bounds from
+an FP32 plane offset; it must instead enclose both offset words without
+rounding the low word away. Contact admission and line-search feasibility
+also inspect a scalar separation; their treatment of the low word and
+roundoff must be justified conservatively for the restricted plane. The late
+position and momentum certificate must use the same full rigid state.
+
+The proposed midpoint arithmetic produces a kinematic target. It is not the
+ABA body state: ABA must still receive the physical wrench and produce the
+actual reaction, and acceptance must independently establish full-step body
+momentum, FEM momentum, contact moment, clearance and interface work. The
+current diagnostic admission stays closed until those paths are wired and
+qualified together, including both-word rollback and retry.
