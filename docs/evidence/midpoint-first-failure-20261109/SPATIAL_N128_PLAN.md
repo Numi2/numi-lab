@@ -21,6 +21,8 @@ First allocate a 128-division model and evaluate its initial force once;
 record resource usage, wall time, total mass, reference area, and status.
 Do not start full 128-division rollouts if this capacity probe is rejected or
 uses more than 6 GiB resident memory, the data volume drops below 3 GiB free,
-or the temporal execution estimate would exceed the bounded available run.
+or the temporal execution estimate would exceed six hours per rollout. Estimate this from four RHS calls per
+step, understanding that a single evaluation is only a rough lower-bound
+planning estimate; enforce the same six-hour wall limit in the supervisor.
 Any stopped or failed attempt remains evidence. Native Matter runs and speed
 claims are separate work. There is no change to the runtime contact law.

@@ -7,6 +7,7 @@
 #include <cstdint>
 #include <array>
 #include <cmath>
+#include <chrono>
 #include <cstdlib>
 #include <iomanip>
 #include <iostream>
@@ -161,7 +162,9 @@ int main(int argc,char**argv){
   if(argc==3 && std::string(argv[1])=="--capacity-check"){
    const int n=std::stoi(argv[2]);
    if(n<1 || n>NUMI_FEM_REFERENCE_MAX_DIVISIONS) throw std::runtime_error("invalid mesh capacity");
-   const Model m(n); const Change r=m.rhs(m.initial);
+   const auto t0=std::chrono::steady_clock::now();
+   const Model m(n); const auto t1=std::chrono::steady_clock::now();
+   const Change r=m.rhs(m.initial); const auto t2=std::chrono::steady_clock::now();
    double totalArea=0,totalMass=0,minMass=std::numeric_limits<double>::infinity();
    for(double a:m.area) totalArea+=a;
    for(double a:m.mass){totalMass+=a;minMass=std::min(minMass,a);}
@@ -169,7 +172,9 @@ int main(int argc,char**argv){
    std::cout<<std::setprecision(17)<<"{\"mesh_divisions\":"<<n<<",\"nodes\":"<<m.mass.size()
      <<",\"tetrahedra\":"<<m.tets.size()<<",\"area\":"<<totalArea
      <<",\"mass\":"<<totalMass<<",\"minimum_nodal_mass\":"<<minMass
-     <<",\"initial_normal_force\":"<<r.impulse<<"}\n";
+     <<",\"initial_normal_force\":"<<r.impulse
+     <<",\"setup_seconds\":"<<std::chrono::duration<double>(t1-t0).count()
+     <<",\"one_rhs_seconds\":"<<std::chrono::duration<double>(t2-t1).count()<<"}\n";
    return 0;
   }
   if(argc==2 && std::string(argv[1])=="--selftest"){

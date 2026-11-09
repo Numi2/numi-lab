@@ -1,0 +1,17 @@
+{
+  "command": [
+    "/Users/numi/numi-matter-midpoint-compensated-build-20261109/numi_contact_fem_fp64_reference_n128",
+    "--capacity-check",
+    "128"
+  ],
+  "returncode": 0,
+  "stopped_reason": null,
+  "wall_seconds": 0.5318373329937458,
+  "peak_rss_kib_sampled": 3203616,
+  "free_bytes_after": 4840656896,
+  "limits": {
+    "rss_kib": 6291456,
+    "free_bytes": 3221225472,
+    "wall_seconds": 180
+  }
+}
