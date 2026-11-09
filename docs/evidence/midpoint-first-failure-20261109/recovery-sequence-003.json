@@ -1,0 +1,21 @@
+{
+  "schema": "numi.matter.recovery-sequence.v1",
+  "n64_supervisor_pid": 65202,
+  "input_sha256": {
+    "/Users/numi/numi-lab-midpoint-compensated-20261109/tests/contact/run_recovery_sequence_003.py": "400aa013a3bfe782c17e06b7ce7f94fa3475090a1dabf6bdde97050e26ce4e4e",
+    "/Users/numi/numi-lab-midpoint-compensated-20261109/tests/contact/run_be_compressed_ladder_008.py": "95d3eb63a98be9f30367310d5b5e827ebb24b053d6e7768e77909afc78e50716",
+    "/Users/numi/numi-lab-midpoint-compensated-20261109/tests/contact/run_accuracy_adjusted_cost_002.py": "63b4c0051cb5cc45eea6ae0da0c134b105703ecf30e708553fd2f7969a909aaf",
+    "/Users/numi/numi-lab-midpoint-compensated-20261109/tests/contact/run_large_spatial_continuation_005.py": "558c3e24c44a0b284c790f26e40dee1fc6eb73b706e08508d177267beb6ad512",
+    "/Users/numi/numi-lab-midpoint-compensated-20261109/tests/contact/large_spatial_reference.py": "2da963618c6f9517afcef8e818efd32a84d737bd9fd3e20a3f01bfd06b5365e1",
+    "/Users/numi/numi-lab-midpoint-compensated-20261109/tests/contact/cost_provenance.py": "42b055050a55c1a120858f3a5ff08b701816ab0decb3b764c25e2499d1858161",
+    "/Users/numi/numi-lab-midpoint-compensated-20261109/tests/contact/cost_selection.py": "8125281277d0a276eccaa174d6e839974d0d2e36aa5929bf9d8bf725b93afc41",
+    "/Users/numi/numi-lab-midpoint-compensated-20261109/tests/contact/cost_summary.py": "d3bf17ccb664404510c9d436ee0c5349b0eef06ee059805fdd25beab67ddf1e0",
+    "/Users/numi/numi-lab-midpoint-compensated-20261109/tests/contact/native_trace_analysis.py": "3e8ea213da85697a399bd3ce651f266626fcd37749fc0846fac33e89da566bd8",
+    "/Users/numi/numi-lab-midpoint-compensated-20261109/docs/evidence/midpoint-first-failure-20261109/be-precision-005-inputs.sha256": "204d91e082016756224600ab0ff3c95c9bd5f969c923305b3a716e994b2c504a",
+    "/Users/numi/numi-lab-midpoint-compensated-20261109/tests/contact/strict_native_trace_audit.py": "44f263e5e70698965e992ace1af53e18a45345acc210554bb1528b72334e1645",
+    "/Users/numi/numi-lab-midpoint-compensated-20261109/tests/contact/audit_cost_physical_time.py": "973afa4b5d18bd00b1f8c67203a7b64f7a469ecbd25096481aa953f9d447281a",
+    "/Users/numi/numi-lab-midpoint-compensated-20261109/docs/evidence/midpoint-spatial-cost-dynamic-20261108/rk4-n2-h025.json": "a37f254053b30e97b70223fc1f2f3d26028a0472aba0bf2136a92e9a7e11700e"
+  },
+  "phases": [],
+  "status": "waiting_for_n64"
+}
