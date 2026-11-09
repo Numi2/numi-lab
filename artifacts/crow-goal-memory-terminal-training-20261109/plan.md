@@ -1,0 +1,3 @@
+# Goal-memory terminal recovery imitation
+
+Continue from the recovery-trained policy with three data sources: successful teacher demonstrations, successful early student-prefix recoveries, and successful terminal student-state recoveries after physically reaching all five goals. Exclude failed full episodes. Reserve the highest eligible recovery lane in each course and source for development validation. Weight early student prefixes fourfold, terminal student-state samples eightfold, and balance waypoint stages; subsample every fifth step excluding the first. Preserve head and beak outputs. Use fixed Adam learning rate 0.0001 for 300 epochs. Measure autonomous teacher-off execution independently; all course layouts remain development.

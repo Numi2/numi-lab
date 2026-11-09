@@ -1,0 +1,6 @@
+{
+  "source_sha256": "42685b5ede7d5c054e23a5b4e4c19a981748cd3249a17b40448b1ef5c236cd1d",
+  "shader_sha256": "d3fb25718d173e93955fedd44b40428226fdfba569b720e191c4b31750360e54",
+  "flight_sha256": "aa2fe10901cb0494d80ae445902303a17ce0e73d030072bab09461d8f3593ebe",
+  "scope": "deterministic evaluation-only stage selector; not a PPO likelihood contract"
+}

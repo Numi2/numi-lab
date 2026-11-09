@@ -1,0 +1,26 @@
+--- a/src/metal/PolicyInference.metal
++++ b/stage-selected-policy-inference.metal
+@@ -337,7 +337,9 @@
+         ? policyTable<float>(arena, program.offsets2.x)
+         : nullptr;
+     const MRTaskStateGPU state = taskStates[environment];
+-    const bool liftOffBand = state.episode.z == 2u;
++    // The early-route actor is frozen. At physical completion of waypoint
++    // five select the independently trained landing actor; no teacher is used.
++    const bool liftOffBand = state.navigation.z >= 5.0f;
+     ulong randomKey = task.seed;
+     randomKey ^= policyMix64(
+         (ulong(environment) << 32u) |
+@@ -380,11 +382,7 @@
+                 -program.limits.y,
+                 program.limits.y
+             );
+-            actions[actionBase + action] = clamp(
+-                baseAction + residualAction,
+-                -program.limits.y,
+-                program.limits.y
+-            );
++            actions[actionBase + action] = residualAction;
+         } else {
+             actions[actionBase + action] = baseAction;
+         }

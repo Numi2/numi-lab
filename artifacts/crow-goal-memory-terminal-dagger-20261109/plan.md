@@ -1,0 +1,3 @@
+# Physically reached terminal recovery curriculum
+
+On each development layout, begin from full physical starts with the teacher controlling flight until all five issued goals are reached. Hand the landing approach to the recovery-trained actor, then allow teacher recovery at steps 2100, 2200, 2300 or 2400 by lane. Teacher labels are recorded on the student-visited terminal states. Compare the accepted pre-arrival trajectory with a matched teacher-only control, and admit only first episodes that recover to a supported landing with no physical failure. Exclude failed demonstrations. Seeds 20261231, 20270101, 20270102 remain development.

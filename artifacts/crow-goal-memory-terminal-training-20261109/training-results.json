@@ -1,0 +1,343 @@
+{
+  "input_rollout_sha256": {
+    "demonstrations/training": "4e8108c2361403f255ffea07c7aa0cf007383cab97c6055928075a938abe0c2b",
+    "demonstrations/held-out-a": "34a660de65e49be7095b0f449a49e0d76fb9e9104e4e3ba7f71f528d509811ed",
+    "demonstrations/held-out-b": "7243ae6e75f55138f644247b01e4eef0e4c73f3d75c3cc4f2449247c8f0a4801",
+    "dagger/training": "898216990f69e468455d7cb3dda0737e2057355b101f38e89dfb12a6cf8d252d",
+    "dagger/held-out-a": "0bc610a2ff2d7cc06945cb32660daf7d61ff38a08dc126d68b5933c3dab824d7",
+    "dagger/held-out-b": "7b225787a5503530db0cebc8e37e9bd6f9697b0d010ccea79a1c3a4022dad07d",
+    "terminal-dagger/training": "3bc3f63975a4ada0c35017e0028351390c26513ea24111db2b7c21db4e0c8b6a",
+    "terminal-dagger/held-out-a": "f1eb969563d46a963cdbc2c9809244112c2ee80dd81a04178da6dc5f4247887d",
+    "terminal-dagger/held-out-b": "1d3ea404db22342d79b57c5a58618f491ec2969d59e80843aa98b65c2d455e84"
+  },
+  "initial_policy_sha256": "8424c64f381793552e4418c3885bf0e595b0fecc4b6be6eacd56f633e79b3b2d",
+  "output_policy_sha256": "95a56f46dfca71d99003dbf56c632547e39ada58cf11061909fb63c79edbe5ea",
+  "seed": 20270103,
+  "stride": 5,
+  "training_samples": 15600,
+  "validation_samples": 7200,
+  "training_stage_counts": [
+    4336,
+    1252,
+    1168,
+    853,
+    567,
+    7424
+  ],
+  "validation_stage_counts": [
+    2020,
+    572,
+    555,
+    362,
+    240,
+    3451
+  ],
+  "epochs": 300,
+  "learning_rate": 0.0001,
+  "history": [
+    {
+      "epoch": 1,
+      "train_loss": 0.1256769299507141,
+      "validation_command_mae": [
+        0.10993804037570953,
+        0.15017777681350708,
+        0.10033339262008667,
+        0.07961851358413696
+      ],
+      "validation_head_mse": 0.0,
+      "seconds": 0.08
+    },
+    {
+      "epoch": 20,
+      "train_loss": 0.028605702449567616,
+      "validation_command_mae": [
+        0.06139008328318596,
+        0.1070985496044159,
+        0.0774753987789154,
+        0.07744523882865906
+      ],
+      "validation_head_mse": 0.0,
+      "seconds": 0.6
+    },
+    {
+      "epoch": 40,
+      "train_loss": 0.020837463904172182,
+      "validation_command_mae": [
+        0.051601506769657135,
+        0.10031773149967194,
+        0.07352945953607559,
+        0.07443143427371979
+      ],
+      "validation_head_mse": 0.0,
+      "seconds": 1.1
+    },
+    {
+      "epoch": 80,
+      "train_loss": 0.013001501094549894,
+      "validation_command_mae": [
+        0.039615411311388016,
+        0.09385427832603455,
+        0.06827172636985779,
+        0.0760275200009346
+      ],
+      "validation_head_mse": 0.0,
+      "seconds": 2.1
+    },
+    {
+      "epoch": 120,
+      "train_loss": 0.00976721162442118,
+      "validation_command_mae": [
+        0.03532643988728523,
+        0.09004361182451248,
+        0.06509269773960114,
+        0.06971917301416397
+      ],
+      "validation_head_mse": 0.0,
+      "seconds": 3.1
+    },
+    {
+      "epoch": 160,
+      "train_loss": 0.0076035879901610315,
+      "validation_command_mae": [
+        0.03388009965419769,
+        0.08884099870920181,
+        0.064609095454216,
+        0.06726466119289398
+      ],
+      "validation_head_mse": 0.0,
+      "seconds": 4.1
+    },
+    {
+      "epoch": 200,
+      "train_loss": 0.006388556066667661,
+      "validation_command_mae": [
+        0.0306853037327528,
+        0.08690029382705688,
+        0.06249929219484329,
+        0.0656096413731575
+      ],
+      "validation_head_mse": 0.0,
+      "seconds": 5.1
+    },
+    {
+      "epoch": 250,
+      "train_loss": 0.00506225079880096,
+      "validation_command_mae": [
+        0.03057277202606201,
+        0.08463480323553085,
+        0.062180295586586,
+        0.06558877229690552
+      ],
+      "validation_head_mse": 0.0,
+      "seconds": 6.34
+    },
+    {
+      "epoch": 300,
+      "train_loss": 0.00429577668546699,
+      "validation_command_mae": [
+        0.027456410229206085,
+        0.08335394412279129,
+        0.0618845671415329,
+        0.0627419501543045
+      ],
+      "validation_head_mse": 0.0,
+      "seconds": 7.59
+    }
+  ],
+  "training_lanes": [
+    [
+      "demonstrations",
+      "training",
+      0
+    ],
+    [
+      "demonstrations",
+      "training",
+      1
+    ],
+    [
+      "demonstrations",
+      "training",
+      2
+    ],
+    [
+      "demonstrations",
+      "training",
+      3
+    ],
+    [
+      "demonstrations",
+      "training",
+      4
+    ],
+    [
+      "demonstrations",
+      "training",
+      5
+    ],
+    [
+      "demonstrations",
+      "held-out-a",
+      0
+    ],
+    [
+      "demonstrations",
+      "held-out-a",
+      1
+    ],
+    [
+      "demonstrations",
+      "held-out-a",
+      2
+    ],
+    [
+      "demonstrations",
+      "held-out-a",
+      3
+    ],
+    [
+      "demonstrations",
+      "held-out-a",
+      4
+    ],
+    [
+      "demonstrations",
+      "held-out-a",
+      5
+    ],
+    [
+      "demonstrations",
+      "held-out-b",
+      0
+    ],
+    [
+      "demonstrations",
+      "held-out-b",
+      1
+    ],
+    [
+      "demonstrations",
+      "held-out-b",
+      2
+    ],
+    [
+      "demonstrations",
+      "held-out-b",
+      3
+    ],
+    [
+      "demonstrations",
+      "held-out-b",
+      4
+    ],
+    [
+      "demonstrations",
+      "held-out-b",
+      5
+    ],
+    [
+      "dagger",
+      "training",
+      0
+    ],
+    [
+      "dagger",
+      "held-out-a",
+      0
+    ],
+    [
+      "dagger",
+      "held-out-b",
+      0
+    ],
+    [
+      "terminal-dagger",
+      "training",
+      1
+    ],
+    [
+      "terminal-dagger",
+      "held-out-a",
+      0
+    ],
+    [
+      "terminal-dagger",
+      "held-out-a",
+      1
+    ],
+    [
+      "terminal-dagger",
+      "held-out-a",
+      2
+    ],
+    [
+      "terminal-dagger",
+      "held-out-b",
+      1
+    ]
+  ],
+  "validation_lanes": [
+    [
+      "demonstrations",
+      "training",
+      6
+    ],
+    [
+      "demonstrations",
+      "training",
+      7
+    ],
+    [
+      "demonstrations",
+      "held-out-a",
+      6
+    ],
+    [
+      "demonstrations",
+      "held-out-a",
+      7
+    ],
+    [
+      "demonstrations",
+      "held-out-b",
+      6
+    ],
+    [
+      "demonstrations",
+      "held-out-b",
+      7
+    ],
+    [
+      "dagger",
+      "training",
+      1
+    ],
+    [
+      "dagger",
+      "held-out-a",
+      1
+    ],
+    [
+      "dagger",
+      "held-out-b",
+      1
+    ],
+    [
+      "terminal-dagger",
+      "training",
+      2
+    ],
+    [
+      "terminal-dagger",
+      "held-out-a",
+      3
+    ],
+    [
+      "terminal-dagger",
+      "held-out-b",
+      3
+    ]
+  ],
+  "note": "supervised teacher and successful recovery imitation only; no autonomous success claim",
+  "provenance_correction": "The original script wrote its output over the temporary uncompressed input before computing the input hash. The original committed compressed input was independently restored and its SHA-256 is recorded here. The output hash and compressed output were unaffected. The script now uses a separate output directory."
+}

@@ -1,0 +1,37 @@
+{
+  "remote_revision": "f1677f6be1d176967a63302852c004e9d88270dc",
+  "removed_raw_copies": [
+    {
+      "path": "build/crow-hierarchical-demonstrations-20261109/training.rollout",
+      "bytes": 95424956,
+      "sha256": "02d0ebaf48ab4d793415e154821944bdce25e5123f3e37abe4c21654b88c131e"
+    },
+    {
+      "path": "build/crow-hierarchical-demonstrations-20261109/held-out-a.rollout",
+      "bytes": 95424956,
+      "sha256": "74e9083c938e8e731b3926484f21515e0fd126472d5f4d408d8ab572c358c448"
+    },
+    {
+      "path": "build/crow-hierarchical-demonstrations-20261109/held-out-b.rollout",
+      "bytes": 95424956,
+      "sha256": "d011d1ef374fa9779027ea59f29424ae8b99da8c85d4245335e0b8ec32212ed8"
+    },
+    {
+      "path": "build/crow-hierarchical-dagger-20261109/training.rollout",
+      "bytes": 47712940,
+      "sha256": "66e0bd13733abd58a51cae71990053cbee2ef18ca2649cf6471f7f7463ab5c0d"
+    },
+    {
+      "path": "build/crow-hierarchical-dagger-20261109/held-out-a.rollout",
+      "bytes": 47712940,
+      "sha256": "6613d2e0662df98bb3f00f0b37bcfe085692a41a591d3907da8395df8aabfef5"
+    },
+    {
+      "path": "build/crow-hierarchical-dagger-20261109/held-out-b.rollout",
+      "bytes": 47712940,
+      "sha256": "b6973af7d410a7a5c3ff9aad77cbeadbfec1d1b482f72f7615571ad4fcc7ec4e"
+    }
+  ],
+  "total_bytes": 429413688,
+  "note": "Compressed research records remain in the repository and were independently streamed from GitHub and hash checked before removal."
+}
