@@ -150,6 +150,7 @@ set(METALROBO_LOCOMOTION_TASK_SOURCE
     "${CMAKE_CURRENT_SOURCE_DIR}/src/metal/LocomotionTask.metal"
 )
 set(METALROBO_CROW_NAVIGATION_ARRIVALS_SOURCE
+    "${CMAKE_CURRENT_SOURCE_DIR}/src/metal/CrowFlightControllerV1.metal"
     "${CMAKE_CURRENT_SOURCE_DIR}/src/metal/CrowNavigationStageThreeArrivals.metalh"
     "${CMAKE_CURRENT_SOURCE_DIR}/src/metal/CrowNavigationStageFourArrivals.metalh"
 )

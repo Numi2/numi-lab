@@ -107,6 +107,8 @@ enum MRTaskProgramFlags : mr_u32 {
     // one, preserving the parent's takeoff and first-gate action exactly.
     MR_TASK_PROGRAM_AVIAN_CROW_NAVIGATION_POST_FIRST_GATE_ADAPTER =
         1u << 27u,
+    // Goal-memory command policy and frozen v15 flight controller.
+    MR_TASK_PROGRAM_AVIAN_CROW_HIERARCHICAL_NAVIGATION = 1u << 28u,
 };
 
 enum MRTaskInteractionFlags : mr_u32 {

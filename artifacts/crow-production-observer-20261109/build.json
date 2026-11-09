@@ -1,0 +1,6 @@
+{
+  "api_sha256": "51741d8056cf93e2ab70e4be23486603625e3de2c616b513774cec254022815e",
+  "library_sha256": "dc8f426862c8dd19daf8eb9773116a168d260eb331c914fa13e6a72eaa4fbfb4",
+  "production_api_sha256": "de68066b15f32c69ff758bbd5c8f559581a3c172fcb8496b62e751f1fa357f82",
+  "scope": "opt-in read-only contact, support and sampled box-clearance evidence for production task"
+}

@@ -1804,10 +1804,13 @@ inline float cleanObservation(
         if (gatedLateRouteAdapter) {
             value = 0.0f;
         } else if (routeComponent < 6u &&
-            waypoint < kCrowNavigationWaypointCount) {
+            (waypoint < kCrowNavigationWaypointCount ||
+             ((program.schedule.w & MR_TASK_PROGRAM_AVIAN_CROW_HIERARCHICAL_NAVIGATION) != 0u &&
+              waypoint == kCrowNavigationWaypointCount))) {
+            const uint visibleWaypoint = min(waypoint,kCrowNavigationWaypointCount-1u);
             const uint requested = routeComponent < 3u
-                ? waypoint
-                : min(waypoint + 1u,
+                ? visibleWaypoint
+                : min(visibleWaypoint + 1u,
                       kCrowNavigationWaypointCount - 1u);
             const float3 relative = rotateInverse(
                 orientation,
@@ -1823,6 +1826,18 @@ inline float cleanObservation(
                 float(kCrowNavigationWaypointCount);
         } else if (routeComponent == 7u) {
             value = state.navigation.w;
+        } else if (routeComponent >= 8u && routeComponent <= 10u &&
+                   (program.schedule.w & MR_TASK_PROGRAM_AVIAN_CROW_HIERARCHICAL_NAVIGATION) != 0u) {
+            // Memory of the previously issued goal, not obstacle geometry.
+            const uint previous = waypoint > 0u ? min(waypoint-1u,kCrowNavigationWaypointCount-1u) : 0u;
+            const float3 relative = rotateInverse(
+                orientation,
+                crowNavigationWaypointTarget(sceneBodies,operation.source.y,previous) -
+                    rootWorldPosition(program,q));
+            value = waypoint > 0u ? 0.25f*relative[routeComponent-8u] : 0.0f;
+        } else if (routeComponent == 11u &&
+                   (program.schedule.w & MR_TASK_PROGRAM_AVIAN_CROW_HIERARCHICAL_NAVIGATION) != 0u) {
+            value = 0.5f*state.threatTeacher.w;
         } else if (routeComponent < 13u) {
             value = routeComponent - 8u == waypoint ? 1.0f : 0.0f;
         } else if (routeComponent < 29u) {
@@ -4791,6 +4806,8 @@ inline float birdFlowJourneyTeacherAction(
     return 0.0f;
 }
 
+#include "CrowFlightControllerV1.metal"
+
 inline uint taskActionHoldPeriod(device const MRTaskProgramHeaderGPU& program,device const uchar* arena,uint action) {
     if(program.articulation.z==MR_TASK_PROGRAM_ACTION_HOLD_ABI_VERSION)
         return taskTable<uint>(arena,uint(program.actionAvailabilityProgram>>32u))[action];
@@ -4905,6 +4922,8 @@ kernel void mr_locomotion_task_apply_actions(
         // resulting position target to the joint range below, so policies
         // trained with residuals outside [-1, 1] retain their source action
         // semantics without weakening physical target safety.
+        const bool fixedFlightController =
+            (program.schedule.w & MR_TASK_PROGRAM_AVIAN_CROW_HIERARCHICAL_NAVIGATION) != 0u;
         const bool avianJourneyTeacher =
             dispatch.sampling.w != 0u &&
             (program.schedule.w &
@@ -4923,15 +4942,30 @@ kernel void mr_locomotion_task_apply_actions(
               )
             : 0.0f;
         const float studentRequested = actionStream[actionBase + action];
+        MRTaskStateGPU carrierState = state;
+        carrierState.episode.x = min(carrierState.episode.x, 1500u);
+        const float4 actorLatent = fixedFlightController
+            ? clamp(float4(actionStream[actionBase+0u],actionStream[actionBase+1u],
+                           actionStream[actionBase+2u],actionStream[actionBase+3u]),-1.0f,1.0f)
+            : float4(0.0f);
+        const float4 actorCommand = float4(
+            0.10f+0.30f*actorLatent.x,0.30f*actorLatent.y,
+            0.15f*actorLatent.z,0.975f+0.325f*actorLatent.w);
+        const bool privilegedCommand = (dispatch.sampling.w != 0u && dispatch.assistance.x < 0.5f);
+        const float4 oracleCommand = privilegedCommand ? state.nutrition : actorCommand;
+        carrierState.commandAndPhase.x = 0.15f;
+        carrierState.commandAndPhase.y = oracleCommand.y;
+        carrierState.commandExtension.x = oracleCommand.z;
+        carrierState.commandExtension.z += 0.25f-oracleCommand.x;
+        carrierState.threatGeometry.x += oracleCommand.w;
+        carrierState.threatTeacher.x -= oracleCommand.y;
         const float teacherRequested =
-            avianJourneyTeacher || approachSupervisorBlend > 0.0f
-            ? birdFlowJourneyTeacherAction(
-                  action,
-                  state,
-                  dispatch.timing.x,
-                  (program.schedule.w &
-                   MR_TASK_PROGRAM_AVIAN_CROW_NAVIGATION) != 0u
-              )
+            avianJourneyTeacher || fixedFlightController || approachSupervisorBlend > 0.0f
+            ? (fixedFlightController
+               ? crowFlightControllerV1Action(action, carrierState, dispatch.timing.x)
+               : birdFlowJourneyTeacherAction(
+                   action, state, dispatch.timing.x,
+                   (program.schedule.w & MR_TASK_PROGRAM_AVIAN_CROW_NAVIGATION) != 0u))
             : 0.0f;
         // Full-journey distillation adds flight and approach to an actor that
         // has already qualified landed hold. Once the authored landing
@@ -4944,7 +4978,7 @@ kernel void mr_locomotion_task_apply_actions(
             (program.schedule.w &
              MR_TASK_PROGRAM_AVIAN_CROW_NAVIGATION_FLIGHT_PHASE) == 0u;
         const bool avianNavigationTeacher =
-            avianJourneyTeacher &&
+            (avianJourneyTeacher || fixedFlightController) &&
             (program.schedule.w &
              MR_TASK_PROGRAM_AVIAN_CROW_NAVIGATION) != 0u;
         // Preserve the learned common-mode flight carrier and add only a
@@ -4961,7 +4995,7 @@ kernel void mr_locomotion_task_apply_actions(
                   0.45f
               )
             : 0.0f;
-        const float navigationTeacherRequested = !avianNavigationTeacher
+        const float legacyNavigationTeacherRequested = !avianNavigationTeacher
             ? teacherRequested
             : action == 0u || action == 4u
             ? clamp(
@@ -4982,11 +5016,18 @@ kernel void mr_locomotion_task_apply_actions(
             : action == 13u
             ? teacherRequested
             : studentRequested;
+        float navigationTeacherRequested = fixedFlightController
+            ? (avianNavigationTeacher && action >= 15u ? studentRequested : teacherRequested)
+            : legacyNavigationTeacherRequested;
         // Keep the training-only teacher active through the final target.
         // Ending at waypoint four taught an aggressive approach crossing but
         // handed the student a poor terminal arrival geometry. Autonomous
         // execution still has no teacher authority.
-        const float navigationTeacherBlend = avianNavigationTeacher
+        if (fixedFlightController && state.threatTeacher.w >= 1.5f && action < 15u)
+            navigationTeacherRequested = 0.0f;
+        const float navigationTeacherBlend = fixedFlightController
+            ? 1.0f
+            : avianNavigationTeacher
             ? (state.navigation.z >= 5.0f ? 0.0f : 1.0f)
             : 1.0f;
         const float effectiveTeacherRequested =
@@ -5002,7 +5043,9 @@ kernel void mr_locomotion_task_apply_actions(
         const bool actionAvailable = !MR_TASK_PROGRAM_HAS_MEMORY_CHOICE(program.articulation.z) ||
             (state.episode.x>=uint(program.actionAvailabilityProgram) && taskActionHoldPeriod(program,arena,action)!=0u);
         const bool actionSelected=taskActionSelected(program,arena,state.episode.x,action);
-        const float requestedBeforeAvailability = avianJourneyTeacher
+        const float requestedBeforeAvailability = fixedFlightController && action < 15u
+            ? navigationTeacherRequested
+            : avianJourneyTeacher
             ? mix(
                   effectiveTeacherRequested,
                   studentRequested,
@@ -5076,6 +5119,14 @@ kernel void mr_locomotion_task_apply_actions(
             filterSlot * program.counts0.x +
             action
         ];
+        if (avianJourneyTeacher && fixedFlightController) {
+            const float4 label = float4(
+                clamp((state.nutrition.x-0.10f)/0.30f,-1.0f,1.0f),
+                clamp(state.nutrition.y/0.30f,-1.0f,1.0f),
+                clamp(state.nutrition.z/0.15f,-1.0f,1.0f),
+                clamp((state.nutrition.w-0.975f)/0.325f,-1.0f,1.0f));
+            teacherActions[actionBase + action] = action < 4u ? label[action] : 0.0f;
+        }
         if (binding.actuator.x != MR_TASK_ACTUATOR_JOINT_POSITION &&
             binding.actuator.x != MR_TASK_ACTUATOR_GRIPPER_POSITION &&
             binding.actuator.x != MR_TASK_ACTUATOR_FLAPPING_POSITION) {
@@ -5178,7 +5229,10 @@ kernel void mr_locomotion_task_apply_actions(
             )
             : filtered;
         const float avianWingAmplitude =
-            avianGroundCurriculum &&
+            fixedFlightController && state.threatTeacher.w >= 1.5f &&
+            binding.actuator.x == MR_TASK_ACTUATOR_FLAPPING_POSITION
+            ? 0.0f
+            : avianGroundCurriculum &&
             binding.actuator.x == MR_TASK_ACTUATOR_FLAPPING_POSITION
             ? 0.0f
             : clamp(
@@ -6535,6 +6589,109 @@ kernel void mr_locomotion_task_complete_history2(
             state.commandAndPhase.xyz = float3(0.0f);
             state.commandExtension.xyz = float3(0.0f);
         }
+    }
+    // Privileged development route teacher; not autonomous policy.
+    if ((program.schedule.w & MR_TASK_PROGRAM_AVIAN_CROW_HIERARCHICAL_NAVIGATION) != 0u &&
+        dispatch.sampling.w != 0u) {
+        uint course = MR_INVALID_INDEX;
+        for (uint i=0u; i<program.counts1.w; ++i) {
+            const MRTaskRewardOperatorGPU operation = rewards[i];
+            if (operation.source.x == MR_TASK_REWARD_NAVIGATION_WAYPOINT_PROGRESS ||
+                operation.source.x == MR_TASK_REWARD_NAVIGATION_WAYPOINT_REACH) {
+                course = operation.source.z;
+                break;
+            }
+        }
+        const uint wp = min(uint(max(state.navigation.z,0.0f)), kCrowNavigationWaypointCount-1u);
+        if (course != MR_INVALID_INDEX) {
+            const float3 target = crowNavigationWaypointTarget(sceneState + sceneBase, course, wp);
+            const float3 pos = rootWorldPosition(program,q);
+            float3 lateralTarget = target;
+            if (wp >= 1u && wp <= 3u) {
+                const float3 previous = crowNavigationWaypointTarget(sceneState + sceneBase, course, wp-1u);
+                const float transition = smoothstep(previous.x+(wp==2u ? -0.16f : wp==3u ? 0.20f : 0.20f), previous.x+(wp==2u ? -0.01f : wp==3u ? 0.35f : 0.35f), pos.x);
+                lateralTarget.y = mix(previous.y, target.y, transition);
+            }
+            const float3 delta = lateralTarget-pos;
+            const float localLateral = -yawBasis.y*delta.x + yawBasis.x*delta.y;
+            const float lateralCommand = clamp(0.80f*localLateral,-0.30f,0.30f);
+            const float heightTarget = clamp(target.z+0.30f,1.15f,1.30f);
+            const float heading = atan2(yawBasis.y,yawBasis.x);
+            const float pitch = asin(clamp(2.0f*(orientation.w*orientation.y-orientation.z*orientation.x),-1.0f,1.0f));
+            const float roll = atan2(2.0f*(orientation.w*orientation.x+orientation.y*orientation.z),1.0f-2.0f*(orientation.x*orientation.x+orientation.y*orientation.y));
+            const bool landing = state.navigation.z >= float(kCrowNavigationWaypointCount);
+            float landingPhase = state.threatTeacher.w;
+            float desiredLateral = lateralCommand;
+            float desiredHeight = heightTarget;
+            float errorOffset = 0.0f;
+            if (landing) {
+                const float3 perch = sceneState[sceneBase+course+4u].position.xyz;
+                const float3 landingTarget = perch + float3(0.0f,0.55f,0.0f);
+                const float xError = landingTarget.x-pos.x;
+                const float yError = landingTarget.y-pos.y;
+                const float commandedForward = clamp(0.45f*xError,-0.20f,0.20f);
+                desiredLateral = clamp(0.80f*yError,-0.30f,0.30f);
+                errorOffset = 0.25f-commandedForward;
+                if (landingPhase < 0.5f && length(float2(xError,yError)) < 0.08f &&
+                    length(yawFrameLinear.xy) < 0.08f) landingPhase=1.0f;
+                uint loadedFeet=0u;
+                for (uint gi=0u; gi<program.counts0.w; ++gi) {
+                    const MRTaskContactGroupGPU group=contactGroups[gi];
+                    if ((group.members.z & MR_TASK_CONTACT_SUPPORT) != 0u &&
+                        compactContact[compactBase+group.members.w] > 0.05f) ++loadedFeet;
+                }
+                if (landingPhase > 0.5f && loadedFeet >= 2u &&
+                    abs(xError) < 0.06f && abs(yError) < 0.16f &&
+                    length(yawFrameLinear.xy) < 0.08f &&
+                    abs(rootLinearVelocity.z) < 0.12f) landingPhase=2.0f;
+                desiredHeight = landingPhase > 0.5f ? perch.z+0.34f : 1.30f;
+            }
+            // Oracle labels occupy diagnostic spare state only; these will
+            // become independently fingerprinted actor commands, not sensors.
+            state.nutrition=float4(0.25f-errorOffset,desiredLateral,-heading,desiredHeight);
+            // Policy observations do not expose privileged teacher commands.
+            state.commandAndPhase.xyz=float3(0.15f,0.0f,0.0f);
+            state.commandExtension.xyz=float3(-heading,baseAngular.z,yawFrameLinear.x);
+            state.threatGeometry=float4(-pos.z,rootLinearVelocity.z,pitch,baseAngular.y);
+            state.threatTeacher=float4(yawFrameLinear.y,roll,baseAngular.x,landingPhase);
+        }
+    }
+    else if ((program.schedule.w & MR_TASK_PROGRAM_AVIAN_CROW_HIERARCHICAL_NAVIGATION) != 0u) {
+        // Accepted proprioceptive feedback and explicit final waypoint goal.
+        // The actor, not the route teacher, owns navigation commands.
+        const float3 pos = rootWorldPosition(program,q);
+        const float heading = atan2(yawBasis.y,yawBasis.x);
+        const float pitch = asin(clamp(2.0f*(orientation.w*orientation.y-orientation.z*orientation.x),-1.0f,1.0f));
+        const float roll = atan2(2.0f*(orientation.w*orientation.x+orientation.y*orientation.z),1.0f-2.0f*(orientation.x*orientation.x+orientation.y*orientation.y));
+        float phase=state.threatTeacher.w;
+        if (state.navigation.z >= float(kCrowNavigationWaypointCount)) {
+            uint course=MR_INVALID_INDEX;
+            for (uint i=0u;i<program.counts1.w;++i) {
+                const MRTaskRewardOperatorGPU operation=rewards[i];
+                if (operation.source.x==MR_TASK_REWARD_NAVIGATION_WAYPOINT_PROGRESS ||
+                    operation.source.x==MR_TASK_REWARD_NAVIGATION_WAYPOINT_REACH) {course=operation.source.z;break;}
+            }
+            if (course!=MR_INVALID_INDEX) {
+                // The fifth waypoint is an explicit goal observation; no
+                // obstacle collision geometry or teacher route is consulted.
+                const float3 finalGoal=crowNavigationWaypointTarget(sceneState+sceneBase,course,4u);
+                if (phase < 0.5f && length(finalGoal.xy-pos.xy)<0.08f &&
+                    length(yawFrameLinear.xy)<0.08f) phase=1.0f;
+                uint loadedFeet=0u;
+                for (uint gi=0u;gi<program.counts0.w;++gi) {
+                    const MRTaskContactGroupGPU group=contactGroups[gi];
+                    if ((group.members.z & MR_TASK_CONTACT_SUPPORT)!=0u &&
+                        compactContact[compactBase+group.members.w]>0.05f) ++loadedFeet;
+                }
+                if (loadedFeet>=2u && abs(finalGoal.x-pos.x)<0.06f &&
+                    abs(finalGoal.y-pos.y)<0.16f && length(yawFrameLinear.xy)<0.08f &&
+                    abs(rootLinearVelocity.z)<0.12f) phase=2.0f;
+            }
+        }
+        state.commandAndPhase.xyz=float3(0.15f,0.0f,0.0f);
+        state.commandExtension.xyz=float3(-heading,baseAngular.z,yawFrameLinear.x);
+        state.threatGeometry=float4(-pos.z,rootLinearVelocity.z,pitch,baseAngular.y);
+        state.threatTeacher=float4(yawFrameLinear.y,roll,baseAngular.x,phase);
     }
     if (avianJourneyTakeoffCruise) {
         // Feed the next teacher action from accepted state without a host

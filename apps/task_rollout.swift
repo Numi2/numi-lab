@@ -608,9 +608,11 @@ private struct Options {
                     birdFlowJourneyVariant = .v14ObjectPush
                 case "v15", "v15-active-head-navigation":
                     birdFlowJourneyVariant = .v15ActiveHeadNavigation
+                case "v15-hierarchical-navigation":
+                    birdFlowJourneyVariant = .v15HierarchicalNavigation
                 default:
                     throw MetalRoboTaskRolloutError.invalidShape(
-                        "--birdflow-journey-variant requires v7-hierarchical, v8-neural, v9-visual-neural, v10-world-model, v11-embodied, v12-feeding-station, v13-retinal-feeding, v14-object-push, or v15-active-head-navigation."
+                        "--birdflow-journey-variant requires v7-hierarchical, v8-neural, v9-visual-neural, v10-world-model, v11-embodied, v12-feeding-station, v13-retinal-feeding, v14-object-push, v15-active-head-navigation, or v15-hierarchical-navigation."
                     )
                 }
                 index += 1
@@ -847,7 +849,8 @@ private struct Options {
         if birdFlowNavigationCurriculum &&
             (!birdFlowAmericanCrowJourney ||
              (birdFlowJourneyVariant != .v10WorldModelNavigation &&
-              birdFlowJourneyVariant != .v15ActiveHeadNavigation))
+              birdFlowJourneyVariant != .v15ActiveHeadNavigation &&
+              birdFlowJourneyVariant != .v15HierarchicalNavigation))
         {
             throw MetalRoboTaskRolloutError.invalidShape(
                 "--birdflow-navigation-curriculum requires a navigation journey."
@@ -1155,6 +1158,7 @@ private struct Options {
             (birdFlowJourneyVariant == .v9VisualNeural ||
              birdFlowJourneyVariant == .v10WorldModelNavigation ||
              birdFlowJourneyVariant == .v15ActiveHeadNavigation ||
+             birdFlowJourneyVariant == .v15HierarchicalNavigation ||
              birdFlowJourneyVariant == .v13RetinalFeeding ||
              birdFlowJourneyVariant == .v14ObjectPush) &&
             visualObservationConfig == nil
@@ -3849,6 +3853,8 @@ private enum TaskRolloutMain {
                         ? "v12_feeding_station_neural_nutrition"
                         : options.birdFlowJourneyVariant == .v11Embodied
                         ? "v11_embodied_neural_proprioception"
+                        : options.birdFlowJourneyVariant == .v15HierarchicalNavigation
+                        ? "v15_goal_memory_hierarchical_rgbd_history"
                         : options.birdFlowJourneyVariant == .v15ActiveHeadNavigation
                         ? "v15_active_head_navigation_rgbd_history"
                         : options.birdFlowJourneyVariant == .v10WorldModelNavigation

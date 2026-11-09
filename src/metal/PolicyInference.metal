@@ -295,6 +295,7 @@ kernel void mr_policy_residual_sample_and_score(
     device float* latents [[buffer(10)]],
     device float* logProbabilities [[buffer(11)]],
     device float* values [[buffer(12)]],
+    device const MRTaskProgramHeaderGPU& taskProgram [[buffer(13)]],
     const uint environment [[thread_position_in_grid]]
 ) {
     if (environment >= dispatch.counts.x ||
@@ -337,7 +338,11 @@ kernel void mr_policy_residual_sample_and_score(
         ? policyTable<float>(arena, program.offsets2.x)
         : nullptr;
     const MRTaskStateGPU state = taskStates[environment];
-    const bool liftOffBand = state.episode.z == 2u;
+    const bool hierarchicalCrow =
+        (taskProgram.schedule.w & MR_TASK_PROGRAM_AVIAN_CROW_HIERARCHICAL_NAVIGATION) != 0u;
+    const bool liftOffBand = hierarchicalCrow
+        ? state.navigation.z >= 5.0f
+        : state.episode.z == 2u;
     ulong randomKey = task.seed;
     randomKey ^= policyMix64(
         (ulong(environment) << 32u) |
@@ -380,11 +385,12 @@ kernel void mr_policy_residual_sample_and_score(
                 -program.limits.y,
                 program.limits.y
             );
-            actions[actionBase + action] = clamp(
-                baseAction + residualAction,
-                -program.limits.y,
-                program.limits.y
-            );
+            // The crow task selects an independent landing actor; legacy
+            // tasks retain the existing additive lift-off residual.
+            actions[actionBase + action] = hierarchicalCrow
+                ? residualAction
+                : clamp(baseAction + residualAction,
+                        -program.limits.y, program.limits.y);
         } else {
             actions[actionBase + action] = baseAction;
         }

@@ -684,7 +684,7 @@ void validateTaskRolloutConfiguration(
         );
     }
     if (config.birdflow_journey_variant >
-        MR_BIRDFLOW_JOURNEY_V15_ACTIVE_HEAD_NAVIGATION) {
+        MR_BIRDFLOW_JOURNEY_V15_HIERARCHICAL_NAVIGATION) {
         throw std::invalid_argument(
             "task-rollout BirdFlow journey variant is invalid"
         );
@@ -3385,8 +3385,10 @@ static MRTaskRolloutHandle* createBirdFlowAmericanCrowRun(
                 "American-crow native object push",nullptr).release();
             return;
         }
-        const bool activeNavigation = journey && config->birdflow_journey_variant ==
-            MR_BIRDFLOW_JOURNEY_V15_ACTIVE_HEAD_NAVIGATION;
+        const bool hierarchicalNavigation = journey &&
+            config->birdflow_journey_variant == MR_BIRDFLOW_JOURNEY_V15_HIERARCHICAL_NAVIGATION;
+        const bool activeNavigation = hierarchicalNavigation || (journey &&
+            config->birdflow_journey_variant == MR_BIRDFLOW_JOURNEY_V15_ACTIVE_HEAD_NAVIGATION);
         const bool feeding=retinal || (journey && config->birdflow_journey_variant==MR_BIRDFLOW_JOURNEY_V12_FEEDING_STATION);
         const bool embodied = journey && (config->birdflow_journey_variant ==
             MR_BIRDFLOW_JOURNEY_V11_EMBODIED || feeding || activeNavigation);
@@ -3493,6 +3495,10 @@ static MRTaskRolloutHandle* createBirdFlowAmericanCrowRun(
             manifest.task.terminations.clear();
         }
         applyRunProfile(manifest, *config);
+        if (hierarchicalNavigation) {
+            manifest.task.maximumEpisodeSteps = 3000u;
+            manifest.task.id = "american_crow_v15_goal_memory_navigation_development_v1";
+        }
         manifest.profile.capacities = manifest.task.capacities;
         std::optional<metalrobo::FiniteResourceConfig> resources;
         if(cueConfig) {

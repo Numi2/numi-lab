@@ -4178,6 +4178,14 @@ MetalWorldDiagnostics validateAndBuildLayout(
             "compiled base policy must be a deterministic actor matching the primary policy task contract"
         );
     }
+    if (nativeBasePolicy && nativeTask &&
+        (config.taskProgram.header().schedule.w &
+         MR_TASK_PROGRAM_AVIAN_CROW_HIERARCHICAL_NAVIGATION) != 0u &&
+        (config.policyProgram.layout().stochastic ||
+         !config.policyProgram.criticLayers().empty())) {
+        return reject(std::move(diagnostics), MetalWorldHostStatus::invalidDimensions,
+            "hierarchical crow stage selection requires deterministic actor-only policies");
+    }
     if (qualityMode &&
         config.ccdMode == MetalWorldCCDMode::hybrid) {
         return reject(
@@ -12624,6 +12632,7 @@ bool encodePolicyInference(
             {10u, kPolicyLatents},
             {11u, kPolicyLogProbabilities},
             {12u, kPolicyValues},
+            {13u, kTaskProgramHeader},
         },
         nullptr,
         0u,

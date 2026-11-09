@@ -1,0 +1,42 @@
+{
+  "remote_revision": "903352e5f1549d6a14136f5158d60f4ad80a3ea1",
+  "method": "independent HTTPS download, gzip decompression and SHA-256 verification; no downloaded copy retained",
+  "rows": [
+    {
+      "path": "artifacts/crow-gate-full-student-dagger-20261109/training/rollout.bin.gz",
+      "raw_bytes": 95424956,
+      "raw_sha256": "9bdb5e7477f3bb5d94339333c12a53ddfdd1659bc794f5fbedefeefaa2f7b269",
+      "matches_manifest": true
+    },
+    {
+      "path": "artifacts/crow-gate-full-student-dagger-20261109/held-out-a/rollout.bin.gz",
+      "raw_bytes": 95424956,
+      "raw_sha256": "e8f396f152837e826ccaab5bbc7239b7e3109d472a562c32f02748dd43ee9637",
+      "matches_manifest": true
+    },
+    {
+      "path": "artifacts/crow-gate-full-student-dagger-20261109/held-out-b/rollout.bin.gz",
+      "raw_bytes": 95424956,
+      "raw_sha256": "de0faa667468eee727a327e873a16fd0245effe283d8b3e05338821b4bed42d0",
+      "matches_manifest": true
+    },
+    {
+      "path": "artifacts/crow-gate-second-student-dagger-20261109/training/rollout.bin.gz",
+      "raw_bytes": 95424956,
+      "raw_sha256": "618b3eb63e350718307845f1bf71ab137c3f5dc1a16c5c037479f5ef3114c9d1",
+      "matches_manifest": true
+    },
+    {
+      "path": "artifacts/crow-gate-second-student-dagger-20261109/held-out-a/rollout.bin.gz",
+      "raw_bytes": 95424956,
+      "raw_sha256": "38fa834d6595d782b7879e0560e6637f52cc3e3593f0bde049cff324f5ff1655",
+      "matches_manifest": true
+    },
+    {
+      "path": "artifacts/crow-gate-second-student-dagger-20261109/held-out-b/rollout.bin.gz",
+      "raw_bytes": 95424956,
+      "raw_sha256": "f57fc9dadeb8e52d5a29efcedcccac118545e2d4845059e3979eda27a4b700cb",
+      "matches_manifest": true
+    }
+  ]
+}

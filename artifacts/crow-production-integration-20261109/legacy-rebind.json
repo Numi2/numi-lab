@@ -1,0 +1,7 @@
+{
+  "source_task_fingerprint": 834232888989841086,
+  "rebound_task_fingerprint": 309395803524675639,
+  "source_sha256": "3828c0741900a5dc778f8acfcfb455dcd10493783cefd1f78cf25399ed9f6ffd",
+  "rebound_sha256": "0bc1d99e3e0bd559b43957c79ce4b326e610676fc3ff5e43b322ad3032bf3271",
+  "purpose": "same actor and critic weights for a controlled regression, not a trained or qualified policy"
+}
