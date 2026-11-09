@@ -59,6 +59,11 @@ relative maximum acceleration, with identical mass and areas. Complete
 10 ms traces at n=2 and n=8, h=2 microseconds agreed to at most 4.95e-13 of
 sampled peak force and 1.23e-13 of cumulative impulse. Source and executable
 hashes and the retained traces are in template-reference-trajectory-parity-001.json
-and template-reference-deformed-parity-001.json. The new variant is not yet
-qualified at n=32 or above and neither its accuracy at a larger mesh nor a
-reference-runtime benefit is assumed from these small checks.
+and template-reference-deformed-parity-001.json. The template variant subsequently matched the retained complete n=32,
+h=0.5 microsecond trajectory to 2.20e-12 of peak force and 2.74e-14 of
+total cumulative impulse. The independently reconstructed area weights and
+finite force traces passed for both n=32 reference variants; see the two
+reference-n32-validation-001.json records and
+template-reference-retained-n32-parity-001-analysis.json. Parity on n=32
+still does not establish n=256 trajectory accuracy, temporal convergence,
+spatial convergence or a reference-runtime benefit.

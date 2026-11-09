@@ -1,0 +1,13 @@
+{
+  "scope": "reference input validation only; no temporal or spatial convergence claim",
+  "path": "docs/evidence/midpoint-first-failure-20261109/template-reference-retained-n32-parity-001.json",
+  "sha256": "8e00b4d7b084a3d3c95e0b3f9f2739a3a4e900df980c65cd779ae8509510d383",
+  "mesh_divisions": 32,
+  "h": 5e-07,
+  "area_m2": 0.0004000000000000001,
+  "weights_checked": 35937,
+  "trace_samples_checked": 5001,
+  "peak_force_N": 0.1764201438199097,
+  "impulse_Ns": 0.0004121687503061769,
+  "passes": true
+}
