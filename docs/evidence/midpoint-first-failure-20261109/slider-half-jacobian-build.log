@@ -1,0 +1,3 @@
+[0/2] Re-checking globbed directories...
+[1/3] Building OBJCXX object CMakeFiles/numi_midpoint_slider_candidate_owner_probe.dir/apps/midpoint_slider_candidate_owner_probe.mm.o
+[2/3] Linking OBJCXX executable bin/numi_midpoint_slider_candidate_owner_probe

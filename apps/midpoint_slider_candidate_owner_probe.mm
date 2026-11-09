@@ -13,6 +13,9 @@ struct CandidateProbe {
  id<MTLBuffer> fullQ=nil;
  id<MTLBuffer> halfBodies=nil;
  id<MTLBuffer> fullBodies=nil;
+ id<MTLBuffer> point=nil;
+ id<MTLBuffer> halfJacobian=nil;
+ id<MTLBuffer> fullJacobian=nil;
  bool pre=false,post=false;
 };
 static bool candidateProbeEncode(void* opaque,const metalrobo::MetalWorldDevicePhysicsPass& pass){
@@ -27,17 +30,25 @@ static bool candidateProbeEncode(void* opaque,const metalrobo::MetalWorldDeviceP
  p.fullQ=[device newBufferWithLength:sizeof(float) options:MTLResourceStorageModeShared];
  p.halfBodies=[device newBufferWithLength:pass.bodyStateStride*sizeof(MRBodyStateGPU) options:MTLResourceStorageModeShared];
  p.fullBodies=[device newBufferWithLength:pass.bodyStateStride*sizeof(MRBodyStateGPU) options:MTLResourceStorageModeShared];
- if(!p.increment||!p.halfQ||!p.fullQ||!p.halfBodies||!p.fullBodies)return false;
+ p.point=[device newBufferWithLength:sizeof(MRArticulatedPointImpulseGPU) options:MTLResourceStorageModeShared];
+ p.halfJacobian=[device newBufferWithLength:3*sizeof(float) options:MTLResourceStorageModeShared];
+ p.fullJacobian=[device newBufferWithLength:3*sizeof(float) options:MTLResourceStorageModeShared];
+ if(!p.increment||!p.halfQ||!p.fullQ||!p.halfBodies||!p.fullBodies||!p.point||!p.halfJacobian||!p.fullJacobian)return false;
+ auto* point=static_cast<MRArticulatedPointImpulseGPU*>(p.point.contents);*point={};
+ point->bodyIndex=1;point->localPoint={.004f,.003f,0,0};
  *static_cast<float*>(p.increment.contents)=.007f;
  metalrobo::MetalWorldCoupledCandidateQuery q{};
  q.input=(__bridge void*)p.increment;q.candidateQ=(__bridge void*)p.halfQ;
  q.candidateBodies=(__bridge void*)p.halfBodies;q.generalizedVectorStride=1;
  q.candidateQStride=1;q.candidateBodyStride=pass.bodyStateStride;
+ q.pointQueries=(__bridge void*)p.point;q.pointJacobians=(__bridge void*)p.halfJacobian;
+ q.pointCount=1;q.pointStride=1;q.pointJacobianStride=3;
  q.operation=metalrobo::MetalWorldCoupledCandidateOperation::candidateHalfStepKinematics;
  if(!pass.encodeCoupledCandidate(pass.coupledCandidateContext,pass,q))return false;
  auto badPass=pass;badPass.timestepSeconds=std::numeric_limits<float>::denorm_min();
  if(pass.encodeCoupledCandidate(pass.coupledCandidateContext,badPass,q))return false;
  q.candidateQ=(__bridge void*)p.fullQ;q.candidateBodies=(__bridge void*)p.fullBodies;
+ q.pointJacobians=(__bridge void*)p.fullJacobian;
  q.operation=metalrobo::MetalWorldCoupledCandidateOperation::candidateKinematics;
  if(!pass.encodeCoupledCandidate(pass.coupledCandidateContext,pass,q))return false;
  p.pre=true;return true;
@@ -74,6 +85,8 @@ int main(int argc,char**argv){@autoreleasepool{try{
  const float qHalf=*static_cast<const float*>(probe.halfQ.contents),qFull=*static_cast<const float*>(probe.fullQ.contents);
  const auto halfBody=static_cast<const MRBodyStateGPU*>(probe.halfBodies.contents)[1];
  const auto fullBody=static_cast<const MRBodyStateGPU*>(probe.fullBodies.contents)[1];
+ const auto* halfJ=static_cast<const float*>(probe.halfJacobian.contents);
+ const auto* fullJ=static_cast<const float*>(probe.fullJacobian.contents);
  const double stageExpected=.5*double(h)*(double(v0)+double(.007f));
  const double fullExpected=double(h)*(double(v0)+double(.007f));
  const double ownerExpected=double(h)*(double(v0)+double(h)*double(g));
@@ -81,7 +94,9 @@ int main(int argc,char**argv){@autoreleasepool{try{
  require(std::abs(qFull-fullExpected)<1e-9,"incorrect full-step candidate");
  require(std::abs(halfBody.position.z-stageExpected)<1e-9 &&
          std::abs(fullBody.position.z-fullExpected)<1e-9,"incorrect projected body position");
+ for(unsigned i=0;i<3;++i){const double expected=i==2?1.:0.;
+  require(std::abs(halfJ[i]-expected)<1e-6 && std::abs(fullJ[i]-expected)<1e-6,"incorrect point Jacobian");}
  require(std::abs(result.finalQ[0]-ownerExpected)<1e-8,"scratch query changed owner integration");
- std::cout<<std::setprecision(17)<<"{\"schema\":\"numi.slider-owner-half-step-candidate.v1\",\"half_q\":"<<qHalf<<",\"full_q\":"<<qFull<<",\"half_body_z\":"<<halfBody.position.z<<",\"full_body_z\":"<<fullBody.position.z<<",\"underflow_rejected\":true"<<",\"owner_final_q\":"<<result.finalQ[0]<<",\"owner_final_v\":"<<result.finalV[0]<<",\"scope\":\"borrowed scratch kinematics; not a coupled midpoint transaction\"}\n";
+ std::cout<<std::setprecision(17)<<"{\"schema\":\"numi.slider-owner-half-step-candidate.v1\",\"half_q\":"<<qHalf<<",\"full_q\":"<<qFull<<",\"half_body_z\":"<<halfBody.position.z<<",\"full_body_z\":"<<fullBody.position.z<<",\"half_point_jacobian_z\":"<<halfJ[2]<<",\"full_point_jacobian_z\":"<<fullJ[2]<<",\"underflow_rejected\":true"<<",\"owner_final_q\":"<<result.finalQ[0]<<",\"owner_final_v\":"<<result.finalV[0]<<",\"scope\":\"borrowed scratch kinematics; not a coupled midpoint transaction\"}\n";
  return 0;
  }catch(const std::exception&e){std::cerr<<e.what()<<"\n";return 1;}}}
