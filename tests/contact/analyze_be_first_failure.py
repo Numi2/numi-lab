@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """Summarize selected-root GPU trace without modifying physical state."""
-import json,math,pathlib,struct,subprocess,sys
+import gzip,json,math,pathlib,struct,subprocess,sys
 p=pathlib.Path(__file__).resolve().parents[2]/"docs/evidence/midpoint-first-failure-20261109"
 a=json.loads((p/"be-n2-h0001.json").read_text());b=json.loads((p/"be-first-failure-001.json").read_text())
 keys=("accepted_steps","rejected_steps","minimum_gap","final_physical_sha256","rejected_state_unchanged","continuation_replay","restore_replay","forced_rollback_exact","identity_mismatch_rejected")
@@ -8,7 +8,10 @@ reproduced=all(a[k]==b[k] for k in keys) and len(a["traces"])==len(b["traces"]) 
 items=[]
 seen={}
 repeated=0
-for line in (p/"be-first-failure-001.log").read_text().splitlines():
+source=p/"be-first-failure-001.log"
+if not source.exists():source=p/"be-first-failure-001.log.gz"
+open_log=gzip.open if source.suffix==".gz" else open
+for line in open_log(source,"rt"):
  if line.startswith("fem_newton_iterate="):
   x=json.loads(line.split("=",1)[1])
   if x["stage"]=="final_line_search":
