@@ -822,8 +822,12 @@ constexpr std::size_t kFEMOperatorFDParameterCaptureValuesPerSlot = 4u;
     hash = mixFingerprint(hash, configuration.externalCoupledCandidatePointCapacity);
     if (configuration.experimentalFEMPlaneMidpoint)
         hash = mixFingerprint(hash, 0x46454d4d49443031ull); // FEMMID01
-    if (configuration.experimentalFEMPlaneSliderMidpoint)
+    if (configuration.experimentalFEMPlaneSliderMidpoint) {
         hash = mixFingerprint(hash, 0x46454d534c494431ull); // FEMSLID1
+#ifdef NM_ENABLE_UNQUALIFIED_SLIDER_DIAGNOSTIC
+        hash = mixFingerprint(hash, 0x44494147534c4431ull); // DIAGSLD1
+#endif
+    }
     if (configuration.experimentalFEMPlaneAreaIPC) {
         hash = mixFingerprint(hash, 0x46454d4152454131ull); // FEMAREA1
         hash = mixFingerprint(hash, detail::hashBytes(
@@ -5039,12 +5043,15 @@ RuntimeDiagnostics Runtime::initialize(
             diagnostics.message = "slider midpoint research requires the restricted one-axis reference-area owner";
             return diagnostics;
         }
-        // The explicit capability is reserved but cannot execute until the
-        // independent owner torque/work and rollback requirements are met.
+        // Default builds cannot execute the unqualified coupled research path.
+        // A separately fingerprinted diagnostic-only build may exercise it to
+        // collect the evidence needed to decide whether the guard can change.
+#ifndef NM_ENABLE_UNQUALIFIED_SLIDER_DIAGNOSTIC
         if (sliderResearch) {
             diagnostics.message = "slider midpoint research is not yet qualified for execution";
             return diagnostics;
         }
+#endif
         if (world.mixedSolver.contactAcceptance.w > 0.0f &&
             world.dispatch.rigidGeneralizedCapacity != 0u && !sliderResearch) {
             diagnostics.message = "physical residual with a rigid owner requires explicit slider midpoint research admission";

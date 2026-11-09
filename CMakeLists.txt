@@ -3772,6 +3772,10 @@ target_link_libraries(numi_midpoint_slider_candidate_owner_probe PRIVATE metalro
 set_target_properties(numi_midpoint_slider_candidate_owner_probe PROPERTIES RUNTIME_OUTPUT_DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}/bin" BUILD_RPATH "${CMAKE_CURRENT_BINARY_DIR}/lib")
 add_test(NAME numi.midpoint.slider_candidate_owner COMMAND numi_midpoint_slider_candidate_owner_probe "${CMAKE_CURRENT_BINARY_DIR}/shaders/MetalRobo.metallib")
 
+add_executable(numi_midpoint_slider_coupled_diagnostic apps/midpoint_slider_coupled_diagnostic.mm)
+target_compile_options(numi_midpoint_slider_coupled_diagnostic PRIVATE -fobjc-arc -Wall -Wextra -Wpedantic)
+target_link_libraries(numi_midpoint_slider_coupled_diagnostic PRIVATE metalrobo "${FOUNDATION_FRAMEWORK}" "${METAL_FRAMEWORK}")
+set_target_properties(numi_midpoint_slider_coupled_diagnostic PROPERTIES RUNTIME_OUTPUT_DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}/bin" BUILD_RPATH "${CMAKE_CURRENT_BINARY_DIR}/lib")
 add_executable(numi_midpoint_dynamic_guard_probe apps/midpoint_dynamic_guard_probe.mm)
 add_dependencies(numi_midpoint_dynamic_guard_probe numi_matter_shaders)
 target_compile_options(numi_midpoint_dynamic_guard_probe PRIVATE -fobjc-arc -Wall -Wextra -Wpedantic -Werror)

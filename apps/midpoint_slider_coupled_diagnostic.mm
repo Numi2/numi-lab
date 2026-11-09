@@ -1,0 +1,103 @@
+// Diagnostic-only native FEM / genuinely reacting MetalWorld slider.
+// Full accuracy, conservation and rollback gates are assessed separately.
+#define main numi_plane_contact_diagnostic_main
+#include "plane_contact_probe.mm"
+#undef main
+#include "numi/matter/metal_world.hpp"
+#include "metalrobo/MetalWorld.hpp"
+
+struct SliderObservation {
+ metalrobo::MetalWorldDevicePhysicsProgram inner{};
+ id<MTLBuffer> wrench=nil, support=nil;
+};
+static bool observeSlider(void* opaque,const metalrobo::MetalWorldDevicePhysicsPass& pass){
+ auto& o=*static_cast<SliderObservation*>(opaque);
+ if(!o.inner.encode(o.inner.context,pass))return false;
+ if(pass.phase!=metalrobo::MetalWorldDevicePhysicsPhase::postCommit)return true;
+ id<MTLCommandBuffer> command=(__bridge id<MTLCommandBuffer>)pass.commandBuffer;
+ id<MTLBuffer> wrench=(__bridge id<MTLBuffer>)pass.bodyWrenches;
+ id<MTLBuffer> support=(__bridge id<MTLBuffer>)pass.sliderMidpointSupportWrench;
+ id<MTLDevice> device=command.commandQueue.device;
+ o.wrench=[device newBufferWithLength:sizeof(MRABABodyWrenchGPU) options:MTLResourceStorageModeShared];
+ o.support=[device newBufferWithLength:sizeof(MRABABodyWrenchGPU) options:MTLResourceStorageModeShared];
+ if(!wrench||!support||!o.wrench||!o.support||wrench.length<2*sizeof(MRABABodyWrenchGPU))return false;
+ id<MTLBlitCommandEncoder> blit=[command blitCommandEncoder];if(!blit)return false;
+ [blit copyFromBuffer:wrench sourceOffset:sizeof(MRABABodyWrenchGPU) toBuffer:o.wrench destinationOffset:0 size:sizeof(MRABABodyWrenchGPU)];
+ [blit copyFromBuffer:support sourceOffset:0 toBuffer:o.support destinationOffset:0 size:sizeof(MRABABodyWrenchGPU)];
+ [blit endEncoding];return true;
+}
+static void abortSlider(void* opaque,void* command){auto& o=*static_cast<SliderObservation*>(opaque);o.inner.abort(o.inner.context,command);}
+static metalrobo::EngineModel makeSlider(float h){
+ metalrobo::EngineModel m;m.name="midpoint_fem_reacting_slider";
+ m.world.abiVersion=MR_ENGINE_ABI_VERSION;m.world.bodyCount=2;m.world.articulationCount=1;
+ m.world.jointCount=1;m.world.nq=1;m.world.nv=1;m.world.pairCapacity=1;m.world.contactCapacity=1;
+ m.world.constraintCapacity=1;m.world.islandCapacity=1;m.world.solverType=MR_SOLVER_REFERENCE_FP64;
+ m.world.frictionConeType=MR_FRICTION_CONE_ELLIPTIC;m.world.gravityAndTimestep={0,0,-9.81f,h};
+ m.world.solverScales={1e-8f,1e-9f,2,1e-4f};
+ MRArticulationGPU a{};a.rootBody=0;a.rootType=MR_ROOT_FIXED;a.firstBody=0;a.bodyCount=2;
+ a.firstJoint=0;a.jointCount=1;a.nq=1;a.nv=1;m.articulations.push_back(a);
+ for(unsigned i=0;i<2;i++){MRBodyPropertiesGPU b{};b.articulationIndex=0;b.parentBody=i?0:MR_INVALID_INDEX;
+  b.inboundJoint=i?0:MR_INVALID_INDEX;b.motionType=MR_MOTION_DYNAMIC;
+  const float mass=i?.01f:1.f;b.massAndInverseMass={mass,1.f/mass,0,0};
+  b.inertiaRow0={.001f,0,0,0};b.inertiaRow1={0,.001f,0,0};b.inertiaRow2={0,0,.001f,0};
+  b.inverseInertiaRow0={1000,0,0,0};b.inverseInertiaRow1={0,1000,0,0};b.inverseInertiaRow2={0,0,1000,0};
+  m.bodies.push_back(b);}
+ MRJointDescriptorGPU j{};j.parentBody=0;j.childBody=1;j.jointType=MR_JOINT_PRISMATIC;
+ j.nq=1;j.nv=1;j.axis0={0,0,1,0};j.parentRotation={0,0,0,1};j.childRotation={0,0,0,1};m.joints.push_back(j);
+ MRDofPropertiesGPU d{};d.articulationIndex=0;d.jointIndex=0;m.dofs.push_back(d);
+ m.defaultQ={0};m.defaultV={0};return m;
+}
+int main(int argc,char**argv){@autoreleasepool{try{
+ require(argc==6,"usage: midpoint_slider_coupled_diagnostic MATTER_METALLIB WORLD_METALLIB h initial_gap steps");
+ const double h=std::stod(argv[3]),gap=std::stod(argv[4]);const int steps=std::stoi(argv[5]);
+ require(h>0&&gap>0&&steps>0,"invalid fixture arguments");
+ const auto femWorld=model(2,h,gap,true,false,true,0.,1.,true);
+ numi::matter::RuntimeConfiguration mc;mc.metallib=argv[1];mc.environmentCount=1;mc.captureDiagnostics=true;
+ mc.adaptiveTransfer=false;mc.experimentalFEMPlaneAreaIPC=true;mc.experimentalFEMPlaneMidpoint=true;
+ mc.experimentalFEMPlaneSliderMidpoint=true;numi::matter::Runtime matter;
+ const auto init=matter.initialize(femWorld,mc);require(init.encoded&&matter.valid(),"Matter initialize: "+init.message);
+ const auto rigid=makeSlider(float(h));metalrobo::CompiledWorld world;
+ const auto cooked=metalrobo::compileMetalWorld(rigid,0,world);require(cooked.succeeded(),"rigid compile: "+cooked.message);
+ metalrobo::MetalWorldConfig ownerConfig{};ownerConfig.metallibPath=argv[2];metalrobo::MetalWorldContext owner(ownerConfig);
+ SliderObservation obs;obs.inner=numi::matter::makeMetalWorldDevicePhysicsProgram(matter);require(obs.inner.valid(),"invalid Matter owner program");
+ auto program=obs.inner;program.context=&obs;program.encode=&observeSlider;program.abort=&abortSlider;
+ metalrobo::MetalWorldStepConfig config{};config.timestepSeconds=float(h);config.physicsSubsteps=1;
+ config.solverMode=metalrobo::MetalWorldSolverMode::freeMotionABA;config.ccdMode=metalrobo::MetalWorldCCDMode::disabled;
+ config.matrixFreeArticulatedContact=false;config.streamedArticulatedContactResponses=false;config.captureContactEvidence=false;
+ config.devicePhysicsProgram=program;std::vector<float> q=rigid.defaultQ,v=rigid.defaultV,effort(1,0.f);
+ auto previous=matter.snapshot();require(previous.available,"initial snapshot unavailable");
+ std::cout<<std::setprecision(17)<<"{\"schema\":\"numi.slider-coupled-diagnostic.v1\",\"h\":"<<h
+   <<",\"initial_gap\":"<<gap<<",\"matter_fingerprint\":"<<matter.deviceProgramFingerprint()<<",\"steps\":[";
+ for(int step=0;step<steps;step++){
+  const auto startQ=q,startV=v;const metalrobo::MetalWorldBatch batch{.environmentCount=1,.controlStepCount=1,
+    .initialQ=q,.initialV=v,.efforts=effort};metalrobo::MetalWorldResult result;
+  auto ran=owner.run(world,batch,config,result);auto now=matter.snapshot();
+  require(now.available && now.statuses.size()==1,"snapshot or status unavailable");
+  const bool accepted=ran.succeeded() && now.statuses[0].code==NM_STATUS_SUCCESS;
+  if(step)std::cout<<",";std::cout<<"{\"step\":"<<step<<",\"accepted\":"<<(accepted?"true":"false")
+   <<",\"world_status\":"<<ran.firstGPUStatusCode<<",\"matter_status\":"<<now.statuses[0].code;
+  if(!accepted){std::cout<<",\"failure_index\":"<<now.statuses[0].failingIndex<<"}";break;}
+  require(result.finalQ.size()==1&&result.finalV.size()==1&&obs.wrench&&obs.support,"missing owner data");
+  q=result.finalQ;v=result.finalV;const auto body=*static_cast<const MRABABodyWrenchGPU*>(obs.wrench.contents);
+  const auto support=*static_cast<const MRABABodyWrenchGPU*>(obs.support.contents);
+  double impulse=0,torqueX=0,torqueY=0,work=0,low=1e100;
+  for(const auto& s:now.contactSamples)if(s.identity.w&NM_CONTACT_VALID){
+   require(s.identity.x>=femWorld.dispatch.gridNodeCount,"contact is not a FEM node");
+   const auto node=s.identity.x-femWorld.dispatch.gridNodeCount;require(node<now.femNodes.size(),"contact node out of range");
+   const double jz=-double(s.impulseAndNormal.z);impulse+=jz;
+   const double x=s.pointAndSeparation.x,y=s.pointAndSeparation.y;torqueX+=y*jz;torqueY-=x*jz;
+   const double vm=.5*(physicalVelocity(previous,node,2)+physicalVelocity(now,node,2));work+=jz*vm;
+  }
+  for(const auto& n:now.femNodes)low=std::min(low,double(n.restAndFixed.z)+n.referenceDisplacementAndMode.z+n.referenceDisplacementLow.z-double(q[0]));
+  const double ownerImpulse=.01*(double(v[0])-double(startV[0]))-h*.01*(-9.81);
+  const double ownerWork=ownerImpulse*.5*(double(startV[0])+double(v[0]));
+  std::cout<<",\"gap\":"<<low<<",\"q\":"<<q[0]<<",\"v\":"<<v[0]<<",\"fem_impulse\":"<<impulse
+   <<",\"owner_momentum_impulse\":"<<ownerImpulse<<",\"owner_wrench_impulse\":"<<double(body.force.z)*h
+   <<",\"fem_torque_impulse_x\":"<<torqueX<<",\"fem_torque_impulse_y\":"<<torqueY
+   <<",\"owner_moment_impulse_x\":"<<double(body.torque.x)*h<<",\"owner_moment_impulse_y\":"<<double(body.torque.y)*h
+   <<",\"support_moment_impulse_x\":"<<double(support.torque.x)*h<<",\"support_moment_impulse_y\":"<<double(support.torque.y)*h
+   <<",\"fem_contact_work\":"<<work<<",\"owner_contact_work\":"<<ownerWork<<"}";
+  previous=std::move(now);
+ }
+ std::cout<<"]}\n";return 0;
+ }catch(const std::exception&e){std::cerr<<"coupled diagnostic: "<<e.what()<<"\n";return 1;}}}

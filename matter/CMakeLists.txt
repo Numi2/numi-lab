@@ -987,6 +987,12 @@ if(APPLE)
         numi_matter_runtime_objects
         PRIVATE NUMI_MATTER_DEFAULT_METALLIB=\"${NUMI_MATTER_METALLIB}\"
     )
+    option(NM_ENABLE_UNQUALIFIED_SLIDER_DIAGNOSTIC
+        "Build the unqualified slider solely for diagnostic experiments" OFF)
+    if(NM_ENABLE_UNQUALIFIED_SLIDER_DIAGNOSTIC)
+        target_compile_definitions(numi_matter_runtime_objects PRIVATE
+            NM_ENABLE_UNQUALIFIED_SLIDER_DIAGNOSTIC=1)
+    endif()
 
     add_library(
         numi_matter_runtime
