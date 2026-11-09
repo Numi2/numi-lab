@@ -82,6 +82,8 @@ if(BUILD_TESTING)
     # Independent FP64 fixtures are reference-only. They do not execute or
     # qualify a Matter midpoint integration path.
     add_executable(numi_contact_fem_fp64_reference fem_plane_fp64_reference.cpp)
+    add_executable(numi_contact_fem_fp64_reference_parallel fem_plane_fp64_reference_parallel.cpp)
+    target_compile_definitions(numi_contact_fem_fp64_reference_parallel PRIVATE NUMI_FEM_REFERENCE_MAX_DIVISIONS=64)
     add_executable(numi_contact_fem_fp64_reference_n64 fem_plane_fp64_reference.cpp)
     target_compile_definitions(numi_contact_fem_fp64_reference_n64 PRIVATE NUMI_FEM_REFERENCE_MAX_DIVISIONS=64)
     add_test(NAME numi.contact.fem_fp64_energy_gradient

@@ -1,0 +1,5 @@
+{
+  "status": "not_run",
+  "reason": "validated parallel fine reference is scheduled after the coarse run",
+  "actual_result": "rk4-n64-parallel-h025.json"
+}

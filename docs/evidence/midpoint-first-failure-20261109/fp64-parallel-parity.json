@@ -1,0 +1,17 @@
+{
+  "n2": {
+    "bytes": 217447,
+    "identical": true,
+    "sha256": "a37f254053b30e97b70223fc1f2f3d26028a0472aba0bf2136a92e9a7e11700e"
+  },
+  "n32": {
+    "bytes": 333737,
+    "identical": true,
+    "sha256": "eda9420292a73a338b22dd49e450b663068a05f67395e10e743632820c0fe151"
+  },
+  "n8": {
+    "bytes": 238713,
+    "identical": true,
+    "sha256": "a5322e0e1baa78533551411815c7681b95b6ddb2a97837b3e426c5ff50eac6b8"
+  }
+}
