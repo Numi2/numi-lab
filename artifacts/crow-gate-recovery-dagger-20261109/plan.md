@@ -1,0 +1,3 @@
+# Near-gate student-state corrections
+
+Use the current corrective route actor and landing specialist from full physical starts. On eight lanes per development layout, collect shadow corrective labels under deterministic student control until recovery at steps 850, 950, 1050 or 1150. Match accepted q/v against teacher-off student controls before intervention. Continue with the teacher to full waypoint completion and supported landing; exclude failed, timed-out, or unsupported episodes. Seeds 20270126, 20270127 and 20270128 are development data. The goal is to sample the states immediately before the recurring gate and first slalom crashes, without training on failed demonstrations.

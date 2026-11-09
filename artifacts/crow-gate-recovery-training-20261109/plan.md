@@ -1,0 +1,3 @@
+# Near-gate correction training
+
+Continue from the stronger deterministic route actor using qualified teacher demonstrations, earlier recovery samples and the new near-gate student-state recoveries. Exclude all failed first episodes. Reserve the highest qualified lane per recovery dataset and development course for validation. Weight near-gate student prefixes twelvefold, earlier deterministic student prefixes eightfold and earlier stochastic student prefixes fourfold; retain all six waypoint stages to preserve later route behavior. Fixed Adam 0.0001 for 200 epochs, every fifth step excluding the first, and head/beak retention. Compare teacher-off execution on matched full starts with the landing specialist unchanged.
