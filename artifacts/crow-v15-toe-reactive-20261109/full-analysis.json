@@ -1,0 +1,517 @@
+{
+  "results": [
+    {
+      "course": "reserved-final-i",
+      "arm": "active",
+      "first_episode": {
+        "boundary": "waypoint completion; does not establish supported landing",
+        "closed_by_environment": [
+          true
+        ],
+        "closed_episode_count": 1,
+        "completion_seen_by_environment": [
+          true
+        ],
+        "completion_seen_count": 1,
+        "environment_count": 1,
+        "first_completion_step_by_environment": [
+          1761
+        ],
+        "horizon_censored_count": 0,
+        "maximum_waypoints_by_environment": [
+          5
+        ],
+        "physical_failure_by_environment": [
+          true
+        ],
+        "physical_failure_count": 1,
+        "safe_completion_by_environment": [
+          false
+        ],
+        "safe_completion_count": 0,
+        "schema": "numi.crow-first-episode-evidence.v1",
+        "steps_by_environment": [
+          2508
+        ],
+        "termination_reason_by_environment": [
+          3
+        ],
+        "unit": "first episode of each environment since context creation"
+      },
+      "failed_environment_steps": 0,
+      "sampled_both_feet_opposing_steps": [],
+      "max_consecutive_both_feet_opposing": 0,
+      "post_release_first_load_loss": {
+        "left": null,
+        "right": null
+      },
+      "terminal_supported_endpoints": 0,
+      "minimum_clearance": {
+        "lane": 0,
+        "end_step": 2509,
+        "minimum_step": 2509,
+        "minimum_m": 0,
+        "bird_shape": "crow_right_wing/collision",
+        "obstacle_shape": "crow_course_slalom_b/collision",
+        "bird_body": "crow_right_wing",
+        "obstacle_body": "crow_course_slalom_b",
+        "sampling": "accepted_control_steps"
+      },
+      "end_sample": {
+        "step": 2509,
+        "q": [
+          3.89113474,
+          0.588493943,
+          1.02878988,
+          0.0119024729,
+          -0.0603427961,
+          0.0372804068,
+          0.997410297,
+          -0.00824061222,
+          -0.17524381,
+          0.0158810318,
+          -0.00359053048,
+          0.0455843844,
+          -0.163460642,
+          0.201634839,
+          -0.189357191,
+          0.415170848,
+          -0.211983413,
+          -0.189219818,
+          0.415197641,
+          -0.212013826,
+          -0.0274951886,
+          0.061438594,
+          0.000878572464,
+          -0.00032253837,
+          -0.000319833547,
+          -0.000317127531,
+          0.853262901,
+          -0.000491868937,
+          -0.000489163445,
+          -0.000486459205,
+          0.853386581
+        ],
+        "v": [
+          -0.485960335,
+          0.369631976,
+          0.0580715574,
+          0.343843758,
+          -0.133616179,
+          1.20910919,
+          -0.0828807727,
+          -4.90789557,
+          -6.44184971,
+          -6.88104248,
+          0.921895921,
+          1.27955294,
+          0.0691145957,
+          0.0698626488,
+          -0.00253172405,
+          -0.0439900383,
+          0.0957919657,
+          -0.000480362854,
+          -0.0575814731,
+          -2.52425623,
+          -1.14415824,
+          0.10046573,
+          -0.055837322,
+          -0.055619467,
+          -0.0554017685,
+          0.0457472838,
+          -0.131033137,
+          -0.130815476,
+          -0.130597785,
+          0.117048241
+        ],
+        "contacts": []
+      },
+      "complete_gate": false
+    },
+    {
+      "course": "reserved-final-i",
+      "arm": "sensor-zero",
+      "first_episode": {
+        "boundary": "waypoint completion; does not establish supported landing",
+        "closed_by_environment": [
+          true
+        ],
+        "closed_episode_count": 1,
+        "completion_seen_by_environment": [
+          true
+        ],
+        "completion_seen_count": 1,
+        "environment_count": 1,
+        "first_completion_step_by_environment": [
+          1761
+        ],
+        "horizon_censored_count": 0,
+        "maximum_waypoints_by_environment": [
+          5
+        ],
+        "physical_failure_by_environment": [
+          true
+        ],
+        "physical_failure_count": 1,
+        "safe_completion_by_environment": [
+          false
+        ],
+        "safe_completion_count": 0,
+        "schema": "numi.crow-first-episode-evidence.v1",
+        "steps_by_environment": [
+          2506
+        ],
+        "termination_reason_by_environment": [
+          3
+        ],
+        "unit": "first episode of each environment since context creation"
+      },
+      "failed_environment_steps": 0,
+      "sampled_both_feet_opposing_steps": [],
+      "max_consecutive_both_feet_opposing": 0,
+      "post_release_first_load_loss": {
+        "left": null,
+        "right": null
+      },
+      "terminal_supported_endpoints": 0,
+      "minimum_clearance": {
+        "lane": 0,
+        "end_step": 2507,
+        "minimum_step": 2506,
+        "minimum_m": 0.00366964127111,
+        "bird_shape": "crow_tail/collision",
+        "obstacle_shape": "crow_course_slalom_b/collision",
+        "bird_body": "crow_tail",
+        "obstacle_body": "crow_course_slalom_b",
+        "sampling": "accepted_control_steps"
+      },
+      "end_sample": {
+        "step": 2507,
+        "q": [
+          4.06511879,
+          0.567876935,
+          1.01764309,
+          0.00743956072,
+          -0.0804567933,
+          0.0310759433,
+          0.996245801,
+          -0.00501840375,
+          0.00539596425,
+          0.547834873,
+          0.545657396,
+          0.0244541802,
+          -0.126821503,
+          0.220884264,
+          -0.189739302,
+          0.415035903,
+          -0.212003842,
+          -0.189991415,
+          0.414951265,
+          -0.211989671,
+          -0.00846700743,
+          0.0517901555,
+          0.00646932749,
+          0.000873976038,
+          0.000872525154,
+          0.00087107392,
+          0.852969885,
+          0.000900182291,
+          0.000898731174,
+          0.000897279941,
+          0.852827251
+        ],
+        "v": [
+          -1.21727371,
+          0.219199076,
+          -0.146396667,
+          -1.01406074,
+          0.169898272,
+          -1.88411641,
+          -0.0696597621,
+          0.0506972671,
+          -6.82703304,
+          -6.49938345,
+          0.474538296,
+          0.319913238,
+          -0.752899706,
+          0.0914661363,
+          0.026286304,
+          -0.00720923208,
+          0.0420836993,
+          0.00948881265,
+          -0.00390271842,
+          -1.06036985,
+          -1.14825952,
+          -0.111020744,
+          -0.0324822925,
+          -0.032922674,
+          -0.0333630666,
+          0.0215847269,
+          -0.0276764631,
+          -0.0281168669,
+          -0.0285572596,
+          0.024476096
+        ],
+        "contacts": []
+      },
+      "complete_gate": false
+    },
+    {
+      "course": "reserved-final-j",
+      "arm": "active",
+      "first_episode": {
+        "boundary": "waypoint completion; does not establish supported landing",
+        "closed_by_environment": [
+          true
+        ],
+        "closed_episode_count": 1,
+        "completion_seen_by_environment": [
+          true
+        ],
+        "completion_seen_count": 1,
+        "environment_count": 1,
+        "first_completion_step_by_environment": [
+          1178
+        ],
+        "horizon_censored_count": 0,
+        "maximum_waypoints_by_environment": [
+          5
+        ],
+        "physical_failure_by_environment": [
+          false
+        ],
+        "physical_failure_count": 0,
+        "safe_completion_by_environment": [
+          true
+        ],
+        "safe_completion_count": 1,
+        "schema": "numi.crow-first-episode-evidence.v1",
+        "steps_by_environment": [
+          3000
+        ],
+        "termination_reason_by_environment": [
+          4
+        ],
+        "unit": "first episode of each environment since context creation"
+      },
+      "failed_environment_steps": 0,
+      "sampled_both_feet_opposing_steps": [],
+      "max_consecutive_both_feet_opposing": 0,
+      "post_release_first_load_loss": {
+        "left": 2750,
+        "right": 2750
+      },
+      "terminal_supported_endpoints": 0,
+      "minimum_clearance": {
+        "lane": 0,
+        "end_step": 3001,
+        "minimum_step": 802,
+        "minimum_m": 0.071749711431,
+        "bird_shape": "crow_left_wing/collision",
+        "obstacle_shape": "crow_course_slalom_a/collision",
+        "bird_body": "crow_left_wing",
+        "obstacle_body": "crow_course_slalom_a",
+        "sampling": "accepted_control_steps"
+      },
+      "end_sample": {
+        "step": 3001,
+        "q": [
+          13.1187296,
+          2.17560601,
+          0.631026506,
+          -0.0214817934,
+          0.110041149,
+          0.0947131142,
+          0.98917079,
+          -0.00722749997,
+          0.00871777907,
+          -0.00536783412,
+          -0.0085788304,
+          0.298907459,
+          -0.229427025,
+          -0.361023515,
+          -0.189783126,
+          0.415070474,
+          -0.21200867,
+          -0.1897856,
+          0.415068775,
+          -0.212010384,
+          -0.00263656816,
+          0.0581840947,
+          0.00622980203,
+          -0.00174026133,
+          -0.00174042815,
+          -0.00174059463,
+          0.00245646783,
+          -0.00175059459,
+          -0.00175076141,
+          -0.00175092788,
+          0.00246884255
+        ],
+        "v": [
+          1.36139011,
+          0.46156612,
+          -0.451928794,
+          -0.0286823418,
+          0.03917218,
+          0.023130659,
+          -0.00689474586,
+          0.00695206039,
+          4.4581213,
+          4.81744766,
+          0.0435787179,
+          0.142879069,
+          -0.000134542002,
+          -0.00377300568,
+          -0.00351734413,
+          -0.00443705171,
+          -0.00501785614,
+          -0.00416689785,
+          -0.00530037284,
+          0.112842895,
+          -0.235330716,
+          -0.00889104325,
+          -0.0534275845,
+          -0.0534143485,
+          -0.0534010977,
+          0.0477240011,
+          -0.0574942008,
+          -0.0574809536,
+          -0.0574677065,
+          0.051630713
+        ],
+        "contacts": []
+      },
+      "complete_gate": false
+    },
+    {
+      "course": "reserved-final-j",
+      "arm": "sensor-zero",
+      "first_episode": {
+        "boundary": "waypoint completion; does not establish supported landing",
+        "closed_by_environment": [
+          true
+        ],
+        "closed_episode_count": 1,
+        "completion_seen_by_environment": [
+          true
+        ],
+        "completion_seen_count": 1,
+        "environment_count": 1,
+        "first_completion_step_by_environment": [
+          1178
+        ],
+        "horizon_censored_count": 0,
+        "maximum_waypoints_by_environment": [
+          5
+        ],
+        "physical_failure_by_environment": [
+          false
+        ],
+        "physical_failure_count": 0,
+        "safe_completion_by_environment": [
+          true
+        ],
+        "safe_completion_count": 1,
+        "schema": "numi.crow-first-episode-evidence.v1",
+        "steps_by_environment": [
+          3000
+        ],
+        "termination_reason_by_environment": [
+          4
+        ],
+        "unit": "first episode of each environment since context creation"
+      },
+      "failed_environment_steps": 0,
+      "sampled_both_feet_opposing_steps": [],
+      "max_consecutive_both_feet_opposing": 0,
+      "post_release_first_load_loss": {
+        "left": 2750,
+        "right": 2750
+      },
+      "terminal_supported_endpoints": 0,
+      "minimum_clearance": {
+        "lane": 0,
+        "end_step": 3001,
+        "minimum_step": 802,
+        "minimum_m": 0.071749711431,
+        "bird_shape": "crow_left_wing/collision",
+        "obstacle_shape": "crow_course_slalom_a/collision",
+        "bird_body": "crow_left_wing",
+        "obstacle_body": "crow_course_slalom_a",
+        "sampling": "accepted_control_steps"
+      },
+      "end_sample": {
+        "step": 3001,
+        "q": [
+          11.2084341,
+          2.12675786,
+          0.935580194,
+          -0.0191883929,
+          0.07532949,
+          0.104808524,
+          0.991449654,
+          -0.00745503604,
+          0.00844197255,
+          0.0155766616,
+          0.015882371,
+          0.298858374,
+          -0.230808914,
+          -0.36067462,
+          -0.189853191,
+          0.415046155,
+          -0.212009102,
+          -0.189852804,
+          0.415046394,
+          -0.212008879,
+          -0.00260010851,
+          0.0578767844,
+          0.00676646177,
+          -0.0005601343,
+          -0.000560344604,
+          -0.000560555258,
+          0.00124632905,
+          -0.000557293592,
+          -0.000557504187,
+          -0.000557714491,
+          0.00124606129
+        ],
+        "v": [
+          0.927097201,
+          0.403972954,
+          -0.307419151,
+          -0.00667064963,
+          0.0313311145,
+          0.0217376798,
+          -0.00884074159,
+          -0.00665013166,
+          3.3009336,
+          3.20605731,
+          0.0393756591,
+          0.123868316,
+          0.01064579,
+          -0.00438996451,
+          -0.00377303059,
+          -0.00502860732,
+          -0.00423827814,
+          -0.00371130533,
+          -0.00493226945,
+          -0.0126014128,
+          -0.349051148,
+          0.134133413,
+          -0.0550142601,
+          -0.0550166741,
+          -0.055019103,
+          0.0485036187,
+          -0.0546081178,
+          -0.054610543,
+          -0.0546129718,
+          0.0481269807
+        ],
+        "contacts": []
+      },
+      "complete_gate": false
+    }
+  ],
+  "scope": "one lane each, exposed layouts, estimated toes; no real-bird validation"
+}

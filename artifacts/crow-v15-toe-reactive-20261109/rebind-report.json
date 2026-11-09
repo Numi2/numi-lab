@@ -1,0 +1,22 @@
+{
+  "old_pack_rejected": true,
+  "world": 6021730374790991781,
+  "task": 8221095062934009742,
+  "observation": 15937405866447152224,
+  "action": 6005873349814557909,
+  "actors": [
+    {
+      "label": "route",
+      "source_sha256": "159a4f38eb9043b96464337525c4ed9e8222f0eb1d50f895027869b754d89cef",
+      "rebound_sha256": "ae5762db2d031c6ef374a10b91783b5f2b143b00c0eac58db8070d93b04fe8e3",
+      "actor_weights_and_transforms_equal": true
+    },
+    {
+      "label": "landing",
+      "source_sha256": "c2a18b6f93134e67e936e4e16a31de49714257d1e1fedd81fc53c46cd35c57c9",
+      "rebound_sha256": "6ae0ff277832a92f99980d525c9631fdce3cb58ff9fbb421f67c64210825a072",
+      "actor_weights_and_transforms_equal": true
+    }
+  ],
+  "scope": "diagnostic task rebind only"
+}

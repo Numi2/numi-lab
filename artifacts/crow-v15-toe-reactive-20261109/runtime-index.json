@@ -1,0 +1,25 @@
+{
+  "files": [
+    {
+      "name": "libmetalrobo.dylib",
+      "sha256": "469c8e069195fc25778e73d66b4ebbe0315604f4a2f3177099ca506c6af5127e"
+    },
+    {
+      "name": "active.metallib",
+      "sha256": "d087a2db395d6c8bffbd7b7d4f74ec3f304ff57604e8166cf777d70d2a6912ae"
+    },
+    {
+      "name": "sensor-zero.metallib",
+      "sha256": "8c8c17caec772b9a34acc8e2767fd24a1b201841600a007157bebb06f8680d5b"
+    },
+    {
+      "name": "active.air",
+      "sha256": "27a485089b96db2587ea8bbb40cbe047afc405e08a08e35602c79bc04df00aa1"
+    },
+    {
+      "name": "sensor-zero.air",
+      "sha256": "8938d2b2a89670d684b72f9d6bef5f655c61cebfeb4d318e5b8b82de1d493eac"
+    }
+  ],
+  "scope": "shader and host runtime; see previous checkpoint for common objects and rollout executable"
+}

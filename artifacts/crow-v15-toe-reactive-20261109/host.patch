@@ -1,0 +1,13 @@
+--- a/toe-envelope.cpp
++++ b/toe-reactive.cpp
+@@ -3582,6 +3582,10 @@
+             : metalrobo::makeBirdFlowAmericanCrowFlightTaskPack(
+                   manifest.sensors.observation, manifest.reality.reset
+               );
++        if (activeNavigation) {
++            manifest.task.contactGroups.push_back({.id="left_rear_toe_wrench",.bodies={"crow_left_rear_toe"},.referenceBody="crow_left_rear_toe"});
++            manifest.task.contactGroups.push_back({.id="right_rear_toe_wrench",.bodies={"crow_right_rear_toe"},.referenceBody="crow_right_rear_toe"});
++        }
+         if (retinal) {
+             auto p=visualSensorProgram(*visual_sensor);p.retinal=retina;
+             p.fingerprint=metalrobo::visualSensorProgramFingerprint(p);manifest.sensors.deviceVisual=std::move(p);

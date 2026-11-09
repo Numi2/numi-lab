@@ -1,0 +1,7 @@
+# Reactive toe trial on the original perches
+
+The force-sensor and zero-sensor shaders produced byte-identical q/v in the 350-step pre-contact smoke test. Their controller reads separate accepted rear-toe contact wrenches, commands physical toe drives, and uses no injected force; the experiment triggers zero-target release at 55 s. The original policy was rejected, then explicitly rebound with unchanged tensors after inherited compiled action/observation tables and contact-group prefixes were compared.
+
+On layout I, both one-lane first episodes reached five waypoints but ended in physical failure near step 2508 while returning toward the course; the active arm's minimum measured clearance was zero between the right wing and slalom B. On layout J, both reached five waypoints and survived the horizon, but neither had 25 terminal support samples. No run formed three consecutive sampled opposing front/rear toe loads on both feet; the release gate therefore could not be established. All failures and the full inputs are retained. These are exposed development layouts and the body is estimated.
+
+The route's landing box has 0.10 m x half-width, whereas the isolated opposing-toe grip used 0.025 m half-width. A 20 cm box is wider than the prototype toes can span; this mismatch is a structural barrier to wrapping grip and motivates a separate 5 cm landing-branch experiment. It does not explain the wing collision or lack of stable approach by itself.

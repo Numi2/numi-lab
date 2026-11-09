@@ -1,0 +1,44 @@
+--- a/symmetric-launch.metal
++++ b/toe-active.metal
+@@ -5470,6 +5470,19 @@
+                 );
+         }
+     }
++    // Experimental bounded toe position drives; no force is injected.
++    if ((program.schedule.w & MR_TASK_PROGRAM_AVIAN_CROW_HIERARCHICAL_NAVIGATION) != 0u &&
++        state.episode.z == 10u && program.counts0.w >= 5u && dispatch.counts.w == 30u) {
++        const float seconds=float(state.episode.x)*dispatch.timing.x;
++        const bool closing=state.navigation.z>=5.0f && seconds<55.0f;
++        for (uint side=0u;side<2u;++side) {
++            const uint ramp=(state.status.w>>(side*6u)) & 63u;
++            for (uint toe=0u;toe<4u;++toe) {
++                const float target=!closing ? 0.0f : toe==3u ? 0.85f : min(0.025f*float(ramp),0.85f);
++                effortTrajectory[pass.controlStep*worldDispatch.effortStepStride + environment*worldDispatch.effortEnvironmentStride + 22u + side*4u + toe]=target;
++            }
++        }
++    }
+ }
+ 
+ inline float actuatorEffortEnvelope(
+@@ -9289,6 +9302,21 @@
+     // Accepted foot force diagnostic feedback for this isolated band-10 bench.
+     if ((program.schedule.w & MR_TASK_PROGRAM_AVIAN_CROW_HIERARCHICAL_NAVIGATION) != 0u && state.episode.z == 10u && program.counts0.w >= 2u) {
+         state.nutrition.xy=float2(compactContact[compactBase+contactGroups[0].members.w],compactContact[compactBase+contactGroups[1].members.w]);
++        if (program.counts0.w>=5u && dispatch.counts.w==30u) {
++            const float seconds=float(state.episode.x)*dispatch.timing.x;
++            uint packed=0u;
++            if (state.navigation.z>=5.0f && seconds<55.0f) {
++                for (uint side=0u;side<2u;++side) {
++                    const uint w=compactBase+contactGroups[3u+side].reference.y;
++                    const float3 force=float3(compactContact[w],compactContact[w+1u],compactContact[w+2u]);
++                    const bool loaded=length(force)>0.05f && true;
++                    const uint previous=(state.status.w>>(side*6u))&63u;
++                    const uint next=loaded ? min(previous+1u,34u) : (previous>0u ? previous-1u : 0u);
++                    packed |= next << (side*6u);
++                }
++            }
++            state.status.w=packed;
++        }
+     }
+     taskStates[environment] = state;
+ 

@@ -1,0 +1,5 @@
+/Users/n/Developer/numi-crow-rl-20261107/build/crow-v15-toe-reactive-20261109/contract-debug-reactive/c_api.cpp:3365:13: warning: unused function 'close' [-Wunused-function]
+ 3365 | static void close(double a, double b, const char* why) { crowToeNeed(std::abs(a-b)<=2e-7*(1+std::abs(a)),why); }
+      |             ^~~~~
+1 warning generated.
+built reactive

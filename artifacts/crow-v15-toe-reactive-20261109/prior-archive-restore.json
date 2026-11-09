@@ -1,0 +1,9 @@
+{
+  "commit": "b553db574b27aa63d2e2b97e624eba81d9197628",
+  "remote": "git@github.com:Numi2/numi-lab.git",
+  "branch": "agent/american-crow-rl-20261107",
+  "method": "independent depth-one sparse clone from GitHub, checkout archived directory, shasum -a 256 -c SHA256SUMS",
+  "manifest_entries_verified": 300,
+  "result": "passed",
+  "temporary_clone_removed_after_verification": true
+}
