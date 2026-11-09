@@ -1,0 +1,8 @@
+Traceback (most recent call last):
+  File "/Users/n/Developer/numi-crow-rl-20261107/artifacts/crow-stage2-adapter-training-20261109/train.py", line 48, in <module>
+    consume(kind,course,R/f'artifacts/crow-{prefix}-20261109'/course,R/f'build/crow-{prefix}-20261109'/(course+'.rollout'),8)
+    ~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/n/Developer/numi-crow-rl-20261107/artifacts/crow-stage2-adapter-training-20261109/train.py", line 33, in consume
+    assert np.all(obs[steps[outside],lane,141:163]==0),('gated indices differ',kind,name,lane)
+           ~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: ('gated indices differ', 'demonstrations', 'training', 7)

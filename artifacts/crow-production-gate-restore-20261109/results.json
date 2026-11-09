@@ -1,0 +1,25 @@
+{
+  "remote_revision": "08d11d5a4c38dd83d49d3f0952d3e95604603dee",
+  "method": "independent GitHub HTTPS decompression and SHA-256, local hash and open-handle check before deletion",
+  "rows": [
+    {
+      "path": "artifacts/crow-production-gate-dagger-20261109/a1/rollout.bin.gz",
+      "raw_bytes": 95424956,
+      "raw_sha256": "4505146014919a16284052bf95194fce01a23a82e87b56d4680464e89798a54a",
+      "removed_raw_copy": "build/crow-production-gate-dagger-20261109/a1.rollout"
+    },
+    {
+      "path": "artifacts/crow-production-gate-dagger-20261109/a2/rollout.bin.gz",
+      "raw_bytes": 95424956,
+      "raw_sha256": "9660db4300f004d7908e09360e229825804c3d22163d49fd83558e4ee52c6a70",
+      "removed_raw_copy": "build/crow-production-gate-dagger-20261109/a2.rollout"
+    },
+    {
+      "path": "artifacts/crow-production-gate-dagger-20261109/a3/rollout.bin.gz",
+      "raw_bytes": 95424956,
+      "raw_sha256": "cf5d5052584767538a13b5bffa94744e2313a4183648518c9178b8706c8e0d7c",
+      "removed_raw_copy": "build/crow-production-gate-dagger-20261109/a3.rollout"
+    }
+  ],
+  "total_retired_bytes": 286274868
+}

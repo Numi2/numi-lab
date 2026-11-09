@@ -1,0 +1,3 @@
+# Localized waypoint correction: matched development evaluation
+
+Compare the waypoint-two-only actor correction against its interpolated starting actor on full-start production trials with teacher disabled, same landing policy, three development courses and seeds 20270213–20270215. The middle course seed was included in correction data, so the comparison is development evidence and may overfit; follow any improvement with new development seeds. Report first-episode supported completion, contacts and endpoint-sampled clearance; no intermediate resets. Predict fewer slalom collisions while preserving all other waypoint outputs.

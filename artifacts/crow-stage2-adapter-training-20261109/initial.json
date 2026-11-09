@@ -1,0 +1,6 @@
+{
+  "trainable_initial_sha256": "7e443e8aac8f0788737504ecd942705ca3318035e2c40bc6f5ca393752ed65dc",
+  "actor_source_sha256": "d042ef363e8cc82770754dcf69df444df22906960c762244b17876008a5222ec",
+  "actor_layers_identical": true,
+  "critic_used_only_to_resume_supervised_training": true
+}
