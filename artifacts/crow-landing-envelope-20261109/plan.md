@@ -1,0 +1,5 @@
+# Frozen-flight low-speed and higher-altitude envelope
+
+The collision-enabled route hits the second slalom and then the perch with the body. Before issuing commands outside the prior demonstrated envelope, test whether the same frozen controller can fly more slowly and higher. This is not a landing trial and does not modify the frozen law or v15 body.
+
+Use teacher-off fixed-command flight from normal full starts, development seed 20261125, 100 lanes, 1600 steps, four substeps, obstacle collisions disabled, all continuously refreshed feedback. Five groups of 20 by lane modulo five: speed 0.15, 0.25 or 0.35 m/s at height 0.85 m; or speed 0.40 m/s at height 1.15 or 1.30 m. Heading and lateral commands are zero. Require all 20 first episodes of a group to reach the horizon with no physical or failed simulator steps; every sample at 20–30 s every 2 s must have heading error <=0.15 rad, absolute lateral velocity <=0.20 m/s, speed error <=0.15 m/s, and height error <=0.15 m. Record actual speed and altitude; do not infer stopping, foot support or collision clearance from passing these samples. Final layouts/seeds are reserved.
