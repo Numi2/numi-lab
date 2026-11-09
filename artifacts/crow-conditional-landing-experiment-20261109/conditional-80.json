@@ -1,0 +1,18 @@
+{
+  "sources": [
+    {
+      "path": "/Users/n/Developer/numi-crow-rl-20261107/build/crow-four-expert-native-integration-20261109/landing.policypack",
+      "sha256": "e79700f7c8a59e3559171845e51283766e285414e615d505ed6e6ce752bf1325"
+    },
+    {
+      "path": "/Users/n/Developer/numi-crow-rl-20261107/build/crow-late-landing-training-20261109/landing-80.policypack",
+      "sha256": "53435383f568b4b836bba951bdf082543f22286d5bc1c5e562e2ca5e4be7a6b3"
+    }
+  ],
+  "candidate_sha256": "f8013b28d224a3d6582100b356b0a4165dedea710b14d8c82e6e8d59fdc484e8",
+  "max_output_error": [
+    0.0,
+    0.0
+  ],
+  "scope": "diagnostic only, requires new fingerprinted task"
+}
