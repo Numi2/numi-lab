@@ -1,0 +1,16 @@
+{
+  "absolute_normalization_floors": {
+    "position_m": 1e-08,
+    "velocity_mps": 1e-06
+  },
+  "final_slider_position_error": 7.632195473406332e-13,
+  "final_slider_velocity_error": 5.024870444647364e-13,
+  "force_bin_error": 8.199488312310095e-12,
+  "max_energy_relative_drift": 1.0565050330969107e-14,
+  "max_momentum_balance_error_Ns": 1.0972125985553305e-16,
+  "maximum_cumulative_impulse_error": 1.0022692878346698e-11,
+  "minimum_gap_m": 9.453727010420846e-05,
+  "passes": true,
+  "sampled_peak_error": 1.4238622510634047e-12,
+  "total_impulse_error": 5.545830612774862e-12
+}
