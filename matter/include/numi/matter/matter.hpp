@@ -1296,6 +1296,9 @@ struct CoupledCandidateQuery {
     void* output = nullptr;
     void* candidateQ = nullptr;
     void* candidateBodies = nullptr;
+    // Optional paired low words for the restricted slider's candidate q/v.
+    // The owner must populate both words or reject the request.
+    void* candidateSliderLow = nullptr;
     void* statuses = nullptr;
     void* pointQueries = nullptr;
     void* pointJacobians = nullptr;
@@ -1429,6 +1432,9 @@ struct EncodeRequest {
     // Explicitly admitted one-axis midpoint owner only. The force is the
     // signed world-z gravity force for the same rigid body and transaction.
     // This metadata does not itself admit coupled midpoint dynamics.
+    // Borrowed low q/v words corresponding to the pass's source state.
+    // This does not by itself admit the experimental midpoint transaction.
+    void* sliderMidpointLow = nullptr;
     bool sliderMidpointMechanicalDataValid = false;
     float sliderMidpointMassKg = 0.0f;
     float sliderMidpointGravityForceNewtons = 0.0f;

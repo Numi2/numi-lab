@@ -495,7 +495,6 @@ struct MetalWorldContextState {
     __strong id<MTLComputePipelineState> coupledCandidateIntegratePipeline = nil;
     __strong id<MTLComputePipelineState> sliderMidpointCandidateVelocityPipeline = nil;
     __strong id<MTLComputePipelineState> sliderMidpointStatusPipeline = nil;
-    __strong id<MTLComputePipelineState> sliderMidpointPrepareWrenchPipeline = nil;
     __strong id<MTLComputePipelineState> coupledCandidateMassPipeline = nil;
     __strong id<MTLComputePipelineState> coupledCandidateJacobianPipeline = nil;
     __strong id<MTLComputePipelineState> coupledCandidatePublishPipeline = nil;
@@ -3755,6 +3754,14 @@ MetalWorldDiagnostics validateAndBuildLayout(
         return reject(std::move(diagnostics), MetalWorldHostStatus::unsupportedTopology,
             "compensated slider state is not yet wired through the complete owner transaction");
     }
+    // The synthetic stage effort and its wrench subtraction have been
+    // removed together. Do not admit the old high-only midpoint owner while
+    // the physical two-word endpoint and contact transaction are incomplete.
+    constexpr bool sliderCompensatedTransactionReady = false;
+    if (ownsSliderMidpoint && !sliderCompensatedTransactionReady) {
+        return reject(std::move(diagnostics), MetalWorldHostStatus::unsupportedTopology,
+            "slider midpoint is disabled until the physical compensated transaction is complete");
+    }
     if (ownsSliderMidpoint) {
         const auto& model = world.model();
         const bool shape = model.articulations.size() == 1u &&
@@ -6338,7 +6345,6 @@ MetalWorldDiagnostics initializeContext(
     __strong id<MTLComputePipelineState> coupledCandidateIntegrate = nil;
     __strong id<MTLComputePipelineState> sliderMidpointCandidateVelocity = nil;
     __strong id<MTLComputePipelineState> sliderMidpointStatus = nil;
-    __strong id<MTLComputePipelineState> sliderMidpointPrepareWrench = nil;
     __strong id<MTLComputePipelineState> coupledCandidateMass = nil;
     __strong id<MTLComputePipelineState> coupledCandidateJacobian = nil;
     __strong id<MTLComputePipelineState> coupledCandidatePublish = nil;
@@ -6546,9 +6552,6 @@ MetalWorldDiagnostics initializeContext(
     );
     sliderMidpointStatus = makePipeline(
         device, library, @"mr_world_slider_midpoint_promote_status_with_wrench_guard", nullptr
-    );
-    sliderMidpointPrepareWrench = makePipeline(
-        device, library, @"mr_world_slider_midpoint_prepare_wrench", nullptr
     );
     coupledCandidateMass = createContactPipeline(
         @"mr_world_apply_coupled_candidate_mass"
@@ -7048,7 +7051,6 @@ MetalWorldDiagnostics initializeContext(
     context.coupledCandidateIntegratePipeline = coupledCandidateIntegrate;
     context.sliderMidpointCandidateVelocityPipeline = sliderMidpointCandidateVelocity;
     context.sliderMidpointStatusPipeline = sliderMidpointStatus;
-    context.sliderMidpointPrepareWrenchPipeline = sliderMidpointPrepareWrench;
     context.coupledCandidateMassPipeline = coupledCandidateMass;
     context.coupledCandidateJacobianPipeline = coupledCandidateJacobian;
     context.coupledCandidatePublishPipeline = coupledCandidatePublish;
@@ -11209,6 +11211,9 @@ bool encodeBorrowedCoupledCandidate(
         !validBuffer(query.input, vectorBytes)) return false;
 
     const auto operation = query.operation;
+    // This provider does not yet write the paired slider candidate words.
+    // Never report success while leaving a caller's low buffer stale.
+    if (query.candidateSliderLow != nullptr) return false;
     const bool halfStepKinematics = operation ==
         MetalWorldCoupledCandidateOperation::candidateHalfStepKinematics;
     if (operation == MetalWorldCoupledCandidateOperation::candidateKinematics ||
@@ -11528,12 +11533,18 @@ bool encodeBorrowedCoupledCandidate(
         MetalWorldCoupledCandidateOperation::publishSliderMidpoint;
     if (midpointPublish && (!context->sliderMidpointActive ||
         context->sliderMidpointStageIncrement != nil || pass.nv != 1u)) return false;
-    // A midpoint owner must be the only producer of the endpoint effort.
+    if (midpointPublish) {
+        // The stage increment is a position target, not an external effort.
+        // The admitted slider is unactuated: ABA receives gravity and the
+        // physical contact wrench exactly once through its normal inputs.
+        context->sliderMidpointStageIncrement = input;
+        return true;
+    }
+    // A midpoint owner must not publish a synthetic endpoint effort.
     if (context->sliderMidpointActive && operation ==
         MetalWorldCoupledCandidateOperation::publishCandidate) return false;
     if (operation != MetalWorldCoupledCandidateOperation::massAction &&
-        operation != MetalWorldCoupledCandidateOperation::publishCandidate &&
-        !midpointPublish) return false;
+        operation != MetalWorldCoupledCandidateOperation::publishCandidate) return false;
     id<MTLBuffer> massQ = q;
     if (query.candidateQ != nullptr) {
         if (query.candidateQStride != pass.qStride ||
@@ -11599,7 +11610,7 @@ bool encodeBorrowedCoupledCandidate(
 
         const MRCoupledCandidateDispatchGPU dispatch{
             .abiVersion = MR_COUPLED_CANDIDATE_ABI_VERSION,
-            .operation = (midpointPublish || operation ==
+            .operation = (operation ==
                     MetalWorldCoupledCandidateOperation::publishCandidate)
                 ? MR_COUPLED_CANDIDATE_PUBLISH
                 : MR_COUPLED_CANDIDATE_MASS_ACTION,
@@ -11621,8 +11632,8 @@ bool encodeBorrowedCoupledCandidate(
             .reserved0 = 0u,
             .timestepAndInverse = {
                 pass.timestepSeconds,
-                (midpointPublish ? 2.0f : 1.0f) / pass.timestepSeconds,
-                midpointPublish ? -context->sliderMidpointGravityForce : 0.0f,
+                1.0f / pass.timestepSeconds,
+                0.0f,
                 0.0f,
             },
         };
@@ -11641,8 +11652,7 @@ bool encodeBorrowedCoupledCandidate(
             action, context->coupledCandidateMassPipeline,
             pass.environmentCount);
         [action endEncoding];
-        if (midpointPublish || operation ==
-            MetalWorldCoupledCandidateOperation::publishCandidate) {
+        if (operation == MetalWorldCoupledCandidateOperation::publishCandidate) {
             id<MTLComputeCommandEncoder> publish =
                 [commandBuffer computeCommandEncoder];
             if (publish == nil) return false;
@@ -11663,26 +11673,6 @@ bool encodeBorrowedCoupledCandidate(
             [publish endEncoding];
         }
     }
-    if (midpointPublish) context->sliderMidpointStageIncrement = input;
-    return true;
-}
-
-// The physical body wrench is already encoded by the extension. Offset its
-// axial force from the synthetic stage effort before ABA consumes either.
-bool encodeSliderMidpointPrepareWrench(
-    detail::MetalWorldContextState& context, id<MTLCommandBuffer> commandBuffer
-) {
-    if (!context.sliderMidpointActive || context.sliderMidpointPrepareWrenchPipeline == nil)
-        return false;
-    id<MTLComputeCommandEncoder> encoder = [commandBuffer computeCommandEncoder];
-    if (encoder == nil) return false;
-    encoder.label = @"MetalWorld slider midpoint contact-wrench preparation";
-    [encoder setComputePipelineState:context.sliderMidpointPrepareWrenchPipeline];
-    [encoder setBuffer:context.buffers[kBodyWrenchPlaceholder] offset:0u atIndex:0u];
-    [encoder setBuffer:context.buffers[kWorkingEffort] offset:0u atIndex:1u];
-    [encoder setBuffer:context.buffers[kContactStatuses] offset:0u atIndex:2u];
-    dispatchWorldThreads(encoder, context.sliderMidpointPrepareWrenchPipeline, 1u);
-    [encoder endEncoding];
     return true;
 }
 
@@ -21326,12 +21316,6 @@ MetalWorldDiagnostics MetalWorldContext::submitImpl(
                                     batch.environmentCount
                                 )
                             )
-                        ) &&
-                        (
-                            (config.devicePhysicsProgram.flags &
-                                MetalWorldDevicePhysicsOwnsSliderMidpoint) == 0u ||
-                            !config.devicePhysicsProgram.valid() || !hasBodyWrenches ||
-                            encodeSliderMidpointPrepareWrench(*selectedState, commandBuffer)
                         ) &&
                         (
                             !hasMillardProgram ||

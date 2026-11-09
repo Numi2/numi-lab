@@ -19097,6 +19097,13 @@ RuntimeDiagnostics Runtime::encodeImpl(
             diagnostics.message = "unknown Matter encode phase";
             return diagnostics;
         }
+        // A borrowed low-word stream must never be silently ignored: the
+        // matching plane projection and all trial/rollback paths are not yet
+        // implemented for this owner.
+        if (request.sliderMidpointLow != nullptr) {
+            diagnostics.message = "slider midpoint low-word contact transaction is not yet available";
+            return diagnostics;
+        }
         if ((state.experimentalFEMPlaneMidpoint || state.experimentalFEMPlaneBEPrecision) &&
             (request.physicsSubsteps != 1u || request.physicsSubstep != 0u ||
              request.resetMasks != nullptr || request.resetMaskStepStride != 0u ||

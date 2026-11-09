@@ -45,6 +45,7 @@ bool encodeCoupledCandidateBridge(
     const bool kinematics = query.operation == CoupledCandidateOperation::candidateKinematics ||
         query.operation == CoupledCandidateOperation::candidateHalfStepKinematics;
     if ((kinematics && !query.legacyHighOnly) ||
+        query.candidateSliderLow != nullptr ||
         query.candidateRootTranslation != nullptr ||
         query.candidateBodyPositionLow != nullptr || query.pointPositionLow != nullptr ||
         query.candidateRootTranslationGPUAddress != 0u ||
@@ -60,6 +61,7 @@ bool encodeCoupledCandidateBridge(
         .output = query.output,
         .candidateQ = query.candidateQ,
         .candidateBodies = query.candidateBodies,
+        .candidateSliderLow = query.candidateSliderLow,
         .statuses = query.statuses,
         .pointQueries = query.pointQueries,
         .pointJacobians = query.pointJacobians,
@@ -175,6 +177,7 @@ bool encodeMetalWorldDevicePhysics(
         request.coupledCandidateContext = &coupledBridge;
         request.encodeCoupledCandidate = &encodeCoupledCandidateBridge;
     }
+    request.sliderMidpointLow = pass.sliderMidpointLow;
     request.sliderMidpointMechanicalDataValid = pass.sliderMidpointMechanicalDataValid;
     request.sliderMidpointMassKg = pass.sliderMidpointMassKg;
     request.sliderMidpointGravityForceNewtons = pass.sliderMidpointGravityForceNewtons;

@@ -614,6 +614,8 @@ add_custom_command(
     COMMAND xcrun -sdk macosx metal
             -std=metal4.0
             -O3
+            -fno-fast-math
+            -ffp-contract=off
             -I "${CMAKE_CURRENT_SOURCE_DIR}/include"
             -DMR_ABA_KERNEL_NAME=mr_slider_midpoint_aba_reaction
             -DMR_ABA_SLIDER_REACTION_OUTPUT=1

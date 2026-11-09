@@ -883,6 +883,7 @@ if(APPLE)
             -std=metal4.0
             -O3
             -fno-fast-math
+            -ffp-contract=off
             -I "${CMAKE_CURRENT_SOURCE_DIR}/include"
             -I "${CMAKE_CURRENT_SOURCE_DIR}/../include"
             -MMD -MF "${NUMI_MATTER_DEPFILE}" -MT "${NUMI_MATTER_METALLIB}"
