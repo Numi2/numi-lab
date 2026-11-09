@@ -1,0 +1,5 @@
+# Spatial n64 retry 004: storage stop
+
+The n64 h=0.5 microsecond independent FP64 reference was terminated by its unchanged 3.1 GiB free-space guard after 402.51 s. It emitted no physical result; the output and log are empty. The execution record preserves the binary and source hashes, resource limits, and stop reason. The h=0.25 microsecond reference and the dependent larger-mesh continuation did not start. This attempt does not establish temporal or spatial convergence.
+
+Before the stop, an unused, package-only temporary Python environment was retired with its exact package versions and configuration retained in `retired-temp-python-001.json`. Subsequently the standard `uv cache prune` command removed 1,025 dangling cached files (24.1 MiB as reported by uv), with no force option. Free space continued to fall, reaching approximately 2.1 GiB after the run stopped. The cause of that later drop is not established. Do not weaken the guard or rerun until sustained capacity is available. Previous completed references and the historical n64/n128 discrepancy remain unchanged.

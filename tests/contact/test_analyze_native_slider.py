@@ -69,6 +69,10 @@ with tempfile.NamedTemporaryFile(mode='w',suffix='.json') as f:
  for field in ('owner_momentum_impulse','owner_wrench_impulse','support_moment_impulse_x','independent_joint_residual_Ns','midpoint_gap','owner_wrench_work','fem_work_reconstruction_gate_ratio'):
   old=d['steps'][100][field];d['steps'][100][field]=0. if field=='midpoint_gap' else 2. if field=='fem_work_reconstruction_gate_ratio' else old+1e-5
   code,out=run();assert code!=0,(field,out);d['steps'][100][field]=old
+ for field,check in (('slider_kinematic_defect_m','slider_midpoint_kinematics'),('fem_kinematic_defect_m','fem_midpoint_kinematics')):
+  old=d['steps'][100][field];d['steps'][100][field]=1e-9
+  code,out=run();assert code!=0 and not out['checks'][check],(field,out)
+  d['steps'][100][field]=old
  old=d['steps'][100]['fem_work_nodes'][0][1];d['steps'][100]['fem_work_nodes'][0][1]+=1e-5
  code,out=run();assert code!=0,('corrupt node',out);d['steps'][100]['fem_work_nodes'][0][1]=old
  for field,check in (('q','slider_position'),('v','slider_velocity')):

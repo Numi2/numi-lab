@@ -1,0 +1,11 @@
+{
+  "n64_pid": 61848,
+  "inputs_sha256": {
+    "/Users/numi/numi-lab-midpoint-compensated-20261109/tests/contact/run_spatial_after_rebound_004.py": "3f8b24c1adab959b97de3d84b12080117c0bf41b2b5d4aa1edd62c014673e988",
+    "/Users/numi/numi-lab-midpoint-compensated-20261109/tests/contact/run_large_spatial_continuation_004.py": "04627ecd81e91e1556603642579f9f0357dfbdc8bab0aa69eb88f7e4837bf69b",
+    "/Users/numi/numi-lab-midpoint-compensated-20261109/tests/contact/large_spatial_reference.py": "2da963618c6f9517afcef8e818efd32a84d737bd9fd3e20a3f01bfd06b5365e1"
+  },
+  "status": "stopped",
+  "n64_receipt_sha256": "790b7730a10342110395baae8592e695518f92ed162aad179ba401f4a1abcddb",
+  "error": "RuntimeError('n64 prerequisite did not complete')"
+}

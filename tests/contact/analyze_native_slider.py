@@ -159,6 +159,10 @@ checks={'force_bin':force_error<=.0025,'sampled_peak':peak_error<=.01,'total_imp
  'slider_work_history':work_results['slider']['maximum_normalized_error']<=.01,
  'relative_work_history':work_results['relative']['maximum_normalized_error']<=.01,
  'independent_residual':results['max_independent_joint_residual_Ns']<=results['physical_residual_limit_Ns']}
+# The same 1e-11 m full-step kinematic bound used by the static midpoint
+# fixture; defects are independently reconstructed from accepted states.
+checks['slider_midpoint_kinematics']=results['max_slider_kinematic_defect_m']<=1e-11
+checks['fem_midpoint_kinematics']=results['max_fem_kinematic_defect_m']<=1e-11
 checks['slider_position']=results['slider_position_relative_error']<=.0025
 checks['slider_velocity']=results['slider_velocity_relative_error']<=.0025
 out={'schema':'numi.native-slider-gates.v1','input_sha256':hashlib.sha256(path.read_bytes()).hexdigest(),
