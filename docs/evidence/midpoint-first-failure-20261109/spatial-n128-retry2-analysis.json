@@ -1,0 +1,34 @@
+{
+  "n64_temporal": {
+    "binned_force": 2.9955833480059635e-10,
+    "total_impulse": 4.342885821027018e-11,
+    "peak_force": 7.845973706410392e-10,
+    "cumulative_impulse": 1.8503232378343543e-10,
+    "passes": true
+  },
+  "n128_temporal": {
+    "binned_force": 7.702109403612098e-10,
+    "total_impulse": 2.53692859608243e-10,
+    "peak_force": 2.694927327182883e-09,
+    "cumulative_impulse": 3.1482005742726663e-10,
+    "passes": true
+  },
+  "n64_to_128": {
+    "binned_force": 0.017273715055983976,
+    "total_impulse": 0.0016176037463371921,
+    "peak_force": 0.20692744469991534,
+    "cumulative_impulse": 0.00503707220643903,
+    "passes": false
+  },
+  "spatial_test_valid": true,
+  "spatial_qualified": false,
+  "n128_peak_force_N": 0.10161944540465537,
+  "n128_impulse_Ns": 0.0004106810164336146,
+  "n128_reference_area_m2": 0.0003999999999999661,
+  "n128_min_gap_m": 9.627706582122285e-05,
+  "inputs_sha256": {
+    "h050": "6f7acdab751182fa410579302bf4d7b57915abe9356ec2dc04a5dcca3fd3a09d",
+    "h025": "198b45bc0936f742032112abdcf15effe1f25fba55e6a5d6d6f6ee52f3930f88"
+  },
+  "meaning": "CPU reference for this fixture only; sampled peak and binned force are distinct"
+}

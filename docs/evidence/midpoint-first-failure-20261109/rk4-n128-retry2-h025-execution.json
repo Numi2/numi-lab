@@ -1,0 +1,19 @@
+{
+  "command": [
+    "/Users/numi/numi-matter-midpoint-compensated-build-20261109/evidence-n128-001/numi_contact_fem_fp64_reference_n128",
+    "128",
+    "0.00000025",
+    "0.01"
+  ],
+  "binary_sha256": "7f8b311536d8bb7cfd8bf4eb053649da020d0c9a20dc621071284d9e207c2394",
+  "returncode": 0,
+  "stopped_reason": null,
+  "wall_seconds": 16769.008197542047,
+  "peak_rss_kib_sampled": 4954480,
+  "free_bytes_after": 3342802944,
+  "limits": {
+    "rss_kib": 6291456,
+    "free_bytes": 3221225472,
+    "wall_seconds": 21600
+  }
+}
