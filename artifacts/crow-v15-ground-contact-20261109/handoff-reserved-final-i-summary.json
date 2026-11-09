@@ -1,0 +1,67 @@
+{
+  "course": "reserved-final-i",
+  "seed": 4038889268,
+  "lanes": [
+    {
+      "lane": 0,
+      "left_only_samples": 61,
+      "right_only_samples": 64,
+      "last_ground_sample_step": 253,
+      "nonfoot_contact_steps": 0
+    },
+    {
+      "lane": 1,
+      "left_only_samples": 61,
+      "right_only_samples": 64,
+      "last_ground_sample_step": 253,
+      "nonfoot_contact_steps": 0
+    }
+  ],
+  "observed_walk_displacement_m": 0.051851694311506026,
+  "observed_final_height_m": 1.1243200302124023,
+  "failed_environment_steps": 0,
+  "first_episode_navigation": {
+    "boundary": "waypoint completion; does not establish supported landing",
+    "closed_by_environment": [
+      false,
+      false
+    ],
+    "closed_episode_count": 0,
+    "completion_seen_by_environment": [
+      false,
+      false
+    ],
+    "completion_seen_count": 0,
+    "environment_count": 2,
+    "first_completion_step_by_environment": [
+      null,
+      null
+    ],
+    "horizon_censored_count": 2,
+    "maximum_waypoints_by_environment": [
+      0,
+      0
+    ],
+    "physical_failure_by_environment": [
+      false,
+      false
+    ],
+    "physical_failure_count": 0,
+    "safe_completion_by_environment": [
+      false,
+      false
+    ],
+    "safe_completion_count": 0,
+    "schema": "numi.crow-first-episode-evidence.v1",
+    "steps_by_environment": [
+      350,
+      350
+    ],
+    "termination_reason_by_environment": [
+      0,
+      0
+    ],
+    "unit": "first episode of each environment since context creation"
+  },
+  "scope": "development handoff only"
+}

@@ -1,0 +1,81 @@
+{
+  "course": "training",
+  "seed": 20261122,
+  "frames": 350,
+  "net_planar_displacement_m": 0.057603028169926705,
+  "root_height_min_max_m": [
+    0.176521897315979,
+    0.1851411908864975
+  ],
+  "maximum_tilt_radians": 0.02687906101346016,
+  "feet": {
+    "crow_left_foot": {
+      "loaded_samples": 281,
+      "only_loaded_samples": 61,
+      "center_height_min_max_m": [
+        0.00918594654649496,
+        0.012937893159687519
+      ],
+      "loaded_center_speed_median_m_s": 0.0025617382846216267,
+      "loaded_center_speed_p95_m_s": 0.06579270093631183,
+      "loaded_center_speed_max_m_s": 0.18785981164793186
+    },
+    "crow_right_foot": {
+      "loaded_samples": 286,
+      "only_loaded_samples": 66,
+      "center_height_min_max_m": [
+        0.00909364502876997,
+        0.012591863982379436
+      ],
+      "loaded_center_speed_median_m_s": 0.002605999030080391,
+      "loaded_center_speed_p95_m_s": 0.11551170528194815,
+      "loaded_center_speed_max_m_s": 0.11559596675886644
+    }
+  },
+  "nonfoot_ground_contact_rows": 0,
+  "failed_environment_steps": 0,
+  "first_episode_navigation": {
+    "boundary": "waypoint completion; does not establish supported landing",
+    "closed_by_environment": [
+      false,
+      false
+    ],
+    "closed_episode_count": 0,
+    "completion_seen_by_environment": [
+      false,
+      false
+    ],
+    "completion_seen_count": 0,
+    "environment_count": 2,
+    "first_completion_step_by_environment": [
+      null,
+      null
+    ],
+    "horizon_censored_count": 2,
+    "maximum_waypoints_by_environment": [
+      0,
+      0
+    ],
+    "physical_failure_by_environment": [
+      false,
+      false
+    ],
+    "physical_failure_count": 0,
+    "safe_completion_by_environment": [
+      false,
+      false
+    ],
+    "safe_completion_count": 0,
+    "schema": "numi.crow-first-episode-evidence.v1",
+    "steps_by_environment": [
+      350,
+      350
+    ],
+    "termination_reason_by_environment": [
+      0,
+      0
+    ],
+    "unit": "first episode of each environment since context creation"
+  },
+  "scope": "development screen; foot-center speed is not contact-point slip"
+}

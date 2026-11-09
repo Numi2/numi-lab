@@ -1,0 +1,6 @@
+{
+  "source_sha256": "bc28d81504c28cc44e208a1c3f72ba2e6634fcf8d124907817ec31a55b9aef57",
+  "library_sha256": "295701e3d2c2fc08f1758b3d8a9157f29c53210a95a0f7ef0b404c0b73f387a3",
+  "patch_sha256": "f51fb5cedccaa4e638e123e03ccf45f1cb5c0f53470a1bf8d0dbc3afc1c66f47",
+  "scope": "read-only accepted-contact observer; launch and terminal perch"
+}

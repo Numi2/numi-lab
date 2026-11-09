@@ -1,0 +1,65 @@
+{
+  "rows": [
+    {
+      "lane": 0,
+      "left_loaded_samples": 347,
+      "right_loaded_samples": 347,
+      "left_only_samples": 0,
+      "right_only_samples": 0
+    },
+    {
+      "lane": 1,
+      "left_loaded_samples": 347,
+      "right_loaded_samples": 347,
+      "left_only_samples": 0,
+      "right_only_samples": 0,
+      "net_planar_displacement_m": 0.003247105873015072
+    }
+  ],
+  "failed_environment_steps": 0,
+  "first_episode_navigation": {
+    "boundary": "waypoint completion; does not establish supported landing",
+    "closed_by_environment": [
+      false,
+      false
+    ],
+    "closed_episode_count": 0,
+    "completion_seen_by_environment": [
+      false,
+      false
+    ],
+    "completion_seen_count": 0,
+    "environment_count": 2,
+    "first_completion_step_by_environment": [
+      null,
+      null
+    ],
+    "horizon_censored_count": 2,
+    "maximum_waypoints_by_environment": [
+      0,
+      0
+    ],
+    "physical_failure_by_environment": [
+      false,
+      false
+    ],
+    "physical_failure_count": 0,
+    "safe_completion_by_environment": [
+      false,
+      false
+    ],
+    "safe_completion_count": 0,
+    "schema": "numi.crow-first-episode-evidence.v1",
+    "steps_by_environment": [
+      350,
+      350
+    ],
+    "termination_reason_by_environment": [
+      0,
+      0
+    ],
+    "unit": "first episode of each environment since context creation"
+  },
+  "lane0_displacement": "not observed: replay export selected lane 1",
+  "scope": "exploratory 350 accepted endpoint samples; cannot pass bilateral lane gate without lane-0 trajectory"
+}

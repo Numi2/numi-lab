@@ -1,0 +1,12 @@
+--- a/walk-handoff.metal
++++ b/offset-handoff.metal
+@@ -3737,6 +3737,9 @@
+                     ) * program.interactionTiming.x;
+             }
+         }
++        // Experimental start location adjustment; dynamics own all subsequent motion.
++        if ((program.schedule.w & MR_TASK_PROGRAM_AVIAN_CROW_HIERARCHICAL_NAVIGATION) != 0u && curriculum == 10u)
++            resetQ[qBase + program.root.z] -= 0.052f;
+         controllerParameters[environment].z =
+             float(actionDelay) * dispatch.timing.x;
+ 

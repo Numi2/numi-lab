@@ -1,0 +1,6 @@
+{
+  "observer_source_sha256": "5aab81dbd16bbe2a1c0102fff3482e4ad7a7add32acab198ce68eda84cfdd3c3",
+  "observer_library_sha256": "4cb61d2b730f7ad01b4f3845f32199792aee3d73598a80d22e69242b14f5fb97",
+  "original_api_sha256": "d0fc9eb78e0ab290002c869f4fc37363ea52710d87f7781570399584476ec8ed",
+  "scope": "read-only accepted-contact instrumentation; no physical control changes"
+}

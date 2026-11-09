@@ -1,0 +1,6 @@
+{
+  "shader_sha256": "61e1da92c587cc2f08fb05527c9a982eb993e6ef736bf24c265c8283c872740d",
+  "patch_sha256": "c33b8cca25506ad24aaca90d81a684bea25d2d4175bd13f3727ec8563e38a39b",
+  "plan_sha256": "707538fc64d40ca9b335a041b9f1ed7f05487e40684b0d29f3f81bc14337b2ec",
+  "base_shader": "walk-handoff"
+}

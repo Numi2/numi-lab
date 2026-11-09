@@ -1,0 +1,17 @@
+[
+  {
+    "patch": "feedback_live.patch",
+    "reconstructed_sha256": "009259387745a6f3f7e7032b2ead65849dc72d35b62c729286ec4a8c2945f938",
+    "matches_built_source": true
+  },
+  {
+    "patch": "walk-handoff.patch",
+    "reconstructed_sha256": "ac13e841dc979043cafa009286cd6371dffd356805e32bb0e0abf62bc257080a",
+    "matches_built_source": true
+  },
+  {
+    "patch": "boundary-handoff.patch",
+    "reconstructed_sha256": "2dfdaf51b95bcc5a5f02ee2c65ec34e4f2352d39ddc80a05fe0b1da4dc7bf7ba",
+    "matches_built_source": true
+  }
+]

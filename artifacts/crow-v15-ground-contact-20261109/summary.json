@@ -1,0 +1,14 @@
+{
+  "observer_parity": true,
+  "lane": 1,
+  "frames": 350,
+  "prelaunch_hip_symmetry_fraction": 1.0,
+  "prelaunch_planar_net_displacement_m": 0.0006787443057969569,
+  "prediction_met": true,
+  "ground_contact_rows": 2000,
+  "positive_ground_impulse_rows": 2000,
+  "first_positive_ground_step": 4,
+  "last_positive_ground_step": 253,
+  "maximum_reported_upward_impulse_ns": 0.00707870862,
+  "scope": "endpoint-published contact impulses; not a time-integrated push-off force or gait qualification"
+}

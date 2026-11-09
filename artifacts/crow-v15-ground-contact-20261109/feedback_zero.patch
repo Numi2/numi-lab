@@ -1,0 +1,31 @@
+--- a/src/metal/LocomotionTask.metal
++++ b/feedback_zero.metal
+@@ -5037,6 +5037,16 @@
+         float navigationTeacherRequested = fixedFlightController
+             ? (avianNavigationTeacher && action >= 15u ? studentRequested : teacherRequested)
+             : legacyNavigationTeacherRequested;
++        // Isolated walking experiment: one-step-lag accepted foot-load gating.
++        if (fixedFlightController && state.episode.z == 1u && action >= 7u && action <= 12u) {
++            const float seconds = float(state.episode.x)*dispatch.timing.x;
++            const uint leg = (action-7u)/3u, joint = (action-7u)%3u;
++            const float support = leg == 0u ? state.nutrition.y : state.nutrition.x;
++            const float carrier = sin(kTwoPi*seconds/0.50f)*(leg == 0u ? 1.0f : -1.0f);
++            const float swing = seconds >= 2.0f && seconds < 5.0f && support > 0.05f ? carrier : 0.0f;
++            const float lift = max(swing,0.0f);
++            navigationTeacherRequested = joint == 0u ? -0.30f*swing : joint == 1u ? 0.40f*lift : -0.15f*lift;
++        }
+         // Keep the training-only teacher active through the final target.
+         // Ending at waypoint four taught an aggressive approach crossing but
+         // handed the student a poor terminal arrival geometry. Autonomous
+@@ -9250,6 +9260,11 @@
+             criticObservations + criticOutputBase
+         );
+     }
++    // The experimental band uses two otherwise unused diagnostic components;
++    // the navigation actor and observation publishing have already run.
++    if ((program.schedule.w & MR_TASK_PROGRAM_AVIAN_CROW_HIERARCHICAL_NAVIGATION) != 0u && state.episode.z == 1u && program.counts0.w >= 2u) {
++        state.nutrition.xy = float2(0.0f);
++    }
+     taskStates[environment] = state;
+ 
+     const uint transitionIndex =

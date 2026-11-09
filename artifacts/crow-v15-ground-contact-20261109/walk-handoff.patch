@@ -1,0 +1,20 @@
+--- a/feedback_live.metal
++++ b/walk-handoff.metal
+@@ -5038,7 +5038,7 @@
+             ? (avianNavigationTeacher && action >= 15u ? studentRequested : teacherRequested)
+             : legacyNavigationTeacherRequested;
+         // Isolated walking experiment: one-step-lag accepted foot-load gating.
+-        if (fixedFlightController && state.episode.z == 1u && action >= 7u && action <= 12u) {
++        if (fixedFlightController && state.episode.z == 10u && action >= 7u && action <= 12u) {
+             const float seconds = float(state.episode.x)*dispatch.timing.x;
+             const uint leg = (action-7u)/3u, joint = (action-7u)%3u;
+             const float support = leg == 0u ? state.nutrition.y : state.nutrition.x;
+@@ -9262,7 +9262,7 @@
+     }
+     // The experimental band uses two otherwise unused diagnostic components;
+     // the navigation actor and observation publishing have already run.
+-    if ((program.schedule.w & MR_TASK_PROGRAM_AVIAN_CROW_HIERARCHICAL_NAVIGATION) != 0u && state.episode.z == 1u && program.counts0.w >= 2u) {
++    if ((program.schedule.w & MR_TASK_PROGRAM_AVIAN_CROW_HIERARCHICAL_NAVIGATION) != 0u && state.episode.z == 10u && program.counts0.w >= 2u) {
+         state.nutrition.xy = float2(compactContact[compactBase+contactGroups[0].members.w], compactContact[compactBase+contactGroups[1].members.w]);
+     }
+     taskStates[environment] = state;

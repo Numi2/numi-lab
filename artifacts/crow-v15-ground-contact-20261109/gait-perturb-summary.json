@@ -1,0 +1,297 @@
+{
+  "lanes": [
+    {
+      "lane": 0,
+      "first_sample": 3,
+      "last_sample": 350,
+      "first_quaternion_xyzw": [
+        -0.0145118032,
+        0.00144283799,
+        -9.24632041e-05,
+        0.999893665
+      ],
+      "first_leg_joint_positions": [
+        -0.119737603,
+        0.278845489,
+        -0.164045542,
+        -0.1192405,
+        0.279962659,
+        -0.160161823
+      ],
+      "observed_net_displacement_m": 0.057293518795636655,
+      "max_sampled_tilt_radians": 0.029167741912252455,
+      "left_only_samples": 66,
+      "right_only_samples": 66,
+      "nonfoot_ground_contact_steps": 0,
+      "necessary_gate_pass": true
+    },
+    {
+      "lane": 1,
+      "first_sample": 4,
+      "last_sample": 350,
+      "first_quaternion_xyzw": [
+        -0.00238169078,
+        -0.00104957679,
+        5.38868835e-06,
+        0.999996603
+      ],
+      "first_leg_joint_positions": [
+        -0.119457886,
+        0.281490028,
+        -0.159237832,
+        -0.119849145,
+        0.280249834,
+        -0.159864813
+      ],
+      "observed_net_displacement_m": 0.05787455147406242,
+      "max_sampled_tilt_radians": 0.02689945264232748,
+      "left_only_samples": 62,
+      "right_only_samples": 66,
+      "nonfoot_ground_contact_steps": 0,
+      "necessary_gate_pass": true
+    },
+    {
+      "lane": 2,
+      "first_sample": 3,
+      "last_sample": 350,
+      "first_quaternion_xyzw": [
+        0.0231544748,
+        0.000181826224,
+        -0.000135215712,
+        0.999731839
+      ],
+      "first_leg_joint_positions": [
+        -0.121483929,
+        0.278488427,
+        -0.160162449,
+        -0.118556648,
+        0.280896217,
+        -0.16288811
+      ],
+      "observed_net_displacement_m": 0.05782856501788056,
+      "max_sampled_tilt_radians": 0.04631451672869979,
+      "left_only_samples": 61,
+      "right_only_samples": 75,
+      "nonfoot_ground_contact_steps": 0,
+      "necessary_gate_pass": true
+    },
+    {
+      "lane": 3,
+      "first_sample": 4,
+      "last_sample": 350,
+      "first_quaternion_xyzw": [
+        -0.0130614256,
+        -0.00053835375,
+        -0.000218316083,
+        0.999914587
+      ],
+      "first_leg_joint_positions": [
+        -0.119379617,
+        0.281165689,
+        -0.159792766,
+        -0.120135836,
+        0.279970676,
+        -0.160118312
+      ],
+      "observed_net_displacement_m": 0.05773968030808042,
+      "max_sampled_tilt_radians": 0.026906483856959033,
+      "left_only_samples": 66,
+      "right_only_samples": 66,
+      "nonfoot_ground_contact_steps": 0,
+      "necessary_gate_pass": true
+    },
+    {
+      "lane": 4,
+      "first_sample": 3,
+      "last_sample": 350,
+      "first_quaternion_xyzw": [
+        0.0233272742,
+        0.000292255165,
+        1.7743545e-05,
+        0.999727845
+      ],
+      "first_leg_joint_positions": [
+        -0.1184958,
+        0.278950214,
+        -0.160372719,
+        -0.119083069,
+        0.279609978,
+        -0.161257103
+      ],
+      "observed_net_displacement_m": 0.057977692223169716,
+      "max_sampled_tilt_radians": 0.04666244307080316,
+      "left_only_samples": 61,
+      "right_only_samples": 74,
+      "nonfoot_ground_contact_steps": 0,
+      "necessary_gate_pass": true
+    },
+    {
+      "lane": 5,
+      "first_sample": 3,
+      "last_sample": 350,
+      "first_quaternion_xyzw": [
+        -0.0266185496,
+        0.000381191756,
+        -0.000104669729,
+        0.999645591
+      ],
+      "first_leg_joint_positions": [
+        -0.119436435,
+        0.279680759,
+        -0.161192015,
+        -0.119337916,
+        0.280403823,
+        -0.159791365
+      ],
+      "observed_net_displacement_m": 0.05817590288632389,
+      "max_sampled_tilt_radians": 0.05324884856160626,
+      "left_only_samples": 71,
+      "right_only_samples": 66,
+      "nonfoot_ground_contact_steps": 0,
+      "necessary_gate_pass": true
+    },
+    {
+      "lane": 6,
+      "first_sample": 3,
+      "last_sample": 350,
+      "first_quaternion_xyzw": [
+        0.0234710276,
+        -0.00106674084,
+        0.000114997689,
+        0.999723971
+      ],
+      "first_leg_joint_positions": [
+        -0.118845448,
+        0.280191839,
+        -0.159575954,
+        -0.121606894,
+        0.281915992,
+        -0.15843007
+      ],
+      "observed_net_displacement_m": 0.05850453873457816,
+      "max_sampled_tilt_radians": 0.04699483718449519,
+      "left_only_samples": 61,
+      "right_only_samples": 74,
+      "nonfoot_ground_contact_steps": 0,
+      "necessary_gate_pass": true
+    },
+    {
+      "lane": 7,
+      "first_sample": 3,
+      "last_sample": 350,
+      "first_quaternion_xyzw": [
+        -0.0269578397,
+        0.000629628426,
+        -9.22034524e-05,
+        0.999636352
+      ],
+      "first_leg_joint_positions": [
+        -0.120281816,
+        0.279792339,
+        -0.160898656,
+        -0.118225418,
+        0.280892909,
+        -0.160192922
+      ],
+      "observed_net_displacement_m": 0.05821709151458324,
+      "max_sampled_tilt_radians": 0.05393692081950761,
+      "left_only_samples": 71,
+      "right_only_samples": 66,
+      "nonfoot_ground_contact_steps": 0,
+      "necessary_gate_pass": true
+    }
+  ],
+  "failed_environment_steps": 0,
+  "first_episode_navigation": {
+    "boundary": "waypoint completion; does not establish supported landing",
+    "closed_by_environment": [
+      false,
+      false,
+      false,
+      false,
+      false,
+      false,
+      false,
+      false
+    ],
+    "closed_episode_count": 0,
+    "completion_seen_by_environment": [
+      false,
+      false,
+      false,
+      false,
+      false,
+      false,
+      false,
+      false
+    ],
+    "completion_seen_count": 0,
+    "environment_count": 8,
+    "first_completion_step_by_environment": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "horizon_censored_count": 8,
+    "maximum_waypoints_by_environment": [
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0
+    ],
+    "physical_failure_by_environment": [
+      false,
+      false,
+      false,
+      false,
+      false,
+      false,
+      false,
+      false
+    ],
+    "physical_failure_count": 0,
+    "safe_completion_by_environment": [
+      false,
+      false,
+      false,
+      false,
+      false,
+      false,
+      false,
+      false
+    ],
+    "safe_completion_count": 0,
+    "schema": "numi.crow-first-episode-evidence.v1",
+    "steps_by_environment": [
+      350,
+      350,
+      350,
+      350,
+      350,
+      350,
+      350,
+      350
+    ],
+    "termination_reason_by_environment": [
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0
+    ],
+    "unit": "first episode of each environment since context creation"
+  },
+  "scope": "perturbation screen, not held-out biological qualification"
+}

@@ -1,0 +1,5 @@
+{
+  "complete_replay_frames_equal": true,
+  "frame_count": 350,
+  "scope": "same build, same two lanes, observer enablement only"
+}
