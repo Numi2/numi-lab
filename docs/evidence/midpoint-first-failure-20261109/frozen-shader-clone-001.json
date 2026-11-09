@@ -1,0 +1,38 @@
+{
+  "scope": "exact hash-verified task-owned frozen shader clones; paths and bytes preserved; APFS copy-on-write",
+  "replacements": [
+    {
+      "path": "/Users/numi/numi-matter-midpoint-compensated-build-20261109/evidence-be-precision-001/NumiMatter.metallib",
+      "sha256": "eebb5247813e6f510efedd6ef5f2d0d7a3bea840cb38966b3f2db48735ddb97f",
+      "reference": "/Users/numi/numi-matter-midpoint-compensated-build-20261109/evidence-be-precision-005/NumiMatter.metallib"
+    },
+    {
+      "path": "/Users/numi/numi-matter-midpoint-compensated-build-20261109/evidence-be-precision-002/NumiMatter.metallib",
+      "sha256": "eebb5247813e6f510efedd6ef5f2d0d7a3bea840cb38966b3f2db48735ddb97f",
+      "reference": "/Users/numi/numi-matter-midpoint-compensated-build-20261109/evidence-be-precision-005/NumiMatter.metallib"
+    },
+    {
+      "path": "/Users/numi/numi-matter-midpoint-compensated-build-20261109/evidence-be-precision-003/NumiMatter.metallib",
+      "sha256": "eebb5247813e6f510efedd6ef5f2d0d7a3bea840cb38966b3f2db48735ddb97f",
+      "reference": "/Users/numi/numi-matter-midpoint-compensated-build-20261109/evidence-be-precision-005/NumiMatter.metallib"
+    },
+    {
+      "path": "/Users/numi/numi-matter-midpoint-compensated-build-20261109/evidence-be-precision-004/NumiMatter.metallib",
+      "sha256": "eebb5247813e6f510efedd6ef5f2d0d7a3bea840cb38966b3f2db48735ddb97f",
+      "reference": "/Users/numi/numi-matter-midpoint-compensated-build-20261109/evidence-be-precision-005/NumiMatter.metallib"
+    },
+    {
+      "path": "/Users/numi/numi-matter-midpoint-compensated-build-20261109/evidence-stage-native-001/NumiMatter.metallib",
+      "sha256": "eebb5247813e6f510efedd6ef5f2d0d7a3bea840cb38966b3f2db48735ddb97f",
+      "reference": "/Users/numi/numi-matter-midpoint-compensated-build-20261109/evidence-be-precision-005/NumiMatter.metallib"
+    },
+    {
+      "path": "/Users/numi/numi-matter-midpoint-compensated-build-20261109/evidence-capture-204/NumiMatter.metallib",
+      "sha256": "2d90892820a64627878189a82175e149084924d92ff2c486bbf3f0de87757148",
+      "reference": "/Users/numi/numi-matter-midpoint-compensated-build-20261109/evidence-rich-204/NumiMatter.metallib"
+    }
+  ],
+  "free_before_bytes": 3281174528,
+  "free_after_bytes": 3414499328,
+  "observed_change_bytes": 133324800
+}

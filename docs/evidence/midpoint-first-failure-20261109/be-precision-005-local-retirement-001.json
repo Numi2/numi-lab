@@ -1,0 +1,21 @@
+{
+  "scope": "two untracked stopped-run originals only; remotely downloaded archives restored with exact hashes before retirement",
+  "remote_restore_record": "be-precision-005-remote-restore-001.json",
+  "items": [
+    {
+      "source": "be-precision-005-n2-h00003125.json",
+      "bytes": 167034880,
+      "sha256": "310a31067a3648f46df31a8856636225edeedacf1588a8e84eadacc458e3d299",
+      "remote_archive": "be-precision-005-n2-h00003125.json.gz"
+    },
+    {
+      "source": "be-precision-005-n2-h00003125.log",
+      "bytes": 51491798,
+      "sha256": "d9f78f38ea597ea4a5419dca1db60340a476dcf12ba2419983cac2856f30a4d5",
+      "remote_archive": "be-precision-005-n2-h00003125.log.gz"
+    }
+  ],
+  "free_before_bytes": 3060232192,
+  "free_after_bytes": 3280052224,
+  "observed_change_bytes": 219820032
+}
