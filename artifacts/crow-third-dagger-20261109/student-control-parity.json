@@ -1,0 +1,15 @@
+{
+  "rows": [
+    {
+      "course": "reserved-final-e",
+      "samples": 480,
+      "exact_qv": true
+    },
+    {
+      "course": "reserved-final-f",
+      "samples": 480,
+      "exact_qv": true
+    }
+  ],
+  "scope": "prior teacher-off final assessment versus rebuilt development control; sampled states only"
+}
