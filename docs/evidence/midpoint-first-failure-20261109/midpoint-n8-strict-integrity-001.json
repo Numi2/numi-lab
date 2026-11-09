@@ -1,0 +1,13 @@
+{
+  "h": 7.8125e-06,
+  "input_sha256": {
+    "docs/evidence/midpoint-first-failure-20261109/stage-ladder-n8-h0078125-analysis.json": "df024956d09a5a83216c8d352c5f34172dda2762ede0c63ec22e0c927b927f23",
+    "docs/evidence/midpoint-first-failure-20261109/stage-ladder-n8-h0078125-execution.json": "970457159db39a3c62f542072856110357f812e151336568b0bad41371c10778",
+    "docs/evidence/midpoint-first-failure-20261109/stage-ladder-n8-h0078125.json": "f306b8ea97cc256def7090d028bace9bab8d7e67cd12e831b2232a9d350a3c71",
+    "docs/evidence/midpoint-spatial-cost-dynamic-20261108/rk4-n8-h025.json": "a5322e0e1baa78533551411815c7681b95b6ddb2a97837b3e426c5ff50eac6b8"
+  },
+  "published_revision": "e94999516",
+  "scope": "retained midpoint input integrity and reproduced analysis; no cost or spatial qualification",
+  "steps": 1280,
+  "valid": true
+}
