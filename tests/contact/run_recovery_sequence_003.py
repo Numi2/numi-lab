@@ -19,7 +19,9 @@ files = [Path(__file__).resolve(), root / "tests/contact/run_be_compressed_ladde
          root / "tests/contact/run_large_spatial_continuation_005.py",
          root / "tests/contact/large_spatial_reference.py", root / "tests/contact/cost_provenance.py",
          root / "tests/contact/cost_selection.py", root / "tests/contact/cost_summary.py",
-         root / "tests/contact/native_trace_analysis.py", e / "be-precision-005-inputs.sha256"]
+         root / "tests/contact/native_trace_analysis.py", e / "be-precision-005-inputs.sha256",
+         root / "tests/contact/strict_native_trace_audit.py", root / "tests/contact/audit_cost_physical_time.py",
+         root / "docs/evidence/midpoint-spatial-cost-dynamic-20261108/rk4-n2-h025.json"]
 if len(sys.argv) != 2 or not sys.argv[1].isdigit() or receipt.exists():
     raise SystemExit("usage: run_recovery_sequence_003.py N64_SUPERVISOR_PID (fresh receipt required)")
 pid = int(sys.argv[1])
@@ -80,8 +82,28 @@ try:
         control, bl = select_largest_certified(e, "be-precision-008-n2-h*", "ipc_area", verify)
         record["selected"] = {"midpoint": midpoint, "control": control,
                               "midpoint_ladder": ml, "control_ladder": bl}
-        invoke("cost", [root / "tests/contact/run_accuracy_adjusted_cost_002.py",
-                        midpoint, control, "cost-fair-n2-003"])
+        cost_status = invoke("cost", [root / "tests/contact/run_accuracy_adjusted_cost_002.py",
+                                      midpoint, control, "cost-fair-n2-003"])
+        # Complete these independent checks before starting the potentially
+        # multi-day spatial continuation. No diagnostic snapshots are added to
+        # the timed cost loop; the strict audits consume already saved traces.
+        if cost_status == 0:
+            audits = []
+            for execution in sorted(e.glob("be-precision-008-n2-h*-execution.json")):
+                meta = json.loads(execution.read_text())
+                if meta.get("all_gates_pass") is not True:
+                    continue
+                prefix = str(execution)[:-len("-execution.json")]
+                name = execution.name.removesuffix("-execution.json")
+                status = invoke("strict-" + name, [root / "tests/contact/strict_native_trace_audit.py",
+                    Path(prefix + ".json.gz"), execution,
+                    root / "docs/evidence/midpoint-spatial-cost-dynamic-20261108/rk4-n2-h025.json"])
+                audits.append({"execution": execution.name, "returncode": status})
+            time_status = invoke("physical-time", [root / "tests/contact/audit_cost_physical_time.py",
+                                                     e, "cost-fair-n2-003"])
+            record["cost_independent_checks"] = {"strict_audits": audits, "physical_time_returncode": time_status,
+                "all_pass": bool(audits) and all(a["returncode"] == 0 for a in audits) and time_status == 0}
+            save()
     except (ValueError, OSError, KeyError) as error:
         record["cost_not_run"] = repr(error)
         save()
