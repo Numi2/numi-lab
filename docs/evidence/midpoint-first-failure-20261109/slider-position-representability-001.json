@@ -1,0 +1,65 @@
+{
+  "analysis_sha256": "347ed67bc10570992a220c8a4dffd95953beaea986445e8c68669e5a1032a1dd",
+  "limitations": "Historical inputs are held fixed. This independently reconstructed bound is not the native stage-increment certificate; it does not qualify GPU arithmetic, contact feedback, accepted steps or rollback.",
+  "method": "Use stored endpoint velocities to reconstruct midpoint position; round the ideal local endpoint to one word and to a two-word expansion.",
+  "rounding_helper_sha256": "eaa6f2dfcf20b519d0ce55af7725f1a5b4a376ef9f960cec0a5a666f2c121db5",
+  "schema": "numi.slider-position-representability.v1",
+  "traces": [
+    {
+      "accepted_steps": 576,
+      "published_exceeds_bound": 0,
+      "published_maximum_bound_ratio": 0.9410630939332068,
+      "published_maximum_defect_m": 7.2269132884539115e-12,
+      "sha256": "3e95ed4e83178faa6844b7c36d514cb096116f2922e1136ce565dd5f06278b59",
+      "single_exceeds_bound": 0,
+      "single_maximum_bound_ratio": 0.9410630939332068,
+      "single_maximum_defect_m": 7.2269132884539115e-12,
+      "split_exceeds_bound": 0,
+      "split_maximum_bound_ratio": 2.8421709430404007e-08,
+      "split_maximum_defect_m": 2.168404344971009e-19,
+      "trace": "slider-primary-h15625-001.json"
+    },
+    {
+      "accepted_steps": 503,
+      "published_exceeds_bound": 0,
+      "published_maximum_bound_ratio": 0.9510831819881105,
+      "published_maximum_defect_m": 7.256188827423939e-12,
+      "sha256": "dff9f4cd6642cd1c86abdfdfa7aac3c92a5b198e05ec1054032a724334ed76d1",
+      "single_exceeds_bound": 0,
+      "single_maximum_bound_ratio": 0.9510831819881105,
+      "single_maximum_defect_m": 7.256188827423939e-12,
+      "split_exceeds_bound": 0,
+      "split_maximum_bound_ratio": 2.8421709430404007e-08,
+      "split_maximum_defect_m": 2.168404344971009e-19,
+      "trace": "slider-near-h15625-001.json"
+    },
+    {
+      "accepted_steps": 676,
+      "published_exceeds_bound": 0,
+      "published_maximum_bound_ratio": 0.19235462866973307,
+      "published_maximum_defect_m": 1.467549352033486e-12,
+      "sha256": "e8ed2d5ecde1d261cc4ac982bd1c5ee9bbe8ee7160201131ccf21381bade69b0",
+      "single_exceeds_bound": 0,
+      "single_maximum_bound_ratio": 0.19235462866973307,
+      "single_maximum_defect_m": 1.467549352033486e-12,
+      "split_exceeds_bound": 0,
+      "split_maximum_bound_ratio": 6.661338147750939e-09,
+      "split_maximum_defect_m": 5.082197683525802e-20,
+      "trace": "slider-primary-h078125-001.json"
+    },
+    {
+      "accepted_steps": 748,
+      "published_exceeds_bound": 0,
+      "published_maximum_bound_ratio": 0.47459973062657923,
+      "published_maximum_defect_m": 3.6209085893751467e-12,
+      "sha256": "20031ded30599ac02865b0e45e780e7265eeb5b32a0b12c1820ac719213a34a5",
+      "single_exceeds_bound": 0,
+      "single_maximum_bound_ratio": 0.47459973062657923,
+      "single_maximum_defect_m": 3.6209085893751467e-12,
+      "split_exceeds_bound": 0,
+      "split_maximum_bound_ratio": 1.4210854715202004e-08,
+      "split_maximum_defect_m": 1.0842021724855044e-19,
+      "trace": "slider-near-h078125-001.json"
+    }
+  ]
+}
