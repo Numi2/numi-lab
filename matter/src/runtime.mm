@@ -19715,6 +19715,29 @@ RuntimeDiagnostics Runtime::encodeImpl(
             diagnostics.message = "midpoint stage timestep is not representable";
             return diagnostics;
         }
+        // The unknown for the admitted rigid midpoint is the half-step
+        // velocity increment. Its residual therefore receives h/2 times the
+        // owner gravity force at every iterate, private trial and final check.
+        // The current moving-plane guards remain closed until the entire
+        // coupled contact and physical endpoint certificate are qualified.
+        float sliderMidpointGravityImpulse = 0.0f;
+        if (state.experimentalFEMPlaneMidpoint && state.requiresCoupledCandidate) {
+            const float force = request.sliderMidpointGravityForceNewtons;
+            if (!request.sliderMidpointMechanicalDataValid ||
+                state.dispatch.environmentCount != 1u ||
+                state.dispatch.rigidGeneralizedCapacity != 1u ||
+                !std::isfinite(request.sliderMidpointMassKg) ||
+                !(request.sliderMidpointMassKg > 0.0f) || !std::isfinite(force)) {
+                diagnostics.message = "invalid midpoint slider owner mechanical data";
+                return diagnostics;
+            }
+            sliderMidpointGravityImpulse = (0.5f * frameTimestep) * force;
+            if (!std::isfinite(sliderMidpointGravityImpulse) ||
+                (force != 0.0f && sliderMidpointGravityImpulse == 0.0f)) {
+                diagnostics.message = "unrepresentable midpoint slider gravity impulse";
+                return diagnostics;
+            }
+        }
         if (frameTimestep != activeTimestep) {
             diagnostics.message =
                 "Matter runtime timestep differs from the active coupled cadence";
@@ -36572,6 +36595,8 @@ RuntimeDiagnostics Runtime::encodeImpl(
                              offset:0u atIndex:3u];
                 bindPrimalContactArguments(4u);
                 [encoder setBuffer:state.femResidual offset:0u atIndex:5u];
+                [encoder setBytes:&sliderMidpointGravityImpulse
+                           length:sizeof(sliderMidpointGravityImpulse) atIndex:6u];
             });
             dispatchThreads("nm_contact_accumulate_rigid_residual",
                 rigidGeneralizedTotalForResidual, [&] {
@@ -51565,6 +51590,8 @@ RuntimeDiagnostics Runtime::encodeImpl(
                             bindArmijoPrimalContactArguments(4u);
                             [encoder setBuffer:state.femArmijoResidual
                                          offset:0u atIndex:5u];
+                            [encoder setBytes:&sliderMidpointGravityImpulse
+                                       length:sizeof(sliderMidpointGravityImpulse) atIndex:6u];
                         });
                         [encoder memoryBarrierWithScope:MTLBarrierScopeBuffers];
                         if (femSparsePrivateContactEnabled) {
@@ -52308,6 +52335,8 @@ RuntimeDiagnostics Runtime::encodeImpl(
                                  offset:0u atIndex:3u];
                     bindPrimalContactArguments(4u);
                     [encoder setBuffer:state.femResidual offset:0u atIndex:5u];
+                    [encoder setBytes:&sliderMidpointGravityImpulse
+                               length:sizeof(sliderMidpointGravityImpulse) atIndex:6u];
                 });
             dispatchThreads("nm_contact_accumulate_rigid_residual",
                 rigidGeneralizedTotalForResidual, [&] {

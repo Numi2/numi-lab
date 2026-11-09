@@ -171,6 +171,9 @@ bool encodeMetalWorldDevicePhysics(
         request.coupledCandidateContext = &coupledBridge;
         request.encodeCoupledCandidate = &encodeCoupledCandidateBridge;
     }
+    request.sliderMidpointMechanicalDataValid = pass.sliderMidpointMechanicalDataValid;
+    request.sliderMidpointMassKg = pass.sliderMidpointMassKg;
+    request.sliderMidpointGravityForceNewtons = pass.sliderMidpointGravityForceNewtons;
     request.articulationRootBody = pass.articulationRootBody;
     request.phase = pass.phase ==
             metalrobo::MetalWorldDevicePhysicsPhase::postCommit

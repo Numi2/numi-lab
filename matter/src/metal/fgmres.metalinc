@@ -8800,6 +8800,7 @@ kernel void nm_contact_subtract_rigid_inertia_residual(
     device const float* candidate [[buffer(3)]],
     constant NMPrimalContactArguments& contact [[buffer(4)]],
     device float4* residual [[buffer(5)]],
+    constant float& sliderMidpointGravityImpulse [[buffer(6)]],
     uint global [[thread_position_in_grid]]
 ) {
     const uint total = dispatch.environmentCount *
@@ -8848,6 +8849,8 @@ kernel void nm_contact_subtract_rigid_inertia_residual(
         }
     }
     residual[fgmresRigidBase(dispatch) + global].x -= value;
+    if (dof == 0u && sliderMidpointGravityImpulse != 0.0f)
+        residual[fgmresRigidBase(dispatch) + global].x += sliderMidpointGravityImpulse;
 }
 
 kernel void nm_fgmres_apply_primal_rigid_contacts(

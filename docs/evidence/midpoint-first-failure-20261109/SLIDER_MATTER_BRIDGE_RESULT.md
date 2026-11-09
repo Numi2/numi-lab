@@ -24,13 +24,13 @@ spatial-convergence claim follows from the bridge.
 
 ## Remaining owner interfaces identified by source audit
 
-The generic primal residual rebuild subtracts articulated mass action and
-adds contact, but does not add the slider gravity impulse. It does this at the
-Newton iterate and final certificate; private Armijo trials have their own
-assembly path. A future admitted slider path must include the same stage
-force at every relevant evaluation and use consistent stage-to-full-step
-impulse scaling in its convergence test. The MetalWorld midpoint pass now exposes the validated
-body mass and gravity force; Matter does not yet use them.
+The primal residual rebuild subtracts articulated mass action and adds
+contact. It now has a guarded route for one half-step of the validated slider
+owner gravity force at Newton iterates, private Armijo trials and final
+certification. A missing or invalid owner mass or force rejects this route.
+The route is still unreachable in a native coupled midpoint transaction
+because the dynamic-plane and coupled-owner guards remain closed. Full-step
+residual and impulse certification remain separate requirements.
 
 The compensated reference-area contact response currently selects only an
 unbacked stationary plane. A moving proxy otherwise uses the generic gap
@@ -67,3 +67,22 @@ owner and coupled rollback tests also passed; see
 metal-world-bridge-guard-001.log and metal-world-bridge-owner-ctest-001.log.
 The moving-plane admission guard remains in place. None of these checks
 establishes native two-owner contact, force, moment, work, or replay accuracy.
+
+## Slider gravity residual preparation
+
+The owner mechanical metadata is forwarded to Matter. For the restricted
+one-degree-of-freedom midpoint owner, the shared rigid row receives h/2 times
+the signed owner gravity force, consistent with its half-step velocity
+increment; gravity is constant and contributes no tangent. The same value is
+bound at all three rigid residual assembly sites. No moving-plane admission
+rules have been relaxed.
+
+The actual Metal residual operator passed 24 mass, gravity, timestep and
+velocity cases, with maximum absolute difference 1.19e-11 N s from an
+independently evaluated row. The rebuilt fixed-plane native transaction,
+adapter guard and existing legacy two-owner late-failure/crossing rollback
+checks passed. See slider-gravity-residual-001.log,
+slider-gravity-residual-inputs-001.sha256,
+slider-gravity-integrated-ctest-001.log and slider-gravity-legacy-ctest-001.log.
+These checks do not exercise the currently guarded Matter-to-slider contact
+path and do not establish its force, impulse, torque, work, or replay gates.

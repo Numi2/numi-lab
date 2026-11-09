@@ -1,0 +1,13 @@
+Test project /Users/numi/numi-matter-midpoint-compensated-build-20261109
+    Start  1: numi.contact.slider_gravity_residual
+1/4 Test  #1: numi.contact.slider_gravity_residual .......   Passed    0.03 sec
+    Start  2: numi.contact.metal_world_bridge_guard
+2/4 Test  #2: numi.contact.metal_world_bridge_guard ......   Passed    0.00 sec
+    Start 21: numi.contact.midpoint_native_transaction
+3/4 Test #21: numi.contact.midpoint_native_transaction ...   Passed    2.25 sec
+    Start 22: numi.contact.midpoint_dynamic_guard
+4/4 Test #22: numi.contact.midpoint_dynamic_guard ........   Passed    0.30 sec
+
+100% tests passed out of 4
+
+Total Test time (real) =   2.58 sec

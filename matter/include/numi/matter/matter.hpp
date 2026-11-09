@@ -1423,6 +1423,12 @@ struct EncodeRequest {
     void* rigidContactStatuses = nullptr; // id<MTLBuffer>, MRMetalWorldContactStatusGPU
     void* coupledCandidateContext = nullptr;
     EncodeCoupledCandidate encodeCoupledCandidate = nullptr;
+    // Explicitly admitted one-axis midpoint owner only. The force is the
+    // signed world-z gravity force for the same rigid body and transaction.
+    // This metadata does not itself admit coupled midpoint dynamics.
+    bool sliderMidpointMechanicalDataValid = false;
+    float sliderMidpointMassKg = 0.0f;
+    float sliderMidpointGravityForceNewtons = 0.0f;
     // Source-mass callbacks use raw uint status codes, converted to Matter status on device.
     bool coupledCandidateSourceMassOperationsAvailable = false;
     bool coupledCandidateIndirectMassActionDispatchAvailable = false;
