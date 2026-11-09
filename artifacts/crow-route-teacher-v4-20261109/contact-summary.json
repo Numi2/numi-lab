@@ -1,0 +1,15 @@
+{
+  "physical_failures": 2,
+  "waypoint_distribution": {
+    "0": 0,
+    "1": 0,
+    "2": 2,
+    "3": 3,
+    "4": 7,
+    "5": 52
+  },
+  "lanes_by_final_published_contact_pair": {
+    "crow_right_wing / crow_course_slalom_b": 2
+  },
+  "scope": "candidate final-substep contacts"
+}
