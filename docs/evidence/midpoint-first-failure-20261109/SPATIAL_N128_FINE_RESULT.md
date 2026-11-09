@@ -28,3 +28,13 @@ The largest cumulative-impulse difference occurs at 5.078 ms. The peak times
 in that record use the 2 µs trace and are not claimed to be the times of the
 finer 0.25 µs step-sampled peaks. These are comparisons of the retained
 numerical trajectories; they do not by themselves identify a physical cause.
+
+A separate, non-adjacent comparison with the 27-node timing fixture shows
+how strongly mesh choice affects this modeled response: the time-refined n=2
+reference has a 0.72467 N step-sampled peak and 0.00050658 N·s total impulse;
+the n=128 values are 0.10162 N and 0.00041068 N·s. This does not make n=128
+a physical ground truth. It means any eventual n=2 midpoint-versus-backward-
+Euler timing result is specific to the coarse fixture and does not establish
+an accuracy-adjusted benefit at a spatially converged resolution. Exact input
+hashes, both time checks and all comparison measures are retained in
+`n2-n128-reference-comparison-001.json`.
