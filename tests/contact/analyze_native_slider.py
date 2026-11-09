@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 """Evaluate a complete native slider trace against the preregistered gates."""
 import bisect,hashlib,json,math,pathlib,sys
+from slider_work_validation import validate_fem_work_rows
 
 if len(sys.argv)!=2: raise SystemExit('usage: analyze_native_slider.py NATIVE_TRACE.json')
 path=pathlib.Path(sys.argv[1]);d=json.loads(path.read_text())
@@ -46,6 +47,7 @@ impulse_ratio=max(abs(s['fem_impulse']+s['owner_momentum_impulse'])/max(1e-12,1e
 # The existing impulse gate induces a work-reconstruction bound: impulse
 # tolerance times the actual midpoint speed, plus a double roundoff floor.
 previous_v=d['initial_slider_velocity_mps'];work_ratio=0.
+fem_work_ratio=max(validate_fem_work_rows(s,d['reference_area_weights_m2']) for s in steps)
 for s in steps:
  midpoint_v=.5*(previous_v+s['v'])
  bound=max(1e-12,1e-5*abs(s['fem_impulse']))*abs(midpoint_v)+1e-24
@@ -63,6 +65,7 @@ results={'reference_qualification_passed':reference_ok,'force_bin_relative_error
  'maximum_owner_work_reconstruction_error_J':max(abs(s['owner_contact_work']-s['owner_wrench_work']) for s in steps),
  'maximum_impulse_balance_gate_ratio':impulse_ratio,'maximum_torque_balance_gate_ratio':torque_ratio,
  'maximum_owner_work_reconstruction_gate_ratio':work_ratio,
+ 'maximum_fem_work_reconstruction_gate_ratio':fem_work_ratio,
  'max_independent_joint_residual_Ns':max(s['independent_joint_residual_Ns'] for s in steps),
  'physical_residual_limit_Ns':d['physical_residual_limit_Ns'],
  'slider_position_relative_error':rel(steps[-1]['q'],r['slider_final_z_m']),
@@ -78,6 +81,7 @@ checks={'force_bin':force_error<=.0025,'sampled_peak':peak_error<=.01,'total_imp
  'cumulative_impulse':cum_error<=.01,'clearance':results['minimum_gap_m']>1e-7 and results['minimum_midpoint_gap_m']>1e-7,
  'equal_opposite_impulse':impulse_ratio<=1,'contact_and_support_torque':torque_ratio<=1,
  'owner_work_reconstruction':work_ratio<=1,
+ 'fem_work_reconstruction':fem_work_ratio<=1,
  'independent_residual':results['max_independent_joint_residual_Ns']<=results['physical_residual_limit_Ns']}
 if abs(gap-.0002)<1e-12:
  checks['slider_position']=results['slider_position_relative_error']<=.0025

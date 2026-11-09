@@ -17,6 +17,11 @@ for i in range(640):
   'support_moment_impulse_x':x,'support_moment_impulse_y':y,'fem_contact_work':0.,'owner_contact_work':0.,
   'independent_joint_residual_Ns':0.,'slider_kinematic_defect_m':0.,'fem_kinematic_defect_m':0.})
 a=json.loads((p/'compact-reference-parity-n2-ordered-001.json').read_text())['contact_area_weights_m2']
+active=[i for i,x in enumerate(a) if x>0]
+for step in steps:
+ j=step['fem_impulse']
+ step['fem_work_nodes']=[[node,j if k==0 else 0.,j if k==0 else 0.,.1] for k,node in enumerate(active)]
+ step['fem_contact_work']=j*.1;step['fem_law_work']=j*.1;step['fem_work_reconstruction_gate_ratio']=0.
 d={'schema':'numi.slider-coupled-diagnostic.v1','initial_gap':.000095,'h':h,'slider_mass_kg':.01,
  'initial_slider_velocity_mps':.02,'reference_area_m2':.0004,'reference_area_weights_m2':a,
  'activation_width_m':.0001,'contact_coefficient':1e16,'physical_residual_limit_Ns':1e-10,'steps':steps}
@@ -26,7 +31,9 @@ with tempfile.NamedTemporaryFile(mode='w',suffix='.json') as f:
   result=subprocess.run([sys.executable,str(root/'tests/contact/analyze_native_slider.py'),f.name],capture_output=True,text=True)
   return result.returncode,json.loads(result.stdout) if result.stdout else {'error':result.stderr}
  code,out=run();assert code==0,(code,out)
- for field in ('owner_momentum_impulse','support_moment_impulse_x','independent_joint_residual_Ns','midpoint_gap','owner_wrench_work'):
-  old=d['steps'][100][field];d['steps'][100][field]=0. if field=='midpoint_gap' else old+1e-5
+ for field in ('owner_momentum_impulse','support_moment_impulse_x','independent_joint_residual_Ns','midpoint_gap','owner_wrench_work','fem_work_reconstruction_gate_ratio'):
+  old=d['steps'][100][field];d['steps'][100][field]=0. if field=='midpoint_gap' else 2. if field=='fem_work_reconstruction_gate_ratio' else old+1e-5
   code,out=run();assert code!=0,(field,out);d['steps'][100][field]=old
+ old=d['steps'][100]['fem_work_nodes'][0][1];d['steps'][100]['fem_work_nodes'][0][1]+=1e-5
+ code,out=run();assert code!=0,('corrupt node',out);d['steps'][100]['fem_work_nodes'][0][1]=old
  print('baseline synthetic analysis passed; impulse, torque, residual, midpoint clearance, and both work perturbations rejected')

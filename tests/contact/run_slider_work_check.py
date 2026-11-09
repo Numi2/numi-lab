@@ -7,11 +7,12 @@ from pathlib import Path
 import shutil
 import subprocess
 import time
+from slider_work_validation import validate_fem_work_rows
 
 root = Path(__file__).resolve().parents[2]
 evidence = root / "docs/evidence/midpoint-first-failure-20261109"
 build = Path("/Users/numi/numi-matter-slider-owner-build-20261109")
-out = build / "evidence-work-check-001"
+out = build / "evidence-work-check-002"
 if out.exists():
     raise SystemExit("refusing to overwrite diagnostic attempt")
 if shutil.disk_usage("/System/Volumes/Data").free < 3.12 * 1024**3:
@@ -49,7 +50,7 @@ for command in (compile_command, link_command):
 if len(records["build"]) == 2 and all(x.get("exit_code") == 0 for x in records["build"]):
     records["inputs_sha256"] = {str(p): digest(p) for p in [source, exe, lib, *shaders]}
     for name, gap, expect_contact in [("far", "0.0002", False), ("near", "0.000095", True)]:
-        prefix = evidence / ("slider-fem-work-" + name + "-001")
+        prefix = evidence / ("slider-fem-work-" + name + "-002")
         paths = [Path(str(prefix) + ext) for ext in (".json", ".log")]
         if any(p.exists() for p in paths):
             raise SystemExit("refusing to overwrite " + str(prefix))
@@ -66,13 +67,15 @@ if len(records["build"]) == 2 and all(x.get("exit_code") == 0 for x in records["
             item = {"name": name, "command": cmd, "exit_code": r.returncode,
                     "stdout_sha256": digest(paths[0]), "stderr_sha256": digest(paths[1])}
             try:
-                step = json.loads(r.stdout)["steps"][0]
+                trace = json.loads(r.stdout)
+                step = trace["steps"][0]
+                item["independent_gate_ratio"] = validate_fem_work_rows(step, trace["reference_area_weights_m2"])
                 item["gate_ratio"] = step["fem_work_reconstruction_gate_ratio"]
                 item["fem_impulse_Ns"] = step["fem_impulse"]
                 item["fem_work_J"] = step["fem_contact_work"]
                 item["fem_law_work_J"] = step["fem_law_work"]
                 item["passes"] = (r.returncode == 0 and step["accepted"] and
-                    item["gate_ratio"] <= 1 and
+                    item["gate_ratio"] <= 1 and item["independent_gate_ratio"] <= 1 and
                     ((item["fem_impulse_Ns"] > 0) if expect_contact else
                      (item["fem_impulse_Ns"] == 0 and item["fem_work_J"] == 0)))
             except (ValueError, KeyError, IndexError) as error:
@@ -81,7 +84,7 @@ if len(records["build"]) == 2 and all(x.get("exit_code") == 0 for x in records["
         except subprocess.TimeoutExpired:
             records["runs"].append({"name": name, "command": cmd, "timeout": True, "passes": False})
 records["passes"] = len(records["runs"]) == 2 and all(r.get("passes") for r in records["runs"])
-path = evidence / "slider-fem-work-check-001-execution.json"
+path = evidence / "slider-fem-work-check-002-execution.json"
 if path.exists():
     raise SystemExit("refusing to overwrite execution record")
 path.write_text(json.dumps(records, indent=2) + "\n")
