@@ -18,6 +18,9 @@
 #ifndef NUMI_FEM_REFERENCE_MAX_DIVISIONS
 #define NUMI_FEM_REFERENCE_MAX_DIVISIONS 32
 #endif
+#ifndef NUMI_REFERENCE_WORKERS
+#define NUMI_REFERENCE_WORKERS 4
+#endif
 struct V { double x=0,y=0,z=0; V operator+(V b)const{return {x+b.x,y+b.y,z+b.z};}
  V operator-(V b)const{return {x-b.x,y-b.y,z-b.z};} V operator*(double a)const{return {x*a,y*a,z*a};}
  V& operator+=(V b){x+=b.x;y+=b.y;z+=b.z;return *this;} };
@@ -108,10 +111,10 @@ struct Model {
   std::vector<std::array<V,3>> contributions(tets.size());
   struct ElementContext {const Model* model; const State* state;
    std::vector<std::array<V,3>>* result; std::atomic_bool invalid{false};} elements{this,&s,&contributions};
-  dispatch_apply_f(4,dispatch_get_global_queue(QOS_CLASS_UTILITY,0),&elements,
+  dispatch_apply_f(NUMI_REFERENCE_WORKERS,dispatch_get_global_queue(QOS_CLASS_UTILITY,0),&elements,
    +[](void* opaque,size_t worker){
     auto& ctx=*static_cast<ElementContext*>(opaque);const auto& model=*ctx.model;const auto& state=*ctx.state;
-    const size_t begin=model.tets.size()*worker/4,end=model.tets.size()*(worker+1)/4;
+    const size_t begin=model.tets.size()*worker/NUMI_REFERENCE_WORKERS,end=model.tets.size()*(worker+1)/NUMI_REFERENCE_WORKERS;
     for(size_t eIndex=begin;eIndex<end;++eIndex){
      const Tet& e=model.tets[eIndex];
      M ds=edges(state.x[e.id[0]],state.x[e.id[1]],state.x[e.id[2]],state.x[e.id[3]]),F;
@@ -131,10 +134,10 @@ struct Model {
   if(elements.invalid.load(std::memory_order_relaxed))throw std::runtime_error("inverted tetrahedron");
   struct NodeContext {const Model* model;const std::vector<std::array<V,3>>* contributions;std::vector<V>* result;}
    nodes{this,&contributions,&f};
-  dispatch_apply_f(4,dispatch_get_global_queue(QOS_CLASS_UTILITY,0),&nodes,
+  dispatch_apply_f(NUMI_REFERENCE_WORKERS,dispatch_get_global_queue(QOS_CLASS_UTILITY,0),&nodes,
    +[](void* opaque,size_t worker){
     auto& ctx=*static_cast<NodeContext*>(opaque);const size_t n=ctx.model->mass.size();
-    const size_t begin=n*worker/4,end=n*(worker+1)/4;
+    const size_t begin=n*worker/NUMI_REFERENCE_WORKERS,end=n*(worker+1)/NUMI_REFERENCE_WORKERS;
     for(size_t i=begin;i<end;++i){
      V value;
      for(const auto& [tet,slot]:ctx.model->incidence[i]){

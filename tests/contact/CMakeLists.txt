@@ -87,6 +87,8 @@ if(BUILD_TESTING)
     target_compile_definitions(numi_contact_fem_fp64_reference_parallel PRIVATE NUMI_FEM_REFERENCE_MAX_DIVISIONS=64)
     add_executable(numi_contact_fem_fp64_reference_n128 fem_plane_fp64_reference_parallel.cpp)
     target_compile_definitions(numi_contact_fem_fp64_reference_n128 PRIVATE NUMI_FEM_REFERENCE_MAX_DIVISIONS=128)
+    add_executable(numi_contact_fem_fp64_reference_n128_8 fem_plane_fp64_reference_parallel.cpp)
+    target_compile_definitions(numi_contact_fem_fp64_reference_n128_8 PRIVATE NUMI_FEM_REFERENCE_MAX_DIVISIONS=128 NUMI_REFERENCE_WORKERS=8)
     add_executable(numi_contact_fem_fp64_reference_n64 fem_plane_fp64_reference.cpp)
     target_compile_definitions(numi_contact_fem_fp64_reference_n64 PRIVATE NUMI_FEM_REFERENCE_MAX_DIVISIONS=64)
     add_test(NAME numi.contact.fem_fp64_energy_gradient
