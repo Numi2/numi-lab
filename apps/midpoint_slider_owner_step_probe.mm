@@ -5,7 +5,9 @@
 #undef main
 #import <Foundation/Foundation.h>
 #import <Metal/Metal.h>
-struct OwnerProbe {float acceleration=0;float expectedMass=0;float expectedGravity=0;id<MTLBuffer> increment=nil;id<MTLBuffer> output=nil;id<MTLBuffer> stageQ=nil;id<MTLBuffer> stageBodies=nil;bool pre=false,post=false,skip=false,inject=false,legacyPublish=false,poison=false;std::uint32_t statusFlags=0;};
+struct OwnerProbe {float acceleration=0;float expectedMass=0;float expectedGravity=0;id<MTLBuffer> increment=nil;id<MTLBuffer> output=nil;id<MTLBuffer> stageQ=nil;id<MTLBuffer> stageBodies=nil;id<MTLBuffer> support=nil;
+ float wrenchX=0,wrenchZ=0,torqueX=0,torqueY=0;bool useWrench=false;
+ bool pre=false,post=false,skip=false,inject=false,legacyPublish=false,poison=false;std::uint32_t statusFlags=0;};
 static bool encodeOwner(void* opaque,const metalrobo::MetalWorldDevicePhysicsPass& pass){
  auto& p=*static_cast<OwnerProbe*>(opaque);
  if(!pass.sliderMidpointMechanicalDataValid ||
@@ -13,6 +15,14 @@ static bool encodeOwner(void* opaque,const metalrobo::MetalWorldDevicePhysicsPas
     pass.sliderMidpointGravityForceNewtons != pass.sliderMidpointMassKg * p.expectedGravity)return false;
  if(pass.phase==metalrobo::MetalWorldDevicePhysicsPhase::postCommit){
   p.post=true;
+  if(p.useWrench){
+   id<MTLCommandBuffer> cmd=(__bridge id<MTLCommandBuffer>)pass.commandBuffer;
+   id<MTLBuffer> src=(__bridge id<MTLBuffer>)pass.sliderMidpointSupportWrench;
+   p.support=[cmd.commandQueue.device newBufferWithLength:sizeof(MRABABodyWrenchGPU) options:MTLResourceStorageModeShared];
+   if(!src||!p.support||src.length<sizeof(MRABABodyWrenchGPU))return false;
+   id<MTLBlitCommandEncoder> copy=[cmd blitCommandEncoder];if(!copy)return false;
+   [copy copyFromBuffer:src sourceOffset:0 toBuffer:p.support destinationOffset:0 size:sizeof(MRABABodyWrenchGPU)];[copy endEncoding];
+  }
   if(p.inject){
    id<MTLCommandBuffer> command=(__bridge id<MTLCommandBuffer>)pass.commandBuffer;
    id<MTLBuffer> dest=(__bridge id<MTLBuffer>)pass.environmentStatuses;
@@ -28,6 +38,15 @@ static bool encodeOwner(void* opaque,const metalrobo::MetalWorldDevicePhysicsPas
  p.pre=true;if(p.skip)return true;
  id<MTLCommandBuffer> command=(__bridge id<MTLCommandBuffer>)pass.commandBuffer;
  id<MTLDevice> device=command.commandQueue.device;
+ if(p.useWrench){
+  id<MTLBuffer> dest=(__bridge id<MTLBuffer>)pass.bodyWrenches;
+  MRABABodyWrenchGPU wrench{};wrench.force={p.wrenchX,0,p.wrenchZ,0};wrench.torque={p.torqueX,p.torqueY,0,0};
+  id<MTLBuffer> source=[device newBufferWithBytes:&wrench length:sizeof(wrench) options:MTLResourceStorageModeShared];
+  if(!source||!dest||dest.length<2*sizeof(wrench))return false;
+  id<MTLBlitCommandEncoder> copy=[command blitCommandEncoder];if(!copy)return false;
+  [copy copyFromBuffer:source sourceOffset:0 toBuffer:dest destinationOffset:sizeof(wrench) size:sizeof(wrench)];[copy endEncoding];
+  [command addCompletedHandler:^(id<MTLCommandBuffer> done){(void)done;(void)source;}];
+ }
  p.increment=[device newBufferWithLength:sizeof(float) options:MTLResourceStorageModeShared];
  p.output=[device newBufferWithLength:sizeof(float) options:MTLResourceStorageModeShared];
  if(!p.increment||!p.output)return false;
@@ -76,6 +95,7 @@ static metalrobo::MetalWorldDiagnostics run(const std::string& shader,metalrobo:
  config.devicePhysicsProgram.encode=&encodeOwner;config.devicePhysicsProgram.abort=&abortOwner;
  config.devicePhysicsProgram.fingerprint=0x5ee124f0a9bdfc10ull;
  config.devicePhysicsProgram.flags=metalrobo::MetalWorldDevicePhysicsOwnsCoupledCandidate|metalrobo::MetalWorldDevicePhysicsOwnsSliderMidpoint;
+ if(probe.useWrench)config.devicePhysicsProgram.flags|=metalrobo::MetalWorldDevicePhysicsWritesBodyWrenches;
  config.devicePhysicsProgram.coupledCandidatePointCapacity=1;
  metalrobo::MetalWorldConfig c{};c.metallibPath=shader;metalrobo::MetalWorldContext context(c);
  return (existing ? *existing : context).run(world,batch,config,result);
@@ -98,6 +118,21 @@ int main(int argc,char**argv){@autoreleasepool{try{
   maxQ=std::max(maxQ,std::abs(result.finalQ[0]-expectedQ));maxV=std::max(maxV,std::abs(result.finalV[0]-expectedV));
  }
  require(maxQ<1e-8 && maxV<1e-6,"midpoint full-step equations failed");
+ OwnerProbe physicalWrench;physicalWrench.useWrench=true;physicalWrench.wrenchZ=-.015f;
+ physicalWrench.torqueX=.003f;physicalWrench.torqueY=-.002f;
+ metalrobo::MetalWorldResult physicalResult;
+ auto physicalStatus=run(argv[1],slider(.001f,.02f),.001f,-.015f,physicalWrench,physicalResult);
+ require(physicalStatus.succeeded() && physicalWrench.support!=nil,"physical wrench owner step failed");
+ auto measured=*static_cast<const MRABABodyWrenchGPU*>(physicalWrench.support.contents);
+ require(std::abs(measured.torque.x+.003f)<1e-6f && std::abs(measured.torque.y-.002f)<1e-6f &&
+         std::abs(physicalResult.finalV[0]-(.02f+.001f*(-9.81f-1.5f)))<1e-6f,
+         "owner support moment or acceleration failed");
+ OwnerProbe badWrench;badWrench.useWrench=true;badWrench.wrenchX=.1f;
+ metalrobo::MetalWorldResult badWrenchResult;
+ auto badWrenchStatus=run(argv[1],slider(.001f,.02f),.001f,0,badWrench,badWrenchResult);
+ require(!badWrenchStatus.succeeded() && badWrenchStatus.firstGPUStatusCode==MR_STEP_UNSUPPORTED &&
+         badWrenchResult.finalQ==std::vector<float>{0} && badWrenchResult.finalV==std::vector<float>{.02f},
+         "transverse body force was not rejected and restored");
  OwnerProbe bad;metalrobo::MetalWorldResult ignored;auto rotating=run(argv[1],slider(.001f,.02f,true),.001f,0,bad,ignored);
  require(!rotating.succeeded()&&!bad.pre,"rotating joint not rejected before callback");
  OwnerProbe loaded;auto nonzero=run(argv[1],slider(.001f,.02f),.001f,0,loaded,ignored,.1f);

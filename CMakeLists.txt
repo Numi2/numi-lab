@@ -292,6 +292,9 @@ set(METALROBO_PARAMETERIZED_ARTICULATED_OPERATOR_AIR
 set(METALROBO_ARTICULATED_ABA_AIR
     "${METALROBO_SHADER_DIR}/MetalRoboArticulatedABA.air"
 )
+set(METALROBO_SLIDER_REACTION_ABA_AIR
+    "${METALROBO_SHADER_DIR}/MetalRoboSliderReactionABA.air"
+)
 set(METALROBO_FUNCTION_BASED_DENSE_DYNAMICS_AIR
     "${METALROBO_SHADER_DIR}/MetalRoboFunctionBasedDenseDynamics.air"
 )
@@ -612,6 +615,17 @@ add_custom_command(
             -std=metal4.0
             -O3
             -I "${CMAKE_CURRENT_SOURCE_DIR}/include"
+            -DMR_ABA_KERNEL_NAME=mr_slider_midpoint_aba_reaction
+            -DMR_ABA_SLIDER_REACTION_OUTPUT=1
+            -DMR_ABA_COMPILED_MAX_BODIES=2
+            -DMR_ABA_COMPILED_MAX_DOFS=1
+            -DMR_ABA_COMPILED_MAX_Q=1
+            -c "${METALROBO_ARTICULATED_ABA_SOURCE}"
+            -o "${METALROBO_SLIDER_REACTION_ABA_AIR}"
+    COMMAND xcrun -sdk macosx metal
+            -std=metal4.0
+            -O3
+            -I "${CMAKE_CURRENT_SOURCE_DIR}/include"
             -DMR_ABA_KERNEL_NAME=mr_parameterized_articulated_aba_step
             -DMR_ABA_BODY_PARAMETERS=1
             -c "${METALROBO_ARTICULATED_ABA_SOURCE}"
@@ -823,6 +837,7 @@ add_custom_command(
             "${METALROBO_NUMANX_HUMAN_MATTER_OWNER_AIR}"
             "${METALROBO_PARAMETERIZED_ARTICULATED_OPERATOR_AIR}"
             "${METALROBO_ARTICULATED_ABA_AIR}"
+            "${METALROBO_SLIDER_REACTION_ABA_AIR}"
             "${METALROBO_FUNCTION_BASED_DENSE_DYNAMICS_AIR}"
             "${METALROBO_NUMI_HUMAN_STAND_AIR}"
             "${METALROBO_NUMI_HUMAN_TENDON_TRANSFER_AIR}"

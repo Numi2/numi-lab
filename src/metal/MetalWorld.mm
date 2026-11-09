@@ -403,6 +403,7 @@ struct MetalWorldContextState {
     __strong id<MTLCommandQueue> queue = nil;
     __strong id<MTLLibrary> library = nil;
     __strong id<MTLComputePipelineState> abaPipeline = nil;
+    __strong id<MTLComputePipelineState> sliderMidpointReactionABAPipeline = nil;
     __strong id<MTLComputePipelineState>
         functionBasedDenseDynamicsPipeline = nil;
     __strong id<MTLComputePipelineState>
@@ -570,6 +571,7 @@ struct MetalWorldContextState {
     // Dynamic work counts and physical state remain entirely device-resident.
     // Encoding-only lease: valid only during one admitted midpoint prepass.
     __strong id<MTLBuffer> sliderMidpointStageIncrement = nil;
+    __strong id<MTLBuffer> sliderMidpointReaction = nil;
     bool sliderMidpointActive = false;
     float sliderMidpointGravityForce = 0.0f;
     std::vector<MRArticulationGPU> boundArticulations;
@@ -11751,6 +11753,12 @@ bool encodeDevicePhysicsProgram(
         context.sliderMidpointGravityForce = context.sliderMidpointActive
             ? world.model().bodies[1].massAndInverseMass.x *
                 world.model().world.gravityAndTimestep.z : 0.0f;
+        if (context.sliderMidpointActive && context.sliderMidpointReaction == nil) {
+            context.sliderMidpointReaction = [context.device
+                newBufferWithLength:sizeof(MRABABodyWrenchGPU)
+                options:MTLResourceStorageModePrivate];
+            if (context.sliderMidpointReaction == nil) return false;
+        }
     }
     const MetalWorldDevicePhysicsPass physics{
         .commandBuffer = (__bridge void*)commandBuffer,
@@ -11803,6 +11811,9 @@ bool encodeDevicePhysicsProgram(
             ? world.model().bodies[1].massAndInverseMass.x : 0.0f,
         .sliderMidpointGravityForceNewtons = context.sliderMidpointActive
             ? context.sliderMidpointGravityForce : 0.0f,
+        .sliderMidpointSupportWrench = context.sliderMidpointActive &&
+            phase == MetalWorldDevicePhysicsPhase::postCommit
+            ? (__bridge void*)context.sliderMidpointReaction : nullptr,
     };
     const bool encoded = config.devicePhysicsProgram.encode(
         config.devicePhysicsProgram.context, physics);
@@ -13169,7 +13180,8 @@ bool encodeABA(
     const std::size_t sourceQ,
     const std::size_t sourceV,
     const std::size_t articulationCount,
-    const std::size_t environmentCount
+    const std::size_t environmentCount,
+    const bool captureSliderReaction = false
 ) {
     // Scene bodies use the native six-coordinate free-body owner. With no
     // articulation there is no ABA work and no primary descriptor to read.
@@ -13180,7 +13192,14 @@ bool encodeABA(
         return false;
     }
     encoder.label = @"MetalWorld ABA";
+    if (pipeline == nil || (captureSliderReaction &&
+        (context.sliderMidpointReaction == nil || environmentCount != 1u || articulationCount != 1u))) {
+        [encoder endEncoding];
+        return false;
+    }
     [encoder setComputePipelineState:pipeline];
+    if (captureSliderReaction)
+        [encoder setBuffer:context.sliderMidpointReaction offset:0u atIndex:24u];
     // The single-articulation ABA variants consume an articulation-local
     // wrench slice, while the shared arena is indexed by global body. The
     // multi-articulation variant applies MRMultiABADispatchGPU::wrenchBase
@@ -20770,7 +20789,18 @@ MetalWorldDiagnostics MetalWorldContext::submitImpl(
             const bool hasMillardActivationControls =
                 hasMillardExcitationControls ||
                 hasMillardTaskExcitationControls;
+            const bool captureSliderReaction = config.devicePhysicsProgram.valid() &&
+                (config.devicePhysicsProgram.flags & MetalWorldDevicePhysicsOwnsSliderMidpoint) != 0u;
+            if (captureSliderReaction && selectedState->sliderMidpointReactionABAPipeline == nil) {
+                selectedState->sliderMidpointReactionABAPipeline = makePipeline(
+                    selectedState->device, selectedState->library,
+                    @"mr_slider_midpoint_aba_reaction", nullptr);
+                if (selectedState->sliderMidpointReactionABAPipeline == nil)
+                    return reject(std::move(diagnostics), MetalWorldHostStatus::metalPipelineFailure,
+                        "slider support-reaction ABA pipeline is unavailable");
+            }
             id<MTLComputePipelineState> selectedABAPipeline =
+                captureSliderReaction ? selectedState->sliderMidpointReactionABAPipeline :
                 nativeTask
                 ? (useParallelABA
                        ? selectedState
@@ -21328,7 +21358,8 @@ MetalWorldDiagnostics MetalWorldContext::submitImpl(
                                       sourceQ,
                                       sourceV,
                                       world.articulationCount(),
-                                      batch.environmentCount
+                                      batch.environmentCount,
+                                      captureSliderReaction
                                   ))
                         );
                     const bool encodedMidpointPosition = encodedABA &&

@@ -456,6 +456,11 @@ struct MetalWorldDevicePhysicsPass {
     bool sliderMidpointMechanicalDataValid = false;
     float sliderMidpointMassKg = 0.0f;
     float sliderMidpointGravityForceNewtons = 0.0f;
+    // Borrowed diagnostic scratch, valid only for an admitted slider's
+    // post-commit pass after a successful ABA status. It contains the ABA
+    // reduced support wrench about the fixed parent's origin. It is not an
+    // accepted state owner and must not be retained across the callback.
+    void* sliderMidpointSupportWrench = nullptr;
 };
 
 using MetalWorldDevicePhysicsEncode = bool (*)(

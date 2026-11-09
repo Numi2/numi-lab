@@ -23,6 +23,9 @@ namespace {
 #ifndef MR_ABA_BODY_PARAMETERS
 #define MR_ABA_BODY_PARAMETERS 0
 #endif
+#ifndef MR_ABA_SLIDER_REACTION_OUTPUT
+#define MR_ABA_SLIDER_REACTION_OUTPUT 0
+#endif
 
 constant float kQuaternionTolerance = 2.0e-5f;
 constant float kQuaternionMinimum = 1.0e-12f;
@@ -373,6 +376,9 @@ kernel void MR_ABA_KERNEL_NAME(
     device float* nextVOutputBase [[buffer(11)]],
     device float* nextQOutputBase [[buffer(12)]],
     device MRABAStatusGPU* statusOutput [[buffer(13)]],
+#if MR_ABA_SLIDER_REACTION_OUTPUT
+    device MRABABodyWrenchGPU* sliderReactionOutput [[buffer(24)]],
+#endif
 #if MR_ABA_BODY_PARAMETERS
     device const float4* bodyParameters [[buffer(14)]],
     device const float4* controllerParameters [[buffer(15)]],
@@ -519,6 +525,22 @@ kernel void MR_ABA_KERNEL_NAME(
         return;
     }
 
+#if MR_ABA_SLIDER_REACTION_OUTPUT
+    // A dedicated kernel variant only; never alter ordinary ABA outputs.
+    if (articulation.rootType != MR_ROOT_FIXED || articulation.bodyCount != 2u ||
+        articulation.rootBody != articulation.firstBody || articulation.jointCount != 1u ||
+        articulation.nq != 1u || articulation.nv != 1u ||
+        joints[articulation.firstJoint].jointType != MR_JOINT_PRISMATIC ||
+        joints[articulation.firstJoint].axis0.x != 0.0f ||
+        joints[articulation.firstJoint].axis0.y != 0.0f ||
+        joints[articulation.firstJoint].axis0.z != 1.0f) {
+        setFailure(status, MR_ABA_UNSUPPORTED_TOPOLOGY, MR_INVALID_INDEX);
+        statuses[environment] = status;
+        return;
+    }
+    float3 sliderSupportTorque = float3(0.0f);
+    float3 sliderSupportForce = float3(0.0f);
+#endif
     const uint rootLocal =
         articulation.rootBody - articulation.firstBody;
     for (uint localBody = 0u;
@@ -1268,6 +1290,12 @@ kernel void MR_ABA_KERNEL_NAME(
             }
         }
         propagatedTorque += cross(offset, propagatedForce);
+#if MR_ABA_SLIDER_REACTION_OUTPUT
+        // ABA's reduced spatial bias transmitted to the fixed parent, about
+        // the parent origin. Valid only after the complete solve succeeds.
+        sliderSupportTorque = propagatedTorque;
+        sliderSupportForce = propagatedForce;
+#endif
         for (uint component = 0u; component < 6u; ++component) {
             articulatedBias[
                 localParent * 6u + component
@@ -1573,6 +1601,17 @@ kernel void MR_ABA_KERNEL_NAME(
         nextQOutput[nextQBase + localQ] =
             candidateNextQ[localQ];
     }
+#if MR_ABA_SLIDER_REACTION_OUTPUT
+    if (!finite3(sliderSupportTorque) || !finite3(sliderSupportForce)) {
+        setFailure(status, MR_ABA_NONFINITE_RESULT, MR_INVALID_INDEX);
+        statuses[environment] = status;
+        return;
+    }
+    MRABABodyWrenchGPU support{};
+    support.force = float4(sliderSupportForce, 0.0f);
+    support.torque = float4(sliderSupportTorque, 0.0f);
+    sliderReactionOutput[environment] = support;
+#endif
     status.diagnostics = float4(
         isfinite(minimumPivot) ? minimumPivot : 0.0f,
         maximumPivot,
