@@ -1,0 +1,6 @@
+{
+  "remote_revision": "aebe1f36dd959788cd455a242f85365170147c94",
+  "raw_sha256": "38ee1bc5ac991a94c3d1db544b394887163be65242e9a986ea6f19505915c564",
+  "retired_bytes": 31808940,
+  "method": "independent GitHub HTTPS decompression, SHA-256 and open-handle check before deleting temporary raw copy"
+}
