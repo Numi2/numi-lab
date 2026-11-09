@@ -1,0 +1,24 @@
+{
+  "rows": [
+    {
+      "name": "ordinary-parity.tsv",
+      "sha256": "dea8e16c4a9096d9bfb585f5bd9b461243a18e14057e4de260663a71d67ae46e",
+      "bytes": 1834470
+    },
+    {
+      "name": "observer-parity.tsv",
+      "sha256": "dea8e16c4a9096d9bfb585f5bd9b461243a18e14057e4de260663a71d67ae46e",
+      "bytes": 1834470
+    },
+    {
+      "name": "legacy-legacy.tsv",
+      "sha256": "814cab5bf84a87ee1f60564deb0b8efef84a1764b30f39777c5f4384fa3f2403",
+      "bytes": 485483
+    },
+    {
+      "name": "production-legacy.tsv",
+      "sha256": "814cab5bf84a87ee1f60564deb0b8efef84a1764b30f39777c5f4384fa3f2403",
+      "bytes": 485483
+    }
+  ]
+}

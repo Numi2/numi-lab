@@ -1,0 +1,14 @@
+--- a/src/metal/LocomotionTask.metal
++++ b/development/conditional-landing.metal
+@@ -4949,7 +4949,11 @@
+             ? 0.0f : actionStream[actionBase + action];
+         MRTaskStateGPU carrierState = state;
+         carrierState.episode.x = min(carrierState.episode.x, 1500u);
++        // Development-only: a learned late landing recovery head, gated by
++        // elapsed time and proprioceptive support, never teacher commands.
+         const uint commandOffset =
++            fixedFlightController && state.navigation.z >= 5.0f &&
++            state.episode.x >= 2400u && state.threatTeacher.w < 1.5f ? 4u :
+             (program.schedule.w & MR_TASK_PROGRAM_AVIAN_CROW_WAYPOINT_EXPERT_NAVIGATION) != 0u &&
+             state.navigation.z >= 2.0f && state.navigation.z < 3.0f ? 4u :
+             ((program.schedule.w & MR_TASK_PROGRAM_AVIAN_CROW_DUAL_WAYPOINT_EXPERT_NAVIGATION) != 0u &&

@@ -717,7 +717,7 @@ void validateTaskRolloutConfiguration(
         );
     }
     if (config.birdflow_journey_variant >
-        MR_BIRDFLOW_JOURNEY_V15_TRIPLE_WAYPOINT_EXPERT_NAVIGATION) {
+        MR_BIRDFLOW_JOURNEY_V15_CONDITIONAL_LANDING_NAVIGATION) {
         throw std::invalid_argument(
             "task-rollout BirdFlow journey variant is invalid"
         );
@@ -3418,8 +3418,10 @@ static MRTaskRolloutHandle* createBirdFlowAmericanCrowRun(
                 "American-crow native object push",nullptr).release();
             return;
         }
-        const bool tripleWaypointExpertNavigation = journey &&
-            config->birdflow_journey_variant == MR_BIRDFLOW_JOURNEY_V15_TRIPLE_WAYPOINT_EXPERT_NAVIGATION;
+        const bool conditionalLandingNavigation = journey &&
+            config->birdflow_journey_variant == MR_BIRDFLOW_JOURNEY_V15_CONDITIONAL_LANDING_NAVIGATION;
+        const bool tripleWaypointExpertNavigation = conditionalLandingNavigation || (journey &&
+            config->birdflow_journey_variant == MR_BIRDFLOW_JOURNEY_V15_TRIPLE_WAYPOINT_EXPERT_NAVIGATION);
         const bool dualWaypointExpertNavigation = tripleWaypointExpertNavigation || (journey &&
             config->birdflow_journey_variant == MR_BIRDFLOW_JOURNEY_V15_DUAL_WAYPOINT_EXPERT_NAVIGATION);
         const bool waypointExpertNavigation = dualWaypointExpertNavigation || (journey &&
@@ -3537,7 +3539,9 @@ static MRTaskRolloutHandle* createBirdFlowAmericanCrowRun(
         applyRunProfile(manifest, *config);
         if (hierarchicalNavigation) {
             manifest.task.maximumEpisodeSteps = 3000u;
-            manifest.task.id = tripleWaypointExpertNavigation
+            manifest.task.id = conditionalLandingNavigation
+                ? "american_crow_v15_conditional_landing_navigation_development_v1"
+                : tripleWaypointExpertNavigation
                 ? "american_crow_v15_triple_waypoint_expert_navigation_development_v1"
                 : dualWaypointExpertNavigation
                 ? "american_crow_v15_dual_waypoint_expert_navigation_development_v1"

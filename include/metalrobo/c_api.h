@@ -69,6 +69,8 @@ typedef enum MRBirdFlowJourneyVariantC {
     MR_BIRDFLOW_JOURNEY_V15_DUAL_WAYPOINT_EXPERT_NAVIGATION = 11,
     // Separate deterministic experts at waypoint indices two through four.
     MR_BIRDFLOW_JOURNEY_V15_TRIPLE_WAYPOINT_EXPERT_NAVIGATION = 12,
+    // Separately fingerprinted learned late-landing recovery head.
+    MR_BIRDFLOW_JOURNEY_V15_CONDITIONAL_LANDING_NAVIGATION = 13,
 } MRBirdFlowJourneyVariantC;
 
 typedef enum MRBirdFlowNavigationCourseC {

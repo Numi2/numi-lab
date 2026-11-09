@@ -1,0 +1,320 @@
+{
+  "rows": [
+    {
+      "raw_path": "build/crow-conditional-timing-eval-20261109/conditional-160-threshold-2400-landing-baseline/reserved-final-f-seed-3614144078-trace.tsv",
+      "archive_path": "artifacts/crow-landing-trace-archive-20261109/crow-conditional-timing-eval-20261109/conditional-160-threshold-2400-landing-baseline/reserved-final-f-seed-3614144078-trace.tsv.gz",
+      "sha256": "ec105b8ec9a3e1d25eeded192efc39bcd350c7f14443be8321410a1b86035355",
+      "bytes": 1827312,
+      "completed_result": "artifacts/crow-conditional-timing-eval-20261109/conditional-160-threshold-2400-landing-baseline/reserved-final-f-seed-3614144078/results.json"
+    },
+    {
+      "raw_path": "build/crow-conditional-timing-eval-20261109/conditional-160-threshold-2400-landing-baseline/reserved-final-g-seed-1014083284-trace.tsv",
+      "archive_path": "artifacts/crow-landing-trace-archive-20261109/crow-conditional-timing-eval-20261109/conditional-160-threshold-2400-landing-baseline/reserved-final-g-seed-1014083284-trace.tsv.gz",
+      "sha256": "dea8e16c4a9096d9bfb585f5bd9b461243a18e14057e4de260663a71d67ae46e",
+      "bytes": 1834470,
+      "completed_result": "artifacts/crow-conditional-timing-eval-20261109/conditional-160-threshold-2400-landing-baseline/reserved-final-g-seed-1014083284/results.json"
+    },
+    {
+      "raw_path": "build/crow-conditional-timing-eval-20261109/conditional-160-threshold-2600-landing-baseline/held-out-a-seed-20270306-trace.tsv",
+      "archive_path": "artifacts/crow-landing-trace-archive-20261109/crow-conditional-timing-eval-20261109/conditional-160-threshold-2600-landing-baseline/held-out-a-seed-20270306-trace.tsv.gz",
+      "sha256": "9febeeef2bfc1d2046eff324ef962d0bfc183a9b28f40060aafd2d2942097ba0",
+      "bytes": 1831450,
+      "completed_result": "artifacts/crow-conditional-timing-eval-20261109/conditional-160-threshold-2600-landing-baseline/held-out-a-seed-20270306/results.json"
+    },
+    {
+      "raw_path": "build/crow-conditional-timing-eval-20261109/conditional-160-threshold-2600-landing-baseline/held-out-b-seed-20270307-trace.tsv",
+      "archive_path": "artifacts/crow-landing-trace-archive-20261109/crow-conditional-timing-eval-20261109/conditional-160-threshold-2600-landing-baseline/held-out-b-seed-20270307-trace.tsv.gz",
+      "sha256": "0c49f29ddee7c632c35b5176da98b13cb258fdb4f720a374a864a864f8143ee7",
+      "bytes": 1818308,
+      "completed_result": "artifacts/crow-conditional-timing-eval-20261109/conditional-160-threshold-2600-landing-baseline/held-out-b-seed-20270307/results.json"
+    },
+    {
+      "raw_path": "build/crow-conditional-timing-eval-20261109/conditional-160-threshold-2600-landing-baseline/reserved-final-c-seed-20860117-trace.tsv",
+      "archive_path": "artifacts/crow-landing-trace-archive-20261109/crow-conditional-timing-eval-20261109/conditional-160-threshold-2600-landing-baseline/reserved-final-c-seed-20860117-trace.tsv.gz",
+      "sha256": "2465630f279819f891978a8735ecaf205410a6ac3ce31576f181f958072d299b",
+      "bytes": 1827087,
+      "completed_result": "artifacts/crow-conditional-timing-eval-20261109/conditional-160-threshold-2600-landing-baseline/reserved-final-c-seed-20860117/results.json"
+    },
+    {
+      "raw_path": "build/crow-conditional-timing-eval-20261109/conditional-160-threshold-2600-landing-baseline/reserved-final-d-seed-20860118-trace.tsv",
+      "archive_path": "artifacts/crow-landing-trace-archive-20261109/crow-conditional-timing-eval-20261109/conditional-160-threshold-2600-landing-baseline/reserved-final-d-seed-20860118-trace.tsv.gz",
+      "sha256": "64827e1c29e2d03cecabd110149b73f4443db19de028af2f3c6b7415a27fdb97",
+      "bytes": 1831371,
+      "completed_result": "artifacts/crow-conditional-timing-eval-20261109/conditional-160-threshold-2600-landing-baseline/reserved-final-d-seed-20860118/results.json"
+    },
+    {
+      "raw_path": "build/crow-conditional-timing-eval-20261109/conditional-160-threshold-2600-landing-baseline/reserved-final-e-seed-20270403-trace.tsv",
+      "archive_path": "artifacts/crow-landing-trace-archive-20261109/crow-conditional-timing-eval-20261109/conditional-160-threshold-2600-landing-baseline/reserved-final-e-seed-20270403-trace.tsv.gz",
+      "sha256": "86dae9b6b63d8b4ef545b6fef370ce07e5b52a7ae5119bdd319a860958a6a9a3",
+      "bytes": 1824603,
+      "completed_result": "artifacts/crow-conditional-timing-eval-20261109/conditional-160-threshold-2600-landing-baseline/reserved-final-e-seed-20270403/results.json"
+    },
+    {
+      "raw_path": "build/crow-conditional-timing-eval-20261109/conditional-160-threshold-2600-landing-baseline/reserved-final-e-seed-3212483193-trace.tsv",
+      "archive_path": "artifacts/crow-landing-trace-archive-20261109/crow-conditional-timing-eval-20261109/conditional-160-threshold-2600-landing-baseline/reserved-final-e-seed-3212483193-trace.tsv.gz",
+      "sha256": "dc0b6d1e28078e3d93fe17e6d5e3fca9242e0b774b0bb00eb792e0c7625b0835",
+      "bytes": 1832590,
+      "completed_result": "artifacts/crow-conditional-timing-eval-20261109/conditional-160-threshold-2600-landing-baseline/reserved-final-e-seed-3212483193/results.json"
+    },
+    {
+      "raw_path": "build/crow-conditional-timing-eval-20261109/conditional-160-threshold-2600-landing-baseline/reserved-final-f-seed-20270404-trace.tsv",
+      "archive_path": "artifacts/crow-landing-trace-archive-20261109/crow-conditional-timing-eval-20261109/conditional-160-threshold-2600-landing-baseline/reserved-final-f-seed-20270404-trace.tsv.gz",
+      "sha256": "2a8ab62ecfa0dba9a963cbd51baf8b0a1245740f2a36b1b79160a6ba8c4989f2",
+      "bytes": 1818425,
+      "completed_result": "artifacts/crow-conditional-timing-eval-20261109/conditional-160-threshold-2600-landing-baseline/reserved-final-f-seed-20270404/results.json"
+    },
+    {
+      "raw_path": "build/crow-conditional-timing-eval-20261109/conditional-160-threshold-2600-landing-baseline/reserved-final-f-seed-3614144078-trace.tsv",
+      "archive_path": "artifacts/crow-landing-trace-archive-20261109/crow-conditional-timing-eval-20261109/conditional-160-threshold-2600-landing-baseline/reserved-final-f-seed-3614144078-trace.tsv.gz",
+      "sha256": "ec105b8ec9a3e1d25eeded192efc39bcd350c7f14443be8321410a1b86035355",
+      "bytes": 1827312,
+      "completed_result": "artifacts/crow-conditional-timing-eval-20261109/conditional-160-threshold-2600-landing-baseline/reserved-final-f-seed-3614144078/results.json"
+    },
+    {
+      "raw_path": "build/crow-conditional-timing-eval-20261109/conditional-160-threshold-2600-landing-baseline/reserved-final-g-seed-1014083284-trace.tsv",
+      "archive_path": "artifacts/crow-landing-trace-archive-20261109/crow-conditional-timing-eval-20261109/conditional-160-threshold-2600-landing-baseline/reserved-final-g-seed-1014083284-trace.tsv.gz",
+      "sha256": "dea8e16c4a9096d9bfb585f5bd9b461243a18e14057e4de260663a71d67ae46e",
+      "bytes": 1834470,
+      "completed_result": "artifacts/crow-conditional-timing-eval-20261109/conditional-160-threshold-2600-landing-baseline/reserved-final-g-seed-1014083284/results.json"
+    },
+    {
+      "raw_path": "build/crow-conditional-timing-eval-20261109/conditional-160-threshold-2600-landing-baseline/reserved-final-h-seed-2099253799-trace.tsv",
+      "archive_path": "artifacts/crow-landing-trace-archive-20261109/crow-conditional-timing-eval-20261109/conditional-160-threshold-2600-landing-baseline/reserved-final-h-seed-2099253799-trace.tsv.gz",
+      "sha256": "675c2a64d59bac293c297f712446997b9b560dc077cf79e8d816a6eec96098ba",
+      "bytes": 1834423,
+      "completed_result": "artifacts/crow-conditional-timing-eval-20261109/conditional-160-threshold-2600-landing-baseline/reserved-final-h-seed-2099253799/results.json"
+    },
+    {
+      "raw_path": "build/crow-conditional-timing-eval-20261109/conditional-160-threshold-2600-landing-baseline/training-seed-20270305-trace.tsv",
+      "archive_path": "artifacts/crow-landing-trace-archive-20261109/crow-conditional-timing-eval-20261109/conditional-160-threshold-2600-landing-baseline/training-seed-20270305-trace.tsv.gz",
+      "sha256": "f57c3e5cb15a7bb07cf93fe8f51cb3b0f8ad171bcc7441c934e374d770ed53f2",
+      "bytes": 1823107,
+      "completed_result": "artifacts/crow-conditional-timing-eval-20261109/conditional-160-threshold-2600-landing-baseline/training-seed-20270305/results.json"
+    },
+    {
+      "raw_path": "build/crow-conditional-landing-eval-20261109/conditional-160-landing-baseline/held-out-a-seed-20270306-trace.tsv",
+      "archive_path": "artifacts/crow-landing-trace-archive-20261109/crow-conditional-landing-eval-20261109/conditional-160-landing-baseline/held-out-a-seed-20270306-trace.tsv.gz",
+      "sha256": "9febeeef2bfc1d2046eff324ef962d0bfc183a9b28f40060aafd2d2942097ba0",
+      "bytes": 1831450,
+      "completed_result": "artifacts/crow-conditional-landing-eval-20261109/conditional-160-landing-baseline/held-out-a-seed-20270306/results.json"
+    },
+    {
+      "raw_path": "build/crow-conditional-landing-eval-20261109/conditional-160-landing-baseline/reserved-final-e-seed-20270403-trace.tsv",
+      "archive_path": "artifacts/crow-landing-trace-archive-20261109/crow-conditional-landing-eval-20261109/conditional-160-landing-baseline/reserved-final-e-seed-20270403-trace.tsv.gz",
+      "sha256": "86dae9b6b63d8b4ef545b6fef370ce07e5b52a7ae5119bdd319a860958a6a9a3",
+      "bytes": 1824603,
+      "completed_result": "artifacts/crow-conditional-landing-eval-20261109/conditional-160-landing-baseline/reserved-final-e-seed-20270403/results.json"
+    },
+    {
+      "raw_path": "build/crow-conditional-landing-eval-20261109/conditional-160-landing-baseline/reserved-final-e-seed-3212483193-trace.tsv",
+      "archive_path": "artifacts/crow-landing-trace-archive-20261109/crow-conditional-landing-eval-20261109/conditional-160-landing-baseline/reserved-final-e-seed-3212483193-trace.tsv.gz",
+      "sha256": "dc0b6d1e28078e3d93fe17e6d5e3fca9242e0b774b0bb00eb792e0c7625b0835",
+      "bytes": 1832590,
+      "completed_result": "artifacts/crow-conditional-landing-eval-20261109/conditional-160-landing-baseline/reserved-final-e-seed-3212483193/results.json"
+    },
+    {
+      "raw_path": "build/crow-conditional-landing-eval-20261109/conditional-160-landing-baseline/reserved-final-f-seed-20270404-trace.tsv",
+      "archive_path": "artifacts/crow-landing-trace-archive-20261109/crow-conditional-landing-eval-20261109/conditional-160-landing-baseline/reserved-final-f-seed-20270404-trace.tsv.gz",
+      "sha256": "2a8ab62ecfa0dba9a963cbd51baf8b0a1245740f2a36b1b79160a6ba8c4989f2",
+      "bytes": 1818425,
+      "completed_result": "artifacts/crow-conditional-landing-eval-20261109/conditional-160-landing-baseline/reserved-final-f-seed-20270404/results.json"
+    },
+    {
+      "raw_path": "build/crow-conditional-landing-eval-20261109/conditional-160-landing-baseline/reserved-final-f-seed-3614144078-trace.tsv",
+      "archive_path": "artifacts/crow-landing-trace-archive-20261109/crow-conditional-landing-eval-20261109/conditional-160-landing-baseline/reserved-final-f-seed-3614144078-trace.tsv.gz",
+      "sha256": "ec105b8ec9a3e1d25eeded192efc39bcd350c7f14443be8321410a1b86035355",
+      "bytes": 1827312,
+      "completed_result": "artifacts/crow-conditional-landing-eval-20261109/conditional-160-landing-baseline/reserved-final-f-seed-3614144078/results.json"
+    },
+    {
+      "raw_path": "build/crow-conditional-landing-eval-20261109/conditional-160-landing-baseline/reserved-final-g-seed-1014083284-trace.tsv",
+      "archive_path": "artifacts/crow-landing-trace-archive-20261109/crow-conditional-landing-eval-20261109/conditional-160-landing-baseline/reserved-final-g-seed-1014083284-trace.tsv.gz",
+      "sha256": "dea8e16c4a9096d9bfb585f5bd9b461243a18e14057e4de260663a71d67ae46e",
+      "bytes": 1834470,
+      "completed_result": "artifacts/crow-conditional-landing-eval-20261109/conditional-160-landing-baseline/reserved-final-g-seed-1014083284/results.json"
+    },
+    {
+      "raw_path": "build/crow-conditional-landing-eval-20261109/conditional-160-landing-baseline/reserved-final-h-seed-2099253799-trace.tsv",
+      "archive_path": "artifacts/crow-landing-trace-archive-20261109/crow-conditional-landing-eval-20261109/conditional-160-landing-baseline/reserved-final-h-seed-2099253799-trace.tsv.gz",
+      "sha256": "675c2a64d59bac293c297f712446997b9b560dc077cf79e8d816a6eec96098ba",
+      "bytes": 1834423,
+      "completed_result": "artifacts/crow-conditional-landing-eval-20261109/conditional-160-landing-baseline/reserved-final-h-seed-2099253799/results.json"
+    },
+    {
+      "raw_path": "build/crow-late-landing-eval-20261109/landing-160-landing-baseline/held-out-a-seed-20270306-trace.tsv",
+      "archive_path": "artifacts/crow-landing-trace-archive-20261109/crow-late-landing-eval-20261109/landing-160-landing-baseline/held-out-a-seed-20270306-trace.tsv.gz",
+      "sha256": "bca2c10a49930756f30cb2f101b74d9d14486ea22933ca0ef3eb1dde9827ae10",
+      "bytes": 1835242,
+      "completed_result": "artifacts/crow-late-landing-eval-20261109/landing-160-landing-baseline/held-out-a-seed-20270306/results.json"
+    },
+    {
+      "raw_path": "build/crow-late-landing-eval-20261109/landing-160-landing-baseline/reserved-final-e-seed-3212483193-trace.tsv",
+      "archive_path": "artifacts/crow-landing-trace-archive-20261109/crow-late-landing-eval-20261109/landing-160-landing-baseline/reserved-final-e-seed-3212483193-trace.tsv.gz",
+      "sha256": "7974d9b61e30949a2353d3a28b3636329b985f538b1be675b96054528a138e54",
+      "bytes": 1833125,
+      "completed_result": "artifacts/crow-late-landing-eval-20261109/landing-160-landing-baseline/reserved-final-e-seed-3212483193/results.json"
+    },
+    {
+      "raw_path": "build/crow-late-landing-eval-20261109/landing-160-landing-baseline/reserved-final-g-seed-1014083284-trace.tsv",
+      "archive_path": "artifacts/crow-landing-trace-archive-20261109/crow-late-landing-eval-20261109/landing-160-landing-baseline/reserved-final-g-seed-1014083284-trace.tsv.gz",
+      "sha256": "41f091d1f58a4de863f49ac52473c1e4a5d2aa85ac4431124b090537a2c034b0",
+      "bytes": 1838563,
+      "completed_result": "artifacts/crow-late-landing-eval-20261109/landing-160-landing-baseline/reserved-final-g-seed-1014083284/results.json"
+    },
+    {
+      "raw_path": "build/crow-late-landing-eval-20261109/landing-160-landing-baseline/reserved-final-h-seed-2099253799-trace.tsv",
+      "archive_path": "artifacts/crow-landing-trace-archive-20261109/crow-late-landing-eval-20261109/landing-160-landing-baseline/reserved-final-h-seed-2099253799-trace.tsv.gz",
+      "sha256": "bd145695d44aff6213601a91733039c5e36d386e27f742b82703b2d3599b777e",
+      "bytes": 1831320,
+      "completed_result": "artifacts/crow-late-landing-eval-20261109/landing-160-landing-baseline/reserved-final-h-seed-2099253799/results.json"
+    },
+    {
+      "raw_path": "build/crow-late-landing-eval-20261109/landing-20-landing-baseline/reserved-final-g-seed-1014083284-trace.tsv",
+      "archive_path": "artifacts/crow-landing-trace-archive-20261109/crow-late-landing-eval-20261109/landing-20-landing-baseline/reserved-final-g-seed-1014083284-trace.tsv.gz",
+      "sha256": "70344ffd01571748f13e2bb5f18666c32713ec81a282a85e0ba9cda76f02e9cc",
+      "bytes": 1827774,
+      "completed_result": "artifacts/crow-late-landing-eval-20261109/landing-20-landing-baseline/reserved-final-g-seed-1014083284/results.json"
+    },
+    {
+      "raw_path": "build/crow-late-landing-eval-20261109/landing-40-landing-baseline/reserved-final-e-seed-20270403-trace.tsv",
+      "archive_path": "artifacts/crow-landing-trace-archive-20261109/crow-late-landing-eval-20261109/landing-40-landing-baseline/reserved-final-e-seed-20270403-trace.tsv.gz",
+      "sha256": "7fe70864a7f22b384262c6efca4090485c43ae008b3752a00b47d22b287bc847",
+      "bytes": 1823080,
+      "completed_result": "artifacts/crow-late-landing-eval-20261109/landing-40-landing-baseline/reserved-final-e-seed-20270403/results.json"
+    },
+    {
+      "raw_path": "build/crow-late-landing-eval-20261109/landing-40-landing-baseline/reserved-final-e-seed-3212483193-trace.tsv",
+      "archive_path": "artifacts/crow-landing-trace-archive-20261109/crow-late-landing-eval-20261109/landing-40-landing-baseline/reserved-final-e-seed-3212483193-trace.tsv.gz",
+      "sha256": "5daad7be15158d1129468f9f42bc8639c902476158fb44e994e7401abee44c9d",
+      "bytes": 1828641,
+      "completed_result": "artifacts/crow-late-landing-eval-20261109/landing-40-landing-baseline/reserved-final-e-seed-3212483193/results.json"
+    },
+    {
+      "raw_path": "build/crow-late-landing-eval-20261109/landing-40-landing-baseline/reserved-final-g-seed-1014083284-trace.tsv",
+      "archive_path": "artifacts/crow-landing-trace-archive-20261109/crow-late-landing-eval-20261109/landing-40-landing-baseline/reserved-final-g-seed-1014083284-trace.tsv.gz",
+      "sha256": "67d7873bfe78d77ab30174af84d322476a0f4eb91f41139d50a5dad89dd18dd9",
+      "bytes": 1832791,
+      "completed_result": "artifacts/crow-late-landing-eval-20261109/landing-40-landing-baseline/reserved-final-g-seed-1014083284/results.json"
+    },
+    {
+      "raw_path": "build/crow-late-landing-eval-20261109/landing-40-landing-baseline/reserved-final-h-seed-2099253799-trace.tsv",
+      "archive_path": "artifacts/crow-landing-trace-archive-20261109/crow-late-landing-eval-20261109/landing-40-landing-baseline/reserved-final-h-seed-2099253799-trace.tsv.gz",
+      "sha256": "466c0436de0665dffb95cfffd2b770a3daa10fcf8eff59cd4440fc31dbe7477f",
+      "bytes": 1833974,
+      "completed_result": "artifacts/crow-late-landing-eval-20261109/landing-40-landing-baseline/reserved-final-h-seed-2099253799/results.json"
+    },
+    {
+      "raw_path": "build/crow-late-landing-eval-20261109/landing-80-landing-baseline/reserved-final-e-seed-20270403-trace.tsv",
+      "archive_path": "artifacts/crow-landing-trace-archive-20261109/crow-late-landing-eval-20261109/landing-80-landing-baseline/reserved-final-e-seed-20270403-trace.tsv.gz",
+      "sha256": "dee2a82d694b3698e41061d6a67690b3de6fa323d71f0402c9ac830d7238e4e0",
+      "bytes": 1822850,
+      "completed_result": "artifacts/crow-late-landing-eval-20261109/landing-80-landing-baseline/reserved-final-e-seed-20270403/results.json"
+    },
+    {
+      "raw_path": "build/crow-late-landing-eval-20261109/landing-80-landing-baseline/reserved-final-e-seed-3212483193-trace.tsv",
+      "archive_path": "artifacts/crow-landing-trace-archive-20261109/crow-late-landing-eval-20261109/landing-80-landing-baseline/reserved-final-e-seed-3212483193-trace.tsv.gz",
+      "sha256": "6f08e95214c6e4f363a0c73be08404c2ec494edfb6eff5ce4cc6a8a97ef63f33",
+      "bytes": 1828149,
+      "completed_result": "artifacts/crow-late-landing-eval-20261109/landing-80-landing-baseline/reserved-final-e-seed-3212483193/results.json"
+    },
+    {
+      "raw_path": "build/crow-late-landing-eval-20261109/landing-80-landing-baseline/reserved-final-g-seed-1014083284-trace.tsv",
+      "archive_path": "artifacts/crow-landing-trace-archive-20261109/crow-late-landing-eval-20261109/landing-80-landing-baseline/reserved-final-g-seed-1014083284-trace.tsv.gz",
+      "sha256": "3aeb1308f375f492840deaaece9dbf02e4dba5536cbadc20538647b1c595cea5",
+      "bytes": 1835737,
+      "completed_result": "artifacts/crow-late-landing-eval-20261109/landing-80-landing-baseline/reserved-final-g-seed-1014083284/results.json"
+    },
+    {
+      "raw_path": "build/crow-late-landing-eval-20261109/landing-80-landing-baseline/reserved-final-h-seed-2099253799-trace.tsv",
+      "archive_path": "artifacts/crow-landing-trace-archive-20261109/crow-late-landing-eval-20261109/landing-80-landing-baseline/reserved-final-h-seed-2099253799-trace.tsv.gz",
+      "sha256": "4e9f6f2032cb801e5f06794c17cdaaf3be0099468af8dcb6d177b083f4745963",
+      "bytes": 1831518,
+      "completed_result": "artifacts/crow-late-landing-eval-20261109/landing-80-landing-baseline/reserved-final-h-seed-2099253799/results.json"
+    },
+    {
+      "raw_path": "build/crow-late-landing-eval-20261109/landing-mix10-landing-baseline/reserved-final-g-seed-1014083284-trace.tsv",
+      "archive_path": "artifacts/crow-landing-trace-archive-20261109/crow-late-landing-eval-20261109/landing-mix10-landing-baseline/reserved-final-g-seed-1014083284-trace.tsv.gz",
+      "sha256": "805c258d22e78e286f2035c0fe598bc7db1c0884c00456f703d8dd9956311f12",
+      "bytes": 1834996,
+      "completed_result": "artifacts/crow-late-landing-eval-20261109/landing-mix10-landing-baseline/reserved-final-g-seed-1014083284/results.json"
+    },
+    {
+      "raw_path": "build/crow-late-landing-eval-20261109/landing-mix25-landing-baseline/reserved-final-g-seed-1014083284-trace.tsv",
+      "archive_path": "artifacts/crow-landing-trace-archive-20261109/crow-late-landing-eval-20261109/landing-mix25-landing-baseline/reserved-final-g-seed-1014083284-trace.tsv.gz",
+      "sha256": "d1e3347c5b7d17a06a516ff9aab035d1a5f62942a593c060d11026f52826ab02",
+      "bytes": 1833711,
+      "completed_result": "artifacts/crow-late-landing-eval-20261109/landing-mix25-landing-baseline/reserved-final-g-seed-1014083284/results.json"
+    },
+    {
+      "raw_path": "build/crow-late-landing-eval-20261109/landing-mix50-landing-baseline/held-out-a-seed-20270306-trace.tsv",
+      "archive_path": "artifacts/crow-landing-trace-archive-20261109/crow-late-landing-eval-20261109/landing-mix50-landing-baseline/held-out-a-seed-20270306-trace.tsv.gz",
+      "sha256": "ccf5de22ea1400d9a88614a07b447726a96dddf354f9df408a8d37c9783125aa",
+      "bytes": 1831652,
+      "completed_result": "artifacts/crow-late-landing-eval-20261109/landing-mix50-landing-baseline/held-out-a-seed-20270306/results.json"
+    },
+    {
+      "raw_path": "build/crow-late-landing-eval-20261109/landing-mix50-landing-baseline/held-out-b-seed-20270307-trace.tsv",
+      "archive_path": "artifacts/crow-landing-trace-archive-20261109/crow-late-landing-eval-20261109/landing-mix50-landing-baseline/held-out-b-seed-20270307-trace.tsv.gz",
+      "sha256": "80d6e21c9a22c77cfd220561af947ab2a35b11676d750cd0517810bdac33922d",
+      "bytes": 1819079,
+      "completed_result": "artifacts/crow-late-landing-eval-20261109/landing-mix50-landing-baseline/held-out-b-seed-20270307/results.json"
+    },
+    {
+      "raw_path": "build/crow-late-landing-eval-20261109/landing-mix50-landing-baseline/reserved-final-e-seed-20270403-trace.tsv",
+      "archive_path": "artifacts/crow-landing-trace-archive-20261109/crow-late-landing-eval-20261109/landing-mix50-landing-baseline/reserved-final-e-seed-20270403-trace.tsv.gz",
+      "sha256": "6a30b4a32c9ec858048079fd5e4c1325435918b6e274e064637854a5fe9e7951",
+      "bytes": 1824328,
+      "completed_result": "artifacts/crow-late-landing-eval-20261109/landing-mix50-landing-baseline/reserved-final-e-seed-20270403/results.json"
+    },
+    {
+      "raw_path": "build/crow-late-landing-eval-20261109/landing-mix50-landing-baseline/reserved-final-e-seed-3212483193-trace.tsv",
+      "archive_path": "artifacts/crow-landing-trace-archive-20261109/crow-late-landing-eval-20261109/landing-mix50-landing-baseline/reserved-final-e-seed-3212483193-trace.tsv.gz",
+      "sha256": "045175c8db25b8267426a417563132c808faf2893fcf8edc11a6949a8af92217",
+      "bytes": 1830120,
+      "completed_result": "artifacts/crow-late-landing-eval-20261109/landing-mix50-landing-baseline/reserved-final-e-seed-3212483193/results.json"
+    },
+    {
+      "raw_path": "build/crow-late-landing-eval-20261109/landing-mix50-landing-baseline/reserved-final-f-seed-20270404-trace.tsv",
+      "archive_path": "artifacts/crow-landing-trace-archive-20261109/crow-late-landing-eval-20261109/landing-mix50-landing-baseline/reserved-final-f-seed-20270404-trace.tsv.gz",
+      "sha256": "a48394fdb511d420b26ced5699e23ca5f4b5040391f65481ce00f1246e4ca533",
+      "bytes": 1818511,
+      "completed_result": "artifacts/crow-late-landing-eval-20261109/landing-mix50-landing-baseline/reserved-final-f-seed-20270404/results.json"
+    },
+    {
+      "raw_path": "build/crow-late-landing-eval-20261109/landing-mix50-landing-baseline/reserved-final-f-seed-3614144078-trace.tsv",
+      "archive_path": "artifacts/crow-landing-trace-archive-20261109/crow-late-landing-eval-20261109/landing-mix50-landing-baseline/reserved-final-f-seed-3614144078-trace.tsv.gz",
+      "sha256": "884d8445dcfba521f64ef1e952b724e78bc340f866e37764832766ee22144cda",
+      "bytes": 1826202,
+      "completed_result": "artifacts/crow-late-landing-eval-20261109/landing-mix50-landing-baseline/reserved-final-f-seed-3614144078/results.json"
+    },
+    {
+      "raw_path": "build/crow-late-landing-eval-20261109/landing-mix50-landing-baseline/reserved-final-g-seed-1014083284-trace.tsv",
+      "archive_path": "artifacts/crow-landing-trace-archive-20261109/crow-late-landing-eval-20261109/landing-mix50-landing-baseline/reserved-final-g-seed-1014083284-trace.tsv.gz",
+      "sha256": "3c7b4515fd507431047bbbabbf7ea378225c4463258dd3dcb42f0b330dcd94ae",
+      "bytes": 1835231,
+      "completed_result": "artifacts/crow-late-landing-eval-20261109/landing-mix50-landing-baseline/reserved-final-g-seed-1014083284/results.json"
+    },
+    {
+      "raw_path": "build/crow-late-landing-eval-20261109/landing-mix50-landing-baseline/reserved-final-h-seed-2099253799-trace.tsv",
+      "archive_path": "artifacts/crow-landing-trace-archive-20261109/crow-late-landing-eval-20261109/landing-mix50-landing-baseline/reserved-final-h-seed-2099253799-trace.tsv.gz",
+      "sha256": "9b5ed5b8077c9a5dd7a6047b49b6e5e8945d00ef83ff4aa411e5bfdb2f0db66f",
+      "bytes": 1836114,
+      "completed_result": "artifacts/crow-late-landing-eval-20261109/landing-mix50-landing-baseline/reserved-final-h-seed-2099253799/results.json"
+    },
+    {
+      "raw_path": "build/crow-late-landing-eval-20261109/landing-mix75-landing-baseline/reserved-final-e-seed-3212483193-trace.tsv",
+      "archive_path": "artifacts/crow-landing-trace-archive-20261109/crow-late-landing-eval-20261109/landing-mix75-landing-baseline/reserved-final-e-seed-3212483193-trace.tsv.gz",
+      "sha256": "3acae3b6efc30a81e386980df8feb7f254396dd5b518fe64ba85527469280d88",
+      "bytes": 1829498,
+      "completed_result": "artifacts/crow-late-landing-eval-20261109/landing-mix75-landing-baseline/reserved-final-e-seed-3212483193/results.json"
+    },
+    {
+      "raw_path": "build/crow-late-landing-eval-20261109/landing-mix75-landing-baseline/reserved-final-g-seed-1014083284-trace.tsv",
+      "archive_path": "artifacts/crow-landing-trace-archive-20261109/crow-late-landing-eval-20261109/landing-mix75-landing-baseline/reserved-final-g-seed-1014083284-trace.tsv.gz",
+      "sha256": "74a5917931968a8188d4aec5909f8ed07bb5678376c6c01f3a1959c24d6ac7a1",
+      "bytes": 1834578,
+      "completed_result": "artifacts/crow-late-landing-eval-20261109/landing-mix75-landing-baseline/reserved-final-g-seed-1014083284/results.json"
+    }
+  ],
+  "scope": "single-lane diagnostic traces; entries without completed_result are incomplete stopped diagnostics"
+}

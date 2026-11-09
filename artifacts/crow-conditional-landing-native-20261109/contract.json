@@ -1,0 +1,26 @@
+{
+  "old_policy_rejected": true,
+  "new_fingerprints": {
+    "world": 12704294952255580436,
+    "task": 8482680149520961739,
+    "observation": 15113761242167882437,
+    "action": 10335628214131907515
+  },
+  "policies": [
+    {
+      "policy": "route",
+      "source_sha256": "bc4ed5b843aba2943bcda0f060eab1ac721d48c780a91400718377c096e7b002",
+      "rebound_sha256": "cf52b0b26c3ac4efc2c8f248c974a433d827a8f51a3b9decfcdf8450555eecf9",
+      "old_task_fingerprint": 9476321555442531446,
+      "actor_weights_and_transforms_unchanged": true
+    },
+    {
+      "policy": "landing",
+      "source_sha256": "1e7863d0b8cc034f34bf06cd54f7debcd3b154af3f4461c3df0f304786587017",
+      "rebound_sha256": "8f42144661f68be5e85734bcbf3445753def8d3326441e1b322f0774277991b4",
+      "old_task_fingerprint": 9476321555442531446,
+      "actor_weights_and_transforms_unchanged": true
+    }
+  ],
+  "scope": "explicit contract migration for unchanged deterministic evaluated actors; physical equivalence requires separate test"
+}

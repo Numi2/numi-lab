@@ -4949,7 +4949,13 @@ kernel void mr_locomotion_task_apply_actions(
             ? 0.0f : actionStream[actionBase + action];
         MRTaskStateGPU carrierState = state;
         carrierState.episode.x = min(carrierState.episode.x, 1500u);
+        // The separately fingerprinted task may invoke a learned recovery
+        // head after prolonged unsupported landing. The frozen flight law is unchanged.
         const uint commandOffset =
+            fixedFlightController && program.interactionCurriculum.z > 0.0f &&
+            state.navigation.z >= 5.0f &&
+            state.episode.x >= uint(program.interactionCurriculum.z) &&
+            state.threatTeacher.w < 1.5f ? 4u :
             (program.schedule.w & MR_TASK_PROGRAM_AVIAN_CROW_WAYPOINT_EXPERT_NAVIGATION) != 0u &&
             state.navigation.z >= 2.0f && state.navigation.z < 3.0f ? 4u :
             ((program.schedule.w & MR_TASK_PROGRAM_AVIAN_CROW_DUAL_WAYPOINT_EXPERT_NAVIGATION) != 0u &&

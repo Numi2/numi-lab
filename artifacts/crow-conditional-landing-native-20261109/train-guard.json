@@ -1,0 +1,21 @@
+{
+  "argv": [
+    "/Users/n/Developer/numi-crow-rl-20261107/build/bin/metalrobo_task_train",
+    "--birdflow-american-crow-journey",
+    "--birdflow-journey-variant",
+    "v15-conditional-landing-navigation",
+    "--mlx-python",
+    "/Users/n/Developer/numi-crow-rl-20261107/python/.venv/bin/python",
+    "--policy-pack",
+    "/Users/n/Developer/numi-crow-rl-20261107/build/crow-conditional-landing-native-20261109/landing.policypack",
+    "--updated-policy-pack",
+    "/Users/n/Developer/numi-crow-rl-20261107/build/crow-conditional-landing-native-20261109/unused-output.policypack",
+    "--rollout-pack",
+    "/Users/n/Developer/numi-crow-rl-20261107/build/crow-conditional-landing-native-20261109/unused-rollout.bin",
+    "--visual-observation-config",
+    "assets/crow_navigation_course/crow-navigation.active-head.visual-observation.json"
+  ],
+  "returncode": 1,
+  "expected_rejection": true,
+  "stderr": "task_train failed: Waypoint-expert navigation is deterministic execution only; training requires a masked stage-aware objective.\n"
+}

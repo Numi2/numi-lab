@@ -533,7 +533,8 @@ typedef struct MR_ALIGN16 MRTaskProgramHeaderGPU {
     mr_uint4 interaction;
     // Reference fps, duration seconds, student authority, legacy reset fraction.
     mr_float4 interactionTiming;
-    // Reset probability, maximum normalized reset phase, reserved, reserved.
+    // Reset probability, maximum normalized reset phase, late landing recovery
+    // start step for the explicitly fingerprinted crow task (zero disables), reserved.
     // These axes are independent so rare late-phase practice does not erase
     // the canonical frame-zero training distribution.
     mr_float4 interactionCurriculum;

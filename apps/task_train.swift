@@ -516,9 +516,11 @@ private struct Options {
                     birdFlowJourneyVariant = .v15DualWaypointExpertNavigation
                 case "v15-triple-waypoint-expert-navigation":
                     birdFlowJourneyVariant = .v15TripleWaypointExpertNavigation
+                case "v15-conditional-landing-navigation":
+                    birdFlowJourneyVariant = .v15ConditionalLandingNavigation
                 default:
                     throw MetalRoboTaskRolloutError.invalidShape(
-                        "--birdflow-journey-variant requires v7-hierarchical, v8-neural, v9-visual-neural, v10-world-model, v11-embodied, v12-feeding-station, v13-retinal-feeding, v14-object-push, v15-active-head-navigation, v15-hierarchical-navigation, v15-waypoint-expert-navigation, v15-dual-waypoint-expert-navigation, or v15-triple-waypoint-expert-navigation."
+                        "--birdflow-journey-variant requires v7-hierarchical, v8-neural, v9-visual-neural, v10-world-model, v11-embodied, v12-feeding-station, v13-retinal-feeding, v14-object-push, v15-active-head-navigation, v15-hierarchical-navigation, v15-waypoint-expert-navigation, v15-dual-waypoint-expert-navigation, v15-triple-waypoint-expert-navigation, or v15-conditional-landing-navigation."
                     )
                 }
                 index += 1
@@ -1014,6 +1016,7 @@ private struct Options {
              birdFlowJourneyVariant == .v15WaypointExpertNavigation ||
              birdFlowJourneyVariant == .v15DualWaypointExpertNavigation ||
              birdFlowJourneyVariant == .v15TripleWaypointExpertNavigation ||
+             birdFlowJourneyVariant == .v15ConditionalLandingNavigation ||
              birdFlowJourneyVariant == .v13RetinalFeeding ||
              birdFlowJourneyVariant == .v14ObjectPush) &&
             visualObservationConfig == nil
@@ -1824,7 +1827,8 @@ private func makeContext(
     }
     if options.birdFlowJourneyVariant == .v15WaypointExpertNavigation ||
        options.birdFlowJourneyVariant == .v15DualWaypointExpertNavigation ||
-       options.birdFlowJourneyVariant == .v15TripleWaypointExpertNavigation {
+       options.birdFlowJourneyVariant == .v15TripleWaypointExpertNavigation ||
+       options.birdFlowJourneyVariant == .v15ConditionalLandingNavigation {
         throw MetalRoboTaskRolloutError.invalidShape(
             "Waypoint-expert navigation is deterministic execution only; training requires a masked stage-aware objective."
         )
@@ -1836,7 +1840,8 @@ private func makeContext(
           options.birdFlowJourneyVariant != .v15HierarchicalNavigation &&
           options.birdFlowJourneyVariant != .v15WaypointExpertNavigation &&
           options.birdFlowJourneyVariant != .v15DualWaypointExpertNavigation &&
-          options.birdFlowJourneyVariant != .v15TripleWaypointExpertNavigation))
+          options.birdFlowJourneyVariant != .v15TripleWaypointExpertNavigation &&
+          options.birdFlowJourneyVariant != .v15ConditionalLandingNavigation))
     {
         throw MetalRoboTaskRolloutError.invalidShape(
             "--birdflow-navigation-curriculum requires a navigation journey."
@@ -2118,6 +2123,7 @@ private enum TaskTrainMain {
                     options.birdFlowJourneyVariant == .v15WaypointExpertNavigation ||
                     options.birdFlowJourneyVariant == .v15DualWaypointExpertNavigation ||
                     options.birdFlowJourneyVariant == .v15TripleWaypointExpertNavigation ||
+                    options.birdFlowJourneyVariant == .v15ConditionalLandingNavigation ||
                     options.birdFlowJourneyVariant == .v13RetinalFeeding ||
                     options.birdFlowJourneyVariant == .v14ObjectPush
                     ? 0.0
@@ -2624,6 +2630,8 @@ private enum TaskTrainMain {
                         ? "v12_feeding_station_neural_nutrition"
                         : options.birdFlowJourneyVariant == .v11Embodied
                         ? "v11_embodied_neural_proprioception"
+                        : options.birdFlowJourneyVariant == .v15ConditionalLandingNavigation
+                        ? "v15_conditional_landing_goal_memory_rgbd_history"
                         : options.birdFlowJourneyVariant == .v15TripleWaypointExpertNavigation
                         ? "v15_triple_waypoint_expert_goal_memory_rgbd_history"
                         : options.birdFlowJourneyVariant == .v15DualWaypointExpertNavigation
