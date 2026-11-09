@@ -831,7 +831,8 @@ kernel void mr_world_slider_midpoint_promote_status_with_wrench_guard(
     if (environment != 0u) return;
     MRMetalWorldContactStatusGPU candidate = candidateStatus[0];
     // Only a finite world-z force and finite moment on the moving body are
-    // admitted; the earlier preparation pass offsets its generalized effort.
+    // admitted. The slider owner receives the physical wrench without a
+    // synthetic generalized effort or a compensating wrench subtraction.
     if (candidate.code == MR_STEP_SUCCESS && hasBodyWrenches != 0u) {
         for (uint body = 0u; body < 2u; ++body) {
             const MRABABodyWrenchGPU wrench = bodyWrenches[body];

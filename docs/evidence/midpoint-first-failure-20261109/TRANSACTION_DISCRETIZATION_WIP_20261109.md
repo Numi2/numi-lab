@@ -21,9 +21,29 @@ The prior results and failed calibrations remain historical evidence.
   never overwritten. The historical cost runner rejects graded or quadrature
   input until a matching new reference is qualified.
 
+## Follow-up checkpoint: vertex clearance and transaction scaffolding
+
+Both FP64 quadrature references reject nonfinite or nonpositive triangle
+vertex gaps before evaluating each triangle. The regression uses vertex gaps
+-1, 10, 10 micrometres and confirms all seven interior samples are positive;
+both energy and force paths in the direct reference and the compact force
+path reject the penetrated face. This is an endpoint check, not a swept check.
+The Metal quadrature path is not implemented and therefore is not yet covered.
+
+The host can build seven compensated reference rows per triangle and a sorted,
+node-major incidence table. These buffers are not yet uploaded to or consumed
+by the nonlinear solver. The Metal law exposes unrounded force and curvature
+pairs internally, but the existing caller still rounds and the reductions are
+unchanged. The guarded slider owner has A/B, candidate and checkpoint low-word
+buffers, with prepare/commit/late-rejection copy operations and a borrowed
+source-low pointer. Its candidate lows, endpoint ABA and Matter plane geometry
+remain unconnected. The guard has not been removed. Offline shader and host
+compilation and CPU layout checks passed; no native transaction or rollback
+was executed against this revision.
+
 ## Required before any new full qualification
 
-1. Allocate and connect accepted, candidate and checkpoint high/low slider
+1. Finish connecting accepted, candidate and checkpoint high/low slider
    position and velocity. Pass them through MetalWorld and Matter, including
    candidate kinematics, and independently advance ABA from the actual
    compensated physical contact force and gravity. Certify its endpoint
@@ -31,8 +51,9 @@ The prior results and failed calibrations remain historical evidence.
 2. Carry the paired plane position through accepted, trial and endpoint
    projections. Use it in gap, force, tangent, energy, clearance and final
    residual; checkpoint, commit and rollback must include both words.
-3. Implement the same surface quadrature in Metal contact and its full
-   cross-node matrix-free tangent, line-search energy and reacting-body wrench.
+3. Implement the same surface quadrature and triangle vertex clearance in
+   Metal contact and its full cross-node matrix-free tangent, line-search energy
+   and reacting-body wrench.
    The retained triangles and FP64 reference are not a GPU implementation.
 4. Generate new independent references for the exact graded mesh and law;
    establish temporal and spatial convergence, including bulk-wave resolution.
