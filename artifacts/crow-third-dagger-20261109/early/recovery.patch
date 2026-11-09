@@ -1,0 +1,11 @@
+--- a/development/late-recovery-teacher.metal
++++ b/development/recovery.metal
+@@ -4956,7 +4956,7 @@
+         const float4 actorCommand = float4(
+             0.10f+0.30f*actorLatent.x,0.30f*actorLatent.y,
+             0.15f*actorLatent.z,0.975f+0.325f*actorLatent.w);
+-        const bool privilegedCommand = (dispatch.sampling.w != 0u && dispatch.assistance.x < 0.5f);
++        const bool privilegedCommand = dispatch.sampling.w != 0u && (dispatch.assistance.x < 0.5f || state.episode.x >= (1000u + 50u*(environment % 4u)));
+         const float4 oracleCommand = privilegedCommand ? state.nutrition : actorCommand;
+         carrierState.commandAndPhase.x = 0.15f;
+         carrierState.commandAndPhase.y = oracleCommand.y;
