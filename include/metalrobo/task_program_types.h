@@ -111,6 +111,8 @@ enum MRTaskProgramFlags : mr_u32 {
     MR_TASK_PROGRAM_AVIAN_CROW_HIERARCHICAL_NAVIGATION = 1u << 28u,
     // Route outputs 4..7 are active only at waypoint index two.
     MR_TASK_PROGRAM_AVIAN_CROW_WAYPOINT_EXPERT_NAVIGATION = 1u << 29u,
+    // Route outputs 8..11 are active only at waypoint index three.
+    MR_TASK_PROGRAM_AVIAN_CROW_DUAL_WAYPOINT_EXPERT_NAVIGATION = 1u << 30u,
 };
 
 enum MRTaskInteractionFlags : mr_u32 {

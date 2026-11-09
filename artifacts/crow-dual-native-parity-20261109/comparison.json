@@ -1,0 +1,41 @@
+{
+  "rows": [
+    {
+      "course": "reserved-final-c",
+      "samples": 480,
+      "qv_exact": true,
+      "outcomes_exact": {
+        "steps_by_environment": true,
+        "maximum_waypoints_by_environment": true,
+        "physical_failure_by_environment": true,
+        "first_completion_step_by_environment": true
+      },
+      "supported_exact": true
+    },
+    {
+      "course": "reserved-final-d",
+      "samples": 480,
+      "qv_exact": true,
+      "outcomes_exact": {
+        "steps_by_environment": true,
+        "maximum_waypoints_by_environment": true,
+        "physical_failure_by_environment": true,
+        "first_completion_step_by_environment": true
+      },
+      "supported_exact": true
+    },
+    {
+      "course": "held-out-a",
+      "samples": 480,
+      "qv_exact": true,
+      "outcomes_exact": {
+        "steps_by_environment": true,
+        "maximum_waypoints_by_environment": true,
+        "physical_failure_by_environment": true,
+        "first_completion_step_by_environment": true
+      },
+      "supported_exact": true
+    }
+  ],
+  "scope": "diagnostic versus integrated teacher-off first episodes, sampled q/v and complete first-outcome records"
+}

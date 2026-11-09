@@ -695,7 +695,7 @@ void validateTaskRolloutConfiguration(
         );
     }
     if (config.birdflow_journey_variant >
-        MR_BIRDFLOW_JOURNEY_V15_WAYPOINT_EXPERT_NAVIGATION) {
+        MR_BIRDFLOW_JOURNEY_V15_DUAL_WAYPOINT_EXPERT_NAVIGATION) {
         throw std::invalid_argument(
             "task-rollout BirdFlow journey variant is invalid"
         );
@@ -3396,8 +3396,10 @@ static MRTaskRolloutHandle* createBirdFlowAmericanCrowRun(
                 "American-crow native object push",nullptr).release();
             return;
         }
-        const bool waypointExpertNavigation = journey &&
-            config->birdflow_journey_variant == MR_BIRDFLOW_JOURNEY_V15_WAYPOINT_EXPERT_NAVIGATION;
+        const bool dualWaypointExpertNavigation = journey &&
+            config->birdflow_journey_variant == MR_BIRDFLOW_JOURNEY_V15_DUAL_WAYPOINT_EXPERT_NAVIGATION;
+        const bool waypointExpertNavigation = dualWaypointExpertNavigation || (journey &&
+            config->birdflow_journey_variant == MR_BIRDFLOW_JOURNEY_V15_WAYPOINT_EXPERT_NAVIGATION);
         const bool hierarchicalNavigation = journey &&
             (waypointExpertNavigation ||
              config->birdflow_journey_variant == MR_BIRDFLOW_JOURNEY_V15_HIERARCHICAL_NAVIGATION);
@@ -3511,7 +3513,9 @@ static MRTaskRolloutHandle* createBirdFlowAmericanCrowRun(
         applyRunProfile(manifest, *config);
         if (hierarchicalNavigation) {
             manifest.task.maximumEpisodeSteps = 3000u;
-            manifest.task.id = waypointExpertNavigation
+            manifest.task.id = dualWaypointExpertNavigation
+                ? "american_crow_v15_dual_waypoint_expert_navigation_development_v1"
+                : waypointExpertNavigation
                 ? "american_crow_v15_waypoint_expert_navigation_development_v1"
                 : "american_crow_v15_goal_memory_navigation_development_v1";
         }

@@ -736,6 +736,7 @@ public enum MetalRoboBirdFlowJourneyVariant: UInt32, Sendable {
     case v15ActiveHeadNavigation = 8
     case v15HierarchicalNavigation = 9
     case v15WaypointExpertNavigation = 10
+    case v15DualWaypointExpertNavigation = 11
 
     public var commandName: String {
         switch self {
@@ -750,6 +751,7 @@ public enum MetalRoboBirdFlowJourneyVariant: UInt32, Sendable {
         case .v15ActiveHeadNavigation: "v15-active-head-navigation"
         case .v15HierarchicalNavigation: "v15-hierarchical-navigation"
         case .v15WaypointExpertNavigation: "v15-waypoint-expert-navigation"
+        case .v15DualWaypointExpertNavigation: "v15-dual-waypoint-expert-navigation"
         }
     }
 
@@ -766,6 +768,7 @@ public enum MetalRoboBirdFlowJourneyVariant: UInt32, Sendable {
         case .v15ActiveHeadNavigation: "american_crow_active_head_navigation_development_v1"
         case .v15HierarchicalNavigation: "american_crow_v15_goal_memory_navigation_development_v1"
         case .v15WaypointExpertNavigation: "american_crow_v15_waypoint_expert_navigation_development_v1"
+        case .v15DualWaypointExpertNavigation: "american_crow_v15_dual_waypoint_expert_navigation_development_v1"
         }
     }
 }

@@ -4946,7 +4946,9 @@ kernel void mr_locomotion_task_apply_actions(
         carrierState.episode.x = min(carrierState.episode.x, 1500u);
         const uint commandOffset =
             (program.schedule.w & MR_TASK_PROGRAM_AVIAN_CROW_WAYPOINT_EXPERT_NAVIGATION) != 0u &&
-            state.navigation.z >= 2.0f && state.navigation.z < 3.0f ? 4u : 0u;
+            state.navigation.z >= 2.0f && state.navigation.z < 3.0f ? 4u :
+            ((program.schedule.w & MR_TASK_PROGRAM_AVIAN_CROW_DUAL_WAYPOINT_EXPERT_NAVIGATION) != 0u &&
+             state.navigation.z >= 3.0f && state.navigation.z < 4.0f ? 8u : 0u);
         const float4 actorLatent = fixedFlightController
             ? clamp(float4(actionStream[actionBase+commandOffset+0u],actionStream[actionBase+commandOffset+1u],
                            actionStream[actionBase+commandOffset+2u],actionStream[actionBase+commandOffset+3u]),-1.0f,1.0f)
@@ -5128,9 +5130,10 @@ kernel void mr_locomotion_task_apply_actions(
                 clamp(state.nutrition.y/0.30f,-1.0f,1.0f),
                 clamp(state.nutrition.z/0.15f,-1.0f,1.0f),
                 clamp((state.nutrition.w-0.975f)/0.325f,-1.0f,1.0f));
-            const bool expertLabel = commandOffset == 4u && action >= 4u && action < 8u;
+            const bool expertLabel = commandOffset != 0u &&
+                action >= commandOffset && action < commandOffset + 4u;
             teacherActions[actionBase + action] = action < 4u
-                ? label[action] : expertLabel ? label[action - 4u] : 0.0f;
+                ? label[action] : expertLabel ? label[action - commandOffset] : 0.0f;
         }
         if (binding.actuator.x != MR_TASK_ACTUATOR_JOINT_POSITION &&
             binding.actuator.x != MR_TASK_ACTUATOR_GRIPPER_POSITION &&

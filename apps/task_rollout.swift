@@ -612,9 +612,11 @@ private struct Options {
                     birdFlowJourneyVariant = .v15HierarchicalNavigation
                 case "v15-waypoint-expert-navigation":
                     birdFlowJourneyVariant = .v15WaypointExpertNavigation
+                case "v15-dual-waypoint-expert-navigation":
+                    birdFlowJourneyVariant = .v15DualWaypointExpertNavigation
                 default:
                     throw MetalRoboTaskRolloutError.invalidShape(
-                        "--birdflow-journey-variant requires v7-hierarchical, v8-neural, v9-visual-neural, v10-world-model, v11-embodied, v12-feeding-station, v13-retinal-feeding, v14-object-push, v15-active-head-navigation, v15-hierarchical-navigation, or v15-waypoint-expert-navigation."
+                        "--birdflow-journey-variant requires v7-hierarchical, v8-neural, v9-visual-neural, v10-world-model, v11-embodied, v12-feeding-station, v13-retinal-feeding, v14-object-push, v15-active-head-navigation, v15-hierarchical-navigation, v15-waypoint-expert-navigation, or v15-dual-waypoint-expert-navigation."
                     )
                 }
                 index += 1
@@ -857,7 +859,8 @@ private struct Options {
              (birdFlowJourneyVariant != .v10WorldModelNavigation &&
               birdFlowJourneyVariant != .v15ActiveHeadNavigation &&
               birdFlowJourneyVariant != .v15HierarchicalNavigation &&
-              birdFlowJourneyVariant != .v15WaypointExpertNavigation))
+              birdFlowJourneyVariant != .v15WaypointExpertNavigation &&
+              birdFlowJourneyVariant != .v15DualWaypointExpertNavigation))
         {
             throw MetalRoboTaskRolloutError.invalidShape(
                 "--birdflow-navigation-curriculum requires a navigation journey."
@@ -1167,6 +1170,7 @@ private struct Options {
              birdFlowJourneyVariant == .v15ActiveHeadNavigation ||
              birdFlowJourneyVariant == .v15HierarchicalNavigation ||
              birdFlowJourneyVariant == .v15WaypointExpertNavigation ||
+             birdFlowJourneyVariant == .v15DualWaypointExpertNavigation ||
              birdFlowJourneyVariant == .v13RetinalFeeding ||
              birdFlowJourneyVariant == .v14ObjectPush) &&
             visualObservationConfig == nil
@@ -3873,6 +3877,8 @@ private enum TaskRolloutMain {
                         ? "v12_feeding_station_neural_nutrition"
                         : options.birdFlowJourneyVariant == .v11Embodied
                         ? "v11_embodied_neural_proprioception"
+                        : options.birdFlowJourneyVariant == .v15DualWaypointExpertNavigation
+                        ? "v15_dual_waypoint_expert_goal_memory_rgbd_history"
                         : options.birdFlowJourneyVariant == .v15WaypointExpertNavigation
                         ? "v15_waypoint_expert_goal_memory_rgbd_history"
                         : options.birdFlowJourneyVariant == .v15HierarchicalNavigation

@@ -65,6 +65,8 @@ typedef enum MRBirdFlowJourneyVariantC {
     MR_BIRDFLOW_JOURNEY_V15_HIERARCHICAL_NAVIGATION = 9,
     // Deterministic waypoint-specific command head; distinct task contract.
     MR_BIRDFLOW_JOURNEY_V15_WAYPOINT_EXPERT_NAVIGATION = 10,
+    // Distinct deterministic stage-two and stage-three command heads.
+    MR_BIRDFLOW_JOURNEY_V15_DUAL_WAYPOINT_EXPERT_NAVIGATION = 11,
 } MRBirdFlowJourneyVariantC;
 
 typedef enum MRBirdFlowNavigationCourseC {

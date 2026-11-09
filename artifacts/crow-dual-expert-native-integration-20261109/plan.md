@@ -1,0 +1,5 @@
+# Native dual-waypoint controller contract
+
+The v15 flight law remains frozen. A distinct fingerprinted deterministic navigation task routes command slots 4–7 at waypoint index two and slots 8–11 at waypoint index three. Other route phases use slots 0–3; the separately installed landing actor controls the final approach. The packs are explicit contract rebindings of the previously tested deterministic actors, with weights and normalization unchanged. Teacher labels populate the active specialist slot as well as slots 0–3 when shadow sampling is enabled. Generic stochastic PPO remains rejected because its likelihood does not yet implement stage-aware masking.
+
+The specialist shaders and actors were developed on training, held-out-a, held-out-b, reserved-final-c and reserved-final-d; all five are development data. Native integration must reproduce the diagnostic controller on matched starts including its failures, preserve the existing variants, and demonstrate teacher-shadow parity. The next assessment layouts and seeds remain untouched until a separate freeze and preregistration.
