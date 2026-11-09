@@ -641,9 +641,13 @@ private struct Options {
                     birdFlowNavigationCourse = .reservedFinalG
                 case "reserved-final-h":
                     birdFlowNavigationCourse = .reservedFinalH
+                case "reserved-final-i":
+                    birdFlowNavigationCourse = .reservedFinalI
+                case "reserved-final-j":
+                    birdFlowNavigationCourse = .reservedFinalJ
                 default:
                     throw MetalRoboTaskRolloutError.invalidShape(
-                        "--birdflow-navigation-course requires training, held-out-a, held-out-b, development-reference, reserved-final-c, reserved-final-d, reserved-final-e, reserved-final-f, reserved-final-g, or reserved-final-h."
+                        "--birdflow-navigation-course requires training, held-out-a, held-out-b, development-reference, reserved-final-c, reserved-final-d, reserved-final-e, reserved-final-f, reserved-final-g, reserved-final-h, reserved-final-i, or reserved-final-j."
                     )
                 }
                 index += 1
@@ -3290,7 +3294,11 @@ private enum TaskRolloutMain {
                     ],
                     "body_names": context.bodyNames,
                     "navigation_course":
-                        options.birdFlowNavigationCourse == .reservedFinalG
+                        options.birdFlowNavigationCourse == .reservedFinalI
+                        ? "reserved-final-i"
+                        : options.birdFlowNavigationCourse == .reservedFinalJ
+                        ? "reserved-final-j"
+                        : options.birdFlowNavigationCourse == .reservedFinalG
                         ? "reserved-final-g"
                         : options.birdFlowNavigationCourse == .reservedFinalH
                         ? "reserved-final-h"
@@ -3321,8 +3329,8 @@ private enum TaskRolloutMain {
                             options.birdFlowNavigationCourse ==
                                 .developmentReference
                             ? "paired-development-only"
-                            : (options.birdFlowNavigationCourse == .reservedFinalG ||
-                               options.birdFlowNavigationCourse == .reservedFinalH)
+                            : (options.birdFlowNavigationCourse == .reservedFinalI ||
+                               options.birdFlowNavigationCourse == .reservedFinalJ)
                             ? "reserved-final-only"
                             : "development-only",
                         "ranges_m": [
@@ -3431,7 +3439,11 @@ private enum TaskRolloutMain {
                     "policy_revision": installedPolicyRevision,
                     "policy_pack": options.policyPack ?? "",
                     "navigation_course":
-                        options.birdFlowNavigationCourse == .reservedFinalG
+                        options.birdFlowNavigationCourse == .reservedFinalI
+                        ? "reserved-final-i"
+                        : options.birdFlowNavigationCourse == .reservedFinalJ
+                        ? "reserved-final-j"
+                        : options.birdFlowNavigationCourse == .reservedFinalG
                         ? "reserved-final-g"
                         : options.birdFlowNavigationCourse == .reservedFinalH
                         ? "reserved-final-h"
@@ -3841,7 +3853,11 @@ private enum TaskRolloutMain {
                 "birdflow_journey_variant":
                     options.birdFlowJourneyVariant.commandName,
                 "birdflow_navigation_course":
-                    options.birdFlowNavigationCourse == .reservedFinalG
+                    options.birdFlowNavigationCourse == .reservedFinalI
+                    ? "reserved-final-i"
+                    : options.birdFlowNavigationCourse == .reservedFinalJ
+                    ? "reserved-final-j"
+                    : options.birdFlowNavigationCourse == .reservedFinalG
                     ? "reserved-final-g"
                     : options.birdFlowNavigationCourse == .reservedFinalH
                     ? "reserved-final-h"
@@ -3862,8 +3878,8 @@ private enum TaskRolloutMain {
                 "birdflow_navigation_course_role":
                     options.birdFlowNavigationCourse == .developmentReference
                     ? "paired-development-only"
-                    : (options.birdFlowNavigationCourse == .reservedFinalG ||
-                       options.birdFlowNavigationCourse == .reservedFinalH)
+                    : (options.birdFlowNavigationCourse == .reservedFinalI ||
+                       options.birdFlowNavigationCourse == .reservedFinalJ)
                     ? "reserved-final-only"
                     : "development-only",
                 "action_stream": options.actionStream ?? "",
