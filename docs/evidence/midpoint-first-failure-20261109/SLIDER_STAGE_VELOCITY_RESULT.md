@@ -51,12 +51,13 @@ marker and zero values. This supplies a single owner-derived source for a
 future coupled residual; Matter does not yet consume it and its dynamic
 admission guard remains closed.
 
-The native owner probe passed sixteen steps across two masses, two timesteps,
-two initial velocities, and two loads. It checked the reported force against
-its owner mass and gravity, the full-step position and velocity, and stage
-velocity. The worst errors were 6.89e-12 m, 2.32e-9 m/s and 1.75e-9 m/s,
-respectively. The ordinary candidate probe verified the absence of midpoint
+The native owner probe passed 48 steps across two masses, three gravity
+values, two timesteps, two initial velocities, and two loads. It compared the
+reported mass and gravity force with the compiled model and checked the
+full-step position and velocity and stage velocity. The worst errors were
+7.08e-12 m, 2.32e-9 m/s and 1.97e-9 m/s, respectively. The ordinary candidate probe verified the absence of midpoint
 metadata. The native trace and binary/shader hashes are in
-`slider-gravity-owner-001.json`; the six owner, admission and existing
-late-rollback CTests passed in `slider-gravity-owner-ctest-002.log`. These tests still do not exercise Matter
+`slider-gravity-owner-003.json`; the six owner, admission and existing
+late-rollback CTests passed in `slider-gravity-owner-ctest-002.log` (and the expanded gravity test in
+`slider-gravity-owner-ctest-004.log`). These tests still do not exercise Matter
 contact or establish coupled impulse, torque, work, or restoration.

@@ -1,0 +1,13 @@
+{
+  "command": [
+    "/Users/numi/numi-matter-slider-owner-build-20261109/bin/numi_midpoint_slider_owner_step_probe",
+    "/Users/numi/numi-matter-slider-owner-build-20261109/shaders/MetalRobo.metallib"
+  ],
+  "returncode": 0,
+  "stdout": "{\"schema\":\"numi.slider-owner-midpoint-step.v1\",\"accepted_steps\":48,\"owner_mass_and_gravity_metadata_checked\":true,\"max_position_error_m\":7.076561491198112e-12,\"max_velocity_error_mps\":2.3177080255010196e-09,\"max_stage_velocity_error_mps\":1.9672326684316843e-09,\"rotating_joint_rejected\":true,\"extra_effort_rejected\":true,\"missing_candidate_rejected\":true,\"late_rejection_and_retry_exact\":true,\"legacy_publish_rejected\":true,\"nonfinite_stage_rejected_restored\":true,\"scope\":\"MetalWorld only; no Matter contact\"}\n",
+  "stderr": "nonfinite status=3 succeeded=0 qsize=1 vsize=1 q=0 v=0.02 message=one or more MetalWorld control steps rolled back after a GPU environment failure: status=3 environment=0 control_step=0\nfault pre=1 post=1 succeeded=0 steps=1 code=11 message=one or more MetalWorld control steps rolled back after a GPU environment failure: status=11 environment=0 control_step=0\n",
+  "hashes": {
+    "/Users/numi/numi-matter-slider-owner-build-20261109/bin/numi_midpoint_slider_owner_step_probe": "b11efe026594188c4ba8810b77a70b954648ce83f28dabfc3fda4ee15b378dee",
+    "/Users/numi/numi-matter-slider-owner-build-20261109/shaders/MetalRobo.metallib": "86c460874ae5eed46d49ab930c15bc80a5a61480ce14d6824df79371a5e91809"
+  }
+}
