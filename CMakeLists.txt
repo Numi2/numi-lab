@@ -748,12 +748,16 @@ add_custom_command(
     COMMAND xcrun -sdk macosx metal
             -std=metal4.0
             -O3
+            -fno-fast-math
+            -ffp-contract=off
             -I "${CMAKE_CURRENT_SOURCE_DIR}/include"
             -c "${METALROBO_WORLD_SOURCE}"
             -o "${METALROBO_WORLD_AIR}"
     COMMAND xcrun -sdk macosx metal
             -std=metal4.0
             -O3
+            -fno-fast-math
+            -ffp-contract=off
             -I "${CMAKE_CURRENT_SOURCE_DIR}/include"
             -c "${METALROBO_WORLD_CONTACT_SOURCE}"
             -o "${METALROBO_WORLD_CONTACT_AIR}"

@@ -571,6 +571,13 @@ struct MetalWorldContextState {
     // Encoding-only lease: valid only during one admitted midpoint prepass.
     __strong id<MTLBuffer> sliderMidpointStageIncrement = nil;
     __strong id<MTLBuffer> sliderMidpointReaction = nil;
+    // Paired low words follow the same A/B, candidate and checkpoint lifetime
+    // as the owning high q/v state. The complete owner remains fail-closed.
+    __strong id<MTLBuffer> sliderLowA = nil;
+    __strong id<MTLBuffer> sliderLowB = nil;
+    __strong id<MTLBuffer> sliderLowCandidate = nil;
+    __strong id<MTLBuffer> sliderLowCheckpoint = nil;
+    bool sliderCompensatedBuffersEnabled = false;
     bool sliderMidpointActive = false;
     float sliderMidpointGravityForce = 0.0f;
     std::vector<MRArticulationGPU> boundArticulations;
@@ -10730,6 +10737,14 @@ bool encodeStreamedArticulatedResponses(
     return true;
 }
 
+id<MTLBuffer> sliderLowForState(detail::MetalWorldContextState& context,
+                                const std::size_t qState) {
+    if (!context.sliderCompensatedBuffersEnabled) return context.buffers[kWorld];
+    if (qState == kStateQA) return context.sliderLowA;
+    if (qState == kStateQB) return context.sliderLowB;
+    return nil;
+}
+
 bool encodePrepare(
     detail::MetalWorldContextState& context,
     id<MTLCommandBuffer> commandBuffer,
@@ -10794,6 +10809,14 @@ bool encodePrepare(
     [encoder setBuffer:context.buffers[kTaskControllerParameters]
                  offset:0u
                 atIndex:16u];
+    id<MTLBuffer> sourceLow=sliderLowForState(context,sourceQ);
+    id<MTLBuffer> checkpointLow=context.sliderCompensatedBuffersEnabled
+        ? context.sliderLowCheckpoint : context.buffers[kWorld];
+    if (sourceLow == nil || checkpointLow == nil) { [encoder endEncoding]; return false; }
+    const std::uint32_t lowEnabled=context.sliderCompensatedBuffersEnabled ? 1u : 0u;
+    [encoder setBuffer:sourceLow offset:0u atIndex:17u];
+    [encoder setBuffer:checkpointLow offset:0u atIndex:18u];
+    [encoder setBytes:&lowEnabled length:sizeof(lowEnabled) atIndex:19u];
     dispatchWorldThreads(
         encoder,
         context.preparePipeline,
@@ -11769,6 +11792,8 @@ bool encodeDevicePhysicsProgram(
         .commandBuffer = (__bridge void*)commandBuffer,
         .q = (__bridge void*)context.buffers[sourceQ],
         .v = (__bridge void*)context.buffers[sourceV],
+        .sliderMidpointLow = context.sliderCompensatedBuffersEnabled
+            ? (__bridge void*)sliderLowForState(context,sourceQ) : nullptr,
         .sceneBodies = (__bridge void*)context.buffers[sourceScene],
         .currentBodies = (__bridge void*)context.buffers[kCurrentBodies],
         .bodyWrenches =
@@ -13555,6 +13580,19 @@ bool encodeCommit(
     [encoder setBuffer:context.buffers[kWorld]
                  offset:0u
                 atIndex:10u];
+    id<MTLBuffer> destinationLow=sliderLowForState(context,destinationQ);
+    id<MTLBuffer> candidateLow=context.sliderCompensatedBuffersEnabled
+        ? context.sliderLowCandidate : context.buffers[kWorld];
+    id<MTLBuffer> checkpointLow=context.sliderCompensatedBuffersEnabled
+        ? context.sliderLowCheckpoint : context.buffers[kWorld];
+    if (destinationLow == nil || candidateLow == nil || checkpointLow == nil) {
+        [encoder endEncoding]; return false;
+    }
+    const std::uint32_t lowEnabled=context.sliderCompensatedBuffersEnabled ? 1u : 0u;
+    [encoder setBuffer:candidateLow offset:0u atIndex:11u];
+    [encoder setBuffer:destinationLow offset:0u atIndex:12u];
+    [encoder setBuffer:checkpointLow offset:0u atIndex:13u];
+    [encoder setBytes:&lowEnabled length:sizeof(lowEnabled) atIndex:14u];
     dispatchWorldThreads(
         encoder,
         context.commitPipeline,
@@ -13579,6 +13617,14 @@ bool encodeLateFailureReconciliation(
     [encoder setBuffer:context.buffers[kCheckpointV] offset:0u atIndex:3u];
     [encoder setBuffer:context.buffers[destinationQ] offset:0u atIndex:4u];
     [encoder setBuffer:context.buffers[destinationV] offset:0u atIndex:5u];
+    id<MTLBuffer> destinationLow=sliderLowForState(context,destinationQ);
+    id<MTLBuffer> checkpointLow=context.sliderCompensatedBuffersEnabled
+        ? context.sliderLowCheckpoint : context.buffers[kWorld];
+    if (destinationLow == nil || checkpointLow == nil) { [encoder endEncoding]; return false; }
+    const std::uint32_t lowEnabled=context.sliderCompensatedBuffersEnabled ? 1u : 0u;
+    [encoder setBuffer:checkpointLow offset:0u atIndex:6u];
+    [encoder setBuffer:destinationLow offset:0u atIndex:7u];
+    [encoder setBytes:&lowEnabled length:sizeof(lowEnabled) atIndex:8u];
     dispatchWorldThreads(encoder, context.lateFailureReconcilePipeline, environmentCount);
     [encoder endEncoding];
     return true;
@@ -20774,6 +20820,31 @@ MetalWorldDiagnostics MetalWorldContext::submitImpl(
                     "failed to initialize resident MetalWorld state"
                 );
             }
+
+            selectedState->sliderCompensatedBuffersEnabled =
+                (config.devicePhysicsProgram.flags &
+                 MetalWorldDevicePhysicsCompensatedSliderMidpoint) != 0u;
+            if (selectedState->sliderCompensatedBuffersEnabled && uploadInitialState) {
+                const float initialLow[2]{batch.sliderMidpointInitialQLow,
+                                          batch.sliderMidpointInitialVLow};
+                selectedState->sliderLowA = [selectedState->device newBufferWithBytes:initialLow
+                    length:sizeof(initialLow) options:MTLResourceStorageModeShared];
+                selectedState->sliderLowB = [selectedState->device newBufferWithBytes:initialLow
+                    length:sizeof(initialLow) options:MTLResourceStorageModeShared];
+                selectedState->sliderLowCandidate = [selectedState->device newBufferWithBytes:initialLow
+                    length:sizeof(initialLow) options:MTLResourceStorageModeShared];
+                selectedState->sliderLowCheckpoint = [selectedState->device newBufferWithBytes:initialLow
+                    length:sizeof(initialLow) options:MTLResourceStorageModeShared];
+                if (selectedState->sliderLowA == nil || selectedState->sliderLowB == nil ||
+                    selectedState->sliderLowCandidate == nil || selectedState->sliderLowCheckpoint == nil)
+                    return reject(std::move(diagnostics),MetalWorldHostStatus::metalBufferFailure,
+                        "failed to allocate slider low-word transaction buffers");
+            }
+            if (selectedState->sliderCompensatedBuffersEnabled &&
+                (selectedState->sliderLowA == nil || selectedState->sliderLowB == nil ||
+                 selectedState->sliderLowCandidate == nil || selectedState->sliderLowCheckpoint == nil))
+                return reject(std::move(diagnostics),MetalWorldHostStatus::invalidDimensions,
+                    "missing resident slider low-word transaction buffers");
 
             const bool useParallelABA =
                 diagnostics.layout.usesParallelABA;

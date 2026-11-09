@@ -130,6 +130,9 @@ kernel void mr_metal_world_prepare(
         [[buffer(15)]],
     device const float4* taskControllerParameters
         [[buffer(16)]],
+    device const float2* sliderSourceLow [[buffer(17)]],
+    device float2* sliderCheckpointLow [[buffer(18)]],
+    constant uint& sliderLowEnabled [[buffer(19)]],
     uint environment [[thread_position_in_grid]]
 ) {
     if (environment >= dispatch.environmentCount) {
@@ -162,6 +165,9 @@ kernel void mr_metal_world_prepare(
             pass.controlStep * dispatch.resetMaskStepStride +
             environment
         ] != 0u;
+    if (sliderLowEnabled != 0u) {
+        sliderCheckpointLow[environment] = sliderSourceLow[environment];
+    }
     const uint qBase = environment * dispatch.qStride;
     const uint vBase = environment * dispatch.vStride;
     for (uint coordinate = 0u;
@@ -381,6 +387,10 @@ kernel void mr_metal_world_commit(
     device const float* checkpointQ [[buffer(8)]],
     device const float* checkpointV [[buffer(9)]],
     device const MRWorldGPU& world [[buffer(10)]],
+    device const float2* sliderCandidateLow [[buffer(11)]],
+    device float2* sliderDestinationLow [[buffer(12)]],
+    device const float2* sliderCheckpointLow [[buffer(13)]],
+    constant uint& sliderLowEnabled [[buffer(14)]],
     uint environment [[thread_position_in_grid]]
 ) {
     if (environment >= dispatch.environmentCount) {
@@ -493,6 +503,10 @@ kernel void mr_metal_world_commit(
             : checkpointV[vBase + coordinate];
     }
 
+    if (sliderLowEnabled != 0u) {
+        sliderDestinationLow[environment] = commitCandidate
+            ? sliderCandidateLow[environment] : sliderCheckpointLow[environment];
+    }
     if (commitCandidate) {
         if (status.successfulSubsteps == 0u) {
             status.diagnostics = abaDiagnostics;
@@ -531,10 +545,14 @@ kernel void mr_metal_world_reconcile_late_failure(
     device const float* checkpointV [[buffer(3)]],
     device float* stateQ [[buffer(4)]],
     device float* stateV [[buffer(5)]],
+    device const float2* sliderCheckpointLow [[buffer(6)]],
+    device float2* sliderStateLow [[buffer(7)]],
+    constant uint& sliderLowEnabled [[buffer(8)]],
     uint environment [[thread_position_in_grid]]
 ) {
     if (environment >= dispatch.environmentCount ||
         statuses[environment].code == MR_STEP_SUCCESS) return;
+    if (sliderLowEnabled != 0u) sliderStateLow[environment] = sliderCheckpointLow[environment];
     const uint qBase = environment * dispatch.qStride;
     const uint vBase = environment * dispatch.vStride;
     for (uint i = 0u; i < dispatch.nq; ++i) stateQ[qBase + i] = checkpointQ[qBase + i];
