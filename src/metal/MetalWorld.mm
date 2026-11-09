@@ -492,6 +492,8 @@ struct MetalWorldContextState {
     __strong id<MTLComputePipelineState> externalArticulatedRhsPipeline = nil;
     __strong id<MTLComputePipelineState> externalArticulatedAccumulatePipeline = nil;
     __strong id<MTLComputePipelineState> coupledCandidateIntegratePipeline = nil;
+    __strong id<MTLComputePipelineState> sliderMidpointCandidateVelocityPipeline = nil;
+    __strong id<MTLComputePipelineState> sliderMidpointStatusPipeline = nil;
     __strong id<MTLComputePipelineState> coupledCandidateMassPipeline = nil;
     __strong id<MTLComputePipelineState> coupledCandidateJacobianPipeline = nil;
     __strong id<MTLComputePipelineState> coupledCandidatePublishPipeline = nil;
@@ -6316,6 +6318,8 @@ MetalWorldDiagnostics initializeContext(
     __strong id<MTLComputePipelineState> externalArticulatedRhs = nil;
     __strong id<MTLComputePipelineState> externalArticulatedAccumulate = nil;
     __strong id<MTLComputePipelineState> coupledCandidateIntegrate = nil;
+    __strong id<MTLComputePipelineState> sliderMidpointCandidateVelocity = nil;
+    __strong id<MTLComputePipelineState> sliderMidpointStatus = nil;
     __strong id<MTLComputePipelineState> coupledCandidateMass = nil;
     __strong id<MTLComputePipelineState> coupledCandidateJacobian = nil;
     __strong id<MTLComputePipelineState> coupledCandidatePublish = nil;
@@ -6515,6 +6519,14 @@ MetalWorldDiagnostics initializeContext(
     );
     coupledCandidateIntegrate = createContactPipeline(
         @"mr_world_integrate_coupled_candidate"
+    );
+    // These functions belong only to the opt-in slider owner. Legacy
+    // callers may still supply an older otherwise-compatible metallib.
+    sliderMidpointCandidateVelocity = makePipeline(
+        device, library, @"mr_world_slider_midpoint_candidate_velocity", nullptr
+    );
+    sliderMidpointStatus = makePipeline(
+        device, library, @"mr_world_slider_midpoint_promote_candidate_status", nullptr
     );
     coupledCandidateMass = createContactPipeline(
         @"mr_world_apply_coupled_candidate_mass"
@@ -7012,6 +7024,8 @@ MetalWorldDiagnostics initializeContext(
     context.externalArticulatedAccumulatePipeline =
         externalArticulatedAccumulate;
     context.coupledCandidateIntegratePipeline = coupledCandidateIntegrate;
+    context.sliderMidpointCandidateVelocityPipeline = sliderMidpointCandidateVelocity;
+    context.sliderMidpointStatusPipeline = sliderMidpointStatus;
     context.coupledCandidateMassPipeline = coupledCandidateMass;
     context.coupledCandidateJacobianPipeline = coupledCandidateJacobian;
     context.coupledCandidatePublishPipeline = coupledCandidatePublish;
@@ -11398,6 +11412,22 @@ bool encodeBorrowedCoupledCandidate(
         dispatchWorldThreads(
             project, context->bodyProjectionPipeline, pass.environmentCount);
         [project endEncoding];
+        if (halfStepKinematics && context->sliderMidpointActive) {
+            if (context->sliderMidpointCandidateVelocityPipeline == nil) return false;
+            id<MTLComputeCommandEncoder> velocity =
+                [commandBuffer computeCommandEncoder];
+            if (velocity == nil) return false;
+            velocity.label = @"MetalWorld slider midpoint candidate twist";
+            [velocity setComputePipelineState:
+                context->sliderMidpointCandidateVelocityPipeline];
+            [velocity setBuffer:v offset:0u atIndex:0u];
+            [velocity setBuffer:input offset:0u atIndex:1u];
+            [velocity setBuffer:candidateBodies offset:0u atIndex:2u];
+            [velocity setBuffer:context->buffers[kContactStatuses] offset:0u atIndex:3u];
+            dispatchWorldThreads(velocity,
+                context->sliderMidpointCandidateVelocityPipeline, 1u);
+            [velocity endEncoding];
+        }
         return true;
     }
 
@@ -11620,9 +11650,11 @@ bool encodeBorrowedCoupledCandidate(
 // midpoint velocity and is discarded by the ordinary commit on failure.
 bool encodeSliderMidpointPosition(
     detail::MetalWorldContextState& context, id<MTLCommandBuffer> commandBuffer,
-    const float timestep, const std::size_t sourceQ, const std::size_t sourceV
+    const MRMetalWorldPassGPU& pass, const float timestep,
+    const std::size_t sourceQ, const std::size_t sourceV
 ) {
-    if (!context.sliderMidpointActive || context.sliderMidpointStageIncrement == nil ||
+    if (!context.sliderMidpointActive || context.sliderMidpointStatusPipeline == nil ||
+        context.sliderMidpointStageIncrement == nil ||
         context.boundArticulations.size() != 1u || !(timestep > 0.0f) ||
         !std::isfinite(timestep) || !std::isfinite(1.0f / timestep)) return false;
     const auto& a = context.boundArticulations[0];
@@ -11653,6 +11685,15 @@ bool encodeSliderMidpointPosition(
     [encoder setBytes:&stride length:sizeof(stride) atIndex:9u];
     dispatchWorldThreads(encoder, context.coupledCandidateIntegratePipeline, 1u);
     [encoder endEncoding];
+    id<MTLComputeCommandEncoder> promote = [commandBuffer computeCommandEncoder];
+    if (promote == nil) return false;
+    promote.label = @"MetalWorld slider midpoint candidate status";
+    [promote setComputePipelineState:context.sliderMidpointStatusPipeline];
+    [promote setBytes:&pass length:sizeof(pass) atIndex:0u];
+    [promote setBuffer:context.buffers[kContactStatuses] offset:0u atIndex:1u];
+    [promote setBuffer:context.buffers[kEnvironmentStatuses] offset:0u atIndex:2u];
+    dispatchWorldThreads(promote, context.sliderMidpointStatusPipeline, 1u);
+    [promote endEncoding];
     context.sliderMidpointStageIncrement = nil;
     return true;
 }
@@ -21254,7 +21295,7 @@ MetalWorldDiagnostics MetalWorldContext::submitImpl(
                         ((config.devicePhysicsProgram.flags &
                           MetalWorldDevicePhysicsOwnsSliderMidpoint) == 0u ||
                          encodeSliderMidpointPosition(*selectedState, commandBuffer,
-                             config.timestepSeconds, sourceQ, sourceV));
+                             pass, config.timestepSeconds, sourceQ, sourceV));
                     const bool encodedRod =
                         encodedMidpointPosition &&
                         (

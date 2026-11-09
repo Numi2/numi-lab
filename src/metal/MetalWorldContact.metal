@@ -795,6 +795,49 @@ kernel void mr_world_integrate_coupled_candidate(
     }
 }
 
+// The admitted midpoint slider has one fixed world-z prismatic coordinate.
+// Its candidate body must carry the stage twist as well as the stage pose.
+// This writes only borrowed candidate state, never an authoritative body.
+kernel void mr_world_slider_midpoint_candidate_velocity(
+    device const float* sourceV [[buffer(0)]],
+    device const float* increment [[buffer(1)]],
+    device MRBodyStateGPU* candidateBodies [[buffer(2)]],
+    device MRMetalWorldContactStatusGPU* statuses [[buffer(3)]],
+    const uint environment [[thread_position_in_grid]]
+) {
+    if (environment != 0u || statuses[0].code != MR_STEP_SUCCESS) return;
+    const float stageVelocity = sourceV[0] + increment[0];
+    if (!isfinite(stageVelocity)) {
+        MRMetalWorldContactStatusGPU status = statuses[0];
+        status.code = MR_STEP_NONFINITE_RESULT;
+        status.firstFailingConstraint = 0u;
+        statuses[0] = status;
+        return;
+    }
+    candidateBodies[1].linearVelocityAndInverseMass.xyz = float3(0.0f,0.0f,stageVelocity);
+}
+
+// Free-motion commit consumes environment status, while borrowed candidate
+// operations report through contact status. Promote a candidate failure before
+// commit so an invalid midpoint cannot become a successful ABA endpoint.
+kernel void mr_world_slider_midpoint_promote_candidate_status(
+    constant MRMetalWorldPassGPU& pass [[buffer(0)]],
+    device const MRMetalWorldContactStatusGPU* candidateStatus [[buffer(1)]],
+    device MRMetalWorldStatusGPU* worldStatus [[buffer(2)]],
+    const uint environment [[thread_position_in_grid]]
+) {
+    if (environment != 0u) return;
+    const MRMetalWorldContactStatusGPU candidate = candidateStatus[0];
+    MRMetalWorldStatusGPU world = worldStatus[0];
+    if (world.code == MR_STEP_SUCCESS && candidate.code != MR_STEP_SUCCESS) {
+        world.code = candidate.code;
+        world.failingSubstep = pass.physicsSubstep;
+        world.failingIndex = candidate.firstFailingConstraint;
+        world.diagnostics = candidate.diagnostics;
+        worldStatus[0] = world;
+    }
+}
+
 // Applies the dense Cholesky factor emitted by the owning articulated
 // operator. One thread owns one environment, avoiding float atomics and
 // retaining deterministic row order for the small (<=40 dof) block.

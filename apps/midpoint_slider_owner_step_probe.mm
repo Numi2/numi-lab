@@ -5,7 +5,7 @@
 #undef main
 #import <Foundation/Foundation.h>
 #import <Metal/Metal.h>
-struct OwnerProbe {float acceleration=0;id<MTLBuffer> increment=nil;id<MTLBuffer> output=nil;bool pre=false,post=false,skip=false,inject=false,legacyPublish=false;std::uint32_t statusFlags=0;};
+struct OwnerProbe {float acceleration=0;id<MTLBuffer> increment=nil;id<MTLBuffer> output=nil;id<MTLBuffer> stageQ=nil;id<MTLBuffer> stageBodies=nil;bool pre=false,post=false,skip=false,inject=false,legacyPublish=false,poison=false;std::uint32_t statusFlags=0;};
 static bool encodeOwner(void* opaque,const metalrobo::MetalWorldDevicePhysicsPass& pass){
  auto& p=*static_cast<OwnerProbe*>(opaque);
  if(pass.phase==metalrobo::MetalWorldDevicePhysicsPhase::postCommit){
@@ -28,7 +28,16 @@ static bool encodeOwner(void* opaque,const metalrobo::MetalWorldDevicePhysicsPas
  p.increment=[device newBufferWithLength:sizeof(float) options:MTLResourceStorageModeShared];
  p.output=[device newBufferWithLength:sizeof(float) options:MTLResourceStorageModeShared];
  if(!p.increment||!p.output)return false;
- *static_cast<float*>(p.increment.contents)=.5f*pass.timestepSeconds*p.acceleration;
+ *static_cast<float*>(p.increment.contents)=p.poison ? std::numeric_limits<float>::quiet_NaN() : .5f*pass.timestepSeconds*p.acceleration;
+ p.stageQ=[device newBufferWithLength:sizeof(float) options:MTLResourceStorageModeShared];
+ p.stageBodies=[device newBufferWithLength:pass.bodyStateStride*sizeof(MRBodyStateGPU) options:MTLResourceStorageModeShared];
+ if(!p.stageQ||!p.stageBodies)return false;
+ metalrobo::MetalWorldCoupledCandidateQuery stage{};
+ stage.input=(__bridge void*)p.increment;stage.candidateQ=(__bridge void*)p.stageQ;
+ stage.candidateBodies=(__bridge void*)p.stageBodies;stage.generalizedVectorStride=1;
+ stage.candidateQStride=1;stage.candidateBodyStride=pass.bodyStateStride;
+ stage.operation=metalrobo::MetalWorldCoupledCandidateOperation::candidateHalfStepKinematics;
+ if(!pass.encodeCoupledCandidate(pass.coupledCandidateContext,pass,stage))return false;
  metalrobo::MetalWorldCoupledCandidateQuery q{};q.input=(__bridge void*)p.increment;
  q.output=(__bridge void*)p.output;q.generalizedVectorStride=1;
  q.operation=p.legacyPublish ? metalrobo::MetalWorldCoupledCandidateOperation::publishCandidate : metalrobo::MetalWorldCoupledCandidateOperation::publishSliderMidpoint;
@@ -68,13 +77,19 @@ static metalrobo::MetalWorldDiagnostics run(const std::string& shader,metalrobo:
 }
 int main(int argc,char**argv){@autoreleasepool{try{
  require(argc==2,"usage: midpoint_slider_owner_step_probe METALLIB");
- double maxQ=0,maxV=0;for(float h:{.001f,.002f})for(float v:{.02f,-.03f})for(float force:{0.f,.015f}){
+ double maxQ=0,maxV=0,maxStageV=0;for(float h:{.001f,.002f})for(float v:{.02f,-.03f})for(float force:{0.f,.015f}){
   OwnerProbe p;metalrobo::MetalWorldResult result;auto d=run(argv[1],slider(h,v),h,force,p,result);
   require(d.succeeded(),"midpoint owner step: "+d.message);require(p.pre&&p.post&&result.finalQ.size()==1&&result.finalV.size()==1,"missing midpoint output");
   require(result.layout.devicePhysicsFingerprint!=0x5ee124f0a9bdfc10ull,"midpoint execution fingerprint aliases original");
   const double acceleration=double(-9.81f)+double(force)/double(.01f);
   const double expectedQ=double(h)*double(v)+.5*double(h)*double(h)*acceleration;
   const double expectedV=double(v)+double(h)*acceleration;
+  const double expectedStageV=double(v)+.5*double(h)*acceleration;
+  const auto stageBody=static_cast<const MRBodyStateGPU*>(p.stageBodies.contents)[1];
+  if(std::abs(stageBody.linearVelocityAndInverseMass.z-expectedStageV)>=1e-6)
+   std::cerr<<"candidate stage velocity actual="<<stageBody.linearVelocityAndInverseMass.z<<" expected="<<expectedStageV<<"\n";
+  require(std::abs(stageBody.linearVelocityAndInverseMass.z-expectedStageV)<1e-6,"candidate stage body velocity missing");
+  maxStageV=std::max(maxStageV,std::abs(stageBody.linearVelocityAndInverseMass.z-expectedStageV));
   maxQ=std::max(maxQ,std::abs(result.finalQ[0]-expectedQ));maxV=std::max(maxV,std::abs(result.finalV[0]-expectedV));
  }
  require(maxQ<1e-8 && maxV<1e-6,"midpoint full-step equations failed");
@@ -84,6 +99,12 @@ int main(int argc,char**argv){@autoreleasepool{try{
  require(!nonzero.succeeded()&&!loaded.pre,"extra effort not rejected before callback");
  OwnerProbe missing;missing.skip=true;auto noCandidate=run(argv[1],slider(.001f,.02f),.001f,0,missing,ignored);
  require(!noCandidate.succeeded(),"missing stage candidate was accepted");
+ OwnerProbe poisoned;poisoned.poison=true;metalrobo::MetalWorldResult poisonedResult;
+ auto poisonedStatus=run(argv[1],slider(.001f,.02f),.001f,0,poisoned,poisonedResult);
+ std::cerr<<"nonfinite status="<<poisonedStatus.firstGPUStatusCode<<" succeeded="<<poisonedStatus.succeeded()<<" qsize="<<poisonedResult.finalQ.size()<<" vsize="<<poisonedResult.finalV.size()<<" q="<<(poisonedResult.finalQ.empty()?999:poisonedResult.finalQ[0])<<" v="<<(poisonedResult.finalV.empty()?999:poisonedResult.finalV[0])<<" message="<<poisonedStatus.message<<"\n";
+ require(!poisonedStatus.succeeded()&&poisonedStatus.firstGPUStatusCode==MR_STEP_NONFINITE_RESULT&&
+         poisonedResult.finalQ==std::vector<float>{0}&&poisonedResult.finalV==std::vector<float>{.02f},
+         "nonfinite midpoint stage was not rejected and restored");
  OwnerProbe legacy;legacy.legacyPublish=true;auto oldPublish=run(argv[1],slider(.001f,.02f),.001f,0,legacy,ignored);
  require(!oldPublish.succeeded(),"legacy publisher accepted in midpoint owner");
  metalrobo::MetalWorldConfig reusableConfig{};reusableConfig.metallibPath=argv[1];metalrobo::MetalWorldContext reusable(reusableConfig);
@@ -98,5 +119,5 @@ int main(int argc,char**argv){@autoreleasepool{try{
  auto restored=initial;restored.defaultQ=rejected.finalQ;restored.defaultV=rejected.finalV;
  OwnerProbe retryProbe;metalrobo::MetalWorldResult retry;auto retried=run(argv[1],restored,.001f,.015f,retryProbe,retry,0,&reusable);
  require(retried.succeeded()&&sameBytes(retry.finalQ,good.finalQ)&&sameBytes(retry.finalV,good.finalV),"restored slider retry differs from accepted state");
- std::cout<<std::setprecision(17)<<"{\"schema\":\"numi.slider-owner-midpoint-step.v1\",\"accepted_steps\":8,\"max_position_error_m\":"<<maxQ<<",\"max_velocity_error_mps\":"<<maxV<<",\"rotating_joint_rejected\":true,\"extra_effort_rejected\":true,\"missing_candidate_rejected\":true,\"late_rejection_and_retry_exact\":true,\"legacy_publish_rejected\":true,\"scope\":\"MetalWorld only; no Matter contact\"}\n";return 0;
+ std::cout<<std::setprecision(17)<<"{\"schema\":\"numi.slider-owner-midpoint-step.v1\",\"accepted_steps\":8,\"max_position_error_m\":"<<maxQ<<",\"max_velocity_error_mps\":"<<maxV<<",\"max_stage_velocity_error_mps\":"<<maxStageV<<",\"rotating_joint_rejected\":true,\"extra_effort_rejected\":true,\"missing_candidate_rejected\":true,\"late_rejection_and_retry_exact\":true,\"legacy_publish_rejected\":true,\"nonfinite_stage_rejected_restored\":true,\"scope\":\"MetalWorld only; no Matter contact\"}\n";return 0;
  }catch(const std::exception&e){std::cerr<<e.what()<<"\n";return 1;}}}
