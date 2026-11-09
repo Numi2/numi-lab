@@ -14,6 +14,7 @@ int main(int argc, char** argv) {
     config.experimentalFEMPlaneMidpoint=true;
     constexpr const char* name="NM_MATTER_MIDPOINT_DIAGNOSTIC_ROOT";
     unsetenv(name);
+    unsetenv("NM_MATTER_MIDPOINT_PRECONTACT_POLISH");
     numi::matter::Runtime normal;
     auto a=normal.initialize(world,config);
     require(a.encoded && normal.valid(),"normal fixture initialization failed: "+a.message);
@@ -52,10 +53,30 @@ int main(int argc, char** argv) {
         d.message.find("midpoint diagnostic root")!=std::string::npos,
         "capture accepted outside midpoint fixture");
     unsetenv(name);
-    std::cout<<"midpoint capture scope and fingerprints verified\n";
+    constexpr const char* polishName="NM_MATTER_MIDPOINT_PRECONTACT_POLISH";
+    setenv(polishName,"1",1);
+    numi::matter::Runtime polish;
+    auto e=polish.initialize(world,config);
+    require(e.encoded && polish.valid() && polish.deviceProgramFingerprint()!=base,
+        "opt-in polish unavailable or not fingerprinted");
+    setenv(polishName,"0",1);
+    numi::matter::Runtime invalidPolish;
+    auto f=invalidPolish.initialize(world,config);
+    require(!f.encoded && !invalidPolish.valid() &&
+        f.message.find("midpoint precontact polish")!=std::string::npos,
+        "invalid polish opt-in accepted");
+    setenv(polishName,"1",1);
+    numi::matter::Runtime outsidePolish;
+    auto g=outsidePolish.initialize(world,noMidpoint);
+    require(!g.encoded && !outsidePolish.valid() &&
+        g.message.find("midpoint precontact polish")!=std::string::npos,
+        "polish accepted outside the midpoint fixture");
+    unsetenv(polishName);
+    std::cout<<"midpoint capture and polish scope and fingerprints verified\n";
     return 0;
  } catch(const std::exception& e) {
     unsetenv("NM_MATTER_MIDPOINT_DIAGNOSTIC_ROOT");
+    unsetenv("NM_MATTER_MIDPOINT_PRECONTACT_POLISH");
     std::cerr<<"midpoint_diagnostic_scope: "<<e.what()<<"\n"; return 1;
  } }
 }

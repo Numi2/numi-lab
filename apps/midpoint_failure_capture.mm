@@ -7,10 +7,12 @@
 
 int main(int argc,char** argv) {
  @autoreleasepool {try {
-    require(argc==3,"usage: midpoint_failure_capture METALLIB CAPTURE_BINARY");
+    require(argc==3 || argc==4,"usage: midpoint_failure_capture METALLIB CAPTURE_BINARY [FAIL_STEP]");
     require(!std::filesystem::exists(argv[2]),"capture already exists; refusing overwrite");
     constexpr double h=0.00000390625;
-    constexpr unsigned failingStep=203u;
+    const unsigned failingStep=argc==4?std::stoul(argv[3]):203u;
+    const char* root=std::getenv("NM_MATTER_MIDPOINT_DIAGNOSTIC_ROOT");
+    require(root && std::to_string(failingStep)==root,"capture root does not match failure step");
     const auto world=model(8,h,.0002,true,false,true,0.,1.);
     numi::matter::Runtime runtime;numi::matter::RuntimeConfiguration config;
     config.metallib=argv[1];config.environmentCount=1;config.captureDiagnostics=true;

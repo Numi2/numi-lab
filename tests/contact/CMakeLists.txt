@@ -116,7 +116,7 @@ if(BUILD_TESTING)
     add_test(NAME numi.contact.midpoint_precontact_repair COMMAND "${Python3_EXECUTABLE}"
         "${CMAKE_CURRENT_SOURCE_DIR}/midpoint_precontact_repair_regression.py"
         "$<TARGET_FILE:numi_plane_contact_probe_scaled>" "${_shader}")
-    set_tests_properties(numi.contact.midpoint_precontact_repair PROPERTIES TIMEOUT 180)
+    set_tests_properties(numi.contact.midpoint_precontact_repair PROPERTIES TIMEOUT 180 ENVIRONMENT "NM_MATTER_MIDPOINT_PRECONTACT_POLISH=1")
     add_test(NAME numi.contact.midpoint_native_transaction COMMAND "${Python3_EXECUTABLE}"
         "${CMAKE_CURRENT_SOURCE_DIR}/midpoint_native_regression.py"
         "$<TARGET_FILE:metalrobo_plane_contact_probe>" "${_shader}")

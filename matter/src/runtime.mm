@@ -3311,6 +3311,7 @@ struct Runtime::State {
     bool experimentalFEMPlaneMidpoint = false;
     id<MTLBuffer> femMidpointEndpoint = nil;
     id<MTLBuffer> femMidpointResults = nil;
+    bool midpointPrecontactPolishEnabled = false;
     bool midpointDiagnosticCaptureEnabled = false;
     std::uint32_t midpointDiagnosticCaptureRoot = 0u;
     id<MTLBuffer> femMidpointDiagnosticCandidate = nil;
@@ -7927,6 +7928,14 @@ RuntimeDiagnostics Runtime::initialize(
 
         candidate->experimentalFEMPlaneAL = configuration.experimentalFEMPlaneAugmentedLagrangian;
         candidate->experimentalFEMPlaneMidpoint = configuration.experimentalFEMPlaneMidpoint;
+        if (const char* polish = std::getenv("NM_MATTER_MIDPOINT_PRECONTACT_POLISH")) {
+            if (std::strcmp(polish,"1") != 0 || !configuration.experimentalFEMPlaneMidpoint ||
+                !configuration.captureDiagnostics || world.dispatch.environmentCount != 1u) {
+                diagnostics.message = "midpoint precontact polish requires value 1 and the scoped midpoint fixture";
+                return diagnostics;
+            }
+            candidate->midpointPrecontactPolishEnabled = true;
+        }
         if (const char* root = std::getenv("NM_MATTER_MIDPOINT_DIAGNOSTIC_ROOT")) {
             std::uint64_t parsed = 0u;
             bool validRoot = *root != '\0';
@@ -8446,6 +8455,8 @@ RuntimeDiagnostics Runtime::initialize(
             configuration,
             candidate->femRegionalAcceptedCorrectionRecycleEnabled
         );
+        if (candidate->midpointPrecontactPolishEnabled)
+            candidate->executionFingerprint = mixFingerprint(candidate->executionFingerprint, 0x4d50504f4c495348ull);
         if (candidate->midpointDiagnosticCaptureEnabled) {
             candidate->executionFingerprint = mixFingerprint(candidate->executionFingerprint, 0x4d49444341503031ull);
             candidate->executionFingerprint = mixFingerprint(candidate->executionFingerprint, candidate->midpointDiagnosticCaptureRoot);
@@ -51923,7 +51934,7 @@ RuntimeDiagnostics Runtime::encodeImpl(
                 return diagnostics;
             }
             captureFEMHumanAttachmentResidual();
-            if (state.experimentalFEMPlaneMidpoint) {
+            if (state.experimentalFEMPlaneMidpoint && state.midpointPrecontactPolishEnabled) {
                 [encoder memoryBarrierWithScope:MTLBarrierScopeBuffers];
                 dispatchThreads("nm_fem_midpoint_precontact_polish_gate", 1u, [&] {
                     setDispatch();
