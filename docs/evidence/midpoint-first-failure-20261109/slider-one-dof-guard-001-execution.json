@@ -1,0 +1,21 @@
+{
+  "command": [
+    "/Users/numi/numi-matter-midpoint-compensated-build-20261109/numi_midpoint_dynamic_guard",
+    "/Users/numi/numi-matter-midpoint-compensated-build-20261109/NumiMatter.metallib"
+  ],
+  "inputs_sha256": {
+    "/Users/numi/numi-matter-midpoint-compensated-build-20261109/numi_midpoint_dynamic_guard": "6b924c3e959ed7f4caa4dbcea1a83cdd9010c81b8e43f4af97659e63b01e2278",
+    "/Users/numi/numi-matter-midpoint-compensated-build-20261109/NumiMatter.metallib": "cbfd7857267f14266f4b2fc61bbd729c3e1dd612f4a2cd167e58935b348bb8ca",
+    "apps/midpoint_dynamic_guard_probe.mm": "0fd98c6c67b725d7eacb2d896f077ddc821b58abd6cd4dd974b5b68e9ed5295a",
+    "apps/plane_contact_probe.mm": "bfb75f0816e873fdb1aac5200fae62738f3d13e9053dd87ec460a470d2bae945"
+  },
+  "returncode": 0,
+  "timed_out": false,
+  "wall_seconds": 0.4009007499553263,
+  "free_bytes_after": 3429961728,
+  "result": {
+    "fixed_plane_initialized": true,
+    "articulated_plane_initialized": false,
+    "owner_boundary": "fixed plane required"
+  }
+}

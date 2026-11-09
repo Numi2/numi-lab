@@ -221,7 +221,11 @@ material test_pad {
     source.mixedSolver.relativeResidual=1.e-9;
     source.mixedSolver.minimumContactSeparationRatio=1.e-3;
     numi::matter::RigidProxySource plane;plane.shape=NM_RIGID_PLANE;plane.localCenter={0,0,1};
-    if(articulatedPlane){plane.bodyIndex=1u;plane.articulated=true;}
+    if(articulatedPlane){
+        plane.bodyIndex=1u;plane.articulated=true;
+        // The research owner has one position and one velocity coordinate.
+        source.articulatedDofCapacity=1u;source.articulatedQCapacity=1u;
+    }
     if(!freefall)source.rigidProxies.push_back(plane);
     numi::matter::ObjectSource object;object.name="frictionless_fem_pad";
     object.materialIndex=0;object.mixedFEM=false;object.representation=numi::matter::Representation::fem;

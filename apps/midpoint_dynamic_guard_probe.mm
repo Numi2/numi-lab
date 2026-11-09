@@ -15,6 +15,9 @@ int main(int argc,char** argv) {
         articulated.contact.rigidProxies[0].bodyIndex==1u &&
         (articulated.contact.rigidProxies[0].flags & NM_RIGID_ARTICULATED),
         "fixture did not compile a real articulated body-bound proxy");
+    require(articulated.dispatch.rigidGeneralizedCapacity==1u &&
+        articulated.dispatch.rigidQCapacity==1u,
+        "articulated fixture must match the one-axis owner's capacities");
     numi::matter::RuntimeConfiguration config;
     config.metallib=argv[1];config.environmentCount=1;config.captureDiagnostics=true;
     config.adaptiveTransfer=false;config.experimentalFEMPlaneAreaIPC=true;
