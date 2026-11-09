@@ -1,0 +1,43 @@
+{
+  "remote_revision": "095e8e25",
+  "rows": [
+    {
+      "archive_path": "artifacts/crow-conditional-landing-native-20261109/ordinary-parity.tsv.gz",
+      "sha256": "dea8e16c4a9096d9bfb585f5bd9b461243a18e14057e4de260663a71d67ae46e",
+      "raw_bytes": 1834470,
+      "removed_raw_copy": "build/crow-conditional-landing-native-20261109/ordinary-parity.tsv"
+    },
+    {
+      "archive_path": "artifacts/crow-conditional-landing-native-20261109/observer-parity.tsv.gz",
+      "sha256": "dea8e16c4a9096d9bfb585f5bd9b461243a18e14057e4de260663a71d67ae46e",
+      "raw_bytes": 1834470,
+      "removed_raw_copy": "build/crow-conditional-landing-native-20261109/observer-parity.tsv"
+    },
+    {
+      "archive_path": "artifacts/crow-conditional-landing-native-20261109/legacy-legacy.tsv.gz",
+      "sha256": "814cab5bf84a87ee1f60564deb0b8efef84a1764b30f39777c5f4384fa3f2403",
+      "raw_bytes": 485483,
+      "removed_raw_copy": "build/crow-conditional-landing-native-20261109/legacy-legacy.tsv"
+    },
+    {
+      "archive_path": "artifacts/crow-conditional-landing-native-20261109/production-legacy.tsv.gz",
+      "sha256": "814cab5bf84a87ee1f60564deb0b8efef84a1764b30f39777c5f4384fa3f2403",
+      "raw_bytes": 485483,
+      "removed_raw_copy": "build/crow-conditional-landing-native-20261109/production-legacy.tsv"
+    },
+    {
+      "archive_path": "artifacts/crow-unused-layout-confirmation-round4-20261109/reserved-final-i/lane1.tsv.gz",
+      "sha256": "90da65eda1f0ecc5db6546b57d31f4b11c3bc73d809fe83a6eb9da3213743a5d",
+      "raw_bytes": 1829723,
+      "removed_raw_copy": "build/crow-unused-layout-confirmation-round4-20261109/reserved-final-i-lane1.tsv"
+    },
+    {
+      "archive_path": "artifacts/crow-unused-layout-confirmation-round4-20261109/reserved-final-j/lane1.tsv.gz",
+      "sha256": "7a2ae95cba247f7f7415866f1a354454c90fa545e11d9607af60ea1ea377a6cb",
+      "raw_bytes": 1836461,
+      "removed_raw_copy": "build/crow-unused-layout-confirmation-round4-20261109/reserved-final-j-lane1.tsv"
+    }
+  ],
+  "retired_bytes": 8306090,
+  "method": "independent GitHub HTTPS decompression, hash and open-handle check before deletion"
+}
