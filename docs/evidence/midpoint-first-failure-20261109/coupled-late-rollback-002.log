@@ -1,0 +1,6 @@
+[NumiMatter] mixed-field smoother enabled: multiphysics_objects=1 field_boundaries=4; mechanical and vascular solve unchanged
+matter_stateless_material_specialization requested=0 eligible=1 material_count=1
+matter_all_native_float requested=0 eligible=1 enabled=0 materials=1 diagnostic_vm=0
+matter_empty_mpm_krylov_domain=1 capacity_proof=storage_active_rows_and_representation_zero
+matter_canonical_precision_materials=0 source=compiler_exact_energy_proof tangent_policy=unchanged
+matter_physics_probe: baseline: initial state, effort, Millard excitation, or kinematic trajectory has the wrong packed element count

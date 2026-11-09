@@ -1,0 +1,28 @@
+Test project /Users/numi/numi-matter-slider-owner-build-20261109
+    Start  83: numi.midpoint.slider_rigid_baseline
+1/4 Test  #83: numi.midpoint.slider_rigid_baseline ................   Passed    0.03 sec
+    Start 109: matter.integration.articulated_rigid_reaction
+2/4 Test #109: matter.integration.articulated_rigid_reaction ......***Failed  116.31 sec
+[NumiMatter] mixed-field smoother skipped_empty: multiphysics_objects=0 field_boundaries=0; mechanical and vascular solve unchanged
+matter_stateless_material_specialization requested=0 eligible=1 material_count=1
+matter_all_native_float requested=0 eligible=1 enabled=0 materials=1 diagnostic_vm=0
+matter_canonical_precision_materials=0 source=compiler_exact_energy_proof tangent_policy=unchanged
+matter_physics_probe: MetalWorld/Matter coupling failed: free-body candidate ownership requires a scene-only free-motion world, no rigid colliders/CCD/rods, zero damping/speed clipping, and one body-wrench producer dispatch=(abi=0,flags=0,steps=0,substeps=0,nq=0,nv=0) operator=(missing) contact=(missing)
+
+    Start 110: matter.integration.coupled_late_failure_rollback
+3/4 Test #110: matter.integration.coupled_late_failure_rollback ...   Passed    0.27 sec
+    Start 114: matter.runtime.post_commit_contact_guard
+4/4 Test #114: matter.runtime.post_commit_contact_guard ...........   Passed    0.14 sec
+
+75% tests passed, 1 tests failed out of 4
+
+Label Time Summary:
+matter     = 116.73 sec*proc (3 tests)
+metal      = 116.73 sec*proc (3 tests)
+physics    = 116.73 sec*proc (3 tests)
+
+Total Test time (real) = 116.77 sec
+
+The following tests FAILED:
+	109 - matter.integration.articulated_rigid_reaction (Failed) matter metal physics
+Errors while running CTest

@@ -8959,6 +8959,21 @@ kernel void nm_fgmres_import_field_residual(
         kktResidual[totalNodes + global] = fieldResidual[global];
 }
 
+// The exported generalized candidate is continuation state. A rejected
+// coupled control step must restore its control-step-start value per environment.
+kernel void nm_fgmres_rollback_rigid_candidate(
+    constant NMMatterDispatchGPU& dispatch [[buffer(0)]],
+    device const NMMatterStatusGPU* statuses [[buffer(1)]],
+    device float* candidate [[buffer(2)]],
+    device const float* checkpoint [[buffer(3)]],
+    uint global [[thread_position_in_grid]]
+) {
+    const uint stride = dispatch.rigidGeneralizedCapacity;
+    if (stride == 0u || global >= dispatch.environmentCount * stride) return;
+    const uint environment = global / stride;
+    if (!environmentHealthy(statuses, environment)) candidate[global] = checkpoint[global];
+}
+
 kernel void nm_fgmres_clear_rigid_residual(
     constant NMMatterDispatchGPU& dispatch [[buffer(0)]],
     device float4* residual [[buffer(1)]],

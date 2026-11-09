@@ -519,6 +519,28 @@ kernel void mr_metal_world_commit(
     statuses[environment] = status;
 }
 
+// A device-physics owner can reject during postCommit, after the rigid
+// candidate was provisionally published. Restore the control-step checkpoint
+// before observations or a later substep can consume it. This entry point is
+// used only for the scoped articulated-only free-motion graph; scene bodies,
+// rods and task-owned state require their own joint reconciliation.
+kernel void mr_metal_world_reconcile_late_failure(
+    device const MRMetalWorldDispatchGPU& dispatch [[buffer(0)]],
+    device const MRMetalWorldStatusGPU* statuses [[buffer(1)]],
+    device const float* checkpointQ [[buffer(2)]],
+    device const float* checkpointV [[buffer(3)]],
+    device float* stateQ [[buffer(4)]],
+    device float* stateV [[buffer(5)]],
+    uint environment [[thread_position_in_grid]]
+) {
+    if (environment >= dispatch.environmentCount ||
+        statuses[environment].code == MR_STEP_SUCCESS) return;
+    const uint qBase = environment * dispatch.qStride;
+    const uint vBase = environment * dispatch.vStride;
+    for (uint i = 0u; i < dispatch.nq; ++i) stateQ[qBase + i] = checkpointQ[qBase + i];
+    for (uint i = 0u; i < dispatch.nv; ++i) stateV[vBase + i] = checkpointV[vBase + i];
+}
+
 // Captures a stable q+v observation and the final successful substep
 // acceleration. Failed control steps expose zero acceleration and their
 // checkpoint-restored state, plus the exact latched failure record.

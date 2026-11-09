@@ -13,6 +13,7 @@
 #include <cmath>
 #include <cstdio>
 #include <cstdint>
+#include <cstddef>
 #include <cstring>
 #include <filesystem>
 #include <iostream>
@@ -20,6 +21,7 @@
 #include <stdexcept>
 #include <string>
 #include <string_view>
+#include <type_traits>
 
 #ifndef NUMI_MATTER_MATERIAL
 #define NUMI_MATTER_MATERIAL ""
@@ -102,7 +104,8 @@ void encodeRigidWorldFailure(
     id<MTLDevice> device,
     id<MTLCommandBuffer> commandBuffer,
     id<MTLBuffer> destination,
-    const std::uint32_t successfulSubsteps = 0u
+    const std::uint32_t successfulSubsteps = 0u,
+    const std::uint32_t flags = 0u
 ) {
     require(
         device != nil && commandBuffer != nil && destination != nil &&
@@ -113,6 +116,7 @@ void encodeRigidWorldFailure(
     failure.code = MR_STEP_DID_NOT_CONVERGE;
     failure.environment = 0u;
     failure.successfulSubsteps = successfulSubsteps;
+    failure.flags = flags;
     id<MTLBuffer> source = [device
         newBufferWithBytes:&failure
         length:sizeof(failure)
@@ -4179,10 +4183,314 @@ void runHumanSupportLoaded() {
     }
 }
 
+// A real MetalWorld + Matter transaction, with a deliberately injected late
+// owner failure after provisional rigid publication. This probes rollback; it
+// does not claim midpoint or force qualification.
+struct LateFailureFixture {
+  metalrobo::MetalWorldDevicePhysicsProgram inner;
+  bool inject = false;
+  bool injectCrossing = false;
+  std::uint32_t statusFlags = 0u;
+};
+bool encodeLateFailureFixture(
+    void *opaque, const metalrobo::MetalWorldDevicePhysicsPass &pass) {
+  auto &fixture = *static_cast<LateFailureFixture *>(opaque);
+  if (fixture.inject &&
+      pass.phase == metalrobo::MetalWorldDevicePhysicsPhase::postCommit) {
+    id<MTLCommandBuffer> command =
+        (__bridge id<MTLCommandBuffer>)pass.commandBuffer;
+    if (fixture.injectCrossing) {
+      // Inject an invalid projected body pose after the real rigid
+      // publication, to exercise Matter's late geometric rejection.
+      // This is a failure probe, not a prescribed-motion rollout.
+      const float crossedZ = .02385f;
+      id<MTLBuffer> source =
+          [command.device newBufferWithBytes:&crossedZ
+                                      length:sizeof(crossedZ)
+                                     options:MTLResourceStorageModeShared];
+      id<MTLBuffer> bodies = (__bridge id<MTLBuffer>)pass.currentBodies;
+      const NSUInteger offset = sizeof(MRBodyStateGPU) +
+                                offsetof(MRBodyStateGPU, position) +
+                                2u * sizeof(float);
+      if (source == nil || bodies == nil ||
+          bodies.length < offset + sizeof(float))
+        return false;
+      id<MTLBlitCommandEncoder> blit = [command blitCommandEncoder];
+      if (blit == nil)
+        return false;
+      [blit copyFromBuffer:source
+               sourceOffset:0u
+                   toBuffer:bodies
+          destinationOffset:offset
+                       size:sizeof(float)];
+      [blit endEncoding];
+      [command addCompletedHandler:^(id<MTLCommandBuffer> done) {
+        (void)done;
+        (void)source;
+      }];
+    } else {
+      encodeRigidWorldFailure(command.device, command,
+                              (__bridge id<MTLBuffer>)pass.environmentStatuses,
+                              0u, fixture.statusFlags);
+    }
+  }
+  return fixture.inner.encode(fixture.inner.context, pass);
+}
+void abortLateFailureFixture(void *opaque, void *command) {
+  auto &fixture = *static_cast<LateFailureFixture *>(opaque);
+  fixture.inner.abort(fixture.inner.context, command);
+}
+void runCoupledLateRollback(const bool crossing) {
+  @autoreleasepool {
+    const auto world = compileArticulatedFootPadScene(false);
+    numi::matter::Runtime matter;
+    const auto initialized =
+        matter.initialize(world, {.metallib = NUMI_MATTER_METALLIB,
+                                  .environmentCount = 1u,
+                                  .captureEvents = true,
+                                  .captureDiagnostics = true,
+                                  .automaticIdentification = false,
+                                  .adaptiveTransfer = false});
+    require(initialized.encoded && matter.valid(),
+            "Matter init: " + initialized.message);
+    metalrobo::EngineModel model;
+    model.name = "coupled_late_failure_rollback";
+    model.world.abiVersion = MR_ENGINE_ABI_VERSION;
+    model.world.bodyCount = 2u;
+    model.world.articulationCount = 1u;
+    model.world.jointCount = 1u;
+    model.world.nq = 1u;
+    model.world.nv = 1u;
+    model.world.pairCapacity = 1u;
+    model.world.contactCapacity = 1u;
+    model.world.constraintCapacity = 1u;
+    model.world.islandCapacity = 1u;
+    model.world.solverType = MR_SOLVER_REFERENCE_FP64;
+    model.world.frictionConeType = MR_FRICTION_CONE_ELLIPTIC;
+    model.world.gravityAndTimestep = {0, 0, 0, 1.f / 480.f};
+    model.world.solverScales = {1e-8f, 1e-9f, 2, 1e-4f};
+    MRArticulationGPU articulation{};
+    articulation.rootBody = 0u;
+    articulation.rootType = MR_ROOT_FIXED;
+    articulation.firstBody = 0u;
+    articulation.bodyCount = 2u;
+    articulation.firstJoint = 0u;
+    articulation.jointCount = 1u;
+    articulation.nq = 1u;
+    articulation.nv = 1u;
+    model.articulations.push_back(articulation);
+    for (unsigned i = 0; i < 2u; ++i) {
+      MRBodyPropertiesGPU body{};
+      body.articulationIndex = 0u;
+      body.parentBody = i == 0u ? MR_INVALID_INDEX : 0u;
+      body.inboundJoint = i == 0u ? MR_INVALID_INDEX : 0u;
+      body.motionType = MR_MOTION_DYNAMIC;
+      body.massAndInverseMass = {1, 1, 0, 0};
+      body.inertiaRow0 = {.1f, 0, 0, 0};
+      body.inertiaRow1 = {0, .1f, 0, 0};
+      body.inertiaRow2 = {0, 0, .1f, 0};
+      body.inverseInertiaRow0 = {10, 0, 0, 0};
+      body.inverseInertiaRow1 = {0, 10, 0, 0};
+      body.inverseInertiaRow2 = {0, 0, 10, 0};
+      body.dampingAndSpeedLimits = {0, 0, 1e6f, 1e6f};
+      model.bodies.push_back(body);
+    }
+    MRJointDescriptorGPU joint{};
+    joint.parentBody = 0u;
+    joint.childBody = 1u;
+    joint.jointType = MR_JOINT_PRISMATIC;
+    joint.nq = 1u;
+    joint.nv = 1u;
+    joint.axis0 = {0, 0, 1, 0};
+    joint.parentRotation = {0, 0, 0, 1};
+    joint.childRotation = {0, 0, 0, 1};
+    model.joints.push_back(joint);
+    MRDofPropertiesGPU dof{};
+    dof.articulationIndex = 0u;
+    dof.jointIndex = 0u;
+    model.dofs.push_back(dof);
+    model.defaultQ = {.023999f};
+    model.defaultV = {-.004f};
+    metalrobo::CompiledWorld rigid;
+    auto compiled = metalrobo::compileMetalWorld(model, 0u, rigid);
+    require(compiled.succeeded(), "rigid compile: " + compiled.message);
+    std::vector<float> efforts(rigid.nv(), 0.f);
+    const metalrobo::MetalWorldBatch batch{.environmentCount = 1u,
+                                           .controlStepCount = 1u,
+                                           .initialQ = model.defaultQ,
+                                           .initialV = model.defaultV,
+                                           .efforts = efforts};
+    metalrobo::MetalWorldStepConfig config{};
+    config.timestepSeconds = 1.f / 480.f;
+    config.physicsSubsteps = 1u;
+    config.solverMode = metalrobo::MetalWorldSolverMode::freeMotionABA;
+    config.matrixFreeArticulatedContact = false;
+    config.streamedArticulatedContactResponses = false;
+    config.captureContactEvidence = false;
+    LateFailureFixture fixture{
+        numi::matter::makeMetalWorldDevicePhysicsProgram(matter), false,
+        crossing, 0u};
+    require(fixture.inner.valid(), "missing Matter owner");
+    auto wrapped = fixture.inner;
+    wrapped.context = &fixture;
+    wrapped.encode = encodeLateFailureFixture;
+    wrapped.abort = abortLateFailureFixture;
+    wrapped.fingerprint ^= 0x5a9e821bb725cf31ULL;
+    require(wrapped.valid(), "invalid wrapped owner");
+    config.devicePhysicsProgram = wrapped;
+    const auto checkpoint = matter.snapshot();
+    require(checkpoint.available, "missing checkpoint");
+    metalrobo::MetalWorldContext context;
+    metalrobo::MetalWorldResult good;
+    const auto first = context.run(rigid, batch, config, good);
+    require(first.succeeded(), "baseline: " + first.message);
+    const auto accepted = matter.snapshot();
+    require(accepted.available, "missing baseline snapshot");
+    double contactImpulse = 0.0;
+    for (const auto &sample : accepted.contactSamples)
+      if ((sample.identity.w & NM_CONTACT_VALID) != 0u)
+        contactImpulse += sample.impulseAndNormal.w;
+    std::cout << "LATE_BASELINE contact_impulse=" << contactImpulse
+              << " rigid_v=" << good.finalV[0] << std::endl;
+    require(contactImpulse > 0.0 && good.finalV[0] != model.defaultV[0],
+            "fixture did not produce a dynamically reacting contact");
+    require(matter.restore(checkpoint).encoded,
+            "restore checkpoint before rejection");
+    fixture.statusFlags = good.layout.dispatch.flags;
+    fixture.inject = true;
+    metalrobo::MetalWorldResult rejected;
+    const auto failed = context.run(rigid, batch, config, rejected);
+    const auto restored = matter.snapshot();
+    const bool q = rejected.finalQ.size() == model.defaultQ.size() &&
+                   std::memcmp(rejected.finalQ.data(), model.defaultQ.data(),
+                               model.defaultQ.size() * sizeof(float)) == 0;
+    const bool v = rejected.finalV.size() == model.defaultV.size() &&
+                   std::memcmp(rejected.finalV.data(), model.defaultV.data(),
+                               model.defaultV.size() * sizeof(float)) == 0;
+    const auto sameBytes = [](const auto &a, const auto &b) {
+      using Value = typename std::decay_t<decltype(a)>::value_type;
+      return a.size() == b.size() &&
+             (a.empty() ||
+              std::memcmp(a.data(), b.data(), a.size() * sizeof(Value)) == 0);
+    };
+    const bool fem =
+        restored.available && sameBytes(restored.femNodes, checkpoint.femNodes);
+    const bool fields = restored.available &&
+                        sameBytes(restored.femFields, checkpoint.femFields);
+    const bool histories =
+        restored.available &&
+        sameBytes(restored.contactHistories, checkpoint.contactHistories);
+    const bool material =
+        restored.available &&
+        sameBytes(restored.femMaterialState, checkpoint.femMaterialState);
+    const bool schedule = restored.available &&
+                          sameBytes(restored.schedulers, checkpoint.schedulers);
+    const bool failureCategory =
+        failed.firstGPUStatusCode == MR_STEP_DID_NOT_CONVERGE &&
+        restored.statuses.size() == 1u &&
+        restored.statuses[0].code == (crossing ? NM_STATUS_CONTACT_FAILURE
+                                               : NM_STATUS_RIGID_WORLD_FAILURE);
+    const bool candidateScratch =
+        sameBytes(restored.rigidGeneralizedCandidate,
+                  checkpoint.rigidGeneralizedCandidate);
+    std::cout << "LATE_ROLLBACK failure_category=" << failureCategory
+              << " candidate_scratch_exact=" << candidateScratch
+              << " rejected=" << (!failed.succeeded())
+              << " failed_steps=" << failed.failedStepCount << " q_exact=" << q
+              << " v_exact=" << v << " fem_exact=" << fem
+              << " fields_exact=" << fields << " histories_exact=" << histories
+              << " material_exact=" << material
+              << " schedule_exact=" << schedule
+              << " q_size=" << rejected.finalQ.size()
+              << " v_size=" << rejected.finalV.size()
+              << " message=" << failed.message << std::endl;
+    require(failed.failedStepCount == 1u && failureCategory && q && v && fem &&
+                fields && histories && material && schedule && candidateScratch,
+            "late rejection did not restore both owners");
+    fixture.inject = false;
+    metalrobo::MetalWorldResult retried;
+    const auto retry = context.run(rigid, batch, config, retried);
+    const auto retryMatter = matter.snapshot();
+    require(retry.succeeded() && retried.finalQ == good.finalQ &&
+                retried.finalV == good.finalV && retryMatter.available &&
+                retryMatter.femNodes.size() == accepted.femNodes.size() &&
+                sameBytes(retryMatter.femNodes, accepted.femNodes) &&
+                sameBytes(retryMatter.femFields, accepted.femFields) &&
+                sameBytes(retryMatter.contactHistories,
+                          accepted.contactHistories) &&
+                sameBytes(retryMatter.femMaterialState,
+                          accepted.femMaterialState) &&
+                sameBytes(retryMatter.schedulers, accepted.schedulers),
+            "retry did not reproduce accepted coupled state");
+    std::cout << "LATE_ROLLBACK retry_exact=1\n";
+    require(std::any_of(accepted.rigidGeneralizedCandidate.begin(),
+                        accepted.rigidGeneralizedCandidate.end(),
+                        [](float value) { return value != 0.0f; }),
+            "accepted generalized candidate was not loaded");
+    const metalrobo::MetalWorldBatch nextBatch{.environmentCount = 1u,
+                                               .controlStepCount = 1u,
+                                               .initialQ = good.finalQ,
+                                               .initialV = good.finalV,
+                                               .efforts = efforts};
+    metalrobo::MetalWorldResult nextGood;
+    const auto nextRun = context.run(rigid, nextBatch, config, nextGood);
+    require(nextRun.succeeded(), "second baseline: " + nextRun.message);
+    const auto nextAccepted = matter.snapshot();
+    require(matter.restore(accepted).encoded, "restore loaded checkpoint");
+    fixture.inject = true;
+    metalrobo::MetalWorldResult nextRejected;
+    const auto nextFailure =
+        context.run(rigid, nextBatch, config, nextRejected);
+    const auto nextRestored = matter.snapshot();
+    require(nextFailure.failedStepCount == 1u &&
+                nextFailure.firstGPUStatusCode == MR_STEP_DID_NOT_CONVERGE &&
+                nextRejected.finalQ == good.finalQ &&
+                nextRejected.finalV == good.finalV && nextRestored.available &&
+                nextRestored.statuses.size() == 1u &&
+                nextRestored.statuses[0].code ==
+                    (crossing ? NM_STATUS_CONTACT_FAILURE
+                              : NM_STATUS_RIGID_WORLD_FAILURE) &&
+                sameBytes(nextRestored.femNodes, accepted.femNodes) &&
+                sameBytes(nextRestored.femFields, accepted.femFields) &&
+                sameBytes(nextRestored.contactHistories,
+                          accepted.contactHistories) &&
+                sameBytes(nextRestored.femMaterialState,
+                          accepted.femMaterialState) &&
+                sameBytes(nextRestored.schedulers, accepted.schedulers) &&
+                sameBytes(nextRestored.rigidGeneralizedCandidate,
+                          accepted.rigidGeneralizedCandidate),
+            "loaded checkpoint did not survive late failure");
+    fixture.inject = false;
+    metalrobo::MetalWorldResult nextRetried;
+    const auto nextRetry = context.run(rigid, nextBatch, config, nextRetried);
+    const auto nextReplay = matter.snapshot();
+    require(nextRetry.succeeded() && nextRetried.finalQ == nextGood.finalQ &&
+                nextRetried.finalV == nextGood.finalV && nextReplay.available &&
+                sameBytes(nextReplay.femNodes, nextAccepted.femNodes) &&
+                sameBytes(nextReplay.femFields, nextAccepted.femFields) &&
+                sameBytes(nextReplay.contactHistories,
+                          nextAccepted.contactHistories) &&
+                sameBytes(nextReplay.femMaterialState,
+                          nextAccepted.femMaterialState) &&
+                sameBytes(nextReplay.schedulers, nextAccepted.schedulers) &&
+                sameBytes(nextReplay.rigidGeneralizedCandidate,
+                          nextAccepted.rigidGeneralizedCandidate),
+            "loaded checkpoint retry changed coupled state");
+    std::cout
+        << "LATE_ROLLBACK loaded_checkpoint_exact=1 loaded_retry_exact=1\n";
+  }
+}
+
 } // namespace
 
 int main(int argc, const char* argv[]) {
     try {
+        if (argc==2 && std::string_view(argv[1])=="--coupled-late-rollback") {
+            runCoupledLateRollback(false); return 0;
+        }
+        if (argc==2 && std::string_view(argv[1])=="--coupled-late-crossing-rollback") {
+            runCoupledLateRollback(true); return 0;
+        }
         if (argc==2 && std::string_view(argv[1])=="--human-support-loaded") {
             runHumanSupportLoaded(); return 0;
         }

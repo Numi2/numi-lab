@@ -3951,6 +3951,18 @@ if(BUILD_TESTING)
         COMMAND $<TARGET_FILE:metalrobo_matter_physics_probe> --metal-world-coupling
     )
     add_test(
+        NAME matter.integration.coupled_late_failure_rollback
+        COMMAND $<TARGET_FILE:metalrobo_matter_physics_probe> --coupled-late-rollback
+    )
+    set_tests_properties(matter.integration.coupled_late_failure_rollback
+        PROPERTIES LABELS "matter;metal;physics" TIMEOUT 120)
+    add_test(
+        NAME matter.integration.coupled_late_crossing_rollback
+        COMMAND $<TARGET_FILE:metalrobo_matter_physics_probe> --coupled-late-crossing-rollback
+    )
+    set_tests_properties(matter.integration.coupled_late_crossing_rollback
+        PROPERTIES LABELS "matter;metal;physics" TIMEOUT 120)
+    add_test(
         NAME matter.physics.shared_rigid_coupled_contact
         COMMAND $<TARGET_FILE:metalrobo_matter_physics_probe> --articulated-foot-pad-sequence
     )

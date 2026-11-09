@@ -3940,6 +3940,7 @@ struct Runtime::State {
     id<MTLBuffer> coupledGeneralizedOutput = nil;
     id<MTLBuffer> coupledIndirectDispatchArguments = nil;
     id<MTLBuffer> coupledGeneralizedCandidate = nil;
+    id<MTLBuffer> coupledGeneralizedTransactionCheckpoint = nil;
     id<MTLBuffer> coupledGeneralizedPreparedCheckpoint = nil;
     id<MTLBuffer> coupledPointJacobians = nil;
     id<MTLBuffer> coupledInverseStatuses = nil;
@@ -9222,6 +9223,7 @@ RuntimeDiagnostics Runtime::initialize(
             "nm_fgmres_human_global_coarse_add",
             "nm_fgmres_import_field_residual",
             "nm_fgmres_clear_rigid_residual",
+            "nm_fgmres_rollback_rigid_candidate",
             "nm_fgmres_clear_coupled_mass_action",
             "nm_rigid_initialize_feasible_candidate",
             "nm_rigid_apply_candidate_solution",
@@ -13629,6 +13631,10 @@ RuntimeDiagnostics Runtime::initialize(
             valid,
             candidate->residentBytes
         );
+        candidate->coupledGeneralizedTransactionCheckpoint = privateScratch<float>(
+            candidate->device,
+            std::max<std::size_t>(multiplied(world.dispatch.rigidGeneralizedCapacity), 1u),
+            valid, candidate->residentBytes);
         candidate->coupledGeneralizedPreparedCheckpoint =
             privateScratch<float>(
                 candidate->device,
@@ -20323,6 +20329,19 @@ RuntimeDiagnostics Runtime::encodeImpl(
                 size:state.frameReactions.length];
             [reactionCheckpointBlit endEncoding];
         }
+        if (firstPrePass && state.requiresCoupledCandidate) {
+            id<MTLBlitCommandEncoder> rigidCheckpoint = [commandBuffer blitCommandEncoder];
+            if (rigidCheckpoint == nil || state.coupledGeneralizedTransactionCheckpoint == nil ||
+                state.coupledGeneralizedTransactionCheckpoint.length < state.coupledGeneralizedCandidate.length) {
+                if (rigidCheckpoint != nil) [rigidCheckpoint endEncoding];
+                diagnostics.message = "failed to checkpoint coupled generalized candidate";
+                return diagnostics;
+            }
+            [rigidCheckpoint copyFromBuffer:state.coupledGeneralizedCandidate sourceOffset:0u
+                toBuffer:state.coupledGeneralizedTransactionCheckpoint destinationOffset:0u
+                size:state.coupledGeneralizedCandidate.length];
+            [rigidCheckpoint endEncoding];
+        }
         if (firstPrePass && request.enablePreparedState) {
             id<MTLBlitCommandEncoder> checkpointBlit =
                 [commandBuffer blitCommandEncoder];
@@ -23400,6 +23419,15 @@ RuntimeDiagnostics Runtime::encodeImpl(
                 [encoder setBuffer:state.learnedRevisionAccepted offset:0u atIndex:4u];
                 [encoder setBuffer:state.learnedRevisionCheckpoint offset:0u atIndex:5u];
             });
+            if (state.requiresCoupledCandidate) {
+                dispatchThreads("nm_fgmres_rollback_rigid_candidate",
+                    environments * state.dispatch.rigidGeneralizedCapacity, [&] {
+                    setDispatch();
+                    [encoder setBuffer:state.statuses offset:0u atIndex:1u];
+                    [encoder setBuffer:state.coupledGeneralizedCandidate offset:0u atIndex:2u];
+                    [encoder setBuffer:state.coupledGeneralizedTransactionCheckpoint offset:0u atIndex:3u];
+                });
+            }
             dispatchThreads("nm_contact_rollback_histories", pairTotal, [&] {
                 setDispatch();
                 [encoder setBuffer:state.statuses offset:0u atIndex:1u];
@@ -53197,6 +53225,15 @@ RuntimeDiagnostics Runtime::encodeImpl(
             [encoder setBuffer:state.learnedRevisionAccepted offset:0u atIndex:4u];
             [encoder setBuffer:state.learnedRevisionCheckpoint offset:0u atIndex:5u];
         });
+        if (state.requiresCoupledCandidate) {
+            dispatchThreads("nm_fgmres_rollback_rigid_candidate",
+                environments * state.dispatch.rigidGeneralizedCapacity, [&] {
+                setDispatch();
+                [encoder setBuffer:state.statuses offset:0u atIndex:1u];
+                [encoder setBuffer:state.coupledGeneralizedCandidate offset:0u atIndex:2u];
+                [encoder setBuffer:state.coupledGeneralizedTransactionCheckpoint offset:0u atIndex:3u];
+            });
+        }
         dispatchThreads("nm_contact_rollback_histories", pairTotal, [&] {
             setDispatch();
             [encoder setBuffer:state.statuses offset:0u atIndex:1u];

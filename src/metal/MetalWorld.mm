@@ -421,6 +421,7 @@ struct MetalWorldContextState {
     __strong id<MTLComputePipelineState> preparePipeline = nil;
     __strong id<MTLComputePipelineState> driveRefreshPipeline = nil;
     __strong id<MTLComputePipelineState> commitPipeline = nil;
+    __strong id<MTLComputePipelineState> lateFailureReconcilePipeline = nil;
     __strong id<MTLComputePipelineState> capturePipeline = nil;
     __strong id<MTLComputePipelineState> operatorPipeline = nil;
     __strong id<MTLComputePipelineState>
@@ -6161,6 +6162,13 @@ MetalWorldDiagnostics initializeContext(
         );
     }
     error = nil;
+    id<MTLComputePipelineState> lateFailureReconcile = makePipeline(
+        device, library, @"mr_metal_world_reconcile_late_failure", &error);
+    if (lateFailureReconcile == nil) {
+        return reject(std::move(diagnostics), MetalWorldHostStatus::metalPipelineFailure,
+            "failed to create MetalWorld late-failure reconciliation pipeline: " + describeError(error));
+    }
+    error = nil;
     id<MTLComputePipelineState> capture = makePipeline(
         device,
         library,
@@ -6857,6 +6865,7 @@ MetalWorldDiagnostics initializeContext(
     context.preparePipeline = prepare;
     context.driveRefreshPipeline = driveRefresh;
     context.commitPipeline = commit;
+    context.lateFailureReconcilePipeline = lateFailureReconcile;
     context.capturePipeline = capture;
     context.operatorPipeline = operatorPipeline;
     context.parameterizedOperatorPipeline =
@@ -13314,6 +13323,26 @@ bool encodeCommit(
         context.commitPipeline,
         environmentCount
     );
+    [encoder endEncoding];
+    return true;
+}
+
+bool encodeLateFailureReconciliation(
+    detail::MetalWorldContextState& context, id<MTLCommandBuffer> commandBuffer,
+    const std::size_t destinationQ, const std::size_t destinationV,
+    const std::size_t environmentCount
+) {
+    id<MTLComputeCommandEncoder> encoder = [commandBuffer computeCommandEncoder];
+    if (encoder == nil) return false;
+    encoder.label = @"MetalWorld reconcile late coupled failure";
+    [encoder setComputePipelineState:context.lateFailureReconcilePipeline];
+    [encoder setBuffer:context.buffers[kWorldDispatch] offset:0u atIndex:0u];
+    [encoder setBuffer:context.buffers[kEnvironmentStatuses] offset:0u atIndex:1u];
+    [encoder setBuffer:context.buffers[kCheckpointQ] offset:0u atIndex:2u];
+    [encoder setBuffer:context.buffers[kCheckpointV] offset:0u atIndex:3u];
+    [encoder setBuffer:context.buffers[destinationQ] offset:0u atIndex:4u];
+    [encoder setBuffer:context.buffers[destinationV] offset:0u atIndex:5u];
+    dispatchWorldThreads(encoder, context.lateFailureReconcilePipeline, environmentCount);
     [encoder endEncoding];
     return true;
 }
@@ -21330,12 +21359,22 @@ MetalWorldDiagnostics MetalWorldContext::submitImpl(
                                 )
                             )
                         );
+                    // Other graphs have additional scene, rod or task-owned
+                    // state and are intentionally outside this reconciliation.
+                    const bool encodedLateFailureReconciliation =
+                        encodedDevicePhysicsPostCommit &&
+                        (!config.devicePhysicsProgram.valid() || contactMode ||
+                         world.rodCount() != 0u || nativeTask ||
+                         encodeLateFailureReconciliation(*selectedState,
+                             commandBuffer, destinationQ, destinationV,
+                             batch.environmentCount));
                     if (!encodedABA ||
                         !encodedRod ||
                         !encodedPublication ||
                         !encodedRodPublication ||
                         !encodedTaskImpactContact ||
-                        !encodedDevicePhysicsPostCommit) {
+                        !encodedDevicePhysicsPostCommit ||
+                        !encodedLateFailureReconciliation) {
                         return reject(
                             std::move(diagnostics),
                             MetalWorldHostStatus::metalCommandFailure,
