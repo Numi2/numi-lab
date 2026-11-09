@@ -1,0 +1,3 @@
+# Fresh comparison of later-waypoint correction
+
+Compare the integrated mixed route against its waypoint-three-gated correction with the same frozen flight controller, turn specialist, landing policy and native observer. Test 16 full starts per development course using fresh seeds 20270305–20270307, teacher off and no intermediate resets. The new correction was fitted only from successful full-start recoveries, with a distinct held-out lane per batch. Predict a reduction in waypoint-three timeouts with no additional collisions and at least 43/48 supported finishes. Record every first episode, first failure and obstacle clearance at 20 ms accepted control-step endpoints. Reserved final layouts remain unused.
