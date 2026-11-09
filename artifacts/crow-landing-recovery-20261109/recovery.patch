@@ -1,0 +1,22 @@
+--- a/src/metal/LocomotionTask.metal
++++ b/development/landing-recovery.metal
+@@ -4963,7 +4963,7 @@
+         const float4 actorCommand = float4(
+             0.10f+0.30f*actorLatent.x,0.30f*actorLatent.y,
+             0.15f*actorLatent.z,0.975f+0.325f*actorLatent.w);
+-        const bool privilegedCommand = (dispatch.sampling.w != 0u && dispatch.assistance.x < 0.5f);
++        const bool privilegedCommand = dispatch.sampling.w != 0u && (dispatch.assistance.x < 0.5f || state.episode.x >= (2100u + 100u*(environment % 4u)));
+         const float4 oracleCommand = privilegedCommand ? state.nutrition : actorCommand;
+         carrierState.commandAndPhase.x = 0.15f;
+         carrierState.commandAndPhase.y = oracleCommand.y;
+@@ -6639,6 +6639,10 @@
+             float desiredLateral = lateralCommand;
+             float desiredHeight = heightTarget;
+             float errorOffset = 0.0f;
++            if (wp >= 3u && pos.x > target.x + 0.10f) {
++                const float recoveryForward = clamp(0.55f * (target.x - pos.x), -0.20f, 0.25f);
++                errorOffset = 0.25f - recoveryForward;
++            }
+             if (landing) {
+                 const float3 perch = sceneState[sceneBase+course+4u].position.xyz;
+                 const float3 landingTarget = perch + float3(0.0f,0.55f,0.0f);

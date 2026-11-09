@@ -1,0 +1,6 @@
+{
+  "source_sha256": "97c82e0f48d71fac95f54cb8fb7febc1f2ec5ef5204f3b504a59a27603340962",
+  "shader_sha256": "62670c16f494f12e9ee6d3b407c083f87f3aa5b7657372a5fff428ba6d6897d1",
+  "frozen_flight_sha256": "aa2fe10901cb0494d80ae445902303a17ce0e73d030072bab09461d8f3593ebe",
+  "scope": "development only teacher recovery after student prefix, not autonomous evaluation"
+}
