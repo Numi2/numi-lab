@@ -1,0 +1,24 @@
+{
+  "samples": 3001,
+  "qv_first_difference": null,
+  "bilateral_delayed_gate_samples": 171,
+  "first": {
+    "lane": 0,
+    "episode_step": 2136,
+    "left_ramp": 31,
+    "right_ramp": 30,
+    "waypoints": 5.0,
+    "left_support": 1.80020916,
+    "right_support": 2.91021276
+  },
+  "last": {
+    "lane": 0,
+    "episode_step": 2403,
+    "left_ramp": 34,
+    "right_ramp": 34,
+    "waypoints": 5.0,
+    "left_support": 2.63282299,
+    "right_support": 2.60125065
+  },
+  "finding": "The diagnostic gate conditions occur; source order clears prior hip requests in landing phase. Replay parity establishes read-only instrumentation for this run."
+}

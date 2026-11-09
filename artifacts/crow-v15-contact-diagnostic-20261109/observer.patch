@@ -1,0 +1,25 @@
+--- a/MetalWorld.mm
++++ b/MetalWorld-task-state-diagnostic.mm
+@@ -7510,7 +7510,6 @@
+     case kRodEdgesB:
+     case kRodWitnessesA:
+     case kRodWitnessesB:
+-    case kTaskState:
+     case kTaskEvidenceState:
+     case kTaskActionHistory:
+     case kTaskActorHistory:
+@@ -20270,6 +20269,14 @@
+         MetalWorldResult staged{};
+         @autoreleasepool {
+             [pending->commandBuffer waitUntilCompleted];
++            if (std::getenv("CROW_TASK_STATE_DIAGNOSTIC") != nullptr) {
++                id<MTLBuffer> stateBuffer = pending->context->buffers[kTaskState];
++                auto* states = static_cast<const MRTaskStateGPU*>(stateBuffer.contents);
++                if (states != nullptr) for (std::uint32_t lane = 0; lane < pending->diagnostics.layout.dispatch.environmentCount; ++lane) {
++                    const auto& x = states[lane];
++                    std::fprintf(stderr, "CROW_TASK_STATE %u %u %u %.9g %.9g %.9g\n", lane, x.episode.x, x.status.w, x.navigation.z, x.nutrition.x, x.nutrition.y);
++                }
++            }
+             const auto end = std::chrono::steady_clock::now();
+             diagnostics.submissionElapsedMilliseconds =
+                 std::chrono::duration<double, std::milli>(
