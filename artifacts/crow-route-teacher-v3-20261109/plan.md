@@ -1,0 +1,7 @@
+# Clearance-timed waypoint steering
+
+Prediction: preserving the previous waypoint's lateral aim until the body has passed the associated gate/slalom in X will reduce wing impacts caused by premature steering. Repeat the 64 matched development seed-20261124 full-start lanes, collision-enabled training scene, frozen V1 flight law, teacher off, 1600-step horizon and four substeps. Use v2's 0.15 m/s forward, +/-0.30 m/s lateral bound, zero world heading and height clamp(waypoint altitude+0.30,1.15,1.30) m.
+
+For active waypoint 1, blend lateral aim from the gate midpoint to the new waypoint as root X passes gate midpoint X+0.35 through X+0.50 m. For active waypoint 2, blend from waypoint 1 to waypoint 2 as root X passes waypoint 1 X+0.35 through X+0.50 m. For active waypoint 3, blend similarly from waypoint 2 to waypoint 3 using waypoint 2 X. Otherwise use the active waypoint. This is a privileged geometric development teacher, not visual autonomous control; it does not change waypoint gates, obstacle shapes, flight law or collision terminations.
+
+Retain the same screen: at least 52/64 first episodes reach two or more waypoints, at least 32/64 reach all five, zero physical failures and zero failed environment steps. Report all failures, waypoint counts and candidate final-substep collider pairs. Continue flying after the final waypoint: this trial is not supported landing, nor does it measure continuous clearance. Do not use reserved final layouts/seeds.
