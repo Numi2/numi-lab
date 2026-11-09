@@ -26,3 +26,9 @@ maximum near-contact ratio remained 0.005812. Missing or corrupted per-node
 terms are rejected by the analyzer test. See the separately retained
 `slider-fem-work-check-002-execution.json` and its corresponding outputs.
 This repair does not upgrade either one-step test to a complete rollout.
+
+The updated diagnostic also passed forced late rejection and exact retry both
+before contact and after a nonzero contact. The failure category remained 11
+and both the rigid state and Matter physical state were restored. See
+`slider-fem-work-rollback-002-execution.json`. This remains a short retry
+check, not complete-trajectory qualification.
