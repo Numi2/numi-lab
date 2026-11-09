@@ -139,3 +139,7 @@ endif()
 add_executable(numi_midpoint_stage_correction_diagnostic "${NUMI_CONTACT_ROOT}/apps/midpoint_stage_correction_diagnostic.mm")
 target_compile_options(numi_midpoint_stage_correction_diagnostic PRIVATE -fobjc-arc -Wall -Wextra -Wpedantic)
 target_link_libraries(numi_midpoint_stage_correction_diagnostic PRIVATE numi_plane_contact_owner)
+
+add_executable(numi_be_fp64_capture_analysis "${NUMI_CONTACT_ROOT}/apps/be_fp64_capture_analysis.mm")
+target_compile_options(numi_be_fp64_capture_analysis PRIVATE -fobjc-arc -Wall -Wextra -Wpedantic)
+target_link_libraries(numi_be_fp64_capture_analysis PRIVATE numi_plane_contact_owner)
