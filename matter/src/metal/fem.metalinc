@@ -3221,6 +3221,8 @@ kernel void nm_fem_midpoint_compensated_mechanical_residual(
     constant uint& hasExternalForces [[buffer(22)]],
     device float4* constraintReactions [[buffer(23)]],
     device const float4* acceptedVelocityLow [[buffer(24)]],
+    device const float4* stageVelocityLow [[buffer(25)]],
+    constant uint& useStageVelocityLow [[buffer(26)]],
     uint global [[thread_position_in_grid]]
 ) {
     const uint total = dispatch.environmentCount * dispatch.femNodeCount;
@@ -3274,10 +3276,22 @@ kernel void nm_fem_midpoint_compensated_mechanical_residual(
     const float3 externalForce = hasExternalForces != 0u
         ? externalForces[global].xyz
         : float3(0.0f);
-    const float3 unconstrainedRhs = dt * (
+    float3 unconstrainedRhs = dt * (
         internalForce + externalForce +
         node.positionAndMass.w * dispatch.gravityAndTimestep.xyz
     ) - momentumCorrection + node.positionAndMass.w * acceptedVelocityLow[global].xyz;
+    if (useStageVelocityLow!=0u) {
+        const float3 impulse=dt*(internalForce+externalForce+
+            node.positionAndMass.w*dispatch.gravityAndTimestep.xyz);
+        for(uint axis=0u;axis<3u;++axis) {
+            const auto dv=mrCompensatedAdd(
+                {current.velocityAndInverseMass[axis],stageVelocityLow[global][axis]},
+                {-node.velocityAndInverseMass[axis],-acceptedVelocityLow[global][axis]});
+            const auto momentum=mrCompensatedMultiply({node.positionAndMass.w,0.0f},dv);
+            const auto r=mrCompensatedAdd({impulse[axis],0.0f},mrCompensatedNegate(momentum));
+            unconstrainedRhs[axis]=r.high+r.low;
+        }
+    }
     // For a prescribed node, unconstrainedRhs is the impulse that its owning
     // boundary receives from the continuum over this microstep. Publishing
     // force (rather than constraint impulse on the node) gives the caller the
@@ -4916,6 +4930,39 @@ inline NMFEMNodeStateGPU femTrialNodeAtAlpha(
     return next;
 }
 
+// Scoped stage precision: low is private Newton scratch, never an
+// accepted state. Trial and applied updates share the same arithmetic.
+inline NMFEMNodeStateGPU femTrialNodeAtAlphaCompensatedStage(
+    const NMFEMNodeStateGPU acceptedState, NMFEMNodeStateGPU next,
+    const float4 stageLow, const float3 correction, const float alpha,
+    const float dt, thread float4& nextLow) {
+    nextLow=stageLow;
+    if (next.restAndFixed.w>0.5f || !(alpha>0.0f)) return next;
+    for(uint axis=0u;axis<3u;++axis) {
+        const auto v=mrCompensatedAdd(
+            {next.velocityAndInverseMass[axis],stageLow[axis]},
+            mrCompensatedProduct(alpha,correction[axis]));
+        next.velocityAndInverseMass[axis]=v.high;
+        nextLow[axis]=v.low;
+        next.deltaVelocity[axis]=v.high-acceptedState.velocityAndInverseMass[axis];
+        const auto u=mrCompensatedAdd(
+            {acceptedState.referenceDisplacementAndMode[axis],
+             acceptedState.referenceDisplacementLow[axis]},
+            mrCompensatedMultiply({dt,0.0f},v));
+        next.referenceDisplacementAndMode[axis]=u.high;
+        next.referenceDisplacementLow[axis]=u.low;
+        next.positionAndMass[axis]=femReferencePositionProjection(
+            next.restAndFixed[axis],u.high,u.low);
+    }
+    return next;
+}
+
+kernel void nm_fem_midpoint_stage_low_clear(
+    constant uint& count [[buffer(0)]], device float4* low [[buffer(1)]],
+    uint global [[thread_position_in_grid]]) {
+    if(global<count)low[global]=float4(0.0f);
+}
+
 kernel void nm_fem_apply_solution(
     constant NMMatterDispatchGPU& dispatch [[buffer(0)]],
     constant NMMicrostepGPU& microstep [[buffer(1)]],
@@ -4954,6 +5001,62 @@ kernel void nm_fem_apply_solution(
                 const float dt = objectTimestep(dispatch, scheduler);
                 next = femTrialNodeAtAlpha(accepted[global], next,
                     solution[global].xyz, alpha, dt, true);
+            }
+            if ((object.flags & NM_OBJECT_MIXED_FEM) != 0u &&
+                object.materialIndex < dispatch.mixedMaterialCount) {
+                fields[global].primary.x += alpha *
+                    mixedMaterials[object.materialIndex].mechanics.x *
+                    solution[global].w;
+            }
+            // Certification consumes the correction that actually reached
+            // the candidate, not the unscaled Newton proposal.
+            solution[global].xyz *= alpha;
+        }
+    }
+    candidate[global] = next;
+}
+
+kernel void nm_fem_apply_solution_compensated_stage(
+    constant NMMatterDispatchGPU& dispatch [[buffer(0)]],
+    constant NMMicrostepGPU& microstep [[buffer(1)]],
+    device const NMContinuumObjectGPU* objects [[buffer(2)]],
+    device const NMIncidenceRangeGPU* nodeRanges [[buffer(3)]],
+    device const NMSchedulerStateGPU* schedulers [[buffer(4)]],
+    device const NMAdaptiveStateGPU* adaptive [[buffer(5)]],
+    device const NMFEMNodeStateGPU* accepted [[buffer(6)]],
+    device float4* solution [[buffer(7)]],
+    device NMFEMNodeStateGPU* candidate [[buffer(8)]],
+    device const float4* lineSearch [[buffer(9)]],
+    device const NMMixedMaterialGPU* mixedMaterials [[buffer(10)]],
+    device NMFEMFieldStateGPU* fields [[buffer(11)]],
+    device float4* stageLow [[buffer(12)]],
+    uint global [[thread_position_in_grid]]
+) {
+    const uint total = dispatch.environmentCount * dispatch.femNodeCount;
+    if (global >= total || dispatch.femNodeCount == 0u) {
+        return;
+    }
+    const uint environment = global / dispatch.femNodeCount;
+    const uint objectIndex = nodeRanges[global].objectIndex;
+    NMFEMNodeStateGPU next = candidate[global];
+    if (objectIndex != NM_INVALID_INDEX && objectIndex < dispatch.objectCount) {
+        const NMContinuumObjectGPU object = objects[objectIndex];
+        const NMSchedulerStateGPU scheduler =
+            schedulers[environment * dispatch.objectCount + objectIndex];
+        const NMAdaptiveStateGPU adaptiveState =
+            adaptive[environment * dispatch.objectCount + objectIndex];
+        if (object.representation == NM_REPRESENTATION_FEM &&
+            objectDue(object, scheduler, adaptiveState, microstep)) {
+            const float alpha = clamp(
+                lineSearch[environment * dispatch.objectCount + objectIndex].x,
+                0.0f, 1.0f
+            );
+            if (next.restAndFixed.w <= 0.5f && alpha > 0.0f) {
+                const float dt = objectTimestep(dispatch, scheduler);
+                float4 low;
+                next = femTrialNodeAtAlphaCompensatedStage(accepted[global], next,
+                    stageLow[global],solution[global].xyz,alpha,dt,low);
+                stageLow[global]=low;
             }
             if ((object.flags & NM_OBJECT_MIXED_FEM) != 0u &&
                 object.materialIndex < dispatch.mixedMaterialCount) {
@@ -5064,6 +5167,8 @@ kernel void nm_fem_select_backtracking(
     device const float* environmentParameters [[buffer(21)]],
     device const float* acceptedMaterialState [[buffer(22)]],
     constant uint& validateConstitutiveStress [[buffer(23)]],
+    device const float4* stageVelocityLow [[buffer(24)]],
+    constant uint& useStageVelocityLow [[buffer(25)]],
     uint group [[threadgroup_position_in_grid]],
     uint lane [[thread_index_in_threadgroup]]
 ) {
@@ -5173,9 +5278,13 @@ kernel void nm_fem_select_backtracking(
                         isfinite(temperatureCorrection) &&
                         temperatureCorrection == 0.0f;
                 }
-                const NMFEMNodeStateGPU trialNode = femTrialNodeAtAlpha(
-                    accepted[index], candidate[index], nodeCorrection.xyz,
-                    alpha, dt, true);
+                float4 trialVelocityLow;
+                const NMFEMNodeStateGPU trialNode = useStageVelocityLow!=0u
+                    ? femTrialNodeAtAlphaCompensatedStage(accepted[index],
+                        candidate[index],stageVelocityLow[index],nodeCorrection.xyz,
+                        alpha,dt,trialVelocityLow)
+                    : femTrialNodeAtAlpha(accepted[index],candidate[index],
+                        nodeCorrection.xyz,alpha,dt,true);
                 x[slot] = trialNode.positionAndMass.xyz;
                 u[slot] = trialNode.referenceDisplacementAndMode.xyz;
                 uLow[slot] = trialNode.referenceDisplacementLow.xyz;

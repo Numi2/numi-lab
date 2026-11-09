@@ -14074,14 +14074,15 @@ kernel void nm_fem_midpoint_reflect_velocity_low(
     device const NMFEMNodeStateGPU* midpoint [[buffer(2)]],
     device NMFEMNodeStateGPU* endpoint [[buffer(3)]], device const float4* acceptedLow [[buffer(4)]],
     device float4* endpointLow [[buffer(5)]], device uint* result [[buffer(6)]],
+    device const float4* stageLow [[buffer(7)]],
     uint i [[thread_position_in_grid]]) {
     if(i>=count || result[i]!=0u)return;
     const auto a=accepted[i],m=midpoint[i];auto e=endpoint[i];
-    const float4 low=acceptedLow[i];float4 out=float4(0.0f);
-    if(!all(isfinite(low)) || low.w!=0.0f) {result[i]=1u;return;}
+    const float4 low=acceptedLow[i],midLow=stageLow[i];float4 out=float4(0.0f);
+    if(!all(isfinite(low)) || low.w!=0.0f || !all(isfinite(midLow)) || midLow.w!=0.0f) {result[i]=1u;return;}
     for(uint j=0u;j<3u;++j) {
-        const auto doubled=mrCompensatedAdd({m.velocityAndInverseMass[j],0.0f},
-            {m.velocityAndInverseMass[j],0.0f});
+        const auto doubled=mrCompensatedAdd({m.velocityAndInverseMass[j],midLow[j]},
+            {m.velocityAndInverseMass[j],midLow[j]});
         const auto v=mrCompensatedAdd(doubled,{-a.velocityAndInverseMass[j],-low[j]});
         if(!isfinite(v.high) || !isfinite(v.low)){result[i]=1u;return;}
         e.velocityAndInverseMass[j]=v.high;out[j]=v.low;
@@ -14172,6 +14173,7 @@ kernel void nm_fem_midpoint_certify_compensated(
     device NMMatterStatusGPU* statuses [[buffer(7)]],
     device const float4* acceptedLow [[buffer(8)]],
     device const float4* endpointLow [[buffer(9)]],
+    device const float4* stageLow [[buffer(10)]],
     uint tid [[thread_position_in_grid]]) {
     if (tid != 0u || !environmentHealthy(statuses, 0u)) return;
     const float h = dispatch.gravityAndTimestep.w;
@@ -14185,14 +14187,14 @@ kernel void nm_fem_midpoint_certify_compensated(
         }
         const NMFEMNodeStateGPU a=accepted[i], m=midpoint[i], e=endpoint[i];
         if (a.restAndFixed.w == 1.0f) continue;
-        const float4 oldLow=acceptedLow[i],newLow=endpointLow[i];
-        if (!all(isfinite(oldLow)) || !all(isfinite(newLow)) || oldLow.w!=0.0f || newLow.w!=0.0f) {
+        const float4 oldLow=acceptedLow[i],newLow=endpointLow[i],midLow=stageLow[i];
+        if (!all(isfinite(oldLow)) || !all(isfinite(newLow)) || !all(isfinite(midLow)) || oldLow.w!=0.0f || newLow.w!=0.0f || midLow.w!=0.0f) {
             recordFailure(statuses[0],NM_STATUS_NONLINEAR_SOLVER_FAILURE,0u,i,float4(0));return;
         }
         float3 r;
         for(uint axis=0u;axis<3u;++axis) {
             const auto old=MRCompensatedScalar{a.velocityAndInverseMass[axis],oldLow[axis]};
-            const auto mid=MRCompensatedScalar{m.velocityAndInverseMass[axis],0.0f};
+            const auto mid=MRCompensatedScalar{m.velocityAndInverseMass[axis],midLow[axis]};
             const auto end=MRCompensatedScalar{e.velocityAndInverseMass[axis],newLow[axis]};
             const auto dm=mrCompensatedAdd(mid,mrCompensatedNegate(old));
             const auto de=mrCompensatedAdd(end,mrCompensatedNegate(old));
@@ -14210,7 +14212,7 @@ kernel void nm_fem_midpoint_certify_compensated(
             const MRCompensatedScalar dx=mrCompensatedAdd(
                 {e.referenceDisplacementAndMode[axis],e.referenceDisplacementLow[axis]},
                 {-a.referenceDisplacementAndMode[axis],-a.referenceDisplacementLow[axis]});
-            const MRCompensatedScalar hv=mrCompensatedProduct(h,m.velocityAndInverseMass[axis]);
+            const MRCompensatedScalar hv=mrCompensatedMultiply({h,0.0f},{m.velocityAndInverseMass[axis],midLow[axis]});
             const MRCompensatedScalar defect=mrCompensatedAdd(dx,{-hv.high,-hv.low});
             const float error=abs(defect.high)+abs(defect.low);
             const float tolerance=64.0f*kEpsilon*max(abs(hv.high)+abs(hv.low),1.0e-6f);

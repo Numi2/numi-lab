@@ -3310,6 +3310,8 @@ struct Runtime::State {
     bool experimentalFEMPlaneAL = false;
     bool experimentalFEMPlaneMidpoint = false;
     bool midpointVelocityCompensation = false;
+    bool midpointStageVelocityCompensation = false;
+    id<MTLBuffer> femMidpointVelocityStageLow = nil;
     id<MTLBuffer> femMidpointVelocityLowAccepted = nil;
     id<MTLBuffer> femMidpointVelocityLowEndpoint = nil;
     id<MTLBuffer> femMidpointVelocityLowCheckpoint = nil;
@@ -7945,6 +7947,15 @@ RuntimeDiagnostics Runtime::initialize(
             }
             candidate->midpointVelocityCompensation = true;
         }
+        if (const char* value = std::getenv("NM_MATTER_MIDPOINT_STAGE_COMPENSATION")) {
+            if (std::strcmp(value,"1") != 0 || !candidate->midpointVelocityCompensation ||
+                std::getenv("NM_MATTER_MIDPOINT_DIAGNOSTIC_ROOT") != nullptr ||
+                world.dispatch.deformableContactCapacity != 0u) {
+                diagnostics.message = "midpoint stage compensation requires the scoped low-velocity fixture and excludes unsupported capture or deformable contact";
+                return diagnostics;
+            }
+            candidate->midpointStageVelocityCompensation = true;
+        }
         if (const char* polish = std::getenv("NM_MATTER_MIDPOINT_PRECONTACT_POLISH")) {
             if (std::strcmp(polish,"1") != 0 || !configuration.experimentalFEMPlaneMidpoint ||
                 !configuration.captureDiagnostics || world.dispatch.environmentCount != 1u) {
@@ -8474,6 +8485,8 @@ RuntimeDiagnostics Runtime::initialize(
         );
         if (candidate->midpointVelocityCompensation)
             candidate->executionFingerprint = mixFingerprint(candidate->executionFingerprint, 0x4d504c4f57563031ull);
+        if (candidate->midpointStageVelocityCompensation)
+            candidate->executionFingerprint = mixFingerprint(candidate->executionFingerprint, 0x4d50535441474531ull);
         if (candidate->midpointPrecontactPolishEnabled)
             candidate->executionFingerprint = mixFingerprint(candidate->executionFingerprint, 0x4d50504f4c495348ull);
         if (candidate->midpointDiagnosticCaptureEnabled) {
@@ -8809,6 +8822,8 @@ RuntimeDiagnostics Runtime::initialize(
             "nm_fem_checkpoint",
             "nm_fem_prepare_candidate",
             "nm_fem_midpoint_compensated_mechanical_residual",
+            "nm_fem_midpoint_stage_low_clear",
+            "nm_fem_apply_solution_compensated_stage",
             "nm_fem_midpoint_precontact_polish_gate",
             "nm_fem_midpoint_precontact_polish",
             "nm_fem_midpoint_velocity_low_checkpoint",
@@ -12694,6 +12709,8 @@ RuntimeDiagnostics Runtime::initialize(
                 candidate->device, world.fem.nodes.size(), valid, candidate->residentBytes);
             if (candidate->midpointVelocityCompensation) {
                 const std::vector<nm_float4> zeros(world.fem.nodes.size());
+                candidate->femMidpointVelocityStageLow = uploads.repeated(
+                    std::span<const nm_float4>(zeros), environments, valid, candidate->residentBytes);
                 candidate->femMidpointVelocityLowAccepted = uploads.repeated(
                     std::span<const nm_float4>(zeros), environments, valid, candidate->residentBytes);
                 candidate->femMidpointVelocityLowEndpoint = uploads.repeated(
@@ -18994,7 +19011,8 @@ RuntimeDiagnostics Runtime::encodeImpl(
              request.encodeCoupledCandidate != nullptr || request.encodeAcceptedStepExtension != nullptr ||
              state.femNewtonTailICBRequested || state.fgmresOperatorICBRequested ||
              state.fgmresFlatColumnICBRequested || state.fgmresAggregateCycleICBRequested ||
-             state.fgmresPrefixPreconditionerICBRequested || state.fgmresCGS2ICBEnabled)) {
+             state.fgmresPrefixPreconditionerICBRequested || state.fgmresCGS2ICBEnabled ||
+             (state.midpointStageVelocityCompensation && state.femParallelBacktrackingEnabled))) {
             diagnostics.message = "midpoint research transaction rejects unsupported owners, edits, multirate and indirect solver paths";
             return diagnostics;
         }
@@ -25355,6 +25373,11 @@ RuntimeDiagnostics Runtime::encodeImpl(
                     }
                 }
             }
+            if (state.midpointStageVelocityCompensation && femResidualArmijoEnabled) {
+                ownership->preDynamicsOpen = false;
+                diagnostics.message = "midpoint stage compensation excludes unqualified residual Armijo paths";
+                return diagnostics;
+            }
             const char* regionalOnlyCaptureText =
                 std::getenv("NM_FEM_REGIONAL_RAP_CAPTURE_ONLY");
             const bool regionalOnlyCaptureValid =
@@ -27548,9 +27571,12 @@ RuntimeDiagnostics Runtime::encodeImpl(
                                        length:sizeof(hasFEMMechanicalForces) atIndex:22u];
                             [encoder setBuffer:state.femArmijoConstraintReactions
                                          offset:0u atIndex:23u];
-                            if (state.midpointVelocityCompensation)
-                                [encoder setBuffer:state.femMidpointVelocityLowAccepted
-                                             offset:0u atIndex:24u];
+                            if (state.midpointVelocityCompensation) {
+                                [encoder setBuffer:state.femMidpointVelocityLowAccepted offset:0u atIndex:24u];
+                                [encoder setBuffer:state.femMidpointVelocityStageLow offset:0u atIndex:25u];
+                                const std::uint32_t stageLow=state.midpointStageVelocityCompensation ? 1u : 0u;
+                                [encoder setBytes:&stageLow length:sizeof(stageLow) atIndex:26u];
+                            }
                         }, WorkDomain::femNodes);
                         [encoder memoryBarrierWithScope:MTLBarrierScopeBuffers];
                         if (state.femOperatorFDRichCaptureEnabled) {
@@ -29100,8 +29126,11 @@ RuntimeDiagnostics Runtime::encodeImpl(
                     arenas.push_back({"contact_samples",state.contactSamples,state.dispatch.contactPairCount*sizeof(NMContactSampleGPU)});
                     arenas.push_back({"accepted_dual",state.contactHistoriesAccepted,state.dispatch.contactPairCount*sizeof(nm_float4)});
                     arenas.push_back({"candidate_dual",state.contactHistoriesCandidate,state.dispatch.contactPairCount*sizeof(nm_float4)});
-                    if (richCompensated)
+                    if (richCompensated) {
                         arenas.push_back({"accepted_velocity_low",state.femMidpointVelocityLowAccepted,nodes*sizeof(nm_float4)});
+                        if (state.midpointStageVelocityCompensation)
+                            arenas.push_back({"stage_velocity_low",state.femMidpointVelocityStageLow,nodes*sizeof(nm_float4)});
+                    }
                 }
                 NSUInteger bytes = 0u;
                 for (const auto& arena : arenas)
@@ -30886,6 +30915,14 @@ RuntimeDiagnostics Runtime::encodeImpl(
                 [encoder setBuffer:state.femAccepted offset:0u atIndex:6u];
                 [encoder setBuffer:state.femCandidate offset:0u atIndex:7u];
             }, WorkDomain::femNodes);
+            if (state.midpointVelocityCompensation) {
+                const std::uint32_t count=state.dispatch.femNodeCount;
+                dispatchThreads("nm_fem_midpoint_stage_low_clear",count,[&] {
+                    [encoder setBytes:&count length:sizeof(count) atIndex:0u];
+                    [encoder setBuffer:state.femMidpointVelocityStageLow offset:0u atIndex:1u];
+                });
+                [encoder memoryBarrierWithScope:MTLBarrierScopeBuffers];
+            }
             if (hasCohesiveActivationCommands && firstPrePass &&
                 microtick == 0u) {
                 dispatchThreads(
@@ -36337,9 +36374,12 @@ RuntimeDiagnostics Runtime::encodeImpl(
                            length:sizeof(hasFEMMechanicalForces) atIndex:22u];
                 [encoder setBuffer:state.femConstraintReactions
                             offset:0u atIndex:23u];
-                            if (state.midpointVelocityCompensation)
-                                [encoder setBuffer:state.femMidpointVelocityLowAccepted
-                                             offset:0u atIndex:24u];
+                            if (state.midpointVelocityCompensation) {
+                                [encoder setBuffer:state.femMidpointVelocityLowAccepted offset:0u atIndex:24u];
+                                [encoder setBuffer:state.femMidpointVelocityStageLow offset:0u atIndex:25u];
+                                const std::uint32_t stageLow=state.midpointStageVelocityCompensation ? 1u : 0u;
+                                [encoder setBytes:&stageLow length:sizeof(stageLow) atIndex:26u];
+                            }
                 }, WorkDomain::newtonAssemblyFemNodes);
             }
             // The indirect range can suppress only the FEM mechanical assembly
@@ -49534,9 +49574,12 @@ RuntimeDiagnostics Runtime::encodeImpl(
                         [encoder setBuffer:femMechanicalForces offset:0u atIndex:21u];
                         [encoder setBytes:&hasFEMMechanicalForces length:sizeof(hasFEMMechanicalForces) atIndex:22u];
                         [encoder setBuffer:state.femArmijoConstraintReactions offset:0u atIndex:23u];
-                            if (state.midpointVelocityCompensation)
-                                [encoder setBuffer:state.femMidpointVelocityLowAccepted
-                                             offset:0u atIndex:24u];
+                            if (state.midpointVelocityCompensation) {
+                                [encoder setBuffer:state.femMidpointVelocityLowAccepted offset:0u atIndex:24u];
+                                [encoder setBuffer:state.femMidpointVelocityStageLow offset:0u atIndex:25u];
+                                const std::uint32_t stageLow=state.midpointStageVelocityCompensation ? 1u : 0u;
+                                [encoder setBytes:&stageLow length:sizeof(stageLow) atIndex:26u];
+                            }
                     }, WorkDomain::armijoTrialFemNodes);
                     if (femCohesiveResidualArmijoEnabled) {
                         [encoder memoryBarrierWithScope:MTLBarrierScopeBuffers];
@@ -49840,6 +49883,9 @@ RuntimeDiagnostics Runtime::encodeImpl(
                     [encoder setBytes:&validateConstitutiveStress
                                length:sizeof(validateConstitutiveStress)
                               atIndex:23u];
+                    [encoder setBuffer:(state.midpointStageVelocityCompensation ? state.femMidpointVelocityStageLow : state.dummy) offset:0u atIndex:24u];
+                    const std::uint32_t useStageLow=state.midpointStageVelocityCompensation ? 1u : 0u;
+                    [encoder setBytes:&useStageLow length:sizeof(useStageLow) atIndex:25u];
                 });
             }
             // Diagnostic only: one object and one Newton iterate. Copy the
@@ -50955,9 +51001,12 @@ RuntimeDiagnostics Runtime::encodeImpl(
                         [encoder setBuffer:femMechanicalForces offset:0u atIndex:21u];
                         [encoder setBytes:&hasFEMMechanicalForces length:sizeof(hasFEMMechanicalForces) atIndex:22u];
                         [encoder setBuffer:state.femArmijoConstraintReactions offset:0u atIndex:23u];
-                            if (state.midpointVelocityCompensation)
-                                [encoder setBuffer:state.femMidpointVelocityLowAccepted
-                                             offset:0u atIndex:24u];
+                            if (state.midpointVelocityCompensation) {
+                                [encoder setBuffer:state.femMidpointVelocityLowAccepted offset:0u atIndex:24u];
+                                [encoder setBuffer:state.femMidpointVelocityStageLow offset:0u atIndex:25u];
+                                const std::uint32_t stageLow=state.midpointStageVelocityCompensation ? 1u : 0u;
+                                [encoder setBytes:&stageLow length:sizeof(stageLow) atIndex:26u];
+                            }
                     }, WorkDomain::femNodes);
                     if (!captureTrialResidualStage(
                             "residual_after_bulk_mechanical",
@@ -51587,7 +51636,7 @@ RuntimeDiagnostics Runtime::encodeImpl(
                 [encoder setBuffer:state.coupledGeneralizedCandidate
                              offset:0u atIndex:3u];
             });
-            dispatchThreads("nm_fem_apply_solution", femNodeTotal, [&] {
+            dispatchThreads(state.midpointStageVelocityCompensation ? "nm_fem_apply_solution_compensated_stage" : "nm_fem_apply_solution", femNodeTotal, [&] {
                 setDispatch();
                 [encoder setBytes:&micro length:sizeof(micro) atIndex:1u];
                 [encoder setBuffer:state.objects offset:0u atIndex:2u];
@@ -51600,6 +51649,8 @@ RuntimeDiagnostics Runtime::encodeImpl(
                 [encoder setBuffer:state.femLineSearch offset:0u atIndex:9u];
                 [encoder setBuffer:state.mixedMaterials offset:0u atIndex:10u];
                 [encoder setBuffer:state.femFieldsCandidate offset:0u atIndex:11u];
+                if (state.midpointStageVelocityCompensation)
+                    [encoder setBuffer:state.femMidpointVelocityStageLow offset:0u atIndex:12u];
             }, WorkDomain::newtonAssemblyFemNodes);
             if (captureAcceptedSubspaceHistory) {
                 [encoder memoryBarrierWithScope:MTLBarrierScopeBuffers];
@@ -51996,9 +52047,12 @@ RuntimeDiagnostics Runtime::encodeImpl(
                            length:sizeof(hasFEMMechanicalForces) atIndex:22u];
                 [encoder setBuffer:state.femConstraintReactions
                             offset:0u atIndex:23u];
-                            if (state.midpointVelocityCompensation)
-                                [encoder setBuffer:state.femMidpointVelocityLowAccepted
-                                             offset:0u atIndex:24u];
+                            if (state.midpointVelocityCompensation) {
+                                [encoder setBuffer:state.femMidpointVelocityLowAccepted offset:0u atIndex:24u];
+                                [encoder setBuffer:state.femMidpointVelocityStageLow offset:0u atIndex:25u];
+                                const std::uint32_t stageLow=state.midpointStageVelocityCompensation ? 1u : 0u;
+                                [encoder setBytes:&stageLow length:sizeof(stageLow) atIndex:26u];
+                            }
             }, WorkDomain::femNodes);
             encodeAddCohesiveResidual(micro);
             if (!encodeCoupledPrimalContact(
@@ -52087,9 +52141,12 @@ RuntimeDiagnostics Runtime::encodeImpl(
                                length:sizeof(hasFEMMechanicalForces) atIndex:22u];
                     [encoder setBuffer:state.femConstraintReactions
                                 offset:0u atIndex:23u];
-                            if (state.midpointVelocityCompensation)
-                                [encoder setBuffer:state.femMidpointVelocityLowAccepted
-                                             offset:0u atIndex:24u];
+                            if (state.midpointVelocityCompensation) {
+                                [encoder setBuffer:state.femMidpointVelocityLowAccepted offset:0u atIndex:24u];
+                                [encoder setBuffer:state.femMidpointVelocityStageLow offset:0u atIndex:25u];
+                                const std::uint32_t stageLow=state.midpointStageVelocityCompensation ? 1u : 0u;
+                                [encoder setBytes:&stageLow length:sizeof(stageLow) atIndex:26u];
+                            }
                 }, WorkDomain::femNodes);
                 encodeAddCohesiveResidual(micro);
                 if (!encodeCoupledPrimalContact(
@@ -52380,6 +52437,7 @@ RuntimeDiagnostics Runtime::encodeImpl(
                         [encoder setBuffer:state.femMidpointVelocityLowAccepted offset:0u atIndex:4u];
                         [encoder setBuffer:state.femMidpointVelocityLowEndpoint offset:0u atIndex:5u];
                         [encoder setBuffer:state.femMidpointResults offset:0u atIndex:6u];
+                        [encoder setBuffer:state.femMidpointVelocityStageLow offset:0u atIndex:7u];
                     });
                     [encoder memoryBarrierWithScope:MTLBarrierScopeBuffers];
                 }
@@ -52395,6 +52453,7 @@ RuntimeDiagnostics Runtime::encodeImpl(
                     if (state.midpointVelocityCompensation) {
                         [encoder setBuffer:state.femMidpointVelocityLowAccepted offset:0u atIndex:8u];
                         [encoder setBuffer:state.femMidpointVelocityLowEndpoint offset:0u atIndex:9u];
+                        [encoder setBuffer:state.femMidpointVelocityStageLow offset:0u atIndex:10u];
                     }
                 });
                 [encoder memoryBarrierWithScope:MTLBarrierScopeBuffers];
