@@ -36,6 +36,14 @@ certificate. This estimate uses the previous accepted state and gravity; the
 certificate uses its actual computed stage increment. See
 `slider-position-resolution-001.json`.
 
+For the 95 µm, 7.8125 µs attempt, the retained step-748 checkpoint also
+reproduces its original status and certificate. This time the momentum error
+is 1.8395066719856246e-11 N s against a 1.756347671466596e-11 N s limit;
+position error 1.0087755283882949e-12 m is below its 7.62939451198763e-12 m
+limit. The previous accepted step had nonzero contact. This is a distinct
+late rigid-certificate failure, not proof that every smaller-step or other
+fixture failure has the same cause.
+
 The separate preregistered per-step contact impulse-balance gate fails in the
 accepted prefixes even though the independently captured contact body wrench
 and FEM contact impulse balance. `slider-float-resolution-001.json` uses the
@@ -54,6 +62,11 @@ binary and shader hashes. The short `slider-checkpoint-save-001` and
 `slider-checkpoint-restore-001` outputs match exactly.
 
 Midpoint clearance and contact potential/work are recorded per accepted step.
+For example, the 95 µm, 15.625 µs accepted prefix has +3.82818e-7 J of
+combined contact work and -3.83555e-7 J of potential change, a combined
+-7.37e-10 J. This is a partial-trajectory accounting diagnostic, not an
+energy acceptance test or a claim about a completed rollout. Positive contact
+work alone is not an energy-creation verdict when potential is released.
 No full force, peak, cumulative-impulse, work, spatial accuracy or performance
 qualification follows from these incomplete trajectories. A future repair must
 represent and restore the rigid endpoint and contact geometry accurately

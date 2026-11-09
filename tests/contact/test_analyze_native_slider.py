@@ -26,7 +26,7 @@ with tempfile.NamedTemporaryFile(mode='w',suffix='.json') as f:
   result=subprocess.run([sys.executable,str(root/'tests/contact/analyze_native_slider.py'),f.name],capture_output=True,text=True)
   return result.returncode,json.loads(result.stdout) if result.stdout else {'error':result.stderr}
  code,out=run();assert code==0,(code,out)
- for field in ('owner_momentum_impulse','support_moment_impulse_x','independent_joint_residual_Ns','midpoint_gap'):
+ for field in ('owner_momentum_impulse','support_moment_impulse_x','independent_joint_residual_Ns','midpoint_gap','owner_wrench_work'):
   old=d['steps'][100][field];d['steps'][100][field]=0. if field=='midpoint_gap' else old+1e-5
   code,out=run();assert code!=0,(field,out);d['steps'][100][field]=old
- print('baseline synthetic analysis passed; impulse, torque, and residual perturbations rejected')
+ print('baseline synthetic analysis passed; impulse, torque, residual, midpoint clearance, and work perturbations rejected')
