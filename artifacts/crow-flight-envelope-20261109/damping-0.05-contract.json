@@ -1,0 +1,12 @@
+{
+  "diagnostic_damping": "0.05",
+  "original_policy_rejected": true,
+  "actor_weights_identical": true,
+  "world": 15969109056188379527,
+  "task": 10904215059687676510,
+  "observation": 13092613440827403337,
+  "action": 7433828914082738184,
+  "old_policy_sha256": "07971fcbc960e3461421e2685325eb967786462ab97d422a55c916fd58efa2b2",
+  "rebound_policy_sha256": "be1aeb47dbecdebe7c230e393a2b321f522e9ec0d24cdfa4c04c2309544563e1",
+  "rejection": "task_rollout failed: PolicyPack compile failed [incompatible_contract]: contract: policy=(world=2538803335211058858,task=7798272565569124351,observation=12347588443474666224,action=13017575468937512255) task=(world=15969109056188379527,task=10904215059687676510,observation=13092613440827403337,action=7433828914082738184)\n"
+}

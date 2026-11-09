@@ -1,0 +1,1610 @@
+{
+  "yaw-negative": {
+    "complete": true,
+    "physical_failure_count": 0,
+    "failed_environment_steps": 0,
+    "median": {
+      "mean_yaw_rate_rad_s": -0.009544586822762508,
+      "forward_speed_at_30s_m_s": 0.7942260629822107,
+      "root_height_at_30s_m": 0.7540058494999999
+    },
+    "lanes": [
+      {
+        "lane": 0,
+        "samples": 6,
+        "physical_failure": false,
+        "mean_yaw_rate_rad_s": -0.009101048739080167,
+        "forward_speed_at_30s_m_s": 0.7971427501267689,
+        "root_height_at_30s_m": 0.753957927
+      },
+      {
+        "lane": 1,
+        "samples": 6,
+        "physical_failure": false,
+        "mean_yaw_rate_rad_s": -0.009542189204825862,
+        "forward_speed_at_30s_m_s": 0.7933437171540524,
+        "root_height_at_30s_m": 0.754234731
+      },
+      {
+        "lane": 2,
+        "samples": 6,
+        "physical_failure": false,
+        "mean_yaw_rate_rad_s": -0.00933380326684046,
+        "forward_speed_at_30s_m_s": 0.7836568286572455,
+        "root_height_at_30s_m": 0.75461179
+      },
+      {
+        "lane": 3,
+        "samples": 6,
+        "physical_failure": false,
+        "mean_yaw_rate_rad_s": -0.009546984440699156,
+        "forward_speed_at_30s_m_s": 0.7938683992930069,
+        "root_height_at_30s_m": 0.754088461
+      },
+      {
+        "lane": 4,
+        "samples": 6,
+        "physical_failure": false,
+        "mean_yaw_rate_rad_s": -0.010194913797622603,
+        "forward_speed_at_30s_m_s": 0.792077095383436,
+        "root_height_at_30s_m": 0.754218459
+      },
+      {
+        "lane": 5,
+        "samples": 6,
+        "physical_failure": false,
+        "mean_yaw_rate_rad_s": -0.009175564264417749,
+        "forward_speed_at_30s_m_s": 0.7904723102843269,
+        "root_height_at_30s_m": 0.754429758
+      },
+      {
+        "lane": 6,
+        "samples": 6,
+        "physical_failure": false,
+        "mean_yaw_rate_rad_s": -0.009443846829237924,
+        "forward_speed_at_30s_m_s": 0.7900980474355569,
+        "root_height_at_30s_m": 0.754761517
+      },
+      {
+        "lane": 7,
+        "samples": 6,
+        "physical_failure": false,
+        "mean_yaw_rate_rad_s": -0.009594606400981335,
+        "forward_speed_at_30s_m_s": 0.7948668841802139,
+        "root_height_at_30s_m": 0.753968894
+      },
+      {
+        "lane": 8,
+        "samples": 6,
+        "physical_failure": false,
+        "mean_yaw_rate_rad_s": -0.009049589132479625,
+        "forward_speed_at_30s_m_s": 0.7893037302030206,
+        "root_height_at_30s_m": 0.754854262
+      },
+      {
+        "lane": 9,
+        "samples": 6,
+        "physical_failure": false,
+        "mean_yaw_rate_rad_s": -0.009553255878907974,
+        "forward_speed_at_30s_m_s": 0.7939054011164423,
+        "root_height_at_30s_m": 0.754497588
+      },
+      {
+        "lane": 10,
+        "samples": 6,
+        "physical_failure": false,
+        "mean_yaw_rate_rad_s": -0.009650019506515273,
+        "forward_speed_at_30s_m_s": 0.7893174679277888,
+        "root_height_at_30s_m": 0.754400611
+      },
+      {
+        "lane": 11,
+        "samples": 6,
+        "physical_failure": false,
+        "mean_yaw_rate_rad_s": -0.009537006513962974,
+        "forward_speed_at_30s_m_s": 0.7975801974563164,
+        "root_height_at_30s_m": 0.753485441
+      },
+      {
+        "lane": 12,
+        "samples": 6,
+        "physical_failure": false,
+        "mean_yaw_rate_rad_s": -0.009557723756465474,
+        "forward_speed_at_30s_m_s": 0.790622466786992,
+        "root_height_at_30s_m": 0.754007578
+      },
+      {
+        "lane": 13,
+        "samples": 6,
+        "physical_failure": false,
+        "mean_yaw_rate_rad_s": -0.01003654370316542,
+        "forward_speed_at_30s_m_s": 0.803316208410611,
+        "root_height_at_30s_m": 0.752773821
+      },
+      {
+        "lane": 14,
+        "samples": 6,
+        "physical_failure": false,
+        "mean_yaw_rate_rad_s": -0.00915555248404952,
+        "forward_speed_at_30s_m_s": 0.7932021298482007,
+        "root_height_at_30s_m": 0.753622234
+      },
+      {
+        "lane": 15,
+        "samples": 6,
+        "physical_failure": false,
+        "mean_yaw_rate_rad_s": -0.009553290901638173,
+        "forward_speed_at_30s_m_s": 0.7865261501267246,
+        "root_height_at_30s_m": 0.754573822
+      },
+      {
+        "lane": 16,
+        "samples": 6,
+        "physical_failure": false,
+        "mean_yaw_rate_rad_s": -0.009772490077314022,
+        "forward_speed_at_30s_m_s": 0.7869209956209279,
+        "root_height_at_30s_m": 0.754872382
+      },
+      {
+        "lane": 17,
+        "samples": 6,
+        "physical_failure": false,
+        "mean_yaw_rate_rad_s": -0.009738578873342991,
+        "forward_speed_at_30s_m_s": 0.7886608918057597,
+        "root_height_at_30s_m": 0.754298091
+      },
+      {
+        "lane": 18,
+        "samples": 6,
+        "physical_failure": false,
+        "mean_yaw_rate_rad_s": -0.008950280439716428,
+        "forward_speed_at_30s_m_s": 0.7993088713628836,
+        "root_height_at_30s_m": 0.753092647
+      },
+      {
+        "lane": 19,
+        "samples": 6,
+        "physical_failure": false,
+        "mean_yaw_rate_rad_s": -0.009534082674977327,
+        "forward_speed_at_30s_m_s": 0.7948837964867872,
+        "root_height_at_30s_m": 0.753895462
+      },
+      {
+        "lane": 20,
+        "samples": 6,
+        "physical_failure": false,
+        "mean_yaw_rate_rad_s": -0.009774470694509855,
+        "forward_speed_at_30s_m_s": 0.794546724847979,
+        "root_height_at_30s_m": 0.754465401
+      },
+      {
+        "lane": 21,
+        "samples": 6,
+        "physical_failure": false,
+        "mean_yaw_rate_rad_s": -0.009417198007768671,
+        "forward_speed_at_30s_m_s": 0.7867558376120612,
+        "root_height_at_30s_m": 0.7549932
+      },
+      {
+        "lane": 22,
+        "samples": 6,
+        "physical_failure": false,
+        "mean_yaw_rate_rad_s": -0.009712455362946024,
+        "forward_speed_at_30s_m_s": 0.7951282242187049,
+        "root_height_at_30s_m": 0.753546834
+      },
+      {
+        "lane": 23,
+        "samples": 6,
+        "physical_failure": false,
+        "mean_yaw_rate_rad_s": -0.010010620069403262,
+        "forward_speed_at_30s_m_s": 0.7961423108615385,
+        "root_height_at_30s_m": 0.753415048
+      },
+      {
+        "lane": 24,
+        "samples": 6,
+        "physical_failure": false,
+        "mean_yaw_rate_rad_s": -0.009225499459676783,
+        "forward_speed_at_30s_m_s": 0.7947792832067234,
+        "root_height_at_30s_m": 0.754004121
+      },
+      {
+        "lane": 25,
+        "samples": 6,
+        "physical_failure": false,
+        "mean_yaw_rate_rad_s": -0.009439001954155304,
+        "forward_speed_at_30s_m_s": 0.7969816456349266,
+        "root_height_at_30s_m": 0.75385505
+      },
+      {
+        "lane": 26,
+        "samples": 6,
+        "physical_failure": false,
+        "mean_yaw_rate_rad_s": -0.008942372511120575,
+        "forward_speed_at_30s_m_s": 0.7952144285250307,
+        "root_height_at_30s_m": 0.753821671
+      },
+      {
+        "lane": 27,
+        "samples": 6,
+        "physical_failure": false,
+        "mean_yaw_rate_rad_s": -0.009653665269881578,
+        "forward_speed_at_30s_m_s": 0.7976533149403982,
+        "root_height_at_30s_m": 0.752795458
+      },
+      {
+        "lane": 28,
+        "samples": 6,
+        "physical_failure": false,
+        "mean_yaw_rate_rad_s": -0.008785912153126125,
+        "forward_speed_at_30s_m_s": 0.794569964855279,
+        "root_height_at_30s_m": 0.753732145
+      },
+      {
+        "lane": 29,
+        "samples": 6,
+        "physical_failure": false,
+        "mean_yaw_rate_rad_s": -0.00939101950234718,
+        "forward_speed_at_30s_m_s": 0.7947479420239665,
+        "root_height_at_30s_m": 0.753955305
+      },
+      {
+        "lane": 30,
+        "samples": 6,
+        "physical_failure": false,
+        "mean_yaw_rate_rad_s": -0.009885429530250423,
+        "forward_speed_at_30s_m_s": 0.7889632969966024,
+        "root_height_at_30s_m": 0.754249692
+      },
+      {
+        "lane": 31,
+        "samples": 6,
+        "physical_failure": false,
+        "mean_yaw_rate_rad_s": -0.009566265252740656,
+        "forward_speed_at_30s_m_s": 0.8016427988234348,
+        "root_height_at_30s_m": 0.752555907
+      }
+    ]
+  },
+  "yaw-zero": {
+    "complete": true,
+    "physical_failure_count": 0,
+    "failed_environment_steps": 0,
+    "median": {
+      "mean_yaw_rate_rad_s": 0.01611231560970189,
+      "forward_speed_at_30s_m_s": 0.7941552275976611,
+      "root_height_at_30s_m": 0.7539043725
+    },
+    "lanes": [
+      {
+        "lane": 0,
+        "samples": 6,
+        "physical_failure": false,
+        "mean_yaw_rate_rad_s": 0.01629910279369868,
+        "forward_speed_at_30s_m_s": 0.8006358805622699,
+        "root_height_at_30s_m": 0.753419399
+      },
+      {
+        "lane": 1,
+        "samples": 6,
+        "physical_failure": false,
+        "mean_yaw_rate_rad_s": 0.01564549938769382,
+        "forward_speed_at_30s_m_s": 0.7954935163254685,
+        "root_height_at_30s_m": 0.753811836
+      },
+      {
+        "lane": 2,
+        "samples": 6,
+        "physical_failure": false,
+        "mean_yaw_rate_rad_s": 0.016023791705734477,
+        "forward_speed_at_30s_m_s": 0.7838112770010025,
+        "root_height_at_30s_m": 0.75449872
+      },
+      {
+        "lane": 3,
+        "samples": 6,
+        "physical_failure": false,
+        "mean_yaw_rate_rad_s": 0.016150712607636,
+        "forward_speed_at_30s_m_s": 0.7955992313848148,
+        "root_height_at_30s_m": 0.753920317
+      },
+      {
+        "lane": 4,
+        "samples": 6,
+        "physical_failure": false,
+        "mean_yaw_rate_rad_s": 0.015249054998350211,
+        "forward_speed_at_30s_m_s": 0.7910518045511145,
+        "root_height_at_30s_m": 0.754455388
+      },
+      {
+        "lane": 5,
+        "samples": 6,
+        "physical_failure": false,
+        "mean_yaw_rate_rad_s": 0.01606508453206292,
+        "forward_speed_at_30s_m_s": 0.7940204888762149,
+        "root_height_at_30s_m": 0.753947794
+      },
+      {
+        "lane": 6,
+        "samples": 6,
+        "physical_failure": false,
+        "mean_yaw_rate_rad_s": 0.016127458734660958,
+        "forward_speed_at_30s_m_s": 0.7952982704856619,
+        "root_height_at_30s_m": 0.754017055
+      },
+      {
+        "lane": 7,
+        "samples": 6,
+        "physical_failure": false,
+        "mean_yaw_rate_rad_s": 0.015976158759182398,
+        "forward_speed_at_30s_m_s": 0.7960891529785799,
+        "root_height_at_30s_m": 0.753832281
+      },
+      {
+        "lane": 8,
+        "samples": 6,
+        "physical_failure": false,
+        "mean_yaw_rate_rad_s": 0.01688892393663919,
+        "forward_speed_at_30s_m_s": 0.7876675644612282,
+        "root_height_at_30s_m": 0.755192816
+      },
+      {
+        "lane": 9,
+        "samples": 6,
+        "physical_failure": false,
+        "mean_yaw_rate_rad_s": 0.015915534251637758,
+        "forward_speed_at_30s_m_s": 0.7964691089911067,
+        "root_height_at_30s_m": 0.753948331
+      },
+      {
+        "lane": 10,
+        "samples": 6,
+        "physical_failure": false,
+        "mean_yaw_rate_rad_s": 0.016180146572536268,
+        "forward_speed_at_30s_m_s": 0.7907756719607326,
+        "root_height_at_30s_m": 0.754201055
+      },
+      {
+        "lane": 11,
+        "samples": 6,
+        "physical_failure": false,
+        "mean_yaw_rate_rad_s": 0.01596142911481411,
+        "forward_speed_at_30s_m_s": 0.7984130828394334,
+        "root_height_at_30s_m": 0.753376544
+      },
+      {
+        "lane": 12,
+        "samples": 6,
+        "physical_failure": false,
+        "mean_yaw_rate_rad_s": 0.01586169568890467,
+        "forward_speed_at_30s_m_s": 0.7888636419665873,
+        "root_height_at_30s_m": 0.754316568
+      },
+      {
+        "lane": 13,
+        "samples": 6,
+        "physical_failure": false,
+        "mean_yaw_rate_rad_s": 0.01551186668008358,
+        "forward_speed_at_30s_m_s": 0.8012005176581734,
+        "root_height_at_30s_m": 0.752998829
+      },
+      {
+        "lane": 14,
+        "samples": 6,
+        "physical_failure": false,
+        "mean_yaw_rate_rad_s": 0.01613052653312174,
+        "forward_speed_at_30s_m_s": 0.7924624578796982,
+        "root_height_at_30s_m": 0.753462493
+      },
+      {
+        "lane": 15,
+        "samples": 6,
+        "physical_failure": false,
+        "mean_yaw_rate_rad_s": 0.015569734740324354,
+        "forward_speed_at_30s_m_s": 0.7882440881006003,
+        "root_height_at_30s_m": 0.754495561
+      },
+      {
+        "lane": 16,
+        "samples": 6,
+        "physical_failure": false,
+        "mean_yaw_rate_rad_s": 0.016343990655224593,
+        "forward_speed_at_30s_m_s": 0.7878407142115466,
+        "root_height_at_30s_m": 0.75486958
+      },
+      {
+        "lane": 17,
+        "samples": 6,
+        "physical_failure": false,
+        "mean_yaw_rate_rad_s": 0.01623029582849924,
+        "forward_speed_at_30s_m_s": 0.7890126569174511,
+        "root_height_at_30s_m": 0.754423738
+      },
+      {
+        "lane": 18,
+        "samples": 6,
+        "physical_failure": false,
+        "mean_yaw_rate_rad_s": 0.016521961884978276,
+        "forward_speed_at_30s_m_s": 0.7986054617529807,
+        "root_height_at_30s_m": 0.753053486
+      },
+      {
+        "lane": 19,
+        "samples": 6,
+        "physical_failure": false,
+        "mean_yaw_rate_rad_s": 0.016097172484742826,
+        "forward_speed_at_30s_m_s": 0.794086652680791,
+        "root_height_at_30s_m": 0.753971815
+      },
+      {
+        "lane": 20,
+        "samples": 6,
+        "physical_failure": false,
+        "mean_yaw_rate_rad_s": 0.016324654397304864,
+        "forward_speed_at_30s_m_s": 0.7873662757572415,
+        "root_height_at_30s_m": 0.755305648
+      },
+      {
+        "lane": 21,
+        "samples": 6,
+        "physical_failure": false,
+        "mean_yaw_rate_rad_s": 0.016153609237887664,
+        "forward_speed_at_30s_m_s": 0.7886244636255657,
+        "root_height_at_30s_m": 0.754693687
+      },
+      {
+        "lane": 22,
+        "samples": 6,
+        "physical_failure": false,
+        "mean_yaw_rate_rad_s": 0.016275420285514555,
+        "forward_speed_at_30s_m_s": 0.7942238025145312,
+        "root_height_at_30s_m": 0.753655434
+      },
+      {
+        "lane": 23,
+        "samples": 6,
+        "physical_failure": false,
+        "mean_yaw_rate_rad_s": 0.0159455022952414,
+        "forward_speed_at_30s_m_s": 0.7945598097745612,
+        "root_height_at_30s_m": 0.753598332
+      },
+      {
+        "lane": 24,
+        "samples": 6,
+        "physical_failure": false,
+        "mean_yaw_rate_rad_s": 0.015992375218373066,
+        "forward_speed_at_30s_m_s": 0.7967410933812419,
+        "root_height_at_30s_m": 0.753575742
+      },
+      {
+        "lane": 25,
+        "samples": 6,
+        "physical_failure": false,
+        "mean_yaw_rate_rad_s": 0.015721150901811382,
+        "forward_speed_at_30s_m_s": 0.7984353661088721,
+        "root_height_at_30s_m": 0.753677607
+      },
+      {
+        "lane": 26,
+        "samples": 6,
+        "physical_failure": false,
+        "mean_yaw_rate_rad_s": 0.016458771509898655,
+        "forward_speed_at_30s_m_s": 0.7975061694763846,
+        "root_height_at_30s_m": 0.753404438
+      },
+      {
+        "lane": 27,
+        "samples": 6,
+        "physical_failure": false,
+        "mean_yaw_rate_rad_s": 0.01638368596830355,
+        "forward_speed_at_30s_m_s": 0.7958666947932255,
+        "root_height_at_30s_m": 0.753132284
+      },
+      {
+        "lane": 28,
+        "samples": 6,
+        "physical_failure": false,
+        "mean_yaw_rate_rad_s": 0.016456802112043842,
+        "forward_speed_at_30s_m_s": 0.7932708076989817,
+        "root_height_at_30s_m": 0.753871024
+      },
+      {
+        "lane": 29,
+        "samples": 6,
+        "physical_failure": false,
+        "mean_yaw_rate_rad_s": 0.016213878465165473,
+        "forward_speed_at_30s_m_s": 0.7932930336266071,
+        "root_height_at_30s_m": 0.753888428
+      },
+      {
+        "lane": 30,
+        "samples": 6,
+        "physical_failure": false,
+        "mean_yaw_rate_rad_s": 0.015931062850497685,
+        "forward_speed_at_30s_m_s": 0.7912206727146193,
+        "root_height_at_30s_m": 0.753965676
+      },
+      {
+        "lane": 31,
+        "samples": 6,
+        "physical_failure": false,
+        "mean_yaw_rate_rad_s": 0.015936368719218316,
+        "forward_speed_at_30s_m_s": 0.8000438250334698,
+        "root_height_at_30s_m": 0.752825677
+      }
+    ]
+  },
+  "damping-0.15-yaw-negative": {
+    "complete": true,
+    "physical_failure_count": 0,
+    "failed_environment_steps": 0,
+    "median": {
+      "mean_yaw_rate_rad_s": -0.021041695625682415,
+      "forward_speed_at_30s_m_s": 0.7404402436023977,
+      "root_height_at_30s_m": 0.865779012
+    },
+    "lanes": [
+      {
+        "lane": 0,
+        "samples": 6,
+        "physical_failure": false,
+        "mean_yaw_rate_rad_s": -0.02132509285646817,
+        "forward_speed_at_30s_m_s": 0.7604934838365743,
+        "root_height_at_30s_m": 0.863089085
+      },
+      {
+        "lane": 1,
+        "samples": 6,
+        "physical_failure": false,
+        "mean_yaw_rate_rad_s": -0.021417328632181105,
+        "forward_speed_at_30s_m_s": 0.7480153500153823,
+        "root_height_at_30s_m": 0.881911159
+      },
+      {
+        "lane": 2,
+        "samples": 6,
+        "physical_failure": false,
+        "mean_yaw_rate_rad_s": -0.019647563871385783,
+        "forward_speed_at_30s_m_s": 0.7490634548423847,
+        "root_height_at_30s_m": 0.841458738
+      },
+      {
+        "lane": 3,
+        "samples": 6,
+        "physical_failure": false,
+        "mean_yaw_rate_rad_s": -0.02175752855035782,
+        "forward_speed_at_30s_m_s": 0.7402465861656237,
+        "root_height_at_30s_m": 0.901494563
+      },
+      {
+        "lane": 4,
+        "samples": 6,
+        "physical_failure": false,
+        "mean_yaw_rate_rad_s": -0.021400411021069127,
+        "forward_speed_at_30s_m_s": 0.7335369678121408,
+        "root_height_at_30s_m": 0.85461998
+      },
+      {
+        "lane": 5,
+        "samples": 6,
+        "physical_failure": false,
+        "mean_yaw_rate_rad_s": -0.02063783678757066,
+        "forward_speed_at_30s_m_s": 0.7352999956022231,
+        "root_height_at_30s_m": 0.86639744
+      },
+      {
+        "lane": 6,
+        "samples": 6,
+        "physical_failure": false,
+        "mean_yaw_rate_rad_s": -0.020901708735874578,
+        "forward_speed_at_30s_m_s": 0.7429939178824456,
+        "root_height_at_30s_m": 0.853007019
+      },
+      {
+        "lane": 7,
+        "samples": 6,
+        "physical_failure": false,
+        "mean_yaw_rate_rad_s": -0.021156015622178996,
+        "forward_speed_at_30s_m_s": 0.7219945382391685,
+        "root_height_at_30s_m": 0.865557551
+      },
+      {
+        "lane": 8,
+        "samples": 6,
+        "physical_failure": false,
+        "mean_yaw_rate_rad_s": -0.019762184625408276,
+        "forward_speed_at_30s_m_s": 0.7407657536284364,
+        "root_height_at_30s_m": 0.905765712
+      },
+      {
+        "lane": 9,
+        "samples": 6,
+        "physical_failure": false,
+        "mean_yaw_rate_rad_s": -0.021667808725641634,
+        "forward_speed_at_30s_m_s": 0.742328681168856,
+        "root_height_at_30s_m": 0.870117903
+      },
+      {
+        "lane": 10,
+        "samples": 6,
+        "physical_failure": false,
+        "mean_yaw_rate_rad_s": -0.021189651261899593,
+        "forward_speed_at_30s_m_s": 0.7319823181612183,
+        "root_height_at_30s_m": 0.886163473
+      },
+      {
+        "lane": 11,
+        "samples": 6,
+        "physical_failure": false,
+        "mean_yaw_rate_rad_s": -0.021369929875627403,
+        "forward_speed_at_30s_m_s": 0.7684125691803618,
+        "root_height_at_30s_m": 0.850866079
+      },
+      {
+        "lane": 12,
+        "samples": 6,
+        "physical_failure": false,
+        "mean_yaw_rate_rad_s": -0.02086714803352447,
+        "forward_speed_at_30s_m_s": 0.7439464696018782,
+        "root_height_at_30s_m": 0.894780874
+      },
+      {
+        "lane": 13,
+        "samples": 6,
+        "physical_failure": false,
+        "mean_yaw_rate_rad_s": -0.022382890680240925,
+        "forward_speed_at_30s_m_s": 0.7254300038922656,
+        "root_height_at_30s_m": 0.852438569
+      },
+      {
+        "lane": 14,
+        "samples": 6,
+        "physical_failure": false,
+        "mean_yaw_rate_rad_s": -0.02017150736380283,
+        "forward_speed_at_30s_m_s": 0.7308887523856284,
+        "root_height_at_30s_m": 0.882029891
+      },
+      {
+        "lane": 15,
+        "samples": 6,
+        "physical_failure": false,
+        "mean_yaw_rate_rad_s": -0.02167254588821168,
+        "forward_speed_at_30s_m_s": 0.724391569493663,
+        "root_height_at_30s_m": 0.863737762
+      },
+      {
+        "lane": 16,
+        "samples": 6,
+        "physical_failure": false,
+        "mean_yaw_rate_rad_s": -0.02100443423010808,
+        "forward_speed_at_30s_m_s": 0.7268907062129568,
+        "root_height_at_30s_m": 0.907010674
+      },
+      {
+        "lane": 17,
+        "samples": 6,
+        "physical_failure": false,
+        "mean_yaw_rate_rad_s": -0.02186291812141662,
+        "forward_speed_at_30s_m_s": 0.7272039191963117,
+        "root_height_at_30s_m": 0.856529355
+      },
+      {
+        "lane": 18,
+        "samples": 6,
+        "physical_failure": false,
+        "mean_yaw_rate_rad_s": -0.022800127891468874,
+        "forward_speed_at_30s_m_s": 0.7427744658507636,
+        "root_height_at_30s_m": 0.884314418
+      },
+      {
+        "lane": 19,
+        "samples": 6,
+        "physical_failure": false,
+        "mean_yaw_rate_rad_s": -0.019409306076331477,
+        "forward_speed_at_30s_m_s": 0.7278264877430937,
+        "root_height_at_30s_m": 0.864391983
+      },
+      {
+        "lane": 20,
+        "samples": 6,
+        "physical_failure": false,
+        "mean_yaw_rate_rad_s": -0.019802010400664656,
+        "forward_speed_at_30s_m_s": 0.7552278773474559,
+        "root_height_at_30s_m": 0.908477783
+      },
+      {
+        "lane": 21,
+        "samples": 6,
+        "physical_failure": false,
+        "mean_yaw_rate_rad_s": -0.02095544782960545,
+        "forward_speed_at_30s_m_s": 0.7310185734316933,
+        "root_height_at_30s_m": 0.891417563
+      },
+      {
+        "lane": 22,
+        "samples": 6,
+        "physical_failure": false,
+        "mean_yaw_rate_rad_s": -0.021238587951016966,
+        "forward_speed_at_30s_m_s": 0.7446815160868654,
+        "root_height_at_30s_m": 0.866000473
+      },
+      {
+        "lane": 23,
+        "samples": 6,
+        "physical_failure": false,
+        "mean_yaw_rate_rad_s": -0.02059115336330734,
+        "forward_speed_at_30s_m_s": 0.7452415253748519,
+        "root_height_at_30s_m": 0.855048358
+      },
+      {
+        "lane": 24,
+        "samples": 6,
+        "physical_failure": false,
+        "mean_yaw_rate_rad_s": -0.021908668986475487,
+        "forward_speed_at_30s_m_s": 0.7406339010391717,
+        "root_height_at_30s_m": 0.880755186
+      },
+      {
+        "lane": 25,
+        "samples": 6,
+        "physical_failure": false,
+        "mean_yaw_rate_rad_s": -0.020264304934942974,
+        "forward_speed_at_30s_m_s": 0.759684765848273,
+        "root_height_at_30s_m": 0.865031719
+      },
+      {
+        "lane": 26,
+        "samples": 6,
+        "physical_failure": false,
+        "mean_yaw_rate_rad_s": -0.020717362695324627,
+        "forward_speed_at_30s_m_s": 0.7360263638835697,
+        "root_height_at_30s_m": 0.866705
+      },
+      {
+        "lane": 27,
+        "samples": 6,
+        "physical_failure": false,
+        "mean_yaw_rate_rad_s": -0.020663855285787236,
+        "forward_speed_at_30s_m_s": 0.7212085396866322,
+        "root_height_at_30s_m": 0.860772669
+      },
+      {
+        "lane": 28,
+        "samples": 6,
+        "physical_failure": false,
+        "mean_yaw_rate_rad_s": -0.018905509367801464,
+        "forward_speed_at_30s_m_s": 0.7714881217250552,
+        "root_height_at_30s_m": 0.850396514
+      },
+      {
+        "lane": 29,
+        "samples": 6,
+        "physical_failure": false,
+        "mean_yaw_rate_rad_s": -0.02148002601900901,
+        "forward_speed_at_30s_m_s": 0.729841191295682,
+        "root_height_at_30s_m": 0.855524421
+      },
+      {
+        "lane": 30,
+        "samples": 6,
+        "physical_failure": false,
+        "mean_yaw_rate_rad_s": -0.02107895702125675,
+        "forward_speed_at_30s_m_s": 0.7160356591118155,
+        "root_height_at_30s_m": 0.855757117
+      },
+      {
+        "lane": 31,
+        "samples": 6,
+        "physical_failure": false,
+        "mean_yaw_rate_rad_s": -0.01964914520441266,
+        "forward_speed_at_30s_m_s": 0.7421552989835463,
+        "root_height_at_30s_m": 0.879272938
+      }
+    ]
+  },
+  "damping-0.15-yaw-zero": {
+    "complete": true,
+    "physical_failure_count": 0,
+    "failed_environment_steps": 0,
+    "median": {
+      "mean_yaw_rate_rad_s": 0.027395025964851487,
+      "forward_speed_at_30s_m_s": 0.7355787833910967,
+      "root_height_at_30s_m": 0.8637859525
+    },
+    "lanes": [
+      {
+        "lane": 0,
+        "samples": 6,
+        "physical_failure": false,
+        "mean_yaw_rate_rad_s": 0.027134412220982212,
+        "forward_speed_at_30s_m_s": 0.7480814421793809,
+        "root_height_at_30s_m": 0.879902363
+      },
+      {
+        "lane": 1,
+        "samples": 6,
+        "physical_failure": false,
+        "mean_yaw_rate_rad_s": 0.027415119473755807,
+        "forward_speed_at_30s_m_s": 0.74726982455608,
+        "root_height_at_30s_m": 0.906407595
+      },
+      {
+        "lane": 2,
+        "samples": 6,
+        "physical_failure": false,
+        "mean_yaw_rate_rad_s": 0.029711769002159327,
+        "forward_speed_at_30s_m_s": 0.7278165775598004,
+        "root_height_at_30s_m": 0.872239769
+      },
+      {
+        "lane": 3,
+        "samples": 6,
+        "physical_failure": false,
+        "mean_yaw_rate_rad_s": 0.027981800096822947,
+        "forward_speed_at_30s_m_s": 0.7327851503243195,
+        "root_height_at_30s_m": 0.911149561
+      },
+      {
+        "lane": 4,
+        "samples": 6,
+        "physical_failure": false,
+        "mean_yaw_rate_rad_s": 0.027000280429809297,
+        "forward_speed_at_30s_m_s": 0.7555111740580771,
+        "root_height_at_30s_m": 0.861798704
+      },
+      {
+        "lane": 5,
+        "samples": 6,
+        "physical_failure": false,
+        "mean_yaw_rate_rad_s": 0.02828686856198296,
+        "forward_speed_at_30s_m_s": 0.7362549956280529,
+        "root_height_at_30s_m": 0.861568928
+      },
+      {
+        "lane": 6,
+        "samples": 6,
+        "physical_failure": false,
+        "mean_yaw_rate_rad_s": 0.02773475450905478,
+        "forward_speed_at_30s_m_s": 0.7307977745919323,
+        "root_height_at_30s_m": 0.853004813
+      },
+      {
+        "lane": 7,
+        "samples": 6,
+        "physical_failure": false,
+        "mean_yaw_rate_rad_s": 0.026917526540908298,
+        "forward_speed_at_30s_m_s": 0.7224571090586218,
+        "root_height_at_30s_m": 0.858018279
+      },
+      {
+        "lane": 8,
+        "samples": 6,
+        "physical_failure": false,
+        "mean_yaw_rate_rad_s": 0.029907677574528956,
+        "forward_speed_at_30s_m_s": 0.731858066617184,
+        "root_height_at_30s_m": 0.862865686
+      },
+      {
+        "lane": 9,
+        "samples": 6,
+        "physical_failure": false,
+        "mean_yaw_rate_rad_s": 0.026283055290315653,
+        "forward_speed_at_30s_m_s": 0.7237075933646028,
+        "root_height_at_30s_m": 0.85689348
+      },
+      {
+        "lane": 10,
+        "samples": 6,
+        "physical_failure": false,
+        "mean_yaw_rate_rad_s": 0.02643068854409117,
+        "forward_speed_at_30s_m_s": 0.7274788649862728,
+        "root_height_at_30s_m": 0.85873872
+      },
+      {
+        "lane": 11,
+        "samples": 6,
+        "physical_failure": false,
+        "mean_yaw_rate_rad_s": 0.026885215880198876,
+        "forward_speed_at_30s_m_s": 0.7337980774882051,
+        "root_height_at_30s_m": 0.908698559
+      },
+      {
+        "lane": 12,
+        "samples": 6,
+        "physical_failure": false,
+        "mean_yaw_rate_rad_s": 0.02796491729159558,
+        "forward_speed_at_30s_m_s": 0.7365601127608898,
+        "root_height_at_30s_m": 0.902496576
+      },
+      {
+        "lane": 13,
+        "samples": 6,
+        "physical_failure": false,
+        "mean_yaw_rate_rad_s": 0.026905299035999104,
+        "forward_speed_at_30s_m_s": 0.7349025711541406,
+        "root_height_at_30s_m": 0.852159262
+      },
+      {
+        "lane": 14,
+        "samples": 6,
+        "physical_failure": false,
+        "mean_yaw_rate_rad_s": 0.02764268068563902,
+        "forward_speed_at_30s_m_s": 0.7543935989621521,
+        "root_height_at_30s_m": 0.877373517
+      },
+      {
+        "lane": 15,
+        "samples": 6,
+        "physical_failure": false,
+        "mean_yaw_rate_rad_s": 0.026068410158434595,
+        "forward_speed_at_30s_m_s": 0.7280120118695459,
+        "root_height_at_30s_m": 0.871944547
+      },
+      {
+        "lane": 16,
+        "samples": 6,
+        "physical_failure": false,
+        "mean_yaw_rate_rad_s": 0.02778681880097464,
+        "forward_speed_at_30s_m_s": 0.7300236319036115,
+        "root_height_at_30s_m": 0.911134362
+      },
+      {
+        "lane": 17,
+        "samples": 6,
+        "physical_failure": false,
+        "mean_yaw_rate_rad_s": 0.0276095735011605,
+        "forward_speed_at_30s_m_s": 0.7337201972056928,
+        "root_height_at_30s_m": 0.834385455
+      },
+      {
+        "lane": 18,
+        "samples": 6,
+        "physical_failure": false,
+        "mean_yaw_rate_rad_s": 0.028668605342154947,
+        "forward_speed_at_30s_m_s": 0.7473481223897536,
+        "root_height_at_30s_m": 0.861356735
+      },
+      {
+        "lane": 19,
+        "samples": 6,
+        "physical_failure": false,
+        "mean_yaw_rate_rad_s": 0.027266491831804997,
+        "forward_speed_at_30s_m_s": 0.7455652950928946,
+        "root_height_at_30s_m": 0.860643625
+      },
+      {
+        "lane": 20,
+        "samples": 6,
+        "physical_failure": false,
+        "mean_yaw_rate_rad_s": 0.02737493245594717,
+        "forward_speed_at_30s_m_s": 0.7630818603361764,
+        "root_height_at_30s_m": 0.881452322
+      },
+      {
+        "lane": 21,
+        "samples": 6,
+        "physical_failure": false,
+        "mean_yaw_rate_rad_s": 0.027274556392750504,
+        "forward_speed_at_30s_m_s": 0.7539806251175094,
+        "root_height_at_30s_m": 0.859301984
+      },
+      {
+        "lane": 22,
+        "samples": 6,
+        "physical_failure": false,
+        "mean_yaw_rate_rad_s": 0.026905019243673205,
+        "forward_speed_at_30s_m_s": 0.7383331371572692,
+        "root_height_at_30s_m": 0.906778574
+      },
+      {
+        "lane": 23,
+        "samples": 6,
+        "physical_failure": false,
+        "mean_yaw_rate_rad_s": 0.026434743051524167,
+        "forward_speed_at_30s_m_s": 0.7550074416227204,
+        "root_height_at_30s_m": 0.870273471
+      },
+      {
+        "lane": 24,
+        "samples": 6,
+        "physical_failure": false,
+        "mean_yaw_rate_rad_s": 0.030339903854118666,
+        "forward_speed_at_30s_m_s": 0.7485399882587336,
+        "root_height_at_30s_m": 0.881477773
+      },
+      {
+        "lane": 25,
+        "samples": 6,
+        "physical_failure": false,
+        "mean_yaw_rate_rad_s": 0.02634288281220536,
+        "forward_speed_at_30s_m_s": 0.7363115862439318,
+        "root_height_at_30s_m": 0.908781469
+      },
+      {
+        "lane": 26,
+        "samples": 6,
+        "physical_failure": false,
+        "mean_yaw_rate_rad_s": 0.029474391082450833,
+        "forward_speed_at_30s_m_s": 0.7398606868703239,
+        "root_height_at_30s_m": 0.861849964
+      },
+      {
+        "lane": 27,
+        "samples": 6,
+        "physical_failure": false,
+        "mean_yaw_rate_rad_s": 0.028037132648051816,
+        "forward_speed_at_30s_m_s": 0.7298271115202678,
+        "root_height_at_30s_m": 0.862971902
+      },
+      {
+        "lane": 28,
+        "samples": 6,
+        "physical_failure": false,
+        "mean_yaw_rate_rad_s": 0.029144223734793927,
+        "forward_speed_at_30s_m_s": 0.7307448215441923,
+        "root_height_at_30s_m": 0.852665603
+      },
+      {
+        "lane": 29,
+        "samples": 6,
+        "physical_failure": false,
+        "mean_yaw_rate_rad_s": 0.027211611443486085,
+        "forward_speed_at_30s_m_s": 0.7525277739942973,
+        "root_height_at_30s_m": 0.870926738
+      },
+      {
+        "lane": 30,
+        "samples": 6,
+        "physical_failure": false,
+        "mean_yaw_rate_rad_s": 0.026422693742885844,
+        "forward_speed_at_30s_m_s": 0.7273512966670891,
+        "root_height_at_30s_m": 0.864600003
+      },
+      {
+        "lane": 31,
+        "samples": 6,
+        "physical_failure": false,
+        "mean_yaw_rate_rad_s": 0.029160384627361556,
+        "forward_speed_at_30s_m_s": 0.7225386692129423,
+        "root_height_at_30s_m": 0.852557719
+      }
+    ]
+  },
+  "damping-0.05-yaw-negative": {
+    "complete": true,
+    "physical_failure_count": 0,
+    "failed_environment_steps": 0,
+    "median": {
+      "mean_yaw_rate_rad_s": -0.04316317099992699,
+      "forward_speed_at_30s_m_s": 0.7048852305529072,
+      "root_height_at_30s_m": 0.937127143
+    },
+    "lanes": [
+      {
+        "lane": 0,
+        "samples": 6,
+        "physical_failure": false,
+        "mean_yaw_rate_rad_s": -0.04509218452415946,
+        "forward_speed_at_30s_m_s": 0.7389064052986816,
+        "root_height_at_30s_m": 0.955288351
+      },
+      {
+        "lane": 1,
+        "samples": 6,
+        "physical_failure": false,
+        "mean_yaw_rate_rad_s": -0.03823848346568163,
+        "forward_speed_at_30s_m_s": 0.7277220321868421,
+        "root_height_at_30s_m": 0.923563302
+      },
+      {
+        "lane": 2,
+        "samples": 6,
+        "physical_failure": false,
+        "mean_yaw_rate_rad_s": -0.04492388265667367,
+        "forward_speed_at_30s_m_s": 0.6891769130133316,
+        "root_height_at_30s_m": 0.895253181
+      },
+      {
+        "lane": 3,
+        "samples": 6,
+        "physical_failure": false,
+        "mean_yaw_rate_rad_s": -0.0409772025963418,
+        "forward_speed_at_30s_m_s": 0.7137102483683542,
+        "root_height_at_30s_m": 0.96121037
+      },
+      {
+        "lane": 4,
+        "samples": 6,
+        "physical_failure": false,
+        "mean_yaw_rate_rad_s": -0.041635450508584186,
+        "forward_speed_at_30s_m_s": 0.7336325064016715,
+        "root_height_at_30s_m": 0.950829744
+      },
+      {
+        "lane": 5,
+        "samples": 6,
+        "physical_failure": false,
+        "mean_yaw_rate_rad_s": -0.04365830640259554,
+        "forward_speed_at_30s_m_s": 0.756358547177097,
+        "root_height_at_30s_m": 0.954191327
+      },
+      {
+        "lane": 6,
+        "samples": 6,
+        "physical_failure": false,
+        "mean_yaw_rate_rad_s": -0.04425317682311285,
+        "forward_speed_at_30s_m_s": 0.7247223213223004,
+        "root_height_at_30s_m": 0.961393952
+      },
+      {
+        "lane": 7,
+        "samples": 6,
+        "physical_failure": false,
+        "mean_yaw_rate_rad_s": -0.040007801310872906,
+        "forward_speed_at_30s_m_s": 0.6650203117346702,
+        "root_height_at_30s_m": 0.917089105
+      },
+      {
+        "lane": 8,
+        "samples": 6,
+        "physical_failure": false,
+        "mean_yaw_rate_rad_s": -0.04649045872750629,
+        "forward_speed_at_30s_m_s": 0.6686283068249157,
+        "root_height_at_30s_m": 0.940639973
+      },
+      {
+        "lane": 9,
+        "samples": 6,
+        "physical_failure": false,
+        "mean_yaw_rate_rad_s": -0.043885761014099266,
+        "forward_speed_at_30s_m_s": 0.714108980393628,
+        "root_height_at_30s_m": 0.895067632
+      },
+      {
+        "lane": 10,
+        "samples": 6,
+        "physical_failure": false,
+        "mean_yaw_rate_rad_s": -0.0417692640939347,
+        "forward_speed_at_30s_m_s": 0.7026946442487498,
+        "root_height_at_30s_m": 0.928118467
+      },
+      {
+        "lane": 11,
+        "samples": 6,
+        "physical_failure": false,
+        "mean_yaw_rate_rad_s": -0.04190669591927539,
+        "forward_speed_at_30s_m_s": 0.7100688049265268,
+        "root_height_at_30s_m": 0.930863261
+      },
+      {
+        "lane": 12,
+        "samples": 6,
+        "physical_failure": false,
+        "mean_yaw_rate_rad_s": -0.04229692560197108,
+        "forward_speed_at_30s_m_s": 0.6892532091250609,
+        "root_height_at_30s_m": 0.959912002
+      },
+      {
+        "lane": 13,
+        "samples": 6,
+        "physical_failure": false,
+        "mean_yaw_rate_rad_s": -0.04134330036578586,
+        "forward_speed_at_30s_m_s": 0.703304429018636,
+        "root_height_at_30s_m": 0.936223745
+      },
+      {
+        "lane": 14,
+        "samples": 6,
+        "physical_failure": false,
+        "mean_yaw_rate_rad_s": -0.04394131499706695,
+        "forward_speed_at_30s_m_s": 0.6599639254527034,
+        "root_height_at_30s_m": 0.929268658
+      },
+      {
+        "lane": 15,
+        "samples": 6,
+        "physical_failure": false,
+        "mean_yaw_rate_rad_s": -0.04623817526932912,
+        "forward_speed_at_30s_m_s": 0.6808835837835008,
+        "root_height_at_30s_m": 0.940185845
+      },
+      {
+        "lane": 16,
+        "samples": 6,
+        "physical_failure": false,
+        "mean_yaw_rate_rad_s": -0.040047627225601325,
+        "forward_speed_at_30s_m_s": 0.7017740485479567,
+        "root_height_at_30s_m": 0.948191524
+      },
+      {
+        "lane": 17,
+        "samples": 6,
+        "physical_failure": false,
+        "mean_yaw_rate_rad_s": -0.045887345487826775,
+        "forward_speed_at_30s_m_s": 0.7066121168814927,
+        "root_height_at_30s_m": 0.933160245
+      },
+      {
+        "lane": 18,
+        "samples": 6,
+        "physical_failure": false,
+        "mean_yaw_rate_rad_s": -0.03980352905985692,
+        "forward_speed_at_30s_m_s": 0.7378385704228203,
+        "root_height_at_30s_m": 0.927053511
+      },
+      {
+        "lane": 19,
+        "samples": 6,
+        "physical_failure": false,
+        "mean_yaw_rate_rad_s": -0.04531113679815838,
+        "forward_speed_at_30s_m_s": 0.6834363820706102,
+        "root_height_at_30s_m": 0.944294214
+      },
+      {
+        "lane": 20,
+        "samples": 6,
+        "physical_failure": false,
+        "mean_yaw_rate_rad_s": -0.04284117077070303,
+        "forward_speed_at_30s_m_s": 0.7437943218407965,
+        "root_height_at_30s_m": 0.960226417
+      },
+      {
+        "lane": 21,
+        "samples": 6,
+        "physical_failure": false,
+        "mean_yaw_rate_rad_s": -0.04385775742353455,
+        "forward_speed_at_30s_m_s": 0.6757188137151535,
+        "root_height_at_30s_m": 0.937235951
+      },
+      {
+        "lane": 22,
+        "samples": 6,
+        "physical_failure": false,
+        "mean_yaw_rate_rad_s": -0.047036880903500944,
+        "forward_speed_at_30s_m_s": 0.670737295582756,
+        "root_height_at_30s_m": 0.934664011
+      },
+      {
+        "lane": 23,
+        "samples": 6,
+        "physical_failure": false,
+        "mean_yaw_rate_rad_s": -0.0429605542935014,
+        "forward_speed_at_30s_m_s": 0.6495070866389056,
+        "root_height_at_30s_m": 0.944506347
+      },
+      {
+        "lane": 24,
+        "samples": 6,
+        "physical_failure": false,
+        "mean_yaw_rate_rad_s": -0.0353441193063872,
+        "forward_speed_at_30s_m_s": 0.7258751989734298,
+        "root_height_at_30s_m": 0.954499125
+      },
+      {
+        "lane": 25,
+        "samples": 6,
+        "physical_failure": false,
+        "mean_yaw_rate_rad_s": -0.04863688475203529,
+        "forward_speed_at_30s_m_s": 0.6891862217458448,
+        "root_height_at_30s_m": 0.937018335
+      },
+      {
+        "lane": 26,
+        "samples": 6,
+        "physical_failure": false,
+        "mean_yaw_rate_rad_s": -0.039048306675257036,
+        "forward_speed_at_30s_m_s": 0.7204518628220025,
+        "root_height_at_30s_m": 0.947769523
+      },
+      {
+        "lane": 27,
+        "samples": 6,
+        "physical_failure": false,
+        "mean_yaw_rate_rad_s": -0.04070772721311712,
+        "forward_speed_at_30s_m_s": 0.6811012064681987,
+        "root_height_at_30s_m": 0.915683091
+      },
+      {
+        "lane": 28,
+        "samples": 6,
+        "physical_failure": false,
+        "mean_yaw_rate_rad_s": -0.043365787706352577,
+        "forward_speed_at_30s_m_s": 0.7064660320871784,
+        "root_height_at_30s_m": 0.928784907
+      },
+      {
+        "lane": 29,
+        "samples": 6,
+        "physical_failure": false,
+        "mean_yaw_rate_rad_s": -0.04352617657643369,
+        "forward_speed_at_30s_m_s": 0.6931540795326182,
+        "root_height_at_30s_m": 0.892222941
+      },
+      {
+        "lane": 30,
+        "samples": 6,
+        "physical_failure": false,
+        "mean_yaw_rate_rad_s": -0.037665215759130496,
+        "forward_speed_at_30s_m_s": 0.7066762197587704,
+        "root_height_at_30s_m": 0.889356077
+      },
+      {
+        "lane": 31,
+        "samples": 6,
+        "physical_failure": false,
+        "mean_yaw_rate_rad_s": -0.04656384464677511,
+        "forward_speed_at_30s_m_s": 0.7075246079699836,
+        "root_height_at_30s_m": 0.945621848
+      }
+    ]
+  },
+  "damping-0.05-yaw-zero": {
+    "complete": true,
+    "physical_failure_count": 0,
+    "failed_environment_steps": 0,
+    "median": {
+      "mean_yaw_rate_rad_s": 0.02942058224990511,
+      "forward_speed_at_30s_m_s": 0.6947063128533782,
+      "root_height_at_30s_m": 0.9400114420000001
+    },
+    "lanes": [
+      {
+        "lane": 0,
+        "samples": 6,
+        "physical_failure": false,
+        "mean_yaw_rate_rad_s": 0.029316826704883482,
+        "forward_speed_at_30s_m_s": 0.7406598921716134,
+        "root_height_at_30s_m": 0.944292903
+      },
+      {
+        "lane": 1,
+        "samples": 6,
+        "physical_failure": false,
+        "mean_yaw_rate_rad_s": 0.027694557039508665,
+        "forward_speed_at_30s_m_s": 0.6874312960086735,
+        "root_height_at_30s_m": 0.944352388
+      },
+      {
+        "lane": 2,
+        "samples": 6,
+        "physical_failure": false,
+        "mean_yaw_rate_rad_s": 0.03238933692387022,
+        "forward_speed_at_30s_m_s": 0.6741653395028915,
+        "root_height_at_30s_m": 0.953908324
+      },
+      {
+        "lane": 3,
+        "samples": 6,
+        "physical_failure": false,
+        "mean_yaw_rate_rad_s": 0.028923909522371043,
+        "forward_speed_at_30s_m_s": 0.6921686500546043,
+        "root_height_at_30s_m": 0.958788216
+      },
+      {
+        "lane": 4,
+        "samples": 6,
+        "physical_failure": false,
+        "mean_yaw_rate_rad_s": 0.027097318316106855,
+        "forward_speed_at_30s_m_s": 0.7195340584827543,
+        "root_height_at_30s_m": 0.936151803
+      },
+      {
+        "lane": 5,
+        "samples": 6,
+        "physical_failure": false,
+        "mean_yaw_rate_rad_s": 0.03581885274621656,
+        "forward_speed_at_30s_m_s": 0.7014041315667261,
+        "root_height_at_30s_m": 0.959610462
+      },
+      {
+        "lane": 6,
+        "samples": 6,
+        "physical_failure": false,
+        "mean_yaw_rate_rad_s": 0.033349591185637066,
+        "forward_speed_at_30s_m_s": 0.6977958796669002,
+        "root_height_at_30s_m": 0.95389235
+      },
+      {
+        "lane": 7,
+        "samples": 6,
+        "physical_failure": false,
+        "mean_yaw_rate_rad_s": 0.03243761621684988,
+        "forward_speed_at_30s_m_s": 0.671024536687777,
+        "root_height_at_30s_m": 0.928702414
+      },
+      {
+        "lane": 8,
+        "samples": 6,
+        "physical_failure": false,
+        "mean_yaw_rate_rad_s": 0.03323405853861864,
+        "forward_speed_at_30s_m_s": 0.7000005613274835,
+        "root_height_at_30s_m": 0.920907736
+      },
+      {
+        "lane": 9,
+        "samples": 6,
+        "physical_failure": false,
+        "mean_yaw_rate_rad_s": 0.026140463172126528,
+        "forward_speed_at_30s_m_s": 0.6861433410943036,
+        "root_height_at_30s_m": 0.906096995
+      },
+      {
+        "lane": 10,
+        "samples": 6,
+        "physical_failure": false,
+        "mean_yaw_rate_rad_s": 0.029791130227872675,
+        "forward_speed_at_30s_m_s": 0.6728367691740353,
+        "root_height_at_30s_m": 0.937408447
+      },
+      {
+        "lane": 11,
+        "samples": 6,
+        "physical_failure": false,
+        "mean_yaw_rate_rad_s": 0.025572547621847148,
+        "forward_speed_at_30s_m_s": 0.7150176058056654,
+        "root_height_at_30s_m": 0.908652484
+      },
+      {
+        "lane": 12,
+        "samples": 6,
+        "physical_failure": false,
+        "mean_yaw_rate_rad_s": 0.02461794321049359,
+        "forward_speed_at_30s_m_s": 0.7377710320980642,
+        "root_height_at_30s_m": 0.949270546
+      },
+      {
+        "lane": 13,
+        "samples": 6,
+        "physical_failure": false,
+        "mean_yaw_rate_rad_s": 0.026108116273139477,
+        "forward_speed_at_30s_m_s": 0.6732947521362573,
+        "root_height_at_30s_m": 0.905356586
+      },
+      {
+        "lane": 14,
+        "samples": 6,
+        "physical_failure": false,
+        "mean_yaw_rate_rad_s": 0.027410839597248993,
+        "forward_speed_at_30s_m_s": 0.7000151232161645,
+        "root_height_at_30s_m": 0.925067723
+      },
+      {
+        "lane": 15,
+        "samples": 6,
+        "physical_failure": false,
+        "mean_yaw_rate_rad_s": 0.024375421970964005,
+        "forward_speed_at_30s_m_s": 0.6681280280000986,
+        "root_height_at_30s_m": 0.965174437
+      },
+      {
+        "lane": 16,
+        "samples": 6,
+        "physical_failure": false,
+        "mean_yaw_rate_rad_s": 0.030081999569407096,
+        "forward_speed_at_30s_m_s": 0.6951894429345666,
+        "root_height_at_30s_m": 0.924260616
+      },
+      {
+        "lane": 17,
+        "samples": 6,
+        "physical_failure": false,
+        "mean_yaw_rate_rad_s": 0.029319284808217532,
+        "forward_speed_at_30s_m_s": 0.7079163219229867,
+        "root_height_at_30s_m": 0.9597947
+      },
+      {
+        "lane": 18,
+        "samples": 6,
+        "physical_failure": false,
+        "mean_yaw_rate_rad_s": 0.029999007250218052,
+        "forward_speed_at_30s_m_s": 0.7230984030905936,
+        "root_height_at_30s_m": 0.940203965
+      },
+      {
+        "lane": 19,
+        "samples": 6,
+        "physical_failure": false,
+        "mean_yaw_rate_rad_s": 0.032133102373023005,
+        "forward_speed_at_30s_m_s": 0.6743164913041702,
+        "root_height_at_30s_m": 0.938787997
+      },
+      {
+        "lane": 20,
+        "samples": 6,
+        "physical_failure": false,
+        "mean_yaw_rate_rad_s": 0.030083270691699176,
+        "forward_speed_at_30s_m_s": 0.7035984455804026,
+        "root_height_at_30s_m": 0.964506567
+      },
+      {
+        "lane": 21,
+        "samples": 6,
+        "physical_failure": false,
+        "mean_yaw_rate_rad_s": 0.031071149916964812,
+        "forward_speed_at_30s_m_s": 0.6942231827721899,
+        "root_height_at_30s_m": 0.939818919
+      },
+      {
+        "lane": 22,
+        "samples": 6,
+        "physical_failure": false,
+        "mean_yaw_rate_rad_s": 0.03251762526464811,
+        "forward_speed_at_30s_m_s": 0.7044979590642253,
+        "root_height_at_30s_m": 0.953677416
+      },
+      {
+        "lane": 23,
+        "samples": 6,
+        "physical_failure": false,
+        "mean_yaw_rate_rad_s": 0.029521879691592694,
+        "forward_speed_at_30s_m_s": 0.7012359546402321,
+        "root_height_at_30s_m": 0.951428711
+      },
+      {
+        "lane": 24,
+        "samples": 6,
+        "physical_failure": false,
+        "mean_yaw_rate_rad_s": 0.03034339345380425,
+        "forward_speed_at_30s_m_s": 0.6926083305303281,
+        "root_height_at_30s_m": 0.961323082
+      },
+      {
+        "lane": 25,
+        "samples": 6,
+        "physical_failure": false,
+        "mean_yaw_rate_rad_s": 0.030728746202124978,
+        "forward_speed_at_30s_m_s": 0.67999124720423,
+        "root_height_at_30s_m": 0.908375442
+      },
+      {
+        "lane": 26,
+        "samples": 6,
+        "physical_failure": false,
+        "mean_yaw_rate_rad_s": 0.026503184287327192,
+        "forward_speed_at_30s_m_s": 0.6988580189168286,
+        "root_height_at_30s_m": 0.908269107
+      },
+      {
+        "lane": 27,
+        "samples": 6,
+        "physical_failure": false,
+        "mean_yaw_rate_rad_s": 0.02891729836447971,
+        "forward_speed_at_30s_m_s": 0.6781232373329162,
+        "root_height_at_30s_m": 0.938248217
+      },
+      {
+        "lane": 28,
+        "samples": 6,
+        "physical_failure": false,
+        "mean_yaw_rate_rad_s": 0.025458026010196304,
+        "forward_speed_at_30s_m_s": 0.7244832728193584,
+        "root_height_at_30s_m": 0.917520583
+      },
+      {
+        "lane": 29,
+        "samples": 6,
+        "physical_failure": false,
+        "mean_yaw_rate_rad_s": 0.027273205246632348,
+        "forward_speed_at_30s_m_s": 0.6841515286893867,
+        "root_height_at_30s_m": 0.957440317
+      },
+      {
+        "lane": 30,
+        "samples": 6,
+        "physical_failure": false,
+        "mean_yaw_rate_rad_s": 0.02954246259025285,
+        "forward_speed_at_30s_m_s": 0.6879480821773745,
+        "root_height_at_30s_m": 0.958589852
+      },
+      {
+        "lane": 31,
+        "samples": 6,
+        "physical_failure": false,
+        "mean_yaw_rate_rad_s": 0.025671047001844444,
+        "forward_speed_at_30s_m_s": 0.6801169229942001,
+        "root_height_at_30s_m": 0.895105898
+      }
+    ]
+  }
+}
