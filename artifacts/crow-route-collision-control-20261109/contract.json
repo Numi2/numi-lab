@@ -1,0 +1,21 @@
+{
+  "old_policy_rejected": true,
+  "actor_layers_equal": true,
+  "critic_layers_equal": true,
+  "other_arrays_equal": {
+    "observation_mean": true,
+    "observation_inverse_standard_deviation": true,
+    "critic_observation_mean": true,
+    "critic_observation_inverse_standard_deviation": true,
+    "action_log_standard_deviation": true,
+    "action_bias": true,
+    "action_scale": true
+  },
+  "old_policy_sha256": "07971fcbc960e3461421e2685325eb967786462ab97d422a55c916fd58efa2b2",
+  "new_policy_sha256": "78818e256daff256dd06b730377335647b69985d69edeaa34357af3615d24208",
+  "world": 12704294952255580436,
+  "task": 309395803524675639,
+  "observation": 11246202251672230696,
+  "action": 10335628214131907515,
+  "observer_library_sha256": "c38848a7df4f3fb4aca6f5938e18e06b6059998e0667529db7dff4af6fcceefc"
+}

@@ -1,0 +1,70 @@
+--- a/src/c_api.cpp
++++ b/src/c_api.cpp
+@@ -23,6 +23,8 @@
+ #include "metalrobo/WorldPack.hpp"
+ 
+ #include <cstring>
++#include <cstdio>
++#include <cstdlib>
+ #include <algorithm>
+ #include <atomic>
+ #include <array>
+@@ -1239,7 +1241,7 @@
+         profile.maximumDifficultyBand;
+     handle->stepConfig.difficultySamplingExponentOverride =
+         profile.difficultySamplingExponentOverride;
+-    handle->stepConfig.captureContactEvidence = false;
++    handle->stepConfig.captureContactEvidence = std::getenv("CROW_CONTACT_TRACE") != nullptr;
+     handle->stepConfig.publishFinalState = false;
+     handle->stepConfig.publishStateTrajectory = false;
+     handle->stepConfig.taskProgram = taskProgram;
+@@ -4799,6 +4801,49 @@
+             for (unsigned lane=0;lane<sensor.errors.size();++lane) if (sensor.errors[lane])
+                 throw std::runtime_error("Retinal GPU rejected learner batch: lane="+std::to_string(lane)+" error="+std::to_string(sensor.errors[lane]));
+             handle->rejectedRetinalBatch=false;
++        }
++        if (std::getenv("CROW_CONTACT_TRACE") != nullptr &&
++            control_step_count == 1u) {
++            const auto array = [](const char* name, const std::vector<float>& v, size_t start, size_t n) {
++                std::fprintf(stderr, ",\"%s\":[", name);
++                for (size_t i=0; i<n && start+i<v.size(); ++i)
++                    std::fprintf(stderr, "%s%.9g", i ? "," : "", v[start+i]);
++                std::fprintf(stderr, "]");
++            };
++            if ((handle->submittedControlSteps + 1u) % 100u == 0u) {
++                for (size_t lane=0; lane<environmentCount; ++lane) {
++                    std::fprintf(stderr, "CROW_FLIGHT_SAMPLE {\"step\":%llu,\"lane\":%zu",
++                        static_cast<unsigned long long>(handle->submittedControlSteps+1u), lane);
++                    array("q", published.finalQ, lane*handle->world.nq(), handle->world.nq());
++                    array("v", published.finalV, lane*handle->world.nv(), handle->world.nv());
++                    array("applied_filtered_action", published.teacherActions,
++                        lane*handle->taskProgram.layout().actionCount, handle->taskProgram.layout().actionCount);
++                    std::fprintf(stderr, "}\n");
++                }
++            }
++            for (size_t lane=0; lane<environmentCount && lane<published.transitions.size(); ++lane) {
++                if (published.transitions[lane].termination.w != MR_TASK_TERMINATION_CONTACT) continue;
++                const auto& prev = handle->result;
++                std::fprintf(stderr, "CROW_CONTACT_TRACE {\"step\":%llu,\"lane\":%zu",
++                    static_cast<unsigned long long>(handle->submittedControlSteps+1u), lane);
++                array("pre_q", prev.finalQ, lane*handle->world.nq(), handle->world.nq());
++                array("pre_v", prev.finalV, lane*handle->world.nv(), handle->world.nv());
++                array("applied_filtered_action", published.teacherActions,
++                    lane*handle->taskProgram.layout().actionCount, handle->taskProgram.layout().actionCount);
++                std::fprintf(stderr, ",\"contacts\":[");
++                const auto stride = published.layout.contactDispatch.constraintStride;
++                const auto count = published.contactStatuses[lane].activeContacts;
++                bool first=true;
++                for (size_t i=0; i<count && lane*stride+i<published.contactEvidence.contacts.size(); ++i) {
++                    const auto& c=published.contactEvidence.contacts[lane*stride+i];
++                    const auto name=[&](uint32_t b) { return b<handle->model.bodyNames.size()
++                        ? handle->model.bodyNames[b].c_str() : "invalid"; };
++                    std::fprintf(stderr, "%s{\"a\":%u,\"a_name\":\"%s\",\"b\":%u,\"b_name\":\"%s\",\"normal_impulse\":%.9g,\"separation\":%.9g}",
++                        first?"":",",c.bodyA,name(c.bodyA),c.bodyB,name(c.bodyB),c.impulses.x,c.pointAndSeparation.w);
++                    first=false;
++                }
++                std::fprintf(stderr, "]}\n");
++            }
+         }
+         handle->pendingLifeWorld.clear();
+         handle->result = std::move(published);

@@ -1,0 +1,20 @@
+{
+  "first_episode_count": 64,
+  "physical_failures": 64,
+  "waypoint_distribution": {
+    "0": 0,
+    "1": 3,
+    "2": 13,
+    "3": 0,
+    "4": 0,
+    "5": 48
+  },
+  "lane_count_by_final_substep_contact_pair": {
+    "crow_body / crow_course_perch": 48,
+    "crow_right_wing / crow_course_slalom_b": 13,
+    "crow_right_foot / crow_course_perch": 2,
+    "crow_left_foot / crow_course_perch": 2,
+    "crow_right_wing / crow_course_gate_right": 3
+  },
+  "record_scope": "final-published-substep candidates only; not unique first fatal microstep"
+}
