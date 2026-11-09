@@ -35,6 +35,8 @@ link_command = ["/usr/bin/clang++", "-O3", "-DNDEBUG", "-arch", "arm64",
     "-framework", "Foundation", "-framework", "Metal"]
 records = {"revision": subprocess.check_output(["git", "rev-parse", "HEAD"], cwd=root, text=True).strip(),
            "commands": [compile_command, link_command], "build": [], "runs": [],
+           "environment": {"NM_MATTER_MIDPOINT_VELOCITY_COMPENSATION": "1",
+                           "NM_MATTER_MIDPOINT_STAGE_COMPENSATION": "1"},
            "scope": "one accepted step, diagnostic only; no performance or complete-rollout claim"}
 for command in (compile_command, link_command):
     start = time.monotonic()
