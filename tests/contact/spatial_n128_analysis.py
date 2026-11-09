@@ -25,6 +25,7 @@ finally:
     sys.argv = argv
 compare = previous["compare"]
 read64 = previous["read"]
+verify_reference_areas = previous["verify_reference_areas"]
 
 def read128(hcode, h):
     path = evidence / ("rk4-n128-retry1-h" + hcode + ".json")
@@ -40,9 +41,8 @@ def read128(hcode, h):
         x["nodes"] != 129**3 or x["tetrahedra"] != 6*128**3):
         raise ValueError("incorrect reference configuration: " + str(path))
     weights = x["contact_area_weights_m2"]
-    if (len(weights) != 129**3 or not all(math.isfinite(v) and v >= 0 for v in weights)
-        or abs(math.fsum(weights)-.0004) > 1e-14
-        or abs(x["area_m2"]-.0004) > 1e-14
+    verify_reference_areas(weights,128)
+    if (abs(x["area_m2"]-.0004) > 1e-14
         or abs(x["mass_kg"]-.0088) > 1e-8 or x["min_gap_m"] <= 1e-7):
         raise ValueError("invalid area, mass, or clearance: " + str(path))
     if (len(x["trace"]) != 5001 or len(x["force_bins_N"]) != 10 or

@@ -18,13 +18,12 @@ try:
 finally:
     sys.argv=argv
 compare=baseline["compare"]
+verify_reference_areas=baseline["verify_reference_areas"]
 def read(path,n,h):
     x=json.loads(path.read_text())
     assert x["mesh_divisions"]==n and x["duration"]==.01 and x["h"]==h
     assert len(x["trace"])==5001 and len(x["force_bins_N"])==10
-    assert len(x["contact_area_weights_m2"])==(n+1)**3
-    assert all(math.isfinite(v) and v>=0 for v in x["contact_area_weights_m2"])
-    assert abs(sum(x["contact_area_weights_m2"])-.0004)<1e-14
+    verify_reference_areas(x["contact_area_weights_m2"],n)
     assert abs(x["area_m2"]-.0004)<1e-14 and x["min_gap_m"]>1e-7
     assert all(all(math.isfinite(v) for v in row) for row in x["trace"])
     return x

@@ -2,6 +2,22 @@
 """Predeclared temporal and spatial force/impulse gates for FP64 traces."""
 import json, math, pathlib, sys
 p=pathlib.Path(sys.argv[1])
+def verify_reference_areas(weights,n):
+ # Reconstruct the two consistently oriented surface triangles per cell.
+ # Sum alone cannot detect a shifted or redistributed contact patch.
+ assert len(weights)==(n+1)**3
+ expected=[0.0]*((n+1)**2)
+ share=.02*.02/(n*n*6.)
+ for y in range(n):
+  for x in range(n):
+   a=y*(n+1)+x; b=a+1; c=a+(n+1); d=c+1
+   for i in (a,b,d,a,d,c): expected[i]+=share
+ tolerance=.0004*1e-12
+ for actual,target in zip(weights[:len(expected)],expected):
+  assert math.isfinite(actual) and actual>=0 and abs(actual-target)<=tolerance
+ assert all(math.isfinite(v) and v>=0 and abs(v)<=tolerance for v in weights[len(expected):])
+ assert abs(math.fsum(weights)-.0004)<1e-14
+
 def read(n,dt):
  x=json.loads((p/f'rk4-n{n}-h{dt}.json').read_text())
  assert x['mesh_divisions']==n and x['duration']==.01

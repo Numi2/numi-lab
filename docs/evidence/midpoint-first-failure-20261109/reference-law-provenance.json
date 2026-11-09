@@ -1,0 +1,32 @@
+{
+  "inputs": {
+    "n32_serial": {
+      "revision": "b7447ca88",
+      "source_sha256": "01a8fb10156de380c13ec7df0761f21cb033041d18d22820b043bf47a3bd23db"
+    },
+    "n64_serial": {
+      "revision": "564855bb1",
+      "source_sha256": "c4847b86546b85d3c63da91124fd5a5075fd7e3ee2bdc3203a1ff1fe8a6f3daf"
+    },
+    "n64_parallel": {
+      "revision": "d00717ebe",
+      "source_sha256": "01b59053d091879fe4768c704f841d52022ade9f53c7cbf9722519af8184a55a"
+    },
+    "n128_parallel": {
+      "revision": "968f49d1d",
+      "source_sha256": "019371ad99f9cfd0ff0a7c3b08e77d493f698f7b3f7d0ef528dd4695097edc1f"
+    }
+  },
+  "identical_source_sections": [
+    "physical_parameters",
+    "geometry_mass_and_area",
+    "pressure",
+    "potential_and_gravity"
+  ],
+  "mu_Pa": 2000,
+  "lambda_Pa": 5000,
+  "density_kg_m3": 1100,
+  "activation_width_m": 0.0001,
+  "area_coefficient_N_m5": 1e+16,
+  "limitation": "source comparison and retained binary hashes do not independently attest compilation"
+}
