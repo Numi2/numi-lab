@@ -1,0 +1,23 @@
+{
+  "command": [
+    "/Users/numi/numi-matter-midpoint-compensated-build-20261109/numi_contact_fem_fp64_reference_n128",
+    "64",
+    "0.00000025",
+    "0.01"
+  ],
+  "scheduling": "nice 10",
+  "binary_sha256": "7f8b311536d8bb7cfd8bf4eb053649da020d0c9a20dc621071284d9e207c2394",
+  "source_sha256": "019371ad99f9cfd0ff0a7c3b08e77d493f698f7b3f7d0ef528dd4695097edc1f",
+  "manifest_sha256": "fb273d880f210738a0a3b5e43d7c79b0e642fe40f258d4db332aba1fd78fa179",
+  "returncode": -15,
+  "stopped_reason": "free-space limit",
+  "wall_seconds_observational_only": 140.880057167029,
+  "peak_rss_kib_sampled": 624096,
+  "output_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+  "log_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+  "limits": {
+    "rss_kib": 2097152,
+    "free_bytes": 3328599654,
+    "wall_seconds": 7200
+  }
+}

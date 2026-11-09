@@ -1,0 +1,7 @@
+# Spatial rebound 005 interruption
+
+A newly initiated isolated checkout unexpectedly included several gigabytes of tracked `matter/tools/evidence` data and exhausted free space. Its incomplete, task-created working tree was removed; the original shared files and Human data were not removed. The 3.1 GiB safeguard terminated the running reference and blocked the queued control. The 004 coordinator receipt remains at `running_control` because its process also exited while the volume was full; it is a stale status, not an active job or a completed control.
+
+The 64-division 0.5 microsecond reference completed in 1016.06 observational seconds before the interruption. Its execution record binds the executable, source manifest, return code and output hash. Independent validation of its force, area, mass, clearance and impulse fields passed, and the same-mesh numerical metrics agree exactly with the historical coarse result. This does not establish temporal or spatial convergence.
+
+The 0.25 microsecond run stopped after 140.88 seconds with no output; the supervisor preserves its exit, resource limit and empty-output hashes. No conclusion can be drawn from that run. The fresh 006 supervisor repeats only this missing fine run, binds and checks the existing successful coarse output, and uses a separate analysis receipt. A fresh serial coordinator will run the previously selected 008 control and conditional timing; the continuation is changed to validate both distinct execution records rather than pretending they came from one process.
