@@ -1,0 +1,66 @@
+{
+  "schema": "numi.midpoint-force-landmarks.v1",
+  "fixtures": [
+    {
+      "mesh_divisions": 2,
+      "nodes": 27,
+      "timestep_s": 1.5625e-05,
+      "native_peak_force_N": 0.722801436496,
+      "native_peak_stage_time_s": 0.0048046875,
+      "reference_integration_step_sampled_peak_N": 0.7246741476060986,
+      "reference_peak_time": "not retained at the integration-step sampling rate",
+      "reference_2us_trace_sample_maximum_N": 0.7246741476060986,
+      "reference_2us_trace_sample_maximum_time_s": 0.004798,
+      "peak_relative_error": 0.0025842112848718495,
+      "worst_1ms_bin": 9,
+      "worst_bin_start_s": 0.009000000000000001,
+      "worst_bin_native_N": 0.09775474244667962,
+      "worst_bin_reference_N": 0.09758524807654345,
+      "worst_bin_error_normalized_by_reference_peak_bin": 0.0008503608315807373,
+      "max_cumulative_error_reference_time_s": 0.004882,
+      "cumulative_native_Ns": 0.00015524644785044265,
+      "cumulative_reference_Ns": 0.00015550498006314213,
+      "cumulative_max_error_Ns": 2.5853221269947187e-07,
+      "cumulative_error_normalized_by_total_reference_impulse": 0.0005103529702167294,
+      "input_sha256": {
+        "docs/evidence/midpoint-first-failure-20261109/stage-ladder-n2-h015625.json": "d49e5b5aead478b4ebeba9e06b1d09b54b0e0c9e52a4fd53cdf7c7395db9386a",
+        "docs/evidence/midpoint-first-failure-20261109/stage-ladder-n2-h015625-analysis.json": "a433435be3c92c26a73c81c5aae0b9ed6af57610f507d0eaaf13f18143590cea",
+        "docs/evidence/midpoint-first-failure-20261109/stage-ladder-n2-h015625-execution.json": "4b21365b99c8c33be710b1e4505965252ff0c6ef537e6fa83b68cb0e0053a4d1",
+        "docs/evidence/midpoint-spatial-cost-dynamic-20261108/rk4-n2-h025.json": "a37f254053b30e97b70223fc1f2f3d26028a0472aba0bf2136a92e9a7e11700e"
+      },
+      "integrity_audit": "midpoint-strict-integrity-001.json",
+      "integrity_audit_sha256": "8bbddbba4c359ab597150f851d96bd367daea2071a9a4a7ff22488a514fee81b"
+    },
+    {
+      "mesh_divisions": 8,
+      "nodes": 729,
+      "timestep_s": 7.8125e-06,
+      "native_peak_force_N": 0.361133579254,
+      "native_peak_stage_time_s": 0.0058710937500000004,
+      "reference_integration_step_sampled_peak_N": 0.36165617693288626,
+      "reference_peak_time": "not retained at the integration-step sampling rate",
+      "reference_2us_trace_sample_maximum_N": 0.3616392167236808,
+      "reference_2us_trace_sample_maximum_time_s": 0.005872,
+      "peak_relative_error": 0.0014450124516557578,
+      "worst_1ms_bin": 9,
+      "worst_bin_start_s": 0.009000000000000001,
+      "worst_bin_native_N": 0.08643916846110726,
+      "worst_bin_reference_N": 0.08637321289299996,
+      "worst_bin_error_normalized_by_reference_peak_bin": 0.0007168983643453177,
+      "max_cumulative_error_reference_time_s": 0.009741999999999999,
+      "cumulative_native_Ns": 0.0003862782277976912,
+      "cumulative_reference_Ns": 0.000386454144140529,
+      "cumulative_max_error_Ns": 1.759163428378084e-07,
+      "cumulative_error_normalized_by_total_reference_impulse": 0.0004026893786901191,
+      "input_sha256": {
+        "docs/evidence/midpoint-first-failure-20261109/stage-ladder-n8-h0078125.json": "f306b8ea97cc256def7090d028bace9bab8d7e67cd12e831b2232a9d350a3c71",
+        "docs/evidence/midpoint-first-failure-20261109/stage-ladder-n8-h0078125-analysis.json": "df024956d09a5a83216c8d352c5f34172dda2762ede0c63ec22e0c927b927f23",
+        "docs/evidence/midpoint-first-failure-20261109/stage-ladder-n8-h0078125-execution.json": "970457159db39a3c62f542072856110357f812e151336568b0bad41371c10778",
+        "docs/evidence/midpoint-spatial-cost-dynamic-20261108/rk4-n8-h025.json": "a5322e0e1baa78533551411815c7681b95b6ddb2a97837b3e426c5ff50eac6b8"
+      },
+      "integrity_audit": "midpoint-n8-strict-integrity-001.json",
+      "integrity_audit_sha256": "3df8e98ea5f1ce6e28967bbdcd5cb810ca6f9f53c3b9ed54a6a1ce4fa3a4da0a"
+    }
+  ],
+  "scope": "Retained complete native fixed-plane steps versus their own mesh-specific CPU references. Neither spatial convergence nor a performance result is established."
+}
