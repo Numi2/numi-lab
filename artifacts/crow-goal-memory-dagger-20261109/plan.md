@@ -1,0 +1,3 @@
+# Goal-memory corrective labels
+
+Collect teacher corrections on the goal-memory actor's own accepted states. For each development layout, run four matched full starts with teacher disabled, then repeat with shadow teacher labels and student command authority until control steps 700, 850, 1000, or 1150, followed by teacher takeover. Matched student-prefix sampled q/v must agree exactly. Only full first episodes that complete all five waypoints, avoid physical failure, and finish with 25 upward-support samples are admitted. Retain failed episodes as evidence, but exclude all their samples from training. Seeds 20261224-20261226 are development seeds, not final held-out.

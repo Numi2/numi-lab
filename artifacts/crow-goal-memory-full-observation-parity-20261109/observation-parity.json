@@ -1,0 +1,14 @@
+{
+  "steps": 3000,
+  "environments": 1,
+  "sampled_physics_mismatches": 0,
+  "actor_observations_equal": true,
+  "max_actor_observation_difference": 0.0,
+  "teacher_labels_finite": true,
+  "label_first_step_excluded_from_training": true,
+  "teacher_command_observation_is_neutral_in_both_modes": true,
+  "pack_sha256": {
+    "oracle-off": "d1cb066a9238ccd378a20769ef256ce3962190abd91e5bff735dae2bc7003498",
+    "oracle-teacher": "f0228d4209b378c1972026264dd384c0dbfafb2698b1c3c5d94908b89c3a9d05"
+  }
+}

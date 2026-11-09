@@ -1,0 +1,3 @@
+# Goal-memory recovery imitation
+
+Continue from the goal-memory policy using qualified original teacher demonstrations and qualified corrective student-prefix recoveries. Exclude failed first episodes. Reserve the highest qualified recovery lane per course for development validation, and preserve original demonstration lane splits. Weight student-visited prefixes four times teacher continuation, balance waypoint stages, subsample every fifth step excluding the first, and preserve head and beak outputs. Fixed Adam learning rate 0.0001 for 200 epochs; evaluate physically with teacher disabled. Layouts remain development.
