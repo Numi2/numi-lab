@@ -22,7 +22,7 @@ returned a residual norm of 2.69743e-12 N s. The captured GPU residual had
 norm 2.69792e-12 N s and differed from the independently evaluated residual
 vector by 2.23e-15 N s, about 0.083% of its norm. Both exceed the configured
 physical residual limit of 2.24813e-12 N s. The independent maximum local
-scaled residual without a unit floor was 0.0001341; this is a separate measure,
+scaled residual without a unit floor was 0.0001340; this is a separate measure,
 not a replacement for the failed overall certificate. No tolerance or solver
 budget was relaxed.
 
