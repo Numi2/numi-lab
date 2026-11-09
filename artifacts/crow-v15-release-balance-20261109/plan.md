@@ -1,0 +1,3 @@
+# Post-release ankle control
+
+The 45-second no-balance trial sustained opposing toe loads through endpoint 2249 and lost right and left opposing loads at endpoints 2252 and 2253 after the command, then tilted at 2396. Before running, retain this approach and 45-second release, and enable bounded positive ankle feedback only from release onward while bilateral support is present. Compare fourfold and tenfold gains on the same full-start exposed layout J. Require measured pre-release opposing grip, both subsequent load losses, no physical failure, all waypoints and 25 stable final support endpoints.
