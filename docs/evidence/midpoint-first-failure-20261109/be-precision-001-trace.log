@@ -1,0 +1,17 @@
+instrument_world contact_pairs=27 deformable_capacity=0 rigid_generalized=0 mutation=0 object_flags=7555 plane_flags=0 floor=1e-07 slop=0.0001
+[NumiMatter] mixed-field smoother skipped_empty: multiphysics_objects=0 field_boundaries=0; mechanical and vascular solve unchanged
+matter_stateless_material_specialization requested=0 eligible=1 material_count=1
+matter_all_native_float requested=0 eligible=1 enabled=0 materials=1 diagnostic_vm=0
+matter_empty_mpm_krylov_domain=1 capacity_proof=storage_active_rows_and_representation_zero
+matter_canonical_precision_materials=0 source=compiler_exact_energy_proof tangent_policy=unchanged
+reference_contact_area_m2=0.00039999996079131961
+0   numi-be-crashtrace.dylib            0x000000010081c484 trace + 52
+1   libsystem_platform.dylib            0x00000001826730a4 _sigtramp + 56
+2   AGXMetalG18G                        0x0000000218dbd13c _ZN3AGX14ComputeContextINS_6HAL4008EncodersENS1_7ClassesENS1_10ObjClassesENS1_15CommandEncodingENS1_28EncoderComputeServiceClassesEE17setPipelineCommonEPNS1_15ComputePipelineE + 44
+3   AGXMetalG18G                        0x0000000218dbd13c _ZN3AGX14ComputeContextINS_6HAL4008EncodersENS1_7ClassesENS1_10ObjClassesENS1_15CommandEncodingENS1_28EncoderComputeServiceClassesEE17setPipelineCommonEPNS1_15ComputePipelineE + 44
+4   AGXMetalG18G                        0x0000000218e2ec20 -[AGXG18GFamilyComputeContext setComputePipelineState:] + 72
+5   numi_plane_contact_probe_scaled     0x0000000100593644 _ZZN4numi6matter7Runtime10encodeImplERKNS0_13EncodeRequestEbfENK3$_6clIZNS1_10encodeImplES4_bfE4$_81EEDaPKcmRKT_ZNS1_10encodeImplES4_bfE10WorkDomainPU19objcproto9MTLBuffer11objc_object + 332
+6   numi_plane_contact_probe_scaled     0x0000000100556bfc _ZN4numi6matter7Runtime10encodeImplERKNS0_13EncodeRequestEbf + 29352
+7   numi_plane_contact_probe_scaled     0x000000010049b0e4 _ZZ4mainENK3$_1clEib + 300
+8   numi_plane_contact_probe_scaled     0x0000000100494c0c main + 10948
+9   dyld                                0x000000018229d158 start + 6688

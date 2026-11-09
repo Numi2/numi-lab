@@ -1,0 +1,5 @@
+# BE precision candidate 001: native crash (retained failure)
+
+The default-disabled candidate at `dc3569f5d` passed initialization and snapshot scope tests but crashed on its first stepping test. The 64-step command, binary/source hashes, result metadata, and stderr are in `be-precision-001-short-*` and `be-precision-001-inputs.sha256`; it exited by SIGSEGV before emitting a result. No numerical or performance conclusion follows.
+
+A separate one-step reproduction used a signal backtrace (`be-precision-001-trace.log`); macOS denied the noninteractive debugger permission. The stack reaches Metal `setComputePipelineState` during `Runtime::encodeImpl`. Source inspection identifies a missing pipeline: initialization skips all `nm_fem_midpoint_` pipelines for non-midpoint runs, but this BE experiment dispatches several of those pipelines. This is an initialization defect in the candidate, not evidence of a failure in default BE or midpoint. The repair must load the needed pipelines and rerun the short step and full physical gates; initialization-only coverage was insufficient.
