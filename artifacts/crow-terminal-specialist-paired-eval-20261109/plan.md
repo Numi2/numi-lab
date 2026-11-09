@@ -1,0 +1,3 @@
+# Landing specialist paired evaluation
+
+Keep the deterministic corrective route actor fixed and replace only the landing actor with the new waypoint-five specialist. Repeat the previously measured 16-lane full starts on each development course with seeds 20270114, 20270115 and 20270116. Teacher and oracle off, no intermediate reset. Match the accepted q/v before waypoint five to the route-only control, and compare supported landing against the earlier run on identical lane identities. Require all five waypoints and 25 final upward foot-support samples, bounded velocity and no physical failure. These are development layouts.

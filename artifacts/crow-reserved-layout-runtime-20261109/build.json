@@ -1,0 +1,6 @@
+{
+  "api_sha256": "ddfba838b832ca1926cf183a225cbe6c10281c5807441789e504a36dfde15963",
+  "library_sha256": "5eacae0bdd6e36d6a8bd0df8bc7ce32b0bbb88c12fca7e454721a9f435b7ec01",
+  "committed_course_source_sha256": "eb057c51284a2901c8e460ba2bd153b867abbf972a62a973e254317f688ff956",
+  "scope": "diagnostic runtime with goal-memory task, opt-in clearance, reserved layouts; not a production integration"
+}

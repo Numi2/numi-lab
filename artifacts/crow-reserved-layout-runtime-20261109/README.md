@@ -1,0 +1,3 @@
+# Reserved-layout diagnostic runtime
+
+This separate diagnostic library combines the goal-memory task and checked clearance observer with the committed reserved-layout definitions. The standard rollout executable and first-episode evidence test built successfully. Parser checks passed the reserved names followed by a deliberately invalid option, which stopped argument parsing before any world was created. The full development-layout replay matched 394 first-episode q/v samples exactly against the earlier runtime, with all 16 clearance records present. Neither reserved layout was executed by these checks. The diagnostic library and stage-selector shader are experimental and do not establish normal production integration.
