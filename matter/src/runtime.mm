@@ -10205,7 +10205,13 @@ RuntimeDiagnostics Runtime::initialize(
             return diagnostics;
         }
         for (const char* name : kernelNames) {
-            if (!configuration.experimentalFEMPlaneMidpoint &&
+            const bool bePrecisionPipeline = candidate->experimentalFEMPlaneBEPrecision &&
+                (std::strcmp(name, "nm_fem_midpoint_compensated_mechanical_residual") == 0 ||
+                 std::strcmp(name, "nm_fem_midpoint_stage_low_clear") == 0 ||
+                 std::strcmp(name, "nm_fem_midpoint_velocity_low_checkpoint") == 0 ||
+                 std::strcmp(name, "nm_fem_midpoint_velocity_low_rollback") == 0 ||
+                 std::strcmp(name, "nm_fem_midpoint_velocity_low_commit") == 0);
+            if (!configuration.experimentalFEMPlaneMidpoint && !bePrecisionPipeline &&
                 (std::strncmp(name, "nm_fem_midpoint_", 16u) == 0 ||
                  std::strcmp(name, "nm_contact_midpoint_publish_physical") == 0)) continue;
             if (!candidate->fgmresCoarseParityDiagnostic &&
