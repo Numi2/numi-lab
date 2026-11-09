@@ -5,6 +5,7 @@ root=pathlib.Path(__file__).resolve().parents[2];p=root/"docs/evidence/midpoint-
 b=pathlib.Path("/Users/numi/numi-matter-midpoint-compensated-build-20261109/evidence-be-precision-005")
 manifest=p/"be-precision-005-inputs.sha256"
 from cost_provenance import verify_accuracy_provenance
+from cost_selection import select_largest_certified
 if len(sys.argv)!=4:raise SystemExit("usage: cost.py MIDPOINT_PREFIX BE_PREFIX OUTPUT_TAG")
 mid,be,tag=sys.argv[1:]
 if not tag.replace("-","").isalnum() or any("/" in x for x in (mid,be)):raise SystemExit("invalid evidence name")
@@ -19,6 +20,10 @@ def qualified(name,arm):
  verify_accuracy_provenance(e, manifest, b)
  if not (a.get("passes") and e.get("all_gates_pass") and d["arm"]==arm and d["rejected_steps"]==0 and d["restore_replay"] and d["continuation_replay"] and d["forced_rollback_exact"] and d["identity_mismatch_rejected"]):raise SystemExit("accuracy gate not satisfied: "+name)
  return d
+verify=lambda e: verify_accuracy_provenance(e, manifest, b)
+selected_mid, midpoint_ladder=select_largest_certified(p,"stage-ladder-n2-h*","ipc_area_midpoint",verify)
+selected_be, be_ladder=select_largest_certified(p,"be-precision-006-n2-h*","ipc_area",verify)
+if (mid,be)!=(selected_mid,selected_be):raise SystemExit("use largest certified tested timesteps: "+selected_mid+" "+selected_be)
 m=qualified(mid,"ipc_area_midpoint");c=qualified(be,"ipc_area")
 for key in ("divisions","nodes","initial_gap","contact_area_m2","contact_area_weights_m2","area_ipc_k_N_per_m5","residual_policy","coordinate_mode","freefall_control","mechanical_relative_tolerance"):
  if m[key]!=c[key]:raise SystemExit("mismatched physical input: "+key)
@@ -64,7 +69,7 @@ for name,d,arm in ((be,c,"ipc_area"),(mid,m,"ipc_area_midpoint")):
     break
    time.sleep(1)
   code=r.wait()
- record={"command":cmd,"input_sha256":hashes,"accuracy_manifest_sha256":hashlib.sha256(manifest.read_bytes()).hexdigest(),"accuracy_prefix":name,"returncode":code,
+ record={"command":cmd,"input_sha256":hashes,"accuracy_manifest_sha256":hashlib.sha256(manifest.read_bytes()).hexdigest(),"accuracy_prefix":name,"tested_midpoint_ladder":midpoint_ladder,"tested_be_ladder":be_ladder,"returncode":code,
          "stopped_reason":reason,"thermal_snapshot_before":thermal,
          "recognized_numi_workers_before":workers,"recognized_conflicts_during":conflicts,"worker_check_scope":"process names beginning numi_ or metalrobo_; not a comprehensive GPU activity detector",
          "outer_wall_seconds":time.monotonic()-start}
