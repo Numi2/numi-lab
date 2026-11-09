@@ -61,3 +61,13 @@ were restored byte-for-byte, and each retry matched the same uninterrupted
 continuation. The exact evidence is `slider-diagnostic-order-001-execution.json`
 and its two outputs. This covers two deliberate index choices, not every
 possible failure source or the still-incomplete 10 ms trajectory.
+
+
+The third instrument version retained each contact node midpoint gap. An
+independent host analysis recomputed the pressure-law impulse from each gap,
+area, timestep and fixed law parameters, then reconstructed both work totals
+and the maximum per-node work ratio. The same two one-step cases passed this
+instrument check; near-contact maximum ratio remained 0.005812. The synthetic
+analysis additionally rejects a corrupted gap. See
+`slider-fem-work-check-003-execution.json` and its separately retained outputs.
+The previously reported 200 µm momentum-balance failure remains unchanged.
