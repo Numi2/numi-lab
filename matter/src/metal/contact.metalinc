@@ -12102,9 +12102,20 @@ kernel void nm_contact_evaluate(
             environment * dispatch.femNodeCount + femNode
         ];
         point = node.positionAndMass.xyz;
-        referencePlane=node.referenceDisplacementAndMode.w==1.f&&proxy.shapeKind==NM_RIGID_PLANE&&
-            proxy.bodyIndex==NM_INVALID_INDEX&&rigid.linearVelocityAndInverseMass.w==0.f&&
-            all(rigid.linearVelocityAndInverseMass.xyz==0.f)&&all(rigid.angularVelocity.xyz==0.f)&&!nmFEMPlaneALActive;
+        // The reference-area law evaluates the same physical gap against
+        // either the fixed plane or an articulated, nonrotating stage plane.
+        // The coupled midpoint owner is still rejected by runtime admission
+        // until its complete transaction and endpoint checks are qualified.
+        const bool fixedReferencePlane = proxy.bodyIndex==NM_INVALID_INDEX &&
+            all(rigid.linearVelocityAndInverseMass.xyz==0.f);
+        const bool articulatedReferencePlane = nmFEMPlaneAreaIPCActive &&
+            proxy.bodyIndex!=NM_INVALID_INDEX &&
+            (proxy.flags&NM_RIGID_ARTICULATED)!=0u;
+        referencePlane=node.referenceDisplacementAndMode.w==1.f &&
+            proxy.shapeKind==NM_RIGID_PLANE &&
+            (fixedReferencePlane || articulatedReferencePlane) &&
+            rigid.linearVelocityAndInverseMass.w==0.f &&
+            all(rigid.angularVelocity.xyz==0.f) && !nmFEMPlaneALActive;
         if(referencePlane)referencePoint=femContactPositionRelativeExpansion(node,float3(0));
         velocity = node.velocityAndInverseMass.xyz;
         // deltaVelocity is defined against femAccepted on every candidate
@@ -16516,6 +16527,8 @@ kernel void nm_publish_primal_free_rigid_candidate(
     device NMMatterStatusGPU* statuses [[buffer(7)]],
     device const uint* bodyProxyIncidence [[buffer(8)]],
     device const NMIncidenceRangeGPU* bodyProxyRanges [[buffer(9)]],
+    device const NMRigidReactionGPU* midpointReactions [[buffer(10)]],
+    constant uint& sliderMidpoint [[buffer(11)]],
     uint global [[thread_position_in_grid]]
 ) {
     const uint total = dispatch.environmentCount * bridge.reactionBodyCount;
@@ -16528,10 +16541,16 @@ kernel void nm_publish_primal_free_rigid_candidate(
         bridge.currentBodyStride < bridge.currentBodyCount) return;
     const NMIncidenceRangeGPU range = bodyProxyRanges[bodyIndex];
     uint freeIndex = NM_INVALID_INDEX;
+    float3 sliderTorqueImpulse = float3(0.0f);
     for (uint local = 0u; local < range.count; ++local) {
         const uint proxyIndex = bodyProxyIncidence[range.first + local];
         if (proxyIndex >= dispatch.rigidProxyCount) continue;
         const NMRigidProxyGPU proxy = proxies[proxyIndex];
+        if (sliderMidpoint != 0u && proxy.bodyIndex == bodyIndex &&
+            (proxy.flags & NM_RIGID_ARTICULATED) != 0u) {
+            sliderTorqueImpulse += midpointReactions[
+                environment * dispatch.rigidProxyCount + proxyIndex].angularImpulse.xyz;
+        }
         if (proxy.bodyIndex != bodyIndex ||
             (proxy.flags & NM_RIGID_DYNAMIC) == 0u ||
             (proxy.flags & NM_RIGID_ARTICULATED) != 0u) continue;
@@ -16545,6 +16564,20 @@ kernel void nm_publish_primal_free_rigid_candidate(
                     float(proxy.generalizedFreeBodyIndex), 0.0f));
             return;
         }
+    }
+    if (sliderMidpoint != 0u) {
+        // The one-axis publisher already owns the axial generalized effort.
+        // Send the actual off-axis contact moment to the rigid owner without
+        // applying that force a second time. The constrained slider has no
+        // angular degree of freedom; its owner must still account for the
+        // equal support moment in the full two-owner certificate.
+        const float3 torque = sliderTorqueImpulse * bridge.time.x;
+        if (!finite3(torque)) {
+            recordFailure(statuses[environment], NM_STATUS_NONFINITE_RESULT,
+                NM_INVALID_INDEX, bodyIndex, float4(torque, bridge.time.x));
+            return;
+        }
+        bodyWrenches[environment * bridge.bodyWrenchStride + bodyIndex].torque.xyz += torque;
     }
     if (freeIndex == NM_INVALID_INDEX) return;
     const uint base = environment * dispatch.rigidGeneralizedCapacity +

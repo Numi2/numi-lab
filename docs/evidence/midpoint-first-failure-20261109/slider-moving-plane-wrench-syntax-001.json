@@ -1,0 +1,51 @@
+{
+  "scope": "syntax only; dynamic admission remains closed; no native coupled transaction qualified",
+  "sources_sha256": {
+    "matter/src/metal/contact.metalinc": "7d5861bfb494611b35480abcf64eed516183544200f510c863c850f71061875e",
+    "matter/src/runtime.mm": "240b334d6475ab6e7ed26e61142ea6570282eb8fcfcb01c33aab26a63e44cbd0"
+  },
+  "checks": [
+    {
+      "command": [
+        "xcrun",
+        "-sdk",
+        "macosx",
+        "metal",
+        "-std=metal4.0",
+        "-O3",
+        "-fno-fast-math",
+        "-I",
+        "matter/include",
+        "-I",
+        "include",
+        "-fsyntax-only",
+        "matter/src/matter_kernels.metal"
+      ],
+      "returncode": 0,
+      "seconds": 0.9403690830804408,
+      "log": "docs/evidence/midpoint-first-failure-20261109/slider-moving-plane-wrench-syntax-001-0.log"
+    },
+    {
+      "command": [
+        "/usr/bin/clang++",
+        "-I",
+        "matter/include",
+        "-I",
+        "include",
+        "-F",
+        "/Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/System/Library/Frameworks",
+        "-x",
+        "objective-c++",
+        "-std=gnu++23",
+        "-arch",
+        "arm64",
+        "-fobjc-arc",
+        "-fsyntax-only",
+        "matter/src/runtime.mm"
+      ],
+      "returncode": 0,
+      "seconds": 2.7753128330223262,
+      "log": "docs/evidence/midpoint-first-failure-20261109/slider-moving-plane-wrench-syntax-001-1.log"
+    }
+  ]
+}

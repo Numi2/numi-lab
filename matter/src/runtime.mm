@@ -52962,6 +52962,10 @@ RuntimeDiagnostics Runtime::encodeImpl(
                                  offset:0u atIndex:8u];
                     [encoder setBuffer:state.bodyProxyRanges
                                  offset:0u atIndex:9u];
+                    [encoder setBuffer:state.frameReactions offset:0u atIndex:10u];
+                    const std::uint32_t sliderMidpoint =
+                        state.experimentalFEMPlaneMidpoint && state.requiresCoupledCandidate ? 1u : 0u;
+                    [encoder setBytes:&sliderMidpoint length:sizeof(sliderMidpoint) atIndex:11u];
                 });
             dispatchThreads("nm_mpm_commit_microstep", particleTotal, [&] {
                 setDispatch();
