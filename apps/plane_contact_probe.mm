@@ -88,9 +88,11 @@ struct FixtureResidual { double l2=0,local=0,kinematic=0,velocity=0,localWithout
 FixtureResidual fixtureResidual(const numi::matter::CompiledWorld& world,
     const numi::matter::RuntimeStateSnapshot& old,
     const numi::matter::RuntimeStateSnapshot& cur,double timestep,bool midpoint,
-    std::vector<std::array<float,3>>* suggestedVelocities=nullptr, bool stageReflectionOnly=false) {
+    std::vector<std::array<float,3>>* suggestedVelocities=nullptr, bool stageReflectionOnly=false,
+    std::vector<std::array<double,3>>* componentResidual=nullptr) {
     using V=std::array<double,3>;using M=std::array<V,3>;
     const double h=float(timestep),g=float(-9.81);
+    if (componentResidual) componentResidual->assign(cur.femNodes.size(),V{});
     std::vector<V> force(cur.femNodes.size());
     for(const auto& t:world.fem.tetrahedra) {
         const unsigned ids[4]={t.nodes.x,t.nodes.y,t.nodes.z,t.nodes.w};
@@ -158,6 +160,7 @@ FixtureResidual fixtureResidual(const numi::matter::CompiledWorld& world,
         const V u={physicalVelocity(old,i,0),physicalVelocity(old,i,1),physicalVelocity(old,i,2)};
         double sum=0;for(int j=0;j<3;++j) {
             const double e=h*(force[i][j]+(j==2?mass*g:0))-mass*(v[j]-u[j])+impulse[i][j];
+            if (componentResidual) (*componentResidual)[i][j]=e;
             sum+=e*e;
             r.net[j]+=e;
             // Exploratory FP32 representability diagnostic, with force and

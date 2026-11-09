@@ -24,11 +24,12 @@ int main(int argc,char**argv){try{
  std::vector<NMFEMNodeStateGPU> working(n);std::vector<nm_float4> correction(2*n);readExact(a,working);readExact(b,correction);
  require(a.peek()==std::ifstream::traits_type::eof()&&b.peek()==std::ifstream::traits_type::eof(),"extra trace bytes");
  std::cout<<std::setprecision(17)<<"{\"kind\":\"offline_unrounded_stage_correction_not_a_native_step\",\"results\":[";
- for(int trial=0;trial<2;++trial){
+ const double factors[4]={0.,.5,1.,2.};std::vector<std::array<double,3>> residuals[4];
+ for(int trial=0;trial<4;++trial){
   auto next=old;next.contactSamples.clear();double minGap=1;
   for(size_t i=0;i<n;++i){auto& q=next.femNodes[i];const auto& p=old.femNodes[i];
    for(int j=0;j<3;++j){
-    const double v0=physicalVelocity(old,i,j),vm=double(at(working[i].velocityAndInverseMass,j))+(trial?double(at(correction[i],j)):0.);
+    const double v0=physicalVelocity(old,i,j),vm=double(at(working[i].velocityAndInverseMass,j))+factors[trial]*double(at(correction[i],j));
     const double v1=2*vm-v0;const float vh=float(v1),vl=float(v1-double(vh));
     put(q.velocityAndInverseMass,j,vh);put(next.femMidpointVelocityLow[i],j,vl);
     const double x0=double(at(p.referenceDisplacementAndMode,j))+at(p.referenceDisplacementLow,j);
@@ -39,8 +40,15 @@ int main(int argc,char**argv){try{
    minGap=std::min(minGap,double(q.restAndFixed.z)+q.referenceDisplacementAndMode.z+q.referenceDisplacementLow.z);
   }
   require(minGap>0,"offline candidate lacks clearance");
-  const auto r=fixtureResidual(world,old,next,requestedH,true);
-  std::cout<<(trial?",":"")<<"{\"name\":\""<<(trial?"unrounded_proposal":"retained_stage")<<"\",\"residual_norm_Ns\":"<<r.l2<<",\"local_scaled_max\":"<<r.localWithoutFloor<<",\"kinematic_defect_m\":"<<r.kinematic<<",\"minimum_gap_m\":"<<minGap<<"}";
+  const auto r=fixtureResidual(world,old,next,requestedH,true,nullptr,false,&residuals[trial]);
+  std::cout<<(trial?",":"")<<"{\"name\":\""<<factors[trial]<<"\",\"residual_norm_Ns\":"<<r.l2<<",\"local_scaled_max\":"<<r.localWithoutFloor<<",\"kinematic_defect_m\":"<<r.kinematic<<",\"minimum_gap_m\":"<<minGap<<"}";
  }
- std::cout<<"]}\n";return 0;
+ double nonlinearHalf=0,nonlinearFull=0;
+ for(size_t i=0;i<n;++i)for(int j=0;j<3;++j){
+  const double a=residuals[2][i][j]-2*residuals[1][i][j]+residuals[0][i][j];
+  const double b=residuals[3][i][j]-2*residuals[2][i][j]+residuals[0][i][j];
+  nonlinearHalf+=a*a;nonlinearFull+=b*b;
+ }
+ std::cout<<"],\"finite_difference_curvature_half_Ns\":"<<std::sqrt(nonlinearHalf)
+   <<",\"finite_difference_curvature_full_Ns\":"<<std::sqrt(nonlinearFull)<<"}\n";return 0;
  }catch(const std::exception&e){std::cerr<<"midpoint_stage_correction_diagnostic: "<<e.what()<<"\n";return 1;}}
