@@ -16662,6 +16662,7 @@ kernel void nm_publish_primal_free_rigid_candidate(
         bridge.currentBodyStride < bridge.currentBodyCount) return;
     const NMIncidenceRangeGPU range = bodyProxyRanges[bodyIndex];
     uint freeIndex = NM_INVALID_INDEX;
+    float3 sliderLinearImpulse = float3(0.0f);
     float3 sliderTorqueImpulse = float3(0.0f);
     for (uint local = 0u; local < range.count; ++local) {
         const uint proxyIndex = bodyProxyIncidence[range.first + local];
@@ -16669,8 +16670,10 @@ kernel void nm_publish_primal_free_rigid_candidate(
         const NMRigidProxyGPU proxy = proxies[proxyIndex];
         if (sliderMidpoint != 0u && proxy.bodyIndex == bodyIndex &&
             (proxy.flags & NM_RIGID_ARTICULATED) != 0u) {
-            sliderTorqueImpulse += midpointReactions[
-                environment * dispatch.rigidProxyCount + proxyIndex].angularImpulse.xyz;
+            const NMRigidReactionGPU reaction = midpointReactions[
+                environment * dispatch.rigidProxyCount + proxyIndex];
+            sliderLinearImpulse += reaction.impulseAndCount.xyz;
+            sliderTorqueImpulse += reaction.angularImpulse.xyz;
         }
         if (proxy.bodyIndex != bodyIndex ||
             (proxy.flags & NM_RIGID_DYNAMIC) == 0u ||
@@ -16687,17 +16690,17 @@ kernel void nm_publish_primal_free_rigid_candidate(
         }
     }
     if (sliderMidpoint != 0u) {
-        // The one-axis publisher already owns the axial generalized effort.
-        // Send the actual off-axis contact moment to the rigid owner without
-        // applying that force a second time. The constrained slider has no
-        // angular degree of freedom; its owner must still account for the
-        // equal support moment in the full two-owner certificate.
+        // Send the actual full-step contact wrench to the rigid owner.
+        // MetalWorld offsets its generalized publisher by the same axial force
+        // before ABA; the contact force must not be applied twice.
+        const float3 force = sliderLinearImpulse * bridge.time.x;
         const float3 torque = sliderTorqueImpulse * bridge.time.x;
-        if (!finite3(torque)) {
+        if (!finite3(force) || !finite3(torque)) {
             recordFailure(statuses[environment], NM_STATUS_NONFINITE_RESULT,
-                NM_INVALID_INDEX, bodyIndex, float4(torque, bridge.time.x));
+                NM_INVALID_INDEX, bodyIndex, float4(force, bridge.time.x));
             return;
         }
+        bodyWrenches[environment * bridge.bodyWrenchStride + bodyIndex].force.xyz += force;
         bodyWrenches[environment * bridge.bodyWrenchStride + bodyIndex].torque.xyz += torque;
     }
     if (freeIndex == NM_INVALID_INDEX) return;

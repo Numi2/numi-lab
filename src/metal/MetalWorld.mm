@@ -494,6 +494,7 @@ struct MetalWorldContextState {
     __strong id<MTLComputePipelineState> coupledCandidateIntegratePipeline = nil;
     __strong id<MTLComputePipelineState> sliderMidpointCandidateVelocityPipeline = nil;
     __strong id<MTLComputePipelineState> sliderMidpointStatusPipeline = nil;
+    __strong id<MTLComputePipelineState> sliderMidpointPrepareWrenchPipeline = nil;
     __strong id<MTLComputePipelineState> coupledCandidateMassPipeline = nil;
     __strong id<MTLComputePipelineState> coupledCandidateJacobianPipeline = nil;
     __strong id<MTLComputePipelineState> coupledCandidatePublishPipeline = nil;
@@ -6320,6 +6321,7 @@ MetalWorldDiagnostics initializeContext(
     __strong id<MTLComputePipelineState> coupledCandidateIntegrate = nil;
     __strong id<MTLComputePipelineState> sliderMidpointCandidateVelocity = nil;
     __strong id<MTLComputePipelineState> sliderMidpointStatus = nil;
+    __strong id<MTLComputePipelineState> sliderMidpointPrepareWrench = nil;
     __strong id<MTLComputePipelineState> coupledCandidateMass = nil;
     __strong id<MTLComputePipelineState> coupledCandidateJacobian = nil;
     __strong id<MTLComputePipelineState> coupledCandidatePublish = nil;
@@ -6527,6 +6529,9 @@ MetalWorldDiagnostics initializeContext(
     );
     sliderMidpointStatus = makePipeline(
         device, library, @"mr_world_slider_midpoint_promote_status_with_wrench_guard", nullptr
+    );
+    sliderMidpointPrepareWrench = makePipeline(
+        device, library, @"mr_world_slider_midpoint_prepare_wrench", nullptr
     );
     coupledCandidateMass = createContactPipeline(
         @"mr_world_apply_coupled_candidate_mass"
@@ -7026,6 +7031,7 @@ MetalWorldDiagnostics initializeContext(
     context.coupledCandidateIntegratePipeline = coupledCandidateIntegrate;
     context.sliderMidpointCandidateVelocityPipeline = sliderMidpointCandidateVelocity;
     context.sliderMidpointStatusPipeline = sliderMidpointStatus;
+    context.sliderMidpointPrepareWrenchPipeline = sliderMidpointPrepareWrench;
     context.coupledCandidateMassPipeline = coupledCandidateMass;
     context.coupledCandidateJacobianPipeline = coupledCandidateJacobian;
     context.coupledCandidatePublishPipeline = coupledCandidatePublish;
@@ -11641,6 +11647,25 @@ bool encodeBorrowedCoupledCandidate(
         }
     }
     if (midpointPublish) context->sliderMidpointStageIncrement = input;
+    return true;
+}
+
+// The physical body wrench is already encoded by the extension. Offset its
+// axial force from the synthetic stage effort before ABA consumes either.
+bool encodeSliderMidpointPrepareWrench(
+    detail::MetalWorldContextState& context, id<MTLCommandBuffer> commandBuffer
+) {
+    if (!context.sliderMidpointActive || context.sliderMidpointPrepareWrenchPipeline == nil)
+        return false;
+    id<MTLComputeCommandEncoder> encoder = [commandBuffer computeCommandEncoder];
+    if (encoder == nil) return false;
+    encoder.label = @"MetalWorld slider midpoint contact-wrench preparation";
+    [encoder setComputePipelineState:context.sliderMidpointPrepareWrenchPipeline];
+    [encoder setBuffer:context.buffers[kBodyWrenchPlaceholder] offset:0u atIndex:0u];
+    [encoder setBuffer:context.buffers[kWorkingEffort] offset:0u atIndex:1u];
+    [encoder setBuffer:context.buffers[kContactStatuses] offset:0u atIndex:2u];
+    dispatchWorldThreads(encoder, context.sliderMidpointPrepareWrenchPipeline, 1u);
+    [encoder endEncoding];
     return true;
 }
 
@@ -21256,6 +21281,12 @@ MetalWorldDiagnostics MetalWorldContext::submitImpl(
                                     batch.environmentCount
                                 )
                             )
+                        ) &&
+                        (
+                            (config.devicePhysicsProgram.flags &
+                                MetalWorldDevicePhysicsOwnsSliderMidpoint) == 0u ||
+                            !config.devicePhysicsProgram.valid() || !hasBodyWrenches ||
+                            encodeSliderMidpointPrepareWrench(*selectedState, commandBuffer)
                         ) &&
                         (
                             !hasMillardProgram ||

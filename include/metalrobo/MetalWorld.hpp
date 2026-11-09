@@ -328,8 +328,9 @@ enum MetalWorldDevicePhysicsFlags : std::uint32_t {
     MetalWorldDevicePhysicsOwnsFreeBodyCandidate = 1u << 4u,
     // Experimental one-axis midpoint transaction. Explicit admission and
     // exact owner topology validation are required; never a default path.
-    // If body wrenches are enabled, only the owned body moment is permitted;
-    // the axial force is already supplied by the generalized effort owner.
+    // If body wrenches are enabled, the owned body's axial force and moment
+    // are admitted. Its force is removed from the synthetic generalized
+    // effort before ABA so the physical contact is not counted twice.
     MetalWorldDevicePhysicsOwnsSliderMidpoint = 1u << 5u,
 };
 

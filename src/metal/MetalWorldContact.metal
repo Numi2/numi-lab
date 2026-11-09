@@ -817,6 +817,40 @@ kernel void mr_world_slider_midpoint_candidate_velocity(
     candidateBodies[1].linearVelocityAndInverseMass.xyz = float3(0.0f,0.0f,stageVelocity);
 }
 
+// Subtract the actual axial contact force from the synthetic effort that
+// reproduces the stage increment. ABA then receives the physical contact
+// wrench once, so its body and constraint reactions remain observable.
+kernel void mr_world_slider_midpoint_prepare_wrench(
+    device const MRABABodyWrenchGPU* bodyWrenches [[buffer(0)]],
+    device float* efforts [[buffer(1)]],
+    device MRMetalWorldContactStatusGPU* statuses [[buffer(2)]],
+    const uint environment [[thread_position_in_grid]]
+) {
+    if (environment != 0u || statuses[0].code != MR_STEP_SUCCESS) return;
+    const MRABABodyWrenchGPU root = bodyWrenches[0];
+    const MRABABodyWrenchGPU body = bodyWrenches[1];
+    MRMetalWorldContactStatusGPU status = statuses[0];
+    if (!all(isfinite(root.force)) || !all(isfinite(root.torque)) ||
+        !all(isfinite(body.force)) || !all(isfinite(body.torque)) ||
+        !isfinite(efforts[0])) {
+        status.code = MR_STEP_NONFINITE_INPUT;
+    } else if (any(root.force != float4(0.0f)) ||
+               any(root.torque != float4(0.0f)) || body.force.x != 0.0f ||
+               body.force.y != 0.0f || body.force.w != 0.0f ||
+               body.torque.w != 0.0f) {
+        status.code = MR_STEP_UNSUPPORTED;
+    } else {
+        const float corrected = efforts[0] - body.force.z;
+        if (isfinite(corrected)) {
+            efforts[0] = corrected;
+            return;
+        }
+        status.code = MR_STEP_NONFINITE_RESULT;
+    }
+    status.firstFailingConstraint = 0u;
+    statuses[0] = status;
+}
+
 // Free-motion commit consumes environment status, while borrowed candidate
 // operations report through contact status. Promote a candidate failure before
 // commit so an invalid midpoint cannot become a successful ABA endpoint.
@@ -830,9 +864,8 @@ kernel void mr_world_slider_midpoint_promote_status_with_wrench_guard(
 ) {
     if (environment != 0u) return;
     MRMetalWorldContactStatusGPU candidate = candidateStatus[0];
-    // The axial effort is already published through the mass operator. An
-    // extra force here would be counted twice. Only a finite torque on the
-    // moving body is admitted; there is no other body-wrench producer.
+    // Only a finite world-z force and finite moment on the moving body are
+    // admitted; the earlier preparation pass offsets its generalized effort.
     if (candidate.code == MR_STEP_SUCCESS && hasBodyWrenches != 0u) {
         for (uint body = 0u; body < 2u; ++body) {
             const MRABABodyWrenchGPU wrench = bodyWrenches[body];
@@ -841,8 +874,10 @@ kernel void mr_world_slider_midpoint_promote_status_with_wrench_guard(
                 candidate.firstFailingConstraint = body;
                 break;
             }
-            if (any(wrench.force != float4(0.0f)) || wrench.torque.w != 0.0f ||
-                (body == 0u && any(wrench.torque != float4(0.0f)))) {
+            if (wrench.force.x != 0.0f || wrench.force.y != 0.0f ||
+                wrench.force.w != 0.0f || wrench.torque.w != 0.0f ||
+                (body == 0u && (wrench.force.z != 0.0f ||
+                                 any(wrench.torque != float4(0.0f))))) {
                 candidate.code = MR_STEP_UNSUPPORTED;
                 candidate.firstFailingConstraint = body;
                 break;

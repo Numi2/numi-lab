@@ -49,9 +49,11 @@ int main(int argc,char** argv) { @autoreleasepool { try {
     wrench[1].torque.x=0.3f; wrench[1].torque.y=-0.2f;
     run(wrench,1u,MR_STEP_SUCCESS,MR_STEP_SUCCESS,MR_STEP_SUCCESS,11u);
     wrench[1].force.z=0.1f;
+    run(wrench,1u,MR_STEP_SUCCESS,MR_STEP_SUCCESS,MR_STEP_SUCCESS,11u);
+    wrench[1].force.x=0.1f;
     run(wrench,1u,MR_STEP_SUCCESS,MR_STEP_SUCCESS,MR_STEP_UNSUPPORTED,1u);
     run(wrench,0u,MR_STEP_SUCCESS,MR_STEP_SUCCESS,MR_STEP_SUCCESS,11u);
-    wrench[1].force.z=0;wrench[0].torque.x=0.2f;
+    wrench[1].force.x=0;wrench[1].force.z=0;wrench[0].torque.x=0.2f;
     run(wrench,1u,MR_STEP_SUCCESS,MR_STEP_SUCCESS,MR_STEP_UNSUPPORTED,0u);
     wrench[0].torque.x=0;wrench[1].torque.w=1;
     run(wrench,1u,MR_STEP_SUCCESS,MR_STEP_SUCCESS,MR_STEP_UNSUPPORTED,1u);
@@ -59,6 +61,6 @@ int main(int argc,char** argv) { @autoreleasepool { try {
     run(wrench,1u,MR_STEP_SUCCESS,MR_STEP_SUCCESS,MR_STEP_NONFINITE_INPUT,1u);
     run(wrench,1u,MR_STEP_FACTORIZATION_FAILED,MR_STEP_SUCCESS,MR_STEP_FACTORIZATION_FAILED,7u);
     run(wrench,1u,MR_STEP_SUCCESS,MR_STEP_FACTORIZATION_FAILED,MR_STEP_FACTORIZATION_FAILED,11u);
-    std::cout<<"nine slider owner wrench guard cases passed\n";
+    std::cout<<"ten slider owner wrench guard cases passed\n";
     return 0;
  } catch(const std::exception& e) {std::cerr<<e.what()<<"\n";return 1;} } }
