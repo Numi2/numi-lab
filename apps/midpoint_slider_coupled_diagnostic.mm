@@ -227,11 +227,12 @@ int main(int argc,char**argv){@autoreleasepool{try{
   q=result.finalQ;v=result.finalV;const auto body=*static_cast<const MRABABodyWrenchGPU*>(obs.wrench.contents);
   const auto support=*static_cast<const MRABABodyWrenchGPU*>(obs.support.contents);
   double impulse=0,torqueX=0,torqueY=0,work=0,low=1e100,midLow=1e100;
-  double oldContactPotential=0,newContactPotential=0;
+  double oldContactPotential=0,newContactPotential=0,femLawWork=0,femWorkGateRatio=0;
+  std::vector<double> nodalContactImpulse(now.femNodes.size(),0.0);
   for(const auto& s:now.contactSamples)if(s.identity.w&NM_CONTACT_VALID){
    require(s.identity.x>=femWorld.dispatch.gridNodeCount,"contact is not a FEM node");
    const auto node=s.identity.x-femWorld.dispatch.gridNodeCount;require(node<now.femNodes.size(),"contact node out of range");
-   const double jz=-double(s.impulseAndNormal.z);impulse+=jz;
+   const double jz=-double(s.impulseAndNormal.z);impulse+=jz;nodalContactImpulse[node]+=jz;
    const double x=s.pointAndSeparation.x,y=s.pointAndSeparation.y;torqueX+=y*jz;torqueY-=x*jz;
    const double vm=.5*(physicalVelocity(previous,node,2)+physicalVelocity(now,node,2));work+=jz*vm;
   }
@@ -243,6 +244,23 @@ int main(int argc,char**argv){@autoreleasepool{try{
    const double d=femWorld.dispatch.numericalLimits.x,k=mc.experimentalFEMPlaneAreaIPCK;
    auto potential=[&](double g){if(area[i]<=0 || g>=d)return 0.;require(g>0,"nonpositive clearance in potential");const double v=g*g-d*d;return -double(area[i])*k*v*v*std::log(g*g/(d*d));};
    oldContactPotential+=potential(oldZ);newContactPotential+=potential(z);
+   // Independent FP64 law reconstruction uses the actual nodal midpoint and
+   // the fixed physical reference area. Compare work per node, so opposing
+   // local errors cannot disappear in the total contact work.
+   if(area[i]>0) {
+    const double midpointGap=.5*(oldZ+z);
+    require(midpointGap>0,"nonpositive midpoint clearance in contact-work reconstruction");
+    double pressure=0;
+    if(midpointGap<d) {
+     const double square=midpointGap*midpointGap,shift=square-d*d;
+     pressure=2*midpointGap*k*(2*shift*std::log(square/(d*d))+shift*shift/square);
+    }
+    const double expectedImpulse=physicalH*double(area[i])*pressure;
+    const double vm=.5*(physicalVelocity(previous,i,2)+physicalVelocity(now,i,2));
+    const double bound=std::max(1e-12,1e-5*std::abs(expectedImpulse))*std::abs(vm)+1e-24;
+    femLawWork+=expectedImpulse*vm;
+    femWorkGateRatio=std::max(femWorkGateRatio,std::abs((nodalContactImpulse[i]-expectedImpulse)*vm)/bound);
+   }
   }
   const double ownerImpulse=sliderMass*(double(v[0])-double(startV[0]))-physicalH*sliderMass*sliderGravity;
   const double ownerWork=ownerImpulse*.5*(double(startV[0])+double(v[0]));
@@ -256,7 +274,8 @@ int main(int argc,char**argv){@autoreleasepool{try{
    <<",\"fem_torque_impulse_x\":"<<torqueX<<",\"fem_torque_impulse_y\":"<<torqueY
    <<",\"owner_moment_impulse_x\":"<<double(body.torque.x)*physicalH<<",\"owner_moment_impulse_y\":"<<double(body.torque.y)*physicalH
    <<",\"support_moment_impulse_x\":"<<double(support.torque.x)*physicalH<<",\"support_moment_impulse_y\":"<<double(support.torque.y)*physicalH
-   <<",\"fem_contact_work\":"<<work<<",\"owner_contact_work\":"<<ownerWork
+   <<",\"fem_contact_work\":"<<work<<",\"fem_law_work\":"<<femLawWork
+   <<",\"fem_work_reconstruction_gate_ratio\":"<<femWorkGateRatio<<",\"owner_contact_work\":"<<ownerWork
    <<",\"owner_wrench_work\":"<<double(body.force.z)*physicalH*.5*(double(startV[0])+double(v[0]))
    <<",\"contact_potential_before_J\":"<<oldContactPotential<<",\"contact_potential_after_J\":"<<newContactPotential
    <<",\"independent_fem_residual_Ns\":"<<independent.l2

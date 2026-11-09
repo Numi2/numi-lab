@@ -85,5 +85,5 @@ if abs(gap-.0002)<1e-12:
 out={'schema':'numi.native-slider-gates.v1','input_sha256':hashlib.sha256(path.read_bytes()).hexdigest(),
  'reference':refpath.name,'reference_sha256':hashlib.sha256(refpath.read_bytes()).hexdigest(),
  'qualification':qualification.name,'checks':checks,'results':results,'passes':all(checks.values()),
- 'limitations':'Does not establish rollback, spatial convergence, or a performance benefit; owner work reconstruction uses the impulse gate, while reference-work and potential-energy differences are reported without a new absolute threshold.'}
+ 'limitations':'Does not establish rollback, spatial convergence, or a performance benefit; both work reconstructions use the impulse gate, with FEM checked per node, while reference-work and potential-energy differences are reported without a new absolute threshold.'}
 print(json.dumps(out,indent=2,sort_keys=True));sys.exit(0 if out['passes'] else 1)

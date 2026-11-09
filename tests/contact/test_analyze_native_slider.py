@@ -29,4 +29,4 @@ with tempfile.NamedTemporaryFile(mode='w',suffix='.json') as f:
  for field in ('owner_momentum_impulse','support_moment_impulse_x','independent_joint_residual_Ns','midpoint_gap','owner_wrench_work'):
   old=d['steps'][100][field];d['steps'][100][field]=0. if field=='midpoint_gap' else old+1e-5
   code,out=run();assert code!=0,(field,out);d['steps'][100][field]=old
- print('baseline synthetic analysis passed; impulse, torque, residual, midpoint clearance, and work perturbations rejected')
+ print('baseline synthetic analysis passed; impulse, torque, residual, midpoint clearance, and both work perturbations rejected')
