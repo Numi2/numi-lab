@@ -57,6 +57,8 @@ int main(int argc,char** argv) {
         <<",\"rounding_net_Ns\":["<<roundNet[0]<<","<<roundNet[1]<<","<<roundNet[2]<<"]"
         <<",\"independent_norm_Ns\":"<<physical.l2
         <<",\"independent_max_node_Ns\":"<<physical.maxNode
+        <<",\"frozen_geometry_nearest_fp32_velocity_residual_Ns\":"<<physical.frozenVelocityMinimum
+        <<",\"frozen_geometry_velocity_components_already_nearest\":"<<physical.frozenVelocityAlreadyNearest
         <<",\"independent_local_max_with_1e_10_floor\":"<<physical.local
         <<",\"independent_local_max_without_floor\":"<<physical.localWithoutFloor
         <<",\"independent_net_Ns\":["<<physical.net[0]<<","<<physical.net[1]<<","<<physical.net[2]<<"]"

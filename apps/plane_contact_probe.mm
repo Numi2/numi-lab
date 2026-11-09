@@ -73,10 +73,11 @@ std::string physicalDigest(const numi::matter::RuntimeStateSnapshot& s){
 }
 
 // Independent FP64 evaluation of the fixture equations, without integration.
-struct FixtureResidual { double l2=0,local=0,kinematic=0,velocity=0,localWithoutFloor=0,maxNode=0; std::array<double,3> net{}; };
+struct FixtureResidual { double l2=0,local=0,kinematic=0,velocity=0,localWithoutFloor=0,maxNode=0,frozenVelocityMinimum=0; std::uint32_t frozenVelocityAlreadyNearest=0; std::array<double,3> net{}; };
 FixtureResidual fixtureResidual(const numi::matter::CompiledWorld& world,
     const numi::matter::RuntimeStateSnapshot& old,
-    const numi::matter::RuntimeStateSnapshot& cur,double timestep,bool midpoint) {
+    const numi::matter::RuntimeStateSnapshot& cur,double timestep,bool midpoint,
+    std::vector<std::array<float,3>>* suggestedVelocities=nullptr, bool stageReflectionOnly=false) {
     using V=std::array<double,3>;using M=std::array<V,3>;
     const double h=float(timestep),g=float(-9.81);
     std::vector<V> force(cur.femNodes.size());
@@ -128,9 +129,11 @@ FixtureResidual fixtureResidual(const numi::matter::CompiledWorld& world,
         impulse[i][2]-=s.impulseAndNormal.z;
     }
     FixtureResidual r;
+    if(suggestedVelocities) suggestedVelocities->resize(cur.femNodes.size());
     for(unsigned i=0;i<cur.femNodes.size();++i) {
         const auto& a=old.femNodes[i];const auto& b=cur.femNodes[i];
         const double mass=b.positionAndMass.w;
+        require(mass>0 && h>0,"invalid independent physical impulse scale");
         const bool reference=b.referenceDisplacementAndMode.w==1;
         const V x=reference ? V{double(b.referenceDisplacementAndMode.x)+b.referenceDisplacementLow.x,
             double(b.referenceDisplacementAndMode.y)+b.referenceDisplacementLow.y,
@@ -146,15 +149,40 @@ FixtureResidual fixtureResidual(const numi::matter::CompiledWorld& world,
             const double e=h*(force[i][j]+(j==2?mass*g:0))-mass*(v[j]-u[j])+impulse[i][j];
             sum+=e*e;
             r.net[j]+=e;
+            // Exploratory FP32 representability diagnostic, with force and
+            // geometry frozen at the evaluated state; not a solve or a gate.
+            const double targetVelocity=v[j]+e/mass;
+            const float nearestVelocity=static_cast<float>(targetVelocity);
+            if(suggestedVelocities) {
+                float chosen=nearestVelocity;
+                if(stageReflectionOnly) {
+                    const float center=float((u[j]+targetVelocity)*.5);
+                    float low=center,high=center;
+                    float best=float(2.f*center-float(u[j]));
+                    double bestError=std::abs(targetVelocity-double(best));
+                    for(int k=0;k<2;++k) {
+                        low=std::nextafter(low,-INFINITY);high=std::nextafter(high,INFINITY);
+                        for(float stage: {low,high}) {
+                            const float candidate=float(2.f*stage-float(u[j]));
+                            const double error=std::abs(targetVelocity-double(candidate));
+                            if(error<bestError){best=candidate;bestError=error;}
+                        }
+                    }
+                    chosen=best;
+                }
+                (*suggestedVelocities)[i][j]=chosen;
+            }
+            const double bestFrozenResidual=e-mass*(double(nearestVelocity)-v[j]);
+            r.frozenVelocityMinimum+=bestFrozenResidual*bestFrozenResidual;
+            if(double(nearestVelocity)==v[j])++r.frozenVelocityAlreadyNearest;
             r.kinematic=std::max(r.kinematic,std::abs(x[j]-y[j]-h*(midpoint ? .5*(u[j]+v[j]) : v[j])));
             r.velocity=std::max(r.velocity,std::abs(v[j]-u[j]-(j==2?h*g:0)));
         }
         r.l2+=sum;r.local=std::max(r.local,std::sqrt(sum)/(mass*std::abs(g)*h+1e-10));
-        require(mass>0 && h>0,"invalid independent physical impulse scale");
         r.localWithoutFloor=std::max(r.localWithoutFloor,std::sqrt(sum)/(mass*std::abs(g)*h));
         r.maxNode=std::max(r.maxNode,std::sqrt(sum));
     }
-    r.l2=std::sqrt(r.l2);return r;
+    r.l2=std::sqrt(r.l2);r.frozenVelocityMinimum=std::sqrt(r.frozenVelocityMinimum);return r;
 }
 numi::matter::CompiledWorld model(int divisions,double h,double startGap,bool physical,bool freefall,bool reference,double initialVelocity,double toleranceFactor,bool articulatedPlane=false){
     auto parsed=numi::matter::parseMatter(R"MAT(

@@ -41,6 +41,43 @@ fixture-specific no-floor follow-up is preregistered in
 [PHYSICAL_SCALE_PLAN.md](PHYSICAL_SCALE_PLAN.md); it is not a general scale
 for zero gravity or constraints. All historical results remain as measured.
 
+## Exploratory frozen-geometry representability check
+
+After the boundary capture, an independent calculation rounded each component
+of the force-balanced endpoint velocity to its nearest FP32 value while
+holding the captured force, geometry, contact state and accepted state fixed.
+The resulting minimum componentwise residual norm is 8.63501e-14 N s, below
+the unchanged 1.37215e-13 N s limit; 538 of 2187 endpoint velocity components
+were already at the nearest value under that frozen-force calculation. This
+is an exploratory conditioned calculation, not a candidate transaction: it
+does not update positions, recompute the force, enforce the midpoint
+kinematic equation or demonstrate that a coupled solve can reach it. It rules
+out claiming from this capture alone that the endpoint FP32 representation
+makes passing the current limit impossible. See
+[capture-002-representability.json](capture-002-representability.json).
+
+## Independent coupled-rounding experiments
+
+The [unrestricted CPU iteration](coupled-rounding-002.json) recomputed the
+midpoint force after each velocity and position correction. It converged to a
+full-step residual of 8.63512e-14 N s, below the unchanged limit, with a
+3.50e-21 m midpoint kinematic defect and 0.000196885 m minimum gap. However,
+875 velocity components were not reproduced by the nearest three stage floats
+under the runtime reflection operation. The first file
+[coupled-rounding-001.json](coupled-rounding-001.json) is retained; its
+`unreachable` label overstated what that finite search establishes and was
+corrected in the second file.
+
+The [stage-reflection constrained follow-up](stage-reflection-001.json) found
+a repeated candidate with residual 1.21144e-13 N s and kinematic defect
+3.39e-21 m, again above clearance and below the unchanged residual limit. All
+endpoint velocity components were reproduced by the nearby tested stage
+floats. This rejects the preregistered prediction that the local reflection
+restriction would necessarily exceed the limit. These are independent CPU
+candidates for one precontact state, not accepted Matter steps: they do not
+prove the native stage solver can reach the state or that contact trajectories,
+whole-environment retry and accuracy-qualified performance pass.
+
 ## Follow-up without the unit-scale floor
 
 Both midpoint rollouts completed 640 of 640 steps and replayed, with unchanged
