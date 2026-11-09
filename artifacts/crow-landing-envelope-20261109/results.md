@@ -1,0 +1,3 @@
+# Low-speed and higher-altitude flight screen
+
+All five 20-lane groups passed the preregistered sampled limits, with zero physical failures and zero failed simulator steps. At commanded speeds 0.15, 0.25 and 0.35 m/s, the median sampled forward speeds were approximately 0.252, 0.350 and 0.446 m/s, respectively. At commanded heights 1.15 and 1.30 m, median lane-mean heights were approximately 1.046 and 1.196 m. These are finite-error flight results, not a demonstrated stop or supported landing. Each case was tested separately with obstacles disabled; combined slower/high/lateral commands require their own screen.
