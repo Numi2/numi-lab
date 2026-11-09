@@ -255,6 +255,11 @@ struct MetalWorldBatch {
     std::size_t controlStepCount = 0u;
     std::span<const float> initialQ{};
     std::span<const float> initialV{};
+    // Only for the explicitly admitted compensated one-axis slider owner.
+    // The low words are part of the physical input, not diagnostic state.
+    // All other configurations must supply canonical zero.
+    float sliderMidpointInitialQLow = 0.0f;
+    float sliderMidpointInitialVLow = 0.0f;
     std::span<const float> efforts{};
     // A compiled task program consumes packed
     // [control step][environment][task action] normalized actions and leaves
@@ -332,6 +337,9 @@ enum MetalWorldDevicePhysicsFlags : std::uint32_t {
     // are admitted. Its force is removed from the synthetic generalized
     // effort before ABA so the physical contact is not counted twice.
     MetalWorldDevicePhysicsOwnsSliderMidpoint = 1u << 5u,
+    // The same restricted slider transaction, with both q and v low words
+    // owned, consumed and restored by MetalWorld. Never enabled by default.
+    MetalWorldDevicePhysicsCompensatedSliderMidpoint = 1u << 6u,
 };
 
 inline constexpr std::uint32_t kMetalWorldDevicePhysicsKnownFlags =
@@ -340,7 +348,8 @@ inline constexpr std::uint32_t kMetalWorldDevicePhysicsKnownFlags =
     MetalWorldDevicePhysicsOwnsCoupledCandidate |
     MetalWorldDevicePhysicsCouplesRodNodes |
     MetalWorldDevicePhysicsOwnsFreeBodyCandidate |
-    MetalWorldDevicePhysicsOwnsSliderMidpoint;
+    MetalWorldDevicePhysicsOwnsSliderMidpoint |
+    MetalWorldDevicePhysicsCompensatedSliderMidpoint;
 
 struct MetalWorldDevicePhysicsPass;
 
@@ -377,6 +386,9 @@ struct MetalWorldCoupledCandidateQuery {
     void* output = nullptr;
     void* candidateQ = nullptr;
     void* candidateBodies = nullptr;
+    // Borrowed output for the restricted compensated slider: low position
+    // and velocity of the candidate plane, in that order, as two floats.
+    void* candidateSliderLow = nullptr;
     void* statuses = nullptr;
     void* pointQueries = nullptr;
     void* pointJacobians = nullptr;
@@ -407,6 +419,9 @@ struct MetalWorldDevicePhysicsPass {
     void* commandBuffer = nullptr;
     void* q = nullptr;
     void* v = nullptr;
+    // Borrowed physical low words corresponding to this pass q and v. The
+    // GPU owner selects accepted start or tentative endpoint by phase.
+    void* sliderMidpointLow = nullptr;
     void* sceneBodies = nullptr;
     void* currentBodies = nullptr;
     void* bodyWrenches = nullptr;
@@ -494,7 +509,9 @@ struct MetalWorldDevicePhysicsProgram {
             (flags & MetalWorldDevicePhysicsOwnsFreeBodyCandidate) != 0u;
         const bool ownsSliderMidpoint =
             (flags & MetalWorldDevicePhysicsOwnsSliderMidpoint) != 0u;
-        return context != nullptr && encode != nullptr && abort != nullptr &&
+        const bool compensatedSlider =
+            (flags & MetalWorldDevicePhysicsCompensatedSliderMidpoint) != 0u;
+        return (!compensatedSlider || ownsSliderMidpoint) && context != nullptr && encode != nullptr && abort != nullptr &&
             fingerprint != 0u &&
             (!ownsSliderMidpoint || (ownsCoupledCandidate &&
                 !ownsFreeBodyCandidate &&
@@ -1112,6 +1129,10 @@ struct MetalWorldResult {
     // Accepted state after the last encoded control step.
     std::vector<float> finalQ;
     std::vector<float> finalV;
+    // Physical low words paired with finalQ[0] and finalV[0] for the
+    // compensated one-axis slider owner; canonical zero otherwise.
+    float sliderMidpointFinalQLow = 0.0f;
+    float sliderMidpointFinalVLow = 0.0f;
     std::vector<MRBodyStateGPU> finalSceneBodies;
     std::vector<MRRodNodeStateGPU> finalRodNodes;
     std::vector<MRRodEdgeStateGPU> finalRodEdges;

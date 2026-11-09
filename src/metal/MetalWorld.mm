@@ -3746,6 +3746,15 @@ MetalWorldDiagnostics validateAndBuildLayout(
     const bool ownsSliderMidpoint = config.devicePhysicsProgram.valid() &&
         (config.devicePhysicsProgram.flags &
          MetalWorldDevicePhysicsOwnsSliderMidpoint) != 0u;
+    // Fail closed until the complete two-owner low-word transaction is wired
+    // and qualified. The input words are never silently dropped.
+    if ((config.devicePhysicsProgram.flags &
+         MetalWorldDevicePhysicsCompensatedSliderMidpoint) != 0u ||
+        batch.sliderMidpointInitialQLow != 0.0f || batch.sliderMidpointInitialVLow != 0.0f ||
+        std::signbit(batch.sliderMidpointInitialQLow) || std::signbit(batch.sliderMidpointInitialVLow)) {
+        return reject(std::move(diagnostics), MetalWorldHostStatus::unsupportedTopology,
+            "compensated slider state is not yet wired through the complete owner transaction");
+    }
     if (ownsSliderMidpoint) {
         const auto& model = world.model();
         const bool shape = model.articulations.size() == 1u &&
