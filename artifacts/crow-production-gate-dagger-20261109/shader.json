@@ -1,0 +1,6 @@
+{
+  "source_sha256": "5b8e128838bc73064d4af1bb03a6a4251ad826ed1d45e36be8a96c89f1f85291",
+  "shader_sha256": "81d316d8184da527862dad7d775884ab64da60b78170de672889e8f3a7c6edc3",
+  "frozen_flight_sha256": "aa2fe10901cb0494d80ae445902303a17ce0e73d030072bab09461d8f3593ebe",
+  "note": "production source with only a diagnostic teacher takeover schedule; teacher disabled in controls"
+}
