@@ -29210,9 +29210,17 @@ RuntimeDiagnostics Runtime::encodeImpl(
                     state.dispatch.femNodeCount<=729u && state.dispatch.tetrahedronCount<=3072u &&
                     (micro.solverIteration==3u || micro.solverIteration==4u) &&
                     std::strcmp(stage,"final_line_search")==0;
-                const bool rich=(richSmall || richCompensated) &&
+                // For the bounded mixed fixture, preserve the assembled RHS
+                // before FGMRES reuses it and the correction at the final
+                // line-search boundary. These readbacks do not certify a
+                // linear residual; a separately evaluated J*delta is needed.
+                const bool richMixed = richSmall && boundedMixedArticulatedTrace &&
+                    (std::strcmp(stage,"fully_assembled_rhs")==0 ||
+                     std::strcmp(stage,"final_line_search")==0);
+                const bool rich=((richSmall || richCompensated) &&
                     environments==1u && state.dispatch.objectCount==1u &&
-                    state.dispatch.particleCount==0u && state.dispatch.rigidGeneralizedCapacity==0u;
+                    state.dispatch.particleCount==0u && state.dispatch.rigidGeneralizedCapacity==0u)
+                    || richMixed;
                 if(rich) {
                     const NSUInteger nodes=state.dispatch.femNodeCount;
                     const NSUInteger vectors=state.fgmresLayout.unknownCount;
@@ -29224,6 +29232,19 @@ RuntimeDiagnostics Runtime::encodeImpl(
                     arenas.push_back({"contact_samples",state.contactSamples,state.dispatch.contactPairCount*sizeof(NMContactSampleGPU)});
                     arenas.push_back({"accepted_dual",state.contactHistoriesAccepted,state.dispatch.contactPairCount*sizeof(nm_float4)});
                     arenas.push_back({"candidate_dual",state.contactHistoriesCandidate,state.dispatch.contactPairCount*sizeof(nm_float4)});
+                    if (richMixed) {
+                        arenas.push_back({"accepted_fields",state.femFieldsAccepted,nodes*sizeof(NMFEMFieldStateGPU)});
+                        arenas.push_back({"working_fields",state.femFieldsCandidate,nodes*sizeof(NMFEMFieldStateGPU)});
+                        arenas.push_back({"rigid_candidate",state.coupledGeneralizedCandidate,
+                            state.dispatch.rigidGeneralizedCapacity*sizeof(float)});
+                        arenas.push_back({"rigid_candidate_q",state.coupledCandidateQ,state.coupledQStride*sizeof(float)});
+                        arenas.push_back({"rigid_candidate_bodies",state.coupledCandidateBodies,
+                            state.coupledBodyStride*sizeof(MRBodyStateGPU)});
+                        arenas.push_back({"rigid_states",state.rigidStates,
+                            state.dispatch.rigidProxyCount*sizeof(NMRigidStateGPU)});
+                        arenas.push_back({"point_jacobians",state.coupledPointJacobians,
+                            state.contactActiveCapacity*3u*state.dispatch.rigidGeneralizedCapacity*sizeof(float)});
+                    }
                     if (richCompensated) {
                         arenas.push_back({"accepted_velocity_low",state.femMidpointVelocityLowAccepted,nodes*sizeof(nm_float4)});
                         if (state.midpointStageVelocityCompensation)
@@ -29231,8 +29252,13 @@ RuntimeDiagnostics Runtime::encodeImpl(
                     }
                 }
                 NSUInteger bytes = 0u;
-                for (const auto& arena : arenas)
+                for (const auto& arena : arenas) {
+                    if (arena.source == nil || arena.bytes > arena.source.length) {
+                        emitFEMNewtonTraceSkip(root, "trace_source_extent_invalid");
+                        return true;
+                    }
                     bytes += (arena.bytes + 15u) & ~15u;
+                }
                 const NSUInteger maximumSnapshotBytes = rich ? 1024u*1024u : 16u*1024u;
                 if (bytes > maximumSnapshotBytes) {
                     if (std::strcmp(stage, "before_contact_limits") == 0)

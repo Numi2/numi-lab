@@ -33,3 +33,30 @@ that did not capture iterations. The relevant executable/source hashes and
 traced/untraced artifacts are retained alongside this report. The opt-in
 trace does not establish independent force, torque, work, or midpoint
 accuracy, and the reacting-body midpoint transaction remains unimplemented.
+
+A second opt-in capture retained the actual assembled RHS, proposed
+correction, accepted and working nodes and fields, contact samples and
+histories, rigid candidate, body projection and point Jacobians at the
+assembly and final-line-search boundaries. The raw records are in
+`coupled-tight-newton-021.log` and `coupled-default-rich-traced-021.log`;
+`analyze_coupled_rigid_rhs.py` reproduces the following checks.
+
+At the default stopping configuration the captured rigid RHS is
+2.2572639863938093e-5 N s. The sum of the recorded contact impulses is
+9.650689753470942e-5 N s; subtracting the one-kilogram body mass times the
+captured candidate velocity change, 7.393425767077133e-5 N s, gives exactly
+the same displayed value. Thus the previously observed discrepancy is
+present in the assembled rigid residual at the accepted stopping point; it
+is not merely a mismatch in the printed contact and owner outputs. The
+`1e-7` run has the identical configuration at this point and continues. At
+its 15th zero-based iteration, the captured rigid RHS has magnitude
+3.31e-9 N s, while the FEM mechanical and pressure block norms remain about
+1.00e-7 and 1.03e-7 respectively. These block norms use different coordinate
+units and cannot be interpreted as one physical force error.
+
+The rich traced and untraced default runs again had byte-identical captured
+physical state and passed both rejection/retry checks. The four scoped tests
+passed after the diagnostic change. The capture does not independently
+recompute the mixed FEM equations or `J*delta`; it establishes neither a
+correct tangent nor the cause of the final residual floor. It also does not
+qualify the reference-area law, midpoint coupling, or work balance.

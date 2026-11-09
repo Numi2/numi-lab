@@ -1,0 +1,29 @@
+{
+  "default_stopping_configuration": {
+    "rigid_impulse_Ns": 9.650689753470942e-05,
+    "rigid_candidate_velocity_increment_m_s": 7.393425767077133e-05,
+    "rigid_mass_kg": 1.0,
+    "contact_minus_mass_delta_v_Ns": 2.2572639863938093e-05,
+    "captured_rigid_rhs_Ns": 2.2572639863938093e-05,
+    "rhs_components": {
+      "fem_velocity": 3.699911979354076e-05,
+      "fem_pressure": 1.4275182362762403e-05,
+      "fields": 3.7013491352095967e-06,
+      "rigid": 2.2572639863938093e-05
+    }
+  },
+  "tight_iteration_15": {
+    "rigid_impulse_Ns": 5.132905562277301e-05,
+    "rigid_candidate_velocity_increment_m_s": 5.133236845722422e-05,
+    "rigid_mass_kg": 1.0,
+    "contact_minus_mass_delta_v_Ns": -3.312834451207891e-09,
+    "captured_rigid_rhs_Ns": -3.3141986932605505e-09,
+    "rhs_components": {
+      "fem_velocity": 1.0005976811999094e-07,
+      "fem_pressure": 1.0301633780939662e-07,
+      "fields": 6.349924244391295e-09,
+      "rigid": 3.3141986932605505e-09
+    }
+  },
+  "scope": "runtime-assembled legacy mixed fixture, not independent FP64 or midpoint contact"
+}
