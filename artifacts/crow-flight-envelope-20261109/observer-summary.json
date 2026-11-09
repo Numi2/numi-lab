@@ -1,0 +1,824 @@
+{
+  "yaw-negative": {
+    "on_off_trace_identical": true,
+    "first_episodes_identical": true,
+    "failed_steps": {
+      "on": 0,
+      "off": 0
+    },
+    "samples_per_lane": 100,
+    "calibration_passed_lanes": 32,
+    "median_lane_means_Nm": {
+      "mean_root_preaero_Nm": -0.019906131421500002,
+      "mean_wing_moment_Nm": -0.0001993723989815,
+      "mean_root_aero_plus_tail_Nm": 8.374292385237e-05
+    },
+    "maximum_projection_error_Nm": 3.911106450520813e-06,
+    "lanes": [
+      {
+        "lane": 0,
+        "actuator_projection_within_0_003_fraction": 1.0,
+        "maximum_projection_error_Nm": 2.554794868492305e-06,
+        "mean_root_preaero_Nm": -0.01990561253,
+        "mean_wing_moment_Nm": -0.00017587819272013,
+        "mean_root_aero_plus_tail_Nm": 6.11904157531e-05
+      },
+      {
+        "lane": 1,
+        "actuator_projection_within_0_003_fraction": 1.0,
+        "maximum_projection_error_Nm": 2.5522687802197186e-06,
+        "mean_root_preaero_Nm": -0.019904324485,
+        "mean_wing_moment_Nm": -0.0002397214025708,
+        "mean_root_aero_plus_tail_Nm": 9.96295617857e-05
+      },
+      {
+        "lane": 2,
+        "actuator_projection_within_0_003_fraction": 1.0,
+        "maximum_projection_error_Nm": 3.1398610322239118e-06,
+        "mean_root_preaero_Nm": -0.019905534272,
+        "mean_wing_moment_Nm": -0.0002829348074732,
+        "mean_root_aero_plus_tail_Nm": 9.209900215316e-05
+      },
+      {
+        "lane": 3,
+        "actuator_projection_within_0_003_fraction": 1.0,
+        "maximum_projection_error_Nm": 2.6960342054231645e-06,
+        "mean_root_preaero_Nm": -0.019905901313,
+        "mean_wing_moment_Nm": -0.00020005278795669998,
+        "mean_root_aero_plus_tail_Nm": 9.563827483662e-05
+      },
+      {
+        "lane": 4,
+        "actuator_projection_within_0_003_fraction": 1.0,
+        "maximum_projection_error_Nm": 3.0741640868366116e-06,
+        "mean_root_preaero_Nm": -0.01990509059,
+        "mean_wing_moment_Nm": -0.0002270626937798,
+        "mean_root_aero_plus_tail_Nm": 0.0001041638071788
+      },
+      {
+        "lane": 5,
+        "actuator_projection_within_0_003_fraction": 1.0,
+        "maximum_projection_error_Nm": 3.446539140892352e-06,
+        "mean_root_preaero_Nm": -0.019906990489,
+        "mean_wing_moment_Nm": -0.0002407340920726,
+        "mean_root_aero_plus_tail_Nm": 7.96918703807e-05
+      },
+      {
+        "lane": 6,
+        "actuator_projection_within_0_003_fraction": 1.0,
+        "maximum_projection_error_Nm": 3.1857562318021726e-06,
+        "mean_root_preaero_Nm": -0.0199064892,
+        "mean_wing_moment_Nm": -0.00030287636911078,
+        "mean_root_aero_plus_tail_Nm": 8.48296749785e-05
+      },
+      {
+        "lane": 7,
+        "actuator_projection_within_0_003_fraction": 1.0,
+        "maximum_projection_error_Nm": 2.7349665647422028e-06,
+        "mean_root_preaero_Nm": -0.019905616595,
+        "mean_wing_moment_Nm": -0.0001746001836309,
+        "mean_root_aero_plus_tail_Nm": 5.882881610643e-05
+      },
+      {
+        "lane": 8,
+        "actuator_projection_within_0_003_fraction": 1.0,
+        "maximum_projection_error_Nm": 3.1005714854030753e-06,
+        "mean_root_preaero_Nm": -0.019908546396,
+        "mean_wing_moment_Nm": -0.0001999340559838,
+        "mean_root_aero_plus_tail_Nm": 7.08030149733e-05
+      },
+      {
+        "lane": 9,
+        "actuator_projection_within_0_003_fraction": 1.0,
+        "maximum_projection_error_Nm": 3.911106450520813e-06,
+        "mean_root_preaero_Nm": -0.019905759878,
+        "mean_wing_moment_Nm": -0.0001999284338293,
+        "mean_root_aero_plus_tail_Nm": 8.77189765954e-05
+      },
+      {
+        "lane": 10,
+        "actuator_projection_within_0_003_fraction": 1.0,
+        "maximum_projection_error_Nm": 2.759876541247319e-06,
+        "mean_root_preaero_Nm": -0.019906406331,
+        "mean_wing_moment_Nm": -0.000126527313609,
+        "mean_root_aero_plus_tail_Nm": 8.342022447004e-05
+      },
+      {
+        "lane": 11,
+        "actuator_projection_within_0_003_fraction": 1.0,
+        "maximum_projection_error_Nm": 2.707243175269214e-06,
+        "mean_root_preaero_Nm": -0.019906178812,
+        "mean_wing_moment_Nm": -0.0001899627983708,
+        "mean_root_aero_plus_tail_Nm": 8.40656232347e-05
+      },
+      {
+        "lane": 12,
+        "actuator_projection_within_0_003_fraction": 1.0,
+        "maximum_projection_error_Nm": 2.71679134139155e-06,
+        "mean_root_preaero_Nm": -0.019905568137,
+        "mean_wing_moment_Nm": -0.0001961093969292,
+        "mean_root_aero_plus_tail_Nm": 0.0001006818883822
+      },
+      {
+        "lane": 13,
+        "actuator_projection_within_0_003_fraction": 1.0,
+        "maximum_projection_error_Nm": 2.5820913195674644e-06,
+        "mean_root_preaero_Nm": -0.019906149597,
+        "mean_wing_moment_Nm": -0.0001400758156482,
+        "mean_root_aero_plus_tail_Nm": 8.53334760513e-05
+      },
+      {
+        "lane": 14,
+        "actuator_projection_within_0_003_fraction": 1.0,
+        "maximum_projection_error_Nm": 2.5389451482997483e-06,
+        "mean_root_preaero_Nm": -0.019906695505,
+        "mean_wing_moment_Nm": -0.00014074997084416,
+        "mean_root_aero_plus_tail_Nm": 7.635287975349999e-05
+      },
+      {
+        "lane": 15,
+        "actuator_projection_within_0_003_fraction": 1.0,
+        "maximum_projection_error_Nm": 3.4812783303653227e-06,
+        "mean_root_preaero_Nm": -0.019906498789,
+        "mean_wing_moment_Nm": -0.0002466824818266,
+        "mean_root_aero_plus_tail_Nm": 8.991340233296e-05
+      },
+      {
+        "lane": 16,
+        "actuator_projection_within_0_003_fraction": 1.0,
+        "maximum_projection_error_Nm": 3.5509160130516026e-06,
+        "mean_root_preaero_Nm": -0.019906165263,
+        "mean_wing_moment_Nm": -0.00017741806770299999,
+        "mean_root_aero_plus_tail_Nm": 9.51102339995e-05
+      },
+      {
+        "lane": 17,
+        "actuator_projection_within_0_003_fraction": 1.0,
+        "maximum_projection_error_Nm": 2.6445804798026773e-06,
+        "mean_root_preaero_Nm": -0.019906576614,
+        "mean_wing_moment_Nm": -0.0001774688625925,
+        "mean_root_aero_plus_tail_Nm": 7.53151541094e-05
+      },
+      {
+        "lane": 18,
+        "actuator_projection_within_0_003_fraction": 1.0,
+        "maximum_projection_error_Nm": 2.677102159013428e-06,
+        "mean_root_preaero_Nm": -0.019905568178,
+        "mean_wing_moment_Nm": -0.00026284587073661,
+        "mean_root_aero_plus_tail_Nm": 9.56041170096e-05
+      },
+      {
+        "lane": 19,
+        "actuator_projection_within_0_003_fraction": 1.0,
+        "maximum_projection_error_Nm": 3.037452670381219e-06,
+        "mean_root_preaero_Nm": -0.019906890857,
+        "mean_wing_moment_Nm": -0.000260240296274049,
+        "mean_root_aero_plus_tail_Nm": 9.24660244421e-05
+      },
+      {
+        "lane": 20,
+        "actuator_projection_within_0_003_fraction": 1.0,
+        "maximum_projection_error_Nm": 2.5579313188313357e-06,
+        "mean_root_preaero_Nm": -0.019906460457,
+        "mean_wing_moment_Nm": -0.00019881636413370001,
+        "mean_root_aero_plus_tail_Nm": 8.553810453705e-05
+      },
+      {
+        "lane": 21,
+        "actuator_projection_within_0_003_fraction": 1.0,
+        "maximum_projection_error_Nm": 3.01995577894551e-06,
+        "mean_root_preaero_Nm": -0.019906195886,
+        "mean_wing_moment_Nm": -0.0001901747392143,
+        "mean_root_aero_plus_tail_Nm": 8.18524403625e-05
+      },
+      {
+        "lane": 22,
+        "actuator_projection_within_0_003_fraction": 1.0,
+        "maximum_projection_error_Nm": 2.7243503169099847e-06,
+        "mean_root_preaero_Nm": -0.019905785248,
+        "mean_wing_moment_Nm": -0.00014893119296202,
+        "mean_root_aero_plus_tail_Nm": 8.174473481467e-05
+      },
+      {
+        "lane": 23,
+        "actuator_projection_within_0_003_fraction": 1.0,
+        "maximum_projection_error_Nm": 2.839580754327581e-06,
+        "mean_root_preaero_Nm": -0.019905145583,
+        "mean_wing_moment_Nm": -0.00024362428789966,
+        "mean_root_aero_plus_tail_Nm": 0.000110390467562885
+      },
+      {
+        "lane": 24,
+        "actuator_projection_within_0_003_fraction": 1.0,
+        "maximum_projection_error_Nm": 2.940748982199065e-06,
+        "mean_root_preaero_Nm": -0.019905585371,
+        "mean_wing_moment_Nm": -0.0002384209233105,
+        "mean_root_aero_plus_tail_Nm": 8.01011146114e-05
+      },
+      {
+        "lane": 25,
+        "actuator_projection_within_0_003_fraction": 1.0,
+        "maximum_projection_error_Nm": 2.5412987307779633e-06,
+        "mean_root_preaero_Nm": -0.019907381985,
+        "mean_wing_moment_Nm": -0.00018719302094742,
+        "mean_root_aero_plus_tail_Nm": 7.58847017194e-05
+      },
+      {
+        "lane": 26,
+        "actuator_projection_within_0_003_fraction": 1.0,
+        "maximum_projection_error_Nm": 2.8407628501272986e-06,
+        "mean_root_preaero_Nm": -0.019905409049,
+        "mean_wing_moment_Nm": -0.000195431932046,
+        "mean_root_aero_plus_tail_Nm": 8.14893288659e-05
+      },
+      {
+        "lane": 27,
+        "actuator_projection_within_0_003_fraction": 1.0,
+        "maximum_projection_error_Nm": 2.3838585165407433e-06,
+        "mean_root_preaero_Nm": -0.019906885161,
+        "mean_wing_moment_Nm": -0.0002574957570056,
+        "mean_root_aero_plus_tail_Nm": 8.06076143907e-05
+      },
+      {
+        "lane": 28,
+        "actuator_projection_within_0_003_fraction": 1.0,
+        "maximum_projection_error_Nm": 3.0566454369412854e-06,
+        "mean_root_preaero_Nm": -0.019905443432,
+        "mean_wing_moment_Nm": -0.000221278796505,
+        "mean_root_aero_plus_tail_Nm": 6.836918386121e-05
+      },
+      {
+        "lane": 29,
+        "actuator_projection_within_0_003_fraction": 1.0,
+        "maximum_projection_error_Nm": 3.482495194936236e-06,
+        "mean_root_preaero_Nm": -0.019905262174000002,
+        "mean_wing_moment_Nm": -0.0001917680439235,
+        "mean_root_aero_plus_tail_Nm": 9.44596151832e-05
+      },
+      {
+        "lane": 30,
+        "actuator_projection_within_0_003_fraction": 1.0,
+        "maximum_projection_error_Nm": 2.8827964721166166e-06,
+        "mean_root_preaero_Nm": -0.019906480892,
+        "mean_wing_moment_Nm": -0.0001355455434898,
+        "mean_root_aero_plus_tail_Nm": 7.51878317952e-05
+      },
+      {
+        "lane": 31,
+        "actuator_projection_within_0_003_fraction": 1.0,
+        "maximum_projection_error_Nm": 3.574305890485796e-06,
+        "mean_root_preaero_Nm": -0.019906113246,
+        "mean_wing_moment_Nm": -0.00022410940237107,
+        "mean_root_aero_plus_tail_Nm": 7.651295987205e-05
+      }
+    ]
+  },
+  "yaw-zero": {
+    "on_off_trace_identical": true,
+    "first_episodes_identical": true,
+    "failed_steps": {
+      "on": 0,
+      "off": 0
+    },
+    "samples_per_lane": 100,
+    "calibration_passed_lanes": 32,
+    "median_lane_means_Nm": {
+      "mean_root_preaero_Nm": 1.5750517925699998e-05,
+      "mean_wing_moment_Nm": 0.0003194349391338,
+      "mean_root_aero_plus_tail_Nm": -0.0001774988709655
+    },
+    "maximum_projection_error_Nm": 3.346858084184848e-06,
+    "lanes": [
+      {
+        "lane": 0,
+        "actuator_projection_within_0_003_fraction": 1.0,
+        "maximum_projection_error_Nm": 2.58669939196858e-06,
+        "mean_root_preaero_Nm": 1.4944351287e-05,
+        "mean_wing_moment_Nm": 0.00029270977913,
+        "mean_root_aero_plus_tail_Nm": -0.0001907528447149
+      },
+      {
+        "lane": 1,
+        "actuator_projection_within_0_003_fraction": 1.0,
+        "maximum_projection_error_Nm": 2.5945988044316438e-06,
+        "mean_root_preaero_Nm": 1.6948240954e-05,
+        "mean_wing_moment_Nm": 0.00030402374976500003,
+        "mean_root_aero_plus_tail_Nm": -0.0001650828950388
+      },
+      {
+        "lane": 2,
+        "actuator_projection_within_0_003_fraction": 1.0,
+        "maximum_projection_error_Nm": 3.1224597256456116e-06,
+        "mean_root_preaero_Nm": 1.74223396618e-05,
+        "mean_wing_moment_Nm": 0.0002311030470467,
+        "mean_root_aero_plus_tail_Nm": -0.0001641101127232
+      },
+      {
+        "lane": 3,
+        "actuator_projection_within_0_003_fraction": 1.0,
+        "maximum_projection_error_Nm": 2.1203427263249066e-06,
+        "mean_root_preaero_Nm": 1.52281286836e-05,
+        "mean_wing_moment_Nm": 0.000336132606961,
+        "mean_root_aero_plus_tail_Nm": -0.00017053548375670001
+      },
+      {
+        "lane": 4,
+        "actuator_projection_within_0_003_fraction": 1.0,
+        "maximum_projection_error_Nm": 2.551470535748194e-06,
+        "mean_root_preaero_Nm": 1.58244445993e-05,
+        "mean_wing_moment_Nm": 0.0002868183408669,
+        "mean_root_aero_plus_tail_Nm": -0.0001583822231712
+      },
+      {
+        "lane": 5,
+        "actuator_projection_within_0_003_fraction": 1.0,
+        "maximum_projection_error_Nm": 3.040563215919938e-06,
+        "mean_root_preaero_Nm": 1.45654138782e-05,
+        "mean_wing_moment_Nm": 0.000262172158475,
+        "mean_root_aero_plus_tail_Nm": -0.0001752614665445
+      },
+      {
+        "lane": 6,
+        "actuator_projection_within_0_003_fraction": 1.0,
+        "maximum_projection_error_Nm": 2.6617369343906573e-06,
+        "mean_root_preaero_Nm": 1.48426387022e-05,
+        "mean_wing_moment_Nm": 0.000238137415106,
+        "mean_root_aero_plus_tail_Nm": -0.0001829175512702
+      },
+      {
+        "lane": 7,
+        "actuator_projection_within_0_003_fraction": 1.0,
+        "maximum_projection_error_Nm": 2.8261276772577753e-06,
+        "mean_root_preaero_Nm": 1.59614723832e-05,
+        "mean_wing_moment_Nm": 0.0003397667734533,
+        "mean_root_aero_plus_tail_Nm": -0.0001981312396475
+      },
+      {
+        "lane": 8,
+        "actuator_projection_within_0_003_fraction": 1.0,
+        "maximum_projection_error_Nm": 2.961282069081072e-06,
+        "mean_root_preaero_Nm": 1.45242358135e-05,
+        "mean_wing_moment_Nm": 0.000317667636566,
+        "mean_root_aero_plus_tail_Nm": -0.000189333232003
+      },
+      {
+        "lane": 9,
+        "actuator_projection_within_0_003_fraction": 1.0,
+        "maximum_projection_error_Nm": 2.5532555288126216e-06,
+        "mean_root_preaero_Nm": 1.54085822291e-05,
+        "mean_wing_moment_Nm": 0.0003572064188531,
+        "mean_root_aero_plus_tail_Nm": -0.000178931377456783
+      },
+      {
+        "lane": 10,
+        "actuator_projection_within_0_003_fraction": 1.0,
+        "maximum_projection_error_Nm": 1.80040259628167e-06,
+        "mean_root_preaero_Nm": 1.46898852478e-05,
+        "mean_wing_moment_Nm": 0.0004422646751734,
+        "mean_root_aero_plus_tail_Nm": -0.00019052951497570001
+      },
+      {
+        "lane": 11,
+        "actuator_projection_within_0_003_fraction": 1.0,
+        "maximum_projection_error_Nm": 2.320372376475417e-06,
+        "mean_root_preaero_Nm": 1.49455179042e-05,
+        "mean_wing_moment_Nm": 0.000319171528737,
+        "mean_root_aero_plus_tail_Nm": -0.0001694821506101
+      },
+      {
+        "lane": 12,
+        "actuator_projection_within_0_003_fraction": 1.0,
+        "maximum_projection_error_Nm": 2.7634160345480295e-06,
+        "mean_root_preaero_Nm": 1.67982481852e-05,
+        "mean_wing_moment_Nm": 0.0003208692737497,
+        "mean_root_aero_plus_tail_Nm": -0.0001579904549194
+      },
+      {
+        "lane": 13,
+        "actuator_projection_within_0_003_fraction": 1.0,
+        "maximum_projection_error_Nm": 2.2366721987802608e-06,
+        "mean_root_preaero_Nm": 1.49636041566e-05,
+        "mean_wing_moment_Nm": 0.000376013216373,
+        "mean_root_aero_plus_tail_Nm": -0.0001757178848848
+      },
+      {
+        "lane": 14,
+        "actuator_projection_within_0_003_fraction": 1.0,
+        "maximum_projection_error_Nm": 2.6190246001075106e-06,
+        "mean_root_preaero_Nm": 1.73463002288e-05,
+        "mean_wing_moment_Nm": 0.0003513214217866,
+        "mean_root_aero_plus_tail_Nm": -0.000176006899549
+      },
+      {
+        "lane": 15,
+        "actuator_projection_within_0_003_fraction": 1.0,
+        "maximum_projection_error_Nm": 2.408954408425861e-06,
+        "mean_root_preaero_Nm": 1.61829755929e-05,
+        "mean_wing_moment_Nm": 0.0002578013615267,
+        "mean_root_aero_plus_tail_Nm": -0.0001679311448768
+      },
+      {
+        "lane": 16,
+        "actuator_projection_within_0_003_fraction": 1.0,
+        "maximum_projection_error_Nm": 2.5717693022035e-06,
+        "mean_root_preaero_Nm": 1.45985431321e-05,
+        "mean_wing_moment_Nm": 0.0004015120638771,
+        "mean_root_aero_plus_tail_Nm": -0.0001797593003929
+      },
+      {
+        "lane": 17,
+        "actuator_projection_within_0_003_fraction": 1.0,
+        "maximum_projection_error_Nm": 2.4320789524820997e-06,
+        "mean_root_preaero_Nm": 1.53334776397e-05,
+        "mean_wing_moment_Nm": 0.000364361902458,
+        "mean_root_aero_plus_tail_Nm": -0.000186905633088
+      },
+      {
+        "lane": 18,
+        "actuator_projection_within_0_003_fraction": 1.0,
+        "maximum_projection_error_Nm": 2.478549437331297e-06,
+        "mean_root_preaero_Nm": 1.68001555679e-05,
+        "mean_wing_moment_Nm": 0.00024515559226849997,
+        "mean_root_aero_plus_tail_Nm": -0.000158990376621
+      },
+      {
+        "lane": 19,
+        "actuator_projection_within_0_003_fraction": 1.0,
+        "maximum_projection_error_Nm": 2.4233038733923814e-06,
+        "mean_root_preaero_Nm": 1.59926120634e-05,
+        "mean_wing_moment_Nm": 0.0002960397745746,
+        "mean_root_aero_plus_tail_Nm": -0.0001803827708797
+      },
+      {
+        "lane": 20,
+        "actuator_projection_within_0_003_fraction": 1.0,
+        "maximum_projection_error_Nm": 2.396125784977971e-06,
+        "mean_root_preaero_Nm": 1.62081982526e-05,
+        "mean_wing_moment_Nm": 0.0003518060247386,
+        "mean_root_aero_plus_tail_Nm": -0.0001816685022027
+      },
+      {
+        "lane": 21,
+        "actuator_projection_within_0_003_fraction": 1.0,
+        "maximum_projection_error_Nm": 2.483314046783387e-06,
+        "mean_root_preaero_Nm": 1.6818007938299998e-05,
+        "mean_wing_moment_Nm": 0.000343461354845,
+        "mean_root_aero_plus_tail_Nm": -0.000178432217924
+      },
+      {
+        "lane": 22,
+        "actuator_projection_within_0_003_fraction": 1.0,
+        "maximum_projection_error_Nm": 2.420810569544545e-06,
+        "mean_root_preaero_Nm": 1.57584460984e-05,
+        "mean_wing_moment_Nm": 0.000422133975509,
+        "mean_root_aero_plus_tail_Nm": -0.000191029915957
+      },
+      {
+        "lane": 23,
+        "actuator_projection_within_0_003_fraction": 1.0,
+        "maximum_projection_error_Nm": 2.1072627081587348e-06,
+        "mean_root_preaero_Nm": 1.40994898137e-05,
+        "mean_wing_moment_Nm": 0.0003196983495306,
+        "mean_root_aero_plus_tail_Nm": -0.0001618694081796
+      },
+      {
+        "lane": 24,
+        "actuator_projection_within_0_003_fraction": 1.0,
+        "maximum_projection_error_Nm": 2.910557362979718e-06,
+        "mean_root_preaero_Nm": 1.60279488772e-05,
+        "mean_wing_moment_Nm": 0.0002515705941589,
+        "mean_root_aero_plus_tail_Nm": -0.0001710355612024
+      },
+      {
+        "lane": 25,
+        "actuator_projection_within_0_003_fraction": 1.0,
+        "maximum_projection_error_Nm": 3.0258818092589258e-06,
+        "mean_root_preaero_Nm": 1.53339555614e-05,
+        "mean_wing_moment_Nm": 0.0002531277280247,
+        "mean_root_aero_plus_tail_Nm": -0.0001709699686594
+      },
+      {
+        "lane": 26,
+        "actuator_projection_within_0_003_fraction": 1.0,
+        "maximum_projection_error_Nm": 2.4162332560390654e-06,
+        "mean_root_preaero_Nm": 1.5742589753e-05,
+        "mean_wing_moment_Nm": 0.000379476844518,
+        "mean_root_aero_plus_tail_Nm": -0.000190824103264
+      },
+      {
+        "lane": 27,
+        "actuator_projection_within_0_003_fraction": 1.0,
+        "maximum_projection_error_Nm": 2.3119794082470006e-06,
+        "mean_root_preaero_Nm": 1.56408840112e-05,
+        "mean_wing_moment_Nm": 0.0002466427241,
+        "mean_root_aero_plus_tail_Nm": -0.000176565524007
+      },
+      {
+        "lane": 28,
+        "actuator_projection_within_0_003_fraction": 1.0,
+        "maximum_projection_error_Nm": 2.4831172757072336e-06,
+        "mean_root_preaero_Nm": 1.6483278379e-05,
+        "mean_wing_moment_Nm": 0.0003080125880491,
+        "mean_root_aero_plus_tail_Nm": -0.0001932333742685
+      },
+      {
+        "lane": 29,
+        "actuator_projection_within_0_003_fraction": 1.0,
+        "maximum_projection_error_Nm": 2.3494984628407232e-06,
+        "mean_root_preaero_Nm": 1.66619370454e-05,
+        "mean_wing_moment_Nm": 0.00032291972608,
+        "mean_root_aero_plus_tail_Nm": -0.0001657951096089
+      },
+      {
+        "lane": 30,
+        "actuator_projection_within_0_003_fraction": 1.0,
+        "maximum_projection_error_Nm": 2.399334015580272e-06,
+        "mean_root_preaero_Nm": 1.53137375338e-05,
+        "mean_wing_moment_Nm": 0.0003830887563675,
+        "mean_root_aero_plus_tail_Nm": -0.000186596508222
+      },
+      {
+        "lane": 31,
+        "actuator_projection_within_0_003_fraction": 1.0,
+        "maximum_projection_error_Nm": 3.346858084184848e-06,
+        "mean_root_preaero_Nm": 1.65818697135e-05,
+        "mean_wing_moment_Nm": 0.000303957402425,
+        "mean_root_aero_plus_tail_Nm": -0.00018617057428067
+      }
+    ]
+  },
+  "yaw-positive": {
+    "on_off_trace_identical": true,
+    "first_episodes_identical": true,
+    "failed_steps": {
+      "on": 0,
+      "off": 0
+    },
+    "samples_per_lane": 100,
+    "calibration_passed_lanes": 32,
+    "median_lane_means_Nm": {
+      "mean_root_preaero_Nm": 0.019936650177,
+      "mean_wing_moment_Nm": 0.00091026363118,
+      "mean_root_aero_plus_tail_Nm": -0.000453663229542715
+    },
+    "maximum_projection_error_Nm": 5.572940832126311e-06,
+    "lanes": [
+      {
+        "lane": 0,
+        "actuator_projection_within_0_003_fraction": 1.0,
+        "maximum_projection_error_Nm": 4.368078782034102e-06,
+        "mean_root_preaero_Nm": 0.019934202152,
+        "mean_wing_moment_Nm": 0.000902183916233,
+        "mean_root_aero_plus_tail_Nm": -0.0004690484748469
+      },
+      {
+        "lane": 1,
+        "actuator_projection_within_0_003_fraction": 1.0,
+        "maximum_projection_error_Nm": 4.83568950267535e-06,
+        "mean_root_preaero_Nm": 0.019937808825,
+        "mean_wing_moment_Nm": 0.0008908769650305,
+        "mean_root_aero_plus_tail_Nm": -0.00044170208124349
+      },
+      {
+        "lane": 2,
+        "actuator_projection_within_0_003_fraction": 1.0,
+        "maximum_projection_error_Nm": 4.620439220965472e-06,
+        "mean_root_preaero_Nm": 0.019939409941,
+        "mean_wing_moment_Nm": 0.0008361599838446,
+        "mean_root_aero_plus_tail_Nm": -0.0004434450728737
+      },
+      {
+        "lane": 3,
+        "actuator_projection_within_0_003_fraction": 1.0,
+        "maximum_projection_error_Nm": 4.571126003702353e-06,
+        "mean_root_preaero_Nm": 0.019936065206,
+        "mean_wing_moment_Nm": 0.0009058465769501,
+        "mean_root_aero_plus_tail_Nm": -0.0004397294497994
+      },
+      {
+        "lane": 4,
+        "actuator_projection_within_0_003_fraction": 1.0,
+        "maximum_projection_error_Nm": 4.354247089520535e-06,
+        "mean_root_preaero_Nm": 0.019936388398,
+        "mean_wing_moment_Nm": 0.000851474637638,
+        "mean_root_aero_plus_tail_Nm": -0.000430750846463
+      },
+      {
+        "lane": 5,
+        "actuator_projection_within_0_003_fraction": 1.0,
+        "maximum_projection_error_Nm": 5.161805237168665e-06,
+        "mean_root_preaero_Nm": 0.019936032164,
+        "mean_wing_moment_Nm": 0.0008705569658429,
+        "mean_root_aero_plus_tail_Nm": -0.0004539009330733
+      },
+      {
+        "lane": 6,
+        "actuator_projection_within_0_003_fraction": 1.0,
+        "maximum_projection_error_Nm": 3.976797605803606e-06,
+        "mean_root_preaero_Nm": 0.019935634209,
+        "mean_wing_moment_Nm": 0.000818840769473,
+        "mean_root_aero_plus_tail_Nm": -0.0004551278138459
+      },
+      {
+        "lane": 7,
+        "actuator_projection_within_0_003_fraction": 1.0,
+        "maximum_projection_error_Nm": 4.760125619479583e-06,
+        "mean_root_preaero_Nm": 0.0199366696,
+        "mean_wing_moment_Nm": 0.000960735368251,
+        "mean_root_aero_plus_tail_Nm": -0.0004843116638083
+      },
+      {
+        "lane": 8,
+        "actuator_projection_within_0_003_fraction": 1.0,
+        "maximum_projection_error_Nm": 4.502095840835246e-06,
+        "mean_root_preaero_Nm": 0.019936970027,
+        "mean_wing_moment_Nm": 0.000914202700733,
+        "mean_root_aero_plus_tail_Nm": -0.0004644460875372
+      },
+      {
+        "lane": 9,
+        "actuator_projection_within_0_003_fraction": 1.0,
+        "maximum_projection_error_Nm": 4.722885950755873e-06,
+        "mean_root_preaero_Nm": 0.019936919863,
+        "mean_wing_moment_Nm": 0.00093118314619,
+        "mean_root_aero_plus_tail_Nm": -0.0004475798677838
+      },
+      {
+        "lane": 10,
+        "actuator_projection_within_0_003_fraction": 1.0,
+        "maximum_projection_error_Nm": 4.623999747058183e-06,
+        "mean_root_preaero_Nm": 0.019935403016,
+        "mean_wing_moment_Nm": 0.0009708607503716999,
+        "mean_root_aero_plus_tail_Nm": -0.00045342552601213
+      },
+      {
+        "lane": 11,
+        "actuator_projection_within_0_003_fraction": 1.0,
+        "maximum_projection_error_Nm": 4.722505735785254e-06,
+        "mean_root_preaero_Nm": 0.019935325979,
+        "mean_wing_moment_Nm": 0.000906324561627,
+        "mean_root_aero_plus_tail_Nm": -0.0004451453151887
+      },
+      {
+        "lane": 12,
+        "actuator_projection_within_0_003_fraction": 1.0,
+        "maximum_projection_error_Nm": 4.0144962856376865e-06,
+        "mean_root_preaero_Nm": 0.019937860778999998,
+        "mean_wing_moment_Nm": 0.0009374918476786421,
+        "mean_root_aero_plus_tail_Nm": -0.000442057581951
+      },
+      {
+        "lane": 13,
+        "actuator_projection_within_0_003_fraction": 1.0,
+        "maximum_projection_error_Nm": 3.627064781769329e-06,
+        "mean_root_preaero_Nm": 0.019933179601,
+        "mean_wing_moment_Nm": 0.0009609529768042,
+        "mean_root_aero_plus_tail_Nm": -0.0004518357038922
+      },
+      {
+        "lane": 14,
+        "actuator_projection_within_0_003_fraction": 1.0,
+        "maximum_projection_error_Nm": 4.233173800084755e-06,
+        "mean_root_preaero_Nm": 0.019938931093,
+        "mean_wing_moment_Nm": 0.000983552424261,
+        "mean_root_aero_plus_tail_Nm": -0.000460486986469
+      },
+      {
+        "lane": 15,
+        "actuator_projection_within_0_003_fraction": 1.0,
+        "maximum_projection_error_Nm": 4.064649185283459e-06,
+        "mean_root_preaero_Nm": 0.019937992005,
+        "mean_wing_moment_Nm": 0.000914551576781,
+        "mean_root_aero_plus_tail_Nm": -0.000457117134652
+      },
+      {
+        "lane": 16,
+        "actuator_projection_within_0_003_fraction": 1.0,
+        "maximum_projection_error_Nm": 4.1409303627344685e-06,
+        "mean_root_preaero_Nm": 0.019935167637,
+        "mean_wing_moment_Nm": 0.000968388488579,
+        "mean_root_aero_plus_tail_Nm": -0.000449760014718
+      },
+      {
+        "lane": 17,
+        "actuator_projection_within_0_003_fraction": 1.0,
+        "maximum_projection_error_Nm": 4.3642371689786574e-06,
+        "mean_root_preaero_Nm": 0.019935824389,
+        "mean_wing_moment_Nm": 0.0009695157423526,
+        "mean_root_aero_plus_tail_Nm": -0.00046635767536355
+      },
+      {
+        "lane": 18,
+        "actuator_projection_within_0_003_fraction": 1.0,
+        "maximum_projection_error_Nm": 4.405089983030436e-06,
+        "mean_root_preaero_Nm": 0.019938090687,
+        "mean_wing_moment_Nm": 0.0008767000953447,
+        "mean_root_aero_plus_tail_Nm": -0.0004416108106014
+      },
+      {
+        "lane": 19,
+        "actuator_projection_within_0_003_fraction": 1.0,
+        "maximum_projection_error_Nm": 4.551432730599825e-06,
+        "mean_root_preaero_Nm": 0.019939576575,
+        "mean_wing_moment_Nm": 0.000863076297925,
+        "mean_root_aero_plus_tail_Nm": -0.0004485868779952
+      },
+      {
+        "lane": 20,
+        "actuator_projection_within_0_003_fraction": 1.0,
+        "maximum_projection_error_Nm": 3.813343308223943e-06,
+        "mean_root_preaero_Nm": 0.019937536413,
+        "mean_wing_moment_Nm": 0.000968366034946,
+        "mean_root_aero_plus_tail_Nm": -0.00046312206584744
+      },
+      {
+        "lane": 21,
+        "actuator_projection_within_0_003_fraction": 1.0,
+        "maximum_projection_error_Nm": 5.1855907537458334e-06,
+        "mean_root_preaero_Nm": 0.019937896544,
+        "mean_wing_moment_Nm": 0.0009648823576513,
+        "mean_root_aero_plus_tail_Nm": -0.0004606386992282
+      },
+      {
+        "lane": 22,
+        "actuator_projection_within_0_003_fraction": 1.0,
+        "maximum_projection_error_Nm": 4.088910510686994e-06,
+        "mean_root_preaero_Nm": 0.019937409683,
+        "mean_wing_moment_Nm": 0.000974047400238,
+        "mean_root_aero_plus_tail_Nm": -0.0004577596162572
+      },
+      {
+        "lane": 23,
+        "actuator_projection_within_0_003_fraction": 1.0,
+        "maximum_projection_error_Nm": 4.577434138865882e-06,
+        "mean_root_preaero_Nm": 0.019933640336,
+        "mean_wing_moment_Nm": 0.0008441534440126001,
+        "mean_root_aero_plus_tail_Nm": -0.000425942810015
+      },
+      {
+        "lane": 24,
+        "actuator_projection_within_0_003_fraction": 1.0,
+        "maximum_projection_error_Nm": 4.0507400649487935e-06,
+        "mean_root_preaero_Nm": 0.019934498984,
+        "mean_wing_moment_Nm": 0.0008514359522877999,
+        "mean_root_aero_plus_tail_Nm": -0.0004511591465866
+      },
+      {
+        "lane": 25,
+        "actuator_projection_within_0_003_fraction": 1.0,
+        "maximum_projection_error_Nm": 4.242685654021194e-06,
+        "mean_root_preaero_Nm": 0.019936827198,
+        "mean_wing_moment_Nm": 0.000868243543578,
+        "mean_root_aero_plus_tail_Nm": -0.0004551945505909
+      },
+      {
+        "lane": 26,
+        "actuator_projection_within_0_003_fraction": 1.0,
+        "maximum_projection_error_Nm": 4.77556112331301e-06,
+        "mean_root_preaero_Nm": 0.01993640693,
+        "mean_wing_moment_Nm": 0.000955221494122,
+        "mean_root_aero_plus_tail_Nm": -0.0004616546389904
+      },
+      {
+        "lane": 27,
+        "actuator_projection_within_0_003_fraction": 1.0,
+        "maximum_projection_error_Nm": 3.7726396124836137e-06,
+        "mean_root_preaero_Nm": 0.019934952504,
+        "mean_wing_moment_Nm": 0.000828989029333,
+        "mean_root_aero_plus_tail_Nm": -0.00045268372786355
+      },
+      {
+        "lane": 28,
+        "actuator_projection_within_0_003_fraction": 1.0,
+        "maximum_projection_error_Nm": 4.8969199343794345e-06,
+        "mean_root_preaero_Nm": 0.019935908913,
+        "mean_wing_moment_Nm": 0.0009001056305712999,
+        "mean_root_aero_plus_tail_Nm": -0.0004672285997381
+      },
+      {
+        "lane": 29,
+        "actuator_projection_within_0_003_fraction": 1.0,
+        "maximum_projection_error_Nm": 3.927659372522652e-06,
+        "mean_root_preaero_Nm": 0.01993707372,
+        "mean_wing_moment_Nm": 0.0009307650561763,
+        "mean_root_aero_plus_tail_Nm": -0.0004422175057196
+      },
+      {
+        "lane": 30,
+        "actuator_projection_within_0_003_fraction": 1.0,
+        "maximum_projection_error_Nm": 4.43461924684585e-06,
+        "mean_root_preaero_Nm": 0.019936630754,
+        "mean_wing_moment_Nm": 0.001009697275944,
+        "mean_root_aero_plus_tail_Nm": -0.0004683760140872
+      },
+      {
+        "lane": 31,
+        "actuator_projection_within_0_003_fraction": 1.0,
+        "maximum_projection_error_Nm": 5.572940832126311e-06,
+        "mean_root_preaero_Nm": 0.019937697296999998,
+        "mean_wing_moment_Nm": 0.0008909605400487999,
+        "mean_root_aero_plus_tail_Nm": -0.00046412683137436
+      }
+    ]
+  }
+}

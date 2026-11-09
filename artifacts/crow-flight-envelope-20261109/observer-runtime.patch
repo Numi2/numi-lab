@@ -1,0 +1,172 @@
+diff --git a/src/c_api.cpp b/src/c_api.cpp
+index 317323e6..7dd3f733 100644
+--- a/src/c_api.cpp
++++ b/src/c_api.cpp
+@@ -23,6 +23,8 @@
+ #include "metalrobo/WorldPack.hpp"
+ 
+ #include <cstring>
++#include <cstdio>
++#include <cstdlib>
+ #include <algorithm>
+ #include <atomic>
+ #include <array>
+@@ -1239,7 +1241,7 @@ createTaskRolloutHandle(
+         profile.maximumDifficultyBand;
+     handle->stepConfig.difficultySamplingExponentOverride =
+         profile.difficultySamplingExponentOverride;
+-    handle->stepConfig.captureContactEvidence = false;
++    handle->stepConfig.captureContactEvidence = std::getenv("CROW_CONTACT_TRACE") != nullptr;
+     handle->stepConfig.publishFinalState = false;
+     handle->stepConfig.publishStateTrajectory = false;
+     handle->stepConfig.taskProgram = taskProgram;
+@@ -4800,6 +4802,50 @@ int mr_task_rollout_advance(
+                 throw std::runtime_error("Retinal GPU rejected learner batch: lane="+std::to_string(lane)+" error="+std::to_string(sensor.errors[lane]));
+             handle->rejectedRetinalBatch=false;
+         }
++        if (std::getenv("CROW_CONTACT_TRACE") != nullptr &&
++            control_step_count == 1u) {
++            const auto array = [](const char* name, const std::vector<float>& v, size_t start, size_t n) {
++                std::fprintf(stderr, ",\"%s\":[", name);
++                for (size_t i=0; i<n && start+i<v.size(); ++i)
++                    std::fprintf(stderr, "%s%.9g", i ? "," : "", v[start+i]);
++                std::fprintf(stderr, "]");
++            };
++            if (handle->submittedControlSteps + 1u >= 1001u &&
++                handle->submittedControlSteps + 1u <= 1100u) {
++                for (size_t lane=0; lane<environmentCount; ++lane) {
++                    std::fprintf(stderr, "CROW_FLIGHT_SAMPLE {\"step\":%llu,\"lane\":%zu",
++                        static_cast<unsigned long long>(handle->submittedControlSteps+1u), lane);
++                    array("q", published.finalQ, lane*handle->world.nq(), handle->world.nq());
++                    array("v", published.finalV, lane*handle->world.nv(), handle->world.nv());
++                    array("applied_filtered_action", published.teacherActions,
++                        lane*handle->taskProgram.layout().actionCount, handle->taskProgram.layout().actionCount);
++                    std::fprintf(stderr, "}\n");
++                }
++            }
++            for (size_t lane=0; lane<environmentCount && lane<published.transitions.size(); ++lane) {
++                if (published.transitions[lane].termination.w != MR_TASK_TERMINATION_CONTACT) continue;
++                const auto& prev = handle->result;
++                std::fprintf(stderr, "CROW_CONTACT_TRACE {\"step\":%llu,\"lane\":%zu",
++                    static_cast<unsigned long long>(handle->submittedControlSteps+1u), lane);
++                array("pre_q", prev.finalQ, lane*handle->world.nq(), handle->world.nq());
++                array("pre_v", prev.finalV, lane*handle->world.nv(), handle->world.nv());
++                array("applied_filtered_action", published.teacherActions,
++                    lane*handle->taskProgram.layout().actionCount, handle->taskProgram.layout().actionCount);
++                std::fprintf(stderr, ",\"contacts\":[");
++                const auto stride = published.layout.contactDispatch.constraintStride;
++                const auto count = published.contactStatuses[lane].activeContacts;
++                bool first=true;
++                for (size_t i=0; i<count && lane*stride+i<published.contactEvidence.contacts.size(); ++i) {
++                    const auto& c=published.contactEvidence.contacts[lane*stride+i];
++                    const auto name=[&](uint32_t b) { return b<handle->model.bodyNames.size()
++                        ? handle->model.bodyNames[b].c_str() : "invalid"; };
++                    std::fprintf(stderr, "%s{\"a\":%u,\"a_name\":\"%s\",\"b\":%u,\"b_name\":\"%s\",\"normal_impulse\":%.9g,\"separation\":%.9g}",
++                        first?"":",",c.bodyA,name(c.bodyA),c.bodyB,name(c.bodyB),c.impulses.x,c.pointAndSeparation.w);
++                    first=false;
++                }
++                std::fprintf(stderr, "]}\n");
++            }
++        }
+         handle->pendingLifeWorld.clear();
+         handle->result = std::move(published);
+         handle->outcomeValues.clear();
+diff --git a/src/core/RunProgram.cpp b/src/core/RunProgram.cpp
+index 52463ead..8de1f775 100644
+--- a/src/core/RunProgram.cpp
++++ b/src/core/RunProgram.cpp
+@@ -1809,6 +1809,11 @@ ScenePack makeBirdFlowAmericanCrowNavigationScenePack() {
+         robot->mechanics,
+         boxes
+     );
++    // Diagnostic obstacle-free v15 control: preserve scene bodies, poses and
++    // route targets, disabling only collision for the five course objects.
++    for (auto& shape : course.mechanics.shapes) {
++        shape.flags |= MR_SHAPE_FLAG_SIMULATION_DISABLED;
++    }
+     scene.objects.push_back({
+         .id = "crow_navigation_course",
+         .semanticClass = "obstacle_course",
+diff --git a/src/metal/MetalWorld.mm b/src/metal/MetalWorld.mm
+index 06923307..11a64646 100644
+--- a/src/metal/MetalWorld.mm
++++ b/src/metal/MetalWorld.mm
+@@ -496,6 +496,8 @@ explicit MetalWorldContextState(MetalWorldConfig configured)
+     __strong id<MTLComputePipelineState> multicopterPipeline = nil;
+     __strong id<MTLComputePipelineState> multicopterCommitPipeline = nil;
+     __strong id<MTLComputePipelineState> flappingWingPipeline = nil;
++    __strong id<MTLComputePipelineState> debugWrenchBeforePipeline = nil;
++    __strong id<MTLComputePipelineState> debugWrenchAfterPipeline = nil;
+     __strong id<MTLComputePipelineState> policyDensePipeline = nil;
+     __strong id<MTLComputePipelineState> policySamplePipeline = nil;
+     __strong id<MTLComputePipelineState> policyResidualSamplePipeline = nil;
+@@ -7186,6 +7188,8 @@ MetalWorldDiagnostics initializeContext(
+     context.multicopterPipeline = multicopter;
+     context.multicopterCommitPipeline = multicopterCommit;
+     context.flappingWingPipeline = flappingWing;
++    context.debugWrenchBeforePipeline = createContactPipeline(@"mr_debug_wrench_before");
++    context.debugWrenchAfterPipeline = createContactPipeline(@"mr_debug_wrench_after");
+     context.policyDensePipeline = policyDense;
+     context.policySamplePipeline = policySample;
+     context.policyResidualSamplePipeline = policyResidualSample;
+@@ -12699,6 +12703,21 @@ bool encodeMulticopterActuation(
+     );
+ }
+ 
++bool encodeDebugWrench(
++    detail::MetalWorldContextState& context,
++    id<MTLCommandBuffer> commandBuffer,
++    id<MTLComputePipelineState> pipeline,
++    std::size_t environmentCount
++) {
++    if (pipeline == nil) return false;
++    return encodeContactThreadKernel(context, commandBuffer, pipeline,
++        @"diagnostic read-only wrench observation",
++        {{0u, kFlappingWingSpecs}, {1u, kFlappingWingDispatch},
++         {2u, kBodyWrenchPlaceholder}, {3u, kBodyPoses},
++         {4u, kFlappingTail}, {5u, kTaskTeacherActions}},
++        nullptr, 0u, environmentCount);
++}
++
+ bool encodeFlappingWingActuation(
+     detail::MetalWorldContextState& context,
+     id<MTLCommandBuffer> commandBuffer,
+@@ -12706,24 +12725,21 @@ bool encodeFlappingWingActuation(
+     const std::size_t vState,
+     const std::size_t environmentCount
+ ) {
+-    return encodeContactThreadKernel(
+-        context,
+-        commandBuffer,
+-        context.flappingWingPipeline,
++    const bool observe = std::getenv("CROW_WRENCH_TRACE") != nullptr;
++    if (observe && !encodeDebugWrench(context, commandBuffer,
++                                     context.debugWrenchBeforePipeline,
++                                     environmentCount)) return false;
++    const bool success = encodeContactThreadKernel(
++        context, commandBuffer, context.flappingWingPipeline,
+         @"compiled articulated flapping-wing load program",
+-        {
+-            {0u, kFlappingWingSpecs},
+-            {1u, kFlappingWingDispatch},
+-            {2u, qState},
+-            {3u, vState},
+-            {4u, kBodyWrenchPlaceholder},
+-            {5u, kFlappingTail},
+-            {6u, kFlappingFuselage},
+-        },
+-        nullptr,
+-        0u,
+-        environmentCount
+-    );
++        {{0u, kFlappingWingSpecs}, {1u, kFlappingWingDispatch},
++         {2u, qState}, {3u, vState}, {4u, kBodyWrenchPlaceholder},
++         {5u, kFlappingTail}, {6u, kFlappingFuselage}},
++        nullptr, 0u, environmentCount);
++    if (!success) return false;
++    return !observe || encodeDebugWrench(context, commandBuffer,
++                                         context.debugWrenchAfterPipeline,
++                                         environmentCount);
+ }
+ 
+ bool encodeTaskNativeActuators(
