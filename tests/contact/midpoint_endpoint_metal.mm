@@ -31,6 +31,7 @@ struct Fixture {
     float clearance=1e-5f;
     float endpointOffsetDelta=0;
     std::uint32_t expected=0;
+    std::uint32_t movingStageOnly=0;
 };
 int main(int argc, const char** argv) {
  @autoreleasepool { try {
@@ -47,7 +48,7 @@ int main(int argc, const char** argv) {
     require(pipeline != nil,error ? error.localizedDescription.UTF8String : "pipeline error");
     id<MTLCommandQueue> queue=[device newCommandQueue];
     require(queue != nil,"queue unavailable");
-    Fixture f[17];
+    Fixture f[20];
     for(auto& x:f) { x.accepted=node(0,0,.001f); x.mid=x.accepted; }
     f[0].name="free"; f[0].mid.referenceDisplacementAndMode.z=-.0001f;
     f[0].accepted.velocityAndInverseMass.z=-.1f; f[0].mid.velocityAndInverseMass.z=-.2f;
@@ -74,6 +75,12 @@ int main(int argc, const char** argv) {
     f[15].endpointOffsetDelta=.0001f;
     f[16].name="nonfinite-endpoint-plane";
     f[16].endpointOffsetDelta=std::numeric_limits<float>::infinity(); f[16].expected=1;
+    f[17].name="moving-stage-clear-end-unchecked";f[17].movingStageOnly=1;
+    f[17].endpointOffsetDelta=.0009f;
+    f[18].name="moving-stage-crossing";f[18].movingStageOnly=1;
+    f[18].endpointOffsetDelta=.0011f;f[18].expected=2;
+    f[19].name="moving-stage-initially-unsafe";f[19].movingStageOnly=1;
+    f[19].plane.w=.0011f;f[19].endpointOffsetDelta=-.001f;f[19].expected=2;
     std::uint32_t count=1;
     for(const auto& test:f) {
         NMFEMNodeStateGPU sentinel; std::memset(&sentinel,0xa5,sizeof(sentinel));
@@ -100,6 +107,7 @@ int main(int argc, const char** argv) {
         [encoder setBuffer:status offset:0 atIndex:6];
         nm_float4 endPlane=test.plane; endPlane.w+=test.endpointOffsetDelta;
         [encoder setBytes:&endPlane length:sizeof(endPlane) atIndex:7];
+        [encoder setBytes:&test.movingStageOnly length:sizeof(test.movingStageOnly) atIndex:8];
         [encoder dispatchThreads:MTLSizeMake(1,1,1) threadsPerThreadgroup:MTLSizeMake(1,1,1)];
         [encoder endEncoding]; [command commit]; [command waitUntilCompleted];
         require(command.status==MTLCommandBufferStatusCompleted,"command failed");
@@ -164,6 +172,8 @@ int main(int argc, const char** argv) {
     [enc setBuffer:ab offset:0 atIndex:3]; [enc setBuffer:mb offset:0 atIndex:4];
     [enc setBuffer:eb offset:0 atIndex:5]; [enc setBuffer:rb offset:0 atIndex:6];
     [enc setBytes:&plane length:sizeof(plane) atIndex:7];
+    const std::uint32_t staticMode=0u;
+    [enc setBytes:&staticMode length:sizeof(staticMode) atIndex:8];
     [enc dispatchThreads:MTLSizeMake(batchSize,1,1) threadsPerThreadgroup:MTLSizeMake(64,1,1)];
     [enc endEncoding]; [cmd commit]; [cmd waitUntilCompleted];
     require(cmd.status==MTLCommandBufferStatusCompleted,"batch command failed");

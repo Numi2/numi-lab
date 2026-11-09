@@ -37,3 +37,11 @@ not yet been exercised in a native coupled run, and it does not establish
 independent support-moment or interface-work conservation. The preliminary
 midpoint scratch check also needs its moving-plane start/end inputs; the
 admission guard remains closed.
+
+The preliminary endpoint-scratch dispatch now uses the saved starting plane
+and the owner's candidate stage plane for a reacting slider. It checks start
+and midpoint clearance and leaves the actual endpoint clearance to the
+post-commit certificate above; the fixed-plane path still checks its original
+two endpoints. Three moving-stage cases were added to the existing Metal
+fixture but have not been run. Both the shader translation unit and its host
+and fixture passed syntax checks (slider-start-stage-syntax-001.json).

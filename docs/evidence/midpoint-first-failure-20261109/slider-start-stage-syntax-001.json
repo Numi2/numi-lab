@@ -1,0 +1,18 @@
+{
+  "sources_sha256": {
+    "matter/src/metal/contact.metalinc": "23d5fdb85466ca4e65816e5e5c012902ed2e959729755232583d157c5965234c",
+    "matter/src/runtime.mm": "9809da784531e3837fb017d4d2d82c4cc57d0495f9404b7169768d12cad532ee",
+    "tests/contact/midpoint_endpoint_metal.mm": "01f470db9245062a969268de83c74a6a5119bf773c0f21cfa021ce168e60da4f"
+  },
+  "checks": [
+    {
+      "compiler": "Metal full translation unit, -fsyntax-only",
+      "returncode": 0
+    },
+    {
+      "compiler": "Clang Objective-C++ runtime and endpoint fixture, -fsyntax-only",
+      "returncode": 0
+    }
+  ],
+  "scope": "syntax only; moving-stage fixture and full postcommit transaction not run"
+}

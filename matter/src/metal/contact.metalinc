@@ -14068,13 +14068,16 @@ kernel void nm_fem_midpoint_reflect_endpoint_scratch(
     device NMFEMNodeStateGPU* endpoint [[buffer(5)]],
     device uint* result [[buffer(6)]],
     constant float4& endpointPlane [[buffer(7)]],
+    constant uint& movingStageOnly [[buffer(8)]],
     uint i [[thread_position_in_grid]]
 ) {
     if (i >= count) return;
-    // 0: certified; 1: malformed/nonfinite; 2: clearance not certified.
+    // 0: static endpoints or moving start/stage certified; 1: malformed;
+    // 2: clearance not certified. The moving endpoint is certified later
+    // against the actual published owner state before transaction acceptance.
     result[i] = 1u;
     const NMFEMNodeStateGPU a = accepted[i], m = midpoint[i];
-    if (!all(isfinite(plane)) || !all(isfinite(endpointPlane)) ||
+    if (movingStageOnly > 1u || !all(isfinite(plane)) || !all(isfinite(endpointPlane)) ||
         any(plane.xyz != endpointPlane.xyz) ||
         !isfinite(clearance) || clearance < 0.0f ||
         !all(isfinite(a.positionAndMass)) || !all(isfinite(m.positionAndMass)) ||
@@ -14139,7 +14142,7 @@ kernel void nm_fem_midpoint_reflect_endpoint_scratch(
         !all(isfinite(e.referenceDisplacementLow))) return;
     const NMContactInterval start = nmMidpointReferencePlaneProjection(a, plane.xyz, plane.w);
     const NMContactInterval finish = nmMidpointReferencePlaneProjection(
-        e, endpointPlane.xyz, endpointPlane.w);
+        movingStageOnly != 0u ? m : e, endpointPlane.xyz, endpointPlane.w);
     if (!isfinite(start.lower) || !isfinite(start.upper) ||
         !isfinite(finish.lower) || !isfinite(finish.upper) ||
         !(start.lower > threshold) || !(finish.lower > threshold)) {

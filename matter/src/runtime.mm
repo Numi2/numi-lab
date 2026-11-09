@@ -52613,17 +52613,19 @@ RuntimeDiagnostics Runtime::encodeImpl(
                 const float clearance = state.mixedSolverValue.contactAcceptance.x *
                     frameDispatch.numericalLimits.x;
                 dispatchThreads("nm_fem_midpoint_reflect_endpoint_scratch", count, [&] {
-                    [encoder setBuffer:state.rigidStates offset:0u atIndex:0u];
+                    const std::uint32_t movingStageOnly=state.requiresCoupledCandidate ? 1u : 0u;
+                    [encoder setBuffer:(movingStageOnly ? state.midpointRigidStart : state.rigidStates)
+                                 offset:0u atIndex:0u];
                     [encoder setBytes:&clearance length:sizeof(clearance) atIndex:1u];
                     [encoder setBytes:&count length:sizeof(count) atIndex:2u];
                     [encoder setBuffer:state.femAccepted offset:0u atIndex:3u];
                     [encoder setBuffer:state.femCandidate offset:0u atIndex:4u];
                     [encoder setBuffer:state.femMidpointEndpoint offset:0u atIndex:5u];
                     [encoder setBuffer:state.femMidpointResults offset:0u atIndex:6u];
-                    // The admitted plane is stationary, so both endpoints
-                    // are the same. A reacting owner must provide its actual
-                    // start and committed endpoint before its guard opens.
+                    // For a reacting owner this is the actual stage plane;
+                    // its committed endpoint is checked during postCommit.
                     [encoder setBuffer:state.rigidStates offset:0u atIndex:7u];
+                    [encoder setBytes:&movingStageOnly length:sizeof(movingStageOnly) atIndex:8u];
                 });
                 [encoder memoryBarrierWithScope:MTLBarrierScopeBuffers];
                 if (state.midpointVelocityCompensation) {
