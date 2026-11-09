@@ -34,4 +34,6 @@ with tempfile.TemporaryDirectory() as directory:
     wrong = copy.deepcopy(original); wrong["mass_kg"] = float("nan"); rejected(wrong)
     wrong = copy.deepcopy(original); wrong["min_gap_m"] = 1e-7; rejected(wrong)
     wrong = copy.deepcopy(original); wrong["impulse_Ns"] *= 2; rejected(wrong)
+    wrong = copy.deepcopy(original); wrong["peak_force_N"] *= .5; rejected(wrong)
+    wrong = copy.deepcopy(original); wrong["onset_time_s"] = float("nan"); rejected(wrong)
 print("large spatial reference validation passed")

@@ -51,6 +51,8 @@ def read_reference(path, divisions, h):
     if (not all(math.isfinite(v) and v >= 0 for v in bins) or
         not math.isfinite(x["peak_force_N"]) or x["peak_force_N"] <= 0 or
         not math.isfinite(x["impulse_Ns"]) or x["impulse_Ns"] <= 0 or
+        not math.isfinite(x["onset_time_s"]) or not 0 <= x["onset_time_s"] <= .01 or
+        x["peak_force_N"] + 1e-14 * x["peak_force_N"] < max(row[1] for row in trace) or
         abs(trace[-1][2] - x["impulse_Ns"]) >= 1e-12 or
         abs(sum(bins) * .001 - x["impulse_Ns"]) >= 1e-12):
         raise ValueError("invalid force or impulse")
