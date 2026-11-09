@@ -78,6 +78,27 @@ candidates for one precontact state, not accepted Matter steps: they do not
 prove the native stage solver can reach the state or that contact trajectories,
 whole-environment retry and accuracy-qualified performance pass.
 
+## First native precontact correction: incomplete
+
+The opt-in midpoint transaction now has a bounded precontact correction
+candidate, followed by force and residual reassembly and the same final
+certificate; default midpoint remains disabled. In the
+[204-step native trial](native-polish-001.json) the first 203 steps match the
+original trace and the previously rejected step 203 was accepted. Its
+independently recomputed full-step residual is 1.21143e-13 N s, below the
+unchanged 1.37215e-13 N s limit; it is still before contact. The physical
+state replay and forced rejection restoration checks passed.
+
+The requested [10 ms run](native-polish-n8-full-001.json) did not complete:
+it accepted 407 steps, then rejected step 407 with status 10 and residual
+1.67921e-13 N s against the same 1.37215e-13 N s limit. Its restored state,
+forced rollback, replay and continuation replay checks passed. No nonzero
+contact was reached, so it is not contact-onset or force qualification. The
+correction remains an experimental candidate; no larger-step, spatial,
+performance or coupled-body claim follows. The native input hashes are in
+[native-polish-001-inputs.sha256](native-polish-001-inputs.sha256); the new
+failure is the subject of [NATIVE_REPAIR_407_PLAN.md](NATIVE_REPAIR_407_PLAN.md).
+
 ## Follow-up without the unit-scale floor
 
 Both midpoint rollouts completed 640 of 640 steps and replayed, with unchanged

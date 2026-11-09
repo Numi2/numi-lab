@@ -13882,6 +13882,88 @@ inline NMContactInterval nmMidpointReferencePlaneProjection(
     return sum;
 }
 
+// An opt-in midpoint precontact repair: try nearby representable stage
+// velocities only if the unchanged physical momentum test would fail. This
+// never certifies or publishes; the owner recomputes forces and certifies the
+// complete transaction after the correction.
+kernel void nm_fem_midpoint_precontact_polish_gate(
+    constant NMMatterDispatchGPU& dispatch [[buffer(0)]],
+    constant NMMixedSolverGPU& solver [[buffer(1)]],
+    device const NMFEMNodeStateGPU* accepted [[buffer(2)]],
+    device const NMFEMNodeStateGPU* midpoint [[buffer(3)]],
+    device const float4* residual [[buffer(4)]],
+    device uint* gate [[buffer(5)]],
+    device const NMMatterStatusGPU* statuses [[buffer(6)]],
+    uint tid [[thread_position_in_grid]]) {
+    if (tid != 0u) return;
+    gate[0]=0u;
+    if (!environmentHealthy(statuses,0u)) return;
+    const float far=1.5f*dispatch.numericalLimits.x;
+    if (!isfinite(far) || !(far>0.0f)) return;
+    float sum=0.0f;
+    for (uint i=0u;i<dispatch.femNodeCount;++i) {
+        const NMFEMNodeStateGPU a=accepted[i],m=midpoint[i];
+        if (a.restAndFixed.w != 0.0f || !(a.positionAndMass.w>0.0f) ||
+            a.referenceDisplacementAndMode.w != 1.0f ||
+            m.referenceDisplacementAndMode.w != 1.0f) return;
+        const auto start=nmMidpointReferencePlaneProjection(a,float3(0,0,1),0.0f);
+        const auto middle=nmMidpointReferencePlaneProjection(m,float3(0,0,1),0.0f);
+        const auto end=nmContactIntervalAdd(nmContactIntervalScale(middle,2.0f),
+            nmContactIntervalNegate(start));
+        if (!(start.lower>far && middle.lower>far && end.lower>far)) return;
+        const float3 endVelocity=2.0f*m.velocityAndInverseMass.xyz-a.velocityAndInverseMass.xyz;
+        const float3 r=2.0f*residual[i].xyz +
+            2.0f*a.positionAndMass.w*(m.velocityAndInverseMass.xyz-a.velocityAndInverseMass.xyz) -
+            a.positionAndMass.w*(endVelocity-a.velocityAndInverseMass.xyz);
+        if(!all(isfinite(r)))return;
+        sum+=dot(r,r);
+    }
+    const float limit=2.0f*(solver.contactAcceptance.y+
+        solver.contactAcceptance.z*solver.contactAcceptance.w);
+    if(isfinite(sum) && isfinite(limit) && limit>0.0f && sqrt(sum)>limit) gate[0]=1u;
+}
+
+kernel void nm_fem_midpoint_precontact_polish(
+    constant NMMatterDispatchGPU& dispatch [[buffer(0)]],
+    device const NMFEMNodeStateGPU* accepted [[buffer(1)]],
+    device NMFEMNodeStateGPU* midpoint [[buffer(2)]],
+    device const float4* residual [[buffer(3)]],
+    device const uint* gate [[buffer(4)]],
+    device const NMMatterStatusGPU* statuses [[buffer(5)]],
+    uint i [[thread_position_in_grid]]) {
+    if(i>=dispatch.femNodeCount || gate[0]==0u || !environmentHealthy(statuses,0u))return;
+    const NMFEMNodeStateGPU a=accepted[i];NMFEMNodeStateGPU m=midpoint[i];
+    const float dt=dispatch.gravityAndTimestep.w;
+    const float mass=a.positionAndMass.w;
+    for(uint j=0u;j<3u;++j) {
+        const float old=a.velocityAndInverseMass[j], current=m.velocityAndInverseMass[j];
+        const float oldEnd=2.0f*current-old;
+        const float fixed=2.0f*residual[i][j]+2.0f*mass*(current-old);
+        const float r=fixed-mass*(oldEnd-old);
+        const float center=current+0.5f*(r/mass);
+        if(!isfinite(center))continue;
+        float best=current,bestError=abs(r),low=center,high=center;
+        for(uint k=0u;k<5u;++k) {
+            const float stage=k==0u ? center : (k%2u ? (low=nextafter(low,-INFINITY)) :
+                (high=nextafter(high,INFINITY)));
+            const float end=2.0f*stage-old;
+            const float error=abs(fixed-mass*(end-old));
+            if(isfinite(error) && error<bestError) {best=stage;bestError=error;}
+        }
+        if(!isfinite(best) || abs(dt*(best-current))>0.1f*dispatch.numericalLimits.x)continue;
+        const auto displacement=mrCompensatedAdd(
+            {a.referenceDisplacementAndMode[j],a.referenceDisplacementLow[j]},
+            mrCompensatedProduct(dt,best));
+        if(!isfinite(displacement.high) || !isfinite(displacement.low))continue;
+        m.referenceDisplacementAndMode[j]=displacement.high;
+        m.referenceDisplacementLow[j]=displacement.low;
+        m.positionAndMass[j]=femReferencePositionProjection(a.restAndFixed[j],displacement.high,displacement.low);
+        m.velocityAndInverseMass[j]=best;
+        m.deltaVelocity[j]=best-old;
+    }
+    midpoint[i]=m;
+}
+
 kernel void nm_fem_midpoint_reflect_endpoint_scratch(
     constant float4& plane [[buffer(0)]],
     constant float& clearance [[buffer(1)]],

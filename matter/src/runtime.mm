@@ -8778,6 +8778,8 @@ RuntimeDiagnostics Runtime::initialize(
             "nm_mpm_sort_block_particles",
             "nm_fem_checkpoint",
             "nm_fem_prepare_candidate",
+            "nm_fem_midpoint_precontact_polish_gate",
+            "nm_fem_midpoint_precontact_polish",
             "nm_fem_midpoint_reflect_endpoint_scratch",
             "nm_fem_midpoint_certify_transaction",
             "nm_fem_midpoint_promote_endpoint",
@@ -51921,6 +51923,95 @@ RuntimeDiagnostics Runtime::encodeImpl(
                 return diagnostics;
             }
             captureFEMHumanAttachmentResidual();
+            if (state.experimentalFEMPlaneMidpoint) {
+                [encoder memoryBarrierWithScope:MTLBarrierScopeBuffers];
+                dispatchThreads("nm_fem_midpoint_precontact_polish_gate", 1u, [&] {
+                    setDispatch();
+                    [encoder setBuffer:state.mixedSolver offset:0u atIndex:1u];
+                    [encoder setBuffer:state.femAccepted offset:0u atIndex:2u];
+                    [encoder setBuffer:state.femCandidate offset:0u atIndex:3u];
+                    [encoder setBuffer:state.femResidual offset:0u atIndex:4u];
+                    [encoder setBuffer:state.femMidpointResults offset:0u atIndex:5u];
+                    [encoder setBuffer:state.statuses offset:0u atIndex:6u];
+                });
+                [encoder memoryBarrierWithScope:MTLBarrierScopeBuffers];
+                dispatchThreads("nm_fem_midpoint_precontact_polish", femNodeTotal, [&] {
+                    setDispatch();
+                    [encoder setBuffer:state.femAccepted offset:0u atIndex:1u];
+                    [encoder setBuffer:state.femCandidate offset:0u atIndex:2u];
+                    [encoder setBuffer:state.femResidual offset:0u atIndex:3u];
+                    [encoder setBuffer:state.femMidpointResults offset:0u atIndex:4u];
+                    [encoder setBuffer:state.statuses offset:0u atIndex:5u];
+                }, WorkDomain::femNodes);
+                [encoder memoryBarrierWithScope:MTLBarrierScopeBuffers];
+                dispatchThreads("nm_fem_internal_forces", tetrahedronTotal, [&] {
+                    setDispatch();
+                    [encoder setBytes:&micro length:sizeof(micro) atIndex:1u];
+                    [encoder setBuffer:state.objects offset:0u atIndex:2u];
+                    [encoder setBuffer:state.materials offset:0u atIndex:3u];
+                    [encoder setBuffer:state.scalarPrograms offset:0u atIndex:4u];
+                    [encoder setBuffer:state.instructions offset:0u atIndex:5u];
+                    [encoder setBuffer:state.environmentParameters offset:0u atIndex:6u];
+                    [encoder setBuffer:state.femCandidate offset:0u atIndex:7u];
+                    [encoder setBuffer:state.femTetrahedraCandidate offset:0u atIndex:8u];
+                    [encoder setBuffer:state.femMaterialStateAccepted offset:0u atIndex:9u];
+                    [encoder setBuffer:state.schedulers offset:0u atIndex:10u];
+                    [encoder setBuffer:state.adaptive offset:0u atIndex:11u];
+                    [encoder setBuffer:state.elementForces offset:0u atIndex:12u];
+                    [encoder setBuffer:state.statuses offset:0u atIndex:13u];
+                    [encoder setBuffer:state.mixedMaterials offset:0u atIndex:14u];
+                    [encoder setBuffer:state.femFieldsCandidate offset:0u atIndex:15u];
+                    [encoder setBuffer:state.learnedMaterials offset:0u atIndex:16u];
+                    [encoder setBuffer:state.learnedLayers offset:0u atIndex:17u];
+                    [encoder setBuffer:state.learnedWeightsCandidate offset:0u atIndex:18u];
+                }, WorkDomain::tetrahedra);
+                captureStatus5(50u, NM_STATUS5_CAPTURE_DOMAIN_GLOBAL,
+                    NM_STATUS5_INDEX_TETRAHEDRON, NM_INVALID_INDEX, micro,
+                    state.statuses, state.femCandidate, nil);
+                            encodeCohesiveFaceForces(micro);
+                encodeCavityForces();
+                dispatchThreads("nm_fem_build_mechanical_residual", femNodeTotal, [&] {
+                    const std::uint32_t preserveSolution = 1u;
+                    setDispatch();
+                    [encoder setBytes:&micro length:sizeof(micro) atIndex:1u];
+                    [encoder setBuffer:state.objects offset:0u atIndex:2u];
+                    [encoder setBuffer:state.femAccepted offset:0u atIndex:3u];
+                    [encoder setBuffer:state.femCandidate offset:0u atIndex:4u];
+                    [encoder setBuffer:state.femTetrahedraCandidate offset:0u atIndex:5u];
+                    [encoder setBuffer:state.elementForces offset:0u atIndex:6u];
+                    [encoder setBuffer:state.femNodeIncidence offset:0u atIndex:7u];
+                    [encoder setBuffer:state.femNodeRanges offset:0u atIndex:8u];
+                    [encoder setBuffer:state.schedulers offset:0u atIndex:9u];
+                    [encoder setBuffer:state.adaptive offset:0u atIndex:10u];
+                    [encoder setBuffer:state.femSolution offset:0u atIndex:11u];
+                    [encoder setBuffer:state.femResidual offset:0u atIndex:12u];
+                    [encoder setBuffer:state.femPreconditioned offset:0u atIndex:13u];
+                    [encoder setBuffer:state.femDirection offset:0u atIndex:14u];
+                    [encoder setBuffer:state.femOperatorValue offset:0u atIndex:15u];
+                    [encoder setBuffer:state.statuses offset:0u atIndex:16u];
+                    [encoder setBuffer:state.mixedSolver offset:0u atIndex:17u];
+                    [encoder setBuffer:state.mixedMaterials offset:0u atIndex:18u];
+                    [encoder setBuffer:state.femFieldsCandidate offset:0u atIndex:19u];
+                    [encoder setBytes:&preserveSolution
+                               length:sizeof(preserveSolution) atIndex:20u];
+                    [encoder setBuffer:femMechanicalForces offset:0u atIndex:21u];
+                    [encoder setBytes:&hasFEMMechanicalForces
+                               length:sizeof(hasFEMMechanicalForces) atIndex:22u];
+                    [encoder setBuffer:state.femConstraintReactions
+                                offset:0u atIndex:23u];
+                }, WorkDomain::femNodes);
+                encodeAddCohesiveResidual(micro);
+                if (!encodeCoupledPrimalContact(
+                        true,
+                        state.contactHistoriesCandidate,
+                        state.deformableContactHistoriesCandidate
+                    )) {
+                    [encoder endEncoding]; encoder = nil;
+                    ownership->preDynamicsOpen = false;
+                    return diagnostics;
+                }
+                captureFEMHumanAttachmentResidual();
+            }
             // Candidate contact materialization also refreshes articulated
             // mass action. Rebuild the shared rigid rows after that final
             // contact pass so certification observes the accepted rigid,

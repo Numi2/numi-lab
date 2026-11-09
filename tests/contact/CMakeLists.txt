@@ -113,6 +113,10 @@ if(BUILD_TESTING)
         "$<TARGET_FILE:metalrobo_plane_contact_probe>" "${_shader}"
         "${CMAKE_CURRENT_BINARY_DIR}/residual-regression-evidence")
     set_tests_properties(numi.contact.residual_restore PROPERTIES TIMEOUT 180)
+    add_test(NAME numi.contact.midpoint_precontact_repair COMMAND "${Python3_EXECUTABLE}"
+        "${CMAKE_CURRENT_SOURCE_DIR}/midpoint_precontact_repair_regression.py"
+        "$<TARGET_FILE:numi_plane_contact_probe_scaled>" "${_shader}")
+    set_tests_properties(numi.contact.midpoint_precontact_repair PROPERTIES TIMEOUT 180)
     add_test(NAME numi.contact.midpoint_native_transaction COMMAND "${Python3_EXECUTABLE}"
         "${CMAKE_CURRENT_SOURCE_DIR}/midpoint_native_regression.py"
         "$<TARGET_FILE:metalrobo_plane_contact_probe>" "${_shader}")
