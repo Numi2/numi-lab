@@ -1,0 +1,38 @@
+{
+  "status": "preregistered before executing either layout",
+  "layout_authoring_commit": "086bdb7a",
+  "layouts": {
+    "reserved-final-g": 1014083284,
+    "reserved-final-h": 2099253799
+  },
+  "seed_check": "independently generated uniform 32-bit positive seeds; git grep across tracked text found neither prior to registration",
+  "prior_revision": "699e9a1e8c2e2f9420409659a25f94120f6e8b79",
+  "bound_sha256": {
+    "src/metal/CrowFlightControllerV1.metal": "aa2fe10901cb0494d80ae445902303a17ce0e73d030072bab09461d8f3593ebe",
+    "src/metal/LocomotionTask.metal": "3eee15eeb407fce2a94b2e029648b7fe6eaa27fab675bd952ddb9541c34fe919",
+    "src/c_api.cpp": "b04ad014666383a7d7f56314923160e2e44b6e7a3397b56d8de94f6a6d2d9175",
+    "src/core/TaskProgram.cpp": "a5a3b6e96589266086c9d13b94f0c17bd9e9bb620fde7d4822293aa183e34751",
+    "include/metalrobo/task_program_types.h": "2db0301639e8baffbf53fce7527a86fef4de000bf2d3fdccd2e22dcc22863488",
+    "include/metalrobo/c_api.h": "1160f440aa51e857aec115f017e6b1edf974bbabf5b2b3afa268a1d4cc54047c",
+    "apps/task_rollout.swift": "6b6fa094b0c4513f29b64154cfef69ee1b49b521dc19077dbf7b33e4ce8de5a7",
+    "apps/task_train.swift": "1294c0d27405fadf76d1924fedd7f8bde0c357c994cfc674dfc41d4c3b626bcc",
+    "bindings/swift/MetalRoboTaskRollout.swift": "23f1e4a33adb2036cc61268a747dfac79438300c87caa1b5e28949355a58b260",
+    "assets/crow_navigation_course/crow-navigation.active-head.visual-observation.json": "d19ff0f9d360b4ffc84bac6a5f3d2be048234b6c03097af7d43fe5f85b316f8f",
+    "build/bin/metalrobo_task_rollout": "d517a850fbf41b9fd886ac4f51a2b0f75fb516b813fa996b509dadcf560fc354",
+    "build/lib/libmetalrobo.dylib": "a8abac2c7a836a85c4d9b924c4618e7b4b6367f98073f89ccb98a54c9b2ad366",
+    "build/shaders/MetalRobo.metallib": "55e5ef0a0f34ea39e9f42dd8c45dc429d1ec1bc36d408a2de7f27e304845d731",
+    "build/crow-four-native-observer-20261109/libmetalrobo.dylib": "03d25595b2e6d2edf4e904d58f2e86c20c577e9cc8e0147ad1f021f4a25623ec",
+    "build/crow-four-expert-native-integration-20261109/route.policypack": "bc4ed5b843aba2943bcda0f060eab1ac721d48c780a91400718377c096e7b002",
+    "build/crow-four-expert-native-integration-20261109/landing.policypack": "e79700f7c8a59e3559171845e51283766e285414e615d505ed6e6ce752bf1325",
+    "artifacts/crow-four-expert-native-integration-20261109/selection.json": "fa6dfd31cff0a36bd36fd9edc4b0c4c474f271ceab3e3f4b32c585c5230f4430",
+    "artifacts/crow-four-expert-native-integration-20261109/contract.json": "6dcef56e4a15382943dc73b38b138270bf65d2b834aeee329e874b477f082ba4",
+    "artifacts/crow-unused-layout-confirmation-round3-20261109/run.py": "532836629cd18d5a076b60d580a05d89cf0059f48ddc67751cd23c6270c372d3",
+    "artifacts/crow-unused-layout-confirmation-round3-20261109/register.py": "cd093ee7181f5bd89dc8dfb53a283f6aa0b7f7c3d2421f05873aa0aa7ae015ea"
+  },
+  "controls": "16 full starts per layout, teacher off, first episodes only, no scheduled or intermediate resets; 3000 control steps; native v15 body and frozen flight law",
+  "success": "all five waypoints in order and at least 25 terminal accepted steps of foot-only support with positive upward impulse and low velocity; no physical failure and no simulator failure",
+  "prediction": "at least 15 supported finishes out of 16 on each layout",
+  "failure_reporting": "every attempted lane, first fatal contact or last sampled state if stalled, and exact box distance sampled at each accepted 20 ms control-step endpoint; perch excluded from obstacle clearance",
+  "development_results": "141/144 supported finishes in nine development seed sets across seven layouts, each set at least 15/16; known failures include slalom contact, body-perch contact and a waypoint stall",
+  "caveat": "two unused nominal layouts and one unused seed per layout provide bounded generalization evidence, not universal reliability; policy receives simulator-issued goal coordinates alongside visual and proprioceptive observations"
+}
