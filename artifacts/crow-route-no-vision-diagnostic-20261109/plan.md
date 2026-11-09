@@ -1,0 +1,3 @@
+# Goal and proprioception ablation
+
+Investigate whether visual features are causing the route actor to overfit the three development layouts. Hold the 600 visual-depth inputs at their normalized mean during imitation and zero their first-layer weights; preserve the 216 nonvisual inputs including the issued active, next and previous goals and proprioception. Train only from the previously qualified full-start demonstrations and successful recoveries. Compare matched teacher-off full-start physical runs against the unablated route. Predict fewer course-dependent regressions if visual overfitting is significant. This is an ablation, not evidence of visual navigation; the physical layout, sensors, frozen flight law, landing policy and safety checks are unchanged.

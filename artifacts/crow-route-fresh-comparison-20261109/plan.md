@@ -1,0 +1,3 @@
+# Fresh development starts for interpolated route
+
+On the integrated production task, compare the original gate-corrected route against the 75% interpolated candidate, both with the same frozen low-level flight controller and landing actor. Run all 16 lanes from the start with teacher off and no intermediate resets, on development courses training, held-out-a, and held-out-b with seeds 20270213, 20270214, and 20270215, respectively. The candidate was selected from exploratory matched seeds 20270209–20270211, where it supported 36/48 versus 33/48. Predict at least as many supported finishes in each course and more overall, with fewer obstacle contacts. These are fresh seeds on known development layouts, not the reserved final layouts.

@@ -1,0 +1,3 @@
+# Privileged teacher control in the integrated build
+
+Reassess whether the existing geometric teacher can physically traverse the development layouts in the current production build. Use its explicit privileged command with the frozen flight law, full starts and the same 16-lane course/seed pairs 20270213–20270215 used in the fresh student comparison. Count complete trajectories with supported landings and first contacts; this tests the physical teacher control and route, not autonomous policy performance. Predict at least 45/48 supported finishes based on the earlier diagnostic teacher trials. No final layout is used.

@@ -1,0 +1,7 @@
+{
+  "source_sha256": "b41565fa001efaa7d748b1615f47038aeaa7810c91d668d120b955585e35f911",
+  "base_sha256": "8d6356083545ba5fac6cb14be8ccc7559009d8f328eda2cf3910d72e17f46bcd",
+  "actor_weights_identical": true,
+  "observation_and_action_transforms_identical": true,
+  "critic_and_stochastic_head_removed": true
+}

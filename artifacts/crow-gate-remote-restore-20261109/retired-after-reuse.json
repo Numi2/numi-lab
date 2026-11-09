@@ -1,0 +1,22 @@
+{
+  "remote_revision": "903352e5f1549d6a14136f5158d60f4ad80a3ea1",
+  "removed_raw_copies": [
+    {
+      "path": "build/crow-gate-second-student-dagger-20261109/training.rollout",
+      "bytes": 95424956,
+      "sha256": "618b3eb63e350718307845f1bf71ab137c3f5dc1a16c5c037479f5ef3114c9d1"
+    },
+    {
+      "path": "build/crow-gate-second-student-dagger-20261109/held-out-a.rollout",
+      "bytes": 95424956,
+      "sha256": "38fa834d6595d782b7879e0560e6637f52cc3e3593f0bde049cff324f5ff1655"
+    },
+    {
+      "path": "build/crow-gate-second-student-dagger-20261109/held-out-b.rollout",
+      "bytes": 95424956,
+      "sha256": "f57fc9dadeb8e52d5a29efcedcccac118545e2d4845059e3979eda27a4b700cb"
+    }
+  ],
+  "total_bytes": 286274868,
+  "note": "Compressed research records remain in the repository and were independently streamed from GitHub and hash checked before removal."
+}
