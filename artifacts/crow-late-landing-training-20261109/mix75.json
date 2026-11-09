@@ -1,0 +1,7 @@
+{
+  "alpha": 0.75,
+  "base_sha256": "e79700f7c8a59e3559171845e51283766e285414e615d505ed6e6ce752bf1325",
+  "updated_sha256": "8b5adb5f6c770e661ffacd3c70cf852d52755987d484d289ac8929a64e8e82f2",
+  "output_sha256": "d08d7b15e67c2740f605c66f054f69aa9cbab43a38c874d36beb93bfa6f3ddd1",
+  "scope": "development candidate, linear parameter interpolation, requires full flight validation"
+}
