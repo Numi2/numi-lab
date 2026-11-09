@@ -12,7 +12,7 @@ from slider_work_validation import validate_fem_work_rows
 root = Path(__file__).resolve().parents[2]
 evidence = root / "docs/evidence/midpoint-first-failure-20261109"
 build = Path("/Users/numi/numi-matter-slider-owner-build-20261109")
-out = build / "evidence-work-check-002"
+out = build / "evidence-work-check-003"
 if out.exists():
     raise SystemExit("refusing to overwrite diagnostic attempt")
 if shutil.disk_usage("/System/Volumes/Data").free < 3.12 * 1024**3:
@@ -52,7 +52,7 @@ for command in (compile_command, link_command):
 if len(records["build"]) == 2 and all(x.get("exit_code") == 0 for x in records["build"]):
     records["inputs_sha256"] = {str(p): digest(p) for p in [source, exe, lib, *shaders]}
     for name, gap, expect_contact in [("far", "0.0002", False), ("near", "0.000095", True)]:
-        prefix = evidence / ("slider-fem-work-" + name + "-002")
+        prefix = evidence / ("slider-fem-work-" + name + "-003")
         paths = [Path(str(prefix) + ext) for ext in (".json", ".log")]
         if any(p.exists() for p in paths):
             raise SystemExit("refusing to overwrite " + str(prefix))
@@ -71,7 +71,7 @@ if len(records["build"]) == 2 and all(x.get("exit_code") == 0 for x in records["
             try:
                 trace = json.loads(r.stdout)
                 step = trace["steps"][0]
-                item["independent_gate_ratio"] = validate_fem_work_rows(step, trace["reference_area_weights_m2"])
+                item["independent_gate_ratio"] = validate_fem_work_rows(step, trace)
                 item["gate_ratio"] = step["fem_work_reconstruction_gate_ratio"]
                 item["fem_impulse_Ns"] = step["fem_impulse"]
                 item["fem_work_J"] = step["fem_contact_work"]
@@ -86,7 +86,7 @@ if len(records["build"]) == 2 and all(x.get("exit_code") == 0 for x in records["
         except subprocess.TimeoutExpired:
             records["runs"].append({"name": name, "command": cmd, "timeout": True, "passes": False})
 records["passes"] = len(records["runs"]) == 2 and all(r.get("passes") for r in records["runs"])
-path = evidence / "slider-fem-work-check-002-execution.json"
+path = evidence / "slider-fem-work-check-003-execution.json"
 if path.exists():
     raise SystemExit("refusing to overwrite execution record")
 path.write_text(json.dumps(records, indent=2) + "\n")

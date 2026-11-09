@@ -48,7 +48,7 @@ wrench_impulse_ratio=max(abs(s['fem_impulse']+s['owner_wrench_impulse'])/max(1e-
 # The existing impulse gate induces a work-reconstruction bound: impulse
 # tolerance times the actual midpoint speed, plus a double roundoff floor.
 previous_v=d['initial_slider_velocity_mps'];work_ratio=0.
-fem_work_ratio=max(validate_fem_work_rows(s,d['reference_area_weights_m2']) for s in steps)
+fem_work_ratio=max(validate_fem_work_rows(s,d) for s in steps)
 for s in steps:
  midpoint_v=.5*(previous_v+s['v'])
  bound=max(1e-12,1e-5*abs(s['fem_impulse']))*abs(midpoint_v)+1e-24

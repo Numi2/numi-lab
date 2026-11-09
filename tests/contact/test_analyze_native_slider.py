@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """Ensure the native analysis rejects synthetic conservation failures."""
-import bisect,json,pathlib,subprocess,sys,tempfile
+import bisect,json,math,pathlib,subprocess,sys,tempfile
 root=pathlib.Path(__file__).resolve().parents[2];p=root/'docs/evidence/midpoint-first-failure-20261109'
 r=json.loads((p/'slider-near-rk4-h025.json').read_text());trace=r['trace'];times=[x[0] for x in trace]
 def at(t,col):
@@ -18,10 +18,24 @@ for i in range(640):
   'independent_joint_residual_Ns':0.,'slider_kinematic_defect_m':0.,'fem_kinematic_defect_m':0.})
 a=json.loads((p/'compact-reference-parity-n2-ordered-001.json').read_text())['contact_area_weights_m2']
 active=[i for i,x in enumerate(a) if x>0]
+def impulse(gap,node):
+ if gap>=.0001:return 0.
+ square=gap*gap;shift=square-.0001**2
+ pressure=2*gap*1e16*(2*shift*math.log(square/.0001**2)+shift*shift/square)
+ return h*a[node]*pressure
 for step in steps:
- j=step['fem_impulse']
- step['fem_work_nodes']=[[node,j if k==0 else 0.,j if k==0 else 0.,.1] for k,node in enumerate(active)]
- step['fem_contact_work']=j*.1;step['fem_law_work']=j*.1;step['fem_work_reconstruction_gate_ratio']=0.
+ j=step['fem_impulse'];lo=1e-12;hi=.0001
+ if j>0:
+  for _ in range(80):
+   mid=(lo+hi)/2
+   if impulse(mid,active[0])>j:lo=mid
+   else:hi=mid
+  gap=(lo+hi)/2
+ else:gap=.0001
+ expected=impulse(gap,active[0])
+ step['fem_work_nodes']=[[node,j if k==0 else 0.,expected if k==0 else 0.,.1,gap if k==0 else .0001] for k,node in enumerate(active)]
+ step['fem_contact_work']=j*.1;step['fem_law_work']=expected*.1
+ step['fem_work_reconstruction_gate_ratio']=abs((j-expected)*.1)/(max(1e-12,1e-5*abs(expected))*.1+1e-24)
 d={'schema':'numi.slider-coupled-diagnostic.v1','initial_gap':.000095,'h':h,'slider_mass_kg':.01,
  'initial_slider_velocity_mps':.02,'reference_area_m2':.0004,'reference_area_weights_m2':a,
  'activation_width_m':.0001,'contact_coefficient':1e16,'physical_residual_limit_Ns':1e-10,'steps':steps}
@@ -36,4 +50,6 @@ with tempfile.NamedTemporaryFile(mode='w',suffix='.json') as f:
   code,out=run();assert code!=0,(field,out);d['steps'][100][field]=old
  old=d['steps'][100]['fem_work_nodes'][0][1];d['steps'][100]['fem_work_nodes'][0][1]+=1e-5
  code,out=run();assert code!=0,('corrupt node',out);d['steps'][100]['fem_work_nodes'][0][1]=old
+ old=d['steps'][100]['fem_work_nodes'][0][4];d['steps'][100]['fem_work_nodes'][0][4]=old*.9
+ code,out=run();assert code!=0,('corrupt gap',out);d['steps'][100]['fem_work_nodes'][0][4]=old
  print('baseline synthetic analysis passed; impulse, torque, residual, midpoint clearance, and both work perturbations rejected')

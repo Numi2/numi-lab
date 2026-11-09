@@ -47,3 +47,13 @@ bytewise-identical accepted retry against the same uninterrupted continuation.
 Run once before contact and once after a nonzero contact with the existing
 fixture inputs. Preserve either failure; this is a focused diagnostic-order
 check, not proof that all possible failure sources are equivalent.
+
+
+For the next instrument version, retain each node midpoint gap as well as its
+measured and reconstructed impulse. The analysis independently reevaluates
+the unchanged pressure law using that gap, timestep, reference area and
+physical parameters, requiring agreement with the recorded law impulse to
+1e-12 relative plus 1e-28 N s absolute for host double arithmetic. It then
+applies the same per-node work bound. Repeat both one-step native conditions
+under a new build and retain the earlier outputs. This checks the measurement
+path; it does not change the simulation law or the accuracy thresholds.

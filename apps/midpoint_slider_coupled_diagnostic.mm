@@ -234,7 +234,7 @@ int main(int argc,char**argv){@autoreleasepool{try{
   double impulse=0,torqueX=0,torqueY=0,work=0,low=1e100,midLow=1e100;
   double oldContactPotential=0,newContactPotential=0,femLawWork=0,femWorkGateRatio=0;
   std::vector<double> nodalContactImpulse(now.femNodes.size(),0.0);
-  std::vector<std::array<double,4>> femWorkNodes;
+  std::vector<std::array<double,5>> femWorkNodes;
   for(const auto& s:now.contactSamples)if(s.identity.w&NM_CONTACT_VALID){
    require(s.identity.x>=femWorld.dispatch.gridNodeCount,"contact is not a FEM node");
    const auto node=s.identity.x-femWorld.dispatch.gridNodeCount;require(node<now.femNodes.size(),"contact node out of range");
@@ -264,7 +264,7 @@ int main(int argc,char**argv){@autoreleasepool{try{
     const double expectedImpulse=physicalH*double(area[i])*pressure;
     const double vm=.5*(physicalVelocity(previous,i,2)+physicalVelocity(now,i,2));
     const double bound=std::max(1e-12,1e-5*std::abs(expectedImpulse))*std::abs(vm)+1e-24;
-    femWorkNodes.push_back({double(i),nodalContactImpulse[i],expectedImpulse,vm});
+    femWorkNodes.push_back({double(i),nodalContactImpulse[i],expectedImpulse,vm,midpointGap});
     femLawWork+=expectedImpulse*vm;
     femWorkGateRatio=std::max(femWorkGateRatio,std::abs((nodalContactImpulse[i]-expectedImpulse)*vm)/bound);
    }
@@ -286,7 +286,7 @@ int main(int argc,char**argv){@autoreleasepool{try{
    <<",\"fem_work_nodes\":[";
   for(std::size_t i=0;i<femWorkNodes.size();++i){
    if(i)std::cout<<",";const auto& row=femWorkNodes[i];
-   std::cout<<"["<<row[0]<<","<<row[1]<<","<<row[2]<<","<<row[3]<<"]";
+   std::cout<<"["<<row[0]<<","<<row[1]<<","<<row[2]<<","<<row[3]<<","<<row[4]<<"]";
   }
   std::cout<<"],\"owner_wrench_work\":"<<double(body.force.z)*physicalH*.5*(double(startV[0])+double(v[0]))
    <<",\"contact_potential_before_J\":"<<oldContactPotential<<",\"contact_potential_after_J\":"<<newContactPotential
