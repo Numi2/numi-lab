@@ -11,6 +11,13 @@ static_assert(
     "Matter must admit MetalWorld's coupled position capacity"
 );
 
+static_assert(
+    static_cast<std::uint32_t>(numi::matter::CoupledCandidateOperation::candidateHalfStepKinematics) ==
+        static_cast<std::uint32_t>(metalrobo::MetalWorldCoupledCandidateOperation::candidateHalfStepKinematics));
+static_assert(
+    static_cast<std::uint32_t>(numi::matter::CoupledCandidateOperation::publishSliderMidpoint) ==
+        static_cast<std::uint32_t>(metalrobo::MetalWorldCoupledCandidateOperation::publishSliderMidpoint));
+
 namespace numi::matter {
 namespace {
 

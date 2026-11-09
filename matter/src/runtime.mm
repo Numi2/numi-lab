@@ -31384,7 +31384,9 @@ RuntimeDiagnostics Runtime::encodeImpl(
                         .candidateBodies = (__bridge void*)
                             state.coupledCandidateBodies,
                         .operation =
-                            CoupledCandidateOperation::candidateKinematics,
+                            state.experimentalFEMPlaneMidpoint
+                                ? CoupledCandidateOperation::candidateHalfStepKinematics
+                                : CoupledCandidateOperation::candidateKinematics,
                         .generalizedVectorStride =
                             state.dispatch.rigidGeneralizedCapacity,
                         .candidateQStride = state.coupledQStride,
@@ -31867,7 +31869,9 @@ RuntimeDiagnostics Runtime::encodeImpl(
                         .pointJacobians = state.contactActiveCapacity != 0u
                             ? (__bridge void*)state.coupledPointJacobians : nullptr,
                         .operation =
-                            CoupledCandidateOperation::candidateKinematics,
+                            state.experimentalFEMPlaneMidpoint
+                                ? CoupledCandidateOperation::candidateHalfStepKinematics
+                                : CoupledCandidateOperation::candidateKinematics,
                         .generalizedVectorStride =
                             state.dispatch.rigidGeneralizedCapacity,
                         .candidateQStride = state.coupledQStride,
@@ -52872,7 +52876,9 @@ RuntimeDiagnostics Runtime::encodeImpl(
                         state.coupledGeneralizedCandidate,
                     .output = (__bridge void*)state.coupledGeneralizedOutput,
                     .candidateQ = (__bridge void*)state.coupledCandidateQ,
-                    .operation = CoupledCandidateOperation::publishCandidate,
+                    .operation = state.experimentalFEMPlaneMidpoint
+                        ? CoupledCandidateOperation::publishSliderMidpoint
+                        : CoupledCandidateOperation::publishCandidate,
                     .generalizedVectorStride =
                         state.dispatch.rigidGeneralizedCapacity,
                     .candidateQStride = state.coupledQStride,

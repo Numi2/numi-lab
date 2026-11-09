@@ -1282,6 +1282,10 @@ enum class CoupledCandidateOperation : std::uint32_t {
     massAction = 1u,
     inverseMassPreconditioner = 2u,
     publishCandidate = 3u,
+    // These describe borrowed owner operations only. Runtime admission and
+    // complete midpoint certification remain separate requirements.
+    candidateHalfStepKinematics = 4u,
+    publishSliderMidpoint = 5u,
 };
 
 struct CoupledCandidateQuery {

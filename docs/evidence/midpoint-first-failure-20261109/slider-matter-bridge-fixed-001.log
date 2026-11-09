@@ -1,0 +1,17 @@
+instrument_world contact_pairs=27 deformable_capacity=0 rigid_generalized=0 mutation=0 object_flags=7555 plane_flags=0 floor=1e-07 slop=0.0001
+[NumiMatter] mixed-field smoother skipped_empty: multiphysics_objects=0 field_boundaries=0; mechanical and vascular solve unchanged
+matter_stateless_material_specialization requested=0 eligible=1 material_count=1
+matter_all_native_float requested=0 eligible=1 enabled=0 materials=1 diagnostic_vm=0
+matter_empty_mpm_krylov_domain=1 capacity_proof=storage_active_rows_and_representation_zero
+matter_canonical_precision_materials=0 source=compiler_exact_energy_proof tangent_policy=unchanged
+reference_contact_area_m2=0.00039999996079131961
+matter_mixed_field_smoother_dispatch_count=skipped step=0 count=9216 multiphysics_objects=0 field_boundaries=0
+matter_fgmres_gpu_indirect_dispatch_count=encoded step=0 node=7168 element=2048 environment_count=1
+matter_mixed_field_smoother_dispatch_count=skipped step=0 count=9216 multiphysics_objects=0 field_boundaries=0
+matter_fgmres_gpu_indirect_dispatch_count=encoded step=0 node=7168 element=2048 environment_count=1
+matter_mixed_field_smoother_dispatch_count=skipped step=1 count=9216 multiphysics_objects=0 field_boundaries=0
+matter_fgmres_gpu_indirect_dispatch_count=encoded step=1 node=7168 element=2048 environment_count=1
+matter_mixed_field_smoother_dispatch_count=skipped step=1 count=9216 multiphysics_objects=0 field_boundaries=0
+matter_fgmres_gpu_indirect_dispatch_count=encoded step=1 node=7168 element=2048 environment_count=1
+matter_mixed_field_smoother_dispatch_count=skipped step=1 count=9216 multiphysics_objects=0 field_boundaries=0
+matter_fgmres_gpu_indirect_dispatch_count=encoded step=1 node=7168 element=2048 environment_count=1
