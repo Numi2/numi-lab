@@ -1,0 +1,21 @@
+{
+  "files": [
+    {
+      "name": "positive.air",
+      "sha256": "07071c895b96dcbb027523641153ad3cf656a8cb829eaa811eda47886e830b7e"
+    },
+    {
+      "name": "positive.metallib",
+      "sha256": "ba81bfdfbae27ce42ed67c973612dc8b688729bb10085d71f99b2af700c47f05"
+    },
+    {
+      "name": "negative.air",
+      "sha256": "fb7af74570fe01ae006c9093bab5dcf18ae05d91d19157e1783c328a1eff5f96"
+    },
+    {
+      "name": "negative.metallib",
+      "sha256": "113128df8065c5a422032a3a2bdbb32b193461293d64d0f0ebb72bce28878e18"
+    }
+  ],
+  "host_runtime": "artifacts/crow-v15-toe-support-20261109/libmetalrobo.dylib.gz"
+}

@@ -1,0 +1,3 @@
+# Initial contact-gated hip balance screen
+
+Both signs failed on the previously exposed layout J. The positive arm terminated at trace step 2236 and the negative arm at step 2328, both for excessive tilt and neither after establishing three consecutive bilateral opposing toe-load samples. The archived no-reflex baseline had achieved 148 consecutive samples before failing for tilt. The tested correction therefore worsened this trial; it is not promoted. See the predeclared plan, compiled shader patches, exact commands, first-episode results and retained contact traces. This is an estimated toe body and modified branch environment, not a realistic whole-sequence demonstration.

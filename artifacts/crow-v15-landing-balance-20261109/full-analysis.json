@@ -1,0 +1,965 @@
+{
+  "results": [
+    {
+      "course": "reserved-final-j",
+      "arm": "positive",
+      "first_episode": {
+        "boundary": "waypoint completion; does not establish supported landing",
+        "closed_by_environment": [
+          true
+        ],
+        "closed_episode_count": 1,
+        "completion_seen_by_environment": [
+          true
+        ],
+        "completion_seen_count": 1,
+        "environment_count": 1,
+        "first_completion_step_by_environment": [
+          1249
+        ],
+        "horizon_censored_count": 0,
+        "maximum_waypoints_by_environment": [
+          5
+        ],
+        "physical_failure_by_environment": [
+          true
+        ],
+        "physical_failure_count": 1,
+        "safe_completion_by_environment": [
+          false
+        ],
+        "safe_completion_count": 0,
+        "schema": "numi.crow-first-episode-evidence.v1",
+        "steps_by_environment": [
+          2235
+        ],
+        "termination_reason_by_environment": [
+          2
+        ],
+        "unit": "first episode of each environment since context creation"
+      },
+      "failed_environment_steps": 0,
+      "sampled_both_feet_opposing_steps": [],
+      "max_consecutive_both_feet_opposing": 0,
+      "post_release_first_load_loss": {
+        "left": null,
+        "right": null
+      },
+      "terminal_supported_endpoints": 0,
+      "minimum_clearance": {
+        "lane": 0,
+        "end_step": 2236,
+        "minimum_step": 871,
+        "minimum_m": 0.0566103385144,
+        "bird_shape": "crow_left_wing/collision",
+        "obstacle_shape": "crow_course_slalom_a/collision",
+        "bird_body": "crow_left_wing",
+        "obstacle_body": "crow_course_slalom_a",
+        "sampling": "accepted_control_steps"
+      },
+      "end_sample": {
+        "step": 2236,
+        "q": [
+          4.83543777,
+          0.468994975,
+          0.900503337,
+          0.0173288882,
+          -0.56781882,
+          0.0245348942,
+          0.822605312,
+          -1.22312294e-05,
+          -4.12351474e-05,
+          0.350001395,
+          0.349998564,
+          0.000342625892,
+          -0.000338988873,
+          0.00127996621,
+          -0.123749159,
+          0.278508097,
+          -0.159879848,
+          -0.123694271,
+          0.278587669,
+          -0.159873784,
+          0.000623652828,
+          0.065131709,
+          0.0290453117,
+          0.29499042,
+          0.294990033,
+          0.294989645,
+          0.480786115,
+          0.42229864,
+          0.422298312,
+          0.422297984,
+          0.356115848
+        ],
+        "v": [
+          -0.0481560007,
+          0.0017887213,
+          -0.146498248,
+          0.0487407967,
+          -0.820059597,
+          -0.0226269159,
+          -8.58925432e-06,
+          -7.11983012e-06,
+          -4.27384293e-06,
+          1.67034057e-06,
+          0.000114519906,
+          -0.000112080234,
+          0.00223434321,
+          -0.00363772502,
+          -0.00310463901,
+          -0.0027457315,
+          -0.00369108818,
+          -0.00376571808,
+          -0.00314325071,
+          -1.42632489e-05,
+          -0.024836028,
+          0.0140731856,
+          0.95971173,
+          0.959710419,
+          0.959708989,
+          -0.850388408,
+          1.0846312,
+          1.08462989,
+          1.08462834,
+          -0.799645662
+        ],
+        "contacts": [
+          {
+            "a": 10,
+            "a_name": "crow_left_foot",
+            "b": 30,
+            "b_name": "crow_course_perch",
+            "normal": [
+              -5.96046519e-08,
+              0,
+              -1
+            ],
+            "tangent_u": [
+              0.00573521806,
+              0.999983549,
+              -3.41845635e-10
+            ],
+            "tangent_v": [
+              0.999983549,
+              -0.00573521806,
+              -5.96036713e-08
+            ],
+            "impulses": [
+              0.00335945119,
+              -0.000272379461,
+              -0.00199718075
+            ],
+            "separation": -0.000665485859
+          },
+          {
+            "a": 10,
+            "a_name": "crow_left_foot",
+            "b": 30,
+            "b_name": "crow_course_perch",
+            "normal": [
+              -5.96046519e-08,
+              0,
+              -1
+            ],
+            "tangent_u": [
+              0.00573521806,
+              0.999983549,
+              -3.41845635e-10
+            ],
+            "tangent_v": [
+              0.999983549,
+              -0.00573521806,
+              -5.96036713e-08
+            ],
+            "impulses": [
+              0,
+              0,
+              0
+            ],
+            "separation": 0.0180420261
+          },
+          {
+            "a": 10,
+            "a_name": "crow_left_foot",
+            "b": 30,
+            "b_name": "crow_course_perch",
+            "normal": [
+              -5.96046519e-08,
+              0,
+              -1
+            ],
+            "tangent_u": [
+              0.00573521806,
+              0.999983549,
+              -3.41845635e-10
+            ],
+            "tangent_v": [
+              0.999983549,
+              -0.00573521806,
+              -5.96036713e-08
+            ],
+            "impulses": [
+              0.00488289073,
+              -0.00077789725,
+              -0.00282457005
+            ],
+            "separation": -0.000643074512
+          },
+          {
+            "a": 10,
+            "a_name": "crow_left_foot",
+            "b": 30,
+            "b_name": "crow_course_perch",
+            "normal": [
+              -5.96046519e-08,
+              0,
+              -1
+            ],
+            "tangent_u": [
+              0.00573521806,
+              0.999983549,
+              -3.41845635e-10
+            ],
+            "tangent_v": [
+              0.999983549,
+              -0.00573521806,
+              -5.96036713e-08
+            ],
+            "impulses": [
+              0,
+              0,
+              0
+            ],
+            "separation": 0.0180643778
+          },
+          {
+            "a": 13,
+            "a_name": "crow_right_foot",
+            "b": 30,
+            "b_name": "crow_course_perch",
+            "normal": [
+              -5.96046519e-08,
+              0,
+              -1
+            ],
+            "tangent_u": [
+              0.00576928258,
+              0.99998337,
+              -3.43876039e-10
+            ],
+            "tangent_v": [
+              0.99998337,
+              -0.00576928258,
+              -5.96036607e-08
+            ],
+            "impulses": [
+              0.00393063063,
+              0.000362511899,
+              -0.00233034859
+            ],
+            "separation": -0.000727772713
+          },
+          {
+            "a": 13,
+            "a_name": "crow_right_foot",
+            "b": 30,
+            "b_name": "crow_course_perch",
+            "normal": [
+              -5.96046519e-08,
+              0,
+              -1
+            ],
+            "tangent_u": [
+              0.00576928258,
+              0.99998337,
+              -3.43876039e-10
+            ],
+            "tangent_v": [
+              0.99998337,
+              -0.00576928258,
+              -5.96036607e-08
+            ],
+            "impulses": [
+              5.07518018e-38,
+              -5.42355026e-38,
+              -5.39802141e-38
+            ],
+            "separation": 0.0179788452
+          },
+          {
+            "a": 13,
+            "a_name": "crow_right_foot",
+            "b": 30,
+            "b_name": "crow_course_perch",
+            "normal": [
+              -5.96046519e-08,
+              0,
+              -1
+            ],
+            "tangent_u": [
+              0.00576928258,
+              0.99998337,
+              -3.43876039e-10
+            ],
+            "tangent_v": [
+              0.99998337,
+              -0.00576928258,
+              -5.96036607e-08
+            ],
+            "impulses": [
+              0.00392891886,
+              4.81377247e-05,
+              -0.00235685846
+            ],
+            "separation": -0.000705301762
+          },
+          {
+            "a": 13,
+            "a_name": "crow_right_foot",
+            "b": 30,
+            "b_name": "crow_course_perch",
+            "normal": [
+              -5.96046519e-08,
+              0,
+              -1
+            ],
+            "tangent_u": [
+              0.00576928258,
+              0.99998337,
+              -3.43876039e-10
+            ],
+            "tangent_v": [
+              0.99998337,
+              -0.00576928258,
+              -5.96036607e-08
+            ],
+            "impulses": [
+              0,
+              0,
+              0
+            ],
+            "separation": 0.0180011969
+          },
+          {
+            "a": 20,
+            "a_name": "crow_left_rear_toe",
+            "b": 30,
+            "b_name": "crow_course_perch",
+            "normal": [
+              1,
+              3.72528985e-09,
+              0
+            ],
+            "tangent_u": [
+              1.4210853e-14,
+              -4.5858319e-06,
+              -1
+            ],
+            "tangent_v": [
+              -3.72528985e-09,
+              1,
+              -4.5858319e-06
+            ],
+            "impulses": [
+              0.00385379954,
+              0.00226952787,
+              0.000442540244
+            ],
+            "separation": 9.53674316e-05
+          },
+          {
+            "a": 20,
+            "a_name": "crow_left_rear_toe",
+            "b": 30,
+            "b_name": "crow_course_perch",
+            "normal": [
+              1,
+              3.72528985e-09,
+              0
+            ],
+            "tangent_u": [
+              1.4210853e-14,
+              -4.5858319e-06,
+              -1
+            ],
+            "tangent_v": [
+              -3.72528985e-09,
+              1,
+              -4.5858319e-06
+            ],
+            "impulses": [
+              0,
+              0,
+              0
+            ],
+            "separation": 0.000396251678
+          },
+          {
+            "a": 24,
+            "a_name": "crow_right_rear_toe",
+            "b": 30,
+            "b_name": "crow_course_perch",
+            "normal": [
+              1,
+              -3.72529074e-09,
+              0
+            ],
+            "tangent_u": [
+              -1.19513817e-11,
+              -0.00320817414,
+              -0.999994874
+            ],
+            "tangent_v": [
+              3.72527165e-09,
+              0.999994874,
+              -0.00320817414
+            ],
+            "impulses": [
+              0.00358418375,
+              0.00214719214,
+              0.000118996933
+            ],
+            "separation": 8.96453857e-05
+          },
+          {
+            "a": 24,
+            "a_name": "crow_right_rear_toe",
+            "b": 30,
+            "b_name": "crow_course_perch",
+            "normal": [
+              1,
+              -3.72529074e-09,
+              0
+            ],
+            "tangent_u": [
+              -1.19513817e-11,
+              -0.00320817414,
+              -0.999994874
+            ],
+            "tangent_v": [
+              3.72527165e-09,
+              0.999994874,
+              -0.00320817414
+            ],
+            "impulses": [
+              0.00181845599,
+              0.00109045487,
+              3.47601272e-05
+            ],
+            "separation": 3.38554382e-05
+          },
+          {
+            "a": 24,
+            "a_name": "crow_right_rear_toe",
+            "b": 30,
+            "b_name": "crow_course_perch",
+            "normal": [
+              1,
+              -3.72529074e-09,
+              0
+            ],
+            "tangent_u": [
+              -1.19513817e-11,
+              -0.00320817414,
+              -0.999994874
+            ],
+            "tangent_v": [
+              3.72527165e-09,
+              0.999994874,
+              -0.00320817414
+            ],
+            "impulses": [
+              0,
+              0,
+              0
+            ],
+            "separation": 0.000390529633
+          },
+          {
+            "a": 24,
+            "a_name": "crow_right_rear_toe",
+            "b": 30,
+            "b_name": "crow_course_perch",
+            "normal": [
+              1,
+              -3.72529074e-09,
+              0
+            ],
+            "tangent_u": [
+              -1.19513817e-11,
+              -0.00320817414,
+              -0.999994874
+            ],
+            "tangent_v": [
+              3.72527165e-09,
+              0.999994874,
+              -0.00320817414
+            ],
+            "impulses": [
+              0,
+              0,
+              0
+            ],
+            "separation": 0.000334739685
+          }
+        ]
+      },
+      "complete_gate": false
+    },
+    {
+      "course": "reserved-final-j",
+      "arm": "negative",
+      "first_episode": {
+        "boundary": "waypoint completion; does not establish supported landing",
+        "closed_by_environment": [
+          true
+        ],
+        "closed_episode_count": 1,
+        "completion_seen_by_environment": [
+          true
+        ],
+        "completion_seen_count": 1,
+        "environment_count": 1,
+        "first_completion_step_by_environment": [
+          1249
+        ],
+        "horizon_censored_count": 0,
+        "maximum_waypoints_by_environment": [
+          5
+        ],
+        "physical_failure_by_environment": [
+          true
+        ],
+        "physical_failure_count": 1,
+        "safe_completion_by_environment": [
+          false
+        ],
+        "safe_completion_count": 0,
+        "schema": "numi.crow-first-episode-evidence.v1",
+        "steps_by_environment": [
+          2327
+        ],
+        "termination_reason_by_environment": [
+          2
+        ],
+        "unit": "first episode of each environment since context creation"
+      },
+      "failed_environment_steps": 0,
+      "sampled_both_feet_opposing_steps": [],
+      "max_consecutive_both_feet_opposing": 0,
+      "post_release_first_load_loss": {
+        "left": null,
+        "right": null
+      },
+      "terminal_supported_endpoints": 0,
+      "minimum_clearance": {
+        "lane": 0,
+        "end_step": 2328,
+        "minimum_step": 871,
+        "minimum_m": 0.0566103385144,
+        "bird_shape": "crow_left_wing/collision",
+        "obstacle_shape": "crow_course_slalom_a/collision",
+        "bird_body": "crow_left_wing",
+        "obstacle_body": "crow_course_slalom_a",
+        "sampling": "accepted_control_steps"
+      },
+      "end_sample": {
+        "step": 2328,
+        "q": [
+          4.83782434,
+          0.458653539,
+          0.90144372,
+          8.05766977e-05,
+          -0.566359699,
+          -0.000105692052,
+          0.824158132,
+          -2.93291814e-05,
+          -1.77343118e-05,
+          0.350000262,
+          0.350000292,
+          0.000301012566,
+          -0.000301872817,
+          0.00110084692,
+          -0.123027757,
+          0.279110342,
+          -0.159287617,
+          -0.123145036,
+          0.279125959,
+          -0.159172103,
+          -1.07005344e-05,
+          0.0600725785,
+          0.0269619599,
+          0.928288698,
+          0.928287625,
+          0.928286195,
+          0.362131357,
+          0.954774976,
+          0.954640746,
+          0.954328358,
+          0.362139612
+        ],
+        "v": [
+          -0.0436647125,
+          1.85040753e-05,
+          -0.127810925,
+          -0.00284805172,
+          -0.722234547,
+          0.00100837555,
+          -2.54775878e-05,
+          2.19740614e-05,
+          1.74045385e-06,
+          -1.81195253e-06,
+          5.91056814e-05,
+          -6.27328336e-05,
+          0.000998705393,
+          -0.00130133389,
+          -0.000159830044,
+          0.00101991778,
+          0.000742616015,
+          0.000226120115,
+          0.00032864479,
+          -0.00184724003,
+          -0.0345745534,
+          0.00155221566,
+          0.166997403,
+          0.16700235,
+          0.167010337,
+          -0.715886772,
+          0.0190360118,
+          0.0197752677,
+          0.0214969348,
+          -0.719314575
+        ],
+        "contacts": [
+          {
+            "a": 10,
+            "a_name": "crow_left_foot",
+            "b": 30,
+            "b_name": "crow_course_perch",
+            "normal": [
+              -1.19209304e-07,
+              1.09139382e-11,
+              -1
+            ],
+            "tangent_u": [
+              0.0369614325,
+              0.999316692,
+              -4.39524017e-09
+            ],
+            "tangent_v": [
+              0.999316692,
+              -0.0369614325,
+              -1.19128252e-07
+            ],
+            "impulses": [
+              7.56502345e-08,
+              -5.19530374e-09,
+              -4.50918343e-08
+            ],
+            "separation": -0.000640511513
+          },
+          {
+            "a": 10,
+            "a_name": "crow_left_foot",
+            "b": 30,
+            "b_name": "crow_course_perch",
+            "normal": [
+              -1.19209304e-07,
+              1.09139382e-11,
+              -1
+            ],
+            "tangent_u": [
+              0.0369614325,
+              0.999316692,
+              -4.39524017e-09
+            ],
+            "tangent_v": [
+              0.999316692,
+              -0.0369614325,
+              -1.19128252e-07
+            ],
+            "impulses": [
+              0.00790247507,
+              -0.0011692124,
+              -0.00459506596
+            ],
+            "separation": -0.000631332397
+          },
+          {
+            "a": 13,
+            "a_name": "crow_right_foot",
+            "b": 30,
+            "b_name": "crow_course_perch",
+            "normal": [
+              -5.96046519e-08,
+              -7.27595848e-12,
+              -1
+            ],
+            "tangent_u": [
+              0.00556309428,
+              0.999984562,
+              -3.38862133e-10
+            ],
+            "tangent_v": [
+              0.999984562,
+              -0.00556309428,
+              -5.96036926e-08
+            ],
+            "impulses": [
+              0.0082435254,
+              0.00101506151,
+              -0.00484083639
+            ],
+            "separation": -0.000646173954
+          },
+          {
+            "a": 13,
+            "a_name": "crow_right_foot",
+            "b": 30,
+            "b_name": "crow_course_perch",
+            "normal": [
+              -5.96046519e-08,
+              -7.27595848e-12,
+              -1
+            ],
+            "tangent_u": [
+              0.00556309428,
+              0.999984562,
+              -3.38862133e-10
+            ],
+            "tangent_v": [
+              0.999984562,
+              -0.00556309428,
+              -5.96036926e-08
+            ],
+            "impulses": [
+              2.08585352e-05,
+              9.06863022e-07,
+              -1.24822227e-05
+            ],
+            "separation": -0.000636994839
+          },
+          {
+            "a": 20,
+            "a_name": "crow_left_rear_toe",
+            "b": 30,
+            "b_name": "crow_course_perch",
+            "normal": [
+              1,
+              0,
+              0
+            ],
+            "tangent_u": [
+              0,
+              0.0586076714,
+              -0.998281121
+            ],
+            "tangent_v": [
+              0,
+              0.998281121,
+              0.0586076714
+            ],
+            "impulses": [
+              0.00143954589,
+              0.00086372142,
+              -3.2451444e-06
+            ],
+            "separation": 7.39097595e-05
+          },
+          {
+            "a": 20,
+            "a_name": "crow_left_rear_toe",
+            "b": 30,
+            "b_name": "crow_course_perch",
+            "normal": [
+              1,
+              0,
+              0
+            ],
+            "tangent_u": [
+              0,
+              0.0586076714,
+              -0.998281121
+            ],
+            "tangent_v": [
+              0,
+              0.998281121,
+              0.0586076714
+            ],
+            "impulses": [
+              0.000209740159,
+              0.000125842984,
+              1.368971e-07
+            ],
+            "separation": 2.57492065e-05
+          },
+          {
+            "a": 20,
+            "a_name": "crow_left_rear_toe",
+            "b": 30,
+            "b_name": "crow_course_perch",
+            "normal": [
+              1,
+              0,
+              0
+            ],
+            "tangent_u": [
+              0,
+              0.0586076714,
+              -0.998281121
+            ],
+            "tangent_v": [
+              0,
+              0.998281121,
+              0.0586076714
+            ],
+            "impulses": [
+              0.00201475318,
+              0.00120882946,
+              7.34390687e-06
+            ],
+            "separation": 7.34329224e-05
+          },
+          {
+            "a": 20,
+            "a_name": "crow_left_rear_toe",
+            "b": 30,
+            "b_name": "crow_course_perch",
+            "normal": [
+              1,
+              0,
+              0
+            ],
+            "tangent_u": [
+              0,
+              0.0586076714,
+              -0.998281121
+            ],
+            "tangent_v": [
+              0,
+              0.998281121,
+              0.0586076714
+            ],
+            "impulses": [
+              0.000862181012,
+              0.000517275534,
+              5.50196955e-06
+            ],
+            "separation": 2.57492065e-05
+          },
+          {
+            "a": 24,
+            "a_name": "crow_right_rear_toe",
+            "b": 30,
+            "b_name": "crow_course_perch",
+            "normal": [
+              1,
+              0,
+              0
+            ],
+            "tangent_u": [
+              0,
+              0.0622343086,
+              -0.998061538
+            ],
+            "tangent_v": [
+              0,
+              0.998061538,
+              0.0622343086
+            ],
+            "impulses": [
+              0.000893122924,
+              0.000530613353,
+              -7.49006213e-05
+            ],
+            "separation": 7.34329224e-05
+          },
+          {
+            "a": 24,
+            "a_name": "crow_right_rear_toe",
+            "b": 30,
+            "b_name": "crow_course_perch",
+            "normal": [
+              1,
+              0,
+              0
+            ],
+            "tangent_u": [
+              0,
+              0.0622343086,
+              -0.998061538
+            ],
+            "tangent_v": [
+              0,
+              0.998061538,
+              0.0622343086
+            ],
+            "impulses": [
+              0.000205815784,
+              0.000122493337,
+              -1.56419355e-05
+            ],
+            "separation": 2.62260437e-05
+          },
+          {
+            "a": 24,
+            "a_name": "crow_right_rear_toe",
+            "b": 30,
+            "b_name": "crow_course_perch",
+            "normal": [
+              1,
+              0,
+              0
+            ],
+            "tangent_u": [
+              0,
+              0.0622343086,
+              -0.998061538
+            ],
+            "tangent_v": [
+              0,
+              0.998061538,
+              0.0622343086
+            ],
+            "impulses": [
+              0.00262863911,
+              0.00156346057,
+              -0.000207601566
+            ],
+            "separation": 7.29560852e-05
+          },
+          {
+            "a": 24,
+            "a_name": "crow_right_rear_toe",
+            "b": 30,
+            "b_name": "crow_course_perch",
+            "normal": [
+              1,
+              0,
+              0
+            ],
+            "tangent_u": [
+              0,
+              0.0622343086,
+              -0.998061538
+            ],
+            "tangent_v": [
+              0,
+              0.998061538,
+              0.0622343086
+            ],
+            "impulses": [
+              0.00118030095,
+              0.000702888763,
+              -8.63754394e-05
+            ],
+            "separation": 2.57492065e-05
+          }
+        ]
+      },
+      "complete_gate": false
+    }
+  ],
+  "scope": "one lane each, exposed layouts, estimated toes; no real-bird validation"
+}
