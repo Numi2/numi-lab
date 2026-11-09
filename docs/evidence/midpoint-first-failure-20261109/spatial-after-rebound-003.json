@@ -1,0 +1,9 @@
+{
+  "n64_pid": 61340,
+  "inputs_sha256": {
+    "/Users/numi/numi-lab-midpoint-compensated-20261109/tests/contact/run_spatial_after_rebound_003.py": "172df2286ba313fac472a19bc07717c2af5ef43e7a8a33554b2c7a8c981c0f54",
+    "/Users/numi/numi-lab-midpoint-compensated-20261109/tests/contact/run_large_spatial_continuation_003.py": "33bb1cf3abdecb8986b6ead9ce49d772eaa217bd5f82caa84bea3a7aa3deddae",
+    "/Users/numi/numi-lab-midpoint-compensated-20261109/tests/contact/large_spatial_reference.py": "2da963618c6f9517afcef8e818efd32a84d737bd9fd3e20a3f01bfd06b5365e1"
+  },
+  "status": "waiting"
+}
