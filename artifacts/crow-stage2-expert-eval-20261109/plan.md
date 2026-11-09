@@ -1,0 +1,3 @@
+# Independent stage-two expert: development comparison
+
+Use the independent stage-two expert merged with the baseline route actor, the diagnostic stage-two head shader, unchanged frozen flight and landing policies, and the same two known 48-start development sets used for the preceding experiments. An identity-expert control first matched all first-episode outcomes and 428 sampled q/v states exactly. Run teacher-off, full-start trials on courses training, held-out-a, and held-out-b with seeds 20270213–20270215 and 20270219–20270221, respectively. Predict more supported finishes and fewer gate/slalom contacts than the baseline stage-two actor; report all results and endpoint-sampled obstacle clearance. These are development layouts and seeds.

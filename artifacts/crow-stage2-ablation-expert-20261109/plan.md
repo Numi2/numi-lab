@@ -1,0 +1,3 @@
+# Nonvisual second-waypoint expert
+
+The goal/proprioception ablation reduced collisions on one difficult development course but sometimes stalled later in the route. Test using that ablated actor only at waypoint index 2 while retaining the visual baseline route actor at every other waypoint and the original landing actor. Compare teacher-off, full-start results on the matched development sets. The waypoint-two expert uses explicit issued goals and proprioception, not depth vision; retain this limitation in any claim. The shared frozen flight law, physical scene and endpoint clearance measurement remain unchanged.

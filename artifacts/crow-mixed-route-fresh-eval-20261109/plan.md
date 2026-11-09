@@ -1,0 +1,3 @@
+# Mixed route versus prior route on new development starts
+
+Compare the best standard stage-two route to the experimental mixed policy on three known development courses with previously unused seeds 20270226, 20270227 and 20270228, 16 full starts each. Both use the same frozen flight controller and landing actor, teacher off and no intermediate resets. The mixed policy uses the visual actor outside waypoint index 2 and an explicit-goal/proprioception actor during index 2; it is not pure visual navigation. Predict at least as many supported finishes per course and at least 43/48 overall, with fewer first obstacle collisions. Report all first-episode outcomes and endpoint-sampled clearance. This development check precedes any reserved final layout.
