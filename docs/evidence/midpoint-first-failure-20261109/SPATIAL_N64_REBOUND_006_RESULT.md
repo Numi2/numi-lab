@@ -1,0 +1,9 @@
+# Hash-bound 64-division reference repeat
+
+The restarted fine reference completed at 0.25 µs after the successful 0.5 µs coarse run from attempt 005. Both execution records bind the ordered FP64 executable, source manifest, command, and output hash. Both new files are byte-identical to their respective historical 64-division files. The 006 analysis independently checks complete traces, every reference-area weight, total area, mass, clearance, and temporal refinement.
+
+The 64-division temporal comparison passes: its worst 1 ms-binned force difference is 2.996e-10, sampled peak difference 7.846e-10, total impulse difference 4.343e-11, and cumulative impulse difference 1.850e-10, each relative to the corresponding fine-reference scale. The independently time-refined 128-division reference also passes its temporal gate.
+
+With both mesh-specific temporal checks passed, the 64-to-128 spatial comparison **fails**: 1 ms-binned force differs by 1.72737%, integration-step-sampled peak force by 20.69274%, total impulse by 0.16176%, and cumulative impulse by 0.50371%. This establishes the stated comparison, not convergence of the 128-division mesh or any native 64/128-division Matter rollout. The coefficient, activation width, material, initial state, and reference-area construction are those of the hash-pinned evaluator and recorded plan. These CPU reference runs are not performance benchmarks or evidence of physical material calibration.
+
+The fine run completed in 2007.01 observational seconds with a sampled peak of 624064 KiB. The original interrupted fine run and its free-space failure remain separately retained in `SPATIAL_REBOUND_005_INTERRUPTION.md` and the 005 execution record. A later continuation may compare 128 and 256 divisions only after its independent provenance and temporal checks pass.

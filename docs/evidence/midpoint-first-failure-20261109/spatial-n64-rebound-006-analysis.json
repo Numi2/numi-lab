@@ -1,0 +1,43 @@
+{
+  "historical_coarse_byte_identical": true,
+  "historical_coarse_comparison": {
+    "binned_force": 0.0,
+    "cumulative_impulse": 0.0,
+    "passes": true,
+    "peak_force": 0.0,
+    "total_impulse": 0.0
+  },
+  "historical_fine_byte_identical": true,
+  "historical_fine_comparison": {
+    "binned_force": 0.0,
+    "cumulative_impulse": 0.0,
+    "passes": true,
+    "peak_force": 0.0,
+    "total_impulse": 0.0
+  },
+  "meaning": "These CPU reference checks do not qualify native n64 Matter or physical material calibration. Force peaks are sampled separately from 1 ms bins.",
+  "n128_temporal": {
+    "binned_force": 7.702109403612098e-10,
+    "cumulative_impulse": 3.1482005742726663e-10,
+    "passes": true,
+    "peak_force": 2.694927327182883e-09,
+    "total_impulse": 2.53692859608243e-10
+  },
+  "n64_temporal": {
+    "binned_force": 2.9955833480059635e-10,
+    "cumulative_impulse": 1.8503232378343543e-10,
+    "passes": true,
+    "peak_force": 7.845973706410392e-10,
+    "total_impulse": 4.342885821027018e-11
+  },
+  "n64_to_n128": {
+    "binned_force": 0.017273715055983976,
+    "cumulative_impulse": 0.00503707220643903,
+    "passes": false,
+    "peak_force": 0.20692744469991534,
+    "total_impulse": 0.0016176037463371921
+  },
+  "schema": "numi.spatial-n64-rebound.v1",
+  "spatial_qualified": false,
+  "spatial_test_valid": true
+}

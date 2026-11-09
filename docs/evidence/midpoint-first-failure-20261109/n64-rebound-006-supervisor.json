@@ -1,0 +1,46 @@
+{
+  "input_sha256": {
+    "/Users/numi/numi-matter-midpoint-compensated-build-20261109/numi_contact_fem_fp64_reference_n128": "7f8b311536d8bb7cfd8bf4eb053649da020d0c9a20dc621071284d9e207c2394",
+    "/Users/numi/numi-lab-midpoint-compensated-20261109/docs/evidence/midpoint-first-failure-20261109/n128-final-inputs.sha256": "fb273d880f210738a0a3b5e43d7c79b0e642fe40f258d4db332aba1fd78fa179",
+    "/Users/numi/numi-lab-midpoint-compensated-20261109/docs/evidence/midpoint-first-failure-20261109/SPATIAL_N64_REBOUND_PLAN.md": "46a2a7a31cd09a6e106e6942170aaffa1580dba31b97b1b6dfdcb52f68f715a0",
+    "/Users/numi/numi-lab-midpoint-compensated-20261109/tests/contact/spatial_n64_rebound_006_analysis.py": "4edb3893a18bad0b46d4aad5bb0d697dcf91afc87a40f292ffcb8d1a9bafe53d",
+    "/Users/numi/numi-lab-midpoint-compensated-20261109/tests/contact/run_spatial_n64_rebound_006.py": "6a5ace05ce4ed19d64792e4b89c391123ca81916264b9a596a415b9404c5b6a6",
+    "/Users/numi/numi-lab-midpoint-compensated-20261109/tests/contact/large_spatial_reference.py": "2da963618c6f9517afcef8e818efd32a84d737bd9fd3e20a3f01bfd06b5365e1",
+    "/Users/numi/numi-lab-midpoint-compensated-20261109/tests/contact/spatial_n128_retry2_analysis.py": "e83c00dcfcb5ef6046013482f59bdd5c744678b43f54b0ef514723edff99be1e",
+    "/Users/numi/numi-lab-midpoint-compensated-20261109/tests/contact/spatial_n64_analysis.py": "a828314796f47e68d8bb35eb637ebb565871107fe157520776ce0beeed950c13",
+    "/Users/numi/numi-lab-midpoint-compensated-20261109/tests/contact/spatial_refinement_analysis.py": "580d693fb3795462cb55373143bd20a8e00fa8cb368658c3e9ef3e766c241efe",
+    "/Users/numi/numi-lab-midpoint-compensated-20261109/docs/evidence/midpoint-first-failure-20261109/rk4-n64-rebound-005-h050.json": "28234a94bbcf6908d636ff36a31e5744bb94974faad4df683d883c8a881e81f6",
+    "/Users/numi/numi-lab-midpoint-compensated-20261109/docs/evidence/midpoint-first-failure-20261109/rk4-n64-rebound-005-h050-execution.json": "95fb90413a33b53429a087d16888107bc41b1ad0df59a1b16779bbfb33411c15"
+  },
+  "runs": [
+    {
+      "command": [
+        "/Users/numi/numi-matter-midpoint-compensated-build-20261109/numi_contact_fem_fp64_reference_n128",
+        "64",
+        "0.00000025",
+        "0.01"
+      ],
+      "scheduling": "nice 10",
+      "binary_sha256": "7f8b311536d8bb7cfd8bf4eb053649da020d0c9a20dc621071284d9e207c2394",
+      "source_sha256": "019371ad99f9cfd0ff0a7c3b08e77d493f698f7b3f7d0ef528dd4695097edc1f",
+      "manifest_sha256": "fb273d880f210738a0a3b5e43d7c79b0e642fe40f258d4db332aba1fd78fa179",
+      "returncode": 0,
+      "stopped_reason": null,
+      "wall_seconds_observational_only": 2007.010982207954,
+      "peak_rss_kib_sampled": 624064,
+      "output_sha256": "b852430fa01c26513cfa193d8d74fee23e7f536cdc928e977edd20d66b97e323",
+      "log_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "limits": {
+        "rss_kib": 2097152,
+        "free_bytes": 3328599654,
+        "wall_seconds": 7200
+      }
+    }
+  ],
+  "wait_limit_seconds": 345600,
+  "worker_check_scope": "names beginning numi_ or metalrobo_; not all host activity",
+  "analysis_returncode": 0,
+  "analysis_sha256": "9feac5a8b33ab34f7cb419cb36d29e3bdfecb5da268bef990187450a010e8ca4",
+  "reason": "both hash-bound references completed and analyzed",
+  "wall_seconds": 2007.8993042910006
+}
