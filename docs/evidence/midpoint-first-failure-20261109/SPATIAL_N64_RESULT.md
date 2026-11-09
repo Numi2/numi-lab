@@ -30,3 +30,11 @@ records and analysis are retained. The pre-existing `rk4-n64-h025.json` is a
 not-run sentinel for the superseded sequential supervisor, not the fine
 result. The 2,128-second fine elapsed time includes concurrent reference work
 and is not an application performance measurement.
+
+The retained 2 microsecond common-clock curve inspection puts the n=32 peak
+at 4.974 ms and the n=64 peak at 9.858 ms. Its largest pointwise difference
+occurs at 5.980 ms (0.16652 N versus 0.02597 N), while the largest cumulative
+impulse gap occurs at 6.044 ms. These sampled differences show that matching
+final impulse alone can conceal substantial force-history differences; they do
+not identify their cause. The common-clock peak is separate from the peak
+measured at every 0.25 microsecond reference step used in the gate.
