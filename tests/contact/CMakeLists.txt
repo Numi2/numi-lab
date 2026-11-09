@@ -128,3 +128,7 @@ if(BUILD_TESTING)
     add_test(NAME numi.contact.midpoint_retry_order COMMAND numi_midpoint_retry_order "${_shader}")
     set_tests_properties(numi.contact.midpoint_retry_order PROPERTIES TIMEOUT 180)
 endif()
+
+add_executable(numi_midpoint_stage_correction_diagnostic "${NUMI_CONTACT_ROOT}/apps/midpoint_stage_correction_diagnostic.mm")
+target_compile_options(numi_midpoint_stage_correction_diagnostic PRIVATE -fobjc-arc -Wall -Wextra -Wpedantic)
+target_link_libraries(numi_midpoint_stage_correction_diagnostic PRIVATE numi_plane_contact_owner)
