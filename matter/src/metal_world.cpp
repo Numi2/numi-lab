@@ -35,6 +35,22 @@ bool encodeCoupledCandidateBridge(
         bridge->pass->coupledCandidateContext == nullptr) {
         return false;
     }
+    // This adapter has no compensated-geometry or borrowed-encoder ABI.
+    // Never drop a requested output and report success: the caller would
+    // consume stale low components as if the owner had populated them.
+    const bool kinematics = query.operation == CoupledCandidateOperation::candidateKinematics ||
+        query.operation == CoupledCandidateOperation::candidateHalfStepKinematics;
+    if ((kinematics && !query.legacyHighOnly) ||
+        query.candidateRootTranslation != nullptr ||
+        query.candidateBodyPositionLow != nullptr || query.pointPositionLow != nullptr ||
+        query.candidateRootTranslationGPUAddress != 0u ||
+        query.candidateBodyPositionLowGPUAddress != 0u || query.pointPositionLowGPUAddress != 0u ||
+        query.candidateRootTranslationElementCount != 0u ||
+        query.candidateBodyPositionLowElementCount != 0u || query.pointPositionLowElementCount != 0u ||
+        query.borrowedComputeEncoder != nullptr || query.borrowedCommandBuffer != nullptr ||
+        query.recordSourceMassOperationICB || query.sourceMassOperationICBRecordOutput != nullptr) {
+        return false;
+    }
     const metalrobo::MetalWorldCoupledCandidateQuery request{
         .input = query.input,
         .output = query.output,

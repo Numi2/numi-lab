@@ -1,0 +1,9 @@
+Test project /Users/numi/numi-matter-midpoint-compensated-build-20261109
+    Start  1: numi.contact.metal_world_bridge_guard
+1/2 Test  #1: numi.contact.metal_world_bridge_guard ...   Passed    0.26 sec
+    Start 20: numi.contact.midpoint_dynamic_guard
+2/2 Test #20: numi.contact.midpoint_dynamic_guard .....   Passed    0.20 sec
+
+100% tests passed out of 2
+
+Total Test time (real) =   0.46 sec

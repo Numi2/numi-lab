@@ -46,3 +46,24 @@ reaction required by the preregistered torque gate. The eventual native
 fixture must obtain and validate that reaction from the rigid owner, or fail
 the gate; it must not infer both sides from one contact sample. These are
 source findings, not completed numerical tests.
+
+
+## Unsupported precision and ownership requests fail closed
+
+The generic MetalWorld adapter cannot represent compensated Matter
+candidate-position outputs or borrowed-encoder and source-mass recording
+requests. Previously it silently omitted those fields while forwarding the
+request, so a caller requesting low components could mistake unwritten
+storage for the owner result. The adapter now rejects such requests before
+calling the owner. A geometry request with legacyHighOnly false is rejected
+also; non-geometry operations may still carry that global flag when their
+geometry outputs are canonically empty. This is containment, not support for
+compensated moving-plane geometry.
+
+The adapter test invokes the actual callback with a mock owner, checks each
+unsupported field independently, verifies that no rejected request reaches
+the owner, and checks forwarding of a supported request. The existing native
+owner and coupled rollback tests also passed; see
+metal-world-bridge-guard-001.log and metal-world-bridge-owner-ctest-001.log.
+The moving-plane admission guard remains in place. None of these checks
+establishes native two-owner contact, force, moment, work, or replay accuracy.
