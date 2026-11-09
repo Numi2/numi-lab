@@ -42,6 +42,14 @@ add_executable(metalrobo_plane_contact_benchmark "${NUMI_CONTACT_ROOT}/apps/plan
 target_compile_options(metalrobo_plane_contact_benchmark PRIVATE -fobjc-arc -Wall -Wextra -Wpedantic)
 target_link_libraries(metalrobo_plane_contact_benchmark PRIVATE numi_plane_contact_owner)
 add_dependencies(metalrobo_plane_contact_benchmark numi_plane_contact_shader)
+add_executable(numi_plane_contact_probe_scaled "${NUMI_CONTACT_ROOT}/apps/plane_contact_probe.mm")
+target_compile_options(numi_plane_contact_probe_scaled PRIVATE -fobjc-arc -Wall -Wextra -Wpedantic)
+target_link_libraries(numi_plane_contact_probe_scaled PRIVATE numi_plane_contact_owner)
+add_dependencies(numi_plane_contact_probe_scaled numi_plane_contact_shader)
+
+add_executable(numi_midpoint_capture_analysis "${NUMI_CONTACT_ROOT}/apps/midpoint_capture_analysis.mm")
+target_compile_options(numi_midpoint_capture_analysis PRIVATE -fobjc-arc -Wall -Wextra -Wpedantic)
+target_link_libraries(numi_midpoint_capture_analysis PRIVATE numi_plane_contact_owner)
 add_executable(numi_midpoint_failure_capture "${NUMI_CONTACT_ROOT}/apps/midpoint_failure_capture.mm")
 target_compile_options(numi_midpoint_failure_capture PRIVATE -fobjc-arc -Wall -Wextra -Wpedantic)
 target_link_libraries(numi_midpoint_failure_capture PRIVATE numi_plane_contact_owner)
@@ -65,6 +73,8 @@ if(BUILD_TESTING)
     # Independent FP64 fixtures are reference-only. They do not execute or
     # qualify a Matter midpoint integration path.
     add_executable(numi_contact_fem_fp64_reference fem_plane_fp64_reference.cpp)
+    add_executable(numi_contact_fem_fp64_reference_n64 fem_plane_fp64_reference.cpp)
+    target_compile_definitions(numi_contact_fem_fp64_reference_n64 PRIVATE NUMI_FEM_REFERENCE_MAX_DIVISIONS=64)
     add_test(NAME numi.contact.fem_fp64_energy_gradient
         COMMAND numi_contact_fem_fp64_reference --selftest)
     add_executable(numi_contact_fem_fp64_midpoint fem_plane_fp64_midpoint.cpp)

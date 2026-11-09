@@ -73,7 +73,7 @@ std::string physicalDigest(const numi::matter::RuntimeStateSnapshot& s){
 }
 
 // Independent FP64 evaluation of the fixture equations, without integration.
-struct FixtureResidual { double l2=0,local=0,kinematic=0,velocity=0; };
+struct FixtureResidual { double l2=0,local=0,kinematic=0,velocity=0,localWithoutFloor=0,maxNode=0; std::array<double,3> net{}; };
 FixtureResidual fixtureResidual(const numi::matter::CompiledWorld& world,
     const numi::matter::RuntimeStateSnapshot& old,
     const numi::matter::RuntimeStateSnapshot& cur,double timestep,bool midpoint) {
@@ -145,10 +145,14 @@ FixtureResidual fixtureResidual(const numi::matter::CompiledWorld& world,
         double sum=0;for(int j=0;j<3;++j) {
             const double e=h*(force[i][j]+(j==2?mass*g:0))-mass*(v[j]-u[j])+impulse[i][j];
             sum+=e*e;
+            r.net[j]+=e;
             r.kinematic=std::max(r.kinematic,std::abs(x[j]-y[j]-h*(midpoint ? .5*(u[j]+v[j]) : v[j])));
             r.velocity=std::max(r.velocity,std::abs(v[j]-u[j]-(j==2?h*g:0)));
         }
         r.l2+=sum;r.local=std::max(r.local,std::sqrt(sum)/(mass*std::abs(g)*h+1e-10));
+        require(mass>0 && h>0,"invalid independent physical impulse scale");
+        r.localWithoutFloor=std::max(r.localWithoutFloor,std::sqrt(sum)/(mass*std::abs(g)*h));
+        r.maxNode=std::max(r.maxNode,std::sqrt(sum));
     }
     r.l2=std::sqrt(r.l2);return r;
 }
@@ -284,7 +288,7 @@ int main(int argc,char** argv){
     std::cout<<"]"
         <<",\"area_ipc_k_N_per_m5\":"<<(config.experimentalFEMPlaneAreaIPC?config.experimentalFEMPlaneAreaIPCK:0.f)<<",\"residual_policy\":\""<<policy<<"\",\"coordinate_mode\":\""<<(reference?"reference_displacement":"world_position")<<"\",\"freefall_control\":"<<(freefall?"true":"false")<<",\"mechanical_absolute_tolerance_Ns\":"<<world.mixedSolver.contactAcceptance.y<<",\"mechanical_relative_tolerance\":"<<world.mixedSolver.contactAcceptance.z<<",\"mechanical_impulse_scale_Ns\":"<<world.mixedSolver.contactAcceptance.w<<",\"source_fingerprint\":"<<world.physicsFingerprint<<",\"device_fingerprint\":"<<runtime.deviceProgramFingerprint()<<",\"traces\":[";
     auto previous=initial;bool rejectionRestored=true;
-    double totalWork=0,totalKineticWork=0,maxLawError=0,maxMomentumError=0,maxAcceptedDual=0,maxLocalResidual=0,maxKinematicDefect=0,maxFreefallVelocityDefect=0;
+    double totalWork=0,totalKineticWork=0,maxLawError=0,maxMomentumError=0,maxAcceptedDual=0,maxLocalResidual=0,maxLocalWithoutFloor=0,maxKinematicDefect=0,maxFreefallVelocityDefect=0;
     const auto start=std::chrono::steady_clock::now();
     for(int i=0;i<steps;++i){
         const double timing=step(i);gpu+=timing;auto snap=runtime.snapshot();require(snap.available,"snapshot unavailable");
@@ -334,7 +338,7 @@ int main(int argc,char** argv){
             for(const auto& dual:snap.contactHistories)maxAcceptedDual=std::max(maxAcceptedDual,double(dual.w));
         }
         FixtureResidual independent;
-        if(ok) { independent=fixtureResidual(world,previous,snap,h,config.experimentalFEMPlaneMidpoint);maxLocalResidual=std::max(maxLocalResidual,independent.local);maxKinematicDefect=std::max(maxKinematicDefect,independent.kinematic);if(freefall)maxFreefallVelocityDefect=std::max(maxFreefallVelocityDefect,independent.velocity); }
+        if(ok) { independent=fixtureResidual(world,previous,snap,h,config.experimentalFEMPlaneMidpoint);maxLocalResidual=std::max(maxLocalResidual,independent.local);maxLocalWithoutFloor=std::max(maxLocalWithoutFloor,independent.localWithoutFloor);maxKinematicDefect=std::max(maxKinematicDefect,independent.kinematic);if(freefall)maxFreefallVelocityDefect=std::max(maxFreefallVelocityDefect,independent.velocity); }
         double contactWork=0,kineticWork=0;
         if(ok)for(const auto& sample:snap.contactSamples) {
             if(!(sample.identity.w&NM_CONTACT_VALID)||sample.identity.x<world.dispatch.gridNodeCount)continue;
@@ -355,7 +359,7 @@ int main(int argc,char** argv){
         std::cout<<"{\"step\":"<<i<<",\"accepted\":"<<(ok?"true":"false")<<",\"status\":"<<snap.statuses[0].code<<",\"gap\":"<<low<<",\"height\":"<<high-low<<",\"force\":"<<force<<",\"contact_work_J\":"<<contactWork<<",\"contact_impulse_midvelocity_work_J\":"<<kineticWork<<",\"accepted_normal_impulse\":"<<(ok?force*h:0.)<<",\"normal_impulse\":"<<force*h<<",\"mass\":"<<mass<<",\"com_z\":"<<com/mass<<",\"momentum_z\":"<<momentum<<",\"contacts\":"<<contacts<<",\"fgmres_iterations\":"<<snap.statuses[0].fgmresIterations<<",\"outer_status\":"<<outer->code
             <<",\"certificate_residual\":"<<snap.solverCertificates[0].nonlinear.x<<",\"certificate_min_J\":"<<snap.solverCertificates[0].validity.x
             <<",\"certificate_accepted\":"<<snap.solverCertificates[0].validity.w<<",\"status_values\":["<<snap.statuses[0].diagnostics.x<<","<<snap.statuses[0].diagnostics.y<<","<<snap.statuses[0].diagnostics.z<<","<<snap.statuses[0].diagnostics.w<<"]"
-            <<",\"independent_residual_l2_Ns\":"<<independent.l2<<",\"independent_max_local_scaled_residual\":"<<independent.local<<",\"position_velocity_defect_m\":"<<independent.kinematic<<",\"gpu_seconds\":"<<timing<<"}";
+            <<",\"independent_residual_l2_Ns\":"<<independent.l2<<",\"independent_max_local_scaled_residual\":"<<independent.local<<",\"independent_max_local_scaled_without_floor\":"<<independent.localWithoutFloor<<",\"position_velocity_defect_m\":"<<independent.kinematic<<",\"gpu_seconds\":"<<timing<<"}";
         if(!ok)break;
     }
     const double wall=std::chrono::duration<double>(std::chrono::steady_clock::now()-start).count();
@@ -414,7 +418,7 @@ int main(int argc,char** argv){
         std::cout<<(i?",":"")<<"["<<x<<","<<y<<","<<z<<","<<n.velocityAndInverseMass.x<<","<<n.velocityAndInverseMass.y<<","<<n.velocityAndInverseMass.z<<"]";
     }
     std::cout<<"]"
-        <<",\"law_max_relative_error\":"<<maxLawError<<",\"momentum_max_absolute_error_Ns\":"<<maxMomentumError<<",\"independent_max_local_scaled_residual\":"<<maxLocalResidual<<",\"position_velocity_max_defect_m\":"<<maxKinematicDefect<<",\"freefall_velocity_max_defect_mps\":"<<maxFreefallVelocityDefect<<",\"maximum_accepted_multiplier_impulse_Ns\":"<<maxAcceptedDual<<",\"identity_mismatch_rejected\":"<<(identityRejected?"true":"false")<<",\"forced_rollback_exact\":"<<(rollback?"true":"false")<<",\"restore_replay\":"<<(replay?"true":"false")<<"}\n";
+        <<",\"law_max_relative_error\":"<<maxLawError<<",\"momentum_max_absolute_error_Ns\":"<<maxMomentumError<<",\"independent_max_local_scaled_residual\":"<<maxLocalResidual<<",\"independent_max_local_scaled_without_floor\":"<<maxLocalWithoutFloor<<",\"position_velocity_max_defect_m\":"<<maxKinematicDefect<<",\"freefall_velocity_max_defect_mps\":"<<maxFreefallVelocityDefect<<",\"maximum_accepted_multiplier_impulse_Ns\":"<<maxAcceptedDual<<",\"identity_mismatch_rejected\":"<<(identityRejected?"true":"false")<<",\"forced_rollback_exact\":"<<(rollback?"true":"false")<<",\"restore_replay\":"<<(replay?"true":"false")<<"}\n";
     return rejected||!replay||!continuationReplay||!rollback||!identityRejected||maxLawError>1e-4||maxMomentumError>1e-7||(policy=="physical"&&maxLocalResidual>.005)?1:0;
  }catch(const std::exception& e){std::cerr<<"plane_contact_probe: "<<e.what()<<"\n";return 1;}}
 }

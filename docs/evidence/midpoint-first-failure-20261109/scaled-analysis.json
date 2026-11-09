@@ -1,0 +1,52 @@
+{
+  "n2": {
+    "accepted_steps": 640,
+    "continuation_replay": true,
+    "legacy_floor_max": 0.000653732265726,
+    "momentum_max_absolute_error_Ns": 3.65142611241e-11,
+    "passes_followup": true,
+    "physical_scale_limit": 0.005,
+    "physical_scale_max": 0.000658384905186,
+    "rejected_steps": 0,
+    "restore_replay": true,
+    "same_device_fingerprint": true,
+    "same_physical_digest": true,
+    "same_physics_fingerprint": true,
+    "trace_mismatches": {
+      "accepted_normal_impulse": 0,
+      "contact_work_J": 0,
+      "contacts": 0,
+      "force": 0,
+      "gap": 0,
+      "height": 0,
+      "independent_max_local_scaled_residual": 0,
+      "momentum_z": 0
+    },
+    "worst_step": 302
+  },
+  "n4": {
+    "accepted_steps": 640,
+    "continuation_replay": true,
+    "legacy_floor_max": 0.00014683567459,
+    "momentum_max_absolute_error_Ns": 1.14203867408e-11,
+    "passes_followup": true,
+    "physical_scale_limit": 0.005,
+    "physical_scale_max": 0.00015519595894,
+    "rejected_steps": 0,
+    "restore_replay": true,
+    "same_device_fingerprint": true,
+    "same_physical_digest": true,
+    "same_physics_fingerprint": true,
+    "trace_mismatches": {
+      "accepted_normal_impulse": 0,
+      "contact_work_J": 0,
+      "contacts": 0,
+      "force": 0,
+      "gap": 0,
+      "height": 0,
+      "independent_max_local_scaled_residual": 0,
+      "momentum_z": 0
+    },
+    "worst_step": 422
+  }
+}

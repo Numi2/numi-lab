@@ -84,3 +84,13 @@ candidate cannot safely be used as the half-step FEM candidate, and the
 requirements for impulse, torque, work, swept clearance and whole-environment
 rollback. The guard remains in force. Prescribed supports are not counted as
 a two-way result.
+
+## Later diagnostic follow-up
+
+The subsequent [first-failure investigation](../midpoint-first-failure-20261109/RESULT.md)
+independently reconstructed the rejected n=8 full-step momentum residual and
+identified a contribution from FP32 endpoint reflection. It also reran the
+previously qualified n=2 and n=4 trials with an additional per-node scale that
+does not use the earlier fixed 1e-10 N s denominator floor. The original
+results above remain as measured; neither follow-up establishes spatial
+convergence or dynamic-body support.
