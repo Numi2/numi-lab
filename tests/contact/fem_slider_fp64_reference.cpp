@@ -36,14 +36,17 @@ double energy(const Model& m,const SliderState& s) {
  return m.energy(relative)+fm*9.81*s.z+kinetic+.5*sliderMass*s.vz*s.vz+sliderMass*9.81*s.z;
 }
 int main(int argc,char**argv) {try{
- if(argc!=2)throw std::runtime_error("usage: slider_reference timestep");
+ if(argc!=2 && argc!=3)throw std::runtime_error("usage: slider_reference timestep [initial_gap]");
  const double h=std::atof(argv[1]),duration=.01;
  if(!(h>0)||std::abs(std::round(duration/h)*h-duration)>1e-12||
     std::abs(std::round(.000002/h)*h-.000002)>1e-12)throw std::runtime_error("invalid timestep");
- Model m(2);SliderState s;s.fem=m.initial;const double e0=energy(m,s);
+ const double initialGap=argc==3?std::atof(argv[2]):.0002;
+ if(!(initialGap>1e-7) || !std::isfinite(initialGap))throw std::runtime_error("invalid initial gap");
+ Model m(2,initialGap);SliderState s;s.fem=m.initial;const double e0=energy(m,s);
  double totalMass=sliderMass,area=0;for(double x:m.mass)totalMass+=x;for(double x:m.area)area+=x;
- double peak=0,minGap=1,first=-1;std::array<double,10> bins{};
- std::vector<std::array<double,5>> trace{{0,0,0,0,.02}};
+ const double initialForce=sliderRhs(m,s).impulse;
+ double peak=initialForce,minGap=initialGap,first=initialForce>0?0:-1;std::array<double,10> bins{};
+ std::vector<std::array<double,5>> trace{{0,initialForce,0,0,.02}};
  const long steps=std::lround(duration/h),stride=std::lround(.000002/h);
  for(long n=0;n<steps;++n){
   auto a=sliderRhs(m,s),b=sliderRhs(m,advanceState(s,a,h/2)),
@@ -67,7 +70,7 @@ int main(int argc,char**argv) {try{
  double p=sliderMass*s.vz;for(size_t i=0;i<m.mass.size();++i)p+=m.mass[i]*s.fem.v[i].z;
  const double momentumError=p-(sliderMass*.02-totalMass*9.81*duration);
  std::cout<<std::setprecision(17)<<"{\"schema\":\"numi.independent-fem-slider-rk4.v1\",\"h\":"<<h
-  <<",\"mesh_divisions\":2,\"slider_mass_kg\":"<<sliderMass<<",\"area_m2\":"<<area
+  <<",\"initial_gap_m\":"<<initialGap<<",\"mesh_divisions\":2,\"slider_mass_kg\":"<<sliderMass<<",\"area_m2\":"<<area
   <<",\"min_gap_m\":"<<minGap<<",\"onset_s\":"<<first<<",\"peak_force_N\":"<<peak
   <<",\"impulse_Ns\":"<<s.impulse<<",\"torque_impulse_x_Nms\":"<<s.tx
   <<",\"torque_impulse_y_Nms\":"<<s.ty<<",\"relative_contact_work_J\":"<<s.work

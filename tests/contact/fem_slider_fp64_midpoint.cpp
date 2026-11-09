@@ -16,6 +16,9 @@ static double coupledPotential(const Model& m,const CoupledState& s) {
  for(size_t i=0;i<relative.x.size();++i){relative.x[i].z-=s.z;mass+=m.mass[i];}
  return m.energy(relative)+(mass+kSliderMass)*9.81*s.z;
 }
+static double coupledContactEnergy(const Model& m,const CoupledState& s) {
+ State relative=s.fem;for(auto& x:relative.x)x.z-=s.z;return contactEnergy(m,relative);
+}
 static CoupledState stage(const CoupledState& a,const CoupledState& b) {
  CoupledState s=a;s.z=(a.z+b.z)*.5;
  for(size_t i=0;i<s.fem.x.size();++i)s.fem.x[i]=(a.fem.x[i]+b.fem.x[i])*.5;
@@ -70,10 +73,12 @@ static double functional(const Model& m,const CoupledState& old,const CoupledSta
  return value+h*h*coupledPotential(m,stage(old,end));
 }
 int main(int argc,char** argv){try{
- if(argc!=3)throw std::runtime_error("usage: slider_midpoint timestep duration");
+ if(argc!=3 && argc!=4)throw std::runtime_error("usage: slider_midpoint timestep duration [initial_gap]");
  double h=std::atof(argv[1]),duration=std::atof(argv[2]);
  if(!(h>0&&duration>0)||std::abs(std::round(duration/h)*h-duration)>1e-12)throw std::runtime_error("invalid timestep");
- Model m(2);CoupledState s;s.fem=m.initial;double impulse=0,workF=0,workR=0,minGap=1,worst=0,maxLocal=0,maxRigid=0,maxGlobal=0,peak=0;
+ const double initialGap=argc==4?std::atof(argv[3]):.0002;
+ if(!(initialGap>1e-7) || !std::isfinite(initialGap))throw std::runtime_error("invalid initial gap");
+ Model m(2,initialGap);CoupledState s;s.fem=m.initial;const double initialContactEnergy=coupledContactEnergy(m,s);double impulse=0,workF=0,workR=0,minGap=1,worst=0,maxLocal=0,maxRigid=0,maxGlobal=0,peak=0;
  double gradientError=0,crossError=0,torqueX=0,torqueY=0;bool checkedContact=false;int maxIt=0;std::array<double,10> bins{};
  std::vector<std::array<double,2>> trace{{0.,0.}};
  for(long step=0;step<std::lround(duration/h);++step){
@@ -110,8 +115,10 @@ int main(int argc,char** argv){try{
    }
   }
  }
- std::cout<<std::setprecision(17)<<"{\"schema\":\"numi.independent-fem-slider-midpoint.v1\",\"h\":"<<h<<",\"duration\":"<<duration
+ std::cout<<std::setprecision(17)<<"{\"schema\":\"numi.independent-fem-slider-midpoint.v1\",\"h\":"<<h<<",\"duration\":"<<duration<<",\"initial_gap_m\":"<<initialGap
  <<",\"min_gap_m\":"<<minGap<<",\"impulse_Ns\":"<<impulse<<",\"sampled_peak_force_N\":"<<peak
+ <<",\"initial_contact_potential_J\":"<<initialContactEnergy<<",\"final_contact_potential_J\":"<<coupledContactEnergy(m,s)
+ <<",\"contact_work_plus_potential_change_J\":"<<workF+workR+coupledContactEnergy(m,s)-initialContactEnergy
  <<",\"fem_work_J\":"<<workF<<",\"slider_work_J\":"<<workR<<",\"pair_contact_work_J\":"<<workF+workR
  <<",\"fem_torque_impulse_x_Nms\":"<<torqueX<<",\"fem_torque_impulse_y_Nms\":"<<torqueY
  <<",\"slider_z_m\":"<<s.z<<",\"slider_v_mps\":"<<s.vz<<",\"max_fem_momentum_residual_Ns\":"<<maxLocal

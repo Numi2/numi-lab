@@ -1,0 +1,11 @@
+[1/4] Building CXX object CMakeFiles/numi_contact_fem_slider_fp64_reference.dir/fem_slider_fp64_reference.cpp.o
+[2/4] Linking CXX executable numi_contact_fem_slider_fp64_reference
+[3/4] Building CXX object CMakeFiles/numi_contact_fem_slider_fp64_midpoint.dir/fem_slider_fp64_midpoint.cpp.o
+[4/4] Linking CXX executable numi_contact_fem_slider_fp64_midpoint
+[1/2] Building CXX object CMakeFiles/numi_contact_fem_slider_fp64_midpoint.dir/fem_slider_fp64_midpoint.cpp.o
+[2/2] Linking CXX executable numi_contact_fem_slider_fp64_midpoint
+[0/1] Re-running CMake...
+-- Configuring done (0.2s)
+-- Generating done (0.0s)
+-- Build files have been written to: /Users/numi/numi-matter-midpoint-compensated-build-20261109
+ninja: no work to do.
