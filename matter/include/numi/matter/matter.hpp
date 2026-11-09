@@ -2522,13 +2522,16 @@ public:
     // beyond the initialized runtime lifetime.
     [[nodiscard]] void* femAcceptedNodeBuffer() const noexcept;
     // Diagnostic-only midpoint scratch. Available only for the explicit
-    // midpoint fixture with captureDiagnostics enabled. The buffers belong to
-    // Runtime, are immutable to callers, and can be observed only on the
-    // same borrowed command-buffer timeline before the next encode. They are
+    // midpoint fixture with captureDiagnostics and an explicit diagnostic root.
+    // Candidate and residual are captured at the selected certificate; endpoint
+    // is corresponding live scratch. Runtime owns the immutable buffers; callers
+    // may observe them only on the same borrowed command-buffer timeline before
+    // the next encode. They are
     // candidate data even when the transaction rejects and are never accepted
     // physical state.
     [[nodiscard]] void* femMidpointCandidateDiagnosticBuffer() const noexcept;
     [[nodiscard]] void* femMidpointEndpointDiagnosticBuffer() const noexcept;
+    [[nodiscard]] void* femMidpointResidualDiagnosticBuffer() const noexcept;
     [[nodiscard]] void* parameterBuffer() const noexcept;
     [[nodiscard]] void* identificationLossBuffer() const noexcept;
 

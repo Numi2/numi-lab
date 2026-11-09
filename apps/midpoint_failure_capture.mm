@@ -41,7 +41,7 @@ int main(int argc,char** argv) {
         if(i==failingStep) {
             id<MTLBuffer> midpoint=(__bridge id<MTLBuffer>)runtime.femMidpointCandidateDiagnosticBuffer();
             id<MTLBuffer> endpoint=(__bridge id<MTLBuffer>)runtime.femMidpointEndpointDiagnosticBuffer();
-            id<MTLBuffer> residual=(__bridge id<MTLBuffer>)runtime.femMechanicalResidualBuffer();
+            id<MTLBuffer> residual=(__bridge id<MTLBuffer>)runtime.femMidpointResidualDiagnosticBuffer();
             require(midpoint && endpoint && residual,"midpoint scratch views unavailable");
             id<MTLBlitCommandEncoder> blit=[command blitCommandEncoder];
             [blit copyFromBuffer:midpoint sourceOffset:0 toBuffer:capture destinationOffset:0 size:nodesBytes];
@@ -100,6 +100,11 @@ int main(int argc,char** argv) {
     binary.write(reinterpret_cast<const char*>(residual.data()),residualBytes);
     binary.close();require(bool(binary),"failed to write capture binary");
     const auto d=after.statuses[0].diagnostics;
+    const double reconstructed=std::sqrt(total2);
+    const bool reconstructionMatches=std::abs(reconstructed-double(d.x)) <=
+        .01*std::max(double(d.x),1e-30);
+    const bool physicalMatches=std::abs(physical.l2-double(d.x)) <=
+        .01*std::max(double(d.x),1e-30);
     std::cout<<std::setprecision(17)<<"{\"step\":"<<failingStep<<",\"nodes\":"<<n
        <<",\"status\":"<<after.statuses[0].code<<",\"outer_status\":"<<outer->code
        <<",\"restored_exact\":true,\"accepted_sha256\":\""<<physicalDigest(before)<<"\""
@@ -113,7 +118,9 @@ int main(int argc,char** argv) {
        <<",\"max_reconstructed_component_Ns\":"<<maxTotal
        <<",\"independent_physical_norm_Ns\":"<<physical.l2
        <<",\"independent_local_scaled_max\":"<<physical.local
-       <<",\"independent_kinematic_defect_m\":"<<physical.kinematic<<"}\n";
-    return 0;
+       <<",\"independent_kinematic_defect_m\":"<<physical.kinematic
+       <<",\"reconstruction_matches\":"<<(reconstructionMatches?"true":"false")
+       <<",\"independent_physics_matches\":"<<(physicalMatches?"true":"false")<<"}\n";
+    return reconstructionMatches && physicalMatches ? 0 : 1;
  }catch(const std::exception& e){std::cerr<<"midpoint_failure_capture: "<<e.what()<<"\n";return 1;} }
 }

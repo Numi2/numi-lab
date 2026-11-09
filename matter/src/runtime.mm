@@ -3311,6 +3311,10 @@ struct Runtime::State {
     bool experimentalFEMPlaneMidpoint = false;
     id<MTLBuffer> femMidpointEndpoint = nil;
     id<MTLBuffer> femMidpointResults = nil;
+    bool midpointDiagnosticCaptureEnabled = false;
+    std::uint32_t midpointDiagnosticCaptureRoot = 0u;
+    id<MTLBuffer> femMidpointDiagnosticCandidate = nil;
+    id<MTLBuffer> femMidpointDiagnosticResidual = nil;
     bool femTiledDeformableLimitEnabled = false;
     std::uint32_t femDeformableLimitTileCount = 128u;
     bool femParallelBacktrackingRequested = false;
@@ -7923,6 +7927,25 @@ RuntimeDiagnostics Runtime::initialize(
 
         candidate->experimentalFEMPlaneAL = configuration.experimentalFEMPlaneAugmentedLagrangian;
         candidate->experimentalFEMPlaneMidpoint = configuration.experimentalFEMPlaneMidpoint;
+        if (const char* root = std::getenv("NM_MATTER_MIDPOINT_DIAGNOSTIC_ROOT")) {
+            std::uint64_t parsed = 0u;
+            bool validRoot = *root != '\0';
+            for (const char* p = root; *p != '\0' && validRoot; ++p) {
+                if (*p < '0' || *p > '9') { validRoot = false; break; }
+                const unsigned digit = static_cast<unsigned>(*p - '0');
+                if (parsed > (std::numeric_limits<std::uint32_t>::max() - digit) / 10u) {
+                    validRoot = false; break;
+                }
+                parsed = parsed * 10u + digit;
+            }
+            if (!validRoot || !configuration.experimentalFEMPlaneMidpoint ||
+                !configuration.captureDiagnostics || world.dispatch.environmentCount != 1u) {
+                diagnostics.message = "midpoint diagnostic root requires a decimal step and the scoped midpoint fixture";
+                return diagnostics;
+            }
+            candidate->midpointDiagnosticCaptureEnabled = true;
+            candidate->midpointDiagnosticCaptureRoot = static_cast<std::uint32_t>(parsed);
+        }
         candidate->automaticIdentification =
             configuration.automaticIdentification;
         candidate->adaptiveTransfer = configuration.adaptiveTransfer;
@@ -8423,6 +8446,10 @@ RuntimeDiagnostics Runtime::initialize(
             configuration,
             candidate->femRegionalAcceptedCorrectionRecycleEnabled
         );
+        if (candidate->midpointDiagnosticCaptureEnabled) {
+            candidate->executionFingerprint = mixFingerprint(candidate->executionFingerprint, 0x4d49444341503031ull);
+            candidate->executionFingerprint = mixFingerprint(candidate->executionFingerprint, candidate->midpointDiagnosticCaptureRoot);
+        }
         if (candidate->fgmresAggregateCycleICBRequested) {
             candidate->executionFingerprint = mixFingerprint(
                 candidate->executionFingerprint, 0x46474d4147474331ull); // FGMAGGC1
@@ -12627,6 +12654,12 @@ RuntimeDiagnostics Runtime::initialize(
                 candidate->device, world.fem.nodes.size(), valid, candidate->residentBytes);
             candidate->femMidpointResults = privateScratch<std::uint32_t>(
                 candidate->device, world.fem.nodes.size(), valid, candidate->residentBytes);
+            if (candidate->midpointDiagnosticCaptureEnabled) {
+                candidate->femMidpointDiagnosticCandidate = privateScratch<NMFEMNodeStateGPU>(
+                    candidate->device, world.fem.nodes.size(), valid, candidate->residentBytes);
+                candidate->femMidpointDiagnosticResidual = privateScratch<nm_float4>(
+                    candidate->device, world.fem.nodes.size(), valid, candidate->residentBytes);
+            }
         }
         candidate->femCheckpoint = uploads.repeated(
             std::span<const NMFEMNodeStateGPU>(world.fem.nodes),
@@ -52167,6 +52200,31 @@ RuntimeDiagnostics Runtime::encodeImpl(
                     [encoder setBuffer:state.statuses offset:0u atIndex:7u];
                 });
                 [encoder memoryBarrierWithScope:MTLBarrierScopeBuffers];
+                if (state.midpointDiagnosticCaptureEnabled &&
+                    request.controlStep == state.midpointDiagnosticCaptureRoot) {
+                    [encoder endEncoding];
+                    encoder = nil;
+                    id<MTLBlitCommandEncoder> copy = [commandBuffer blitCommandEncoder];
+                    if (copy == nil) {
+                        ownership->preDynamicsOpen = false;
+                        diagnostics.message = "midpoint diagnostic copy encoder unavailable";
+                        return diagnostics;
+                    }
+                    [copy copyFromBuffer:state.femCandidate sourceOffset:0u
+                        toBuffer:state.femMidpointDiagnosticCandidate destinationOffset:0u
+                        size:count * sizeof(NMFEMNodeStateGPU)];
+                    [copy copyFromBuffer:state.femResidual sourceOffset:0u
+                        toBuffer:state.femMidpointDiagnosticResidual destinationOffset:0u
+                        size:count * sizeof(nm_float4)];
+                    [copy endEncoding];
+                    encoder = [commandBuffer computeCommandEncoder];
+                    if (encoder == nil) {
+                        ownership->preDynamicsOpen = false;
+                        diagnostics.message = "midpoint diagnostic continuation encoder unavailable";
+                        return diagnostics;
+                    }
+                    [encoder setLabel:@"Numi Matter midpoint diagnostic continuation"];
+                }
             } else dispatchThreads("nm_fem_integrate", femNodeTotal, [&] {
                 setDispatch();
                 [encoder setBytes:&micro length:sizeof(micro) atIndex:1u];
@@ -60604,13 +60662,18 @@ void* Runtime::femAcceptedNodeBuffer() const noexcept {
 }
 
 void* Runtime::femMidpointCandidateDiagnosticBuffer() const noexcept {
-    return state_ && state_->captureDiagnostics && state_->experimentalFEMPlaneMidpoint
-        ? (__bridge void*)state_->femCandidate : nullptr;
+    return state_ && state_->midpointDiagnosticCaptureEnabled
+        ? (__bridge void*)state_->femMidpointDiagnosticCandidate : nullptr;
 }
 
 void* Runtime::femMidpointEndpointDiagnosticBuffer() const noexcept {
-    return state_ && state_->captureDiagnostics && state_->experimentalFEMPlaneMidpoint
+    return state_ && state_->midpointDiagnosticCaptureEnabled
         ? (__bridge void*)state_->femMidpointEndpoint : nullptr;
+}
+
+void* Runtime::femMidpointResidualDiagnosticBuffer() const noexcept {
+    return state_ && state_->midpointDiagnosticCaptureEnabled
+        ? (__bridge void*)state_->femMidpointDiagnosticResidual : nullptr;
 }
 
 void* Runtime::parameterBuffer() const noexcept {
