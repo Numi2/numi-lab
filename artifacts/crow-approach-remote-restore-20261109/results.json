@@ -1,0 +1,19 @@
+{
+  "remote_revision": "15978157774c235f8bdceef0171f70e35981355e",
+  "method": "independent GitHub HTTPS decompression and SHA-256, local hash and open-handle check before deletion",
+  "rows": [
+    {
+      "path": "artifacts/crow-third-dagger-20261109/approach/layout-e/rollout.bin.gz",
+      "raw_bytes": 190848988,
+      "raw_sha256": "8099e80eddeb708480fda79643fcea4a3b06e55976d7bd740a4e30ea3b2b13b3",
+      "removed_raw_copy": "build/crow-third-dagger-20261109/approach/layout-e.rollout"
+    },
+    {
+      "path": "artifacts/crow-third-dagger-20261109/approach/layout-f/rollout.bin.gz",
+      "raw_bytes": 190848988,
+      "raw_sha256": "218c4dcd59ef2dc2c9586c5749c9247e074a0496b192df7ec36fd4deac9c5463",
+      "removed_raw_copy": "build/crow-third-dagger-20261109/approach/layout-f.rollout"
+    }
+  ],
+  "total_retired_bytes": 381697976
+}

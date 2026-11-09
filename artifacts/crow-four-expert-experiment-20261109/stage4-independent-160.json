@@ -1,0 +1,28 @@
+{
+  "sources": [
+    {
+      "path": "/Users/n/Developer/numi-crow-rl-20261107/build/crow-stage2-adapter-training-20261109/frozen-route-actor.policypack",
+      "sha256": "b54a34d1e9de7d39ff2ffd624d2d0260c3441f797d5f64a983f29093e9d25ad2"
+    },
+    {
+      "path": "/Users/n/Developer/numi-crow-rl-20261107/build/crow-fourth-stage2-training-20261109/checkpoint-160.policypack",
+      "sha256": "e29f30bea05d50a5f222614bad7172cdf5e22d65b20f668f87197f398807803a"
+    },
+    {
+      "path": "/Users/n/Developer/numi-crow-rl-20261107/build/crow-expanded-stage3-specialist-20261109/checkpoint-160.policypack",
+      "sha256": "1c567ab28629123bc00beb65a017504f395b05eb67aa4412dc2c4336ac0259fa"
+    },
+    {
+      "path": "/Users/n/Developer/numi-crow-rl-20261107/build/crow-stage4-independent-training-20261109/checkpoint-160.policypack",
+      "sha256": "9a17f3768b72b9cf8d946164d8215e9bcdbc35dca2deede7b3d74d2f4880614d"
+    }
+  ],
+  "candidate_sha256": "73c71f0aaf3b0777a43ecc0201a9389cac7ebf3c75d2caeb8e7f6e8241f62962",
+  "max_output_error": [
+    0.0,
+    0.0,
+    0.0,
+    0.0
+  ],
+  "task_fingerprint": 14097176100681672934
+}

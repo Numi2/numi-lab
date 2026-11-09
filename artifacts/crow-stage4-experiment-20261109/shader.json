@@ -1,0 +1,5 @@
+{
+  "shader_sha256": "0c18b7e74690601963a9929dcdc96cc0eae4a449dbf691b4433ebd2efeccc807",
+  "frozen_flight_sha256": "aa2fe10901cb0494d80ae445902303a17ce0e73d030072bab09461d8f3593ebe",
+  "scope": "diagnostic action mapping: stage3 expert also owns stage4; requires distinct contract if promoted"
+}

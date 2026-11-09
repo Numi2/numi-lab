@@ -1,0 +1,114 @@
+{
+  "rows": [
+    {
+      "path": "build/crow-mixed-stage3-dagger-20261109/training.rollout",
+      "sha256": "ab5a0f4a0a5f5614c21118754c366e8baa96dba87c91ceb188fc6ea1221ab30c",
+      "bytes": 95424956,
+      "independent_restore_proof": "artifacts/crow-stage3-remote-restore-20261109/results.json"
+    },
+    {
+      "path": "build/crow-mixed-stage3-dagger-20261109/held-out-a.rollout",
+      "sha256": "ebc153cf52acd047b6ae6f978372e06affa13675dc520d565c6165a33df01af0",
+      "bytes": 95424956,
+      "independent_restore_proof": "artifacts/crow-stage3-remote-restore-20261109/results.json"
+    },
+    {
+      "path": "build/crow-mixed-stage3-dagger-20261109/held-out-b.rollout",
+      "sha256": "c115b012bc12229c42ad7e472065c085bcf3e9fe7c0985eb0d5138f214b2032f",
+      "bytes": 95424956,
+      "independent_restore_proof": "artifacts/crow-stage3-remote-restore-20261109/results.json"
+    },
+    {
+      "path": "build/crow-expanded-dagger-20261109/layout-c.rollout",
+      "sha256": "610f4343ca2052bdc39f223eeabb1384f096196e764a15a5201423b517471f4d",
+      "bytes": 190848988,
+      "independent_restore_proof": "artifacts/crow-expanded-remote-restore-20261109/results.json"
+    },
+    {
+      "path": "build/crow-expanded-dagger-20261109/layout-d.rollout",
+      "sha256": "78965eba25494bbd283c4c7ac0b5e2d1b99019d2e0ff74763c092aaf7e270e19",
+      "bytes": 190848988,
+      "independent_restore_proof": "artifacts/crow-expanded-remote-restore-20261109/results.json"
+    },
+    {
+      "path": "build/crow-expanded-gate-dagger-20261109/layout-c.rollout",
+      "sha256": "ef0ab03b6518910de52cb796da9de6027b92b295bf0b67779d8b7421eda02f13",
+      "bytes": 190848988,
+      "independent_restore_proof": "artifacts/crow-expanded-remote-restore-20261109/results.json"
+    },
+    {
+      "path": "build/crow-expanded-gate-dagger-20261109/layout-d.rollout",
+      "sha256": "258432e20506e140a07470881a835d0335cb892d8ddfc4682962541ad24e9fd8",
+      "bytes": 190848988,
+      "independent_restore_proof": "artifacts/crow-expanded-remote-restore-20261109/results.json"
+    },
+    {
+      "path": "build/crow-third-dagger-20261109/early/layout-e.rollout",
+      "sha256": "26f6d2dfd1f4322c7df7a8818863bd6c1422a551ae9ada071b6fd9fb647c1b94",
+      "bytes": 190848988,
+      "independent_restore_proof": "artifacts/crow-third-remote-restore-20261109/results.json"
+    },
+    {
+      "path": "build/crow-third-dagger-20261109/early/layout-f.rollout",
+      "sha256": "787d04063a897d064f70e3aa88e2a9ca24f1676a78b9e1eaaf219a8cb22b2872",
+      "bytes": 190848988,
+      "independent_restore_proof": "artifacts/crow-third-remote-restore-20261109/results.json"
+    },
+    {
+      "path": "build/crow-third-dagger-20261109/late/layout-e.rollout",
+      "sha256": "2a263964daf05a6deee5524cbe546642d594ed8a02616d750b82e26cce992d49",
+      "bytes": 190848988,
+      "independent_restore_proof": "artifacts/crow-third-remote-restore-20261109/results.json"
+    },
+    {
+      "path": "build/crow-third-dagger-20261109/late/layout-f.rollout",
+      "sha256": "17a2d646394c30f9e14edf4408263b1756838f5fab560528e61eb7d4b6e3cf7f",
+      "bytes": 190848988,
+      "independent_restore_proof": "artifacts/crow-third-remote-restore-20261109/results.json"
+    },
+    {
+      "path": "build/crow-third-dagger-20261109/terminal/layout-e.rollout",
+      "sha256": "9e7c961796651944e03f4fd120c7e9b7f4aea6b46a52245560743350aa4dec4f",
+      "bytes": 190848988,
+      "independent_restore_proof": "artifacts/crow-third-remote-restore-20261109/results.json"
+    },
+    {
+      "path": "build/crow-third-dagger-20261109/terminal/layout-f.rollout",
+      "sha256": "7c5d1544e2292debd5c0615cb4b89d3c8446a02a9afab395a63373446d485ce9",
+      "bytes": 190848988,
+      "independent_restore_proof": "artifacts/crow-third-remote-restore-20261109/results.json"
+    },
+    {
+      "path": "build/crow-third-dagger-20261109/critical/layout-e.rollout",
+      "sha256": "c8d5d83c1a861245cec11c78163f0af6f040d31d3bf4a0c280a19ebaf25ab5cc",
+      "bytes": 190848988,
+      "independent_restore_proof": "artifacts/crow-fourth-remote-restore-20261109/results.json"
+    },
+    {
+      "path": "build/crow-third-dagger-20261109/critical/layout-f.rollout",
+      "sha256": "f42099cbeb9514a58d841459ba5c3ef68baa15f21dd4c4d5614c5803beb75096",
+      "bytes": 190848988,
+      "independent_restore_proof": "artifacts/crow-fourth-remote-restore-20261109/results.json"
+    },
+    {
+      "path": "build/crow-third-dagger-20261109/recovery/layout-e.rollout",
+      "sha256": "851b02d37ecde7a7d4ba7985012cb057a9cf4e76e923a02111ab06c18222529f",
+      "bytes": 190848988,
+      "independent_restore_proof": "artifacts/crow-fourth-remote-restore-20261109/results.json"
+    },
+    {
+      "path": "build/crow-third-dagger-20261109/recovery/layout-f.rollout",
+      "sha256": "651f37e12d537e8f93c333b5f2056c914028389cb1b5491c354f35abc9ae4ea2",
+      "bytes": 190848988,
+      "independent_restore_proof": "artifacts/crow-fourth-remote-restore-20261109/results.json"
+    },
+    {
+      "path": "build/crow-third-dagger-20261109/nearcritical/layout-e.rollout",
+      "sha256": "a7269efc2abadd066f83cfed12261f3fd786e1a0475b7f2d240aeb1b587d6997",
+      "bytes": 190848988,
+      "independent_restore_proof": "artifacts/crow-fourth-remote-restore-20261109/results.json"
+    }
+  ],
+  "retired_bytes": 3149009688,
+  "method": "compared with independently restored GitHub artifact, checked for open handles"
+}
