@@ -14169,6 +14169,23 @@ kernel void nm_fem_midpoint_certify_transaction(
             }
         }
     }
+    // The admitted reacting slider has one rigid momentum row in the same
+    // stage residual. Its full-step contribution is twice that row. This is
+    // necessary but not sufficient: the owner must separately certify its
+    // actual reflected velocity and position after publication.
+    if (dispatch.rigidGeneralizedCapacity != 0u) {
+        if (dispatch.rigidGeneralizedCapacity != 1u) {
+            recordFailure(statuses[0], NM_STATUS_INVALID_DISPATCH, 0u, 0u, float4(0));
+            return;
+        }
+        const float rigidResidual=2.0f*midpointResidual[fgmresRigidBase(dispatch)].x;
+        if (!isfinite(rigidResidual)) {
+            recordFailure(statuses[0], NM_STATUS_NONLINEAR_SOLVER_FAILURE, 0u, 0u,
+                float4(rigidResidual,0,0,0));
+            return;
+        }
+        sumSquared += rigidResidual*rigidResidual;
+    }
     const float norm=sqrt(sumSquared);
     const float limit=2.0f*(solver.contactAcceptance.y+
         solver.contactAcceptance.z*solver.contactAcceptance.w);
@@ -14237,6 +14254,23 @@ kernel void nm_fem_midpoint_certify_compensated(
                     float4(error,tolerance,float(axis),h)); return;
             }
         }
+    }
+    // The admitted reacting slider has one rigid momentum row in the same
+    // stage residual. Its full-step contribution is twice that row. This is
+    // necessary but not sufficient: the owner must separately certify its
+    // actual reflected velocity and position after publication.
+    if (dispatch.rigidGeneralizedCapacity != 0u) {
+        if (dispatch.rigidGeneralizedCapacity != 1u) {
+            recordFailure(statuses[0], NM_STATUS_INVALID_DISPATCH, 0u, 0u, float4(0));
+            return;
+        }
+        const float rigidResidual=2.0f*midpointResidual[fgmresRigidBase(dispatch)].x;
+        if (!isfinite(rigidResidual)) {
+            recordFailure(statuses[0], NM_STATUS_NONLINEAR_SOLVER_FAILURE, 0u, 0u,
+                float4(rigidResidual,0,0,0));
+            return;
+        }
+        sumSquared += rigidResidual*rigidResidual;
     }
     const float norm=sqrt(sumSquared);
     const float limit=2.0f*(solver.contactAcceptance.y+

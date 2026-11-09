@@ -19,3 +19,10 @@ The source passed host and Metal syntax checks; see
 slider-moving-plane-wrench-syntax-001.json and its warning logs. No rebuilt
 native shader or runtime test was run for these edits. Existing fixed-plane
 and owner-only evidence refers to its separately hashed binaries.
+
+The midpoint FEM certificate also includes twice the one-axis stage residual
+in its combined physical momentum norm if that row is present, and rejects
+unsupported rigid capacities. This covers the stage equation only; rounding
+in the owner's actual published endpoint still needs an independent check.
+The changed shader passed syntax only; see
+slider-rigid-stage-certificate-syntax-001.json.

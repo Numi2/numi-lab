@@ -1,0 +1,22 @@
+{
+  "source": "matter/src/metal/contact.metalinc",
+  "source_sha256": "34ee49eca56f0e56a054ff44bd997e8866704d97c68213e47ba1d15a9c4edd09",
+  "command": [
+    "xcrun",
+    "-sdk",
+    "macosx",
+    "metal",
+    "-std=metal4.0",
+    "-O3",
+    "-fno-fast-math",
+    "-I",
+    "matter/include",
+    "-I",
+    "include",
+    "-w",
+    "-fsyntax-only",
+    "matter/src/matter_kernels.metal"
+  ],
+  "returncode": 0,
+  "scope": "syntax only; actual rigid endpoint and coupled transaction remain unqualified"
+}
