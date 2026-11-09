@@ -1,0 +1,10 @@
+{
+  "source": "/Users/numi/numi-matter-midpoint-compensated-build-20261109/evidence-be-precision-005/NumiMatter.metallib",
+  "target": "/Users/numi/numi-matter-midpoint-compensated-build-20261109/evidence-be-precision-001/NumiMatter.metallib",
+  "sha256": "eebb5247813e6f510efedd6ef5f2d0d7a3bea840cb38966b3f2db48735ddb97f",
+  "free_before": 3357478912,
+  "free_after": 3357458432,
+  "source_remained_untouched": true,
+  "verified_after": true,
+  "method": "APFS copy-on-write clone; atomic replacement of byte-identical unopened target"
+}
