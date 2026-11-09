@@ -1,0 +1,5 @@
+{
+  "restored_runtime_physical_replay_equal": true,
+  "frames": 350,
+  "scope": "same macmini, actor packs, exposed layout and seed; physical states only"
+}

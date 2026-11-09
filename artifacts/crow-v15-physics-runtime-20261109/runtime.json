@@ -1,0 +1,23 @@
+{
+  "components": [
+    {
+      "archive": "boundary-handoff.metallib.gz",
+      "uncompressed_sha256": "62b5dfc445650a9673bcd308a541fe6b197e18a210e05fc3a5b78ab0517eb19e",
+      "bytes": 4467296,
+      "original_path": "build/crow-v15-ground-contact-20261109/boundary-handoff.metallib"
+    },
+    {
+      "archive": "materialized-late-libmetalrobo.dylib.gz",
+      "uncompressed_sha256": "2e46bc91c575a536330579e754715252a29f6f78066aebe9adeda378e7c199b1",
+      "bytes": 5746032,
+      "original_path": "build/crow-v15-contact-slip-20261109/materialized-late/libmetalrobo.dylib"
+    },
+    {
+      "archive": "metalrobo_task_rollout.gz",
+      "uncompressed_sha256": "5ee04a98f25f7149701bc21ede235428876e535f843366e78dea16fce6035d1d",
+      "bytes": 1081736,
+      "original_path": "build/bin/metalrobo_task_rollout"
+    }
+  ],
+  "scope": "reproducible isolated development trial on compatible Apple silicon; not production or biological qualification"
+}
