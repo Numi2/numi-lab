@@ -1,0 +1,12 @@
+{
+  "course": "reserved-final-i",
+  "seed": 4038889268,
+  "lane": 1,
+  "step_count": 3000,
+  "first_episode_equal": true,
+  "accepted_state_trace_byte_exact": true,
+  "first_episode_supported": true,
+  "replay_sha256": "5efa5a89a028ca5ef039191778bced33c00d20decc874284edfc53e2b165f1de",
+  "payload_sha256": "4816c0ffeb44faffecc9cc7d4e1612c95447aa2f41ac7e465db91f38760f4083",
+  "scope": "native deterministic rerun matched the retained first-episode q and scene trace and outcome exactly; replay includes composed body states for visualization"
+}
