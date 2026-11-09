@@ -1,0 +1,3 @@
+# Lateral-feedback sign test
+
+The proposed reduction of the +0.80 lateral feedback did not satisfy the preregistered prediction. The zero arm had 18 physical failures across 32 lanes, including all six -0.03 lanes; the negative arm had 32/32 failures. The comparison's complete-observation requirement was therefore not met for the target lanes. In the surviving +0.80 control -0.03 lanes, median per-lane maximum sampled lateral speed was 0.742 m/s. This makes zero or reversed lateral feedback unacceptable on this controller. Do not compare truncated failed trajectories as if their smaller maximum heading error were an improvement.
