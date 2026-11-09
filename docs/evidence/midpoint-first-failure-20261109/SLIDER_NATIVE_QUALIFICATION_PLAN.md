@@ -77,3 +77,12 @@ impulse bound, even when the node velocity is zero. The sum of retained nodal
 impulses must reproduce the reported FEM impulse within a double-precision
 roundoff bound. This closes a zero-work blind spot without changing the
 physical impulse tolerance.
+
+
+For the initially active fixture, qualify the final slider position and
+velocity of its independent 0.5 and 0.25 µs references using the same 0.25%
+state-accuracy gates as the primary fixture. Use fixed normalization floors of
+1e-8 m and 1e-6 m/s, respectively, for near-zero reference values. If that
+temporal check passes, require the native near-contact trajectory to meet the
+same final position and velocity gates. This adds state qualification before a
+new full native rollout and does not change existing force or work gates.
