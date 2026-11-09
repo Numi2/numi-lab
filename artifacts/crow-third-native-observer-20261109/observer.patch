@@ -1,0 +1,218 @@
+--- a/src/c_api.cpp
++++ b/production-observer-c_api.cpp
+@@ -1,3 +1,4 @@
++#include "box_distance.hpp"
+ #include "metalrobo/RetinalObserver.hpp"
+ #include "metalrobo/CrowForaging.hpp"
+ #include "metalrobo/CrowManipulation.hpp"
+@@ -101,7 +102,14 @@
+     std::uint32_t direction = MR_TASK_OUTCOME_NEUTRAL;
+ };
+ 
++struct CrowClearanceRecord {
++    double distance = std::numeric_limits<double>::infinity();
++    unsigned long long step = 0;
++    std::size_t birdShape = 0, obstacleShape = 0;
++    bool closed = false;
++};
+ struct MRTaskRolloutHandle {
++    std::vector<CrowClearanceRecord> crowClearance;
+     explicit MRTaskRolloutHandle(
+         metalrobo::MetalWorldConfig config,
+         metalrobo::CompiledRun compiled
+@@ -1273,7 +1281,7 @@
+         profile.maximumDifficultyBand;
+     handle->stepConfig.difficultySamplingExponentOverride =
+         profile.difficultySamplingExponentOverride;
+-    handle->stepConfig.captureContactEvidence = false;
++    handle->stepConfig.captureContactEvidence = std::getenv("CROW_CONTACT_TRACE") != nullptr;
+     handle->stepConfig.publishFinalState = false;
+     handle->stepConfig.publishStateTrajectory = false;
+     handle->stepConfig.taskProgram = taskProgram;
+@@ -4841,6 +4849,74 @@
+                 ) + "]: " + diagnostics.message
+             );
+         }
++        if (std::getenv("CROW_CLEARANCE_TRACE") != nullptr &&
++            control_step_count == 1u) {
++            if (handle->crowClearance.empty())
++                handle->crowClearance.resize(environmentCount);
++            if (handle->crowClearance.size()!=environmentCount)
++                throw std::runtime_error("clearance observer lane count changed");
++            std::vector<MRBodyStateGPU> composed;
++            std::string reason;
++            if (!metalrobo::composeVisualBodyStates(handle->model,environmentCount,
++                    published.finalQ,published.finalV,published.finalSceneBodies,
++                    composed,&reason))
++                throw std::runtime_error("clearance body composition failed: "+reason);
++            const auto& model=handle->model;
++            const std::size_t bodyCount=model.bodies.size();
++            std::vector<std::size_t> birds,obstacles;
++            for (std::size_t i=0;i<model.shapes.size();++i) {
++                const auto& shape=model.shapes[i];
++                const auto& name=model.bodyNames.at(shape.bodyIndex);
++                if (name.starts_with("crow_course_gate_") ||
++                    name.starts_with("crow_course_slalom_")) obstacles.push_back(i);
++                else if (name.starts_with("crow_") &&
++                         !name.starts_with("crow_course_")) birds.push_back(i);
++            }
++            if (birds.empty() || obstacles.size()!=4u)
++                throw std::runtime_error("clearance observer collider contract mismatch");
++            const auto makeBox=[&](std::size_t lane,std::size_t index) {
++                const auto& shape=model.shapes[index];
++                if (shape.shapeType!=MR_SHAPE_BOX)
++                    throw std::runtime_error("clearance observer requires box colliders");
++                const auto& body=composed[lane*bodyCount+shape.bodyIndex];
++                const auto &p=body.position,&q=body.orientation,
++                           &lp=shape.localPosition,&lq=shape.localRotation,&d=shape.dimensions;
++                return crowclear::box({p.x,p.y,p.z},{q.x,q.y,q.z,q.w},
++                    {lp.x,lp.y,lp.z},{lq.x,lq.y,lq.z,lq.w},{d.x,d.y,d.z});
++            };
++            const auto step=static_cast<unsigned long long>(handle->submittedControlSteps+1u);
++            for (std::size_t lane=0;lane<environmentCount;++lane) {
++                auto& record=handle->crowClearance[lane];
++                if(record.closed)continue;
++                for (const auto j:obstacles) {
++                    const auto obstacle=makeBox(lane,j);
++                    for (const auto i:birds) {
++                        const auto bird=makeBox(lane,i);
++                        const double bound=std::sqrt(crowclear::norm2(bird.c-obstacle.c))-
++                            std::sqrt(bird.h[0]*bird.h[0]+bird.h[1]*bird.h[1]+bird.h[2]*bird.h[2])-
++                            std::sqrt(obstacle.h[0]*obstacle.h[0]+obstacle.h[1]*obstacle.h[1]+obstacle.h[2]*obstacle.h[2]);
++                        if (bound>=record.distance)continue;
++                        const auto distance=crowclear::distance(bird,obstacle);
++                        if (distance<record.distance) {
++                            record.distance=distance;record.step=step;
++                            record.birdShape=i;record.obstacleShape=j;
++                        }
++                    }
++                }
++                const bool terminated=lane<published.transitions.size() &&
++                   published.transitions[lane].termination.w!=MR_TASK_TERMINATION_CONTINUING;
++                if(terminated || step%500u==0u) {
++                    record.closed=terminated;
++                    const auto& bs=model.shapes[record.birdShape];
++                    const auto& os=model.shapes[record.obstacleShape];
++                    std::fprintf(stderr,
++                        "CROW_CLEARANCE_SAMPLE {\"lane\":%zu,\"end_step\":%llu,\"minimum_step\":%llu,\"minimum_m\":%.12g,\"bird_shape\":\"%s\",\"obstacle_shape\":\"%s\",\"bird_body\":\"%s\",\"obstacle_body\":\"%s\",\"sampling\":\"accepted_control_steps\"}\n",
++                        lane,step,record.step,record.distance,
++                        model.shapeNames[record.birdShape].c_str(),model.shapeNames[record.obstacleShape].c_str(),
++                        model.bodyNames[bs.bodyIndex].c_str(),model.bodyNames[os.bodyIndex].c_str());
++                }
++            }
++        }
+         if (handle->visualRuntime && handle->visualRuntime->retinal) {
+             handle->rejectedRetinalBatch=true;
+             if (!diagnostics.succeeded()) throw std::runtime_error("Retinal native rollout failed: "+diagnostics.message);
+@@ -4848,6 +4924,111 @@
+             for (unsigned lane=0;lane<sensor.errors.size();++lane) if (sensor.errors[lane])
+                 throw std::runtime_error("Retinal GPU rejected learner batch: lane="+std::to_string(lane)+" error="+std::to_string(sensor.errors[lane]));
+             handle->rejectedRetinalBatch=false;
++        }
++        if (std::getenv("CROW_CONTACT_TRACE") != nullptr &&
++            control_step_count == 1u) {
++            const auto array = [](const char* name, const std::vector<float>& v, size_t start, size_t n) {
++                std::fprintf(stderr, ",\"%s\":[", name);
++                for (size_t i=0; i<n && start+i<v.size(); ++i)
++                    std::fprintf(stderr, "%s%.9g", i ? "," : "", v[start+i]);
++                std::fprintf(stderr, "]");
++            };
++            if ((handle->submittedControlSteps + 1u) % 100u == 0u) {
++                for (size_t lane=0; lane<environmentCount; ++lane) {
++                    std::fprintf(stderr, "CROW_FLIGHT_SAMPLE {\"step\":%llu,\"lane\":%zu",
++                        static_cast<unsigned long long>(handle->submittedControlSteps+1u), lane);
++                    array("q", published.finalQ, lane*handle->world.nq(), handle->world.nq());
++                    array("v", published.finalV, lane*handle->world.nv(), handle->world.nv());
++                    array("policy_action", published.policyActions,
++                        lane*handle->taskProgram.layout().actionCount, handle->taskProgram.layout().actionCount);
++                    std::fprintf(stderr, "}\n");
++                }
++            }
++
++            if (std::getenv("CROW_SUPPORT_TRACE") != nullptr) {
++                for (size_t lane=0; lane<environmentCount && lane<published.contactStatuses.size(); ++lane) {
++                    const auto stride = published.layout.contactDispatch.constraintStride;
++                    const auto count = published.contactStatuses[lane].activeContacts;
++                    const auto name=[&](uint32_t b) { return b<handle->model.bodyNames.size()
++                        ? handle->model.bodyNames[b].c_str() : "invalid"; };
++                    // Bound repetitive stable-support evidence, while keeping
++                    // all contact interruptions and the final 25 steps.
++                    static std::vector<unsigned> consecutive;
++                    static std::vector<unsigned long long> lastStep;
++                    if (consecutive.size()!=environmentCount) {
++                        consecutive.assign(environmentCount,0u);
++                        lastStep.assign(environmentCount,0ull);
++                    }
++                    bool hasFoot=false, hasOther=false;
++                    double upward=0.0;
++                    for (size_t i=0;i<count && lane*stride+i<published.contactEvidence.contacts.size();++i) {
++                        const auto& c=published.contactEvidence.contacts[lane*stride+i];
++                        const std::string a=name(c.bodyA), b=name(c.bodyB);
++                        if (a.find("crow_course_perch")==std::string::npos &&
++                            b.find("crow_course_perch")==std::string::npos) continue;
++                        const bool footA=a.find("foot")!=std::string::npos;
++                        const bool footB=b.find("foot")!=std::string::npos;
++                        if (footA || footB) {
++                            hasFoot=true;
++                            upward+=(footA ? -1.0 : 1.0)*c.normal.z*c.impulses.x;
++                        } else hasOther=true;
++                    }
++                    const auto step=static_cast<unsigned long long>(handle->submittedControlSteps+1u);
++                    const auto vb=lane*handle->world.nv();
++                    const bool velocityOK=vb+2u<published.finalV.size() &&
++                        std::hypot(published.finalV[vb],published.finalV[vb+1u])<=0.12f &&
++                        std::abs(published.finalV[vb+2u])<=0.12f;
++                    if (hasFoot && !hasOther && upward>0.0 && velocityOK)
++                        consecutive[lane]=(lastStep[lane]+1ull==step) ? consecutive[lane]+1u : 1u;
++                    else consecutive[lane]=0u;
++                    lastStep[lane]=step;
++                    if (consecutive[lane]>50u && step<2976u && step%100u!=0u) continue;
++                    bool opened=false, first=true;
++                    for (size_t i=0; i<count && lane*stride+i<published.contactEvidence.contacts.size(); ++i) {
++                        const auto& c=published.contactEvidence.contacts[lane*stride+i];
++                        const std::string a=name(c.bodyA), b=name(c.bodyB);
++                        if (a.find("crow_course_perch")==std::string::npos &&
++                            b.find("crow_course_perch")==std::string::npos) continue;
++                        if (!opened) {
++                            std::fprintf(stderr, "CROW_SUPPORT_SAMPLE {\"step\":%llu,\"lane\":%zu",
++                                static_cast<unsigned long long>(handle->submittedControlSteps+1u), lane);
++                            array("q",published.finalQ,lane*handle->world.nq(),handle->world.nq());
++                            array("v",published.finalV,lane*handle->world.nv(),handle->world.nv());
++                            std::fprintf(stderr,",\"contacts\":[");
++                            opened=true;
++                        }
++                        std::fprintf(stderr,"%s{\"a\":%u,\"a_name\":\"%s\",\"b\":%u,\"b_name\":\"%s\",\"normal\":[%.9g,%.9g,%.9g],\"tangent_u\":[%.9g,%.9g,%.9g],\"tangent_v\":[%.9g,%.9g,%.9g],\"impulses\":[%.9g,%.9g,%.9g],\"separation\":%.9g}",
++                            first?"":",",c.bodyA,a.c_str(),c.bodyB,b.c_str(),
++                            c.normal.x,c.normal.y,c.normal.z,c.tangent.x,c.tangent.y,c.tangent.z,
++                            c.normal.y*c.tangent.z-c.normal.z*c.tangent.y,c.normal.z*c.tangent.x-c.normal.x*c.tangent.z,c.normal.x*c.tangent.y-c.normal.y*c.tangent.x,c.impulses.x,c.impulses.y,c.impulses.z,c.pointAndSeparation.w);
++                        first=false;
++                    }
++                    if (opened) std::fprintf(stderr,"]}\n");
++                }
++            }
++            for (size_t lane=0; lane<environmentCount && lane<published.transitions.size(); ++lane) {
++                if (published.transitions[lane].termination.w != MR_TASK_TERMINATION_CONTACT) continue;
++                const auto& prev = handle->result;
++                std::fprintf(stderr, "CROW_CONTACT_TRACE {\"step\":%llu,\"lane\":%zu",
++                    static_cast<unsigned long long>(handle->submittedControlSteps+1u), lane);
++                array("pre_q", prev.finalQ, lane*handle->world.nq(), handle->world.nq());
++                array("pre_v", prev.finalV, lane*handle->world.nv(), handle->world.nv());
++                array("policy_action", published.policyActions,
++                    lane*handle->taskProgram.layout().actionCount, handle->taskProgram.layout().actionCount);
++                std::fprintf(stderr, ",\"contacts\":[");
++                const auto stride = published.layout.contactDispatch.constraintStride;
++                const auto count = published.contactStatuses[lane].activeContacts;
++                bool first=true;
++                for (size_t i=0; i<count && lane*stride+i<published.contactEvidence.contacts.size(); ++i) {
++                    const auto& c=published.contactEvidence.contacts[lane*stride+i];
++                    const auto name=[&](uint32_t b) { return b<handle->model.bodyNames.size()
++                        ? handle->model.bodyNames[b].c_str() : "invalid"; };
++                    std::fprintf(stderr, "%s{\"a\":%u,\"a_name\":\"%s\",\"b\":%u,\"b_name\":\"%s\",\"normal_impulse\":%.9g,\"separation\":%.9g}",
++                        first?"":",",c.bodyA,name(c.bodyA),c.bodyB,name(c.bodyB),c.impulses.x,c.pointAndSeparation.w);
++                    first=false;
++                }
++                std::fprintf(stderr, "]}\n");
++            }
+         }
+         handle->pendingLifeWorld.clear();
+         handle->result = std::move(published);

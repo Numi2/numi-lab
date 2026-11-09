@@ -1,0 +1,16 @@
+--- a/src/metal/LocomotionTask.metal
++++ b/development/teacher-route-recovery.metal
+@@ -6631,7 +6631,12 @@
+             float landingPhase = state.threatTeacher.w;
+             float desiredLateral = lateralCommand;
+             float desiredHeight = heightTarget;
+-            float errorOffset = 0.0f;
++            // Development-only teacher: avoid flying past an unreached
++            // target; reduce forward speed to allow cross-track correction.
++            // The frozen flight law and student observations are unchanged.
++            float forwardCommand = clamp(0.55f * (target.x - pos.x), -0.20f, 0.25f);
++            if (abs(delta.y) > 0.28f) forwardCommand = min(forwardCommand, 0.08f);
++            float errorOffset = 0.25f - forwardCommand;
+             if (landing) {
+                 const float3 perch = sceneState[sceneBase+course+4u].position.xyz;
+                 const float3 landingTarget = perch + float3(0.0f,0.55f,0.0f);

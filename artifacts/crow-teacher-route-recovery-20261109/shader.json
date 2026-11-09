@@ -1,0 +1,6 @@
+{
+  "source_sha256": "1779b5c554dc7b2a3f1bdeb4f2335d44d5dd46e0e3d6eed06ea38445a9af864e",
+  "shader_sha256": "e8118df0994506fa22ffabec3bb62e187a6b31c363537dd2c2b29de20b22766a",
+  "frozen_flight_sha256": "aa2fe10901cb0494d80ae445902303a17ce0e73d030072bab09461d8f3593ebe",
+  "scope": "development-only privileged teacher route correction, teacher off leaves student actuation unchanged"
+}
