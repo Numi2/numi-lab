@@ -1,0 +1,5 @@
+# Exploratory coordinated flap/roll comparison
+
+Test whether stronger roll feedback can counteract the sideslip caused by the useful-sign differential flap offset. Two candidate arms use the roll controller with proportional gain 6.0 (rather than 1.5), plus -0.20/+0.20 or -0.40/+0.40 normalized flap offsets from 6 s. The latter tests whether additional bounded differential flap authority remains available with increased roll feedback. All commands clamp to [-1,1], with unchanged actuator filter, mechanics, aero, body yaw authority, +0.55/-0.55 speed trim, 0.70 m/s target, 32 matched starts, development seed 20261111, five command modes and 1600 steps.
+
+Prediction: at least one arm reduces median maximum -0.03-lane lateral speed to <=0.20 m/s while keeping median maximum heading error <=0.458 rad and causing no physical terminations in those lanes. Report all modes, first-episode failures, speed and height errors and original strict-screen results. Complete observations and zero simulator failed steps are required. Stop after two arms. A positive result still requires heading tracking below 0.15 rad and independent perturbed-start qualification.
