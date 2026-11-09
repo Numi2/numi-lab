@@ -1,0 +1,32 @@
+{
+  "accepted_rows": 160000,
+  "binned_force_N": [
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.1992915600482348
+  ],
+  "contact_rows": 15515,
+  "h_s": 3.125e-08,
+  "max_binned_force_difference_over_full_reference_peak": 0.00014533465922667892,
+  "min_sampled_gap_m": 8.94330150913e-05,
+  "partial_impulse_Ns": 0.00019929156004823512,
+  "partial_impulse_difference_over_full_reference_impulse": 5.718435271436714e-05,
+  "partial_sampled_peak_force_N": 0.724519203743,
+  "reference_binned_force_N": [
+    0,
+    0,
+    0,
+    0,
+    0.1993205282292819
+  ],
+  "reference_full_sampled_peak_force_N": 0.7246741476060986,
+  "reference_partial_impulse_Ns": 0.00019932052822928197,
+  "reference_sha256": "a37f254053b30e97b70223fc1f2f3d26028a0472aba0bf2136a92e9a7e11700e",
+  "rejected_rows": 0,
+  "schema": "numi.be.partial-contact-diagnostic.v1",
+  "scope": "first 5 ms only; no complete-rollout, replay, accuracy qualification, or speed claim",
+  "source_prefix_bytes": 113130607,
+  "source_prefix_sha256": "14bb56fcf989a44d0c70b5c4180210d9ca83ba05d9f2e61e977d18d0b28a5992"
+}
