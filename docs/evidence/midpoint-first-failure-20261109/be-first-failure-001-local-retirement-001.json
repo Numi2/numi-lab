@@ -1,0 +1,10 @@
+{
+  "scope": "one completed tracked diagnostic log; independently downloaded remote archive restored before working-copy retirement",
+  "source": "docs/evidence/midpoint-first-failure-20261109/be-first-failure-001.log",
+  "source_sha256": "f71ee714e85c40987f25665e16f59f5f5b8a793ac7d4e3646f09ae8ffe1433a4",
+  "archive": "be-first-failure-001.log.gz",
+  "remote_verification": "be-first-failure-001-remote-restore-001.json",
+  "free_before_bytes": 3360526336,
+  "free_after_bytes": 3385241600,
+  "observed_change_bytes": 24715264
+}
