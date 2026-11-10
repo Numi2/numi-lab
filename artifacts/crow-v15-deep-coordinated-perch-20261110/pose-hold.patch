@@ -1,0 +1,14 @@
+--- a/teacher.metal
++++ b/teacher.metal
+@@ -5132,6 +5132,11 @@
+         // execution still has no teacher authority.
+         if (fixedFlightController && state.threatTeacher.w >= 1.5f && action < 15u)
+             navigationTeacherRequested = 0.0f;
++        if (fixedFlightController && state.threatTeacher.w >= 1.5f && action >= 7u && action <= 12u) {
++            const uint joint=(action-7u)%3u;
++            const float delta=clamp(-state.threatGeometry.z-0.05f*state.threatGeometry.w,-0.18f,0.0f);
++            navigationTeacherRequested=joint==0u ? -0.10f+delta/0.70f : joint==1u ? 0.18f : -0.08f-delta/0.65f;
++        }
+         const float navigationTeacherBlend = fixedFlightController
+             ? 1.0f
+             : avianNavigationTeacher

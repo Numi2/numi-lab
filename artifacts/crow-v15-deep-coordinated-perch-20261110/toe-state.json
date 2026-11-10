@@ -1,0 +1,17 @@
+{
+  "samples": 251,
+  "geometric_opposed_bilateral_samples": 251,
+  "impulse_opposed_bilateral_samples": 169,
+  "per_group_contact_samples": {
+    "left_front": 251,
+    "left_rear": 251,
+    "right_front": 251,
+    "right_rear": 251
+  },
+  "per_group_load_samples": {
+    "left_front": 209,
+    "left_rear": 243,
+    "right_front": 213,
+    "right_rear": 248
+  }
+}
