@@ -1,0 +1,7126 @@
+[
+  {
+    "seed": "20261120",
+    "recorded_first_contacts": 78,
+    "physical_failures": 78,
+    "pairs": {
+      "crow_left_wing / crow_course_gate_left": 5,
+      "crow_right_wing / crow_course_gate_right": 6,
+      "crow_head / crow_course_slalom_a": 9,
+      "crow_left_wing / crow_course_slalom_a": 30,
+      "crow_body / crow_course_slalom_a": 3,
+      "crow_right_wing / crow_course_slalom_a": 5,
+      "crow_left_wing / crow_course_slalom_b": 5,
+      "crow_right_wing / crow_course_slalom_b": 5,
+      "crow_body / crow_course_slalom_b": 1,
+      "crow_head / crow_course_perch": 3,
+      "crow_body / crow_course_perch": 2,
+      "crow_left_wing / crow_course_perch": 4
+    },
+    "contacts": [
+      {
+        "lane": 76,
+        "step": 621,
+        "collider_a": "crow_left_wing",
+        "collider_b": "crow_course_gate_left",
+        "normal_impulse_Ns": 0.191240028,
+        "root_position_m": [
+          1.12669909,
+          0.142801434,
+          0.73863858
+        ],
+        "root_velocity": [
+          0.910379529,
+          0.126757801,
+          -0.171669468,
+          0.00126575807,
+          0.0212640893,
+          0.0173262674
+        ],
+        "roll_pitch_yaw_rad": [
+          -0.0009165398878984789,
+          0.15079267962524798,
+          0.1511512648773972
+        ],
+        "policy_action": [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
+        "action_limit": "zero diagnostic policy outputs, not the flight controller's actual actuator commands"
+      },
+      {
+        "lane": 41,
+        "step": 625,
+        "collider_a": "crow_left_wing",
+        "collider_b": "crow_course_gate_left",
+        "normal_impulse_Ns": 0.00171695335,
+        "root_position_m": [
+          1.15325665,
+          0.218158692,
+          0.734138131
+        ],
+        "root_velocity": [
+          0.599321187,
+          -0.0573948808,
+          0.0441341288,
+          -0.00415387703,
+          -0.112057261,
+          -0.0874071419
+        ],
+        "roll_pitch_yaw_rad": [
+          -0.01935867338020881,
+          0.14911687268145088,
+          0.17251033615239572
+        ],
+        "policy_action": [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
+        "action_limit": "zero diagnostic policy outputs, not the flight controller's actual actuator commands"
+      },
+      {
+        "lane": 16,
+        "step": 628,
+        "collider_a": "crow_left_wing",
+        "collider_b": "crow_course_gate_left",
+        "normal_impulse_Ns": 0.21052061,
+        "root_position_m": [
+          1.20527756,
+          0.247871086,
+          0.732571781
+        ],
+        "root_velocity": [
+          0.923590243,
+          0.132673115,
+          -0.0907790288,
+          -0.00933964737,
+          -0.0388789661,
+          0.0142106805
+        ],
+        "roll_pitch_yaw_rad": [
+          -0.0008373741746339687,
+          0.14890096211343123,
+          0.15563325058651584
+        ],
+        "policy_action": [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
+        "action_limit": "zero diagnostic policy outputs, not the flight controller's actual actuator commands"
+      },
+      {
+        "lane": 52,
+        "step": 631,
+        "collider_a": "crow_right_wing",
+        "collider_b": "crow_course_gate_right",
+        "normal_impulse_Ns": 0.0954436809,
+        "root_position_m": [
+          1.27676046,
+          -0.214416474,
+          0.738423288
+        ],
+        "root_velocity": [
+          0.932516694,
+          -0.141276956,
+          -0.0221320447,
+          -0.00364466151,
+          0.0413798243,
+          -0.0124196829
+        ],
+        "roll_pitch_yaw_rad": [
+          0.0011083735160463582,
+          0.15002273722287884,
+          -0.15936239644949923
+        ],
+        "policy_action": [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
+        "action_limit": "zero diagnostic policy outputs, not the flight controller's actual actuator commands"
+      },
+      {
+        "lane": 6,
+        "step": 632,
+        "collider_a": "crow_left_wing",
+        "collider_b": "crow_course_gate_left",
+        "normal_impulse_Ns": 0.0442210063,
+        "root_position_m": [
+          1.19548333,
+          0.209241569,
+          0.73563534
+        ],
+        "root_velocity": [
+          0.336931497,
+          -0.353454143,
+          -0.0536023937,
+          0.0851005316,
+          -0.168628782,
+          1.01808381
+        ],
+        "roll_pitch_yaw_rad": [
+          0.0036928032884727675,
+          0.14774962723311447,
+          0.16312605471095742
+        ],
+        "policy_action": [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
+        "action_limit": "zero diagnostic policy outputs, not the flight controller's actual actuator commands"
+      },
+      {
+        "lane": 22,
+        "step": 632,
+        "collider_a": "crow_right_wing",
+        "collider_b": "crow_course_gate_right",
+        "normal_impulse_Ns": 0.0172105674,
+        "root_position_m": [
+          1.24341333,
+          -0.137547687,
+          0.735878289
+        ],
+        "root_velocity": [
+          0.916627288,
+          -0.139400423,
+          -0.184036225,
+          -1.90871779e-05,
+          0.0111985905,
+          -0.0129722161
+        ],
+        "roll_pitch_yaw_rad": [
+          0.0009715569148842917,
+          0.1501850085588807,
+          -0.15904326129077206
+        ],
+        "policy_action": [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
+        "action_limit": "zero diagnostic policy outputs, not the flight controller's actual actuator commands"
+      },
+      {
+        "lane": 31,
+        "step": 632,
+        "collider_a": "crow_left_wing",
+        "collider_b": "crow_course_gate_left",
+        "normal_impulse_Ns": 0.0796054527,
+        "root_position_m": [
+          1.25175798,
+          0.208010003,
+          0.734809279
+        ],
+        "root_velocity": [
+          0.923766673,
+          0.138343036,
+          -0.183417797,
+          -0.000507757941,
+          0.024610009,
+          0.0159098525
+        ],
+        "roll_pitch_yaw_rad": [
+          -0.0007703580284337212,
+          0.15085054008347148,
+          0.16031919107681966
+        ],
+        "policy_action": [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
+        "action_limit": "zero diagnostic policy outputs, not the flight controller's actual actuator commands"
+      },
+      {
+        "lane": 57,
+        "step": 632,
+        "collider_a": "crow_right_wing",
+        "collider_b": "crow_course_gate_right",
+        "normal_impulse_Ns": 6.74168348e-07,
+        "root_position_m": [
+          1.19722641,
+          -0.207829267,
+          0.736021876
+        ],
+        "root_velocity": [
+          0.756948769,
+          0.298459649,
+          -0.202286974,
+          0.0425129533,
+          0.103356145,
+          -0.337475389
+        ],
+        "roll_pitch_yaw_rad": [
+          0.00981836443354432,
+          0.1536193383139521,
+          -0.16862165683733515
+        ],
+        "policy_action": [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
+        "action_limit": "zero diagnostic policy outputs, not the flight controller's actual actuator commands"
+      },
+      {
+        "lane": 37,
+        "step": 635,
+        "collider_a": "crow_right_wing",
+        "collider_b": "crow_course_gate_right",
+        "normal_impulse_Ns": 0.0859366059,
+        "root_position_m": [
+          1.01849461,
+          -0.317737699,
+          0.737362206
+        ],
+        "root_velocity": [
+          0.946326792,
+          -0.125881895,
+          0.201299295,
+          -0.00806399155,
+          -0.032957077,
+          -0.0321621411
+        ],
+        "roll_pitch_yaw_rad": [
+          0.001926349138118088,
+          0.1498578776353166,
+          -0.1464630402922427
+        ],
+        "policy_action": [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
+        "action_limit": "zero diagnostic policy outputs, not the flight controller's actual actuator commands"
+      },
+      {
+        "lane": 7,
+        "step": 637,
+        "collider_a": "crow_right_wing",
+        "collider_b": "crow_course_gate_right",
+        "normal_impulse_Ns": 2.31040144e-06,
+        "root_position_m": [
+          1.06113946,
+          -0.195621476,
+          0.755028546
+        ],
+        "root_velocity": [
+          0.167858317,
+          0.400719792,
+          0.0647810698,
+          -0.0732017606,
+          0.0652503297,
+          -0.0440662578
+        ],
+        "roll_pitch_yaw_rad": [
+          0.0015315828315851936,
+          0.13989291945470775,
+          -0.18983006216189005
+        ],
+        "policy_action": [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
+        "action_limit": "zero diagnostic policy outputs, not the flight controller's actual actuator commands"
+      },
+      {
+        "lane": 77,
+        "step": 640,
+        "collider_a": "crow_right_wing",
+        "collider_b": "crow_course_gate_right",
+        "normal_impulse_Ns": 0.219402239,
+        "root_position_m": [
+          1.19009697,
+          -0.24381569,
+          0.735202789
+        ],
+        "root_velocity": [
+          0.945640922,
+          -0.129259288,
+          0.129792556,
+          0.000975817267,
+          0.00618884247,
+          -0.0198243856
+        ],
+        "roll_pitch_yaw_rad": [
+          0.00159774492073344,
+          0.14878049067845803,
+          -0.15194403075482416
+        ],
+        "policy_action": [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
+        "action_limit": "zero diagnostic policy outputs, not the flight controller's actual actuator commands"
+      },
+      {
+        "lane": 65,
+        "step": 666,
+        "collider_a": "crow_head",
+        "collider_b": "crow_course_slalom_a",
+        "normal_impulse_Ns": 0.000688067754,
+        "root_position_m": [
+          1.99984646,
+          0.111386687,
+          0.721391439
+        ],
+        "root_velocity": [
+          0.979195476,
+          0.0155387158,
+          -0.101544335,
+          -0.000808995625,
+          0.00493659219,
+          -0.00923162792
+        ],
+        "roll_pitch_yaw_rad": [
+          2.29838875351479e-05,
+          0.15019121152660922,
+          0.017776331084969878
+        ],
+        "policy_action": [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
+        "action_limit": "zero diagnostic policy outputs, not the flight controller's actual actuator commands"
+      },
+      {
+        "lane": 60,
+        "step": 672,
+        "collider_a": "crow_left_wing",
+        "collider_b": "crow_course_slalom_a",
+        "normal_impulse_Ns": 0.296148628,
+        "root_position_m": [
+          2.12952065,
+          0.0576979034,
+          0.722442389
+        ],
+        "root_velocity": [
+          0.988323629,
+          0.0154423947,
+          0.0370144881,
+          -0.00421101926,
+          -0.0160839856,
+          0.00078454375
+        ],
+        "roll_pitch_yaw_rad": [
+          6.362853046219943e-05,
+          0.14818005930742495,
+          0.01813648506982268
+        ],
+        "policy_action": [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
+        "action_limit": "zero diagnostic policy outputs, not the flight controller's actual actuator commands"
+      },
+      {
+        "lane": 9,
+        "step": 673,
+        "collider_a": "crow_head",
+        "collider_b": "crow_course_slalom_a",
+        "normal_impulse_Ns": 0.00696429517,
+        "root_position_m": [
+          2.12974668,
+          0.0974142775,
+          0.525007665
+        ],
+        "root_velocity": [
+          1.00705874,
+          0.0158850811,
+          0.172419414,
+          0.00125499535,
+          0.0290205795,
+          -0.00555200409
+        ],
+        "roll_pitch_yaw_rad": [
+          7.97874642215289e-05,
+          0.1486049850347916,
+          0.018061131701004353
+        ],
+        "policy_action": [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
+        "action_limit": "zero diagnostic policy outputs, not the flight controller's actual actuator commands"
+      },
+      {
+        "lane": 40,
+        "step": 673,
+        "collider_a": "crow_left_wing",
+        "collider_b": "crow_course_slalom_a",
+        "normal_impulse_Ns": 3.29192494e-06,
+        "root_position_m": [
+          2.15742874,
+          0.0338244662,
+          0.724928617
+        ],
+        "root_velocity": [
+          1.00733602,
+          0.0158908349,
+          0.172511294,
+          0.00122306321,
+          0.0289902668,
+          -0.00555003295
+        ],
+        "roll_pitch_yaw_rad": [
+          7.999507313542154e-05,
+          0.14859793054619208,
+          0.018057406722504863
+        ],
+        "policy_action": [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
+        "action_limit": "zero diagnostic policy outputs, not the flight controller's actual actuator commands"
+      },
+      {
+        "lane": 56,
+        "step": 674,
+        "collider_a": "crow_head",
+        "collider_b": "crow_course_slalom_a",
+        "normal_impulse_Ns": 0.121685088,
+        "root_position_m": [
+          2.12005758,
+          0.35423556,
+          0.727545142
+        ],
+        "root_velocity": [
+          0.988450229,
+          0.166489422,
+          0.0726731345,
+          -0.0105240578,
+          0.0352867544,
+          0.0192713551
+        ],
+        "roll_pitch_yaw_rad": [
+          -0.0009274014202197801,
+          0.14967467844629007,
+          0.17797508551870503
+        ],
+        "policy_action": [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
+        "action_limit": "zero diagnostic policy outputs, not the flight controller's actual actuator commands"
+      },
+      {
+        "lane": 19,
+        "step": 677,
+        "collider_a": "crow_left_wing",
+        "collider_b": "crow_course_slalom_a",
+        "normal_impulse_Ns": 0.0922494531,
+        "root_position_m": [
+          2.19242644,
+          0.054010272,
+          0.519855797
+        ],
+        "root_velocity": [
+          0.987087667,
+          0.015580941,
+          -0.0704912171,
+          -0.000576263177,
+          9.95078954e-05,
+          -0.00925378874
+        ],
+        "roll_pitch_yaw_rad": [
+          4.437803200540651e-05,
+          0.15008340061720593,
+          0.017624120490411423
+        ],
+        "policy_action": [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
+        "action_limit": "zero diagnostic policy outputs, not the flight controller's actual actuator commands"
+      },
+      {
+        "lane": 64,
+        "step": 677,
+        "collider_a": "crow_left_wing",
+        "collider_b": "crow_course_slalom_a",
+        "normal_impulse_Ns": 0.17576091,
+        "root_position_m": [
+          2.23604536,
+          0.0474172756,
+          0.51890856
+        ],
+        "root_velocity": [
+          0.760236561,
+          -0.129715323,
+          -0.120908864,
+          -0.0523800179,
+          0.0056245951,
+          -0.107164301
+        ],
+        "roll_pitch_yaw_rad": [
+          -0.006203343391835483,
+          0.1520659722251049,
+          0.036753028729511694
+        ],
+        "policy_action": [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
+        "action_limit": "zero diagnostic policy outputs, not the flight controller's actual actuator commands"
+      },
+      {
+        "lane": 1,
+        "step": 680,
+        "collider_a": "crow_head",
+        "collider_b": "crow_course_slalom_a",
+        "normal_impulse_Ns": 0.0094182035,
+        "root_position_m": [
+          2.28170872,
+          0.380851299,
+          0.72669363
+        ],
+        "root_velocity": [
+          0.975364566,
+          0.16662702,
+          0.015811922,
+          0.0057098032,
+          0.0122485133,
+          0.0460830964
+        ],
+        "roll_pitch_yaw_rad": [
+          -0.0006996962606350811,
+          0.14942920277706828,
+          0.18126104474975632
+        ],
+        "policy_action": [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
+        "action_limit": "zero diagnostic policy outputs, not the flight controller's actual actuator commands"
+      },
+      {
+        "lane": 59,
+        "step": 681,
+        "collider_a": "crow_left_wing",
+        "collider_b": "crow_course_slalom_a",
+        "normal_impulse_Ns": 0.0216578636,
+        "root_position_m": [
+          2.20721912,
+          0.0017363159,
+          0.52170074
+        ],
+        "root_velocity": [
+          0.743300557,
+          -0.101127163,
+          -0.243280992,
+          0.023746185,
+          -0.122238196,
+          -0.0922630355
+        ],
+        "roll_pitch_yaw_rad": [
+          -0.0033889882156604356,
+          0.1382691284646286,
+          0.03342791136011739
+        ],
+        "policy_action": [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
+        "action_limit": "zero diagnostic policy outputs, not the flight controller's actual actuator commands"
+      },
+      {
+        "lane": 70,
+        "step": 681,
+        "collider_a": "crow_body",
+        "collider_b": "crow_course_slalom_a",
+        "normal_impulse_Ns": 0.00712853391,
+        "root_position_m": [
+          2.17251444,
+          0.117304556,
+          0.722068489
+        ],
+        "root_velocity": [
+          0.0856052637,
+          -0.170044512,
+          -0.286056429,
+          0.077510424,
+          -0.325671434,
+          0.311759055
+        ],
+        "roll_pitch_yaw_rad": [
+          0.0005476854776601753,
+          0.131376310537266,
+          0.031642306717460406
+        ],
+        "policy_action": [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
+        "action_limit": "zero diagnostic policy outputs, not the flight controller's actual actuator commands"
+      },
+      {
+        "lane": 11,
+        "step": 682,
+        "collider_a": "crow_head",
+        "collider_b": "crow_course_slalom_a",
+        "normal_impulse_Ns": 0.100077264,
+        "root_position_m": [
+          2.28623629,
+          0.357210845,
+          0.721967995
+        ],
+        "root_velocity": [
+          0.960501075,
+          0.165075943,
+          -0.132482022,
+          -0.00306205242,
+          -0.0223955419,
+          0.0201327205
+        ],
+        "roll_pitch_yaw_rad": [
+          -0.0006023896997718562,
+          0.14935669711951965,
+          0.18262451540248134
+        ],
+        "policy_action": [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
+        "action_limit": "zero diagnostic policy outputs, not the flight controller's actual actuator commands"
+      },
+      {
+        "lane": 36,
+        "step": 682,
+        "collider_a": "crow_right_wing",
+        "collider_b": "crow_course_slalom_a",
+        "normal_impulse_Ns": 0.0844361633,
+        "root_position_m": [
+          2.2459271,
+          0.361291677,
+          0.72202307
+        ],
+        "root_velocity": [
+          0.960282326,
+          0.164965466,
+          -0.132560775,
+          -0.00305371196,
+          -0.0224441662,
+          0.0201730244
+        ],
+        "roll_pitch_yaw_rad": [
+          -0.0006045798740339278,
+          0.1493490487253963,
+          0.18256768638404075
+        ],
+        "policy_action": [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
+        "action_limit": "zero diagnostic policy outputs, not the flight controller's actual actuator commands"
+      },
+      {
+        "lane": 61,
+        "step": 683,
+        "collider_a": "crow_head",
+        "collider_b": "crow_course_slalom_a",
+        "normal_impulse_Ns": 0.000685255567,
+        "root_position_m": [
+          2.15324187,
+          0.306977242,
+          0.72160548
+        ],
+        "root_velocity": [
+          0.98097074,
+          0.173406601,
+          0.0634369925,
+          0.00445458759,
+          -0.0211184435,
+          0.00930882432
+        ],
+        "roll_pitch_yaw_rad": [
+          -0.0007706365937005996,
+          0.14870708994959922,
+          0.18620644081463147
+        ],
+        "policy_action": [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
+        "action_limit": "zero diagnostic policy outputs, not the flight controller's actual actuator commands"
+      },
+      {
+        "lane": 39,
+        "step": 684,
+        "collider_a": "crow_left_wing",
+        "collider_b": "crow_course_slalom_a",
+        "normal_impulse_Ns": 0.0599985868,
+        "root_position_m": [
+          2.20318651,
+          0.0254455786,
+          0.524306834
+        ],
+        "root_velocity": [
+          1.01029932,
+          0.0161110368,
+          0.175198674,
+          0.000907507376,
+          0.0332229473,
+          -0.0057827658
+        ],
+        "roll_pitch_yaw_rad": [
+          8.409655791772851e-05,
+          0.14856516098663355,
+          0.01816635377598261
+        ],
+        "policy_action": [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
+        "action_limit": "zero diagnostic policy outputs, not the flight controller's actual actuator commands"
+      },
+      {
+        "lane": 55,
+        "step": 684,
+        "collider_a": "crow_left_wing",
+        "collider_b": "crow_course_slalom_a",
+        "normal_impulse_Ns": 0.18319954,
+        "root_position_m": [
+          2.19392443,
+          0.0417575017,
+          0.724700093
+        ],
+        "root_velocity": [
+          0.749937773,
+          -0.154728785,
+          0.193772808,
+          -0.116162777,
+          0.361664683,
+          -0.103515141
+        ],
+        "roll_pitch_yaw_rad": [
+          -0.0027099023236208403,
+          0.14393979407612723,
+          0.03556437316576983
+        ],
+        "policy_action": [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
+        "action_limit": "zero diagnostic policy outputs, not the flight controller's actual actuator commands"
+      },
+      {
+        "lane": 25,
+        "step": 685,
+        "collider_a": "crow_left_wing",
+        "collider_b": "crow_course_slalom_a",
+        "normal_impulse_Ns": 0.0385874882,
+        "root_position_m": [
+          2.39063239,
+          0.0506635532,
+          0.726439714
+        ],
+        "root_velocity": [
+          0.350847989,
+          -0.366963953,
+          0.10392759,
+          0.157746166,
+          -0.033328034,
+          0.969609261
+        ],
+        "roll_pitch_yaw_rad": [
+          0.001266171269990918,
+          0.14838190556967795,
+          0.031179357762443505
+        ],
+        "policy_action": [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
+        "action_limit": "zero diagnostic policy outputs, not the flight controller's actual actuator commands"
+      },
+      {
+        "lane": 51,
+        "step": 686,
+        "collider_a": "crow_right_wing",
+        "collider_b": "crow_course_slalom_a",
+        "normal_impulse_Ns": 0.0859941468,
+        "root_position_m": [
+          2.28318977,
+          0.375598848,
+          0.725319386
+        ],
+        "root_velocity": [
+          0.450340897,
+          0.358551145,
+          -0.0851111338,
+          -0.0412181504,
+          -0.0707989633,
+          -0.675578833
+        ],
+        "roll_pitch_yaw_rad": [
+          -0.002680958313897058,
+          0.14903223214156233,
+          0.17461236693922538
+        ],
+        "policy_action": [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
+        "action_limit": "zero diagnostic policy outputs, not the flight controller's actual actuator commands"
+      },
+      {
+        "lane": 66,
+        "step": 686,
+        "collider_a": "crow_right_wing",
+        "collider_b": "crow_course_slalom_a",
+        "normal_impulse_Ns": 0.0240833964,
+        "root_position_m": [
+          2.26740646,
+          0.377964139,
+          0.730017424
+        ],
+        "root_velocity": [
+          0.629619181,
+          0.384910554,
+          -0.0627283156,
+          0.041588936,
+          0.099668473,
+          -0.0327712037
+        ],
+        "roll_pitch_yaw_rad": [
+          -0.006784659001858992,
+          0.14391752045280715,
+          0.16593416363427788
+        ],
+        "policy_action": [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
+        "action_limit": "zero diagnostic policy outputs, not the flight controller's actual actuator commands"
+      },
+      {
+        "lane": 0,
+        "step": 688,
+        "collider_a": "crow_left_wing",
+        "collider_b": "crow_course_slalom_a",
+        "normal_impulse_Ns": 0.0202463735,
+        "root_position_m": [
+          2.39947081,
+          0.00165794336,
+          0.716527998
+        ],
+        "root_velocity": [
+          0.76633209,
+          -0.126971528,
+          -0.107341044,
+          -0.0484515317,
+          0.0150415432,
+          -0.152490467
+        ],
+        "roll_pitch_yaw_rad": [
+          -0.009419112881695241,
+          0.15349852342586393,
+          0.03547974769720058
+        ],
+        "policy_action": [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
+        "action_limit": "zero diagnostic policy outputs, not the flight controller's actual actuator commands"
+      },
+      {
+        "lane": 68,
+        "step": 688,
+        "collider_a": "crow_left_wing",
+        "collider_b": "crow_course_slalom_a",
+        "normal_impulse_Ns": 0.0928459838,
+        "root_position_m": [
+          2.16884279,
+          -0.00136840041,
+          0.919164062
+        ],
+        "root_velocity": [
+          0.991209745,
+          0.0155897634,
+          -0.0372002944,
+          -0.000455562345,
+          -0.0057147569,
+          -0.00945958588
+        ],
+        "roll_pitch_yaw_rad": [
+          3.99008109595177e-05,
+          0.14998575021988647,
+          0.017567254675608213
+        ],
+        "policy_action": [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
+        "action_limit": "zero diagnostic policy outputs, not the flight controller's actual actuator commands"
+      },
+      {
+        "lane": 4,
+        "step": 689,
+        "collider_a": "crow_left_wing",
+        "collider_b": "crow_course_slalom_a",
+        "normal_impulse_Ns": 0.00872078538,
+        "root_position_m": [
+          2.43883824,
+          0.0815517381,
+          0.518422008
+        ],
+        "root_velocity": [
+          0.824931562,
+          -0.036949981,
+          0.0598897487,
+          -0.108740672,
+          -0.0740597248,
+          0.345611691
+        ],
+        "roll_pitch_yaw_rad": [
+          -0.016661212876862196,
+          0.14916598424273708,
+          0.03175605001456302
+        ],
+        "policy_action": [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
+        "action_limit": "zero diagnostic policy outputs, not the flight controller's actual actuator commands"
+      },
+      {
+        "lane": 46,
+        "step": 689,
+        "collider_a": "crow_right_wing",
+        "collider_b": "crow_course_slalom_a",
+        "normal_impulse_Ns": 0.0174229797,
+        "root_position_m": [
+          2.30427551,
+          0.457071602,
+          0.716122448
+        ],
+        "root_velocity": [
+          0.647560179,
+          0.38850686,
+          0.106647648,
+          0.177293539,
+          -0.0233067274,
+          0.0509626307
+        ],
+        "roll_pitch_yaw_rad": [
+          0.015248620469978146,
+          0.1548288793292365,
+          0.1599435208365557
+        ],
+        "policy_action": [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
+        "action_limit": "zero diagnostic policy outputs, not the flight controller's actual actuator commands"
+      },
+      {
+        "lane": 21,
+        "step": 690,
+        "collider_a": "crow_head",
+        "collider_b": "crow_course_slalom_a",
+        "normal_impulse_Ns": 0.00837032311,
+        "root_position_m": [
+          2.22518897,
+          0.319955707,
+          0.724377215
+        ],
+        "root_velocity": [
+          0.993945301,
+          0.179170266,
+          0.17136997,
+          0.00967316329,
+          -0.0208922662,
+          0.0478892624
+        ],
+        "roll_pitch_yaw_rad": [
+          -0.0008315053736642385,
+          0.14930838892863477,
+          0.18914011507457512
+        ],
+        "policy_action": [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
+        "action_limit": "zero diagnostic policy outputs, not the flight controller's actual actuator commands"
+      },
+      {
+        "lane": 35,
+        "step": 690,
+        "collider_a": "crow_body",
+        "collider_b": "crow_course_slalom_a",
+        "normal_impulse_Ns": 0.0608880222,
+        "root_position_m": [
+          2.43036556,
+          0.00751548726,
+          0.723849773
+        ],
+        "root_velocity": [
+          1.00835097,
+          0.0156498104,
+          0.172261387,
+          0.00144603651,
+          -0.0227732696,
+          0.00180795521
+        ],
+        "roll_pitch_yaw_rad": [
+          5.569147713210205e-05,
+          0.14886251334626935,
+          0.017245041646725585
+        ],
+        "policy_action": [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
+        "action_limit": "zero diagnostic policy outputs, not the flight controller's actual actuator commands"
+      },
+      {
+        "lane": 20,
+        "step": 691,
+        "collider_a": "crow_left_wing",
+        "collider_b": "crow_course_slalom_a",
+        "normal_impulse_Ns": 8.49486014e-07,
+        "root_position_m": [
+          2.46796679,
+          0.078581281,
+          0.722258091
+        ],
+        "root_velocity": [
+          0.787469268,
+          -0.0729274079,
+          -0.102765024,
+          0.0468580686,
+          -0.119630598,
+          -0.0744837001
+        ],
+        "roll_pitch_yaw_rad": [
+          -0.007282261023071911,
+          0.14090267055382516,
+          0.03230462175507308
+        ],
+        "policy_action": [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
+        "action_limit": "zero diagnostic policy outputs, not the flight controller's actual actuator commands"
+      },
+      {
+        "lane": 24,
+        "step": 692,
+        "collider_a": "crow_body",
+        "collider_b": "crow_course_slalom_a",
+        "normal_impulse_Ns": 0.00689074723,
+        "root_position_m": [
+          2.39914489,
+          0.0199408699,
+          0.507872403
+        ],
+        "root_velocity": [
+          0.0686073974,
+          -0.193526015,
+          -0.414322138,
+          0.0494921245,
+          -0.206825525,
+          -0.0059541543
+        ],
+        "roll_pitch_yaw_rad": [
+          -0.00010535639933446942,
+          0.13100560932177985,
+          0.03386506771241307
+        ],
+        "policy_action": [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
+        "action_limit": "zero diagnostic policy outputs, not the flight controller's actual actuator commands"
+      },
+      {
+        "lane": 43,
+        "step": 692,
+        "collider_a": "crow_left_wing",
+        "collider_b": "crow_course_slalom_a",
+        "normal_impulse_Ns": 0.0988222733,
+        "root_position_m": [
+          2.12265038,
+          0.0393189713,
+          0.923888445
+        ],
+        "root_velocity": [
+          0.970313728,
+          0.0149023877,
+          -0.149388358,
+          0.00172542164,
+          0.0059291725,
+          0.0125177829
+        ],
+        "roll_pitch_yaw_rad": [
+          0.00011268976166159116,
+          0.14888859765695756,
+          0.01775653033761798
+        ],
+        "policy_action": [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
+        "action_limit": "zero diagnostic policy outputs, not the flight controller's actual actuator commands"
+      },
+      {
+        "lane": 75,
+        "step": 692,
+        "collider_a": "crow_left_wing",
+        "collider_b": "crow_course_slalom_a",
+        "normal_impulse_Ns": 0.00438587647,
+        "root_position_m": [
+          2.52664471,
+          0.0511120819,
+          0.718453586
+        ],
+        "root_velocity": [
+          0.680710971,
+          -0.122364759,
+          -0.251256645,
+          -0.0215008855,
+          -0.117664404,
+          -0.0251872521
+        ],
+        "roll_pitch_yaw_rad": [
+          -0.006360913362334331,
+          0.13497939302164907,
+          0.03857348098509157
+        ],
+        "policy_action": [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
+        "action_limit": "zero diagnostic policy outputs, not the flight controller's actual actuator commands"
+      },
+      {
+        "lane": 14,
+        "step": 694,
+        "collider_a": "crow_left_wing",
+        "collider_b": "crow_course_slalom_a",
+        "normal_impulse_Ns": 0.166162342,
+        "root_position_m": [
+          2.35759902,
+          0.0848790482,
+          0.520302355
+        ],
+        "root_velocity": [
+          1.00045013,
+          0.0147521952,
+          0.0911354572,
+          -0.00172750419,
+          -0.00668201502,
+          -0.00241935323
+        ],
+        "roll_pitch_yaw_rad": [
+          4.052228554737078e-05,
+          0.1480055254500591,
+          0.01726140295609191
+        ],
+        "policy_action": [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
+        "action_limit": "zero diagnostic policy outputs, not the flight controller's actual actuator commands"
+      },
+      {
+        "lane": 29,
+        "step": 694,
+        "collider_a": "crow_left_wing",
+        "collider_b": "crow_course_slalom_a",
+        "normal_impulse_Ns": 5.21539951e-05,
+        "root_position_m": [
+          2.27386498,
+          -0.00904432219,
+          0.520665944
+        ],
+        "root_velocity": [
+          0.998906136,
+          0.0157837663,
+          0.0906778201,
+          -0.00185900682,
+          -0.00585128134,
+          -0.00199635699
+        ],
+        "roll_pitch_yaw_rad": [
+          6.74240944789568e-05,
+          0.1479765767213285,
+          0.01821064455958084
+        ],
+        "policy_action": [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
+        "action_limit": "zero diagnostic policy outputs, not the flight controller's actual actuator commands"
+      },
+      {
+        "lane": 54,
+        "step": 694,
+        "collider_a": "crow_left_wing",
+        "collider_b": "crow_course_slalom_a",
+        "normal_impulse_Ns": 8.5650754e-07,
+        "root_position_m": [
+          2.3545866,
+          0.0799699277,
+          0.520231903
+        ],
+        "root_velocity": [
+          1.00080574,
+          0.0147238085,
+          0.0911907777,
+          -0.00171382912,
+          -0.00671638176,
+          -0.00245504384
+        ],
+        "roll_pitch_yaw_rad": [
+          4.056466397408748e-05,
+          0.14803399682225857,
+          0.017223803039422718
+        ],
+        "policy_action": [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
+        "action_limit": "zero diagnostic policy outputs, not the flight controller's actual actuator commands"
+      },
+      {
+        "lane": 71,
+        "step": 694,
+        "collider_a": "crow_head",
+        "collider_b": "crow_course_slalom_a",
+        "normal_impulse_Ns": 0.0047194073,
+        "root_position_m": [
+          2.09446645,
+          0.193418905,
+          0.743241489
+        ],
+        "root_velocity": [
+          0.959694266,
+          0.27119872,
+          0.0326272622,
+          0.0483526476,
+          0.00838889275,
+          -0.00632312149
+        ],
+        "roll_pitch_yaw_rad": [
+          -0.004559797839044361,
+          0.1806093595669364,
+          0.2315678522241809
+        ],
+        "policy_action": [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
+        "action_limit": "zero diagnostic policy outputs, not the flight controller's actual actuator commands"
+      },
+      {
+        "lane": 48,
+        "step": 695,
+        "collider_a": "crow_head",
+        "collider_b": "crow_course_slalom_a",
+        "normal_impulse_Ns": 0.00271150679,
+        "root_position_m": [
+          2.21724796,
+          0.0538095795,
+          0.92377156
+        ],
+        "root_velocity": [
+          1.01300871,
+          0.0157988053,
+          0.1754632,
+          6.45168111e-05,
+          0.0360975116,
+          -0.00606673816
+        ],
+        "roll_pitch_yaw_rad": [
+          3.769759669669456e-05,
+          0.14860801896496323,
+          0.017845694249222617
+        ],
+        "policy_action": [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
+        "action_limit": "zero diagnostic policy outputs, not the flight controller's actual actuator commands"
+      },
+      {
+        "lane": 73,
+        "step": 695,
+        "collider_a": "crow_left_wing",
+        "collider_b": "crow_course_slalom_a",
+        "normal_impulse_Ns": 0.0122354962,
+        "root_position_m": [
+          2.29372883,
+          0.0603083149,
+          0.923767567
+        ],
+        "root_velocity": [
+          1.01302695,
+          0.0157908536,
+          0.175466672,
+          6.67433051e-05,
+          0.0360959247,
+          -0.00606654771
+        ],
+        "roll_pitch_yaw_rad": [
+          3.753627821845702e-05,
+          0.14860838017873793,
+          0.017838213578517358
+        ],
+        "policy_action": [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
+        "action_limit": "zero diagnostic policy outputs, not the flight controller's actual actuator commands"
+      },
+      {
+        "lane": 8,
+        "step": 696,
+        "collider_a": "crow_left_wing",
+        "collider_b": "crow_course_slalom_a",
+        "normal_impulse_Ns": 0.0934907869,
+        "root_position_m": [
+          2.2498188,
+          0.0500388443,
+          0.925566733
+        ],
+        "root_velocity": [
+          1.00064957,
+          0.015617949,
+          0.0303341467,
+          -0.00354398694,
+          0.0264872909,
+          -0.0035473227
+        ],
+        "roll_pitch_yaw_rad": [
+          -3.0474253809874353e-05,
+          0.14934201333547326,
+          0.01774302336296402
+        ],
+        "policy_action": [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
+        "action_limit": "zero diagnostic policy outputs, not the flight controller's actual actuator commands"
+      },
+      {
+        "lane": 33,
+        "step": 696,
+        "collider_a": "crow_left_wing",
+        "collider_b": "crow_course_slalom_a",
+        "normal_impulse_Ns": 0.222405702,
+        "root_position_m": [
+          2.28074265,
+          0.0705059692,
+          0.925559282
+        ],
+        "root_velocity": [
+          1.00067544,
+          0.0156147862,
+          0.0303429756,
+          -0.00354333292,
+          0.0264880322,
+          -0.00354604376
+        ],
+        "roll_pitch_yaw_rad": [
+          -3.045480550189646e-05,
+          0.14934113016512085,
+          0.017739139124067813
+        ],
+        "policy_action": [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
+        "action_limit": "zero diagnostic policy outputs, not the flight controller's actual actuator commands"
+      },
+      {
+        "lane": 26,
+        "step": 697,
+        "collider_a": "crow_right_wing",
+        "collider_b": "crow_course_slalom_a",
+        "normal_impulse_Ns": 0.0106012458,
+        "root_position_m": [
+          2.50545216,
+          0.388896435,
+          0.727459669
+        ],
+        "root_velocity": [
+          0.694706976,
+          0.339567333,
+          -0.0791768655,
+          0.048029989,
+          0.0932049081,
+          0.0460110791
+        ],
+        "roll_pitch_yaw_rad": [
+          -0.00586595546806779,
+          0.1454781391465686,
+          0.17466894210799308
+        ],
+        "policy_action": [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
+        "action_limit": "zero diagnostic policy outputs, not the flight controller's actual actuator commands"
+      },
+      {
+        "lane": 5,
+        "step": 698,
+        "collider_a": "crow_left_wing",
+        "collider_b": "crow_course_slalom_a",
+        "normal_impulse_Ns": 0.0118842656,
+        "root_position_m": [
+          2.43961668,
+          -0.0286875386,
+          0.721948266
+        ],
+        "root_velocity": [
+          0.531342804,
+          -0.329366416,
+          -0.124949105,
+          0.0326460935,
+          -0.103925385,
+          0.115229212
+        ],
+        "roll_pitch_yaw_rad": [
+          0.0033936188553140563,
+          0.14721461188335372,
+          0.04169365102402802
+        ],
+        "policy_action": [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
+        "action_limit": "zero diagnostic policy outputs, not the flight controller's actual actuator commands"
+      },
+      {
+        "lane": 30,
+        "step": 699,
+        "collider_a": "crow_left_wing",
+        "collider_b": "crow_course_slalom_a",
+        "normal_impulse_Ns": 0.00053258572,
+        "root_position_m": [
+          2.43946743,
+          0.0855241939,
+          0.706774831
+        ],
+        "root_velocity": [
+          0.161269978,
+          -0.186948687,
+          0.0309090987,
+          -0.250288814,
+          0.220820919,
+          0.031031182
+        ],
+        "roll_pitch_yaw_rad": [
+          -0.031036438984169787,
+          0.16864930991590474,
+          0.07934373653822942
+        ],
+        "policy_action": [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
+        "action_limit": "zero diagnostic policy outputs, not the flight controller's actual actuator commands"
+      },
+      {
+        "lane": 38,
+        "step": 702,
+        "collider_a": "crow_left_wing",
+        "collider_b": "crow_course_slalom_a",
+        "normal_impulse_Ns": 0.109123498,
+        "root_position_m": [
+          2.27188158,
+          0.0766226947,
+          0.925193369
+        ],
+        "root_velocity": [
+          0.983841419,
+          0.01434917,
+          -0.0351649597,
+          0.0022523189,
+          0.0044801617,
+          0.0137935663
+        ],
+        "roll_pitch_yaw_rad": [
+          2.574112643730338e-05,
+          0.14882703355450902,
+          0.016822780484754156
+        ],
+        "policy_action": [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
+        "action_limit": "zero diagnostic policy outputs, not the flight controller's actual actuator commands"
+      },
+      {
+        "lane": 79,
+        "step": 702,
+        "collider_a": "crow_left_wing",
+        "collider_b": "crow_course_slalom_a",
+        "normal_impulse_Ns": 2.87640819e-06,
+        "root_position_m": [
+          2.57038569,
+          0.0010934918,
+          0.518333673
+        ],
+        "root_velocity": [
+          0.705171347,
+          -0.197003633,
+          -0.198931769,
+          0.0721055344,
+          -0.193705842,
+          0.257906526
+        ],
+        "roll_pitch_yaw_rad": [
+          -0.015694815930749253,
+          0.14333460613545282,
+          0.03295290214255165
+        ],
+        "policy_action": [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
+        "action_limit": "zero diagnostic policy outputs, not the flight controller's actual actuator commands"
+      },
+      {
+        "lane": 13,
+        "step": 706,
+        "collider_a": "crow_left_wing",
+        "collider_b": "crow_course_slalom_a",
+        "normal_impulse_Ns": 0.0988423601,
+        "root_position_m": [
+          2.33119273,
+          -0.0803906471,
+          0.924331188
+        ],
+        "root_velocity": [
+          0.943802774,
+          -0.0158494879,
+          0.202085644,
+          0.0596159361,
+          -0.00823534001,
+          0.144818276
+        ],
+        "roll_pitch_yaw_rad": [
+          0.003482622897196137,
+          0.14719549770484666,
+          0.024571070532204118
+        ],
+        "policy_action": [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
+        "action_limit": "zero diagnostic policy outputs, not the flight controller's actual actuator commands"
+      },
+      {
+        "lane": 28,
+        "step": 706,
+        "collider_a": "crow_left_wing",
+        "collider_b": "crow_course_slalom_a",
+        "normal_impulse_Ns": 0.0109397825,
+        "root_position_m": [
+          2.46898079,
+          0.0423832275,
+          0.923415601
+        ],
+        "root_velocity": [
+          1.01549768,
+          0.0158098321,
+          0.172211647,
+          -0.000946679967,
+          0.0392404534,
+          -0.0058069448
+        ],
+        "roll_pitch_yaw_rad": [
+          7.396598816094598e-06,
+          0.1486410561644797,
+          0.0176780345287077
+        ],
+        "policy_action": [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
+        "action_limit": "zero diagnostic policy outputs, not the flight controller's actual actuator commands"
+      },
+      {
+        "lane": 3,
+        "step": 708,
+        "collider_a": "crow_left_wing",
+        "collider_b": "crow_course_slalom_a",
+        "normal_impulse_Ns": 0.10133718,
+        "root_position_m": [
+          2.48791838,
+          0.0247628614,
+          0.922989428
+        ],
+        "root_velocity": [
+          0.981544614,
+          0.0152453929,
+          -0.159096882,
+          0.000128704312,
+          0.0174574759,
+          -0.0037343828
+        ],
+        "roll_pitch_yaw_rad": [
+          -3.285778046017024e-05,
+          0.14973494766992326,
+          0.01750767063573592
+        ],
+        "policy_action": [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
+        "action_limit": "zero diagnostic policy outputs, not the flight controller's actual actuator commands"
+      },
+      {
+        "lane": 53,
+        "step": 708,
+        "collider_a": "crow_left_wing",
+        "collider_b": "crow_course_slalom_a",
+        "normal_impulse_Ns": 0.10117463,
+        "root_position_m": [
+          2.26436901,
+          -0.103991672,
+          0.923478901
+        ],
+        "root_velocity": [
+          0.979792356,
+          0.0155962324,
+          -0.159706622,
+          0.000116568022,
+          0.0169393718,
+          -0.00386417424
+        ],
+        "roll_pitch_yaw_rad": [
+          -3.6072616947805475e-05,
+          0.1497736361204986,
+          0.017899618288248258
+        ],
+        "policy_action": [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
+        "action_limit": "zero diagnostic policy outputs, not the flight controller's actual actuator commands"
+      },
+      {
+        "lane": 58,
+        "step": 709,
+        "collider_a": "crow_left_wing",
+        "collider_b": "crow_course_slalom_a",
+        "normal_impulse_Ns": 9.4347206e-06,
+        "root_position_m": [
+          2.50418305,
+          0.0111112921,
+          0.912625074
+        ],
+        "root_velocity": [
+          0.207642019,
+          -0.306600511,
+          -0.182761088,
+          -0.107702322,
+          0.146886125,
+          0.196510643
+        ],
+        "roll_pitch_yaw_rad": [
+          -0.02749221210456436,
+          0.15652422965560933,
+          0.07014817816245374
+        ],
+        "policy_action": [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
+        "action_limit": "zero diagnostic policy outputs, not the flight controller's actual actuator commands"
+      },
+      {
+        "lane": 78,
+        "step": 714,
+        "collider_a": "crow_left_wing",
+        "collider_b": "crow_course_slalom_a",
+        "normal_impulse_Ns": 0.0262817238,
+        "root_position_m": [
+          2.54789758,
+          0.111954153,
+          0.919129968
+        ],
+        "root_velocity": [
+          0.715815783,
+          -0.129261822,
+          -0.251694292,
+          0.104569733,
+          -0.00941066723,
+          -0.129009858
+        ],
+        "roll_pitch_yaw_rad": [
+          0.0004538641630240355,
+          0.1359421422880043,
+          0.034077799273720136
+        ],
+        "policy_action": [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
+        "action_limit": "zero diagnostic policy outputs, not the flight controller's actual actuator commands"
+      },
+      {
+        "lane": 2,
+        "step": 738,
+        "collider_a": "crow_left_wing",
+        "collider_b": "crow_course_slalom_b",
+        "normal_impulse_Ns": 0.00534414267,
+        "root_position_m": [
+          3.28649998,
+          -0.643716276,
+          0.712783694
+        ],
+        "root_velocity": [
+          0.596770823,
+          -0.42971608,
+          0.133304164,
+          -0.116183244,
+          0.416900635,
+          0.000113409304
+        ],
+        "roll_pitch_yaw_rad": [
+          -0.005139926481978897,
+          0.14018032822456225,
+          -0.1958777557740425
+        ],
+        "policy_action": [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
+        "action_limit": "zero diagnostic policy outputs, not the flight controller's actual actuator commands"
+      },
+      {
+        "lane": 72,
+        "step": 740,
+        "collider_a": "crow_left_wing",
+        "collider_b": "crow_course_slalom_b",
+        "normal_impulse_Ns": 0.00310380664,
+        "root_position_m": [
+          3.33515215,
+          -0.611259699,
+          0.728650928
+        ],
+        "root_velocity": [
+          0.665431976,
+          -0.383003592,
+          0.00398289505,
+          -0.215865299,
+          0.0951057076,
+          -0.0183579791
+        ],
+        "roll_pitch_yaw_rad": [
+          0.001721842416803987,
+          0.14379883729173026,
+          -0.19760680574265493
+        ],
+        "policy_action": [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
+        "action_limit": "zero diagnostic policy outputs, not the flight controller's actual actuator commands"
+      },
+      {
+        "lane": 74,
+        "step": 740,
+        "collider_a": "crow_right_wing",
+        "collider_b": "crow_course_slalom_b",
+        "normal_impulse_Ns": 0.0908375159,
+        "root_position_m": [
+          3.40398216,
+          -0.0231696796,
+          0.523273289
+        ],
+        "root_velocity": [
+          0.995763302,
+          0.0150871212,
+          -0.0742424652,
+          -0.000210140075,
+          0.0182829574,
+          -0.00317399413
+        ],
+        "roll_pitch_yaw_rad": [
+          4.1219173406274806e-05,
+          0.1492780526493704,
+          0.017029336069445795
+        ],
+        "policy_action": [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
+        "action_limit": "zero diagnostic policy outputs, not the flight controller's actual actuator commands"
+      },
+      {
+        "lane": 27,
+        "step": 741,
+        "collider_a": "crow_left_wing",
+        "collider_b": "crow_course_slalom_b",
+        "normal_impulse_Ns": 0.0981401205,
+        "root_position_m": [
+          3.31511497,
+          -0.573576987,
+          0.720344186
+        ],
+        "root_velocity": [
+          0.963213563,
+          -0.196555197,
+          -0.196360394,
+          -0.00417186785,
+          -0.00343558565,
+          -0.0207240582
+        ],
+        "roll_pitch_yaw_rad": [
+          0.0006486537423666619,
+          0.15107569129777398,
+          -0.2129106665687899
+        ],
+        "policy_action": [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
+        "action_limit": "zero diagnostic policy outputs, not the flight controller's actual actuator commands"
+      },
+      {
+        "lane": 49,
+        "step": 743,
+        "collider_a": "crow_body",
+        "collider_b": "crow_course_slalom_b",
+        "normal_impulse_Ns": 0.00168408023,
+        "root_position_m": [
+          3.34042883,
+          -0.0482169464,
+          0.538494349
+        ],
+        "root_velocity": [
+          0.914408207,
+          0.0608863533,
+          0.107339054,
+          0.0956825241,
+          -0.0265881028,
+          -0.0211857241
+        ],
+        "roll_pitch_yaw_rad": [
+          -0.01901850431392636,
+          0.14868070825545446,
+          0.027383157629136495
+        ],
+        "policy_action": [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
+        "action_limit": "zero diagnostic policy outputs, not the flight controller's actual actuator commands"
+      },
+      {
+        "lane": 45,
+        "step": 749,
+        "collider_a": "crow_right_wing",
+        "collider_b": "crow_course_slalom_b",
+        "normal_impulse_Ns": 0.000146967242,
+        "root_position_m": [
+          3.37656403,
+          -0.0718957335,
+          0.721281886
+        ],
+        "root_velocity": [
+          1.01763356,
+          0.015559053,
+          0.174371019,
+          -3.44895743e-05,
+          0.0237873513,
+          -0.00533949072
+        ],
+        "roll_pitch_yaw_rad": [
+          0.0001242710346374209,
+          0.14795127174849274,
+          0.017317148566632266
+        ],
+        "policy_action": [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
+        "action_limit": "zero diagnostic policy outputs, not the flight controller's actual actuator commands"
+      },
+      {
+        "lane": 12,
+        "step": 751,
+        "collider_a": "crow_left_wing",
+        "collider_b": "crow_course_slalom_b",
+        "normal_impulse_Ns": 0.0287751164,
+        "root_position_m": [
+          3.53407574,
+          -0.663447022,
+          0.728384972
+        ],
+        "root_velocity": [
+          0.681340098,
+          -0.37215519,
+          -0.0129404617,
+          0.0606451295,
+          0.0166808367,
+          -0.131861269
+        ],
+        "roll_pitch_yaw_rad": [
+          0.007807409381879988,
+          0.14277823527860886,
+          -0.2042633531405402
+        ],
+        "policy_action": [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
+        "action_limit": "zero diagnostic policy outputs, not the flight controller's actual actuator commands"
+      },
+      {
+        "lane": 67,
+        "step": 751,
+        "collider_a": "crow_left_wing",
+        "collider_b": "crow_course_slalom_b",
+        "normal_impulse_Ns": 0.0830753818,
+        "root_position_m": [
+          3.49354148,
+          -0.627823293,
+          0.72518605
+        ],
+        "root_velocity": [
+          0.960962057,
+          -0.202764377,
+          -0.0998962,
+          -0.00775946211,
+          0.00105843961,
+          -0.0242233388
+        ],
+        "roll_pitch_yaw_rad": [
+          0.0005517917508678075,
+          0.14913263486380116,
+          -0.21941832580143755
+        ],
+        "policy_action": [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
+        "action_limit": "zero diagnostic policy outputs, not the flight controller's actual actuator commands"
+      },
+      {
+        "lane": 69,
+        "step": 756,
+        "collider_a": "crow_right_wing",
+        "collider_b": "crow_course_slalom_b",
+        "normal_impulse_Ns": 5.47701688e-07,
+        "root_position_m": [
+          3.59318399,
+          -0.0656427667,
+          0.520083129
+        ],
+        "root_velocity": [
+          0.75869894,
+          0.0823295638,
+          -0.0916497335,
+          0.0771775097,
+          -0.199628681,
+          -0.123364367
+        ],
+        "roll_pitch_yaw_rad": [
+          0.015721491577159095,
+          0.14160857323558643,
+          -0.0005483569166693805
+        ],
+        "policy_action": [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
+        "action_limit": "zero diagnostic policy outputs, not the flight controller's actual actuator commands"
+      },
+      {
+        "lane": 23,
+        "step": 767,
+        "collider_a": "crow_right_wing",
+        "collider_b": "crow_course_slalom_b",
+        "normal_impulse_Ns": 1.15383649e-08,
+        "root_position_m": [
+          3.60390711,
+          -0.00176261482,
+          0.9184376
+        ],
+        "root_velocity": [
+          0.758096337,
+          0.061461281,
+          -0.136821344,
+          0.0497715771,
+          -0.160743609,
+          -0.0462143645
+        ],
+        "roll_pitch_yaw_rad": [
+          0.019059440310512276,
+          0.1423472202212196,
+          -0.0005804809437653506
+        ],
+        "policy_action": [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
+        "action_limit": "zero diagnostic policy outputs, not the flight controller's actual actuator commands"
+      },
+      {
+        "lane": 18,
+        "step": 779,
+        "collider_a": "crow_right_wing",
+        "collider_b": "crow_course_slalom_b",
+        "normal_impulse_Ns": 0.0555768907,
+        "root_position_m": [
+          3.47717285,
+          -0.10684333,
+          0.938592732
+        ],
+        "root_velocity": [
+          0.738722265,
+          0.145523891,
+          -0.236635938,
+          0.0125343325,
+          0.0996634811,
+          0.00923043024
+        ],
+        "roll_pitch_yaw_rad": [
+          0.01688498446240633,
+          0.1684275886935131,
+          0.01511622100919441
+        ],
+        "policy_action": [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
+        "action_limit": "zero diagnostic policy outputs, not the flight controller's actual actuator commands"
+      },
+      {
+        "lane": 10,
+        "step": 790,
+        "collider_a": "crow_head",
+        "collider_b": "crow_course_perch",
+        "normal_impulse_Ns": 0.154726863,
+        "root_position_m": [
+          4.48117638,
+          -0.0168364421,
+          0.720810831
+        ],
+        "root_velocity": [
+          0.975721717,
+          0.0139373709,
+          -0.15582937,
+          0.00143080042,
+          0.00377150113,
+          0.0115246084
+        ],
+        "roll_pitch_yaw_rad": [
+          0.0001220502317970514,
+          0.14804199928796508,
+          0.016744669428470724
+        ],
+        "policy_action": [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
+        "action_limit": "zero diagnostic policy outputs, not the flight controller's actual actuator commands"
+      },
+      {
+        "lane": 15,
+        "step": 798,
+        "collider_a": "crow_head",
+        "collider_b": "crow_course_perch",
+        "normal_impulse_Ns": 0.0013871647,
+        "root_position_m": [
+          4.55000544,
+          0.0465329029,
+          0.719659865
+        ],
+        "root_velocity": [
+          1.01985514,
+          0.0149315149,
+          0.22057049,
+          0.00165836292,
+          -0.0462671705,
+          -0.00429277727
+        ],
+        "roll_pitch_yaw_rad": [
+          2.0031241815714254e-05,
+          0.14833612801297016,
+          0.01628484227558191
+        ],
+        "policy_action": [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
+        "action_limit": "zero diagnostic policy outputs, not the flight controller's actual actuator commands"
+      },
+      {
+        "lane": 50,
+        "step": 801,
+        "collider_a": "crow_head",
+        "collider_b": "crow_course_perch",
+        "normal_impulse_Ns": 0.0601357445,
+        "root_position_m": [
+          4.68857622,
+          0.0226343777,
+          0.720790267
+        ],
+        "root_velocity": [
+          0.974745154,
+          0.0139143225,
+          -0.159344614,
+          0.00135510357,
+          0.00133573718,
+          0.0105469972
+        ],
+        "roll_pitch_yaw_rad": [
+          0.00011272157095639893,
+          0.14797142157835522,
+          0.01670888558053393
+        ],
+        "policy_action": [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
+        "action_limit": "zero diagnostic policy outputs, not the flight controller's actual actuator commands"
+      },
+      {
+        "lane": 42,
+        "step": 817,
+        "collider_a": "crow_body",
+        "collider_b": "crow_course_perch",
+        "normal_impulse_Ns": 0.000729777443,
+        "root_position_m": [
+          4.76184654,
+          -0.897987366,
+          0.682349443
+        ],
+        "root_velocity": [
+          0.030954618,
+          -0.237972692,
+          -0.344973683,
+          -0.142737344,
+          -0.863452256,
+          0.591226816
+        ],
+        "roll_pitch_yaw_rad": [
+          0.0020631912178771853,
+          0.1676713346722722,
+          -0.24217497452544967
+        ],
+        "policy_action": [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
+        "action_limit": "zero diagnostic policy outputs, not the flight controller's actual actuator commands"
+      },
+      {
+        "lane": 62,
+        "step": 819,
+        "collider_a": "crow_left_wing",
+        "collider_b": "crow_course_perch",
+        "normal_impulse_Ns": 0.0560865477,
+        "root_position_m": [
+          4.80084658,
+          -0.932596266,
+          0.700074852
+        ],
+        "root_velocity": [
+          0.558260381,
+          -0.172135755,
+          -0.427357674,
+          -0.906385243,
+          0.15288505,
+          0.0443085022
+        ],
+        "roll_pitch_yaw_rad": [
+          -0.10853799191213145,
+          0.15637097517688514,
+          -0.23342379023544618
+        ],
+        "policy_action": [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
+        "action_limit": "zero diagnostic policy outputs, not the flight controller's actual actuator commands"
+      },
+      {
+        "lane": 47,
+        "step": 823,
+        "collider_a": "crow_left_wing",
+        "collider_b": "crow_course_perch",
+        "normal_impulse_Ns": 0.0235319305,
+        "root_position_m": [
+          4.69717598,
+          -1.00110781,
+          0.71905005
+        ],
+        "root_velocity": [
+          0.952097297,
+          -0.246612012,
+          -0.150597125,
+          0.00551178353,
+          0.0144580584,
+          -0.0188543443
+        ],
+        "roll_pitch_yaw_rad": [
+          0.0006134994691419355,
+          0.1495107927764338,
+          -0.2645623167811247
+        ],
+        "policy_action": [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
+        "action_limit": "zero diagnostic policy outputs, not the flight controller's actual actuator commands"
+      },
+      {
+        "lane": 32,
+        "step": 828,
+        "collider_a": "crow_left_wing",
+        "collider_b": "crow_course_perch",
+        "normal_impulse_Ns": 0.0603576824,
+        "root_position_m": [
+          5.05262184,
+          -0.990259409,
+          0.719486415
+        ],
+        "root_velocity": [
+          0.950899363,
+          -0.248600364,
+          -0.196185485,
+          -0.00428780215,
+          -0.00481533818,
+          -0.0202573705
+        ],
+        "roll_pitch_yaw_rad": [
+          0.000879884764419106,
+          0.14993460230654618,
+          -0.26614258503441096
+        ],
+        "policy_action": [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
+        "action_limit": "zero diagnostic policy outputs, not the flight controller's actual actuator commands"
+      },
+      {
+        "lane": 34,
+        "step": 830,
+        "collider_a": "crow_left_wing",
+        "collider_b": "crow_course_perch",
+        "normal_impulse_Ns": 0.097498104,
+        "root_position_m": [
+          5.16677189,
+          0.0209005345,
+          0.517287791
+        ],
+        "root_velocity": [
+          1.01344132,
+          0.0146176172,
+          0.135882303,
+          0.000648048299,
+          -0.037792746,
+          -0.00693336502
+        ],
+        "roll_pitch_yaw_rad": [
+          5.343613355166001e-05,
+          0.14869302976701346,
+          0.016129770974895406
+        ],
+        "policy_action": [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
+        "action_limit": "zero diagnostic policy outputs, not the flight controller's actual actuator commands"
+      },
+      {
+        "lane": 63,
+        "step": 834,
+        "collider_a": "crow_body",
+        "collider_b": "crow_course_perch",
+        "normal_impulse_Ns": 0.267891288,
+        "root_position_m": [
+          4.74783993,
+          0.244359463,
+          0.921989918
+        ],
+        "root_velocity": [
+          1.03133428,
+          -0.0502470322,
+          -0.167718053,
+          -0.0382977277,
+          -0.00890544802,
+          0.00880633947
+        ],
+        "roll_pitch_yaw_rad": [
+          -0.004018566174199927,
+          0.1676931667298109,
+          9.351172191604915e-05
+        ],
+        "policy_action": [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
+        "action_limit": "zero diagnostic policy outputs, not the flight controller's actual actuator commands"
+      }
+    ]
+  },
+  {
+    "seed": "20261121",
+    "recorded_first_contacts": 76,
+    "physical_failures": 76,
+    "pairs": {
+      "crow_right_wing / crow_course_gate_right": 6,
+      "crow_left_wing / crow_course_gate_left": 2,
+      "crow_head / crow_course_slalom_a": 12,
+      "crow_left_wing / crow_course_slalom_a": 32,
+      "crow_body / crow_course_slalom_a": 4,
+      "crow_right_wing / crow_course_slalom_a": 4,
+      "crow_head / crow_course_slalom_b": 1,
+      "crow_right_wing / crow_course_slalom_b": 7,
+      "crow_left_wing / crow_course_slalom_b": 4,
+      "crow_left_wing / crow_course_perch": 4
+    },
+    "contacts": [
+      {
+        "lane": 2,
+        "step": 630,
+        "collider_a": "crow_right_wing",
+        "collider_b": "crow_course_gate_right",
+        "normal_impulse_Ns": 0.00582652073,
+        "root_position_m": [
+          1.20714116,
+          -0.284028888,
+          0.73803091
+        ],
+        "root_velocity": [
+          0.944843531,
+          -0.143197477,
+          0.147684589,
+          0.0131374234,
+          0.0457993262,
+          -0.0103896959
+        ],
+        "roll_pitch_yaw_rad": [
+          0.0012180819332638679,
+          0.14908475184421896,
+          -0.15957510682284423
+        ],
+        "policy_action": [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
+        "action_limit": "zero diagnostic policy outputs, not the flight controller's actual actuator commands"
+      },
+      {
+        "lane": 36,
+        "step": 630,
+        "collider_a": "crow_left_wing",
+        "collider_b": "crow_course_gate_left",
+        "normal_impulse_Ns": 0.0216696635,
+        "root_position_m": [
+          1.28221667,
+          0.235748857,
+          0.737024546
+        ],
+        "root_velocity": [
+          0.734181881,
+          -0.0263117217,
+          0.176248878,
+          -0.0850047991,
+          0.298801422,
+          -0.0686865002
+        ],
+        "roll_pitch_yaw_rad": [
+          -0.0023932116912437668,
+          0.14600807207418717,
+          0.17110116754139978
+        ],
+        "policy_action": [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
+        "action_limit": "zero diagnostic policy outputs, not the flight controller's actual actuator commands"
+      },
+      {
+        "lane": 32,
+        "step": 631,
+        "collider_a": "crow_right_wing",
+        "collider_b": "crow_course_gate_right",
+        "normal_impulse_Ns": 0.034338437,
+        "root_position_m": [
+          1.1622721,
+          -0.264057279,
+          0.739285767
+        ],
+        "root_velocity": [
+          0.791113973,
+          -0.0069717872,
+          0.00261158403,
+          -0.213099793,
+          0.145884559,
+          -0.692793846
+        ],
+        "roll_pitch_yaw_rad": [
+          5.274852755535016e-05,
+          0.1505835647427106,
+          -0.16988804025253756
+        ],
+        "policy_action": [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
+        "action_limit": "zero diagnostic policy outputs, not the flight controller's actual actuator commands"
+      },
+      {
+        "lane": 67,
+        "step": 632,
+        "collider_a": "crow_right_wing",
+        "collider_b": "crow_course_gate_right",
+        "normal_impulse_Ns": 0.0863078833,
+        "root_position_m": [
+          1.25713444,
+          -0.258585393,
+          0.736299574
+        ],
+        "root_velocity": [
+          0.914952993,
+          -0.138715401,
+          -0.183806017,
+          -0.001238695,
+          0.00347738969,
+          -0.0129112322
+        ],
+        "roll_pitch_yaw_rad": [
+          0.001043017306441918,
+          0.14962297134245325,
+          -0.15923455040679138
+        ],
+        "policy_action": [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
+        "action_limit": "zero diagnostic policy outputs, not the flight controller's actual actuator commands"
+      },
+      {
+        "lane": 57,
+        "step": 633,
+        "collider_a": "crow_right_wing",
+        "collider_b": "crow_course_gate_right",
+        "normal_impulse_Ns": 0.226820976,
+        "root_position_m": [
+          1.2086786,
+          -0.224628955,
+          0.732327044
+        ],
+        "root_velocity": [
+          0.917867064,
+          -0.139389113,
+          -0.176813647,
+          0.00152453489,
+          -0.020643333,
+          -0.0172484666
+        ],
+        "roll_pitch_yaw_rad": [
+          0.0008962670673948638,
+          0.14868371037513156,
+          -0.1595584036277629
+        ],
+        "policy_action": [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
+        "action_limit": "zero diagnostic policy outputs, not the flight controller's actual actuator commands"
+      },
+      {
+        "lane": 7,
+        "step": 643,
+        "collider_a": "crow_right_wing",
+        "collider_b": "crow_course_gate_right",
+        "normal_impulse_Ns": 5.5793018e-05,
+        "root_position_m": [
+          1.25809097,
+          -0.238440603,
+          0.735655904
+        ],
+        "root_velocity": [
+          0.914130807,
+          -0.138796702,
+          -0.198378354,
+          -0.00183953508,
+          0.00765194604,
+          -0.0171859264
+        ],
+        "roll_pitch_yaw_rad": [
+          0.0013665419870812759,
+          0.15032172419075335,
+          -0.1639138275116566
+        ],
+        "policy_action": [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
+        "action_limit": "zero diagnostic policy outputs, not the flight controller's actual actuator commands"
+      },
+      {
+        "lane": 41,
+        "step": 643,
+        "collider_a": "crow_left_wing",
+        "collider_b": "crow_course_gate_left",
+        "normal_impulse_Ns": 0.0176758505,
+        "root_position_m": [
+          1.25695157,
+          0.182862893,
+          0.757672012
+        ],
+        "root_velocity": [
+          0.175249308,
+          -0.233884633,
+          -0.0270387214,
+          0.0338592082,
+          0.0304219015,
+          0.104001254
+        ],
+        "roll_pitch_yaw_rad": [
+          -0.03926729446796986,
+          0.17891230052526627,
+          0.21246538607512017
+        ],
+        "policy_action": [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
+        "action_limit": "zero diagnostic policy outputs, not the flight controller's actual actuator commands"
+      },
+      {
+        "lane": 62,
+        "step": 643,
+        "collider_a": "crow_right_wing",
+        "collider_b": "crow_course_gate_right",
+        "normal_impulse_Ns": 0.0501674116,
+        "root_position_m": [
+          1.40736413,
+          -0.213658541,
+          0.73195821
+        ],
+        "root_velocity": [
+          0.928591907,
+          -0.146791428,
+          -0.195052966,
+          -0.00227469276,
+          0.00155325735,
+          -0.0140761305
+        ],
+        "roll_pitch_yaw_rad": [
+          0.000967200961581041,
+          0.15033929754374684,
+          -0.16264125312544275
+        ],
+        "policy_action": [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
+        "action_limit": "zero diagnostic policy outputs, not the flight controller's actual actuator commands"
+      },
+      {
+        "lane": 26,
+        "step": 671,
+        "collider_a": "crow_head",
+        "collider_b": "crow_course_slalom_a",
+        "normal_impulse_Ns": 0.240019038,
+        "root_position_m": [
+          2.03874207,
+          0.333874196,
+          0.723964572
+        ],
+        "root_velocity": [
+          0.955258548,
+          0.158717424,
+          -0.146286666,
+          -0.00183379976,
+          -0.0174230058,
+          0.0215298142
+        ],
+        "roll_pitch_yaw_rad": [
+          -0.0005008084308080046,
+          0.14952172154324714,
+          0.1771494710973033
+        ],
+        "policy_action": [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
+        "action_limit": "zero diagnostic policy outputs, not the flight controller's actual actuator commands"
+      },
+      {
+        "lane": 60,
+        "step": 672,
+        "collider_a": "crow_left_wing",
+        "collider_b": "crow_course_slalom_a",
+        "normal_impulse_Ns": 0.0520092063,
+        "root_position_m": [
+          2.15651417,
+          0.0354321525,
+          0.722467005
+        ],
+        "root_velocity": [
+          0.988243878,
+          0.0154356472,
+          0.036976479,
+          -0.00421488378,
+          -0.016089296,
+          0.000789685349
+        ],
+        "roll_pitch_yaw_rad": [
+          6.338109823245878e-05,
+          0.14818269891721197,
+          0.018133372886898612
+        ],
+        "policy_action": [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
+        "action_limit": "zero diagnostic policy outputs, not the flight controller's actual actuator commands"
+      },
+      {
+        "lane": 51,
+        "step": 676,
+        "collider_a": "crow_head",
+        "collider_b": "crow_course_slalom_a",
+        "normal_impulse_Ns": 0.0874900445,
+        "root_position_m": [
+          2.17877078,
+          0.326967418,
+          0.723085999
+        ],
+        "root_velocity": [
+          0.959355175,
+          0.161808312,
+          -0.203847706,
+          -0.000582188135,
+          0.0251559932,
+          0.016984595
+        ],
+        "roll_pitch_yaw_rad": [
+          -0.0007306401920961056,
+          0.15105675084155024,
+          0.178771272357628
+        ],
+        "policy_action": [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
+        "action_limit": "zero diagnostic policy outputs, not the flight controller's actual actuator commands"
+      },
+      {
+        "lane": 56,
+        "step": 677,
+        "collider_a": "crow_head",
+        "collider_b": "crow_course_slalom_a",
+        "normal_impulse_Ns": 0.00323617482,
+        "root_position_m": [
+          2.14664507,
+          0.330321342,
+          0.720064819
+        ],
+        "root_velocity": [
+          0.975223005,
+          0.165093467,
+          -0.0710052773,
+          -0.00383380335,
+          -0.0146804871,
+          0.0178372972
+        ],
+        "roll_pitch_yaw_rad": [
+          -0.0008299259602297989,
+          0.1508784052493765,
+          0.17904147638929
+        ],
+        "policy_action": [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
+        "action_limit": "zero diagnostic policy outputs, not the flight controller's actual actuator commands"
+      },
+      {
+        "lane": 76,
+        "step": 677,
+        "collider_a": "crow_head",
+        "collider_b": "crow_course_slalom_a",
+        "normal_impulse_Ns": 0.0845180005,
+        "root_position_m": [
+          2.13723326,
+          0.346783549,
+          0.720100999
+        ],
+        "root_velocity": [
+          0.975077868,
+          0.165023938,
+          -0.0710509643,
+          -0.00383872585,
+          -0.0146745034,
+          0.0178394858
+        ],
+        "roll_pitch_yaw_rad": [
+          -0.0008314587349582053,
+          0.15087296742422027,
+          0.17900701118181672
+        ],
+        "policy_action": [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
+        "action_limit": "zero diagnostic policy outputs, not the flight controller's actual actuator commands"
+      },
+      {
+        "lane": 64,
+        "step": 678,
+        "collider_a": "crow_left_wing",
+        "collider_b": "crow_course_slalom_a",
+        "normal_impulse_Ns": 0.0101496987,
+        "root_position_m": [
+          2.1984601,
+          0.0354255214,
+          0.519448876
+        ],
+        "root_velocity": [
+          0.853221893,
+          -0.0186433122,
+          0.0504178032,
+          -0.104143336,
+          -0.0430854,
+          0.282408476
+        ],
+        "roll_pitch_yaw_rad": [
+          -0.015441654104561576,
+          0.15002167441200853,
+          0.02957133247498322
+        ],
+        "policy_action": [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
+        "action_limit": "zero diagnostic policy outputs, not the flight controller's actual actuator commands"
+      },
+      {
+        "lane": 65,
+        "step": 678,
+        "collider_a": "crow_left_wing",
+        "collider_b": "crow_course_slalom_a",
+        "normal_impulse_Ns": 0.00973659568,
+        "root_position_m": [
+          2.16984916,
+          0.102821626,
+          0.720189095
+        ],
+        "root_velocity": [
+          0.891569078,
+          -0.0235906541,
+          0.0858204514,
+          -0.0447046421,
+          -0.0728194639,
+          0.446838528
+        ],
+        "roll_pitch_yaw_rad": [
+          -0.009957988254868093,
+          0.14941560586504862,
+          0.025476045782681443
+        ],
+        "policy_action": [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
+        "action_limit": "zero diagnostic policy outputs, not the flight controller's actual actuator commands"
+      },
+      {
+        "lane": 20,
+        "step": 680,
+        "collider_a": "crow_left_wing",
+        "collider_b": "crow_course_slalom_a",
+        "normal_impulse_Ns": 4.27851592e-06,
+        "root_position_m": [
+          2.29031277,
+          0.077014342,
+          0.723639131
+        ],
+        "root_velocity": [
+          0.792170405,
+          -0.0676569045,
+          -0.0744744241,
+          0.0317508839,
+          -0.117878124,
+          -0.0763141736
+        ],
+        "roll_pitch_yaw_rad": [
+          -0.008366195960787179,
+          0.14156459046355363,
+          0.03219773012679016
+        ],
+        "policy_action": [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
+        "action_limit": "zero diagnostic policy outputs, not the flight controller's actual actuator commands"
+      },
+      {
+        "lane": 30,
+        "step": 680,
+        "collider_a": "crow_left_wing",
+        "collider_b": "crow_course_slalom_a",
+        "normal_impulse_Ns": 0.0020574755,
+        "root_position_m": [
+          2.21718502,
+          0.112025663,
+          0.726796269
+        ],
+        "root_velocity": [
+          0.98604691,
+          0.0144248698,
+          0.0155031448,
+          0.00196652208,
+          -0.00257747527,
+          0.0118011469
+        ],
+        "roll_pitch_yaw_rad": [
+          4.450323508301676e-05,
+          0.14891259679907115,
+          0.0168293347196725
+        ],
+        "policy_action": [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
+        "action_limit": "zero diagnostic policy outputs, not the flight controller's actual actuator commands"
+      },
+      {
+        "lane": 54,
+        "step": 680,
+        "collider_a": "crow_head",
+        "collider_b": "crow_course_slalom_a",
+        "normal_impulse_Ns": 0.15462409,
+        "root_position_m": [
+          2.20258331,
+          0.0998093039,
+          0.526913524
+        ],
+        "root_velocity": [
+          0.985694349,
+          0.0144353984,
+          0.0153031321,
+          0.00196854142,
+          -0.00257006125,
+          0.0117864078
+        ],
+        "roll_pitch_yaw_rad": [
+          4.4132750473101534e-05,
+          0.14893668192319703,
+          0.016850692775208172
+        ],
+        "policy_action": [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
+        "action_limit": "zero diagnostic policy outputs, not the flight controller's actual actuator commands"
+      },
+      {
+        "lane": 61,
+        "step": 680,
+        "collider_a": "crow_head",
+        "collider_b": "crow_course_slalom_a",
+        "normal_impulse_Ns": 0.235048339,
+        "root_position_m": [
+          2.07085848,
+          0.25581935,
+          0.727100134
+        ],
+        "root_velocity": [
+          0.973093688,
+          0.170060039,
+          0.0152558954,
+          0.00546295941,
+          0.0122812651,
+          0.0450322255
+        ],
+        "roll_pitch_yaw_rad": [
+          -0.0006508423403137609,
+          0.14941336964858562,
+          0.18462277396200488
+        ],
+        "policy_action": [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
+        "action_limit": "zero diagnostic policy outputs, not the flight controller's actual actuator commands"
+      },
+      {
+        "lane": 10,
+        "step": 681,
+        "collider_a": "crow_left_wing",
+        "collider_b": "crow_course_slalom_a",
+        "normal_impulse_Ns": 0.141771376,
+        "root_position_m": [
+          2.32202911,
+          0.0390846021,
+          0.724817395
+        ],
+        "root_velocity": [
+          0.97109288,
+          0.0149731804,
+          -0.139914796,
+          0.00179525628,
+          0.00788170937,
+          0.0129302284
+        ],
+        "roll_pitch_yaw_rad": [
+          0.00010539644186929649,
+          0.1489453742575949,
+          0.017748285449085962
+        ],
+        "policy_action": [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
+        "action_limit": "zero diagnostic policy outputs, not the flight controller's actual actuator commands"
+      },
+      {
+        "lane": 39,
+        "step": 681,
+        "collider_a": "crow_left_wing",
+        "collider_b": "crow_course_slalom_a",
+        "normal_impulse_Ns": 0.0392969362,
+        "root_position_m": [
+          2.16080499,
+          0.0540094525,
+          0.522176862
+        ],
+        "root_velocity": [
+          0.742109895,
+          -0.100598559,
+          -0.243694395,
+          0.0237237476,
+          -0.122086965,
+          -0.0922330767
+        ],
+        "roll_pitch_yaw_rad": [
+          -0.0033755311810477083,
+          0.13830304885259903,
+          0.033673111185170856
+        ],
+        "policy_action": [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
+        "action_limit": "zero diagnostic policy outputs, not the flight controller's actual actuator commands"
+      },
+      {
+        "lane": 66,
+        "step": 682,
+        "collider_a": "crow_head",
+        "collider_b": "crow_course_slalom_a",
+        "normal_impulse_Ns": 0.00474165939,
+        "root_position_m": [
+          2.29346871,
+          0.369559854,
+          0.72196728
+        ],
+        "root_velocity": [
+          0.960502028,
+          0.165082216,
+          -0.132480919,
+          -0.0030616005,
+          -0.0223954637,
+          0.0201307535
+        ],
+        "roll_pitch_yaw_rad": [
+          -0.0006022664056569228,
+          0.14935675222614517,
+          0.18262965635614617
+        ],
+        "policy_action": [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
+        "action_limit": "zero diagnostic policy outputs, not the flight controller's actual actuator commands"
+      },
+      {
+        "lane": 71,
+        "step": 683,
+        "collider_a": "crow_head",
+        "collider_b": "crow_course_slalom_a",
+        "normal_impulse_Ns": 0.00997727085,
+        "root_position_m": [
+          2.26553607,
+          0.372837663,
+          0.72144717
+        ],
+        "root_velocity": [
+          0.98169452,
+          0.172557473,
+          0.0636684895,
+          0.00441701245,
+          -0.0212547202,
+          0.00959746167
+        ],
+        "roll_pitch_yaw_rad": [
+          -0.0007831460194767482,
+          0.14869473819701234,
+          0.18534980036266602
+        ],
+        "policy_action": [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
+        "action_limit": "zero diagnostic policy outputs, not the flight controller's actual actuator commands"
+      },
+      {
+        "lane": 16,
+        "step": 684,
+        "collider_a": "crow_body",
+        "collider_b": "crow_course_slalom_a",
+        "normal_impulse_Ns": 0.000688625209,
+        "root_position_m": [
+          2.24965882,
+          0.4330706,
+          0.726106346
+        ],
+        "root_velocity": [
+          0.47119692,
+          0.315929234,
+          0.221515849,
+          0.0873242766,
+          0.0844722837,
+          0.0342708193
+        ],
+        "roll_pitch_yaw_rad": [
+          0.008702448633836873,
+          0.15142696132995567,
+          0.16538403543985047
+        ],
+        "policy_action": [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
+        "action_limit": "zero diagnostic policy outputs, not the flight controller's actual actuator commands"
+      },
+      {
+        "lane": 9,
+        "step": 685,
+        "collider_a": "crow_left_wing",
+        "collider_b": "crow_course_slalom_a",
+        "normal_impulse_Ns": 0.201380491,
+        "root_position_m": [
+          2.39108777,
+          0.0476976559,
+          0.525965214
+        ],
+        "root_velocity": [
+          1.00220263,
+          0.0157097522,
+          0.0514178202,
+          -0.00538941706,
+          0.0289516989,
+          -0.00347553729
+        ],
+        "roll_pitch_yaw_rad": [
+          -9.98553326835899e-06,
+          0.14933157364448527,
+          0.017778183013825218
+        ],
+        "policy_action": [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
+        "action_limit": "zero diagnostic policy outputs, not the flight controller's actual actuator commands"
+      },
+      {
+        "lane": 75,
+        "step": 685,
+        "collider_a": "crow_left_wing",
+        "collider_b": "crow_course_slalom_a",
+        "normal_impulse_Ns": 0.0348633751,
+        "root_position_m": [
+          2.32505727,
+          0.0217037331,
+          0.720623374
+        ],
+        "root_velocity": [
+          0.349114001,
+          -0.351258039,
+          -0.00508142728,
+          -0.637814462,
+          0.142981455,
+          0.386698782
+        ],
+        "roll_pitch_yaw_rad": [
+          -0.030125952329819995,
+          0.1544352025960389,
+          0.04803337094982484
+        ],
+        "policy_action": [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
+        "action_limit": "zero diagnostic policy outputs, not the flight controller's actual actuator commands"
+      },
+      {
+        "lane": 31,
+        "step": 686,
+        "collider_a": "crow_right_wing",
+        "collider_b": "crow_course_slalom_a",
+        "normal_impulse_Ns": 0.142025635,
+        "root_position_m": [
+          2.31757808,
+          0.408417881,
+          0.725028932
+        ],
+        "root_velocity": [
+          0.968472064,
+          0.171269715,
+          -0.135223642,
+          -0.0014548644,
+          0.0387701951,
+          0.0183531903
+        ],
+        "roll_pitch_yaw_rad": [
+          -0.0008230702844002249,
+          0.1504979637346864,
+          0.18629798754590962
+        ],
+        "policy_action": [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
+        "action_limit": "zero diagnostic policy outputs, not the flight controller's actual actuator commands"
+      },
+      {
+        "lane": 40,
+        "step": 686,
+        "collider_a": "crow_left_wing",
+        "collider_b": "crow_course_slalom_a",
+        "normal_impulse_Ns": 0.0215801839,
+        "root_position_m": [
+          2.36585593,
+          0.0130594848,
+          0.726284862
+        ],
+        "root_velocity": [
+          0.3213346,
+          -0.382760972,
+          -0.0280535221,
+          0.148507759,
+          -0.166979507,
+          0.554896533
+        ],
+        "roll_pitch_yaw_rad": [
+          0.0049339280872711284,
+          0.14594097590697155,
+          0.03404279723874874
+        ],
+        "policy_action": [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
+        "action_limit": "zero diagnostic policy outputs, not the flight controller's actual actuator commands"
+      },
+      {
+        "lane": 49,
+        "step": 686,
+        "collider_a": "crow_body",
+        "collider_b": "crow_course_slalom_a",
+        "normal_impulse_Ns": 0.0056601949,
+        "root_position_m": [
+          2.34567809,
+          0.0621662848,
+          0.52336514
+        ],
+        "root_velocity": [
+          0.0877931714,
+          -0.17342636,
+          -0.265075296,
+          0.190111458,
+          -0.966722131,
+          0.776445746
+        ],
+        "roll_pitch_yaw_rad": [
+          0.00046836668105634897,
+          0.13603278832212487,
+          0.028447547093545127
+        ],
+        "policy_action": [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
+        "action_limit": "zero diagnostic policy outputs, not the flight controller's actual actuator commands"
+      },
+      {
+        "lane": 1,
+        "step": 687,
+        "collider_a": "crow_right_wing",
+        "collider_b": "crow_course_slalom_a",
+        "normal_impulse_Ns": 0.0555829555,
+        "root_position_m": [
+          2.16072869,
+          0.418435514,
+          0.701799154
+        ],
+        "root_velocity": [
+          0.260763228,
+          0.261445075,
+          -0.110052995,
+          0.0838863552,
+          0.123330399,
+          -0.179635331
+        ],
+        "roll_pitch_yaw_rad": [
+          0.024906405919173456,
+          0.1443587040619308,
+          0.19310473798201583
+        ],
+        "policy_action": [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
+        "action_limit": "zero diagnostic policy outputs, not the flight controller's actual actuator commands"
+      },
+      {
+        "lane": 24,
+        "step": 687,
+        "collider_a": "crow_body",
+        "collider_b": "crow_course_slalom_a",
+        "normal_impulse_Ns": 0.0134773562,
+        "root_position_m": [
+          2.30030942,
+          0.0332745947,
+          0.507057726
+        ],
+        "root_velocity": [
+          0.081408672,
+          -0.220823973,
+          -0.434203744,
+          -0.072648339,
+          -0.0643864423,
+          7.30934989e-05
+        ],
+        "roll_pitch_yaw_rad": [
+          -0.013371999541179016,
+          0.1321955185689295,
+          0.025266971672322672
+        ],
+        "policy_action": [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
+        "action_limit": "zero diagnostic policy outputs, not the flight controller's actual actuator commands"
+      },
+      {
+        "lane": 44,
+        "step": 688,
+        "collider_a": "crow_left_wing",
+        "collider_b": "crow_course_slalom_a",
+        "normal_impulse_Ns": 3.21548432e-05,
+        "root_position_m": [
+          2.34216738,
+          -0.0333265364,
+          0.521148443
+        ],
+        "root_velocity": [
+          0.260750234,
+          -0.313568056,
+          0.0294114705,
+          -0.457385153,
+          0.131457224,
+          0.152674466
+        ],
+        "roll_pitch_yaw_rad": [
+          -0.007715673494467225,
+          0.15160019546095002,
+          0.06472210100840535
+        ],
+        "policy_action": [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
+        "action_limit": "zero diagnostic policy outputs, not the flight controller's actual actuator commands"
+      },
+      {
+        "lane": 4,
+        "step": 689,
+        "collider_a": "crow_left_wing",
+        "collider_b": "crow_course_slalom_a",
+        "normal_impulse_Ns": 0.0629319325,
+        "root_position_m": [
+          2.42825198,
+          0.08370094,
+          0.520176411
+        ],
+        "root_velocity": [
+          1.0137099,
+          0.0158242136,
+          0.183178261,
+          0.0012198406,
+          -0.0439566672,
+          -0.00692396145
+        ],
+        "roll_pitch_yaw_rad": [
+          4.52117457072286e-05,
+          0.14946466348951556,
+          0.017285928207315598
+        ],
+        "policy_action": [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
+        "action_limit": "zero diagnostic policy outputs, not the flight controller's actual actuator commands"
+      },
+      {
+        "lane": 59,
+        "step": 689,
+        "collider_a": "crow_head",
+        "collider_b": "crow_course_slalom_a",
+        "normal_impulse_Ns": 0.293328971,
+        "root_position_m": [
+          2.38024855,
+          0.0499791838,
+          0.520160854
+        ],
+        "root_velocity": [
+          1.01375818,
+          0.015822839,
+          0.183202282,
+          0.00121975318,
+          -0.0439684018,
+          -0.00692316284
+        ],
+        "roll_pitch_yaw_rad": [
+          4.537579749518351e-05,
+          0.14946204635380206,
+          0.017283008098337882
+        ],
+        "policy_action": [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
+        "action_limit": "zero diagnostic policy outputs, not the flight controller's actual actuator commands"
+      },
+      {
+        "lane": 6,
+        "step": 690,
+        "collider_a": "crow_right_wing",
+        "collider_b": "crow_course_slalom_a",
+        "normal_impulse_Ns": 0.00248094066,
+        "root_position_m": [
+          2.36227322,
+          0.427347958,
+          0.72189194
+        ],
+        "root_velocity": [
+          0.805832028,
+          0.204225808,
+          0.0479273275,
+          0.00620091939,
+          -0.0807152465,
+          -0.0355226398
+        ],
+        "roll_pitch_yaw_rad": [
+          0.013184486739022361,
+          0.14677017578596058,
+          0.16975902481751481
+        ],
+        "policy_action": [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
+        "action_limit": "zero diagnostic policy outputs, not the flight controller's actual actuator commands"
+      },
+      {
+        "lane": 25,
+        "step": 690,
+        "collider_a": "crow_left_wing",
+        "collider_b": "crow_course_slalom_a",
+        "normal_impulse_Ns": 0.110433906,
+        "root_position_m": [
+          2.40816402,
+          0.0498972796,
+          0.723854363
+        ],
+        "root_velocity": [
+          1.00834429,
+          0.0156365056,
+          0.172252014,
+          0.0014483527,
+          -0.0227728002,
+          0.001831186
+        ],
+        "roll_pitch_yaw_rad": [
+          5.52821315412421e-05,
+          0.14886463471721345,
+          0.017234726511245167
+        ],
+        "policy_action": [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
+        "action_limit": "zero diagnostic policy outputs, not the flight controller's actual actuator commands"
+      },
+      {
+        "lane": 34,
+        "step": 690,
+        "collider_a": "crow_left_wing",
+        "collider_b": "crow_course_slalom_a",
+        "normal_impulse_Ns": 0.0218121465,
+        "root_position_m": [
+          2.49232888,
+          -0.00867419597,
+          0.523061812
+        ],
+        "root_velocity": [
+          0.83471185,
+          -0.0706731826,
+          0.0886523128,
+          0.173818439,
+          -0.256398827,
+          0.60491097
+        ],
+        "roll_pitch_yaw_rad": [
+          -0.007483461239908026,
+          0.145688246613845,
+          0.02767870566140371
+        ],
+        "policy_action": [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
+        "action_limit": "zero diagnostic policy outputs, not the flight controller's actual actuator commands"
+      },
+      {
+        "lane": 35,
+        "step": 690,
+        "collider_a": "crow_left_wing",
+        "collider_b": "crow_course_slalom_a",
+        "normal_impulse_Ns": 0.0357420444,
+        "root_position_m": [
+          2.4074719,
+          0.0190750062,
+          0.720379949
+        ],
+        "root_velocity": [
+          0.655195415,
+          -0.123824708,
+          0.0961702466,
+          -0.00756397378,
+          -0.102623448,
+          -0.125967741
+        ],
+        "roll_pitch_yaw_rad": [
+          -0.017126545256923094,
+          0.14852830043414939,
+          0.03688397262888914
+        ],
+        "policy_action": [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
+        "action_limit": "zero diagnostic policy outputs, not the flight controller's actual actuator commands"
+      },
+      {
+        "lane": 14,
+        "step": 691,
+        "collider_a": "crow_left_wing",
+        "collider_b": "crow_course_slalom_a",
+        "normal_impulse_Ns": 0.0299247913,
+        "root_position_m": [
+          2.31361175,
+          0.14245902,
+          0.522610784
+        ],
+        "root_velocity": [
+          0.786839545,
+          -0.0732526258,
+          -0.103420489,
+          0.0467623957,
+          -0.119582146,
+          -0.0730320886
+        ],
+        "roll_pitch_yaw_rad": [
+          -0.0073264586628776045,
+          0.1409675429183265,
+          0.031723547033583134
+        ],
+        "policy_action": [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
+        "action_limit": "zero diagnostic policy outputs, not the flight controller's actual actuator commands"
+      },
+      {
+        "lane": 45,
+        "step": 692,
+        "collider_a": "crow_left_wing",
+        "collider_b": "crow_course_slalom_a",
+        "normal_impulse_Ns": 0.110415384,
+        "root_position_m": [
+          2.31372833,
+          -0.0178010724,
+          0.723801792
+        ],
+        "root_velocity": [
+          0.970385373,
+          0.0152023043,
+          -0.149187788,
+          0.001733343,
+          0.00572191179,
+          0.0124731166
+        ],
+        "roll_pitch_yaw_rad": [
+          0.00012101422575769612,
+          0.14882595381692054,
+          0.017991580588998798
+        ],
+        "policy_action": [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
+        "action_limit": "zero diagnostic policy outputs, not the flight controller's actual actuator commands"
+      },
+      {
+        "lane": 50,
+        "step": 692,
+        "collider_a": "crow_body",
+        "collider_b": "crow_course_slalom_a",
+        "normal_impulse_Ns": 0.0146451052,
+        "root_position_m": [
+          2.51944995,
+          0.0186803788,
+          0.723157883
+        ],
+        "root_velocity": [
+          0.972795725,
+          0.0148709873,
+          -0.14820224,
+          0.0016923612,
+          0.00599721679,
+          0.0123619959
+        ],
+        "roll_pitch_yaw_rad": [
+          0.00011876030081450358,
+          0.14881014189725125,
+          0.017629752174039944
+        ],
+        "policy_action": [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
+        "action_limit": "zero diagnostic policy outputs, not the flight controller's actual actuator commands"
+      },
+      {
+        "lane": 15,
+        "step": 695,
+        "collider_a": "crow_left_wing",
+        "collider_b": "crow_course_slalom_a",
+        "normal_impulse_Ns": 0.250402004,
+        "root_position_m": [
+          2.44289255,
+          -0.00863916706,
+          0.723486662
+        ],
+        "root_velocity": [
+          1.01384473,
+          0.0160084665,
+          0.175843,
+          -9.7584365e-05,
+          0.0360839181,
+          -0.00605831528
+        ],
+        "roll_pitch_yaw_rad": [
+          4.5663808266152805e-05,
+          0.14854871072722056,
+          0.017979418213282534
+        ],
+        "policy_action": [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
+        "action_limit": "zero diagnostic policy outputs, not the flight controller's actual actuator commands"
+      },
+      {
+        "lane": 73,
+        "step": 696,
+        "collider_a": "crow_left_wing",
+        "collider_b": "crow_course_slalom_a",
+        "normal_impulse_Ns": 0.00306454115,
+        "root_position_m": [
+          2.32562375,
+          0.036226932,
+          0.926046431
+        ],
+        "root_velocity": [
+          0.451711565,
+          -0.296683699,
+          0.0611586645,
+          0.0724753737,
+          -0.0378846899,
+          0.485062718
+        ],
+        "roll_pitch_yaw_rad": [
+          0.0008020750393291702,
+          0.14864039220750158,
+          0.03163326614534795
+        ],
+        "policy_action": [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
+        "action_limit": "zero diagnostic policy outputs, not the flight controller's actual actuator commands"
+      },
+      {
+        "lane": 79,
+        "step": 697,
+        "collider_a": "crow_left_wing",
+        "collider_b": "crow_course_slalom_a",
+        "normal_impulse_Ns": 0.000604239991,
+        "root_position_m": [
+          2.4913044,
+          0.0177786108,
+          0.525887489
+        ],
+        "root_velocity": [
+          0.43872568,
+          -0.374428451,
+          -0.125525892,
+          -0.0287442971,
+          -0.135926366,
+          -0.00672067795
+        ],
+        "roll_pitch_yaw_rad": [
+          0.0005198866740194775,
+          0.14463065446108983,
+          0.04080751225892983
+        ],
+        "policy_action": [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
+        "action_limit": "zero diagnostic policy outputs, not the flight controller's actual actuator commands"
+      },
+      {
+        "lane": 38,
+        "step": 698,
+        "collider_a": "crow_left_wing",
+        "collider_b": "crow_course_slalom_a",
+        "normal_impulse_Ns": 0.159233868,
+        "root_position_m": [
+          2.17150736,
+          0.117163993,
+          0.920149386
+        ],
+        "root_velocity": [
+          0.792553663,
+          -0.114799276,
+          -0.220762134,
+          0.156425998,
+          0.104031287,
+          0.740181804
+        ],
+        "roll_pitch_yaw_rad": [
+          -0.0062668795846048874,
+          0.15137097975791586,
+          0.029472343957917986
+        ],
+        "policy_action": [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
+        "action_limit": "zero diagnostic policy outputs, not the flight controller's actual actuator commands"
+      },
+      {
+        "lane": 5,
+        "step": 699,
+        "collider_a": "crow_left_wing",
+        "collider_b": "crow_course_slalom_a",
+        "normal_impulse_Ns": 0.169534937,
+        "root_position_m": [
+          2.39941049,
+          -0.0860296562,
+          0.715928793
+        ],
+        "root_velocity": [
+          0.724563241,
+          -0.152916417,
+          -0.0788517371,
+          -0.0606672242,
+          0.0390854478,
+          -0.190471664
+        ],
+        "roll_pitch_yaw_rad": [
+          -0.010898445699065742,
+          0.15399413679958165,
+          0.039164619639890284
+        ],
+        "policy_action": [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
+        "action_limit": "zero diagnostic policy outputs, not the flight controller's actual actuator commands"
+      },
+      {
+        "lane": 21,
+        "step": 699,
+        "collider_a": "crow_head",
+        "collider_b": "crow_course_slalom_a",
+        "normal_impulse_Ns": 0.000298793981,
+        "root_position_m": [
+          2.37725735,
+          0.387761861,
+          0.717910111
+        ],
+        "root_velocity": [
+          0.985354483,
+          0.18190296,
+          -0.00012473583,
+          -0.000656742719,
+          -0.0294308532,
+          0.0194043294
+        ],
+        "roll_pitch_yaw_rad": [
+          -0.0008825567412509618,
+          0.15069926314674262,
+          0.19321005208451814
+        ],
+        "policy_action": [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
+        "action_limit": "zero diagnostic policy outputs, not the flight controller's actual actuator commands"
+      },
+      {
+        "lane": 70,
+        "step": 699,
+        "collider_a": "crow_left_wing",
+        "collider_b": "crow_course_slalom_a",
+        "normal_impulse_Ns": 1.44787271e-06,
+        "root_position_m": [
+          2.42402887,
+          0.120906785,
+          0.720039845
+        ],
+        "root_velocity": [
+          0.448720425,
+          -0.309220821,
+          0.00885856524,
+          -0.406709462,
+          -0.144971848,
+          -0.0327177495
+        ],
+        "roll_pitch_yaw_rad": [
+          -0.005999069010147288,
+          0.14519476200720205,
+          0.03949862288715941
+        ],
+        "policy_action": [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
+        "action_limit": "zero diagnostic policy outputs, not the flight controller's actual actuator commands"
+      },
+      {
+        "lane": 11,
+        "step": 704,
+        "collider_a": "crow_head",
+        "collider_b": "crow_course_slalom_a",
+        "normal_impulse_Ns": 0.00938376226,
+        "root_position_m": [
+          2.20774961,
+          0.279654205,
+          0.739804983
+        ],
+        "root_velocity": [
+          0.942962646,
+          0.229264289,
+          -0.14279151,
+          0.0456264168,
+          -0.0197651368,
+          0.00648607407
+        ],
+        "roll_pitch_yaw_rad": [
+          0.0017172353922754408,
+          0.1741832605613076,
+          0.2166411036808434
+        ],
+        "policy_action": [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
+        "action_limit": "zero diagnostic policy outputs, not the flight controller's actual actuator commands"
+      },
+      {
+        "lane": 48,
+        "step": 705,
+        "collider_a": "crow_left_wing",
+        "collider_b": "crow_course_slalom_a",
+        "normal_impulse_Ns": 0.237108946,
+        "root_position_m": [
+          2.43114734,
+          -0.00529267639,
+          0.920461833
+        ],
+        "root_velocity": [
+          0.899824798,
+          -0.0438254997,
+          0.146757677,
+          -0.0227375496,
+          -0.166098744,
+          0.532634079
+        ],
+        "roll_pitch_yaw_rad": [
+          0.004342325375060087,
+          0.14545711207619724,
+          0.02564923751846452
+        ],
+        "policy_action": [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
+        "action_limit": "zero diagnostic policy outputs, not the flight controller's actual actuator commands"
+      },
+      {
+        "lane": 78,
+        "step": 705,
+        "collider_a": "crow_head",
+        "collider_b": "crow_course_slalom_a",
+        "normal_impulse_Ns": 0.000901550287,
+        "root_position_m": [
+          2.33823466,
+          0.167968124,
+          0.92034471
+        ],
+        "root_velocity": [
+          1.00372565,
+          0.0149448421,
+          0.113642305,
+          -0.00118987856,
+          -0.000556181185,
+          -0.00335127418
+        ],
+        "roll_pitch_yaw_rad": [
+          2.0823800127468306e-05,
+          0.14804220157987108,
+          0.01732192150077399
+        ],
+        "policy_action": [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
+        "action_limit": "zero diagnostic policy outputs, not the flight controller's actual actuator commands"
+      },
+      {
+        "lane": 8,
+        "step": 706,
+        "collider_a": "crow_left_wing",
+        "collider_b": "crow_course_slalom_a",
+        "normal_impulse_Ns": 1.7269349e-07,
+        "root_position_m": [
+          2.45324039,
+          0.0446956083,
+          0.923411727
+        ],
+        "root_velocity": [
+          1.01550794,
+          0.0158115756,
+          0.172217384,
+          -0.000946699642,
+          0.0392400511,
+          -0.0058072852
+        ],
+        "roll_pitch_yaw_rad": [
+          7.556444920041828e-06,
+          0.148640043168424,
+          0.01767900630174115
+        ],
+        "policy_action": [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
+        "action_limit": "zero diagnostic policy outputs, not the flight controller's actual actuator commands"
+      },
+      {
+        "lane": 46,
+        "step": 706,
+        "collider_a": "crow_right_wing",
+        "collider_b": "crow_course_slalom_a",
+        "normal_impulse_Ns": 0.000107284723,
+        "root_position_m": [
+          2.42774916,
+          0.371264875,
+          0.731156588
+        ],
+        "root_velocity": [
+          0.630414605,
+          0.443712324,
+          0.147071078,
+          -0.0514252186,
+          0.344521046,
+          0.0491193943
+        ],
+        "roll_pitch_yaw_rad": [
+          0.008589380634119683,
+          0.15497028804562032,
+          0.19803306378047064
+        ],
+        "policy_action": [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
+        "action_limit": "zero diagnostic policy outputs, not the flight controller's actual actuator commands"
+      },
+      {
+        "lane": 58,
+        "step": 706,
+        "collider_a": "crow_left_wing",
+        "collider_b": "crow_course_slalom_a",
+        "normal_impulse_Ns": 0.0083455015,
+        "root_position_m": [
+          2.44659495,
+          -0.0014751862,
+          0.923805118
+        ],
+        "root_velocity": [
+          0.877372086,
+          -0.0744285509,
+          0.211653844,
+          0.179244041,
+          -0.0202198923,
+          0.652114093
+        ],
+        "roll_pitch_yaw_rad": [
+          0.004290246348553389,
+          0.14761643447039036,
+          0.027966968591468976
+        ],
+        "policy_action": [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
+        "action_limit": "zero diagnostic policy outputs, not the flight controller's actual actuator commands"
+      },
+      {
+        "lane": 68,
+        "step": 706,
+        "collider_a": "crow_left_wing",
+        "collider_b": "crow_course_slalom_a",
+        "normal_impulse_Ns": 0.18551892,
+        "root_position_m": [
+          2.46507788,
+          0.0296864379,
+          0.924113035
+        ],
+        "root_velocity": [
+          0.889574945,
+          -0.0544489287,
+          0.218169689,
+          0.0925974101,
+          -0.0229882188,
+          0.264289409
+        ],
+        "roll_pitch_yaw_rad": [
+          0.005583253808832644,
+          0.14658650526943745,
+          0.02887684759689407
+        ],
+        "policy_action": [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
+        "action_limit": "zero diagnostic policy outputs, not the flight controller's actual actuator commands"
+      },
+      {
+        "lane": 69,
+        "step": 706,
+        "collider_a": "crow_left_wing",
+        "collider_b": "crow_course_slalom_a",
+        "normal_impulse_Ns": 0.00836119987,
+        "root_position_m": [
+          2.52727008,
+          -0.0910064504,
+          0.516778409
+        ],
+        "root_velocity": [
+          0.259161174,
+          -0.296700478,
+          0.0801628083,
+          0.552055478,
+          0.700311363,
+          0.343904227
+        ],
+        "roll_pitch_yaw_rad": [
+          -0.01807918595763124,
+          0.15997053030934066,
+          0.05862509787050103
+        ],
+        "policy_action": [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
+        "action_limit": "zero diagnostic policy outputs, not the flight controller's actual actuator commands"
+      },
+      {
+        "lane": 33,
+        "step": 707,
+        "collider_a": "crow_left_wing",
+        "collider_b": "crow_course_slalom_a",
+        "normal_impulse_Ns": 0.0205560811,
+        "root_position_m": [
+          2.45461178,
+          0.0918470472,
+          0.924906075
+        ],
+        "root_velocity": [
+          1.00087118,
+          0.0155465975,
+          0.00995346811,
+          -0.00202551926,
+          0.02417369,
+          -0.00356079172
+        ],
+        "roll_pitch_yaw_rad": [
+          -2.9896887317788896e-05,
+          0.14933094831366867,
+          0.017575939019720644
+        ],
+        "policy_action": [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
+        "action_limit": "zero diagnostic policy outputs, not the flight controller's actual actuator commands"
+      },
+      {
+        "lane": 13,
+        "step": 711,
+        "collider_a": "crow_left_wing",
+        "collider_b": "crow_course_slalom_a",
+        "normal_impulse_Ns": 0.0103689441,
+        "root_position_m": [
+          2.30649972,
+          -0.08839719,
+          0.916984141
+        ],
+        "root_velocity": [
+          0.777144909,
+          -0.0835716128,
+          0.105012983,
+          0.0345403515,
+          -0.0457256474,
+          -0.188879967
+        ],
+        "roll_pitch_yaw_rad": [
+          -0.017445381818315578,
+          0.15090304979341118,
+          0.03610423736007368
+        ],
+        "policy_action": [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
+        "action_limit": "zero diagnostic policy outputs, not the flight controller's actual actuator commands"
+      },
+      {
+        "lane": 23,
+        "step": 711,
+        "collider_a": "crow_left_wing",
+        "collider_b": "crow_course_slalom_a",
+        "normal_impulse_Ns": 0.107034713,
+        "root_position_m": [
+          2.45832658,
+          0.0194420479,
+          0.921053529
+        ],
+        "root_velocity": [
+          1.01697981,
+          0.0160193406,
+          0.21508576,
+          0.00163832097,
+          -0.0453670397,
+          -0.00567649258
+        ],
+        "roll_pitch_yaw_rad": [
+          -1.4358635831951234e-06,
+          0.14912681701623465,
+          0.01729257542290272
+        ],
+        "policy_action": [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
+        "action_limit": "zero diagnostic policy outputs, not the flight controller's actual actuator commands"
+      },
+      {
+        "lane": 53,
+        "step": 712,
+        "collider_a": "crow_left_wing",
+        "collider_b": "crow_course_slalom_a",
+        "normal_impulse_Ns": 0.104378477,
+        "root_position_m": [
+          2.33346748,
+          -0.0689171404,
+          0.924675167
+        ],
+        "root_velocity": [
+          1.00358677,
+          0.0158237927,
+          0.133993566,
+          0.00149945624,
+          -0.0177079681,
+          0.00426544109
+        ],
+        "roll_pitch_yaw_rad": [
+          8.631447141130783e-06,
+          0.14869408214540827,
+          0.017406660235158196
+        ],
+        "policy_action": [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
+        "action_limit": "zero diagnostic policy outputs, not the flight controller's actual actuator commands"
+      },
+      {
+        "lane": 22,
+        "step": 740,
+        "collider_a": "crow_head",
+        "collider_b": "crow_course_slalom_b",
+        "normal_impulse_Ns": 0.131629646,
+        "root_position_m": [
+          3.33180213,
+          -0.484586358,
+          0.723137379
+        ],
+        "root_velocity": [
+          0.978509307,
+          -0.199300259,
+          -0.0770542398,
+          -0.00851207878,
+          0.00546536688,
+          -0.0240502823
+        ],
+        "roll_pitch_yaw_rad": [
+          0.0007656383812511234,
+          0.15110350221107047,
+          -0.21219563329435545
+        ],
+        "policy_action": [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
+        "action_limit": "zero diagnostic policy outputs, not the flight controller's actual actuator commands"
+      },
+      {
+        "lane": 74,
+        "step": 744,
+        "collider_a": "crow_right_wing",
+        "collider_b": "crow_course_slalom_b",
+        "normal_impulse_Ns": 0.00500843488,
+        "root_position_m": [
+          3.52602553,
+          0.0242445618,
+          0.518912315
+        ],
+        "root_velocity": [
+          0.861323416,
+          0.0326182395,
+          0.109551571,
+          0.00206621201,
+          -0.0646917075,
+          -0.0696492568
+        ],
+        "roll_pitch_yaw_rad": [
+          0.01576721690342911,
+          0.14753171751917363,
+          0.00396914523420209
+        ],
+        "policy_action": [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
+        "action_limit": "zero diagnostic policy outputs, not the flight controller's actual actuator commands"
+      },
+      {
+        "lane": 0,
+        "step": 745,
+        "collider_a": "crow_right_wing",
+        "collider_b": "crow_course_slalom_b",
+        "normal_impulse_Ns": 0.0663048476,
+        "root_position_m": [
+          3.48891354,
+          0.0640357435,
+          0.723796964
+        ],
+        "root_velocity": [
+          1.00091934,
+          0.0149312206,
+          0.0709902793,
+          0.00168687804,
+          -0.00863878895,
+          0.00937402062
+        ],
+        "roll_pitch_yaw_rad": [
+          9.907098633968069e-05,
+          0.14831243296931418,
+          0.016664733303925282
+        ],
+        "policy_action": [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
+        "action_limit": "zero diagnostic policy outputs, not the flight controller's actual actuator commands"
+      },
+      {
+        "lane": 12,
+        "step": 746,
+        "collider_a": "crow_left_wing",
+        "collider_b": "crow_course_slalom_b",
+        "normal_impulse_Ns": 0.165906847,
+        "root_position_m": [
+          3.51591015,
+          -0.683833539,
+          0.722651482
+        ],
+        "root_velocity": [
+          0.96730423,
+          -0.20023939,
+          -0.10661336,
+          -0.00147677562,
+          0.0336454324,
+          -0.0464937165
+        ],
+        "roll_pitch_yaw_rad": [
+          0.0005634402339265952,
+          0.14989044608783142,
+          -0.21710904455801372
+        ],
+        "policy_action": [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
+        "action_limit": "zero diagnostic policy outputs, not the flight controller's actual actuator commands"
+      },
+      {
+        "lane": 28,
+        "step": 750,
+        "collider_a": "crow_right_wing",
+        "collider_b": "crow_course_slalom_b",
+        "normal_impulse_Ns": 0.0141085275,
+        "root_position_m": [
+          3.39476013,
+          0.0294334125,
+          0.92484051
+        ],
+        "root_velocity": [
+          0.563471437,
+          0.308134735,
+          0.111855321,
+          0.196160361,
+          0.0613991208,
+          -0.237116486
+        ],
+        "roll_pitch_yaw_rad": [
+          0.0018841080915473728,
+          0.14719453021133905,
+          -0.0029291802810563136
+        ],
+        "policy_action": [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
+        "action_limit": "zero diagnostic policy outputs, not the flight controller's actual actuator commands"
+      },
+      {
+        "lane": 19,
+        "step": 751,
+        "collider_a": "crow_right_wing",
+        "collider_b": "crow_course_slalom_b",
+        "normal_impulse_Ns": 4.34620119e-07,
+        "root_position_m": [
+          3.63262677,
+          0.0298963189,
+          0.523283899
+        ],
+        "root_velocity": [
+          0.993556857,
+          0.0148817142,
+          -0.0971002057,
+          0.000310743024,
+          0.0175154656,
+          -0.00315243192
+        ],
+        "roll_pitch_yaw_rad": [
+          5.646875027290509e-05,
+          0.14924069334786247,
+          0.016910086240922422
+        ],
+        "policy_action": [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
+        "action_limit": "zero diagnostic policy outputs, not the flight controller's actual actuator commands"
+      },
+      {
+        "lane": 37,
+        "step": 751,
+        "collider_a": "crow_left_wing",
+        "collider_b": "crow_course_slalom_b",
+        "normal_impulse_Ns": 0.145903409,
+        "root_position_m": [
+          3.24330378,
+          -0.636058927,
+          0.721376181
+        ],
+        "root_velocity": [
+          0.988829851,
+          -0.2105124,
+          -0.0999091566,
+          -0.00111121952,
+          0.0346645042,
+          -0.0203412753
+        ],
+        "roll_pitch_yaw_rad": [
+          0.0006916591284670883,
+          0.1533331136077317,
+          -0.217530774104596
+        ],
+        "policy_action": [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
+        "action_limit": "zero diagnostic policy outputs, not the flight controller's actual actuator commands"
+      },
+      {
+        "lane": 55,
+        "step": 754,
+        "collider_a": "crow_right_wing",
+        "collider_b": "crow_course_slalom_b",
+        "normal_impulse_Ns": 0.0360697173,
+        "root_position_m": [
+          3.60350704,
+          0.044440493,
+          0.715330422
+        ],
+        "root_velocity": [
+          0.778224528,
+          0.141594723,
+          0.0742378458,
+          0.153198019,
+          -0.0294482466,
+          0.115374222
+        ],
+        "roll_pitch_yaw_rad": [
+          0.014657378574795652,
+          0.1499741245507,
+          -0.002400425233086613
+        ],
+        "policy_action": [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
+        "action_limit": "zero diagnostic policy outputs, not the flight controller's actual actuator commands"
+      },
+      {
+        "lane": 42,
+        "step": 755,
+        "collider_a": "crow_left_wing",
+        "collider_b": "crow_course_slalom_b",
+        "normal_impulse_Ns": 0.0405074731,
+        "root_position_m": [
+          3.53922796,
+          -0.585319877,
+          0.705763638
+        ],
+        "root_velocity": [
+          0.829396009,
+          -0.339613885,
+          0.0430613086,
+          -0.118659243,
+          -0.159819886,
+          0.367955744
+        ],
+        "roll_pitch_yaw_rad": [
+          -0.01567553221538764,
+          0.16649302728958137,
+          -0.2085852589074391
+        ],
+        "policy_action": [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
+        "action_limit": "zero diagnostic policy outputs, not the flight controller's actual actuator commands"
+      },
+      {
+        "lane": 43,
+        "step": 757,
+        "collider_a": "crow_right_wing",
+        "collider_b": "crow_course_slalom_b",
+        "normal_impulse_Ns": 0.101550542,
+        "root_position_m": [
+          3.46358776,
+          0.017605558,
+          0.922671735
+        ],
+        "root_velocity": [
+          0.980626285,
+          0.0144513873,
+          -0.12507242,
+          0.0017960103,
+          0.0101767778,
+          0.0131622218
+        ],
+        "roll_pitch_yaw_rad": [
+          0.00014586909074496059,
+          0.14840055911688627,
+          0.01693451957226965
+        ],
+        "policy_action": [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
+        "action_limit": "zero diagnostic policy outputs, not the flight controller's actual actuator commands"
+      },
+      {
+        "lane": 3,
+        "step": 762,
+        "collider_a": "crow_right_wing",
+        "collider_b": "crow_course_slalom_b",
+        "normal_impulse_Ns": 0.0800735131,
+        "root_position_m": [
+          3.59149265,
+          0.0198839605,
+          0.92281723
+        ],
+        "root_velocity": [
+          0.990762889,
+          0.0147655513,
+          -0.119372733,
+          0.00060071348,
+          0.0179896355,
+          -0.00327326474
+        ],
+        "roll_pitch_yaw_rad": [
+          4.961192121728374e-05,
+          0.14923320584626576,
+          0.016881796999510628
+        ],
+        "policy_action": [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
+        "action_limit": "zero diagnostic policy outputs, not the flight controller's actual actuator commands"
+      },
+      {
+        "lane": 47,
+        "step": 765,
+        "collider_a": "crow_left_wing",
+        "collider_b": "crow_course_slalom_b",
+        "normal_impulse_Ns": 0.0243331902,
+        "root_position_m": [
+          3.60772777,
+          -0.680198669,
+          0.714277029
+        ],
+        "root_velocity": [
+          0.372218668,
+          -0.51055795,
+          0.168467984,
+          -0.212544084,
+          0.0747620314,
+          0.0576459169
+        ],
+        "roll_pitch_yaw_rad": [
+          -0.016610352009592586,
+          0.15000876390476878,
+          -0.19748424223129013
+        ],
+        "policy_action": [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
+        "action_limit": "zero diagnostic policy outputs, not the flight controller's actual actuator commands"
+      },
+      {
+        "lane": 29,
+        "step": 821,
+        "collider_a": "crow_left_wing",
+        "collider_b": "crow_course_perch",
+        "normal_impulse_Ns": 1.084479e-08,
+        "root_position_m": [
+          4.80696487,
+          0.00282224035,
+          0.523646474
+        ],
+        "root_velocity": [
+          1.00001276,
+          0.0144522414,
+          0.0859249607,
+          0.00177283934,
+          -0.0102702267,
+          0.00932066143
+        ],
+        "roll_pitch_yaw_rad": [
+          7.395856175825001e-05,
+          0.1477092403473123,
+          0.0162960510700782
+        ],
+        "policy_action": [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
+        "action_limit": "zero diagnostic policy outputs, not the flight controller's actual actuator commands"
+      },
+      {
+        "lane": 52,
+        "step": 826,
+        "collider_a": "crow_left_wing",
+        "collider_b": "crow_course_perch",
+        "normal_impulse_Ns": 0.0174095053,
+        "root_position_m": [
+          5.02400398,
+          -0.964812696,
+          0.724725127
+        ],
+        "root_velocity": [
+          0.781236172,
+          -0.349196553,
+          0.179213122,
+          -0.0424571484,
+          0.0239860937,
+          0.130447313
+        ],
+        "roll_pitch_yaw_rad": [
+          0.011147756946008811,
+          0.14568572404466218,
+          -0.2506781604986804
+        ],
+        "policy_action": [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
+        "action_limit": "zero diagnostic policy outputs, not the flight controller's actual actuator commands"
+      },
+      {
+        "lane": 72,
+        "step": 828,
+        "collider_a": "crow_left_wing",
+        "collider_b": "crow_course_perch",
+        "normal_impulse_Ns": 0.00344975526,
+        "root_position_m": [
+          4.90348339,
+          -1.07255518,
+          0.732910991
+        ],
+        "root_velocity": [
+          0.274808586,
+          -0.528666675,
+          -0.0493601412,
+          -0.0546596795,
+          0.119895317,
+          0.0358425602
+        ],
+        "roll_pitch_yaw_rad": [
+          -0.007295490044050375,
+          0.15624063534487312,
+          -0.23935762903474694
+        ],
+        "policy_action": [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
+        "action_limit": "zero diagnostic policy outputs, not the flight controller's actual actuator commands"
+      },
+      {
+        "lane": 77,
+        "step": 828,
+        "collider_a": "crow_left_wing",
+        "collider_b": "crow_course_perch",
+        "normal_impulse_Ns": 0.0215080604,
+        "root_position_m": [
+          4.69948626,
+          -1.05634153,
+          0.710987091
+        ],
+        "root_velocity": [
+          0.390357733,
+          -0.442681432,
+          -0.113860488,
+          0.0298420005,
+          0.109954104,
+          0.0763398036
+        ],
+        "roll_pitch_yaw_rad": [
+          -0.01671318004941873,
+          0.1509349030379322,
+          -0.21320030819270408
+        ],
+        "policy_action": [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
+        "action_limit": "zero diagnostic policy outputs, not the flight controller's actual actuator commands"
+      }
+    ]
+  }
+]

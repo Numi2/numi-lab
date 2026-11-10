@@ -1,0 +1,17 @@
+[
+  {
+    "path": "tracking.air",
+    "sha256": "3691cf1ac84f18ce3d8d6128e8a99bfd358e317d04c030128a137baf9f12e0aa",
+    "bytes": 191584
+  },
+  {
+    "path": "tracking.metallib",
+    "sha256": "b499fe30e5a08ef4f78eb281dedc4e33ffa145007dfdd470a7537d75ef286237",
+    "bytes": 4462848
+  },
+  {
+    "path": "zero.policypack",
+    "sha256": "f35513a1870adb9877bb7fcefd6ad1fb36a91932f0bde59af187dedc946a890f",
+    "bytes": 2346387
+  }
+]

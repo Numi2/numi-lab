@@ -1,0 +1,5 @@
+/Users/n/Developer/numi-crow-rl-20261107/build/crow-v15-toe-flight-screen-20261110/tracking.metal:4971:21: warning: unused variable 'navigationWingResidual' [-Wunused-variable]
+        const float navigationWingResidual = avianNavigationTeacher
+                    ^
+1 warning generated.
+built b499fe30e5a08ef4f78eb281dedc4e33ffa145007dfdd470a7537d75ef286237 f35513a1870adb9877bb7fcefd6ad1fb36a91932f0bde59af187dedc946a890f

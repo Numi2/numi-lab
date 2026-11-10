@@ -1,0 +1,13 @@
+--- a/frozen-screen.metal
++++ b/toe-screen.metal
+@@ -4999,8 +4999,8 @@
+         const bool actionAvailable = !MR_TASK_PROGRAM_HAS_MEMORY_CHOICE(program.articulation.z) ||
+             (state.episode.x>=uint(program.actionAvailabilityProgram) && taskActionHoldPeriod(program,arena,action)!=0u);
+         const bool actionSelected=taskActionSelected(program,arena,state.episode.x,action);
+-        const float requestedBeforeAvailability = fixedFlightController && action < 15u
+-            ? navigationTeacherRequested
++        const float requestedBeforeAvailability = fixedFlightController
++            ? (action < 15u ? navigationTeacherRequested : 0.0f)
+             : avianJourneyTeacher
+             ? mix(
+                   effectiveTeacherRequested,
