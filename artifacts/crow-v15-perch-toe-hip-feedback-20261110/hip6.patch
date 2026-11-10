@@ -1,0 +1,19 @@
+--- a/toe-ramp.metal
++++ b/hip6.metal
+@@ -5091,6 +5091,16 @@
+         // execution still has no teacher authority.
+         if (fixedFlightController && state.threatTeacher.w >= 1.5f && action < 15u)
+             navigationTeacherRequested = 0.0f;
++        if (fixedFlightController && state.episode.z==10u && state.navigation.z>=5.0f &&
++            state.threatTeacher.w>=1.5f && (state.status.w&63u)>=28u && ((state.status.w>>6u)&63u)>=28u && (action==7u || action==9u || action==10u || action==12u) &&
++            ((action==7u || action==9u) ? state.nutrition.x : state.nutrition.y)>0.05f) {
++            const uint encoded=(state.status.w>>25u)&127u;
++            if(encoded!=0u) {
++                const float supportError=(float(encoded)-64.0f)*0.002f;
++                const float correction=clamp(6.0f*supportError-0.35f*state.threatGeometry.w,-0.30f,0.30f);
++                navigationTeacherRequested=(action==9u || action==12u) ? -1.077f*correction : correction;
++            }
++        }
+         const float navigationTeacherBlend = fixedFlightController
+             ? 1.0f
+             : avianNavigationTeacher

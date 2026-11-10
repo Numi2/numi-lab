@@ -1,0 +1,10 @@
+/Users/n/Developer/numi-crow-rl-20261107/build/crow-v15-perch-toe-hip-feedback-20261110/hip3.metal:5499:21: warning: unused variable 'seconds' [-Wunused-variable]
+        const float seconds=float(state.episode.x)*dispatch.timing.x;
+                    ^
+1 warning generated.
+hip3 302bc76e93412d0607405558d3d9a6c1c9ea081c8988c5520a6fc4a0d1b9c872
+/Users/n/Developer/numi-crow-rl-20261107/build/crow-v15-perch-toe-hip-feedback-20261110/hip6.metal:5499:21: warning: unused variable 'seconds' [-Wunused-variable]
+        const float seconds=float(state.episode.x)*dispatch.timing.x;
+                    ^
+1 warning generated.
+hip6 bd8277368e957a6ea9e53a01bf9bbd64835bad3872f86e9a3155f827054ef27d

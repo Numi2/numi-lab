@@ -1,0 +1,125 @@
+{
+  "remote_verified_commit": "71d8a536c1c32dd0284aac908bf7157183719de6",
+  "removed": [
+    {
+      "raw": "build/crow-v15-integrated-route-baseline-20261110/diagnostic-reserved-final-j-feedback08.json",
+      "archive": "artifacts/crow-v15-perch-toe-velocity-20261110/diagnostic-reserved-final-j-feedback08.json.gz",
+      "sha256": "4db06ffbadc47a39c740b2ba693ed3e4415c020f47f87a7cbde38465fa3b0435",
+      "bytes": 99049938
+    },
+    {
+      "raw": "build/crow-v15-integrated-route-baseline-20261110/diagnostic-reserved-final-j-velocity10.tsv",
+      "archive": "artifacts/crow-v15-perch-toe-velocity-20261110/diagnostic-reserved-final-j-velocity10.tsv.gz",
+      "sha256": "42f7d48f56b30f62ecf8d62126448dbb8ddf2aa81af253ec8bcf4d95a57391bb",
+      "bytes": 2177039
+    },
+    {
+      "raw": "build/crow-v15-integrated-route-baseline-20261110/diagnostic-reserved-final-j-velocity08.tsv",
+      "archive": "artifacts/crow-v15-perch-toe-velocity-20261110/diagnostic-reserved-final-j-velocity08.tsv.gz",
+      "sha256": "6336812172adb213d77d5a9d838312046004bf2bf6a18df3c7ae61c63639e9cb",
+      "bytes": 2177468
+    },
+    {
+      "raw": "build/crow-v15-integrated-route-baseline-20261110/diagnostic-reserved-final-j-feedback08.tsv",
+      "archive": "artifacts/crow-v15-perch-toe-velocity-20261110/diagnostic-reserved-final-j-feedback08.tsv.gz",
+      "sha256": "dd40d1bee26938f6fc21e83331381c71300512a755cf83a4e8e97f9370446b88",
+      "bytes": 2178494
+    },
+    {
+      "raw": "build/crow-v15-integrated-route-baseline-20261110/diagnostic-reserved-final-j-velocity10.json",
+      "archive": "artifacts/crow-v15-perch-toe-velocity-20261110/diagnostic-reserved-final-j-velocity10.json.gz",
+      "sha256": "a1f6b506a5dcded3f3d1590a3e7bbce61fa4d232f3ae1f06f6d7a00b2f24c959",
+      "bytes": 99875691
+    },
+    {
+      "raw": "build/crow-v15-integrated-route-baseline-20261110/diagnostic-reserved-final-j-velocity08.json",
+      "archive": "artifacts/crow-v15-perch-toe-velocity-20261110/diagnostic-reserved-final-j-velocity08.json.gz",
+      "sha256": "bff0594878753bef4925fbbb62f297a2b2ebbc891804653b738c998e0e2a5ce0",
+      "bytes": 98974476
+    },
+    {
+      "raw": "build/crow-v15-integrated-route-baseline-20261110/diagnostic-reserved-final-j-velocity09b.tsv",
+      "archive": "artifacts/crow-v15-perch-toe-damped-20261110/diagnostic-reserved-final-j-velocity09b.tsv.gz",
+      "sha256": "1c531b3353b298fb031596f82e542fe121c5f29ea8b88f944f24cad1d3724fd4",
+      "bytes": 2175170
+    },
+    {
+      "raw": "build/crow-v15-integrated-route-baseline-20261110/diagnostic-reserved-final-j-velocity08c.json",
+      "archive": "artifacts/crow-v15-perch-toe-damped-20261110/diagnostic-reserved-final-j-velocity08c.json.gz",
+      "sha256": "f2952395d1cd80ff8340af12b6d61aed8eb039357e822d9ec6c914d78dc87246",
+      "bytes": 98937989
+    },
+    {
+      "raw": "build/crow-v15-integrated-route-baseline-20261110/diagnostic-reserved-final-j-velocity09a.tsv",
+      "archive": "artifacts/crow-v15-perch-toe-damped-20261110/diagnostic-reserved-final-j-velocity09a.tsv.gz",
+      "sha256": "ca4e453f780e255e80e67e6416d5478d9f4f1358476d28407ef382c7ef744328",
+      "bytes": 2178790
+    },
+    {
+      "raw": "build/crow-v15-integrated-route-baseline-20261110/diagnostic-reserved-final-j-velocity08c.tsv",
+      "archive": "artifacts/crow-v15-perch-toe-damped-20261110/diagnostic-reserved-final-j-velocity08c.tsv.gz",
+      "sha256": "9e8c8b906c89813c3e251629b625ddcbf825c315f3c82f1fd9f2a328b7dec5e3",
+      "bytes": 2172619
+    },
+    {
+      "raw": "build/crow-v15-integrated-route-baseline-20261110/diagnostic-reserved-final-j-velocity09b.json",
+      "archive": "artifacts/crow-v15-perch-toe-damped-20261110/diagnostic-reserved-final-j-velocity09b.json.gz",
+      "sha256": "b42f2b9c2d8395eed58842f1315e81e5edcc198a64ef1695eee1e70a9a769d87",
+      "bytes": 99702130
+    },
+    {
+      "raw": "build/crow-v15-integrated-route-baseline-20261110/diagnostic-reserved-final-j-velocity09a.json",
+      "archive": "artifacts/crow-v15-perch-toe-damped-20261110/diagnostic-reserved-final-j-velocity09a.json.gz",
+      "sha256": "594938a456de083649b09efab893327052170108762083e888df7d716d59df3e",
+      "bytes": 99979318
+    },
+    {
+      "raw": "build/crow-v15-integrated-route-baseline-20261110/diagnostic-reserved-final-j-jlong.tsv",
+      "archive": "artifacts/crow-v15-damped-generalization-20261110/diagnostic-reserved-final-j-jlong.tsv.gz",
+      "sha256": "d4cc118dedbf951900e1c4ffe086e87ab0e886cab114d5768e6b00add36a9e7b",
+      "bytes": 3272099
+    },
+    {
+      "raw": "build/crow-v15-integrated-route-baseline-20261110/diagnostic-reserved-final-i-ilayout.json",
+      "archive": "artifacts/crow-v15-damped-generalization-20261110/diagnostic-reserved-final-i-ilayout.json.gz",
+      "sha256": "8e9879cdbba6e49a58976549a1fee20865aabc227a9b429857cae0b7536c2722",
+      "bytes": 100017377
+    },
+    {
+      "raw": "build/crow-v15-integrated-route-baseline-20261110/diagnostic-reserved-final-j-jlong.json",
+      "archive": "artifacts/crow-v15-damped-generalization-20261110/diagnostic-reserved-final-j-jlong.json.gz",
+      "sha256": "b6fb162e268efff67867b1f65949636ace773fa4aad8fb3922ae6059c2c5a34e",
+      "bytes": 149652991
+    },
+    {
+      "raw": "build/crow-v15-integrated-route-baseline-20261110/diagnostic-reserved-final-i-ilayout.tsv",
+      "archive": "artifacts/crow-v15-damped-generalization-20261110/diagnostic-reserved-final-i-ilayout.tsv.gz",
+      "sha256": "79e0ab97899eeefb8eac28c5a0a586612591ff21f5f83701d515bff70c9367fa",
+      "bytes": 2186641
+    },
+    {
+      "raw": "build/crow-v15-integrated-route-baseline-20261110/diagnostic-reserved-final-j-jnew.json",
+      "archive": "artifacts/crow-v15-damped-generalization-20261110/diagnostic-reserved-final-j-jnew.json.gz",
+      "sha256": "387782831f1565dbcedbd395f6fdca73dabcd0336bcf355dff97d84a277c1635",
+      "bytes": 99568348
+    },
+    {
+      "raw": "build/crow-v15-integrated-route-baseline-20261110/diagnostic-reserved-final-j-jnew.tsv",
+      "archive": "artifacts/crow-v15-damped-generalization-20261110/diagnostic-reserved-final-j-jnew.tsv.gz",
+      "sha256": "a40483c556ec8a50230b1f51a8bca923cbe959229379c8874eec9cc50202c988",
+      "bytes": 2187891
+    },
+    {
+      "raw": "build/crow-v15-integrated-route-baseline-20261110/diagnostic-reserved-final-j-jlong-rebound.tsv",
+      "archive": "artifacts/crow-v15-long-horizon-20261110/diagnostic-reserved-final-j-jlong-rebound.tsv.gz",
+      "sha256": "d7aca36a1ae210d88418776faa448aff7877858e4750d637042df197e08d1d4b",
+      "bytes": 3268655
+    },
+    {
+      "raw": "build/crow-v15-integrated-route-baseline-20261110/diagnostic-reserved-final-j-jlong-rebound.json",
+      "archive": "artifacts/crow-v15-long-horizon-20261110/diagnostic-reserved-final-j-jlong-rebound.json.gz",
+      "sha256": "a7205bf96b82d2660a2c9831957037f2057d00710efe431fe335beaffb0efe54",
+      "bytes": 150166089
+    }
+  ]
+}

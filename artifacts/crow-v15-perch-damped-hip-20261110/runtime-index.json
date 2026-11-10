@@ -1,0 +1,12 @@
+[
+  {
+    "path": "build/crow-v15-perch-damped-hip-20261110/hip3.metallib",
+    "sha256": "19cf366a8aff16826f79d6b502ee6602e75b3198ed3a3cdfba9ddfa4a6c44ae5",
+    "bytes": 4472864
+  },
+  {
+    "path": "build/crow-v15-perch-damped-hip-20261110/hip6.metallib",
+    "sha256": "01ae18e360e06fc9122ce09a04cafb9c8d7c2d291b1aad23a3e074753524c316",
+    "bytes": 4472864
+  }
+]

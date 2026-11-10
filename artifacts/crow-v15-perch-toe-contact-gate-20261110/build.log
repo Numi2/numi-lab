@@ -1,0 +1,5 @@
+/Users/n/Developer/numi-crow-rl-20261107/build/crow-v15-perch-toe-contact-gate-20261110/supportgate.metal:5489:21: warning: unused variable 'seconds' [-Wunused-variable]
+        const float seconds=float(state.episode.x)*dispatch.timing.x;
+                    ^
+1 warning generated.
+supportgate 7ea7ee4d29436a09363eb4f9381817adb1a9a290995ce03a00f1c40eb761dad7

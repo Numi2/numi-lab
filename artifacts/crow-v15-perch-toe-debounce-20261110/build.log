@@ -1,0 +1,11 @@
+/Users/n/Developer/numi-crow-rl-20261107/build/crow-v15-perch-toe-debounce-20261110/debounce.metal:5489:21: warning: unused variable 'seconds' [-Wunused-variable]
+        const float seconds=float(state.episode.x)*dispatch.timing.x;
+                    ^
+/Users/n/Developer/numi-crow-rl-20261107/build/crow-v15-perch-toe-debounce-20261110/debounce.metal:9333:33: warning: unused variable 'footLoad' [-Wunused-variable]
+                    const float footLoad=side==0u ? state.nutrition.x : state.nutrition.y;
+                                ^
+/Users/n/Developer/numi-crow-rl-20261107/build/crow-v15-perch-toe-debounce-20261110/debounce.metal:9339:32: warning: unused variable 'loaded' [-Wunused-variable]
+                    const bool loaded=length(force)>0.05f;
+                               ^
+3 warnings generated.
+debounce 360577c9374979a5d700873fc3cf072c5328ea807c4199fc25267d260f4fe28a

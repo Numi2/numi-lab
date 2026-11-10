@@ -1,0 +1,1 @@
+Combine the damped toe grip with small physical hip/ankle corrections after grip establishment, using support-minus-COM and actual pitch rate. Development J on both starts, teacher off, full-start, no reset. Compare the previously passing 3000-step result and failed new start, without claiming long stability.

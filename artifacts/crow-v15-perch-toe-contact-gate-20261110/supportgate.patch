@@ -1,0 +1,11 @@
+--- a/velocity08c.metal
++++ b/supportgate.metal
+@@ -9327,7 +9327,7 @@
+             uint packed=state.status.w & 4096u;
+             if (seconds>=12.96f && seconds<13.4f && state.nutrition.x<0.05f && state.nutrition.y<0.05f && rootLinearVelocity.z>0.03f) packed |= 4096u;
+             if (seconds>=13.4f) packed &= ~4096u;
+-            if (state.navigation.z>=5.0f) {
++            if (state.navigation.z>=5.0f && state.threatTeacher.w>=1.5f) {
+                 for (uint side=0u;side<2u;++side) {
+                     const uint rearPrevious=(state.status.w>>(13u+side*6u))&63u;
+                     const float footLoad=side==0u ? state.nutrition.x : state.nutrition.y;
