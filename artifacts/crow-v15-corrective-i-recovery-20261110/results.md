@@ -1,0 +1,3 @@
+# Guided I recovery from second student
+
+The teacher took over at step 1700 after 1699 exact-matching student frames. This used development episode reached all five waypoints with no reported physical or solver failure and ended with 1035 consecutive bilateral loaded accepted-step samples. No nonfoot perch impulse was recorded. This qualifies the physically reached route prefix only for development corrective training. The full landing is not qualified against the stricter uninterrupted opposing-toe criterion and is excluded from successful landing demonstrations. This does not establish teacher-off navigation or performance on unused layouts.
