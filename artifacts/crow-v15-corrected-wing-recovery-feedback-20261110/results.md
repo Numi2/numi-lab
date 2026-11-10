@@ -1,0 +1,3 @@
+# Airborne speed feedback study
+
+Using the same eight physically reached source states and ten disturbance cases as the preceding diagnostic, the feedback arm sets the bounded bilateral twist offset to clamp(-0.75 - gain*(forward speed - commanded speed), -1.0, -0.25). Gain 0.5 passed 72/80 lanes (all positive-pitch perturbations missed the speed limit); gain 1.0 passed 80/80; gain 2.0 passed 72/80 (all combined-disturbance cases missed the limit). No arm had physical failures or solver failures. The gain-1 candidate was selected for an independently registered multi-speed ground-start screen. Recovery from fresh states of the selected controller, integration, and biological qualification remain open; these arms use reset and reconstructed hidden state.
