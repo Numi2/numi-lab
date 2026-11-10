@@ -1,7 +1,7 @@
 from pathlib import Path
 import gzip,json
 A=Path('artifacts/crow-v15-clearance-corrective-eval-20261110');out={}
-for name in ('j-hard','i-hard','j-original','i-original'):
+for name in ('clear-j-hard','clear-i-hard','clear-j-original','clear-i-original'):
  path=A/(name+'.stderr.gz')
  if not path.exists() or not (A/(name+'-run.log')).exists() or 'exit 0' not in (A/(name+'-run.log')).read_text():continue
  first=None;clear=None
