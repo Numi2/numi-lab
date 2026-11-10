@@ -1,0 +1,5 @@
+# Four teacher-off development starts
+
+All four 7,000-step first episodes reached all five waypoints and ended with bilateral support, without recorded physical, solver, or nonfoot-perch failure. Minimum sampled obstacle clearance was hard J 0.065327 m, hard I 0.269482 m, original J 0.104622 m, original I 0.003101 m. The original I near miss fails the prespecified 0.05 m route gate. All four showed endpoint geometric toe clearance during each alternating supported foot lift and regained late bilateral load. Flight toe angles remained below 0.00038 rad after 25 contact-free endpoint samples.
+
+In the final 100 pre-release grip samples, hard J had 62 opposed bilateral endpoints and at most six consecutive, below the previous isolated nine-endpoint screen; this is an additional grip weakness. The trained actor is not accepted for final trials. Accepted-step observations do not establish continuous clearance or substep contact behavior, and these are used development starts, not held-out or biological validation.

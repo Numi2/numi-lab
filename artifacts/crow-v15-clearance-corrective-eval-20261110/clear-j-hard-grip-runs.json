@@ -1,0 +1,8 @@
+{
+  "name": "clear-j-hard",
+  "samples": 100,
+  "qualifying_opposed_samples": 62,
+  "longest_consecutive": 6,
+  "reference_gate": 9,
+  "limits": "Accepted endpoint impulses, not continuous substep force, biological qualification, or perturbation robustness. Nine-sample gate is the previous isolated toe grip criterion."
+}
