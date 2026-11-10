@@ -1,0 +1,17 @@
+[
+  {
+    "path": "build/crow-v15-perch-toe-velocity-20261110/feedback08.metallib",
+    "sha256": "f042d840187efd068a8e8ce2d51822b0a839b880e1284bc3e9f36e1c225af3cf",
+    "bytes": 4472592
+  },
+  {
+    "path": "build/crow-v15-perch-toe-velocity-20261110/velocity08.metallib",
+    "sha256": "068876cda5273bdf60a6fe652e821cd3ddc39700ec88121a36dfa2cf434801fd",
+    "bytes": 4472624
+  },
+  {
+    "path": "build/crow-v15-perch-toe-velocity-20261110/velocity10.metallib",
+    "sha256": "c7da8559452beaf1cdf778abf16e9f78296e08907764299a5a6de00581384c84",
+    "bytes": 4472624
+  }
+]

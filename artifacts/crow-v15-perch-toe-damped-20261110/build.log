@@ -1,0 +1,15 @@
+/Users/n/Developer/numi-crow-rl-20261107/build/crow-v15-perch-toe-damped-20261110/velocity09a.metal:5489:21: warning: unused variable 'seconds' [-Wunused-variable]
+        const float seconds=float(state.episode.x)*dispatch.timing.x;
+                    ^
+1 warning generated.
+velocity09a 01a7c84308fbe9f3a156a3e4efaa2f58cedb894661255f009d2213226a099cf8
+/Users/n/Developer/numi-crow-rl-20261107/build/crow-v15-perch-toe-damped-20261110/velocity09b.metal:5489:21: warning: unused variable 'seconds' [-Wunused-variable]
+        const float seconds=float(state.episode.x)*dispatch.timing.x;
+                    ^
+1 warning generated.
+velocity09b 158c7ba257ed79512c5f1afcdcc8f0ba2a986867dc8d91d1ba38ae15f5f3bb34
+/Users/n/Developer/numi-crow-rl-20261107/build/crow-v15-perch-toe-damped-20261110/velocity08c.metal:5489:21: warning: unused variable 'seconds' [-Wunused-variable]
+        const float seconds=float(state.episode.x)*dispatch.timing.x;
+                    ^
+1 warning generated.
+velocity08c 9ac9995b8a45e344ec3442c6146bb71297b847d405ccfc4490f921f8985baf50

@@ -1,0 +1,1 @@
+Development layout J: compare pitch and pitch-rate toe feedback between opposite falling outcomes, and compare additional actual forward velocity feedback to damp observed fore-aft translation. Targets remain within the toe limit and closure uses physical contact gating. Teacher off, frozen flight, full start, no reset; terminal support screen unchanged.

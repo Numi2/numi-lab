@@ -1,0 +1,1 @@
+Development layout J: test additional pitch-rate and fore-aft damping within gains where previous trials fell in opposite directions. Position target and effort limits and sensor gating unchanged. Teacher off, frozen flight, full start, no reset. Terminal support screen unchanged.
