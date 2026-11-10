@@ -1,0 +1,3 @@
+# Matched clearance recovery with support-loss retry
+
+The teacher-assisted run exactly reproduced all 1,849 pre-takeover student frames, completed all five waypoints, maintained 0.072925 m sampled minimum obstacle clearance, and ended with 1,034 consecutive bilateral support samples. It recorded no physical or solver failure and no nonfoot-perch contact. The bounded height retry differs only after lost support and the low-level flight controller is unchanged. This qualifies the pre-waypoint-five routing labels for development training; landing labels remain excluded. The earlier unsupported attempt remains separately retained and excluded. This is not an autonomous or held-out result.
