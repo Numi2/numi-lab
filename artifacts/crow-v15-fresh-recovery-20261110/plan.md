@@ -1,0 +1,3 @@
+# Corrective recovery from fresh student starts
+
+The two preregistered fresh-start development trials struck slalom B on their first episodes. Starting from the same full-start seeds and frozen stage-aware actor, collect teacher labels on the student's states with full student authority until step 2050, then switch to the programmed expert command. Verify exact q/v, observations and accepted actions against the failed student prefix, and assess physical completion independently. Exclude any failed recovery and all landing examples from routing training. This is privileged recovery, not an autonomous evaluation. Use no untouched final layouts.
