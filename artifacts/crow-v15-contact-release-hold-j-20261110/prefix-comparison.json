@@ -1,0 +1,7 @@
+{
+  "release_step": 4723,
+  "frames_before_release": 4722,
+  "exact_equal": true,
+  "differences": [],
+  "note": "Accepted endpoint parity only; unlogged substep impulses can differ."
+}

@@ -1,0 +1,3 @@
+# Matched J contact-conditioned release
+
+Before running, apply the same settled-phase 200-control-step hold and bilateral load threshold that succeeded on guided development I to the previously qualified J guided continuation, preserving its student actor, seed, body, fixed flight controller and takeover at step 2100. Compare q/v and actions exactly with the no-release J recovery until the release event. Measure prior opposing toe contact, physical toe opening, bilateral loading and nonfoot collisions after release. This is a guided used-layout test, not autonomous completion or proof of airborne toe clearance. K/L remain unused.

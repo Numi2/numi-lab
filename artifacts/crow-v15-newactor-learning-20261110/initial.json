@@ -1,0 +1,9 @@
+{
+  "actor_source_sha256": "33c22116aca48ccb59451edecb98a65e47f7606171ee1e1e05945ddd88a12772",
+  "critic_scaffold_sha256": "8736e6370c15fc5e01df95062675c97a1cd700c262b3ed9ed0932faa3b643883",
+  "trainable_pack_sha256": "e77caf0359995eaf8044a16ee4c52ed236b6b89556fd3843ddeab2b088bf16f6",
+  "actor_layers_equal": true,
+  "actor_output_max_error": 0.0,
+  "critic_used_for_supervised_loss": false,
+  "note": "Critic and log variance only satisfy learner construction; supervised loss updates actor means."
+}

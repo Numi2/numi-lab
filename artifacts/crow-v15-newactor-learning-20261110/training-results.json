@@ -1,0 +1,163 @@
+{
+  "sources": [
+    {
+      "source": "initial_j",
+      "included": true,
+      "rollout_sha256": "a1bf3cd8702f1d7dc923317b5675102a58f74c5f56675d1c994842cd5af2bddf",
+      "samples": 559,
+      "end_before_waypoint_5_step": 2794,
+      "student_takeover": 1100
+    },
+    {
+      "source": "late_j",
+      "included": true,
+      "rollout_sha256": "d91517b0c82daeb40e606ac1716b1c926a42e8711eee94484fb6f4631b86e9f0",
+      "samples": 533,
+      "end_before_waypoint_5_step": 2664,
+      "student_takeover": 2050
+    },
+    {
+      "source": "i",
+      "included": true,
+      "rollout_sha256": "0b10f2510640a41652097aeb3dde2c260349dd7c25ea2405ee2741c293d9a94e",
+      "samples": 548,
+      "end_before_waypoint_5_step": 2739,
+      "student_takeover": 1800
+    },
+    {
+      "source": "corrective_i",
+      "included": true,
+      "rollout_sha256": "11a27215a6e4da3c2a0c10776cfd1d2a0dd9920c5df4b7c698d110afafc63b4f",
+      "samples": 546,
+      "end_before_waypoint_5_step": 2732,
+      "student_takeover": 1700
+    },
+    {
+      "source": "anchored_j",
+      "included": true,
+      "rollout_sha256": "fe528af5a58c5dafea376e2d9cec35390013cf8eea53207c5d7da69e0fb9f604",
+      "samples": 539,
+      "end_before_waypoint_5_step": 2696,
+      "student_takeover": 2000
+    },
+    {
+      "source": "anchored_i",
+      "included": false,
+      "reason": "failed qualification"
+    },
+    {
+      "source": "approach_early_j",
+      "included": true,
+      "rollout_sha256": "c42153c0731e95410c07fd45043c93c2fe8b09c675aa632d3a7bbb49fc131376",
+      "samples": 538,
+      "end_before_waypoint_5_step": 2691,
+      "student_takeover": 2100
+    },
+    {
+      "source": "approach_early_i",
+      "included": false,
+      "reason": "failed qualification"
+    },
+    {
+      "source": "foot_i",
+      "included": true,
+      "rollout_sha256": "5d5cc75483d91a125d89973d2e196ccbd4ce79388e31d8b2a85e46fa2d16bc7d",
+      "samples": 554,
+      "end_before_waypoint_5_step": 2772,
+      "student_takeover": 2200
+    },
+    {
+      "source": "placement_j",
+      "included": true,
+      "rollout_sha256": "3f67ba9f1df0b9ee7bb9d7dbc65fd149ce1bfd292c5f6f7b7b44a6e4818ff279",
+      "samples": 540,
+      "end_before_waypoint_5_step": 2702,
+      "student_takeover": 2100
+    },
+    {
+      "source": "newactor_j",
+      "included": true,
+      "rollout_sha256": "9dbf0b1c6e367bbc04fade1afeb027d1c56ee2766bb2cd6af09b7c90d106428f",
+      "samples": 546,
+      "end_before_waypoint_5_step": 2732,
+      "student_takeover": 2200
+    },
+    {
+      "source": "newactor_i",
+      "included": true,
+      "rollout_sha256": "e8d46bb1d0bba931af63f22261b3a98ef45663e87fbf881534e2897b4992a846",
+      "samples": 549,
+      "end_before_waypoint_5_step": 2743,
+      "student_takeover": 2100
+    }
+  ],
+  "initial_policy_sha256": "e77caf0359995eaf8044a16ee4c52ed236b6b89556fd3843ddeab2b088bf16f6",
+  "output_policy_sha256": "970e5f218cedc772d6641a09d57d412352b72e4b93ab82646a3c16642011e002",
+  "seed": 20261111,
+  "train_samples": 4358,
+  "in_trajectory_validation_samples": 1094,
+  "train_stage_counts": [
+    2912,
+    493,
+    402,
+    340,
+    211
+  ],
+  "initial_validation_mae": [
+    0.003589015221223235,
+    0.07955252379179001,
+    0.13758674263954163,
+    0.028793485835194588
+  ],
+  "history": [
+    {
+      "epoch": 1,
+      "train_loss": 0.07046990727798806,
+      "in_trajectory_validation_mae": [
+        0.009044500067830086,
+        0.11181266605854034,
+        0.15935665369033813,
+        0.028114624321460724
+      ],
+      "head_mse": 0.0002136553666787222,
+      "seconds": 0.25
+    },
+    {
+      "epoch": 20,
+      "train_loss": 0.015376103421052298,
+      "in_trajectory_validation_mae": [
+        0.004026498645544052,
+        0.06935715675354004,
+        0.12003479897975922,
+        0.030126415193080902
+      ],
+      "head_mse": 0.00011626453488133848,
+      "seconds": 1.04
+    },
+    {
+      "epoch": 60,
+      "train_loss": 0.011980710628752908,
+      "in_trajectory_validation_mae": [
+        0.003984821494668722,
+        0.0627739429473877,
+        0.11644822359085083,
+        0.025417452678084373
+      ],
+      "head_mse": 3.679106885101646e-05,
+      "seconds": 2.68
+    },
+    {
+      "epoch": 120,
+      "train_loss": 0.013043754604748554,
+      "in_trajectory_validation_mae": [
+        0.0038012538570910692,
+        0.06702892482280731,
+        0.1192052885890007,
+        0.024677375331521034
+      ],
+      "head_mse": 9.349970059702173e-05,
+      "seconds": 5.17
+    }
+  ],
+  "limits": "Development trajectories and in-trajectory diagnostic only; no terminal landing samples or independent holdout."
+}

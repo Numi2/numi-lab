@@ -1,0 +1,3 @@
+# Corrective learning from current policy states
+
+Starting with the last fixed actor, add qualified J and I interventions from actual current-student prefixes to the existing qualified corrective route corpus. Include each new source only if its recorded full guided recovery passes endpoint-prefix parity, physically reached waypoints, nonfoot/fatal/solver gates and terminal load; exclude failed demonstrations in full and exclude all landing labels. Keep training and deterministic export fixed, then evaluate both used development layouts from full start with teacher off, without retuning. K/L remain untouched.
