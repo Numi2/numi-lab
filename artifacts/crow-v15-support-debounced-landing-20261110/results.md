@@ -1,0 +1,3 @@
+# Contact-debounced exploratory handoff
+
+The development guide reached five waypoints in every start. Twelve of sixteen survived through step 4500; four had physical failures. No start met the 25-consecutive-step support requirement or entered phase two, and the longest qualifying bilateral-load streak was two steps. The preregistered prediction was therefore contradicted: the survival portion was met, but no start ended with the required bilateral support. This is not a supported landing or autonomous policy result, and failed demonstrations remain excluded. Samples and force measurements are retained.

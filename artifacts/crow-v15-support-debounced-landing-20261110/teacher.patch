@@ -1,0 +1,26 @@
+--- a/teacher.metal
++++ b/teacher-stop.metal
+@@ -6748,7 +6748,9 @@
+                     if ((group.members.z & MR_TASK_CONTACT_SUPPORT) != 0u &&
+                         compactContact[compactBase+group.members.w] > 0.05f) ++loadedFeet;
+                 }
+-                if (landingPhase > 0.5f && loadedFeet >= 2u &&
++                if (landingPhase >= 1.5f && state.nutrition.x + state.nutrition.y < 0.25f) landingPhase=1.0f;
++                const uint supportDuration = (state.status.w >> 25u) & 127u;
++                if (landingPhase > 0.5f && landingPhase < 1.5f && loadedFeet >= 2u && supportDuration >= 25u &&
+                     abs(xError) < 0.06f && abs(yError) < 0.16f &&
+                     length(yawFrameLinear.xy) < 0.08f &&
+                     abs(rootLinearVelocity.z) < 0.12f) landingPhase=2.0f;
+@@ -9374,6 +9376,12 @@
+                     packed |= next << (side*6u);
+                 }
+             }
++            if (state.navigation.z>=5.0f && state.threatTeacher.w<1.5f) {
++                const uint prior=(state.status.w>>25u)&127u;
++                const bool supported=state.nutrition.x>0.10f && state.nutrition.y>0.10f && state.nutrition.x+state.nutrition.y>2.2f;
++                const uint duration=supported ? min(prior+1u,100u) : 0u;
++                packed |= duration<<25u;
++            }
+             // Accepted contact resultant and articulated COM supply a bounded
+             // proprioceptive support error; no force is applied by this observer.
+             if (state.navigation.z>=5.0f && state.threatTeacher.w>=1.5f) {
