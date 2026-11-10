@@ -1,0 +1,3 @@
+# Teacher-off release candidate
+
+Before testing, apply the contact-conditioned timed hold and toe opening to the teacher-off landing state machine using the existing student foot target and frozen flight controller. Preserve phase 3 until bilateral support is lost, then return to landing recovery; never inject support forces. Test on full teacher-off trajectories only after a routing actor can reach the final waypoint. Require exact accepted-state and action parity against the unchanged student shader before the release event, measured opposing grip, opening, continued support and nonfoot contact audit. This source is experimental and must not be declared qualified merely because it compiles.

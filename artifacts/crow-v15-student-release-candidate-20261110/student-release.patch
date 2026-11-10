@@ -1,0 +1,37 @@
+--- a/student.metal
++++ b/student.metal
+@@ -5533,7 +5533,7 @@
+     if ((program.schedule.w & MR_TASK_PROGRAM_AVIAN_CROW_HIERARCHICAL_NAVIGATION) != 0u &&
+         state.episode.z == 10u && program.counts0.w >= 5u && dispatch.counts.w == 30u) {
+         const float seconds=float(state.episode.x)*dispatch.timing.x;
+-        const bool closing=state.navigation.z>=5.0f;
++        const bool closing=state.navigation.z>=5.0f && state.threatTeacher.w<2.5f;
+         for (uint side=0u;side<2u;++side) {
+             const uint ramp=(state.status.w>>(side*6u)) & 63u;
+             const uint rearRamp=(state.status.w>>(13u+side*6u)) & 63u;
+@@ -6849,9 +6849,15 @@
+                     if ((group.members.z & MR_TASK_CONTACT_SUPPORT)!=0u &&
+                         compactContact[compactBase+group.members.w]>0.05f) ++loadedFeet;
+                 }
+-                if (state.navigation.z >= float(kCrowNavigationWaypointCount) && loadedFeet>=2u && abs(state.nutrition.z)<0.045f &&
++                if (phase >= 1.5f && state.nutrition.x+state.nutrition.y < 0.25f) phase=1.0f;
++                if (state.navigation.z >= float(kCrowNavigationWaypointCount) && phase<2.5f && loadedFeet>=2u && abs(state.nutrition.z)<0.045f &&
+                     abs(finalGoal.y-pos.y)<0.16f && length(yawFrameLinear.xy)<0.08f &&
+                     abs(rootLinearVelocity.z)<0.12f) phase=2.0f;
++                if (phase < 1.5f) state.threatMetadata.x=0u;
++                else if (phase < 2.5f) {
++                    if (state.threatMetadata.x==0u || state.threatMetadata.x==MR_INVALID_INDEX) state.threatMetadata.x=state.episode.x;
++                    if (state.episode.x >= state.threatMetadata.x+200u && state.nutrition.x>0.10f && state.nutrition.y>0.10f && state.nutrition.x+state.nutrition.y>2.2f) phase=3.0f;
++                }
+             }
+         }
+         state.commandAndPhase.xyz=float3(0.15f,0.0f,0.0f);
+@@ -9418,7 +9424,7 @@
+                     packed |= next << (side*6u);
+                 }
+             }
+-            if (state.navigation.z>=5.0f && state.threatTeacher.w<1.5f) {
++            if (state.navigation.z>=5.0f && state.threatTeacher.w<2.5f) {
+                 const uint prior=(state.status.w>>25u)&127u;
+                 const bool supported=state.nutrition.x>0.10f && state.nutrition.y>0.10f && state.nutrition.x+state.nutrition.y>2.2f;
+                 const uint duration=supported ? min(prior+1u,100u) : 0u;
