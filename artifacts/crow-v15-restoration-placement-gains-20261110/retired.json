@@ -1,0 +1,11 @@
+{
+  "remote_commit": "5bd5f9609554414dd5c1258c6e15393741e0bdfc",
+  "retired": [
+    {
+      "raw": "artifacts/crow-v15-foot-placement-balance-gain-screen-20261110/results.txt",
+      "archive": "artifacts/crow-v15-foot-placement-balance-gain-screen-20261110/results.txt.gz",
+      "sha256": "8cf77c3c24c8db387282a9a488cd2d6ccf6a8c8e100d04910f8fd92ca1b6bc83",
+      "bytes": 2435908
+    }
+  ]
+}
