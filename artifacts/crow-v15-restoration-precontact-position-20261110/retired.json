@@ -1,0 +1,11 @@
+{
+  "remote_commit": "7765a450ca3e41c5b57a1be0b13e5330706f5b53",
+  "retired": [
+    {
+      "raw": "artifacts/crow-v15-precontact-leg-position-screen-20261110/results.txt",
+      "archive": "artifacts/crow-v15-precontact-leg-position-screen-20261110/results.txt.gz",
+      "sha256": "a18e8364abdd06f3a14d9d00b90863399be595513517da74a81f1bed8268f76b",
+      "bytes": 2371983
+    }
+  ]
+}
