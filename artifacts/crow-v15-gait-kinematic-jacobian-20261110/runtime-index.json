@@ -1,0 +1,12 @@
+[
+  {
+    "path": "build/crow-v15-gait-kinematic-jacobian-20261110/probe",
+    "sha256": "88017e433e5c29cea65f9a9bf5b4646a0dd9743faadb6871377e1daf7161a704",
+    "bytes": 82456
+  },
+  {
+    "path": "build/lib/libmetalrobo.dylib",
+    "sha256": "d7dad802978b03d8571487dac644678d2c4c1a8eae5b8a4c5c57be261cfbe11a",
+    "bytes": 5728528
+  }
+]

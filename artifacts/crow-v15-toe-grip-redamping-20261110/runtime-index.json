@@ -1,0 +1,17 @@
+[
+  {
+    "path": "build/crow-v15-toe-grip-redamping-20261110/perch_probe",
+    "sha256": "dab7ab65dfd65a4657d6b12e3e02d1f6ebc31cdccf1bb0e12962ccb1310513d9",
+    "bytes": 100472
+  },
+  {
+    "path": "build/lib/libmetalrobo.dylib",
+    "sha256": "d7dad802978b03d8571487dac644678d2c4c1a8eae5b8a4c5c57be261cfbe11a",
+    "bytes": 5728528
+  },
+  {
+    "path": "build/shaders/MetalRobo.metallib",
+    "sha256": "69023c5dcd83c3a10bdc62a5a14d3a9c56d75797de36c95ed090b0f41ef9e135",
+    "bytes": 4467648
+  }
+]

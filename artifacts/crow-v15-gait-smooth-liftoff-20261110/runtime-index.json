@@ -1,0 +1,17 @@
+[
+  {
+    "path": "build/crow-v15-gait-smooth-liftoff-20261110/pow15.metallib",
+    "sha256": "c07ed4a7fccb7f555563973070896972aa0d9402e4b319c10fc2c933fea439a3",
+    "bytes": 4470912
+  },
+  {
+    "path": "build/crow-v15-gait-smooth-liftoff-20261110/pow20.metallib",
+    "sha256": "801c420e9bcab66314a4ebbc14944d059370150791f08b4ad9606c93beb7a663",
+    "bytes": 4470912
+  },
+  {
+    "path": "build/crow-v15-gait-smooth-liftoff-20261110/pow30.metallib",
+    "sha256": "04afc018af43bee3bdb3ba33441a1c1614896db36785ea1a5a19e9ca169af0d5",
+    "bytes": 4470912
+  }
+]
