@@ -1,0 +1,11 @@
+--- a/damping.metal
++++ b/mapping.metal
+@@ -4998,7 +4998,7 @@
+         if (fixedFlightController && !privilegedCommand && state.episode.z==10u && dispatch.counts.w==30u && state.navigation.z>=5.0f && state.threatTeacher.w<1.5f) {
+             // Delayed, quantized simulation-state feedback; experiment only.
+             const float footError=float(int((state.status.w>>13u)&1023u)-512)*0.001f;
+-            oracleCommand.x=clamp(0.45f*footError-0.7f*state.commandExtension.z,-0.12f,0.12f);
++            oracleCommand.x=0.10f+clamp(0.45f*footError-0.7f*state.commandExtension.z,-0.12f,0.12f);
+             if(state.threatTeacher.w<0.5f) oracleCommand.w=1.20f;
+         }
+         carrierState.commandAndPhase.x = 0.15f;
