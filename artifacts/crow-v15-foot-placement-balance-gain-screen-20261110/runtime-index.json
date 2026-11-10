@@ -1,0 +1,17 @@
+[
+  {
+    "path": "build/crow-v15-foot-placement-balance-gain-screen-20261110/probe",
+    "sha256": "91c86372c84e6264eff414b2391b3b88275cd92c0c3ff1c0df787dd2e9d743c8",
+    "bytes": 118424
+  },
+  {
+    "path": "build/crow-v15-foot-placement-balance-gain-screen-20261110/libmetalrobo.dylib",
+    "sha256": "a51bd511f02cdda72d3773fe5450a84c861b487b1a4bfe5c9179b3903551ee86",
+    "bytes": 5729488
+  },
+  {
+    "path": "build/crow-v15-alternating-foot-release-20261110/teacher.metallib",
+    "sha256": "a1fa801ac2f2ea5e557a54073b280039e5bb60422d8b5beb1cd90b2ec22c459b",
+    "bytes": 4485424
+  }
+]
