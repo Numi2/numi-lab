@@ -1,0 +1,22 @@
+--- a/speedbias.metal
++++ b/slow_latch.metal
+@@ -6788,8 +6788,8 @@
+                         compactContact[compactBase+group.members.w]>0.05f) ++loadedFeet;
+                 }
+                 if (state.navigation.z >= float(kCrowNavigationWaypointCount) && loadedFeet>=2u && abs(state.nutrition.z)<0.045f &&
+-                    abs(finalGoal.y-pos.y)<0.16f && length(yawFrameLinear.xy)<0.08f &&
+-                    abs(rootLinearVelocity.z)<0.12f) phase=2.0f;
++                    abs(finalGoal.y-pos.y)<0.16f && length(yawFrameLinear.xy)<0.025f &&
++                    abs(rootLinearVelocity.z)<0.08f) phase=2.0f;
+             }
+         }
+         state.commandAndPhase.xyz=float3(0.15f,0.0f,0.0f);
+@@ -9352,7 +9352,7 @@
+                     const float3 force=float3(compactContact[w],compactContact[w+1u],compactContact[w+2u]);
+                     const bool loaded=length(force)>0.05f;
+                     const uint previous=(state.status.w>>(side*6u))&63u;
+-                    const uint next=loaded ? min(previous+1u,48u) : (previous>0u ? previous-1u : 0u);
++                    const uint next=loaded || (state.threatTeacher.w>=1.5f && previous>=12u) ? min(previous+1u,48u) : (previous>0u ? previous-1u : 0u);
+                     packed |= next << (side*6u);
+                 }
+             }

@@ -1,0 +1,10 @@
+/Users/n/Developer/numi-crow-rl-20261107/build/crow-v15-grip-latch-20261110/latch.metal:5494:21: warning: unused variable 'seconds' [-Wunused-variable]
+        const float seconds=float(state.episode.x)*dispatch.timing.x;
+                    ^
+1 warning generated.
+latch 87ef37295a6495026b6a7a67fce245f6af7d0d5da1a176c835bdcd0296e5bde9
+/Users/n/Developer/numi-crow-rl-20261107/build/crow-v15-grip-latch-20261110/slow_latch.metal:5494:21: warning: unused variable 'seconds' [-Wunused-variable]
+        const float seconds=float(state.episode.x)*dispatch.timing.x;
+                    ^
+1 warning generated.
+slow_latch e5cf0ffde94aca08b876eaeccaaba2f050647a8bcf96b09e5017e01191b1696a

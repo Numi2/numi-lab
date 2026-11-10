@@ -1,0 +1,1 @@
+Test toe-drive maintenance after sustained rear-toe load, using bounded joint motors and accepted contact feedback, on two used J starts; a second matched arm also lowers the permitted touchdown speed. The latch is a test of maintaining grip, not a release implementation. Require 4500-step supported landing, opposing grip, no physical failure and retained continuous execution.
