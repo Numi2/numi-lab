@@ -1,0 +1,3 @@
+# Result
+
+The 0.10 stiffness baseline matched every one of 1,600 saved state samples exactly. All three closing arms passed the full combined gate in 4/8 starts. The baseline produced three consecutive bilateral opposing grip samples in 8/8; both increased-stiffness arms did so in only 4/8 and retained terminal support in 4/8 versus 6/8 baseline. The open control produced no grip and stayed supported in 8/8. The prespecified improvement to at least 6/8 was contradicted; increasing stiffness is rejected. Stiffness values are uncalibrated research parameters, not measured crow anatomy. These are already-supported isolated starts, not landing trials.

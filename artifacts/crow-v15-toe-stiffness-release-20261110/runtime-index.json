@@ -1,0 +1,17 @@
+[
+  {
+    "path": "build/crow-v15-toe-stiffness-release-20261110/probe",
+    "sha256": "84f46a9b90f6309e5d437f01d5eb479f974c1d1bee06e61661c29571244544da",
+    "bytes": 101096
+  },
+  {
+    "path": "build/lib/libmetalrobo.dylib",
+    "sha256": "d7dad802978b03d8571487dac644678d2c4c1a8eae5b8a4c5c57be261cfbe11a",
+    "bytes": 5728528
+  },
+  {
+    "path": "build/shaders/MetalRobo.metallib",
+    "sha256": "69023c5dcd83c3a10bdc62a5a14d3a9c56d75797de36c95ed090b0f41ef9e135",
+    "bytes": 4467648
+  }
+]
