@@ -1,0 +1,3 @@
+# Reserved-layout host parity gate
+
+Before any test on K/L, replay the completed clear-j-hard development episode using the extended host, original v15 body, same policy, shader, course, seed and 7,000-step schedule. Compare every replay frame's step, q, v, actor observation and accepted action against the original host. Require exact equality in all frames and no solver failure. Retain source and binary hashes and both the result and trace. This is a host compatibility check on used development data, not a held-out trial; K/L seeds and outcomes remain unopened. The final actor remains unqualified pending all development screens.
