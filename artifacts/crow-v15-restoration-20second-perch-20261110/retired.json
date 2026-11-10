@@ -1,0 +1,11 @@
+{
+  "remote_commit": "ff8e71e23ad173ff73bd3de63b1fc204c14bab52",
+  "retired": [
+    {
+      "raw": "artifacts/crow-v15-lean-20second-perch-screen-20261110/results.txt",
+      "archive": "artifacts/crow-v15-lean-20second-perch-screen-20261110/results.txt.gz",
+      "sha256": "4d446e879e6e627a155fb5e8b19beaa8c5ec1909aa5dca65c22cecb1b0712fb5",
+      "bytes": 2989313
+    }
+  ]
+}
