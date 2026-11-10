@@ -1,0 +1,11 @@
+{
+  "remote_commit": "f3c13a988cca8255a2dd3ff7674aa18d6c0dad03",
+  "retired": [
+    {
+      "raw": "artifacts/crow-v15-integral-perch-balance-screen-20261110/results.txt",
+      "archive": "artifacts/crow-v15-integral-perch-balance-screen-20261110/results.txt.gz",
+      "sha256": "d5931b1ed60435f2ce8423feba6b889075f9853a3e0999b3dcf3a19bc0bb6d51",
+      "bytes": 8111379
+    }
+  ]
+}
