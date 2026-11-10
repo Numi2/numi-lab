@@ -1,0 +1,41 @@
+{
+  "remote_commit": "f22d7e7519d558ae2dda47e887c4b7702ea97cc1",
+  "retired": [
+    {
+      "raw": "build/crow-v15-ccd-budget-20261110/development-j-perch-balance.json",
+      "archive": "artifacts/crow-v15-perch-balance-20261110/development-j-perch-balance.json.gz",
+      "sha256": "dbe7fe18ecf9d6475bb0b18bd024c5ccc07f90fd58845788a63d89d483838017",
+      "bytes": 166830832
+    },
+    {
+      "raw": "build/crow-v15-ccd-budget-20261110/development-j-perch-balance.tsv",
+      "archive": "artifacts/crow-v15-perch-balance-20261110/development-j-perch-balance.tsv.gz",
+      "sha256": "90e75e64007ee39d670eb802fcc65f37ff258a9da6a06f19c32b4c6c1a75a64a",
+      "bytes": 3618445
+    },
+    {
+      "raw": "build/crow-v15-ccd-budget-20261110/development-j-soft-balance.json",
+      "archive": "artifacts/crow-v15-soft-balance-20261110/development-j-soft-balance.json.gz",
+      "sha256": "ee18a82c8f8bfaa29c65875a7eefdbed0e277eab82fb4a3931e99f081282598d",
+      "bytes": 162133545
+    },
+    {
+      "raw": "build/crow-v15-ccd-budget-20261110/development-j-soft-balance.tsv",
+      "archive": "artifacts/crow-v15-soft-balance-20261110/development-j-soft-balance.tsv.gz",
+      "sha256": "a0ba24e694d515528fc0137853e11ee5bae7b2453da5c6d123c2b71945cbbadf",
+      "bytes": 3608356
+    },
+    {
+      "raw": "build/crow-v15-ccd-budget-20261110/development-j-pose-hold.json",
+      "archive": "artifacts/crow-v15-pose-hold-20261110/development-j-pose-hold.json.gz",
+      "sha256": "11e07bf889b1e0038d677e28717a531ca201643943ad91689eaafc8a4dc8aa3b",
+      "bytes": 162075766
+    },
+    {
+      "raw": "build/crow-v15-ccd-budget-20261110/development-j-pose-hold.tsv",
+      "archive": "artifacts/crow-v15-pose-hold-20261110/development-j-pose-hold.tsv.gz",
+      "sha256": "bd6f7c7069ca71799555d4d709254e2bb59f72df97120d8d2cb90a4e3526535f",
+      "bytes": 3607076
+    }
+  ]
+}

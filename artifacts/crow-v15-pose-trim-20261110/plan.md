@@ -1,0 +1,5 @@
+# Gentle hip trim around reached leg pose
+
+Holding the reached leg targets kept the handoff joint angles continuous, but the body still pitched forward and lost support at step 4059. It finished airborne at the 5000-step horizon. The earlier high-gain controller used zero as the nominal hip action, causing a large target transition; fixed-root kinematics alone did not predict its dynamics. Test a smaller pitch and pitch-rate correction around the actual held hip action (-0.10), while retaining the held knee and ankle commands. Bound each hip action to [-0.20, 0.00], with pitch and rate gains 0.25 and 0.08. Keep the existing toe/reflex, contact-flare, flight law, model and solver. This is a physical joint target, not a stabilizing external force.
+
+On the same used-J development seed, compare the first episode through step 5000 against the exact pose-hold result. Require uninterrupted supported balance after landing, opposing toe contact and no nonfoot collision or reset; report loss of support, root pose and velocity. This exploratory guided test is not autonomy, intentional release or unused-layout evidence.
