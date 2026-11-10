@@ -1,0 +1,41 @@
+{
+  "remote_commit": "8a1214ecf035d44ba5f6b3f5b467177dfa76c14f",
+  "retired": [
+    {
+      "raw": "build/crow-v15-ccd-budget-20261110/development-j-touchdown-hold.json",
+      "archive": "artifacts/crow-v15-touchdown-hold-20261110/development-j-touchdown-hold.json.gz",
+      "sha256": "b4fa5a430cf4a2f15f8d8cc28aa3cfeef58b1cba53d6c5f2ed1bd82f6410a63a",
+      "bytes": 165114088
+    },
+    {
+      "raw": "build/crow-v15-ccd-budget-20261110/development-j-touchdown-hold.tsv",
+      "archive": "artifacts/crow-v15-touchdown-hold-20261110/development-j-touchdown-hold.tsv.gz",
+      "sha256": "389298cb36e5bd704e393004af9c61ceea0a96561aa1415997b50a3d31e82527",
+      "bytes": 3609641
+    },
+    {
+      "raw": "build/crow-v15-gait-fresh-20261110/1475186643-push.tsv",
+      "archive": "artifacts/crow-v15-gait-fresh-20261110/1475186643-push.trace.tsv.gz",
+      "sha256": "a1dd0e845cf59df53873cdb35742ec3af349cf7260419b87e707d00e69f27d00",
+      "bytes": 658351
+    },
+    {
+      "raw": "build/crow-v15-gait-fresh-20261110/1475186643-control.tsv",
+      "archive": "artifacts/crow-v15-gait-fresh-20261110/1475186643-control.trace.tsv.gz",
+      "sha256": "16e767816b193fb9edf1b3f82421989699ed2f319f44447322a317e805816ae4",
+      "bytes": 658193
+    },
+    {
+      "raw": "build/crow-v15-gait-fresh-20261110/1632550922-push.tsv",
+      "archive": "artifacts/crow-v15-gait-fresh-20261110/1632550922-push.trace.tsv.gz",
+      "sha256": "85b8875ecc1db3655496a231a0db13656c6b091dafd1df7923456e95973df479",
+      "bytes": 654225
+    },
+    {
+      "raw": "build/crow-v15-gait-fresh-20261110/1632550922-control.tsv",
+      "archive": "artifacts/crow-v15-gait-fresh-20261110/1632550922-control.trace.tsv.gz",
+      "sha256": "599fe91064b9a4f3d3f27785b5c8f3528b7799f4d5ffd6837641825bc6f72c97",
+      "bytes": 654060
+    }
+  ]
+}
