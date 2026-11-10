@@ -1,0 +1,137 @@
+{
+  "remote_commit": "c32bdc64da70db3b52ee67b020d1ae4198b162da",
+  "retired": [
+    {
+      "path": "build/crow-v15-pitch-toe-stiffness-screen-20261110/probe",
+      "sha256": "fa9b47e01e32314ac12553236399f70cf515c1a5134fe555267071e3bb6a8a76",
+      "bytes": 101816,
+      "archive": "artifacts/crow-v15-pitch-toe-stiffness-screen-20261110/runtime.tar.gz"
+    },
+    {
+      "path": "build/crow-v15-pitch-toe-stiffness-screen-20261110/libmetalrobo.dylib",
+      "sha256": "aac2160f7f897508ad01516b72b54f7a35ef8d0e02e3e23c6a8dfee8016b4968",
+      "bytes": 5729488,
+      "archive": "artifacts/crow-v15-pitch-toe-stiffness-screen-20261110/runtime.tar.gz"
+    },
+    {
+      "path": "build/crow-v15-rear-toe-contact-regulation-20261110/probe",
+      "sha256": "6c301ef84fde8a42870178e257ecf5a85aeb1ff5918f13dda006a77736d1a678",
+      "bytes": 101816,
+      "archive": "artifacts/crow-v15-rear-toe-contact-regulation-20261110/runtime.tar.gz"
+    },
+    {
+      "path": "build/crow-v15-rear-toe-contact-regulation-20261110/libmetalrobo.dylib",
+      "sha256": "aac2160f7f897508ad01516b72b54f7a35ef8d0e02e3e23c6a8dfee8016b4968",
+      "bytes": 5729488,
+      "archive": "artifacts/crow-v15-rear-toe-contact-regulation-20261110/runtime.tar.gz"
+    },
+    {
+      "path": "build/crow-v15-rear-toe-hold-regulation-20261110/probe",
+      "sha256": "efc10d80feaa35ec154b3f191ecd5ad23a16b679467de8ce1f4e323678c103fc",
+      "bytes": 101816,
+      "archive": "artifacts/crow-v15-rear-toe-hold-regulation-20261110/runtime.tar.gz"
+    },
+    {
+      "path": "build/crow-v15-rear-toe-hold-regulation-20261110/libmetalrobo.dylib",
+      "sha256": "aac2160f7f897508ad01516b72b54f7a35ef8d0e02e3e23c6a8dfee8016b4968",
+      "bytes": 5729488,
+      "archive": "artifacts/crow-v15-rear-toe-hold-regulation-20261110/runtime.tar.gz"
+    },
+    {
+      "path": "build/crow-v15-bilateral-perturbation-screen-20261110/probe",
+      "sha256": "c96056993df2fee12a53c7c8c7bf0fa87f5590cd327572c6d91342bc48ae530a",
+      "bytes": 101880,
+      "archive": "artifacts/crow-v15-bilateral-perturbation-screen-20261110/runtime.tar.gz"
+    },
+    {
+      "path": "build/crow-v15-bilateral-perturbation-screen-20261110/libmetalrobo.dylib",
+      "sha256": "e6350ba016f1943348454cc554adc8fe3d68cc0605f9ab8ab24cf0a3c569d3ee",
+      "bytes": 5729488,
+      "archive": "artifacts/crow-v15-bilateral-perturbation-screen-20261110/runtime.tar.gz"
+    },
+    {
+      "path": "build/crow-v15-precontact-leg-position-screen-20261110/probe",
+      "sha256": "0ebaf76c2c51d009f64015971d9d13c83189812a6a627663f9c1734825ae2483",
+      "bytes": 101816,
+      "archive": "artifacts/crow-v15-precontact-leg-position-screen-20261110/runtime.tar.gz"
+    },
+    {
+      "path": "build/crow-v15-precontact-leg-position-screen-20261110/libmetalrobo.dylib",
+      "sha256": "a51bd511f02cdda72d3773fe5450a84c861b487b1a4bfe5c9179b3903551ee86",
+      "bytes": 5729488,
+      "archive": "artifacts/crow-v15-precontact-leg-position-screen-20261110/runtime.tar.gz"
+    },
+    {
+      "path": "build/crow-v15-toe-preparation-timing-screen-20261110/probe",
+      "sha256": "05fd50498edcf4cd335288a345e9a45d9ace99ba0faa1f182fcbd4590de0b01f",
+      "bytes": 101816,
+      "archive": "artifacts/crow-v15-toe-preparation-timing-screen-20261110/runtime.tar.gz"
+    },
+    {
+      "path": "build/crow-v15-toe-preparation-timing-screen-20261110/libmetalrobo.dylib",
+      "sha256": "956389f0135264db3f2d70018d47706410be4a57b234f4d85f620d9e205dd89a",
+      "bytes": 5729488,
+      "archive": "artifacts/crow-v15-toe-preparation-timing-screen-20261110/runtime.tar.gz"
+    },
+    {
+      "path": "build/crow-v15-foot-position-feedback-screen-20261110/probe",
+      "sha256": "400e984183eab443d2072bfa564b3ca6ed8f82bb674e247a1890bf740126d183",
+      "bytes": 118424,
+      "archive": "artifacts/crow-v15-foot-position-feedback-screen-20261110/runtime.tar.gz"
+    },
+    {
+      "path": "build/crow-v15-foot-position-feedback-screen-20261110/libmetalrobo.dylib",
+      "sha256": "956389f0135264db3f2d70018d47706410be4a57b234f4d85f620d9e205dd89a",
+      "bytes": 5729488,
+      "archive": "artifacts/crow-v15-foot-position-feedback-screen-20261110/runtime.tar.gz"
+    },
+    {
+      "path": "build/crow-v15-foot-support-substep-audit-20261110/probe",
+      "sha256": "dd35c57bf7307c08126e75a287347939da3206eb083cd6f3eac723e361f2825a",
+      "bytes": 118424,
+      "archive": "artifacts/crow-v15-foot-support-substep-audit-20261110/runtime.tar.gz"
+    },
+    {
+      "path": "build/crow-v15-foot-support-substep-audit-20261110/libmetalrobo.dylib",
+      "sha256": "3fd3df46daae7eb3da550615402a5634ea9be865bbda2604db2a0d36c7a26157",
+      "bytes": 5729488,
+      "archive": "artifacts/crow-v15-foot-support-substep-audit-20261110/runtime.tar.gz"
+    },
+    {
+      "path": "build/crow-v15-foot-placement-balance-gain-screen-20261110/probe",
+      "sha256": "91c86372c84e6264eff414b2391b3b88275cd92c0c3ff1c0df787dd2e9d743c8",
+      "bytes": 118424,
+      "archive": "artifacts/crow-v15-foot-placement-balance-gain-screen-20261110/runtime.tar.gz"
+    },
+    {
+      "path": "build/crow-v15-foot-placement-balance-gain-screen-20261110/libmetalrobo.dylib",
+      "sha256": "a51bd511f02cdda72d3773fe5450a84c861b487b1a4bfe5c9179b3903551ee86",
+      "bytes": 5729488,
+      "archive": "artifacts/crow-v15-foot-placement-balance-gain-screen-20261110/runtime.tar.gz"
+    },
+    {
+      "path": "build/crow-v15-long-perch-support-screen-20261110/probe",
+      "sha256": "fb5a934e999134bca9021fec3ea1b4b7d9228c7481481a8a6ae12ebec0085ad8",
+      "bytes": 101912,
+      "archive": "artifacts/crow-v15-long-perch-support-screen-20261110/runtime.tar.gz"
+    },
+    {
+      "path": "build/crow-v15-long-perch-support-screen-20261110/libmetalrobo.dylib",
+      "sha256": "871c65bc05e0b2dd92b2058abb98cfcdf612118c663139d835af183ffc67d273",
+      "bytes": 5729488,
+      "archive": "artifacts/crow-v15-long-perch-support-screen-20261110/runtime.tar.gz"
+    },
+    {
+      "path": "build/crow-v15-long-pitch-balance-screen-20261110/probe",
+      "sha256": "adf79382a2dcc765ed2c1019bc4b1f40ea28ea379a54963f6c5c0898f7ed7c78",
+      "bytes": 101816,
+      "archive": "artifacts/crow-v15-long-pitch-balance-screen-20261110/runtime.tar.gz"
+    },
+    {
+      "path": "build/crow-v15-long-pitch-balance-screen-20261110/libmetalrobo.dylib",
+      "sha256": "956389f0135264db3f2d70018d47706410be4a57b234f4d85f620d9e205dd89a",
+      "bytes": 5729488,
+      "archive": "artifacts/crow-v15-long-pitch-balance-screen-20261110/runtime.tar.gz"
+    }
+  ]
+}
