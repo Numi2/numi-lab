@@ -1,0 +1,5 @@
+# Hybrid toe torque-limit sensitivity
+
+Increasing hybrid contact iterations from 4 to 32 retained local support but still left 4.57 mm rigid toe/perch overlap. In the same physically reached-like stationary-perch development case, hold the hybrid/SAT collision configuration, four solver iterations, dimensions, toe stiffness/damping, drive targets, timing and release fixed. Change only the eight toe actuator effort caps from the prototype 0.020 N m to 0.005, 0.001 or 0.00025 N m. Values are uncalibrated screening parameters, not claimed crow anatomy; the simulator must enforce its existing effort-limit flag.
+
+Require the unchanged 0.020 control to reproduce all previous hybrid trace samples. Report whether each arm completes, bilateral supported opposing grip, release, terminal support, toe angles, reported impulses and independent accepted-pose SAT gaps. A one-start reduction in overlap is only a hypothesis; any candidate must be repeated across perturbed starts, checked for actuator-limit enforcement and calibrated physics, and separately requalify flight, walking, push-off and continuous autonomous landing. Do not inspect or use reserved layouts.
