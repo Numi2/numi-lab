@@ -1,0 +1,3 @@
+# Scheduled toe release in development I
+
+Before execution, freeze the same toe-opening shader, body, flight controller, host, and support mechanics tested on J; use previously exposed I seed 4038889268 for one continuous 7000-step guided episode. At step 6000 issue the same scheduled toe-opening command. Compare accepted q/v with the no-release I control on all pre-command frames. Require all five waypoints, prior bilateral support with opposing toe forces, physical toe opening and rear force release while both feet remain supported, no nonfoot collision, and no solver failure. Report any transient instability, inadequate support or force gaps. This scheduled intervention is not an autonomous decision, and development I is not a held-out layout.

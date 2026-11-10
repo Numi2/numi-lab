@@ -1,0 +1,11 @@
+{
+  "expected_frames": 5999,
+  "compared_frames": 5999,
+  "first_difference": null,
+  "fields": [
+    "step",
+    "q",
+    "v"
+  ],
+  "exact_equal": true
+}
