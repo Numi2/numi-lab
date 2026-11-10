@@ -1,0 +1,4 @@
+/Users/n/Developer/numi-crow-rl-20261107/build/crow-v15-averaged-contact-control-20261110/teacher.metal:5530:21: warning: unused variable 'seconds' [-Wunused-variable]
+        const float seconds=float(state.episode.x)*dispatch.timing.x;
+                    ^
+1 warning generated.

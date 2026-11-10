@@ -1,0 +1,30 @@
+{
+  "remote_commit": "fc67fb9923ec951ffd48c89228d031327a8c042e",
+  "retired": [
+    {
+      "raw": "build/crow-v15-substep-contact-observer-20261110/development-reserved-final-j.json",
+      "archive": "artifacts/crow-v15-substep-contact-observer-20261110/development-reserved-final-j.json.gz",
+      "sha256": "fb968a5d877fdb8105d87ac268758e6a2845d68dd2faa45395ae42a96625675f",
+      "bytes": 149266865
+    },
+    {
+      "raw": "build/crow-v15-substep-contact-observer-20261110/development-reserved-final-j.tsv",
+      "archive": "artifacts/crow-v15-substep-contact-observer-20261110/development-reserved-final-j.tsv.gz",
+      "sha256": "9a7590800a95a41c214d362e64eeaa808f99db29401e73dd119a7f5fd081d3b3",
+      "bytes": 3268944
+    },
+    {
+      "raw": "build/crow-v15-substep-foot-sensor-20261110/development-reserved-final-j.json",
+      "archive": "artifacts/crow-v15-substep-foot-sensor-20261110/development-reserved-final-j.json.gz",
+      "sha256": "fb968a5d877fdb8105d87ac268758e6a2845d68dd2faa45395ae42a96625675f",
+      "bytes": 149266865
+    },
+    {
+      "raw": "build/crow-v15-substep-foot-sensor-20261110/development-reserved-final-j.tsv",
+      "archive": "artifacts/crow-v15-substep-foot-sensor-20261110/development-reserved-final-j.tsv.gz",
+      "sha256": "9a7590800a95a41c214d362e64eeaa808f99db29401e73dd119a7f5fd081d3b3",
+      "bytes": 3268944
+    }
+  ],
+  "bytes": 305071618
+}
