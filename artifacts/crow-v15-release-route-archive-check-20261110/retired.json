@@ -1,0 +1,60 @@
+{
+  "remote_commit": "730e289014c94c58b829475daca07348c38472f9",
+  "retired": [
+    {
+      "raw": "build/crow-v15-guide-foot-alignment-20261110/development-reserved-final-i.json",
+      "archive": "artifacts/crow-v15-guide-foot-alignment-20261110/development-reserved-final-i.json.gz",
+      "sha256": "6529314e4a8744090c870c40071ae0bf3e022f2d9bd7a93dfd12972dcd240a9b",
+      "bytes": 149105088
+    },
+    {
+      "raw": "build/crow-v15-guide-foot-alignment-20261110/development-reserved-final-i.tsv",
+      "archive": "artifacts/crow-v15-guide-foot-alignment-20261110/development-reserved-final-i.tsv.gz",
+      "sha256": "d70070f58dd01cb719a8a6a4e3f1b7f7af7fed59158425af3bbdb28ea403caa9",
+      "bytes": 3265897
+    },
+    {
+      "raw": "build/crow-v15-guide-foot-alignment-20261110/development-reserved-final-j.json",
+      "archive": "artifacts/crow-v15-guide-foot-alignment-20261110/development-reserved-final-j.json.gz",
+      "sha256": "eab998ee19053fd2dd3d77ceede065355d8530fc3c1d03ca9fd67db8868f4f9b",
+      "bytes": 149088140
+    },
+    {
+      "raw": "build/crow-v15-guide-foot-alignment-20261110/development-reserved-final-j.tsv",
+      "archive": "artifacts/crow-v15-guide-foot-alignment-20261110/development-reserved-final-j.tsv.gz",
+      "sha256": "53b4365e94cf93d80a72c5cdd3c16bac4aaa06e96468bf32ab86db46e7a06659",
+      "bytes": 3269355
+    },
+    {
+      "raw": "build/crow-v15-teacher-student-causality-20261110/off.json",
+      "archive": "artifacts/crow-v15-teacher-student-causality-20261110/off.json.gz",
+      "sha256": "cc61f6f268759d2cf786f32751a4e7df84340cfe8536b1ad82af3bb196ec9e25",
+      "bytes": 60316820
+    },
+    {
+      "raw": "build/crow-v15-teacher-student-causality-20261110/off.tsv",
+      "archive": "artifacts/crow-v15-teacher-student-causality-20261110/off.tsv.gz",
+      "sha256": "d84a84dd9db8fc44553e1104a920a919aef1fafd83e6515e5c124d20a960bd91",
+      "bytes": 1314478
+    },
+    {
+      "raw": "build/crow-v15-teacher-student-causality-20261110/labels.json",
+      "archive": "artifacts/crow-v15-teacher-student-causality-20261110/labels.json.gz",
+      "sha256": "80ebe318078222c57c67c32f603a6a3831adcfc919d91171549155dfce601c15",
+      "bytes": 60316819
+    },
+    {
+      "raw": "build/crow-v15-teacher-student-causality-20261110/labels.tsv",
+      "archive": "artifacts/crow-v15-teacher-student-causality-20261110/labels.tsv.gz",
+      "sha256": "d84a84dd9db8fc44553e1104a920a919aef1fafd83e6515e5c124d20a960bd91",
+      "bytes": 1314478
+    },
+    {
+      "raw": "build/crow-v15-sequenced-toe-release-20261110/results.txt",
+      "archive": "artifacts/crow-v15-sequenced-toe-release-20261110/results.txt.gz",
+      "sha256": "79098bb35b9b3d9da8254a0d89836171e49781f8611ebffce34891fe088ab0f8",
+      "bytes": 16028623
+    }
+  ],
+  "bytes": 444019698
+}
