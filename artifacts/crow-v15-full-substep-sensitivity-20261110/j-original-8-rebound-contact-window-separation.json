@@ -1,0 +1,53 @@
+{
+  "replay": "artifacts/crow-v15-full-substep-sensitivity-20261110/j-original-8-rebound.json.gz",
+  "windows": {
+    "contact_window_5900_5999": {
+      "frames": 100,
+      "all_eight_strictly_separated_frames": 36,
+      "minimum_separation_axis_gap_m": -0.005605694627110129,
+      "median_per_toe_gap_m": [
+        0.02781434176421819,
+        0.02758283998441017,
+        0.027351816733719718,
+        -0.0015102616734781645,
+        0.02923291541755856,
+        0.02900165229498767,
+        0.028770390145502433,
+        -0.0014876872425060063
+      ]
+    },
+    "after_6020_6119": {
+      "frames": 100,
+      "all_eight_strictly_separated_frames": 100,
+      "minimum_separation_axis_gap_m": 0.20473883660236042,
+      "median_per_toe_gap_m": [
+        1.3943865036023386,
+        1.3941943383704616,
+        1.39400193462478,
+        1.3125256109420684,
+        1.3955666727598222,
+        1.395374507527945,
+        1.3951818654589097,
+        1.3137055429167663
+      ]
+    },
+    "after_6150_6249": {
+      "frames": 100,
+      "all_eight_strictly_separated_frames": 100,
+      "minimum_separation_axis_gap_m": 3.182217992574015,
+      "median_per_toe_gap_m": [
+        3.963406500452213,
+        3.9632410379013203,
+        3.9630755753422706,
+        3.8806119964935974,
+        3.9644207288083884,
+        3.964255266257495,
+        3.964090280543761,
+        3.8816262241270114
+      ]
+    }
+  },
+  "method": "SAT separating-axis maximum gap for 8 toe OBBs versus perch OBB from accepted body transforms; positive gap establishes separation at that endpoint. Shape half-extents from original v15 research host. No inference about substeps.",
+  "reference_step": 6000,
+  "note": "Reference is a selected step after the longest periods of intermittent bilateral support; it is not a release event. No release was observed."
+}
