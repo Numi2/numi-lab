@@ -1,0 +1,23 @@
+{
+  "scope": "Diagnostic replay of incomplete toe-equipped flight; exposed development layouts. Not a demonstration of successful grip, release, supported landing, natural gait or biological calibration.",
+  "source_artifact": "artifacts/crow-v15-causal-route-20261110",
+  "source_uncompressed_sha256": {
+    "i": "51fe35214fb41ae41b166ea069ca986b95c43912a3156e673c793d6885888ece",
+    "j": "57915a99092a6db4430e0a5d8b8d695aa78e18a838d7c6ba3f05dc19f1088880"
+  },
+  "projection_sha256": {
+    "i": "4c8b0b975587b44f94c1871b5808a487175e792cd01c8a3c5344451a8ac53094",
+    "j": "52a1140cee8f4b904836abfa1a2e21253a2c45a6b01b0db9565bcca11f8b30d5"
+  },
+  "render_input_indices": {
+    "i": "0 through 2338 inclusive, stride 2",
+    "j": "0 through 2206 inclusive, stride 2"
+  },
+  "render_steps": "I 1..2339 and J 1..2207, odd accepted control steps, 25 fps; failures occur immediately after end of shown material.",
+  "renderer_revision": "6cadad7bade86245a99a4e83a4e1b0393733faca",
+  "renderer_binary_sha256": "e85f7d2f9a82a989fac30dd458da66a2cbe5f74ba2ef1b82e8670e5092d60bdf",
+  "projection_script_sha256": "ecd1395e382011235f36092ae73997bc10d11a840d5d0d9f6bd17b6a0c54979f",
+  "camera": "1280x720 overcast yaw -1.25 pitch 0.20 distance 1.05; visual support plant enabled",
+  "presentation_limits": "Recorded root and articulated body poses; surface, feather motion and support-plant cues are estimates. Renderer does not map toe joints. Failures are excluded from imagery and stated in overlay.",
+  "video_sha256": "08471982bb20bb67a0c7f7490befab7a9ab65d770d69f59d00a8a45bc800ae39"
+}
