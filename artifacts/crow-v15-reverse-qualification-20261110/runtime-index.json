@@ -1,0 +1,12 @@
+[
+  {
+    "path": "build/crow-v15-reverse-qualification-20261110/reverse25.metallib",
+    "sha256": "07a9a2627805d8febac23ac26c16ddc385ac692aa0048e6644d113e9f4529bab",
+    "bytes": 4462848
+  },
+  {
+    "path": "build/crow-v15-toe-damping-isolation-20261110/zero/libmetalrobo.dylib",
+    "sha256": "2295467d0b549ddfa5936414417dc1a95f8632392eadddd9449592c15a0bca2b",
+    "bytes": 5763712
+  }
+]

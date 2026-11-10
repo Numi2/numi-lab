@@ -1,0 +1,5 @@
+/Users/n/Developer/numi-crow-rl-20261107/build/crow-v15-reverse-qualification-20261110/reverse25.metal:4971:21: warning: unused variable 'navigationWingResidual' [-Wunused-variable]
+        const float navigationWingResidual = avianNavigationTeacher
+                    ^
+1 warning generated.
+reverse25 07a9a2627805d8febac23ac26c16ddc385ac692aa0048e6644d113e9f4529bab

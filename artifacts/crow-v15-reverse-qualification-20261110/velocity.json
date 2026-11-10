@@ -1,0 +1,10 @@
+{
+  "samples": 240,
+  "lanes": 40,
+  "min": -0.1732275894654119,
+  "median": -0.1419250676444207,
+  "max": -0.1059576121982322,
+  "negative_samples": 240,
+  "all_samples_negative": true,
+  "all_lanes_six_samples": true
+}

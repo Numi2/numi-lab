@@ -1,0 +1,1 @@
+Test the frozen toe-body flight controller at encoded -0.25 m/s over 40 perturbed starts and five obstacle-free flight modes. In addition to the old coarse survival screen, report actual velocity distributions and require sustained negative samples before considering reverse usable. This does not qualify obstacle clearance, touchdown, or real bird flight.
