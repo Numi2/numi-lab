@@ -1,0 +1,3 @@
+# Contact-responsive rear toe target screen
+
+The three controls exactly reproduced all 200 reference states. Neither independently regulated rear-toe candidate established the required sustained bilateral opposing grip or terminal support, so neither is eligible for broader testing. The reference pitch-coordinated grip and release passed the one-start behavioral screen but its worst grip-conditioned toe/perch overlap was 0.949 mm, above the independent 0.5 mm limit. The observer-disabled first launch stopped before a usable comparison; its output and correction are preserved separately. No full-sequence, held-out-layout, or biological qualification is claimed.
