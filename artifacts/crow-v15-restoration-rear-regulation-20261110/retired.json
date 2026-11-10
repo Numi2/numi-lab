@@ -1,0 +1,11 @@
+{
+  "remote_commit": "6eb40d8b5613bb2130f7ea04ed70852b8fe826c4",
+  "retired": [
+    {
+      "raw": "artifacts/crow-v15-rear-toe-contact-regulation-20261110/results.txt",
+      "archive": "artifacts/crow-v15-rear-toe-contact-regulation-20261110/results.txt.gz",
+      "sha256": "7e1c6da0468b2ae7f8494f2a7e48fc7ab77049196bc1a7edb2ab54c15a9d79f4",
+      "bytes": 2320430
+    }
+  ]
+}
