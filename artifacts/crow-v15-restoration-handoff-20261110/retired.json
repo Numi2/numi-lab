@@ -1,0 +1,41 @@
+{
+  "remote_commit": "5104ea9d8b1864d9a32d45a51ced33968c4ef9b7",
+  "retired": [
+    {
+      "raw": "build/crow-v15-long-perch-host-20261110/j-direct.json",
+      "archive": "artifacts/crow-v15-direct-approach-recovery-20261110/j-direct.json.gz",
+      "sha256": "56471919db48fefa28dd8b01bb7613138e8f3805554ba238e4c92e41fc0c9545",
+      "bytes": 232818751
+    },
+    {
+      "raw": "build/crow-v15-long-perch-host-20261110/j-direct.tsv",
+      "archive": "artifacts/crow-v15-direct-approach-recovery-20261110/j-direct.tsv.gz",
+      "sha256": "3955c92bbf27c090dc184d8e4754feeaa7a1a60dece74936d90d317caedf6312",
+      "bytes": 5042405
+    },
+    {
+      "raw": "build/crow-v15-long-perch-host-20261110/j-direct.rollout",
+      "archive": "artifacts/crow-v15-direct-approach-recovery-20261110/j-direct.rollout.gz",
+      "sha256": "f8504076a82f1d1167fd8fc414bbf76205ee9c98ad7fdf7d0adcc8be01af2fd8",
+      "bytes": 27832928
+    },
+    {
+      "raw": "build/crow-v15-long-perch-host-20261110/j-handoff.json",
+      "archive": "artifacts/crow-v15-teacher-terminal-handoff-20261110/j-handoff.json.gz",
+      "sha256": "2579073e0e15fd1d63da2ea1dddd83c762a953c284739402a1fe8dab74ac0596",
+      "bytes": 229114528
+    },
+    {
+      "raw": "build/crow-v15-long-perch-host-20261110/j-handoff.tsv",
+      "archive": "artifacts/crow-v15-teacher-terminal-handoff-20261110/j-handoff.tsv.gz",
+      "sha256": "d08c6afc651195283160e62a60eb087ad042e5b2229019a61df7a85a8fdfcb47",
+      "bytes": 5042868
+    },
+    {
+      "raw": "build/crow-v15-long-perch-host-20261110/j-handoff.rollout",
+      "archive": "artifacts/crow-v15-teacher-terminal-handoff-20261110/j-handoff.rollout.gz",
+      "sha256": "f8e4e91a514281ae977c26a7c0c18b0ca3a234c078469e812d18a3c6c614e108",
+      "bytes": 27832928
+    }
+  ]
+}
