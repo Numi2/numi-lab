@@ -1,0 +1,3 @@
+# Wider bounded pitch correction did not hold the landing
+
+The run matched 2199 student prefix frames and reached five waypoints. Its longest bilateral loaded interval was 691 accepted steps, only two steps longer than the 0.30-bound test's 689; the matched original had 471. The longest sampled simultaneous bilateral front-and-rear opposing impulse interval remained 12 steps. Support was lost, and the lower beak struck the ground at step 5089; no solver-failed step or nonfoot perch contact was reported. The episode fails terminal support and physical qualification and is excluded from successful training. Counts are endpoint samples and this was a guided used-layout probe.
