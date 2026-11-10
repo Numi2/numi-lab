@@ -1,0 +1,11 @@
+{
+  "remote_commit": "ed36025a3c08848d3b4d10be23b61ad8fe3052e1",
+  "retired": [
+    {
+      "raw": "artifacts/crow-v15-gradual-pitch-adjustment-screen-20261110/results.txt",
+      "archive": "artifacts/crow-v15-gradual-pitch-adjustment-screen-20261110/results.txt.gz",
+      "sha256": "8c3892403bbf8aa8f63a4c82bd371f97eaea1fae1b40da761d187d6a3bca1a4b",
+      "bytes": 5337550
+    }
+  ]
+}
