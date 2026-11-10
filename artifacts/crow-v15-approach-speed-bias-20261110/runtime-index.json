@@ -1,0 +1,12 @@
+[
+  {
+    "path": "build/crow-v15-approach-speed-bias-20261110/speedbias.metallib",
+    "sha256": "8a7fce7f95e529f2dc772be4c6e36b5b5016ae72afc851083e87d7494f9b4b00",
+    "bytes": 4473184
+  },
+  {
+    "path": "build/crow-v15-long-horizon-20261110/libmetalrobo.dylib",
+    "sha256": "63f0233c2b0285dcb222360e534f768992ae5fa9688fba429992a8fc380baa26",
+    "bytes": 5763888
+  }
+]

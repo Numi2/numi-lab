@@ -1,0 +1,1 @@
+Test a 0.10 m/s feed-forward correction motivated by measured free-flight speed bias, staying within previously screened encoded reverse commands. Use correct accepted randomized perch and foot positions, teacher off, two used development starts and 4500 continuous steps. Verify physical terminal support and opposing toe grip.

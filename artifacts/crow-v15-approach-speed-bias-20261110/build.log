@@ -1,0 +1,5 @@
+/Users/n/Developer/numi-crow-rl-20261107/build/crow-v15-approach-speed-bias-20261110/speedbias.metal:5494:21: warning: unused variable 'seconds' [-Wunused-variable]
+        const float seconds=float(state.episode.x)*dispatch.timing.x;
+                    ^
+1 warning generated.
+8a7fce7f95e529f2dc772be4c6e36b5b5016ae72afc851083e87d7494f9b4b00
