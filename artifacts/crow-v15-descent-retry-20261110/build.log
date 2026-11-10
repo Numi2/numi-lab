@@ -1,0 +1,5 @@
+/Users/n/Developer/numi-crow-rl-20261107/build/crow-v15-descent-retry-20261110/retry.metal:5496:21: warning: unused variable 'seconds' [-Wunused-variable]
+        const float seconds=float(state.episode.x)*dispatch.timing.x;
+                    ^
+1 warning generated.
+6dda25c0f6b147789ec9cd7d1143bfc437d54a82a78585948200b2dc3c2b833c

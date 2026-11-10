@@ -1,0 +1,12 @@
+[
+  {
+    "path": "build/crow-v15-descent-retry-20261110/retry.metallib",
+    "sha256": "6dda25c0f6b147789ec9cd7d1143bfc437d54a82a78585948200b2dc3c2b833c",
+    "bytes": 4473584
+  },
+  {
+    "path": "build/crow-v15-long-horizon-20261110/libmetalrobo.dylib",
+    "sha256": "63f0233c2b0285dcb222360e534f768992ae5fa9688fba429992a8fc380baa26",
+    "bytes": 5763888
+  }
+]

@@ -1,0 +1,16 @@
+--- a/heightgate.metal
++++ b/retry.metal
+@@ -6790,7 +6790,12 @@
+                             length(yawFrameLinear.xy)<0.025f && pos.z>finalGoal.z+0.10f)
+                             phase=1.0f;
+                     } else if (phase < 1.5f) {
+-                        state.nutrition.w=max(state.nutrition.w-0.001f,finalGoal.z+0.15f);
++                        if (abs(state.nutrition.z)>0.04f || length(yawFrameLinear.xy)>0.055f) {
++                            phase=0.0f;
++                            state.nutrition.w=finalGoal.z+0.25f;
++                        } else {
++                            state.nutrition.w=max(state.nutrition.w-0.0004f,finalGoal.z+0.15f);
++                        }
+                     }
+                 }
+                 uint loadedFeet=0u;

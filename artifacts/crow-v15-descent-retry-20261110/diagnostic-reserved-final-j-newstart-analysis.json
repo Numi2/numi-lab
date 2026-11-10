@@ -1,0 +1,174 @@
+{
+  "first_episode": {
+    "boundary": "waypoint completion; does not establish supported landing",
+    "closed_by_environment": [
+      true
+    ],
+    "closed_episode_count": 1,
+    "completion_seen_by_environment": [
+      true
+    ],
+    "completion_seen_count": 1,
+    "environment_count": 1,
+    "first_completion_step_by_environment": [
+      2206
+    ],
+    "horizon_censored_count": 0,
+    "maximum_waypoints_by_environment": [
+      5
+    ],
+    "physical_failure_by_environment": [
+      true
+    ],
+    "physical_failure_count": 1,
+    "safe_completion_by_environment": [
+      false
+    ],
+    "safe_completion_count": 0,
+    "schema": "numi.crow-first-episode-evidence.v1",
+    "steps_by_environment": [
+      2683
+    ],
+    "termination_reason_by_environment": [
+      3
+    ],
+    "unit": "first episode of each environment since context creation"
+  },
+  "teacher_on": false,
+  "scheduled_resets": false,
+  "host_requested_resets": 0,
+  "solver_failures": 0,
+  "accepted_sample_count": 2684,
+  "bilateral_support_endpoints": 115,
+  "longest_bilateral_support_run": 115,
+  "bilateral_opposed_toe_grip_endpoints": 0,
+  "longest_opposed_toe_grip_run": 0,
+  "minimum_clearance": {
+    "lane": 0,
+    "end_step": 2000,
+    "minimum_step": 1823,
+    "minimum_m": 0.00509187450695,
+    "bird_shape": "crow_left_wing/collision",
+    "obstacle_shape": "crow_course_slalom_a/collision",
+    "bird_body": "crow_left_wing",
+    "obstacle_body": "crow_course_slalom_a",
+    "sampling": "accepted_control_steps"
+  },
+  "first_fatal_contact": {
+    "step": 2684,
+    "lane": 0,
+    "pre_q": [
+      4.62743664,
+      0.631754875,
+      0.239562646,
+      -0.00737729948,
+      -0.49604702,
+      0.0222517233,
+      0.867979109,
+      5.66033232e-05,
+      1.93086671e-05,
+      0.350045055,
+      0.350044489,
+      -1.65820311e-05,
+      2.44740659e-06,
+      0.00278423354,
+      -0.120152444,
+      0.279942364,
+      -0.16000706,
+      -0.120152377,
+      0.279942393,
+      -0.16000706,
+      -0.000688825035,
+      0.0156303849,
+      0.00196459284,
+      6.53324823e-05,
+      6.50104412e-05,
+      6.56249031e-05,
+      0.85001564,
+      6.52857707e-05,
+      6.66146661e-05,
+      6.5900902e-05,
+      0.85001564
+    ],
+    "pre_v": [
+      -0.590366244,
+      -0.0106160855,
+      -3.16313171,
+      -0.00645160442,
+      0.0216748379,
+      -0.00446699187,
+      0.000490167527,
+      0.000311586016,
+      0.000184972159,
+      0.000183699143,
+      7.91990315e-05,
+      -0.0001434429,
+      0.0103102531,
+      -0.000328816153,
+      -0.000142464734,
+      -1.79658509e-05,
+      -0.000328254973,
+      -0.000144271369,
+      -1.65813817e-05,
+      0.0026899206,
+      0.00406420184,
+      -0.031565994,
+      0.000226052871,
+      0.00022143028,
+      0.000234613384,
+      8.2107028e-05,
+      0.000178309609,
+      0.000239361645,
+      0.000217443841,
+      8.2110666e-05
+    ],
+    "policy_action": [
+      0.0599561296,
+      -0.176491857,
+      1,
+      0.0545157157,
+      0.167515159,
+      -0.365465909,
+      0.447733998,
+      0.0646563694,
+      -0.74781847,
+      -0.135744065,
+      -0.0410454869,
+      -0.235461354,
+      0.418230295,
+      -0.474375129,
+      -0.147674382,
+      0,
+      0,
+      0
+    ],
+    "contacts": [
+      {
+        "a": 7,
+        "a_name": "crow_tail",
+        "b": 25,
+        "b_name": "locomotion_ground",
+        "normal_impulse": 0.015948914,
+        "separation": -0.00341159943
+      },
+      {
+        "a": 7,
+        "a_name": "crow_tail",
+        "b": 25,
+        "b_name": "locomotion_ground",
+        "normal_impulse": 0.0283026118,
+        "separation": -0.0115013877
+      },
+      {
+        "a": 7,
+        "a_name": "crow_tail",
+        "b": 25,
+        "b_name": "locomotion_ground",
+        "normal_impulse": 0.0188249908,
+        "separation": 0.000544711074
+      }
+    ]
+  },
+  "final_supported_endpoint": 2666,
+  "scope": "development layout; former actor with changed visual inputs; last-substep endpoint contacts only; not unseen-layout qualification"
+}

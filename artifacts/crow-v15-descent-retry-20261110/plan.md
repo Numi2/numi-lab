@@ -1,0 +1,1 @@
+Test a slower descent that returns to the holding height if accepted foot alignment or horizontal speed leaves the bound. Full-start teacher-off 4500-step episodes on two used J starts; no state reset. Retain failure and measure physical contact and grip. Goal and foot data are perfect simulated state.
