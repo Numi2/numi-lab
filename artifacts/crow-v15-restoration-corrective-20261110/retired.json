@@ -1,0 +1,83 @@
+{
+  "remote_commit": "9e2a83a1222229bcd80af9022ab95c82a13a04fe",
+  "retired": [
+    {
+      "raw": "build/crow-v15-long-perch-host-20261110/i-recovery.json",
+      "archive": "artifacts/crow-v15-fresh-recovery-20261110/i-recovery.json.gz",
+      "sha256": "798b16629aabb755fd27ac4409b01d688db89efaf421a816c1f7e12d4aa95129",
+      "bytes": 231133916
+    },
+    {
+      "raw": "build/crow-v15-long-perch-host-20261110/i-recovery.tsv",
+      "archive": "artifacts/crow-v15-fresh-recovery-20261110/i-recovery.tsv.gz",
+      "sha256": "5c3c74b7ab9b6d3cbdc307128864ac422b80840cd397d21390ac85161e68be20",
+      "bytes": 4995188
+    },
+    {
+      "raw": "build/crow-v15-long-perch-host-20261110/i-recovery.rollout",
+      "archive": "artifacts/crow-v15-fresh-recovery-20261110/i-recovery.rollout.gz",
+      "sha256": "90d1ccfaf168b2f0718d0401e595627fcae52ec6e379206c5189c058c3cce0d9",
+      "bytes": 27832928
+    },
+    {
+      "raw": "build/crow-v15-long-perch-host-20261110/j-recovery.json",
+      "archive": "artifacts/crow-v15-fresh-recovery-20261110/j-recovery.json.gz",
+      "sha256": "7f3becd61dba10aad503d3facdda5fc36e766e80b99f5f9e430ae0ef6fdec0cd",
+      "bytes": 232109579
+    },
+    {
+      "raw": "build/crow-v15-long-perch-host-20261110/j-recovery.tsv",
+      "archive": "artifacts/crow-v15-fresh-recovery-20261110/j-recovery.tsv.gz",
+      "sha256": "4a8c9583f6c733f7b3304b2852259503b0e361972347365c04e478c79f0bda35",
+      "bytes": 5062885
+    },
+    {
+      "raw": "build/crow-v15-long-perch-host-20261110/j-recovery.rollout",
+      "archive": "artifacts/crow-v15-fresh-recovery-20261110/j-recovery.rollout.gz",
+      "sha256": "88bacd4fcb9a9636f987c771e8b731afb68e64c0126d433f2669a773b71bb1ed",
+      "bytes": 27832928
+    },
+    {
+      "raw": "build/crow-v15-long-perch-host-20261110/j-feedback.json",
+      "archive": "artifacts/crow-v15-feedback-recovery-20261110/j-feedback.json.gz",
+      "sha256": "b1f7998be1020328277c36d1ac45d3b98943572ad86ab058ebd3981b5b8bf3b3",
+      "bytes": 231790593
+    },
+    {
+      "raw": "build/crow-v15-long-perch-host-20261110/j-feedback.tsv",
+      "archive": "artifacts/crow-v15-feedback-recovery-20261110/j-feedback.tsv.gz",
+      "sha256": "99092000a9a5dc75e7b8e9b13c0bba2b4a1a51fcf2b0f5b7c42805a8a4c223b1",
+      "bytes": 5062241
+    },
+    {
+      "raw": "build/crow-v15-long-perch-host-20261110/j-feedback.rollout",
+      "archive": "artifacts/crow-v15-feedback-recovery-20261110/j-feedback.rollout.gz",
+      "sha256": "abb61d228834a80e9841434c02c08136c5ebaf04b6a5965b5d03382cb9cde796",
+      "bytes": 27832928
+    },
+    {
+      "raw": "build/crow-v15-long-perch-host-20261110/j-corrective.json",
+      "archive": "artifacts/crow-v15-fresh-corrective-eval-20261110/j-corrective.json.gz",
+      "sha256": "515bd795bd0412656f0aacb8ddb86ad8dbe768adec1a774fef503945b40cd5d9",
+      "bytes": 236500109
+    },
+    {
+      "raw": "build/crow-v15-long-perch-host-20261110/j-corrective.tsv",
+      "archive": "artifacts/crow-v15-fresh-corrective-eval-20261110/j-corrective.tsv.gz",
+      "sha256": "4b879824878cdf14caa7fe02fb07ac956752ce34e2ffa56082fb295167bb0006",
+      "bytes": 5080702
+    },
+    {
+      "raw": "build/crow-v15-long-perch-host-20261110/i-corrective.json",
+      "archive": "artifacts/crow-v15-fresh-corrective-eval-20261110/i-corrective.json.gz",
+      "sha256": "414b1fdc55ada6b5655f191de5887e8f415adbd3b91cb846b11226e0c8289f5b",
+      "bytes": 228646096
+    },
+    {
+      "raw": "build/crow-v15-long-perch-host-20261110/i-corrective.tsv",
+      "archive": "artifacts/crow-v15-fresh-corrective-eval-20261110/i-corrective.tsv.gz",
+      "sha256": "f18d96850c817cbe6d451d87be2ba8faa34d0b8ee34a9a607bfa085bf0241400",
+      "bytes": 5026701
+    }
+  ]
+}

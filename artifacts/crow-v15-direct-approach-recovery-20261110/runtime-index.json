@@ -1,0 +1,12 @@
+[
+  {
+    "path": "build/crow-v15-direct-approach-recovery-20261110/teacher.metal",
+    "sha256": "ebed6263acc64d9831adf04f55e45e1b173174a1234a7a9a1d83aeae421b691c",
+    "bytes": 425847
+  },
+  {
+    "path": "build/crow-v15-direct-approach-recovery-20261110/teacher.metallib",
+    "sha256": "661e227d750972627a39d37ff59b8c466d7e5274b193b5922fdde4bfb4306225",
+    "bytes": 4485312
+  }
+]
