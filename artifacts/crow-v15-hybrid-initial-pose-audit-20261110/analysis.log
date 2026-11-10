@@ -1,0 +1,11 @@
+Original toe stiffness control matches prior bench: True differences 0
+arm 0 strict pass 0 opposed 3+ 1 terminal support 0 minimum grip gap m -0.0050344871360356175 missing pose steps 0
+arm 1 strict pass 0 opposed 3+ 0 terminal support 0 minimum grip gap m None missing pose steps 0
+arm 2 strict pass 1 opposed 3+ 1 terminal support 1 minimum grip gap m -0.004360125299506579 missing pose steps 0
+arm 3 strict pass 0 opposed 3+ 1 terminal support 0 minimum grip gap m -0.0042011988091315774 missing pose steps 0
+step -1 worst gap mm -1.3171 rear gap mm [('crow_left_rear_toe', -1.3171), ('crow_right_rear_toe', 1.6262)]
+step 0 worst gap mm -1.8687 rear gap mm [('crow_left_rear_toe', -1.8687), ('crow_right_rear_toe', 1.1066)]
+step 5 worst gap mm -2.4242 rear gap mm [('crow_left_rear_toe', -2.4242), ('crow_right_rear_toe', 0.1079)]
+step 10 worst gap mm -2.5727 rear gap mm [('crow_left_rear_toe', -2.5727), ('crow_right_rear_toe', -0.5106)]
+step 11 worst gap mm -2.6302 rear gap mm [('crow_left_rear_toe', -2.6302), ('crow_right_rear_toe', -0.6642)]
+baseline parity True
