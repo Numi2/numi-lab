@@ -1,0 +1,21 @@
+--- a/teacher.metal
++++ b/teacher.metal
+@@ -6735,7 +6735,17 @@
+             if (landing) {
+                 const float3 perch = sceneState[sceneBase+course+4u].position.xyz;
+                 const float3 landingTarget = perch + float3(0.0f,0.55f,0.0f);
+-                const float xError = landingTarget.x-pos.x-0.04f;
++                float feetX = pos.x;
++                if (program.counts0.w >= 2u) {
++                    const uint lf=contactGroups[0].reference.x, rf=contactGroups[1].reference.x;
++                    if (lf>=robotFirst && lf<robotEnd && rf>=robotFirst && rf<robotEnd) {
++                        const MRBodyStateGPU left=bodyStates[bodyBase+lf], right=bodyStates[bodyBase+rf];
++                        const float3 lj=left.position.xyz+rotate(left.orientation,contactGroups[0].kinematicReference.xyz);
++                        const float3 rj=right.position.xyz+rotate(right.orientation,contactGroups[1].kinematicReference.xyz);
++                        feetX=0.5f*(lj.x+rj.x);
++                    }
++                }
++                const float xError = landingTarget.x+0.045f-feetX;
+                 const float yError = landingTarget.y-pos.y;
+                 const float commandedForward = clamp(0.04f+0.20f*xError-0.20f*yawFrameLinear.x,-0.08f,0.10f);
+                 desiredLateral = clamp(0.80f*yError,-0.30f,0.30f);
