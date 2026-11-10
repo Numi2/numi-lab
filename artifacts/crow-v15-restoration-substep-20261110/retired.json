@@ -1,0 +1,35 @@
+{
+  "remote_commit": "0c36a6b1d606c6a21c63fd784de74a6c1b1532f4",
+  "retired": [
+    {
+      "raw": "build/crow-v15-long-perch-host-20261110/i-delayed-recovery.json",
+      "archive": "artifacts/crow-v15-delayed-i-recovery-20261110/i-delayed-recovery.json.gz",
+      "sha256": "29efaf5325c47374427fc012cf45af63d284ccd03d26b682e048cb36f9868814",
+      "bytes": 228137293
+    },
+    {
+      "raw": "build/crow-v15-long-perch-host-20261110/i-delayed-recovery.tsv",
+      "archive": "artifacts/crow-v15-delayed-i-recovery-20261110/i-delayed-recovery.tsv.gz",
+      "sha256": "2c4550c48cda3ca166c931639d2e06471360e5e0e972acbf4c40c887a8a190cc",
+      "bytes": 5030601
+    },
+    {
+      "raw": "build/crow-v15-long-perch-host-20261110/i-delayed-recovery.rollout",
+      "archive": "artifacts/crow-v15-delayed-i-recovery-20261110/i-delayed-recovery.rollout.gz",
+      "sha256": "a5503191e2907d719252afcfdd348e1185539357b3f383784917af9076444e9c",
+      "bytes": 27832928
+    },
+    {
+      "raw": "build/crow-v15-long-perch-host-20261110/j-original-substep.json",
+      "archive": "artifacts/crow-v15-toe-substep-observer-20261110/j-original-substep.json.gz",
+      "sha256": "1f8239fdfd12d414ce00319e38b1036bd2396ffc03c955924ad2274fb1e65624",
+      "bytes": 230102910
+    },
+    {
+      "raw": "build/crow-v15-long-perch-host-20261110/j-original-substep.tsv",
+      "archive": "artifacts/crow-v15-toe-substep-observer-20261110/j-original-substep.tsv.gz",
+      "sha256": "7bfe37730358bf498b9739e59f1d5f7bdca30c04bd456479f1a1e007bc43eba5",
+      "bytes": 5035157
+    }
+  ]
+}
