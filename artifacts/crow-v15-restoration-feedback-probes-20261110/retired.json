@@ -1,0 +1,23 @@
+{
+  "remote_commit": "bca541490276d7beed376515a66400da23baed33",
+  "retired": [
+    {
+      "raw": "artifacts/crow-v15-hybrid-feedback-screen-20261110/results.txt",
+      "archive": "artifacts/crow-v15-hybrid-feedback-screen-20261110/results.txt.gz",
+      "sha256": "0a0f4bcef73845fcc1644a83f2c138948773980072196a048b2cc7b3658b1c82",
+      "bytes": 1886518
+    },
+    {
+      "raw": "artifacts/crow-v15-hybrid-individual-toe-feedback-20261110/results.txt",
+      "archive": "artifacts/crow-v15-hybrid-individual-toe-feedback-20261110/results.txt.gz",
+      "sha256": "de5aab6cd610842fc5660cd36e08e7b8dd42d3f961a22733db3d799a9a78dc2d",
+      "bytes": 1784848
+    },
+    {
+      "raw": "artifacts/crow-v15-hybrid-initial-pose-audit-20261110/results.txt",
+      "archive": "artifacts/crow-v15-hybrid-initial-pose-audit-20261110/results.txt.gz",
+      "sha256": "cc17d11999d9aaa2e966eb083e5ed5135de17df242cfdcfeb97660e57f0c0a2e",
+      "bytes": 22795
+    }
+  ]
+}
