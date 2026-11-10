@@ -1,0 +1,3 @@
+# Exploratory contact-responsive wing unloading
+
+The prediction was contradicted. On reused development layouts, 15/16 privileged-guide starts suffered physical failure and the longest qualifying bilateral-load run was two steps. In one I start the maximum toe angle after 25 steps with no foot/toe contact candidate was 0.189 rad, exceeding the 0.05 rad exploratory bound; sampled pre-perch flight angles stayed below 0.000312 rad. The measured-load wing unloading change is rejected. The frozen flight law itself was not modified. No landing, autonomous navigation or biological qualification is claimed.
