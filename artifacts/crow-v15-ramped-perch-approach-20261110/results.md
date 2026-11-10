@@ -1,0 +1,3 @@
+# Exploratory ramped descent
+
+The preregistered exploratory prediction was contradicted: all 16 starts reached all five waypoint regions but ended in a physical failure before step 4500. First recorded fatal contacts were body, head, beak or tail against the perch or ground; see analysis.json. This was not a supported landing and failed demonstrations remain excluded from imitation. Any apparent motion after a termination belongs to a reset, not continuous execution. No solver failures were reported. The line in the plan about brief and one-sided toe contact describes one inspected prior lane, not all lanes.
