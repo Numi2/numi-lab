@@ -1,0 +1,53 @@
+{
+  "remote_commit": "26b2e6e9ff09c78c3d6ad6b07b6a871c1d7eef22",
+  "retired": [
+    {
+      "raw": "build/crow-v15-ccd-budget-20261110/development-j-bounded-rebound.json",
+      "archive": "artifacts/crow-v15-bounded-rebound-20261110/development-j-bounded-rebound.json.gz",
+      "sha256": "44a6b3a56aea27374cdf8ee65da5c6295da1fa032a2c2572a6ecc9f2ec94d30d",
+      "bytes": 164957636
+    },
+    {
+      "raw": "build/crow-v15-ccd-budget-20261110/development-j-bounded-rebound.tsv",
+      "archive": "artifacts/crow-v15-bounded-rebound-20261110/development-j-bounded-rebound.tsv.gz",
+      "sha256": "a3383909163a4a40490d039f94e070edb3c5eb15734bca5aa10bef405fa4f160",
+      "bytes": 3605993
+    },
+    {
+      "raw": "build/crow-v15-ccd-budget-20261110/development-i-bounded-rebound.json",
+      "archive": "artifacts/crow-v15-bounded-rebound-dev-i-20261110/development-i-bounded-rebound.json.gz",
+      "sha256": "038e338cd39bc506c6b43da0ccdf4c12937737aa38b982abf4295d3148c649fb",
+      "bytes": 215554421
+    },
+    {
+      "raw": "build/crow-v15-ccd-budget-20261110/development-i-bounded-rebound.tsv",
+      "archive": "artifacts/crow-v15-bounded-rebound-dev-i-20261110/development-i-bounded-rebound.tsv.gz",
+      "sha256": "4ad23da342c280754185eadf4a36fde800b147eeebdfb2236a6398791810c777",
+      "bytes": 4675460
+    },
+    {
+      "raw": "build/crow-v15-long-perch-host-20261110/development-j-long-perch.json",
+      "archive": "artifacts/crow-v15-long-perch-j-20261110/development-j-long-perch.json.gz",
+      "sha256": "14ee137b4a6b74040caefa8df5c2af8d7888e499d815745cfeeaf915dcf677ef",
+      "bytes": 229543356
+    },
+    {
+      "raw": "build/crow-v15-long-perch-host-20261110/development-j-long-perch.tsv",
+      "archive": "artifacts/crow-v15-long-perch-j-20261110/development-j-long-perch.tsv.gz",
+      "sha256": "92d82542bc0e23ffcd0764f354066bf1dd65bcf9e1018c6d28937a5390973adf",
+      "bytes": 4997710
+    },
+    {
+      "raw": "build/crow-v15-long-perch-host-20261110/development-i-long-perch.json",
+      "archive": "artifacts/crow-v15-long-perch-i-20261110/development-i-long-perch.json.gz",
+      "sha256": "fad65e42eec1fa818b9fafdd3bd18754c6350f7457c7d4ee9126e3dd3ec70773",
+      "bytes": 232076827
+    },
+    {
+      "raw": "build/crow-v15-long-perch-host-20261110/development-i-long-perch.tsv",
+      "archive": "artifacts/crow-v15-long-perch-i-20261110/development-i-long-perch.tsv.gz",
+      "sha256": "af26a0ac36988c8fab934e114c588852a8cb89e938acc3a7839c87285c8c1f12",
+      "bytes": 4982399
+    }
+  ]
+}
