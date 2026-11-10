@@ -1,0 +1,11 @@
+--- a/teacher.metal
++++ b/i-recovery.metal
+@@ -6751,7 +6751,7 @@
+             const float3 target = crowNavigationWaypointTarget(sceneState + sceneBase, course, wp);
+             const float3 pos = rootWorldPosition(program,q);
+             float3 lateralTarget = target;
+-            if (wp >= 1u && wp <= 2u) {
++            if (wp >= 1u && wp <= 3u) {
+                 const float3 previous = crowNavigationWaypointTarget(sceneState + sceneBase, course, wp-1u);
+                 const float transition = smoothstep(previous.x+(wp==2u ? -0.16f : wp==3u ? 0.20f : 0.20f), previous.x+(wp==2u ? -0.01f : wp==3u ? 0.35f : 0.35f), pos.x);
+                 lateralTarget.y = mix(previous.y, target.y, transition);
