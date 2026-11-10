@@ -1,0 +1,3 @@
+# Result
+
+For the matched development run, teacher off and teacher-label mode at full student authority had identical q, v, full actor observations, and recorded accepted policy actions over all 1,800 first-episode frames, with matching termination fields. The action comparison is at policy output, not the applied low-level actuator stream. This clears the specified one-lane diagnostic, not all seeds, phases, termination types, or a proof that privileged signals can never leak. It does not establish successful navigation or qualify any demonstration for training. Expand the comparison to reached landing states and multiple starts before collecting corrective labels.
