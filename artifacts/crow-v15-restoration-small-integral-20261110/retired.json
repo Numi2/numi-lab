@@ -1,0 +1,11 @@
+{
+  "remote_commit": "af2adab32c39fb50cd71333c7095f7631b631a79",
+  "retired": [
+    {
+      "raw": "artifacts/crow-v15-small-integral-balance-screen-20261110/results.txt",
+      "archive": "artifacts/crow-v15-small-integral-balance-screen-20261110/results.txt.gz",
+      "sha256": "5f64ceb25c3d4db626d3430d7941449fece9f03200492a26d2a22a8e15020aad",
+      "bytes": 9050853
+    }
+  ]
+}
