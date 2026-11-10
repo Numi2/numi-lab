@@ -1,0 +1,3 @@
+# Whole-body center-of-mass balance screen
+
+The single 1,000-tick development trial matched the reference through tick 106, achieved 11 consecutive supported opposing-grip samples, released and had the same 0.449 mm maximum estimated toe overlap during opposing grip. Replacing the root-position reference with a smoothly introduced whole-body COM target reduced the longest supported run from the reference's 387 ticks to 344 ticks; it did not retain terminal support. This target and feedback are rejected. These results do not exclude other whole-body balance controllers and do not qualify landing.
