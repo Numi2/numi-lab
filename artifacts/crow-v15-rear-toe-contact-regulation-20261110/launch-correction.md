@@ -1,0 +1,1 @@
+The first launch omitted CROW_SUBSTEP_TRACE. All arms stopped on their first submission because the observer sequence did not advance, so those results are ineligible and do not measure the controller. The failed output and analysis are retained. The prespecified comparison is rerun with CROW_SUBSTEP_TRACE=1; no parameter or source change was made.

@@ -1,0 +1,187 @@
+{
+  "baseline_parity_exact": false,
+  "baseline_parity_differences": [
+    [
+      1,
+      0,
+      1
+    ],
+    [
+      1,
+      0,
+      2
+    ],
+    [
+      1,
+      0,
+      3
+    ],
+    [
+      1,
+      0,
+      4
+    ],
+    [
+      1,
+      0,
+      5
+    ],
+    [
+      1,
+      0,
+      6
+    ],
+    [
+      1,
+      0,
+      7
+    ],
+    [
+      1,
+      0,
+      8
+    ],
+    [
+      1,
+      0,
+      9
+    ],
+    [
+      1,
+      0,
+      10
+    ],
+    [
+      1,
+      0,
+      11
+    ],
+    [
+      1,
+      0,
+      12
+    ],
+    [
+      1,
+      0,
+      13
+    ],
+    [
+      1,
+      0,
+      14
+    ],
+    [
+      1,
+      0,
+      15
+    ],
+    [
+      1,
+      0,
+      16
+    ],
+    [
+      1,
+      0,
+      17
+    ],
+    [
+      1,
+      0,
+      18
+    ],
+    [
+      1,
+      0,
+      19
+    ],
+    [
+      1,
+      0,
+      20
+    ]
+  ],
+  "rows": [
+    {
+      "case": 1,
+      "arm": 0,
+      "outcome": "failed substep observer sequence mismatch",
+      "samples": 1,
+      "longest_opposing_grip": 0,
+      "longest_supported_opposing_grip": 0,
+      "longest_supported": 0,
+      "terminal_25_supported": false,
+      "first_release_without_grip": null,
+      "terminal_max_toe_abs_rad": 2.27437e-07,
+      "strict_pass": false,
+      "opposed_grip_pose_samples": 0,
+      "missing_grip_pose_samples": 0,
+      "minimum_grip_sat_gap_m": null
+    },
+    {
+      "case": 1,
+      "arm": 1,
+      "outcome": "failed substep observer sequence mismatch",
+      "samples": 1,
+      "longest_opposing_grip": 0,
+      "longest_supported_opposing_grip": 0,
+      "longest_supported": 0,
+      "terminal_25_supported": false,
+      "first_release_without_grip": null,
+      "terminal_max_toe_abs_rad": 2.27437e-07,
+      "strict_pass": false,
+      "opposed_grip_pose_samples": 0,
+      "missing_grip_pose_samples": 0,
+      "minimum_grip_sat_gap_m": null
+    },
+    {
+      "case": 1,
+      "arm": 2,
+      "outcome": "failed substep observer sequence mismatch",
+      "samples": 1,
+      "longest_opposing_grip": 0,
+      "longest_supported_opposing_grip": 0,
+      "longest_supported": 0,
+      "terminal_25_supported": false,
+      "first_release_without_grip": null,
+      "terminal_max_toe_abs_rad": 2.27437e-07,
+      "strict_pass": false,
+      "opposed_grip_pose_samples": 0,
+      "missing_grip_pose_samples": 0,
+      "minimum_grip_sat_gap_m": null
+    },
+    {
+      "case": 1,
+      "arm": 3,
+      "outcome": "failed substep observer sequence mismatch",
+      "samples": 1,
+      "longest_opposing_grip": 0,
+      "longest_supported_opposing_grip": 0,
+      "longest_supported": 0,
+      "terminal_25_supported": false,
+      "first_release_without_grip": null,
+      "terminal_max_toe_abs_rad": 2.27437e-07,
+      "strict_pass": false,
+      "opposed_grip_pose_samples": 0,
+      "missing_grip_pose_samples": 0,
+      "minimum_grip_sat_gap_m": null
+    },
+    {
+      "case": 1,
+      "arm": 4,
+      "outcome": "failed substep observer sequence mismatch",
+      "samples": 1,
+      "longest_opposing_grip": 0,
+      "longest_supported_opposing_grip": 0,
+      "longest_supported": 0,
+      "terminal_25_supported": false,
+      "first_release_without_grip": null,
+      "terminal_max_toe_abs_rad": 2.27437e-07,
+      "strict_pass": false,
+      "opposed_grip_pose_samples": 0,
+      "missing_grip_pose_samples": 0,
+      "minimum_grip_sat_gap_m": null
+    }
+  ]
+}
