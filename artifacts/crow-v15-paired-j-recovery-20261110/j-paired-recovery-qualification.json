@@ -1,0 +1,49 @@
+{
+  "student_prefix_frames": 2049,
+  "exact_prefix_equal": true,
+  "first_differences": [],
+  "nav5_step": 2690,
+  "first_episode": {
+    "boundary": "waypoint completion; does not establish supported landing",
+    "closed_by_environment": [
+      true
+    ],
+    "closed_episode_count": 1,
+    "completion_seen_by_environment": [
+      true
+    ],
+    "completion_seen_count": 1,
+    "environment_count": 1,
+    "first_completion_step_by_environment": [
+      2690
+    ],
+    "horizon_censored_count": 0,
+    "maximum_waypoints_by_environment": [
+      5
+    ],
+    "physical_failure_by_environment": [
+      false
+    ],
+    "physical_failure_count": 0,
+    "safe_completion_by_environment": [
+      true
+    ],
+    "safe_completion_count": 1,
+    "schema": "numi.crow-first-episode-evidence.v1",
+    "steps_by_environment": [
+      7000
+    ],
+    "termination_reason_by_environment": [
+      4
+    ],
+    "unit": "first episode of each environment since context creation"
+  },
+  "first_fatal_contact": null,
+  "solver_failed_steps": 0,
+  "nonfoot_perch_contact_samples": 0,
+  "nonfinite_task_samples": [],
+  "longest_bilateral_support_samples": 2759,
+  "terminal_bilateral_support_samples": 2759,
+  "eligible_for_development_routing_prefix_training": true,
+  "limitations": "Teacher privileged after 2050, development layout; endpoint support is not strict continuous opposing-toe grip. Landing labels excluded."
+}

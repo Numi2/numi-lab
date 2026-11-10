@@ -1,0 +1,3 @@
+# Paired student J recovery
+
+The teacher-assisted run exactly matched all 2049 recorded student frames before takeover at step 2050. It reached waypoint five at step 2690, had no observed physical failure, nonfoot perch contact, nonfinite task state or solver failure, and ended with 2759 consecutive bilaterally loaded control-endpoint samples. It qualifies only as a development routing-prefix source under the preregistered rule; privileged teacher intervention and programmed landing prevent any claim of autonomous success. Endpoint loading does not establish uninterrupted opposing toe grip. Landing samples are excluded from training.
