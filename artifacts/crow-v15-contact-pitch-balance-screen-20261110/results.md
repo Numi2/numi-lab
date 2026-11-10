@@ -1,0 +1,3 @@
+# Contact-gated pitch and leg coordination screen
+
+Both unchanged controls matched all 200 reference states. The +0.25 pitch-feedback candidate failed terminal support. The -0.25 candidate met the single-start behavioral check for sustained bilateral opposing grip with support, toe release and terminal open-toe support. Its worst grip-conditioned accepted-pose SAT overlap was 0.949 mm, exceeding the independent <=0.5 mm gate. Thus no candidate qualifies for integration or broader success claims. This is a single uncalibrated stationary drop using a research contact observer; it is not evidence of full walking, takeoff, flight, continuous navigation on unused layouts or biological realism.
