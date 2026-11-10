@@ -1,0 +1,12 @@
+[
+  {
+    "path": "build/crow-v15-body-mass-audit-20261110/audit",
+    "sha256": "24f82e77bdc2d4797e6a3035f7cc32649ec78d769cb3e30e054528036566d2e7",
+    "bytes": 61672
+  },
+  {
+    "path": "build/lib/libmetalrobo.dylib",
+    "sha256": "d7dad802978b03d8571487dac644678d2c4c1a8eae5b8a4c5c57be261cfbe11a",
+    "bytes": 5728528
+  }
+]

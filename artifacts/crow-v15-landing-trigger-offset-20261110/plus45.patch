@@ -1,0 +1,11 @@
+--- a/sustained.metal
++++ b/plus45.metal
+@@ -6781,7 +6781,7 @@
+                         const float3 leftJoint=left.position.xyz+rotate(left.orientation,contactGroups[0].kinematicReference.xyz);
+                         const float3 rightJoint=right.position.xyz+rotate(right.orientation,contactGroups[1].kinematicReference.xyz);
+                         const float feetX=0.5f*(leftJoint.x+rightJoint.x);
+-                        state.nutrition.z=clamp(finalGoal.x+0.015f-feetX,-0.50f,0.50f);
++                        state.nutrition.z=clamp(finalGoal.x+0.045f-feetX,-0.50f,0.50f);
+                     }
+                 }
+                 if (state.navigation.z >= float(kCrowNavigationWaypointCount) && phase < 0.5f && length(finalGoal.xy-pos.xy)<0.08f &&

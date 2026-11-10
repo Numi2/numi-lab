@@ -1,0 +1,15 @@
+/Users/n/Developer/numi-crow-rl-20261107/build/crow-v15-landing-trigger-offset-20261110/plus25.metal:5499:21: warning: unused variable 'seconds' [-Wunused-variable]
+        const float seconds=float(state.episode.x)*dispatch.timing.x;
+                    ^
+1 warning generated.
+plus25 c44eff224b5797ec674a68c00698d7bc55d739302486ab2db712fce17dd11c30
+/Users/n/Developer/numi-crow-rl-20261107/build/crow-v15-landing-trigger-offset-20261110/plus35.metal:5499:21: warning: unused variable 'seconds' [-Wunused-variable]
+        const float seconds=float(state.episode.x)*dispatch.timing.x;
+                    ^
+1 warning generated.
+plus35 6b0e4cd3c933e34a6f77240530f3212dce5ae0780f8883ca6efc70cf65d9bf0d
+/Users/n/Developer/numi-crow-rl-20261107/build/crow-v15-landing-trigger-offset-20261110/plus45.metal:5499:21: warning: unused variable 'seconds' [-Wunused-variable]
+        const float seconds=float(state.episode.x)*dispatch.timing.x;
+                    ^
+1 warning generated.
+plus45 41a875665171eed3936c0c6ccd6bc2b3197993c5a875afe7876a5d13ab92f2bc
