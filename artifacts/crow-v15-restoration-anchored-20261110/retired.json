@@ -1,0 +1,53 @@
+{
+  "remote_commit": "850ad9f6dd1453c145518e5086d9b2c5414391a2",
+  "retired": [
+    {
+      "raw": "build/crow-v15-long-perch-host-20261110/j-hard.json",
+      "archive": "artifacts/crow-v15-anchored-paired-eval-20261110/j-hard.json.gz",
+      "sha256": "550e37081647dbfc1dd13f5899c69a01476cd7b23676e5174b3775a1dea7a506",
+      "bytes": 227925474
+    },
+    {
+      "raw": "build/crow-v15-long-perch-host-20261110/j-hard.tsv",
+      "archive": "artifacts/crow-v15-anchored-paired-eval-20261110/j-hard.tsv.gz",
+      "sha256": "94936e83c382b25903ab4caa6a9cdcc5842666ddf82badcac94ff3649644cdbf",
+      "bytes": 5048451
+    },
+    {
+      "raw": "build/crow-v15-long-perch-host-20261110/i-hard.json",
+      "archive": "artifacts/crow-v15-anchored-paired-eval-20261110/i-hard.json.gz",
+      "sha256": "89b0a9a3546ffdac3358fbd1d0c7d62396da3919ddaef75e217e304313f035cd",
+      "bytes": 232644031
+    },
+    {
+      "raw": "build/crow-v15-long-perch-host-20261110/i-hard.tsv",
+      "archive": "artifacts/crow-v15-anchored-paired-eval-20261110/i-hard.tsv.gz",
+      "sha256": "d791f6effb373568d7247bee8641b2dd03e54f9936db1afe11253c3df174b266",
+      "bytes": 5046235
+    },
+    {
+      "raw": "build/crow-v15-long-perch-host-20261110/j-original.json",
+      "archive": "artifacts/crow-v15-anchored-paired-eval-20261110/j-original.json.gz",
+      "sha256": "50c56c5d67b8e9a7bc98d845bb6972a1889983785c2d9a9341fc76acdc3c8e08",
+      "bytes": 229310415
+    },
+    {
+      "raw": "build/crow-v15-long-perch-host-20261110/j-original.tsv",
+      "archive": "artifacts/crow-v15-anchored-paired-eval-20261110/j-original.tsv.gz",
+      "sha256": "6113f5a401e5d1ed985275ad89614e3a680dca67b90bc6a1a95aa5347cbad89b",
+      "bytes": 5042937
+    },
+    {
+      "raw": "build/crow-v15-long-perch-host-20261110/i-original.json",
+      "archive": "artifacts/crow-v15-anchored-paired-eval-20261110/i-original.json.gz",
+      "sha256": "8af771703bb606958fed019411100439f45848bdc44df4838722b4415204e32f",
+      "bytes": 228224514
+    },
+    {
+      "raw": "build/crow-v15-long-perch-host-20261110/i-original.tsv",
+      "archive": "artifacts/crow-v15-anchored-paired-eval-20261110/i-original.tsv.gz",
+      "sha256": "b7b617eca72ca6f07fe395da4368b5ba9354a1145c4b257d5711467f54b6a69a",
+      "bytes": 5041567
+    }
+  ]
+}
