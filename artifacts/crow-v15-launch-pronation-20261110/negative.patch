@@ -1,0 +1,13 @@
+--- a/low.metal
++++ b/negative.metal
+@@ -5067,6 +5067,10 @@
+         float navigationTeacherRequested = fixedFlightController
+             ? (avianNavigationTeacher && action >= 15u ? studentRequested : teacherRequested)
+             : legacyNavigationTeacherRequested;
++        if (fixedFlightController && state.episode.z==10u && float(state.episode.x)*dispatch.timing.x>=12.96f && float(state.episode.x)*dispatch.timing.x<16.0f && (action==4u || action==5u)) {
++            const float fade=1.0f-smoothstep(15.0f,16.0f,float(state.episode.x)*dispatch.timing.x);
++            navigationTeacherRequested=clamp(navigationTeacherRequested+(action==4u ? -0.40f : 0.40f)*fade,-1.0f,1.0f);
++        }
+         // Experimental gait ends before the launch crouch takes control.
+         if (fixedFlightController && state.episode.z == 10u && action >= 7u && action <= 12u) {
+             const float seconds=float(state.episode.x)*dispatch.timing.x;

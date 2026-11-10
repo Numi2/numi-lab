@@ -1,0 +1,10 @@
+/Users/n/Developer/numi-crow-rl-20261107/build/crow-v15-launch-pronation-20261110/positive.metal:5499:21: warning: unused variable 'seconds' [-Wunused-variable]
+        const float seconds=float(state.episode.x)*dispatch.timing.x;
+                    ^
+1 warning generated.
+positive ace56921d6b4747bcd23e0b7c24299918d13bbf7de5988b4da09c5ce645ade19
+/Users/n/Developer/numi-crow-rl-20261107/build/crow-v15-launch-pronation-20261110/negative.metal:5499:21: warning: unused variable 'seconds' [-Wunused-variable]
+        const float seconds=float(state.episode.x)*dispatch.timing.x;
+                    ^
+1 warning generated.
+negative 43a246db5aab7e5cf39ce8e6c81bee9a82a692ad290dc2d66355edf74cd757a9

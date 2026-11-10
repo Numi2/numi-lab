@@ -1,0 +1,27 @@
+[
+  {
+    "path": "build/crow-v15-perch-force-observer-20261110/libmetalrobo.dylib",
+    "sha256": "a7f394ba656e43fde88fd99808c626fdf4edac84a4eb0ab6fa6601b043866ffd",
+    "bytes": 5763888
+  },
+  {
+    "path": "build/crow-v15-launch-pronation-20261110/positive.metallib",
+    "sha256": "ace56921d6b4747bcd23e0b7c24299918d13bbf7de5988b4da09c5ce645ade19",
+    "bytes": 4473536
+  },
+  {
+    "path": "build/crow-v15-launch-pronation-20261110/negative.metallib",
+    "sha256": "43a246db5aab7e5cf39ce8e6c81bee9a82a692ad290dc2d66355edf74cd757a9",
+    "bytes": 4473536
+  },
+  {
+    "path": "build/crow-v15-integrated-route-baseline-20261110/landing-diagnostic.policypack",
+    "sha256": "7d52ccc7f488e8d4d7b42654f472fb91a93d441a9b42a7e133071a47f17464b3",
+    "bytes": 5996464
+  },
+  {
+    "path": "build/crow-v15-integrated-route-baseline-20261110/route-diagnostic.policypack",
+    "sha256": "a38a4429ad0ec1c8e8a6ef82906da6ed5f73e8740699f1ce3bd751f50d884b83",
+    "bytes": 17228718
+  }
+]
