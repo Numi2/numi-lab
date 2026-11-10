@@ -1,0 +1,3 @@
+# Adjusted foot target did not generalize to later I recovery
+
+The guide took over after 2599 exact-matching student frames, including a physically reached third waypoint. With the adjusted foot target it reached all five and reported no physical or solver failure, and no nonfoot perch impulse, but never maintained terminal support: longest bilateral load was 54 accepted endpoints, with zero simultaneous opposing-toe samples. The earlier target on this same prefix produced a body/perch strike; avoiding it is not a supported landing. This used-layout guided run fails the physical gate and is excluded from successful training.
