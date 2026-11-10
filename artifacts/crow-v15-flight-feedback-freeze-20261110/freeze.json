@@ -1,0 +1,11 @@
+{
+  "controller": "research-v2-estimated-wing",
+  "source_sha256": "01bc92e4ec91c08d890da7b8691400f56490a2518d9ed47ae150bb997c65375c",
+  "compared_built_source_sha256": "01bc92e4ec91c08d890da7b8691400f56490a2518d9ed47ae150bb997c65375c",
+  "research_body_source_sha256": "ce0652bf8aacb2e53f23189ce9b65268d36e7634dc0a912cc5c6a78dc8cfbae3",
+  "aerodynamics_patch_sha256": "e10308515088acc1f052523db76ccda88632d33c424a60ad549f177bd88953a1",
+  "original_v1_sha256": "aa2fe10901cb0494d80ae445902303a17ce0e73d030072bab09461d8f3593ebe",
+  "ground_start_screen": "560/560 across seven 80-lane runs with speeds 0.15 to 0.85 m/s, five modes; tested separate commands, not arbitrary combined commands",
+  "fresh_state_recovery": "80/80 reset cases from eight captured states; reconstructed hidden state",
+  "status": "Frozen research candidate only; route adapter, landing, full-sequence, production integration and biological validation remain open."
+}

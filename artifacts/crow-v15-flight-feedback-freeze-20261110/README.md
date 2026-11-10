@@ -1,0 +1,3 @@
+# Frozen research flight controller
+
+This file is byte-identical to the low-level controller used for the 560 sampled ground-start flight cases and the 80 reset recovery cases linked in freeze.json. Its existing V1-named functions reflect its source ancestry; its body is the modified research V2 law. Treat this source as frozen and change the command adapter, not this file, when working on route experiments. The result applies to the specified experimental body, aero patch, simulator, commands, sampled start disturbances and thresholds. It does not establish real bird flight, arbitrary maneuvers, hover, route clearance, supported landing, visual autonomy or production integration. The original production V1 file remains unchanged.

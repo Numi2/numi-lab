@@ -1,0 +1,17 @@
+[
+  {
+    "path": "build/crow-v15-feedback-flight-envelope-20261110/cruise/tracking.metallib",
+    "sha256": "9d05cc4d63f49c50383a8a9dc975d4058acfc1367a90d7ce4246ad539744899a",
+    "bytes": 4462560
+  },
+  {
+    "path": "build/crow-v15-wing-inertia-prototype-20261110/libmetalrobo.dylib",
+    "sha256": "e5245d37c0c16d3c5fce102a6930a3faf02f0ae05d657712214e4100f7022eab",
+    "bytes": 5764080
+  },
+  {
+    "path": "build/crow-v15-wing-inertia-prototype-20261110/zero.policypack",
+    "sha256": "7340e39ae33676752ac7eadc3bffc17e2a42d8c90705f27166aebe2c16282b7d",
+    "bytes": 2346385
+  }
+]
