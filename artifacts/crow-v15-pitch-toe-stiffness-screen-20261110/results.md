@@ -1,0 +1,3 @@
+# Toe stiffness with pitch-coordinated grip
+
+All three controls reproduced all 200 reference states. Neither reduced stiffness candidate established the required opposing grip, and neither met the terminal support gate. The reference pitch-coordinated candidate passed the behavioral screen on this one separated start but exceeded the independently measured 0.5 mm grip-overlap limit (0.949 mm). The original-balance control reached 0.729 mm overlap but failed terminal support. No candidate qualifies for perturbation testing or integration. These outcomes do not establish continuous navigation, walking, takeoff, landing on unused layouts, or biological fidelity.
