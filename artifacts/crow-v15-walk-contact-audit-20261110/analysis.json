@@ -1,0 +1,78 @@
+{
+  "source": "crow-v15-toe-launch-control-20261110/control",
+  "window": "steps 100..200 inclusive, 20ms endpoints",
+  "normal_impulse_threshold_Ns": 0.001,
+  "lanes": [
+    {
+      "lane": 0,
+      "both_loaded": 18,
+      "left_only_loaded": 44,
+      "right_only_loaded": 39,
+      "neither_loaded": 0
+    },
+    {
+      "lane": 1,
+      "both_loaded": 18,
+      "left_only_loaded": 44,
+      "right_only_loaded": 39,
+      "neither_loaded": 0
+    },
+    {
+      "lane": 2,
+      "both_loaded": 18,
+      "left_only_loaded": 44,
+      "right_only_loaded": 39,
+      "neither_loaded": 0
+    },
+    {
+      "lane": 3,
+      "both_loaded": 18,
+      "left_only_loaded": 44,
+      "right_only_loaded": 39,
+      "neither_loaded": 0
+    },
+    {
+      "lane": 4,
+      "both_loaded": 18,
+      "left_only_loaded": 44,
+      "right_only_loaded": 39,
+      "neither_loaded": 0
+    },
+    {
+      "lane": 5,
+      "both_loaded": 18,
+      "left_only_loaded": 44,
+      "right_only_loaded": 39,
+      "neither_loaded": 0
+    },
+    {
+      "lane": 6,
+      "both_loaded": 18,
+      "left_only_loaded": 44,
+      "right_only_loaded": 39,
+      "neither_loaded": 0
+    },
+    {
+      "lane": 7,
+      "both_loaded": 18,
+      "left_only_loaded": 44,
+      "right_only_loaded": 39,
+      "neither_loaded": 0
+    }
+  ],
+  "lane_0_foot_origin_kinematics": {
+    "crow_left_foot": {
+      "origin_height_min_m": 0.009162764064967632,
+      "origin_height_max_m": 0.01418745331466198,
+      "origin_planar_speed_median_m_s": 0.00889901986010982,
+      "origin_planar_speed_max_m_s": 0.2536533584402488
+    },
+    "crow_right_foot": {
+      "origin_height_min_m": 0.008889855816960335,
+      "origin_height_max_m": 0.014068123884499073,
+      "origin_planar_speed_median_m_s": 0.011565681242823016,
+      "origin_planar_speed_max_m_s": 0.4478394779650804
+    }
+  },
+  "limits": "Foot-body-origin speed is not contact-point slip; contact samples do not establish continuous swing clearance, natural gait or long-distance stability."
+}
