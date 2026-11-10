@@ -1,0 +1,11 @@
+{
+  "remote_commit": "b9be1337b7a41a014f3b4913c3ac41a09c13af9e",
+  "retired": [
+    {
+      "raw": "artifacts/crow-v15-release-balance-gain-screen-20261110/results.txt",
+      "archive": "artifacts/crow-v15-release-balance-gain-screen-20261110/results.txt.gz",
+      "sha256": "80a8e4bb5f1ee917f23deb807712fbba53ad025cd4afdfeaa65f4996518717f4",
+      "bytes": 2005121
+    }
+  ]
+}
