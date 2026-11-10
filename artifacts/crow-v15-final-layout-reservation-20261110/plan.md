@@ -1,0 +1,3 @@
+# Reserve fresh final layouts and reset seeds
+
+The existing I/J layouts were used in development and are not held out. Before further final-trial selection, independently generate K and L from fixed ranges of the same gate, opposite slalom and perch family, with independent cryptographic generator and reset seeds. Freeze their exact bytes and hash in Git; do not run, inspect outcomes, train or select on them before the controller is frozen. The final full-start trials must use both layouts and their reserved reset seeds without intermediate reset or tuning. If they fail, preserve and report the failure; any new revision requires a fresh held-out set.
