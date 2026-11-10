@@ -1,0 +1,22 @@
+--- a/MetalWorld.mm
++++ b/MetalWorld.mm
+@@ -21433,7 +21433,7 @@
+             static unsigned long long crowTraceSubmission = 0;
+             const bool crowTraceEnabled = std::getenv("CROW_SUBSTEP_TRACE") != nullptr;
+             const unsigned long long crowTraceStep = crowTraceEnabled ? ++crowTraceSubmission : 0;
+-            const bool crowTraceWindow = crowTraceEnabled && crowTraceStep >= 4375 && crowTraceStep <= 4410;
++            const bool crowTraceWindow = crowTraceEnabled && crowTraceStep >= 1 && crowTraceStep <= 120;
+             NSMutableArray<id<MTLBuffer>>* crowTraceBuffers = crowTraceWindow ? [NSMutableArray array] : nil;
+             const NSUInteger crowTraceCapacity = diagnostics.layout.contactDispatch.constraintCapacity;
+             const NSUInteger crowTraceLanes = batch.environmentCount;
+@@ -22393,9 +22393,7 @@
+                             std::fprintf(stderr,"CROW_SUBSTEP_STATUS %llu %lu %lu %u %u\n",crowTraceStep,(unsigned long)sub,(unsigned long)lane,statuses[lane].requiredConstraints,statuses[lane].physicsSubstep);
+                             for (NSUInteger i=0;i<n;++i) {
+                                 const auto& c=contacts[lane*crowTraceCapacity+i];
+-                                const bool toeA=c.bodyA>=17u && c.bodyA<=24u, toeB=c.bodyB>=17u && c.bodyB<=24u;
+-                                if ((toeA && c.bodyB==30u)||(toeB && c.bodyA==30u))
+-                                    std::fprintf(stderr,"CROW_SUBSTEP_TOE %llu %lu %lu %u %u %.9g %.9g %.9g\n",crowTraceStep,(unsigned long)sub,(unsigned long)lane,c.bodyA,c.bodyB,c.impulses.x,c.pointAndSeparation.w,c.normal.z);
++                                std::fprintf(stderr,"CROW_SUBSTEP_ALL %llu %lu %lu %u %u %.9g %.9g %.9g %.9g\n",crowTraceStep,(unsigned long)sub,(unsigned long)lane,c.bodyA,c.bodyB,c.impulses.x,c.pointAndSeparation.w,c.normal.x,c.normal.z);
+                             }
+                         }
+                     }

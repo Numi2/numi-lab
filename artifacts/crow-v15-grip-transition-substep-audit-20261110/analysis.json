@@ -1,0 +1,2289 @@
+{
+  "trace_mismatch_steps": [],
+  "observed_substeps": 1920,
+  "expected_substeps": 1920,
+  "body_names": {
+    "0": "crow_body",
+    "1": "crow_left_wing_sweep",
+    "2": "crow_right_wing_sweep",
+    "3": "crow_left_wing_flap_link",
+    "4": "crow_right_wing_flap_link",
+    "5": "crow_left_wing",
+    "6": "crow_right_wing",
+    "7": "crow_tail",
+    "8": "crow_left_thigh",
+    "9": "crow_left_shank",
+    "10": "crow_left_foot",
+    "11": "crow_right_thigh",
+    "12": "crow_right_shank",
+    "13": "crow_right_foot",
+    "14": "crow_neck_yaw_link",
+    "15": "crow_head",
+    "16": "crow_lower_beak",
+    "17": "crow_left_front_toe_1",
+    "18": "crow_left_front_toe_2",
+    "19": "crow_left_front_toe_3",
+    "20": "crow_left_rear_toe",
+    "21": "crow_right_front_toe_1",
+    "22": "crow_right_front_toe_2",
+    "23": "crow_right_front_toe_3",
+    "24": "crow_right_rear_toe",
+    "25": "locomotion_ground"
+  },
+  "contacts": [
+    {
+      "step": 2,
+      "toe": "crow_left_rear_toe",
+      "mode": "all",
+      "interval_impulse": 0.0087301644639,
+      "last_substep_impulse": 1.86720499e-05,
+      "interval_force_above_threshold": true,
+      "last_force_above_threshold": true
+    },
+    {
+      "step": 3,
+      "toe": "crow_left_rear_toe",
+      "mode": "all",
+      "interval_impulse": 3.747190728387032e-06,
+      "last_substep_impulse": 3.02390866e-18,
+      "interval_force_above_threshold": false,
+      "last_force_above_threshold": false
+    },
+    {
+      "step": 4,
+      "toe": "crow_left_rear_toe",
+      "mode": "all",
+      "interval_impulse": 0.013531271999300001,
+      "last_substep_impulse": 0.00293576159,
+      "interval_force_above_threshold": true,
+      "last_force_above_threshold": true
+    },
+    {
+      "step": 5,
+      "toe": "crow_left_rear_toe",
+      "mode": "all",
+      "interval_impulse": 0.079881788,
+      "last_substep_impulse": 0.00579524692,
+      "interval_force_above_threshold": true,
+      "last_force_above_threshold": true
+    },
+    {
+      "step": 6,
+      "toe": "crow_left_rear_toe",
+      "mode": "all",
+      "interval_impulse": 0.09026269196,
+      "last_substep_impulse": 0.00550889224,
+      "interval_force_above_threshold": true,
+      "last_force_above_threshold": true
+    },
+    {
+      "step": 7,
+      "toe": "crow_left_rear_toe",
+      "mode": "all",
+      "interval_impulse": 0.08709254441,
+      "last_substep_impulse": 0.00541128032,
+      "interval_force_above_threshold": true,
+      "last_force_above_threshold": true
+    },
+    {
+      "step": 8,
+      "toe": "crow_left_rear_toe",
+      "mode": "all",
+      "interval_impulse": 0.08660093696,
+      "last_substep_impulse": 0.00542078819,
+      "interval_force_above_threshold": true,
+      "last_force_above_threshold": true
+    },
+    {
+      "step": 9,
+      "toe": "crow_left_rear_toe",
+      "mode": "all",
+      "interval_impulse": 0.08699087287000001,
+      "last_substep_impulse": 0.00545164244,
+      "interval_force_above_threshold": true,
+      "last_force_above_threshold": true
+    },
+    {
+      "step": 10,
+      "toe": "crow_left_rear_toe",
+      "mode": "all",
+      "interval_impulse": 0.0875196545986,
+      "last_substep_impulse": 0.0054989803071000005,
+      "interval_force_above_threshold": true,
+      "last_force_above_threshold": true
+    },
+    {
+      "step": 11,
+      "toe": "crow_left_rear_toe",
+      "mode": "all",
+      "interval_impulse": 0.085948841517,
+      "last_substep_impulse": 0.0037223448799999998,
+      "interval_force_above_threshold": true,
+      "last_force_above_threshold": true
+    },
+    {
+      "step": 11,
+      "toe": "crow_right_rear_toe",
+      "mode": "all",
+      "interval_impulse": 0.0044842755717,
+      "last_substep_impulse": 0.002234740711,
+      "interval_force_above_threshold": true,
+      "last_force_above_threshold": true
+    },
+    {
+      "step": 12,
+      "toe": "crow_left_rear_toe",
+      "mode": "all",
+      "interval_impulse": 0.014842745689520728,
+      "last_substep_impulse": 0.001482429889932786,
+      "interval_force_above_threshold": true,
+      "last_force_above_threshold": true
+    },
+    {
+      "step": 12,
+      "toe": "crow_right_rear_toe",
+      "mode": "all",
+      "interval_impulse": 0.05669390551989867,
+      "last_substep_impulse": 0.003992858121864678,
+      "interval_force_above_threshold": true,
+      "last_force_above_threshold": true
+    },
+    {
+      "step": 13,
+      "toe": "crow_left_rear_toe",
+      "mode": "all",
+      "interval_impulse": 0.01767143647155591,
+      "last_substep_impulse": 5.886722650006485e-05,
+      "interval_force_above_threshold": true,
+      "last_force_above_threshold": true
+    },
+    {
+      "step": 13,
+      "toe": "crow_right_rear_toe",
+      "mode": "all",
+      "interval_impulse": 0.0728986035331484,
+      "last_substep_impulse": 0.005613975230000118,
+      "interval_force_above_threshold": true,
+      "last_force_above_threshold": true
+    },
+    {
+      "step": 14,
+      "toe": "crow_left_rear_toe",
+      "mode": "all",
+      "interval_impulse": 0.0002941713688272719,
+      "last_substep_impulse": 0.00019755308079392393,
+      "interval_force_above_threshold": true,
+      "last_force_above_threshold": true
+    },
+    {
+      "step": 14,
+      "toe": "crow_right_rear_toe",
+      "mode": "all",
+      "interval_impulse": 0.09092075197131003,
+      "last_substep_impulse": 0.005480911669,
+      "interval_force_above_threshold": true,
+      "last_force_above_threshold": true
+    },
+    {
+      "step": 15,
+      "toe": "crow_left_rear_toe",
+      "mode": "all",
+      "interval_impulse": 0.013226157056756834,
+      "last_substep_impulse": 0.0009451492220000003,
+      "interval_force_above_threshold": true,
+      "last_force_above_threshold": true
+    },
+    {
+      "step": 15,
+      "toe": "crow_right_rear_toe",
+      "mode": "all",
+      "interval_impulse": 0.07611444155200002,
+      "last_substep_impulse": 0.00454954267,
+      "interval_force_above_threshold": true,
+      "last_force_above_threshold": true
+    },
+    {
+      "step": 16,
+      "toe": "crow_left_rear_toe",
+      "mode": "all",
+      "interval_impulse": 0.0122902474931,
+      "last_substep_impulse": 0.0012433458561,
+      "interval_force_above_threshold": true,
+      "last_force_above_threshold": true
+    },
+    {
+      "step": 16,
+      "toe": "crow_right_rear_toe",
+      "mode": "all",
+      "interval_impulse": 0.07535499142727412,
+      "last_substep_impulse": 0.0037500678364833003,
+      "interval_force_above_threshold": true,
+      "last_force_above_threshold": true
+    },
+    {
+      "step": 17,
+      "toe": "crow_left_rear_toe",
+      "mode": "all",
+      "interval_impulse": 0.0780383344528943,
+      "last_substep_impulse": 0.0057517562167731205,
+      "interval_force_above_threshold": true,
+      "last_force_above_threshold": true
+    },
+    {
+      "step": 17,
+      "toe": "crow_right_rear_toe",
+      "mode": "all",
+      "interval_impulse": 0.01094924997869592,
+      "last_substep_impulse": 9.92062241235488e-09,
+      "interval_force_above_threshold": true,
+      "last_force_above_threshold": false
+    },
+    {
+      "step": 18,
+      "toe": "crow_left_rear_toe",
+      "mode": "all",
+      "interval_impulse": 0.07836546730765807,
+      "last_substep_impulse": 0.0028000217117,
+      "interval_force_above_threshold": true,
+      "last_force_above_threshold": true
+    },
+    {
+      "step": 18,
+      "toe": "crow_right_rear_toe",
+      "mode": "all",
+      "interval_impulse": 0.002077521767674519,
+      "last_substep_impulse": 0.0002726193340112125,
+      "interval_force_above_threshold": true,
+      "last_force_above_threshold": true
+    },
+    {
+      "step": 19,
+      "toe": "crow_left_rear_toe",
+      "mode": "all",
+      "interval_impulse": 0.06923764687378998,
+      "last_substep_impulse": 0.00200658970951,
+      "interval_force_above_threshold": true,
+      "last_force_above_threshold": true
+    },
+    {
+      "step": 19,
+      "toe": "crow_right_rear_toe",
+      "mode": "all",
+      "interval_impulse": 0.017423040177732017,
+      "last_substep_impulse": 0.0006831906232150001,
+      "interval_force_above_threshold": true,
+      "last_force_above_threshold": true
+    },
+    {
+      "step": 20,
+      "toe": "crow_left_rear_toe",
+      "mode": "all",
+      "interval_impulse": 0.04360853848113001,
+      "last_substep_impulse": 0.00411923776996,
+      "interval_force_above_threshold": true,
+      "last_force_above_threshold": true
+    },
+    {
+      "step": 20,
+      "toe": "crow_right_rear_toe",
+      "mode": "all",
+      "interval_impulse": 0.0474462862262,
+      "last_substep_impulse": 0.0016961274884,
+      "interval_force_above_threshold": true,
+      "last_force_above_threshold": true
+    },
+    {
+      "step": 21,
+      "toe": "crow_left_rear_toe",
+      "mode": "all",
+      "interval_impulse": 0.028541195524429998,
+      "last_substep_impulse": 0.001166791764,
+      "interval_force_above_threshold": true,
+      "last_force_above_threshold": true
+    },
+    {
+      "step": 21,
+      "toe": "crow_right_rear_toe",
+      "mode": "all",
+      "interval_impulse": 0.0565370657359,
+      "last_substep_impulse": 0.003194340918,
+      "interval_force_above_threshold": true,
+      "last_force_above_threshold": true
+    },
+    {
+      "step": 22,
+      "toe": "crow_left_rear_toe",
+      "mode": "all",
+      "interval_impulse": 0.0386291221986,
+      "last_substep_impulse": 0.001965245945,
+      "interval_force_above_threshold": true,
+      "last_force_above_threshold": true
+    },
+    {
+      "step": 22,
+      "toe": "crow_right_rear_toe",
+      "mode": "all",
+      "interval_impulse": 0.048483578104400016,
+      "last_substep_impulse": 0.0029345733250000002,
+      "interval_force_above_threshold": true,
+      "last_force_above_threshold": true
+    },
+    {
+      "step": 23,
+      "toe": "crow_left_rear_toe",
+      "mode": "all",
+      "interval_impulse": 0.0435621764759,
+      "last_substep_impulse": 0.0019879129420000002,
+      "interval_force_above_threshold": true,
+      "last_force_above_threshold": true
+    },
+    {
+      "step": 23,
+      "toe": "crow_right_rear_toe",
+      "mode": "all",
+      "interval_impulse": 0.043996196194400004,
+      "last_substep_impulse": 0.003286638429,
+      "interval_force_above_threshold": true,
+      "last_force_above_threshold": true
+    },
+    {
+      "step": 24,
+      "toe": "crow_left_rear_toe",
+      "mode": "all",
+      "interval_impulse": 0.035714462948773604,
+      "last_substep_impulse": 0.00273307358,
+      "interval_force_above_threshold": true,
+      "last_force_above_threshold": true
+    },
+    {
+      "step": 24,
+      "toe": "crow_right_rear_toe",
+      "mode": "all",
+      "interval_impulse": 0.052668724639307225,
+      "last_substep_impulse": 0.0027687134693,
+      "interval_force_above_threshold": true,
+      "last_force_above_threshold": true
+    },
+    {
+      "step": 25,
+      "toe": "crow_left_rear_toe",
+      "mode": "all",
+      "interval_impulse": 0.04366068580473099,
+      "last_substep_impulse": 0.0019397934702999999,
+      "interval_force_above_threshold": true,
+      "last_force_above_threshold": true
+    },
+    {
+      "step": 25,
+      "toe": "crow_right_rear_toe",
+      "mode": "all",
+      "interval_impulse": 0.04398645974043,
+      "last_substep_impulse": 0.0026274322668,
+      "interval_force_above_threshold": true,
+      "last_force_above_threshold": true
+    },
+    {
+      "step": 26,
+      "toe": "crow_left_rear_toe",
+      "mode": "all",
+      "interval_impulse": 0.044856866757199985,
+      "last_substep_impulse": 0.001842340338,
+      "interval_force_above_threshold": true,
+      "last_force_above_threshold": true
+    },
+    {
+      "step": 26,
+      "toe": "crow_right_rear_toe",
+      "mode": "all",
+      "interval_impulse": 0.04194588778159999,
+      "last_substep_impulse": 0.003267331686,
+      "interval_force_above_threshold": true,
+      "last_force_above_threshold": true
+    },
+    {
+      "step": 27,
+      "toe": "crow_left_rear_toe",
+      "mode": "all",
+      "interval_impulse": 0.041097360294887975,
+      "last_substep_impulse": 0.0011425438868677789,
+      "interval_force_above_threshold": true,
+      "last_force_above_threshold": true
+    },
+    {
+      "step": 27,
+      "toe": "crow_right_rear_toe",
+      "mode": "all",
+      "interval_impulse": 0.04507914538499916,
+      "last_substep_impulse": 0.0011110721333,
+      "interval_force_above_threshold": true,
+      "last_force_above_threshold": true
+    },
+    {
+      "step": 28,
+      "toe": "crow_left_rear_toe",
+      "mode": "all",
+      "interval_impulse": 0.03797038474890001,
+      "last_substep_impulse": 0.001405160205,
+      "interval_force_above_threshold": true,
+      "last_force_above_threshold": true
+    },
+    {
+      "step": 28,
+      "toe": "crow_right_rear_toe",
+      "mode": "all",
+      "interval_impulse": 0.048032524160600006,
+      "last_substep_impulse": 0.004271263138,
+      "interval_force_above_threshold": true,
+      "last_force_above_threshold": true
+    },
+    {
+      "step": 29,
+      "toe": "crow_left_rear_toe",
+      "mode": "all",
+      "interval_impulse": 0.04390577363328439,
+      "last_substep_impulse": 0.0007284931981043999,
+      "interval_force_above_threshold": true,
+      "last_force_above_threshold": true
+    },
+    {
+      "step": 29,
+      "toe": "crow_right_rear_toe",
+      "mode": "all",
+      "interval_impulse": 0.05271846245071099,
+      "last_substep_impulse": 0.00790976213352,
+      "interval_force_above_threshold": true,
+      "last_force_above_threshold": true
+    },
+    {
+      "step": 30,
+      "toe": "crow_left_rear_toe",
+      "mode": "all",
+      "interval_impulse": 0.04034453287888198,
+      "last_substep_impulse": 0.001505964304,
+      "interval_force_above_threshold": true,
+      "last_force_above_threshold": true
+    },
+    {
+      "step": 30,
+      "toe": "crow_right_rear_toe",
+      "mode": "all",
+      "interval_impulse": 0.035494435762351256,
+      "last_substep_impulse": 0.003906243369,
+      "interval_force_above_threshold": true,
+      "last_force_above_threshold": true
+    },
+    {
+      "step": 31,
+      "toe": "crow_left_rear_toe",
+      "mode": "all",
+      "interval_impulse": 0.045480681587807,
+      "last_substep_impulse": 0.009039896878,
+      "interval_force_above_threshold": true,
+      "last_force_above_threshold": true
+    },
+    {
+      "step": 31,
+      "toe": "crow_right_rear_toe",
+      "mode": "all",
+      "interval_impulse": 0.05636015749483998,
+      "last_substep_impulse": 0.009326526402,
+      "interval_force_above_threshold": true,
+      "last_force_above_threshold": true
+    },
+    {
+      "step": 32,
+      "toe": "crow_left_rear_toe",
+      "mode": "all",
+      "interval_impulse": 0.04217295893091841,
+      "last_substep_impulse": 0.0003642333104484,
+      "interval_force_above_threshold": true,
+      "last_force_above_threshold": true
+    },
+    {
+      "step": 32,
+      "toe": "crow_right_rear_toe",
+      "mode": "all",
+      "interval_impulse": 0.042421191152766,
+      "last_substep_impulse": 0.009309263062866,
+      "interval_force_above_threshold": true,
+      "last_force_above_threshold": true
+    },
+    {
+      "step": 33,
+      "toe": "crow_left_rear_toe",
+      "mode": "all",
+      "interval_impulse": 0.03672568898110053,
+      "last_substep_impulse": 0.0008271718688000001,
+      "interval_force_above_threshold": true,
+      "last_force_above_threshold": true
+    },
+    {
+      "step": 33,
+      "toe": "crow_right_rear_toe",
+      "mode": "all",
+      "interval_impulse": 0.04319334314504582,
+      "last_substep_impulse": 0.002006296996,
+      "interval_force_above_threshold": true,
+      "last_force_above_threshold": true
+    },
+    {
+      "step": 34,
+      "toe": "crow_left_rear_toe",
+      "mode": "all",
+      "interval_impulse": 0.046203946048425204,
+      "last_substep_impulse": 0.0033370771264752,
+      "interval_force_above_threshold": true,
+      "last_force_above_threshold": true
+    },
+    {
+      "step": 34,
+      "toe": "crow_right_rear_toe",
+      "mode": "all",
+      "interval_impulse": 0.053544051562072,
+      "last_substep_impulse": 0.001501233981682,
+      "interval_force_above_threshold": true,
+      "last_force_above_threshold": true
+    },
+    {
+      "step": 35,
+      "toe": "crow_left_rear_toe",
+      "mode": "all",
+      "interval_impulse": 0.03593934553440433,
+      "last_substep_impulse": 0.0011252290254,
+      "interval_force_above_threshold": true,
+      "last_force_above_threshold": true
+    },
+    {
+      "step": 35,
+      "toe": "crow_right_rear_toe",
+      "mode": "all",
+      "interval_impulse": 0.035422735413695415,
+      "last_substep_impulse": 0.0014727067699000001,
+      "interval_force_above_threshold": true,
+      "last_force_above_threshold": true
+    },
+    {
+      "step": 36,
+      "toe": "crow_left_rear_toe",
+      "mode": "all",
+      "interval_impulse": 0.06899199092706824,
+      "last_substep_impulse": 0.0012005499773990352,
+      "interval_force_above_threshold": true,
+      "last_force_above_threshold": true
+    },
+    {
+      "step": 36,
+      "toe": "crow_right_rear_toe",
+      "mode": "all",
+      "interval_impulse": 0.03169515897244684,
+      "last_substep_impulse": 0.006579343448157174,
+      "interval_force_above_threshold": true,
+      "last_force_above_threshold": true
+    },
+    {
+      "step": 37,
+      "toe": "crow_left_rear_toe",
+      "mode": "all",
+      "interval_impulse": 0.03112216651196977,
+      "last_substep_impulse": 0.0014690795200000167,
+      "interval_force_above_threshold": true,
+      "last_force_above_threshold": true
+    },
+    {
+      "step": 37,
+      "toe": "crow_right_rear_toe",
+      "mode": "all",
+      "interval_impulse": 0.051082274908439716,
+      "last_substep_impulse": 0.0010023147300000658,
+      "interval_force_above_threshold": true,
+      "last_force_above_threshold": true
+    },
+    {
+      "step": 38,
+      "toe": "crow_left_rear_toe",
+      "mode": "all",
+      "interval_impulse": 0.060688039068,
+      "last_substep_impulse": 0.00589541439,
+      "interval_force_above_threshold": true,
+      "last_force_above_threshold": true
+    },
+    {
+      "step": 38,
+      "toe": "crow_right_rear_toe",
+      "mode": "all",
+      "interval_impulse": 0.030823660018000038,
+      "last_substep_impulse": 0.000484541408,
+      "interval_force_above_threshold": true,
+      "last_force_above_threshold": true
+    },
+    {
+      "step": 39,
+      "toe": "crow_left_rear_toe",
+      "mode": "all",
+      "interval_impulse": 0.07220262498999999,
+      "last_substep_impulse": 0.00598555524,
+      "interval_force_above_threshold": true,
+      "last_force_above_threshold": true
+    },
+    {
+      "step": 39,
+      "toe": "crow_right_rear_toe",
+      "mode": "all",
+      "interval_impulse": 0.018691220654,
+      "last_substep_impulse": 0.000569734955,
+      "interval_force_above_threshold": true,
+      "last_force_above_threshold": true
+    },
+    {
+      "step": 40,
+      "toe": "crow_left_rear_toe",
+      "mode": "all",
+      "interval_impulse": 0.049211913351999995,
+      "last_substep_impulse": 0.000895349949,
+      "interval_force_above_threshold": true,
+      "last_force_above_threshold": true
+    },
+    {
+      "step": 40,
+      "toe": "crow_right_rear_toe",
+      "mode": "all",
+      "interval_impulse": 0.047945747449,
+      "last_substep_impulse": 0.00410871767,
+      "interval_force_above_threshold": true,
+      "last_force_above_threshold": true
+    },
+    {
+      "step": 41,
+      "toe": "crow_left_rear_toe",
+      "mode": "all",
+      "interval_impulse": 0.0147500078346,
+      "last_substep_impulse": 0.00137860118,
+      "interval_force_above_threshold": true,
+      "last_force_above_threshold": true
+    },
+    {
+      "step": 41,
+      "toe": "crow_right_rear_toe",
+      "mode": "all",
+      "interval_impulse": 0.07041883851,
+      "last_substep_impulse": 0.00509020593,
+      "interval_force_above_threshold": true,
+      "last_force_above_threshold": true
+    },
+    {
+      "step": 42,
+      "toe": "crow_left_rear_toe",
+      "mode": "all",
+      "interval_impulse": 0.020412751247999995,
+      "last_substep_impulse": 0.00109559274,
+      "interval_force_above_threshold": true,
+      "last_force_above_threshold": true
+    },
+    {
+      "step": 42,
+      "toe": "crow_right_rear_toe",
+      "mode": "all",
+      "interval_impulse": 0.05852893555,
+      "last_substep_impulse": 0.00121205591,
+      "interval_force_above_threshold": true,
+      "last_force_above_threshold": true
+    },
+    {
+      "step": 43,
+      "toe": "crow_left_rear_toe",
+      "mode": "all",
+      "interval_impulse": 0.032057819406,
+      "last_substep_impulse": 0.00640460337,
+      "interval_force_above_threshold": true,
+      "last_force_above_threshold": true
+    },
+    {
+      "step": 43,
+      "toe": "crow_right_rear_toe",
+      "mode": "all",
+      "interval_impulse": 0.054140098494000005,
+      "last_substep_impulse": 0.00366694061,
+      "interval_force_above_threshold": true,
+      "last_force_above_threshold": true
+    },
+    {
+      "step": 44,
+      "toe": "crow_left_rear_toe",
+      "mode": "all",
+      "interval_impulse": 0.063939688558,
+      "last_substep_impulse": 0.000828951714,
+      "interval_force_above_threshold": true,
+      "last_force_above_threshold": true
+    },
+    {
+      "step": 44,
+      "toe": "crow_right_rear_toe",
+      "mode": "all",
+      "interval_impulse": 0.020846916638,
+      "last_substep_impulse": 0.00334866671,
+      "interval_force_above_threshold": true,
+      "last_force_above_threshold": true
+    },
+    {
+      "step": 45,
+      "toe": "crow_left_rear_toe",
+      "mode": "all",
+      "interval_impulse": 0.050629778071000005,
+      "last_substep_impulse": 0.000176912465,
+      "interval_force_above_threshold": true,
+      "last_force_above_threshold": true
+    },
+    {
+      "step": 45,
+      "toe": "crow_right_rear_toe",
+      "mode": "all",
+      "interval_impulse": 0.0288528243057,
+      "last_substep_impulse": 0.00565337809,
+      "interval_force_above_threshold": true,
+      "last_force_above_threshold": true
+    },
+    {
+      "step": 46,
+      "toe": "crow_left_rear_toe",
+      "mode": "all",
+      "interval_impulse": 0.046806838897,
+      "last_substep_impulse": 0.00202147383,
+      "interval_force_above_threshold": true,
+      "last_force_above_threshold": true
+    },
+    {
+      "step": 46,
+      "toe": "crow_right_rear_toe",
+      "mode": "all",
+      "interval_impulse": 0.040815233835,
+      "last_substep_impulse": 0.00421832642,
+      "interval_force_above_threshold": true,
+      "last_force_above_threshold": true
+    },
+    {
+      "step": 47,
+      "toe": "crow_left_rear_toe",
+      "mode": "all",
+      "interval_impulse": 0.023180433054999998,
+      "last_substep_impulse": 0.00126343139,
+      "interval_force_above_threshold": true,
+      "last_force_above_threshold": true
+    },
+    {
+      "step": 47,
+      "toe": "crow_right_rear_toe",
+      "mode": "all",
+      "interval_impulse": 0.04182360366000001,
+      "last_substep_impulse": 0.00121047266,
+      "interval_force_above_threshold": true,
+      "last_force_above_threshold": true
+    },
+    {
+      "step": 48,
+      "toe": "crow_left_rear_toe",
+      "mode": "all",
+      "interval_impulse": 0.0519634217073,
+      "last_substep_impulse": 0.00523212645,
+      "interval_force_above_threshold": true,
+      "last_force_above_threshold": true
+    },
+    {
+      "step": 48,
+      "toe": "crow_right_rear_toe",
+      "mode": "all",
+      "interval_impulse": 0.042196962121,
+      "last_substep_impulse": 0.00050685904,
+      "interval_force_above_threshold": true,
+      "last_force_above_threshold": true
+    },
+    {
+      "step": 49,
+      "toe": "crow_left_rear_toe",
+      "mode": "all",
+      "interval_impulse": 0.040398512839,
+      "last_substep_impulse": 0.0100971209,
+      "interval_force_above_threshold": true,
+      "last_force_above_threshold": true
+    },
+    {
+      "step": 49,
+      "toe": "crow_right_rear_toe",
+      "mode": "all",
+      "interval_impulse": 0.032461064338,
+      "last_substep_impulse": 0.000127519583,
+      "interval_force_above_threshold": true,
+      "last_force_above_threshold": true
+    },
+    {
+      "step": 50,
+      "toe": "crow_left_rear_toe",
+      "mode": "all",
+      "interval_impulse": 0.038819276361999985,
+      "last_substep_impulse": 0.000331445161,
+      "interval_force_above_threshold": true,
+      "last_force_above_threshold": true
+    },
+    {
+      "step": 50,
+      "toe": "crow_right_rear_toe",
+      "mode": "all",
+      "interval_impulse": 0.040317201682300005,
+      "last_substep_impulse": 0.00794476084,
+      "interval_force_above_threshold": true,
+      "last_force_above_threshold": true
+    },
+    {
+      "step": 51,
+      "toe": "crow_left_rear_toe",
+      "mode": "all",
+      "interval_impulse": 0.036780268709,
+      "last_substep_impulse": 0.0013657792,
+      "interval_force_above_threshold": true,
+      "last_force_above_threshold": true
+    },
+    {
+      "step": 51,
+      "toe": "crow_right_rear_toe",
+      "mode": "all",
+      "interval_impulse": 0.03863579565099999,
+      "last_substep_impulse": 0.00135564804,
+      "interval_force_above_threshold": true,
+      "last_force_above_threshold": true
+    },
+    {
+      "step": 52,
+      "toe": "crow_left_rear_toe",
+      "mode": "all",
+      "interval_impulse": 0.03659554142699999,
+      "last_substep_impulse": 0.00287518464,
+      "interval_force_above_threshold": true,
+      "last_force_above_threshold": true
+    },
+    {
+      "step": 52,
+      "toe": "crow_right_rear_toe",
+      "mode": "all",
+      "interval_impulse": 0.052111882947,
+      "last_substep_impulse": 0.00398022821,
+      "interval_force_above_threshold": true,
+      "last_force_above_threshold": true
+    },
+    {
+      "step": 53,
+      "toe": "crow_left_rear_toe",
+      "mode": "all",
+      "interval_impulse": 0.0214196976687,
+      "last_substep_impulse": 0.00219972385,
+      "interval_force_above_threshold": true,
+      "last_force_above_threshold": true
+    },
+    {
+      "step": 53,
+      "toe": "crow_right_rear_toe",
+      "mode": "all",
+      "interval_impulse": 0.06849748087000002,
+      "last_substep_impulse": 0.00105207425,
+      "interval_force_above_threshold": true,
+      "last_force_above_threshold": true
+    },
+    {
+      "step": 54,
+      "toe": "crow_left_rear_toe",
+      "mode": "all",
+      "interval_impulse": 0.035645413161,
+      "last_substep_impulse": 0.00464713294,
+      "interval_force_above_threshold": true,
+      "last_force_above_threshold": true
+    },
+    {
+      "step": 54,
+      "toe": "crow_right_rear_toe",
+      "mode": "all",
+      "interval_impulse": 0.044293418109,
+      "last_substep_impulse": 0.000418139563,
+      "interval_force_above_threshold": true,
+      "last_force_above_threshold": true
+    },
+    {
+      "step": 55,
+      "toe": "crow_left_rear_toe",
+      "mode": "all",
+      "interval_impulse": 0.04697412694500001,
+      "last_substep_impulse": 0.00184312556,
+      "interval_force_above_threshold": true,
+      "last_force_above_threshold": true
+    },
+    {
+      "step": 55,
+      "toe": "crow_right_rear_toe",
+      "mode": "all",
+      "interval_impulse": 0.026365658819,
+      "last_substep_impulse": 0.00142194866,
+      "interval_force_above_threshold": true,
+      "last_force_above_threshold": true
+    },
+    {
+      "step": 56,
+      "toe": "crow_left_rear_toe",
+      "mode": "all",
+      "interval_impulse": 0.029402046165,
+      "last_substep_impulse": 0.000612675154,
+      "interval_force_above_threshold": true,
+      "last_force_above_threshold": true
+    },
+    {
+      "step": 56,
+      "toe": "crow_right_rear_toe",
+      "mode": "all",
+      "interval_impulse": 0.047142290565,
+      "last_substep_impulse": 0.00427478924,
+      "interval_force_above_threshold": true,
+      "last_force_above_threshold": true
+    },
+    {
+      "step": 57,
+      "toe": "crow_left_rear_toe",
+      "mode": "all",
+      "interval_impulse": 0.03302874628453,
+      "last_substep_impulse": 0.00114309101,
+      "interval_force_above_threshold": true,
+      "last_force_above_threshold": true
+    },
+    {
+      "step": 57,
+      "toe": "crow_right_rear_toe",
+      "mode": "all",
+      "interval_impulse": 0.041064145447999995,
+      "last_substep_impulse": 0.00335707143,
+      "interval_force_above_threshold": true,
+      "last_force_above_threshold": true
+    },
+    {
+      "step": 58,
+      "toe": "crow_left_rear_toe",
+      "mode": "all",
+      "interval_impulse": 0.037399701204,
+      "last_substep_impulse": 0.00133181585,
+      "interval_force_above_threshold": true,
+      "last_force_above_threshold": true
+    },
+    {
+      "step": 58,
+      "toe": "crow_right_rear_toe",
+      "mode": "all",
+      "interval_impulse": 0.029854360995560002,
+      "last_substep_impulse": 0.00131135446,
+      "interval_force_above_threshold": true,
+      "last_force_above_threshold": true
+    },
+    {
+      "step": 59,
+      "toe": "crow_left_rear_toe",
+      "mode": "all",
+      "interval_impulse": 0.059881605734,
+      "last_substep_impulse": 0.00285741664,
+      "interval_force_above_threshold": true,
+      "last_force_above_threshold": true
+    },
+    {
+      "step": 59,
+      "toe": "crow_right_rear_toe",
+      "mode": "all",
+      "interval_impulse": 0.030896746378924696,
+      "last_substep_impulse": 0.0021676803,
+      "interval_force_above_threshold": true,
+      "last_force_above_threshold": true
+    },
+    {
+      "step": 60,
+      "toe": "crow_left_rear_toe",
+      "mode": "all",
+      "interval_impulse": 0.04542424689299999,
+      "last_substep_impulse": 0.000952073737,
+      "interval_force_above_threshold": true,
+      "last_force_above_threshold": true
+    },
+    {
+      "step": 60,
+      "toe": "crow_left_rear_toe",
+      "mode": "opposing",
+      "interval_impulse": 0.03899005890299999,
+      "last_substep_impulse": 0.000952073737,
+      "interval_force_above_threshold": true,
+      "last_force_above_threshold": true
+    },
+    {
+      "step": 60,
+      "toe": "crow_right_rear_toe",
+      "mode": "all",
+      "interval_impulse": 0.031788750375,
+      "last_substep_impulse": 0.00153539737,
+      "interval_force_above_threshold": true,
+      "last_force_above_threshold": true
+    },
+    {
+      "step": 60,
+      "toe": "crow_right_rear_toe",
+      "mode": "opposing",
+      "interval_impulse": 0.024874606695000002,
+      "last_substep_impulse": 0.00153539737,
+      "interval_force_above_threshold": true,
+      "last_force_above_threshold": true
+    },
+    {
+      "step": 61,
+      "toe": "crow_left_rear_toe",
+      "mode": "all",
+      "interval_impulse": 0.028904892140000003,
+      "last_substep_impulse": 0.003011951917,
+      "interval_force_above_threshold": true,
+      "last_force_above_threshold": true
+    },
+    {
+      "step": 61,
+      "toe": "crow_left_rear_toe",
+      "mode": "opposing",
+      "interval_impulse": 0.022907387054000004,
+      "last_substep_impulse": 0.0,
+      "interval_force_above_threshold": true,
+      "last_force_above_threshold": false
+    },
+    {
+      "step": 61,
+      "toe": "crow_right_rear_toe",
+      "mode": "all",
+      "interval_impulse": 0.03621122888799999,
+      "last_substep_impulse": 0.00219468377,
+      "interval_force_above_threshold": true,
+      "last_force_above_threshold": true
+    },
+    {
+      "step": 61,
+      "toe": "crow_right_rear_toe",
+      "mode": "opposing",
+      "interval_impulse": 0.019092013318,
+      "last_substep_impulse": 0.0,
+      "interval_force_above_threshold": true,
+      "last_force_above_threshold": false
+    },
+    {
+      "step": 62,
+      "toe": "crow_left_rear_toe",
+      "mode": "all",
+      "interval_impulse": 0.02618186171819,
+      "last_substep_impulse": 0.003944416643,
+      "interval_force_above_threshold": true,
+      "last_force_above_threshold": true
+    },
+    {
+      "step": 62,
+      "toe": "crow_left_rear_toe",
+      "mode": "opposing",
+      "interval_impulse": 0.02618186171819,
+      "last_substep_impulse": 0.003944416643,
+      "interval_force_above_threshold": true,
+      "last_force_above_threshold": true
+    },
+    {
+      "step": 62,
+      "toe": "crow_right_rear_toe",
+      "mode": "all",
+      "interval_impulse": 0.051146190976,
+      "last_substep_impulse": 0.000484018354,
+      "interval_force_above_threshold": true,
+      "last_force_above_threshold": true
+    },
+    {
+      "step": 62,
+      "toe": "crow_right_rear_toe",
+      "mode": "opposing",
+      "interval_impulse": 0.051146190976,
+      "last_substep_impulse": 0.000484018354,
+      "interval_force_above_threshold": true,
+      "last_force_above_threshold": true
+    },
+    {
+      "step": 63,
+      "toe": "crow_left_rear_toe",
+      "mode": "all",
+      "interval_impulse": 0.023449705909663394,
+      "last_substep_impulse": 0.0011511986431577735,
+      "interval_force_above_threshold": true,
+      "last_force_above_threshold": true
+    },
+    {
+      "step": 63,
+      "toe": "crow_left_rear_toe",
+      "mode": "opposing",
+      "interval_impulse": 0.019702163757397993,
+      "last_substep_impulse": 0.0,
+      "interval_force_above_threshold": true,
+      "last_force_above_threshold": false
+    },
+    {
+      "step": 63,
+      "toe": "crow_right_rear_toe",
+      "mode": "all",
+      "interval_impulse": 0.040746442868,
+      "last_substep_impulse": 0.00184782839,
+      "interval_force_above_threshold": true,
+      "last_force_above_threshold": true
+    },
+    {
+      "step": 63,
+      "toe": "crow_right_rear_toe",
+      "mode": "opposing",
+      "interval_impulse": 0.024674190508,
+      "last_substep_impulse": 0.0,
+      "interval_force_above_threshold": true,
+      "last_force_above_threshold": false
+    },
+    {
+      "step": 64,
+      "toe": "crow_left_rear_toe",
+      "mode": "all",
+      "interval_impulse": 0.04362971296320065,
+      "last_substep_impulse": 0.001208441463,
+      "interval_force_above_threshold": true,
+      "last_force_above_threshold": true
+    },
+    {
+      "step": 64,
+      "toe": "crow_right_rear_toe",
+      "mode": "all",
+      "interval_impulse": 0.041429004389,
+      "last_substep_impulse": 0.00129265455,
+      "interval_force_above_threshold": true,
+      "last_force_above_threshold": true
+    },
+    {
+      "step": 64,
+      "toe": "crow_right_rear_toe",
+      "mode": "opposing",
+      "interval_impulse": 0.00856693043,
+      "last_substep_impulse": 0.0,
+      "interval_force_above_threshold": true,
+      "last_force_above_threshold": false
+    },
+    {
+      "step": 65,
+      "toe": "crow_left_rear_toe",
+      "mode": "all",
+      "interval_impulse": 0.031697007010800006,
+      "last_substep_impulse": 0.0026857111338,
+      "interval_force_above_threshold": true,
+      "last_force_above_threshold": true
+    },
+    {
+      "step": 65,
+      "toe": "crow_right_rear_toe",
+      "mode": "all",
+      "interval_impulse": 0.04874201434,
+      "last_substep_impulse": 0.00249752658,
+      "interval_force_above_threshold": true,
+      "last_force_above_threshold": true
+    },
+    {
+      "step": 65,
+      "toe": "crow_right_rear_toe",
+      "mode": "opposing",
+      "interval_impulse": 0.006152894230000001,
+      "last_substep_impulse": 0.00249752658,
+      "interval_force_above_threshold": true,
+      "last_force_above_threshold": true
+    },
+    {
+      "step": 66,
+      "toe": "crow_left_rear_toe",
+      "mode": "all",
+      "interval_impulse": 0.021288840498999997,
+      "last_substep_impulse": 0.0010859633914,
+      "interval_force_above_threshold": true,
+      "last_force_above_threshold": true
+    },
+    {
+      "step": 66,
+      "toe": "crow_left_rear_toe",
+      "mode": "opposing",
+      "interval_impulse": 0.010518061125,
+      "last_substep_impulse": 0.0010859633914,
+      "interval_force_above_threshold": true,
+      "last_force_above_threshold": true
+    },
+    {
+      "step": 66,
+      "toe": "crow_right_rear_toe",
+      "mode": "all",
+      "interval_impulse": 0.059319025250000004,
+      "last_substep_impulse": 0.00145671109,
+      "interval_force_above_threshold": true,
+      "last_force_above_threshold": true
+    },
+    {
+      "step": 66,
+      "toe": "crow_right_rear_toe",
+      "mode": "opposing",
+      "interval_impulse": 0.059319025250000004,
+      "last_substep_impulse": 0.00145671109,
+      "interval_force_above_threshold": true,
+      "last_force_above_threshold": true
+    },
+    {
+      "step": 67,
+      "toe": "crow_left_rear_toe",
+      "mode": "all",
+      "interval_impulse": 0.04628370379999099,
+      "last_substep_impulse": 0.00540564800303,
+      "interval_force_above_threshold": true,
+      "last_force_above_threshold": true
+    },
+    {
+      "step": 67,
+      "toe": "crow_left_rear_toe",
+      "mode": "opposing",
+      "interval_impulse": 0.0172282318139,
+      "last_substep_impulse": 0.0,
+      "interval_force_above_threshold": true,
+      "last_force_above_threshold": false
+    },
+    {
+      "step": 67,
+      "toe": "crow_right_rear_toe",
+      "mode": "all",
+      "interval_impulse": 0.018433443583,
+      "last_substep_impulse": 0.000223519397,
+      "interval_force_above_threshold": true,
+      "last_force_above_threshold": true
+    },
+    {
+      "step": 67,
+      "toe": "crow_right_rear_toe",
+      "mode": "opposing",
+      "interval_impulse": 0.008749545982999998,
+      "last_substep_impulse": 0.0,
+      "interval_force_above_threshold": true,
+      "last_force_above_threshold": false
+    },
+    {
+      "step": 68,
+      "toe": "crow_left_rear_toe",
+      "mode": "all",
+      "interval_impulse": 0.05353808848049999,
+      "last_substep_impulse": 0.003431803447,
+      "interval_force_above_threshold": true,
+      "last_force_above_threshold": true
+    },
+    {
+      "step": 68,
+      "toe": "crow_right_rear_toe",
+      "mode": "all",
+      "interval_impulse": 0.026789251900999997,
+      "last_substep_impulse": 0.00220952253,
+      "interval_force_above_threshold": true,
+      "last_force_above_threshold": true
+    },
+    {
+      "step": 69,
+      "toe": "crow_left_rear_toe",
+      "mode": "all",
+      "interval_impulse": 0.0136972013464,
+      "last_substep_impulse": 0.0005128649140000001,
+      "interval_force_above_threshold": true,
+      "last_force_above_threshold": true
+    },
+    {
+      "step": 69,
+      "toe": "crow_left_rear_toe",
+      "mode": "opposing",
+      "interval_impulse": 0.0015371505668999997,
+      "last_substep_impulse": 0.0005128649140000001,
+      "interval_force_above_threshold": true,
+      "last_force_above_threshold": true
+    },
+    {
+      "step": 69,
+      "toe": "crow_right_rear_toe",
+      "mode": "all",
+      "interval_impulse": 0.07384180616,
+      "last_substep_impulse": 0.00392198656,
+      "interval_force_above_threshold": true,
+      "last_force_above_threshold": true
+    },
+    {
+      "step": 69,
+      "toe": "crow_right_rear_toe",
+      "mode": "opposing",
+      "interval_impulse": 0.06389669761,
+      "last_substep_impulse": 0.00392198656,
+      "interval_force_above_threshold": true,
+      "last_force_above_threshold": true
+    },
+    {
+      "step": 70,
+      "toe": "crow_left_rear_toe",
+      "mode": "all",
+      "interval_impulse": 0.0226760890041,
+      "last_substep_impulse": 0.0056573777549,
+      "interval_force_above_threshold": true,
+      "last_force_above_threshold": true
+    },
+    {
+      "step": 70,
+      "toe": "crow_left_rear_toe",
+      "mode": "opposing",
+      "interval_impulse": 0.0226760890041,
+      "last_substep_impulse": 0.0056573777549,
+      "interval_force_above_threshold": true,
+      "last_force_above_threshold": true
+    },
+    {
+      "step": 70,
+      "toe": "crow_right_rear_toe",
+      "mode": "all",
+      "interval_impulse": 0.04099204614500001,
+      "last_substep_impulse": 0.000276280422,
+      "interval_force_above_threshold": true,
+      "last_force_above_threshold": true
+    },
+    {
+      "step": 70,
+      "toe": "crow_right_rear_toe",
+      "mode": "opposing",
+      "interval_impulse": 0.04099204614500001,
+      "last_substep_impulse": 0.000276280422,
+      "interval_force_above_threshold": true,
+      "last_force_above_threshold": true
+    },
+    {
+      "step": 71,
+      "toe": "crow_left_rear_toe",
+      "mode": "all",
+      "interval_impulse": 0.029907133670390506,
+      "last_substep_impulse": 0.0031291527197165,
+      "interval_force_above_threshold": true,
+      "last_force_above_threshold": true
+    },
+    {
+      "step": 71,
+      "toe": "crow_left_rear_toe",
+      "mode": "opposing",
+      "interval_impulse": 0.009257342689,
+      "last_substep_impulse": 0.0,
+      "interval_force_above_threshold": true,
+      "last_force_above_threshold": false
+    },
+    {
+      "step": 71,
+      "toe": "crow_right_rear_toe",
+      "mode": "all",
+      "interval_impulse": 0.044922151095,
+      "last_substep_impulse": 0.00160721585,
+      "interval_force_above_threshold": true,
+      "last_force_above_threshold": true
+    },
+    {
+      "step": 71,
+      "toe": "crow_right_rear_toe",
+      "mode": "opposing",
+      "interval_impulse": 0.044922151095,
+      "last_substep_impulse": 0.00160721585,
+      "interval_force_above_threshold": true,
+      "last_force_above_threshold": true
+    },
+    {
+      "step": 72,
+      "toe": "crow_left_rear_toe",
+      "mode": "all",
+      "interval_impulse": 0.040366873232919646,
+      "last_substep_impulse": 0.0044241170109999995,
+      "interval_force_above_threshold": true,
+      "last_force_above_threshold": true
+    },
+    {
+      "step": 72,
+      "toe": "crow_right_rear_toe",
+      "mode": "all",
+      "interval_impulse": 0.035399647884,
+      "last_substep_impulse": 0.000451093889,
+      "interval_force_above_threshold": true,
+      "last_force_above_threshold": true
+    },
+    {
+      "step": 72,
+      "toe": "crow_right_rear_toe",
+      "mode": "opposing",
+      "interval_impulse": 0.016867388199,
+      "last_substep_impulse": 0.0,
+      "interval_force_above_threshold": true,
+      "last_force_above_threshold": false
+    },
+    {
+      "step": 73,
+      "toe": "crow_left_rear_toe",
+      "mode": "all",
+      "interval_impulse": 0.05006781909150001,
+      "last_substep_impulse": 0.0009347201086,
+      "interval_force_above_threshold": true,
+      "last_force_above_threshold": true
+    },
+    {
+      "step": 73,
+      "toe": "crow_right_rear_toe",
+      "mode": "all",
+      "interval_impulse": 0.02468032754,
+      "last_substep_impulse": 0.00349531067,
+      "interval_force_above_threshold": true,
+      "last_force_above_threshold": true
+    },
+    {
+      "step": 74,
+      "toe": "crow_left_rear_toe",
+      "mode": "all",
+      "interval_impulse": 0.02814719434887401,
+      "last_substep_impulse": 0.0008401764037540001,
+      "interval_force_above_threshold": true,
+      "last_force_above_threshold": true
+    },
+    {
+      "step": 74,
+      "toe": "crow_right_rear_toe",
+      "mode": "all",
+      "interval_impulse": 0.046689794635999995,
+      "last_substep_impulse": 0.00247483561,
+      "interval_force_above_threshold": true,
+      "last_force_above_threshold": true
+    },
+    {
+      "step": 75,
+      "toe": "crow_left_rear_toe",
+      "mode": "all",
+      "interval_impulse": 0.032460822236555345,
+      "last_substep_impulse": 0.0005030074785,
+      "interval_force_above_threshold": true,
+      "last_force_above_threshold": true
+    },
+    {
+      "step": 75,
+      "toe": "crow_right_rear_toe",
+      "mode": "all",
+      "interval_impulse": 0.04800530731699999,
+      "last_substep_impulse": 0.00580785656,
+      "interval_force_above_threshold": true,
+      "last_force_above_threshold": true
+    },
+    {
+      "step": 76,
+      "toe": "crow_left_rear_toe",
+      "mode": "all",
+      "interval_impulse": 0.0256147618266,
+      "last_substep_impulse": 0.0006930880521,
+      "interval_force_above_threshold": true,
+      "last_force_above_threshold": true
+    },
+    {
+      "step": 76,
+      "toe": "crow_right_rear_toe",
+      "mode": "all",
+      "interval_impulse": 0.05473595315299999,
+      "last_substep_impulse": 0.00216064719,
+      "interval_force_above_threshold": true,
+      "last_force_above_threshold": true
+    },
+    {
+      "step": 77,
+      "toe": "crow_left_rear_toe",
+      "mode": "all",
+      "interval_impulse": 0.03263103065010001,
+      "last_substep_impulse": 0.0042940401954,
+      "interval_force_above_threshold": true,
+      "last_force_above_threshold": true
+    },
+    {
+      "step": 77,
+      "toe": "crow_right_rear_toe",
+      "mode": "all",
+      "interval_impulse": 0.050214680305,
+      "last_substep_impulse": 0.00554770138,
+      "interval_force_above_threshold": true,
+      "last_force_above_threshold": true
+    },
+    {
+      "step": 78,
+      "toe": "crow_left_rear_toe",
+      "mode": "all",
+      "interval_impulse": 0.03422288262719999,
+      "last_substep_impulse": 0.00017708945240000001,
+      "interval_force_above_threshold": true,
+      "last_force_above_threshold": true
+    },
+    {
+      "step": 78,
+      "toe": "crow_right_rear_toe",
+      "mode": "all",
+      "interval_impulse": 0.036518105436,
+      "last_substep_impulse": 0.00961029623,
+      "interval_force_above_threshold": true,
+      "last_force_above_threshold": true
+    },
+    {
+      "step": 79,
+      "toe": "crow_left_rear_toe",
+      "mode": "all",
+      "interval_impulse": 0.03579812371933999,
+      "last_substep_impulse": 0.0033123943944999997,
+      "interval_force_above_threshold": true,
+      "last_force_above_threshold": true
+    },
+    {
+      "step": 79,
+      "toe": "crow_right_rear_toe",
+      "mode": "all",
+      "interval_impulse": 0.046623449065999995,
+      "last_substep_impulse": 0.0035312234,
+      "interval_force_above_threshold": true,
+      "last_force_above_threshold": true
+    },
+    {
+      "step": 80,
+      "toe": "crow_left_rear_toe",
+      "mode": "all",
+      "interval_impulse": 0.03502855977880001,
+      "last_substep_impulse": 0.00025075439269999996,
+      "interval_force_above_threshold": true,
+      "last_force_above_threshold": true
+    },
+    {
+      "step": 80,
+      "toe": "crow_right_rear_toe",
+      "mode": "all",
+      "interval_impulse": 0.05145244369,
+      "last_substep_impulse": 0.00774648134,
+      "interval_force_above_threshold": true,
+      "last_force_above_threshold": true
+    },
+    {
+      "step": 81,
+      "toe": "crow_left_rear_toe",
+      "mode": "all",
+      "interval_impulse": 0.0194701918973,
+      "last_substep_impulse": 0.0011584636891,
+      "interval_force_above_threshold": true,
+      "last_force_above_threshold": true
+    },
+    {
+      "step": 81,
+      "toe": "crow_right_rear_toe",
+      "mode": "all",
+      "interval_impulse": 0.04278937162700001,
+      "last_substep_impulse": 0.00101994048,
+      "interval_force_above_threshold": true,
+      "last_force_above_threshold": true
+    },
+    {
+      "step": 81,
+      "toe": "crow_right_rear_toe",
+      "mode": "opposing",
+      "interval_impulse": 0.0038105347199999997,
+      "last_substep_impulse": 0.0,
+      "interval_force_above_threshold": true,
+      "last_force_above_threshold": false
+    },
+    {
+      "step": 82,
+      "toe": "crow_left_rear_toe",
+      "mode": "all",
+      "interval_impulse": 0.02925170505387001,
+      "last_substep_impulse": 0.0031609793817,
+      "interval_force_above_threshold": true,
+      "last_force_above_threshold": true
+    },
+    {
+      "step": 82,
+      "toe": "crow_right_rear_toe",
+      "mode": "all",
+      "interval_impulse": 0.052418380466,
+      "last_substep_impulse": 0.00180750794,
+      "interval_force_above_threshold": true,
+      "last_force_above_threshold": true
+    },
+    {
+      "step": 83,
+      "toe": "crow_left_rear_toe",
+      "mode": "all",
+      "interval_impulse": 0.018404104578890003,
+      "last_substep_impulse": 5.305613469e-05,
+      "interval_force_above_threshold": true,
+      "last_force_above_threshold": true
+    },
+    {
+      "step": 83,
+      "toe": "crow_right_rear_toe",
+      "mode": "all",
+      "interval_impulse": 0.054721986175,
+      "last_substep_impulse": 0.00515461201,
+      "interval_force_above_threshold": true,
+      "last_force_above_threshold": true
+    },
+    {
+      "step": 84,
+      "toe": "crow_left_rear_toe",
+      "mode": "all",
+      "interval_impulse": 0.026534168690629995,
+      "last_substep_impulse": 0.00028538974446,
+      "interval_force_above_threshold": true,
+      "last_force_above_threshold": true
+    },
+    {
+      "step": 84,
+      "toe": "crow_right_rear_toe",
+      "mode": "all",
+      "interval_impulse": 0.0482898659372,
+      "last_substep_impulse": 9.64327992e-05,
+      "interval_force_above_threshold": true,
+      "last_force_above_threshold": true
+    },
+    {
+      "step": 84,
+      "toe": "crow_right_rear_toe",
+      "mode": "opposing",
+      "interval_impulse": 0.011391890287,
+      "last_substep_impulse": 0.0,
+      "interval_force_above_threshold": true,
+      "last_force_above_threshold": false
+    },
+    {
+      "step": 85,
+      "toe": "crow_left_rear_toe",
+      "mode": "all",
+      "interval_impulse": 0.0349901091196,
+      "last_substep_impulse": 0.0075319850621,
+      "interval_force_above_threshold": true,
+      "last_force_above_threshold": true
+    },
+    {
+      "step": 85,
+      "toe": "crow_right_rear_toe",
+      "mode": "all",
+      "interval_impulse": 0.0384280989116,
+      "last_substep_impulse": 1.75816676e-05,
+      "interval_force_above_threshold": true,
+      "last_force_above_threshold": true
+    },
+    {
+      "step": 86,
+      "toe": "crow_left_rear_toe",
+      "mode": "all",
+      "interval_impulse": 0.032883678452699995,
+      "last_substep_impulse": 0.0009419952164,
+      "interval_force_above_threshold": true,
+      "last_force_above_threshold": true
+    },
+    {
+      "step": 86,
+      "toe": "crow_right_rear_toe",
+      "mode": "all",
+      "interval_impulse": 0.037646587938,
+      "last_substep_impulse": 0.00119916582,
+      "interval_force_above_threshold": true,
+      "last_force_above_threshold": true
+    },
+    {
+      "step": 87,
+      "toe": "crow_left_rear_toe",
+      "mode": "all",
+      "interval_impulse": 0.04982349726497001,
+      "last_substep_impulse": 0.0037364409356,
+      "interval_force_above_threshold": true,
+      "last_force_above_threshold": true
+    },
+    {
+      "step": 87,
+      "toe": "crow_right_rear_toe",
+      "mode": "all",
+      "interval_impulse": 0.039191043019,
+      "last_substep_impulse": 0.00204161042,
+      "interval_force_above_threshold": true,
+      "last_force_above_threshold": true
+    },
+    {
+      "step": 88,
+      "toe": "crow_left_rear_toe",
+      "mode": "all",
+      "interval_impulse": 0.0496812187897,
+      "last_substep_impulse": 0.0010195236195,
+      "interval_force_above_threshold": true,
+      "last_force_above_threshold": true
+    },
+    {
+      "step": 88,
+      "toe": "crow_right_rear_toe",
+      "mode": "all",
+      "interval_impulse": 0.028013737267,
+      "last_substep_impulse": 0.00154368754,
+      "interval_force_above_threshold": true,
+      "last_force_above_threshold": true
+    },
+    {
+      "step": 89,
+      "toe": "crow_left_rear_toe",
+      "mode": "all",
+      "interval_impulse": 0.023346559247537993,
+      "last_substep_impulse": 0.00049379362302,
+      "interval_force_above_threshold": true,
+      "last_force_above_threshold": true
+    },
+    {
+      "step": 89,
+      "toe": "crow_right_rear_toe",
+      "mode": "all",
+      "interval_impulse": 0.05874660181,
+      "last_substep_impulse": 0.00278748875,
+      "interval_force_above_threshold": true,
+      "last_force_above_threshold": true
+    },
+    {
+      "step": 90,
+      "toe": "crow_left_rear_toe",
+      "mode": "all",
+      "interval_impulse": 0.03985377167684001,
+      "last_substep_impulse": 0.0043078299444,
+      "interval_force_above_threshold": true,
+      "last_force_above_threshold": true
+    },
+    {
+      "step": 90,
+      "toe": "crow_right_rear_toe",
+      "mode": "all",
+      "interval_impulse": 0.039155363751669996,
+      "last_substep_impulse": 0.0037528039,
+      "interval_force_above_threshold": true,
+      "last_force_above_threshold": true
+    },
+    {
+      "step": 91,
+      "toe": "crow_left_rear_toe",
+      "mode": "all",
+      "interval_impulse": 0.043848376069090006,
+      "last_substep_impulse": 0.00584940906839,
+      "interval_force_above_threshold": true,
+      "last_force_above_threshold": true
+    },
+    {
+      "step": 91,
+      "toe": "crow_right_rear_toe",
+      "mode": "all",
+      "interval_impulse": 0.0333962071613,
+      "last_substep_impulse": 0.00174963695,
+      "interval_force_above_threshold": true,
+      "last_force_above_threshold": true
+    },
+    {
+      "step": 92,
+      "toe": "crow_left_rear_toe",
+      "mode": "all",
+      "interval_impulse": 0.033997273430604,
+      "last_substep_impulse": 0.00402316335086,
+      "interval_force_above_threshold": true,
+      "last_force_above_threshold": true
+    },
+    {
+      "step": 92,
+      "toe": "crow_right_rear_toe",
+      "mode": "all",
+      "interval_impulse": 0.04635512957000001,
+      "last_substep_impulse": 0.00277168187,
+      "interval_force_above_threshold": true,
+      "last_force_above_threshold": true
+    },
+    {
+      "step": 93,
+      "toe": "crow_left_rear_toe",
+      "mode": "all",
+      "interval_impulse": 0.03103781428139999,
+      "last_substep_impulse": 0.0007759786449399999,
+      "interval_force_above_threshold": true,
+      "last_force_above_threshold": true
+    },
+    {
+      "step": 93,
+      "toe": "crow_right_rear_toe",
+      "mode": "all",
+      "interval_impulse": 0.043124690082999996,
+      "last_substep_impulse": 0.00142175786,
+      "interval_force_above_threshold": true,
+      "last_force_above_threshold": true
+    },
+    {
+      "step": 94,
+      "toe": "crow_left_rear_toe",
+      "mode": "all",
+      "interval_impulse": 0.017345265291524654,
+      "last_substep_impulse": 0.0020868753446672936,
+      "interval_force_above_threshold": true,
+      "last_force_above_threshold": true
+    },
+    {
+      "step": 94,
+      "toe": "crow_right_rear_toe",
+      "mode": "all",
+      "interval_impulse": 0.062525399486,
+      "last_substep_impulse": 0.00117070368,
+      "interval_force_above_threshold": true,
+      "last_force_above_threshold": true
+    },
+    {
+      "step": 95,
+      "toe": "crow_left_rear_toe",
+      "mode": "all",
+      "interval_impulse": 0.03108456692581078,
+      "last_substep_impulse": 0.0038164804002,
+      "interval_force_above_threshold": true,
+      "last_force_above_threshold": true
+    },
+    {
+      "step": 95,
+      "toe": "crow_right_rear_toe",
+      "mode": "all",
+      "interval_impulse": 0.04419689859080001,
+      "last_substep_impulse": 0.00731972465,
+      "interval_force_above_threshold": true,
+      "last_force_above_threshold": true
+    },
+    {
+      "step": 96,
+      "toe": "crow_left_rear_toe",
+      "mode": "all",
+      "interval_impulse": 0.038433944405592904,
+      "last_substep_impulse": 0.00458738979248,
+      "interval_force_above_threshold": true,
+      "last_force_above_threshold": true
+    },
+    {
+      "step": 96,
+      "toe": "crow_right_rear_toe",
+      "mode": "all",
+      "interval_impulse": 0.037374872976687,
+      "last_substep_impulse": 0.00522801792,
+      "interval_force_above_threshold": true,
+      "last_force_above_threshold": true
+    },
+    {
+      "step": 97,
+      "toe": "crow_left_rear_toe",
+      "mode": "all",
+      "interval_impulse": 0.030675683467921926,
+      "last_substep_impulse": 0.00943267654061,
+      "interval_force_above_threshold": true,
+      "last_force_above_threshold": true
+    },
+    {
+      "step": 97,
+      "toe": "crow_right_rear_toe",
+      "mode": "all",
+      "interval_impulse": 0.038948779141336494,
+      "last_substep_impulse": 7.50505365e-08,
+      "interval_force_above_threshold": true,
+      "last_force_above_threshold": false
+    },
+    {
+      "step": 98,
+      "toe": "crow_left_rear_toe",
+      "mode": "all",
+      "interval_impulse": 0.04499792187045859,
+      "last_substep_impulse": 0.0050190969978865995,
+      "interval_force_above_threshold": true,
+      "last_force_above_threshold": true
+    },
+    {
+      "step": 98,
+      "toe": "crow_right_rear_toe",
+      "mode": "all",
+      "interval_impulse": 0.043258616512730004,
+      "last_substep_impulse": 6.13370576e-05,
+      "interval_force_above_threshold": true,
+      "last_force_above_threshold": true
+    },
+    {
+      "step": 99,
+      "toe": "crow_left_rear_toe",
+      "mode": "all",
+      "interval_impulse": 0.038996417271004294,
+      "last_substep_impulse": 0.0064961371800305,
+      "interval_force_above_threshold": true,
+      "last_force_above_threshold": true
+    },
+    {
+      "step": 99,
+      "toe": "crow_right_rear_toe",
+      "mode": "all",
+      "interval_impulse": 0.042497870583,
+      "last_substep_impulse": 6.76524942e-05,
+      "interval_force_above_threshold": true,
+      "last_force_above_threshold": true
+    },
+    {
+      "step": 100,
+      "toe": "crow_left_rear_toe",
+      "mode": "all",
+      "interval_impulse": 0.058448291662006525,
+      "last_substep_impulse": 0.014694517016858309,
+      "interval_force_above_threshold": true,
+      "last_force_above_threshold": true
+    },
+    {
+      "step": 100,
+      "toe": "crow_right_rear_toe",
+      "mode": "all",
+      "interval_impulse": 0.007162551613192812,
+      "last_substep_impulse": 5.1735546996051005e-05,
+      "interval_force_above_threshold": true,
+      "last_force_above_threshold": true
+    },
+    {
+      "step": 101,
+      "toe": "crow_left_rear_toe",
+      "mode": "all",
+      "interval_impulse": 0.034193107598056605,
+      "last_substep_impulse": 0.0015431906794,
+      "interval_force_above_threshold": true,
+      "last_force_above_threshold": true
+    },
+    {
+      "step": 101,
+      "toe": "crow_right_rear_toe",
+      "mode": "all",
+      "interval_impulse": 0.011700122829587229,
+      "last_substep_impulse": 0.000727618535,
+      "interval_force_above_threshold": true,
+      "last_force_above_threshold": true
+    },
+    {
+      "step": 102,
+      "toe": "crow_left_rear_toe",
+      "mode": "all",
+      "interval_impulse": 0.03572711912251869,
+      "last_substep_impulse": 0.0011200191200000408,
+      "interval_force_above_threshold": true,
+      "last_force_above_threshold": true
+    },
+    {
+      "step": 102,
+      "toe": "crow_right_rear_toe",
+      "mode": "all",
+      "interval_impulse": 0.017055206673995526,
+      "last_substep_impulse": 0.0011669733800016876,
+      "interval_force_above_threshold": true,
+      "last_force_above_threshold": true
+    },
+    {
+      "step": 103,
+      "toe": "crow_left_rear_toe",
+      "mode": "all",
+      "interval_impulse": 0.016185600835000005,
+      "last_substep_impulse": 0.000926144654,
+      "interval_force_above_threshold": true,
+      "last_force_above_threshold": true
+    },
+    {
+      "step": 103,
+      "toe": "crow_right_rear_toe",
+      "mode": "all",
+      "interval_impulse": 0.017693073140000137,
+      "last_substep_impulse": 0.00101756339,
+      "interval_force_above_threshold": true,
+      "last_force_above_threshold": true
+    },
+    {
+      "step": 104,
+      "toe": "crow_left_rear_toe",
+      "mode": "all",
+      "interval_impulse": 0.15749661203176005,
+      "last_substep_impulse": 0.00484929362359,
+      "interval_force_above_threshold": true,
+      "last_force_above_threshold": true
+    },
+    {
+      "step": 104,
+      "toe": "crow_right_rear_toe",
+      "mode": "all",
+      "interval_impulse": 0.02744814938308667,
+      "last_substep_impulse": 0.004670914380031338,
+      "interval_force_above_threshold": true,
+      "last_force_above_threshold": true
+    },
+    {
+      "step": 105,
+      "toe": "crow_left_rear_toe",
+      "mode": "all",
+      "interval_impulse": 0.06788942939327323,
+      "last_substep_impulse": 0.004556414364,
+      "interval_force_above_threshold": true,
+      "last_force_above_threshold": true
+    },
+    {
+      "step": 105,
+      "toe": "crow_right_rear_toe",
+      "mode": "all",
+      "interval_impulse": 0.035434483482325994,
+      "last_substep_impulse": 0.00108893498377807,
+      "interval_force_above_threshold": true,
+      "last_force_above_threshold": true
+    },
+    {
+      "step": 106,
+      "toe": "crow_left_rear_toe",
+      "mode": "all",
+      "interval_impulse": 0.07979472626600002,
+      "last_substep_impulse": 0.005353121721,
+      "interval_force_above_threshold": true,
+      "last_force_above_threshold": true
+    },
+    {
+      "step": 106,
+      "toe": "crow_right_rear_toe",
+      "mode": "all",
+      "interval_impulse": 0.011015115637508668,
+      "last_substep_impulse": 0.00021444253089999998,
+      "interval_force_above_threshold": true,
+      "last_force_above_threshold": true
+    },
+    {
+      "step": 107,
+      "toe": "crow_left_rear_toe",
+      "mode": "all",
+      "interval_impulse": 0.03818269649719872,
+      "last_substep_impulse": 0.000971036056582603,
+      "interval_force_above_threshold": true,
+      "last_force_above_threshold": true
+    },
+    {
+      "step": 107,
+      "toe": "crow_right_rear_toe",
+      "mode": "all",
+      "interval_impulse": 0.056269357583480006,
+      "last_substep_impulse": 0.0045532008733,
+      "interval_force_above_threshold": true,
+      "last_force_above_threshold": true
+    },
+    {
+      "step": 108,
+      "toe": "crow_left_rear_toe",
+      "mode": "all",
+      "interval_impulse": 0.021887024232331385,
+      "last_substep_impulse": 0.0016827987980347998,
+      "interval_force_above_threshold": true,
+      "last_force_above_threshold": true
+    },
+    {
+      "step": 108,
+      "toe": "crow_right_rear_toe",
+      "mode": "all",
+      "interval_impulse": 0.0664731840773346,
+      "last_substep_impulse": 0.003786670810289031,
+      "interval_force_above_threshold": true,
+      "last_force_above_threshold": true
+    },
+    {
+      "step": 109,
+      "toe": "crow_left_rear_toe",
+      "mode": "all",
+      "interval_impulse": 0.037539907963419,
+      "last_substep_impulse": 0.0028561184700000002,
+      "interval_force_above_threshold": true,
+      "last_force_above_threshold": true
+    },
+    {
+      "step": 109,
+      "toe": "crow_right_rear_toe",
+      "mode": "all",
+      "interval_impulse": 0.04967117122807551,
+      "last_substep_impulse": 0.002625814928179304,
+      "interval_force_above_threshold": true,
+      "last_force_above_threshold": true
+    },
+    {
+      "step": 110,
+      "toe": "crow_left_rear_toe",
+      "mode": "all",
+      "interval_impulse": 0.047899322309,
+      "last_substep_impulse": 0.0030377026100000004,
+      "interval_force_above_threshold": true,
+      "last_force_above_threshold": true
+    },
+    {
+      "step": 110,
+      "toe": "crow_right_rear_toe",
+      "mode": "all",
+      "interval_impulse": 0.04006128383676211,
+      "last_substep_impulse": 0.00246330617387,
+      "interval_force_above_threshold": true,
+      "last_force_above_threshold": true
+    },
+    {
+      "step": 111,
+      "toe": "crow_left_rear_toe",
+      "mode": "all",
+      "interval_impulse": 0.048253510589999986,
+      "last_substep_impulse": 0.002969630831,
+      "interval_force_above_threshold": true,
+      "last_force_above_threshold": true
+    },
+    {
+      "step": 111,
+      "toe": "crow_right_rear_toe",
+      "mode": "all",
+      "interval_impulse": 0.03968259603722001,
+      "last_substep_impulse": 0.0025223843160999994,
+      "interval_force_above_threshold": true,
+      "last_force_above_threshold": true
+    },
+    {
+      "step": 112,
+      "toe": "crow_left_rear_toe",
+      "mode": "all",
+      "interval_impulse": 0.04655760391999999,
+      "last_substep_impulse": 0.0028580005120000004,
+      "interval_force_above_threshold": true,
+      "last_force_above_threshold": true
+    },
+    {
+      "step": 112,
+      "toe": "crow_right_rear_toe",
+      "mode": "all",
+      "interval_impulse": 0.04128290870940001,
+      "last_substep_impulse": 0.0026302369599,
+      "interval_force_above_threshold": true,
+      "last_force_above_threshold": true
+    },
+    {
+      "step": 113,
+      "toe": "crow_left_rear_toe",
+      "mode": "all",
+      "interval_impulse": 0.045243748131,
+      "last_substep_impulse": 0.0028184777580000002,
+      "interval_force_above_threshold": true,
+      "last_force_above_threshold": true
+    },
+    {
+      "step": 113,
+      "toe": "crow_right_rear_toe",
+      "mode": "all",
+      "interval_impulse": 0.04252280816690001,
+      "last_substep_impulse": 0.0026653158878999997,
+      "interval_force_above_threshold": true,
+      "last_force_above_threshold": true
+    },
+    {
+      "step": 114,
+      "toe": "crow_left_rear_toe",
+      "mode": "all",
+      "interval_impulse": 0.04531867925300001,
+      "last_substep_impulse": 0.002847558756,
+      "interval_force_above_threshold": true,
+      "last_force_above_threshold": true
+    },
+    {
+      "step": 114,
+      "toe": "crow_right_rear_toe",
+      "mode": "all",
+      "interval_impulse": 0.04239787154030001,
+      "last_substep_impulse": 0.0026337221469,
+      "interval_force_above_threshold": true,
+      "last_force_above_threshold": true
+    },
+    {
+      "step": 115,
+      "toe": "crow_left_rear_toe",
+      "mode": "all",
+      "interval_impulse": 0.045684784966000015,
+      "last_substep_impulse": 0.0028578665779999996,
+      "interval_force_above_threshold": true,
+      "last_force_above_threshold": true
+    },
+    {
+      "step": 115,
+      "toe": "crow_right_rear_toe",
+      "mode": "all",
+      "interval_impulse": 0.041998883535399975,
+      "last_substep_impulse": 0.0026215049587,
+      "interval_force_above_threshold": true,
+      "last_force_above_threshold": true
+    },
+    {
+      "step": 116,
+      "toe": "crow_left_rear_toe",
+      "mode": "all",
+      "interval_impulse": 0.04566262230700002,
+      "last_substep_impulse": 0.002848640418,
+      "interval_force_above_threshold": true,
+      "last_force_above_threshold": true
+    },
+    {
+      "step": 116,
+      "toe": "crow_right_rear_toe",
+      "mode": "all",
+      "interval_impulse": 0.041995216318700006,
+      "last_substep_impulse": 0.0026290282569,
+      "interval_force_above_threshold": true,
+      "last_force_above_threshold": true
+    },
+    {
+      "step": 117,
+      "toe": "crow_left_rear_toe",
+      "mode": "all",
+      "interval_impulse": 0.045504552063,
+      "last_substep_impulse": 0.002840738542,
+      "interval_force_above_threshold": true,
+      "last_force_above_threshold": true
+    },
+    {
+      "step": 117,
+      "toe": "crow_right_rear_toe",
+      "mode": "all",
+      "interval_impulse": 0.0421315841397,
+      "last_substep_impulse": 0.0026356807295,
+      "interval_force_above_threshold": true,
+      "last_force_above_threshold": true
+    },
+    {
+      "step": 118,
+      "toe": "crow_left_rear_toe",
+      "mode": "all",
+      "interval_impulse": 0.045424441607,
+      "last_substep_impulse": 0.0028378615389999997,
+      "interval_force_above_threshold": true,
+      "last_force_above_threshold": true
+    },
+    {
+      "step": 118,
+      "toe": "crow_right_rear_toe",
+      "mode": "all",
+      "interval_impulse": 0.0421873665508,
+      "last_substep_impulse": 0.0026373528405,
+      "interval_force_above_threshold": true,
+      "last_force_above_threshold": true
+    },
+    {
+      "step": 119,
+      "toe": "crow_left_rear_toe",
+      "mode": "all",
+      "interval_impulse": 0.04540436938699999,
+      "last_substep_impulse": 0.002837006237,
+      "interval_force_above_threshold": true,
+      "last_force_above_threshold": true
+    },
+    {
+      "step": 119,
+      "toe": "crow_right_rear_toe",
+      "mode": "all",
+      "interval_impulse": 0.04218629082139999,
+      "last_substep_impulse": 0.0026367262443,
+      "interval_force_above_threshold": true,
+      "last_force_above_threshold": true
+    }
+  ],
+  "interval_only_counts": {
+    "all": 2,
+    "opposing": 11
+  }
+}
