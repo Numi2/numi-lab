@@ -1,0 +1,27 @@
+[
+  {
+    "path": "build/crow-v15-corrected-wing-control-sweep-20261110/zero/tracking.metallib",
+    "sha256": "78fc7a08250138fecc9182d6842649214ae107372f540262b804f952abb613ac",
+    "bytes": 4462640
+  },
+  {
+    "path": "build/crow-v15-corrected-wing-control-sweep-20261110/positive/tracking.metallib",
+    "sha256": "79a950a459817ae7fbfaf08f9b8556be3b640cea279e141307791596f7f67452",
+    "bytes": 4462656
+  },
+  {
+    "path": "build/crow-v15-corrected-wing-control-sweep-20261110/negative/tracking.metallib",
+    "sha256": "c22a3d9b2bc7e083c254093d18f4debcb5a39efa094afc49ee4c0f0a1783d2d1",
+    "bytes": 4462656
+  },
+  {
+    "path": "build/crow-v15-wing-inertia-prototype-20261110/libmetalrobo.dylib",
+    "sha256": "e5245d37c0c16d3c5fce102a6930a3faf02f0ae05d657712214e4100f7022eab",
+    "bytes": 5764080
+  },
+  {
+    "path": "build/crow-v15-wing-inertia-prototype-20261110/zero.policypack",
+    "sha256": "7340e39ae33676752ac7eadc3bffc17e2a42d8c90705f27166aebe2c16282b7d",
+    "bytes": 2346385
+  }
+]
