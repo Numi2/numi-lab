@@ -1,0 +1,17 @@
+{
+  "remote_commit": "796d3e23d83a1d43dd5523b70368b9ef595a61a9",
+  "retired": [
+    {
+      "raw": "artifacts/crow-v15-hybrid-bounded-drive-20261110/results.txt",
+      "archive": "artifacts/crow-v15-hybrid-bounded-drive-20261110/results.txt.gz",
+      "sha256": "f796ec516299acbbe66d28d9c2ae871ed6ed36b21009ea9e23fb759daaa904a5",
+      "bytes": 1245136
+    },
+    {
+      "raw": "artifacts/crow-v15-hybrid-toe-stiffness-screen-20261110/results.txt",
+      "archive": "artifacts/crow-v15-hybrid-toe-stiffness-screen-20261110/results.txt.gz",
+      "sha256": "10427b0cd1fb329dcea6e63e46a90f5b6bb9ee0fde7d410f379c2a96c985c5d9",
+      "bytes": 1848088
+    }
+  ]
+}
