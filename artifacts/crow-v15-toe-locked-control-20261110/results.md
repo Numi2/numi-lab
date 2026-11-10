@@ -1,0 +1,3 @@
+# Nearly locked toe-joint control
+
+None of eight flight lanes passed the original tracking gates, with no native physical or solver failures. All 128 recorded lane/time samples had absolute toe angles no greater than 0.0001 rad, below the predeclared 0.002 rad interpretability threshold. Therefore appreciable relative toe motion is not necessary for the tracking regression in this sampled setup. The extra joints, mass partition, artificial inertia, joint-limit constraint reactions, or solver coupling remain plausible. This is a diagnostic nearly locked toe, cannot establish grip, and is not a replacement or a biological claim.
