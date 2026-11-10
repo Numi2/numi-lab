@@ -1,0 +1,3 @@
+CROW_SUBSTEP_CONTRACT sub=4 compile=1 world_except_dt=1 model=1 layout=1 task=1 header=1 constraints=1 dt=0.00499999989
+CROW_SUBSTEP_CONTRACT sub=8 compile=1 world_except_dt=1 model=1 layout=1 task=1 header=1 constraints=1 dt=0.00249999994
+CROW_SUBSTEP_CONTRACT sub=16 compile=1 world_except_dt=1 model=1 layout=1 task=1 header=1 constraints=1 dt=0.00124999997

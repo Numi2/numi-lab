@@ -1,0 +1,5 @@
+/Users/n/Developer/numi-crow-rl-20261107/build/crow-v15-substep-contract-20261110/c_api.cpp:3381:13: warning: unused function 'close' [-Wunused-function]
+ 3381 | static void close(double a, double b, const char* why) { crowToeNeed(std::abs(a-b)<=2e-7*(1+std::abs(a)),why); }
+      |             ^~~~~
+1 warning generated.
+host b4c235e5ef8ed19ce1bc5bd7add8fbe956f504ae551c19234f047164c66ada01

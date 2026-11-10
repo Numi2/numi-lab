@@ -1,0 +1,49 @@
+{
+  "settings": {
+    "8": {
+      "fingerprints": [
+        3496231911189593605,
+        3294032068901356260,
+        17240974951228980287,
+        3557972576090449396
+      ],
+      "policies": {
+        "landing": {
+          "source_sha256": "3564922b865e39c4b484285f40c65d74ca6a803531379e7d187e9e7283ccbcc3",
+          "rebound_sha256": "0cba8fa89f23cd3ccf08d7c3cd2daa6e07eb41652b89a65333fdb7ed2fa27919",
+          "identical_arrays": true,
+          "max_checked_output_error": 0.0
+        },
+        "route": {
+          "source_sha256": "86eb3c91158616557f59bc435f43be8494cfd8bdd24f2e2130d850c3a4e1524b",
+          "rebound_sha256": "18b00c2b40b1406529fc50b124a05b824c9bc70d1fa6d83a3ffc06979053c76b",
+          "identical_arrays": true,
+          "max_checked_output_error": 0.0
+        }
+      }
+    },
+    "16": {
+      "fingerprints": [
+        10870869527778391360,
+        15576440276591091821,
+        15921579776590401812,
+        14857646676653211277
+      ],
+      "policies": {
+        "landing": {
+          "source_sha256": "3564922b865e39c4b484285f40c65d74ca6a803531379e7d187e9e7283ccbcc3",
+          "rebound_sha256": "f22ba8510d42d784425a4d386dc50487ff62529f31a309f82ce66d60617ca403",
+          "identical_arrays": true,
+          "max_checked_output_error": 0.0
+        },
+        "route": {
+          "source_sha256": "86eb3c91158616557f59bc435f43be8494cfd8bdd24f2e2130d850c3a4e1524b",
+          "rebound_sha256": "410f35932f870a8af799b0b6f113f29b6f75f1d3fda654872e3d5e13a00a0524",
+          "identical_arrays": true,
+          "max_checked_output_error": 0.0
+        }
+      }
+    }
+  },
+  "limits": "Diagnostic copies bound to observed native contracts after exact compiled-model/operator comparison. The changed numerical physics is not qualified."
+}

@@ -1,0 +1,5 @@
+# Timestep contract and exact policy binding
+
+The original policy files were rejected by the native compatibility gate before either finer-step simulation ran. A read-only instrumented host compiled the same original-J v15 manifest at 4, 8 and 16 substeps. The recorded comparison reports identical world configuration except timestep, body/model data, layout, task configuration and arena, controls, actor and critic observations, contact and joint groups, reward, termination, collision exclusions, constraints and associated arrays; function-based joint programs were empty. See audit.json, instrumentation, and patch for the precise comparisons and hashes. Floating-point execution still changes with timestep and is not qualified by this comparison.
+
+Copies of both existing policy packs were rebound to the actual fingerprints reported by the original native loader for each timestep. All policy arrays and normalizers compare exactly and the checked outputs agree exactly on 16 test observations. The original native compatibility check remains enabled. See rebind-results.json for hashes. These diagnostic copies are not evidence of flight or landing qualification.
