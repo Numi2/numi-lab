@@ -1,0 +1,3 @@
+# Anchored corrective policy full-start development evaluation
+
+Freeze the once-trained anchored routing actor and the existing flight, gait, toe and terminal controllers. Run difficult J, difficult I, original J, original I in that order without tuning between them, teacher off from full starts, with no intermediate reset and 7000 steps each. Retain and assess the first episode only, including first fatal collider, minimum accepted-step obstacle clearance, all waypoint and landing progress, sampled toe behavior and sustained support. These are development cases, not held-out tests; the earlier successful I case was used for preservation anchoring. K/L remain unused.
