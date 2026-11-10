@@ -1,0 +1,3 @@
+# Host parity for second clearance actor
+
+The first clearance actor failed the development clearance gate, so its proposed parity test is superseded. Before any reserved K/L trial, replay this second actor's hard-J development episode with the extended host, matching its course, seed, controller and 7,000-step schedule. Require exact equality in all 7,000 replay frames for step, q, v, actor observations and accepted actions, and no solver failure. Bind the tested host, shader, actor and binary hashes. This uses a known development case only and is not held-out evaluation. Do not run K/L unless the full development gates have passed and the controller has been frozen.
