@@ -1,0 +1,4 @@
+diagnostic-reserved-final-j-ahead-newstart waypoints [5] end 2826 failure [True] support endpoints 301 longest 227 grip 112 longest 75 clearance 0.00509187450695
+diagnostic-reserved-final-j-ahead-original waypoints [5] end 2876 failure [True] support endpoints 350 longest 287 grip 172 longest 83 clearance 0.137235663736
+diagnostic-reserved-final-j-behind-newstart waypoints [5] end 2615 failure [True] support endpoints 128 longest 101 grip 0 longest 0 clearance 0.00509187450695
+diagnostic-reserved-final-j-behind-original waypoints [5] end 2622 failure [True] support endpoints 136 longest 99 grip 0 longest 0 clearance 0.137235663736

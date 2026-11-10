@@ -1,0 +1,3 @@
+# Center-of-mass response after launch
+
+Using independent articulated center-of-mass reconstruction and central differences of accepted positions in the matched trials, at step 655 the flight-enabled case has approximately -2.00 m/s² horizontal and +7.68 m/s² vertical center-of-mass acceleration; the flap-held case has approximately -0.06 and -10.02 m/s². These estimates span three 20 ms endpoints and include all external effects; they do not isolate aerodynamic loads or prove a particular actuator caused the difference. They show that the backward motion is not merely movement of the root relative to the articulated center of mass. Both conditions use one development seed and neither is a qualified takeoff.

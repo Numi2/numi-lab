@@ -1,0 +1,177 @@
+{
+  "samples": {
+    "flight_enabled": [
+      {
+        "step": 654,
+        "com": [
+          0.105502448655,
+          0.0412812365689,
+          0.181323055755
+        ],
+        "central_difference_accel_m_s2": [
+          -0.9856701674999802,
+          0.02674545199999115,
+          -2.406953647499932
+        ],
+        "reported_endpoint_contacts": 0
+      },
+      {
+        "step": 655,
+        "com": [
+          0.107199923776,
+          0.0413415163818,
+          0.190718496846
+        ],
+        "central_difference_accel_m_s2": [
+          -1.9989626100000086,
+          0.0135003742499952,
+          7.679089857499932
+        ],
+        "reported_endpoint_contacts": 0
+      },
+      {
+        "step": 656,
+        "com": [
+          0.108097813853,
+          0.0414071963444,
+          0.20318557388
+        ],
+        "central_difference_accel_m_s2": [
+          -1.588943835000023,
+          0.01603772149999516,
+          1.6607446175000151
+        ],
+        "reported_endpoint_contacts": 0
+      },
+      {
+        "step": 657,
+        "com": [
+          0.108360126396,
+          0.0414792913956,
+          0.216316948761
+        ],
+        "central_difference_accel_m_s2": [
+          -0.4487715099999595,
+          0.005228837500013267,
+          -8.108043334999968
+        ],
+        "reported_endpoint_contacts": 0
+      },
+      {
+        "step": 658,
+        "com": [
+          0.108442930335,
+          0.0415534779818,
+          0.226205106308
+        ],
+        "central_difference_accel_m_s2": [
+          -0.5065761875000518,
+          0.008411041249999779,
+          -4.153170275000006
+        ],
+        "reported_endpoint_contacts": 0
+      },
+      {
+        "step": 659,
+        "com": [
+          0.108323103799,
+          0.0416310289845,
+          0.234431995745
+        ],
+        "central_difference_accel_m_s2": [
+          -1.2392942799999487,
+          0.05819281774998089,
+          8.39624419249993
+        ],
+        "reported_endpoint_contacts": 0
+      }
+    ],
+    "flap_held": [
+      {
+        "step": 654,
+        "com": [
+          0.105502448655,
+          0.0412812365689,
+          0.181323055755
+        ],
+        "central_difference_accel_m_s2": [
+          -0.3796601350000012,
+          0.02249586774997689,
+          -8.366907309999977
+        ],
+        "reported_endpoint_contacts": 0
+      },
+      {
+        "step": 655,
+        "com": [
+          0.107442327789,
+          0.0413398165481,
+          0.188334515381
+        ],
+        "central_difference_accel_m_s2": [
+          -0.062144492499992265,
+          -0.0020215287499861234,
+          -10.019842674999987
+        ],
+        "reported_endpoint_contacts": 0
+      },
+      {
+        "step": 656,
+        "com": [
+          0.109357349126,
+          0.0413975879158,
+          0.191338037937
+        ],
+        "central_difference_accel_m_s2": [
+          -0.0665269050000028,
+          -0.001919047749997932,
+          -9.87750276499999
+        ],
+        "reported_endpoint_contacts": 0
+      },
+      {
+        "step": 657,
+        "com": [
+          0.111245759701,
+          0.0414545916644,
+          0.190390559387
+        ],
+        "central_difference_accel_m_s2": [
+          -0.14449631999997187,
+          -0.0011981835000042518,
+          -9.757731807500043
+        ],
+        "reported_endpoint_contacts": 0
+      },
+      {
+        "step": 658,
+        "com": [
+          0.113076371748,
+          0.0415111161396,
+          0.185539988114
+        ],
+        "central_difference_accel_m_s2": [
+          -2.5919737200000292,
+          -0.004159190250003358,
+          -2.561921852499982
+        ],
+        "reported_endpoint_contacts": 0
+      },
+      {
+        "step": 659,
+        "com": [
+          0.113870194307,
+          0.0415659769387,
+          0.1796646481
+        ],
+        "central_difference_accel_m_s2": [
+          -3.43758303499999,
+          0.26583285050001126,
+          19.271861595000008
+        ],
+        "reported_endpoint_contacts": 4
+      }
+    ]
+  },
+  "scope": "COM from native articulated geometry and accepted positions; central differences across three control endpoints. Combined external acceleration, not separated aerodynamic and other external forces; no per-substep attribution."
+}

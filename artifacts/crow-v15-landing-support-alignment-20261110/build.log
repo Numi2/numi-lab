@@ -1,0 +1,10 @@
+/Users/n/Developer/numi-crow-rl-20261107/build/crow-v15-landing-support-alignment-20261110/behind.metal:5500:21: warning: unused variable 'seconds' [-Wunused-variable]
+        const float seconds=float(state.episode.x)*dispatch.timing.x;
+                    ^
+1 warning generated.
+behind 5ee502371a9285489bf7fbdc0b780f98bfaedc090f70124681933b69de42c0ac
+/Users/n/Developer/numi-crow-rl-20261107/build/crow-v15-landing-support-alignment-20261110/ahead.metal:5500:21: warning: unused variable 'seconds' [-Wunused-variable]
+        const float seconds=float(state.episode.x)*dispatch.timing.x;
+                    ^
+1 warning generated.
+ahead 6bca83fc2fc58a59d40ba7402ad4013c7a607f8f0da9956be27914b5ee7c4c81
