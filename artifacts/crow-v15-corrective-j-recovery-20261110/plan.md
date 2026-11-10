@@ -1,0 +1,3 @@
+# Recovery of the second student on development J
+
+Before execution: the fixed second student stalled after one waypoint, with zero sampled gate clearance. Re-run its exact teacher-off prefix and take guided control at step 1900, before its recorded minimum gate clearance at step 2019. Check exact q, v, observations and accepted actions through step 1899, no physical or solver failure, five reached waypoints and terminal bilateral support. Only route-prefix observations before waypoint five may be used as corrective labels. The final grip criterion remains unqualified; exclude landing. J is a used development layout; untouched K/L remain reserved.
