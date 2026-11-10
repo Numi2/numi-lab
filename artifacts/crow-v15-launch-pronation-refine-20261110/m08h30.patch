@@ -1,0 +1,20 @@
+--- a/negative.metal
++++ b/m08h30.metal
+@@ -4998,7 +4998,7 @@
+             // Slow toward the physical foot joint using accepted state.
+             actorCommand.x=clamp(0.00f+0.80f*state.nutrition.z-0.80f*state.commandExtension.z,-0.15f,0.20f);
+         }
+-        if (fixedFlightController && state.episode.z == 10u && float(state.episode.x)*dispatch.timing.x < 16.0f) { actorCommand.x = 0.70f; actorCommand.y = 0.0f; actorCommand.z = 0.0f; actorCommand.w = 0.50f; }
++        if (fixedFlightController && state.episode.z == 10u && float(state.episode.x)*dispatch.timing.x < 16.0f) { actorCommand.x = 0.70f; actorCommand.y = 0.0f; actorCommand.z = 0.0f; actorCommand.w = 0.30f; }
+         const bool privilegedCommand = (dispatch.sampling.w != 0u && dispatch.assistance.x < 0.5f);
+         const float4 oracleCommand = privilegedCommand ? state.nutrition : actorCommand;
+         carrierState.commandAndPhase.x = 0.15f;
+@@ -5069,7 +5069,7 @@
+             : legacyNavigationTeacherRequested;
+         if (fixedFlightController && state.episode.z==10u && float(state.episode.x)*dispatch.timing.x>=12.96f && float(state.episode.x)*dispatch.timing.x<16.0f && (action==4u || action==5u)) {
+             const float fade=1.0f-smoothstep(15.0f,16.0f,float(state.episode.x)*dispatch.timing.x);
+-            navigationTeacherRequested=clamp(navigationTeacherRequested+(action==4u ? -0.40f : 0.40f)*fade,-1.0f,1.0f);
++            navigationTeacherRequested=clamp(navigationTeacherRequested+(action==4u ? -0.80f : 0.80f)*fade,-1.0f,1.0f);
+         }
+         // Experimental gait ends before the launch crouch takes control.
+         if (fixedFlightController && state.episode.z == 10u && action >= 7u && action <= 12u) {

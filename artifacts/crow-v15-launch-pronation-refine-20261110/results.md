@@ -1,0 +1,3 @@
+# Refined launch pronation and height sensitivity
+
+In one previously used J start, all four short trials ran 1000 steps without a recorded physical or solver failure, but all showed backward root velocity during launch. The least backward at step 700 was -0.158 m/s for the -1.2 residual with the 0.30 m height target; at step 800 its root altitude was 0.233 m. This does not establish clearance throughout each interval, or qualification of takeoff, flight, navigation or biological realism. All final wing actions remained bounded and the experimental residual faded out by 16 seconds. No variant is promoted.
