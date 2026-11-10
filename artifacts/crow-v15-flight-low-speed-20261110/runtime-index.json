@@ -1,0 +1,17 @@
+[
+  {
+    "path": "build/crow-v15-flight-low-speed-20261110/slow.metallib",
+    "sha256": "a2f0e3ce4bab2a76d108f7f70ac0bac94ee3217f40ab71a0181d3154cb3062e8",
+    "bytes": 4462848
+  },
+  {
+    "path": "build/crow-v15-flight-low-speed-20261110/hover.metallib",
+    "sha256": "2745ac1383af5d4027c43ac278ff1450cc58fa79919d7acceabaa4c7bb68407a",
+    "bytes": 4462848
+  },
+  {
+    "path": "build/crow-v15-flight-low-speed-20261110/reverse.metallib",
+    "sha256": "f54749287faf43a8cf6202a8a56929c13bc09f650559246b7613d60ac88de5f0",
+    "bytes": 4462848
+  }
+]

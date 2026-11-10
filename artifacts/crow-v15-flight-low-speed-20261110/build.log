@@ -1,0 +1,15 @@
+/Users/n/Developer/numi-crow-rl-20261107/build/crow-v15-flight-low-speed-20261110/slow.metal:4971:21: warning: unused variable 'navigationWingResidual' [-Wunused-variable]
+        const float navigationWingResidual = avianNavigationTeacher
+                    ^
+1 warning generated.
+slow a2f0e3ce4bab2a76d108f7f70ac0bac94ee3217f40ab71a0181d3154cb3062e8
+/Users/n/Developer/numi-crow-rl-20261107/build/crow-v15-flight-low-speed-20261110/hover.metal:4971:21: warning: unused variable 'navigationWingResidual' [-Wunused-variable]
+        const float navigationWingResidual = avianNavigationTeacher
+                    ^
+1 warning generated.
+hover 2745ac1383af5d4027c43ac278ff1450cc58fa79919d7acceabaa4c7bb68407a
+/Users/n/Developer/numi-crow-rl-20261107/build/crow-v15-flight-low-speed-20261110/reverse.metal:4971:21: warning: unused variable 'navigationWingResidual' [-Wunused-variable]
+        const float navigationWingResidual = avianNavigationTeacher
+                    ^
+1 warning generated.
+reverse f54749287faf43a8cf6202a8a56929c13bc09f650559246b7613d60ac88de5f0
