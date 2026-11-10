@@ -1,0 +1,3 @@
+# Matched leg jump
+
+In 16 paired starts with active flapping amplitude held at zero until 13.4 s, the push arm first diverged from the crouch-only control at accepted step 651. At step 654 all 16 push birds had no sampled ground contact while their matched control remained loaded. A representative push had +0.341 m/s vertical velocity versus +0.0007 m/s in its control. At step 670, the push arm was 0.0267–0.0269 m higher than its paired control. This supports a leg-driven jump in the simulated model; passive aerodynamics and joint drives remained enabled, contact is sampled at substep endpoints, and the result does not demonstrate sustained wing-free flight or biological realism. It is not an autonomous route or landing test.

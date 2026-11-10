@@ -1,0 +1,3 @@
+# Matched leg push with active flapping held
+
+On the experimental estimated-wing body, paired push and crouch-only tests reuse the 16 matched walking starts. Hold the active flapping-position amplitude and non-leg flight actions at zero through 13.4 seconds independent of the contact latch. Passive aerodynamics and normal joint drives remain active. Compare first accepted-state divergence and sampled ground contacts, vertical velocity and altitude during the first 0.4 s after leg extension; retain failures and observer parity. This isolates the initial leg-driven jump contribution, not sustained wing-free flight, a biological takeoff, or the full autonomous route.
