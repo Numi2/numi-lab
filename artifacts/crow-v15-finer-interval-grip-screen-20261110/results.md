@@ -1,0 +1,3 @@
+# 32-substep interval grip and balance screen
+
+Both 16-substep control arms reproduced all 200 reference states exactly. Neither 32-substep candidate achieved three consecutive force-normalized bilateral opposing-grip samples or terminal support in this separated development start; both timed out without the grip transition. Consequently no grip-conditioned SAT gap is available for those arms, and it must not be interpreted as absence of overlap. Finer steps helped the earlier isolated open-toe impact but did not preserve the complete grip behavior. No candidate qualifies, and changing full-flight substeps remains separately unqualified. This is one development drop, not a full landing, navigation, held-out layout or biological result.
