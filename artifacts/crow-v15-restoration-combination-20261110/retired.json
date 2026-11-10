@@ -1,0 +1,11 @@
+{
+  "remote_commit": "e2cd60548e09de8d75a67a73429051be27bf16a0",
+  "retired": [
+    {
+      "raw": "artifacts/crow-v15-grip-balance-combination-20261110/results.txt",
+      "archive": "artifacts/crow-v15-grip-balance-combination-20261110/results.txt.gz",
+      "sha256": "008ffeff4ef77e7ada3b53c5af7d9e8337c9a1c118271e1b5a601a72082641f5",
+      "bytes": 15872026
+    }
+  ]
+}
