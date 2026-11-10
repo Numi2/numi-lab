@@ -1,0 +1,5 @@
+# Hybrid toe contact geometry audit
+
+The logged rerun reproduced all 200 retained case-1 state samples exactly. Independent FP64 toe kinematics and box SAT agreed closely with the solver's reported contact separations in this case: over 419 toe/endpoints with a reported point, the median absolute difference between the SAT gap and the minimum reported point separation was 0.000019 mm. The quantities can have different axes and timing, so this agreement is an observation, not a general equivalence.
+
+During the grip phase, 18 toe/endpoints had more than 0.5 mm overlap, with a worst of 5.034 mm; each had a positive measured normal impulse. The collision geometry is therefore detecting these overlaps and the solver is applying impulses, but the accepted poses remain deeply overlapped. In the later release phase, 142 toe/endpoints exceeded 0.5 mm; five recorded zero normal impulse, including the 5.295 mm worst endpoint. Zero impulse at an endpoint does not establish why the contact remained overlapped. All contact records and paired gaps are retained. This is one development bench start, not a kernel-fault proof or an autonomous landing.

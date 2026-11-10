@@ -1,0 +1,40 @@
+{
+  "phase_statistics": {
+    "2": {
+      "penetrating_samples": 4,
+      "zero_normal_impulse_samples": 0,
+      "worst_gap_m": -0.004633766145042295
+    },
+    "3": {
+      "penetrating_samples": 18,
+      "zero_normal_impulse_samples": 0,
+      "worst_gap_m": -0.0050344871360356175
+    },
+    "4": {
+      "penetrating_samples": 142,
+      "zero_normal_impulse_samples": 5,
+      "worst_gap_m": -0.00529548431682296
+    }
+  },
+  "paired_point_samples": 419,
+  "median_absolute_gap_difference_m": 1.9070605875557995e-08,
+  "trace_exact": true,
+  "trace_samples": 200,
+  "trace_differences": [],
+  "worst_accepted_pose": {
+    "step": 198,
+    "toe": "crow_left_rear_toe",
+    "phase": 4,
+    "accepted_sat_gap_m": -0.00529548431682296,
+    "solver_contact_count": 2,
+    "solver_min_gap_m": -0.00529545,
+    "solver_normal_impulse_ns": 0.0
+  },
+  "grip_phase_toe_samples": 88,
+  "grip_samples_over_0_5mm": 22,
+  "penetrating_samples_with_nonnegative_reported_contact_gap": 0,
+  "penetrating_samples_without_reported_toe_contacts": 0,
+  "examples_disagree": [],
+  "examples_unreported": [],
+  "limitations": "SAT from accepted q pose; solver point separations are contact records from the last collision solve and need not share the same point, axis or time. Absence of a retained record is not proof of absent substep contact. One stationary-perch start, no biological claim."
+}
