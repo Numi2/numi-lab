@@ -1,0 +1,22 @@
+[
+  {
+    "path": "build/crow-v15-branch-square-collision-20261110/libmetalrobo.dylib",
+    "sha256": "174859f3f55c6cd77b29c026620747613f6742cd65edd0d5c9771a28658dd37b",
+    "bytes": 5764256
+  },
+  {
+    "path": "build/crow-v15-branch-square-trial-20261110/teacher.metallib",
+    "sha256": "ac65c40ca6c5654745fb418831eeb44f59e4ec165fdcea9f007d0a7b6c7eb12a",
+    "bytes": 4474048
+  },
+  {
+    "path": "build/crow-v15-branch-square-collision-20261110/landing.policypack",
+    "sha256": "a107198556e15a808d62456a76cfca68c46099c8df64a53bc409b2ab0446de3b",
+    "bytes": 5996446
+  },
+  {
+    "path": "build/crow-v15-branch-square-collision-20261110/route.policypack",
+    "sha256": "c40815cc20d8e96aacabf2721d42f0a13c0d8ef1501e872000cae84dc36f0f7e",
+    "bytes": 17228700
+  }
+]
