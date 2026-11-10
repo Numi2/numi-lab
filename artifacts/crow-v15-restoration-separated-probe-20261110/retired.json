@@ -1,0 +1,11 @@
+{
+  "remote_commit": "52dfd670baefd1d6911a7a1e397ae3a8c6d6d7aa",
+  "retired": [
+    {
+      "raw": "artifacts/crow-v15-separated-perch-feedback-20261110/results.txt",
+      "archive": "artifacts/crow-v15-separated-perch-feedback-20261110/results.txt.gz",
+      "sha256": "eeaba45bc96ccd0b91cd2dee34bb41768a17cbb3927e4effe101e5152f5b6cfd",
+      "bytes": 7684350
+    }
+  ]
+}
