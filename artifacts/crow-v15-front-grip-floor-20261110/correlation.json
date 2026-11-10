@@ -1,0 +1,17 @@
+{
+  "samples": {
+    "j": {
+      "opposed_samples": 86,
+      "opposed_mean_unclamped_target": 1.0258694361490746,
+      "not_opposed_samples": 14,
+      "not_opposed_mean_unclamped_target": 1.0037734657923634
+    },
+    "i": {
+      "opposed_samples": 74,
+      "opposed_mean_unclamped_target": 1.051906610602696,
+      "not_opposed_samples": 26,
+      "not_opposed_mean_unclamped_target": 1.0345263882441993
+    }
+  },
+  "limitations": "Endpoint correlations using world-frame velocity approximation; not causal and not biological validation."
+}
