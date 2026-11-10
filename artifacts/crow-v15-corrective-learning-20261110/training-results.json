@@ -1,0 +1,97 @@
+{
+  "sources": [
+    {
+      "source": "initial_j",
+      "included": true,
+      "rollout_sha256": "a1bf3cd8702f1d7dc923317b5675102a58f74c5f56675d1c994842cd5af2bddf",
+      "samples": 559,
+      "end_before_waypoint_5_step": 2794,
+      "student_takeover": 1100
+    },
+    {
+      "source": "late_j",
+      "included": true,
+      "rollout_sha256": "d91517b0c82daeb40e606ac1716b1c926a42e8711eee94484fb6f4631b86e9f0",
+      "samples": 533,
+      "end_before_waypoint_5_step": 2664,
+      "student_takeover": 2050
+    },
+    {
+      "source": "i",
+      "included": true,
+      "rollout_sha256": "0b10f2510640a41652097aeb3dde2c260349dd7c25ea2405ee2741c293d9a94e",
+      "samples": 548,
+      "end_before_waypoint_5_step": 2739,
+      "student_takeover": 1800
+    }
+  ],
+  "initial_policy_sha256": "fa8bf949a71027c3fdc07664575cb791da9e84ba1b2c232e24ce00a1c2eaf5cb",
+  "output_policy_sha256": "f7a4b373f40fab5a4f2299bf2a84d5e2ae5e2302fc051f20fbcf12b6fd679c9e",
+  "seed": 20261111,
+  "train_samples": 1311,
+  "in_trajectory_validation_samples": 329,
+  "train_stage_counts": [
+    882,
+    145,
+    120,
+    101,
+    63
+  ],
+  "initial_validation_mae": [
+    0.006696022115647793,
+    0.21818412840366364,
+    0.19950775802135468,
+    0.05322053283452988
+  ],
+  "history": [
+    {
+      "epoch": 1,
+      "train_loss": 0.2745038568973541,
+      "in_trajectory_validation_mae": [
+        0.02487107738852501,
+        0.2133641093969345,
+        0.2731040120124817,
+        0.08055178821086884
+      ],
+      "head_mse": 0.00017934160132426769,
+      "seconds": 0.35
+    },
+    {
+      "epoch": 20,
+      "train_loss": 0.025372521951794624,
+      "in_trajectory_validation_mae": [
+        0.0069829742424190044,
+        0.11662708967924118,
+        0.12105226516723633,
+        0.035066597163677216
+      ],
+      "head_mse": 6.188388215377927e-05,
+      "seconds": 0.61
+    },
+    {
+      "epoch": 60,
+      "train_loss": 0.0047472566754246754,
+      "in_trajectory_validation_mae": [
+        0.005321625154465437,
+        0.0694323405623436,
+        0.07028546929359436,
+        0.02629529871046543
+      ],
+      "head_mse": 8.914628415368497e-05,
+      "seconds": 1.14
+    },
+    {
+      "epoch": 120,
+      "train_loss": 0.0018775534893696506,
+      "in_trajectory_validation_mae": [
+        0.004059972241520882,
+        0.059159036725759506,
+        0.04934346675872803,
+        0.022225696593523026
+      ],
+      "head_mse": 8.197331771953031e-05,
+      "seconds": 1.92
+    }
+  ],
+  "limits": "Development trajectories and in-trajectory diagnostic only; no terminal landing samples or independent holdout."
+}
