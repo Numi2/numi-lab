@@ -1,0 +1,5 @@
+# Bounded-rebound development trial
+
+On previously used J seed 3193706597 with privileged guidance, the integrated controller reached five waypoints at step 2784. The first 5000-step episode ended at the horizon without recorded physical or solver failure or sampled nonfoot/perch contact; minimum accepted-step obstacle clearance was 0.118884 m. The last 182 sampled endpoints had bilateral load above the analysis threshold, 3.64 s at 20 ms, and the final foot loads were 2.950 N and 3.032 N. The longest run of simultaneous front/rear opposing impulses on both feet was 33 endpoints (0.66 s). Thus the preregistered uninterrupted opposing-support condition was not established. All-substep continuous grip was not established, and the end-of-horizon result does not establish long-term stability.
+
+Flight toe absolute angle after 25 impulse-free endpoints was at most 0.000370 rad across 3922 endpoint samples. This is a single guided development case. Autonomy, deliberate toe release, unseen-layout generalization, biological realism and production qualification remain unproven.
