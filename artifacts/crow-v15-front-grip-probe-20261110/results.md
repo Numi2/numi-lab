@@ -1,0 +1,3 @@
+# Front-toe closure probe failed
+
+The run matched all 2199 student-controlled prefix frames and reached all five waypoints. Increasing the front-toe minimum target from 0.85 to 0.98 rad did not produce reliable grip: the longest sampled simultaneous bilateral front-and-rear opposing impulse run was 23 accepted endpoints, versus 12 in the matched control. The bird lost support and its body struck the perch at step 4522, with reported normal impulse 0.2732 N s. The control had no reported fatal contact but also lost terminal support. There were no solver-failed steps in the probe. Both episodes fail the terminal physical gate and are excluded from successful training. Contact counts are sampled endpoints; they do not prove continuous substep support or biological realism.
