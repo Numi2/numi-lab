@@ -1,0 +1,3 @@
+# Slower contact-driven gait controls
+
+The faster cycles are upright but fail sustained slip or clearance. Under otherwise identical contact and actuator conditions, test periods of 0.75 and 1.00 seconds, with the original and smoother swing shaping. Slower joint motion may reduce contact-point speed and allow more sampled clearance, but must still satisfy the unchanged forward >=0.10 m, p95 slip <=0.05 m/s, >=8 swing runs of >=3 clear samples per side, support, tilt, and no failure screen over 10 seconds. These are developmental trials; no held-out, landing, or biology claim. Preserve all outcomes.

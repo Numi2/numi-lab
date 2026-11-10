@@ -1,0 +1,108 @@
+{
+  "arms": {
+    "1": {
+      "passes": 8,
+      "failures": 0,
+      "transitioned": 8
+    }
+  },
+  "rows": [
+    {
+      "case": 0,
+      "arm": 1,
+      "result": "case_result 0 1 completed transition 41 success 71 release 81",
+      "max_consecutive_hold": 9,
+      "release_step": 81,
+      "post_release_loss": {
+        "left": 86,
+        "right": 87
+      },
+      "passed": true
+    },
+    {
+      "case": 1,
+      "arm": 1,
+      "result": "case_result 1 1 completed transition 38 success 63 release 73",
+      "max_consecutive_hold": 9,
+      "release_step": 73,
+      "post_release_loss": {
+        "left": 83,
+        "right": 84
+      },
+      "passed": true
+    },
+    {
+      "case": 2,
+      "arm": 1,
+      "result": "case_result 2 1 completed transition 41 success 71 release 81",
+      "max_consecutive_hold": 9,
+      "release_step": 81,
+      "post_release_loss": {
+        "left": 87,
+        "right": 87
+      },
+      "passed": true
+    },
+    {
+      "case": 3,
+      "arm": 1,
+      "result": "case_result 3 1 completed transition 39 success 64 release 74",
+      "max_consecutive_hold": 9,
+      "release_step": 74,
+      "post_release_loss": {
+        "left": 84,
+        "right": 82
+      },
+      "passed": true
+    },
+    {
+      "case": 4,
+      "arm": 1,
+      "result": "case_result 4 1 completed transition 41 success 71 release 81",
+      "max_consecutive_hold": 9,
+      "release_step": 81,
+      "post_release_loss": {
+        "left": 84,
+        "right": 87
+      },
+      "passed": true
+    },
+    {
+      "case": 5,
+      "arm": 1,
+      "result": "case_result 5 1 completed transition 40 success 65 release 75",
+      "max_consecutive_hold": 9,
+      "release_step": 75,
+      "post_release_loss": {
+        "left": 81,
+        "right": 84
+      },
+      "passed": true
+    },
+    {
+      "case": 6,
+      "arm": 1,
+      "result": "case_result 6 1 completed transition 41 success 71 release 81",
+      "max_consecutive_hold": 9,
+      "release_step": 81,
+      "post_release_loss": {
+        "left": 85,
+        "right": 84
+      },
+      "passed": true
+    },
+    {
+      "case": 7,
+      "arm": 1,
+      "result": "case_result 7 1 completed transition 41 success 65 release 75",
+      "max_consecutive_hold": 9,
+      "release_step": 75,
+      "post_release_loss": {
+        "left": 84,
+        "right": 81
+      },
+      "passed": true
+    }
+  ],
+  "scope": "already-supported developmental pinch; no landing or biological qualification"
+}

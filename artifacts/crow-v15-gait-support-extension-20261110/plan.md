@@ -1,0 +1,3 @@
+# Support-leg compensation for sinking during swing
+
+Slow cycles reduce slip but the pelvis sinks 2 mm during single support, preventing clearance. Near the standing configuration the native kinematics indicates a positive support knee displacement moves the foot downward relative to the body. Test bounded positive support-knee commands 0.20 and 0.35 using 0.75 and 1.00 s cycles; the result must emerge through leg drives and ground contact, with no body wrench, unchanged other joints and unchanged 10-second forward, slip, clearance, support and safety gates. This prediction may fail dynamically and is developmental, not evidence of landing or biology.

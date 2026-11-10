@@ -1,0 +1,411 @@
+{
+  "arms": {
+    "0": {
+      "passes": 0,
+      "failures": 2,
+      "transitioned": 2
+    },
+    "1": {
+      "passes": 1,
+      "failures": 7,
+      "transitioned": 8
+    },
+    "2": {
+      "passes": 0,
+      "failures": 3,
+      "transitioned": 0
+    },
+    "3": {
+      "passes": 0,
+      "failures": 0,
+      "transitioned": 0
+    }
+  },
+  "rows": [
+    {
+      "case": 0,
+      "arm": 0,
+      "result": "case_result 0 0 completed transition 999 success 999 release 120",
+      "max_consecutive_hold": 0,
+      "release_step": 120,
+      "post_release_loss": {
+        "left": 120,
+        "right": 120
+      },
+      "passed": false
+    },
+    {
+      "case": 0,
+      "arm": 1,
+      "result": "case_result 0 1 failed step 84: one or more MetalWorld control steps rolled back after a GPU environment failure: status=3 environment=0 control_step=0 aba_status=0 failing_substep=2 failing_index=3 aba_diagnostic_0=0.008219 aba_diagnostic_1=0.667630 aba_diagnostic_2=779.003906 aba_diagnostic_3=0.000000 contact_status=3 required_pairs=213 pair_capacity=512 required_raw_contacts=1704 raw_contact_capacity=2048 required_manifolds=213 manifold_capacity=512 required_constraints=852 constraint_capacity=2048 failing_constraint=3 failing_stable_key=0,0 diagnostic_0=0.016949 diagnostic_1=0.000000 diagnostic_2=0.008219 diagnostic_3=0.670850 contact_residuals=28330918.000000,46519631872.000000,0.000000,0.000000 contact_quality_certificates=0.000000,0.000000,0.000000,0.000000 contact_quality_diagnostics=0.000000,0.000000,0.000000,0.000000 solver_iterations=4 quality_newton=0 quality_pcg=0 quality_backtracks=0 quality_path=0",
+      "max_consecutive_hold": 9,
+      "release_step": 81,
+      "post_release_loss": {
+        "left": 81,
+        "right": 81
+      },
+      "passed": false
+    },
+    {
+      "case": 0,
+      "arm": 2,
+      "result": "case_result 0 2 completed transition 999 success 999 release 120",
+      "max_consecutive_hold": 0,
+      "release_step": 120,
+      "post_release_loss": {
+        "left": 120,
+        "right": 120
+      },
+      "passed": false
+    },
+    {
+      "case": 0,
+      "arm": 3,
+      "result": "case_result 0 3 completed transition 999 success 999 release 120",
+      "max_consecutive_hold": 0,
+      "release_step": 120,
+      "post_release_loss": {
+        "left": 120,
+        "right": 120
+      },
+      "passed": false
+    },
+    {
+      "case": 1,
+      "arm": 0,
+      "result": "case_result 1 0 completed transition 999 success 999 release 120",
+      "max_consecutive_hold": 0,
+      "release_step": 120,
+      "post_release_loss": {
+        "left": 120,
+        "right": 120
+      },
+      "passed": false
+    },
+    {
+      "case": 1,
+      "arm": 1,
+      "result": "case_result 1 1 failed step 75: one or more MetalWorld control steps rolled back after a GPU environment failure: status=3 environment=0 control_step=0 aba_status=0 failing_substep=3 failing_index=3 aba_diagnostic_0=0.008219 aba_diagnostic_1=0.668827 aba_diagnostic_2=2268.145508 aba_diagnostic_3=0.000000 contact_status=3 required_pairs=213 pair_capacity=512 required_raw_contacts=1704 raw_contact_capacity=2048 required_manifolds=213 manifold_capacity=512 required_constraints=852 constraint_capacity=2048 failing_constraint=3 failing_stable_key=0,0 diagnostic_0=0.022741 diagnostic_1=0.000000 diagnostic_2=0.008219 diagnostic_3=0.670850 contact_residuals=260739760128.000000,274350951366656.000000,0.000000,0.000000 contact_quality_certificates=0.000000,0.000000,0.000000,0.000000 contact_quality_diagnostics=0.000000,0.000000,0.000000,0.000000 solver_iterations=6 quality_newton=0 quality_pcg=0 quality_backtracks=0 quality_path=0",
+      "max_consecutive_hold": 9,
+      "release_step": 73,
+      "post_release_loss": {
+        "left": 73,
+        "right": 73
+      },
+      "passed": false
+    },
+    {
+      "case": 1,
+      "arm": 2,
+      "result": "case_result 1 2 completed transition 999 success 999 release 120",
+      "max_consecutive_hold": 0,
+      "release_step": 120,
+      "post_release_loss": {
+        "left": 120,
+        "right": 120
+      },
+      "passed": false
+    },
+    {
+      "case": 1,
+      "arm": 3,
+      "result": "case_result 1 3 completed transition 999 success 999 release 120",
+      "max_consecutive_hold": 0,
+      "release_step": 120,
+      "post_release_loss": {
+        "left": 120,
+        "right": 120
+      },
+      "passed": false
+    },
+    {
+      "case": 2,
+      "arm": 0,
+      "result": "case_result 2 0 completed transition 999 success 999 release 120",
+      "max_consecutive_hold": 0,
+      "release_step": 120,
+      "post_release_loss": {
+        "left": 120,
+        "right": 120
+      },
+      "passed": false
+    },
+    {
+      "case": 2,
+      "arm": 1,
+      "result": "case_result 2 1 failed step 83: one or more MetalWorld control steps rolled back after a GPU environment failure: status=3 environment=0 control_step=0 aba_status=0 failing_substep=0 failing_index=3 aba_diagnostic_0=0.000000 aba_diagnostic_1=0.000000 aba_diagnostic_2=0.000000 aba_diagnostic_3=0.000000 contact_status=3 required_pairs=213 pair_capacity=512 required_raw_contacts=1704 raw_contact_capacity=2048 required_manifolds=213 manifold_capacity=512 required_constraints=852 constraint_capacity=2048 failing_constraint=3 failing_stable_key=0,0 diagnostic_0=0.017554 diagnostic_1=0.000000 diagnostic_2=0.008219 diagnostic_3=0.670850 contact_residuals=9796636.000000,23203182592.000000,0.000000,0.000000 contact_quality_certificates=0.000000,0.000000,0.000000,0.000000 contact_quality_diagnostics=0.000000,0.000000,0.000000,0.000000 solver_iterations=4 quality_newton=0 quality_pcg=0 quality_backtracks=0 quality_path=0",
+      "max_consecutive_hold": 9,
+      "release_step": 81,
+      "post_release_loss": {
+        "left": 81,
+        "right": 81
+      },
+      "passed": false
+    },
+    {
+      "case": 2,
+      "arm": 2,
+      "result": "case_result 2 2 completed transition 999 success 999 release 120",
+      "max_consecutive_hold": 0,
+      "release_step": 120,
+      "post_release_loss": {
+        "left": 120,
+        "right": 120
+      },
+      "passed": false
+    },
+    {
+      "case": 2,
+      "arm": 3,
+      "result": "case_result 2 3 completed transition 999 success 999 release 120",
+      "max_consecutive_hold": 0,
+      "release_step": 120,
+      "post_release_loss": {
+        "left": 120,
+        "right": 120
+      },
+      "passed": false
+    },
+    {
+      "case": 3,
+      "arm": 0,
+      "result": "case_result 3 0 completed transition 999 success 999 release 120",
+      "max_consecutive_hold": 0,
+      "release_step": 120,
+      "post_release_loss": {
+        "left": 120,
+        "right": 120
+      },
+      "passed": false
+    },
+    {
+      "case": 3,
+      "arm": 1,
+      "result": "case_result 3 1 failed step 76: one or more MetalWorld control steps rolled back after a GPU environment failure: status=3 environment=0 control_step=0 aba_status=0 failing_substep=3 failing_index=3 aba_diagnostic_0=0.008219 aba_diagnostic_1=0.669091 aba_diagnostic_2=220102.046875 aba_diagnostic_3=0.000000 contact_status=3 required_pairs=192 pair_capacity=512 required_raw_contacts=1536 raw_contact_capacity=2048 required_manifolds=192 manifold_capacity=512 required_constraints=768 constraint_capacity=2048 failing_constraint=3 failing_stable_key=0,0 diagnostic_0=0.016276 diagnostic_1=0.000000 diagnostic_2=0.008219 diagnostic_3=0.670850 contact_residuals=145416047770468352.000000,826006896505882935296.000000,0.000000,0.000000 contact_quality_certificates=0.000000,0.000000,0.000000,0.000000 contact_quality_diagnostics=0.000000,0.000000,0.000000,0.000000 solver_iterations=6 quality_newton=0 quality_pcg=0 quality_backtracks=0 quality_path=0",
+      "max_consecutive_hold": 9,
+      "release_step": 74,
+      "post_release_loss": {
+        "left": 74,
+        "right": 74
+      },
+      "passed": false
+    },
+    {
+      "case": 3,
+      "arm": 2,
+      "result": "case_result 3 2 failed step 124: one or more MetalWorld control steps rolled back after a GPU environment failure: status=3 environment=0 control_step=0 aba_status=0 failing_substep=1 failing_index=3 aba_diagnostic_0=0.008219 aba_diagnostic_1=0.668224 aba_diagnostic_2=1245.021240 aba_diagnostic_3=0.000000 contact_status=3 required_pairs=213 pair_capacity=512 required_raw_contacts=1704 raw_contact_capacity=2048 required_manifolds=213 manifold_capacity=512 required_constraints=852 constraint_capacity=2048 failing_constraint=3 failing_stable_key=0,0 diagnostic_0=0.017534 diagnostic_1=0.000000 diagnostic_2=0.008219 diagnostic_3=0.670850 contact_residuals=43413524.000000,80250773504.000000,0.000000,0.000000 contact_quality_certificates=0.000000,0.000000,0.000000,0.000000 contact_quality_diagnostics=0.000000,0.000000,0.000000,0.000000 solver_iterations=4 quality_newton=0 quality_pcg=0 quality_backtracks=0 quality_path=0",
+      "max_consecutive_hold": 0,
+      "release_step": 120,
+      "post_release_loss": {
+        "left": 120,
+        "right": 120
+      },
+      "passed": false
+    },
+    {
+      "case": 3,
+      "arm": 3,
+      "result": "case_result 3 3 completed transition 999 success 999 release 120",
+      "max_consecutive_hold": 0,
+      "release_step": 120,
+      "post_release_loss": {
+        "left": 120,
+        "right": 120
+      },
+      "passed": false
+    },
+    {
+      "case": 4,
+      "arm": 0,
+      "result": "case_result 4 0 failed step 56: one or more MetalWorld control steps rolled back after a GPU environment failure: status=2 environment=0 control_step=0 aba_status=0 failing_substep=0 failing_index=0 aba_diagnostic_0=0.000000 aba_diagnostic_1=0.000000 aba_diagnostic_2=0.000000 aba_diagnostic_3=0.000000 contact_status=2 required_pairs=0 pair_capacity=512 required_raw_contacts=0 raw_contact_capacity=2048 required_manifolds=0 manifold_capacity=512 required_constraints=0 constraint_capacity=2048 failing_constraint=4294967295 failing_stable_key=0,0 diagnostic_0=1.000000 diagnostic_1=0.000000 diagnostic_2=0.000000 diagnostic_3=0.000000 contact_residuals=0.000000,0.000000,0.000000,0.000000 contact_quality_certificates=0.000000,0.000000,0.000000,0.000000 contact_quality_diagnostics=0.000000,0.000000,0.000000,0.000000 solver_iterations=0 quality_newton=0 quality_pcg=0 quality_backtracks=0 quality_path=0",
+      "max_consecutive_hold": 0,
+      "release_step": 54,
+      "post_release_loss": {
+        "left": 54,
+        "right": 54
+      },
+      "passed": false
+    },
+    {
+      "case": 4,
+      "arm": 1,
+      "result": "case_result 4 1 failed step 83: one or more MetalWorld control steps rolled back after a GPU environment failure: status=2 environment=0 control_step=0 aba_status=0 failing_substep=1 failing_index=0 aba_diagnostic_0=0.008219 aba_diagnostic_1=0.666157 aba_diagnostic_2=3524508.000000 aba_diagnostic_3=0.000000 contact_status=2 required_pairs=0 pair_capacity=512 required_raw_contacts=0 raw_contact_capacity=2048 required_manifolds=0 manifold_capacity=512 required_constraints=0 constraint_capacity=2048 failing_constraint=4294967295 failing_stable_key=0,0 diagnostic_0=1.000000 diagnostic_1=0.000000 diagnostic_2=0.008219 diagnostic_3=0.670850 contact_residuals=4625877.500000,12425975808.000000,0.000000,0.000000 contact_quality_certificates=0.000000,0.000000,0.000000,0.000000 contact_quality_diagnostics=0.000000,0.000000,0.000000,0.000000 solver_iterations=4 quality_newton=0 quality_pcg=0 quality_backtracks=0 quality_path=0",
+      "max_consecutive_hold": 9,
+      "release_step": 81,
+      "post_release_loss": {
+        "left": 81,
+        "right": 81
+      },
+      "passed": false
+    },
+    {
+      "case": 4,
+      "arm": 2,
+      "result": "case_result 4 2 completed transition 999 success 999 release 120",
+      "max_consecutive_hold": 0,
+      "release_step": 120,
+      "post_release_loss": {
+        "left": 120,
+        "right": 120
+      },
+      "passed": false
+    },
+    {
+      "case": 4,
+      "arm": 3,
+      "result": "case_result 4 3 completed transition 999 success 999 release 120",
+      "max_consecutive_hold": 0,
+      "release_step": 120,
+      "post_release_loss": {
+        "left": 120,
+        "right": 120
+      },
+      "passed": false
+    },
+    {
+      "case": 5,
+      "arm": 0,
+      "result": "case_result 5 0 completed transition 999 success 999 release 120",
+      "max_consecutive_hold": 0,
+      "release_step": 120,
+      "post_release_loss": {
+        "left": 120,
+        "right": 120
+      },
+      "passed": false
+    },
+    {
+      "case": 5,
+      "arm": 1,
+      "result": "case_result 5 1 failed step 77: one or more MetalWorld control steps rolled back after a GPU environment failure: status=3 environment=0 control_step=0 aba_status=0 failing_substep=3 failing_index=3 aba_diagnostic_0=0.008219 aba_diagnostic_1=0.669058 aba_diagnostic_2=223086.359375 aba_diagnostic_3=0.000000 contact_status=3 required_pairs=192 pair_capacity=512 required_raw_contacts=1536 raw_contact_capacity=2048 required_manifolds=192 manifold_capacity=512 required_constraints=768 constraint_capacity=2048 failing_constraint=3 failing_stable_key=0,0 diagnostic_0=0.015615 diagnostic_1=0.000000 diagnostic_2=0.008219 diagnostic_3=0.670850 contact_residuals=280455196855762944.000000,1014474800349478649856.000000,0.000000,0.000000 contact_quality_certificates=0.000000,0.000000,0.000000,0.000000 contact_quality_diagnostics=0.000000,0.000000,0.000000,0.000000 solver_iterations=6 quality_newton=0 quality_pcg=0 quality_backtracks=0 quality_path=0",
+      "max_consecutive_hold": 9,
+      "release_step": 75,
+      "post_release_loss": {
+        "left": 75,
+        "right": 75
+      },
+      "passed": false
+    },
+    {
+      "case": 5,
+      "arm": 2,
+      "result": "case_result 5 2 failed step 124: one or more MetalWorld control steps rolled back after a GPU environment failure: status=3 environment=0 control_step=0 aba_status=0 failing_substep=1 failing_index=3 aba_diagnostic_0=0.008219 aba_diagnostic_1=0.668724 aba_diagnostic_2=77303.281250 aba_diagnostic_3=0.000000 contact_status=3 required_pairs=192 pair_capacity=512 required_raw_contacts=1536 raw_contact_capacity=2048 required_manifolds=192 manifold_capacity=512 required_constraints=768 constraint_capacity=2048 failing_constraint=3 failing_stable_key=0,0 diagnostic_0=0.021484 diagnostic_1=0.000000 diagnostic_2=0.008219 diagnostic_3=0.670850 contact_residuals=1075168290013184.000000,1807932467110215680.000000,0.000000,0.000000 contact_quality_certificates=0.000000,0.000000,0.000000,0.000000 contact_quality_diagnostics=0.000000,0.000000,0.000000,0.000000 solver_iterations=4 quality_newton=0 quality_pcg=0 quality_backtracks=0 quality_path=0",
+      "max_consecutive_hold": 0,
+      "release_step": 120,
+      "post_release_loss": {
+        "left": 120,
+        "right": 120
+      },
+      "passed": false
+    },
+    {
+      "case": 5,
+      "arm": 3,
+      "result": "case_result 5 3 completed transition 999 success 999 release 120",
+      "max_consecutive_hold": 0,
+      "release_step": 120,
+      "post_release_loss": {
+        "left": 120,
+        "right": 120
+      },
+      "passed": false
+    },
+    {
+      "case": 6,
+      "arm": 0,
+      "result": "case_result 6 0 failed step 57: one or more MetalWorld control steps rolled back after a GPU environment failure: status=3 environment=0 control_step=0 aba_status=0 failing_substep=2 failing_index=3 aba_diagnostic_0=0.008219 aba_diagnostic_1=0.668630 aba_diagnostic_2=12226.232422 aba_diagnostic_3=0.000000 contact_status=3 required_pairs=192 pair_capacity=512 required_raw_contacts=1536 raw_contact_capacity=2048 required_manifolds=192 manifold_capacity=512 required_constraints=768 constraint_capacity=2048 failing_constraint=3 failing_stable_key=0,0 diagnostic_0=0.019455 diagnostic_1=0.000000 diagnostic_2=0.008219 diagnostic_3=0.670850 contact_residuals=16271890432.000000,26819256385536.000000,0.000000,0.000000 contact_quality_certificates=0.000000,0.000000,0.000000,0.000000 contact_quality_diagnostics=0.000000,0.000000,0.000000,0.000000 solver_iterations=4 quality_newton=0 quality_pcg=0 quality_backtracks=0 quality_path=0",
+      "max_consecutive_hold": 9,
+      "release_step": 55,
+      "post_release_loss": {
+        "left": 55,
+        "right": 55
+      },
+      "passed": false
+    },
+    {
+      "case": 6,
+      "arm": 1,
+      "result": "case_result 6 1 completed transition 41 success 71 release 81",
+      "max_consecutive_hold": 9,
+      "release_step": 81,
+      "post_release_loss": {
+        "left": 81,
+        "right": 81
+      },
+      "passed": true
+    },
+    {
+      "case": 6,
+      "arm": 2,
+      "result": "case_result 6 2 completed transition 999 success 999 release 120",
+      "max_consecutive_hold": 0,
+      "release_step": 120,
+      "post_release_loss": {
+        "left": 120,
+        "right": 120
+      },
+      "passed": false
+    },
+    {
+      "case": 6,
+      "arm": 3,
+      "result": "case_result 6 3 completed transition 999 success 999 release 120",
+      "max_consecutive_hold": 0,
+      "release_step": 120,
+      "post_release_loss": {
+        "left": 120,
+        "right": 120
+      },
+      "passed": false
+    },
+    {
+      "case": 7,
+      "arm": 0,
+      "result": "case_result 7 0 completed transition 999 success 999 release 120",
+      "max_consecutive_hold": 0,
+      "release_step": 120,
+      "post_release_loss": {
+        "left": 120,
+        "right": 120
+      },
+      "passed": false
+    },
+    {
+      "case": 7,
+      "arm": 1,
+      "result": "case_result 7 1 failed step 77: one or more MetalWorld control steps rolled back after a GPU environment failure: status=3 environment=0 control_step=0 aba_status=0 failing_substep=3 failing_index=3 aba_diagnostic_0=0.008219 aba_diagnostic_1=0.669081 aba_diagnostic_2=224410.609375 aba_diagnostic_3=0.000000 contact_status=3 required_pairs=192 pair_capacity=512 required_raw_contacts=1536 raw_contact_capacity=2048 required_manifolds=192 manifold_capacity=512 required_constraints=768 constraint_capacity=2048 failing_constraint=3 failing_stable_key=0,0 diagnostic_0=0.016927 diagnostic_1=0.000000 diagnostic_2=0.008219 diagnostic_3=0.670850 contact_residuals=553515147222581248.000000,2063629710367012159488.000000,0.000000,0.000000 contact_quality_certificates=0.000000,0.000000,0.000000,0.000000 contact_quality_diagnostics=0.000000,0.000000,0.000000,0.000000 solver_iterations=6 quality_newton=0 quality_pcg=0 quality_backtracks=0 quality_path=0",
+      "max_consecutive_hold": 9,
+      "release_step": 75,
+      "post_release_loss": {
+        "left": 75,
+        "right": 75
+      },
+      "passed": false
+    },
+    {
+      "case": 7,
+      "arm": 2,
+      "result": "case_result 7 2 failed step 123: one or more MetalWorld control steps rolled back after a GPU environment failure: status=3 environment=0 control_step=0 aba_status=0 failing_substep=0 failing_index=3 aba_diagnostic_0=0.000000 aba_diagnostic_1=0.000000 aba_diagnostic_2=0.000000 aba_diagnostic_3=0.000000 contact_status=3 required_pairs=192 pair_capacity=512 required_raw_contacts=1536 raw_contact_capacity=2048 required_manifolds=192 manifold_capacity=512 required_constraints=768 constraint_capacity=2048 failing_constraint=3 failing_stable_key=0,0 diagnostic_0=0.018795 diagnostic_1=0.000000 diagnostic_2=0.008219 diagnostic_3=0.670850 contact_residuals=32320137216.000000,78738058379264.000000,0.000000,0.000000 contact_quality_certificates=0.000000,0.000000,0.000000,0.000000 contact_quality_diagnostics=0.000000,0.000000,0.000000,0.000000 solver_iterations=4 quality_newton=0 quality_pcg=0 quality_backtracks=0 quality_path=0",
+      "max_consecutive_hold": 0,
+      "release_step": 120,
+      "post_release_loss": {
+        "left": 120,
+        "right": 120
+      },
+      "passed": false
+    },
+    {
+      "case": 7,
+      "arm": 3,
+      "result": "case_result 7 3 completed transition 999 success 999 release 120",
+      "max_consecutive_hold": 0,
+      "release_step": 120,
+      "post_release_loss": {
+        "left": 120,
+        "right": 120
+      },
+      "passed": false
+    }
+  ],
+  "scope": "already-supported developmental pinch; no landing or biological qualification"
+}

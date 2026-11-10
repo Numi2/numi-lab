@@ -1,0 +1,3 @@
+# Kinematics-informed gait candidate
+
+At a sampled lift state, the actual v15 geometry predicts hip and knee swing together raise the lowest toe, while the prior negative ankle action lowers it; the approximate hip-to-knee ratio also limits horizontal displacement. Test a smooth squared lift with knee command 0.56 and neutral ankle; unchanged stance, support gating, push, no-wrench condition, 10-second 8-lane development run and unchanged p95 slip <=0.05 m/s and >=3 consecutive 2 mm clearance endpoints. Measured endpoint contact twist is approximate. Local geometry is not proof of dynamic performance; preserve failures. This is not full flight, landing or biology qualification.

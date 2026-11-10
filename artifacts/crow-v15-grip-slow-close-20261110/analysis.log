@@ -1,0 +1,22 @@
+{
+  "0": {
+    "passes": 0,
+    "failures": 2,
+    "transitioned": 2
+  },
+  "1": {
+    "passes": 1,
+    "failures": 7,
+    "transitioned": 8
+  },
+  "2": {
+    "passes": 0,
+    "failures": 3,
+    "transitioned": 0
+  },
+  "3": {
+    "passes": 0,
+    "failures": 0,
+    "transitioned": 0
+  }
+}

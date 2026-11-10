@@ -1,0 +1,17 @@
+[
+  {
+    "path": "build/crow-v15-grip-slow-close-20261110/perch_probe",
+    "sha256": "122227d49ef83267e3f498783388b0410681a8cbea8911a4882c6c03d2aaed79",
+    "bytes": 100472
+  },
+  {
+    "path": "build/lib/libmetalrobo.dylib",
+    "sha256": "d7dad802978b03d8571487dac644678d2c4c1a8eae5b8a4c5c57be261cfbe11a",
+    "bytes": 5728528
+  },
+  {
+    "path": "build/shaders/MetalRobo.metallib",
+    "sha256": "69023c5dcd83c3a10bdc62a5a14d3a9c56d75797de36c95ed090b0f41ef9e135",
+    "bytes": 4467648
+  }
+]
