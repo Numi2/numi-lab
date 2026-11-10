@@ -1,0 +1,21 @@
+--- a/teacher.metal
++++ b/teacher.metal
+@@ -5340,7 +5340,7 @@
+             : filtered;
+         const float avianWingAmplitude =
+             fixedFlightController && state.episode.z == 10u && float(state.episode.x)*dispatch.timing.x >= 0.0f && float(state.episode.x)*dispatch.timing.x < 13.4f && (state.status.w & 4096u)==0u && binding.actuator.x == MR_TASK_ACTUATOR_FLAPPING_POSITION
+-            ? 0.0f : fixedFlightController && state.threatTeacher.w >= 1.5f &&
++            ? 0.0f : fixedFlightController && state.threatTeacher.w >= 1.2f &&
+             binding.actuator.x == MR_TASK_ACTUATOR_FLAPPING_POSITION
+             ? 0.0f
+             : avianGroundCurriculum &&
+@@ -6780,6 +6780,9 @@
+                     if ((group.members.z & MR_TASK_CONTACT_SUPPORT) != 0u &&
+                         compactContact[compactBase+group.members.w] > 0.05f) ++loadedFeet;
+                 }
++                const uint toeTimers = (state.status.w & 63u) + ((state.status.w >> 6u) & 63u);
++                if (landingPhase >= 1.2f && landingPhase < 1.5f && toeTimers == 0u && state.nutrition.x + state.nutrition.y < 0.25f) landingPhase=1.0f;
++                if (landingPhase > 0.5f && landingPhase < 1.2f && state.nutrition.x>0.20f && state.nutrition.y>0.20f && abs(xError)<0.04f && abs(yError)<0.10f && length(yawFrameLinear.xy)<0.15f && abs(rootLinearVelocity.z)<0.40f) landingPhase=1.25f;
+                 if (landingPhase >= 1.5f && state.nutrition.x + state.nutrition.y < 0.25f) landingPhase=1.0f;
+                 const uint supportDuration = (state.status.w >> 25u) & 127u;
+                 if (landingPhase > 0.5f && landingPhase < 1.5f && loadedFeet >= 2u && supportDuration >= 25u &&

@@ -1,0 +1,65 @@
+{
+  "remote_commit": "0e47e7102a15337cc7c02b27a6bfe44aa2e29eea",
+  "retired": [
+    {
+      "raw": "build/crow-v15-ccd-budget-20261110/development-j-contact-arrest.json",
+      "archive": "artifacts/crow-v15-contact-arrest-20261110/development-j-contact-arrest.json.gz",
+      "sha256": "66554b53c7b619815f39d593a0424448cd0c7f13a94aa4f1027a697b115191c0",
+      "bytes": 164752464
+    },
+    {
+      "raw": "build/crow-v15-ccd-budget-20261110/development-j-contact-arrest.tsv",
+      "archive": "artifacts/crow-v15-contact-arrest-20261110/development-j-contact-arrest.tsv.gz",
+      "sha256": "64f6d6d540d9896a888f61a3b83d227c34cb956c6bac23a4e6427e1d1deed191",
+      "bytes": 3614750
+    },
+    {
+      "raw": "build/crow-v15-ccd-budget-20261110/development-j-timed-descent.json",
+      "archive": "artifacts/crow-v15-timed-descent-20261110/development-j-timed-descent.json.gz",
+      "sha256": "126bb3ae83eec748b712443593a03f024f90cf4fb35f7084ea26098fb731ddd9",
+      "bytes": 164860531
+    },
+    {
+      "raw": "build/crow-v15-ccd-budget-20261110/development-j-timed-descent.tsv",
+      "archive": "artifacts/crow-v15-timed-descent-20261110/development-j-timed-descent.tsv.gz",
+      "sha256": "ede08c4eff80e92b5d75209d8e3ec23fb74d3aeabf257f1c3b176bc0e8b3f333",
+      "bytes": 3613323
+    },
+    {
+      "raw": "build/crow-v15-ccd-budget-20261110/development-j-damped-approach.json",
+      "archive": "artifacts/crow-v15-damped-approach-20261110/development-j-damped-approach.json.gz",
+      "sha256": "42c41cdab51bb2c54bad3aa32fd1046d743b61738af199be731ecf7eddc8489b",
+      "bytes": 164574453
+    },
+    {
+      "raw": "build/crow-v15-ccd-budget-20261110/development-j-damped-approach.tsv",
+      "archive": "artifacts/crow-v15-damped-approach-20261110/development-j-damped-approach.tsv.gz",
+      "sha256": "6772efb0b2b06c22707f59b7380bcffe1195f2d93d76fb1b124a3f25c2abc81a",
+      "bytes": 3615127
+    },
+    {
+      "raw": "build/crow-v15-gait-budget-20261110/709815403-push.tsv",
+      "archive": "artifacts/crow-v15-gait-budget-20261110/709815403-push.trace.tsv.gz",
+      "sha256": "19877e070f9ff3c4454ec6b4464e9021c9cb96ee0e21f8f8f15294a368e6f88d",
+      "bytes": 653304
+    },
+    {
+      "raw": "build/crow-v15-gait-budget-20261110/709815403-control.tsv",
+      "archive": "artifacts/crow-v15-gait-budget-20261110/709815403-control.trace.tsv.gz",
+      "sha256": "2be1dd703da3d5da7d9f93acc8d9d876a9eae209402e0e0474bee823ba7b4477",
+      "bytes": 653107
+    },
+    {
+      "raw": "build/crow-v15-gait-budget-20261110/709815427-push.tsv",
+      "archive": "artifacts/crow-v15-gait-budget-20261110/709815427-push.trace.tsv.gz",
+      "sha256": "b68d171a1fd2f82ba13497cab4c670c0d6479ac9e5b84fd7c80d64e9117273ba",
+      "bytes": 655429
+    },
+    {
+      "raw": "build/crow-v15-gait-budget-20261110/709815427-control.tsv",
+      "archive": "artifacts/crow-v15-gait-budget-20261110/709815427-control.trace.tsv.gz",
+      "sha256": "30eba0f6bbc29cdf18ad4578d3c744767c3d1c940d40d22ac181d1e38ef5bd7e",
+      "bytes": 655250
+    }
+  ]
+}
