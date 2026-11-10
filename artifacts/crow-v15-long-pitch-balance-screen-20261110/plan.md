@@ -1,0 +1,3 @@
+# Extended pitch-balance screen
+
+The reference lost the body-tilt support gate at tick 228 and fell in a continuous 400-tick run. Compare its original pitch feedback (-0.25) with -0.5 and -1.0 through the same contact-gated hip/ankle targets, retaining the original 0.08-rad correction bound, toe control and physics. Require the reference to reproduce all 400 previous states exactly. For each candidate require supported sustained bilateral opposing grip, release, no reported failure, <=0.5 mm worst grip-conditioned rigid overlap, and supported open-toe posture throughout the last 50 ticks. This is one development stationary start and does not qualify varied starts or continuous flight landing. Retain every result.
