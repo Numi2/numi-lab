@@ -1,0 +1,15 @@
+/Users/n/Developer/numi-crow-rl-20261107/build/crow-v15-launch-phase-20261110/quarter.metal:5496:21: warning: unused variable 'seconds' [-Wunused-variable]
+        const float seconds=float(state.episode.x)*dispatch.timing.x;
+                    ^
+1 warning generated.
+quarter 47314fc373bdb4b330b2c2f32cffc4107c7dc0c287af3a80e9783c4591b0dfd1
+/Users/n/Developer/numi-crow-rl-20261107/build/crow-v15-launch-phase-20261110/half.metal:5496:21: warning: unused variable 'seconds' [-Wunused-variable]
+        const float seconds=float(state.episode.x)*dispatch.timing.x;
+                    ^
+1 warning generated.
+half 758bc795351fc57423ce7cc0cc1efa6e5a8e37d380777b72f820695d9b751257
+/Users/n/Developer/numi-crow-rl-20261107/build/crow-v15-launch-phase-20261110/threequarter.metal:5496:21: warning: unused variable 'seconds' [-Wunused-variable]
+        const float seconds=float(state.episode.x)*dispatch.timing.x;
+                    ^
+1 warning generated.
+threequarter 4ef5c27c06539ff17385b1f9cc69d0790e9ef2cd214555903afbf2228eed5692

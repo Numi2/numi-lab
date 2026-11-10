@@ -1,0 +1,19 @@
+--- a/forward.metal
++++ b/threequarter.metal
+@@ -4973,6 +4973,7 @@
+             ? 0.0f : actionStream[actionBase + action];
+         MRTaskStateGPU carrierState = state;
+         carrierState.episode.x = min(carrierState.episode.x, 1500u);
++        if (state.episode.z == 10u) carrierState.commandAndPhase.w += (4.712388980f * (1.0f-smoothstep(15.0f,16.0f,float(state.episode.x)*dispatch.timing.x)));
+         // The separately fingerprinted task may invoke a learned recovery
+         // head after prolonged unsupported landing. The frozen flight law is unchanged.
+         const uint commandOffset =
+@@ -5419,7 +5420,7 @@
+                     // zero-action trim and bounded residual span, so initial
+                     // policy exploration begins in the viable wingbeat band.
+                     avianWingAmplitude *
+-                    sin(state.commandAndPhase.w)
++                    sin(state.commandAndPhase.w + (fixedFlightController && state.episode.z == 10u ? (4.712388980f * (1.0f-smoothstep(15.0f,16.0f,float(state.episode.x)*dispatch.timing.x))) : 0.0f))
+             : defaultQ[binding.indices.z] +
+                 binding.parameters.x *
+                     avianNonWingCommand *

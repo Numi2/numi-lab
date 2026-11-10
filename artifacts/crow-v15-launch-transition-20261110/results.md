@@ -1,0 +1,3 @@
+# Leg-extension transition and early flight command
+
+On one development seed, holding the extended legs after the contact-gated jump avoids the abrupt return to the crouched pose seen in the baseline; it does not prevent backward flight. At step 700, forward velocity is -0.733 m/s versus -0.731 m/s baseline. A second variant commands 0.40 m/s forward speed and 0.90 m height until 16 s; it reduces backward velocity to -0.620 m/s at that step but does not eliminate backward motion. Both preserve the frozen flight law. These are short diagnostic trials on a used layout with rebound legacy actor weights; they do not qualify takeoff, flight, navigation, or landing. No variant is promoted.

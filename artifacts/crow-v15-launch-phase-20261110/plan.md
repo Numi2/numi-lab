@@ -1,0 +1,1 @@
+Exploratory used-layout test of three wingbeat phase offsets after the contact-gated leg push, combined with bounded early-flight command and extended leg posture. Offsets smoothly return to the unmodified clock between 15 and 16 seconds. Controller law and physical body unchanged. One seed and 1000 ticks each do not qualify flight or the autonomous sequence.
