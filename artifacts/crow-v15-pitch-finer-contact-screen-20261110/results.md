@@ -1,0 +1,3 @@
+# Pitch-coordinated grip with finer contact steps
+
+All three 16-substep controls reproduced their 200 reference states exactly, including the supported-release pitch controller with 0.949 mm observed grip overlap. The 32-substep pitch candidate did not achieve three consecutive opposing-grip samples or terminal support and timed out. Its grip-conditioned overlap is unavailable and does not indicate no collision overlap. Thus the finer setting did not preserve the one-start behavior and no arm meets both support and <=0.5 mm overlap requirements. This is a development stationary drop, not end-to-end or biological qualification.
