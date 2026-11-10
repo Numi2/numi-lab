@@ -22,7 +22,7 @@ with gzip.open(A/'results.txt.gz','rt') as f:
    i,a,t=int(v[1]),int(v[2]),int(v[3]);an,bn=v[4],v[5];nz=float(v[7]);imp=float(v[8]);body=bn if an=='locomotion_ground' else an;sgn=1. if body==bn else -1.;up=max(sgn*nz*imp,0.);d=allc.setdefault((i,a,t),{'left':0.,'right':0.,'other':0.});side=next((s for s in ('left','right') if '_'+s+'_' in body),None)
    if side and ('_foot' in body or '_toe' in body):d[side]+=up
    else:d['other']+=imp
-keys=set(old)|{k for k in trace if k[0]==1 and k[1]==7 and k[2]<=140};parity_diff=[k for k in sorted(keys) if old.get(k)!=trace.get(k)];rows=[]
+keys=set(old)|{k for k in trace if k[0]==1 and k[1]==7 and k[2]<=140};parity_diff=[k for k in sorted(keys) if old.get(k)!=trace.get(k)];parity_diff += [(1,8,t) for t in range(141) if old.get((1,7,t)) != trace.get((1,8,t))];rows=[]
 def longest(xs):
  best=cur=0
  for x in xs:cur=cur+1 if x else 0;best=max(best,cur)
