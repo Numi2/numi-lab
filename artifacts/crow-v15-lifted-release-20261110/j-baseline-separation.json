@@ -1,0 +1,52 @@
+{
+  "replay": "artifacts/crow-v15-student-landing-eval-20261110/j-student-landing.json.gz",
+  "release_step": 4433,
+  "windows": {
+    "before": {
+      "frames": 100,
+      "all_eight_strictly_separated_frames": 0,
+      "minimum_separation_axis_gap_m": -0.005077729768665766,
+      "median_per_toe_gap_m": [
+        -0.003564380606796428,
+        -0.0036346754170441843,
+        -0.003693452229664152,
+        -0.003912107900937715,
+        -0.003239431939309253,
+        -0.003331022212008261,
+        -0.003425514972294128,
+        -0.004493446906516471
+      ]
+    },
+    "early_after": {
+      "frames": 100,
+      "all_eight_strictly_separated_frames": 100,
+      "minimum_separation_axis_gap_m": 4.1233500684054875e-05,
+      "median_per_toe_gap_m": [
+        0.00010274289416737671,
+        0.00010489936237875058,
+        9.332972200867123e-05,
+        0.003398901727626351,
+        0.0003675877316184524,
+        0.0002693591993857807,
+        0.0001716075301877243,
+        0.0033131474170546363
+      ]
+    },
+    "late_after": {
+      "frames": 100,
+      "all_eight_strictly_separated_frames": 100,
+      "minimum_separation_axis_gap_m": 8.198920569740462e-05,
+      "median_per_toe_gap_m": [
+        0.0001069592339080043,
+        0.00010450836162266552,
+        0.00010174896775264064,
+        0.003174876556920777,
+        0.00011355340053608755,
+        0.00011308715882977702,
+        0.00011249995792613106,
+        0.0031455179469204626
+      ]
+    }
+  },
+  "method": "SAT separating-axis maximum gap for 8 toe OBBs versus perch OBB from accepted body transforms; positive gap establishes separation at that endpoint. Shape half-extents from original v15 research host. No inference about substeps."
+}
