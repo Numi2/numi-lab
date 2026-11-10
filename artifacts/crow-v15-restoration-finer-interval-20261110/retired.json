@@ -1,0 +1,11 @@
+{
+  "remote_commit": "d840c9073d7e3b7355ab200588c43c6bf0a9cdab",
+  "retired": [
+    {
+      "raw": "artifacts/crow-v15-finer-interval-grip-screen-20261110/results.txt",
+      "archive": "artifacts/crow-v15-finer-interval-grip-screen-20261110/results.txt.gz",
+      "sha256": "d6b3dd0a0e94bbd5ad73fcf800ab2bde7b806a9e445c48d6b264c9775cf20166",
+      "bytes": 1828965
+    }
+  ]
+}
