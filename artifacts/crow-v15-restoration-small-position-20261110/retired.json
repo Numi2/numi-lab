@@ -1,0 +1,11 @@
+{
+  "remote_commit": "11054c40dde686dfb96d1f8d8e0cd354ad999d1f",
+  "retired": [
+    {
+      "raw": "artifacts/crow-v15-small-position-integral-screen-20261110/results.txt",
+      "archive": "artifacts/crow-v15-small-position-integral-screen-20261110/results.txt.gz",
+      "sha256": "4043d3644dcbb75c6f53cc1962dd52f8b8a11e0b23f598c25c2ff0d0e28ec416",
+      "bytes": 7320224
+    }
+  ]
+}
