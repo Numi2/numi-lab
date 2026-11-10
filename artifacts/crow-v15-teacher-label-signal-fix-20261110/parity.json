@@ -1,0 +1,6 @@
+{
+  "compared_samples": 24,
+  "mismatches": [],
+  "same_key_set": true,
+  "scope": "sampled q/v only, not all hidden state"
+}

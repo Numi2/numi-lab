@@ -1,0 +1,5 @@
+/Users/n/Developer/numi-crow-rl-20261107/build/crow-v15-teacher-label-signal-fix-20261110/labelfix.metal:5490:21: warning: unused variable 'seconds' [-Wunused-variable]
+        const float seconds=float(state.episode.x)*dispatch.timing.x;
+                    ^
+1 warning generated.
+labelfix e2f67344346a6dcfe73475bb6c59e8c97732523ae53454a9eb5d69c29c7d939a

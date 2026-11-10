@@ -1,0 +1,38 @@
+--- a/velocity08c.metal
++++ b/supportgate.metal
+@@ -4949,7 +4949,7 @@
+         const bool fixedFlightController =
+             (program.schedule.w & MR_TASK_PROGRAM_AVIAN_CROW_HIERARCHICAL_NAVIGATION) != 0u;
+         const bool avianJourneyTeacher =
+-            dispatch.sampling.w != 0u &&
++            (dispatch.sampling.w != 0u && state.episode.x >= 2000u) &&
+             (program.schedule.w &
+              MR_TASK_PROGRAM_AVIAN_CROW_JOURNEY) != 0u &&
+             true;
+@@ -4993,7 +4993,7 @@
+         const float4 actorCommand = float4(
+             0.10f+0.30f*actorLatent.x,0.30f*actorLatent.y,
+             0.15f*actorLatent.z,0.975f+0.325f*actorLatent.w);
+-        const bool privilegedCommand = (dispatch.sampling.w != 0u && dispatch.assistance.x < 0.5f);
++        const bool privilegedCommand = ((dispatch.sampling.w != 0u && state.episode.x >= 2000u) && dispatch.assistance.x < 0.5f);
+         const float4 oracleCommand = privilegedCommand ? as_type<float4>(state.threatMetadata) : actorCommand;
+         carrierState.commandAndPhase.x = 0.15f;
+         carrierState.commandAndPhase.y = oracleCommand.y;
+@@ -6681,7 +6681,7 @@
+     }
+     // Privileged development route teacher; not autonomous policy.
+     if ((program.schedule.w & MR_TASK_PROGRAM_AVIAN_CROW_HIERARCHICAL_NAVIGATION) != 0u &&
+-        dispatch.sampling.w != 0u) {
++        (dispatch.sampling.w != 0u && state.episode.x >= 2000u)) {
+         uint course = MR_INVALID_INDEX;
+         for (uint i=0u; i<program.counts1.w; ++i) {
+             const MRTaskRewardOperatorGPU operation = rewards[i];
+@@ -9415,7 +9415,7 @@
+                 ((program.schedule.w &
+                   MR_TASK_PROGRAM_INTERACTION_REFERENCE) != 0u &&
+                      program.interactionTiming.z == 0.0f) ||
+-                (dispatch.sampling.w != 0u &&
++                ((dispatch.sampling.w != 0u && state.episode.x >= 2000u) &&
+                  (program.schedule.w &
+                   MR_TASK_PROGRAM_AVIAN_CROW_JOURNEY) != 0u &&
+                  (

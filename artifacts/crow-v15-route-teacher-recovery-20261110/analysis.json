@@ -1,0 +1,208 @@
+{
+  "reserved-final-i": {
+    "lanes": [
+      {
+        "lane": 0,
+        "prefix_samples": 19,
+        "prefix_mismatches": [],
+        "eligible_at_takeover": true,
+        "student_end": 2519,
+        "student_waypoints": 1,
+        "recovery_end": 2108,
+        "recovery_waypoints": 1,
+        "recovery_failure": true,
+        "teacher_completion_step": null
+      },
+      {
+        "lane": 1,
+        "prefix_samples": 19,
+        "prefix_mismatches": [],
+        "eligible_at_takeover": true,
+        "student_end": 3000,
+        "student_waypoints": 5,
+        "recovery_end": 2755,
+        "recovery_waypoints": 5,
+        "recovery_failure": true,
+        "teacher_completion_step": 2294
+      },
+      {
+        "lane": 2,
+        "prefix_samples": 19,
+        "prefix_mismatches": [],
+        "eligible_at_takeover": true,
+        "student_end": 3000,
+        "student_waypoints": 5,
+        "recovery_end": 2381,
+        "recovery_waypoints": 5,
+        "recovery_failure": true,
+        "teacher_completion_step": 2223
+      },
+      {
+        "lane": 3,
+        "prefix_samples": 19,
+        "prefix_mismatches": [],
+        "eligible_at_takeover": true,
+        "student_end": 2703,
+        "student_waypoints": 5,
+        "recovery_end": 2491,
+        "recovery_waypoints": 5,
+        "recovery_failure": true,
+        "teacher_completion_step": 2232
+      },
+      {
+        "lane": 4,
+        "prefix_samples": 19,
+        "prefix_mismatches": [],
+        "eligible_at_takeover": true,
+        "student_end": 2739,
+        "student_waypoints": 5,
+        "recovery_end": 2527,
+        "recovery_waypoints": 5,
+        "recovery_failure": true,
+        "teacher_completion_step": 2261
+      },
+      {
+        "lane": 5,
+        "prefix_samples": 15,
+        "prefix_mismatches": [],
+        "eligible_at_takeover": false,
+        "student_end": 1544,
+        "student_waypoints": 1,
+        "recovery_end": 1544,
+        "recovery_waypoints": 1,
+        "recovery_failure": true,
+        "teacher_completion_step": null
+      },
+      {
+        "lane": 6,
+        "prefix_samples": 19,
+        "prefix_mismatches": [],
+        "eligible_at_takeover": true,
+        "student_end": 2708,
+        "student_waypoints": 5,
+        "recovery_end": 2650,
+        "recovery_waypoints": 5,
+        "recovery_failure": true,
+        "teacher_completion_step": 2204
+      },
+      {
+        "lane": 7,
+        "prefix_samples": 19,
+        "prefix_mismatches": [],
+        "eligible_at_takeover": true,
+        "student_end": 3000,
+        "student_waypoints": 5,
+        "recovery_end": 2405,
+        "recovery_waypoints": 5,
+        "recovery_failure": true,
+        "teacher_completion_step": 2244
+      }
+    ],
+    "student_solver_failures": 0,
+    "recovery_solver_failures": 0,
+    "prefix_parity": true
+  },
+  "reserved-final-j": {
+    "lanes": [
+      {
+        "lane": 0,
+        "prefix_samples": 19,
+        "prefix_mismatches": [],
+        "eligible_at_takeover": true,
+        "student_end": 3000,
+        "student_waypoints": 5,
+        "recovery_end": 2733,
+        "recovery_waypoints": 5,
+        "recovery_failure": true,
+        "teacher_completion_step": 2202
+      },
+      {
+        "lane": 1,
+        "prefix_samples": 19,
+        "prefix_mismatches": [],
+        "eligible_at_takeover": true,
+        "student_end": 3000,
+        "student_waypoints": 1,
+        "recovery_end": 2148,
+        "recovery_waypoints": 1,
+        "recovery_failure": true,
+        "teacher_completion_step": null
+      },
+      {
+        "lane": 2,
+        "prefix_samples": 18,
+        "prefix_mismatches": [],
+        "eligible_at_takeover": false,
+        "student_end": 1867,
+        "student_waypoints": 1,
+        "recovery_end": 1867,
+        "recovery_waypoints": 1,
+        "recovery_failure": true,
+        "teacher_completion_step": null
+      },
+      {
+        "lane": 3,
+        "prefix_samples": 17,
+        "prefix_mismatches": [],
+        "eligible_at_takeover": false,
+        "student_end": 1789,
+        "student_waypoints": 1,
+        "recovery_end": 1789,
+        "recovery_waypoints": 1,
+        "recovery_failure": true,
+        "teacher_completion_step": null
+      },
+      {
+        "lane": 4,
+        "prefix_samples": 17,
+        "prefix_mismatches": [],
+        "eligible_at_takeover": false,
+        "student_end": 1780,
+        "student_waypoints": 1,
+        "recovery_end": 1780,
+        "recovery_waypoints": 1,
+        "recovery_failure": true,
+        "teacher_completion_step": null
+      },
+      {
+        "lane": 5,
+        "prefix_samples": 15,
+        "prefix_mismatches": [],
+        "eligible_at_takeover": false,
+        "student_end": 1550,
+        "student_waypoints": 1,
+        "recovery_end": 1550,
+        "recovery_waypoints": 1,
+        "recovery_failure": true,
+        "teacher_completion_step": null
+      },
+      {
+        "lane": 6,
+        "prefix_samples": 19,
+        "prefix_mismatches": [],
+        "eligible_at_takeover": true,
+        "student_end": 2457,
+        "student_waypoints": 5,
+        "recovery_end": 2491,
+        "recovery_waypoints": 5,
+        "recovery_failure": true,
+        "teacher_completion_step": 2236
+      },
+      {
+        "lane": 7,
+        "prefix_samples": 17,
+        "prefix_mismatches": [],
+        "eligible_at_takeover": false,
+        "student_end": 1749,
+        "student_waypoints": 1,
+        "recovery_end": 1749,
+        "recovery_waypoints": 1,
+        "recovery_failure": true,
+        "teacher_completion_step": null
+      }
+    ],
+    "student_solver_failures": 0,
+    "recovery_solver_failures": 0,
+    "prefix_parity": true
+  }
+}

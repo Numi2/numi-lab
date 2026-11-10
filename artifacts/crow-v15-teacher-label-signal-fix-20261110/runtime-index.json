@@ -1,0 +1,12 @@
+[
+  {
+    "path": "build/crow-v15-teacher-label-signal-fix-20261110/labelfix.metallib",
+    "sha256": "e2f67344346a6dcfe73475bb6c59e8c97732523ae53454a9eb5d69c29c7d939a",
+    "bytes": 4472688
+  },
+  {
+    "path": "build/crow-v15-teacher-label-signal-fix-20261110/verify",
+    "sha256": "3a2f7e5b2a8bd4e31c25c1a62cb4e7cd0508c42bb8b047c1e25ebca18e0516c5",
+    "bytes": 37080
+  }
+]

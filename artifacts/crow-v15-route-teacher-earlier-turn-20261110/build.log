@@ -1,0 +1,5 @@
+/Users/n/Developer/numi-crow-rl-20261107/build/crow-v15-route-teacher-earlier-turn-20261110/earlier.metal:5489:21: warning: unused variable 'seconds' [-Wunused-variable]
+        const float seconds=float(state.episode.x)*dispatch.timing.x;
+                    ^
+1 warning generated.
+earlier b7f1e52ac8ada1dc7a0ce6778bc61bc3ef7ca58a71a6ef207960a7bdead2a8b4

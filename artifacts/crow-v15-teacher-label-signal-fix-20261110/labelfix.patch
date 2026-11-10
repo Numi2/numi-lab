@@ -1,0 +1,19 @@
+--- a/velocity08c.metal
++++ b/supportgate.metal
+@@ -5186,11 +5186,12 @@
+             action
+         ];
+         if (avianJourneyTeacher && fixedFlightController) {
++            const float4 oracleLabel=as_type<float4>(state.threatMetadata);
+             const float4 label = float4(
+-                clamp((state.nutrition.x-0.10f)/0.30f,-1.0f,1.0f),
+-                clamp(state.nutrition.y/0.30f,-1.0f,1.0f),
+-                clamp(state.nutrition.z/0.15f,-1.0f,1.0f),
+-                clamp((state.nutrition.w-0.975f)/0.325f,-1.0f,1.0f));
++                clamp((oracleLabel.x-0.10f)/0.30f,-1.0f,1.0f),
++                clamp(oracleLabel.y/0.30f,-1.0f,1.0f),
++                clamp(oracleLabel.z/0.15f,-1.0f,1.0f),
++                clamp((oracleLabel.w-0.975f)/0.325f,-1.0f,1.0f));
+             const bool expertLabel = commandOffset != 0u &&
+                 action >= commandOffset && action < commandOffset + 4u;
+             teacherActions[actionBase + action] = action < 4u
