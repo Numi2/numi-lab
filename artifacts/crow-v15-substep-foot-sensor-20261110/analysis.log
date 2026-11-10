@@ -1,0 +1,28 @@
+{
+  "parity": true,
+  "differences": [],
+  "frames": [
+    4500,
+    4500
+  ],
+  "step4394_expected_toe_impulses": [
+    0.08573995172999997,
+    0.08545017045000002
+  ],
+  "step4394_sensor_impulses": [
+    0.08573995530605316,
+    0.08545016497373581
+  ],
+  "step4394_absolute_errors": [
+    3.5760531896800174e-09,
+    5.476264205994674e-09
+  ],
+  "impulse_match": true,
+  "timestamp_offset": -1,
+  "window_impulse_differences": [],
+  "zero_samples": [
+    4380,
+    4385,
+    4390
+  ]
+}

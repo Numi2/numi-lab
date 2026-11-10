@@ -1,0 +1,31 @@
+--- a/teacher.metal
++++ b/teacher.metal
+@@ -2392,6 +2392,28 @@
+         return;
+     }
+     MRTaskStateGPU state = taskStates[environment];
++    if ((program.schedule.w & MR_TASK_PROGRAM_AVIAN_CROW_HIERARCHICAL_NAVIGATION) != 0u &&
++        state.episode.z == 10u && state.navigation.z >= 5.0f && program.counts0.w >= 2u && dispatch.counts.w == 30u) {
++        float2 accumulated = pass.physicsSubstep == 0u ? float2(0.0f) : as_type<float2>(state.threatMetadata.zw);
++        const MRMetalWorldContactStatusGPU cs = contactStatuses[environment];
++        if (cs.code == MR_STEP_SUCCESS) {
++            device const MRTaskContactGroupGPU* groups = taskTable<MRTaskContactGroupGPU>(arena, program.offsets0.w);
++            device const uint* members = taskTable<uint>(arena, program.offsets1.x);
++            const uint base=environment*contactDispatch.constraintStride;
++            for (uint i=0u;i<min(cs.activeContacts,contactDispatch.constraintCapacity);++i) {
++                const MRContactConstraintGPU c=contacts[base+i];
++                const bool ra=c.bodyA>=program.articulation.x && c.bodyA<program.articulation.x+program.articulation.y;
++                const bool rb=c.bodyB>=program.articulation.x && c.bodyB<program.articulation.x+program.articulation.y;
++                if (ra==rb) continue;
++                const uint body=ra ? c.bodyA : c.bodyB;
++                if (bodyMember(body,groups[0],members)) accumulated.x += abs(c.impulses.x);
++                if (bodyMember(body,groups[1],members)) accumulated.y += abs(c.impulses.x);
++            }
++        }
++        state.threatMetadata.zw=as_type<uint2>(accumulated);
++        taskStates[environment]=state;
++        return;
++    }
+     if (!impactSequenceEnabled(state) ||
+         impactScene(state) == 0u ||
+         impactOrder(state) >= program.counts3.x) {

@@ -1,0 +1,22 @@
+[
+  {
+    "path": "build/crow-v15-substep-foot-sensor-20261110/libmetalrobo.dylib",
+    "sha256": "fe445fd6f9c03bfd9ecbc6a10bc044efad8bd5c0e4952b268a4838601335fc09",
+    "bytes": 5765024
+  },
+  {
+    "path": "build/crow-v15-substep-foot-sensor-20261110/teacher.metallib",
+    "sha256": "d3175d5e051850d97cb99a5314c597f7bfa09cb1f3691dc18b11d39d7f5280f9",
+    "bytes": 4475664
+  },
+  {
+    "path": "build/crow-v15-heavy-wing-route-20261110/landing.policypack",
+    "sha256": "5aefc2dcee421c6e3bdca39a024191fa243404b06190952ef02bf9f9e479eced",
+    "bytes": 5996441
+  },
+  {
+    "path": "build/crow-v15-heavy-wing-route-20261110/route.policypack",
+    "sha256": "9a7ad3d578153f77c1d1d657978f313cb4bb1220404ca724196a1a43b08d4830",
+    "bytes": 17228695
+  }
+]

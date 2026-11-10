@@ -1,0 +1,20 @@
+--- a/MetalWorld.mm
++++ b/MetalWorld.mm
+@@ -20274,7 +20274,7 @@
+                 auto* states = static_cast<const MRTaskStateGPU*>(stateBuffer.contents);
+                 if (states != nullptr) for (std::uint32_t lane = 0; lane < pending->diagnostics.layout.dispatch.environmentCount; ++lane) {
+                     const auto& x = states[lane];
+-                    std::fprintf(stderr, "CROW_TASK_STATE %u %u %u %.9g %.9g %.9g %.9g %.9g %.9g\n", lane, x.episode.x, x.status.w, x.navigation.z, x.nutrition.x, x.nutrition.y, x.threatTeacher.w, x.nutrition.w, x.commandExtension.z);
++                    std::fprintf(stderr, "CROW_TASK_STATE %u %u %u %.9g %.9g %.9g %.9g %.9g %.9g %u %u\n", lane, x.episode.x, x.status.w, x.navigation.z, x.nutrition.x, x.nutrition.y, x.threatTeacher.w, x.nutrition.w, x.commandExtension.z, x.threatMetadata.z, x.threatMetadata.w);
+                 }
+             }
+             const auto end = std::chrono::steady_clock::now();
+@@ -21218,7 +21218,7 @@
+                  MR_METAL_WORLD_HAS_BODY_WRENCHES) != 0u;
+             const bool taskTracksImpactContacts =
+                 nativeTask &&
+-                !config.taskProgram.impactEvents().empty();
++                (!config.taskProgram.impactEvents().empty() || std::getenv("CROW_SUBSTEP_FOOT_SENSOR") != nullptr);
+             const bool taskHasThreatTeacher =
+                 nativeTask &&
+                 (config.taskProgram.header().schedule.w &
