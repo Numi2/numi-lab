@@ -1,0 +1,41 @@
+{
+  "remote_commit": "b2c48cc581adcac675720ce9657ccbbdbcfb884e",
+  "retired": [
+    {
+      "raw": "build/crow-v15-long-perch-host-20261110/i-student-landing.json",
+      "archive": "artifacts/crow-v15-student-landing-eval-20261110/i-student-landing.json.gz",
+      "sha256": "ccb0eef263d04ef5358eed39eb07b00cbe843e73981d7da117e7b491affbce83",
+      "bytes": 229487076
+    },
+    {
+      "raw": "build/crow-v15-long-perch-host-20261110/i-student-landing.tsv",
+      "archive": "artifacts/crow-v15-student-landing-eval-20261110/i-student-landing.tsv.gz",
+      "sha256": "ba617ae0321c47b4696e4134479a2294efccf967d858f3b0c622336a6f4024f8",
+      "bytes": 5035863
+    },
+    {
+      "raw": "build/crow-v15-long-perch-host-20261110/j-fresh.json",
+      "archive": "artifacts/crow-v15-fresh-start-dev-20261110/j-fresh.json.gz",
+      "sha256": "7c7bad4bd30a00c2ab9a9525777fe9d5bc279723bdba17eb08adb67391dbb17a",
+      "bytes": 236402720
+    },
+    {
+      "raw": "build/crow-v15-long-perch-host-20261110/j-fresh.tsv",
+      "archive": "artifacts/crow-v15-fresh-start-dev-20261110/j-fresh.tsv.gz",
+      "sha256": "70a9171299fd306e026bdfc1bd245ff2fcececabe0d976e61b329903124e4329",
+      "bytes": 5081408
+    },
+    {
+      "raw": "build/crow-v15-long-perch-host-20261110/i-fresh.json",
+      "archive": "artifacts/crow-v15-fresh-start-dev-20261110/i-fresh.json.gz",
+      "sha256": "c8e0844858822c37986b81c972b5f9e1568ceca0afa710d21f06564d93cedcf4",
+      "bytes": 232981971
+    },
+    {
+      "raw": "build/crow-v15-long-perch-host-20261110/i-fresh.tsv",
+      "archive": "artifacts/crow-v15-fresh-start-dev-20261110/i-fresh.tsv.gz",
+      "sha256": "27c2b7198fe5b15a2093ec14afadbc96934a062309720a18ffbf9a7a65c4778c",
+      "bytes": 5042857
+    }
+  ]
+}
