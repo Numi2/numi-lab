@@ -1,0 +1,53 @@
+{
+  "remote_commit": "0ba6ab5fe466ec127d7d66c6a2255ad1f7f9c0b6",
+  "retired": [
+    {
+      "raw": "build/crow-v15-ccd-budget-20261110/development-j-pose-trim.json",
+      "archive": "artifacts/crow-v15-pose-trim-20261110/development-j-pose-trim.json.gz",
+      "sha256": "1a29d0e3a0da79821f1b81d487df39d5c5fdc7f642465855000ccc5fc8ec5e9d",
+      "bytes": 166958890
+    },
+    {
+      "raw": "build/crow-v15-ccd-budget-20261110/development-j-pose-trim.tsv",
+      "archive": "artifacts/crow-v15-pose-trim-20261110/development-j-pose-trim.tsv.gz",
+      "sha256": "6a9788d25eb1ba8c93425dc108c503823d9a84c21b363d3e9eb6bdf7d3a7408c",
+      "bytes": 3613010
+    },
+    {
+      "raw": "build/crow-v15-ccd-budget-20261110/development-j-pose-trim-strong.json",
+      "archive": "artifacts/crow-v15-pose-trim-strong-20261110/development-j-pose-trim-strong.json.gz",
+      "sha256": "aa38cb6b4400f16b0bbb760405e2da852b06a3373b96d7187c1313b2ff29e4ac",
+      "bytes": 166343611
+    },
+    {
+      "raw": "build/crow-v15-ccd-budget-20261110/development-j-pose-trim-strong.tsv",
+      "archive": "artifacts/crow-v15-pose-trim-strong-20261110/development-j-pose-trim-strong.tsv.gz",
+      "sha256": "d0bea79ac0f064cdb80ec4daef8524fbb1526c9a107186461151cbaa5f3697b9",
+      "bytes": 3610432
+    },
+    {
+      "raw": "build/crow-v15-ccd-budget-20261110/development-j-support-debounce.json",
+      "archive": "artifacts/crow-v15-support-debounce-20261110/development-j-support-debounce.json.gz",
+      "sha256": "b30b8bc95d2d38802117e0b840c81bda2a380a396a907111c870596e8ceab942",
+      "bytes": 166718475
+    },
+    {
+      "raw": "build/crow-v15-ccd-budget-20261110/development-j-support-debounce.tsv",
+      "archive": "artifacts/crow-v15-support-debounce-20261110/development-j-support-debounce.tsv.gz",
+      "sha256": "f7c13c455990237aca1e5cb15ec591a178f87fc8566dcb98e87056140682e359",
+      "bytes": 3614817
+    },
+    {
+      "raw": "build/crow-v15-ccd-budget-20261110/development-j-coordinated-perch.json",
+      "archive": "artifacts/crow-v15-coordinated-perch-20261110/development-j-coordinated-perch.json.gz",
+      "sha256": "7f4a621de5efb1ebcbbebebc8bc23ca37022bff41613599e88759507a420be62",
+      "bytes": 166948623
+    },
+    {
+      "raw": "build/crow-v15-ccd-budget-20261110/development-j-coordinated-perch.tsv",
+      "archive": "artifacts/crow-v15-coordinated-perch-20261110/development-j-coordinated-perch.tsv.gz",
+      "sha256": "88b09005ba176546686c5f3a2b9699bd9ef48316995ee3893d608b50503d1c84",
+      "bytes": 3608929
+    }
+  ]
+}
