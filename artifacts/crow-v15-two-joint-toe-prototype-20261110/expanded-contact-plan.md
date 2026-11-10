@@ -1,0 +1,3 @@
+# Expanded-body contact prototype
+
+The corrected explicit 40-body shader passed standalone free-space CPU/GPU screening; previous GPU rejection loaded the standard 32-body shader. Before trying the ground screening, build an isolated library with the 40-body bound consistently applied to the relevant host validation and articulated dynamics shaders. Keep all production objects and the body unchanged. First verify standard-body collision controls and then the two-joint body with toe collision both disabled and enabled; record solver and physical observations separately. This screens only static contact, not gait, grip, flight or a qualified full-world path.

@@ -1,0 +1,20 @@
+--- a/MetalArticulatedABA.mm
++++ b/MetalArticulatedABA-expanded.mm
+@@ -227,7 +227,7 @@
+ ) {
+     if (articulation.bodyCount == 0u ||
+         articulation.bodyCount >
+-            MR_ARTICULATED_ABA_MAX_BODIES ||
++            40u ||
+         articulation.nv == 0u ||
+         articulation.nv > MR_ARTICULATED_ABA_MAX_DOFS ||
+         articulation.nq > MR_ARTICULATED_ABA_MAX_Q) {
+@@ -488,7 +488,7 @@
+         )) {
+         const bool capacity =
+             articulation.bodyCount >
+-                MR_ARTICULATED_ABA_MAX_BODIES ||
++                40u ||
+             articulation.nv >
+                 MR_ARTICULATED_ABA_MAX_DOFS ||
+             articulation.nq > MR_ARTICULATED_ABA_MAX_Q;

@@ -1,0 +1,19 @@
+{
+  "body_cap": 40,
+  "metallib_sha256": "9f740b03e44cd61fe89f27777dcab2382ea53b2d3d3752ef1de60483fb6ce450",
+  "library_sha256": "a383043c46eb7037891b7edf17093d2ac13e4afa3f77132d9c40567633b2afde",
+  "recompiled_hosts": [
+    "MetalArticulatedABA",
+    "MetalArticulatedInverseMass",
+    "MetalMultiArticulatedABA",
+    "MetalMultiArticulatedInverseMass",
+    "MetalMultiArticulatedContact",
+    "MetalWorld"
+  ],
+  "recompiled_shaders": [
+    "ArticulatedABA",
+    "ArticulatedInverseMass",
+    "FunctionBasedDenseDynamics"
+  ],
+  "warning": "isolated screening only"
+}

@@ -1,0 +1,8 @@
+{
+  "host_sha256": "0ae773f784ff48315e8f3458281216156c0c9bab08e8dd115b5924788a9ed80a",
+  "metallib_sha256": "4ee4c73c20741f10cd79668300d2a9f17d0c5955f580ac3c6d7e3b5116db682e",
+  "library_sha256": "a4f38339ed3da18c11898de9eb83e1e2425946dccb3110ab65d53571bd6b4d48",
+  "probe_sha256": "dbba09c67dd69cc1ca2369c3d4c1180e3db283bfc2d697a6d3f2c87d33d5479f",
+  "max_bodies": 40,
+  "note": "Standalone ABA only; no other solver or production runtime modified."
+}

@@ -1,0 +1,11 @@
+from pathlib import Path
+import subprocess,shlex,difflib,hashlib,json
+R=Path.cwd();A=R/'artifacts/crow-v15-two-joint-toe-prototype-20261110';B=R/'build/crow-v15-two-joint-toe-prototype-20261110';src=R/'src/metal/MetalArticulatedABA.mm';old=src.read_text();assert old.count('MR_ARTICULATED_ABA_MAX_BODIES')==2;s=old.replace('MR_ARTICULATED_ABA_MAX_BODIES','40u');host=B/'MetalArticulatedABA-expanded.mm';host.write_text(s);(A/'expanded-aba-host.patch').write_text(''.join(difflib.unified_diff(old.splitlines(True),s.splitlines(True),fromfile='a/MetalArticulatedABA.mm',tofile='b/MetalArticulatedABA-expanded.mm')))
+air=B/'ArticulatedABA-40.air';subprocess.run(['xcrun','-sdk','macosx','metal','-std=metal4.0','-O3','-fno-fast-math','-DMR_ABA_COMPILED_MAX_BODIES=40','-I',str(R/'include'),'-c',str(R/'src/metal/ArticulatedABA.metal'),'-o',str(air)],check=True)
+other=sorted(p for p in (R/'build/shaders').glob('MetalRobo*.air') if p.name!='MetalRoboArticulatedABA.air');metallib=B/'expanded-aba.metallib';subprocess.run(['xcrun','-sdk','macosx','metallib',*[str(x) for x in other],str(air),'-o',str(metallib)],check=True)
+lines=subprocess.check_output(['/opt/homebrew/bin/ninja','-C',str(R/'build'),'-t','commands'],text=True).splitlines();line=next(x for x in lines if ' -c '+str(src) in x);args=shlex.split(line);obj=B/'MetalArticulatedABA-expanded.mm.o'
+for k,v in [('-o',str(obj)),('-MF',str(obj)+'.d'),('-MT',str(obj))]:args[args.index(k)+1]=v
+args[-1]=str(host);args=[('-DMETALROBO_DEFAULT_METALLIB="'+str(metallib)+'"') if x.startswith('-DMETALROBO_DEFAULT_METALLIB=') else x for x in args];subprocess.run(args,cwd=R/'build',check=True)
+line=next(x for x in lines if x.startswith(': && /usr/bin/c++') and '-dynamiclib' in x and ' -o lib/libmetalrobo.dylib ' in x);args=shlex.split(line[len(': && '):-len(' && :')]);lib=B/'libmetalrobo.dylib';args[args.index('-o')+1]=str(lib);args[args.index('CMakeFiles/metalrobo.dir/src/metal/MetalArticulatedABA.mm.o')]=str(obj);subprocess.run(args,cwd=R/'build',check=True)
+def h(p):return hashlib.sha256(p.read_bytes()).hexdigest()
+(A/'expanded-aba-bindings.json').write_text(json.dumps({'host_sha256':h(host),'metallib_sha256':h(metallib),'library_sha256':h(lib),'probe_sha256':h(B/'probe-corrected'),'max_bodies':40,'note':'Standalone ABA only; no other solver or production runtime modified.'},indent=2)+'\n')

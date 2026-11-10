@@ -1,0 +1,22 @@
+[
+  {
+    "path": "build/crow-v15-two-joint-toe-prototype-20261110/expanded-aba.metallib",
+    "sha256": "4ee4c73c20741f10cd79668300d2a9f17d0c5955f580ac3c6d7e3b5116db682e",
+    "bytes": 4464608
+  },
+  {
+    "path": "build/crow-v15-two-joint-toe-prototype-20261110/libmetalrobo.dylib",
+    "sha256": "a4f38339ed3da18c11898de9eb83e1e2425946dccb3110ab65d53571bd6b4d48",
+    "bytes": 5728528
+  },
+  {
+    "path": "build/crow-v15-expanded-contact-20261110/expanded-contact.metallib",
+    "sha256": "9f740b03e44cd61fe89f27777dcab2382ea53b2d3d3752ef1de60483fb6ce450",
+    "bytes": 4463936
+  },
+  {
+    "path": "build/crow-v15-expanded-contact-20261110/libmetalrobo.dylib",
+    "sha256": "a383043c46eb7037891b7edf17093d2ac13e4afa3f77132d9c40567633b2afde",
+    "bytes": 5728528
+  }
+]

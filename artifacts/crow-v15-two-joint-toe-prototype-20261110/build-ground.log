@@ -1,0 +1,5 @@
+In file included from artifacts/crow-v15-two-joint-toe-prototype-20261110/two_joint_ground_probe.cpp:2:
+artifacts/crow-v15-two-joint-toe-prototype-20261110/two_joint_toe_probe.cpp:88:75: warning: non-void function does not return a value in all control paths [-Wreturn-type]
+   88 |  }catch(const std::exception& e){std::cerr<<e.what()<<std::endl;return 1;}}
+      |                                                                           ^
+1 warning generated.
