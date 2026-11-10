@@ -1,0 +1,3 @@
+# Twenty-second continuous perch screen
+
+The lean-aware development candidate passed the eight-second single-start screen. Extend the identical controller and start continuously to 1000 ticks (20 seconds), with no reset or state injection, and require exact first-400-state equality with the previous trial. Require sustained bilateral supported grip, release, no solver failure, <=0.5 mm maximum grip-conditioned overlap, and every one of the last 850 samples supported with toe angles below 0.05 rad. Inspect failure location and body state if it fails. This is a known development stationary start, not varied-start acquisition, a flight approach, a held-out course or validation of crow biology.
