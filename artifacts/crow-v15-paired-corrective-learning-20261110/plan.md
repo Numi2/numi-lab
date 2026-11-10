@@ -1,0 +1,3 @@
+# Paired corrective routing learning
+
+Initialize from the previous corrective actor and retain only previously qualified sources. Add fresh J's successful full teacher recovery with 2049 exact student-prefix frames and exact matched teacher route to waypoint five; retain fresh I's separately qualified recovery. Exclude the unsuccessful J recoveries and all landing labels. Train the active command block with existing stage balancing and early/output anchors. Freeze the actor before teacher-off evaluation on both difficult starts, followed by the original development starts, without tuning between trials. Flight and contact controllers remain unchanged; final K/L remain untouched. In-trajectory loss is not an independent success measure.

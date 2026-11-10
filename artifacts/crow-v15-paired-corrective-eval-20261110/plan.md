@@ -1,0 +1,3 @@
+# Paired correction teacher-off full-start evaluation
+
+Before running, freeze the paired corrective actor and the existing flight, gait, toe and terminal controllers. Run difficult J, difficult I, original J, original I in that order, without tuning between them, from the corresponding previously recorded reset seeds; teacher off, full starts, no intermediate resets, 7000 steps. Record first fatal pair and state, minimum accepted-step obstacle clearance, five-waypoint progress, flight toe behavior, opposition and release, and sustained bilateral support. All are development cases and include source trajectories used for training; none are held out. K/L remain unused until the development result and physical grip qualify.
