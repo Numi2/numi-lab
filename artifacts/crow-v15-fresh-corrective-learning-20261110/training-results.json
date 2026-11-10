@@ -1,0 +1,248 @@
+{
+  "sources": [
+    {
+      "source": "initial_j",
+      "included": true,
+      "rollout_sha256": "a1bf3cd8702f1d7dc923317b5675102a58f74c5f56675d1c994842cd5af2bddf",
+      "samples": 559,
+      "end_before_waypoint_5_step": 2794,
+      "student_takeover": 1100,
+      "label_stage_mismatches": 1,
+      "expert_group_counts": [
+        442,
+        52,
+        39,
+        26
+      ]
+    },
+    {
+      "source": "late_j",
+      "included": true,
+      "rollout_sha256": "d91517b0c82daeb40e606ac1716b1c926a42e8711eee94484fb6f4631b86e9f0",
+      "samples": 533,
+      "end_before_waypoint_5_step": 2664,
+      "student_takeover": 2050,
+      "label_stage_mismatches": 0,
+      "expert_group_counts": [
+        418,
+        51,
+        39,
+        25
+      ]
+    },
+    {
+      "source": "i",
+      "included": true,
+      "rollout_sha256": "0b10f2510640a41652097aeb3dde2c260349dd7c25ea2405ee2741c293d9a94e",
+      "samples": 548,
+      "end_before_waypoint_5_step": 2739,
+      "student_takeover": 1800,
+      "label_stage_mismatches": 0,
+      "expert_group_counts": [
+        426,
+        47,
+        47,
+        28
+      ]
+    },
+    {
+      "source": "corrective_i",
+      "included": true,
+      "rollout_sha256": "11a27215a6e4da3c2a0c10776cfd1d2a0dd9920c5df4b7c698d110afafc63b4f",
+      "samples": 546,
+      "end_before_waypoint_5_step": 2732,
+      "student_takeover": 1700,
+      "label_stage_mismatches": 0,
+      "expert_group_counts": [
+        425,
+        48,
+        46,
+        27
+      ]
+    },
+    {
+      "source": "anchored_j",
+      "included": true,
+      "rollout_sha256": "fe528af5a58c5dafea376e2d9cec35390013cf8eea53207c5d7da69e0fb9f604",
+      "samples": 539,
+      "end_before_waypoint_5_step": 2696,
+      "student_takeover": 2000,
+      "label_stage_mismatches": 1,
+      "expert_group_counts": [
+        423,
+        51,
+        40,
+        25
+      ]
+    },
+    {
+      "source": "anchored_i",
+      "included": false,
+      "reason": "failed qualification"
+    },
+    {
+      "source": "approach_early_j",
+      "included": true,
+      "rollout_sha256": "c42153c0731e95410c07fd45043c93c2fe8b09c675aa632d3a7bbb49fc131376",
+      "samples": 538,
+      "end_before_waypoint_5_step": 2691,
+      "student_takeover": 2100,
+      "label_stage_mismatches": 0,
+      "expert_group_counts": [
+        422,
+        52,
+        39,
+        25
+      ]
+    },
+    {
+      "source": "approach_early_i",
+      "included": false,
+      "reason": "failed qualification"
+    },
+    {
+      "source": "foot_i",
+      "included": true,
+      "rollout_sha256": "5d5cc75483d91a125d89973d2e196ccbd4ce79388e31d8b2a85e46fa2d16bc7d",
+      "samples": 554,
+      "end_before_waypoint_5_step": 2772,
+      "student_takeover": 2200,
+      "label_stage_mismatches": 1,
+      "expert_group_counts": [
+        429,
+        50,
+        47,
+        28
+      ]
+    },
+    {
+      "source": "placement_j",
+      "included": true,
+      "rollout_sha256": "3f67ba9f1df0b9ee7bb9d7dbc65fd149ce1bfd292c5f6f7b7b44a6e4818ff279",
+      "samples": 540,
+      "end_before_waypoint_5_step": 2702,
+      "student_takeover": 2100,
+      "label_stage_mismatches": 0,
+      "expert_group_counts": [
+        424,
+        52,
+        39,
+        25
+      ]
+    },
+    {
+      "source": "newactor_j",
+      "included": true,
+      "rollout_sha256": "9dbf0b1c6e367bbc04fade1afeb027d1c56ee2766bb2cd6af09b7c90d106428f",
+      "samples": 546,
+      "end_before_waypoint_5_step": 2732,
+      "student_takeover": 2200,
+      "label_stage_mismatches": 0,
+      "expert_group_counts": [
+        423,
+        55,
+        42,
+        26
+      ]
+    },
+    {
+      "source": "newactor_i",
+      "included": true,
+      "rollout_sha256": "e8d46bb1d0bba931af63f22261b3a98ef45663e87fbf881534e2897b4992a846",
+      "samples": 549,
+      "end_before_waypoint_5_step": 2743,
+      "student_takeover": 2100,
+      "label_stage_mismatches": 1,
+      "expert_group_counts": [
+        429,
+        46,
+        46,
+        28
+      ]
+    },
+    {
+      "source": "fresh_i",
+      "included": true,
+      "rollout_sha256": "90d1ccfaf168b2f0718d0401e595627fcae52ec6e379206c5189c058c3cce0d9",
+      "samples": 550,
+      "end_before_waypoint_5_step": 2749,
+      "student_takeover": 2050,
+      "label_stage_mismatches": 1,
+      "expert_group_counts": [
+        424,
+        61,
+        38,
+        27
+      ]
+    }
+  ],
+  "initial_policy_sha256": "ab5df46f36bfd5cbb30cf03ea592df3cba0356e5a6434a16ab636621318ec763",
+  "output_policy_sha256": "90ed7368cb88c6e59d997696c99bcbddf0410034e147b763fa084ce81ccf4128",
+  "seed": 20261111,
+  "train_samples": 4798,
+  "in_trajectory_validation_samples": 1204,
+  "train_stage_counts": [
+    3204,
+    539,
+    452,
+    370,
+    233
+  ],
+  "initial_validation_mae": [
+    0.0037745293229818344,
+    0.06586561352014542,
+    0.11609333753585815,
+    0.03211222589015961
+  ],
+  "history": [
+    {
+      "epoch": 1,
+      "train_loss": 0.04518250503430241,
+      "in_trajectory_validation_mae": [
+        0.005027151666581631,
+        0.06789200007915497,
+        0.11032283306121826,
+        0.038751713931560516
+      ],
+      "head_mse": 0.0,
+      "seconds": 0.31
+    },
+    {
+      "epoch": 20,
+      "train_loss": 0.00973093024405994,
+      "in_trajectory_validation_mae": [
+        0.003143821842968464,
+        0.052745915949344635,
+        0.10629437863826752,
+        0.02889047935605049
+      ],
+      "head_mse": 0.0,
+      "seconds": 1.19
+    },
+    {
+      "epoch": 60,
+      "train_loss": 0.007731835039234475,
+      "in_trajectory_validation_mae": [
+        0.003350289072841406,
+        0.051743920892477036,
+        0.1041366383433342,
+        0.026395011693239212
+      ],
+      "head_mse": 0.0,
+      "seconds": 3.0
+    },
+    {
+      "epoch": 120,
+      "train_loss": 0.007901892041493403,
+      "in_trajectory_validation_mae": [
+        0.002790627768263221,
+        0.05205328017473221,
+        0.10740534961223602,
+        0.023902183398604393
+      ],
+      "head_mse": 0.0,
+      "seconds": 5.7
+    }
+  ],
+  "limits": "Development trajectories and in-trajectory diagnostic only; no terminal landing samples or independent holdout."
+}

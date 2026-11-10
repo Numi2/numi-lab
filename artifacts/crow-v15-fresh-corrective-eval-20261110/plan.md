@@ -1,0 +1,3 @@
+# Teacher-off corrective full-sequence evaluation
+
+Freeze the trained actor, the existing flight controller, gait and terminal controller. Run the same fresh-start development J then I seeds from the prior trial with teacher off and no intermediate reset, 7000 steps, no tuning between trials. Record first failure, waypoint completion, clearance, toe flight motion, grip/release, and sustained support. J failed previously and I supplied qualified corrective examples; neither is held out. Preserve both failures and successes. No final K/L test until development robustness and full physical sequence are qualified.
