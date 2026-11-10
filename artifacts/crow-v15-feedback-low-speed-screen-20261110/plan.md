@@ -1,0 +1,3 @@
+# Low-speed envelope exploration
+
+For the estimated-wing research body and frozen-for-this-test gain-1 flight candidate, apply the existing five-mode 80-lane, 1600-step ground-start screen at 0.15, 0.25, and 0.35 m/s with respectively preselected development seeds 18722201, 18722239 and 18722273. Require the same sampled heading, lateral-speed, forward-speed, height, toe-speed and survival limits and median climb/descent separation as the previous envelope plan. These are slower than the 0.4–0.85 m/s tested range; passing would only extend the sampled simulation envelope, not establish near-zero-speed hovering, landing, biological realism or route autonomy. Record all failures and do not use final layouts or seeds.
