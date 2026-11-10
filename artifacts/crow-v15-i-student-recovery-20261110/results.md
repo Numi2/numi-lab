@@ -1,0 +1,5 @@
+# Student-state recovery on development I
+
+The first 1799 accepted q, v, actor-observation and recorded-action frames exactly matched the teacher-off candidate. The guide took over at step 1800, before the candidate's near contact at step 1975. The first continuous episode reached five waypoints at step 2739 and ended at step 7000 with no recorded physical or solver failure or sampled nonfoot-perch contact. The terminal bilateral-load streak was 2880 endpoints (57.60 seconds). The longest simultaneous opposing-toe-force streak was 2788 sampled endpoints (55.76 seconds); force gaps remain, so the earlier strict entire-supported-remainder criterion is not established.
+
+The validated student-visited and physically reached routing prefix is eligible for exploratory corrective training. This one privileged recovery on a previously used layout does not establish autonomous success or unseen-layout performance; exclude the landing segment from qualified whole-sequence claims. The rollout and exact prefix comparison are retained.
