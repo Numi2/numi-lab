@@ -1,0 +1,11 @@
+{
+  "remote_commit": "b7c1ab18847b6827890107270c14c6e1e39b8a60",
+  "retired": [
+    {
+      "raw": "artifacts/crow-v15-bilateral-toe-regulation-20261110/results.txt",
+      "archive": "artifacts/crow-v15-bilateral-toe-regulation-20261110/results.txt.gz",
+      "sha256": "253a75fcb24691b4656b354fe3308f66708987bf519cf61a78cc23f2820acf68",
+      "bytes": 2840632
+    }
+  ]
+}
