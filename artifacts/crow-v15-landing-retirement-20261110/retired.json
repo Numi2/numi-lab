@@ -1,0 +1,58 @@
+[
+  {
+    "path": "build/crow-v15-integrated-route-baseline-20261110/diagnostic-reserved-final-j-hip_plus.json",
+    "archive": "artifacts/crow-v15-landing-joint-identification-20261110/diagnostic-reserved-final-j-hip_plus.json.gz",
+    "sha256": "d1bb271f522f98efe4a71290a01c9e99d34b8d1113f5041408c72dd1c31b8e7a",
+    "bytes": 100302117,
+    "restored_commit": "3cbdc4d2e"
+  },
+  {
+    "path": "build/crow-v15-integrated-route-baseline-20261110/diagnostic-reserved-final-j-hip_plus.tsv",
+    "archive": "artifacts/crow-v15-landing-joint-identification-20261110/diagnostic-reserved-final-j-hip_plus.tsv.gz",
+    "sha256": "6c4d690a55520b147eb8038a35b20e56097bce5b5d1f33049e4faa50158764c5",
+    "bytes": 2182408,
+    "restored_commit": "3cbdc4d2e"
+  },
+  {
+    "path": "build/crow-v15-integrated-route-baseline-20261110/diagnostic-reserved-final-j-hip_minus.json",
+    "archive": "artifacts/crow-v15-landing-joint-identification-20261110/diagnostic-reserved-final-j-hip_minus.json.gz",
+    "sha256": "96681258fc3586a59b7f04157f4692e2130809007b425d99b447ff4b0d5ec48f",
+    "bytes": 100306957,
+    "restored_commit": "3cbdc4d2e"
+  },
+  {
+    "path": "build/crow-v15-integrated-route-baseline-20261110/diagnostic-reserved-final-j-hip_minus.tsv",
+    "archive": "artifacts/crow-v15-landing-joint-identification-20261110/diagnostic-reserved-final-j-hip_minus.tsv.gz",
+    "sha256": "677a0e3bf67ea02305af1c7fe177bc861fc29a63a51f5301c1cc86508c20bdb8",
+    "bytes": 2182006,
+    "restored_commit": "3cbdc4d2e"
+  },
+  {
+    "path": "build/crow-v15-integrated-route-baseline-20261110/diagnostic-reserved-final-j-ankle_plus.json",
+    "archive": "artifacts/crow-v15-landing-joint-identification-20261110/diagnostic-reserved-final-j-ankle_plus.json.gz",
+    "sha256": "eebf50fd89341804f97cf70a95375e7f19ded3c1a8c71bba0ed7519a7ae3b4a8",
+    "bytes": 100312065,
+    "restored_commit": "3cbdc4d2e"
+  },
+  {
+    "path": "build/crow-v15-integrated-route-baseline-20261110/diagnostic-reserved-final-j-ankle_plus.tsv",
+    "archive": "artifacts/crow-v15-landing-joint-identification-20261110/diagnostic-reserved-final-j-ankle_plus.tsv.gz",
+    "sha256": "2ab19c8fbbc976cd524002d1a6ef6776db161e4a158a15d139a16857173b415a",
+    "bytes": 2182140,
+    "restored_commit": "3cbdc4d2e"
+  },
+  {
+    "path": "build/crow-v15-integrated-route-baseline-20261110/diagnostic-reserved-final-j-ankle_minus.json",
+    "archive": "artifacts/crow-v15-landing-joint-identification-20261110/diagnostic-reserved-final-j-ankle_minus.json.gz",
+    "sha256": "9a87e24faa26dc7766e90c5160f0181e872dfccd580da01a205a25b4256a8377",
+    "bytes": 100314505,
+    "restored_commit": "3cbdc4d2e"
+  },
+  {
+    "path": "build/crow-v15-integrated-route-baseline-20261110/diagnostic-reserved-final-j-ankle_minus.tsv",
+    "archive": "artifacts/crow-v15-landing-joint-identification-20261110/diagnostic-reserved-final-j-ankle_minus.tsv.gz",
+    "sha256": "8e56fb741d51f3c1e7339ae22875635261dc4b0893b43b15f398a65353079a88",
+    "bytes": 2182358,
+    "restored_commit": "3cbdc4d2e"
+  }
+]

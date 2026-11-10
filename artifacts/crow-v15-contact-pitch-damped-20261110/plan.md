@@ -1,0 +1,1 @@
+Test symmetric bounded hip and ankle pitch feedback at intermediate strength informed by the measured joint pulse response, only after sustained bilateral toe load, with the bounce reopening fix retained. Two used J starts, full teacher-off 4500-step trials; assess sustained support and grip. No artificial root wrench is added during landing.

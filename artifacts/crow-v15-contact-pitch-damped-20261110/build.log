@@ -1,0 +1,5 @@
+/Users/n/Developer/numi-crow-rl-20261107/build/crow-v15-contact-pitch-damped-20261110/damped.metal:5500:21: warning: unused variable 'seconds' [-Wunused-variable]
+        const float seconds=float(state.episode.x)*dispatch.timing.x;
+                    ^
+1 warning generated.
+d0b6091de11629d518d354214cec43a2d02f926c173c06b32f6d1e96b9d36d38
