@@ -1,0 +1,17 @@
+[
+  {
+    "path": "build/crow-v15-perch-force-observer-20261110/libmetalrobo.dylib",
+    "sha256": "a7f394ba656e43fde88fd99808c626fdf4edac84a4eb0ab6fa6601b043866ffd",
+    "bytes": 5763888
+  },
+  {
+    "path": "build/crow-v15-perch-force-observer-20261110/com_probe",
+    "sha256": "54f8f59c697187f859fb29f48abc72830f8db858f1f1c7b15080004d749713f8",
+    "bytes": 64808
+  },
+  {
+    "path": "build/crow-v15-perch-toe-damped-20261110/velocity08c.metallib",
+    "sha256": "9ac9995b8a45e344ec3442c6146bb71297b847d405ccfc4490f921f8985baf50",
+    "bytes": 4472624
+  }
+]

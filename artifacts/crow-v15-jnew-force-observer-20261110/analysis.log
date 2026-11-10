@@ -1,0 +1,9 @@
+2480 pitch 0.054 rate 0.101 support-COM x 0.0462 impulse [-0.01408, -0.00033, 0.02906] pitch impulse 0.001136
+2500 pitch 0.018 rate -0.141 support-COM x 0.0292 impulse [-0.00014, 0.00318, 0.02148] pitch impulse -0.000603
+2525 pitch -0.055 rate -0.153 support-COM x 0.0282 impulse [-9e-05, 2e-05, 0.02205] pitch impulse -0.000607
+2550 pitch -0.153 rate -0.244 support-COM x 0.0451 impulse [-0.00014, -0.0, 0.02202] pitch impulse -0.00097
+2575 pitch -0.308 rate -0.384 support-COM x 0.0709 impulse [-0.00019, -1e-05, 0.02194] pitch impulse -0.001525
+2600 pitch -0.548 rate -0.583 support-COM x 0.1072 impulse [-0.00017, 0.0, 0.02177] pitch impulse -0.00231
+2625 pitch -0.898 rate -0.812 support-COM x 0.1485 impulse [5e-05, 0.0, 0.02161] pitch impulse -0.003212
+2640 pitch -1.148 rate -0.787 support-COM x 0.1658 impulse [0.00038, 0.0, 0.02177] pitch impulse -0.0031
+parity 2982 mismatches 0
