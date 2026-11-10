@@ -1,0 +1,72 @@
+{
+  "first_release_step": 6657,
+  "before_100": {
+    "samples": 100,
+    "bilateral_front": 81,
+    "bilateral_rear": 100,
+    "bilateral_opposed": 81,
+    "mean_max_toe_abs_rad": 1.0763328216,
+    "maximum_toe_abs_rad": 1.08108222,
+    "last_toe_angles": [
+      1.07467318,
+      1.07631016,
+      1.07541549,
+      0.806018829,
+      1.07309806,
+      1.07526922,
+      1.07341003,
+      0.793864131
+    ]
+  },
+  "after_early": {
+    "samples": 100,
+    "bilateral_front": 71,
+    "bilateral_rear": 0,
+    "bilateral_opposed": 0,
+    "mean_max_toe_abs_rad": 0.02645026201475,
+    "maximum_toe_abs_rad": 0.0424471088,
+    "last_toe_angles": [
+      -0.0418350436,
+      -0.040563941,
+      -0.0403905995,
+      0.000129544918,
+      -0.040570043,
+      -0.0409174562,
+      -0.0407601707,
+      0.000129492211
+    ]
+  },
+  "after_late": {
+    "samples": 100,
+    "bilateral_front": 100,
+    "bilateral_rear": 0,
+    "bilateral_opposed": 0,
+    "mean_max_toe_abs_rad": 0.045171006503,
+    "maximum_toe_abs_rad": 0.0476565249,
+    "last_toe_angles": [
+      -0.0441925749,
+      -0.0425181165,
+      -0.0337138176,
+      0.000129582098,
+      -0.0351963714,
+      -0.0386073254,
+      -0.0467968881,
+      0.000129561842
+    ]
+  },
+  "early_load": {
+    "samples": 100,
+    "bilateral_loaded": 100
+  },
+  "late_load": {
+    "samples": 100,
+    "bilateral_loaded": 100
+  },
+  "last_state": {
+    "nav": 5.0,
+    "left_load_n": 5.03606129,
+    "right_load_n": 5.08661222,
+    "phase": 3.0
+  },
+  "limitations": "Automatic event on accepted bilateral support, not learned departure; endpoint contact sampling does not prove toe clearance or uninterrupted substeps."
+}

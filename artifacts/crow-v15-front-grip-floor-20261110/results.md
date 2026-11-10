@@ -1,0 +1,5 @@
+# Supported front-toe closure floor: rejected
+
+Both matched original-start development runs reached five waypoints, opened the toes and remained bilaterally loaded through step 7000, with no reported fatal or solver failure or nonfoot perch contact. On J, opposing contact in the 100 sampled endpoints before release fell from 86 with the baseline to 80 with the increased front closure floor. On I it increased from 74 to 81, still below the preregistered 95/100 threshold; the I release event also shifted later, from 5565 to 6657. The initially observed correlation between lower commanded target and absent opposition did not predict a robust improvement. The candidate is rejected, and no substep confirmation is warranted under the preregistered gate.
+
+These are teacher-off, previously used development layouts with sampled endpoint contact and programmed release. They do not establish uninterrupted grip, force-free toe clearance, biological realism, or untouched-layout performance. See audits, bindings and compressed first-episode traces.
