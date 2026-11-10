@@ -1,0 +1,3 @@
+# Release after a timed stable hold
+
+The counter-lifetime correction caused premature release and loss of support: 100 internal updates corresponded to far fewer than 100 accepted control samples. Before running, latch the first settled support phase timestamp in the reserved threat identifier for this navigation-only experiment, clear it on loss of settled phase, and wait 200 control steps with current bilateral load before opening the eight joints. Compare exact accepted q/v and action prefix against the nonrelease matched recovery, inspect physical toe contact and sustained support before and after, and retain failures. This is privileged routing with a scripted release and does not establish lifted feet or autonomy.
