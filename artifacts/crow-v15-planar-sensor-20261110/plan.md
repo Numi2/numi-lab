@@ -1,0 +1,3 @@
+# Passive planar foot-goal signal
+
+The corrected speed adapter stayed airborne but layout J drifted several metres laterally. Extend the passive delayed diagnostic to y; preserve the prior x encoding and controller. Encode target y (perch centre + 0.55m) minus bilateral foot-midpoint y in 4mm increments, saturated at +/-1m. Confirm first-episode q/v equality to the uninstrumented two-layout baseline and bound absolute y discrepancy against replay to 6mm on first-episode samples. This is approximate privileged simulator state, not visual perception. No controls change in this passive test. Failure of parity or the error bound rejects the proposed feedback.

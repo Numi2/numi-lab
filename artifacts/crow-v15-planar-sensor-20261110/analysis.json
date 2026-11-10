@@ -1,0 +1,18 @@
+[
+  {
+    "layout": "layout-i",
+    "first_episode_steps": 2342,
+    "q_v_bitwise_equal": true,
+    "samples": 630,
+    "max_y_error_m": 0.0022116109728813615,
+    "within_6mm": true
+  },
+  {
+    "layout": "layout-j",
+    "first_episode_steps": 2209,
+    "q_v_bitwise_equal": true,
+    "samples": 949,
+    "max_y_error_m": 0.0026269532442092514,
+    "within_6mm": true
+  }
+]

@@ -1,0 +1,12 @@
+--- a/x-sensor.metal
++++ b/xy-sensor.metal
+@@ -9343,6 +9343,9 @@
+                     const float footX=0.5f*(bodyStates[bodyBase+contactGroups[0].reference.x].position.x+bodyStates[bodyBase+contactGroups[1].reference.x].position.x);
+                     const int mm=int(round(clamp(goal.x-footX,-0.5f,0.5f)*1000.0f));
+                     packed |= uint(mm+512) << 13u;
++                    const float footY=0.5f*(bodyStates[bodyBase+contactGroups[0].reference.x].position.y+bodyStates[bodyBase+contactGroups[1].reference.x].position.y);
++                    const int y4mm=int(round(clamp(goal.y-footY,-1.0f,1.0f)*250.0f));
++                    packed |= uint(y4mm+256) << 23u;
+                 }
+             }
+             state.status.w=packed;
