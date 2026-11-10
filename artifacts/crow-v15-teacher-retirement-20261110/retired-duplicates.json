@@ -1,0 +1,131 @@
+{
+  "remote_verified_commit": "f60c6a2b0",
+  "removed": [
+    {
+      "raw": "build/crow-v15-integrated-route-baseline-20261110/diagnostic-reserved-final-j-original.json",
+      "archive": "artifacts/crow-v15-perch-toe-debounce-20261110/diagnostic-reserved-final-j-original.json.gz",
+      "sha256": "f79703d5668ed24d400a304a8daaa9c9e7c0fb51e5bc686bea216105794ecf0e",
+      "bytes": 99940965
+    },
+    {
+      "raw": "build/crow-v15-integrated-route-baseline-20261110/diagnostic-reserved-final-j-newstart.json",
+      "archive": "artifacts/crow-v15-perch-toe-debounce-20261110/diagnostic-reserved-final-j-newstart.json.gz",
+      "sha256": "a5b48ad7bb5f2fbb1e193418891cd8c0182268e5ff03501e5ce67dd9c85df544",
+      "bytes": 99724367
+    },
+    {
+      "raw": "build/crow-v15-integrated-route-baseline-20261110/diagnostic-reserved-final-j-newstart.tsv",
+      "archive": "artifacts/crow-v15-perch-toe-debounce-20261110/diagnostic-reserved-final-j-newstart.tsv.gz",
+      "sha256": "b275a47cd2cafc1f371dc11ef9824c5e2991a01b01853da220208c2672588663",
+      "bytes": 2187439
+    },
+    {
+      "raw": "build/crow-v15-integrated-route-baseline-20261110/diagnostic-reserved-final-j-original.tsv",
+      "archive": "artifacts/crow-v15-perch-toe-debounce-20261110/diagnostic-reserved-final-j-original.tsv.gz",
+      "sha256": "f3e12ebce9e4a1b394c74e5313e045b296d2c529839f24ac9c0edae4b05b1d26",
+      "bytes": 2188759
+    },
+    {
+      "raw": "build/crow-v15-integrated-route-baseline-20261110/diagnostic-reserved-final-j-hip3.tsv",
+      "archive": "artifacts/crow-v15-perch-damped-hip-20261110/diagnostic-reserved-final-j-hip3.tsv.gz",
+      "sha256": "020e2e93ecf14e13916294a41935637ad7fd17cd91e9945725f868ada0ea93d2",
+      "bytes": 2178483
+    },
+    {
+      "raw": "build/crow-v15-integrated-route-baseline-20261110/diagnostic-reserved-final-j-hip3.json",
+      "archive": "artifacts/crow-v15-perch-damped-hip-20261110/diagnostic-reserved-final-j-hip3.json.gz",
+      "sha256": "c51c02943e65d2632668cde9df168ca85ef3d26642d635c4311c09db32d356b7",
+      "bytes": 100010461
+    },
+    {
+      "raw": "build/crow-v15-integrated-route-baseline-20261110/diagnostic-reserved-final-j-hip6.json",
+      "archive": "artifacts/crow-v15-perch-damped-hip-20261110/diagnostic-reserved-final-j-hip6.json.gz",
+      "sha256": "387782831f1565dbcedbd395f6fdca73dabcd0336bcf355dff97d84a277c1635",
+      "bytes": 99568348
+    },
+    {
+      "raw": "build/crow-v15-integrated-route-baseline-20261110/diagnostic-reserved-final-j-hip6.tsv",
+      "archive": "artifacts/crow-v15-perch-damped-hip-20261110/diagnostic-reserved-final-j-hip6.tsv.gz",
+      "sha256": "a40483c556ec8a50230b1f51a8bca923cbe959229379c8874eec9cc50202c988",
+      "bytes": 2187891
+    },
+    {
+      "raw": "build/crow-v15-integrated-route-baseline-20261110/diagnostic-reserved-final-j-teacher.json",
+      "archive": "artifacts/crow-v15-route-teacher-signal-fix-20261110/diagnostic-reserved-final-j-teacher.json.gz",
+      "sha256": "5e1e63380222fd55615f591c2ae1ddd1638e8c142c707b3c6d33aa683cd893b0",
+      "bytes": 100982696
+    },
+    {
+      "raw": "build/crow-v15-integrated-route-baseline-20261110/diagnostic-reserved-final-j-teacher.tsv",
+      "archive": "artifacts/crow-v15-route-teacher-signal-fix-20261110/diagnostic-reserved-final-j-teacher.tsv.gz",
+      "sha256": "abc80ba0e43a0d559494a6942762c3c9a874e630e566c9aa78f0261f52fa4ef3",
+      "bytes": 2190149
+    },
+    {
+      "raw": "build/crow-v15-integrated-route-baseline-20261110/diagnostic-reserved-final-i-teacher.json",
+      "archive": "artifacts/crow-v15-route-teacher-signal-fix-20261110/diagnostic-reserved-final-i-teacher.json.gz",
+      "sha256": "0c4149fa6fe2e0cc6d1b430d54d7952e6548c01bde7eeb77912619318751ca46",
+      "bytes": 100399094
+    },
+    {
+      "raw": "build/crow-v15-integrated-route-baseline-20261110/diagnostic-reserved-final-i-teacher.tsv",
+      "archive": "artifacts/crow-v15-route-teacher-signal-fix-20261110/diagnostic-reserved-final-i-teacher.tsv.gz",
+      "sha256": "ac1ee3aba6f38493fa964e1c9b2bb286864827f2373d79cdcc40f8c14a26a5e5",
+      "bytes": 2189175
+    },
+    {
+      "raw": "build/crow-v15-flight-low-speed-20261110/slow.tsv",
+      "archive": "artifacts/crow-v15-flight-low-speed-20261110/slow.tsv.gz",
+      "sha256": "e4eaee57f0f05fa48e3ba3d7d429b2c222a4f579b971cec05881a391978eda91",
+      "bytes": 1160695
+    },
+    {
+      "raw": "build/crow-v15-flight-low-speed-20261110/hover.tsv",
+      "archive": "artifacts/crow-v15-flight-low-speed-20261110/hover.tsv.gz",
+      "sha256": "1610d55f91df83e4e6b94d40e1a9df835629e54291c358d1b18645e5ed032d2d",
+      "bytes": 1161264
+    },
+    {
+      "raw": "build/crow-v15-flight-low-speed-20261110/reverse.tsv",
+      "archive": "artifacts/crow-v15-flight-low-speed-20261110/reverse.tsv.gz",
+      "sha256": "1610d55f91df83e4e6b94d40e1a9df835629e54291c358d1b18645e5ed032d2d",
+      "bytes": 1161264
+    },
+    {
+      "raw": "build/crow-v15-flight-encoded-speed-20261110/forward15.tsv",
+      "archive": "artifacts/crow-v15-flight-encoded-speed-20261110/forward15.tsv.gz",
+      "sha256": "1610d55f91df83e4e6b94d40e1a9df835629e54291c358d1b18645e5ed032d2d",
+      "bytes": 1161264
+    },
+    {
+      "raw": "build/crow-v15-flight-encoded-speed-20261110/encodedhover.tsv",
+      "archive": "artifacts/crow-v15-flight-encoded-speed-20261110/encodedhover.tsv.gz",
+      "sha256": "ec4d1f5821cb8b572919b2a4ef0d5545f84bdeb1d78bfd7cb937b8d7e6a93593",
+      "bytes": 1162735
+    },
+    {
+      "raw": "build/crow-v15-flight-encoded-speed-20261110/encodedreverse.tsv",
+      "archive": "artifacts/crow-v15-flight-encoded-speed-20261110/encodedreverse.tsv.gz",
+      "sha256": "ee2df29a9bbe308e3d437d9e3bd86be460d638f369098f618333d3e464d388cf",
+      "bytes": 1164813
+    },
+    {
+      "raw": "build/crow-v15-flight-reverse-transition-20261110/transition.tsv",
+      "archive": "artifacts/crow-v15-flight-reverse-transition-20261110/transition.tsv.gz",
+      "sha256": "2dfc37a97fa509423202f8a60bbbb514fdb57c07a024815917cc2b40893afd14",
+      "bytes": 1164245
+    },
+    {
+      "raw": "build/crow-v15-teacher-label-signal-fix-20261110/old.rollout",
+      "archive": "artifacts/crow-v15-teacher-label-signal-fix-20261110/old.rollout.gz",
+      "sha256": "ac04a3c7e2994accb4ad7fc810ab163e080038216774fe9c4495b5729cd3c709",
+      "bytes": 9543328
+    },
+    {
+      "raw": "build/crow-v15-teacher-label-signal-fix-20261110/fixed.rollout",
+      "archive": "artifacts/crow-v15-teacher-label-signal-fix-20261110/fixed.rollout.gz",
+      "sha256": "09ace9d6d0ea7e057e853d0583ea1d75209d405e6d15bd5e2620d6e42d01fef2",
+      "bytes": 9543328
+    }
+  ]
+}

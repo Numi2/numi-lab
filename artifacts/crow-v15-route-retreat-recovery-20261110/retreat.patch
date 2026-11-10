@@ -1,0 +1,17 @@
+--- a/velocity08c.metal
++++ b/supportgate.metal
+@@ -6737,7 +6737,13 @@
+             }
+             // Oracle labels occupy diagnostic spare state only; these will
+             // become independently fingerprinted actor commands, not sensors.
+-            state.nutrition=float4(0.25f-errorOffset,desiredLateral,-heading,desiredHeight);
++            float desiredForward=0.25f-errorOffset;
++            if (!landing && wp<=2u && pos.x>target.x+0.10f) {
++                // Retreat on the current side before attempting the missed gate.
++                desiredForward=-0.05f;
++                desiredLateral=0.0f;
++            }
++            state.nutrition=float4(desiredForward,desiredLateral,-heading,desiredHeight);
+             state.threatMetadata=as_type<uint4>(state.nutrition);
+             // Policy observations do not expose privileged teacher commands.
+             state.commandAndPhase.xyz=float3(0.15f,0.0f,0.0f);

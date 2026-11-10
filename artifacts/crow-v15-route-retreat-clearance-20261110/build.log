@@ -1,0 +1,5 @@
+/Users/n/Developer/numi-crow-rl-20261107/build/crow-v15-route-retreat-clearance-20261110/clearance.metal:5489:21: warning: unused variable 'seconds' [-Wunused-variable]
+        const float seconds=float(state.episode.x)*dispatch.timing.x;
+                    ^
+1 warning generated.
+clearance 63de829f7a620127af656e69a83c957c9ccf83986755991aa015cdf73529582d

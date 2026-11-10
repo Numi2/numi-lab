@@ -1,0 +1,5 @@
+/Users/n/Developer/numi-crow-rl-20261107/build/crow-v15-route-side-clearance-20261110/sideclear.metal:5489:21: warning: unused variable 'seconds' [-Wunused-variable]
+        const float seconds=float(state.episode.x)*dispatch.timing.x;
+                    ^
+1 warning generated.
+sideclear 5329f2f934fccd45c1c6c291f878cbc8adf84bb0027779e8cffb16f87dc69bd1

@@ -1,0 +1,11 @@
+--- a/velocity08c.metal
++++ b/supportgate.metal
+@@ -6743,6 +6743,8 @@
+                 desiredForward=-0.05f;
+                 desiredLateral=0.0f;
+             }
++            if (!landing && wp==2u && pos.x>target.x-1.0f && abs(pos.y-target.y)>0.30f)
++                desiredForward=0.10f; // effective hover while clearing the second slalom.
+             state.nutrition=float4(desiredForward,desiredLateral,-heading,desiredHeight);
+             state.threatMetadata=as_type<uint4>(state.nutrition);
+             // Policy observations do not expose privileged teacher commands.
