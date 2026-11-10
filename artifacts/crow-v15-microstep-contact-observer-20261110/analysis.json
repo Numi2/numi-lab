@@ -1,0 +1,586 @@
+{
+  "baseline_different_steps": [],
+  "split_different_steps": [
+    2,
+    3,
+    4,
+    5,
+    6,
+    7,
+    8,
+    9,
+    10,
+    11,
+    12,
+    13,
+    14,
+    15,
+    16,
+    17,
+    18,
+    19,
+    20,
+    21,
+    22,
+    23,
+    24,
+    25,
+    26,
+    27,
+    28,
+    29,
+    30,
+    31,
+    32,
+    33,
+    34,
+    35,
+    36,
+    37,
+    38,
+    39
+  ],
+  "outcomes": {
+    "0": "completed transition 999 success 999 release 999",
+    "1": "completed transition 999 success 999 release 999"
+  },
+  "interval_contact_records": [
+    {
+      "step": 2,
+      "toe": "crow_left_rear_toe",
+      "interval_impulse": 0.00854830982,
+      "last_substep_impulse": 4.58302e-06,
+      "interval_above_force_threshold": true,
+      "last_above_force_threshold": false
+    },
+    {
+      "step": 3,
+      "toe": "crow_left_rear_toe",
+      "interval_impulse": 3.361890164859676e-07,
+      "last_substep_impulse": 1.15119e-24,
+      "interval_above_force_threshold": false,
+      "last_above_force_threshold": false
+    },
+    {
+      "step": 4,
+      "toe": "crow_left_rear_toe",
+      "interval_impulse": 0.014430286,
+      "last_substep_impulse": 0.00296592,
+      "interval_above_force_threshold": true,
+      "last_above_force_threshold": true
+    },
+    {
+      "step": 5,
+      "toe": "crow_left_rear_toe",
+      "interval_impulse": 0.08040456,
+      "last_substep_impulse": 0.00579945,
+      "interval_above_force_threshold": true,
+      "last_above_force_threshold": true
+    },
+    {
+      "step": 6,
+      "toe": "crow_left_rear_toe",
+      "interval_impulse": 0.09029198,
+      "last_substep_impulse": 0.00551233,
+      "interval_above_force_threshold": true,
+      "last_above_force_threshold": true
+    },
+    {
+      "step": 7,
+      "toe": "crow_left_rear_toe",
+      "interval_impulse": 0.08711743999999999,
+      "last_substep_impulse": 0.00541321,
+      "interval_above_force_threshold": true,
+      "last_above_force_threshold": true
+    },
+    {
+      "step": 8,
+      "toe": "crow_left_rear_toe",
+      "interval_impulse": 0.08661526,
+      "last_substep_impulse": 0.00542113,
+      "interval_above_force_threshold": true,
+      "last_above_force_threshold": true
+    },
+    {
+      "step": 9,
+      "toe": "crow_left_rear_toe",
+      "interval_impulse": 0.08699791999999999,
+      "last_substep_impulse": 0.00545232,
+      "interval_above_force_threshold": true,
+      "last_above_force_threshold": true
+    },
+    {
+      "step": 10,
+      "toe": "crow_left_rear_toe",
+      "interval_impulse": 0.0875202817,
+      "last_substep_impulse": 0.005497972,
+      "interval_above_force_threshold": true,
+      "last_above_force_threshold": true
+    },
+    {
+      "step": 11,
+      "toe": "crow_left_rear_toe",
+      "interval_impulse": 0.08544783599999999,
+      "last_substep_impulse": 0.0036634099999999998,
+      "interval_above_force_threshold": true,
+      "last_above_force_threshold": true
+    },
+    {
+      "step": 11,
+      "toe": "crow_right_rear_toe",
+      "interval_impulse": 0.00499169002,
+      "last_substep_impulse": 0.0022695484,
+      "interval_above_force_threshold": true,
+      "last_above_force_threshold": true
+    },
+    {
+      "step": 12,
+      "toe": "crow_left_rear_toe",
+      "interval_impulse": 0.01627307842134879,
+      "last_substep_impulse": 0.001386850000132603,
+      "interval_above_force_threshold": true,
+      "last_above_force_threshold": true
+    },
+    {
+      "step": 12,
+      "toe": "crow_right_rear_toe",
+      "interval_impulse": 0.05479560645716211,
+      "last_substep_impulse": 0.0036453700000695917,
+      "interval_above_force_threshold": true,
+      "last_above_force_threshold": true
+    },
+    {
+      "step": 13,
+      "toe": "crow_left_rear_toe",
+      "interval_impulse": 0.026723160000039405,
+      "last_substep_impulse": 0.0010427,
+      "interval_above_force_threshold": true,
+      "last_above_force_threshold": true
+    },
+    {
+      "step": 13,
+      "toe": "crow_right_rear_toe",
+      "interval_impulse": 0.06285190000002305,
+      "last_substep_impulse": 0.00466177,
+      "interval_above_force_threshold": true,
+      "last_above_force_threshold": true
+    },
+    {
+      "step": 14,
+      "toe": "crow_left_rear_toe",
+      "interval_impulse": 0.0034051350814590007,
+      "last_substep_impulse": 1.16886e-10,
+      "interval_above_force_threshold": true,
+      "last_above_force_threshold": false
+    },
+    {
+      "step": 14,
+      "toe": "crow_right_rear_toe",
+      "interval_impulse": 0.08793118576150001,
+      "last_substep_impulse": 0.0056726419,
+      "interval_above_force_threshold": true,
+      "last_above_force_threshold": true
+    },
+    {
+      "step": 15,
+      "toe": "crow_left_rear_toe",
+      "interval_impulse": 0.006861685033270318,
+      "last_substep_impulse": 0.000471763,
+      "interval_above_force_threshold": true,
+      "last_above_force_threshold": true
+    },
+    {
+      "step": 15,
+      "toe": "crow_right_rear_toe",
+      "interval_impulse": 0.08306046099999999,
+      "last_substep_impulse": 0.00501473,
+      "interval_above_force_threshold": true,
+      "last_above_force_threshold": true
+    },
+    {
+      "step": 16,
+      "toe": "crow_left_rear_toe",
+      "interval_impulse": 0.0038792481879500003,
+      "last_substep_impulse": 0.0012265979,
+      "interval_above_force_threshold": true,
+      "last_above_force_threshold": true
+    },
+    {
+      "step": 16,
+      "toe": "crow_right_rear_toe",
+      "interval_impulse": 0.08415766190123682,
+      "last_substep_impulse": 0.0041701500067363095,
+      "interval_above_force_threshold": true,
+      "last_above_force_threshold": true
+    },
+    {
+      "step": 17,
+      "toe": "crow_left_rear_toe",
+      "interval_impulse": 0.0742856714645426,
+      "last_substep_impulse": 0.00570397000243217,
+      "interval_above_force_threshold": true,
+      "last_above_force_threshold": true
+    },
+    {
+      "step": 17,
+      "toe": "crow_right_rear_toe",
+      "interval_impulse": 0.013961804400689469,
+      "last_substep_impulse": 1.5847800000884477e-10,
+      "interval_above_force_threshold": true,
+      "last_above_force_threshold": false
+    },
+    {
+      "step": 18,
+      "toe": "crow_left_rear_toe",
+      "interval_impulse": 0.0774855348212459,
+      "last_substep_impulse": 0.005057333,
+      "interval_above_force_threshold": true,
+      "last_above_force_threshold": true
+    },
+    {
+      "step": 18,
+      "toe": "crow_right_rear_toe",
+      "interval_impulse": 0.0017069735844438471,
+      "last_substep_impulse": 9.045830000000041e-05,
+      "interval_above_force_threshold": true,
+      "last_above_force_threshold": true
+    },
+    {
+      "step": 19,
+      "toe": "crow_left_rear_toe",
+      "interval_impulse": 0.07018562704,
+      "last_substep_impulse": 0.006589968,
+      "interval_above_force_threshold": true,
+      "last_above_force_threshold": true
+    },
+    {
+      "step": 19,
+      "toe": "crow_right_rear_toe",
+      "interval_impulse": 0.01899756318,
+      "last_substep_impulse": 0.00127389459,
+      "interval_above_force_threshold": true,
+      "last_above_force_threshold": true
+    },
+    {
+      "step": 20,
+      "toe": "crow_left_rear_toe",
+      "interval_impulse": 0.03697169626000003,
+      "last_substep_impulse": 0.00092116547,
+      "interval_above_force_threshold": true,
+      "last_above_force_threshold": true
+    },
+    {
+      "step": 20,
+      "toe": "crow_right_rear_toe",
+      "interval_impulse": 0.04986677979999999,
+      "last_substep_impulse": 0.0048449119,
+      "interval_above_force_threshold": true,
+      "last_above_force_threshold": true
+    },
+    {
+      "step": 21,
+      "toe": "crow_left_rear_toe",
+      "interval_impulse": 0.033424219878799996,
+      "last_substep_impulse": 0.0009730222,
+      "interval_above_force_threshold": true,
+      "last_above_force_threshold": true
+    },
+    {
+      "step": 21,
+      "toe": "crow_right_rear_toe",
+      "interval_impulse": 0.054755811865000004,
+      "last_substep_impulse": 0.0019712977,
+      "interval_above_force_threshold": true,
+      "last_above_force_threshold": true
+    },
+    {
+      "step": 22,
+      "toe": "crow_left_rear_toe",
+      "interval_impulse": 0.041918518089999995,
+      "last_substep_impulse": 0.0010478990000000001,
+      "interval_above_force_threshold": true,
+      "last_above_force_threshold": true
+    },
+    {
+      "step": 22,
+      "toe": "crow_right_rear_toe",
+      "interval_impulse": 0.04592379590000001,
+      "last_substep_impulse": 0.0025453394,
+      "interval_above_force_threshold": true,
+      "last_above_force_threshold": true
+    },
+    {
+      "step": 23,
+      "toe": "crow_left_rear_toe",
+      "interval_impulse": 0.03552622436,
+      "last_substep_impulse": 0.0019129406000000001,
+      "interval_above_force_threshold": true,
+      "last_above_force_threshold": true
+    },
+    {
+      "step": 23,
+      "toe": "crow_right_rear_toe",
+      "interval_impulse": 0.05171141184999999,
+      "last_substep_impulse": 0.0037221533,
+      "interval_above_force_threshold": true,
+      "last_above_force_threshold": true
+    },
+    {
+      "step": 24,
+      "toe": "crow_left_rear_toe",
+      "interval_impulse": 0.04594586019540001,
+      "last_substep_impulse": 0.0063159772,
+      "interval_above_force_threshold": true,
+      "last_above_force_threshold": true
+    },
+    {
+      "step": 24,
+      "toe": "crow_right_rear_toe",
+      "interval_impulse": 0.04461659540050002,
+      "last_substep_impulse": 0.0022219783,
+      "interval_above_force_threshold": true,
+      "last_above_force_threshold": true
+    },
+    {
+      "step": 25,
+      "toe": "crow_left_rear_toe",
+      "interval_impulse": 0.0214750251776,
+      "last_substep_impulse": 0.0004236253,
+      "interval_above_force_threshold": true,
+      "last_above_force_threshold": true
+    },
+    {
+      "step": 25,
+      "toe": "crow_right_rear_toe",
+      "interval_impulse": 0.0673157583088,
+      "last_substep_impulse": 0.006170675600000001,
+      "interval_above_force_threshold": true,
+      "last_above_force_threshold": true
+    },
+    {
+      "step": 26,
+      "toe": "crow_left_rear_toe",
+      "interval_impulse": 0.013328771732500005,
+      "last_substep_impulse": 0.0004285011575,
+      "interval_above_force_threshold": true,
+      "last_above_force_threshold": true
+    },
+    {
+      "step": 26,
+      "toe": "crow_right_rear_toe",
+      "interval_impulse": 0.07669643791963929,
+      "last_substep_impulse": 0.0057078513641822,
+      "interval_above_force_threshold": true,
+      "last_above_force_threshold": true
+    },
+    {
+      "step": 27,
+      "toe": "crow_left_rear_toe",
+      "interval_impulse": 0.03178029743027887,
+      "last_substep_impulse": 0.0007592910000000657,
+      "interval_above_force_threshold": true,
+      "last_above_force_threshold": true
+    },
+    {
+      "step": 27,
+      "toe": "crow_right_rear_toe",
+      "interval_impulse": 0.054805046882053815,
+      "last_substep_impulse": 0.0015924200000000052,
+      "interval_above_force_threshold": true,
+      "last_above_force_threshold": true
+    },
+    {
+      "step": 28,
+      "toe": "crow_left_rear_toe",
+      "interval_impulse": 0.03294695300000002,
+      "last_substep_impulse": 0.00732526,
+      "interval_above_force_threshold": true,
+      "last_above_force_threshold": true
+    },
+    {
+      "step": 28,
+      "toe": "crow_right_rear_toe",
+      "interval_impulse": 0.051747577,
+      "last_substep_impulse": 0.000395384,
+      "interval_above_force_threshold": true,
+      "last_above_force_threshold": true
+    },
+    {
+      "step": 29,
+      "toe": "crow_left_rear_toe",
+      "interval_impulse": 0.06938967,
+      "last_substep_impulse": 0.0110323,
+      "interval_above_force_threshold": true,
+      "last_above_force_threshold": true
+    },
+    {
+      "step": 29,
+      "toe": "crow_right_rear_toe",
+      "interval_impulse": 0.0213885057,
+      "last_substep_impulse": 0.0109962,
+      "interval_above_force_threshold": true,
+      "last_above_force_threshold": true
+    },
+    {
+      "step": 30,
+      "toe": "crow_left_rear_toe",
+      "interval_impulse": 0.049342191400000006,
+      "last_substep_impulse": 0.00112503,
+      "interval_above_force_threshold": true,
+      "last_above_force_threshold": true
+    },
+    {
+      "step": 30,
+      "toe": "crow_right_rear_toe",
+      "interval_impulse": 0.037817268999999994,
+      "last_substep_impulse": 0.00628595,
+      "interval_above_force_threshold": true,
+      "last_above_force_threshold": true
+    },
+    {
+      "step": 31,
+      "toe": "crow_left_rear_toe",
+      "interval_impulse": 0.039830169,
+      "last_substep_impulse": 0.000785735,
+      "interval_above_force_threshold": true,
+      "last_above_force_threshold": true
+    },
+    {
+      "step": 31,
+      "toe": "crow_right_rear_toe",
+      "interval_impulse": 0.048176844,
+      "last_substep_impulse": 0.00397941,
+      "interval_above_force_threshold": true,
+      "last_above_force_threshold": true
+    },
+    {
+      "step": 32,
+      "toe": "crow_left_rear_toe",
+      "interval_impulse": 0.027745894,
+      "last_substep_impulse": 0.000634604,
+      "interval_above_force_threshold": true,
+      "last_above_force_threshold": true
+    },
+    {
+      "step": 32,
+      "toe": "crow_right_rear_toe",
+      "interval_impulse": 0.05849713,
+      "last_substep_impulse": 0.00688598,
+      "interval_above_force_threshold": true,
+      "last_above_force_threshold": true
+    },
+    {
+      "step": 33,
+      "toe": "crow_left_rear_toe",
+      "interval_impulse": 0.058437060000000006,
+      "last_substep_impulse": 0.00601065,
+      "interval_above_force_threshold": true,
+      "last_above_force_threshold": true
+    },
+    {
+      "step": 33,
+      "toe": "crow_right_rear_toe",
+      "interval_impulse": 0.030383369,
+      "last_substep_impulse": 0.000480173,
+      "interval_above_force_threshold": true,
+      "last_above_force_threshold": true
+    },
+    {
+      "step": 34,
+      "toe": "crow_left_rear_toe",
+      "interval_impulse": 0.048664018999999996,
+      "last_substep_impulse": 0.000426999,
+      "interval_above_force_threshold": true,
+      "last_above_force_threshold": true
+    },
+    {
+      "step": 34,
+      "toe": "crow_right_rear_toe",
+      "interval_impulse": 0.03187244527000001,
+      "last_substep_impulse": 0.00816379,
+      "interval_above_force_threshold": true,
+      "last_above_force_threshold": true
+    },
+    {
+      "step": 35,
+      "toe": "crow_left_rear_toe",
+      "interval_impulse": 0.06267187799999999,
+      "last_substep_impulse": 0.00504533,
+      "interval_above_force_threshold": true,
+      "last_above_force_threshold": true
+    },
+    {
+      "step": 35,
+      "toe": "crow_right_rear_toe",
+      "interval_impulse": 0.028910328000000002,
+      "last_substep_impulse": 0.00275261,
+      "interval_above_force_threshold": true,
+      "last_above_force_threshold": true
+    },
+    {
+      "step": 36,
+      "toe": "crow_left_rear_toe",
+      "interval_impulse": 0.04943758399999999,
+      "last_substep_impulse": 0.00197148,
+      "interval_above_force_threshold": true,
+      "last_above_force_threshold": true
+    },
+    {
+      "step": 36,
+      "toe": "crow_right_rear_toe",
+      "interval_impulse": 0.034286912999999995,
+      "last_substep_impulse": 0.00291407,
+      "interval_above_force_threshold": true,
+      "last_above_force_threshold": true
+    },
+    {
+      "step": 37,
+      "toe": "crow_left_rear_toe",
+      "interval_impulse": 0.03740631,
+      "last_substep_impulse": 0.00123305,
+      "interval_above_force_threshold": true,
+      "last_above_force_threshold": true
+    },
+    {
+      "step": 37,
+      "toe": "crow_right_rear_toe",
+      "interval_impulse": 0.022955233000000002,
+      "last_substep_impulse": 0.00125343,
+      "interval_above_force_threshold": true,
+      "last_above_force_threshold": true
+    },
+    {
+      "step": 38,
+      "toe": "crow_left_rear_toe",
+      "interval_impulse": 0.0111697358,
+      "last_substep_impulse": 0.00117845,
+      "interval_above_force_threshold": true,
+      "last_above_force_threshold": true
+    },
+    {
+      "step": 38,
+      "toe": "crow_right_rear_toe",
+      "interval_impulse": 0.07770532000000001,
+      "last_substep_impulse": 0.00129186,
+      "interval_above_force_threshold": true,
+      "last_above_force_threshold": true
+    },
+    {
+      "step": 39,
+      "toe": "crow_left_rear_toe",
+      "interval_impulse": 0.063646007,
+      "last_substep_impulse": 0.001207,
+      "interval_above_force_threshold": true,
+      "last_above_force_threshold": true
+    },
+    {
+      "step": 39,
+      "toe": "crow_right_rear_toe",
+      "interval_impulse": 0.0328693655,
+      "last_substep_impulse": 0.0011589,
+      "interval_above_force_threshold": true,
+      "last_above_force_threshold": true
+    }
+  ],
+  "threshold_exceeds_interval_but_not_last_count": 3
+}
