@@ -1,0 +1,5 @@
+# Result: compliance screen did not pass
+
+All 16 isolated runs completed. Toe-first impact occurred at 5-10 ms in each. No positive-impulse non-foot contact occurred within the first 100 ms and the largest reported penetration was 1.48 mm. Increasing the toe-only compliance from baseline to 1e-4 reduced the maximum single-substep bilateral toe impulse by 15.2%, 8.6%, 5.8%, and 16.1% in the four matched cases. Neither this nor either smaller compliance met the predeclared 25% reduction in three of four cases, so none is promoted. Baseline peak impulses were 0.06546, 0.06411, 0.09119, and 0.11065 N s respectively.
+
+The state came from a physically reached route state, but this simulation has a fresh contact cache and holds non-toe joint targets at their reached positions rather than reproducing the flown control sequence. The perturbations are counterfactual. Material values are uncalibrated and this is not a complete route or landing test. Contact geometry and impulses are reported for all recorded perch contacts; the end-point separation is not a continuous penetration bound.

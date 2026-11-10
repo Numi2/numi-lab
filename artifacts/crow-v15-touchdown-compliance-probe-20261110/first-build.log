@@ -1,0 +1,19 @@
+In file included from artifacts/crow-v15-touchdown-compliance-probe-20261110/probe.cpp:2:
+artifacts/crow-v15-touchdown-compliance-probe-20261110/toe_model.cpp:82:78: warning: non-void function does not return a value in all control paths [-Wreturn-type]
+   82 |   } catch(const std::exception& e){std::cerr<<e.what()<<std::endl;return 1;} }
+      |                                                                              ^
+artifacts/crow-v15-touchdown-compliance-probe-20261110/probe.cpp:14:527: error: no viable overloaded '='
+   14 |  CompiledRun run;auto compiled=compileRun(m,run);need(compiled.succeeded(),compiled.message);auto q=run.model().defaultQ,v=run.model().defaultV;unsigned nq=q.size(),nv=v.size();std::ifstream input("artifacts/crow-v15-touchdown-compliance-probe-20261110/reached-input.txt");need(bool(input),"input missing");for(auto& x:q)input>>x;for(auto& x:v)input>>x;float p[13];for(auto& x:p)input>>x;need(bool(input),"input invalid");q[0]+=(cs&1)? .003f:-.003f;v[2]*=(cs&2)?1.25f:.75f;auto scene=run.defaultSceneBodies();scene[0].position={p[0],p[1],p[2],1};scene[0].orientation={p[3],p[4],p[5],p[6]};
+      |                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                              ~~~~~~~~~~~~~~~~~^~~~~~~~~~~~~~~~~~~
+include/metalrobo/gpu_types.h:20:27: note: candidate function (the implicit copy assignment operator) not viable: 'this' argument has type 'const mr_float4', but method is not marked const
+   20 | typedef struct MR_ALIGN16 mr_float4 {
+      |                           ^
+include/metalrobo/gpu_types.h:20:27: note: candidate function (the implicit move assignment operator) not viable: 'this' argument has type 'const mr_float4', but method is not marked const
+artifacts/crow-v15-touchdown-compliance-probe-20261110/probe.cpp:14:567: error: no viable overloaded '='
+   14 |  CompiledRun run;auto compiled=compileRun(m,run);need(compiled.succeeded(),compiled.message);auto q=run.model().defaultQ,v=run.model().defaultV;unsigned nq=q.size(),nv=v.size();std::ifstream input("artifacts/crow-v15-touchdown-compliance-probe-20261110/reached-input.txt");need(bool(input),"input missing");for(auto& x:q)input>>x;for(auto& x:v)input>>x;float p[13];for(auto& x:p)input>>x;need(bool(input),"input invalid");q[0]+=(cs&1)? .003f:-.003f;v[2]*=(cs&2)?1.25f:.75f;auto scene=run.defaultSceneBodies();scene[0].position={p[0],p[1],p[2],1};scene[0].orientation={p[3],p[4],p[5],p[6]};
+      |                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                   ~~~~~~~~~~~~~~~~~~~~^~~~~~~~~~~~~~~~~~~~~~
+include/metalrobo/gpu_types.h:20:27: note: candidate function (the implicit copy assignment operator) not viable: 'this' argument has type 'const mr_float4', but method is not marked const
+   20 | typedef struct MR_ALIGN16 mr_float4 {
+      |                           ^
+include/metalrobo/gpu_types.h:20:27: note: candidate function (the implicit move assignment operator) not viable: 'this' argument has type 'const mr_float4', but method is not marked const
+1 warning and 2 errors generated.

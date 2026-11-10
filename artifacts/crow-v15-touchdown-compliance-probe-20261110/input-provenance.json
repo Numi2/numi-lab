@@ -1,0 +1,8 @@
+{
+  "source": "artifacts/crow-v15-guide-midheight-20261110/development-reserved-final-j.json.gz",
+  "source_sha256": "20bacf8b1447abd667c44242eb2a0aad290d53877122039809d8bf0a468dd373",
+  "frame_label": 4392,
+  "support_sample_label": 4393,
+  "input_sha256": "431cad448dfdbba7f4e089af6345ac80fc1f3f497fd61c716f69a09d9c7fc160",
+  "note": "Native q/v and perch pose extracted before observed impact; independent probe changes controller, scene context and contact cache."
+}
