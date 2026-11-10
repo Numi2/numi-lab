@@ -1,0 +1,18 @@
+[
+  {
+    "path": "original-8/zero.policypack",
+    "sha256": "e09ebeedc8b66592c911570a87d769f814077121d7696bd8e8c84d522240bc3a"
+  },
+  {
+    "path": "original-16/zero.policypack",
+    "sha256": "e721d13b4f6cd47579fb46bb553a6b341370fbeab642d57254861581990bf0b2"
+  },
+  {
+    "path": "toe-8/zero.policypack",
+    "sha256": "12e3113dd98d499987b8ba5c1e97c33005f002e5d70991630c57751997bbcdb0"
+  },
+  {
+    "path": "toe-16/zero.policypack",
+    "sha256": "a2a244257c48946a5fa97532c5bb554e8665dff5aed84be2ce6590b2f16da7bf"
+  }
+]
