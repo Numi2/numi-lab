@@ -1,0 +1,5 @@
+# Student-prefix recovery on development J
+
+With the current toe-equipped body, the first 1099 accepted q, v, actor-observation and action frames exactly match the corresponding teacher-off student trajectory. A development guide took command at step 1100; the first continuous episode physically reached all five waypoints at step 2794 and continued to step 7000 without recorded physical or solver failure or sampled nonfoot-perch contact. The terminal bilateral-load streak was 3215 endpoints. This is one recovery from a student-visited state on a used layout. Its accepted routing-prefix observations and guide labels are eligible for an exploratory development training experiment; no unseen layout was used.
+
+The run does not meet the earlier strict uninterrupted opposing-toe impulse condition and is not a qualified whole-sequence demonstration of continuous grip. Do not treat its terminal landing segment as such or claim autonomous success. The student was not in control after the recovery takeover, and toe release was not tested in this run.
