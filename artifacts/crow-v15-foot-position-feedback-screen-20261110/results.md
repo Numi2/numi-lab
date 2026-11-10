@@ -1,0 +1,3 @@
+# Foot-position feedback screen
+
+The matched controls reproduced all 200 states for each start, and all six sets of initial shapes were separated. Both geometry-directed variants reached rear-toe contact in the previously missed start but failed to form sustained supported bilateral grip or terminal support. In the formerly successful start, both reached sustained supported opposing grip with grip-conditioned overlap below 0.5 mm (0.366 and 0.276 mm), but both lost terminal support after release. Neither candidate meets the two-start screen, so it is rejected for integration. The apparent gain in contact acquisition does not establish approach landing, flight or navigation.

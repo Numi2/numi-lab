@@ -1,0 +1,17 @@
+[
+  {
+    "path": "build/crow-v15-foot-position-feedback-screen-20261110/probe",
+    "sha256": "400e984183eab443d2072bfa564b3ca6ed8f82bb674e247a1890bf740126d183",
+    "bytes": 118424
+  },
+  {
+    "path": "build/crow-v15-foot-position-feedback-screen-20261110/libmetalrobo.dylib",
+    "sha256": "956389f0135264db3f2d70018d47706410be4a57b234f4d85f620d9e205dd89a",
+    "bytes": 5729488
+  },
+  {
+    "path": "build/crow-v15-alternating-foot-release-20261110/teacher.metallib",
+    "sha256": "a1fa801ac2f2ea5e557a54073b280039e5bb60422d8b5beb1cd90b2ec22c459b",
+    "bytes": 4485424
+  }
+]
