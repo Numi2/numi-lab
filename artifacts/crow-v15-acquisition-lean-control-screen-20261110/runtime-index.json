@@ -1,0 +1,17 @@
+[
+  {
+    "path": "build/crow-v15-acquisition-lean-control-screen-20261110/probe",
+    "sha256": "082a921dcbf5f02620ec847f69299ccf190bfa6b3359686fa5eb3b8f954f1158",
+    "bytes": 118424
+  },
+  {
+    "path": "build/crow-v15-acquisition-lean-control-screen-20261110/libmetalrobo.dylib",
+    "sha256": "80c3b48ab029f8312a5c9d59349b072ae8ce514d184fdd50c98ab1435bc2ec67",
+    "bytes": 5729488
+  },
+  {
+    "path": "build/crow-v15-alternating-foot-release-20261110/teacher.metallib",
+    "sha256": "a1fa801ac2f2ea5e557a54073b280039e5bb60422d8b5beb1cd90b2ec22c459b",
+    "bytes": 4485424
+  }
+]

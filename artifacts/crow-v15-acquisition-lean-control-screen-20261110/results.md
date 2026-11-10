@@ -1,0 +1,3 @@
+# Acquisition with geometry-directed placement and lean-aware leg balance
+
+The references reproduced the first 200 states of both earlier runs, candidate trajectories matched their respective reference through tick 20, and all six initial shape sets were separated. In start 0, the 0.03 candidate acquired supported bilateral grip for eight ticks with 0.320 mm overlap but later lost support; in start 1 the same setting never acquired sustained grip. The 0.06 candidate missed the grip in start 0 and acquired it in start 1 with 0.434 mm overlap but did not sustain final support. Neither passed both starts or qualifies for integration. These are development drop tests with oracle perch position, not flight or course validation.
