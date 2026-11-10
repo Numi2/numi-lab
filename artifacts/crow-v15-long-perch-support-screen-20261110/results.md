@@ -1,0 +1,3 @@
+# Longer continuous perch support
+
+The first 200 recorded states exactly reproduced the prior four-second reference. The same continuous run failed the longer support test: the first support-gate violation after the original window occurred at tick 228 (4.58 s), when body tilt exceeded 0.35 rad while both feet still carried normal load; the body then drifted off the perch and fell. The last 50 samples were not supported. The short 200-tick pass must not be interpreted as stable perching. Grip-conditioned overlap remained 0.449 mm in this one start; that does not overcome the support failure or qualify a flight landing or route.

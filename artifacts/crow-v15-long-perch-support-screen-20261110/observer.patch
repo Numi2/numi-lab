@@ -1,0 +1,52 @@
+--- a/MetalWorld.mm
++++ b/MetalWorld.mm
+@@ -29,6 +29,10 @@
+ #include <limits>
+ #include <memory>
+ #include <mutex>
++static std::mutex gCrowToeMutex;
++static float gCrowToeInterval[8]={};
++static unsigned long long gCrowToeSequence=0;
++extern "C" unsigned long long crowCopyToeInterval(float* out){std::lock_guard<std::mutex> lock(gCrowToeMutex);for(unsigned i=0;i<8;i++)out[i]=gCrowToeInterval[i];return gCrowToeSequence;}
+ #include <new>
+ #include <optional>
+ #include <set>
+@@ -21433,7 +21437,7 @@
+             static unsigned long long crowTraceSubmission = 0;
+             const bool crowTraceEnabled = std::getenv("CROW_SUBSTEP_TRACE") != nullptr;
+             const unsigned long long crowTraceStep = crowTraceEnabled ? ++crowTraceSubmission : 0;
+-            const bool crowTraceWindow = crowTraceEnabled && crowTraceStep >= 1 && crowTraceStep <= 120;
++            const bool crowTraceWindow = crowTraceEnabled && crowTraceStep >= 1 && crowTraceStep <= 400;
+             NSMutableArray<id<MTLBuffer>>* crowTraceBuffers = crowTraceWindow ? [NSMutableArray array] : nil;
+             const NSUInteger crowTraceCapacity = diagnostics.layout.contactDispatch.constraintCapacity;
+             const NSUInteger crowTraceLanes = batch.environmentCount;
+@@ -22384,19 +22388,22 @@
+             if (crowTraceWindow) {
+                 [commandBuffer addCompletedHandler:^(id<MTLCommandBuffer> completed) {
+                     if (completed.status != MTLCommandBufferStatusCompleted) { std::fprintf(stderr,"CROW_SUBSTEP_ERROR %llu\n",crowTraceStep); return; }
++                    float interval[8]={};
+                     for (NSUInteger sub=0; sub<crowTraceBuffers.count/2; ++sub) {
+                         id<MTLBuffer> cb=crowTraceBuffers[2*sub], sb=crowTraceBuffers[2*sub+1];
+                         const auto* contacts=static_cast<const MRContactConstraintGPU*>(cb.contents);
+                         const auto* statuses=static_cast<const MRMetalWorldContactStatusGPU*>(sb.contents);
+-                        for (NSUInteger lane=0;lane<crowTraceLanes;++lane) {
+-                            const auto n=std::min<NSUInteger>(statuses[lane].requiredConstraints,crowTraceCapacity);
+-                            std::fprintf(stderr,"CROW_SUBSTEP_STATUS %llu %lu %lu %u %u\n",crowTraceStep,(unsigned long)sub,(unsigned long)lane,statuses[lane].requiredConstraints,statuses[lane].physicsSubstep);
+-                            for (NSUInteger i=0;i<n;++i) {
+-                                const auto& c=contacts[lane*crowTraceCapacity+i];
+-                                std::fprintf(stderr,"CROW_SUBSTEP_ALL %llu %lu %lu %u %u %.9g %.9g %.9g %.9g\n",crowTraceStep,(unsigned long)sub,(unsigned long)lane,c.bodyA,c.bodyB,c.impulses.x,c.pointAndSeparation.w,c.normal.x,c.normal.z);
+-                            }
++                        if(crowTraceLanes!=1u)continue;
++                        const auto n=std::min<NSUInteger>(statuses[0].requiredConstraints,crowTraceCapacity);
++                        for(NSUInteger i=0;i<n;++i){const auto& c=contacts[i];
++                            const bool f=c.bodyA>=17u&&c.bodyA<=24u&&c.bodyB==25u;
++                            const bool r=c.bodyB>=17u&&c.bodyB<=24u&&c.bodyA==25u;
++                            if(!(f||r)||c.impulses.x<=0)continue;
++                            const unsigned k=(f?c.bodyA:c.bodyB)-17u;const float nx=(f?1.f:-1.f)*c.normal.x;
++                            if((k%4u==3u&&nx>.5f)||(k%4u!=3u&&nx<-.5f))interval[k]+=c.impulses.x;
+                         }
+                     }
++                    {std::lock_guard<std::mutex> lock(gCrowToeMutex);for(unsigned k=0;k<8;k++)gCrowToeInterval[k]=interval[k];gCrowToeSequence=crowTraceStep;}
+                 }];
+             }
+             ++selectedState->stats.submissionCount;
