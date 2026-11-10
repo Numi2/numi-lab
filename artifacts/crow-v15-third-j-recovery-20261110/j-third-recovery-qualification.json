@@ -1,0 +1,60 @@
+{
+  "student_prefix_frames": 2049,
+  "exact_prefix_equal": true,
+  "first_differences": [],
+  "nav5_step": 2696,
+  "first_episode": {
+    "boundary": "waypoint completion; does not establish supported landing",
+    "closed_by_environment": [
+      true
+    ],
+    "closed_episode_count": 1,
+    "completion_seen_by_environment": [
+      true
+    ],
+    "completion_seen_count": 1,
+    "environment_count": 1,
+    "first_completion_step_by_environment": [
+      2696
+    ],
+    "horizon_censored_count": 0,
+    "maximum_waypoints_by_environment": [
+      5
+    ],
+    "physical_failure_by_environment": [
+      false
+    ],
+    "physical_failure_count": 0,
+    "safe_completion_by_environment": [
+      true
+    ],
+    "safe_completion_count": 1,
+    "schema": "numi.crow-first-episode-evidence.v1",
+    "steps_by_environment": [
+      7000
+    ],
+    "termination_reason_by_environment": [
+      4
+    ],
+    "unit": "first episode of each environment since context creation"
+  },
+  "first_fatal_contact": null,
+  "minimum_accepted_clearance": {
+    "lane": 0,
+    "end_step": 7001,
+    "minimum_step": 2556,
+    "minimum_m": 0.000456478776406,
+    "bird_shape": "crow_right_wing/collision",
+    "obstacle_shape": "crow_course_slalom_b/collision",
+    "bird_body": "crow_right_wing",
+    "obstacle_body": "crow_course_slalom_b",
+    "sampling": "accepted_control_steps"
+  },
+  "solver_failed_steps": 0,
+  "nonfoot_perch_contact_samples": 0,
+  "nonfinite_task_samples": [],
+  "longest_bilateral_support_samples": 52,
+  "terminal_bilateral_support_samples": 0,
+  "eligible_for_development_routing_prefix_training": false,
+  "limitations": "Teacher privileged after takeover, development only; endpoint clearance and support are not continuous substep guarantees. Landing labels excluded."
+}
