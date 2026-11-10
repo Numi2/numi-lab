@@ -1,0 +1,5 @@
+# Contact flare with accepted rebound
+
+Both 0.20 and 0.05 N-per-foot contact flare thresholds yielded exactly the baseline outcomes and no flare samples. On the 0.05 N case, the promising aligned contact produces approximately +0.79 m/s upward velocity by the next accepted state, beyond the 0.4 m/s gate. Test widening only that vertical-speed gate to 0.90 m/s while retaining the 0.05 N bilateral accepted-load, position and horizontal-speed requirements and the timer-based flight recovery. This is a bounded contact-driven action handoff, not an injected force. The measured sensor/control timing supports a possible explanation, not yet a proof that this gate alone caused non-activation.
+
+On the same used J development seed, run the first 5000-step episode. Count intermediate flare samples and require 25 consecutive bilateral loaded samples, opposing toe contacts on both feet, no nonfoot perch collision, no reset and a stable supported pose. Report any physical or solver failure. A flare event is not a supported landing or autonomous performance.

@@ -1,0 +1,7 @@
+# Rebound-aware contact flare: sustained catch followed by failure
+
+The guided used-J first episode reached five waypoints at step 2787. The intermediate contact flare activated for 45 sampled steps. Front and rear toes on both feet first developed opposing contact at accepted support sample 3800 and held it for a longest continuous streak of 118 samples (2.36 s at the 20 ms sampling interval); the longest bilateral load streak was 229 samples. These are meaningful physical contact measurements, but neither demonstrates a complete stable landing nor validates biological realism.
+
+The body progressively pitched forward and translated ahead of the perch after entering the supported phase. The first episode terminated for physical contact at step 4054; the subsequent recorded support sample 4055 identifies the fatal pair as crow_body/crow_course_perch with 0.329 N s normal impulse. Just before it, sample 4054 had root height 0.880 m and vertical speed -1.404 m/s. The run then reset; analysis stops at the first reset. The run is a privileged teacher development trial, not autonomous execution, a release trial or an unused-layout result. Endpoint contact observations do not substitute for complete substep stability evidence.
+
+Static forward kinematic perturbations at sample 3900 are retained in balance-fk-input.txt and underpin the next bounded leg-balance trial; the relationship is not a measured dynamic response.
