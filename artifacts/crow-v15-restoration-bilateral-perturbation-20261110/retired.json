@@ -1,0 +1,11 @@
+{
+  "remote_commit": "39003d6147cd35bef9a3b9c767a96666fd58dac2",
+  "retired": [
+    {
+      "raw": "artifacts/crow-v15-bilateral-perturbation-screen-20261110/results.txt",
+      "archive": "artifacts/crow-v15-bilateral-perturbation-screen-20261110/results.txt.gz",
+      "sha256": "db1147e725d3f2bb2944ca03d73a48ca1f1f0655b3b3efef411e8e85f5b3f55f",
+      "bytes": 8438995
+    }
+  ]
+}
