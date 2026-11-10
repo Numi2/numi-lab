@@ -1,0 +1,3 @@
+# Post-release balance gain screen
+
+Both controls exactly reproduced all 200 reference states. The 1.5 and 2.5 post-release gains retained 13 and 12 consecutive supported opposing-grip samples, but neither sustained support through the final 25 samples; their terminal maximum toe angles were 0.295 and 0.069 rad. Their worst observed grip-conditioned SAT overlaps were 0.729 and 1.062 mm, respectively. The 1.5-gain longest sampled support run was 107 endpoints versus 88 for the unchanged whole-foot control, which is an improvement in this single case but not a pass. No arm qualifies and none establishes flight, continuous navigation, held-out success or biological realism.
