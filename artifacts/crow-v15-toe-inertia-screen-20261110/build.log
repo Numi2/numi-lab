@@ -1,0 +1,10 @@
+/Users/n/Developer/numi-crow-rl-20261107/build/crow-v15-toe-inertia-screen-20261110/a5e6/c_api.cpp:3364:13: warning: unused function 'close' [-Wunused-function]
+ 3364 | static void close(double a, double b, const char* why) { crowToeNeed(std::abs(a-b)<=2e-7*(1+std::abs(a)),why); }
+      |             ^~~~~
+1 warning generated.
+a5e6 b259d17ae3354a4d07498fe2e3c8d543947e8d95332114e909d6f42c944c11f5
+/Users/n/Developer/numi-crow-rl-20261107/build/crow-v15-toe-inertia-screen-20261110/a5e7/c_api.cpp:3364:13: warning: unused function 'close' [-Wunused-function]
+ 3364 | static void close(double a, double b, const char* why) { crowToeNeed(std::abs(a-b)<=2e-7*(1+std::abs(a)),why); }
+      |             ^~~~~
+1 warning generated.
+a5e7 dc11d992dce477c5089eda9c406cb680f9dd32f2786c5635749007117e7bd5fa
