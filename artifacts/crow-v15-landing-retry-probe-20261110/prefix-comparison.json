@@ -1,0 +1,7 @@
+{
+  "first_navigation_five_step_control": 2685,
+  "frames_before_navigation_five": 2684,
+  "exact_equal": true,
+  "differences": [],
+  "note": "Compare accepted states and policy actions before landing; not proof of parity of unlogged substep impulses."
+}

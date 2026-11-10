@@ -1,0 +1,3 @@
+# Guided J bounce-retry result
+
+Before waypoint five, all 2684 accepted frames matched the failed-control recovery in q, v, actor observation and accepted action. The modified guided approach avoided the control shank strike but ended airborne after 7000 steps. Only 37 sampled bilateral-load endpoints were observed, the longest consecutive run was 20, and there were no simultaneous opposed-toe samples. No physical or solver failure and no nonfoot perch impulse were reported. The retry oscillated between ascent and descent and did not produce a supported landing; it fails the preregistered qualification and is excluded from successful demonstrations. The environment safe-completion flag marks waypoint reach, not support. No teacher-off or unused-layout claim follows.
