@@ -1,0 +1,12 @@
+[
+  {
+    "path": "build/crow-v15-toe-substep-observer-20261110/original/libmetalrobo.dylib",
+    "sha256": "4f820b4a45351387dcd839c03d1a73e77d6f6cd098b5dcbd95be9c310c47ba6a",
+    "bytes": 5765024
+  },
+  {
+    "path": "build/crow-v15-toe-substep-observer-20261110/damped/libmetalrobo.dylib",
+    "sha256": "3eeae369aedbcc46e2eb10edea2bd31ef91b1084688152f5ab0760c1f7b17958",
+    "bytes": 5765024
+  }
+]
