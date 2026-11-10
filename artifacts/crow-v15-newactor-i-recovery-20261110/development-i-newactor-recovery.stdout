@@ -1,0 +1,394 @@
+{
+  "action_carrier" : "v15_conditional_landing_goal_memory_rgbd_history",
+  "action_count" : 18,
+  "action_fingerprint" : "11469558608319794972",
+  "action_source" : "birdflow_assisted_teacher_with_observed_policy",
+  "action_stream" : "",
+  "actor_observation_count" : 816,
+  "any_link_dodge_rate" : 0,
+  "any_link_projectile_hit_count" : 0,
+  "any_link_projectile_hit_rate" : 0,
+  "articulated_contact_responses" : "streamed_inverse_aba",
+  "benchmark" : "swift_native_task_rollout",
+  "benchmark_seed" : 4038889268,
+  "birdflow_journey_student_authority" : 1,
+  "birdflow_journey_teacher" : true,
+  "birdflow_journey_variant" : "v15-conditional-landing-navigation",
+  "birdflow_navigation_course" : "reserved-final-i",
+  "birdflow_navigation_course_role" : "reserved-final-only",
+  "birdflow_navigation_curriculum" : false,
+  "birdflow_navigation_curriculum_stage" : -1,
+  "birdflow_pronation" : 0,
+  "birdflow_pronation_wave_phase" : 0,
+  "birdflow_stroke_amplitude" : 0,
+  "birdflow_sweep_wave_amplitude" : 0,
+  "birdflow_sweep_wave_phase" : 0,
+  "birdflow_tail_pitch" : 0,
+  "birdflow_wing_pulse_amplitude" : 0,
+  "birdflow_wing_pulse_duration_steps" : 0,
+  "birdflow_wing_pulse_secondary_amplitude" : 0,
+  "birdflow_wing_pulse_secondary_target" : "",
+  "birdflow_wing_pulse_start_step" : 0,
+  "birdflow_wing_pulse_target" : "wings",
+  "clean_horizon_environment_count" : 0,
+  "clean_horizon_environment_rate" : 0,
+  "clean_projectile_miss_count" : 0,
+  "compiled_impact_event_count" : 0,
+  "completed_projectile_trial_count" : 0,
+  "control_steps_per_submission" : 1,
+  "critic_observation_count" : 106,
+  "crow_navigation_arrival_pack" : "",
+  "crow_navigation_arrival_payload_sha256" : "",
+  "crow_navigation_arrival_waypoint" : 3,
+  "crow_replay_pack" : "\/Users\/n\/Developer\/numi-crow-rl-20261107\/build\/crow-v15-long-perch-host-20261110\/development-i-newactor-recovery.json",
+  "crow_replay_payload_sha256" : "a8d8947ec4ee66dfc7fac44c17a4df1f0e26be0245b84e079fc3d88e8fb4279b",
+  "device" : "Apple M4 Pro",
+  "difficulty_sampling_exponent_override" : 0,
+  "dynamic_sphere_count" : 0,
+  "elapsed_seconds" : 125.73713783399999,
+  "environment_control_steps_per_second" : 55.671698279322236,
+  "environments" : 1,
+  "failed_environment_steps" : 0,
+  "final_forward_progress_by_environment_m" : [
+    5.2046402841806412
+  ],
+  "final_state_json" : "",
+  "final_velocity_iterations" : 2,
+  "first_episode_navigation" : {
+    "boundary" : "waypoint completion; does not establish supported landing",
+    "closed_by_environment" : [
+      true
+    ],
+    "closed_episode_count" : 1,
+    "completion_seen_by_environment" : [
+      true
+    ],
+    "completion_seen_count" : 1,
+    "environment_count" : 1,
+    "first_completion_step_by_environment" : [
+      2743
+    ],
+    "horizon_censored_count" : 0,
+    "maximum_waypoints_by_environment" : [
+      5
+    ],
+    "physical_failure_by_environment" : [
+      false
+    ],
+    "physical_failure_count" : 0,
+    "safe_completion_by_environment" : [
+      true
+    ],
+    "safe_completion_count" : 1,
+    "schema" : "numi.crow-first-episode-evidence.v1",
+    "steps_by_environment" : [
+      7000
+    ],
+    "termination_reason_by_environment" : [
+      4
+    ],
+    "unit" : "first episode of each environment since context creation"
+  },
+  "foot_support_step_count" : 0,
+  "forward_progress_available" : true,
+  "gpu_milliseconds" : 118154.16370565072,
+  "height_or_tilt_termination_count" : 0,
+  "host_requested_resets" : 0,
+  "immutable_private_bytes" : 23357208,
+  "impact_sequence_enabled_steps" : 0,
+  "impact_sequence_metrics" : [
+
+  ],
+  "life_checkpoint_restored" : false,
+  "life_checkpoint_saved" : "",
+  "maximum_active_contacts" : 40,
+  "maximum_episode_steps" : 7000,
+  "maximum_forward_progress_m" : 5.289483442902565,
+  "maximum_manifolds" : 10,
+  "maximum_navigation_completion_by_environment" : [
+    1
+  ],
+  "maximum_navigation_progress_by_environment_m" : [
+    5.3121728897094727
+  ],
+  "maximum_navigation_waypoints_by_environment" : [
+    5
+  ],
+  "maximum_root_height" : 1.2926784753799438,
+  "maximum_sampled_difficulty_band" : 10,
+  "maximum_tilt" : 0.14339801669120789,
+  "maximum_tilt_by_environment" : [
+    0.14339801669120789
+  ],
+  "mean_base_reward" : 0.022908958138089255,
+  "mean_contact_reward" : 0,
+  "mean_control_reward" : -4.4289897017148844e-07,
+  "mean_energy_reward" : 0,
+  "mean_final_forward_progress_m" : 5.2046402841806412,
+  "mean_joint_acceleration_reward" : 0,
+  "mean_joint_velocity_reward" : 0,
+  "mean_peak_forward_progress_m" : 5.289483442902565,
+  "mean_posture_reward" : -0.0001861408956663673,
+  "mean_reward" : 0.089433444543527515,
+  "mean_root_height" : 0.88988375447264745,
+  "mean_root_height_by_environment" : [
+    0.88988375447264745
+  ],
+  "mean_task_reward" : 0.066711070214850093,
+  "mean_tilt" : 0.061722066883837606,
+  "mean_tilt_by_environment" : [
+    0.061722066883837606
+  ],
+  "mean_tracking_score" : 0.93787795536007201,
+  "mean_tracking_score_by_environment" : [
+    0.93787795536007201
+  ],
+  "minimum_root_height_by_environment" : [
+    0.16013318300247192
+  ],
+  "minimum_sampled_difficulty_band" : 10,
+  "object_push_curriculum" : "",
+  "observation_fingerprint" : "11774138562172010039",
+  "outcomes" : {
+    "approach_pitch_full_envelope_fraction" : {
+      "direction" : 2,
+      "mean" : 0,
+      "unit" : "ratio"
+    },
+    "approach_pitch_warning_fraction" : {
+      "direction" : 2,
+      "mean" : 0,
+      "unit" : "ratio"
+    },
+    "done" : {
+      "direction" : 2,
+      "mean" : 0.00014285714285714287,
+      "unit" : "bool"
+    },
+    "figure_eight_tracking" : {
+      "direction" : 1,
+      "mean" : 0,
+      "unit" : "ratio"
+    },
+    "forward_flight_tracking" : {
+      "direction" : 1,
+      "mean" : 0.035073235419495696,
+      "unit" : "ratio"
+    },
+    "ground_support" : {
+      "direction" : 1,
+      "mean" : 0.0037088571750958049,
+      "unit" : "ratio"
+    },
+    "liftoff" : {
+      "direction" : 1,
+      "mean" : 0.019941455128203545,
+      "unit" : "ratio"
+    },
+    "navigation_completion" : {
+      "direction" : 1,
+      "mean" : 0.60828571428571432,
+      "unit" : "ratio"
+    },
+    "navigation_progress" : {
+      "direction" : 1,
+      "mean" : 3.5178436345883779,
+      "unit" : "m"
+    },
+    "navigation_waypoints_reached" : {
+      "direction" : 1,
+      "mean" : 3.3301428571428571,
+      "unit" : "count"
+    },
+    "physics_error" : {
+      "direction" : 2,
+      "mean" : 0,
+      "unit" : "bool"
+    },
+    "push_off" : {
+      "direction" : 1,
+      "mean" : 0.0003469597391252007,
+      "unit" : "m\/s"
+    },
+    "reward" : {
+      "direction" : 1,
+      "mean" : 0.089433444543527515,
+      "unit" : "reward"
+    },
+    "root_height" : {
+      "direction" : 0,
+      "mean" : 0.88988375447264745,
+      "unit" : "m"
+    },
+    "task_reward" : {
+      "direction" : 1,
+      "mean" : 0.066711070214850093,
+      "unit" : "reward"
+    },
+    "timeout" : {
+      "direction" : 0,
+      "mean" : 0.00014285714285714287,
+      "unit" : "bool"
+    },
+    "tracking" : {
+      "direction" : 1,
+      "mean" : 0.93787795536007201,
+      "unit" : "ratio"
+    },
+    "walking_contact" : {
+      "direction" : 1,
+      "mean" : 0.0081758567909044882,
+      "unit" : "ratio"
+    }
+  },
+  "peak_aliased_bytes" : 573224,
+  "peak_forward_progress_by_environment_m" : [
+    5.289483442902565
+  ],
+  "persistent_state_private_bytes" : 42508,
+  "physical_evidence" : {
+    "control_steps" : 7000,
+    "evidence_windows" : 1,
+    "last_balance_failure_rate" : 0,
+    "last_clean_miss_rate" : 0,
+    "last_completed_episode_count" : 1,
+    "last_contact_rate" : 0,
+    "last_mean_tracking_per_million" : 876832,
+    "pending_completed_episode_count" : 0,
+    "pending_timeout_episode_count" : 0
+  },
+  "physics_error_count_by_environment" : [
+    0
+  ],
+  "physics_substeps" : 4,
+  "policy_action_trace" : "",
+  "policy_rollout_fingerprint" : "11497157180060395024",
+  "policy_sample_count" : 7000,
+  "quiet_stand_step_count" : 0,
+  "reality_fingerprint" : "1726366266581907427",
+  "recovery_brace_step_count" : 0,
+  "recovery_phase_rates" : {
+    "brace" : 0,
+    "foot_support" : 0,
+    "quiet_stand" : 0,
+    "rise" : 0,
+    "support_transfer" : 0,
+    "trunk_clear" : 0
+  },
+  "recovery_phase_rates_by_difficulty_band" : {
+    "10" : {
+      "brace" : 0,
+      "foot_support" : 0,
+      "mean_root_height" : 0.88988375447264745,
+      "mean_tilt" : 0.061722066883837606,
+      "quiet_stand" : 0,
+      "restored" : 0,
+      "rise" : 0,
+      "standing" : 0,
+      "support_transfer" : 0,
+      "transition_count" : 7000,
+      "trunk_clear" : 0
+    }
+  },
+  "recovery_rise_step_count" : 0,
+  "repeats" : 1,
+  "restored_step_count" : 0,
+  "retained_buffer_bytes" : 47484380,
+  "robot_fingerprint" : "8991847259195679403",
+  "rollout_pack" : "\/Users\/n\/Developer\/numi-crow-rl-20261107\/build\/crow-v15-long-perch-host-20261110\/development-i-newactor-recovery.rollout",
+  "rollout_pack_bytes" : 27832928,
+  "run_fingerprint" : "14767558686163996167",
+  "scene" : "terrain",
+  "scheduled_resets" : false,
+  "sensor_fingerprint" : "7024597215336582429",
+  "shared_boundary_bytes" : 23384832,
+  "solver_mode" : "temporal_cone",
+  "squat_cycle_completed_environment_count" : 0,
+  "squat_cycle_completed_environment_rate" : 0,
+  "squat_cycle_completed_environments" : [
+
+  ],
+  "squat_cycle_evidence" : {
+    "available" : false,
+    "bilateral_knee_excursion" : 0,
+    "bilateral_support_rate" : 0,
+    "completed" : false,
+    "environment" : 0,
+    "final_mean_knee_flexion" : 0.14017182588577271,
+    "final_pelvis_height" : 0.98454105854034424,
+    "initial_mean_knee_flexion" : 0.10062275826931,
+    "initial_pelvis_height" : 0.1854097843170166,
+    "maximum_left_knee_flexion" : 0,
+    "maximum_right_knee_flexion" : 0,
+    "minimum_pelvis_height" : 0,
+    "pelvis_descent" : 0,
+    "returned_to_initial_pose" : false,
+    "termination_count" : 1
+  },
+  "squat_cycle_evidence_by_environment" : [
+    {
+      "available" : false,
+      "bilateral_knee_excursion" : 0,
+      "bilateral_support_rate" : 0,
+      "completed" : false,
+      "environment" : 0,
+      "pelvis_descent" : 0,
+      "returned_to_initial_pose" : false,
+      "termination_count" : 1
+    }
+  ],
+  "stage_high_water" : {
+    "articulation_point_queries" : 0,
+    "candidate_pairs" : 16,
+    "ccd_candidates" : 69,
+    "ccd_events" : 0,
+    "constraint_blocks" : 40,
+    "constraint_rows" : 120,
+    "dynamic_nodes" : 0,
+    "endpoint_runtime_records" : 0,
+    "hard_convex_pairs" : 0,
+    "island_constraint_references" : 0,
+    "island_node_references" : 0,
+    "islands" : 1,
+    "manifolds" : 10,
+    "mesh_triangle_candidates" : 0,
+    "operator_velocity_elements" : 0,
+    "quality_direct_tiles" : 0,
+    "quality_generalized_velocities" : 0,
+    "quality_krylov_vectors" : 0,
+    "quality_rows" : 0,
+    "raw_contacts" : 40,
+    "rod_candidate_pairs" : 0,
+    "rod_ccd_events" : 0,
+    "rod_factor_blocks" : 0,
+    "rod_manifolds" : 0,
+    "rod_raw_contacts" : 0,
+    "solver_tiles" : 2,
+    "spill_rows" : 24
+  },
+  "standing_step_count" : 0,
+  "state_trace" : "\/Users\/n\/Developer\/numi-crow-rl-20261107\/build\/crow-v15-long-perch-host-20261110\/development-i-newactor-recovery.tsv",
+  "steps_per_repeat" : 7000,
+  "submission_count" : 7000,
+  "submission_milliseconds" : 119812.58204900019,
+  "support_transfer_step_count" : 0,
+  "task" : "american_crow_v15_conditional_landing_navigation_development_v1",
+  "task_fingerprint" : "8571717713396890292",
+  "teacher_fingerprint" : "12895120902516305820",
+  "termination_count" : 1,
+  "termination_count_by_environment" : [
+    1
+  ],
+  "termination_reason_counts" : {
+    "4" : 1
+  },
+  "timeout_count" : 1,
+  "transient_private_bytes" : 573224,
+  "trunk_clear_step_count" : 0,
+  "velocity_iterations" : 4,
+  "visual_observation" : true,
+  "visual_observation_config" : "\/Users\/n\/Developer\/numi-crow-rl-20261107\/artifacts\/crow-v15-visual-binding-fix-20261110\/crow-navigation.toe-body.visual-observation.json",
+  "visual_scene_fingerprint" : 11455059903459448615,
+  "world_fingerprint" : "6847124756410337413",
+  "world_source" : "american_crow_v15_conditional_landing_navigation_development_v1"
+}
