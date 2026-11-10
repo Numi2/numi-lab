@@ -1,0 +1,622 @@
+[
+  {
+    "trial": "artifacts/crow-v15-foot-aligned-long-20261110/diagnostic-reserved-final-j-newstart.stdout",
+    "end": 4500,
+    "terminal_samples": 25,
+    "consecutive_supported": 0,
+    "consecutive_opposing_grip": 0,
+    "passed": false,
+    "terminal": [
+      {
+        "step": 4476,
+        "upward_normal_impulse_Ns": 0.0,
+        "support_impulses_Ns": {
+          "left": 0.0,
+          "right": 0.0
+        },
+        "nonfoot_impulse_Ns": 0.0,
+        "tilt_rad": 0.03266927313088383,
+        "speed_m_s": 0.17667931069183915,
+        "opposing_grip": false
+      },
+      {
+        "step": 4477,
+        "upward_normal_impulse_Ns": 0.0,
+        "support_impulses_Ns": {
+          "left": 0.0,
+          "right": 0.0
+        },
+        "nonfoot_impulse_Ns": 0.0,
+        "tilt_rad": 0.033556861294132816,
+        "speed_m_s": 0.16304575005328165,
+        "opposing_grip": false
+      },
+      {
+        "step": 4478,
+        "upward_normal_impulse_Ns": 0.0,
+        "support_impulses_Ns": {
+          "left": 0.0,
+          "right": 0.0
+        },
+        "nonfoot_impulse_Ns": 0.0,
+        "tilt_rad": 0.03434363257960655,
+        "speed_m_s": 0.02344058407168164,
+        "opposing_grip": false
+      },
+      {
+        "step": 4479,
+        "upward_normal_impulse_Ns": 0.0,
+        "support_impulses_Ns": {
+          "left": 0.0,
+          "right": 0.0
+        },
+        "nonfoot_impulse_Ns": 0.0,
+        "tilt_rad": 0.03451223541957523,
+        "speed_m_s": 0.17241675173809326,
+        "opposing_grip": false
+      },
+      {
+        "step": 4480,
+        "upward_normal_impulse_Ns": 0.0,
+        "support_impulses_Ns": {
+          "left": 0.0,
+          "right": 0.0
+        },
+        "nonfoot_impulse_Ns": 0.0,
+        "tilt_rad": 0.03429928494447144,
+        "speed_m_s": 0.1602555143488474,
+        "opposing_grip": false
+      },
+      {
+        "step": 4481,
+        "upward_normal_impulse_Ns": 0.0,
+        "support_impulses_Ns": {
+          "left": 0.0,
+          "right": 0.0
+        },
+        "nonfoot_impulse_Ns": 0.0,
+        "tilt_rad": 0.03399228586490807,
+        "speed_m_s": 0.04745868764849298,
+        "opposing_grip": false
+      },
+      {
+        "step": 4482,
+        "upward_normal_impulse_Ns": 0.0,
+        "support_impulses_Ns": {
+          "left": 0.0,
+          "right": 0.0
+        },
+        "nonfoot_impulse_Ns": 0.0,
+        "tilt_rad": 0.0336866586712862,
+        "speed_m_s": 0.17901035965367187,
+        "opposing_grip": false
+      },
+      {
+        "step": 4483,
+        "upward_normal_impulse_Ns": 0.0,
+        "support_impulses_Ns": {
+          "left": 0.0,
+          "right": 0.0
+        },
+        "nonfoot_impulse_Ns": 0.0,
+        "tilt_rad": 0.033898276976594005,
+        "speed_m_s": 0.04724062716929161,
+        "opposing_grip": false
+      },
+      {
+        "step": 4484,
+        "upward_normal_impulse_Ns": 0.0,
+        "support_impulses_Ns": {
+          "left": 0.0,
+          "right": 0.0
+        },
+        "nonfoot_impulse_Ns": 0.0,
+        "tilt_rad": 0.03409438033326396,
+        "speed_m_s": 0.13778915101820138,
+        "opposing_grip": false
+      },
+      {
+        "step": 4485,
+        "upward_normal_impulse_Ns": 0.0,
+        "support_impulses_Ns": {
+          "left": 0.0,
+          "right": 0.0
+        },
+        "nonfoot_impulse_Ns": 0.0,
+        "tilt_rad": 0.03358684943676162,
+        "speed_m_s": 0.18916261384236138,
+        "opposing_grip": false
+      },
+      {
+        "step": 4486,
+        "upward_normal_impulse_Ns": 0.0,
+        "support_impulses_Ns": {
+          "left": 0.0,
+          "right": 0.0
+        },
+        "nonfoot_impulse_Ns": 0.0,
+        "tilt_rad": 0.032667123784686745,
+        "speed_m_s": 0.009764295114355517,
+        "opposing_grip": false
+      },
+      {
+        "step": 4487,
+        "upward_normal_impulse_Ns": 0.0,
+        "support_impulses_Ns": {
+          "left": 0.0,
+          "right": 0.0
+        },
+        "nonfoot_impulse_Ns": 0.0,
+        "tilt_rad": 0.03251968652335245,
+        "speed_m_s": 0.19026964280532407,
+        "opposing_grip": false
+      },
+      {
+        "step": 4488,
+        "upward_normal_impulse_Ns": 0.0,
+        "support_impulses_Ns": {
+          "left": 0.0,
+          "right": 0.0
+        },
+        "nonfoot_impulse_Ns": 0.0,
+        "tilt_rad": 0.03341302494410719,
+        "speed_m_s": 0.14098676675756996,
+        "opposing_grip": false
+      },
+      {
+        "step": 4489,
+        "upward_normal_impulse_Ns": 0.0,
+        "support_impulses_Ns": {
+          "left": 0.0,
+          "right": 0.0
+        },
+        "nonfoot_impulse_Ns": 0.0,
+        "tilt_rad": 0.03399523097048326,
+        "speed_m_s": 0.04917265749479744,
+        "opposing_grip": false
+      },
+      {
+        "step": 4490,
+        "upward_normal_impulse_Ns": 0.0,
+        "support_impulses_Ns": {
+          "left": 0.0,
+          "right": 0.0
+        },
+        "nonfoot_impulse_Ns": 0.0,
+        "tilt_rad": 0.034269429172996406,
+        "speed_m_s": 0.18040754123868585,
+        "opposing_grip": false
+      },
+      {
+        "step": 4491,
+        "upward_normal_impulse_Ns": 0.0,
+        "support_impulses_Ns": {
+          "left": 0.0,
+          "right": 0.0
+        },
+        "nonfoot_impulse_Ns": 0.0,
+        "tilt_rad": 0.03418216755853195,
+        "speed_m_s": 0.13190170839158086,
+        "opposing_grip": false
+      },
+      {
+        "step": 4492,
+        "upward_normal_impulse_Ns": 0.0,
+        "support_impulses_Ns": {
+          "left": 0.0,
+          "right": 0.0
+        },
+        "nonfoot_impulse_Ns": 0.0,
+        "tilt_rad": 0.03381923624722141,
+        "speed_m_s": 0.08896894392993587,
+        "opposing_grip": false
+      },
+      {
+        "step": 4493,
+        "upward_normal_impulse_Ns": 0.0,
+        "support_impulses_Ns": {
+          "left": 0.0,
+          "right": 0.0
+        },
+        "nonfoot_impulse_Ns": 0.0,
+        "tilt_rad": 0.03362379441720394,
+        "speed_m_s": 0.18963285612385541,
+        "opposing_grip": false
+      },
+      {
+        "step": 4494,
+        "upward_normal_impulse_Ns": 0.0,
+        "support_impulses_Ns": {
+          "left": 0.0,
+          "right": 0.0
+        },
+        "nonfoot_impulse_Ns": 0.0,
+        "tilt_rad": 0.033949221191026994,
+        "speed_m_s": 0.035629876745816726,
+        "opposing_grip": false
+      },
+      {
+        "step": 4495,
+        "upward_normal_impulse_Ns": 0.0,
+        "support_impulses_Ns": {
+          "left": 0.0,
+          "right": 0.0
+        },
+        "nonfoot_impulse_Ns": 0.0,
+        "tilt_rad": 0.03402302860247689,
+        "speed_m_s": 0.14227670681264207,
+        "opposing_grip": false
+      },
+      {
+        "step": 4496,
+        "upward_normal_impulse_Ns": 0.0,
+        "support_impulses_Ns": {
+          "left": 0.0,
+          "right": 0.0
+        },
+        "nonfoot_impulse_Ns": 0.0,
+        "tilt_rad": 0.03340783056575852,
+        "speed_m_s": 0.16590705971000996,
+        "opposing_grip": false
+      },
+      {
+        "step": 4497,
+        "upward_normal_impulse_Ns": 0.0,
+        "support_impulses_Ns": {
+          "left": 0.0,
+          "right": 0.0
+        },
+        "nonfoot_impulse_Ns": 0.0,
+        "tilt_rad": 0.0325528731752853,
+        "speed_m_s": 0.037741667196214655,
+        "opposing_grip": false
+      },
+      {
+        "step": 4498,
+        "upward_normal_impulse_Ns": 0.0,
+        "support_impulses_Ns": {
+          "left": 0.0,
+          "right": 0.0
+        },
+        "nonfoot_impulse_Ns": 0.0,
+        "tilt_rad": 0.03278019793900603,
+        "speed_m_s": 0.2085330530410179,
+        "opposing_grip": false
+      },
+      {
+        "step": 4499,
+        "upward_normal_impulse_Ns": 0.0,
+        "support_impulses_Ns": {
+          "left": 0.0,
+          "right": 0.0
+        },
+        "nonfoot_impulse_Ns": 0.0,
+        "tilt_rad": 0.03380805513798765,
+        "speed_m_s": 0.1247393914734543,
+        "opposing_grip": false
+      },
+      {
+        "step": 4500,
+        "upward_normal_impulse_Ns": 0.0,
+        "support_impulses_Ns": {
+          "left": 0.0,
+          "right": 0.0
+        },
+        "nonfoot_impulse_Ns": 0.0,
+        "tilt_rad": 0.03439516894633657,
+        "speed_m_s": 0.06920784980148431,
+        "opposing_grip": false
+      }
+    ]
+  },
+  {
+    "trial": "artifacts/crow-v15-foot-aligned-long-20261110/diagnostic-reserved-final-j-original.stdout",
+    "end": 4440,
+    "terminal_samples": 25,
+    "consecutive_supported": 0,
+    "consecutive_opposing_grip": 0,
+    "passed": false,
+    "terminal": [
+      {
+        "step": 4416,
+        "upward_normal_impulse_Ns": 0.021752131465508404,
+        "support_impulses_Ns": {
+          "left": 0.010895110620974004,
+          "right": 0.0108570208445344
+        },
+        "nonfoot_impulse_Ns": 0.0,
+        "tilt_rad": 0.8209672509031367,
+        "speed_m_s": 0.12282244175774078,
+        "opposing_grip": false
+      },
+      {
+        "step": 4417,
+        "upward_normal_impulse_Ns": 0.021769491938488574,
+        "support_impulses_Ns": {
+          "left": 0.010997296574668164,
+          "right": 0.01077219536382041
+        },
+        "nonfoot_impulse_Ns": 0.0,
+        "tilt_rad": 0.8356357300733245,
+        "speed_m_s": 0.12427088727480472,
+        "opposing_grip": false
+      },
+      {
+        "step": 4418,
+        "upward_normal_impulse_Ns": 0.02172559740372848,
+        "support_impulses_Ns": {
+          "left": 0.010899479031093971,
+          "right": 0.01082611837263451
+        },
+        "nonfoot_impulse_Ns": 0.0,
+        "tilt_rad": 0.8503837808577294,
+        "speed_m_s": 0.12671182915489781,
+        "opposing_grip": false
+      },
+      {
+        "step": 4419,
+        "upward_normal_impulse_Ns": 0.02168732508007919,
+        "support_impulses_Ns": {
+          "left": 0.010850453280001022,
+          "right": 0.010836871800078167
+        },
+        "nonfoot_impulse_Ns": 0.0,
+        "tilt_rad": 0.865244084901349,
+        "speed_m_s": 0.1294796478561094,
+        "opposing_grip": false
+      },
+      {
+        "step": 4420,
+        "upward_normal_impulse_Ns": 0.02165840380000008,
+        "support_impulses_Ns": {
+          "left": 0.01081174332,
+          "right": 0.010846660480000075
+        },
+        "nonfoot_impulse_Ns": 0.0,
+        "tilt_rad": 0.8802647346236664,
+        "speed_m_s": 0.13212849665037726,
+        "opposing_grip": false
+      },
+      {
+        "step": 4421,
+        "upward_normal_impulse_Ns": 0.02164006978,
+        "support_impulses_Ns": {
+          "left": 0.01077938638,
+          "right": 0.010860683400000001
+        },
+        "nonfoot_impulse_Ns": 0.0,
+        "tilt_rad": 0.8954737296582085,
+        "speed_m_s": 0.13449061821449365,
+        "opposing_grip": false
+      },
+      {
+        "step": 4422,
+        "upward_normal_impulse_Ns": 0.02163176705,
+        "support_impulses_Ns": {
+          "left": 0.01071417099,
+          "right": 0.01091759606
+        },
+        "nonfoot_impulse_Ns": 0.0,
+        "tilt_rad": 0.9108765357282725,
+        "speed_m_s": 0.13661174265512652,
+        "opposing_grip": false
+      },
+      {
+        "step": 4423,
+        "upward_normal_impulse_Ns": 0.02162169805,
+        "support_impulses_Ns": {
+          "left": 0.010698147120000001,
+          "right": 0.01092355093
+        },
+        "nonfoot_impulse_Ns": 0.0,
+        "tilt_rad": 0.9264786520590776,
+        "speed_m_s": 0.1384515682588149,
+        "opposing_grip": false
+      },
+      {
+        "step": 4424,
+        "upward_normal_impulse_Ns": 0.021634001290000003,
+        "support_impulses_Ns": {
+          "left": 0.010707706680000002,
+          "right": 0.01092629461
+        },
+        "nonfoot_impulse_Ns": 0.0,
+        "tilt_rad": 0.942271509654271,
+        "speed_m_s": 0.14014134048158616,
+        "opposing_grip": false
+      },
+      {
+        "step": 4425,
+        "upward_normal_impulse_Ns": 0.02163184946,
+        "support_impulses_Ns": {
+          "left": 0.01070330664,
+          "right": 0.010928542820000001
+        },
+        "nonfoot_impulse_Ns": 0.0,
+        "tilt_rad": 0.9582503992058348,
+        "speed_m_s": 0.14171358576515178,
+        "opposing_grip": false
+      },
+      {
+        "step": 4426,
+        "upward_normal_impulse_Ns": 0.02163972426,
+        "support_impulses_Ns": {
+          "left": 0.010707633099999999,
+          "right": 0.01093209116
+        },
+        "nonfoot_impulse_Ns": 0.0,
+        "tilt_rad": 0.9744081286911316,
+        "speed_m_s": 0.14321901402832612,
+        "opposing_grip": false
+      },
+      {
+        "step": 4427,
+        "upward_normal_impulse_Ns": 0.02164048888,
+        "support_impulses_Ns": {
+          "left": 0.01070794789,
+          "right": 0.01093254099
+        },
+        "nonfoot_impulse_Ns": 0.0,
+        "tilt_rad": 0.9907386338820382,
+        "speed_m_s": 0.14468741905999444,
+        "opposing_grip": false
+      },
+      {
+        "step": 4428,
+        "upward_normal_impulse_Ns": 0.021634510250000002,
+        "support_impulses_Ns": {
+          "left": 0.0107091954,
+          "right": 0.01092531485
+        },
+        "nonfoot_impulse_Ns": 0.0,
+        "tilt_rad": 1.0072367155841786,
+        "speed_m_s": 0.14614563460561378,
+        "opposing_grip": false
+      },
+      {
+        "step": 4429,
+        "upward_normal_impulse_Ns": 0.02162899124,
+        "support_impulses_Ns": {
+          "left": 0.01070898818,
+          "right": 0.010920003059999999
+        },
+        "nonfoot_impulse_Ns": 0.0,
+        "tilt_rad": 1.0238992856891331,
+        "speed_m_s": 0.14757817639994117,
+        "opposing_grip": false
+      },
+      {
+        "step": 4430,
+        "upward_normal_impulse_Ns": 0.02163496242,
+        "support_impulses_Ns": {
+          "left": 0.010708254300000001,
+          "right": 0.01092670812
+        },
+        "nonfoot_impulse_Ns": 0.0,
+        "tilt_rad": 1.0407225976861738,
+        "speed_m_s": 0.1489858348821375,
+        "opposing_grip": false
+      },
+      {
+        "step": 4431,
+        "upward_normal_impulse_Ns": 0.02163492934,
+        "support_impulses_Ns": {
+          "left": 0.010712353510000001,
+          "right": 0.01092257583
+        },
+        "nonfoot_impulse_Ns": 0.0,
+        "tilt_rad": 1.0577034079436842,
+        "speed_m_s": 0.1503816145192429,
+        "opposing_grip": false
+      },
+      {
+        "step": 4432,
+        "upward_normal_impulse_Ns": 0.02163178288,
+        "support_impulses_Ns": {
+          "left": 0.01071814401,
+          "right": 0.01091363887
+        },
+        "nonfoot_impulse_Ns": 0.0,
+        "tilt_rad": 1.074838557613492,
+        "speed_m_s": 0.15174496526867393,
+        "opposing_grip": false
+      },
+      {
+        "step": 4433,
+        "upward_normal_impulse_Ns": 0.019647218823362,
+        "support_impulses_Ns": {
+          "left": 0.02009068604,
+          "right": 0.011832101468000001
+        },
+        "nonfoot_impulse_Ns": 0.0,
+        "tilt_rad": 1.0917771496223216,
+        "speed_m_s": 0.15366007894153788,
+        "opposing_grip": false
+      },
+      {
+        "step": 4434,
+        "upward_normal_impulse_Ns": 0.018183285351727214,
+        "support_impulses_Ns": {
+          "left": 0.0125815542276,
+          "right": 0.013820220171
+        },
+        "nonfoot_impulse_Ns": 0.0,
+        "tilt_rad": 1.1058794230622624,
+        "speed_m_s": 0.17219883784381754,
+        "opposing_grip": false
+      },
+      {
+        "step": 4435,
+        "upward_normal_impulse_Ns": 0.016007675796149506,
+        "support_impulses_Ns": {
+          "left": 0.011398217148,
+          "right": 0.013954251254000002
+        },
+        "nonfoot_impulse_Ns": 0.0,
+        "tilt_rad": 1.12063157865746,
+        "speed_m_s": 0.16887855337549856,
+        "opposing_grip": false
+      },
+      {
+        "step": 4436,
+        "upward_normal_impulse_Ns": 0.01543016232788414,
+        "support_impulses_Ns": {
+          "left": 0.011408087051999999,
+          "right": 0.014051211508
+        },
+        "nonfoot_impulse_Ns": 0.0,
+        "tilt_rad": 1.1347978865215553,
+        "speed_m_s": 0.17490668053125438,
+        "opposing_grip": false
+      },
+      {
+        "step": 4437,
+        "upward_normal_impulse_Ns": 0.015717875091591678,
+        "support_impulses_Ns": {
+          "left": 0.012560938484,
+          "right": 0.0137154947044
+        },
+        "nonfoot_impulse_Ns": 0.0,
+        "tilt_rad": 1.1487228535505043,
+        "speed_m_s": 0.1820255579098755,
+        "opposing_grip": false
+      },
+      {
+        "step": 4438,
+        "upward_normal_impulse_Ns": 0.017165647589854345,
+        "support_impulses_Ns": {
+          "left": 0.01290233972,
+          "right": 0.01378507984
+        },
+        "nonfoot_impulse_Ns": 0.0,
+        "tilt_rad": 1.163069201282831,
+        "speed_m_s": 0.18246182106922443,
+        "opposing_grip": false
+      },
+      {
+        "step": 4439,
+        "upward_normal_impulse_Ns": 0.004641159796207022,
+        "support_impulses_Ns": {
+          "left": 0.004590558493,
+          "right": 0.004119209786
+        },
+        "nonfoot_impulse_Ns": 0.0,
+        "tilt_rad": 1.1750790634216557,
+        "speed_m_s": 0.24124104856832135,
+        "opposing_grip": false
+      },
+      {
+        "step": 4440,
+        "upward_normal_impulse_Ns": 0.019098275130253237,
+        "support_impulses_Ns": {
+          "left": 0.011048601518650001,
+          "right": 0.01030288873534
+        },
+        "nonfoot_impulse_Ns": 0.0,
+        "tilt_rad": 1.1889062016983185,
+        "speed_m_s": 0.23918976716814214,
+        "opposing_grip": false
+      }
+    ]
+  }
+]

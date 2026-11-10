@@ -1,0 +1,12 @@
+[
+  {
+    "path": "build/crow-v15-foot-aligned-approach-20261110/footalign.metallib",
+    "sha256": "102814e607ea3e929a19b16d5d9acd11915cb84ca5e5c6bfd75934c18469852c",
+    "bytes": 4472944
+  },
+  {
+    "path": "build/crow-v15-long-horizon-20261110/libmetalrobo.dylib",
+    "sha256": "63f0233c2b0285dcb222360e534f768992ae5fa9688fba429992a8fc380baa26",
+    "bytes": 5763888
+  }
+]

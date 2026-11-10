@@ -1,0 +1,12 @@
+[
+  {
+    "path": "build/crow-v15-route-teacher-signal-fix-20261110/teacherfix.metallib",
+    "sha256": "220aa0f517218881f92e9974974912cdc510711c5a87c60f2345b4ae1e2237fe",
+    "bytes": 4472656
+  },
+  {
+    "path": "build/crow-v15-integrated-route-baseline-20261110/libmetalrobo.dylib",
+    "sha256": "9e745472159b32a41d25b59ccaebb51693a0773ddb2c168bb0e4f0f5fdd2e8da",
+    "bytes": 5763888
+  }
+]

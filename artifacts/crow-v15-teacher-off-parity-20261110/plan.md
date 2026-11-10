@@ -1,0 +1,1 @@
+Teacher-off parity control on development J: compare accepted sampled q/v up to step 3000 between the signal-fixed shader and the unmodified teacher-off damped toe shader. The metadata lane must not change behavior when teacher sampling is disabled. This is a diagnostic parity check, not route or landing qualification.
