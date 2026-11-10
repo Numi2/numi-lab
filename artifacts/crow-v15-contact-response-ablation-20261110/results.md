@@ -1,0 +1,5 @@
+# Contact response ablation: pathway arms not exercised
+
+Arm 0 reproduced all 200 states of the separated-start control. Arms 1 and 2 also produced exactly identical logged states and 4.706 mm worst grip overlap. Subsequent source inspection found the streamed-response flag is only eligible for a native task or function-based dynamics; this standalone bench has neither. Therefore changing the two advertised response switches here did not establish a comparison of the intended streamed versus unstreamed/dense paths. These arms are inconclusive about those paths, not evidence of their equivalence or a solver defect.
+
+Disabling warm start (arm 3) changed 198/200 logged states and increased worst grip overlap to 6.540 mm in this one start, even though the grip/release/support screen passed. It does not qualify as a fix. The earlier partial run with controller differences is separately labeled invalid. All outcomes remain one uncalibrated drop and are not whole-sequence or biological qualification.

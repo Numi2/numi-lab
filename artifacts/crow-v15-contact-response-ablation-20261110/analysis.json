@@ -1,0 +1,70 @@
+{
+  "baseline_parity_exact": true,
+  "baseline_parity_differences": [],
+  "rows": [
+    {
+      "case": 1,
+      "arm": 0,
+      "outcome": "completed transition 39 success 41 release 51",
+      "samples": 200,
+      "longest_opposing_grip": 16,
+      "longest_supported_opposing_grip": 16,
+      "longest_supported": 138,
+      "terminal_25_supported": true,
+      "first_release_without_grip": 56,
+      "terminal_max_toe_abs_rad": 0.0353189,
+      "strict_pass": true,
+      "opposed_grip_pose_samples": 16,
+      "missing_grip_pose_samples": 0,
+      "minimum_grip_sat_gap_m": -0.004706251414988996
+    },
+    {
+      "case": 1,
+      "arm": 1,
+      "outcome": "completed transition 39 success 41 release 51",
+      "samples": 200,
+      "longest_opposing_grip": 16,
+      "longest_supported_opposing_grip": 16,
+      "longest_supported": 138,
+      "terminal_25_supported": true,
+      "first_release_without_grip": 56,
+      "terminal_max_toe_abs_rad": 0.0353189,
+      "strict_pass": true,
+      "opposed_grip_pose_samples": 16,
+      "missing_grip_pose_samples": 0,
+      "minimum_grip_sat_gap_m": -0.004706251414988996
+    },
+    {
+      "case": 1,
+      "arm": 2,
+      "outcome": "completed transition 39 success 41 release 51",
+      "samples": 200,
+      "longest_opposing_grip": 16,
+      "longest_supported_opposing_grip": 16,
+      "longest_supported": 138,
+      "terminal_25_supported": true,
+      "first_release_without_grip": 56,
+      "terminal_max_toe_abs_rad": 0.0353189,
+      "strict_pass": true,
+      "opposed_grip_pose_samples": 16,
+      "missing_grip_pose_samples": 0,
+      "minimum_grip_sat_gap_m": -0.004706251414988996
+    },
+    {
+      "case": 1,
+      "arm": 3,
+      "outcome": "completed transition 35 success 38 release 48",
+      "samples": 200,
+      "longest_opposing_grip": 20,
+      "longest_supported_opposing_grip": 20,
+      "longest_supported": 132,
+      "terminal_25_supported": true,
+      "first_release_without_grip": 57,
+      "terminal_max_toe_abs_rad": 0.00224003,
+      "strict_pass": true,
+      "opposed_grip_pose_samples": 20,
+      "missing_grip_pose_samples": 0,
+      "minimum_grip_sat_gap_m": -0.0065402588541732115
+    }
+  ]
+}
