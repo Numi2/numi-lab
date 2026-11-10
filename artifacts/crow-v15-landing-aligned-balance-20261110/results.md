@@ -1,0 +1,3 @@
+# Contact-triggered balance after improved alignment
+
+All four trials on two previously used J starts reached five waypoints and failed before 4500 steps. Stronger joint feedback retained opposing grip for at most 26 and 125 consecutive endpoint samples and failed at steps 2860 and 2906; earlier weak feedback retained it for 81 and 85 samples and failed at 2866 and 2833. Neither controller passed the terminal support and grip gate. Results are last-substep endpoint measurements on direct simulator state with out-of-distribution legacy actor bindings; neither is a qualified landing or visual autonomous policy. No variant is promoted.

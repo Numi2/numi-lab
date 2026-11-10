@@ -1,0 +1,11 @@
+--- a/ahead.metal
++++ b/early.metal
+@@ -5097,7 +5097,7 @@
+         if (fixedFlightController && state.threatTeacher.w >= 1.5f && action < 15u)
+             navigationTeacherRequested = 0.0f;
+         if (fixedFlightController && state.episode.z==10u && state.navigation.z>=5.0f &&
+-            state.threatTeacher.w>=1.5f && (state.status.w&63u)>=40u && ((state.status.w>>6u)&63u)>=40u &&
++            state.threatTeacher.w>=1.5f && (state.status.w&63u)>=20u && ((state.status.w>>6u)&63u)>=20u &&
+             (action==7u || action==9u || action==10u || action==12u)) {
+             const float correction=clamp(-0.60f*state.threatGeometry.z-0.12f*state.threatGeometry.w,-0.08f,0.08f);
+             navigationTeacherRequested=(action==9u || action==12u) ? -correction : correction;
