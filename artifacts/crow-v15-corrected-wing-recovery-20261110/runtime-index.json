@@ -1,0 +1,17 @@
+[
+  {
+    "path": "build/crow-v15-corrected-wing-recovery-20261110/airborne.metallib",
+    "sha256": "5c2dd152aaf3ee2b4380efec0f81f1bd974121aebda2037d50b7bad0785250ef",
+    "bytes": 4467904
+  },
+  {
+    "path": "build/crow-v15-corrected-wing-action-observer-20261110/libmetalrobo.dylib",
+    "sha256": "f2afbab559b526b7188eb6a3ef78c41f4dcfe71dad57e0e22b45b51adbb4aae3",
+    "bytes": 5764080
+  },
+  {
+    "path": "build/crow-v15-wing-inertia-prototype-20261110/zero.policypack",
+    "sha256": "7340e39ae33676752ac7eadc3bffc17e2a42d8c90705f27166aebe2c16282b7d",
+    "bytes": 2346385
+  }
+]

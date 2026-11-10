@@ -1,0 +1,5 @@
+# Recovery diagnostic results
+
+The constant-twist candidate passed 56/80 lanes. All 8 examples of each positive pitch, negative pitch and combined disturbance missed the speed-error criterion; 0/80 had physical failures or failed solver steps. The ten groups and accepted-state samples are retained. This used eight accepted straight-flight body states and the observed filtered controls at step 700; the remaining hidden simulator state was reconstructed. It was not a continuous flight test.
+
+The 40-lane source collection deliberately ran only 800 steps, but reused a flight analyzer written for 1600 steps and 1000–1500 evaluation; its displayed 0/8 tracking passes are inapplicable and must not be interpreted as source failures. The source run's first-episode JSON shows zero physical and solver failures in 40 lanes. Its generic analysis field for host_sha256 points to the non-observer host and is wrong; airborne-results.json records the actual observer host identity. The separately archived observer matched 256/256 sampled q/v values to the non-observer host. The research body and force closure are not biologically calibrated.
