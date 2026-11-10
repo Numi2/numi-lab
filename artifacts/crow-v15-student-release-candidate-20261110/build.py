@@ -12,6 +12,13 @@ changes=[("const bool closing=state.navigation.z>=5.0f;","const bool closing=sta
                         if (state.episode.x >= state.threatMetadata.x+200u && state.nutrition.x>0.10f && state.nutrition.y>0.10f && state.nutrition.x+state.nutrition.y>2.2f) phase=3.0f;
                     }
                 }""")]
+changes.extend([
+("float2 accumulated = pass.physicsSubstep == 0u ? float2(0.0f) : as_type<float2>(state.threatMetadata.zw);", """float2 accumulated = pass.physicsSubstep == 0u ? float2(0.0f) : as_type<float2>(state.threatMetadata.zw);
+        if (state.threatMetadata.z == MR_INVALID_INDEX) accumulated.x=0.0f;
+        if (state.threatMetadata.w == MR_INVALID_INDEX) accumulated.y=0.0f;"""),
+("state.nutrition.xy=state.navigation.z>=5.0f ? as_type<float2>(state.threatMetadata.zw)/dispatch.timing.x : float2(compactContact[compactBase+contactGroups[0].members.w],compactContact[compactBase+contactGroups[1].members.w]);", """state.nutrition.xy=state.navigation.z>=5.0f ? as_type<float2>(state.threatMetadata.zw)/dispatch.timing.x : float2(compactContact[compactBase+contactGroups[0].members.w],compactContact[compactBase+contactGroups[1].members.w]);
+        if (state.navigation.z>=5.0f && state.threatMetadata.z == MR_INVALID_INDEX) state.nutrition.x=0.0f;
+        if (state.navigation.z>=5.0f && state.threatMetadata.w == MR_INVALID_INDEX) state.nutrition.y=0.0f;""")])
 for old,new in changes:
  assert s.count(old)==1,(old,s.count(old));s=s.replace(old,new)
 (B/"teacher.metal").write_text(s);(A/"student-release.patch").write_text("".join(difflib.unified_diff(base.splitlines(True),s.splitlines(True),fromfile="a/student.metal",tofile="b/student.metal")))
