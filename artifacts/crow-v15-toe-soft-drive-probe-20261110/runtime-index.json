@@ -1,0 +1,22 @@
+[
+  {
+    "path": "build/crow-v15-toe-soft-drive-probe-20261110/probe",
+    "sha256": "f5cdfa11a7c6a8e06300ba171ca08102d57e9349bad22317bd70db59881c9ba0",
+    "bytes": 101672
+  },
+  {
+    "path": "build/crow-v15-toe-soft-drive-probe-20261110/fk_check",
+    "sha256": "ac926c3acb51590e31f5400a57f822e21eba620b1c34e3168edda93d8f3a0fde",
+    "bytes": 64168
+  },
+  {
+    "path": "build/lib/libmetalrobo.dylib",
+    "sha256": "d7dad802978b03d8571487dac644678d2c4c1a8eae5b8a4c5c57be261cfbe11a",
+    "bytes": 5728528
+  },
+  {
+    "path": "build/shaders/MetalRobo.metallib",
+    "sha256": "69023c5dcd83c3a10bdc62a5a14d3a9c56d75797de36c95ed090b0f41ef9e135",
+    "bytes": 4467648
+  }
+]

@@ -1,0 +1,7 @@
+# Softer toe-drive screening: no candidate passed
+
+Thirty-two isolated bench cases covered all eight perturbed starts and four drive arms; failures were retained. The 0.10, 0.05 and 0.025 N m/rad arms passed the full grip/release/terminal-support test in 4/8, 4/8 and 0/8 starts respectively, below the required 6/8. Their worst independent accepted-pose SAT gaps during bilateral opposed grip were -0.505, -1.734 and -0.993 mm respectively, all beyond the 0.5 mm limit. One 0.10 case rolled back at step 21; all other cases reached 200 steps. Reducing the stiffness did not solve the full gate.
+
+The 0.05 arm produced at least three consecutive opposed-grip samples in 8/8, but terminal support held for only 4/8 and its worst overlap was larger. The 0.025 arm often left toes bent after release. In the four displaced starts that fell, the open-toe control also lost terminal support, indicating that toe closure alone does not explain those bench falls. These are already-supported starts using v15 toe and perch dimensions, a separate stationary ground scene and its own default MetalWorld library/shader. They are not full-body landing or biological qualification.
+
+The independent FP64 toe-pose query was cross-checked against 32 simulator-replay toe poses: using the verified one-step alignment, maximum position error was 0.000000233 m and quaternion component-vector error was 0.000000034. Endpoint SAT does not bound penetration between steps. The initial instrumentation failure and the successful one-case measurement smoke test are separately retained.

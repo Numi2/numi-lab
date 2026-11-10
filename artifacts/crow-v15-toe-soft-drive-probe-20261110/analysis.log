@@ -1,0 +1,5 @@
+Exact-v15 dimensions; prior square-bench parity is not expected.
+arm 0 strict pass 4 opposed 3+ 4 terminal support 4 minimum grip gap m -0.0005054369695606797 missing pose steps 0
+arm 1 strict pass 4 opposed 3+ 8 terminal support 4 minimum grip gap m -0.0017340757865263734 missing pose steps 0
+arm 2 strict pass 0 opposed 3+ 6 terminal support 4 minimum grip gap m -0.0009932306178468894 missing pose steps 0
+arm 3 strict pass 0 opposed 3+ 0 terminal support 4 minimum grip gap m None missing pose steps 0
