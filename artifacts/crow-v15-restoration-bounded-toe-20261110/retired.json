@@ -1,0 +1,11 @@
+{
+  "remote_commit": "5390f0d1d4abbfbe5a82e69efde96b44244c3f76",
+  "retired": [
+    {
+      "raw": "artifacts/crow-v15-bounded-toe-closure-screen-20261110/results.txt",
+      "archive": "artifacts/crow-v15-bounded-toe-closure-screen-20261110/results.txt.gz",
+      "sha256": "1a92fe2025ab54a264c86963cacf265c340157dd1c9f09e914eeb954e08fa342",
+      "bytes": 2355189
+    }
+  ]
+}
