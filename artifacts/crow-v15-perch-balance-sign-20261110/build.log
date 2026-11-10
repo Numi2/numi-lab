@@ -1,0 +1,10 @@
+/Users/n/Developer/numi-crow-rl-20261107/build/crow-v15-perch-balance-sign-20261110/reverse1.metal:5494:21: warning: unused variable 'seconds' [-Wunused-variable]
+        const float seconds=float(state.episode.x)*dispatch.timing.x;
+                    ^
+1 warning generated.
+reverse1 71ce1519331168e547677aa40fe27ae3501218dbffb8bd8d4eea8070929268aa
+/Users/n/Developer/numi-crow-rl-20261107/build/crow-v15-perch-balance-sign-20261110/reverse2.metal:5494:21: warning: unused variable 'seconds' [-Wunused-variable]
+        const float seconds=float(state.episode.x)*dispatch.timing.x;
+                    ^
+1 warning generated.
+reverse2 6fabad1f1459553f4178154f3d7c71f1651eb0e5013ee3702bc92a5e5e678ae7

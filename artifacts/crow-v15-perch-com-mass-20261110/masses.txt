@@ -1,0 +1,26 @@
+0 crow_body 0.3506562412
+1 crow_left_wing_sweep 9.999999747e-06
+2 crow_right_wing_sweep 9.999999747e-06
+3 crow_left_wing_flap_link 9.999999747e-06
+4 crow_right_wing_flap_link 9.999999747e-06
+5 crow_left_wing 0.0001406249939
+6 crow_right_wing 0.0001406249939
+7 crow_tail 0.01406249963
+8 crow_left_thigh 0.009843749925
+9 crow_left_shank 0.007031249814
+10 crow_left_foot 0.005225000437
+11 crow_right_thigh 0.009843749925
+12 crow_right_shank 0.007031249814
+13 crow_right_foot 0.005225000437
+14 crow_neck_yaw_link 0.001000000047
+15 crow_head 0.03500000015
+16 crow_lower_beak 0.00400000019
+17 crow_left_front_toe_1 9.999999747e-05
+18 crow_left_front_toe_2 9.999999747e-05
+19 crow_left_front_toe_3 9.999999747e-05
+20 crow_left_rear_toe 9.999999747e-05
+21 crow_right_front_toe_1 9.999999747e-05
+22 crow_right_front_toe_2 9.999999747e-05
+23 crow_right_front_toe_3 9.999999747e-05
+24 crow_right_rear_toe 9.999999747e-05
+mass 0.4500399915

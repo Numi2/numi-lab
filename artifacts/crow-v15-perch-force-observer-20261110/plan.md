@@ -1,0 +1,3 @@
+# Perch contact force geometry observer
+
+Prior touchdown reached physically opposing grip but pitched off. Add only accepted contact-point coordinates to the existing observer and repeat the identical J full-start toe-ramp run, comparing every available sampled q/v with the prior run to reject observer interference. Use the native articulated model and masses to reconstruct center of mass and calculate moment of measured normal and tangential impulses about the COM, treating final-substep endpoint evidence as sampled and approximate. Keep exact shader, no-reset trajectory, actor and physical dynamics unchanged. Preserve both results; do not infer continuous torque or successful landing from the observer alone.

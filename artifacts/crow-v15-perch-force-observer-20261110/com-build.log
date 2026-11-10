@@ -1,0 +1,13 @@
+In file included from artifacts/crow-v15-perch-force-observer-20261110/com_probe.cpp:2:
+artifacts/crow-v15-perch-force-observer-20261110/../crow-v15-toe-grip-redamping-20261110/toe_model.cpp:82:78: warning: non-void function does not return a value in all control paths [-Wreturn-type]
+   82 |   } catch(const std::exception& e){std::cerr<<e.what()<<std::endl;return 1;} }
+      |                                                                              ^
+artifacts/crow-v15-perch-force-observer-20261110/com_probe.cpp:6:446: error: no member named 'message' in 'metalrobo::ArticulatedDynamicsDiagnostics'
+    6 | int main(){try{auto p=toeModel();auto&m=p.mechanics;std::string line;std::cout<<std::setprecision(12);while(std::getline(std::cin,line)){std::istringstream in(line);int t;in>>t;std::vector<double>q;double z;while(in>>z)q.push_back(z);need(q.size()==m.defaultQ.size(),"bad q");std::vector<double>v(m.defaultV.size());std::vector<ArticulatedBodyKinematics>b(m.bodies.size());auto s=computeArticulatedBodyKinematics(m,0,q,v,b);need(s.succeeded(),s.message);double sum=0,x=0,y=0,zpos=0;for(unsigned i=0;i<b.size();i++){auto mass=m.bodies[i].massAndInverseMass.x;sum+=mass;x+=mass*b[i].centerOfMassPosition[0];y+=mass*b[i].centerOfMassPosition[1];zpos+=mass*b[i].centerOfMassPosition[2];}std::cout<<t<<" "<<sum<<" "<<x/sum<<" "<<y/sum<<" "<<zpos/sum<<"\n";}}catch(const std::exception&e){std::cerr<<e.what()<<"\n";return 1;}}
+      |                                                                                                                                                                                                                                                                                                                                                                                                                                                            ~ ^
+1 warning and 1 error generated.
+In file included from artifacts/crow-v15-perch-force-observer-20261110/com_probe.cpp:2:
+artifacts/crow-v15-perch-force-observer-20261110/../crow-v15-toe-grip-redamping-20261110/toe_model.cpp:82:78: warning: non-void function does not return a value in all control paths [-Wreturn-type]
+   82 |   } catch(const std::exception& e){std::cerr<<e.what()<<std::endl;return 1;} }
+      |                                                                              ^
+1 warning generated.

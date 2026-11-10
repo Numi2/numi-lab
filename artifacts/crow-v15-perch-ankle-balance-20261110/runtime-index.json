@@ -1,0 +1,12 @@
+[
+  {
+    "path": "build/crow-v15-perch-ankle-balance-20261110/ankle3.metallib",
+    "sha256": "a549077e790ea4e5d2d92693b53e52c57ce0c4e1b3e3b0e2cbf57903fca9fb61",
+    "bytes": 4472848
+  },
+  {
+    "path": "build/crow-v15-perch-ankle-balance-20261110/ankle6.metallib",
+    "sha256": "9483375fee008d9489784abd93d426c30975fcf60650e5cf5133984a8a236146",
+    "bytes": 4472848
+  }
+]

@@ -1,0 +1,10 @@
+/Users/n/Developer/numi-crow-rl-20261107/build/crow-v15-perch-grip-balance-20261110/grip3.metal:5498:21: warning: unused variable 'seconds' [-Wunused-variable]
+        const float seconds=float(state.episode.x)*dispatch.timing.x;
+                    ^
+1 warning generated.
+grip3 973fe3e4acfb97bffa7a62a05af3e1cbb0f05c41330f20ea107454c9e45006ad
+/Users/n/Developer/numi-crow-rl-20261107/build/crow-v15-perch-grip-balance-20261110/grip6.metal:5498:21: warning: unused variable 'seconds' [-Wunused-variable]
+        const float seconds=float(state.episode.x)*dispatch.timing.x;
+                    ^
+1 warning generated.
+grip6 e3e9031998def03fcf163052b02f6f1c681d4d18daa086d0d21a37e0b51110a9

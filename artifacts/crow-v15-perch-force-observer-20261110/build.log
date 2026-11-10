@@ -1,0 +1,13 @@
+Traceback (most recent call last):
+  File "/Users/n/Developer/numi-crow-rl-20261107/artifacts/crow-v15-perch-force-observer-20261110/build_host.py", line 5, in <module>
+    assert base.count(old)==1
+AssertionError
+Traceback (most recent call last):
+  File "/Users/n/Developer/numi-crow-rl-20261107/artifacts/crow-v15-perch-force-observer-20261110/build_host.py", line 5, in <module>
+    assert base.count(old)==1
+AssertionError
+/Users/n/Developer/numi-crow-rl-20261107/build/crow-v15-perch-force-observer-20261110/c_api.cpp:3364:13: warning: unused function 'close' [-Wunused-function]
+ 3364 | static void close(double a, double b, const char* why) { crowToeNeed(std::abs(a-b)<=2e-7*(1+std::abs(a)),why); }
+      |             ^~~~~
+1 warning generated.
+a7f394ba656e43fde88fd99808c626fdf4edac84a4eb0ab6fa6601b043866ffd

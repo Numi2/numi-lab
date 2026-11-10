@@ -1,0 +1,14 @@
+--- a/toe-ramp.metal
++++ b/reverse2.metal
+@@ -5091,6 +5091,11 @@
+         // execution still has no teacher authority.
+         if (fixedFlightController && state.threatTeacher.w >= 1.5f && action < 15u)
+             navigationTeacherRequested = 0.0f;
++        if (fixedFlightController && state.episode.z==10u && state.navigation.z>=5.0f &&
++            state.threatTeacher.w>=1.5f && (action==7u || action==10u) &&
++            (action==7u ? state.nutrition.x : state.nutrition.y)>0.05f) {
++            navigationTeacherRequested=clamp(-2.0f*state.threatGeometry.z + -0.30f*state.threatGeometry.w,-0.75f,0.75f);
++        }
+         const float navigationTeacherBlend = fixedFlightController
+             ? 1.0f
+             : avianNavigationTeacher

@@ -1,0 +1,3 @@
+# Model-mass support-center feedback
+
+The first GPU COM-feedback run published zero feedback codes: articulated body-state inverse masses were unavailable in this task buffer, so it did not implement the intended controller. Replace only that mass calculation with the exact 25 body masses extracted from the v15 toe model, guarded by the 25-body topology. Compare the quantized GPU support-COM error with the independently reconstructed force observer before crediting any result. Test the same two gains, full-start developmental J, unchanged toe motion and landing criteria. Static masses bind this exploratory code to this exact body; no generalized or biological claim. Preserve the no-feedback trial as a failed instrumentation control.

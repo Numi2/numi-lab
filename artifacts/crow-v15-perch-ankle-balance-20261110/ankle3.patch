@@ -1,0 +1,53 @@
+--- a/toe-ramp.metal
++++ b/ankle3.metal
+@@ -5091,6 +5091,16 @@
+         // execution still has no teacher authority.
+         if (fixedFlightController && state.threatTeacher.w >= 1.5f && action < 15u)
+             navigationTeacherRequested = 0.0f;
++        if (fixedFlightController && state.episode.z==10u && state.navigation.z>=5.0f &&
++            state.threatTeacher.w>=1.5f && (state.status.w&63u)>=28u && ((state.status.w>>6u)&63u)>=28u && (action==7u || action==9u || action==10u || action==12u) &&
++            ((action==7u || action==9u) ? state.nutrition.x : state.nutrition.y)>0.05f) {
++            const uint encoded=(state.status.w>>25u)&127u;
++            if(encoded!=0u) {
++                const float supportError=(float(encoded)-64.0f)*0.002f;
++                const float correction=clamp(3.0f*supportError-0.2f*state.commandExtension.z,-0.45f,0.45f);
++                navigationTeacherRequested=(action==9u || action==12u) ? -1.077f*correction : correction;
++            }
++        }
+         const float navigationTeacherBlend = fixedFlightController
+             ? 1.0f
+             : avianNavigationTeacher
+@@ -9341,6 +9351,33 @@
+                     packed |= next << (side*6u);
+                 }
+             }
++            // Accepted contact resultant and articulated COM supply a bounded
++            // proprioceptive support error; no force is applied by this observer.
++            if (state.navigation.z>=5.0f && state.threatTeacher.w>=1.5f) {
++                float3 weightedCOM=float3(0.0f);float totalMass=0.0f;
++                const float masses[25]={0.3506562412f,0.00001f,0.00001f,0.00001f,0.00001f,0.0001406249939f,0.0001406249939f,0.01406249963f,0.009843749925f,0.007031249814f,0.005225000437f,0.009843749925f,0.007031249814f,0.005225000437f,0.001000000047f,0.03500000015f,0.00400000019f,0.0001f,0.0001f,0.0001f,0.0001f,0.0001f,0.0001f,0.0001f,0.0001f};
++                if(robotEnd-robotFirst==25u) for(uint bi=robotFirst;bi<robotEnd;++bi) {
++                    const float mass=masses[bi-robotFirst];
++                    weightedCOM+=mass*bodyStates[bodyBase+bi].position.xyz;totalMass+=mass;
++                }
++                float3 support=float3(0.0f);float totalUp=0.0f;
++                for(uint ci=0u;ci<activeContacts;++ci) {
++                    const MRContactConstraintGPU c=contacts[contactBase+ci];
++                    const bool ra=c.bodyA>=robotFirst && c.bodyA<robotEnd;
++                    const bool rb=c.bodyB>=robotFirst && c.bodyB<robotEnd;
++                    if(ra==rb)continue;
++                    const uint body=ra ? c.bodyA : c.bodyB;
++                    if(!bodyMember(body,contactGroups[0],contactMembers) && !bodyMember(body,contactGroups[1],contactMembers))continue;
++                    const float up=max((ra ? -1.0f : 1.0f)*c.normal.z*c.impulses.x,0.0f);
++                    support+=up*c.pointAndSeparation.xyz;totalUp+=up;
++                }
++                if(totalMass>0.0f && totalUp>1.0e-7f) {
++                    const float3 delta=support/totalUp-weightedCOM/totalMass;
++                    const float along=dot(delta.xy,yawBasis);
++                    const uint encoded=uint(clamp(round(along*500.0f)+64.0f,0.0f,127.0f));
++                    packed |= encoded<<25u;
++                }
++            }
+             state.status.w=packed;
+         }
+     }

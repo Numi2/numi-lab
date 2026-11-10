@@ -1,0 +1,10 @@
+/Users/n/Developer/numi-crow-rl-20261107/build/crow-v15-perch-ankle-balance-20261110/ankle3.metal:5499:21: warning: unused variable 'seconds' [-Wunused-variable]
+        const float seconds=float(state.episode.x)*dispatch.timing.x;
+                    ^
+1 warning generated.
+ankle3 a549077e790ea4e5d2d92693b53e52c57ce0c4e1b3e3b0e2cbf57903fca9fb61
+/Users/n/Developer/numi-crow-rl-20261107/build/crow-v15-perch-ankle-balance-20261110/ankle6.metal:5499:21: warning: unused variable 'seconds' [-Wunused-variable]
+        const float seconds=float(state.episode.x)*dispatch.timing.x;
+                    ^
+1 warning generated.
+ankle6 9483375fee008d9489784abd93d426c30975fcf60650e5cf5133984a8a236146

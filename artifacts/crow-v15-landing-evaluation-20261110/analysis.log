@@ -1,0 +1,15 @@
+artifacts/crow-v15-integrated-route-baseline-20261110/diagnostic-reserved-final-i.stdout end 2519 support run 0 grip run 0 passed False
+artifacts/crow-v15-integrated-route-baseline-20261110/diagnostic-reserved-final-j.stdout end 2633 support run 0 grip run 0 passed False
+artifacts/crow-v15-landing-toe-ramp-20261110/diagnostic-reserved-final-j.stdout end 2712 support run 0 grip run 0 passed False
+artifacts/crow-v15-perch-balance-20261110/diagnostic-reserved-final-j-balance1.stdout end 2732 support run 0 grip run 0 passed False
+artifacts/crow-v15-perch-balance-20261110/diagnostic-reserved-final-j-balance2.stdout end 2684 support run 0 grip run 0 passed False
+artifacts/crow-v15-perch-balance-sign-20261110/diagnostic-reserved-final-j-reverse1.stdout end 2728 support run 0 grip run 0 passed False
+artifacts/crow-v15-perch-balance-sign-20261110/diagnostic-reserved-final-j-reverse2.stdout end 2538 support run 1 grip run 0 passed False
+artifacts/crow-v15-perch-com-balance-20261110/diagnostic-reserved-final-j-com12.stdout end 2712 support run 0 grip run 0 passed False
+artifacts/crow-v15-perch-com-balance-20261110/diagnostic-reserved-final-j-com6.stdout end 2712 support run 0 grip run 0 passed False
+artifacts/crow-v15-perch-com-mass-20261110/diagnostic-reserved-final-j-com12.stdout end 2777 support run 0 grip run 0 passed False
+artifacts/crow-v15-perch-com-mass-20261110/diagnostic-reserved-final-j-com6.stdout end 2722 support run 0 grip run 0 passed False
+artifacts/crow-v15-perch-grip-balance-20261110/diagnostic-reserved-final-j-grip3.stdout end 2740 support run 0 grip run 0 passed False
+artifacts/crow-v15-perch-grip-balance-20261110/diagnostic-reserved-final-j-grip6.stdout end 2718 support run 0 grip run 0 passed False
+artifacts/crow-v15-perch-ankle-balance-20261110/diagnostic-reserved-final-j-ankle3.stdout end 2716 support run 0 grip run 0 passed False
+artifacts/crow-v15-perch-ankle-balance-20261110/diagnostic-reserved-final-j-ankle6.stdout end 2750 support run 0 grip run 0 passed False

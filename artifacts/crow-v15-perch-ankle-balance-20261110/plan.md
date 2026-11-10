@@ -1,0 +1,3 @@
+# Coordinated hip and ankle perch correction
+
+The delayed tactile COM controller prolonged grip, but the body still pitched as the hip moved. With foot support constrained, the sagittal foot orientation changes approximately with body, hip, knee and ankle angles. For each accepted foot load, counter-rotate the ankle by the measured hip/ankle normalized target scale ratio 0.70/0.65 while applying the same bounded tactile support-center correction after both closure counters reach 28. Compare gains 3/0.2 and 6/0.5 from identical full-start teacher-off J developmental rollouts. This is a local kinematic hypothesis, not a guarantee; all terminal support, actual opposed grip, collision, and no-reset gates remain unchanged.

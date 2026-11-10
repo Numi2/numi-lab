@@ -1,0 +1,12 @@
+[
+  {
+    "path": "build/crow-v15-perch-com-mass-20261110/com6.metallib",
+    "sha256": "ef1b015f52886b3ebd35d2e7334e6a403134fa5701b8d16caf49e81afe5a8949",
+    "bytes": 4472768
+  },
+  {
+    "path": "build/crow-v15-perch-com-mass-20261110/com12.metallib",
+    "sha256": "e26eaa98e77c356e6e82bb97a8cd68dbc23bcd065e9e51820fd114668c551102",
+    "bytes": 4472768
+  }
+]

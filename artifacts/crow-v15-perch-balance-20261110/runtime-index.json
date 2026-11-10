@@ -1,0 +1,12 @@
+[
+  {
+    "path": "build/crow-v15-perch-balance-20261110/balance1.metallib",
+    "sha256": "7bb905878122f9ac6346254c4345bf6132da300f41ef546c6b85e4c127b15c83",
+    "bytes": 4471120
+  },
+  {
+    "path": "build/crow-v15-perch-balance-20261110/balance2.metallib",
+    "sha256": "ca6f98b17a75b8d0a79903dda0ff9e9c1a2b8f4dd0de8ca539f901c5a8079698",
+    "bytes": 4471120
+  }
+]
