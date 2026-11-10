@@ -2636,8 +2636,10 @@ std::unique_ptr<MRTaskVisualRuntime> compileTaskVisualRuntime(
                 source.path
             );
         }
-        if (handle.taskId == "american_crow_active_head_navigation_development_v1" &&
-            source.assetId.starts_with("crow_course_")) {
+        // Every crow course visual must track the named physical body. The
+        // navigation variants and modified embodiments share these assets;
+        // restricting this check to one task ID admits stale body indices.
+        if (source.assetId.starts_with("crow_course_")) {
             const auto body = std::ranges::find(handle.model.bodyNames, source.assetId);
             if (body == handle.model.bodyNames.end())
                 throw std::invalid_argument("unknown active-head navigation course body: " + source.assetId);

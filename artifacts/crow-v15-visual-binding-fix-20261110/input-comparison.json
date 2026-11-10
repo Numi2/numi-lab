@@ -1,0 +1,118 @@
+{
+  "actor_observation": {
+    "different_frames": 300,
+    "first_difference": {
+      "step": 1,
+      "changed_values": 156,
+      "first_indices": [
+        218,
+        219,
+        227,
+        228,
+        229,
+        234,
+        235,
+        241,
+        243,
+        244,
+        245,
+        250,
+        251,
+        257,
+        259,
+        260,
+        261,
+        266,
+        267,
+        271
+      ],
+      "max_abs_difference": 0.8761138394474983
+    }
+  },
+  "q": {
+    "different_frames": 200,
+    "first_difference": {
+      "step": 101,
+      "changed_values": 27,
+      "first_indices": [
+        0,
+        1,
+        2,
+        3,
+        4,
+        5,
+        7,
+        8,
+        11,
+        12,
+        14,
+        15,
+        16,
+        17,
+        18,
+        19,
+        20,
+        21,
+        22,
+        23
+      ],
+      "max_abs_difference": 0.0006937359867151827
+    }
+  },
+  "v": {
+    "different_frames": 200,
+    "first_difference": {
+      "step": 101,
+      "changed_values": 30,
+      "first_indices": [
+        0,
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7,
+        8,
+        9,
+        10,
+        11,
+        12,
+        13,
+        14,
+        15,
+        16,
+        17,
+        18,
+        19
+      ],
+      "max_abs_difference": 0.018513699993491173
+    }
+  },
+  "accepted_actions": {
+    "different_frames": 300,
+    "first_difference": {
+      "step": 1,
+      "changed_values": 16,
+      "first_indices": [
+        0,
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7,
+        8,
+        9,
+        10,
+        11,
+        12,
+        13,
+        14,
+        15
+      ],
+      "max_abs_difference": 0.3810741212219
+    }
+  }
+}

@@ -1,0 +1,37 @@
+[
+  {
+    "asset": "crow_course_gate_left",
+    "old_visual_index": 18,
+    "old_body_name": "crow_left_front_toe_2",
+    "corrected_visual_index": 26,
+    "corrected_body_name": "crow_course_gate_left"
+  },
+  {
+    "asset": "crow_course_gate_right",
+    "old_visual_index": 19,
+    "old_body_name": "crow_left_front_toe_3",
+    "corrected_visual_index": 27,
+    "corrected_body_name": "crow_course_gate_right"
+  },
+  {
+    "asset": "crow_course_slalom_a",
+    "old_visual_index": 20,
+    "old_body_name": "crow_left_rear_toe",
+    "corrected_visual_index": 28,
+    "corrected_body_name": "crow_course_slalom_a"
+  },
+  {
+    "asset": "crow_course_slalom_b",
+    "old_visual_index": 21,
+    "old_body_name": "crow_right_front_toe_1",
+    "corrected_visual_index": 29,
+    "corrected_body_name": "crow_course_slalom_b"
+  },
+  {
+    "asset": "crow_course_perch",
+    "old_visual_index": 22,
+    "old_body_name": "crow_right_front_toe_2",
+    "corrected_visual_index": 30,
+    "corrected_body_name": "crow_course_perch"
+  }
+]

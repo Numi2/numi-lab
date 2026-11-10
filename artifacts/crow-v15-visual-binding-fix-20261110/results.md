@@ -1,0 +1,5 @@
+# Visual binding mismatch and guard repair
+
+The added toe bodies shift course physics bodies from indices 18–22 to 26–30. The existing course visual packs still point to 18–22, which are toe bodies in this simulation. The base active-head task rejected those assets but the conditional-navigation task bypassed the task-ID-specific guard. A one-step matched probe reproduced that silent admission, while the corrected guard rejected it. Rebound copies of all five visual assets pass the guard against the toe-body model; the original shared assets remain unchanged.
+
+A 300-step comparison with corrected assets and the same actor weights changed actor observations at step 1 and recorded actions at step 1; body q/v diverged from step 101. Prior toe-body routes therefore do not establish correct visually conditioned navigation, even though their recorded physics and failures remain valid evidence of those runs. The corrected visual assets change policy inputs and have not been used to qualify or train the route policy.

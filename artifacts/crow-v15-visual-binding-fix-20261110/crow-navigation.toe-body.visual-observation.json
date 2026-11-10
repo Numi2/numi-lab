@@ -1,0 +1,68 @@
+{
+  "format": "numi.visual-observation.v1",
+  "id": "american_crow_active_head_navigation_sensor_fast_development-toe-body",
+  "packs": [
+    {
+      "path": "../../environments/american-crow/object-push-v1/robot.mrvpack",
+      "asset_id": "robot",
+      "semantic_id": 1,
+      "instance_id": 1
+    },
+    {
+      "path": "../../assets/crow_journey_window/room.mrvpack",
+      "asset_id": "locomotion_ground",
+      "semantic_id": 4,
+      "instance_id": 11
+    },
+    {
+      "path": "gate-left.toe-body.mrvpack",
+      "asset_id": "crow_course_gate_left",
+      "semantic_id": 7,
+      "instance_id": 12
+    },
+    {
+      "path": "gate-right.toe-body.mrvpack",
+      "asset_id": "crow_course_gate_right",
+      "semantic_id": 7,
+      "instance_id": 13
+    },
+    {
+      "path": "slalom-a.toe-body.mrvpack",
+      "asset_id": "crow_course_slalom_a",
+      "semantic_id": 7,
+      "instance_id": 14
+    },
+    {
+      "path": "slalom-b.toe-body.mrvpack",
+      "asset_id": "crow_course_slalom_b",
+      "semantic_id": 7,
+      "instance_id": 15
+    },
+    {
+      "path": "perch.toe-body.mrvpack",
+      "asset_id": "crow_course_perch",
+      "semantic_id": 8,
+      "instance_id": 16
+    }
+  ],
+  "camera": {
+    "parent_body": "crow_head",
+    "position": [
+      0.018,
+      0.026,
+      0.012
+    ],
+    "orientation": [
+      -0.5,
+      0.5,
+      -0.5,
+      0.5
+    ],
+    "width": 16,
+    "height": 9,
+    "minimum_visible_pixels": 1,
+    "vertical_field_of_view_degrees": 55.0,
+    "nominal_rate_hz": 15.0,
+    "maximum_retained_bytes": 1073741824
+  }
+}
