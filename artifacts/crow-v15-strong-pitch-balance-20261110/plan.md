@@ -1,0 +1,1 @@
+The prior symmetric controller saturated while the gripped bird continued tipping. Test a larger bounded symmetric hip/ankle correction derived from pitch and pitch rate after bilateral toe load, with the bounce-toe fix retained. Two teacher-off used J starts, full continuous 4500-step episodes and physical terminal support screen.

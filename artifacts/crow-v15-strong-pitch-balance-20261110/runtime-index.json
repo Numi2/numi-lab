@@ -1,0 +1,12 @@
+[
+  {
+    "path": "build/crow-v15-strong-pitch-balance-20261110/strong.metallib",
+    "sha256": "eff830ce34bf864d1daf1e3607d98f9bd562f1398e3f8017e85b29c3f5da6804",
+    "bytes": 4473424
+  },
+  {
+    "path": "build/crow-v15-long-horizon-20261110/libmetalrobo.dylib",
+    "sha256": "63f0233c2b0285dcb222360e534f768992ae5fa9688fba429992a8fc380baa26",
+    "bytes": 5763888
+  }
+]
