@@ -19,5 +19,7 @@
   "projection_script_sha256": "ecd1395e382011235f36092ae73997bc10d11a840d5d0d9f6bd17b6a0c54979f",
   "camera": "1280x720 overcast yaw -1.25 pitch 0.20 distance 1.05; visual support plant enabled",
   "presentation_limits": "Recorded root and articulated body poses; surface, feather motion and support-plant cues are estimates. Renderer does not map toe joints. Failures are excluded from imagery and stated in overlay.",
-  "video_sha256": "08471982bb20bb67a0c7f7490befab7a9ab65d770d69f59d00a8a45bc800ae39"
+  "video_sha256": "fb0c6b065538d0cc440c34b3f80aaa140d6c2a43b0591f12ec0daf5cfd6d396f",
+  "superseded_video_sha256": "08471982bb20bb67a0c7f7490befab7a9ab65d770d69f59d00a8a45bc800ae39",
+  "camera_binding_correction": "This replay predates discovery that its navigation camera visual assets point at toe body indices, not the intended obstacle bodies. The footage now carries an explicit warning; see crow-v15-visual-binding-fix-20261110."
 }
