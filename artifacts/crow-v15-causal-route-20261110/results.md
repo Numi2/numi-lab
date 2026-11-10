@@ -1,0 +1,3 @@
+# Full-start developmental routes
+
+Both experimental toe-equipped trials latched takeoff at accepted step 254 and reached all five waypoints. Layout I then struck the perch with its body at step 2342; its observed minimum obstacle clearance before failure was 0.0519 m to slalom B. Layout J exceeded the tilt limit at step 2209; its observed minimum obstacle clearance was 0.0495 m to slalom A. Neither developed sustained bilateral opposing toe loads or stable final support. Thus both fail the complete sequence. The layouts and seeds were used before; the new body, controller and policy rebind are unqualified. No failed solver steps were reported. Raw pre-failure contacts and replay are retained; post-failure reset states do not count.
