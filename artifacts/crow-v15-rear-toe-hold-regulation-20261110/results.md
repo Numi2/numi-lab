@@ -1,0 +1,3 @@
+# Hold-phase rear toe pressure response
+
+All three controls exactly reproduced 200 reference states. Both exploratory candidates passed the one-start behavioral screen for sustained opposing grip, release, and terminal support with open toes. Their worst grip-conditioned rigid overlap was 0.908 mm and 0.662 mm, respectively, versus the reference 0.949 mm; all exceed the prespecified 0.5 mm limit. The unchanged acquisition already exceeded that limit at step 76 (0.583 mm) before the hold phase could respond, so hold-only regulation cannot qualify this start. No candidate is integrated or qualifies for broader success claims.
