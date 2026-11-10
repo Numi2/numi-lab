@@ -1,0 +1,12 @@
+[
+  {
+    "path": "build/crow-v15-fresh-recovery-20261110/teacher.metal",
+    "sha256": "210eef9d2dd3618b9b80f8c111ae2ec16c154747748279745306225ee668c878",
+    "bytes": 425750
+  },
+  {
+    "path": "build/crow-v15-fresh-recovery-20261110/teacher.metallib",
+    "sha256": "a22635ee44e5fc418fd026969782fef5d3d8f6bf99d363e1b6e00bdd87b2f961",
+    "bytes": 4485216
+  }
+]
