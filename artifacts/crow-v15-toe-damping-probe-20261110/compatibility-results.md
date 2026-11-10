@@ -1,0 +1,3 @@
+# Toe damping candidate compatibility result
+
+The isolated candidate changes only toe drive damping from 0.003 to 0.0045 in its recorded source patch, but the two-step ordinary runtime rejected the existing policy packs with an incompatible contract. Both world and derived task/observation/action fingerprints differ. The comparison therefore did not run and establishes no mechanical benefit or safety; neither physics nor grip has been validated. No fingerprint checks were disabled and the current body remains unchanged. Any future compatible binding must be generated for the candidate body with its full changed contract, preserving and verifying weights and semantic action/observation ordering; matched original-body controls remain required.

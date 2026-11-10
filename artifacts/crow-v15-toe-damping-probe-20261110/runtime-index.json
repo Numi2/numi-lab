@@ -1,12 +1,1 @@
-[
-  {
-    "path": "build/crow-v15-toe-damping-probe-20261110/c_api.cpp",
-    "sha256": "8bc22075a96ea225d0c75c49820ba65cbba2c6fb1361f34188c8fda3dd776671",
-    "bytes": 294227
-  },
-  {
-    "path": "build/crow-v15-toe-damping-probe-20261110/libmetalrobo.dylib",
-    "sha256": "11481e43f831f1d9eca446dc1e8705e4e82ddd809b5c95f62058ca455f903ea6",
-    "bytes": 5765024
-  }
-]
+[]
