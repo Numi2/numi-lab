@@ -1,0 +1,10 @@
+/Users/n/Developer/numi-crow-rl-20261107/build/crow-v15-landing-forward-offset-20261110/plus65.metal:5500:21: warning: unused variable 'seconds' [-Wunused-variable]
+        const float seconds=float(state.episode.x)*dispatch.timing.x;
+                    ^
+1 warning generated.
+plus65 f00f2e4d4484858a208ed5a89e314fb1c1177df4390c8560cfc42ea9188dc184
+/Users/n/Developer/numi-crow-rl-20261107/build/crow-v15-landing-forward-offset-20261110/plus85.metal:5500:21: warning: unused variable 'seconds' [-Wunused-variable]
+        const float seconds=float(state.episode.x)*dispatch.timing.x;
+                    ^
+1 warning generated.
+plus85 34666e479e1eb346be1bb4f688f3215c1b344e327fd0a71a98f44533db99be13

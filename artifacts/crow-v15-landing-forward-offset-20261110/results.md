@@ -1,0 +1,3 @@
+# Larger forward landing offsets
+
+All four teacher-off development trials reached five waypoints, but none passed the 4500-step supported-landing gate. With 65 mm offset, one seed had 81 consecutive opposed-grip endpoints and fell at step 2781, while the other had no grip and failed at 2550. With 85 mm offset, neither seed established opposing toe grip or sustained bilateral support; failures occurred at 3450 and 2734. The later failure at 3450 is not a successful landing: the support gate was never satisfied. Direct simulator foot-position feedback and the reused J layout mean these trials do not establish autonomous visual navigation or held-out performance. No variant is promoted.
