@@ -1,0 +1,21 @@
+{
+  "source": "crow-v15-rebound-contact-flare-20261110",
+  "support_sample": 3820,
+  "replay_step": 3819,
+  "perch_state": [
+    5.02902364730835,
+    -0.06311064958572388,
+    0.815437376499176,
+    0,
+    0,
+    0,
+    1,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0
+  ],
+  "fresh_cache": true
+}
