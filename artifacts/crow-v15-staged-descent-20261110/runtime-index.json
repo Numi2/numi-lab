@@ -1,0 +1,12 @@
+[
+  {
+    "path": "build/crow-v15-staged-descent-20261110/staged.metallib",
+    "sha256": "71caf252e2d7a7e036558a9a5c6da83b0002770662aa8c116f005fff28c57ebd",
+    "bytes": 4473360
+  },
+  {
+    "path": "build/crow-v15-long-horizon-20261110/libmetalrobo.dylib",
+    "sha256": "63f0233c2b0285dcb222360e534f768992ae5fa9688fba429992a8fc380baa26",
+    "bytes": 5763888
+  }
+]

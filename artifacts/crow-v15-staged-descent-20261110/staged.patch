@@ -1,0 +1,32 @@
+--- a/latch.metal
++++ b/staged.metal
+@@ -4998,6 +4998,8 @@
+             // Slow toward the physical foot joint using accepted state.
+             actorCommand.x=clamp(0.00f+0.80f*state.nutrition.z-0.80f*state.commandExtension.z,-0.15f,0.20f);
+         }
++        if (fixedFlightController && dispatch.sampling.w==0u && state.navigation.z>=5.0f && state.threatTeacher.w<1.5f)
++            actorCommand.w=clamp(state.nutrition.w,0.65f,1.50f);
+         const bool privilegedCommand = (dispatch.sampling.w != 0u && dispatch.assistance.x < 0.5f);
+         const float4 oracleCommand = privilegedCommand ? state.nutrition : actorCommand;
+         carrierState.commandAndPhase.x = 0.15f;
+@@ -6779,8 +6781,18 @@
+                         state.nutrition.z=clamp(finalGoal.x+0.015f-feetX,-0.50f,0.50f);
+                     }
+                 }
+-                if (state.navigation.z >= float(kCrowNavigationWaypointCount) && phase < 0.5f && length(finalGoal.xy-pos.xy)<0.08f &&
+-                    length(yawFrameLinear.xy)<0.08f) phase=1.0f;
++                if (state.navigation.z >= float(kCrowNavigationWaypointCount)) {
++                    // Hold above the perch until feet, lateral position, and velocity settle;
++                    // then lower the bounded flight height target gradually.
++                    if (phase < 0.5f) {
++                        state.nutrition.w=finalGoal.z+0.25f;
++                        if (abs(state.nutrition.z)<0.018f && abs(finalGoal.y-pos.y)<0.08f &&
++                            length(yawFrameLinear.xy)<0.025f && pos.z>finalGoal.z+0.18f)
++                            phase=1.0f;
++                    } else if (phase < 1.5f) {
++                        state.nutrition.w=max(state.nutrition.w-0.001f,finalGoal.z+0.15f);
++                    }
++                }
+                 uint loadedFeet=0u;
+                 for (uint gi=0u;gi<program.counts0.w;++gi) {
+                     const MRTaskContactGroupGPU group=contactGroups[gi];
