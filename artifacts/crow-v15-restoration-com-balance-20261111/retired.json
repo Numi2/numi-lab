@@ -1,0 +1,11 @@
+{
+  "remote_commit": "0651de044112b5d02d4d6f1307d16ec09b0a7a79",
+  "retired": [
+    {
+      "raw": "artifacts/crow-v15-com-balance-screen-20261111/results.txt",
+      "archive": "artifacts/crow-v15-com-balance-screen-20261111/results.txt.gz",
+      "sha256": "d67d071337a9d91b03c06ec518174e708fab2f1706cccf1aaa0dc0d6228de04c",
+      "bytes": 2907721
+    }
+  ]
+}
