@@ -31,7 +31,7 @@ for i in (1,):
   for t in range(200):
    v=trace.get((i,a,t));
    if v is None:continue
-   phase=int(v[0]);qx,qy=float(v[9]),float(v[10]);vel=[float(v[8]),float(v[11]),float(v[12])];tilt=math.acos(max(-1.,min(1.,1.-2.*(qx*qx+qy*qy))));speed=math.sqrt(sum(q*q for q in vel));c=allc.get((i,a,t),{'left':0.,'right':0.,'other':0.});p=toe.get((i,a,t),{s:{'front':0.,'rear':0.} for s in ('left','right')});grip=all(p[s][k]>.00005 for s in p for k in ('front','rear'));support=min(c['left'],c['right'])>.00005 and c['left']+c['right']>=.5*.45004*9.81*.005 and c['other']<=1e-7 and tilt<=.35 and speed<=.12;rec.append({'step':t,'grip':grip,'support':support,'phase':phase,'max_toe_abs_rad':max(map(abs,map(float,v[13:21]))),'up':c['left']+c['right'],'other':c['other'],'tilt':tilt,'speed':speed})
+   phase=int(v[0]);qx,qy=float(v[9]),float(v[10]);vel=[float(v[8]),float(v[11]),float(v[12])];tilt=math.acos(max(-1.,min(1.,1.-2.*(qx*qx+qy*qy))));speed=math.sqrt(sum(q*q for q in vel));c=allc.get((i,a,t),{'left':0.,'right':0.,'other':0.});p=toe.get((i,a,t),{s:{'front':0.,'rear':0.} for s in ('left','right')});grip=all(p[s][k]>.00005*4/[4,16,16,32][a] for s in p for k in ('front','rear'));support=min(c['left'],c['right'])>.00005*4/[4,16,16,32][a] and c['left']+c['right']>=.5*.45004*9.81*(.02/[4,16,16,32][a]) and c['other']<=1e-7 and tilt<=.35 and speed<=.12;rec.append({'step':t,'grip':grip,'support':support,'phase':phase,'max_toe_abs_rad':max(map(abs,map(float,v[13:21]))),'up':c['left']+c['right'],'other':c['other'],'tilt':tilt,'speed':speed})
   grips=[r['step'] for r in rec if r['grip']];released=[r['step'] for r in rec if r['phase']==4 and not r['grip']];tail=rec[-25:];passed=not parity_diff and len(rec)==200 and longest([r['grip'] for r in rec])>=3 and longest([r['grip'] and r['support'] for r in rec])>=3 and bool(released) and len(tail)==25 and all(r['support'] and r['max_toe_abs_rad']<0.05 for r in tail);rows.append({'case':i,'arm':a,'outcome':outcomes.get((i,a),'missing'),'samples':len(rec),'longest_opposing_grip':longest([r['grip'] for r in rec]),'longest_supported_opposing_grip':longest([r['grip'] and r['support'] for r in rec]),'longest_supported':longest([r['support'] for r in rec]),'terminal_25_supported':len(tail)==25 and all(r['support'] for r in tail),'first_release_without_grip':released[0] if released else None,'terminal_max_toe_abs_rad':max((r['max_toe_abs_rad'] for r in tail),default=None),'strict_pass':passed})
 def rot(q):
  x,y,z,w=q;return np.array([[1-2*(y*y+z*z),2*(x*y-z*w),2*(x*z+y*w)],[2*(x*y+z*w),1-2*(x*x+z*z),2*(y*z-x*w)],[2*(x*z-y*w),2*(y*z+x*w),1-2*(x*x+y*y)]])
@@ -46,7 +46,7 @@ for row in rows:
  i,a=row['case'],row['arm']; ds=[];missing=0
  for t in range(200):
   d=toe.get((i,a,t),{s:{'front':0.,'rear':0.} for s in ('left','right')})
-  if not all(d[z][k]>.00005 for z in d for k in ('front','rear')):continue
+  if not all(d[z][k]>.00005*4/[4,16,16,32][a] for z in d for k in ('front','rear')):continue
   pp=poses.get((i,a,t),[]);gg=grounds.get((i,a))
   if len(pp)!=8 or gg is None:missing+=1;continue
   ds.extend(gap(p,gg) for p in pp)
