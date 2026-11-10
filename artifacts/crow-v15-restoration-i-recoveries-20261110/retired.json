@@ -1,0 +1,41 @@
+{
+  "remote_commit": "49d0f919c0489ddc56e73613676b9f0cdf75ca9d",
+  "retired": [
+    {
+      "raw": "build/crow-v15-long-perch-host-20261110/i-original-recovery.json",
+      "archive": "artifacts/crow-v15-anchored-i-recoveries-20261110/i-original-recovery.json.gz",
+      "sha256": "e655c4b57355e19fa2db437c6456b43cfb8d94102d5cc13e42d8286a4acc5a69",
+      "bytes": 229530624
+    },
+    {
+      "raw": "build/crow-v15-long-perch-host-20261110/i-original-recovery.tsv",
+      "archive": "artifacts/crow-v15-anchored-i-recoveries-20261110/i-original-recovery.tsv.gz",
+      "sha256": "b63b7c9e23cfd1a31ff933dba9aaa45fbec3a938e41d0ecc3ab8e9e2baab2b66",
+      "bytes": 5036537
+    },
+    {
+      "raw": "build/crow-v15-long-perch-host-20261110/i-original-recovery.rollout",
+      "archive": "artifacts/crow-v15-anchored-i-recoveries-20261110/i-original-recovery.rollout.gz",
+      "sha256": "e4a8cb29c9f6d4170cbc8ad594ed82dc92fbe9d1c0e19fcdcad34f43d57a4779",
+      "bytes": 27832928
+    },
+    {
+      "raw": "build/crow-v15-long-perch-host-20261110/i-hard-recovery.json",
+      "archive": "artifacts/crow-v15-anchored-i-recoveries-20261110/i-hard-recovery.json.gz",
+      "sha256": "b070bc7cd9b307cdc7ae8f618f09b0d84da2c9898d725c0c8d781b6e344ebc72",
+      "bytes": 229884913
+    },
+    {
+      "raw": "build/crow-v15-long-perch-host-20261110/i-hard-recovery.tsv",
+      "archive": "artifacts/crow-v15-anchored-i-recoveries-20261110/i-hard-recovery.tsv.gz",
+      "sha256": "fc23558a62ebe8f7894d143c0e0602535e8d4e0bfa9b1b7ed865e8d1dbcb40bd",
+      "bytes": 5024488
+    },
+    {
+      "raw": "build/crow-v15-long-perch-host-20261110/i-hard-recovery.rollout",
+      "archive": "artifacts/crow-v15-anchored-i-recoveries-20261110/i-hard-recovery.rollout.gz",
+      "sha256": "9bb4196cc33e9b0862b72cc4d7fae24a0d26f801fb8d611a53571ff00e9ca42d",
+      "bytes": 27832928
+    }
+  ]
+}
