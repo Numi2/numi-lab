@@ -1,0 +1,9 @@
+push-trigger 9b8d777b6436f2c66a1002911a03eb6606d3a05827f05672e960e15f95926a23
+/Users/n/Developer/numi-crow-rl-20261107/build/crow-v15-sustained-gait-20261110/control-trigger.metal:5081:29: warning: unused variable 'extended' [-Wunused-variable]
+                const float extended=joint==0u ? 0.10f : joint==1u ? -0.70f : 0.18f;
+                            ^
+/Users/n/Developer/numi-crow-rl-20261107/build/crow-v15-sustained-gait-20261110/control-trigger.metal:5082:28: warning: unused variable 'bilateral' [-Wunused-variable]
+                const bool bilateral=state.nutrition.x>0.05f && state.nutrition.y>0.05f;
+                           ^
+2 warnings generated.
+control-trigger 3228b7ec86130f78062eeef4c961d87b0b6e838a7fdd4a0aa2a1421ed4deb7a8

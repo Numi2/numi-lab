@@ -1,0 +1,17 @@
+[
+  {
+    "path": "push-trigger.metallib",
+    "sha256": "9b8d777b6436f2c66a1002911a03eb6606d3a05827f05672e960e15f95926a23",
+    "bytes": 4470832
+  },
+  {
+    "path": "control-trigger.metallib",
+    "sha256": "3228b7ec86130f78062eeef4c961d87b0b6e838a7fdd4a0aa2a1421ed4deb7a8",
+    "bytes": 4470704
+  },
+  {
+    "path": "libmetalrobo.dylib",
+    "sha256": "8b1f600d26828b480cf13e787cac17ab0c40cc8d712e9f0736ba7d21d3b4031c",
+    "bytes": 5763888
+  }
+]

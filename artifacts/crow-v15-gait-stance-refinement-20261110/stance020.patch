@@ -1,0 +1,15 @@
+--- a/push-trigger.metal
++++ b/stance020.metal
+@@ -5067,10 +5067,10 @@
+             const uint leg=(action-7u)/3u, joint=(action-7u)%3u;
+             const float support=leg==0u ? state.nutrition.y : state.nutrition.x;
+             const float carrier=sin(kTwoPi*seconds/0.50f)*(leg==0u ? 1.0f : -1.0f);
+-            const float swing=seconds >= 2.0f && seconds < 4.0f && support > 0.05f ? carrier : 0.0f;
++            const float swing=seconds >= 2.0f && seconds < 4.0f && (carrier <= 0.0f || support > 0.05f) ? carrier : 0.0f;
+             const float lift=max(swing,0.0f);
+             if (seconds >= 2.0f && seconds < 4.0f)
+-                navigationTeacherRequested=joint==0u ? -0.30f*swing : joint==1u ? 0.40f*lift : -0.15f*lift;
++                navigationTeacherRequested=joint==0u ? (swing>=0.0f ? -0.30f*swing : -0.060f*swing) : joint==1u ? 0.40f*lift : -0.15f*lift;
+         }
+         // Symmetric preparation; extension uses both accepted foot loads.
+         if (fixedFlightController && state.episode.z == 10u && action >= 7u && action <= 12u) {

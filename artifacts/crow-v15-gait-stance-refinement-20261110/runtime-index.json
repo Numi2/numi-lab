@@ -1,0 +1,17 @@
+[
+  {
+    "path": "stance020.metallib",
+    "sha256": "79fb5388f64a7ea3fe88313b94bf8150dee371e04923cf60f7abfd6000f86c8a",
+    "bytes": 4470368
+  },
+  {
+    "path": "stance015.metallib",
+    "sha256": "8e3b606fb178ce960d22ab88ec6c57bad650a9b6428656baf5f64904e41b7cee",
+    "bytes": 4470368
+  },
+  {
+    "path": "stance010.metallib",
+    "sha256": "016632ccd1206fb255728ecf873bd80319d3375abe62af56f2a6ed54e8d2712e",
+    "bytes": 4470368
+  }
+]

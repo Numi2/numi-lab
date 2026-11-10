@@ -1,0 +1,4 @@
+baseline pass 0 forward 0.0561460889 slip [0.0704039775, 0.281596464] clear [6, 8] fail False
+stance100 pass 0 forward 0.06647115569999999 slip [0.194841928, 0.192814117] clear [7, 9] fail False
+stance050 pass 0 forward 0.0776184834 slip [0.0684938474, 0.0767562299] clear [5, 4] fail False
+stance025 pass 0 forward 0.0537062585 slip [0.0376997592, 0.0529175474] clear [4, 3] fail False

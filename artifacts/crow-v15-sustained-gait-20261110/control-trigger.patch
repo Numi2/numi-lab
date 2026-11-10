@@ -1,0 +1,72 @@
+--- a/stance014.metal
++++ b/control-trigger.metal
+@@ -5067,22 +5067,22 @@
+             const uint leg=(action-7u)/3u, joint=(action-7u)%3u;
+             const float support=leg==0u ? state.nutrition.y : state.nutrition.x;
+             const float carrier=sin(kTwoPi*seconds/0.50f)*(leg==0u ? 1.0f : -1.0f);
+-            const float swing=seconds >= 2.0f && seconds < 4.0f && (carrier <= 0.0f || support > 0.05f) ? carrier : 0.0f;
++            const float swing=seconds >= 2.0f && seconds < 12.0f && (carrier <= 0.0f || support > 0.05f) ? carrier : 0.0f;
+             const float lift=max(swing,0.0f);
+-            if (seconds >= 2.0f && seconds < 4.0f)
++            if (seconds >= 2.0f && seconds < 12.0f)
+                 navigationTeacherRequested=joint==0u ? (swing>=0.0f ? -0.30f*swing : -0.042f*swing) : joint==1u ? 0.40f*lift : -0.15f*lift;
+         }
+         // Symmetric preparation; extension uses both accepted foot loads.
+         if (fixedFlightController && state.episode.z == 10u && action >= 7u && action <= 12u) {
+             const float seconds=float(state.episode.x)*dispatch.timing.x;
+             const uint joint=(action-7u)%3u;
+-            if (seconds >= 4.3f && seconds < 5.4f) {
++            if (seconds >= 12.3f && seconds < 13.4f) {
+                 const float crouched=joint==0u ? -0.85f : joint==1u ? 1.00f : -0.50f;
+                 const float extended=joint==0u ? 0.10f : joint==1u ? -0.70f : 0.18f;
+                 const bool bilateral=state.nutrition.x>0.05f && state.nutrition.y>0.05f;
+-                navigationTeacherRequested=seconds<4.96f
+-                    ? mix(navigationTeacherRequested,crouched,smoothstep(4.3f,4.55f,seconds))
+-                    : bilateral ? mix(crouched,extended,smoothstep(4.96f,5.00f,seconds)) : crouched;
++                navigationTeacherRequested=seconds<12.96f
++                    ? mix(navigationTeacherRequested,crouched,smoothstep(12.3f,12.55f,seconds))
++                    : crouched;
+             }
+         }
+         // Keep the training-only teacher active through the final target.
+@@ -5109,7 +5109,7 @@
+         const bool actionAvailable = !MR_TASK_PROGRAM_HAS_MEMORY_CHOICE(program.articulation.z) ||
+             (state.episode.x>=uint(program.actionAvailabilityProgram) && taskActionHoldPeriod(program,arena,action)!=0u);
+         const bool actionSelected=taskActionSelected(program,arena,state.episode.x,action);
+-        const float requestedBeforeAvailability = fixedFlightController && state.episode.z == 10u && (action == 13u || action == 14u) && float(state.episode.x)*dispatch.timing.x < 5.4f && (state.status.w & 4096u)==0u ? 0.0f : fixedFlightController && action < 15u
++        const float requestedBeforeAvailability = fixedFlightController && state.episode.z == 10u && (action < 7u || action == 13u || action == 14u) && float(state.episode.x)*dispatch.timing.x < 13.4f && (state.status.w & 4096u)==0u ? 0.0f : fixedFlightController && action < 15u
+             ? navigationTeacherRequested
+             : avianJourneyTeacher
+             ? mix(
+@@ -5298,7 +5298,7 @@
+             )
+             : filtered;
+         const float avianWingAmplitude =
+-            fixedFlightController && state.episode.z == 10u && float(state.episode.x)*dispatch.timing.x >= 0.0f && float(state.episode.x)*dispatch.timing.x < 5.4f && (state.status.w & 4096u)==0u && binding.actuator.x == MR_TASK_ACTUATOR_FLAPPING_POSITION
++            fixedFlightController && state.episode.z == 10u && float(state.episode.x)*dispatch.timing.x >= 0.0f && float(state.episode.x)*dispatch.timing.x < 13.4f && (state.status.w & 4096u)==0u && binding.actuator.x == MR_TASK_ACTUATOR_FLAPPING_POSITION
+             ? 0.0f : fixedFlightController && state.threatTeacher.w >= 1.5f &&
+             binding.actuator.x == MR_TASK_ACTUATOR_FLAPPING_POSITION
+             ? 0.0f
+@@ -5664,6 +5664,11 @@
+         if (kind == MR_TASK_ACTUATOR_BODY_WRENCH &&
+             (worldDispatch.flags & MR_METAL_WORLD_HAS_BODY_WRENCHES) != 0u &&
+             binding.actuator.y < bodyCount && binding.actuator.z < 6u) {
++            const MRTaskStateGPU grounded = taskStates[environment];
++            if ((program.schedule.w & MR_TASK_PROGRAM_AVIAN_CROW_HIERARCHICAL_NAVIGATION) != 0u &&
++                grounded.episode.z == 10u && (action == 13u || action == 14u) &&
++                float(grounded.episode.x)*dispatch.timing.x < 13.4f &&
++                (grounded.status.w & 4096u)==0u) continue;
+             const uint bodyIndex = binding.actuator.y;
+             const uint wrenchIndex = environment * bodyCount + bodyIndex;
+             const MRArticulatedBodyPoseGPU pose =
+@@ -9319,8 +9324,8 @@
+             const float seconds=float(state.episode.x)*dispatch.timing.x;
+             // Preserve a launch latch in a spare high bit of this experimental task state.
+             uint packed=state.status.w & 4096u;
+-            if (seconds>=4.96f && seconds<5.4f && state.nutrition.x<0.05f && state.nutrition.y<0.05f && rootLinearVelocity.z>0.03f) packed |= 4096u;
+-            if (seconds>=5.4f) packed &= ~4096u;
++            if (seconds>=12.96f && seconds<13.4f && state.nutrition.x<0.05f && state.nutrition.y<0.05f && rootLinearVelocity.z>0.03f) packed |= 4096u;
++            if (seconds>=13.4f) packed &= ~4096u;
+             if (state.navigation.z>=5.0f && seconds<55.0f) {
+                 for (uint side=0u;side<2u;++side) {
+                     const uint w=compactBase+contactGroups[3u+side].reference.y;

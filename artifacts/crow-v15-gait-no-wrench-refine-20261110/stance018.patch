@@ -1,0 +1,11 @@
+--- a/stance015.metal
++++ b/stance018.metal
+@@ -5070,7 +5070,7 @@
+             const float swing=seconds >= 2.0f && seconds < 4.0f && (carrier <= 0.0f || support > 0.05f) ? carrier : 0.0f;
+             const float lift=max(swing,0.0f);
+             if (seconds >= 2.0f && seconds < 4.0f)
+-                navigationTeacherRequested=joint==0u ? (swing>=0.0f ? -0.30f*swing : -0.045f*swing) : joint==1u ? 0.40f*lift : -0.15f*lift;
++                navigationTeacherRequested=joint==0u ? (swing>=0.0f ? -0.30f*swing : -0.054f*swing) : joint==1u ? 0.40f*lift : -0.15f*lift;
+         }
+         // Symmetric preparation; extension uses both accepted foot loads.
+         if (fixedFlightController && state.episode.z == 10u && action >= 7u && action <= 12u) {

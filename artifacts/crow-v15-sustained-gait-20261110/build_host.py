@@ -1,0 +1,54 @@
+from pathlib import Path
+import difflib,shlex,subprocess,hashlib
+R=Path.cwd();A=R/'artifacts/crow-v15-sustained-gait-20261110';B=R/'build/crow-v15-sustained-gait-20261110';base=(R/'build/crow-v15-toe-damping-isolation-20261110/zero/c_api.cpp').read_text()
+needle='''        if (std::getenv("CROW_CLEARANCE_TRACE") != nullptr &&
+'''
+insert='''        if (std::getenv("CROW_GAIT_TRACE") && control_step_count==1u &&
+            handle->submittedControlSteps+1u>=100u && handle->submittedControlSteps+1u<=600u) {
+          std::vector<MRBodyStateGPU> bs;std::string why;
+          if(!metalrobo::composeVisualBodyStates(handle->model,environmentCount,published.finalQ,published.finalV,published.finalSceneBodies,bs,&why))
+            throw std::runtime_error("gait kinematics: "+why);
+          const auto& m=handle->model; const auto n=m.bodies.size();
+          auto g=std::find(m.bodyNames.begin(),m.bodyNames.end(),"locomotion_ground");
+          if(g==m.bodyNames.end())throw std::runtime_error("ground body absent");
+          const size_t ground=static_cast<size_t>(g-m.bodyNames.begin());
+          auto box=[&](size_t lane,size_t si) {const auto& s=m.shapes[si];const auto& b=bs[lane*n+s.bodyIndex];
+            const auto &p=b.position,&q=b.orientation,&lp=s.localPosition,&lq=s.localRotation,&d=s.dimensions;
+            return crowclear::box({p.x,p.y,p.z},{q.x,q.y,q.z,q.w},{lp.x,lp.y,lp.z},{lq.x,lq.y,lq.z,lq.w},{d.x,d.y,d.z});};
+          for(size_t lane=0;lane<environmentCount;++lane) {
+            double groundTop=-1e30,lowest[2]={1e30,1e30},imp[2]={0,0},weightedSlip[2]={0,0},maxSlip[2]={0,0},nonfoot=0;unsigned contacts[2]={0,0};
+            for(size_t si=0;si<m.shapes.size();++si) {
+              const auto& s=m.shapes[si];
+              if(s.bodyIndex==ground && s.shapeType==MR_SHAPE_PLANE){auto plane=box(lane,si);if(std::abs(plane.axis[1].z-1.0)>1e-5)throw std::runtime_error("gait observer requires upward horizontal plane");groundTop=plane.c.z;}
+              if(s.shapeType!=MR_SHAPE_BOX)continue;
+              const auto& bn=m.bodyNames[s.bodyIndex];auto bx=box(lane,si);double rad=0;for(int k=0;k<3;k++)rad+=std::abs(bx.axis[k].z)*bx.h[k];
+              if(s.bodyIndex==ground)groundTop=std::max(groundTop,bx.c.z+rad);
+              for(int side=0;side<2;side++){const std::string prefix=side==0?"crow_left_":"crow_right_";
+                if(bn==prefix+"foot" || (bn.starts_with(prefix) && bn.find("_toe")!=std::string::npos))lowest[side]=std::min(lowest[side],bx.c.z-rad);}
+            }
+            if(groundTop < -1e20 || lowest[0]>1e20 || lowest[1]>1e20){
+              std::fprintf(stderr,"GAIT_GEOMETRY groundTop=%g left=%g right=%g ground=%zu\\n",groundTop,lowest[0],lowest[1],ground);
+              for(size_t j=0;j<m.shapes.size();j++) {auto& sh=m.shapes[j];auto& nm=m.bodyNames[sh.bodyIndex];if(sh.bodyIndex==ground || nm.find("_foot")!=std::string::npos || nm.find("_toe")!=std::string::npos)std::fprintf(stderr,"GAIT_SHAPE body=%s type=%u dim=%g,%g,%g\\n",nm.c_str(),sh.shapeType,sh.dimensions.x,sh.dimensions.y,sh.dimensions.z);}
+              throw std::runtime_error("gait geometry missing");}
+            const auto stride=published.layout.contactDispatch.constraintStride;const auto count=published.contactStatuses.at(lane).requiredConstraints;
+            for(size_t i=0;i<count && lane*stride+i<published.contactEvidence.contacts.size();++i){
+              const auto& c=published.contactEvidence.contacts[lane*stride+i];if(c.impulses.x<=0)continue;
+              if(c.bodyA!=ground && c.bodyB!=ground)continue;size_t body=c.bodyA==ground?c.bodyB:c.bodyA;if(body>=n)continue;
+              const auto& name=m.bodyNames[body];int side=-1;for(int s=0;s<2;s++){const std::string prefix=s==0?"crow_left_":"crow_right_";if(name==prefix+"foot" || (name.starts_with(prefix) && name.find("_toe")!=std::string::npos))side=s;}
+              if(side<0){nonfoot+=c.impulses.x;continue;}
+              const auto velocity=[&](size_t id){const auto& b=bs[lane*n+id];const auto& p=b.position;const auto& v=b.linearVelocityAndInverseMass;const auto& w=b.angularVelocity;crowclear::V r{c.pointAndSeparation.x-p.x,c.pointAndSeparation.y-p.y,c.pointAndSeparation.z-p.z};return crowclear::V{v.x,v.y,v.z}+crowclear::cross({w.x,w.y,w.z},r);};
+              const auto rel=velocity(body)-velocity(ground);const double slip=std::hypot(rel.x,rel.y);imp[side]+=c.impulses.x;weightedSlip[side]+=c.impulses.x*slip;maxSlip[side]=std::max(maxSlip[side],slip);contacts[side]++;
+            }
+            const auto base=lane*handle->world.nq();const auto& q=published.finalQ;
+            std::fprintf(stderr,"CROW_GAIT {\\"step\\":%llu,\\"lane\\":%zu,\\"root\\":[%.9g,%.9g,%.9g],\\"quat\\":[%.9g,%.9g,%.9g,%.9g],\\"ground_z\\":%.9g,\\"nonfoot_impulse\\":%.9g,\\"sides\\":[",
+              static_cast<unsigned long long>(handle->submittedControlSteps+1u),lane,q[base],q[base+1],q[base+2],q[base+3],q[base+4],q[base+5],q[base+6],groundTop,nonfoot);
+            for(int s=0;s<2;s++)std::fprintf(stderr,"%s{\\"clearance_m\\":%.9g,\\"impulse_Ns\\":%.9g,\\"mean_slip_m_s\\":%.9g,\\"max_slip_m_s\\":%.9g,\\"contacts\\":%u}",s?",":"",lowest[s]-groundTop,imp[s],imp[s]>0?weightedSlip[s]/imp[s]:0,maxSlip[s],contacts[s]);
+            std::fprintf(stderr,"]}\\n");
+          }
+        }
+'''
+assert base.count(needle)==1;s=base.replace(needle,insert+needle);src=B/'c_api.cpp';src.write_text(s);(A/'observer.patch').write_text(''.join(difflib.unified_diff(base.splitlines(True),s.splitlines(True),fromfile='a/revised-toe-host.cpp',tofile='b/gait-observer.cpp')))
+lines=subprocess.check_output(['/opt/homebrew/bin/ninja','-C',str(R/'build'),'-t','commands'],text=True).splitlines();compile=next(x for x in lines if ' -c '+str(R/'src/c_api.cpp') in x);link=next(x for x in lines if x.startswith(': && /usr/bin/c++') and '-dynamiclib' in x and ' -o lib/libmetalrobo.dylib ' in x);args=shlex.split(compile);obj=B/'c_api.cpp.o'
+for k,v in [('-o',str(obj)),('-MF',str(obj)+'.d'),('-MT',str(obj))]:args[args.index(k)+1]=v
+args[-1]=str(src);args.insert(1,'-I'+str(R/'artifacts/crow-clearance-observer-20261109'));subprocess.run(args,cwd=R/'build',check=True)
+args=shlex.split(link[len(': && '):-len(' && :')]);lib=B/'libmetalrobo.dylib';args[args.index('-o')+1]=str(lib);args[args.index('CMakeFiles/metalrobo.dir/src/c_api.cpp.o')]=str(obj);args[args.index('CMakeFiles/metalrobo.dir/src/metal/MetalWorld.mm.o')]=str(R/'build/crow-v15-causal-launch-20261110/MetalWorld.mm.o');subprocess.run(args,cwd=R/'build',check=True);print(hashlib.sha256(lib.read_bytes()).hexdigest())
