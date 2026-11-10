@@ -1,0 +1,5 @@
+from pathlib import Path
+import difflib,subprocess,hashlib
+R=Path.cwd();A=R/'artifacts/crow-v15-sustained-foot-grip-20261110';B=R/'build/crow-v15-sustained-foot-grip-20261110';base=(R/'build/crow-v15-launch-pronation-limit-20261110/m16h30.metal').read_text()
+old='const bool loaded=length(force)>0.05f;';new='const bool loaded=length(force)>0.05f || (footLoad>0.05f && rearPrevious>=12u);';assert base.count(old)==1;s=base.replace(old,new)
+src=B/'sustained.metal';src.write_text(s);(A/'sustained.patch').write_text(''.join(difflib.unified_diff(base.splitlines(True),s.splitlines(True),fromfile='a/m16h30.metal',tofile='b/sustained.metal')));air=B/'sustained.air';lib=B/'sustained.metallib';subprocess.run(['xcrun','-sdk','macosx','metal','-std=metal4.0','-O3','-fno-fast-math','-I',str(R/'include'),'-I',str(R/'src/metal'),'-c',str(src),'-o',str(air)],check=True);subprocess.run(['xcrun','-sdk','macosx','metallib',*[str(p) for p in sorted((R/'build/shaders').glob('MetalRobo*.air')) if p.name!='MetalRoboLocomotionTask.air'],str(air),'-o',str(lib)],check=True);print(hashlib.sha256(lib.read_bytes()).hexdigest(),flush=True)
