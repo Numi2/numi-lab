@@ -1,0 +1,7 @@
+{
+  "trained_pack_sha256": "9cafd0b459ca278e7cdfcf44a6444b110ab9af6b2f4a918a68756460a09c3712",
+  "actor_pack_sha256": "3c1a1f1b9f365aee64e70ad7ec0287bc0538ad9995566507be71490ef740d4ed",
+  "max_actor_error": 0.0,
+  "critic_removed": true,
+  "diagnostic": "Training pack rejected by native residual interface; deterministic actor export retains identical actor weights and outputs."
+}
