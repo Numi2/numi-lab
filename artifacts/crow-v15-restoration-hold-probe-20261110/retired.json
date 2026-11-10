@@ -1,0 +1,11 @@
+{
+  "remote_commit": "3fdca69ff146aa350eeb80941b8d4f605cd80142",
+  "retired": [
+    {
+      "raw": "artifacts/crow-v15-grip-hold-stability-screen-20261110/results.txt",
+      "archive": "artifacts/crow-v15-grip-hold-stability-screen-20261110/results.txt.gz",
+      "sha256": "e2d99a48343707f7f85c0627bc2afee0a8426b9f090d35546b458d8198551339",
+      "bytes": 2201546
+    }
+  ]
+}
