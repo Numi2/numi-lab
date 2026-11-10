@@ -1,0 +1,12 @@
+[
+  {
+    "path": "build/crow-v15-landing-kinematics-20261110/probe",
+    "sha256": "75361b2679bb66460c369f05c5da2d6bfb8f627cdaf4944ceedbd8021b6abd23",
+    "bytes": 81448
+  },
+  {
+    "path": "build/lib/libmetalrobo.dylib",
+    "sha256": "d7dad802978b03d8571487dac644678d2c4c1a8eae5b8a4c5c57be261cfbe11a",
+    "bytes": 5728528
+  }
+]

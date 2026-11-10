@@ -1,0 +1,128 @@
+{
+  "remote": "git@github.com:Numi2/numi-lab.git",
+  "branch": "agent/american-crow-rl-20261107",
+  "commit": "372fd710d2d567efd3c19d95db89c807db5beb1a",
+  "method": "independent filtered clone; decompress git blob and compare SHA256 to original raw output",
+  "verified": [
+    {
+      "archive": "artifacts/crow-v15-support-debounced-landing-20261110/development-reserved-final-i.json.gz",
+      "raw": "build/crow-v15-support-debounced-landing-20261110/development-reserved-final-i.json",
+      "sha256": "8310351cf6a3fe17fa751bf434daac4c10d2ef4fc54bcd93d8a3f4585686faa6",
+      "bytes": 150365403
+    },
+    {
+      "archive": "artifacts/crow-v15-support-debounced-landing-20261110/development-reserved-final-i.tsv.gz",
+      "raw": "build/crow-v15-support-debounced-landing-20261110/development-reserved-final-i.tsv",
+      "sha256": "8aaf4673cecbc5d76a371ef07312a033f808ad796273a1d1cb71193e59a96865",
+      "bytes": 3269970
+    },
+    {
+      "archive": "artifacts/crow-v15-support-debounced-landing-20261110/development-reserved-final-j.json.gz",
+      "raw": "build/crow-v15-support-debounced-landing-20261110/development-reserved-final-j.json",
+      "sha256": "c0cb3634c466042313b6609812d7a4fbf9c4c3df20607ed01146ddfca47f259a",
+      "bytes": 149458847
+    },
+    {
+      "archive": "artifacts/crow-v15-support-debounced-landing-20261110/development-reserved-final-j.tsv.gz",
+      "raw": "build/crow-v15-support-debounced-landing-20261110/development-reserved-final-j.tsv",
+      "sha256": "eeade057f5d184aa0e20794224eb7c4200c21c1d8a696cd567582233064d9278",
+      "bytes": 3269401
+    },
+    {
+      "archive": "artifacts/crow-v15-narrow-perch-approach-20261110/development-reserved-final-i.json.gz",
+      "raw": "build/crow-v15-narrow-perch-approach-20261110/development-reserved-final-i.json",
+      "sha256": "db2e634f59eee8ce2a465f523f0d0e44eb7a3d45d2d11c2218732060597cf463",
+      "bytes": 149151080
+    },
+    {
+      "archive": "artifacts/crow-v15-narrow-perch-approach-20261110/development-reserved-final-i.tsv.gz",
+      "raw": "build/crow-v15-narrow-perch-approach-20261110/development-reserved-final-i.tsv",
+      "sha256": "97d83150c7781ebef944c5040f90b2d51adf676c0a5e97281cd3f5833297cd62",
+      "bytes": 3268415
+    },
+    {
+      "archive": "artifacts/crow-v15-narrow-perch-approach-20261110/development-reserved-final-j.json.gz",
+      "raw": "build/crow-v15-narrow-perch-approach-20261110/development-reserved-final-j.json",
+      "sha256": "9cd12dbf5f7ec1e87a8cfbd1da641dd09ca38a2c0bb3e04067650d11b24c0f5e",
+      "bytes": 148796694
+    },
+    {
+      "archive": "artifacts/crow-v15-narrow-perch-approach-20261110/development-reserved-final-j.tsv.gz",
+      "raw": "build/crow-v15-narrow-perch-approach-20261110/development-reserved-final-j.tsv",
+      "sha256": "d1af340b8ca08197a655a9c104dfa2162df334927a3d0bb0e843052284179a90",
+      "bytes": 3271219
+    },
+    {
+      "archive": "artifacts/crow-v15-perch-trim-20261110/development-reserved-final-i.json.gz",
+      "raw": "build/crow-v15-perch-trim-20261110/development-reserved-final-i.json",
+      "sha256": "e2632744d5fd8ca77be46b54631cfbe2d854e5738e2279d2ee928b3c44153082",
+      "bytes": 151012085
+    },
+    {
+      "archive": "artifacts/crow-v15-perch-trim-20261110/development-reserved-final-i.tsv.gz",
+      "raw": "build/crow-v15-perch-trim-20261110/development-reserved-final-i.tsv",
+      "sha256": "87799aec01816be5f5043e6820736514b9d572640a17d871026f52c9834c02a1",
+      "bytes": 3273836
+    },
+    {
+      "archive": "artifacts/crow-v15-perch-trim-20261110/development-reserved-final-j.json.gz",
+      "raw": "build/crow-v15-perch-trim-20261110/development-reserved-final-j.json",
+      "sha256": "f8b5b72f059dcece196a96d6fe91c049b0a13ec0fd9fcb60f63f8cf30a062f3a",
+      "bytes": 151324118
+    },
+    {
+      "archive": "artifacts/crow-v15-perch-trim-20261110/development-reserved-final-j.tsv.gz",
+      "raw": "build/crow-v15-perch-trim-20261110/development-reserved-final-j.tsv",
+      "sha256": "4b446922b106ca2aaa23da1f81a60624d6718d0e5be129796cb1f27d6023dbfb",
+      "bytes": 3279751
+    },
+    {
+      "archive": "artifacts/crow-v15-toe-contact-reflex-20261110/development-reserved-final-i.json.gz",
+      "raw": "build/crow-v15-toe-contact-reflex-20261110/development-reserved-final-i.json",
+      "sha256": "9628ea94dd659b07af678cea5f02c2a86cbfd67d301c759b863b59af7bbe80ed",
+      "bytes": 148976018
+    },
+    {
+      "archive": "artifacts/crow-v15-toe-contact-reflex-20261110/development-reserved-final-i.tsv.gz",
+      "raw": "build/crow-v15-toe-contact-reflex-20261110/development-reserved-final-i.tsv",
+      "sha256": "393acdd1e72a321b1d6e8adaa6f8d573eb8a9526d88365eb8f1b6cce159087d8",
+      "bytes": 3267504
+    },
+    {
+      "archive": "artifacts/crow-v15-toe-contact-reflex-20261110/development-reserved-final-j.json.gz",
+      "raw": "build/crow-v15-toe-contact-reflex-20261110/development-reserved-final-j.json",
+      "sha256": "3004496938a5c33423ca2608acf66794e4d477bfefe83683116161b45caefeae",
+      "bytes": 148904510
+    },
+    {
+      "archive": "artifacts/crow-v15-toe-contact-reflex-20261110/development-reserved-final-j.tsv.gz",
+      "raw": "build/crow-v15-toe-contact-reflex-20261110/development-reserved-final-j.tsv",
+      "sha256": "eaf73cc6d21cc4fa473365b9e98e5e68096e667f2702e53ff797535c5b1d5830",
+      "bytes": 3271069
+    },
+    {
+      "archive": "artifacts/crow-v15-toe-height-bracket-20261110/development-reserved-final-i.json.gz",
+      "raw": "build/crow-v15-toe-height-bracket-20261110/development-reserved-final-i.json",
+      "sha256": "17c0c3f5a8458eb239b51c7175c8cda4583cb658427506c0271013bfd5282fbb",
+      "bytes": 149202719
+    },
+    {
+      "archive": "artifacts/crow-v15-toe-height-bracket-20261110/development-reserved-final-i.tsv.gz",
+      "raw": "build/crow-v15-toe-height-bracket-20261110/development-reserved-final-i.tsv",
+      "sha256": "503b4e6d0f46466d0ca63362211bdedde5707640c3bd50dd6c022dc323a06775",
+      "bytes": 3265339
+    },
+    {
+      "archive": "artifacts/crow-v15-toe-height-bracket-20261110/development-reserved-final-j.json.gz",
+      "raw": "build/crow-v15-toe-height-bracket-20261110/development-reserved-final-j.json",
+      "sha256": "3ef0101250ee646c6a039f7a57e77ad98b19aa97fab301346c78d61d64c18192",
+      "bytes": 149154601
+    },
+    {
+      "archive": "artifacts/crow-v15-toe-height-bracket-20261110/development-reserved-final-j.tsv.gz",
+      "raw": "build/crow-v15-toe-height-bracket-20261110/development-reserved-final-j.tsv",
+      "sha256": "ec400cd021e617db4ae428edcc753d70b644db41e35b83367876c6cf53d0dab9",
+      "bytes": 3269233
+    }
+  ]
+}

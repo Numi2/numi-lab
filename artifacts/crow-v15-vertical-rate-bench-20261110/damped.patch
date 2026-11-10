@@ -1,0 +1,11 @@
+--- a/stop.metal
++++ b/damped.metal
+@@ -6548,7 +6548,7 @@
+         state.commandAndPhase.xyz = float3(0.15f, 0.0f, rate);
+         state.commandExtension.xyz = float3(error, baseAngular.z, yawFrameLinear.x + 0.15f);
+         const float benchPitch = asin(clamp(2.0f * (orientation.w * orientation.y - orientation.z * orientation.x), -1.0f, 1.0f));
+-        state.threatGeometry = float4(targetHeight - rootWorldPosition(program, q).z, rootLinearVelocity.z, benchPitch, baseAngular.y);
++        state.threatGeometry = float4(targetHeight - rootWorldPosition(program, q).z, 2.0f * rootLinearVelocity.z, benchPitch, baseAngular.y);
+         state.threatTeacher.x = yawFrameLinear.y;
+         state.threatTeacher.y = atan2(2.0f * (orientation.w * orientation.x + orientation.y * orientation.z),
+                                      1.0f - 2.0f * (orientation.x * orientation.x + orientation.y * orientation.y));
