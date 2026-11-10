@@ -1,0 +1,17 @@
+[
+  {
+    "path": "build/crow-v15-corrected-wing-trim-screen-20261110/raise_028/tracking.metallib",
+    "sha256": "d13f120ab0ef65b254fea9de31e675993e7de10e2f696b194697bc25700ff5ac",
+    "bytes": 4462688
+  },
+  {
+    "path": "build/crow-v15-wing-inertia-prototype-20261110/libmetalrobo.dylib",
+    "sha256": "e5245d37c0c16d3c5fce102a6930a3faf02f0ae05d657712214e4100f7022eab",
+    "bytes": 5764080
+  },
+  {
+    "path": "build/crow-v15-wing-inertia-prototype-20261110/zero.policypack",
+    "sha256": "7340e39ae33676752ac7eadc3bffc17e2a42d8c90705f27166aebe2c16282b7d",
+    "bytes": 2346385
+  }
+]
