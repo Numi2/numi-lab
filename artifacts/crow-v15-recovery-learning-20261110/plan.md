@@ -1,0 +1,3 @@
+# Additional student-state recovery learning
+
+The approach-focused actor avoided fatal contacts in its two development trials but failed to progress beyond waypoint two, flying away. Starting from that actor, augment prior qualified route prefixes with the earlier J and I recoveries only where each separate physical and exact-prefix gate passes. Exclude every failed episode and all landing data. Use the same stage balancing, early-output anchor and approach weighting, with a fixed optimizer schedule. Report all included and excluded sources and correlated fitting diagnostics. Evaluate the exported actor teacher-off from full starts on used J and I without retuning; compare progress, clearance and first failure rather than fitting loss. Preserve unseen K/L.
