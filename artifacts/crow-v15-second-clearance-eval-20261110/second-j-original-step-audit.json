@@ -1,0 +1,21 @@
+{
+  "release_step": 4346,
+  "samples": 161,
+  "sides": {
+    "left": {
+      "window_samples": 51,
+      "qualifying_endpoints": 42,
+      "longest_consecutive_endpoints": 42,
+      "max_min_toe_gap_m": 0.004258938852714764,
+      "first_qualifying_step": 4356
+    },
+    "right": {
+      "window_samples": 51,
+      "qualifying_endpoints": 38,
+      "longest_consecutive_endpoints": 38,
+      "max_min_toe_gap_m": 0.005150155437149168,
+      "first_qualifying_step": 4420
+    }
+  },
+  "limitations": "Accepted endpoints with support trace sample t+1 aligned to replay/task-state t; strict 1 mm separating-axis gap and at most 1e-8 Ns toe impulse on the lifted side; opposite load is measured at accepted task state and requires upward contact impulse above 0.00005 N s at the same endpoint. Windows follow the commanded left and right lift intervals; does not prove clearance at every substep."
+}

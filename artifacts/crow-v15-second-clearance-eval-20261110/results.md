@@ -1,0 +1,5 @@
+# Second clearance actor: four development starts
+
+All four 7,000-step uninterrupted teacher-off episodes reached all waypoints and ended bilaterally supported, without recorded physical, solver or nonfoot-perch failure. Minimum sampled obstacle clearances were hard J 0.076412 m, hard I 0.262611 m, original J 0.169888 m and original I 0.003106 m. Thus the original I near miss again fails the 0.05 m route gate. Each episode also showed geometrically clear alternating toe releases with measured opposite-foot support and later two-foot support. Maximum sampled flight toe angle after 25 force-free control samples was below 0.00037 rad.
+
+The last 100 grip samples in original J had 60 bilateral opposing endpoints and a longest consecutive run of six, below the prior nine-endpoint screen. The candidate is not accepted for final trials. These are used development starts; endpoint tests do not establish continuous contact, clearance, or biological realism. The successful teacher recovery crossed the second waypoint farther laterally; this is a diagnostic comparison, not proof of cause.
