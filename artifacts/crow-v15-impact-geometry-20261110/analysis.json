@@ -1,0 +1,439 @@
+{
+  "trace_parity_120_samples": true,
+  "perch_near_x": 5.004023647308349,
+  "rear_toes": [
+    {
+      "arm": 0,
+      "step": 0,
+      "toe": "crow_left_rear_toe",
+      "center_x": 4.91404,
+      "box_projected_max_x": 4.932755113157325,
+      "perch_near_x": 5.004023647308349,
+      "x_gap_lower_bound": 0.07126853415102502
+    },
+    {
+      "arm": 0,
+      "step": 0,
+      "toe": "crow_right_rear_toe",
+      "center_x": 4.91548,
+      "box_projected_max_x": 4.934195106941862,
+      "perch_near_x": 5.004023647308349,
+      "x_gap_lower_bound": 0.06982854036648672
+    },
+    {
+      "arm": 0,
+      "step": 5,
+      "toe": "crow_left_rear_toe",
+      "center_x": 4.91365,
+      "box_projected_max_x": 4.93237486838646,
+      "perch_near_x": 5.004023647308349,
+      "x_gap_lower_bound": 0.07164877892188952
+    },
+    {
+      "arm": 0,
+      "step": 5,
+      "toe": "crow_right_rear_toe",
+      "center_x": 4.91508,
+      "box_projected_max_x": 4.933803892933778,
+      "perch_near_x": 5.004023647308349,
+      "x_gap_lower_bound": 0.07021975437457117
+    },
+    {
+      "arm": 0,
+      "step": 10,
+      "toe": "crow_left_rear_toe",
+      "center_x": 4.912,
+      "box_projected_max_x": 4.930729104275068,
+      "perch_near_x": 5.004023647308349,
+      "x_gap_lower_bound": 0.07329454303328085
+    },
+    {
+      "arm": 0,
+      "step": 10,
+      "toe": "crow_right_rear_toe",
+      "center_x": 4.91342,
+      "box_projected_max_x": 4.9321436146299185,
+      "perch_near_x": 5.004023647308349,
+      "x_gap_lower_bound": 0.07188003267843052
+    },
+    {
+      "arm": 0,
+      "step": 15,
+      "toe": "crow_left_rear_toe",
+      "center_x": 4.90976,
+      "box_projected_max_x": 4.928497035146401,
+      "perch_near_x": 5.004023647308349,
+      "x_gap_lower_bound": 0.07552661216194877
+    },
+    {
+      "arm": 0,
+      "step": 15,
+      "toe": "crow_right_rear_toe",
+      "center_x": 4.91117,
+      "box_projected_max_x": 4.929904406480156,
+      "perch_near_x": 5.004023647308349,
+      "x_gap_lower_bound": 0.07411924082819385
+    },
+    {
+      "arm": 0,
+      "step": 20,
+      "toe": "crow_left_rear_toe",
+      "center_x": 4.90896,
+      "box_projected_max_x": 4.927631635495772,
+      "perch_near_x": 5.004023647308349,
+      "x_gap_lower_bound": 0.0763920118125765
+    },
+    {
+      "arm": 0,
+      "step": 20,
+      "toe": "crow_right_rear_toe",
+      "center_x": 4.91037,
+      "box_projected_max_x": 4.929039248372707,
+      "perch_near_x": 5.004023647308349,
+      "x_gap_lower_bound": 0.07498439893564257
+    },
+    {
+      "arm": 0,
+      "step": 25,
+      "toe": "crow_left_rear_toe",
+      "center_x": 4.90822,
+      "box_projected_max_x": 4.926849340582292,
+      "perch_near_x": 5.004023647308349,
+      "x_gap_lower_bound": 0.077174306726057
+    },
+    {
+      "arm": 0,
+      "step": 25,
+      "toe": "crow_right_rear_toe",
+      "center_x": 4.90962,
+      "box_projected_max_x": 4.9282526289695605,
+      "perch_near_x": 5.004023647308349,
+      "x_gap_lower_bound": 0.07577101833878852
+    },
+    {
+      "arm": 0,
+      "step": 30,
+      "toe": "crow_left_rear_toe",
+      "center_x": 4.90804,
+      "box_projected_max_x": 4.926619961037909,
+      "perch_near_x": 5.004023647308349,
+      "x_gap_lower_bound": 0.07740368627044007
+    },
+    {
+      "arm": 0,
+      "step": 30,
+      "toe": "crow_right_rear_toe",
+      "center_x": 4.90938,
+      "box_projected_max_x": 4.927967050906353,
+      "perch_near_x": 5.004023647308349,
+      "x_gap_lower_bound": 0.07605659640199668
+    },
+    {
+      "arm": 0,
+      "step": 35,
+      "toe": "crow_left_rear_toe",
+      "center_x": 4.90803,
+      "box_projected_max_x": 4.926570489159385,
+      "perch_near_x": 5.004023647308349,
+      "x_gap_lower_bound": 0.07745315814896397
+    },
+    {
+      "arm": 0,
+      "step": 35,
+      "toe": "crow_right_rear_toe",
+      "center_x": 4.90935,
+      "box_projected_max_x": 4.927898123554758,
+      "perch_near_x": 5.004023647308349,
+      "x_gap_lower_bound": 0.07612552375359061
+    },
+    {
+      "arm": 1,
+      "step": 0,
+      "toe": "crow_left_rear_toe",
+      "center_x": 4.91404,
+      "box_projected_max_x": 4.932755113157325,
+      "perch_near_x": 5.004023647308349,
+      "x_gap_lower_bound": 0.07126853415102502
+    },
+    {
+      "arm": 1,
+      "step": 0,
+      "toe": "crow_right_rear_toe",
+      "center_x": 4.91548,
+      "box_projected_max_x": 4.934195106941862,
+      "perch_near_x": 5.004023647308349,
+      "x_gap_lower_bound": 0.06982854036648672
+    },
+    {
+      "arm": 1,
+      "step": 5,
+      "toe": "crow_left_rear_toe",
+      "center_x": 4.91364,
+      "box_projected_max_x": 4.932251783334517,
+      "perch_near_x": 5.004023647308349,
+      "x_gap_lower_bound": 0.07177186397383246
+    },
+    {
+      "arm": 1,
+      "step": 5,
+      "toe": "crow_right_rear_toe",
+      "center_x": 4.91505,
+      "box_projected_max_x": 4.933561776928,
+      "perch_near_x": 5.004023647308349,
+      "x_gap_lower_bound": 0.07046187038034941
+    },
+    {
+      "arm": 1,
+      "step": 10,
+      "toe": "crow_left_rear_toe",
+      "center_x": 4.91192,
+      "box_projected_max_x": 4.930276459791801,
+      "perch_near_x": 5.004023647308349,
+      "x_gap_lower_bound": 0.07374718751654824
+    },
+    {
+      "arm": 1,
+      "step": 10,
+      "toe": "crow_right_rear_toe",
+      "center_x": 4.91339,
+      "box_projected_max_x": 4.932011787807217,
+      "perch_near_x": 5.004023647308349,
+      "x_gap_lower_bound": 0.07201185950113276
+    },
+    {
+      "arm": 1,
+      "step": 15,
+      "toe": "crow_left_rear_toe",
+      "center_x": 4.91229,
+      "box_projected_max_x": 4.931962079396596,
+      "perch_near_x": 5.004023647308349,
+      "x_gap_lower_bound": 0.07206156791175278
+    },
+    {
+      "arm": 1,
+      "step": 15,
+      "toe": "crow_right_rear_toe",
+      "center_x": 4.914,
+      "box_projected_max_x": 4.9338618678134685,
+      "perch_near_x": 5.004023647308349,
+      "x_gap_lower_bound": 0.07016177949488059
+    },
+    {
+      "arm": 1,
+      "step": 20,
+      "toe": "crow_left_rear_toe",
+      "center_x": 4.91392,
+      "box_projected_max_x": 4.934178849619732,
+      "perch_near_x": 5.004023647308349,
+      "x_gap_lower_bound": 0.06984479768861687
+    },
+    {
+      "arm": 1,
+      "step": 20,
+      "toe": "crow_right_rear_toe",
+      "center_x": 4.91576,
+      "box_projected_max_x": 4.936010455081571,
+      "perch_near_x": 5.004023647308349,
+      "x_gap_lower_bound": 0.06801319222677832
+    },
+    {
+      "arm": 1,
+      "step": 25,
+      "toe": "crow_left_rear_toe",
+      "center_x": 4.91525,
+      "box_projected_max_x": 4.93514917087495,
+      "perch_near_x": 5.004023647308349,
+      "x_gap_lower_bound": 0.06887447643339942
+    },
+    {
+      "arm": 1,
+      "step": 25,
+      "toe": "crow_right_rear_toe",
+      "center_x": 4.91706,
+      "box_projected_max_x": 4.936837493929002,
+      "perch_near_x": 5.004023647308349,
+      "x_gap_lower_bound": 0.06718615337934669
+    },
+    {
+      "arm": 1,
+      "step": 30,
+      "toe": "crow_left_rear_toe",
+      "center_x": 4.91588,
+      "box_projected_max_x": 4.935256090168751,
+      "perch_near_x": 5.004023647308349,
+      "x_gap_lower_bound": 0.06876755713959755
+    },
+    {
+      "arm": 1,
+      "step": 30,
+      "toe": "crow_right_rear_toe",
+      "center_x": 4.9175,
+      "box_projected_max_x": 4.936810809355783,
+      "perch_near_x": 5.004023647308349,
+      "x_gap_lower_bound": 0.0672128379525663
+    },
+    {
+      "arm": 1,
+      "step": 35,
+      "toe": "crow_left_rear_toe",
+      "center_x": 4.91565,
+      "box_projected_max_x": 4.934833495260188,
+      "perch_near_x": 5.004023647308349,
+      "x_gap_lower_bound": 0.06919015204816184
+    },
+    {
+      "arm": 1,
+      "step": 35,
+      "toe": "crow_right_rear_toe",
+      "center_x": 4.91714,
+      "box_projected_max_x": 4.936316311439365,
+      "perch_near_x": 5.004023647308349,
+      "x_gap_lower_bound": 0.06770733586898421
+    },
+    {
+      "arm": 2,
+      "step": 0,
+      "toe": "crow_left_rear_toe",
+      "center_x": 4.91404,
+      "box_projected_max_x": 4.932755113157325,
+      "perch_near_x": 5.004023647308349,
+      "x_gap_lower_bound": 0.07126853415102502
+    },
+    {
+      "arm": 2,
+      "step": 0,
+      "toe": "crow_right_rear_toe",
+      "center_x": 4.91548,
+      "box_projected_max_x": 4.934195106941862,
+      "perch_near_x": 5.004023647308349,
+      "x_gap_lower_bound": 0.06982854036648672
+    },
+    {
+      "arm": 2,
+      "step": 5,
+      "toe": "crow_left_rear_toe",
+      "center_x": 4.91363,
+      "box_projected_max_x": 4.932242873232482,
+      "perch_near_x": 5.004023647308349,
+      "x_gap_lower_bound": 0.07178077407586696
+    },
+    {
+      "arm": 2,
+      "step": 5,
+      "toe": "crow_right_rear_toe",
+      "center_x": 4.91504,
+      "box_projected_max_x": 4.933553568934068,
+      "perch_near_x": 5.004023647308349,
+      "x_gap_lower_bound": 0.07047007837428192
+    },
+    {
+      "arm": 2,
+      "step": 10,
+      "toe": "crow_left_rear_toe",
+      "center_x": 4.91193,
+      "box_projected_max_x": 4.930314508569461,
+      "perch_near_x": 5.004023647308349,
+      "x_gap_lower_bound": 0.0737091387388878
+    },
+    {
+      "arm": 2,
+      "step": 10,
+      "toe": "crow_right_rear_toe",
+      "center_x": 4.91339,
+      "box_projected_max_x": 4.9320352737646065,
+      "perch_near_x": 5.004023647308349,
+      "x_gap_lower_bound": 0.07198837354374306
+    },
+    {
+      "arm": 2,
+      "step": 15,
+      "toe": "crow_left_rear_toe",
+      "center_x": 4.90957,
+      "box_projected_max_x": 4.929179705095469,
+      "perch_near_x": 5.004023647308349,
+      "x_gap_lower_bound": 0.07484394221288093
+    },
+    {
+      "arm": 2,
+      "step": 15,
+      "toe": "crow_right_rear_toe",
+      "center_x": 4.91117,
+      "box_projected_max_x": 4.9309793522986105,
+      "perch_near_x": 5.004023647308349,
+      "x_gap_lower_bound": 0.073044295009739
+    },
+    {
+      "arm": 2,
+      "step": 20,
+      "toe": "crow_left_rear_toe",
+      "center_x": 4.90777,
+      "box_projected_max_x": 4.927996320643137,
+      "perch_near_x": 5.004023647308349,
+      "x_gap_lower_bound": 0.07602732666521198
+    },
+    {
+      "arm": 2,
+      "step": 20,
+      "toe": "crow_right_rear_toe",
+      "center_x": 4.90934,
+      "box_projected_max_x": 4.929597066005253,
+      "perch_near_x": 5.004023647308349,
+      "x_gap_lower_bound": 0.0744265813030965
+    },
+    {
+      "arm": 2,
+      "step": 25,
+      "toe": "crow_left_rear_toe",
+      "center_x": 4.90293,
+      "box_projected_max_x": 4.923145511887455,
+      "perch_near_x": 5.004023647308349,
+      "x_gap_lower_bound": 0.08087813542089387
+    },
+    {
+      "arm": 2,
+      "step": 25,
+      "toe": "crow_right_rear_toe",
+      "center_x": 4.90511,
+      "box_projected_max_x": 4.925319192416384,
+      "perch_near_x": 5.004023647308349,
+      "x_gap_lower_bound": 0.0787044548919652
+    },
+    {
+      "arm": 2,
+      "step": 30,
+      "toe": "crow_left_rear_toe",
+      "center_x": 4.89844,
+      "box_projected_max_x": 4.918654310049355,
+      "perch_near_x": 5.004023647308349,
+      "x_gap_lower_bound": 0.0853693372589939
+    },
+    {
+      "arm": 2,
+      "step": 30,
+      "toe": "crow_right_rear_toe",
+      "center_x": 4.90193,
+      "box_projected_max_x": 4.921804969078216,
+      "perch_near_x": 5.004023647308349,
+      "x_gap_lower_bound": 0.08221867823013332
+    },
+    {
+      "arm": 2,
+      "step": 35,
+      "toe": "crow_left_rear_toe",
+      "center_x": 4.89405,
+      "box_projected_max_x": 4.914264136141426,
+      "perch_near_x": 5.004023647308349,
+      "x_gap_lower_bound": 0.08975951116692286
+    },
+    {
+      "arm": 2,
+      "step": 35,
+      "toe": "crow_right_rear_toe",
+      "center_x": 4.89846,
+      "box_projected_max_x": 4.91796453285075,
+      "perch_near_x": 5.004023647308349,
+      "x_gap_lower_bound": 0.08605911445759937
+    }
+  ],
+  "note": "Positive x-axis projection gap proves separation on that axis; zero would not prove collision."
+}

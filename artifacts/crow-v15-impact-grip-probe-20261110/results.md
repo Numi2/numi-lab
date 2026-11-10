@@ -1,0 +1,5 @@
+# Result: no catch; active closure lost support
+
+None of the four matched cases in either closure arm produced the preregistered opposed, bilaterally supported grip. The open-toe control remained supported in one of four cases through the end; it fell onto the body in the other three. Both closure schedules fell onto the body in all four cases. The eight active-closure cases subsequently encountered an extreme numerical instability and a reported solver failure after body impact, so that later error must not be mistaken for the initial cause of loss of support. No active case demonstrated release while supported.
+
+For case 1, open toes sustained about 0.022 N s of vertical support per 5 ms near step 30, while both closure schedules had lost that support by step 25. Subsequent matched forward-kinematics analysis is in `../crow-v15-impact-geometry-20261110/`. This is a simplified continuation with non-toe positions held at their reached targets and a fresh contact cache, not the actual flown route or a biological validation. Perch contact output includes all detected candidates; positive impulses distinguish loaded contacts. No control is promoted.

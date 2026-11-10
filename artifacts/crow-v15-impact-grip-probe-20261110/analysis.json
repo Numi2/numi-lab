@@ -1,0 +1,122 @@
+{
+  "0/0": {
+    "status": "completed",
+    "max_opposed_bilateral_supported_streak": 0,
+    "first_qualified_step": null,
+    "nonfoot_impulse_before_release": 1.7683765999999999,
+    "supported_postrelease_samples": 0,
+    "end_z": 0.893034,
+    "end_vz": -0.0658479,
+    "end_toe_max_abs": 0.0581208
+  },
+  "0/1": {
+    "status": "failed step failed one or more MetalWorld control steps rolled back after a GPU environment failure: status=3 environment=0 control_step=0 aba_status=0 failing_substep=0 failing_index=3 aba_diagnostic_0=0.000000 aba_diagnostic_1=0.000000 aba_diagnostic_2=0.000000 aba_diagnostic_3=0.000000 contact_status=3 required_pairs=213 pair_capacity=512 required_raw_contacts=1704 raw_contact_capacity=2048 required_manifolds=213 manifold_capacity=512 required_constraints=852 constraint_capacity=2048 failing_constraint=3 failing_stable_key=0,0 diagnostic_0=0.023977 diagnostic_1=0.000000 diagnostic_2=0.008219 diagnostic_3=0.670850 contact_residuals=160686688698368.000000,135753814463479808.000000,0.000000,0.000000 contact_quality_certificates=0.000000,0.000000,0.000000,0.000000 contact_quality_diagnostics=0.000000,0.000000,0.000000,0.000000 solver_iterations=6 quality_newton=0 quality_pcg=0 quality_backtracks=0 quality_path=0",
+    "max_opposed_bilateral_supported_streak": 0,
+    "first_qualified_step": null,
+    "nonfoot_impulse_before_release": 1.8136436116399994,
+    "supported_postrelease_samples": 0,
+    "end_z": 36.3176,
+    "end_vz": 7079.86,
+    "end_toe_max_abs": 0.215969
+  },
+  "0/2": {
+    "status": "failed step failed one or more MetalWorld control steps rolled back after a GPU environment failure: status=3 environment=0 control_step=0 aba_status=0 failing_substep=0 failing_index=3 aba_diagnostic_0=0.000000 aba_diagnostic_1=0.000000 aba_diagnostic_2=0.000000 aba_diagnostic_3=0.000000 contact_status=3 required_pairs=213 pair_capacity=512 required_raw_contacts=1704 raw_contact_capacity=2048 required_manifolds=213 manifold_capacity=512 required_constraints=852 constraint_capacity=2048 failing_constraint=3 failing_stable_key=0,0 diagnostic_0=0.025132 diagnostic_1=0.000000 diagnostic_2=0.008219 diagnostic_3=0.670850 contact_residuals=33680317743104.000000,39053970118803456.000000,0.000000,0.000000 contact_quality_certificates=0.000000,0.000000,0.000000,0.000000 contact_quality_diagnostics=0.000000,0.000000,0.000000,0.000000 solver_iterations=6 quality_newton=0 quality_pcg=0 quality_backtracks=0 quality_path=0",
+    "max_opposed_bilateral_supported_streak": 0,
+    "first_qualified_step": null,
+    "nonfoot_impulse_before_release": 1.7921677119999997,
+    "supported_postrelease_samples": 0,
+    "end_z": 12.1772,
+    "end_vz": 2252.37,
+    "end_toe_max_abs": 0.21591
+  },
+  "1/0": {
+    "status": "completed",
+    "max_opposed_bilateral_supported_streak": 0,
+    "first_qualified_step": null,
+    "nonfoot_impulse_before_release": 0.0,
+    "supported_postrelease_samples": 60,
+    "end_z": 1.04281,
+    "end_vz": -0.0141209,
+    "end_toe_max_abs": 0.00879266
+  },
+  "1/1": {
+    "status": "failed step failed one or more MetalWorld control steps rolled back after a GPU environment failure: status=3 environment=0 control_step=0 aba_status=0 failing_substep=0 failing_index=3 aba_diagnostic_0=0.000000 aba_diagnostic_1=0.000000 aba_diagnostic_2=0.000000 aba_diagnostic_3=0.000000 contact_status=3 required_pairs=213 pair_capacity=512 required_raw_contacts=1704 raw_contact_capacity=2048 required_manifolds=213 manifold_capacity=512 required_constraints=852 constraint_capacity=2048 failing_constraint=3 failing_stable_key=0,0 diagnostic_0=0.022119 diagnostic_1=0.000000 diagnostic_2=0.008219 diagnostic_3=0.670850 contact_residuals=13707552768.000000,9785169674240.000000,0.000000,0.000000 contact_quality_certificates=0.000000,0.000000,0.000000,0.000000 contact_quality_diagnostics=0.000000,0.000000,0.000000,0.000000 solver_iterations=6 quality_newton=0 quality_pcg=0 quality_backtracks=0 quality_path=0",
+    "max_opposed_bilateral_supported_streak": 0,
+    "first_qualified_step": null,
+    "nonfoot_impulse_before_release": 1.5916297,
+    "supported_postrelease_samples": 0,
+    "end_z": 1.32706,
+    "end_vz": 41.1988,
+    "end_toe_max_abs": 0.187386
+  },
+  "1/2": {
+    "status": "failed step failed one or more MetalWorld control steps rolled back after a GPU environment failure: status=3 environment=0 control_step=0 aba_status=0 failing_substep=0 failing_index=3 aba_diagnostic_0=0.000000 aba_diagnostic_1=0.000000 aba_diagnostic_2=0.000000 aba_diagnostic_3=0.000000 contact_status=3 required_pairs=213 pair_capacity=512 required_raw_contacts=1704 raw_contact_capacity=2048 required_manifolds=213 manifold_capacity=512 required_constraints=852 constraint_capacity=2048 failing_constraint=3 failing_stable_key=0,0 diagnostic_0=0.019860 diagnostic_1=0.000000 diagnostic_2=0.008219 diagnostic_3=0.670850 contact_residuals=11636548.000000,24403822592.000000,0.000000,0.000000 contact_quality_certificates=0.000000,0.000000,0.000000,0.000000 contact_quality_diagnostics=0.000000,0.000000,0.000000,0.000000 solver_iterations=4 quality_newton=0 quality_pcg=0 quality_backtracks=0 quality_path=0",
+    "max_opposed_bilateral_supported_streak": 0,
+    "first_qualified_step": null,
+    "nonfoot_impulse_before_release": 1.6416111,
+    "supported_postrelease_samples": 0,
+    "end_z": 1.86281,
+    "end_vz": 191.849,
+    "end_toe_max_abs": 0.126858
+  },
+  "2/0": {
+    "status": "completed",
+    "max_opposed_bilateral_supported_streak": 0,
+    "first_qualified_step": null,
+    "nonfoot_impulse_before_release": 1.7164020000000004,
+    "supported_postrelease_samples": 0,
+    "end_z": 0.89035,
+    "end_vz": -0.0695427,
+    "end_toe_max_abs": 0.0611848
+  },
+  "2/1": {
+    "status": "failed step failed one or more MetalWorld control steps rolled back after a GPU environment failure: status=3 environment=0 control_step=0 aba_status=0 failing_substep=0 failing_index=3 aba_diagnostic_0=0.000000 aba_diagnostic_1=0.000000 aba_diagnostic_2=0.000000 aba_diagnostic_3=0.000000 contact_status=3 required_pairs=213 pair_capacity=512 required_raw_contacts=1704 raw_contact_capacity=2048 required_manifolds=213 manifold_capacity=512 required_constraints=852 constraint_capacity=2048 failing_constraint=3 failing_stable_key=0,0 diagnostic_0=0.019276 diagnostic_1=0.000000 diagnostic_2=0.008219 diagnostic_3=0.670850 contact_residuals=7280368.000000,7794865152.000000,0.000000,0.000000 contact_quality_certificates=0.000000,0.000000,0.000000,0.000000 contact_quality_diagnostics=0.000000,0.000000,0.000000,0.000000 solver_iterations=4 quality_newton=0 quality_pcg=0 quality_backtracks=0 quality_path=0",
+    "max_opposed_bilateral_supported_streak": 0,
+    "first_qualified_step": null,
+    "nonfoot_impulse_before_release": 1.7578327,
+    "supported_postrelease_samples": 0,
+    "end_z": 1.63982,
+    "end_vz": 147.858,
+    "end_toe_max_abs": 0.126818
+  },
+  "2/2": {
+    "status": "failed step failed one or more MetalWorld control steps rolled back after a GPU environment failure: status=3 environment=0 control_step=0 aba_status=0 failing_substep=0 failing_index=3 aba_diagnostic_0=0.000000 aba_diagnostic_1=0.000000 aba_diagnostic_2=0.000000 aba_diagnostic_3=0.000000 contact_status=3 required_pairs=213 pair_capacity=512 required_raw_contacts=1704 raw_contact_capacity=2048 required_manifolds=213 manifold_capacity=512 required_constraints=852 constraint_capacity=2048 failing_constraint=3 failing_stable_key=0,0 diagnostic_0=0.020468 diagnostic_1=0.000000 diagnostic_2=0.008219 diagnostic_3=0.670850 contact_residuals=16139394048.000000,32500782989312.000000,0.000000,0.000000 contact_quality_certificates=0.000000,0.000000,0.000000,0.000000 contact_quality_diagnostics=0.000000,0.000000,0.000000,0.000000 solver_iterations=4 quality_newton=0 quality_pcg=0 quality_backtracks=0 quality_path=0",
+    "max_opposed_bilateral_supported_streak": 0,
+    "first_qualified_step": null,
+    "nonfoot_impulse_before_release": 1.6827108000000002,
+    "supported_postrelease_samples": 0,
+    "end_z": 15.8121,
+    "end_vz": 2982.4,
+    "end_toe_max_abs": 0.0319998
+  },
+  "3/0": {
+    "status": "completed",
+    "max_opposed_bilateral_supported_streak": 0,
+    "first_qualified_step": null,
+    "nonfoot_impulse_before_release": 1.6428145000000003,
+    "supported_postrelease_samples": 0,
+    "end_z": 0.888295,
+    "end_vz": -0.0723023,
+    "end_toe_max_abs": 0.0689137
+  },
+  "3/1": {
+    "status": "failed step failed one or more MetalWorld control steps rolled back after a GPU environment failure: status=3 environment=0 control_step=0 aba_status=0 failing_substep=0 failing_index=3 aba_diagnostic_0=0.000000 aba_diagnostic_1=0.000000 aba_diagnostic_2=0.000000 aba_diagnostic_3=0.000000 contact_status=3 required_pairs=213 pair_capacity=512 required_raw_contacts=1704 raw_contact_capacity=2048 required_manifolds=213 manifold_capacity=512 required_constraints=852 constraint_capacity=2048 failing_constraint=3 failing_stable_key=0,0 diagnostic_0=0.023392 diagnostic_1=0.000000 diagnostic_2=0.008219 diagnostic_3=0.670850 contact_residuals=64248053760.000000,49082353582080.000000,0.000000,0.000000 contact_quality_certificates=0.000000,0.000000,0.000000,0.000000 contact_quality_diagnostics=0.000000,0.000000,0.000000,0.000000 solver_iterations=6 quality_newton=0 quality_pcg=0 quality_backtracks=0 quality_path=0",
+    "max_opposed_bilateral_supported_streak": 0,
+    "first_qualified_step": null,
+    "nonfoot_impulse_before_release": 1.6255621749999998,
+    "supported_postrelease_samples": 0,
+    "end_z": 2.3076,
+    "end_vz": 280.124,
+    "end_toe_max_abs": 0.215773
+  },
+  "3/2": {
+    "status": "failed step failed one or more MetalWorld control steps rolled back after a GPU environment failure: status=3 environment=0 control_step=0 aba_status=0 failing_substep=0 failing_index=3 aba_diagnostic_0=0.000000 aba_diagnostic_1=0.000000 aba_diagnostic_2=0.000000 aba_diagnostic_3=0.000000 contact_status=3 required_pairs=213 pair_capacity=512 required_raw_contacts=1704 raw_contact_capacity=2048 required_manifolds=213 manifold_capacity=512 required_constraints=852 constraint_capacity=2048 failing_constraint=3 failing_stable_key=0,0 diagnostic_0=0.019287 diagnostic_1=0.000000 diagnostic_2=0.008219 diagnostic_3=0.670850 contact_residuals=12066972672.000000,9480435662848.000000,0.000000,0.000000 contact_quality_certificates=0.000000,0.000000,0.000000,0.000000 contact_quality_diagnostics=0.000000,0.000000,0.000000,0.000000 solver_iterations=6 quality_newton=0 quality_pcg=0 quality_backtracks=0 quality_path=0",
+    "max_opposed_bilateral_supported_streak": 0,
+    "first_qualified_step": null,
+    "nonfoot_impulse_before_release": 1.7266848000000004,
+    "supported_postrelease_samples": 0,
+    "end_z": 1.79413,
+    "end_vz": 178.663,
+    "end_toe_max_abs": 0.105555
+  }
+}

@@ -1,0 +1,13 @@
+exact sampled GPU trace parity: True
+arm 0 step 0 rear toe x-axis gaps (m) [0.0713, 0.0698]
+arm 0 step 10 rear toe x-axis gaps (m) [0.0733, 0.0719]
+arm 0 step 20 rear toe x-axis gaps (m) [0.0764, 0.075]
+arm 0 step 30 rear toe x-axis gaps (m) [0.0774, 0.0761]
+arm 1 step 0 rear toe x-axis gaps (m) [0.0713, 0.0698]
+arm 1 step 10 rear toe x-axis gaps (m) [0.0737, 0.072]
+arm 1 step 20 rear toe x-axis gaps (m) [0.0698, 0.068]
+arm 1 step 30 rear toe x-axis gaps (m) [0.0688, 0.0672]
+arm 2 step 0 rear toe x-axis gaps (m) [0.0713, 0.0698]
+arm 2 step 10 rear toe x-axis gaps (m) [0.0737, 0.072]
+arm 2 step 20 rear toe x-axis gaps (m) [0.076, 0.0744]
+arm 2 step 30 rear toe x-axis gaps (m) [0.0854, 0.0822]

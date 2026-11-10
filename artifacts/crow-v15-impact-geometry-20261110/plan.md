@@ -1,0 +1,3 @@
+# Toe geometry at catch
+
+In the reached-state catch probe, case 1 remained supported with neutral toes, but both active closure schedules lost support, fell onto the body and later hit a numerical failure. Determine the relative positions of foot, front-toe and rear-toe centers against the perch during the first 0.2 s, using the native articulated model's FP64 kinematics on accepted GPU q/v. Repeat the same matched case and commands, stop at 0.2 s before the body impact, and compare replayed q and v to the original traces. This does not change collision geometry or control and cannot by itself establish toe-surface gaps, continuous collision history or a physical fix.
