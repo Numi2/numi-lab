@@ -1,0 +1,11 @@
+{
+  "remote_commit": "7ee103f2a2a15a3af8db9b4f872b1e7c4581ef0b",
+  "retired": [
+    {
+      "raw": "artifacts/crow-v15-sustained-grip-screen-20261111/results.txt",
+      "archive": "artifacts/crow-v15-sustained-grip-screen-20261111/results.txt.gz",
+      "sha256": "f6af190ef29f699528e7a4fcf9969f0e6aa93361b8ce97d1caa7c71274614633",
+      "bytes": 2084956
+    }
+  ]
+}
