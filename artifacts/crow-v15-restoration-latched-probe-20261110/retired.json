@@ -1,0 +1,11 @@
+{
+  "remote_commit": "691bfb213e2d25b0146a55406af9f2164abca216",
+  "retired": [
+    {
+      "raw": "artifacts/crow-v15-latched-grip-prototype-20261110/results.txt",
+      "archive": "artifacts/crow-v15-latched-grip-prototype-20261110/results.txt.gz",
+      "sha256": "96ae53afdec94c5f490d5e2b99825b4f956cd238cb2e217b99c968463c91d8a9",
+      "bytes": 1670606
+    }
+  ]
+}
