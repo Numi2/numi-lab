@@ -1,0 +1,7 @@
+/Users/n/Developer/numi-crow-rl-20261107/build/crow-v15-soft-balance-20261110/teacher.metal:5136:25: warning: unused variable 'supportError' [-Wunused-variable]
+            const float supportError=(float((state.status.w >> 25u) & 127u)-64.0f)/500.0f;
+                        ^
+/Users/n/Developer/numi-crow-rl-20261107/build/crow-v15-soft-balance-20261110/teacher.metal:5534:21: warning: unused variable 'seconds' [-Wunused-variable]
+        const float seconds=float(state.episode.x)*dispatch.timing.x;
+                    ^
+2 warnings generated.
