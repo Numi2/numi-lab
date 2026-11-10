@@ -1,0 +1,29 @@
+--- a/teacher.metal
++++ b/recovery.metal
+@@ -5030,7 +5030,7 @@
+             actorCommand.w=state.nutrition.w;
+         }
+         if (fixedFlightController && state.episode.z == 10u && float(state.episode.x)*dispatch.timing.x < 16.0f) { actorCommand.x = 0.70f; actorCommand.y = 0.0f; actorCommand.z = 0.0f; actorCommand.w = 0.30f; }
+-        const bool privilegedCommand = (dispatch.sampling.w != 0u && dispatch.assistance.x < 0.5f);
++        const bool privilegedCommand = (dispatch.sampling.w != 0u && (dispatch.assistance.x < 0.5f || state.episode.x >= 2050u));
+         // Foot support occupies nutrition.xy at the accepted-state boundary.
+         // In teacher mode, pack two millimetre-per-second-resolution commands
+         // into nutrition.z; heading is already published in commandExtension.x.
+@@ -6751,7 +6751,7 @@
+             const float3 target = crowNavigationWaypointTarget(sceneState + sceneBase, course, wp);
+             const float3 pos = rootWorldPosition(program,q);
+             float3 lateralTarget = target;
+-            if (wp >= 1u && wp <= 3u) {
++            if (wp >= 1u && wp <= 2u) {
+                 const float3 previous = crowNavigationWaypointTarget(sceneState + sceneBase, course, wp-1u);
+                 const float transition = smoothstep(previous.x+(wp==2u ? -0.16f : wp==3u ? 0.20f : 0.20f), previous.x+(wp==2u ? -0.01f : wp==3u ? 0.35f : 0.35f), pos.x);
+                 lateralTarget.y = mix(previous.y, target.y, transition);
+@@ -6809,7 +6809,7 @@
+             }
+             // Oracle labels occupy diagnostic spare state only; these will
+             // become independently fingerprinted actor commands, not sensors.
+-            const float forward = clamp(0.25f-errorOffset,-0.25f,0.75f);
++            const float forward = landing ? clamp(0.25f-errorOffset,-0.25f,0.75f) : wp >= 3u ? clamp(0.55f*(target.x-pos.x)-0.70f*yawFrameLinear.x,-0.10f,0.25f) : 0.25f;
+             const float lateral = clamp(desiredLateral,-0.30f,0.30f);
+             const float encoded = round((forward+0.25f)*1000.0f) +
+                 1024.0f * round((lateral+0.30f)*1000.0f);

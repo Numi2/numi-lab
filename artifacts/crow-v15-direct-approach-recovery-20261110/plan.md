@@ -1,0 +1,3 @@
+# Direct approach teacher recovery
+
+The earlier bounded teacher avoided the collision and overshoot but stayed outside the stage-three target sphere. Its staged lateral reference did not reach the final approach while forward braking held the bird near the transition. Test a direct stage-three lateral target with the same bounded forward feedback and the same student prefix through step 2049, on development J only. Record first-episode failure, prefix equality, all waypoint and support outcomes. Exclude any failed recovery; do not train on landing labels. The flight controller is unchanged and K/L remain untouched.
