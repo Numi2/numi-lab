@@ -10,18 +10,18 @@ R=Path.cwd();A=R/'artifacts/crow-v15-anchored-paired-learning-20261110';B=R/'bui
 sources=[('initial_j','crow-v15-student-recovery-20261110','development-j-student-recovery',1100),('late_j','crow-v15-late-student-recovery-20261110','development-j-late-student-recovery',2050),('i','crow-v15-i-student-recovery-20261110','development-i-student-recovery',1800),('corrective_i','crow-v15-corrective-i-recovery-20261110','development-i-corrective-recovery',1700),('anchored_j','crow-v15-anchored-j-recovery-20261110','development-j-anchored-recovery',2000),('anchored_i','crow-v15-anchored-i-recovery-20261110','development-i-anchored-recovery',2100),('approach_early_j','crow-v15-approach-j-early-recovery-20261110','development-j-approach-early-recovery',2100),('approach_early_i','crow-v15-approach-i-early-recovery-20261110','development-i-approach-early-recovery',2200),('foot_i','crow-v15-foot-placement-probe-20261110','development-i-foot-placement',2200),('placement_j','crow-v15-placement-j-recovery-20261110','development-j-placement-recovery',2100),('newactor_j','crow-v15-newactor-j-recovery-20261110','development-j-newactor-recovery',2200),('newactor_i','crow-v15-newactor-i-recovery-20261110','development-i-newactor-recovery',2100)]
 sources.append(('fresh_i','crow-v15-fresh-recovery-20261110','i-recovery',2050))
 sources.append(('fresh_j','crow-v15-teacher-terminal-handoff-20261110','j-handoff',2050))
-sources.extend([('paired_j','crow-v15-paired-j-recovery-20261110','j-paired-recovery',2050),('paired_i','crow-v15-paired-i-recovery-20261110','i-paired-recovery',1850)])
+sources.extend([('paired_j','crow-v15-paired-j-recovery-20261110','j-paired-recovery',2050),('delayed_i','crow-v15-delayed-i-recovery-20261110','i-delayed-recovery',1850)])
 chunks=[];source_info=[];temps=[]
 sha=lambda p:hashlib.sha256(p.read_bytes()).hexdigest()
 for label,folder,name,takeover in sources:
- D=R/'artifacts'/folder;qual=json.loads((D/('i-recovery-qualification.json' if label=='fresh_i' else 'j-handoff-qualification.json' if label=='fresh_j' else name+'-qualification.json' if label in ('paired_i','paired_j') else 'qualification.json')).read_text())
+ D=R/'artifacts'/folder;qual=json.loads((D/('i-recovery-qualification.json' if label=='fresh_i' else 'j-handoff-qualification.json' if label=='fresh_j' else name+'-qualification.json' if label in ('delayed_i','paired_j') else 'qualification.json')).read_text())
  if label=='fresh_j': assert json.loads((D/'j-route-prefix-comparison.json').read_text())['exact_equal']
  if not qual['eligible_for_development_routing_prefix_training']:
   source_info.append({'source':label,'included':False,'reason':'failed qualification'});continue
  arc=D/(name+'.rollout.gz');raw=B/(name+'.training-tmp.rollout')
  with gzip.open(arc,'rb') as inp,raw.open('wb') as out:shutil.copyfileobj(inp,out)
  temps.append(raw);r=read_policy_rollout_pack(raw,library_path=str(lib));assert r.control_step_count==7000 and r.environment_count==1 and r.action_count==18
- obs=r.actor_observations.reshape(7000,1,r.actor_observation_count)[:,0,:];labels=r.teacher_actions.reshape(7000,1,18)[:,0,:];stage=r.outcome('navigation_waypoints_reached').reshape(7000,1)[:,0].astype(np.int32);end=(qual['nav5_step'] if label in ('fresh_i','fresh_j','paired_i','paired_j') else json.loads((D/'analysis.json').read_text())['nav5_step']);steps=np.arange(1,end-1,5)
+ obs=r.actor_observations.reshape(7000,1,r.actor_observation_count)[:,0,:];labels=r.teacher_actions.reshape(7000,1,18)[:,0,:];stage=r.outcome('navigation_waypoints_reached').reshape(7000,1)[:,0].astype(np.int32);end=(qual['nav5_step'] if label in ('fresh_i','fresh_j','delayed_i','paired_j') else json.loads((D/'analysis.json').read_text())['nav5_step']);steps=np.arange(1,end-1,5)
  assert np.all((stage[steps]>=0)&(stage[steps]<=4));x=obs[steps].copy();raw_labels=labels[steps].copy();y=raw_labels[:,:4].copy();ss=stage[steps];
  # Teacher writes the first four labels and duplicates them into the exact
  # active expert block. Decode that block from the rollout itself, avoiding
