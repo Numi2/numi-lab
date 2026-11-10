@@ -1,0 +1,11 @@
+--- a/long-c_api.cpp
++++ b/toe-span-c_api.cpp
+@@ -3375,7 +3375,7 @@
+   for (int side=0;side<2;side++) {
+     const std::string footName=side==0?"crow_left_foot":"crow_right_foot";
+     auto it=std::find(m.bodyNames.begin(),m.bodyNames.end(),footName); crowToeNeed(it!=m.bodyNames.end(),"foot missing"); const unsigned foot=static_cast<unsigned>(it-m.bodyNames.begin()); auto& parent=m.bodies.at(foot);
+-    float dx[4]={.020666667f,.020666667f,.020666667f,-.062f},dy[4]={-.012f,0,.012f,0};
++    float dx[4]={.018333333f,.018333333f,.018333333f,-.055f},dy[4]={-.012f,0,.012f,0};
+     float sx=0,sy=0,sz=0;
+     for (int t=0;t<4;t++) { sx+=ix+mass*dy[t]*dy[t]; sy+=iy+mass*dx[t]*dx[t]; sz+=iz+mass*(dx[t]*dx[t]+dy[t]*dy[t]); }
+     const float pm=parent.massAndInverseMass.x-4*mass; crowToeNeed(pm>0,"negative foot mass");

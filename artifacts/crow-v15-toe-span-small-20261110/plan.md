@@ -1,0 +1,1 @@
+The 17 mm inward movement of the rear toe caused destructive shank self-collision. Test a smaller 7 mm inward rear adjustment and matching three front adjustments, preserving zero summed toe offset and recomputing parent inertia. First inspect the actual native ground contact and failure. No realism or general flight claim.

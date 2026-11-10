@@ -1,0 +1,5 @@
+# Small toe-span sensitivity: rejected
+
+Moving the rear toe 7 mm inward, with corresponding balanced fore-toe offsets and recomputed parent inertia, passed 36 CPU mechanics invariants and a 12-lane GPU/CPU free-space comparison (maximum scaled acceleration discrepancy 4.08e-5). These do not establish contact correctness.
+
+In continuous teacher-off diagnostic trials on previously used layout J and two seeds, both reached only waypoint two. The original seed struck slalom A at step 2836 (pre-contact root position 2.800, 0.114, 1.084 m and velocity 0.263, 0.023, 0.188 m/s); the second struck the same obstacle at step 2780 (position 2.524, 0.011, 1.124 m and velocity 0.212, 0.215, -0.073 m/s). The second sampled left-wing impulse was 0.0955 Ns. The original sampled impulse was much smaller, and termination occurs for a collider contact; this is not evidence of a solver defect. Neither reached or tested landing. Actor tensors are rebound diagnostics outside their training distribution. No physical geometry is promoted.

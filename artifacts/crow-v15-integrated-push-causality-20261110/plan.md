@@ -1,0 +1,1 @@
+Matched full-start physical controls on the used J seed, with contact-point observer, compare the active leg extension against crouch-only from 12.96 seconds through the wing fallback. Sample accepted velocities and ground contact impulses; no resets. Establish whether the leg push causes the observed backward takeoff. Observer parity and first-episode boundaries must be checked.

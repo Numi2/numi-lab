@@ -1,0 +1,11 @@
+/Users/n/Developer/numi-crow-rl-20261107/build/crow-v15-integrated-push-causality-20261110/nopush.metal:5086:29: warning: unused variable 'extended' [-Wunused-variable]
+                const float extended=joint==0u ? 0.10f : joint==1u ? -0.70f : 0.18f;
+                            ^
+/Users/n/Developer/numi-crow-rl-20261107/build/crow-v15-integrated-push-causality-20261110/nopush.metal:5087:28: warning: unused variable 'bilateral' [-Wunused-variable]
+                const bool bilateral=state.nutrition.x>0.05f && state.nutrition.y>0.05f;
+                           ^
+/Users/n/Developer/numi-crow-rl-20261107/build/crow-v15-integrated-push-causality-20261110/nopush.metal:5494:21: warning: unused variable 'seconds' [-Wunused-variable]
+        const float seconds=float(state.episode.x)*dispatch.timing.x;
+                    ^
+3 warnings generated.
+d0a9e33a21a5425b6a51fd924ba33913e411e5bb39c908c0a50b2de555b351ca
