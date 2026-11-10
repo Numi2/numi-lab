@@ -1,0 +1,6 @@
+{
+  "tested_bins": 601601,
+  "max_bin_error": 0,
+  "max_encoded": 615400,
+  "qualification": "integer packing only; GPU command path and student observation isolation require separate tests"
+}

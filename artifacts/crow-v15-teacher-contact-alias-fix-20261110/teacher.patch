@@ -1,0 +1,56 @@
+--- a/teacher-alias.metal
++++ b/teacher-isolated.metal
+@@ -5000,7 +5000,15 @@
+         }
+         if (fixedFlightController && state.episode.z == 10u && float(state.episode.x)*dispatch.timing.x < 16.0f) { actorCommand.x = 0.70f; actorCommand.y = 0.0f; actorCommand.z = 0.0f; actorCommand.w = 0.30f; }
+         const bool privilegedCommand = (dispatch.sampling.w != 0u && dispatch.assistance.x < 0.5f);
+-        const float4 oracleCommand = privilegedCommand ? state.nutrition : actorCommand;
++        // Foot support occupies nutrition.xy at the accepted-state boundary.
++        // In teacher mode, pack two millimetre-per-second-resolution commands
++        // into nutrition.z; heading is already published in commandExtension.x.
++        const float encoded = floor(max(state.nutrition.z,0.0f) + 0.5f);
++        const float lateralMilli = floor(encoded / 1024.0f);
++        const float forwardMilli = encoded - 1024.0f * lateralMilli;
++        const float4 teacherCommand = float4(forwardMilli * 0.001f - 0.25f,
++            lateralMilli * 0.001f - 0.30f, state.commandExtension.x, state.nutrition.w);
++        const float4 oracleCommand = privilegedCommand ? teacherCommand : actorCommand;
+         carrierState.commandAndPhase.x = clamp(oracleCommand.x, 0.15f, 0.85f);
+         carrierState.commandAndPhase.y = oracleCommand.y;
+         carrierState.commandExtension.x = oracleCommand.z;
+@@ -5197,10 +5205,10 @@
+         ];
+         if (avianJourneyTeacher && fixedFlightController) {
+             const float4 label = float4(
+-                clamp((state.nutrition.x-0.10f)/0.30f,-1.0f,1.0f),
+-                clamp(state.nutrition.y/0.30f,-1.0f,1.0f),
+-                clamp(state.nutrition.z/0.15f,-1.0f,1.0f),
+-                clamp((state.nutrition.w-0.975f)/0.325f,-1.0f,1.0f));
++                clamp((teacherCommand.x-0.10f)/0.30f,-1.0f,1.0f),
++                clamp(teacherCommand.y/0.30f,-1.0f,1.0f),
++                clamp(teacherCommand.z/0.15f,-1.0f,1.0f),
++                clamp((teacherCommand.w-0.975f)/0.325f,-1.0f,1.0f));
+             const bool expertLabel = commandOffset != 0u &&
+                 action >= commandOffset && action < commandOffset + 4u;
+             teacherActions[actionBase + action] = action < 4u
+@@ -6747,7 +6755,11 @@
+             }
+             // Oracle labels occupy diagnostic spare state only; these will
+             // become independently fingerprinted actor commands, not sensors.
+-            state.nutrition=float4(0.25f-errorOffset,desiredLateral,-heading,desiredHeight);
++            const float forward = clamp(0.25f-errorOffset,-0.25f,0.75f);
++            const float lateral = clamp(desiredLateral,-0.30f,0.30f);
++            const float encoded = round((forward+0.25f)*1000.0f) +
++                1024.0f * round((lateral+0.30f)*1000.0f);
++            state.nutrition=float4(0.0f,0.0f,encoded,desiredHeight);
+             // Policy observations do not expose privileged teacher commands.
+             state.commandAndPhase.xyz=float3(0.15f,0.0f,0.0f);
+             state.commandExtension.xyz=float3(-heading,baseAngular.z,yawFrameLinear.x);
+@@ -9365,7 +9377,7 @@
+             // proprioceptive support error; no force is applied by this observer.
+             if (state.navigation.z>=5.0f && state.threatTeacher.w>=1.5f) {
+                 float3 weightedCOM=float3(0.0f);float totalMass=0.0f;
+-                const float masses[25]={0.3506562412f,0.00001f,0.00001f,0.00001f,0.00001f,0.0001406249939f,0.0001406249939f,0.01406249963f,0.009843749925f,0.007031249814f,0.005225000437f,0.009843749925f,0.007031249814f,0.005225000437f,0.001000000047f,0.03500000015f,0.00400000019f,0.0001f,0.0001f,0.0001f,0.0001f,0.0001f,0.0001f,0.0001f,0.0001f};
++                const float masses[25]={0.27945411f,0.00001f,0.00001f,0.00001f,0.00001f,0.03574169055f,0.03574169055f,0.01406249963f,0.009843749925f,0.007031249814f,0.005225000437f,0.009843749925f,0.007031249814f,0.005225000437f,0.001000000047f,0.03500000015f,0.00400000019f,0.0001f,0.0001f,0.0001f,0.0001f,0.0001f,0.0001f,0.0001f,0.0001f};
+                 if(robotEnd-robotFirst==25u) for(uint bi=robotFirst;bi<robotEnd;++bi) {
+                     const float mass=masses[bi-robotFirst];
+                     weightedCOM+=mass*bodyStates[bodyBase+bi].position.xyz;totalMass+=mass;

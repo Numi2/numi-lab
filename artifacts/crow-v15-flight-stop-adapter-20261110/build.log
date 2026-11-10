@@ -1,0 +1,12 @@
+/Users/n/Developer/numi-crow-rl-20261107/build/crow-v15-flight-stop-adapter-20261110/stop/tracking.metal:4971:21: warning: unused variable 'navigationWingResidual' [-Wunused-variable]
+        const float navigationWingResidual = avianNavigationTeacher
+                    ^
+1 warning generated.
+/Users/n/Developer/numi-crow-rl-20261107/build/crow-v15-flight-stop-adapter-20261110/reverse/tracking.metal:4971:21: warning: unused variable 'navigationWingResidual' [-Wunused-variable]
+        const float navigationWingResidual = avianNavigationTeacher
+                    ^
+1 warning generated.
+/Users/n/Developer/numi-crow-rl-20261107/build/crow-v15-flight-stop-adapter-20261110/slow/tracking.metal:4971:21: warning: unused variable 'navigationWingResidual' [-Wunused-variable]
+        const float navigationWingResidual = avianNavigationTeacher
+                    ^
+1 warning generated.

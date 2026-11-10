@@ -1,0 +1,3 @@
+# Low-speed flight command adapter screening
+
+This experiment leaves the frozen research flight law unchanged, mapping zero, negative and small positive desired forward speed into its existing error feedback. From ground starts, 80/80 stopped and 80/80 at -0.10 m/s passed the sampled fixed-command screening. At +0.10 m/s, 78/80 passed; two in one turn mode exceeded the speed tolerance without reported physical failure. These are independent fixed-command screens on an estimated body, not continuous transitions, route qualification, landing or biological validation. Full lane metrics and retained traces are included.
