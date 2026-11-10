@@ -1,0 +1,17 @@
+[
+  {
+    "path": "build/crow-v15-grip-balance-deadband-20261110/probe",
+    "sha256": "cd48fc8d37221493d59b8a5e6888b7d3e95f1b38d3547b9f30e3f435218db7e2",
+    "bytes": 101672
+  },
+  {
+    "path": "build/lib/libmetalrobo.dylib",
+    "sha256": "d7dad802978b03d8571487dac644678d2c4c1a8eae5b8a4c5c57be261cfbe11a",
+    "bytes": 5728528
+  },
+  {
+    "path": "build/shaders/MetalRobo.metallib",
+    "sha256": "69023c5dcd83c3a10bdc62a5a14d3a9c56d75797de36c95ed090b0f41ef9e135",
+    "bytes": 4467648
+  }
+]
