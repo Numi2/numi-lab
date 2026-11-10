@@ -1,0 +1,3 @@
+# Delayed I recovery qualified for routing-prefix development
+
+The privileged delayed-turn teacher exactly reproduced all 1849 recorded paired-student frames before takeover at step 1850. It reached waypoint five at step 2851, had no observed physical failure, nonfoot perch contact, nonfinite task state or solver failure, and ended with 2575 consecutive bilaterally loaded control-endpoint samples. It qualifies only as a development routing-prefix source under the preregistered rule; privileged teacher intervention and programmed landing prevent any claim of autonomous success. Endpoint loading does not establish uninterrupted opposing toe grip. Landing samples are excluded from training.
