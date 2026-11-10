@@ -1,0 +1,5 @@
+/Users/n/Developer/numi-crow-rl-20261107/build/crow-v15-ramped-pitch-balance-20261110/ramped.metal:5500:21: warning: unused variable 'seconds' [-Wunused-variable]
+        const float seconds=float(state.episode.x)*dispatch.timing.x;
+                    ^
+1 warning generated.
+014f5e92f7efea7ffcf7f7aee66a8123115707ec6e55a1ae125bf1440e02bf38
