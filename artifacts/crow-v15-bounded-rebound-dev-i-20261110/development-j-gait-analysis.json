@@ -1,0 +1,22 @@
+{
+  "valid": true,
+  "forward_m": 0.11030672119999999,
+  "height_range_m": [
+    0.174926952,
+    0.176004872
+  ],
+  "max_tilt_rad": 0.027579758013817027,
+  "nonfoot_endpoints": 0,
+  "unsupported_endpoints": 0,
+  "sides": [
+    {
+      "slip_p95_m_s": 0.0296982305,
+      "clear_swing_runs": 10
+    },
+    {
+      "slip_p95_m_s": 0.0288386423,
+      "clear_swing_runs": 10
+    }
+  ],
+  "early_latch_step": 654
+}

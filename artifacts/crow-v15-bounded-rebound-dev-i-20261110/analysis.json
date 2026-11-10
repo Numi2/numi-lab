@@ -1,0 +1,57 @@
+{
+  "nav5_step": 2848,
+  "bilateral_load_samples": 706,
+  "longest_bilateral_load": 699,
+  "phase2_samples": 674,
+  "perch_foot_contact_samples": 710,
+  "opposed_bilateral_samples": 674,
+  "nonfoot_contact_samples": 0,
+  "max_flight_toe_abs_after_25_impulse_free": 0.000328593975,
+  "flight_toe_samples_after_25_impulse_free": 4050,
+  "last": {
+    "step": 5000,
+    "nav": 5.0,
+    "left_load_n": 2.18021417,
+    "right_load_n": 3.7541945,
+    "phase": 2.0,
+    "height_target": 0.995194972,
+    "forward_velocity": -0.00130066043
+  },
+  "first_episode": {
+    "boundary": "waypoint completion; does not establish supported landing",
+    "closed_by_environment": [
+      true
+    ],
+    "closed_episode_count": 1,
+    "completion_seen_by_environment": [
+      true
+    ],
+    "completion_seen_count": 1,
+    "environment_count": 1,
+    "first_completion_step_by_environment": [
+      2848
+    ],
+    "horizon_censored_count": 0,
+    "maximum_waypoints_by_environment": [
+      5
+    ],
+    "physical_failure_by_environment": [
+      false
+    ],
+    "physical_failure_count": 0,
+    "safe_completion_by_environment": [
+      true
+    ],
+    "safe_completion_count": 1,
+    "schema": "numi.crow-first-episode-evidence.v1",
+    "steps_by_environment": [
+      5000
+    ],
+    "termination_reason_by_environment": [
+      4
+    ],
+    "unit": "first episode of each environment since context creation"
+  },
+  "failed_environment_steps": 0,
+  "clearance_floor_m": null
+}
