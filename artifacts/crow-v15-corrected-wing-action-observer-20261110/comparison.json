@@ -1,0 +1,11 @@
+{
+  "reference_sample_count": 256,
+  "observed_sample_count": 256,
+  "different_qv_samples": 0,
+  "first_differences": [],
+  "action_samples": 256,
+  "reference_sha256": "ce31bcd28edfb75e5d01a3f5ced4b7721001b4e1dc5fa48061ae80a001bff101",
+  "observer_sha256": "d7f2201194c121e8e193bb3b34be85c162c7ac37179c9066b47c9eb6cdbfde8b",
+  "actual_observer_host_sha256": "f2afbab559b526b7188eb6a3ef78c41f4dcfe71dad57e0e22b45b51adbb4aae3",
+  "note": "The general flight-analysis host_sha256 points to the base host and is incorrect for this observer run; use actual_observer_host_sha256 here. Action samples are filtered normalized commands, not physical forces or torques."
+}

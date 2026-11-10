@@ -1,0 +1,3 @@
+# Filtered controller command observer
+
+A research-only host makes task state and action-history buffers host-readable and logs the last filtered action once every 100 steps. In matched 16-lane seed-18647331 runs on the selected research controller, all 256 sampled q/v pairs matched the original host exactly, while the observer recorded 256 filtered command vectors. This supports using these diagnostic captures as templates; it does not independently establish exact equivalence at unsampled microsteps. The normalized filtered commands are not joint torques. The generic flight-analysis host hash was generated from the base host and is wrong for this run; comparison.json gives the actual observer host SHA-256. No production file is changed.

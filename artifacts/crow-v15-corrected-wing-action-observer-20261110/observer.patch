@@ -1,0 +1,50 @@
+--- a/complete-observer.mm
++++ b/action-observer.mm
+@@ -806,6 +806,7 @@
+     bool contactMode = false;
+     bool hasMillardProgram = false;
+     bool nativeTask = false;
++    std::size_t observerActionCount = 0, observerDelayCount = 0;
+     bool captureContactEvidence = false;
+     bool publishFinalState = true;
+     bool publishStateTrajectory = true;
+@@ -7510,9 +7511,7 @@
+     case kRodEdgesB:
+     case kRodWitnessesA:
+     case kRodWitnessesB:
+-    case kTaskState:
+     case kTaskEvidenceState:
+-    case kTaskActionHistory:
+     case kTaskActorHistory:
+     case kTaskCleanHistory:
+     case kTaskCriticHistory:
+@@ -20270,6 +20269,21 @@
+         MetalWorldResult staged{};
+         @autoreleasepool {
+             [pending->commandBuffer waitUntilCompleted];
++            if (std::getenv("CROW_ACTION_OBSERVER") != nullptr) {
++                id<MTLBuffer> sb = pending->context->buffers[kTaskState];
++                id<MTLBuffer> hb = pending->context->buffers[kTaskActionHistory];
++                const auto* st = static_cast<const MRTaskStateGPU*>(sb.contents);
++                const auto* ah = static_cast<const float*>(hb.contents);
++                const auto actionCount = pending->observerActionCount, delayCount = pending->observerDelayCount;
++                const auto lanes = pending->diagnostics.layout.dispatch.environmentCount;
++                if (st && ah && delayCount && actionCount) for (std::uint32_t lane=0;lane<lanes;++lane) {
++                    if (st[lane].episode.x % 100u != 0u) continue;
++                    std::fprintf(stderr,"CROW_ACTION_SAMPLE {\"episode_step\":%u,\"lane\":%u,\"filtered\":[",st[lane].episode.x,lane);
++                    const auto start=(lane*delayCount+delayCount-1u)*actionCount;
++                    for (std::uint32_t j=0;j<actionCount;++j) std::fprintf(stderr,"%s%.9g",j?",":"",ah[start+j]);
++                    std::fprintf(stderr,"]}\n");
++                }
++            }
+             const auto end = std::chrono::steady_clock::now();
+             diagnostics.submissionElapsedMilliseconds =
+                 std::chrono::duration<double, std::milli>(
+@@ -22338,6 +22352,7 @@
+             pending->contactMode = contactMode;
+             pending->hasMillardProgram = hasMillardProgram;
+             pending->nativeTask = nativeTask;
++            if (nativeTask) { pending->observerActionCount=config.taskProgram.layout().actionCount; pending->observerDelayCount=config.taskProgram.layout().delayStateCount; }
+             pending->captureContactEvidence =
+                 config.captureContactEvidence;
+             pending->publishFinalState =
