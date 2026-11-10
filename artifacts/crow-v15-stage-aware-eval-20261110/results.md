@@ -1,0 +1,3 @@
+# Teacher-off waypoint completion, no landing
+
+The stage-aware actor completed all five waypoints on both development layouts from full starts, teacher off, without reported fatal or solver failure. First completion was at step 2702 on J and 2753 on I. Minimum accepted-step obstacle clearance was 0.07416 m on J and 0.006139 m on I; the latter is narrow and neither establishes continuous substep clearance. Neither run obtained bilateral perch support: both remained airborne at step 7000. Maximum sampled toe angles after 25 contact-free intervals were 0.0003645 rad and 0.0003177 rad respectively. K/L remain unused; this is not a full journey or landing qualification.

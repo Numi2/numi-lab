@@ -1,0 +1,109 @@
+--- a/student.metal
++++ b/student.metal
+@@ -2395,6 +2395,8 @@
+     if ((program.schedule.w & MR_TASK_PROGRAM_AVIAN_CROW_HIERARCHICAL_NAVIGATION) != 0u &&
+         state.episode.z == 10u && state.navigation.z >= 5.0f && program.counts0.w >= 2u && dispatch.counts.w == 30u) {
+         float2 accumulated = pass.physicsSubstep == 0u ? float2(0.0f) : as_type<float2>(state.threatMetadata.zw);
++        if (state.threatMetadata.z == MR_INVALID_INDEX) accumulated.x=0.0f;
++        if (state.threatMetadata.w == MR_INVALID_INDEX) accumulated.y=0.0f;
+         const MRMetalWorldContactStatusGPU cs = contactStatuses[environment];
+         if (cs.code == MR_STEP_SUCCESS) {
+             device const MRTaskContactGroupGPU* groups = taskTable<MRTaskContactGroupGPU>(arena, program.offsets0.w);
+@@ -5020,6 +5022,13 @@
+             // Slow toward the physical foot joint using accepted state.
+             actorCommand.x=clamp(0.00f+0.80f*state.nutrition.z-0.80f*state.commandExtension.z,-0.15f,0.20f);
+         }
++        if (fixedFlightController && dispatch.sampling.w==0u && state.navigation.z>=5.0f) {
++            // Sensor-driven terminal control, bounded to the qualified flight envelope.
++            actorCommand.x=clamp(0.04f+0.40f*state.nutrition.z-0.40f*state.commandExtension.z,-0.08f,0.10f);
++            actorCommand.y=state.commandAndPhase.y;
++            actorCommand.z=state.commandExtension.x;
++            actorCommand.w=state.nutrition.w;
++        }
+         if (fixedFlightController && state.episode.z == 10u && float(state.episode.x)*dispatch.timing.x < 16.0f) { actorCommand.x = 0.70f; actorCommand.y = 0.0f; actorCommand.z = 0.0f; actorCommand.w = 0.30f; }
+         const bool privilegedCommand = (dispatch.sampling.w != 0u && dispatch.assistance.x < 0.5f);
+         // Foot support occupies nutrition.xy at the accepted-state boundary.
+@@ -5533,7 +5542,7 @@
+     if ((program.schedule.w & MR_TASK_PROGRAM_AVIAN_CROW_HIERARCHICAL_NAVIGATION) != 0u &&
+         state.episode.z == 10u && program.counts0.w >= 5u && dispatch.counts.w == 30u) {
+         const float seconds=float(state.episode.x)*dispatch.timing.x;
+-        const bool closing=state.navigation.z>=5.0f;
++        const bool closing=state.navigation.z>=5.0f && state.threatTeacher.w<2.5f;
+         for (uint side=0u;side<2u;++side) {
+             const uint ramp=(state.status.w>>(side*6u)) & 63u;
+             const uint rearRamp=(state.status.w>>(13u+side*6u)) & 63u;
+@@ -6820,6 +6829,7 @@
+         const float pitch = asin(clamp(2.0f*(orientation.w*orientation.y-orientation.z*orientation.x),-1.0f,1.0f));
+         const float roll = atan2(2.0f*(orientation.w*orientation.x+orientation.y*orientation.z),1.0f-2.0f*(orientation.x*orientation.x+orientation.y*orientation.y));
+         float phase=state.threatTeacher.w;
++        float landingLateral=0.0f;
+         if (state.navigation.z >= float(kCrowNavigationWaypointCount-1u)) {
+             uint course=MR_INVALID_INDEX;
+             for (uint i=0u;i<program.counts1.w;++i) {
+@@ -6838,23 +6848,41 @@
+                         const float3 leftJoint=left.position.xyz+rotate(left.orientation,contactGroups[0].kinematicReference.xyz);
+                         const float3 rightJoint=right.position.xyz+rotate(right.orientation,contactGroups[1].kinematicReference.xyz);
+                         const float feetX=0.5f*(leftJoint.x+rightJoint.x);
+-                        state.nutrition.z=clamp(finalGoal.x+0.015f-feetX,-0.50f,0.50f);
++                        state.nutrition.z=clamp(finalGoal.x+(state.navigation.z>=5.0f ? 0.020f : 0.015f)-feetX,-0.50f,0.50f);
+                     }
+                 }
+-                if (state.navigation.z >= float(kCrowNavigationWaypointCount) && phase < 0.5f && length(finalGoal.xy-pos.xy)<0.08f &&
+-                    length(yawFrameLinear.xy)<0.08f) phase=1.0f;
++                if (state.navigation.z >= float(kCrowNavigationWaypointCount)) {
++                    const float xError=state.nutrition.z;
++                    const float yError=finalGoal.y-pos.y;
++                    landingLateral=clamp(0.80f*yError,-0.30f,0.30f);
++                    if (phase < 0.5f && length(float2(xError,yError))<0.08f && length(yawFrameLinear.xy)<0.08f) phase=1.0f;
++                    if (phase >= 1.2f && phase < 1.5f && (length(yawFrameLinear.xy)>0.16f || (pos.z<finalGoal.z+0.05f && rootLinearVelocity.z < -0.25f) || (pos.z>finalGoal.z+0.30f && rootLinearVelocity.z>0.10f))) phase=1.0f;
++                    if (phase>0.5f && phase<1.2f && state.nutrition.x>0.05f && state.nutrition.y>0.05f && abs(xError)<0.04f && abs(yError)<0.10f && length(yawFrameLinear.xy)<0.15f && abs(rootLinearVelocity.z)<0.90f) phase=1.25f;
++                    const bool canLower=abs(xError)<0.040f && abs(yError)<0.12f && length(yawFrameLinear.xy)<0.11f && abs(rootLinearVelocity.z)<0.18f;
++                    const bool footContact=state.nutrition.x+state.nutrition.y>0.20f;
++                    const float priorHeight=state.nutrition.w>0.5f ? state.nutrition.w : 1.30f;
++                    state.nutrition.w=phase>0.5f ? (footContact ? max(priorHeight,pos.z) : (canLower ? max(finalGoal.z+0.105f,priorHeight-0.12f*dispatch.timing.x) : priorHeight)) : 1.30f;
++                }
+                 uint loadedFeet=0u;
+                 for (uint gi=0u;gi<program.counts0.w;++gi) {
+                     const MRTaskContactGroupGPU group=contactGroups[gi];
+                     if ((group.members.z & MR_TASK_CONTACT_SUPPORT)!=0u &&
+                         compactContact[compactBase+group.members.w]>0.05f) ++loadedFeet;
+                 }
+-                if (state.navigation.z >= float(kCrowNavigationWaypointCount) && loadedFeet>=2u && abs(state.nutrition.z)<0.045f &&
++                if (phase >= 1.5f && state.nutrition.x+state.nutrition.y < 0.25f) phase=1.0f;
++                if (state.navigation.z >= float(kCrowNavigationWaypointCount) && phase<2.5f && loadedFeet>=2u && abs(state.nutrition.z)<0.045f &&
+                     abs(finalGoal.y-pos.y)<0.16f && length(yawFrameLinear.xy)<0.08f &&
+                     abs(rootLinearVelocity.z)<0.12f) phase=2.0f;
+-            }
+-        }
+-        state.commandAndPhase.xyz=float3(0.15f,0.0f,0.0f);
++                if (state.navigation.z >= float(kCrowNavigationWaypointCount)) {
++                    if (phase < 1.5f) state.threatMetadata.x=0u;
++                    else if (phase < 2.5f) {
++                        if (state.threatMetadata.x==0u || state.threatMetadata.x==MR_INVALID_INDEX) state.threatMetadata.x=state.episode.x;
++                        if (state.episode.x >= state.threatMetadata.x+200u && state.nutrition.x>0.10f && state.nutrition.y>0.10f && state.nutrition.x+state.nutrition.y>2.2f) phase=3.0f;
++                    }
++                }
++            }
++        }
++        state.commandAndPhase.xyz=float3(0.15f,state.navigation.z>=5.0f ? landingLateral : 0.0f,0.0f);
+         state.commandExtension.xyz=float3(-heading,baseAngular.z,yawFrameLinear.x);
+         state.threatGeometry=float4(-pos.z,rootLinearVelocity.z,pitch,baseAngular.y);
+         state.threatTeacher=float4(yawFrameLinear.y,roll,baseAngular.x,phase);
+@@ -9398,6 +9426,8 @@
+     // Accepted foot force diagnostic feedback for this isolated band-10 bench.
+     if ((program.schedule.w & MR_TASK_PROGRAM_AVIAN_CROW_HIERARCHICAL_NAVIGATION) != 0u && state.episode.z == 10u && program.counts0.w >= 2u) {
+         state.nutrition.xy=state.navigation.z>=5.0f ? as_type<float2>(state.threatMetadata.zw)/dispatch.timing.x : float2(compactContact[compactBase+contactGroups[0].members.w],compactContact[compactBase+contactGroups[1].members.w]);
++        if (state.navigation.z>=5.0f && state.threatMetadata.z == MR_INVALID_INDEX) state.nutrition.x=0.0f;
++        if (state.navigation.z>=5.0f && state.threatMetadata.w == MR_INVALID_INDEX) state.nutrition.y=0.0f;
+         if (program.counts0.w>=5u && dispatch.counts.w==30u) {
+             const float seconds=float(state.episode.x)*dispatch.timing.x;
+             // Preserve a launch latch in a spare high bit of this experimental task state.
+@@ -9418,7 +9448,7 @@
+                     packed |= next << (side*6u);
+                 }
+             }
+-            if (state.navigation.z>=5.0f && state.threatTeacher.w<1.5f) {
++            if (state.navigation.z>=5.0f && state.threatTeacher.w<2.5f) {
+                 const uint prior=(state.status.w>>25u)&127u;
+                 const bool supported=state.nutrition.x>0.10f && state.nutrition.y>0.10f && state.nutrition.x+state.nutrition.y>2.2f;
+                 const uint duration=supported ? min(prior+1u,100u) : 0u;
