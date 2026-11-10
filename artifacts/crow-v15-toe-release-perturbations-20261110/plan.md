@@ -1,0 +1,3 @@
+# New initial perturbations for isolated grip and release
+
+Test the rear-first release on eight new, more perturbed supported starts, matched against simultaneous opening and open toes. Positions are +/-6 mm, roll +/-0.04 rad, forward velocity +/-0.025 m/s, differing from the original +/-4 mm, +/-0.025 rad and +/-0.015 m/s. Keep the 6 cm square isolated perch, revised research body, 200 native steps, mechanics, contact thresholds and no balance feedback unchanged. Require 6/8 or better meeting the previously specified complete grip-release-support test, with the open controls producing no qualifying grip. Observe the full contact record. These are still already-supported starts and do not establish an airborne landing, route completion, or biological validity.
