@@ -1,0 +1,3 @@
+# Exploratory contact-triggered toe reflex
+
+All 16 teacher-guided development starts survived through step 4500. No start obtained qualifying bilateral loading or entered the landed phase, so the preregistered loading prediction was contradicted. The first-episode sampled pre-perch maximum toe angle was 0.000312 rad. In every-step support samples at least 25 steps after foot/toe contact ended, the largest observed absolute toe angle was 0.03785 rad, below the exploratory 0.05 rad threshold. These checks do not establish deliberate toe release after a sustained grip, full landing, autonomy or biological realism.

@@ -2,15 +2,19 @@ from pathlib import Path
 import gzip,json
 A=Path('artifacts/crow-v15-landing-phase-observer-20261110');P=Path('artifacts/crow-v15-ramped-perch-approach-20261110');original=json.loads((P/'development-reserved-final-j.stdout').read_text())['first_episode_navigation'];new=json.loads((A/'observer.stdout').read_text())['first_episode_navigation']
 def read(p,states=False):
- sample={};phase={}
+ sample={};phase={};last={};closed=set()
  with gzip.open(p,'rt') as f:
   for l in f:
    if l.startswith('CROW_FLIGHT_SAMPLE '):
-    x=json.loads(l.split(' ',1)[1]);k=(x['lane'],x['step'])
-    if x['step']<=original['steps_by_environment'][x['lane']]:sample[k]=(x['q'],x['v'])
+    x=json.loads(l.split(' ',1)[1]);k=(x['lane'],x['step']);key=('flight',x['lane'])
+    if key in last and x['step']<last[key]:closed.add(key)
+    last[key]=x['step']
+    if key not in closed and x['step']<=original['steps_by_environment'][x['lane']]:sample[k]=(x['q'],x['v'])
    elif states and l.startswith('CROW_TASK_STATE '):
-    v=l.split();lane=int(v[1]);step=int(v[2])
-    if step<=original['steps_by_environment'][lane] and float(v[4])>=5:phase[(lane,step)]={'phase':float(v[7]),'height_command':float(v[8]),'foot_loads':[float(v[5]),float(v[6])],'forward_speed':float(v[9])}
+    v=l.split();lane=int(v[1]);step=int(v[2]);key=('state',lane)
+    if key in last and step<last[key]:closed.add(key)
+    last[key]=step
+    if key not in closed and step<=original['steps_by_environment'][lane] and float(v[4])>=5:phase[(lane,step)]={'phase':float(v[7]),'height_command':float(v[8]),'foot_loads':[float(v[5]),float(v[6])],'forward_speed':float(v[9])}
  return sample,phase
 x,_=read(P/'development-reserved-final-j.stderr.gz');y,ph=read(A/'observer.stderr.gz',True);ks=set(x)|set(y);diff=[k for k in sorted(ks) if x.get(k)!=y.get(k)];out=[]
 for lane in range(8):
