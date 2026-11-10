@@ -1,0 +1,58 @@
+[
+  {
+    "path": "build/crow-v15-integrated-route-baseline-20261110/diagnostic-reserved-final-j-latch-newstart.json",
+    "archive": "artifacts/crow-v15-grip-latch-20261110/diagnostic-reserved-final-j-latch-newstart.json.gz",
+    "sha256": "78502b634299df515ceafa0f87b4e68dd10d1fe017af8be1bf06ba1caccea585",
+    "bytes": 149143075,
+    "restored_commit": "a98c20046"
+  },
+  {
+    "path": "build/crow-v15-integrated-route-baseline-20261110/diagnostic-reserved-final-j-latch-original.tsv",
+    "archive": "artifacts/crow-v15-grip-latch-20261110/diagnostic-reserved-final-j-latch-original.tsv.gz",
+    "sha256": "03d1610a983b5a805144d38490bdce3ba7170eadc4231dfe2c8cb316717c2258",
+    "bytes": 3276816,
+    "restored_commit": "a98c20046"
+  },
+  {
+    "path": "build/crow-v15-integrated-route-baseline-20261110/diagnostic-reserved-final-j-latch-original.json",
+    "archive": "artifacts/crow-v15-grip-latch-20261110/diagnostic-reserved-final-j-latch-original.json.gz",
+    "sha256": "df50f0e8b3c5a7448651209da01159d47fd19e9e95480c4c6883cb4d2e7e1d80",
+    "bytes": 150474320,
+    "restored_commit": "a98c20046"
+  },
+  {
+    "path": "build/crow-v15-integrated-route-baseline-20261110/diagnostic-reserved-final-j-latch-newstart.tsv",
+    "archive": "artifacts/crow-v15-grip-latch-20261110/diagnostic-reserved-final-j-latch-newstart.tsv.gz",
+    "sha256": "14614474b2910969cafacf38cd21c4a27e68677bd89b1b175f8e13898803084c",
+    "bytes": 3279928,
+    "restored_commit": "a98c20046"
+  },
+  {
+    "path": "build/crow-v15-integrated-route-baseline-20261110/diagnostic-reserved-final-j-slow_latch-original.tsv",
+    "archive": "artifacts/crow-v15-grip-latch-20261110/diagnostic-reserved-final-j-slow_latch-original.tsv.gz",
+    "sha256": "03d1610a983b5a805144d38490bdce3ba7170eadc4231dfe2c8cb316717c2258",
+    "bytes": 3276816,
+    "restored_commit": "a98c20046"
+  },
+  {
+    "path": "build/crow-v15-integrated-route-baseline-20261110/diagnostic-reserved-final-j-slow_latch-original.json",
+    "archive": "artifacts/crow-v15-grip-latch-20261110/diagnostic-reserved-final-j-slow_latch-original.json.gz",
+    "sha256": "df50f0e8b3c5a7448651209da01159d47fd19e9e95480c4c6883cb4d2e7e1d80",
+    "bytes": 150474320,
+    "restored_commit": "a98c20046"
+  },
+  {
+    "path": "build/crow-v15-integrated-route-baseline-20261110/diagnostic-reserved-final-j-slow_latch-newstart.json",
+    "archive": "artifacts/crow-v15-grip-latch-20261110/diagnostic-reserved-final-j-slow_latch-newstart.json.gz",
+    "sha256": "6042128c61eed7c184e0a0925fc52644413a3dfecb840b9a197f4ac5da153445",
+    "bytes": 149086078,
+    "restored_commit": "a98c20046"
+  },
+  {
+    "path": "build/crow-v15-integrated-route-baseline-20261110/diagnostic-reserved-final-j-slow_latch-newstart.tsv",
+    "archive": "artifacts/crow-v15-grip-latch-20261110/diagnostic-reserved-final-j-slow_latch-newstart.tsv.gz",
+    "sha256": "756baa433de89ec8a5f63573ef4d4721a717a94f8c102e36990a82790d78b2c3",
+    "bytes": 3280207,
+    "restored_commit": "a98c20046"
+  }
+]

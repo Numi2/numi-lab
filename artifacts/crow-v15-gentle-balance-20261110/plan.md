@@ -1,0 +1,1 @@
+On the same used J starts, test a much smaller bounded hip and ankle feedback after sustained toe load. Compare to the aggressive balance and grip-latch controls using a continuous 4500-step trial, actual contact impulses, failure location and terminal support. No direct body force is injected.
