@@ -1,0 +1,7 @@
+# Isolated coordinated leg response
+
+All five matched arms completed 80 five-millisecond samples with no recorded nonfoot impulse or solver failure. The zero-offset arm matched the prior hip-only experiment exactly across all 1,041 trace, contact and result lines, validating that control comparison for this fixture.
+
+With equal-and-opposite hip/ankle offsets of -0.06, -0.03, 0, +0.03 and +0.06 rad at the hips, root pitch increased by 0.01335, 0.01388, 0.01603, 0.01701 and 0.01882 rad, respectively, over the sampled interval. Root x changed by -6.51, -1.51, +2.82, +6.85 and +10.89 mm. Opposing bilateral toe contacts plus upward support were present in 70, 64, 73, 72 and 70 of 80 samples. The -0.06-rad hip / +0.06-rad ankle arm reduced short-term forward pitch and moved the root back relative to the zero control while retaining most qualifying contact samples; it also had 45 consecutive qualifying samples versus 21 for the zero control. This motivates a bounded continuous-rollout test, not a claim that the 0.4-second response is stable or biologically calibrated.
+
+The sample is a physically reached state with fresh contact cache in an isolated single-perch world and all other targets held at their reached joint positions. The full route may differ because of controller history, ongoing wing and body dynamics, contact transients, and different starts. No landing, intentional release, autonomous flight or unseen layout is qualified by this probe.
