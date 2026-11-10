@@ -1,0 +1,5 @@
+# Exploratory bounded approach over narrow perch
+
+The contact-debounced experiment retained 12/16 development birds until the full horizon but none reached phase two: loaded intervals under its thresholds lasted at most two accepted steps. Inspection of lane J0 shows the body moved from x=4.78 to 5.14 m while the perch center was 5.029 m and half-width only 0.10 m. This motivates reducing horizontal approach speed and bringing the height target 2 cm lower, without changing the frozen flight law or the 25-step contact handoff.
+
+Prediction on the same 16 development starts, 4500 steps: at least 12 survive without physical failure and at least four achieve 10 consecutive accepted steps with both foot loads above 0.10 N and combined load above 2.2 N. Use bounded desired speed +/-0.05 m/s, position gain 0.20 and velocity gain 0.20, ramp the target to perch center plus 0.23 m. The qualification gate remains 25 consecutive loaded steps, then sustained actual opposing toe grip, release, and terminal support. Retain all outcomes and sampled contacts. Both courses are used development layouts and this is teacher-guided exploration, not held-out autonomous evidence.

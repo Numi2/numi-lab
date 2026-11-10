@@ -1,0 +1,128 @@
+{
+  "remote": "git@github.com:Numi2/numi-lab.git",
+  "branch": "agent/american-crow-rl-20261107",
+  "commit": "54cfd316c37fcb64e512078eb95dac505c2d80de",
+  "method": "independent filtered clone; decompress git blob and compare SHA256 to original raw output",
+  "verified": [
+    {
+      "archive": "artifacts/crow-v15-heavy-wing-teacher-route-20261110/development-reserved-final-i.json.gz",
+      "raw": "build/crow-v15-heavy-wing-teacher-route-20261110/development-reserved-final-i.json",
+      "sha256": "10724c479bbb3949bc4a67e7eb802d296c558b88a728f507b62d65c144f437ce",
+      "bytes": 152277740
+    },
+    {
+      "archive": "artifacts/crow-v15-heavy-wing-teacher-route-20261110/development-reserved-final-i.tsv.gz",
+      "raw": "build/crow-v15-heavy-wing-teacher-route-20261110/development-reserved-final-i.tsv",
+      "sha256": "9a2b960542d8f54474326af3c2b70672f0811b3c5eab3255dee2f0940c2e0e01",
+      "bytes": 3278637
+    },
+    {
+      "archive": "artifacts/crow-v15-heavy-wing-teacher-route-20261110/development-reserved-final-j.json.gz",
+      "raw": "build/crow-v15-heavy-wing-teacher-route-20261110/development-reserved-final-j.json",
+      "sha256": "27dd18c3180f38fb26eaa0df3df160508c6f0a8d9e1551f8361dd24dc981e65a",
+      "bytes": 152754326
+    },
+    {
+      "archive": "artifacts/crow-v15-heavy-wing-teacher-route-20261110/development-reserved-final-j.tsv.gz",
+      "raw": "build/crow-v15-heavy-wing-teacher-route-20261110/development-reserved-final-j.tsv",
+      "sha256": "3656c4da676c6e76413aaaefac71eb0e2194fa595d1bc6d1f66d38a588bb7de6",
+      "bytes": 3286738
+    },
+    {
+      "archive": "artifacts/crow-v15-teacher-stop-approach-20261110/development-reserved-final-i.json.gz",
+      "raw": "build/crow-v15-teacher-stop-approach-20261110/development-reserved-final-i.json",
+      "sha256": "0e2941786e20289c889d343d91f8cc18f7e2030dfa78c89577eb21946e933c26",
+      "bytes": 149077785
+    },
+    {
+      "archive": "artifacts/crow-v15-teacher-stop-approach-20261110/development-reserved-final-i.tsv.gz",
+      "raw": "build/crow-v15-teacher-stop-approach-20261110/development-reserved-final-i.tsv",
+      "sha256": "8e608d986042dfa80962a4705aa18b184fcccabf6249f5e5f55cb9d890bc38f4",
+      "bytes": 3267196
+    },
+    {
+      "archive": "artifacts/crow-v15-teacher-stop-approach-20261110/development-reserved-final-j.json.gz",
+      "raw": "build/crow-v15-teacher-stop-approach-20261110/development-reserved-final-j.json",
+      "sha256": "4e2ce9554aa15831373ad72ea479699b3d734628a3c5166b7f032d145a46f98e",
+      "bytes": 149055089
+    },
+    {
+      "archive": "artifacts/crow-v15-teacher-stop-approach-20261110/development-reserved-final-j.tsv.gz",
+      "raw": "build/crow-v15-teacher-stop-approach-20261110/development-reserved-final-j.tsv",
+      "sha256": "c93279f15c9a28744a6f368e33cbc5d00e7429aac62b29fbb4ab05a1eae61cae",
+      "bytes": 3271043
+    },
+    {
+      "archive": "artifacts/crow-v15-approach-damping-20261110/development-reserved-final-i.json.gz",
+      "raw": "build/crow-v15-approach-damping-20261110/development-reserved-final-i.json",
+      "sha256": "e33aa1e54b3c97b7960a10fa3e99d06c95675f23cd4890fcbd4580f8b21cef67",
+      "bytes": 148587917
+    },
+    {
+      "archive": "artifacts/crow-v15-approach-damping-20261110/development-reserved-final-i.tsv.gz",
+      "raw": "build/crow-v15-approach-damping-20261110/development-reserved-final-i.tsv",
+      "sha256": "35c64b8063a9084092808b5c5000037331f90f7dc6ea7e68dc6427c608ef1f5f",
+      "bytes": 3266938
+    },
+    {
+      "archive": "artifacts/crow-v15-approach-damping-20261110/development-reserved-final-j.json.gz",
+      "raw": "build/crow-v15-approach-damping-20261110/development-reserved-final-j.json",
+      "sha256": "1134105d770fff06c886d13c43af96dc228a3e2d9d81b2a4fb3a993b7ee02d5c",
+      "bytes": 148759154
+    },
+    {
+      "archive": "artifacts/crow-v15-approach-damping-20261110/development-reserved-final-j.tsv.gz",
+      "raw": "build/crow-v15-approach-damping-20261110/development-reserved-final-j.tsv",
+      "sha256": "712b131485aa28a200a67604feace7b59de062aec1d6353b5331fe1d597d619b",
+      "bytes": 3270723
+    },
+    {
+      "archive": "artifacts/crow-v15-perch-descent-trial-20261110/development-reserved-final-i.json.gz",
+      "raw": "build/crow-v15-perch-descent-trial-20261110/development-reserved-final-i.json",
+      "sha256": "126e9a7b053d669d324fc1495ddff4219c9c4f1466eeb8bba7d55a64f16a2952",
+      "bytes": 151439179
+    },
+    {
+      "archive": "artifacts/crow-v15-perch-descent-trial-20261110/development-reserved-final-i.tsv.gz",
+      "raw": "build/crow-v15-perch-descent-trial-20261110/development-reserved-final-i.tsv",
+      "sha256": "4350da3798ff17c7d979363e71d76b9e19da4c9487899d02e9db3249517e232e",
+      "bytes": 3274597
+    },
+    {
+      "archive": "artifacts/crow-v15-perch-descent-trial-20261110/development-reserved-final-j.json.gz",
+      "raw": "build/crow-v15-perch-descent-trial-20261110/development-reserved-final-j.json",
+      "sha256": "80d7908ea9a4f468a46d22134c1c4c059f3b06dda2510669c8c2cb0e42ff72bb",
+      "bytes": 151941333
+    },
+    {
+      "archive": "artifacts/crow-v15-perch-descent-trial-20261110/development-reserved-final-j.tsv.gz",
+      "raw": "build/crow-v15-perch-descent-trial-20261110/development-reserved-final-j.tsv",
+      "sha256": "9b6ea9c3887531ae21ecfd07e6ffc8d48ba9571660032bc45ee26f9354b74fc3",
+      "bytes": 3283315
+    },
+    {
+      "archive": "artifacts/crow-v15-ramped-perch-approach-20261110/development-reserved-final-i.json.gz",
+      "raw": "build/crow-v15-ramped-perch-approach-20261110/development-reserved-final-i.json",
+      "sha256": "ec2a2c579505a504e21d87db9600767ae469c8f6adac6e075deadbe541dbe091",
+      "bytes": 150715511
+    },
+    {
+      "archive": "artifacts/crow-v15-ramped-perch-approach-20261110/development-reserved-final-i.tsv.gz",
+      "raw": "build/crow-v15-ramped-perch-approach-20261110/development-reserved-final-i.tsv",
+      "sha256": "a435cf0155bc098c8fee605268e6e0c108de584fb8052f0d92e26fa9573511af",
+      "bytes": 3274174
+    },
+    {
+      "archive": "artifacts/crow-v15-ramped-perch-approach-20261110/development-reserved-final-j.json.gz",
+      "raw": "build/crow-v15-ramped-perch-approach-20261110/development-reserved-final-j.json",
+      "sha256": "b45df8b64d61134474313fcff40d3331abc6734a642d124684ed391c9a4fbb73",
+      "bytes": 151104129
+    },
+    {
+      "archive": "artifacts/crow-v15-ramped-perch-approach-20261110/development-reserved-final-j.tsv.gz",
+      "raw": "build/crow-v15-ramped-perch-approach-20261110/development-reserved-final-j.tsv",
+      "sha256": "58af2df0c517164d57a6634e93664b4306a82495dc8c5bd200f14c8427050e84",
+      "bytes": 3281637
+    }
+  ]
+}
