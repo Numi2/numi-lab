@@ -1,0 +1,29 @@
+{
+  "remote_commit": "3ef312fe594af2668d22f67962c088166f96cff1",
+  "retired": [
+    {
+      "raw": "build/crow-v15-ccd-budget-20261110/development-j-walk-perch-integration.json",
+      "archive": "artifacts/crow-v15-walk-perch-integration-20261110/development-j-walk-perch-integration.json.gz",
+      "sha256": "6b3e016dfd4ede1ea091a39a2a0ca20581a8883e3afcf29cdaa28c494e27470d",
+      "bytes": 166699894
+    },
+    {
+      "raw": "build/crow-v15-ccd-budget-20261110/development-j-walk-perch-integration.tsv",
+      "archive": "artifacts/crow-v15-walk-perch-integration-20261110/development-j-walk-perch-integration.tsv.gz",
+      "sha256": "62007e7d8ac7ba149df59a3a12237a9938ab8a09ee11e83c2cf02b5cbb22d70e",
+      "bytes": 3620973
+    },
+    {
+      "raw": "build/crow-v15-ccd-budget-20261110/development-j-flare-recovery.json",
+      "archive": "artifacts/crow-v15-flare-recovery-20261110/development-j-flare-recovery.json.gz",
+      "sha256": "425d7f01da8e0afdb7e3ee2b67c5f566091d63647cd0596cda91121bf5d31c1a",
+      "bytes": 164793016
+    },
+    {
+      "raw": "build/crow-v15-ccd-budget-20261110/development-j-flare-recovery.tsv",
+      "archive": "artifacts/crow-v15-flare-recovery-20261110/development-j-flare-recovery.tsv.gz",
+      "sha256": "64966565a056c50c317b17cfd38791b9c35546b5c68fedee863777a62b8f6ddd",
+      "bytes": 3610987
+    }
+  ]
+}
