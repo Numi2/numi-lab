@@ -1,0 +1,1 @@
+After sustained bilateral toe load, test bounded physical hip and ankle commands using accepted support-center relative to articulated COM and body pitch rate. Compare two used J starts to the grip-latch control for full 4500-step episodes. This is an experimental state-feedback supervisor; no visual-only correction or injected balance torque.
