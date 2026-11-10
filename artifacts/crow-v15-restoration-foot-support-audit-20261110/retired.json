@@ -1,0 +1,11 @@
+{
+  "remote_commit": "8e2042d40c5c9d2dcc1703068b41c012c057297b",
+  "retired": [
+    {
+      "raw": "artifacts/crow-v15-foot-support-substep-audit-20261110/results.txt",
+      "archive": "artifacts/crow-v15-foot-support-substep-audit-20261110/results.txt.gz",
+      "sha256": "a88bb97ccb86faf78b77edfb4ac1d00f4cea7cbf91a41d49288b29e3d71ed7c6",
+      "bytes": 1369981
+    }
+  ]
+}
