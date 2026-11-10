@@ -1,0 +1,23 @@
+--- a/obstacles-on.cpp
++++ b/obstacles-off.cpp
+@@ -3555,6 +3555,20 @@
+                 }
+             }
+             if (!foundPerch) throw std::logic_error("navigation perch shape not found");
++        }
++        // Experimental obstacle-free control: retain bodies and ground, disable only course collisions.
++        if (activeNavigation) {
++            unsigned removed=0;
++            for (auto& object:manifest.scene.objects) {
++                auto& mechanics=object.mechanics;
++                for (std::size_t i=0;i<mechanics.shapeNames.size();++i) {
++                    if (mechanics.shapeNames[i].starts_with("crow_course_")) {
++                        mechanics.shapes.at(i).collisionMask=0u;
++                        ++removed;
++                    }
++                }
++            }
++            if (removed!=5u) throw std::logic_error("expected five collision-disabled course shapes");
+         }
+         manifest.sensors.id = cueConfig ? "camera_admission_proprioception" : journey
+             ? activeNavigation ? "american_crow_active_head_navigation_rgbd_sensors"

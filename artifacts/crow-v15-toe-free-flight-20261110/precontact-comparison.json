@@ -1,0 +1,14 @@
+[
+  {
+    "seed": "20261120",
+    "samples": 480,
+    "matching_qv": 480,
+    "first_differences": []
+  },
+  {
+    "seed": "20261121",
+    "samples": 480,
+    "matching_qv": 480,
+    "first_differences": []
+  }
+]
