@@ -1,0 +1,3 @@
+# Softer toe drives diagnostic
+
+Low toe armatures saturate at both 4 and 16 substeps. Test whether softer joint drives avoid that failure without the large baseline armature. Two candidates reduce stiffness and damping to 0.001 and 0.0001, using 5e-6 and 5e-7 armature, respectively. Preserve body, collision-off course, head, seed, controller and eight-lane 1600-tick experiment at 16 substeps. Apply the original flight gate and reject every candidate with sampled toe speeds reaching 12 rad/s. A soft-drive screening pass requires broader flight and contact qualification and demonstrates neither grip nor a complete landing.

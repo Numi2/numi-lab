@@ -1,0 +1,10 @@
+/Users/n/Developer/numi-crow-rl-20261107/build/crow-v15-soft-toes-20261110/a5e6/c_api.cpp:3364:13: warning: unused function 'close' [-Wunused-function]
+ 3364 | static void close(double a, double b, const char* why) { crowToeNeed(std::abs(a-b)<=2e-7*(1+std::abs(a)),why); }
+      |             ^~~~~
+1 warning generated.
+a5e6 09f9bfc04e9745c11ef6042116a252b3d05f03c0a1ae32150c3461c355685fa6
+/Users/n/Developer/numi-crow-rl-20261107/build/crow-v15-soft-toes-20261110/a5e7/c_api.cpp:3364:13: warning: unused function 'close' [-Wunused-function]
+ 3364 | static void close(double a, double b, const char* why) { crowToeNeed(std::abs(a-b)<=2e-7*(1+std::abs(a)),why); }
+      |             ^~~~~
+1 warning generated.
+a5e7 44799b6090feaffb15cc05a9e6627207b775da41336189eb43ce2147cf25e37c
