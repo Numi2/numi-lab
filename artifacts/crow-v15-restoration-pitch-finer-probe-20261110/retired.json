@@ -1,0 +1,11 @@
+{
+  "remote_commit": "0dea8c78d10503eccd4de165e63e3b4b4e68409f",
+  "retired": [
+    {
+      "raw": "artifacts/crow-v15-pitch-finer-contact-screen-20261110/results.txt",
+      "archive": "artifacts/crow-v15-pitch-finer-contact-screen-20261110/results.txt.gz",
+      "sha256": "8c7399ea962d89cd5e76905933965011b8e2af21a0a28c4632d366dd4518871f",
+      "bytes": 1954602
+    }
+  ]
+}
