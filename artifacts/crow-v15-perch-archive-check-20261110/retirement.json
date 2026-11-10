@@ -1,0 +1,138 @@
+{
+  "retired": [
+    {
+      "path": "build/crow-v15-integrated-route-baseline-20261110/diagnostic-reserved-final-j-strong-newstart.tsv",
+      "bytes": 3274722,
+      "sha256": "ae70b90f5f21f9b2a1d34601b93837c2de1f323cf9d2ec89603addb6c37f0ddd",
+      "verified_archive": "artifacts/crow-v15-landing-aligned-balance-20261110/diagnostic-reserved-final-j-strong-newstart.tsv.gz"
+    },
+    {
+      "path": "build/crow-v15-integrated-route-baseline-20261110/diagnostic-reserved-final-j-strong-newstart.json",
+      "bytes": 150201482,
+      "sha256": "4a915ea214cc85c1c71daa4136f9871fad99fa2dfe626ad33d8d852d4b9e5fea",
+      "verified_archive": "artifacts/crow-v15-landing-aligned-balance-20261110/diagnostic-reserved-final-j-strong-newstart.json.gz"
+    },
+    {
+      "path": "build/crow-v15-integrated-route-baseline-20261110/diagnostic-reserved-final-j-strong-original.tsv",
+      "bytes": 3276528,
+      "sha256": "de2fd58851fd861537cd5dcf2cbb9e14773122316fb0c68a0f63e537c69cfedd",
+      "verified_archive": "artifacts/crow-v15-landing-aligned-balance-20261110/diagnostic-reserved-final-j-strong-original.tsv.gz"
+    },
+    {
+      "path": "build/crow-v15-integrated-route-baseline-20261110/diagnostic-reserved-final-j-early-original.json",
+      "bytes": 150534715,
+      "sha256": "86700acf2e0799881166b286736a15c0c29030f40bb4e3512f683b4c40e657f3",
+      "verified_archive": "artifacts/crow-v15-landing-aligned-balance-20261110/diagnostic-reserved-final-j-early-original.json.gz"
+    },
+    {
+      "path": "build/crow-v15-integrated-route-baseline-20261110/diagnostic-reserved-final-j-early-newstart.tsv",
+      "bytes": 3275228,
+      "sha256": "c0179f7ce7655f9cc088bc2d0b08d25a2739123f820b6a089abaca9be0b137bd",
+      "verified_archive": "artifacts/crow-v15-landing-aligned-balance-20261110/diagnostic-reserved-final-j-early-newstart.tsv.gz"
+    },
+    {
+      "path": "build/crow-v15-integrated-route-baseline-20261110/diagnostic-reserved-final-j-early-original.tsv",
+      "bytes": 3276337,
+      "sha256": "0fc4c8f4580d6877fb308c3166aebad49200864771ab51f5e130436608f26104",
+      "verified_archive": "artifacts/crow-v15-landing-aligned-balance-20261110/diagnostic-reserved-final-j-early-original.tsv.gz"
+    },
+    {
+      "path": "build/crow-v15-integrated-route-baseline-20261110/diagnostic-reserved-final-j-early-newstart.json",
+      "bytes": 150046235,
+      "sha256": "52844bd1416a3e17b5eaf7cf77622780efcf91c70d7e84149b0fd612233abca1",
+      "verified_archive": "artifacts/crow-v15-landing-aligned-balance-20261110/diagnostic-reserved-final-j-early-newstart.json.gz"
+    },
+    {
+      "path": "build/crow-v15-integrated-route-baseline-20261110/diagnostic-reserved-final-j-strong-original.json",
+      "bytes": 150587795,
+      "sha256": "25051670c03d93439eeaf3ef7cbcae5e3e8b918fe0c70b81732f420837bda376",
+      "verified_archive": "artifacts/crow-v15-landing-aligned-balance-20261110/diagnostic-reserved-final-j-strong-original.json.gz"
+    },
+    {
+      "path": "build/crow-v15-integrated-route-baseline-20261110/diagnostic-reserved-final-j-front-newstart.tsv",
+      "bytes": 3273988,
+      "sha256": "6ae8848b6de7cff353cab8f6b33107958440f65e93c353c60ded0fb3f512aad8",
+      "verified_archive": "artifacts/crow-v15-landing-loaded-toe-curl-20261110/diagnostic-reserved-final-j-front-newstart.tsv.gz"
+    },
+    {
+      "path": "build/crow-v15-integrated-route-baseline-20261110/diagnostic-reserved-final-j-front-newstart.json",
+      "bytes": 150030644,
+      "sha256": "1b1fe0cd34a97a39cfcf34f286aa3b945f3d4900e0389855e11175ef3c82219a",
+      "verified_archive": "artifacts/crow-v15-landing-loaded-toe-curl-20261110/diagnostic-reserved-final-j-front-newstart.json.gz"
+    },
+    {
+      "path": "build/crow-v15-integrated-route-baseline-20261110/diagnostic-reserved-final-j-front-original.tsv",
+      "bytes": 3274824,
+      "sha256": "b0a5befdec8e49550d128adb78325d6a5160caa60d5d8cd175cf49e280230191",
+      "verified_archive": "artifacts/crow-v15-landing-loaded-toe-curl-20261110/diagnostic-reserved-final-j-front-original.tsv.gz"
+    },
+    {
+      "path": "build/crow-v15-integrated-route-baseline-20261110/diagnostic-reserved-final-j-front-original.json",
+      "bytes": 150507021,
+      "sha256": "9d6764a70376e3c8c095a77707ecc2a554cd38b976ef86f2c13617850b239711",
+      "verified_archive": "artifacts/crow-v15-landing-loaded-toe-curl-20261110/diagnostic-reserved-final-j-front-original.json.gz"
+    },
+    {
+      "path": "build/crow-v15-integrated-route-baseline-20261110/diagnostic-reserved-final-j-both-original.json",
+      "bytes": 149991630,
+      "sha256": "827864cccc46286bcb72688e5e53433c019df8a2018ddc5430ebb94902d03b92",
+      "verified_archive": "artifacts/crow-v15-foot-level-control-20261110/diagnostic-reserved-final-j-both-original.json.gz"
+    },
+    {
+      "path": "build/crow-v15-integrated-route-baseline-20261110/diagnostic-reserved-final-j-ankle-original.tsv",
+      "bytes": 3276313,
+      "sha256": "5236be1e7f33eede3378775e075ca779129c02f7a8cb32596960ed945bd53327",
+      "verified_archive": "artifacts/crow-v15-foot-level-control-20261110/diagnostic-reserved-final-j-ankle-original.tsv.gz"
+    },
+    {
+      "path": "build/crow-v15-integrated-route-baseline-20261110/diagnostic-reserved-final-j-ankle-newstart.tsv",
+      "bytes": 3275137,
+      "sha256": "dad70491680c2425b482c576bc51baf53764e612e0785455300a5150cd6e7b67",
+      "verified_archive": "artifacts/crow-v15-foot-level-control-20261110/diagnostic-reserved-final-j-ankle-newstart.tsv.gz"
+    },
+    {
+      "path": "build/crow-v15-integrated-route-baseline-20261110/diagnostic-reserved-final-j-ankle-newstart.json",
+      "bytes": 149998293,
+      "sha256": "8f05f399a2a2b612647d96b209e0df8c047538c84d1acf1de17d4feff8b8617a",
+      "verified_archive": "artifacts/crow-v15-foot-level-control-20261110/diagnostic-reserved-final-j-ankle-newstart.json.gz"
+    },
+    {
+      "path": "build/crow-v15-integrated-route-baseline-20261110/diagnostic-reserved-final-j-both-original.tsv",
+      "bytes": 3281590,
+      "sha256": "04c444f63d4d9e0c79baf0d3b7ac0fc5807c0f12521e3b56841fab2201dd42cf",
+      "verified_archive": "artifacts/crow-v15-foot-level-control-20261110/diagnostic-reserved-final-j-both-original.tsv.gz"
+    },
+    {
+      "path": "build/crow-v15-integrated-route-baseline-20261110/diagnostic-reserved-final-j-ankle-original.json",
+      "bytes": 150423059,
+      "sha256": "0e608371e9a9a9f0814c43fb3ebecde7c48ac07cb6a2170b7ca2aee5f0435e78",
+      "verified_archive": "artifacts/crow-v15-foot-level-control-20261110/diagnostic-reserved-final-j-ankle-original.json.gz"
+    },
+    {
+      "path": "build/crow-v15-integrated-route-baseline-20261110/diagnostic-reserved-final-j-both-newstart.tsv",
+      "bytes": 3278653,
+      "sha256": "ec2a4252b744e45fa51f38116f19a9bbd7bb83d025bfb24568609cf9bcfeb1ab",
+      "verified_archive": "artifacts/crow-v15-foot-level-control-20261110/diagnostic-reserved-final-j-both-newstart.tsv.gz"
+    },
+    {
+      "path": "build/crow-v15-integrated-route-baseline-20261110/diagnostic-reserved-final-j-both-newstart.json",
+      "bytes": 149451873,
+      "sha256": "4b43db84473faa1955a28f6c2169d6e76943793652372916a8112cf2ac4bce73",
+      "verified_archive": "artifacts/crow-v15-foot-level-control-20261110/diagnostic-reserved-final-j-both-newstart.json.gz"
+    },
+    {
+      "path": "build/crow-v15-integrated-route-baseline-20261110/diagnostic-reserved-final-j-slip-observer.tsv",
+      "bytes": 3276081,
+      "sha256": "0235cd1af7a4bb0a6350973492543421b349ac428bd9f0000fa6992d9a79f37d",
+      "verified_archive": "artifacts/crow-v15-landing-slip-observer-20261110/diagnostic-reserved-final-j-slip-observer.tsv.gz"
+    },
+    {
+      "path": "build/crow-v15-integrated-route-baseline-20261110/diagnostic-reserved-final-j-slip-observer.json",
+      "bytes": 150528750,
+      "sha256": "4288f7de897345acea079c7eb0d297382e79c6fa02d837c496faf43604ae5dfa",
+      "verified_archive": "artifacts/crow-v15-landing-slip-observer-20261110/diagnostic-reserved-final-j-slip-observer.json.gz"
+    }
+  ],
+  "bytes": 1688340898,
+  "note": "Only byte-identical raw duplicates of independently restored archives are retired."
+}

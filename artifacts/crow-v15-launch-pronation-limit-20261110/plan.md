@@ -1,0 +1,1 @@
+One used J start: test near-saturating negative launch-only pronation residuals at 0.30 and 0.50 m target height, maintaining the existing [-1,1] actuator output clamp and fading residuals to zero by 16 s. Measure initial direction, ground/obstacle contacts and flight continuation. Parameter sweep for causal sensitivity, not a qualified takeoff or biological validation.

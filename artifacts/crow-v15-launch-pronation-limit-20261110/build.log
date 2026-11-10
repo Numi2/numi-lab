@@ -1,0 +1,20 @@
+/Users/n/Developer/numi-crow-rl-20261107/build/crow-v15-launch-pronation-limit-20261110/m16h50.metal:5499:21: warning: unused variable 'seconds' [-Wunused-variable]
+        const float seconds=float(state.episode.x)*dispatch.timing.x;
+                    ^
+1 warning generated.
+m16h50 569247516ca07dd90caf42e78bf429b9b7ec22f53564b5a74b10c18f13661600
+/Users/n/Developer/numi-crow-rl-20261107/build/crow-v15-launch-pronation-limit-20261110/m20h50.metal:5499:21: warning: unused variable 'seconds' [-Wunused-variable]
+        const float seconds=float(state.episode.x)*dispatch.timing.x;
+                    ^
+1 warning generated.
+m20h50 c3197320d7d0fa10f409ba1cafa2bebb528bd6c2923b3f5e0c04bcba5e7fd641
+/Users/n/Developer/numi-crow-rl-20261107/build/crow-v15-launch-pronation-limit-20261110/m16h30.metal:5499:21: warning: unused variable 'seconds' [-Wunused-variable]
+        const float seconds=float(state.episode.x)*dispatch.timing.x;
+                    ^
+1 warning generated.
+m16h30 39cc20a92b0a1ec6b56a989006c82489cf9663266bf05069f2d2e1d6380dcf5e
+/Users/n/Developer/numi-crow-rl-20261107/build/crow-v15-launch-pronation-limit-20261110/m20h30.metal:5499:21: warning: unused variable 'seconds' [-Wunused-variable]
+        const float seconds=float(state.episode.x)*dispatch.timing.x;
+                    ^
+1 warning generated.
+m20h30 aca66fe1931d8f601427fdd29e188deee158441601ec8f87e73a33cd04df6ccd
