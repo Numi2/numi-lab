@@ -1,0 +1,5 @@
+# Sustained toe targets with matched leg balance
+
+This 1,000-tick development replay matched the reference through tick 85 and kept the reference leg gain ramp and lean feedback active at the same hold-relative times while maintaining the toe commands. It produced 25 consecutive supported opposing-grip samples, 220 consecutive supported samples, no terminal support or terminal grip, and fell. Worst independent toe/perch overlap during observed opposing grip was 0.473 mm. It failed the planned gate.
+
+Inspection of actual substep impulses shows a specific limitation of the existing rear-toe regulation: after bilateral contact was seen it could only decrease each rear target under high impulse; by tick 120 both rear impulses were zero while targets were held at approximately 0.75 rad and no reclosure was commanded. Front-toe impulses remained measurable. A bounded reclosure counterfactual is warranted, but this observation does not establish that lost rear contact alone caused the fall. The screening setup remains one development start and does not qualify the autonomous sequence.
