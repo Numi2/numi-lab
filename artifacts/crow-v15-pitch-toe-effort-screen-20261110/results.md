@@ -1,0 +1,3 @@
+# Toe effort limit with pitch-coordinated grip
+
+All three controls reproduced all 200 reference states exactly. The 0.010 and 0.005 N m toe effort-limit settings each failed to produce bilateral opposing grip or terminal support in this development start; their grip-conditioned SAT gap is unavailable and does not indicate zero overlap. Neither setting qualifies. The original setting retained the single-start supported-release behavior but still overlapped 0.949 mm. The relationship between the configured effort limit and effective implicit motor/contact force is not independently calibrated. This does not establish full flight, landing, navigation or crow biological realism.
