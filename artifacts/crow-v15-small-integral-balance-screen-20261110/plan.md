@@ -1,0 +1,3 @@
+# Small integral pitch balance
+
+The prior accumulated pitch corrections of 0.02 and 0.04 caused early loss of support, including backward overcorrection. Repeat the exact same 20-second setup and 1000-state control with smaller exploratory gains 0.002 and 0.005, retaining the same support gate, integrator cap, release timing, 0.12-rad correction cap and physics. Require reference parity for all 1000 states, candidate parity through tick 86, sustained supported opposing grip and release, <=0.5 mm maximum grip overlap, no solver failures, and every one of the last 850 samples supported with open toes. One development start, even if passing, does not qualify acquisition, flight or untouched layouts.
