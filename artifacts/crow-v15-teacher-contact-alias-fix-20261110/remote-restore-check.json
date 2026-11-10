@@ -1,0 +1,10 @@
+{
+  "source": "independent filtered clone of git@github.com:Numi2/numi-lab.git, branch agent/american-crow-rl-20261107, commit 412548fb",
+  "method": "git show compressed blob; decompress and SHA256 match original raw build output",
+  "verified_uncompressed_sha256": {
+    "development-reserved-final-i.json": "d59dfb56bb2650f80aab0eabf1b9b51e3673c05fa5a2dcff95505e65765680d7",
+    "development-reserved-final-i.tsv": "86c8c84de6be964c44672a446ce1c07d1b2b37356f2d1ff5504970448fed5cae",
+    "development-reserved-final-j.json": "af1926372e43c4b905e577989a288fe2ad06c5ca5762995b9e41b41363bb03af",
+    "development-reserved-final-j.tsv": "5d4ba233ea40fd1c9dc6c93a59bd3b5bb944d1df3399b1bcd3b0517bf815b327"
+  }
+}
