@@ -1,0 +1,3 @@
+# Guided recovery of approach student on development J
+
+The fixed actor passed two waypoints, approached the slalom with zero sampled minimum clearance at step 2262, then flew away from the remaining route and timed out. Before execution, replay its exact full start and begin guided control at step 2250. Require exact accepted q, v, observations and actions through step 2249, five reached waypoints, no physical or solver failure, no nonfoot perch impulse, and terminal bilateral support before using route prefixes only for training. Failed runs are excluded in full. The body and frozen flight law remain unchanged; J is development and K/L remain unused.
