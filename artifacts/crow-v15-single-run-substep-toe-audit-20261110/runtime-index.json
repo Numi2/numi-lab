@@ -1,0 +1,17 @@
+[
+  {
+    "path": "build/crow-v15-single-run-substep-toe-audit-20261110/probe",
+    "sha256": "a03bd126a3b1e596fde1581b1162399345137bbc161275cec0760a86ea646ccb",
+    "bytes": 101608
+  },
+  {
+    "path": "build/crow-v15-single-run-substep-toe-audit-20261110/libmetalrobo.dylib",
+    "sha256": "9c86f867dbdf32c4d0174591f1b62520061ef7a9384160e7825f1eedcbc91242",
+    "bytes": 5729296
+  },
+  {
+    "path": "build/crow-v15-alternating-foot-release-20261110/teacher.metallib",
+    "sha256": "a1fa801ac2f2ea5e557a54073b280039e5bb60422d8b5beb1cd90b2ec22c459b",
+    "bytes": 4485424
+  }
+]
