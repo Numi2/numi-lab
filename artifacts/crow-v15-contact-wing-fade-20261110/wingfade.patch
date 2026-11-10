@@ -1,0 +1,27 @@
+--- a/latch.metal
++++ b/wingfade.metal
+@@ -5094,8 +5094,12 @@
+         // Ending at waypoint four taught an aggressive approach crossing but
+         // handed the student a poor terminal arrival geometry. Autonomous
+         // execution still has no teacher authority.
+-        if (fixedFlightController && state.threatTeacher.w >= 1.5f && action < 15u)
+-            navigationTeacherRequested = 0.0f;
++        if (fixedFlightController && state.threatTeacher.w >= 1.5f && action < 15u) {
++            const float loadedRamp=float(min(state.status.w&63u,(state.status.w>>6u)&63u));
++            const float remaining=1.0f-smoothstep(0.0f,48.0f,loadedRamp);
++            navigationTeacherRequested=(action<7u || action==13u || action==14u)
++                ? remaining*navigationTeacherRequested : 0.0f;
++        }
+         const float navigationTeacherBlend = fixedFlightController
+             ? 1.0f
+             : avianNavigationTeacher
+@@ -5306,7 +5310,8 @@
+             fixedFlightController && state.episode.z == 10u && float(state.episode.x)*dispatch.timing.x >= 0.0f && float(state.episode.x)*dispatch.timing.x < 13.4f && (state.status.w & 4096u)==0u && binding.actuator.x == MR_TASK_ACTUATOR_FLAPPING_POSITION
+             ? 0.0f : fixedFlightController && state.threatTeacher.w >= 1.5f &&
+             binding.actuator.x == MR_TASK_ACTUATOR_FLAPPING_POSITION
+-            ? 0.0f
++            ? clamp(binding.drive.z + binding.drive.w * avianWingPolicyCommand,0.0f,1.0f) *
++                (1.0f-smoothstep(0.0f,48.0f,float(min(state.status.w&63u,(state.status.w>>6u)&63u))))
+             : avianGroundCurriculum &&
+             binding.actuator.x == MR_TASK_ACTUATOR_FLAPPING_POSITION
+             ? 0.0f

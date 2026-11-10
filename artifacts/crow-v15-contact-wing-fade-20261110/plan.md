@@ -1,0 +1,1 @@
+Test a contact-driven wing transition rather than an abrupt flap cutoff after landing handoff. The frozen flight actions and physical wing actuators are faded over the accumulated bilateral rear-toe load ramp; leg and toe actions remain physical. Compare two used J starts to the latch baseline for 4500 continuous steps and screen supported landing and grip.

@@ -1,0 +1,5 @@
+/Users/n/Developer/numi-crow-rl-20261107/build/crow-v15-contact-wing-fade-20261110/wingfade.metal:5499:21: warning: unused variable 'seconds' [-Wunused-variable]
+        const float seconds=float(state.episode.x)*dispatch.timing.x;
+                    ^
+1 warning generated.
+853865b29359af7cb94b55959b3a170823c86181b4a47a96559b8dca7f1a8e51
