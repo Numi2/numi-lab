@@ -1,0 +1,17 @@
+{
+  "remote_commit": "4d4ba32a3bcdf5fa6fbfdc78dc034ebe25b5a23c",
+  "retired": [
+    {
+      "raw": "build/crow-v15-ccd-budget-20261110/development-j-precision-approach.json",
+      "archive": "artifacts/crow-v15-precision-approach-20261110/development-j-precision-approach.json.gz",
+      "sha256": "0c7a06a20490f252f4491a2b0407b30229bc64b017c5aa35302a4051bfaac146",
+      "bytes": 232201955
+    },
+    {
+      "raw": "build/crow-v15-ccd-budget-20261110/development-j-precision-approach.tsv",
+      "archive": "artifacts/crow-v15-precision-approach-20261110/development-j-precision-approach.tsv.gz",
+      "sha256": "a78e8aea376a2f73e147f488371b4df372ae291890b796f9c16cd1bf25d787a2",
+      "bytes": 5068124
+    }
+  ]
+}
