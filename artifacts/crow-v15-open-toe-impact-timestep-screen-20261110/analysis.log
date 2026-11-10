@@ -1,0 +1,8 @@
+Separated-start configuration: old control trace parity is not expected
+arm 0 strict pass 4 opposed 3+ 4 terminal support 4 minimum grip gap m -0.004919745921377575 missing pose steps 0
+arm 1 strict pass 2 opposed 3+ 4 terminal support 2 minimum grip gap m -0.005582369201867429 missing pose steps 0
+original first ten state parity True
+{'arm': 0, 'outcome': 'completed transition 999 success 999 release 999', 'samples': 40, 'first_overlap_step': 2, 'first_over_half_mm_step': 3, 'minimum_gap_first_10_m': -0.0024676421042219565, 'minimum_gap_m': -0.0026844938900439236, 'max_abs_toe_rad': 0.0100016, 'contact_endpoints': 38}
+{'arm': 1, 'outcome': 'completed transition 999 success 999 release 999', 'samples': 40, 'first_overlap_step': 3, 'first_over_half_mm_step': 5, 'minimum_gap_first_10_m': -0.0007268585008005576, 'minimum_gap_m': -0.0007483819883706069, 'max_abs_toe_rad': 0.00403623, 'contact_endpoints': 38}
+{'arm': 2, 'outcome': 'completed transition 999 success 999 release 999', 'samples': 40, 'first_overlap_step': 4, 'first_over_half_mm_step': None, 'minimum_gap_first_10_m': -0.0003177192526679709, 'minimum_gap_m': -0.0003177192526679709, 'max_abs_toe_rad': 0.0402997, 'contact_endpoints': 38}
+{'arm': 3, 'outcome': 'completed transition 999 success 999 release 999', 'samples': 40, 'first_overlap_step': 4, 'first_over_half_mm_step': None, 'minimum_gap_first_10_m': -0.00012673060639058903, 'minimum_gap_m': -0.00012673060639058903, 'max_abs_toe_rad': 0.0440594, 'contact_endpoints': 38}

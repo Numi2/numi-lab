@@ -1,0 +1,17 @@
+[
+  {
+    "path": "build/crow-v15-open-toe-impact-timestep-screen-20261110/probe",
+    "sha256": "80c884870552044ca3bde2e98610699d71880b39ef20e62b79d645f60ffde02c",
+    "bytes": 101576
+  },
+  {
+    "path": "build/lib/libmetalrobo.dylib",
+    "sha256": "d7dad802978b03d8571487dac644678d2c4c1a8eae5b8a4c5c57be261cfbe11a",
+    "bytes": 5728528
+  },
+  {
+    "path": "build/crow-v15-alternating-foot-release-20261110/teacher.metallib",
+    "sha256": "a1fa801ac2f2ea5e557a54073b280039e5bb60422d8b5beb1cd90b2ec22c459b",
+    "bytes": 4485424
+  }
+]
