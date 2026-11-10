@@ -1,0 +1,5 @@
+# Hybrid toe stiffness sensitivity
+
+The prior stiffness tests used a different collision mode. The full-host-matched hybrid/SAT tests still exhibit 4–5 mm toe overlap despite more solver iterations or lower toe effort caps. Because implicit drives also enter the inverse mass used by contact response, compare toe drive stiffness 0.10, 0.05, 0.025 and 0.0125 N m/rad in the same single hybrid/SAT supported development case. Keep the body, four solver iterations, timestep, damping, effort limits, targets, closure/release and all other parameters unchanged. These are uncalibrated research settings, not measured crow properties.
+
+The 0.10 arm must reproduce all retained baseline state samples exactly. Report all failures, simultaneous bilateral opposed grip and support, release, terminal support, toe angles and independent accepted-pose SAT overlap. Any improvement is only a one-start hypothesis; it must be repeated on perturbed starts and independently checked for flight, walking, push-off and full teacher-off landing, including untouched layouts. No biological or full-route qualification.
