@@ -1,0 +1,85 @@
+--- a/FlappingWingDynamics.metal
++++ b/research-v15-aero.metal
+@@ -225,6 +225,16 @@
+                 pronationAxis
+             )
+             : float3(0.0f);
++        // Research-only v15 wing: sweep and flap share the shoulder; the
++        // child anchor preserves its authored pose at neutral flap 0.35 rad.
++        // This specialized formula is not valid for arbitrary robot models.
++        if (!hasSweep || !hasPronation) continue;
++        const float4 neutralInverse = axisAngle(hingeAxis, -0.35f);
++        const float3 shoulder = rotate(rootOrientation, wing.rootJointParentAnchor.xyz);
++        const float3 flapChild = rotate(neutralInverse, wing.rootJointChildAnchor.xyz);
++        const float3 wingOffset = rotate(rootOrientation, rotate(sweepRotation, rotate(hingeRotation, -flapChild)));
++        const float3 rootToWingOrigin = shoulder + wingOffset;
++        const float3 rootToWingCOM = rootToWingOrigin + rotate(wingOrientation, wing.bodyCenterOfMass.xyz);
+         const float3 chord = rotate(wingOrientation, float3(1.0f, 0.0f, 0.0f));
+         // The authored root-to-center vector carries the bilateral span sign;
+         // a mirrored wing cannot share the left wing's positive-y span basis.
+@@ -256,31 +266,27 @@
+                 inverseEllipticAreaIntegral;
+             const float elementArea = wing.rootToCenterAndArea.w *
+                 ellipticWeight / float(bladeElementCount);
++            // Neutral stations start at the shoulder and extend to twice
++            // the authored center-to-shoulder span. Re-express the authored
++            // neutral geometry in the actual distal-wing frame.
+             const float3 neutralPoint = float3(
+                 wing.rootToCenterAndArea.x,
+-                2.0f * eta * wing.rootToCenterAndArea.y,
++                wing.rootJointParentAnchor.y + 2.0f * eta *
++                    (wing.rootToCenterAndArea.y - wing.rootJointParentAnchor.y),
+                 wing.rootToCenterAndArea.z
+             );
+-            const float3 rootToPoint = rotate(
+-                rootOrientation,
+-                rotate(
+-                    sweepRotation,
+-                    rotate(hingeRotation,
+-                           rotate(pronationRotation, neutralPoint))
+-                )
+-            );
+-            const float3 sweepStrokeVelocity = hasSweep
+-                ? cross(sweepAxisWorld * sweepAngularRate, rootToPoint)
+-                : float3(0.0f);
++            const float3 neutralCOM = wing.rootJointParentAnchor.xyz -
++                wing.rootJointChildAnchor.xyz;
++            const float3 localPoint = rotate(neutralInverse, neutralPoint - neutralCOM);
++            const float3 fromWingOrigin = rotate(wingOrientation, localPoint);
++            const float3 rootToPoint = rootToWingOrigin + fromWingOrigin;
++            const float3 fromShoulder = rootToPoint - shoulder;
++            const float3 sweepStrokeVelocity = cross(
++                sweepAxisWorld * sweepAngularRate, fromShoulder);
+             const float3 flapStrokeVelocity = cross(
+-                hingeAxisWorld * flapAngularRate, rootToPoint
+-            );
+-            const float3 strokeVelocity = flapStrokeVelocity +
+-                sweepStrokeVelocity +
+-                (hasPronation
+-                    ? cross(pronationAxisWorld * pronationAngularRate,
+-                            rootToPoint)
+-                    : float3(0.0f));
++                hingeAxisWorld * flapAngularRate, fromShoulder);
++            const float3 strokeVelocity = flapStrokeVelocity + sweepStrokeVelocity +
++                cross(pronationAxisWorld * pronationAngularRate, fromWingOrigin);
+             const float3 pointVelocity = rootVelocity +
+                 cross(rootAngularVelocity, rootToPoint) + strokeVelocity;
+             const float3 incomingAir =
+@@ -339,17 +345,6 @@
+         // wrench before it enters the articulated chain. This preserves the
+         // net force and root moment for a locked wing while exposing the
+         // physical reaction to finite sweep, flap, and pronation drives.
+-        const float4 rootJointRotation = hasSweep
+-            ? sweepRotation : hingeRotation;
+-        const float3 rootToWingOrigin = rotate(
+-            rootOrientation,
+-            wing.rootJointParentAnchor.xyz - rotate(
+-                rootJointRotation, wing.rootJointChildAnchor.xyz
+-            )
+-        );
+-        const float3 rootToWingCOM = rootToWingOrigin + rotate(
+-            wingOrientation, wing.bodyCenterOfMass.xyz
+-        );
+         const float3 wingTorque = torque - cross(rootToWingCOM, force);
+         if (!all(isfinite(rootToWingCOM)) || !all(isfinite(wingTorque))) {
+             continue;

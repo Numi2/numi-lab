@@ -1,0 +1,379 @@
+{
+  "first_episode_failure_by_lane": {
+    "4": {
+      "step": 524,
+      "q_z": 0.166149721,
+      "pitch_rad": 0.9913748096637276,
+      "velocity_mps": [
+        1.75398076,
+        0.0289829094,
+        -0.065160051
+      ],
+      "pair": [
+        "crow_lower_beak",
+        "locomotion_ground"
+      ],
+      "impulse_ns": 0.204407886,
+      "flap_q": [
+        0.0243157446,
+        0.0224220864
+      ],
+      "flap_rates_rad_s": [
+        6.44607115,
+        6.51524401
+      ]
+    },
+    "1": {
+      "step": 554,
+      "q_z": 0.166641846,
+      "pitch_rad": 0.9812650847121184,
+      "velocity_mps": [
+        2.68782711,
+        0.304631054,
+        -0.199786931
+      ],
+      "pair": [
+        "crow_lower_beak",
+        "locomotion_ground"
+      ],
+      "impulse_ns": 0.319278434,
+      "flap_q": [
+        -0.172592953,
+        -0.182108119
+      ],
+      "flap_rates_rad_s": [
+        -6.73667192,
+        -6.77150679
+      ]
+    },
+    "2": {
+      "step": 561,
+      "q_z": 0.171727151,
+      "pitch_rad": 0.9949943539207623,
+      "velocity_mps": [
+        2.83173394,
+        -0.30014509,
+        -0.421220452
+      ],
+      "pair": [
+        "crow_lower_beak",
+        "locomotion_ground"
+      ],
+      "impulse_ns": 0.40842567399999996,
+      "flap_q": [
+        0.923006058,
+        0.906352639
+      ],
+      "flap_rates_rad_s": [
+        -1.21845877,
+        -1.16934276
+      ]
+    },
+    "6": {
+      "step": 583,
+      "q_z": 0.170352042,
+      "pitch_rad": 0.9823422728130905,
+      "velocity_mps": [
+        2.94321227,
+        0.347069114,
+        -0.39712137
+      ],
+      "pair": [
+        "crow_lower_beak",
+        "locomotion_ground"
+      ],
+      "impulse_ns": 0.37938530800000003,
+      "flap_q": [
+        0.848950446,
+        0.870794475
+      ],
+      "flap_rates_rad_s": [
+        -2.29504871,
+        -2.26492095
+      ]
+    },
+    "0": {
+      "step": 605,
+      "q_z": 0.170963496,
+      "pitch_rad": 0.9823713509408248,
+      "velocity_mps": [
+        3.00686455,
+        0.0467608608,
+        -0.391811997
+      ],
+      "pair": [
+        "crow_lower_beak",
+        "locomotion_ground"
+      ],
+      "impulse_ns": 0.363529533,
+      "flap_q": [
+        0.806879044,
+        0.805385947
+      ],
+      "flap_rates_rad_s": [
+        -3.67252398,
+        -3.68375587
+      ]
+    },
+    "7": {
+      "step": 605,
+      "q_z": 0.168220267,
+      "pitch_rad": 0.9761874630572299,
+      "velocity_mps": [
+        2.90930939,
+        -0.372128934,
+        -0.288934797
+      ],
+      "pair": [
+        "crow_lower_beak",
+        "locomotion_ground"
+      ],
+      "impulse_ns": 0.310225532,
+      "flap_q": [
+        0.803964972,
+        0.787342012
+      ],
+      "flap_rates_rad_s": [
+        -3.50355816,
+        -3.55596137
+      ]
+    },
+    "5": {
+      "step": 635,
+      "q_z": 0.174634889,
+      "pitch_rad": 1.0029112587898332,
+      "velocity_mps": [
+        3.06622219,
+        0.0418283828,
+        -0.361664385
+      ],
+      "pair": [
+        "crow_lower_beak",
+        "locomotion_ground"
+      ],
+      "impulse_ns": 0.369043454,
+      "flap_q": [
+        0.791148305,
+        0.790919483
+      ],
+      "flap_rates_rad_s": [
+        9.35633755,
+        9.34549332
+      ]
+    },
+    "3": {
+      "step": 698,
+      "q_z": 0.180962831,
+      "pitch_rad": 1.007650248693921,
+      "velocity_mps": [
+        3.33135247,
+        0.0421192348,
+        -0.783033907
+      ],
+      "pair": [
+        "crow_lower_beak",
+        "locomotion_ground"
+      ],
+      "impulse_ns": 0.517566681,
+      "flap_q": [
+        0.0124235312,
+        0.0134142712
+      ],
+      "flap_rates_rad_s": [
+        7.44712162,
+        7.40005541
+      ]
+    }
+  },
+  "preceding_samples": {
+    "0": [
+      {
+        "step": 300,
+        "height_m": 0.491859794,
+        "forward_speed_mps": -0.136117846,
+        "vertical_speed_mps": 0.188366324,
+        "pitch_rad": 0.0521116734947005
+      },
+      {
+        "step": 400,
+        "height_m": 0.444437504,
+        "forward_speed_mps": 1.33812547,
+        "vertical_speed_mps": 0.0953673869,
+        "pitch_rad": 0.24854058395065495
+      },
+      {
+        "step": 500,
+        "height_m": 0.196795747,
+        "forward_speed_mps": 2.361022,
+        "vertical_speed_mps": -0.289960533,
+        "pitch_rad": 0.5977547396049037
+      }
+    ],
+    "1": [
+      {
+        "step": 300,
+        "height_m": 0.492063642,
+        "forward_speed_mps": -0.13622877,
+        "vertical_speed_mps": 0.188262835,
+        "pitch_rad": 0.052225467790336516
+      },
+      {
+        "step": 400,
+        "height_m": 0.445079058,
+        "forward_speed_mps": 1.33674741,
+        "vertical_speed_mps": 0.0934835896,
+        "pitch_rad": 0.24887561344663384
+      },
+      {
+        "step": 500,
+        "height_m": 0.208225071,
+        "forward_speed_mps": 2.41691804,
+        "vertical_speed_mps": -0.331115693,
+        "pitch_rad": 0.58018105917954
+      }
+    ],
+    "2": [
+      {
+        "step": 300,
+        "height_m": 0.491965503,
+        "forward_speed_mps": -0.136073112,
+        "vertical_speed_mps": 0.188297883,
+        "pitch_rad": 0.052230555530985
+      },
+      {
+        "step": 400,
+        "height_m": 0.443659931,
+        "forward_speed_mps": 1.35276842,
+        "vertical_speed_mps": 0.0910052806,
+        "pitch_rad": 0.2527418975768215
+      },
+      {
+        "step": 500,
+        "height_m": 0.216651261,
+        "forward_speed_mps": 2.30703354,
+        "vertical_speed_mps": -0.30675593,
+        "pitch_rad": 0.6165500987655479
+      }
+    ],
+    "3": [
+      {
+        "step": 300,
+        "height_m": 0.492064863,
+        "forward_speed_mps": -0.136264771,
+        "vertical_speed_mps": 0.188274562,
+        "pitch_rad": 0.05222187028347205
+      },
+      {
+        "step": 400,
+        "height_m": 0.639380336,
+        "forward_speed_mps": 1.32095563,
+        "vertical_speed_mps": 0.1060763,
+        "pitch_rad": 0.2478525343440859
+      },
+      {
+        "step": 500,
+        "height_m": 0.236291409,
+        "forward_speed_mps": 2.76782942,
+        "vertical_speed_mps": -0.137481958,
+        "pitch_rad": 0.5192918664146718
+      }
+    ],
+    "4": [
+      {
+        "step": 300,
+        "height_m": 0.49212423,
+        "forward_speed_mps": -0.136303425,
+        "vertical_speed_mps": 0.188239306,
+        "pitch_rad": 0.052242576369217135
+      },
+      {
+        "step": 400,
+        "height_m": 0.245454639,
+        "forward_speed_mps": 1.31853986,
+        "vertical_speed_mps": 0.100108914,
+        "pitch_rad": 0.24634857768596916
+      },
+      {
+        "step": 500,
+        "height_m": 0.186144128,
+        "forward_speed_mps": 1.93788302,
+        "vertical_speed_mps": -0.109144725,
+        "pitch_rad": 0.7331361264373704
+      }
+    ],
+    "5": [
+      {
+        "step": 300,
+        "height_m": 0.492048115,
+        "forward_speed_mps": -0.134960204,
+        "vertical_speed_mps": 0.188237101,
+        "pitch_rad": 0.05221875487022487
+      },
+      {
+        "step": 400,
+        "height_m": 0.426322937,
+        "forward_speed_mps": 1.47818315,
+        "vertical_speed_mps": 0.0707115009,
+        "pitch_rad": 0.2685602090286482
+      },
+      {
+        "step": 500,
+        "height_m": 0.219283044,
+        "forward_speed_mps": 2.3443799,
+        "vertical_speed_mps": -0.300274283,
+        "pitch_rad": 0.6499877462278824
+      }
+    ],
+    "6": [
+      {
+        "step": 300,
+        "height_m": 0.491805911,
+        "forward_speed_mps": -0.135716021,
+        "vertical_speed_mps": 0.188164547,
+        "pitch_rad": 0.05222859976105925
+      },
+      {
+        "step": 400,
+        "height_m": 0.442539513,
+        "forward_speed_mps": 1.38160002,
+        "vertical_speed_mps": 0.0835546404,
+        "pitch_rad": 0.2554403399631034
+      },
+      {
+        "step": 500,
+        "height_m": 0.204660714,
+        "forward_speed_mps": 2.42579055,
+        "vertical_speed_mps": -0.345230073,
+        "pitch_rad": 0.6027032607746999
+      }
+    ],
+    "7": [
+      {
+        "step": 300,
+        "height_m": 0.492074519,
+        "forward_speed_mps": -0.135518283,
+        "vertical_speed_mps": 0.188291401,
+        "pitch_rad": 0.05219271435974754
+      },
+      {
+        "step": 400,
+        "height_m": 0.422895461,
+        "forward_speed_mps": 1.49771571,
+        "vertical_speed_mps": 0.0662174001,
+        "pitch_rad": 0.27246751443207406
+      },
+      {
+        "step": 500,
+        "height_m": 0.19148849,
+        "forward_speed_mps": 2.3680315,
+        "vertical_speed_mps": -0.0137827322,
+        "pitch_rad": 0.6560598342786648
+      }
+    ]
+  },
+  "caveats": [
+    "The trace records raw policy outputs, which are zero and are not the low-level controller actions.",
+    "Contact trace is logged at the next control-step boundary; use the recorded pre-state.",
+    "Aerodynamic closure and wing shape remain uncalibrated."
+  ]
+}

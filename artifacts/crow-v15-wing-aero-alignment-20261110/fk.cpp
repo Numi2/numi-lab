@@ -1,0 +1,6 @@
+#define main toe_free_admission_main
+#include "../crow-v15-toe-grip-redamping-20261110/toe_model.cpp"
+#undef main
+#include "../crow-v15-wing-inertia-prototype-20261110/wing_model.hpp"
+#include <iomanip>
+int main(){auto p=toeModel();crowResearchWingInertia(p);auto&m=p.mechanics;std::vector<double>q(m.defaultQ.begin(),m.defaultQ.end()),v(m.defaultV.begin(),m.defaultV.end());std::vector<ArticulatedBodyKinematics>b(m.bodies.size());std::cout<<std::setprecision(12);for(int side=0;side<2;side++){auto&j=m.joints[side];auto&f=m.joints[side+2];auto&bd=m.bodies[side+5];std::cout<<"side "<<side<<" root "<<q[0]<<" "<<q[1]<<" "<<q[2]<<" quaternion "<<q[3]<<" "<<q[4]<<" "<<q[5]<<" "<<q[6]<<" defaultj "<<q[j.qOffset]<<" "<<q[f.qOffset]<<" wing local COM "<<bd.centerOfMass.x<<" "<<bd.centerOfMass.y<<" "<<bd.centerOfMass.z<<" flap pa "<<f.parentAnchor.x<<" "<<f.parentAnchor.y<<" "<<f.parentAnchor.z<<" ca "<<f.childAnchor.x<<" "<<f.childAnchor.y<<" "<<f.childAnchor.z<<"\n";for(double d:{-.8,-.4,0.,.4,.8}){auto x=q;x[f.qOffset]+=d;need(computeArticulatedBodyKinematics(m,0,x,v,b).succeeded(),"FK failed");auto &a=b[side+5];std::cout<<"flap "<<d<<" wingCOM "<<a.centerOfMassPosition[0]<<" "<<a.centerOfMassPosition[1]<<" "<<a.centerOfMassPosition[2]<<" orientation "<<a.orientation[0]<<" "<<a.orientation[1]<<" "<<a.orientation[2]<<" "<<a.orientation[3]<<"\n";}}}
