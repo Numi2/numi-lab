@@ -1,0 +1,89 @@
+{
+  "remote_commit": "f92af32b83bc7a1aacd2c35bc2ffaa918cda4a13",
+  "retired": [
+    {
+      "path": "build/crow-v15-ankle-authority-screen-20261111/probe",
+      "sha256": "8e5025bc3d645c1a9ae89b24604462dba9a9c5a77ea59c05788290d4f3c2fdbb",
+      "bytes": 101896,
+      "archive": "artifacts/crow-v15-ankle-authority-screen-20261111/runtime.tar.gz"
+    },
+    {
+      "path": "build/crow-v15-ankle-authority-screen-20261111/libmetalrobo.dylib",
+      "sha256": "aac2160f7f897508ad01516b72b54f7a35ef8d0e02e3e23c6a8dfee8016b4968",
+      "bytes": 5729488,
+      "archive": "artifacts/crow-v15-ankle-authority-screen-20261111/runtime.tar.gz"
+    },
+    {
+      "path": "build/crow-v15-com-balance-screen-20261111/probe",
+      "sha256": "a3779095f615932c4df20d8fe73155fbefb1c844439f6e3d67d3a7b72e3a03e5",
+      "bytes": 101816,
+      "archive": "artifacts/crow-v15-com-balance-screen-20261111/runtime.tar.gz"
+    },
+    {
+      "path": "build/crow-v15-com-balance-screen-20261111/libmetalrobo.dylib",
+      "sha256": "aac2160f7f897508ad01516b72b54f7a35ef8d0e02e3e23c6a8dfee8016b4968",
+      "bytes": 5729488,
+      "archive": "artifacts/crow-v15-com-balance-screen-20261111/runtime.tar.gz"
+    },
+    {
+      "path": "build/crow-v15-matched-balance-grip-screen-20261111/probe",
+      "sha256": "716e555bb6bed37328328f2702385fa1e793fdca4145968f16d1915892cd69a9",
+      "bytes": 101816,
+      "archive": "artifacts/crow-v15-matched-balance-grip-screen-20261111/runtime.tar.gz"
+    },
+    {
+      "path": "build/crow-v15-matched-balance-grip-screen-20261111/libmetalrobo.dylib",
+      "sha256": "aac2160f7f897508ad01516b72b54f7a35ef8d0e02e3e23c6a8dfee8016b4968",
+      "bytes": 5729488,
+      "archive": "artifacts/crow-v15-matched-balance-grip-screen-20261111/runtime.tar.gz"
+    },
+    {
+      "path": "build/crow-v15-perch-control-response-20261111/probe",
+      "sha256": "a0b47a6f096d86bae4de9f1f71666b2bf0f389c791ae2acfd814a1c62840854d",
+      "bytes": 101896,
+      "archive": "artifacts/crow-v15-perch-control-response-20261111/runtime.tar.gz"
+    },
+    {
+      "path": "build/crow-v15-perch-control-response-20261111/libmetalrobo.dylib",
+      "sha256": "aac2160f7f897508ad01516b72b54f7a35ef8d0e02e3e23c6a8dfee8016b4968",
+      "bytes": 5729488,
+      "archive": "artifacts/crow-v15-perch-control-response-20261111/runtime.tar.gz"
+    },
+    {
+      "path": "build/crow-v15-perch-dynamics-audit-20261111/probe",
+      "sha256": "02429fc66f248636d9759276a7232ed31d445d5ba3a212b9a1900d6dcc0a96f0",
+      "bytes": 101816,
+      "archive": "artifacts/crow-v15-perch-dynamics-audit-20261111/runtime.tar.gz"
+    },
+    {
+      "path": "build/crow-v15-perch-dynamics-audit-20261111/libmetalrobo.dylib",
+      "sha256": "deec89da47d03dbbeee46fe423c1502ee178c0beda62d9a930794a7ca0212a06",
+      "bytes": 5729488,
+      "archive": "artifacts/crow-v15-perch-dynamics-audit-20261111/runtime.tar.gz"
+    },
+    {
+      "path": "build/crow-v15-rear-grip-reacquisition-20261111/probe",
+      "sha256": "d812d352c153e8dc0cd3209b1657ce3cac34565dc56a6f89751938f0c17a8d13",
+      "bytes": 101816,
+      "archive": "artifacts/crow-v15-rear-grip-reacquisition-20261111/runtime.tar.gz"
+    },
+    {
+      "path": "build/crow-v15-rear-grip-reacquisition-20261111/libmetalrobo.dylib",
+      "sha256": "aac2160f7f897508ad01516b72b54f7a35ef8d0e02e3e23c6a8dfee8016b4968",
+      "bytes": 5729488,
+      "archive": "artifacts/crow-v15-rear-grip-reacquisition-20261111/runtime.tar.gz"
+    },
+    {
+      "path": "build/crow-v15-sustained-grip-screen-20261111/probe",
+      "sha256": "1cd2079c3950ce5d9b095db2481471964d905f89adaee18c8396cef9a4fd26f4",
+      "bytes": 101816,
+      "archive": "artifacts/crow-v15-sustained-grip-screen-20261111/runtime.tar.gz"
+    },
+    {
+      "path": "build/crow-v15-sustained-grip-screen-20261111/libmetalrobo.dylib",
+      "sha256": "aac2160f7f897508ad01516b72b54f7a35ef8d0e02e3e23c6a8dfee8016b4968",
+      "bytes": 5729488,
+      "archive": "artifacts/crow-v15-sustained-grip-screen-20261111/runtime.tar.gz"
+    }
+  ]
+}
