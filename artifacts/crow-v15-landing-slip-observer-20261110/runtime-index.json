@@ -1,0 +1,27 @@
+[
+  {
+    "path": "build/crow-v15-landing-slip-observer-20261110/libmetalrobo.dylib",
+    "sha256": "dfa6ea9f96e24b2821af032aba86b0ecd22bdf9abfa4ede428d9dff0c4dd661d",
+    "bytes": 5763888
+  },
+  {
+    "path": "build/crow-v15-landing-slip-observer-20261110/velocity_probe",
+    "sha256": "ad33e0aa68cc5a450246b57c55522ef515c4b26ad78f28dce7c3dac283f5dedd",
+    "bytes": 64720
+  },
+  {
+    "path": "build/crow-v15-landing-support-alignment-20261110/ahead.metallib",
+    "sha256": "6bca83fc2fc58a59d40ba7402ad4013c7a607f8f0da9956be27914b5ee7c4c81",
+    "bytes": 4473408
+  },
+  {
+    "path": "build/crow-v15-long-horizon-20261110/landing-long.policypack",
+    "sha256": "a15932cad3aaf0893ef72e649d81eec4731242c27858dc4e9e374214e827df7c",
+    "bytes": 5996492
+  },
+  {
+    "path": "build/crow-v15-long-horizon-20261110/route-long.policypack",
+    "sha256": "4890d10b1c9c2f507a69e6fe7e8f448cbf80a6db78b93f1b29391cfc211966be",
+    "bytes": 17228746
+  }
+]
