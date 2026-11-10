@@ -1,0 +1,29 @@
+{
+  "remote_commit": "eecfac76cc8e40300eaf3d20a0b9a1547e8e3476",
+  "retired": [
+    {
+      "raw": "build/crow-v15-long-perch-host-20261110/j-lifted-original.json",
+      "archive": "artifacts/crow-v15-lifted-release-20261110/j-lifted-original.json.gz",
+      "sha256": "3411a36b026768442a49d57c691bfc2919d8a1a129fb5e0e6d3543b3e462d02c",
+      "bytes": 230138012
+    },
+    {
+      "raw": "build/crow-v15-long-perch-host-20261110/j-lifted-original.tsv",
+      "archive": "artifacts/crow-v15-lifted-release-20261110/j-lifted-original.tsv.gz",
+      "sha256": "9bd6cbfbc565fdb000fd20cc2a6f69cafbfc533f991bcc5ca18a4a044daa83af",
+      "bytes": 5011803
+    },
+    {
+      "raw": "build/crow-v15-long-perch-host-20261110/i-lifted-original.json",
+      "archive": "artifacts/crow-v15-lifted-release-20261110/i-lifted-original.json.gz",
+      "sha256": "836c0f5aecab78b07e4437c783f50f2f2229454363c9e5436fafa0e2543dad60",
+      "bytes": 230121082
+    },
+    {
+      "raw": "build/crow-v15-long-perch-host-20261110/i-lifted-original.tsv",
+      "archive": "artifacts/crow-v15-lifted-release-20261110/i-lifted-original.tsv.gz",
+      "sha256": "bff98decb5c987875390d85a96cf9233c2ee2e643fe60f593406970ebebc2f2c",
+      "bytes": 5019290
+    }
+  ]
+}
