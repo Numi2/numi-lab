@@ -1,0 +1,3 @@
+# Fixed-command launch to revised flight law
+
+Use the same estimated wing body, gait/push-off controller, paired no-push arm, two prior matched development seeds, observed physical contacts and 900-step gate as the preceding heavy-wing test. Change only the low-level flight action law to the gain-1, +0.28 research candidate and supply it a fixed 0.70 m/s straight and 0.85 m height command in this diagnostic; there is no route actor command in this test. Preserve all errors and observer-on/off state parity. This is not an autonomous route, unused-layout test, biological qualification or proof that push-off alone produces sustained flight; wings remain active after contact loss.

@@ -1,0 +1,22 @@
+[
+  {
+    "path": "build/crow-v15-heavy-wing-launch-handoff-20261110/push-trigger.metallib",
+    "sha256": "9b81edcd054b8fb6f4a61ce597c7c4cfeb77d1ec2bb74d528f28ef6d8e18a33e",
+    "bytes": 4470720
+  },
+  {
+    "path": "build/crow-v15-heavy-wing-launch-handoff-20261110/control-trigger.metallib",
+    "sha256": "8a081bf78161f34fc82d890c97b67e007d61e79144fd280a39788e1b6d321198",
+    "bytes": 4470592
+  },
+  {
+    "path": "build/crow-v15-heavy-wing-gait-20261110/libmetalrobo.dylib",
+    "sha256": "e7aa33d10e611695594936f551c3d247fc7ef27641215a286bcb43417ee349dc",
+    "bytes": 5764256
+  },
+  {
+    "path": "build/crow-v15-heavy-wing-gait-20261110/zero-primary.policypack",
+    "sha256": "dc9a243a4dbeaee7911288fb1be7b1fa4268d4fb0251ede96e54d47a5f20508d",
+    "bytes": 5996440
+  }
+]

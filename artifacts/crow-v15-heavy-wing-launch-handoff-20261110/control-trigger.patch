@@ -1,0 +1,26 @@
+--- a/gait-launch.metal
++++ b/experimental-flight-handoff.metal
+@@ -4830,7 +4830,7 @@
+     return 0.0f;
+ }
+ 
+-#include "CrowFlightControllerV1.metal"
++#include "CrowFlightControllerExperiment.metal"
+ 
+ inline uint taskActionHoldPeriod(device const MRTaskProgramHeaderGPU& program,device const uchar* arena,uint action) {
+     if(program.articulation.z==MR_TASK_PROGRAM_ACTION_HOLD_ABI_VERSION)
+@@ -5001,6 +5001,14 @@
+         carrierState.commandExtension.z += 0.25f-oracleCommand.x;
+         carrierState.threatGeometry.x += oracleCommand.w;
+         carrierState.threatTeacher.x -= oracleCommand.y;
++        // Fixed-command launch experiment, not a route-navigation command.
++        if (fixedFlightController && state.episode.z == 10u) {
++            carrierState.commandAndPhase.x=0.70f;
++            carrierState.commandExtension.x=state.commandExtension.x;
++            carrierState.commandExtension.z=state.commandExtension.z;
++            carrierState.threatGeometry.x=state.threatGeometry.x+0.85f;
++            carrierState.threatTeacher.x=state.threatTeacher.x;
++        }
+         const float teacherRequested =
+             avianJourneyTeacher || fixedFlightController || approachSupervisorBlend > 0.0f
+             ? (fixedFlightController
