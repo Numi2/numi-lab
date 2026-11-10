@@ -1,0 +1,10 @@
+/Users/n/Developer/numi-crow-rl-20261107/build/crow-v15-foot-level-control-20261110/ankle.metal:5500:21: warning: unused variable 'seconds' [-Wunused-variable]
+        const float seconds=float(state.episode.x)*dispatch.timing.x;
+                    ^
+1 warning generated.
+ankle f7d549954441fc4f2f612000501edd0a89295d58732302d85e1b2044cf1d6c92
+/Users/n/Developer/numi-crow-rl-20261107/build/crow-v15-foot-level-control-20261110/both.metal:5500:21: warning: unused variable 'seconds' [-Wunused-variable]
+        const float seconds=float(state.episode.x)*dispatch.timing.x;
+                    ^
+1 warning generated.
+both 3ae2d0649c9fcb03e860a5545722776038dca18df458c40fc1849d830cafb341

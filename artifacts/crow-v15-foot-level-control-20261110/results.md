@@ -1,0 +1,3 @@
+# Contact-gated foot-angle corrections
+
+All four teacher-off trials on previously used J starts reached five waypoints but physically failed. Ankle-only correction held the foot closer to level during part of one fall, but the body still tipped; failures occurred at steps 2832 and 2819 with maximum opposed-grip runs 40 and 61 endpoint samples. Correcting both hip and ankle caused earlier failures at 2601 and 2634, with no opposed grip. None passed the strict terminal support/grip gate. These prototypes use direct simulator state and rebound legacy actors and do not qualify the full visual autonomous sequence. No variant is promoted.

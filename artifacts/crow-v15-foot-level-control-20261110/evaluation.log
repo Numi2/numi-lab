@@ -1,0 +1,4 @@
+artifacts/crow-v15-foot-level-control-20261110/diagnostic-reserved-final-j-ankle-newstart.stdout end 2819 support run 0 grip run 0 passed False
+artifacts/crow-v15-foot-level-control-20261110/diagnostic-reserved-final-j-ankle-original.stdout end 2832 support run 0 grip run 0 passed False
+artifacts/crow-v15-foot-level-control-20261110/diagnostic-reserved-final-j-both-newstart.stdout end 2634 support run 0 grip run 0 passed False
+artifacts/crow-v15-foot-level-control-20261110/diagnostic-reserved-final-j-both-original.stdout end 2601 support run 1 grip run 0 passed False
