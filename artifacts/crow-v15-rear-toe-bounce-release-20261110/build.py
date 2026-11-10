@@ -1,0 +1,6 @@
+from pathlib import Path
+import difflib,subprocess,hashlib
+R=Path.cwd();A=R/'artifacts/crow-v15-rear-toe-bounce-release-20261110';B=R/'build/crow-v15-rear-toe-bounce-release-20261110';base=(R/'build/crow-v15-grip-latch-20261110/latch.metal').read_text()
+old='const uint rearNext=(footLoad>0.05f || rearPrevious>0u) ? min(rearPrevious+1u,43u) : 0u;'
+new='const uint rearNext=(footLoad>0.05f || (state.threatTeacher.w>=1.5f && rearPrevious>=12u)) ? min(rearPrevious+1u,43u) : (rearPrevious>0u ? rearPrevious-1u : 0u);'
+assert base.count(old)==1;s=base.replace(old,new);name='bouncerelease';src=B/(name+'.metal');src.write_text(s);(A/(name+'.patch')).write_text(''.join(difflib.unified_diff(base.splitlines(True),s.splitlines(True),fromfile='a/latch.metal',tofile='b/bouncerelease.metal')));air=B/(name+'.air');lib=B/(name+'.metallib');subprocess.run(['xcrun','-sdk','macosx','metal','-std=metal4.0','-O3','-fno-fast-math','-I',str(R/'include'),'-I',str(R/'src/metal'),'-c',str(src),'-o',str(air)],check=True);subprocess.run(['xcrun','-sdk','macosx','metallib',*[str(p) for p in sorted((R/'build/shaders').glob('MetalRobo*.air')) if p.name!='MetalRoboLocomotionTask.air'],str(air),'-o',str(lib)],check=True);print(hashlib.sha256(lib.read_bytes()).hexdigest())

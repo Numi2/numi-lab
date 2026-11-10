@@ -1,0 +1,11 @@
+--- a/latch.metal
++++ b/bouncerelease.metal
+@@ -9346,7 +9346,7 @@
+                 for (uint side=0u;side<2u;++side) {
+                     const uint rearPrevious=(state.status.w>>(13u+side*6u))&63u;
+                     const float footLoad=side==0u ? state.nutrition.x : state.nutrition.y;
+-                    const uint rearNext=(footLoad>0.05f || rearPrevious>0u) ? min(rearPrevious+1u,43u) : 0u;
++                    const uint rearNext=(footLoad>0.05f || (state.threatTeacher.w>=1.5f && rearPrevious>=12u)) ? min(rearPrevious+1u,43u) : (rearPrevious>0u ? rearPrevious-1u : 0u);
+                     packed |= rearNext << (13u+side*6u);
+                     const uint w=compactBase+contactGroups[3u+side].reference.y;
+                     const float3 force=float3(compactContact[w],compactContact[w+1u],compactContact[w+2u]);

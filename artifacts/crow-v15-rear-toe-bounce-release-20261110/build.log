@@ -1,0 +1,5 @@
+/Users/n/Developer/numi-crow-rl-20261107/build/crow-v15-rear-toe-bounce-release-20261110/bouncerelease.metal:5494:21: warning: unused variable 'seconds' [-Wunused-variable]
+        const float seconds=float(state.episode.x)*dispatch.timing.x;
+                    ^
+1 warning generated.
+b81cb9835257dc71a67d5979678f13a5bacf1e2f5e6e7cd29609907543c8ec98
