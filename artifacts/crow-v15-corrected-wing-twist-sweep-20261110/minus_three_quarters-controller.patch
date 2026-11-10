@@ -1,0 +1,11 @@
+--- a/CrowFlightControllerV1.metal
++++ b/experimental-minus_three_quarters.metal
+@@ -228,7 +228,7 @@
+     );
+     if (float(state.episode.x) * controlStepSeconds >= 6.0f &&
+         (action == 4u || action == 5u)) {
+-        const float speedBias = clamp(0.55f + 1.40f * (state.commandExtension.z - max(state.commandAndPhase.x, 0.15f)), 0.25f, 0.95f);
++        const float speedBias = -0.75f;
+         const float yawDemand = clamp(16.0f * state.commandExtension.x - 0.50f * state.commandExtension.y - 0.35f * state.threatTeacher.x, -1.0f, 1.0f);
+         const float phaseOffset = 0.60f * clamp(-yawDemand, 0.0f, 1.0f) * sin(state.commandAndPhase.w);
+         requested = clamp(requested + (action == 4u ? speedBias : -speedBias) + phaseOffset, -1.0f, 1.0f);
