@@ -1,0 +1,3 @@
+# Bilateral-contact-triggered rear toe regulation
+
+All three unchanged controls reproduced all 200 reference states exactly. Both candidates passed the single-start behavioral screen for sustained bilateral opposing grip, release and terminal open-toe support. The 0.01 rad/tick candidate had worst grip-conditioned rigid overlap 0.627 mm, exceeding the 0.5 mm gate. The 0.02 rad/tick candidate had worst overlap 0.449 mm, meeting this one-start screen. The result nominates that candidate only for prespecified varied-start and longer-support tests; it is not integrated or qualified for the continuous route, unused layouts, flight landing, or biological realism.
