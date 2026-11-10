@@ -1,0 +1,3 @@
+# In-trajectory audit
+
+On the final 200 student-controlled states of the qualifying J recovery used for training, the newest actor reduced normalized mean absolute errors for forward, lateral, heading and height from approximately 0.006/0.103/0.082/0.036 in the first prefix actor to 0.003/0.058/0.045/0.019. Yet its separate full-start J run struck the slalom after two waypoints. These states and labels are training-related, not a holdout; better fitting does not establish safe closed-loop navigation or uniquely explain the crash. The discrepancy motivates further corrections on states actually visited by each candidate rather than more weight on the same examples.
