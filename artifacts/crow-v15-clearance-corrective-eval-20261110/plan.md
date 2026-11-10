@@ -1,0 +1,3 @@
+# Clearance-corrective actor full-start development screen
+
+After the single planned training, freeze its deterministic exported actor and run hard J, hard I, original J, original I, in that order with the alternating-foot-release controller, original v15 body and frozen flight controller. Teacher off, one continuous first episode, 7,000 steps, no resets or tuning. Check all five waypoints, first failure, solver and nonfoot-perch contacts, minimum sampled obstacle clearance, toe-in-flight, contact-supported landing, per-foot release and return to support. Require at least 0.05 m clearance and all the above in every case for development acceptance. These are used development cases; the untouched K/L layouts are not involved.
