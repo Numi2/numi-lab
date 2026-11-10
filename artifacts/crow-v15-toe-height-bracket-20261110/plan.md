@@ -1,0 +1,5 @@
+# Exploratory intermediate landing height
+
+The same trimmed setup at nominal perch+0.23 m failed all 16 starts after brief contact; with the new faster contact-driven toe reflex at perch+0.28 m, all 16 survived but none obtained qualifying bilateral load. Toe angles after 25 contact-free steps stayed below 0.05 rad in the latter first episodes. These results confound height and toe-reflex changes; they bracket a possible useful height but do not identify either mechanism alone.
+
+Only lower the latter target from perch+0.28 to perch+0.26 m. Run eight starts per used development layout for 4500 steps; prediction is at least 12/16 survival and at least four runs of ten consecutive accepted steps with bilateral loads over 0.1 N each and total above 2.2 N. The prior 25-step landing handoff and toe no-contact requirements remain unchanged. No reset is counted as a continuation. These are teacher-guided exploratory tests, not unused final layouts, full landing qualification, or autonomous navigation.

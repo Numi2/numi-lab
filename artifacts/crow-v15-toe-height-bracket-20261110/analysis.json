@@ -1,0 +1,466 @@
+{
+  "i": {
+    "first_episode": {
+      "boundary": "waypoint completion; does not establish supported landing",
+      "closed_by_environment": [
+        false,
+        false,
+        false,
+        false,
+        false,
+        false,
+        false,
+        false
+      ],
+      "closed_episode_count": 0,
+      "completion_seen_by_environment": [
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true
+      ],
+      "completion_seen_count": 8,
+      "environment_count": 8,
+      "first_completion_step_by_environment": [
+        2749,
+        2849,
+        2718,
+        2740,
+        2783,
+        2755,
+        2730,
+        2750
+      ],
+      "horizon_censored_count": 8,
+      "maximum_waypoints_by_environment": [
+        5,
+        5,
+        5,
+        5,
+        5,
+        5,
+        5,
+        5
+      ],
+      "physical_failure_by_environment": [
+        false,
+        false,
+        false,
+        false,
+        false,
+        false,
+        false,
+        false
+      ],
+      "physical_failure_count": 0,
+      "safe_completion_by_environment": [
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true
+      ],
+      "safe_completion_count": 8,
+      "schema": "numi.crow-first-episode-evidence.v1",
+      "steps_by_environment": [
+        4500,
+        4500,
+        4500,
+        4500,
+        4500,
+        4500,
+        4500,
+        4500
+      ],
+      "termination_reason_by_environment": [
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ],
+      "unit": "first episode of each environment since context creation"
+    },
+    "failed_environment_steps": 0,
+    "lanes": {
+      "0": {
+        "loaded_streak": 0,
+        "longest_loaded_streak": 1,
+        "loaded_samples": 15,
+        "phase2_samples": 0,
+        "max_preperch_angle_rad": 0.00030170547,
+        "max_after_25_no_contact_rad": 0.0173160341,
+        "no_contact_samples_after_25": 6143,
+        "last": {
+          "step": 4500,
+          "phase": 1.0,
+          "loads_n": [
+            0.0,
+            0.0
+          ]
+        }
+      },
+      "1": {
+        "loaded_streak": 0,
+        "longest_loaded_streak": 1,
+        "loaded_samples": 2,
+        "phase2_samples": 0,
+        "max_preperch_angle_rad": 0.000301732245,
+        "max_after_25_no_contact_rad": 0.0174146555,
+        "no_contact_samples_after_25": 6605,
+        "last": {
+          "step": 4500,
+          "phase": 1.0,
+          "loads_n": [
+            0.0,
+            0.0
+          ]
+        }
+      },
+      "2": {
+        "loaded_streak": 0,
+        "longest_loaded_streak": 2,
+        "loaded_samples": 11,
+        "phase2_samples": 0,
+        "max_preperch_angle_rad": 0.000301674329,
+        "max_after_25_no_contact_rad": 0.0696776956,
+        "no_contact_samples_after_25": 6316,
+        "last": {
+          "step": 4500,
+          "phase": 1.0,
+          "loads_n": [
+            0.0,
+            0.0
+          ]
+        }
+      },
+      "3": {
+        "loaded_streak": 0,
+        "longest_loaded_streak": 1,
+        "loaded_samples": 11,
+        "phase2_samples": 0,
+        "max_preperch_angle_rad": 0.000310365605,
+        "max_after_25_no_contact_rad": 0.00197738665,
+        "no_contact_samples_after_25": 6364,
+        "last": {
+          "step": 4500,
+          "phase": 1.0,
+          "loads_n": [
+            0.0,
+            0.0
+          ]
+        }
+      },
+      "4": {
+        "loaded_streak": 0,
+        "longest_loaded_streak": 1,
+        "loaded_samples": 8,
+        "phase2_samples": 0,
+        "max_preperch_angle_rad": 0.00030172398,
+        "max_after_25_no_contact_rad": 0.000372083043,
+        "no_contact_samples_after_25": 6396,
+        "last": {
+          "step": 4500,
+          "phase": 1.0,
+          "loads_n": [
+            0.0,
+            0.0
+          ]
+        }
+      },
+      "5": {
+        "loaded_streak": 0,
+        "longest_loaded_streak": 1,
+        "loaded_samples": 6,
+        "phase2_samples": 0,
+        "max_preperch_angle_rad": 0.000301707973,
+        "max_after_25_no_contact_rad": 0.0401201658,
+        "no_contact_samples_after_25": 6585,
+        "last": {
+          "step": 4500,
+          "phase": 1.0,
+          "loads_n": [
+            0.0,
+            0.0
+          ]
+        }
+      },
+      "6": {
+        "loaded_streak": 0,
+        "longest_loaded_streak": 1,
+        "loaded_samples": 10,
+        "phase2_samples": 0,
+        "max_preperch_angle_rad": 0.000301669788,
+        "max_after_25_no_contact_rad": 0.0127540044,
+        "no_contact_samples_after_25": 6480,
+        "last": {
+          "step": 4500,
+          "phase": 1.0,
+          "loads_n": [
+            0.0,
+            0.0
+          ]
+        }
+      },
+      "7": {
+        "loaded_streak": 0,
+        "longest_loaded_streak": 1,
+        "loaded_samples": 11,
+        "phase2_samples": 0,
+        "max_preperch_angle_rad": 0.000301753345,
+        "max_after_25_no_contact_rad": 0.000379009318,
+        "no_contact_samples_after_25": 6204,
+        "last": {
+          "step": 4500,
+          "phase": 1.0,
+          "loads_n": [
+            0.0,
+            0.0
+          ]
+        }
+      }
+    }
+  },
+  "j": {
+    "first_episode": {
+      "boundary": "waypoint completion; does not establish supported landing",
+      "closed_by_environment": [
+        false,
+        false,
+        false,
+        false,
+        false,
+        false,
+        false,
+        false
+      ],
+      "closed_episode_count": 0,
+      "completion_seen_by_environment": [
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true
+      ],
+      "completion_seen_count": 8,
+      "environment_count": 8,
+      "first_completion_step_by_environment": [
+        2685,
+        2659,
+        2697,
+        2643,
+        2640,
+        2750,
+        2727,
+        2721
+      ],
+      "horizon_censored_count": 8,
+      "maximum_waypoints_by_environment": [
+        5,
+        5,
+        5,
+        5,
+        5,
+        5,
+        5,
+        5
+      ],
+      "physical_failure_by_environment": [
+        false,
+        false,
+        false,
+        false,
+        false,
+        false,
+        false,
+        false
+      ],
+      "physical_failure_count": 0,
+      "safe_completion_by_environment": [
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true
+      ],
+      "safe_completion_count": 8,
+      "schema": "numi.crow-first-episode-evidence.v1",
+      "steps_by_environment": [
+        4500,
+        4500,
+        4500,
+        4500,
+        4500,
+        4500,
+        4500,
+        4500
+      ],
+      "termination_reason_by_environment": [
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ],
+      "unit": "first episode of each environment since context creation"
+    },
+    "failed_environment_steps": 0,
+    "lanes": {
+      "0": {
+        "loaded_streak": 0,
+        "longest_loaded_streak": 1,
+        "loaded_samples": 8,
+        "phase2_samples": 0,
+        "max_preperch_angle_rad": 0.000301691965,
+        "max_after_25_no_contact_rad": 0.0106909163,
+        "no_contact_samples_after_25": 6254,
+        "last": {
+          "step": 4500,
+          "phase": 1.0,
+          "loads_n": [
+            0.0,
+            0.0
+          ]
+        }
+      },
+      "1": {
+        "loaded_streak": 0,
+        "longest_loaded_streak": 1,
+        "loaded_samples": 11,
+        "phase2_samples": 0,
+        "max_preperch_angle_rad": 0.00030170739,
+        "max_after_25_no_contact_rad": 0.0143244611,
+        "no_contact_samples_after_25": 6286,
+        "last": {
+          "step": 4500,
+          "phase": 1.0,
+          "loads_n": [
+            0.0,
+            0.0
+          ]
+        }
+      },
+      "2": {
+        "loaded_streak": 0,
+        "longest_loaded_streak": 1,
+        "loaded_samples": 7,
+        "phase2_samples": 0,
+        "max_preperch_angle_rad": 0.000301711523,
+        "max_after_25_no_contact_rad": 0.000350541959,
+        "no_contact_samples_after_25": 6353,
+        "last": {
+          "step": 4500,
+          "phase": 1.0,
+          "loads_n": [
+            0.0,
+            0.0
+          ]
+        }
+      },
+      "3": {
+        "loaded_streak": 0,
+        "longest_loaded_streak": 1,
+        "loaded_samples": 12,
+        "phase2_samples": 0,
+        "max_preperch_angle_rad": 0.000301673746,
+        "max_after_25_no_contact_rad": 0.0485937521,
+        "no_contact_samples_after_25": 6136,
+        "last": {
+          "step": 4500,
+          "phase": 1.0,
+          "loads_n": [
+            0.0,
+            0.0
+          ]
+        }
+      },
+      "4": {
+        "loaded_streak": 0,
+        "longest_loaded_streak": 1,
+        "loaded_samples": 6,
+        "phase2_samples": 0,
+        "max_preperch_angle_rad": 0.000301658409,
+        "max_after_25_no_contact_rad": 0.00173665059,
+        "no_contact_samples_after_25": 6101,
+        "last": {
+          "step": 4500,
+          "phase": 1.0,
+          "loads_n": [
+            0.0,
+            0.0
+          ]
+        }
+      },
+      "5": {
+        "loaded_streak": 0,
+        "longest_loaded_streak": 1,
+        "loaded_samples": 11,
+        "phase2_samples": 0,
+        "max_preperch_angle_rad": 0.000301718595,
+        "max_after_25_no_contact_rad": 0.0606212057,
+        "no_contact_samples_after_25": 6358,
+        "last": {
+          "step": 4500,
+          "phase": 1.0,
+          "loads_n": [
+            0.0,
+            0.0
+          ]
+        }
+      },
+      "6": {
+        "loaded_streak": 0,
+        "longest_loaded_streak": 2,
+        "loaded_samples": 9,
+        "phase2_samples": 0,
+        "max_preperch_angle_rad": 0.000311828015,
+        "max_after_25_no_contact_rad": 0.000364890089,
+        "no_contact_samples_after_25": 6474,
+        "last": {
+          "step": 4500,
+          "phase": 1.0,
+          "loads_n": [
+            0.0,
+            0.0
+          ]
+        }
+      },
+      "7": {
+        "loaded_streak": 0,
+        "longest_loaded_streak": 1,
+        "loaded_samples": 9,
+        "phase2_samples": 0,
+        "max_preperch_angle_rad": 0.000301667402,
+        "max_after_25_no_contact_rad": 0.018098345,
+        "no_contact_samples_after_25": 6257,
+        "last": {
+          "step": 4500,
+          "phase": 1.0,
+          "loads_n": [
+            0.0,
+            0.0
+          ]
+        }
+      }
+    }
+  }
+}

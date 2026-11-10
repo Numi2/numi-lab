@@ -1,0 +1,11 @@
+--- a/teacher.metal
++++ b/teacher-stop.metal
+@@ -6754,7 +6754,7 @@
+                     abs(xError) < 0.06f && abs(yError) < 0.16f &&
+                     length(yawFrameLinear.xy) < 0.08f &&
+                     abs(rootLinearVelocity.z) < 0.12f) landingPhase=2.0f;
+-                desiredHeight = landingPhase > 0.5f ? max(perch.z+0.28f,state.nutrition.w-0.025f*dispatch.timing.x) : 1.30f;
++                desiredHeight = landingPhase > 0.5f ? max(perch.z+0.26f,state.nutrition.w-0.025f*dispatch.timing.x) : 1.30f;
+             }
+             // Oracle labels occupy diagnostic spare state only; these will
+             // become independently fingerprinted actor commands, not sensors.
