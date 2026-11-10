@@ -1,0 +1,27 @@
+[
+  {
+    "path": "build/crow-v15-toe-span-sensitivity-20261110/libmetalrobo.dylib",
+    "sha256": "4b354f11ce05b9f4d79d9038550c4d7a7f27e3e8b6fb0cb6847c7ba3e0e8c11e",
+    "bytes": 5763888
+  },
+  {
+    "path": "build/crow-v15-toe-span-sensitivity-20261110/toe_model_probe",
+    "sha256": "3789c0760c6b956d61936f87bdd3b65aded8420ecc3a885fc53a834d9bed56fb",
+    "bytes": 60768
+  },
+  {
+    "path": "build/crow-v15-toe-span-sensitivity-20261110/landing-span.policypack",
+    "sha256": "dd7156a30b15244431e0338aac80c21c9627161bd236a0a067180d2ad35de832",
+    "bytes": 5996520
+  },
+  {
+    "path": "build/crow-v15-toe-span-sensitivity-20261110/route-span.policypack",
+    "sha256": "6db334e64c120f2e1784eb856bd8ff829cd8506e203c0ba978352dfa93995445",
+    "bytes": 17228774
+  },
+  {
+    "path": "build/crow-v15-rear-toe-bounce-release-20261110/bouncerelease.metallib",
+    "sha256": "b81cb9835257dc71a67d5979678f13a5bacf1e2f5e6e7cd29609907543c8ec98",
+    "bytes": 4473264
+  }
+]
