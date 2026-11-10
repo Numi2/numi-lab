@@ -1,0 +1,8 @@
+Traceback (most recent call last):
+  File "/Users/n/Developer/numi-crow-rl-20261107/artifacts/crow-v15-prefix-learning-20261110/train.py", line 15, in <module>
+    learner=MLXPolicyLearner.from_policy_pack(initial,MLXPPOConfiguration(learning_rate=1e-4,seed=20261110),library_path=str(lib));model=learner.model
+  File "/Users/n/Developer/numi-crow-rl-20261107/python/metalrobo/mlx_policy_learning.py", line 2668, in from_policy_pack
+    raise ValueError(
+        "PPO resume requires a PolicyPack critic network"
+    )
+ValueError: PPO resume requires a PolicyPack critic network

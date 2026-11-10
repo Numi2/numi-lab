@@ -1,0 +1,73 @@
+{
+  "rollout_sha256": "a1bf3cd8702f1d7dc923317b5675102a58f74c5f56675d1c994842cd5af2bddf",
+  "initial_policy_sha256": "463048085ea241a86778e3ec7cc24987f6d3035607d29e37342b8d696a483e4c",
+  "output_policy_sha256": "69a70db7965eea9a51088b83a32b42265079209e986093455088d6f723685250",
+  "seed": 20261110,
+  "end_before_waypoint_5_step": 2794,
+  "train_samples": 447,
+  "in_trajectory_validation_samples": 112,
+  "train_stage_counts": [
+    305,
+    48,
+    41,
+    32,
+    21
+  ],
+  "initial_validation_mae": [
+    0.020705383270978928,
+    0.1729787290096283,
+    0.07902677357196808,
+    0.9860506057739258
+  ],
+  "history": [
+    {
+      "epoch": 1,
+      "train_loss": 0.9003614485263824,
+      "in_trajectory_validation_mae": [
+        0.020631518214941025,
+        0.17882435023784637,
+        0.0781031996011734,
+        0.5608916878700256
+      ],
+      "head_mse": 0.0004712406953331083,
+      "seconds": 2.11
+    },
+    {
+      "epoch": 20,
+      "train_loss": 0.030245606787502766,
+      "in_trajectory_validation_mae": [
+        0.012722698040306568,
+        0.083958700299263,
+        0.050287388265132904,
+        0.09288223832845688
+      ],
+      "head_mse": 0.0005018709925934672,
+      "seconds": 2.21
+    },
+    {
+      "epoch": 60,
+      "train_loss": 0.0037416701670736074,
+      "in_trajectory_validation_mae": [
+        0.007483190856873989,
+        0.055810075253248215,
+        0.02747015841305256,
+        0.04589574784040451
+      ],
+      "head_mse": 7.815095159457996e-05,
+      "seconds": 2.39
+    },
+    {
+      "epoch": 120,
+      "train_loss": 0.0012067874195054173,
+      "in_trajectory_validation_mae": [
+        0.005942150950431824,
+        0.04908819869160652,
+        0.01822533831000328,
+        0.0320267453789711
+      ],
+      "head_mse": 5.870194945600815e-05,
+      "seconds": 2.65
+    }
+  ],
+  "limits": "Single used layout and student-prefix recovery; diagnostic split shares trajectory and is not held out. No landing samples or independent validation."
+}
