@@ -1,0 +1,11 @@
+{
+  "remote_commit": "a5e29381a202de59876f703c36ec2d852d3ecb64",
+  "retired": [
+    {
+      "raw": "artifacts/crow-v15-gentle-balance-grip-screen-20261110/results.txt",
+      "archive": "artifacts/crow-v15-gentle-balance-grip-screen-20261110/results.txt.gz",
+      "sha256": "079fb757ad56a8a14b90fe3c8c96d83f95d52f46d2ef835c8ca7818d0ba1e2f8",
+      "bytes": 1777247
+    }
+  ]
+}
