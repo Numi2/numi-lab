@@ -1,0 +1,30 @@
+--- a/velocity08c.metal
++++ b/supportgate.metal
+@@ -6738,14 +6738,21 @@
+             // Oracle labels occupy diagnostic spare state only; these will
+             // become independently fingerprinted actor commands, not sensors.
+             float desiredForward=0.25f-errorOffset;
+-            if (!landing && wp<=2u && pos.x>target.x+0.10f) {
+-                // Retreat on the current side before attempting the missed gate.
++            if (!landing && wp>=1u && wp<=2u) {
+                 const float3 missedObstacle=sceneState[sceneBase+course+1u+wp].position.xyz;
+                 const float side=pos.y>=missedObstacle.y ? 1.0f : -1.0f;
+-                const float lateralClearance=side*(pos.y-missedObstacle.y);
+-                const float safeY=missedObstacle.y+side*0.95f;
+-                desiredForward=lateralClearance<0.85f ? 0.10f : -0.05f;
+-                desiredLateral=clamp(0.8f*yawBasis.x*(safeY-pos.y),-0.30f,0.30f);
++                const bool wrongSide=(pos.y-missedObstacle.y)*(target.y-missedObstacle.y)<0.0f;
++                const bool retreat=pos.x>(wrongSide ? target.x-0.75f : target.x+0.10f);
++                if (retreat) {
++                    const float lateralClearance=side*(pos.y-missedObstacle.y);
++                    const float safeY=missedObstacle.y+side*0.95f;
++                    desiredForward=lateralClearance<0.85f ? 0.10f : -0.05f;
++                    desiredLateral=clamp(0.8f*yawBasis.x*(safeY-pos.y),-0.30f,0.30f);
++                } else if (wrongSide) {
++                    // Cross the missed obstacle's line only while safely upstream.
++                    desiredForward=0.10f;
++                    desiredLateral=clamp(0.8f*yawBasis.x*(target.y-pos.y),-0.30f,0.30f);
++                }
+             }
+             if (!landing && wp==2u && pos.x>target.x-1.0f && abs(pos.y-target.y)>0.30f)
+                 desiredForward=0.10f; // effective hover while clearing the second slalom.

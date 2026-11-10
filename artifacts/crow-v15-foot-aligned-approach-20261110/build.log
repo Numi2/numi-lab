@@ -1,0 +1,5 @@
+/Users/n/Developer/numi-crow-rl-20261107/build/crow-v15-foot-aligned-approach-20261110/footalign.metal:5494:21: warning: unused variable 'seconds' [-Wunused-variable]
+        const float seconds=float(state.episode.x)*dispatch.timing.x;
+                    ^
+1 warning generated.
+footalign 102814e607ea3e929a19b16d5d9acd11915cb84ca5e5c6bfd75934c18469852c

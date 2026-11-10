@@ -1,0 +1,5 @@
+/Users/n/Developer/numi-crow-rl-20261107/build/crow-v15-route-cross-behind-20261110/crossbehind.metal:5489:21: warning: unused variable 'seconds' [-Wunused-variable]
+        const float seconds=float(state.episode.x)*dispatch.timing.x;
+                    ^
+1 warning generated.
+crossbehind ac1d7c3a6cf934be8ecbe85945dfc08864ba554c211bf390607a40ba398fe9d5

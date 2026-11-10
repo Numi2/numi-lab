@@ -1,0 +1,1 @@
+Use native FP64 forward kinematics on retained accepted states before and after landing to compare foot and toe centers for the tuned and failed starts. Perturb each leg coordinate by 0.01 rad to estimate local placement sensitivity. This is a geometry diagnostic with estimated crow parameters; no new physical trajectory or biological claim follows.

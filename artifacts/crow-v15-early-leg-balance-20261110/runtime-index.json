@@ -1,0 +1,12 @@
+[
+  {
+    "path": "build/crow-v15-early-leg-balance-20261110/hip1.metallib",
+    "sha256": "695308433161b8c11145277117b268bede45fdd797cd7b656f0083fb0d44f509",
+    "bytes": 4472816
+  },
+  {
+    "path": "build/crow-v15-early-leg-balance-20261110/hip2.metallib",
+    "sha256": "6b18363cdd0ca16ffbf8f6eba1fe321f4c608bee2256c478f3effcba9cdb3d8d",
+    "bytes": 4472832
+  }
+]
