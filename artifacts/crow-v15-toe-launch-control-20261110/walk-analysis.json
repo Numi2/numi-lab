@@ -1,0 +1,102 @@
+{
+  "window": "2.00 to 4.00 seconds, 101 accepted endpoints",
+  "lanes": [
+    {
+      "lane": 0,
+      "net_forward_m": 0.043004625500000004,
+      "net_lateral_m": -0.0007854299000000006,
+      "max_abs_roll_deg": 1.6454462877233071,
+      "max_abs_pitch_deg": 1.8249595733383386,
+      "left_dominant_endpoints": 52,
+      "right_dominant_endpoints": 49,
+      "unloaded_endpoints": 0,
+      "dominant_load_changes": 8,
+      "nonfoot_ground_contacts": []
+    },
+    {
+      "lane": 1,
+      "net_forward_m": 0.042672762700000005,
+      "net_lateral_m": -0.0008675539999999995,
+      "max_abs_roll_deg": 1.621414411178402,
+      "max_abs_pitch_deg": 1.8175710580435103,
+      "left_dominant_endpoints": 50,
+      "right_dominant_endpoints": 51,
+      "unloaded_endpoints": 0,
+      "dominant_load_changes": 7,
+      "nonfoot_ground_contacts": []
+    },
+    {
+      "lane": 2,
+      "net_forward_m": 0.0426006168,
+      "net_lateral_m": -0.0007433826000000001,
+      "max_abs_roll_deg": 1.6235452554309011,
+      "max_abs_pitch_deg": 1.8241427121429905,
+      "left_dominant_endpoints": 50,
+      "right_dominant_endpoints": 51,
+      "unloaded_endpoints": 0,
+      "dominant_load_changes": 7,
+      "nonfoot_ground_contacts": []
+    },
+    {
+      "lane": 3,
+      "net_forward_m": 0.04267178565,
+      "net_lateral_m": -0.0004985296000000056,
+      "max_abs_roll_deg": 1.6495518041079225,
+      "max_abs_pitch_deg": 1.8218545862399638,
+      "left_dominant_endpoints": 50,
+      "right_dominant_endpoints": 51,
+      "unloaded_endpoints": 0,
+      "dominant_load_changes": 7,
+      "nonfoot_ground_contacts": []
+    },
+    {
+      "lane": 4,
+      "net_forward_m": 0.04282368348,
+      "net_lateral_m": -0.0008753425999999988,
+      "max_abs_roll_deg": 1.6256956565031309,
+      "max_abs_pitch_deg": 1.8255463653446182,
+      "left_dominant_endpoints": 50,
+      "right_dominant_endpoints": 51,
+      "unloaded_endpoints": 0,
+      "dominant_load_changes": 7,
+      "nonfoot_ground_contacts": []
+    },
+    {
+      "lane": 5,
+      "net_forward_m": 0.04295015613,
+      "net_lateral_m": -0.0006078119000000014,
+      "max_abs_roll_deg": 1.6394100323378442,
+      "max_abs_pitch_deg": 1.8246734518065082,
+      "left_dominant_endpoints": 50,
+      "right_dominant_endpoints": 51,
+      "unloaded_endpoints": 0,
+      "dominant_load_changes": 7,
+      "nonfoot_ground_contacts": []
+    },
+    {
+      "lane": 6,
+      "net_forward_m": 0.0428664945,
+      "net_lateral_m": -0.0008263625200000003,
+      "max_abs_roll_deg": 1.627508438115798,
+      "max_abs_pitch_deg": 1.8249225748382094,
+      "left_dominant_endpoints": 50,
+      "right_dominant_endpoints": 51,
+      "unloaded_endpoints": 0,
+      "dominant_load_changes": 7,
+      "nonfoot_ground_contacts": []
+    },
+    {
+      "lane": 7,
+      "net_forward_m": 0.04294572143,
+      "net_lateral_m": -0.0006710402999999983,
+      "max_abs_roll_deg": 1.633903120348554,
+      "max_abs_pitch_deg": 1.8103235374727613,
+      "left_dominant_endpoints": 52,
+      "right_dominant_endpoints": 49,
+      "unloaded_endpoints": 0,
+      "dominant_load_changes": 8,
+      "nonfoot_ground_contacts": []
+    }
+  ],
+  "scope": "contact-load and body-displacement observations only; load changes alone do not establish a natural gait or foot-contact-point slip"
+}

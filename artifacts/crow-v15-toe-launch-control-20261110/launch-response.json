@@ -1,0 +1,121 @@
+{
+  "arms": {
+    "control": [
+      {
+        "lane": 0,
+        "start_z": 0.163431108,
+        "peak_z": 0.163616687,
+        "peak_vz": 0.00125960913,
+        "first_qualifying_unloaded_upward": null
+      },
+      {
+        "lane": 1,
+        "start_z": 0.163437888,
+        "peak_z": 0.163633764,
+        "peak_vz": 0.00109672348,
+        "first_qualifying_unloaded_upward": null
+      },
+      {
+        "lane": 2,
+        "start_z": 0.163428172,
+        "peak_z": 0.163620278,
+        "peak_vz": 0.00137918745,
+        "first_qualifying_unloaded_upward": null
+      },
+      {
+        "lane": 3,
+        "start_z": 0.163435057,
+        "peak_z": 0.163634196,
+        "peak_vz": 0.00112019852,
+        "first_qualifying_unloaded_upward": null
+      },
+      {
+        "lane": 4,
+        "start_z": 0.163427949,
+        "peak_z": 0.163620278,
+        "peak_vz": 0.00135365047,
+        "first_qualifying_unloaded_upward": null
+      },
+      {
+        "lane": 5,
+        "start_z": 0.163436607,
+        "peak_z": 0.163620725,
+        "peak_vz": 0.00115969148,
+        "first_qualifying_unloaded_upward": null
+      },
+      {
+        "lane": 6,
+        "start_z": 0.163432881,
+        "peak_z": 0.163617566,
+        "peak_vz": 0.00124933,
+        "first_qualifying_unloaded_upward": null
+      },
+      {
+        "lane": 7,
+        "start_z": 0.16342923,
+        "peak_z": 0.163615629,
+        "peak_vz": 0.00129350473,
+        "first_qualifying_unloaded_upward": null
+      }
+    ],
+    "push": [
+      {
+        "lane": 0,
+        "start_z": 0.163431108,
+        "peak_z": 0.185878605,
+        "peak_vz": 0.420564204,
+        "first_qualifying_unloaded_upward": 255
+      },
+      {
+        "lane": 1,
+        "start_z": 0.163437888,
+        "peak_z": 0.186021015,
+        "peak_vz": 0.414542526,
+        "first_qualifying_unloaded_upward": 255
+      },
+      {
+        "lane": 2,
+        "start_z": 0.163428172,
+        "peak_z": 0.186313599,
+        "peak_vz": 0.425730705,
+        "first_qualifying_unloaded_upward": 255
+      },
+      {
+        "lane": 3,
+        "start_z": 0.163435057,
+        "peak_z": 0.186037913,
+        "peak_vz": 0.416665941,
+        "first_qualifying_unloaded_upward": 255
+      },
+      {
+        "lane": 4,
+        "start_z": 0.163427949,
+        "peak_z": 0.185921431,
+        "peak_vz": 0.421184987,
+        "first_qualifying_unloaded_upward": 255
+      },
+      {
+        "lane": 5,
+        "start_z": 0.163436607,
+        "peak_z": 0.186137781,
+        "peak_vz": 0.416078359,
+        "first_qualifying_unloaded_upward": 255
+      },
+      {
+        "lane": 6,
+        "start_z": 0.163432881,
+        "peak_z": 0.185949668,
+        "peak_vz": 0.421702772,
+        "first_qualifying_unloaded_upward": 255
+      },
+      {
+        "lane": 7,
+        "start_z": 0.16342923,
+        "peak_z": 0.185848072,
+        "peak_vz": 0.420186311,
+        "first_qualifying_unloaded_upward": 255
+      }
+    ]
+  },
+  "scope": "post-hoc secondary analysis, endpoint measurements; not prespecified gate"
+}
