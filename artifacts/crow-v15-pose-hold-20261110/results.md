@@ -1,0 +1,5 @@
+# Reached-pose handoff result
+
+The guided used-J episode reached five waypoint triggers and entered supported phase at step 3819. Retaining the flight leg targets removed the previous abrupt reset: sampled hip angles remained near -0.190 rad at steps 3820 and 3850 instead of changing to -0.120. However, the body still progressively pitched forward; it lost support and returned to flight phase at step 4059. At the 5000-step episode horizon it was airborne, with reported forward speed 2.72 m/s. The run had no reported physical or solver failure and no sampled nonfoot/perch contact, but did not satisfy stable landing.
+
+The longest continuous opposing bilateral toe-contact streak was 41 samples (0.82 s); the longest bilateral loaded streak was 208 samples. These sampled endpoints do not establish substep persistence. This is guided development on an exposed layout, with no intentional release or autonomous qualification. The following trial tests small hip corrections around the maintained pose; the present result does not establish that such corrections will work.
