@@ -1,0 +1,83 @@
+{
+  "j-placement": {
+    "first_fatal_contact": null,
+    "minimum_accepted_step_obstacle_clearance": {
+      "lane": 0,
+      "end_step": 7001,
+      "minimum_step": 2291,
+      "minimum_m": 0,
+      "bird_shape": "crow_left_wing/collision",
+      "obstacle_shape": "crow_course_slalom_a/collision",
+      "bird_body": "crow_left_wing",
+      "obstacle_body": "crow_course_slalom_a",
+      "sampling": "accepted_control_steps"
+    }
+  },
+  "i-placement": {
+    "first_fatal_contact": {
+      "step": 2188,
+      "position_m": [
+        2.59716058,
+        -0.0689395294,
+        0.846423686
+      ],
+      "orientation_xyzw": [
+        0.0112772295,
+        0.0218034871,
+        -0.119423367,
+        0.992539942
+      ],
+      "linear_velocity_m_s": [
+        0.198229983,
+        -0.154816315,
+        -0.14970988
+      ],
+      "angular_velocity_rad_s": [
+        -0.0721246749,
+        -0.0607493296,
+        -0.0232094433
+      ],
+      "policy_action": [
+        0.496589929,
+        -0.670621991,
+        -0.354853213,
+        -0.162872389,
+        0.594893157,
+        0.425206482,
+        0.0764331967,
+        0.350211561,
+        0.478458613,
+        -0.689570248,
+        -0.155615762,
+        0.914142728,
+        0.550954044,
+        -1,
+        -0.276933998,
+        0.728945434,
+        0,
+        0
+      ],
+      "contacts": [
+        {
+          "a": 6,
+          "a_name": "crow_right_wing",
+          "b": 28,
+          "b_name": "crow_course_slalom_a",
+          "normal_impulse": 0.00866787415,
+          "separation": 0.00172883621
+        }
+      ]
+    },
+    "minimum_accepted_step_obstacle_clearance": {
+      "lane": 0,
+      "end_step": 2188,
+      "minimum_step": 2188,
+      "minimum_m": 0.0017284957929,
+      "bird_shape": "crow_right_wing/collision",
+      "obstacle_shape": "crow_course_slalom_a/collision",
+      "bird_body": "crow_right_wing",
+      "obstacle_body": "crow_course_slalom_a",
+      "sampling": "accepted_control_steps"
+    }
+  }
+}
