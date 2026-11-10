@@ -1,0 +1,53 @@
+{
+  "remote_commit": "b8c96e6332e85585e98bece6cf6685341be21398",
+  "retired": [
+    {
+      "raw": "build/crow-v15-long-perch-host-20261110/i-clearance-recovery.json",
+      "archive": "artifacts/crow-v15-clearance-i-recovery-20261110/i-clearance-recovery.json.gz",
+      "sha256": "a038040eb3bafe79ab74ad33868034ebde442f5c2e824ae2ff4e9367b1aeff79",
+      "bytes": 225684499
+    },
+    {
+      "raw": "build/crow-v15-long-perch-host-20261110/i-clearance-recovery.tsv",
+      "archive": "artifacts/crow-v15-clearance-i-recovery-20261110/i-clearance-recovery.tsv.gz",
+      "sha256": "4f396994e63d915fffa73d407ca53862bea6ba4f7d8d856806106572b449163a",
+      "bytes": 5040629
+    },
+    {
+      "raw": "build/crow-v15-long-perch-host-20261110/i-clearance-recovery.rollout",
+      "archive": "artifacts/crow-v15-clearance-i-recovery-20261110/i-clearance-recovery.rollout.gz",
+      "sha256": "4ec157b96de1ba0dc5a1ba4be9b9541fedfd4dc99fcecee9d2d1fc89e42c199c",
+      "bytes": 27832928
+    },
+    {
+      "raw": "build/crow-v15-long-perch-host-20261110/i-clearance-retry.json",
+      "archive": "artifacts/crow-v15-clearance-i-retry-recovery-20261110/i-clearance-retry.json.gz",
+      "sha256": "7fa728f514fa66384e3a71a1a4c23fa83fd3f34774e11a80269f878a89d93d41",
+      "bytes": 229201230
+    },
+    {
+      "raw": "build/crow-v15-long-perch-host-20261110/i-clearance-retry.tsv",
+      "archive": "artifacts/crow-v15-clearance-i-retry-recovery-20261110/i-clearance-retry.tsv.gz",
+      "sha256": "60ca7ae37650365e60bec718a87c7e8c86a6ce3c8e32a7c6d4543190e85e4ea5",
+      "bytes": 5040148
+    },
+    {
+      "raw": "build/crow-v15-long-perch-host-20261110/i-clearance-retry.rollout",
+      "archive": "artifacts/crow-v15-clearance-i-retry-recovery-20261110/i-clearance-retry.rollout.gz",
+      "sha256": "ecb487a697d2135de2730b55f9104beaf61feeaf1b879a21acfdf7611ef5e65b",
+      "bytes": 27832928
+    },
+    {
+      "raw": "build/crow-v15-long-perch-host-20261110/soft-j-hard.json",
+      "archive": "artifacts/crow-v15-soft-front-grip-20261110/soft-j-hard.json.gz",
+      "sha256": "5fcca3871f756870be775f91dfb9be423c84a0aaf7b245ce3c01db5ed38e0095",
+      "bytes": 228251936
+    },
+    {
+      "raw": "build/crow-v15-long-perch-host-20261110/soft-j-hard.tsv",
+      "archive": "artifacts/crow-v15-soft-front-grip-20261110/soft-j-hard.tsv.gz",
+      "sha256": "5e03da5b32284d87fa3d3cc6ddee1a14cac77679374e6a2b68bb56efcf685e74",
+      "bytes": 5047249
+    }
+  ]
+}
