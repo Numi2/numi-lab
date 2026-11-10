@@ -1,0 +1,17 @@
+{
+  "remote_commit": "29c3c6336692b51532bd3162a5d30e2e547d7f77",
+  "retired": [
+    {
+      "raw": "artifacts/crow-v15-open-toe-impact-timestep-screen-20261110/results.txt",
+      "archive": "artifacts/crow-v15-open-toe-impact-timestep-screen-20261110/results.txt.gz",
+      "sha256": "7e4a9d0b4fa7bda2a695e24715bf303b12209deb1e77f6018c92751f2470dbe6",
+      "bytes": 329701
+    },
+    {
+      "raw": "artifacts/crow-v15-finer-contact-grip-screen-20261110/results.txt",
+      "archive": "artifacts/crow-v15-finer-contact-grip-screen-20261110/results.txt.gz",
+      "sha256": "f27cd219724089aa49da209d7f0b0fdf69b39b68f72e8af008b62f0f1ebc44e1",
+      "bytes": 1558112
+    }
+  ]
+}
