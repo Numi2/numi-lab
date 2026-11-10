@@ -1,0 +1,1 @@
+On two used development-layout starts, test a bounded velocity-damped approach and foot-centered contact handoff for 4500 steps with unchanged frozen flight controller and exact simulated foot state. Full autonomous flight actor remains out of distribution; teacher off. Evaluate supported landing and retained failure states.

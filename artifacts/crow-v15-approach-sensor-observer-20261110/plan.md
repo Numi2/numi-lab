@@ -1,0 +1,1 @@
+Observe accepted foot error, landing phase, and speed on a used J start with the experimental foot-handoff shader; compare sampled physical states against the ordinary host. Observer is diagnostic and supplies no force.

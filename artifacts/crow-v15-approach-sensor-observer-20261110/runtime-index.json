@@ -1,0 +1,12 @@
+[
+  {
+    "path": "build/crow-v15-approach-sensor-observer-20261110/libmetalrobo.dylib",
+    "sha256": "e32bb21fa264b39b017a18bb502726c04563d2ab1ea7713d894f92325d8c2905",
+    "bytes": 5763888
+  },
+  {
+    "path": "build/crow-v15-foot-handoff-20261110/handoff.metallib",
+    "sha256": "90413c981a3bf34ec9cb1998e840ba25401bdc9d737638a8a80ad2134053bcf5",
+    "bytes": 4472992
+  }
+]

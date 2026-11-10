@@ -1,0 +1,11 @@
+--- a/base.mm
++++ b/observer.mm
+@@ -20274,7 +20274,7 @@
+                 auto* states = static_cast<const MRTaskStateGPU*>(stateBuffer.contents);
+                 if (states != nullptr) for (std::uint32_t lane = 0; lane < pending->diagnostics.layout.dispatch.environmentCount; ++lane) {
+                     const auto& x = states[lane];
+-                    std::fprintf(stderr, "CROW_TASK_STATE %u %u %u %.9g %.9g %.9g\n", lane, x.episode.x, x.status.w, x.navigation.z, x.nutrition.x, x.nutrition.y);
++                    std::fprintf(stderr, "CROW_TASK_STATE %u %u %u %.9g %.9g %.9g %.9g %.9g %.9g\n", lane, x.episode.x, x.status.w, x.navigation.z, x.nutrition.x, x.nutrition.y, x.nutrition.z, x.threatTeacher.w, x.commandExtension.z);
+                 }
+             }
+             const auto end = std::chrono::steady_clock::now();

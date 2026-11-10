@@ -1,0 +1,20 @@
+--- a/footalign.metal
++++ b/handoff.metal
+@@ -4996,7 +4996,7 @@
+         if (fixedFlightController && dispatch.sampling.w==0u &&
+             state.navigation.z>=5.0f && state.threatTeacher.w<1.5f) {
+             // Bounded approach speed from accepted foot-to-goal error.
+-            actorCommand.x=clamp(0.10f+1.0f*state.nutrition.z,-0.05f,0.30f);
++            actorCommand.x=clamp(0.10f+0.65f*state.nutrition.z-0.60f*state.commandExtension.z,0.00f,0.20f);
+         }
+         const bool privilegedCommand = (dispatch.sampling.w != 0u && dispatch.assistance.x < 0.5f);
+         const float4 oracleCommand = privilegedCommand ? state.nutrition : actorCommand;
+@@ -6784,7 +6784,7 @@
+                     if ((group.members.z & MR_TASK_CONTACT_SUPPORT)!=0u &&
+                         compactContact[compactBase+group.members.w]>0.05f) ++loadedFeet;
+                 }
+-                if (loadedFeet>=2u && abs(finalGoal.x-pos.x)<0.06f &&
++                if (loadedFeet>=2u && abs(state.nutrition.z)<0.045f &&
+                     abs(finalGoal.y-pos.y)<0.16f && length(yawFrameLinear.xy)<0.08f &&
+                     abs(rootLinearVelocity.z)<0.12f) phase=2.0f;
+             }

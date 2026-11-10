@@ -1,0 +1,12 @@
+[
+  {
+    "path": "build/crow-v15-foot-handoff-20261110/handoff.metallib",
+    "sha256": "90413c981a3bf34ec9cb1998e840ba25401bdc9d737638a8a80ad2134053bcf5",
+    "bytes": 4472992
+  },
+  {
+    "path": "build/crow-v15-long-horizon-20261110/libmetalrobo.dylib",
+    "sha256": "63f0233c2b0285dcb222360e534f768992ae5fa9688fba429992a8fc380baa26",
+    "bytes": 5763888
+  }
+]
