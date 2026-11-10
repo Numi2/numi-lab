@@ -1,0 +1,12 @@
+[
+  {
+    "path": "build/crow-v15-feedback-recovery-20261110/teacher.metal",
+    "sha256": "1b99a7c2c12d750d379d67b83287ae58013455dbdee73d73e229976e7f5fa740",
+    "bytes": 425847
+  },
+  {
+    "path": "build/crow-v15-feedback-recovery-20261110/teacher.metallib",
+    "sha256": "4fe060a3ebba288f9a1ba52d0232074c270e8e5974fbc9d749ed15c10c3be063",
+    "bytes": 4485312
+  }
+]
