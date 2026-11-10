@@ -1,0 +1,3 @@
+# Estimated-wing gait and old-flight handoff
+
+The observer-on/off runs matched all 72 sampled q/v pairs. In both matched development seeds, all eight no-push lanes met the walking gates. In the push arm the analysis labeled 6/8 walking passes per seed because two lanes suffered first-episode physical failures later in the 900-step run; the whole-arm gate requires survival after walking. The push arm latched 8/8 early but had 0/8 remaining airborne at the final gate and two physical failures per seed. The old flight handoff therefore fails for this body. This is an obstacle-free comparison, and the endpoint contact-slip values are sampled estimates rather than continuous friction measurements. No autonomous route or biological claim follows.
