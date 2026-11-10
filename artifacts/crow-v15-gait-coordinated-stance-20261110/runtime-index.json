@@ -1,0 +1,22 @@
+[
+  {
+    "path": "build/crow-v15-gait-coordinated-stance-20261110/coord07520.metallib",
+    "sha256": "6d7dc70ebac13e1977158c373e40030224181eb3c79e3386c927deec4947d489",
+    "bytes": 4470944
+  },
+  {
+    "path": "build/crow-v15-gait-coordinated-stance-20261110/coord07535.metallib",
+    "sha256": "d2978f3ae2a6a25ac30cff45f50d40ecb7a45131a63ff1f09c2271614229cc6e",
+    "bytes": 4470944
+  },
+  {
+    "path": "build/crow-v15-gait-coordinated-stance-20261110/coord10020.metallib",
+    "sha256": "75c931b66d0bbc395e04a7135172050354527c060c0bb361cb929fbd76aa8854",
+    "bytes": 4470928
+  },
+  {
+    "path": "build/crow-v15-gait-coordinated-stance-20261110/coord10035.metallib",
+    "sha256": "b52c68b77e641e77bafbbf32d3007bfd3d02f38e9b3bef9c3825b4e977366f51",
+    "bytes": 4470928
+  }
+]

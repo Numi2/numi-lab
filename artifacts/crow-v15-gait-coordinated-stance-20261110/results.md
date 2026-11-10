@@ -1,0 +1,3 @@
+# Results
+
+All four coordinated support-joint candidates passed the unchanged 10-second development walk screen in 8/8 perturbed starts, with early leg-push latch and final airborne state in all lanes. The selected one-second, 0.35 support candidate advanced 0.1392-0.1395 m; worst stance slip p95 was 0.0362 m/s, the maximum sampled contact slip was 0.0743 m/s and each foot had at least nine qualifying swing runs. Observer parity had been independently checked on the same instrumentation in the sustained trial. These are developmental, obstacle-disabled, approximate endpoint measurements, and do not establish safe landing, navigation or biological realism; confirmation uses new seeds and paired no-push controls.
