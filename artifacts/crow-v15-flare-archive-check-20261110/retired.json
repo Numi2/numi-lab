@@ -1,0 +1,41 @@
+{
+  "remote_commit": "3ad0862e5a5150f2bcdcb22f6219f5a22ab216e3",
+  "retired": [
+    {
+      "raw": "build/crow-v15-ccd-budget-20261110/development-j-contact-flare.json",
+      "archive": "artifacts/crow-v15-contact-flare-20261110/development-j-contact-flare.json.gz",
+      "sha256": "b4fa5a430cf4a2f15f8d8cc28aa3cfeef58b1cba53d6c5f2ed1bd82f6410a63a",
+      "bytes": 165114088
+    },
+    {
+      "raw": "build/crow-v15-ccd-budget-20261110/development-j-contact-flare.tsv",
+      "archive": "artifacts/crow-v15-contact-flare-20261110/development-j-contact-flare.tsv.gz",
+      "sha256": "389298cb36e5bd704e393004af9c61ceea0a96561aa1415997b50a3d31e82527",
+      "bytes": 3609641
+    },
+    {
+      "raw": "build/crow-v15-ccd-budget-20261110/development-j-early-contact-flare.json",
+      "archive": "artifacts/crow-v15-early-contact-flare-20261110/development-j-early-contact-flare.json.gz",
+      "sha256": "b4fa5a430cf4a2f15f8d8cc28aa3cfeef58b1cba53d6c5f2ed1bd82f6410a63a",
+      "bytes": 165114088
+    },
+    {
+      "raw": "build/crow-v15-ccd-budget-20261110/development-j-early-contact-flare.tsv",
+      "archive": "artifacts/crow-v15-early-contact-flare-20261110/development-j-early-contact-flare.tsv.gz",
+      "sha256": "389298cb36e5bd704e393004af9c61ceea0a96561aa1415997b50a3d31e82527",
+      "bytes": 3609641
+    },
+    {
+      "raw": "build/crow-v15-ccd-budget-20261110/development-j-rebound-contact-flare.json",
+      "archive": "artifacts/crow-v15-rebound-contact-flare-20261110/development-j-rebound-contact-flare.json.gz",
+      "sha256": "9490237c97c0e38b2613995433d4d757383e8ba980cefeef04fb80e2c1e2ac95",
+      "bytes": 166890098
+    },
+    {
+      "raw": "build/crow-v15-ccd-budget-20261110/development-j-rebound-contact-flare.tsv",
+      "archive": "artifacts/crow-v15-rebound-contact-flare-20261110/development-j-rebound-contact-flare.tsv.gz",
+      "sha256": "3119b6360867491929cdde6ef15558d089bf265f247d40caab97e6330de43ac3",
+      "bytes": 3613896
+    }
+  ]
+}

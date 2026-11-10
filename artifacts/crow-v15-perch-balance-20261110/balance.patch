@@ -1,0 +1,13 @@
+--- a/teacher.metal
++++ b/teacher.metal
+@@ -5132,6 +5132,10 @@
+         // execution still has no teacher authority.
+         if (fixedFlightController && state.threatTeacher.w >= 1.5f && action < 15u)
+             navigationTeacherRequested = 0.0f;
++        if (fixedFlightController && state.threatTeacher.w >= 1.5f && (action == 7u || action == 10u)) {
++            const float supportError=(float((state.status.w >> 25u) & 127u)-64.0f)/500.0f;
++            navigationTeacherRequested=clamp(2.0f*supportError-0.9f*state.threatGeometry.z-0.15f*state.threatGeometry.w,-0.35f,0.35f);
++        }
+         const float navigationTeacherBlend = fixedFlightController
+             ? 1.0f
+             : avianNavigationTeacher

@@ -1,8 +1,5 @@
-# Results
+# Perch-balance correction rejected
 
-All trials below are teacher-off, full-start, collision-enabled development layout J. The prior actor is out of distribution after the camera correction. The figures are accepted endpoint contact samples and not biological or unused-layout qualification. All these arms physically failed before terminal supported landing.
+The guided first episode reached five waypoints and entered supported phase, but the new bilateral hip correction shortened the longest opposing grip streak from 118 to 21 samples. The first physical failure occurred at step 3889, with right wing/perch contact in support sample 3890 (0.0358 N s), earlier than the uncorrected catch's body/perch failure at step 4054. The predeclared stable-landing gate failed. The exact physical cause of the earlier fall is not established.
 
-```
-diagnostic-reserved-final-j-balance1 waypoints [5] end 2732 failure [True] support endpoints 195 longest 133 grip 71 longest 55 clearance 0.137235663736
-diagnostic-reserved-final-j-balance2 waypoints [5] end 2684 failure [True] support endpoints 141 longest 39 grip 1 longest 1 clearance 0.137235663736
-```
+Around phase entry, the recorded support-point code and body response varied sharply from one step to the next, and the hip/body motion diverged quickly from the uncorrected run. The direct use of this noisy, endpoint-based signal and high control authority are candidate causes, not proven conclusions. The static fixed-root kinematic direction alone did not predict the full contact dynamics. First-episode analysis stops before the automatic reset. This is an exploratory teacher-on result, not an autonomous, unseen-layout, or biological qualification.

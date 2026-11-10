@@ -1,10 +1,4 @@
-/Users/n/Developer/numi-crow-rl-20261107/build/crow-v15-perch-balance-20261110/balance1.metal:5494:21: warning: unused variable 'seconds' [-Wunused-variable]
+/Users/n/Developer/numi-crow-rl-20261107/build/crow-v15-perch-balance-20261110/teacher.metal:5534:21: warning: unused variable 'seconds' [-Wunused-variable]
         const float seconds=float(state.episode.x)*dispatch.timing.x;
                     ^
 1 warning generated.
-balance1 7bb905878122f9ac6346254c4345bf6132da300f41ef546c6b85e4c127b15c83
-/Users/n/Developer/numi-crow-rl-20261107/build/crow-v15-perch-balance-20261110/balance2.metal:5494:21: warning: unused variable 'seconds' [-Wunused-variable]
-        const float seconds=float(state.episode.x)*dispatch.timing.x;
-                    ^
-1 warning generated.
-balance2 ca6f98b17a75b8d0a79903dda0ff9e9c1a2b8f4dd0de8ca539f901c5a8079698
