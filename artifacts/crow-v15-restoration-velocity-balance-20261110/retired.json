@@ -1,0 +1,11 @@
+{
+  "remote_commit": "be8db397e9e09ca4252215dc737a214082054bda",
+  "retired": [
+    {
+      "raw": "artifacts/crow-v15-velocity-damped-perch-screen-20261110/results.txt",
+      "archive": "artifacts/crow-v15-velocity-damped-perch-screen-20261110/results.txt.gz",
+      "sha256": "4aff3f9ff0386d191e2dd2de17b63c147d4f22efd4b13291400a59da01da6157",
+      "bytes": 4365402
+    }
+  ]
+}
