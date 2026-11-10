@@ -1,0 +1,17 @@
+{
+  "remote_commit": "5b91fcbf640702ab4351b563aa640351c5ea072f",
+  "retired": [
+    {
+      "raw": "build/crow-v15-long-perch-host-20261110/j-original-16-rebound.json",
+      "archive": "artifacts/crow-v15-full-substep-sensitivity-20261110/j-original-16-rebound.json.gz",
+      "sha256": "c6c879361045f0902f5a33d10f58afcfab6275ea014b3629cf15d6653713a882",
+      "bytes": 237244123
+    },
+    {
+      "raw": "build/crow-v15-long-perch-host-20261110/j-original-16-rebound.tsv",
+      "archive": "artifacts/crow-v15-full-substep-sensitivity-20261110/j-original-16-rebound.tsv.gz",
+      "sha256": "0de1877ffde21630f41e5b78dd0853ec9ecdf55ab6b796ff675bbb6de39f5aff",
+      "bytes": 5088441
+    }
+  ]
+}
