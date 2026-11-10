@@ -1,0 +1,53 @@
+{
+  "remote_commit": "b024d4b18df30d26b31033dfb06188d3e6fbe48e",
+  "retired": [
+    {
+      "raw": "build/crow-v15-long-perch-host-20261110/clear-j-hard.json",
+      "archive": "artifacts/crow-v15-clearance-corrective-eval-20261110/clear-j-hard.json.gz",
+      "sha256": "96fa6865976ccf38b2438224d2d32dabc05f15bb37003cd0dc93da2ed8a9fbf7",
+      "bytes": 230222076
+    },
+    {
+      "raw": "build/crow-v15-long-perch-host-20261110/clear-j-hard.tsv",
+      "archive": "artifacts/crow-v15-clearance-corrective-eval-20261110/clear-j-hard.tsv.gz",
+      "sha256": "1a6f602c8f9a69546fcdab38e5a8dc8d141b91775e7492ec06841b4fcc1c6458",
+      "bytes": 5043560
+    },
+    {
+      "raw": "build/crow-v15-long-perch-host-20261110/clear-i-hard.json",
+      "archive": "artifacts/crow-v15-clearance-corrective-eval-20261110/clear-i-hard.json.gz",
+      "sha256": "f6081d84e704784c27fc01da9bfd792e7ca55b4ab8579baa43f287d5bbf55583",
+      "bytes": 229706034
+    },
+    {
+      "raw": "build/crow-v15-long-perch-host-20261110/clear-i-hard.tsv",
+      "archive": "artifacts/crow-v15-clearance-corrective-eval-20261110/clear-i-hard.tsv.gz",
+      "sha256": "d23e1a453d88111e99f4cb1b3d72e24f8a6913ad7fc2825194600c49317de247",
+      "bytes": 5026527
+    },
+    {
+      "raw": "build/crow-v15-long-perch-host-20261110/clear-j-original.json",
+      "archive": "artifacts/crow-v15-clearance-corrective-eval-20261110/clear-j-original.json.gz",
+      "sha256": "62a9bf571effc36dfa4a48da4d30238850b762ec671ba564d93daaad39129a7b",
+      "bytes": 228801312
+    },
+    {
+      "raw": "build/crow-v15-long-perch-host-20261110/clear-j-original.tsv",
+      "archive": "artifacts/crow-v15-clearance-corrective-eval-20261110/clear-j-original.tsv.gz",
+      "sha256": "b86a74e94b69138f65b4e23e29e85d1abf93fc34ad1f46fd11f09e9007904251",
+      "bytes": 5044159
+    },
+    {
+      "raw": "build/crow-v15-long-perch-host-20261110/clear-i-original.json",
+      "archive": "artifacts/crow-v15-clearance-corrective-eval-20261110/clear-i-original.json.gz",
+      "sha256": "2e185ee328e8d1150a1e0266184b29dd3ec093797f66d127ac084231a21b641d",
+      "bytes": 227385823
+    },
+    {
+      "raw": "build/crow-v15-long-perch-host-20261110/clear-i-original.tsv",
+      "archive": "artifacts/crow-v15-clearance-corrective-eval-20261110/clear-i-original.tsv.gz",
+      "sha256": "a7a4a91b018475f9763c73537c7ea8bace3f90190d7b57a76648c42d1287691a",
+      "bytes": 5044194
+    }
+  ]
+}
