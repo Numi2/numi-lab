@@ -1,0 +1,11 @@
+--- a/delayed-i.metal
++++ b/late-i.metal
+@@ -5030,7 +5030,7 @@
+             actorCommand.w=state.nutrition.w;
+         }
+         if (fixedFlightController && state.episode.z == 10u && float(state.episode.x)*dispatch.timing.x < 16.0f) { actorCommand.x = 0.70f; actorCommand.y = 0.0f; actorCommand.z = 0.0f; actorCommand.w = 0.30f; }
+-        const bool privilegedCommand = (dispatch.sampling.w != 0u && state.navigation.z < 5.0f && (dispatch.assistance.x < 0.5f || state.episode.x >= 1850u));
++        const bool privilegedCommand = (dispatch.sampling.w != 0u && state.navigation.z < 5.0f && (dispatch.assistance.x < 0.5f || state.episode.x >= 2000u));
+         // Foot support occupies nutrition.xy at the accepted-state boundary.
+         // In teacher mode, pack two millimetre-per-second-resolution commands
+         // into nutrition.z; heading is already published in commandExtension.x.
