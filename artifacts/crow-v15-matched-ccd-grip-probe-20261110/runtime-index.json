@@ -1,0 +1,32 @@
+[
+  {
+    "path": "build/crow-v15-matched-ccd-grip-probe-20261110/probe",
+    "sha256": "4a48b424de053044ecb185f578b2fdfdc9eefea716f4b48ea2138a785689bb3f",
+    "bytes": 101672
+  },
+  {
+    "path": "build/crow-v15-matched-ccd-grip-probe-20261110/smoke",
+    "sha256": "d100e3295e3c181b0023e5298f5ecfb6dcd8cdd2c13597face78ee77855d0b8a",
+    "bytes": 101608
+  },
+  {
+    "path": "build/crow-v15-matched-ccd-grip-probe-20261110/open-smoke",
+    "sha256": "c4f4493ac38ca3f0c0358acef06d649f08d364001845bd64f973cd72dd766fa7",
+    "bytes": 101608
+  },
+  {
+    "path": "build/lib/libmetalrobo.dylib",
+    "sha256": "d7dad802978b03d8571487dac644678d2c4c1a8eae5b8a4c5c57be261cfbe11a",
+    "bytes": 5728528
+  },
+  {
+    "path": "build/shaders/MetalRobo.metallib",
+    "sha256": "69023c5dcd83c3a10bdc62a5a14d3a9c56d75797de36c95ed090b0f41ef9e135",
+    "bytes": 4467648
+  },
+  {
+    "path": "build/crow-v15-alternating-foot-release-20261110/teacher.metallib",
+    "sha256": "a1fa801ac2f2ea5e557a54073b280039e5bb60422d8b5beb1cd90b2ec22c459b",
+    "bytes": 4485424
+  }
+]
