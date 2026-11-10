@@ -1,3 +1,5 @@
 # Second clearance correction on visited states
 
 If the new original-I student-state recovery qualifies, start from the four-start clearance actor and add only its pre-waypoint-five labels; retain other previously qualified demonstrations. Give the qualified recovery's post-takeover routing labels eight times the ordinary weight, addressing the prior training's underweighting of corrective actions, and anchor the initial actor on the successful hard-J, hard-I and original-J routing states plus the original-I prefix before the problematic turn. Fixed seed 20261113, one training run, no landing labels, original v15 and frozen low-level flight. Evaluate teacher off from full starts on all four development cases without resets. The minimum sampled 0.05 m clearance, physically supported landing, grip and release gates remain mandatory; loss alone is not success. Do not use K/L.
+
+The first new recovery failed terminal support and is excluded. If the bounded-retry recovery passes the same qualification, it may supply the planned corrective prefix; its privileged landing behavior remains excluded.

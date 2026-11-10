@@ -13,17 +13,18 @@ sources.append(('fresh_j','crow-v15-teacher-terminal-handoff-20261110','j-handof
 sources.extend([('paired_j','crow-v15-paired-j-recovery-20261110','j-paired-recovery',2050),('delayed_i','crow-v15-delayed-i-recovery-20261110','i-delayed-recovery',1850)])
 sources.extend([('clearance_i_original','crow-v15-anchored-i-recoveries-20261110','i-original-recovery',1850),('clearance_i_hard','crow-v15-anchored-i-recoveries-20261110','i-hard-recovery',2450)])
 sources.append(('second_i','crow-v15-clearance-i-recovery-20261110','i-clearance-recovery',1850))
+sources.append(('second_retry','crow-v15-clearance-i-retry-recovery-20261110','i-clearance-retry',1850))
 chunks=[];source_info=[];temps=[]
 sha=lambda p:hashlib.sha256(p.read_bytes()).hexdigest()
 for label,folder,name,takeover in sources:
- D=R/'artifacts'/folder;qual=json.loads((D/('i-recovery-qualification.json' if label=='fresh_i' else 'j-handoff-qualification.json' if label=='fresh_j' else name+'-qualification.json' if label in ('delayed_i','paired_j','clearance_i_original','clearance_i_hard','second_i') else 'qualification.json')).read_text())
+ D=R/'artifacts'/folder;qual=json.loads((D/('i-recovery-qualification.json' if label=='fresh_i' else 'j-handoff-qualification.json' if label=='fresh_j' else name+'-qualification.json' if label in ('delayed_i','paired_j','clearance_i_original','clearance_i_hard','second_i','second_retry') else 'qualification.json')).read_text())
  if label=='fresh_j': assert json.loads((D/'j-route-prefix-comparison.json').read_text())['exact_equal']
  if not qual['eligible_for_development_routing_prefix_training']:
   source_info.append({'source':label,'included':False,'reason':'failed qualification'});continue
  arc=D/(name+'.rollout.gz');raw=B/(name+'.training-tmp.rollout')
  with gzip.open(arc,'rb') as inp,raw.open('wb') as out:shutil.copyfileobj(inp,out)
  temps.append(raw);r=read_policy_rollout_pack(raw,library_path=str(lib));assert r.control_step_count==7000 and r.environment_count==1 and r.action_count==18
- obs=r.actor_observations.reshape(7000,1,r.actor_observation_count)[:,0,:];labels=r.teacher_actions.reshape(7000,1,18)[:,0,:];stage=r.outcome('navigation_waypoints_reached').reshape(7000,1)[:,0].astype(np.int32);end=(qual['nav5_step'] if label in ('fresh_i','fresh_j','delayed_i','paired_j','clearance_i_original','clearance_i_hard','second_i') else json.loads((D/'analysis.json').read_text())['nav5_step']);steps=np.arange(1,end-1,5)
+ obs=r.actor_observations.reshape(7000,1,r.actor_observation_count)[:,0,:];labels=r.teacher_actions.reshape(7000,1,18)[:,0,:];stage=r.outcome('navigation_waypoints_reached').reshape(7000,1)[:,0].astype(np.int32);end=(qual['nav5_step'] if label in ('fresh_i','fresh_j','delayed_i','paired_j','clearance_i_original','clearance_i_hard','second_i','second_retry') else json.loads((D/'analysis.json').read_text())['nav5_step']);steps=np.arange(1,end-1,5)
  assert np.all((stage[steps]>=0)&(stage[steps]<=4));x=obs[steps].copy();raw_labels=labels[steps].copy();y=raw_labels[:,:4].copy();ss=stage[steps];
  # Teacher writes the first four labels and duplicates them into the exact
  # active expert block. Decode that block from the rollout itself, avoiding
@@ -31,7 +32,7 @@ for label,folder,name,takeover in sources:
  matches=np.stack([np.all(np.isclose(raw_labels[:,4*k:4*k+4],y,rtol=0,atol=1e-7),axis=1) for k in (1,2,3)],axis=1)
  assert np.all(np.max(np.abs(y),axis=1)>1e-6) and np.all(matches.sum(axis=1)<=1), label
  groups=np.where(matches.any(axis=1),matches.argmax(axis=1)+1,0).astype(np.int32)
- expected=np.clip(ss-1,0,3); mismatch=int(np.sum(groups!=expected));factor=np.where((steps>=takeover-400)&(steps<takeover),8.,np.where(steps<takeover,4.,1.)).astype(np.float32);factor=np.where((label=='second_i') & (steps>=takeover),8.,factor).astype(np.float32);val=np.arange(len(steps))%5==0;assert np.isfinite(x).all() and np.isfinite(y).all() and np.max(np.abs(y))<=1.00001
+ expected=np.clip(ss-1,0,3); mismatch=int(np.sum(groups!=expected));factor=np.where((steps>=takeover-400)&(steps<takeover),8.,np.where(steps<takeover,4.,1.)).astype(np.float32);factor=np.where((label in ('second_i','second_retry')) & (steps>=takeover),8.,factor).astype(np.float32);val=np.arange(len(steps))%5==0;assert np.isfinite(x).all() and np.isfinite(y).all() and np.max(np.abs(y))<=1.00001
  chunks.append((x,y,ss,factor,val,groups));source_info.append({'source':label,'included':True,'rollout_sha256':sha(raw),'samples':len(steps),'end_before_waypoint_5_step':end,'student_takeover':takeover,'label_stage_mismatches':mismatch,'expert_group_counts':np.bincount(groups,minlength=4).tolist()})
 assert len(chunks)>=2
 x=np.concatenate([z[0] for z in chunks]);y=np.concatenate([z[1] for z in chunks]);s=np.concatenate([z[2] for z in chunks]);factor=np.concatenate([z[3] for z in chunks]);val=np.concatenate([z[4] for z in chunks]);groups=np.concatenate([z[5] for z in chunks]);groupmask=np.eye(4,dtype=np.float32)[groups];tr=~val;tot=np.bincount(s[tr],weights=factor[tr],minlength=5);assert np.all(tot>0);weights=(factor*sum(tr)/(5*tot[s])).astype(np.float32)
