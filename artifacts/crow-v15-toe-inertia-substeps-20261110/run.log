@@ -1,0 +1,12 @@
+Traceback (most recent call last):
+  File "/Users/n/Developer/numi-crow-rl-20261107/artifacts/crow-v15-toe-inertia-substeps-20261110/run.py", line 3, in <module>
+    from metalrobo.mlx_policy_learning import read_policy_pack
+  File "/Users/n/Developer/numi-crow-rl-20261107/python/metalrobo/mlx_policy_learning.py", line 18, in <module>
+    import mlx.core as mx
+ModuleNotFoundError: No module named 'mlx'
+zsh:1: no such file or directory: /Users/n/.local/bin/uv
+Installed 3 packages in 29ms
+original-16 pass 8 solver 0
+toe-16 pass 0 solver 0
+a5e6-16 pass 0 solver 0
+a5e7-16 pass 0 solver 0

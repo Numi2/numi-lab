@@ -1,0 +1,22 @@
+[
+  {
+    "path": "original-16/zero.policypack",
+    "sha256": "e721d13b4f6cd47579fb46bb553a6b341370fbeab642d57254861581990bf0b2",
+    "bytes": 2346381
+  },
+  {
+    "path": "toe-16/zero.policypack",
+    "sha256": "a2a244257c48946a5fa97532c5bb554e8665dff5aed84be2ce6590b2f16da7bf",
+    "bytes": 2346376
+  },
+  {
+    "path": "a5e6-16/zero.policypack",
+    "sha256": "42f67cfed9fe6b076ef1df5ed45e123839dd1cd134de976b630b7c440d8478fa",
+    "bytes": 2346377
+  },
+  {
+    "path": "a5e7-16/zero.policypack",
+    "sha256": "da3b525bea18db9191f359d47aa908d0c13ed0202698a6e85dc53100fcea98e2",
+    "bytes": 2346377
+  }
+]
