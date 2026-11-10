@@ -5,10 +5,12 @@ changes=[("const bool closing=state.navigation.z>=5.0f;","const bool closing=sta
                 if (state.navigation.z >= float(kCrowNavigationWaypointCount) && phase<2.5f && loadedFeet>=2u && abs(state.nutrition.z)<0.045f &&
                     abs(finalGoal.y-pos.y)<0.16f && length(yawFrameLinear.xy)<0.08f &&
                     abs(rootLinearVelocity.z)<0.12f) phase=2.0f;
-                if (phase < 1.5f) state.threatMetadata.x=0u;
-                else if (phase < 2.5f) {
-                    if (state.threatMetadata.x==0u || state.threatMetadata.x==MR_INVALID_INDEX) state.threatMetadata.x=state.episode.x;
-                    if (state.episode.x >= state.threatMetadata.x+200u && state.nutrition.x>0.10f && state.nutrition.y>0.10f && state.nutrition.x+state.nutrition.y>2.2f) phase=3.0f;
+                if (state.navigation.z >= float(kCrowNavigationWaypointCount)) {
+                    if (phase < 1.5f) state.threatMetadata.x=0u;
+                    else if (phase < 2.5f) {
+                        if (state.threatMetadata.x==0u || state.threatMetadata.x==MR_INVALID_INDEX) state.threatMetadata.x=state.episode.x;
+                        if (state.episode.x >= state.threatMetadata.x+200u && state.nutrition.x>0.10f && state.nutrition.y>0.10f && state.nutrition.x+state.nutrition.y>2.2f) phase=3.0f;
+                    }
                 }""")]
 for old,new in changes:
  assert s.count(old)==1,(old,s.count(old));s=s.replace(old,new)
