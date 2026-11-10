@@ -1,0 +1,12 @@
+[
+  {
+    "path": "build/crow-v15-approach-sensor-observer-20261110/libmetalrobo.dylib",
+    "sha256": "e32bb21fa264b39b017a18bb502726c04563d2ab1ea7713d894f92325d8c2905",
+    "bytes": 5763888
+  },
+  {
+    "path": "build/crow-v15-qualified-reverse-approach-20261110/reverseapproach.metallib",
+    "sha256": "d1c0dbb8ef42bde5f685fedd348f36f3c29a7a0d9d498579ef95cdf1e73bfc6e",
+    "bytes": 4473184
+  }
+]

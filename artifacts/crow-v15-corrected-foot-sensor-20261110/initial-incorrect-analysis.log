@@ -1,0 +1,5 @@
+sampled q/v parity: 30; mismatch: 0
+step 2300 foot_x 4.958073 expected_error 0.056927 accepted_error 0.018214 difference -0.038712 landing_phase 1
+step 2400 foot_x 5.011217 expected_error 0.003783 accepted_error -0.034713 difference -0.038496 landing_phase 1
+step 2500 foot_x 5.131244 expected_error -0.116244 accepted_error -0.153831 difference -0.037587 landing_phase 1
+step 3000 foot_x 5.088039 expected_error -0.073039 accepted_error -0.110550 difference -0.037511 landing_phase 1

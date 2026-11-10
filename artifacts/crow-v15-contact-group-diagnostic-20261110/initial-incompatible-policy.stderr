@@ -1,0 +1,6 @@
+CROW_GROUP 0 body 10 name crow_left_foot local 0 0 0 kinematic -0 -0 -0 flags 1
+CROW_GROUP 1 body 13 name crow_right_foot local 0 0 0 kinematic -0 -0 -0 flags 1
+CROW_GROUP 2 body 0 name crow_body local 0 0 0 kinematic -0 -0 -0 flags 2
+CROW_GROUP 3 body 20 name crow_left_rear_toe local 0 0 0 kinematic -0 -0 -0 flags 0
+CROW_GROUP 4 body 24 name crow_right_rear_toe local 0 0 0 kinematic -0 -0 -0 flags 0
+task_rollout failed: PolicyPack compile failed [incompatible_contract]: contract: policy=(world=6021730374790991781,task=10988855769487948089,observation=8588014222652259151,action=6005873349814557909) task=(world=14756498750553783121,task=16379296818592594704,observation=2620954797575719431,action=16304203786693510984)

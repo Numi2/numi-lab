@@ -1,0 +1,5 @@
+CROW_GROUP 0 body 10 name crow_left_foot local 0 0 0 kinematic -0 -0 -0 flags 1
+CROW_GROUP 1 body 13 name crow_right_foot local 0 0 0 kinematic -0 -0 -0 flags 1
+CROW_GROUP 2 body 0 name crow_body local 0 0 0 kinematic -0 -0 -0 flags 2
+CROW_GROUP 3 body 20 name crow_left_rear_toe local 0 0 0 kinematic -0 -0 -0 flags 0
+CROW_GROUP 4 body 24 name crow_right_rear_toe local 0 0 0 kinematic -0 -0 -0 flags 0

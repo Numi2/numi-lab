@@ -1,0 +1,58 @@
+[
+  {
+    "retired": "build/crow-v15-route-cross-behind-20261110/reserved-final-i.tsv",
+    "archived": "artifacts/crow-v15-route-cross-behind-20261110/reserved-final-i.tsv.gz",
+    "sha256": "25f6c9e7d501f50282fce29f9687c8e7d0c637928e59f6775a5f47b7a0de18d9",
+    "bytes": 2180455,
+    "verified_restored_commit": "1c2ea22c41c109652e6b8d9caa5b9ba5c7cac000"
+  },
+  {
+    "retired": "build/crow-v15-route-cross-behind-20261110/reserved-final-j.tsv",
+    "archived": "artifacts/crow-v15-route-cross-behind-20261110/reserved-final-j.tsv.gz",
+    "sha256": "b4f993580fb587be410c56c41d2c741aa2d24422f0517878e0ec72c2a3923da3",
+    "bytes": 2187810,
+    "verified_restored_commit": "1c2ea22c41c109652e6b8d9caa5b9ba5c7cac000"
+  },
+  {
+    "retired": "build/crow-v15-integrated-route-baseline-20261110/diagnostic-reserved-final-j-hip1-3193706597.tsv",
+    "archived": "artifacts/crow-v15-early-leg-balance-20261110/diagnostic-reserved-final-j-hip1-3193706597.tsv.gz",
+    "sha256": "6ee6d56afbb56b3a5a5b785fc1b8803ae6fc3c738e747e61c4ec5bb98b2dbe70",
+    "bytes": 2185594,
+    "verified_restored_commit": "1c2ea22c41c109652e6b8d9caa5b9ba5c7cac000"
+  },
+  {
+    "retired": "build/crow-v15-integrated-route-baseline-20261110/diagnostic-reserved-final-j-hip1-2999574297.json",
+    "archived": "artifacts/crow-v15-early-leg-balance-20261110/diagnostic-reserved-final-j-hip1-2999574297.json.gz",
+    "sha256": "984c845caafd3c0d1aab1e2aba40c42eb5e6603b14b5d6c283672796da2090a7",
+    "bytes": 99965279,
+    "verified_restored_commit": "1c2ea22c41c109652e6b8d9caa5b9ba5c7cac000"
+  },
+  {
+    "retired": "build/crow-v15-integrated-route-baseline-20261110/diagnostic-reserved-final-j-hip1-3193706597.json",
+    "archived": "artifacts/crow-v15-early-leg-balance-20261110/diagnostic-reserved-final-j-hip1-3193706597.json.gz",
+    "sha256": "cd3a462fd5a541f95142f6cf96f2bd0993e91d0c7f93f97afce45e26253fb3b5",
+    "bytes": 99613938,
+    "verified_restored_commit": "1c2ea22c41c109652e6b8d9caa5b9ba5c7cac000"
+  },
+  {
+    "retired": "build/crow-v15-integrated-route-baseline-20261110/diagnostic-reserved-final-j-hip1-2999574297.tsv",
+    "archived": "artifacts/crow-v15-early-leg-balance-20261110/diagnostic-reserved-final-j-hip1-2999574297.tsv.gz",
+    "sha256": "ac8cf606ebc7bb2f342ecce8df2b364796bdc4e9f25f9c41bec9249932a8f645",
+    "bytes": 2189000,
+    "verified_restored_commit": "1c2ea22c41c109652e6b8d9caa5b9ba5c7cac000"
+  },
+  {
+    "retired": "build/crow-v15-integrated-route-baseline-20261110/diagnostic-reserved-final-j-hip2-2999574297.json",
+    "archived": "artifacts/crow-v15-early-leg-balance-20261110/diagnostic-reserved-final-j-hip2-2999574297.json.gz",
+    "sha256": "b0d0a5f06cda0e3c7180857b6f90bf150ab22d73e6f7309e87eacfa4bad79dba",
+    "bytes": 100087764,
+    "verified_restored_commit": "1c2ea22c41c109652e6b8d9caa5b9ba5c7cac000"
+  },
+  {
+    "retired": "build/crow-v15-integrated-route-baseline-20261110/diagnostic-reserved-final-j-hip2-2999574297.tsv",
+    "archived": "artifacts/crow-v15-early-leg-balance-20261110/diagnostic-reserved-final-j-hip2-2999574297.tsv.gz",
+    "sha256": "9860b92c3ec2083e651bbdeb3799f1b1a4e2d128bf001b82fee48712ea2d2ae3",
+    "bytes": 2189588,
+    "verified_restored_commit": "1c2ea22c41c109652e6b8d9caa5b9ba5c7cac000"
+  }
+]

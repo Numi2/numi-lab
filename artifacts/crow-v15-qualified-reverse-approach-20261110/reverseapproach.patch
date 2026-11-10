@@ -1,0 +1,11 @@
+--- a/referencefix.metal
++++ b/reverseapproach.metal
+@@ -4996,7 +4996,7 @@
+         if (fixedFlightController && dispatch.sampling.w==0u &&
+             state.navigation.z>=4.0f && state.threatTeacher.w<1.5f && state.nutrition.z<0.40f) {
+             // Slow toward the physical foot joint using accepted state.
+-            actorCommand.x=clamp(0.10f+0.80f*state.nutrition.z-0.80f*state.commandExtension.z,-0.05f,0.20f);
++            actorCommand.x=clamp(0.10f+0.80f*state.nutrition.z-0.80f*state.commandExtension.z,-0.15f,0.20f);
+         }
+         const bool privilegedCommand = (dispatch.sampling.w != 0u && dispatch.assistance.x < 0.5f);
+         const float4 oracleCommand = privilegedCommand ? state.nutrition : actorCommand;

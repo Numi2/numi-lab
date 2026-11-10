@@ -1,0 +1,17 @@
+--- a/base.cpp
++++ b/groups.cpp
+@@ -3645,6 +3645,14 @@
+             std::move(manifest), metallib_path,
+             "BirdFlow American-crow estimated hybrid", retinal ? nullptr : visual_sensor,nullptr,std::move(resources)
+         );
++        if (std::getenv("CROW_GROUP_DIAGNOSTIC")) {
++            const auto& model=handle->run.model();
++            const auto& groups=handle->taskProgram.contactGroups();
++            for (std::size_t i=0;i<groups.size();++i) {
++                const auto& g=groups[i];auto b=g.reference.x;
++                std::fprintf(stderr,"CROW_GROUP %zu body %u name %s local %.9g %.9g %.9g kinematic %.9g %.9g %.9g flags %u\n",i,b,b<model.bodyNames.size()?model.bodyNames[b].c_str():"invalid",g.localReference.x,g.localReference.y,g.localReference.z,g.kinematicReference.x,g.kinematicReference.y,g.kinematicReference.z,g.members.z);
++            }
++        }
+         if (feeding && !cueConfig) {
+             handle->resourceRuntime=std::make_unique<metalrobo::FiniteResourceContext>(
+                 metalrobo::makeAmericanCrowFeedingResourceConfig(handle->run,config->environment_count));

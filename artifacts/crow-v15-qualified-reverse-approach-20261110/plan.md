@@ -1,0 +1,1 @@
+Permit the bounded encoded speed command down to -0.25 m/s, demonstrated for the frozen v15 law in a 40-lane obstacle-free screen. Test two used J starts for 4500 continuous steps with true foot joint reference and teacher off. Require supported landing and opposing toe grip; reverse flight qualification does not itself establish landing.

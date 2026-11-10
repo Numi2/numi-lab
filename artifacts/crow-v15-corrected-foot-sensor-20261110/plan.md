@@ -1,0 +1,1 @@
+Observe corrected accepted foot-joint error and verify it against independent forward kinematics at matched states. Compare q/v with the normal host. The test uses the qualified reverse approach on a used development J start and does not qualify landing.

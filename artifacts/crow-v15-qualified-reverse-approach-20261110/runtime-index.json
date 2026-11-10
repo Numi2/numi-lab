@@ -1,0 +1,12 @@
+[
+  {
+    "path": "build/crow-v15-qualified-reverse-approach-20261110/reverseapproach.metallib",
+    "sha256": "d1c0dbb8ef42bde5f685fedd348f36f3c29a7a0d9d498579ef95cdf1e73bfc6e",
+    "bytes": 4473184
+  },
+  {
+    "path": "build/crow-v15-long-horizon-20261110/libmetalrobo.dylib",
+    "sha256": "63f0233c2b0285dcb222360e534f768992ae5fa9688fba429992a8fc380baa26",
+    "bytes": 5763888
+  }
+]

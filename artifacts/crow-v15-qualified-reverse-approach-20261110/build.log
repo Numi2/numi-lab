@@ -1,0 +1,5 @@
+/Users/n/Developer/numi-crow-rl-20261107/build/crow-v15-qualified-reverse-approach-20261110/reverseapproach.metal:5494:21: warning: unused variable 'seconds' [-Wunused-variable]
+        const float seconds=float(state.episode.x)*dispatch.timing.x;
+                    ^
+1 warning generated.
+d1c0dbb8ef42bde5f685fedd348f36f3c29a7a0d9d498579ef95cdf1e73bfc6e
