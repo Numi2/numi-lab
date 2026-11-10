@@ -1,0 +1,11 @@
+{
+  "remote_commit": "41f6176c632a0d2bbb02ae496c93fbb23d181176",
+  "retired": [
+    {
+      "raw": "artifacts/crow-v15-rear-toe-hold-regulation-20261110/results.txt",
+      "archive": "artifacts/crow-v15-rear-toe-hold-regulation-20261110/results.txt.gz",
+      "sha256": "b86057885342df10dc7ac61ab1401c6956b4090599d0b7059dc5d2a88f0b2f3e",
+      "bytes": 2958948
+    }
+  ]
+}
