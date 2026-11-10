@@ -1,0 +1,55 @@
+--- a/speed-mapping.metal
++++ b/planar-guidance.metal
+@@ -4998,7 +4998,13 @@
+         if (fixedFlightController && !privilegedCommand && state.episode.z==10u && dispatch.counts.w==30u && state.navigation.z>=5.0f && state.threatTeacher.w<1.5f) {
+             // Delayed, quantized simulation-state feedback; experiment only.
+             const float footError=float(int((state.status.w>>13u)&1023u)-512)*0.001f;
+-            oracleCommand.x=0.10f+clamp(0.45f*footError-0.7f*state.commandExtension.z,-0.12f,0.12f);
++            const float footErrorY=float(int((state.status.w>>23u)&511u)-256)*0.004f;
++            const float heading=-state.commandExtension.x;
++            const float c=cos(heading), sy=sin(heading);
++            const float forwardError=c*footError+sy*footErrorY;
++            const float lateralError=-sy*footError+c*footErrorY;
++            oracleCommand.x=0.10f+clamp(0.45f*forwardError-0.7f*state.commandExtension.z,-0.12f,0.12f);
++            oracleCommand.y=clamp(0.45f*lateralError-0.7f*state.threatTeacher.x,-0.12f,0.12f);
+             if(state.threatTeacher.w<0.5f) oracleCommand.w=1.20f;
+         }
+         carrierState.commandAndPhase.x = 0.15f;
+@@ -5493,7 +5499,7 @@
+     if ((program.schedule.w & MR_TASK_PROGRAM_AVIAN_CROW_HIERARCHICAL_NAVIGATION) != 0u &&
+         state.episode.z == 10u && program.counts0.w >= 5u && dispatch.counts.w == 30u) {
+         const float seconds=float(state.episode.x)*dispatch.timing.x;
+-        const bool closing=state.navigation.z>=5.0f && seconds<45.0f;
++        const bool closing=state.navigation.z>=5.0f && seconds<55.0f;
+         for (uint side=0u;side<2u;++side) {
+             const uint ramp=(state.status.w>>(side*6u)) & 63u;
+             for (uint toe=0u;toe<4u;++toe) {
+@@ -6765,7 +6771,8 @@
+                 // obstacle collision geometry or teacher route is consulted.
+                 const float3 finalGoal=crowNavigationWaypointTarget(sceneState+sceneBase,course,4u);
+                 const float footX=0.5f*(bodyStates[bodyBase+contactGroups[0].reference.x].position.x+bodyStates[bodyBase+contactGroups[1].reference.x].position.x);
+-                if (phase < 0.5f && abs(finalGoal.x-footX)<0.025f && abs(finalGoal.y-pos.y)<0.08f &&
++                const float footY=0.5f*(bodyStates[bodyBase+contactGroups[0].reference.x].position.y+bodyStates[bodyBase+contactGroups[1].reference.x].position.y);
++                if (phase < 0.5f && abs(finalGoal.x-footX)<0.025f && abs(finalGoal.y-footY)<0.08f &&
+                     length(yawFrameLinear.xy)<0.08f) phase=1.0f;
+                 uint loadedFeet=0u;
+                 for (uint gi=0u;gi<program.counts0.w;++gi) {
+@@ -9328,7 +9335,7 @@
+             uint packed=state.status.w & 4096u;
+             if (seconds>=4.96f && seconds<5.4f && state.nutrition.x<0.05f && state.nutrition.y<0.05f && rootLinearVelocity.z>0.03f) packed |= 4096u;
+             if (seconds>=5.4f) packed &= ~4096u;
+-            if (state.navigation.z>=5.0f && seconds<45.0f) {
++            if (state.navigation.z>=5.0f && seconds<55.0f) {
+                 for (uint side=0u;side<2u;++side) {
+                     const uint w=compactBase+contactGroups[3u+side].reference.y;
+                     const float3 force=float3(compactContact[w],compactContact[w+1u],compactContact[w+2u]);
+@@ -9350,6 +9357,9 @@
+                     const float footX=0.5f*(bodyStates[bodyBase+contactGroups[0].reference.x].position.x+bodyStates[bodyBase+contactGroups[1].reference.x].position.x);
+                     const int mm=int(round(clamp(goal.x-footX,-0.5f,0.5f)*1000.0f));
+                     packed |= uint(mm+512) << 13u;
++                    const float footY=0.5f*(bodyStates[bodyBase+contactGroups[0].reference.x].position.y+bodyStates[bodyBase+contactGroups[1].reference.x].position.y);
++                    const int y4mm=int(round(clamp(goal.y-footY,-1.0f,1.0f)*250.0f));
++                    packed |= uint(y4mm+256) << 23u;
+                 }
+             }
+             state.status.w=packed;
