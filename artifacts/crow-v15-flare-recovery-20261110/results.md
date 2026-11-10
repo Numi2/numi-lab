@@ -1,0 +1,3 @@
+# Flare recovery trial
+
+The guided first episode on previously used development J, seed 3193706597, reached all five waypoints at step 2784 and continued to 5000 steps without recorded physical failure or nonfoot perch impact. It did not achieve a supported landing: only seven sampled endpoints had both feet loaded, the longest run was two, and no supported-phase or simultaneous opposed-toe-force sample occurred. Immediate flare exit upon unloading reduced the flare to three sampled endpoints. The crow made repeated brief contacts and was airborne at the horizon. The earlier collision is avoided in this one trial, but the preregistered supported landing criterion failed. This remains a privileged development run, not autonomy or unused-layout validation.
