@@ -1,0 +1,11 @@
+/Users/n/Developer/numi-crow-rl-20261107/artifacts/crow-v15-perch-dynamics-audit-20261111/perch_probe.cpp:2:10: fatal error: 'toe_model.cpp' file not found
+    2 | #include "toe_model.cpp"
+      |          ^~~~~~~~~~~~~~~
+1 error generated.
+diagnostic_library_sha256 deec89da47d03dbbeee46fe423c1502ee178c0beda62d9a930794a7ca0212a06
+Traceback (most recent call last):
+  File "/Users/n/Developer/numi-crow-rl-20261107/artifacts/crow-v15-perch-dynamics-audit-20261111/build.py", line 44, in <module>
+    subprocess.run(['xcrun','clang++','-std=c++20','-O2','-I','include','-I','artifacts/crow-v15-wing-inertia-prototype-20261110',str(A/'perch_probe.cpp'),'-L',str(B),'-lmetalrobo','-Wl,-rpath,'+str(B),'-o',str(B/'probe')],cwd=R,check=True)
+  File "/Applications/Xcode-26.6.0.app/Contents/Developer/Library/Frameworks/Python3.framework/Versions/3.9/lib/python3.9/subprocess.py", line 528, in run
+    raise CalledProcessError(retcode, process.args,
+subprocess.CalledProcessError: Command '['xcrun', 'clang++', '-std=c++20', '-O2', '-I', 'include', '-I', 'artifacts/crow-v15-wing-inertia-prototype-20261110', '/Users/n/Developer/numi-crow-rl-20261107/artifacts/crow-v15-perch-dynamics-audit-20261111/perch_probe.cpp', '-L', '/Users/n/Developer/numi-crow-rl-20261107/build/crow-v15-perch-dynamics-audit-20261111', '-lmetalrobo', '-Wl,-rpath,/Users/n/Developer/numi-crow-rl-20261107/build/crow-v15-perch-dynamics-audit-20261111', '-o', '/Users/n/Developer/numi-crow-rl-20261107/build/crow-v15-perch-dynamics-audit-20261111/probe']' returned non-zero exit status 1.
