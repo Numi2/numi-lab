@@ -1,0 +1,3 @@
+# Trace timestamp alignment
+
+The support diagnostic labels the post-control state one step later than the replay frame label: e.g. support sample 4395 has root vertical velocity 0.354617 m/s, matching replay frame 4394. The task-state diagnostic similarly labels the 4394 substep impulse with episode step 4393. Thus the previously reported 2.399 mm separating-axis gap is replay frame 4392 (corresponding to support/control sample 4393), not necessarily a same-labeled simultaneous control sample. It still precedes the independently observed contact at submission 4394. The numerical impulse values, full-trace parity and mismatch in endpoint-versus-substep sensing remain unchanged. Always apply this one-step alignment when joining these streams.

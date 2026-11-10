@@ -1,0 +1,114 @@
+[
+  {
+    "lane": 0,
+    "side": 0,
+    "impulse_free_all_substeps_count": 1215,
+    "maximum_abs_toe_angle_rad": 0.000310984906,
+    "step": 2711
+  },
+  {
+    "lane": 0,
+    "side": 1,
+    "impulse_free_all_substeps_count": 1182,
+    "maximum_abs_toe_angle_rad": 0.00031100816,
+    "step": 2711
+  },
+  {
+    "lane": 1,
+    "side": 0,
+    "impulse_free_all_substeps_count": 1237,
+    "maximum_abs_toe_angle_rad": 0.000310962903,
+    "step": 4128
+  },
+  {
+    "lane": 1,
+    "side": 1,
+    "impulse_free_all_substeps_count": 1236,
+    "maximum_abs_toe_angle_rad": 0.000310804055,
+    "step": 4128
+  },
+  {
+    "lane": 2,
+    "side": 0,
+    "impulse_free_all_substeps_count": 1439,
+    "maximum_abs_toe_angle_rad": 0.000318520091,
+    "step": 2722
+  },
+  {
+    "lane": 2,
+    "side": 1,
+    "impulse_free_all_substeps_count": 1351,
+    "maximum_abs_toe_angle_rad": 0.000305794121,
+    "step": 3563
+  },
+  {
+    "lane": 3,
+    "side": 0,
+    "impulse_free_all_substeps_count": 1345,
+    "maximum_abs_toe_angle_rad": 0.000307441194,
+    "step": 2668
+  },
+  {
+    "lane": 3,
+    "side": 1,
+    "impulse_free_all_substeps_count": 1267,
+    "maximum_abs_toe_angle_rad": 0.000298078812,
+    "step": 3820
+  },
+  {
+    "lane": 4,
+    "side": 0,
+    "impulse_free_all_substeps_count": 1417,
+    "maximum_abs_toe_angle_rad": 0.000308332033,
+    "step": 3657
+  },
+  {
+    "lane": 4,
+    "side": 1,
+    "impulse_free_all_substeps_count": 1280,
+    "maximum_abs_toe_angle_rad": 0.000306630041,
+    "step": 2668
+  },
+  {
+    "lane": 5,
+    "side": 0,
+    "impulse_free_all_substeps_count": 1272,
+    "maximum_abs_toe_angle_rad": 0.000311277166,
+    "step": 3922
+  },
+  {
+    "lane": 5,
+    "side": 1,
+    "impulse_free_all_substeps_count": 1271,
+    "maximum_abs_toe_angle_rad": 0.000311235664,
+    "step": 3922
+  },
+  {
+    "lane": 6,
+    "side": 0,
+    "impulse_free_all_substeps_count": 1208,
+    "maximum_abs_toe_angle_rad": 0.000305379828,
+    "step": 3660
+  },
+  {
+    "lane": 6,
+    "side": 1,
+    "impulse_free_all_substeps_count": 1107,
+    "maximum_abs_toe_angle_rad": 0.00030466076,
+    "step": 2755
+  },
+  {
+    "lane": 7,
+    "side": 0,
+    "impulse_free_all_substeps_count": 1493,
+    "maximum_abs_toe_angle_rad": 0.000304961111,
+    "step": 3487
+  },
+  {
+    "lane": 7,
+    "side": 1,
+    "impulse_free_all_substeps_count": 1418,
+    "maximum_abs_toe_angle_rad": 0.000305008201,
+    "step": 3487
+  }
+]

@@ -1,0 +1,3 @@
+# Result
+
+Twelve of 16 privileged development episodes survived 4500 steps; all reached five waypoints with no solver failure. The longest bilateral averaged-load streak was three steps, no lane entered landed mode, and no endpoint had bilateral opposing toe grip. The loading and grip predictions failed. The intentional rear-toe partial curl remained visible during some unsupported approach samples (largest sampled absolute angles about 0.466 rad under the endpoint-candidate-free check); the target is therefore unsuitable as a general free-flight posture. This speculative approach-preparation variant is rejected and does not prove supported landing, intentional release, or autonomy.

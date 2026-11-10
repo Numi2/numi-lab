@@ -1,0 +1,19 @@
+--- a/teacher.metal
++++ b/teacher.metal
+@@ -5533,7 +5533,7 @@
+             const uint ramp=(state.status.w>>(side*6u)) & 63u;
+             const uint rearRamp=(state.status.w>>(13u+side*6u)) & 63u;
+             for (uint toe=0u;toe<4u;++toe) {
+-                const float target=!closing ? 0.0f : toe==3u ? min(0.020f*float(rearRamp),0.85f) : min(0.025f*float(ramp),clamp(1.12f-0.8f*state.threatGeometry.z-0.80f*state.threatGeometry.w-2.0f*state.commandExtension.z,0.85f,1.20f));
++                const float target=!closing ? 0.0f : toe==3u ? max(min(0.020f*float(rearRamp),0.85f),state.threatTeacher.w>1.05f && state.threatTeacher.w<1.5f ? 0.45f : 0.0f) : min(0.025f*float(ramp),clamp(1.12f-0.8f*state.threatGeometry.z-0.80f*state.threatGeometry.w-2.0f*state.commandExtension.z,0.85f,1.20f));
+                 effortTrajectory[pass.controlStep*worldDispatch.effortStepStride + environment*worldDispatch.effortEnvironmentStride + 22u + side*4u + toe]=target;
+             }
+         }
+@@ -6787,6 +6787,7 @@
+                     length(yawFrameLinear.xy) < 0.08f &&
+                     abs(rootLinearVelocity.z) < 0.12f) landingPhase=2.0f;
+                 desiredHeight = landingPhase > 0.5f ? max(perch.z+0.245f,state.nutrition.w-0.025f*dispatch.timing.x) : 1.30f;
++                if (landingPhase >= 1.0f && landingPhase < 1.5f) landingPhase = desiredHeight <= perch.z+0.248f && abs(pos.z-desiredHeight)<0.10f ? 1.1f : 1.0f;
+             }
+             // Oracle labels occupy diagnostic spare state only; these will
+             // become independently fingerprinted actor commands, not sensors.
