@@ -1,0 +1,162 @@
+{
+  "0": {
+    "hip_target_delta_rad": -0.06,
+    "status": "completed",
+    "sample_count": 80,
+    "start": {
+      "x": 5.02021,
+      "z": 1.04683,
+      "pitch": 0.05591288382982935,
+      "vx": -0.0167381,
+      "vz": 0.0436219,
+      "pitch_rate": 0.32453,
+      "hips": [
+        -0.195352,
+        -0.19455
+      ]
+    },
+    "end": {
+      "x": 5.01505,
+      "z": 1.04708,
+      "pitch": 0.08295854248000305,
+      "vx": 0.00911311,
+      "vz": 0.0319158,
+      "pitch_rate": -0.0742413,
+      "hips": [
+        -0.250091,
+        -0.250095
+      ]
+    },
+    "opposed_supported_samples": 70,
+    "longest_opposed_supported_streak": 39,
+    "nonfoot_impulse_Ns": 0.0
+  },
+  "1": {
+    "hip_target_delta_rad": -0.03,
+    "status": "completed",
+    "sample_count": 80,
+    "start": {
+      "x": 5.02021,
+      "z": 1.04683,
+      "pitch": 0.05591288382982935,
+      "vx": -0.0167381,
+      "vz": 0.0436219,
+      "pitch_rate": 0.32453,
+      "hips": [
+        -0.195352,
+        -0.19455
+      ]
+    },
+    "end": {
+      "x": 5.0183,
+      "z": 1.04691,
+      "pitch": 0.0775298995245882,
+      "vx": -0.0024711,
+      "vz": 0.0434459,
+      "pitch_rate": -0.0364538,
+      "hips": [
+        -0.220113,
+        -0.220124
+      ]
+    },
+    "opposed_supported_samples": 75,
+    "longest_opposed_supported_streak": 54,
+    "nonfoot_impulse_Ns": 0.0
+  },
+  "2": {
+    "hip_target_delta_rad": 0,
+    "status": "completed",
+    "sample_count": 80,
+    "start": {
+      "x": 5.02025,
+      "z": 1.04683,
+      "pitch": 0.055636181837542986,
+      "vx": 0.00614346,
+      "vz": 0.0674098,
+      "pitch_rate": 0.0961956,
+      "hips": [
+        -0.190048,
+        -0.190078
+      ]
+    },
+    "end": {
+      "x": 5.02307,
+      "z": 1.04719,
+      "pitch": 0.07166297593795967,
+      "vx": 0.0138778,
+      "vz": 0.051563,
+      "pitch_rate": 0.0303135,
+      "hips": [
+        -0.190071,
+        -0.190097
+      ]
+    },
+    "opposed_supported_samples": 73,
+    "longest_opposed_supported_streak": 21,
+    "nonfoot_impulse_Ns": 0.0
+  },
+  "3": {
+    "hip_target_delta_rad": 0.03,
+    "status": "completed",
+    "sample_count": 80,
+    "start": {
+      "x": 5.02029,
+      "z": 1.04683,
+      "pitch": 0.05535348194152346,
+      "vx": 0.0400813,
+      "vz": 0.0444575,
+      "pitch_rate": -0.22734,
+      "hips": [
+        -0.185476,
+        -0.184673
+      ]
+    },
+    "end": {
+      "x": 5.02599,
+      "z": 1.04724,
+      "pitch": 0.06373337195179435,
+      "vx": -0.000253478,
+      "vz": 0.0557798,
+      "pitch_rate": 0.0638028,
+      "hips": [
+        -0.160077,
+        -0.160087
+      ]
+    },
+    "opposed_supported_samples": 51,
+    "longest_opposed_supported_streak": 10,
+    "nonfoot_impulse_Ns": 0.0
+  },
+  "4": {
+    "hip_target_delta_rad": 0.06,
+    "status": "completed",
+    "sample_count": 80,
+    "start": {
+      "x": 5.02029,
+      "z": 1.04683,
+      "pitch": 0.05535348194152346,
+      "vx": 0.0400813,
+      "vz": 0.0444575,
+      "pitch_rate": -0.22734,
+      "hips": [
+        -0.185476,
+        -0.184673
+      ]
+    },
+    "end": {
+      "x": 5.02998,
+      "z": 1.04732,
+      "pitch": 0.05916986434096667,
+      "vx": 0.00424376,
+      "vz": 0.0542228,
+      "pitch_rate": 0.0507354,
+      "hips": [
+        -0.130067,
+        -0.130079
+      ]
+    },
+    "opposed_supported_samples": 19,
+    "longest_opposed_supported_streak": 3,
+    "nonfoot_impulse_Ns": 0.0
+  }
+}
