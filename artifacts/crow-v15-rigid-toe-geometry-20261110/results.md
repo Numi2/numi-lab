@@ -1,0 +1,3 @@
+# Rigid toe-geometry flight control
+
+The diagnostic body with toe-shaped collision boxes rigidly attached to the original foot passed all 160/160 flight tracking gates, with zero physical or solver failures. Its maximum per-lane speed errors ranged 0.066–0.112 m/s against the 0.20 m/s gate. The original foot passed the matched screen and the articulated-toe body failed it. This suggests that changing contact geometry alone is insufficient to explain the flight regression; added toe articulation, mass partition or their numerical interaction remain plausible. This rigid model cannot grip and is not a proposed replacement, supported-landing result or biological qualification.

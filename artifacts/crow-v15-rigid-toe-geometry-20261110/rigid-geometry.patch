@@ -1,0 +1,37 @@
+--- a/original-body.cpp
++++ b/rigid-geometry.cpp
+@@ -3407,6 +3407,25 @@
+ }
+ }
+ 
++namespace {
++static metalrobo::RobotPack rigidCrowToeGeometry() {
++  auto p=metalrobo::makeAmericanCrowActiveHeadRobotPack(); auto& m=p.mechanics;
++  p.id="american_crow_rigid_toe_geometry_control";m.name=p.id;p.sourceRevision+="+rigid-toe-geometry-control";
++  constexpr float hx=.018f,hy=.0025f,hz=.0092f;
++  for (int side=0;side<2;++side) {
++    const std::string footName=side==0?"crow_left_foot":"crow_right_foot";
++    auto it=std::find(m.bodyNames.begin(),m.bodyNames.end(),footName);if(it==m.bodyNames.end())throw std::runtime_error("foot missing");const unsigned foot=static_cast<unsigned>(it-m.bodyNames.begin());
++    for(unsigned i=0;i<m.shapeNames.size();++i) if(m.shapeNames[i]==(side==0?"crow_left_foot/sole":"crow_right_foot/sole"))m.shapes[i].dimensions.x=.010f;
++    const float dx[4]={.020666667f,.020666667f,.020666667f,-.062f},dy[4]={-.012f,0,.012f,0};
++    for(int t=0;t<4;++t) {
++      MRShapeGPU shape=m.shapes.front();shape.bodyIndex=foot;shape.localPosition={dx[t],dy[t],0,1};shape.localRotation={0,0,0,1};shape.dimensions={hx,hy,hz,0};shape.slotGeneration=m.shapes.size()+1;shape.contactRestAndBoundingRadius.z=std::sqrt(hx*hx+hy*hy+hz*hz);m.shapes.push_back(shape);
++      m.shapeNames.push_back(std::string("crow_")+(side==0?"left_":"right_")+(t==3?"rear_toe":"front_toe_"+std::to_string(t+1))+"/collision");
++    }
++  }
++  m.world.shapeCount=m.shapes.size();std::string why;if(!m.valid(&why))throw std::runtime_error("invalid rigid control "+why);return p;
++}
++}
++
+ static MRTaskRolloutHandle* createBirdFlowAmericanCrowRun(
+     const MRTaskRolloutConfigC* config,
+     const MRTaskVisualObservationConfigC* visual_sensor,
+@@ -3538,7 +3557,7 @@
+                 ? "birdflow_american_crow_journey_v8_neural_run"
+                 : "birdflow_american_crow_journey_v7_run"
+             : "birdflow_american_crow_estimated_hybrid_run";
+-        manifest.robot = std::move(*robot);
++        manifest.robot = activeNavigation ? rigidCrowToeGeometry() : std::move(*robot);
+         manifest.scene = cueConfig ? metalrobo::makeAmericanCrowForagingFixtureManifest(cueConfig->occluded!=0).scene : worldModelNavigation
+             ? metalrobo::makeBirdFlowAmericanCrowNavigationScenePack()
+             : metalrobo::makeBirdFlowAmericanCrowFlightScenePack();

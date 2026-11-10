@@ -1,0 +1,8 @@
+/Users/n/Developer/numi-crow-rl-20261107/build/crow-v15-rigid-toe-geometry-20261110/c_api.cpp:3364:13: warning: unused function 'close' [-Wunused-function]
+ 3364 | static void close(double a, double b, const char* why) { crowToeNeed(std::abs(a-b)<=2e-7*(1+std::abs(a)),why); }
+      |             ^~~~~
+/Users/n/Developer/numi-crow-rl-20261107/build/crow-v15-rigid-toe-geometry-20261110/c_api.cpp:3370:18: warning: unused function 'crowToeModel' [-Wunused-function]
+ 3370 | static RobotPack crowToeModel() {
+      |                  ^~~~~~~~~~~~
+2 warnings generated.
+ba80567f1283809c6c8e0acd957082f05662cc3a11de1826fdd59f1644c90d74
