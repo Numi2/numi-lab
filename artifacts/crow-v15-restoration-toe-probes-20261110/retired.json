@@ -1,0 +1,17 @@
+{
+  "remote_commit": "b7b240b9800f90fc9a9534af10786511848797a3",
+  "retired": [
+    {
+      "raw": "artifacts/crow-v15-toe-penetration-probe-20261110/results.txt",
+      "archive": "artifacts/crow-v15-toe-penetration-probe-20261110/results.txt.gz",
+      "sha256": "7f51cbd933e1f20a45e22e96cd6e12c9560a700a7ea045103311d7ecaf7f5ead",
+      "bytes": 984314
+    },
+    {
+      "raw": "artifacts/crow-v15-toe-soft-drive-probe-20261110/results.txt",
+      "archive": "artifacts/crow-v15-toe-soft-drive-probe-20261110/results.txt.gz",
+      "sha256": "51568722e3e79a50e42b265bd959f85455c9b3b2f9ab75095fa7a43375cefb10",
+      "bytes": 14840614
+    }
+  ]
+}
