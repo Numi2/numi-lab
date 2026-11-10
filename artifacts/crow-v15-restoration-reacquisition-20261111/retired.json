@@ -1,0 +1,11 @@
+{
+  "remote_commit": "c9ac1c568724a76a2223e5cc345f6881d38dd3b9",
+  "retired": [
+    {
+      "raw": "artifacts/crow-v15-rear-grip-reacquisition-20261111/results.txt",
+      "archive": "artifacts/crow-v15-rear-grip-reacquisition-20261111/results.txt.gz",
+      "sha256": "dc523c1045c1e85a93867f7edc7eeba75ab58b6900ed2cff855476aea856cc44",
+      "bytes": 2439714
+    }
+  ]
+}
