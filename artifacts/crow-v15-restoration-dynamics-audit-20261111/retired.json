@@ -1,0 +1,11 @@
+{
+  "remote_commit": "936134bfccfeb105deb723c269cb53525b81e81e",
+  "retired": [
+    {
+      "raw": "artifacts/crow-v15-perch-dynamics-audit-20261111/results.txt",
+      "archive": "artifacts/crow-v15-perch-dynamics-audit-20261111/results.txt.gz",
+      "sha256": "a38a4d1bf9effd5a22610d6cc1ff5784e5dc98873f6c3aab17317cd4c977b5cc",
+      "bytes": 3395724
+    }
+  ]
+}
