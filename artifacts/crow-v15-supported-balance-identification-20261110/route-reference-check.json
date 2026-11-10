@@ -1,0 +1,18 @@
+{
+  "replay_sha256": "c8cb0de6d872a8c7df3c5270c20c9ed87ae34910bbd0d7b0b3052e51542341fb",
+  "root_minus_perch_world_x": {
+    "4246-4345": {
+      "samples": 100,
+      "minimum_m": -0.013103961944580078,
+      "median_m": -0.012218952178955078,
+      "maximum_m": -0.01138162612915039
+    },
+    "4346-4445": {
+      "samples": 100,
+      "minimum_m": -0.015831947326660156,
+      "median_m": -0.015024423599243164,
+      "maximum_m": -0.009574413299560547
+    }
+  },
+  "note": "Used development J, release event at 4346. Prior supported grip had large toe overlap, so this checks only the local root reference, not physical or landing qualification."
+}
