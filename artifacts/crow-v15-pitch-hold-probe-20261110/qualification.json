@@ -1,0 +1,13 @@
+{
+  "student_prefix_frames": 2199,
+  "exact_prefix_equal": true,
+  "first_differences": [],
+  "five_waypoints": true,
+  "physical_failure": 0,
+  "solver_failed_steps": 0,
+  "nonfoot_perch_contact_samples": 0,
+  "longest_bilateral_loaded_samples": 689,
+  "terminal_bilateral_loaded_samples": 0,
+  "eligible_for_development_routing_prefix_training": false,
+  "limitations": "One privileged recovery after 2200 student steps, used layout; restrict routing data to student-visited and physically reached waypoint-prefix states. Whole-sequence strict opposing-toe support remains unqualified; exclude landing as a full-sequence qualified demonstration."
+}
