@@ -1,0 +1,12 @@
+[
+  {
+    "path": "build/crow-v15-foot-placement-kinematics-20261110/probe",
+    "sha256": "9c6c0cf3f21f2b10643caa227a7a023cd0089250e91563bc59f5d0ec3755f795",
+    "bytes": 99240
+  },
+  {
+    "path": "build/crow-v15-bilateral-toe-regulation-20261110/libmetalrobo.dylib",
+    "sha256": "aac2160f7f897508ad01516b72b54f7a35ef8d0e02e3e23c6a8dfee8016b4968",
+    "bytes": 5729488
+  }
+]

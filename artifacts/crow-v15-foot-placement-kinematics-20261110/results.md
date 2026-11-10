@@ -1,0 +1,3 @@
+# Foot placement kinematics
+
+At both initial poses, a 0.001 rad increase in either hip coordinate moved its foot center approximately -0.13445 m/rad in x; the corresponding ankle sensitivity was -0.00921 m/rad. The failed start began with foot centers at x=0.018995 m and the previously successful start at x=0.030995 m. Thus, for this body and pose, moving the failed-start feet toward the previously successful development position requires a negative, not positive, hip change. This is a local kinematic diagnostic, not a proof of dynamic improvement or biological placement, and the target is an oracle derived from development data.
