@@ -1,0 +1,11 @@
+{
+  "remote_commit": "3e74433a67fb4d7ceafef7226509cf926e615fa7",
+  "retired": [
+    {
+      "raw": "artifacts/crow-v15-long-pitch-balance-screen-20261110/results.txt",
+      "archive": "artifacts/crow-v15-long-pitch-balance-screen-20261110/results.txt.gz",
+      "sha256": "3b646e46b91dbc9cb31bfee7e02644d0febe6169ad9dc93e2f9ec3978f566d6b",
+      "bytes": 3367133
+    }
+  ]
+}
