@@ -1,0 +1,15 @@
+{
+  "reference": "artifacts/crow-v15-student-landing-eval-20261110/j-student-landing.json.gz",
+  "candidate": "artifacts/crow-v15-alternating-foot-release-20261110/j-step-release.json.gz",
+  "expected_frames": 4432,
+  "checked_frames": 4432,
+  "equal_prefix": true,
+  "first_differences": [],
+  "scope": [
+    "step",
+    "q",
+    "v",
+    "actor_observation",
+    "accepted_actions"
+  ]
+}
