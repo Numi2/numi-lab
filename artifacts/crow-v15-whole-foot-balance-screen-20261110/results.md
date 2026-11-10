@@ -1,0 +1,3 @@
+# Whole-foot contact-gated balance screen
+
+Both controls reproduced all 200 reference states exactly. The whole-foot-gated rear-first and simultaneous-opening arms achieved 14 and 19 consecutive supported opposing-grip samples, with worst grip-conditioned SAT overlap of 0.729 mm; this improved on the prior toe-only gate's 1.128 mm but remains above the 0.5 mm threshold. Their longest support runs were 88 and 96 samples; neither retained support for the final 25, and their terminal maximum toe angles were 0.107 and 0.161 rad. They drifted after release and do not qualify. The whole-foot signal is final-substep sampled and may miss brief support. The observed improvement is one development drop, not robust landing, complete flight/navigation or biological qualification.
