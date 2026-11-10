@@ -1,0 +1,3 @@
+# Individual-toe contact feedback, matched single start
+
+The original control reproduced all 200 reference states. The 0.01 rad/step candidate achieved supported opposing grip, release and terminal open-toe support on this one start, but its accepted rigid shapes overlapped during grip by up to 4.360 mm. The 0.02 candidate also had bilateral opposing grip but failed the complete support test and overlapped 4.201 mm; the 0.005 arm had no bilateral opposing grip and failed support. None meets the independent 0.5 mm overlap gate or qualifies for integration. These are exploratory uncalibrated controls on a stationary start, not a full landing or a biological claim. In all arms, sampled rear toes were already overlapped by step 10, motivating an initial-pose audit.
