@@ -1,0 +1,3 @@
+# Damped privileged foot guidance
+
+The first guidance arm oscillated in the first examined layout I trajectory and did not settle. Pre-register a second arm before seeing layout J outcome: reduce proportional gain from 1.2/s to 0.45/s, add -0.7 times accepted yaw-frame forward speed, and bound requested forward speed to +/-0.12 m/s. Leave the earlier altitude hold, activation, toe physics and frozen controller unchanged. Test the identical two development starts and the same full-sequence gate. Log failures, actual touchdown and opposing toe forces; reaching the waypoint or staying airborne is not landing. This is a privileged scene-state feedback experiment, not visual sensing or biological validation.
