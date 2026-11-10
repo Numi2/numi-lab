@@ -1,0 +1,1 @@
+Separately test the existing privileged route teacher on the current v15 toe body, with obstacles enabled and the same two development starts. Student authority zero, native frozen flight law, full starts. This is not autonomous evaluation or a source of valid imitation labels unless demonstrated reliable. Preserve every first failure and clearance.

@@ -1,0 +1,5 @@
+/Users/n/Developer/numi-crow-rl-20261107/build/crow-v15-route-teacher-signal-fix-20261110/teacherfix.metal:5489:21: warning: unused variable 'seconds' [-Wunused-variable]
+        const float seconds=float(state.episode.x)*dispatch.timing.x;
+                    ^
+1 warning generated.
+teacherfix 220aa0f517218881f92e9974974912cdc510711c5a87c60f2345b4ae1e2237fe

@@ -1,0 +1,18 @@
+from pathlib import Path
+import gzip,hashlib,json,os,subprocess,shutil
+R=Path.cwd();A=R/"artifacts/crow-v15-route-teacher-diagnostic-20261110";B=R/"build/crow-v15-integrated-route-baseline-20261110";base=json.loads((R/"artifacts/crow-v15-integrated-route-baseline-20261110/contract-bindings.json").read_text())["argv"];h=lambda p:hashlib.sha256(p.read_bytes()).hexdigest()
+for course,seed,arm in (("reserved-final-i",4038889268,"teacher"),("reserved-final-j",3193706597,"teacher")):
+ name="diagnostic-"+course+"-"+arm;cmd=list(base)
+ for k,v in [("--metallib",str(R/("build/crow-v15-perch-toe-damped-20261110/velocity08c.metallib"))),("--birdflow-navigation-course",course),("--seed",str(seed)),("--steps","3000"),("--policy-pack",str(B/"landing-diagnostic.policypack")),("--base-policy-pack",str(B/"route-diagnostic.policypack")),("--state-trace",str(B/(name+".tsv"))),("--state-trace-environment","0"),("--crow-replay-pack",str(B/(name+".json")))]:cmd[cmd.index(k)+1]=v
+ cmd += ["--birdflow-journey-teacher","--birdflow-journey-student-authority","0"]
+ env={**os.environ,"DYLD_LIBRARY_PATH":str(B),"CROW_CONTACT_TRACE":"1","CROW_SUPPORT_TRACE":"1","CROW_CLEARANCE_TRACE":"1","CROW_TASK_STATE_DIAGNOSTIC":"1","PYTHONDONTWRITEBYTECODE":"1"}
+ (A/(name+"-bindings.json")).write_text(json.dumps({"argv":cmd,"host_sha256":h(B/"libmetalrobo.dylib"),"shader_sha256":h(Path(cmd[cmd.index("--metallib")+1])),"primary_actor_sha256":h(B/"landing-diagnostic.policypack"),"base_actor_sha256":h(B/"route-diagnostic.policypack"),"plan_sha256":h(A/"plan.md"),"note":"privileged teacher at zero student authority; corrected visual bindings and experimental toe-body contact groups; diagnostic only"},indent=2)+"\n")
+ with (A/(name+".stdout")).open("wb") as out,(A/(name+".stderr.gz")).open("wb") as raw:
+  with gzip.GzipFile(fileobj=raw,mode="wb",mtime=0) as gz:
+   p=subprocess.Popen(cmd,cwd=R,env=env,stdout=out,stderr=subprocess.PIPE);shutil.copyfileobj(p.stderr,gz);rc=p.wait()
+ for suffix in ("tsv","json"):
+  src=B/(name+"."+suffix)
+  if src.exists():
+   with src.open("rb") as inp,(A/(name+"."+suffix+".gz")).open("wb") as out:
+    with gzip.GzipFile(fileobj=out,mode="wb",mtime=0) as gz:shutil.copyfileobj(inp,gz)
+ print(name,"exit",rc,flush=True)
