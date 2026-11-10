@@ -1,0 +1,27 @@
+{
+  "remote_commit": "0b810ea1cc4af531e318aba28cc918e2c9d28ba8",
+  "items": [
+    {
+      "archive": "artifacts/crow-v15-matched-ccd-grip-probe-20261110/smoke.txt.gz",
+      "sha256": "f5de7ac119fcdc526e09ebd36a341454ce3c161f4676e774d773b362e2b8bd43",
+      "restored_sha256": "95a6dd7d28db4301c2a30713efcf47192e2627aa3f813e45cf1237a63be2652a",
+      "bytes": 373416,
+      "raw_present": true
+    },
+    {
+      "archive": "artifacts/crow-v15-matched-ccd-grip-probe-20261110/open-smoke.txt.gz",
+      "sha256": "bf7bc4853a3187d147f0879dbb4360b1e9008b816c4fc1139007332d02ae30cc",
+      "restored_sha256": "8549d12190468d5a845e27a14ea5e52181f3f15bce38ef27e1e84139ffd1ba42",
+      "bytes": 390158,
+      "raw_present": true
+    },
+    {
+      "archive": "artifacts/crow-v15-matched-ccd-grip-probe-20261110/interrupted-control-schedule/results.txt.gz",
+      "sha256": "1ba75a6f2d1709366447f29830f69a4d8e06ca1f801e0c3bd8a68bcb0a86eb3c",
+      "restored_sha256": "899d082e3fed630690c65bcabdeb800cf623606a5109a36652966d3bddf6415a",
+      "bytes": 2505848,
+      "raw_present": false
+    }
+  ],
+  "note": "Interrupted raw was already replaced by the corrected live run; independently verified the exact remote gzip against the retained local archive and restored it."
+}
