@@ -1,0 +1,11 @@
+{
+  "remote_commit": "7bc8682d169d0940cf167ca14e9b8cb9aa2bfedd",
+  "retired": [
+    {
+      "raw": "artifacts/crow-v15-contact-pitch-balance-screen-20261110/results.txt",
+      "archive": "artifacts/crow-v15-contact-pitch-balance-screen-20261110/results.txt.gz",
+      "sha256": "295dcc6b8d4cec9dbb1d0a7024a3e089fe6d3d1b551867afe417835cabb388b2",
+      "bytes": 1955499
+    }
+  ]
+}
