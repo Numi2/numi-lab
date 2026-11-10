@@ -1,0 +1,17 @@
+{
+  "remote_commit": "10227280168a56c6ba4e3bd9fcfec3c620a831bc",
+  "retired": [
+    {
+      "raw": "build/crow-v15-ccd-budget-20261110/development-j-deep-coordinated-perch.json",
+      "archive": "artifacts/crow-v15-deep-coordinated-perch-20261110/development-j-deep-coordinated-perch.json.gz",
+      "sha256": "a5ef774f4dcada7a10edc346e749b41af00dea945d4c5cd32c804ce9fb0293db",
+      "bytes": 164978307
+    },
+    {
+      "raw": "build/crow-v15-ccd-budget-20261110/development-j-deep-coordinated-perch.tsv",
+      "archive": "artifacts/crow-v15-deep-coordinated-perch-20261110/development-j-deep-coordinated-perch.tsv.gz",
+      "sha256": "1625767cf25fb883d5e621beb03cfb4b5274de6a569d9934ec2fc294e316abdd",
+      "bytes": 3583041
+    }
+  ]
+}
