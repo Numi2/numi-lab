@@ -1,0 +1,53 @@
+{
+  "remote_commit": "82169a2e01a67bb707db9901c42e4866f908b773",
+  "retired": [
+    {
+      "raw": "build/crow-v15-long-perch-host-20261110/j-step-release.json",
+      "archive": "artifacts/crow-v15-alternating-foot-release-20261110/j-step-release.json.gz",
+      "sha256": "fa00dc0becabbd5add6e9050e7fd03f90c9567f78d661ecec7f707d05710fc46",
+      "bytes": 230200200
+    },
+    {
+      "raw": "build/crow-v15-long-perch-host-20261110/j-step-release.tsv",
+      "archive": "artifacts/crow-v15-alternating-foot-release-20261110/j-step-release.tsv.gz",
+      "sha256": "6cf86a829b20bf0edc9f9882468cb5ad37f95ef798a342958e142f2842ef349c",
+      "bytes": 5041952
+    },
+    {
+      "raw": "build/crow-v15-long-perch-host-20261110/i-step-release.json",
+      "archive": "artifacts/crow-v15-alternating-foot-release-20261110/i-step-release.json.gz",
+      "sha256": "fa15fdb72f20bb94325804ba161681563ca2bff5fbaddafb365665c0cc8161ba",
+      "bytes": 228944704
+    },
+    {
+      "raw": "build/crow-v15-long-perch-host-20261110/i-step-release.tsv",
+      "archive": "artifacts/crow-v15-alternating-foot-release-20261110/i-step-release.tsv.gz",
+      "sha256": "854698c3a563b9b9284faa26a44297658a1028bae3a10393f2c6d9011fb8537e",
+      "bytes": 5037513
+    },
+    {
+      "raw": "build/crow-v15-long-perch-host-20261110/j-step-substep.json",
+      "archive": "artifacts/crow-v15-foot-substep-observer-20261110/j-step-substep.json.gz",
+      "sha256": "fa00dc0becabbd5add6e9050e7fd03f90c9567f78d661ecec7f707d05710fc46",
+      "bytes": 230200200
+    },
+    {
+      "raw": "build/crow-v15-long-perch-host-20261110/j-step-substep.tsv",
+      "archive": "artifacts/crow-v15-foot-substep-observer-20261110/j-step-substep.tsv.gz",
+      "sha256": "6cf86a829b20bf0edc9f9882468cb5ad37f95ef798a342958e142f2842ef349c",
+      "bytes": 5041952
+    },
+    {
+      "raw": "build/crow-v15-long-perch-host-20261110/i-step-substep.json",
+      "archive": "artifacts/crow-v15-foot-substep-observer-20261110/i-step-substep.json.gz",
+      "sha256": "fa15fdb72f20bb94325804ba161681563ca2bff5fbaddafb365665c0cc8161ba",
+      "bytes": 228944704
+    },
+    {
+      "raw": "build/crow-v15-long-perch-host-20261110/i-step-substep.tsv",
+      "archive": "artifacts/crow-v15-foot-substep-observer-20261110/i-step-substep.tsv.gz",
+      "sha256": "854698c3a563b9b9284faa26a44297658a1028bae3a10393f2c6d9011fb8537e",
+      "bytes": 5037513
+    }
+  ]
+}
