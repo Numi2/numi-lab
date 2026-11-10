@@ -1,0 +1,3 @@
+# Combined controller substep release check
+
+If the combined development screen passes, independently replay hard J and original I with the read-only foot/toe substep observer and the same actor, shader, seed and full-start schedule. Require exact q/v, observation and action parity for all 7,000 accepted frames before interpreting force data. Trace the 111-step release interval on each case; require all expected status samples and at least 12 consecutive substeps per side with lifted-side toe impulse no greater than 1e-8 N s and opposite-side upward foot/toe impulse above 0.0000125 N s. Record geometric separation only at accepted endpoints; this check cannot establish substep separation or biological realism. These are development cases, not final K/L.
