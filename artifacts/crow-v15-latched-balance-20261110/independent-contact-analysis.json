@@ -1,0 +1,120 @@
+[
+  {
+    "arm": "positive",
+    "first_nonfoot_ground": {
+      "step": 2431,
+      "root_position_m": [
+        4.93880796,
+        0.492433697,
+        0.163435116
+      ],
+      "contacts": [
+        {
+          "body": "crow_lower_beak",
+          "collider": "locomotion_ground",
+          "normal_impulse_Ns": 0.00201757904
+        },
+        {
+          "body": "crow_lower_beak",
+          "collider": "locomotion_ground",
+          "normal_impulse_Ns": 0.0019893588
+        }
+      ]
+    },
+    "last": {
+      "step": 3000,
+      "root_position_m": [
+        4.91398716,
+        0.492398947,
+        0.164329559
+      ],
+      "body_ground": [
+        {
+          "body": "crow_lower_beak",
+          "collider": "locomotion_ground",
+          "normal_impulse_Ns": 0.00449298229
+        },
+        {
+          "body": "crow_lower_beak",
+          "collider": "locomotion_ground",
+          "normal_impulse_Ns": 0.0045484989
+        }
+      ]
+    },
+    "foot_or_toe_perch_contact_records": 2215
+  },
+  {
+    "arm": "negative",
+    "first_nonfoot_ground": {
+      "step": 2394,
+      "root_position_m": [
+        5.20240641,
+        0.491859615,
+        0.175573498
+      ],
+      "contacts": [
+        {
+          "body": "crow_head",
+          "collider": "locomotion_ground",
+          "normal_impulse_Ns": 0.0525430813
+        },
+        {
+          "body": "crow_head",
+          "collider": "locomotion_ground",
+          "normal_impulse_Ns": 0.0526682585
+        },
+        {
+          "body": "crow_head",
+          "collider": "locomotion_ground",
+          "normal_impulse_Ns": 0.0498329587
+        },
+        {
+          "body": "crow_head",
+          "collider": "locomotion_ground",
+          "normal_impulse_Ns": 0.0499596931
+        },
+        {
+          "body": "crow_lower_beak",
+          "collider": "locomotion_ground",
+          "normal_impulse_Ns": 0.0476516485
+        },
+        {
+          "body": "crow_lower_beak",
+          "collider": "locomotion_ground",
+          "normal_impulse_Ns": 0.0477602668
+        },
+        {
+          "body": "crow_lower_beak",
+          "collider": "locomotion_ground",
+          "normal_impulse_Ns": 0.0527910106
+        },
+        {
+          "body": "crow_lower_beak",
+          "collider": "locomotion_ground",
+          "normal_impulse_Ns": 0.0529259294
+        }
+      ]
+    },
+    "last": {
+      "step": 3000,
+      "root_position_m": [
+        4.99848175,
+        0.491583347,
+        0.164366946
+      ],
+      "body_ground": [
+        {
+          "body": "crow_lower_beak",
+          "collider": "locomotion_ground",
+          "normal_impulse_Ns": 0.00456345081
+        },
+        {
+          "body": "crow_lower_beak",
+          "collider": "locomotion_ground",
+          "normal_impulse_Ns": 0.00443622004
+        }
+      ]
+    },
+    "foot_or_toe_perch_contact_records": 2003
+  }
+]

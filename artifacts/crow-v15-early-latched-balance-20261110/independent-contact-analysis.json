@@ -1,0 +1,82 @@
+[
+  {
+    "arm": "positive",
+    "first_nonfoot_ground": null,
+    "last": null,
+    "foot_or_toe_perch_contact_records": 1798
+  },
+  {
+    "arm": "negative",
+    "first_nonfoot_ground": {
+      "step": 2484,
+      "root_position_m": [
+        5.21096325,
+        0.493763298,
+        0.177467063
+      ],
+      "contacts": [
+        {
+          "body": "crow_head",
+          "collider": "locomotion_ground",
+          "normal_impulse_Ns": 0.125615478
+        },
+        {
+          "body": "crow_head",
+          "collider": "locomotion_ground",
+          "normal_impulse_Ns": 0.125857204
+        },
+        {
+          "body": "crow_head",
+          "collider": "locomotion_ground",
+          "normal_impulse_Ns": 0.125806063
+        },
+        {
+          "body": "crow_head",
+          "collider": "locomotion_ground",
+          "normal_impulse_Ns": 0.126060531
+        },
+        {
+          "body": "crow_lower_beak",
+          "collider": "locomotion_ground",
+          "normal_impulse_Ns": 0.101091646
+        },
+        {
+          "body": "crow_lower_beak",
+          "collider": "locomotion_ground",
+          "normal_impulse_Ns": 0.101276085
+        },
+        {
+          "body": "crow_lower_beak",
+          "collider": "locomotion_ground",
+          "normal_impulse_Ns": 0.132598087
+        },
+        {
+          "body": "crow_lower_beak",
+          "collider": "locomotion_ground",
+          "normal_impulse_Ns": 0.13285102
+        }
+      ]
+    },
+    "last": {
+      "step": 3000,
+      "root_position_m": [
+        4.91164589,
+        0.493598819,
+        0.164328724
+      ],
+      "body_ground": [
+        {
+          "body": "crow_lower_beak",
+          "collider": "locomotion_ground",
+          "normal_impulse_Ns": 0.00440129451
+        },
+        {
+          "body": "crow_lower_beak",
+          "collider": "locomotion_ground",
+          "normal_impulse_Ns": 0.00463971216
+        }
+      ]
+    },
+    "foot_or_toe_perch_contact_records": 2273
+  }
+]

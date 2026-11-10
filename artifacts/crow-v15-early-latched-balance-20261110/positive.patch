@@ -1,0 +1,14 @@
+--- a/toe-active.metal
++++ b/hip-balance-positive.metal
+@@ -5079,6 +5079,11 @@
+         // execution still has no teacher authority.
+         if (fixedFlightController && state.threatTeacher.w >= 1.5f && action < 15u)
+             navigationTeacherRequested = 0.0f;
++        // Experimental ankle balance; latched after qualified bilateral landing.
++        if (fixedFlightController && state.episode.z==10u && state.navigation.z>=5.0f &&
++            (action==9u || action==12u) && state.threatTeacher.w>=1.5f) {
++            navigationTeacherRequested=clamp(1.0f*(0.20f*state.threatGeometry.z+0.10f*state.threatGeometry.w),-0.60f,0.60f);
++        }
+         const float navigationTeacherBlend = fixedFlightController
+             ? 1.0f
+             : avianNavigationTeacher
