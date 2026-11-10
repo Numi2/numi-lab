@@ -1,0 +1,12 @@
+--- a/latch.metal
++++ b/hip_plus.metal
+@@ -5096,6 +5096,9 @@
+         // execution still has no teacher authority.
+         if (fixedFlightController && state.threatTeacher.w >= 1.5f && action < 15u)
+             navigationTeacherRequested = 0.0f;
++        if (fixedFlightController && state.episode.z==10u && state.threatTeacher.w>=1.5f &&
++            state.episode.x>=2500u && state.episode.x<2520u && (action==7u || action==10u))
++            navigationTeacherRequested = 0.03f;
+         const float navigationTeacherBlend = fixedFlightController
+             ? 1.0f
+             : avianNavigationTeacher

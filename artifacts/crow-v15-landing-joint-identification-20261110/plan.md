@@ -1,0 +1,1 @@
+From the same full-start J development seed, apply a small bounded 20-step pulse to both hips or both ankles with each sign, only after physical landing handoff. Compare matched prefix and post-pulse pitch, velocity, contact and failure against the latch control. This is system identification, not a qualified landing or learned behavior.

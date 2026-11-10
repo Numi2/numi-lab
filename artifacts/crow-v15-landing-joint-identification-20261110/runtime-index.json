@@ -1,0 +1,27 @@
+[
+  {
+    "path": "build/crow-v15-landing-joint-identification-20261110/hip_plus.metallib",
+    "sha256": "d80660709b7f8884f0aa3ced326137b82079d8f59ebdbc3b78d391efa2541006",
+    "bytes": 4473328
+  },
+  {
+    "path": "build/crow-v15-landing-joint-identification-20261110/hip_minus.metallib",
+    "sha256": "715e8a1e622e19e1396508d874660cf625896e1ee3f37e12dc0a4d624824e776",
+    "bytes": 4473328
+  },
+  {
+    "path": "build/crow-v15-landing-joint-identification-20261110/ankle_plus.metallib",
+    "sha256": "d93b192848514ad5c50411e61ea57eb92f8fac60a6e72ad5a63ddad0437c3097",
+    "bytes": 4473328
+  },
+  {
+    "path": "build/crow-v15-landing-joint-identification-20261110/ankle_minus.metallib",
+    "sha256": "a668115069fa10cee0faccfed0c920e23305eb5deaf2bec170c3e81f2fb24f7a",
+    "bytes": 4473328
+  },
+  {
+    "path": "build/crow-v15-integrated-route-baseline-20261110/libmetalrobo.dylib",
+    "sha256": "9e745472159b32a41d25b59ccaebb51693a0773ddb2c168bb0e4f0f5fdd2e8da",
+    "bytes": 5763888
+  }
+]

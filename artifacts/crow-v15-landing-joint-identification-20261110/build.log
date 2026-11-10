@@ -1,0 +1,20 @@
+/Users/n/Developer/numi-crow-rl-20261107/build/crow-v15-landing-joint-identification-20261110/hip_plus.metal:5497:21: warning: unused variable 'seconds' [-Wunused-variable]
+        const float seconds=float(state.episode.x)*dispatch.timing.x;
+                    ^
+1 warning generated.
+hip_plus d80660709b7f8884f0aa3ced326137b82079d8f59ebdbc3b78d391efa2541006
+/Users/n/Developer/numi-crow-rl-20261107/build/crow-v15-landing-joint-identification-20261110/hip_minus.metal:5497:21: warning: unused variable 'seconds' [-Wunused-variable]
+        const float seconds=float(state.episode.x)*dispatch.timing.x;
+                    ^
+1 warning generated.
+hip_minus 715e8a1e622e19e1396508d874660cf625896e1ee3f37e12dc0a4d624824e776
+/Users/n/Developer/numi-crow-rl-20261107/build/crow-v15-landing-joint-identification-20261110/ankle_plus.metal:5497:21: warning: unused variable 'seconds' [-Wunused-variable]
+        const float seconds=float(state.episode.x)*dispatch.timing.x;
+                    ^
+1 warning generated.
+ankle_plus d93b192848514ad5c50411e61ea57eb92f8fac60a6e72ad5a63ddad0437c3097
+/Users/n/Developer/numi-crow-rl-20261107/build/crow-v15-landing-joint-identification-20261110/ankle_minus.metal:5497:21: warning: unused variable 'seconds' [-Wunused-variable]
+        const float seconds=float(state.episode.x)*dispatch.timing.x;
+                    ^
+1 warning generated.
+ankle_minus a668115069fa10cee0faccfed0c920e23305eb5deaf2bec170c3e81f2fb24f7a
