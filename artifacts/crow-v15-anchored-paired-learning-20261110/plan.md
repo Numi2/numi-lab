@@ -1,0 +1,3 @@
+# Matched-recovery routing with preservation anchor
+
+If both paired recovery runs satisfy their predeclared qualification, add their successful teacher routing prefixes before waypoint five to the previous qualified development data. Start from the earlier fresh-corrective actor, which completed difficult I, and preserve its output on its own actual successful difficult-I pre-landing observations with an explicit distillation loss. Include no failed demonstrations or landing labels. Keep the frozen flight, gait, toe and terminal controllers unchanged. Train once with fixed seed and parameters; then evaluate teacher off on the same four full-start development cases, with no resets or adaptation between cases. This is a development test, not final validation.

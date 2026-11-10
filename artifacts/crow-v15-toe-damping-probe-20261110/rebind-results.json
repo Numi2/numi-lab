@@ -1,0 +1,60 @@
+{
+  "candidate_fingerprints": {
+    "world": 951301730926947189,
+    "task": 2478735915432107933,
+    "observation": 13907681419324565324,
+    "action": 9001823367347860797
+  },
+  "source_host_sha256": "b48ec660b2d638d55d8a72e1e4f37d0c1471430e8d7512593a904878a759e63e",
+  "candidate_host_sha256": "11481e43f831f1d9eca446dc1e8705e4e82ddd809b5c95f62058ca455f903ea6",
+  "source_single_change_verified": true,
+  "policies": {
+    "landing": {
+      "source_sha256": "3564922b865e39c4b484285f40c65d74ca6a803531379e7d187e9e7283ccbcc3",
+      "candidate_sha256": "6b381cb21591b2ae0d9264e41a977add472838ab893f71028f8f9c431a1a886e",
+      "layer_shapes": [
+        [
+          1024,
+          816
+        ],
+        [
+          512,
+          1024
+        ],
+        [
+          256,
+          512
+        ],
+        [
+          18,
+          256
+        ]
+      ],
+      "byte_identical_arrays": true
+    },
+    "route": {
+      "source_sha256": "4b6db599323f2fb3c7e5383d5a6cb934518f14041a762a5e7ebfe5d3152e33b2",
+      "candidate_sha256": "6ecae0b29995403f69e7d2ceae50785867cb40794347943e6d979f774c11c866",
+      "layer_shapes": [
+        [
+          2048,
+          816
+        ],
+        [
+          1024,
+          2048
+        ],
+        [
+          512,
+          1024
+        ],
+        [
+          18,
+          512
+        ]
+      ],
+      "byte_identical_arrays": true
+    }
+  },
+  "limitations": "Diagnostic rebinding of identical tensors to changed body contract; no training, physical qualification, or biological validation. Task, observation and action source definitions are unchanged; native contract checks remain active."
+}
