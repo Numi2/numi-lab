@@ -1,0 +1,22 @@
+{
+  "old_pack_rejected": true,
+  "world": 6840128802941214577,
+  "task": 6014611460002263848,
+  "observation": 5144621325645204099,
+  "action": 3705052593810635848,
+  "actors": [
+    {
+      "label": "route",
+      "source_sha256": "c4fc084d6ba9fd526f8ec0687766d0efa83b8ebddc1edcd288e92d129ab345bc",
+      "rebound_sha256": "d964761a1f22029da1ef7af5ae9ce6c9f88f8e015f55bd2c3cf21338856c2a31",
+      "actor_weights_and_transforms_equal": true
+    },
+    {
+      "label": "landing",
+      "source_sha256": "cfe0fce093baddcd41e7547fb5ebe0486280c84882a1a38c1a72fc59d3bc4cc4",
+      "rebound_sha256": "bb555db89283f6ebe205d16f33310c51e111cf3ac06e58884599ad66bc2c8469",
+      "actor_weights_and_transforms_equal": true
+    }
+  ],
+  "scope": "unqualified diagnostic rebind for contact-failure test"
+}

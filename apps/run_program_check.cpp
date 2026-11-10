@@ -739,6 +739,31 @@ int main() {
                     compiledNavigation.world().fingerprint(),
             "Active-head navigation lost its physical bodies or distinct policy ABI");
 
+        const auto nonFoot = std::find_if(
+            activeNavigation.task.contactGroups.begin(), activeNavigation.task.contactGroups.end(),
+            [](const metalrobo::TaskContactGroup& group) { return group.id == "non_foot_contact"; }
+        );
+        require(nonFoot != activeNavigation.task.contactGroups.end() &&
+                contains(nonFoot->bodies, "crow_head") &&
+                contains(nonFoot->bodies, "crow_lower_beak"),
+            "active-head navigation must classify head and beak strikes as non-foot contacts");
+        const auto nonFootIndex = static_cast<std::size_t>(
+            nonFoot - activeNavigation.task.contactGroups.begin());
+        const auto group = compiledActiveNavigation.task().contactGroups()[nonFootIndex];
+        const auto members = compiledActiveNavigation.task().contactMembers();
+        for (const std::string_view name : {"crow_head", "crow_lower_beak"}) {
+            const auto body = std::find(compiledActiveNavigation.model().bodyNames.begin(),
+                                        compiledActiveNavigation.model().bodyNames.end(), name);
+            require(body != compiledActiveNavigation.model().bodyNames.end(),
+                "active-head navigation collision body missing");
+            const auto index = static_cast<std::uint32_t>(
+                body - compiledActiveNavigation.model().bodyNames.begin());
+            require(std::find(members.begin() + group.members.x,
+                              members.begin() + group.members.x + group.members.y,
+                              index) != members.begin() + group.members.x + group.members.y,
+                "compiled non-foot group omitted an active-head collision body");
+        }
+
         require(activeNavigation.task.actions.size() == navigation.task.actions.size() + 3u,
             "active head task must append exactly three actions");
         for (std::size_t i = 0; i < navigation.task.actions.size(); ++i)

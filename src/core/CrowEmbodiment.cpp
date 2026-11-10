@@ -264,6 +264,21 @@ TaskPack makeAmericanCrowActiveHeadNavigationTaskPack(
         observations, reset);
     task.id = "american_crow_active_head_navigation_development_v1";
     addActiveHeadTaskBindings(task, observations);
+    // Navigation treats head and beak strikes as non-foot contacts. Feeding
+    // tasks intentionally use the beak and keep their own contact contract.
+    const auto nonFoot = std::find_if(
+        task.contactGroups.begin(), task.contactGroups.end(),
+        [](const TaskContactGroup& group) { return group.id == "non_foot_contact"; }
+    );
+    if (nonFoot == task.contactGroups.end()) {
+        throw std::logic_error("active-head navigation requires non-foot contact group");
+    }
+    for (const char* body : {"crow_head", "crow_lower_beak"}) {
+        if (std::find(nonFoot->bodies.begin(), nonFoot->bodies.end(), body) ==
+            nonFoot->bodies.end()) {
+            nonFoot->bodies.emplace_back(body);
+        }
+    }
     return task;
 }
 

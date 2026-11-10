@@ -1,0 +1,20 @@
+{
+  "first_qv_difference_frame_zero_based": 2430,
+  "matching_prior_accepted_frames": 2430,
+  "termination_step_one_based": 2431,
+  "native_failure": true,
+  "termination_reason": "contact",
+  "contact": [
+    {
+      "a": "crow_lower_beak",
+      "b": "locomotion_ground",
+      "normal_impulse_Ns": 0.00201757904
+    },
+    {
+      "a": "crow_lower_beak",
+      "b": "locomotion_ground",
+      "normal_impulse_Ns": 0.0019893588
+    }
+  ],
+  "scope": "one exposed seed on experimental toe body; no complete landing claim"
+}

@@ -1,0 +1,3 @@
+# Native head-contact detection
+
+The navigation group now includes the physical head and lower beak, while feeding retains its separate contract. The compiled group membership check passed. The prior task policy was rejected on its changed fingerprint; a diagnostic rebind preserved all actor tensors and transforms exactly. The repeated exposed-layout fall matched 2430 q/v frames and terminated on the first lower-beak ground contact at step 2431 with native contact reason 3. The earlier run continued on its beak with a false physical-failure flag. No failed solver steps occurred. This validates this detection case, not the requested complete sequence. The frozen flight source hash was unchanged.
