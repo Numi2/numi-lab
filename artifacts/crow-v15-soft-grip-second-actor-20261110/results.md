@@ -1,0 +1,5 @@
+# Matched second-actor original-J grip probe
+
+The candidate exactly matched all 3,732 accepted frames up to the supported phase. It completed every waypoint and finished bilaterally supported, with no recorded physical, solver or nonfoot-perch failure. The shared approach had 0.169888 m minimum sampled obstacle clearance. In the last 100 pre-release endpoints, bilateral front/rear opposition improved from 60 to 78 and longest consecutive opposition from six to twelve. The strict matched-case 75/100 and nine-consecutive screens passed. Both alternating foot lifts had 42/38 consecutive accepted endpoints with at least 1 mm toe separation and measured opposite-foot support, and the late 100 endpoints were bilaterally loaded.
+
+This is one used development case and not a continuous-substep, unseen-layout, broad-robustness or biological qualification. All other development cases require the same test before this controller can be accepted. The current second routing actor independently failed its original-I obstacle-clearance gate.

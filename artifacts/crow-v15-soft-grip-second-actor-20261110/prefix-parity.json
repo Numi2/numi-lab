@@ -1,0 +1,15 @@
+{
+  "reference": "artifacts/crow-v15-second-clearance-eval-20261110/second-j-original.json.gz",
+  "candidate": "artifacts/crow-v15-soft-grip-second-actor-20261110/soft2-j-original.json.gz",
+  "expected_frames": 3732,
+  "checked_frames": 3732,
+  "equal_prefix": true,
+  "first_differences": [],
+  "scope": [
+    "step",
+    "q",
+    "v",
+    "actor_observation",
+    "accepted_actions"
+  ]
+}
