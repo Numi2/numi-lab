@@ -1,0 +1,27 @@
+q/v/observation/action/termination parity True differences [] frames 4500 4500
+final substep endpoint parity True differences []
+status count 1152 substep indices match True toe records 2043 positive lane 0 24
+{'submission': 4394, 'substep': 1, 'lane': 0, 'a': 17, 'b': 30, 'impulse': 0.011366263, 'separation': -0.000134050846, 'normal_z': -1.0}
+{'submission': 4394, 'substep': 1, 'lane': 0, 'a': 17, 'b': 30, 'impulse': 0.011383594, 'separation': -0.000122606754, 'normal_z': -1.0}
+{'submission': 4394, 'substep': 1, 'lane': 0, 'a': 18, 'b': 30, 'impulse': 0.0113581279, 'separation': -0.00010663271, 'normal_z': -1.0}
+{'submission': 4394, 'substep': 1, 'lane': 0, 'a': 18, 'b': 30, 'impulse': 0.0113809984, 'separation': -9.51886177e-05, 'normal_z': -1.0}
+{'submission': 4394, 'substep': 1, 'lane': 0, 'a': 19, 'b': 30, 'impulse': 0.0113458624, 'separation': -7.91549683e-05, 'normal_z': -1.0}
+{'submission': 4394, 'substep': 1, 'lane': 0, 'a': 19, 'b': 30, 'impulse': 0.0113740722, 'separation': -6.77108765e-05, 'normal_z': -1.0}
+{'submission': 4394, 'substep': 1, 'lane': 0, 'a': 21, 'b': 30, 'impulse': 0.0113199102, 'separation': -0.000302314758, 'normal_z': -1.0}
+{'submission': 4394, 'substep': 1, 'lane': 0, 'a': 21, 'b': 30, 'impulse': 0.0113030253, 'separation': -0.000290930271, 'normal_z': -1.0}
+{'submission': 4394, 'substep': 1, 'lane': 0, 'a': 22, 'b': 30, 'impulse': 0.0113388272, 'separation': -0.000274896622, 'normal_z': -1.0}
+{'submission': 4394, 'substep': 1, 'lane': 0, 'a': 22, 'b': 30, 'impulse': 0.0113273039, 'separation': -0.000263512135, 'normal_z': -1.0}
+{'submission': 4394, 'substep': 1, 'lane': 0, 'a': 23, 'b': 30, 'impulse': 0.0113533027, 'separation': -0.00024741888, 'normal_z': -1.0}
+{'submission': 4394, 'substep': 1, 'lane': 0, 'a': 23, 'b': 30, 'impulse': 0.0113473292, 'separation': -0.000236034393, 'normal_z': -1.0}
+{'submission': 4394, 'substep': 2, 'lane': 0, 'a': 17, 'b': 30, 'impulse': 0.00295731844, 'separation': 0.000254750252, 'normal_z': -1.0}
+{'submission': 4394, 'substep': 2, 'lane': 0, 'a': 17, 'b': 30, 'impulse': 0.00295252958, 'separation': 0.000266373158, 'normal_z': -1.0}
+{'submission': 4394, 'substep': 2, 'lane': 0, 'a': 18, 'b': 30, 'impulse': 0.00292972499, 'separation': 0.000285506248, 'normal_z': -1.0}
+{'submission': 4394, 'substep': 2, 'lane': 0, 'a': 18, 'b': 30, 'impulse': 0.00292180711, 'separation': 0.000297129154, 'normal_z': -1.0}
+{'submission': 4394, 'substep': 2, 'lane': 0, 'a': 19, 'b': 30, 'impulse': 0.00289033819, 'separation': 0.000316858292, 'normal_z': -1.0}
+{'submission': 4394, 'substep': 2, 'lane': 0, 'a': 19, 'b': 30, 'impulse': 0.00287931552, 'separation': 0.000328481197, 'normal_z': -1.0}
+{'submission': 4394, 'substep': 2, 'lane': 0, 'a': 21, 'b': 30, 'impulse': 0.00286222994, 'separation': 8.54730606e-05, 'normal_z': -1.0}
+{'submission': 4394, 'substep': 2, 'lane': 0, 'a': 21, 'b': 30, 'impulse': 0.00287643168, 'separation': 9.70959663e-05, 'normal_z': -1.0}
+{'submission': 4394, 'substep': 2, 'lane': 0, 'a': 22, 'b': 30, 'impulse': 0.00290842587, 'separation': 0.000111818314, 'normal_z': -1.0}
+{'submission': 4394, 'substep': 2, 'lane': 0, 'a': 22, 'b': 30, 'impulse': 0.00291951979, 'separation': 0.000123441219, 'normal_z': -1.0}
+{'submission': 4394, 'substep': 2, 'lane': 0, 'a': 23, 'b': 30, 'impulse': 0.00294289272, 'separation': 0.000138819218, 'normal_z': -1.0}
+{'submission': 4394, 'substep': 2, 'lane': 0, 'a': 23, 'b': 30, 'impulse': 0.00295097195, 'separation': 0.000150442123, 'normal_z': -1.0}
