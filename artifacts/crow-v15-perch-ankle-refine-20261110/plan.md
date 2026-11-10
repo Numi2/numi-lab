@@ -1,0 +1,3 @@
+# Stronger coordinated perch balance
+
+The 6.0 support-center gain with counter-rotating ankle retained bilateral support longer but COM drifted backward; its early hip response moved only about 5 mm while the measured initial support-COM error was 10-15 mm. Test gains 12 and 18, with proportionally scaled velocity damping and bounded normalized action 0.60, only after the same bilateral force-gated closure. Keep full-start collision-enabled development J, no wrench, unchanged 25-sample terminal support/actual grip and failure criteria. This is exploratory gain selection, not hidden-seed validation.

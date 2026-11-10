@@ -1,0 +1,1 @@
+Development only. Test whether continued force-gated front toe closure improves opposing grasp and physical support after landing. Identical full-start layout J and seed, frozen flight, teacher off, no reset. Compare targets 1.05 and 1.20 radians against 0.85 control; retain all outcomes. User success criteria require full run and separate unused layouts.

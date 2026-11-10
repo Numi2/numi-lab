@@ -1,0 +1,1 @@
+Development layout J: compare contact gated fore-toe closure caps between the 1.05 rad fall-forward and 1.20 rad fall-back tests. Teacher off, frozen flight, full start, no resets. Terminal support and grip requirements unchanged. This tuning is not evidence of generalization.

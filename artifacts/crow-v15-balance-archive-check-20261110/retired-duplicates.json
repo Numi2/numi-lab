@@ -1,0 +1,137 @@
+{
+  "remote_verified_commit": "a04b5d2920ebf51ed5802c24eb49d248b9de6b4c",
+  "removed": [
+    {
+      "raw": "build/crow-v15-integrated-route-baseline-20261110/diagnostic-reserved-final-j-balance1.json",
+      "source": "artifacts/crow-v15-perch-balance-20261110/diagnostic-reserved-final-j-balance1.json.gz",
+      "sha256": "28cc3a4d3442ba56cbb52deeae08832f60b91a3d5aeb1b20cf38bf1a33b1c47b",
+      "bytes": 99541524
+    },
+    {
+      "raw": "build/crow-v15-integrated-route-baseline-20261110/diagnostic-reserved-final-j-balance2.json",
+      "source": "artifacts/crow-v15-perch-balance-20261110/diagnostic-reserved-final-j-balance2.json.gz",
+      "sha256": "ce285dd49805e72ab2a02b01d78011ea7617b7360ba30ccde9796812e2d7e09e",
+      "bytes": 100198315
+    },
+    {
+      "raw": "build/crow-v15-integrated-route-baseline-20261110/diagnostic-reserved-final-j-balance1.tsv",
+      "source": "artifacts/crow-v15-perch-balance-20261110/diagnostic-reserved-final-j-balance1.tsv.gz",
+      "sha256": "2dba7c5cecb454c183b07a968076c271c6d28983aa7da07097230fb071468c60",
+      "bytes": 2184220
+    },
+    {
+      "raw": "build/crow-v15-integrated-route-baseline-20261110/diagnostic-reserved-final-j-balance2.tsv",
+      "source": "artifacts/crow-v15-perch-balance-20261110/diagnostic-reserved-final-j-balance2.tsv.gz",
+      "sha256": "42b386d1e7961b128298e986637b1f5bd9a5af5f102cfda4d005b7947591e12f",
+      "bytes": 2184830
+    },
+    {
+      "raw": "build/crow-v15-integrated-route-baseline-20261110/diagnostic-reserved-final-j-reverse2.tsv",
+      "source": "artifacts/crow-v15-perch-balance-sign-20261110/diagnostic-reserved-final-j-reverse2.tsv.gz",
+      "sha256": "ff66f8c8b88fd5f21c398cef0560c6ffa7c11f127f0fee18fabc569e403b9cce",
+      "bytes": 2190143
+    },
+    {
+      "raw": "build/crow-v15-integrated-route-baseline-20261110/diagnostic-reserved-final-j-reverse2.json",
+      "source": "artifacts/crow-v15-perch-balance-sign-20261110/diagnostic-reserved-final-j-reverse2.json.gz",
+      "sha256": "c350ce5b5d0b7c84d3eb935ebf6b2afd36447dada5132bf334d041c77b943bef",
+      "bytes": 100279735
+    },
+    {
+      "raw": "build/crow-v15-integrated-route-baseline-20261110/diagnostic-reserved-final-j-reverse1.json",
+      "source": "artifacts/crow-v15-perch-balance-sign-20261110/diagnostic-reserved-final-j-reverse1.json.gz",
+      "sha256": "912c75117cbf58430bd206b3244350ac968262854443a2f9a3cde1cf35f90807",
+      "bytes": 99482410
+    },
+    {
+      "raw": "build/crow-v15-integrated-route-baseline-20261110/diagnostic-reserved-final-j-reverse1.tsv",
+      "source": "artifacts/crow-v15-perch-balance-sign-20261110/diagnostic-reserved-final-j-reverse1.tsv.gz",
+      "sha256": "bf1598b9f2d96a3d3aed739d8aabf0660ba2b6f8c2374dd6b99510454f9fd970",
+      "bytes": 2187506
+    },
+    {
+      "raw": "build/crow-v15-integrated-route-baseline-20261110/diagnostic-reserved-final-j-com12.tsv",
+      "source": "artifacts/crow-v15-perch-com-mass-20261110/diagnostic-reserved-final-j-com12.tsv.gz",
+      "sha256": "686c3e93a92b132f28639982bc7b32d0c8ebc736cc04f51f128e6a14000e4701",
+      "bytes": 2185422
+    },
+    {
+      "raw": "build/crow-v15-integrated-route-baseline-20261110/diagnostic-reserved-final-j-com12.json",
+      "source": "artifacts/crow-v15-perch-com-mass-20261110/diagnostic-reserved-final-j-com12.json.gz",
+      "sha256": "84748dc742ed6d0c492b69b1f4c3a7e0ad90e307fb10eacf32a7800d68c76461",
+      "bytes": 99299565
+    },
+    {
+      "raw": "build/crow-v15-integrated-route-baseline-20261110/diagnostic-reserved-final-j-com6.tsv",
+      "source": "artifacts/crow-v15-perch-com-mass-20261110/diagnostic-reserved-final-j-com6.tsv.gz",
+      "sha256": "0b8acb7396ea1dd7d62cf12645fd1a0ec4bd43f22ed148c9af870e2073dcdafd",
+      "bytes": 2186304
+    },
+    {
+      "raw": "build/crow-v15-integrated-route-baseline-20261110/diagnostic-reserved-final-j-com6.json",
+      "source": "artifacts/crow-v15-perch-com-mass-20261110/diagnostic-reserved-final-j-com6.json.gz",
+      "sha256": "c2ee7afe54da6b2b9a9283d19a7b79705adf616f1cd5c32309299a21b294562a",
+      "bytes": 99498642
+    },
+    {
+      "raw": "build/crow-v15-integrated-route-baseline-20261110/diagnostic-reserved-final-j-grip3.json",
+      "source": "artifacts/crow-v15-perch-grip-balance-20261110/diagnostic-reserved-final-j-grip3.json.gz",
+      "sha256": "8e0bd434e0211c8a0cd051220b633d7d255fbb0b197d1b684c1ace7148ec58c0",
+      "bytes": 99449624
+    },
+    {
+      "raw": "build/crow-v15-integrated-route-baseline-20261110/diagnostic-reserved-final-j-grip3.tsv",
+      "source": "artifacts/crow-v15-perch-grip-balance-20261110/diagnostic-reserved-final-j-grip3.tsv.gz",
+      "sha256": "b3d3736ada4bd68c5a17e810b72555b1eb6f039cca5207bbcd668fc6f30cd748",
+      "bytes": 2183909
+    },
+    {
+      "raw": "build/crow-v15-integrated-route-baseline-20261110/diagnostic-reserved-final-j-grip6.json",
+      "source": "artifacts/crow-v15-perch-grip-balance-20261110/diagnostic-reserved-final-j-grip6.json.gz",
+      "sha256": "bd94246b86a00c4423df18efc32a3a7f75fb6adb63d5a5ae55d6c31130575655",
+      "bytes": 99546788
+    },
+    {
+      "raw": "build/crow-v15-integrated-route-baseline-20261110/diagnostic-reserved-final-j-grip6.tsv",
+      "source": "artifacts/crow-v15-perch-grip-balance-20261110/diagnostic-reserved-final-j-grip6.tsv.gz",
+      "sha256": "f6d031de70e0467195c6b0393ccc7ed07db74ab2150c8ee1623a73a6cd0fe4ff",
+      "bytes": 2184714
+    },
+    {
+      "raw": "build/crow-v15-integrated-route-baseline-20261110/diagnostic-reserved-final-j-ankle6.json",
+      "source": "artifacts/crow-v15-perch-ankle-balance-20261110/diagnostic-reserved-final-j-ankle6.json.gz",
+      "sha256": "c98fe1ba704dcef2270fb528af2cf159c3dd53c5572eb739fd9f8acc6bcb8b6b",
+      "bytes": 99378473
+    },
+    {
+      "raw": "build/crow-v15-integrated-route-baseline-20261110/diagnostic-reserved-final-j-ankle6.tsv",
+      "source": "artifacts/crow-v15-perch-ankle-balance-20261110/diagnostic-reserved-final-j-ankle6.tsv.gz",
+      "sha256": "17f3e7f11fd4c01c7e19ef5ca102047829abe382374288b6f8a623e44d619fbc",
+      "bytes": 2183398
+    },
+    {
+      "raw": "build/crow-v15-integrated-route-baseline-20261110/diagnostic-reserved-final-j-ankle3.tsv",
+      "source": "artifacts/crow-v15-perch-ankle-balance-20261110/diagnostic-reserved-final-j-ankle3.tsv.gz",
+      "sha256": "7f9e1c4a04f24b0241a20c0268d95d09f758837773709863ba8edff8d2044edf",
+      "bytes": 2184682
+    },
+    {
+      "raw": "build/crow-v15-integrated-route-baseline-20261110/diagnostic-reserved-final-j-ankle3.json",
+      "source": "artifacts/crow-v15-perch-ankle-balance-20261110/diagnostic-reserved-final-j-ankle3.json.gz",
+      "sha256": "974bcdad1f22a3135aa35b3f4e2f23dcc8b3c3d75b4fce7092ede30082928c9a",
+      "bytes": 99521095
+    },
+    {
+      "raw": "build/crow-v15-integrated-route-baseline-20261110/diagnostic-reserved-final-j.json",
+      "source": "artifacts/crow-v15-perch-force-observer-20261110/diagnostic-reserved-final-j.json.gz",
+      "sha256": "0f659ab7d8000e6c7b44d72d1405200a9355584968bc864b3c57b745c543f7e9",
+      "bytes": 99592076
+    },
+    {
+      "raw": "build/crow-v15-integrated-route-baseline-20261110/diagnostic-reserved-final-j.tsv",
+      "source": "artifacts/crow-v15-perch-force-observer-20261110/diagnostic-reserved-final-j.tsv.gz",
+      "sha256": "c89c9da8bd4841ee26e8b09780a1f611749b566ff22af2d0059a49e7863ed471",
+      "bytes": 2184617
+    }
+  ]
+}

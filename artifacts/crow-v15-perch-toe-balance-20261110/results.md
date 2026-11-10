@@ -1,0 +1,9 @@
+# Results
+
+Teacher off, full-start, collision-enabled development layout J. The prior actor is out of distribution after the camera correction. Endpoint contacts are not continuous-time or biological qualification. Every arm physically failed before a supported terminal landing.
+
+```
+diagnostic-reserved-final-j-toe110 waypoints [5] end 2763 failure [True] support endpoints 240 longest 179 grip 133 longest 99 clearance 0.137235663736
+diagnostic-reserved-final-j-toe115 waypoints [5] end 2863 failure [True] support endpoints 349 longest 332 grip 226 longest 75 clearance 0.137235663736
+diagnostic-reserved-final-j-toe118 waypoints [5] end 2848 failure [True] support endpoints 334 longest 317 grip 222 longest 141 clearance 0.137235663736
+```

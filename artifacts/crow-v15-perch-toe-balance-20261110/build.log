@@ -1,0 +1,15 @@
+/Users/n/Developer/numi-crow-rl-20261107/build/crow-v15-perch-toe-balance-20261110/toe110.metal:5489:21: warning: unused variable 'seconds' [-Wunused-variable]
+        const float seconds=float(state.episode.x)*dispatch.timing.x;
+                    ^
+1 warning generated.
+toe110 3d41a4eba8303c415cb2baf7938ac954711e4e15d11752b031f0ea3f98451982
+/Users/n/Developer/numi-crow-rl-20261107/build/crow-v15-perch-toe-balance-20261110/toe115.metal:5489:21: warning: unused variable 'seconds' [-Wunused-variable]
+        const float seconds=float(state.episode.x)*dispatch.timing.x;
+                    ^
+1 warning generated.
+toe115 2061b5b1bf3943cb031fddf46b66262f93bf9c6ce5c19ac871a915baab66d23c
+/Users/n/Developer/numi-crow-rl-20261107/build/crow-v15-perch-toe-balance-20261110/toe118.metal:5489:21: warning: unused variable 'seconds' [-Wunused-variable]
+        const float seconds=float(state.episode.x)*dispatch.timing.x;
+                    ^
+1 warning generated.
+toe118 52644232ae7aefafa1d67935cc350f84d11628b900227aedc26a1ba6020ba0bd
