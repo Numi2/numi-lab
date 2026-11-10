@@ -1,0 +1,3 @@
+# Contact-latched front closure prototype
+
+Both control arms exactly reproduced all 200 preceding reference states. Neither front-closure candidate achieved three consecutive bilateral opposing-grip samples or terminal support in this development start. No arm qualifies, and absent grip-conditioned gaps do not establish zero overlap. The root moved forward while pitch increased, and all four trials ultimately fell from the perch; the longest sampled supported run was 7 endpoints for each candidate. These findings indicate a balance/placement problem alongside the toe-contact problem, but do not establish its unique cause. The interval observer and the controllers are research-only and the test is not a full approach, landing, navigation or biological qualification.
