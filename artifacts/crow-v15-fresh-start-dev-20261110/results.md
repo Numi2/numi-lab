@@ -1,0 +1,5 @@
+# Fresh-start development outcome
+
+Both first episodes failed before waypoint five. J terminated at step 2504 after two waypoints when the left wing contacted slalom B; its pre-contact root position was (3.8658, -0.6441, 0.9409) m and velocity (0.2073, -0.2023, -0.1175) m/s. I terminated at step 2468 after two waypoints at the same collider pair, with position (3.8261, 0.1511, 0.9348) m and velocity (0.2501, -0.1147, 0.0911) m/s. Full attitudes, actions and contact records are in the route diagnostics. No solver failure was reported. These are routing/clearance failures; no landing claim is possible. The saved trace can include later automatically reset episodes, but all outcome conclusions and full-sequence audits stop at the first episode.
+
+Both showed the same alternating walking evidence as before and push latch at step 654. Maximum toe angle after 25 free-flight samples was 0.0003232 rad on J and 0.0003262 rad on I. This is an endpoint measure of the modeled joints, not anatomical qualification. Both layouts are development layouts; final K/L remain unused. Do not select or fit on failed demonstrations.
