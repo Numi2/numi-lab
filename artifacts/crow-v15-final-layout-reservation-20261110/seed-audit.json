@@ -1,0 +1,13 @@
+{
+  "method": "literal decimal search in tracked text outside reservation; does not cover untracked, binary, compressed or external history",
+  "results": [
+    {
+      "layout": "K",
+      "other_tracked_path_matches": []
+    },
+    {
+      "layout": "L",
+      "other_tracked_path_matches": []
+    }
+  ]
+}
