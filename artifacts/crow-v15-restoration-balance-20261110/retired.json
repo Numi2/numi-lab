@@ -1,0 +1,11 @@
+{
+  "remote_commit": "18ac70778f35ea0ce5851475d151ed53bda9bdd2",
+  "retired": [
+    {
+      "raw": "artifacts/crow-v15-supported-balance-identification-20261110/results.txt",
+      "archive": "artifacts/crow-v15-supported-balance-identification-20261110/results.txt.gz",
+      "sha256": "5a46e15c4396ee60701231600f0fc3c7b249f60be34b3fcab3c5d6763adfe5cd",
+      "bytes": 13528431
+    }
+  ]
+}
