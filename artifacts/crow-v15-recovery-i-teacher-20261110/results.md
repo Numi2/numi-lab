@@ -1,0 +1,3 @@
+# Guided I recovery from after waypoint three failed at landing
+
+The guide took over at step 2600 after 2599 exact-matching student frames, including the student's physically reached third waypoint at step 2490. It reached all five, but the body struck the perch at step 4828, with reported normal impulse 0.05612 N s. The longest bilateral loaded interval was 37 accepted endpoints and terminal support was absent; one nonfoot perch impulse and no solver-failed steps were recorded. The physical gate fails, so the entire episode is excluded from successful training. This is a used-layout guided result, not an autonomous or held-out success.

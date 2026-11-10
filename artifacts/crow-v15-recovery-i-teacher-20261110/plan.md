@@ -1,0 +1,3 @@
+# Guided recovery from latest student on development I
+
+Before execution, replay the fixed student from full start and begin guided routing at step 2600. Compare q, v, actor observations and actions exactly through step 2599. Require all five waypoints, no physical or solver failure, no nonfoot perch impulse and terminal bilateral load before using only route-prefix samples; failed episodes are excluded. On I the student physically reached waypoint three at step 2490, so takeover at 2600 tests recovery beyond that physically reached prefix. On J the student struck slalom A at step 2312, so takeover is earlier. The body and frozen flight law are unchanged; these are used development layouts and K/L remain unused.
