@@ -1,0 +1,5 @@
+# Measured response to bounded hip and ankle pulses
+
+Five separate 240-tick development replays matched the archived held-toe reference exactly through tick 99. At ticks 100–129, the four perturbations changed both hip or both ankle targets by plus or minus 0.02 rad; the fifth was unperturbed. These are physical servo targets, not applied external forces. Toe contact modes changed across runs, so the finite response is not a globally valid linear model.
+
+At tick 239, relative to the unperturbed run, the negative hip pulse had increased body pitch by 0.079 rad and moved the aggregate center of mass +0.0155 m; the positive hip pulse changed pitch by +0.0056 rad. Positive ankle pulse changed pitch by -0.0086 rad, while negative ankle pulse changed it by +0.0149 rad. Across the whole 240 ticks, observed bilateral opposing-grip samples were 45 for control and 29–34 for pulse cases. Thus hip and ankle corrections interact differently with the contact state; blindly applying opposite corrections to both joints is not justified. The measurements do not establish long-duration stability or qualify landing.
