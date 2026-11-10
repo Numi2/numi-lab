@@ -1,0 +1,27 @@
+--- a/sensor.metal
++++ b/guidance.metal
+@@ -4994,7 +4994,13 @@
+             0.10f+0.30f*actorLatent.x,0.30f*actorLatent.y,
+             0.15f*actorLatent.z,0.975f+0.325f*actorLatent.w);
+         const bool privilegedCommand = (dispatch.sampling.w != 0u && dispatch.assistance.x < 0.5f);
+-        const float4 oracleCommand = privilegedCommand ? state.nutrition : actorCommand;
++        float4 oracleCommand = privilegedCommand ? state.nutrition : actorCommand;
++        if (fixedFlightController && !privilegedCommand && state.episode.z==10u && dispatch.counts.w==30u && state.navigation.z>=5.0f && state.threatTeacher.w<1.5f) {
++            // Delayed, quantized simulation-state feedback; experiment only.
++            const float footError=float(int((state.status.w>>13u)&1023u)-512)*0.001f;
++            oracleCommand.x=clamp(1.2f*footError,-0.18f,0.18f);
++            if(state.threatTeacher.w<0.5f) oracleCommand.w=1.20f;
++        }
+         carrierState.commandAndPhase.x = 0.15f;
+         carrierState.commandAndPhase.y = oracleCommand.y;
+         carrierState.commandExtension.x = oracleCommand.z;
+@@ -6758,7 +6764,8 @@
+                 // The fifth waypoint is an explicit goal observation; no
+                 // obstacle collision geometry or teacher route is consulted.
+                 const float3 finalGoal=crowNavigationWaypointTarget(sceneState+sceneBase,course,4u);
+-                if (phase < 0.5f && length(finalGoal.xy-pos.xy)<0.08f &&
++                const float footX=0.5f*(bodyStates[bodyBase+contactGroups[0].reference.x].position.x+bodyStates[bodyBase+contactGroups[1].reference.x].position.x);
++                if (phase < 0.5f && abs(finalGoal.x-footX)<0.025f && abs(finalGoal.y-pos.y)<0.08f &&
+                     length(yawFrameLinear.xy)<0.08f) phase=1.0f;
+                 uint loadedFeet=0u;
+                 for (uint gi=0u;gi<program.counts0.w;++gi) {
