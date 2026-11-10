@@ -1,0 +1,17 @@
+{
+  "seed_ids": [
+    709815403,
+    709815427
+  ],
+  "checked_prior_git_revision": "b8938ba7af3586935b6188f224ac109fa77c31a2",
+  "git_grep_head_tracked_artifacts_result": "no text matches for either seed, prior to this reservation; compressed blobs are not exhaustively searched",
+  "note": "new seed identifiers for this bounded gait/launch study only; layouts are not held out",
+  "research_body_shader_sha256": "6f7f1f5f5b7c851b96dff8977283c535822cb83f5bdd561b265bc7922864a8da",
+  "no_push_shader_sha256": "ed410f1c8dd3f464e5c09d6f35c5af462c7892454a2054c11d06d6bda0d6fb64",
+  "inputs": {
+    "plan.md": "bb84f85e15b3785c386e3b4854d212da68d24e0de71088ebb816aa7357495bd9",
+    "build.py": "2c7ed5ced1a07c99e70ac5b9ab95af9d570574b215446b5154451d81be938a83",
+    "run.py": "4f25a9a2e8e08de3fbdf26dd305711cc07f7746d7a9ee775c1db2735157a7e27",
+    "no-push.patch": "22e0a587e9b58d0f1b401338a2b2554842ba1e065219b0f5f140b35b54897214"
+  }
+}
