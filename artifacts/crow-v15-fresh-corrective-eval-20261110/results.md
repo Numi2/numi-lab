@@ -1,0 +1,5 @@
+# Teacher-off corrective development evaluation
+
+The fixed actor recovered development I: five waypoints at step 2724, no reported physical or solver failure or nonfoot perch contact, 0.11015 m minimum accepted-step obstacle clearance, toe opening at step 4898, and 2103/2103 post-release samples bilaterally supported. Opposing front and rear toe contacts were present on both feet in 75/100 immediately pre-release samples and absent after opening; front toe contact still occurs after opening, so full clearance of all digits is not established. The modeled toe absolute angle after 25 free samples stayed below 0.000396 rad. Walking and push-off evidence is in the full audit.
+
+The same fixed actor failed development J at step 2500 after two waypoints when the left wing contacted slalom B. Position, attitude, velocity, actions, and contacts are retained. This remains a failed full-sequence result. I supplied a corrective demonstration and neither layout is held out. The terminal landing and release are programmed feedback, not learned intent. All results are accepted endpoint samples, not continuous-substep or biological qualification.

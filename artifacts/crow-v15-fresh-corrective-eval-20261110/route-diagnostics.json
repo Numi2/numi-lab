@@ -1,0 +1,91 @@
+{
+  "j-corrective": {
+    "first_fatal_contact": {
+      "step": 2500,
+      "position_m": [
+        3.87669802,
+        -0.605585873,
+        0.975765228
+      ],
+      "orientation_xyzw": [
+        0.00265331427,
+        0.0232893936,
+        0.0205888003,
+        0.999513209
+      ],
+      "linear_velocity_m_s": [
+        0.22397083,
+        -0.207711831,
+        0.120146997
+      ],
+      "angular_velocity_rad_s": [
+        -0.0720252544,
+        0.0288948845,
+        0.0302401129
+      ],
+      "policy_action": [
+        0.503363848,
+        -0.0211792514,
+        0.205441162,
+        -0.259244889,
+        0.552757978,
+        -0.518888175,
+        0.417660922,
+        -0.0678993762,
+        0.520536423,
+        0.828294098,
+        -0.0552089065,
+        0.0423000716,
+        0.54670316,
+        -0.0874162391,
+        -0.176200137,
+        0.358485967,
+        0,
+        0
+      ],
+      "contacts": [
+        {
+          "a": 5,
+          "a_name": "crow_left_wing",
+          "b": 29,
+          "b_name": "crow_course_slalom_b",
+          "normal_impulse": 0.00708182482,
+          "separation": -0.0107699018
+        },
+        {
+          "a": 5,
+          "a_name": "crow_left_wing",
+          "b": 29,
+          "b_name": "crow_course_slalom_b",
+          "normal_impulse": 0,
+          "separation": -0.00738766836
+        }
+      ]
+    },
+    "minimum_accepted_step_obstacle_clearance": {
+      "lane": 0,
+      "end_step": 2500,
+      "minimum_step": 2497,
+      "minimum_m": 0,
+      "bird_shape": "crow_left_wing/collision",
+      "obstacle_shape": "crow_course_slalom_b/collision",
+      "bird_body": "crow_left_wing",
+      "obstacle_body": "crow_course_slalom_b",
+      "sampling": "accepted_control_steps"
+    }
+  },
+  "i-corrective": {
+    "first_fatal_contact": null,
+    "minimum_accepted_step_obstacle_clearance": {
+      "lane": 0,
+      "end_step": 7001,
+      "minimum_step": 2252,
+      "minimum_m": 0.110146515671,
+      "bird_shape": "crow_right_wing/collision",
+      "obstacle_shape": "crow_course_slalom_a/collision",
+      "bird_body": "crow_right_wing",
+      "obstacle_body": "crow_course_slalom_a",
+      "sampling": "accepted_control_steps"
+    }
+  }
+}
