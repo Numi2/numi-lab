@@ -1,0 +1,18 @@
+--- a/zero-damping-obstacle-off.cpp
++++ b/wing-inertia.cpp
+@@ -20,6 +20,7 @@
+ #include "metalrobo/RuntimeAbi.hpp"
+ #include "metalrobo/RobotDescriptionCooker.hpp"
+ #include "metalrobo/RunProgram.hpp"
++#include "wing_model.hpp"
+ #include "metalrobo/VisualPlatform.hpp"
+ #include "metalrobo/WorldPack.hpp"
+ 
+@@ -3539,6 +3540,7 @@
+                 : "birdflow_american_crow_journey_v7_run"
+             : "birdflow_american_crow_estimated_hybrid_run";
+         manifest.robot = activeNavigation ? crowToeModel() : std::move(*robot);
++        if (activeNavigation) crowResearchWingInertia(manifest.robot);
+         manifest.scene = cueConfig ? metalrobo::makeAmericanCrowForagingFixtureManifest(cueConfig->occluded!=0).scene : worldModelNavigation
+             ? metalrobo::makeBirdFlowAmericanCrowNavigationScenePack()
+             : metalrobo::makeBirdFlowAmericanCrowFlightScenePack();

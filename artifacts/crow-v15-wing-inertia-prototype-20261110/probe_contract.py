@@ -1,0 +1,3 @@
+from pathlib import Path
+import subprocess,os,json
+R=Path.cwd();A=R/'artifacts/crow-v15-wing-inertia-prototype-20261110';B=R/'build/crow-v15-wing-inertia-prototype-20261110';cmd=json.loads((R/'artifacts/crow-v15-toe-free-flight-20261110/probe-command.json').read_text());cmd[cmd.index('--state-trace')+1]=str(B/'probe.tsv');env={**os.environ,'DYLD_LIBRARY_PATH':str(B),'PYTHONDONTWRITEBYTECODE':'1'};p=subprocess.run(cmd,cwd=R,env=env,text=True,capture_output=True,timeout=90);(A/'contract-probe.stdout').write_text(p.stdout);(A/'contract-probe.stderr').write_text(p.stderr);(A/'contract-probe.json').write_text(json.dumps({'argv':cmd,'returncode':p.returncode},indent=2)+'\n');print('returncode',p.returncode);print(p.stderr[-1600:])

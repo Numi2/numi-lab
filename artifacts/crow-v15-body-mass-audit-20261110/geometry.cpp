@@ -1,0 +1,5 @@
+#define main toe_free_admission_main
+#include "../crow-v15-toe-grip-redamping-20261110/toe_model.cpp"
+#undef main
+#include <iomanip>
+int main(){auto p=toeModel();auto&m=p.mechanics;std::vector<double>q(m.defaultQ.begin(),m.defaultQ.end()),v(m.defaultV.begin(),m.defaultV.end());std::vector<ArticulatedBodyKinematics>b(m.bodies.size());auto s=computeArticulatedBodyKinematics(m,0,q,v,b);need(s.succeeded(),"FK failure");std::cout<<std::setprecision(12);for(unsigned i=0;i<7;i++){auto&x=m.bodies[i];auto&y=b[i];std::cout<<m.bodyNames[i]<<" mass "<<x.massAndInverseMass.x<<" I "<<x.inertiaRow0.x<<" "<<x.inertiaRow1.y<<" "<<x.inertiaRow2.z<<" "<<x.inertiaRow0.z<<" COM "<<y.centerOfMassPosition[0]<<" "<<y.centerOfMassPosition[1]<<" "<<y.centerOfMassPosition[2]<<"\n";}for(unsigned i=0;i<6;i++){auto&j=m.joints[i];std::cout<<m.jointNames[i]<<" parent "<<j.parentBody<<" child "<<j.childBody<<" pa "<<j.parentAnchor.x<<" "<<j.parentAnchor.y<<" "<<j.parentAnchor.z<<" ca "<<j.childAnchor.x<<" "<<j.childAnchor.y<<" "<<j.childAnchor.z<<" axis "<<j.axis0.x<<" "<<j.axis0.y<<" "<<j.axis0.z<<"\n";}}

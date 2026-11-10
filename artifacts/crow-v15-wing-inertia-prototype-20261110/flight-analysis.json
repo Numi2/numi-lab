@@ -1,0 +1,239 @@
+{
+  "argv": [
+    "/Users/n/Developer/numi-crow-rl-20261107/build/bin/metalrobo_task_rollout",
+    "--birdflow-american-crow-journey",
+    "--birdflow-journey-variant",
+    "v15",
+    "--metallib",
+    "/Users/n/Developer/numi-crow-rl-20261107/build/crow-v15-toe-free-flight-20261110/tracking.metallib",
+    "--birdflow-navigation-course",
+    "training",
+    "--envs",
+    "8",
+    "--steps",
+    "1600",
+    "--repeats",
+    "1",
+    "--chunk",
+    "1",
+    "--physics-substeps",
+    "4",
+    "--seed",
+    "18647329",
+    "--no-scheduled-resets",
+    "--minimum-difficulty-band",
+    "10",
+    "--maximum-difficulty-band",
+    "10",
+    "--policy-pack",
+    "/Users/n/Developer/numi-crow-rl-20261107/build/crow-v15-wing-inertia-prototype-20261110/zero.policypack",
+    "--visual-observation-config",
+    "/Users/n/Developer/numi-crow-rl-20261107/artifacts/crow-v15-visual-binding-fix-20261110/crow-navigation.toe-body.visual-observation.json",
+    "--state-trace",
+    "/Users/n/Developer/numi-crow-rl-20261107/build/crow-v15-wing-inertia-prototype-20261110/flight.tsv",
+    "--state-trace-environment",
+    "0"
+  ],
+  "host_sha256": "e5245d37c0c16d3c5fce102a6930a3faf02f0ae05d657712214e4100f7022eab",
+  "policy_sha256": "7340e39ae33676752ac7eadc3bffc17e2a42d8c90705f27166aebe2c16282b7d",
+  "failed_environment_steps": 0,
+  "first_episode": {
+    "boundary": "waypoint completion; does not establish supported landing",
+    "closed_by_environment": [
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true
+    ],
+    "closed_episode_count": 8,
+    "completion_seen_by_environment": [
+      false,
+      false,
+      false,
+      false,
+      false,
+      false,
+      false,
+      false
+    ],
+    "completion_seen_count": 0,
+    "environment_count": 8,
+    "first_completion_step_by_environment": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "horizon_censored_count": 0,
+    "maximum_waypoints_by_environment": [
+      1,
+      1,
+      2,
+      2,
+      1,
+      1,
+      1,
+      2
+    ],
+    "physical_failure_by_environment": [
+      false,
+      false,
+      false,
+      false,
+      false,
+      false,
+      false,
+      false
+    ],
+    "physical_failure_count": 0,
+    "safe_completion_by_environment": [
+      false,
+      false,
+      false,
+      false,
+      false,
+      false,
+      false,
+      false
+    ],
+    "safe_completion_count": 0,
+    "schema": "numi.crow-first-episode-evidence.v1",
+    "steps_by_environment": [
+      1600,
+      1600,
+      1600,
+      1600,
+      1600,
+      1600,
+      1600,
+      1600
+    ],
+    "termination_reason_by_environment": [
+      4,
+      4,
+      4,
+      4,
+      4,
+      4,
+      4,
+      4
+    ],
+    "unit": "first episode of each environment since context creation"
+  },
+  "lanes": [
+    {
+      "lane": 0,
+      "mode": 0,
+      "first_episode_steps": 1600,
+      "physical_failure": false,
+      "max_errors": [
+        0.018649412914589204,
+        0.0018076693035979988,
+        0.2444975696249111,
+        0.14633206099999996
+      ],
+      "screen_pass": false
+    },
+    {
+      "lane": 1,
+      "mode": 1,
+      "first_episode_steps": 1600,
+      "physical_failure": false,
+      "max_errors": [
+        0.0465694970790525,
+        0.014344521345532601,
+        0.2449767196402748,
+        0.14623895899999995
+      ],
+      "screen_pass": false
+    },
+    {
+      "lane": 2,
+      "mode": 2,
+      "first_episode_steps": 1600,
+      "physical_failure": false,
+      "max_errors": [
+        0.04838738790957898,
+        0.012503430515350134,
+        0.2651986828317262,
+        0.14396247900000003
+      ],
+      "screen_pass": false
+    },
+    {
+      "lane": 3,
+      "mode": 3,
+      "first_episode_steps": 1600,
+      "physical_failure": false,
+      "max_errors": [
+        0.018649147211883765,
+        0.0018087440288834522,
+        0.24433213177015423,
+        0.14634178900000006
+      ],
+      "screen_pass": false
+    },
+    {
+      "lane": 4,
+      "mode": 4,
+      "first_episode_steps": 1600,
+      "physical_failure": false,
+      "max_errors": [
+        0.018649238657021734,
+        0.0018081584349148427,
+        0.2444582196894034,
+        0.146337116
+      ],
+      "screen_pass": false
+    },
+    {
+      "lane": 5,
+      "mode": 0,
+      "first_episode_steps": 1600,
+      "physical_failure": false,
+      "max_errors": [
+        0.018649446346389157,
+        0.001807586695985854,
+        0.24449840238471876,
+        0.14633206099999996
+      ],
+      "screen_pass": false
+    },
+    {
+      "lane": 6,
+      "mode": 1,
+      "first_episode_steps": 1600,
+      "physical_failure": false,
+      "max_errors": [
+        0.04677117673397041,
+        0.014347516491480194,
+        0.24497457710122172,
+        0.14623985299999998
+      ],
+      "screen_pass": false
+    },
+    {
+      "lane": 7,
+      "mode": 2,
+      "first_episode_steps": 1600,
+      "physical_failure": false,
+      "max_errors": [
+        0.05038161473462555,
+        0.01317755679334659,
+        0.318771839954505,
+        0.149161851
+      ],
+      "screen_pass": false
+    }
+  ],
+  "pass_count": 0,
+  "scope": "Exploratory estimated modified body, fixed-head zero actor, obstacles disabled; not a qualification or biological validation."
+}

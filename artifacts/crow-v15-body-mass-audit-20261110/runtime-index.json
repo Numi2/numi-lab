@@ -5,6 +5,11 @@
     "bytes": 61672
   },
   {
+    "path": "build/crow-v15-body-mass-audit-20261110/geometry",
+    "sha256": "68ed4710afc8f90204d686e93dc8907cea841f36c65cb7d92c852d838fcdfb3b",
+    "bytes": 62280
+  },
+  {
     "path": "build/lib/libmetalrobo.dylib",
     "sha256": "d7dad802978b03d8571487dac644678d2c4c1a8eae5b8a4c5c57be261cfbe11a",
     "bytes": 5728528

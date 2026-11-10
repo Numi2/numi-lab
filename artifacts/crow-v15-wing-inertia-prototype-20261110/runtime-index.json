@@ -1,0 +1,27 @@
+[
+  {
+    "path": "build/crow-v15-wing-inertia-prototype-20261110/probe",
+    "sha256": "ba21af61926c79bbb489f739da73f0e652e88a69bfdf1adedf6d0acd97e88d5f",
+    "bytes": 85128
+  },
+  {
+    "path": "build/crow-v15-wing-inertia-prototype-20261110/libmetalrobo.dylib",
+    "sha256": "e5245d37c0c16d3c5fce102a6930a3faf02f0ae05d657712214e4100f7022eab",
+    "bytes": 5764080
+  },
+  {
+    "path": "build/crow-v15-wing-inertia-prototype-20261110/zero.policypack",
+    "sha256": "7340e39ae33676752ac7eadc3bffc17e2a42d8c90705f27166aebe2c16282b7d",
+    "bytes": 2346385
+  },
+  {
+    "path": "build/crow-v15-toe-free-flight-20261110/tracking.metallib",
+    "sha256": "b499fe30e5a08ef4f78eb281dedc4e33ffa145007dfdd470a7537d75ef286237",
+    "bytes": 4462848
+  },
+  {
+    "path": "build/lib/libmetalrobo.dylib",
+    "sha256": "d7dad802978b03d8571487dac644678d2c4c1a8eae5b8a4c5c57be261cfbe11a",
+    "bytes": 5728528
+  }
+]
