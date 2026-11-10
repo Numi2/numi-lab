@@ -1,0 +1,15 @@
+--- a/bouncerelease.metal
++++ b/hold.metal
+@@ -5094,8 +5094,10 @@
+         // Ending at waypoint four taught an aggressive approach crossing but
+         // handed the student a poor terminal arrival geometry. Autonomous
+         // execution still has no teacher authority.
+-        if (fixedFlightController && state.threatTeacher.w >= 1.5f && action < 15u)
+-            navigationTeacherRequested = 0.0f;
++        if (fixedFlightController && state.threatTeacher.w >= 1.5f && action < 15u) {
++            const float remaining=1.0f;
++            navigationTeacherRequested=(action>=7u && action<=12u) ? remaining*teacherRequested : 0.0f;
++        }
+         const float navigationTeacherBlend = fixedFlightController
+             ? 1.0f
+             : avianNavigationTeacher

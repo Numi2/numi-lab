@@ -1,0 +1,4 @@
+artifacts/crow-v15-landing-posture-transition-20261110/diagnostic-reserved-final-j-hold-newstart.stdout end 2678 support run 0 grip run 0 passed False
+artifacts/crow-v15-landing-posture-transition-20261110/diagnostic-reserved-final-j-hold-original.stdout end 2751 support run 0 grip run 0 passed False
+artifacts/crow-v15-landing-posture-transition-20261110/diagnostic-reserved-final-j-soft-newstart.stdout end 2664 support run 0 grip run 0 passed False
+artifacts/crow-v15-landing-posture-transition-20261110/diagnostic-reserved-final-j-soft-original.stdout end 2735 support run 0 grip run 0 passed False
