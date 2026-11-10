@@ -12,13 +12,12 @@ int main(){for(unsigned caseId=1;caseId<2;caseId++) for(unsigned arm=0;arm<4;arm
  MetalWorldStepConfig c;c.timestepSeconds=.02f;c.physicsSubsteps=4;c.solverMode=MetalWorldSolverMode::temporalCone;c.actuationMode=MetalWorldActuationMode::implicitPositionDrive;c.velocityIterations=4u;c.finalVelocityIterations=2;c.captureContactEvidence=true;c.matrixFreeArticulatedContact=arm!=2;c.streamedArticulatedContactResponses=arm!=1 && arm!=2;c.warmStart=arm!=3;if(matchedCCD){c.ccdMode=MetalWorldCCDMode::hybrid;c.maxCCDEvents=16u;}
  MetalWorldConfig cfg;if(matchedCCD)cfg.metallibPath="/Users/n/Developer/numi-crow-rl-20261107/build/crow-v15-alternating-foot-release-20261110/teacher.metallib";MetalWorldContext ctx(cfg);MetalWorldResidentState resident;unsigned phase=0,stable=0,dual=0,hold=0,transition=999,success=999,release=999;float front=0,rear=0;double lastPos=0,lastNeg=0,lastUp=0;float pitch=0,pitchRate=0;float individualTarget[8]={};double lastToe[8]={};
  for(unsigned t=0;t<200;t++){
-  if(true){  if(t==10)phase=1;if(t>=120&&phase!=4){phase=4;release=t;}if(phase==1)rear=arm==3?std::min(.85f,rear+(lastPos>.00005?0.f:.005f)):std::min(.85f, .02f*float(t-10));if(phase==2){if(arm==0)rear=.85f;else rear=std::min(.85f,rear+(lastPos>.00005?0.f:(arm==3?.0025f:.01f)));front=std::clamp(front+((arm>=2 && lastNeg>.00005)?0.f:(lastPos>.00005?(arm==3?.00625f:.025f):-.015f)),0.f,.85f);}if(phase==3){if(arm==0)rear=.85f;else rear=std::min(.85f,rear+(lastPos>.00005?0.f:(arm==3?.0025f:.01f)));if(++hold>=10){phase=4;release=t;}}if(phase==4){if(true){rear=std::max(0.f,rear-.04f);if(rear<=0.0001f)front=std::max(0.f,front-.04f);}else if(false){front=std::max(0.f,front-.04f);if(front<=0.0001f)rear=std::max(0.f,rear-.04f);}else{front=std::max(0.f,front-.02f);rear=std::max(0.f,rear-.02f);}}} else {
-   if(t==10)phase=1;
-   if(t>=120 && phase!=4){phase=4;release=t;}
-   if(phase==1||phase==3){const float step=.01f;for(int k=0;k<8;k++)if(lastToe[k]<=.00005)individualTarget[k]=std::min(.85f,individualTarget[k]+step);}
-   if(phase==3 && ++hold>=10){phase=4;release=t;}
-   if(phase==4)for(float &v:individualTarget)v=std::max(0.f,v-.04f);
-  }
+  if(t==10)phase=1;if(t>=120&&phase!=4){phase=4;release=t;}
+  if(phase==1)rear=std::min(.85f,.02f*float(t-10));
+  if(phase==2){rear=.85f;front=std::clamp(front+(lastPos>.00005?.025f:-.015f),0.f,.85f);}
+  if(phase==3){rear=.85f;if(++hold>=10){phase=4;release=t;}}
+  if(phase==4){rear=std::max(0.f,rear-.04f);if(rear<=0.0001f)front=std::max(0.f,front-.04f);}
+
   std::vector<float> commands(nv,0);for(const auto& d:run.model().dofs)if(d.vIndex<nv && d.qIndex<nq && (d.flags&MR_DOF_FLAG_DRIVE)){float target=q[d.qIndex];if(phase>=3 && lastUp>0.001 && (d.qIndex==14 || d.qIndex==16 || d.qIndex==17 || d.qIndex==19)) { const float correction=std::clamp(balanceGain*(pitch+0.15f*pitchRate),-0.2f,0.2f);target+=(d.qIndex==16 || d.qIndex==19) ? -correction : correction; }if(d.vIndex>=nv-8){bool isRear=(d.vIndex-(nv-8))%4==3;target=enabled?(isRear?rear:front):0.f;}commands[d.vIndex]=target;}
   MetalWorldBatch batch{.environmentCount=1,.controlStepCount=1,.efforts=commands};if(t==0){batch.initialQ=q;batch.initialV=v;batch.initialSceneBodies=scene;}MetalWorldSubmission sub;auto status=t==0?ctx.initializeResidentState(run.world(),batch,c,resident,sub):ctx.submitResident(run.world(),batch,c,resident,sub);need(status.succeeded(),"submit: "+status.message);MetalWorldResult out;status=sub.wait(out);need(status.succeeded()&&status.failedStepCount==0&&status.successfulStepCount==1,"step "+std::to_string(t)+": "+status.message);
   if(t==0){const auto& g=scene[0];std::cout<<"groundpose "<<caseId<<" "<<arm<<" "<<g.position.x<<" "<<g.position.y<<" "<<g.position.z<<" "<<g.orientation.x<<" "<<g.orientation.y<<" "<<g.orientation.z<<" "<<g.orientation.w<<std::endl;}
