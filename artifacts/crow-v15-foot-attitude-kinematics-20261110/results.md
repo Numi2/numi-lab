@@ -1,0 +1,3 @@
+# Foot pitch kinematics in the tipping trial
+
+Independent articulated forward kinematics at an accepted 45 mm-offset landing state shows that +0.1 rad changes in root pitch or any one of hip, knee and ankle pitch each increase the left foot pitch by approximately 0.1 rad locally. During the recorded fall, root and foot pitch increased together from approximately 0.043 and 0.039 rad at step 2600 to 0.805 and 0.807 rad at step 2850. The existing balance controller's opposite hip and ankle targets approximately cancel in total foot angle; this motivates a separate bounded ankle/leg response test. This is a local kinematic observation, not evidence that a controller will stabilize contact or a biological claim.

@@ -1,0 +1,12 @@
+[
+  {
+    "path": "build/crow-v15-foot-attitude-kinematics-20261110/fk_probe",
+    "sha256": "6e679413252bafa514007014687138b74f5df063ca59980d3906a2b92568d34a",
+    "bytes": 64808
+  },
+  {
+    "path": "build/lib/libmetalrobo.dylib",
+    "sha256": "d7dad802978b03d8571487dac644678d2c4c1a8eae5b8a4c5c57be261cfbe11a",
+    "bytes": 5728528
+  }
+]

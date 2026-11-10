@@ -1,0 +1,3 @@
+# Maintaining toe curl under load
+
+All four teacher-off trials on previously used J starts reached five waypoints but physically failed. A 1.10 rad lower bound on the front-toe target produced longest opposed-grip runs of 102 and 88 endpoint samples and failed at steps 2850 and 2806. Raising both front and rear targets produced 0 and 91 samples and failed at 2677 and 2773. None passed the 4500-step terminal support/grip gate; increasing curl did not solve the tipping problem. This accepted-state prototype and its out-of-distribution legacy actor do not qualify visual autonomous navigation or biological behavior. No variant is promoted.

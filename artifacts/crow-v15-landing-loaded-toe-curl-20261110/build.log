@@ -1,0 +1,10 @@
+/Users/n/Developer/numi-crow-rl-20261107/build/crow-v15-landing-loaded-toe-curl-20261110/front.metal:5500:21: warning: unused variable 'seconds' [-Wunused-variable]
+        const float seconds=float(state.episode.x)*dispatch.timing.x;
+                    ^
+1 warning generated.
+front a507d258f716a0d38a26c312b3783e04806b881a33dbedd640944d5003771bf0
+/Users/n/Developer/numi-crow-rl-20261107/build/crow-v15-landing-loaded-toe-curl-20261110/both.metal:5500:21: warning: unused variable 'seconds' [-Wunused-variable]
+        const float seconds=float(state.episode.x)*dispatch.timing.x;
+                    ^
+1 warning generated.
+both 60a95986af6c581c6e0f20929d82660f8e5fb5f0e0d69c9e99a7bc93cf22f59e
