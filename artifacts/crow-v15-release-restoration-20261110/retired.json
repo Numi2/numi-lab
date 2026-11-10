@@ -1,0 +1,47 @@
+{
+  "remote_commit": "5189f5701fc6674ecfe3365d41a36db5b516f2c6",
+  "retired": [
+    {
+      "raw": "build/crow-v15-long-perch-host-20261110/development-j-contact-release.json",
+      "archive": "artifacts/crow-v15-contact-release-route-20261110/development-j-contact-release.json.gz",
+      "sha256": "c9e868956caaaa48f3130ce8b7289df180c88c3ccf0c2183727611b99a90c78b",
+      "bytes": 229687895
+    },
+    {
+      "raw": "build/crow-v15-long-perch-host-20261110/development-j-contact-release.tsv",
+      "archive": "artifacts/crow-v15-contact-release-route-20261110/development-j-contact-release.tsv.gz",
+      "sha256": "fd26f02d634b3a29a5ee4aeae494ae33c9b5bbe4646e41d7a68b903b0b033754",
+      "bytes": 5020546
+    },
+    {
+      "raw": "build/crow-v15-long-perch-host-20261110/development-i-contact-release.json",
+      "archive": "artifacts/crow-v15-contact-release-i-20261110/development-i-contact-release.json.gz",
+      "sha256": "a68e1ced040cd0c0a2d98eef9a3d5026ee97db5a0a2be0e17dd5ad4be4b2c57b",
+      "bytes": 231207000
+    },
+    {
+      "raw": "build/crow-v15-long-perch-host-20261110/development-i-contact-release.tsv",
+      "archive": "artifacts/crow-v15-contact-release-i-20261110/development-i-contact-release.tsv.gz",
+      "sha256": "cdf166bb68bae103fb2c6dce13228b3858f936561b90eb3d6d2836a890cbbb79",
+      "bytes": 5005701
+    },
+    {
+      "raw": "build/crow-v15-long-perch-host-20261110/development-j-student-recovery.json",
+      "archive": "artifacts/crow-v15-student-recovery-20261110/development-j-student-recovery.json.gz",
+      "sha256": "d038c89b16c8fb6f29fc68adfa84f32249e9174bef5de4ed700619fcd6162c6a",
+      "bytes": 229606671
+    },
+    {
+      "raw": "build/crow-v15-long-perch-host-20261110/development-j-student-recovery.tsv",
+      "archive": "artifacts/crow-v15-student-recovery-20261110/development-j-student-recovery.tsv.gz",
+      "sha256": "a18aafadf77433bbbb1793f0fcfa959dcdd69ed0ce5bcda78e20a5f4a5b111fb",
+      "bytes": 4968839
+    },
+    {
+      "raw": "build/crow-v15-long-perch-host-20261110/development-j-student-recovery.rollout",
+      "archive": "artifacts/crow-v15-student-recovery-20261110/development-j-student-recovery.rollout.gz",
+      "sha256": "a1bf3cd8702f1d7dc923317b5675102a58f74c5f56675d1c994842cd5af2bddf",
+      "bytes": 27832928
+    }
+  ]
+}
