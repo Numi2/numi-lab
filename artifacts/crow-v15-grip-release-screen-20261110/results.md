@@ -1,0 +1,3 @@
+# Supported-grip release strategy screen
+
+Both controls reproduced all 200 reference states exactly. The simultaneous slow-opening and front-first alternatives each retained the same 11 supported opposing-grip samples but neither retained terminal support, and the common pre-release grip overlap remained 1.128 mm. Neither qualifies for integration. The balance gate uses toe upward contact rather than the whole foot; once toes open, it may lose its support signal despite sole contact. That needs a separate controlled test and is not established as the sole cause of the fall. This remains one stationary development drop, not full landing, flight, navigation or biological qualification.
