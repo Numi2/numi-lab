@@ -1,0 +1,11 @@
+--- a/RunProgram.cpp
++++ b/RunProgram-branch.cpp
+@@ -1790,7 +1790,7 @@
+         {"crow_course_slalom_b", {}, {0.0f, 0.0f, 0.0f, 1.0f},
+             {0.10f, 0.10f, 0.65f, 0.0f}},
+         {"crow_course_perch", {}, {0.0f, 0.0f, 0.0f, 1.0f},
+-            {0.10f, 0.72f, 0.055f, 0.0f}},
++            {0.03f, 0.72f, 0.03f, 0.0f}},
+     }};
+     constexpr std::array<mr_float4, 5u> poses{{
+         {1.35f, 0.68f, 0.80f, 1.0f},

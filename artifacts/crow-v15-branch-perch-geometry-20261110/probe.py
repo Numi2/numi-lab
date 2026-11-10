@@ -1,0 +1,5 @@
+from pathlib import Path
+import os,json,subprocess
+R=Path.cwd();A=R/'artifacts/crow-v15-branch-perch-geometry-20261110';B=R/'build/crow-v15-branch-perch-geometry-20261110';cmd=json.loads((R/'artifacts/crow-v15-integrated-route-baseline-20261110/contract-bindings.json').read_text())['argv']
+for k,v in [('--metallib',str(R/'build/crow-v15-toe-height-bracket-20261110/teacher.metallib')),('--steps','1'),('--envs','1'),('--birdflow-navigation-course','reserved-final-j'),('--policy-pack',str(R/'build/crow-v15-long-horizon-20261110/landing-long.policypack')),('--base-policy-pack',str(R/'build/crow-v15-long-horizon-20261110/route-long.policypack')),('--state-trace',str(B/'probe.tsv')),('--state-trace-environment','0'),('--crow-replay-pack',str(B/'probe.json'))]:cmd[cmd.index(k)+1]=v
+p=subprocess.run(cmd,cwd=R,env={**os.environ,'DYLD_LIBRARY_PATH':str(B),'PYTHONDONTWRITEBYTECODE':'1'},text=True,capture_output=True,timeout=300);(A/'probe.stdout').write_text(p.stdout);(A/'probe.stderr').write_text(p.stderr);print('exit',p.returncode,'error',p.stderr[-1500:])

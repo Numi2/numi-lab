@@ -1,0 +1,18 @@
+{
+  "world": 4700768818440032191,
+  "task": 10390911830533412130,
+  "observation": 16954010477732590669,
+  "action": 13534676613542742590,
+  "policies": {
+    "landing": {
+      "source_sha256": "a15932cad3aaf0893ef72e649d81eec4731242c27858dc4e9e374214e827df7c",
+      "rebound_sha256": "a107198556e15a808d62456a76cfca68c46099c8df64a53bc409b2ab0446de3b",
+      "note": "Legacy tensors rebound for exploratory diagnostic; no assertion they are trained or valid for this changed branch scene; these weights are not qualified."
+    },
+    "route": {
+      "source_sha256": "4890d10b1c9c2f507a69e6fe7e8f448cbf80a6db78b93f1b29391cfc211966be",
+      "rebound_sha256": "c40815cc20d8e96aacabf2721d42f0a13c0d8ef1501e872000cae84dc36f0f7e",
+      "note": "Legacy tensors rebound for exploratory diagnostic; no assertion they are trained or valid for this changed branch scene; these weights are not qualified."
+    }
+  }
+}

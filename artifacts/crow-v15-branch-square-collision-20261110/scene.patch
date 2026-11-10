@@ -1,0 +1,12 @@
+--- a/c_api.cpp
++++ b/c_api-branch.cpp
+@@ -3551,7 +3551,8 @@
+                     if (object.mechanics.shapeNames[i]!="crow_course_perch/collision") continue;
+                     auto& shape=object.mechanics.shapes.at(i);
+                     if (std::abs(shape.dimensions.x-0.10f)>1e-6f) throw std::logic_error("unexpected original perch width");
+-                    shape.dimensions.x=0.025f;
++                    shape.dimensions.x=0.03f;
++                    shape.dimensions.z=0.03f;
+                     shape.contactRestAndBoundingRadius.z=std::sqrt(shape.dimensions.x*shape.dimensions.x+shape.dimensions.y*shape.dimensions.y+shape.dimensions.z*shape.dimensions.z);
+                     foundPerch=true;
+                 }
