@@ -1,0 +1,8 @@
+/Users/n/Developer/numi-crow-rl-20261107/build/crow-v15-soft-front-grip-20261110/teacher.metal:5555:21: warning: unused variable 'seconds' [-Wunused-variable]
+        const float seconds=float(state.episode.x)*dispatch.timing.x;
+                    ^
+/Users/n/Developer/numi-crow-rl-20261107/build/crow-v15-soft-front-grip-20261110/teacher.metal:6808:28: warning: unused variable 'toeTimers' [-Wunused-variable]
+                const uint toeTimers = (state.status.w & 63u) + ((state.status.w >> 6u) & 63u);
+                           ^
+2 warnings generated.
+a4a7d8052b7c3653c6d6ddafe4c9e658f85bd8729df752f79cc1672f0796ee40

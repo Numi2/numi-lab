@@ -1,0 +1,11 @@
+--- a/teacher.metal
++++ b/soft-front-grip.metal
+@@ -5558,7 +5558,7 @@
+             const uint ramp=(state.status.w>>(side*6u)) & 63u;
+             const uint rearRamp=(state.status.w>>(13u+side*6u)) & 63u;
+             for (uint toe=0u;toe<4u;++toe) {
+-                const float target=!closing ? 0.0f : toe==3u ? min(0.020f*float(rearRamp),0.85f) : min(0.025f*float(ramp),clamp(1.12f-0.8f*state.threatGeometry.z-0.80f*state.threatGeometry.w-2.0f*state.commandExtension.z,0.85f,1.20f));
++                const float target=!closing ? 0.0f : toe==3u ? min(0.020f*float(rearRamp),0.85f) : min(0.025f*float(ramp),clamp(1.12f-0.8f*state.threatGeometry.z-0.80f*state.threatGeometry.w-2.0f*state.commandExtension.z,state.threatTeacher.w>=1.5f ? 1.05f : 0.85f,1.20f));
+                 effortTrajectory[pass.controlStep*worldDispatch.effortStepStride + environment*worldDispatch.effortEnvironmentStride + 22u + side*4u + toe]=target;
+             }
+         }
