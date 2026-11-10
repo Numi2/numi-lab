@@ -1,0 +1,17 @@
+[
+  {
+    "path": "build/crow-v15-velocity-damped-perch-screen-20261110/probe",
+    "sha256": "8f6c1264e8570fd03083c511c25ca6650ebbba8c73c692f9bcf5b6f9c7d70750",
+    "bytes": 101816
+  },
+  {
+    "path": "build/crow-v15-velocity-damped-perch-screen-20261110/libmetalrobo.dylib",
+    "sha256": "f342a206222b4f6ccfb47fb5a6c6be4a843a21ffe63182c8c1cbf94c7ce46863",
+    "bytes": 5729488
+  },
+  {
+    "path": "build/crow-v15-alternating-foot-release-20261110/teacher.metallib",
+    "sha256": "a1fa801ac2f2ea5e557a54073b280039e5bb60422d8b5beb1cd90b2ec22c459b",
+    "bytes": 4485424
+  }
+]
