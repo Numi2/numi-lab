@@ -1,0 +1,158 @@
+{
+  "first_episode": {
+    "boundary": "waypoint completion; does not establish supported landing",
+    "closed_by_environment": [
+      true
+    ],
+    "closed_episode_count": 1,
+    "completion_seen_by_environment": [
+      true
+    ],
+    "completion_seen_count": 1,
+    "environment_count": 1,
+    "first_completion_step_by_environment": [
+      2206
+    ],
+    "horizon_censored_count": 0,
+    "maximum_waypoints_by_environment": [
+      5
+    ],
+    "physical_failure_by_environment": [
+      true
+    ],
+    "physical_failure_count": 1,
+    "safe_completion_by_environment": [
+      false
+    ],
+    "safe_completion_count": 0,
+    "schema": "numi.crow-first-episode-evidence.v1",
+    "steps_by_environment": [
+      2673
+    ],
+    "termination_reason_by_environment": [
+      3
+    ],
+    "unit": "first episode of each environment since context creation"
+  },
+  "teacher_on": false,
+  "scheduled_resets": false,
+  "host_requested_resets": 0,
+  "solver_failures": 0,
+  "accepted_sample_count": 2674,
+  "bilateral_support_endpoints": 98,
+  "longest_bilateral_support_run": 95,
+  "bilateral_opposed_toe_grip_endpoints": 0,
+  "longest_opposed_toe_grip_run": 0,
+  "minimum_clearance": {
+    "lane": 0,
+    "end_step": 2000,
+    "minimum_step": 1823,
+    "minimum_m": 0.00509187450695,
+    "bird_shape": "crow_left_wing/collision",
+    "obstacle_shape": "crow_course_slalom_a/collision",
+    "bird_body": "crow_left_wing",
+    "obstacle_body": "crow_course_slalom_a",
+    "sampling": "accepted_control_steps"
+  },
+  "first_fatal_contact": {
+    "step": 2674,
+    "lane": 0,
+    "pre_q": [
+      4.47657967,
+      0.638045669,
+      0.189830661,
+      -0.00418587355,
+      -0.377224803,
+      0.0123427697,
+      0.92602998,
+      -9.39054662e-05,
+      -8.45633549e-05,
+      0.349995852,
+      0.349995911,
+      -1.96657566e-05,
+      2.08110723e-05,
+      0.00176753139,
+      -0.120068796,
+      0.279978037,
+      -0.160004973,
+      -0.120066382,
+      0.279978782,
+      -0.160004541,
+      0.000149680578,
+      0.0333290659,
+      0.0194759201,
+      -2.90276694e-05,
+      -2.90304342e-05,
+      -2.90355529e-05,
+      0.861686587,
+      -2.99738876e-05,
+      -2.99761159e-05,
+      -2.99791045e-05,
+      0.861688793
+    ],
+    "pre_v": [
+      -0.847635865,
+      0.0153518831,
+      -0.528364956,
+      0.000415497314,
+      -0.00520224962,
+      0.000247155287,
+      -0.00288695237,
+      -0.00283516105,
+      -3.52362222e-05,
+      -3.93236878e-05,
+      7.71576015e-05,
+      -5.51646517e-05,
+      -0.132144272,
+      0.00301709748,
+      0.000817401276,
+      0.000470941595,
+      0.00275531248,
+      0.000745676516,
+      0.000430473796,
+      -0.000919723127,
+      -0.268623799,
+      -0.120487854,
+      0.000295544451,
+      0.000294999772,
+      0.00029443021,
+      0.240286589,
+      0.000309924013,
+      0.000309355441,
+      0.000308826886,
+      0.24028787
+    ],
+    "policy_action": [
+      0.138701975,
+      0.0616503432,
+      0.594104588,
+      0.0457723588,
+      0.258378893,
+      -0.165091142,
+      0.285729706,
+      0.0796049014,
+      -0.622672379,
+      -0.270264149,
+      0.0816345662,
+      0.134761557,
+      0.0161055718,
+      -0.730339825,
+      0.125178546,
+      0,
+      0,
+      0
+    ],
+    "contacts": [
+      {
+        "a": 7,
+        "a_name": "crow_tail",
+        "b": 25,
+        "b_name": "locomotion_ground",
+        "normal_impulse": 0.325506955,
+        "separation": -0.000289097574
+      }
+    ]
+  },
+  "final_supported_endpoint": 2644,
+  "scope": "development layout; former actor with changed visual inputs; last-substep endpoint contacts only; not unseen-layout qualification"
+}

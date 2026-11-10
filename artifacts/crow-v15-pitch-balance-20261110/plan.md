@@ -1,0 +1,1 @@
+Based on matched small joint perturbations, apply bounded symmetric hip and ankle pitch feedback only after sustained bilateral toe loading. Test two used J starts as full autonomous 4500-step episodes. Require physical terminal support and toe grip; frozen flight and experimental privileged approach unchanged.
