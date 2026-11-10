@@ -1,0 +1,110 @@
+{
+  "j": {
+    "source_sha256": "a07e631d81c474350dbb4563c453afc9e4e96b86c7cbe66966aa7f714eb047f1",
+    "windows": [
+      {
+        "first_step": 650,
+        "max_absolute_toe_angle_rad": 0.102631614,
+        "samples": 25,
+        "total_foot_contact_impulse_Ns": 0.144252986050316
+      },
+      {
+        "first_step": 675,
+        "max_absolute_toe_angle_rad": 0.000429720822,
+        "samples": 25,
+        "total_foot_contact_impulse_Ns": 0.0
+      },
+      {
+        "first_step": 700,
+        "max_absolute_toe_angle_rad": 0.00029600432,
+        "samples": 25,
+        "total_foot_contact_impulse_Ns": 0.0
+      },
+      {
+        "first_step": 725,
+        "max_absolute_toe_angle_rad": 0.000293536024,
+        "samples": 25,
+        "total_foot_contact_impulse_Ns": 0.0
+      },
+      {
+        "first_step": 750,
+        "max_absolute_toe_angle_rad": 0.000288535462,
+        "samples": 25,
+        "total_foot_contact_impulse_Ns": 0.0
+      },
+      {
+        "first_step": 775,
+        "max_absolute_toe_angle_rad": 0.000288823707,
+        "samples": 25,
+        "total_foot_contact_impulse_Ns": 0.0
+      },
+      {
+        "first_step": 800,
+        "max_absolute_toe_angle_rad": 0.000411127548,
+        "samples": 25,
+        "total_foot_contact_impulse_Ns": 0.0
+      },
+      {
+        "first_step": 825,
+        "max_absolute_toe_angle_rad": 0.000292001001,
+        "samples": 25,
+        "total_foot_contact_impulse_Ns": 0.0
+      }
+    ],
+    "limitations": "Recorded control endpoints; not every substep or biological toe kinematics. The first window includes leg push-off and contact."
+  },
+  "i": {
+    "source_sha256": "377d06cc3837e5c33996b81cc3a1a2c266711d7c0519b80bd81449905cf51aa2",
+    "windows": [
+      {
+        "first_step": 650,
+        "max_absolute_toe_angle_rad": 0.102631621,
+        "samples": 25,
+        "total_foot_contact_impulse_Ns": 0.144253830887183
+      },
+      {
+        "first_step": 675,
+        "max_absolute_toe_angle_rad": 0.000429720618,
+        "samples": 25,
+        "total_foot_contact_impulse_Ns": 0.0
+      },
+      {
+        "first_step": 700,
+        "max_absolute_toe_angle_rad": 0.000296004233,
+        "samples": 25,
+        "total_foot_contact_impulse_Ns": 0.0
+      },
+      {
+        "first_step": 725,
+        "max_absolute_toe_angle_rad": 0.000293535937,
+        "samples": 25,
+        "total_foot_contact_impulse_Ns": 0.0
+      },
+      {
+        "first_step": 750,
+        "max_absolute_toe_angle_rad": 0.000288535462,
+        "samples": 25,
+        "total_foot_contact_impulse_Ns": 0.0
+      },
+      {
+        "first_step": 775,
+        "max_absolute_toe_angle_rad": 0.000288823649,
+        "samples": 25,
+        "total_foot_contact_impulse_Ns": 0.0
+      },
+      {
+        "first_step": 800,
+        "max_absolute_toe_angle_rad": 0.000414811366,
+        "samples": 25,
+        "total_foot_contact_impulse_Ns": 0.0
+      },
+      {
+        "first_step": 825,
+        "max_absolute_toe_angle_rad": 0.000290883589,
+        "samples": 25,
+        "total_foot_contact_impulse_Ns": 0.0
+      }
+    ],
+    "limitations": "Recorded control endpoints; not every substep or biological toe kinematics. The first window includes leg push-off and contact."
+  }
+}
