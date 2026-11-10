@@ -1,0 +1,3 @@
+# Anchored corrective routing training
+
+The once-trained development candidate used both qualified paired-J and delayed-I routing-prefix recoveries and excluded the failed recovery sources. It used 525 observations from the earlier successful difficult-I student run as a preservation anchor. The exported deterministic actor matched the trained actor outputs in the export check. In-trajectory validation error decreased and the preservation-anchor output MSE was 7.84e-6, but those figures do not establish autonomous route or landing performance. The frozen low-level flight controller and original toe body are unchanged. Four teacher-off development tests are preregistered; reserved K/L layouts remain untouched.
