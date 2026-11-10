@@ -1,0 +1,14 @@
+{
+  "reference": "artifacts/crow-v15-student-landing-eval-20261110/j-student-landing.json.gz",
+  "reference_frames": 7000,
+  "observed_frames": 7000,
+  "equal_all_selected_fields": true,
+  "first_differences": [],
+  "scope": [
+    "step",
+    "q",
+    "v",
+    "actor_observation",
+    "accepted_actions"
+  ]
+}

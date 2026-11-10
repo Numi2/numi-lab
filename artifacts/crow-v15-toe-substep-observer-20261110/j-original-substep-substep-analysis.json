@@ -1,0 +1,21 @@
+{
+  "trace_start_submission": 4333,
+  "trace_end_submission": 4552,
+  "release_step_endpoint": 4433,
+  "expected_substeps": 880,
+  "observed_substeps": 880,
+  "missing_count": 0,
+  "before_release_100_control_steps": {
+    "recorded_substeps": 400,
+    "opposed_bilateral_substeps": 368,
+    "longest_opposed_run_substeps": 49,
+    "any_toe_contact_substeps": 400
+  },
+  "after_release_early": {
+    "recorded_substeps": 400,
+    "opposed_bilateral_substeps": 0,
+    "longest_opposed_run_substeps": 0,
+    "any_toe_contact_substeps": 320
+  },
+  "note": "Control step and submission association must be checked by replay parity. This records contact constraints/normal impulses only; zero impulse is not automatically positive geometric separation. Threshold is 0.0000125 Ns per substep, one quarter of the prior endpoint threshold; not biologically calibrated."
+}
