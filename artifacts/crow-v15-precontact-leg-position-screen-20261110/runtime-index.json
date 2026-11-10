@@ -1,0 +1,17 @@
+[
+  {
+    "path": "build/crow-v15-precontact-leg-position-screen-20261110/probe",
+    "sha256": "0ebaf76c2c51d009f64015971d9d13c83189812a6a627663f9c1734825ae2483",
+    "bytes": 101816
+  },
+  {
+    "path": "build/crow-v15-precontact-leg-position-screen-20261110/libmetalrobo.dylib",
+    "sha256": "a51bd511f02cdda72d3773fe5450a84c861b487b1a4bfe5c9179b3903551ee86",
+    "bytes": 5729488
+  },
+  {
+    "path": "build/crow-v15-alternating-foot-release-20261110/teacher.metallib",
+    "sha256": "a1fa801ac2f2ea5e557a54073b280039e5bb60422d8b5beb1cd90b2ec22c459b",
+    "bytes": 4485424
+  }
+]
