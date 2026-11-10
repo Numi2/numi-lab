@@ -1,0 +1,35 @@
+{
+  "remote_commit": "bfd383a1907852635e9dd9334bb9efc3b444ea94",
+  "retired": [
+    {
+      "raw": "artifacts/crow-v15-single-run-substep-toe-audit-20261110/results.txt",
+      "archive": "artifacts/crow-v15-single-run-substep-toe-audit-20261110/results.txt.gz",
+      "sha256": "1d3a6ccc5a029438706572ef4cee9a2e16e2b989ff2c46768617f559cf4bfb01",
+      "bytes": 91256
+    },
+    {
+      "raw": "artifacts/crow-v15-single-run-substep-toe-audit-20261110/substeps.txt",
+      "archive": "artifacts/crow-v15-single-run-substep-toe-audit-20261110/substeps.txt.gz",
+      "sha256": "a7a29c68619b2f0d7a4cde156a51cfc926165d6446a126b877b786ad19e4b360",
+      "bytes": 388121
+    },
+    {
+      "raw": "artifacts/crow-v15-grip-transition-substep-audit-20261110/results.txt",
+      "archive": "artifacts/crow-v15-grip-transition-substep-audit-20261110/results.txt.gz",
+      "sha256": "eeba0a3cf5de2244c62946a78277e838589a73d0bb85f9fcc930a4e76dd58c02",
+      "bytes": 267344
+    },
+    {
+      "raw": "artifacts/crow-v15-grip-transition-substep-audit-20261110/substeps.txt",
+      "archive": "artifacts/crow-v15-grip-transition-substep-audit-20261110/substeps.txt.gz",
+      "sha256": "89a832ed9792961fae09ae10f4ef186b42bf6f7d7d6057be5c277fc135eace14",
+      "bytes": 961419
+    },
+    {
+      "raw": "artifacts/crow-v15-interval-contact-grip-prototype-20261110/results.txt",
+      "archive": "artifacts/crow-v15-interval-contact-grip-prototype-20261110/results.txt.gz",
+      "sha256": "bb4bf2d0bda74e27f482af094f9ccb6c819e81bb96f39dd603b94202f165e46e",
+      "bytes": 835767
+    }
+  ]
+}
