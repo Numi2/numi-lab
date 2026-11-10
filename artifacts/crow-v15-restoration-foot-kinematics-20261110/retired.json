@@ -1,0 +1,11 @@
+{
+  "remote_commit": "8cd52e9e34c9fd8b06caa032254a22701ecf6788",
+  "retired": [
+    {
+      "raw": "artifacts/crow-v15-foot-placement-kinematics-20261110/results.txt",
+      "archive": "artifacts/crow-v15-foot-placement-kinematics-20261110/results.txt.gz",
+      "sha256": "f9818f7c0c9010c83cbc67e242616150157fdf0db6bd4c4ca723ec5720f38e58",
+      "bytes": 8590
+    }
+  ]
+}
