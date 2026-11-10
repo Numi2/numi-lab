@@ -1,0 +1,5 @@
+# Extended-horizon guided development J
+
+The 7000-step research host preserves all accepted q and v values exactly for the first 5000 frames of the previously run 5000-step bounded-rebound J trial. The task fingerprint changed when the maximum episode length changed, so existing policy tensors were explicitly rebound and checked; the retained contract probe shows the initial incompatible-contract rejection.
+
+The guided first episode on used J seed 3193706597 reached five waypoints at step 2784 and ended at step 7000 without recorded physical or solver failure or sampled nonfoot-perch contact. Both feet met the load threshold for 2182 consecutive endpoints (43.64 seconds). The final loads were 2.749 N and 2.475 N. Opposing bilateral toe impulses were present at 1777 endpoints, but their longest uninterrupted run was 33 endpoints (0.66 seconds). Therefore the preregistered uninterrupted opposing-support criterion was not established despite sustained bilateral load. Toe flight values are endpoint-only; biological validity, teacher-off autonomy, deliberate release and unused-layout performance remain unproven.

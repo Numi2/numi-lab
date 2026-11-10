@@ -1,0 +1,38 @@
+{
+  "0": {
+    "mode": "hold",
+    "status": "completed",
+    "samples": 160,
+    "last_40_mean_absolute_toe_angle_rad": 0.977212946875,
+    "bilateral_upward_impulse_samples": 40,
+    "opposed_positive_impulse_samples": 21,
+    "mean_rear_opposing_impulse_Ns": 0.0018941526999999999,
+    "nonfoot_positive_contacts": 0,
+    "body_x_range_m": [
+      5.01603,
+      5.0163
+    ],
+    "body_z_range_m": [
+      1.04867,
+      1.04875
+    ]
+  },
+  "1": {
+    "mode": "ramp_to_zero",
+    "status": "completed",
+    "samples": 160,
+    "last_40_mean_absolute_toe_angle_rad": 0.0095754929166875,
+    "bilateral_upward_impulse_samples": 40,
+    "opposed_positive_impulse_samples": 0,
+    "mean_rear_opposing_impulse_Ns": 0.0,
+    "nonfoot_positive_contacts": 0,
+    "body_x_range_m": [
+      5.01168,
+      5.01291
+    ],
+    "body_z_range_m": [
+      1.04871,
+      1.04877
+    ]
+  }
+}

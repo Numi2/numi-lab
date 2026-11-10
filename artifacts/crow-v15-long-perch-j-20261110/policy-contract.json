@@ -1,0 +1,18 @@
+{
+  "world": 6847124756410337413,
+  "task": 8571717713396890292,
+  "observation": 11774138562172010039,
+  "action": 11469558608319794972,
+  "policies": {
+    "landing": {
+      "source_sha256": "8e7c09102a6ed30d0d89e382a251258ab510e7b8d4f81da72a214eec8996ebb7",
+      "rebound_sha256": "3564922b865e39c4b484285f40c65d74ca6a803531379e7d187e9e7283ccbcc3",
+      "note": "Task fingerprint rebound for extended horizon; tensor equality verified, trajectory parity pending."
+    },
+    "route": {
+      "source_sha256": "af5a106feea3903faa854700c398260d30a82eaf2b82090bdbcde1298ea3a449",
+      "rebound_sha256": "724940ad434f19ac0625af9bd3434ecc2d8e7293140eb1e0a29bd4d2f66f88c6",
+      "note": "Task fingerprint rebound for extended horizon; tensor equality verified, trajectory parity pending."
+    }
+  }
+}

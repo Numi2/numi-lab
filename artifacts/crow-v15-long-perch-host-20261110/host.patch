@@ -1,0 +1,27 @@
+--- a/c_api.cpp
++++ b/c_api.cpp
+@@ -1282,6 +1282,7 @@
+     )
+         ? metalrobo::MetalWorldCCDMode::hybrid
+         : metalrobo::MetalWorldCCDMode::disabled;
++    handle->stepConfig.maxCCDEvents = 16u;
+     handle->stepConfig.applyBodyDamping = true;
+     handle->stepConfig.deterministic = true;
+     handle->stepConfig.warmStart = true;
+@@ -3540,7 +3541,7 @@
+                 : "birdflow_american_crow_journey_v7_run"
+             : "birdflow_american_crow_estimated_hybrid_run";
+         manifest.robot = activeNavigation ? crowToeModel() : std::move(*robot);
+-        if (activeNavigation) crowResearchWingInertia(manifest.robot);
++        if (activeNavigation) { crowResearchWingInertia(manifest.robot); for (auto& shape : manifest.robot.mechanics.shapes) shape.flags |= MR_SHAPE_FLAG_ENABLE_CCD; }
+         manifest.scene = cueConfig ? metalrobo::makeAmericanCrowForagingFixtureManifest(cueConfig->occluded!=0).scene : worldModelNavigation
+             ? metalrobo::makeBirdFlowAmericanCrowNavigationScenePack()
+             : metalrobo::makeBirdFlowAmericanCrowFlightScenePack();
+@@ -3630,6 +3631,7 @@
+                 ? "american_crow_v15_waypoint_expert_navigation_development_v1"
+                 : "american_crow_v15_goal_memory_navigation_development_v1";
+         }
++        if (activeNavigation) { manifest.task.capacities.ccdCandidates = 0u; manifest.task.capacities.ccdEvents = 16u; manifest.task.maximumEpisodeSteps = 7000u; }
+         manifest.profile.capacities = manifest.task.capacities;
+         std::optional<metalrobo::FiniteResourceConfig> resources;
+         if(cueConfig) {

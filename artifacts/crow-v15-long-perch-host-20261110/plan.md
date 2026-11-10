@@ -1,0 +1,3 @@
+# Longer horizon research host
+
+The prior 6500-step request still ended at the task's built-in 5000-step limit. To observe the same uninterrupted episode longer, set only the active navigation task maximum episode length to 7000 control steps in the isolated research host. Preserve the same body, contact instrumentation, CCD budget, shader, policy packs, and seeds. First check accepted q/v state equality through the prior horizon on used development J and I. A divergence invalidates any same-trajectory extension claim; retain it as a separate trial. Test long supported motion with actual contacts, and retain failures and limits. This changes a research host and task fingerprint, not production qualification.

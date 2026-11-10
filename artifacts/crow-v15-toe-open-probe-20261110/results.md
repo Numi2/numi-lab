@@ -1,0 +1,5 @@
+# Reached-state toe-opening probe
+
+From the physically reached guided J step-5000 perch state, two fresh-cache, 0.8-second simulations held the same non-toe joint targets. The control held toe targets; the test ramped the eight toe targets to zero in 0.4 seconds. In the final 40 samples at 5 ms, mean absolute toe angle was 0.9772 rad for hold and 0.00958 rad for open. The hold arm had simultaneous front/rear opposing impulses on both feet in 21/40 samples; the open arm had 0/40, and mean rear opposing impulse fell from 0.001894 N s per sample to zero. Both feet had upward impulse in all 40 samples in both arms; there was no positive nonfoot contact in that window. Both native runs completed.
+
+This establishes an isolated response to commanded opening on the simplified actuated toe model. Contact with a front toe and foot can persist, so it does not imply the entire foot was lifted clear. A fresh cache, fixed other joint targets and one reached state limit the conclusion; this does not demonstrate an integrated controller can intentionally release, take off, or complete either unseen layout autonomously, and is not biological validation.
