@@ -1,0 +1,155 @@
+{
+  "student_prefix_frames": 1849,
+  "exact_prefix_equal": true,
+  "first_differences": [],
+  "nav5_step": null,
+  "first_episode": {
+    "boundary": "waypoint completion; does not establish supported landing",
+    "closed_by_environment": [
+      true
+    ],
+    "closed_episode_count": 1,
+    "completion_seen_by_environment": [
+      false
+    ],
+    "completion_seen_count": 0,
+    "environment_count": 1,
+    "first_completion_step_by_environment": [
+      null
+    ],
+    "horizon_censored_count": 0,
+    "maximum_waypoints_by_environment": [
+      4
+    ],
+    "physical_failure_by_environment": [
+      true
+    ],
+    "physical_failure_count": 1,
+    "safe_completion_by_environment": [
+      false
+    ],
+    "safe_completion_count": 0,
+    "schema": "numi.crow-first-episode-evidence.v1",
+    "steps_by_environment": [
+      2642
+    ],
+    "termination_reason_by_environment": [
+      3
+    ],
+    "unit": "first episode of each environment since context creation"
+  },
+  "first_fatal_contact": {
+    "step": 2643,
+    "lane": 0,
+    "pre_q": [
+      4.30259991,
+      0.316815704,
+      1.15201521,
+      -0.0103005162,
+      0.0221254583,
+      0.0108545162,
+      0.999643207,
+      0.0013656175,
+      -0.00112330238,
+      -0.150639221,
+      -0.138475135,
+      -0.165777236,
+      0.172640622,
+      0.0961678773,
+      -0.190020978,
+      0.414983273,
+      -0.21200408,
+      -0.190020859,
+      0.414983422,
+      -0.212004364,
+      0.000105165833,
+      0.0628109127,
+      0.0121363858,
+      2.15010969e-05,
+      2.16041699e-05,
+      2.17072375e-05,
+      2.15772525e-05,
+      2.08678102e-05,
+      2.0970896e-05,
+      2.10739854e-05,
+      2.09459467e-05
+    ],
+    "pre_v": [
+      0.0605820604,
+      0.234667957,
+      -0.192308426,
+      0.0372192003,
+      0.0280783642,
+      -0.00224660919,
+      0.0377198048,
+      0.0322926864,
+      3.15474415,
+      2.99937844,
+      0.63369292,
+      0.553955972,
+      -0.0917923599,
+      0.0015010864,
+      0.000478048343,
+      0.000844787399,
+      0.00164372346,
+      0.000489211816,
+      0.000949817826,
+      -0.022485638,
+      -0.311486185,
+      0.0498377979,
+      -0.0022293916,
+      -0.00221624784,
+      -0.00220310246,
+      -0.00228017825,
+      -0.00231047464,
+      -0.00229733041,
+      -0.00228418666,
+      -0.0023604664
+    ],
+    "policy_action": [
+      0.506250381,
+      0.93020612,
+      -0.225336134,
+      0.239176661,
+      0.545171738,
+      0.566698015,
+      -0.267755091,
+      -0.148679346,
+      0.516213298,
+      0.838591754,
+      -0.134046346,
+      0.293380678,
+      0.500668168,
+      0.872709453,
+      -0.15293318,
+      0.541552126,
+      0,
+      0
+    ],
+    "contacts": [
+      {
+        "a": 7,
+        "a_name": "crow_tail",
+        "b": 29,
+        "b_name": "crow_course_slalom_b",
+        "normal_impulse": 0.00475070067,
+        "separation": -0.000711999484
+      },
+      {
+        "a": 7,
+        "a_name": "crow_tail",
+        "b": 29,
+        "b_name": "crow_course_slalom_b",
+        "normal_impulse": 0.00254338048,
+        "separation": -0.0010933202
+      }
+    ]
+  },
+  "solver_failed_steps": 0,
+  "nonfoot_perch_contact_samples": 0,
+  "nonfinite_task_samples": [],
+  "longest_bilateral_support_samples": 0,
+  "terminal_bilateral_support_samples": 0,
+  "eligible_for_development_routing_prefix_training": false,
+  "limitations": "Teacher privileged after 1850, development layout; endpoint support is not strict continuous opposing-toe grip. Landing labels excluded."
+}
