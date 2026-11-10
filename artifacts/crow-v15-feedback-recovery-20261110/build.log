@@ -1,0 +1,8 @@
+/Users/n/Developer/numi-crow-rl-20261107/build/crow-v15-feedback-recovery-20261110/teacher.metal:5544:21: warning: unused variable 'seconds' [-Wunused-variable]
+        const float seconds=float(state.episode.x)*dispatch.timing.x;
+                    ^
+/Users/n/Developer/numi-crow-rl-20261107/build/crow-v15-feedback-recovery-20261110/teacher.metal:6797:28: warning: unused variable 'toeTimers' [-Wunused-variable]
+                const uint toeTimers = (state.status.w & 63u) + ((state.status.w >> 6u) & 63u);
+                           ^
+2 warnings generated.
+4fe060a3ebba288f9a1ba52d0232074c270e8e5974fbc9d749ed15c10c3be063
