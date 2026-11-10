@@ -1,0 +1,3 @@
+# Landing-state observation and parity check
+
+A read-only host observer will print the already existing landing phase and requested height alongside the pre-existing support-force trace. It must not alter state or actions. Run the same eight-start development J descent case with the original shader, seed, and policies. Compare every sampled q and v up to each lane's original first termination, and compare termination steps/reasons. If any differ, the new observer is unqualified for interpreting the flight. If they match, inspect whether landing phase two occurs before the first failure and whether both feet genuinely carry sustained load before any wing shutoff. This is diagnosis on a previously used case, not a new success trial.

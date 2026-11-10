@@ -1,0 +1,3 @@
+# Landing handoff observation
+
+The read-only observer reproduced all 290 first-episode sampled q/v states exactly and the same first termination steps and reasons for all 8 development J starts. Phase two was entered on one qualifying foot-contact sample; one example recorded 0.507 N total, well below the simulated 4.41 N weight, immediately switching off wing amplitude. The observed association motivates a debounced support experiment, but does not prove that premature wing shutoff alone caused every failure. See analysis.json for all lanes. The first attempted observer run was invalid because clearance instrumentation required the replay output; it is retained separately and excluded.
