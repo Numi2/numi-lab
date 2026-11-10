@@ -29,11 +29,11 @@ def longest(seq):
 rows=[]
 for z in frames:
  t=z['step']
- if not(release<=t<=release+160) or t not in support or t not in state:continue
+ if not(release<=t<=release+160) or (t+1) not in support or t not in state:continue
  body=np.asarray(z['body_states']).reshape(-1,13);perch=body[30];gap=[]
  for i in range(17,25):toe=body[i];gap.append(sat(toe[:3],toe[3:7],perch[:3],perch[3:7]))
  impulses={'left':0.,'right':0.}
- for c in support[t]['contacts']:
+ for c in support[t+1]['contacts']:
   a,b=c['a_name'],c['b_name'];n=a if b=='crow_course_perch' else b if a=='crow_course_perch' else None
   if n and '_toe' in n:
    for side in impulses:
@@ -42,4 +42,4 @@ for z in frames:
 result={'release_step':release,'samples':len(rows),'sides':{}}
 for side,other in [('left','right'),('right','left')]:
  good=[x['gap_'+side]>.001 and x['impulses'][side]<=1e-8 and x['loads'][other]>.1 for x in rows];result['sides'][side]={'qualifying_endpoints':sum(good),'longest_consecutive_endpoints':longest(good),'max_min_toe_gap_m':max((x['gap_'+side] for x in rows),default=None),'first_qualifying_step':next((x['step'] for x,g in zip(rows,good) if g),None)}
-result['limitations']='Accepted endpoints with a strict 1 mm separating-axis gap and at most 1e-8 Ns toe impulse on the lifted side; opposite load is measured at accepted task state. Does not prove clearance at every substep.';(A/(name+'-step-audit.json')).write_text(json.dumps(result,indent=2)+'\n');print(json.dumps(result,indent=2))
+result['limitations']='Accepted endpoints with support trace sample t+1 aligned to replay/task-state t; strict 1 mm separating-axis gap and at most 1e-8 Ns toe impulse on the lifted side; opposite load is measured at accepted task state. Does not prove clearance at every substep.';(A/(name+'-step-audit.json')).write_text(json.dumps(result,indent=2)+'\n');print(json.dumps(result,indent=2))

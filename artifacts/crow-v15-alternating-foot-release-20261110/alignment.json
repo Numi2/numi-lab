@@ -1,0 +1,10 @@
+{
+  "support_step": 4433,
+  "max_q_error_by_replay_step": {
+    "4432": 4.121093688524979e-09,
+    "4433": 0.023927568454284565,
+    "4434": 0.1319967498965453
+  },
+  "matched_replay_step": "4432",
+  "explanation": "Text support floats round to 9 significant digits. Support sample t corresponds to accepted replay frame t-1 in this trace."
+}
