@@ -1,0 +1,6 @@
+In file included from /Users/n/Developer/numi-crow-rl-20261107/artifacts/crow-v15-perch-dynamics-audit-20261111/perch_probe.cpp:2:
+artifacts/crow-v15-lean-20second-perch-screen-20261110/toe_model.cpp:82:78: warning: non-void function does not return a value in all control paths [-Wreturn-type]
+   82 |   } catch(const std::exception& e){std::cerr<<e.what()<<std::endl;return 1;} }
+      |                                                                              ^
+1 warning generated.
+diagnostic_library_sha256 deec89da47d03dbbeee46fe423c1502ee178c0beda62d9a930794a7ca0212a06
