@@ -1,0 +1,31 @@
+{
+  "release_step": 5565,
+  "trace_start": 5575,
+  "trace_end": 5685,
+  "expected_substeps": 444,
+  "observed_substeps": 444,
+  "missing_substeps": 0,
+  "sides": {
+    "left": {
+      "window_substeps": 204,
+      "qualifying_substeps": 180,
+      "longest_consecutive_substeps": 180,
+      "first_qualifying": [
+        5575,
+        0,
+        0
+      ]
+    },
+    "right": {
+      "window_substeps": 204,
+      "qualifying_substeps": 184,
+      "longest_consecutive_substeps": 184,
+      "first_qualifying": [
+        5635,
+        0,
+        0
+      ]
+    }
+  },
+  "limitations": "Substep contact impulses; control-step index alignment is checked against accepted trajectory separately. No substep geometric shape clearance or biological validation."
+}
