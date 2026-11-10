@@ -1,0 +1,12 @@
+--- a/MetalWorld.mm
++++ b/MetalWorld.mm
+@@ -22398,6 +22398,9 @@
+                                 const bool toeA=c.bodyA>=17u && c.bodyA<=24u, toeB=c.bodyB>=17u && c.bodyB<=24u;
+                                 if ((toeA && c.bodyB==30u)||(toeB && c.bodyA==30u))
+                                     std::fprintf(stderr,"CROW_SUBSTEP_TOE %llu %lu %lu %u %u %.9g %.9g %.9g %.9g %.9g\n",crowTraceStep,(unsigned long)sub,(unsigned long)lane,c.bodyA,c.bodyB,c.impulses.x,c.pointAndSeparation.w,c.normal.z,c.normal.x,c.normal.y);
++                                const bool footA=c.bodyA==10u || c.bodyA==13u, footB=c.bodyB==10u || c.bodyB==13u;
++                                if ((footA && c.bodyB==30u)||(footB && c.bodyA==30u))
++                                    std::fprintf(stderr,"CROW_SUBSTEP_FOOT %llu %lu %lu %u %u %.9g %.9g %.9g %.9g %.9g\n",crowTraceStep,(unsigned long)sub,(unsigned long)lane,c.bodyA,c.bodyB,c.impulses.x,c.pointAndSeparation.w,c.normal.z,c.normal.x,c.normal.y);
+                             }
+                         }
+                     }

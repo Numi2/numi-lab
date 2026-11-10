@@ -1,7 +1,7 @@
 from pathlib import Path
 import gzip,json,math,sys,numpy as np
-A=Path('artifacts/crow-v15-alternating-foot-release-20261110');name=sys.argv[1];state={};support={};release=None;last=-1
-with gzip.open(A/(name+'.stderr.gz'),'rt') as f:
+A=Path('artifacts/crow-v15-alternating-foot-release-20261110');name=sys.argv[1];source=Path(sys.argv[2]) if len(sys.argv)>2 else A;state={};support={};release=None;last=-1
+with gzip.open(source/(name+'.stderr.gz'),'rt') as f:
  for line in f:
   if line.startswith('CROW_TASK_STATE '):
    z=line.split();t=int(z[2]);
@@ -11,7 +11,7 @@ with gzip.open(A/(name+'.stderr.gz'),'rt') as f:
   elif line.startswith('CROW_SUPPORT_SAMPLE '):
    x=json.loads(line.split(' ',1)[1]);support[x['step']]=x
 if release is None:raise SystemExit('No release phase')
-with gzip.open(A/(name+'.json.gz'),'rt') as f:frames=json.load(f)['payload']['frames']
+with gzip.open(source/(name+'.json.gz'),'rt') as f:frames=json.load(f)['payload']['frames']
 def rot(q):
  x,y,z,w=q;return np.array([[1-2*(y*y+z*z),2*(x*y-z*w),2*(x*z+y*w)],[2*(x*y+z*w),1-2*(x*x+z*z),2*(y*z-x*w)],[2*(x*z-y*w),2*(y*z+x*w),1-2*(x*x+y*y)]])
 def sat(a,qa,b,qb):
@@ -43,5 +43,5 @@ for z in frames:
  rows.append({'step':t,'gap_left':min(gap[:4]),'gap_right':min(gap[4:]),'impulses':impulses,'upward':upward,'loads':state[t]})
 result={'release_step':release,'samples':len(rows),'sides':{}}
 for side,other in [('left','right'),('right','left')]:
- good=[x['gap_'+side]>.001 and x['impulses'][side]<=1e-8 and x['loads'][other]>.1 and x['upward'][other]>.00005 for x in rows];result['sides'][side]={'qualifying_endpoints':sum(good),'longest_consecutive_endpoints':longest(good),'max_min_toe_gap_m':max((x['gap_'+side] for x in rows),default=None),'first_qualifying_step':next((x['step'] for x,g in zip(rows,good) if g),None)}
-result['limitations']='Accepted endpoints with support trace sample t+1 aligned to replay/task-state t; strict 1 mm separating-axis gap and at most 1e-8 Ns toe impulse on the lifted side; opposite load is measured at accepted task state and requires upward contact impulse above 0.00005 N s at the same endpoint. Does not prove clearance at every substep.';(A/(name+'-step-audit.json')).write_text(json.dumps(result,indent=2)+'\n');print(json.dumps(result,indent=2))
+ window=[x for x in rows if (release+10<=x['step']<=release+60 if side=='left' else release+70<=x['step']<=release+120)];good=[x['gap_'+side]>.001 and x['impulses'][side]<=1e-8 and x['loads'][other]>.1 and x['upward'][other]>.00005 for x in window];result['sides'][side]={'window_samples':len(window),'qualifying_endpoints':int(sum(good)),'longest_consecutive_endpoints':longest(good),'max_min_toe_gap_m':float(max(x['gap_'+side] for x in window)) if window else None,'first_qualifying_step':next((x['step'] for x,g in zip(window,good) if g),None)}
+result['limitations']='Accepted endpoints with support trace sample t+1 aligned to replay/task-state t; strict 1 mm separating-axis gap and at most 1e-8 Ns toe impulse on the lifted side; opposite load is measured at accepted task state and requires upward contact impulse above 0.00005 N s at the same endpoint. Windows follow the commanded left and right lift intervals; does not prove clearance at every substep.';(A/(name+'-step-audit.json')).write_text(json.dumps(result,indent=2)+'\n');print(json.dumps(result,indent=2))
