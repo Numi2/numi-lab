@@ -1,0 +1,19 @@
+/Users/n/Developer/numi-crow-rl-20261107/build/crow-v15-gentle-wing-transfer-20261110/gentle15.metal:5353:159: error: expected ')'
+            ) * (fixedFlightController && state.navigation.z>=5.0f && state.threatTeacher.w>=1.0f && state.threatTeacher.w<1.5f && binding.actuator.x==MR_TAS0.15f_ACTUATOR_FLAPPING_POSITION ? 1.0f-0.15f*clamp((state.threatTeacher.w-1.0f)*2.5f,0.0f,1.0f) : 1.0f);
+                                                                                                                                                              ^
+/Users/n/Developer/numi-crow-rl-20261107/build/crow-v15-gentle-wing-transfer-20261110/gentle15.metal:5353:17: note: to match this '('
+            ) * (fixedFlightController && state.navigation.z>=5.0f && state.threatTeacher.w>=1.0f && state.threatTeacher.w<1.5f && binding.actuator.x==MR_TAS0.15f_ACTUATOR_FLAPPING_POSITION ? 1.0f-0.15f*clamp((state.threatTeacher.w-1.0f)*2.5f,0.0f,1.0f) : 1.0f);
+                ^
+/Users/n/Developer/numi-crow-rl-20261107/build/crow-v15-gentle-wing-transfer-20261110/gentle15.metal:5353:152: error: use of undeclared identifier 'MR_TAS0'
+            ) * (fixedFlightController && state.navigation.z>=5.0f && state.threatTeacher.w>=1.0f && state.threatTeacher.w<1.5f && binding.actuator.x==MR_TAS0.15f_ACTUATOR_FLAPPING_POSITION ? 1.0f-0.15f*clamp((state.threatTeacher.w-1.0f)*2.5f,0.0f,1.0f) : 1.0f);
+                                                                                                                                                       ^
+/Users/n/Developer/numi-crow-rl-20261107/build/crow-v15-gentle-wing-transfer-20261110/gentle15.metal:5530:21: warning: unused variable 'seconds' [-Wunused-variable]
+        const float seconds=float(state.episode.x)*dispatch.timing.x;
+                    ^
+1 warning and 2 errors generated.
+Traceback (most recent call last):
+  File "/Users/n/Developer/numi-crow-rl-20261107/artifacts/crow-v15-gentle-wing-transfer-20261110/build.py", line 18, in <module>
+    subprocess.run(['xcrun','-sdk','macosx','metal','-std=metal4.0','-O3','-fno-fast-math','-I',str(F),'-I',str(R/'include'),'-I',str(R/'src/metal'),'-c',str(B/(label+'.metal')),'-o',str(B/(label+'.air'))],check=True)
+  File "/Applications/Xcode-26.6.0.app/Contents/Developer/Library/Frameworks/Python3.framework/Versions/3.9/lib/python3.9/subprocess.py", line 528, in run
+    raise CalledProcessError(retcode, process.args,
+subprocess.CalledProcessError: Command '['xcrun', '-sdk', 'macosx', 'metal', '-std=metal4.0', '-O3', '-fno-fast-math', '-I', '/Users/n/Developer/numi-crow-rl-20261107/artifacts/crow-v15-flight-feedback-freeze-20261110', '-I', '/Users/n/Developer/numi-crow-rl-20261107/include', '-I', '/Users/n/Developer/numi-crow-rl-20261107/src/metal', '-c', '/Users/n/Developer/numi-crow-rl-20261107/build/crow-v15-gentle-wing-transfer-20261110/gentle15.metal', '-o', '/Users/n/Developer/numi-crow-rl-20261107/build/crow-v15-gentle-wing-transfer-20261110/gentle15.air']' returned non-zero exit status 1.

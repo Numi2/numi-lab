@@ -1,0 +1,54 @@
+{
+  "remote_commit": "afe7be1b4f9433a2df3f6374cb232647d3aa3a2b",
+  "retired": [
+    {
+      "raw": "build/crow-v15-averaged-contact-control-20261110/development-reserved-final-i.json",
+      "archive": "artifacts/crow-v15-averaged-contact-control-20261110/development-reserved-final-i.json.gz",
+      "sha256": "754759940b5de27b2c44ba27b2bbe6b95a73f8f17effa7abb0cf913716b9a4c2",
+      "bytes": 149577632
+    },
+    {
+      "raw": "build/crow-v15-averaged-contact-control-20261110/development-reserved-final-i.tsv",
+      "archive": "artifacts/crow-v15-averaged-contact-control-20261110/development-reserved-final-i.tsv.gz",
+      "sha256": "1db964991ebdd7beb8e9114482818345083fb9cd9d9810577dc9bce6c9f81535",
+      "bytes": 3262678
+    },
+    {
+      "raw": "build/crow-v15-averaged-contact-control-20261110/development-reserved-final-j.json",
+      "archive": "artifacts/crow-v15-averaged-contact-control-20261110/development-reserved-final-j.json.gz",
+      "sha256": "89ff1d12aa6b6eb26b13f92a09c904c9ed1b080c2defc5cf9157a4129d90c365",
+      "bytes": 150701589
+    },
+    {
+      "raw": "build/crow-v15-averaged-contact-control-20261110/development-reserved-final-j.tsv",
+      "archive": "artifacts/crow-v15-averaged-contact-control-20261110/development-reserved-final-j.tsv.gz",
+      "sha256": "e5b19aee9e2db45f67476d438eeb42d431995d4be2831770becf813c47b0f818",
+      "bytes": 3267644
+    },
+    {
+      "raw": "build/crow-v15-pregrasp-landing-20261110/development-reserved-final-i.json",
+      "archive": "artifacts/crow-v15-pregrasp-landing-20261110/development-reserved-final-i.json.gz",
+      "sha256": "262c3a9c862beab1487be04ba8effa2b21c6e7878f5ebf25cecb22697009d4c1",
+      "bytes": 150424159
+    },
+    {
+      "raw": "build/crow-v15-pregrasp-landing-20261110/development-reserved-final-i.tsv",
+      "archive": "artifacts/crow-v15-pregrasp-landing-20261110/development-reserved-final-i.tsv.gz",
+      "sha256": "4676c11faea316aa254bc7f95af730d3645c97d7d79b846377899122c903fc54",
+      "bytes": 3266434
+    },
+    {
+      "raw": "build/crow-v15-pregrasp-landing-20261110/development-reserved-final-j.json",
+      "archive": "artifacts/crow-v15-pregrasp-landing-20261110/development-reserved-final-j.json.gz",
+      "sha256": "b586155a36f1690fb4bdd98c15aafa3bf4c740181e188b225bc79d636d4b7389",
+      "bytes": 149260678
+    },
+    {
+      "raw": "build/crow-v15-pregrasp-landing-20261110/development-reserved-final-j.tsv",
+      "archive": "artifacts/crow-v15-pregrasp-landing-20261110/development-reserved-final-j.tsv.gz",
+      "sha256": "02eafba3c9baa0aa3c0fac859819a0efe913f442a9262c7fb8e167f96dceab23",
+      "bytes": 3263187
+    }
+  ],
+  "bytes": 613024001
+}

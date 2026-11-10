@@ -1,0 +1,23 @@
+--- a/teacher.metal
++++ b/gentle15.metal
+@@ -5350,7 +5350,7 @@
+                 binding.drive.z + binding.drive.w * avianWingPolicyCommand,
+                 0.0f,
+                 1.0f
+-            );
++            ) * (fixedFlightController && state.navigation.z>=5.0f && state.threatTeacher.w>=1.0f && state.threatTeacher.w<1.5f && binding.actuator.x==MR_TASK_ACTUATOR_FLAPPING_POSITION ? 1.0f-0.15f*clamp((state.threatTeacher.w-1.0f)*2.5f,0.0f,1.0f) : 1.0f);
+         float avianGroundGaitCarrier = 0.0f;
+         if (avianCrowGroundGaitCarrier) {
+             const float phase = kTwoPi *
+@@ -6781,6 +6781,11 @@
+                         compactContact[compactBase+group.members.w] > 0.05f) ++loadedFeet;
+                 }
+                 if (landingPhase >= 1.5f && state.nutrition.x + state.nutrition.y < 0.25f) landingPhase=1.0f;
++                if (landingPhase >= 1.0f && landingPhase < 1.5f) {
++                    const float previousSupport=clamp((landingPhase-1.0f)*2.5f,0.0f,1.0f);
++                    const float measuredSupport=clamp((state.nutrition.x+state.nutrition.y)/4.41f,0.0f,1.0f);
++                    landingPhase=1.0f+0.4f*mix(previousSupport,measuredSupport,0.05f);
++                }
+                 const uint supportDuration = (state.status.w >> 25u) & 127u;
+                 if (landingPhase > 0.5f && landingPhase < 1.5f && loadedFeet >= 2u && supportDuration >= 25u &&
+                     abs(xError) < 0.06f && abs(yError) < 0.16f &&

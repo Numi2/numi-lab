@@ -1,0 +1,3 @@
+# Result
+
+On the eight matched development J starts, the 15% wing-amplitude reduction survived in 4/8 and had at most two consecutive bilateral averaged-load steps; the 30% reduction survived in 0/8 and had at most three. Neither produced any sampled bilateral opposing toe grip or entered the landed phase. Both predictions failed and both variants are rejected. The measured-load signal does not by itself justify reducing flight amplitude on brief impacts. These privileged guide tests do not qualify autonomy, landing or biological realism. The initial shader build had a substitution typo, failed compilation without executing a rollout, and is retained in first-build-failure.log; the corrected compiled sources and bindings produced the recorded results.
