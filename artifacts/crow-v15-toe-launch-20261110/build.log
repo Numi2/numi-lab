@@ -1,0 +1,9 @@
+push f0d17cf4d66ad24bcb5a8ea5351c41d782b461940e96d2a395497f0419df2058
+/Users/n/Developer/numi-crow-rl-20261107/build/crow-v15-toe-launch-20261110/control.metal:5081:29: warning: unused variable 'extended' [-Wunused-variable]
+                const float extended=joint==0u ? 0.10f : joint==1u ? -0.70f : 0.18f;
+                            ^
+/Users/n/Developer/numi-crow-rl-20261107/build/crow-v15-toe-launch-20261110/control.metal:5082:28: warning: unused variable 'bilateral' [-Wunused-variable]
+                const bool bilateral=state.nutrition.x>0.05f && state.nutrition.y>0.05f;
+                           ^
+2 warnings generated.
+control a3d873046080a6e6b100f6c9a7a9d29e5076ba0e338bad817fdd519b8599ef02

@@ -1,0 +1,443 @@
+{
+  "preintervention_max_qv_difference_by_lane": [
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0
+  ],
+  "arms": {
+    "control": [
+      {
+        "lane": 0,
+        "first_episode_end": 400,
+        "native_physical_failure": false,
+        "unloaded_upward_pairs": [
+          265
+        ],
+        "max_upward_speed_m_s": 0.440233588,
+        "nonfoot_ground_contacts_before_end": [],
+        "start_root_position_m": [
+          -0.00498947036,
+          -0.000204358075,
+          0.184973657
+        ],
+        "end_root_position_m": [
+          -0.311955959,
+          -0.00244295318,
+          1.0777719
+        ],
+        "end_root_velocity_m_s": [
+          0.0606075898,
+          -0.0189256128,
+          0.178287759
+        ],
+        "airborne_last_second_and_15cm_higher": true,
+        "leg_hop_gate": true
+      },
+      {
+        "lane": 1,
+        "first_episode_end": 400,
+        "native_physical_failure": false,
+        "unloaded_upward_pairs": [
+          264,
+          265
+        ],
+        "max_upward_speed_m_s": 0.458529562,
+        "nonfoot_ground_contacts_before_end": [],
+        "start_root_position_m": [
+          -0.0253369641,
+          -0.00631036377,
+          0.184392661
+        ],
+        "end_root_position_m": [
+          -0.336845249,
+          0.000803821429,
+          1.07111394
+        ],
+        "end_root_velocity_m_s": [
+          0.101197481,
+          -0.0140200518,
+          0.17864579
+        ],
+        "airborne_last_second_and_15cm_higher": true,
+        "leg_hop_gate": true
+      },
+      {
+        "lane": 2,
+        "first_episode_end": 400,
+        "native_physical_failure": false,
+        "unloaded_upward_pairs": [
+          265
+        ],
+        "max_upward_speed_m_s": 0.438323319,
+        "nonfoot_ground_contacts_before_end": [],
+        "start_root_position_m": [
+          -0.00214291248,
+          -0.0313672125,
+          0.187072456
+        ],
+        "end_root_position_m": [
+          -0.315494806,
+          0.00349588715,
+          1.07703149
+        ],
+        "end_root_velocity_m_s": [
+          0.0607488304,
+          -0.01666178,
+          0.176070124
+        ],
+        "airborne_last_second_and_15cm_higher": true,
+        "leg_hop_gate": true
+      },
+      {
+        "lane": 3,
+        "first_episode_end": 400,
+        "native_physical_failure": false,
+        "unloaded_upward_pairs": [
+          264,
+          265
+        ],
+        "max_upward_speed_m_s": 0.456635058,
+        "nonfoot_ground_contacts_before_end": [],
+        "start_root_position_m": [
+          -0.00469826767,
+          0.0491921604,
+          0.185146287
+        ],
+        "end_root_position_m": [
+          -0.324004948,
+          0.0503942482,
+          1.07560599
+        ],
+        "end_root_velocity_m_s": [
+          0.078414239,
+          -0.0156577434,
+          0.178367108
+        ],
+        "airborne_last_second_and_15cm_higher": true,
+        "leg_hop_gate": true
+      },
+      {
+        "lane": 4,
+        "first_episode_end": 400,
+        "native_physical_failure": false,
+        "unloaded_upward_pairs": [
+          265
+        ],
+        "max_upward_speed_m_s": 0.442032009,
+        "nonfoot_ground_contacts_before_end": [],
+        "start_root_position_m": [
+          -0.00866860058,
+          -0.0365772657,
+          0.184843361
+        ],
+        "end_root_position_m": [
+          -0.322042435,
+          0.00477273762,
+          1.07760739
+        ],
+        "end_root_velocity_m_s": [
+          0.0532877631,
+          -0.0145074222,
+          0.180037811
+        ],
+        "airborne_last_second_and_15cm_higher": true,
+        "leg_hop_gate": true
+      },
+      {
+        "lane": 5,
+        "first_episode_end": 400,
+        "native_physical_failure": false,
+        "unloaded_upward_pairs": [
+          265
+        ],
+        "max_upward_speed_m_s": 0.451706409,
+        "nonfoot_ground_contacts_before_end": [],
+        "start_root_position_m": [
+          -0.00248526572,
+          0.00714014191,
+          0.183809206
+        ],
+        "end_root_position_m": [
+          -0.339468986,
+          -0.00388903217,
+          1.07805312
+        ],
+        "end_root_velocity_m_s": [
+          0.0492774546,
+          -0.0202020705,
+          0.180193171
+        ],
+        "airborne_last_second_and_15cm_higher": true,
+        "leg_hop_gate": true
+      },
+      {
+        "lane": 6,
+        "first_episode_end": 400,
+        "native_physical_failure": false,
+        "unloaded_upward_pairs": [
+          265
+        ],
+        "max_upward_speed_m_s": 0.442256629,
+        "nonfoot_ground_contacts_before_end": [],
+        "start_root_position_m": [
+          0.0288138203,
+          -0.0262170117,
+          0.185216978
+        ],
+        "end_root_position_m": [
+          -0.267996997,
+          0.00552139897,
+          1.07937717
+        ],
+        "end_root_velocity_m_s": [
+          0.058548402,
+          -0.0195305329,
+          0.180114076
+        ],
+        "airborne_last_second_and_15cm_higher": true,
+        "leg_hop_gate": true
+      },
+      {
+        "lane": 7,
+        "first_episode_end": 400,
+        "native_physical_failure": false,
+        "unloaded_upward_pairs": [
+          265
+        ],
+        "max_upward_speed_m_s": 0.443475425,
+        "nonfoot_ground_contacts_before_end": [],
+        "start_root_position_m": [
+          -0.0407650732,
+          -0.00523982663,
+          0.184971288
+        ],
+        "end_root_position_m": [
+          -0.358293533,
+          -0.0125197778,
+          1.07781005
+        ],
+        "end_root_velocity_m_s": [
+          0.0400456116,
+          -0.0174506642,
+          0.180967078
+        ],
+        "airborne_last_second_and_15cm_higher": true,
+        "leg_hop_gate": true
+      }
+    ],
+    "push": [
+      {
+        "lane": 0,
+        "first_episode_end": 400,
+        "native_physical_failure": false,
+        "unloaded_upward_pairs": [],
+        "max_upward_speed_m_s": 0.420564204,
+        "nonfoot_ground_contacts_before_end": [],
+        "start_root_position_m": [
+          -0.00498947036,
+          -0.000204358075,
+          0.184973657
+        ],
+        "end_root_position_m": [
+          -0.797660887,
+          -0.00342041743,
+          1.09967005
+        ],
+        "end_root_velocity_m_s": [
+          -0.144857645,
+          -0.0202492177,
+          0.173314497
+        ],
+        "airborne_last_second_and_15cm_higher": true,
+        "leg_hop_gate": false
+      },
+      {
+        "lane": 1,
+        "first_episode_end": 400,
+        "native_physical_failure": false,
+        "unloaded_upward_pairs": [],
+        "max_upward_speed_m_s": 0.414542526,
+        "nonfoot_ground_contacts_before_end": [],
+        "start_root_position_m": [
+          -0.0253369641,
+          -0.00631036377,
+          0.184392661
+        ],
+        "end_root_position_m": [
+          -0.712645471,
+          0.02431833,
+          1.08990693
+        ],
+        "end_root_velocity_m_s": [
+          -0.0898215994,
+          -0.0168842953,
+          0.174314648
+        ],
+        "airborne_last_second_and_15cm_higher": true,
+        "leg_hop_gate": false
+      },
+      {
+        "lane": 2,
+        "first_episode_end": 400,
+        "native_physical_failure": false,
+        "unloaded_upward_pairs": [],
+        "max_upward_speed_m_s": 0.425730705,
+        "nonfoot_ground_contacts_before_end": [],
+        "start_root_position_m": [
+          -0.00214291248,
+          -0.0313672125,
+          0.187072456
+        ],
+        "end_root_position_m": [
+          -0.808071136,
+          -0.0232842918,
+          1.09890318
+        ],
+        "end_root_velocity_m_s": [
+          -0.145704463,
+          -0.0165182948,
+          0.172238559
+        ],
+        "airborne_last_second_and_15cm_higher": true,
+        "leg_hop_gate": false
+      },
+      {
+        "lane": 3,
+        "first_episode_end": 400,
+        "native_physical_failure": false,
+        "unloaded_upward_pairs": [],
+        "max_upward_speed_m_s": 0.416665941,
+        "nonfoot_ground_contacts_before_end": [],
+        "start_root_position_m": [
+          -0.00469826767,
+          0.0491921604,
+          0.185146287
+        ],
+        "end_root_position_m": [
+          -0.650467217,
+          0.046399612,
+          1.08718014
+        ],
+        "end_root_velocity_m_s": [
+          -0.0385829359,
+          -0.0159793701,
+          0.169463277
+        ],
+        "airborne_last_second_and_15cm_higher": true,
+        "leg_hop_gate": false
+      },
+      {
+        "lane": 4,
+        "first_episode_end": 400,
+        "native_physical_failure": false,
+        "unloaded_upward_pairs": [],
+        "max_upward_speed_m_s": 0.421184987,
+        "nonfoot_ground_contacts_before_end": [],
+        "start_root_position_m": [
+          -0.00866860058,
+          -0.0365772657,
+          0.184843361
+        ],
+        "end_root_position_m": [
+          -0.808949828,
+          0.0119875176,
+          1.09873807
+        ],
+        "end_root_velocity_m_s": [
+          -0.142339692,
+          -0.0142419292,
+          0.172574386
+        ],
+        "airborne_last_second_and_15cm_higher": true,
+        "leg_hop_gate": false
+      },
+      {
+        "lane": 5,
+        "first_episode_end": 400,
+        "native_physical_failure": false,
+        "unloaded_upward_pairs": [],
+        "max_upward_speed_m_s": 0.416078359,
+        "nonfoot_ground_contacts_before_end": [],
+        "start_root_position_m": [
+          -0.00248526572,
+          0.00714014191,
+          0.183809206
+        ],
+        "end_root_position_m": [
+          -0.756502628,
+          -0.0273892749,
+          1.09718716
+        ],
+        "end_root_velocity_m_s": [
+          -0.129062101,
+          -0.0202546269,
+          0.174835399
+        ],
+        "airborne_last_second_and_15cm_higher": true,
+        "leg_hop_gate": false
+      },
+      {
+        "lane": 6,
+        "first_episode_end": 400,
+        "native_physical_failure": false,
+        "unloaded_upward_pairs": [
+          265
+        ],
+        "max_upward_speed_m_s": 0.421702772,
+        "nonfoot_ground_contacts_before_end": [],
+        "start_root_position_m": [
+          0.0288138203,
+          -0.0262170117,
+          0.185216978
+        ],
+        "end_root_position_m": [
+          -0.612641573,
+          -0.00690108584,
+          1.09162545
+        ],
+        "end_root_velocity_m_s": [
+          -0.06186077,
+          -0.0210605282,
+          0.173855036
+        ],
+        "airborne_last_second_and_15cm_higher": true,
+        "leg_hop_gate": true
+      },
+      {
+        "lane": 7,
+        "first_episode_end": 400,
+        "native_physical_failure": false,
+        "unloaded_upward_pairs": [],
+        "max_upward_speed_m_s": 0.420186311,
+        "nonfoot_ground_contacts_before_end": [],
+        "start_root_position_m": [
+          -0.0407650732,
+          -0.00523982663,
+          0.184971288
+        ],
+        "end_root_position_m": [
+          -0.938482106,
+          -0.0156823248,
+          1.1035403
+        ],
+        "end_root_velocity_m_s": [
+          -0.186156869,
+          -0.0183253754,
+          0.174999252
+        ],
+        "airborne_last_second_and_15cm_higher": true,
+        "leg_hop_gate": false
+      }
+    ]
+  },
+  "failed_environment_steps": {
+    "control": 0,
+    "push": 0
+  },
+  "scope": "eight perturbed starts, development course; flap suppressed only; no biological qualification"
+}
