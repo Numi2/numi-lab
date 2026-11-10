@@ -1,0 +1,66 @@
+{
+  "remote_commit": "7ce340885a79188ff2e4a1974f276cf0791a83df",
+  "retired": [
+    {
+      "raw": "build/crow-v15-guide-midheight-20261110/development-reserved-final-i.json",
+      "archive": "artifacts/crow-v15-guide-midheight-20261110/development-reserved-final-i.json.gz",
+      "sha256": "205eb9646c4b418d8f9993beec0fd9f4b8224098b098c2b221c28e3f36189a13",
+      "bytes": 149368255
+    },
+    {
+      "raw": "build/crow-v15-guide-midheight-20261110/development-reserved-final-i.tsv",
+      "archive": "artifacts/crow-v15-guide-midheight-20261110/development-reserved-final-i.tsv.gz",
+      "sha256": "6a9c4d6cb7654b7fa5bb2d93e342a3800a02875229370511a396f2b64bd9af0d",
+      "bytes": 3265095
+    },
+    {
+      "raw": "build/crow-v15-guide-midheight-20261110/development-reserved-final-j.json",
+      "archive": "artifacts/crow-v15-guide-midheight-20261110/development-reserved-final-j.json.gz",
+      "sha256": "fb968a5d877fdb8105d87ac268758e6a2845d68dd2faa45395ae42a96625675f",
+      "bytes": 149266865
+    },
+    {
+      "raw": "build/crow-v15-guide-midheight-20261110/development-reserved-final-j.tsv",
+      "archive": "artifacts/crow-v15-guide-midheight-20261110/development-reserved-final-j.tsv.gz",
+      "sha256": "9a7590800a95a41c214d362e64eeaa808f99db29401e73dd119a7f5fd081d3b3",
+      "bytes": 3268944
+    },
+    {
+      "raw": "build/crow-v15-toe-damping-host-20261110/development-reserved-final-i.json",
+      "archive": "artifacts/crow-v15-toe-damping-host-20261110/development-reserved-final-i.json.gz",
+      "sha256": "e9b786f71315f2f76c5f42aaad462fb8e27a9ce38093f643dc5e8eb4c3f37404",
+      "bytes": 149342275
+    },
+    {
+      "raw": "build/crow-v15-toe-damping-host-20261110/development-reserved-final-i.tsv",
+      "archive": "artifacts/crow-v15-toe-damping-host-20261110/development-reserved-final-i.tsv.gz",
+      "sha256": "8676c8b700500143922d6d985737786b12b6f102f9e9f6b572382817a5867637",
+      "bytes": 3262492
+    },
+    {
+      "raw": "build/crow-v15-toe-damping-host-20261110/development-reserved-final-j.json",
+      "archive": "artifacts/crow-v15-toe-damping-host-20261110/development-reserved-final-j.json.gz",
+      "sha256": "f814f65ccd101248bfbae79a0902b5ae2e0cf1b7d4e493d6bca0c61dac5eda3e",
+      "bytes": 149340395
+    },
+    {
+      "raw": "build/crow-v15-toe-damping-host-20261110/development-reserved-final-j.tsv",
+      "archive": "artifacts/crow-v15-toe-damping-host-20261110/development-reserved-final-j.tsv.gz",
+      "sha256": "0ca645302a1a737e2f2c237e5e56776d5c454dad69328b89a67cb54f44483a42",
+      "bytes": 3265536
+    },
+    {
+      "raw": "build/crow-v15-toe-release-perturbations-20261110/results.txt",
+      "archive": "artifacts/crow-v15-toe-release-perturbations-20261110/results.txt.gz",
+      "sha256": "faf2ba997d703af39cfc60847c7dc1244f1d4aad7c41c7b94c5989733c13ba88",
+      "bytes": 14286502
+    },
+    {
+      "raw": "build/crow-v15-toe-stiffness-release-20261110/results.txt",
+      "archive": "artifacts/crow-v15-toe-stiffness-release-20261110/results.txt.gz",
+      "sha256": "2dc2d5b35bcdeddbed370aa86d0d747cfe0b24f1d0e542f16de1da63c39544b2",
+      "bytes": 10914140
+    }
+  ],
+  "bytes": 635580499
+}

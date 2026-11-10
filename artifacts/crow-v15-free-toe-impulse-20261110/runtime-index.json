@@ -1,0 +1,22 @@
+[
+  {
+    "path": "build/crow-v15-free-toe-impulse-20261110/probe",
+    "sha256": "398cc468bc4dbc9362b887adc7c26037343d43d2088acfaa97e231ffe35d0f5a",
+    "bytes": 100408
+  },
+  {
+    "path": "build/crow-v15-free-toe-impulse-20261110/contact-diagnostic",
+    "sha256": "7cf0c4696cf248e512c2928f542eef876a1d50e6bc5614ede0250623746d8c1d",
+    "bytes": 100448
+  },
+  {
+    "path": "build/lib/libmetalrobo.dylib",
+    "sha256": "d7dad802978b03d8571487dac644678d2c4c1a8eae5b8a4c5c57be261cfbe11a",
+    "bytes": 5728528
+  },
+  {
+    "path": "build/shaders/MetalRobo.metallib",
+    "sha256": "69023c5dcd83c3a10bdc62a5a14d3a9c56d75797de36c95ed090b0f41ef9e135",
+    "bytes": 4467648
+  }
+]
