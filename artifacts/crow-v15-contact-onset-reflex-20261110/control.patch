@@ -1,0 +1,19 @@
+--- a/teacher.metal
++++ b/teacher.metal
+@@ -9398,13 +9398,13 @@
+                 for (uint side=0u;side<2u;++side) {
+                     const uint rearPrevious=(state.status.w>>(13u+side*6u))&63u;
+                     const float footLoad=side==0u ? state.nutrition.x : state.nutrition.y;
+-                    const uint rearNext=(footLoad>0.05f || (state.threatTeacher.w>=1.5f && rearPrevious>=12u)) ? min(rearPrevious+6u,43u) : (rearPrevious>3u ? rearPrevious-3u : 0u);
++                    const uint rearNext=(footLoad>0.20f || (state.threatTeacher.w>=1.5f && rearPrevious>=12u)) ? min(rearPrevious+16u,43u) : (rearPrevious>3u ? rearPrevious-3u : 0u);
+                     packed |= rearNext << (13u+side*6u);
+                     const uint w=compactBase+contactGroups[3u+side].reference.y;
+                     const float3 force=float3(compactContact[w],compactContact[w+1u],compactContact[w+2u]);
+-                    const bool loaded=length(force)>0.05f || (footLoad>0.05f && rearPrevious>=1u);
++                    const bool loaded=length(force)>0.05f || footLoad>0.20f;
+                     const uint previous=(state.status.w>>(side*6u))&63u;
+-                    const uint next=loaded || (state.threatTeacher.w>=1.5f && previous>=12u) ? min(previous+6u,48u) : (previous>3u ? previous-3u : 0u);
++                    const uint next=loaded || (state.threatTeacher.w>=1.5f && previous>=12u) ? min(previous+16u,48u) : (previous>3u ? previous-3u : 0u);
+                     packed |= next << (side*6u);
+                 }
+             }

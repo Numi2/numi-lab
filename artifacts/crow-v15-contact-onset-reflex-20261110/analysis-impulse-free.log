@@ -1,0 +1,2 @@
+i side runs 16 samples 20288 max toe rad 0.000588828116 worst {'lane': 0, 'side': 1, 'impulse_free_all_substeps_count': 1098, 'maximum_abs_toe_angle_rad': 0.000588828116, 'step': 4074}
+j side runs 16 samples 22385 max toe rad 0.000581026077 worst {'lane': 7, 'side': 1, 'impulse_free_all_substeps_count': 1267, 'maximum_abs_toe_angle_rad': 0.000581026077, 'step': 3530}
