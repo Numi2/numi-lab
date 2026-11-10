@@ -1,0 +1,3 @@
+# Teacher-off full-start routing trial
+
+The fixed actor reached 2/5 waypoints and timed out on both used development layouts without a reported fatal collision. Minimum accepted-step obstacle clearance was 0.143856 m on J and 0.069976 m on I. Neither landed. Maximum sampled toe angle after 25 contact-free intervals was 0.0003375 rad on J and 0.0003745 rad on I. Inspection subsequently found the training loss fitted channels 0-3 even though the frozen navigation controller executes channels 4-15 after waypoint two. The separately preregistered stage-aware learner corrects that wiring; its evaluation determines whether this diagnosis closes the observed failure.
