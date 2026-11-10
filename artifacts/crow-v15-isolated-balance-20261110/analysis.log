@@ -1,0 +1,5 @@
+baseline parity True differences 0
+arm 0 strict pass 5 opposed 3+ 8 terminal support 5
+arm 1 strict pass 3 opposed 3+ 8 terminal support 3
+arm 2 strict pass 3 opposed 3+ 8 terminal support 3
+arm 3 strict pass 0 opposed 3+ 0 terminal support 8

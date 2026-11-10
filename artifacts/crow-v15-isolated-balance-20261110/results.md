@@ -1,0 +1,3 @@
+# Isolated balance with all contacts
+
+The read-only full-contact instrument reproduced all 1200 baseline trace samples from the prior square-perch closure run exactly. All eight baseline starts gripped with opposing front/rear contacts on both feet; five satisfied the complete final 25-step support test after that grip disappeared. The two pitch-feedback signs each satisfied the test in three of eight, so neither met the preregistered 6/8 prediction and both feedback variants are rejected. All eight open-toe controls met the final support test and none produced bilateral opposing grip. These results concern already-supported isolated starts and do not demonstrate an autonomous landing or biological fidelity.

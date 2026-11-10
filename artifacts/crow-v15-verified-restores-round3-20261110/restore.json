@@ -1,0 +1,80 @@
+{
+  "remote": "git@github.com:Numi2/numi-lab.git",
+  "branch": "agent/american-crow-rl-20261107",
+  "commit": "1bf14332fdaf7a64cc4230ce1511e5469b1f8ee8",
+  "method": "independent filtered clone; decompress git blob and compare SHA256 to original raw output",
+  "verified": [
+    {
+      "archive": "artifacts/crow-v15-ankle-approach-20261110/development-reserved-final-i.json.gz",
+      "raw": "build/crow-v15-ankle-approach-20261110/development-reserved-final-i.json",
+      "sha256": "464225a93e08cfb82b1631af26b1f216ff524ccf5e51594614c2fb5bcef9bb05",
+      "bytes": 149288406
+    },
+    {
+      "archive": "artifacts/crow-v15-ankle-approach-20261110/development-reserved-final-i.tsv.gz",
+      "raw": "build/crow-v15-ankle-approach-20261110/development-reserved-final-i.tsv",
+      "sha256": "e96030dccba8faa08c1f072d823e27012735958f6b3986138679a3ba7a1b603f",
+      "bytes": 3269610
+    },
+    {
+      "archive": "artifacts/crow-v15-ankle-approach-20261110/development-reserved-final-j.json.gz",
+      "raw": "build/crow-v15-ankle-approach-20261110/development-reserved-final-j.json",
+      "sha256": "7605827c1b56a6748078d41287f96b767dd269e36b6c4604192de796dc8dd001",
+      "bytes": 149363655
+    },
+    {
+      "archive": "artifacts/crow-v15-ankle-approach-20261110/development-reserved-final-j.tsv.gz",
+      "raw": "build/crow-v15-ankle-approach-20261110/development-reserved-final-j.tsv",
+      "sha256": "dcf008508d1fabe8559c5ccc009de3bf606fd132ebd5d47be4591532287363d3",
+      "bytes": 3272841
+    },
+    {
+      "archive": "artifacts/crow-v15-load-responsive-wing-20261110/development-reserved-final-i.json.gz",
+      "raw": "build/crow-v15-load-responsive-wing-20261110/development-reserved-final-i.json",
+      "sha256": "d040f962a819feea63643f7bcedf8d33f2024e29f1312b6889884541bc6edd38",
+      "bytes": 150882208
+    },
+    {
+      "archive": "artifacts/crow-v15-load-responsive-wing-20261110/development-reserved-final-i.tsv.gz",
+      "raw": "build/crow-v15-load-responsive-wing-20261110/development-reserved-final-i.tsv",
+      "sha256": "85a2709001e0c82431afd907fa91e4e9d3f965bf70d8b06e8b642447bede0c70",
+      "bytes": 3273597
+    },
+    {
+      "archive": "artifacts/crow-v15-load-responsive-wing-20261110/development-reserved-final-j.json.gz",
+      "raw": "build/crow-v15-load-responsive-wing-20261110/development-reserved-final-j.json",
+      "sha256": "eff9f35636d392ab1f734e5174f873a3e32e58ad432c56172a8a6fca7308064a",
+      "bytes": 149944927
+    },
+    {
+      "archive": "artifacts/crow-v15-load-responsive-wing-20261110/development-reserved-final-j.tsv.gz",
+      "raw": "build/crow-v15-load-responsive-wing-20261110/development-reserved-final-j.tsv",
+      "sha256": "9e206fbd5258eaeaf6e2afd9ea275150b73c0b61f1c4b07a28c83b9321e3a36f",
+      "bytes": 3272010
+    },
+    {
+      "archive": "artifacts/crow-v15-branch-square-trial-20261110/development-reserved-final-i.json.gz",
+      "raw": "build/crow-v15-branch-square-trial-20261110/development-reserved-final-i.json",
+      "sha256": "66fe1f561d89d2fe7eb181ff31e10a82f31638f12a8adb3ed60d6520522139f0",
+      "bytes": 149251617
+    },
+    {
+      "archive": "artifacts/crow-v15-branch-square-trial-20261110/development-reserved-final-i.tsv.gz",
+      "raw": "build/crow-v15-branch-square-trial-20261110/development-reserved-final-i.tsv",
+      "sha256": "cf456202c771989b763b74324fd3350544e1ca89e01f0c858671539b85bfd1d4",
+      "bytes": 3266323
+    },
+    {
+      "archive": "artifacts/crow-v15-branch-square-trial-20261110/development-reserved-final-j.json.gz",
+      "raw": "build/crow-v15-branch-square-trial-20261110/development-reserved-final-j.json",
+      "sha256": "a7c2c8256ac7641e151394b9725f7c8b709217bda55b4cdcda9508c77877da40",
+      "bytes": 149196376
+    },
+    {
+      "archive": "artifacts/crow-v15-branch-square-trial-20261110/development-reserved-final-j.tsv.gz",
+      "raw": "build/crow-v15-branch-square-trial-20261110/development-reserved-final-j.tsv",
+      "sha256": "0fb9bbf6c33328fbcd322f1a1bf2081b193fff095f39851e181aa1a725999b07",
+      "bytes": 3269035
+    }
+  ]
+}
