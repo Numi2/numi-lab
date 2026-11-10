@@ -1,0 +1,5 @@
+/Users/n/Developer/numi-crow-rl-20261107/build/crow-v15-gait-kinematics-20261110/c_api.cpp:3364:13: warning: unused function 'close' [-Wunused-function]
+ 3364 | static void close(double a, double b, const char* why) { crowToeNeed(std::abs(a-b)<=2e-7*(1+std::abs(a)),why); }
+      |             ^~~~~
+1 warning generated.
+a0a073640275124803920ec62eb7e25786fdb4d7e73c37c92470c72516c8990c

@@ -1,0 +1,3 @@
+# Invalid launch-variant experiment
+
+The observer reproduced all 32 reference sampled q/v states exactly. However, the v15 active-head task variant used for these trials does not set the hierarchical-navigation flag required to invoke the experimental leg push and contact-triggered flap code. All three arms produced the same motion, and no early latch. Their later airborne motion is not evidence of leg-powered launch. Retain all attempts and use the conditional-navigation trial for the valid causal comparison. The identical linked host runtime is archived in crow-v15-damping-launch-conditional-20261110.

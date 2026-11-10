@@ -1,0 +1,1169 @@
+{
+  "20261126": {
+    "preextension_max_abs_state_difference_by_lane": [
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0
+    ],
+    "arms": {
+      "push-trigger": {
+        "lanes": [
+          {
+            "lane": 0,
+            "first_latch": {
+              "step": 253,
+              "packed": 4096,
+              "left_support_N": 0.0,
+              "right_support_N": 0.0
+            },
+            "end": 400,
+            "physical_failure": false,
+            "nonfoot_ground_contacts": [],
+            "initial_z_m": 0.184738904,
+            "final_z_m": 0.878191411,
+            "final_second_unloaded_and_15cm_higher": true,
+            "continuous_ground_clear_after_latch": true
+          },
+          {
+            "lane": 1,
+            "first_latch": {
+              "step": 253,
+              "packed": 4096,
+              "left_support_N": 0.0,
+              "right_support_N": 0.0
+            },
+            "end": 400,
+            "physical_failure": false,
+            "nonfoot_ground_contacts": [],
+            "initial_z_m": 0.184393093,
+            "final_z_m": 0.878216565,
+            "final_second_unloaded_and_15cm_higher": true,
+            "continuous_ground_clear_after_latch": true
+          },
+          {
+            "lane": 2,
+            "first_latch": {
+              "step": 253,
+              "packed": 4096,
+              "left_support_N": 0.0,
+              "right_support_N": 0.0
+            },
+            "end": 400,
+            "physical_failure": false,
+            "nonfoot_ground_contacts": [],
+            "initial_z_m": 0.186052233,
+            "final_z_m": 0.878305137,
+            "final_second_unloaded_and_15cm_higher": true,
+            "continuous_ground_clear_after_latch": true
+          },
+          {
+            "lane": 3,
+            "first_latch": {
+              "step": 253,
+              "packed": 4096,
+              "left_support_N": 0.0,
+              "right_support_N": 0.0
+            },
+            "end": 400,
+            "physical_failure": false,
+            "nonfoot_ground_contacts": [],
+            "initial_z_m": 0.184886947,
+            "final_z_m": 0.878523707,
+            "final_second_unloaded_and_15cm_higher": true,
+            "continuous_ground_clear_after_latch": true
+          },
+          {
+            "lane": 4,
+            "first_latch": {
+              "step": 253,
+              "packed": 4096,
+              "left_support_N": 0.0,
+              "right_support_N": 0.0
+            },
+            "end": 400,
+            "physical_failure": false,
+            "nonfoot_ground_contacts": [],
+            "initial_z_m": 0.184841886,
+            "final_z_m": 0.878184557,
+            "final_second_unloaded_and_15cm_higher": true,
+            "continuous_ground_clear_after_latch": true
+          },
+          {
+            "lane": 5,
+            "first_latch": {
+              "step": 253,
+              "packed": 4096,
+              "left_support_N": 0.0,
+              "right_support_N": 0.0
+            },
+            "end": 400,
+            "physical_failure": false,
+            "nonfoot_ground_contacts": [],
+            "initial_z_m": 0.18379508,
+            "final_z_m": 0.878333449,
+            "final_second_unloaded_and_15cm_higher": true,
+            "continuous_ground_clear_after_latch": true
+          },
+          {
+            "lane": 6,
+            "first_latch": {
+              "step": 253,
+              "packed": 4096,
+              "left_support_N": 0.0,
+              "right_support_N": 0.0
+            },
+            "end": 400,
+            "physical_failure": false,
+            "nonfoot_ground_contacts": [],
+            "initial_z_m": 0.184853509,
+            "final_z_m": 0.878049314,
+            "final_second_unloaded_and_15cm_higher": true,
+            "continuous_ground_clear_after_latch": true
+          },
+          {
+            "lane": 7,
+            "first_latch": {
+              "step": 253,
+              "packed": 4096,
+              "left_support_N": 0.0,
+              "right_support_N": 0.0
+            },
+            "end": 400,
+            "physical_failure": false,
+            "nonfoot_ground_contacts": [],
+            "initial_z_m": 0.184963375,
+            "final_z_m": 0.878140032,
+            "final_second_unloaded_and_15cm_higher": true,
+            "continuous_ground_clear_after_latch": true
+          }
+        ],
+        "early_latches": 8,
+        "final_second_airborne": 8,
+        "physical_failures": 0,
+        "incomplete": 0,
+        "invalid_latch": 0,
+        "failed_environment_steps": 0
+      },
+      "push-timer": {
+        "lanes": [
+          {
+            "lane": 0,
+            "first_latch": {
+              "step": 253,
+              "packed": 4096,
+              "left_support_N": 0.0,
+              "right_support_N": 0.0
+            },
+            "end": 400,
+            "physical_failure": false,
+            "nonfoot_ground_contacts": [],
+            "initial_z_m": 0.184738904,
+            "final_z_m": 0.932298124,
+            "final_second_unloaded_and_15cm_higher": true,
+            "continuous_ground_clear_after_latch": false
+          },
+          {
+            "lane": 1,
+            "first_latch": {
+              "step": 253,
+              "packed": 4096,
+              "left_support_N": 0.0,
+              "right_support_N": 0.0
+            },
+            "end": 400,
+            "physical_failure": false,
+            "nonfoot_ground_contacts": [],
+            "initial_z_m": 0.184393093,
+            "final_z_m": 0.931840718,
+            "final_second_unloaded_and_15cm_higher": true,
+            "continuous_ground_clear_after_latch": false
+          },
+          {
+            "lane": 2,
+            "first_latch": {
+              "step": 253,
+              "packed": 4096,
+              "left_support_N": 0.0,
+              "right_support_N": 0.0
+            },
+            "end": 400,
+            "physical_failure": false,
+            "nonfoot_ground_contacts": [],
+            "initial_z_m": 0.186052233,
+            "final_z_m": 0.932385445,
+            "final_second_unloaded_and_15cm_higher": true,
+            "continuous_ground_clear_after_latch": false
+          },
+          {
+            "lane": 3,
+            "first_latch": {
+              "step": 253,
+              "packed": 4096,
+              "left_support_N": 0.0,
+              "right_support_N": 0.0
+            },
+            "end": 400,
+            "physical_failure": false,
+            "nonfoot_ground_contacts": [],
+            "initial_z_m": 0.184886947,
+            "final_z_m": 0.932296216,
+            "final_second_unloaded_and_15cm_higher": true,
+            "continuous_ground_clear_after_latch": false
+          },
+          {
+            "lane": 4,
+            "first_latch": {
+              "step": 253,
+              "packed": 4096,
+              "left_support_N": 0.0,
+              "right_support_N": 0.0
+            },
+            "end": 400,
+            "physical_failure": false,
+            "nonfoot_ground_contacts": [],
+            "initial_z_m": 0.184841886,
+            "final_z_m": 0.932294726,
+            "final_second_unloaded_and_15cm_higher": true,
+            "continuous_ground_clear_after_latch": false
+          },
+          {
+            "lane": 5,
+            "first_latch": {
+              "step": 253,
+              "packed": 4096,
+              "left_support_N": 0.0,
+              "right_support_N": 0.0
+            },
+            "end": 400,
+            "physical_failure": false,
+            "nonfoot_ground_contacts": [],
+            "initial_z_m": 0.18379508,
+            "final_z_m": 0.932255268,
+            "final_second_unloaded_and_15cm_higher": true,
+            "continuous_ground_clear_after_latch": false
+          },
+          {
+            "lane": 6,
+            "first_latch": {
+              "step": 253,
+              "packed": 4096,
+              "left_support_N": 0.0,
+              "right_support_N": 0.0
+            },
+            "end": 400,
+            "physical_failure": false,
+            "nonfoot_ground_contacts": [],
+            "initial_z_m": 0.184853509,
+            "final_z_m": 0.932250977,
+            "final_second_unloaded_and_15cm_higher": true,
+            "continuous_ground_clear_after_latch": false
+          },
+          {
+            "lane": 7,
+            "first_latch": {
+              "step": 253,
+              "packed": 4096,
+              "left_support_N": 0.0,
+              "right_support_N": 0.0
+            },
+            "end": 400,
+            "physical_failure": false,
+            "nonfoot_ground_contacts": [],
+            "initial_z_m": 0.184963375,
+            "final_z_m": 0.93212831,
+            "final_second_unloaded_and_15cm_higher": true,
+            "continuous_ground_clear_after_latch": false
+          }
+        ],
+        "early_latches": 8,
+        "final_second_airborne": 8,
+        "physical_failures": 0,
+        "incomplete": 0,
+        "invalid_latch": 0,
+        "failed_environment_steps": 0
+      },
+      "control-trigger": {
+        "lanes": [
+          {
+            "lane": 0,
+            "first_latch": null,
+            "end": 400,
+            "physical_failure": false,
+            "nonfoot_ground_contacts": [],
+            "initial_z_m": 0.184738904,
+            "final_z_m": 0.852385402,
+            "final_second_unloaded_and_15cm_higher": true,
+            "continuous_ground_clear_after_latch": false
+          },
+          {
+            "lane": 1,
+            "first_latch": null,
+            "end": 400,
+            "physical_failure": false,
+            "nonfoot_ground_contacts": [],
+            "initial_z_m": 0.184393093,
+            "final_z_m": 0.852363646,
+            "final_second_unloaded_and_15cm_higher": true,
+            "continuous_ground_clear_after_latch": false
+          },
+          {
+            "lane": 2,
+            "first_latch": null,
+            "end": 400,
+            "physical_failure": false,
+            "nonfoot_ground_contacts": [],
+            "initial_z_m": 0.186052233,
+            "final_z_m": 0.852349043,
+            "final_second_unloaded_and_15cm_higher": true,
+            "continuous_ground_clear_after_latch": false
+          },
+          {
+            "lane": 3,
+            "first_latch": null,
+            "end": 400,
+            "physical_failure": false,
+            "nonfoot_ground_contacts": [],
+            "initial_z_m": 0.184886947,
+            "final_z_m": 0.852363288,
+            "final_second_unloaded_and_15cm_higher": true,
+            "continuous_ground_clear_after_latch": false
+          },
+          {
+            "lane": 4,
+            "first_latch": null,
+            "end": 400,
+            "physical_failure": false,
+            "nonfoot_ground_contacts": [],
+            "initial_z_m": 0.184841886,
+            "final_z_m": 0.852346361,
+            "final_second_unloaded_and_15cm_higher": true,
+            "continuous_ground_clear_after_latch": false
+          },
+          {
+            "lane": 5,
+            "first_latch": null,
+            "end": 400,
+            "physical_failure": false,
+            "nonfoot_ground_contacts": [],
+            "initial_z_m": 0.18379508,
+            "final_z_m": 0.852354169,
+            "final_second_unloaded_and_15cm_higher": true,
+            "continuous_ground_clear_after_latch": false
+          },
+          {
+            "lane": 6,
+            "first_latch": null,
+            "end": 400,
+            "physical_failure": false,
+            "nonfoot_ground_contacts": [],
+            "initial_z_m": 0.184853509,
+            "final_z_m": 0.852369905,
+            "final_second_unloaded_and_15cm_higher": true,
+            "continuous_ground_clear_after_latch": false
+          },
+          {
+            "lane": 7,
+            "first_latch": null,
+            "end": 400,
+            "physical_failure": false,
+            "nonfoot_ground_contacts": [],
+            "initial_z_m": 0.184963375,
+            "final_z_m": 0.852457225,
+            "final_second_unloaded_and_15cm_higher": true,
+            "continuous_ground_clear_after_latch": false
+          }
+        ],
+        "early_latches": 0,
+        "final_second_airborne": 8,
+        "physical_failures": 0,
+        "incomplete": 0,
+        "invalid_latch": 0,
+        "failed_environment_steps": 0
+      }
+    },
+    "predeclared_pass": true
+  },
+  "18647371": {
+    "preextension_max_abs_state_difference_by_lane": [
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0
+    ],
+    "arms": {
+      "push-trigger": {
+        "lanes": [
+          {
+            "lane": 0,
+            "first_latch": {
+              "step": 253,
+              "packed": 4096,
+              "left_support_N": 0.0,
+              "right_support_N": 0.0
+            },
+            "end": 400,
+            "physical_failure": false,
+            "nonfoot_ground_contacts": [],
+            "initial_z_m": 0.184895977,
+            "final_z_m": 0.878103137,
+            "final_second_unloaded_and_15cm_higher": true,
+            "continuous_ground_clear_after_latch": true
+          },
+          {
+            "lane": 1,
+            "first_latch": {
+              "step": 253,
+              "packed": 4096,
+              "left_support_N": 0.0,
+              "right_support_N": 0.0
+            },
+            "end": 400,
+            "physical_failure": false,
+            "nonfoot_ground_contacts": [],
+            "initial_z_m": 0.184206724,
+            "final_z_m": 0.87824744,
+            "final_second_unloaded_and_15cm_higher": true,
+            "continuous_ground_clear_after_latch": true
+          },
+          {
+            "lane": 2,
+            "first_latch": {
+              "step": 253,
+              "packed": 4096,
+              "left_support_N": 0.0,
+              "right_support_N": 0.0
+            },
+            "end": 400,
+            "physical_failure": false,
+            "nonfoot_ground_contacts": [],
+            "initial_z_m": 0.184574693,
+            "final_z_m": 0.878368378,
+            "final_second_unloaded_and_15cm_higher": true,
+            "continuous_ground_clear_after_latch": true
+          },
+          {
+            "lane": 3,
+            "first_latch": {
+              "step": 253,
+              "packed": 4096,
+              "left_support_N": 0.0,
+              "right_support_N": 0.0
+            },
+            "end": 400,
+            "physical_failure": false,
+            "nonfoot_ground_contacts": [],
+            "initial_z_m": 0.185108811,
+            "final_z_m": 0.87823683,
+            "final_second_unloaded_and_15cm_higher": true,
+            "continuous_ground_clear_after_latch": true
+          },
+          {
+            "lane": 4,
+            "first_latch": {
+              "step": 253,
+              "packed": 4096,
+              "left_support_N": 0.0,
+              "right_support_N": 0.0
+            },
+            "end": 400,
+            "physical_failure": false,
+            "nonfoot_ground_contacts": [],
+            "initial_z_m": 0.184193343,
+            "final_z_m": 0.878501415,
+            "final_second_unloaded_and_15cm_higher": true,
+            "continuous_ground_clear_after_latch": true
+          },
+          {
+            "lane": 5,
+            "first_latch": {
+              "step": 253,
+              "packed": 4096,
+              "left_support_N": 0.0,
+              "right_support_N": 0.0
+            },
+            "end": 400,
+            "physical_failure": false,
+            "nonfoot_ground_contacts": [],
+            "initial_z_m": 0.184528261,
+            "final_z_m": 0.878351688,
+            "final_second_unloaded_and_15cm_higher": true,
+            "continuous_ground_clear_after_latch": true
+          },
+          {
+            "lane": 6,
+            "first_latch": {
+              "step": 253,
+              "packed": 4096,
+              "left_support_N": 0.0,
+              "right_support_N": 0.0
+            },
+            "end": 400,
+            "physical_failure": false,
+            "nonfoot_ground_contacts": [],
+            "initial_z_m": 0.185302541,
+            "final_z_m": 0.878014624,
+            "final_second_unloaded_and_15cm_higher": true,
+            "continuous_ground_clear_after_latch": true
+          },
+          {
+            "lane": 7,
+            "first_latch": {
+              "step": 253,
+              "packed": 4096,
+              "left_support_N": 0.0,
+              "right_support_N": 0.0
+            },
+            "end": 400,
+            "physical_failure": false,
+            "nonfoot_ground_contacts": [],
+            "initial_z_m": 0.184414431,
+            "final_z_m": 0.878165185,
+            "final_second_unloaded_and_15cm_higher": true,
+            "continuous_ground_clear_after_latch": true
+          }
+        ],
+        "early_latches": 8,
+        "final_second_airborne": 8,
+        "physical_failures": 0,
+        "incomplete": 0,
+        "invalid_latch": 0,
+        "failed_environment_steps": 0
+      },
+      "push-timer": {
+        "lanes": [
+          {
+            "lane": 0,
+            "first_latch": {
+              "step": 253,
+              "packed": 4096,
+              "left_support_N": 0.0,
+              "right_support_N": 0.0
+            },
+            "end": 400,
+            "physical_failure": false,
+            "nonfoot_ground_contacts": [],
+            "initial_z_m": 0.184895977,
+            "final_z_m": 0.932240188,
+            "final_second_unloaded_and_15cm_higher": true,
+            "continuous_ground_clear_after_latch": false
+          },
+          {
+            "lane": 1,
+            "first_latch": {
+              "step": 253,
+              "packed": 4096,
+              "left_support_N": 0.0,
+              "right_support_N": 0.0
+            },
+            "end": 400,
+            "physical_failure": false,
+            "nonfoot_ground_contacts": [],
+            "initial_z_m": 0.184206724,
+            "final_z_m": 0.932128727,
+            "final_second_unloaded_and_15cm_higher": true,
+            "continuous_ground_clear_after_latch": false
+          },
+          {
+            "lane": 2,
+            "first_latch": {
+              "step": 253,
+              "packed": 4096,
+              "left_support_N": 0.0,
+              "right_support_N": 0.0
+            },
+            "end": 400,
+            "physical_failure": false,
+            "nonfoot_ground_contacts": [],
+            "initial_z_m": 0.184574693,
+            "final_z_m": 0.932244539,
+            "final_second_unloaded_and_15cm_higher": true,
+            "continuous_ground_clear_after_latch": false
+          },
+          {
+            "lane": 3,
+            "first_latch": {
+              "step": 253,
+              "packed": 4096,
+              "left_support_N": 0.0,
+              "right_support_N": 0.0
+            },
+            "end": 400,
+            "physical_failure": false,
+            "nonfoot_ground_contacts": [],
+            "initial_z_m": 0.185108811,
+            "final_z_m": 0.932442546,
+            "final_second_unloaded_and_15cm_higher": true,
+            "continuous_ground_clear_after_latch": false
+          },
+          {
+            "lane": 4,
+            "first_latch": {
+              "step": 253,
+              "packed": 4096,
+              "left_support_N": 0.0,
+              "right_support_N": 0.0
+            },
+            "end": 400,
+            "physical_failure": false,
+            "nonfoot_ground_contacts": [],
+            "initial_z_m": 0.184193343,
+            "final_z_m": 0.931686223,
+            "final_second_unloaded_and_15cm_higher": true,
+            "continuous_ground_clear_after_latch": false
+          },
+          {
+            "lane": 5,
+            "first_latch": {
+              "step": 253,
+              "packed": 4096,
+              "left_support_N": 0.0,
+              "right_support_N": 0.0
+            },
+            "end": 400,
+            "physical_failure": false,
+            "nonfoot_ground_contacts": [],
+            "initial_z_m": 0.184528261,
+            "final_z_m": 0.932139575,
+            "final_second_unloaded_and_15cm_higher": true,
+            "continuous_ground_clear_after_latch": false
+          },
+          {
+            "lane": 6,
+            "first_latch": {
+              "step": 253,
+              "packed": 4096,
+              "left_support_N": 0.0,
+              "right_support_N": 0.0
+            },
+            "end": 400,
+            "physical_failure": false,
+            "nonfoot_ground_contacts": [],
+            "initial_z_m": 0.185302541,
+            "final_z_m": 0.932301104,
+            "final_second_unloaded_and_15cm_higher": true,
+            "continuous_ground_clear_after_latch": false
+          },
+          {
+            "lane": 7,
+            "first_latch": {
+              "step": 253,
+              "packed": 4096,
+              "left_support_N": 0.0,
+              "right_support_N": 0.0
+            },
+            "end": 400,
+            "physical_failure": false,
+            "nonfoot_ground_contacts": [],
+            "initial_z_m": 0.184414431,
+            "final_z_m": 0.932290077,
+            "final_second_unloaded_and_15cm_higher": true,
+            "continuous_ground_clear_after_latch": false
+          }
+        ],
+        "early_latches": 8,
+        "final_second_airborne": 8,
+        "physical_failures": 0,
+        "incomplete": 0,
+        "invalid_latch": 0,
+        "failed_environment_steps": 0
+      },
+      "control-trigger": {
+        "lanes": [
+          {
+            "lane": 0,
+            "first_latch": null,
+            "end": 400,
+            "physical_failure": false,
+            "nonfoot_ground_contacts": [],
+            "initial_z_m": 0.184895977,
+            "final_z_m": 0.85235548,
+            "final_second_unloaded_and_15cm_higher": true,
+            "continuous_ground_clear_after_latch": false
+          },
+          {
+            "lane": 1,
+            "first_latch": null,
+            "end": 400,
+            "physical_failure": false,
+            "nonfoot_ground_contacts": [],
+            "initial_z_m": 0.184206724,
+            "final_z_m": 0.852329791,
+            "final_second_unloaded_and_15cm_higher": true,
+            "continuous_ground_clear_after_latch": false
+          },
+          {
+            "lane": 2,
+            "first_latch": null,
+            "end": 400,
+            "physical_failure": false,
+            "nonfoot_ground_contacts": [],
+            "initial_z_m": 0.184574693,
+            "final_z_m": 0.852377295,
+            "final_second_unloaded_and_15cm_higher": true,
+            "continuous_ground_clear_after_latch": false
+          },
+          {
+            "lane": 3,
+            "first_latch": null,
+            "end": 400,
+            "physical_failure": false,
+            "nonfoot_ground_contacts": [],
+            "initial_z_m": 0.185108811,
+            "final_z_m": 0.852323771,
+            "final_second_unloaded_and_15cm_higher": true,
+            "continuous_ground_clear_after_latch": false
+          },
+          {
+            "lane": 4,
+            "first_latch": null,
+            "end": 400,
+            "physical_failure": false,
+            "nonfoot_ground_contacts": [],
+            "initial_z_m": 0.184193343,
+            "final_z_m": 0.8523736,
+            "final_second_unloaded_and_15cm_higher": true,
+            "continuous_ground_clear_after_latch": false
+          },
+          {
+            "lane": 5,
+            "first_latch": null,
+            "end": 400,
+            "physical_failure": false,
+            "nonfoot_ground_contacts": [],
+            "initial_z_m": 0.184528261,
+            "final_z_m": 0.852296591,
+            "final_second_unloaded_and_15cm_higher": true,
+            "continuous_ground_clear_after_latch": false
+          },
+          {
+            "lane": 6,
+            "first_latch": null,
+            "end": 400,
+            "physical_failure": false,
+            "nonfoot_ground_contacts": [],
+            "initial_z_m": 0.185302541,
+            "final_z_m": 0.852477133,
+            "final_second_unloaded_and_15cm_higher": true,
+            "continuous_ground_clear_after_latch": false
+          },
+          {
+            "lane": 7,
+            "first_latch": null,
+            "end": 400,
+            "physical_failure": false,
+            "nonfoot_ground_contacts": [],
+            "initial_z_m": 0.184414431,
+            "final_z_m": 0.852346897,
+            "final_second_unloaded_and_15cm_higher": true,
+            "continuous_ground_clear_after_latch": false
+          }
+        ],
+        "early_latches": 0,
+        "final_second_airborne": 8,
+        "physical_failures": 0,
+        "incomplete": 0,
+        "invalid_latch": 0,
+        "failed_environment_steps": 0
+      }
+    },
+    "predeclared_pass": true
+  },
+  "18647393": {
+    "preextension_max_abs_state_difference_by_lane": [
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0
+    ],
+    "arms": {
+      "push-trigger": {
+        "lanes": [
+          {
+            "lane": 0,
+            "first_latch": {
+              "step": 253,
+              "packed": 4096,
+              "left_support_N": 0.0,
+              "right_support_N": 0.0
+            },
+            "end": 400,
+            "physical_failure": false,
+            "nonfoot_ground_contacts": [],
+            "initial_z_m": 0.184490666,
+            "final_z_m": 0.878178,
+            "final_second_unloaded_and_15cm_higher": true,
+            "continuous_ground_clear_after_latch": true
+          },
+          {
+            "lane": 1,
+            "first_latch": {
+              "step": 253,
+              "packed": 4096,
+              "left_support_N": 0.0,
+              "right_support_N": 0.0
+            },
+            "end": 400,
+            "physical_failure": false,
+            "nonfoot_ground_contacts": [],
+            "initial_z_m": 0.184810624,
+            "final_z_m": 0.878530324,
+            "final_second_unloaded_and_15cm_higher": true,
+            "continuous_ground_clear_after_latch": true
+          },
+          {
+            "lane": 2,
+            "first_latch": {
+              "step": 253,
+              "packed": 4096,
+              "left_support_N": 0.0,
+              "right_support_N": 0.0
+            },
+            "end": 400,
+            "physical_failure": false,
+            "nonfoot_ground_contacts": [],
+            "initial_z_m": 0.184817821,
+            "final_z_m": 0.878364861,
+            "final_second_unloaded_and_15cm_higher": true,
+            "continuous_ground_clear_after_latch": true
+          },
+          {
+            "lane": 3,
+            "first_latch": {
+              "step": 253,
+              "packed": 4096,
+              "left_support_N": 0.0,
+              "right_support_N": 0.0
+            },
+            "end": 400,
+            "physical_failure": false,
+            "nonfoot_ground_contacts": [],
+            "initial_z_m": 0.183885768,
+            "final_z_m": 0.878307998,
+            "final_second_unloaded_and_15cm_higher": true,
+            "continuous_ground_clear_after_latch": true
+          },
+          {
+            "lane": 4,
+            "first_latch": {
+              "step": 253,
+              "packed": 4096,
+              "left_support_N": 0.0,
+              "right_support_N": 0.0
+            },
+            "end": 400,
+            "physical_failure": false,
+            "nonfoot_ground_contacts": [],
+            "initial_z_m": 0.185064346,
+            "final_z_m": 0.878447175,
+            "final_second_unloaded_and_15cm_higher": true,
+            "continuous_ground_clear_after_latch": true
+          },
+          {
+            "lane": 5,
+            "first_latch": {
+              "step": 253,
+              "packed": 4096,
+              "left_support_N": 0.0,
+              "right_support_N": 0.0
+            },
+            "end": 400,
+            "physical_failure": false,
+            "nonfoot_ground_contacts": [],
+            "initial_z_m": 0.185293451,
+            "final_z_m": 0.878077507,
+            "final_second_unloaded_and_15cm_higher": true,
+            "continuous_ground_clear_after_latch": true
+          },
+          {
+            "lane": 6,
+            "first_latch": {
+              "step": 253,
+              "packed": 4096,
+              "left_support_N": 0.0,
+              "right_support_N": 0.0
+            },
+            "end": 400,
+            "physical_failure": false,
+            "nonfoot_ground_contacts": [],
+            "initial_z_m": 0.184862539,
+            "final_z_m": 0.878483474,
+            "final_second_unloaded_and_15cm_higher": true,
+            "continuous_ground_clear_after_latch": true
+          },
+          {
+            "lane": 7,
+            "first_latch": {
+              "step": 253,
+              "packed": 4096,
+              "left_support_N": 0.0,
+              "right_support_N": 0.0
+            },
+            "end": 400,
+            "physical_failure": false,
+            "nonfoot_ground_contacts": [],
+            "initial_z_m": 0.184648216,
+            "final_z_m": 0.878099084,
+            "final_second_unloaded_and_15cm_higher": true,
+            "continuous_ground_clear_after_latch": true
+          }
+        ],
+        "early_latches": 8,
+        "final_second_airborne": 8,
+        "physical_failures": 0,
+        "incomplete": 0,
+        "invalid_latch": 0,
+        "failed_environment_steps": 0
+      },
+      "push-timer": {
+        "lanes": [
+          {
+            "lane": 0,
+            "first_latch": {
+              "step": 253,
+              "packed": 4096,
+              "left_support_N": 0.0,
+              "right_support_N": 0.0
+            },
+            "end": 400,
+            "physical_failure": false,
+            "nonfoot_ground_contacts": [],
+            "initial_z_m": 0.184490666,
+            "final_z_m": 0.932504833,
+            "final_second_unloaded_and_15cm_higher": true,
+            "continuous_ground_clear_after_latch": false
+          },
+          {
+            "lane": 1,
+            "first_latch": {
+              "step": 253,
+              "packed": 4096,
+              "left_support_N": 0.0,
+              "right_support_N": 0.0
+            },
+            "end": 400,
+            "physical_failure": false,
+            "nonfoot_ground_contacts": [],
+            "initial_z_m": 0.184810624,
+            "final_z_m": 0.93229568,
+            "final_second_unloaded_and_15cm_higher": true,
+            "continuous_ground_clear_after_latch": false
+          },
+          {
+            "lane": 2,
+            "first_latch": {
+              "step": 253,
+              "packed": 4096,
+              "left_support_N": 0.0,
+              "right_support_N": 0.0
+            },
+            "end": 400,
+            "physical_failure": false,
+            "nonfoot_ground_contacts": [],
+            "initial_z_m": 0.184817821,
+            "final_z_m": 0.93230623,
+            "final_second_unloaded_and_15cm_higher": true,
+            "continuous_ground_clear_after_latch": false
+          },
+          {
+            "lane": 3,
+            "first_latch": {
+              "step": 253,
+              "packed": 4096,
+              "left_support_N": 0.0,
+              "right_support_N": 0.0
+            },
+            "end": 400,
+            "physical_failure": false,
+            "nonfoot_ground_contacts": [],
+            "initial_z_m": 0.183885768,
+            "final_z_m": 0.932304859,
+            "final_second_unloaded_and_15cm_higher": true,
+            "continuous_ground_clear_after_latch": false
+          },
+          {
+            "lane": 4,
+            "first_latch": {
+              "step": 253,
+              "packed": 4096,
+              "left_support_N": 0.0,
+              "right_support_N": 0.0
+            },
+            "end": 400,
+            "physical_failure": false,
+            "nonfoot_ground_contacts": [],
+            "initial_z_m": 0.185064346,
+            "final_z_m": 0.932285547,
+            "final_second_unloaded_and_15cm_higher": true,
+            "continuous_ground_clear_after_latch": false
+          },
+          {
+            "lane": 5,
+            "first_latch": {
+              "step": 253,
+              "packed": 4096,
+              "left_support_N": 0.0,
+              "right_support_N": 0.0
+            },
+            "end": 400,
+            "physical_failure": false,
+            "nonfoot_ground_contacts": [],
+            "initial_z_m": 0.185293451,
+            "final_z_m": 0.932288647,
+            "final_second_unloaded_and_15cm_higher": true,
+            "continuous_ground_clear_after_latch": false
+          },
+          {
+            "lane": 6,
+            "first_latch": {
+              "step": 253,
+              "packed": 4096,
+              "left_support_N": 0.0,
+              "right_support_N": 0.0
+            },
+            "end": 400,
+            "physical_failure": false,
+            "nonfoot_ground_contacts": [],
+            "initial_z_m": 0.184862539,
+            "final_z_m": 0.932361126,
+            "final_second_unloaded_and_15cm_higher": true,
+            "continuous_ground_clear_after_latch": false
+          },
+          {
+            "lane": 7,
+            "first_latch": {
+              "step": 253,
+              "packed": 4096,
+              "left_support_N": 0.0,
+              "right_support_N": 0.0
+            },
+            "end": 400,
+            "physical_failure": false,
+            "nonfoot_ground_contacts": [],
+            "initial_z_m": 0.184648216,
+            "final_z_m": 0.93231833,
+            "final_second_unloaded_and_15cm_higher": true,
+            "continuous_ground_clear_after_latch": false
+          }
+        ],
+        "early_latches": 8,
+        "final_second_airborne": 8,
+        "physical_failures": 0,
+        "incomplete": 0,
+        "invalid_latch": 0,
+        "failed_environment_steps": 0
+      },
+      "control-trigger": {
+        "lanes": [
+          {
+            "lane": 0,
+            "first_latch": null,
+            "end": 400,
+            "physical_failure": false,
+            "nonfoot_ground_contacts": [],
+            "initial_z_m": 0.184490666,
+            "final_z_m": 0.852429867,
+            "final_second_unloaded_and_15cm_higher": true,
+            "continuous_ground_clear_after_latch": false
+          },
+          {
+            "lane": 1,
+            "first_latch": null,
+            "end": 400,
+            "physical_failure": false,
+            "nonfoot_ground_contacts": [],
+            "initial_z_m": 0.184810624,
+            "final_z_m": 0.852385819,
+            "final_second_unloaded_and_15cm_higher": true,
+            "continuous_ground_clear_after_latch": false
+          },
+          {
+            "lane": 2,
+            "first_latch": null,
+            "end": 400,
+            "physical_failure": false,
+            "nonfoot_ground_contacts": [],
+            "initial_z_m": 0.184817821,
+            "final_z_m": 0.852350771,
+            "final_second_unloaded_and_15cm_higher": true,
+            "continuous_ground_clear_after_latch": false
+          },
+          {
+            "lane": 3,
+            "first_latch": null,
+            "end": 400,
+            "physical_failure": false,
+            "nonfoot_ground_contacts": [],
+            "initial_z_m": 0.183885768,
+            "final_z_m": 0.852411985,
+            "final_second_unloaded_and_15cm_higher": true,
+            "continuous_ground_clear_after_latch": false
+          },
+          {
+            "lane": 4,
+            "first_latch": null,
+            "end": 400,
+            "physical_failure": false,
+            "nonfoot_ground_contacts": [],
+            "initial_z_m": 0.185064346,
+            "final_z_m": 0.852438211,
+            "final_second_unloaded_and_15cm_higher": true,
+            "continuous_ground_clear_after_latch": false
+          },
+          {
+            "lane": 5,
+            "first_latch": null,
+            "end": 400,
+            "physical_failure": false,
+            "nonfoot_ground_contacts": [],
+            "initial_z_m": 0.185293451,
+            "final_z_m": 0.852550209,
+            "final_second_unloaded_and_15cm_higher": true,
+            "continuous_ground_clear_after_latch": false
+          },
+          {
+            "lane": 6,
+            "first_latch": null,
+            "end": 400,
+            "physical_failure": false,
+            "nonfoot_ground_contacts": [],
+            "initial_z_m": 0.184862539,
+            "final_z_m": 0.852518141,
+            "final_second_unloaded_and_15cm_higher": true,
+            "continuous_ground_clear_after_latch": false
+          },
+          {
+            "lane": 7,
+            "first_latch": null,
+            "end": 400,
+            "physical_failure": false,
+            "nonfoot_ground_contacts": [],
+            "initial_z_m": 0.184648216,
+            "final_z_m": 0.852373064,
+            "final_second_unloaded_and_15cm_higher": true,
+            "continuous_ground_clear_after_latch": false
+          }
+        ],
+        "early_latches": 0,
+        "final_second_airborne": 8,
+        "physical_failures": 0,
+        "incomplete": 0,
+        "invalid_latch": 0,
+        "failed_environment_steps": 0
+      }
+    },
+    "predeclared_pass": true
+  }
+}

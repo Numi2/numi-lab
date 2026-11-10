@@ -1,0 +1,17 @@
+[
+  {
+    "path": "libmetalrobo.dylib",
+    "sha256": "283f8f20ce2ee6ddc5259d5a5ea756662151feee988c342fed5e2d289c8eef1b",
+    "bytes": 5763712
+  },
+  {
+    "path": "zero-primary.policypack",
+    "sha256": "672c46f352410f8cc00084f8b4bea4e3781394144b739f6ceafb442f130d392b",
+    "bytes": 5996440
+  },
+  {
+    "path": "zero-base.policypack",
+    "sha256": "207235798a8d1521772b157c846913538ede5d8e512f183ba8fd7c64347b68a7",
+    "bytes": 5996437
+  }
+]

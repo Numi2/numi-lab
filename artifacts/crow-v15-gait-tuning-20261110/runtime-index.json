@@ -1,0 +1,22 @@
+[
+  {
+    "path": "p065_a080.metallib",
+    "sha256": "0fe6ced57932abd69236db8581ec15432544bf52b352c454b617aa2383de9e5e",
+    "bytes": 4470336
+  },
+  {
+    "path": "p080_a060.metallib",
+    "sha256": "e0576ff0413adab9a95e75867eed2835147486fb4bed6d0dc0f883d54d79b677",
+    "bytes": 4470336
+  },
+  {
+    "path": "p080_a080.metallib",
+    "sha256": "8403c336523760ddb0e6cc3cb5e7ab2f4a4bbe35df097e20986fd8c1b67270b9",
+    "bytes": 4470336
+  },
+  {
+    "path": "p100_a060.metallib",
+    "sha256": "47b3cce35c932bfc44172e081252072c1a9d911192391e9ce0b55da2f11a4360",
+    "bytes": 4470336
+  }
+]

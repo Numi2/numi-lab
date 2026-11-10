@@ -1,0 +1,241 @@
+{
+  "observer_matched_qv_samples": 32,
+  "observer_max_abs_qv_difference": 0.0,
+  "contact_impulse_max_disagreement_Ns": 9.361657282713765e-11,
+  "samples": 808,
+  "rows": [
+    {
+      "lane": 0,
+      "steps": 101,
+      "forward_displacement_m": 0.0561460889,
+      "root_height_min_m": 0.175980031,
+      "root_height_max_m": 0.178131059,
+      "nonfoot_positive_endpoints": 0,
+      "neither_foot_loaded_endpoints": 0,
+      "sides": [
+        {
+          "loaded_endpoints": 67,
+          "stance_mean_slip_p50_m_s": 0.00139651729,
+          "stance_mean_slip_p95_m_s": 0.0704039775,
+          "stance_peak_contact_slip_m_s": 0.144381761,
+          "swing_clearance_2mm_endpoints": 19,
+          "longest_contiguous_clear_swing_steps": 6,
+          "max_clearance_m": 0.00274209561
+        },
+        {
+          "loaded_endpoints": 56,
+          "stance_mean_slip_p50_m_s": 0.00671455656,
+          "stance_mean_slip_p95_m_s": 0.281596464,
+          "stance_peak_contact_slip_m_s": 0.492409788,
+          "swing_clearance_2mm_endpoints": 29,
+          "longest_contiguous_clear_swing_steps": 8,
+          "max_clearance_m": 0.00396492917
+        }
+      ]
+    },
+    {
+      "lane": 1,
+      "steps": 101,
+      "forward_displacement_m": 0.055985678,
+      "root_height_min_m": 0.175985038,
+      "root_height_max_m": 0.178149685,
+      "nonfoot_positive_endpoints": 0,
+      "neither_foot_loaded_endpoints": 0,
+      "sides": [
+        {
+          "loaded_endpoints": 67,
+          "stance_mean_slip_p50_m_s": 0.00138545421,
+          "stance_mean_slip_p95_m_s": 0.0704276826,
+          "stance_peak_contact_slip_m_s": 0.142908067,
+          "swing_clearance_2mm_endpoints": 19,
+          "longest_contiguous_clear_swing_steps": 6,
+          "max_clearance_m": 0.00274218491
+        },
+        {
+          "loaded_endpoints": 56,
+          "stance_mean_slip_p50_m_s": 0.00673111389,
+          "stance_mean_slip_p95_m_s": 0.281594847,
+          "stance_peak_contact_slip_m_s": 0.492484854,
+          "swing_clearance_2mm_endpoints": 29,
+          "longest_contiguous_clear_swing_steps": 8,
+          "max_clearance_m": 0.00395789374
+        }
+      ]
+    },
+    {
+      "lane": 2,
+      "steps": 101,
+      "forward_displacement_m": 0.05613898537,
+      "root_height_min_m": 0.175987422,
+      "root_height_max_m": 0.178142369,
+      "nonfoot_positive_endpoints": 0,
+      "neither_foot_loaded_endpoints": 0,
+      "sides": [
+        {
+          "loaded_endpoints": 67,
+          "stance_mean_slip_p50_m_s": 0.00138295246,
+          "stance_mean_slip_p95_m_s": 0.0704447665,
+          "stance_peak_contact_slip_m_s": 0.144047611,
+          "swing_clearance_2mm_endpoints": 19,
+          "longest_contiguous_clear_swing_steps": 6,
+          "max_clearance_m": 0.0027422096
+        },
+        {
+          "loaded_endpoints": 56,
+          "stance_mean_slip_p50_m_s": 0.00663295376,
+          "stance_mean_slip_p95_m_s": 0.281596067,
+          "stance_peak_contact_slip_m_s": 0.492724096,
+          "swing_clearance_2mm_endpoints": 29,
+          "longest_contiguous_clear_swing_steps": 8,
+          "max_clearance_m": 0.00395875182
+        }
+      ]
+    },
+    {
+      "lane": 3,
+      "steps": 101,
+      "forward_displacement_m": 0.05603188135,
+      "root_height_min_m": 0.175980195,
+      "root_height_max_m": 0.178137153,
+      "nonfoot_positive_endpoints": 0,
+      "neither_foot_loaded_endpoints": 0,
+      "sides": [
+        {
+          "loaded_endpoints": 67,
+          "stance_mean_slip_p50_m_s": 0.00139354016,
+          "stance_mean_slip_p95_m_s": 0.0704083944,
+          "stance_peak_contact_slip_m_s": 0.145663859,
+          "swing_clearance_2mm_endpoints": 19,
+          "longest_contiguous_clear_swing_steps": 6,
+          "max_clearance_m": 0.00274210515
+        },
+        {
+          "loaded_endpoints": 56,
+          "stance_mean_slip_p50_m_s": 0.00661928393,
+          "stance_mean_slip_p95_m_s": 0.281594703,
+          "stance_peak_contact_slip_m_s": 0.493192936,
+          "swing_clearance_2mm_endpoints": 29,
+          "longest_contiguous_clear_swing_steps": 8,
+          "max_clearance_m": 0.00396542581
+        }
+      ]
+    },
+    {
+      "lane": 4,
+      "steps": 101,
+      "forward_displacement_m": 0.05614566714,
+      "root_height_min_m": 0.175987601,
+      "root_height_max_m": 0.178144217,
+      "nonfoot_positive_endpoints": 0,
+      "neither_foot_loaded_endpoints": 0,
+      "sides": [
+        {
+          "loaded_endpoints": 67,
+          "stance_mean_slip_p50_m_s": 0.00138495878,
+          "stance_mean_slip_p95_m_s": 0.0704434784,
+          "stance_peak_contact_slip_m_s": 0.144164423,
+          "swing_clearance_2mm_endpoints": 19,
+          "longest_contiguous_clear_swing_steps": 6,
+          "max_clearance_m": 0.00274217429
+        },
+        {
+          "loaded_endpoints": 56,
+          "stance_mean_slip_p50_m_s": 0.00667061667,
+          "stance_mean_slip_p95_m_s": 0.281596216,
+          "stance_peak_contact_slip_m_s": 0.492749906,
+          "swing_clearance_2mm_endpoints": 29,
+          "longest_contiguous_clear_swing_steps": 8,
+          "max_clearance_m": 0.00395699417
+        }
+      ]
+    },
+    {
+      "lane": 5,
+      "steps": 101,
+      "forward_displacement_m": 0.05605262429,
+      "root_height_min_m": 0.175982296,
+      "root_height_max_m": 0.178141534,
+      "nonfoot_positive_endpoints": 0,
+      "neither_foot_loaded_endpoints": 0,
+      "sides": [
+        {
+          "loaded_endpoints": 67,
+          "stance_mean_slip_p50_m_s": 0.00138934609,
+          "stance_mean_slip_p95_m_s": 0.0704182259,
+          "stance_peak_contact_slip_m_s": 0.144996616,
+          "swing_clearance_2mm_endpoints": 19,
+          "longest_contiguous_clear_swing_steps": 6,
+          "max_clearance_m": 0.00274219442
+        },
+        {
+          "loaded_endpoints": 56,
+          "stance_mean_slip_p50_m_s": 0.00664251427,
+          "stance_mean_slip_p95_m_s": 0.281595524,
+          "stance_peak_contact_slip_m_s": 0.49297976,
+          "swing_clearance_2mm_endpoints": 29,
+          "longest_contiguous_clear_swing_steps": 8,
+          "max_clearance_m": 0.00396268659
+        }
+      ]
+    },
+    {
+      "lane": 6,
+      "steps": 101,
+      "forward_displacement_m": 0.0559908021,
+      "root_height_min_m": 0.175983235,
+      "root_height_max_m": 0.178143159,
+      "nonfoot_positive_endpoints": 0,
+      "neither_foot_loaded_endpoints": 0,
+      "sides": [
+        {
+          "loaded_endpoints": 67,
+          "stance_mean_slip_p50_m_s": 0.00138610409,
+          "stance_mean_slip_p95_m_s": 0.0704269828,
+          "stance_peak_contact_slip_m_s": 0.144730905,
+          "swing_clearance_2mm_endpoints": 19,
+          "longest_contiguous_clear_swing_steps": 6,
+          "max_clearance_m": 0.00274218387
+        },
+        {
+          "loaded_endpoints": 56,
+          "stance_mean_slip_p50_m_s": 0.00662320522,
+          "stance_mean_slip_p95_m_s": 0.281594649,
+          "stance_peak_contact_slip_m_s": 0.49289581,
+          "swing_clearance_2mm_endpoints": 29,
+          "longest_contiguous_clear_swing_steps": 8,
+          "max_clearance_m": 0.0039616026
+        }
+      ]
+    },
+    {
+      "lane": 7,
+      "steps": 101,
+      "forward_displacement_m": 0.056050565100000005,
+      "root_height_min_m": 0.175981864,
+      "root_height_max_m": 0.178140923,
+      "nonfoot_positive_endpoints": 0,
+      "neither_foot_loaded_endpoints": 0,
+      "sides": [
+        {
+          "loaded_endpoints": 67,
+          "stance_mean_slip_p50_m_s": 0.0013902329,
+          "stance_mean_slip_p95_m_s": 0.0704200287,
+          "stance_peak_contact_slip_m_s": 0.145067126,
+          "swing_clearance_2mm_endpoints": 19,
+          "longest_contiguous_clear_swing_steps": 6,
+          "max_clearance_m": 0.0027421363
+        },
+        {
+          "loaded_endpoints": 56,
+          "stance_mean_slip_p50_m_s": 0.00663509768,
+          "stance_mean_slip_p95_m_s": 0.281594767,
+          "stance_peak_contact_slip_m_s": 0.49299819,
+          "swing_clearance_2mm_endpoints": 29,
+          "longest_contiguous_clear_swing_steps": 8,
+          "max_clearance_m": 0.00396337322
+        }
+      ]
+    }
+  ],
+  "scope": "short previously exposed run; accepted endpoint contact-point velocity estimate, not continuous contact trajectory or long-run gait qualification"
+}
