@@ -1,0 +1,3 @@
+# Clearance-corrective routing candidate
+
+Both qualified I student-state recoveries were included, with 559 and 566 pre-waypoint-five samples respectively. The existing actor was also anchored on 1,818 observations from J routes and pre-correction I prefixes. In-trajectory validation error fell during the fixed training run; preservation-anchor mean squared output deviation was 1.61e-5. The deterministic actor export reproduced the trained actor's checked outputs exactly. These are training diagnostics, not autonomous performance; the four full-start teacher-off development tests remain decisive. No held-out layouts were used.
