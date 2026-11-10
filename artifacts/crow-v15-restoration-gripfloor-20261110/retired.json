@@ -1,0 +1,29 @@
+{
+  "remote_commit": "7458201e5eb6d274e4b07d9e3e28633e2e8e82da",
+  "retired": [
+    {
+      "raw": "build/crow-v15-long-perch-host-20261110/j-grip-original.json",
+      "archive": "artifacts/crow-v15-front-grip-floor-20261110/j-grip-original.json.gz",
+      "sha256": "1b521816f3e668bf834eea4ec2d138231ac37929752336978856a35aea3d4a01",
+      "bytes": 228317438
+    },
+    {
+      "raw": "build/crow-v15-long-perch-host-20261110/j-grip-original.tsv",
+      "archive": "artifacts/crow-v15-front-grip-floor-20261110/j-grip-original.tsv.gz",
+      "sha256": "9ac62f162cc7b6cceea7eaee83a7e33983ab287c3b8d2deefd5569510e116b81",
+      "bytes": 5044021
+    },
+    {
+      "raw": "build/crow-v15-long-perch-host-20261110/i-grip-original.json",
+      "archive": "artifacts/crow-v15-front-grip-floor-20261110/i-grip-original.json.gz",
+      "sha256": "3dc752ef2f63a64975fdf39c2fb003f8de2425adbaf1c879529de3e378d281e6",
+      "bytes": 230255112
+    },
+    {
+      "raw": "build/crow-v15-long-perch-host-20261110/i-grip-original.tsv",
+      "archive": "artifacts/crow-v15-front-grip-floor-20261110/i-grip-original.tsv.gz",
+      "sha256": "ddc86066c692725dd6c348b00911a33f35d262fe571bf09d158ec295ee61e73b",
+      "bytes": 5032781
+    }
+  ]
+}
