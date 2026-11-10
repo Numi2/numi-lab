@@ -1,0 +1,1 @@
+Use true foot joint locations corrected for center-of-mass offset and begin bounded slowdown before the last waypoint. Test both used development J starts for 4500 continuous steps, unchanged frozen flight law, exact simulated foot state, and no teacher. Measure actual terminal support and opposing grip.

@@ -1,0 +1,51 @@
+--- a/handoff.metal
++++ b/referencefix.metal
+@@ -4994,9 +4994,9 @@
+             0.10f+0.30f*actorLatent.x,0.30f*actorLatent.y,
+             0.15f*actorLatent.z,0.975f+0.325f*actorLatent.w);
+         if (fixedFlightController && dispatch.sampling.w==0u &&
+-            state.navigation.z>=5.0f && state.threatTeacher.w<1.5f) {
+-            // Bounded approach speed from accepted foot-to-goal error.
+-            actorCommand.x=clamp(0.10f+0.65f*state.nutrition.z-0.60f*state.commandExtension.z,0.00f,0.20f);
++            state.navigation.z>=4.0f && state.threatTeacher.w<1.5f && state.nutrition.z<0.40f) {
++            // Slow toward the physical foot joint using accepted state.
++            actorCommand.x=clamp(0.10f+0.80f*state.nutrition.z-0.80f*state.commandExtension.z,-0.05f,0.20f);
+         }
+         const bool privilegedCommand = (dispatch.sampling.w != 0u && dispatch.assistance.x < 0.5f);
+         const float4 oracleCommand = privilegedCommand ? state.nutrition : actorCommand;
+@@ -6758,7 +6758,7 @@
+         const float pitch = asin(clamp(2.0f*(orientation.w*orientation.y-orientation.z*orientation.x),-1.0f,1.0f));
+         const float roll = atan2(2.0f*(orientation.w*orientation.x+orientation.y*orientation.z),1.0f-2.0f*(orientation.x*orientation.x+orientation.y*orientation.y));
+         float phase=state.threatTeacher.w;
+-        if (state.navigation.z >= float(kCrowNavigationWaypointCount)) {
++        if (state.navigation.z >= float(kCrowNavigationWaypointCount-1u)) {
+             uint course=MR_INVALID_INDEX;
+             for (uint i=0u;i<program.counts1.w;++i) {
+                 const MRTaskRewardOperatorGPU operation=rewards[i];
+@@ -6772,11 +6772,14 @@
+                 if (dispatch.sampling.w==0u && program.counts0.w>=2u) {
+                     const uint lf=contactGroups[0].reference.x,rf=contactGroups[1].reference.x;
+                     if(lf>=robotFirst && lf<robotEnd && rf>=robotFirst && rf<robotEnd) {
+-                        const float feetX=0.5f*(bodyStates[bodyBase+lf].position.x+bodyStates[bodyBase+rf].position.x);
+-                        state.nutrition.z=clamp(finalGoal.x+0.015f-feetX,-0.25f,0.25f);
++                        const MRBodyStateGPU left=bodyStates[bodyBase+lf],right=bodyStates[bodyBase+rf];
++                        const float3 leftJoint=left.position.xyz+rotate(left.orientation,contactGroups[0].kinematicReference.xyz);
++                        const float3 rightJoint=right.position.xyz+rotate(right.orientation,contactGroups[1].kinematicReference.xyz);
++                        const float feetX=0.5f*(leftJoint.x+rightJoint.x);
++                        state.nutrition.z=clamp(finalGoal.x+0.015f-feetX,-0.50f,0.50f);
+                     }
+                 }
+-                if (phase < 0.5f && length(finalGoal.xy-pos.xy)<0.08f &&
++                if (state.navigation.z >= float(kCrowNavigationWaypointCount) && phase < 0.5f && length(finalGoal.xy-pos.xy)<0.08f &&
+                     length(yawFrameLinear.xy)<0.08f) phase=1.0f;
+                 uint loadedFeet=0u;
+                 for (uint gi=0u;gi<program.counts0.w;++gi) {
+@@ -6784,7 +6787,7 @@
+                     if ((group.members.z & MR_TASK_CONTACT_SUPPORT)!=0u &&
+                         compactContact[compactBase+group.members.w]>0.05f) ++loadedFeet;
+                 }
+-                if (loadedFeet>=2u && abs(state.nutrition.z)<0.045f &&
++                if (state.navigation.z >= float(kCrowNavigationWaypointCount) && loadedFeet>=2u && abs(state.nutrition.z)<0.045f &&
+                     abs(finalGoal.y-pos.y)<0.16f && length(yawFrameLinear.xy)<0.08f &&
+                     abs(rootLinearVelocity.z)<0.12f) phase=2.0f;
+             }
