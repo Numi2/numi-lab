@@ -1,0 +1,65 @@
+{
+  "remote_commit": "8597edc2f9c2150abe45e916bebc21f051394f53",
+  "retired": [
+    {
+      "raw": "build/crow-v15-long-perch-host-20261110/j-paired-recovery.json",
+      "archive": "artifacts/crow-v15-paired-j-recovery-20261110/j-paired-recovery.json.gz",
+      "sha256": "9dff53ac50d8661acedd2904b1c44e8f1692337a280d8963acd7a19f1b364252",
+      "bytes": 228447069
+    },
+    {
+      "raw": "build/crow-v15-long-perch-host-20261110/j-paired-recovery.tsv",
+      "archive": "artifacts/crow-v15-paired-j-recovery-20261110/j-paired-recovery.tsv.gz",
+      "sha256": "0800f19ee11291b8c6a02b5179fb97e751ff2e04a5677c01a5c67fc3783a30eb",
+      "bytes": 5046656
+    },
+    {
+      "raw": "build/crow-v15-long-perch-host-20261110/j-paired-recovery.rollout",
+      "archive": "artifacts/crow-v15-paired-j-recovery-20261110/j-paired-recovery.rollout.gz",
+      "sha256": "95080ee7d0cab576a7ffc8842f0606840c51a6b8979a271e55d9efd5d8f28e02",
+      "bytes": 27832928
+    },
+    {
+      "raw": "build/crow-v15-long-perch-host-20261110/i-paired-recovery.json",
+      "archive": "artifacts/crow-v15-paired-i-recovery-20261110/i-paired-recovery.json.gz",
+      "sha256": "ffc36dd45b8217f6c414e59697964f63c5175b98b9f94bc89d139e51b109ac0f",
+      "bytes": 235249207
+    },
+    {
+      "raw": "build/crow-v15-long-perch-host-20261110/i-paired-recovery.tsv",
+      "archive": "artifacts/crow-v15-paired-i-recovery-20261110/i-paired-recovery.tsv.gz",
+      "sha256": "0ddd2ec5c13ee9c514c2017416c8bdafecfdf7d6b46e70b09f2590382121e659",
+      "bytes": 5062159
+    },
+    {
+      "raw": "build/crow-v15-long-perch-host-20261110/i-paired-recovery.rollout",
+      "archive": "artifacts/crow-v15-paired-i-recovery-20261110/i-paired-recovery.rollout.gz",
+      "sha256": "645cafa21ce1a4c2e849f29656f1cc99afca262bb424dff367145fb54b869fed",
+      "bytes": 27832928
+    },
+    {
+      "raw": "build/crow-v15-long-perch-host-20261110/j-damped-original.json",
+      "archive": "artifacts/crow-v15-toe-damping-probe-20261110/j-damped-original.json.gz",
+      "sha256": "bd7125a43e2c568c5cc684b2378faa30e8dea0516d439270f8439451d8f8c8fe",
+      "bytes": 230285951
+    },
+    {
+      "raw": "build/crow-v15-long-perch-host-20261110/j-damped-original.tsv",
+      "archive": "artifacts/crow-v15-toe-damping-probe-20261110/j-damped-original.tsv.gz",
+      "sha256": "e6a1ed79ebc6b7afd1d62cfda61c93cff0570fc271b84381e31d7acf59f5ef2b",
+      "bytes": 5032933
+    },
+    {
+      "raw": "build/crow-v15-long-perch-host-20261110/i-damped-original.json",
+      "archive": "artifacts/crow-v15-toe-damping-probe-20261110/i-damped-original.json.gz",
+      "sha256": "889bd90f9ee2839926e0d623cd39ca6021ffa9e76947922d356b57c3e89eeb2f",
+      "bytes": 230176105
+    },
+    {
+      "raw": "build/crow-v15-long-perch-host-20261110/i-damped-original.tsv",
+      "archive": "artifacts/crow-v15-toe-damping-probe-20261110/i-damped-original.tsv.gz",
+      "sha256": "84e52eb6d37c4cb0c93b89dba1ac42c461245f37bd1dc20a5259a605ae35380c",
+      "bytes": 5028315
+    }
+  ]
+}
