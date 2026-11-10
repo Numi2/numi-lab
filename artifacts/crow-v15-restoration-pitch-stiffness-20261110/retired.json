@@ -1,0 +1,11 @@
+{
+  "remote_commit": "de0b2c9bfd44f3b33fdda5529b7ee1cffb6a615d",
+  "retired": [
+    {
+      "raw": "artifacts/crow-v15-pitch-toe-stiffness-screen-20261110/results.txt",
+      "archive": "artifacts/crow-v15-pitch-toe-stiffness-screen-20261110/results.txt.gz",
+      "sha256": "3d7fa9b425dbecf087eefd130d56affcf4ce6456ddda7b39bf1e8aed4d348a52",
+      "bytes": 2398569
+    }
+  ]
+}
