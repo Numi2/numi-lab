@@ -1,0 +1,20 @@
+--- a/push.metal
++++ b/push-no-wing.metal
+@@ -5114,7 +5114,7 @@
+         const bool actionAvailable = !MR_TASK_PROGRAM_HAS_MEMORY_CHOICE(program.articulation.z) ||
+             (state.episode.x>=uint(program.actionAvailabilityProgram) && taskActionHoldPeriod(program,arena,action)!=0u);
+         const bool actionSelected=taskActionSelected(program,arena,state.episode.x,action);
+-        const float requestedBeforeAvailability = fixedFlightController && state.episode.z == 10u && (action < 7u || action == 13u || action == 14u) && float(state.episode.x)*dispatch.timing.x < 13.4f && (state.status.w & 4096u)==0u ? 0.0f : fixedFlightController && action < 15u
++        const float requestedBeforeAvailability = fixedFlightController && state.episode.z == 10u && (action < 7u || action == 13u || action == 14u) && float(state.episode.x)*dispatch.timing.x < 13.4f && true ? 0.0f : fixedFlightController && action < 15u
+             ? navigationTeacherRequested
+             : avianJourneyTeacher
+             ? mix(
+@@ -5303,7 +5303,7 @@
+             )
+             : filtered;
+         const float avianWingAmplitude =
+-            fixedFlightController && state.episode.z == 10u && float(state.episode.x)*dispatch.timing.x >= 0.0f && float(state.episode.x)*dispatch.timing.x < 13.4f && (state.status.w & 4096u)==0u && binding.actuator.x == MR_TASK_ACTUATOR_FLAPPING_POSITION
++            fixedFlightController && state.episode.z == 10u && float(state.episode.x)*dispatch.timing.x >= 0.0f && float(state.episode.x)*dispatch.timing.x < 13.4f && true && binding.actuator.x == MR_TASK_ACTUATOR_FLAPPING_POSITION
+             ? 0.0f : fixedFlightController && state.threatTeacher.w >= 1.5f &&
+             binding.actuator.x == MR_TASK_ACTUATOR_FLAPPING_POSITION
+             ? 0.0f

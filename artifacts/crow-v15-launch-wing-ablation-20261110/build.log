@@ -1,0 +1,16 @@
+/Users/n/Developer/numi-crow-rl-20261107/build/crow-v15-launch-wing-ablation-20261110/push.metal:5494:21: warning: unused variable 'seconds' [-Wunused-variable]
+        const float seconds=float(state.episode.x)*dispatch.timing.x;
+                    ^
+1 warning generated.
+push f54131ad13dc12a68e155582aee70fa561f078fbeb93681b4614e245bfbba45c
+/Users/n/Developer/numi-crow-rl-20261107/build/crow-v15-launch-wing-ablation-20261110/nopush.metal:5086:29: warning: unused variable 'extended' [-Wunused-variable]
+                const float extended=joint==0u ? 0.10f : joint==1u ? -0.70f : 0.18f;
+                            ^
+/Users/n/Developer/numi-crow-rl-20261107/build/crow-v15-launch-wing-ablation-20261110/nopush.metal:5087:28: warning: unused variable 'bilateral' [-Wunused-variable]
+                const bool bilateral=state.nutrition.x>0.05f && state.nutrition.y>0.05f;
+                           ^
+/Users/n/Developer/numi-crow-rl-20261107/build/crow-v15-launch-wing-ablation-20261110/nopush.metal:5494:21: warning: unused variable 'seconds' [-Wunused-variable]
+        const float seconds=float(state.episode.x)*dispatch.timing.x;
+                    ^
+3 warnings generated.
+nopush cd1830d42e3a8a4bf75ffde5d9e9070409589d9ed60c07a5e0e07ab5d5fb11b6

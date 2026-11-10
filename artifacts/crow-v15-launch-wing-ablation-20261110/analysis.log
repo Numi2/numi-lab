@@ -1,0 +1,29 @@
+sample counts 751 751 first q/v divergence 651
+640 push x,z 0.078 0.163 vx,vz 0.001 0.0 sampled impulse 1e-05 8e-05 0.02208 contacts crow_left_rear_toe,crow_left_rear_toe,crow_left_rear_toe,crow_left_rear_toe,crow_right_rear_toe,crow_right_rear_toe,crow_right_rear_toe,crow_right_rear_toe
+640 nopush x,z 0.078 0.163 vx,vz 0.001 0.0 sampled impulse 1e-05 8e-05 0.02208 contacts crow_left_rear_toe,crow_left_rear_toe,crow_left_rear_toe,crow_left_rear_toe,crow_right_rear_toe,crow_right_rear_toe,crow_right_rear_toe,crow_right_rear_toe
+645 push x,z 0.078 0.163 vx,vz 0.001 0.0 sampled impulse 0.0 5e-05 0.02207 contacts crow_left_rear_toe,crow_left_rear_toe,crow_left_rear_toe,crow_left_rear_toe,crow_right_rear_toe,crow_right_rear_toe,crow_right_rear_toe,crow_right_rear_toe
+645 nopush x,z 0.078 0.163 vx,vz 0.001 0.0 sampled impulse 0.0 5e-05 0.02207 contacts crow_left_rear_toe,crow_left_rear_toe,crow_left_rear_toe,crow_left_rear_toe,crow_right_rear_toe,crow_right_rear_toe,crow_right_rear_toe,crow_right_rear_toe
+648 push x,z 0.078 0.163 vx,vz 0.001 0.0 sampled impulse 0.0 3e-05 0.02207 contacts crow_left_rear_toe,crow_left_rear_toe,crow_left_rear_toe,crow_left_rear_toe,crow_right_rear_toe,crow_right_rear_toe,crow_right_rear_toe,crow_right_rear_toe
+648 nopush x,z 0.078 0.163 vx,vz 0.001 0.0 sampled impulse 0.0 3e-05 0.02207 contacts crow_left_rear_toe,crow_left_rear_toe,crow_left_rear_toe,crow_left_rear_toe,crow_right_rear_toe,crow_right_rear_toe,crow_right_rear_toe,crow_right_rear_toe
+650 push x,z 0.079 0.163 vx,vz 0.001 0.0 sampled impulse 0.0 2e-05 0.02207 contacts crow_left_rear_toe,crow_left_rear_toe,crow_left_rear_toe,crow_left_rear_toe,crow_right_rear_toe,crow_right_rear_toe,crow_right_rear_toe,crow_right_rear_toe
+650 nopush x,z 0.079 0.163 vx,vz 0.001 0.0 sampled impulse 0.0 2e-05 0.02207 contacts crow_left_rear_toe,crow_left_rear_toe,crow_left_rear_toe,crow_left_rear_toe,crow_right_rear_toe,crow_right_rear_toe,crow_right_rear_toe,crow_right_rear_toe
+652 push x,z 0.083 0.166 vx,vz 0.197 0.144 sampled impulse 0.00998 -0.00032 0.02706 contacts crow_left_rear_toe,crow_left_rear_toe,crow_left_rear_toe,crow_left_rear_toe,crow_right_rear_toe,crow_right_rear_toe,crow_right_rear_toe,crow_right_rear_toe
+652 nopush x,z 0.079 0.163 vx,vz 0.001 0.0 sampled impulse 0.0 1e-05 0.02207 contacts crow_left_rear_toe,crow_left_rear_toe,crow_left_rear_toe,crow_left_rear_toe,crow_right_rear_toe,crow_right_rear_toe,crow_right_rear_toe,crow_right_rear_toe
+655 push x,z 0.093 0.19 vx,vz 0.122 0.271 sampled impulse 0.0 0.0 0.0 contacts 
+655 nopush x,z 0.079 0.163 vx,vz 0.001 0.0 sampled impulse 0.0 0.0 0.02207 contacts crow_left_rear_toe,crow_left_rear_toe,crow_left_rear_toe,crow_left_rear_toe,crow_right_rear_toe,crow_right_rear_toe,crow_right_rear_toe,crow_right_rear_toe
+660 push x,z 0.097 0.184 vx,vz -0.078 0.126 sampled impulse -0.00095 0.00016 0.01564 contacts crow_left_rear_toe,crow_left_rear_toe,crow_left_rear_toe,crow_left_rear_toe,crow_right_rear_toe,crow_right_rear_toe,crow_right_rear_toe,crow_right_rear_toe
+660 nopush x,z 0.079 0.163 vx,vz 0.001 0.0 sampled impulse 0.0 0.0 0.02207 contacts crow_left_rear_toe,crow_left_rear_toe,crow_left_rear_toe,crow_left_rear_toe,crow_right_rear_toe,crow_right_rear_toe,crow_right_rear_toe,crow_right_rear_toe
+665 push x,z 0.097 0.172 vx,vz 0.174 -0.021 sampled impulse 0.00966 0.00159 0.02669 contacts crow_left_rear_toe,crow_left_rear_toe,crow_left_rear_toe,crow_left_rear_toe,crow_right_rear_toe,crow_right_rear_toe,crow_right_rear_toe,crow_right_rear_toe
+665 nopush x,z 0.079 0.163 vx,vz 0.001 0.0 sampled impulse 0.0 0.0 0.02207 contacts crow_left_rear_toe,crow_left_rear_toe,crow_left_rear_toe,crow_left_rear_toe,crow_right_rear_toe,crow_right_rear_toe,crow_right_rear_toe,crow_right_rear_toe
+670 push x,z 0.107 0.182 vx,vz 0.042 0.087 sampled impulse -0.00647 -0.00179 0.019 contacts crow_left_rear_toe,crow_left_rear_toe,crow_right_rear_toe,crow_right_rear_toe,crow_right_rear_toe,crow_right_rear_toe
+670 nopush x,z 0.079 0.163 vx,vz 0.001 0.0 sampled impulse 0.0 -0.0 0.02207 contacts crow_left_rear_toe,crow_left_rear_toe,crow_left_rear_toe,crow_left_rear_toe,crow_right_rear_toe,crow_right_rear_toe,crow_right_rear_toe,crow_right_rear_toe
+675 push x,z 0.104 0.221 vx,vz -0.06 0.582 sampled impulse 0.0 0.0 0.0 contacts 
+675 nopush x,z 0.083 0.205 vx,vz 0.02 0.614 sampled impulse 0.0 0.0 0.0 contacts 
+680 push x,z 0.084 0.335 vx,vz -0.271 1.018 sampled impulse 0.0 0.0 0.0 contacts 
+680 nopush x,z 0.07 0.315 vx,vz -0.158 0.963 sampled impulse 0.0 0.0 0.0 contacts 
+700 push x,z -0.093 0.702 vx,vz -0.639 1.032 sampled impulse 0.0 0.0 0.0 contacts 
+700 nopush x,z -0.054 0.674 vx,vz -0.466 1.013 sampled impulse 0.0 0.0 0.0 contacts 
+730 push x,z -0.531 1.067 vx,vz -0.774 0.206 sampled impulse 0.0 0.0 0.0 contacts 
+730 nopush x,z -0.37 1.034 vx,vz -0.549 0.22 sampled impulse 0.0 0.0 0.0 contacts 
+750 push x,z -0.842 1.161 vx,vz -0.75 0.064 sampled impulse 0.0 0.0 0.0 contacts 
+750 nopush x,z -0.584 1.131 vx,vz -0.495 0.054 sampled impulse 0.0 0.0 0.0 contacts 

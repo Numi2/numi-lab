@@ -1,0 +1,15 @@
+/Users/n/Developer/numi-crow-rl-20261107/build/crow-v15-launch-speed-height-20261110/low.metal:5495:21: warning: unused variable 'seconds' [-Wunused-variable]
+        const float seconds=float(state.episode.x)*dispatch.timing.x;
+                    ^
+1 warning generated.
+low 13ba3442388463a7517bb3f1325748e6f9aa04a1184efd4ea83142d0245233b5
+/Users/n/Developer/numi-crow-rl-20261107/build/crow-v15-launch-speed-height-20261110/mid.metal:5495:21: warning: unused variable 'seconds' [-Wunused-variable]
+        const float seconds=float(state.episode.x)*dispatch.timing.x;
+                    ^
+1 warning generated.
+mid cda67ba3c1b9dbfd53362ec3a9aa95516a8b23cc9a88e916a08e7d6946e95856
+/Users/n/Developer/numi-crow-rl-20261107/build/crow-v15-launch-speed-height-20261110/high.metal:5495:21: warning: unused variable 'seconds' [-Wunused-variable]
+        const float seconds=float(state.episode.x)*dispatch.timing.x;
+                    ^
+1 warning generated.
+high 6305b1fa11c0033871b873e98c7dfd68e6df3e387fb6109222102b602dfae31f

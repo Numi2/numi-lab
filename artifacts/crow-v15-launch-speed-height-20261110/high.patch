@@ -1,0 +1,11 @@
+--- a/forward.metal
++++ b/high.metal
+@@ -4998,7 +4998,7 @@
+             // Slow toward the physical foot joint using accepted state.
+             actorCommand.x=clamp(0.00f+0.80f*state.nutrition.z-0.80f*state.commandExtension.z,-0.15f,0.20f);
+         }
+-        if (fixedFlightController && state.episode.z == 10u && float(state.episode.x)*dispatch.timing.x < 16.0f) { actorCommand.x = 0.40f; actorCommand.y = 0.0f; actorCommand.z = 0.0f; actorCommand.w = 0.90f; }
++        if (fixedFlightController && state.episode.z == 10u && float(state.episode.x)*dispatch.timing.x < 16.0f) { actorCommand.x = 0.70f; actorCommand.y = 0.0f; actorCommand.z = 0.0f; actorCommand.w = 0.90f; }
+         const bool privilegedCommand = (dispatch.sampling.w != 0u && dispatch.assistance.x < 0.5f);
+         const float4 oracleCommand = privilegedCommand ? state.nutrition : actorCommand;
+         carrierState.commandAndPhase.x = 0.15f;

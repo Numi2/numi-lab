@@ -1,0 +1,773 @@
+{
+  "first_q_v_divergence": 651,
+  "samples": [
+    {
+      "step": 640,
+      "arm": "push",
+      "x": 0.0783128589,
+      "z": 0.162684083,
+      "vx": 0.000910311239,
+      "vz": 0.000205143471,
+      "leg_q": [
+        -0.714978099,
+        1.03130937,
+        -0.484238505,
+        -0.714731455,
+        1.0314765,
+        -0.484199911
+      ],
+      "sampled_ground_impulse": [
+        9.622266464223445e-06,
+        7.63729316737025e-05,
+        0.02207649853442455
+      ],
+      "contacts": [
+        "crow_left_rear_toe",
+        "crow_left_rear_toe",
+        "crow_left_rear_toe",
+        "crow_left_rear_toe",
+        "crow_right_rear_toe",
+        "crow_right_rear_toe",
+        "crow_right_rear_toe",
+        "crow_right_rear_toe"
+      ]
+    },
+    {
+      "step": 640,
+      "arm": "nopush",
+      "x": 0.0783128589,
+      "z": 0.162684083,
+      "vx": 0.000910311239,
+      "vz": 0.000205143471,
+      "leg_q": [
+        -0.714978099,
+        1.03130937,
+        -0.484238505,
+        -0.714731455,
+        1.0314765,
+        -0.484199911
+      ],
+      "sampled_ground_impulse": [
+        9.622266464223445e-06,
+        7.63729316737025e-05,
+        0.02207649853442455
+      ],
+      "contacts": [
+        "crow_left_rear_toe",
+        "crow_left_rear_toe",
+        "crow_left_rear_toe",
+        "crow_left_rear_toe",
+        "crow_right_rear_toe",
+        "crow_right_rear_toe",
+        "crow_right_rear_toe",
+        "crow_right_rear_toe"
+      ]
+    },
+    {
+      "step": 645,
+      "arm": "push",
+      "x": 0.0784130618,
+      "z": 0.162708551,
+      "vx": 0.00105351815,
+      "vz": 0.000249615114,
+      "leg_q": [
+        -0.71496892,
+        1.03131092,
+        -0.484240592,
+        -0.714745462,
+        1.03147674,
+        -0.484199941
+      ],
+      "sampled_ground_impulse": [
+        3.297262079887095e-06,
+        5.2229646998005076e-05,
+        0.022073676860913844
+      ],
+      "contacts": [
+        "crow_left_rear_toe",
+        "crow_left_rear_toe",
+        "crow_left_rear_toe",
+        "crow_left_rear_toe",
+        "crow_right_rear_toe",
+        "crow_right_rear_toe",
+        "crow_right_rear_toe",
+        "crow_right_rear_toe"
+      ]
+    },
+    {
+      "step": 645,
+      "arm": "nopush",
+      "x": 0.0784130618,
+      "z": 0.162708551,
+      "vx": 0.00105351815,
+      "vz": 0.000249615114,
+      "leg_q": [
+        -0.71496892,
+        1.03131092,
+        -0.484240592,
+        -0.714745462,
+        1.03147674,
+        -0.484199941
+      ],
+      "sampled_ground_impulse": [
+        3.297262079887095e-06,
+        5.2229646998005076e-05,
+        0.022073676860913844
+      ],
+      "contacts": [
+        "crow_left_rear_toe",
+        "crow_left_rear_toe",
+        "crow_left_rear_toe",
+        "crow_left_rear_toe",
+        "crow_right_rear_toe",
+        "crow_right_rear_toe",
+        "crow_right_rear_toe",
+        "crow_right_rear_toe"
+      ]
+    },
+    {
+      "step": 648,
+      "arm": "push",
+      "x": 0.0784777775,
+      "z": 0.162722722,
+      "vx": 0.00109839253,
+      "vz": 0.000223273993,
+      "leg_q": [
+        -0.714965224,
+        1.03130615,
+        -0.484243512,
+        -0.714747488,
+        1.03148186,
+        -0.484198242
+      ],
+      "sampled_ground_impulse": [
+        2.993111884034091e-06,
+        3.2250338433177476e-05,
+        0.02207358753006635
+      ],
+      "contacts": [
+        "crow_left_rear_toe",
+        "crow_left_rear_toe",
+        "crow_left_rear_toe",
+        "crow_left_rear_toe",
+        "crow_right_rear_toe",
+        "crow_right_rear_toe",
+        "crow_right_rear_toe",
+        "crow_right_rear_toe"
+      ]
+    },
+    {
+      "step": 648,
+      "arm": "nopush",
+      "x": 0.0784777775,
+      "z": 0.162722722,
+      "vx": 0.00109839253,
+      "vz": 0.000223273993,
+      "leg_q": [
+        -0.714965224,
+        1.03130615,
+        -0.484243512,
+        -0.714747488,
+        1.03148186,
+        -0.484198242
+      ],
+      "sampled_ground_impulse": [
+        2.993111884034091e-06,
+        3.2250338433177476e-05,
+        0.02207358753006635
+      ],
+      "contacts": [
+        "crow_left_rear_toe",
+        "crow_left_rear_toe",
+        "crow_left_rear_toe",
+        "crow_left_rear_toe",
+        "crow_right_rear_toe",
+        "crow_right_rear_toe",
+        "crow_right_rear_toe",
+        "crow_right_rear_toe"
+      ]
+    },
+    {
+      "step": 650,
+      "arm": "push",
+      "x": 0.078522265,
+      "z": 0.16273123,
+      "vx": 0.00112305302,
+      "vz": 0.000205561184,
+      "leg_q": [
+        -0.71496433,
+        1.03130364,
+        -0.484245032,
+        -0.71474719,
+        1.03148472,
+        -0.484197527
+      ],
+      "sampled_ground_impulse": [
+        2.7759051322355196e-06,
+        1.587139490734921e-05,
+        0.022073886813043297
+      ],
+      "contacts": [
+        "crow_left_rear_toe",
+        "crow_left_rear_toe",
+        "crow_left_rear_toe",
+        "crow_left_rear_toe",
+        "crow_right_rear_toe",
+        "crow_right_rear_toe",
+        "crow_right_rear_toe",
+        "crow_right_rear_toe"
+      ]
+    },
+    {
+      "step": 650,
+      "arm": "nopush",
+      "x": 0.078522265,
+      "z": 0.16273123,
+      "vx": 0.00112305302,
+      "vz": 0.000205561184,
+      "leg_q": [
+        -0.71496433,
+        1.03130364,
+        -0.484245032,
+        -0.71474719,
+        1.03148472,
+        -0.484197527
+      ],
+      "sampled_ground_impulse": [
+        2.7759051322355196e-06,
+        1.587139490734921e-05,
+        0.022073886813043297
+      ],
+      "contacts": [
+        "crow_left_rear_toe",
+        "crow_left_rear_toe",
+        "crow_left_rear_toe",
+        "crow_left_rear_toe",
+        "crow_right_rear_toe",
+        "crow_right_rear_toe",
+        "crow_right_rear_toe",
+        "crow_right_rear_toe"
+      ]
+    },
+    {
+      "step": 652,
+      "arm": "push",
+      "x": 0.0829835311,
+      "z": 0.166172817,
+      "vx": 0.197434843,
+      "vz": 0.144419774,
+      "leg_q": [
+        -0.571227431,
+        0.871734858,
+        -0.338468134,
+        -0.570758939,
+        0.87207979,
+        -0.338461965
+      ],
+      "sampled_ground_impulse": [
+        0.009984737724947537,
+        -0.0003186675569235224,
+        0.027062992852683612
+      ],
+      "contacts": [
+        "crow_left_rear_toe",
+        "crow_left_rear_toe",
+        "crow_left_rear_toe",
+        "crow_left_rear_toe",
+        "crow_right_rear_toe",
+        "crow_right_rear_toe",
+        "crow_right_rear_toe",
+        "crow_right_rear_toe"
+      ]
+    },
+    {
+      "step": 652,
+      "arm": "nopush",
+      "x": 0.0785677582,
+      "z": 0.162739098,
+      "vx": 0.00114837231,
+      "vz": 0.000191292624,
+      "leg_q": [
+        -0.714963496,
+        1.03130138,
+        -0.484246463,
+        -0.714746773,
+        1.03148723,
+        -0.484196931
+      ],
+      "sampled_ground_impulse": [
+        2.8600386244115403e-06,
+        9.424467075049925e-06,
+        0.022074233713839108
+      ],
+      "contacts": [
+        "crow_left_rear_toe",
+        "crow_left_rear_toe",
+        "crow_left_rear_toe",
+        "crow_left_rear_toe",
+        "crow_right_rear_toe",
+        "crow_right_rear_toe",
+        "crow_right_rear_toe",
+        "crow_right_rear_toe"
+      ]
+    },
+    {
+      "step": 655,
+      "arm": "push",
+      "x": 0.0925174803,
+      "z": 0.190499693,
+      "vx": 0.121597722,
+      "vz": 0.271011293,
+      "leg_q": [
+        -0.0355111212,
+        0.159451798,
+        0.0473389775,
+        -0.035128586,
+        0.159885868,
+        0.0409648493
+      ],
+      "sampled_ground_impulse": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "contacts": []
+    },
+    {
+      "step": 655,
+      "arm": "nopush",
+      "x": 0.0786379725,
+      "z": 0.162750304,
+      "vx": 0.00118875038,
+      "vz": 0.00018456344,
+      "leg_q": [
+        -0.714962661,
+        1.03129923,
+        -0.484248012,
+        -0.7147457,
+        1.03148985,
+        -0.484196663
+      ],
+      "sampled_ground_impulse": [
+        3.1032006324785e-06,
+        4.4266503799767366e-06,
+        0.022073887361335788
+      ],
+      "contacts": [
+        "crow_left_rear_toe",
+        "crow_left_rear_toe",
+        "crow_left_rear_toe",
+        "crow_left_rear_toe",
+        "crow_right_rear_toe",
+        "crow_right_rear_toe",
+        "crow_right_rear_toe",
+        "crow_right_rear_toe"
+      ]
+    },
+    {
+      "step": 660,
+      "arm": "push",
+      "x": 0.0970772505,
+      "z": 0.183720455,
+      "vx": -0.0781642422,
+      "vz": 0.126458496,
+      "leg_q": [
+        -0.227565542,
+        0.193732634,
+        -0.301190674,
+        -0.22723262,
+        0.193845853,
+        -0.316081792
+      ],
+      "sampled_ground_impulse": [
+        -0.0009478059436997284,
+        0.00015700658930898215,
+        0.015643252339829772
+      ],
+      "contacts": [
+        "crow_left_rear_toe",
+        "crow_left_rear_toe",
+        "crow_left_rear_toe",
+        "crow_left_rear_toe",
+        "crow_right_rear_toe",
+        "crow_right_rear_toe",
+        "crow_right_rear_toe",
+        "crow_right_rear_toe"
+      ]
+    },
+    {
+      "step": 660,
+      "arm": "nopush",
+      "x": 0.0787605718,
+      "z": 0.1627689,
+      "vx": 0.00126049726,
+      "vz": 0.000188098085,
+      "leg_q": [
+        -0.714961529,
+        1.03129828,
+        -0.484249622,
+        -0.714743435,
+        1.03149152,
+        -0.484197319
+      ],
+      "sampled_ground_impulse": [
+        3.281103412899986e-06,
+        1.5955383168926498e-06,
+        0.022074485851946345
+      ],
+      "contacts": [
+        "crow_left_rear_toe",
+        "crow_left_rear_toe",
+        "crow_left_rear_toe",
+        "crow_left_rear_toe",
+        "crow_right_rear_toe",
+        "crow_right_rear_toe",
+        "crow_right_rear_toe",
+        "crow_right_rear_toe"
+      ]
+    },
+    {
+      "step": 665,
+      "arm": "push",
+      "x": 0.0974586308,
+      "z": 0.172190949,
+      "vx": 0.174020708,
+      "vz": -0.0209405441,
+      "leg_q": [
+        -0.441052169,
+        0.5579561,
+        -0.15677245,
+        -0.431640655,
+        0.54801923,
+        -0.129795477
+      ],
+      "sampled_ground_impulse": [
+        0.009657045864562919,
+        0.001592681349886404,
+        0.026685476448693582
+      ],
+      "contacts": [
+        "crow_left_rear_toe",
+        "crow_left_rear_toe",
+        "crow_left_rear_toe",
+        "crow_left_rear_toe",
+        "crow_right_rear_toe",
+        "crow_right_rear_toe",
+        "crow_right_rear_toe",
+        "crow_right_rear_toe"
+      ]
+    },
+    {
+      "step": 665,
+      "arm": "nopush",
+      "x": 0.078890644,
+      "z": 0.162788004,
+      "vx": 0.00133778877,
+      "vz": 0.000195521614,
+      "leg_q": [
+        -0.714959741,
+        1.03129852,
+        -0.484250903,
+        -0.714741647,
+        1.03149211,
+        -0.484198451
+      ],
+      "sampled_ground_impulse": [
+        3.5286841987300995e-06,
+        2.3531501992064482e-07,
+        0.022074483328011898
+      ],
+      "contacts": [
+        "crow_left_rear_toe",
+        "crow_left_rear_toe",
+        "crow_left_rear_toe",
+        "crow_left_rear_toe",
+        "crow_right_rear_toe",
+        "crow_right_rear_toe",
+        "crow_right_rear_toe",
+        "crow_right_rear_toe"
+      ]
+    },
+    {
+      "step": 670,
+      "arm": "push",
+      "x": 0.106673829,
+      "z": 0.18167308,
+      "vx": 0.042373661,
+      "vz": 0.0870055035,
+      "leg_q": [
+        0.0603896268,
+        -0.0703204721,
+        -0.115045704,
+        0.075906083,
+        -0.0871253535,
+        -0.276733369
+      ],
+      "sampled_ground_impulse": [
+        -0.00646771769961066,
+        -0.0017869514716638193,
+        0.01899643773926164
+      ],
+      "contacts": [
+        "crow_left_rear_toe",
+        "crow_left_rear_toe",
+        "crow_right_rear_toe",
+        "crow_right_rear_toe",
+        "crow_right_rear_toe",
+        "crow_right_rear_toe"
+      ]
+    },
+    {
+      "step": 670,
+      "arm": "nopush",
+      "x": 0.0790286735,
+      "z": 0.162808076,
+      "vx": 0.0014196455,
+      "vz": 0.000205606208,
+      "leg_q": [
+        -0.714957774,
+        1.03129888,
+        -0.484252214,
+        -0.71473968,
+        1.03149259,
+        -0.484199673
+      ],
+      "sampled_ground_impulse": [
+        3.6993022985586555e-06,
+        -4.163489237683955e-08,
+        0.02207448315000029
+      ],
+      "contacts": [
+        "crow_left_rear_toe",
+        "crow_left_rear_toe",
+        "crow_left_rear_toe",
+        "crow_left_rear_toe",
+        "crow_right_rear_toe",
+        "crow_right_rear_toe",
+        "crow_right_rear_toe",
+        "crow_right_rear_toe"
+      ]
+    },
+    {
+      "step": 675,
+      "arm": "push",
+      "x": 0.103559889,
+      "z": 0.221344337,
+      "vx": -0.0596588291,
+      "vz": 0.582149506,
+      "leg_q": [
+        -0.385602683,
+        0.688898087,
+        -0.416975707,
+        -0.410028338,
+        0.687582254,
+        -0.484828174
+      ],
+      "sampled_ground_impulse": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "contacts": []
+    },
+    {
+      "step": 675,
+      "arm": "nopush",
+      "x": 0.0827354863,
+      "z": 0.204996407,
+      "vx": 0.0200097691,
+      "vz": 0.613626719,
+      "leg_q": [
+        -0.185117409,
+        0.418634534,
+        -0.146778286,
+        -0.184201524,
+        0.42036289,
+        -0.146999732
+      ],
+      "sampled_ground_impulse": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "contacts": []
+    },
+    {
+      "step": 680,
+      "arm": "push",
+      "x": 0.0836767256,
+      "z": 0.33492136,
+      "vx": -0.270789236,
+      "vz": 1.01756489,
+      "leg_q": [
+        -0.189249694,
+        0.362081707,
+        -0.207525298,
+        -0.187236398,
+        0.359835297,
+        -0.152782679
+      ],
+      "sampled_ground_impulse": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "contacts": []
+    },
+    {
+      "step": 680,
+      "arm": "nopush",
+      "x": 0.0701830313,
+      "z": 0.3145895,
+      "vx": -0.15845947,
+      "vz": 0.963499188,
+      "leg_q": [
+        -0.193869859,
+        0.354154915,
+        -0.213107705,
+        -0.193345249,
+        0.355732441,
+        -0.213104382
+      ],
+      "sampled_ground_impulse": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "contacts": []
+    },
+    {
+      "step": 700,
+      "arm": "push",
+      "x": -0.0928901583,
+      "z": 0.701677322,
+      "vx": -0.638577342,
+      "vz": 1.03224766,
+      "leg_q": [
+        -0.189968273,
+        0.415015191,
+        -0.211955607,
+        -0.18996641,
+        0.415015578,
+        -0.21195519
+      ],
+      "sampled_ground_impulse": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "contacts": []
+    },
+    {
+      "step": 700,
+      "arm": "nopush",
+      "x": -0.0542618483,
+      "z": 0.673784554,
+      "vx": -0.46625793,
+      "vz": 1.01335895,
+      "leg_q": [
+        -0.189963818,
+        0.415016323,
+        -0.211955771,
+        -0.189961657,
+        0.415017098,
+        -0.211955965
+      ],
+      "sampled_ground_impulse": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "contacts": []
+    },
+    {
+      "step": 730,
+      "arm": "push",
+      "x": -0.530548573,
+      "z": 1.06659567,
+      "vx": -0.773924053,
+      "vz": 0.206375316,
+      "leg_q": [
+        -0.190037444,
+        0.414969862,
+        -0.211980924,
+        -0.190038592,
+        0.414969385,
+        -0.211980805
+      ],
+      "sampled_ground_impulse": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "contacts": []
+    },
+    {
+      "step": 730,
+      "arm": "nopush",
+      "x": -0.370084763,
+      "z": 1.03408349,
+      "vx": -0.548710167,
+      "vz": 0.220070571,
+      "leg_q": [
+        -0.190026313,
+        0.414973199,
+        -0.211979762,
+        -0.190026209,
+        0.414973348,
+        -0.211979851
+      ],
+      "sampled_ground_impulse": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "contacts": []
+    },
+    {
+      "step": 750,
+      "arm": "push",
+      "x": -0.84220469,
+      "z": 1.16054511,
+      "vx": -0.749919116,
+      "vz": 0.0639871433,
+      "leg_q": [
+        -0.190064743,
+        0.414968193,
+        -0.212009251,
+        -0.190064892,
+        0.414968193,
+        -0.2120094
+      ],
+      "sampled_ground_impulse": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "contacts": []
+    },
+    {
+      "step": 750,
+      "arm": "nopush",
+      "x": -0.584040165,
+      "z": 1.1307714,
+      "vx": -0.495411009,
+      "vz": 0.0535410568,
+      "leg_q": [
+        -0.19005397,
+        0.414972007,
+        -0.212009057,
+        -0.190053821,
+        0.414972007,
+        -0.212008953
+      ],
+      "sampled_ground_impulse": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "contacts": []
+    }
+  ],
+  "scope": "Impulse is from the final physics substep only, not the total interval impulse. Later divergence may include the contact-gated wing response."
+}

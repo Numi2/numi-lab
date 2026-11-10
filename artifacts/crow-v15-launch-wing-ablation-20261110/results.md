@@ -1,0 +1,3 @@
+# Leg-push test with active flapping inhibited
+
+In matched trials on one previously used layout and seed, wing flapping amplitude and non-leg flight commands were held at zero until 13.4 s; passive aerodynamic forces and ordinary joint position drives remained enabled. With the leg extension, the feet left contact at step 654, the root rose from 0.163 m to 0.193 m at step 656, and its upward velocity peaked at approximately 0.504 m/s at step 653. The body returned to ground contact at step 659. With the extension disabled the bird remained on the ground until the later wing fallback. The sampled flap coordinates barely moved during the jump. This demonstrates a brief leg-driven jump in one trial, not robust takeoff, sustained flight, or a validated biological model.
