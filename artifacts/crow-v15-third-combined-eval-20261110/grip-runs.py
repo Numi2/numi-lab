@@ -1,6 +1,9 @@
 from pathlib import Path
 import gzip,json,sys
 A=Path('artifacts/crow-v15-third-combined-eval-20261110');name=sys.argv[1];release=json.loads((A/(name+'-release-audit.json')).read_text())['first_release_step'];run=longest=count=0;seen=[]
+if release is None:
+ out={'name':name,'release_observed':False,'reason':'episode ended before contact-conditioned release'}
+ (A/(name+'-grip-runs.json')).write_text(json.dumps(out,indent=2)+'\n'); print(json.dumps(out,indent=2)); sys.exit(0)
 with gzip.open(A/(name+'.stderr.gz'),'rt') as f:
  for line in f:
   if not line.startswith('CROW_SUPPORT_SAMPLE '):continue
