@@ -1,0 +1,3 @@
+# Event-budget diagnostic
+
+A byte-identical-state repeat of the guided descent with a passive failure observer reproduced the status-9 CCD failure at step 3840. The contact status reported 60 of 60 CCD candidates, six required events, four admitted events, zero unresolved queries, and 5 ms remaining. The first over-budget pair index was 304. The existing protected CCD capture handles unresolved pairs and post-advance event failures, not this pre-advance event-queue overflow, so no capture file was produced. This is a diagnostic boundary, not a captured pair-level proof. The later 16-event experiment is retained separately and reached a physical thigh-perch collision.

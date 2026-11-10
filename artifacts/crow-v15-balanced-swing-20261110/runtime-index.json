@@ -1,0 +1,12 @@
+[
+  {
+    "path": "build/crow-v15-balanced-swing-20261110/balanced55.metallib",
+    "sha256": "8a8d1228bec5a0765a6677ba6d888d80c6d6891fa8d643812ae5f0f7d4944a5e",
+    "bytes": 4482688
+  },
+  {
+    "path": "build/crow-v15-balanced-swing-20261110/balanced60.metallib",
+    "sha256": "2fce59ede6ba026931bb90b2ed048f67e6f397323c2eb10945c00edfb80e5e7e",
+    "bytes": 4482688
+  }
+]

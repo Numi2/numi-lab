@@ -1,0 +1,17 @@
+[
+  {
+    "path": "build/crow-v15-ccd-budget-20261110/libmetalrobo.dylib",
+    "sha256": "58e7ca43a077a9cb63f9174a471f61572776f5207d1bfa12972ee1e57cc75391",
+    "bytes": 5765024
+  },
+  {
+    "path": "build/crow-v15-ccd-budget-20261110/landing.policypack",
+    "sha256": "8e7c09102a6ed30d0d89e382a251258ab510e7b8d4f81da72a214eec8996ebb7",
+    "bytes": 5996441
+  },
+  {
+    "path": "build/crow-v15-ccd-budget-20261110/route.policypack",
+    "sha256": "af5a106feea3903faa854700c398260d30a82eaf2b82090bdbcde1298ea3a449",
+    "bytes": 17228695
+  }
+]

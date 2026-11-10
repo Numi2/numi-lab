@@ -1,0 +1,10 @@
+/Users/n/Developer/numi-crow-rl-20261107/build/crow-v15-stride-heldout-20261110/control.metal:5122:29: warning: unused variable 'extended' [-Wunused-variable]
+                const float extended=joint==0u ? 0.10f : joint==1u ? -0.70f : 0.18f;
+                            ^
+/Users/n/Developer/numi-crow-rl-20261107/build/crow-v15-stride-heldout-20261110/control.metal:5123:28: warning: unused variable 'bilateral' [-Wunused-variable]
+                const bool bilateral=state.nutrition.x>0.05f && state.nutrition.y>0.05f;
+                           ^
+/Users/n/Developer/numi-crow-rl-20261107/build/crow-v15-stride-heldout-20261110/control.metal:5530:21: warning: unused variable 'seconds' [-Wunused-variable]
+        const float seconds=float(state.episode.x)*dispatch.timing.x;
+                    ^
+3 warnings generated.

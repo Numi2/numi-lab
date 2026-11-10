@@ -1,0 +1,3 @@
+# Paired stance-excursion screen
+
+On the current wing-inertia body, the geometrically coordinated 0.55/-0.26 knee/ankle swing achieved ten clear swing runs per side and approximately 0.03 m/s p95 contact slip on the base matched start, but advanced only 0.065 m in ten seconds against the 0.10 m gate. Keep this swing and compare stance magnitudes 0.40 and 0.45 to the previous 0.35, with all other physics, CCD, sensors and launch settings identical. Screen eight perturbed starts for each on the same exposed seed; report every lane against the unchanged progress, swing, slip, posture and support gates. Test results are not held out, a no-push causal comparison or full autonomous navigation.

@@ -1,0 +1,3 @@
+# Balanced swing screen
+
+Both eight-lane candidates completed without reported physical or solver failures. The 0.55/-0.26 coordinated knee/ankle candidate produced 9-10 distinct clear swings on each foot with about 0.03 m/s p95 sampled slip, but advanced 0.065-0.073 m in ten seconds, below the 0.10 m gate. The 0.60/-0.32 candidate also produced clear swings but advanced only 0.039-0.051 m. Thus neither qualifies as the target gait. This is an exposed-seed experiment, without matched no-push tests or complete autonomous flight and landing. Candidate arms were initially summarized with a no-push pass formula; analysis was corrected because both are push arms, and the underlying measurements were retained.

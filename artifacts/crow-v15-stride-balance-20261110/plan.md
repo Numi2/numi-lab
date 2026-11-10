@@ -1,0 +1,3 @@
+# Intermediate stride-reach screen
+
+With otherwise identical 0.45 stance and coordinated swing, hip/ankle -0.30/-0.26 yielded 0.073 m progress and approximately 0.02 m/s p95 slip on the base lane; -0.40/-0.20 yielded 0.161 m progress and approximately 0.064 m/s slip. Test interpolated hip/ankle pairs -0.34/-0.236 and -0.36/-0.224 to seek both >=0.10 m progress and <=0.05 m/s p95 slip while maintaining >=2 mm clear swing, support and posture gates. Compare all eight exposed development starts with the original fixed thresholds and preserve failure. Follow any apparent success with independently selected seeds and a paired no-push control, not a claim of full autonomous or held-out success.

@@ -1,0 +1,10 @@
+--- a/MetalWorld.mm
++++ b/MetalWorld.mm
+@@ -20674,6 +20674,7 @@
+         }
+ 
+         if (pending->contactMode) {
++            if (std::getenv("CROW_CCD_FAILURE_DIAGNOSTIC") != nullptr) for (const auto& x : staged.contactStatuses) if (x.code != MR_STEP_SUCCESS) std::fprintf(stderr,"CROW_CCD_FAIL code=%u env=%u pair=%u key=%u,%u event_key=%u,%u required_candidates=%u candidates=%u required_events=%u events=%u unresolved=%u flags=%u event_times=%.9g,%.9g,%.9g,%.9g\n",x.code,x.environment,x.firstFailingPair,x.firstFailingStableKeyLow,x.firstFailingStableKeyHigh,x.firstFailingEventKeyLow,x.firstFailingEventKeyHigh,x.requiredCCDCandidates,x.ccdCandidates,x.requiredCCDEvents,x.ccdEvents,x.unresolvedCCDCount,x.queueFlags,x.eventTimes.x,x.eventTimes.y,x.eventTimes.z,x.eventTimes.w);
+             captureCCDFailure(*pending->context, staged);
+             captureBoundedDriveFailure(*pending->context, staged);
+             captureQualityFailure(*pending->context, staged);

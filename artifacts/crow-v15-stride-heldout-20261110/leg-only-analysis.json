@@ -1,0 +1,86 @@
+{
+  "seed": 709815427,
+  "sampling": "accepted states at control steps 650 and 654; latch is reported at task step 654; substep details not reconstructed",
+  "lanes": [
+    {
+      "lane": 0,
+      "initial_max_qv_difference": 0.0,
+      "prepush_max_qv_difference": 0.0,
+      "push_rise_m": 0.020388559,
+      "control_rise_m": 1.597400000000193e-05,
+      "extra_rise_m": 0.020372585,
+      "pre_latch_wing_angle_change_rad": 9.530000000257388e-07,
+      "push_final_vz": 0.418852746
+    },
+    {
+      "lane": 1,
+      "initial_max_qv_difference": 0.0,
+      "prepush_max_qv_difference": 0.0,
+      "push_rise_m": 0.020388588000000013,
+      "control_rise_m": 1.5943999999989966e-05,
+      "extra_rise_m": 0.020372644000000023,
+      "pre_latch_wing_angle_change_rad": 9.530000000257388e-07,
+      "push_final_vz": 0.418854088
+    },
+    {
+      "lane": 2,
+      "initial_max_qv_difference": 0.0,
+      "prepush_max_qv_difference": 0.0,
+      "push_rise_m": 0.020388587999999985,
+      "control_rise_m": 1.595899999998207e-05,
+      "extra_rise_m": 0.020372629000000003,
+      "pre_latch_wing_angle_change_rad": 9.530000000257388e-07,
+      "push_final_vz": 0.418853879
+    },
+    {
+      "lane": 3,
+      "initial_max_qv_difference": 0.0,
+      "prepush_max_qv_difference": 0.0,
+      "push_rise_m": 0.02038863299999999,
+      "control_rise_m": 1.595899999998207e-05,
+      "extra_rise_m": 0.020372674000000007,
+      "pre_latch_wing_angle_change_rad": 9.530000000257388e-07,
+      "push_final_vz": 0.418855339
+    },
+    {
+      "lane": 4,
+      "initial_max_qv_difference": 0.0,
+      "prepush_max_qv_difference": 0.0,
+      "push_rise_m": 0.020388587999999985,
+      "control_rise_m": 1.595899999998207e-05,
+      "extra_rise_m": 0.020372629000000003,
+      "pre_latch_wing_angle_change_rad": 9.530000000257388e-07,
+      "push_final_vz": 0.418853819
+    },
+    {
+      "lane": 5,
+      "initial_max_qv_difference": 0.0,
+      "prepush_max_qv_difference": 0.0,
+      "push_rise_m": 0.020388588000000013,
+      "control_rise_m": 1.5943999999989966e-05,
+      "extra_rise_m": 0.020372644000000023,
+      "pre_latch_wing_angle_change_rad": 9.530000000257388e-07,
+      "push_final_vz": 0.418853611
+    },
+    {
+      "lane": 6,
+      "initial_max_qv_difference": 0.0,
+      "prepush_max_qv_difference": 0.0,
+      "push_rise_m": 0.02038863299999999,
+      "control_rise_m": 1.5943999999989966e-05,
+      "extra_rise_m": 0.020372689,
+      "pre_latch_wing_angle_change_rad": 9.530000000257388e-07,
+      "push_final_vz": 0.418855399
+    },
+    {
+      "lane": 7,
+      "initial_max_qv_difference": 0.0,
+      "prepush_max_qv_difference": 0.0,
+      "push_rise_m": 0.020388274999999983,
+      "control_rise_m": 1.5943999999989966e-05,
+      "extra_rise_m": 0.020372330999999994,
+      "pre_latch_wing_angle_change_rad": 9.530000000257388e-07,
+      "push_final_vz": 0.418916196
+    }
+  ]
+}

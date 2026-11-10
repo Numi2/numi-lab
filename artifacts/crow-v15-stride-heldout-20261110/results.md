@@ -1,0 +1,5 @@
+# Reserved-start gait test: failed overall
+
+The pre-registered two-seed test did not pass. On seed 709815403, both push and no-push batches failed at control step four in lane 1 with CCD event-budget exhaustion before the gait could be evaluated. On seed 709815427, both eight-lane batches completed without reported physical or solver failure: all eight push lanes passed the gait gates and latched early, while zero no-push lanes latched early. The no-push arms subsequently became airborne after their shared wing fallback; early-latch comparison is the causal boundary.
+
+For each completed matched lane, the saved accepted states at step 650 were identical across arms. By step 654 the push arm had risen about 20 mm more than the control with negligible change in sampled wing-flap angle. The conclusion is limited to those endpoint samples and this simulator. Seed 709815403 is retained as a failure; the successful seed cannot rescue the predeclared overall test. Both seed identifiers are now exposed. Neither result qualifies a full autonomous sequence, landing or an unused layout.

@@ -1,0 +1,593 @@
+{
+  "38942573": {
+    "arms": {
+      "push": {
+        "lanes": [
+          {
+            "lane": 0,
+            "valid_gait_data": true,
+            "forward_m": 0.15575324740000002,
+            "height_m": [
+              0.174855053,
+              0.175791681
+            ],
+            "max_tilt_rad": 0.028587363121485028,
+            "nonfoot_endpoints": 0,
+            "unsupported_endpoints": 0,
+            "sides": [
+              {
+                "loaded_endpoints": 313,
+                "slip_p95_m_s": 0.0681288591,
+                "max_contact_slip_m_s": 0.0893544652,
+                "clear_swing_runs_at_least_3": 0,
+                "longest_clear_swing": 0
+              },
+              {
+                "loaded_endpoints": 310,
+                "slip_p95_m_s": 0.0678695872,
+                "max_contact_slip_m_s": 0.0912912435,
+                "clear_swing_runs_at_least_3": 0,
+                "longest_clear_swing": 0
+              }
+            ],
+            "walk_pass": false,
+            "early_latch": {
+              "step": 654,
+              "packed": 4096,
+              "left_support_N": 0.0,
+              "right_support_N": 0.0
+            },
+            "final_airborne": true,
+            "episode_end": 900,
+            "physical_failure": false
+          },
+          {
+            "lane": 1,
+            "valid_gait_data": true,
+            "forward_m": 0.1556254736,
+            "height_m": [
+              0.174855322,
+              0.175792068
+            ],
+            "max_tilt_rad": 0.028587489334579372,
+            "nonfoot_endpoints": 0,
+            "unsupported_endpoints": 0,
+            "sides": [
+              {
+                "loaded_endpoints": 312,
+                "slip_p95_m_s": 0.0681294524,
+                "max_contact_slip_m_s": 0.0893471923,
+                "clear_swing_runs_at_least_3": 0,
+                "longest_clear_swing": 0
+              },
+              {
+                "loaded_endpoints": 310,
+                "slip_p95_m_s": 0.0678700519,
+                "max_contact_slip_m_s": 0.0912839676,
+                "clear_swing_runs_at_least_3": 0,
+                "longest_clear_swing": 0
+              }
+            ],
+            "walk_pass": false,
+            "early_latch": {
+              "step": 654,
+              "packed": 4096,
+              "left_support_N": 0.0,
+              "right_support_N": 0.0
+            },
+            "final_airborne": true,
+            "episode_end": 900,
+            "physical_failure": false
+          },
+          {
+            "lane": 2,
+            "valid_gait_data": true,
+            "forward_m": 0.1555969044,
+            "height_m": [
+              0.174856186,
+              0.175788358
+            ],
+            "max_tilt_rad": 0.028591503914431035,
+            "nonfoot_endpoints": 0,
+            "unsupported_endpoints": 0,
+            "sides": [
+              {
+                "loaded_endpoints": 312,
+                "slip_p95_m_s": 0.0681258339,
+                "max_contact_slip_m_s": 0.0893686145,
+                "clear_swing_runs_at_least_3": 0,
+                "longest_clear_swing": 0
+              },
+              {
+                "loaded_endpoints": 310,
+                "slip_p95_m_s": 0.067867023,
+                "max_contact_slip_m_s": 0.0913633242,
+                "clear_swing_runs_at_least_3": 0,
+                "longest_clear_swing": 0
+              }
+            ],
+            "walk_pass": false,
+            "early_latch": {
+              "step": 654,
+              "packed": 4096,
+              "left_support_N": 0.0,
+              "right_support_N": 0.0
+            },
+            "final_airborne": true,
+            "episode_end": 900,
+            "physical_failure": false
+          },
+          {
+            "lane": 3,
+            "valid_gait_data": true,
+            "forward_m": 0.1596127473,
+            "height_m": [
+              0.174394459,
+              0.176440984
+            ],
+            "max_tilt_rad": 0.04479781025355846,
+            "nonfoot_endpoints": 0,
+            "unsupported_endpoints": 0,
+            "sides": [
+              {
+                "loaded_endpoints": 323,
+                "slip_p95_m_s": 0.0677184101,
+                "max_contact_slip_m_s": 0.0979456316,
+                "clear_swing_runs_at_least_3": 0,
+                "longest_clear_swing": 0
+              },
+              {
+                "loaded_endpoints": 298,
+                "slip_p95_m_s": 0.0678776102,
+                "max_contact_slip_m_s": 0.0869365593,
+                "clear_swing_runs_at_least_3": 1,
+                "longest_clear_swing": 9
+              }
+            ],
+            "walk_pass": false,
+            "early_latch": {
+              "step": 654,
+              "packed": 4096,
+              "left_support_N": 0.0,
+              "right_support_N": 0.0
+            },
+            "final_airborne": true,
+            "episode_end": 900,
+            "physical_failure": false
+          },
+          {
+            "lane": 4,
+            "valid_gait_data": true,
+            "forward_m": 0.1568634659,
+            "height_m": [
+              0.174859345,
+              0.175781712
+            ],
+            "max_tilt_rad": 0.02859043287731654,
+            "nonfoot_endpoints": 0,
+            "unsupported_endpoints": 0,
+            "sides": [
+              {
+                "loaded_endpoints": 312,
+                "slip_p95_m_s": 0.0681286777,
+                "max_contact_slip_m_s": 0.0896593053,
+                "clear_swing_runs_at_least_3": 0,
+                "longest_clear_swing": 0
+              },
+              {
+                "loaded_endpoints": 311,
+                "slip_p95_m_s": 0.0678596818,
+                "max_contact_slip_m_s": 0.0913352962,
+                "clear_swing_runs_at_least_3": 0,
+                "longest_clear_swing": 0
+              }
+            ],
+            "walk_pass": false,
+            "early_latch": {
+              "step": 654,
+              "packed": 4096,
+              "left_support_N": 0.0,
+              "right_support_N": 0.0
+            },
+            "final_airborne": true,
+            "episode_end": 900,
+            "physical_failure": false
+          },
+          {
+            "lane": 5,
+            "valid_gait_data": true,
+            "forward_m": 0.1624575891,
+            "height_m": [
+              0.174673557,
+              0.176644623
+            ],
+            "max_tilt_rad": 0.041941228254373505,
+            "nonfoot_endpoints": 0,
+            "unsupported_endpoints": 0,
+            "sides": [
+              {
+                "loaded_endpoints": 299,
+                "slip_p95_m_s": 0.0681659702,
+                "max_contact_slip_m_s": 0.084919887,
+                "clear_swing_runs_at_least_3": 1,
+                "longest_clear_swing": 10
+              },
+              {
+                "loaded_endpoints": 316,
+                "slip_p95_m_s": 0.0676510816,
+                "max_contact_slip_m_s": 0.0883479095,
+                "clear_swing_runs_at_least_3": 0,
+                "longest_clear_swing": 0
+              }
+            ],
+            "walk_pass": false,
+            "early_latch": {
+              "step": 654,
+              "packed": 4096,
+              "left_support_N": 0.0,
+              "right_support_N": 0.0
+            },
+            "final_airborne": true,
+            "episode_end": 900,
+            "physical_failure": false
+          },
+          {
+            "lane": 6,
+            "valid_gait_data": true,
+            "forward_m": 0.15557168406000002,
+            "height_m": [
+              0.174856126,
+              0.175788492
+            ],
+            "max_tilt_rad": 0.02858774169744853,
+            "nonfoot_endpoints": 0,
+            "unsupported_endpoints": 0,
+            "sides": [
+              {
+                "loaded_endpoints": 313,
+                "slip_p95_m_s": 0.0681257575,
+                "max_contact_slip_m_s": 0.0893638243,
+                "clear_swing_runs_at_least_3": 0,
+                "longest_clear_swing": 0
+              },
+              {
+                "loaded_endpoints": 310,
+                "slip_p95_m_s": 0.0678694716,
+                "max_contact_slip_m_s": 0.0913535855,
+                "clear_swing_runs_at_least_3": 0,
+                "longest_clear_swing": 0
+              }
+            ],
+            "walk_pass": false,
+            "early_latch": {
+              "step": 654,
+              "packed": 4096,
+              "left_support_N": 0.0,
+              "right_support_N": 0.0
+            },
+            "final_airborne": true,
+            "episode_end": 900,
+            "physical_failure": false
+          },
+          {
+            "lane": 7,
+            "valid_gait_data": true,
+            "forward_m": 0.1554402149,
+            "height_m": [
+              0.174856752,
+              0.175785676
+            ],
+            "max_tilt_rad": 0.0285879970936021,
+            "nonfoot_endpoints": 0,
+            "unsupported_endpoints": 0,
+            "sides": [
+              {
+                "loaded_endpoints": 312,
+                "slip_p95_m_s": 0.068125887,
+                "max_contact_slip_m_s": 0.089406522,
+                "clear_swing_runs_at_least_3": 0,
+                "longest_clear_swing": 0
+              },
+              {
+                "loaded_endpoints": 310,
+                "slip_p95_m_s": 0.0678667367,
+                "max_contact_slip_m_s": 0.0913430034,
+                "clear_swing_runs_at_least_3": 0,
+                "longest_clear_swing": 0
+              }
+            ],
+            "walk_pass": false,
+            "early_latch": {
+              "step": 654,
+              "packed": 4096,
+              "left_support_N": 0.0,
+              "right_support_N": 0.0
+            },
+            "final_airborne": true,
+            "episode_end": 900,
+            "physical_failure": false
+          }
+        ],
+        "walk_passes": 0,
+        "early_latches": 8,
+        "final_airborne": 8,
+        "physical_failures": 0,
+        "solver_failures": 0
+      },
+      "control": {
+        "lanes": [
+          {
+            "lane": 0,
+            "valid_gait_data": true,
+            "forward_m": 0.15575324740000002,
+            "height_m": [
+              0.174855053,
+              0.175791681
+            ],
+            "max_tilt_rad": 0.028587363121485028,
+            "nonfoot_endpoints": 0,
+            "unsupported_endpoints": 0,
+            "sides": [
+              {
+                "loaded_endpoints": 313,
+                "slip_p95_m_s": 0.0681288591,
+                "max_contact_slip_m_s": 0.0893544652,
+                "clear_swing_runs_at_least_3": 0,
+                "longest_clear_swing": 0
+              },
+              {
+                "loaded_endpoints": 310,
+                "slip_p95_m_s": 0.0678695872,
+                "max_contact_slip_m_s": 0.0912912435,
+                "clear_swing_runs_at_least_3": 0,
+                "longest_clear_swing": 0
+              }
+            ],
+            "walk_pass": false,
+            "early_latch": null,
+            "final_airborne": true,
+            "episode_end": 900,
+            "physical_failure": false
+          },
+          {
+            "lane": 1,
+            "valid_gait_data": true,
+            "forward_m": 0.1556254736,
+            "height_m": [
+              0.174855322,
+              0.175792068
+            ],
+            "max_tilt_rad": 0.028587489334579372,
+            "nonfoot_endpoints": 0,
+            "unsupported_endpoints": 0,
+            "sides": [
+              {
+                "loaded_endpoints": 312,
+                "slip_p95_m_s": 0.0681294524,
+                "max_contact_slip_m_s": 0.0893471923,
+                "clear_swing_runs_at_least_3": 0,
+                "longest_clear_swing": 0
+              },
+              {
+                "loaded_endpoints": 310,
+                "slip_p95_m_s": 0.0678700519,
+                "max_contact_slip_m_s": 0.0912839676,
+                "clear_swing_runs_at_least_3": 0,
+                "longest_clear_swing": 0
+              }
+            ],
+            "walk_pass": false,
+            "early_latch": null,
+            "final_airborne": true,
+            "episode_end": 900,
+            "physical_failure": false
+          },
+          {
+            "lane": 2,
+            "valid_gait_data": true,
+            "forward_m": 0.1555969044,
+            "height_m": [
+              0.174856186,
+              0.175788358
+            ],
+            "max_tilt_rad": 0.028591503914431035,
+            "nonfoot_endpoints": 0,
+            "unsupported_endpoints": 0,
+            "sides": [
+              {
+                "loaded_endpoints": 312,
+                "slip_p95_m_s": 0.0681258339,
+                "max_contact_slip_m_s": 0.0893686145,
+                "clear_swing_runs_at_least_3": 0,
+                "longest_clear_swing": 0
+              },
+              {
+                "loaded_endpoints": 310,
+                "slip_p95_m_s": 0.067867023,
+                "max_contact_slip_m_s": 0.0913633242,
+                "clear_swing_runs_at_least_3": 0,
+                "longest_clear_swing": 0
+              }
+            ],
+            "walk_pass": false,
+            "early_latch": null,
+            "final_airborne": true,
+            "episode_end": 900,
+            "physical_failure": false
+          },
+          {
+            "lane": 3,
+            "valid_gait_data": true,
+            "forward_m": 0.1596127473,
+            "height_m": [
+              0.174394459,
+              0.176440984
+            ],
+            "max_tilt_rad": 0.04479781025355846,
+            "nonfoot_endpoints": 0,
+            "unsupported_endpoints": 0,
+            "sides": [
+              {
+                "loaded_endpoints": 323,
+                "slip_p95_m_s": 0.0677184101,
+                "max_contact_slip_m_s": 0.0979456316,
+                "clear_swing_runs_at_least_3": 0,
+                "longest_clear_swing": 0
+              },
+              {
+                "loaded_endpoints": 298,
+                "slip_p95_m_s": 0.0678776102,
+                "max_contact_slip_m_s": 0.0869365593,
+                "clear_swing_runs_at_least_3": 1,
+                "longest_clear_swing": 9
+              }
+            ],
+            "walk_pass": false,
+            "early_latch": null,
+            "final_airborne": true,
+            "episode_end": 900,
+            "physical_failure": false
+          },
+          {
+            "lane": 4,
+            "valid_gait_data": true,
+            "forward_m": 0.1568634659,
+            "height_m": [
+              0.174859345,
+              0.175781712
+            ],
+            "max_tilt_rad": 0.02859043287731654,
+            "nonfoot_endpoints": 0,
+            "unsupported_endpoints": 0,
+            "sides": [
+              {
+                "loaded_endpoints": 312,
+                "slip_p95_m_s": 0.0681286777,
+                "max_contact_slip_m_s": 0.0896593053,
+                "clear_swing_runs_at_least_3": 0,
+                "longest_clear_swing": 0
+              },
+              {
+                "loaded_endpoints": 311,
+                "slip_p95_m_s": 0.0678596818,
+                "max_contact_slip_m_s": 0.0913352962,
+                "clear_swing_runs_at_least_3": 0,
+                "longest_clear_swing": 0
+              }
+            ],
+            "walk_pass": false,
+            "early_latch": null,
+            "final_airborne": true,
+            "episode_end": 900,
+            "physical_failure": false
+          },
+          {
+            "lane": 5,
+            "valid_gait_data": true,
+            "forward_m": 0.1624575891,
+            "height_m": [
+              0.174673557,
+              0.176644623
+            ],
+            "max_tilt_rad": 0.041941228254373505,
+            "nonfoot_endpoints": 0,
+            "unsupported_endpoints": 0,
+            "sides": [
+              {
+                "loaded_endpoints": 299,
+                "slip_p95_m_s": 0.0681659702,
+                "max_contact_slip_m_s": 0.084919887,
+                "clear_swing_runs_at_least_3": 1,
+                "longest_clear_swing": 10
+              },
+              {
+                "loaded_endpoints": 316,
+                "slip_p95_m_s": 0.0676510816,
+                "max_contact_slip_m_s": 0.0883479095,
+                "clear_swing_runs_at_least_3": 0,
+                "longest_clear_swing": 0
+              }
+            ],
+            "walk_pass": false,
+            "early_latch": null,
+            "final_airborne": true,
+            "episode_end": 900,
+            "physical_failure": false
+          },
+          {
+            "lane": 6,
+            "valid_gait_data": true,
+            "forward_m": 0.15557168406000002,
+            "height_m": [
+              0.174856126,
+              0.175788492
+            ],
+            "max_tilt_rad": 0.02858774169744853,
+            "nonfoot_endpoints": 0,
+            "unsupported_endpoints": 0,
+            "sides": [
+              {
+                "loaded_endpoints": 313,
+                "slip_p95_m_s": 0.0681257575,
+                "max_contact_slip_m_s": 0.0893638243,
+                "clear_swing_runs_at_least_3": 0,
+                "longest_clear_swing": 0
+              },
+              {
+                "loaded_endpoints": 310,
+                "slip_p95_m_s": 0.0678694716,
+                "max_contact_slip_m_s": 0.0913535855,
+                "clear_swing_runs_at_least_3": 0,
+                "longest_clear_swing": 0
+              }
+            ],
+            "walk_pass": false,
+            "early_latch": null,
+            "final_airborne": true,
+            "episode_end": 900,
+            "physical_failure": false
+          },
+          {
+            "lane": 7,
+            "valid_gait_data": true,
+            "forward_m": 0.1554402149,
+            "height_m": [
+              0.174856752,
+              0.175785676
+            ],
+            "max_tilt_rad": 0.0285879970936021,
+            "nonfoot_endpoints": 0,
+            "unsupported_endpoints": 0,
+            "sides": [
+              {
+                "loaded_endpoints": 312,
+                "slip_p95_m_s": 0.068125887,
+                "max_contact_slip_m_s": 0.089406522,
+                "clear_swing_runs_at_least_3": 0,
+                "longest_clear_swing": 0
+              },
+              {
+                "loaded_endpoints": 310,
+                "slip_p95_m_s": 0.0678667367,
+                "max_contact_slip_m_s": 0.0913430034,
+                "clear_swing_runs_at_least_3": 0,
+                "longest_clear_swing": 0
+              }
+            ],
+            "walk_pass": false,
+            "early_latch": null,
+            "final_airborne": true,
+            "episode_end": 900,
+            "physical_failure": false
+          }
+        ],
+        "walk_passes": 0,
+        "early_latches": 0,
+        "final_airborne": 8,
+        "physical_failures": 0,
+        "solver_failures": 0
+      }
+    },
+    "predeclared_pass": false
+  }
+}

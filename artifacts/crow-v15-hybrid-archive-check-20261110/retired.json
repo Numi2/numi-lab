@@ -1,0 +1,29 @@
+{
+  "remote_commit": "b8938ba7af3586935b6188f224ac109fa77c31a2",
+  "retired": [
+    {
+      "raw": "build/crow-v15-hybrid-route-probe-20261110/development-j-hybrid-sat-capacity.json",
+      "archive": "artifacts/crow-v15-hybrid-route-probe-20261110/development-j-hybrid-sat-capacity.json.gz",
+      "sha256": "3cbb10071e7d82a6c21c4e06e06b2b5acb7ca70187f8d40ae8de81f591704576",
+      "bytes": 148655500
+    },
+    {
+      "raw": "build/crow-v15-hybrid-route-probe-20261110/development-j-hybrid-sat-capacity.tsv",
+      "archive": "artifacts/crow-v15-hybrid-route-probe-20261110/development-j-hybrid-sat-capacity.tsv.gz",
+      "sha256": "4d58b4130201ac21bf4816f4035c7a84645388e7a5cf6858ed9f9fdd5ce89e47",
+      "bytes": 3254464
+    },
+    {
+      "raw": "build/crow-v15-hybrid-route-probe-20261110/development-j-approach.json",
+      "archive": "artifacts/crow-v15-hybrid-approach-20261110/development-j-approach.json.gz",
+      "sha256": "d1d7cdc222f451ab952352e4753e780eb00a8af5252dc38553049733252d91c2",
+      "bytes": 148603855
+    },
+    {
+      "raw": "build/crow-v15-hybrid-route-probe-20261110/development-j-approach.tsv",
+      "archive": "artifacts/crow-v15-hybrid-approach-20261110/development-j-approach.tsv.gz",
+      "sha256": "984a7ed8ad39b7fb8d76eabc83d0920c8870005b9517b86bb7879eda2c5c3f87",
+      "bytes": 3254602
+    }
+  ]
+}

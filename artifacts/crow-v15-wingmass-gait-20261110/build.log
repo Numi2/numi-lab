@@ -1,0 +1,8 @@
+/Users/n/Developer/numi-crow-rl-20261107/build/crow-v15-wingmass-gait-20261110/lift60.metal:5530:21: warning: unused variable 'seconds' [-Wunused-variable]
+        const float seconds=float(state.episode.x)*dispatch.timing.x;
+                    ^
+1 warning generated.
+/Users/n/Developer/numi-crow-rl-20261107/build/crow-v15-wingmass-gait-20261110/lift80.metal:5530:21: warning: unused variable 'seconds' [-Wunused-variable]
+        const float seconds=float(state.episode.x)*dispatch.timing.x;
+                    ^
+1 warning generated.

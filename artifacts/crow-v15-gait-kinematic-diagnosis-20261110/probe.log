@@ -1,0 +1,6 @@
+crow_left_hip_pitch q=14 value=-0.326831 crow_left_foot dx=-0.129482 dz=-0.0360755 crow_right_foot dx=0 dz=0 crow_left_rear_toe dx=-0.131149 dz=0.0259014 crow_right_rear_toe dx=0 dz=0
+crow_left_knee_pitch q=15 value=0.577302 crow_left_foot dx=-0.0700065 dz=-0.0145571 crow_right_foot dx=0 dz=0 crow_left_rear_toe dx=-0.0716728 dz=0.0474198 crow_right_rear_toe dx=0 dz=0
+crow_left_ankle_pitch q=16 value=-0.256985 crow_left_foot dx=-0.00842489 dz=-0.0289861 crow_right_foot dx=0 dz=0 crow_left_rear_toe dx=-0.0100912 dz=0.0329908 crow_right_rear_toe dx=0 dz=0
+crow_right_hip_pitch q=17 value=0.0383337 crow_left_foot dx=0 dz=0 crow_right_foot dx=-0.135887 dz=-0.0251326 crow_left_rear_toe dx=0 dz=0 crow_right_rear_toe dx=-0.1351 dz=0.0368604
+crow_right_knee_pitch q=18 value=0.0199029 crow_left_foot dx=0 dz=0 crow_right_foot dx=-0.0726482 dz=-0.0262722 crow_left_rear_toe dx=0 dz=0 crow_right_rear_toe dx=-0.0718609 dz=0.0357208
+crow_right_ankle_pitch q=19 value=-0.0293861 crow_left_foot dx=0 dz=0 crow_right_foot dx=-0.00944448 dz=-0.0286701 crow_left_rear_toe dx=0 dz=0 crow_right_rear_toe dx=-0.00865715 dz=0.0333229

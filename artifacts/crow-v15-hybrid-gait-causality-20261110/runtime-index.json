@@ -1,0 +1,17 @@
+[
+  {
+    "path": "build/crow-v15-hybrid-gait-causality-20261110/control.metallib",
+    "sha256": "bc11e5e0d710f2e970e737138b379b7b13421c295d05ae79300c190e122a62b6",
+    "bytes": 4482528
+  },
+  {
+    "path": "build/crow-v15-hybrid-gait-causality-20261110/zero-primary.policypack",
+    "sha256": "b79f151f072d30ca3e3a5cb9134fe1450dff5e3af27871250fd91171a5a879bc",
+    "bytes": 5996429
+  },
+  {
+    "path": "build/crow-v15-hybrid-gait-causality-20261110/zero-base.policypack",
+    "sha256": "79566131ea1fed4488713ac23e1961324e29d8196bdbc77f835a795bbf3e4fa8",
+    "bytes": 5996426
+  }
+]

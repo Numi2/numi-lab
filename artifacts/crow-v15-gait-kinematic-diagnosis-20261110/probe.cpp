@@ -1,0 +1,6 @@
+#define main toe_free_admission_main
+#include "../crow-v15-impact-grip-probe-20261110/toe_model.cpp"
+#undef main
+#include "wing_model.hpp"
+#include <fstream>
+int main(){auto robot=toeModel();crowResearchWingInertia(robot);auto&m=robot.mechanics;std::ifstream f("artifacts/crow-v15-gait-kinematic-diagnosis-20261110/input.txt");std::vector<double>q(m.defaultQ.size()),v(m.defaultV.size());for(auto&x:q)f>>x;for(auto&x:v)f>>x;need(bool(f),"input missing");auto calc=[&](std::vector<double>& x){std::vector<ArticulatedBodyKinematics>k(m.bodies.size());need(computeArticulatedBodyKinematics(m,0,x,v,k).succeeded(),"kinematic failure");return k;};auto base=calc(q);for(unsigned j=0;j<m.joints.size();j++){auto& joint=m.joints[j];if(m.jointNames[j].find("hip")==std::string::npos&&m.jointNames[j].find("knee")==std::string::npos&&m.jointNames[j].find("ankle")==std::string::npos)continue;unsigned qi=joint.qOffset;auto mod=q;mod[qi]+=.01;auto k=calc(mod);std::cout<<m.jointNames[j]<<" q="<<qi<<" value="<<q[qi];for(unsigned b=0;b<m.bodies.size();b++)if(m.bodyNames[b]=="crow_left_foot"||m.bodyNames[b]=="crow_right_foot"||m.bodyNames[b]=="crow_left_rear_toe"||m.bodyNames[b]=="crow_right_rear_toe"){auto p=base[b].centerOfMassPosition;auto z=k[b].centerOfMassPosition;std::cout<<" "<<m.bodyNames[b]<<" dx="<<(z[0]-p[0])/.01<<" dz="<<(z[2]-p[2])/.01;}std::cout<<'\n';}}

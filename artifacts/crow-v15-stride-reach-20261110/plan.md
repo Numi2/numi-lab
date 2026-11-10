@@ -1,0 +1,3 @@
+# Step reach screen
+
+The balanced 0.55/-0.26 swing with 0.45 stance preserved clear swing and low contact slip but reached only 0.073-0.080 m in ten seconds. Increase the forward swing hip command from -0.30 to -0.40 or -0.50 while compensating ankle orientation to -0.20 or -0.14 respectively, keeping knee, stance, period, sensing and body unchanged. Screen both candidate controllers on the same eight development starts with unchanged gait thresholds. Elevated reach can cause toe drag, excessive slip or actuator saturation, so retain all failures. Passing here remains a development screen requiring paired controls, unseen starts and continuous full-route evaluation.

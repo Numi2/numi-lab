@@ -1,0 +1,5 @@
+# Matched current-body gait and launch
+
+All eight push lanes and all eight crouch-only controls finished without reported physical or solver failure. The push group latched after unloading in all eight lanes at step 654; the controls did not latch early. In a representative matched lane, the push raised root vertical velocity from about 0.051 to 0.504 m/s by step 653 while both wing-flap angles remained near 0.350 rad; visible wing movement began at step 656. This supports a bounded causal leg-push effect for this simulated setup, not biological takeoff qualification. The wings subsequently contributed to flight, and the observation does not establish the full autonomous sequence.
+
+All 16 walking samples failed the existing gait gate: the push group progressed 0.155-0.163 m over the measured interval but had about 0.068 m/s p95 sampled contact slip and essentially no consecutive >=2 mm foot-clearance swings. Therefore previous gait-screen results on the prior body do not qualify the present wing-inertia and hybrid-CCD configuration. Foot-slip and swing metrics are final-substep endpoint estimates.

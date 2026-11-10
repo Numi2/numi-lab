@@ -1,0 +1,12 @@
+[
+  {
+    "path": "build/crow-v15-wingmass-gait-20261110/lift60.metallib",
+    "sha256": "953cbcdee7ed41056bc0843772b0cd73797a0f813d302c8326e49b189da8811b",
+    "bytes": 4482688
+  },
+  {
+    "path": "build/crow-v15-wingmass-gait-20261110/lift80.metallib",
+    "sha256": "4ce634bf53dbf2a0457cf93cf646449c4b5b8f5db07d4f451f94bf1a5b2ca422",
+    "bytes": 4482672
+  }
+]

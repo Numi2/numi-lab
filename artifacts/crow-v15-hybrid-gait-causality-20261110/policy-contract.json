@@ -1,0 +1,32 @@
+{
+  "contract": {
+    "world": 8992868938403848541,
+    "task": 7051761226297536388,
+    "observation": 6949568536377957815,
+    "action": 1137795639304402900,
+    "policies": {
+      "landing": {
+        "source_sha256": "5aefc2dcee421c6e3bdca39a024191fa243404b06190952ef02bf9f9e479eced",
+        "rebound_sha256": "603fe348be9bc902d001bd633c176e459685f97f4923c08d9384d2d8b033f99c",
+        "note": "Legacy tensors rebound for exploratory diagnostic; no assertion they are trained or valid for this changed body."
+      },
+      "route": {
+        "source_sha256": "9a7ad3d578153f77c1d1d657978f313cb4bb1220404ca724196a1a43b08d4830",
+        "rebound_sha256": "d6cf353f6f34b56d06925bf65e27deb3ab399a6793b005854e2037fb5decd30d",
+        "note": "Legacy tensors rebound for exploratory diagnostic; no assertion they are trained or valid for this changed body."
+      }
+    }
+  },
+  "policies": {
+    "primary": {
+      "original": "672c46f352410f8cc00084f8b4bea4e3781394144b739f6ceafb442f130d392b",
+      "rebound": "b79f151f072d30ca3e3a5cb9134fe1450dff5e3af27871250fd91171a5a879bc",
+      "all_weights_biases_zero": true
+    },
+    "base": {
+      "original": "207235798a8d1521772b157c846913538ede5d8e512f183ba8fd7c64347b68a7",
+      "rebound": "79566131ea1fed4488713ac23e1961324e29d8196bdbc77f835a795bbf3e4fa8",
+      "all_weights_biases_zero": true
+    }
+  }
+}

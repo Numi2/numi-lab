@@ -1,0 +1,12 @@
+[
+  {
+    "path": "build/crow-v15-balanced-stance-20261110/stance40.metallib",
+    "sha256": "41f881a7e067383e3f969e8868a403e4fdaaafc0b49d7444adb7449a45876b0c",
+    "bytes": 4482688
+  },
+  {
+    "path": "build/crow-v15-balanced-stance-20261110/stance45.metallib",
+    "sha256": "1878cb6060ba63deeefe8c79146ec0057f59f15e74880a7cf0abc647e9df3db2",
+    "bytes": 4482688
+  }
+]

@@ -1,0 +1,3 @@
+# Wing-mass gait initial sweep
+
+Both eight-lane candidate sets completed without physical or solver failures, but none passed the gait gate. The 0.60/-0.22 knee/ankle lift reduced base-lane p95 slip to about 0.05 m/s but progressed only 0.049 m and retained sub-2 mm clearance. The 0.80/-0.30 arm moved backward and also failed clearance and slip. These results disproved the assumption that increasing knee action with this ankle scaling would raise the complete foot. Neither candidate was promoted. Candidate arms were initially summarized with a no-push pass formula; analysis was corrected because both are push arms, and the underlying lane measurements were retained.

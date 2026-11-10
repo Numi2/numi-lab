@@ -1,0 +1,12 @@
+[
+  {
+    "path": "build/crow-v15-stride-reach-20261110/reach40.metallib",
+    "sha256": "6f959b890a6671e297d287a44304323976fccb9bcdc72081d63e76f2c8ff524c",
+    "bytes": 4482688
+  },
+  {
+    "path": "build/crow-v15-stride-reach-20261110/reach50.metallib",
+    "sha256": "ed0387a613b75dc88d4825f8d7a1503f7f9db56ff7f395aa635788c87b95b339",
+    "bytes": 4482688
+  }
+]
