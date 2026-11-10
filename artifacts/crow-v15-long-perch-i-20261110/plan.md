@@ -1,0 +1,3 @@
+# Long-horizon development I landing
+
+Before running, use the extended 7000-step host validated against the first 5000 q/v states of development J, with the same controller and assets as the bounded-rebound development I trial. Use previously exposed I seed 4038889268, privileged guide, one first episode without intermediate resets. Compare all first 5000 accepted q/v frames to the preceding development I run. Require all five physically reached waypoints, no physical or solver failure or nonfoot impact, and sustained bilateral and uninterrupted opposing-toe support for the supported remainder. Report any interruption, earliest failure, minimum obstacle clearance, and support duration. This is not autonomous execution, intentional toe release or a held-out layout test.

@@ -1,0 +1,12 @@
+{
+  "compared_frames": 5000,
+  "fields": [
+    "step",
+    "q",
+    "v"
+  ],
+  "exact_equal": true,
+  "max_abs_diff": 0.0,
+  "first_differences": [],
+  "note": "Task identity and terminal flags differ because of episode horizon; compares accepted physical q/v only."
+}
