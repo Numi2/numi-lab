@@ -1,0 +1,3 @@
+Separated-start configuration: old control trace parity is not expected
+arm 0 strict pass 4 opposed 3+ 4 terminal support 4 minimum grip gap m -0.004919745921377575 missing pose steps 0
+arm 1 strict pass 2 opposed 3+ 4 terminal support 2 minimum grip gap m -0.005582369201867429 missing pose steps 0

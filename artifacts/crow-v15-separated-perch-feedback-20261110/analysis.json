@@ -1,0 +1,363 @@
+{
+  "baseline_parity_exact": false,
+  "baseline_parity_differences": [
+    [
+      0,
+      0,
+      0
+    ],
+    [
+      0,
+      0,
+      1
+    ],
+    [
+      0,
+      0,
+      2
+    ],
+    [
+      0,
+      0,
+      3
+    ],
+    [
+      0,
+      0,
+      4
+    ],
+    [
+      0,
+      0,
+      5
+    ],
+    [
+      0,
+      0,
+      6
+    ],
+    [
+      0,
+      0,
+      7
+    ],
+    [
+      0,
+      0,
+      8
+    ],
+    [
+      0,
+      0,
+      9
+    ],
+    [
+      0,
+      0,
+      10
+    ],
+    [
+      0,
+      0,
+      11
+    ],
+    [
+      0,
+      0,
+      12
+    ],
+    [
+      0,
+      0,
+      13
+    ],
+    [
+      0,
+      0,
+      14
+    ],
+    [
+      0,
+      0,
+      15
+    ],
+    [
+      0,
+      0,
+      16
+    ],
+    [
+      0,
+      0,
+      17
+    ],
+    [
+      0,
+      0,
+      18
+    ],
+    [
+      0,
+      0,
+      19
+    ]
+  ],
+  "rows": [
+    {
+      "case": 0,
+      "arm": 0,
+      "outcome": "completed transition 109 success 999 release 120",
+      "samples": 200,
+      "longest_opposing_grip": 0,
+      "longest_supported_opposing_grip": 0,
+      "longest_supported": 84,
+      "terminal_25_supported": false,
+      "first_release_without_grip": 120,
+      "terminal_max_toe_abs_rad": 9.26132e-05,
+      "strict_pass": false,
+      "opposed_grip_pose_samples": 0,
+      "missing_grip_pose_samples": 0,
+      "minimum_grip_sat_gap_m": null
+    },
+    {
+      "case": 0,
+      "arm": 1,
+      "outcome": "completed transition 999 success 999 release 120",
+      "samples": 200,
+      "longest_opposing_grip": 0,
+      "longest_supported_opposing_grip": 0,
+      "longest_supported": 39,
+      "terminal_25_supported": false,
+      "first_release_without_grip": 120,
+      "terminal_max_toe_abs_rad": 0.000116465,
+      "strict_pass": false,
+      "opposed_grip_pose_samples": 0,
+      "missing_grip_pose_samples": 0,
+      "minimum_grip_sat_gap_m": null
+    },
+    {
+      "case": 1,
+      "arm": 0,
+      "outcome": "completed transition 39 success 41 release 51",
+      "samples": 200,
+      "longest_opposing_grip": 16,
+      "longest_supported_opposing_grip": 16,
+      "longest_supported": 138,
+      "terminal_25_supported": true,
+      "first_release_without_grip": 56,
+      "terminal_max_toe_abs_rad": 0.0353189,
+      "strict_pass": true,
+      "opposed_grip_pose_samples": 16,
+      "missing_grip_pose_samples": 0,
+      "minimum_grip_sat_gap_m": -0.004706251414988996
+    },
+    {
+      "case": 1,
+      "arm": 1,
+      "outcome": "completed transition 80 success 80 release 90",
+      "samples": 200,
+      "longest_opposing_grip": 11,
+      "longest_supported_opposing_grip": 11,
+      "longest_supported": 147,
+      "terminal_25_supported": false,
+      "first_release_without_grip": 90,
+      "terminal_max_toe_abs_rad": 0.0270114,
+      "strict_pass": false,
+      "opposed_grip_pose_samples": 11,
+      "missing_grip_pose_samples": 0,
+      "minimum_grip_sat_gap_m": -0.004208072074085786
+    },
+    {
+      "case": 2,
+      "arm": 0,
+      "outcome": "completed transition 109 success 999 release 120",
+      "samples": 200,
+      "longest_opposing_grip": 0,
+      "longest_supported_opposing_grip": 0,
+      "longest_supported": 83,
+      "terminal_25_supported": false,
+      "first_release_without_grip": 120,
+      "terminal_max_toe_abs_rad": 9.12828e-05,
+      "strict_pass": false,
+      "opposed_grip_pose_samples": 0,
+      "missing_grip_pose_samples": 0,
+      "minimum_grip_sat_gap_m": null
+    },
+    {
+      "case": 2,
+      "arm": 1,
+      "outcome": "completed transition 999 success 999 release 120",
+      "samples": 200,
+      "longest_opposing_grip": 0,
+      "longest_supported_opposing_grip": 0,
+      "longest_supported": 37,
+      "terminal_25_supported": false,
+      "first_release_without_grip": 120,
+      "terminal_max_toe_abs_rad": 0.000119537,
+      "strict_pass": false,
+      "opposed_grip_pose_samples": 0,
+      "missing_grip_pose_samples": 0,
+      "minimum_grip_sat_gap_m": null
+    },
+    {
+      "case": 3,
+      "arm": 0,
+      "outcome": "completed transition 39 success 41 release 51",
+      "samples": 200,
+      "longest_opposing_grip": 16,
+      "longest_supported_opposing_grip": 16,
+      "longest_supported": 127,
+      "terminal_25_supported": true,
+      "first_release_without_grip": 56,
+      "terminal_max_toe_abs_rad": 0.0395795,
+      "strict_pass": true,
+      "opposed_grip_pose_samples": 16,
+      "missing_grip_pose_samples": 0,
+      "minimum_grip_sat_gap_m": -0.004713265330462797
+    },
+    {
+      "case": 3,
+      "arm": 1,
+      "outcome": "completed transition 80 success 80 release 90",
+      "samples": 200,
+      "longest_opposing_grip": 11,
+      "longest_supported_opposing_grip": 11,
+      "longest_supported": 150,
+      "terminal_25_supported": false,
+      "first_release_without_grip": 90,
+      "terminal_max_toe_abs_rad": 0.0274732,
+      "strict_pass": false,
+      "opposed_grip_pose_samples": 11,
+      "missing_grip_pose_samples": 0,
+      "minimum_grip_sat_gap_m": -0.004173366046577955
+    },
+    {
+      "case": 4,
+      "arm": 0,
+      "outcome": "completed transition 117 success 999 release 120",
+      "samples": 200,
+      "longest_opposing_grip": 0,
+      "longest_supported_opposing_grip": 0,
+      "longest_supported": 93,
+      "terminal_25_supported": false,
+      "first_release_without_grip": 120,
+      "terminal_max_toe_abs_rad": 8.5237e-05,
+      "strict_pass": false,
+      "opposed_grip_pose_samples": 0,
+      "missing_grip_pose_samples": 0,
+      "minimum_grip_sat_gap_m": null
+    },
+    {
+      "case": 4,
+      "arm": 1,
+      "outcome": "completed transition 999 success 999 release 120",
+      "samples": 200,
+      "longest_opposing_grip": 0,
+      "longest_supported_opposing_grip": 0,
+      "longest_supported": 54,
+      "terminal_25_supported": false,
+      "first_release_without_grip": 120,
+      "terminal_max_toe_abs_rad": 0.000114472,
+      "strict_pass": false,
+      "opposed_grip_pose_samples": 0,
+      "missing_grip_pose_samples": 0,
+      "minimum_grip_sat_gap_m": null
+    },
+    {
+      "case": 5,
+      "arm": 0,
+      "outcome": "completed transition 40 success 42 release 52",
+      "samples": 200,
+      "longest_opposing_grip": 17,
+      "longest_supported_opposing_grip": 17,
+      "longest_supported": 134,
+      "terminal_25_supported": true,
+      "first_release_without_grip": 57,
+      "terminal_max_toe_abs_rad": 0.0345551,
+      "strict_pass": true,
+      "opposed_grip_pose_samples": 17,
+      "missing_grip_pose_samples": 0,
+      "minimum_grip_sat_gap_m": -0.004919745921377575
+    },
+    {
+      "case": 5,
+      "arm": 1,
+      "outcome": "completed transition 79 success 79 release 89",
+      "samples": 200,
+      "longest_opposing_grip": 7,
+      "longest_supported_opposing_grip": 7,
+      "longest_supported": 123,
+      "terminal_25_supported": true,
+      "first_release_without_grip": 90,
+      "terminal_max_toe_abs_rad": 0.0368815,
+      "strict_pass": true,
+      "opposed_grip_pose_samples": 10,
+      "missing_grip_pose_samples": 0,
+      "minimum_grip_sat_gap_m": -0.005323698382718414
+    },
+    {
+      "case": 6,
+      "arm": 0,
+      "outcome": "completed transition 117 success 999 release 120",
+      "samples": 200,
+      "longest_opposing_grip": 0,
+      "longest_supported_opposing_grip": 0,
+      "longest_supported": 91,
+      "terminal_25_supported": false,
+      "first_release_without_grip": 120,
+      "terminal_max_toe_abs_rad": 8.63642e-05,
+      "strict_pass": false,
+      "opposed_grip_pose_samples": 0,
+      "missing_grip_pose_samples": 0,
+      "minimum_grip_sat_gap_m": null
+    },
+    {
+      "case": 6,
+      "arm": 1,
+      "outcome": "completed transition 999 success 999 release 120",
+      "samples": 200,
+      "longest_opposing_grip": 0,
+      "longest_supported_opposing_grip": 0,
+      "longest_supported": 52,
+      "terminal_25_supported": false,
+      "first_release_without_grip": 120,
+      "terminal_max_toe_abs_rad": 0.000112246,
+      "strict_pass": false,
+      "opposed_grip_pose_samples": 0,
+      "missing_grip_pose_samples": 0,
+      "minimum_grip_sat_gap_m": null
+    },
+    {
+      "case": 7,
+      "arm": 0,
+      "outcome": "completed transition 41 success 43 release 53",
+      "samples": 200,
+      "longest_opposing_grip": 18,
+      "longest_supported_opposing_grip": 18,
+      "longest_supported": 125,
+      "terminal_25_supported": true,
+      "first_release_without_grip": 58,
+      "terminal_max_toe_abs_rad": 0.0380763,
+      "strict_pass": true,
+      "opposed_grip_pose_samples": 18,
+      "missing_grip_pose_samples": 0,
+      "minimum_grip_sat_gap_m": -0.004761704081321566
+    },
+    {
+      "case": 7,
+      "arm": 1,
+      "outcome": "completed transition 81 success 81 release 91",
+      "samples": 200,
+      "longest_opposing_grip": 13,
+      "longest_supported_opposing_grip": 13,
+      "longest_supported": 116,
+      "terminal_25_supported": true,
+      "first_release_without_grip": 92,
+      "terminal_max_toe_abs_rad": 0.0393542,
+      "strict_pass": true,
+      "opposed_grip_pose_samples": 13,
+      "missing_grip_pose_samples": 0,
+      "minimum_grip_sat_gap_m": -0.005582369201867429
+    }
+  ]
+}
