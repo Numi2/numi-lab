@@ -1,0 +1,8 @@
+/Users/n/Developer/numi-crow-rl-20261107/build/crow-v15-landing-rate-feedback-20261110/gain03.metal:5530:21: warning: unused variable 'seconds' [-Wunused-variable]
+        const float seconds=float(state.episode.x)*dispatch.timing.x;
+                    ^
+1 warning generated.
+/Users/n/Developer/numi-crow-rl-20261107/build/crow-v15-landing-rate-feedback-20261110/gain06.metal:5530:21: warning: unused variable 'seconds' [-Wunused-variable]
+        const float seconds=float(state.episode.x)*dispatch.timing.x;
+                    ^
+1 warning generated.

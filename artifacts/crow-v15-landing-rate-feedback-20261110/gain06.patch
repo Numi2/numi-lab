@@ -1,0 +1,11 @@
+--- a/teacher.metal
++++ b/teacher.metal
+@@ -5029,7 +5029,7 @@
+         const float lateralMilli = floor(encoded / 1024.0f);
+         const float forwardMilli = encoded - 1024.0f * lateralMilli;
+         const float4 teacherCommand = float4(forwardMilli * 0.001f - 0.25f,
+-            lateralMilli * 0.001f - 0.30f, state.commandExtension.x, state.nutrition.w);
++            lateralMilli * 0.001f - 0.30f, state.commandExtension.x, state.nutrition.w + ((state.navigation.z >= 5.0f && state.threatTeacher.w > 0.5f && state.threatTeacher.w < 1.5f) ? clamp(-0.60f*(state.threatGeometry.y+0.025f),-0.08f,0.08f) : 0.0f));
+         const float4 oracleCommand = privilegedCommand ? teacherCommand : actorCommand;
+         const float boundedForward = clamp(oracleCommand.x, -0.10f, 0.85f);
+         carrierState.commandAndPhase.x = max(boundedForward, 0.15f);

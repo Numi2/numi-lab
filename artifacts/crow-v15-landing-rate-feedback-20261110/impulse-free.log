@@ -1,0 +1,2 @@
+j-gain03 side runs 16 samples 12416 max toe rad 0.000532994338 worst {'lane': 3, 'side': 0, 'impulse_free_all_substeps_count': 912, 'maximum_abs_toe_angle_rad': 0.000532994338, 'step': 3495}
+j-gain06 side runs 16 samples 12011 max toe rad 0.000513461244 worst {'lane': 4, 'side': 0, 'impulse_free_all_substeps_count': 694, 'maximum_abs_toe_angle_rad': 0.000513461244, 'step': 3376}

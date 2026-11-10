@@ -1,0 +1,228 @@
+{
+  "crow-v15-landing-rate-feedback-20261110": {
+    "j-gain03": {
+      "first_episode_steps": [
+        3634,
+        3721,
+        3754,
+        3775,
+        3580,
+        3819,
+        3602,
+        3611
+      ],
+      "physical_failure": [
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true
+      ],
+      "lanes": {
+        "0": {
+          "samples": 949,
+          "any_perch_foot_impulse_steps": 73,
+          "front_rear_opposing_steps": 0,
+          "opposing_run": 0,
+          "longest_opposing_run": 0,
+          "bilateral_opposing_steps": 0,
+          "bilateral_run": 0,
+          "longest_bilateral_run": 0,
+          "nonfoot_perch_steps": 0
+        },
+        "1": {
+          "samples": 1062,
+          "any_perch_foot_impulse_steps": 68,
+          "front_rear_opposing_steps": 0,
+          "opposing_run": 0,
+          "longest_opposing_run": 0,
+          "bilateral_opposing_steps": 0,
+          "bilateral_run": 0,
+          "longest_bilateral_run": 0,
+          "nonfoot_perch_steps": 0
+        },
+        "2": {
+          "samples": 1057,
+          "any_perch_foot_impulse_steps": 78,
+          "front_rear_opposing_steps": 0,
+          "opposing_run": 0,
+          "longest_opposing_run": 0,
+          "bilateral_opposing_steps": 0,
+          "bilateral_run": 0,
+          "longest_bilateral_run": 0,
+          "nonfoot_perch_steps": 0
+        },
+        "3": {
+          "samples": 1132,
+          "any_perch_foot_impulse_steps": 94,
+          "front_rear_opposing_steps": 0,
+          "opposing_run": 0,
+          "longest_opposing_run": 0,
+          "bilateral_opposing_steps": 0,
+          "bilateral_run": 0,
+          "longest_bilateral_run": 0,
+          "nonfoot_perch_steps": 0
+        },
+        "4": {
+          "samples": 940,
+          "any_perch_foot_impulse_steps": 66,
+          "front_rear_opposing_steps": 0,
+          "opposing_run": 0,
+          "longest_opposing_run": 0,
+          "bilateral_opposing_steps": 0,
+          "bilateral_run": 0,
+          "longest_bilateral_run": 0,
+          "nonfoot_perch_steps": 0
+        },
+        "5": {
+          "samples": 1069,
+          "any_perch_foot_impulse_steps": 66,
+          "front_rear_opposing_steps": 0,
+          "opposing_run": 0,
+          "longest_opposing_run": 0,
+          "bilateral_opposing_steps": 0,
+          "bilateral_run": 0,
+          "longest_bilateral_run": 0,
+          "nonfoot_perch_steps": 0
+        },
+        "6": {
+          "samples": 875,
+          "any_perch_foot_impulse_steps": 79,
+          "front_rear_opposing_steps": 0,
+          "opposing_run": 0,
+          "longest_opposing_run": 0,
+          "bilateral_opposing_steps": 0,
+          "bilateral_run": 0,
+          "longest_bilateral_run": 0,
+          "nonfoot_perch_steps": 0
+        },
+        "7": {
+          "samples": 890,
+          "any_perch_foot_impulse_steps": 84,
+          "front_rear_opposing_steps": 0,
+          "opposing_run": 0,
+          "longest_opposing_run": 0,
+          "bilateral_opposing_steps": 0,
+          "bilateral_run": 0,
+          "longest_bilateral_run": 0,
+          "nonfoot_perch_steps": 0
+        }
+      }
+    },
+    "j-gain06": {
+      "first_episode_steps": [
+        3591,
+        3772,
+        3761,
+        3722,
+        3544,
+        3831,
+        3601,
+        3579
+      ],
+      "physical_failure": [
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true
+      ],
+      "lanes": {
+        "0": {
+          "samples": 906,
+          "any_perch_foot_impulse_steps": 80,
+          "front_rear_opposing_steps": 0,
+          "opposing_run": 0,
+          "longest_opposing_run": 0,
+          "bilateral_opposing_steps": 0,
+          "bilateral_run": 0,
+          "longest_bilateral_run": 0,
+          "nonfoot_perch_steps": 0
+        },
+        "1": {
+          "samples": 1113,
+          "any_perch_foot_impulse_steps": 74,
+          "front_rear_opposing_steps": 0,
+          "opposing_run": 0,
+          "longest_opposing_run": 0,
+          "bilateral_opposing_steps": 0,
+          "bilateral_run": 0,
+          "longest_bilateral_run": 0,
+          "nonfoot_perch_steps": 0
+        },
+        "2": {
+          "samples": 1064,
+          "any_perch_foot_impulse_steps": 84,
+          "front_rear_opposing_steps": 0,
+          "opposing_run": 0,
+          "longest_opposing_run": 0,
+          "bilateral_opposing_steps": 0,
+          "bilateral_run": 0,
+          "longest_bilateral_run": 0,
+          "nonfoot_perch_steps": 0
+        },
+        "3": {
+          "samples": 1079,
+          "any_perch_foot_impulse_steps": 71,
+          "front_rear_opposing_steps": 0,
+          "opposing_run": 0,
+          "longest_opposing_run": 0,
+          "bilateral_opposing_steps": 0,
+          "bilateral_run": 0,
+          "longest_bilateral_run": 0,
+          "nonfoot_perch_steps": 0
+        },
+        "4": {
+          "samples": 904,
+          "any_perch_foot_impulse_steps": 80,
+          "front_rear_opposing_steps": 0,
+          "opposing_run": 0,
+          "longest_opposing_run": 0,
+          "bilateral_opposing_steps": 0,
+          "bilateral_run": 0,
+          "longest_bilateral_run": 0,
+          "nonfoot_perch_steps": 0
+        },
+        "5": {
+          "samples": 1081,
+          "any_perch_foot_impulse_steps": 76,
+          "front_rear_opposing_steps": 0,
+          "opposing_run": 0,
+          "longest_opposing_run": 0,
+          "bilateral_opposing_steps": 0,
+          "bilateral_run": 0,
+          "longest_bilateral_run": 0,
+          "nonfoot_perch_steps": 0
+        },
+        "6": {
+          "samples": 874,
+          "any_perch_foot_impulse_steps": 81,
+          "front_rear_opposing_steps": 0,
+          "opposing_run": 0,
+          "longest_opposing_run": 0,
+          "bilateral_opposing_steps": 0,
+          "bilateral_run": 0,
+          "longest_bilateral_run": 0,
+          "nonfoot_perch_steps": 0
+        },
+        "7": {
+          "samples": 858,
+          "any_perch_foot_impulse_steps": 77,
+          "front_rear_opposing_steps": 0,
+          "opposing_run": 0,
+          "longest_opposing_run": 0,
+          "bilateral_opposing_steps": 0,
+          "bilateral_run": 0,
+          "longest_bilateral_run": 0,
+          "nonfoot_perch_steps": 0
+        }
+      }
+    }
+  }
+}

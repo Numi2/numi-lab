@@ -1,0 +1,12 @@
+[
+  {
+    "path": "build/crow-v15-landing-rate-feedback-20261110/gain03.metallib",
+    "sha256": "6f9584b1d1908109f6596fd773b515591e6b41c37ce0ccf19d20310da7088e9b",
+    "bytes": 4475792
+  },
+  {
+    "path": "build/crow-v15-landing-rate-feedback-20261110/gain06.metallib",
+    "sha256": "7f488d0c0a45a9927f2b3870b4027050c7679c13df506732f07a4062776ab889",
+    "bytes": 4475792
+  }
+]
