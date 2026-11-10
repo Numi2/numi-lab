@@ -1,0 +1,65 @@
+#define main toe_free_admission_main
+#include "toe_model.cpp"
+#undef main
+#include "metalrobo/MetalWorld.hpp"
+#include "wing_model.hpp"
+extern "C" unsigned long long crowCopyToeInterval(float*);
+int main(){for(unsigned caseId=1;caseId<2;caseId++) for(unsigned arm: {4u,5u,7u,8u}){try{
+ RunManifest m;m.id="toe_feedback_probe";m.robot=toeModel();crowResearchWingInertia(m.robot);const unsigned steps[9]={16,16,16,16,16,16,16,16,16};const float rearLimit=.85f;std::cout<<"configured_toe_stiffness "<<caseId<<" "<<arm<<" "<<m.robot.mechanics.dofs.back().drive.x<<std::endl;const double contactThreshold=arm==0?.0000125:.0002;std::cout<<"configured_stiffness "<<caseId<<" "<<arm<<" "<<m.robot.mechanics.dofs.back().drive.x<<std::endl;const bool matchedCCD=true;if(matchedCCD)for(auto& shape:m.robot.mechanics.shapes)shape.flags|=MR_SHAPE_FLAG_ENABLE_CCD;const bool square=false;const bool enabled=true;const float balanceGain=0.0f;
+ m.scene=makeBirdFlowAmericanCrowFlightScenePack();auto& b=m.scene.objects.at(0).mechanics.shapes.at(0);b.shapeType=MR_SHAPE_BOX;b.localPosition={0.f,0,square?-.03f:-.055f,1};b.localRotation={0,0,0,1};b.dimensions={square?.03f:.025f,square?.2f:.72f,square?.03f:.055f,0};b.contactRestAndBoundingRadius.z=std::sqrt(b.dimensions.x*b.dimensions.x+b.dimensions.y*b.dimensions.y+b.dimensions.z*b.dimensions.z);
+ m.sensors.id="proprioception";m.task=makeAmericanCrowEmbodiedTaskPack(m.sensors.observation,m.reality.reset);m.reality.reset={};m.reality.id="reality";m.teacher.id="no_teacher";m.profile.id="probe";m.profile.capacities={.candidatePairs=512,.rawContacts=2048,.manifolds=512,.constraintBlocks=2048,.constraintRows=6144};if(matchedCCD){m.profile.capacities.ccdCandidates=0u;m.profile.capacities.ccdEvents=16u;}m.task.capacities=m.profile.capacities;m.profile.environmentCount=1;m.profile.controlSteps=200;m.profile.physicsSubsteps=steps[arm];m.profile.controlTimestepSeconds=.02f;
+ CompiledRun run;auto compiled=compileRun(m,run);need(compiled.succeeded(),compiled.message);auto q=run.model().defaultQ,v=run.model().defaultV; const float roll=(caseId&2u)?0.04f:-0.04f; q[0]+=(caseId&1u)?0.006f:-0.006f;q[2]+=.015f; q[3]=std::sin(roll*.5f); q[6]=std::cos(roll*.5f); v[0]=(caseId&4u)?0.025f:-0.025f;auto scene=run.defaultSceneBodies();unsigned nq=q.size(),nv=v.size();
+ {std::vector<double> qd(q.begin(),q.end()),vd(v.begin(),v.end());std::vector<ArticulatedBodyKinematics> kb(m.robot.mechanics.bodies.size());auto k=computeArticulatedBodyKinematics(m.robot.mechanics,0,qd,vd,kb);need(k.succeeded(),"initial kinematics");for(unsigned i=0;i<m.robot.mechanics.bodyNames.size();i++)if(m.robot.mechanics.bodyNames[i].find("_toe")!=std::string::npos){const auto& z=kb[i];std::cout<<"initialpose "<<caseId<<" "<<arm<<" -1 "<<m.robot.mechanics.bodyNames[i];for(auto v:z.centerOfMassPosition)std::cout<<" "<<v;for(auto v:z.orientation)std::cout<<" "<<v;std::cout<<std::endl;}for(unsigned i=0;i<m.robot.mechanics.shapes.size();i++){const auto& sh=m.robot.mechanics.shapes[i];const auto& z=kb[sh.bodyIndex];std::cout<<"initialshape "<<caseId<<" "<<arm<<" "<<m.robot.mechanics.shapeNames[i]<<" "<<sh.shapeType;for(auto v:z.centerOfMassPosition)std::cout<<" "<<v;for(auto v:z.orientation)std::cout<<" "<<v;std::cout<<" "<<sh.localPosition.x<<" "<<sh.localPosition.y<<" "<<sh.localPosition.z<<" "<<sh.localRotation.x<<" "<<sh.localRotation.y<<" "<<sh.localRotation.z<<" "<<sh.localRotation.w<<" "<<sh.dimensions.x<<" "<<sh.dimensions.y<<" "<<sh.dimensions.z<<std::endl;}}
+ MetalWorldStepConfig c;c.timestepSeconds=.02f;c.physicsSubsteps=steps[arm];c.solverMode=MetalWorldSolverMode::temporalCone;c.actuationMode=MetalWorldActuationMode::implicitPositionDrive;c.velocityIterations=4u;c.finalVelocityIterations=2;c.captureContactEvidence=true;if(matchedCCD){c.ccdMode=MetalWorldCCDMode::hybrid;c.maxCCDEvents=16u;}
+ MetalWorldConfig cfg;if(matchedCCD)cfg.metallibPath="/Users/n/Developer/numi-crow-rl-20261107/build/crow-v15-alternating-foot-release-20261110/teacher.metallib";MetalWorldContext ctx(cfg);MetalWorldResidentState resident;unsigned phase=0,stable=0,dual=0,hold=0,transition=999,success=999,release=999;float front=0,rear=0;double lastPos=0,lastNeg=0,lastUp=0,lastFootSupport=0;float pitch=0,pitchRate=0;float individualTarget[8]={};double lastToe[8]={};bool bilateralSeen=false;float rootx=q[0],rootvx=v[0];auto currentQ=q,currentV=v;
+ for(unsigned t=0;t<200;t++){
+  const unsigned closeStart=10u;
+  if(true){if(t==closeStart)phase=1;if(t>=120&&phase!=4){phase=4;release=t;}
+   if(phase==1)rear=std::min(rearLimit,.02f*float(t-closeStart));
+   if(phase==2){rear=rearLimit;front=std::clamp(front+(lastPos>contactThreshold?.025f:-.015f),0.f,.85f);}
+   if(phase==3){rear=rearLimit;if(++hold>=10){phase=4;release=t;}}
+   if(phase==4){rear=std::max(0.f,rear-.04f);if(rear<=.0001f)front=std::max(0.f,front-.04f);}
+  } else {
+   if(t==10)phase=1;
+   if(t>=120 && phase!=4){phase=4;release=t;}
+   if(phase==1||phase==3){const float step=.01f;for(int k=0;k<8;k++)if(lastToe[k]<=contactThreshold)individualTarget[k]=std::min(.85f,individualTarget[k]+step);}
+   if(phase==3 && ++hold>=10){phase=4;release=t;}
+   if(phase==4)for(float &v:individualTarget)v=std::max(0.f,v-.04f);
+  }
+  if(arm>=3 && phase>=1 && phase<4 && lastToe[3]>.0002 && lastToe[7]>.0002 && (lastToe[0]+lastToe[1]+lastToe[2])>.0002 && (lastToe[4]+lastToe[5]+lastToe[6])>.0002)bilateralSeen=true;
+  if(arm>=3)for(int k: {3,7}){
+   if(phase==4) individualTarget[k]=std::min(individualTarget[k],rear);
+   else if(bilateralSeen) {if(lastToe[k]>.010) individualTarget[k]=std::max(0.f,individualTarget[k]-(arm==3?.01f:.02f));}
+   else individualTarget[k]=rear;
+   std::cout<<"rear_target "<<caseId<<" "<<arm<<" "<<t<<" "<<k<<" "<<individualTarget[k]<<std::endl;
+  }
+  float footCorrection[2]={};
+  if(arm>=5 && phase<=1 && t<20){
+   std::vector<double> qd(currentQ.begin(),currentQ.end()),vd(currentV.begin(),currentV.end());
+   std::vector<ArticulatedBodyKinematics> kb(m.robot.mechanics.bodies.size());need(computeArticulatedBodyKinematics(m.robot.mechanics,0,qd,vd,kb).succeeded(),"placement kinematics");
+   for(unsigned side=0;side<2;side++){
+    const std::string name=side==0?"crow_left_foot":"crow_right_foot";auto it=std::find(m.robot.mechanics.bodyNames.begin(),m.robot.mechanics.bodyNames.end(),name);need(it!=m.robot.mechanics.bodyNames.end(),"placement foot");auto bi=it-m.robot.mechanics.bodyNames.begin();unsigned qi=side==0?14u:17u;
+    auto qp=qd;qp[qi]+=.001;std::vector<ArticulatedBodyKinematics> ks(m.robot.mechanics.bodies.size());need(computeArticulatedBodyKinematics(m.robot.mechanics,0,qp,vd,ks).succeeded(),"placement derivative");
+    const double x=kb[bi].centerOfMassPosition[0],jac=(ks[bi].centerOfMassPosition[0]-x)/.001;need(std::abs(jac)>.02,"small placement derivative");
+    footCorrection[side]=std::clamp(float(.5*(scene[0].position.x+.031-x)/jac),-.08f,.08f);
+    std::cout<<"placement "<<caseId<<" "<<arm<<" "<<t<<" "<<side<<" "<<x<<" "<<jac<<" "<<footCorrection[side]<<std::endl;
+   }
+  }
+  std::vector<float> commands(nv,0);for(const auto& d:run.model().dofs)if(d.vIndex<nv && d.qIndex<nq && (d.flags&MR_DOF_FLAG_DRIVE)){float target=q[d.qIndex];if(arm>=1 && (d.qIndex==14||d.qIndex==17) && (arm>=1?lastFootSupport:lastUp)>(.0002/steps[arm])){const float gain=arm==7?2.f:arm==8?4.f:1.f;target+=std::clamp(gain*(-.012f-rootx-.20f*rootvx),-.08f,.08f);}if(arm>=2 && phase>=1 && lastFootSupport>(.0002/steps[arm]) && (d.qIndex==14 || d.qIndex==16 || d.qIndex==17 || d.qIndex==19)) { const float gain=-.25f;const float correction=std::clamp(gain*(pitch+0.15f*pitchRate),-.08f,.08f);target+=(d.qIndex==16 || d.qIndex==19) ? -correction : correction; }if(arm>=5 && phase<=1 && t<20 && (d.qIndex==14 || d.qIndex==17))target=q[d.qIndex]+footCorrection[d.qIndex==14?0:1];if(d.vIndex>=nv-8){bool isRear=(d.vIndex-(nv-8))%4==3;target=(arm>=3 && isRear)?individualTarget[d.vIndex-(nv-8)]:(enabled?(isRear?rear:front):0.f);}commands[d.vIndex]=target;}
+  MetalWorldBatch batch{.environmentCount=1,.controlStepCount=1,.efforts=commands};if(t==0){batch.initialQ=q;batch.initialV=v;batch.initialSceneBodies=scene;}MetalWorldSubmission sub;auto status=t==0?ctx.initializeResidentState(run.world(),batch,c,resident,sub):ctx.submitResident(run.world(),batch,c,resident,sub);need(status.succeeded(),"submit: "+status.message);MetalWorldResult out;status=sub.wait(out);need(status.succeeded()&&status.failedStepCount==0&&status.successfulStepCount==1,"step "+std::to_string(t)+": "+status.message);
+  if(t==0){const auto& g=scene[0];std::cout<<"groundpose "<<caseId<<" "<<arm<<" "<<g.position.x<<" "<<g.position.y<<" "<<g.position.z<<" "<<g.orientation.x<<" "<<g.orientation.y<<" "<<g.orientation.z<<" "<<g.orientation.w<<std::endl;}
+  if(t>=0){std::vector<double> qd(out.finalQ.begin(),out.finalQ.end()),vd(out.finalV.begin(),out.finalV.end());std::vector<ArticulatedBodyKinematics> kb(m.robot.mechanics.bodies.size());auto k=computeArticulatedBodyKinematics(m.robot.mechanics,0,qd,vd,kb);need(k.succeeded(),"kinematics status="+std::to_string(static_cast<unsigned>(k.status)));for(unsigned i=0;i<m.robot.mechanics.bodyNames.size();i++)if(m.robot.mechanics.bodyNames[i].find("_toe")!=std::string::npos){const auto& z=kb[i];std::cout<<"pose "<<caseId<<" "<<arm<<" "<<t<<" "<<m.robot.mechanics.bodyNames[i];for(auto v:z.centerOfMassPosition)std::cout<<" "<<v;for(auto v:z.orientation)std::cout<<" "<<v;std::cout<<std::endl;}}
+  double pos=0,neg=0,up=0,footSupport=0;double toeImpulse[8]={};auto cs=out.contactStatuses.at(0);for(unsigned i=0;i<cs.requiredConstraints;i++){const auto&r=out.contactEvidence.contacts.at(i);const auto&an=run.model().bodyNames.at(r.bodyA),&bn=run.model().bodyNames.at(r.bodyB);if(r.impulses.x>0 && (an=="locomotion_ground" || bn=="locomotion_ground")) std::cout<<"allcontact "<<caseId<<" "<<arm<<" "<<t<<" "<<an<<" "<<bn<<" "<<r.normal.x<<" "<<r.normal.z<<" "<<r.impulses.x<<std::endl;if(r.impulses.x>0 && (an=="locomotion_ground" || bn=="locomotion_ground")){const std::string& body=an=="locomotion_ground"?bn:an;if(body.find("_foot")!=std::string::npos||body.find("_toe")!=std::string::npos){const double sign=an=="locomotion_ground"?1.:-1.;footSupport+=std::max(0.,sign*r.normal.z*r.impulses.x);}}bool f=an.find("_toe")!=std::string::npos&&bn=="locomotion_ground",rev=bn.find("_toe")!=std::string::npos&&an=="locomotion_ground";if(f||rev)std::cout<<"solvergap "<<caseId<<" "<<arm<<" "<<t<<" "<<(f?an:bn)<<" "<<r.pointAndSeparation.w<<" "<<r.impulses.x<<" "<<r.normal.x<<" "<<r.normal.z<<std::endl;if(!(f||rev)||r.impulses.x<=0)continue;double nx=(f?1:-1)*r.normal.x,nz=(f?1:-1)*r.normal.z,imp=r.impulses.x;std::cout<<"contact "<<caseId<<" "<<arm<<" "<<t<<" "<<(f?an:bn)<<" "<<nx<<" "<<nz<<" "<<imp<<std::endl;if(nx>.5)pos+=imp;if(nx<-.5)neg+=imp;if(nz<-.5)up+=imp;
+   const std::string &name=f?an:bn;int side=name.find("_left_")!=std::string::npos?0:1;int k=-1;for(int z=1;z<=3;z++)if(name.find("front_toe_"+std::to_string(z))!=std::string::npos && nx<-.5)k=z-1;if(name.find("rear_toe")!=std::string::npos&&nx>.5)k=3;if(k>=0)toeImpulse[side*4+k]+=imp;}
+  std::cout<<"trace "<<caseId<<" "<<arm<<" "<<t<<" "<<phase<<" "<<front<<" "<<rear<<" "<<pos<<" "<<neg<<" "<<up<<" "<<out.finalQ[0]<<" "<<out.finalQ[2]<<" "<<out.finalV[0]<<" "<<out.finalQ[3]<<" "<<out.finalQ[4]<<" "<<out.finalV[1]<<" "<<out.finalV[2];for(unsigned j=nq-8;j<nq;j++)std::cout<<" "<<out.finalQ[j];std::cout<<std::endl;
+  float interval[8]={};auto seq=crowCopyToeInterval(interval);need(seq==1ull+200ull*(arm==4?0ull:arm==5?1ull:arm==7?2ull:3ull)+t,"substep observer sequence mismatch");
+  for(int k=0;k<8;k++){std::cout<<"interval_contact "<<caseId<<" "<<arm<<" "<<t<<" "<<k<<" "<<interval[k]<<std::endl;lastToe[k]=arm==0?toeImpulse[k]:interval[k];}
+  if(arm>=1){pos=interval[3]+interval[7];neg=interval[0]+interval[1]+interval[2]+interval[4]+interval[5]+interval[6];}lastPos=pos;lastNeg=neg;lastUp=up;lastFootSupport=footSupport;std::cout<<"foot_support "<<caseId<<" "<<arm<<" "<<t<<" "<<footSupport<<std::endl;currentQ=out.finalQ;currentV=out.finalV;rootx=out.finalQ[0];rootvx=out.finalV[0];pitch=std::asin(std::clamp(2.0f*(out.finalQ[6]*out.finalQ[4]-out.finalQ[5]*out.finalQ[3]),-1.0f,1.0f));pitchRate=out.finalV[4];
+  if(true){if(phase==1){stable=lastPos>contactThreshold?stable+1:0;if(stable>=2){phase=2;transition=t;}}
+  if(phase==2){dual=(lastPos>contactThreshold&&lastNeg>contactThreshold)?dual+1:0;if(dual>=3){phase=3;success=t;}}}
+  else if(phase==1){bool lf=lastToe[0]>contactThreshold||lastToe[1]>contactThreshold||lastToe[2]>contactThreshold;bool rf=lastToe[4]>contactThreshold||lastToe[5]>contactThreshold||lastToe[6]>contactThreshold;bool both=lf&&rf&&lastToe[3]>contactThreshold&&lastToe[7]>contactThreshold;dual=both?dual+1:0;if(dual>=3){phase=3;success=t;transition=t;}}
+
+ }
+ std::cout<<"case_result "<<caseId<<" "<<arm<<" completed transition "<<transition<<" success "<<success<<" release "<<release<<std::endl;
+ }catch(const std::exception&e){std::cout<<"case_result "<<caseId<<" "<<arm<<" failed "<<e.what()<<std::endl;}}
+}
