@@ -1,0 +1,3 @@
+# Correction to preregistered premise
+
+The plan incorrectly described the layout I body strike as approximately 0.22 m beyond the perch target. The retained scene state gives perch x = 5.17653465 m, and root x at the strike was 5.22424459 m, a difference of approximately 0.04771 m. Perch y + the authored 0.55 m target offset was approximately 0.64784 m; the root y was 0.64533 m. Thus the strike occurred close to the explicit goal, not far beyond it. This factual correction was made while the already-registered tests were running; the original plan, model, predictions and all resulting observations are preserved. A positive result would not validate the mistaken premise. Landing geometry, dynamics and posture remain competing explanations.

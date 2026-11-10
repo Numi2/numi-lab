@@ -1,0 +1,305 @@
+{
+  "results": [
+    {
+      "layout": "i",
+      "first_episode": {
+        "boundary": "waypoint completion; does not establish supported landing",
+        "closed_by_environment": [
+          true
+        ],
+        "closed_episode_count": 1,
+        "completion_seen_by_environment": [
+          true
+        ],
+        "completion_seen_count": 1,
+        "environment_count": 1,
+        "first_completion_step_by_environment": [
+          1712
+        ],
+        "horizon_censored_count": 0,
+        "maximum_waypoints_by_environment": [
+          5
+        ],
+        "physical_failure_by_environment": [
+          true
+        ],
+        "physical_failure_count": 1,
+        "safe_completion_by_environment": [
+          false
+        ],
+        "safe_completion_count": 0,
+        "schema": "numi.crow-first-episode-evidence.v1",
+        "steps_by_environment": [
+          2340
+        ],
+        "termination_reason_by_environment": [
+          3
+        ],
+        "unit": "first episode of each environment since context creation"
+      },
+      "failed_environment_steps": 0,
+      "first_latch": {
+        "step": 254,
+        "left_support_N": 0.0,
+        "right_support_N": 0.0
+      },
+      "first_nonfoot_contact": {
+        "step": 2341,
+        "bird": "crow_body",
+        "surface": "crow_course_perch",
+        "normal_impulse_Ns": 0.177005172,
+        "root_position_m": [
+          5.22345304,
+          0.644187391,
+          0.864066184
+        ],
+        "root_velocity_m_s": [
+          0.179504931,
+          -0.102600329,
+          -0.747761667,
+          1.84783959,
+          2.08724785,
+          0.167810351
+        ]
+      },
+      "minimum_obstacle_clearance": {
+        "lane": 0,
+        "end_step": 2341,
+        "minimum_step": 1063,
+        "minimum_m": 0.0519121516773,
+        "bird_shape": "crow_left_wing/collision",
+        "obstacle_shape": "crow_course_slalom_b/collision",
+        "bird_body": "crow_left_wing",
+        "obstacle_body": "crow_course_slalom_b",
+        "sampling": "accepted_control_steps"
+      },
+      "max_consecutive_bilateral_opposing_toe_load_endpoints": 0,
+      "last_pre_release_opposing_step": null,
+      "post_release_first_load_loss": {
+        "left": 2250,
+        "right": 2250
+      },
+      "terminal_supported_endpoints": 0,
+      "end_state": {
+        "step": 2341,
+        "q": [
+          5.22345304,
+          0.644187391,
+          0.864066184,
+          0.0042527779,
+          -0.048184175,
+          0.00159137824,
+          0.998828173,
+          0.000415762799,
+          0.000300376938,
+          0.349999607,
+          0.349999577,
+          -0.0489636883,
+          0.00970445946,
+          -0.00300928159,
+          -0.120673083,
+          0.279877514,
+          -0.160187796,
+          -0.120686002,
+          0.279889584,
+          -0.16019097,
+          0.0147167398,
+          0.019747667,
+          0.00910359994,
+          0.00475808,
+          0.00476107793,
+          0.00476407632,
+          0.0104654236,
+          0.00591725996,
+          0.00592026347,
+          0.00592326792,
+          -0.00209602877
+        ],
+        "v": [
+          0.179504931,
+          -0.102600329,
+          -0.747761667,
+          1.84783959,
+          2.08724785,
+          0.167810351,
+          -0.00467364956,
+          -0.00393221295,
+          0.000131756606,
+          0.000136505318,
+          0.14370437,
+          -0.609524965,
+          -0.7278561,
+          -0.0872788727,
+          -0.0989540294,
+          -0.077066116,
+          -0.0947999284,
+          -0.10068351,
+          -0.0820999369,
+          2.65867209,
+          -1.07031929,
+          0.174782664,
+          -0.601694345,
+          -0.601099432,
+          -0.600504398,
+          0.50750798,
+          -0.605714619,
+          -0.605119705,
+          -0.604524612,
+          0.566821992
+        ]
+      },
+      "complete_gate": false
+    },
+    {
+      "layout": "j",
+      "first_episode": {
+        "boundary": "waypoint completion; does not establish supported landing",
+        "closed_by_environment": [
+          true
+        ],
+        "closed_episode_count": 1,
+        "completion_seen_by_environment": [
+          true
+        ],
+        "completion_seen_count": 1,
+        "environment_count": 1,
+        "first_completion_step_by_environment": [
+          1260
+        ],
+        "horizon_censored_count": 0,
+        "maximum_waypoints_by_environment": [
+          5
+        ],
+        "physical_failure_by_environment": [
+          true
+        ],
+        "physical_failure_count": 1,
+        "safe_completion_by_environment": [
+          false
+        ],
+        "safe_completion_count": 0,
+        "schema": "numi.crow-first-episode-evidence.v1",
+        "steps_by_environment": [
+          2166
+        ],
+        "termination_reason_by_environment": [
+          3
+        ],
+        "unit": "first episode of each environment since context creation"
+      },
+      "failed_environment_steps": 0,
+      "first_latch": {
+        "step": 254,
+        "left_support_N": 0.0,
+        "right_support_N": 0.0
+      },
+      "first_nonfoot_contact": {
+        "step": 2167,
+        "bird": "crow_tail",
+        "surface": "locomotion_ground",
+        "normal_impulse_Ns": 1.18795002,
+        "root_position_m": [
+          4.69522142,
+          0.474195361,
+          0.216064006
+        ],
+        "root_velocity_m_s": [
+          0.411730528,
+          -0.82389003,
+          -0.397097021,
+          4.80304241,
+          4.53666353,
+          2.49822426
+        ]
+      },
+      "minimum_obstacle_clearance": {
+        "lane": 0,
+        "end_step": 2167,
+        "minimum_step": 893,
+        "minimum_m": 0.0495348625877,
+        "bird_shape": "crow_left_wing/collision",
+        "obstacle_shape": "crow_course_slalom_a/collision",
+        "bird_body": "crow_left_wing",
+        "obstacle_body": "crow_course_slalom_a",
+        "sampling": "accepted_control_steps"
+      },
+      "max_consecutive_bilateral_opposing_toe_load_endpoints": 0,
+      "last_pre_release_opposing_step": null,
+      "post_release_first_load_loss": {
+        "left": null,
+        "right": null
+      },
+      "terminal_supported_endpoints": 0,
+      "end_state": {
+        "step": 2167,
+        "q": [
+          4.69522142,
+          0.474195361,
+          0.216064006,
+          0.00619718852,
+          -0.500114143,
+          0.0349453129,
+          0.865231931,
+          9.80813202e-05,
+          -5.61828438e-06,
+          0.350043625,
+          0.35004276,
+          1.83969278e-05,
+          -3.7343154e-05,
+          -0.0164603237,
+          -0.115195461,
+          0.281395286,
+          -0.159761503,
+          -0.115829267,
+          0.281184852,
+          -0.159874901,
+          0.0397985429,
+          -0.0236474443,
+          0.00854960456,
+          0.0100226486,
+          0.0116083557,
+          0.0136413481,
+          0.835598946,
+          0.00532494811,
+          0.00558800437,
+          0.00880114455,
+          0.836138129
+        ],
+        "v": [
+          0.411730528,
+          -0.82389003,
+          -0.397097021,
+          4.80304241,
+          4.53666353,
+          2.49822426,
+          0.0228382144,
+          0.0132402144,
+          0.000156747832,
+          0.000166469283,
+          7.09198357e-05,
+          -3.3535387e-05,
+          -3.8906877,
+          1.04713023,
+          0.309488744,
+          0.0405525453,
+          0.925617933,
+          0.271819979,
+          0.0226420648,
+          8,
+          -8,
+          1.26668429,
+          -0.0210025441,
+          -0.0281356815,
+          -0.0377250575,
+          0.0342155434,
+          -0.00604481762,
+          -0.00591027737,
+          -0.0220138207,
+          0.0302688424
+        ]
+      },
+      "complete_gate": false
+    }
+  ],
+  "scope": "one developmental full start per layout, estimated body and contact physics"
+}

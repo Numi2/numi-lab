@@ -1,0 +1,24 @@
+--- a/causal-route.metal
++++ b/aligned-landing.metal
+@@ -4994,7 +4994,11 @@
+             0.10f+0.30f*actorLatent.x,0.30f*actorLatent.y,
+             0.15f*actorLatent.z,0.975f+0.325f*actorLatent.w);
+         const bool privilegedCommand = (dispatch.sampling.w != 0u && dispatch.assistance.x < 0.5f);
+-        const float4 oracleCommand = privilegedCommand ? state.nutrition : actorCommand;
++        float4 oracleCommand = privilegedCommand ? state.nutrition : actorCommand;
++        // Require goal alignment before permitting descent on the experimental navigation task.
++        if (fixedFlightController && !privilegedCommand && state.episode.z==10u &&
++            state.navigation.z>=5.0f && state.threatTeacher.w<0.5f)
++            oracleCommand.w=max(oracleCommand.w,1.25f);
+         carrierState.commandAndPhase.x = 0.15f;
+         carrierState.commandAndPhase.y = oracleCommand.y;
+         carrierState.commandExtension.x = oracleCommand.z;
+@@ -6758,6 +6762,8 @@
+                 // The fifth waypoint is an explicit goal observation; no
+                 // obstacle collision geometry or teacher route is consulted.
+                 const float3 finalGoal=crowNavigationWaypointTarget(sceneState+sceneBase,course,4u);
++                if (phase>0.5f && phase<1.5f &&
++                    (length(finalGoal.xy-pos.xy)>0.10f || length(yawFrameLinear.xy)>0.16f)) phase=0.0f;
+                 if (phase < 0.5f && length(finalGoal.xy-pos.xy)<0.08f &&
+                     length(yawFrameLinear.xy)<0.08f) phase=1.0f;
+                 uint loadedFeet=0u;

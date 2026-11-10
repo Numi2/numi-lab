@@ -1,0 +1,12 @@
+[
+  {
+    "path": "route.air",
+    "sha256": "c488b7c7e9ceb30e72a3c61cd3f477c4ad7ec94d78425f7a151d43c8201ea569",
+    "bytes": 199264
+  },
+  {
+    "path": "route.metallib",
+    "sha256": "6e08ed1f772e3e7a3bfe6ec80b97b475c4dda848761f0005905b0b6b2a6becd5",
+    "bytes": 4470752
+  }
+]
