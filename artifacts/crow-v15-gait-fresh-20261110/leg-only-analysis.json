@@ -1,0 +1,172 @@
+{
+  "1475186643": {
+    "sampling": "accepted states at control steps 650 and 654; latch is reported at task step 654; substeps are not reconstructed",
+    "lanes": [
+      {
+        "lane": 0,
+        "initial_max_qv_difference": 0.0,
+        "prepush_max_qv_difference": 0.0,
+        "push_rise_m": 0.020388573999999993,
+        "control_rise_m": 1.595899999998207e-05,
+        "extra_rise_m": 0.02037261500000001,
+        "pre_latch_wing_angle_change_rad": 9.530000000257388e-07,
+        "push_final_vz": 0.418852866
+      },
+      {
+        "lane": 1,
+        "initial_max_qv_difference": 0.0,
+        "prepush_max_qv_difference": 0.0,
+        "push_rise_m": 0.020388603000000005,
+        "control_rise_m": 1.595899999998207e-05,
+        "extra_rise_m": 0.020372644000000023,
+        "pre_latch_wing_angle_change_rad": 9.530000000257388e-07,
+        "push_final_vz": 0.418853223
+      },
+      {
+        "lane": 2,
+        "initial_max_qv_difference": 0.0,
+        "prepush_max_qv_difference": 0.0,
+        "push_rise_m": 0.020388603000000005,
+        "control_rise_m": 1.595899999998207e-05,
+        "extra_rise_m": 0.020372644000000023,
+        "pre_latch_wing_angle_change_rad": 9.530000000257388e-07,
+        "push_final_vz": 0.418853492
+      },
+      {
+        "lane": 3,
+        "initial_max_qv_difference": 0.0,
+        "prepush_max_qv_difference": 0.0,
+        "push_rise_m": 0.020388588000000013,
+        "control_rise_m": 1.5959000000009826e-05,
+        "extra_rise_m": 0.020372629000000003,
+        "pre_latch_wing_angle_change_rad": 9.530000000257388e-07,
+        "push_final_vz": 0.418853313
+      },
+      {
+        "lane": 4,
+        "initial_max_qv_difference": 0.0,
+        "prepush_max_qv_difference": 0.0,
+        "push_rise_m": 0.020388572999999993,
+        "control_rise_m": 1.5959000000009826e-05,
+        "extra_rise_m": 0.020372613999999983,
+        "pre_latch_wing_angle_change_rad": 9.530000000257388e-07,
+        "push_final_vz": 0.418852538
+      },
+      {
+        "lane": 5,
+        "initial_max_qv_difference": 0.0,
+        "prepush_max_qv_difference": 0.0,
+        "push_rise_m": 0.020388722999999997,
+        "control_rise_m": 1.597400000000193e-05,
+        "extra_rise_m": 0.020372748999999996,
+        "pre_latch_wing_angle_change_rad": 9.530000000257388e-07,
+        "push_final_vz": 0.418831915
+      },
+      {
+        "lane": 6,
+        "initial_max_qv_difference": 0.0,
+        "prepush_max_qv_difference": 0.0,
+        "push_rise_m": 0.020388587999999985,
+        "control_rise_m": 1.595899999998207e-05,
+        "extra_rise_m": 0.020372629000000003,
+        "pre_latch_wing_angle_change_rad": 9.530000000257388e-07,
+        "push_final_vz": 0.418854088
+      },
+      {
+        "lane": 7,
+        "initial_max_qv_difference": 0.0,
+        "prepush_max_qv_difference": 0.0,
+        "push_rise_m": 0.020388603000000005,
+        "control_rise_m": 1.595899999998207e-05,
+        "extra_rise_m": 0.020372644000000023,
+        "pre_latch_wing_angle_change_rad": 9.530000000257388e-07,
+        "push_final_vz": 0.418855518
+      }
+    ]
+  },
+  "1632550922": {
+    "sampling": "accepted states at control steps 650 and 654; latch is reported at task step 654; substeps are not reconstructed",
+    "lanes": [
+      {
+        "lane": 0,
+        "initial_max_qv_difference": 0.0,
+        "prepush_max_qv_difference": 0.0,
+        "push_rise_m": 0.020388617999999997,
+        "control_rise_m": 1.5943999999989966e-05,
+        "extra_rise_m": 0.020372674000000007,
+        "pre_latch_wing_angle_change_rad": 9.530000000257388e-07,
+        "push_final_vz": 0.418854892
+      },
+      {
+        "lane": 1,
+        "initial_max_qv_difference": 0.0,
+        "prepush_max_qv_difference": 0.0,
+        "push_rise_m": 0.020388587999999985,
+        "control_rise_m": 1.595899999998207e-05,
+        "extra_rise_m": 0.020372629000000003,
+        "pre_latch_wing_angle_change_rad": 9.530000000257388e-07,
+        "push_final_vz": 0.418854326
+      },
+      {
+        "lane": 2,
+        "initial_max_qv_difference": 0.0,
+        "prepush_max_qv_difference": 0.0,
+        "push_rise_m": 0.020388603000000005,
+        "control_rise_m": 1.5943999999989966e-05,
+        "extra_rise_m": 0.020372659000000015,
+        "pre_latch_wing_angle_change_rad": 9.530000000257388e-07,
+        "push_final_vz": 0.418852091
+      },
+      {
+        "lane": 3,
+        "initial_max_qv_difference": 0.0,
+        "prepush_max_qv_difference": 0.0,
+        "push_rise_m": 0.020388529000000016,
+        "control_rise_m": 1.598900000002179e-05,
+        "extra_rise_m": 0.020372539999999995,
+        "pre_latch_wing_angle_change_rad": 9.530000000257388e-07,
+        "push_final_vz": 0.418852359
+      },
+      {
+        "lane": 4,
+        "initial_max_qv_difference": 0.0,
+        "prepush_max_qv_difference": 0.0,
+        "push_rise_m": 0.020388589000000013,
+        "control_rise_m": 1.5944000000017722e-05,
+        "extra_rise_m": 0.020372644999999995,
+        "pre_latch_wing_angle_change_rad": 9.530000000257388e-07,
+        "push_final_vz": 0.418860167
+      },
+      {
+        "lane": 5,
+        "initial_max_qv_difference": 0.0,
+        "prepush_max_qv_difference": 0.0,
+        "push_rise_m": 0.020388587999999985,
+        "control_rise_m": 1.595899999998207e-05,
+        "extra_rise_m": 0.020372629000000003,
+        "pre_latch_wing_angle_change_rad": 9.530000000257388e-07,
+        "push_final_vz": 0.418853313
+      },
+      {
+        "lane": 6,
+        "initial_max_qv_difference": 0.0,
+        "prepush_max_qv_difference": 0.0,
+        "push_rise_m": 0.020388573999999993,
+        "control_rise_m": 1.595899999998207e-05,
+        "extra_rise_m": 0.02037261500000001,
+        "pre_latch_wing_angle_change_rad": 9.530000000257388e-07,
+        "push_final_vz": 0.418851823
+      },
+      {
+        "lane": 7,
+        "initial_max_qv_difference": 0.0,
+        "prepush_max_qv_difference": 0.0,
+        "push_rise_m": 0.020388617999999997,
+        "control_rise_m": 1.595899999998207e-05,
+        "extra_rise_m": 0.020372659000000015,
+        "pre_latch_wing_angle_change_rad": 9.530000000257388e-07,
+        "push_final_vz": 0.418853581
+      }
+    ]
+  }
+}

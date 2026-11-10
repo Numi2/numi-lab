@@ -1,0 +1,22 @@
+--- a/teacher.metal
++++ b/teacher.metal
+@@ -6769,7 +6769,7 @@
+                 }
+                 const float xError = landingTarget.x+0.045f-feetX;
+                 const float yError = landingTarget.y-pos.y;
+-                const float commandedForward = clamp(0.04f+0.20f*xError-0.20f*yawFrameLinear.x,-0.08f,0.10f);
++                const float commandedForward = clamp(0.04f+0.40f*xError-0.40f*yawFrameLinear.x,-0.08f,0.10f);
+                 desiredLateral = clamp(0.80f*yError,-0.30f,0.30f);
+                 errorOffset = 0.25f-commandedForward;
+                 if (landingPhase < 0.5f && length(float2(xError,yError)) < 0.08f &&
+@@ -6786,7 +6786,9 @@
+                     abs(xError) < 0.06f && abs(yError) < 0.16f &&
+                     length(yawFrameLinear.xy) < 0.08f &&
+                     abs(rootLinearVelocity.z) < 0.12f) landingPhase=2.0f;
+-                desiredHeight = landingPhase > 0.5f ? max(perch.z+0.205f,state.nutrition.w-0.015f*dispatch.timing.x) : 1.30f;
++                const bool canLower = abs(xError)<0.040f && abs(yError)<0.12f && length(yawFrameLinear.xy)<0.11f && abs(rootLinearVelocity.z)<0.18f;
++                const bool footContact = state.nutrition.x + state.nutrition.y > 0.20f;
++                desiredHeight = landingPhase > 0.5f ? (footContact ? max(state.nutrition.w,pos.z+0.05f) : (canLower ? max(perch.z+0.225f,state.nutrition.w-0.12f*dispatch.timing.x) : state.nutrition.w)) : 1.30f;
+             }
+             // Oracle labels occupy diagnostic spare state only; these will
+             // become independently fingerprinted actor commands, not sensors.
