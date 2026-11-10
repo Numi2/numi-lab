@@ -1,0 +1,23 @@
+--- a/causal-route.metal
++++ b/sensor.metal
+@@ -9331,6 +9331,20 @@
+                     packed |= next << (side*6u);
+                 }
+             }
++            // Diagnostic only: millimetre-quantized foot midpoint to explicit goal.
++            if (state.navigation.z>=5.0f) {
++                uint course=MR_INVALID_INDEX;
++                for(uint i=0u;i<program.counts1.w;++i) {
++                    const MRTaskRewardOperatorGPU op=rewards[i];
++                    if(op.source.x==MR_TASK_REWARD_NAVIGATION_WAYPOINT_PROGRESS || op.source.x==MR_TASK_REWARD_NAVIGATION_WAYPOINT_REACH) { course=op.source.z; break; }
++                }
++                if(course!=MR_INVALID_INDEX) {
++                    const float3 goal=crowNavigationWaypointTarget(sceneState+sceneBase,course,4u);
++                    const float footX=0.5f*(bodyStates[bodyBase+contactGroups[0].reference.x].position.x+bodyStates[bodyBase+contactGroups[1].reference.x].position.x);
++                    const int mm=int(round(clamp(goal.x-footX,-0.5f,0.5f)*1000.0f));
++                    packed |= uint(mm+512) << 13u;
++                }
++            }
+             state.status.w=packed;
+         }
+     }

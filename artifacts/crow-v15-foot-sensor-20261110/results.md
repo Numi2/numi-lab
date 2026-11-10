@@ -1,0 +1,3 @@
+# Passive foot sensor: rejected at preregistered precision
+
+The first-episode q and v values exactly match the baseline on both layouts, showing this instrumentation did not alter the recorded motion. The sensor differs from replayed foot positions by up to 1.473 mm and 2.627 mm respectively, exceeding the preregistered 0.51 mm quantization tolerance. It is rejected as an exact accepted-state sensor. Exploratory comparison suggests a velocity-related sampling offset, but its source and correction require independent measurement. The exact simulated goal and body positions are privileged state. No landing control is changed.
