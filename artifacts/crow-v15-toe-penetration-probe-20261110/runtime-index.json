@@ -1,0 +1,17 @@
+[
+  {
+    "path": "build/crow-v15-toe-penetration-probe-20261110/perch_probe",
+    "sha256": "bc3289dc05e59aaff9652154ebc5c24751754a57f4d46aa0535e3f676108163e",
+    "bytes": 100408
+  },
+  {
+    "path": "build/lib/libmetalrobo.dylib",
+    "sha256": "d7dad802978b03d8571487dac644678d2c4c1a8eae5b8a4c5c57be261cfbe11a",
+    "bytes": 5728528
+  },
+  {
+    "path": "build/shaders/MetalRobo.metallib",
+    "sha256": "69023c5dcd83c3a10bdc62a5a14d3a9c56d75797de36c95ed090b0f41ef9e135",
+    "bytes": 4467648
+  }
+]

@@ -1,0 +1,3 @@
+# Isolated substep sensitivity
+
+All six isolated perturbed-start tests reached grip and completed gradual release without reported rollback. During the ten control samples before release, the worst recorded solver contact separations for start 0 were -1.163 mm, -0.613 mm and -0.465 mm at 4, 8 and 16 physics substeps respectively; start 1 gave -0.616 mm, -0.429 mm and -0.427 mm. The median recorded separations also moved toward zero or positive values. These are contact-record samples from a simpler perch box and different starting posture, not independent accepted-pose SAT, substep peak depths, the full navigation episode or a biological model. Finer stepping is a plausible next test, not a demonstrated fix. All cases and raw output are retained.
