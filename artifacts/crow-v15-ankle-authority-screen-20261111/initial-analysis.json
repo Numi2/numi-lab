@@ -1,0 +1,141 @@
+{
+  "baseline_parity_exact": false,
+  "baseline_parity_differences": [
+    [
+      1,
+      8,
+      1
+    ],
+    [
+      1,
+      8,
+      2
+    ],
+    [
+      1,
+      8,
+      3
+    ],
+    [
+      1,
+      8,
+      4
+    ],
+    [
+      1,
+      8,
+      5
+    ],
+    [
+      1,
+      8,
+      6
+    ],
+    [
+      1,
+      8,
+      7
+    ],
+    [
+      1,
+      8,
+      8
+    ],
+    [
+      1,
+      8,
+      9
+    ],
+    [
+      1,
+      8,
+      10
+    ],
+    [
+      1,
+      8,
+      11
+    ],
+    [
+      1,
+      8,
+      12
+    ],
+    [
+      1,
+      8,
+      13
+    ],
+    [
+      1,
+      8,
+      14
+    ],
+    [
+      1,
+      8,
+      15
+    ],
+    [
+      1,
+      8,
+      16
+    ],
+    [
+      1,
+      8,
+      17
+    ],
+    [
+      1,
+      8,
+      18
+    ],
+    [
+      1,
+      8,
+      19
+    ],
+    [
+      1,
+      8,
+      20
+    ]
+  ],
+  "rows": [
+    {
+      "case": 1,
+      "arm": 7,
+      "outcome": "completed transition 58 success 76 release 86",
+      "samples": 1000,
+      "longest_opposing_grip": 11,
+      "longest_supported_opposing_grip": 11,
+      "longest_supported": 387,
+      "terminal_100_supported": false,
+      "first_release_without_grip": 88,
+      "terminal_max_toe_abs_rad": 9.42749e-05,
+      "last_850_open_and_supported": false,
+      "strict_pass": false,
+      "opposed_grip_pose_samples": 13,
+      "missing_grip_pose_samples": 0,
+      "minimum_grip_sat_gap_m": -0.000448899577685867
+    },
+    {
+      "case": 1,
+      "arm": 8,
+      "outcome": "failed substep observer sequence mismatch",
+      "samples": 1,
+      "longest_opposing_grip": 0,
+      "longest_supported_opposing_grip": 0,
+      "longest_supported": 0,
+      "terminal_100_supported": false,
+      "first_release_without_grip": null,
+      "terminal_max_toe_abs_rad": 2.27437e-07,
+      "last_850_open_and_supported": false,
+      "strict_pass": false,
+      "opposed_grip_pose_samples": 0,
+      "missing_grip_pose_samples": 0,
+      "minimum_grip_sat_gap_m": null
+    }
+  ]
+}

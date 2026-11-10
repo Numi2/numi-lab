@@ -1,0 +1,3 @@
+# Initial attempt: incomplete comparison
+
+The 0.12 rad case completed but lost the support gate (longest supported run 387 samples; no terminal support), matching the reference's longest supported run. The 0.16 rad case was invalid after its first sample: the diagnostic observer sequence was not reset between independent worlds in the same process. Therefore this attempt does not compare both bounds, and the parity failure reported by the combined analyzer includes missing samples from the invalid case. The initial grip overlap estimate for the completed case was 0.449 mm. The raw output and exact runtime are retained; no candidate is promoted.
