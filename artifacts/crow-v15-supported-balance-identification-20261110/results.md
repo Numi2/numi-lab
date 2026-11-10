@@ -1,0 +1,5 @@
+# Contact-gated hip balance: bench candidate only
+
+The zero-gain open-toe control exactly reproduced all saved open-control trace samples. Across eight already-supported perturbations, the original and +2.5 rad/m settings retained bilateral support for all final 25 endpoints in 4/8 cases each; +5.0 retained support in 6/8; -2.5 retained support in 0/8. All 32 trials completed without reported solver rollback. The +5.0 arm had no recorded nonfoot contact in these samples, and stabilized all four starts that fell in the original open control. Two formerly supported starts did not meet the terminal gate: case 1 missed at least one of the final 25 samples, and case 5 reached 0.397 rad maximum tilt. This meets only the prespecified 6/8 bench threshold and is not fully robust.
+
+The adjustment is bounded at 0.08 rad, uses measured toe support before acting and drives the ordinary hip position joints. The -0.012 m reference is specific to this stationary development bench. No toe grip, takeoff, flight, full landing, untested layout, substep or biological realism claim follows; the candidate must next be combined with contact-driven grip and validated physically.
