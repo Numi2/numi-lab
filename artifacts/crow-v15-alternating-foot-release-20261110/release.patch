@@ -1,0 +1,20 @@
+--- a/teacher.metal
++++ b/foot-release.metal
+@@ -5146,6 +5146,17 @@
+             const float delta=clamp(-state.threatGeometry.z-0.05f*state.threatGeometry.w,-0.18f,0.0f);
+             navigationTeacherRequested=joint==0u ? -0.10f+delta/0.70f : joint==1u ? 0.18f : -0.08f-delta/0.65f;
+         }
++        // After the contact-conditioned release, lift one foot only while
++        // the opposite foot is loaded. The normal actuator drive applies it.
++        if (fixedFlightController && state.episode.z==10u && state.navigation.z>=5.0f && state.threatTeacher.w>=2.5f && action>=7u && action<=12u && state.threatMetadata.x!=MR_INVALID_INDEX) {
++            const uint leg=(action-7u)/3u, joint=(action-7u)%3u;
++            const float elapsed=(float(state.episode.x)-float(state.threatMetadata.x+200u))*dispatch.timing.x;
++            const float u=leg==0u ? (elapsed-0.20f)/1.00f : (elapsed-1.40f)/1.00f;
++            const float otherLoad=leg==0u ? state.nutrition.y : state.nutrition.x;
++            const float lift=(u>0.0f && u<1.0f && otherLoad>0.20f) ? sin(M_PI_F*u) : 0.0f;
++            const float delta=joint==0u ? -0.34f*lift : joint==1u ? 0.55f*lift : -0.236f*lift;
++            navigationTeacherRequested=clamp(navigationTeacherRequested+delta,-1.0f,1.0f);
++        }
+         const float navigationTeacherBlend = fixedFlightController
+             ? 1.0f
+             : avianNavigationTeacher
