@@ -1,0 +1,11 @@
+{
+  "remote_commit": "b393ab789e502cbe96eb7bfa64d5e81624b76488",
+  "retired": [
+    {
+      "raw": "artifacts/crow-v15-whole-foot-balance-screen-20261110/results.txt",
+      "archive": "artifacts/crow-v15-whole-foot-balance-screen-20261110/results.txt.gz",
+      "sha256": "5fa1a7edca69d2128fcf023c142484c303f6b75fd01b72002cbc7eed809f876b",
+      "bytes": 2005854
+    }
+  ]
+}
