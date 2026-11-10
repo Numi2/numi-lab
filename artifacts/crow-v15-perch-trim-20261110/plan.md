@@ -1,0 +1,5 @@
+# Exploratory approach trim
+
+The preceding narrow-speed trial survived all 16 development starts but had no foot loading; the bird settled roughly 0.2 m behind the perch. Independent zero, -0.10 and +0.10 m/s fixed-command flight samples measured lane-0 means around -0.040, -0.139 and +0.059 m/s, respectively. These are exploratory, correlated samples and indicate an approximately -0.04 m/s offset in this model, not a calibrated biological velocity. Add +0.04 m/s feedforward to the landing approach and bound its command to [-0.08,+0.10] m/s; retain the prior position/velocity gains, height ramp, toe control and support debounce. Keep the flight controller unchanged.
+
+Prediction for the same 8 starts per used development layout and 4500-step horizon: at least 12/16 avoid physical failure and at least 4/16 achieve 10 consecutive accepted control steps of both feet over 0.1 N and total above 2.2 N. Actual supported landing requires longer support and opposing toe grip; these thresholds are intermediate diagnostics, not completion. No retries or failed-demonstration training. Unused layouts remain reserved.
