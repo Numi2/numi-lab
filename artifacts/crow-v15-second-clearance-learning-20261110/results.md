@@ -1,0 +1,3 @@
+# Second clearance-corrective actor
+
+The first new recovery was excluded because terminal support failed. The qualified bounded-retry recovery contributed 559 pre-waypoint-five routing observations, with increased weight on post-takeover corrective labels. The initial actor was anchored on 1,878 observations from three completed routes and the early original-I prefix; mean squared preservation-output deviation was 1.62e-5. The deterministic export matched the trained actor's checked output exactly. These are development training diagnostics, not evidence of autonomous performance; four full-start teacher-off tests are required. The low-level flight law is unchanged.

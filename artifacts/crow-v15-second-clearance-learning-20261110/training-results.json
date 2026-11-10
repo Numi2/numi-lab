@@ -1,0 +1,346 @@
+{
+  "sources": [
+    {
+      "source": "initial_j",
+      "included": true,
+      "rollout_sha256": "a1bf3cd8702f1d7dc923317b5675102a58f74c5f56675d1c994842cd5af2bddf",
+      "samples": 559,
+      "end_before_waypoint_5_step": 2794,
+      "student_takeover": 1100,
+      "label_stage_mismatches": 1,
+      "expert_group_counts": [
+        442,
+        52,
+        39,
+        26
+      ]
+    },
+    {
+      "source": "late_j",
+      "included": true,
+      "rollout_sha256": "d91517b0c82daeb40e606ac1716b1c926a42e8711eee94484fb6f4631b86e9f0",
+      "samples": 533,
+      "end_before_waypoint_5_step": 2664,
+      "student_takeover": 2050,
+      "label_stage_mismatches": 0,
+      "expert_group_counts": [
+        418,
+        51,
+        39,
+        25
+      ]
+    },
+    {
+      "source": "i",
+      "included": true,
+      "rollout_sha256": "0b10f2510640a41652097aeb3dde2c260349dd7c25ea2405ee2741c293d9a94e",
+      "samples": 548,
+      "end_before_waypoint_5_step": 2739,
+      "student_takeover": 1800,
+      "label_stage_mismatches": 0,
+      "expert_group_counts": [
+        426,
+        47,
+        47,
+        28
+      ]
+    },
+    {
+      "source": "corrective_i",
+      "included": true,
+      "rollout_sha256": "11a27215a6e4da3c2a0c10776cfd1d2a0dd9920c5df4b7c698d110afafc63b4f",
+      "samples": 546,
+      "end_before_waypoint_5_step": 2732,
+      "student_takeover": 1700,
+      "label_stage_mismatches": 0,
+      "expert_group_counts": [
+        425,
+        48,
+        46,
+        27
+      ]
+    },
+    {
+      "source": "anchored_j",
+      "included": true,
+      "rollout_sha256": "fe528af5a58c5dafea376e2d9cec35390013cf8eea53207c5d7da69e0fb9f604",
+      "samples": 539,
+      "end_before_waypoint_5_step": 2696,
+      "student_takeover": 2000,
+      "label_stage_mismatches": 1,
+      "expert_group_counts": [
+        423,
+        51,
+        40,
+        25
+      ]
+    },
+    {
+      "source": "anchored_i",
+      "included": false,
+      "reason": "failed qualification"
+    },
+    {
+      "source": "approach_early_j",
+      "included": true,
+      "rollout_sha256": "c42153c0731e95410c07fd45043c93c2fe8b09c675aa632d3a7bbb49fc131376",
+      "samples": 538,
+      "end_before_waypoint_5_step": 2691,
+      "student_takeover": 2100,
+      "label_stage_mismatches": 0,
+      "expert_group_counts": [
+        422,
+        52,
+        39,
+        25
+      ]
+    },
+    {
+      "source": "approach_early_i",
+      "included": false,
+      "reason": "failed qualification"
+    },
+    {
+      "source": "foot_i",
+      "included": true,
+      "rollout_sha256": "5d5cc75483d91a125d89973d2e196ccbd4ce79388e31d8b2a85e46fa2d16bc7d",
+      "samples": 554,
+      "end_before_waypoint_5_step": 2772,
+      "student_takeover": 2200,
+      "label_stage_mismatches": 1,
+      "expert_group_counts": [
+        429,
+        50,
+        47,
+        28
+      ]
+    },
+    {
+      "source": "placement_j",
+      "included": true,
+      "rollout_sha256": "3f67ba9f1df0b9ee7bb9d7dbc65fd149ce1bfd292c5f6f7b7b44a6e4818ff279",
+      "samples": 540,
+      "end_before_waypoint_5_step": 2702,
+      "student_takeover": 2100,
+      "label_stage_mismatches": 0,
+      "expert_group_counts": [
+        424,
+        52,
+        39,
+        25
+      ]
+    },
+    {
+      "source": "newactor_j",
+      "included": true,
+      "rollout_sha256": "9dbf0b1c6e367bbc04fade1afeb027d1c56ee2766bb2cd6af09b7c90d106428f",
+      "samples": 546,
+      "end_before_waypoint_5_step": 2732,
+      "student_takeover": 2200,
+      "label_stage_mismatches": 0,
+      "expert_group_counts": [
+        423,
+        55,
+        42,
+        26
+      ]
+    },
+    {
+      "source": "newactor_i",
+      "included": true,
+      "rollout_sha256": "e8d46bb1d0bba931af63f22261b3a98ef45663e87fbf881534e2897b4992a846",
+      "samples": 549,
+      "end_before_waypoint_5_step": 2743,
+      "student_takeover": 2100,
+      "label_stage_mismatches": 1,
+      "expert_group_counts": [
+        429,
+        46,
+        46,
+        28
+      ]
+    },
+    {
+      "source": "fresh_i",
+      "included": true,
+      "rollout_sha256": "90d1ccfaf168b2f0718d0401e595627fcae52ec6e379206c5189c058c3cce0d9",
+      "samples": 550,
+      "end_before_waypoint_5_step": 2749,
+      "student_takeover": 2050,
+      "label_stage_mismatches": 1,
+      "expert_group_counts": [
+        424,
+        61,
+        38,
+        27
+      ]
+    },
+    {
+      "source": "fresh_j",
+      "included": true,
+      "rollout_sha256": "f8e4e91a514281ae977c26a7c0c18b0ca3a234c078469e812d18a3c6c614e108",
+      "samples": 540,
+      "end_before_waypoint_5_step": 2700,
+      "student_takeover": 2050,
+      "label_stage_mismatches": 0,
+      "expert_group_counts": [
+        418,
+        72,
+        17,
+        33
+      ]
+    },
+    {
+      "source": "paired_j",
+      "included": true,
+      "rollout_sha256": "95080ee7d0cab576a7ffc8842f0606840c51a6b8979a271e55d9efd5d8f28e02",
+      "samples": 538,
+      "end_before_waypoint_5_step": 2690,
+      "student_takeover": 2050,
+      "label_stage_mismatches": 2,
+      "expert_group_counts": [
+        416,
+        73,
+        17,
+        32
+      ]
+    },
+    {
+      "source": "delayed_i",
+      "included": true,
+      "rollout_sha256": "a5503191e2907d719252afcfdd348e1185539357b3f383784917af9076444e9c",
+      "samples": 570,
+      "end_before_waypoint_5_step": 2851,
+      "student_takeover": 1850,
+      "label_stage_mismatches": 1,
+      "expert_group_counts": [
+        424,
+        61,
+        56,
+        29
+      ]
+    },
+    {
+      "source": "clearance_i_original",
+      "included": true,
+      "rollout_sha256": "e4a8cb29c9f6d4170cbc8ad594ed82dc92fbe9d1c0e19fcdcad34f43d57a4779",
+      "samples": 559,
+      "end_before_waypoint_5_step": 2794,
+      "student_takeover": 1850,
+      "label_stage_mismatches": 1,
+      "expert_group_counts": [
+        428,
+        48,
+        50,
+        33
+      ]
+    },
+    {
+      "source": "clearance_i_hard",
+      "included": true,
+      "rollout_sha256": "9bb4196cc33e9b0862b72cc4d7fae24a0d26f801fb8d611a53571ff00e9ca42d",
+      "samples": 566,
+      "end_before_waypoint_5_step": 2832,
+      "student_takeover": 2450,
+      "label_stage_mismatches": 1,
+      "expert_group_counts": [
+        425,
+        59,
+        54,
+        28
+      ]
+    },
+    {
+      "source": "second_i",
+      "included": false,
+      "reason": "failed qualification"
+    },
+    {
+      "source": "second_retry",
+      "included": true,
+      "rollout_sha256": "ecb487a697d2135de2730b55f9104beaf61feeaf1b879a21acfdf7611ef5e65b",
+      "samples": 559,
+      "end_before_waypoint_5_step": 2797,
+      "student_takeover": 1850,
+      "label_stage_mismatches": 0,
+      "expert_group_counts": [
+        429,
+        48,
+        49,
+        33
+      ]
+    }
+  ],
+  "initial_policy_sha256": "5420198c473af372bc6734d8ba45982d7a7fbff0b29383a11caace9a63795957",
+  "output_policy_sha256": "721a0ba05a1c41edd8455c8e0d511fd585eab433c174d4eb208f24df606e06bb",
+  "seed": 20261113,
+  "train_samples": 7462,
+  "in_trajectory_validation_samples": 1872,
+  "train_stage_counts": [
+    4941,
+    831,
+    740,
+    564,
+    386
+  ],
+  "initial_validation_mae": [
+    0.005529067479074001,
+    0.052594978362321854,
+    0.08884964138269424,
+    0.027876242995262146
+  ],
+  "history": [
+    {
+      "epoch": 1,
+      "train_loss": 0.06590234471174578,
+      "in_trajectory_validation_mae": [
+        0.0070992279797792435,
+        0.05616757273674011,
+        0.08728863298892975,
+        0.028216863051056862
+      ],
+      "head_mse": 0.0,
+      "seconds": 0.3
+    },
+    {
+      "epoch": 20,
+      "train_loss": 0.005364683611939351,
+      "in_trajectory_validation_mae": [
+        0.005527490749955177,
+        0.0519680380821228,
+        0.08457030355930328,
+        0.027133304625749588
+      ],
+      "head_mse": 0.0,
+      "seconds": 2.55
+    },
+    {
+      "epoch": 60,
+      "train_loss": 0.005340856003264586,
+      "in_trajectory_validation_mae": [
+        0.005768943578004837,
+        0.05110927298665047,
+        0.08537502586841583,
+        0.02689816802740097
+      ],
+      "head_mse": 0.0,
+      "seconds": 7.28
+    },
+    {
+      "epoch": 120,
+      "train_loss": 0.0047746840088317795,
+      "in_trajectory_validation_mae": [
+        0.005573940929025412,
+        0.04875122755765915,
+        0.08538732677698135,
+        0.026395948603749275
+      ],
+      "head_mse": 0.0,
+      "seconds": 14.38
+    }
+  ],
+  "anchor_samples": 1878,
+  "anchor_output_mse": 1.6174373740796e-05,
+  "anchor_weight": 3,
+  "limits": "Development trajectories, including successful teacher-off J and I prefix preservation anchors; no terminal landing samples or independent holdout."
+}
