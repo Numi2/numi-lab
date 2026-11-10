@@ -1,0 +1,3 @@
+# Gentler contact-gated balance and grip screen
+
+Both control arms reproduced all 200 reference states exactly. The 0.5 rad/m candidate did not establish bilateral opposing grip or terminal support. The 1.0 rad/m candidate produced 11 consecutive simultaneous opposing-grip and bilateral-support samples, then released, but failed terminal support and later fell. Its worst grip-conditioned accepted-pose toe/perch SAT overlap was 1.128 mm, above the 0.5 mm nomination gate. No arm qualifies for integration. The result is a single separated development drop with an estimated balance law and research host-side contact observer, not a full approach, flight, navigation, held-out evaluation or biological qualification.
