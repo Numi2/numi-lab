@@ -1,0 +1,17 @@
+[
+  {
+    "path": "build/crow-v15-lean-aware-balance-screen-20261110/probe",
+    "sha256": "f4fa2e209ed6720b176504df45c6b3e2a3e256cfef693ee426e8894893480547",
+    "bytes": 101816
+  },
+  {
+    "path": "build/crow-v15-lean-aware-balance-screen-20261110/libmetalrobo.dylib",
+    "sha256": "e859be83a87a3eb12eddf9691e8dd8cefff2765b2183e93fad974ac160e94567",
+    "bytes": 5729488
+  },
+  {
+    "path": "build/crow-v15-alternating-foot-release-20261110/teacher.metallib",
+    "sha256": "a1fa801ac2f2ea5e557a54073b280039e5bb60422d8b5beb1cd90b2ec22c459b",
+    "bytes": 4485424
+  }
+]

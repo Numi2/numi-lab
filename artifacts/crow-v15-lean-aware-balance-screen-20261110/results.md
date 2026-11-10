@@ -1,0 +1,3 @@
+# Lean-aware position balance
+
+Both controls reproduced all 400 prior states exactly, and both candidates matched the ramped control through tick 106. The 0.03 m/rad lean-aware candidate passed the single development start: 341 consecutive supported ticks, supported open toes throughout the last 50 ticks, and 0.449 mm worst grip-conditioned overlap. The 0.06 candidate failed terminal support, with a 204-tick maximum support run. The 0.03 result nominates longer support and varied-start development tests only. It does not repair the seven previously failed acquisition starts, establish a flying approach, qualify navigation or untouched layouts, or establish biological realism.
