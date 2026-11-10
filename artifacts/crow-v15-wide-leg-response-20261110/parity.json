@@ -1,0 +1,13 @@
+{
+  "zero_arm": [
+    {
+      "rows": 1041,
+      "sha256": "54ca66b0fc00fdc6d039ae380f74d0463ef6f31d23a2e1caeed9b2d0a55b7a07"
+    },
+    {
+      "rows": 1041,
+      "sha256": "54ca66b0fc00fdc6d039ae380f74d0463ef6f31d23a2e1caeed9b2d0a55b7a07"
+    }
+  ],
+  "exact": true
+}

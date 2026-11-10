@@ -1,0 +1,5 @@
+# Wider coordinated offset measurements
+
+All five 0.4-second arms completed without reported solver failure or nonfoot impulse. The zero arm exactly reproduced the previous coordinated probe after normalizing arm IDs (1,041 lines). Hip offsets of -0.18, -0.12, -0.09, -0.06 and 0 rad, paired with equal opposite ankle offsets, yielded pitch increases of 0.00647, 0.01001, 0.01102, 0.01335 and 0.01603 rad and root x changes of -22.32, -14.51, -10.24, -6.51 and +2.82 mm. The simultaneous opposing-toe/upward-support criterion held for 67, 69, 63, 70 and 73 of 80 sampled 5 ms endpoints; the corresponding longest streaks were 59, 59, 29, 45 and 21.
+
+The -0.12-rad candidate shifts the root back and reduces initial pitch increase while retaining 69/80 qualifying samples in this matched fixture. It merits an uninterrupted guide-on trial, but the isolated fresh-cache single-perch test cannot establish long-duration support, autonomy, release or biological validity. Measured endpoints do not guarantee contact between samples.
