@@ -1,0 +1,3 @@
+# Longer continuous perch support
+
+The best single-start grip and release passed only a 0.5-second terminal window at the end of a four-second development drop, with residual forward drift. Extend that exact controller and case continuously to 400 ticks (eight seconds), with no reset or state injection. Require exact equality of the first 200 recorded states with the prior run, no reported solver failure, sustained supported opposing grip followed by open-toe release, and support with toe angles below 0.05 rad throughout the final 50 ticks. Retain independent SAT grip overlap and failure timing. This is a single development stationary drop and does not qualify robustness, a flying landing, navigation or crow biology.
