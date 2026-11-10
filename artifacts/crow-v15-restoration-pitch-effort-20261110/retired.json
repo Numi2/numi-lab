@@ -1,0 +1,11 @@
+{
+  "remote_commit": "69eb0b51cb2f377434a436ee702673aa2a96bbe5",
+  "retired": [
+    {
+      "raw": "artifacts/crow-v15-pitch-toe-effort-screen-20261110/results.txt",
+      "archive": "artifacts/crow-v15-pitch-toe-effort-screen-20261110/results.txt.gz",
+      "sha256": "7f2be70994aaffdc18bf42dec77b10a62ae757a96ad5fd10356508c431635ad8",
+      "bytes": 2390728
+    }
+  ]
+}
