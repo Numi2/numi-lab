@@ -1,0 +1,9 @@
+# Development full-sequence evaluation
+
+With the stage-aware actor and programmed terminal feedback, teacher off and no intermediate reset, both previously used development layouts completed five waypoints, landed, opened their toe joints, and remained bilaterally supported through the end of the recorded 7000-step run. These are not held-out tests. The flight controller was unchanged.
+
+On J, walking steps 100–600 advanced 0.1103 m with ten clear swings per side and 0.0297/0.0288 m/s loaded-foot slip p95. The push latch occurred at step 654; waypoint five at 2702; minimum control-endpoint obstacle clearance was 0.07416 m; release began at 4433 and all 2568 subsequent samples had bilateral support. Opposing toe contact on both feet was recorded in 86 of 100 samples before release.
+
+On I, the corresponding figures were 0.1103 m, ten swings per side, 0.0297/0.0291 m/s, push latch at 654, waypoint five at 2753, clearance 0.00614 m, release at 5565, and bilateral support in all 1436 subsequent samples. Opposing toe contact on both feet appeared in 74 of 100 pre-release samples. Six millimeters is a narrow margin and neither the samples nor the solver flags establish clearance at every physics substep.
+
+No nonfoot perch contact, fatal collision, solver failure, or nonfinite task-state sample was observed in these recorded control endpoints. Toe deviation after 25 free-flight samples was at most 0.000365 rad on J and 0.000318 rad on I. The push latch alone does not prove a causal push; separately archived matched no-push experiments test that question. Release opens joints but does not prove all toes cleared contact. Pre-release grip is intermittent, not established as continuous. Landing and timed release are programmed feedback, not a learned intention. No biological qualification is claimed. See the machine-readable audits, replay, diagnostics, and bindings for details.

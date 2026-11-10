@@ -1,0 +1,3 @@
+# Teacher-off terminal landing full-start trial
+
+Before running either test, use the frozen stage-aware actor with the fixed terminal feedback candidate on development J then I, from full starts, teacher off, without tuning between them. Compare accepted q/v and actions through the earlier waypoint-five step against the unchanged-shader runs. Record first collision and clearance, final waypoint, every foot-support and opposing toe-contact sample, toe opening and release, nonfinite task state, supported duration and terminal state. This terminal controller is programmed, not learned. K/L remain unused.
