@@ -1,0 +1,11 @@
+{
+  "remote_commit": "d8ccfac6440603cc63515ae958bf91239f77583d",
+  "retired": [
+    {
+      "raw": "artifacts/crow-v15-grip-balance-deadband-20261110/results.txt",
+      "archive": "artifacts/crow-v15-grip-balance-deadband-20261110/results.txt.gz",
+      "sha256": "dff429c18c7925d349ee51d96db02521f8897edfbc17a7dc2fcf1907c1956668",
+      "bytes": 15941350
+    }
+  ]
+}
