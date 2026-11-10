@@ -1,0 +1,11 @@
+--- a/route.metal
++++ b/teacher.metal
+@@ -6714,7 +6714,7 @@
+             const float3 delta = lateralTarget-pos;
+             const float localLateral = -yawBasis.y*delta.x + yawBasis.x*delta.y;
+             const float lateralCommand = clamp(0.80f*localLateral,-0.30f,0.30f);
+-            const float heightTarget = clamp(target.z+0.30f,1.15f,1.30f);
++            const float heightTarget = clamp(target.z,0.80f,1.15f);
+             const float heading = atan2(yawBasis.y,yawBasis.x);
+             const float pitch = asin(clamp(2.0f*(orientation.w*orientation.y-orientation.z*orientation.x),-1.0f,1.0f));
+             const float roll = atan2(2.0f*(orientation.w*orientation.x+orientation.y*orientation.z),1.0f-2.0f*(orientation.x*orientation.x+orientation.y*orientation.y));

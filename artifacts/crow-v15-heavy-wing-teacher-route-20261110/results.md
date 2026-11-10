@@ -1,0 +1,3 @@
+# Privileged teacher route failure
+
+The teacher reached waypoint one in all 16 first episodes and waypoint two in 8/16, but all 16 crashed into physical obstacles. There were no solver failed steps. The first failures, pre-contact states and accepted-step sampled clearances are retained in analysis.json; the J failures were all at slalom A. The subsequent source audit found that accepted foot forces overwrite the same task-state fields used for teacher forward and lateral commands, explaining why the teacher could not reliably steer. The corresponding fix is a separate experiment. These failed rollouts are excluded from imitation and do not test visual autonomy or unused final layouts.

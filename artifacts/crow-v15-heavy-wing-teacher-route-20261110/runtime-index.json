@@ -1,0 +1,22 @@
+[
+  {
+    "path": "build/crow-v15-heavy-wing-teacher-route-20261110/teacher.metallib",
+    "sha256": "ea7e3e8f19d29f84a28ccd0323b1d5f2199181cf4d31cfd8a8a6246618aeff0d",
+    "bytes": 4473280
+  },
+  {
+    "path": "build/crow-v15-heavy-wing-route-20261110/libmetalrobo.dylib",
+    "sha256": "ac8ba413b89cbd13eb4c04a7837450f2699825fddbf4c73249f4b03567f006a6",
+    "bytes": 5764256
+  },
+  {
+    "path": "build/crow-v15-heavy-wing-route-20261110/landing.policypack",
+    "sha256": "5aefc2dcee421c6e3bdca39a024191fa243404b06190952ef02bf9f9e479eced",
+    "bytes": 5996441
+  },
+  {
+    "path": "build/crow-v15-heavy-wing-route-20261110/route.policypack",
+    "sha256": "9a7ad3d578153f77c1d1d657978f313cb4bb1220404ca724196a1a43b08d4830",
+    "bytes": 17228695
+  }
+]
