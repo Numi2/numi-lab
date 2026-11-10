@@ -1,0 +1,3 @@
+# Isolated post-release leg authority comparison
+
+Both fresh-process 1,000-tick cases matched the reference exactly through tick 106, retained 11 consecutive supported opposing-grip samples, released and had the same 0.449 mm estimated maximum toe overlap during opposing grip. Increasing the post-release pitch correction bound from the reference 0.08 rad to 0.12 or 0.16 rad did not improve the first failure: both had 387 consecutive supported samples and failed terminal support. No candidate passed or was promoted. This is one development start; it does not qualify landing. The earlier invalid counterexample is retained separately.

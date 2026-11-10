@@ -1,0 +1,17 @@
+[
+  {
+    "path": "build/crow-v15-ankle-authority-screen-20261111/probe",
+    "sha256": "8e5025bc3d645c1a9ae89b24604462dba9a9c5a77ea59c05788290d4f3c2fdbb",
+    "bytes": 101896
+  },
+  {
+    "path": "build/crow-v15-ankle-authority-screen-20261111/libmetalrobo.dylib",
+    "sha256": "aac2160f7f897508ad01516b72b54f7a35ef8d0e02e3e23c6a8dfee8016b4968",
+    "bytes": 5729488
+  },
+  {
+    "path": "build/crow-v15-alternating-foot-release-20261110/teacher.metallib",
+    "sha256": "a1fa801ac2f2ea5e557a54073b280039e5bb60422d8b5beb1cd90b2ec22c459b",
+    "bytes": 4485424
+  }
+]
