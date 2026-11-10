@@ -1,0 +1,3 @@
+# Guided recovery of approach student on development I
+
+The fixed actor reached two waypoints, approached slalom B and later flew away from the remaining route. Before execution, replay the exact full start and take over guided routing at step 2400, before the 2513 minimum-clearance sample. Require exact q, v, observations and actions through 2399, all waypoints, no physical or solver failure, no nonfoot perch impulse, and terminal bilateral support before using route prefixes only for training. Failed runs are excluded in full. The body and frozen flight law remain fixed; I is used development and K/L remain unused.
