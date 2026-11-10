@@ -1,0 +1,3 @@
+# Results
+
+The same full-start teacher-off J development run with contact-triggered, gradual rear closure reached five waypoints and achieved 63 bilateral opposed-toe contact endpoints, including a run of 56 consecutive samples, and 191 bilateral support endpoints. It still pitched backward and terminated on tilt at step 2712. The sampled accepted q/v at all 22 checkpoints through step 2200 match the prior run exactly. Grip was physically reached, but the landing was not sustained and this is not a final-layout qualification. The prior rear-load gate used total force magnitude rather than isolated contact-normal direction.

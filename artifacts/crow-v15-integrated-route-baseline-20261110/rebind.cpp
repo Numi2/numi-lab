@@ -1,0 +1,7 @@
+#include "metalrobo/LearningPacks.hpp"
+#include <iostream>
+#include <stdexcept>
+#include <string>
+using namespace metalrobo;
+static void need(bool ok,const std::string&s){if(!ok)throw std::runtime_error(s);}
+int main(int n,char**v){try{need(n==7,"source output world task observation action");PolicyPack a,b;auto r=readPolicyPack(v[1],a);need(r.succeeded(),r.message);PolicyPack p=a;p.id="diagnostic_old_visual_actor_"+a.id;p.revision++;p.contract.worldFingerprint=std::stoull(v[3]);p.contract.taskFingerprint=std::stoull(v[4]);p.contract.observationFingerprint=std::stoull(v[5]);p.contract.actionFingerprint=std::stoull(v[6]);r=writePolicyPack(p,v[2]);need(r.succeeded(),r.message);r=readPolicyPack(v[2],b);need(r.succeeded(),r.message);need(a.layers.size()==b.layers.size() && a.observationMean==b.observationMean && a.observationInverseStandardDeviation==b.observationInverseStandardDeviation && a.actionBias==b.actionBias && a.actionScale==b.actionScale && a.observationClip==b.observationClip && a.actionClip==b.actionClip && a.criticLayers.empty() && !a.actorMemory && a.actionLogStandardDeviation.empty(),"nonidentical transforms or unsupported actor");for(unsigned i=0;i<a.layers.size();i++)need(a.layers[i].weights==b.layers[i].weights && a.layers[i].bias==b.layers[i].bias && a.layers[i].activation==b.layers[i].activation,"nonidentical actor tensor");std::cout<<"verified "<<v[2]<<" layers "<<b.layers.size()<<" diagnostic legacy actor only\n";return 0;}catch(const std::exception&e){std::cerr<<e.what()<<"\n";return 1;}}

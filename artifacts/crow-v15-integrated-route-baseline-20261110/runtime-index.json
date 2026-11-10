@@ -1,0 +1,27 @@
+[
+  {
+    "path": "build/crow-v15-integrated-route-baseline-20261110/libmetalrobo.dylib",
+    "sha256": "9e745472159b32a41d25b59ccaebb51693a0773ddb2c168bb0e4f0f5fdd2e8da",
+    "bytes": 5763888
+  },
+  {
+    "path": "build/crow-v15-integrated-route-baseline-20261110/rebind",
+    "sha256": "4ffc9de52ea3b7488cf4c26c171e5547a76061c33209309c1fcba0a76696ac0f",
+    "bytes": 39016
+  },
+  {
+    "path": "build/crow-v15-integrated-route-baseline-20261110/landing-diagnostic.policypack",
+    "sha256": "7d52ccc7f488e8d4d7b42654f472fb91a93d441a9b42a7e133071a47f17464b3",
+    "bytes": 5996464
+  },
+  {
+    "path": "build/crow-v15-integrated-route-baseline-20261110/route-diagnostic.policypack",
+    "sha256": "a38a4429ad0ec1c8e8a6ef82906da6ed5f73e8740699f1ce3bd751f50d884b83",
+    "bytes": 17228718
+  },
+  {
+    "path": "build/crow-v15-gait-coordinated-confirmation-20261110/push-trigger.metallib",
+    "sha256": "b52c68b77e641e77bafbbf32d3007bfd3d02f38e9b3bef9c3825b4e977366f51",
+    "bytes": 4470928
+  }
+]

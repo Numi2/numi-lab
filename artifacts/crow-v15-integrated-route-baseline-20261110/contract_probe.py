@@ -1,0 +1,5 @@
+from pathlib import Path
+import json,os,subprocess
+R=Path.cwd();A=R/"artifacts/crow-v15-integrated-route-baseline-20261110";B=R/"build/crow-v15-integrated-route-baseline-20261110";cmd=json.loads((R/"artifacts/crow-v15-grip-search-20261109/toe-envelope-neutral-bindings.json").read_text())["argv"]
+for k,v in [("--metallib",str(R/"build/crow-v15-gait-coordinated-confirmation-20261110/push-trigger.metallib")),("--birdflow-navigation-course","reserved-final-i"),("--seed","4038889268"),("--steps","1"),("--visual-observation-config",str(R/"artifacts/crow-v15-visual-binding-fix-20261110/crow-navigation.toe-body.visual-observation.json")),("--state-trace",str(B/"contract.tsv")),("--crow-replay-pack",str(B/"contract.json"))]:cmd[cmd.index(k)+1]=v
+(A/"contract-bindings.json").write_text(json.dumps({"argv":cmd},indent=2)+"\n");p=subprocess.run(cmd,cwd=R,env={**os.environ,"DYLD_LIBRARY_PATH":str(B),"PYTHONDONTWRITEBYTECODE":"1"},text=True,capture_output=True,timeout=120);(A/"contract.stdout").write_text(p.stdout);(A/"contract.stderr").write_text(p.stderr);print("return",p.returncode,"stderr",p.stderr[-2000:])

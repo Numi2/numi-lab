@@ -1,0 +1,5 @@
+/Users/n/Developer/numi-crow-rl-20261107/build/crow-v15-landing-toe-ramp-20261110/toe-ramp.metal:5489:21: warning: unused variable 'seconds' [-Wunused-variable]
+        const float seconds=float(state.episode.x)*dispatch.timing.x;
+                    ^
+1 warning generated.
+a0d50b38910cb101ed8b2d6a9f5230f94b8c7961332f8df8c591ba2dcca78c90

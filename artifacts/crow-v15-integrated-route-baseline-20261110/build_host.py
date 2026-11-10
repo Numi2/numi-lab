@@ -1,0 +1,8 @@
+from pathlib import Path
+import difflib,shlex,subprocess,hashlib
+R=Path.cwd();A=R/"artifacts/crow-v15-integrated-route-baseline-20261110";B=R/"build/crow-v15-integrated-route-baseline-20261110";base=(R/"build/crow-v15-sustained-gait-20261110/c_api.cpp").read_text();p=(R/"artifacts/crow-v15-toe-free-flight-20261110/obstacle-off.patch").read_text().splitlines(keepends=True);block="".join(x[1:] for x in p if x.startswith("+") and not x.startswith("+++"));assert base.count(block)==1
+s=base.replace(block,"");src=B/"c_api.cpp";src.write_text(s);(A/"obstacles-on.patch").write_text("".join(difflib.unified_diff(base.splitlines(True),s.splitlines(True),fromfile="a/obstacles-off.cpp",tofile="b/obstacles-on.cpp")))
+lines=subprocess.check_output(["/opt/homebrew/bin/ninja","-C",str(R/"build"),"-t","commands"],text=True).splitlines();compile=next(x for x in lines if " -c "+str(R/"src/c_api.cpp") in x);link=next(x for x in lines if x.startswith(": && /usr/bin/c++") and "-dynamiclib" in x and " -o lib/libmetalrobo.dylib " in x);args=shlex.split(compile);obj=B/"c_api.cpp.o"
+for k,v in [("-o",str(obj)),("-MF",str(obj)+".d"),("-MT",str(obj))]:args[args.index(k)+1]=v
+args[-1]=str(src);args.insert(1,"-I"+str(R/"artifacts/crow-clearance-observer-20261109"));subprocess.run(args,cwd=R/"build",check=True)
+args=shlex.split(link[len(": && "):-len(" && :")]);lib=B/"libmetalrobo.dylib";args[args.index("-o")+1]=str(lib);args[args.index("CMakeFiles/metalrobo.dir/src/c_api.cpp.o")]=str(obj);args[args.index("CMakeFiles/metalrobo.dir/src/metal/MetalWorld.mm.o")]=str(R/"build/crow-v15-causal-launch-20261110/MetalWorld.mm.o");subprocess.run(args,cwd=R/"build",check=True);print(hashlib.sha256(lib.read_bytes()).hexdigest())

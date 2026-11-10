@@ -1,0 +1,3 @@
+# Results
+
+On used development layout I the teacher-off legacy actor reached one waypoint and its right wing struck slalom B at accepted sample 2520 (zero sampled clearance). On development J it reached all five waypoints and maintained 121 consecutive bilateral perch-support endpoints, then rotated off the perch and the tail struck ground at sample 2634. No bilateral opposing toe grip was observed. Both were continuous, collision-enabled first episodes with no scheduled resets and no solver failure. The actor was trained with old, incorrect visual bindings; it is an explicitly out-of-distribution diagnostic. Five waypoints or brief support is not successful supported landing.
