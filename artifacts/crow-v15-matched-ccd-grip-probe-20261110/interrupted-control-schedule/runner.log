@@ -1,0 +1,1 @@
+artifacts/crow-v15-matched-ccd-grip-probe-20261110/run.sh: line 4: 10403 Terminated: 15          build/crow-v15-matched-ccd-grip-probe-20261110/probe > artifacts/crow-v15-matched-ccd-grip-probe-20261110/results.txt 2> artifacts/crow-v15-matched-ccd-grip-probe-20261110/stderr.txt
