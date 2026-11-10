@@ -1,9 +1,9 @@
 from pathlib import Path
 import gzip,json
 A=Path('artifacts/crow-v15-toe-damping-probe-20261110');out={}
-for name in ('j-damped','i-damped'):
+for name in ('j-damped-original','i-damped-original'):
  path=A/(name+'.stderr.gz')
- if not path.exists() or not (A/(name+'-run.log')).exists() or 'exit 0' not in (A/(name+'-run.log')).read_text():continue
+ if not path.exists():continue
  first=None;clear=None
  with gzip.open(path,'rt') as f:
   for line in f:

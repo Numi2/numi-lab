@@ -10,7 +10,7 @@ def runs(seq):
   elif k:out.append(k);k=0
  return out
 result={}
-for name in ('j-damped','i-damped'):
+for name in ('j-damped-original','i-damped-original'):
  gait=[];state=[];last=-1;nonfinite=[]
  with gzip.open(A/(name+'.stderr.gz'),'rt') as f:
   for line in f:
