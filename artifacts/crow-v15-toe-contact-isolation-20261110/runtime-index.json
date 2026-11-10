@@ -1,0 +1,32 @@
+[
+  {
+    "path": "on/libmetalrobo.dylib",
+    "sha256": "6368c740d39dda714607e42b3c264bee47722424a1632553a70148b25407d2e6",
+    "bytes": 5763712
+  },
+  {
+    "path": "on/zero.policypack",
+    "sha256": "c65e03fb156a6e2e00b167dc72cb8a58262572993ac689dbb1f92c909693e8aa",
+    "bytes": 2346388
+  },
+  {
+    "path": "off/libmetalrobo.dylib",
+    "sha256": "f68bff9d0bb1fbb9421069b464e2860fbffad7b36d630ba93c48770fa9e73cbb",
+    "bytes": 5763712
+  },
+  {
+    "path": "off/zero.policypack",
+    "sha256": "26ed48d880a18570bf1def2de194e9ed3cd2ad20d4e758eb04d22575784b9cc3",
+    "bytes": 2346375
+  },
+  {
+    "path": "rigid/libmetalrobo.dylib",
+    "sha256": "26567b734dead88560ebb3fdfc48d1db8c17f709e389564da32dfdd4173914a1",
+    "bytes": 5763712
+  },
+  {
+    "path": "rigid/zero.policypack",
+    "sha256": "7c07109af963eccc9a60f2345b08e1d1d85c3c245c407a6adf4a6676788f04cd",
+    "bytes": 2346377
+  }
+]

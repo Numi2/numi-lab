@@ -1,0 +1,27 @@
+--- a/base.cpp
++++ b/on.cpp
+@@ -4952,6 +4952,24 @@
+                     diagnostics.status
+                 ) + "]: " + diagnostics.message
+             );
++        }
++        if (std::getenv("CROW_TOE_PAIR_TRACE") && control_step_count==1u &&
++            ((handle->submittedControlSteps+1u)%100u)==0u) {
++          const auto stride=published.layout.contactDispatch.constraintStride;
++          for (size_t lane=0; lane<environmentCount && lane<published.contactStatuses.size(); ++lane) {
++            const size_t count=published.contactStatuses[lane].requiredConstraints;
++            std::fprintf(stderr,"TOE_PAIRS {\"step\":%llu,\"lane\":%zu,\"count\":%zu,\"pairs\":[",
++              static_cast<unsigned long long>(handle->submittedControlSteps+1u),lane,count);
++            bool first=true;
++            for(size_t i=0;i<count && lane*stride+i<published.contactEvidence.contacts.size();++i) {
++              const auto& c=published.contactEvidence.contacts[lane*stride+i];
++              if (c.bodyA>=handle->model.bodyNames.size() || c.bodyB>=handle->model.bodyNames.size()) continue;
++              std::fprintf(stderr,"%s{\"a\":\"%s\",\"b\":\"%s\",\"impulse\":%.9g,\"separation\":%.9g}",
++                first?"":",",handle->model.bodyNames[c.bodyA].c_str(),handle->model.bodyNames[c.bodyB].c_str(),c.impulses.x,c.pointAndSeparation.w);
++              first=false;
++            }
++            std::fprintf(stderr,"]}\n");
++          }
+         }
+         if (std::getenv("CROW_CLEARANCE_TRACE") != nullptr &&
+             control_step_count == 1u) {

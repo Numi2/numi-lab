@@ -1,0 +1,3 @@
+# Toe body damping isolation results
+
+The 8-lane exploratory test passed all original flight gates, with no physical or solver failures and no sampled toe speed saturation. Maximum speed error was 0.0859 m/s, versus 0.3325 m/s in the matched toe-damping baseline, and the frozen flight source was unchanged. The only model change set the eight added toes world-body linear and angular damping coefficients to zero. This supports duplicated damping as a sufficient cause of the prior tracking failure under these tested conditions. The toe parameters remain uncalibrated and this screen does not establish ground-contact behavior, whole-course navigation or landing. Independent confirmation is retained separately in crow-v15-toe-damping-confirmation-20261110.

@@ -1,0 +1,10 @@
+/Users/n/Developer/numi-crow-rl-20261107/build/crow-v15-toe-contact-isolation-20261110/on/c_api.cpp:3364:13: warning: unused function 'close' [-Wunused-function]
+ 3364 | static void close(double a, double b, const char* why) { crowToeNeed(std::abs(a-b)<=2e-7*(1+std::abs(a)),why); }
+      |             ^~~~~
+1 warning generated.
+on 6368c740d39dda714607e42b3c264bee47722424a1632553a70148b25407d2e6
+/Users/n/Developer/numi-crow-rl-20261107/build/crow-v15-toe-contact-isolation-20261110/off/c_api.cpp:3364:13: warning: unused function 'close' [-Wunused-function]
+ 3364 | static void close(double a, double b, const char* why) { crowToeNeed(std::abs(a-b)<=2e-7*(1+std::abs(a)),why); }
+      |             ^~~~~
+1 warning generated.
+off f68bff9d0bb1fbb9421069b464e2860fbffad7b36d630ba93c48770fa9e73cbb
