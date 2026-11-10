@@ -1,0 +1,3 @@
+# Second clearance actor full-start screen
+
+If its recovery qualifies, freeze the once-trained second actor and run hard J, hard I, original J, original I in that order under the original alternating-foot-release controller, teacher off from full starts, no resets or tuning. Preserve all outcomes. Require five waypoints, no physical/solver/nonfoot-perch failure, minimum sampled obstacle clearance 0.05 m, and supported landing with toe release and renewed support on all four. Measure opposition and near-neutral toe flight separately. This screen isolates routing from the experimental front-toe change; qualifying an eventual combined system requires further testing. These are development starts, not K/L or biological validation.
