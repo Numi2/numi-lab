@@ -53,7 +53,9 @@ for row in rows:
   if len(pp)!=8 or gg is None:missing+=1;continue
   ds.extend(gap(p,gg) for p in pp)
  row['opposed_grip_pose_samples']=len(ds)//8;row['missing_grip_pose_samples']=missing;row['minimum_grip_sat_gap_m']=min(ds) if ds else None
-out={'baseline_parity_exact':not parity_diff,'baseline_parity_differences':parity_diff[:20], 'rows':rows};(A/'analysis.json').write_text(json.dumps(out,indent=2)+'\n')
+pre_release_diff=[(a,t) for a in (5,6) for t in range(86) if trace.get((1,a,t))!=trace.get((1,4,t)) or (1,a,t) not in trace or (1,4,t) not in trace]
+for row in rows:row["strict_pass"]=row["strict_pass"] and not pre_release_diff
+out={"pre_release_exact":not pre_release_diff,"pre_release_differences":pre_release_diff[:20], 'baseline_parity_exact':not parity_diff,'baseline_parity_differences':parity_diff[:20], 'rows':rows};(A/'analysis.json').write_text(json.dumps(out,indent=2)+'\n')
 print('Baseline parity:',not parity_diff,'differences',len(parity_diff))
 for a in (4,5,6):
  z=[r for r in rows if r['arm']==a];print('arm',a,'strict pass',sum(r['strict_pass'] for r in z),'opposed 3+',sum(r['longest_opposing_grip']>=3 for r in z),'terminal support',sum(r['terminal_50_supported'] for r in z),'minimum grip gap m',min((r['minimum_grip_sat_gap_m'] for r in z if r['minimum_grip_sat_gap_m'] is not None),default=None),'missing pose steps',sum(r['missing_grip_pose_samples'] for r in z))
