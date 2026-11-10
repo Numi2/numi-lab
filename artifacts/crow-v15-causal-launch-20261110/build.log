@@ -1,0 +1,10 @@
+push-trigger 363a771b454bc1a7008be746d1121dd0fb5e92a61413d5acd9d58abe057fb93e
+push-timer 2c5fba23dd9f5487943df421cdcb0b37395e9bed0be5d44bf1a73d08ac673740
+/Users/n/Developer/numi-crow-rl-20261107/build/crow-v15-causal-launch-20261110/control-trigger.metal:5081:29: warning: unused variable 'extended' [-Wunused-variable]
+                const float extended=joint==0u ? 0.10f : joint==1u ? -0.70f : 0.18f;
+                            ^
+/Users/n/Developer/numi-crow-rl-20261107/build/crow-v15-causal-launch-20261110/control-trigger.metal:5082:28: warning: unused variable 'bilateral' [-Wunused-variable]
+                const bool bilateral=state.nutrition.x>0.05f && state.nutrition.y>0.05f;
+                           ^
+2 warnings generated.
+control-trigger b46194f48e22113e425f2f84aa6f93319040a2be23154ac6b1fe73d9407469a7

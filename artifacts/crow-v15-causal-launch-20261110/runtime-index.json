@@ -1,0 +1,37 @@
+[
+  {
+    "path": "push-trigger.air",
+    "sha256": "96041d0861cec6f8a90a0a49bb26dd8b1369718dd62c16b786e070bbb04705c9",
+    "bytes": 198832
+  },
+  {
+    "path": "push-trigger.metallib",
+    "sha256": "363a771b454bc1a7008be746d1121dd0fb5e92a61413d5acd9d58abe057fb93e",
+    "bytes": 4470320
+  },
+  {
+    "path": "push-timer.air",
+    "sha256": "c5f5cd91f160160f8a4851cbb8e16c10996a97350b8aa468af8dcaf0759db695",
+    "bytes": 198800
+  },
+  {
+    "path": "push-timer.metallib",
+    "sha256": "2c5fba23dd9f5487943df421cdcb0b37395e9bed0be5d44bf1a73d08ac673740",
+    "bytes": 4470304
+  },
+  {
+    "path": "control-trigger.air",
+    "sha256": "61a1d52320edb336b66211620c031ebc18a64c46b64f0c9f507ccbb399f4ae31",
+    "bytes": 198704
+  },
+  {
+    "path": "control-trigger.metallib",
+    "sha256": "b46194f48e22113e425f2f84aa6f93319040a2be23154ac6b1fe73d9407469a7",
+    "bytes": 4470208
+  },
+  {
+    "path": "libmetalrobo.dylib",
+    "sha256": "de4d4cfe4b128219b0e48e01ddf64f2f2d393bf41301914d283e9854db714ed3",
+    "bytes": 5763712
+  }
+]

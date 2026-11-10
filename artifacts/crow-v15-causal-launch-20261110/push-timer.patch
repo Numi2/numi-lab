@@ -1,0 +1,14 @@
+--- a/toe-launch-push.metal
++++ b/push-timer.metal
+@@ -9317,7 +9317,10 @@
+         state.nutrition.xy=float2(compactContact[compactBase+contactGroups[0].members.w],compactContact[compactBase+contactGroups[1].members.w]);
+         if (program.counts0.w>=5u && dispatch.counts.w==30u) {
+             const float seconds=float(state.episode.x)*dispatch.timing.x;
+-            uint packed=0u;
++            // Preserve a launch latch in a spare high bit of this experimental task state.
++            uint packed=state.status.w & 4096u;
++            if (seconds>=4.96f && seconds<5.4f && state.nutrition.x<0.05f && state.nutrition.y<0.05f && rootLinearVelocity.z>0.03f) packed |= 4096u;
++            if (seconds>=5.4f) packed &= ~4096u;
+             if (state.navigation.z>=5.0f && seconds<55.0f) {
+                 for (uint side=0u;side<2u;++side) {
+                     const uint w=compactBase+contactGroups[3u+side].reference.y;
