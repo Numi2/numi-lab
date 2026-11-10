@@ -1,0 +1,11 @@
+{
+  "remote_commit": "e4a564110f18bc8ddda8e403c7246aabb7a90497",
+  "retired": [
+    {
+      "raw": "artifacts/crow-v15-acquisition-lean-control-screen-20261110/results.txt",
+      "archive": "artifacts/crow-v15-acquisition-lean-control-screen-20261110/results.txt.gz",
+      "sha256": "9268c278159085f693e7ffbfe98f96e133f57eb557e74408105c2dfb521d0598",
+      "bytes": 4912920
+    }
+  ]
+}
