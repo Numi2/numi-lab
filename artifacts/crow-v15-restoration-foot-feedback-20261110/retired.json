@@ -1,0 +1,11 @@
+{
+  "remote_commit": "2c3144881ccc7254ac20391a8dda925902281243",
+  "retired": [
+    {
+      "raw": "artifacts/crow-v15-foot-position-feedback-screen-20261110/results.txt",
+      "archive": "artifacts/crow-v15-foot-position-feedback-screen-20261110/results.txt.gz",
+      "sha256": "f643f617069e6f7b25736ff56ceaebe8e550242a351ed96925fc6e7ba5ade428",
+      "bytes": 3219946
+    }
+  ]
+}
