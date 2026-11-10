@@ -1,0 +1,5 @@
+/Users/n/Developer/numi-crow-rl-20261107/build/crow-v15-staged-descent-height-gate-20261110/heightgate.metal:5496:21: warning: unused variable 'seconds' [-Wunused-variable]
+        const float seconds=float(state.episode.x)*dispatch.timing.x;
+                    ^
+1 warning generated.
+3fcb04d194c3cd425e32f7ed875c44d6beae31b712db0996c07a7bc7284bceec

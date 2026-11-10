@@ -1,0 +1,1 @@
+The first staged-descent arm hovered below its own transition height because of flight height tracking bias. Retest with the transition guard lowered to a measured above-perch height while retaining actual foot alignment and velocity conditions. Teacher-off full episodes, two used J starts; measure physical landing.

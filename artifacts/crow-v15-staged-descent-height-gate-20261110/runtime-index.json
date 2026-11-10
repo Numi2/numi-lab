@@ -1,0 +1,12 @@
+[
+  {
+    "path": "build/crow-v15-staged-descent-height-gate-20261110/heightgate.metallib",
+    "sha256": "3fcb04d194c3cd425e32f7ed875c44d6beae31b712db0996c07a7bc7284bceec",
+    "bytes": 4473360
+  },
+  {
+    "path": "build/crow-v15-long-horizon-20261110/libmetalrobo.dylib",
+    "sha256": "63f0233c2b0285dcb222360e534f768992ae5fa9688fba429992a8fc380baa26",
+    "bytes": 5763888
+  }
+]

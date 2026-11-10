@@ -1,0 +1,11 @@
+--- a/staged.metal
++++ b/heightgate.metal
+@@ -6787,7 +6787,7 @@
+                     if (phase < 0.5f) {
+                         state.nutrition.w=finalGoal.z+0.25f;
+                         if (abs(state.nutrition.z)<0.018f && abs(finalGoal.y-pos.y)<0.08f &&
+-                            length(yawFrameLinear.xy)<0.025f && pos.z>finalGoal.z+0.18f)
++                            length(yawFrameLinear.xy)<0.025f && pos.z>finalGoal.z+0.10f)
+                             phase=1.0f;
+                     } else if (phase < 1.5f) {
+                         state.nutrition.w=max(state.nutrition.w-0.001f,finalGoal.z+0.15f);
