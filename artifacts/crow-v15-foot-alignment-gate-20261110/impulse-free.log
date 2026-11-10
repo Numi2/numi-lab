@@ -1,0 +1,2 @@
+j-gate side runs 16 samples 27465 max toe rad 0.000437187642 worst {'lane': 1, 'side': 1, 'impulse_free_all_substeps_count': 1791, 'maximum_abs_toe_angle_rad': 0.000437187642, 'step': 4450}
+j-zero_bias side runs 16 samples 28564 max toe rad 0.00031814829 worst {'lane': 2, 'side': 0, 'impulse_free_all_substeps_count': 1779, 'maximum_abs_toe_angle_rad': 0.00031814829, 'step': 2722}

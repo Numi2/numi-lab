@@ -1,0 +1,12 @@
+[
+  {
+    "path": "build/crow-v15-foot-alignment-gate-20261110/gate.metallib",
+    "sha256": "aae06386e598f31e06be2ed550b123e702390017503a3e713b908d7d6a6865dc",
+    "bytes": 4475744
+  },
+  {
+    "path": "build/crow-v15-foot-alignment-gate-20261110/zero_bias.metallib",
+    "sha256": "eee79e15e887e5a4260c214cdf6f0e8f957cda322076d2848b0980169386950a",
+    "bytes": 4475728
+  }
+]

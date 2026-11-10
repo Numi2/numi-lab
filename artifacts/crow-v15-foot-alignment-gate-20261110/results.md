@@ -1,0 +1,7 @@
+# Result: improved survival and alignment, no sustained landing
+
+All eight guided J starts in each arm reached all five waypoint regions and survived 4500 steps, with no reported solver failures. The alignment gate had at most two consecutive bilateral loaded samples; the zero-bias steering arm had none. Neither achieved phase-two support or grip. The preregistered sustained-support prediction failed in both arms, so neither is promoted. Waypoint completion does not establish a landing.
+
+For lane zero of the gate arm, FP64 forward kinematics on accepted GPU state showed average foot-center x 5.0609 m on support sample 4188, 13.1 mm from the guide target x 5.0740 m, while the accepted upward velocity was 0.548 m/s. On sample 4231 the offset was 21.2 mm and upward velocity was 0.532 m/s. The first loaded control-step result combines all four substeps; the endpoint contact snapshot alone cannot rule out an earlier nonfoot impulse. The x-reference calculation was independently checked against the compiled task contact groups, whose local offsets are zero in the inspected model. The alignment observation is one lane, not a robust qualification.
+
+With neutral toe targets and the experimental all-substep sensor, 27,465 and 28,564 impulse-free side-step samples after the 25-step threshold had maximum toe angles 0.000437 and 0.000318 rad. This is not grip release. Low-speed flight is only coarsely screened; the guide uses privileged course state, the layouts are development layouts, and no autonomous full sequence or biological realism is demonstrated.

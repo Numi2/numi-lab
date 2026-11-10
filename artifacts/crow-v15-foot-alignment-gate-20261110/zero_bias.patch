@@ -1,0 +1,30 @@
+--- a/teacher.metal
++++ b/teacher.metal
+@@ -5533,7 +5533,7 @@
+             const uint ramp=(state.status.w>>(side*6u)) & 63u;
+             const uint rearRamp=(state.status.w>>(13u+side*6u)) & 63u;
+             for (uint toe=0u;toe<4u;++toe) {
+-                const float target=!closing ? 0.0f : toe==3u ? min(0.020f*float(rearRamp),0.85f) : min(0.025f*float(ramp),clamp(1.12f-0.8f*state.threatGeometry.z-0.80f*state.threatGeometry.w-2.0f*state.commandExtension.z,0.85f,1.20f));
++                const float target=0.0f;
+                 effortTrajectory[pass.controlStep*worldDispatch.effortStepStride + environment*worldDispatch.effortEnvironmentStride + 22u + side*4u + toe]=target;
+             }
+         }
+@@ -6769,7 +6769,7 @@
+                 }
+                 const float xError = landingTarget.x+0.045f-feetX;
+                 const float yError = landingTarget.y-pos.y;
+-                const float commandedForward = clamp(0.04f+0.20f*xError-0.20f*yawFrameLinear.x,-0.08f,0.10f);
++                const float commandedForward = clamp(0.60f*xError-0.50f*yawFrameLinear.x,-0.08f,0.10f);
+                 desiredLateral = clamp(0.80f*yError,-0.30f,0.30f);
+                 errorOffset = 0.25f-commandedForward;
+                 if (landingPhase < 0.5f && length(float2(xError,yError)) < 0.08f &&
+@@ -6786,7 +6786,8 @@
+                     abs(xError) < 0.06f && abs(yError) < 0.16f &&
+                     length(yawFrameLinear.xy) < 0.08f &&
+                     abs(rootLinearVelocity.z) < 0.12f) landingPhase=2.0f;
+-                desiredHeight = landingPhase > 0.5f ? max(perch.z+0.245f,state.nutrition.w-0.025f*dispatch.timing.x) : 1.30f;
++                const bool alignedForDescent = abs(xError)<0.025f && abs(yError)<0.12f && length(yawFrameLinear.xy)<0.065f;
++                desiredHeight = landingPhase > 0.5f ? (alignedForDescent ? max(perch.z+0.245f,state.nutrition.w-0.025f*dispatch.timing.x) : max(perch.z+0.31f,state.nutrition.w)) : 1.30f;
+             }
+             // Oracle labels occupy diagnostic spare state only; these will
+             // become independently fingerprinted actor commands, not sensors.

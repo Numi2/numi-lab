@@ -1,0 +1,26 @@
+/Users/n/Developer/numi-crow-rl-20261107/build/crow-v15-foot-alignment-gate-20261110/gate.metal:5533:24: warning: unused variable 'ramp' [-Wunused-variable]
+            const uint ramp=(state.status.w>>(side*6u)) & 63u;
+                       ^
+/Users/n/Developer/numi-crow-rl-20261107/build/crow-v15-foot-alignment-gate-20261110/gate.metal:5534:24: warning: unused variable 'rearRamp' [-Wunused-variable]
+            const uint rearRamp=(state.status.w>>(13u+side*6u)) & 63u;
+                       ^
+/Users/n/Developer/numi-crow-rl-20261107/build/crow-v15-foot-alignment-gate-20261110/gate.metal:5530:21: warning: unused variable 'seconds' [-Wunused-variable]
+        const float seconds=float(state.episode.x)*dispatch.timing.x;
+                    ^
+/Users/n/Developer/numi-crow-rl-20261107/build/crow-v15-foot-alignment-gate-20261110/gate.metal:5531:20: warning: unused variable 'closing' [-Wunused-variable]
+        const bool closing=state.navigation.z>=5.0f;
+                   ^
+4 warnings generated.
+/Users/n/Developer/numi-crow-rl-20261107/build/crow-v15-foot-alignment-gate-20261110/zero_bias.metal:5533:24: warning: unused variable 'ramp' [-Wunused-variable]
+            const uint ramp=(state.status.w>>(side*6u)) & 63u;
+                       ^
+/Users/n/Developer/numi-crow-rl-20261107/build/crow-v15-foot-alignment-gate-20261110/zero_bias.metal:5534:24: warning: unused variable 'rearRamp' [-Wunused-variable]
+            const uint rearRamp=(state.status.w>>(13u+side*6u)) & 63u;
+                       ^
+/Users/n/Developer/numi-crow-rl-20261107/build/crow-v15-foot-alignment-gate-20261110/zero_bias.metal:5530:21: warning: unused variable 'seconds' [-Wunused-variable]
+        const float seconds=float(state.episode.x)*dispatch.timing.x;
+                    ^
+/Users/n/Developer/numi-crow-rl-20261107/build/crow-v15-foot-alignment-gate-20261110/zero_bias.metal:5531:20: warning: unused variable 'closing' [-Wunused-variable]
+        const bool closing=state.navigation.z>=5.0f;
+                   ^
+4 warnings generated.

@@ -1,0 +1,5 @@
+#define main toe_free_admission_main
+#include "../crow-v15-impact-grip-probe-20261110/toe_model.cpp"
+#undef main
+#include "wing_model.hpp"
+int main(){RunManifest m;m.id="group_probe";m.robot=toeModel();crowResearchWingInertia(m.robot);m.scene=makeBirdFlowAmericanCrowFlightScenePack();m.sensors.id="proprioception";m.task=makeAmericanCrowEmbodiedTaskPack(m.sensors.observation,m.reality.reset);m.reality.reset={};m.reality.id="reality";m.teacher.id="no_teacher";m.profile.id="probe";m.profile.capacities={.candidatePairs=512,.rawContacts=2048,.manifolds=512,.constraintBlocks=2048,.constraintRows=6144};m.task.capacities=m.profile.capacities;m.profile.environmentCount=1;m.profile.controlSteps=1;m.profile.physicsSubsteps=4;m.profile.controlTimestepSeconds=.02f;CompiledRun run;auto s=compileRun(m,run);need(s.succeeded(),s.message);for(auto& g:run.task().contactGroups())std::cout<<"group "<<g.reference.x<<" "<<g.kinematicReference.x<<" "<<g.kinematicReference.y<<" "<<g.kinematicReference.z<<std::endl;}

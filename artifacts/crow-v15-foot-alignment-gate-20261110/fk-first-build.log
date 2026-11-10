@@ -1,0 +1,11 @@
+In file included from artifacts/crow-v15-foot-alignment-gate-20261110/fk.cpp:2:
+artifacts/crow-v15-foot-alignment-gate-20261110/../crow-v15-impact-grip-probe-20261110/toe_model.cpp:82:78: warning: non-void function does not return a value in all control paths [-Wreturn-type]
+   82 |   } catch(const std::exception& e){std::cerr<<e.what()<<std::endl;return 1;} }
+      |                                                                              ^
+artifacts/crow-v15-foot-alignment-gate-20261110/fk.cpp:6:59: error: no matching function for call to 'crowResearchWingInertia'
+    6 | int main(int argc,char**argv){auto m=toeModel().mechanics;crowResearchWingInertia(m);std::ifstream f(argv[1]);unsigned t;while(f>>t){std::vector<double>q(m.defaultQ.size()),v(m.defaultV.size());for(auto&x:q)f>>x;for(auto&x:v)f>>x;std::vector<ArticulatedBodyKinematics> k(m.bodies.size());auto status=computeArticulatedBodyKinematics(m,0,q,v,k);need(status.succeeded(),"kinematics failed");std::cout<<"sample "<<t<<" "<<q[0]<<" "<<q[2]<<" "<<v[0]<<" "<<v[2];for(unsigned i=0;i<m.bodyNames.size();i++)if(m.bodyNames[i]=="crow_left_foot"||m.bodyNames[i]=="crow_right_foot"||m.bodyNames[i]=="crow_left_rear_toe"||m.bodyNames[i]=="crow_right_rear_toe"){auto p=k[i].centerOfMassPosition;std::cout<<" "<<m.bodyNames[i]<<" "<<p[0]<<" "<<p[1]<<" "<<p[2];}std::cout<<std::endl;}}
+      |                                                           ^~~~~~~~~~~~~~~~~~~~~~~
+artifacts/crow-v15-wing-inertia-prototype-20261110/wing_model.hpp:4:13: note: candidate function not viable: no known conversion from 'EngineModel' to 'metalrobo::RobotPack &' for 1st argument
+    4 | inline void crowResearchWingInertia(metalrobo::RobotPack& p) {
+      |             ^                       ~~~~~~~~~~~~~~~~~~~~~~~
+1 warning and 1 error generated.
