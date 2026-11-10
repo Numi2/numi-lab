@@ -1,0 +1,11 @@
+{
+  "remote_commit": "35cec0fb5d997174f905dab0423b4af52e2e3854",
+  "retired": [
+    {
+      "raw": "artifacts/crow-v15-lean-aware-balance-screen-20261110/results.txt",
+      "archive": "artifacts/crow-v15-lean-aware-balance-screen-20261110/results.txt.gz",
+      "sha256": "2e9b2c5a53019b95042540d0972786a9ae978527bf18b38ae3dace7029ea24fb",
+      "bytes": 5955827
+    }
+  ]
+}
