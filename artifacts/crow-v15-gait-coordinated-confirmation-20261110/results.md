@@ -1,0 +1,3 @@
+# Results
+
+Both unused seeds passed the predeclared obstacle-disabled screen: 16/16 push trials completed the walk, triggered early after support unloaded, and ended airborne. The 16/16 no-push controls walked but none latched early; all later became airborne after the wing fallback. Push forward progress ranged 0.139236-0.139495 m; worst contact-point slip p95 0.036180 m/s, maximum sampled slip 0.074227 m/s, at least 9 clear swing runs per foot. Observer-off matched 72/72 sampled q/v states. The slip measurement is an endpoint approximation, not continuous time. This is a bounded, obstacle-disabled 10-second screen, not biological validation or proof of full navigation, release, or landing.

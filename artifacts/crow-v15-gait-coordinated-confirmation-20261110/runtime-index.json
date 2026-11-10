@@ -1,0 +1,17 @@
+[
+  {
+    "path": "build/crow-v15-gait-coordinated-confirmation-20261110/push-trigger.metallib",
+    "sha256": "b52c68b77e641e77bafbbf32d3007bfd3d02f38e9b3bef9c3825b4e977366f51",
+    "bytes": 4470928
+  },
+  {
+    "path": "build/crow-v15-gait-coordinated-confirmation-20261110/control-trigger.metallib",
+    "sha256": "ecb1a867866ce8a1922da0fb9972a97151f582c3fef683fc906e12b6642b8689",
+    "bytes": 4470816
+  },
+  {
+    "path": "build/crow-v15-gait-coordinated-confirmation-20261110/libmetalrobo.dylib",
+    "sha256": "8b1f600d26828b480cf13e787cac17ab0c40cc8d712e9f0736ba7d21d3b4031c",
+    "bytes": 5763888
+  }
+]
