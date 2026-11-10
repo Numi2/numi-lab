@@ -1,0 +1,17 @@
+{
+  "remote_commit": "4c8dc34a2c9c9a460b7cb2eb53c2d80c17dc8510",
+  "retired": [
+    {
+      "raw": "artifacts/crow-v15-force-normalized-grip-screen-20261110/results.txt",
+      "archive": "artifacts/crow-v15-force-normalized-grip-screen-20261110/results.txt.gz",
+      "sha256": "f27cd219724089aa49da209d7f0b0fdf69b39b68f72e8af008b62f0f1ebc44e1",
+      "bytes": 1558112
+    },
+    {
+      "raw": "artifacts/crow-v15-microstep-contact-observer-20261110/results.txt",
+      "archive": "artifacts/crow-v15-microstep-contact-observer-20261110/results.txt.gz",
+      "sha256": "b08401b99dc6f50b927c53d8ff5229a237b458e584a286b619fb684d595547a4",
+      "bytes": 352550
+    }
+  ]
+}
