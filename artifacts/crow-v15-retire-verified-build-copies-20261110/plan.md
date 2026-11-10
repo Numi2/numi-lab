@@ -1,0 +1,3 @@
+# Retire verified experimental build copies
+
+For the listed completed experiments only, independently fetch their committed runtime archives from GitHub, compare each archive with the local tracked copy, extract each owning experiment's probe and dynamic library in memory and compare both exact bytes and SHA-256 against the runtime index and local file. Only after every comparison passes, remove those duplicate generated executables and libraries. Preserve the shared teacher shader, all tracked source and evidence, unrelated research files, and the currently running experiment. The archived binaries remain restorable from Git.
