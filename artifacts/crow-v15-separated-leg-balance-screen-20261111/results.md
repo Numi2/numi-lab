@@ -1,0 +1,3 @@
+# Separated hip and ankle balance screen
+
+The 1,000-tick held-toe development replay matched the reference through tick 85. Smoothly removing hip pitch correction while retaining ankle pitch feedback yielded only 160 consecutive supported samples, 11 consecutive opposed-grip samples and no terminal grip or support. The bird fell, and the worst estimated toe/perch overlap while opposing grip was 0.483 mm. This is worse than the matched controller's 220 supported samples, so the candidate is rejected. The short pulse response did not predict the outcome of a sustained controller change through changing contacts. No full landing, departure or navigation was qualified.
