@@ -1,0 +1,11 @@
+{
+  "remote_commit": "b56f0a1cbb109e3c9d26ffce95b4e50a20581942",
+  "retired": [
+    {
+      "raw": "artifacts/crow-v15-toe-contact-limited-probe-20261110/results.txt",
+      "archive": "artifacts/crow-v15-toe-contact-limited-probe-20261110/results.txt.gz",
+      "sha256": "c1940b5f65fdb6caba2ce3f9cc24fae55879746303074fb0c796deb2a837132e",
+      "bytes": 14230178
+    }
+  ]
+}
