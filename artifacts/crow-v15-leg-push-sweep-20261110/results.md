@@ -1,0 +1,3 @@
+# Leg extension target sensitivity
+
+Three alternative bounded hip/knee/ankle extension targets were tested with active wing flapping inhibited on one used layout and seed. All shared the baseline's initial launch motion through step 653; root forward speed was 0.166 m/s and upward speed 0.504 m/s at that point. Later differences did not produce a sustained forward jump; contacts remained or recurred and the body descended. The recorded contact arrays may include inactive manifold points, so the analysis separately lists pairs with nonzero sampled normal impulse. No variant is promoted. This narrow experiment does not qualify walking or takeoff.

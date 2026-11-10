@@ -1,0 +1,1 @@
+One previously used layout and seed: alter only bounded leg-joint extension targets to test forward and vertical contact-driven impulse while suppressing active flapping through 13.4 s. Compare with matched original push and no-push ablation; inspect all collision outcomes and avoid treating endpoint impulses as full integrated forces. Exploratory only.

@@ -1,0 +1,1 @@
+On one used J layout and seed, vary the leg-extension ramp (0.08, 0.12, 0.20 seconds versus 0.04-second baseline), preserving contact-gated wing engagement and the low-height/0.70 m/s exploratory launch command. Compare initial push and resulting flight; retain any collision or solver failures. No use of unused layouts and no full-sequence qualification.

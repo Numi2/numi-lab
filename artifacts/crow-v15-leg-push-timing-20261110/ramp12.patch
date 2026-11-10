@@ -1,0 +1,11 @@
+--- a/low.metal
++++ b/ramp12.metal
+@@ -5088,7 +5088,7 @@
+                 const bool bilateral=state.nutrition.x>0.05f && state.nutrition.y>0.05f;
+                 navigationTeacherRequested=seconds<12.96f
+                     ? mix(navigationTeacherRequested,crouched,smoothstep(12.3f,12.55f,seconds))
+-                    : (bilateral || (state.status.w & 4096u)!=0u) ? mix(crouched,extended,smoothstep(12.96f,13.00f,seconds)) : crouched;
++                    : (bilateral || (state.status.w & 4096u)!=0u) ? mix(crouched,extended,smoothstep(12.96f,13.08f,seconds)) : crouched;
+             }
+         }
+         // Keep the training-only teacher active through the final target.

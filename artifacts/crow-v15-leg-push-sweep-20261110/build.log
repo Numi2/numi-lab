@@ -1,0 +1,15 @@
+/Users/n/Developer/numi-crow-rl-20261107/build/crow-v15-leg-push-sweep-20261110/hip.metal:5494:21: warning: unused variable 'seconds' [-Wunused-variable]
+        const float seconds=float(state.episode.x)*dispatch.timing.x;
+                    ^
+1 warning generated.
+hip 9921074348900383c7b3be60f3ac1397bfee2e61ba8ac1b6135e38a1aa9747e0
+/Users/n/Developer/numi-crow-rl-20261107/build/crow-v15-leg-push-sweep-20261110/fore.metal:5494:21: warning: unused variable 'seconds' [-Wunused-variable]
+        const float seconds=float(state.episode.x)*dispatch.timing.x;
+                    ^
+1 warning generated.
+fore cde3e1ec8b5977f2b868a8c9c7e979a5b70d5ce20f508924735242f156018456
+/Users/n/Developer/numi-crow-rl-20261107/build/crow-v15-leg-push-sweep-20261110/deep.metal:5494:21: warning: unused variable 'seconds' [-Wunused-variable]
+        const float seconds=float(state.episode.x)*dispatch.timing.x;
+                    ^
+1 warning generated.
+deep baec961deac02be85d224c27bb90572d992287db1e5885c56ad925053e9b8dd6

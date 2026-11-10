@@ -1,0 +1,11 @@
+--- a/push.metal
++++ b/fore.metal
+@@ -5083,7 +5083,7 @@
+             const uint joint=(action-7u)%3u;
+             if (seconds >= 12.3f && seconds < 13.4f) {
+                 const float crouched=joint==0u ? -0.85f : joint==1u ? 1.00f : -0.50f;
+-                const float extended=joint==0u ? 0.10f : joint==1u ? -0.70f : 0.18f;
++                const float extended=joint==0u ? 0.80f : joint==1u ? -0.40f : 0.40f;
+                 const bool bilateral=state.nutrition.x>0.05f && state.nutrition.y>0.05f;
+                 navigationTeacherRequested=seconds<12.96f
+                     ? mix(navigationTeacherRequested,crouched,smoothstep(12.3f,12.55f,seconds))
