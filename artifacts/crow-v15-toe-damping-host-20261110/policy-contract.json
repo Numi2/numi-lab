@@ -1,0 +1,18 @@
+{
+  "world": 13672228448774131566,
+  "task": 9824680379793905027,
+  "observation": 8229117880258453854,
+  "action": 16296450451598608999,
+  "policies": {
+    "landing": {
+      "source_sha256": "a15932cad3aaf0893ef72e649d81eec4731242c27858dc4e9e374214e827df7c",
+      "rebound_sha256": "8c20f7b0b4b2faa29e852dffbf918798f1a3841c40d9840a6c6bd0a12042d0ff",
+      "note": "Legacy tensors rebound for exploratory diagnostic; no assertion they are trained or valid for this changed toe damping; these weights are not qualified."
+    },
+    "route": {
+      "source_sha256": "4890d10b1c9c2f507a69e6fe7e8f448cbf80a6db78b93f1b29391cfc211966be",
+      "rebound_sha256": "e9ac1a2484643e0db0861f88053cb84d36381a08f507149a5dd77d3e25e33157",
+      "note": "Legacy tensors rebound for exploratory diagnostic; no assertion they are trained or valid for this changed toe damping; these weights are not qualified."
+    }
+  }
+}

@@ -1,0 +1,11 @@
+--- a/c_api.cpp
++++ b/c_api-branch.cpp
+@@ -3396,7 +3396,7 @@
+       m.joints.push_back(j); m.jointNames.push_back(name+"_flex");
+       MRDofPropertiesGPU d{}; d.articulationIndex=0; d.jointIndex=ji; d.qIndex=qi; d.vIndex=vi;
+       d.flags=MR_DOF_FLAG_ACTUATED|MR_DOF_FLAG_POSITION_LIMIT|MR_DOF_FLAG_VELOCITY_LIMIT|MR_DOF_FLAG_EFFORT_LIMIT|MR_DOF_FLAG_DRIVE;
+-      d.limits={-.3f,1.2f,12.f,.02f}; d.drive={.1f,.003f,.00005f,0}; m.dofs.push_back(d); m.dofNames.push_back(name+"_flex"); m.defaultQ.push_back(0); m.defaultV.push_back(0);
++      d.limits={-.3f,1.2f,12.f,.02f}; d.drive={.1f,.009f,.00005f,0}; m.dofs.push_back(d); m.dofNames.push_back(name+"_flex"); m.defaultQ.push_back(0); m.defaultV.push_back(0);
+       if (!m.actuatorProfiles.empty()) m.actuatorProfiles.emplace_back();
+       MRShapeGPU shape=m.shapes.front(); shape.bodyIndex=bi; shape.localPosition={0,0,0,1}; shape.localRotation={0,0,0,1}; shape.dimensions={hx,hy,hz,0};
+       shape.slotGeneration=m.shapes.size()+1; shape.contactRestAndBoundingRadius.z=std::sqrt(hx*hx+hy*hy+hz*hz); m.shapes.push_back(shape); m.shapeNames.push_back(name+"/collision");

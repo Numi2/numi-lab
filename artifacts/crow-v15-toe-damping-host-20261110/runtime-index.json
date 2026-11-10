@@ -1,0 +1,22 @@
+[
+  {
+    "path": "build/crow-v15-toe-damping-host-20261110/libmetalrobo.dylib",
+    "sha256": "a4a4e242e1e8b276b01a729653a8d153b5e9b13809de63a417cd5e3b6d0b0f6a",
+    "bytes": 5764256
+  },
+  {
+    "path": "build/crow-v15-toe-damping-host-20261110/teacher.metallib",
+    "sha256": "cd5648a4eaa21189023b269b3cb6cc85c105f4815ec5c23463f54f3cee6c3449",
+    "bytes": 4474384
+  },
+  {
+    "path": "build/crow-v15-toe-damping-host-20261110/landing.policypack",
+    "sha256": "8c20f7b0b4b2faa29e852dffbf918798f1a3841c40d9840a6c6bd0a12042d0ff",
+    "bytes": 5996451
+  },
+  {
+    "path": "build/crow-v15-toe-damping-host-20261110/route.policypack",
+    "sha256": "e9ac1a2484643e0db0861f88053cb84d36381a08f507149a5dd77d3e25e33157",
+    "bytes": 17228705
+  }
+]
