@@ -1,0 +1,32 @@
+--- a/Collision.metal
++++ b/Collision.metal
+@@ -6618,6 +6618,29 @@
+         endB,
+         alpha
+     );
++    if (shapeA.type == MR_SHAPE_BOX && shapeB.type == MR_SHAPE_BOX) {
++        // Research-only SAT lower bound for conservative advancement.
++        float3 axes[15]; uint count=0u;
++        for (uint i=0u;i<3u;++i) axes[count++]=boxAxis(shapeA,i);
++        for (uint i=0u;i<3u;++i) axes[count++]=boxAxis(shapeB,i);
++        for (uint i=0u;i<3u;++i) for(uint j=0u;j<3u;++j) {
++            const float3 c=cross(boxAxis(shapeA,i),boxAxis(shapeB,j));
++            const float n=dot(c,c); if(n>1.0e-12f) axes[count++]=c*rsqrt(n);
++        }
++        const float3 centerDelta=shapeB.center-shapeA.center;
++        float best=-INFINITY;float3 normal=coincidentNormal(colliderA,colliderB);
++        for(uint i=0u;i<count;++i){
++            float3 axis=axes[i];const float p=dot(centerDelta,axis);
++            if(p<0.0f || (p==0.0f && dot(axis,normal)<0.0f)) axis=-axis;
++            const float separation=abs(p)-boxProjectionRadius(shapeA,axis)-boxProjectionRadius(shapeB,axis);
++            if(separation>best){best=separation;normal=axis;}
++        }
++        query={};query.status=MR_STEP_SUCCESS;query.normal=normal;
++        query.separation=best-pairQueryPadding(shapeA,shapeB);
++        query.pointA=boxSupport(shapeA,normal);query.pointB=boxSupport(shapeB,-normal);
++        query.featureA=featureKey(MR_SHAPE_BOX,0u);query.featureB=featureKey(MR_SHAPE_BOX,0u);
++        return true;
++    }
+     if ((shapeA.type == MR_SHAPE_SPHERE &&
+          shapeB.type == MR_SHAPE_BOX) ||
+         (shapeA.type == MR_SHAPE_BOX &&

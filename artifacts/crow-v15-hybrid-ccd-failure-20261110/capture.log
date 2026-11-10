@@ -1,0 +1,2 @@
+pair 202 collider_a 16 crow_left_rear_toe/collision type 2 collider_b 21 locomotion_ground/collision type 2
+candidate flags 69 status 0 interval 0 0.00300421 0.00136788 0.451992 normal -0.354105 -2.66301e-05 0.935206 iterations 2 event 2 zero 2 time 0 0.005 0 0

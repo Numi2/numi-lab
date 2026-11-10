@@ -1,0 +1,10 @@
+--- a/MetalWorldContact.metal
++++ b/MetalWorldContact.metal
+@@ -10553,6 +10553,7 @@
+                     constraintBase + localConstraint
+                 ]
+             );
++            candidate = previous + 0.10f * (candidate - previous);
+             const float3 delta = candidate - previous;
+             if (!finite3(candidate) || !finite3(delta)) {
+                 status.code = MR_STEP_NONFINITE_RESULT;

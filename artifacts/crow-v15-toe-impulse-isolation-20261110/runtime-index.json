@@ -1,0 +1,42 @@
+[
+  {
+    "path": "build/crow-v15-toe-impulse-isolation-20261110/collision-baseline.metallib",
+    "sha256": "ec7be9d23474a84a4ac994633a31ae222e58b35793bfa469aa085196ebeeeb29",
+    "bytes": 4465616
+  },
+  {
+    "path": "build/crow-v15-toe-impulse-isolation-20261110/collision-parallel.metallib",
+    "sha256": "fec836f58f2fd726459b8593af5482658ea3c29a05551c22ea30ff85711469a0",
+    "bytes": 4465664
+  },
+  {
+    "path": "build/crow-v15-toe-impulse-isolation-20261110/collision-probe.metallib",
+    "sha256": "9e2b0820448f64256f9f6b54f02d84292a6b694f9e4a0e7c188bc778a4cd1b6c",
+    "bytes": 4465664
+  },
+  {
+    "path": "build/crow-v15-toe-impulse-isolation-20261110/world-contact-baseline.metallib",
+    "sha256": "82976d03c6c58ddb842bb4f5c8e2320360e8a3cef10cb43ecee9067234ac7504",
+    "bytes": 4455088
+  },
+  {
+    "path": "build/crow-v15-toe-impulse-isolation-20261110/world-contact-damped.metallib",
+    "sha256": "487366b589327fa1f4c3ca6d43acf0549e1d46f4ba185bafa9b06e270b18b39d",
+    "bytes": 4455216
+  },
+  {
+    "path": "build/crow-v15-toe-impulse-isolation-20261110/distributed-damped.metallib",
+    "sha256": "cdf96222ad423143ecd5908562bf13c0b891350018322edda084f40711f0923d",
+    "bytes": 4455280
+  },
+  {
+    "path": "build/crow-v15-toe-impulse-isolation-20261110/ordered10.metallib",
+    "sha256": "cf0a40a0c6be60b452d4ae144d834fe675c297b8fe4decc8fc43f1461ae76e97",
+    "bytes": 4455120
+  },
+  {
+    "path": "build/crow-v15-toe-impulse-isolation-20261110/ordered25.metallib",
+    "sha256": "5ccd1291f909cefb2080b56816f88a7179203d8e41abd668f05b231b88ac64d0",
+    "bytes": 4455120
+  }
+]

@@ -1,0 +1,5 @@
+# Reached-state catch with research SAT box CCD
+
+All 12 cases completed the 0.8 s screen without a reported CCD failure. On the four matched starts, immediate closure produced 70, 20, 71 and 20 consecutive 5 ms samples of simultaneous bilateral front/rear opposing contact and upward support. Rear-first closure produced 70, 23, 71 and 6. The active arms returned all toe angles within 0.00073 radians of neutral and maintained upward support with vertical speed below 0.12 m/s for 59 or 60 of the 60 post-opening samples. No pre-release nonfoot impulse was recorded in the active arms. This corrects the earlier explanation: the prior failures were repeated zero-time CCD events, not evidence that the contact solver failed its numerical residual check.
+
+This is an isolated test from a physically reached, guided airborne-to-perch state with held non-toe targets and a fresh simulation cache. It does not establish an autonomously reached landing, whole-body stationarity, a long-duration perch, biological realism, full-route execution, or collision correctness for every geometry.

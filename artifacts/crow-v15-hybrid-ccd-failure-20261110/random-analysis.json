@@ -1,0 +1,12 @@
+{
+  "cases": 10000,
+  "strict_overlap_count": 2844,
+  "strict_separation_count": 7154,
+  "false_separation_strict_1e-5": 0,
+  "false_overlap_strict_1e-4": 0,
+  "bad_status": 0,
+  "max_pair_order_difference": 2.980000000096794e-07,
+  "max_gpu_minus_oracle": -1.3127434659324089e-05,
+  "max_abs_difference": 0.00010368175253638867,
+  "examples": []
+}

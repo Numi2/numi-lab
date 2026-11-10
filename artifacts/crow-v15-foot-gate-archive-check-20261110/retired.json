@@ -1,0 +1,29 @@
+{
+  "remote_commit": "04f1d5c46ed8eb6e48506035e924c159084efe55",
+  "retired": [
+    {
+      "raw": "build/crow-v15-foot-alignment-gate-20261110/development-reserved-final-j-gate.json",
+      "archive": "artifacts/crow-v15-foot-alignment-gate-20261110/development-reserved-final-j-gate.json.gz",
+      "sha256": "20cfa1ad42e724a9cb3d0b26b4d073a4cad8880ff9f0afa3e3fcbe32970061aa",
+      "bytes": 148857207
+    },
+    {
+      "raw": "build/crow-v15-foot-alignment-gate-20261110/development-reserved-final-j-gate.tsv",
+      "archive": "artifacts/crow-v15-foot-alignment-gate-20261110/development-reserved-final-j-gate.tsv.gz",
+      "sha256": "5d98671ce15506dea9ed54e393ec9e9f0092aa3f88490259925c3a3da36f457b",
+      "bytes": 3270747
+    },
+    {
+      "raw": "build/crow-v15-foot-alignment-gate-20261110/development-reserved-final-j-zero_bias.json",
+      "archive": "artifacts/crow-v15-foot-alignment-gate-20261110/development-reserved-final-j-zero_bias.json.gz",
+      "sha256": "ae2bbd2e6beb8a47672a2e52d9eb71a11eb9f601b2751cf6f5a81dd16a653c33",
+      "bytes": 148795322
+    },
+    {
+      "raw": "build/crow-v15-foot-alignment-gate-20261110/development-reserved-final-j-zero_bias.tsv",
+      "archive": "artifacts/crow-v15-foot-alignment-gate-20261110/development-reserved-final-j-zero_bias.tsv.gz",
+      "sha256": "0bdc93f6b6661dbfca8e0775bbb12e5aaefd2c01d32facfd40a8244790b32df0",
+      "bytes": 3270439
+    }
+  ]
+}

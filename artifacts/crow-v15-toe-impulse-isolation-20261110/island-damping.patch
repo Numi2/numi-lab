@@ -1,0 +1,11 @@
+--- a/MetalWorldContact.metal
++++ b/MetalWorldContact.metal
+@@ -8258,7 +8258,7 @@
+             MRWave32PreconditionerGPU preconditioner = preconditioners[
+                 constraintBase + localConstraint
+             ];
+-            preconditioner.row2.w = relaxation;
++            preconditioner.row2.w = rowIsRod ? relaxation : min(relaxation, 1.0f / float(max(work.constraintCount, 1u)));
+             preconditioners[constraintBase + localConstraint] =
+                 preconditioner;
+         }

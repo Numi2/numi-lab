@@ -1,0 +1,3 @@
+# Guided approach retest
+
+The used-J matched run again reached all five waypoint triggers and had no reported environment-step failure, but made zero sampled foot/perch contacts, recorded no sustained bilateral load or grip, and never entered the supported-landing phase. It failed the declared landing screen and was worse than the prior gate. The stronger damped command and changed gate therefore remain experimental and are not promoted. The original binding file initially recorded the wrong shader hash due to a run-script typo; it was corrected to the file actually named in argv, and the originally recorded value is retained in the binding. The guide was enabled and the final K/L layouts were not used.

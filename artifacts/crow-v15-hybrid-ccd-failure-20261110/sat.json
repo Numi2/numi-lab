@@ -1,0 +1,2086 @@
+{
+  "rows": [
+    {
+      "index": 0,
+      "alpha": 0.0,
+      "gpu_signed_distance": 0.0013678802642971277,
+      "sat_axis_gap": -0.0033286113058970807,
+      "gpu_status": 0,
+      "gpu_ok": true
+    },
+    {
+      "index": 1,
+      "alpha": 0.00390625,
+      "gpu_signed_distance": 0.001368088647723198,
+      "sat_axis_gap": -0.0033300713844646446,
+      "gpu_status": 0,
+      "gpu_ok": true
+    },
+    {
+      "index": 2,
+      "alpha": 0.0078125,
+      "gpu_signed_distance": 0.0013683276483789086,
+      "sat_axis_gap": -0.003331531675495124,
+      "gpu_status": 0,
+      "gpu_ok": true
+    },
+    {
+      "index": 3,
+      "alpha": 0.01171875,
+      "gpu_signed_distance": 0.0013686241582036018,
+      "sat_axis_gap": -0.0033329921787987327,
+      "gpu_status": 0,
+      "gpu_ok": true
+    },
+    {
+      "index": 4,
+      "alpha": 0.015625,
+      "gpu_signed_distance": 0.0013688631588593125,
+      "sat_axis_gap": -0.0033344528941851304,
+      "gpu_status": 0,
+      "gpu_ok": true
+    },
+    {
+      "index": 5,
+      "alpha": 0.01953125,
+      "gpu_signed_distance": 0.0013691302156075835,
+      "sat_axis_gap": -0.0033359138214639206,
+      "gpu_status": 0,
+      "gpu_ok": true
+    },
+    {
+      "index": 6,
+      "alpha": 0.0234375,
+      "gpu_signed_distance": 0.0013694580411538482,
+      "sat_axis_gap": -0.003337374960445179,
+      "gpu_status": 0,
+      "gpu_ok": true
+    },
+    {
+      "index": 7,
+      "alpha": 0.02734375,
+      "gpu_signed_distance": 0.0013696365058422089,
+      "sat_axis_gap": -0.0033388363109389946,
+      "gpu_status": 0,
+      "gpu_ok": true
+    },
+    {
+      "index": 8,
+      "alpha": 0.03125,
+      "gpu_signed_distance": 0.0013699339469894767,
+      "sat_axis_gap": -0.0033402978727550964,
+      "gpu_status": 0,
+      "gpu_ok": true
+    },
+    {
+      "index": 9,
+      "alpha": 0.03515625,
+      "gpu_signed_distance": 0.0013702011201530695,
+      "sat_axis_gap": -0.0033417596457036014,
+      "gpu_status": 0,
+      "gpu_ok": true
+    },
+    {
+      "index": 10,
+      "alpha": 0.0390625,
+      "gpu_signed_distance": 0.0013703214935958385,
+      "sat_axis_gap": -0.0033432216295940093,
+      "gpu_status": 0,
+      "gpu_ok": true
+    },
+    {
+      "index": 11,
+      "alpha": 0.04296875,
+      "gpu_signed_distance": 0.0013706479221582413,
+      "sat_axis_gap": -0.0033446838242358473,
+      "gpu_status": 0,
+      "gpu_ok": true
+    },
+    {
+      "index": 12,
+      "alpha": 0.046875,
+      "gpu_signed_distance": 0.0013708858750760555,
+      "sat_axis_gap": -0.0033461462294391286,
+      "gpu_status": 0,
+      "gpu_ok": true
+    },
+    {
+      "index": 13,
+      "alpha": 0.05078125,
+      "gpu_signed_distance": 0.0013710662024095654,
+      "sat_axis_gap": -0.0033476088450136027,
+      "gpu_status": 0,
+      "gpu_ok": true
+    },
+    {
+      "index": 14,
+      "alpha": 0.0546875,
+      "gpu_signed_distance": 0.001371451886370778,
+      "sat_axis_gap": -0.0033490716707692963,
+      "gpu_status": 0,
+      "gpu_ok": true
+    },
+    {
+      "index": 15,
+      "alpha": 0.05859375,
+      "gpu_signed_distance": 0.0013717206893488765,
+      "sat_axis_gap": -0.003350534706515286,
+      "gpu_status": 0,
+      "gpu_ok": true
+    },
+    {
+      "index": 16,
+      "alpha": 0.0625,
+      "gpu_signed_distance": 0.0013718684203922749,
+      "sat_axis_gap": -0.003351997952061876,
+      "gpu_status": 0,
+      "gpu_ok": true
+    },
+    {
+      "index": 17,
+      "alpha": 0.06640625,
+      "gpu_signed_distance": 0.0013721371069550514,
+      "sat_axis_gap": -0.0033534614072181085,
+      "gpu_status": 0,
+      "gpu_ok": true
+    },
+    {
+      "index": 18,
+      "alpha": 0.0703125,
+      "gpu_signed_distance": 0.0013724941527470946,
+      "sat_axis_gap": -0.003354925071793781,
+      "gpu_status": 0,
+      "gpu_ok": true
+    },
+    {
+      "index": 19,
+      "alpha": 0.07421875,
+      "gpu_signed_distance": 0.0013725250028073788,
+      "sat_axis_gap": -0.0033563889455987678,
+      "gpu_status": 0,
+      "gpu_ok": true
+    },
+    {
+      "index": 20,
+      "alpha": 0.078125,
+      "gpu_signed_distance": 0.0013729393249377608,
+      "sat_axis_gap": -0.0033578530284428323,
+      "gpu_status": 0,
+      "gpu_ok": true
+    },
+    {
+      "index": 21,
+      "alpha": 0.08203125,
+      "gpu_signed_distance": 0.0013732367660850286,
+      "sat_axis_gap": -0.003359317320134947,
+      "gpu_status": 0,
+      "gpu_ok": true
+    },
+    {
+      "index": 22,
+      "alpha": 0.0859375,
+      "gpu_signed_distance": 0.001373536535538733,
+      "sat_axis_gap": -0.003360781820484944,
+      "gpu_status": 0,
+      "gpu_ok": true
+    },
+    {
+      "index": 23,
+      "alpha": 0.08984375,
+      "gpu_signed_distance": 0.0013736840337514877,
+      "sat_axis_gap": -0.0033622465293026704,
+      "gpu_status": 0,
+      "gpu_ok": true
+    },
+    {
+      "index": 24,
+      "alpha": 0.09375,
+      "gpu_signed_distance": 0.0013739245478063822,
+      "sat_axis_gap": -0.0033637114463970497,
+      "gpu_status": 0,
+      "gpu_ok": true
+    },
+    {
+      "index": 25,
+      "alpha": 0.09765625,
+      "gpu_signed_distance": 0.0013741626171395183,
+      "sat_axis_gap": -0.003365176571577838,
+      "gpu_status": 0,
+      "gpu_ok": true
+    },
+    {
+      "index": 26,
+      "alpha": 0.1015625,
+      "gpu_signed_distance": 0.0013743694871664047,
+      "sat_axis_gap": -0.003366641904654813,
+      "gpu_status": 0,
+      "gpu_ok": true
+    },
+    {
+      "index": 27,
+      "alpha": 0.10546875,
+      "gpu_signed_distance": 0.0013746385229751468,
+      "sat_axis_gap": -0.0033681074454368215,
+      "gpu_status": 0,
+      "gpu_ok": true
+    },
+    {
+      "index": 28,
+      "alpha": 0.109375,
+      "gpu_signed_distance": 0.0013749048812314868,
+      "sat_axis_gap": -0.0033695731937335993,
+      "gpu_status": 0,
+      "gpu_ok": true
+    },
+    {
+      "index": 29,
+      "alpha": 0.11328125,
+      "gpu_signed_distance": 0.001375233638100326,
+      "sat_axis_gap": -0.003371039149354736,
+      "gpu_status": 0,
+      "gpu_ok": true
+    },
+    {
+      "index": 30,
+      "alpha": 0.1171875,
+      "gpu_signed_distance": 0.0013753839302808046,
+      "sat_axis_gap": -0.0033725053121092113,
+      "gpu_status": 0,
+      "gpu_ok": true
+    },
+    {
+      "index": 31,
+      "alpha": 0.12109375,
+      "gpu_signed_distance": 0.0013757095439359546,
+      "sat_axis_gap": -0.00337397168180692,
+      "gpu_status": 0,
+      "gpu_ok": true
+    },
+    {
+      "index": 32,
+      "alpha": 0.125,
+      "gpu_signed_distance": 0.0013759194407612085,
+      "sat_axis_gap": -0.0033754382582565703,
+      "gpu_status": 0,
+      "gpu_ok": true
+    },
+    {
+      "index": 33,
+      "alpha": 0.12890625,
+      "gpu_signed_distance": 0.0013762450544163585,
+      "sat_axis_gap": -0.003376905041267815,
+      "gpu_status": 0,
+      "gpu_ok": true
+    },
+    {
+      "index": 34,
+      "alpha": 0.1328125,
+      "gpu_signed_distance": 0.001376395346596837,
+      "sat_axis_gap": -0.0033783720306499038,
+      "gpu_status": 0,
+      "gpu_ok": true
+    },
+    {
+      "index": 35,
+      "alpha": 0.13671875,
+      "gpu_signed_distance": 0.0013766334159299731,
+      "sat_axis_gap": -0.0033798392262124888,
+      "gpu_status": 0,
+      "gpu_ok": true
+    },
+    {
+      "index": 36,
+      "alpha": 0.140625,
+      "gpu_signed_distance": 0.0013769029174000025,
+      "sat_axis_gap": -0.0033813066277641746,
+      "gpu_status": 0,
+      "gpu_ok": true
+    },
+    {
+      "index": 37,
+      "alpha": 0.14453125,
+      "gpu_signed_distance": 0.001377081498503685,
+      "sat_axis_gap": -0.0033827742351148146,
+      "gpu_status": 0,
+      "gpu_ok": true
+    },
+    {
+      "index": 38,
+      "alpha": 0.1484375,
+      "gpu_signed_distance": 0.0013773789396509528,
+      "sat_axis_gap": -0.003384242048072944,
+      "gpu_status": 0,
+      "gpu_ok": true
+    },
+    {
+      "index": 39,
+      "alpha": 0.15234375,
+      "gpu_signed_distance": 0.001377617008984089,
+      "sat_axis_gap": -0.003385710066448361,
+      "gpu_status": 0,
+      "gpu_ok": true
+    },
+    {
+      "index": 40,
+      "alpha": 0.15625,
+      "gpu_signed_distance": 0.0013778829015791416,
+      "sat_axis_gap": -0.003387178290049822,
+      "gpu_status": 0,
+      "gpu_ok": true
+    },
+    {
+      "index": 41,
+      "alpha": 0.16015625,
+      "gpu_signed_distance": 0.0013782120076939464,
+      "sat_axis_gap": -0.0033886467186867997,
+      "gpu_status": 0,
+      "gpu_ok": true
+    },
+    {
+      "index": 42,
+      "alpha": 0.1640625,
+      "gpu_signed_distance": 0.0013784499606117606,
+      "sat_axis_gap": -0.0033901153521686475,
+      "gpu_status": 0,
+      "gpu_ok": true
+    },
+    {
+      "index": 43,
+      "alpha": 0.16796875,
+      "gpu_signed_distance": 0.0013785094488412142,
+      "sat_axis_gap": -0.0033915841903041713,
+      "gpu_status": 0,
+      "gpu_ok": true
+    },
+    {
+      "index": 44,
+      "alpha": 0.171875,
+      "gpu_signed_distance": 0.0013788664946332574,
+      "sat_axis_gap": -0.003393053232902156,
+      "gpu_status": 0,
+      "gpu_ok": true
+    },
+    {
+      "index": 45,
+      "alpha": 0.17578125,
+      "gpu_signed_distance": 0.0013791086385026574,
+      "sat_axis_gap": -0.003394522479771983,
+      "gpu_status": 0,
+      "gpu_ok": true
+    },
+    {
+      "index": 46,
+      "alpha": 0.1796875,
+      "gpu_signed_distance": 0.0013792597455903888,
+      "sat_axis_gap": -0.003395991930722729,
+      "gpu_status": 0,
+      "gpu_ok": true
+    },
+    {
+      "index": 47,
+      "alpha": 0.18359375,
+      "gpu_signed_distance": 0.001379699562676251,
+      "sat_axis_gap": -0.0033974615855634216,
+      "gpu_status": 0,
+      "gpu_ok": true
+    },
+    {
+      "index": 48,
+      "alpha": 0.1875,
+      "gpu_signed_distance": 0.0013798227300867438,
+      "sat_axis_gap": -0.003398931444103373,
+      "gpu_status": 0,
+      "gpu_ok": true
+    },
+    {
+      "index": 49,
+      "alpha": 0.19140625,
+      "gpu_signed_distance": 0.0013800928136333823,
+      "sat_axis_gap": -0.003400401506151167,
+      "gpu_status": 0,
+      "gpu_ok": true
+    },
+    {
+      "index": 50,
+      "alpha": 0.1953125,
+      "gpu_signed_distance": 0.0013803582405671477,
+      "sat_axis_gap": -0.003401871771515838,
+      "gpu_status": 0,
+      "gpu_ok": true
+    },
+    {
+      "index": 51,
+      "alpha": 0.19921875,
+      "gpu_signed_distance": 0.0013804498594254255,
+      "sat_axis_gap": -0.0034033422400061714,
+      "gpu_status": 0,
+      "gpu_ok": true
+    },
+    {
+      "index": 52,
+      "alpha": 0.203125,
+      "gpu_signed_distance": 0.001380834262818098,
+      "sat_axis_gap": -0.0034048129114317496,
+      "gpu_status": 0,
+      "gpu_ok": true
+    },
+    {
+      "index": 53,
+      "alpha": 0.20703125,
+      "gpu_signed_distance": 0.0013811043463647366,
+      "sat_axis_gap": -0.003406283785600768,
+      "gpu_status": 0,
+      "gpu_ok": true
+    },
+    {
+      "index": 54,
+      "alpha": 0.2109375,
+      "gpu_signed_distance": 0.0013813746627420187,
+      "sat_axis_gap": -0.0034077548623224346,
+      "gpu_status": 0,
+      "gpu_ok": true
+    },
+    {
+      "index": 55,
+      "alpha": 0.21484375,
+      "gpu_signed_distance": 0.0013816399732604623,
+      "sat_axis_gap": -0.0034092261414056316,
+      "gpu_status": 0,
+      "gpu_ok": true
+    },
+    {
+      "index": 56,
+      "alpha": 0.21875,
+      "gpu_signed_distance": 0.0013818508014082909,
+      "sat_axis_gap": -0.0034106976226594976,
+      "gpu_status": 0,
+      "gpu_ok": true
+    },
+    {
+      "index": 57,
+      "alpha": 0.22265625,
+      "gpu_signed_distance": 0.001382056507281959,
+      "sat_axis_gap": -0.003412169305892304,
+      "gpu_status": 0,
+      "gpu_ok": true
+    },
+    {
+      "index": 58,
+      "alpha": 0.2265625,
+      "gpu_signed_distance": 0.0013821807224303484,
+      "sat_axis_gap": -0.003413641190913419,
+      "gpu_status": 0,
+      "gpu_ok": true
+    },
+    {
+      "index": 59,
+      "alpha": 0.23046875,
+      "gpu_signed_distance": 0.001382478279992938,
+      "sat_axis_gap": -0.003415113277531079,
+      "gpu_status": 0,
+      "gpu_ok": true
+    },
+    {
+      "index": 60,
+      "alpha": 0.234375,
+      "gpu_signed_distance": -0.0034131580032408237,
+      "sat_axis_gap": -0.003416585565554263,
+      "gpu_status": 0,
+      "gpu_ok": true
+    },
+    {
+      "index": 61,
+      "alpha": 0.23828125,
+      "gpu_signed_distance": -0.003414639038965106,
+      "sat_axis_gap": -0.003418058054792006,
+      "gpu_status": 0,
+      "gpu_ok": true
+    },
+    {
+      "index": 62,
+      "alpha": 0.2421875,
+      "gpu_signed_distance": -0.003416067222133279,
+      "sat_axis_gap": -0.003419530745052961,
+      "gpu_status": 0,
+      "gpu_ok": true
+    },
+    {
+      "index": 63,
+      "alpha": 0.24609375,
+      "gpu_signed_distance": -0.0034175636246800423,
+      "sat_axis_gap": -0.0034210036361455656,
+      "gpu_status": 0,
+      "gpu_ok": true
+    },
+    {
+      "index": 64,
+      "alpha": 0.25,
+      "gpu_signed_distance": -0.003419047687202692,
+      "sat_axis_gap": -0.00342247672787898,
+      "gpu_status": 0,
+      "gpu_ok": true
+    },
+    {
+      "index": 65,
+      "alpha": 0.25390625,
+      "gpu_signed_distance": -0.0034205466508865356,
+      "sat_axis_gap": -0.0034239500200614267,
+      "gpu_status": 0,
+      "gpu_ok": true
+    },
+    {
+      "index": 66,
+      "alpha": 0.2578125,
+      "gpu_signed_distance": -0.0034219378139823675,
+      "sat_axis_gap": -0.0034254235125016214,
+      "gpu_status": 0,
+      "gpu_ok": true
+    },
+    {
+      "index": 67,
+      "alpha": 0.26171875,
+      "gpu_signed_distance": -0.0034234316553920507,
+      "sat_axis_gap": -0.0034268972050083488,
+      "gpu_status": 0,
+      "gpu_ok": true
+    },
+    {
+      "index": 68,
+      "alpha": 0.265625,
+      "gpu_signed_distance": -0.0034248847514390945,
+      "sat_axis_gap": -0.0034283710973901857,
+      "gpu_status": 0,
+      "gpu_ok": true
+    },
+    {
+      "index": 69,
+      "alpha": 0.26953125,
+      "gpu_signed_distance": -0.003426362993195653,
+      "sat_axis_gap": -0.0034298451894560836,
+      "gpu_status": 0,
+      "gpu_ok": true
+    },
+    {
+      "index": 70,
+      "alpha": 0.2734375,
+      "gpu_signed_distance": -0.003427857533097267,
+      "sat_axis_gap": -0.003431319481014279,
+      "gpu_status": 0,
+      "gpu_ok": true
+    },
+    {
+      "index": 71,
+      "alpha": 0.27734375,
+      "gpu_signed_distance": -0.0034293367061764,
+      "sat_axis_gap": -0.0034327939718730646,
+      "gpu_status": 0,
+      "gpu_ok": true
+    },
+    {
+      "index": 72,
+      "alpha": 0.28125,
+      "gpu_signed_distance": -0.003430790500715375,
+      "sat_axis_gap": -0.0034342686618411694,
+      "gpu_status": 0,
+      "gpu_ok": true
+    },
+    {
+      "index": 73,
+      "alpha": 0.28515625,
+      "gpu_signed_distance": -0.00343227107077837,
+      "sat_axis_gap": -0.003435743550727434,
+      "gpu_status": 0,
+      "gpu_ok": true
+    },
+    {
+      "index": 74,
+      "alpha": 0.2890625,
+      "gpu_signed_distance": -0.0034337828401476145,
+      "sat_axis_gap": -0.0034372186383402475,
+      "gpu_status": 0,
+      "gpu_ok": true
+    },
+    {
+      "index": 75,
+      "alpha": 0.29296875,
+      "gpu_signed_distance": -0.0034353185910731554,
+      "sat_axis_gap": -0.0034386939244878886,
+      "gpu_status": 0,
+      "gpu_ok": true
+    },
+    {
+      "index": 76,
+      "alpha": 0.296875,
+      "gpu_signed_distance": -0.0034367158077657223,
+      "sat_axis_gap": -0.003440169408979059,
+      "gpu_status": 0,
+      "gpu_ok": true
+    },
+    {
+      "index": 77,
+      "alpha": 0.30078125,
+      "gpu_signed_distance": -0.003438240149989724,
+      "sat_axis_gap": -0.00344164509162187,
+      "gpu_status": 0,
+      "gpu_ok": true
+    },
+    {
+      "index": 78,
+      "alpha": 0.3046875,
+      "gpu_signed_distance": -0.003439711406826973,
+      "sat_axis_gap": -0.003443120972224975,
+      "gpu_status": 0,
+      "gpu_ok": true
+    },
+    {
+      "index": 79,
+      "alpha": 0.30859375,
+      "gpu_signed_distance": -0.0034411675296723843,
+      "sat_axis_gap": -0.0034445970505967635,
+      "gpu_status": 0,
+      "gpu_ok": true
+    },
+    {
+      "index": 80,
+      "alpha": 0.3125,
+      "gpu_signed_distance": -0.0034426976926624775,
+      "sat_axis_gap": -0.00344607332654593,
+      "gpu_status": 0,
+      "gpu_ok": true
+    },
+    {
+      "index": 81,
+      "alpha": 0.31640625,
+      "gpu_signed_distance": -0.003444055560976267,
+      "sat_axis_gap": -0.0034475497998801424,
+      "gpu_status": 0,
+      "gpu_ok": true
+    },
+    {
+      "index": 82,
+      "alpha": 0.3203125,
+      "gpu_signed_distance": -0.003445595735684037,
+      "sat_axis_gap": -0.003449026470408366,
+      "gpu_status": 0,
+      "gpu_ok": true
+    },
+    {
+      "index": 83,
+      "alpha": 0.32421875,
+      "gpu_signed_distance": -0.0034469952806830406,
+      "sat_axis_gap": -0.0034505033379388234,
+      "gpu_status": 0,
+      "gpu_ok": true
+    },
+    {
+      "index": 84,
+      "alpha": 0.328125,
+      "gpu_signed_distance": -0.0034485815558582544,
+      "sat_axis_gap": -0.0034519804022796335,
+      "gpu_status": 0,
+      "gpu_ok": true
+    },
+    {
+      "index": 85,
+      "alpha": 0.33203125,
+      "gpu_signed_distance": -0.0034499973990023136,
+      "sat_axis_gap": -0.003453457663239283,
+      "gpu_status": 0,
+      "gpu_ok": true
+    },
+    {
+      "index": 86,
+      "alpha": 0.3359375,
+      "gpu_signed_distance": -0.0034514975268393755,
+      "sat_axis_gap": -0.0034549351206258558,
+      "gpu_status": 0,
+      "gpu_ok": true
+    },
+    {
+      "index": 87,
+      "alpha": 0.33984375,
+      "gpu_signed_distance": -0.0034529895056039095,
+      "sat_axis_gap": -0.0034564127742474984,
+      "gpu_status": 0,
+      "gpu_ok": true
+    },
+    {
+      "index": 88,
+      "alpha": 0.34375,
+      "gpu_signed_distance": -0.0034543201327323914,
+      "sat_axis_gap": -0.0034578906239130514,
+      "gpu_status": 0,
+      "gpu_ok": true
+    },
+    {
+      "index": 89,
+      "alpha": 0.34765625,
+      "gpu_signed_distance": -0.0034558267798274755,
+      "sat_axis_gap": -0.0034593686694300435,
+      "gpu_status": 0,
+      "gpu_ok": true
+    },
+    {
+      "index": 90,
+      "alpha": 0.3515625,
+      "gpu_signed_distance": -0.0034572670701891184,
+      "sat_axis_gap": -0.0034608469106069545,
+      "gpu_status": 0,
+      "gpu_ok": true
+    },
+    {
+      "index": 91,
+      "alpha": 0.35546875,
+      "gpu_signed_distance": -0.003458835417404771,
+      "sat_axis_gap": -0.0034623253472522986,
+      "gpu_status": 0,
+      "gpu_ok": true
+    },
+    {
+      "index": 92,
+      "alpha": 0.359375,
+      "gpu_signed_distance": -0.0034603197127580643,
+      "sat_axis_gap": -0.0034638039791734868,
+      "gpu_status": 0,
+      "gpu_ok": true
+    },
+    {
+      "index": 93,
+      "alpha": 0.36328125,
+      "gpu_signed_distance": -0.0034617919009178877,
+      "sat_axis_gap": -0.003465282806179318,
+      "gpu_status": 0,
+      "gpu_ok": true
+    },
+    {
+      "index": 94,
+      "alpha": 0.3671875,
+      "gpu_signed_distance": -0.0034633944742381573,
+      "sat_axis_gap": -0.0034667618280777787,
+      "gpu_status": 0,
+      "gpu_ok": true
+    },
+    {
+      "index": 95,
+      "alpha": 0.37109375,
+      "gpu_signed_distance": -0.003464804030954838,
+      "sat_axis_gap": -0.0034682410446768078,
+      "gpu_status": 0,
+      "gpu_ok": true
+    },
+    {
+      "index": 96,
+      "alpha": 0.375,
+      "gpu_signed_distance": -0.0034661723766475916,
+      "sat_axis_gap": -0.0034697204557843503,
+      "gpu_status": 0,
+      "gpu_ok": true
+    },
+    {
+      "index": 97,
+      "alpha": 0.37890625,
+      "gpu_signed_distance": -0.003467581234872341,
+      "sat_axis_gap": -0.003471200061209212,
+      "gpu_status": 0,
+      "gpu_ok": true
+    },
+    {
+      "index": 98,
+      "alpha": 0.3828125,
+      "gpu_signed_distance": -0.0034691367764025927,
+      "sat_axis_gap": -0.0034726798607584083,
+      "gpu_status": 0,
+      "gpu_ok": true
+    },
+    {
+      "index": 99,
+      "alpha": 0.38671875,
+      "gpu_signed_distance": -0.0034706478472799063,
+      "sat_axis_gap": -0.0034741598542409047,
+      "gpu_status": 0,
+      "gpu_ok": true
+    },
+    {
+      "index": 100,
+      "alpha": 0.390625,
+      "gpu_signed_distance": -0.0034720986150205135,
+      "sat_axis_gap": -0.003475640041464015,
+      "gpu_status": 0,
+      "gpu_ok": true
+    },
+    {
+      "index": 101,
+      "alpha": 0.39453125,
+      "gpu_signed_distance": -0.003473654156550765,
+      "sat_axis_gap": -0.0034771204222359964,
+      "gpu_status": 0,
+      "gpu_ok": true
+    },
+    {
+      "index": 102,
+      "alpha": 0.3984375,
+      "gpu_signed_distance": -0.003475093748420477,
+      "sat_axis_gap": -0.003478600996364864,
+      "gpu_status": 0,
+      "gpu_ok": true
+    },
+    {
+      "index": 103,
+      "alpha": 0.40234375,
+      "gpu_signed_distance": -0.0034765007440000772,
+      "sat_axis_gap": -0.003480081763658438,
+      "gpu_status": 0,
+      "gpu_ok": true
+    },
+    {
+      "index": 104,
+      "alpha": 0.40625,
+      "gpu_signed_distance": -0.0034780013374984264,
+      "sat_axis_gap": -0.003481562723924997,
+      "gpu_status": 0,
+      "gpu_ok": true
+    },
+    {
+      "index": 105,
+      "alpha": 0.41015625,
+      "gpu_signed_distance": -0.0034794716630131006,
+      "sat_axis_gap": -0.0034830438769726524,
+      "gpu_status": 0,
+      "gpu_ok": true
+    },
+    {
+      "index": 106,
+      "alpha": 0.4140625,
+      "gpu_signed_distance": -0.0034810088109225035,
+      "sat_axis_gap": -0.0034845252226084963,
+      "gpu_status": 0,
+      "gpu_ok": true
+    },
+    {
+      "index": 107,
+      "alpha": 0.41796875,
+      "gpu_signed_distance": -0.0034824784379452467,
+      "sat_axis_gap": -0.003486006760640578,
+      "gpu_status": 0,
+      "gpu_ok": true
+    },
+    {
+      "index": 108,
+      "alpha": 0.421875,
+      "gpu_signed_distance": -0.0034840211737900972,
+      "sat_axis_gap": -0.0034874884908772316,
+      "gpu_status": 0,
+      "gpu_ok": true
+    },
+    {
+      "index": 109,
+      "alpha": 0.42578125,
+      "gpu_signed_distance": -0.0034854812547564507,
+      "sat_axis_gap": -0.003488970413125854,
+      "gpu_status": 0,
+      "gpu_ok": true
+    },
+    {
+      "index": 110,
+      "alpha": 0.4296875,
+      "gpu_signed_distance": -0.003486935980618,
+      "sat_axis_gap": -0.00349045252719489,
+      "gpu_status": 0,
+      "gpu_ok": true
+    },
+    {
+      "index": 111,
+      "alpha": 0.43359375,
+      "gpu_signed_distance": -0.0034884961787611246,
+      "sat_axis_gap": -0.0034919348328917924,
+      "gpu_status": 0,
+      "gpu_ok": true
+    },
+    {
+      "index": 112,
+      "alpha": 0.4375,
+      "gpu_signed_distance": -0.003489868715405464,
+      "sat_axis_gap": -0.003493417330023979,
+      "gpu_status": 0,
+      "gpu_ok": true
+    },
+    {
+      "index": 113,
+      "alpha": 0.44140625,
+      "gpu_signed_distance": -0.003491406561806798,
+      "sat_axis_gap": -0.003494900018399555,
+      "gpu_status": 0,
+      "gpu_ok": true
+    },
+    {
+      "index": 114,
+      "alpha": 0.4453125,
+      "gpu_signed_distance": -0.003492875723168254,
+      "sat_axis_gap": -0.003496382897826285,
+      "gpu_status": 0,
+      "gpu_ok": true
+    },
+    {
+      "index": 115,
+      "alpha": 0.44921875,
+      "gpu_signed_distance": -0.0034943907521665096,
+      "sat_axis_gap": -0.003497865968111913,
+      "gpu_status": 0,
+      "gpu_ok": true
+    },
+    {
+      "index": 116,
+      "alpha": 0.453125,
+      "gpu_signed_distance": -0.0034958256874233484,
+      "sat_axis_gap": -0.0034993492290643496,
+      "gpu_status": 0,
+      "gpu_ok": true
+    },
+    {
+      "index": 117,
+      "alpha": 0.45703125,
+      "gpu_signed_distance": -0.0034973500296473503,
+      "sat_axis_gap": -0.0035008326804912976,
+      "gpu_status": 0,
+      "gpu_ok": true
+    },
+    {
+      "index": 118,
+      "alpha": 0.4609375,
+      "gpu_signed_distance": -0.003498871112242341,
+      "sat_axis_gap": -0.0035023163221997444,
+      "gpu_status": 0,
+      "gpu_ok": true
+    },
+    {
+      "index": 119,
+      "alpha": 0.46484375,
+      "gpu_signed_distance": -0.0035003689117729664,
+      "sat_axis_gap": -0.003503800153998038,
+      "gpu_status": 0,
+      "gpu_ok": true
+    },
+    {
+      "index": 120,
+      "alpha": 0.46875,
+      "gpu_signed_distance": -0.0035018508788198233,
+      "sat_axis_gap": -0.0035052841756934502,
+      "gpu_status": 0,
+      "gpu_ok": true
+    },
+    {
+      "index": 121,
+      "alpha": 0.47265625,
+      "gpu_signed_distance": -0.003503286512568593,
+      "sat_axis_gap": -0.003506768387093899,
+      "gpu_status": 0,
+      "gpu_ok": true
+    },
+    {
+      "index": 122,
+      "alpha": 0.4765625,
+      "gpu_signed_distance": -0.003504764521494508,
+      "sat_axis_gap": -0.0035082527880072184,
+      "gpu_status": 0,
+      "gpu_ok": true
+    },
+    {
+      "index": 123,
+      "alpha": 0.48046875,
+      "gpu_signed_distance": -0.003506291192024946,
+      "sat_axis_gap": -0.0035097373782403615,
+      "gpu_status": 0,
+      "gpu_ok": true
+    },
+    {
+      "index": 124,
+      "alpha": 0.484375,
+      "gpu_signed_distance": -0.0035077270586043596,
+      "sat_axis_gap": -0.003511222157601551,
+      "gpu_status": 0,
+      "gpu_ok": true
+    },
+    {
+      "index": 125,
+      "alpha": 0.48828125,
+      "gpu_signed_distance": -0.003509282832965255,
+      "sat_axis_gap": -0.0035127071258977127,
+      "gpu_status": 0,
+      "gpu_ok": true
+    },
+    {
+      "index": 126,
+      "alpha": 0.4921875,
+      "gpu_signed_distance": -0.0035107505973428488,
+      "sat_axis_gap": -0.0035141922829366873,
+      "gpu_status": 0,
+      "gpu_ok": true
+    },
+    {
+      "index": 127,
+      "alpha": 0.49609375,
+      "gpu_signed_distance": -0.003512265393510461,
+      "sat_axis_gap": -0.003515677628526219,
+      "gpu_status": 0,
+      "gpu_ok": true
+    },
+    {
+      "index": 128,
+      "alpha": 0.5,
+      "gpu_signed_distance": -0.003513631410896778,
+      "sat_axis_gap": -0.0035171631624735175,
+      "gpu_status": 0,
+      "gpu_ok": true
+    },
+    {
+      "index": 129,
+      "alpha": 0.50390625,
+      "gpu_signed_distance": -0.0035150283947587013,
+      "sat_axis_gap": -0.0035186488845859454,
+      "gpu_status": 0,
+      "gpu_ok": true
+    },
+    {
+      "index": 130,
+      "alpha": 0.5078125,
+      "gpu_signed_distance": -0.003516531316563487,
+      "sat_axis_gap": -0.0035201347946716838,
+      "gpu_status": 0,
+      "gpu_ok": true
+    },
+    {
+      "index": 131,
+      "alpha": 0.51171875,
+      "gpu_signed_distance": -0.0035179867409169674,
+      "sat_axis_gap": -0.0035216208925372,
+      "gpu_status": 0,
+      "gpu_ok": true
+    },
+    {
+      "index": 132,
+      "alpha": 0.515625,
+      "gpu_signed_distance": -0.0035195567179471254,
+      "sat_axis_gap": -0.003523107177990502,
+      "gpu_status": 0,
+      "gpu_ok": true
+    },
+    {
+      "index": 133,
+      "alpha": 0.51953125,
+      "gpu_signed_distance": -0.003520980942994356,
+      "sat_axis_gap": -0.003524593650839236,
+      "gpu_status": 0,
+      "gpu_ok": true
+    },
+    {
+      "index": 134,
+      "alpha": 0.5234375,
+      "gpu_signed_distance": -0.00352253345772624,
+      "sat_axis_gap": -0.0035260803108901825,
+      "gpu_status": 0,
+      "gpu_ok": true
+    },
+    {
+      "index": 135,
+      "alpha": 0.52734375,
+      "gpu_signed_distance": -0.0035238973796367645,
+      "sat_axis_gap": -0.003527567157951321,
+      "gpu_status": 0,
+      "gpu_ok": true
+    },
+    {
+      "index": 136,
+      "alpha": 0.53125,
+      "gpu_signed_distance": -0.0035256058908998966,
+      "sat_axis_gap": -0.003529054191829438,
+      "gpu_status": 0,
+      "gpu_ok": true
+    },
+    {
+      "index": 137,
+      "alpha": 0.53515625,
+      "gpu_signed_distance": -0.0035269379150122404,
+      "sat_axis_gap": -0.0035305414123321596,
+      "gpu_status": 0,
+      "gpu_ok": true
+    },
+    {
+      "index": 138,
+      "alpha": 0.5390625,
+      "gpu_signed_distance": -0.003528457833454013,
+      "sat_axis_gap": -0.0035320288192667096,
+      "gpu_status": 0,
+      "gpu_ok": true
+    },
+    {
+      "index": 139,
+      "alpha": 0.54296875,
+      "gpu_signed_distance": -0.003529975889250636,
+      "sat_axis_gap": -0.0035335164124407487,
+      "gpu_status": 0,
+      "gpu_ok": true
+    },
+    {
+      "index": 140,
+      "alpha": 0.546875,
+      "gpu_signed_distance": -0.0035314918495714664,
+      "sat_axis_gap": -0.003535004191661431,
+      "gpu_status": 0,
+      "gpu_ok": true
+    },
+    {
+      "index": 141,
+      "alpha": 0.55078125,
+      "gpu_signed_distance": -0.0035329158417880535,
+      "sat_axis_gap": -0.003536492156736161,
+      "gpu_status": 0,
+      "gpu_ok": true
+    },
+    {
+      "index": 142,
+      "alpha": 0.5546875,
+      "gpu_signed_distance": -0.00353435892611742,
+      "sat_axis_gap": -0.003537980307471447,
+      "gpu_status": 0,
+      "gpu_ok": true
+    },
+    {
+      "index": 143,
+      "alpha": 0.55859375,
+      "gpu_signed_distance": -0.0035358984023332596,
+      "sat_axis_gap": -0.0035394686436751865,
+      "gpu_status": 0,
+      "gpu_ok": true
+    },
+    {
+      "index": 144,
+      "alpha": 0.5625,
+      "gpu_signed_distance": -0.0035373535938560963,
+      "sat_axis_gap": -0.0035409571651544777,
+      "gpu_status": 0,
+      "gpu_ok": true
+    },
+    {
+      "index": 145,
+      "alpha": 0.56640625,
+      "gpu_signed_distance": -0.003538924502208829,
+      "sat_axis_gap": -0.0035424458717165375,
+      "gpu_status": 0,
+      "gpu_ok": true
+    },
+    {
+      "index": 146,
+      "alpha": 0.5703125,
+      "gpu_signed_distance": -0.0035404080990701914,
+      "sat_axis_gap": -0.0035439347631688878,
+      "gpu_status": 0,
+      "gpu_ok": true
+    },
+    {
+      "index": 147,
+      "alpha": 0.57421875,
+      "gpu_signed_distance": -0.0035419189371168613,
+      "sat_axis_gap": -0.0035454238393183776,
+      "gpu_status": 0,
+      "gpu_ok": true
+    },
+    {
+      "index": 148,
+      "alpha": 0.578125,
+      "gpu_signed_distance": -0.0035432837903499603,
+      "sat_axis_gap": -0.003546913099971856,
+      "gpu_status": 0,
+      "gpu_ok": true
+    },
+    {
+      "index": 149,
+      "alpha": 0.58203125,
+      "gpu_signed_distance": -0.0035448118578642607,
+      "sat_axis_gap": -0.0035484025449367615,
+      "gpu_status": 0,
+      "gpu_ok": true
+    },
+    {
+      "index": 150,
+      "alpha": 0.5859375,
+      "gpu_signed_distance": -0.003546318970620632,
+      "sat_axis_gap": -0.0035498921740202208,
+      "gpu_status": 0,
+      "gpu_ok": true
+    },
+    {
+      "index": 151,
+      "alpha": 0.58984375,
+      "gpu_signed_distance": -0.003547839354723692,
+      "sat_axis_gap": -0.003551381987029263,
+      "gpu_status": 0,
+      "gpu_ok": true
+    },
+    {
+      "index": 152,
+      "alpha": 0.59375,
+      "gpu_signed_distance": -0.0035493692848831415,
+      "sat_axis_gap": -0.0035528719837717784,
+      "gpu_status": 0,
+      "gpu_ok": true
+    },
+    {
+      "index": 153,
+      "alpha": 0.59765625,
+      "gpu_signed_distance": -0.0035508766304701567,
+      "sat_axis_gap": -0.003554362164053519,
+      "gpu_status": 0,
+      "gpu_ok": true
+    },
+    {
+      "index": 154,
+      "alpha": 0.6015625,
+      "gpu_signed_distance": -0.003552316688001156,
+      "sat_axis_gap": -0.0035558525276821323,
+      "gpu_status": 0,
+      "gpu_ok": true
+    },
+    {
+      "index": 155,
+      "alpha": 0.60546875,
+      "gpu_signed_distance": -0.0035537383519113064,
+      "sat_axis_gap": -0.003557343074464668,
+      "gpu_status": 0,
+      "gpu_ok": true
+    },
+    {
+      "index": 156,
+      "alpha": 0.609375,
+      "gpu_signed_distance": -0.003555342322215438,
+      "sat_axis_gap": -0.0035588338042081696,
+      "gpu_status": 0,
+      "gpu_ok": true
+    },
+    {
+      "index": 157,
+      "alpha": 0.61328125,
+      "gpu_signed_distance": -0.003556787269189954,
+      "sat_axis_gap": -0.00356032471671993,
+      "gpu_status": 0,
+      "gpu_ok": true
+    },
+    {
+      "index": 158,
+      "alpha": 0.6171875,
+      "gpu_signed_distance": -0.003558299271389842,
+      "sat_axis_gap": -0.0035618158118063264,
+      "gpu_status": 0,
+      "gpu_ok": true
+    },
+    {
+      "index": 159,
+      "alpha": 0.62109375,
+      "gpu_signed_distance": -0.003559831064194441,
+      "sat_axis_gap": -0.0035633070892749294,
+      "gpu_status": 0,
+      "gpu_ok": true
+    },
+    {
+      "index": 160,
+      "alpha": 0.625,
+      "gpu_signed_distance": -0.0035610704217106104,
+      "sat_axis_gap": -0.003564798548932102,
+      "gpu_status": 0,
+      "gpu_ok": true
+    },
+    {
+      "index": 161,
+      "alpha": 0.62890625,
+      "gpu_signed_distance": -0.0035627924371510744,
+      "sat_axis_gap": -0.003566290190585082,
+      "gpu_status": 0,
+      "gpu_ok": true
+    },
+    {
+      "index": 162,
+      "alpha": 0.6328125,
+      "gpu_signed_distance": -0.0035642990842461586,
+      "sat_axis_gap": -0.0035677820140406977,
+      "gpu_status": 0,
+      "gpu_ok": true
+    },
+    {
+      "index": 163,
+      "alpha": 0.63671875,
+      "gpu_signed_distance": -0.0035658124834299088,
+      "sat_axis_gap": -0.0035692740191064637,
+      "gpu_status": 0,
+      "gpu_ok": true
+    },
+    {
+      "index": 164,
+      "alpha": 0.640625,
+      "gpu_signed_distance": -0.0035671398509293795,
+      "sat_axis_gap": -0.003570766205588223,
+      "gpu_status": 0,
+      "gpu_ok": true
+    },
+    {
+      "index": 165,
+      "alpha": 0.64453125,
+      "gpu_signed_distance": -0.0035685512702912092,
+      "sat_axis_gap": -0.003572258573293914,
+      "gpu_status": 0,
+      "gpu_ok": true
+    },
+    {
+      "index": 166,
+      "alpha": 0.6484375,
+      "gpu_signed_distance": -0.003570027183741331,
+      "sat_axis_gap": -0.0035737511220293172,
+      "gpu_status": 0,
+      "gpu_ok": true
+    },
+    {
+      "index": 167,
+      "alpha": 0.65234375,
+      "gpu_signed_distance": -0.003571548731997609,
+      "sat_axis_gap": -0.003575243851602024,
+      "gpu_status": 0,
+      "gpu_ok": true
+    },
+    {
+      "index": 168,
+      "alpha": 0.65625,
+      "gpu_signed_distance": -0.003573113586753607,
+      "sat_axis_gap": -0.0035767367618184456,
+      "gpu_status": 0,
+      "gpu_ok": true
+    },
+    {
+      "index": 169,
+      "alpha": 0.66015625,
+      "gpu_signed_distance": -0.0035746085923165083,
+      "sat_axis_gap": -0.003578229852486084,
+      "gpu_status": 0,
+      "gpu_ok": true
+    },
+    {
+      "index": 170,
+      "alpha": 0.6640625,
+      "gpu_signed_distance": -0.003576049115508795,
+      "sat_axis_gap": -0.003579723123410719,
+      "gpu_status": 0,
+      "gpu_ok": true
+    },
+    {
+      "index": 171,
+      "alpha": 0.66796875,
+      "gpu_signed_distance": -0.003577561117708683,
+      "sat_axis_gap": -0.0035812165743998453,
+      "gpu_status": 0,
+      "gpu_ok": true
+    },
+    {
+      "index": 172,
+      "alpha": 0.671875,
+      "gpu_signed_distance": -0.0035790218971669674,
+      "sat_axis_gap": -0.0035827102052601173,
+      "gpu_status": 0,
+      "gpu_ok": true
+    },
+    {
+      "index": 173,
+      "alpha": 0.67578125,
+      "gpu_signed_distance": -0.003580523654818535,
+      "sat_axis_gap": -0.003584204015797836,
+      "gpu_status": 0,
+      "gpu_ok": true
+    },
+    {
+      "index": 174,
+      "alpha": 0.6796875,
+      "gpu_signed_distance": -0.0035820810589939356,
+      "sat_axis_gap": -0.003585698005820273,
+      "gpu_status": 0,
+      "gpu_ok": true
+    },
+    {
+      "index": 175,
+      "alpha": 0.68359375,
+      "gpu_signed_distance": -0.003583528334274888,
+      "sat_axis_gap": -0.0035871921751340213,
+      "gpu_status": 0,
+      "gpu_ok": true
+    },
+    {
+      "index": 176,
+      "alpha": 0.6875,
+      "gpu_signed_distance": -0.0035850154235959053,
+      "sat_axis_gap": -0.0035886865235455617,
+      "gpu_status": 0,
+      "gpu_ok": true
+    },
+    {
+      "index": 177,
+      "alpha": 0.69140625,
+      "gpu_signed_distance": -0.0035865686368197203,
+      "sat_axis_gap": -0.0035901810508614587,
+      "gpu_status": 0,
+      "gpu_ok": true
+    },
+    {
+      "index": 178,
+      "alpha": 0.6953125,
+      "gpu_signed_distance": -0.0035880678333342075,
+      "sat_axis_gap": -0.0035916757568891233,
+      "gpu_status": 0,
+      "gpu_ok": true
+    },
+    {
+      "index": 179,
+      "alpha": 0.69921875,
+      "gpu_signed_distance": -0.0035895328037440777,
+      "sat_axis_gap": -0.0035931706414341416,
+      "gpu_status": 0,
+      "gpu_ok": true
+    },
+    {
+      "index": 180,
+      "alpha": 0.703125,
+      "gpu_signed_distance": -0.003591009648516774,
+      "sat_axis_gap": -0.003594665704303862,
+      "gpu_status": 0,
+      "gpu_ok": true
+    },
+    {
+      "index": 181,
+      "alpha": 0.70703125,
+      "gpu_signed_distance": -0.0035925486590713263,
+      "sat_axis_gap": -0.0035961609453048285,
+      "gpu_status": 0,
+      "gpu_ok": true
+    },
+    {
+      "index": 182,
+      "alpha": 0.7109375,
+      "gpu_signed_distance": -0.003594021312892437,
+      "sat_axis_gap": -0.0035976563642433554,
+      "gpu_status": 0,
+      "gpu_ok": true
+    },
+    {
+      "index": 183,
+      "alpha": 0.71484375,
+      "gpu_signed_distance": -0.003595558926463127,
+      "sat_axis_gap": -0.0035991519609262987,
+      "gpu_status": 0,
+      "gpu_ok": true
+    },
+    {
+      "index": 184,
+      "alpha": 0.71875,
+      "gpu_signed_distance": -0.003597096772864461,
+      "sat_axis_gap": -0.003600647735159772,
+      "gpu_status": 0,
+      "gpu_ok": true
+    },
+    {
+      "index": 185,
+      "alpha": 0.72265625,
+      "gpu_signed_distance": -0.003598481882363558,
+      "sat_axis_gap": -0.003602143686750846,
+      "gpu_status": 0,
+      "gpu_ok": true
+    },
+    {
+      "index": 186,
+      "alpha": 0.7265625,
+      "gpu_signed_distance": -0.003600028110668063,
+      "sat_axis_gap": -0.003603639815505641,
+      "gpu_status": 0,
+      "gpu_ok": true
+    },
+    {
+      "index": 187,
+      "alpha": 0.73046875,
+      "gpu_signed_distance": -0.0036015466321259737,
+      "sat_axis_gap": -0.0036051361212310756,
+      "gpu_status": 0,
+      "gpu_ok": true
+    },
+    {
+      "index": 188,
+      "alpha": 0.734375,
+      "gpu_signed_distance": -0.003603088902309537,
+      "sat_axis_gap": -0.0036066326037335755,
+      "gpu_status": 0,
+      "gpu_ok": true
+    },
+    {
+      "index": 189,
+      "alpha": 0.73828125,
+      "gpu_signed_distance": -0.003604565281420946,
+      "sat_axis_gap": -0.0036081292628196843,
+      "gpu_status": 0,
+      "gpu_ok": true
+    },
+    {
+      "index": 190,
+      "alpha": 0.7421875,
+      "gpu_signed_distance": -0.0036059855483472347,
+      "sat_axis_gap": -0.0036096260982951683,
+      "gpu_status": 0,
+      "gpu_ok": true
+    },
+    {
+      "index": 191,
+      "alpha": 0.74609375,
+      "gpu_signed_distance": -0.0036075282841920853,
+      "sat_axis_gap": -0.003611123109967196,
+      "gpu_status": 0,
+      "gpu_ok": true
+    },
+    {
+      "index": 192,
+      "alpha": 0.75,
+      "gpu_signed_distance": -0.0036090174689888954,
+      "sat_axis_gap": -0.00361262029764179,
+      "gpu_status": 0,
+      "gpu_ok": true
+    },
+    {
+      "index": 193,
+      "alpha": 0.75390625,
+      "gpu_signed_distance": -0.0036105841863900423,
+      "sat_axis_gap": -0.0036141176611260983,
+      "gpu_status": 0,
+      "gpu_ok": true
+    },
+    {
+      "index": 194,
+      "alpha": 0.7578125,
+      "gpu_signed_distance": -0.0036120289005339146,
+      "sat_axis_gap": -0.0036156152002254846,
+      "gpu_status": 0,
+      "gpu_ok": true
+    },
+    {
+      "index": 195,
+      "alpha": 0.76171875,
+      "gpu_signed_distance": -0.003613523207604885,
+      "sat_axis_gap": -0.0036171129147471864,
+      "gpu_status": 0,
+      "gpu_ok": true
+    },
+    {
+      "index": 196,
+      "alpha": 0.765625,
+      "gpu_signed_distance": -0.003615030087530613,
+      "sat_axis_gap": -0.003618610804497116,
+      "gpu_status": 0,
+      "gpu_ok": true
+    },
+    {
+      "index": 197,
+      "alpha": 0.76953125,
+      "gpu_signed_distance": -0.0036165378987789154,
+      "sat_axis_gap": -0.003620108869281574,
+      "gpu_status": 0,
+      "gpu_ok": true
+    },
+    {
+      "index": 198,
+      "alpha": 0.7734375,
+      "gpu_signed_distance": -0.0036179672461003065,
+      "sat_axis_gap": -0.003621607108907278,
+      "gpu_status": 0,
+      "gpu_ok": true
+    },
+    {
+      "index": 199,
+      "alpha": 0.77734375,
+      "gpu_signed_distance": -0.0036195209249854088,
+      "sat_axis_gap": -0.0036231055231805004,
+      "gpu_status": 0,
+      "gpu_ok": true
+    },
+    {
+      "index": 200,
+      "alpha": 0.78125,
+      "gpu_signed_distance": -0.003621045034378767,
+      "sat_axis_gap": -0.0036246041119072855,
+      "gpu_status": 0,
+      "gpu_ok": true
+    },
+    {
+      "index": 201,
+      "alpha": 0.78515625,
+      "gpu_signed_distance": -0.0036224042996764183,
+      "sat_axis_gap": -0.003626102874894191,
+      "gpu_status": 0,
+      "gpu_ok": true
+    },
+    {
+      "index": 202,
+      "alpha": 0.7890625,
+      "gpu_signed_distance": -0.0036239142064005136,
+      "sat_axis_gap": -0.0036276018119472397,
+      "gpu_status": 0,
+      "gpu_ok": true
+    },
+    {
+      "index": 203,
+      "alpha": 0.79296875,
+      "gpu_signed_distance": -0.003625539131462574,
+      "sat_axis_gap": -0.003629100922872608,
+      "gpu_status": 0,
+      "gpu_ok": true
+    },
+    {
+      "index": 204,
+      "alpha": 0.796875,
+      "gpu_signed_distance": -0.003627089085057378,
+      "sat_axis_gap": -0.003630600207477283,
+      "gpu_status": 0,
+      "gpu_ok": true
+    },
+    {
+      "index": 205,
+      "alpha": 0.80078125,
+      "gpu_signed_distance": -0.0036283612716943026,
+      "sat_axis_gap": -0.003632099665566449,
+      "gpu_status": 0,
+      "gpu_ok": true
+    },
+    {
+      "index": 206,
+      "alpha": 0.8046875,
+      "gpu_signed_distance": -0.003629927523434162,
+      "sat_axis_gap": -0.0036335992969468503,
+      "gpu_status": 0,
+      "gpu_ok": true
+    },
+    {
+      "index": 207,
+      "alpha": 0.80859375,
+      "gpu_signed_distance": -0.003631322644650936,
+      "sat_axis_gap": -0.003635099101424906,
+      "gpu_status": 0,
+      "gpu_ok": true
+    },
+    {
+      "index": 208,
+      "alpha": 0.8125,
+      "gpu_signed_distance": -0.003632874460890889,
+      "sat_axis_gap": -0.0036365990788063407,
+      "gpu_status": 0,
+      "gpu_ok": true
+    },
+    {
+      "index": 209,
+      "alpha": 0.81640625,
+      "gpu_signed_distance": -0.003634415566921234,
+      "sat_axis_gap": -0.0036380992288981284,
+      "gpu_status": 0,
+      "gpu_ok": true
+    },
+    {
+      "index": 210,
+      "alpha": 0.8203125,
+      "gpu_signed_distance": -0.003635960631072521,
+      "sat_axis_gap": -0.003639599551505758,
+      "gpu_status": 0,
+      "gpu_ok": true
+    },
+    {
+      "index": 211,
+      "alpha": 0.82421875,
+      "gpu_signed_distance": -0.003637396963313222,
+      "sat_axis_gap": -0.0036411000464351487,
+      "gpu_status": 0,
+      "gpu_ok": true
+    },
+    {
+      "index": 212,
+      "alpha": 0.828125,
+      "gpu_signed_distance": -0.003638882888481021,
+      "sat_axis_gap": -0.0036426007134927607,
+      "gpu_status": 0,
+      "gpu_ok": true
+    },
+    {
+      "index": 213,
+      "alpha": 0.83203125,
+      "gpu_signed_distance": -0.0036404025740921497,
+      "sat_axis_gap": -0.0036441015524847076,
+      "gpu_status": 0,
+      "gpu_ok": true
+    },
+    {
+      "index": 214,
+      "alpha": 0.8359375,
+      "gpu_signed_distance": -0.003641952760517597,
+      "sat_axis_gap": -0.003645602563217387,
+      "gpu_status": 0,
+      "gpu_ok": true
+    },
+    {
+      "index": 215,
+      "alpha": 0.83984375,
+      "gpu_signed_distance": -0.0036433497443795204,
+      "sat_axis_gap": -0.003647103745496587,
+      "gpu_status": 0,
+      "gpu_ok": true
+    },
+    {
+      "index": 216,
+      "alpha": 0.84375,
+      "gpu_signed_distance": -0.0036449104081839323,
+      "sat_axis_gap": -0.0036486050991280383,
+      "gpu_status": 0,
+      "gpu_ok": true
+    },
+    {
+      "index": 217,
+      "alpha": 0.84765625,
+      "gpu_signed_distance": -0.0036464431323111057,
+      "sat_axis_gap": -0.0036501066239181187,
+      "gpu_status": 0,
+      "gpu_ok": true
+    },
+    {
+      "index": 218,
+      "alpha": 0.8515625,
+      "gpu_signed_distance": -0.0036479870323091745,
+      "sat_axis_gap": -0.0036516083196727403,
+      "gpu_status": 0,
+      "gpu_ok": true
+    },
+    {
+      "index": 219,
+      "alpha": 0.85546875,
+      "gpu_signed_distance": -0.0036494212690740824,
+      "sat_axis_gap": -0.0036531101861981483,
+      "gpu_status": 0,
+      "gpu_ok": true
+    },
+    {
+      "index": 220,
+      "alpha": 0.859375,
+      "gpu_signed_distance": -0.003650905331596732,
+      "sat_axis_gap": -0.003654612223300574,
+      "gpu_status": 0,
+      "gpu_ok": true
+    },
+    {
+      "index": 221,
+      "alpha": 0.86328125,
+      "gpu_signed_distance": -0.003652447136119008,
+      "sat_axis_gap": -0.003656114430785687,
+      "gpu_status": 0,
+      "gpu_ok": true
+    },
+    {
+      "index": 222,
+      "alpha": 0.8671875,
+      "gpu_signed_distance": -0.0036540052387863398,
+      "sat_axis_gap": -0.0036576168084591076,
+      "gpu_status": 0,
+      "gpu_ok": true
+    },
+    {
+      "index": 223,
+      "alpha": 0.87109375,
+      "gpu_signed_distance": -0.003655392909422517,
+      "sat_axis_gap": -0.003659119356127151,
+      "gpu_status": 0,
+      "gpu_ok": true
+    },
+    {
+      "index": 224,
+      "alpha": 0.875,
+      "gpu_signed_distance": -0.0036569852381944656,
+      "sat_axis_gap": -0.0036606220735957845,
+      "gpu_status": 0,
+      "gpu_ok": true
+    },
+    {
+      "index": 225,
+      "alpha": 0.87890625,
+      "gpu_signed_distance": -0.0036584895569831133,
+      "sat_axis_gap": -0.003662124960670886,
+      "gpu_status": 0,
+      "gpu_ok": true
+    },
+    {
+      "index": 226,
+      "alpha": 0.8828125,
+      "gpu_signed_distance": -0.0036600336898118258,
+      "sat_axis_gap": -0.003663628017158742,
+      "gpu_status": 0,
+      "gpu_ok": true
+    },
+    {
+      "index": 227,
+      "alpha": 0.88671875,
+      "gpu_signed_distance": -0.003661480965092778,
+      "sat_axis_gap": -0.0036651312428645708,
+      "gpu_status": 0,
+      "gpu_ok": true
+    },
+    {
+      "index": 228,
+      "alpha": 0.890625,
+      "gpu_signed_distance": -0.0036630183458328247,
+      "sat_axis_gap": -0.003666634637594937,
+      "gpu_status": 0,
+      "gpu_ok": true
+    },
+    {
+      "index": 229,
+      "alpha": 0.89453125,
+      "gpu_signed_distance": -0.0036645091604441404,
+      "sat_axis_gap": -0.003668138201154955,
+      "gpu_status": 0,
+      "gpu_ok": true
+    },
+    {
+      "index": 230,
+      "alpha": 0.8984375,
+      "gpu_signed_distance": -0.0036659000907093287,
+      "sat_axis_gap": -0.003669641933351002,
+      "gpu_status": 0,
+      "gpu_ok": true
+    },
+    {
+      "index": 231,
+      "alpha": 0.90234375,
+      "gpu_signed_distance": -0.0036674942821264267,
+      "sat_axis_gap": -0.00367114583398917,
+      "gpu_status": 0,
+      "gpu_ok": true
+    },
+    {
+      "index": 232,
+      "alpha": 0.90625,
+      "gpu_signed_distance": -0.0036690423730760813,
+      "sat_axis_gap": -0.0036726499028746154,
+      "gpu_status": 0,
+      "gpu_ok": true
+    },
+    {
+      "index": 233,
+      "alpha": 0.91015625,
+      "gpu_signed_distance": -0.003670564852654934,
+      "sat_axis_gap": -0.0036741541398135,
+      "gpu_status": 0,
+      "gpu_ok": true
+    },
+    {
+      "index": 234,
+      "alpha": 0.9140625,
+      "gpu_signed_distance": -0.0036719993222504854,
+      "sat_axis_gap": -0.0036756585446119094,
+      "gpu_status": 0,
+      "gpu_ok": true
+    },
+    {
+      "index": 235,
+      "alpha": 0.91796875,
+      "gpu_signed_distance": -0.0036735970061272383,
+      "sat_axis_gap": -0.0036771631170750205,
+      "gpu_status": 0,
+      "gpu_ok": true
+    },
+    {
+      "index": 236,
+      "alpha": 0.921875,
+      "gpu_signed_distance": -0.0036751043517142534,
+      "sat_axis_gap": -0.0036786678570089187,
+      "gpu_status": 0,
+      "gpu_ok": true
+    },
+    {
+      "index": 237,
+      "alpha": 0.92578125,
+      "gpu_signed_distance": -0.003676303429529071,
+      "sat_axis_gap": -0.003680172764219676,
+      "gpu_status": 0,
+      "gpu_ok": true
+    },
+    {
+      "index": 238,
+      "alpha": 0.9296875,
+      "gpu_signed_distance": -0.0036778131034225225,
+      "sat_axis_gap": -0.0036816778385123927,
+      "gpu_status": 0,
+      "gpu_ok": true
+    },
+    {
+      "index": 239,
+      "alpha": 0.93359375,
+      "gpu_signed_distance": -0.0036794045008718967,
+      "sat_axis_gap": -0.0036831830796931267,
+      "gpu_status": 0,
+      "gpu_ok": true
+    },
+    {
+      "index": 240,
+      "alpha": 0.9375,
+      "gpu_signed_distance": -0.003680950030684471,
+      "sat_axis_gap": -0.003684688487567811,
+      "gpu_status": 0,
+      "gpu_ok": true
+    },
+    {
+      "index": 241,
+      "alpha": 0.94140625,
+      "gpu_signed_distance": -0.0036823598202317953,
+      "sat_axis_gap": -0.0036861940619416847,
+      "gpu_status": 0,
+      "gpu_ok": true
+    },
+    {
+      "index": 242,
+      "alpha": 0.9453125,
+      "gpu_signed_distance": -0.003683914430439472,
+      "sat_axis_gap": -0.003687699802621021,
+      "gpu_status": 0,
+      "gpu_ok": true
+    },
+    {
+      "index": 243,
+      "alpha": 0.94921875,
+      "gpu_signed_distance": -0.003685498610138893,
+      "sat_axis_gap": -0.003689205709410788,
+      "gpu_status": 0,
+      "gpu_ok": true
+    },
+    {
+      "index": 244,
+      "alpha": 0.953125,
+      "gpu_signed_distance": -0.0036868532188236713,
+      "sat_axis_gap": -0.0036907117821170232,
+      "gpu_status": 0,
+      "gpu_ok": true
+    },
+    {
+      "index": 245,
+      "alpha": 0.95703125,
+      "gpu_signed_distance": -0.0036884057335555553,
+      "sat_axis_gap": -0.0036922180205453195,
+      "gpu_status": 0,
+      "gpu_ok": true
+    },
+    {
+      "index": 246,
+      "alpha": 0.9609375,
+      "gpu_signed_distance": -0.003689995501190424,
+      "sat_axis_gap": -0.0036937244245013254,
+      "gpu_status": 0,
+      "gpu_ok": true
+    },
+    {
+      "index": 247,
+      "alpha": 0.96484375,
+      "gpu_signed_distance": -0.003691507503390312,
+      "sat_axis_gap": -0.0036952309937910086,
+      "gpu_status": 0,
+      "gpu_ok": true
+    },
+    {
+      "index": 248,
+      "alpha": 0.96875,
+      "gpu_signed_distance": -0.0036929589696228504,
+      "sat_axis_gap": -0.003696737728219615,
+      "gpu_status": 0,
+      "gpu_ok": true
+    },
+    {
+      "index": 249,
+      "alpha": 0.97265625,
+      "gpu_signed_distance": -0.003694462589919567,
+      "sat_axis_gap": -0.003698244627592419,
+      "gpu_status": 0,
+      "gpu_ok": true
+    },
+    {
+      "index": 250,
+      "alpha": 0.9765625,
+      "gpu_signed_distance": -0.0036960665602236986,
+      "sat_axis_gap": -0.0036997516917152973,
+      "gpu_status": 0,
+      "gpu_ok": true
+    },
+    {
+      "index": 251,
+      "alpha": 0.98046875,
+      "gpu_signed_distance": -0.0036975012626498938,
+      "sat_axis_gap": -0.0037012589203937324,
+      "gpu_status": 0,
+      "gpu_ok": true
+    },
+    {
+      "index": 252,
+      "alpha": 0.984375,
+      "gpu_signed_distance": -0.0036990174558013678,
+      "sat_axis_gap": -0.003702766313433449,
+      "gpu_status": 0,
+      "gpu_ok": true
+    },
+    {
+      "index": 253,
+      "alpha": 0.98828125,
+      "gpu_signed_distance": -0.0037005357444286346,
+      "sat_axis_gap": -0.0037042738706402345,
+      "gpu_status": 0,
+      "gpu_ok": true
+    },
+    {
+      "index": 254,
+      "alpha": 0.9921875,
+      "gpu_signed_distance": -0.0037020104937255383,
+      "sat_axis_gap": -0.0037057815918192655,
+      "gpu_status": 0,
+      "gpu_ok": true
+    },
+    {
+      "index": 255,
+      "alpha": 0.99609375,
+      "gpu_signed_distance": -0.0037035278510302305,
+      "sat_axis_gap": -0.0037072894767757048,
+      "gpu_status": 0,
+      "gpu_ok": true
+    },
+    {
+      "index": 256,
+      "alpha": 1.0,
+      "gpu_signed_distance": -0.003705084091052413,
+      "sat_axis_gap": -0.0037087975253153674,
+      "gpu_status": 0,
+      "gpu_ok": true
+    }
+  ],
+  "sign_disagreements": 60,
+  "first_sign_disagreement": {
+    "index": 0,
+    "alpha": 0.0,
+    "gpu_signed_distance": 0.0013678802642971277,
+    "sat_axis_gap": -0.0033286113058970807,
+    "gpu_status": 0,
+    "gpu_ok": true
+  },
+  "first_sat_overlap": {
+    "index": 0,
+    "alpha": 0.0,
+    "gpu_signed_distance": 0.0013678802642971277,
+    "sat_axis_gap": -0.0033286113058970807,
+    "gpu_status": 0,
+    "gpu_ok": true
+  },
+  "first_gpu_overlap": {
+    "index": 60,
+    "alpha": 0.234375,
+    "gpu_signed_distance": -0.0034131580032408237,
+    "sat_axis_gap": -0.003416585565554263,
+    "gpu_status": 0,
+    "gpu_ok": true
+  },
+  "note": "SAT axis gap is a separating-axis lower bound and not generally Euclidean distance; compare overlap signs only."
+}

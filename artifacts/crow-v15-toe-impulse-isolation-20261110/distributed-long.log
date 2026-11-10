@@ -1,0 +1,46 @@
+contact 0 0 crow_left_front_toe_1 1.21306896 0.0356965065
+contact 0 0 crow_left_front_toe_1 1.39224207 0.00130558014
+contact 0 0 crow_left_front_toe_1 1.46131814 0.00700330734
+contact 0 0 crow_left_front_toe_1 0.725817084 0.0412912369
+contact 0 0 crow_left_front_toe_2 1.20513785 0.0354881287
+contact 0 0 crow_left_front_toe_2 1.38226962 0.00107574463
+contact 0 0 crow_left_front_toe_2 1.45202577 0.00673866272
+contact 0 0 crow_left_front_toe_2 0.722064614 0.0410480499
+contact 0 0 crow_right_front_toe_1 1.34923303 0.0370354652
+contact 0 0 crow_right_front_toe_1 1.54828799 0.00268363953
+contact 0 0 crow_right_front_toe_1 1.58786225 0.0084438324
+contact 0 0 crow_right_front_toe_1 0.891772389 0.0426921844
+contact 0 0 crow_right_front_toe_2 1.36456931 0.0367879868
+contact 0 0 crow_right_front_toe_2 1.56068957 0.00243616104
+contact 0 0 crow_right_front_toe_2 1.60575378 0.00819635391
+contact 0 0 crow_right_front_toe_2 0.901188731 0.042444706
+contact 0 0 crow_right_front_toe_3 1.37633991 0.0365405083
+contact 0 0 crow_right_front_toe_3 1.56919825 0.00218868256
+contact 0 0 crow_right_front_toe_3 1.61906075 0.00794887543
+contact 0 0 crow_right_front_toe_3 0.908497751 0.0421972275
+result 0 0 z 0.858660579 vz -37.9715157 toe_impulse 25.8363978 total_impulse 25.8363978 residuals 1.61906075 226.948654 1.19209261e-07 constraints 588 toes 0.316931218 0.314943552 0.296031326 0.286305189 0.319104791 0.319104642 0.319104493 0.319103777
+contact 1 0 crow_left_front_toe_1 1.21306908 0.0356965065
+contact 1 0 crow_left_front_toe_1 1.39224219 0.00130558014
+contact 1 0 crow_left_front_toe_1 1.46131825 0.00700330734
+contact 1 0 crow_left_front_toe_1 0.725817084 0.0412912369
+contact 1 0 crow_left_front_toe_2 1.20513809 0.0354881287
+contact 1 0 crow_left_front_toe_2 1.3822695 0.00107574463
+contact 1 0 crow_left_front_toe_2 1.45202601 0.00673866272
+contact 1 0 crow_left_front_toe_2 0.722064614 0.0410480499
+contact 1 0 crow_right_front_toe_1 1.34923315 0.0370354652
+contact 1 0 crow_right_front_toe_1 1.54828846 0.00268363953
+contact 1 0 crow_right_front_toe_1 1.58786237 0.0084438324
+contact 1 0 crow_right_front_toe_1 0.891772509 0.0426921844
+contact 1 0 crow_right_front_toe_2 1.36456966 0.0367879868
+contact 1 0 crow_right_front_toe_2 1.56068993 0.00243616104
+contact 1 0 crow_right_front_toe_2 1.60575402 0.00819635391
+contact 1 0 crow_right_front_toe_2 0.901189089 0.042444706
+contact 1 0 crow_right_front_toe_3 1.37634051 0.0365405083
+contact 1 0 crow_right_front_toe_3 1.56919849 0.00218868256
+contact 1 0 crow_right_front_toe_3 1.61906099 0.00794887543
+contact 1 0 crow_right_front_toe_3 0.908498049 0.0421972275
+result 1 0 z 0.858660579 vz -37.9715271 toe_impulse 25.8364021 total_impulse 25.8364021 residuals 1.61906099 226.9487 0 constraints 588 toes 0.316931218 0.314943552 0.296031326 0.286305189 0.319104791 0.319104642 0.319104493 0.319103777
+exception 2 timestepSeconds must be finite and positive and physicsSubsteps, solver iterations, or manifold thresholds are outside the supported range
+exception 3 timestepSeconds must be finite and positive and physicsSubsteps, solver iterations, or manifold thresholds are outside the supported range
+exception 4 timestepSeconds must be finite and positive and physicsSubsteps, solver iterations, or manifold thresholds are outside the supported range
+exception 5 timestepSeconds must be finite and positive and physicsSubsteps, solver iterations, or manifold thresholds are outside the supported range

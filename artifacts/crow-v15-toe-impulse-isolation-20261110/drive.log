@@ -1,0 +1,31 @@
+contact 0 0 crow_left_front_toe_1 1.21306896 0.0356965065
+contact 0 0 crow_left_front_toe_1 1.39224207 0.00130558014
+contact 0 0 crow_left_front_toe_1 1.46131814 0.00700330734
+contact 0 0 crow_left_front_toe_1 0.725817084 0.0412912369
+contact 0 0 crow_left_front_toe_2 1.20513785 0.0354881287
+contact 0 0 crow_left_front_toe_2 1.38226962 0.00107574463
+contact 0 0 crow_left_front_toe_2 1.45202577 0.00673866272
+contact 0 0 crow_left_front_toe_2 0.722064614 0.0410480499
+contact 0 0 crow_right_front_toe_1 1.34923303 0.0370354652
+contact 0 0 crow_right_front_toe_1 1.54828799 0.00268363953
+contact 0 0 crow_right_front_toe_1 1.58786225 0.0084438324
+contact 0 0 crow_right_front_toe_1 0.891772389 0.0426921844
+contact 0 0 crow_right_front_toe_2 1.36456931 0.0367879868
+contact 0 0 crow_right_front_toe_2 1.56068957 0.00243616104
+contact 0 0 crow_right_front_toe_2 1.60575378 0.00819635391
+contact 0 0 crow_right_front_toe_2 0.901188731 0.042444706
+contact 0 0 crow_right_front_toe_3 1.37633991 0.0365405083
+contact 0 0 crow_right_front_toe_3 1.56919825 0.00218868256
+contact 0 0 crow_right_front_toe_3 1.61906075 0.00794887543
+contact 0 0 crow_right_front_toe_3 0.908497751 0.0421972275
+result 0 0 z 0.858660579 vz -37.9715157 toe_impulse 25.8363978 total_impulse 25.8363978 toes 0.316931218 0.314943552 0.296031326 0.286305189 0.319104791 0.319104642 0.319104493 0.319103777
+contact 1 0 crow_left_shank 0.0923112929 0.0235369205
+contact 1 0 crow_left_shank 0.0897237435 0.0235489011
+contact 1 0 crow_left_rear_toe 0.332893312 0.000873313809
+contact 1 0 crow_left_rear_toe 0.332694381 0.000897335005
+contact 1 0 crow_left_rear_toe 0.620667338 0.000897276681
+contact 1 0 crow_left_rear_toe 0.994849443 0.0192730371
+contact 1 0 crow_right_front_toe_1 0.000480073155 0.00268363953
+contact 1 0 crow_right_front_toe_2 0.00154691329 0.00243616104
+contact 1 0 crow_right_front_toe_3 0.00261013024 0.00218868256
+result 1 0 z 1.15399146 vz 21.0946445 toe_impulse 2.28574159 total_impulse 2.46777663 toes 0.316931218 0.314943552 0.312844902 0.199100524 0.301152587 0.300082862 0.299014688 0.312505782

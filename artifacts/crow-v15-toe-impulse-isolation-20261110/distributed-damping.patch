@@ -1,0 +1,18 @@
+--- a/MetalWorldContact.metal
++++ b/MetalWorldContact.metal
+@@ -6699,6 +6699,7 @@
+             static_cast<float>(failure);
+         preconditioner.row1.w =
+             static_cast<float>(localConstraint);
++        preconditioner.row2.w = 1.0f / float(max(work.constraintCount, 1u));
+         preconditioners[
+             constraintBase + localConstraint
+         ] = preconditioner;
+@@ -6820,6 +6821,7 @@
+                 constraintBase + localConstraint
+             ]
+         );
++        candidate = previous + preconditioner.row2.w * (candidate - previous);
+         const float3 delta = candidate - previous;
+         if (!finite3(candidate) || !finite3(delta)) {
+             impulseDeltas[

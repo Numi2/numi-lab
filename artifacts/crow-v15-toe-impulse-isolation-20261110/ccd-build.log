@@ -1,0 +1,5 @@
+In file included from artifacts/crow-v15-toe-impulse-isolation-20261110/ccd.cpp:2:
+artifacts/crow-v15-toe-impulse-isolation-20261110/toe_model.cpp:82:78: warning: non-void function does not return a value in all control paths [-Wreturn-type]
+   82 |   } catch(const std::exception& e){std::cerr<<e.what()<<std::endl;return 1;} }
+      |                                                                              ^
+1 warning generated.

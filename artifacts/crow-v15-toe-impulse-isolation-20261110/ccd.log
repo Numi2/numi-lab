@@ -1,0 +1,30 @@
+contact 0 0 crow_left_front_toe_1 1.21306896 0.0356965065
+contact 0 0 crow_left_front_toe_1 1.39224207 0.00130558014
+contact 0 0 crow_left_front_toe_1 1.46131814 0.00700330734
+contact 0 0 crow_left_front_toe_1 0.725817084 0.0412912369
+contact 0 0 crow_left_front_toe_2 1.20513785 0.0354881287
+contact 0 0 crow_left_front_toe_2 1.38226962 0.00107574463
+contact 0 0 crow_left_front_toe_2 1.45202577 0.00673866272
+contact 0 0 crow_left_front_toe_2 0.722064614 0.0410480499
+contact 0 0 crow_right_front_toe_1 1.34923303 0.0370354652
+contact 0 0 crow_right_front_toe_1 1.54828799 0.00268363953
+contact 0 0 crow_right_front_toe_1 1.58786225 0.0084438324
+contact 0 0 crow_right_front_toe_1 0.891772389 0.0426921844
+contact 0 0 crow_right_front_toe_2 1.36456931 0.0367879868
+contact 0 0 crow_right_front_toe_2 1.56068957 0.00243616104
+contact 0 0 crow_right_front_toe_2 1.60575378 0.00819635391
+contact 0 0 crow_right_front_toe_2 0.901188731 0.042444706
+contact 0 0 crow_right_front_toe_3 1.37633991 0.0365405083
+contact 0 0 crow_right_front_toe_3 1.56919825 0.00218868256
+contact 0 0 crow_right_front_toe_3 1.61906075 0.00794887543
+contact 0 0 crow_right_front_toe_3 0.908497751 0.0421972275
+result 0 0 z 0.858660579 vz -37.9715157 toe_impulse 25.8363978 total_impulse 25.8363978 residuals 1.61906075 226.948654 constraints 588 toes 0.316931218 0.314943552 0.296031326 0.286305189 0.319104791 0.319104642 0.319104493 0.319103777
+contact 1 0 crow_left_foot 0.00978313573 0.000412605237
+contact 1 0 crow_left_foot 0.0110874493 0.000395531766
+contact 1 0 crow_right_foot 0.0152300978 0.000418072072
+contact 1 0 crow_right_foot 0.0134467399 0.000399927172
+contact 1 0 crow_left_front_toe_3 0.00123328972 0.000898829894
+contact 1 0 crow_left_front_toe_3 0.00130827026 0.000870668271
+contact 1 0 crow_left_rear_toe 0.0013041083 0.000873306068
+contact 1 0 crow_right_rear_toe 0.0174294822 0.000587927818
+result 1 0 z 1.04806411 vz -0.0908197165 toe_impulse 0.0212751505 total_impulse 0.0708225732 residuals 0.0177655257 0.097796768 constraints 8 toes 0.296689451 0.293302864 0.290077567 0.300684035 0.300393134 0.300393045 0.300392956 0.260906041

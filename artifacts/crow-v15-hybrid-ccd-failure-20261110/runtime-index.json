@@ -1,0 +1,27 @@
+[
+  {
+    "path": "build/crow-v15-hybrid-ccd-failure-20261110/collision-sat.metallib",
+    "sha256": "9f8396bb6014e13d5a83069af4ad64cc442b6fa9e748ee001dc497985e8d5e5c",
+    "bytes": 4471952
+  },
+  {
+    "path": "build/crow-v15-hybrid-ccd-failure-20261110/sweep-sat.metallib",
+    "sha256": "4d5e71a3419aa9ebdd3222e22d4f5d29d0b37514a4ef1d87c9393fc86d2fee5f",
+    "bytes": 958767
+  },
+  {
+    "path": "build/crow-v15-hybrid-ccd-failure-20261110/random-sat.metallib",
+    "sha256": "bac0f53e5fd57627b0a840dfc4b7713759aa4600f5ad4a8f7f8c6b50e9e9f160",
+    "bytes": 954375
+  },
+  {
+    "path": "build/crow-v15-hybrid-ccd-failure-20261110/random-sat",
+    "sha256": "8c90920ea4bacb4a7719079d39d0dbf5ab888bb9d0e23219ada63791a6b1a3b3",
+    "bytes": 55000
+  },
+  {
+    "path": "build/crow-v15-hybrid-ccd-failure-20261110/sweep",
+    "sha256": "b554bda922dbc2a8d5e702e19a864c0f19ee63fa74682c7896434122d3ce457b",
+    "bytes": 79528
+  }
+]

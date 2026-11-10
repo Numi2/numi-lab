@@ -1,0 +1,13 @@
+--- a/Collision.metal
++++ b/Collision.metal
+@@ -9478,6 +9478,10 @@
+                     materialB.friction.w
+                 )
+             );
++            if (effectiveSeparation > 0.004f) {
++                contact.friction.x = 0.0f;
++                contact.friction.y = 0.0f;
++            }
+             contact.response = float4(
+                 max(materialA.response.x, materialB.response.x),
+                 max(materialA.response.y, materialB.response.y),
