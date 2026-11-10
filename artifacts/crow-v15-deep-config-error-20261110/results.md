@@ -1,0 +1,3 @@
+# Interrupted misconfigured duplicate
+
+This attempt was intended to test a -0.18 rad correction bound but the generated shader retained the prior -0.12 rad bound due to an incorrect source replacement. It was stopped with SIGINT as soon as the mistake was found; the runner reports exit -2 and retained the partial diagnostic stream. This is not a completed trial and is not evidence about the -0.18-rad candidate. The original build and plan are preserved here as an invalid interrupted attempt. The separately rebuilt deep-coordinated trial verifies the actual -0.18 bound in the generated shader before execution.
