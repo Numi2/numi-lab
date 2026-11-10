@@ -1,0 +1,47 @@
+[
+  {
+    "step": 4389,
+    "minimum_separating_axis_gap_m": 0.015271669634827338,
+    "front_toe_minimum_m": 0.015271669634827338
+  },
+  {
+    "step": 4390,
+    "minimum_separating_axis_gap_m": 0.0158966455340211,
+    "front_toe_minimum_m": 0.0158966455340211
+  },
+  {
+    "step": 4391,
+    "minimum_separating_axis_gap_m": 0.011129867757177385,
+    "front_toe_minimum_m": 0.011129867757177385
+  },
+  {
+    "step": 4392,
+    "minimum_separating_axis_gap_m": 0.0023985211674686646,
+    "front_toe_minimum_m": 0.0023985211674686646
+  },
+  {
+    "step": 4393,
+    "minimum_separating_axis_gap_m": 0.004178383540918852,
+    "front_toe_minimum_m": 0.004178383540918852
+  },
+  {
+    "step": 4394,
+    "minimum_separating_axis_gap_m": 0.01139916739701785,
+    "front_toe_minimum_m": 0.01139916739701785
+  },
+  {
+    "step": 4395,
+    "minimum_separating_axis_gap_m": 0.017729354680422665,
+    "front_toe_minimum_m": 0.017729354680422665
+  },
+  {
+    "step": 4396,
+    "minimum_separating_axis_gap_m": 0.02046122843550959,
+    "front_toe_minimum_m": 0.02046122843550959
+  },
+  {
+    "step": 4397,
+    "minimum_separating_axis_gap_m": 0.022311855732486098,
+    "front_toe_minimum_m": 0.022311855732486098
+  }
+]

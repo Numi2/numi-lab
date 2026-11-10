@@ -1,0 +1,17 @@
+[
+  {
+    "path": "build/crow-v15-free-toe-force-observer-20261110/probe",
+    "sha256": "e9af0e0f8a838c8a6c0f75d45f013a84dc195532b4134bfbcfcaeac6e6affce6",
+    "bytes": 100520
+  },
+  {
+    "path": "build/lib/libmetalrobo.dylib",
+    "sha256": "d7dad802978b03d8571487dac644678d2c4c1a8eae5b8a4c5c57be261cfbe11a",
+    "bytes": 5728528
+  },
+  {
+    "path": "build/shaders/MetalRobo.metallib",
+    "sha256": "69023c5dcd83c3a10bdc62a5a14d3a9c56d75797de36c95ed090b0f41ef9e135",
+    "bytes": 4467648
+  }
+]

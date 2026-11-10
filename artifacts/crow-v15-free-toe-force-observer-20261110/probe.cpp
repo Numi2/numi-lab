@@ -1,0 +1,15 @@
+#define main toe_free_admission_main
+#include "toe_model.cpp"
+#undef main
+#include "metalrobo/MetalWorld.hpp"
+#include "wing_model.hpp"
+int main(){for(unsigned cse=0;cse<4;cse++)for(unsigned arm=0;arm<4;arm++){try{
+ RunManifest m;m.id="toe_free_impulse";m.robot=toeModel();crowResearchWingInertia(m.robot);const float damping[4]={.003f,.009f,.015f,.030f};
+ for(size_t k=m.robot.mechanics.dofs.size()-8;k<m.robot.mechanics.dofs.size();++k)m.robot.mechanics.dofs[k].drive.y=damping[arm];
+ m.scene=makeBirdFlowAmericanCrowFlightScenePack();m.sensors.id="proprioception";m.task=makeAmericanCrowEmbodiedTaskPack(m.sensors.observation,m.reality.reset);m.reality.reset={};m.reality.id="reality";m.teacher.id="no_teacher";m.profile.id="probe";m.profile.capacities={.candidatePairs=512,.rawContacts=2048,.manifolds=512,.constraintBlocks=2048,.constraintRows=6144};m.task.capacities=m.profile.capacities;m.profile.environmentCount=1;m.profile.controlSteps=100;m.profile.physicsSubsteps=4;m.profile.controlTimestepSeconds=.02f;
+ CompiledRun run;auto st=compileRun(m,run);need(st.succeeded(),st.message);auto q=run.model().defaultQ,v=run.model().defaultV;q[2]=100.0f;unsigned nq=q.size(),nv=v.size();const float angle=(cse&1)? .27f:-.27f, rate=(cse&2)?3.6f:-3.6f;for(unsigned k=0;k<8;k++){q[nq-8+k]=angle;v[nv-8+k]=rate;}auto scene=run.defaultSceneBodies();
+ MetalWorldStepConfig conf;conf.timestepSeconds=.02f;conf.physicsSubsteps=4;conf.solverMode=MetalWorldSolverMode::temporalCone;conf.actuationMode=MetalWorldActuationMode::implicitPositionDrive;conf.velocityIterations=4;conf.finalVelocityIterations=2;conf.captureContactEvidence=true;MetalWorldContext ctx;MetalWorldResidentState resident;
+ for(unsigned t=0;t<100;t++){std::vector<float>commands(nv,0);for(const auto&d:run.model().dofs)if(d.vIndex<nv&&d.qIndex<nq&&(d.flags&MR_DOF_FLAG_DRIVE))commands[d.vIndex]=d.vIndex>=nv-8?0:q[d.qIndex];MetalWorldBatch batch{.environmentCount=1,.controlStepCount=1,.efforts=commands};if(t==0){batch.initialQ=q;batch.initialV=v;batch.initialSceneBodies=scene;}MetalWorldSubmission sub;auto status=t==0?ctx.initializeResidentState(run.world(),batch,conf,resident,sub):ctx.submitResident(run.world(),batch,conf,resident,sub);need(status.succeeded(),status.message);MetalWorldResult out;status=sub.wait(out);need(status.succeeded()&&status.failedStepCount==0&&status.successfulStepCount==1,"failed accepted step");auto contact=out.contactStatuses.at(0);double maxImpulse=0;for(unsigned i=0;i<contact.requiredConstraints;i++) maxImpulse=std::max(maxImpulse,double(std::abs(out.contactEvidence.contacts.at(i).impulses.x)));std::cout<<"trace "<<cse<<" "<<arm<<" "<<t<<" "<<contact.requiredConstraints<<" "<<maxImpulse;for(unsigned k=0;k<8;k++)std::cout<<" "<<out.finalQ[nq-8+k];for(unsigned k=0;k<8;k++)std::cout<<" "<<out.finalV[nv-8+k];std::cout<<std::endl;}
+ std::cout<<"case_result "<<cse<<" "<<arm<<" completed"<<std::endl;
+ }catch(const std::exception&e){std::cout<<"case_result "<<cse<<" "<<arm<<" failed "<<e.what()<<std::endl;}}
+}

@@ -1,0 +1,166 @@
+{
+  "baseline_parity_exact": true,
+  "differences": [],
+  "rows": [
+    {
+      "case": 0,
+      "arm": 0,
+      "outcome": "completed",
+      "samples": 100,
+      "max_candidates": 428,
+      "max_observed_normal_impulse": 0.0,
+      "max_angle_after_25": 0.000128903,
+      "pass": true
+    },
+    {
+      "case": 0,
+      "arm": 1,
+      "outcome": "completed",
+      "samples": 100,
+      "max_candidates": 156,
+      "max_observed_normal_impulse": 0.0,
+      "max_angle_after_25": 0.000922783,
+      "pass": true
+    },
+    {
+      "case": 0,
+      "arm": 2,
+      "outcome": "completed",
+      "samples": 100,
+      "max_candidates": 60,
+      "max_observed_normal_impulse": 0.00363594,
+      "max_angle_after_25": 0.0696232,
+      "pass": false
+    },
+    {
+      "case": 0,
+      "arm": 3,
+      "outcome": "completed",
+      "samples": 100,
+      "max_candidates": 58,
+      "max_observed_normal_impulse": 0.00377282,
+      "max_angle_after_25": 0.0636439,
+      "pass": false
+    },
+    {
+      "case": 1,
+      "arm": 0,
+      "outcome": "completed",
+      "samples": 100,
+      "max_candidates": 428,
+      "max_observed_normal_impulse": 0.0,
+      "max_angle_after_25": 0.000128903,
+      "pass": true
+    },
+    {
+      "case": 1,
+      "arm": 1,
+      "outcome": "completed",
+      "samples": 100,
+      "max_candidates": 140,
+      "max_observed_normal_impulse": 0.0,
+      "max_angle_after_25": 0.00069988,
+      "pass": true
+    },
+    {
+      "case": 1,
+      "arm": 2,
+      "outcome": "completed",
+      "samples": 100,
+      "max_candidates": 60,
+      "max_observed_normal_impulse": 0.0,
+      "max_angle_after_25": 0.00800606,
+      "pass": true
+    },
+    {
+      "case": 1,
+      "arm": 3,
+      "outcome": "completed",
+      "samples": 100,
+      "max_candidates": 60,
+      "max_observed_normal_impulse": 0.0,
+      "max_angle_after_25": 0.0417636,
+      "pass": true
+    },
+    {
+      "case": 2,
+      "arm": 0,
+      "outcome": "completed",
+      "samples": 100,
+      "max_candidates": 428,
+      "max_observed_normal_impulse": 0.0,
+      "max_angle_after_25": 0.000128904,
+      "pass": true
+    },
+    {
+      "case": 2,
+      "arm": 1,
+      "outcome": "completed",
+      "samples": 100,
+      "max_candidates": 140,
+      "max_observed_normal_impulse": 0.0,
+      "max_angle_after_25": 0.000613073,
+      "pass": true
+    },
+    {
+      "case": 2,
+      "arm": 2,
+      "outcome": "completed",
+      "samples": 100,
+      "max_candidates": 60,
+      "max_observed_normal_impulse": 0.00288198,
+      "max_angle_after_25": 0.0705047,
+      "pass": false
+    },
+    {
+      "case": 2,
+      "arm": 3,
+      "outcome": "completed",
+      "samples": 100,
+      "max_candidates": 60,
+      "max_observed_normal_impulse": 0.00409,
+      "max_angle_after_25": 0.0682757,
+      "pass": false
+    },
+    {
+      "case": 3,
+      "arm": 0,
+      "outcome": "completed",
+      "samples": 100,
+      "max_candidates": 412,
+      "max_observed_normal_impulse": 0.0,
+      "max_angle_after_25": 0.000128904,
+      "pass": true
+    },
+    {
+      "case": 3,
+      "arm": 1,
+      "outcome": "completed",
+      "samples": 100,
+      "max_candidates": 156,
+      "max_observed_normal_impulse": 0.0,
+      "max_angle_after_25": 0.00100959,
+      "pass": true
+    },
+    {
+      "case": 3,
+      "arm": 2,
+      "outcome": "completed",
+      "samples": 100,
+      "max_candidates": 60,
+      "max_observed_normal_impulse": 0.0,
+      "max_angle_after_25": 0.0112054,
+      "pass": true
+    },
+    {
+      "case": 3,
+      "arm": 3,
+      "outcome": "completed",
+      "samples": 100,
+      "max_candidates": 60,
+      "max_observed_normal_impulse": 0.0,
+      "max_angle_after_25": 0.0662725,
+      "pass": false
+    }
+  ]
+}

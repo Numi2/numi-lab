@@ -1,0 +1,5 @@
+baseline parity True differences 0
+arm 0 pass 4 max observed impulse 0.0 max angle 0.000128904
+arm 1 pass 4 max observed impulse 0.0 max angle 0.00100959
+arm 2 pass 2 max observed impulse 0.00363594 max angle 0.0705047
+arm 3 pass 1 max observed impulse 0.00409 max angle 0.0682757
