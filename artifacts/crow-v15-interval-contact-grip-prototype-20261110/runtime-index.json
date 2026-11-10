@@ -1,0 +1,17 @@
+[
+  {
+    "path": "build/crow-v15-interval-contact-grip-prototype-20261110/probe",
+    "sha256": "bb73117809898c91772e30af6d6e0d4d40bc2797c88c00a876b7f68dbf52d6c3",
+    "bytes": 101816
+  },
+  {
+    "path": "build/crow-v15-interval-contact-grip-prototype-20261110/libmetalrobo.dylib",
+    "sha256": "871c65bc05e0b2dd92b2058abb98cfcdf612118c663139d835af183ffc67d273",
+    "bytes": 5729488
+  },
+  {
+    "path": "build/crow-v15-alternating-foot-release-20261110/teacher.metallib",
+    "sha256": "a1fa801ac2f2ea5e557a54073b280039e5bb60422d8b5beb1cd90b2ec22c459b",
+    "bytes": 4485424
+  }
+]

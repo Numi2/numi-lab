@@ -1,0 +1,6 @@
+In file included from /Users/n/Developer/numi-crow-rl-20261107/artifacts/crow-v15-interval-contact-grip-prototype-20261110/perch_probe.cpp:2:
+/Users/n/Developer/numi-crow-rl-20261107/artifacts/crow-v15-interval-contact-grip-prototype-20261110/toe_model.cpp:82:78: warning: non-void function does not return a value in all control paths [-Wreturn-type]
+   82 |   } catch(const std::exception& e){std::cerr<<e.what()<<std::endl;return 1;} }
+      |                                                                              ^
+1 warning generated.
+diagnostic_library_sha256 871c65bc05e0b2dd92b2058abb98cfcdf612118c663139d835af183ffc67d273
