@@ -1,0 +1,5 @@
+Four-iteration hybrid control matches prior bench: True differences 0
+arm 0 strict pass 0 opposed 3+ 1 terminal support 0 minimum grip gap m -0.0050344871360356175 missing pose steps 0
+arm 1 strict pass 1 opposed 3+ 1 terminal support 1 minimum grip gap m -0.004797000646767843 missing pose steps 0
+arm 2 strict pass 1 opposed 3+ 1 terminal support 1 minimum grip gap m -0.004893211640692528 missing pose steps 0
+arm 3 strict pass 1 opposed 3+ 1 terminal support 1 minimum grip gap m -0.004566976122459376 missing pose steps 0

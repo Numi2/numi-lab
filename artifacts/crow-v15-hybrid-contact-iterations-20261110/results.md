@@ -1,0 +1,3 @@
+# Hybrid contact iterations: insufficient overlap reduction
+
+The four-iteration control reproduced all 200 retained hybrid case-1 state samples exactly. At 4, 8, 16 and 32 velocity iterations, the worst accepted-pose toe/perch overlap at opposing grip was 5.034, 4.797, 4.893 and 4.567 mm, respectively. The 8/16/32 arms passed the local grip/release/terminal-support endpoint sequence in this one start, while the four-iteration arm did not. All four completed without reported rollback. Although additional iterations altered support and reduced the worst overlap slightly, none approached the 0.5 mm screen; iteration count is not a sufficient fix. This is one stationary-perch development start, not flight, continuous landing, solver qualification or biological evidence.
