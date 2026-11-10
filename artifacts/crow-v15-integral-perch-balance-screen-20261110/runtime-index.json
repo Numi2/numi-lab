@@ -1,0 +1,17 @@
+[
+  {
+    "path": "build/crow-v15-integral-perch-balance-screen-20261110/probe",
+    "sha256": "50e33a07105d41c3ff1b5b43e897d8c6512b0210f1a560989d5332230eef14a4",
+    "bytes": 101816
+  },
+  {
+    "path": "build/crow-v15-integral-perch-balance-screen-20261110/libmetalrobo.dylib",
+    "sha256": "f342a206222b4f6ccfb47fb5a6c6be4a843a21ffe63182c8c1cbf94c7ce46863",
+    "bytes": 5729488
+  },
+  {
+    "path": "build/crow-v15-alternating-foot-release-20261110/teacher.metallib",
+    "sha256": "a1fa801ac2f2ea5e557a54073b280039e5bb60422d8b5beb1cd90b2ec22c459b",
+    "bytes": 4485424
+  }
+]
