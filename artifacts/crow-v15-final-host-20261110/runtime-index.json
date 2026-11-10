@@ -1,0 +1,27 @@
+[
+  {
+    "path": "build/crow-v15-final-host-20261110/c_api.cpp",
+    "sha256": "7248eb7dfbcd0e82e8cb0e988d4f46151d499c86ec4095e4796ae36baecf48a4",
+    "bytes": 294703
+  },
+  {
+    "path": "build/crow-v15-final-host-20261110/MetalRoboTaskRollout.swift",
+    "sha256": "705d4f6fadaa82581c78314e6f9a49978d75dd19674d5bb10a24924186de7ccd",
+    "bytes": 114154
+  },
+  {
+    "path": "build/crow-v15-final-host-20261110/task_rollout.swift",
+    "sha256": "9709b1310f14535e970b79ef184feaea46cf650b3093eacb2c0b201018704b07",
+    "bytes": 200174
+  },
+  {
+    "path": "build/crow-v15-final-host-20261110/libmetalrobo.dylib",
+    "sha256": "82895640795096f313061fd5b58e9b33e6e72f964739575382ec5d87908898f3",
+    "bytes": 5765024
+  },
+  {
+    "path": "build/crow-v15-final-host-20261110/metalrobo_task_rollout",
+    "sha256": "1df3f0d3f76b3cb1ccddeb13d229a25f75011df411cddda90f8161d42893ae65",
+    "bytes": 1081640
+  }
+]

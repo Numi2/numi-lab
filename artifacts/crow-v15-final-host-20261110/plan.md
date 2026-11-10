@@ -1,0 +1,3 @@
+# Isolated host for reserved layouts
+
+The reproducible generator extends the current experimental host with the two already frozen K/L layouts and reset seeds, without printing their coordinates. It retains the existing research dynamics, substep contact observer, and continuous-collision budget. The copied Swift adapter exposes K/L and labels I/J as development-only. This host has been compiled but not yet qualified or used on K/L. Before any final test, compare a known development replay against the existing host under identical inputs, and freeze source, binary, policy and shader. A layout ceases to be held out if its result is used to tune or select a controller.

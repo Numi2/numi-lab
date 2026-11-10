@@ -1,0 +1,85 @@
+--- a/task_rollout.swift
++++ b/task_rollout.swift
+@@ -647,6 +647,10 @@
+                     birdFlowNavigationCourse = .reservedFinalI
+                 case "reserved-final-j":
+                     birdFlowNavigationCourse = .reservedFinalJ
++                case "reserved-final-k":
++                    birdFlowNavigationCourse = .reservedFinalK
++                case "reserved-final-l":
++                    birdFlowNavigationCourse = .reservedFinalL
+                 default:
+                     throw MetalRoboTaskRolloutError.invalidShape(
+                         "--birdflow-navigation-course requires training, held-out-a, held-out-b, development-reference, reserved-final-c, reserved-final-d, reserved-final-e, reserved-final-f, reserved-final-g, reserved-final-h, reserved-final-i, or reserved-final-j."
+@@ -3298,7 +3302,11 @@
+                     ],
+                     "body_names": context.bodyNames,
+                     "navigation_course":
+-                        options.birdFlowNavigationCourse == .reservedFinalI
++                        options.birdFlowNavigationCourse == .reservedFinalK
++                        ? "reserved-final-k"
++                        : options.birdFlowNavigationCourse == .reservedFinalL
++                        ? "reserved-final-l"
++                        : options.birdFlowNavigationCourse == .reservedFinalI
+                         ? "reserved-final-i"
+                         : options.birdFlowNavigationCourse == .reservedFinalJ
+                         ? "reserved-final-j"
+@@ -3333,8 +3341,8 @@
+                             options.birdFlowNavigationCourse ==
+                                 .developmentReference
+                             ? "paired-development-only"
+-                            : (options.birdFlowNavigationCourse == .reservedFinalI ||
+-                               options.birdFlowNavigationCourse == .reservedFinalJ)
++                            : (options.birdFlowNavigationCourse == .reservedFinalK ||
++                               options.birdFlowNavigationCourse == .reservedFinalL)
+                             ? "reserved-final-only"
+                             : "development-only",
+                         "ranges_m": [
+@@ -3443,7 +3451,11 @@
+                     "policy_revision": installedPolicyRevision,
+                     "policy_pack": options.policyPack ?? "",
+                     "navigation_course":
+-                        options.birdFlowNavigationCourse == .reservedFinalI
++                        options.birdFlowNavigationCourse == .reservedFinalK
++                        ? "reserved-final-k"
++                        : options.birdFlowNavigationCourse == .reservedFinalL
++                        ? "reserved-final-l"
++                        : options.birdFlowNavigationCourse == .reservedFinalI
+                         ? "reserved-final-i"
+                         : options.birdFlowNavigationCourse == .reservedFinalJ
+                         ? "reserved-final-j"
+@@ -3857,7 +3869,11 @@
+                 "birdflow_journey_variant":
+                     options.birdFlowJourneyVariant.commandName,
+                 "birdflow_navigation_course":
+-                    options.birdFlowNavigationCourse == .reservedFinalI
++                    options.birdFlowNavigationCourse == .reservedFinalK
++                    ? "reserved-final-k"
++                    : options.birdFlowNavigationCourse == .reservedFinalL
++                    ? "reserved-final-l"
++                    : options.birdFlowNavigationCourse == .reservedFinalI
+                     ? "reserved-final-i"
+                     : options.birdFlowNavigationCourse == .reservedFinalJ
+                     ? "reserved-final-j"
+@@ -3882,8 +3898,8 @@
+                 "birdflow_navigation_course_role":
+                     options.birdFlowNavigationCourse == .developmentReference
+                     ? "paired-development-only"
+-                    : (options.birdFlowNavigationCourse == .reservedFinalI ||
+-                       options.birdFlowNavigationCourse == .reservedFinalJ)
++                    : (options.birdFlowNavigationCourse == .reservedFinalK ||
++                       options.birdFlowNavigationCourse == .reservedFinalL)
+                     ? "reserved-final-only"
+                     : "development-only",
+                 "action_stream": options.actionStream ?? "",
+--- a/MetalRoboTaskRollout.swift
++++ b/MetalRoboTaskRollout.swift
+@@ -792,6 +792,8 @@
+     case reservedFinalH = 9
+     case reservedFinalI = 10
+     case reservedFinalJ = 11
++    case reservedFinalK = 12
++    case reservedFinalL = 13
+ }
+ 
+ public struct MetalRoboTaskRolloutConfiguration: Sendable {
