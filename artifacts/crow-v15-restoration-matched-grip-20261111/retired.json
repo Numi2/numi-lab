@@ -1,0 +1,11 @@
+{
+  "remote_commit": "03124d41d834398c7178ab9c443e0c1ef6f55d0b",
+  "retired": [
+    {
+      "raw": "artifacts/crow-v15-matched-balance-grip-screen-20261111/results.txt",
+      "archive": "artifacts/crow-v15-matched-balance-grip-screen-20261111/results.txt.gz",
+      "sha256": "a8902f1978b1a5e57abca2decbe3ccdcbbf137adccac9527627e5cb60ced3f98",
+      "bytes": 2386543
+    }
+  ]
+}
