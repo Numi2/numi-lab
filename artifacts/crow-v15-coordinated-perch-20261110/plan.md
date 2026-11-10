@@ -1,0 +1,7 @@
+# Coordinated hip and ankle correction in full guided route
+
+The isolated reached-grip comparison found that a -0.06 rad hip / +0.06 rad ankle target change moved the body back and reduced its initial pitch increase versus zero while retaining most opposed toe and upward-support samples. The zero arm matched exactly between the paired fixtures. This is a short fresh-cache isolated result, not a full-route success.
+
+Test a contact-phase correction around the held leg pose in the continuous used-J route. Derive a bounded physical-angle delta from accepted body pitch and pitch rate: clamp(-pitch - 0.05*pitchRate, -0.06, 0) rad. Add it to each hip target and subtract it from each ankle target using their respective 0.70 and 0.65 rad/action binding scales; keep knees at the held flight target. The correction uses only existing joint position drives and limits, starts after measured support, and preserves the frozen flight law, contact flare, toe reflex and SAT research solver. Do not inject force or use the diagnostic phase as proof of support.
+
+Run the same used-J seed and first 5000-step episode. Require continuous physically loaded, opposing bilateral toe support and stable posture through the remainder of the episode with no nonfoot collision or reset. Record actual phase transitions, contact streaks, poses, speeds and first physical failure. This is exploratory and privileged, not autonomous, intentional release, biological, or unused-layout qualification.

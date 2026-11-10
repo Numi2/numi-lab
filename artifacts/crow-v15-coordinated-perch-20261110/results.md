@@ -1,0 +1,5 @@
+# Coordinated full-route landing result
+
+The teacher-guided used-J run reached five waypoints and entered supported phase. The longest bilateral-loaded streak was 380 accepted endpoints (7.6 seconds at 20 ms), versus 208 in the pose-hold trial. Opposing bilateral toe contacts were present on 178 endpoints, with a longest consecutive streak of only 22. After the correction saturated, the body continued to pitch forward, then physically failed at step 4201; sample 4202 recorded crow_body/perch contact with 0.0104 N s normal impulse. The stable-landing gate failed. A longer load streak does not establish a sustained opposing grip, robustness or biological realism.
+
+The physical joint targets stayed near hip -0.25 and ankle -0.152 rad after saturation. Root pitch was approximately 0.133 rad at support sample 4000, 0.197 at 4100 and 0.314 at 4150, then the crow fell. This motivates measuring wider coordinated target offsets locally, not assuming a larger action is safe. The experiment is a privileged single-seed used-layout result and does not demonstrate intentional release or autonomy; analysis ends before the reset.
