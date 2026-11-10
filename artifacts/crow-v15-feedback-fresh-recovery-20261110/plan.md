@@ -1,0 +1,3 @@
+# Fresh-state recovery for feedback controller
+
+Repeat the prior 80-lane ten-disturbance airborne recovery diagnostic with eight accepted straight-flight states at step 700 produced by the selected gain-1 feedback controller itself, and the corresponding observed filtered commands. Source seed 18722003 was used for ground-start development; this recovery is a reset with partially reconstructed state, not a continuous qualification. Compare source states with the uninstrumented ground screen before accepting results. Use the previously specified 800-step heading, lateral, speed and height gates, with ordinary ground, fixed head, zero actor, teacher off, no obstacle collisions and seed 18722117. Preserve all results.

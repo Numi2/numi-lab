@@ -1,0 +1,59 @@
+/Users/n/Developer/numi-crow-rl-20261107/build/crow-v15-feedback-fresh-recovery-20261110/airborne.metal:5039:21: warning: unused variable 'navigationWingResidual' [-Wunused-variable]
+        const float navigationWingResidual = avianNavigationTeacher
+                    ^
+/Users/n/Developer/numi-crow-rl-20261107/build/crow-v15-feedback-fresh-recovery-20261110/airborne.metal:6609:20: warning: unused variable 'mode' [-Wunused-variable]
+        const uint mode = environment % 5u;
+                   ^
+2 warnings generated.
+[
+  {
+    "perturbation": 0,
+    "passes": 8,
+    "physical_failures": 0
+  },
+  {
+    "perturbation": 1,
+    "passes": 8,
+    "physical_failures": 0
+  },
+  {
+    "perturbation": 2,
+    "passes": 8,
+    "physical_failures": 0
+  },
+  {
+    "perturbation": 3,
+    "passes": 8,
+    "physical_failures": 0
+  },
+  {
+    "perturbation": 4,
+    "passes": 8,
+    "physical_failures": 0
+  },
+  {
+    "perturbation": 5,
+    "passes": 8,
+    "physical_failures": 0
+  },
+  {
+    "perturbation": 6,
+    "passes": 8,
+    "physical_failures": 0
+  },
+  {
+    "perturbation": 7,
+    "passes": 8,
+    "physical_failures": 0
+  },
+  {
+    "perturbation": 8,
+    "passes": 8,
+    "physical_failures": 0
+  },
+  {
+    "perturbation": 9,
+    "passes": 8,
+    "physical_failures": 0
+  }
+]
