@@ -1,0 +1,3 @@
+# Guided recovery from anchored student on development J
+
+The fixed student reached two waypoints but its left wing hit slalom A at step 2248. Before execution, replay its full physical start and switch to guided routing at step 2000. Require exact accepted q, v, actor observations and actions through step 1999; five waypoints, no physical or solver failure, no nonfoot perch impulse and terminal bilateral support are required before allowing route-prefix-only training. Preserve and exclude failure. The current body and frozen flight law remain unchanged; this layout is used and K/L remain sealed.
