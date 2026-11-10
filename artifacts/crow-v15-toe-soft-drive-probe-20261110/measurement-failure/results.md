@@ -1,0 +1,3 @@
+# Instrumentation failure, no contact-screening conclusion
+
+The first run stopped each of 32 cases at the first independent FP64 pose calculation. The per-case status explicitly says kinematics failed; all had only 10 simulation steps and none reached the grip evaluation. The analyzer's zero counts therefore do not indicate a physical or controller failure and must not be used as a stiffness comparison. The instrument passed the compiled scene model, which includes scene bodies, into a single-articulation kinematics query; the follow-up will use the original robot mechanics as the separately verified FK input. State and logs are retained.

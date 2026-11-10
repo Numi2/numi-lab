@@ -1,0 +1,17 @@
+{
+  "0": {
+    "comparisons": 32,
+    "max_position_error_m": 0.007942175853065954,
+    "max_quaternion_euclidean_error": 0.04749354965384455
+  },
+  "-1": {
+    "comparisons": 32,
+    "max_position_error_m": 2.3257718069172456e-07,
+    "max_quaternion_euclidean_error": 3.351985082390694e-08
+  },
+  "1": {
+    "comparisons": 32,
+    "max_position_error_m": 0.015150434052000035,
+    "max_quaternion_euclidean_error": 0.044002154364609504
+  }
+}

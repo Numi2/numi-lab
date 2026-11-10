@@ -1,0 +1,5 @@
+# Sixteen-substep full-body development trial: failed
+
+The exact-weight rebound policies passed the native compatibility gate. The continuous first episode reached three waypoints, then its right wing contacted slalom B at step 2214. Immediately beforehand the root was at (3.592879, -0.175245, 1.167337) m with orientation xyzw (0.011535, 0.020001, -0.063191, 0.997734) and linear velocity (0.150719, -0.222012, -0.051694) m/s; angular velocity, complete joint state and policy actions are in route-diagnostics.json. The contact reported -0.681 mm separation and 0.003706 N s normal impulse. Minimum sampled accepted-step clearance was zero. There was no solver-failed step reported. The first episode never reached the landing or release. Later automatically restarted episodes in the 7000-step file are retained but do not count toward success.
+
+Changing substep count is not an accepted fix for toe overlap. Both finer-step development trials failed the preregistered full sequence gates. This is not a held-out layout result.
