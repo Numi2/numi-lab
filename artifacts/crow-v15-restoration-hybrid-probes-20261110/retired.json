@@ -1,0 +1,29 @@
+{
+  "remote_commit": "7d93a6dbeb70b71e65f781e5d3f90e2edbdbd03c",
+  "retired": [
+    {
+      "raw": "artifacts/crow-v15-matched-ccd-grip-probe-20261110/results.txt",
+      "archive": "artifacts/crow-v15-matched-ccd-grip-probe-20261110/results.txt.gz",
+      "sha256": "2c03fa97b24e6e7dc94156f3e2375331fd115b9160373b776160cb5627bb48d6",
+      "bytes": 12732293
+    },
+    {
+      "raw": "artifacts/crow-v15-hybrid-contact-gap-audit-20261110/results.txt",
+      "archive": "artifacts/crow-v15-hybrid-contact-gap-audit-20261110/results.txt.gz",
+      "sha256": "0f9deab4ce9e8647ba728b5c175787a443116c485cbcf0fffc74fc7ed8ed6e52",
+      "bytes": 447111
+    },
+    {
+      "raw": "artifacts/crow-v15-hybrid-contact-iterations-20261110/results.txt",
+      "archive": "artifacts/crow-v15-hybrid-contact-iterations-20261110/results.txt.gz",
+      "sha256": "2ec409c03ab8b6d755a07fca94e8227ce905ce038084fc0023489c4e1aaafb1d",
+      "bytes": 1748909
+    },
+    {
+      "raw": "artifacts/crow-v15-hybrid-toe-torque-screen-20261110/results.txt",
+      "archive": "artifacts/crow-v15-hybrid-toe-torque-screen-20261110/results.txt.gz",
+      "sha256": "cd66d0d741ac627f4dbeb4171ab16744ee28aa6d5f72076bcf61c16e272c61dc",
+      "bytes": 2648097
+    }
+  ]
+}
