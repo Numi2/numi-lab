@@ -1,0 +1,22 @@
+[
+  {
+    "path": "no-wrench/libmetalrobo.dylib",
+    "sha256": "c49c46dd6291abefbd2fdd41d2b06a496a5092ca661be239f0f809aa5a143c91",
+    "bytes": 5763680
+  },
+  {
+    "path": "no-wrench/zero.policypack",
+    "sha256": "5dbf49bdd77be849c0f0a1005ae2dc7ec96ef6a406c10cc074a3c1ebe6710c64",
+    "bytes": 2346383
+  },
+  {
+    "path": "no-toe-sensors/libmetalrobo.dylib",
+    "sha256": "07cbe92380be4a1748520cdadf82f4cc214a3fb13ec3e950e41dbaeab60d40b6",
+    "bytes": 5763680
+  },
+  {
+    "path": "no-toe-sensors/zero.policypack",
+    "sha256": "ca3ec893ef51953a21591604e389968385d6216a27591dfd17c48e5617d6667d",
+    "bytes": 2346388
+  }
+]

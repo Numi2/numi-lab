@@ -1,0 +1,10 @@
+/Users/n/Developer/numi-crow-rl-20261107/build/crow-v15-toe-sensor-isolation-20261110/no-wrench/c_api.cpp:3364:13: warning: unused function 'close' [-Wunused-function]
+ 3364 | static void close(double a, double b, const char* why) { crowToeNeed(std::abs(a-b)<=2e-7*(1+std::abs(a)),why); }
+      |             ^~~~~
+1 warning generated.
+no-wrench c49c46dd6291abefbd2fdd41d2b06a496a5092ca661be239f0f809aa5a143c91
+/Users/n/Developer/numi-crow-rl-20261107/build/crow-v15-toe-sensor-isolation-20261110/no-toe-sensors/c_api.cpp:3364:13: warning: unused function 'close' [-Wunused-function]
+ 3364 | static void close(double a, double b, const char* why) { crowToeNeed(std::abs(a-b)<=2e-7*(1+std::abs(a)),why); }
+      |             ^~~~~
+1 warning generated.
+no-toe-sensors 07cbe92380be4a1748520cdadf82f4cc214a3fb13ec3e950e41dbaeab60d40b6
