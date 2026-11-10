@@ -1,0 +1,11 @@
+--- a/alternating-release.metal
++++ b/retry-climb.metal
+@@ -6880,7 +6880,7 @@
+                     if ((group.members.z & MR_TASK_CONTACT_SUPPORT)!=0u &&
+                         compactContact[compactBase+group.members.w]>0.05f) ++loadedFeet;
+                 }
+-                if (phase >= 1.5f && state.nutrition.x+state.nutrition.y < 0.25f) phase=1.0f;
++                if (phase >= 1.5f && state.nutrition.x+state.nutrition.y < 0.25f) { phase=1.0f; state.nutrition.w=max(state.nutrition.w,1.30f); }
+                 if (state.navigation.z >= float(kCrowNavigationWaypointCount) && phase<2.5f && loadedFeet>=2u && abs(state.nutrition.z)<0.045f &&
+                     abs(finalGoal.y-pos.y)<0.16f && length(yawFrameLinear.xy)<0.08f &&
+                     abs(rootLinearVelocity.z)<0.12f) phase=2.0f;

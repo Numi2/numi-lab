@@ -1,0 +1,35 @@
+{
+  "j-hard": [],
+  "i-hard": [
+    {
+      "step": 3494,
+      "previous_phase": 2.0,
+      "new_phase": 1.0,
+      "left_load": 4.36400366,
+      "right_load": 1.53653204,
+      "height_target": 1.08115947,
+      "forward_velocity": -0.00246743881
+    },
+    {
+      "step": 3953,
+      "previous_phase": 2.0,
+      "new_phase": 1.0,
+      "left_load": 0.0,
+      "right_load": 0.0,
+      "height_target": 1.09841716,
+      "forward_velocity": -0.132525325
+    }
+  ],
+  "j-original": [
+    {
+      "step": 3772,
+      "previous_phase": 2.0,
+      "new_phase": 1.0,
+      "left_load": 0.0,
+      "right_load": 0.00114089262,
+      "height_target": 1.06919634,
+      "forward_velocity": -0.125486404
+    }
+  ],
+  "i-original": []
+}
