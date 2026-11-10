@@ -6,6 +6,7 @@ for path,dest in ((O/'results.txt.gz',old),(A/'results.txt.gz',new)):
   for line in f:
    v=line.split()
    if not v or len(v)<4 or v[1]!='1' or v[2] not in ('4','5'):continue
+   if v[0] not in ("trace","foot_support","foot_interval","case_result"):continue
    if v[0]=="case_result":
     if path.parent==A:outcomes[v[2]]=" ".join(v[3:])
     continue
