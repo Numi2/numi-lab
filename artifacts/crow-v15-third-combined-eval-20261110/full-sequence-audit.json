@@ -1,0 +1,276 @@
+{
+  "third-j-hard": {
+    "walking_samples": 501,
+    "walking_forward_m": 0.11033500596,
+    "walking_nonfoot_endpoints": 0,
+    "walking_unsupported_endpoints": 0,
+    "sides": [
+      {
+        "loaded_endpoints": 303,
+        "slip_p95_m_s": 0.0297139384,
+        "clear_swing_runs_at_least_3": 10
+      },
+      {
+        "loaded_endpoints": 301,
+        "slip_p95_m_s": 0.0291129908,
+        "clear_swing_runs_at_least_3": 10
+      }
+    ],
+    "leg_push_latch_step": 654,
+    "nav5_step": null,
+    "first_failure": {
+      "step": 2474,
+      "position_m": [
+        3.88771176,
+        -0.69235146,
+        0.914330661
+      ],
+      "orientation_xyzw": [
+        -0.00292190094,
+        0.0257178675,
+        0.0729326829,
+        0.997000933
+      ],
+      "linear_velocity_m_s": [
+        0.256505102,
+        -0.0266308356,
+        -0.0914878845
+      ],
+      "angular_velocity_rad_s": [
+        0.0151643725,
+        0.0400392637,
+        0.0322132111
+      ],
+      "policy_action": [
+        0.504531264,
+        0.198343396,
+        -0.185129955,
+        -0.185982615,
+        0.479094297,
+        -0.140106291,
+        -0.225912809,
+        -0.146622762,
+        0.0560094826,
+        0.599198282,
+        -0.162618995,
+        0.0825351477,
+        0.392682403,
+        0.217343122,
+        -0.124183923,
+        0.502144873,
+        0,
+        0
+      ],
+      "contacts": [
+        {
+          "a": 5,
+          "a_name": "crow_left_wing",
+          "b": 29,
+          "b_name": "crow_course_slalom_b",
+          "normal_impulse": 0.00350780808,
+          "separation": -0.00578571716
+        }
+      ]
+    },
+    "min_obstacle_clearance": {
+      "lane": 0,
+      "end_step": 2474,
+      "minimum_step": 2474,
+      "minimum_m": 0,
+      "bird_shape": "crow_left_wing/collision",
+      "obstacle_shape": "crow_course_slalom_b/collision",
+      "bird_body": "crow_left_wing",
+      "obstacle_body": "crow_course_slalom_b",
+      "sampling": "accepted_control_steps"
+    },
+    "nonfoot_perch_contact_samples": 0,
+    "flight_toe_max_rad_after_25_free_samples": 0.000311712676,
+    "first_release_step": null,
+    "post_release_samples": 0,
+    "post_release_bilateral_loaded": 0,
+    "nonfinite_task_samples": [],
+    "solver_failed_steps": 0,
+    "limits": "Accepted control endpoints; not all physics substeps. Release opens joints but does not prove toes lifted clear. Takeoff latch by itself does not prove causal impulse; matched no-push controls are archived separately."
+  },
+  "third-i-hard": {
+    "walking_samples": 501,
+    "walking_forward_m": 0.1102982089,
+    "walking_nonfoot_endpoints": 0,
+    "walking_unsupported_endpoints": 0,
+    "sides": [
+      {
+        "loaded_endpoints": 303,
+        "slip_p95_m_s": 0.0296957417,
+        "clear_swing_runs_at_least_3": 10
+      },
+      {
+        "loaded_endpoints": 301,
+        "slip_p95_m_s": 0.0288236836,
+        "clear_swing_runs_at_least_3": 10
+      }
+    ],
+    "leg_push_latch_step": 654,
+    "nav5_step": 2752,
+    "first_failure": null,
+    "min_obstacle_clearance": {
+      "lane": 0,
+      "end_step": 7001,
+      "minimum_step": 2340,
+      "minimum_m": 0.255324444953,
+      "bird_shape": "crow_tail/collision",
+      "obstacle_shape": "crow_course_slalom_a/collision",
+      "bird_body": "crow_tail",
+      "obstacle_body": "crow_course_slalom_a",
+      "sampling": "accepted_control_steps"
+    },
+    "nonfoot_perch_contact_samples": 0,
+    "flight_toe_max_rad_after_25_free_samples": 0.00036705914,
+    "first_release_step": 3651,
+    "post_release_samples": 3350,
+    "post_release_bilateral_loaded": 3260,
+    "nonfinite_task_samples": [],
+    "solver_failed_steps": 0,
+    "limits": "Accepted control endpoints; not all physics substeps. Release opens joints but does not prove toes lifted clear. Takeoff latch by itself does not prove causal impulse; matched no-push controls are archived separately."
+  },
+  "third-j-original": {
+    "walking_samples": 501,
+    "walking_forward_m": 0.11030672119999999,
+    "walking_nonfoot_endpoints": 0,
+    "walking_unsupported_endpoints": 0,
+    "sides": [
+      {
+        "loaded_endpoints": 303,
+        "slip_p95_m_s": 0.0296982305,
+        "clear_swing_runs_at_least_3": 10
+      },
+      {
+        "loaded_endpoints": 301,
+        "slip_p95_m_s": 0.0288386423,
+        "clear_swing_runs_at_least_3": 10
+      }
+    ],
+    "leg_push_latch_step": 654,
+    "nav5_step": 2708,
+    "first_failure": null,
+    "min_obstacle_clearance": {
+      "lane": 0,
+      "end_step": 7001,
+      "minimum_step": 2280,
+      "minimum_m": 0.107597010179,
+      "bird_shape": "crow_left_wing/collision",
+      "obstacle_shape": "crow_course_slalom_a/collision",
+      "bird_body": "crow_left_wing",
+      "obstacle_body": "crow_course_slalom_a",
+      "sampling": "accepted_control_steps"
+    },
+    "nonfoot_perch_contact_samples": 0,
+    "flight_toe_max_rad_after_25_free_samples": 0.00034644446,
+    "first_release_step": 3935,
+    "post_release_samples": 3066,
+    "post_release_bilateral_loaded": 2976,
+    "nonfinite_task_samples": [],
+    "solver_failed_steps": 0,
+    "limits": "Accepted control endpoints; not all physics substeps. Release opens joints but does not prove toes lifted clear. Takeoff latch by itself does not prove causal impulse; matched no-push controls are archived separately."
+  },
+  "third-i-original": {
+    "walking_samples": 501,
+    "walking_forward_m": 0.1103307791,
+    "walking_nonfoot_endpoints": 0,
+    "walking_unsupported_endpoints": 0,
+    "sides": [
+      {
+        "loaded_endpoints": 303,
+        "slip_p95_m_s": 0.0297140797,
+        "clear_swing_runs_at_least_3": 10
+      },
+      {
+        "loaded_endpoints": 301,
+        "slip_p95_m_s": 0.0291045296,
+        "clear_swing_runs_at_least_3": 10
+      }
+    ],
+    "leg_push_latch_step": 654,
+    "nav5_step": null,
+    "first_failure": {
+      "step": 2314,
+      "position_m": [
+        3.09084916,
+        -0.130441785,
+        0.946532965
+      ],
+      "orientation_xyzw": [
+        0.00615193043,
+        0.024389036,
+        0.0188844744,
+        0.999505222
+      ],
+      "linear_velocity_m_s": [
+        0.245371535,
+        -0.20039621,
+        0.322231829
+      ],
+      "angular_velocity_rad_s": [
+        0.0668412149,
+        0.0631335825,
+        -0.0023788088
+      ],
+      "policy_action": [
+        0.50291574,
+        -0.749218881,
+        -0.0137993665,
+        -0.212959647,
+        0.511000931,
+        -0.949736238,
+        -0.159703463,
+        -0.0263307076,
+        0.451096326,
+        -0.665699542,
+        -0.334296733,
+        0.491763413,
+        0.592578053,
+        -1,
+        -0.144429833,
+        0.46293357,
+        0,
+        0
+      ],
+      "contacts": [
+        {
+          "a": 7,
+          "a_name": "crow_tail",
+          "b": 28,
+          "b_name": "crow_course_slalom_a",
+          "normal_impulse": 1.26423402e-06,
+          "separation": -0.00136616826
+        },
+        {
+          "a": 7,
+          "a_name": "crow_tail",
+          "b": 28,
+          "b_name": "crow_course_slalom_a",
+          "normal_impulse": 0.00505946483,
+          "separation": -0.00166255236
+        }
+      ]
+    },
+    "min_obstacle_clearance": {
+      "lane": 0,
+      "end_step": 2314,
+      "minimum_step": 2280,
+      "minimum_m": 0,
+      "bird_shape": "crow_right_wing/collision",
+      "obstacle_shape": "crow_course_slalom_a/collision",
+      "bird_body": "crow_right_wing",
+      "obstacle_body": "crow_course_slalom_a",
+      "sampling": "accepted_control_steps"
+    },
+    "nonfoot_perch_contact_samples": 0,
+    "flight_toe_max_rad_after_25_free_samples": 0.000335587567,
+    "first_release_step": null,
+    "post_release_samples": 0,
+    "post_release_bilateral_loaded": 0,
+    "nonfinite_task_samples": [],
+    "solver_failed_steps": 0,
+    "limits": "Accepted control endpoints; not all physics substeps. Release opens joints but does not prove toes lifted clear. Takeoff latch by itself does not prove causal impulse; matched no-push controls are archived separately."
+  }
+}
