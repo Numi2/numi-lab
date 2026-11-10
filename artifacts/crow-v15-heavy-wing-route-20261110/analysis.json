@@ -1,0 +1,1373 @@
+{
+  "diagnostic-reserved-final-i-development-original": {
+    "first_episode": {
+      "boundary": "waypoint completion; does not establish supported landing",
+      "closed_by_environment": [
+        false
+      ],
+      "closed_episode_count": 0,
+      "completion_seen_by_environment": [
+        false
+      ],
+      "completion_seen_count": 0,
+      "environment_count": 1,
+      "first_completion_step_by_environment": [
+        null
+      ],
+      "horizon_censored_count": 1,
+      "maximum_waypoints_by_environment": [
+        0
+      ],
+      "physical_failure_by_environment": [
+        false
+      ],
+      "physical_failure_count": 0,
+      "safe_completion_by_environment": [
+        false
+      ],
+      "safe_completion_count": 0,
+      "schema": "numi.crow-first-episode-evidence.v1",
+      "steps_by_environment": [
+        4500
+      ],
+      "termination_reason_by_environment": [
+        0
+      ],
+      "unit": "first episode of each environment since context creation"
+    },
+    "solver_failed_steps": 0,
+    "first_fatal_contact": null,
+    "minimum_sampled_clearance": {
+      "lane": 0,
+      "end_step": 2500,
+      "minimum_step": 2404,
+      "minimum_m": 0.148471388401,
+      "bird_shape": "crow_right_wing/collision",
+      "obstacle_shape": "crow_course_slalom_b/collision",
+      "bird_body": "crow_right_wing",
+      "obstacle_body": "crow_course_slalom_b",
+      "sampling": "accepted_control_steps"
+    },
+    "samples": [
+      {
+        "step": 100,
+        "position_m": [
+          -0.0409802906,
+          0.0500110649,
+          0.17722927
+        ],
+        "velocity_mps": [
+          2.03687989e-07,
+          -1.02790254e-05,
+          4.86805277e-07
+        ]
+      },
+      {
+        "step": 200,
+        "position_m": [
+          -0.0187702738,
+          0.0428058766,
+          0.177100539
+        ],
+        "velocity_mps": [
+          0.0377452783,
+          0.0118320901,
+          0.0162891578
+        ]
+      },
+      {
+        "step": 300,
+        "position_m": [
+          0.0112036988,
+          0.0426830053,
+          0.177107722
+        ],
+        "velocity_mps": [
+          0.0380881839,
+          0.0124394186,
+          0.0163002107
+        ]
+      },
+      {
+        "step": 400,
+        "position_m": [
+          0.041120857,
+          0.0426521748,
+          0.177107781
+        ],
+        "velocity_mps": [
+          0.0380855277,
+          0.0124783469,
+          0.0163002964
+        ]
+      },
+      {
+        "step": 500,
+        "position_m": [
+          0.0710385516,
+          0.0426450893,
+          0.177107781
+        ],
+        "velocity_mps": [
+          0.0380761027,
+          0.0125084352,
+          0.0162996687
+        ]
+      },
+      {
+        "step": 600,
+        "position_m": [
+          0.100956507,
+          0.0426612981,
+          0.177107781
+        ],
+        "velocity_mps": [
+          0.0380656682,
+          0.0125378901,
+          0.0162998829
+        ]
+      },
+      {
+        "step": 700,
+        "position_m": [
+          0.0108321235,
+          0.0479182005,
+          0.373636484
+        ],
+        "velocity_mps": [
+          -0.246428654,
+          -0.000992566231,
+          0.205092609
+        ]
+      },
+      {
+        "step": 800,
+        "position_m": [
+          -0.950249851,
+          0.0462371297,
+          0.481204897
+        ],
+        "velocity_mps": [
+          -0.697091639,
+          -0.00372270332,
+          -0.0204109009
+        ]
+      },
+      {
+        "step": 900,
+        "position_m": [
+          -2.52532578,
+          -0.0641150698,
+          1.23247385
+        ],
+        "velocity_mps": [
+          -0.446535438,
+          -0.0199956372,
+          0.291704744
+        ]
+      },
+      {
+        "step": 1000,
+        "position_m": [
+          -2.45138812,
+          -0.108527139,
+          1.23078334
+        ],
+        "velocity_mps": [
+          0.452680916,
+          0.0165112391,
+          -0.0256219637
+        ]
+      },
+      {
+        "step": 1100,
+        "position_m": [
+          -1.69119239,
+          0.113412641,
+          1.17187417
+        ],
+        "velocity_mps": [
+          0.133751318,
+          -0.000157904928,
+          -0.287697226
+        ]
+      },
+      {
+        "step": 1200,
+        "position_m": [
+          -1.56245279,
+          -0.0322052948,
+          1.18774772
+        ],
+        "velocity_mps": [
+          0.143958852,
+          -0.0701316223,
+          0.0993563384
+        ]
+      },
+      {
+        "step": 1300,
+        "position_m": [
+          -1.03033447,
+          -0.0920128673,
+          1.21596372
+        ],
+        "velocity_mps": [
+          0.290942281,
+          -0.00266041839,
+          -0.0740902498
+        ]
+      },
+      {
+        "step": 1400,
+        "position_m": [
+          -0.637525797,
+          -0.102374688,
+          1.20406985
+        ],
+        "velocity_mps": [
+          0.156244248,
+          -0.0150751863,
+          0.316480517
+        ]
+      },
+      {
+        "step": 1500,
+        "position_m": [
+          -0.217801183,
+          -0.0646764114,
+          1.19570386
+        ],
+        "velocity_mps": [
+          0.259665668,
+          0.0263650306,
+          -0.102746278
+        ]
+      },
+      {
+        "step": 1600,
+        "position_m": [
+          0.237931877,
+          0.0031950688,
+          1.11299121
+        ],
+        "velocity_mps": [
+          0.17921935,
+          0.020964656,
+          -0.244769156
+        ]
+      },
+      {
+        "step": 1700,
+        "position_m": [
+          0.629761577,
+          -0.0191253144,
+          1.116642
+        ],
+        "velocity_mps": [
+          0.220484123,
+          -0.0225772914,
+          0.158301353
+        ]
+      },
+      {
+        "step": 1800,
+        "position_m": [
+          1.06592715,
+          0.111506417,
+          1.27025354
+        ],
+        "velocity_mps": [
+          0.215638086,
+          0.0577204227,
+          -0.0477359444
+        ]
+      },
+      {
+        "step": 1900,
+        "position_m": [
+          1.48329198,
+          0.143114239,
+          1.28115833
+        ],
+        "velocity_mps": [
+          0.210357904,
+          -0.00449037785,
+          0.316559911
+        ]
+      },
+      {
+        "step": 2000,
+        "position_m": [
+          1.87567163,
+          0.181328118,
+          1.28771424
+        ],
+        "velocity_mps": [
+          0.191859484,
+          0.0536934659,
+          -0.0729600787
+        ]
+      },
+      {
+        "step": 2100,
+        "position_m": [
+          2.27544594,
+          0.297132313,
+          1.27302265
+        ],
+        "velocity_mps": [
+          0.20448038,
+          0.0524258651,
+          -0.254830718
+        ]
+      },
+      {
+        "step": 2200,
+        "position_m": [
+          2.70717502,
+          0.42707023,
+          1.26821315
+        ],
+        "velocity_mps": [
+          0.207767949,
+          0.119675592,
+          0.0919881091
+        ]
+      },
+      {
+        "step": 2300,
+        "position_m": [
+          3.11538768,
+          0.656870544,
+          1.25281751
+        ],
+        "velocity_mps": [
+          0.206161335,
+          0.129700482,
+          -0.0718902126
+        ]
+      },
+      {
+        "step": 2400,
+        "position_m": [
+          3.54513001,
+          0.847109377,
+          1.28010201
+        ],
+        "velocity_mps": [
+          0.224980086,
+          0.0206977576,
+          0.316105545
+        ]
+      },
+      {
+        "step": 2500,
+        "position_m": [
+          3.9458549,
+          0.913761914,
+          1.28759384
+        ],
+        "velocity_mps": [
+          0.181891844,
+          0.0336477607,
+          -0.0716156363
+        ]
+      },
+      {
+        "step": 2600,
+        "position_m": [
+          4.31795168,
+          0.973290503,
+          1.27197194
+        ],
+        "velocity_mps": [
+          0.188557059,
+          0.0308264531,
+          -0.254568279
+        ]
+      },
+      {
+        "step": 2700,
+        "position_m": [
+          4.71286726,
+          1.03869319,
+          1.26648033
+        ],
+        "velocity_mps": [
+          0.18824026,
+          0.0341120288,
+          0.0923543945
+        ]
+      },
+      {
+        "step": 2800,
+        "position_m": [
+          5.08133841,
+          1.09962451,
+          1.26879418
+        ],
+        "velocity_mps": [
+          0.186360836,
+          0.030907521,
+          -0.0514835566
+        ]
+      },
+      {
+        "step": 2900,
+        "position_m": [
+          5.45307922,
+          1.15938187,
+          1.27987242
+        ],
+        "velocity_mps": [
+          0.193727583,
+          0.0232890937,
+          0.318809539
+        ]
+      },
+      {
+        "step": 3000,
+        "position_m": [
+          5.80962849,
+          1.1978488,
+          1.28685522
+        ],
+        "velocity_mps": [
+          0.171609059,
+          0.0327400342,
+          -0.0713597313
+        ]
+      },
+      {
+        "step": 3100,
+        "position_m": [
+          6.1596384,
+          1.25739634,
+          1.27083433
+        ],
+        "velocity_mps": [
+          0.172159791,
+          0.0291726012,
+          -0.253862411
+        ]
+      },
+      {
+        "step": 3200,
+        "position_m": [
+          6.51254416,
+          1.31548536,
+          1.26766026
+        ],
+        "velocity_mps": [
+          0.171680316,
+          0.0349300392,
+          0.0926958695
+        ]
+      },
+      {
+        "step": 3300,
+        "position_m": [
+          6.88050365,
+          1.42768061,
+          1.27004492
+        ],
+        "velocity_mps": [
+          0.201256484,
+          0.076223135,
+          -0.0507268198
+        ]
+      },
+      {
+        "step": 3400,
+        "position_m": [
+          7.29614735,
+          1.61391354,
+          1.28026021
+        ],
+        "velocity_mps": [
+          0.220799834,
+          0.104661621,
+          0.313117802
+        ]
+      },
+      {
+        "step": 3500,
+        "position_m": [
+          7.7316041,
+          1.78911901,
+          1.26696646
+        ],
+        "velocity_mps": [
+          0.220557049,
+          0.0644012466,
+          -0.0810921788
+        ]
+      },
+      {
+        "step": 3600,
+        "position_m": [
+          8.16559887,
+          1.84570897,
+          1.21842849
+        ],
+        "velocity_mps": [
+          0.210538596,
+          0.00718280347,
+          -0.25900349
+        ]
+      },
+      {
+        "step": 3700,
+        "position_m": [
+          8.63471222,
+          1.834167,
+          1.1915338
+        ],
+        "velocity_mps": [
+          0.243017063,
+          -0.00354635669,
+          0.0823922977
+        ]
+      },
+      {
+        "step": 3800,
+        "position_m": [
+          9.08927536,
+          1.782251,
+          1.17040777
+        ],
+        "velocity_mps": [
+          0.203285202,
+          -0.0423337221,
+          -0.0706341267
+        ]
+      },
+      {
+        "step": 3900,
+        "position_m": [
+          9.46737576,
+          1.67717564,
+          1.15488183
+        ],
+        "velocity_mps": [
+          0.20226115,
+          -0.0678601563,
+          0.305261672
+        ]
+      },
+      {
+        "step": 4000,
+        "position_m": [
+          9.87518311,
+          1.53074646,
+          1.14344525
+        ],
+        "velocity_mps": [
+          0.200662479,
+          -0.0817072541,
+          -0.0748650804
+        ]
+      },
+      {
+        "step": 4100,
+        "position_m": [
+          10.2547922,
+          1.35375774,
+          1.11699653
+        ],
+        "velocity_mps": [
+          0.178552568,
+          -0.0900790468,
+          -0.25225395
+        ]
+      },
+      {
+        "step": 4200,
+        "position_m": [
+          10.6363716,
+          1.15552986,
+          1.10616553
+        ],
+        "velocity_mps": [
+          0.190996289,
+          -0.107352763,
+          0.0928075984
+        ]
+      },
+      {
+        "step": 4300,
+        "position_m": [
+          11.0188789,
+          0.948523521,
+          1.1057626
+        ],
+        "velocity_mps": [
+          0.191875637,
+          -0.103028953,
+          -0.0531388186
+        ]
+      },
+      {
+        "step": 4400,
+        "position_m": [
+          11.4007874,
+          0.748114586,
+          1.11363792
+        ],
+        "velocity_mps": [
+          0.200075969,
+          -0.105765611,
+          0.319058955
+        ]
+      },
+      {
+        "step": 4500,
+        "position_m": [
+          11.7881823,
+          0.546885014,
+          1.11442518
+        ],
+        "velocity_mps": [
+          0.19313097,
+          -0.0968035087,
+          -0.0760019943
+        ]
+      }
+    ],
+    "scope": "old policy weights rebound to a changed body and control contract; prior development layouts, not autonomous qualification"
+  },
+  "diagnostic-reserved-final-j-development-newstart": {
+    "first_episode": {
+      "boundary": "waypoint completion; does not establish supported landing",
+      "closed_by_environment": [
+        true
+      ],
+      "closed_episode_count": 1,
+      "completion_seen_by_environment": [
+        false
+      ],
+      "completion_seen_count": 0,
+      "environment_count": 1,
+      "first_completion_step_by_environment": [
+        null
+      ],
+      "horizon_censored_count": 0,
+      "maximum_waypoints_by_environment": [
+        0
+      ],
+      "physical_failure_by_environment": [
+        true
+      ],
+      "physical_failure_count": 1,
+      "safe_completion_by_environment": [
+        false
+      ],
+      "safe_completion_count": 0,
+      "schema": "numi.crow-first-episode-evidence.v1",
+      "steps_by_environment": [
+        2161
+      ],
+      "termination_reason_by_environment": [
+        3
+      ],
+      "unit": "first episode of each environment since context creation"
+    },
+    "solver_failed_steps": 0,
+    "first_fatal_contact": {
+      "logged_step": 2162,
+      "position_m": [
+        2.38910818,
+        0.242364049,
+        1.28070569
+      ],
+      "quaternion_xyzw": [
+        -0.00297181262,
+        0.0252337158,
+        -0.0199672375,
+        0.999477744
+      ],
+      "velocity_mps": [
+        0.11299438,
+        -0.045248311,
+        0.32446757
+      ],
+      "angular_velocity_rad_s": [
+        -0.0339570343,
+        0.0905133262,
+        -0.000667266781
+      ],
+      "contacts": [
+        {
+          "a": 5,
+          "a_name": "crow_left_wing",
+          "b": 28,
+          "b_name": "crow_course_slalom_a",
+          "normal_impulse": 0.0132572148,
+          "separation": -0.00183662679
+        }
+      ],
+      "note": "policy_action is a latent, not the applied low-level controller action"
+    },
+    "minimum_sampled_clearance": {
+      "lane": 0,
+      "end_step": 2162,
+      "minimum_step": 2162,
+      "minimum_m": 0,
+      "bird_shape": "crow_left_wing/collision",
+      "obstacle_shape": "crow_course_slalom_a/collision",
+      "bird_body": "crow_left_wing",
+      "obstacle_body": "crow_course_slalom_a",
+      "sampling": "accepted_control_steps"
+    },
+    "samples": [
+      {
+        "step": 100,
+        "position_m": [
+          -0.0539666153,
+          0.0174067114,
+          0.177228525
+        ],
+        "velocity_mps": [
+          -3.48236966e-07,
+          3.05938884e-05,
+          6.26764518e-07
+        ]
+      },
+      {
+        "step": 200,
+        "position_m": [
+          -0.031592641,
+          0.0102077629,
+          0.177100465
+        ],
+        "velocity_mps": [
+          0.0377690718,
+          0.0117552672,
+          0.0162889659
+        ]
+      },
+      {
+        "step": 300,
+        "position_m": [
+          -0.00161929871,
+          0.010028203,
+          0.177107736
+        ],
+        "velocity_mps": [
+          0.038111493,
+          0.0123678865,
+          0.0162996817
+        ]
+      },
+      {
+        "step": 400,
+        "position_m": [
+          0.0282981433,
+          0.00994113646,
+          0.177107781
+        ],
+        "velocity_mps": [
+          0.0381092913,
+          0.012407314,
+          0.0163000915
+        ]
+      },
+      {
+        "step": 500,
+        "position_m": [
+          0.0582159422,
+          0.00987794437,
+          0.177107781
+        ],
+        "velocity_mps": [
+          0.038098745,
+          0.0124364849,
+          0.0163003709
+        ]
+      },
+      {
+        "step": 600,
+        "position_m": [
+          0.0881335735,
+          0.00983808003,
+          0.177107781
+        ],
+        "velocity_mps": [
+          0.038090352,
+          0.012467334,
+          0.0162993409
+        ]
+      },
+      {
+        "step": 700,
+        "position_m": [
+          -0.00197964022,
+          0.0152659267,
+          0.373636127
+        ],
+        "velocity_mps": [
+          -0.246428207,
+          -0.000531020574,
+          0.205093086
+        ]
+      },
+      {
+        "step": 800,
+        "position_m": [
+          -0.963057578,
+          0.0153868338,
+          0.481204212
+        ],
+        "velocity_mps": [
+          -0.697094381,
+          -0.00241551502,
+          -0.0204110015
+        ]
+      },
+      {
+        "step": 900,
+        "position_m": [
+          -2.5428617,
+          -0.0591267496,
+          1.22657049
+        ],
+        "velocity_mps": [
+          -0.450348765,
+          0.00917553622,
+          0.286475748
+        ]
+      },
+      {
+        "step": 1000,
+        "position_m": [
+          -2.47285748,
+          -0.109034911,
+          1.23934245
+        ],
+        "velocity_mps": [
+          0.450420618,
+          0.0157618709,
+          -0.0313852392
+        ]
+      },
+      {
+        "step": 1100,
+        "position_m": [
+          -1.71828532,
+          0.119202137,
+          1.17655587
+        ],
+        "velocity_mps": [
+          0.144128472,
+          0.00942545943,
+          -0.308695942
+        ]
+      },
+      {
+        "step": 1200,
+        "position_m": [
+          -1.54314756,
+          -0.0255479198,
+          1.19200635
+        ],
+        "velocity_mps": [
+          0.161632076,
+          -0.0811996087,
+          0.124773055
+        ]
+      },
+      {
+        "step": 1300,
+        "position_m": [
+          -1.01477504,
+          -0.0870026648,
+          1.21744609
+        ],
+        "velocity_mps": [
+          0.277329236,
+          0.00279705459,
+          -0.0799459517
+        ]
+      },
+      {
+        "step": 1400,
+        "position_m": [
+          -0.627306163,
+          -0.0958543941,
+          1.20847487
+        ],
+        "velocity_mps": [
+          0.166078284,
+          -0.00914515555,
+          0.307767808
+        ]
+      },
+      {
+        "step": 1500,
+        "position_m": [
+          -0.200267673,
+          -0.0424125902,
+          1.17535746
+        ],
+        "velocity_mps": [
+          0.250330478,
+          0.00420641806,
+          -0.0993383005
+        ]
+      },
+      {
+        "step": 1600,
+        "position_m": [
+          0.234887928,
+          0.023456512,
+          1.11493456
+        ],
+        "velocity_mps": [
+          0.174461871,
+          -0.00736635458,
+          -0.253185898
+        ]
+      },
+      {
+        "step": 1700,
+        "position_m": [
+          0.632934868,
+          -0.0412961394,
+          1.10753524
+        ],
+        "velocity_mps": [
+          0.221353143,
+          -0.0599975213,
+          0.131593585
+        ]
+      },
+      {
+        "step": 1800,
+        "position_m": [
+          1.05289769,
+          0.0313470289,
+          1.26991177
+        ],
+        "velocity_mps": [
+          0.205508173,
+          0.0700545982,
+          -0.0533631705
+        ]
+      },
+      {
+        "step": 1900,
+        "position_m": [
+          1.44933057,
+          0.134168983,
+          1.28127933
+        ],
+        "velocity_mps": [
+          0.20117873,
+          0.0537754036,
+          0.317407548
+        ]
+      },
+      {
+        "step": 2000,
+        "position_m": [
+          1.83369505,
+          0.214942366,
+          1.28607512
+        ],
+        "velocity_mps": [
+          0.190547451,
+          0.0357234515,
+          -0.0727606267
+        ]
+      },
+      {
+        "step": 2100,
+        "position_m": [
+          2.19133806,
+          0.254276246,
+          1.27217114
+        ],
+        "velocity_mps": [
+          0.161464721,
+          0.0112464093,
+          -0.252267957
+        ]
+      }
+    ],
+    "scope": "old policy weights rebound to a changed body and control contract; prior development layouts, not autonomous qualification"
+  },
+  "diagnostic-reserved-final-j-development-original": {
+    "first_episode": {
+      "boundary": "waypoint completion; does not establish supported landing",
+      "closed_by_environment": [
+        true
+      ],
+      "closed_episode_count": 1,
+      "completion_seen_by_environment": [
+        false
+      ],
+      "completion_seen_count": 0,
+      "environment_count": 1,
+      "first_completion_step_by_environment": [
+        null
+      ],
+      "horizon_censored_count": 0,
+      "maximum_waypoints_by_environment": [
+        0
+      ],
+      "physical_failure_by_environment": [
+        true
+      ],
+      "physical_failure_count": 1,
+      "safe_completion_by_environment": [
+        false
+      ],
+      "safe_completion_count": 0,
+      "schema": "numi.crow-first-episode-evidence.v1",
+      "steps_by_environment": [
+        2240
+      ],
+      "termination_reason_by_environment": [
+        3
+      ],
+      "unit": "first episode of each environment since context creation"
+    },
+    "solver_failed_steps": 0,
+    "first_fatal_contact": {
+      "logged_step": 2241,
+      "position_m": [
+        2.44492865,
+        0.149856359,
+        1.28552735
+      ],
+      "quaternion_xyzw": [
+        -0.0131317656,
+        0.0574056394,
+        0.0038793555,
+        0.998257041
+      ],
+      "velocity_mps": [
+        0.0559665114,
+        -0.0190736391,
+        -0.247083992
+      ],
+      "angular_velocity_rad_s": [
+        0.00583085464,
+        0.0382661261,
+        0.0401763506
+      ],
+      "contacts": [
+        {
+          "a": 5,
+          "a_name": "crow_left_wing",
+          "b": 28,
+          "b_name": "crow_course_slalom_a",
+          "normal_impulse": 0.0129875056,
+          "separation": 0.00197100476
+        }
+      ],
+      "note": "policy_action is a latent, not the applied low-level controller action"
+    },
+    "minimum_sampled_clearance": {
+      "lane": 0,
+      "end_step": 2241,
+      "minimum_step": 2196,
+      "minimum_m": 0.00271879098197,
+      "bird_shape": "crow_left_wing/collision",
+      "obstacle_shape": "crow_course_slalom_a/collision",
+      "bird_body": "crow_left_wing",
+      "obstacle_body": "crow_course_slalom_a",
+      "sampling": "accepted_control_steps"
+    },
+    "samples": [
+      {
+        "step": 100,
+        "position_m": [
+          -0.0560327284,
+          0.0437380001,
+          0.177227616
+        ],
+        "velocity_mps": [
+          -8.89976855e-06,
+          0.000112139955,
+          -1.4549787e-06
+        ]
+      },
+      {
+        "step": 200,
+        "position_m": [
+          -0.0336757749,
+          0.0364754461,
+          0.177100256
+        ],
+        "velocity_mps": [
+          0.0378127322,
+          0.0116177341,
+          0.0162903704
+        ]
+      },
+      {
+        "step": 300,
+        "position_m": [
+          -0.00374064711,
+          0.0361955911,
+          0.177107736
+        ],
+        "velocity_mps": [
+          0.0381514728,
+          0.0122410357,
+          0.0162997507
+        ]
+      },
+      {
+        "step": 400,
+        "position_m": [
+          0.0261759292,
+          0.0360097252,
+          0.177107781
+        ],
+        "velocity_mps": [
+          0.0381498113,
+          0.0122811841,
+          0.0162997693
+        ]
+      },
+      {
+        "step": 500,
+        "position_m": [
+          0.056093514,
+          0.0358476043,
+          0.177107766
+        ],
+        "velocity_mps": [
+          0.0381410271,
+          0.0123119904,
+          0.0163003132
+        ]
+      },
+      {
+        "step": 600,
+        "position_m": [
+          0.0860110894,
+          0.0357089154,
+          0.177107796
+        ],
+        "velocity_mps": [
+          0.0381310061,
+          0.0123414248,
+          0.0162990484
+        ]
+      },
+      {
+        "step": 700,
+        "position_m": [
+          -0.0040834914,
+          0.0414329506,
+          0.373636216
+        ],
+        "velocity_mps": [
+          -0.246427044,
+          0.000282986643,
+          0.205091938
+        ]
+      },
+      {
+        "step": 800,
+        "position_m": [
+          -0.965150356,
+          0.0447277315,
+          0.481203616
+        ],
+        "velocity_mps": [
+          -0.697095156,
+          -0.000113375536,
+          -0.0204110686
+        ]
+      },
+      {
+        "step": 900,
+        "position_m": [
+          -2.53784275,
+          -0.0567755774,
+          1.23308158
+        ],
+        "velocity_mps": [
+          -0.446505338,
+          0.00365076773,
+          0.296514809
+        ]
+      },
+      {
+        "step": 1000,
+        "position_m": [
+          -2.45810819,
+          -0.0991726592,
+          1.25961721
+        ],
+        "velocity_mps": [
+          0.460445493,
+          0.018714413,
+          -0.0619366094
+        ]
+      },
+      {
+        "step": 1100,
+        "position_m": [
+          -1.65844691,
+          0.0626052842,
+          1.18764889
+        ],
+        "velocity_mps": [
+          0.159742996,
+          0.0372892469,
+          -0.321480244
+        ]
+      },
+      {
+        "step": 1200,
+        "position_m": [
+          -1.50706077,
+          -0.0352194272,
+          1.17938852
+        ],
+        "velocity_mps": [
+          0.140487924,
+          -0.0437026098,
+          0.0968134403
+        ]
+      },
+      {
+        "step": 1300,
+        "position_m": [
+          -0.989320874,
+          -0.0944811255,
+          1.1996938
+        ],
+        "velocity_mps": [
+          0.290705681,
+          0.0443793833,
+          -0.0861522704
+        ]
+      },
+      {
+        "step": 1400,
+        "position_m": [
+          -0.592836082,
+          -0.0942771584,
+          1.20425487
+        ],
+        "velocity_mps": [
+          0.159995869,
+          -0.0152049223,
+          0.334633648
+        ]
+      },
+      {
+        "step": 1500,
+        "position_m": [
+          -0.169974148,
+          -0.0250040628,
+          1.19196475
+        ],
+        "velocity_mps": [
+          0.262355417,
+          0.109586321,
+          -0.102464266
+        ]
+      },
+      {
+        "step": 1600,
+        "position_m": [
+          0.287138581,
+          0.11297299,
+          1.10836339
+        ],
+        "velocity_mps": [
+          0.181337982,
+          -0.0201783981,
+          -0.234119937
+        ]
+      },
+      {
+        "step": 1700,
+        "position_m": [
+          0.677179933,
+          0.0383928902,
+          1.12261736
+        ],
+        "velocity_mps": [
+          0.212857977,
+          -0.0425716676,
+          0.257979155
+        ]
+      },
+      {
+        "step": 1800,
+        "position_m": [
+          1.10997605,
+          0.115214571,
+          1.26840222
+        ],
+        "velocity_mps": [
+          0.219894066,
+          0.0420003757,
+          -0.0507583395
+        ]
+      },
+      {
+        "step": 1900,
+        "position_m": [
+          1.50682151,
+          0.175606936,
+          1.28011227
+        ],
+        "velocity_mps": [
+          0.185422808,
+          0.0180054493,
+          0.318520129
+        ]
+      },
+      {
+        "step": 2000,
+        "position_m": [
+          1.84016407,
+          0.197873771,
+          1.28680158
+        ],
+        "velocity_mps": [
+          0.159448653,
+          -0.00692777568,
+          -0.0713652074
+        ]
+      },
+      {
+        "step": 2100,
+        "position_m": [
+          2.15724754,
+          0.203651056,
+          1.2705754
+        ],
+        "velocity_mps": [
+          0.145647973,
+          -0.00643023243,
+          -0.254509389
+        ]
+      },
+      {
+        "step": 2200,
+        "position_m": [
+          2.4271667,
+          0.174996406,
+          1.26154721
+        ],
+        "velocity_mps": [
+          -0.126738504,
+          -0.126017258,
+          0.0659462884
+        ]
+      }
+    ],
+    "scope": "old policy weights rebound to a changed body and control contract; prior development layouts, not autonomous qualification"
+  }
+}

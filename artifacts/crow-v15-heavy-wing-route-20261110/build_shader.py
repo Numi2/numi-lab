@@ -1,0 +1,7 @@
+from pathlib import Path
+import difflib,subprocess
+R=Path.cwd();A=R/'artifacts/crow-v15-heavy-wing-route-20261110';B=R/'build/crow-v15-heavy-wing-route-20261110';F=R/'artifacts/crow-v15-flight-feedback-freeze-20261110';base=(R/'build/crow-v15-sustained-foot-grip-20261110/sustained.metal').read_text();s=base
+changes=[('#include "CrowFlightControllerV1.metal"','#include "CrowFlightControllerResearchV2.metal"'),('carrierState.commandAndPhase.x = 0.15f;','carrierState.commandAndPhase.x = clamp(oracleCommand.x, 0.15f, 0.85f);'),('carrierState.commandExtension.z += 0.25f-oracleCommand.x;','carrierState.commandExtension.z = state.commandExtension.z;')]
+for old,new in changes:assert s.count(old)==1,(old,s.count(old));s=s.replace(old,new)
+(B/'route.metal').write_text(s);(A/'route.patch').write_text(''.join(difflib.unified_diff(base.splitlines(True),s.splitlines(True),fromfile='a/sustained-contact.metal',tofile='b/frozen-flight-adapter.metal')))
+subprocess.run(['xcrun','-sdk','macosx','metal','-std=metal4.0','-O3','-fno-fast-math','-I',str(F),'-I',str(R/'include'),'-I',str(R/'src/metal'),'-c',str(B/'route.metal'),'-o',str(B/'route.air')],check=True);other=sorted(p for p in (R/'build/shaders').glob('MetalRobo*.air') if p.name not in ('MetalRoboLocomotionTask.air','MetalRoboFlappingWingDynamics.air'));subprocess.run(['xcrun','-sdk','macosx','metallib',*[str(x) for x in other],str(R/'build/crow-v15-wing-aero-alignment-20261110/aero.air'),str(B/'route.air'),'-o',str(B/'route.metallib')],check=True)

@@ -1,0 +1,24 @@
+--- a/sustained-contact.metal
++++ b/frozen-flight-adapter.metal
+@@ -4830,7 +4830,7 @@
+     return 0.0f;
+ }
+ 
+-#include "CrowFlightControllerV1.metal"
++#include "CrowFlightControllerResearchV2.metal"
+ 
+ inline uint taskActionHoldPeriod(device const MRTaskProgramHeaderGPU& program,device const uchar* arena,uint action) {
+     if(program.articulation.z==MR_TASK_PROGRAM_ACTION_HOLD_ABI_VERSION)
+@@ -5001,10 +5001,10 @@
+         if (fixedFlightController && state.episode.z == 10u && float(state.episode.x)*dispatch.timing.x < 16.0f) { actorCommand.x = 0.70f; actorCommand.y = 0.0f; actorCommand.z = 0.0f; actorCommand.w = 0.30f; }
+         const bool privilegedCommand = (dispatch.sampling.w != 0u && dispatch.assistance.x < 0.5f);
+         const float4 oracleCommand = privilegedCommand ? state.nutrition : actorCommand;
+-        carrierState.commandAndPhase.x = 0.15f;
++        carrierState.commandAndPhase.x = clamp(oracleCommand.x, 0.15f, 0.85f);
+         carrierState.commandAndPhase.y = oracleCommand.y;
+         carrierState.commandExtension.x = oracleCommand.z;
+-        carrierState.commandExtension.z += 0.25f-oracleCommand.x;
++        carrierState.commandExtension.z = state.commandExtension.z;
+         carrierState.threatGeometry.x += oracleCommand.w;
+         carrierState.threatTeacher.x -= oracleCommand.y;
+         const float teacherRequested =
