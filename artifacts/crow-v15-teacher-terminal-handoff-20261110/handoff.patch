@@ -1,0 +1,38 @@
+--- a/teacher.metal
++++ b/handoff.metal
+@@ -5022,7 +5022,7 @@
+             // Slow toward the physical foot joint using accepted state.
+             actorCommand.x=clamp(0.00f+0.80f*state.nutrition.z-0.80f*state.commandExtension.z,-0.15f,0.20f);
+         }
+-        if (fixedFlightController && dispatch.sampling.w==0u && state.navigation.z>=5.0f) {
++        if (fixedFlightController && state.navigation.z>=5.0f) {
+             // Sensor-driven terminal control, bounded to the qualified flight envelope.
+             actorCommand.x=clamp(0.04f+0.40f*state.nutrition.z-0.40f*state.commandExtension.z,-0.08f,0.10f);
+             actorCommand.y=state.commandAndPhase.y;
+@@ -5030,7 +5030,7 @@
+             actorCommand.w=state.nutrition.w;
+         }
+         if (fixedFlightController && state.episode.z == 10u && float(state.episode.x)*dispatch.timing.x < 16.0f) { actorCommand.x = 0.70f; actorCommand.y = 0.0f; actorCommand.z = 0.0f; actorCommand.w = 0.30f; }
+-        const bool privilegedCommand = (dispatch.sampling.w != 0u && (dispatch.assistance.x < 0.5f || state.episode.x >= 2050u));
++        const bool privilegedCommand = (dispatch.sampling.w != 0u && state.navigation.z < 5.0f && (dispatch.assistance.x < 0.5f || state.episode.x >= 2050u));
+         // Foot support occupies nutrition.xy at the accepted-state boundary.
+         // In teacher mode, pack two millimetre-per-second-resolution commands
+         // into nutrition.z; heading is already published in commandExtension.x.
+@@ -6736,7 +6736,7 @@
+     }
+     // Privileged development route teacher; not autonomous policy.
+     if ((program.schedule.w & MR_TASK_PROGRAM_AVIAN_CROW_HIERARCHICAL_NAVIGATION) != 0u &&
+-        dispatch.sampling.w != 0u) {
++        dispatch.sampling.w != 0u && state.navigation.z < 5.0f) {
+         uint course = MR_INVALID_INDEX;
+         for (uint i=0u; i<program.counts1.w; ++i) {
+             const MRTaskRewardOperatorGPU operation = rewards[i];
+@@ -6841,7 +6841,7 @@
+                 // The fifth waypoint is an explicit goal observation; no
+                 // obstacle collision geometry or teacher route is consulted.
+                 const float3 finalGoal=crowNavigationWaypointTarget(sceneState+sceneBase,course,4u);
+-                if (dispatch.sampling.w==0u && program.counts0.w>=2u) {
++                if ((dispatch.sampling.w==0u || state.navigation.z>=5.0f) && program.counts0.w>=2u) {
+                     const uint lf=contactGroups[0].reference.x,rf=contactGroups[1].reference.x;
+                     if(lf>=robotFirst && lf<robotEnd && rf>=robotFirst && rf<robotEnd) {
+                         const MRBodyStateGPU left=bodyStates[bodyBase+lf],right=bodyStates[bodyBase+rf];
