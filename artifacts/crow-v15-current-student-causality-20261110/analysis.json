@@ -1,0 +1,12 @@
+{
+  "compared_first_episode_frames": 2300,
+  "same_termination_steps": true,
+  "same_termination_reasons": true,
+  "first_differences": {
+    "q": [],
+    "v": [],
+    "actor_observation": [],
+    "accepted_actions": []
+  },
+  "pass": true
+}

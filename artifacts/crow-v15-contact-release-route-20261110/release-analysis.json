@@ -1,0 +1,71 @@
+{
+  "before": {
+    "sample_count": 50,
+    "mean_absolute_toe_angle_rad": 0.9795369565975,
+    "max_absolute_toe_angle_rad": 1.0440942,
+    "bilateral_upward_impulse_samples": 50,
+    "opposed_positive_impulse_samples": 44,
+    "mean_rear_opposing_impulse_Ns": 0.005831881732314,
+    "nonfoot_positive_contacts": 0,
+    "root_position_ranges_m": [
+      [
+        5.01781464,
+        5.018363
+      ],
+      [
+        0.483575135,
+        0.483751148
+      ],
+      [
+        1.04988122,
+        1.05000722
+      ]
+    ]
+  },
+  "early_after": {
+    "sample_count": 50,
+    "mean_absolute_toe_angle_rad": 0.01261941659225,
+    "max_absolute_toe_angle_rad": 0.0322597995,
+    "bilateral_upward_impulse_samples": 50,
+    "opposed_positive_impulse_samples": 0,
+    "mean_rear_opposing_impulse_Ns": 0.0,
+    "nonfoot_positive_contacts": 0,
+    "root_position_ranges_m": [
+      [
+        5.01395369,
+        5.01614666
+      ],
+      [
+        0.483908057,
+        0.484067231
+      ],
+      [
+        1.04947388,
+        1.0495156
+      ]
+    ]
+  },
+  "late_after": {
+    "sample_count": 100,
+    "mean_absolute_toe_angle_rad": 0.02947752081553125,
+    "max_absolute_toe_angle_rad": 0.0497283451,
+    "bilateral_upward_impulse_samples": 100,
+    "opposed_positive_impulse_samples": 0,
+    "mean_rear_opposing_impulse_Ns": 0.0,
+    "nonfoot_positive_contacts": 0,
+    "root_position_ranges_m": [
+      [
+        5.00949621,
+        5.01091242
+      ],
+      [
+        0.486302495,
+        0.486539006
+      ],
+      [
+        1.04596293,
+        1.04712558
+      ]
+    ]
+  }
+}

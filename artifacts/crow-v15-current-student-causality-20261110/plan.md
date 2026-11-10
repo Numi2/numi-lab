@@ -1,0 +1,3 @@
+# Current student-label causal boundary
+
+Before collecting new DAgger data, repeat the teacher-label causal test with the current toe body, reach34 gait, bounded-rebound shader, visual asset binding, 16-event host and legacy diagnostic actor. On previously used development J seed 3193706597, compare full teacher-off execution against teacher labels enabled at student authority 1.0 for 2300 requested steps and stop analysis at each first episode boundary. Require exact accepted q, v, complete actor observations and recorded policy actions, plus matching first termination, before considering labels for student-visited states. A mismatch blocks that collection. This is a single start and does not validate late perching states or teacher reliability.
