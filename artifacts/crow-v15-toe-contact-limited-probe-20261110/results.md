@@ -1,0 +1,5 @@
+# Contact-limited closure: improved initial contact, not qualified
+
+Both unchanged controls exactly reproduced their saved traces. The original and open controls retained terminal support in cases 1, 3, 5 and 7; the original arm rolled back in case 4. Both contact-limited arms completed all eight starts without rollback and produced at least three consecutive bilateral opposed-grip endpoints in 8/8, versus 4/8 for the original. Nevertheless each retained terminal support in only 4/8, and each passed only 4/8 full grip/release/support tests, below the required 6/8. Their worst accepted-pose SAT overlap at opposed grip was 0.998 mm and 0.827 mm, respectively, above the 0.5 mm limit. The existing baseline's opposed-grip samples only existed in four starts, so its 0.505 mm worst gap is not a matched 8/8 overlap comparison. Neither feedback arm qualifies for integration.
+
+All starts and failed/unsupported outcomes are retained. The stationary-perch bench uses a separate default library/shader and is not a continuous landing, flight, substep or biological claim. The independent body-pose and SAT method is described in the preceding soft-drive probe.
