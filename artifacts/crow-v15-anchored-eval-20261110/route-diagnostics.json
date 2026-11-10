@@ -1,0 +1,176 @@
+{
+  "j-anchored": {
+    "first_fatal_contact": {
+      "step": 2248,
+      "position_m": [
+        2.63663101,
+        0.125830576,
+        1.27004409
+      ],
+      "orientation_xyzw": [
+        -0.0105542224,
+        0.0269844551,
+        0.0454247743,
+        0.998547435
+      ],
+      "linear_velocity_m_s": [
+        0.168066025,
+        0.217831835,
+        0.198408544
+      ],
+      "angular_velocity_rad_s": [
+        -0.0359533466,
+        0.0302633643,
+        0.0035975452
+      ],
+      "policy_action": [
+        0.489686906,
+        0.546914399,
+        -0.139507458,
+        0.387832761,
+        0.408204019,
+        0.714226723,
+        -0.110619158,
+        1,
+        0.43936789,
+        0.327908903,
+        -0.566698849,
+        0.776487947,
+        0.55197227,
+        0.388597637,
+        -0.408071011,
+        1,
+        0,
+        0
+      ],
+      "contacts": [
+        {
+          "a": 5,
+          "a_name": "crow_left_wing",
+          "b": 28,
+          "b_name": "crow_course_slalom_a",
+          "normal_impulse": 0.00367129757,
+          "separation": -0.0197466426
+        },
+        {
+          "a": 5,
+          "a_name": "crow_left_wing",
+          "b": 28,
+          "b_name": "crow_course_slalom_a",
+          "normal_impulse": 0.000472851534,
+          "separation": -0.0203835554
+        },
+        {
+          "a": 5,
+          "a_name": "crow_left_wing",
+          "b": 28,
+          "b_name": "crow_course_slalom_a",
+          "normal_impulse": 0.0758665651,
+          "separation": -0.0203835256
+        }
+      ]
+    },
+    "minimum_accepted_step_obstacle_clearance": {
+      "lane": 0,
+      "end_step": 2248,
+      "minimum_step": 2248,
+      "minimum_m": 0,
+      "bird_shape": "crow_left_wing/collision",
+      "obstacle_shape": "crow_course_slalom_a/collision",
+      "bird_body": "crow_left_wing",
+      "obstacle_body": "crow_course_slalom_a",
+      "sampling": "accepted_control_steps"
+    }
+  },
+  "i-anchored": {
+    "first_fatal_contact": {
+      "step": 2409,
+      "position_m": [
+        3.40215516,
+        0.253950298,
+        1.19900787
+      ],
+      "orientation_xyzw": [
+        0.000278108229,
+        0.0226866845,
+        0.0673214942,
+        0.997473359
+      ],
+      "linear_velocity_m_s": [
+        0.16505532,
+        0.187724307,
+        -0.140253469
+      ],
+      "angular_velocity_rad_s": [
+        0.0216324441,
+        0.0350470915,
+        0.087255612
+      ],
+      "policy_action": [
+        0.516653061,
+        -0.114573978,
+        -0.103361957,
+        -0.507035196,
+        0.287348956,
+        0.933456898,
+        0.642610252,
+        0.853395224,
+        0.488821149,
+        0.599874616,
+        0.0759220496,
+        0.49391067,
+        0.476290047,
+        0.215851918,
+        -0.388846695,
+        0.301151752,
+        0,
+        0
+      ],
+      "contacts": [
+        {
+          "a": 15,
+          "a_name": "crow_head",
+          "b": 29,
+          "b_name": "crow_course_slalom_b",
+          "normal_impulse": 0,
+          "separation": 0.000809192657
+        },
+        {
+          "a": 15,
+          "a_name": "crow_head",
+          "b": 29,
+          "b_name": "crow_course_slalom_b",
+          "normal_impulse": 0.00295215659,
+          "separation": -7.39097595e-06
+        },
+        {
+          "a": 16,
+          "a_name": "crow_lower_beak",
+          "b": 29,
+          "b_name": "crow_course_slalom_b",
+          "normal_impulse": 0,
+          "separation": 0.00193929672
+        },
+        {
+          "a": 16,
+          "a_name": "crow_lower_beak",
+          "b": 29,
+          "b_name": "crow_course_slalom_b",
+          "normal_impulse": 0,
+          "separation": 0.00096821785
+        }
+      ]
+    },
+    "minimum_accepted_step_obstacle_clearance": {
+      "lane": 0,
+      "end_step": 2409,
+      "minimum_step": 2409,
+      "minimum_m": 0,
+      "bird_shape": "crow_head/upper_beak_collision",
+      "obstacle_shape": "crow_course_slalom_b/collision",
+      "bird_body": "crow_head",
+      "obstacle_body": "crow_course_slalom_b",
+      "sampling": "accepted_control_steps"
+    }
+  }
+}
