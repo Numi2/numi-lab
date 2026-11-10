@@ -1,0 +1,11 @@
+{
+  "remote_commit": "de2f877da457bbb109df8ec376206768706a8853",
+  "retired": [
+    {
+      "raw": "artifacts/crow-v15-ankle-authority-screen-20261111/results.txt",
+      "archive": "artifacts/crow-v15-ankle-authority-screen-20261111/results.txt.gz",
+      "sha256": "bdbb2bfcbe5fdb0fc6d831cc8a17c85a26ad9a02e68809811a92eae15a843eac",
+      "bytes": 6026809
+    }
+  ]
+}
