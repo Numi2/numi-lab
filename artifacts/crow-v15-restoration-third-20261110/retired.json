@@ -1,0 +1,71 @@
+{
+  "remote_commit": "7b6473423d27846c8d50eb3412f79f1aa8a22838",
+  "retired": [
+    {
+      "raw": "build/crow-v15-long-perch-host-20261110/third-j-hard.json",
+      "archive": "artifacts/crow-v15-third-combined-eval-20261110/third-j-hard.json.gz",
+      "sha256": "ef14eaac2a7e31f50692e79676c65a29954cfe6a0eee5975a0f95dd8e9479600",
+      "bytes": 233097679
+    },
+    {
+      "raw": "build/crow-v15-long-perch-host-20261110/third-j-hard.tsv",
+      "archive": "artifacts/crow-v15-third-combined-eval-20261110/third-j-hard.tsv.gz",
+      "sha256": "228516bc6a187d5e8b6b150676d9b9384656c695e249c4f22da7c3986db767a0",
+      "bytes": 5068438
+    },
+    {
+      "raw": "build/crow-v15-long-perch-host-20261110/third-i-hard.json",
+      "archive": "artifacts/crow-v15-third-combined-eval-20261110/third-i-hard.json.gz",
+      "sha256": "9df0d7760fae12bb4f773695affce31cd44ae9c733b0f10187ae354b94e4cd7d",
+      "bytes": 230103043
+    },
+    {
+      "raw": "build/crow-v15-long-perch-host-20261110/third-i-hard.tsv",
+      "archive": "artifacts/crow-v15-third-combined-eval-20261110/third-i-hard.tsv.gz",
+      "sha256": "6832091c3eeb6cfeca22398fc20dc231021de81030cb885711dae8bfc36cffb4",
+      "bytes": 5030444
+    },
+    {
+      "raw": "build/crow-v15-long-perch-host-20261110/third-j-original.json",
+      "archive": "artifacts/crow-v15-third-combined-eval-20261110/third-j-original.json.gz",
+      "sha256": "e770b8aa3459805156d8bd6f904b05deee8e729d14da0a2b7e69a9e7ba062e73",
+      "bytes": 227521797
+    },
+    {
+      "raw": "build/crow-v15-long-perch-host-20261110/third-j-original.tsv",
+      "archive": "artifacts/crow-v15-third-combined-eval-20261110/third-j-original.tsv.gz",
+      "sha256": "c878e92808a4be9c2c87ba15d9ed10752c23caf53f9465aab514bffe8e8a0d3e",
+      "bytes": 5047810
+    },
+    {
+      "raw": "build/crow-v15-long-perch-host-20261110/third-i-original.json",
+      "archive": "artifacts/crow-v15-third-combined-eval-20261110/third-i-original.json.gz",
+      "sha256": "7d00aa76a0b441ff673d886e991c3155061d18cb19dab01b2ed86ac624dfc1a4",
+      "bytes": 238583200
+    },
+    {
+      "raw": "build/crow-v15-long-perch-host-20261110/third-i-original.tsv",
+      "archive": "artifacts/crow-v15-third-combined-eval-20261110/third-i-original.tsv.gz",
+      "sha256": "26f8683d2ea1f4ce95ffe53f3e8d0fd10051b3b866a6b8146e5a51b24918faac",
+      "bytes": 5042244
+    },
+    {
+      "raw": "build/crow-v15-long-perch-host-20261110/j-third-recovery.json",
+      "archive": "artifacts/crow-v15-third-j-recovery-20261110/j-third-recovery.json.gz",
+      "sha256": "d8ab4c2956ea78d16e6417b64a4bd8f53c589575b8859c015eabee263108332e",
+      "bytes": 229859401
+    },
+    {
+      "raw": "build/crow-v15-long-perch-host-20261110/j-third-recovery.tsv",
+      "archive": "artifacts/crow-v15-third-j-recovery-20261110/j-third-recovery.tsv.gz",
+      "sha256": "070ad0482d6f822c65d7a2e13d753dc7724a6e0a4bbed7118f0fa9cdc01620bf",
+      "bytes": 5047349
+    },
+    {
+      "raw": "build/crow-v15-long-perch-host-20261110/j-third-recovery.rollout",
+      "archive": "artifacts/crow-v15-third-j-recovery-20261110/j-third-recovery.rollout.gz",
+      "sha256": "720a57b016fb2ac8c720ec7ca5174d33b1b258f512e20113cb750705b2f143f7",
+      "bytes": 27832928
+    }
+  ]
+}
