@@ -1,0 +1,15 @@
+{
+  "reference": "artifacts/crow-v15-clearance-corrective-eval-20261110/clear-j-hard.json.gz",
+  "candidate": "artifacts/crow-v15-soft-front-grip-20261110/soft-j-hard.json.gz",
+  "expected_frames": 4120,
+  "checked_frames": 4120,
+  "equal_prefix": true,
+  "first_differences": [],
+  "scope": [
+    "step",
+    "q",
+    "v",
+    "actor_observation",
+    "accepted_actions"
+  ]
+}
