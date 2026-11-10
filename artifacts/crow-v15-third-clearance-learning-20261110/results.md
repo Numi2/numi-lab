@@ -1,0 +1,3 @@
+# Third clearance-corrective routing candidate
+
+The newly qualified recovery contributed 560 pre-waypoint-five samples, with the planned 40-fold weight on its approach decision window; the unsupported earlier recovery remained excluded. The initial actor was anchored on 1,878 observations from successful routes and the early original-I prefix, with output MSE 9.30e-6 after training. The deterministic export matched checked trained outputs exactly. These are training diagnostics only; the combined route, grip and release system is undergoing full-start teacher-off development tests. The original v15 mechanics and low-level flight law are unchanged.
