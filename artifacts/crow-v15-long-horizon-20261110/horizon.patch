@@ -1,0 +1,11 @@
+--- a/c_api.cpp
++++ b/c_api.cpp
+@@ -3617,7 +3617,7 @@
+         }
+         applyRunProfile(manifest, *config);
+         if (hierarchicalNavigation) {
+-            manifest.task.maximumEpisodeSteps = 3000u;
++            manifest.task.maximumEpisodeSteps = 5000u;
+             manifest.task.id = conditionalLandingNavigation
+                 ? "american_crow_v15_conditional_landing_navigation_development_v1"
+                 : tripleWaypointExpertNavigation

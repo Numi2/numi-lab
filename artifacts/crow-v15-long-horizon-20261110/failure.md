@@ -1,0 +1,1 @@
+The first horizon-extension attempt correctly rejected the old policy fingerprint. Its wrapper found stale trace and replay files from a prior test and compressed them; these are explicitly named stale and do not represent the rejected run. The next attempt rebinds unchanged actor tensors solely for the longer-horizon diagnostic and must pass trajectory parity.

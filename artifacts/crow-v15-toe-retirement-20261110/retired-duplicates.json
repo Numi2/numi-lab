@@ -1,0 +1,113 @@
+{
+  "remote_verified_commit": "38d687bf74a7af14075a422b80be100f5c65319b",
+  "removed": [
+    {
+      "raw": "build/crow-v15-integrated-route-baseline-20261110/diagnostic-reserved-final-j-ankle12.tsv",
+      "source": "artifacts/crow-v15-perch-ankle-refine-20261110/diagnostic-reserved-final-j-ankle12.tsv.gz",
+      "sha256": "09b0c09d0066086111199b440fbcf3b4678350238dadaf1d07b08f4113fa16d0",
+      "bytes": 2182335
+    },
+    {
+      "raw": "build/crow-v15-integrated-route-baseline-20261110/diagnostic-reserved-final-j-ankle18.tsv",
+      "source": "artifacts/crow-v15-perch-ankle-refine-20261110/diagnostic-reserved-final-j-ankle18.tsv.gz",
+      "sha256": "80d0b9588a15f83c2f0687298b6123b06528a564dd4a6b2dfdec8301c6cd69f2",
+      "bytes": 2183214
+    },
+    {
+      "raw": "build/crow-v15-integrated-route-baseline-20261110/diagnostic-reserved-final-j-ankle12.json",
+      "source": "artifacts/crow-v15-perch-ankle-refine-20261110/diagnostic-reserved-final-j-ankle12.json.gz",
+      "sha256": "204b2179e99705d0bff377772947992da6cf1d7320ca1b48632051392f43ceca",
+      "bytes": 99281833
+    },
+    {
+      "raw": "build/crow-v15-integrated-route-baseline-20261110/diagnostic-reserved-final-j-ankle18.json",
+      "source": "artifacts/crow-v15-perch-ankle-refine-20261110/diagnostic-reserved-final-j-ankle18.json.gz",
+      "sha256": "a9607678d3cf7a1a509c9e66774e44426accb741f475e7dde6062f095d2b947c",
+      "bytes": 99388669
+    },
+    {
+      "raw": "build/crow-v15-integrated-route-baseline-20261110/diagnostic-reserved-final-j-toe120.tsv",
+      "source": "artifacts/crow-v15-perch-toe-force-20261110/diagnostic-reserved-final-j-toe120.tsv.gz",
+      "sha256": "998d5ff85c3b27002fad477d4a6398c3f0381b4c5050798a0a085f1d49994348",
+      "bytes": 2177046
+    },
+    {
+      "raw": "build/crow-v15-integrated-route-baseline-20261110/diagnostic-reserved-final-j-toe120.json",
+      "source": "artifacts/crow-v15-perch-toe-force-20261110/diagnostic-reserved-final-j-toe120.json.gz",
+      "sha256": "901fff01836da3c89423d3b2d404841d971a23a8acf40c4f89543632b2ea0794",
+      "bytes": 99896911
+    },
+    {
+      "raw": "build/crow-v15-integrated-route-baseline-20261110/diagnostic-reserved-final-j-toe105.json",
+      "source": "artifacts/crow-v15-perch-toe-force-20261110/diagnostic-reserved-final-j-toe105.json.gz",
+      "sha256": "fac15ac615fe64f5311e1e6588aa5206eda599dc30e1a0ba41b9b0192ba27730",
+      "bytes": 99454520
+    },
+    {
+      "raw": "build/crow-v15-integrated-route-baseline-20261110/diagnostic-reserved-final-j-toe105.tsv",
+      "source": "artifacts/crow-v15-perch-toe-force-20261110/diagnostic-reserved-final-j-toe105.tsv.gz",
+      "sha256": "4ccbcbf7ef48f4ae0d7b6512b02fb389b6d44720a40e1b9b78a1d6aefd071365",
+      "bytes": 2182754
+    },
+    {
+      "raw": "build/crow-v15-integrated-route-baseline-20261110/diagnostic-reserved-final-j-toe118.tsv",
+      "source": "artifacts/crow-v15-perch-toe-balance-20261110/diagnostic-reserved-final-j-toe118.tsv.gz",
+      "sha256": "af3e6527d54c49ca0a6b53fa5f2fd56fbce1ac1518bbc9c9f9a7ddf491c1eef9",
+      "bytes": 2178807
+    },
+    {
+      "raw": "build/crow-v15-integrated-route-baseline-20261110/diagnostic-reserved-final-j-toe110.tsv",
+      "source": "artifacts/crow-v15-perch-toe-balance-20261110/diagnostic-reserved-final-j-toe110.tsv.gz",
+      "sha256": "c5d976fc52c04852335445eb0df7bbee4f30a1720b6efcbdb70dab39d654c584",
+      "bytes": 2181954
+    },
+    {
+      "raw": "build/crow-v15-integrated-route-baseline-20261110/diagnostic-reserved-final-j-toe115.json",
+      "source": "artifacts/crow-v15-perch-toe-balance-20261110/diagnostic-reserved-final-j-toe115.json.gz",
+      "sha256": "a6dfa04469abf8a544cd529382676d666c09c5e5e75651f91a7c641a5a4c13e8",
+      "bytes": 99067315
+    },
+    {
+      "raw": "build/crow-v15-integrated-route-baseline-20261110/diagnostic-reserved-final-j-toe110.json",
+      "source": "artifacts/crow-v15-perch-toe-balance-20261110/diagnostic-reserved-final-j-toe110.json.gz",
+      "sha256": "f1086bbefa2fd00fcf580ee17b5b35f91d5032693b7eba5ac0eb981fcdfcc9a6",
+      "bytes": 99394025
+    },
+    {
+      "raw": "build/crow-v15-integrated-route-baseline-20261110/diagnostic-reserved-final-j-toe118.json",
+      "source": "artifacts/crow-v15-perch-toe-balance-20261110/diagnostic-reserved-final-j-toe118.json.gz",
+      "sha256": "1a517ff666d9bf19bf7d170d7de178dba846cdc785f4455f14dd7ed56ef3b850",
+      "bytes": 99114352
+    },
+    {
+      "raw": "build/crow-v15-integrated-route-baseline-20261110/diagnostic-reserved-final-j-toe115.tsv",
+      "source": "artifacts/crow-v15-perch-toe-balance-20261110/diagnostic-reserved-final-j-toe115.tsv.gz",
+      "sha256": "656f18d7fb000fc2e4727c62ac662f7b59a87784fc613657fd992d9b1536ad5d",
+      "bytes": 2178532
+    },
+    {
+      "raw": "build/crow-v15-integrated-route-baseline-20261110/diagnostic-reserved-final-j-feedback10.json",
+      "source": "artifacts/crow-v15-perch-toe-feedback-20261110/diagnostic-reserved-final-j-feedback10.json.gz",
+      "sha256": "9440a8611200c82b6ba6aa2a8354939a05771b25db4f1d06b52522cc606d0d81",
+      "bytes": 99906852
+    },
+    {
+      "raw": "build/crow-v15-integrated-route-baseline-20261110/diagnostic-reserved-final-j-feedback06.json",
+      "source": "artifacts/crow-v15-perch-toe-feedback-20261110/diagnostic-reserved-final-j-feedback06.json.gz",
+      "sha256": "01e147090414953abaacfce403bd202aa8f768ec21be92b43cef82df75700bc3",
+      "bytes": 99323579
+    },
+    {
+      "raw": "build/crow-v15-integrated-route-baseline-20261110/diagnostic-reserved-final-j-feedback10.tsv",
+      "source": "artifacts/crow-v15-perch-toe-feedback-20261110/diagnostic-reserved-final-j-feedback10.tsv.gz",
+      "sha256": "4ba44b678ab0b7071675f1db3290441a54dc057ce7aa6721131ae117f4e27fa5",
+      "bytes": 2177201
+    },
+    {
+      "raw": "build/crow-v15-integrated-route-baseline-20261110/diagnostic-reserved-final-j-feedback06.tsv",
+      "source": "artifacts/crow-v15-perch-toe-feedback-20261110/diagnostic-reserved-final-j-feedback06.tsv.gz",
+      "sha256": "ffc2974bce22d19d05389239e0c309c8851ae9535d128ccf9ff1020a48115498",
+      "bytes": 2181252
+    }
+  ]
+}

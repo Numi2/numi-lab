@@ -1,0 +1,1 @@
+Extend the native first-episode horizon to 5000 for an uninterrupted hold test on development layout J. Keep the body, controller and contacts unchanged. Compare sampled q/v with the original run; policy incompatibility, mismatch, reset or physical failure invalidates the test.
