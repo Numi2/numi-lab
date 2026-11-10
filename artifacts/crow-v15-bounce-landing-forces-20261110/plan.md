@@ -1,0 +1,1 @@
+Replay the full-start toe-bounce-fix landing on the used J original seed with a contact-point observer. Compare all accepted q/v states through first failure with the ordinary host, then measure final-substep contact impulses, resultant moments, and support center relative to reconstructed articulated COM. Observer supplies no force; moments are sampled, not continuous.
