@@ -1,0 +1,12 @@
+[
+  {
+    "path": "build/crow-v15-teacher-terminal-handoff-20261110/teacher.metal",
+    "sha256": "0f96cec841df60f6e0e5b792ca298ca3f9a558c1cfeaabc38273d356fb139f85",
+    "bytes": 425908
+  },
+  {
+    "path": "build/crow-v15-teacher-terminal-handoff-20261110/teacher.metallib",
+    "sha256": "60a058f9f71bc8f6f960fc02af2754c62d8c3fb393380be54002d60452b8053e",
+    "bytes": 4485360
+  }
+]
