@@ -1,0 +1,101 @@
+{
+  "remote_commit": "5175ff22d0805cf9f497d6b5de10ad7296afaaa8",
+  "retired": [
+    {
+      "raw": "build/crow-v15-long-perch-host-20261110/development-i-contact-release-event.json",
+      "archive": "artifacts/crow-v15-contact-release-event-20261110/development-i-contact-release-event.json.gz",
+      "sha256": "8c65f841cbb986e9630f8ff31458ab103d3d86193dea4b6d2d267c0d65255020",
+      "bytes": 230052863
+    },
+    {
+      "raw": "build/crow-v15-long-perch-host-20261110/development-i-contact-release-event.tsv",
+      "archive": "artifacts/crow-v15-contact-release-event-20261110/development-i-contact-release-event.tsv.gz",
+      "sha256": "2db4be49be379c921ab17405c23bbb1eab8f5c8cdf9d58578c2523be023e5f1e",
+      "bytes": 5012619
+    },
+    {
+      "raw": "build/crow-v15-long-perch-host-20261110/development-i-contact-release-event.rollout",
+      "archive": "artifacts/crow-v15-contact-release-event-20261110/development-i-contact-release-event.rollout.gz",
+      "sha256": "5d5cc75483d91a125d89973d2e196ccbd4ce79388e31d8b2a85e46fa2d16bc7d",
+      "bytes": 27832928
+    },
+    {
+      "raw": "build/crow-v15-long-perch-host-20261110/development-i-contact-release-counter.json",
+      "archive": "artifacts/crow-v15-contact-release-counter-20261110/development-i-contact-release-counter.json.gz",
+      "sha256": "e8107a15d6318878653a4cd6e9bd05cacff34b98b5d8050824a719bb13d66c8a",
+      "bytes": 229927066
+    },
+    {
+      "raw": "build/crow-v15-long-perch-host-20261110/development-i-contact-release-counter.tsv",
+      "archive": "artifacts/crow-v15-contact-release-counter-20261110/development-i-contact-release-counter.tsv.gz",
+      "sha256": "4c5ff9e3810132c1237e88b49efddbaabbf7304e5de5204e1938078eb6c81c26",
+      "bytes": 5035089
+    },
+    {
+      "raw": "build/crow-v15-long-perch-host-20261110/development-i-contact-release-counter.rollout",
+      "archive": "artifacts/crow-v15-contact-release-counter-20261110/development-i-contact-release-counter.rollout.gz",
+      "sha256": "7c352aecf2d81ff372170a35a71427339a5a36e7fdf6a36252b12245ee7329e9",
+      "bytes": 27832928
+    },
+    {
+      "raw": "build/crow-v15-long-perch-host-20261110/i-placement.json",
+      "archive": "artifacts/crow-v15-placement-eval-20261110/i-placement.json.gz",
+      "sha256": "77f2eb7b0cd786f77ec55002041ddbbf21fd6447e728c51153b763639385f1d8",
+      "bytes": 238486402
+    },
+    {
+      "raw": "build/crow-v15-long-perch-host-20261110/i-placement.tsv",
+      "archive": "artifacts/crow-v15-placement-eval-20261110/i-placement.tsv.gz",
+      "sha256": "97ce66e04501d87452e91a447efc7f795c3ae08671007a0365f8261ba121a350",
+      "bytes": 5041529
+    },
+    {
+      "raw": "build/crow-v15-long-perch-host-20261110/j-placement.json",
+      "archive": "artifacts/crow-v15-placement-eval-20261110/j-placement.json.gz",
+      "sha256": "6f4a559b20b4d631fce20644fb08218007a4348a962e5c3f5440ba249b1bcff6",
+      "bytes": 242983520
+    },
+    {
+      "raw": "build/crow-v15-long-perch-host-20261110/j-placement.tsv",
+      "archive": "artifacts/crow-v15-placement-eval-20261110/j-placement.tsv.gz",
+      "sha256": "4945d1e6e597bccdce3bb737c26d0c08fc1f6621d13297f7a3530debe6c0ebb4",
+      "bytes": 5047062
+    },
+    {
+      "raw": "build/crow-v15-long-perch-host-20261110/development-j-newactor-recovery.json",
+      "archive": "artifacts/crow-v15-newactor-j-recovery-20261110/development-j-newactor-recovery.json.gz",
+      "sha256": "ab4880c4d3915dac04fb6a0c5122f3ce7c4da439ad9c938fbf7c9fffdbec94eb",
+      "bytes": 232512777
+    },
+    {
+      "raw": "build/crow-v15-long-perch-host-20261110/development-j-newactor-recovery.tsv",
+      "archive": "artifacts/crow-v15-newactor-j-recovery-20261110/development-j-newactor-recovery.tsv.gz",
+      "sha256": "852e22d5abe4b1e472e3f52d593bc403c025514d3093b832baff8b48ab5b390e",
+      "bytes": 4981445
+    },
+    {
+      "raw": "build/crow-v15-long-perch-host-20261110/development-j-newactor-recovery.rollout",
+      "archive": "artifacts/crow-v15-newactor-j-recovery-20261110/development-j-newactor-recovery.rollout.gz",
+      "sha256": "9dbf0b1c6e367bbc04fade1afeb027d1c56ee2766bb2cd6af09b7c90d106428f",
+      "bytes": 27832928
+    },
+    {
+      "raw": "build/crow-v15-long-perch-host-20261110/development-i-placement-recovery.json",
+      "archive": "artifacts/crow-v15-placement-i-recovery-20261110/development-i-placement-recovery.json.gz",
+      "sha256": "b3ffe059335b3bacc3c35157ac9bd6821cb997bd570f38d38c1d63cb82629b6b",
+      "bytes": 230192599
+    },
+    {
+      "raw": "build/crow-v15-long-perch-host-20261110/development-i-placement-recovery.tsv",
+      "archive": "artifacts/crow-v15-placement-i-recovery-20261110/development-i-placement-recovery.tsv.gz",
+      "sha256": "dc725c927f4fb8f9b657330a25bdb4a398057664142301b6a4fc49ef591175c8",
+      "bytes": 5032740
+    },
+    {
+      "raw": "build/crow-v15-long-perch-host-20261110/development-i-placement-recovery.rollout",
+      "archive": "artifacts/crow-v15-placement-i-recovery-20261110/development-i-placement-recovery.rollout.gz",
+      "sha256": "25ce0da1c028080765be6964cb8db66e5a28d2fd2b8818681b93c01ea887375f",
+      "bytes": 27832928
+    }
+  ]
+}
