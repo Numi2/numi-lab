@@ -1,0 +1,17 @@
+{
+  "remote_commit": "93f827e72e6daad57ab5dd53ec0e23666240d32b",
+  "retired": [
+    {
+      "raw": "artifacts/crow-v15-contact-response-ablation-20261110/results.txt",
+      "archive": "artifacts/crow-v15-contact-response-ablation-20261110/results.txt.gz",
+      "sha256": "0f096e7447f1059a0b9ea3a3fb6384df4973b66319fa96131fa625cab12c3b43",
+      "bytes": 2159198
+    },
+    {
+      "raw": "artifacts/crow-v15-open-toe-impact-drive-ablation-20261110/results.txt",
+      "archive": "artifacts/crow-v15-open-toe-impact-drive-ablation-20261110/results.txt.gz",
+      "sha256": "9ba49fc7918fb3958896f0345189e0057606f5383ad394b3948de5d48cc5b249",
+      "bytes": 242701
+    }
+  ]
+}
