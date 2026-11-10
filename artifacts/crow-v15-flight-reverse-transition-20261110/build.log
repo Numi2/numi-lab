@@ -1,0 +1,5 @@
+/Users/n/Developer/numi-crow-rl-20261107/build/crow-v15-flight-reverse-transition-20261110/transition.metal:4971:21: warning: unused variable 'navigationWingResidual' [-Wunused-variable]
+        const float navigationWingResidual = avianNavigationTeacher
+                    ^
+1 warning generated.
+transition 99408baafc93b4c371d735072085a460bf8793188fb72e632b27904a5e05eeeb

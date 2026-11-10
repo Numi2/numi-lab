@@ -1,0 +1,17 @@
+[
+  {
+    "path": "build/crow-v15-flight-encoded-speed-20261110/forward15.metallib",
+    "sha256": "ff7fd3c16877f7ec9fb054d8e0f58f764549a42342fa648c3f6944ba9968f347",
+    "bytes": 4462848
+  },
+  {
+    "path": "build/crow-v15-flight-encoded-speed-20261110/encodedhover.metallib",
+    "sha256": "e6c3db81fe0c10330fffe65bfa467a8b658920aec75637d84f6405a74918a838",
+    "bytes": 4462848
+  },
+  {
+    "path": "build/crow-v15-flight-encoded-speed-20261110/encodedreverse.metallib",
+    "sha256": "5e37f31868a17587329a181387e0f0d1a9914481ce506f836bd66d45b54711f3",
+    "bytes": 4462848
+  }
+]

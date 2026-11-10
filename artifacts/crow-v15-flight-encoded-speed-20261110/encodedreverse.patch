@@ -1,0 +1,13 @@
+--- a/tracking.metal
++++ b/encodedreverse.metal
+@@ -6545,8 +6545,8 @@
+         const float desired = rate * max(seconds - 6.0f, 0.0f);
+         const float heading = atan2(yawBasis.y, yawBasis.x);
+         const float error = atan2(sin(desired-heading), cos(desired-heading));
+-        state.commandAndPhase.xyz = float3(0.70f, 0.0f, rate);
+-        state.commandExtension.xyz = float3(error, baseAngular.z, yawFrameLinear.x);
++        state.commandAndPhase.xyz = float3(0.15f, 0.0f, rate);
++        state.commandExtension.xyz = float3(error, baseAngular.z, yawFrameLinear.x + 0.30f);
+         const float benchPitch = asin(clamp(2.0f * (orientation.w * orientation.y - orientation.z * orientation.x), -1.0f, 1.0f));
+         state.threatGeometry = float4(targetHeight - rootWorldPosition(program, q).z, rootLinearVelocity.z, benchPitch, baseAngular.y);
+         state.threatTeacher.x = yawFrameLinear.y;
