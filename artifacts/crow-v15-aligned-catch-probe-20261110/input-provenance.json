@@ -1,0 +1,24 @@
+{
+  "support_sample_step": 4186,
+  "state_source": "artifacts/crow-v15-foot-alignment-gate-20261110/development-reserved-final-j-gate.stderr.gz",
+  "state_source_sha256": "74b7a664e60f8f69774c10571be7172e8cc2204628da397ff09dceeacb222369",
+  "scene_source": "artifacts/crow-v15-foot-alignment-gate-20261110/development-reserved-final-j-gate.tsv.gz",
+  "scene_source_sha256": "0aa6937d2843837aeb07ad51ff81875541a9aafc2c010eae3f8921ec62337b03",
+  "scene_step": 4186,
+  "input_sha256": "65984ee11541413593118191594b81bc5459333c66c65913e4b4d2320d1ad386",
+  "perch": [
+    5.02902365,
+    -0.0631106496,
+    0.815437376,
+    0.0,
+    0.0,
+    0.0,
+    1.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0
+  ]
+}
