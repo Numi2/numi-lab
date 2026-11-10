@@ -1,0 +1,3 @@
+# Passive toe drive control: failed
+
+Removing toe joint stiffness and damping while keeping the original armature, mass partition and geometry produced zero passing lanes out of eight. No physical or solver failures occurred. The sampled maximum toe speeds ranged from 10.367 to 10.447 rad/s. The rigid toe-geometry body had passed the larger matched flight screen. This result means toe stiffness and damping alone do not explain the tracking regression; it does not isolate the remaining dynamics or establish that the passive toes are physically realistic. The control cannot actively grip and is not a replacement.

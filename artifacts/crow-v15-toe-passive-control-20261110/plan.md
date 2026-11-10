@@ -1,0 +1,3 @@
+# Passive toe-drive flight control
+
+The rigid toe-geometry control passed 160/160 flight gates; the articulated body failed 160/160. With the baseline toe body, keep its mass partition, collision geometry, eight DOFs and original 5e-5 armature; set only the toe joint drive stiffness and damping to zero. Test eight matched obstacle-off fixed-head flight lanes at seed 20261120 for the original tracking gates and sampled 12 rad/s toe limits. If the passive model tracks like the rigid control, active toe drives are implicated; if it tracks like baseline, their stiffness/damping alone are insufficient to explain the regression. This diagnostic cannot actively grip or be promoted. No biological, landing, or full-controller qualification follows.
