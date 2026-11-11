@@ -1,0 +1,3 @@
+# ABA compiler math-mode diagnostic
+
+The isolated 40-body, strict-math ABA shader failed the predeclared 5e-5 CPU-oracle scaled acceleration gate on the 33-body toe prototype, while the 25-body control passed. On the same isolated host library and identical inputs, compile the ABA shader with Metal fast math, and run both the 33-body candidate and the 25-body control with the unchanged strict 5e-5 thresholds and 12 native lanes. Compare maximum error to strict-math reference, and retain failure even if another mode passes. This is a compiler-mode sensitivity check, not a contact, performance, production or biological qualification; a passing candidate would require broad numerical, determinism and full solver coverage before use.
