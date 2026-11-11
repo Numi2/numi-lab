@@ -1,0 +1,26 @@
+[
+  {
+    "name": "hn50-ap18",
+    "sha256": "c9ad7f31738484b9100de628bc944227c5dc30587b72c4c983b0be27da5ecf84"
+  },
+  {
+    "name": "hn50-ap30",
+    "sha256": "0b3ee1aed0792bad922369706bfd9f46ab5e4cfc4b0d6accbe1dc6e60693f490"
+  },
+  {
+    "name": "hn50-ap45",
+    "sha256": "c4a2c80cba725139c91f7824d48dee008ebfe681abaa33231f7088b5056fd687"
+  },
+  {
+    "name": "hn70-ap45",
+    "sha256": "c02f70902b47d4fc6c775c370b347487d8d64e480da96d48a2f4f2645916a2c7"
+  },
+  {
+    "name": "hn85-ap45",
+    "sha256": "4da643b728232532d77a55d461f8adafa3097166039fd881ececbf80dcf454e4"
+  },
+  {
+    "name": "hn100-ap45",
+    "sha256": "def2e5e8dc119262ff3f8a4b845b87a134382de5eb4519190f96062e9c2e767c"
+  }
+]

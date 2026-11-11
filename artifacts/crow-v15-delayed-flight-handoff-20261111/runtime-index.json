@@ -1,0 +1,62 @@
+[
+  {
+    "path": "build/bin/metalrobo_task_rollout",
+    "sha256": "5ee04a98f25f7149701bc21ede235428876e535f843366e78dea16fce6035d1d",
+    "bytes": 1081736
+  },
+  {
+    "path": "build/crow-v15-bounded-launch-commands-20261111/libmetalrobo.dylib",
+    "sha256": "ef01b34fd9b7f6b6e0d712ffc092d41f3e5b76e8cc643f12f8253af688740148",
+    "bytes": 5764480
+  },
+  {
+    "path": "build/crow-v15-walk-all-lanes-geometry-20261111/kinematics",
+    "sha256": "c78f121c1742cc9b85a0511255db25a40c720c385f1345398fdca7761609397f",
+    "bytes": 62648
+  },
+  {
+    "path": "build/crow-v15-walk-16substep-screen-20261111/zero16/landing.policypack",
+    "sha256": "d5973d635670960c6bb1a39630053975c417e0f335e66998e90fae3cc006afaa",
+    "bytes": 5996435
+  },
+  {
+    "path": "build/crow-v15-walk-16substep-screen-20261111/zero16/route.policypack",
+    "sha256": "2fe607b9868e5c99569e75808f9bf401525a31ee9e8733349cd2cb36c4acfdc5",
+    "bytes": 17228689
+  },
+  {
+    "path": "build/crow-v15-delayed-flight-handoff-20261111/hn100-ap45.metallib",
+    "sha256": "def2e5e8dc119262ff3f8a4b845b87a134382de5eb4519190f96062e9c2e767c",
+    "bytes": 4470704
+  },
+  {
+    "path": "build/crow-v15-delayed-flight-handoff-20261111/hn50-ap18.metallib",
+    "sha256": "c9ad7f31738484b9100de628bc944227c5dc30587b72c4c983b0be27da5ecf84",
+    "bytes": 4470720
+  },
+  {
+    "path": "build/crow-v15-delayed-flight-handoff-20261111/hn50-ap30.metallib",
+    "sha256": "0b3ee1aed0792bad922369706bfd9f46ab5e4cfc4b0d6accbe1dc6e60693f490",
+    "bytes": 4470704
+  },
+  {
+    "path": "build/crow-v15-delayed-flight-handoff-20261111/hn50-ap45.metallib",
+    "sha256": "c4a2c80cba725139c91f7824d48dee008ebfe681abaa33231f7088b5056fd687",
+    "bytes": 4470704
+  },
+  {
+    "path": "build/crow-v15-delayed-flight-handoff-20261111/hn70-ap45.metallib",
+    "sha256": "c02f70902b47d4fc6c775c370b347487d8d64e480da96d48a2f4f2645916a2c7",
+    "bytes": 4470720
+  },
+  {
+    "path": "build/crow-v15-delayed-flight-handoff-20261111/hn85-ap45.metallib",
+    "sha256": "4da643b728232532d77a55d461f8adafa3097166039fd881ececbf80dcf454e4",
+    "bytes": 4470704
+  },
+  {
+    "path": "assets/crow_navigation_course/crow-navigation.active-head.visual-observation.json",
+    "sha256": "d19ff0f9d360b4ffc84bac6a5f3d2be048234b6c03097af7d43fe5f85b316f8f",
+    "bytes": 1566
+  }
+]

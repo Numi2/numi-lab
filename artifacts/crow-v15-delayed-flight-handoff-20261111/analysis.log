@@ -1,0 +1,6 @@
+hn50-ap18 pass 8 parity 8 first-qdiff [255] first-contactdiff [260] recontact 0 step353-vx [0.249, 0.248, 0.248, 0.249, 0.248, 0.248, 0.248, 0.249]
+hn50-ap30 pass 8 parity 8 first-qdiff [255] first-contactdiff [261] recontact 0 step353-vx [0.209, 0.209, 0.209, 0.209, 0.209, 0.209, 0.209, 0.21]
+hn50-ap45 pass 8 parity 8 first-qdiff [255] first-contactdiff [261] recontact 0 step353-vx [0.207, 0.207, 0.207, 0.207, 0.207, 0.207, 0.207, 0.208]
+hn70-ap45 pass 8 parity 8 first-qdiff [255] first-contactdiff [258] recontact 0 step353-vx [0.292, 0.292, 0.292, 0.292, 0.292, 0.292, 0.291, 0.293]
+hn85-ap45 pass 8 parity 8 first-qdiff [255] first-contactdiff [259] recontact 0 step353-vx [0.353, 0.35, 0.352, 0.353, 0.352, 0.353, 0.352, 0.351]
+hn100-ap45 pass 0 parity 7 first-qdiff [257, 260] first-contactdiff [257, 264] recontact 0 step353-vx [-0.081, -0.086, -0.084, -0.083, -0.083, -0.078, -0.051, -0.081]
