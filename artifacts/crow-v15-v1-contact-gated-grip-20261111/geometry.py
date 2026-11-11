@@ -1,6 +1,6 @@
 from pathlib import Path
 import collections,gzip,json,numpy as np
-A=Path('artifacts/crow-v15-v1-contact-gated-grip-20261111');B=Path('artifacts/crow-v15-v1-alignment-gated-descent-20261111');out=json.loads((A/'analysis.json').read_text());states={};ref={};sub=collections.defaultdict(lambda:[0.0]*21)
+A=Path('artifacts/crow-v15-v1-contact-gated-grip-20261111');B=Path('artifacts/crow-v15-v1-alignment-gated-descent-20261111');out=json.loads((A/'analysis.json').read_text());first=out['first_episode'];episodeEnd=min(first['steps_by_environment'][0]+1,3000) if first['physical_failure_by_environment'][0] else 3000;states={};ref={};sub=collections.defaultdict(lambda:[0.0]*21)
 def samples(p):
  d={}
  with gzip.open(p,'rt') as f:
@@ -13,7 +13,7 @@ with gzip.open(A/'route.stderr.gz','rt') as f:
  for l in f:
   if l.startswith('CROW_PERCH_SUBSTEP '):
    x=l.split();t=int(x[1]);lane=int(x[3])
-   if lane==0 and t<=3000:
+   if lane==0 and t<=episodeEnd:
     for i,v in enumerate(map(float,x[6:])):sub[t][i]+=v
 opposed=[]
 for t,v in sub.items():
