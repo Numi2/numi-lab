@@ -1,0 +1,19 @@
+{
+  "endpoint_replay_offset": 1,
+  "endpoint_q_v_max_error": 4.9969481885625555e-09,
+  "lane": 7,
+  "first_episode_steps": 3497,
+  "physical_failure": true,
+  "release_spans": [],
+  "bilateral_grip_spans": [
+    [
+      3299,
+      3403
+    ]
+  ],
+  "largest_minimum_left_gap_m": 0.33093323731794366,
+  "last_100_bilateral_grip": false,
+  "missing_substeps": 0,
+  "overflow": [],
+  "scope": "Only lane 7. Foot/toe clearance is separating-axis clearance at control endpoints for the estimated box shapes; support impulses and no-left-contact are summed over every substep. Right support requires opposing normals. No claim of continuous geometric clearance between endpoints, an actual release attempt, biological realism or unused-layout success."
+}

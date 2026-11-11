@@ -1,0 +1,3 @@
+# Corrected student autonomous development evaluation
+
+Seven of eight first episodes reached all five waypoints, compared with six in the prior matched development trial; the remaining lane reached three. The two previous slalom-failure lanes reached the perch, but two lanes failed after reaching five waypoints and none ended with sustained bilateral support or a qualifying release. There was no teacher and no scheduled reset. The actor is a route candidate, not an accepted full-sequence controller. Endpoint contact reports do not establish the first fatal substep collider. The test used the same development layout and seed as training and is not an unused-layout result.
