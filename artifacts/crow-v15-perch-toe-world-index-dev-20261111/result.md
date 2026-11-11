@@ -1,0 +1,3 @@
+# Result: contact-driven toe motion, no stable grip
+
+All eight first episodes reached five development waypoints and physically contacted the perch. The candidate matched the baseline through first contact, with the first q/v/action difference on the next recorded step; toe joints then moved. Rear-toe perch contact occurred in four first episodes. All eight first episodes terminated on tilt, and none showed simultaneous opposing toe-normal impulses on both feet. Three first episodes hit toe velocity limits after the flight handoff during landing. No explicit release command was implemented or tested. The law is an experimental candidate and is not promoted as a stable landing, grip, release, autonomous policy, or held-out result.

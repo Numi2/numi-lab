@@ -1,0 +1,8 @@
+0 first_perch_contact 2986 first_state_difference 2987 max_toe_angle_difference_rad 1.452753
+1 first_perch_contact 3036 first_state_difference 3037 max_toe_angle_difference_rad 1.154802
+2 first_perch_contact 2986 first_state_difference 2987 max_toe_angle_difference_rad 1.173674
+3 first_perch_contact 2912 first_state_difference 2913 max_toe_angle_difference_rad 1.154806
+4 first_perch_contact 2977 first_state_difference 2978 max_toe_angle_difference_rad 1.154797
+5 first_perch_contact 2958 first_state_difference 2959 max_toe_angle_difference_rad 1.154689
+6 first_perch_contact 2888 first_state_difference 2889 max_toe_angle_difference_rad 1.154828
+7 first_perch_contact 2903 first_state_difference 2904 max_toe_angle_difference_rad 1.449867
