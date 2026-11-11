@@ -1,0 +1,1399 @@
+{
+  "lane": 5,
+  "deep_overlap_threshold_m": 0.005,
+  "deep_endpoint_count": 197,
+  "deep_no_endpoint_pair_no_substep_impulse_count": 52,
+  "deep_no_pair_no_impulse_spans": [
+    [
+      3366,
+      3392
+    ],
+    [
+      3538,
+      3562
+    ]
+  ],
+  "worst_sat_separation_m": -0.022864034570540683,
+  "rows": [
+    {
+      "step": 3366,
+      "sat_separation_m": -0.005256938518537299,
+      "endpoint_pair_count": 0,
+      "max_endpoint_depth_m": null,
+      "positive_normal_impulse_all_substeps_Ns": 0.0
+    },
+    {
+      "step": 3367,
+      "sat_separation_m": -0.006733165507571505,
+      "endpoint_pair_count": 0,
+      "max_endpoint_depth_m": null,
+      "positive_normal_impulse_all_substeps_Ns": 0.0
+    },
+    {
+      "step": 3368,
+      "sat_separation_m": -0.00806853552699046,
+      "endpoint_pair_count": 0,
+      "max_endpoint_depth_m": null,
+      "positive_normal_impulse_all_substeps_Ns": 0.0
+    },
+    {
+      "step": 3369,
+      "sat_separation_m": -0.009450485512839953,
+      "endpoint_pair_count": 0,
+      "max_endpoint_depth_m": null,
+      "positive_normal_impulse_all_substeps_Ns": 0.0
+    },
+    {
+      "step": 3370,
+      "sat_separation_m": -0.01071952062620641,
+      "endpoint_pair_count": 0,
+      "max_endpoint_depth_m": null,
+      "positive_normal_impulse_all_substeps_Ns": 0.0
+    },
+    {
+      "step": 3371,
+      "sat_separation_m": -0.011968756809640345,
+      "endpoint_pair_count": 0,
+      "max_endpoint_depth_m": null,
+      "positive_normal_impulse_all_substeps_Ns": 0.0
+    },
+    {
+      "step": 3372,
+      "sat_separation_m": -0.013059322682631339,
+      "endpoint_pair_count": 0,
+      "max_endpoint_depth_m": null,
+      "positive_normal_impulse_all_substeps_Ns": 0.0
+    },
+    {
+      "step": 3373,
+      "sat_separation_m": -0.014048187253262345,
+      "endpoint_pair_count": 0,
+      "max_endpoint_depth_m": null,
+      "positive_normal_impulse_all_substeps_Ns": 0.0
+    },
+    {
+      "step": 3374,
+      "sat_separation_m": -0.015041255793743193,
+      "endpoint_pair_count": 0,
+      "max_endpoint_depth_m": null,
+      "positive_normal_impulse_all_substeps_Ns": 0.0
+    },
+    {
+      "step": 3375,
+      "sat_separation_m": -0.01595846877885839,
+      "endpoint_pair_count": 0,
+      "max_endpoint_depth_m": null,
+      "positive_normal_impulse_all_substeps_Ns": 0.0
+    },
+    {
+      "step": 3376,
+      "sat_separation_m": -0.016804593386848775,
+      "endpoint_pair_count": 0,
+      "max_endpoint_depth_m": null,
+      "positive_normal_impulse_all_substeps_Ns": 0.0
+    },
+    {
+      "step": 3377,
+      "sat_separation_m": -0.01747445912515317,
+      "endpoint_pair_count": 0,
+      "max_endpoint_depth_m": null,
+      "positive_normal_impulse_all_substeps_Ns": 0.0
+    },
+    {
+      "step": 3378,
+      "sat_separation_m": -0.018084527131416,
+      "endpoint_pair_count": 0,
+      "max_endpoint_depth_m": null,
+      "positive_normal_impulse_all_substeps_Ns": 0.0
+    },
+    {
+      "step": 3379,
+      "sat_separation_m": -0.018646387477450753,
+      "endpoint_pair_count": 0,
+      "max_endpoint_depth_m": null,
+      "positive_normal_impulse_all_substeps_Ns": 0.0
+    },
+    {
+      "step": 3380,
+      "sat_separation_m": -0.019390918049999754,
+      "endpoint_pair_count": 0,
+      "max_endpoint_depth_m": null,
+      "positive_normal_impulse_all_substeps_Ns": 0.0
+    },
+    {
+      "step": 3381,
+      "sat_separation_m": -0.0200175025455325,
+      "endpoint_pair_count": 0,
+      "max_endpoint_depth_m": null,
+      "positive_normal_impulse_all_substeps_Ns": 0.0
+    },
+    {
+      "step": 3382,
+      "sat_separation_m": -0.020280849517753614,
+      "endpoint_pair_count": 0,
+      "max_endpoint_depth_m": null,
+      "positive_normal_impulse_all_substeps_Ns": 0.0
+    },
+    {
+      "step": 3383,
+      "sat_separation_m": -0.020369561342138798,
+      "endpoint_pair_count": 0,
+      "max_endpoint_depth_m": null,
+      "positive_normal_impulse_all_substeps_Ns": 0.0
+    },
+    {
+      "step": 3384,
+      "sat_separation_m": -0.020368311105932423,
+      "endpoint_pair_count": 0,
+      "max_endpoint_depth_m": null,
+      "positive_normal_impulse_all_substeps_Ns": 0.0
+    },
+    {
+      "step": 3385,
+      "sat_separation_m": -0.02024289432131781,
+      "endpoint_pair_count": 0,
+      "max_endpoint_depth_m": null,
+      "positive_normal_impulse_all_substeps_Ns": 0.0
+    },
+    {
+      "step": 3386,
+      "sat_separation_m": -0.019990549996505416,
+      "endpoint_pair_count": 0,
+      "max_endpoint_depth_m": null,
+      "positive_normal_impulse_all_substeps_Ns": 0.0
+    },
+    {
+      "step": 3387,
+      "sat_separation_m": -0.019800509410745383,
+      "endpoint_pair_count": 0,
+      "max_endpoint_depth_m": null,
+      "positive_normal_impulse_all_substeps_Ns": 0.0
+    },
+    {
+      "step": 3388,
+      "sat_separation_m": -0.019581614678941137,
+      "endpoint_pair_count": 0,
+      "max_endpoint_depth_m": null,
+      "positive_normal_impulse_all_substeps_Ns": 0.0
+    },
+    {
+      "step": 3389,
+      "sat_separation_m": -0.01931701503655988,
+      "endpoint_pair_count": 0,
+      "max_endpoint_depth_m": null,
+      "positive_normal_impulse_all_substeps_Ns": 0.0
+    },
+    {
+      "step": 3390,
+      "sat_separation_m": -0.01907101435791045,
+      "endpoint_pair_count": 0,
+      "max_endpoint_depth_m": null,
+      "positive_normal_impulse_all_substeps_Ns": 0.0
+    },
+    {
+      "step": 3391,
+      "sat_separation_m": -0.01885780821335461,
+      "endpoint_pair_count": 0,
+      "max_endpoint_depth_m": null,
+      "positive_normal_impulse_all_substeps_Ns": 0.0
+    },
+    {
+      "step": 3392,
+      "sat_separation_m": -0.018673236496801908,
+      "endpoint_pair_count": 0,
+      "max_endpoint_depth_m": null,
+      "positive_normal_impulse_all_substeps_Ns": 0.0
+    },
+    {
+      "step": 3393,
+      "sat_separation_m": -0.018980831368645708,
+      "endpoint_pair_count": 4,
+      "max_endpoint_depth_m": -0.00150728226,
+      "positive_normal_impulse_all_substeps_Ns": 0.0
+    },
+    {
+      "step": 3394,
+      "sat_separation_m": -0.01993477397206382,
+      "endpoint_pair_count": 4,
+      "max_endpoint_depth_m": -2.14576721e-05,
+      "positive_normal_impulse_all_substeps_Ns": 0.00044587839760000005
+    },
+    {
+      "step": 3395,
+      "sat_separation_m": -0.019876182528673673,
+      "endpoint_pair_count": 4,
+      "max_endpoint_depth_m": -0.000678539276,
+      "positive_normal_impulse_all_substeps_Ns": 0.00524621141619
+    },
+    {
+      "step": 3396,
+      "sat_separation_m": -0.02031032943269391,
+      "endpoint_pair_count": 4,
+      "max_endpoint_depth_m": -0.000748157501,
+      "positive_normal_impulse_all_substeps_Ns": 0.00016578338056819997
+    },
+    {
+      "step": 3397,
+      "sat_separation_m": -0.020925036608860033,
+      "endpoint_pair_count": 4,
+      "max_endpoint_depth_m": -7.67707825e-05,
+      "positive_normal_impulse_all_substeps_Ns": 2.398045129562e-05
+    },
+    {
+      "step": 3398,
+      "sat_separation_m": -0.020911558969791716,
+      "endpoint_pair_count": 4,
+      "max_endpoint_depth_m": -0.000319480896,
+      "positive_normal_impulse_all_substeps_Ns": 0.005071758243119999
+    },
+    {
+      "step": 3399,
+      "sat_separation_m": -0.021087251558889138,
+      "endpoint_pair_count": 4,
+      "max_endpoint_depth_m": -0.000266075134,
+      "positive_normal_impulse_all_substeps_Ns": 0.00026987857335400005
+    },
+    {
+      "step": 3400,
+      "sat_separation_m": -0.021192220470099797,
+      "endpoint_pair_count": 4,
+      "max_endpoint_depth_m": -7.5340271e-05,
+      "positive_normal_impulse_all_substeps_Ns": 0.004269005180416
+    },
+    {
+      "step": 3401,
+      "sat_separation_m": -0.021076373173711076,
+      "endpoint_pair_count": 4,
+      "max_endpoint_depth_m": -0.000412464142,
+      "positive_normal_impulse_all_substeps_Ns": 0.001128479674845
+    },
+    {
+      "step": 3402,
+      "sat_separation_m": -0.02117597503364442,
+      "endpoint_pair_count": 4,
+      "max_endpoint_depth_m": -0.000211238861,
+      "positive_normal_impulse_all_substeps_Ns": 2.558600692221999e-05
+    },
+    {
+      "step": 3403,
+      "sat_separation_m": -0.021185238248581678,
+      "endpoint_pair_count": 4,
+      "max_endpoint_depth_m": -8.91685486e-05,
+      "positive_normal_impulse_all_substeps_Ns": 0.004407737394025031
+    },
+    {
+      "step": 3404,
+      "sat_separation_m": -0.02111289362207388,
+      "endpoint_pair_count": 4,
+      "max_endpoint_depth_m": -0.000234603882,
+      "positive_normal_impulse_all_substeps_Ns": 0.0009015011384229998
+    },
+    {
+      "step": 3405,
+      "sat_separation_m": -0.0211136455035702,
+      "endpoint_pair_count": 4,
+      "max_endpoint_depth_m": -5.81741333e-05,
+      "positive_normal_impulse_all_substeps_Ns": 0.0029161457984402
+    },
+    {
+      "step": 3406,
+      "sat_separation_m": -0.021006434643039973,
+      "endpoint_pair_count": 4,
+      "max_endpoint_depth_m": -0.000163555145,
+      "positive_normal_impulse_all_substeps_Ns": 0.0010701005489600001
+    },
+    {
+      "step": 3407,
+      "sat_separation_m": -0.021021760924226134,
+      "endpoint_pair_count": 4,
+      "max_endpoint_depth_m": -4.33921814e-05,
+      "positive_normal_impulse_all_substeps_Ns": 0.00010442579099630001
+    },
+    {
+      "step": 3408,
+      "sat_separation_m": -0.02081236784392703,
+      "endpoint_pair_count": 4,
+      "max_endpoint_depth_m": -0.000304698944,
+      "positive_normal_impulse_all_substeps_Ns": 0.0033584312417992397
+    },
+    {
+      "step": 3409,
+      "sat_separation_m": -0.020836193804550582,
+      "endpoint_pair_count": 4,
+      "max_endpoint_depth_m": -0.000216960907,
+      "positive_normal_impulse_all_substeps_Ns": 0.00015311574857619
+    },
+    {
+      "step": 3410,
+      "sat_separation_m": -0.020813859204406385,
+      "endpoint_pair_count": 4,
+      "max_endpoint_depth_m": -0.000111579895,
+      "positive_normal_impulse_all_substeps_Ns": 0.002969017399285909
+    },
+    {
+      "step": 3411,
+      "sat_separation_m": -0.0206427094657737,
+      "endpoint_pair_count": 4,
+      "max_endpoint_depth_m": -0.000491142273,
+      "positive_normal_impulse_all_substeps_Ns": 0.0008556707799454999
+    },
+    {
+      "step": 3412,
+      "sat_separation_m": -0.02089037135463942,
+      "endpoint_pair_count": 4,
+      "max_endpoint_depth_m": 2.19345093e-05,
+      "positive_normal_impulse_all_substeps_Ns": 0.0007524073270243181
+    },
+    {
+      "step": 3413,
+      "sat_separation_m": -0.020571450142205558,
+      "endpoint_pair_count": 4,
+      "max_endpoint_depth_m": -0.000517845154,
+      "positive_normal_impulse_all_substeps_Ns": 0.004134375357179997
+    },
+    {
+      "step": 3414,
+      "sat_separation_m": -0.020761629843711167,
+      "endpoint_pair_count": 4,
+      "max_endpoint_depth_m": -0.000173091888,
+      "positive_normal_impulse_all_substeps_Ns": 0.00011019241650540001
+    },
+    {
+      "step": 3415,
+      "sat_separation_m": -0.02070178948944036,
+      "endpoint_pair_count": 4,
+      "max_endpoint_depth_m": -0.000190734863,
+      "positive_normal_impulse_all_substeps_Ns": 0.0037432465994272006
+    },
+    {
+      "step": 3416,
+      "sat_separation_m": -0.020617011269890802,
+      "endpoint_pair_count": 4,
+      "max_endpoint_depth_m": -0.000388145447,
+      "positive_normal_impulse_all_substeps_Ns": 0.0004991883368036
+    },
+    {
+      "step": 3417,
+      "sat_separation_m": -0.020767460507029413,
+      "endpoint_pair_count": 4,
+      "max_endpoint_depth_m": 3.81469727e-06,
+      "positive_normal_impulse_all_substeps_Ns": 0.000634375214979154
+    },
+    {
+      "step": 3418,
+      "sat_separation_m": -0.020721169282478795,
+      "endpoint_pair_count": 4,
+      "max_endpoint_depth_m": -0.000117778778,
+      "positive_normal_impulse_all_substeps_Ns": 0.002040806973790042
+    },
+    {
+      "step": 3419,
+      "sat_separation_m": -0.020690676960838615,
+      "endpoint_pair_count": 4,
+      "max_endpoint_depth_m": -0.000163555145,
+      "positive_normal_impulse_all_substeps_Ns": 0.0034389264680655144
+    },
+    {
+      "step": 3420,
+      "sat_separation_m": -0.020575213277761933,
+      "endpoint_pair_count": 4,
+      "max_endpoint_depth_m": -0.000520706177,
+      "positive_normal_impulse_all_substeps_Ns": 0.0006321609647419
+    },
+    {
+      "step": 3421,
+      "sat_separation_m": -0.02076663995157836,
+      "endpoint_pair_count": 4,
+      "max_endpoint_depth_m": -0.000114440918,
+      "positive_normal_impulse_all_substeps_Ns": 1.4272310113437998e-05
+    },
+    {
+      "step": 3422,
+      "sat_separation_m": -0.020727666336062475,
+      "endpoint_pair_count": 4,
+      "max_endpoint_depth_m": -9.01222229e-05,
+      "positive_normal_impulse_all_substeps_Ns": 0.002859334910353098
+    },
+    {
+      "step": 3423,
+      "sat_separation_m": -0.02070162502094975,
+      "endpoint_pair_count": 4,
+      "max_endpoint_depth_m": -0.000102043152,
+      "positive_normal_impulse_all_substeps_Ns": 0.00023701857083356748
+    },
+    {
+      "step": 3424,
+      "sat_separation_m": -0.020656083419346813,
+      "endpoint_pair_count": 4,
+      "max_endpoint_depth_m": -9.58442688e-05,
+      "positive_normal_impulse_all_substeps_Ns": 0.002398857293400985
+    },
+    {
+      "step": 3425,
+      "sat_separation_m": -0.020570449989849283,
+      "endpoint_pair_count": 4,
+      "max_endpoint_depth_m": -0.000148296356,
+      "positive_normal_impulse_all_substeps_Ns": 0.0028737301001149724
+    },
+    {
+      "step": 3426,
+      "sat_separation_m": -0.020602509496462418,
+      "endpoint_pair_count": 4,
+      "max_endpoint_depth_m": -0.000151634216,
+      "positive_normal_impulse_all_substeps_Ns": 0.00036690655853034173
+    },
+    {
+      "step": 3427,
+      "sat_separation_m": -0.020511933247693466,
+      "endpoint_pair_count": 4,
+      "max_endpoint_depth_m": -0.000172138214,
+      "positive_normal_impulse_all_substeps_Ns": 0.003971860085946006
+    },
+    {
+      "step": 3428,
+      "sat_separation_m": -0.02048812511478857,
+      "endpoint_pair_count": 4,
+      "max_endpoint_depth_m": -0.0001912117,
+      "positive_normal_impulse_all_substeps_Ns": 0.00042072107559017007
+    },
+    {
+      "step": 3429,
+      "sat_separation_m": -0.020526968228277702,
+      "endpoint_pair_count": 4,
+      "max_endpoint_depth_m": -3.95774841e-05,
+      "positive_normal_impulse_all_substeps_Ns": 0.0024989798123921606
+    },
+    {
+      "step": 3430,
+      "sat_separation_m": -0.02044538119323122,
+      "endpoint_pair_count": 4,
+      "max_endpoint_depth_m": -0.00016784668,
+      "positive_normal_impulse_all_substeps_Ns": 0.0010861479186485994
+    },
+    {
+      "step": 3431,
+      "sat_separation_m": -0.020450593718269773,
+      "endpoint_pair_count": 4,
+      "max_endpoint_depth_m": -5.4359436e-05,
+      "positive_normal_impulse_all_substeps_Ns": 0.0031095346083476394
+    },
+    {
+      "step": 3432,
+      "sat_separation_m": -0.020215826882719078,
+      "endpoint_pair_count": 4,
+      "max_endpoint_depth_m": -0.000460624695,
+      "positive_normal_impulse_all_substeps_Ns": 0.001152659977802
+    },
+    {
+      "step": 3433,
+      "sat_separation_m": -0.020453443724968996,
+      "endpoint_pair_count": 4,
+      "max_endpoint_depth_m": 3.19480896e-05,
+      "positive_normal_impulse_all_substeps_Ns": 0.00078917285160284
+    },
+    {
+      "step": 3434,
+      "sat_separation_m": -0.020059019320523702,
+      "endpoint_pair_count": 4,
+      "max_endpoint_depth_m": -0.000581264496,
+      "positive_normal_impulse_all_substeps_Ns": 0.00473379857826
+    },
+    {
+      "step": 3435,
+      "sat_separation_m": -0.02028219180922633,
+      "endpoint_pair_count": 4,
+      "max_endpoint_depth_m": -0.000184059143,
+      "positive_normal_impulse_all_substeps_Ns": 0.00013247374015469998
+    },
+    {
+      "step": 3436,
+      "sat_separation_m": -0.020342456107877264,
+      "endpoint_pair_count": 4,
+      "max_endpoint_depth_m": -2.67028809e-05,
+      "positive_normal_impulse_all_substeps_Ns": 0.0029525549806028407
+    },
+    {
+      "step": 3437,
+      "sat_separation_m": -0.020349638371292667,
+      "endpoint_pair_count": 4,
+      "max_endpoint_depth_m": -0.000155448914,
+      "positive_normal_impulse_all_substeps_Ns": 0.0013632285368802895
+    },
+    {
+      "step": 3438,
+      "sat_separation_m": -0.020396400503900257,
+      "endpoint_pair_count": 4,
+      "max_endpoint_depth_m": -0.000116348267,
+      "positive_normal_impulse_all_substeps_Ns": 0.001943782900810728
+    },
+    {
+      "step": 3439,
+      "sat_separation_m": -0.020415491288748,
+      "endpoint_pair_count": 4,
+      "max_endpoint_depth_m": -0.000223636627,
+      "positive_normal_impulse_all_substeps_Ns": 0.0002992874529177502
+    },
+    {
+      "step": 3440,
+      "sat_separation_m": -0.020569619177564558,
+      "endpoint_pair_count": 4,
+      "max_endpoint_depth_m": 1.14440918e-05,
+      "positive_normal_impulse_all_substeps_Ns": 0.0008500767934750408
+    },
+    {
+      "step": 3441,
+      "sat_separation_m": -0.0205895411411917,
+      "endpoint_pair_count": 4,
+      "max_endpoint_depth_m": -0.000149726868,
+      "positive_normal_impulse_all_substeps_Ns": 0.0017552302703014544
+    },
+    {
+      "step": 3442,
+      "sat_separation_m": -0.020682741050288445,
+      "endpoint_pair_count": 4,
+      "max_endpoint_depth_m": -2.81333923e-05,
+      "positive_normal_impulse_all_substeps_Ns": 0.000355347953520033
+    },
+    {
+      "step": 3443,
+      "sat_separation_m": -0.020689283882799246,
+      "endpoint_pair_count": 4,
+      "max_endpoint_depth_m": -0.000141143799,
+      "positive_normal_impulse_all_substeps_Ns": 0.003351991812600001
+    },
+    {
+      "step": 3444,
+      "sat_separation_m": -0.020748733619437028,
+      "endpoint_pair_count": 4,
+      "max_endpoint_depth_m": -0.000200748444,
+      "positive_normal_impulse_all_substeps_Ns": 0.00024470033876
+    },
+    {
+      "step": 3445,
+      "sat_separation_m": -0.020850177363873415,
+      "endpoint_pair_count": 4,
+      "max_endpoint_depth_m": -3.33786011e-05,
+      "positive_normal_impulse_all_substeps_Ns": 0.001002372408179
+    },
+    {
+      "step": 3446,
+      "sat_separation_m": -0.020662921807895626,
+      "endpoint_pair_count": 4,
+      "max_endpoint_depth_m": -0.000491142273,
+      "positive_normal_impulse_all_substeps_Ns": 0.0006169910039630801
+    },
+    {
+      "step": 3447,
+      "sat_separation_m": -0.02090271736458555,
+      "endpoint_pair_count": 4,
+      "max_endpoint_depth_m": -0.000175952911,
+      "positive_normal_impulse_all_substeps_Ns": 1.4060230680873001e-05
+    },
+    {
+      "step": 3448,
+      "sat_separation_m": -0.020964895910912953,
+      "endpoint_pair_count": 4,
+      "max_endpoint_depth_m": -0.000146389008,
+      "positive_normal_impulse_all_substeps_Ns": 0.003325040408298161
+    },
+    {
+      "step": 3449,
+      "sat_separation_m": -0.021006263919154305,
+      "endpoint_pair_count": 4,
+      "max_endpoint_depth_m": -0.000294208527,
+      "positive_normal_impulse_all_substeps_Ns": 0.0005235819756400001
+    },
+    {
+      "step": 3450,
+      "sat_separation_m": -0.021110467108276167,
+      "endpoint_pair_count": 4,
+      "max_endpoint_depth_m": -0.000259399414,
+      "positive_normal_impulse_all_substeps_Ns": 1.1854121892439996e-05
+    },
+    {
+      "step": 3451,
+      "sat_separation_m": -0.021268123027723324,
+      "endpoint_pair_count": 4,
+      "max_endpoint_depth_m": -3.71932983e-05,
+      "positive_normal_impulse_all_substeps_Ns": 0.0013023354740434399
+    },
+    {
+      "step": 3452,
+      "sat_separation_m": -0.02126254208318791,
+      "endpoint_pair_count": 4,
+      "max_endpoint_depth_m": -0.000180244446,
+      "positive_normal_impulse_all_substeps_Ns": 0.0007841220140750001
+    },
+    {
+      "step": 3453,
+      "sat_separation_m": -0.021315713367304367,
+      "endpoint_pair_count": 4,
+      "max_endpoint_depth_m": -3.71932983e-05,
+      "positive_normal_impulse_all_substeps_Ns": 0.0013324374626076296
+    },
+    {
+      "step": 3454,
+      "sat_separation_m": -0.021383706722403174,
+      "endpoint_pair_count": 4,
+      "max_endpoint_depth_m": 5.7220459e-06,
+      "positive_normal_impulse_all_substeps_Ns": 0.001530890110000501
+    },
+    {
+      "step": 3455,
+      "sat_separation_m": -0.021393617360402982,
+      "endpoint_pair_count": 4,
+      "max_endpoint_depth_m": -8.48770142e-05,
+      "positive_normal_impulse_all_substeps_Ns": 0.0030383467571609996
+    },
+    {
+      "step": 3456,
+      "sat_separation_m": -0.021433691616487845,
+      "endpoint_pair_count": 4,
+      "max_endpoint_depth_m": -3.14712524e-05,
+      "positive_normal_impulse_all_substeps_Ns": 0.0018629228564644002
+    },
+    {
+      "step": 3457,
+      "sat_separation_m": -0.02144590848082334,
+      "endpoint_pair_count": 4,
+      "max_endpoint_depth_m": -0.000216960907,
+      "positive_normal_impulse_all_substeps_Ns": 0.0009046690203447001
+    },
+    {
+      "step": 3458,
+      "sat_separation_m": -0.021523043174599195,
+      "endpoint_pair_count": 4,
+      "max_endpoint_depth_m": -4.91142273e-05,
+      "positive_normal_impulse_all_substeps_Ns": 0.0036140736921038705
+    },
+    {
+      "step": 3459,
+      "sat_separation_m": -0.02165669809570423,
+      "endpoint_pair_count": 4,
+      "max_endpoint_depth_m": 2.05039978e-05,
+      "positive_normal_impulse_all_substeps_Ns": 0.002038877582395
+    },
+    {
+      "step": 3460,
+      "sat_separation_m": -0.021705383575736557,
+      "endpoint_pair_count": 4,
+      "max_endpoint_depth_m": -5.00679016e-05,
+      "positive_normal_impulse_all_substeps_Ns": 0.003728481789896001
+    },
+    {
+      "step": 3461,
+      "sat_separation_m": -0.021760136433237855,
+      "endpoint_pair_count": 4,
+      "max_endpoint_depth_m": -4.72068787e-05,
+      "positive_normal_impulse_all_substeps_Ns": 0.005071873602442501
+    },
+    {
+      "step": 3462,
+      "sat_separation_m": -0.021840511407923965,
+      "endpoint_pair_count": 4,
+      "max_endpoint_depth_m": -0.00021982193,
+      "positive_normal_impulse_all_substeps_Ns": 0.0012066176380600003
+    },
+    {
+      "step": 3463,
+      "sat_separation_m": -0.02202924493190813,
+      "endpoint_pair_count": 4,
+      "max_endpoint_depth_m": 5.19752502e-05,
+      "positive_normal_impulse_all_substeps_Ns": 0.0010127515095811
+    },
+    {
+      "step": 3464,
+      "sat_separation_m": -0.02188903725977285,
+      "endpoint_pair_count": 4,
+      "max_endpoint_depth_m": -0.000349521637,
+      "positive_normal_impulse_all_substeps_Ns": 0.0046836475631500014
+    },
+    {
+      "step": 3465,
+      "sat_separation_m": -0.021995920172123158,
+      "endpoint_pair_count": 4,
+      "max_endpoint_depth_m": -0.000487804413,
+      "positive_normal_impulse_all_substeps_Ns": 0.00013257681971999997
+    },
+    {
+      "step": 3466,
+      "sat_separation_m": -0.02225480690766385,
+      "endpoint_pair_count": 4,
+      "max_endpoint_depth_m": 1.52587891e-05,
+      "positive_normal_impulse_all_substeps_Ns": 0.00045352227904843
+    },
+    {
+      "step": 3467,
+      "sat_separation_m": -0.022305465748085257,
+      "endpoint_pair_count": 4,
+      "max_endpoint_depth_m": -1.57356262e-05,
+      "positive_normal_impulse_all_substeps_Ns": 0.003057738494661
+    },
+    {
+      "step": 3468,
+      "sat_separation_m": -0.02233636330025198,
+      "endpoint_pair_count": 4,
+      "max_endpoint_depth_m": -0.000197887421,
+      "positive_normal_impulse_all_substeps_Ns": 0.00033730971895790996
+    },
+    {
+      "step": 3469,
+      "sat_separation_m": -0.02241625092241959,
+      "endpoint_pair_count": 4,
+      "max_endpoint_depth_m": -1.52587891e-05,
+      "positive_normal_impulse_all_substeps_Ns": 0.003406909716170507
+    },
+    {
+      "step": 3470,
+      "sat_separation_m": -0.022479634119277822,
+      "endpoint_pair_count": 4,
+      "max_endpoint_depth_m": -3.24249268e-05,
+      "positive_normal_impulse_all_substeps_Ns": 0.0014144651106800003
+    },
+    {
+      "step": 3471,
+      "sat_separation_m": -0.02256125325778447,
+      "endpoint_pair_count": 4,
+      "max_endpoint_depth_m": 3.81469727e-06,
+      "positive_normal_impulse_all_substeps_Ns": 0.0023172791062507996
+    },
+    {
+      "step": 3472,
+      "sat_separation_m": -0.022534032228494337,
+      "endpoint_pair_count": 4,
+      "max_endpoint_depth_m": -3.57627869e-05,
+      "positive_normal_impulse_all_substeps_Ns": 0.0021733391216836994
+    },
+    {
+      "step": 3473,
+      "sat_separation_m": -0.02253090493823797,
+      "endpoint_pair_count": 4,
+      "max_endpoint_depth_m": -6.81877136e-05,
+      "positive_normal_impulse_all_substeps_Ns": 0.0014443553835826917
+    },
+    {
+      "step": 3474,
+      "sat_separation_m": -0.02259254315678793,
+      "endpoint_pair_count": 4,
+      "max_endpoint_depth_m": -4.76837158e-05,
+      "positive_normal_impulse_all_substeps_Ns": 8.413052787217e-05
+    },
+    {
+      "step": 3475,
+      "sat_separation_m": -0.02259860969754094,
+      "endpoint_pair_count": 4,
+      "max_endpoint_depth_m": -1.43051147e-06,
+      "positive_normal_impulse_all_substeps_Ns": 0.00321187461288845
+    },
+    {
+      "step": 3476,
+      "sat_separation_m": -0.0225520628447552,
+      "endpoint_pair_count": 4,
+      "max_endpoint_depth_m": -0.000205039978,
+      "positive_normal_impulse_all_substeps_Ns": 0.0013842676817983
+    },
+    {
+      "step": 3477,
+      "sat_separation_m": -0.022719380055957937,
+      "endpoint_pair_count": 4,
+      "max_endpoint_depth_m": -9.05990601e-06,
+      "positive_normal_impulse_all_substeps_Ns": 0.00023765730502992
+    },
+    {
+      "step": 3478,
+      "sat_separation_m": -0.022583044278361664,
+      "endpoint_pair_count": 4,
+      "max_endpoint_depth_m": -0.000205039978,
+      "positive_normal_impulse_all_substeps_Ns": 0.0035123893632799993
+    },
+    {
+      "step": 3479,
+      "sat_separation_m": -0.022677793765909483,
+      "endpoint_pair_count": 4,
+      "max_endpoint_depth_m": -0.000152587891,
+      "positive_normal_impulse_all_substeps_Ns": 0.00011348896755820002
+    },
+    {
+      "step": 3480,
+      "sat_separation_m": -0.022665731358369662,
+      "endpoint_pair_count": 4,
+      "max_endpoint_depth_m": -7.67707825e-05,
+      "positive_normal_impulse_all_substeps_Ns": 0.0043548611569362
+    },
+    {
+      "step": 3481,
+      "sat_separation_m": -0.022583987407616288,
+      "endpoint_pair_count": 4,
+      "max_endpoint_depth_m": -0.000341892242,
+      "positive_normal_impulse_all_substeps_Ns": 0.0007243304863959999
+    },
+    {
+      "step": 3482,
+      "sat_separation_m": -0.022720040394647957,
+      "endpoint_pair_count": 4,
+      "max_endpoint_depth_m": -0.000120639801,
+      "positive_normal_impulse_all_substeps_Ns": 1.6586861831800004e-05
+    },
+    {
+      "step": 3483,
+      "sat_separation_m": -0.022699029485192916,
+      "endpoint_pair_count": 4,
+      "max_endpoint_depth_m": -9.53674316e-05,
+      "positive_normal_impulse_all_substeps_Ns": 0.004237512659446501
+    },
+    {
+      "step": 3484,
+      "sat_separation_m": -0.022830488967703615,
+      "endpoint_pair_count": 4,
+      "max_endpoint_depth_m": -6.77108765e-05,
+      "positive_normal_impulse_all_substeps_Ns": 0.00032431676323999996
+    },
+    {
+      "step": 3485,
+      "sat_separation_m": -0.022864034570540683,
+      "endpoint_pair_count": 4,
+      "max_endpoint_depth_m": -0.000142097473,
+      "positive_normal_impulse_all_substeps_Ns": 7.514397669539999e-06
+    },
+    {
+      "step": 3486,
+      "sat_separation_m": -0.02283627524540508,
+      "endpoint_pair_count": 4,
+      "max_endpoint_depth_m": -5.19752502e-05,
+      "positive_normal_impulse_all_substeps_Ns": 0.00378713257553534
+    },
+    {
+      "step": 3487,
+      "sat_separation_m": -0.02279199673887549,
+      "endpoint_pair_count": 4,
+      "max_endpoint_depth_m": -0.00026512146,
+      "positive_normal_impulse_all_substeps_Ns": 0.0005711148273790001
+    },
+    {
+      "step": 3488,
+      "sat_separation_m": -0.022784433935241287,
+      "endpoint_pair_count": 4,
+      "max_endpoint_depth_m": -0.000178337097,
+      "positive_normal_impulse_all_substeps_Ns": 1.3072306633470003e-05
+    },
+    {
+      "step": 3489,
+      "sat_separation_m": -0.02280608079590602,
+      "endpoint_pair_count": 4,
+      "max_endpoint_depth_m": 2.86102295e-06,
+      "positive_normal_impulse_all_substeps_Ns": 0.000693498197010494
+    },
+    {
+      "step": 3490,
+      "sat_separation_m": -0.02270378042970604,
+      "endpoint_pair_count": 4,
+      "max_endpoint_depth_m": -0.000344753265,
+      "positive_normal_impulse_all_substeps_Ns": 0.0006411704716402554
+    },
+    {
+      "step": 3491,
+      "sat_separation_m": -0.022805180080612532,
+      "endpoint_pair_count": 4,
+      "max_endpoint_depth_m": -0.00036239624,
+      "positive_normal_impulse_all_substeps_Ns": 1.5005438315999428e-05
+    },
+    {
+      "step": 3492,
+      "sat_separation_m": -0.022836829011804317,
+      "endpoint_pair_count": 4,
+      "max_endpoint_depth_m": -0.000141620636,
+      "positive_normal_impulse_all_substeps_Ns": 3.4760739837360634e-07
+    },
+    {
+      "step": 3493,
+      "sat_separation_m": -0.02267950968896177,
+      "endpoint_pair_count": 4,
+      "max_endpoint_depth_m": -0.000348091125,
+      "positive_normal_impulse_all_substeps_Ns": 8.112685094816077e-09
+    },
+    {
+      "step": 3494,
+      "sat_separation_m": -0.022528106534881062,
+      "endpoint_pair_count": 4,
+      "max_endpoint_depth_m": -0.000560760498,
+      "positive_normal_impulse_all_substeps_Ns": 1.9042693198103784e-10
+    },
+    {
+      "step": 3495,
+      "sat_separation_m": -0.02253311196993308,
+      "endpoint_pair_count": 4,
+      "max_endpoint_depth_m": -0.000452518463,
+      "positive_normal_impulse_all_substeps_Ns": 4.44492929518924e-12
+    },
+    {
+      "step": 3496,
+      "sat_separation_m": -0.022514676982049397,
+      "endpoint_pair_count": 4,
+      "max_endpoint_depth_m": -0.000471115112,
+      "positive_normal_impulse_all_substeps_Ns": 1.0230279480545612e-13
+    },
+    {
+      "step": 3497,
+      "sat_separation_m": -0.02237854080437031,
+      "endpoint_pair_count": 4,
+      "max_endpoint_depth_m": -0.000797748566,
+      "positive_normal_impulse_all_substeps_Ns": 2.343638502735236e-15
+    },
+    {
+      "step": 3498,
+      "sat_separation_m": -0.022560305856666726,
+      "endpoint_pair_count": 4,
+      "max_endpoint_depth_m": -0.000277996063,
+      "positive_normal_impulse_all_substeps_Ns": 5.251519667487148e-17
+    },
+    {
+      "step": 3499,
+      "sat_separation_m": -0.02258933780598102,
+      "endpoint_pair_count": 4,
+      "max_endpoint_depth_m": -0.000230789185,
+      "positive_normal_impulse_all_substeps_Ns": 1.1767594618704783e-18
+    },
+    {
+      "step": 3500,
+      "sat_separation_m": -0.022502536966035415,
+      "endpoint_pair_count": 4,
+      "max_endpoint_depth_m": -0.000524520874,
+      "positive_normal_impulse_all_substeps_Ns": 2.659779608431474e-20
+    },
+    {
+      "step": 3501,
+      "sat_separation_m": -0.022434959300729293,
+      "endpoint_pair_count": 4,
+      "max_endpoint_depth_m": -0.000509738922,
+      "positive_normal_impulse_all_substeps_Ns": 5.852444777373634e-22
+    },
+    {
+      "step": 3502,
+      "sat_separation_m": -0.022327932846948735,
+      "endpoint_pair_count": 4,
+      "max_endpoint_depth_m": -0.000550746918,
+      "positive_normal_impulse_all_substeps_Ns": 1.1855267159727444e-23
+    },
+    {
+      "step": 3503,
+      "sat_separation_m": -0.02232388508512731,
+      "endpoint_pair_count": 4,
+      "max_endpoint_depth_m": -0.00054359436,
+      "positive_normal_impulse_all_substeps_Ns": 2.406224496104669e-25
+    },
+    {
+      "step": 3504,
+      "sat_separation_m": -0.02216439459468903,
+      "endpoint_pair_count": 4,
+      "max_endpoint_depth_m": -0.000744342804,
+      "positive_normal_impulse_all_substeps_Ns": 4.8160290046336906e-27
+    },
+    {
+      "step": 3505,
+      "sat_separation_m": -0.02208646630731096,
+      "endpoint_pair_count": 4,
+      "max_endpoint_depth_m": -0.000880718231,
+      "positive_normal_impulse_all_substeps_Ns": 9.690519404044383e-29
+    },
+    {
+      "step": 3506,
+      "sat_separation_m": -0.022074175558297222,
+      "endpoint_pair_count": 4,
+      "max_endpoint_depth_m": -0.000721931458,
+      "positive_normal_impulse_all_substeps_Ns": 1.941264652988144e-30
+    },
+    {
+      "step": 3507,
+      "sat_separation_m": -0.021923763129644454,
+      "endpoint_pair_count": 4,
+      "max_endpoint_depth_m": -0.000979423523,
+      "positive_normal_impulse_all_substeps_Ns": 3.9458278758527965e-32
+    },
+    {
+      "step": 3508,
+      "sat_separation_m": -0.02195623169857449,
+      "endpoint_pair_count": 4,
+      "max_endpoint_depth_m": -0.000953674316,
+      "positive_normal_impulse_all_substeps_Ns": 8.143600459879999e-34
+    },
+    {
+      "step": 3509,
+      "sat_separation_m": -0.021904149750836217,
+      "endpoint_pair_count": 4,
+      "max_endpoint_depth_m": -0.000775337219,
+      "positive_normal_impulse_all_substeps_Ns": 1.9323414190999996e-35
+    },
+    {
+      "step": 3510,
+      "sat_separation_m": -0.02191388574992858,
+      "endpoint_pair_count": 4,
+      "max_endpoint_depth_m": -0.000849723816,
+      "positive_normal_impulse_all_substeps_Ns": 6.332255472000003e-36
+    },
+    {
+      "step": 3511,
+      "sat_separation_m": -0.021834880555035366,
+      "endpoint_pair_count": 4,
+      "max_endpoint_depth_m": -0.000919342041,
+      "positive_normal_impulse_all_substeps_Ns": 6.261549384000004e-36
+    },
+    {
+      "step": 3512,
+      "sat_separation_m": -0.021797862717655374,
+      "endpoint_pair_count": 4,
+      "max_endpoint_depth_m": -0.000746250153,
+      "positive_normal_impulse_all_substeps_Ns": 6.143705904000004e-36
+    },
+    {
+      "step": 3513,
+      "sat_separation_m": -0.0217600854499923,
+      "endpoint_pair_count": 4,
+      "max_endpoint_depth_m": -0.000770568848,
+      "positive_normal_impulse_all_substeps_Ns": 6.143705904000004e-36
+    },
+    {
+      "step": 3514,
+      "sat_separation_m": -0.021795883432300343,
+      "endpoint_pair_count": 4,
+      "max_endpoint_depth_m": -0.000706195831,
+      "positive_normal_impulse_all_substeps_Ns": 6.047199106000003e-36
+    },
+    {
+      "step": 3515,
+      "sat_separation_m": -0.021765441553872285,
+      "endpoint_pair_count": 4,
+      "max_endpoint_depth_m": -0.000560760498,
+      "positive_normal_impulse_all_substeps_Ns": 5.565847183999999e-36
+    },
+    {
+      "step": 3516,
+      "sat_separation_m": -0.021685801189924962,
+      "endpoint_pair_count": 4,
+      "max_endpoint_depth_m": -0.000636577606,
+      "positive_normal_impulse_all_substeps_Ns": 5.565847183999999e-36
+    },
+    {
+      "step": 3517,
+      "sat_separation_m": -0.021660994241522444,
+      "endpoint_pair_count": 4,
+      "max_endpoint_depth_m": -0.000613689423,
+      "positive_normal_impulse_all_substeps_Ns": 5.565847183999999e-36
+    },
+    {
+      "step": 3518,
+      "sat_separation_m": -0.021547263725170865,
+      "endpoint_pair_count": 4,
+      "max_endpoint_depth_m": -0.000731468201,
+      "positive_normal_impulse_all_substeps_Ns": 5.565847183999999e-36
+    },
+    {
+      "step": 3519,
+      "sat_separation_m": -0.021565588448958277,
+      "endpoint_pair_count": 4,
+      "max_endpoint_depth_m": -0.000587463379,
+      "positive_normal_impulse_all_substeps_Ns": 5.565847183999999e-36
+    },
+    {
+      "step": 3520,
+      "sat_separation_m": -0.02147754605157951,
+      "endpoint_pair_count": 4,
+      "max_endpoint_depth_m": -0.000685214996,
+      "positive_normal_impulse_all_substeps_Ns": 5.565847183999999e-36
+    },
+    {
+      "step": 3521,
+      "sat_separation_m": -0.02143342690598358,
+      "endpoint_pair_count": 4,
+      "max_endpoint_depth_m": -0.000661849976,
+      "positive_normal_impulse_all_substeps_Ns": 5.565847183999999e-36
+    },
+    {
+      "step": 3522,
+      "sat_separation_m": -0.021396178469571432,
+      "endpoint_pair_count": 4,
+      "max_endpoint_depth_m": -0.000591754913,
+      "positive_normal_impulse_all_substeps_Ns": 5.565847183999999e-36
+    },
+    {
+      "step": 3523,
+      "sat_separation_m": -0.021287338055636623,
+      "endpoint_pair_count": 4,
+      "max_endpoint_depth_m": -0.00074005127,
+      "positive_normal_impulse_all_substeps_Ns": 5.565847183999999e-36
+    },
+    {
+      "step": 3524,
+      "sat_separation_m": -0.021363485510805996,
+      "endpoint_pair_count": 4,
+      "max_endpoint_depth_m": -0.000497341156,
+      "positive_normal_impulse_all_substeps_Ns": 5.565847183999999e-36
+    },
+    {
+      "step": 3525,
+      "sat_separation_m": -0.021310848204601184,
+      "endpoint_pair_count": 4,
+      "max_endpoint_depth_m": -0.000539779663,
+      "positive_normal_impulse_all_substeps_Ns": 5.565847183999999e-36
+    },
+    {
+      "step": 3526,
+      "sat_separation_m": -0.021182595158657926,
+      "endpoint_pair_count": 4,
+      "max_endpoint_depth_m": -0.000606060028,
+      "positive_normal_impulse_all_substeps_Ns": 5.565847183999999e-36
+    },
+    {
+      "step": 3527,
+      "sat_separation_m": -0.021031276396216762,
+      "endpoint_pair_count": 4,
+      "max_endpoint_depth_m": -0.000720024109,
+      "positive_normal_impulse_all_substeps_Ns": 5.565847183999999e-36
+    },
+    {
+      "step": 3528,
+      "sat_separation_m": -0.021100093187879247,
+      "endpoint_pair_count": 4,
+      "max_endpoint_depth_m": -0.000458240509,
+      "positive_normal_impulse_all_substeps_Ns": 5.565847183999999e-36
+    },
+    {
+      "step": 3529,
+      "sat_separation_m": -0.021016046350247695,
+      "endpoint_pair_count": 4,
+      "max_endpoint_depth_m": -0.000568389893,
+      "positive_normal_impulse_all_substeps_Ns": 5.565847183999999e-36
+    },
+    {
+      "step": 3530,
+      "sat_separation_m": -0.021009724265242564,
+      "endpoint_pair_count": 4,
+      "max_endpoint_depth_m": -0.000469684601,
+      "positive_normal_impulse_all_substeps_Ns": 5.565847183999999e-36
+    },
+    {
+      "step": 3531,
+      "sat_separation_m": -0.020997042515473484,
+      "endpoint_pair_count": 4,
+      "max_endpoint_depth_m": -0.000482559204,
+      "positive_normal_impulse_all_substeps_Ns": 5.565847183999999e-36
+    },
+    {
+      "step": 3532,
+      "sat_separation_m": -0.020917879200948362,
+      "endpoint_pair_count": 4,
+      "max_endpoint_depth_m": -0.000515937805,
+      "positive_normal_impulse_all_substeps_Ns": 5.565847183999999e-36
+    },
+    {
+      "step": 3533,
+      "sat_separation_m": -0.020899864368893115,
+      "endpoint_pair_count": 4,
+      "max_endpoint_depth_m": -0.000493049622,
+      "positive_normal_impulse_all_substeps_Ns": 5.565847183999999e-36
+    },
+    {
+      "step": 3534,
+      "sat_separation_m": -0.02087901654606812,
+      "endpoint_pair_count": 4,
+      "max_endpoint_depth_m": -0.000457286835,
+      "positive_normal_impulse_all_substeps_Ns": 5.565847183999999e-36
+    },
+    {
+      "step": 3535,
+      "sat_separation_m": -0.020784566432332167,
+      "endpoint_pair_count": 4,
+      "max_endpoint_depth_m": -0.000493526459,
+      "positive_normal_impulse_all_substeps_Ns": 5.565847183999999e-36
+    },
+    {
+      "step": 3536,
+      "sat_separation_m": -0.02034061479177076,
+      "endpoint_pair_count": 4,
+      "max_endpoint_depth_m": -0.00113582611,
+      "positive_normal_impulse_all_substeps_Ns": 5.565847183999999e-36
+    },
+    {
+      "step": 3537,
+      "sat_separation_m": -0.019739475916382136,
+      "endpoint_pair_count": 4,
+      "max_endpoint_depth_m": -0.00194549561,
+      "positive_normal_impulse_all_substeps_Ns": 5.565847183999999e-36
+    },
+    {
+      "step": 3538,
+      "sat_separation_m": -0.019239212402215967,
+      "endpoint_pair_count": 0,
+      "max_endpoint_depth_m": null,
+      "positive_normal_impulse_all_substeps_Ns": 6.95730898e-37
+    },
+    {
+      "step": 3539,
+      "sat_separation_m": -0.019249909448414468,
+      "endpoint_pair_count": 0,
+      "max_endpoint_depth_m": null,
+      "positive_normal_impulse_all_substeps_Ns": 0.0
+    },
+    {
+      "step": 3540,
+      "sat_separation_m": -0.019248829000783674,
+      "endpoint_pair_count": 0,
+      "max_endpoint_depth_m": null,
+      "positive_normal_impulse_all_substeps_Ns": 0.0
+    },
+    {
+      "step": 3541,
+      "sat_separation_m": -0.019245589841341552,
+      "endpoint_pair_count": 0,
+      "max_endpoint_depth_m": null,
+      "positive_normal_impulse_all_substeps_Ns": 0.0
+    },
+    {
+      "step": 3542,
+      "sat_separation_m": -0.019229756308432933,
+      "endpoint_pair_count": 0,
+      "max_endpoint_depth_m": null,
+      "positive_normal_impulse_all_substeps_Ns": 0.0
+    },
+    {
+      "step": 3543,
+      "sat_separation_m": -0.019176669700463563,
+      "endpoint_pair_count": 0,
+      "max_endpoint_depth_m": null,
+      "positive_normal_impulse_all_substeps_Ns": 0.0
+    },
+    {
+      "step": 3544,
+      "sat_separation_m": -0.019046908536636847,
+      "endpoint_pair_count": 0,
+      "max_endpoint_depth_m": null,
+      "positive_normal_impulse_all_substeps_Ns": 0.0
+    },
+    {
+      "step": 3545,
+      "sat_separation_m": -0.01883888923421033,
+      "endpoint_pair_count": 0,
+      "max_endpoint_depth_m": null,
+      "positive_normal_impulse_all_substeps_Ns": 0.0
+    },
+    {
+      "step": 3546,
+      "sat_separation_m": -0.01854066976704661,
+      "endpoint_pair_count": 0,
+      "max_endpoint_depth_m": null,
+      "positive_normal_impulse_all_substeps_Ns": 0.0
+    },
+    {
+      "step": 3547,
+      "sat_separation_m": -0.01819284184536534,
+      "endpoint_pair_count": 0,
+      "max_endpoint_depth_m": null,
+      "positive_normal_impulse_all_substeps_Ns": 0.0
+    },
+    {
+      "step": 3548,
+      "sat_separation_m": -0.0178015527291382,
+      "endpoint_pair_count": 0,
+      "max_endpoint_depth_m": null,
+      "positive_normal_impulse_all_substeps_Ns": 0.0
+    },
+    {
+      "step": 3549,
+      "sat_separation_m": -0.017360018410167682,
+      "endpoint_pair_count": 0,
+      "max_endpoint_depth_m": null,
+      "positive_normal_impulse_all_substeps_Ns": 0.0
+    },
+    {
+      "step": 3550,
+      "sat_separation_m": -0.016869768832457187,
+      "endpoint_pair_count": 0,
+      "max_endpoint_depth_m": null,
+      "positive_normal_impulse_all_substeps_Ns": 0.0
+    },
+    {
+      "step": 3551,
+      "sat_separation_m": -0.016321302950182387,
+      "endpoint_pair_count": 0,
+      "max_endpoint_depth_m": null,
+      "positive_normal_impulse_all_substeps_Ns": 0.0
+    },
+    {
+      "step": 3552,
+      "sat_separation_m": -0.015717905317889476,
+      "endpoint_pair_count": 0,
+      "max_endpoint_depth_m": null,
+      "positive_normal_impulse_all_substeps_Ns": 0.0
+    },
+    {
+      "step": 3553,
+      "sat_separation_m": -0.015058596840301773,
+      "endpoint_pair_count": 0,
+      "max_endpoint_depth_m": null,
+      "positive_normal_impulse_all_substeps_Ns": 0.0
+    },
+    {
+      "step": 3554,
+      "sat_separation_m": -0.014342157370078205,
+      "endpoint_pair_count": 0,
+      "max_endpoint_depth_m": null,
+      "positive_normal_impulse_all_substeps_Ns": 0.0
+    },
+    {
+      "step": 3555,
+      "sat_separation_m": -0.01357180399649694,
+      "endpoint_pair_count": 0,
+      "max_endpoint_depth_m": null,
+      "positive_normal_impulse_all_substeps_Ns": 0.0
+    },
+    {
+      "step": 3556,
+      "sat_separation_m": -0.012697836719317852,
+      "endpoint_pair_count": 0,
+      "max_endpoint_depth_m": null,
+      "positive_normal_impulse_all_substeps_Ns": 0.0
+    },
+    {
+      "step": 3557,
+      "sat_separation_m": -0.011689659258509628,
+      "endpoint_pair_count": 0,
+      "max_endpoint_depth_m": null,
+      "positive_normal_impulse_all_substeps_Ns": 0.0
+    },
+    {
+      "step": 3558,
+      "sat_separation_m": -0.010561456531442519,
+      "endpoint_pair_count": 0,
+      "max_endpoint_depth_m": null,
+      "positive_normal_impulse_all_substeps_Ns": 0.0
+    },
+    {
+      "step": 3559,
+      "sat_separation_m": -0.009343496377160948,
+      "endpoint_pair_count": 0,
+      "max_endpoint_depth_m": null,
+      "positive_normal_impulse_all_substeps_Ns": 0.0
+    },
+    {
+      "step": 3560,
+      "sat_separation_m": -0.008051623294205522,
+      "endpoint_pair_count": 0,
+      "max_endpoint_depth_m": null,
+      "positive_normal_impulse_all_substeps_Ns": 0.0
+    },
+    {
+      "step": 3561,
+      "sat_separation_m": -0.006701385921790502,
+      "endpoint_pair_count": 0,
+      "max_endpoint_depth_m": null,
+      "positive_normal_impulse_all_substeps_Ns": 0.0
+    },
+    {
+      "step": 3562,
+      "sat_separation_m": -0.0053004861059041675,
+      "endpoint_pair_count": 0,
+      "max_endpoint_depth_m": null,
+      "positive_normal_impulse_all_substeps_Ns": 0.0
+    }
+  ],
+  "scope": "Independent oriented-box SAT at accepted endpoint; positive impulse telemetry covers all 16 substeps and endpoint pair logs include zero-impulse contacts. CPU box-box collision is separately checked at selected matching replay states. Endpoint/contact temporal offset and GPU broadphase/solver cause require further isolation; this is not evidence of a corrected collider."
+}

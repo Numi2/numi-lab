@@ -1,0 +1,3 @@
+# Release support hysteresis experiment
+
+In the matched prior run, the first release aborted at step 3574 because the final substep right-foot upward impulse was 0.002634 N s, just below the 0.002759 N s half-weight threshold, despite 0.058637 N s over the full interval and opposing front/rear normals. Retain half-weight to initiate release, but use 35 percent of body weight plus opposing toe normals to maintain it, with the existing one-shot abort latch when the hold condition fails. This is a controller sensitivity test, not proof of safe support: independently require all-substep load, physical endpoint clearance, regrip, sustained bilateral support and no physical failure. Same development seed and actor; compare exact pre-change trajectory.

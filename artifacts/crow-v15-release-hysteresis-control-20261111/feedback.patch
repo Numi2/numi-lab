@@ -1,0 +1,19 @@
+--- a/reference.metal
++++ b/feedback.metal
+@@ -9437,13 +9437,14 @@
+             if (dispatch.sampling.w==0u && state.navigation.z>=5.0f && state.threatTeacher.w>=1.5f) {
+                 const float halfWeightImpulse=.5f*.45006f*9.81f*dispatch.timing.x/16.0f;
+                 const bool rightGrip=up[1]>=halfWeightImpulse && frontX[1]>1.0e-6f && rearX[1]<-1.0e-6f;
++                const bool rightHolding=up[1]>=.35f*.45006f*9.81f*dispatch.timing.x/16.0f && frontX[1]>1.0e-6f && rearX[1]<-1.0e-6f;
+                 const bool bothGrip=loaded[0] && loaded[1] && up[0]>0.0f && up[1]>0.0f &&
+                     up[0]+up[1]>=halfWeightImpulse && frontX[0]>1.0e-6f && rearX[0]<-1.0e-6f && frontX[1]>1.0e-6f && rearX[1]<-1.0e-6f;
+                 if (seq<50u) seq=bothGrip ? seq+1u : 0u;
+                 else if (seq<149u) seq=loaded[1] ? seq+1u : 0u;
+                 else if (seq==149u) seq=rightGrip ? 150u : (loaded[1] ? 149u : 0u);
+-                else if (seq<220u) seq=rightGrip ? seq+1u : 230u;
+-                else if (seq<230u) seq=rightGrip ? (!loaded[0] ? seq+1u : 220u) : 230u;
++                else if (seq<220u) seq=rightHolding ? seq+1u : 230u;
++                else if (seq<230u) seq=rightHolding ? (!loaded[0] ? seq+1u : 220u) : 230u;
+                 else if (seq<255u) seq+=1u;
+                 state.status.w=(state.status.w & ~seqMask)|((seq&15u)<<16u)|((seq>>4u)<<28u);
+             }

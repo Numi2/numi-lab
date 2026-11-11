@@ -1,0 +1,77 @@
+{
+  "rows": [
+    {
+      "lane": 0,
+      "first_reference_perch_foot_impulse": 3187,
+      "first_difference": null,
+      "difference_count_all_first_episode": 0,
+      "missing_count_all_first_episode": 0,
+      "differences_before_first_perch_contact": 0,
+      "missing_before_first_perch_contact": 0
+    },
+    {
+      "lane": 1,
+      "first_reference_perch_foot_impulse": 3245,
+      "first_difference": null,
+      "difference_count_all_first_episode": 0,
+      "missing_count_all_first_episode": 0,
+      "differences_before_first_perch_contact": 0,
+      "missing_before_first_perch_contact": 0
+    },
+    {
+      "lane": 2,
+      "first_reference_perch_foot_impulse": 3221,
+      "first_difference": null,
+      "difference_count_all_first_episode": 0,
+      "missing_count_all_first_episode": 0,
+      "differences_before_first_perch_contact": 0,
+      "missing_before_first_perch_contact": 0
+    },
+    {
+      "lane": 3,
+      "first_reference_perch_foot_impulse": 3158,
+      "first_difference": null,
+      "difference_count_all_first_episode": 0,
+      "missing_count_all_first_episode": 0,
+      "differences_before_first_perch_contact": 0,
+      "missing_before_first_perch_contact": 0
+    },
+    {
+      "lane": 4,
+      "first_reference_perch_foot_impulse": 3210,
+      "first_difference": null,
+      "difference_count_all_first_episode": 0,
+      "missing_count_all_first_episode": 0,
+      "differences_before_first_perch_contact": 0,
+      "missing_before_first_perch_contact": 0
+    },
+    {
+      "lane": 5,
+      "first_reference_perch_foot_impulse": 3222,
+      "first_difference": 3575,
+      "difference_count_all_first_episode": 226,
+      "missing_count_all_first_episode": 0,
+      "differences_before_first_perch_contact": 0,
+      "missing_before_first_perch_contact": 0
+    },
+    {
+      "lane": 6,
+      "first_reference_perch_foot_impulse": null,
+      "first_difference": null,
+      "difference_count_all_first_episode": 0,
+      "missing_count_all_first_episode": 0,
+      "differences_before_first_perch_contact": 0,
+      "missing_before_first_perch_contact": 0
+    },
+    {
+      "lane": 7,
+      "first_reference_perch_foot_impulse": 3176,
+      "first_difference": null,
+      "difference_count_all_first_episode": 0,
+      "missing_count_all_first_episode": 0,
+      "differences_before_first_perch_contact": 0,
+      "missing_before_first_perch_contact": 0
+    }
+  ],
+  "scope": "Endpoint q/v, actor output and contacts only; both runs are teacher-off and use the same observer, while release conditions differ. All-substep support is analyzed separately."
+}
