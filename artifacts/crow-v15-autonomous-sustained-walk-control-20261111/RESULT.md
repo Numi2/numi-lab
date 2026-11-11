@@ -1,0 +1,5 @@
+# Eight-second teacher-off walk: not qualified
+
+The extended physical gait matched the original accepted q/v, contact and all-substep aggregate records through the first 300 intervals in all eight starts. Over steps 201–600, every lane had at least 13 unloaded, >1 mm-clear bouts per foot with the opposite foot carrying at least half nominal weight over the interval. Seven lanes strictly alternated; lane 3 did not. Six lanes retained foot-normal contact above the measurement threshold on every sampled substep; lane 6 had six unsupported substeps and lane 3 had 334, including 18 endpoint poses where both feet cleared 1 mm. Lane 3 traveled 0.068 m and reached 0.307 m/s peak root speed; the other lanes traveled 0.148–0.154 m. No nonfoot ground impulses were measured.
+
+Replay and independently reconstructed toe/foot positions agreed to 8.2e-9 m in the retained lane; no continuous swept-clearance or foot-slip claim follows. Two starts failed continuous support, this was a used development layout, and the extension deliberately deferred takeoff; this is not a qualified walk or complete journey.

@@ -1,0 +1,41 @@
+--- a/reference.metal
++++ b/feedback.metal
+@@ -5086,9 +5086,9 @@
+             const float support=dispatch.counts.w==40u ? ((state.status.w & (leg==0u ? (1u<<21) : (1u<<20)))!=0u ? 1.0f : 0.0f) : (leg==0u ? state.nutrition.y : state.nutrition.x);
+             const float begin=4.0f;
+             const float carrier=sin(kTwoPi*seconds/0.50f)*(leg==0u ? 1.0f : -1.0f);
+-            const float swing=seconds >= begin && seconds < begin+2.0f && support > 0.05f ? carrier : 0.0f;
++            const float swing=seconds >= begin && seconds < begin+8.0f && support > 0.05f ? carrier : 0.0f;
+             const float lift=max(swing,0.0f);
+-            if (seconds >= begin && seconds < begin+2.0f)
++            if (seconds >= begin && seconds < begin+8.0f)
+                 navigationTeacherRequested=0.80f*smoothstep(begin,begin+.50f,seconds)*(joint==0u ? -0.30f*swing : joint==1u ? 0.40f*lift : -0.15f*lift);
+             else if (seconds>=2.0f && seconds<begin)
+                 { const uint arm=environment%8u;
+@@ -5101,13 +5101,13 @@
+         if (fixedFlightController && state.episode.z == 10u && action >= 7u && action <= 12u) {
+             const float seconds=float(state.episode.x)*dispatch.timing.x;
+             const uint joint=(action-7u)%3u;
+-            if (seconds >= 6.3f && seconds < 7.4f) {
++            if (seconds >= 14.3f && seconds < 15.4f) {
+                 const float crouched=joint==0u ? -0.85f : joint==1u ? 1.00f : -0.50f;
+                 const float extended=joint==0u ? -0.50f : joint==1u ? -0.70f : 0.18f;
+                 const bool bilateral=dispatch.counts.w==40u ? (state.status.w & ((1u<<20)|(1u<<21)))==((1u<<20)|(1u<<21)) : (state.nutrition.x>0.05f && state.nutrition.y>0.05f);
+-                navigationTeacherRequested=seconds<6.96f
+-                    ? mix(navigationTeacherRequested,crouched,smoothstep(6.3f,6.55f,seconds))
+-                    : bilateral ? mix(crouched,extended,smoothstep(6.96f,6.98f,seconds)) : crouched;
++                navigationTeacherRequested=seconds<14.96f
++                    ? mix(navigationTeacherRequested,crouched,smoothstep(14.3f,14.55f,seconds))
++                    : bilateral ? mix(crouched,extended,smoothstep(14.96f,14.98f,seconds)) : crouched;
+                 if ((state.status.w & 4096u) != 0u) navigationTeacherRequested = crouched;
+             }
+         }
+@@ -9457,7 +9457,7 @@
+             state.status.w=(state.status.w & ~4095u) | packed;
+             const float seconds=float(state.episode.x)*dispatch.timing.x;
+             const uint previous=state.status.w;
+-            const bool low=seconds>=6.96f && (state.status.w & ((1u<<20)|(1u<<21)))==0u;
++            const bool low=seconds>=14.96f && (state.status.w & ((1u<<20)|(1u<<21)))==0u;
+             const uint low1=low ? 16384u : 0u;
+             const uint low2=low && (previous&16384u)!=0u ? 32768u : 0u;
+             const bool released=(previous&8192u)!=0u || (low && (previous&32768u)!=0u && state.airReturnTracking.y>.195f && state.threatGeometry.y>.05f);
