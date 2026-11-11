@@ -1,0 +1,7 @@
+{
+  "actor_source_sha256": "4389199e0d41d8f6e13394ce85192dbc675cceb79ae2f75ba5736929aef0859d",
+  "critic_source_sha256": "8e6bd9784f1447de82b076b78dd753a240222c3349ddd6a252adab736303e79f",
+  "training_wrapper_sha256": "051ab761d24be58a1685e2f885040d78ded0a244d948b3fb3921d901c9eeb22a",
+  "actor_layers_and_transforms_identical": true,
+  "scope": "The borrowed critic has a different historical task contract and is only an unused wrapper requirement for supervised actor imitation. No critic value or gradient is used; it will be stripped from the output policy."
+}
