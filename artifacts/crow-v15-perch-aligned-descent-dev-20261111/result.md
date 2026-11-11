@@ -1,0 +1,3 @@
+# Result: transient supported grip in one start
+
+All eight development starts reached all five waypoints and physically touched the perch. At the 4200-step screen cutoff, three first episodes had failed and five were still active; those five are censored, not passes. One failed lane had 166 consecutive intervals of opposing toe-normal impulses, of which 106 consecutive intervals also met the recorded upward-support, tilt and speed criteria, before it tipped backward and terminated. The other seven had no qualifying supported interval. Seven first episodes hit toe-speed limits after handoff. There was no release command or release test. This was a privileged teacher-guided development screen, not an autonomous or held-out result.

@@ -1,0 +1,18 @@
+--- a/separated.metal
++++ b/height.metal
+@@ -6740,13 +6740,13 @@
+             float errorOffset = 0.0f;
+             if (landing) {
+                 const float3 perch = sceneState[sceneBase+course+4u].position.xyz;
+-                const float3 landingTarget = perch + float3(0.0f,0.55f,0.0f);
++                const float3 landingTarget = perch + float3(0.02f,0.55f,0.0f);
+                 const float xError = landingTarget.x-pos.x;
+                 const float yError = landingTarget.y-pos.y;
+                 const float commandedForward = clamp(0.45f*xError+0.10f-0.60f*yawFrameLinear.x,-0.10f,0.35f);
+                 desiredLateral = clamp(0.80f*yError,-0.30f,0.30f);
+                 errorOffset = 0.25f-commandedForward;
+-                if (landingPhase < 0.5f && length(float2(xError,yError)) < 0.20f &&
++                if (landingPhase < 0.5f && abs(xError) < 0.05f && abs(yError) < 0.15f &&
+                     length(yawFrameLinear.xy) < 0.20f) landingPhase=1.0f;
+                 uint loadedFeet=0u;
+                 for (uint gi=0u; gi<program.counts0.w; ++gi) {
