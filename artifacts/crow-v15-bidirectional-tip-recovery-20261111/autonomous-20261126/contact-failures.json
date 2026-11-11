@@ -1,0 +1,111 @@
+{
+  "rows": [
+    {
+      "lane": 2,
+      "first_episode_end": 4610,
+      "termination_reason": 3,
+      "first_recorded_scene_contact_in_terminal_interval": {
+        "step": 4611,
+        "substep": 9,
+        "body_a": "crow_tail",
+        "body_b": "crow_course_slalom_a",
+        "normal_impulse_Ns": 0.549383759
+      },
+      "preceding_endpoint": {
+        "step": 4610,
+        "position_m": [
+          3.07274294,
+          0.518056631,
+          1.27543557
+        ],
+        "roll_pitch_yaw_rad": [
+          -0.0034978960827626226,
+          -0.3619079361346737,
+          0.02163097268673242
+        ],
+        "linear_and_angular_velocity": [
+          -2.99243546,
+          -0.0498375408,
+          -0.0884298384,
+          0.00401178747,
+          0.00934201293,
+          0.000734207802
+        ],
+        "policy_action": [
+          1,
+          -0.205484107,
+          1,
+          -1,
+          1,
+          -0.217055082,
+          1,
+          -1,
+          -1,
+          1,
+          1,
+          -1,
+          -0.223702088,
+          1,
+          1,
+          0,
+          0,
+          0
+        ]
+      }
+    },
+    {
+      "lane": 5,
+      "first_episode_end": 3842,
+      "termination_reason": 3,
+      "first_recorded_scene_contact_in_terminal_interval": {
+        "step": 3843,
+        "substep": 5,
+        "body_a": "crow_tail",
+        "body_b": "crow_course_gate_left",
+        "normal_impulse_Ns": 1.05902779
+      },
+      "preceding_endpoint": {
+        "step": 3842,
+        "position_m": [
+          1.82059848,
+          0.729776859,
+          1.35988283
+        ],
+        "roll_pitch_yaw_rad": [
+          0.00040285883599397356,
+          -0.31072742068233516,
+          0.01274654670359341
+        ],
+        "linear_and_angular_velocity": [
+          -3.14366007,
+          -0.031482216,
+          0.0482906997,
+          0.0010068086,
+          -0.0708967671,
+          0.0319506712
+        ],
+        "policy_action": [
+          1,
+          -0.122538827,
+          1,
+          -1,
+          1,
+          -0.110442057,
+          0.742476702,
+          -1,
+          -1,
+          1,
+          1,
+          -1,
+          -0.334169179,
+          0.719726443,
+          1,
+          0,
+          0,
+          0
+        ]
+      }
+    }
+  ],
+  "limitations": "Contact threshold and first sampled substep do not establish continuous exact time. Endpoint precedes logged terminal interval by one; policy output is not the applied actuator target. This is a development course and does not establish biological realism."
+}

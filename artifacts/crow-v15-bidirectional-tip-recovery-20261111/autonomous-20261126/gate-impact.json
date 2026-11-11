@@ -1,0 +1,53 @@
+{
+  "first_episode_end": 3842,
+  "termination_reason": 3,
+  "first_recorded_gate_contact": {
+    "step": 3843,
+    "substep": 5,
+    "body_a": "crow_tail",
+    "body_b": "crow_course_gate_left",
+    "normal_impulse_Ns": 1.05902779
+  },
+  "preceding_endpoint": {
+    "step": 3842,
+    "position_m": [
+      1.82059848,
+      0.729776859,
+      1.35988283
+    ],
+    "roll_pitch_yaw_rad": [
+      0.00040285883599397356,
+      -0.31072742068233516,
+      0.01274654670359341
+    ],
+    "linear_and_angular_velocity": [
+      -3.14366007,
+      -0.031482216,
+      0.0482906997,
+      0.0010068086,
+      -0.0708967671,
+      0.0319506712
+    ],
+    "policy_action": [
+      1,
+      -0.122538827,
+      1,
+      -1,
+      1,
+      -0.110442057,
+      0.742476702,
+      -1,
+      -1,
+      1,
+      1,
+      -1,
+      -0.334169179,
+      0.719726443,
+      1,
+      0,
+      0,
+      0
+    ]
+  },
+  "limits": "Logged policy outputs are not the applied actuator targets; those were not recorded. The preceding sample is a control endpoint, not the exact impact instant. Contact detection is limited to the instrumented substep data and this used development course."
+}
