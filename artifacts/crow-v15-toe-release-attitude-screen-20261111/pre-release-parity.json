@@ -1,0 +1,16 @@
+{
+  "lanes": [
+    {
+      "lane": 0,
+      "steps_compared": 115,
+      "missing": 0,
+      "different": 0
+    },
+    {
+      "lane": 1,
+      "steps_compared": 120,
+      "missing": 0,
+      "different": 0
+    }
+  ]
+}
