@@ -1,19 +1,19 @@
 from pathlib import Path
 import collections,gzip,json,math,numpy as np
-A=Path(artifacts/crow-v15-toe-grip-release-screen-20261111);state={};pose={};events={};by=collections.defaultdict(lambda:[0.]*37);coverage=collections.Counter();bad=[];errors=[]
-with gzip.open(A/trace.log.gz,rt) as f:
+A=Path('artifacts/crow-v15-toe-grip-release-screen-20261111');state={};pose={};events={};by=collections.defaultdict(lambda:[0.]*37);coverage=collections.Counter();bad=[];errors=[]
+with gzip.open(A/'trace.log.gz','rt') as f:
  for l in f:
   a=l.split()
   if not a:continue
-  if a[0]==step:
-   e,t=int(a[1]),int(a[2])+1;qi=a.index(q);vi=a.index(v);state[e,t]={q:list(map(float,a[qi+1:vi])),v:list(map(float,a[vi+1:]))}
-  elif a[0]==pose:pose.setdefault((int(a[1]),int(a[2])+1),{})[a[3]]=list(map(float,a[4:]))
-  elif a[0]==event:events[int(a[1]),int(a[2])+1]={release:bool(int(a[3])),support_streak:int(a[4])}
-with gzip.open(A/substeps.log.gz,rt) as f:
+  if a[0]=='step':
+   e,t=int(a[1]),int(a[2])+1;qi=a.index('q');vi=a.index('v');state[e,t]={'q':list(map(float,a[qi+1:vi])),'v':list(map(float,a[vi+1:]))}
+  elif a[0]=='pose':pose.setdefault((int(a[1]),int(a[2])+1),{})[a[3]]=list(map(float,a[4:]))
+  elif a[0]=='event':events[int(a[1]),int(a[2])+1]={'release':bool(int(a[3])),'support_streak':int(a[4])}
+with gzip.open(A/'substeps.log.gz','rt') as f:
  for l in f:
   a=l.split()
-  if a and a[0] in (CROW_SUBSTEP_ERROR,failure):errors.append(l.strip())
-  if a and a[0]==CROW_TWO_TOE_SUBSTEP:
+  if a and a[0] in ('CROW_SUBSTEP_ERROR','failure'):errors.append(l.strip())
+  if a and a[0]=='CROW_TWO_TOE_SUBSTEP':
    t,sub,e=map(int,a[1:4]);key=e,t,sub;coverage[key]+=1
    if int(a[4])>int(a[5]) or len(a[6:])!=37:bad.append(key)
    for i,v in enumerate(map(float,a[6:])):by[e,t][i]+=v
@@ -33,17 +33,17 @@ def longest(a):
  return best
 rows=[]
 for e in range(8):
- trigger=next((t for t in range(1,351) if events.get((e,t),{}).get(release)),None);qual=[];maxclear=-float(inf);fall=None;peak_right_up=0.;nonfoot=0;missingposes=[]
+ trigger=next((t for t in range(1,351) if events.get((e,t),{}).get('release')),None);qual=[];maxclear=-float('inf');fall=None;peak_right_up=0.;nonfoot=0;missingposes=[]
  for t in range(1,351):
   x=state.get((e,t));p=pose.get((e,t),{});v=by[e,t];release=trigger is not None and t>=trigger
   if not x:qual.append(False);continue
-  q=x[q];u=x[v];tilt=math.acos(max(-1.,min(1.,1.-2*(q[3]**2+q[4]**2))));speed=math.sqrt(sum(z*z for z in u[:3]));names=[n for n in p if n.startswith(crow_left_) and toe in n];has=len(names)==8 and crow_left_foot in p
+  q=x['q'];u=x['v'];tilt=math.acos(max(-1.,min(1.,1.-2*(q[3]**2+q[4]**2))));speed=math.sqrt(sum(z*z for z in u[:3]));names=[n for n in p if n.startswith('crow_left_') and 'toe' in n];has=len(names)==8 and 'crow_left_foot' in p
   if release and not has:missingposes.append(t)
-  clear=min([gap(p[n],[.009,.0025,.0092]) for n in names]+([gap(p[crow_left_foot],[.01,.01725,.0092])] if crow_left_foot in p else [])) if has else -float(inf)
+  clear=min([gap(p[n],[.009,.0025,.0092]) for n in names]+([gap(p['crow_left_foot'],[.01,.01725,.0092])] if 'crow_left_foot' in p else [])) if has else -float('inf')
   if release:maxclear=max(maxclear,clear)
   rightopp=sum(v[21+8+i] for i in range(6))>=.0002 and sum(v[21+8+i] for i in (6,7))<=-.0002
   ok=release and has and clear>=.001 and abs(v[2])<=1e-7 and v[1]>=.5*.45004*9.81*.02 and rightopp and abs(v[4])<=1e-7 and tilt<=.35 and speed<=.12
   qual.append(ok);peak_right_up=max(peak_right_up,v[1]);nonfoot+=abs(v[4])>1e-7
   if fall is None and q[2]<.1:fall=t
- rows.append({lane:e,knee_target_offset_rad:[.15,.15,-.15,-.15,.30,.30,-.30,-.30][e],initial_x_shift_m:.002 if e%2 else 0.,release_trigger_step:trigger,longest_qualified_release_intervals:longest(qual),peak_minimum_left_clearance_m:maxclear if maxclear!=-float(inf) else None,maximum_right_upward_impulse_per_interval:peak_right_up,nonfoot_impulse_intervals:nonfoot,first_root_below_0_1m:fall,missing_pose_steps:missingposes,pass:trigger is not None and longest(qual)>=10 and fall is None and not nonfoot and not missingposes})
-out={lanes:rows,missing_substeps:len(missing),bad_substeps:len(bad),errors:errors,scope:constructed stationary grip-to-release development test};(A/analysis.json).write_text(json.dumps(out,indent=2)+n);print(json.dumps(out,indent=2))
+ rows.append({'states_observed':sum((e,t) in state for t in range(1,351)),'lane':e,'knee_target_offset_rad':[.15,.15,-.15,-.15,.30,.30,-.30,-.30][e],'initial_x_shift_m':.002 if e%2 else 0.,'release_trigger_step':trigger,'longest_qualified_release_intervals':longest(qual),'peak_minimum_left_clearance_m':maxclear if maxclear!=-float('inf') else None,'maximum_right_upward_impulse_per_interval':peak_right_up,'nonfoot_impulse_intervals':nonfoot,'first_root_below_0_1m':fall,'missing_pose_steps':missingposes,'pass':trigger is not None and longest(qual)>=10 and fall is None and not nonfoot and not missingposes and all((e,t) in state for t in range(1,351)) and not errors})
+out={'lanes':rows,'missing_substeps':len(missing),'bad_substeps':len(bad),'errors':errors,'scope':'constructed stationary grip-to-release development test'};(A/'analysis.json').write_text(json.dumps(out,indent=2)+'\n');print(json.dumps(out,indent=2))
