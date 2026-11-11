@@ -1,0 +1,186 @@
+{
+  "remote_commit": "9b02b17943e14289754d5fd364bc55dee109bb26",
+  "verification": "fetched independently, restored tar members and compared sha256 and size against runtime index and local copies; checked open handles",
+  "retired": [
+    {
+      "path": "build/crow-v15-com-damping-grid-20261111/probe",
+      "archive": "artifacts/crow-v15-com-damping-grid-20261111/runtime.tar.gz",
+      "sha256": "b045d6408fdb5b79f8bc7944df246637cf31208154fb797d12d2f40c1cd895f2",
+      "bytes": 102072
+    },
+    {
+      "path": "build/crow-v15-com-damping-grid-20261111/libmetalrobo.dylib",
+      "archive": "artifacts/crow-v15-com-damping-grid-20261111/runtime.tar.gz",
+      "sha256": "c9bcea5a2e3cd7b341766e0f9b4398f25a60b9d6671b81cd2d8badde04b247b4",
+      "bytes": 5729488
+    },
+    {
+      "path": "build/crow-v15-contact-resolution-screen-20261111/probe",
+      "archive": "artifacts/crow-v15-contact-resolution-screen-20261111/runtime.tar.gz",
+      "sha256": "d42ce7f869371d04a7bd45caf08c74561c4146b55bc2ef4574b9c3102d20ea28",
+      "bytes": 101816
+    },
+    {
+      "path": "build/crow-v15-contact-resolution-screen-20261111/libmetalrobo.dylib",
+      "archive": "artifacts/crow-v15-contact-resolution-screen-20261111/runtime.tar.gz",
+      "sha256": "aac2160f7f897508ad01516b72b54f7a35ef8d0e02e3e23c6a8dfee8016b4968",
+      "bytes": 5729488
+    },
+    {
+      "path": "build/crow-v15-front-contact-regulation-20261111/probe",
+      "archive": "artifacts/crow-v15-front-contact-regulation-20261111/runtime.tar.gz",
+      "sha256": "01c44a6fd8f0d68174fee448b6f3a057e4ef4fd53b359aa9be5850fde1992a6f",
+      "bytes": 102072
+    },
+    {
+      "path": "build/crow-v15-front-contact-regulation-20261111/libmetalrobo.dylib",
+      "archive": "artifacts/crow-v15-front-contact-regulation-20261111/runtime.tar.gz",
+      "sha256": "c9bcea5a2e3cd7b341766e0f9b4398f25a60b9d6671b81cd2d8badde04b247b4",
+      "bytes": 5729488
+    },
+    {
+      "path": "build/crow-v15-front-toe-long-replay-20261111/probe",
+      "archive": "artifacts/crow-v15-front-toe-long-replay-20261111/runtime.tar.gz",
+      "sha256": "5dabcd8f6289ce76398b4daa2d8c374edcbad5bbbd1227523683b59ab503ae94",
+      "bytes": 118328
+    },
+    {
+      "path": "build/crow-v15-front-toe-long-replay-20261111/libmetalrobo.dylib",
+      "archive": "artifacts/crow-v15-front-toe-long-replay-20261111/runtime.tar.gz",
+      "sha256": "aac2160f7f897508ad01516b72b54f7a35ef8d0e02e3e23c6a8dfee8016b4968",
+      "bytes": 5729488
+    },
+    {
+      "path": "build/crow-v15-front-toe-perturbation-20261111/probe",
+      "archive": "artifacts/crow-v15-front-toe-perturbation-20261111/runtime.tar.gz",
+      "sha256": "4542addf8175984585570e845a1e0d4faaa966914d06d6828fdcb25c740e2085",
+      "bytes": 102136
+    },
+    {
+      "path": "build/crow-v15-front-toe-perturbation-20261111/libmetalrobo.dylib",
+      "archive": "artifacts/crow-v15-front-toe-perturbation-20261111/runtime.tar.gz",
+      "sha256": "c9bcea5a2e3cd7b341766e0f9b4398f25a60b9d6671b81cd2d8badde04b247b4",
+      "bytes": 5729488
+    },
+    {
+      "path": "build/crow-v15-pregrasp-acquisition-20261111/probe",
+      "archive": "artifacts/crow-v15-pregrasp-acquisition-20261111/runtime.tar.gz",
+      "sha256": "55597d865561d3a8818b0e0883116cf73ea455c8406c2f4d2f6705aa886fc07b",
+      "bytes": 102136
+    },
+    {
+      "path": "build/crow-v15-pregrasp-acquisition-20261111/libmetalrobo.dylib",
+      "archive": "artifacts/crow-v15-pregrasp-acquisition-20261111/runtime.tar.gz",
+      "sha256": "c9bcea5a2e3cd7b341766e0f9b4398f25a60b9d6671b81cd2d8badde04b247b4",
+      "bytes": 5729488
+    },
+    {
+      "path": "build/crow-v15-early-hip-authority-20261111/probe",
+      "archive": "artifacts/crow-v15-early-hip-authority-20261111/runtime.tar.gz",
+      "sha256": "ff3c93d58105543b69f7fe91f0c331ba699253ded649992132599353534ac15d",
+      "bytes": 102136
+    },
+    {
+      "path": "build/crow-v15-early-hip-authority-20261111/libmetalrobo.dylib",
+      "archive": "artifacts/crow-v15-early-hip-authority-20261111/runtime.tar.gz",
+      "sha256": "c9bcea5a2e3cd7b341766e0f9b4398f25a60b9d6671b81cd2d8badde04b247b4",
+      "bytes": 5729488
+    },
+    {
+      "path": "build/crow-v15-anticipatory-foot-placement-20261111/probe",
+      "archive": "artifacts/crow-v15-anticipatory-foot-placement-20261111/runtime.tar.gz",
+      "sha256": "20d87670175cf71d841b08afb15820e480e7b71ed20368eb3d4a1efd4d5282f9",
+      "bytes": 102136
+    },
+    {
+      "path": "build/crow-v15-anticipatory-foot-placement-20261111/libmetalrobo.dylib",
+      "archive": "artifacts/crow-v15-anticipatory-foot-placement-20261111/runtime.tar.gz",
+      "sha256": "c9bcea5a2e3cd7b341766e0f9b4398f25a60b9d6671b81cd2d8badde04b247b4",
+      "bytes": 5729488
+    },
+    {
+      "path": "build/crow-v15-foot-placement-fade-grid-20261111/probe",
+      "archive": "artifacts/crow-v15-foot-placement-fade-grid-20261111/runtime.tar.gz",
+      "sha256": "382f439cf9c3cd8b01131cd40ff9348c6df0e71e655e774304e2f5dd1626aefd",
+      "bytes": 102072
+    },
+    {
+      "path": "build/crow-v15-foot-placement-fade-grid-20261111/libmetalrobo.dylib",
+      "archive": "artifacts/crow-v15-foot-placement-fade-grid-20261111/runtime.tar.gz",
+      "sha256": "c9bcea5a2e3cd7b341766e0f9b4398f25a60b9d6671b81cd2d8badde04b247b4",
+      "bytes": 5729488
+    },
+    {
+      "path": "build/crow-v15-front-toe-release-20261111/probe",
+      "archive": "artifacts/crow-v15-front-toe-release-20261111/runtime.tar.gz",
+      "sha256": "d8dbf1f09f8b3f837d033f4cc7fde68e8f7be3bd13883cc2c10bd25cee62abfb",
+      "bytes": 118328
+    },
+    {
+      "path": "build/crow-v15-front-toe-release-20261111/libmetalrobo.dylib",
+      "archive": "artifacts/crow-v15-front-toe-release-20261111/runtime.tar.gz",
+      "sha256": "3d3439e883431f2cc5be0033b6aa45bdff1d1b09f72f33615291592b0f3d3b08",
+      "bytes": 5729488
+    },
+    {
+      "path": "build/crow-v15-release-balance-continuity-20261111/probe",
+      "archive": "artifacts/crow-v15-release-balance-continuity-20261111/runtime.tar.gz",
+      "sha256": "f879fc5471e49f1a2008baa67e9df97c3305f39721c3a88d438d67a385f8872b",
+      "bytes": 118328
+    },
+    {
+      "path": "build/crow-v15-release-balance-continuity-20261111/libmetalrobo.dylib",
+      "archive": "artifacts/crow-v15-release-balance-continuity-20261111/runtime.tar.gz",
+      "sha256": "3d3439e883431f2cc5be0033b6aa45bdff1d1b09f72f33615291592b0f3d3b08",
+      "bytes": 5729488
+    },
+    {
+      "path": "build/crow-v15-release-com-velocity-grid-20261111/probe",
+      "archive": "artifacts/crow-v15-release-com-velocity-grid-20261111/runtime.tar.gz",
+      "sha256": "61a255c463dfa89c5cb76c03b50b0670435b3b5c2f125dc5dd87f9560e46e9a1",
+      "bytes": 102072
+    },
+    {
+      "path": "build/crow-v15-release-com-velocity-grid-20261111/libmetalrobo.dylib",
+      "archive": "artifacts/crow-v15-release-com-velocity-grid-20261111/runtime.tar.gz",
+      "sha256": "03d64e005d04cc8b8b90e41b5df2d92d5a2f871d42da4da7e99cfaaa302ea6d6",
+      "bytes": 5729488
+    },
+    {
+      "path": "build/crow-v15-first-contact-load-audit-20261111/probe",
+      "archive": "artifacts/crow-v15-first-contact-load-audit-20261111/runtime.tar.gz",
+      "sha256": "1aab075bb533bdf386ae4e55c41df84d3c9e200920f1a1dc2b255abed6fc4d05",
+      "bytes": 118584
+    },
+    {
+      "path": "build/crow-v15-first-contact-load-audit-20261111/libmetalrobo.dylib",
+      "archive": "artifacts/crow-v15-first-contact-load-audit-20261111/runtime.tar.gz",
+      "sha256": "c0d2aef135fe8b20d3c7700e76b23754fa47de905bf5543e21e44168404ec8a4",
+      "bytes": 5729488
+    },
+    {
+      "path": "build/crow-v15-single-foot-release-20261111/probe",
+      "archive": "artifacts/crow-v15-single-foot-release-20261111/runtime.tar.gz",
+      "sha256": "87441262b6c97223c7431e43feecad38e5c06810bc674293e452f40b4ec1ff9c",
+      "bytes": 118376
+    },
+    {
+      "path": "build/crow-v15-single-foot-release-20261111/libmetalrobo.dylib",
+      "archive": "artifacts/crow-v15-single-foot-release-20261111/runtime.tar.gz",
+      "sha256": "c88cf3b7dbdd62bf7285b50e688be0e3a96d0b96ed290d23cd9cab700e680920",
+      "bytes": 5729488
+    },
+    {
+      "path": "build/crow-v15-passive-contact-resolution-20261111/probe",
+      "archive": "artifacts/crow-v15-passive-contact-resolution-20261111/runtime.tar.gz",
+      "sha256": "1cc89bbcc8f1543fb127f46630c519d2e3a161fb83b45dcb2252b95a90f3333c",
+      "bytes": 101144
+    },
+    {
+      "path": "build/crow-v15-passive-contact-resolution-20261111/libmetalrobo.dylib",
+      "archive": "artifacts/crow-v15-passive-contact-resolution-20261111/runtime.tar.gz",
+      "sha256": "c0d2aef135fe8b20d3c7700e76b23754fa47de905bf5543e21e44168404ec8a4",
+      "bytes": 5729488
+    }
+  ]
+}
