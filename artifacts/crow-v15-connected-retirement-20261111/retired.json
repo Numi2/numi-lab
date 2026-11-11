@@ -1,0 +1,78 @@
+{
+  "remote_commit": "4d11ce1af63d334be8b563045377c91528d7be4d",
+  "verification": "independent fetched Git restore, gzip decode, SHA-256 and open-handle checks",
+  "retired": [
+    {
+      "path": "build/crow-v15-walk-to-flight-20261111/20261126-flight.json",
+      "archive": "artifacts/crow-v15-walk-to-flight-20261111/20261126-flight.replay.json.gz",
+      "sha256": "d8b97823139abf768a1d1304187f876c0bdaad8cdc4cad837ff8a3d2214be3c1",
+      "bytes": 16509736
+    },
+    {
+      "path": "build/crow-v15-walk-to-flight-20261111/20261126-flight.tsv",
+      "archive": "artifacts/crow-v15-walk-to-flight-20261111/20261126-flight.trace.tsv.gz",
+      "sha256": "f5b294b17409b9b82c5ea38c5b94056f06d4ddc2cce84f9a168881f52a225e32",
+      "bytes": 365829
+    },
+    {
+      "path": "build/crow-v15-walk-to-flight-20261111/20261126-leg.json",
+      "archive": "artifacts/crow-v15-walk-to-flight-20261111/20261126-leg.replay.json.gz",
+      "sha256": "c32b9a6880ef58c323b8256f8139afa0607caa2451282093778a02256bbfcce2",
+      "bytes": 16524270
+    },
+    {
+      "path": "build/crow-v15-walk-to-flight-20261111/20261126-leg.tsv",
+      "archive": "artifacts/crow-v15-walk-to-flight-20261111/20261126-leg.trace.tsv.gz",
+      "sha256": "5bdf1f99f6d51828f0f9adc8fa4b7acda8f762fb6bae65122ac0fdc50a16d2a0",
+      "bytes": 365818
+    },
+    {
+      "path": "build/crow-v15-walk-to-flight-20261111/91827463-flight.json",
+      "archive": "artifacts/crow-v15-walk-to-flight-20261111/91827463-flight.replay.json.gz",
+      "sha256": "e70e5d90a948d14c6ccb9178158d8c800e9a7f94362c66088d6959332e15bd41",
+      "bytes": 16489296
+    },
+    {
+      "path": "build/crow-v15-walk-to-flight-20261111/91827463-flight.tsv",
+      "archive": "artifacts/crow-v15-walk-to-flight-20261111/91827463-flight.trace.tsv.gz",
+      "sha256": "8769e3897568264c4478b7fa4a903295249d0b53b545780052b3b9420d2ab455",
+      "bytes": 366122
+    },
+    {
+      "path": "build/crow-v15-walk-to-flight-20261111/91827463-leg.json",
+      "archive": "artifacts/crow-v15-walk-to-flight-20261111/91827463-leg.replay.json.gz",
+      "sha256": "9635ab94c427cc787f44f352543cf7724170ac793649493af4e005b027794e95",
+      "bytes": 16507057
+    },
+    {
+      "path": "build/crow-v15-walk-to-flight-20261111/91827463-leg.tsv",
+      "archive": "artifacts/crow-v15-walk-to-flight-20261111/91827463-leg.trace.tsv.gz",
+      "sha256": "acb60eab65ed8f29d0b092b65db4d8790d7ab6a1591c9227c4622921702a337b",
+      "bytes": 366138
+    },
+    {
+      "path": "build/crow-v15-walk-to-flight-20261111/91827491-flight.json",
+      "archive": "artifacts/crow-v15-walk-to-flight-20261111/91827491-flight.replay.json.gz",
+      "sha256": "3fe682172a36961ba8a68c42920628d64267e3f320734aa02046bdd04526cd80",
+      "bytes": 16474819
+    },
+    {
+      "path": "build/crow-v15-walk-to-flight-20261111/91827491-flight.tsv",
+      "archive": "artifacts/crow-v15-walk-to-flight-20261111/91827491-flight.trace.tsv.gz",
+      "sha256": "27daeb2518b8da4bc835949c1347f5717321f4feeb11dc2c128f329e96955c23",
+      "bytes": 363198
+    },
+    {
+      "path": "build/crow-v15-walk-to-flight-20261111/91827491-leg.json",
+      "archive": "artifacts/crow-v15-walk-to-flight-20261111/91827491-leg.replay.json.gz",
+      "sha256": "23962916b3ee63bbdd7fdf19004cd1da0096e840722b91ca6bf3bcdca6338aa5",
+      "bytes": 16492039
+    },
+    {
+      "path": "build/crow-v15-walk-to-flight-20261111/91827491-leg.tsv",
+      "archive": "artifacts/crow-v15-walk-to-flight-20261111/91827491-leg.trace.tsv.gz",
+      "sha256": "00b9c76356e8ee4ae72cd2707bec8b24f4cd785ad0f9ed96d192131371023052",
+      "bytes": 363229
+    }
+  ]
+}
