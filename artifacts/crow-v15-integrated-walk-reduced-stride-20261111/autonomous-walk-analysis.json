@@ -1,0 +1,398 @@
+{
+  "source": "artifacts/crow-v15-integrated-walk-reduced-stride-20261111/autonomous-20261126",
+  "replay_validation": {
+    "lane": 5,
+    "observer_to_replay_offset": 1,
+    "q_max_error": 4.982338014380971e-10,
+    "foot_toe_position_max_error_m": 4.061438923313562e-09,
+    "foot_toe_quaternion_max_error": 2.980231153247229e-08,
+    "replay_ground_z_m": 0.0
+  },
+  "rows": [
+    {
+      "lane": 0,
+      "left_bouts": [
+        [
+          228,
+          235
+        ],
+        [
+          254,
+          259
+        ],
+        [
+          280,
+          285
+        ]
+      ],
+      "right_bouts": [
+        [
+          243,
+          246
+        ],
+        [
+          267,
+          272
+        ],
+        [
+          293,
+          295
+        ]
+      ],
+      "forward_displacement_m": 0.026322227,
+      "min_foot_upward_impulse_Ns": 0.024276117221800002,
+      "intervals_below_half_nominal_weight": [
+        221,
+        225,
+        227,
+        279
+      ],
+      "both_feet_clear_over_1mm_endpoint_steps": [],
+      "no_foot_normal_intervals": [],
+      "no_foot_normal_substeps": [],
+      "nonfoot_contact_intervals": 0,
+      "max_tilt_rad": 0.030178392877940056,
+      "max_speed_m_s": 0.09944945291413454
+    },
+    {
+      "lane": 1,
+      "left_bouts": [
+        [
+          229,
+          235
+        ],
+        [
+          253,
+          260
+        ],
+        [
+          279,
+          284
+        ]
+      ],
+      "right_bouts": [
+        [
+          243,
+          245
+        ],
+        [
+          267,
+          271
+        ],
+        [
+          292,
+          296
+        ]
+      ],
+      "forward_displacement_m": 0.030612742499999998,
+      "min_foot_upward_impulse_Ns": 0.03650197885785813,
+      "intervals_below_half_nominal_weight": [
+        222
+      ],
+      "both_feet_clear_over_1mm_endpoint_steps": [],
+      "no_foot_normal_intervals": [],
+      "no_foot_normal_substeps": [],
+      "nonfoot_contact_intervals": 0,
+      "max_tilt_rad": 0.03105568065979133,
+      "max_speed_m_s": 0.11384535246292606
+    },
+    {
+      "lane": 2,
+      "left_bouts": [
+        [
+          228,
+          235
+        ],
+        [
+          254,
+          259
+        ],
+        [
+          280,
+          285
+        ]
+      ],
+      "right_bouts": [
+        [
+          243,
+          246
+        ],
+        [
+          267,
+          272
+        ],
+        [
+          293,
+          296
+        ]
+      ],
+      "forward_displacement_m": 0.02669041925,
+      "min_foot_upward_impulse_Ns": 0.035741257454999995,
+      "intervals_below_half_nominal_weight": [
+        221,
+        225,
+        279
+      ],
+      "both_feet_clear_over_1mm_endpoint_steps": [],
+      "no_foot_normal_intervals": [],
+      "no_foot_normal_substeps": [],
+      "nonfoot_contact_intervals": 0,
+      "max_tilt_rad": 0.03195384249279144,
+      "max_speed_m_s": 0.08909930797322432
+    },
+    {
+      "lane": 3,
+      "left_bouts": [
+        [
+          231,
+          234
+        ],
+        [
+          255,
+          259
+        ],
+        [
+          280,
+          285
+        ]
+      ],
+      "right_bouts": [
+        [
+          242,
+          247
+        ],
+        [
+          267,
+          271
+        ],
+        [
+          293,
+          296
+        ]
+      ],
+      "forward_displacement_m": 0.0277891523,
+      "min_foot_upward_impulse_Ns": 0.003066373456357354,
+      "intervals_below_half_nominal_weight": [
+        221,
+        225,
+        279
+      ],
+      "both_feet_clear_over_1mm_endpoint_steps": [],
+      "no_foot_normal_intervals": [],
+      "no_foot_normal_substeps": [
+        [
+          225,
+          9
+        ],
+        [
+          225,
+          10
+        ],
+        [
+          225,
+          11
+        ],
+        [
+          225,
+          12
+        ],
+        [
+          225,
+          13
+        ],
+        [
+          225,
+          14
+        ],
+        [
+          225,
+          15
+        ],
+        [
+          226,
+          0
+        ],
+        [
+          227,
+          11
+        ],
+        [
+          227,
+          12
+        ]
+      ],
+      "nonfoot_contact_intervals": 0,
+      "max_tilt_rad": 0.02883961152567026,
+      "max_speed_m_s": 0.12461252229104466
+    },
+    {
+      "lane": 4,
+      "left_bouts": [
+        [
+          230,
+          235
+        ],
+        [
+          255,
+          259
+        ],
+        [
+          280,
+          285
+        ]
+      ],
+      "right_bouts": [
+        [
+          243,
+          246
+        ],
+        [
+          267,
+          272
+        ],
+        [
+          292,
+          295
+        ]
+      ],
+      "forward_displacement_m": 0.0246780338,
+      "min_foot_upward_impulse_Ns": 0.036856017250999996,
+      "intervals_below_half_nominal_weight": [
+        221,
+        279
+      ],
+      "both_feet_clear_over_1mm_endpoint_steps": [],
+      "no_foot_normal_intervals": [],
+      "no_foot_normal_substeps": [],
+      "nonfoot_contact_intervals": 0,
+      "max_tilt_rad": 0.035600840639617735,
+      "max_speed_m_s": 0.09363514545895181
+    },
+    {
+      "lane": 5,
+      "left_bouts": [
+        [
+          228,
+          235
+        ],
+        [
+          255,
+          259
+        ],
+        [
+          280,
+          285
+        ]
+      ],
+      "right_bouts": [
+        [
+          243,
+          246
+        ],
+        [
+          267,
+          272
+        ],
+        [
+          293,
+          296
+        ]
+      ],
+      "forward_displacement_m": 0.03035059427,
+      "min_foot_upward_impulse_Ns": 0.03561046418299999,
+      "intervals_below_half_nominal_weight": [
+        279
+      ],
+      "both_feet_clear_over_1mm_endpoint_steps": [],
+      "no_foot_normal_intervals": [],
+      "no_foot_normal_substeps": [],
+      "nonfoot_contact_intervals": 0,
+      "max_tilt_rad": 0.03035389379611122,
+      "max_speed_m_s": 0.09869169780163192
+    },
+    {
+      "lane": 6,
+      "left_bouts": [
+        [
+          228,
+          235
+        ],
+        [
+          253,
+          260
+        ],
+        [
+          278,
+          285
+        ]
+      ],
+      "right_bouts": [
+        [
+          243,
+          246
+        ],
+        [
+          267,
+          272
+        ],
+        [
+          292,
+          296
+        ]
+      ],
+      "forward_displacement_m": 0.024823632100000003,
+      "min_foot_upward_impulse_Ns": 0.04458179901790053,
+      "intervals_below_half_nominal_weight": [],
+      "both_feet_clear_over_1mm_endpoint_steps": [],
+      "no_foot_normal_intervals": [],
+      "no_foot_normal_substeps": [],
+      "nonfoot_contact_intervals": 0,
+      "max_tilt_rad": 0.038116938132282646,
+      "max_speed_m_s": 0.10898579793730437
+    },
+    {
+      "lane": 7,
+      "left_bouts": [
+        [
+          228,
+          235
+        ],
+        [
+          255,
+          259
+        ],
+        [
+          280,
+          285
+        ]
+      ],
+      "right_bouts": [
+        [
+          242,
+          246
+        ],
+        [
+          267,
+          272
+        ],
+        [
+          292,
+          295
+        ]
+      ],
+      "forward_displacement_m": 0.0256791581,
+      "min_foot_upward_impulse_Ns": 0.03561241879299999,
+      "intervals_below_half_nominal_weight": [
+        221,
+        279
+      ],
+      "both_feet_clear_over_1mm_endpoint_steps": [],
+      "no_foot_normal_intervals": [],
+      "no_foot_normal_substeps": [],
+      "nonfoot_contact_intervals": 0,
+      "max_tilt_rad": 0.03256504903904573,
+      "max_speed_m_s": 0.0938254277895868
+    }
+  ],
+  "limitations": "Two-second teacher-off integrated development gait. Shape clearance sampled at control endpoints; all contact impulses summed over all configured substeps. The common ground height is taken from lane 1 replay and the same authored task, not independently replayed in every lane. Alternating bouts, slip, continuous clearance, toe speed, takeoff, landing, autonomous navigation, unseen starts and biological realism require separate tests."
+}
