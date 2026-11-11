@@ -1,0 +1,198 @@
+{
+  "remote_commit": "93b7f9544e5464731f09f379826b99486ec083b4",
+  "verification": "independent fetched Git restore, gzip decode, SHA-256 and open-handle checks",
+  "retired": [
+    {
+      "path": "build/crow-v15-leg-only-push-grid-20261111/hn50-an30.json",
+      "archive": "artifacts/crow-v15-leg-only-push-grid-20261111/hn50-an30.replay.json.gz",
+      "sha256": "eafb7f13336c94fd4d611426f8eb1546fe9a600a5c3c62aaa36ccc6b79185dc8",
+      "bytes": 9007257
+    },
+    {
+      "path": "build/crow-v15-leg-only-push-grid-20261111/hn50-an30.tsv",
+      "archive": "artifacts/crow-v15-leg-only-push-grid-20261111/hn50-an30.trace.tsv.gz",
+      "sha256": "09c0649961d521f20b00f1d2af5e35df62594875f692bee99107969b1a79cda7",
+      "bytes": 198375
+    },
+    {
+      "path": "build/crow-v15-leg-only-push-grid-20261111/hn50-an14.json",
+      "archive": "artifacts/crow-v15-leg-only-push-grid-20261111/hn50-an14.replay.json.gz",
+      "sha256": "8c4dbb05347356816c34db89f8d9a915ce00a1b7d4a8251c8fdf40f081809ff0",
+      "bytes": 9007107
+    },
+    {
+      "path": "build/crow-v15-leg-only-push-grid-20261111/hn50-an14.tsv",
+      "archive": "artifacts/crow-v15-leg-only-push-grid-20261111/hn50-an14.trace.tsv.gz",
+      "sha256": "36a34d7ddb39e92096c811d4882e018a1ec3bbc43d88457a5a3704d58f92f8d3",
+      "bytes": 198361
+    },
+    {
+      "path": "build/crow-v15-leg-only-push-grid-20261111/hn50-ap02.json",
+      "archive": "artifacts/crow-v15-leg-only-push-grid-20261111/hn50-ap02.replay.json.gz",
+      "sha256": "10f5a2b89e7196ff83ff5d6e9590532d16d5aa273955e895ba75a0ca1b8425f8",
+      "bytes": 9006464
+    },
+    {
+      "path": "build/crow-v15-leg-only-push-grid-20261111/hn50-ap02.tsv",
+      "archive": "artifacts/crow-v15-leg-only-push-grid-20261111/hn50-ap02.trace.tsv.gz",
+      "sha256": "b05b3e29ce633b4946792193953fcef9d6b768f067b38bfc4bf65bcde3a15043",
+      "bytes": 198363
+    },
+    {
+      "path": "build/crow-v15-leg-only-push-grid-20261111/hn50-ap18.json",
+      "archive": "artifacts/crow-v15-leg-only-push-grid-20261111/hn50-ap18.replay.json.gz",
+      "sha256": "8f5240fb1d1cc61a1a3c52daa53766a895c7b814c02725a12bb835045c0d43c4",
+      "bytes": 9006836
+    },
+    {
+      "path": "build/crow-v15-leg-only-push-grid-20261111/hn50-ap18.tsv",
+      "archive": "artifacts/crow-v15-leg-only-push-grid-20261111/hn50-ap18.trace.tsv.gz",
+      "sha256": "6681a82a0e7f9263000f954fe6f1a8826df996e8d93573ccf63b961c2dad9909",
+      "bytes": 198354
+    },
+    {
+      "path": "build/crow-v15-leg-only-push-grid-20261111/hn30-an30.json",
+      "archive": "artifacts/crow-v15-leg-only-push-grid-20261111/hn30-an30.replay.json.gz",
+      "sha256": "bb8ebd6a6e38289e28f7d68d5dd20fb5dab81376d3cece58001b1b065befb876",
+      "bytes": 9006307
+    },
+    {
+      "path": "build/crow-v15-leg-only-push-grid-20261111/hn30-an30.tsv",
+      "archive": "artifacts/crow-v15-leg-only-push-grid-20261111/hn30-an30.trace.tsv.gz",
+      "sha256": "5bcfd1c2ead3a48e87df35c85b49d47d66a8fa8b996c735be7a067a4e31cb4d9",
+      "bytes": 198360
+    },
+    {
+      "path": "build/crow-v15-leg-only-push-grid-20261111/hn30-an14.json",
+      "archive": "artifacts/crow-v15-leg-only-push-grid-20261111/hn30-an14.replay.json.gz",
+      "sha256": "6a6f290e316372153282ec4084d44a63f29c36167d5e27b45af2719afddeb02a",
+      "bytes": 9005866
+    },
+    {
+      "path": "build/crow-v15-leg-only-push-grid-20261111/hn30-an14.tsv",
+      "archive": "artifacts/crow-v15-leg-only-push-grid-20261111/hn30-an14.trace.tsv.gz",
+      "sha256": "f4ec779f834738992851345f3d544290cc828024f957d28fe599fe647fb13171",
+      "bytes": 198361
+    },
+    {
+      "path": "build/crow-v15-leg-only-push-grid-20261111/hn30-ap02.json",
+      "archive": "artifacts/crow-v15-leg-only-push-grid-20261111/hn30-ap02.replay.json.gz",
+      "sha256": "cbe6b7a79643c055b7c2f4946399dbb926461987d6b375c82a78ab93e819703d",
+      "bytes": 9005917
+    },
+    {
+      "path": "build/crow-v15-leg-only-push-grid-20261111/hn30-ap02.tsv",
+      "archive": "artifacts/crow-v15-leg-only-push-grid-20261111/hn30-ap02.trace.tsv.gz",
+      "sha256": "3d671c864a53153c1329938563f7553545700e792555a8a18c37259665ea5e3d",
+      "bytes": 198377
+    },
+    {
+      "path": "build/crow-v15-leg-only-push-grid-20261111/hn30-ap18.json",
+      "archive": "artifacts/crow-v15-leg-only-push-grid-20261111/hn30-ap18.replay.json.gz",
+      "sha256": "7ba1ca91223846424d0b560a156cc7f8b5e3c46cb31b6483410be26317c79738",
+      "bytes": 9006389
+    },
+    {
+      "path": "build/crow-v15-leg-only-push-grid-20261111/hn30-ap18.tsv",
+      "archive": "artifacts/crow-v15-leg-only-push-grid-20261111/hn30-ap18.trace.tsv.gz",
+      "sha256": "99d0bdce55ae47d907679c93b4488dc9aad426eb8b35fabfbc21192fd07378e0",
+      "bytes": 198350
+    },
+    {
+      "path": "build/crow-v15-leg-only-push-grid-20261111/hn10-an30.json",
+      "archive": "artifacts/crow-v15-leg-only-push-grid-20261111/hn10-an30.replay.json.gz",
+      "sha256": "b9f304c6cd7a9b1fbe76feeeee3df030ce2a6f74e82c0c7f09ca962030b86000",
+      "bytes": 9005133
+    },
+    {
+      "path": "build/crow-v15-leg-only-push-grid-20261111/hn10-an30.tsv",
+      "archive": "artifacts/crow-v15-leg-only-push-grid-20261111/hn10-an30.trace.tsv.gz",
+      "sha256": "0e96f4cd98fbe4ee3e621657eb175905c84d67369de1bcd9ae21b8a19b6a068f",
+      "bytes": 198344
+    },
+    {
+      "path": "build/crow-v15-leg-only-push-grid-20261111/hn10-an14.json",
+      "archive": "artifacts/crow-v15-leg-only-push-grid-20261111/hn10-an14.replay.json.gz",
+      "sha256": "b2fd5aace2bd2f7e3736b47654c8c60dbee69e43749b1eee6893cd7b8cd22206",
+      "bytes": 9005259
+    },
+    {
+      "path": "build/crow-v15-leg-only-push-grid-20261111/hn10-an14.tsv",
+      "archive": "artifacts/crow-v15-leg-only-push-grid-20261111/hn10-an14.trace.tsv.gz",
+      "sha256": "b1cd4655dabed98b3d6c0d5b53c6a2e489a44b619dd22397515ae8ecdbd9ef32",
+      "bytes": 198349
+    },
+    {
+      "path": "build/crow-v15-leg-only-push-grid-20261111/hn10-ap02.json",
+      "archive": "artifacts/crow-v15-leg-only-push-grid-20261111/hn10-ap02.replay.json.gz",
+      "sha256": "9295ffbaf7a4cc13a346d427a4bc0db01287e1d7ace0f8fffd45c2bc3991b50f",
+      "bytes": 9005139
+    },
+    {
+      "path": "build/crow-v15-leg-only-push-grid-20261111/hn10-ap02.tsv",
+      "archive": "artifacts/crow-v15-leg-only-push-grid-20261111/hn10-ap02.trace.tsv.gz",
+      "sha256": "26df4c3aeb7c70859183b4c3a1c6d686cf8ba34e27dc9f11eabf3246f547d482",
+      "bytes": 198358
+    },
+    {
+      "path": "build/crow-v15-leg-only-push-grid-20261111/hn10-ap18.json",
+      "archive": "artifacts/crow-v15-leg-only-push-grid-20261111/hn10-ap18.replay.json.gz",
+      "sha256": "14e793db68cf4f9d5715339443428d156cecbee7a00bdb7bc7dfce50b3ff0e93",
+      "bytes": 9005938
+    },
+    {
+      "path": "build/crow-v15-leg-only-push-grid-20261111/hn10-ap18.tsv",
+      "archive": "artifacts/crow-v15-leg-only-push-grid-20261111/hn10-ap18.trace.tsv.gz",
+      "sha256": "370aac312b7700d3e97b47d7d4213b4e56559bad00dcc90b7cd1e7e082ba0790",
+      "bytes": 198322
+    },
+    {
+      "path": "build/crow-v15-leg-only-push-grid-20261111/hp10-an30.json",
+      "archive": "artifacts/crow-v15-leg-only-push-grid-20261111/hp10-an30.replay.json.gz",
+      "sha256": "48f8fbb79acd9909677b46f6690c55f00bede41fea8fb521de4b3969f3522f6d",
+      "bytes": 9005194
+    },
+    {
+      "path": "build/crow-v15-leg-only-push-grid-20261111/hp10-an30.tsv",
+      "archive": "artifacts/crow-v15-leg-only-push-grid-20261111/hp10-an30.trace.tsv.gz",
+      "sha256": "982d00c7e0066e9b8c5e89ce53a4b8e6f140c59f9cf12234611567f88d934ff5",
+      "bytes": 198351
+    },
+    {
+      "path": "build/crow-v15-leg-only-push-grid-20261111/hp10-an14.json",
+      "archive": "artifacts/crow-v15-leg-only-push-grid-20261111/hp10-an14.replay.json.gz",
+      "sha256": "90d13e1200c4530fd96ee92dd1050d93836a9a503a7ae3f8e1d0ebff73d10327",
+      "bytes": 9005517
+    },
+    {
+      "path": "build/crow-v15-leg-only-push-grid-20261111/hp10-an14.tsv",
+      "archive": "artifacts/crow-v15-leg-only-push-grid-20261111/hp10-an14.trace.tsv.gz",
+      "sha256": "63196a1e3514890ca64f59480c5a54db42b0ea8000d840fb3f9338782c040c9b",
+      "bytes": 198374
+    },
+    {
+      "path": "build/crow-v15-leg-only-push-grid-20261111/hp10-ap02.json",
+      "archive": "artifacts/crow-v15-leg-only-push-grid-20261111/hp10-ap02.replay.json.gz",
+      "sha256": "91c01d85f345c9701b12632a9ed6d5e1c8ccb61338c8bbb6abd001b0fced2472",
+      "bytes": 9007690
+    },
+    {
+      "path": "build/crow-v15-leg-only-push-grid-20261111/hp10-ap02.tsv",
+      "archive": "artifacts/crow-v15-leg-only-push-grid-20261111/hp10-ap02.trace.tsv.gz",
+      "sha256": "02c12a1f1b145b5758ca3cda5e08a791743c4da7ec48789b7aa8fa6c0bc6a22c",
+      "bytes": 198356
+    },
+    {
+      "path": "build/crow-v15-leg-only-push-grid-20261111/hp10-ap18.json",
+      "archive": "artifacts/crow-v15-leg-only-push-grid-20261111/hp10-ap18.replay.json.gz",
+      "sha256": "bdf5468385a258f59624a1d3793c4f952b81612e5c79c423bcc544959c842c7e",
+      "bytes": 9005920
+    },
+    {
+      "path": "build/crow-v15-leg-only-push-grid-20261111/hp10-ap18.tsv",
+      "archive": "artifacts/crow-v15-leg-only-push-grid-20261111/hp10-ap18.trace.tsv.gz",
+      "sha256": "012de1e8162eff9800bb46d66863d1f5cdba5f4d47d998f6bbb8b8ffed27782a",
+      "bytes": 198317
+    }
+  ]
+}
