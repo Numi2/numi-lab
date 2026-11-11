@@ -1,0 +1,236 @@
+{
+  "crow-v15-matched-balance-grip-screen-20261111": {
+    "input_sha256": "a8bdcf83bda9611feb23ca55bb5650dff6f100721a8a5523935f3cc87fb17ed4",
+    "samples": [
+      {
+        "step": 80,
+        "toe": "crow_left_rear_toe",
+        "x_m": -0.032003,
+        "z_m": 0.00603591,
+        "sat_gap_m": -0.0002582944410222249
+      },
+      {
+        "step": 80,
+        "toe": "crow_right_rear_toe",
+        "x_m": -0.0319585,
+        "z_m": 0.00589545,
+        "sat_gap_m": -0.00036698028504780766
+      },
+      {
+        "step": 100,
+        "toe": "crow_left_rear_toe",
+        "x_m": -0.0320652,
+        "z_m": 0.00615404,
+        "sat_gap_m": -0.00014533765537783766
+      },
+      {
+        "step": 100,
+        "toe": "crow_right_rear_toe",
+        "x_m": -0.0320098,
+        "z_m": 0.00607982,
+        "sat_gap_m": -0.0002260252689741324
+      },
+      {
+        "step": 120,
+        "toe": "crow_left_rear_toe",
+        "x_m": -0.0321655,
+        "z_m": 0.00620591,
+        "sat_gap_m": -8.286300172657274e-05
+      },
+      {
+        "step": 120,
+        "toe": "crow_right_rear_toe",
+        "x_m": -0.0321644,
+        "z_m": 0.00620645,
+        "sat_gap_m": -8.318288780110455e-05
+      },
+      {
+        "step": 140,
+        "toe": "crow_left_rear_toe",
+        "x_m": -0.0320942,
+        "z_m": 0.00643555,
+        "sat_gap_m": 6.5694696127723e-05
+      },
+      {
+        "step": 140,
+        "toe": "crow_right_rear_toe",
+        "x_m": -0.032099,
+        "z_m": 0.00643643,
+        "sat_gap_m": 6.905844331225874e-05
+      },
+      {
+        "step": 160,
+        "toe": "crow_left_rear_toe",
+        "x_m": -0.0319837,
+        "z_m": 0.00674564,
+        "sat_gap_m": 0.00025215019626973617
+      },
+      {
+        "step": 160,
+        "toe": "crow_right_rear_toe",
+        "x_m": -0.0319842,
+        "z_m": 0.00674576,
+        "sat_gap_m": 0.00025252173728212285
+      },
+      {
+        "step": 180,
+        "toe": "crow_left_rear_toe",
+        "x_m": -0.0318861,
+        "z_m": 0.0071549,
+        "sat_gap_m": 0.0005292439846841246
+      },
+      {
+        "step": 180,
+        "toe": "crow_right_rear_toe",
+        "x_m": -0.0318862,
+        "z_m": 0.00715518,
+        "sat_gap_m": 0.0005295340312941946
+      },
+      {
+        "step": 200,
+        "toe": "crow_left_rear_toe",
+        "x_m": -0.0315952,
+        "z_m": 0.00760221,
+        "sat_gap_m": 0.000736425366858362
+      },
+      {
+        "step": 200,
+        "toe": "crow_right_rear_toe",
+        "x_m": -0.0316032,
+        "z_m": 0.00760415,
+        "sat_gap_m": 0.000742292387460465
+      },
+      {
+        "step": 220,
+        "toe": "crow_left_rear_toe",
+        "x_m": -0.0316905,
+        "z_m": 0.00843196,
+        "sat_gap_m": 0.0014750702200021643
+      },
+      {
+        "step": 220,
+        "toe": "crow_right_rear_toe",
+        "x_m": -0.0316918,
+        "z_m": 0.00843181,
+        "sat_gap_m": 0.001475619187500131
+      }
+    ]
+  },
+  "crow-v15-rear-grip-reacquisition-20261111": {
+    "input_sha256": "c11bd62d838bcd1e79505fa6e085fceaa654957c75341c66c65f21a7671946e4",
+    "samples": [
+      {
+        "step": 80,
+        "toe": "crow_left_rear_toe",
+        "x_m": -0.032003,
+        "z_m": 0.00603591,
+        "sat_gap_m": -0.0002582944410222249
+      },
+      {
+        "step": 80,
+        "toe": "crow_right_rear_toe",
+        "x_m": -0.0319585,
+        "z_m": 0.00589545,
+        "sat_gap_m": -0.00036698028504780766
+      },
+      {
+        "step": 100,
+        "toe": "crow_left_rear_toe",
+        "x_m": -0.0320273,
+        "z_m": 0.00614883,
+        "sat_gap_m": -0.0001691125812479724
+      },
+      {
+        "step": 100,
+        "toe": "crow_right_rear_toe",
+        "x_m": -0.031986,
+        "z_m": 0.006093,
+        "sat_gap_m": -0.00022963981554582208
+      },
+      {
+        "step": 120,
+        "toe": "crow_left_rear_toe",
+        "x_m": -0.0321445,
+        "z_m": 0.00607957,
+        "sat_gap_m": -0.00017076434340007607
+      },
+      {
+        "step": 120,
+        "toe": "crow_right_rear_toe",
+        "x_m": -0.0321195,
+        "z_m": 0.00603346,
+        "sat_gap_m": -0.0002149468702869195
+      },
+      {
+        "step": 140,
+        "toe": "crow_left_rear_toe",
+        "x_m": -0.0318899,
+        "z_m": 0.00622229,
+        "sat_gap_m": -0.00017445363505771971
+      },
+      {
+        "step": 140,
+        "toe": "crow_right_rear_toe",
+        "x_m": -0.0318669,
+        "z_m": 0.00618711,
+        "sat_gap_m": -0.0002113615059241361
+      },
+      {
+        "step": 160,
+        "toe": "crow_left_rear_toe",
+        "x_m": -0.0315649,
+        "z_m": 0.00641198,
+        "sat_gap_m": -0.00018160368476623917
+      },
+      {
+        "step": 160,
+        "toe": "crow_right_rear_toe",
+        "x_m": -0.0315604,
+        "z_m": 0.00640166,
+        "sat_gap_m": -0.0001913918899527564
+      },
+      {
+        "step": 180,
+        "toe": "crow_left_rear_toe",
+        "x_m": -0.0312354,
+        "z_m": 0.0066884,
+        "sat_gap_m": -0.00013185789881365456
+      },
+      {
+        "step": 180,
+        "toe": "crow_right_rear_toe",
+        "x_m": -0.0312343,
+        "z_m": 0.00668826,
+        "sat_gap_m": -0.00013264374013163827
+      },
+      {
+        "step": 200,
+        "toe": "crow_left_rear_toe",
+        "x_m": -0.0307667,
+        "z_m": 0.00697637,
+        "sat_gap_m": -0.00016387310086164036
+      },
+      {
+        "step": 200,
+        "toe": "crow_right_rear_toe",
+        "x_m": -0.0307702,
+        "z_m": 0.00698219,
+        "sat_gap_m": -0.00015733564809332357
+      },
+      {
+        "step": 220,
+        "toe": "crow_left_rear_toe",
+        "x_m": -0.0302575,
+        "z_m": 0.00758199,
+        "sat_gap_m": 2.4744326554936025e-05
+      },
+      {
+        "step": 220,
+        "toe": "crow_right_rear_toe",
+        "x_m": -0.0302519,
+        "z_m": 0.00757674,
+        "sat_gap_m": 1.7149640868727167e-05
+      }
+    ]
+  }
+}
