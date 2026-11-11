@@ -1,0 +1,30 @@
+{
+  "remote_commit": "1a898e97788b7cbf0954567dd5848214ececb678",
+  "verification": "independent fetched Git restore, gzip decode, SHA-256 and open-handle checks",
+  "retired": [
+    {
+      "path": "build/crow-v15-v1-load-relieved-landing-20261111/route.json",
+      "archive": "artifacts/crow-v15-v1-load-relieved-landing-20261111/route.json.gz",
+      "sha256": "6059a1a5ed90fdb1d2aa2dbf3c85ffecf8d34e51fcd2a869e7ef45f05541b382",
+      "bytes": 97062752
+    },
+    {
+      "path": "build/crow-v15-v1-load-relieved-landing-20261111/route.tsv",
+      "archive": "artifacts/crow-v15-v1-load-relieved-landing-20261111/route.tsv.gz",
+      "sha256": "0333440ca6c981c6ef03ee543b26ffda8637860718c696bfd18ec279a9ba6700",
+      "bytes": 2176728
+    },
+    {
+      "path": "build/crow-v15-v1-toe-contact-memory-20261111/route.json",
+      "archive": "artifacts/crow-v15-v1-toe-contact-memory-20261111/route.json.gz",
+      "sha256": "dbe581dc404992a15f2c3417d8a55d025ee76929a9bbbe22c93963baf3f19bd0",
+      "bytes": 97174974
+    },
+    {
+      "path": "build/crow-v15-v1-toe-contact-memory-20261111/route.tsv",
+      "archive": "artifacts/crow-v15-v1-toe-contact-memory-20261111/route.tsv.gz",
+      "sha256": "4975f825a2f04086f9b83f79d1532504e1f388fc39f12d1a6976dcc03248286a",
+      "bytes": 2175730
+    }
+  ]
+}
