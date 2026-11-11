@@ -1,0 +1,232 @@
+{
+  "rows": [
+    {
+      "lane": 0,
+      "first_state_difference": [
+        352
+      ],
+      "prefix_states_equal": true,
+      "first_contact_substep_difference": [
+        [
+          352,
+          0
+        ]
+      ],
+      "prefix_contacts_equal": true,
+      "reference_unloaded_rising_interval": 353,
+      "candidate_unloaded_rising_interval": 353,
+      "reference_foot_upward_impulse": [
+        0.7388812381900001,
+        0.75456743816
+      ],
+      "candidate_foot_upward_impulse": [
+        0.91681944465,
+        0.9312112747600001
+      ],
+      "candidate_max_nonfoot_interval_impulse": 0.0,
+      "candidate_toe_caps": [],
+      "candidate_height_step500": 1.0032295,
+      "candidate_first_episode_steps": 500
+    },
+    {
+      "lane": 1,
+      "first_state_difference": [
+        352
+      ],
+      "prefix_states_equal": true,
+      "first_contact_substep_difference": [
+        [
+          352,
+          0
+        ]
+      ],
+      "prefix_contacts_equal": true,
+      "reference_unloaded_rising_interval": 353,
+      "candidate_unloaded_rising_interval": 353,
+      "reference_foot_upward_impulse": [
+        0.73572573075,
+        0.7595485893399999
+      ],
+      "candidate_foot_upward_impulse": [
+        0.91272815606,
+        0.93386115221
+      ],
+      "candidate_max_nonfoot_interval_impulse": 0.0,
+      "candidate_toe_caps": [],
+      "candidate_height_step500": 0.995341301,
+      "candidate_first_episode_steps": 500
+    },
+    {
+      "lane": 2,
+      "first_state_difference": [
+        352
+      ],
+      "prefix_states_equal": true,
+      "first_contact_substep_difference": [
+        [
+          352,
+          0
+        ]
+      ],
+      "prefix_contacts_equal": true,
+      "reference_unloaded_rising_interval": 353,
+      "candidate_unloaded_rising_interval": 353,
+      "reference_foot_upward_impulse": [
+        0.7364771939200001,
+        0.7588269938499999
+      ],
+      "candidate_foot_upward_impulse": [
+        0.91309746067,
+        0.9335994761699999
+      ],
+      "candidate_max_nonfoot_interval_impulse": 0.0,
+      "candidate_toe_caps": [],
+      "candidate_height_step500": 1.00829852,
+      "candidate_first_episode_steps": 500
+    },
+    {
+      "lane": 3,
+      "first_state_difference": [
+        352
+      ],
+      "prefix_states_equal": true,
+      "first_contact_substep_difference": [
+        [
+          352,
+          0
+        ]
+      ],
+      "prefix_contacts_equal": true,
+      "reference_unloaded_rising_interval": 353,
+      "candidate_unloaded_rising_interval": 353,
+      "reference_foot_upward_impulse": [
+        0.7348859045000001,
+        0.75907529266
+      ],
+      "candidate_foot_upward_impulse": [
+        0.9116760693100001,
+        0.9361706938700001
+      ],
+      "candidate_max_nonfoot_interval_impulse": 0.0,
+      "candidate_toe_caps": [],
+      "candidate_height_step500": 1.02305901,
+      "candidate_first_episode_steps": 500
+    },
+    {
+      "lane": 4,
+      "first_state_difference": [
+        352
+      ],
+      "prefix_states_equal": true,
+      "first_contact_substep_difference": [
+        [
+          352,
+          0
+        ]
+      ],
+      "prefix_contacts_equal": true,
+      "reference_unloaded_rising_interval": 353,
+      "candidate_unloaded_rising_interval": 353,
+      "reference_foot_upward_impulse": [
+        0.74035164595,
+        0.7554155502899998
+      ],
+      "candidate_foot_upward_impulse": [
+        0.91640938655,
+        0.9302084837299999
+      ],
+      "candidate_max_nonfoot_interval_impulse": 0.0,
+      "candidate_toe_caps": [],
+      "candidate_height_step500": 1.02092719,
+      "candidate_first_episode_steps": 500
+    },
+    {
+      "lane": 5,
+      "first_state_difference": [
+        352
+      ],
+      "prefix_states_equal": true,
+      "first_contact_substep_difference": [
+        [
+          352,
+          0
+        ]
+      ],
+      "prefix_contacts_equal": true,
+      "reference_unloaded_rising_interval": 353,
+      "candidate_unloaded_rising_interval": 353,
+      "reference_foot_upward_impulse": [
+        0.73816764997,
+        0.75827126753
+      ],
+      "candidate_foot_upward_impulse": [
+        0.91376350629,
+        0.9323530932499999
+      ],
+      "candidate_max_nonfoot_interval_impulse": 0.0,
+      "candidate_toe_caps": [],
+      "candidate_height_step500": 1.01912785,
+      "candidate_first_episode_steps": 500
+    },
+    {
+      "lane": 6,
+      "first_state_difference": [
+        352
+      ],
+      "prefix_states_equal": true,
+      "first_contact_substep_difference": [
+        [
+          352,
+          0
+        ]
+      ],
+      "prefix_contacts_equal": true,
+      "reference_unloaded_rising_interval": 353,
+      "candidate_unloaded_rising_interval": 353,
+      "reference_foot_upward_impulse": [
+        0.73925538259,
+        0.75800456554
+      ],
+      "candidate_foot_upward_impulse": [
+        0.91404021564,
+        0.9316422398299999
+      ],
+      "candidate_max_nonfoot_interval_impulse": 0.0,
+      "candidate_toe_caps": [],
+      "candidate_height_step500": 1.00452042,
+      "candidate_first_episode_steps": 500
+    },
+    {
+      "lane": 7,
+      "first_state_difference": [
+        352
+      ],
+      "prefix_states_equal": true,
+      "first_contact_substep_difference": [
+        [
+          352,
+          0
+        ]
+      ],
+      "prefix_contacts_equal": true,
+      "reference_unloaded_rising_interval": 353,
+      "candidate_unloaded_rising_interval": 353,
+      "reference_foot_upward_impulse": [
+        0.7362645105900001,
+        0.7580290724600001
+      ],
+      "candidate_foot_upward_impulse": [
+        0.9131850837300001,
+        0.93401990567
+      ],
+      "candidate_max_nonfoot_interval_impulse": 0.0,
+      "candidate_toe_caps": [],
+      "candidate_height_step500": 0.988781333,
+      "candidate_first_episode_steps": 500
+    }
+  ],
+  "reference_errors": [],
+  "candidate_errors": [],
+  "candidate_exit": 0,
+  "limitations": "Foot impulse is summed normal vertical component over steps 340 to first unloaded interval, not isolated muscle force. No measured contact-point slip or substep wing orientation. Development seed only."
+}

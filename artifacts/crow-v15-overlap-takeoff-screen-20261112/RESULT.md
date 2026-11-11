@@ -1,0 +1,5 @@
+# Overlap takeoff: short development screen
+
+With the 7.00 s wing gate, the first q/v/action endpoint and contact-substep differences from the baseline occurred in interval 352. Both feet supplied upward ground impulse, and the last above-threshold load was at substep 4 of interval 352 in all eight used-seed lanes. From interval 348 through that sample the total upward ground impulse exceeded model body weight by 0.758–0.761 N s; the matched baseline excess was 0.395–0.399 N s. This is a force-balance difference in a coupled system, not isolated leg-muscle work and not a measured crow target. The larger impulse and its realism require investigation.
+
+No nonfoot normal impulse in the launch window, no post-step-340 toe-speed cap, no reported solver error and root heights 0.989–1.023 m at interval 500 were observed. These are short development starts only. Whether wing motion precedes release is addressed by the separate parity-checked substep observation; neither this screen nor that observation qualifies full flight, supported landing, toe release, biological realism or unused layouts. Candidate remains experimental.

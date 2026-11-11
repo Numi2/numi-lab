@@ -1,0 +1,237 @@
+{
+  "rows": [
+    {
+      "lane": 0,
+      "candidate": {
+        "last_loaded_substep": [
+          352,
+          4
+        ],
+        "duration_ms": 86.25,
+        "foot_upward_impulse_Ns": [
+          0.56632127336,
+          0.57535800799
+        ],
+        "weight_impulse_Ns": 0.38080139175000005,
+        "ground_impulse_minus_weight_Ns": 0.7608778896
+      },
+      "baseline": {
+        "last_loaded_substep": [
+          352,
+          6
+        ],
+        "duration_ms": 88.75,
+        "foot_upward_impulse_Ns": [
+          0.3883830669,
+          0.39871417139000004
+        ],
+        "weight_impulse_Ns": 0.39183911325000004,
+        "ground_impulse_minus_weight_Ns": 0.3952581250400001
+      }
+    },
+    {
+      "lane": 1,
+      "candidate": {
+        "last_loaded_substep": [
+          352,
+          4
+        ],
+        "duration_ms": 86.25,
+        "foot_upward_impulse_Ns": [
+          0.5612162519800001,
+          0.5790232298
+        ],
+        "weight_impulse_Ns": 0.38080139175000005,
+        "ground_impulse_minus_weight_Ns": 0.7594380900300001
+      },
+      "baseline": {
+        "last_loaded_substep": [
+          352,
+          6
+        ],
+        "duration_ms": 88.75,
+        "foot_upward_impulse_Ns": [
+          0.3842138266700001,
+          0.40471066693
+        ],
+        "weight_impulse_Ns": 0.39183911325000004,
+        "ground_impulse_minus_weight_Ns": 0.39708538035000013
+      }
+    },
+    {
+      "lane": 2,
+      "candidate": {
+        "last_loaded_substep": [
+          352,
+          4
+        ],
+        "duration_ms": 86.25,
+        "foot_upward_impulse_Ns": [
+          0.56330025076,
+          0.57704539699
+        ],
+        "weight_impulse_Ns": 0.38080139175000005,
+        "ground_impulse_minus_weight_Ns": 0.759544256
+      },
+      "baseline": {
+        "last_loaded_substep": [
+          352,
+          6
+        ],
+        "duration_ms": 88.75,
+        "foot_upward_impulse_Ns": [
+          0.38667998401,
+          0.4022729146700001
+        ],
+        "weight_impulse_Ns": 0.39183911325000004,
+        "ground_impulse_minus_weight_Ns": 0.39711378543000003
+      }
+    },
+    {
+      "lane": 3,
+      "candidate": {
+        "last_loaded_substep": [
+          352,
+          4
+        ],
+        "duration_ms": 86.25,
+        "foot_upward_impulse_Ns": [
+          0.56417004018,
+          0.57732536897
+        ],
+        "weight_impulse_Ns": 0.38080139175000005,
+        "ground_impulse_minus_weight_Ns": 0.7606940174
+      },
+      "baseline": {
+        "last_loaded_substep": [
+          352,
+          6
+        ],
+        "duration_ms": 88.75,
+        "foot_upward_impulse_Ns": [
+          0.38737987537,
+          0.4002299677599999
+        ],
+        "weight_impulse_Ns": 0.39183911325000004,
+        "ground_impulse_minus_weight_Ns": 0.3957707298799999
+      }
+    },
+    {
+      "lane": 4,
+      "candidate": {
+        "last_loaded_substep": [
+          352,
+          4
+        ],
+        "duration_ms": 86.25,
+        "foot_upward_impulse_Ns": [
+          0.56502020517,
+          0.57524639393
+        ],
+        "weight_impulse_Ns": 0.38080139175000005,
+        "ground_impulse_minus_weight_Ns": 0.7594652073499998
+      },
+      "baseline": {
+        "last_loaded_substep": [
+          352,
+          6
+        ],
+        "duration_ms": 88.75,
+        "foot_upward_impulse_Ns": [
+          0.38896246456999994,
+          0.40045346048999997
+        ],
+        "weight_impulse_Ns": 0.39183911325000004,
+        "ground_impulse_minus_weight_Ns": 0.3975768118099999
+      }
+    },
+    {
+      "lane": 5,
+      "candidate": {
+        "last_loaded_substep": [
+          352,
+          4
+        ],
+        "duration_ms": 86.25,
+        "foot_upward_impulse_Ns": [
+          0.56408582973,
+          0.5756810775500001
+        ],
+        "weight_impulse_Ns": 0.38080139175000005,
+        "ground_impulse_minus_weight_Ns": 0.75896551553
+      },
+      "baseline": {
+        "last_loaded_substep": [
+          352,
+          6
+        ],
+        "duration_ms": 88.75,
+        "foot_upward_impulse_Ns": [
+          0.38848997341,
+          0.40159925183000006
+        ],
+        "weight_impulse_Ns": 0.39183911325000004,
+        "ground_impulse_minus_weight_Ns": 0.39825011199
+      }
+    },
+    {
+      "lane": 6,
+      "candidate": {
+        "last_loaded_substep": [
+          352,
+          4
+        ],
+        "duration_ms": 86.25,
+        "foot_upward_impulse_Ns": [
+          0.56354156655,
+          0.57579133168
+        ],
+        "weight_impulse_Ns": 0.38080139175000005,
+        "ground_impulse_minus_weight_Ns": 0.7585315064799999
+      },
+      "baseline": {
+        "last_loaded_substep": [
+          352,
+          6
+        ],
+        "duration_ms": 88.75,
+        "foot_upward_impulse_Ns": [
+          0.38875673349999995,
+          0.40215365739000003
+        ],
+        "weight_impulse_Ns": 0.39183911325000004,
+        "ground_impulse_minus_weight_Ns": 0.3990712776399999
+      }
+    },
+    {
+      "lane": 7,
+      "candidate": {
+        "last_loaded_substep": [
+          352,
+          4
+        ],
+        "duration_ms": 86.25,
+        "foot_upward_impulse_Ns": [
+          0.5629936031,
+          0.5778601691699999
+        ],
+        "weight_impulse_Ns": 0.38080139175000005,
+        "ground_impulse_minus_weight_Ns": 0.7600523805199998
+      },
+      "baseline": {
+        "last_loaded_substep": [
+          352,
+          6
+        ],
+        "duration_ms": 88.75,
+        "foot_upward_impulse_Ns": [
+          0.38607302996,
+          0.40186933596
+        ],
+        "weight_impulse_Ns": 0.39183911325000004,
+        "ground_impulse_minus_weight_Ns": 0.39610325266999996
+      }
+    }
+  ],
+  "limits": "Window starts at interval 348; 0.45006 kg is model mass. Sum of ground vertical impulse minus weight is a force-balance diagnostic, not isolated leg muscle impulse or biological target. Wing and passive aerodynamic forces remain."
+}
