@@ -1,0 +1,11 @@
+--- a/old.cpp
++++ b/zero.cpp
+@@ -3390,7 +3390,7 @@
+       const float sign=t==3?-1.f:1.f;
+       std::string name=std::string("crow_")+(side==0?"left_":"right_")+(t==3?"rear_toe":("front_toe_"+std::to_string(t+1)));
+       MRBodyPropertiesGPU b{}; b.articulationIndex=0; b.parentBody=foot; b.inboundJoint=ji; b.motionType=MR_MOTION_DYNAMIC;
+-      b.massAndInverseMass={mass,1/mass,0,0}; crowToeDiagonal(b,ix,iy,iz); b.dampingAndSpeedLimits={.015f,.015f,30,35}; m.bodies.push_back(b); m.bodyNames.push_back(name);
++      b.massAndInverseMass={mass,1/mass,0,0}; crowToeDiagonal(b,ix,iy,iz); b.dampingAndSpeedLimits={0.f,0.f,30,35}; m.bodies.push_back(b); m.bodyNames.push_back(name);
+       MRJointDescriptorGPU j{}; j.parentBody=foot; j.childBody=bi; j.jointType=MR_JOINT_REVOLUTE; j.qOffset=qi; j.nq=1; j.vOffset=vi; j.nv=1;
+       j.axis0={0,sign,0,0}; j.parentAnchor={dx[t]-sign*hx,dy[t],0,0}; j.childAnchor={-sign*hx,0,0,0}; j.parentRotation=j.childRotation={0,0,0,1};
+       m.joints.push_back(j); m.jointNames.push_back(name+"_flex");

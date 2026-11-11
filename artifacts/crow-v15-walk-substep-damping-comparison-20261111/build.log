@@ -1,0 +1,10 @@
+/Users/n/Developer/numi-crow-rl-20261107/build/crow-v15-walk-substep-damping-comparison-20261111/old.cpp:3365:13: warning: unused function 'close' [-Wunused-function]
+ 3365 | static void close(double a, double b, const char* why) { crowToeNeed(std::abs(a-b)<=2e-7*(1+std::abs(a)),why); }
+      |             ^~~~~
+1 warning generated.
+old 9f60cd2c68458ddfef3d61a251bcd6f3a3fde4c287ef200b5de1b9ce4e14ca11
+/Users/n/Developer/numi-crow-rl-20261107/build/crow-v15-walk-substep-damping-comparison-20261111/zero.cpp:3365:13: warning: unused function 'close' [-Wunused-function]
+ 3365 | static void close(double a, double b, const char* why) { crowToeNeed(std::abs(a-b)<=2e-7*(1+std::abs(a)),why); }
+      |             ^~~~~
+1 warning generated.
+zero e17c6f2b3bc989f1645310782f848672debad29f98272cb64b8b56a72e580d14

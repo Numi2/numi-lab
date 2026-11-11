@@ -1,0 +1,47 @@
+[
+  {
+    "path": "build/bin/metalrobo_task_rollout",
+    "sha256": "5ee04a98f25f7149701bc21ede235428876e535f843366e78dea16fce6035d1d",
+    "bytes": 1081736
+  },
+  {
+    "path": "build/crow-v15-walk-substep-damping-comparison-20261111/old/libmetalrobo.dylib",
+    "sha256": "9f60cd2c68458ddfef3d61a251bcd6f3a3fde4c287ef200b5de1b9ce4e14ca11",
+    "bytes": 5764480
+  },
+  {
+    "path": "build/crow-v15-walk-substep-damping-comparison-20261111/zero/libmetalrobo.dylib",
+    "sha256": "e17c6f2b3bc989f1645310782f848672debad29f98272cb64b8b56a72e580d14",
+    "bytes": 5764480
+  },
+  {
+    "path": "build/crow-v15-head-contact-fix-20261110/landing.policypack",
+    "sha256": "bb555db89283f6ebe205d16f33310c51e111cf3ac06e58884599ad66bc2c8469",
+    "bytes": 5996436
+  },
+  {
+    "path": "build/crow-v15-head-contact-fix-20261110/route.policypack",
+    "sha256": "d964761a1f22029da1ef7af5ae9ce6c9f88f8e015f55bd2c3cf21338856c2a31",
+    "bytes": 17228690
+  },
+  {
+    "path": "build/crow-v15-walk-substep-damping-comparison-20261111/zero/landing.policypack",
+    "sha256": "5effcd11d80f3f5d4178f1634cb22462dde82b3bf23ed652076a003dbae0a28b",
+    "bytes": 5996433
+  },
+  {
+    "path": "build/crow-v15-walk-substep-damping-comparison-20261111/zero/route.policypack",
+    "sha256": "1b8ee28caf77d0a49bb485ca65fac5c23ebed3689dbf1020bd825661161d7b23",
+    "bytes": 17228687
+  },
+  {
+    "path": "build/crow-v15-toe-launch-control-20261110/control.metallib",
+    "sha256": "b30788c68acce16b1e40d4e064b6fe57a46c42ae03d0ee6b8ec2e5f2d55d4e72",
+    "bytes": 4470096
+  },
+  {
+    "path": "assets/crow_navigation_course/crow-navigation.active-head.visual-observation.json",
+    "sha256": "d19ff0f9d360b4ffc84bac6a5f3d2be048234b6c03097af7d43fe5f85b316f8f",
+    "bytes": 1566
+  }
+]
