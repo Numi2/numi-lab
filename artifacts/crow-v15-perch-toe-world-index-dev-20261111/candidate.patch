@@ -1,0 +1,11 @@
+--- a/separated.metal
++++ b/height.metal
+@@ -9355,7 +9355,7 @@
+             uint perch=MR_INVALID_INDEX;
+             for (uint ri=0u;ri<program.counts1.w;++ri) {
+                 const MRTaskRewardOperatorGPU operation=rewards[ri];
+-                if (operation.source.x==MR_TASK_REWARD_NAVIGATION_WAYPOINT_PROGRESS || operation.source.x==MR_TASK_REWARD_NAVIGATION_WAYPOINT_REACH) { perch=operation.source.z+4u; break; }
++                if (operation.source.x==MR_TASK_REWARD_NAVIGATION_WAYPOINT_PROGRESS || operation.source.x==MR_TASK_REWARD_NAVIGATION_WAYPOINT_REACH) { perch=robotEnd+operation.source.z+4u; break; }
+             }
+             bool loaded[2]={false,false};
+             if (state.navigation.z>=5.0f && perch!=MR_INVALID_INDEX) {
