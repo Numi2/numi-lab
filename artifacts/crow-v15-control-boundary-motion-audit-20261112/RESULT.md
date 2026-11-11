@@ -1,0 +1,5 @@
+# Boundary concentration in physical gait samples
+
+In the reference 2 s walking window on development seed 20261126, the mean absolute second-difference proxy for knee q at controller boundaries was 533–569 rad/s² across lanes and sides, versus 111–125 rad/s² for within-interval samples. For ankle q the corresponding ranges were 333–376 versus 33–38 rad/s². The per-lane joint distributions, signed counts, p95 and p99 values are in analysis.json. Both signs occurred. These are calculated from consecutive 1.25 ms generalized-coordinate samples, not measured torques or crow data.
+
+The result corroborates the observed boundary-locked extrema and motivates a controlled smoothing comparison; it does not establish that target updates are the sole cause. The existing controller filters action once per 20 ms interval and the physics uses the resulting position target during its substeps. Solver response, contact and changing phases can contribute. This observational screen does not qualify gait, friction, takeoff or landing.

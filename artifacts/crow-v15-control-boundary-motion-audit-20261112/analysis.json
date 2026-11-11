@@ -1,0 +1,709 @@
+{
+  "rows": [
+    {
+      "lane": 0,
+      "joint": "left_knee",
+      "boundary": {
+        "n": 99,
+        "mean_abs_rad_s2": 533.9023579798031,
+        "median_abs_rad_s2": 438.5177600000034,
+        "p95_abs_rad_s2": 1074.3526400000292,
+        "p99_abs_rad_s2": 1088.8863999999999,
+        "max_abs_rad_s2": 1090.4127999999957
+      },
+      "within": {
+        "n": 1485,
+        "mean_abs_rad_s2": 110.753251555556,
+        "median_abs_rad_s2": 27.50399999996489,
+        "p95_abs_rad_s2": 441.99039999998746,
+        "p99_abs_rad_s2": 1072.1587200000115,
+        "max_abs_rad_s2": 1093.6358400000045
+      },
+      "boundary_positive": 46,
+      "boundary_negative": 53
+    },
+    {
+      "lane": 0,
+      "joint": "left_ankle",
+      "boundary": {
+        "n": 99,
+        "mean_abs_rad_s2": 333.3853866666674,
+        "median_abs_rad_s2": 102.68224000000714,
+        "p95_abs_rad_s2": 886.1452799999902,
+        "p99_abs_rad_s2": 894.2137599999888,
+        "max_abs_rad_s2": 895.4335999999862
+      },
+      "within": {
+        "n": 1485,
+        "mean_abs_rad_s2": 32.930176000000024,
+        "median_abs_rad_s2": 9.412480000019485,
+        "p95_abs_rad_s2": 135.1168000000058,
+        "p99_abs_rad_s2": 215.48352000001714,
+        "max_abs_rad_s2": 543.7664000000275
+      },
+      "boundary_positive": 56,
+      "boundary_negative": 43
+    },
+    {
+      "lane": 0,
+      "joint": "right_knee",
+      "boundary": {
+        "n": 99,
+        "mean_abs_rad_s2": 567.8606674747479,
+        "median_abs_rad_s2": 655.4604799999807,
+        "p95_abs_rad_s2": 1075.4201600000356,
+        "p99_abs_rad_s2": 1077.1564799999567,
+        "max_abs_rad_s2": 1077.9948800000127
+      },
+      "within": {
+        "n": 1485,
+        "mean_abs_rad_s2": 124.23190496969697,
+        "median_abs_rad_s2": 38.337919999946735,
+        "p95_abs_rad_s2": 480.8627199999549,
+        "p99_abs_rad_s2": 1069.2972799999723,
+        "max_abs_rad_s2": 1098.3276799999685
+      },
+      "boundary_positive": 42,
+      "boundary_negative": 57
+    },
+    {
+      "lane": 0,
+      "joint": "right_ankle",
+      "boundary": {
+        "n": 99,
+        "mean_abs_rad_s2": 374.4445155555543,
+        "median_abs_rad_s2": 180.1305599999914,
+        "p95_abs_rad_s2": 884.8089600000009,
+        "p99_abs_rad_s2": 885.6486399999852,
+        "max_abs_rad_s2": 928.6400000000227
+      },
+      "within": {
+        "n": 1485,
+        "mean_abs_rad_s2": 36.979537454545365,
+        "median_abs_rad_s2": 14.676479999984338,
+        "p95_abs_rad_s2": 140.12415999999916,
+        "p99_abs_rad_s2": 250.66367999999173,
+        "max_abs_rad_s2": 617.2755200000068
+      },
+      "boundary_positive": 51,
+      "boundary_negative": 48
+    },
+    {
+      "lane": 1,
+      "joint": "left_knee",
+      "boundary": {
+        "n": 99,
+        "mean_abs_rad_s2": 532.7076783838343,
+        "median_abs_rad_s2": 436.9734400000169,
+        "p95_abs_rad_s2": 1073.532159999999,
+        "p99_abs_rad_s2": 1090.1452799999945,
+        "max_abs_rad_s2": 1090.6976000000057
+      },
+      "within": {
+        "n": 1485,
+        "mean_abs_rad_s2": 110.64640172390584,
+        "median_abs_rad_s2": 25.978239999986386,
+        "p95_abs_rad_s2": 441.9513600000258,
+        "p99_abs_rad_s2": 1071.4732799999638,
+        "max_abs_rad_s2": 1094.9708800000124
+      },
+      "boundary_positive": 45,
+      "boundary_negative": 54
+    },
+    {
+      "lane": 1,
+      "joint": "left_ankle",
+      "boundary": {
+        "n": 99,
+        "mean_abs_rad_s2": 333.83107878787973,
+        "median_abs_rad_s2": 99.94496000000908,
+        "p95_abs_rad_s2": 886.0204799999849,
+        "p99_abs_rad_s2": 893.8598399999975,
+        "max_abs_rad_s2": 898.6950399999748
+      },
+      "within": {
+        "n": 1485,
+        "mean_abs_rad_s2": 32.89813678114522,
+        "median_abs_rad_s2": 9.317120000016388,
+        "p95_abs_rad_s2": 135.34527999999213,
+        "p99_abs_rad_s2": 214.33855999999807,
+        "max_abs_rad_s2": 536.0032000000103
+      },
+      "boundary_positive": 56,
+      "boundary_negative": 43
+    },
+    {
+      "lane": 1,
+      "joint": "right_knee",
+      "boundary": {
+        "n": 99,
+        "mean_abs_rad_s2": 568.2958286868687,
+        "median_abs_rad_s2": 656.5478399999946,
+        "p95_abs_rad_s2": 1070.7667199999803,
+        "p99_abs_rad_s2": 1078.3961599999968,
+        "max_abs_rad_s2": 1084.747520000029
+      },
+      "within": {
+        "n": 1485,
+        "mean_abs_rad_s2": 124.22641820875441,
+        "median_abs_rad_s2": 37.65120000000621,
+        "p95_abs_rad_s2": 476.5894399999837,
+        "p99_abs_rad_s2": 1070.060159999997,
+        "max_abs_rad_s2": 1094.1311999999925
+      },
+      "boundary_positive": 42,
+      "boundary_negative": 57
+    },
+    {
+      "lane": 1,
+      "joint": "right_ankle",
+      "boundary": {
+        "n": 99,
+        "mean_abs_rad_s2": 374.14957252525136,
+        "median_abs_rad_s2": 180.0729600000217,
+        "p95_abs_rad_s2": 884.7801599999982,
+        "p99_abs_rad_s2": 885.8105600000065,
+        "max_abs_rad_s2": 931.5110399999859
+      },
+      "within": {
+        "n": 1485,
+        "mean_abs_rad_s2": 37.073811393939536,
+        "median_abs_rad_s2": 14.543359999983352,
+        "p95_abs_rad_s2": 140.06655999999396,
+        "p99_abs_rad_s2": 250.5203200000139,
+        "max_abs_rad_s2": 617.8099200000097
+      },
+      "boundary_positive": 52,
+      "boundary_negative": 47
+    },
+    {
+      "lane": 2,
+      "joint": "left_knee",
+      "boundary": {
+        "n": 99,
+        "mean_abs_rad_s2": 533.7619523232282,
+        "median_abs_rad_s2": 437.1839999999949,
+        "p95_abs_rad_s2": 1073.150080000005,
+        "p99_abs_rad_s2": 1089.5916800000193,
+        "max_abs_rad_s2": 1090.469760000019
+      },
+      "within": {
+        "n": 1485,
+        "mean_abs_rad_s2": 110.85530806734005,
+        "median_abs_rad_s2": 27.903999999949747,
+        "p95_abs_rad_s2": 441.87520000001257,
+        "p99_abs_rad_s2": 1072.159360000029,
+        "max_abs_rad_s2": 1092.9107200000487
+      },
+      "boundary_positive": 45,
+      "boundary_negative": 54
+    },
+    {
+      "lane": 2,
+      "joint": "left_ankle",
+      "boundary": {
+        "n": 99,
+        "mean_abs_rad_s2": 333.62028606060807,
+        "median_abs_rad_s2": 102.7968000000179,
+        "p95_abs_rad_s2": 886.1446400000261,
+        "p99_abs_rad_s2": 893.4310400000278,
+        "max_abs_rad_s2": 896.91135999999
+      },
+      "within": {
+        "n": 1485,
+        "mean_abs_rad_s2": 32.99390319191948,
+        "median_abs_rad_s2": 9.269760000005789,
+        "p95_abs_rad_s2": 135.28768000002245,
+        "p99_abs_rad_s2": 214.24319999999497,
+        "max_abs_rad_s2": 537.1468799999768
+      },
+      "boundary_positive": 53,
+      "boundary_negative": 46
+    },
+    {
+      "lane": 2,
+      "joint": "right_knee",
+      "boundary": {
+        "n": 99,
+        "mean_abs_rad_s2": 568.3177632323263,
+        "median_abs_rad_s2": 655.4988799999961,
+        "p95_abs_rad_s2": 1070.746880000044,
+        "p99_abs_rad_s2": 1077.2889599999758,
+        "max_abs_rad_s2": 1077.3280000000084
+      },
+      "within": {
+        "n": 1485,
+        "mean_abs_rad_s2": 124.03505993265962,
+        "median_abs_rad_s2": 39.36704000004454,
+        "p95_abs_rad_s2": 476.7603199999826,
+        "p99_abs_rad_s2": 1068.515840000046,
+        "max_abs_rad_s2": 1092.8915200000588
+      },
+      "boundary_positive": 43,
+      "boundary_negative": 56
+    },
+    {
+      "lane": 2,
+      "joint": "right_ankle",
+      "boundary": {
+        "n": 99,
+        "mean_abs_rad_s2": 375.64411474747317,
+        "median_abs_rad_s2": 180.0729600000217,
+        "p95_abs_rad_s2": 884.7814399999976,
+        "p99_abs_rad_s2": 885.6384000000083,
+        "max_abs_rad_s2": 926.4083200000073
+      },
+      "within": {
+        "n": 1485,
+        "mean_abs_rad_s2": 37.11072840404059,
+        "median_abs_rad_s2": 14.32384000001008,
+        "p95_abs_rad_s2": 140.1427199999894,
+        "p99_abs_rad_s2": 250.64448000000183,
+        "max_abs_rad_s2": 617.3414399999899
+      },
+      "boundary_positive": 50,
+      "boundary_negative": 49
+    },
+    {
+      "lane": 3,
+      "joint": "left_knee",
+      "boundary": {
+        "n": 99,
+        "mean_abs_rad_s2": 535.3755797979813,
+        "median_abs_rad_s2": 435.8284800000334,
+        "p95_abs_rad_s2": 1073.1884799999846,
+        "p99_abs_rad_s2": 1087.760640000006,
+        "max_abs_rad_s2": 1090.144639999977
+      },
+      "within": {
+        "n": 1485,
+        "mean_abs_rad_s2": 111.11071978451197,
+        "median_abs_rad_s2": 27.923200000010695,
+        "p95_abs_rad_s2": 442.0096000000129,
+        "p99_abs_rad_s2": 1071.3772800000143,
+        "max_abs_rad_s2": 1094.57024000001
+      },
+      "boundary_positive": 47,
+      "boundary_negative": 52
+    },
+    {
+      "lane": 3,
+      "joint": "left_ankle",
+      "boundary": {
+        "n": 99,
+        "mean_abs_rad_s2": 334.8207838383836,
+        "median_abs_rad_s2": 103.38752000000895,
+        "p95_abs_rad_s2": 886.2873599999865,
+        "p99_abs_rad_s2": 893.5353599999906,
+        "max_abs_rad_s2": 896.062079999993
+      },
+      "within": {
+        "n": 1485,
+        "mean_abs_rad_s2": 33.4320471919194,
+        "median_abs_rad_s2": 9.660159999995699,
+        "p95_abs_rad_s2": 135.5263999999856,
+        "p99_abs_rad_s2": 230.36992000001533,
+        "max_abs_rad_s2": 534.6105600000151
+      },
+      "boundary_positive": 52,
+      "boundary_negative": 47
+    },
+    {
+      "lane": 3,
+      "joint": "right_knee",
+      "boundary": {
+        "n": 99,
+        "mean_abs_rad_s2": 549.5757252525285,
+        "median_abs_rad_s2": 643.4630400000074,
+        "p95_abs_rad_s2": 1074.5625599999896,
+        "p99_abs_rad_s2": 1077.1558400000458,
+        "max_abs_rad_s2": 1077.995519999959
+      },
+      "within": {
+        "n": 1485,
+        "mean_abs_rad_s2": 124.20964719191925,
+        "median_abs_rad_s2": 35.68575999999268,
+        "p95_abs_rad_s2": 494.3475199999625,
+        "p99_abs_rad_s2": 1070.289919999965,
+        "max_abs_rad_s2": 1090.411520000032
+      },
+      "boundary_positive": 41,
+      "boundary_negative": 58
+    },
+    {
+      "lane": 3,
+      "joint": "right_ankle",
+      "boundary": {
+        "n": 99,
+        "mean_abs_rad_s2": 360.4195620202026,
+        "median_abs_rad_s2": 120.75455999999818,
+        "p95_abs_rad_s2": 885.0003200000067,
+        "p99_abs_rad_s2": 885.9059199999741,
+        "max_abs_rad_s2": 916.4812800000099
+      },
+      "within": {
+        "n": 1485,
+        "mean_abs_rad_s2": 37.66622642424222,
+        "median_abs_rad_s2": 13.265279999998825,
+        "p95_abs_rad_s2": 141.3254399999886,
+        "p99_abs_rad_s2": 273.8566399999875,
+        "max_abs_rad_s2": 856.9708799999986
+      },
+      "boundary_positive": 56,
+      "boundary_negative": 43
+    },
+    {
+      "lane": 4,
+      "joint": "left_knee",
+      "boundary": {
+        "n": 99,
+        "mean_abs_rad_s2": 532.8327046464658,
+        "median_abs_rad_s2": 437.3555200000112,
+        "p95_abs_rad_s2": 1073.0745599999736,
+        "p99_abs_rad_s2": 1088.7532799999633,
+        "max_abs_rad_s2": 1090.1254399999516
+      },
+      "within": {
+        "n": 1485,
+        "mean_abs_rad_s2": 110.70337077441103,
+        "median_abs_rad_s2": 26.282879999968145,
+        "p95_abs_rad_s2": 441.99039999995193,
+        "p99_abs_rad_s2": 1071.9487999999799,
+        "max_abs_rad_s2": 1094.8748800000274
+      },
+      "boundary_positive": 46,
+      "boundary_negative": 53
+    },
+    {
+      "lane": 4,
+      "joint": "left_ankle",
+      "boundary": {
+        "n": 99,
+        "mean_abs_rad_s2": 334.1431078787877,
+        "median_abs_rad_s2": 102.18687999998366,
+        "p95_abs_rad_s2": 885.7631999999959,
+        "p99_abs_rad_s2": 890.7699200000073,
+        "max_abs_rad_s2": 898.6655999999904
+      },
+      "within": {
+        "n": 1485,
+        "mean_abs_rad_s2": 32.99216506397343,
+        "median_abs_rad_s2": 9.661439999977262,
+        "p95_abs_rad_s2": 135.04960000000565,
+        "p99_abs_rad_s2": 218.3923199999782,
+        "max_abs_rad_s2": 546.4851199999821
+      },
+      "boundary_positive": 51,
+      "boundary_negative": 48
+    },
+    {
+      "lane": 4,
+      "joint": "right_knee",
+      "boundary": {
+        "n": 99,
+        "mean_abs_rad_s2": 568.3806965656577,
+        "median_abs_rad_s2": 656.5478399999946,
+        "p95_abs_rad_s2": 1070.8620800000544,
+        "p99_abs_rad_s2": 1077.3081600000367,
+        "max_abs_rad_s2": 1077.8611199999943
+      },
+      "within": {
+        "n": 1485,
+        "mean_abs_rad_s2": 124.29203480134672,
+        "median_abs_rad_s2": 37.49760000001601,
+        "p95_abs_rad_s2": 478.4396799999868,
+        "p99_abs_rad_s2": 1070.0800000000042,
+        "max_abs_rad_s2": 1091.1180800000152
+      },
+      "boundary_positive": 43,
+      "boundary_negative": 56
+    },
+    {
+      "lane": 4,
+      "joint": "right_ankle",
+      "boundary": {
+        "n": 99,
+        "mean_abs_rad_s2": 374.2624905050491,
+        "median_abs_rad_s2": 180.0639999999909,
+        "p95_abs_rad_s2": 884.9433600000011,
+        "p99_abs_rad_s2": 885.5827200000199,
+        "max_abs_rad_s2": 927.6966400000041
+      },
+      "within": {
+        "n": 1485,
+        "mean_abs_rad_s2": 37.00634160269352,
+        "median_abs_rad_s2": 14.32447999999198,
+        "p95_abs_rad_s2": 140.0563200000171,
+        "p99_abs_rad_s2": 250.63487999998912,
+        "max_abs_rad_s2": 620.3078399999916
+      },
+      "boundary_positive": 52,
+      "boundary_negative": 47
+    },
+    {
+      "lane": 5,
+      "joint": "left_knee",
+      "boundary": {
+        "n": 99,
+        "mean_abs_rad_s2": 533.9675539393908,
+        "median_abs_rad_s2": 438.04159999996983,
+        "p95_abs_rad_s2": 1073.7235200000227,
+        "p99_abs_rad_s2": 1088.0659199999698,
+        "max_abs_rad_s2": 1090.2982400000028
+      },
+      "within": {
+        "n": 1485,
+        "mean_abs_rad_s2": 110.78427367003331,
+        "median_abs_rad_s2": 26.12991999995984,
+        "p95_abs_rad_s2": 441.99039999995193,
+        "p99_abs_rad_s2": 1070.6905600000382,
+        "max_abs_rad_s2": 1092.9107200000133
+      },
+      "boundary_positive": 45,
+      "boundary_negative": 54
+    },
+    {
+      "lane": 5,
+      "joint": "left_ankle",
+      "boundary": {
+        "n": 99,
+        "mean_abs_rad_s2": 334.13913858585795,
+        "median_abs_rad_s2": 103.53983999999983,
+        "p95_abs_rad_s2": 886.1446400000083,
+        "p99_abs_rad_s2": 895.1385599999994,
+        "max_abs_rad_s2": 895.1571199999896
+      },
+      "within": {
+        "n": 1485,
+        "mean_abs_rad_s2": 33.01693543434323,
+        "median_abs_rad_s2": 9.566080000009691,
+        "p95_abs_rad_s2": 135.75615999997126,
+        "p99_abs_rad_s2": 217.08415999999175,
+        "max_abs_rad_s2": 548.4575999999919
+      },
+      "boundary_positive": 51,
+      "boundary_negative": 48
+    },
+    {
+      "lane": 5,
+      "joint": "right_knee",
+      "boundary": {
+        "n": 99,
+        "mean_abs_rad_s2": 568.8829478787876,
+        "median_abs_rad_s2": 655.4214399999836,
+        "p95_abs_rad_s2": 1070.5951999999995,
+        "p99_abs_rad_s2": 1077.6134400000003,
+        "max_abs_rad_s2": 1077.7286399999753
+      },
+      "within": {
+        "n": 1485,
+        "mean_abs_rad_s2": 123.95531894949522,
+        "median_abs_rad_s2": 37.765120000017305,
+        "p95_abs_rad_s2": 476.6265599999997,
+        "p99_abs_rad_s2": 1068.535040000036,
+        "max_abs_rad_s2": 1090.1068800000146
+      },
+      "boundary_positive": 43,
+      "boundary_negative": 56
+    },
+    {
+      "lane": 5,
+      "joint": "right_ankle",
+      "boundary": {
+        "n": 99,
+        "mean_abs_rad_s2": 374.40208808080877,
+        "median_abs_rad_s2": 180.10176000000655,
+        "p95_abs_rad_s2": 885.0291199999915,
+        "p99_abs_rad_s2": 885.7158400000031,
+        "max_abs_rad_s2": 912.4659199999918
+      },
+      "within": {
+        "n": 1485,
+        "mean_abs_rad_s2": 37.15225772390582,
+        "median_abs_rad_s2": 14.028800000005504,
+        "p95_abs_rad_s2": 140.1049599999915,
+        "p99_abs_rad_s2": 250.65407999999678,
+        "max_abs_rad_s2": 617.9424000000288
+      },
+      "boundary_positive": 52,
+      "boundary_negative": 47
+    },
+    {
+      "lane": 6,
+      "joint": "left_knee",
+      "boundary": {
+        "n": 99,
+        "mean_abs_rad_s2": 533.9012977777761,
+        "median_abs_rad_s2": 438.07936000000325,
+        "p95_abs_rad_s2": 1074.4671999999866,
+        "p99_abs_rad_s2": 1090.450560000029,
+        "max_abs_rad_s2": 1090.6790400000332
+      },
+      "within": {
+        "n": 1485,
+        "mean_abs_rad_s2": 110.7685645791243,
+        "median_abs_rad_s2": 27.599999999985414,
+        "p95_abs_rad_s2": 441.894400000038,
+        "p99_abs_rad_s2": 1071.8719999999848,
+        "max_abs_rad_s2": 1093.9219200000139
+      },
+      "boundary_positive": 46,
+      "boundary_negative": 53
+    },
+    {
+      "lane": 6,
+      "joint": "left_ankle",
+      "boundary": {
+        "n": 99,
+        "mean_abs_rad_s2": 333.66908767676637,
+        "median_abs_rad_s2": 103.95071999999672,
+        "p95_abs_rad_s2": 886.1452799999902,
+        "p99_abs_rad_s2": 893.7164800000019,
+        "max_abs_rad_s2": 896.4544000000174
+      },
+      "within": {
+        "n": 1485,
+        "mean_abs_rad_s2": 32.90386790572415,
+        "median_abs_rad_s2": 9.365120000008886,
+        "p95_abs_rad_s2": 135.14560000000841,
+        "p99_abs_rad_s2": 214.4044799999989,
+        "max_abs_rad_s2": 538.1580799999952
+      },
+      "boundary_positive": 53,
+      "boundary_negative": 46
+    },
+    {
+      "lane": 6,
+      "joint": "right_knee",
+      "boundary": {
+        "n": 99,
+        "mean_abs_rad_s2": 568.7246545454605,
+        "median_abs_rad_s2": 655.3452800000059,
+        "p95_abs_rad_s2": 1070.7091200000107,
+        "p99_abs_rad_s2": 1077.2704000000033,
+        "max_abs_rad_s2": 1077.6518399999445
+      },
+      "within": {
+        "n": 1485,
+        "mean_abs_rad_s2": 124.06611178451121,
+        "median_abs_rad_s2": 40.70335999998065,
+        "p95_abs_rad_s2": 477.4668800000015,
+        "p99_abs_rad_s2": 1069.2595200000098,
+        "max_abs_rad_s2": 1096.2297599999715
+      },
+      "boundary_positive": 41,
+      "boundary_negative": 58
+    },
+    {
+      "lane": 6,
+      "joint": "right_ankle",
+      "boundary": {
+        "n": 99,
+        "mean_abs_rad_s2": 375.5111111111095,
+        "median_abs_rad_s2": 180.063360000009,
+        "p95_abs_rad_s2": 884.9907199999762,
+        "p99_abs_rad_s2": 885.5916799999974,
+        "max_abs_rad_s2": 918.0454400000037
+      },
+      "within": {
+        "n": 1485,
+        "mean_abs_rad_s2": 37.04027323905717,
+        "median_abs_rad_s2": 14.200960000003704,
+        "p95_abs_rad_s2": 140.0659199999943,
+        "p99_abs_rad_s2": 250.58687999999663,
+        "max_abs_rad_s2": 616.4928000000102
+      },
+      "boundary_positive": 53,
+      "boundary_negative": 46
+    },
+    {
+      "lane": 7,
+      "joint": "left_knee",
+      "boundary": {
+        "n": 99,
+        "mean_abs_rad_s2": 532.7916347474726,
+        "median_abs_rad_s2": 435.3145599999664,
+        "p95_abs_rad_s2": 1072.7302399999771,
+        "p99_abs_rad_s2": 1087.1123199999743,
+        "max_abs_rad_s2": 1089.9161600000084
+      },
+      "within": {
+        "n": 1485,
+        "mean_abs_rad_s2": 111.31363555555562,
+        "median_abs_rad_s2": 29.08735999998413,
+        "p95_abs_rad_s2": 441.97119999999757,
+        "p99_abs_rad_s2": 1068.9164800000128,
+        "max_abs_rad_s2": 1095.2940800000022
+      },
+      "boundary_positive": 45,
+      "boundary_negative": 54
+    },
+    {
+      "lane": 7,
+      "joint": "left_ankle",
+      "boundary": {
+        "n": 99,
+        "mean_abs_rad_s2": 334.53587393939506,
+        "median_abs_rad_s2": 103.33120000000307,
+        "p95_abs_rad_s2": 885.9820800000051,
+        "p99_abs_rad_s2": 893.793279999997,
+        "max_abs_rad_s2": 895.3472000000139
+      },
+      "within": {
+        "n": 1485,
+        "mean_abs_rad_s2": 33.93749376430978,
+        "median_abs_rad_s2": 10.462080000017693,
+        "p95_abs_rad_s2": 135.29791999998153,
+        "p99_abs_rad_s2": 222.40575999997958,
+        "max_abs_rad_s2": 553.7894399999743
+      },
+      "boundary_positive": 54,
+      "boundary_negative": 45
+    },
+    {
+      "lane": 7,
+      "joint": "right_knee",
+      "boundary": {
+        "n": 99,
+        "mean_abs_rad_s2": 569.2379733333337,
+        "median_abs_rad_s2": 655.3081599999899,
+        "p95_abs_rad_s2": 1070.6137600000077,
+        "p99_abs_rad_s2": 1077.175679999982,
+        "max_abs_rad_s2": 1077.2704000000033
+      },
+      "within": {
+        "n": 1485,
+        "mean_abs_rad_s2": 123.67920527946087,
+        "median_abs_rad_s2": 37.441280000010124,
+        "p95_abs_rad_s2": 479.44959999998815,
+        "p99_abs_rad_s2": 1069.3158400000157,
+        "max_abs_rad_s2": 1092.0524799999853
+      },
+      "boundary_positive": 44,
+      "boundary_negative": 55
+    },
+    {
+      "lane": 7,
+      "joint": "right_ankle",
+      "boundary": {
+        "n": 99,
+        "mean_abs_rad_s2": 374.3590529292919,
+        "median_abs_rad_s2": 180.07296000000395,
+        "p95_abs_rad_s2": 885.2390399999877,
+        "p99_abs_rad_s2": 886.6975999999837,
+        "max_abs_rad_s2": 910.8646400000175
+      },
+      "within": {
+        "n": 1485,
+        "mean_abs_rad_s2": 36.97635814141409,
+        "median_abs_rad_s2": 14.08576000001105,
+        "p95_abs_rad_s2": 140.1139199999868,
+        "p99_abs_rad_s2": 250.54847999999907,
+        "max_abs_rad_s2": 622.3481599999835
+      },
+      "boundary_positive": 52,
+      "boundary_negative": 47
+    }
+  ],
+  "scope": "Second differences of logged q, baseline used development seed 20261126, steps 202-300; q sample timestep 1.25ms. Absolute distributions, not physical torque or biological stiffness."
+}
