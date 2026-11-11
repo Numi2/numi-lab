@@ -1,0 +1,3 @@
+# Front-toe preshape for initial grip acquisition
+
+All four unchanged references exactly reproduced their 500 prior states and all 16 lanes matched the audited initial shape poses. No preshape met the registered acquisition gate. One preshape on the positive-position, positive-roll start produced 118 consecutive supported opposing-grip samples but reached 0.605 mm toe/perch overlap, exceeding the 0.5 mm limit, and later lost support. Several other candidates produced larger overlaps or never acquired grip. The modification is rejected, and the initially successful original start was not preserved by these preshapes. No reserved layout was used.
