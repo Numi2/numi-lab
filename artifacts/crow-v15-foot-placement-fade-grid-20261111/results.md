@@ -1,0 +1,3 @@
+# Anticipatory foot placement fade and gain
+
+Both references exactly reproduced their first 500 saved states and all 16 initial shapes matched audited starts. No setting met the terminal continuous grip and support gate or both conditions together with the 0.5 mm overlap limit. One candidate sustained supported opposing grip for 200 samples but reached 0.804 mm overlap and had only 10 grip samples in its final 100; other candidates lost support or also exceeded the limit. The original rear-offset near miss lost continuous grip and had 0.529 mm worst overlap. These candidates are rejected. No unused layout was used.

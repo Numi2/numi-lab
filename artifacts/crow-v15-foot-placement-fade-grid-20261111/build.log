@@ -1,0 +1,6 @@
+In file included from /Users/n/Developer/numi-crow-rl-20261107/artifacts/crow-v15-foot-placement-fade-grid-20261111/perch_probe.cpp:2:
+/Users/n/Developer/numi-crow-rl-20261107/artifacts/crow-v15-foot-placement-fade-grid-20261111/toe_model.cpp:82:78: warning: non-void function does not return a value in all control paths [-Wreturn-type]
+   82 |   } catch(const std::exception& e){std::cerr<<e.what()<<std::endl;return 1;} }
+      |                                                                              ^
+1 warning generated.
+diagnostic_library_sha256 c9bcea5a2e3cd7b341766e0f9b4398f25a60b9d6671b81cd2d8badde04b247b4
