@@ -1,0 +1,1 @@
+[{'current_lane': 1, 'reference_lane': 1, 'samples': 500, 'differences': 0, 'first_differences': []}, {'current_lane': 2, 'reference_lane': 2, 'samples': 500, 'differences': 0, 'first_differences': []}, {'current_lane': 3, 'reference_lane': 16, 'samples': 500, 'differences': 0, 'first_differences': []}]
