@@ -1,0 +1,5 @@
+# Release abort latch: support improved, clearance unproven
+
+On the used development seed and layout, the modified run matched the original at every first-episode endpoint in seven lanes and through step 3574 in lane 5; only lane 5 then diverged. Lane 5 held bilateral opposing toe support for steps 3609–3800 after the aborted first release, including the final 100 intervals. Final-25 maximum root speeds were 0.00522 m/s and 0.0213 rad/s. All 16 substeps were captured with no reported capacity overflow or nonfoot perch impulse.
+
+The left foot had zero recorded normal impulse for 20 intervals while the right supported at least half nominal body weight with opposing toe normals, but the independent box-clearance audit found no qualifying 1 mm release span. Therefore physical toe release is not established. The other lanes did not achieve terminal bilateral grip; one fell and one reached only three waypoints. Initial toe speed-limit hits remained. This is not completion, general landing qualification or an unused-layout test.
