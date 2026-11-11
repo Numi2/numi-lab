@@ -1,0 +1,42 @@
+{
+  "remote_commit": "c2a148527e995395183c774e13d16551c1e1553a",
+  "verification": "independent fetched Git restore, gzip decode, SHA-256 and open-handle checks",
+  "retired": [
+    {
+      "path": "build/crow-v15-v1-slow-descent-20261111/route.json",
+      "archive": "artifacts/crow-v15-v1-slow-descent-20261111/route.json.gz",
+      "sha256": "d4eb830258de1f514c979a5bc023200083991b8ca738fead41c3d7384ed58a36",
+      "bytes": 97569501
+    },
+    {
+      "path": "build/crow-v15-v1-slow-descent-20261111/route.tsv",
+      "archive": "artifacts/crow-v15-v1-slow-descent-20261111/route.tsv.gz",
+      "sha256": "37eba8956d6aea0c6a168527cd08d2307973593de3f41965a1823c3406df9598",
+      "bytes": 2180765
+    },
+    {
+      "path": "build/crow-v15-perch-substep-observer-20261111/route.json",
+      "archive": "artifacts/crow-v15-perch-substep-observer-20261111/route.json.gz",
+      "sha256": "d4eb830258de1f514c979a5bc023200083991b8ca738fead41c3d7384ed58a36",
+      "bytes": 97569501
+    },
+    {
+      "path": "build/crow-v15-perch-substep-observer-20261111/route.tsv",
+      "archive": "artifacts/crow-v15-perch-substep-observer-20261111/route.tsv.gz",
+      "sha256": "37eba8956d6aea0c6a168527cd08d2307973593de3f41965a1823c3406df9598",
+      "bytes": 2180765
+    },
+    {
+      "path": "build/crow-v15-v1-alignment-gated-descent-20261111/route.json",
+      "archive": "artifacts/crow-v15-v1-alignment-gated-descent-20261111/route.json.gz",
+      "sha256": "7cb34b66496de7e75df4043cc256e06934189c293e449af28250e83bce7943f5",
+      "bytes": 97401293
+    },
+    {
+      "path": "build/crow-v15-v1-alignment-gated-descent-20261111/route.tsv",
+      "archive": "artifacts/crow-v15-v1-alignment-gated-descent-20261111/route.tsv.gz",
+      "sha256": "61ff7697316e4d07262426796e38cf125cce6cdfe6ff3a15b41ed1939f6338e0",
+      "bytes": 2180992
+    }
+  ]
+}
