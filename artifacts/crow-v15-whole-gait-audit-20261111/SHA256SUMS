@@ -1,6 +1,14 @@
-1feb51e863cb14942fcc4476e3e0a0fe4edbd43c3bc1184b29ff7d352c4c6775  artifacts/crow-v15-whole-gait-audit-20261111/RESULT.md
+56bfc97eb0720e1e32fa1cfadfc51d2b2e0d08fc3f9240ce4c2a4b6c69ed6167  artifacts/crow-v15-whole-gait-audit-20261111/RESULT.md
 e4e440499d23b36be8cf7c587500ef9c6c7ffb576f44793e7a8a1b08c727c3a0  artifacts/crow-v15-whole-gait-audit-20261111/audit.json
 7ebff3b08e6de9e24041f7c969ede651a5b28e121d2f6a864549ed94e6ef9047  artifacts/crow-v15-whole-gait-audit-20261111/audit.py
 6bce4562de2898856dcf54c00c05e0cc143cf20728795462503e6475c65ca8d9  artifacts/crow-v15-whole-gait-audit-20261111/input-SHA256SUMS
 caaf12a532669206374c526065e97c5bd11e6277879a3d080549f9125c59d76f  artifacts/crow-v15-whole-gait-audit-20261111/plan.md
 2777abf7e6b6c1b82dd40ae043a51b8c454123a6ca05fabb570f53de2e88850a  artifacts/crow-v15-whole-gait-audit-20261111/run.log
+9f038d5793d9c54c32b70bbcf1e0ec08a16946e89977953930e217598c97af6e  artifacts/crow-v15-whole-gait-audit-20261111/video/README.md
+1d54c42d8090c4b85ee83cb0ffdce0bc8ff6830556d2480cfeaef2083e667d97  artifacts/crow-v15-whole-gait-audit-20261111/video/baseline-audit.json
+8c5b77d345d1360a7517700a134e34c2fd3e7a3e0df245af939927523a8e80dc  artifacts/crow-v15-whole-gait-audit-20261111/video/baseline-render.log
+85753c14e093c5f5109def41f71daee6545f5747c782ccac44471d03e5afffe0  artifacts/crow-v15-whole-gait-audit-20261111/video/baseline.mp4
+3932e7782205430fdbc8c5e38199e1531721a4058450f984921ddda7a6930875  artifacts/crow-v15-whole-gait-audit-20261111/video/candidate-audit.json
+8c5b77d345d1360a7517700a134e34c2fd3e7a3e0df245af939927523a8e80dc  artifacts/crow-v15-whole-gait-audit-20261111/video/candidate-render.log
+a961a5cdbd090cab6f80e3b186de71768d314ce24e8aa7d28abd7374a3e3e559  artifacts/crow-v15-whole-gait-audit-20261111/video/candidate.mp4
+064d1612eec636d67c6381aea013e1ec876b11862f61fdf8460f3bad49662fea  artifacts/crow-v15-whole-gait-audit-20261111/video/comparison.mp4
