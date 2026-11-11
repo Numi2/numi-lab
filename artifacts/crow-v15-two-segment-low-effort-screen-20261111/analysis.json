@@ -1,0 +1,165 @@
+{
+  "observed_records": 44800,
+  "missing_count": 0,
+  "bad_count": 0,
+  "errors": [],
+  "lane_zero_difference_from_original_effort_control": 345,
+  "first_difference_from_original_effort_control": [
+    6
+  ],
+  "lanes": [
+    {
+      "lane": 0,
+      "initial_x_shift_m": 0.0,
+      "toe_flexion_cap_rad": 0.55,
+      "states": 350,
+      "support_intervals": 100,
+      "longest_supported_intervals": 52,
+      "opposed_intervals": 0,
+      "longest_supported_opposed_intervals": 0,
+      "minimum_opposed_endpoint_gap_m": null,
+      "opposed_pose_missing_steps": [],
+      "first_root_below_0_1m": 139,
+      "nonfoot_impulse_intervals": 208,
+      "first_front_activation": [
+        12,
+        73
+      ],
+      "pass": false
+    },
+    {
+      "lane": 1,
+      "initial_x_shift_m": 0.0,
+      "toe_flexion_cap_rad": 0.65,
+      "states": 350,
+      "support_intervals": 72,
+      "longest_supported_intervals": 50,
+      "opposed_intervals": 0,
+      "longest_supported_opposed_intervals": 0,
+      "minimum_opposed_endpoint_gap_m": null,
+      "opposed_pose_missing_steps": [],
+      "first_root_below_0_1m": 111,
+      "nonfoot_impulse_intervals": 237,
+      "first_front_activation": [
+        12,
+        19
+      ],
+      "pass": false
+    },
+    {
+      "lane": 2,
+      "initial_x_shift_m": 0.0,
+      "toe_flexion_cap_rad": 0.75,
+      "states": 350,
+      "support_intervals": 71,
+      "longest_supported_intervals": 49,
+      "opposed_intervals": 0,
+      "longest_supported_opposed_intervals": 0,
+      "minimum_opposed_endpoint_gap_m": null,
+      "opposed_pose_missing_steps": [],
+      "first_root_below_0_1m": 106,
+      "nonfoot_impulse_intervals": 241,
+      "first_front_activation": [
+        12,
+        19
+      ],
+      "pass": false
+    },
+    {
+      "lane": 3,
+      "initial_x_shift_m": 0.0,
+      "toe_flexion_cap_rad": 0.85,
+      "states": 350,
+      "support_intervals": 71,
+      "longest_supported_intervals": 49,
+      "opposed_intervals": 0,
+      "longest_supported_opposed_intervals": 0,
+      "minimum_opposed_endpoint_gap_m": null,
+      "opposed_pose_missing_steps": [],
+      "first_root_below_0_1m": 107,
+      "nonfoot_impulse_intervals": 241,
+      "first_front_activation": [
+        12,
+        19
+      ],
+      "pass": false
+    },
+    {
+      "lane": 4,
+      "initial_x_shift_m": 0.0,
+      "toe_flexion_cap_rad": 0.95,
+      "states": 350,
+      "support_intervals": 71,
+      "longest_supported_intervals": 49,
+      "opposed_intervals": 0,
+      "longest_supported_opposed_intervals": 0,
+      "minimum_opposed_endpoint_gap_m": null,
+      "opposed_pose_missing_steps": [],
+      "first_root_below_0_1m": 107,
+      "nonfoot_impulse_intervals": 241,
+      "first_front_activation": [
+        12,
+        19
+      ],
+      "pass": false
+    },
+    {
+      "lane": 5,
+      "initial_x_shift_m": 0.0,
+      "toe_flexion_cap_rad": 1.05,
+      "states": 350,
+      "support_intervals": 71,
+      "longest_supported_intervals": 49,
+      "opposed_intervals": 0,
+      "longest_supported_opposed_intervals": 0,
+      "minimum_opposed_endpoint_gap_m": null,
+      "opposed_pose_missing_steps": [],
+      "first_root_below_0_1m": 107,
+      "nonfoot_impulse_intervals": 241,
+      "first_front_activation": [
+        12,
+        19
+      ],
+      "pass": false
+    },
+    {
+      "lane": 6,
+      "initial_x_shift_m": 0.0,
+      "toe_flexion_cap_rad": 1.15,
+      "states": 350,
+      "support_intervals": 71,
+      "longest_supported_intervals": 49,
+      "opposed_intervals": 0,
+      "longest_supported_opposed_intervals": 0,
+      "minimum_opposed_endpoint_gap_m": null,
+      "opposed_pose_missing_steps": [],
+      "first_root_below_0_1m": 107,
+      "nonfoot_impulse_intervals": 241,
+      "first_front_activation": [
+        12,
+        19
+      ],
+      "pass": false
+    },
+    {
+      "lane": 7,
+      "initial_x_shift_m": 0.0,
+      "toe_flexion_cap_rad": 1.2,
+      "states": 350,
+      "support_intervals": 71,
+      "longest_supported_intervals": 49,
+      "opposed_intervals": 0,
+      "longest_supported_opposed_intervals": 0,
+      "minimum_opposed_endpoint_gap_m": null,
+      "opposed_pose_missing_steps": [],
+      "first_root_below_0_1m": 106,
+      "nonfoot_impulse_intervals": 241,
+      "first_front_activation": [
+        12,
+        19
+      ],
+      "pass": false
+    }
+  ],
+  "scope": "constructed development stationary starts; no flight arrival, release, continuous geometry or biological qualification"
+}
