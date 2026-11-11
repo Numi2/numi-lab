@@ -1,0 +1,3 @@
+# Higher internal toe joint damping sensitivity
+
+The .030 internal joint damping development case reduced accepted-endpoint speed-limit hits from 87 to 24, but failed the zero-hit criterion on 23 of 80 lanes. Test .060 and .120, preserving mass, collision shapes, actuator stiffness and effort limits, zero body/world damping, frozen flight controller, 16-substep solver and second-seed initial states. Rebind only the identical zero diagnostic policy if the contract changes and require no velocity-limit hits, physics or solver failures over all 80 lanes and 250 intervals. These high damping values are uncalibrated sensitivity cases and require free-flight, walking, grip, release and biological validation before any selection.
