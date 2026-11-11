@@ -1,0 +1,5 @@
+# Centre-of-mass and velocity balance screen
+
+The 16 native cases completed and the four baseline controls matched the earlier reference traces exactly through 900 ticks. No intervention achieved a robust set of starts or requested a toe release. The centre-of-mass intervention retained supported height at the roll-perturbed start and had a 50-sample opposed-support interval, but its maximum recorded toe overlap was approximately 0.883 mm and the other three starts fell. Velocity damping and the combination each retained height at one start but the required opposed-support interval or release was absent; the remaining starts fell. Brief acquisitions followed by falls are failures. Several cases had nonfoot contacts. Full measurements, including the unchanged reference and failed conditions, are in analysis.json.
+
+None of these adjustments qualifies stable grip, release, regrip or landing, and these are not actual flight arrivals or held-out trials. Toe overlap is an endpoint separating-axis estimate and is not a substitute for a converged contact solution.

@@ -1,0 +1,17 @@
+[
+  {
+    "path": "build/crow-v15-com-velocity-balance-screen-20261111/probe",
+    "sha256": "e3b64f3f13b36414a112c46b898491029f377389055d30c0020157c0a71cbd71",
+    "bytes": 102184
+  },
+  {
+    "path": "build/crow-v15-regrip-force-feedback-20261111/libmetalrobo.dylib",
+    "sha256": "befdd6d681f6ea56eae4a5cc6b4f4720e2e25db7cee8a6bfc8e6b3018ec90641",
+    "bytes": 5729488
+  },
+  {
+    "path": "build/crow-v15-alternating-foot-release-20261110/teacher.metallib",
+    "sha256": "a1fa801ac2f2ea5e557a54073b280039e5bb60422d8b5beb1cd90b2ec22c459b",
+    "bytes": 4485424
+  }
+]

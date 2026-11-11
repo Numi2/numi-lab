@@ -1,0 +1,17 @@
+control differences 0 completed 16
+mode 0 start 0 acquired True first50 727 release 777 terminalz 0.183947 nonfoot 0 gap -0.000448899577685867
+mode 0 start 1 acquired False first50 None release None terminalz -185.386 nonfoot 0 gap None
+mode 0 start 2 acquired False first50 None release None terminalz -195.27 nonfoot 0 gap None
+mode 0 start 3 acquired False first50 None release None terminalz -150.713 nonfoot 0 gap -0.0032268086399208154
+mode 1 start 0 acquired False first50 None release None terminalz -184.998 nonfoot 0 gap None
+mode 1 start 1 acquired True first50 118 release None terminalz -95.2838 nonfoot 0 gap -0.003148875190595188
+mode 1 start 2 acquired False first50 None release None terminalz -186.329 nonfoot 87 gap None
+mode 1 start 3 acquired True first50 514 release None terminalz 0.182395 nonfoot 0 gap -0.0008830332011099049
+mode 2 start 0 acquired False first50 None release None terminalz 0.182411 nonfoot 0 gap -0.002389333117856024
+mode 2 start 1 acquired True first50 160 release None terminalz -119.63 nonfoot 0 gap -0.0005208526855242368
+mode 2 start 2 acquired False first50 None release None terminalz -157.135 nonfoot 0 gap -0.0003943468737599154
+mode 2 start 3 acquired True first50 112 release None terminalz -61.4861 nonfoot 0 gap -0.0010089832298387363
+mode 3 start 0 acquired False first50 None release None terminalz -132.967 nonfoot 0 gap -0.0007066431596953401
+mode 3 start 1 acquired False first50 None release None terminalz 0.182442 nonfoot 0 gap -0.0008983585520199247
+mode 3 start 2 acquired False first50 None release None terminalz -150.134 nonfoot 0 gap -0.0004921686611165724
+mode 3 start 3 acquired False first50 None release None terminalz -106.703 nonfoot 0 gap -0.0006638520689261351
