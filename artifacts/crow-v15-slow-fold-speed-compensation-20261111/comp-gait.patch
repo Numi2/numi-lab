@@ -1,0 +1,14 @@
+--- a/reference.metal
++++ b/comp-gait.metal
+@@ -4995,6 +4995,11 @@
+             0.15f*actorLatent.z,0.975f+0.325f*actorLatent.w);
+         const bool privilegedCommand = (dispatch.sampling.w != 0u && dispatch.assistance.x < 0.5f);
+         float4 oracleCommand = privilegedCommand ? state.nutrition : actorCommand;
++        // Bounded high-level speed adjustment while the physical leg fold is active.
++        if (!privilegedCommand && fixedFlightController && state.navigation.z<4.0f) {
++            const uint seq=((state.status.w>>16u)&15u)|(((state.status.w>>28u)&7u)<<4u);
++            oracleCommand.x=min(.40f,oracleCommand.x+.05f*clamp(float(seq)/100.0f,0.0f,1.0f));
++        }
+         if (!privilegedCommand && (state.status.w & (8192u | 16384u)) != 0u) {
+             const float launchSeconds = float(state.episode.x)*dispatch.timing.x;
+             const float blend = smoothstep(7.0f,8.0f,launchSeconds);

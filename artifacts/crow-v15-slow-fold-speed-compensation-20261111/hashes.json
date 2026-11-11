@@ -1,0 +1,10 @@
+{
+  "comp-gait": {
+    "source_sha256": "09b04fd5fa22830d509320750e7058b2f26c4cf85dd860dc3e3827428678bba5",
+    "metallib_sha256": "a38e7d9a0f2173015fa7ba307abe6044593e8f5e71f75aa8cd4e97960b44dcd4"
+  },
+  "comp-flight": {
+    "source_sha256": "d617a46f6164b81b21ae14667d89dcfdf5ff055bba2b86bff75a6e5f13a4254c",
+    "metallib_sha256": "a640e308a7822ebadd41ee0ac6e8453c5a8ae627c9708b82c18751ad4fe8bf15"
+  }
+}

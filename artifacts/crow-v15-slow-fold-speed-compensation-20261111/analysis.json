@@ -1,0 +1,121 @@
+{
+  "first370_lane1_first_difference": [],
+  "failed_environment_steps": 0,
+  "self_contacts": [],
+  "lanes": [
+    {
+      "lane": 0,
+      "steps": 1600,
+      "physical_failure": false,
+      "sample_steps": [
+        1000,
+        1100,
+        1200,
+        1300,
+        1400,
+        1500
+      ],
+      "max_heading_error_rad": 0.020996074230202808,
+      "max_lateral_m_s": 0.0005744562350683035,
+      "max_speed_error_m_s": 0.19154959171482386,
+      "max_height_error_m": 0.11087122000000005,
+      "toe_cap_substeps": 0,
+      "toe_cap_substeps_after500": 0,
+      "toe_substep_records": 25616,
+      "ground_contact_samples_after400": 0,
+      "pass_screen": true
+    },
+    {
+      "lane": 1,
+      "steps": 1600,
+      "physical_failure": false,
+      "sample_steps": [
+        1000,
+        1100,
+        1200,
+        1300,
+        1400,
+        1500
+      ],
+      "max_heading_error_rad": 0.04037059199511822,
+      "max_lateral_m_s": 0.006143067484281617,
+      "max_speed_error_m_s": 0.1916888966657513,
+      "max_height_error_m": 0.11093767900000007,
+      "toe_cap_substeps": 0,
+      "toe_cap_substeps_after500": 0,
+      "toe_substep_records": 25616,
+      "ground_contact_samples_after400": 0,
+      "pass_screen": true
+    },
+    {
+      "lane": 2,
+      "steps": 1600,
+      "physical_failure": false,
+      "sample_steps": [
+        1000,
+        1100,
+        1200,
+        1300,
+        1400,
+        1500
+      ],
+      "max_heading_error_rad": 0.060050782064675234,
+      "max_lateral_m_s": 0.010583810376496729,
+      "max_speed_error_m_s": 0.18933361074802924,
+      "max_height_error_m": 0.11072721500000005,
+      "toe_cap_substeps": 0,
+      "toe_cap_substeps_after500": 0,
+      "toe_substep_records": 25616,
+      "ground_contact_samples_after400": 0,
+      "pass_screen": true
+    },
+    {
+      "lane": 3,
+      "steps": 1600,
+      "physical_failure": false,
+      "sample_steps": [
+        1000,
+        1100,
+        1200,
+        1300,
+        1400,
+        1500
+      ],
+      "max_heading_error_rad": 0.020996092437573832,
+      "max_lateral_m_s": 0.0005747458251587662,
+      "max_speed_error_m_s": 0.1902799968332392,
+      "max_height_error_m": 0.11108333999999997,
+      "toe_cap_substeps": 0,
+      "toe_cap_substeps_after500": 0,
+      "toe_substep_records": 25616,
+      "ground_contact_samples_after400": 0,
+      "pass_screen": true
+    },
+    {
+      "lane": 4,
+      "steps": 1600,
+      "physical_failure": false,
+      "sample_steps": [
+        1000,
+        1100,
+        1200,
+        1300,
+        1400,
+        1500
+      ],
+      "max_heading_error_rad": 0.020996011932521784,
+      "max_lateral_m_s": 0.0005738417389511211,
+      "max_speed_error_m_s": 0.19277780632808217,
+      "max_height_error_m": 0.110810077,
+      "toe_cap_substeps": 9,
+      "toe_cap_substeps_after500": 0,
+      "toe_substep_records": 25616,
+      "ground_contact_samples_after400": 0,
+      "pass_screen": false
+    }
+  ],
+  "substep_errors": [],
+  "intent_speed_m_s": 0.35,
+  "applied_command_m_s_during_full_fold": 0.4,
+  "scope": "Five-lane obstacle-free bounded-command diagnostic; self contacts observed only steps 380\u20131600. Heading, speed and altitude are six sampled time points per lane. Does not qualify perturbed recovery, route, supported landing or biological realism."
+}
