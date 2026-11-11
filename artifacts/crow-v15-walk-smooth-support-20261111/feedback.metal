@@ -5084,7 +5084,7 @@ kernel void mr_locomotion_task_apply_actions(
             const float seconds=float(state.episode.x)*dispatch.timing.x;
             const uint leg=(action-7u)/3u, joint=(action-7u)%3u;
             // Blend the existing swing with accepted opposite-foot load;
-            // zero below threshold and fully enabled by 0.50 N.
+            // zero below threshold and fully enabled at a reported load of 0.50.
             const float support=leg==0u ? state.nutrition.y : state.nutrition.x;
             const float begin=4.0f;
             const float carrier=sin(kTwoPi*seconds/0.50f)*(leg==0u ? 1.0f : -1.0f);
