@@ -1,0 +1,3 @@
+# Hierarchical journey flight, bounded-command development screen
+
+The earlier obstacle-free failure test selected the wrong controller path. This diagnostic uses the actual conditional hierarchical journey task and 35-body model, the 0.80 contact gait and unchanged frozen flight law. It substitutes five bounded commands for the actor to test straight, left/right turns and height targets, with the five course colliders disabled and ground active. It does not establish autonomous routing, supported landing or biological qualification. Check every first episode, accepted ground contact and toe substep speed; compare commanded and achieved heading, speed, height, and state coverage. Retain failures.

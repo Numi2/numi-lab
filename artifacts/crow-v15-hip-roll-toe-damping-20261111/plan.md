@@ -1,0 +1,3 @@
+# Toe damping screen on hip-roll body
+
+A finer substep does not by itself eliminate early toe-speed-limit hits. Test a constant implicit toe-drive damping of 0.12 on the experimental 35-body model, holding the journey gait, contact material, force limits, body and frozen flight law fixed. This damping value eliminated cap hits in an earlier 33-body development screen but changed its walk; it is an uncalibrated diagnostic, not a biological property. Rebind diagnostic policies only after recording the new contract, then measure all-substep toe speed and gait support against the existing 16-substep seed. If gait or flight handoff fails, retain the failure rather than promote it.

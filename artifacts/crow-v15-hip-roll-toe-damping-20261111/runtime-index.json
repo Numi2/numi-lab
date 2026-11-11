@@ -1,0 +1,22 @@
+[
+  {
+    "path": "build/crow-v15-hip-roll-toe-damping-20261111/libmetalrobo.dylib",
+    "sha256": "634bced197e781b291169714e7ba1c1b813c4a5d3765f7b482871c113092f22e",
+    "bytes": 5782160
+  },
+  {
+    "path": "build/crow-v15-hip-roll-toe-damping-20261111/route.policypack",
+    "sha256": "7daf6c445ec0e05cc27546cc725dfbfd5db7adf0d5038455eda6f82730dd749e",
+    "bytes": 17228698
+  },
+  {
+    "path": "build/crow-v15-hip-roll-toe-damping-20261111/landing.policypack",
+    "sha256": "bf2907d96e45291ecdf6885c11b8a749373ea163c5b658893bf4dc4865903887",
+    "bytes": 5996444
+  },
+  {
+    "path": "build/crow-v15-hip-roll-walk-launch-controls-20261111/gait-080.metallib",
+    "sha256": "e901e8ea5447e7c426ec5319a454196bccd6817eb5cc05c573539fadf4a10ce7",
+    "bytes": 4473424
+  }
+]

@@ -1,0 +1,6 @@
+{
+  "host_sha256": "8be263777cef71e3670df8d9323fddbbd3fce17f9f3699f1e308312cf0439768",
+  "shader_sha256": "cbf35652a826ddc77790abd1f53fcacf50e623628b14b854c65c71b2ff64fae9",
+  "policy_sha256": "e36c56c1cda06fb278eddb4f0fa5dff8c3eb7a764aecddeffcb7312e6c9cb97c",
+  "frozen_controller_sha256": "01bc92e4ec91c08d890da7b8691400f56490a2518d9ed47ae150bb997c65375c"
+}
