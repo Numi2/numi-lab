@@ -1,0 +1,73 @@
+{
+  "trajectory_and_existing_contact_equal": true,
+  "trajectory_differences": [],
+  "point_complete": true,
+  "kinematics_validation": {
+    "passed": true,
+    "samples": 1818,
+    "q_max_error": 4.999008151873596e-10,
+    "position_m": 3.862333012541903e-09,
+    "orientation": 2.9795251231134152e-08,
+    "linear_velocity_m_s": 4.0950490835633575e-09,
+    "angular_velocity_rad_s": 2.144900093455459e-07
+  },
+  "rows": [
+    {
+      "lane": 0,
+      "loaded_contact_samples": 773,
+      "median_tangential_m_s": 0.003285198527392358,
+      "p95_tangential_m_s": 0.041255377637595604,
+      "maximum_tangential_m_s": 0.11130201888831988
+    },
+    {
+      "lane": 1,
+      "loaded_contact_samples": 753,
+      "median_tangential_m_s": 0.0032431370599804344,
+      "p95_tangential_m_s": 0.03909008588420136,
+      "maximum_tangential_m_s": 0.11041312862407127
+    },
+    {
+      "lane": 2,
+      "loaded_contact_samples": 775,
+      "median_tangential_m_s": 0.002837253658716964,
+      "p95_tangential_m_s": 0.04115514542105369,
+      "maximum_tangential_m_s": 0.11063035525054271
+    },
+    {
+      "lane": 3,
+      "loaded_contact_samples": 770,
+      "median_tangential_m_s": 0.0032130417746403135,
+      "p95_tangential_m_s": 0.04056577262650715,
+      "maximum_tangential_m_s": 0.11046650461068146
+    },
+    {
+      "lane": 4,
+      "loaded_contact_samples": 769,
+      "median_tangential_m_s": 0.003459293358287522,
+      "p95_tangential_m_s": 0.04329468281306896,
+      "maximum_tangential_m_s": 0.11083553391674192
+    },
+    {
+      "lane": 5,
+      "loaded_contact_samples": 760,
+      "median_tangential_m_s": 0.0031374833299420354,
+      "p95_tangential_m_s": 0.03888048008043305,
+      "maximum_tangential_m_s": 0.11033056895028441
+    },
+    {
+      "lane": 6,
+      "loaded_contact_samples": 765,
+      "median_tangential_m_s": 0.003757038905608505,
+      "p95_tangential_m_s": 0.04068868168329879,
+      "maximum_tangential_m_s": 0.11006635359205505
+    },
+    {
+      "lane": 7,
+      "loaded_contact_samples": 776,
+      "median_tangential_m_s": 0.0030889696486324286,
+      "p95_tangential_m_s": 0.03869108251745123,
+      "maximum_tangential_m_s": 0.10941150583865869
+    }
+  ],
+  "limits": "Final-substep endpoint contact-point tangential speed only, weighted by contact count, not force. It does not bound slip within or between substeps. Ground is stationary; diagnostic on a selected seed, not a biological measurement."
+}

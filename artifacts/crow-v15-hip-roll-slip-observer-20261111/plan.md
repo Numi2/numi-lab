@@ -1,0 +1,3 @@
+# Contact-point gait observer on the hip-roll body
+
+The existing gait gate does not measure slip. Add the world contact point to the existing accepted final-substep contact logs without changing the solver or controller. Repeat one 0.80 gait seed and require all recorded q/v, actions and pre-existing contact values to match the uninstrumented reference before using it. Reconstruct each loaded foot or toe contact-point velocity from independent rigid-body kinematics and its logged point, check body kinematics against replay, and report tangential speed distribution. This is sampled endpoint slip, not a continuous substep bound.
