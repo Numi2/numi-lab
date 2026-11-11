@@ -1,0 +1,872 @@
+{
+  "exit": 0,
+  "reference_samples": 1600,
+  "common_samples": 1600,
+  "different_common_samples": 0,
+  "first_differences": [],
+  "hit_lane_count": 56,
+  "hit_lane_intervals": 87,
+  "late_hit_lane_count": 1,
+  "late_hit_lane_intervals": 1,
+  "hits": [
+    {
+      "step": 6,
+      "lane": 2,
+      "height_m": 0.181603357,
+      "vertical_speed_m_s": 0.0540096164,
+      "toe_indices": [
+        4,
+        6
+      ]
+    },
+    {
+      "step": 6,
+      "lane": 3,
+      "height_m": 0.180342332,
+      "vertical_speed_m_s": -0.566200316,
+      "toe_indices": [
+        0,
+        2,
+        4,
+        8,
+        10,
+        12
+      ]
+    },
+    {
+      "step": 6,
+      "lane": 4,
+      "height_m": 0.177044645,
+      "vertical_speed_m_s": -0.681014061,
+      "toe_indices": [
+        6,
+        14
+      ]
+    },
+    {
+      "step": 6,
+      "lane": 7,
+      "height_m": 0.1797764,
+      "vertical_speed_m_s": -0.830881,
+      "toe_indices": [
+        14
+      ]
+    },
+    {
+      "step": 6,
+      "lane": 11,
+      "height_m": 0.180302545,
+      "vertical_speed_m_s": -0.463738561,
+      "toe_indices": [
+        0,
+        2,
+        4,
+        8,
+        10,
+        12
+      ]
+    },
+    {
+      "step": 6,
+      "lane": 15,
+      "height_m": 0.180525243,
+      "vertical_speed_m_s": -0.844583631,
+      "toe_indices": [
+        14
+      ]
+    },
+    {
+      "step": 6,
+      "lane": 19,
+      "height_m": 0.179670691,
+      "vertical_speed_m_s": -0.194020644,
+      "toe_indices": [
+        0,
+        2,
+        4,
+        8,
+        10,
+        12
+      ]
+    },
+    {
+      "step": 6,
+      "lane": 23,
+      "height_m": 0.178979069,
+      "vertical_speed_m_s": -0.499630034,
+      "toe_indices": [
+        14
+      ]
+    },
+    {
+      "step": 6,
+      "lane": 26,
+      "height_m": 0.181827188,
+      "vertical_speed_m_s": 0.164522365,
+      "toe_indices": [
+        6
+      ]
+    },
+    {
+      "step": 6,
+      "lane": 27,
+      "height_m": 0.180665851,
+      "vertical_speed_m_s": -0.541867077,
+      "toe_indices": [
+        0,
+        2,
+        4,
+        8,
+        10,
+        12
+      ]
+    },
+    {
+      "step": 6,
+      "lane": 28,
+      "height_m": 0.177182004,
+      "vertical_speed_m_s": -0.733247757,
+      "toe_indices": [
+        6,
+        14
+      ]
+    },
+    {
+      "step": 6,
+      "lane": 31,
+      "height_m": 0.1788221,
+      "vertical_speed_m_s": -0.372222066,
+      "toe_indices": [
+        14
+      ]
+    },
+    {
+      "step": 6,
+      "lane": 35,
+      "height_m": 0.179800555,
+      "vertical_speed_m_s": -0.330322295,
+      "toe_indices": [
+        0,
+        2,
+        4,
+        8,
+        10,
+        12
+      ]
+    },
+    {
+      "step": 6,
+      "lane": 39,
+      "height_m": 0.179164976,
+      "vertical_speed_m_s": -0.602993369,
+      "toe_indices": [
+        14
+      ]
+    },
+    {
+      "step": 6,
+      "lane": 43,
+      "height_m": 0.181334302,
+      "vertical_speed_m_s": -0.585612535,
+      "toe_indices": [
+        0,
+        2,
+        4,
+        8,
+        10,
+        12
+      ]
+    },
+    {
+      "step": 6,
+      "lane": 44,
+      "height_m": 0.178219661,
+      "vertical_speed_m_s": -0.792414188,
+      "toe_indices": [
+        6,
+        14
+      ]
+    },
+    {
+      "step": 6,
+      "lane": 47,
+      "height_m": 0.179389969,
+      "vertical_speed_m_s": -0.732871234,
+      "toe_indices": [
+        14
+      ]
+    },
+    {
+      "step": 6,
+      "lane": 55,
+      "height_m": 0.178759456,
+      "vertical_speed_m_s": -0.349850535,
+      "toe_indices": [
+        14
+      ]
+    },
+    {
+      "step": 6,
+      "lane": 59,
+      "height_m": 0.179987624,
+      "vertical_speed_m_s": -0.405908406,
+      "toe_indices": [
+        0,
+        2,
+        4,
+        8,
+        10,
+        12
+      ]
+    },
+    {
+      "step": 6,
+      "lane": 63,
+      "height_m": 0.18072781,
+      "vertical_speed_m_s": -0.850680351,
+      "toe_indices": [
+        14
+      ]
+    },
+    {
+      "step": 6,
+      "lane": 67,
+      "height_m": 0.180257723,
+      "vertical_speed_m_s": -0.470207781,
+      "toe_indices": [
+        0,
+        2,
+        4,
+        8,
+        10,
+        12
+      ]
+    },
+    {
+      "step": 6,
+      "lane": 68,
+      "height_m": 0.177446321,
+      "vertical_speed_m_s": -0.758933187,
+      "toe_indices": [
+        6,
+        14
+      ]
+    },
+    {
+      "step": 6,
+      "lane": 71,
+      "height_m": 0.179412797,
+      "vertical_speed_m_s": -0.751471341,
+      "toe_indices": [
+        14
+      ]
+    },
+    {
+      "step": 6,
+      "lane": 73,
+      "height_m": 0.181588158,
+      "vertical_speed_m_s": 0.0436360016,
+      "toe_indices": [
+        8,
+        14
+      ]
+    },
+    {
+      "step": 6,
+      "lane": 75,
+      "height_m": 0.180255398,
+      "vertical_speed_m_s": -0.472607076,
+      "toe_indices": [
+        0,
+        2,
+        4,
+        8,
+        10,
+        12
+      ]
+    },
+    {
+      "step": 6,
+      "lane": 76,
+      "height_m": 0.178315535,
+      "vertical_speed_m_s": -0.791960597,
+      "toe_indices": [
+        6,
+        14
+      ]
+    },
+    {
+      "step": 6,
+      "lane": 79,
+      "height_m": 0.178676501,
+      "vertical_speed_m_s": -0.101918139,
+      "toe_indices": [
+        14
+      ]
+    },
+    {
+      "step": 9,
+      "lane": 72,
+      "height_m": 0.17752862,
+      "vertical_speed_m_s": 0.211812183,
+      "toe_indices": [
+        14
+      ]
+    },
+    {
+      "step": 13,
+      "lane": 22,
+      "height_m": 0.176956207,
+      "vertical_speed_m_s": -0.144953161,
+      "toe_indices": [
+        6,
+        14
+      ]
+    },
+    {
+      "step": 14,
+      "lane": 77,
+      "height_m": 0.176919073,
+      "vertical_speed_m_s": -0.0749196932,
+      "toe_indices": [
+        6,
+        14
+      ]
+    },
+    {
+      "step": 15,
+      "lane": 37,
+      "height_m": 0.178138882,
+      "vertical_speed_m_s": 0.559611857,
+      "toe_indices": [
+        6,
+        14
+      ]
+    },
+    {
+      "step": 15,
+      "lane": 70,
+      "height_m": 0.176933855,
+      "vertical_speed_m_s": -0.192799494,
+      "toe_indices": [
+        6,
+        14
+      ]
+    },
+    {
+      "step": 18,
+      "lane": 56,
+      "height_m": 0.17693758,
+      "vertical_speed_m_s": -0.0825674161,
+      "toe_indices": [
+        6,
+        14
+      ]
+    },
+    {
+      "step": 18,
+      "lane": 72,
+      "height_m": 0.176911056,
+      "vertical_speed_m_s": -0.027615929,
+      "toe_indices": [
+        6,
+        14
+      ]
+    },
+    {
+      "step": 18,
+      "lane": 78,
+      "height_m": 0.176987484,
+      "vertical_speed_m_s": 0.0817834884,
+      "toe_indices": [
+        6,
+        14
+      ]
+    },
+    {
+      "step": 19,
+      "lane": 5,
+      "height_m": 0.176892847,
+      "vertical_speed_m_s": -0.121789292,
+      "toe_indices": [
+        6,
+        14
+      ]
+    },
+    {
+      "step": 19,
+      "lane": 30,
+      "height_m": 0.177037895,
+      "vertical_speed_m_s": 0.09833882,
+      "toe_indices": [
+        6,
+        14
+      ]
+    },
+    {
+      "step": 20,
+      "lane": 62,
+      "height_m": 0.176865473,
+      "vertical_speed_m_s": -0.0777102336,
+      "toe_indices": [
+        6,
+        14
+      ]
+    },
+    {
+      "step": 21,
+      "lane": 37,
+      "height_m": 0.177144572,
+      "vertical_speed_m_s": -0.420268327,
+      "toe_indices": [
+        6,
+        14
+      ]
+    },
+    {
+      "step": 22,
+      "lane": 21,
+      "height_m": 0.176972404,
+      "vertical_speed_m_s": 0.128690198,
+      "toe_indices": [
+        6,
+        14
+      ]
+    },
+    {
+      "step": 23,
+      "lane": 8,
+      "height_m": 0.176865295,
+      "vertical_speed_m_s": 0.0363893583,
+      "toe_indices": [
+        6,
+        14
+      ]
+    },
+    {
+      "step": 26,
+      "lane": 14,
+      "height_m": 0.177119389,
+      "vertical_speed_m_s": 0.116491467,
+      "toe_indices": [
+        6,
+        14
+      ]
+    },
+    {
+      "step": 47,
+      "lane": 30,
+      "height_m": 0.1777592,
+      "vertical_speed_m_s": 0.280053884,
+      "toe_indices": [
+        6,
+        14
+      ]
+    },
+    {
+      "step": 49,
+      "lane": 0,
+      "height_m": 0.177594349,
+      "vertical_speed_m_s": 0.258678585,
+      "toe_indices": [
+        6,
+        14
+      ]
+    },
+    {
+      "step": 49,
+      "lane": 5,
+      "height_m": 0.177400485,
+      "vertical_speed_m_s": 0.16232878,
+      "toe_indices": [
+        6
+      ]
+    },
+    {
+      "step": 62,
+      "lane": 46,
+      "height_m": 0.177377298,
+      "vertical_speed_m_s": 0.172287285,
+      "toe_indices": [
+        6
+      ]
+    },
+    {
+      "step": 64,
+      "lane": 70,
+      "height_m": 0.177679911,
+      "vertical_speed_m_s": 0.263612032,
+      "toe_indices": [
+        14
+      ]
+    },
+    {
+      "step": 83,
+      "lane": 24,
+      "height_m": 0.176991433,
+      "vertical_speed_m_s": 0.0343519449,
+      "toe_indices": [
+        14
+      ]
+    },
+    {
+      "step": 83,
+      "lane": 54,
+      "height_m": 0.177291408,
+      "vertical_speed_m_s": 0.169487938,
+      "toe_indices": [
+        6,
+        14
+      ]
+    },
+    {
+      "step": 84,
+      "lane": 64,
+      "height_m": 0.177056372,
+      "vertical_speed_m_s": 0.0175065231,
+      "toe_indices": [
+        14
+      ]
+    },
+    {
+      "step": 88,
+      "lane": 69,
+      "height_m": 0.176935211,
+      "vertical_speed_m_s": -0.0803399235,
+      "toe_indices": [
+        6
+      ]
+    },
+    {
+      "step": 93,
+      "lane": 32,
+      "height_m": 0.17715919,
+      "vertical_speed_m_s": 0.107129037,
+      "toe_indices": [
+        14
+      ]
+    },
+    {
+      "step": 93,
+      "lane": 53,
+      "height_m": 0.177033603,
+      "vertical_speed_m_s": 0.134265468,
+      "toe_indices": [
+        6
+      ]
+    },
+    {
+      "step": 94,
+      "lane": 72,
+      "height_m": 0.177051812,
+      "vertical_speed_m_s": 0.0781541467,
+      "toe_indices": [
+        6
+      ]
+    },
+    {
+      "step": 115,
+      "lane": 34,
+      "height_m": 0.175587237,
+      "vertical_speed_m_s": 0.159552649,
+      "toe_indices": [
+        14
+      ]
+    },
+    {
+      "step": 115,
+      "lane": 38,
+      "height_m": 0.175339311,
+      "vertical_speed_m_s": 0.0595412813,
+      "toe_indices": [
+        14
+      ]
+    },
+    {
+      "step": 119,
+      "lane": 41,
+      "height_m": 0.175199971,
+      "vertical_speed_m_s": -0.0268028807,
+      "toe_indices": [
+        6
+      ]
+    },
+    {
+      "step": 120,
+      "lane": 1,
+      "height_m": 0.175514609,
+      "vertical_speed_m_s": 0.167485297,
+      "toe_indices": [
+        6,
+        14
+      ]
+    },
+    {
+      "step": 121,
+      "lane": 22,
+      "height_m": 0.17547974,
+      "vertical_speed_m_s": 0.125243366,
+      "toe_indices": [
+        6
+      ]
+    },
+    {
+      "step": 139,
+      "lane": 43,
+      "height_m": 0.175579026,
+      "vertical_speed_m_s": 0.15461567,
+      "toe_indices": [
+        6,
+        14
+      ]
+    },
+    {
+      "step": 140,
+      "lane": 41,
+      "height_m": 0.176156744,
+      "vertical_speed_m_s": 0.236290082,
+      "toe_indices": [
+        6
+      ]
+    },
+    {
+      "step": 140,
+      "lane": 70,
+      "height_m": 0.175985843,
+      "vertical_speed_m_s": 0.254690439,
+      "toe_indices": [
+        6
+      ]
+    },
+    {
+      "step": 144,
+      "lane": 45,
+      "height_m": 0.175185889,
+      "vertical_speed_m_s": -0.0149680795,
+      "toe_indices": [
+        6
+      ]
+    },
+    {
+      "step": 147,
+      "lane": 73,
+      "height_m": 0.175554916,
+      "vertical_speed_m_s": 0.153336212,
+      "toe_indices": [
+        14
+      ]
+    },
+    {
+      "step": 152,
+      "lane": 11,
+      "height_m": 0.175373405,
+      "vertical_speed_m_s": 0.131526425,
+      "toe_indices": [
+        6
+      ]
+    },
+    {
+      "step": 152,
+      "lane": 61,
+      "height_m": 0.175406575,
+      "vertical_speed_m_s": 0.101240501,
+      "toe_indices": [
+        6
+      ]
+    },
+    {
+      "step": 157,
+      "lane": 59,
+      "height_m": 0.17529498,
+      "vertical_speed_m_s": 0.0500479266,
+      "toe_indices": [
+        6
+      ]
+    },
+    {
+      "step": 165,
+      "lane": 69,
+      "height_m": 0.176842839,
+      "vertical_speed_m_s": 0.335983157,
+      "toe_indices": [
+        14
+      ]
+    },
+    {
+      "step": 171,
+      "lane": 72,
+      "height_m": 0.175505817,
+      "vertical_speed_m_s": 0.0603929795,
+      "toe_indices": [
+        6
+      ]
+    },
+    {
+      "step": 173,
+      "lane": 26,
+      "height_m": 0.175485268,
+      "vertical_speed_m_s": 0.131731346,
+      "toe_indices": [
+        14
+      ]
+    },
+    {
+      "step": 174,
+      "lane": 13,
+      "height_m": 0.175633177,
+      "vertical_speed_m_s": 0.185553789,
+      "toe_indices": [
+        6,
+        14
+      ]
+    },
+    {
+      "step": 176,
+      "lane": 5,
+      "height_m": 0.175682172,
+      "vertical_speed_m_s": 0.173592672,
+      "toe_indices": [
+        6
+      ]
+    },
+    {
+      "step": 176,
+      "lane": 29,
+      "height_m": 0.17541647,
+      "vertical_speed_m_s": 0.0725084841,
+      "toe_indices": [
+        14
+      ]
+    },
+    {
+      "step": 176,
+      "lane": 34,
+      "height_m": 0.175345957,
+      "vertical_speed_m_s": 0.111630112,
+      "toe_indices": [
+        14
+      ]
+    },
+    {
+      "step": 200,
+      "lane": 28,
+      "height_m": 0.175272316,
+      "vertical_speed_m_s": 0.0251742322,
+      "toe_indices": [
+        14
+      ]
+    },
+    {
+      "step": 201,
+      "lane": 26,
+      "height_m": 0.175206497,
+      "vertical_speed_m_s": -0.00157860457,
+      "toe_indices": [
+        14
+      ]
+    },
+    {
+      "step": 204,
+      "lane": 34,
+      "height_m": 0.176245183,
+      "vertical_speed_m_s": 0.285717994,
+      "toe_indices": [
+        6
+      ]
+    },
+    {
+      "step": 205,
+      "lane": 70,
+      "height_m": 0.176083863,
+      "vertical_speed_m_s": 0.27929014,
+      "toe_indices": [
+        14
+      ]
+    },
+    {
+      "step": 209,
+      "lane": 4,
+      "height_m": 0.175371945,
+      "vertical_speed_m_s": 0.0755793825,
+      "toe_indices": [
+        14
+      ]
+    },
+    {
+      "step": 209,
+      "lane": 41,
+      "height_m": 0.175519854,
+      "vertical_speed_m_s": 0.14501904,
+      "toe_indices": [
+        6
+      ]
+    },
+    {
+      "step": 210,
+      "lane": 56,
+      "height_m": 0.175508633,
+      "vertical_speed_m_s": 0.152491182,
+      "toe_indices": [
+        6
+      ]
+    },
+    {
+      "step": 213,
+      "lane": 56,
+      "height_m": 0.175259531,
+      "vertical_speed_m_s": 0.0531882644,
+      "toe_indices": [
+        14
+      ]
+    },
+    {
+      "step": 225,
+      "lane": 31,
+      "height_m": 0.175822973,
+      "vertical_speed_m_s": 0.241916299,
+      "toe_indices": [
+        14
+      ]
+    },
+    {
+      "step": 235,
+      "lane": 73,
+      "height_m": 0.176048949,
+      "vertical_speed_m_s": 0.28702265,
+      "toe_indices": [
+        6,
+        14
+      ]
+    },
+    {
+      "step": 239,
+      "lane": 37,
+      "height_m": 0.175407231,
+      "vertical_speed_m_s": 0.105911486,
+      "toe_indices": [
+        6
+      ]
+    },
+    {
+      "step": 249,
+      "lane": 69,
+      "height_m": 0.17559354,
+      "vertical_speed_m_s": 0.193435505,
+      "toe_indices": [
+        6,
+        14
+      ]
+    },
+    {
+      "step": 251,
+      "lane": 63,
+      "height_m": 0.176011205,
+      "vertical_speed_m_s": 0.151432753,
+      "toe_indices": [
+        14
+      ]
+    }
+  ],
+  "errors": [],
+  "scope": "accepted control-interval endpoints, not every physics substep"
+}
