@@ -1,0 +1,39 @@
+{
+  "remote": "git@github.com:Numi2/numi-lab.git",
+  "fetched_commit": "84a6ade03e340023141a8d63a439ec5e89803635",
+  "checks": [
+    {
+      "committed_compressed_file": "artifacts/crow-v15-start-perturbation-controls-20261111/single-20261126/replay.json.gz",
+      "compressed_sha256": "55227874b46e5b84c77e334f248bd9c6e808602211a68605daa29f33bbed7498",
+      "raw_duplicate": "/Users/n/Developer/numi-crow-rl-20261107/build/crow-v15-start-perturbation-controls-20261111/single-20261126-replay.json",
+      "raw_sha256": "9cf3b607e17b493ca0e0e1d14e08043b5c96890c61e6c462222e8632f7f96f94",
+      "bytes": 12164856,
+      "restore_matches": true
+    },
+    {
+      "committed_compressed_file": "artifacts/crow-v15-start-perturbation-controls-20261111/single-20261126/trace.tsv.gz",
+      "compressed_sha256": "e36d7ab7ef891796326147b2e2c9742b963431e8d63ab4b2c8af83706b02825b",
+      "raw_duplicate": "/Users/n/Developer/numi-crow-rl-20261107/build/crow-v15-start-perturbation-controls-20261111/single-20261126-trace.tsv",
+      "raw_sha256": "9323e5f910ba07ae1497423dc7362cfb45aeb10c3d2e8d9efede6874ad786b33",
+      "bytes": 265934,
+      "restore_matches": true
+    },
+    {
+      "committed_compressed_file": "artifacts/crow-v15-start-perturbation-controls-20261111/none-20261126/replay.json.gz",
+      "compressed_sha256": "a16dcc735215cbf3db5ac4bbf0863faf00c81e5627af4c3f57f9bad1fa5d5e03",
+      "raw_duplicate": "/Users/n/Developer/numi-crow-rl-20261107/build/crow-v15-start-perturbation-controls-20261111/none-20261126-replay.json",
+      "raw_sha256": "a9a4174be7948fc5b61d0c560d274c5539ea926ab1fd8fafd8c93247db09076c",
+      "bytes": 12282140,
+      "restore_matches": true
+    },
+    {
+      "committed_compressed_file": "artifacts/crow-v15-start-perturbation-controls-20261111/none-20261126/trace.tsv.gz",
+      "compressed_sha256": "4dd1f4149cfafde5056cabb293aecd9a23855c3451c89ca70a5155c8723c1bf4",
+      "raw_duplicate": "/Users/n/Developer/numi-crow-rl-20261107/build/crow-v15-start-perturbation-controls-20261111/none-20261126-trace.tsv",
+      "raw_sha256": "7d87962747dbcea10475c1d5b73e5168812d6954188d3baeb592fcc26046bf0c",
+      "bytes": 266015,
+      "restore_matches": true
+    }
+  ],
+  "scope": "Fetched into an independent filtered clone from GitHub; verified committed manifest bytes and decompressed payload against existing build outputs."
+}

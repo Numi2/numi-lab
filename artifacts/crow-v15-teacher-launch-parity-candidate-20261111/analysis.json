@@ -1,0 +1,72 @@
+{
+  "lanes": [
+    {
+      "lane": 0,
+      "missing": [],
+      "teacher_off_first_difference": null,
+      "teacher_off_difference_count": 0,
+      "candidate_off_reference_first_difference": null,
+      "candidate_off_reference_difference_count": 0
+    },
+    {
+      "lane": 1,
+      "missing": [],
+      "teacher_off_first_difference": null,
+      "teacher_off_difference_count": 0,
+      "candidate_off_reference_first_difference": null,
+      "candidate_off_reference_difference_count": 0
+    },
+    {
+      "lane": 2,
+      "missing": [],
+      "teacher_off_first_difference": null,
+      "teacher_off_difference_count": 0,
+      "candidate_off_reference_first_difference": null,
+      "candidate_off_reference_difference_count": 0
+    },
+    {
+      "lane": 3,
+      "missing": [],
+      "teacher_off_first_difference": null,
+      "teacher_off_difference_count": 0,
+      "candidate_off_reference_first_difference": null,
+      "candidate_off_reference_difference_count": 0
+    },
+    {
+      "lane": 4,
+      "missing": [],
+      "teacher_off_first_difference": null,
+      "teacher_off_difference_count": 0,
+      "candidate_off_reference_first_difference": null,
+      "candidate_off_reference_difference_count": 0
+    },
+    {
+      "lane": 5,
+      "missing": [],
+      "teacher_off_first_difference": null,
+      "teacher_off_difference_count": 0,
+      "candidate_off_reference_first_difference": null,
+      "candidate_off_reference_difference_count": 0
+    },
+    {
+      "lane": 6,
+      "missing": [],
+      "teacher_off_first_difference": null,
+      "teacher_off_difference_count": 0,
+      "candidate_off_reference_first_difference": null,
+      "candidate_off_reference_difference_count": 0
+    },
+    {
+      "lane": 7,
+      "missing": [],
+      "teacher_off_first_difference": null,
+      "teacher_off_difference_count": 0,
+      "candidate_off_reference_first_difference": null,
+      "candidate_off_reference_difference_count": 0
+    }
+  ],
+  "replay_lane": 1,
+  "replay_q_v_observation_action_first_difference": null,
+  "replay_difference_count": 0,
+  "scope": "Pre-handoff samples only; policy outputs are not low-level actuator targets. Replay comparison lane 1 only. No claim for later teacher behavior or landing."
+}
