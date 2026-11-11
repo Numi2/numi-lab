@@ -33,17 +33,18 @@ def longest(a):
  return best
 rows=[]
 for e in range(2):
- trigger=next((t for t in range(1,351) if events.get((e,t),{}).get('release')),None);finish=next((t for t in range(1,351) if events.get((e,t),{}).get('finished')),None);qual=[];grip=[];maxclear=-float('inf');fall=None;peak_right_up=0.;nonfoot=0;missingposes=[]
+ sensor_errors=[];trigger=next((t for t in range(1,351) if events.get((e,t),{}).get('release')),None);finish=next((t for t in range(1,351) if events.get((e,t),{}).get('finished')),None);qual=[];grip=[];maxclear=-float('inf');fall=None;peak_right_up=0.;nonfoot=0;missingposes=[]
  for t in range(1,351):
   x=state.get((e,t));p=pose.get((e,t),{});v=by[e,t];release=trigger is not None and t>=trigger
   if not x:qual.append(False);grip.append(False);continue
   q=x['q'];u=x['v'];tilt=math.acos(max(-1.,min(1.,1.-2*(q[3]**2+q[4]**2))));speed=math.sqrt(sum(z*z for z in u[:3]));names=[n for n in p if n.startswith('crow_left_') and 'toe' in n];has=len(names)==8 and 'crow_left_foot' in p
   if release and not has:missingposes.append(t)
   clear=min([gap(p[n],[.009,.0025,.0092]) for n in names]+([gap(p['crow_left_foot'],[.01,.01725,.0092])] if 'crow_left_foot' in p else [])) if has else -float('inf')
+  if has and (e,t) in events:sensor_errors.append(abs(clear-events[e,t]['sensor_clearance']))
   if release:maxclear=max(maxclear,clear)
   rightopp=sum(v[21+8+i] for i in range(6))>=.0002 and sum(v[21+8+i] for i in (6,7))<=-.0002
   ok=release and has and clear>=.001 and abs(v[2])<=1e-7 and v[1]>=.5*.45004*9.81*.02 and rightopp and abs(v[4])<=1e-7 and tilt<=.35 and speed<=.12
   qual.append(ok);leftopp=sum(v[21+i] for i in range(6))>=.0002 and sum(v[21+i] for i in (6,7))<=-.0002;grip.append(finish is not None and t>=finish and min(v[0],v[1])>.0002 and v[0]+v[1]>=.5*.45004*9.81*.02 and leftopp and rightopp and abs(v[4])<=1e-7 and tilt<=.35 and speed<=.12);peak_right_up=max(peak_right_up,v[1]);nonfoot+=abs(v[4])>1e-7
   if fall is None and q[2]<.1:fall=t
- rows.append({'states_observed':sum((e,t) in state for t in range(1,351)),'lane':e,'knee_target_offset_rad':[-.15,-.15][e],'initial_x_shift_m':.002 if e%2 else 0.,'release_trigger_step':trigger,'return_step':finish,'terminal_100_bilateral_supported_grip':all(grip[-100:]),'longest_qualified_release_intervals':longest(qual),'peak_minimum_left_clearance_m':maxclear if maxclear!=-float('inf') else None,'maximum_right_upward_impulse_per_interval':peak_right_up,'nonfoot_impulse_intervals':nonfoot,'first_root_below_0_1m':fall,'missing_pose_steps':missingposes,'pass':trigger is not None and finish is not None and longest(qual)>=10 and all(grip[-100:]) and fall is None and not nonfoot and not missingposes and all((e,t) in state for t in range(1,351)) and not errors})
+ rows.append({'states_observed':sum((e,t) in state for t in range(1,351)),'lane':e,'knee_target_offset_rad':[-.15,-.15][e],'initial_x_shift_m':.002 if e%2 else 0.,'sensor_clearance_max_abs_error_m':max(sensor_errors) if sensor_errors else None,'release_trigger_step':trigger,'return_step':finish,'terminal_100_bilateral_supported_grip':all(grip[-100:]),'longest_qualified_release_intervals':longest(qual),'peak_minimum_left_clearance_m':maxclear if maxclear!=-float('inf') else None,'maximum_right_upward_impulse_per_interval':peak_right_up,'nonfoot_impulse_intervals':nonfoot,'first_root_below_0_1m':fall,'missing_pose_steps':missingposes,'pass':len(sensor_errors)==350 and max(sensor_errors)<=3e-6 and trigger is not None and finish is not None and longest(qual)>=10 and all(grip[-100:]) and fall is None and not nonfoot and not missingposes and all((e,t) in state for t in range(1,351)) and not errors})
 out={'lanes':rows,'missing_substeps':len(missing),'bad_substeps':len(bad),'errors':errors,'scope':'constructed stationary grip-to-release development test'};(A/'analysis.json').write_text(json.dumps(out,indent=2)+'\n');print(json.dumps(out,indent=2))
