@@ -1,0 +1,1 @@
+The first 80-lane failure reports `control_step=0` within a one-step submission, not necessarily the first step of the overall episode. All tested batch sizes completed two steps. The absolute failure time and cause remain unresolved; this observation supersedes the plan's interpretation of the original error.
