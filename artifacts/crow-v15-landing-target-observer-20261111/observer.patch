@@ -1,0 +1,33 @@
+--- a/reference.mm
++++ b/target-observer.mm
+@@ -22373,6 +22373,15 @@
+                 residentData->stateArenaGeneration =
+                     selectedState->stateArenaGeneration;
+             }
++            id<MTLBuffer> crowTargetCopy = nil;
++            if (crowTraceWindow && crowTraceStep>=3200u && crowTraceStep<=4000u) {
++                id<MTLBuffer> sourceTargets=selectedState->buffers[kEffortTrajectory];
++                crowTargetCopy=[selectedState->device newBufferWithLength:sourceTargets.length options:MTLResourceStorageModeShared];
++                if (crowTargetCopy == nil) throw std::bad_alloc();
++                id<MTLBlitCommandEncoder> targetBlit=[commandBuffer blitCommandEncoder];
++                [targetBlit copyFromBuffer:sourceTargets sourceOffset:0 toBuffer:crowTargetCopy destinationOffset:0 size:sourceTargets.length];
++                [targetBlit endEncoding];
++            }
+             id<MTLBuffer> crowTaskStateCopy = nil;
+             if (crowTraceWindow) {
+                 id<MTLBuffer> sourceTaskState = selectedState->buffers[kTaskState];
+@@ -22385,6 +22394,14 @@
+             if (crowTraceWindow) {
+                 [commandBuffer addCompletedHandler:^(id<MTLCommandBuffer> completed) {
+                     if (completed.status != MTLCommandBufferStatusCompleted) { std::fprintf(stderr,"CROW_SUBSTEP_ERROR %llu\n",crowTraceStep); return; }
++                    if (crowTargetCopy != nil && crowTargetCopy.length>=crowTraceLanes*40u*sizeof(float)) {
++                        const float* targets=static_cast<const float*>(crowTargetCopy.contents);
++                        for (NSUInteger lane=0;lane<crowTraceLanes;++lane) {
++                            std::fprintf(stderr,"CROW_DRIVE_TARGET %llu %lu",crowTraceStep,(unsigned long)lane);
++                            for (NSUInteger i=0;i<40u;++i) std::fprintf(stderr," %.9g",targets[lane*40u+i]);
++                            std::fprintf(stderr,"\n");
++                        }
++                    }
+                     const auto* crowStates=static_cast<const MRTaskStateGPU*>(crowTaskStateCopy.contents);
+                     for (NSUInteger lane=0;lane<crowTraceLanes;++lane) {
+                         const auto& state=crowStates[lane];
