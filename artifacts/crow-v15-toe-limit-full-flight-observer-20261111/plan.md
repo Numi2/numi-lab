@@ -1,0 +1,3 @@
+# Full flight toe-speed observation
+
+Repeat the 80-lane, 1,600-interval frozen-controller second-seed flight envelope on the unmodified two-segment body and 16-substep dense contact path. Extend only the host observer to inspect every accepted endpoint and emit every toe speed-limit hit plus the pre-existing sampled states. Verify all shared q/v and action observations match the previous run exactly. Report hit lanes, intervals, toe indices and phase/height, distinguishing the grounded launch from later flight. No state, action, body or solver changes. Accepted-interval observation can miss within-interval peaks; this is an exploratory development reproduction, not route or landing qualification.
