@@ -12,6 +12,6 @@ for speed in ('040','070'):
         if (!privilegedCommand && (state.status.w & 8192u) != 0u) {
             const float launchSeconds = float(state.episode.x)*dispatch.timing.x;
             const float blend = smoothstep(7.0f,8.0f,launchSeconds);
-            oracleCommand = mix(float4(0.'''+speed+'''f,0.0f,0.0f,'''+('1.05f' if height=='105' else '0.'+height+'f')+'''),oracleCommand,blend);
+            oracleCommand = mix(float4('''+('0.4f' if speed=='040' else '0.7f')+''',0.0f,0.0f,'''+({'065':'0.65f','085':'0.85f','105':'1.05f'}[height])+'''),oracleCommand,blend);
         }''';s=base.replace(needle,repl);src=B/(name+'.metal');src.write_text(s);(A/(name+'.patch')).write_text(''.join(difflib.unified_diff(base.splitlines(True),s.splitlines(True),fromfile='a/handoff.metal',tofile='b/'+name+'.metal')));air=B/(name+'.air');shader=B/(name+'.metallib');subprocess.run(['xcrun','-sdk','macosx','metal','-std=metal4.0','-O3','-fno-fast-math','-I',str(R/'include'),'-I',str(R/'src/metal'),'-c',str(src),'-o',str(air)],check=True);subprocess.run(['xcrun','-sdk','macosx','metallib',*[str(p) for p in sorted((R/'build/shaders').glob('MetalRobo*.air')) if p.name!='MetalRoboLocomotionTask.air'],str(air),'-o',str(shader)],check=True);rows.append({'name':name,'sha256':hashlib.sha256(shader.read_bytes()).hexdigest()});print(name,flush=True)
 (A/'shaders.json').write_text(json.dumps(rows,indent=2)+'\n')
