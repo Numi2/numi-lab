@@ -1,0 +1,12 @@
+{
+  "pre_first_foot_contact_q_v_difference_count": 990,
+  "first_q_v_difference": [
+    1430
+  ],
+  "opposed_interval_count": 0,
+  "missing_replay_intervals": [],
+  "max_prestate_q_error": 0.0,
+  "worst_opposed_endpoint_gap_m": null,
+  "opposed_endpoint_overlap_within_0_5mm": null,
+  "limitations": "Endpoint oriented-box geometry only; no continuous collision separation, contact-point slip, or complete release and regrip evidence."
+}
