@@ -1,0 +1,1258 @@
+[
+  {
+    "seed": 20261126,
+    "lane": 1,
+    "baseline_bout": [
+      266,
+      273
+    ],
+    "candidate_max_clear_and_unloaded_run": 6,
+    "candidate_max_fully_qualified_run": 2,
+    "clear_and_unloaded_but_support_below_threshold": 2,
+    "sole_clear_toe_below_threshold": 1,
+    "events": [
+      {
+        "step": 264,
+        "all_parts_clear": true,
+        "own_unloaded": false,
+        "other_half_weight": true,
+        "nonfoot_absent": true,
+        "sole_clear_toe_not": false
+      },
+      {
+        "step": 265,
+        "all_parts_clear": false,
+        "own_unloaded": true,
+        "other_half_weight": false,
+        "nonfoot_absent": true,
+        "sole_clear_toe_not": false
+      },
+      {
+        "step": 266,
+        "all_parts_clear": true,
+        "own_unloaded": true,
+        "other_half_weight": true,
+        "nonfoot_absent": true,
+        "sole_clear_toe_not": false
+      },
+      {
+        "step": 267,
+        "all_parts_clear": false,
+        "own_unloaded": true,
+        "other_half_weight": true,
+        "nonfoot_absent": true,
+        "sole_clear_toe_not": true
+      },
+      {
+        "step": 268,
+        "all_parts_clear": true,
+        "own_unloaded": true,
+        "other_half_weight": true,
+        "nonfoot_absent": true,
+        "sole_clear_toe_not": false
+      },
+      {
+        "step": 269,
+        "all_parts_clear": true,
+        "own_unloaded": true,
+        "other_half_weight": true,
+        "nonfoot_absent": true,
+        "sole_clear_toe_not": false
+      },
+      {
+        "step": 270,
+        "all_parts_clear": true,
+        "own_unloaded": true,
+        "other_half_weight": false,
+        "nonfoot_absent": true,
+        "sole_clear_toe_not": false
+      },
+      {
+        "step": 271,
+        "all_parts_clear": true,
+        "own_unloaded": true,
+        "other_half_weight": true,
+        "nonfoot_absent": true,
+        "sole_clear_toe_not": false
+      },
+      {
+        "step": 272,
+        "all_parts_clear": true,
+        "own_unloaded": true,
+        "other_half_weight": false,
+        "nonfoot_absent": true,
+        "sole_clear_toe_not": false
+      },
+      {
+        "step": 273,
+        "all_parts_clear": true,
+        "own_unloaded": true,
+        "other_half_weight": true,
+        "nonfoot_absent": true,
+        "sole_clear_toe_not": false
+      },
+      {
+        "step": 274,
+        "all_parts_clear": false,
+        "own_unloaded": true,
+        "other_half_weight": true,
+        "nonfoot_absent": true,
+        "sole_clear_toe_not": false
+      },
+      {
+        "step": 275,
+        "all_parts_clear": false,
+        "own_unloaded": false,
+        "other_half_weight": true,
+        "nonfoot_absent": true,
+        "sole_clear_toe_not": false
+      }
+    ]
+  },
+  {
+    "seed": 20261126,
+    "lane": 1,
+    "baseline_bout": [
+      292,
+      298
+    ],
+    "candidate_max_clear_and_unloaded_run": 6,
+    "candidate_max_fully_qualified_run": 1,
+    "clear_and_unloaded_but_support_below_threshold": 3,
+    "sole_clear_toe_below_threshold": 2,
+    "events": [
+      {
+        "step": 290,
+        "all_parts_clear": false,
+        "own_unloaded": false,
+        "other_half_weight": true,
+        "nonfoot_absent": true,
+        "sole_clear_toe_not": false
+      },
+      {
+        "step": 291,
+        "all_parts_clear": false,
+        "own_unloaded": true,
+        "other_half_weight": true,
+        "nonfoot_absent": true,
+        "sole_clear_toe_not": true
+      },
+      {
+        "step": 292,
+        "all_parts_clear": false,
+        "own_unloaded": true,
+        "other_half_weight": true,
+        "nonfoot_absent": true,
+        "sole_clear_toe_not": true
+      },
+      {
+        "step": 293,
+        "all_parts_clear": true,
+        "own_unloaded": true,
+        "other_half_weight": false,
+        "nonfoot_absent": true,
+        "sole_clear_toe_not": false
+      },
+      {
+        "step": 294,
+        "all_parts_clear": true,
+        "own_unloaded": true,
+        "other_half_weight": true,
+        "nonfoot_absent": true,
+        "sole_clear_toe_not": false
+      },
+      {
+        "step": 295,
+        "all_parts_clear": true,
+        "own_unloaded": true,
+        "other_half_weight": false,
+        "nonfoot_absent": true,
+        "sole_clear_toe_not": false
+      },
+      {
+        "step": 296,
+        "all_parts_clear": true,
+        "own_unloaded": true,
+        "other_half_weight": true,
+        "nonfoot_absent": true,
+        "sole_clear_toe_not": false
+      },
+      {
+        "step": 297,
+        "all_parts_clear": true,
+        "own_unloaded": true,
+        "other_half_weight": false,
+        "nonfoot_absent": true,
+        "sole_clear_toe_not": false
+      },
+      {
+        "step": 298,
+        "all_parts_clear": true,
+        "own_unloaded": true,
+        "other_half_weight": true,
+        "nonfoot_absent": true,
+        "sole_clear_toe_not": false
+      },
+      {
+        "step": 299,
+        "all_parts_clear": false,
+        "own_unloaded": true,
+        "other_half_weight": false,
+        "nonfoot_absent": true,
+        "sole_clear_toe_not": false
+      },
+      {
+        "step": 300,
+        "all_parts_clear": false,
+        "own_unloaded": false,
+        "other_half_weight": true,
+        "nonfoot_absent": true,
+        "sole_clear_toe_not": false
+      }
+    ]
+  },
+  {
+    "seed": 20261126,
+    "lane": 5,
+    "baseline_bout": [
+      267,
+      273
+    ],
+    "candidate_max_clear_and_unloaded_run": 6,
+    "candidate_max_fully_qualified_run": 2,
+    "clear_and_unloaded_but_support_below_threshold": 2,
+    "sole_clear_toe_below_threshold": 1,
+    "events": [
+      {
+        "step": 265,
+        "all_parts_clear": false,
+        "own_unloaded": true,
+        "other_half_weight": false,
+        "nonfoot_absent": true,
+        "sole_clear_toe_not": false
+      },
+      {
+        "step": 266,
+        "all_parts_clear": true,
+        "own_unloaded": true,
+        "other_half_weight": true,
+        "nonfoot_absent": true,
+        "sole_clear_toe_not": false
+      },
+      {
+        "step": 267,
+        "all_parts_clear": false,
+        "own_unloaded": true,
+        "other_half_weight": true,
+        "nonfoot_absent": true,
+        "sole_clear_toe_not": true
+      },
+      {
+        "step": 268,
+        "all_parts_clear": true,
+        "own_unloaded": true,
+        "other_half_weight": true,
+        "nonfoot_absent": true,
+        "sole_clear_toe_not": false
+      },
+      {
+        "step": 269,
+        "all_parts_clear": true,
+        "own_unloaded": true,
+        "other_half_weight": true,
+        "nonfoot_absent": true,
+        "sole_clear_toe_not": false
+      },
+      {
+        "step": 270,
+        "all_parts_clear": true,
+        "own_unloaded": true,
+        "other_half_weight": false,
+        "nonfoot_absent": true,
+        "sole_clear_toe_not": false
+      },
+      {
+        "step": 271,
+        "all_parts_clear": true,
+        "own_unloaded": true,
+        "other_half_weight": true,
+        "nonfoot_absent": true,
+        "sole_clear_toe_not": false
+      },
+      {
+        "step": 272,
+        "all_parts_clear": true,
+        "own_unloaded": true,
+        "other_half_weight": false,
+        "nonfoot_absent": true,
+        "sole_clear_toe_not": false
+      },
+      {
+        "step": 273,
+        "all_parts_clear": true,
+        "own_unloaded": true,
+        "other_half_weight": true,
+        "nonfoot_absent": true,
+        "sole_clear_toe_not": false
+      },
+      {
+        "step": 274,
+        "all_parts_clear": false,
+        "own_unloaded": true,
+        "other_half_weight": true,
+        "nonfoot_absent": true,
+        "sole_clear_toe_not": false
+      },
+      {
+        "step": 275,
+        "all_parts_clear": false,
+        "own_unloaded": false,
+        "other_half_weight": true,
+        "nonfoot_absent": true,
+        "sole_clear_toe_not": false
+      }
+    ]
+  },
+  {
+    "seed": 20261126,
+    "lane": 5,
+    "baseline_bout": [
+      292,
+      298
+    ],
+    "candidate_max_clear_and_unloaded_run": 5,
+    "candidate_max_fully_qualified_run": 1,
+    "clear_and_unloaded_but_support_below_threshold": 2,
+    "sole_clear_toe_below_threshold": 3,
+    "events": [
+      {
+        "step": 290,
+        "all_parts_clear": false,
+        "own_unloaded": true,
+        "other_half_weight": false,
+        "nonfoot_absent": true,
+        "sole_clear_toe_not": false
+      },
+      {
+        "step": 291,
+        "all_parts_clear": true,
+        "own_unloaded": true,
+        "other_half_weight": true,
+        "nonfoot_absent": true,
+        "sole_clear_toe_not": false
+      },
+      {
+        "step": 292,
+        "all_parts_clear": false,
+        "own_unloaded": true,
+        "other_half_weight": true,
+        "nonfoot_absent": true,
+        "sole_clear_toe_not": true
+      },
+      {
+        "step": 293,
+        "all_parts_clear": true,
+        "own_unloaded": true,
+        "other_half_weight": true,
+        "nonfoot_absent": true,
+        "sole_clear_toe_not": false
+      },
+      {
+        "step": 294,
+        "all_parts_clear": false,
+        "own_unloaded": true,
+        "other_half_weight": true,
+        "nonfoot_absent": true,
+        "sole_clear_toe_not": true
+      },
+      {
+        "step": 295,
+        "all_parts_clear": true,
+        "own_unloaded": true,
+        "other_half_weight": true,
+        "nonfoot_absent": true,
+        "sole_clear_toe_not": false
+      },
+      {
+        "step": 296,
+        "all_parts_clear": true,
+        "own_unloaded": true,
+        "other_half_weight": false,
+        "nonfoot_absent": true,
+        "sole_clear_toe_not": false
+      },
+      {
+        "step": 297,
+        "all_parts_clear": true,
+        "own_unloaded": true,
+        "other_half_weight": true,
+        "nonfoot_absent": true,
+        "sole_clear_toe_not": false
+      },
+      {
+        "step": 298,
+        "all_parts_clear": true,
+        "own_unloaded": true,
+        "other_half_weight": false,
+        "nonfoot_absent": true,
+        "sole_clear_toe_not": false
+      },
+      {
+        "step": 299,
+        "all_parts_clear": true,
+        "own_unloaded": true,
+        "other_half_weight": true,
+        "nonfoot_absent": true,
+        "sole_clear_toe_not": false
+      },
+      {
+        "step": 300,
+        "all_parts_clear": false,
+        "own_unloaded": true,
+        "other_half_weight": false,
+        "nonfoot_absent": true,
+        "sole_clear_toe_not": true
+      }
+    ]
+  },
+  {
+    "seed": 20261126,
+    "lane": 7,
+    "baseline_bout": [
+      266,
+      273
+    ],
+    "candidate_max_clear_and_unloaded_run": 5,
+    "candidate_max_fully_qualified_run": 2,
+    "clear_and_unloaded_but_support_below_threshold": 2,
+    "sole_clear_toe_below_threshold": 4,
+    "events": [
+      {
+        "step": 264,
+        "all_parts_clear": false,
+        "own_unloaded": false,
+        "other_half_weight": true,
+        "nonfoot_absent": true,
+        "sole_clear_toe_not": true
+      },
+      {
+        "step": 265,
+        "all_parts_clear": false,
+        "own_unloaded": true,
+        "other_half_weight": false,
+        "nonfoot_absent": true,
+        "sole_clear_toe_not": false
+      },
+      {
+        "step": 266,
+        "all_parts_clear": false,
+        "own_unloaded": true,
+        "other_half_weight": true,
+        "nonfoot_absent": true,
+        "sole_clear_toe_not": true
+      },
+      {
+        "step": 267,
+        "all_parts_clear": false,
+        "own_unloaded": true,
+        "other_half_weight": true,
+        "nonfoot_absent": true,
+        "sole_clear_toe_not": true
+      },
+      {
+        "step": 268,
+        "all_parts_clear": true,
+        "own_unloaded": true,
+        "other_half_weight": false,
+        "nonfoot_absent": true,
+        "sole_clear_toe_not": false
+      },
+      {
+        "step": 269,
+        "all_parts_clear": true,
+        "own_unloaded": true,
+        "other_half_weight": true,
+        "nonfoot_absent": true,
+        "sole_clear_toe_not": false
+      },
+      {
+        "step": 270,
+        "all_parts_clear": true,
+        "own_unloaded": true,
+        "other_half_weight": false,
+        "nonfoot_absent": true,
+        "sole_clear_toe_not": false
+      },
+      {
+        "step": 271,
+        "all_parts_clear": true,
+        "own_unloaded": true,
+        "other_half_weight": true,
+        "nonfoot_absent": true,
+        "sole_clear_toe_not": false
+      },
+      {
+        "step": 272,
+        "all_parts_clear": true,
+        "own_unloaded": true,
+        "other_half_weight": true,
+        "nonfoot_absent": true,
+        "sole_clear_toe_not": false
+      },
+      {
+        "step": 273,
+        "all_parts_clear": false,
+        "own_unloaded": true,
+        "other_half_weight": true,
+        "nonfoot_absent": true,
+        "sole_clear_toe_not": true
+      },
+      {
+        "step": 274,
+        "all_parts_clear": false,
+        "own_unloaded": false,
+        "other_half_weight": true,
+        "nonfoot_absent": true,
+        "sole_clear_toe_not": false
+      },
+      {
+        "step": 275,
+        "all_parts_clear": false,
+        "own_unloaded": false,
+        "other_half_weight": true,
+        "nonfoot_absent": true,
+        "sole_clear_toe_not": false
+      }
+    ]
+  },
+  {
+    "seed": 20261126,
+    "lane": 7,
+    "baseline_bout": [
+      292,
+      298
+    ],
+    "candidate_max_clear_and_unloaded_run": 6,
+    "candidate_max_fully_qualified_run": 1,
+    "clear_and_unloaded_but_support_below_threshold": 3,
+    "sole_clear_toe_below_threshold": 3,
+    "events": [
+      {
+        "step": 290,
+        "all_parts_clear": false,
+        "own_unloaded": false,
+        "other_half_weight": true,
+        "nonfoot_absent": true,
+        "sole_clear_toe_not": false
+      },
+      {
+        "step": 291,
+        "all_parts_clear": false,
+        "own_unloaded": true,
+        "other_half_weight": true,
+        "nonfoot_absent": true,
+        "sole_clear_toe_not": true
+      },
+      {
+        "step": 292,
+        "all_parts_clear": false,
+        "own_unloaded": true,
+        "other_half_weight": true,
+        "nonfoot_absent": true,
+        "sole_clear_toe_not": true
+      },
+      {
+        "step": 293,
+        "all_parts_clear": true,
+        "own_unloaded": true,
+        "other_half_weight": false,
+        "nonfoot_absent": true,
+        "sole_clear_toe_not": false
+      },
+      {
+        "step": 294,
+        "all_parts_clear": true,
+        "own_unloaded": true,
+        "other_half_weight": true,
+        "nonfoot_absent": true,
+        "sole_clear_toe_not": false
+      },
+      {
+        "step": 295,
+        "all_parts_clear": true,
+        "own_unloaded": true,
+        "other_half_weight": false,
+        "nonfoot_absent": true,
+        "sole_clear_toe_not": false
+      },
+      {
+        "step": 296,
+        "all_parts_clear": true,
+        "own_unloaded": true,
+        "other_half_weight": true,
+        "nonfoot_absent": true,
+        "sole_clear_toe_not": false
+      },
+      {
+        "step": 297,
+        "all_parts_clear": true,
+        "own_unloaded": true,
+        "other_half_weight": false,
+        "nonfoot_absent": true,
+        "sole_clear_toe_not": false
+      },
+      {
+        "step": 298,
+        "all_parts_clear": true,
+        "own_unloaded": true,
+        "other_half_weight": true,
+        "nonfoot_absent": true,
+        "sole_clear_toe_not": false
+      },
+      {
+        "step": 299,
+        "all_parts_clear": false,
+        "own_unloaded": true,
+        "other_half_weight": false,
+        "nonfoot_absent": true,
+        "sole_clear_toe_not": true
+      },
+      {
+        "step": 300,
+        "all_parts_clear": false,
+        "own_unloaded": false,
+        "other_half_weight": true,
+        "nonfoot_absent": true,
+        "sole_clear_toe_not": false
+      }
+    ]
+  },
+  {
+    "seed": 20261127,
+    "lane": 0,
+    "baseline_bout": [
+      266,
+      273
+    ],
+    "candidate_max_clear_and_unloaded_run": 5,
+    "candidate_max_fully_qualified_run": 2,
+    "clear_and_unloaded_but_support_below_threshold": 2,
+    "sole_clear_toe_below_threshold": 1,
+    "events": [
+      {
+        "step": 264,
+        "all_parts_clear": true,
+        "own_unloaded": false,
+        "other_half_weight": true,
+        "nonfoot_absent": true,
+        "sole_clear_toe_not": false
+      },
+      {
+        "step": 265,
+        "all_parts_clear": false,
+        "own_unloaded": true,
+        "other_half_weight": false,
+        "nonfoot_absent": true,
+        "sole_clear_toe_not": false
+      },
+      {
+        "step": 266,
+        "all_parts_clear": true,
+        "own_unloaded": true,
+        "other_half_weight": true,
+        "nonfoot_absent": true,
+        "sole_clear_toe_not": false
+      },
+      {
+        "step": 267,
+        "all_parts_clear": false,
+        "own_unloaded": false,
+        "other_half_weight": true,
+        "nonfoot_absent": true,
+        "sole_clear_toe_not": false
+      },
+      {
+        "step": 268,
+        "all_parts_clear": true,
+        "own_unloaded": false,
+        "other_half_weight": true,
+        "nonfoot_absent": true,
+        "sole_clear_toe_not": false
+      },
+      {
+        "step": 269,
+        "all_parts_clear": false,
+        "own_unloaded": true,
+        "other_half_weight": true,
+        "nonfoot_absent": true,
+        "sole_clear_toe_not": true
+      },
+      {
+        "step": 270,
+        "all_parts_clear": true,
+        "own_unloaded": true,
+        "other_half_weight": false,
+        "nonfoot_absent": true,
+        "sole_clear_toe_not": false
+      },
+      {
+        "step": 271,
+        "all_parts_clear": true,
+        "own_unloaded": true,
+        "other_half_weight": true,
+        "nonfoot_absent": true,
+        "sole_clear_toe_not": false
+      },
+      {
+        "step": 272,
+        "all_parts_clear": true,
+        "own_unloaded": true,
+        "other_half_weight": true,
+        "nonfoot_absent": true,
+        "sole_clear_toe_not": false
+      },
+      {
+        "step": 273,
+        "all_parts_clear": true,
+        "own_unloaded": true,
+        "other_half_weight": false,
+        "nonfoot_absent": true,
+        "sole_clear_toe_not": false
+      },
+      {
+        "step": 274,
+        "all_parts_clear": true,
+        "own_unloaded": true,
+        "other_half_weight": true,
+        "nonfoot_absent": true,
+        "sole_clear_toe_not": false
+      },
+      {
+        "step": 275,
+        "all_parts_clear": false,
+        "own_unloaded": true,
+        "other_half_weight": false,
+        "nonfoot_absent": true,
+        "sole_clear_toe_not": false
+      }
+    ]
+  },
+  {
+    "seed": 20261127,
+    "lane": 0,
+    "baseline_bout": [
+      292,
+      298
+    ],
+    "candidate_max_clear_and_unloaded_run": 5,
+    "candidate_max_fully_qualified_run": 1,
+    "clear_and_unloaded_but_support_below_threshold": 3,
+    "sole_clear_toe_below_threshold": 3,
+    "events": [
+      {
+        "step": 290,
+        "all_parts_clear": false,
+        "own_unloaded": false,
+        "other_half_weight": false,
+        "nonfoot_absent": true,
+        "sole_clear_toe_not": false
+      },
+      {
+        "step": 291,
+        "all_parts_clear": false,
+        "own_unloaded": true,
+        "other_half_weight": true,
+        "nonfoot_absent": true,
+        "sole_clear_toe_not": true
+      },
+      {
+        "step": 292,
+        "all_parts_clear": false,
+        "own_unloaded": true,
+        "other_half_weight": true,
+        "nonfoot_absent": true,
+        "sole_clear_toe_not": false
+      },
+      {
+        "step": 293,
+        "all_parts_clear": true,
+        "own_unloaded": true,
+        "other_half_weight": true,
+        "nonfoot_absent": true,
+        "sole_clear_toe_not": false
+      },
+      {
+        "step": 294,
+        "all_parts_clear": false,
+        "own_unloaded": true,
+        "other_half_weight": false,
+        "nonfoot_absent": true,
+        "sole_clear_toe_not": true
+      },
+      {
+        "step": 295,
+        "all_parts_clear": true,
+        "own_unloaded": true,
+        "other_half_weight": true,
+        "nonfoot_absent": true,
+        "sole_clear_toe_not": false
+      },
+      {
+        "step": 296,
+        "all_parts_clear": true,
+        "own_unloaded": true,
+        "other_half_weight": false,
+        "nonfoot_absent": true,
+        "sole_clear_toe_not": false
+      },
+      {
+        "step": 297,
+        "all_parts_clear": true,
+        "own_unloaded": true,
+        "other_half_weight": true,
+        "nonfoot_absent": true,
+        "sole_clear_toe_not": false
+      },
+      {
+        "step": 298,
+        "all_parts_clear": true,
+        "own_unloaded": true,
+        "other_half_weight": false,
+        "nonfoot_absent": true,
+        "sole_clear_toe_not": false
+      },
+      {
+        "step": 299,
+        "all_parts_clear": true,
+        "own_unloaded": true,
+        "other_half_weight": false,
+        "nonfoot_absent": true,
+        "sole_clear_toe_not": false
+      },
+      {
+        "step": 300,
+        "all_parts_clear": false,
+        "own_unloaded": false,
+        "other_half_weight": true,
+        "nonfoot_absent": true,
+        "sole_clear_toe_not": true
+      }
+    ]
+  },
+  {
+    "seed": 20261127,
+    "lane": 5,
+    "baseline_bout": [
+      266,
+      273
+    ],
+    "candidate_max_clear_and_unloaded_run": 5,
+    "candidate_max_fully_qualified_run": 1,
+    "clear_and_unloaded_but_support_below_threshold": 2,
+    "sole_clear_toe_below_threshold": 0,
+    "events": [
+      {
+        "step": 264,
+        "all_parts_clear": true,
+        "own_unloaded": false,
+        "other_half_weight": true,
+        "nonfoot_absent": true,
+        "sole_clear_toe_not": false
+      },
+      {
+        "step": 265,
+        "all_parts_clear": false,
+        "own_unloaded": true,
+        "other_half_weight": false,
+        "nonfoot_absent": true,
+        "sole_clear_toe_not": false
+      },
+      {
+        "step": 266,
+        "all_parts_clear": true,
+        "own_unloaded": true,
+        "other_half_weight": true,
+        "nonfoot_absent": true,
+        "sole_clear_toe_not": false
+      },
+      {
+        "step": 267,
+        "all_parts_clear": false,
+        "own_unloaded": false,
+        "other_half_weight": true,
+        "nonfoot_absent": true,
+        "sole_clear_toe_not": false
+      },
+      {
+        "step": 268,
+        "all_parts_clear": true,
+        "own_unloaded": false,
+        "other_half_weight": true,
+        "nonfoot_absent": true,
+        "sole_clear_toe_not": false
+      },
+      {
+        "step": 269,
+        "all_parts_clear": true,
+        "own_unloaded": true,
+        "other_half_weight": true,
+        "nonfoot_absent": true,
+        "sole_clear_toe_not": false
+      },
+      {
+        "step": 270,
+        "all_parts_clear": true,
+        "own_unloaded": true,
+        "other_half_weight": false,
+        "nonfoot_absent": true,
+        "sole_clear_toe_not": false
+      },
+      {
+        "step": 271,
+        "all_parts_clear": true,
+        "own_unloaded": true,
+        "other_half_weight": true,
+        "nonfoot_absent": true,
+        "sole_clear_toe_not": false
+      },
+      {
+        "step": 272,
+        "all_parts_clear": true,
+        "own_unloaded": true,
+        "other_half_weight": false,
+        "nonfoot_absent": true,
+        "sole_clear_toe_not": false
+      },
+      {
+        "step": 273,
+        "all_parts_clear": true,
+        "own_unloaded": true,
+        "other_half_weight": true,
+        "nonfoot_absent": true,
+        "sole_clear_toe_not": false
+      },
+      {
+        "step": 274,
+        "all_parts_clear": false,
+        "own_unloaded": true,
+        "other_half_weight": true,
+        "nonfoot_absent": true,
+        "sole_clear_toe_not": false
+      },
+      {
+        "step": 275,
+        "all_parts_clear": false,
+        "own_unloaded": false,
+        "other_half_weight": true,
+        "nonfoot_absent": true,
+        "sole_clear_toe_not": false
+      }
+    ]
+  },
+  {
+    "seed": 20261127,
+    "lane": 5,
+    "baseline_bout": [
+      292,
+      298
+    ],
+    "candidate_max_clear_and_unloaded_run": 4,
+    "candidate_max_fully_qualified_run": 1,
+    "clear_and_unloaded_but_support_below_threshold": 2,
+    "sole_clear_toe_below_threshold": 1,
+    "events": [
+      {
+        "step": 290,
+        "all_parts_clear": false,
+        "own_unloaded": true,
+        "other_half_weight": false,
+        "nonfoot_absent": true,
+        "sole_clear_toe_not": false
+      },
+      {
+        "step": 291,
+        "all_parts_clear": true,
+        "own_unloaded": true,
+        "other_half_weight": true,
+        "nonfoot_absent": true,
+        "sole_clear_toe_not": false
+      },
+      {
+        "step": 292,
+        "all_parts_clear": false,
+        "own_unloaded": true,
+        "other_half_weight": true,
+        "nonfoot_absent": true,
+        "sole_clear_toe_not": false
+      },
+      {
+        "step": 293,
+        "all_parts_clear": true,
+        "own_unloaded": true,
+        "other_half_weight": true,
+        "nonfoot_absent": true,
+        "sole_clear_toe_not": false
+      },
+      {
+        "step": 294,
+        "all_parts_clear": false,
+        "own_unloaded": true,
+        "other_half_weight": true,
+        "nonfoot_absent": true,
+        "sole_clear_toe_not": true
+      },
+      {
+        "step": 295,
+        "all_parts_clear": true,
+        "own_unloaded": true,
+        "other_half_weight": true,
+        "nonfoot_absent": true,
+        "sole_clear_toe_not": false
+      },
+      {
+        "step": 296,
+        "all_parts_clear": true,
+        "own_unloaded": true,
+        "other_half_weight": false,
+        "nonfoot_absent": true,
+        "sole_clear_toe_not": false
+      },
+      {
+        "step": 297,
+        "all_parts_clear": true,
+        "own_unloaded": true,
+        "other_half_weight": true,
+        "nonfoot_absent": true,
+        "sole_clear_toe_not": false
+      },
+      {
+        "step": 298,
+        "all_parts_clear": true,
+        "own_unloaded": true,
+        "other_half_weight": false,
+        "nonfoot_absent": true,
+        "sole_clear_toe_not": false
+      },
+      {
+        "step": 299,
+        "all_parts_clear": false,
+        "own_unloaded": true,
+        "other_half_weight": true,
+        "nonfoot_absent": true,
+        "sole_clear_toe_not": false
+      },
+      {
+        "step": 300,
+        "all_parts_clear": true,
+        "own_unloaded": true,
+        "other_half_weight": true,
+        "nonfoot_absent": true,
+        "sole_clear_toe_not": false
+      }
+    ]
+  },
+  {
+    "seed": 20261127,
+    "lane": 7,
+    "baseline_bout": [
+      267,
+      273
+    ],
+    "candidate_max_clear_and_unloaded_run": 6,
+    "candidate_max_fully_qualified_run": 2,
+    "clear_and_unloaded_but_support_below_threshold": 2,
+    "sole_clear_toe_below_threshold": 2,
+    "events": [
+      {
+        "step": 265,
+        "all_parts_clear": false,
+        "own_unloaded": true,
+        "other_half_weight": false,
+        "nonfoot_absent": true,
+        "sole_clear_toe_not": false
+      },
+      {
+        "step": 266,
+        "all_parts_clear": true,
+        "own_unloaded": true,
+        "other_half_weight": true,
+        "nonfoot_absent": true,
+        "sole_clear_toe_not": false
+      },
+      {
+        "step": 267,
+        "all_parts_clear": false,
+        "own_unloaded": true,
+        "other_half_weight": true,
+        "nonfoot_absent": true,
+        "sole_clear_toe_not": true
+      },
+      {
+        "step": 268,
+        "all_parts_clear": true,
+        "own_unloaded": true,
+        "other_half_weight": true,
+        "nonfoot_absent": true,
+        "sole_clear_toe_not": false
+      },
+      {
+        "step": 269,
+        "all_parts_clear": true,
+        "own_unloaded": true,
+        "other_half_weight": true,
+        "nonfoot_absent": true,
+        "sole_clear_toe_not": false
+      },
+      {
+        "step": 270,
+        "all_parts_clear": true,
+        "own_unloaded": true,
+        "other_half_weight": false,
+        "nonfoot_absent": true,
+        "sole_clear_toe_not": false
+      },
+      {
+        "step": 271,
+        "all_parts_clear": true,
+        "own_unloaded": true,
+        "other_half_weight": true,
+        "nonfoot_absent": true,
+        "sole_clear_toe_not": false
+      },
+      {
+        "step": 272,
+        "all_parts_clear": true,
+        "own_unloaded": true,
+        "other_half_weight": false,
+        "nonfoot_absent": true,
+        "sole_clear_toe_not": false
+      },
+      {
+        "step": 273,
+        "all_parts_clear": true,
+        "own_unloaded": true,
+        "other_half_weight": true,
+        "nonfoot_absent": true,
+        "sole_clear_toe_not": false
+      },
+      {
+        "step": 274,
+        "all_parts_clear": false,
+        "own_unloaded": true,
+        "other_half_weight": false,
+        "nonfoot_absent": true,
+        "sole_clear_toe_not": true
+      },
+      {
+        "step": 275,
+        "all_parts_clear": false,
+        "own_unloaded": false,
+        "other_half_weight": true,
+        "nonfoot_absent": true,
+        "sole_clear_toe_not": false
+      }
+    ]
+  },
+  {
+    "seed": 20261127,
+    "lane": 7,
+    "baseline_bout": [
+      292,
+      298
+    ],
+    "candidate_max_clear_and_unloaded_run": 6,
+    "candidate_max_fully_qualified_run": 1,
+    "clear_and_unloaded_but_support_below_threshold": 3,
+    "sole_clear_toe_below_threshold": 2,
+    "events": [
+      {
+        "step": 290,
+        "all_parts_clear": false,
+        "own_unloaded": false,
+        "other_half_weight": false,
+        "nonfoot_absent": true,
+        "sole_clear_toe_not": false
+      },
+      {
+        "step": 291,
+        "all_parts_clear": false,
+        "own_unloaded": true,
+        "other_half_weight": true,
+        "nonfoot_absent": true,
+        "sole_clear_toe_not": false
+      },
+      {
+        "step": 292,
+        "all_parts_clear": false,
+        "own_unloaded": true,
+        "other_half_weight": true,
+        "nonfoot_absent": true,
+        "sole_clear_toe_not": true
+      },
+      {
+        "step": 293,
+        "all_parts_clear": true,
+        "own_unloaded": true,
+        "other_half_weight": false,
+        "nonfoot_absent": true,
+        "sole_clear_toe_not": false
+      },
+      {
+        "step": 294,
+        "all_parts_clear": true,
+        "own_unloaded": true,
+        "other_half_weight": true,
+        "nonfoot_absent": true,
+        "sole_clear_toe_not": false
+      },
+      {
+        "step": 295,
+        "all_parts_clear": true,
+        "own_unloaded": true,
+        "other_half_weight": false,
+        "nonfoot_absent": true,
+        "sole_clear_toe_not": false
+      },
+      {
+        "step": 296,
+        "all_parts_clear": true,
+        "own_unloaded": true,
+        "other_half_weight": true,
+        "nonfoot_absent": true,
+        "sole_clear_toe_not": false
+      },
+      {
+        "step": 297,
+        "all_parts_clear": true,
+        "own_unloaded": true,
+        "other_half_weight": false,
+        "nonfoot_absent": true,
+        "sole_clear_toe_not": false
+      },
+      {
+        "step": 298,
+        "all_parts_clear": true,
+        "own_unloaded": true,
+        "other_half_weight": true,
+        "nonfoot_absent": true,
+        "sole_clear_toe_not": false
+      },
+      {
+        "step": 299,
+        "all_parts_clear": false,
+        "own_unloaded": true,
+        "other_half_weight": false,
+        "nonfoot_absent": true,
+        "sole_clear_toe_not": true
+      },
+      {
+        "step": 300,
+        "all_parts_clear": false,
+        "own_unloaded": false,
+        "other_half_weight": true,
+        "nonfoot_absent": true,
+        "sole_clear_toe_not": false
+      }
+    ]
+  }
+]

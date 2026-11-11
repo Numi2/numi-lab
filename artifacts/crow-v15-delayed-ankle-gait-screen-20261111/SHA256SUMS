@@ -1,5 +1,5 @@
 9035294785e5ac0056fe6f4106122bfec98719a4aa7c7651e7099a5d6261ce6f  artifacts/crow-v15-delayed-ankle-gait-screen-20261111/PLAN.md
-d07af291ff019a7765adc2f93d9af033b5550338cf14b6e9f2f40e90ed41f7b8  artifacts/crow-v15-delayed-ankle-gait-screen-20261111/RESULT.md
+aadd9fca146d3e2fab8a7e791fbc07b87c0a85b8ba452db03b2d6494e2c0f4e1  artifacts/crow-v15-delayed-ankle-gait-screen-20261111/RESULT.md
 73e50965dd306a1c0d3011d7b1fcbc0161fefd703b2e29ccc2dfec8ef5ec4ab1  artifacts/crow-v15-delayed-ankle-gait-screen-20261111/autonomous-20261126/command.json
 f7f49064e93b6e35afe82b05dc6cdf5714c301d285b5cfcd46ac12fd0098baf3  artifacts/crow-v15-delayed-ankle-gait-screen-20261111/autonomous-20261126/inputs.json
 a9ff493f3ff0325a5afb13abe10daa252b781642e1ca99592666d1e35318ac25  artifacts/crow-v15-delayed-ankle-gait-screen-20261111/autonomous-20261126/replay.json.gz
@@ -19,6 +19,9 @@ e6f9dc37e3ba30516d263860e75edb2a15b1c4bbd5467adab63f7f529f059215  artifacts/crow
 2a8fe56f033c0da1f89c5a4916142e4d25a2fef6c6fe67abab455e9e977475e6  artifacts/crow-v15-delayed-ankle-gait-screen-20261111/compare.py
 5a937b83104401a3b93f22dc5eadef385ccd2bf3d185eef2d51e71c27594a8ea  artifacts/crow-v15-delayed-ankle-gait-screen-20261111/comparison.json
 c13be4d53741039915f3cf55d6fae4c9373ec49fabd76746e20e1edfca7a0e1c  artifacts/crow-v15-delayed-ankle-gait-screen-20261111/comparison.log
+f1fcbc64c512a9d4f62056703495c4584ff027dddf5bc282815fec7e217a8de1  artifacts/crow-v15-delayed-ankle-gait-screen-20261111/failure-diagnosis.json
+6c4d4f21345c9c2409fb4408592b7422f1353bbad42199c29b41a88b104365a7  artifacts/crow-v15-delayed-ankle-gait-screen-20261111/failure-diagnosis.log
+244d5ea36dfbd76b7e2406bcf6cf61b9201a70e9c4d4f24d6c69618cac44e14f  artifacts/crow-v15-delayed-ankle-gait-screen-20261111/failure-diagnosis.py
 40704c7b5a010dca29e959cd2e25b9647bd4a8e432d6925ea6874752037e90be  artifacts/crow-v15-delayed-ankle-gait-screen-20261111/feedback.metal
 02f2d8407e994c81bf9ab937566670fb0a4ede5099bae547a2703650d86a3bc3  artifacts/crow-v15-delayed-ankle-gait-screen-20261111/feedback.metallib.gz
 641caef272b95f2f24f5e3075087317c2d92145d1b1815eeb0324005fd1ff788  artifacts/crow-v15-delayed-ankle-gait-screen-20261111/feedback.patch
