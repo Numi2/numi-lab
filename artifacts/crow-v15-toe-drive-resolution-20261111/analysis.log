@@ -1,0 +1,1 @@
+{'samples': 80, 'max_toe_angle_difference_rad': 0.00038214027999999844, 'time_of_max_difference': 16, 'toe_angles_at_tick_50': [0.7793716192, 0.779702425], 'tolerance_rad': 0.05, 'comparable_within_tolerance': True, 'ground_impulses': 0}

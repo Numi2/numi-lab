@@ -1,0 +1,3 @@
+# Free-space toe-drive time-step control
+
+Both 80-tick runs completed without ground impulses. The largest matching-time left or right rear-toe angle difference between 16 and 32 substeps was 0.000383 rad, below the predeclared 0.05 rad diagnostic threshold. At tick 50 the left toe angles were 0.779372 and 0.779702 rad. Free-space tracking therefore does not explain the much larger difference in the matched landing experiment by itself. Contact, whole-body motion, control feedback, solver behavior and other coupled factors remain unisolated. This is a bounded diagnostic and does not qualify landing or biological realism.
