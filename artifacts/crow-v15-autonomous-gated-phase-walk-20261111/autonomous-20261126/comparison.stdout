@@ -1,0 +1,61 @@
+{
+  "rows": [
+    {
+      "lane": 0,
+      "first_state_difference": [],
+      "state_difference_count": 0,
+      "first_substep_contact_difference": [],
+      "substep_contact_difference_count": 0
+    },
+    {
+      "lane": 1,
+      "first_state_difference": [],
+      "state_difference_count": 0,
+      "first_substep_contact_difference": [],
+      "substep_contact_difference_count": 0
+    },
+    {
+      "lane": 2,
+      "first_state_difference": [],
+      "state_difference_count": 0,
+      "first_substep_contact_difference": [],
+      "substep_contact_difference_count": 0
+    },
+    {
+      "lane": 3,
+      "first_state_difference": [],
+      "state_difference_count": 0,
+      "first_substep_contact_difference": [],
+      "substep_contact_difference_count": 0
+    },
+    {
+      "lane": 4,
+      "first_state_difference": [],
+      "state_difference_count": 0,
+      "first_substep_contact_difference": [],
+      "substep_contact_difference_count": 0
+    },
+    {
+      "lane": 5,
+      "first_state_difference": [],
+      "state_difference_count": 0,
+      "first_substep_contact_difference": [],
+      "substep_contact_difference_count": 0
+    },
+    {
+      "lane": 6,
+      "first_state_difference": [],
+      "state_difference_count": 0,
+      "first_substep_contact_difference": [],
+      "substep_contact_difference_count": 0
+    },
+    {
+      "lane": 7,
+      "first_state_difference": [],
+      "state_difference_count": 0,
+      "first_substep_contact_difference": [],
+      "substep_contact_difference_count": 0
+    }
+  ],
+  "scope": "Compares accepted endpoint q, v and contacts and all recorded substep aggregate contacts for the first 200 intervals of matching development seed. A match does not establish physical realism or other seeds. Both runs use the same teacher-off actor, v15 body and frozen flight law; the extended walking command differs afterward."
+}

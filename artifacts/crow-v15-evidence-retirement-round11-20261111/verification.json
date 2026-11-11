@@ -1,0 +1,29 @@
+{
+  "independently_fetched_commit": "5c786f41841c91d2f28a6fbeb641f708561d73d8",
+  "results": [
+    {
+      "path": "/Users/n/Developer/numi-crow-rl-20261107/artifacts/crow-v15-release-hysteresis-control-20261111/autonomous-20261126/run.stderr.gz",
+      "bytes": 86131027,
+      "compressed_sha256": "6376ff61eb7fb2bdd9818e19f2843748680982c25d866227d2d58876388bec02",
+      "expanded_sha256": "f3ee8ec699ae7cd7b37649268b66e783eca3bb33c27ef2945c388b4e6c6a4e1d",
+      "retired": true,
+      "open_handles": false
+    },
+    {
+      "path": "/Users/n/Developer/numi-crow-rl-20261107/artifacts/crow-v15-localized-route-autonomous-eval-20261111/autonomous-20261126/run.stderr.gz",
+      "bytes": 85310274,
+      "compressed_sha256": "8a793246057558f1fe918582e110520bd83db0cc042943630ef391bd676bcaa5",
+      "expanded_sha256": "49fe105becfefacf9cb8d742e9318d64a0eb09ade3552be8d955f2cb66dcf789",
+      "retired": true,
+      "open_handles": false
+    },
+    {
+      "path": "/Users/n/Developer/numi-crow-rl-20261107/artifacts/crow-v15-late-route-autonomous-eval-20261111/autonomous-20261126/run.stderr.gz",
+      "bytes": 88891238,
+      "compressed_sha256": "e696d9b7600f6c2001646c9875f0d5b844510825860cc34b5e58f9e80ddeb5fc",
+      "expanded_sha256": "d43f3ba9c724982cda422d84436603b7bb3b00378463d6ab760e1e996370469a",
+      "retired": true,
+      "open_handles": false
+    }
+  ]
+}
