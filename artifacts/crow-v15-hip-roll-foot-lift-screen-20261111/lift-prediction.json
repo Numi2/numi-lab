@@ -1,0 +1,90 @@
+{
+  "reference": "crow-v15-hip-roll-strong-shift-20261111 lane 0 zero-based step 180",
+  "rows": [
+    {
+      "knee_delta_rad": -0.3,
+      "ankle_delta_rad": 0.15,
+      "foot_center_m": [
+        0.048024555234170124,
+        0.03803104900181885,
+        0.012742202015720877
+      ],
+      "relative_to_baseline_m": [
+        0.020278505625381454,
+        -0.00036366586423237923,
+        0.0021387961572427398
+      ]
+    },
+    {
+      "knee_delta_rad": -0.15,
+      "ankle_delta_rad": 0.075,
+      "foot_center_m": [
+        0.03788628452367078,
+        0.03828545372537284,
+        0.010942589717791155
+      ],
+      "relative_to_baseline_m": [
+        0.010140234914882109,
+        -0.000109261140678385,
+        0.00033918385931301816
+      ]
+    },
+    {
+      "knee_delta_rad": 0,
+      "ankle_delta_rad": -0.0,
+      "foot_center_m": [
+        0.02774604960878867,
+        0.03839471486605123,
+        0.010603405858478137
+      ],
+      "relative_to_baseline_m": [
+        0.0,
+        0.0,
+        0.0
+      ]
+    },
+    {
+      "knee_delta_rad": 0.15,
+      "ankle_delta_rad": -0.075,
+      "foot_center_m": [
+        0.017817663957455727,
+        0.03835998998151509,
+        0.011696977404303826
+      ],
+      "relative_to_baseline_m": [
+        -0.009928385651332944,
+        -3.4724884536138645e-05,
+        0.0010935715458256882
+      ]
+    },
+    {
+      "knee_delta_rad": 0.3,
+      "ankle_delta_rad": -0.15,
+      "foot_center_m": [
+        0.008307564453473817,
+        0.03818557657950932,
+        0.014164593395243296
+      ],
+      "relative_to_baseline_m": [
+        -0.019438485155314853,
+        -0.00020913828654190586,
+        0.0035611875367651587
+      ]
+    },
+    {
+      "knee_delta_rad": 0.5,
+      "ankle_delta_rad": -0.25,
+      "foot_center_m": [
+        -0.003387952132722624,
+        0.03774879948199903,
+        0.019435648673318085
+      ],
+      "relative_to_baseline_m": [
+        -0.031134001741511295,
+        -0.0006459153840521967,
+        0.008832242814839948
+      ]
+    }
+  ],
+  "limitations": "A fixed-root kinematic perturbation, not dynamic execution, toe-shape clearance, force, or biological evidence."
+}
