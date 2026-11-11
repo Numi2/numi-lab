@@ -1,0 +1,3 @@
+# Pre-run exploratory toe effort screen
+
+The previous trial produced bilateral opposing forces but up to 1.76 mm endpoint penetration at the rear distal toes. Repeat its eight conditions with all 16 toe-joint effort limits reduced tenfold from 0.02 to 0.002 N m; all other model, contact, controls, starts, and thresholds remain unchanged. Lane zero uses the rear-contact law, lanes 1-7 use same-foot contact triggers, and caps remain 0.55 to 1.20 rad. Report comparison to the original-effort lane zero as expected to differ; do not treat it as an exact replay. Require 50 consecutive supported opposing intervals, endpoint penetration at most 0.5 mm and no nonfoot contact. Full contact, arrival, release and biological qualification remain open.
