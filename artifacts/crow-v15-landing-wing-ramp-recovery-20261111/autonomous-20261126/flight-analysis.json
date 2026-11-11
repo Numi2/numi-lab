@@ -1,0 +1,139 @@
+{
+  "lanes": [
+    {
+      "lane": 0,
+      "first_episode_steps": 3800,
+      "physical_failure": false,
+      "waypoints": 5,
+      "toe_speed_cap_substeps": 67,
+      "first_cap": [
+        [
+          3436,
+          0
+        ]
+      ],
+      "toe_speed_cap_substeps_after_500": 67,
+      "self_contact_samples_steps_380_to_end": 0,
+      "first_self_contact": [],
+      "distinct_self_contact_step_substeps": 0,
+      "ground_contact_substeps_after_400": 0,
+      "missing_or_duplicate_substeps": 0
+    },
+    {
+      "lane": 1,
+      "first_episode_steps": 3800,
+      "physical_failure": false,
+      "waypoints": 5,
+      "toe_speed_cap_substeps": 19,
+      "first_cap": [
+        [
+          25,
+          9
+        ]
+      ],
+      "toe_speed_cap_substeps_after_500": 0,
+      "self_contact_samples_steps_380_to_end": 0,
+      "first_self_contact": [],
+      "distinct_self_contact_step_substeps": 0,
+      "ground_contact_substeps_after_400": 0,
+      "missing_or_duplicate_substeps": 0
+    },
+    {
+      "lane": 2,
+      "first_episode_steps": 3800,
+      "physical_failure": false,
+      "waypoints": 5,
+      "toe_speed_cap_substeps": 6,
+      "first_cap": [
+        [
+          1,
+          3
+        ]
+      ],
+      "toe_speed_cap_substeps_after_500": 0,
+      "self_contact_samples_steps_380_to_end": 0,
+      "first_self_contact": [],
+      "distinct_self_contact_step_substeps": 0,
+      "ground_contact_substeps_after_400": 0,
+      "missing_or_duplicate_substeps": 0
+    },
+    {
+      "lane": 3,
+      "first_episode_steps": 3800,
+      "physical_failure": false,
+      "waypoints": 5,
+      "toe_speed_cap_substeps": 0,
+      "first_cap": [],
+      "toe_speed_cap_substeps_after_500": 0,
+      "self_contact_samples_steps_380_to_end": 0,
+      "first_self_contact": [],
+      "distinct_self_contact_step_substeps": 0,
+      "ground_contact_substeps_after_400": 0,
+      "missing_or_duplicate_substeps": 0
+    },
+    {
+      "lane": 4,
+      "first_episode_steps": 3800,
+      "physical_failure": false,
+      "waypoints": 5,
+      "toe_speed_cap_substeps": 0,
+      "first_cap": [],
+      "toe_speed_cap_substeps_after_500": 0,
+      "self_contact_samples_steps_380_to_end": 0,
+      "first_self_contact": [],
+      "distinct_self_contact_step_substeps": 0,
+      "ground_contact_substeps_after_400": 0,
+      "missing_or_duplicate_substeps": 0
+    },
+    {
+      "lane": 5,
+      "first_episode_steps": 3800,
+      "physical_failure": false,
+      "waypoints": 5,
+      "toe_speed_cap_substeps": 0,
+      "first_cap": [],
+      "toe_speed_cap_substeps_after_500": 0,
+      "self_contact_samples_steps_380_to_end": 0,
+      "first_self_contact": [],
+      "distinct_self_contact_step_substeps": 0,
+      "ground_contact_substeps_after_400": 0,
+      "missing_or_duplicate_substeps": 0
+    },
+    {
+      "lane": 6,
+      "first_episode_steps": 3800,
+      "physical_failure": false,
+      "waypoints": 5,
+      "toe_speed_cap_substeps": 4,
+      "first_cap": [
+        [
+          3621,
+          4
+        ]
+      ],
+      "toe_speed_cap_substeps_after_500": 4,
+      "self_contact_samples_steps_380_to_end": 0,
+      "first_self_contact": [],
+      "distinct_self_contact_step_substeps": 0,
+      "ground_contact_substeps_after_400": 0,
+      "missing_or_duplicate_substeps": 0
+    },
+    {
+      "lane": 7,
+      "first_episode_steps": 3800,
+      "physical_failure": false,
+      "waypoints": 5,
+      "toe_speed_cap_substeps": 0,
+      "first_cap": [],
+      "toe_speed_cap_substeps_after_500": 0,
+      "self_contact_samples_steps_380_to_end": 0,
+      "first_self_contact": [],
+      "distinct_self_contact_step_substeps": 0,
+      "ground_contact_substeps_after_400": 0,
+      "missing_or_duplicate_substeps": 0
+    }
+  ],
+  "contact_capacity_overflows": [],
+  "substep_errors": [],
+  "scope": "Self-contact observer logs contacts with normal impulse above 1e-7 N s between crow bodies only, steps 380 through 3800. Ground count uses summed normal impulse above 1e-7 N s for both feet and other crow bodies against the ground at covered substeps. Sampled 12 rad/s speed caps do not identify physical cause. No biological calibration or continuous flight qualification."
+}
