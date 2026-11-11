@@ -1,0 +1,10 @@
+{
+  "source_policy_sha256": "5ea8c0534b72bee96c2d83d052d6412f6e2a28b9d9a71a2471b65fa3093413bb",
+  "rebound_policy_sha256": "b6f7ab89147275a9d1304b80a2250a8e0cde07413da225d55f548b987b248301",
+  "identical_layers_and_transforms": true,
+  "zero_output_verified": true,
+  "world": 17849892828784977451,
+  "task": 1917818524429010365,
+  "observation": 9190510776321113153,
+  "action": 4910593862023342939
+}
