@@ -1,0 +1,53 @@
+{
+  "independently_fetched_commit": "d0bd09185c585120849451800235c28347136929",
+  "results": [
+    {
+      "path": "/Users/n/Developer/numi-crow-rl-20261107/artifacts/crow-v15-landing-staged-recovery-20261111/autonomous-20261126/run.stderr.gz",
+      "bytes": 79882312,
+      "sha256": "b3ab422e77fe05090742587663e8af06cb59950ce45dae5d2ef55dc704140136",
+      "verified_archive": "artifacts/crow-v15-landing-staged-recovery-20261111/autonomous-20261126/stderr-parts.json",
+      "open_handles": false,
+      "retired": true
+    },
+    {
+      "path": "/Users/n/Developer/numi-crow-rl-20261107/build/crow-v15-landing-staged-recovery-20261111/autonomous-20261126-replay.json",
+      "bytes": 145246825,
+      "sha256": "7815418a573cd2d4948d5c6544f1a30aab309e92de461678f67e1acda9fd88d4",
+      "verified_archive": "artifacts/crow-v15-landing-staged-recovery-20261111/autonomous-20261126/replay.json.gz",
+      "open_handles": false,
+      "retired": true
+    },
+    {
+      "path": "/Users/n/Developer/numi-crow-rl-20261107/build/crow-v15-landing-staged-recovery-20261111/autonomous-20261126-trace.tsv",
+      "bytes": 3212994,
+      "sha256": "2c5779eeebd1a226dc9493e0443a777630e43b123d3970bc0a3950d2fbd826e3",
+      "verified_archive": "artifacts/crow-v15-landing-staged-recovery-20261111/autonomous-20261126/trace.tsv.gz",
+      "open_handles": false,
+      "retired": true
+    },
+    {
+      "path": "/Users/n/Developer/numi-crow-rl-20261107/artifacts/crow-v15-low-speed-flight-screen-20261111/flight.stderr.gz",
+      "bytes": 35137389,
+      "sha256": "d77d604fcadbf1eead7330147a8a9d2a4454e089a3e7e020426fb58ee2f35299",
+      "verified_archive": "artifacts/crow-v15-low-speed-flight-screen-20261111/stderr-parts.json",
+      "open_handles": false,
+      "retired": true
+    },
+    {
+      "path": "/Users/n/Developer/numi-crow-rl-20261107/build/crow-v15-low-speed-flight-screen-20261111/flight-replay.json",
+      "bytes": 63041382,
+      "sha256": "afc0603524a1589f8f52f6363af02dcf1630d6cc2cac2d0fbeb1be05ff41183f",
+      "verified_archive": "artifacts/crow-v15-low-speed-flight-screen-20261111/flight-replay.json.gz",
+      "open_handles": false,
+      "retired": true
+    },
+    {
+      "path": "/Users/n/Developer/numi-crow-rl-20261107/build/crow-v15-low-speed-flight-screen-20261111/flight-trace.tsv",
+      "bytes": 1345947,
+      "sha256": "1e9f3aaf6b82a32ae64ed9ff9406d5c4bd1bd4b8eb4649890cde346a6ff2491b",
+      "verified_archive": "artifacts/crow-v15-low-speed-flight-screen-20261111/flight-trace.tsv.gz",
+      "open_handles": false,
+      "retired": true
+    }
+  ]
+}

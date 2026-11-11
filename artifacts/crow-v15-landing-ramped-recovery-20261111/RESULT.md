@@ -1,0 +1,5 @@
+# Ramped flight recovery increased overshoot
+
+All eight teacher-off first episodes on the used development course reached five waypoint criteria without physical termination by step 3800. The two starts that fell in the localized-route baseline opened their toe drives before returning to flight; no toe speed cap was observed in either. However, their final root x positions were 14.04 m and 9.51 m, versus approximately 5.17 m and 4.96 m for their goals; staged recovery without the ramp ended at 11.34 m and 8.40 m. Neither recovered start landed by the horizon. Only lane 5 met the terminal 25-interval bilateral opposed toe-support gate. This ramp is rejected for landing recovery despite avoiding observed toe caps; no causal explanation is established.
+
+Initial settling caps persisted in lanes 1 and 2; no logged crow self-contact after step 380, nonfoot perch impulse, substep error or contact overflow occurred, and all first-episode substep records were present. Unaffected lanes matched the retained baseline at accepted endpoints, not necessarily at every substep. This is not unused-layout, realistic-bird or complete-sequence evidence.
