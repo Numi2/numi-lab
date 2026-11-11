@@ -1,0 +1,49 @@
+--- a/walking-wrapper.metal
++++ b/gait-directions.metal
+@@ -5071,23 +5071,30 @@
+             const float seconds=float(state.episode.x)*dispatch.timing.x;
+             const uint leg=(action-7u)/3u, joint=(action-7u)%3u;
+             const float support=leg==0u ? state.nutrition.y : state.nutrition.x;
++            const float begin=4.0f;
+             const float carrier=sin(kTwoPi*seconds/0.50f)*(leg==0u ? 1.0f : -1.0f);
+-            const float swing=seconds >= 2.0f && seconds < 4.0f && support > 0.05f ? carrier : 0.0f;
++            const float swing=seconds >= begin && seconds < begin+2.0f && support > 0.05f ? carrier : 0.0f;
+             const float lift=max(swing,0.0f);
+-            if (seconds >= 2.0f && seconds < 4.0f)
+-                navigationTeacherRequested=smoothstep(2.0f,2.50f,seconds)*(joint==0u ? -0.30f*swing : joint==1u ? 0.40f*lift : -0.15f*lift);
++            if (seconds >= begin && seconds < begin+2.0f)
++                navigationTeacherRequested=smoothstep(begin,begin+.50f,seconds)*(joint==0u ? -0.30f*swing : joint==1u ? 0.40f*lift : -0.15f*lift);
++            else if (seconds>=2.0f && seconds<begin)
++                { const uint arm=environment%8u;
++                const float motion=length(float2(state.commandExtension.z,state.threatGeometry.y)); const float gain=arm==5u ? .8f : .4f+.4f*smoothstep(.03f,.12f,motion);
++                const bool supported=(state.nutrition.x+state.nutrition.y)>0.05f;
++                const float feedback=joint==0u ? -gain*state.commandExtension.z : joint==1u ? -.5f*gain*state.threatGeometry.y : 0.0f;
++                navigationTeacherRequested=supported ? clamp(feedback,-.25f,.25f) : 0.0f; }
+         }
+         // Symmetric preparation; extension uses both accepted foot loads.
+         if (fixedFlightController && state.episode.z == 10u && action >= 7u && action <= 12u) {
+             const float seconds=float(state.episode.x)*dispatch.timing.x;
+             const uint joint=(action-7u)%3u;
+-            if (seconds >= 4.3f && seconds < 5.4f) {
++            if (seconds >= 6.3f && seconds < 7.4f) {
+                 const float crouched=joint==0u ? -0.85f : joint==1u ? 1.00f : -0.50f;
+                 const float extended=joint==0u ? -0.50f : joint==1u ? -0.70f : 0.18f;
+                 const bool bilateral=state.nutrition.x>0.05f && state.nutrition.y>0.05f;
+-                navigationTeacherRequested=seconds<4.96f
+-                    ? mix(navigationTeacherRequested,crouched,smoothstep(4.3f,4.55f,seconds))
+-                    : bilateral ? mix(crouched,extended,smoothstep(4.96f,4.98f,seconds)) : crouched;
++                navigationTeacherRequested=seconds<6.96f
++                    ? mix(navigationTeacherRequested,crouched,smoothstep(6.3f,6.55f,seconds))
++                    : bilateral ? mix(crouched,extended,smoothstep(6.96f,6.98f,seconds)) : crouched;
+                 if ((state.status.w & 4096u) != 0u) navigationTeacherRequested = crouched;
+             }
+         }
+@@ -5304,7 +5311,7 @@
+             )
+             : filtered;
+         const float avianWingAmplitude =
+-            fixedFlightController && state.episode.z == 10u && float(state.episode.x)*dispatch.timing.x >= 4.4f && float(state.episode.x)*dispatch.timing.x < 5.4f && binding.actuator.x == MR_TASK_ACTUATOR_FLAPPING_POSITION && (state.status.w & 8192u) == 0u
++            fixedFlightController && float(state.episode.x)*dispatch.timing.x >= 4.0f && float(state.episode.x)*dispatch.timing.x < 6.0f && binding.actuator.x == MR_TASK_ACTUATOR_FLAPPING_POSITION ? 0.0f : fixedFlightController && state.episode.z == 10u && float(state.episode.x)*dispatch.timing.x >= 4.4f && float(state.episode.x)*dispatch.timing.x < 5.4f && binding.actuator.x == MR_TASK_ACTUATOR_FLAPPING_POSITION && (state.status.w & 8192u) == 0u
+             ? 0.0f : fixedFlightController && state.threatTeacher.w >= 1.5f &&
+             binding.actuator.x == MR_TASK_ACTUATOR_FLAPPING_POSITION
+             ? 0.0f
