@@ -1,0 +1,13 @@
+0 target -0.05 end 1600 fail False samples 6 mean_v -0.09754509618273383 max_error 0.05450857423386038 toe caps 0 ground after400 0 missing 0
+1 target 0.0 end 1600 fail False samples 6 mean_v -0.047061894664620754 max_error 0.05675397702827482 toe caps 14 ground after400 0 missing 0
+2 target 0.05 end 1600 fail False samples 6 mean_v 0.0035916187908394894 max_error 0.05973334277280995 toe caps 6 ground after400 0 missing 0
+3 target 0.1 end 1600 fail False samples 6 mean_v 0.0543726045835277 max_error 0.06209171479297991 toe caps 0 ground after400 0 missing 0
+4 target 0.15 end 1600 fail False samples 6 mean_v 0.10529413512817812 max_error 0.06431722734685713 toe caps 0 ground after400 0 missing 0
+5 target 0.25 end 1600 fail False samples 6 mean_v 0.20676293417282754 max_error 0.06656727276288865 toe caps 0 ground after400 0 missing 0
+6 target -0.05 end 1600 fail False samples 6 mean_v -0.09755839672724477 max_error 0.054443264049600815 toe caps 0 ground after400 0 missing 0
+7 target 0.0 end 1600 fail False samples 6 mean_v -0.04707625795063516 max_error 0.0566740251025736 toe caps 0 ground after400 0 missing 0
+8 target 0.05 end 1600 fail False samples 6 mean_v 0.003608710067880381 max_error 0.059828835426778845 toe caps 11 ground after400 0 missing 0
+9 target 0.1 end 1600 fail False samples 6 mean_v 0.054410293883825185 max_error 0.06228147570140985 toe caps 0 ground after400 0 missing 0
+10 target 0.15 end 1600 fail False samples 6 mean_v 0.10529023257654246 max_error 0.06429969762419578 toe caps 0 ground after400 0 missing 0
+11 target 0.25 end 1600 fail False samples 6 mean_v 0.20675432281901704 max_error 0.0665380690331836 toe caps 3 ground after400 0 missing 0
+failed steps 0 overflows 0 substep errors []
