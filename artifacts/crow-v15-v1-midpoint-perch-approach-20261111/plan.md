@@ -1,0 +1,3 @@
+# Intermediate perch approach
+
+The -35 mm approach produced sustained front-toe support while the rear toes were out of reach; the +25 mm approach brought the rear toes into contact but did not support opposing grip and failed against the perch. Test a single intermediate target of +5 mm while retaining every other paused-descent control, model and solver condition. Use the same full-start development J and complete 16-substep contact observation. Compare toe support, opposition, handoff and first physical failure; 50 consecutive supported-opposed intervals, endpoint penetration <=0.5 mm, release/regrip and no non-foot impact remain required. An isolated successful exploratory development run is not robust, autonomous, or held-out evidence.
