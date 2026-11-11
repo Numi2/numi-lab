@@ -1,0 +1,42 @@
+{
+  "remote_commit": "4868b237e5283ef14ca1d5c0bde659b759d11533",
+  "verification": "independent fetched Git restore, gzip decode, SHA-256 and open-handle checks",
+  "retired": [
+    {
+      "path": "build/crow-v15-v1-pause-aligned-descent-20261111/route.json",
+      "archive": "artifacts/crow-v15-v1-pause-aligned-descent-20261111/route.json.gz",
+      "sha256": "e140a39269513def14581aa6c14d96de61e1d07a96842cad104c84cf21e0599d",
+      "bytes": 97404044
+    },
+    {
+      "path": "build/crow-v15-v1-pause-aligned-descent-20261111/route.tsv",
+      "archive": "artifacts/crow-v15-v1-pause-aligned-descent-20261111/route.tsv.gz",
+      "sha256": "d1cc8a9f426b1554ef559d93775eb1baeeb1aa6952fd15356012495cff85c385",
+      "bytes": 2179430
+    },
+    {
+      "path": "build/crow-v15-v1-centered-perch-approach-20261111/route.json",
+      "archive": "artifacts/crow-v15-v1-centered-perch-approach-20261111/route.json.gz",
+      "sha256": "e48e86aa637baafe32db84a74afbfbc2b300fccd8a6102abbe6146ec8b10d3b1",
+      "bytes": 97745359
+    },
+    {
+      "path": "build/crow-v15-v1-centered-perch-approach-20261111/route.tsv",
+      "archive": "artifacts/crow-v15-v1-centered-perch-approach-20261111/route.tsv.gz",
+      "sha256": "efe5738e39200308fe337390fdb3cd5aa1b5e707d95eb230d8a2bf1ecb66f720",
+      "bytes": 2178477
+    },
+    {
+      "path": "build/crow-v15-v1-midpoint-perch-approach-20261111/route.json",
+      "archive": "artifacts/crow-v15-v1-midpoint-perch-approach-20261111/route.json.gz",
+      "sha256": "44ffbecbc240550b2de516c26487db7df8c7b15314c6d80dad8b73bea3ef6e54",
+      "bytes": 98664312
+    },
+    {
+      "path": "build/crow-v15-v1-midpoint-perch-approach-20261111/route.tsv",
+      "archive": "artifacts/crow-v15-v1-midpoint-perch-approach-20261111/route.tsv.gz",
+      "sha256": "3465cbdf3d61e93e687670ddd8bd710be5e9bd1fc34b2212854b974d3fc4a68d",
+      "bytes": 2173299
+    }
+  ]
+}
