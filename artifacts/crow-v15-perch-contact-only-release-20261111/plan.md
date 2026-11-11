@@ -1,0 +1,5 @@
+# Contact-only release trigger on two difficult starts
+
+The previous constructed test uses exact toe/perch geometry as a release trigger, which is privileged information. Keep the same +0.02 rad precontact placement and gradual movement, but make the return trigger depend on elapsed actuator phase, loss of measured left-foot contact, and opposing right-foot contact/vertical impulse only. Continue to record exact shape clearance independently for evaluation; it is not read by the controller. Run 550 intervals on the same two difficult development starts and assess all substep contacts and toe velocities, physical clearance, return and sustained opposing grip. No unsupported landing, autonomous navigation, unseen layout or biological conclusion follows.
+
+The return trigger alone uses contact and phase. The balance controller still uses root position relative to the fixed world/perch frame and velocity; it is a development probe with privileged state, not an autonomous sensing solution. Integrating this into the journey requires an independently evaluated perch-relative estimate derived from available observations.

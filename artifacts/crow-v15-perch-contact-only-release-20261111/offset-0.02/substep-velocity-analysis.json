@@ -1,0 +1,24 @@
+{
+  "rows": [
+    {
+      "lane": 0,
+      "samples": 17600,
+      "max_abs_toe_velocity_rad_s": 4.55091381,
+      "at_or_above_11_99_count": 0,
+      "at_or_above_11_99_after_release_count": 0,
+      "max_last_substep_error": 0.0
+    },
+    {
+      "lane": 1,
+      "samples": 17600,
+      "max_abs_toe_velocity_rad_s": 4.56745529,
+      "at_or_above_11_99_count": 0,
+      "at_or_above_11_99_after_release_count": 0,
+      "max_last_substep_error": 0.0
+    }
+  ],
+  "missing_or_duplicate_samples": 0,
+  "bad_records": [],
+  "bad_record_count": 0,
+  "interpretation": "Velocity samples are end-of-substep generalized velocities; they do not prove no instantaneous within-substep excursion. Check observer agreement and trajectory repeat before use."
+}
