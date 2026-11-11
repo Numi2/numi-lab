@@ -1,0 +1,17 @@
+--- a/reference.metal
++++ b/feedback.metal
+@@ -5083,10 +5083,12 @@
+         if (fixedFlightController && state.episode.z == 10u && action >= 7u && action <= 12u) {
+             const float seconds=float(state.episode.x)*dispatch.timing.x;
+             const uint leg=(action-7u)/3u, joint=(action-7u)%3u;
+-            const float support=dispatch.counts.w==40u ? ((state.status.w & (leg==0u ? (1u<<21) : (1u<<20)))!=0u ? 1.0f : 0.0f) : (leg==0u ? state.nutrition.y : state.nutrition.x);
++            // Blend the existing swing with accepted opposite-foot load;
++            // zero below threshold and fully enabled by 0.50 N.
++            const float support=leg==0u ? state.nutrition.y : state.nutrition.x;
+             const float begin=4.0f;
+             const float carrier=sin(kTwoPi*seconds/0.50f)*(leg==0u ? 1.0f : -1.0f);
+-            const float swing=seconds >= begin && seconds < begin+2.0f && support > 0.05f ? carrier : 0.0f;
++            const float swing=seconds >= begin && seconds < begin+2.0f ? carrier*smoothstep(.05f,.50f,support) : 0.0f;
+             const float lift=max(swing,0.0f);
+             if (seconds >= begin && seconds < begin+2.0f)
+                 navigationTeacherRequested=0.80f*smoothstep(begin,begin+.50f,seconds)*(joint==0u ? -0.30f*swing : joint==1u ? 0.40f*lift : -0.15f*lift);
