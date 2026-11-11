@@ -1,0 +1,5 @@
+# Earlier-wing full development sequence
+
+The 500-step development takeoff test showed earlier unloading and sustained flight, while direct substep ordering is being checked separately. Before considering integration, run the same early-wing shader on the retained localized-route development setup and seed 20261126, eight lanes, 5,000 control intervals, no scheduled resets and teacher disabled. Use the same body, route, landing controls and observer as the prior matched localized-route run. Compare accepted q/v/actions and contact through step 344, then report the first episode only: walking, takeoff, course progress, first fatal pair, observed landing support and toe-speed caps. Preserve every failure and the full replay.
+
+This is one previously used layout and seed. Do not claim unused-layout performance or qualification; do not equate waypoint flags with physical supported landing. A pass here would still require independent starts, whole-body gait and contact measurements, demonstrated flight control without artificial body moments, release, and untouched layouts.
