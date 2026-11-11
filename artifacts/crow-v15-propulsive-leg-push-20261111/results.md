@@ -1,0 +1,5 @@
+# Propulsive leg extension screen
+
+All nine arms completed eight development starts without native failure, termination or ground recontact through step 500. The unchanged center arm reproduced every recorded baseline q/v and full-substep contact value exactly. Only hip -0.50 and ankle -0.30 passed the predeclared forward-speed, tilt, climb and continuously airborne screen in all eight starts; forward speed at step 353 was 0.280–0.281 m/s. The other eight arms failed that forward-speed gate. Independently reconstructed feet and toe boxes cleared the ground in all eight candidate starts at two consecutive rising endpoints, with contact-free intervals across all 16 substeps; see the separate matched-controls artifact.
+
+The wing-suppressed control for this apparent survivor did not satisfy the predeclared leg-only rising-unload condition, so this screen does not establish a leg-powered takeoff despite the full candidate passing its integrated gate. Further redesign is required. These are development starts on one training course, not reserved-layout navigation, grip, landing, continuous swept clearance or biological validation.

@@ -1,0 +1,38 @@
+[
+  {
+    "name": "hn50-an30",
+    "sha256": "756a2ba5c7533a314750283a2bec18e730322194fa37c4d3d8984541c817c687"
+  },
+  {
+    "name": "hn50-ap18",
+    "sha256": "2e698cfca346ce35804d0e56c0d1d8021ff6950a4f56257e10c832f7b6ee0f8a"
+  },
+  {
+    "name": "hn50-ap70",
+    "sha256": "0b96e2dc629f94db9f2f7b8afbcebd2d44b9dc9a01cf2c09b00b2d3d93f61923"
+  },
+  {
+    "name": "hp10-an30",
+    "sha256": "11355082d2428def7b688ded7842859240ee9bfd4063f40b59fb72419455b676"
+  },
+  {
+    "name": "hp10-ap18",
+    "sha256": "0b5b385feb6e47f2fba50235c1dda9cadca74073748d6a6d850d53a299379fc9"
+  },
+  {
+    "name": "hp10-ap70",
+    "sha256": "3a03b0b3468890acd9feae112a440f05197f709a13e86455f06b6e500d667d2b"
+  },
+  {
+    "name": "hp70-an30",
+    "sha256": "3d10425f41d95e6ffe3b8c8fd1456871990771bffb55fb391e60d3ad3fcde08b"
+  },
+  {
+    "name": "hp70-ap18",
+    "sha256": "21f7868b6ff5d6480ca93dcf8708462fd1d56b3d66211f1da23cabb2533f8cf7"
+  },
+  {
+    "name": "hp70-ap70",
+    "sha256": "1066e8c4f5b1296cb03ea4ad8f79fb628409cd465344aa8828cbad22970ae0db"
+  }
+]

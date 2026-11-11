@@ -1,0 +1,9 @@
+wing-suppressed c589eb9f126150575aded152706fab74e8c24432081b4eb834a7f2b916fff974
+/Users/n/Developer/numi-crow-rl-20261107/build/crow-v15-propulsive-launch-controls-20261111/held-crouch.metal:5086:29: warning: unused variable 'extended' [-Wunused-variable]
+                const float extended=joint==0u ? -0.50f : joint==1u ? -0.70f : -0.30f;
+                            ^
+/Users/n/Developer/numi-crow-rl-20261107/build/crow-v15-propulsive-launch-controls-20261111/held-crouch.metal:5087:28: warning: unused variable 'bilateral' [-Wunused-variable]
+                const bool bilateral=state.nutrition.x>0.05f && state.nutrition.y>0.05f;
+                           ^
+2 warnings generated.
+held-crouch e7643710656b4542a0fe5468303b5d9c54e755ef7253bea129074cfc838e4298

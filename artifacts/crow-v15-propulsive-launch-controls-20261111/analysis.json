@@ -1,0 +1,285 @@
+{
+  "candidate": {
+    "lanes": [
+      {
+        "lane": 0,
+        "first_qv_difference_before_push": null,
+        "first_unload_step": 254,
+        "first_unload_vertical_speed_m_s": 1.36003447,
+        "two_unloaded_rising_intervals": true,
+        "first_recontact_step": null,
+        "maximum_pre_recontact_height_gain_m": 0.320403039,
+        "maximum_vertical_speed_m_s": 1.36003447,
+        "maximum_nonfoot_impulse_Ns": 0.0
+      },
+      {
+        "lane": 1,
+        "first_qv_difference_before_push": null,
+        "first_unload_step": 254,
+        "first_unload_vertical_speed_m_s": 1.36023521,
+        "two_unloaded_rising_intervals": true,
+        "first_recontact_step": null,
+        "maximum_pre_recontact_height_gain_m": 0.320428222,
+        "maximum_vertical_speed_m_s": 1.36023521,
+        "maximum_nonfoot_impulse_Ns": 0.0
+      },
+      {
+        "lane": 2,
+        "first_qv_difference_before_push": null,
+        "first_unload_step": 254,
+        "first_unload_vertical_speed_m_s": 1.36048126,
+        "two_unloaded_rising_intervals": true,
+        "first_recontact_step": null,
+        "maximum_pre_recontact_height_gain_m": 0.320460722,
+        "maximum_vertical_speed_m_s": 1.36048126,
+        "maximum_nonfoot_impulse_Ns": 0.0
+      },
+      {
+        "lane": 3,
+        "first_qv_difference_before_push": null,
+        "first_unload_step": 254,
+        "first_unload_vertical_speed_m_s": 1.35616922,
+        "two_unloaded_rising_intervals": true,
+        "first_recontact_step": null,
+        "maximum_pre_recontact_height_gain_m": 0.319978908,
+        "maximum_vertical_speed_m_s": 1.35616922,
+        "maximum_nonfoot_impulse_Ns": 0.0
+      },
+      {
+        "lane": 4,
+        "first_qv_difference_before_push": null,
+        "first_unload_step": 254,
+        "first_unload_vertical_speed_m_s": 1.35502815,
+        "two_unloaded_rising_intervals": true,
+        "first_recontact_step": null,
+        "maximum_pre_recontact_height_gain_m": 0.319854275,
+        "maximum_vertical_speed_m_s": 1.35502815,
+        "maximum_nonfoot_impulse_Ns": 0.0
+      },
+      {
+        "lane": 5,
+        "first_qv_difference_before_push": null,
+        "first_unload_step": 254,
+        "first_unload_vertical_speed_m_s": 1.36006486,
+        "two_unloaded_rising_intervals": true,
+        "first_recontact_step": null,
+        "maximum_pre_recontact_height_gain_m": 0.32041134,
+        "maximum_vertical_speed_m_s": 1.36006486,
+        "maximum_nonfoot_impulse_Ns": 0.0
+      },
+      {
+        "lane": 6,
+        "first_qv_difference_before_push": null,
+        "first_unload_step": 254,
+        "first_unload_vertical_speed_m_s": 1.35971344,
+        "two_unloaded_rising_intervals": true,
+        "first_recontact_step": null,
+        "maximum_pre_recontact_height_gain_m": 0.320384741,
+        "maximum_vertical_speed_m_s": 1.35971344,
+        "maximum_nonfoot_impulse_Ns": 0.0
+      },
+      {
+        "lane": 7,
+        "first_qv_difference_before_push": null,
+        "first_unload_step": 254,
+        "first_unload_vertical_speed_m_s": 1.36100888,
+        "two_unloaded_rising_intervals": true,
+        "first_recontact_step": null,
+        "maximum_pre_recontact_height_gain_m": 0.320504994,
+        "maximum_vertical_speed_m_s": 1.36100888,
+        "maximum_nonfoot_impulse_Ns": 0.0
+      }
+    ],
+    "failed_environment_steps": 0,
+    "termination_count": 0
+  },
+  "wing-suppressed": {
+    "lanes": [
+      {
+        "lane": 0,
+        "first_qv_difference_before_push": null,
+        "first_unload_step": 254,
+        "first_unload_vertical_speed_m_s": 0.016768761,
+        "two_unloaded_rising_intervals": false,
+        "first_recontact_step": 257,
+        "maximum_pre_recontact_height_gain_m": 0.021879748000000004,
+        "maximum_vertical_speed_m_s": 0.404930472,
+        "maximum_nonfoot_impulse_Ns": 0.0
+      },
+      {
+        "lane": 1,
+        "first_qv_difference_before_push": null,
+        "first_unload_step": 254,
+        "first_unload_vertical_speed_m_s": 0.0167114306,
+        "two_unloaded_rising_intervals": false,
+        "first_recontact_step": 257,
+        "maximum_pre_recontact_height_gain_m": 0.02187539600000002,
+        "maximum_vertical_speed_m_s": 0.404896945,
+        "maximum_nonfoot_impulse_Ns": 0.0
+      },
+      {
+        "lane": 2,
+        "first_qv_difference_before_push": null,
+        "first_unload_step": 254,
+        "first_unload_vertical_speed_m_s": 0.0167400036,
+        "two_unloaded_rising_intervals": false,
+        "first_recontact_step": 257,
+        "maximum_pre_recontact_height_gain_m": 0.021879180999999998,
+        "maximum_vertical_speed_m_s": 0.40495494,
+        "maximum_nonfoot_impulse_Ns": 0.0
+      },
+      {
+        "lane": 3,
+        "first_qv_difference_before_push": null,
+        "first_unload_step": 254,
+        "first_unload_vertical_speed_m_s": 0.0167619772,
+        "two_unloaded_rising_intervals": false,
+        "first_recontact_step": 257,
+        "maximum_pre_recontact_height_gain_m": 0.021879047000000013,
+        "maximum_vertical_speed_m_s": 0.404949605,
+        "maximum_nonfoot_impulse_Ns": 0.0
+      },
+      {
+        "lane": 4,
+        "first_qv_difference_before_push": null,
+        "first_unload_step": 254,
+        "first_unload_vertical_speed_m_s": 0.0166108608,
+        "two_unloaded_rising_intervals": false,
+        "first_recontact_step": 257,
+        "maximum_pre_recontact_height_gain_m": 0.021879599,
+        "maximum_vertical_speed_m_s": 0.405140936,
+        "maximum_nonfoot_impulse_Ns": 0.0
+      },
+      {
+        "lane": 5,
+        "first_qv_difference_before_push": null,
+        "first_unload_step": 254,
+        "first_unload_vertical_speed_m_s": 0.0167195611,
+        "two_unloaded_rising_intervals": false,
+        "first_recontact_step": 257,
+        "maximum_pre_recontact_height_gain_m": 0.021878958000000004,
+        "maximum_vertical_speed_m_s": 0.40497905,
+        "maximum_nonfoot_impulse_Ns": 0.0
+      },
+      {
+        "lane": 6,
+        "first_qv_difference_before_push": null,
+        "first_unload_step": 254,
+        "first_unload_vertical_speed_m_s": 0.0169417765,
+        "two_unloaded_rising_intervals": false,
+        "first_recontact_step": 257,
+        "maximum_pre_recontact_height_gain_m": 0.021890044999999997,
+        "maximum_vertical_speed_m_s": 0.405149519,
+        "maximum_nonfoot_impulse_Ns": 0.0
+      },
+      {
+        "lane": 7,
+        "first_qv_difference_before_push": null,
+        "first_unload_step": 254,
+        "first_unload_vertical_speed_m_s": 0.0165111888,
+        "two_unloaded_rising_intervals": false,
+        "first_recontact_step": 257,
+        "maximum_pre_recontact_height_gain_m": 0.021873459999999983,
+        "maximum_vertical_speed_m_s": 0.404993117,
+        "maximum_nonfoot_impulse_Ns": 0.0
+      }
+    ],
+    "failed_environment_steps": 0,
+    "termination_count": 0
+  },
+  "held-crouch": {
+    "lanes": [
+      {
+        "lane": 0,
+        "first_qv_difference_before_push": null,
+        "first_unload_step": null,
+        "first_unload_vertical_speed_m_s": null,
+        "two_unloaded_rising_intervals": false,
+        "first_recontact_step": null,
+        "maximum_pre_recontact_height_gain_m": 0.00036831199999998177,
+        "maximum_vertical_speed_m_s": 0.000885689806,
+        "maximum_nonfoot_impulse_Ns": 0.0
+      },
+      {
+        "lane": 1,
+        "first_qv_difference_before_push": null,
+        "first_unload_step": null,
+        "first_unload_vertical_speed_m_s": null,
+        "two_unloaded_rising_intervals": false,
+        "first_recontact_step": null,
+        "maximum_pre_recontact_height_gain_m": 0.0003666730000000118,
+        "maximum_vertical_speed_m_s": 0.000882781693,
+        "maximum_nonfoot_impulse_Ns": 0.0
+      },
+      {
+        "lane": 2,
+        "first_qv_difference_before_push": null,
+        "first_unload_step": null,
+        "first_unload_vertical_speed_m_s": null,
+        "two_unloaded_rising_intervals": false,
+        "first_recontact_step": null,
+        "maximum_pre_recontact_height_gain_m": 0.00036911700000000214,
+        "maximum_vertical_speed_m_s": 0.000894760014,
+        "maximum_nonfoot_impulse_Ns": 0.0
+      },
+      {
+        "lane": 3,
+        "first_qv_difference_before_push": null,
+        "first_unload_step": null,
+        "first_unload_vertical_speed_m_s": null,
+        "two_unloaded_rising_intervals": false,
+        "first_recontact_step": null,
+        "maximum_pre_recontact_height_gain_m": 0.0003664050000000141,
+        "maximum_vertical_speed_m_s": 0.00089153013,
+        "maximum_nonfoot_impulse_Ns": 0.0
+      },
+      {
+        "lane": 4,
+        "first_qv_difference_before_push": null,
+        "first_unload_step": null,
+        "first_unload_vertical_speed_m_s": null,
+        "two_unloaded_rising_intervals": false,
+        "first_recontact_step": null,
+        "maximum_pre_recontact_height_gain_m": 0.00036710500000000645,
+        "maximum_vertical_speed_m_s": 0.000881144369,
+        "maximum_nonfoot_impulse_Ns": 0.0
+      },
+      {
+        "lane": 5,
+        "first_qv_difference_before_push": null,
+        "first_unload_step": null,
+        "first_unload_vertical_speed_m_s": null,
+        "two_unloaded_rising_intervals": false,
+        "first_recontact_step": null,
+        "maximum_pre_recontact_height_gain_m": 0.00036738899999999575,
+        "maximum_vertical_speed_m_s": 0.000892539043,
+        "maximum_nonfoot_impulse_Ns": 0.0
+      },
+      {
+        "lane": 6,
+        "first_qv_difference_before_push": null,
+        "first_unload_step": null,
+        "first_unload_vertical_speed_m_s": null,
+        "two_unloaded_rising_intervals": false,
+        "first_recontact_step": null,
+        "maximum_pre_recontact_height_gain_m": 0.00036860999999999144,
+        "maximum_vertical_speed_m_s": 0.000901744701,
+        "maximum_nonfoot_impulse_Ns": 0.0
+      },
+      {
+        "lane": 7,
+        "first_qv_difference_before_push": null,
+        "first_unload_step": null,
+        "first_unload_vertical_speed_m_s": null,
+        "two_unloaded_rising_intervals": false,
+        "first_recontact_step": null,
+        "maximum_pre_recontact_height_gain_m": 0.0003681190000000001,
+        "maximum_vertical_speed_m_s": 0.000902270782,
+        "maximum_nonfoot_impulse_Ns": 0.0
+      }
+    ],
+    "failed_environment_steps": 0,
+    "termination_count": 0
+  },
+  "leg_power_control_pass": false
+}

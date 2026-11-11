@@ -1,0 +1,11 @@
+--- a/candidate.metal
++++ b/held-crouch.metal
+@@ -5087,7 +5087,7 @@
+                 const bool bilateral=state.nutrition.x>0.05f && state.nutrition.y>0.05f;
+                 navigationTeacherRequested=seconds<4.96f
+                     ? mix(navigationTeacherRequested,crouched,smoothstep(4.3f,4.55f,seconds))
+-                    : bilateral ? mix(crouched,extended,smoothstep(4.96f,4.98f,seconds)) : crouched;
++                    : crouched;
+                 if ((state.status.w & 4096u) != 0u) navigationTeacherRequested = crouched;
+             }
+         }
