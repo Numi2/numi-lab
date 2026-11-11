@@ -1,0 +1,5 @@
+# Perturbed perch acquisition diagnostic
+
+The unchanged reference reproduced all 1,500 previous saved states and requested release at step 777. It finished with bilateral support and all 100 terminal samples showing opposed forces, but still had 0.514 mm peak endpoint toe-box overlap and failed the strict 0.5 mm limit. None of the 15 small perturbed initial conditions requested release or retained support through the final 100 samples; all had fallen below the elevated perch by the end of the 1,500-step run. Some briefly formed opposed contacts, so acquisition and maintenance both require further investigation. No other-body perch contact was recorded in the full substep observer.
+
+The starts are constructed stationary perch approaches, not physically reached flight arrivals, and are a developmental diagnostic rather than a held-out landing claim. Their failure does not establish a solver defect. The full starts, unfiltered failures, exact reference parity, recorded outcomes, runtime and hashes are retained.
