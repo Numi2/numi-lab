@@ -1,0 +1,5 @@
+# Balance divergence after toe release
+
+Two constructed stationary-perch release trials were compared with retained two-foot-hold trials from matching initial conditions. Their q/v records were identical until step 115 for the first pair and step 120 for the second; the release event records are at 116 and 121, respectively, reflecting the observer/control step boundary. After the released foot returned, the release trials developed both sideways roll and forward pitch, reaching approximately -0.28 rad roll and +0.98 rad pitch just before the root fell below 0.1 m. The corresponding held trials remained near zero roll and +0.14–0.15 rad pitch at the same recorded steps.
+
+The release arms also changed fore-aft damping and leg targets during the release/regrip phases, so this comparison does not isolate toe opening as the cause. It shows the combined release strategy needs whole-body balance control and motivates a physically measured follow-up. These are constructed stationary starts, not airborne arrivals, autonomous route trials, or biological validation.
