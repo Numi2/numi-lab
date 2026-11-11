@@ -1,0 +1,351 @@
+{
+  "teacher": true,
+  "student_authority": 0,
+  "host_requested_resets": 0,
+  "termination_counts": {
+    "4": 8
+  },
+  "first_episode_navigation": {
+    "boundary": "waypoint completion; does not establish supported landing",
+    "closed_by_environment": [
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true
+    ],
+    "closed_episode_count": 8,
+    "completion_seen_by_environment": [
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true
+    ],
+    "completion_seen_count": 8,
+    "environment_count": 8,
+    "first_completion_step_by_environment": [
+      2689,
+      2729,
+      2688,
+      2610,
+      2675,
+      2654,
+      2586,
+      2602
+    ],
+    "horizon_censored_count": 0,
+    "maximum_waypoints_by_environment": [
+      5,
+      5,
+      5,
+      5,
+      5,
+      5,
+      5,
+      5
+    ],
+    "physical_failure_by_environment": [
+      false,
+      false,
+      false,
+      false,
+      false,
+      false,
+      false,
+      false
+    ],
+    "physical_failure_count": 0,
+    "safe_completion_by_environment": [
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true
+    ],
+    "safe_completion_count": 8,
+    "schema": "numi.crow-first-episode-evidence.v1",
+    "steps_by_environment": [
+      3000,
+      3000,
+      3000,
+      3000,
+      3000,
+      3000,
+      3000,
+      3000
+    ],
+    "termination_reason_by_environment": [
+      4,
+      4,
+      4,
+      4,
+      4,
+      4,
+      4,
+      4
+    ],
+    "unit": "first episode of each environment since context creation"
+  },
+  "lanes": [
+    {
+      "lane": 0,
+      "first_episode_end_step": 3000,
+      "first_episode_waypoints": 5,
+      "termination_reason": 4,
+      "physical_failure": false,
+      "first_scene_contact": null,
+      "preceding_position_m": null,
+      "preceding_orientation_xyzw": null,
+      "preceding_linear_angular_velocity": null,
+      "preceding_policy_actions": null,
+      "first_contact_termination_trace": null,
+      "first_difference_from_prior_collision_enabled_teacher_step": 1448,
+      "sampled_minimum_clearance": {
+        "lane": 0,
+        "end_step": 3000,
+        "minimum_step": 1089,
+        "minimum_m": 0.275578379159,
+        "bird_shape": "crow_right_wing/collision",
+        "obstacle_shape": "crow_course_gate_right/collision",
+        "bird_body": "crow_right_wing",
+        "obstacle_body": "crow_course_gate_right",
+        "sampling": "accepted_control_steps"
+      },
+      "missing_first_episode_substeps": 0,
+      "last_position": [
+        4.85997772,
+        0.671444654,
+        1.39354479
+      ]
+    },
+    {
+      "lane": 1,
+      "first_episode_end_step": 3000,
+      "first_episode_waypoints": 5,
+      "termination_reason": 4,
+      "physical_failure": false,
+      "first_scene_contact": null,
+      "preceding_position_m": null,
+      "preceding_orientation_xyzw": null,
+      "preceding_linear_angular_velocity": null,
+      "preceding_policy_actions": null,
+      "first_contact_termination_trace": null,
+      "first_difference_from_prior_collision_enabled_teacher_step": 1529,
+      "sampled_minimum_clearance": {
+        "lane": 1,
+        "end_step": 3000,
+        "minimum_step": 1242,
+        "minimum_m": 0.12548170656,
+        "bird_shape": "crow_tail/collision",
+        "obstacle_shape": "crow_course_gate_right/collision",
+        "bird_body": "crow_tail",
+        "obstacle_body": "crow_course_gate_right",
+        "sampling": "accepted_control_steps"
+      },
+      "missing_first_episode_substeps": 0,
+      "last_position": [
+        4.92316914,
+        0.584128559,
+        1.39732695
+      ]
+    },
+    {
+      "lane": 2,
+      "first_episode_end_step": 3000,
+      "first_episode_waypoints": 5,
+      "termination_reason": 4,
+      "physical_failure": false,
+      "first_scene_contact": null,
+      "preceding_position_m": null,
+      "preceding_orientation_xyzw": null,
+      "preceding_linear_angular_velocity": null,
+      "preceding_policy_actions": null,
+      "first_contact_termination_trace": null,
+      "first_difference_from_prior_collision_enabled_teacher_step": null,
+      "sampled_minimum_clearance": {
+        "lane": 2,
+        "end_step": 3000,
+        "minimum_step": 1968,
+        "minimum_m": 0.0707668473462,
+        "bird_shape": "crow_head/upper_beak_collision",
+        "obstacle_shape": "crow_course_slalom_b/collision",
+        "bird_body": "crow_head",
+        "obstacle_body": "crow_course_slalom_b",
+        "sampling": "accepted_control_steps"
+      },
+      "missing_first_episode_substeps": 0,
+      "last_position": [
+        4.86750174,
+        0.560088456,
+        1.39463365
+      ]
+    },
+    {
+      "lane": 3,
+      "first_episode_end_step": 3000,
+      "first_episode_waypoints": 5,
+      "termination_reason": 4,
+      "physical_failure": false,
+      "first_scene_contact": null,
+      "preceding_position_m": null,
+      "preceding_orientation_xyzw": null,
+      "preceding_linear_angular_velocity": null,
+      "preceding_policy_actions": null,
+      "first_contact_termination_trace": null,
+      "first_difference_from_prior_collision_enabled_teacher_step": 1468,
+      "sampled_minimum_clearance": {
+        "lane": 3,
+        "end_step": 3000,
+        "minimum_step": 1860,
+        "minimum_m": 0.163357640058,
+        "bird_shape": "crow_head/upper_beak_collision",
+        "obstacle_shape": "crow_course_slalom_b/collision",
+        "bird_body": "crow_head",
+        "obstacle_body": "crow_course_slalom_b",
+        "sampling": "accepted_control_steps"
+      },
+      "missing_first_episode_substeps": 0,
+      "last_position": [
+        4.65219307,
+        0.728918612,
+        1.4019506
+      ]
+    },
+    {
+      "lane": 4,
+      "first_episode_end_step": 3000,
+      "first_episode_waypoints": 5,
+      "termination_reason": 4,
+      "physical_failure": false,
+      "first_scene_contact": null,
+      "preceding_position_m": null,
+      "preceding_orientation_xyzw": null,
+      "preceding_linear_angular_velocity": null,
+      "preceding_policy_actions": null,
+      "first_contact_termination_trace": null,
+      "first_difference_from_prior_collision_enabled_teacher_step": 1582,
+      "sampled_minimum_clearance": {
+        "lane": 4,
+        "end_step": 3000,
+        "minimum_step": 1926,
+        "minimum_m": 0.111347199492,
+        "bird_shape": "crow_head/upper_beak_collision",
+        "obstacle_shape": "crow_course_slalom_b/collision",
+        "bird_body": "crow_head",
+        "obstacle_body": "crow_course_slalom_b",
+        "sampling": "accepted_control_steps"
+      },
+      "missing_first_episode_substeps": 0,
+      "last_position": [
+        4.82051754,
+        0.680997431,
+        1.39559746
+      ]
+    },
+    {
+      "lane": 5,
+      "first_episode_end_step": 3000,
+      "first_episode_waypoints": 5,
+      "termination_reason": 4,
+      "physical_failure": false,
+      "first_scene_contact": null,
+      "preceding_position_m": null,
+      "preceding_orientation_xyzw": null,
+      "preceding_linear_angular_velocity": null,
+      "preceding_policy_actions": null,
+      "first_contact_termination_trace": null,
+      "first_difference_from_prior_collision_enabled_teacher_step": 1466,
+      "sampled_minimum_clearance": {
+        "lane": 5,
+        "end_step": 3000,
+        "minimum_step": 1089,
+        "minimum_m": 0.203398481075,
+        "bird_shape": "crow_right_wing/collision",
+        "obstacle_shape": "crow_course_gate_right/collision",
+        "bird_body": "crow_right_wing",
+        "obstacle_body": "crow_course_gate_right",
+        "sampling": "accepted_control_steps"
+      },
+      "missing_first_episode_substeps": 0,
+      "last_position": [
+        4.77100897,
+        0.747339845,
+        1.39804411
+      ]
+    },
+    {
+      "lane": 6,
+      "first_episode_end_step": 3000,
+      "first_episode_waypoints": 5,
+      "termination_reason": 4,
+      "physical_failure": false,
+      "first_scene_contact": null,
+      "preceding_position_m": null,
+      "preceding_orientation_xyzw": null,
+      "preceding_linear_angular_velocity": null,
+      "preceding_policy_actions": null,
+      "first_contact_termination_trace": null,
+      "first_difference_from_prior_collision_enabled_teacher_step": null,
+      "sampled_minimum_clearance": {
+        "lane": 6,
+        "end_step": 3000,
+        "minimum_step": 1969,
+        "minimum_m": 0.169775970231,
+        "bird_shape": "crow_head/upper_beak_collision",
+        "obstacle_shape": "crow_course_slalom_b/collision",
+        "bird_body": "crow_head",
+        "obstacle_body": "crow_course_slalom_b",
+        "sampling": "accepted_control_steps"
+      },
+      "missing_first_episode_substeps": 0,
+      "last_position": [
+        4.5700078,
+        0.458966285,
+        1.40584266
+      ]
+    },
+    {
+      "lane": 7,
+      "first_episode_end_step": 3000,
+      "first_episode_waypoints": 5,
+      "termination_reason": 4,
+      "physical_failure": false,
+      "first_scene_contact": null,
+      "preceding_position_m": null,
+      "preceding_orientation_xyzw": null,
+      "preceding_linear_angular_velocity": null,
+      "preceding_policy_actions": null,
+      "first_contact_termination_trace": null,
+      "first_difference_from_prior_collision_enabled_teacher_step": 1538,
+      "sampled_minimum_clearance": {
+        "lane": 7,
+        "end_step": 3000,
+        "minimum_step": 1872,
+        "minimum_m": 0.190410081774,
+        "bird_shape": "crow_head/upper_beak_collision",
+        "obstacle_shape": "crow_course_slalom_b/collision",
+        "bird_body": "crow_head",
+        "obstacle_body": "crow_course_slalom_b",
+        "sampling": "accepted_control_steps"
+      },
+      "missing_first_episode_substeps": 0,
+      "last_position": [
+        4.63012981,
+        0.53603977,
+        1.39953089
+      ]
+    }
+  ],
+  "errors": [],
+  "limitations": "Teacher-guided development layout only. First scene contact need not be fatal; termination trace reports the simulator contact condition. Contact trace steps are one greater than the first-episode counter at a terminating interval; include end+1 for first contact attribution. Clearance is sampled at accepted control-step endpoints and is not a continuous bound. Comparison to prior collision-enabled route uses q, v and policy_action only."
+}

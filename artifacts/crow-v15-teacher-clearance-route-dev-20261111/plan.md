@@ -1,0 +1,3 @@
+# Collision-aware slalom clearance trial
+
+Prediction before running: the existing teacher switches from the first slalom waypoint toward the next target before clearing the first post. Delay only the wp2 lateral transition until the root is 0.40 to 0.55 m beyond the first slalom x coordinate. Keep the frozen low-level flight controller, same eight development starts and collision-enabled physical course. Run 3000 control intervals and analyze the first episode only. Success requires all waypoints without any bird-to-gate or slalom contact; supported landing and fully autonomous behavior remain separate unproven objectives. Endpoint sampled clearance is not a continuous bound. Reserved final layouts are not used.
