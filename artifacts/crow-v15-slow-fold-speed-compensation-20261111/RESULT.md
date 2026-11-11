@@ -1,0 +1,3 @@
+# Speed compensation for the gradual flight fold
+
+On five obstacle-free development modes, intended forward speed was 0.35 m/s and applied bounded speed command was up to 0.40 m/s. All remained airborne for 1600 steps, with six sampled tracking points each within the predeclared height, heading, lateral and intended-speed bounds. No self-contact was logged from steps 380 through 1600, and no ground impulse after step 400. Four of five met the entire strict screen; lane 4 had nine toe joint speed caps during initial settling, before the fold. These match the earlier no-fold and uncompensated-fold records in exact step, substep and joint. Causation is not established. Recovery, navigation, landing, biological realism and held-out trials remain unqualified.
