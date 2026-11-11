@@ -1,0 +1,3 @@
+# Pre-run 32-substep convergence screen
+
+Repeat the foot-trigger screen at 32 rather than 16 substeps per 20 ms interval; keep robot, starts, caps, 350 control steps, joint effort and contact settings unchanged. Record all 89,600 substeps and check no missing records or contact overflow. Changes relative to the 16-substep lane-zero control are expected. Require 50 consecutive bilateral supported-opposed intervals, no nonfoot contact and less than 0.5 mm worst endpoint toe overlap during opposed intervals; record all lanes and failed conditions. This assesses sensitivity to finer temporal resolution; it is not an arrival, release, biological or continuous-collision proof.
