@@ -1,0 +1,4 @@
+Traceback (most recent call last):
+  File "/Users/n/Developer/numi-crow-rl-20261107/artifacts/crow-v15-v1-contact-balance-landing-20261111/build.py", line 6, in <module>
+    old='state.commandAndPhase.xyz=float3(0.15f,0.0f,0.0f);';new='state.commandAndPhase.xyz=float3(0.15f,landingBalanceError,0.0f);';assert s.count(old)==1;s=s.replace(old,new)
+AssertionError

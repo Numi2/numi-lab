@@ -1,0 +1,42 @@
+--- a/rear-first-narrow.metal
++++ b/contact-balance.metal
+@@ -5466,6 +5466,17 @@
+                     : program.interactionTiming.z) *
+                     (studentTarget - defaultQ[binding.indices.z]);
+         }
++        if (fixedFlightController && state.navigation.z>=5.0f && state.threatTeacher.w>0.5f &&
++            (binding.indices.x==7u || binding.indices.x==9u || binding.indices.x==10u || binding.indices.x==12u)) {
++            const bool right=binding.indices.x>=10u;
++            const float load=right ? state.nutrition.y : state.nutrition.x;
++            if (load>0.05f) {
++                const float positionCorrection=clamp(state.commandAndPhase.y-0.2f*state.commandExtension.z,-0.08f,0.08f);
++                const float pitchCorrection=clamp(-0.25f*(state.threatGeometry.z+0.15f*state.threatGeometry.w),-0.08f,0.08f);
++                const bool hip=binding.indices.x==7u || binding.indices.x==10u;
++                targetCandidate += hip ? positionCorrection+pitchCorrection : -pitchCorrection;
++            }
++        }
+         const float target = clamp(
+             targetCandidate,
+             binding.parameters.y,
+@@ -6720,10 +6731,12 @@
+             float desiredLateral = lateralCommand;
+             float desiredHeight = heightTarget;
+             float errorOffset = 0.0f;
++            float landingBalanceError = 0.0f;
+             if (landing) {
+                 const float3 perch = sceneState[sceneBase+course+4u].position.xyz;
+                 const float3 landingTarget = perch + float3(0.015f,0.55f,0.0f);
+                 const float xError = landingTarget.x-pos.x;
++                landingBalanceError = perch.x - 0.012f - pos.x;
+                 const float yError = landingTarget.y-pos.y;
+                 const float commandedForward = clamp(0.45f*xError,-0.20f,0.20f);
+                 desiredLateral = clamp(0.80f*yError,-0.30f,0.30f);
+@@ -6753,7 +6766,7 @@
+             state.nutrition=float4(0.25f-errorOffset,desiredLateral,-heading,desiredHeight);
+             state.threatMetadata=as_type<uint4>(state.nutrition);
+             // Policy observations do not expose privileged teacher commands.
+-            state.commandAndPhase.xyz=float3(0.15f,0.0f,0.0f);
++            state.commandAndPhase.xyz=float3(0.15f,landingBalanceError,0.0f);
+             state.commandExtension.xyz=float3(-heading,baseAngular.z,yawFrameLinear.x);
+             state.threatGeometry=float4(-pos.z,rootLinearVelocity.z,pitch,baseAngular.y);
+             state.threatTeacher=float4(yawFrameLinear.y,roll,baseAngular.x,landingPhase);
