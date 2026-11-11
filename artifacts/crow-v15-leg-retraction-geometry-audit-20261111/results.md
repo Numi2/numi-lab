@@ -1,0 +1,5 @@
+# Physical foot clearance after leg retraction
+
+Both late-trigger candidates produced three consecutive accepted states with >1 mm clearance for every foot/toe box, no measured foot normal impulse across the entire 16-substep interval, and upward root speed >0.05 m/s in each of eight development lanes. FP64 poses agreed with the native replay within 5.1e-9 m and quaternion norm within 1e-5; the last-substep normal impulse matched published contacts within 3.5e-9 N s.
+
+Crucially, these clean rising states occur after a ground rebound, not directly after the first push. In the representative 0.170 m trial the bird rose, descended without sustained lift, recontacted at step 257 and received 0.624 N s upward foot impulse at step 258, then left the ground at steps 260–262; it returned to foot contact again at step 268. The height-triggered condition switches back as the bird descends, allowing an oscillating push/retract sequence. This is not a reliable clean takeoff or sustained flight, despite satisfying the initial component gate. Endpoint box geometry does not establish swept within-step clearance. No unused layout was used.
