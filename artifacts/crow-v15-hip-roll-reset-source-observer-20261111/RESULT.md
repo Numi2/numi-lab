@@ -1,0 +1,3 @@
+# Hip-roll v15 initial reset geometry
+
+The read-only source observer matched all 1056 selected endpoint and substep records against the original autonomous integration run, and successive source/accepted endpoints matched exactly. Independent kinematics found four of eight used development starts with foot/toe overlap with the ground, worst 6.04 mm; the others had 3.97–5.04 mm initial clearance. One toe-speed-hit lane began with clearance and the other with overlap, so neither is a proven sole cause of later impacts. The first observer build used the obstacle-free C API and failed the policy contract; that rejection is retained. Physical shape and mass parameters remain estimated.
