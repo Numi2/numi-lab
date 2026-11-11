@@ -1,0 +1,3 @@
+# Two-segment frozen-flight contact mapping
+
+The original preflight failed because navigation contact groups name the single-segment toes. Retain both two-segment body names and update each foot group to include every proximal and distal toe collider. Rear-toe wrench groups include both segments and use the proximal segment as the reference frame. Keep frozen V2 flight source, research wing model, zero diagnostic actor, serial wide ABA and obstacle-free scope unchanged. Rebuild, retain hashes, repeat the two-step contract preflight and record any mismatch or other failure. Compilation and mapping do not establish flight or landing.
