@@ -1,0 +1,5 @@
+# Opposite-sign pitch feedback rejected
+
+A second exploratory contact-conditioned hip correction used the opposite pitch/rate sign with the same magnitudes. It matched the release-inhibited reference in accepted endpoints through first perch contact, then diverged at steps 3420 and 3268 in lanes 2 and 7. Seven teacher-off first episodes reached five waypoints and one stalled at three. The two supported lanes again fell, at steps 3712 and 3378 versus 3723 and 3509 in the reference. Lane 7 had no interval meeting the opposing bilateral support criterion and had two toe-speed-cap substeps; lane 2 had 191 consecutive qualifying intervals versus 212 in the reference. All first-episode substep coverage was complete with no recorded capacity overflow.
+
+Changing only the sign of this exploratory hip correction did not solve balance. Applied joint-target telemetry and contact mechanics require further isolation. This used development layout is not held-out evidence, model calibration or biological validation. The initial candidate-building attempt failed an assertion before compilation and was corrected before this run.
