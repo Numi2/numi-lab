@@ -1,0 +1,24 @@
+from pathlib import Path
+import collections,gzip,json,math
+A=Path('artifacts/crow-v15-two-segment-gait-settle-screen-20261111');P=Path('artifacts/crow-v15-two-segment-walk-screen-20261111');state={};ref={};sub=collections.defaultdict(lambda:[0.]*5);cover=collections.Counter();errors=[]
+def read(p,target,withsub):
+ with gzip.open(p,'rt') as f:
+  for l in f:
+   if l.startswith('CROW_SUPPORT_SAMPLE '):
+    x=json.loads(l.split(' ',1)[1]);target[x['lane'],x['step']]=x
+   elif withsub and l.startswith('CROW_TWO_TOE_SUBSTEP '):
+    a=l.split();t,k,e=map(int,a[1:4]);cover[e,t,k]+=1
+    for i in range(5):sub[e,t][i]+=float(a[6+i])
+   elif withsub and 'failed' in l.lower():errors.append(l.strip())
+read(P/'zero16.stderr.gz',ref,False);read(A/'stderr.gz',state,True);geo=json.loads((A/'positive-analysis.json').read_text());out=[]
+for e in range(8):
+ first=201 if e%2 else 101;samples=[state.get((e,t)) for t in range(first,first+101)];complete=all(samples);diff=sum(state.get((e,t))!=ref.get((e,t)) for t in range(1,202)) if e%2==0 else None
+ if complete:
+  disp=samples[-1]['q'][0]-samples[0]['q'][0];speed=max(math.sqrt(sum(z*z for z in x['v'][:3])) for x in samples);tilt=max(math.acos(max(-1.,min(1.,1.-2*(x['q'][3]**2+x['q'][4]**2)))) for x in samples);air=sum(sub[e,t][2]+sub[e,t][3]<=1e-7 for t in range(first,first+101));nonfoot=sum(sub[e,t][4]>1e-7 for t in range(first,first+101));coverage=sum(cover[e,t,k]!=1 for t in range(first,first+101) for k in range(16))
+ else:disp=speed=tilt=air=nonfoot=coverage=None
+ gait=geo['lanes'][e];out.append({'lane':e,'start_seconds':4 if e%2 else 2,'complete':complete,'baseline_sample_differences':diff,'forward_displacement_m':disp,'maximum_speed_m_s':speed,'maximum_tilt_rad':tilt,'unsupported_intervals':air,'nonfoot_impulse_intervals':nonfoot,'missing_substeps':coverage,'initial_speed_m_s':math.sqrt(sum(z*z for z in samples[0]['v'][:3])) if complete else None,'left_swing_bouts':gait['sides']['left']['bouts'],'right_swing_bouts':gait['sides']['right']['bouts'],'alternating':gait['alternating'],'pass':bool(complete and disp>=.015 and speed<=.5 and tilt<=.35 and air==0 and nonfoot==0 and coverage==0 and (diff is None or diff==0) and gait['pass'])})
+try:
+ data=json.loads((A/'stdout').read_text());failed=data['failed_environment_steps'];termination=data['termination_count']
+except Exception as ex:failed=None;termination=None;errors.append(str(ex))
+for row in out:row['pass']=bool(row['pass'] and failed==0 and termination==0 and not errors and geo['calibration']['pass'])
+report={'lanes':out,'failed_environment_steps':failed,'termination_count':termination,'errors':errors[-5:],'scope':'development settling comparison; no takeoff, landing, held-out or biological qualification'};(A/'analysis.json').write_text(json.dumps(report,indent=2)+'\n');print(json.dumps(report,indent=2))
