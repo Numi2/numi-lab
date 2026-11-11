@@ -21,7 +21,7 @@ a="""                    const auto* crowStates=static_cast<const MRTaskStateGPU
                             std::fprintf(stderr,"\\n");
                         }
                     }
-                    const auto* crowStates=static_cast<const MRTaskStateGPU*>(crowTaskStateCopy.contents);""";assert s.count(a)==1;s=s.replace(a,b);(B/"MetalWorld.mm").write_text(s);(A/"observer.patch").write_text("".join(difflib.unified_diff(base.splitlines(True),s.splitlines(True),fromfile="a/reference.mm",tofile="b/target-observer.mm")))
+                    const auto* crowStates=static_cast<const MRTaskStateGPU*>(crowTaskStateCopy.contents);""";assert s.count(a)==1;s=s.replace(a,b);oldWindow="crowTraceStep>=380u && crowTraceStep<=3800u";newWindow="crowTraceStep>=380u && crowTraceStep<=5000u";assert s.count(oldWindow)==1;s=s.replace(oldWindow,newWindow);(B/"MetalWorld.mm").write_text(s);(A/"observer.patch").write_text("".join(difflib.unified_diff(base.splitlines(True),s.splitlines(True),fromfile="a/reference.mm",tofile="b/target-observer.mm")))
 lines=subprocess.check_output(["/opt/homebrew/bin/ninja","-C",str(R/"build"),"-t","commands"],text=True).splitlines();compile=next(x for x in lines if " -c "+str(R/"src/metal/MetalWorld.mm") in x);link=next(x for x in lines if x.startswith(": && /usr/bin/c++") and "-dynamiclib" in x and " -o lib/libmetalrobo.dylib " in x);args=shlex.split(compile);obj=B/"MetalWorld.mm.o"
 for k,v in [("-o",str(obj)),("-MF",str(obj)+".d"),("-MT",str(obj))]:args[args.index(k)+1]=v
 args[-1]=str(B/"MetalWorld.mm");args[1:1]=["-I"+str(W/"include"),"-I"+str(R/"src/metal")];subprocess.run(args,cwd=R/"build",check=True)
