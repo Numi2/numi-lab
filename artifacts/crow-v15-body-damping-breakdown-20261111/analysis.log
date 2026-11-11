@@ -1,0 +1,1404 @@
+{
+  "exact_trace_parity": true,
+  "bodies": 25,
+  "windows": [
+    {
+      "ticks": [
+        20,
+        69
+      ],
+      "bodies": [
+        {
+          "body": "crow_body",
+          "linear_damping": 0.0399999991059,
+          "angular_damping": 0.5,
+          "mean_angular_moment": -0.00168400669917494,
+          "mean_linear_moment": -3.41331065363014e-06,
+          "mean_total_moment": -0.00168742000982857,
+          "mean_absolute_total_moment": 0.00168742000982857
+        },
+        {
+          "body": "crow_left_foot",
+          "linear_damping": 0.0149999996647,
+          "angular_damping": 0.0149999996647,
+          "mean_angular_moment": -0.000141669288459766,
+          "mean_linear_moment": 1.87109379471622e-07,
+          "mean_total_moment": -0.0001414821790802944,
+          "mean_absolute_total_moment": 0.00014327148049555994
+        },
+        {
+          "body": "crow_right_foot",
+          "linear_damping": 0.0149999996647,
+          "angular_damping": 0.0149999996647,
+          "mean_angular_moment": -0.000138141611617342,
+          "mean_linear_moment": 1.896025052517468e-07,
+          "mean_total_moment": -0.00013795200911209026,
+          "mean_absolute_total_moment": 0.00013974374401748118
+        },
+        {
+          "body": "crow_left_shank",
+          "linear_damping": 0.0149999996647,
+          "angular_damping": 0.0149999996647,
+          "mean_angular_moment": -0.000107711925522734,
+          "mean_linear_moment": 2.378422541095756e-07,
+          "mean_total_moment": -0.00010747408326862443,
+          "mean_absolute_total_moment": 0.00010851825599713746
+        },
+        {
+          "body": "crow_right_shank",
+          "linear_damping": 0.0149999996647,
+          "angular_damping": 0.0149999996647,
+          "mean_angular_moment": -0.000106493583530208,
+          "mean_linear_moment": 2.34628243989144e-07,
+          "mean_total_moment": -0.00010625895528621886,
+          "mean_absolute_total_moment": 0.00010742110623492877
+        },
+        {
+          "body": "crow_lower_beak",
+          "linear_damping": 0.00999999977648,
+          "angular_damping": 0.00999999977648,
+          "mean_angular_moment": -7.0377085150306e-05,
+          "mean_linear_moment": -3.38895088239582e-06,
+          "mean_total_moment": -7.376603603270182e-05,
+          "mean_absolute_total_moment": 7.376603603270182e-05
+        },
+        {
+          "body": "crow_head",
+          "linear_damping": 0.00999999977648,
+          "angular_damping": 0.00999999977648,
+          "mean_angular_moment": -7.0377085150306e-05,
+          "mean_linear_moment": -2.911157493058418e-06,
+          "mean_total_moment": -7.328824264336442e-05,
+          "mean_absolute_total_moment": 7.328824264336442e-05
+        },
+        {
+          "body": "crow_left_thigh",
+          "linear_damping": 0.0149999996647,
+          "angular_damping": 0.0149999996647,
+          "mean_angular_moment": -7.1739695031044e-05,
+          "mean_linear_moment": -2.5871863140526e-07,
+          "mean_total_moment": -7.199841366244926e-05,
+          "mean_absolute_total_moment": 7.275786437488358e-05
+        },
+        {
+          "body": "crow_right_thigh",
+          "linear_damping": 0.0149999996647,
+          "angular_damping": 0.0149999996647,
+          "mean_angular_moment": -7.061455048303e-05,
+          "mean_linear_moment": -2.5591484335218e-07,
+          "mean_total_moment": -7.087046532638218e-05,
+          "mean_absolute_total_moment": 7.171385018408562e-05
+        },
+        {
+          "body": "crow_left_wing",
+          "linear_damping": 0.019999999553,
+          "angular_damping": 0.019999999553,
+          "mean_angular_moment": -6.7468939506227e-05,
+          "mean_linear_moment": -1.98107859518896e-06,
+          "mean_total_moment": -6.945001810141596e-05,
+          "mean_absolute_total_moment": 6.945001810141596e-05
+        },
+        {
+          "body": "crow_right_wing",
+          "linear_damping": 0.019999999553,
+          "angular_damping": 0.019999999553,
+          "mean_angular_moment": -6.74567364646116e-05,
+          "mean_linear_moment": -1.919099480098524e-06,
+          "mean_total_moment": -6.937583594471012e-05,
+          "mean_absolute_total_moment": 6.937583594471012e-05
+        },
+        {
+          "body": "crow_left_wing_flap_link",
+          "linear_damping": 0.019999999553,
+          "angular_damping": 0.019999999553,
+          "mean_angular_moment": -6.73653596462084e-05,
+          "mean_linear_moment": -1.98107859518896e-06,
+          "mean_total_moment": -6.934643824139736e-05,
+          "mean_absolute_total_moment": 6.934643824139736e-05
+        },
+        {
+          "body": "crow_left_wing_sweep",
+          "linear_damping": 0.019999999553,
+          "angular_damping": 0.019999999553,
+          "mean_angular_moment": -6.736194163934e-05,
+          "mean_linear_moment": -1.980572860110904e-06,
+          "mean_total_moment": -6.93425144994509e-05,
+          "mean_absolute_total_moment": 6.93425144994509e-05
+        },
+        {
+          "body": "crow_right_wing_sweep",
+          "linear_damping": 0.019999999553,
+          "angular_damping": 0.019999999553,
+          "mean_angular_moment": -6.73600914920186e-05,
+          "mean_linear_moment": -1.918662889980982e-06,
+          "mean_total_moment": -6.927875438199959e-05,
+          "mean_absolute_total_moment": 6.927875438199959e-05
+        },
+        {
+          "body": "crow_right_wing_flap_link",
+          "linear_damping": 0.019999999553,
+          "angular_damping": 0.019999999553,
+          "mean_angular_moment": -6.73568199064684e-05,
+          "mean_linear_moment": -1.919099480098524e-06,
+          "mean_total_moment": -6.927591938656692e-05,
+          "mean_absolute_total_moment": 6.927591938656692e-05
+        },
+        {
+          "body": "crow_tail",
+          "linear_damping": 0.019999999553,
+          "angular_damping": 0.019999999553,
+          "mean_angular_moment": -4.9803057494446e-05,
+          "mean_linear_moment": -3.63653068300834e-06,
+          "mean_total_moment": -5.343958817745434e-05,
+          "mean_absolute_total_moment": 5.360209256031102e-05
+        },
+        {
+          "body": "crow_neck_yaw_link",
+          "linear_damping": 0.00999999977648,
+          "angular_damping": 0.00999999977648,
+          "mean_angular_moment": -3.36849389859392e-05,
+          "mean_linear_moment": -2.04040163014908e-06,
+          "mean_total_moment": -3.572534061608828e-05,
+          "mean_absolute_total_moment": 3.572534061608828e-05
+        },
+        {
+          "body": "crow_left_front_toe_1",
+          "linear_damping": 0.0,
+          "angular_damping": 0.0,
+          "mean_angular_moment": 0.0,
+          "mean_linear_moment": 0.0,
+          "mean_total_moment": 0.0,
+          "mean_absolute_total_moment": 0.0
+        },
+        {
+          "body": "crow_left_front_toe_2",
+          "linear_damping": 0.0,
+          "angular_damping": 0.0,
+          "mean_angular_moment": 0.0,
+          "mean_linear_moment": 0.0,
+          "mean_total_moment": 0.0,
+          "mean_absolute_total_moment": 0.0
+        },
+        {
+          "body": "crow_left_front_toe_3",
+          "linear_damping": 0.0,
+          "angular_damping": 0.0,
+          "mean_angular_moment": 0.0,
+          "mean_linear_moment": 0.0,
+          "mean_total_moment": 0.0,
+          "mean_absolute_total_moment": 0.0
+        },
+        {
+          "body": "crow_left_rear_toe",
+          "linear_damping": 0.0,
+          "angular_damping": 0.0,
+          "mean_angular_moment": 0.0,
+          "mean_linear_moment": 0.0,
+          "mean_total_moment": 0.0,
+          "mean_absolute_total_moment": 0.0
+        },
+        {
+          "body": "crow_right_front_toe_1",
+          "linear_damping": 0.0,
+          "angular_damping": 0.0,
+          "mean_angular_moment": 0.0,
+          "mean_linear_moment": 0.0,
+          "mean_total_moment": 0.0,
+          "mean_absolute_total_moment": 0.0
+        },
+        {
+          "body": "crow_right_front_toe_2",
+          "linear_damping": 0.0,
+          "angular_damping": 0.0,
+          "mean_angular_moment": 0.0,
+          "mean_linear_moment": 0.0,
+          "mean_total_moment": 0.0,
+          "mean_absolute_total_moment": 0.0
+        },
+        {
+          "body": "crow_right_front_toe_3",
+          "linear_damping": 0.0,
+          "angular_damping": 0.0,
+          "mean_angular_moment": 0.0,
+          "mean_linear_moment": 0.0,
+          "mean_total_moment": 0.0,
+          "mean_absolute_total_moment": 0.0
+        },
+        {
+          "body": "crow_right_rear_toe",
+          "linear_damping": 0.0,
+          "angular_damping": 0.0,
+          "mean_angular_moment": 0.0,
+          "mean_linear_moment": 0.0,
+          "mean_total_moment": 0.0,
+          "mean_absolute_total_moment": 0.0
+        }
+      ]
+    },
+    {
+      "ticks": [
+        80,
+        109
+      ],
+      "bodies": [
+        {
+          "body": "crow_body",
+          "linear_damping": 0.0399999991059,
+          "angular_damping": 0.5,
+          "mean_angular_moment": -0.000262502258391358,
+          "mean_linear_moment": 3.714951905176335e-08,
+          "mean_total_moment": -0.0002624651088723062,
+          "mean_absolute_total_moment": 0.00026765207800064815
+        },
+        {
+          "body": "crow_lower_beak",
+          "linear_damping": 0.00999999977648,
+          "angular_damping": 0.00999999977648,
+          "mean_angular_moment": -4.8513764595e-05,
+          "mean_linear_moment": -3.85618875956154e-07,
+          "mean_total_moment": -4.8899383470956155e-05,
+          "mean_absolute_total_moment": 4.8899383470956155e-05
+        },
+        {
+          "body": "crow_head",
+          "linear_damping": 0.00999999977648,
+          "angular_damping": 0.00999999977648,
+          "mean_angular_moment": -4.8513764595e-05,
+          "mean_linear_moment": -1.4307146874008567e-07,
+          "mean_total_moment": -4.8656836063740086e-05,
+          "mean_absolute_total_moment": 4.8656836063740086e-05
+        },
+        {
+          "body": "crow_left_foot",
+          "linear_damping": 0.0149999996647,
+          "angular_damping": 0.0149999996647,
+          "mean_angular_moment": 2.9810513653903334e-05,
+          "mean_linear_moment": 1.2721491236679334e-07,
+          "mean_total_moment": 2.9937728566270127e-05,
+          "mean_absolute_total_moment": 3.686748139069266e-05
+        },
+        {
+          "body": "crow_right_foot",
+          "linear_damping": 0.0149999996647,
+          "angular_damping": 0.0149999996647,
+          "mean_angular_moment": 2.8776785570583332e-05,
+          "mean_linear_moment": 1.2917820262169334e-07,
+          "mean_total_moment": 2.8905963773205027e-05,
+          "mean_absolute_total_moment": 3.0645387060405024e-05
+        },
+        {
+          "body": "crow_right_wing",
+          "linear_damping": 0.019999999553,
+          "angular_damping": 0.019999999553,
+          "mean_angular_moment": -1.065074792985341e-05,
+          "mean_linear_moment": -1.5331810004314995e-08,
+          "mean_total_moment": -1.0666079739857725e-05,
+          "mean_absolute_total_moment": 1.0827325164164525e-05
+        },
+        {
+          "body": "crow_left_wing",
+          "linear_damping": 0.019999999553,
+          "angular_damping": 0.019999999553,
+          "mean_angular_moment": -1.0649322711604332e-05,
+          "mean_linear_moment": 4.8370340343760663e-08,
+          "mean_total_moment": -1.0600952371260573e-05,
+          "mean_absolute_total_moment": 1.077859747905324e-05
+        },
+        {
+          "body": "crow_right_wing_sweep",
+          "linear_damping": 0.019999999553,
+          "angular_damping": 0.019999999553,
+          "mean_angular_moment": -1.05003642067663e-05,
+          "mean_linear_moment": -1.68520291255e-08,
+          "mean_total_moment": -1.05172162358918e-05,
+          "mean_absolute_total_moment": 1.06957091549495e-05
+        },
+        {
+          "body": "crow_right_wing_flap_link",
+          "linear_damping": 0.019999999553,
+          "angular_damping": 0.019999999553,
+          "mean_angular_moment": -1.0500111041626467e-05,
+          "mean_linear_moment": -1.5331810004314995e-08,
+          "mean_total_moment": -1.0515442851630782e-05,
+          "mean_absolute_total_moment": 1.0694163195466309e-05
+        },
+        {
+          "body": "crow_left_wing_sweep",
+          "linear_damping": 0.019999999553,
+          "angular_damping": 0.019999999553,
+          "mean_angular_moment": -1.04998026582323e-05,
+          "mean_linear_moment": 4.6826188771905e-08,
+          "mean_total_moment": -1.0452976469460395e-05,
+          "mean_absolute_total_moment": 1.0646572572217196e-05
+        },
+        {
+          "body": "crow_left_wing_flap_link",
+          "linear_damping": 0.019999999553,
+          "angular_damping": 0.019999999553,
+          "mean_angular_moment": -1.0500202096640234e-05,
+          "mean_linear_moment": 4.8370340343760663e-08,
+          "mean_total_moment": -1.0451831756296473e-05,
+          "mean_absolute_total_moment": 1.064561220291534e-05
+        },
+        {
+          "body": "crow_neck_yaw_link",
+          "linear_damping": 0.00999999977648,
+          "angular_damping": 0.00999999977648,
+          "mean_angular_moment": -5.250064676588867e-06,
+          "mean_linear_moment": 2.4807252157933534e-07,
+          "mean_total_moment": -5.001992155009531e-06,
+          "mean_absolute_total_moment": 5.150212607592998e-06
+        },
+        {
+          "body": "crow_tail",
+          "linear_damping": 0.019999999553,
+          "angular_damping": 0.019999999553,
+          "mean_angular_moment": 5.034108988234066e-06,
+          "mean_linear_moment": -6.949302011577333e-07,
+          "mean_total_moment": 4.339178787076333e-06,
+          "mean_absolute_total_moment": 9.149920253273466e-06
+        },
+        {
+          "body": "crow_left_shank",
+          "linear_damping": 0.0149999996647,
+          "angular_damping": 0.0149999996647,
+          "mean_angular_moment": 4.2032921036970335e-06,
+          "mean_linear_moment": 3.917438960903167e-08,
+          "mean_total_moment": 4.242466493306064e-06,
+          "mean_absolute_total_moment": 1.1738233648382465e-05
+        },
+        {
+          "body": "crow_right_thigh",
+          "linear_damping": 0.0149999996647,
+          "angular_damping": 0.0149999996647,
+          "mean_angular_moment": -2.174795734488267e-06,
+          "mean_linear_moment": 9.976615014111e-08,
+          "mean_total_moment": -2.0750295843471567e-06,
+          "mean_absolute_total_moment": 5.503912103817777e-06
+        },
+        {
+          "body": "crow_right_shank",
+          "linear_damping": 0.0149999996647,
+          "angular_damping": 0.0149999996647,
+          "mean_angular_moment": 9.974178050247334e-07,
+          "mean_linear_moment": 4.970260153768657e-08,
+          "mean_total_moment": 1.0471204065624201e-06,
+          "mean_absolute_total_moment": 7.707529235170976e-06
+        },
+        {
+          "body": "crow_left_thigh",
+          "linear_damping": 0.0149999996647,
+          "angular_damping": 0.0149999996647,
+          "mean_angular_moment": 4.9856912757147e-07,
+          "mean_linear_moment": 9.826664856166e-08,
+          "mean_total_moment": 5.968357761331299e-07,
+          "mean_absolute_total_moment": 7.426413093465364e-06
+        },
+        {
+          "body": "crow_left_front_toe_1",
+          "linear_damping": 0.0,
+          "angular_damping": 0.0,
+          "mean_angular_moment": 0.0,
+          "mean_linear_moment": 0.0,
+          "mean_total_moment": 0.0,
+          "mean_absolute_total_moment": 0.0
+        },
+        {
+          "body": "crow_left_front_toe_2",
+          "linear_damping": 0.0,
+          "angular_damping": 0.0,
+          "mean_angular_moment": 0.0,
+          "mean_linear_moment": 0.0,
+          "mean_total_moment": 0.0,
+          "mean_absolute_total_moment": 0.0
+        },
+        {
+          "body": "crow_left_front_toe_3",
+          "linear_damping": 0.0,
+          "angular_damping": 0.0,
+          "mean_angular_moment": 0.0,
+          "mean_linear_moment": 0.0,
+          "mean_total_moment": 0.0,
+          "mean_absolute_total_moment": 0.0
+        },
+        {
+          "body": "crow_left_rear_toe",
+          "linear_damping": 0.0,
+          "angular_damping": 0.0,
+          "mean_angular_moment": 0.0,
+          "mean_linear_moment": 0.0,
+          "mean_total_moment": 0.0,
+          "mean_absolute_total_moment": 0.0
+        },
+        {
+          "body": "crow_right_front_toe_1",
+          "linear_damping": 0.0,
+          "angular_damping": 0.0,
+          "mean_angular_moment": 0.0,
+          "mean_linear_moment": 0.0,
+          "mean_total_moment": 0.0,
+          "mean_absolute_total_moment": 0.0
+        },
+        {
+          "body": "crow_right_front_toe_2",
+          "linear_damping": 0.0,
+          "angular_damping": 0.0,
+          "mean_angular_moment": 0.0,
+          "mean_linear_moment": 0.0,
+          "mean_total_moment": 0.0,
+          "mean_absolute_total_moment": 0.0
+        },
+        {
+          "body": "crow_right_front_toe_3",
+          "linear_damping": 0.0,
+          "angular_damping": 0.0,
+          "mean_angular_moment": 0.0,
+          "mean_linear_moment": 0.0,
+          "mean_total_moment": 0.0,
+          "mean_absolute_total_moment": 0.0
+        },
+        {
+          "body": "crow_right_rear_toe",
+          "linear_damping": 0.0,
+          "angular_damping": 0.0,
+          "mean_angular_moment": 0.0,
+          "mean_linear_moment": 0.0,
+          "mean_total_moment": 0.0,
+          "mean_absolute_total_moment": 0.0
+        }
+      ]
+    },
+    {
+      "ticks": [
+        120,
+        159
+      ],
+      "bodies": [
+        {
+          "body": "crow_body",
+          "linear_damping": 0.0399999991059,
+          "angular_damping": 0.5,
+          "mean_angular_moment": -0.0001766881063813,
+          "mean_linear_moment": -1.4817904559649e-07,
+          "mean_total_moment": -0.00017683628542689649,
+          "mean_absolute_total_moment": 0.00017683628542689649
+        },
+        {
+          "body": "crow_lower_beak",
+          "linear_damping": 0.00999999977648,
+          "angular_damping": 0.00999999977648,
+          "mean_angular_moment": -4.49007372565125e-05,
+          "mean_linear_moment": -2.5571326098364e-07,
+          "mean_total_moment": -4.515645051749614e-05,
+          "mean_absolute_total_moment": 4.515645051749614e-05
+        },
+        {
+          "body": "crow_head",
+          "linear_damping": 0.00999999977648,
+          "angular_damping": 0.00999999977648,
+          "mean_angular_moment": -4.49007372565125e-05,
+          "mean_linear_moment": -6.29039166116355e-08,
+          "mean_total_moment": -4.496364117312413e-05,
+          "mean_absolute_total_moment": 4.496364117312413e-05
+        },
+        {
+          "body": "crow_right_foot",
+          "linear_damping": 0.0149999996647,
+          "angular_damping": 0.0149999996647,
+          "mean_angular_moment": 3.6085965700025e-05,
+          "mean_linear_moment": 1.29423849134275e-07,
+          "mean_total_moment": 3.621538954915927e-05,
+          "mean_absolute_total_moment": 3.621538954915927e-05
+        },
+        {
+          "body": "crow_left_foot",
+          "linear_damping": 0.0149999996647,
+          "angular_damping": 0.0149999996647,
+          "mean_angular_moment": 3.5874096804505e-05,
+          "mean_linear_moment": 1.293528414612e-07,
+          "mean_total_moment": 3.60034496459662e-05,
+          "mean_absolute_total_moment": 3.60034496459662e-05
+        },
+        {
+          "body": "crow_tail",
+          "linear_damping": 0.019999999553,
+          "angular_damping": 0.019999999553,
+          "mean_angular_moment": 9.47674605806625e-06,
+          "mean_linear_moment": -7.3695731398635e-07,
+          "mean_total_moment": 8.7397887440799e-06,
+          "mean_absolute_total_moment": 8.7397887440799e-06
+        },
+        {
+          "body": "crow_left_wing",
+          "linear_damping": 0.019999999553,
+          "angular_damping": 0.019999999553,
+          "mean_angular_moment": -7.10710136156975e-06,
+          "mean_linear_moment": -9.005918116567235e-08,
+          "mean_total_moment": -7.1971605427354225e-06,
+          "mean_absolute_total_moment": 7.1971605427354225e-06
+        },
+        {
+          "body": "crow_right_wing",
+          "linear_damping": 0.019999999553,
+          "angular_damping": 0.019999999553,
+          "mean_angular_moment": -7.1075441732875e-06,
+          "mean_linear_moment": -8.877457094441507e-08,
+          "mean_total_moment": -7.196318744231915e-06,
+          "mean_absolute_total_moment": 7.196318744231915e-06
+        },
+        {
+          "body": "crow_left_wing_sweep",
+          "linear_damping": 0.019999999553,
+          "angular_damping": 0.019999999553,
+          "mean_angular_moment": -7.06754420234925e-06,
+          "mean_linear_moment": -9.217781553068128e-08,
+          "mean_total_moment": -7.159722017879931e-06,
+          "mean_absolute_total_moment": 7.159722017879931e-06
+        },
+        {
+          "body": "crow_right_wing_sweep",
+          "linear_damping": 0.019999999553,
+          "angular_damping": 0.019999999553,
+          "mean_angular_moment": -7.067505118601e-06,
+          "mean_linear_moment": -9.092709941368225e-08,
+          "mean_total_moment": -7.158432218014682e-06,
+          "mean_absolute_total_moment": 7.158432218014682e-06
+        },
+        {
+          "body": "crow_left_wing_flap_link",
+          "linear_damping": 0.019999999553,
+          "angular_damping": 0.019999999553,
+          "mean_angular_moment": -7.0676819374685e-06,
+          "mean_linear_moment": -9.005918116567235e-08,
+          "mean_total_moment": -7.157741118634172e-06,
+          "mean_absolute_total_moment": 7.157741118634172e-06
+        },
+        {
+          "body": "crow_right_wing_flap_link",
+          "linear_damping": 0.019999999553,
+          "angular_damping": 0.019999999553,
+          "mean_angular_moment": -7.0675132240027505e-06,
+          "mean_linear_moment": -8.877457094441507e-08,
+          "mean_total_moment": -7.156287794947165e-06,
+          "mean_absolute_total_moment": 7.156287794947165e-06
+        },
+        {
+          "body": "crow_right_shank",
+          "linear_damping": 0.0149999996647,
+          "angular_damping": 0.0149999996647,
+          "mean_angular_moment": 5.071885799908725e-06,
+          "mean_linear_moment": 1.441619729400572e-08,
+          "mean_total_moment": 5.086301997202731e-06,
+          "mean_absolute_total_moment": 5.1972468574303055e-06
+        },
+        {
+          "body": "crow_left_shank",
+          "linear_damping": 0.0149999996647,
+          "angular_damping": 0.0149999996647,
+          "mean_angular_moment": 5.044980860600775e-06,
+          "mean_linear_moment": 1.5008281493343125e-08,
+          "mean_total_moment": 5.059989142094118e-06,
+          "mean_absolute_total_moment": 5.1168840687180115e-06
+        },
+        {
+          "body": "crow_neck_yaw_link",
+          "linear_damping": 0.00999999977648,
+          "angular_damping": 0.00999999977648,
+          "mean_angular_moment": -3.53376953357975e-06,
+          "mean_linear_moment": 2.7033688011435e-07,
+          "mean_total_moment": -3.2634326534654e-06,
+          "mean_absolute_total_moment": 3.2634326534654e-06
+        },
+        {
+          "body": "crow_left_thigh",
+          "linear_damping": 0.0149999996647,
+          "angular_damping": 0.0149999996647,
+          "mean_angular_moment": -6.892185450033988e-07,
+          "mean_linear_moment": 4.3467099285480004e-08,
+          "mean_total_moment": -6.457514457179187e-07,
+          "mean_absolute_total_moment": 1.9970525430019463e-06
+        },
+        {
+          "body": "crow_right_thigh",
+          "linear_damping": 0.0149999996647,
+          "angular_damping": 0.0149999996647,
+          "mean_angular_moment": -5.343625263422701e-07,
+          "mean_linear_moment": 4.285894464049738e-08,
+          "mean_total_moment": -4.915035817017727e-07,
+          "mean_absolute_total_moment": 2.0507181274579466e-06
+        },
+        {
+          "body": "crow_left_front_toe_1",
+          "linear_damping": 0.0,
+          "angular_damping": 0.0,
+          "mean_angular_moment": 0.0,
+          "mean_linear_moment": 0.0,
+          "mean_total_moment": 0.0,
+          "mean_absolute_total_moment": 0.0
+        },
+        {
+          "body": "crow_left_front_toe_2",
+          "linear_damping": 0.0,
+          "angular_damping": 0.0,
+          "mean_angular_moment": 0.0,
+          "mean_linear_moment": 0.0,
+          "mean_total_moment": 0.0,
+          "mean_absolute_total_moment": 0.0
+        },
+        {
+          "body": "crow_left_front_toe_3",
+          "linear_damping": 0.0,
+          "angular_damping": 0.0,
+          "mean_angular_moment": 0.0,
+          "mean_linear_moment": 0.0,
+          "mean_total_moment": 0.0,
+          "mean_absolute_total_moment": 0.0
+        },
+        {
+          "body": "crow_left_rear_toe",
+          "linear_damping": 0.0,
+          "angular_damping": 0.0,
+          "mean_angular_moment": 0.0,
+          "mean_linear_moment": 0.0,
+          "mean_total_moment": 0.0,
+          "mean_absolute_total_moment": 0.0
+        },
+        {
+          "body": "crow_right_front_toe_1",
+          "linear_damping": 0.0,
+          "angular_damping": 0.0,
+          "mean_angular_moment": 0.0,
+          "mean_linear_moment": 0.0,
+          "mean_total_moment": 0.0,
+          "mean_absolute_total_moment": 0.0
+        },
+        {
+          "body": "crow_right_front_toe_2",
+          "linear_damping": 0.0,
+          "angular_damping": 0.0,
+          "mean_angular_moment": 0.0,
+          "mean_linear_moment": 0.0,
+          "mean_total_moment": 0.0,
+          "mean_absolute_total_moment": 0.0
+        },
+        {
+          "body": "crow_right_front_toe_3",
+          "linear_damping": 0.0,
+          "angular_damping": 0.0,
+          "mean_angular_moment": 0.0,
+          "mean_linear_moment": 0.0,
+          "mean_total_moment": 0.0,
+          "mean_absolute_total_moment": 0.0
+        },
+        {
+          "body": "crow_right_rear_toe",
+          "linear_damping": 0.0,
+          "angular_damping": 0.0,
+          "mean_angular_moment": 0.0,
+          "mean_linear_moment": 0.0,
+          "mean_total_moment": 0.0,
+          "mean_absolute_total_moment": 0.0
+        }
+      ]
+    },
+    {
+      "ticks": [
+        160,
+        199
+      ],
+      "bodies": [
+        {
+          "body": "crow_body",
+          "linear_damping": 0.0399999991059,
+          "angular_damping": 0.5,
+          "mean_angular_moment": -0.00028326212358665,
+          "mean_linear_moment": -3.69358075155895e-07,
+          "mean_total_moment": -0.0002836314816618059,
+          "mean_absolute_total_moment": 0.0002836314816618059
+        },
+        {
+          "body": "crow_lower_beak",
+          "linear_damping": 0.00999999977648,
+          "angular_damping": 0.00999999977648,
+          "mean_angular_moment": -4.89080382236e-05,
+          "mean_linear_moment": -4.39265448587875e-07,
+          "mean_total_moment": -4.9347303672187874e-05,
+          "mean_absolute_total_moment": 4.9347303672187874e-05
+        },
+        {
+          "body": "crow_head",
+          "linear_damping": 0.00999999977648,
+          "angular_damping": 0.00999999977648,
+          "mean_angular_moment": -4.89080382236e-05,
+          "mean_linear_moment": -2.2576856565459249e-07,
+          "mean_total_moment": -4.913380678925459e-05,
+          "mean_absolute_total_moment": 4.913380678925459e-05
+        },
+        {
+          "body": "crow_left_foot",
+          "linear_damping": 0.0149999996647,
+          "angular_damping": 0.0149999996647,
+          "mean_angular_moment": 3.24213268680975e-05,
+          "mean_linear_moment": 1.36457821195075e-07,
+          "mean_total_moment": 3.2557784689292575e-05,
+          "mean_absolute_total_moment": 3.2557784689292575e-05
+        },
+        {
+          "body": "crow_right_foot",
+          "linear_damping": 0.0149999996647,
+          "angular_damping": 0.0149999996647,
+          "mean_angular_moment": 3.17571873909e-05,
+          "mean_linear_moment": 1.36203322015575e-07,
+          "mean_total_moment": 3.1893390712915574e-05,
+          "mean_absolute_total_moment": 3.1893390712915574e-05
+        },
+        {
+          "body": "crow_left_wing",
+          "linear_damping": 0.019999999553,
+          "angular_damping": 0.019999999553,
+          "mean_angular_moment": -1.138536318430975e-05,
+          "mean_linear_moment": -2.22464729245815e-07,
+          "mean_total_moment": -1.1607827913555566e-05,
+          "mean_absolute_total_moment": 1.1607827913555566e-05
+        },
+        {
+          "body": "crow_right_wing",
+          "linear_damping": 0.019999999553,
+          "angular_damping": 0.019999999553,
+          "mean_angular_moment": -1.13832828627515e-05,
+          "mean_linear_moment": -2.1856432568627e-07,
+          "mean_total_moment": -1.160184718843777e-05,
+          "mean_absolute_total_moment": 1.160184718843777e-05
+        },
+        {
+          "body": "crow_left_wing_sweep",
+          "linear_damping": 0.019999999553,
+          "angular_damping": 0.019999999553,
+          "mean_angular_moment": -1.133049680767725e-05,
+          "mean_linear_moment": -2.249646075302525e-07,
+          "mean_total_moment": -1.1555461415207502e-05,
+          "mean_absolute_total_moment": 1.1555461415207502e-05
+        },
+        {
+          "body": "crow_left_wing_flap_link",
+          "linear_damping": 0.019999999553,
+          "angular_damping": 0.019999999553,
+          "mean_angular_moment": -1.1330633333596e-05,
+          "mean_linear_moment": -2.22464729245815e-07,
+          "mean_total_moment": -1.1553098062841816e-05,
+          "mean_absolute_total_moment": 1.1553098062841816e-05
+        },
+        {
+          "body": "crow_right_wing_sweep",
+          "linear_damping": 0.019999999553,
+          "angular_damping": 0.019999999553,
+          "mean_angular_moment": -1.133047339501725e-05,
+          "mean_linear_moment": -2.21040402957665e-07,
+          "mean_total_moment": -1.1551513797974915e-05,
+          "mean_absolute_total_moment": 1.1551513797974915e-05
+        },
+        {
+          "body": "crow_right_wing_flap_link",
+          "linear_damping": 0.019999999553,
+          "angular_damping": 0.019999999553,
+          "mean_angular_moment": -1.133052241083375e-05,
+          "mean_linear_moment": -2.1856432568627e-07,
+          "mean_total_moment": -1.154908673652002e-05,
+          "mean_absolute_total_moment": 1.154908673652002e-05
+        },
+        {
+          "body": "crow_neck_yaw_link",
+          "linear_damping": 0.00999999977648,
+          "angular_damping": 0.00999999977648,
+          "mean_angular_moment": -5.665250233586e-06,
+          "mean_linear_moment": 1.510261515832675e-07,
+          "mean_total_moment": -5.514224082002732e-06,
+          "mean_absolute_total_moment": 5.514224082002732e-06
+        },
+        {
+          "body": "crow_tail",
+          "linear_damping": 0.019999999553,
+          "angular_damping": 0.019999999553,
+          "mean_angular_moment": 6.182967476074e-06,
+          "mean_linear_moment": -9.76871726758375e-07,
+          "mean_total_moment": 5.2060957493156245e-06,
+          "mean_absolute_total_moment": 5.2060957493156245e-06
+        },
+        {
+          "body": "crow_left_thigh",
+          "linear_damping": 0.0149999996647,
+          "angular_damping": 0.0149999996647,
+          "mean_angular_moment": -3.730872908427075e-06,
+          "mean_linear_moment": 1.7730586997119025e-08,
+          "mean_total_moment": -3.713142321429956e-06,
+          "mean_absolute_total_moment": 3.7255454077914894e-06
+        },
+        {
+          "body": "crow_right_thigh",
+          "linear_damping": 0.0149999996647,
+          "angular_damping": 0.0149999996647,
+          "mean_angular_moment": -3.522200521784575e-06,
+          "mean_linear_moment": 1.770985359693085e-08,
+          "mean_total_moment": -3.504490668187644e-06,
+          "mean_absolute_total_moment": 3.7345139724748135e-06
+        },
+        {
+          "body": "crow_left_shank",
+          "linear_damping": 0.0149999996647,
+          "angular_damping": 0.0149999996647,
+          "mean_angular_moment": 1.3330552157068942e-06,
+          "mean_linear_moment": 1.516314806097675e-08,
+          "mean_total_moment": 1.348218363767871e-06,
+          "mean_absolute_total_moment": 2.540517140254639e-06
+        },
+        {
+          "body": "crow_right_shank",
+          "linear_damping": 0.0149999996647,
+          "angular_damping": 0.0149999996647,
+          "mean_angular_moment": 1.2313714382494975e-06,
+          "mean_linear_moment": 1.49723333941035e-08,
+          "mean_total_moment": 1.246343771643601e-06,
+          "mean_absolute_total_moment": 2.2318235239880286e-06
+        },
+        {
+          "body": "crow_left_front_toe_1",
+          "linear_damping": 0.0,
+          "angular_damping": 0.0,
+          "mean_angular_moment": 0.0,
+          "mean_linear_moment": 0.0,
+          "mean_total_moment": 0.0,
+          "mean_absolute_total_moment": 0.0
+        },
+        {
+          "body": "crow_left_front_toe_2",
+          "linear_damping": 0.0,
+          "angular_damping": 0.0,
+          "mean_angular_moment": 0.0,
+          "mean_linear_moment": 0.0,
+          "mean_total_moment": 0.0,
+          "mean_absolute_total_moment": 0.0
+        },
+        {
+          "body": "crow_left_front_toe_3",
+          "linear_damping": 0.0,
+          "angular_damping": 0.0,
+          "mean_angular_moment": 0.0,
+          "mean_linear_moment": 0.0,
+          "mean_total_moment": 0.0,
+          "mean_absolute_total_moment": 0.0
+        },
+        {
+          "body": "crow_left_rear_toe",
+          "linear_damping": 0.0,
+          "angular_damping": 0.0,
+          "mean_angular_moment": 0.0,
+          "mean_linear_moment": 0.0,
+          "mean_total_moment": 0.0,
+          "mean_absolute_total_moment": 0.0
+        },
+        {
+          "body": "crow_right_front_toe_1",
+          "linear_damping": 0.0,
+          "angular_damping": 0.0,
+          "mean_angular_moment": 0.0,
+          "mean_linear_moment": 0.0,
+          "mean_total_moment": 0.0,
+          "mean_absolute_total_moment": 0.0
+        },
+        {
+          "body": "crow_right_front_toe_2",
+          "linear_damping": 0.0,
+          "angular_damping": 0.0,
+          "mean_angular_moment": 0.0,
+          "mean_linear_moment": 0.0,
+          "mean_total_moment": 0.0,
+          "mean_absolute_total_moment": 0.0
+        },
+        {
+          "body": "crow_right_front_toe_3",
+          "linear_damping": 0.0,
+          "angular_damping": 0.0,
+          "mean_angular_moment": 0.0,
+          "mean_linear_moment": 0.0,
+          "mean_total_moment": 0.0,
+          "mean_absolute_total_moment": 0.0
+        },
+        {
+          "body": "crow_right_rear_toe",
+          "linear_damping": 0.0,
+          "angular_damping": 0.0,
+          "mean_angular_moment": 0.0,
+          "mean_linear_moment": 0.0,
+          "mean_total_moment": 0.0,
+          "mean_absolute_total_moment": 0.0
+        }
+      ]
+    },
+    {
+      "ticks": [
+        200,
+        239
+      ],
+      "bodies": [
+        {
+          "body": "crow_body",
+          "linear_damping": 0.0399999991059,
+          "angular_damping": 0.5,
+          "mean_angular_moment": -0.000444230385590325,
+          "mean_linear_moment": -5.629214681109325e-07,
+          "mean_total_moment": -0.00044479330705843594,
+          "mean_absolute_total_moment": 0.00044479330705843594
+        },
+        {
+          "body": "crow_lower_beak",
+          "linear_damping": 0.00999999977648,
+          "angular_damping": 0.00999999977648,
+          "mean_angular_moment": -5.39954981020125e-05,
+          "mean_linear_moment": -6.6783685196555e-07,
+          "mean_total_moment": -5.466333495397805e-05,
+          "mean_absolute_total_moment": 5.466333495397805e-05
+        },
+        {
+          "body": "crow_head",
+          "linear_damping": 0.00999999977648,
+          "angular_damping": 0.00999999977648,
+          "mean_angular_moment": -5.39954981020125e-05,
+          "mean_linear_moment": -4.240108819874e-07,
+          "mean_total_moment": -5.44195089839999e-05,
+          "mean_absolute_total_moment": 5.44195089839999e-05
+        },
+        {
+          "body": "crow_right_foot",
+          "linear_damping": 0.0149999996647,
+          "angular_damping": 0.0149999996647,
+          "mean_angular_moment": 2.88828187388575e-05,
+          "mean_linear_moment": 1.472982883393e-07,
+          "mean_total_moment": 2.90301170271968e-05,
+          "mean_absolute_total_moment": 2.90301170271968e-05
+        },
+        {
+          "body": "crow_left_foot",
+          "linear_damping": 0.0149999996647,
+          "angular_damping": 0.0149999996647,
+          "mean_angular_moment": 2.86841386790125e-05,
+          "mean_linear_moment": 1.475425073553e-07,
+          "mean_total_moment": 2.88316811863678e-05,
+          "mean_absolute_total_moment": 2.88316811863678e-05
+        },
+        {
+          "body": "crow_right_wing",
+          "linear_damping": 0.019999999553,
+          "angular_damping": 0.019999999553,
+          "mean_angular_moment": -1.78373454992195e-05,
+          "mean_linear_moment": -3.480029723366075e-07,
+          "mean_total_moment": -1.8185348471556108e-05,
+          "mean_absolute_total_moment": 1.8185348471556108e-05
+        },
+        {
+          "body": "crow_left_wing",
+          "linear_damping": 0.019999999553,
+          "angular_damping": 0.019999999553,
+          "mean_angular_moment": -1.783658618599775e-05,
+          "mean_linear_moment": -3.4409602230293e-07,
+          "mean_total_moment": -1.818068220830068e-05,
+          "mean_absolute_total_moment": 1.818068220830068e-05
+        },
+        {
+          "body": "crow_right_wing_sweep",
+          "linear_damping": 0.019999999553,
+          "angular_damping": 0.019999999553,
+          "mean_angular_moment": -1.776919588286225e-05,
+          "mean_linear_moment": -3.509383061310275e-07,
+          "mean_total_moment": -1.8120134188993277e-05,
+          "mean_absolute_total_moment": 1.8120134188993277e-05
+        },
+        {
+          "body": "crow_right_wing_flap_link",
+          "linear_damping": 0.019999999553,
+          "angular_damping": 0.019999999553,
+          "mean_angular_moment": -1.7769241382122e-05,
+          "mean_linear_moment": -3.480029723366075e-07,
+          "mean_total_moment": -1.8117244354458606e-05,
+          "mean_absolute_total_moment": 1.8117244354458606e-05
+        },
+        {
+          "body": "crow_left_wing_sweep",
+          "linear_damping": 0.019999999553,
+          "angular_damping": 0.019999999553,
+          "mean_angular_moment": -1.776923646288975e-05,
+          "mean_linear_moment": -3.470648756608225e-07,
+          "mean_total_moment": -1.8116301338550572e-05,
+          "mean_absolute_total_moment": 1.8116301338550572e-05
+        },
+        {
+          "body": "crow_left_wing_flap_link",
+          "linear_damping": 0.019999999553,
+          "angular_damping": 0.019999999553,
+          "mean_angular_moment": -1.776943375612625e-05,
+          "mean_linear_moment": -3.4409602230293e-07,
+          "mean_total_moment": -1.811352977842918e-05,
+          "mean_absolute_total_moment": 1.811352977842918e-05
+        },
+        {
+          "body": "crow_neck_yaw_link",
+          "linear_damping": 0.00999999977648,
+          "angular_damping": 0.00999999977648,
+          "mean_angular_moment": -8.884619029735e-06,
+          "mean_linear_moment": 9.73712083729375e-09,
+          "mean_total_moment": -8.874881908897706e-06,
+          "mean_absolute_total_moment": 8.874881908897706e-06
+        },
+        {
+          "body": "crow_left_thigh",
+          "linear_damping": 0.0149999996647,
+          "angular_damping": 0.0149999996647,
+          "mean_angular_moment": -8.4238272845745e-06,
+          "mean_linear_moment": 1.23165252396565e-08,
+          "mean_total_moment": -8.411510759334844e-06,
+          "mean_absolute_total_moment": 8.411510759334844e-06
+        },
+        {
+          "body": "crow_right_thigh",
+          "linear_damping": 0.0149999996647,
+          "angular_damping": 0.0149999996647,
+          "mean_angular_moment": -8.412584717697e-06,
+          "mean_linear_moment": 1.2011717884045499e-08,
+          "mean_total_moment": -8.400572999812955e-06,
+          "mean_absolute_total_moment": 8.400572999812955e-06
+        },
+        {
+          "body": "crow_left_shank",
+          "linear_damping": 0.0149999996647,
+          "angular_damping": 0.0149999996647,
+          "mean_angular_moment": -3.52684404124018e-06,
+          "mean_linear_moment": 2.9753087633022e-08,
+          "mean_total_moment": -3.497090953607158e-06,
+          "mean_absolute_total_moment": 3.746367141553528e-06
+        },
+        {
+          "body": "crow_right_shank",
+          "linear_damping": 0.0149999996647,
+          "angular_damping": 0.0149999996647,
+          "mean_angular_moment": -3.45455530790938e-06,
+          "mean_linear_moment": 2.9451844966029752e-08,
+          "mean_total_moment": -3.4251034629433504e-06,
+          "mean_absolute_total_moment": 3.5797816180968303e-06
+        },
+        {
+          "body": "crow_tail",
+          "linear_damping": 0.019999999553,
+          "angular_damping": 0.019999999553,
+          "mean_angular_moment": 7.31656402437725e-07,
+          "mean_linear_moment": -1.252357982255325e-06,
+          "mean_total_moment": -5.207015798176e-07,
+          "mean_absolute_total_moment": 2.57984990078995e-06
+        },
+        {
+          "body": "crow_left_front_toe_1",
+          "linear_damping": 0.0,
+          "angular_damping": 0.0,
+          "mean_angular_moment": 0.0,
+          "mean_linear_moment": 0.0,
+          "mean_total_moment": 0.0,
+          "mean_absolute_total_moment": 0.0
+        },
+        {
+          "body": "crow_left_front_toe_2",
+          "linear_damping": 0.0,
+          "angular_damping": 0.0,
+          "mean_angular_moment": 0.0,
+          "mean_linear_moment": 0.0,
+          "mean_total_moment": 0.0,
+          "mean_absolute_total_moment": 0.0
+        },
+        {
+          "body": "crow_left_front_toe_3",
+          "linear_damping": 0.0,
+          "angular_damping": 0.0,
+          "mean_angular_moment": 0.0,
+          "mean_linear_moment": 0.0,
+          "mean_total_moment": 0.0,
+          "mean_absolute_total_moment": 0.0
+        },
+        {
+          "body": "crow_left_rear_toe",
+          "linear_damping": 0.0,
+          "angular_damping": 0.0,
+          "mean_angular_moment": 0.0,
+          "mean_linear_moment": 0.0,
+          "mean_total_moment": 0.0,
+          "mean_absolute_total_moment": 0.0
+        },
+        {
+          "body": "crow_right_front_toe_1",
+          "linear_damping": 0.0,
+          "angular_damping": 0.0,
+          "mean_angular_moment": 0.0,
+          "mean_linear_moment": 0.0,
+          "mean_total_moment": 0.0,
+          "mean_absolute_total_moment": 0.0
+        },
+        {
+          "body": "crow_right_front_toe_2",
+          "linear_damping": 0.0,
+          "angular_damping": 0.0,
+          "mean_angular_moment": 0.0,
+          "mean_linear_moment": 0.0,
+          "mean_total_moment": 0.0,
+          "mean_absolute_total_moment": 0.0
+        },
+        {
+          "body": "crow_right_front_toe_3",
+          "linear_damping": 0.0,
+          "angular_damping": 0.0,
+          "mean_angular_moment": 0.0,
+          "mean_linear_moment": 0.0,
+          "mean_total_moment": 0.0,
+          "mean_absolute_total_moment": 0.0
+        },
+        {
+          "body": "crow_right_rear_toe",
+          "linear_damping": 0.0,
+          "angular_damping": 0.0,
+          "mean_angular_moment": 0.0,
+          "mean_linear_moment": 0.0,
+          "mean_total_moment": 0.0,
+          "mean_absolute_total_moment": 0.0
+        }
+      ]
+    },
+    {
+      "ticks": [
+        240,
+        279
+      ],
+      "bodies": [
+        {
+          "body": "crow_body",
+          "linear_damping": 0.0399999991059,
+          "angular_damping": 0.5,
+          "mean_angular_moment": -0.000684296369086925,
+          "mean_linear_moment": -1.13465995183175e-06,
+          "mean_total_moment": -0.0006854310290387568,
+          "mean_absolute_total_moment": 0.0006854310290387568
+        },
+        {
+          "body": "crow_lower_beak",
+          "linear_damping": 0.00999999977648,
+          "angular_damping": 0.00999999977648,
+          "mean_angular_moment": -6.15482149672425e-05,
+          "mean_linear_moment": -1.10552395267135e-06,
+          "mean_total_moment": -6.265373891991385e-05,
+          "mean_absolute_total_moment": 6.265373891991385e-05
+        },
+        {
+          "body": "crow_head",
+          "linear_damping": 0.00999999977648,
+          "angular_damping": 0.00999999977648,
+          "mean_angular_moment": -6.15482149672425e-05,
+          "mean_linear_moment": -8.22580195345175e-07,
+          "mean_total_moment": -6.237079516258767e-05,
+          "mean_absolute_total_moment": 6.237079516258767e-05
+        },
+        {
+          "body": "crow_right_wing",
+          "linear_damping": 0.019999999553,
+          "angular_damping": 0.019999999553,
+          "mean_angular_moment": -2.743530510305e-05,
+          "mean_linear_moment": -6.8994892177355e-07,
+          "mean_total_moment": -2.812525402482355e-05,
+          "mean_absolute_total_moment": 2.812525402482355e-05
+        },
+        {
+          "body": "crow_left_wing",
+          "linear_damping": 0.019999999553,
+          "angular_damping": 0.019999999553,
+          "mean_angular_moment": -2.74336748528325e-05,
+          "mean_linear_moment": -6.86839910530025e-07,
+          "mean_total_moment": -2.8120514763362526e-05,
+          "mean_absolute_total_moment": 2.8120514763362526e-05
+        },
+        {
+          "body": "crow_right_wing_sweep",
+          "linear_damping": 0.019999999553,
+          "angular_damping": 0.019999999553,
+          "mean_angular_moment": -2.7371812194335e-05,
+          "mean_linear_moment": -6.936076039929e-07,
+          "mean_total_moment": -2.8065419798327898e-05,
+          "mean_absolute_total_moment": 2.8065419798327898e-05
+        },
+        {
+          "body": "crow_left_wing_sweep",
+          "linear_damping": 0.019999999553,
+          "angular_damping": 0.019999999553,
+          "mean_angular_moment": -2.73719009003475e-05,
+          "mean_linear_moment": -6.90549043855525e-07,
+          "mean_total_moment": -2.8062449944203024e-05,
+          "mean_absolute_total_moment": 2.8062449944203024e-05
+        },
+        {
+          "body": "crow_right_wing_flap_link",
+          "linear_damping": 0.019999999553,
+          "angular_damping": 0.019999999553,
+          "mean_angular_moment": -2.73718461209025e-05,
+          "mean_linear_moment": -6.8994892177355e-07,
+          "mean_total_moment": -2.806179504267605e-05,
+          "mean_absolute_total_moment": 2.806179504267605e-05
+        },
+        {
+          "body": "crow_left_wing_flap_link",
+          "linear_damping": 0.019999999553,
+          "angular_damping": 0.019999999553,
+          "mean_angular_moment": -2.7372202414675e-05,
+          "mean_linear_moment": -6.86839910530025e-07,
+          "mean_total_moment": -2.8059042325205027e-05,
+          "mean_absolute_total_moment": 2.8059042325205027e-05
+        },
+        {
+          "body": "crow_left_foot",
+          "linear_damping": 0.0149999996647,
+          "angular_damping": 0.0149999996647,
+          "mean_angular_moment": 2.3721967133519424e-05,
+          "mean_linear_moment": 1.57317677360225e-07,
+          "mean_total_moment": 2.387928481087965e-05,
+          "mean_absolute_total_moment": 2.404241620348915e-05
+        },
+        {
+          "body": "crow_right_foot",
+          "linear_damping": 0.0149999996647,
+          "angular_damping": 0.0149999996647,
+          "mean_angular_moment": 2.29047798846633e-05,
+          "mean_linear_moment": 1.56309215114925e-07,
+          "mean_total_moment": 2.3061089099778226e-05,
+          "mean_absolute_total_moment": 2.3262867242593977e-05
+        },
+        {
+          "body": "crow_left_thigh",
+          "linear_damping": 0.0149999996647,
+          "angular_damping": 0.0149999996647,
+          "mean_angular_moment": -1.61937873353175e-05,
+          "mean_linear_moment": -6.159576464927575e-08,
+          "mean_total_moment": -1.6255383099966775e-05,
+          "mean_absolute_total_moment": 1.6255383099966775e-05
+        },
+        {
+          "body": "crow_right_thigh",
+          "linear_damping": 0.0149999996647,
+          "angular_damping": 0.0149999996647,
+          "mean_angular_moment": -1.6095292487849e-05,
+          "mean_linear_moment": -6.214357015808775e-08,
+          "mean_total_moment": -1.6157436058007087e-05,
+          "mean_absolute_total_moment": 1.6157436058007087e-05
+        },
+        {
+          "body": "crow_neck_yaw_link",
+          "linear_damping": 0.00999999977648,
+          "angular_damping": 0.00999999977648,
+          "mean_angular_moment": -1.36859492544135e-05,
+          "mean_linear_moment": -3.0005062854157e-07,
+          "mean_total_moment": -1.3985999882955071e-05,
+          "mean_absolute_total_moment": 1.3985999882955071e-05
+        },
+        {
+          "body": "crow_right_shank",
+          "linear_damping": 0.0149999996647,
+          "angular_damping": 0.0149999996647,
+          "mean_angular_moment": -1.1727428278429425e-05,
+          "mean_linear_moment": 2.3892808254239e-08,
+          "mean_total_moment": -1.1703535470175187e-05,
+          "mean_absolute_total_moment": 1.1727686990283142e-05
+        },
+        {
+          "body": "crow_left_shank",
+          "linear_damping": 0.0149999996647,
+          "angular_damping": 0.0149999996647,
+          "mean_angular_moment": -1.1529106313219026e-05,
+          "mean_linear_moment": 2.400336270894525e-08,
+          "mean_total_moment": -1.150510295051008e-05,
+          "mean_absolute_total_moment": 1.154094581404102e-05
+        },
+        {
+          "body": "crow_tail",
+          "linear_damping": 0.019999999553,
+          "angular_damping": 0.019999999553,
+          "mean_angular_moment": -6.964718253867625e-06,
+          "mean_linear_moment": -1.8088700315985e-06,
+          "mean_total_moment": -8.773588285466125e-06,
+          "mean_absolute_total_moment": 9.400353786769125e-06
+        },
+        {
+          "body": "crow_left_front_toe_1",
+          "linear_damping": 0.0,
+          "angular_damping": 0.0,
+          "mean_angular_moment": 0.0,
+          "mean_linear_moment": 0.0,
+          "mean_total_moment": 0.0,
+          "mean_absolute_total_moment": 0.0
+        },
+        {
+          "body": "crow_left_front_toe_2",
+          "linear_damping": 0.0,
+          "angular_damping": 0.0,
+          "mean_angular_moment": 0.0,
+          "mean_linear_moment": 0.0,
+          "mean_total_moment": 0.0,
+          "mean_absolute_total_moment": 0.0
+        },
+        {
+          "body": "crow_left_front_toe_3",
+          "linear_damping": 0.0,
+          "angular_damping": 0.0,
+          "mean_angular_moment": 0.0,
+          "mean_linear_moment": 0.0,
+          "mean_total_moment": 0.0,
+          "mean_absolute_total_moment": 0.0
+        },
+        {
+          "body": "crow_left_rear_toe",
+          "linear_damping": 0.0,
+          "angular_damping": 0.0,
+          "mean_angular_moment": 0.0,
+          "mean_linear_moment": 0.0,
+          "mean_total_moment": 0.0,
+          "mean_absolute_total_moment": 0.0
+        },
+        {
+          "body": "crow_right_front_toe_1",
+          "linear_damping": 0.0,
+          "angular_damping": 0.0,
+          "mean_angular_moment": 0.0,
+          "mean_linear_moment": 0.0,
+          "mean_total_moment": 0.0,
+          "mean_absolute_total_moment": 0.0
+        },
+        {
+          "body": "crow_right_front_toe_2",
+          "linear_damping": 0.0,
+          "angular_damping": 0.0,
+          "mean_angular_moment": 0.0,
+          "mean_linear_moment": 0.0,
+          "mean_total_moment": 0.0,
+          "mean_absolute_total_moment": 0.0
+        },
+        {
+          "body": "crow_right_front_toe_3",
+          "linear_damping": 0.0,
+          "angular_damping": 0.0,
+          "mean_angular_moment": 0.0,
+          "mean_linear_moment": 0.0,
+          "mean_total_moment": 0.0,
+          "mean_absolute_total_moment": 0.0
+        },
+        {
+          "body": "crow_right_rear_toe",
+          "linear_damping": 0.0,
+          "angular_damping": 0.0,
+          "mean_angular_moment": 0.0,
+          "mean_linear_moment": 0.0,
+          "mean_total_moment": 0.0,
+          "mean_absolute_total_moment": 0.0
+        }
+      ]
+    }
+  ]
+}

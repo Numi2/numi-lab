@@ -1,0 +1,5 @@
+# Body damping contribution during perch drift
+
+The passive 300-tick replay matched the reference exactly. The existing model's torso angular world-damping coefficient is 0.5, and torso damping dominated the endpoint-estimated opposing moment: during ticks 240–279 the torso contributed a mean -0.000685 N m s per 20 ms, versus approximately -0.001010 N m s from all body damping combined and -0.002207 N m s from observed perch contact. During ticks 20–69 the torso contribution was approximately -0.001687 N m s. The toes had zero authored body damping in this prototype. Head, beak and other body segments also contributed smaller terms.
+
+These are endpoint estimates, not exact substep-integrated torques or biological measurements. Damping is already opposing the tip in these windows; increasing it to manufacture stable perching would be unvalidated and could alter qualified flight. No damping or controller was changed. This experiment does not prove the cause of the fall or qualify real crow behavior.
