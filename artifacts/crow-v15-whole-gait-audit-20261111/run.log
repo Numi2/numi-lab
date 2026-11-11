@@ -1,0 +1,9 @@
+synthetic supported swing, dragging, insufficient support, nonfoot and missing input: passed
+artifacts/crow-v15-coordinated-foot-lift-screen-20261111/autonomous-20261126 q_error 4.996795754941274e-10 position_error_m 1.5608528509088645e-08 rotation_error 3.026961846421607e-08
+artifacts/crow-v15-walk-hold-localized-route-20261111/autonomous-20261126 q_error 4.995613089864293e-10 position_error_m 1.5772100494795444e-08 rotation_error 2.9798483473448158e-08
+artifacts/crow-v15-coordinated-foot-lift-screen-20261111/autonomous-20261127 q_error 4.985275248170495e-10 position_error_m 1.59630674909529e-08 rotation_error 2.992072277893377e-08
+artifacts/crow-v15-walk-seed27-reference-20261111/autonomous-20261127 q_error 4.999237135372425e-10 position_error_m 1.6444546828129756e-08 rotation_error 2.979812422270641e-08
+20261126 baseline lanes 8 bilateral swings 8 forward_m range 0.030291686800000002 0.03135441059999999 drag endpoint range 2 5
+20261126 candidate lanes 8 bilateral swings 0 forward_m range 0.015245705799999999 0.015696350499999998 drag endpoint range 85 85
+20261127 baseline lanes 8 bilateral swings 8 forward_m range 0.0293179086761 0.03402335318 drag endpoint range 2 5
+20261127 candidate lanes 8 bilateral swings 0 forward_m range 0.01531764721 0.01575572557 drag endpoint range 85 85

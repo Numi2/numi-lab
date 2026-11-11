@@ -1,0 +1,6 @@
+166d18b42888519dd1e27a086970b0db4a6eb6132aef172c81dc5b8f27244a88  artifacts/crow-v15-coordinated-foot-lift-screen-20261111/autonomous-20261126/run.stderr.gz
+d60ca11c5335ede46fee30c441adeec9af7581f721e1a5cd11c11b85a3ec96d2  artifacts/crow-v15-coordinated-foot-lift-screen-20261111/autonomous-20261127/run.stderr.gz
+443f0df3bf6f6ba1b145388c7bd731d9dd0987cabfc77c7c07aa40bfaac7daa1  artifacts/crow-v15-walk-hold-localized-route-20261111/autonomous-20261126/run.stderr.gz
+60e69444c52ad711cc798c50bde34948208179bd15bc806caef23686fad83bad  artifacts/crow-v15-walk-seed27-reference-20261111/autonomous-20261127/run.stderr.gz
+c7ad98414062d68d5112a067634dca427bbc22e476cd9aa05c968bfd31b2c9bf  build/crow-v15-hip-roll-walk-launch-matched-20261111/kinematics
+d1e9bb9c6c6978318382731dd31df8a8aee22104dc23bbbab73eec5c7b81e615  build/crow-v15-hip-roll-journey-integration-20261111/libmetalrobo.dylib
