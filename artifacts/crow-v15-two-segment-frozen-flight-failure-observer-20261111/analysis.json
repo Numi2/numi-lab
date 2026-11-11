@@ -1,0 +1,25 @@
+{
+  "two_step_exit": 0,
+  "three_step_exit": 1,
+  "two_step_missing_samples": 0,
+  "three_step_missing_samples": 0,
+  "accepted_sample_differences": [],
+  "env_zero_reference": [
+    {
+      "accepted_step": 1,
+      "observer_event": 1,
+      "q_max_abs_difference": 0.0,
+      "q_values": 39
+    },
+    {
+      "accepted_step": 2,
+      "observer_event": 3,
+      "q_max_abs_difference": 0.0,
+      "q_values": 39
+    }
+  ],
+  "failure": [
+    "task_rollout failed: task-rollout GPU step failed [gpu_environment_failure]: one or more MetalWorld control steps rolled back after a GPU environment failure: status=3 environment=0 control_step=0 aba_status=0 failing_substep=1 failing_index=374 aba_diagnostic_0=0.004964 aba_diagnostic_1=0.650170 aba_diagnostic_2=9.526011 aba_diagnostic_3=0.000000 contact_status=3 required_pairs=18 pair_capacity=128 required_raw_contacts=72 raw_contact_capacity=192 required_manifolds=18 manifold_capacity=48 required_constraints=72 constraint_capacity=96 failing_constraint=374 failing_stable_key=0,0 diagnostic_0=5.000000 diagnostic_1=374.000000 diagnostic_2=0.000000 diagnostic_3=0.000000 contact_residuals=0.000000,0.000000,0.000000,0.000000 contact_quality_certificates=0.000000,0.000000,0.000000,0.000000 contact_quality_diagnostics=0.000000,0.000000,0.000000,0.000000 solver_iterations=0 quality_newton=0 quality_pcg=0 quality_backtracks=0 quality_path=0"
+  ],
+  "scope": "host observer events 1 and 2 duplicate first accepted state; event 3 is second accepted state; TSV contains q and scene only, not velocity; failure cause unqualified"
+}

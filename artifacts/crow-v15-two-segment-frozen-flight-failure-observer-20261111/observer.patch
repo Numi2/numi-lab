@@ -1,0 +1,11 @@
+--- a/accepted.cpp
++++ b/observer.cpp
+@@ -5032,7 +5032,7 @@
+                     std::fprintf(stderr, "%s%.9g", i ? "," : "", v[start+i]);
+                 std::fprintf(stderr, "]");
+             };
+-            if ((handle->submittedControlSteps + 1u) % 100u == 0u) {
++            if ((handle->submittedControlSteps + 1u) % 100u == 0u || (std::getenv("CROW_EARLY_FLIGHT_TRACE") != nullptr && handle->submittedControlSteps < 4u)) {
+                 for (size_t lane=0; lane<environmentCount; ++lane) {
+                     std::fprintf(stderr, "CROW_FLIGHT_SAMPLE {\"step\":%llu,\"lane\":%zu",
+                         static_cast<unsigned long long>(handle->submittedControlSteps+1u), lane);
