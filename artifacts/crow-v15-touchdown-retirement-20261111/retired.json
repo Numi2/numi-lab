@@ -1,0 +1,30 @@
+{
+  "remote_commit": "7b8d075d37dcb0b18a0680816e6d91730788efcd",
+  "verification": "independent fetched Git restore, gzip decode, SHA-256 and open-handle checks",
+  "retired": [
+    {
+      "path": "build/crow-v15-v1-contact-gated-grip-20261111/route.json",
+      "archive": "artifacts/crow-v15-v1-contact-gated-grip-20261111/route.json.gz",
+      "sha256": "690ba61a9f0dd31e29d424edb120634b292d3c72d4a644b5d060d6e89392574d",
+      "bytes": 97072019
+    },
+    {
+      "path": "build/crow-v15-v1-contact-gated-grip-20261111/route.tsv",
+      "archive": "artifacts/crow-v15-v1-contact-gated-grip-20261111/route.tsv.gz",
+      "sha256": "71c583c467fa1d4b40980ede5076173aec6447559187d0fdaf5ec16cd01f09e9",
+      "bytes": 2176746
+    },
+    {
+      "path": "build/crow-v15-v1-deeper-touchdown-20261111/route.json",
+      "archive": "artifacts/crow-v15-v1-deeper-touchdown-20261111/route.json.gz",
+      "sha256": "b905b695df07a2cd9ba39c742fbdee8c6020a589594ce8636ea46171892a0340",
+      "bytes": 97069595
+    },
+    {
+      "path": "build/crow-v15-v1-deeper-touchdown-20261111/route.tsv",
+      "archive": "artifacts/crow-v15-v1-deeper-touchdown-20261111/route.tsv.gz",
+      "sha256": "8647a9bd4e7baec9b90cf648c13efa9af693fc4173b127f60d0a9d2105d0715d",
+      "bytes": 2176945
+    }
+  ]
+}
