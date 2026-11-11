@@ -1,0 +1,81 @@
+{
+  "lanes": [
+    {
+      "lane": 0,
+      "complete": true,
+      "missing_substeps": 0,
+      "baseline_toe_speed_cap_steps": [],
+      "candidate_toe_speed_cap_steps": [],
+      "walking_pass": true,
+      "pass": true
+    },
+    {
+      "lane": 1,
+      "complete": true,
+      "missing_substeps": 0,
+      "baseline_toe_speed_cap_steps": [
+        43
+      ],
+      "candidate_toe_speed_cap_steps": [
+        43
+      ],
+      "walking_pass": true,
+      "pass": false
+    },
+    {
+      "lane": 2,
+      "complete": true,
+      "missing_substeps": 0,
+      "baseline_toe_speed_cap_steps": [],
+      "candidate_toe_speed_cap_steps": [],
+      "walking_pass": true,
+      "pass": true
+    },
+    {
+      "lane": 3,
+      "complete": true,
+      "missing_substeps": 0,
+      "baseline_toe_speed_cap_steps": [],
+      "candidate_toe_speed_cap_steps": [],
+      "walking_pass": true,
+      "pass": true
+    },
+    {
+      "lane": 4,
+      "complete": true,
+      "missing_substeps": 0,
+      "baseline_toe_speed_cap_steps": [],
+      "candidate_toe_speed_cap_steps": [],
+      "walking_pass": false,
+      "pass": false
+    },
+    {
+      "lane": 5,
+      "complete": true,
+      "missing_substeps": 0,
+      "baseline_toe_speed_cap_steps": [],
+      "candidate_toe_speed_cap_steps": [],
+      "walking_pass": true,
+      "pass": true
+    },
+    {
+      "lane": 6,
+      "complete": true,
+      "missing_substeps": 0,
+      "baseline_toe_speed_cap_steps": [],
+      "candidate_toe_speed_cap_steps": [],
+      "walking_pass": false,
+      "pass": false
+    },
+    {
+      "lane": 7,
+      "complete": true,
+      "missing_substeps": 0,
+      "baseline_toe_speed_cap_steps": [],
+      "candidate_toe_speed_cap_steps": [],
+      "walking_pass": true,
+      "pass": true
+    }
+  ],
+  "scope": "toe joint speeds at accepted control endpoints, not all physics substeps"
+}
