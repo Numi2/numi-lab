@@ -1,0 +1,82 @@
+{
+  "lanes": [
+    {
+      "lane": 0,
+      "first_episode_steps_off": 1498,
+      "first_episode_steps_labels": 1498,
+      "missing_samples": 0,
+      "first_missing": [],
+      "different_samples": 0,
+      "first_difference": []
+    },
+    {
+      "lane": 1,
+      "first_episode_steps_off": 1507,
+      "first_episode_steps_labels": 1507,
+      "missing_samples": 0,
+      "first_missing": [],
+      "different_samples": 0,
+      "first_difference": []
+    },
+    {
+      "lane": 2,
+      "first_episode_steps_off": 1600,
+      "first_episode_steps_labels": 1600,
+      "missing_samples": 0,
+      "first_missing": [],
+      "different_samples": 0,
+      "first_difference": []
+    },
+    {
+      "lane": 3,
+      "first_episode_steps_off": 1468,
+      "first_episode_steps_labels": 1468,
+      "missing_samples": 0,
+      "first_missing": [],
+      "different_samples": 0,
+      "first_difference": []
+    },
+    {
+      "lane": 4,
+      "first_episode_steps_off": 1600,
+      "first_episode_steps_labels": 1600,
+      "missing_samples": 0,
+      "first_missing": [],
+      "different_samples": 0,
+      "first_difference": []
+    },
+    {
+      "lane": 5,
+      "first_episode_steps_off": 1600,
+      "first_episode_steps_labels": 1600,
+      "missing_samples": 0,
+      "first_missing": [],
+      "different_samples": 0,
+      "first_difference": []
+    },
+    {
+      "lane": 6,
+      "first_episode_steps_off": 1600,
+      "first_episode_steps_labels": 1600,
+      "missing_samples": 0,
+      "first_missing": [],
+      "different_samples": 0,
+      "first_difference": []
+    },
+    {
+      "lane": 7,
+      "first_episode_steps_off": 1600,
+      "first_episode_steps_labels": 1600,
+      "missing_samples": 0,
+      "first_missing": [],
+      "different_samples": 0,
+      "first_difference": []
+    }
+  ],
+  "replay_lane": 1,
+  "replay_compared_frames": 1507,
+  "replay_q_v_observation_action_first_difference": [],
+  "replay_difference_count": 0,
+  "first_episode_outcomes_equal": true,
+  "scope": "Accepted q/v, policy action, and endpoint contact samples for each first episode; observations and replay action in lane 1. Does not prove low-level actuator parity or correctness of the labels. Teacher still cannot be used for corrective training until its full flight and landing recoveries qualify."
+}

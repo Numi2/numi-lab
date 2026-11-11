@@ -1,0 +1,22 @@
+--- a/reference.metal
++++ b/parity.metal
+@@ -6774,14 +6774,16 @@
+             // Oracle labels occupy diagnostic spare state only; these will
+             // become independently fingerprinted actor commands, not sensors.
+             state.nutrition=float4(0.25f-errorOffset,desiredLateral,-heading,desiredHeight);
++            if (dispatch.assistance.x < 0.5f) {
+             // Policy observations do not expose privileged teacher commands.
+             state.commandAndPhase.xyz=float3(0.15f,0.0f,0.0f);
+             state.commandExtension.xyz=float3(-heading,baseAngular.z,yawFrameLinear.x);
+             state.threatGeometry=float4(-pos.z,rootLinearVelocity.z,pitch,baseAngular.y);
+             state.threatTeacher=float4(yawFrameLinear.y,roll,baseAngular.x,landingPhase);
+-        }
+-    }
+-    else if ((program.schedule.w & MR_TASK_PROGRAM_AVIAN_CROW_HIERARCHICAL_NAVIGATION) != 0u) {
++            }
++        }
++    }
++    if ((program.schedule.w & MR_TASK_PROGRAM_AVIAN_CROW_HIERARCHICAL_NAVIGATION) != 0u && !(dispatch.sampling.w != 0u && dispatch.assistance.x < 0.5f && float(state.episode.x)*dispatch.timing.x >= 8.0f)) {
+         // Accepted proprioceptive feedback and explicit final waypoint goal.
+         // The actor, not the route teacher, owns navigation commands.
+         const float3 pos = rootWorldPosition(program,q);

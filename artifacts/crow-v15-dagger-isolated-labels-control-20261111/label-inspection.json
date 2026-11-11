@@ -1,0 +1,11 @@
+{
+  "steps": 1600,
+  "environments": 8,
+  "action_count": 18,
+  "finite": true,
+  "minimum": -1.0,
+  "maximum": 0.5293044447898865,
+  "nonzero_fraction": 0.9995,
+  "different_from_student_latent_fraction": 1.0,
+  "scope": "Diagnostic teacher labels after eight seconds, on student-visited states; a nonidentity label does not establish an expert correction, safe demonstration, or valid post-failure samples."
+}
