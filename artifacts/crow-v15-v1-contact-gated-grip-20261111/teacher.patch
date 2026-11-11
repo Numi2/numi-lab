@@ -1,0 +1,23 @@
+--- a/aligned.metal
++++ b/foot_grip.metal
+@@ -6730,7 +6730,8 @@
+                     if ((group.members.z & MR_TASK_CONTACT_SUPPORT) != 0u &&
+                         compactContact[compactBase+group.members.w] > 0.05f) ++loadedFeet;
+                 }
+-                if (landingPhase > 0.5f && loadedFeet >= 2u &&
++                const bool toeRampsReady=(state.status.w & 63u)>=20u && ((state.status.w>>6u)&63u)>=20u;
++                if (landingPhase > 0.5f && loadedFeet >= 2u && toeRampsReady &&
+                     abs(xError) < 0.06f && abs(yError) < 0.16f &&
+                     length(yawFrameLinear.xy) < 0.08f &&
+                     abs(rootLinearVelocity.z) < 0.12f) landingPhase=2.0f;
+@@ -9333,9 +9334,7 @@
+             uint packed=0u;
+             if (state.navigation.z>=5.0f && seconds<55.0f) {
+                 for (uint side=0u;side<2u;++side) {
+-                    const uint w=compactBase+contactGroups[3u+side].reference.y;
+-                    const float3 force=float3(compactContact[w],compactContact[w+1u],compactContact[w+2u]);
+-                    const bool loaded=length(force)>0.05f && true;
++                    const bool loaded=compactContact[compactBase+contactGroups[side].members.w]>0.05f;
+                     const uint previous=(state.status.w>>(side*6u))&63u;
+                     const uint next=loaded ? min(previous+1u,34u) : (previous>0u ? previous-1u : 0u);
+                     packed |= next << (side*6u);
