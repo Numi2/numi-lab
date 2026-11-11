@@ -1,0 +1,42 @@
+{
+  "remote_commit": "c28c3fff8552c2c955bcf0ba139499e33bd486a0",
+  "verification": "fetched independently, restored tar members and compared sha256 and size against runtime index and local copies; checked open handles",
+  "retired": [
+    {
+      "path": "build/crow-v15-regrip-horizontal-force-audit-20261111/probe",
+      "archive": "artifacts/crow-v15-regrip-horizontal-force-audit-20261111/runtime.tar.gz",
+      "sha256": "561c11223cebaac0dcdbf67c6bb385e0a9d075054b0234d8b494c64d0491ef93",
+      "bytes": 118376
+    },
+    {
+      "path": "build/crow-v15-regrip-horizontal-force-audit-20261111/libmetalrobo.dylib",
+      "archive": "artifacts/crow-v15-regrip-horizontal-force-audit-20261111/runtime.tar.gz",
+      "sha256": "c858db61cb0b8c90551a9ff721f388a8172de3a3c47f24686a0689e8a76a9ae5",
+      "bytes": 5729488
+    },
+    {
+      "path": "build/crow-v15-passive-contact-refinement-20261111/probe",
+      "archive": "artifacts/crow-v15-passive-contact-refinement-20261111/runtime.tar.gz",
+      "sha256": "77b56d25a28691fd43d7fe58f199c48b2e71e7e6e297f3056092e4da00b8da29",
+      "bytes": 101144
+    },
+    {
+      "path": "build/crow-v15-passive-contact-refinement-20261111/libmetalrobo.dylib",
+      "archive": "artifacts/crow-v15-passive-contact-refinement-20261111/runtime.tar.gz",
+      "sha256": "c0d2aef135fe8b20d3c7700e76b23754fa47de905bf5543e21e44168404ec8a4",
+      "bytes": 5729488
+    },
+    {
+      "path": "build/crow-v15-regrip-grid-force-audit-20261111/probe",
+      "archive": "artifacts/crow-v15-regrip-grid-force-audit-20261111/runtime.tar.gz",
+      "sha256": "c30fd701cdfbc39121e2b3bcda71526cab12cd4b900ad2e4965aecb08849323b",
+      "bytes": 102120
+    },
+    {
+      "path": "build/crow-v15-regrip-grid-force-audit-20261111/libmetalrobo.dylib",
+      "archive": "artifacts/crow-v15-regrip-grid-force-audit-20261111/runtime.tar.gz",
+      "sha256": "dbdc9b76fa3791c6080931ebe5efcbbfcfe3b0984f97b1d086183ea173d36978",
+      "bytes": 5729488
+    }
+  ]
+}
