@@ -1,0 +1,3 @@
+# Initial-perch contact load audit
+
+Both passive replays exactly reproduced all 150 saved state traces. At the successful initial position, the rear toes carried an average 0.0888 N s upward impulse per 20 ms during ticks 10–29; at the rear-offset start they carried no recorded impulse and the foot soles carried 0.0828 N s. The rear-offset case continued loading the soles without rear-toe contact through ticks 30–99 while the body drifted backward. These are matched full-substep contact observations, not a causal proof or COM-centered torque balance. They motivate testing anticipatory foot placement through the existing leg joints. No reserved layout was used.
