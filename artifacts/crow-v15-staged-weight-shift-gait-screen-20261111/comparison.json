@@ -1,0 +1,381 @@
+{
+  "rows": [
+    {
+      "seed": 20261126,
+      "lane": 0,
+      "knee_span_baseline_rad": [
+        0.23297384400000004,
+        0.23325890300000002
+      ],
+      "knee_span_candidate_rad": [
+        0.35538378299999995,
+        0.35544970600000003
+      ],
+      "bilateral_mean_span_change_fraction": 0.5246322648374588,
+      "unsupported_substeps_baseline": 0,
+      "unsupported_substeps_candidate": 0,
+      "displacement_baseline_m": 0.031340358799999996,
+      "displacement_candidate_m": -0.0167250819,
+      "nonfoot_baseline_intervals": 0,
+      "nonfoot_candidate_intervals": 0,
+      "candidate_swing_bouts": [
+        0,
+        0
+      ]
+    },
+    {
+      "seed": 20261126,
+      "lane": 1,
+      "knee_span_baseline_rad": [
+        0.23298308300000004,
+        0.23325091599999997
+      ],
+      "knee_span_candidate_rad": [
+        0.35541522499999995,
+        0.35544803699999994
+      ],
+      "bilateral_mean_span_change_fraction": 0.5246920291628066,
+      "unsupported_substeps_baseline": 0,
+      "unsupported_substeps_candidate": 0,
+      "displacement_baseline_m": 0.03135441059999999,
+      "displacement_candidate_m": -0.016740616399999998,
+      "nonfoot_baseline_intervals": 0,
+      "nonfoot_candidate_intervals": 0,
+      "candidate_swing_bouts": [
+        0,
+        0
+      ]
+    },
+    {
+      "seed": 20261126,
+      "lane": 2,
+      "knee_span_baseline_rad": [
+        0.23295789999999994,
+        0.23326435700000003
+      ],
+      "knee_span_candidate_rad": [
+        0.35540446600000003,
+        0.355446755
+      ],
+      "bilateral_mean_span_change_fraction": 0.5247046024231314,
+      "unsupported_substeps_baseline": 0,
+      "unsupported_substeps_candidate": 0,
+      "displacement_baseline_m": 0.030861166750000002,
+      "displacement_candidate_m": -0.01793370075,
+      "nonfoot_baseline_intervals": 0,
+      "nonfoot_candidate_intervals": 0,
+      "candidate_swing_bouts": [
+        0,
+        0
+      ]
+    },
+    {
+      "seed": 20261126,
+      "lane": 3,
+      "knee_span_baseline_rad": [
+        0.23302775599999997,
+        0.23327109200000007
+      ],
+      "knee_span_candidate_rad": [
+        0.35538262099999995,
+        0.355469942
+      ],
+      "bilateral_mean_span_change_fraction": 0.5244570430506401,
+      "unsupported_substeps_baseline": 30,
+      "unsupported_substeps_candidate": 0,
+      "displacement_baseline_m": 0.031137459899999997,
+      "displacement_candidate_m": -0.0167642375,
+      "nonfoot_baseline_intervals": 0,
+      "nonfoot_candidate_intervals": 0,
+      "candidate_swing_bouts": [
+        0,
+        0
+      ]
+    },
+    {
+      "seed": 20261126,
+      "lane": 4,
+      "knee_span_baseline_rad": [
+        0.23293620400000004,
+        0.233239233
+      ],
+      "knee_span_candidate_rad": [
+        0.355389774,
+        0.355461836
+      ],
+      "bilateral_mean_span_change_fraction": 0.5248585695003058,
+      "unsupported_substeps_baseline": 0,
+      "unsupported_substeps_candidate": 0,
+      "displacement_baseline_m": 0.030291686800000002,
+      "displacement_candidate_m": -0.017262720500000002,
+      "nonfoot_baseline_intervals": 0,
+      "nonfoot_candidate_intervals": 0,
+      "candidate_swing_bouts": [
+        0,
+        0
+      ]
+    },
+    {
+      "seed": 20261126,
+      "lane": 5,
+      "knee_span_baseline_rad": [
+        0.232956975,
+        0.23324382300000002
+      ],
+      "knee_span_candidate_rad": [
+        0.35537305500000005,
+        0.35546979300000003
+      ],
+      "bilateral_mean_span_change_fraction": 0.5247568237753211,
+      "unsupported_substeps_baseline": 0,
+      "unsupported_substeps_candidate": 0,
+      "displacement_baseline_m": 0.03084139017,
+      "displacement_candidate_m": -0.01677620363,
+      "nonfoot_baseline_intervals": 0,
+      "nonfoot_candidate_intervals": 0,
+      "candidate_swing_bouts": [
+        0,
+        0
+      ]
+    },
+    {
+      "seed": 20261126,
+      "lane": 6,
+      "knee_span_baseline_rad": [
+        0.232971728,
+        0.23325553500000007
+      ],
+      "knee_span_candidate_rad": [
+        0.355375826,
+        0.35545459400000007
+      ],
+      "bilateral_mean_span_change_fraction": 0.5246436157037861,
+      "unsupported_substeps_baseline": 0,
+      "unsupported_substeps_candidate": 0,
+      "displacement_baseline_m": 0.031059786699999998,
+      "displacement_candidate_m": -0.01664878614,
+      "nonfoot_baseline_intervals": 0,
+      "nonfoot_candidate_intervals": 0,
+      "candidate_swing_bouts": [
+        0,
+        0
+      ]
+    },
+    {
+      "seed": 20261126,
+      "lane": 7,
+      "knee_span_baseline_rad": [
+        0.23326960199999996,
+        0.23325854499999998
+      ],
+      "knee_span_candidate_rad": [
+        0.355388761,
+        0.35546100199999997
+      ],
+      "bilateral_mean_span_change_fraction": 0.5237017692739554,
+      "unsupported_substeps_baseline": 0,
+      "unsupported_substeps_candidate": 0,
+      "displacement_baseline_m": 0.0307338499,
+      "displacement_candidate_m": -0.016654402000000006,
+      "nonfoot_baseline_intervals": 0,
+      "nonfoot_candidate_intervals": 0,
+      "candidate_swing_bouts": [
+        0,
+        0
+      ]
+    },
+    {
+      "seed": 20261127,
+      "lane": 0,
+      "knee_span_baseline_rad": [
+        0.232941836,
+        0.233221858
+      ],
+      "knee_span_candidate_rad": [
+        0.355390042,
+        0.35545176199999995
+      ],
+      "bilateral_mean_span_change_fraction": 0.5248759462593411,
+      "unsupported_substeps_baseline": 0,
+      "unsupported_substeps_candidate": 0,
+      "displacement_baseline_m": 0.031459622129999996,
+      "displacement_candidate_m": -0.0166436061,
+      "nonfoot_baseline_intervals": 0,
+      "nonfoot_candidate_intervals": 0,
+      "candidate_swing_bouts": [
+        0,
+        0
+      ]
+    },
+    {
+      "seed": 20261127,
+      "lane": 1,
+      "knee_span_baseline_rad": [
+        0.233154178,
+        0.23324397199999997
+      ],
+      "knee_span_candidate_rad": [
+        0.355419278,
+        0.35544973599999996
+      ],
+      "bilateral_mean_span_change_fraction": 0.5241677395161197,
+      "unsupported_substeps_baseline": 0,
+      "unsupported_substeps_candidate": 0,
+      "displacement_baseline_m": 0.03031030581,
+      "displacement_candidate_m": -0.016640231989999997,
+      "nonfoot_baseline_intervals": 0,
+      "nonfoot_candidate_intervals": 0,
+      "candidate_swing_bouts": [
+        0,
+        0
+      ]
+    },
+    {
+      "seed": 20261127,
+      "lane": 2,
+      "knee_span_baseline_rad": [
+        0.23331978999999997,
+        0.23324093299999998
+      ],
+      "knee_span_candidate_rad": [
+        0.355381877,
+        0.35544869300000004
+      ],
+      "bilateral_mean_span_change_fraction": 0.523554244835136,
+      "unsupported_substeps_baseline": 0,
+      "unsupported_substeps_candidate": 0,
+      "displacement_baseline_m": 0.0293179086761,
+      "displacement_candidate_m": -0.016970810723900002,
+      "nonfoot_baseline_intervals": 0,
+      "nonfoot_candidate_intervals": 0,
+      "candidate_swing_bouts": [
+        0,
+        0
+      ]
+    },
+    {
+      "seed": 20261127,
+      "lane": 3,
+      "knee_span_baseline_rad": [
+        0.23300179800000004,
+        0.23327001900000005
+      ],
+      "knee_span_candidate_rad": [
+        0.35538220400000003,
+        0.355453193
+      ],
+      "bilateral_mean_span_change_fraction": 0.5245086043877276,
+      "unsupported_substeps_baseline": 0,
+      "unsupported_substeps_candidate": 0,
+      "displacement_baseline_m": 0.031134631500000003,
+      "displacement_candidate_m": -0.0172334835,
+      "nonfoot_baseline_intervals": 0,
+      "nonfoot_candidate_intervals": 0,
+      "candidate_swing_bouts": [
+        0,
+        0
+      ]
+    },
+    {
+      "seed": 20261127,
+      "lane": 4,
+      "knee_span_baseline_rad": [
+        0.233187288,
+        0.23324206400000003
+      ],
+      "knee_span_candidate_rad": [
+        0.35538029600000004,
+        0.35544437199999995
+      ],
+      "bilateral_mean_span_change_fraction": 0.5239707041421355,
+      "unsupported_substeps_baseline": 3,
+      "unsupported_substeps_candidate": 0,
+      "displacement_baseline_m": 0.03402335318,
+      "displacement_candidate_m": -0.01667439072,
+      "nonfoot_baseline_intervals": 0,
+      "nonfoot_candidate_intervals": 0,
+      "candidate_swing_bouts": [
+        0,
+        0
+      ]
+    },
+    {
+      "seed": 20261127,
+      "lane": 5,
+      "knee_span_baseline_rad": [
+        0.23296371099999996,
+        0.233256847
+      ],
+      "knee_span_candidate_rad": [
+        0.355394393,
+        0.355445445
+      ],
+      "bilateral_mean_span_change_fraction": 0.5246857432657446,
+      "unsupported_substeps_baseline": 0,
+      "unsupported_substeps_candidate": 0,
+      "displacement_baseline_m": 0.031367510599999995,
+      "displacement_candidate_m": -0.0167759936,
+      "nonfoot_baseline_intervals": 0,
+      "nonfoot_candidate_intervals": 0,
+      "candidate_swing_bouts": [
+        0,
+        0
+      ]
+    },
+    {
+      "seed": 20261127,
+      "lane": 6,
+      "knee_span_baseline_rad": [
+        0.233311057,
+        0.23322567300000002
+      ],
+      "knee_span_candidate_rad": [
+        0.35536944899999995,
+        0.35547980700000004
+      ],
+      "bilateral_mean_span_change_fraction": 0.5236726505970921,
+      "unsupported_substeps_baseline": 0,
+      "unsupported_substeps_candidate": 0,
+      "displacement_baseline_m": 0.02953803655,
+      "displacement_candidate_m": -0.016655058349999998,
+      "nonfoot_baseline_intervals": 0,
+      "nonfoot_candidate_intervals": 0,
+      "candidate_swing_bouts": [
+        0,
+        0
+      ]
+    },
+    {
+      "seed": 20261127,
+      "lane": 7,
+      "knee_span_baseline_rad": [
+        0.23313486600000005,
+        0.23320740499999992
+      ],
+      "knee_span_candidate_rad": [
+        0.35539528699999995,
+        0.355459243
+      ],
+      "bilateral_mean_span_change_fraction": 0.5243193126706716,
+      "unsupported_substeps_baseline": 0,
+      "unsupported_substeps_candidate": 0,
+      "displacement_baseline_m": 0.03221839431,
+      "displacement_candidate_m": -0.01680501599,
+      "nonfoot_baseline_intervals": 0,
+      "nonfoot_candidate_intervals": 0,
+      "candidate_swing_bouts": [
+        0,
+        0
+      ]
+    }
+  ],
+  "increase_15_percent_lanes": 16,
+  "unsupported_substeps_baseline": 33,
+  "unsupported_substeps_candidate": 0,
+  "bilateral_qualified_swing_lanes": 0,
+  "nonfoot_intervals_baseline": 0,
+  "nonfoot_intervals_candidate": 0,
+  "positive_displacement_baseline_lanes": 16,
+  "positive_displacement_candidate_lanes": 0,
+  "limits": "Angle spans are per knee over endpoint samples; bilateral mean summarizes each lane. Logged prefix endpoints and contact summaries matched through step 199; see prefix comparisons. Ground and reconstructed geometry validation are in the individual analysis files. No landing, takeoff or biological conclusion."
+}
