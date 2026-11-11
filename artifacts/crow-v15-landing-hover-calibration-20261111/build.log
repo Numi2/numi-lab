@@ -1,0 +1,20 @@
+/Users/n/Developer/numi-crow-rl-20261107/build/crow-v15-landing-hover-calibration-20261111/o18.metal:6748:29: warning: unused variable 'descentBlend' [-Wunused-variable]
+                const float descentBlend=clamp((landingPhase-1.0f)*2.5f,0.0f,1.0f);
+                            ^
+1 warning generated.
+o18
+/Users/n/Developer/numi-crow-rl-20261107/build/crow-v15-landing-hover-calibration-20261111/o21.metal:6748:29: warning: unused variable 'descentBlend' [-Wunused-variable]
+                const float descentBlend=clamp((landingPhase-1.0f)*2.5f,0.0f,1.0f);
+                            ^
+1 warning generated.
+o21
+/Users/n/Developer/numi-crow-rl-20261107/build/crow-v15-landing-hover-calibration-20261111/o24.metal:6748:29: warning: unused variable 'descentBlend' [-Wunused-variable]
+                const float descentBlend=clamp((landingPhase-1.0f)*2.5f,0.0f,1.0f);
+                            ^
+1 warning generated.
+o24
+/Users/n/Developer/numi-crow-rl-20261107/build/crow-v15-landing-hover-calibration-20261111/o27.metal:6748:29: warning: unused variable 'descentBlend' [-Wunused-variable]
+                const float descentBlend=clamp((landingPhase-1.0f)*2.5f,0.0f,1.0f);
+                            ^
+1 warning generated.
+o27
