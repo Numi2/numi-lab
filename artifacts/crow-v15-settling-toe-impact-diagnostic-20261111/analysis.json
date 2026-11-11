@@ -1,0 +1,508 @@
+{
+  "rows": [
+    {
+      "lane": 0,
+      "hit_substeps": 0,
+      "hit_indices": [],
+      "max_normal_impulse_on_hit_Ns": 0,
+      "missing_or_duplicate_substeps": 0
+    },
+    {
+      "lane": 1,
+      "hit_substeps": 14,
+      "hit_indices": [
+        14
+      ],
+      "max_normal_impulse_on_hit_Ns": 0.0217717141,
+      "missing_or_duplicate_substeps": 0
+    },
+    {
+      "lane": 2,
+      "hit_substeps": 6,
+      "hit_indices": [
+        8
+      ],
+      "max_normal_impulse_on_hit_Ns": 0.00127006136,
+      "missing_or_duplicate_substeps": 0
+    },
+    {
+      "lane": 3,
+      "hit_substeps": 3,
+      "hit_indices": [
+        6
+      ],
+      "max_normal_impulse_on_hit_Ns": 0.0117909629,
+      "missing_or_duplicate_substeps": 0
+    },
+    {
+      "lane": 4,
+      "hit_substeps": 0,
+      "hit_indices": [],
+      "max_normal_impulse_on_hit_Ns": 0,
+      "missing_or_duplicate_substeps": 0
+    },
+    {
+      "lane": 5,
+      "hit_substeps": 0,
+      "hit_indices": [],
+      "max_normal_impulse_on_hit_Ns": 0,
+      "missing_or_duplicate_substeps": 0
+    },
+    {
+      "lane": 6,
+      "hit_substeps": 0,
+      "hit_indices": [],
+      "max_normal_impulse_on_hit_Ns": 0,
+      "missing_or_duplicate_substeps": 0
+    },
+    {
+      "lane": 7,
+      "hit_substeps": 0,
+      "hit_indices": [],
+      "max_normal_impulse_on_hit_Ns": 0,
+      "missing_or_duplicate_substeps": 0
+    }
+  ],
+  "hits": [
+    {
+      "lane": 2,
+      "step": 1,
+      "substep": 3,
+      "indices": [
+        8
+      ],
+      "velocities": [
+        -12.0
+      ],
+      "left_up_Ns": 0.0,
+      "right_up_Ns": 0.00858129282,
+      "left_normal_Ns": 0.0,
+      "right_normal_Ns": 0.00858129282,
+      "nonfoot_normal_Ns": 0.0,
+      "toe_normal_Ns": [
+        0.00127006136
+      ]
+    },
+    {
+      "lane": 2,
+      "step": 1,
+      "substep": 4,
+      "indices": [
+        8
+      ],
+      "velocities": [
+        -12.0
+      ],
+      "left_up_Ns": 0.0,
+      "right_up_Ns": 0.00482019223,
+      "left_normal_Ns": 0.0,
+      "right_normal_Ns": 0.00482019223,
+      "nonfoot_normal_Ns": 0.0,
+      "toe_normal_Ns": [
+        0.000935329124
+      ]
+    },
+    {
+      "lane": 2,
+      "step": 1,
+      "substep": 5,
+      "indices": [
+        8
+      ],
+      "velocities": [
+        -12.0
+      ],
+      "left_up_Ns": 0.0,
+      "right_up_Ns": 0.00279048854,
+      "left_normal_Ns": 0.0,
+      "right_normal_Ns": 0.00279048854,
+      "nonfoot_normal_Ns": 0.0,
+      "toe_normal_Ns": [
+        0.000680162106
+      ]
+    },
+    {
+      "lane": 2,
+      "step": 2,
+      "substep": 3,
+      "indices": [
+        8
+      ],
+      "velocities": [
+        -12.0
+      ],
+      "left_up_Ns": 0.0,
+      "right_up_Ns": 0.00858129282,
+      "left_normal_Ns": 0.0,
+      "right_normal_Ns": 0.00858129282,
+      "nonfoot_normal_Ns": 0.0,
+      "toe_normal_Ns": [
+        0.00127006136
+      ]
+    },
+    {
+      "lane": 2,
+      "step": 2,
+      "substep": 4,
+      "indices": [
+        8
+      ],
+      "velocities": [
+        -12.0
+      ],
+      "left_up_Ns": 0.0,
+      "right_up_Ns": 0.00482019223,
+      "left_normal_Ns": 0.0,
+      "right_normal_Ns": 0.00482019223,
+      "nonfoot_normal_Ns": 0.0,
+      "toe_normal_Ns": [
+        0.000935329124
+      ]
+    },
+    {
+      "lane": 2,
+      "step": 2,
+      "substep": 5,
+      "indices": [
+        8
+      ],
+      "velocities": [
+        -12.0
+      ],
+      "left_up_Ns": 0.0,
+      "right_up_Ns": 0.00279048854,
+      "left_normal_Ns": 0.0,
+      "right_normal_Ns": 0.00279048854,
+      "nonfoot_normal_Ns": 0.0,
+      "toe_normal_Ns": [
+        0.000680162106
+      ]
+    },
+    {
+      "lane": 1,
+      "step": 25,
+      "substep": 9,
+      "indices": [
+        14
+      ],
+      "velocities": [
+        -12.0
+      ],
+      "left_up_Ns": 0.00368790329,
+      "right_up_Ns": 0.0521576665,
+      "left_normal_Ns": 0.00368790329,
+      "right_normal_Ns": 0.0521576665,
+      "nonfoot_normal_Ns": 0.0,
+      "toe_normal_Ns": [
+        0.0196451377
+      ]
+    },
+    {
+      "lane": 1,
+      "step": 25,
+      "substep": 10,
+      "indices": [
+        14
+      ],
+      "velocities": [
+        -12.0
+      ],
+      "left_up_Ns": 0.00281341746,
+      "right_up_Ns": 0.0451886877,
+      "left_normal_Ns": 0.00281341746,
+      "right_normal_Ns": 0.0451886877,
+      "nonfoot_normal_Ns": 0.0,
+      "toe_normal_Ns": [
+        0.0171822272
+      ]
+    },
+    {
+      "lane": 1,
+      "step": 32,
+      "substep": 13,
+      "indices": [
+        14
+      ],
+      "velocities": [
+        -12.0
+      ],
+      "left_up_Ns": 0.0017965216,
+      "right_up_Ns": 0.0527751707,
+      "left_normal_Ns": 0.0017965216,
+      "right_normal_Ns": 0.0527751707,
+      "nonfoot_normal_Ns": 0.0,
+      "toe_normal_Ns": [
+        0.0161034055
+      ]
+    },
+    {
+      "lane": 1,
+      "step": 32,
+      "substep": 14,
+      "indices": [
+        14
+      ],
+      "velocities": [
+        -12.0
+      ],
+      "left_up_Ns": 0.0011634198,
+      "right_up_Ns": 0.0452954955,
+      "left_normal_Ns": 0.0011634198,
+      "right_normal_Ns": 0.0452954955,
+      "nonfoot_normal_Ns": 0.0,
+      "toe_normal_Ns": [
+        0.0139956009
+      ]
+    },
+    {
+      "lane": 1,
+      "step": 32,
+      "substep": 15,
+      "indices": [
+        14
+      ],
+      "velocities": [
+        -12.0
+      ],
+      "left_up_Ns": 0.000605914276,
+      "right_up_Ns": 0.0362495184,
+      "left_normal_Ns": 0.000605914276,
+      "right_normal_Ns": 0.0362495184,
+      "nonfoot_normal_Ns": 0.0,
+      "toe_normal_Ns": [
+        0.0113570895
+      ]
+    },
+    {
+      "lane": 1,
+      "step": 52,
+      "substep": 7,
+      "indices": [
+        14
+      ],
+      "velocities": [
+        -12.0
+      ],
+      "left_up_Ns": 0.00990295038,
+      "right_up_Ns": 0.0474108644,
+      "left_normal_Ns": 0.00990295038,
+      "right_normal_Ns": 0.0474108644,
+      "nonfoot_normal_Ns": 0.0,
+      "toe_normal_Ns": [
+        0.0194163248
+      ]
+    },
+    {
+      "lane": 1,
+      "step": 52,
+      "substep": 8,
+      "indices": [
+        14
+      ],
+      "velocities": [
+        -12.0
+      ],
+      "left_up_Ns": 0.0082436977,
+      "right_up_Ns": 0.041078642,
+      "left_normal_Ns": 0.0082436977,
+      "right_normal_Ns": 0.041078642,
+      "nonfoot_normal_Ns": 0.0,
+      "toe_normal_Ns": [
+        0.0170037393
+      ]
+    },
+    {
+      "lane": 1,
+      "step": 60,
+      "substep": 2,
+      "indices": [
+        14
+      ],
+      "velocities": [
+        -12.0
+      ],
+      "left_up_Ns": 0.00357589591,
+      "right_up_Ns": 0.0632048696,
+      "left_normal_Ns": 0.00357589591,
+      "right_normal_Ns": 0.0632048696,
+      "nonfoot_normal_Ns": 0.0,
+      "toe_normal_Ns": [
+        0.0209626108
+      ]
+    },
+    {
+      "lane": 1,
+      "step": 60,
+      "substep": 3,
+      "indices": [
+        14
+      ],
+      "velocities": [
+        -12.0
+      ],
+      "left_up_Ns": 0.00246736081,
+      "right_up_Ns": 0.0539895631,
+      "left_normal_Ns": 0.00246736081,
+      "right_normal_Ns": 0.0539895631,
+      "nonfoot_normal_Ns": 0.0,
+      "toe_normal_Ns": [
+        0.0181362592
+      ]
+    },
+    {
+      "lane": 1,
+      "step": 60,
+      "substep": 4,
+      "indices": [
+        14
+      ],
+      "velocities": [
+        -12.0
+      ],
+      "left_up_Ns": 0.00172016164,
+      "right_up_Ns": 0.0463034362,
+      "left_normal_Ns": 0.00172016164,
+      "right_normal_Ns": 0.0463034362,
+      "nonfoot_normal_Ns": 0.0,
+      "toe_normal_Ns": [
+        0.0157065466
+      ]
+    },
+    {
+      "lane": 1,
+      "step": 67,
+      "substep": 2,
+      "indices": [
+        14
+      ],
+      "velocities": [
+        -12.0
+      ],
+      "left_up_Ns": 0.00113009696,
+      "right_up_Ns": 0.0395044684,
+      "left_normal_Ns": 0.00113009696,
+      "right_normal_Ns": 0.0395044684,
+      "nonfoot_normal_Ns": 0.0,
+      "toe_normal_Ns": [
+        0.014178561
+      ]
+    },
+    {
+      "lane": 1,
+      "step": 87,
+      "substep": 12,
+      "indices": [
+        14
+      ],
+      "velocities": [
+        -12.0
+      ],
+      "left_up_Ns": 0.00487746671,
+      "right_up_Ns": 0.0611360483,
+      "left_normal_Ns": 0.00487746671,
+      "right_normal_Ns": 0.0611360483,
+      "nonfoot_normal_Ns": 0.0,
+      "toe_normal_Ns": [
+        0.0217717141
+      ]
+    },
+    {
+      "lane": 1,
+      "step": 87,
+      "substep": 13,
+      "indices": [
+        14
+      ],
+      "velocities": [
+        -12.0
+      ],
+      "left_up_Ns": 0.00366744748,
+      "right_up_Ns": 0.0523975939,
+      "left_normal_Ns": 0.00366744748,
+      "right_normal_Ns": 0.0523975939,
+      "nonfoot_normal_Ns": 0.0,
+      "toe_normal_Ns": [
+        0.0189664364
+      ]
+    },
+    {
+      "lane": 1,
+      "step": 87,
+      "substep": 14,
+      "indices": [
+        14
+      ],
+      "velocities": [
+        -12.0
+      ],
+      "left_up_Ns": 0.00279635331,
+      "right_up_Ns": 0.0450807028,
+      "left_normal_Ns": 0.00279635331,
+      "right_normal_Ns": 0.0450807028,
+      "nonfoot_normal_Ns": 0.0,
+      "toe_normal_Ns": [
+        0.0165339336
+      ]
+    },
+    {
+      "lane": 3,
+      "step": 261,
+      "substep": 1,
+      "indices": [
+        6
+      ],
+      "velocities": [
+        -12.0
+      ],
+      "left_up_Ns": 0.0478757694,
+      "right_up_Ns": 0.00119381398,
+      "left_normal_Ns": 0.0478757694,
+      "right_normal_Ns": 0.00119381398,
+      "nonfoot_normal_Ns": 0.0,
+      "toe_normal_Ns": [
+        0.0117909629
+      ]
+    },
+    {
+      "lane": 3,
+      "step": 261,
+      "substep": 2,
+      "indices": [
+        6
+      ],
+      "velocities": [
+        -12.0
+      ],
+      "left_up_Ns": 0.0380108319,
+      "right_up_Ns": 0.000765768287,
+      "left_normal_Ns": 0.0380108319,
+      "right_normal_Ns": 0.000765768287,
+      "nonfoot_normal_Ns": 0.0,
+      "toe_normal_Ns": [
+        0.010083843
+      ]
+    },
+    {
+      "lane": 3,
+      "step": 261,
+      "substep": 3,
+      "indices": [
+        6
+      ],
+      "velocities": [
+        -12.0
+      ],
+      "left_up_Ns": 0.018372681,
+      "right_up_Ns": 0.000467143225,
+      "left_normal_Ns": 0.018372681,
+      "right_normal_Ns": 0.000467143225,
+      "nonfoot_normal_Ns": 0.0,
+      "toe_normal_Ns": [
+        0.00839905441
+      ]
+    }
+  ],
+  "contact_capacity_overflows": [],
+  "nominal_weight_impulse_per_substep_Ns": 0.005518860750000001,
+  "scope": "Same used development first episodes and full recorded substeps; toe velocity is post-solver. Impulse and speed coincidence is associative and does not identify the cause of the contact oscillation or prove physical realism."
+}

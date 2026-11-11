@@ -1,0 +1,3 @@
+# Toe speed-limit and ground-impact diagnostic
+
+In the used development first episodes, all 14 speed-limit substeps for lane 1 through step 300 were the right rear proximal toe. On those substeps its ground normal impulse reached 0.02177 N s, versus approximately 0.00552 N s for nominal body weight across a single 1.25 ms substep. Lane 2 had six hit substeps on a different toe and lane 3 had three. All substeps had complete coverage and no reported contact-capacity overflow. These impulse and velocity observations coincide; they do not establish causality or a biological target. The geometry-offset control separately removed lane 2 hits but left 13 of 14 in lane 1.
