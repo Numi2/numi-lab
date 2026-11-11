@@ -1,0 +1,5 @@
+# Vertical landing flare: fewer failures, no supported landing
+
+On the used training course with the privileged teacher, all eight first episodes reached five waypoints and ran 3800 intervals without physical termination. They were identical to the stronger-approach reference in sampled q/v, policy outputs and endpoint contacts through each lane's fifth waypoint. Each lane produced perch toe impulses, but none sustained bilateral opposed toe contact at half body weight for even one interval; no bird demonstrated supported landing. Half-weight nonbody support lasted at most two consecutive intervals. This is therefore not an accepted landing controller.
+
+The all-substep observer reported no missing or duplicate samples and no contact-capacity overflow; sampled toe-speed limits still occurred. Nonfoot-perch impulses were not recorded in this trial. The previous approach had three first-episode terminations, but this is one matched development seed, not a general reliability comparison. The frozen low-level flight source was unchanged. This trial does not establish teacher-off autonomous control, toe release, recovery, or performance on an unused layout.
