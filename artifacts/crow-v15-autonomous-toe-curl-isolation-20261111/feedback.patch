@@ -1,0 +1,50 @@
+--- a/reference.metal
++++ b/feedback.metal
+@@ -5133,7 +5133,7 @@
+         if (dispatch.sampling.w==0u && fixedFlightController && state.navigation.z>=5.0f &&
+             state.threatTeacher.w>=1.5f && (state.status.w & 4095u)!=0u &&
+             (action==7u || action==10u)) {
+-            const uint seq=((state.status.w>>16u)&15u)|(((state.status.w>>28u)&15u)<<4u);
++            const uint seq=0u; // Release output disabled; these bits belong to flight fold.
+             const float returning=seq>=230u ? clamp(float(seq-230u)/25.0f,0.0f,1.0f) : 0.0f;
+             const float delta=clamp(.5f*(state.commandAndPhase.y-.012f-.20f*state.commandExtension.z) -
+                 (action==7u ? .04f*returning : 0.0f),-.16f,.16f);
+@@ -5141,7 +5141,7 @@
+         }
+         if (dispatch.sampling.w==0u && fixedFlightController && state.navigation.z>=5.0f &&
+             state.threatTeacher.w>=1.5f && (action==8u || action==9u)) {
+-            const uint seq=((state.status.w>>16u)&15u)|(((state.status.w>>28u)&15u)<<4u);
++            const uint seq=0u; // Release output disabled; these bits belong to flight fold.
+             const float raising=seq>=185u ? clamp(float(seq-185u)/20.0f,0.0f,1.0f) : 0.0f;
+             const float returning=seq>=230u ? clamp(float(seq-230u)/25.0f,0.0f,1.0f) : 0.0f;
+             const float target=(action==8u ? .65f : -.325f)*raising*(1.0f-returning);
+@@ -5544,7 +5544,7 @@
+     // restricted to accepted toe/foot contact with the course perch.
+     if ((program.schedule.w & MR_TASK_PROGRAM_AVIAN_CROW_HIERARCHICAL_NAVIGATION) != 0u &&
+         state.episode.z == 10u && program.counts0.w >= 5u && dispatch.counts.w == 40u) {
+-        const uint seq=((state.status.w>>16u)&15u)|(((state.status.w>>28u)&15u)<<4u);
++        const uint seq=0u; // Release output disabled; these bits belong to flight fold.
+         const float returning=seq>=230u ? clamp(float(seq-230u)/25.0f,0.0f,1.0f) : 0.0f;
+         const float shift=seq>=50u && seq<255u ? clamp(float(min(seq,125u)-50u)/75.0f,0.0f,1.0f)*(1.0f-returning) : 0.0f;
+         effortTrajectory[pass.controlStep*worldDispatch.effortStepStride + environment*worldDispatch.effortEnvironmentStride + 38u]=.22f*shift;
+@@ -5554,7 +5554,7 @@
+             const uint frontRamp=ramp>2u ? ramp-2u : 0u;
+             for (uint toe=0u;toe<4u;++toe) {
+                 const float extension=side==0u && seq>=170u && seq<255u ? -.20f*clamp(float(seq-170u)/35.0f,0.0f,1.0f)*(1.0f-returning) : 0.0f;
+-                const float proximal=(toe==3u ? min(.04f*float(ramp),1.15f) : min(.03f*float(frontRamp),1.05f))+extension;
++                const float perchTarget=(toe==3u ? min(.04f*float(ramp),1.15f) : min(.03f*float(frontRamp),1.05f))+extension; const float flightTarget=.025f*float((state.status.w>>23u)&31u); const float proximal=max(perchTarget,flightTarget);
+                 for(uint segment=0u;segment<2u;++segment) {
+                     const uint dof=22u+side*8u+toe*2u+segment;
+                     effortTrajectory[pass.controlStep*worldDispatch.effortStepStride + environment*worldDispatch.effortEnvironmentStride + dof]=proximal*(segment==0u ? 1.0f : .75f);
+@@ -9463,6 +9463,11 @@
+             const bool released=(previous&8192u)!=0u || (low && (previous&32768u)!=0u && state.airReturnTracking.y>.195f && state.threatGeometry.y>.05f);
+             const uint retract=released ? 4096u : 0u;
+             state.status.w=(previous & ~(4096u|8192u|16384u|32768u)) | low1 | low2 | retract | (released?8192u:0u);
++            const uint oldToeFlight=(state.status.w>>23u)&31u;
++            const bool curlFlight=released && seconds>=7.4f && state.navigation.z<4.0f;
++            const uint nextToeFlight=curlFlight ? min(oldToeFlight+1u,14u) : (oldToeFlight>0u ? oldToeFlight-1u : 0u);
++            state.status.w=(state.status.w & ~(31u<<23u)) | (nextToeFlight<<23u);
++
+         }
+         if (program.counts0.w>=5u && dispatch.counts.w==30u) {
+             const float seconds=float(state.episode.x)*dispatch.timing.x;
