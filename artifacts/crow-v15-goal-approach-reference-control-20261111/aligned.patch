@@ -1,0 +1,22 @@
+--- a/reference.metal
++++ b/aligned.metal
+@@ -5004,7 +5004,7 @@
+             const float vz=state.threatGeometry.y;
+             const float height=state.threatTeacher.w>0.5f
+                 ? state.nutrition.z+.03f+clamp(-.35f*vz,0.0f,.35f) : 1.30f;
+-            oracleCommand=float4(clamp(.55f*(ex+.02f)+.10f-.65f*vx,-.10f,.35f),
++            oracleCommand=float4(clamp(.45f*(ex+.02f)+.10f-.60f*vx,-.10f,.35f),
+                 clamp(.80f*ey,-.30f,.30f),clamp(state.commandExtension.x,-.15f,.15f),height);
+         }
+         if (!privilegedCommand && (state.status.w & (8192u | 16384u)) != 0u) {
+@@ -6822,8 +6822,8 @@
+                 // obstacle collision geometry or teacher route is consulted.
+                 const float3 finalGoal=crowNavigationWaypointTarget(sceneState+sceneBase,course,4u);
+                 finalGoalSignal=float3(finalGoal.x-pos.x,finalGoal.y-pos.y,finalGoal.z);
+-                if (phase < 0.5f && length(finalGoal.xy-pos.xy)<0.08f &&
+-                    length(yawFrameLinear.xy)<0.08f) phase=1.0f;
++                if (phase < 0.5f && abs(finalGoal.x+.02f-pos.x)<0.05f &&
++                    abs(finalGoal.y-pos.y)<0.15f && length(yawFrameLinear.xy)<0.20f) phase=1.0f;
+                 uint loadedFeet=0u;
+                 for (uint gi=0u;gi<program.counts0.w;++gi) {
+                     const MRTaskContactGroupGPU group=contactGroups[gi];

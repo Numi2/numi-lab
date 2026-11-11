@@ -1,0 +1,3 @@
+# Observable goal approach shaped by reference
+
+The aligned autonomous baseline supported one of eight used development starts; a privileged teacher previously supported three on the same course. Test a goal-and-proprioception-only approach using the teachers forward proportional and velocity gains and phase-one bounds, reconstructing the target from the explicitly observed final waypoint. The teacher and obstacle geometry remain unavailable, low-level wing law remains frozen, and the stricter alignment/low-speed support handoff is unchanged. Compare all first episodes, substep forces, nonfoot impacts and endpoint states against the autonomous baseline. This is a predeclared development diagnostic, not a held-out result.
