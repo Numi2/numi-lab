@@ -1,0 +1,11 @@
+{
+  "remote_commit": "f8d8a06bb12c9d720d1d509b377f377912cda82e",
+  "retired": [
+    {
+      "raw": "artifacts/crow-v15-separated-leg-balance-screen-20261111/results.txt",
+      "archive": "artifacts/crow-v15-separated-leg-balance-screen-20261111/results.txt.gz",
+      "sha256": "93b9a60d0c1c197ee4de4524096563e551fd1bf0d3aa1df49c28ea02ea293dea",
+      "bytes": 1968535
+    }
+  ]
+}
