@@ -1,0 +1,21 @@
+{
+  "bytes": 79326947,
+  "compressed_sha256": "a6c5079c04264aa7ec342562665d33df4b4e2eef1e34f4404adb0388bf126b74",
+  "parts": [
+    {
+      "name": "run.stderr.gz.part000",
+      "bytes": 33554432,
+      "sha256": "cd93ea09b34ce8fca55073a7047a12f3feb6475e7f40967f02b64af47f0e1379"
+    },
+    {
+      "name": "run.stderr.gz.part001",
+      "bytes": 33554432,
+      "sha256": "1391fe9e4724107779438b79b97a32e91dc33ab7188d6a241a2d93c470ce4e64"
+    },
+    {
+      "name": "run.stderr.gz.part002",
+      "bytes": 12218083,
+      "sha256": "173abfb2a44bef2e99b83c5f1288ae832044652d2b7aba41d3bd1d402955a4b1"
+    }
+  ]
+}
