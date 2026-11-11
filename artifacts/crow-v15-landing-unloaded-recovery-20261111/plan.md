@@ -1,0 +1,3 @@
+# Contact-loss landing recovery
+
+In the localized-route development run, two birds fell after entering landing hold; sampled intervals showed that hold could remain active after contact load dropped to zero. Test a conservative 0.2-second consecutive no-load and descending gate that returns from hold to the existing bounded approach controller, resetting the one-shot release state when the hold is abandoned. Retain the localized route actor, walking recovery, v15 body, physics and frozen flight law. This is a hypothesis, not proof that contact loss caused either fall. Compare the entire first episodes, actual toe/foot contact, final support, crashes and waypoints on the used development course.
