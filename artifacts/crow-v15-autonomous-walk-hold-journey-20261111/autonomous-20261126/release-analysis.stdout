@@ -1,0 +1,78 @@
+{
+  "rows": [
+    {
+      "lane": 0,
+      "first_episode_steps": 3800,
+      "physical_failure": false,
+      "longest_unloaded_left_right_supported_intervals": 0,
+      "first_ten_interval_release_start": null,
+      "final_25_bilateral_support": false,
+      "complete_substep_coverage": true
+    },
+    {
+      "lane": 1,
+      "first_episode_steps": 3800,
+      "physical_failure": false,
+      "longest_unloaded_left_right_supported_intervals": 0,
+      "first_ten_interval_release_start": null,
+      "final_25_bilateral_support": false,
+      "complete_substep_coverage": true
+    },
+    {
+      "lane": 2,
+      "first_episode_steps": 3800,
+      "physical_failure": false,
+      "longest_unloaded_left_right_supported_intervals": 0,
+      "first_ten_interval_release_start": null,
+      "final_25_bilateral_support": false,
+      "complete_substep_coverage": true
+    },
+    {
+      "lane": 3,
+      "first_episode_steps": 3800,
+      "physical_failure": false,
+      "longest_unloaded_left_right_supported_intervals": 0,
+      "first_ten_interval_release_start": null,
+      "final_25_bilateral_support": false,
+      "complete_substep_coverage": true
+    },
+    {
+      "lane": 4,
+      "first_episode_steps": 3460,
+      "physical_failure": true,
+      "longest_unloaded_left_right_supported_intervals": 0,
+      "first_ten_interval_release_start": null,
+      "final_25_bilateral_support": false,
+      "complete_substep_coverage": true
+    },
+    {
+      "lane": 5,
+      "first_episode_steps": 3800,
+      "physical_failure": false,
+      "longest_unloaded_left_right_supported_intervals": 20,
+      "first_ten_interval_release_start": 3549,
+      "final_25_bilateral_support": true,
+      "complete_substep_coverage": true
+    },
+    {
+      "lane": 6,
+      "first_episode_steps": 3800,
+      "physical_failure": false,
+      "longest_unloaded_left_right_supported_intervals": 0,
+      "first_ten_interval_release_start": null,
+      "final_25_bilateral_support": false,
+      "complete_substep_coverage": true
+    },
+    {
+      "lane": 7,
+      "first_episode_steps": 3800,
+      "physical_failure": false,
+      "longest_unloaded_left_right_supported_intervals": 0,
+      "first_ten_interval_release_start": null,
+      "final_25_bilateral_support": false,
+      "complete_substep_coverage": true
+    }
+  ],
+  "overflow_count": 0,
+  "scope": "A release here means zero left foot/toe normal impulse across all 16 substeps while the right foot has at least half body-weight upward impulse and opposing front/rear normals. This does not establish physical clearance, preceding bilateral stability, subsequent regrip or biological accuracy. Only first episodes are counted."
+}

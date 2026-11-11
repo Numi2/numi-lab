@@ -1,0 +1,22 @@
+{
+  "CROW_TWO_TOE_SUBSTEP": {
+    "journey_records": 4816,
+    "reference_records": 4816,
+    "exact_match": true
+  },
+  "CROW_TOE_V_SUBSTEP": {
+    "journey_records": 4816,
+    "reference_records": 4816,
+    "exact_match": true
+  },
+  "CROW_SCENE_CONTACT": {
+    "journey_records": 98737,
+    "reference_records": 98737,
+    "exact_match": true
+  },
+  "CROW_PHASE_SAMPLE": {
+    "journey_records": 301,
+    "reference_records": 301,
+    "exact_match": true
+  }
+}
