@@ -1,0 +1,11 @@
+{
+  "remote_commit": "2dac5abc1c143a1cccf8e6c122373ec84f3656ca",
+  "retired": [
+    {
+      "raw": "artifacts/crow-v15-grip-moment-audit-20261111/results.txt",
+      "archive": "artifacts/crow-v15-grip-moment-audit-20261111/results.txt.gz",
+      "sha256": "64b741eb10640fd4dbf3ff3d1e534439668121eafb051fb6e4d514407336e47b",
+      "bytes": 1446867
+    }
+  ]
+}
