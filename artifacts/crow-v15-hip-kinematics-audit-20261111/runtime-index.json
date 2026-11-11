@@ -1,0 +1,12 @@
+[
+  {
+    "path": "build/crow-v15-hip-kinematics-audit-20261111/probe",
+    "sha256": "b91d20df15fbe1b57569f2714e9187a6788a0929bea6fa89df9191a92483c4da",
+    "bytes": 62728
+  },
+  {
+    "path": "build/crow-v15-front-toe-long-replay-20261111/libmetalrobo.dylib",
+    "sha256": "aac2160f7f897508ad01516b72b54f7a35ef8d0e02e3e23c6a8dfee8016b4968",
+    "bytes": 5729488
+  }
+]
