@@ -1,0 +1,7 @@
+# Pre-grip fore-aft balance damping on perturbed stationary starts
+
+The uniform gradual-release candidate passed five of eight constructed x perturbations. The two largest x shifts fell before release. Endpoint observations show their fore-aft speed increasing while the front toes never developed opposing contact, whereas a neighboring passing start settled onto both toe groups. This is a hypothesis of insufficient pre-grip fore-aft control, not proof of the failure mechanism.
+
+Use the identical eight constructed starts and the same v15 body, high-traction toe material, all physics, gradual release, partial recenter and thresholds as the uniform-release screen. Change only the fore-aft hip position feedback before release/return: increase its gain from 0.5 to 0.8 and its velocity damping term from 0.2 to 0.6. The release/return feedback remains 0.5 and 0.4; all target clamps and actuator limits stay unchanged. This change uses observed body state and joint drives only, with no extra force. The values are exploratory, not crow-calibrated.
+
+Predict at least six of eight pass the existing complete supported release and final 100-interval bilateral grip gate with no falls, nonfoot contacts, native errors or observer gaps. Compare all starts and record any regression among the five original passes. Preserve all trajectories and failure evidence. Reject promotion if any gate fails. This stationary test does not qualify autonomous landing, walking, navigation, beak pickup, held-out seeds/layouts, or biological realism.
