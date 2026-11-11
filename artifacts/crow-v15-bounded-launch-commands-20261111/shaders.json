@@ -1,0 +1,26 @@
+[
+  {
+    "name": "v040-h065",
+    "sha256": "0b5b385feb6e47f2fba50235c1dda9cadca74073748d6a6d850d53a299379fc9"
+  },
+  {
+    "name": "v040-h085",
+    "sha256": "11f5b5af83ad4c28aa67f60653dd46aabb337097a69f96af79a8432325414e3a"
+  },
+  {
+    "name": "v040-h105",
+    "sha256": "1df89590b51b6874aa9409e3576cd466cef7bac4efc487d28d33e8837e7ec0ac"
+  },
+  {
+    "name": "v070-h065",
+    "sha256": "7555524710d376119131ea58d3b4c2919d23d4d56392e7accb8e04d7ef5ba090"
+  },
+  {
+    "name": "v070-h085",
+    "sha256": "1658d0dd0b36154f12edf76dc4bb155d0cd6236efd840949989f7406862f4c79"
+  },
+  {
+    "name": "v070-h105",
+    "sha256": "df48c4485fe74f9971a4c0509e9fc951b9f08af1174e8c54ef0fbdcf7ec84549"
+  }
+]

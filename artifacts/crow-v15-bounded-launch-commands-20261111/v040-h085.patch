@@ -1,0 +1,16 @@
+--- a/handoff.metal
++++ b/v040-h085.metal
+@@ -4994,7 +4994,12 @@
+             0.10f+0.30f*actorLatent.x,0.30f*actorLatent.y,
+             0.15f*actorLatent.z,0.975f+0.325f*actorLatent.w);
+         const bool privilegedCommand = (dispatch.sampling.w != 0u && dispatch.assistance.x < 0.5f);
+-        const float4 oracleCommand = privilegedCommand ? state.nutrition : actorCommand;
++        float4 oracleCommand = privilegedCommand ? state.nutrition : actorCommand;
++        if (!privilegedCommand && (state.status.w & 8192u) != 0u) {
++            const float launchSeconds = float(state.episode.x)*dispatch.timing.x;
++            const float blend = smoothstep(7.0f,8.0f,launchSeconds);
++            oracleCommand = mix(float4(0.4f,0.0f,0.0f,0.85f),oracleCommand,blend);
++        }
+         carrierState.commandAndPhase.x = 0.15f;
+         carrierState.commandAndPhase.y = oracleCommand.y;
+         carrierState.commandExtension.x = oracleCommand.z;
