@@ -1,0 +1,11 @@
+{
+  "remote_commit": "0e97455311956610c48d59e34c2319f9bcf113b3",
+  "retired": [
+    {
+      "raw": "artifacts/crow-v15-aft-com-balance-replay-20261111/results.txt",
+      "archive": "artifacts/crow-v15-aft-com-balance-replay-20261111/results.txt.gz",
+      "sha256": "65af374e6af78c460adc65d753b2845aa0f647caf23fcccf37ca86c19b6b0512",
+      "bytes": 3465217
+    }
+  ]
+}
