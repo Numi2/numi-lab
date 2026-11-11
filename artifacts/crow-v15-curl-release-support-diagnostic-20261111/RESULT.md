@@ -1,0 +1,3 @@
+# Support after toe release
+
+In the last 29 intervals of lane 5 on the used development trial, summed upward foot impulse exceeded half estimated body-weight impulse in all 29 and no nonfoot perch impulse above 1e-7 N s was recorded. None satisfied the stricter simultaneous bilateral front/rear opposing-normal criterion; most load had shifted to the right foot. All 16 substeps were present in every audited interval. This establishes estimated contact support, not stable bilateral regrip, biological validity, continuous geometric separation or unused-layout success. Internal release sequence state was not recorded in this run.
