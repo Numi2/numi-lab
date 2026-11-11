@@ -1,0 +1,11 @@
+{
+  "remote_commit": "eaca34b1a7903800af4dcda394ce3a619a0095ab",
+  "retired": [
+    {
+      "raw": "artifacts/crow-v15-batched-balance-grid-20261111/results.txt",
+      "archive": "artifacts/crow-v15-batched-balance-grid-20261111/results.txt.gz",
+      "sha256": "dcbc70618ae76dcd91a871d7841fb4685194491f7033561192ad53af8957fee5",
+      "bytes": 18039762
+    }
+  ]
+}
