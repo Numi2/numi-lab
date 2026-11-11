@@ -1,0 +1,5 @@
+# Ramped return sweep: censored by one falling lane
+
+The 8-lane run stopped at attempted zero-based step 489 when lane 6, using the 180-interval return, lost support and the GPU solver rolled the step back. The 489 preceding intervals in each lane are accepted; no outcome is claimed beyond them. Four 40/80-interval lanes each recorded a 10-interval qualified release, returned, and met the bilateral supported grip gate in their final 100 accepted intervals. Their recorded toe speeds stayed below 12 rad/s: peak 9.22 for the 40-interval pair and 3.76 for the 80-interval pair. Two 120-interval lanes did not meet that final-window grip gate. The 180-interval lane 6 fell below the root-height threshold at accepted step 472 and reached the speed cap in eight substep samples before the solver rollback.
+
+This is a censored stationary development batch on two closely related starts, not a completed 550-interval trial, flight qualification, autonomous sequence or biological claim. The output from the failed attempt is retained separately but not treated as accepted state. Peak speeds are substep endpoint measurements.

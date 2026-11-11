@@ -1,0 +1,7 @@
+{
+  "exit_code": 1,
+  "accepted_intervals_per_lane": 489,
+  "censored_at_failed_attempt_step_zero_based": 489,
+  "failed_environment": 6,
+  "scope": "GPU rolled back failed attempt; only steps 0 through 488 are accepted"
+}
