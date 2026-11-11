@@ -1,0 +1,1533 @@
+{
+  "rows": [
+    {
+      "seed": 20261126,
+      "lane": 0,
+      "prefix_state_mismatches": 0,
+      "prefix_contact_mismatches": 0,
+      "first_state_mismatch": [],
+      "first_contact_mismatch": [],
+      "candidate_travel_m": 0.0328080412,
+      "reference_travel_m": 0.031340358799999996,
+      "candidate_toe_cap_substeps": 0,
+      "reference_toe_cap_substeps": 0,
+      "candidate_nonfoot_intervals": [],
+      "sides": [
+        {
+          "side": "left",
+          "all_bouts": [
+            [
+              228,
+              235
+            ],
+            [
+              253,
+              260
+            ],
+            [
+              280,
+              285
+            ]
+          ],
+          "interior": [
+            {
+              "bout": [
+                228,
+                235
+              ],
+              "knee_min_step": 234,
+              "ankle_min_step": 235,
+              "ankle_after_knee": true
+            },
+            {
+              "bout": [
+                253,
+                260
+              ],
+              "knee_min_step": 259,
+              "ankle_min_step": 260,
+              "ankle_after_knee": true
+            },
+            {
+              "bout": [
+                280,
+                285
+              ],
+              "knee_min_step": 284,
+              "ankle_min_step": 285,
+              "ankle_after_knee": true
+            }
+          ],
+          "phase_pass": true
+        },
+        {
+          "side": "right",
+          "all_bouts": [
+            [
+              243,
+              247
+            ],
+            [
+              271,
+              273
+            ]
+          ],
+          "interior": [
+            {
+              "bout": [
+                243,
+                247
+              ],
+              "knee_min_step": 246,
+              "ankle_min_step": 247,
+              "ankle_after_knee": true
+            },
+            {
+              "bout": [
+                271,
+                273
+              ],
+              "knee_min_step": 272,
+              "ankle_min_step": 273,
+              "ankle_after_knee": true
+            }
+          ],
+          "phase_pass": true
+        }
+      ],
+      "pass_except_phase": true
+    },
+    {
+      "seed": 20261126,
+      "lane": 1,
+      "prefix_state_mismatches": 0,
+      "prefix_contact_mismatches": 0,
+      "first_state_mismatch": [],
+      "first_contact_mismatch": [],
+      "candidate_travel_m": 0.03225016409999999,
+      "reference_travel_m": 0.03135441059999999,
+      "candidate_toe_cap_substeps": 0,
+      "reference_toe_cap_substeps": 0,
+      "candidate_nonfoot_intervals": [],
+      "sides": [
+        {
+          "side": "left",
+          "all_bouts": [
+            [
+              228,
+              235
+            ],
+            [
+              253,
+              260
+            ],
+            [
+              280,
+              285
+            ]
+          ],
+          "interior": [
+            {
+              "bout": [
+                228,
+                235
+              ],
+              "knee_min_step": 234,
+              "ankle_min_step": 235,
+              "ankle_after_knee": true
+            },
+            {
+              "bout": [
+                253,
+                260
+              ],
+              "knee_min_step": 259,
+              "ankle_min_step": 260,
+              "ankle_after_knee": true
+            },
+            {
+              "bout": [
+                280,
+                285
+              ],
+              "knee_min_step": 284,
+              "ankle_min_step": 285,
+              "ankle_after_knee": true
+            }
+          ],
+          "phase_pass": true
+        },
+        {
+          "side": "right",
+          "all_bouts": [
+            [
+              243,
+              247
+            ]
+          ],
+          "interior": [
+            {
+              "bout": [
+                243,
+                247
+              ],
+              "knee_min_step": 246,
+              "ankle_min_step": 247,
+              "ankle_after_knee": true
+            }
+          ],
+          "phase_pass": true
+        }
+      ],
+      "pass_except_phase": false
+    },
+    {
+      "seed": 20261126,
+      "lane": 2,
+      "prefix_state_mismatches": 0,
+      "prefix_contact_mismatches": 0,
+      "first_state_mismatch": [],
+      "first_contact_mismatch": [],
+      "candidate_travel_m": 0.03194022315,
+      "reference_travel_m": 0.030861166750000002,
+      "candidate_toe_cap_substeps": 0,
+      "reference_toe_cap_substeps": 0,
+      "candidate_nonfoot_intervals": [],
+      "sides": [
+        {
+          "side": "left",
+          "all_bouts": [
+            [
+              228,
+              235
+            ],
+            [
+              253,
+              260
+            ],
+            [
+              280,
+              285
+            ]
+          ],
+          "interior": [
+            {
+              "bout": [
+                228,
+                235
+              ],
+              "knee_min_step": 234,
+              "ankle_min_step": 235,
+              "ankle_after_knee": true
+            },
+            {
+              "bout": [
+                253,
+                260
+              ],
+              "knee_min_step": 259,
+              "ankle_min_step": 260,
+              "ankle_after_knee": true
+            },
+            {
+              "bout": [
+                280,
+                285
+              ],
+              "knee_min_step": 284,
+              "ankle_min_step": 285,
+              "ankle_after_knee": true
+            }
+          ],
+          "phase_pass": true
+        },
+        {
+          "side": "right",
+          "all_bouts": [
+            [
+              243,
+              247
+            ],
+            [
+              296,
+              299
+            ]
+          ],
+          "interior": [
+            {
+              "bout": [
+                243,
+                247
+              ],
+              "knee_min_step": 246,
+              "ankle_min_step": 247,
+              "ankle_after_knee": true
+            },
+            {
+              "bout": [
+                296,
+                299
+              ],
+              "knee_min_step": 298,
+              "ankle_min_step": 298,
+              "ankle_after_knee": false
+            }
+          ],
+          "phase_pass": false
+        }
+      ],
+      "pass_except_phase": true
+    },
+    {
+      "seed": 20261126,
+      "lane": 3,
+      "prefix_state_mismatches": 0,
+      "prefix_contact_mismatches": 0,
+      "first_state_mismatch": [],
+      "first_contact_mismatch": [],
+      "candidate_travel_m": 0.0448306417,
+      "reference_travel_m": 0.031137459899999997,
+      "candidate_toe_cap_substeps": 0,
+      "reference_toe_cap_substeps": 0,
+      "candidate_nonfoot_intervals": [],
+      "sides": [
+        {
+          "side": "left",
+          "all_bouts": [
+            [
+              228,
+              235
+            ],
+            [
+              253,
+              260
+            ],
+            [
+              281,
+              285
+            ]
+          ],
+          "interior": [
+            {
+              "bout": [
+                228,
+                235
+              ],
+              "knee_min_step": 234,
+              "ankle_min_step": 235,
+              "ankle_after_knee": true
+            },
+            {
+              "bout": [
+                253,
+                260
+              ],
+              "knee_min_step": 259,
+              "ankle_min_step": 260,
+              "ankle_after_knee": true
+            },
+            {
+              "bout": [
+                281,
+                285
+              ],
+              "knee_min_step": 284,
+              "ankle_min_step": 285,
+              "ankle_after_knee": true
+            }
+          ],
+          "phase_pass": true
+        },
+        {
+          "side": "right",
+          "all_bouts": [
+            [
+              243,
+              247
+            ],
+            [
+              271,
+              273
+            ],
+            [
+              293,
+              297
+            ]
+          ],
+          "interior": [
+            {
+              "bout": [
+                243,
+                247
+              ],
+              "knee_min_step": 246,
+              "ankle_min_step": 247,
+              "ankle_after_knee": true
+            },
+            {
+              "bout": [
+                271,
+                273
+              ],
+              "knee_min_step": 272,
+              "ankle_min_step": 273,
+              "ankle_after_knee": true
+            },
+            {
+              "bout": [
+                293,
+                297
+              ],
+              "knee_min_step": 296,
+              "ankle_min_step": 297,
+              "ankle_after_knee": true
+            }
+          ],
+          "phase_pass": true
+        }
+      ],
+      "pass_except_phase": true
+    },
+    {
+      "seed": 20261126,
+      "lane": 4,
+      "prefix_state_mismatches": 0,
+      "prefix_contact_mismatches": 0,
+      "first_state_mismatch": [],
+      "first_contact_mismatch": [],
+      "candidate_travel_m": 0.0386206834,
+      "reference_travel_m": 0.030291686800000002,
+      "candidate_toe_cap_substeps": 0,
+      "reference_toe_cap_substeps": 0,
+      "candidate_nonfoot_intervals": [],
+      "sides": [
+        {
+          "side": "left",
+          "all_bouts": [
+            [
+              228,
+              235
+            ],
+            [
+              253,
+              260
+            ],
+            [
+              281,
+              285
+            ]
+          ],
+          "interior": [
+            {
+              "bout": [
+                228,
+                235
+              ],
+              "knee_min_step": 234,
+              "ankle_min_step": 235,
+              "ankle_after_knee": true
+            },
+            {
+              "bout": [
+                253,
+                260
+              ],
+              "knee_min_step": 259,
+              "ankle_min_step": 260,
+              "ankle_after_knee": true
+            },
+            {
+              "bout": [
+                281,
+                285
+              ],
+              "knee_min_step": 284,
+              "ankle_min_step": 285,
+              "ankle_after_knee": true
+            }
+          ],
+          "phase_pass": true
+        },
+        {
+          "side": "right",
+          "all_bouts": [
+            [
+              243,
+              247
+            ],
+            [
+              294,
+              297
+            ]
+          ],
+          "interior": [
+            {
+              "bout": [
+                243,
+                247
+              ],
+              "knee_min_step": 246,
+              "ankle_min_step": 247,
+              "ankle_after_knee": true
+            },
+            {
+              "bout": [
+                294,
+                297
+              ],
+              "knee_min_step": 296,
+              "ankle_min_step": 297,
+              "ankle_after_knee": true
+            }
+          ],
+          "phase_pass": true
+        }
+      ],
+      "pass_except_phase": true
+    },
+    {
+      "seed": 20261126,
+      "lane": 5,
+      "prefix_state_mismatches": 0,
+      "prefix_contact_mismatches": 0,
+      "first_state_mismatch": [],
+      "first_contact_mismatch": [],
+      "candidate_travel_m": 0.03975351947,
+      "reference_travel_m": 0.03084139017,
+      "candidate_toe_cap_substeps": 0,
+      "reference_toe_cap_substeps": 0,
+      "candidate_nonfoot_intervals": [],
+      "sides": [
+        {
+          "side": "left",
+          "all_bouts": [
+            [
+              228,
+              235
+            ],
+            [
+              253,
+              260
+            ],
+            [
+              280,
+              285
+            ]
+          ],
+          "interior": [
+            {
+              "bout": [
+                228,
+                235
+              ],
+              "knee_min_step": 234,
+              "ankle_min_step": 235,
+              "ankle_after_knee": true
+            },
+            {
+              "bout": [
+                253,
+                260
+              ],
+              "knee_min_step": 259,
+              "ankle_min_step": 260,
+              "ankle_after_knee": true
+            },
+            {
+              "bout": [
+                280,
+                285
+              ],
+              "knee_min_step": 284,
+              "ankle_min_step": 285,
+              "ankle_after_knee": true
+            }
+          ],
+          "phase_pass": true
+        },
+        {
+          "side": "right",
+          "all_bouts": [
+            [
+              243,
+              247
+            ]
+          ],
+          "interior": [
+            {
+              "bout": [
+                243,
+                247
+              ],
+              "knee_min_step": 246,
+              "ankle_min_step": 247,
+              "ankle_after_knee": true
+            }
+          ],
+          "phase_pass": true
+        }
+      ],
+      "pass_except_phase": false
+    },
+    {
+      "seed": 20261126,
+      "lane": 6,
+      "prefix_state_mismatches": 0,
+      "prefix_contact_mismatches": 0,
+      "first_state_mismatch": [],
+      "first_contact_mismatch": [],
+      "candidate_travel_m": 0.0387219563,
+      "reference_travel_m": 0.031059786699999998,
+      "candidate_toe_cap_substeps": 0,
+      "reference_toe_cap_substeps": 0,
+      "candidate_nonfoot_intervals": [],
+      "sides": [
+        {
+          "side": "left",
+          "all_bouts": [
+            [
+              228,
+              235
+            ],
+            [
+              253,
+              260
+            ],
+            [
+              281,
+              285
+            ]
+          ],
+          "interior": [
+            {
+              "bout": [
+                228,
+                235
+              ],
+              "knee_min_step": 234,
+              "ankle_min_step": 235,
+              "ankle_after_knee": true
+            },
+            {
+              "bout": [
+                253,
+                260
+              ],
+              "knee_min_step": 259,
+              "ankle_min_step": 260,
+              "ankle_after_knee": true
+            },
+            {
+              "bout": [
+                281,
+                285
+              ],
+              "knee_min_step": 284,
+              "ankle_min_step": 285,
+              "ankle_after_knee": true
+            }
+          ],
+          "phase_pass": true
+        },
+        {
+          "side": "right",
+          "all_bouts": [
+            [
+              243,
+              247
+            ],
+            [
+              294,
+              297
+            ]
+          ],
+          "interior": [
+            {
+              "bout": [
+                243,
+                247
+              ],
+              "knee_min_step": 246,
+              "ankle_min_step": 247,
+              "ankle_after_knee": true
+            },
+            {
+              "bout": [
+                294,
+                297
+              ],
+              "knee_min_step": 296,
+              "ankle_min_step": 297,
+              "ankle_after_knee": true
+            }
+          ],
+          "phase_pass": true
+        }
+      ],
+      "pass_except_phase": true
+    },
+    {
+      "seed": 20261126,
+      "lane": 7,
+      "prefix_state_mismatches": 0,
+      "prefix_contact_mismatches": 0,
+      "first_state_mismatch": [],
+      "first_contact_mismatch": [],
+      "candidate_travel_m": 0.038400392549999995,
+      "reference_travel_m": 0.0307338499,
+      "candidate_toe_cap_substeps": 0,
+      "reference_toe_cap_substeps": 0,
+      "candidate_nonfoot_intervals": [],
+      "sides": [
+        {
+          "side": "left",
+          "all_bouts": [
+            [
+              228,
+              235
+            ],
+            [
+              253,
+              260
+            ],
+            [
+              278,
+              285
+            ]
+          ],
+          "interior": [
+            {
+              "bout": [
+                228,
+                235
+              ],
+              "knee_min_step": 234,
+              "ankle_min_step": 235,
+              "ankle_after_knee": true
+            },
+            {
+              "bout": [
+                253,
+                260
+              ],
+              "knee_min_step": 259,
+              "ankle_min_step": 260,
+              "ankle_after_knee": true
+            },
+            {
+              "bout": [
+                278,
+                285
+              ],
+              "knee_min_step": 284,
+              "ankle_min_step": 285,
+              "ankle_after_knee": true
+            }
+          ],
+          "phase_pass": true
+        },
+        {
+          "side": "right",
+          "all_bouts": [
+            [
+              243,
+              247
+            ]
+          ],
+          "interior": [
+            {
+              "bout": [
+                243,
+                247
+              ],
+              "knee_min_step": 246,
+              "ankle_min_step": 247,
+              "ankle_after_knee": true
+            }
+          ],
+          "phase_pass": true
+        }
+      ],
+      "pass_except_phase": false
+    },
+    {
+      "seed": 20261127,
+      "lane": 0,
+      "prefix_state_mismatches": 0,
+      "prefix_contact_mismatches": 0,
+      "first_state_mismatch": [],
+      "first_contact_mismatch": [],
+      "candidate_travel_m": 0.024102058299999996,
+      "reference_travel_m": 0.031459622129999996,
+      "candidate_toe_cap_substeps": 0,
+      "reference_toe_cap_substeps": 0,
+      "candidate_nonfoot_intervals": [],
+      "sides": [
+        {
+          "side": "left",
+          "all_bouts": [
+            [
+              228,
+              235
+            ],
+            [
+              253,
+              260
+            ],
+            [
+              279,
+              285
+            ]
+          ],
+          "interior": [
+            {
+              "bout": [
+                228,
+                235
+              ],
+              "knee_min_step": 234,
+              "ankle_min_step": 235,
+              "ankle_after_knee": true
+            },
+            {
+              "bout": [
+                253,
+                260
+              ],
+              "knee_min_step": 259,
+              "ankle_min_step": 260,
+              "ankle_after_knee": true
+            },
+            {
+              "bout": [
+                279,
+                285
+              ],
+              "knee_min_step": 284,
+              "ankle_min_step": 285,
+              "ankle_after_knee": true
+            }
+          ],
+          "phase_pass": true
+        },
+        {
+          "side": "right",
+          "all_bouts": [
+            [
+              243,
+              247
+            ]
+          ],
+          "interior": [
+            {
+              "bout": [
+                243,
+                247
+              ],
+              "knee_min_step": 246,
+              "ankle_min_step": 247,
+              "ankle_after_knee": true
+            }
+          ],
+          "phase_pass": true
+        }
+      ],
+      "pass_except_phase": false
+    },
+    {
+      "seed": 20261127,
+      "lane": 1,
+      "prefix_state_mismatches": 0,
+      "prefix_contact_mismatches": 0,
+      "first_state_mismatch": [],
+      "first_contact_mismatch": [],
+      "candidate_travel_m": 0.03130450561,
+      "reference_travel_m": 0.03031030581,
+      "candidate_toe_cap_substeps": 0,
+      "reference_toe_cap_substeps": 0,
+      "candidate_nonfoot_intervals": [],
+      "sides": [
+        {
+          "side": "left",
+          "all_bouts": [
+            [
+              228,
+              235
+            ],
+            [
+              253,
+              260
+            ],
+            [
+              279,
+              285
+            ]
+          ],
+          "interior": [
+            {
+              "bout": [
+                228,
+                235
+              ],
+              "knee_min_step": 234,
+              "ankle_min_step": 235,
+              "ankle_after_knee": true
+            },
+            {
+              "bout": [
+                253,
+                260
+              ],
+              "knee_min_step": 259,
+              "ankle_min_step": 260,
+              "ankle_after_knee": true
+            },
+            {
+              "bout": [
+                279,
+                285
+              ],
+              "knee_min_step": 284,
+              "ankle_min_step": 285,
+              "ankle_after_knee": true
+            }
+          ],
+          "phase_pass": true
+        },
+        {
+          "side": "right",
+          "all_bouts": [
+            [
+              243,
+              247
+            ],
+            [
+              270,
+              273
+            ]
+          ],
+          "interior": [
+            {
+              "bout": [
+                243,
+                247
+              ],
+              "knee_min_step": 246,
+              "ankle_min_step": 247,
+              "ankle_after_knee": true
+            },
+            {
+              "bout": [
+                270,
+                273
+              ],
+              "knee_min_step": 272,
+              "ankle_min_step": 273,
+              "ankle_after_knee": true
+            }
+          ],
+          "phase_pass": true
+        }
+      ],
+      "pass_except_phase": true
+    },
+    {
+      "seed": 20261127,
+      "lane": 2,
+      "prefix_state_mismatches": 0,
+      "prefix_contact_mismatches": 0,
+      "first_state_mismatch": [],
+      "first_contact_mismatch": [],
+      "candidate_travel_m": 0.0368540088761,
+      "reference_travel_m": 0.0293179086761,
+      "candidate_toe_cap_substeps": 0,
+      "reference_toe_cap_substeps": 0,
+      "candidate_nonfoot_intervals": [],
+      "sides": [
+        {
+          "side": "left",
+          "all_bouts": [
+            [
+              228,
+              235
+            ],
+            [
+              253,
+              260
+            ],
+            [
+              279,
+              285
+            ]
+          ],
+          "interior": [
+            {
+              "bout": [
+                228,
+                235
+              ],
+              "knee_min_step": 234,
+              "ankle_min_step": 235,
+              "ankle_after_knee": true
+            },
+            {
+              "bout": [
+                253,
+                260
+              ],
+              "knee_min_step": 259,
+              "ankle_min_step": 260,
+              "ankle_after_knee": true
+            },
+            {
+              "bout": [
+                279,
+                285
+              ],
+              "knee_min_step": 284,
+              "ankle_min_step": 285,
+              "ankle_after_knee": true
+            }
+          ],
+          "phase_pass": true
+        },
+        {
+          "side": "right",
+          "all_bouts": [
+            [
+              243,
+              247
+            ],
+            [
+              270,
+              273
+            ],
+            [
+              293,
+              297
+            ]
+          ],
+          "interior": [
+            {
+              "bout": [
+                243,
+                247
+              ],
+              "knee_min_step": 246,
+              "ankle_min_step": 247,
+              "ankle_after_knee": true
+            },
+            {
+              "bout": [
+                270,
+                273
+              ],
+              "knee_min_step": 273,
+              "ankle_min_step": 273,
+              "ankle_after_knee": false
+            },
+            {
+              "bout": [
+                293,
+                297
+              ],
+              "knee_min_step": 296,
+              "ankle_min_step": 297,
+              "ankle_after_knee": true
+            }
+          ],
+          "phase_pass": true
+        }
+      ],
+      "pass_except_phase": true
+    },
+    {
+      "seed": 20261127,
+      "lane": 3,
+      "prefix_state_mismatches": 0,
+      "prefix_contact_mismatches": 0,
+      "first_state_mismatch": [],
+      "first_contact_mismatch": [],
+      "candidate_travel_m": 0.033858873,
+      "reference_travel_m": 0.031134631500000003,
+      "candidate_toe_cap_substeps": 0,
+      "reference_toe_cap_substeps": 0,
+      "candidate_nonfoot_intervals": [],
+      "sides": [
+        {
+          "side": "left",
+          "all_bouts": [
+            [
+              228,
+              235
+            ],
+            [
+              253,
+              260
+            ],
+            [
+              279,
+              285
+            ]
+          ],
+          "interior": [
+            {
+              "bout": [
+                228,
+                235
+              ],
+              "knee_min_step": 234,
+              "ankle_min_step": 235,
+              "ankle_after_knee": true
+            },
+            {
+              "bout": [
+                253,
+                260
+              ],
+              "knee_min_step": 259,
+              "ankle_min_step": 260,
+              "ankle_after_knee": true
+            },
+            {
+              "bout": [
+                279,
+                285
+              ],
+              "knee_min_step": 284,
+              "ankle_min_step": 285,
+              "ankle_after_knee": true
+            }
+          ],
+          "phase_pass": true
+        },
+        {
+          "side": "right",
+          "all_bouts": [
+            [
+              243,
+              247
+            ],
+            [
+              270,
+              273
+            ],
+            [
+              296,
+              298
+            ]
+          ],
+          "interior": [
+            {
+              "bout": [
+                243,
+                247
+              ],
+              "knee_min_step": 246,
+              "ankle_min_step": 247,
+              "ankle_after_knee": true
+            },
+            {
+              "bout": [
+                270,
+                273
+              ],
+              "knee_min_step": 273,
+              "ankle_min_step": 273,
+              "ankle_after_knee": false
+            },
+            {
+              "bout": [
+                296,
+                298
+              ],
+              "knee_min_step": 296,
+              "ankle_min_step": 297,
+              "ankle_after_knee": true
+            }
+          ],
+          "phase_pass": true
+        }
+      ],
+      "pass_except_phase": true
+    },
+    {
+      "seed": 20261127,
+      "lane": 4,
+      "prefix_state_mismatches": 0,
+      "prefix_contact_mismatches": 0,
+      "first_state_mismatch": [],
+      "first_contact_mismatch": [],
+      "candidate_travel_m": 0.03541516998,
+      "reference_travel_m": 0.03402335318,
+      "candidate_toe_cap_substeps": 0,
+      "reference_toe_cap_substeps": 0,
+      "candidate_nonfoot_intervals": [],
+      "sides": [
+        {
+          "side": "left",
+          "all_bouts": [
+            [
+              228,
+              235
+            ],
+            [
+              253,
+              260
+            ],
+            [
+              280,
+              285
+            ]
+          ],
+          "interior": [
+            {
+              "bout": [
+                228,
+                235
+              ],
+              "knee_min_step": 234,
+              "ankle_min_step": 235,
+              "ankle_after_knee": true
+            },
+            {
+              "bout": [
+                253,
+                260
+              ],
+              "knee_min_step": 259,
+              "ankle_min_step": 260,
+              "ankle_after_knee": true
+            },
+            {
+              "bout": [
+                280,
+                285
+              ],
+              "knee_min_step": 284,
+              "ankle_min_step": 285,
+              "ankle_after_knee": true
+            }
+          ],
+          "phase_pass": true
+        },
+        {
+          "side": "right",
+          "all_bouts": [
+            [
+              243,
+              247
+            ],
+            [
+              271,
+              273
+            ],
+            [
+              294,
+              297
+            ]
+          ],
+          "interior": [
+            {
+              "bout": [
+                243,
+                247
+              ],
+              "knee_min_step": 246,
+              "ankle_min_step": 247,
+              "ankle_after_knee": true
+            },
+            {
+              "bout": [
+                271,
+                273
+              ],
+              "knee_min_step": 271,
+              "ankle_min_step": 272,
+              "ankle_after_knee": true
+            },
+            {
+              "bout": [
+                294,
+                297
+              ],
+              "knee_min_step": 297,
+              "ankle_min_step": 297,
+              "ankle_after_knee": false
+            }
+          ],
+          "phase_pass": true
+        }
+      ],
+      "pass_except_phase": true
+    },
+    {
+      "seed": 20261127,
+      "lane": 5,
+      "prefix_state_mismatches": 0,
+      "prefix_contact_mismatches": 0,
+      "first_state_mismatch": [],
+      "first_contact_mismatch": [],
+      "candidate_travel_m": 0.0350091904,
+      "reference_travel_m": 0.031367510599999995,
+      "candidate_toe_cap_substeps": 0,
+      "reference_toe_cap_substeps": 0,
+      "candidate_nonfoot_intervals": [],
+      "sides": [
+        {
+          "side": "left",
+          "all_bouts": [
+            [
+              228,
+              235
+            ],
+            [
+              253,
+              260
+            ],
+            [
+              280,
+              285
+            ]
+          ],
+          "interior": [
+            {
+              "bout": [
+                228,
+                235
+              ],
+              "knee_min_step": 234,
+              "ankle_min_step": 235,
+              "ankle_after_knee": true
+            },
+            {
+              "bout": [
+                253,
+                260
+              ],
+              "knee_min_step": 259,
+              "ankle_min_step": 260,
+              "ankle_after_knee": true
+            },
+            {
+              "bout": [
+                280,
+                285
+              ],
+              "knee_min_step": 284,
+              "ankle_min_step": 285,
+              "ankle_after_knee": true
+            }
+          ],
+          "phase_pass": true
+        },
+        {
+          "side": "right",
+          "all_bouts": [
+            [
+              243,
+              247
+            ]
+          ],
+          "interior": [
+            {
+              "bout": [
+                243,
+                247
+              ],
+              "knee_min_step": 246,
+              "ankle_min_step": 247,
+              "ankle_after_knee": true
+            }
+          ],
+          "phase_pass": true
+        }
+      ],
+      "pass_except_phase": false
+    },
+    {
+      "seed": 20261127,
+      "lane": 6,
+      "prefix_state_mismatches": 0,
+      "prefix_contact_mismatches": 0,
+      "first_state_mismatch": [],
+      "first_contact_mismatch": [],
+      "candidate_travel_m": 0.038072047049999995,
+      "reference_travel_m": 0.02953803655,
+      "candidate_toe_cap_substeps": 0,
+      "reference_toe_cap_substeps": 0,
+      "candidate_nonfoot_intervals": [],
+      "sides": [
+        {
+          "side": "left",
+          "all_bouts": [
+            [
+              228,
+              235
+            ],
+            [
+              253,
+              260
+            ],
+            [
+              281,
+              285
+            ]
+          ],
+          "interior": [
+            {
+              "bout": [
+                228,
+                235
+              ],
+              "knee_min_step": 234,
+              "ankle_min_step": 235,
+              "ankle_after_knee": true
+            },
+            {
+              "bout": [
+                253,
+                260
+              ],
+              "knee_min_step": 259,
+              "ankle_min_step": 260,
+              "ankle_after_knee": true
+            },
+            {
+              "bout": [
+                281,
+                285
+              ],
+              "knee_min_step": 284,
+              "ankle_min_step": 285,
+              "ankle_after_knee": true
+            }
+          ],
+          "phase_pass": true
+        },
+        {
+          "side": "right",
+          "all_bouts": [
+            [
+              243,
+              247
+            ],
+            [
+              296,
+              298
+            ]
+          ],
+          "interior": [
+            {
+              "bout": [
+                243,
+                247
+              ],
+              "knee_min_step": 246,
+              "ankle_min_step": 247,
+              "ankle_after_knee": true
+            },
+            {
+              "bout": [
+                296,
+                298
+              ],
+              "knee_min_step": 296,
+              "ankle_min_step": 297,
+              "ankle_after_knee": true
+            }
+          ],
+          "phase_pass": true
+        }
+      ],
+      "pass_except_phase": true
+    },
+    {
+      "seed": 20261127,
+      "lane": 7,
+      "prefix_state_mismatches": 0,
+      "prefix_contact_mismatches": 0,
+      "first_state_mismatch": [],
+      "first_contact_mismatch": [],
+      "candidate_travel_m": 0.036992238409999996,
+      "reference_travel_m": 0.03221839431,
+      "candidate_toe_cap_substeps": 0,
+      "reference_toe_cap_substeps": 0,
+      "candidate_nonfoot_intervals": [],
+      "sides": [
+        {
+          "side": "left",
+          "all_bouts": [
+            [
+              228,
+              235
+            ],
+            [
+              253,
+              260
+            ],
+            [
+              280,
+              285
+            ]
+          ],
+          "interior": [
+            {
+              "bout": [
+                228,
+                235
+              ],
+              "knee_min_step": 234,
+              "ankle_min_step": 235,
+              "ankle_after_knee": true
+            },
+            {
+              "bout": [
+                253,
+                260
+              ],
+              "knee_min_step": 259,
+              "ankle_min_step": 260,
+              "ankle_after_knee": true
+            },
+            {
+              "bout": [
+                280,
+                285
+              ],
+              "knee_min_step": 284,
+              "ankle_min_step": 285,
+              "ankle_after_knee": true
+            }
+          ],
+          "phase_pass": true
+        },
+        {
+          "side": "right",
+          "all_bouts": [
+            [
+              243,
+              247
+            ]
+          ],
+          "interior": [
+            {
+              "bout": [
+                243,
+                247
+              ],
+              "knee_min_step": 246,
+              "ankle_min_step": 247,
+              "ankle_after_knee": true
+            }
+          ],
+          "phase_pass": true
+        }
+      ],
+      "pass_except_phase": false
+    }
+  ],
+  "phase_sides_passing": 31,
+  "all_lane_gates_pass": false,
+  "all_gates_pass": false
+}

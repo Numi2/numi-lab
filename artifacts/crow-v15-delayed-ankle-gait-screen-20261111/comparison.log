@@ -1,0 +1,25 @@
+artifacts/crow-v15-delayed-ankle-gait-screen-20261111/autonomous-20261126 q_error 4.991760338413087e-10 position_error_m 1.6140732249429755e-08 rotation_error 2.979026039296697e-08
+20261126 candidate errors [] reference errors []
+artifacts/crow-v15-delayed-ankle-gait-screen-20261111/autonomous-20261127 q_error 4.99801644515685e-10 position_error_m 1.836356850720664e-08 rotation_error 2.978853989298958e-08
+20261127 candidate errors [] reference errors []
+{
+  "phase_sides_passing": 31,
+  "all_lane_gates_pass": false,
+  "all_gates_pass": false
+}
+20261126 0 phase [True, True] swings [3, 2] travel 0.0328080412 reference 0.031340358799999996 cap 0 0 lane_pass True
+20261126 1 phase [True, True] swings [3, 1] travel 0.03225016409999999 reference 0.03135441059999999 cap 0 0 lane_pass False
+20261126 2 phase [True, False] swings [3, 2] travel 0.03194022315 reference 0.030861166750000002 cap 0 0 lane_pass True
+20261126 3 phase [True, True] swings [3, 3] travel 0.0448306417 reference 0.031137459899999997 cap 0 0 lane_pass True
+20261126 4 phase [True, True] swings [3, 2] travel 0.0386206834 reference 0.030291686800000002 cap 0 0 lane_pass True
+20261126 5 phase [True, True] swings [3, 1] travel 0.03975351947 reference 0.03084139017 cap 0 0 lane_pass False
+20261126 6 phase [True, True] swings [3, 2] travel 0.0387219563 reference 0.031059786699999998 cap 0 0 lane_pass True
+20261126 7 phase [True, True] swings [3, 1] travel 0.038400392549999995 reference 0.0307338499 cap 0 0 lane_pass False
+20261127 0 phase [True, True] swings [3, 1] travel 0.024102058299999996 reference 0.031459622129999996 cap 0 0 lane_pass False
+20261127 1 phase [True, True] swings [3, 2] travel 0.03130450561 reference 0.03031030581 cap 0 0 lane_pass True
+20261127 2 phase [True, True] swings [3, 3] travel 0.0368540088761 reference 0.0293179086761 cap 0 0 lane_pass True
+20261127 3 phase [True, True] swings [3, 3] travel 0.033858873 reference 0.031134631500000003 cap 0 0 lane_pass True
+20261127 4 phase [True, True] swings [3, 3] travel 0.03541516998 reference 0.03402335318 cap 0 0 lane_pass True
+20261127 5 phase [True, True] swings [3, 1] travel 0.0350091904 reference 0.031367510599999995 cap 0 0 lane_pass False
+20261127 6 phase [True, True] swings [3, 2] travel 0.038072047049999995 reference 0.02953803655 cap 0 0 lane_pass True
+20261127 7 phase [True, True] swings [3, 1] travel 0.036992238409999996 reference 0.03221839431 cap 0 0 lane_pass False
