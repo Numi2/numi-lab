@@ -1,0 +1,3 @@
+# Forward-shifted perch approach
+
+The single +60 mm approach shift reached all five development J waypoints with unchanged q/v through step 1305 and 0.13897 m minimum sampled obstacle clearance. The rear toes made perch contact, confirming they can reach at this shifted approach. There were only three bilateral half-weight support intervals, at most two consecutive; none had supported opposing toe forces. The first episode failed with crow body against perch at step 2275, after landing phase 2 cut off the flight controls. Full 16-substep observation had no missing samples or capacity overflow. The result is a failed privileged-teacher development trial, not a safe landing, autonomous result, or validation of the target.

@@ -1,0 +1,37 @@
+[
+  {
+    "path": "build/bin/metalrobo_task_rollout",
+    "sha256": "5ee04a98f25f7149701bc21ede235428876e535f843366e78dea16fce6035d1d",
+    "bytes": 1081736
+  },
+  {
+    "path": "build/crow-v15-perch-substep-observer-20261111/libmetalrobo.dylib",
+    "sha256": "d0e25e8a6875a2753e6fd3f8a75bb6baba5152bb8759aedbe1b6ac3cf829ffa4",
+    "bytes": 5764480
+  },
+  {
+    "path": "build/crow-v15-v1-centered-perch-approach-20261111/teacher.metallib",
+    "sha256": "2a51f1ef8150767f1d8242e9a5c158725f13bc8aaf20f715a6448801b9b5a088",
+    "bytes": 4471360
+  },
+  {
+    "path": "build/crow-v15-v1-route-diagnostic-20261111/diagnostic-actor.policypack",
+    "sha256": "aad28920edac6166eee8808cee7d7f0944f16228bcfcde0a962f64b76ddcc29c",
+    "bytes": 17228694
+  },
+  {
+    "path": "build/crow-v15-walk-16substep-screen-20261111/zero16/landing.policypack",
+    "sha256": "d5973d635670960c6bb1a39630053975c417e0f335e66998e90fae3cc006afaa",
+    "bytes": 5996435
+  },
+  {
+    "path": "build/crow-v15-walk-all-lanes-geometry-20261111/kinematics",
+    "sha256": "c78f121c1742cc9b85a0511255db25a40c720c385f1345398fdca7761609397f",
+    "bytes": 62648
+  },
+  {
+    "path": "assets/crow_navigation_course/crow-navigation.active-head.visual-observation.json",
+    "sha256": "d19ff0f9d360b4ffc84bac6a5f3d2be048234b6c03097af7d43fe5f85b316f8f",
+    "bytes": 1566
+  }
+]
