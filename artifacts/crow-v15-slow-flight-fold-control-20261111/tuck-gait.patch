@@ -1,0 +1,29 @@
+--- a/reference.metal
++++ b/tuck-gait.metal
+@@ -5099,6 +5099,13 @@
+                 if ((state.status.w & 4096u) != 0u) navigationTeacherRequested = crouched;
+             }
+         }
++        // Experiment: physical joint targets share the liftoff/toe ramp and release before the final approach.
++        if (fixedFlightController && state.episode.z==10u && dispatch.counts.w==40u && action>=7u && action<=12u) {
++            const uint joint=(action-7u)%3u;
++            const float blend=float(((state.status.w>>16u)&15u)|(((state.status.w>>28u)&7u)<<4u))/100.0f;
++            const float tuck=joint==0u ? 0.40f : joint==1u ? 0.50f : 0.30f;
++            navigationTeacherRequested=mix(navigationTeacherRequested,tuck,clamp(blend,0.0f,1.0f));
++        }
+         // Keep the training-only teacher active through the final target.
+         // Ending at waypoint four taught an aggressive approach crossing but
+         // handed the student a poor terminal arrival geometry. Autonomous
+@@ -9397,6 +9404,12 @@
+             const bool curlFlight=released && seconds>=7.4f && state.navigation.z<4.0f;
+             const uint nextToeFlight=curlFlight ? min(oldToeFlight+1u,14u) : (oldToeFlight>0u ? oldToeFlight-1u : 0u);
+             state.status.w=(state.status.w & ~(31u<<23u)) | (nextToeFlight<<23u);
++            // Separate 100-tick physical leg transition; release after waypoint four.
++            const uint foldMask=(15u<<16u)|(7u<<28u);
++            const uint oldFold=((state.status.w>>16u)&15u)|(((state.status.w>>28u)&7u)<<4u);
++            const uint nextFold=curlFlight ? min(oldFold+1u,100u) : (oldFold>0u ? oldFold-1u : 0u);
++            state.status.w=(state.status.w & ~foldMask)|((nextFold&15u)<<16u)|((nextFold>>4u)<<28u);
++
+         }
+         if (program.counts0.w>=5u && dispatch.counts.w==30u) {
+             const float seconds=float(state.episode.x)*dispatch.timing.x;

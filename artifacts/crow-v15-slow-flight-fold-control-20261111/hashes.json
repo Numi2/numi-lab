@@ -1,0 +1,10 @@
+{
+  "tuck-gait": {
+    "source_sha256": "9fe0096210f17f41bfe2994dcb104f0b93e025b58e50dcf27ce39c8962f396b7",
+    "metallib_sha256": "95812381ca46a5eb5592b7875f7944a92b8e1818dd7e0296dba01029abef561a"
+  },
+  "tuck-flight": {
+    "source_sha256": "0b92dd36719fcbdf245cbb64602089df3eac628810266cbd77458a0d75444df5",
+    "metallib_sha256": "d0f55496879f42f94b14a0892d937de72cb975efb41fa9465ab0db89b9dc5a2f"
+  }
+}

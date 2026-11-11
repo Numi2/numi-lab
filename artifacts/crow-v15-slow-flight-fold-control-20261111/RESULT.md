@@ -1,0 +1,3 @@
+# Slower physical leg fold: short flight screen
+
+With a 100-interval fold ramp, no body-to-body contact above threshold was logged in five lanes during steps 380–600. Lane 1 q, velocity, actor observations and recorded actions matched the reference for the first 370 frames. At frame 450 its forward velocity was +0.124 m/s versus +0.369 m/s for the reference; at frame 600 its root was 0.770 m behind. This improves the specific early backward motion seen with the faster moderate fold, but the trajectory remains substantially different and the candidate is not qualified. Later self-contact, all-lane flight performance, route, approach, landing and biological realism are unverified.
