@@ -1,0 +1,95 @@
+--- a/reference.metal
++++ b/release.metal
+@@ -5133,8 +5133,19 @@
+         if (dispatch.sampling.w==0u && fixedFlightController && state.navigation.z>=5.0f &&
+             state.threatTeacher.w>=1.5f && (state.status.w & 4095u)!=0u &&
+             (action==7u || action==10u)) {
+-            const float delta=clamp(.5f*(state.commandAndPhase.y-.012f-.20f*state.commandExtension.z),-.16f,.16f);
++            const uint seq=((state.status.w>>16u)&15u)|(((state.status.w>>28u)&15u)<<4u);
++            const float returning=seq>=230u ? clamp(float(seq-230u)/25.0f,0.0f,1.0f) : 0.0f;
++            const float delta=clamp(.5f*(state.commandAndPhase.y-.012f-.20f*state.commandExtension.z) -
++                (action==7u ? .04f*returning : 0.0f),-.16f,.16f);
+             navigationTeacherRequested=clamp(delta/max(abs(actions[action].parameters.x),.001f),-1.0f,1.0f);
++        }
++        if (dispatch.sampling.w==0u && fixedFlightController && state.navigation.z>=5.0f &&
++            state.threatTeacher.w>=1.5f && (action==8u || action==9u)) {
++            const uint seq=((state.status.w>>16u)&15u)|(((state.status.w>>28u)&15u)<<4u);
++            const float raising=seq>=185u ? clamp(float(seq-185u)/20.0f,0.0f,1.0f) : 0.0f;
++            const float returning=seq>=230u ? clamp(float(seq-230u)/25.0f,0.0f,1.0f) : 0.0f;
++            const float target=(action==8u ? .65f : -.325f)*raising*(1.0f-returning);
++            navigationTeacherRequested=clamp(target/max(abs(actions[action].parameters.x),.001f),-1.0f,1.0f);
+         }
+         const float navigationTeacherBlend = fixedFlightController
+             ? 1.0f
+@@ -5533,11 +5544,17 @@
+     // restricted to accepted toe/foot contact with the course perch.
+     if ((program.schedule.w & MR_TASK_PROGRAM_AVIAN_CROW_HIERARCHICAL_NAVIGATION) != 0u &&
+         state.episode.z == 10u && program.counts0.w >= 5u && dispatch.counts.w == 40u) {
++        const uint seq=((state.status.w>>16u)&15u)|(((state.status.w>>28u)&15u)<<4u);
++        const float returning=seq>=230u ? clamp(float(seq-230u)/25.0f,0.0f,1.0f) : 0.0f;
++        const float shift=seq>=50u && seq<255u ? clamp(float(min(seq,125u)-50u)/75.0f,0.0f,1.0f)*(1.0f-returning) : 0.0f;
++        effortTrajectory[pass.controlStep*worldDispatch.effortStepStride + environment*worldDispatch.effortEnvironmentStride + 38u]=.22f*shift;
++        effortTrajectory[pass.controlStep*worldDispatch.effortStepStride + environment*worldDispatch.effortEnvironmentStride + 39u]=.22f*shift;
+         for (uint side=0u;side<2u;++side) {
+             const uint ramp=(state.status.w>>(side*6u)) & 63u;
+             const uint frontRamp=ramp>2u ? ramp-2u : 0u;
+             for (uint toe=0u;toe<4u;++toe) {
+-                const float proximal=toe==3u ? min(.04f*float(ramp),1.15f) : min(.03f*float(frontRamp),1.05f);
++                const float extension=side==0u && seq>=170u && seq<255u ? -.20f*clamp(float(seq-170u)/35.0f,0.0f,1.0f)*(1.0f-returning) : 0.0f;
++                const float proximal=(toe==3u ? min(.04f*float(ramp),1.15f) : min(.03f*float(frontRamp),1.05f))+extension;
+                 for(uint segment=0u;segment<2u;++segment) {
+                     const uint dof=22u+side*8u+toe*2u+segment;
+                     effortTrajectory[pass.controlStep*worldDispatch.effortStepStride + environment*worldDispatch.effortEnvironmentStride + dof]=proximal*(segment==0u ? 1.0f : .75f);
+@@ -9392,19 +9409,49 @@
+                 if (operation.source.x==MR_TASK_REWARD_NAVIGATION_WAYPOINT_PROGRESS || operation.source.x==MR_TASK_REWARD_NAVIGATION_WAYPOINT_REACH) { perch=robotEnd+operation.source.z+4u; break; }
+             }
+             bool loaded[2]={false,false};
++            float up[2]={0.0f,0.0f},frontX[2]={0.0f,0.0f},rearX[2]={0.0f,0.0f};
+             if (state.navigation.z>=5.0f && perch!=MR_INVALID_INDEX) {
+                 for (uint ci=0u;ci<activeContacts;++ci) {
+                     const MRContactConstraintGPU cc=contacts[contactBase+ci];
+                     if (cc.impulses.x<=0.0f || (cc.bodyA!=perch && cc.bodyB!=perch)) continue;
+                     const uint b=cc.bodyA==perch ? cc.bodyB : cc.bodyA;
+-                    if (b==robotFirst+11u || (b>=robotFirst+19u && b<=robotFirst+26u)) loaded[0]=true;
+-                    if (b==robotFirst+15u || (b>=robotFirst+27u && b<=robotFirst+34u)) loaded[1]=true;
++                    const int side=(b==robotFirst+11u || (b>=robotFirst+19u && b<=robotFirst+26u)) ? 0 :
++                        (b==robotFirst+15u || (b>=robotFirst+27u && b<=robotFirst+34u)) ? 1 : -1;
++                    if (side>=0) {
++                        loaded[side]=true;
++                        const float sign=cc.bodyA==perch ? 1.0f : -1.0f;
++                        const float3 normal=cc.normal.xyz, tangent=cc.tangent.xyz, other=cross(normal,tangent);
++                        up[side]+=sign*(normal.z*cc.impulses.x+tangent.z*cc.impulses.y+other.z*cc.impulses.z);
++                        if (b>=robotFirst+19u) {
++                            const uint digit=((b-robotFirst-19u)%8u)/2u;
++                            if (digit==3u) rearX[side]+=sign*normal.x*cc.impulses.x;
++                            else frontX[side]+=sign*normal.x*cc.impulses.x;
++                        }
++                    }
+                 }
++            }
++            // One-shot contact-gated load transfer and left-toe release.
++            // Last-substep impulse is only a control signal; full substeps are audited externally.
++            const uint seqMask=(15u<<16u)|(15u<<28u);
++            uint seq=((state.status.w>>16u)&15u)|(((state.status.w>>28u)&15u)<<4u);
++            if (dispatch.sampling.w==0u && state.navigation.z>=5.0f && state.threatTeacher.w>=1.5f) {
++                const float halfWeightImpulse=.5f*.45006f*9.81f*dispatch.timing.x/16.0f;
++                const bool rightGrip=up[1]>=halfWeightImpulse && frontX[1]>1.0e-6f && rearX[1]<-1.0e-6f;
++                const bool bothGrip=loaded[0] && loaded[1] && up[0]>0.0f && up[1]>0.0f &&
++                    up[0]+up[1]>=halfWeightImpulse && frontX[0]>1.0e-6f && rearX[0]<-1.0e-6f && frontX[1]>1.0e-6f && rearX[1]<-1.0e-6f;
++                if (seq<50u) seq=bothGrip ? seq+1u : 0u;
++                else if (seq<149u) seq=loaded[1] ? seq+1u : 0u;
++                else if (seq==149u) seq=rightGrip ? 150u : (loaded[1] ? 149u : 0u);
++                else if (seq<220u) seq=rightGrip ? seq+1u : 0u;
++                else if (seq<230u) seq=rightGrip ? (!loaded[0] ? seq+1u : 220u) : 0u;
++                else if (seq<255u) seq+=1u;
++                state.status.w=(state.status.w & ~seqMask)|((seq&15u)<<16u)|((seq>>4u)<<28u);
+             }
+             uint packed=0u;
+             for(uint side=0u;side<2u;++side) {
+                 const uint oldRamp=(state.status.w>>(side*6u)) & 63u;
+-                const uint ramp=loaded[side] ? min(oldRamp+1u,34u) : (oldRamp>0u ? oldRamp-1u : 0u);
++                const bool requestOpen=side==0u && seq>=150u && seq<230u;
++                const uint ramp=loaded[side] && !requestOpen ? min(oldRamp+1u,34u) : (oldRamp>0u ? oldRamp-1u : 0u);
+                 packed |= ramp << (side*6u);
+             }
+             state.status.w=(state.status.w & ~4095u) | packed;
