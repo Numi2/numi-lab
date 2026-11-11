@@ -1,0 +1,198 @@
+{
+  "lane5_replay_max_abs_error": {
+    "position_m": 1.5286615473453224e-08,
+    "linear_velocity_m_s": 1.3201954640607028e-08,
+    "angular_velocity_rad_s": 2.301117199010605e-07
+  },
+  "point_height_range_m": [
+    -8.1082173e-05,
+    0.000862692948
+  ],
+  "rows": [
+    {
+      "lane": 0,
+      "all": {
+        "samples": 3354,
+        "median_m_s": 0.002802183973631266,
+        "p95_m_s": 0.041014935203589196,
+        "maximum_m_s": 0.10587271284694835
+      },
+      "feet": {
+        "left": {
+          "samples": 1713,
+          "median_m_s": 0.002539335096344869,
+          "p95_m_s": 0.030141731154419073,
+          "maximum_m_s": 0.055115651921398175
+        },
+        "right": {
+          "samples": 1641,
+          "median_m_s": 0.0035027196784710845,
+          "p95_m_s": 0.06956159579704832,
+          "maximum_m_s": 0.10587271284694835
+        }
+      }
+    },
+    {
+      "lane": 1,
+      "all": {
+        "samples": 3458,
+        "median_m_s": 0.0027038225354920984,
+        "p95_m_s": 0.041443262138851876,
+        "maximum_m_s": 0.11083246900460728
+      },
+      "feet": {
+        "left": {
+          "samples": 1781,
+          "median_m_s": 0.0023766065754170966,
+          "p95_m_s": 0.02996224981354124,
+          "maximum_m_s": 0.055234989590158476
+        },
+        "right": {
+          "samples": 1677,
+          "median_m_s": 0.003495110878932844,
+          "p95_m_s": 0.06878305242230011,
+          "maximum_m_s": 0.11083246900460728
+        }
+      }
+    },
+    {
+      "lane": 2,
+      "all": {
+        "samples": 3402,
+        "median_m_s": 0.002719992904242339,
+        "p95_m_s": 0.04091299746422835,
+        "maximum_m_s": 0.10691048937263462
+      },
+      "feet": {
+        "left": {
+          "samples": 1741,
+          "median_m_s": 0.002523500780537001,
+          "p95_m_s": 0.030301261392856417,
+          "maximum_m_s": 0.055132861882020184
+        },
+        "right": {
+          "samples": 1661,
+          "median_m_s": 0.003671948031070413,
+          "p95_m_s": 0.0634526322966597,
+          "maximum_m_s": 0.10691048937263462
+        }
+      }
+    },
+    {
+      "lane": 3,
+      "all": {
+        "samples": 3403,
+        "median_m_s": 0.002868722553287613,
+        "p95_m_s": 0.04373435044732484,
+        "maximum_m_s": 0.10501602450173264
+      },
+      "feet": {
+        "left": {
+          "samples": 1755,
+          "median_m_s": 0.0025449843016904783,
+          "p95_m_s": 0.03365363917260341,
+          "maximum_m_s": 0.10423610307877537
+        },
+        "right": {
+          "samples": 1648,
+          "median_m_s": 0.0035150961873180323,
+          "p95_m_s": 0.062091731401706464,
+          "maximum_m_s": 0.10501602450173264
+        }
+      }
+    },
+    {
+      "lane": 4,
+      "all": {
+        "samples": 3374,
+        "median_m_s": 0.0026274157942675217,
+        "p95_m_s": 0.041061345287852005,
+        "maximum_m_s": 0.10463243624323232
+      },
+      "feet": {
+        "left": {
+          "samples": 1713,
+          "median_m_s": 0.0024814835129497895,
+          "p95_m_s": 0.03038767321277211,
+          "maximum_m_s": 0.055248825527963265
+        },
+        "right": {
+          "samples": 1661,
+          "median_m_s": 0.0030371410707703056,
+          "p95_m_s": 0.06360412652028397,
+          "maximum_m_s": 0.10463243624323232
+        }
+      }
+    },
+    {
+      "lane": 5,
+      "all": {
+        "samples": 3376,
+        "median_m_s": 0.0029050675372109596,
+        "p95_m_s": 0.04086486972373576,
+        "maximum_m_s": 0.10960302905938205
+      },
+      "feet": {
+        "left": {
+          "samples": 1716,
+          "median_m_s": 0.0025048798121347056,
+          "p95_m_s": 0.030128439464280305,
+          "maximum_m_s": 0.055314937913846667
+        },
+        "right": {
+          "samples": 1660,
+          "median_m_s": 0.003954347086714089,
+          "p95_m_s": 0.06884461906146135,
+          "maximum_m_s": 0.10960302905938205
+        }
+      }
+    },
+    {
+      "lane": 6,
+      "all": {
+        "samples": 3487,
+        "median_m_s": 0.003027897253649117,
+        "p95_m_s": 0.04072921212402357,
+        "maximum_m_s": 0.10687975078137552
+      },
+      "feet": {
+        "left": {
+          "samples": 1775,
+          "median_m_s": 0.0024826818471546013,
+          "p95_m_s": 0.03209401333158753,
+          "maximum_m_s": 0.05515164868911856
+        },
+        "right": {
+          "samples": 1712,
+          "median_m_s": 0.004372103422393503,
+          "p95_m_s": 0.06678256857352274,
+          "maximum_m_s": 0.10687975078137552
+        }
+      }
+    },
+    {
+      "lane": 7,
+      "all": {
+        "samples": 3362,
+        "median_m_s": 0.0028827118349028635,
+        "p95_m_s": 0.04699891517319647,
+        "maximum_m_s": 0.10976643741864675
+      },
+      "feet": {
+        "left": {
+          "samples": 1710,
+          "median_m_s": 0.0025540263742530648,
+          "p95_m_s": 0.037046650033036074,
+          "maximum_m_s": 0.07427443920888528
+        },
+        "right": {
+          "samples": 1652,
+          "median_m_s": 0.004085653801085047,
+          "p95_m_s": 0.06626668568909269,
+          "maximum_m_s": 0.10976643741864675
+        }
+      }
+    }
+  ],
+  "scope": "Tangential velocity at the logged accepted endpoint contact points from independent articulated q/v kinematics, on positive-impulse ground contacts; no continuous or substep slip bound. Contact point is from the final substep and may precede accepted-state kinematics. Observer parity must be checked separately. One used seed/layout, not biological validation."
+}
