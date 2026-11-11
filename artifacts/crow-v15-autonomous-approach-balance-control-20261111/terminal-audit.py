@@ -1,7 +1,7 @@
 from pathlib import Path
 import gzip,json,math
 A=Path("artifacts/crow-v15-autonomous-approach-balance-control-20261111/autonomous-20261126")
-m=json.loads((A/"perch-analysis.json").read_text());lanes=[x["lane"] for x in m["rows"] if x["last_25_half_weight_bilateral_opposed"]];samples={e:[] for e in lanes};failure=[]
+m=json.loads((A/"perch-analysis.json").read_text());lanes=[x["lane"] for x in m["rows"] if x["last_25_half_weight_bilateral_opposed"] and not x["physical_failure"] and x["first_episode_steps"]==3800];samples={e:[] for e in lanes};failure=[]
 with gzip.open(A/"run.stderr.gz","rt") as f:
  for line in f:
   if line.startswith("CROW_SUPPORT_SAMPLE "):

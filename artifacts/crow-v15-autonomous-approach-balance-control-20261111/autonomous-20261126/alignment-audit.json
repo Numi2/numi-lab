@@ -1,0 +1,18 @@
+{
+  "autonomous": {
+    "longest_both_feet_endpoint_contact": 99,
+    "longest_with_goal_x_error_under_025m_and_speed_under_08": 0,
+    "longest_with_goal_x_error_under_04m_and_speed_under_08": 0,
+    "first_tight_step": []
+  },
+  "teacher_reference": {
+    "longest_both_feet_endpoint_contact": 65,
+    "longest_with_goal_x_error_under_025m_and_speed_under_08": 65,
+    "longest_with_goal_x_error_under_04m_and_speed_under_08": 65,
+    "first_tight_step": [
+      3310
+    ]
+  },
+  "scope": "Lane 0, steps 3200\u20133385 on one used course and seed. Endpoint contacts only. Goal x is taken from the matched lane-zero replay, and the teacher reference remains privileged.",
+  "final_goal_x_m": 5.169139862060547
+}
