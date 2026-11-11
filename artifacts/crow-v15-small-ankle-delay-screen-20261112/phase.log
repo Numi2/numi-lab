@@ -1,0 +1,6 @@
+{
+  "side_lanes_passing": 2,
+  "lane_walking_gates_pass": true,
+  "all_gates_pass": false,
+  "limitations": "Selected endpoint-cleared intervals are not complete swings and clearance between endpoints is not proven; species-reference calibration and independent trials remain open."
+}

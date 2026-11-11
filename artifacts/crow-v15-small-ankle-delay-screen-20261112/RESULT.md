@@ -1,0 +1,7 @@
+# Small ankle-delay screen: rejected
+
+The 0.10 rad carrier delay passed the short walking gates in all 16 development lanes across two exposed seeds: at least two qualifying cleared-foot bouts per side, at least 90% of each matched baseline forward displacement, no additional toe speed caps, no nonfoot normal impulse above the stated threshold, and complete matching pre-intervention q/v/action/contact samples. Native runs completed without observer errors or reported contact overflow. Travel ranged 29.9–36.4 mm over the selected 2 s interval. These thresholds are engineering checks, not biological walking validation.
+
+The high-resolution phase gate failed: only 2 of 32 side-lanes met the predeclared requirement that a strict majority of measured interior bouts show the ankle minimum at least 2.5 ms after the knee minimum, with neither minimum on the boundary. An initial exploratory analysis counted boundary minima, yielding 16/32; correcting the script to enforce the predeclared boundary rule yields 2/32. The coarser 20 ms report is diagnostic only and must not be substituted for the substep result.
+
+The selected bouts are endpoint-cleared segments, not proven complete swings or continuous clearance; data from another corvid motivates the test but does not establish an American-crow target. This 2 s used-seed screen does not qualify sustained walking, physical takeoff, flight, or landing. The candidate is not integrated. Full q/contact traces, measurements, sources and verification remain archived.
