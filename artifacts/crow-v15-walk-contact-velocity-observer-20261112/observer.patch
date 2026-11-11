@@ -1,0 +1,13 @@
+--- a/reference.cpp
++++ b/contact_point_observer.cpp
+@@ -5104,8 +5104,8 @@
+                             std::fprintf(stderr,",\"contacts\":[");
+                             opened=true;
+                         }
+-                        std::fprintf(stderr,"%s{\"a\":%u,\"a_name\":\"%s\",\"b\":%u,\"b_name\":\"%s\",\"normal\":[%.9g,%.9g,%.9g],\"tangent_u\":[%.9g,%.9g,%.9g],\"tangent_v\":[%.9g,%.9g,%.9g],\"impulses\":[%.9g,%.9g,%.9g],\"separation\":%.9g}",
+-                            first?"":",",c.bodyA,a.c_str(),c.bodyB,b.c_str(),
++                        std::fprintf(stderr,"%s{\"a\":%u,\"a_name\":\"%s\",\"b\":%u,\"b_name\":\"%s\",\"point\":[%.9g,%.9g,%.9g],\"normal\":[%.9g,%.9g,%.9g],\"tangent_u\":[%.9g,%.9g,%.9g],\"tangent_v\":[%.9g,%.9g,%.9g],\"impulses\":[%.9g,%.9g,%.9g],\"separation\":%.9g}",
++                            first?"":",",c.bodyA,a.c_str(),c.bodyB,b.c_str(),c.pointAndSeparation.x,c.pointAndSeparation.y,c.pointAndSeparation.z,
+                             c.normal.x,c.normal.y,c.normal.z,c.tangent.x,c.tangent.y,c.tangent.z,
+                             c.normal.y*c.tangent.z-c.normal.z*c.tangent.y,c.normal.z*c.tangent.x-c.normal.x*c.tangent.z,c.normal.x*c.tangent.y-c.normal.y*c.tangent.x,c.impulses.x,c.impulses.y,c.impulses.z,c.pointAndSeparation.w);
+                         first=false;

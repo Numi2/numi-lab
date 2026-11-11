@@ -1,0 +1,5 @@
+# Contact-point slip observer: parity before use
+
+Augment only the verified gait observer host to log the world-space contact points already returned by the solver at each accepted control endpoint. Repeat the reference seed 20261126 with the same inputs. Require exact parity with all 2,400 logged q/v/actions and contact records after removing the added point, and all 38,400 contact substeps. Check observer errors, overflow and endpoint-to-last-q-snapshot parity. Reject the observer on any mismatch.
+
+For contact-bearing foot/toe bodies, use physical q/v and native forward kinematics to compute velocity of the contact point relative to the ground, project into the recorded tangent plane, and report normal-impulse-weighted endpoint speed and its distribution. Verify body kinematics independently against retained replay position, orientation, linear velocity and angular velocity; reject if conventions or hashes do not agree. An instantaneous accepted-endpoint estimate is not continuous substep slip distance, proof of grasp or a bird-data target. These are development trials.
