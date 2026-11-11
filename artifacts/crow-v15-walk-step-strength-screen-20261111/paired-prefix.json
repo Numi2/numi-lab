@@ -1,0 +1,34 @@
+[
+  {
+    "lane": 0,
+    "first_state_or_action_difference_step": 203
+  },
+  {
+    "lane": 1,
+    "first_state_or_action_difference_step": 203
+  },
+  {
+    "lane": 2,
+    "first_state_or_action_difference_step": 203
+  },
+  {
+    "lane": 3,
+    "first_state_or_action_difference_step": 203
+  },
+  {
+    "lane": 4,
+    "first_state_or_action_difference_step": 203
+  },
+  {
+    "lane": 5,
+    "first_state_or_action_difference_step": 203
+  },
+  {
+    "lane": 6,
+    "first_state_or_action_difference_step": null
+  },
+  {
+    "lane": 7,
+    "first_state_or_action_difference_step": null
+  }
+]
