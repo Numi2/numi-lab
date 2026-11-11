@@ -1,0 +1,341 @@
+{
+  "original": {
+    "teacher": true,
+    "student_authority": 0,
+    "termination_count": 0,
+    "failed_environment_steps": 0,
+    "host_requested_resets": 0,
+    "lanes": [
+      {
+        "lane": 0,
+        "waypoints": 0,
+        "missing_substeps": 0,
+        "first_ground_impulse_after_launch": null,
+        "first_endpoint_non_ground_contact": null,
+        "last_position_m": [
+          -2.65743613,
+          -0.0683164671,
+          1.23099339
+        ],
+        "last_velocity": [
+          -0.150267318,
+          -0.00309857423,
+          -0.13971439,
+          -0.00407368457,
+          0.0282288697,
+          0.0160594415
+        ]
+      },
+      {
+        "lane": 1,
+        "waypoints": 0,
+        "missing_substeps": 0,
+        "first_ground_impulse_after_launch": null,
+        "first_endpoint_non_ground_contact": null,
+        "last_position_m": [
+          -2.66930175,
+          -0.0707097724,
+          1.23099148
+        ],
+        "last_velocity": [
+          -0.150261074,
+          -0.00309842336,
+          -0.139712378,
+          -0.0040744408,
+          0.0282278601,
+          0.0160594713
+        ]
+      },
+      {
+        "lane": 2,
+        "waypoints": 0,
+        "missing_substeps": 0,
+        "first_ground_impulse_after_launch": null,
+        "first_endpoint_non_ground_contact": null,
+        "last_position_m": [
+          -2.65481305,
+          -0.0666613728,
+          1.23101091
+        ],
+        "last_velocity": [
+          -0.150372922,
+          -0.00310167833,
+          -0.139708802,
+          -0.00407342985,
+          0.0282459185,
+          0.0160594806
+        ]
+      },
+      {
+        "lane": 3,
+        "waypoints": 0,
+        "missing_substeps": 0,
+        "first_ground_impulse_after_launch": null,
+        "first_endpoint_non_ground_contact": null,
+        "last_position_m": [
+          -2.65596342,
+          -0.0218529142,
+          1.23098862
+        ],
+        "last_velocity": [
+          -0.150237009,
+          -0.0030977712,
+          -0.139715478,
+          -0.00407433044,
+          0.0282240771,
+          0.0160593372
+        ]
+      },
+      {
+        "lane": 4,
+        "waypoints": 0,
+        "missing_substeps": 0,
+        "first_ground_impulse_after_launch": null,
+        "first_endpoint_non_ground_contact": null,
+        "last_position_m": [
+          -2.65699816,
+          -0.0743564889,
+          1.24503934
+        ],
+        "last_velocity": [
+          -0.15052174,
+          -0.00310604344,
+          -0.139649078,
+          -0.00407480821,
+          0.0282698702,
+          0.0160591695
+        ]
+      },
+      {
+        "lane": 5,
+        "waypoints": 0,
+        "missing_substeps": 0,
+        "first_ground_impulse_after_launch": null,
+        "first_endpoint_non_ground_contact": null,
+        "last_position_m": [
+          -2.6494174,
+          -0.0693912953,
+          1.23098612
+        ],
+        "last_velocity": [
+          -0.1502202,
+          -0.00309726736,
+          -0.139716372,
+          -0.0040741805,
+          0.0282213688,
+          0.0160593502
+        ]
+      },
+      {
+        "lane": 6,
+        "waypoints": 0,
+        "missing_substeps": 0,
+        "first_ground_impulse_after_launch": null,
+        "first_endpoint_non_ground_contact": null,
+        "last_position_m": [
+          -2.62119985,
+          -0.0585393049,
+          1.23562682
+        ],
+        "last_velocity": [
+          -0.150418356,
+          -0.00310362247,
+          -0.139691278,
+          -0.00407395652,
+          0.0282534212,
+          0.0160596725
+        ]
+      },
+      {
+        "lane": 7,
+        "waypoints": 0,
+        "missing_substeps": 0,
+        "first_ground_impulse_after_launch": null,
+        "first_endpoint_non_ground_contact": null,
+        "last_position_m": [
+          -2.68489695,
+          -0.0833384395,
+          1.2309829
+        ],
+        "last_velocity": [
+          -0.15019834,
+          -0.00309652463,
+          -0.139718205,
+          -0.00407405337,
+          0.0282178242,
+          0.016059326
+        ]
+      }
+    ]
+  },
+  "separated": {
+    "teacher": true,
+    "student_authority": 0,
+    "termination_count": 0,
+    "failed_environment_steps": 0,
+    "host_requested_resets": 0,
+    "lanes": [
+      {
+        "lane": 0,
+        "waypoints": 1,
+        "missing_substeps": 0,
+        "first_ground_impulse_after_launch": null,
+        "first_endpoint_non_ground_contact": null,
+        "last_position_m": [
+          1.87111163,
+          -0.254674971,
+          1.29544067
+        ],
+        "last_velocity": [
+          0.0876234174,
+          -0.061912585,
+          -0.134078294,
+          -0.0052502132,
+          0.0285483692,
+          0.0152586931
+        ]
+      },
+      {
+        "lane": 1,
+        "waypoints": 0,
+        "missing_substeps": 0,
+        "first_ground_impulse_after_launch": null,
+        "first_endpoint_non_ground_contact": null,
+        "last_position_m": [
+          1.85374522,
+          0.0978828669,
+          1.22991967
+        ],
+        "last_velocity": [
+          0.0882862806,
+          0.0014652278,
+          -0.132862225,
+          -0.00286593405,
+          0.0284220986,
+          0.0160591621
+        ]
+      },
+      {
+        "lane": 2,
+        "waypoints": 0,
+        "missing_substeps": 0,
+        "first_ground_impulse_after_launch": null,
+        "first_endpoint_non_ground_contact": null,
+        "last_position_m": [
+          1.87689149,
+          -0.0557932183,
+          1.22992575
+        ],
+        "last_velocity": [
+          0.0882591531,
+          0.00146439869,
+          -0.132868782,
+          -0.00286438013,
+          0.0284268409,
+          0.0160594452
+        ]
+      },
+      {
+        "lane": 3,
+        "waypoints": 1,
+        "missing_substeps": 0,
+        "first_ground_impulse_after_launch": null,
+        "first_endpoint_non_ground_contact": null,
+        "last_position_m": [
+          1.87280035,
+          -0.307230264,
+          1.31553495
+        ],
+        "last_velocity": [
+          0.0848709941,
+          -0.0856791064,
+          -0.135214359,
+          -0.00596478023,
+          0.0289120935,
+          0.0149116935
+        ]
+      },
+      {
+        "lane": 4,
+        "waypoints": 1,
+        "missing_substeps": 0,
+        "first_ground_impulse_after_launch": null,
+        "first_endpoint_non_ground_contact": null,
+        "last_position_m": [
+          1.87277234,
+          -0.426766306,
+          1.296893
+        ],
+        "last_velocity": [
+          0.0891409293,
+          -0.0818425342,
+          -0.13501218,
+          -0.00556094293,
+          0.0282452777,
+          0.015063718
+        ]
+      },
+      {
+        "lane": 5,
+        "waypoints": 1,
+        "missing_substeps": 0,
+        "first_ground_impulse_after_launch": null,
+        "first_endpoint_non_ground_contact": null,
+        "last_position_m": [
+          1.88175607,
+          -0.255675465,
+          1.23056304
+        ],
+        "last_velocity": [
+          0.0883768722,
+          -0.0734103173,
+          -0.133602679,
+          -0.00660815975,
+          0.0283897743,
+          0.015107546
+        ]
+      },
+      {
+        "lane": 6,
+        "waypoints": 1,
+        "missing_substeps": 0,
+        "first_ground_impulse_after_launch": null,
+        "first_endpoint_non_ground_contact": null,
+        "last_position_m": [
+          1.91110504,
+          -0.274564326,
+          1.24253738
+        ],
+        "last_velocity": [
+          0.0876229033,
+          -0.0347807631,
+          -0.13321133,
+          -0.00335360738,
+          0.0285463594,
+          0.0156698395
+        ]
+      },
+      {
+        "lane": 7,
+        "waypoints": 0,
+        "missing_substeps": 0,
+        "first_ground_impulse_after_launch": null,
+        "first_endpoint_non_ground_contact": null,
+        "last_position_m": [
+          1.84104514,
+          0.0344505757,
+          1.22992158
+        ],
+        "last_velocity": [
+          0.0882689506,
+          0.00146459253,
+          -0.132861033,
+          -0.00287297182,
+          0.0284247827,
+          0.0160591267
+        ]
+      }
+    ]
+  },
+  "limitations": "Matched development teacher-guided trial only. Non-ground contacts are sampled at control-step endpoints and are not a complete substep first-collider or clearance audit. No landing or autonomous qualification."
+}
