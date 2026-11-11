@@ -1,0 +1,2 @@
+0 crow_body/collision_body | 4 crow_left_thigh/collision
+0 crow_body/collision_body | 6 crow_right_thigh/collision

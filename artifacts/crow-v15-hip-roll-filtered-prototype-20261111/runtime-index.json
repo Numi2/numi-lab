@@ -1,0 +1,22 @@
+[
+  {
+    "path": "build/crow-v15-hip-roll-filtered-prototype-20261111/probe",
+    "sha256": "064eaa8a0e1a2ad2549bbb1f092354202ffe4dae693cd8c99968f977ec68afe9",
+    "bytes": 97032
+  },
+  {
+    "path": "build/crow-v15-hip-roll-filtered-prototype-20261111/kinematics",
+    "sha256": "f000f67eaec05dcd978d5b74d905716ec5ed1fee915d979805dde33ede1c3e85",
+    "bytes": 80904
+  },
+  {
+    "path": "build/crow-v15-two-segment-substep-observer-20261111/libmetalrobo.dylib",
+    "sha256": "948e170d7e92eeee41826c1eaedfdec37831fff4f05210211ff72956e0e44032",
+    "bytes": 5729344
+  },
+  {
+    "path": "build/crow-v15-wide-contact-isolation-20261111/MetalRobo.metallib",
+    "sha256": "835d0ff74b8338bba6987d88f3355a1344522eaa88fa8e82295b12ba58cedeb5",
+    "bytes": 4465488
+  }
+]
