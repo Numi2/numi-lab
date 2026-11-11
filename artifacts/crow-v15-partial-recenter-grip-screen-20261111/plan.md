@@ -1,0 +1,7 @@
+# Partial post-release recentering on development perch starts
+
+The higher-traction reference maintained terminal toe opposition but briefly unloaded one foot in both promising starts. Full recentering after release kept both feet loaded but lost left toe opposition throughout the terminal window. Test a single intermediate shift, since this may retain enough toe geometry for opposition while improving load distribution. This is an empirical hypothesis, not a calibrated anatomical setting.
+
+Use the exact same eight constructed starts, higher-traction model, controls, observer and run length as the matched reference and full-recenter tests. Change only the terminal ramp: after release, reduce the existing 0.22 rad hip-roll shift by half to 0.11 rad over the same 75 control intervals, rather than reducing it to zero. Preserve all thresholds. Compare pre-return state parity, supported release, terminal 100-interval bilateral load and toe opposition, falls, non-foot contact and observer coverage.
+
+Predict at least one existing combined release-and-100-interval supported bilateral grip pass with at most the reference two falls, no native errors and full observer coverage. Reject promotion if this fails. This is a stationary development test, not proof of walking, takeoff, autonomous landing, beak object handling, generalization or biological realism. Hold final unseen seeds and layouts unused.
