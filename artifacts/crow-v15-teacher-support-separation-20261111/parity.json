@@ -1,0 +1,15 @@
+{
+  "support_samples": [
+    4808,
+    4808
+  ],
+  "support_differing_count": 0,
+  "first_support_difference": [],
+  "substep_samples": [
+    76928,
+    76928
+  ],
+  "substep_differing_count": 0,
+  "first_substep_difference": [],
+  "trace_equal": true
+}

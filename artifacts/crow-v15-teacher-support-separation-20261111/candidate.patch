@@ -1,0 +1,39 @@
+--- a/handoff.metal
++++ b/separated.metal
+@@ -5071,7 +5071,7 @@
+         if (fixedFlightController && state.episode.z == 10u && action >= 7u && action <= 12u) {
+             const float seconds=float(state.episode.x)*dispatch.timing.x;
+             const uint leg=(action-7u)/3u, joint=(action-7u)%3u;
+-            const float support=leg==0u ? state.nutrition.y : state.nutrition.x;
++            const float support=dispatch.counts.w==38u ? ((state.status.w & (leg==0u ? (1u<<21) : (1u<<20)))!=0u ? 1.0f : 0.0f) : (leg==0u ? state.nutrition.y : state.nutrition.x);
+             const float begin=4.0f;
+             const float carrier=sin(kTwoPi*seconds/0.50f)*(leg==0u ? 1.0f : -1.0f);
+             const float swing=seconds >= begin && seconds < begin+2.0f && support > 0.05f ? carrier : 0.0f;
+@@ -5092,7 +5092,7 @@
+             if (seconds >= 6.3f && seconds < 7.4f) {
+                 const float crouched=joint==0u ? -0.85f : joint==1u ? 1.00f : -0.50f;
+                 const float extended=joint==0u ? -0.50f : joint==1u ? -0.70f : 0.18f;
+-                const bool bilateral=state.nutrition.x>0.05f && state.nutrition.y>0.05f;
++                const bool bilateral=dispatch.counts.w==38u ? (state.status.w & ((1u<<20)|(1u<<21)))==((1u<<20)|(1u<<21)) : (state.nutrition.x>0.05f && state.nutrition.y>0.05f);
+                 navigationTeacherRequested=seconds<6.96f
+                     ? mix(navigationTeacherRequested,crouched,smoothstep(6.3f,6.55f,seconds))
+                     : bilateral ? mix(crouched,extended,smoothstep(6.96f,6.98f,seconds)) : crouched;
+@@ -9329,11 +9329,16 @@
+     }
+     // Accepted foot force diagnostic feedback for this isolated band-10 bench.
+     if ((program.schedule.w & MR_TASK_PROGRAM_AVIAN_CROW_HIERARCHICAL_NAVIGATION) != 0u && state.episode.z == 10u && program.counts0.w >= 2u) {
+-        state.nutrition.xy=float2(compactContact[compactBase+contactGroups[0].members.w],compactContact[compactBase+contactGroups[1].members.w]);
++        const float2 footLoads=float2(compactContact[compactBase+contactGroups[0].members.w],compactContact[compactBase+contactGroups[1].members.w]);
++        if (dispatch.counts.w==38u) {
++            const uint mask=(1u<<20)|(1u<<21);
++            state.status.w=(state.status.w & ~mask) | (footLoads.x>0.05f ? 1u<<20 : 0u) | (footLoads.y>0.05f ? 1u<<21 : 0u);
++            if (dispatch.sampling.w==0u) state.nutrition.xy=footLoads;
++        } else state.nutrition.xy=footLoads;
+         if (program.counts0.w>=5u && dispatch.counts.w==38u) {
+             const float seconds=float(state.episode.x)*dispatch.timing.x;
+             const uint previous=state.status.w;
+-            const bool low=seconds>=6.96f && state.nutrition.x<=.05f && state.nutrition.y<=.05f;
++            const bool low=seconds>=6.96f && (state.status.w & ((1u<<20)|(1u<<21)))==0u;
+             const uint low1=low ? 16384u : 0u;
+             const uint low2=low && (previous&16384u)!=0u ? 32768u : 0u;
+             const bool released=(previous&8192u)!=0u || (low && (previous&32768u)!=0u && state.airReturnTracking.y>.195f && state.threatGeometry.y>.05f);
