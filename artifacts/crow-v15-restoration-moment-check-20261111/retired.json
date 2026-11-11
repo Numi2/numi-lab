@@ -1,0 +1,11 @@
+{
+  "remote_commit": "c145bdd4b5b7a0672d1314d14fa676a1582c0f70",
+  "retired": [
+    {
+      "raw": "artifacts/crow-v15-moment-accounting-check-20261111/results.txt",
+      "archive": "artifacts/crow-v15-moment-accounting-check-20261111/results.txt.gz",
+      "sha256": "5df15273be95f5d540efbda3df7c56558e2687b5e40f4678ae50ac329de11fb1",
+      "bytes": 1458271
+    }
+  ]
+}
