@@ -1,0 +1,3 @@
+# Qualified teacher route-prefix data collection
+
+Collect the privileged intermediate teacher on the previously used development course, from full starts. Save native teacher command labels, observations and outcomes. Compare q/v, policy outputs and endpoint contacts with the matched recorded first episodes before using any sample. Exclude every physically failed first episode in full; use only samples after launch and before or at physically reached waypoints. The four surviving lanes without terminal support cannot provide landing demonstrations. Reserve starts for development validation and do not touch final reserved layouts. This is initial imitation, not student-state DAgger, and its data do not establish autonomous success or generalization.

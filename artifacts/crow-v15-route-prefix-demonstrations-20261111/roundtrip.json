@@ -1,0 +1,17 @@
+[
+  {
+    "compressed": "artifacts/crow-v15-route-prefix-demonstrations-20261111/teacher-20261126/trace.tsv.gz",
+    "uncompressed_sha256": "bad23ea6327128f2ed0f05d6ec030c10f7b473fc366cc2d02b1dd9f99b086995",
+    "raw_bytes": 3328484
+  },
+  {
+    "compressed": "artifacts/crow-v15-route-prefix-demonstrations-20261111/teacher-20261126/replay.json.gz",
+    "uncompressed_sha256": "454f9f2e02f8ae03ffc89ff1af35c10cfb1f8c278444b39f956511778cbf018d",
+    "raw_bytes": 145508323
+  },
+  {
+    "compressed": "artifacts/crow-v15-route-prefix-demonstrations-20261111/teacher-20261126/rollout.bin.gz",
+    "uncompressed_sha256": "2b26eddc9256de590a28cfde4c4f7fd24320799d8189810f126256f371670f14",
+    "raw_bytes": 120871356
+  }
+]

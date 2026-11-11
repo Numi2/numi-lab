@@ -1,0 +1,5 @@
+# Physically reached teacher route prefixes
+
+Eight full-start first episodes were recorded on one previously used training layout and seed. In every lane the recorded q/v, policy outputs and endpoint contact samples matched the earlier intermediate-teacher run for its full first episode; first-episode outcomes also matched. Seven non-failing episodes physically reached all five waypoint criteria, while lane 2 physically failed and is excluded in full. Their accepted post-launch prefixes include samples from stages zero through four. Lanes 0 and 6 are reserved for development validation; they share the same training layout and seed.
+
+Only route prefixes are eligible for initial imitation. This is privileged teacher data, not a reliable corrective teacher on student-visited states or an autonomous success. None of the data are qualified as landing demonstrations. The final reserved layouts and seeds remain unused. The replay, trace and rollout gzip streams were verified against original bytes; the exact teacher shader, host and policy inputs are fingerprinted in inputs.json and archived in their referenced earlier artifacts.
