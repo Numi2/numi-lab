@@ -1,0 +1,11 @@
+{
+  "remote_commit": "a0756cbe400da102dfdb66c930aa3050369e309c",
+  "retired": [
+    {
+      "raw": "artifacts/crow-v15-rear-toe-range-screen-20261111/results.txt",
+      "archive": "artifacts/crow-v15-rear-toe-range-screen-20261111/results.txt.gz",
+      "sha256": "899ae4afb87a1e93ac181630e83dd38e8a5eb90516cebe82cc48e8f00ae34df6",
+      "bytes": 2473888
+    }
+  ]
+}
