@@ -1,0 +1,11 @@
+{
+  "remote_commit": "5b74d355177097d8da401c37a058813a7c5d7eeb",
+  "retired": [
+    {
+      "raw": "artifacts/crow-v15-coordinated-toe-grid-20261111/results.txt",
+      "archive": "artifacts/crow-v15-coordinated-toe-grid-20261111/results.txt.gz",
+      "sha256": "bd8db34c737f95e2a43b9ab10538bc040bba1c87f8c74cd9b8b32be2499d1daf",
+      "bytes": 20501704
+    }
+  ]
+}
