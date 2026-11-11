@@ -1,0 +1,30 @@
+{
+  "remote_commit": "e965aa6121fad7a326a24a3e75eadc37d35fa415",
+  "verification": "independent fetched Git restore, gzip decode, SHA-256 and open-handle checks",
+  "retired": [
+    {
+      "path": "build/crow-v15-v1-contact-memory-handoff-20261111/route.json",
+      "archive": "artifacts/crow-v15-v1-contact-memory-handoff-20261111/route.json.gz",
+      "sha256": "a39347f37c60f6c3bd339ff817578a1b12bd69a1984fb3498931d32027f9784e",
+      "bytes": 97081932
+    },
+    {
+      "path": "build/crow-v15-v1-contact-memory-handoff-20261111/route.tsv",
+      "archive": "artifacts/crow-v15-v1-contact-memory-handoff-20261111/route.tsv.gz",
+      "sha256": "261c07a880539b0a73a35f64a11c618a207dfd82a0e1ab7bb1c5158a16a65e08",
+      "bytes": 2176393
+    },
+    {
+      "path": "build/crow-v15-v1-landing-command-bias-fix-20261111/route.json",
+      "archive": "artifacts/crow-v15-v1-landing-command-bias-fix-20261111/route.json.gz",
+      "sha256": "5c0a22b19cf028687ca2adfef0544375777e5eaf4b2128e899aea71ba053fb02",
+      "bytes": 96971651
+    },
+    {
+      "path": "build/crow-v15-v1-landing-command-bias-fix-20261111/route.tsv",
+      "archive": "artifacts/crow-v15-v1-landing-command-bias-fix-20261111/route.tsv.gz",
+      "sha256": "0c3ba216b58b272975c53c8498d553f268c64f0e37c945298a128761ced106a6",
+      "bytes": 2176691
+    }
+  ]
+}
