@@ -1,0 +1,138 @@
+{
+  "lanes": [
+    {
+      "lane": 0,
+      "complete": true,
+      "prefix_different_samples": 0,
+      "missing_substeps": 0,
+      "max_waypoints_reported": 0,
+      "first_ground_impulse_step": null,
+      "first_observed_nonground_contact": null,
+      "post_launch_endpoint_toe_cap_steps": [],
+      "last_observed_step": 1601,
+      "last_root_position_m": [
+        2.49891257,
+        0.163659871,
+        1.37953341
+      ]
+    },
+    {
+      "lane": 1,
+      "complete": true,
+      "prefix_different_samples": 0,
+      "missing_substeps": 0,
+      "max_waypoints_reported": 0,
+      "first_ground_impulse_step": null,
+      "first_observed_nonground_contact": null,
+      "post_launch_endpoint_toe_cap_steps": [],
+      "last_observed_step": 1601,
+      "last_root_position_m": [
+        2.47935295,
+        0.498276085,
+        1.37957191
+      ]
+    },
+    {
+      "lane": 2,
+      "complete": true,
+      "prefix_different_samples": 0,
+      "missing_substeps": 0,
+      "max_waypoints_reported": 0,
+      "first_ground_impulse_step": null,
+      "first_observed_nonground_contact": null,
+      "post_launch_endpoint_toe_cap_steps": [],
+      "last_observed_step": 1601,
+      "last_root_position_m": [
+        2.50952053,
+        0.206209838,
+        1.3787874
+      ]
+    },
+    {
+      "lane": 3,
+      "complete": true,
+      "prefix_different_samples": 0,
+      "missing_substeps": 0,
+      "max_waypoints_reported": 0,
+      "first_ground_impulse_step": null,
+      "first_observed_nonground_contact": null,
+      "post_launch_endpoint_toe_cap_steps": [],
+      "last_observed_step": 1601,
+      "last_root_position_m": [
+        2.47598791,
+        0.275498241,
+        1.37888741
+      ]
+    },
+    {
+      "lane": 4,
+      "complete": true,
+      "prefix_different_samples": 0,
+      "missing_substeps": 0,
+      "max_waypoints_reported": 0,
+      "first_ground_impulse_step": null,
+      "first_observed_nonground_contact": null,
+      "post_launch_endpoint_toe_cap_steps": [],
+      "last_observed_step": 1601,
+      "last_root_position_m": [
+        2.4759903,
+        0.334412068,
+        1.37887013
+      ]
+    },
+    {
+      "lane": 5,
+      "complete": true,
+      "prefix_different_samples": 0,
+      "missing_substeps": 0,
+      "max_waypoints_reported": 0,
+      "first_ground_impulse_step": null,
+      "first_observed_nonground_contact": null,
+      "post_launch_endpoint_toe_cap_steps": [],
+      "last_observed_step": 1601,
+      "last_root_position_m": [
+        2.52939057,
+        0.235481858,
+        1.3792845
+      ]
+    },
+    {
+      "lane": 6,
+      "complete": true,
+      "prefix_different_samples": 0,
+      "missing_substeps": 0,
+      "max_waypoints_reported": 0,
+      "first_ground_impulse_step": null,
+      "first_observed_nonground_contact": null,
+      "post_launch_endpoint_toe_cap_steps": [],
+      "last_observed_step": 1601,
+      "last_root_position_m": [
+        2.52383733,
+        0.163742393,
+        1.37901068
+      ]
+    },
+    {
+      "lane": 7,
+      "complete": true,
+      "prefix_different_samples": 0,
+      "missing_substeps": 0,
+      "max_waypoints_reported": 0,
+      "first_ground_impulse_step": null,
+      "first_observed_nonground_contact": null,
+      "post_launch_endpoint_toe_cap_steps": [],
+      "last_observed_step": 1601,
+      "last_root_position_m": [
+        2.47662258,
+        0.117268294,
+        1.37931633
+      ]
+    }
+  ],
+  "failed_environment_steps": 0,
+  "termination_count": 0,
+  "teacher": false,
+  "host_requested_resets": 0,
+  "errors": [],
+  "scope": "development training layout only; non-ground contacts are accepted endpoint observations, not a complete substep first-contact audit; no supported-landing qualification"
+}
