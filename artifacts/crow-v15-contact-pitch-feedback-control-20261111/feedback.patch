@@ -1,0 +1,10 @@
+--- a/reference.metal
++++ b/feedback.metal
+@@ -5136,6 +5136,7 @@
+             const uint seq=((state.status.w>>16u)&15u)|(((state.status.w>>28u)&15u)<<4u);
+             const float returning=seq>=230u ? clamp(float(seq-230u)/25.0f,0.0f,1.0f) : 0.0f;
+             const float delta=clamp(.5f*(state.commandAndPhase.y-.012f-.20f*state.commandExtension.z) -
++                .40f*state.threatGeometry.z-.08f*state.threatGeometry.w -
+                 (action==7u ? .04f*returning : 0.0f),-.16f,.16f);
+             navigationTeacherRequested=clamp(delta/max(abs(actions[action].parameters.x),.001f),-1.0f,1.0f);
+         }

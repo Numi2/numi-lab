@@ -1,0 +1,61 @@
+{
+  "rows": [
+    {
+      "lane": 0,
+      "first_reference_perch_foot_impulse": 3187,
+      "first_difference": null,
+      "differences_before_first_perch_contact": 0,
+      "missing_before_first_perch_contact": 0
+    },
+    {
+      "lane": 1,
+      "first_reference_perch_foot_impulse": 3221,
+      "first_difference": null,
+      "differences_before_first_perch_contact": 0,
+      "missing_before_first_perch_contact": 0
+    },
+    {
+      "lane": 2,
+      "first_reference_perch_foot_impulse": 3199,
+      "first_difference": 3420,
+      "differences_before_first_perch_contact": 0,
+      "missing_before_first_perch_contact": 0
+    },
+    {
+      "lane": 3,
+      "first_reference_perch_foot_impulse": 3159,
+      "first_difference": null,
+      "differences_before_first_perch_contact": 0,
+      "missing_before_first_perch_contact": 0
+    },
+    {
+      "lane": 4,
+      "first_reference_perch_foot_impulse": 3210,
+      "first_difference": null,
+      "differences_before_first_perch_contact": 0,
+      "missing_before_first_perch_contact": 0
+    },
+    {
+      "lane": 5,
+      "first_reference_perch_foot_impulse": 3222,
+      "first_difference": null,
+      "differences_before_first_perch_contact": 0,
+      "missing_before_first_perch_contact": 0
+    },
+    {
+      "lane": 6,
+      "first_reference_perch_foot_impulse": null,
+      "first_difference": null,
+      "differences_before_first_perch_contact": 0,
+      "missing_before_first_perch_contact": 0
+    },
+    {
+      "lane": 7,
+      "first_reference_perch_foot_impulse": 3169,
+      "first_difference": 3268,
+      "differences_before_first_perch_contact": 0,
+      "missing_before_first_perch_contact": 0
+    }
+  ],
+  "scope": "Endpoint accepted q/v, actor output and contact comparison only. Both trials run without a teacher; reference inhibits release and control adds bounded pitch feedback. Substep support is analyzed separately."
+}

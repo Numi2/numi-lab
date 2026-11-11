@@ -1,0 +1,3 @@
+# Bounded contact-conditioned pitch feedback
+
+The two development perches tip in opposite pitch directions even without the release sequence. Test one preselected bounded proportional and rate term added to existing goal-relative hip position feedback after support, using observed body pitch and angular velocity. Keep release inhibited, wing law frozen and all other route and landing settings fixed. Evaluate the teacher-off full trajectory against the matching release-inhibited control, including complete substep contact and first-episode termination. This is exploratory, not an anatomical calibration or unused-layout qualification.
