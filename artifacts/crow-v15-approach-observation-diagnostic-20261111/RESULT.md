@@ -1,0 +1,3 @@
+# Matched autonomous approach inspection
+
+A single-lane repeat matched all 3800 endpoint q, velocity, actor-output and contact samples for lane 0 of the eight-lane teacher-free run. After waypoint five, this bird never got within 0.169 m horizontally of the explicit final waypoint; the existing autonomous phase-one predicate requires less than 0.08 m and horizontal speed under 0.08 m/s. No sample satisfied that predicate, and the earlier full-substep recording showed no foot/perch contact. This identifies a specific alignment gate that was not met in this lane; it does not by itself establish the failure mode of every other lane. The listed mapped actor outputs are high-level command candidates, not physical actuator targets.
