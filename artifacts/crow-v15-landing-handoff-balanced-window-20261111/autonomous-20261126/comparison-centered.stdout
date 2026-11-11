@@ -1,0 +1,9 @@
+{
+  "lane": 7,
+  "compared": 802,
+  "first_step": 3000,
+  "last_step": 3801,
+  "differing": 0,
+  "first_difference": [],
+  "scope": "Accepted endpoint telemetry comparison only; state indices have a one-step offset relative to replay frames."
+}
