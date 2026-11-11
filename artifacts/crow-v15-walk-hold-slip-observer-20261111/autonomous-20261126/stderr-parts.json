@@ -1,0 +1,11 @@
+{
+  "bytes": 29798369,
+  "compressed_sha256": "54166b6c0daf3327cd5ae6b3ee0899842a48a7c929c1f461675d440ed53558cf",
+  "parts": [
+    {
+      "name": "run.stderr.gz.part000",
+      "bytes": 29798369,
+      "sha256": "54166b6c0daf3327cd5ae6b3ee0899842a48a7c929c1f461675d440ed53558cf"
+    }
+  ]
+}
