@@ -1,6 +1,6 @@
 from pathlib import Path
 import gzip,json,math,numpy as np
-A=Path('artifacts/crow-v15-regrip-force-feedback-20261111');O=Path('artifacts/crow-v15-lean-20second-perch-screen-20261110');trace={};allc={};toe={};outcomes={};old={};poses={};grounds={};feet={};alltoe={};releases={};horizontal={}
+A=Path('artifacts/crow-v15-regrip-force-feedback-20261111');O=Path('artifacts/crow-v15-lean-20second-perch-screen-20261110');trace={};allc={};toe={};outcomes={};old={};poses={};grounds={};feet={};alltoe={};releases={};horizontal={};other_interval={}
 with gzip.open(O/'results.txt.gz','rt') as f:
  for l in f:
   v=l.split()
@@ -10,6 +10,7 @@ with gzip.open(A/'results.txt.gz','rt') as f:
   v=l.split()
   if not v:continue
   if v[0]=='foot_release_requested':releases[int(v[1])]=int(v[2])
+  elif v[0]=='other_interval':other_interval[(int(v[1]),int(v[2]),int(v[3]))]=float(v[4])
   elif v[0]=='toe_horizontal':horizontal.setdefault((int(v[1]),int(v[2]),int(v[3])),{})[int(v[4])]=float(v[5])
   elif v[0]=='foot_interval':feet[(int(v[1]),int(v[2]),int(v[3]))]=[float(v[4]),float(v[5])]
   elif v[0]=='all_toe_interval':alltoe.setdefault((int(v[1]),int(v[2]),int(v[3])),{})[int(v[4])]=float(v[5])
@@ -37,7 +38,7 @@ for i in range(1,17):
   for t in range(1500):
    v=trace.get((i,a,t));
    if v is None:continue
-   phase=int(v[0]);qx,qy=float(v[9]),float(v[10]);vel=[float(v[8]),float(v[11]),float(v[12])];tilt=math.acos(max(-1.,min(1.,1.-2.*(qx*qx+qy*qy))));speed=math.sqrt(sum(q*q for q in vel));c=allc.get((i,a,t),{'left':0.,'right':0.,'other':0.});p=toe.get((i,a,t),{s:{'front':0.,'rear':0.} for s in ('left','right')});oldgrip=all(p[s][k]>.0002 for s in p for k in ('front','rear'));h=horizontal.get((i,a,t),{});grip=len(h)==8 and all(sum(h[k] for k in (base,base+1,base+2))>=.0002 and h[base+3]<=-.0002 for base in (0,4));support=min(c['left'],c['right'])>(.0002/[16,16,16,16,16,16,16,16,16][a]) and c['left']+c['right']>=.5*.45004*9.81*(.02/[16,16,16,16,16,16,16,16,16][a]) and c['other']<=1e-7 and tilt<=.35 and speed<=.12;rec.append({'step':t,'grip':grip,'oldgrip':oldgrip,'support':support,'phase':phase,'max_toe_abs_rad':max(map(abs,map(float,v[13:21]))),'up':c['left']+c['right'],'other':c['other'],'tilt':tilt,'speed':speed})
+   phase=int(v[0]);qx,qy=float(v[9]),float(v[10]);vel=[float(v[8]),float(v[11]),float(v[12])];tilt=math.acos(max(-1.,min(1.,1.-2.*(qx*qx+qy*qy))));speed=math.sqrt(sum(q*q for q in vel));c=allc.get((i,a,t),{'left':0.,'right':0.,'other':0.});p=toe.get((i,a,t),{s:{'front':0.,'rear':0.} for s in ('left','right')});oldgrip=all(p[s][k]>.0002 for s in p for k in ('front','rear'));h=horizontal.get((i,a,t),{});grip=len(h)==8 and all(sum(h[k] for k in (base,base+1,base+2))>=.0002 and h[base+3]<=-.0002 for base in (0,4));support=min(c['left'],c['right'])>(.0002/[16,16,16,16,16,16,16,16,16][a]) and c['left']+c['right']>=.5*.45004*9.81*(.02/[16,16,16,16,16,16,16,16,16][a]) and other_interval.get((i,a,t),float('inf'))<=1e-7 and tilt<=.35 and speed<=.12;rec.append({'step':t,'grip':grip,'oldgrip':oldgrip,'support':support,'phase':phase,'max_toe_abs_rad':max(map(abs,map(float,v[13:21]))),'up':c['left']+c['right'],'other':c['other'],'tilt':tilt,'speed':speed})
   grips=[r['step'] for r in rec if r['grip']];released=[r['step'] for r in rec if r['phase']==4 and not r['grip']];tail=rec[-100:];passed=not parity_diff and len(rec)==1500 and len(tail)==100 and all(r['support'] and r['grip'] for r in tail);rows.append({'case':i,'arm':a,'outcome':outcomes.get((i,a),'missing'),'samples':len(rec),'longest_opposing_grip':longest([r['grip'] for r in rec]),'longest_supported_opposing_grip':longest([r['grip'] and r['support'] for r in rec]),'longest_supported':longest([r['support'] for r in rec]),'terminal_100_supported':len(tail)==100 and all(r['support'] for r in tail),'terminal_100_grip_and_support':len(tail)==100 and all(r['support'] and r['grip'] for r in tail),'terminal_100_grip_samples':sum(r['grip'] for r in tail),'terminal_100_original_cone_grip_samples':sum(r['oldgrip'] for r in tail),'first_release_without_grip':released[0] if released else None,'terminal_max_toe_abs_rad':max((r['max_toe_abs_rad'] for r in tail),default=None),'strict_pass':passed})
 def rot(q):
  x,y,z,w=q;return np.array([[1-2*(y*y+z*z),2*(x*y-z*w),2*(x*z+y*w)],[2*(x*y+z*w),1-2*(x*x+z*z),2*(y*z-x*w)],[2*(x*z-y*w),2*(y*z+x*w),1-2*(x*x+y*y)]])
@@ -60,11 +61,11 @@ for row in rows:
 for row in rows:
  i,a=row['case'],row['arm'];release=releases.get(i);flags=[];other_count=0
  for t in range(1500):
-  v=trace.get((i,a,t));pp=poses.get((i,a,t),[]);gg=grounds.get((i,a));imp=alltoe.get((i,a,t),{});foot=feet.get((i,a,t),[]);c=allc.get((i,a,t),{'left':0.,'right':0.,'other':0.});other_count+=c['other']>1e-7
+  v=trace.get((i,a,t));pp=poses.get((i,a,t),[]);gg=grounds.get((i,a));imp=alltoe.get((i,a,t),{});foot=feet.get((i,a,t),[]);c=allc.get((i,a,t),{'left':0.,'right':0.,'other':0.});other_count+=other_interval.get((i,a,t),float('inf'))>1e-7
   if v:
    qx,qy=float(v[9]),float(v[10]);tilt=math.acos(max(-1.,min(1.,1.-2.*(qx*qx+qy*qy))));vel=[float(v[8]),float(v[11]),float(v[12])];speed=math.sqrt(sum(x*x for x in vel))
   else:tilt=speed=float('inf')
-  flags.append(bool(release is not None and release<=t<release+150 and v and len(pp)==8 and gg is not None and len(imp)==8 and len(foot)==2 and all(gap(p,gg)>.001 for p in pp[:4]) and max(imp[k] for k in range(4))<=1e-7 and foot[1]>=.5*.45004*9.81*.02 and c['other']<=1e-7 and tilt<=.35 and speed<=.12))
+  flags.append(bool(release is not None and release<=t<release+150 and v and len(pp)==8 and gg is not None and len(imp)==8 and len(foot)==2 and all(gap(p,gg)>.001 for p in pp[:4]) and max(imp[k] for k in range(4))<=1e-7 and foot[1]>=.5*.45004*9.81*.02 and other_interval.get((i,a,t),float('inf'))<=1e-7 and tilt<=.35 and speed<=.12))
  row['release_step']=release;row['single_foot_release_samples']=sum(flags);row['longest_single_foot_release']=longest(flags);row['other_contact_samples']=other_count;row['full_trial_pass']=row['strict_pass'] and release is not None and row['longest_single_foot_release']>=3 and not other_count
 out={'baseline_parity_exact':not parity_diff,'baseline_parity_differences':parity_diff[:20], 'rows':rows};(A/'analysis.json').write_text(json.dumps(out,indent=2)+'\n')
 print('Baseline parity:',not parity_diff,'differences',len(parity_diff))
