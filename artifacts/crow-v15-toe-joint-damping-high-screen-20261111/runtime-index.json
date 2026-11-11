@@ -1,0 +1,22 @@
+[
+  {
+    "path": "build/crow-v15-toe-joint-damping-high-screen-20261111/d060/libmetalrobo.dylib",
+    "sha256": "f37acb444fc7e831350fd092f049f340be7e4ce96aae05b5161a67db2dd21816",
+    "bytes": 5764080
+  },
+  {
+    "path": "build/crow-v15-toe-joint-damping-high-screen-20261111/d120/libmetalrobo.dylib",
+    "sha256": "0ddddc9383cbe2e00199673f033de85078480e52d1f11a27b2ec253855191002",
+    "bytes": 5764080
+  },
+  {
+    "path": "build/crow-v15-toe-joint-damping-high-screen-20261111/d060/zero.policypack",
+    "sha256": "7be9fed562d31df9f2ccc8e3be33337f68dca81b03f4f02dff7fdef3dfe6273f",
+    "bytes": 2346384
+  },
+  {
+    "path": "build/crow-v15-toe-joint-damping-high-screen-20261111/d120/zero.policypack",
+    "sha256": "5cb1a50ee51a4fb9169ab8f52e5378be3cd9791f8c17f8b3e987ef88ab164f67",
+    "bytes": 2346384
+  }
+]

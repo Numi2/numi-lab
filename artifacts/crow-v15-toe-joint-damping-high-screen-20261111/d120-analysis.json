@@ -1,0 +1,27 @@
+{
+  "exit": 0,
+  "observed_lane_steps": 20080,
+  "lanes_with_hits": 10,
+  "lane_interval_hits": 10,
+  "hits_by_lane": {
+    "7": 1,
+    "23": 1,
+    "28": 1,
+    "31": 1,
+    "39": 1,
+    "47": 1,
+    "55": 1,
+    "68": 1,
+    "71": 1,
+    "79": 1
+  },
+  "hits_by_toe": {
+    "14": 10,
+    "6": 2
+  },
+  "errors": [],
+  "failed_environment_steps": 0,
+  "physical_failures": 0,
+  "minimum_episode_steps": 250,
+  "pass": false
+}

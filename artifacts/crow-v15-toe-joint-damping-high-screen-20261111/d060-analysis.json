@@ -1,0 +1,32 @@
+{
+  "exit": 0,
+  "observed_lane_steps": 20080,
+  "lanes_with_hits": 15,
+  "lane_interval_hits": 15,
+  "hits_by_lane": {
+    "4": 1,
+    "7": 1,
+    "15": 1,
+    "23": 1,
+    "28": 1,
+    "31": 1,
+    "39": 1,
+    "44": 1,
+    "47": 1,
+    "55": 1,
+    "63": 1,
+    "68": 1,
+    "71": 1,
+    "76": 1,
+    "79": 1
+  },
+  "hits_by_toe": {
+    "6": 5,
+    "14": 15
+  },
+  "errors": [],
+  "failed_environment_steps": 0,
+  "physical_failures": 0,
+  "minimum_episode_steps": 250,
+  "pass": false
+}
