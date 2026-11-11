@@ -1,0 +1,3 @@
+# Pre-run narrower forward damping screen
+
+The prior batch rolled back at 1.0-second velocity damping. Repeat the 32-substep physically actuated contact experiment with unchanged lane-zero and gain-1 / 0.2-second reference lane, and velocity damping 0.1, 0.15, 0.18, 0.22, 0.25 and 0.3 seconds in the other lanes. Preserve and report any solver rollback; assess complete lanes only. Require no fall, 100 terminal supported-opposed intervals, at least 50 consecutive opposed-supported intervals, no nonfoot contact, and maximum opposed endpoint toe overlap of 0.5 mm; retain all substep forces and compare the reference lanes. This is exploratory stationary testing, not qualification of arrival, release or biology.
