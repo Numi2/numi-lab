@@ -1,0 +1,386 @@
+{
+  "source": "artifacts/crow-v15-start-perturbation-controls-20261111/single-20261126",
+  "replay_validation": {
+    "lane": 1,
+    "observer_to_replay_offset": 1,
+    "q_max_error": 4.998473857042995e-10,
+    "foot_toe_position_max_error_m": 6.005036417549067e-09,
+    "foot_toe_quaternion_max_error": 2.9799509065991895e-08,
+    "replay_ground_z_m": 0.0
+  },
+  "rows": [
+    {
+      "lane": 0,
+      "left_bouts": [
+        [
+          229,
+          236
+        ],
+        [
+          256,
+          261
+        ],
+        [
+          278,
+          285
+        ]
+      ],
+      "right_bouts": [
+        [
+          241,
+          248
+        ],
+        [
+          266,
+          273
+        ],
+        [
+          292,
+          298
+        ]
+      ],
+      "forward_displacement_m": 0.03447204364,
+      "min_foot_upward_impulse_Ns": 0.02564603050890814,
+      "intervals_below_half_nominal_weight": [
+        252,
+        255,
+        277
+      ],
+      "both_feet_clear_over_1mm_endpoint_steps": [],
+      "no_foot_normal_intervals": [],
+      "no_foot_normal_substeps": [
+        [
+          254,
+          6
+        ],
+        [
+          254,
+          7
+        ],
+        [
+          254,
+          8
+        ]
+      ],
+      "nonfoot_contact_intervals": 0,
+      "max_tilt_rad": 0.02578569204090246,
+      "max_speed_m_s": 0.11547058821546555
+    },
+    {
+      "lane": 1,
+      "left_bouts": [
+        [
+          228,
+          236
+        ],
+        [
+          254,
+          260
+        ],
+        [
+          278,
+          285
+        ]
+      ],
+      "right_bouts": [
+        [
+          244,
+          248
+        ],
+        [
+          267,
+          273
+        ],
+        [
+          292,
+          298
+        ]
+      ],
+      "forward_displacement_m": 0.0316320937,
+      "min_foot_upward_impulse_Ns": 0.03252277520910898,
+      "intervals_below_half_nominal_weight": [
+        243,
+        277
+      ],
+      "both_feet_clear_over_1mm_endpoint_steps": [],
+      "no_foot_normal_intervals": [],
+      "no_foot_normal_substeps": [],
+      "nonfoot_contact_intervals": 0,
+      "max_tilt_rad": 0.026082907906723133,
+      "max_speed_m_s": 0.0943703070969884
+    },
+    {
+      "lane": 2,
+      "left_bouts": [
+        [
+          228,
+          236
+        ],
+        [
+          253,
+          260
+        ],
+        [
+          278,
+          285
+        ]
+      ],
+      "right_bouts": [
+        [
+          244,
+          248
+        ],
+        [
+          267,
+          273
+        ],
+        [
+          291,
+          298
+        ]
+      ],
+      "forward_displacement_m": 0.03266012712,
+      "min_foot_upward_impulse_Ns": 0.03507047396764644,
+      "intervals_below_half_nominal_weight": [
+        243,
+        277
+      ],
+      "both_feet_clear_over_1mm_endpoint_steps": [],
+      "no_foot_normal_intervals": [],
+      "no_foot_normal_substeps": [],
+      "nonfoot_contact_intervals": 0,
+      "max_tilt_rad": 0.026084619954678517,
+      "max_speed_m_s": 0.09240644686023589
+    },
+    {
+      "lane": 3,
+      "left_bouts": [
+        [
+          228,
+          236
+        ],
+        [
+          253,
+          260
+        ],
+        [
+          278,
+          285
+        ]
+      ],
+      "right_bouts": [
+        [
+          241,
+          248
+        ],
+        [
+          267,
+          273
+        ],
+        [
+          291,
+          298
+        ]
+      ],
+      "forward_displacement_m": 0.0321710687,
+      "min_foot_upward_impulse_Ns": 0.03080607550347195,
+      "intervals_below_half_nominal_weight": [
+        252,
+        277
+      ],
+      "both_feet_clear_over_1mm_endpoint_steps": [],
+      "no_foot_normal_intervals": [],
+      "no_foot_normal_substeps": [],
+      "nonfoot_contact_intervals": 0,
+      "max_tilt_rad": 0.025917177462768056,
+      "max_speed_m_s": 0.09325107691508558
+    },
+    {
+      "lane": 4,
+      "left_bouts": [
+        [
+          229,
+          236
+        ],
+        [
+          256,
+          261
+        ],
+        [
+          278,
+          285
+        ]
+      ],
+      "right_bouts": [
+        [
+          241,
+          248
+        ],
+        [
+          266,
+          273
+        ],
+        [
+          292,
+          298
+        ]
+      ],
+      "forward_displacement_m": 0.0349643547,
+      "min_foot_upward_impulse_Ns": 0.03461612002676,
+      "intervals_below_half_nominal_weight": [
+        252,
+        255,
+        277
+      ],
+      "both_feet_clear_over_1mm_endpoint_steps": [],
+      "no_foot_normal_intervals": [],
+      "no_foot_normal_substeps": [
+        [
+          254,
+          6
+        ],
+        [
+          254,
+          7
+        ],
+        [
+          254,
+          8
+        ]
+      ],
+      "nonfoot_contact_intervals": 0,
+      "max_tilt_rad": 0.025589619538003934,
+      "max_speed_m_s": 0.11461857244452361
+    },
+    {
+      "lane": 5,
+      "left_bouts": [
+        [
+          228,
+          236
+        ],
+        [
+          253,
+          260
+        ],
+        [
+          278,
+          285
+        ]
+      ],
+      "right_bouts": [
+        [
+          241,
+          248
+        ],
+        [
+          267,
+          273
+        ],
+        [
+          292,
+          298
+        ]
+      ],
+      "forward_displacement_m": 0.03168264404,
+      "min_foot_upward_impulse_Ns": 0.033135767472381936,
+      "intervals_below_half_nominal_weight": [
+        252,
+        277
+      ],
+      "both_feet_clear_over_1mm_endpoint_steps": [],
+      "no_foot_normal_intervals": [],
+      "no_foot_normal_substeps": [],
+      "nonfoot_contact_intervals": 0,
+      "max_tilt_rad": 0.025929375478400327,
+      "max_speed_m_s": 0.09079756023055269
+    },
+    {
+      "lane": 6,
+      "left_bouts": [
+        [
+          228,
+          236
+        ],
+        [
+          254,
+          260
+        ],
+        [
+          278,
+          285
+        ]
+      ],
+      "right_bouts": [
+        [
+          244,
+          248
+        ],
+        [
+          266,
+          273
+        ],
+        [
+          292,
+          298
+        ]
+      ],
+      "forward_displacement_m": 0.0315973237,
+      "min_foot_upward_impulse_Ns": 0.03162105892682024,
+      "intervals_below_half_nominal_weight": [
+        243,
+        277
+      ],
+      "both_feet_clear_over_1mm_endpoint_steps": [],
+      "no_foot_normal_intervals": [],
+      "no_foot_normal_substeps": [],
+      "nonfoot_contact_intervals": 0,
+      "max_tilt_rad": 0.026124046160121272,
+      "max_speed_m_s": 0.09469715604054092
+    },
+    {
+      "lane": 7,
+      "left_bouts": [
+        [
+          228,
+          236
+        ],
+        [
+          253,
+          260
+        ],
+        [
+          278,
+          285
+        ]
+      ],
+      "right_bouts": [
+        [
+          241,
+          248
+        ],
+        [
+          267,
+          273
+        ],
+        [
+          292,
+          298
+        ]
+      ],
+      "forward_displacement_m": 0.031492928999999996,
+      "min_foot_upward_impulse_Ns": 0.027546782108045533,
+      "intervals_below_half_nominal_weight": [
+        252,
+        277
+      ],
+      "both_feet_clear_over_1mm_endpoint_steps": [],
+      "no_foot_normal_intervals": [],
+      "no_foot_normal_substeps": [],
+      "nonfoot_contact_intervals": 0,
+      "max_tilt_rad": 0.025923231129905782,
+      "max_speed_m_s": 0.09439810659154255
+    }
+  ],
+  "limitations": "Two-second selected development gait. Shape clearance sampled at control endpoints; all contact impulses summed over all configured substeps. The common ground height is taken from lane 1 replay and the same authored task, not independently replayed in every lane. Alternating bouts, slip, continuous clearance, toe speed, takeoff, landing, autonomous navigation, unseen starts and biological realism require separate tests."
+}

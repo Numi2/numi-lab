@@ -1,0 +1,3 @@
+# Reset perturbation control
+
+The reference shader repeats the exact same reset disturbance twice. With the perturbation applied twice, once, or not at all, the eight development starts each achieved three alternating clearance bouts per foot and advanced roughly 3.1–3.5 cm over the measured two seconds, with no nonfoot impulses. The respective toe-speed-limit sample counts during steps 1–301 were 20, 8, and 95; none occurred during the walking window for any variant. A weaker disturbance does not reliably remove the initial toe spikes. Different initial-state distributions prevent concluding relative robustness. Neither the launch, route, nor landing was tested here. The clearance and velocity measurements have the limits documented in the per-run analyses.

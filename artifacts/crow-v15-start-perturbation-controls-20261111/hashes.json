@@ -1,0 +1,10 @@
+{
+  "single": {
+    "source_sha256": "d49426fb0113efc24bf8a83cec8cfc3290e0d7545f20d1b6be091c89b7f5a7b7",
+    "metallib_sha256": "8f43acc29a6bafe5b3c160d88a910e088bac8c965abff653c9840c8333220c3a"
+  },
+  "none": {
+    "source_sha256": "a536d79c7c4100750ec45a19f64828d1c941091a4dabc563321a78fde1097a17",
+    "metallib_sha256": "990ad6e08a9b9b768aa444d0e6d53e0ab1c83c52ab96d4adf318f894eafe879f"
+  }
+}
