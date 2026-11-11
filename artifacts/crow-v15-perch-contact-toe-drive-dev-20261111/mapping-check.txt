@@ -1,0 +1,16 @@
+17 22 crow_left_front_toe_1_proximal
+18 23 crow_left_front_toe_1_distal
+19 24 crow_left_front_toe_2_proximal
+20 25 crow_left_front_toe_2_distal
+21 26 crow_left_front_toe_3_proximal
+22 27 crow_left_front_toe_3_distal
+23 28 crow_left_rear_toe_proximal
+24 29 crow_left_rear_toe_distal
+25 30 crow_right_front_toe_1_proximal
+26 31 crow_right_front_toe_1_distal
+27 32 crow_right_front_toe_2_proximal
+28 33 crow_right_front_toe_2_distal
+29 34 crow_right_front_toe_3_proximal
+30 35 crow_right_front_toe_3_distal
+31 36 crow_right_rear_toe_proximal
+32 37 crow_right_rear_toe_distal

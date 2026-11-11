@@ -1,0 +1,4 @@
+#define main crow_toe_prototype_main
+#include "../crow-v15-two-segment-toe-prototype-20261111/probe.cpp"
+#undef main
+int main(){try{auto p=toeModel();const auto& m=p.mechanics;need(m.bodyNames.at(10)=="crow_left_foot","left foot");need(m.bodyNames.at(13)=="crow_right_foot","right foot");for(unsigned side=0;side<2;side++)for(unsigned toe=0;toe<4;toe++)for(unsigned seg=0;seg<2;seg++){unsigned body=17+8*side+2*toe+seg,v=22+8*side+2*toe+seg;std::string n=std::string("crow_")+(side?"right_":"left_")+(toe==3?"rear_toe":"front_toe_"+std::to_string(toe+1))+(seg?"_distal":"_proximal");need(m.bodyNames.at(body)==n,"body "+n);bool found=false;for(unsigned i=0;i<m.dofs.size();i++)if(m.dofs[i].vIndex==v){need(m.dofNames.at(i)==n+"_flex","dof "+n);need(m.joints.at(m.dofs[i].jointIndex).childBody==body,"joint child "+n);found=true;}need(found,"missing "+n);std::cout<<body<<" "<<v<<" "<<n<<"\n";}return 0;}catch(const std::exception& e){std::cerr<<e.what()<<"\n";return 1;}}
