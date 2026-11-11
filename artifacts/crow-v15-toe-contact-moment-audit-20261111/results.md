@@ -1,0 +1,5 @@
+# Toe-group contact moments
+
+Both independent 250-tick replays matched their saved batch references exactly. For ticks 200–239, summing normal, friction and torsional contact impulses over all 16 substeps and approximately translating moments to each control-endpoint COM, the unchanged trial had mean rear-toe, front-toe and foot-pad pitch impulses of +0.000161, -0.001082 and +0.000863 N m s per 20 ms. With rear reclosure they were +0.000995, -0.001526 and +0.000817 N m s. Their approximate total shifted from -0.000058 to +0.000286 N m s, a net +0.000344 N m s in the positive pitch direction, even though the stronger front-toe contribution opposed part of the rear-toe change.
+
+This supports a physical coupling between reclosure and forward rotation in this development start; it is not a complete angular-momentum balance or proof of unique causation. COM positions and velocities vary within the 16 substeps, so endpoint-COM translation is approximate. The trials did not qualify landing, release, a route or biological realism. All original replays and the comparison runtime are retained.

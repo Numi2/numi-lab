@@ -1,0 +1,272 @@
+{
+  "runs": {
+    "0": {
+      "batch_reference_lane": 1,
+      "exact_trace_parity": true,
+      "windows": [
+        {
+          "ticks": [
+            80,
+            109
+          ],
+          "groups": [
+            {
+              "group": "rear_toes",
+              "mean_Jx": -0.00296466247716,
+              "mean_Jz": 0.009187290998403333,
+              "mean_angular_impulse_about_endpoint_com": 0.0009587692453934735
+            },
+            {
+              "group": "front_toes",
+              "mean_Jx": 0.0064918132537666665,
+              "mean_Jz": 0.04340069852863333,
+              "mean_angular_impulse_about_endpoint_com": -0.0011239313534057217
+            },
+            {
+              "group": "feet",
+              "mean_Jx": -0.0036138884451333334,
+              "mean_Jz": 0.03587577001533333,
+              "mean_angular_impulse_about_endpoint_com": 0.0006426173092042277
+            },
+            {
+              "group": "other",
+              "mean_Jx": 0.0,
+              "mean_Jz": 0.0,
+              "mean_angular_impulse_about_endpoint_com": 0.0
+            }
+          ]
+        },
+        {
+          "ticks": [
+            110,
+            149
+          ],
+          "groups": [
+            {
+              "group": "rear_toes",
+              "mean_Jx": -0.00417514899581525,
+              "mean_Jz": 0.0091914782132,
+              "mean_angular_impulse_about_endpoint_com": 0.0011480643187559067
+            },
+            {
+              "group": "front_toes",
+              "mean_Jx": 0.008853899005875,
+              "mean_Jz": 0.0502922480465,
+              "mean_angular_impulse_about_endpoint_com": -0.0016899139202161638
+            },
+            {
+              "group": "feet",
+              "mean_Jx": -0.004641047364575,
+              "mean_Jz": 0.0289904731785,
+              "mean_angular_impulse_about_endpoint_com": 0.0007505859422481071
+            },
+            {
+              "group": "other",
+              "mean_Jx": 0.0,
+              "mean_Jz": 0.0,
+              "mean_angular_impulse_about_endpoint_com": 0.0
+            }
+          ]
+        },
+        {
+          "ticks": [
+            150,
+            199
+          ],
+          "groups": [
+            {
+              "group": "rear_toes",
+              "mean_Jx": -0.002992796869902,
+              "mean_Jz": 0.004089785575116,
+              "mean_angular_impulse_about_endpoint_com": 0.0007133711849041078
+            },
+            {
+              "group": "front_toes",
+              "mean_Jx": 0.00808533660152,
+              "mean_Jz": 0.0471433308718,
+              "mean_angular_impulse_about_endpoint_com": -0.0015083174047781321
+            },
+            {
+              "group": "feet",
+              "mean_Jx": -0.00506186912768,
+              "mean_Jz": 0.0372248031942,
+              "mean_angular_impulse_about_endpoint_com": 0.000830454708174646
+            },
+            {
+              "group": "other",
+              "mean_Jx": 0.0,
+              "mean_Jz": 0.0,
+              "mean_angular_impulse_about_endpoint_com": 0.0
+            }
+          ]
+        },
+        {
+          "ticks": [
+            200,
+            239
+          ],
+          "groups": [
+            {
+              "group": "rear_toes",
+              "mean_Jx": -0.000701713804489075,
+              "mean_Jz": 0.000822366916817025,
+              "mean_angular_impulse_about_endpoint_com": 0.00016102197877251862
+            },
+            {
+              "group": "front_toes",
+              "mean_Jx": 0.00590654484695,
+              "mean_Jz": 0.05104524837825,
+              "mean_angular_impulse_about_endpoint_com": -0.001082415913182296
+            },
+            {
+              "group": "feet",
+              "mean_Jx": -0.00515309838815,
+              "mean_Jz": 0.03658377332625,
+              "mean_angular_impulse_about_endpoint_com": 0.0008632726010779151
+            },
+            {
+              "group": "other",
+              "mean_Jx": 0.0,
+              "mean_Jz": 0.0,
+              "mean_angular_impulse_about_endpoint_com": 0.0
+            }
+          ]
+        }
+      ]
+    },
+    "1": {
+      "batch_reference_lane": 7,
+      "exact_trace_parity": true,
+      "windows": [
+        {
+          "ticks": [
+            80,
+            109
+          ],
+          "groups": [
+            {
+              "group": "rear_toes",
+              "mean_Jx": -0.003488606155663,
+              "mean_Jz": 0.011187855454803334,
+              "mean_angular_impulse_about_endpoint_com": 0.0011493433513815677
+            },
+            {
+              "group": "front_toes",
+              "mean_Jx": 0.007002271321943333,
+              "mean_Jz": 0.04373965989776667,
+              "mean_angular_impulse_about_endpoint_com": -0.001211586042188293
+            },
+            {
+              "group": "feet",
+              "mean_Jx": -0.003611322771736667,
+              "mean_Jz": 0.03353939401,
+              "mean_angular_impulse_about_endpoint_com": 0.0006330550284998085
+            },
+            {
+              "group": "other",
+              "mean_Jx": 0.0,
+              "mean_Jz": 0.0,
+              "mean_angular_impulse_about_endpoint_com": 0.0
+            }
+          ]
+        },
+        {
+          "ticks": [
+            110,
+            149
+          ],
+          "groups": [
+            {
+              "group": "rear_toes",
+              "mean_Jx": -0.004692750587115,
+              "mean_Jz": 0.0094981528584225,
+              "mean_angular_impulse_about_endpoint_com": 0.0012565251104273696
+            },
+            {
+              "group": "front_toes",
+              "mean_Jx": 0.009379842981925,
+              "mean_Jz": 0.04998243460425,
+              "mean_angular_impulse_about_endpoint_com": -0.0017691133155045022
+            },
+            {
+              "group": "feet",
+              "mean_Jx": -0.004629121877975,
+              "mean_Jz": 0.029002138785500002,
+              "mean_angular_impulse_about_endpoint_com": 0.0007553528124963142
+            },
+            {
+              "group": "other",
+              "mean_Jx": 0.0,
+              "mean_Jz": 0.0,
+              "mean_angular_impulse_about_endpoint_com": 0.0
+            }
+          ]
+        },
+        {
+          "ticks": [
+            150,
+            199
+          ],
+          "groups": [
+            {
+              "group": "rear_toes",
+              "mean_Jx": -0.00435560508628,
+              "mean_Jz": 0.00507065189768,
+              "mean_angular_impulse_about_endpoint_com": 0.0010038460017323461
+            },
+            {
+              "group": "front_toes",
+              "mean_Jx": 0.0094874216433,
+              "mean_Jz": 0.0470581588896,
+              "mean_angular_impulse_about_endpoint_com": -0.0017334614470524235
+            },
+            {
+              "group": "feet",
+              "mean_Jx": -0.00508096168748,
+              "mean_Jz": 0.0363262594494,
+              "mean_angular_impulse_about_endpoint_com": 0.0008462220752757488
+            },
+            {
+              "group": "other",
+              "mean_Jx": 0.0,
+              "mean_Jz": 0.0,
+              "mean_angular_impulse_about_endpoint_com": 0.0
+            }
+          ]
+        },
+        {
+          "ticks": [
+            200,
+            239
+          ],
+          "groups": [
+            {
+              "group": "rear_toes",
+              "mean_Jx": -0.004136687488125,
+              "mean_Jz": 0.005503158836175,
+              "mean_angular_impulse_about_endpoint_com": 0.0009947074328986658
+            },
+            {
+              "group": "front_toes",
+              "mean_Jx": 0.008788730052725,
+              "mean_Jz": 0.04780487511375,
+              "mean_angular_impulse_about_endpoint_com": -0.0015256511721648252
+            },
+            {
+              "group": "feet",
+              "mean_Jx": -0.0045571584429,
+              "mean_Jz": 0.035144199617,
+              "mean_angular_impulse_about_endpoint_com": 0.0008169943228968137
+            },
+            {
+              "group": "other",
+              "mean_Jx": 0.0,
+              "mean_Jz": 0.0,
+              "mean_angular_impulse_about_endpoint_com": 0.0
+            }
+          ]
+        }
+      ]
+    }
+  }
+}
