@@ -1,0 +1,5 @@
+# Downstroke phase during leg-powered takeoff
+
+The 7.00 s amplitude gate retained excess upward ground impulse but the synchronized modeled wing centers moved upward before foot release. Test a temporary half-cycle offset to the flapping phase starting when the 7.00 s gate opens; smoothly remove the offset over 0.5 s so later flight uses the original oscillator phase. Keep all body, contact, mechanics, gait and flight feedback otherwise fixed. This engineering phase probe is not a measured crow trajectory.
+
+Use the same eight previously used development starts and 500-step horizon. Require exact pre-intervention q/v/actions and substep contact parity, positive above-weight upward ground impulse from step 348 to final foot loading, upward impulse from both feet, no nonfoot ground impulse in launch, no post-step-340 toe speed cap, no missing contact or errors, and continuing flight through step 500. If those gates pass, rerun with parity-verified substep q/contact snapshots to measure wing-center motion before release. No uncontrolled visual animation, no biological calibration or landing/flight qualification follows. Preserve adverse results.

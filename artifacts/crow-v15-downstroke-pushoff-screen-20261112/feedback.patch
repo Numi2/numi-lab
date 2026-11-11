@@ -1,0 +1,26 @@
+--- a/reference.metal
++++ b/feedback.metal
+@@ -5358,7 +5358,7 @@
+             )
+             : filtered;
+         const float avianWingAmplitude =
+-            fixedFlightController && float(state.episode.x)*dispatch.timing.x >= 6.0f && (state.status.w & 8192u)==0u && binding.actuator.x == MR_TASK_ACTUATOR_FLAPPING_POSITION ? 0.0f :
++            fixedFlightController && float(state.episode.x)*dispatch.timing.x >= 6.0f && float(state.episode.x)*dispatch.timing.x < 7.00f && (state.status.w & 8192u)==0u && binding.actuator.x == MR_TASK_ACTUATOR_FLAPPING_POSITION ? 0.0f :
+             fixedFlightController && float(state.episode.x)*dispatch.timing.x >= 4.0f && float(state.episode.x)*dispatch.timing.x < 6.0f && binding.actuator.x == MR_TASK_ACTUATOR_FLAPPING_POSITION ? 0.0f : fixedFlightController && state.episode.z == 10u && float(state.episode.x)*dispatch.timing.x >= 4.4f && float(state.episode.x)*dispatch.timing.x < 5.4f && binding.actuator.x == MR_TASK_ACTUATOR_FLAPPING_POSITION && (state.status.w & 8192u) == 0u
+             ? 0.0f : fixedFlightController && state.threatTeacher.w >= 1.5f &&
+             binding.actuator.x == MR_TASK_ACTUATOR_FLAPPING_POSITION
+@@ -5474,7 +5474,13 @@
+                     // zero-action trim and bounded residual span, so initial
+                     // policy exploration begins in the viable wingbeat band.
+                     avianWingAmplitude *
+-                    sin(state.commandAndPhase.w)
++                    sin(state.commandAndPhase.w +
++                        (fixedFlightController && state.episode.z == 10u &&
++                         float(state.episode.x)*dispatch.timing.x >= 7.0f &&
++                         float(state.episode.x)*dispatch.timing.x < 7.5f
++                         ? kPi * (1.0f - smoothstep(7.0f, 7.5f,
++                             float(state.episode.x)*dispatch.timing.x))
++                         : 0.0f))
+             : defaultQ[binding.indices.z] +
+                 binding.parameters.x *
+                     avianNonWingCommand *
