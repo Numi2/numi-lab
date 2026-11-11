@@ -1,0 +1,17 @@
+--- a/reference.metal
++++ b/hold.metal
+@@ -9381,7 +9381,13 @@
+             uint packed=0u;
+             for(uint side=0u;side<2u;++side) {
+                 const uint oldRamp=(state.status.w>>(side*6u)) & 63u;
+-                const uint ramp=loaded[side] ? min(oldRamp+1u,34u) : (oldRamp>0u ? oldRamp-1u : 0u);
++                // Isolated contact trial: retain a transient toe closure for
++                // at most 0.2 s after a physically measured perch impulse.
++                const uint shift=23u+4u*side;
++                const uint oldHold=(state.status.w>>shift)&15u;
++                const uint hold=loaded[side] ? 10u : (oldHold>0u ? oldHold-1u : 0u);
++                state.status.w=(state.status.w & ~(15u<<shift)) | (hold<<shift);
++                const uint ramp=(loaded[side] || hold>0u) ? min(oldRamp+1u,34u) : (oldRamp>0u ? oldRamp-1u : 0u);
+                 packed |= ramp << (side*6u);
+             }
+             state.status.w=(state.status.w & ~4095u) | packed;

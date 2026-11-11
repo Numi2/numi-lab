@@ -1,0 +1,7 @@
+# Transient toe closure rejected
+
+On the matched development teacher trial, all eight first episodes reached five waypoint criteria. Only lane 1 ended with 25 consecutive intervals meeting the half-body-weight, bilateral opposing toe-contact criterion. Lanes 0 and 4 physically terminated; the other five survivors did not meet the terminal criterion. The previous intermediate approach on the same starts had three such lanes and one physical termination. This short contact-triggered closure is rejected for the current approach. Both are single-seed diagnostic outcomes, not statistical reliability estimates.
+
+Substep coverage was complete and no contact-capacity overflow was reported. Recorded q/v, policy output and endpoint contacts matched the reference through the interval before the first observed perch contact in each lane; see prefix-comparison.json. The observer sampled body dynamics and toe contact, not biological gripping or a controlled release. This was privileged teacher execution on a previously used development course, not an autonomous or reserved-layout trial. The frozen low-level flight law was unchanged.
+
+The large stderr gzip is archived as individually hashed consecutive byte parts in teacher-20261126/stderr-parts.json. Run restore-stderr.py before the analysis scripts to reconstruct it with a combined SHA-256 check. Other compressed artifacts are ordinary standalone gzip files.
