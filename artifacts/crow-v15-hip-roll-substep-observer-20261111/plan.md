@@ -1,0 +1,1 @@
+Specialized per-substep ground/perch contact observer for exploratory 35-body hip-roll prototype. Body indices are remapped: left/right feet 11/15, toe bodies 19..34, static surface 35. Verify against native named endpoint contacts and body mapping before relying on any result. This does not change simulator physics.

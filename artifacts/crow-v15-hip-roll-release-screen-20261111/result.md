@@ -1,0 +1,3 @@
+# First hip-roll contact test failed before the first completed interval
+
+All arms were censored when the native contact solve failed in interval zero, substep 11. Raw diagnostics in the companion contact-diagnostic artifact show pre-existing torso/thigh shape overlap became active after inserting hip-roll proxy joints, with normal impulses far beyond physically useful levels. The failure precedes the planned shift or release. It does not qualify or disqualify the proposed control law; the topology and its collision filtering first require repair. Full native error and compressed substep traces are retained.

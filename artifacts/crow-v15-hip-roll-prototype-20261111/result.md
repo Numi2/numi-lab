@@ -1,0 +1,7 @@
+# Exploratory hip-roll body, before collision-filter repair
+
+The 35-body prototype adds two single-axis hip-roll joints to the 33-body research crow, leaving existing coordinate values in place and appending two position and velocity coordinates. In 16 sampled zero-roll states, all original body positions were identical to the baseline reconstruction. The two added proxy bodies add 0.00002 kg; maximum sampled kinetic-energy difference was 2.05e-7 J and linear-momentum difference 2.08e-6 kg m/s. This does not establish identical dynamics or a qualified flight controller.
+
+A GPU free-motion test first used the default 32-body metallib and correctly rejected the 35-body model as unsupported. The explicit 40-body research metallib then produced repeatable GPU output for 12 perturbed states and scaled acceleration error 7.80e-8 against the CPU dynamics. This tests free-space computation only.
+
+The subsequent first contact attempt failed in its first interval. Raw contact diagnostics show 18–21 mm torso/thigh overlap and very large normal impulses: inserting the proxy joints made the former direct parent-child torso/thigh pairs into grandparent-child pairs, removing the simulator's original adjacent-body collision exclusion. An upcoming variant will explicitly preserve those exact pre-existing anatomical exclusions; other collision pairs remain enabled. Neither this model nor the hip-roll controller is promoted.

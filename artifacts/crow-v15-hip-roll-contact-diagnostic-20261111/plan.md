@@ -1,0 +1,1 @@
+One-control-interval diagnostic for the failed hip-roll release prototype: log all raw lane-zero contact pairs at each physics substep, including self contacts, before making a hypothesis about the first rejection. No success claim.

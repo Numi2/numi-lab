@@ -1,0 +1,3 @@
+# Raw contact diagnosis for hip-roll prototype
+
+Lane zero, substep zero recorded eight positive-normal contacts between body 0 (torso) and bodies 9 and 13 (left and right thighs), with 18–21 mm reported overlap. The first impulses were approximately 11.8–12.8 N s each and increased thereafter before failure at substep 11. These were formerly directly adjacent anatomical body pairs, which the original topology excluded from self-collision. The logger captures raw contact evidence before filtering it to the perch and does not turn off collision or modify physics. This finding identifies a topology/filtering regression and does not prove other contact problems are absent.

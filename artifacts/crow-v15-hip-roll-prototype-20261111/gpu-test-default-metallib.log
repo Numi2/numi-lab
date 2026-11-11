@@ -1,0 +1,3 @@
+model bodies 35 nq 41 nv 40
+max_position_difference_m 0 max_kinetic_energy_difference_j 2.04265347633e-07 max_linear_momentum_difference_kg_m_s 2.07270267892e-06
+failure GPU ABA failed one or more GPU environments rejected ABA execution first_status=7 first_environment=0 failed_count=12
