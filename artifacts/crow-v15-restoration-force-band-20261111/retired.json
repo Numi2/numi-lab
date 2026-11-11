@@ -1,0 +1,11 @@
+{
+  "remote_commit": "fb2e775d75e680f596661f587c378c7ecd8f1ffb",
+  "retired": [
+    {
+      "raw": "artifacts/crow-v15-rear-grip-force-band-20261111/results.txt",
+      "archive": "artifacts/crow-v15-rear-grip-force-band-20261111/results.txt.gz",
+      "sha256": "cafcd5ef04fe377b6f77104e6c64c94ab5bd994a2931cd185ba85a8a1c613000",
+      "bytes": 4673083
+    }
+  ]
+}
