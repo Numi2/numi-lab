@@ -1,0 +1,4 @@
+configured_blocks 256 constraints 120 contact_records 256
+toe_perch 20 40 separation=0.00364208 impulse=0
+toe_perch 20 40 separation=0.00348377 impulse=0
+final_root 5.0949 0.708447 1.01929

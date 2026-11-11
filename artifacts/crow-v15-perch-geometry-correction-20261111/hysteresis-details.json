@@ -1,0 +1,5012 @@
+[
+  {
+    "step": 3300,
+    "gap_m": 0.05990636135123253,
+    "nearest_shape": "crow_left_front_toe_1_distal",
+    "toe1_distal_gap_m": 0.05990636135123253,
+    "right_supported": false,
+    "bilateral_supported": false,
+    "release": false,
+    "grip": false
+  },
+  {
+    "step": 3301,
+    "gap_m": 0.06407408323206665,
+    "nearest_shape": "crow_left_front_toe_1_distal",
+    "toe1_distal_gap_m": 0.06407408323206665,
+    "right_supported": false,
+    "bilateral_supported": false,
+    "release": false,
+    "grip": false
+  },
+  {
+    "step": 3302,
+    "gap_m": 0.07118802167525268,
+    "nearest_shape": "crow_left_front_toe_1_distal",
+    "toe1_distal_gap_m": 0.07118802167525268,
+    "right_supported": false,
+    "bilateral_supported": false,
+    "release": false,
+    "grip": false
+  },
+  {
+    "step": 3303,
+    "gap_m": 0.07630605607494831,
+    "nearest_shape": "crow_left_front_toe_1_distal",
+    "toe1_distal_gap_m": 0.07630605607494831,
+    "right_supported": false,
+    "bilateral_supported": false,
+    "release": false,
+    "grip": false
+  },
+  {
+    "step": 3304,
+    "gap_m": 0.07646257699803177,
+    "nearest_shape": "crow_left_front_toe_1_distal",
+    "toe1_distal_gap_m": 0.07646257699803177,
+    "right_supported": false,
+    "bilateral_supported": false,
+    "release": false,
+    "grip": false
+  },
+  {
+    "step": 3305,
+    "gap_m": 0.07138496568650754,
+    "nearest_shape": "crow_left_front_toe_1_distal",
+    "toe1_distal_gap_m": 0.07138496568650754,
+    "right_supported": false,
+    "bilateral_supported": false,
+    "release": false,
+    "grip": false
+  },
+  {
+    "step": 3306,
+    "gap_m": 0.06327551794096353,
+    "nearest_shape": "crow_left_front_toe_1_distal",
+    "toe1_distal_gap_m": 0.06327551794096353,
+    "right_supported": false,
+    "bilateral_supported": false,
+    "release": false,
+    "grip": false
+  },
+  {
+    "step": 3307,
+    "gap_m": 0.056633928670519036,
+    "nearest_shape": "crow_left_front_toe_3_distal",
+    "toe1_distal_gap_m": 0.0566350601601125,
+    "right_supported": false,
+    "bilateral_supported": false,
+    "release": false,
+    "grip": false
+  },
+  {
+    "step": 3308,
+    "gap_m": 0.05449994687503459,
+    "nearest_shape": "crow_left_front_toe_3_distal",
+    "toe1_distal_gap_m": 0.05450161555568379,
+    "right_supported": false,
+    "bilateral_supported": false,
+    "release": false,
+    "grip": false
+  },
+  {
+    "step": 3309,
+    "gap_m": 0.053617793941801224,
+    "nearest_shape": "crow_left_front_toe_3_distal",
+    "toe1_distal_gap_m": 0.05361868826067854,
+    "right_supported": false,
+    "bilateral_supported": false,
+    "release": false,
+    "grip": false
+  },
+  {
+    "step": 3310,
+    "gap_m": 0.051249495816687606,
+    "nearest_shape": "crow_left_front_toe_3_distal",
+    "toe1_distal_gap_m": 0.05124949600357178,
+    "right_supported": false,
+    "bilateral_supported": false,
+    "release": false,
+    "grip": false
+  },
+  {
+    "step": 3311,
+    "gap_m": 0.04985262480139229,
+    "nearest_shape": "crow_left_front_toe_3_distal",
+    "toe1_distal_gap_m": 0.0498542336905839,
+    "right_supported": false,
+    "bilateral_supported": false,
+    "release": false,
+    "grip": false
+  },
+  {
+    "step": 3312,
+    "gap_m": 0.05364922743601296,
+    "nearest_shape": "crow_left_front_toe_3_distal",
+    "toe1_distal_gap_m": 0.05365316078168927,
+    "right_supported": false,
+    "bilateral_supported": false,
+    "release": false,
+    "grip": false
+  },
+  {
+    "step": 3313,
+    "gap_m": 0.060228188951317825,
+    "nearest_shape": "crow_left_front_toe_3_distal",
+    "toe1_distal_gap_m": 0.06023188468826408,
+    "right_supported": false,
+    "bilateral_supported": false,
+    "release": false,
+    "grip": false
+  },
+  {
+    "step": 3314,
+    "gap_m": 0.06431058331805348,
+    "nearest_shape": "crow_left_front_toe_3_distal",
+    "toe1_distal_gap_m": 0.0643155306278902,
+    "right_supported": false,
+    "bilateral_supported": false,
+    "release": false,
+    "grip": false
+  },
+  {
+    "step": 3315,
+    "gap_m": 0.06323661840827285,
+    "nearest_shape": "crow_left_front_toe_3_distal",
+    "toe1_distal_gap_m": 0.06324138708993132,
+    "right_supported": false,
+    "bilateral_supported": false,
+    "release": false,
+    "grip": false
+  },
+  {
+    "step": 3316,
+    "gap_m": 0.05708607066529423,
+    "nearest_shape": "crow_left_front_toe_3_distal",
+    "toe1_distal_gap_m": 0.0570914351453431,
+    "right_supported": false,
+    "bilateral_supported": false,
+    "release": false,
+    "grip": false
+  },
+  {
+    "step": 3317,
+    "gap_m": 0.048369533432150454,
+    "nearest_shape": "crow_left_front_toe_3_distal",
+    "toe1_distal_gap_m": 0.04837728166321186,
+    "right_supported": false,
+    "bilateral_supported": false,
+    "release": false,
+    "grip": false
+  },
+  {
+    "step": 3318,
+    "gap_m": 0.04192430641337149,
+    "nearest_shape": "crow_left_front_toe_3_distal",
+    "toe1_distal_gap_m": 0.04193360473795645,
+    "right_supported": false,
+    "bilateral_supported": false,
+    "release": false,
+    "grip": false
+  },
+  {
+    "step": 3319,
+    "gap_m": 0.040081743607425606,
+    "nearest_shape": "crow_left_front_toe_3_distal",
+    "toe1_distal_gap_m": 0.04009110184781433,
+    "right_supported": false,
+    "bilateral_supported": false,
+    "release": false,
+    "grip": false
+  },
+  {
+    "step": 3320,
+    "gap_m": 0.03891578184623808,
+    "nearest_shape": "crow_left_front_toe_3_distal",
+    "toe1_distal_gap_m": 0.03892436534958534,
+    "right_supported": false,
+    "bilateral_supported": false,
+    "release": false,
+    "grip": false
+  },
+  {
+    "step": 3321,
+    "gap_m": 0.03625804549618863,
+    "nearest_shape": "crow_left_front_toe_3_distal",
+    "toe1_distal_gap_m": 0.03626537705367317,
+    "right_supported": false,
+    "bilateral_supported": false,
+    "release": false,
+    "grip": false
+  },
+  {
+    "step": 3322,
+    "gap_m": 0.0352685413435919,
+    "nearest_shape": "crow_left_front_toe_3_distal",
+    "toe1_distal_gap_m": 0.03527730272955793,
+    "right_supported": false,
+    "bilateral_supported": false,
+    "release": false,
+    "grip": false
+  },
+  {
+    "step": 3323,
+    "gap_m": 0.0397373066123396,
+    "nearest_shape": "crow_left_front_toe_3_distal",
+    "toe1_distal_gap_m": 0.03974708140114624,
+    "right_supported": false,
+    "bilateral_supported": false,
+    "release": false,
+    "grip": false
+  },
+  {
+    "step": 3324,
+    "gap_m": 0.04624900368745518,
+    "nearest_shape": "crow_left_front_toe_3_distal",
+    "toe1_distal_gap_m": 0.04625800423720235,
+    "right_supported": false,
+    "bilateral_supported": false,
+    "release": false,
+    "grip": false
+  },
+  {
+    "step": 3325,
+    "gap_m": 0.049739423917569796,
+    "nearest_shape": "crow_left_front_toe_3_distal",
+    "toe1_distal_gap_m": 0.0497491395985132,
+    "right_supported": false,
+    "bilateral_supported": false,
+    "release": false,
+    "grip": false
+  },
+  {
+    "step": 3326,
+    "gap_m": 0.04792850655047357,
+    "nearest_shape": "crow_left_front_toe_3_distal",
+    "toe1_distal_gap_m": 0.047938043417383246,
+    "right_supported": false,
+    "bilateral_supported": false,
+    "release": false,
+    "grip": false
+  },
+  {
+    "step": 3327,
+    "gap_m": 0.041215234406850786,
+    "nearest_shape": "crow_left_front_toe_3_distal",
+    "toe1_distal_gap_m": 0.04122560549124165,
+    "right_supported": false,
+    "bilateral_supported": false,
+    "release": false,
+    "grip": false
+  },
+  {
+    "step": 3328,
+    "gap_m": 0.03248043606354797,
+    "nearest_shape": "crow_left_front_toe_3_distal",
+    "toe1_distal_gap_m": 0.03249342944204816,
+    "right_supported": false,
+    "bilateral_supported": false,
+    "release": false,
+    "grip": false
+  },
+  {
+    "step": 3329,
+    "gap_m": 0.026731632212478353,
+    "nearest_shape": "crow_left_front_toe_3_distal",
+    "toe1_distal_gap_m": 0.02674468600253182,
+    "right_supported": false,
+    "bilateral_supported": false,
+    "release": false,
+    "grip": false
+  },
+  {
+    "step": 3330,
+    "gap_m": 0.025403948483197734,
+    "nearest_shape": "crow_left_front_toe_3_distal",
+    "toe1_distal_gap_m": 0.02541616787013338,
+    "right_supported": false,
+    "bilateral_supported": false,
+    "release": false,
+    "grip": false
+  },
+  {
+    "step": 3331,
+    "gap_m": 0.024153658778307267,
+    "nearest_shape": "crow_left_front_toe_3_distal",
+    "toe1_distal_gap_m": 0.024165460746014174,
+    "right_supported": false,
+    "bilateral_supported": false,
+    "release": false,
+    "grip": false
+  },
+  {
+    "step": 3332,
+    "gap_m": 0.021543068630012867,
+    "nearest_shape": "crow_left_front_toe_3_distal",
+    "toe1_distal_gap_m": 0.021553499504994182,
+    "right_supported": false,
+    "bilateral_supported": false,
+    "release": false,
+    "grip": false
+  },
+  {
+    "step": 3333,
+    "gap_m": 0.02127610845943067,
+    "nearest_shape": "crow_left_front_toe_3_distal",
+    "toe1_distal_gap_m": 0.021287432844990274,
+    "right_supported": false,
+    "bilateral_supported": false,
+    "release": false,
+    "grip": false
+  },
+  {
+    "step": 3334,
+    "gap_m": 0.026445582345570144,
+    "nearest_shape": "crow_left_front_toe_3_distal",
+    "toe1_distal_gap_m": 0.02645666868522712,
+    "right_supported": false,
+    "bilateral_supported": false,
+    "release": false,
+    "grip": false
+  },
+  {
+    "step": 3335,
+    "gap_m": 0.032861927156572414,
+    "nearest_shape": "crow_left_front_toe_3_distal",
+    "toe1_distal_gap_m": 0.03287200058982825,
+    "right_supported": false,
+    "bilateral_supported": false,
+    "release": false,
+    "grip": false
+  },
+  {
+    "step": 3336,
+    "gap_m": 0.03578668597736518,
+    "nearest_shape": "crow_left_front_toe_3_distal",
+    "toe1_distal_gap_m": 0.03579669968168545,
+    "right_supported": false,
+    "bilateral_supported": false,
+    "release": false,
+    "grip": false
+  },
+  {
+    "step": 3337,
+    "gap_m": 0.03331577454918707,
+    "nearest_shape": "crow_left_front_toe_3_distal",
+    "toe1_distal_gap_m": 0.033325668920219785,
+    "right_supported": false,
+    "bilateral_supported": false,
+    "release": false,
+    "grip": false
+  },
+  {
+    "step": 3338,
+    "gap_m": 0.026176211142942933,
+    "nearest_shape": "crow_left_front_toe_3_distal",
+    "toe1_distal_gap_m": 0.02618735690125109,
+    "right_supported": false,
+    "bilateral_supported": false,
+    "release": false,
+    "grip": false
+  },
+  {
+    "step": 3339,
+    "gap_m": 0.017622045757024425,
+    "nearest_shape": "crow_left_front_toe_3_distal",
+    "toe1_distal_gap_m": 0.01763551603360273,
+    "right_supported": false,
+    "bilateral_supported": false,
+    "release": false,
+    "grip": false
+  },
+  {
+    "step": 3340,
+    "gap_m": 0.012689948874549238,
+    "nearest_shape": "crow_left_front_toe_3_distal",
+    "toe1_distal_gap_m": 0.012702347263946055,
+    "right_supported": false,
+    "bilateral_supported": false,
+    "release": false,
+    "grip": false
+  },
+  {
+    "step": 3341,
+    "gap_m": 0.01186111204120615,
+    "nearest_shape": "crow_left_front_toe_3_distal",
+    "toe1_distal_gap_m": 0.011871722228569047,
+    "right_supported": false,
+    "bilateral_supported": false,
+    "release": false,
+    "grip": false
+  },
+  {
+    "step": 3342,
+    "gap_m": 0.01060405556551025,
+    "nearest_shape": "crow_left_front_toe_3_distal",
+    "toe1_distal_gap_m": 0.010646493729343051,
+    "right_supported": false,
+    "bilateral_supported": false,
+    "release": false,
+    "grip": false
+  },
+  {
+    "step": 3343,
+    "gap_m": 0.008336376992057866,
+    "nearest_shape": "crow_left_front_toe_3_distal",
+    "toe1_distal_gap_m": 0.00837819914949691,
+    "right_supported": false,
+    "bilateral_supported": false,
+    "release": false,
+    "grip": false
+  },
+  {
+    "step": 3344,
+    "gap_m": 0.009083601254513393,
+    "nearest_shape": "crow_left_front_toe_3_distal",
+    "toe1_distal_gap_m": 0.009125639565206643,
+    "right_supported": false,
+    "bilateral_supported": false,
+    "release": false,
+    "grip": false
+  },
+  {
+    "step": 3345,
+    "gap_m": 0.015040873708737565,
+    "nearest_shape": "crow_left_front_toe_3_distal",
+    "toe1_distal_gap_m": 0.015081370554889499,
+    "right_supported": false,
+    "bilateral_supported": false,
+    "release": false,
+    "grip": false
+  },
+  {
+    "step": 3346,
+    "gap_m": 0.021460834534312648,
+    "nearest_shape": "crow_left_front_toe_3_distal",
+    "toe1_distal_gap_m": 0.02150044439719448,
+    "right_supported": false,
+    "bilateral_supported": false,
+    "release": false,
+    "grip": false
+  },
+  {
+    "step": 3347,
+    "gap_m": 0.023986883666278824,
+    "nearest_shape": "crow_left_front_toe_3_distal",
+    "toe1_distal_gap_m": 0.024026064443925306,
+    "right_supported": false,
+    "bilateral_supported": false,
+    "release": false,
+    "grip": false
+  },
+  {
+    "step": 3348,
+    "gap_m": 0.021083548327942556,
+    "nearest_shape": "crow_left_front_toe_3_distal",
+    "toe1_distal_gap_m": 0.021123081019504317,
+    "right_supported": false,
+    "bilateral_supported": false,
+    "release": false,
+    "grip": false
+  },
+  {
+    "step": 3349,
+    "gap_m": 0.013803780066533829,
+    "nearest_shape": "crow_left_front_toe_3_distal",
+    "toe1_distal_gap_m": 0.013844398032604614,
+    "right_supported": false,
+    "bilateral_supported": false,
+    "release": false,
+    "grip": false
+  },
+  {
+    "step": 3350,
+    "gap_m": 0.005770828086332683,
+    "nearest_shape": "crow_left_front_toe_3_distal",
+    "toe1_distal_gap_m": 0.005811869313940267,
+    "right_supported": false,
+    "bilateral_supported": false,
+    "release": false,
+    "grip": false
+  },
+  {
+    "step": 3351,
+    "gap_m": 0.0018833348254195803,
+    "nearest_shape": "crow_left_front_toe_3_proximal",
+    "toe1_distal_gap_m": 0.00556383301116898,
+    "right_supported": false,
+    "bilateral_supported": false,
+    "release": false,
+    "grip": false
+  },
+  {
+    "step": 3352,
+    "gap_m": 0.0016787326801896221,
+    "nearest_shape": "crow_left_front_toe_3_proximal",
+    "toe1_distal_gap_m": 0.007965188092365995,
+    "right_supported": false,
+    "bilateral_supported": false,
+    "release": false,
+    "grip": false
+  },
+  {
+    "step": 3353,
+    "gap_m": 0.0006071562957402979,
+    "nearest_shape": "crow_left_front_toe_3_proximal",
+    "toe1_distal_gap_m": 0.010319907376068665,
+    "right_supported": false,
+    "bilateral_supported": false,
+    "release": false,
+    "grip": false
+  },
+  {
+    "step": 3354,
+    "gap_m": 0.00015444274420344656,
+    "nearest_shape": "crow_left_front_toe_3_proximal",
+    "toe1_distal_gap_m": 0.01210904892008683,
+    "right_supported": false,
+    "bilateral_supported": false,
+    "release": false,
+    "grip": false
+  },
+  {
+    "step": 3355,
+    "gap_m": 0.009660522355857043,
+    "nearest_shape": "crow_left_front_toe_3_proximal",
+    "toe1_distal_gap_m": 0.014683212471449228,
+    "right_supported": false,
+    "bilateral_supported": false,
+    "release": false,
+    "grip": false
+  },
+  {
+    "step": 3356,
+    "gap_m": 0.014049278758065456,
+    "nearest_shape": "crow_left_front_toe_1_proximal",
+    "toe1_distal_gap_m": 0.01673046271867585,
+    "right_supported": false,
+    "bilateral_supported": false,
+    "release": false,
+    "grip": false
+  },
+  {
+    "step": 3357,
+    "gap_m": 0.01400165369034835,
+    "nearest_shape": "crow_left_foot",
+    "toe1_distal_gap_m": 0.01852464402449868,
+    "right_supported": false,
+    "bilateral_supported": false,
+    "release": false,
+    "grip": false
+  },
+  {
+    "step": 3358,
+    "gap_m": 0.010000159716933736,
+    "nearest_shape": "crow_left_foot",
+    "toe1_distal_gap_m": 0.01998230736796882,
+    "right_supported": false,
+    "bilateral_supported": false,
+    "release": false,
+    "grip": false
+  },
+  {
+    "step": 3359,
+    "gap_m": 0.0021489757478733162,
+    "nearest_shape": "crow_left_foot",
+    "toe1_distal_gap_m": 0.02105006406480761,
+    "right_supported": false,
+    "bilateral_supported": false,
+    "release": false,
+    "grip": false
+  },
+  {
+    "step": 3360,
+    "gap_m": -1.0718109851919067e-05,
+    "nearest_shape": "crow_left_foot",
+    "toe1_distal_gap_m": 0.021174659288029384,
+    "right_supported": false,
+    "bilateral_supported": false,
+    "release": false,
+    "grip": false
+  },
+  {
+    "step": 3361,
+    "gap_m": -1.2577912366022737e-05,
+    "nearest_shape": "crow_left_foot",
+    "toe1_distal_gap_m": 0.02115430162890579,
+    "right_supported": false,
+    "bilateral_supported": false,
+    "release": false,
+    "grip": false
+  },
+  {
+    "step": 3362,
+    "gap_m": -3.8178393364021734e-06,
+    "nearest_shape": "crow_left_foot",
+    "toe1_distal_gap_m": 0.02114812288933373,
+    "right_supported": false,
+    "bilateral_supported": false,
+    "release": false,
+    "grip": false
+  },
+  {
+    "step": 3363,
+    "gap_m": -5.58757244226854e-06,
+    "nearest_shape": "crow_left_foot",
+    "toe1_distal_gap_m": 0.02100880982086844,
+    "right_supported": false,
+    "bilateral_supported": false,
+    "release": false,
+    "grip": false
+  },
+  {
+    "step": 3364,
+    "gap_m": 5.103911201592704e-07,
+    "nearest_shape": "crow_left_foot",
+    "toe1_distal_gap_m": 0.02067295336111403,
+    "right_supported": false,
+    "bilateral_supported": false,
+    "release": false,
+    "grip": false
+  },
+  {
+    "step": 3365,
+    "gap_m": -5.233599282908341e-07,
+    "nearest_shape": "crow_left_foot",
+    "toe1_distal_gap_m": 0.020196682953200117,
+    "right_supported": false,
+    "bilateral_supported": false,
+    "release": false,
+    "grip": false
+  },
+  {
+    "step": 3366,
+    "gap_m": -3.383556246849828e-07,
+    "nearest_shape": "crow_left_foot",
+    "toe1_distal_gap_m": 0.01964866310453387,
+    "right_supported": false,
+    "bilateral_supported": false,
+    "release": false,
+    "grip": false
+  },
+  {
+    "step": 3367,
+    "gap_m": -0.00016582507962937393,
+    "nearest_shape": "crow_left_rear_toe_proximal",
+    "toe1_distal_gap_m": 0.01879439080985823,
+    "right_supported": false,
+    "bilateral_supported": false,
+    "release": false,
+    "grip": false
+  },
+  {
+    "step": 3368,
+    "gap_m": -0.00023398233138333807,
+    "nearest_shape": "crow_left_rear_toe_proximal",
+    "toe1_distal_gap_m": 0.017663886326634674,
+    "right_supported": false,
+    "bilateral_supported": false,
+    "release": false,
+    "grip": false
+  },
+  {
+    "step": 3369,
+    "gap_m": -0.00024919858355743063,
+    "nearest_shape": "crow_left_rear_toe_proximal",
+    "toe1_distal_gap_m": 0.016582592065912068,
+    "right_supported": false,
+    "bilateral_supported": false,
+    "release": false,
+    "grip": false
+  },
+  {
+    "step": 3370,
+    "gap_m": -0.0001691850292959221,
+    "nearest_shape": "crow_left_rear_toe_proximal",
+    "toe1_distal_gap_m": 0.01606140492975827,
+    "right_supported": false,
+    "bilateral_supported": false,
+    "release": false,
+    "grip": false
+  },
+  {
+    "step": 3371,
+    "gap_m": -0.00020898679095981976,
+    "nearest_shape": "crow_left_rear_toe_proximal",
+    "toe1_distal_gap_m": 0.015596980449340853,
+    "right_supported": false,
+    "bilateral_supported": false,
+    "release": false,
+    "grip": false
+  },
+  {
+    "step": 3372,
+    "gap_m": -0.0002729859998917977,
+    "nearest_shape": "crow_left_rear_toe_proximal",
+    "toe1_distal_gap_m": 0.015188780591951147,
+    "right_supported": false,
+    "bilateral_supported": false,
+    "release": false,
+    "grip": false
+  },
+  {
+    "step": 3373,
+    "gap_m": -0.000289287477100289,
+    "nearest_shape": "crow_left_rear_toe_proximal",
+    "toe1_distal_gap_m": 0.014749193782119564,
+    "right_supported": false,
+    "bilateral_supported": false,
+    "release": false,
+    "grip": false
+  },
+  {
+    "step": 3374,
+    "gap_m": -0.0003646569497095173,
+    "nearest_shape": "crow_left_rear_toe_proximal",
+    "toe1_distal_gap_m": 0.014273930398668068,
+    "right_supported": false,
+    "bilateral_supported": false,
+    "release": false,
+    "grip": false
+  },
+  {
+    "step": 3375,
+    "gap_m": -0.0004243953396113123,
+    "nearest_shape": "crow_left_rear_toe_proximal",
+    "toe1_distal_gap_m": 0.013691807114700479,
+    "right_supported": false,
+    "bilateral_supported": false,
+    "release": false,
+    "grip": false
+  },
+  {
+    "step": 3376,
+    "gap_m": -0.0004764735881149021,
+    "nearest_shape": "crow_left_rear_toe_proximal",
+    "toe1_distal_gap_m": 0.013136911126212285,
+    "right_supported": false,
+    "bilateral_supported": false,
+    "release": false,
+    "grip": false
+  },
+  {
+    "step": 3377,
+    "gap_m": -0.0004470628115844713,
+    "nearest_shape": "crow_left_rear_toe_proximal",
+    "toe1_distal_gap_m": 0.01246449668881227,
+    "right_supported": false,
+    "bilateral_supported": false,
+    "release": false,
+    "grip": false
+  },
+  {
+    "step": 3378,
+    "gap_m": -0.0004374316289904451,
+    "nearest_shape": "crow_left_rear_toe_proximal",
+    "toe1_distal_gap_m": 0.011691653261056763,
+    "right_supported": false,
+    "bilateral_supported": false,
+    "release": false,
+    "grip": false
+  },
+  {
+    "step": 3379,
+    "gap_m": -0.00044786829675002443,
+    "nearest_shape": "crow_left_rear_toe_proximal",
+    "toe1_distal_gap_m": 0.010687646461498633,
+    "right_supported": false,
+    "bilateral_supported": false,
+    "release": false,
+    "grip": false
+  },
+  {
+    "step": 3380,
+    "gap_m": -0.0005792352465227163,
+    "nearest_shape": "crow_left_rear_toe_proximal",
+    "toe1_distal_gap_m": 0.009601538730060998,
+    "right_supported": false,
+    "bilateral_supported": false,
+    "release": false,
+    "grip": false
+  },
+  {
+    "step": 3381,
+    "gap_m": -0.0007320817989223127,
+    "nearest_shape": "crow_left_rear_toe_proximal",
+    "toe1_distal_gap_m": 0.00830034183688793,
+    "right_supported": false,
+    "bilateral_supported": false,
+    "release": false,
+    "grip": false
+  },
+  {
+    "step": 3382,
+    "gap_m": -0.0007230736464224688,
+    "nearest_shape": "crow_left_rear_toe_proximal",
+    "toe1_distal_gap_m": 0.0072479029847821175,
+    "right_supported": false,
+    "bilateral_supported": false,
+    "release": false,
+    "grip": false
+  },
+  {
+    "step": 3383,
+    "gap_m": -0.0007814760889580108,
+    "nearest_shape": "crow_left_rear_toe_proximal",
+    "toe1_distal_gap_m": 0.006363415766742271,
+    "right_supported": false,
+    "bilateral_supported": false,
+    "release": false,
+    "grip": false
+  },
+  {
+    "step": 3384,
+    "gap_m": -0.0009749531727662603,
+    "nearest_shape": "crow_left_rear_toe_proximal",
+    "toe1_distal_gap_m": 0.005678031281138345,
+    "right_supported": false,
+    "bilateral_supported": false,
+    "release": false,
+    "grip": false
+  },
+  {
+    "step": 3385,
+    "gap_m": -0.000972623941447287,
+    "nearest_shape": "crow_left_rear_toe_proximal",
+    "toe1_distal_gap_m": 0.004919670821203408,
+    "right_supported": false,
+    "bilateral_supported": true,
+    "release": false,
+    "grip": true
+  },
+  {
+    "step": 3386,
+    "gap_m": -0.0007901769191330718,
+    "nearest_shape": "crow_left_rear_toe_proximal",
+    "toe1_distal_gap_m": 0.00433883170025505,
+    "right_supported": false,
+    "bilateral_supported": true,
+    "release": false,
+    "grip": true
+  },
+  {
+    "step": 3387,
+    "gap_m": -0.0006789854424780473,
+    "nearest_shape": "crow_left_front_toe_3_proximal",
+    "toe1_distal_gap_m": 0.0038182787838001234,
+    "right_supported": false,
+    "bilateral_supported": true,
+    "release": false,
+    "grip": true
+  },
+  {
+    "step": 3388,
+    "gap_m": -0.0006801727530281673,
+    "nearest_shape": "crow_left_front_toe_2_proximal",
+    "toe1_distal_gap_m": 0.0033808119115888158,
+    "right_supported": false,
+    "bilateral_supported": true,
+    "release": false,
+    "grip": true
+  },
+  {
+    "step": 3389,
+    "gap_m": -0.0007261474795216272,
+    "nearest_shape": "crow_left_front_toe_2_proximal",
+    "toe1_distal_gap_m": 0.0030905744334179183,
+    "right_supported": false,
+    "bilateral_supported": true,
+    "release": false,
+    "grip": true
+  },
+  {
+    "step": 3390,
+    "gap_m": -0.0007300790556565781,
+    "nearest_shape": "crow_left_front_toe_3_proximal",
+    "toe1_distal_gap_m": 0.0028920485570919467,
+    "right_supported": false,
+    "bilateral_supported": true,
+    "release": false,
+    "grip": true
+  },
+  {
+    "step": 3391,
+    "gap_m": -0.0007986754987699823,
+    "nearest_shape": "crow_left_front_toe_3_proximal",
+    "toe1_distal_gap_m": 0.00270326712632318,
+    "right_supported": false,
+    "bilateral_supported": true,
+    "release": false,
+    "grip": true
+  },
+  {
+    "step": 3392,
+    "gap_m": -0.000804698276811483,
+    "nearest_shape": "crow_left_front_toe_3_proximal",
+    "toe1_distal_gap_m": 0.0023439405354403337,
+    "right_supported": false,
+    "bilateral_supported": true,
+    "release": false,
+    "grip": true
+  },
+  {
+    "step": 3393,
+    "gap_m": -0.0008689534952950884,
+    "nearest_shape": "crow_left_front_toe_3_proximal",
+    "toe1_distal_gap_m": 0.001405617500988509,
+    "right_supported": true,
+    "bilateral_supported": true,
+    "release": false,
+    "grip": true
+  },
+  {
+    "step": 3394,
+    "gap_m": -0.0010175927784960917,
+    "nearest_shape": "crow_left_front_toe_3_proximal",
+    "toe1_distal_gap_m": 1.204788837634585e-05,
+    "right_supported": true,
+    "bilateral_supported": true,
+    "release": false,
+    "grip": true
+  },
+  {
+    "step": 3395,
+    "gap_m": -0.0006921944524032886,
+    "nearest_shape": "crow_left_front_toe_3_proximal",
+    "toe1_distal_gap_m": 0.0007382025622232752,
+    "right_supported": true,
+    "bilateral_supported": true,
+    "release": false,
+    "grip": true
+  },
+  {
+    "step": 3396,
+    "gap_m": -0.0006531827561274475,
+    "nearest_shape": "crow_left_front_toe_3_proximal",
+    "toe1_distal_gap_m": 0.0007065898752474167,
+    "right_supported": true,
+    "bilateral_supported": true,
+    "release": false,
+    "grip": true
+  },
+  {
+    "step": 3397,
+    "gap_m": -0.0006181125807171728,
+    "nearest_shape": "crow_left_front_toe_3_proximal",
+    "toe1_distal_gap_m": 3.847653585953986e-05,
+    "right_supported": true,
+    "bilateral_supported": true,
+    "release": false,
+    "grip": true
+  },
+  {
+    "step": 3398,
+    "gap_m": -0.0006656849279710539,
+    "nearest_shape": "crow_left_front_toe_3_proximal",
+    "toe1_distal_gap_m": 0.00035639573370149086,
+    "right_supported": true,
+    "bilateral_supported": true,
+    "release": false,
+    "grip": true
+  },
+  {
+    "step": 3399,
+    "gap_m": -0.0007057940164660673,
+    "nearest_shape": "crow_left_front_toe_3_proximal",
+    "toe1_distal_gap_m": 0.00024067901706899264,
+    "right_supported": true,
+    "bilateral_supported": true,
+    "release": false,
+    "grip": true
+  },
+  {
+    "step": 3400,
+    "gap_m": -0.0006334831831588603,
+    "nearest_shape": "crow_left_front_toe_1_proximal",
+    "toe1_distal_gap_m": 0.00012689227030441078,
+    "right_supported": true,
+    "bilateral_supported": true,
+    "release": false,
+    "grip": true
+  },
+  {
+    "step": 3401,
+    "gap_m": -0.0007449173191230729,
+    "nearest_shape": "crow_left_front_toe_2_proximal",
+    "toe1_distal_gap_m": 0.0004078818784323604,
+    "right_supported": true,
+    "bilateral_supported": true,
+    "release": false,
+    "grip": true
+  },
+  {
+    "step": 3402,
+    "gap_m": -0.0007866432072477225,
+    "nearest_shape": "crow_left_front_toe_3_proximal",
+    "toe1_distal_gap_m": 0.00019136035384111766,
+    "right_supported": true,
+    "bilateral_supported": true,
+    "release": false,
+    "grip": true
+  },
+  {
+    "step": 3403,
+    "gap_m": -0.0006826635628596686,
+    "nearest_shape": "crow_left_front_toe_3_proximal",
+    "toe1_distal_gap_m": 0.00013877439274347092,
+    "right_supported": true,
+    "bilateral_supported": true,
+    "release": false,
+    "grip": true
+  },
+  {
+    "step": 3404,
+    "gap_m": -0.0007969040088397911,
+    "nearest_shape": "crow_left_front_toe_3_proximal",
+    "toe1_distal_gap_m": 0.00022209400923507705,
+    "right_supported": true,
+    "bilateral_supported": true,
+    "release": false,
+    "grip": true
+  },
+  {
+    "step": 3405,
+    "gap_m": -0.0007073851050788393,
+    "nearest_shape": "crow_left_front_toe_3_proximal",
+    "toe1_distal_gap_m": 9.466239018757899e-05,
+    "right_supported": true,
+    "bilateral_supported": true,
+    "release": false,
+    "grip": true
+  },
+  {
+    "step": 3406,
+    "gap_m": -0.0007853244381155755,
+    "nearest_shape": "crow_left_front_toe_3_proximal",
+    "toe1_distal_gap_m": 0.00018363355269802872,
+    "right_supported": true,
+    "bilateral_supported": true,
+    "release": false,
+    "grip": true
+  },
+  {
+    "step": 3407,
+    "gap_m": -0.0007099758198157655,
+    "nearest_shape": "crow_left_front_toe_3_proximal",
+    "toe1_distal_gap_m": 5.0446885824329685e-05,
+    "right_supported": true,
+    "bilateral_supported": true,
+    "release": false,
+    "grip": true
+  },
+  {
+    "step": 3408,
+    "gap_m": -0.0007613898652710574,
+    "nearest_shape": "crow_left_front_toe_3_proximal",
+    "toe1_distal_gap_m": 0.0003135266681079246,
+    "right_supported": true,
+    "bilateral_supported": true,
+    "release": false,
+    "grip": true
+  },
+  {
+    "step": 3409,
+    "gap_m": -0.0007244467005804375,
+    "nearest_shape": "crow_left_front_toe_3_proximal",
+    "toe1_distal_gap_m": 0.00020804636534567378,
+    "right_supported": true,
+    "bilateral_supported": true,
+    "release": false,
+    "grip": true
+  },
+  {
+    "step": 3410,
+    "gap_m": -0.0008159242593059543,
+    "nearest_shape": "crow_left_front_toe_3_proximal",
+    "toe1_distal_gap_m": 0.00017354022967787375,
+    "right_supported": true,
+    "bilateral_supported": true,
+    "release": false,
+    "grip": true
+  },
+  {
+    "step": 3411,
+    "gap_m": -0.0006714641827353512,
+    "nearest_shape": "crow_left_front_toe_3_proximal",
+    "toe1_distal_gap_m": 0.000471108095881842,
+    "right_supported": true,
+    "bilateral_supported": true,
+    "release": false,
+    "grip": true
+  },
+  {
+    "step": 3412,
+    "gap_m": -0.0007785799245315916,
+    "nearest_shape": "crow_left_front_toe_3_proximal",
+    "toe1_distal_gap_m": -2.991862695437761e-05,
+    "right_supported": true,
+    "bilateral_supported": true,
+    "release": false,
+    "grip": true
+  },
+  {
+    "step": 3413,
+    "gap_m": -0.00069450212117559,
+    "nearest_shape": "crow_left_front_toe_3_proximal",
+    "toe1_distal_gap_m": 0.0005483418827677486,
+    "right_supported": true,
+    "bilateral_supported": true,
+    "release": false,
+    "grip": true
+  },
+  {
+    "step": 3414,
+    "gap_m": -0.0007411318604533673,
+    "nearest_shape": "crow_left_front_toe_3_proximal",
+    "toe1_distal_gap_m": 0.00015491355325396305,
+    "right_supported": true,
+    "bilateral_supported": true,
+    "release": false,
+    "grip": true
+  },
+  {
+    "step": 3415,
+    "gap_m": -0.0006614446895975706,
+    "nearest_shape": "crow_left_front_toe_2_proximal",
+    "toe1_distal_gap_m": 0.00024066082538082637,
+    "right_supported": true,
+    "bilateral_supported": true,
+    "release": false,
+    "grip": true
+  },
+  {
+    "step": 3416,
+    "gap_m": -0.0007036332228921027,
+    "nearest_shape": "crow_left_front_toe_2_proximal",
+    "toe1_distal_gap_m": 0.00038457602822480896,
+    "right_supported": true,
+    "bilateral_supported": true,
+    "release": false,
+    "grip": true
+  },
+  {
+    "step": 3417,
+    "gap_m": -0.0007013207459228218,
+    "nearest_shape": "crow_left_front_toe_3_proximal",
+    "toe1_distal_gap_m": 1.018103486401939e-05,
+    "right_supported": true,
+    "bilateral_supported": true,
+    "release": false,
+    "grip": true
+  },
+  {
+    "step": 3418,
+    "gap_m": -0.0006850151127499385,
+    "nearest_shape": "crow_left_front_toe_2_proximal",
+    "toe1_distal_gap_m": 0.00012672206615928217,
+    "right_supported": true,
+    "bilateral_supported": true,
+    "release": false,
+    "grip": true
+  },
+  {
+    "step": 3419,
+    "gap_m": -0.0007285992696851665,
+    "nearest_shape": "crow_left_front_toe_3_proximal",
+    "toe1_distal_gap_m": 0.0002145083923635327,
+    "right_supported": true,
+    "bilateral_supported": true,
+    "release": false,
+    "grip": true
+  },
+  {
+    "step": 3420,
+    "gap_m": -0.0006909908799869399,
+    "nearest_shape": "crow_left_front_toe_2_proximal",
+    "toe1_distal_gap_m": 0.0005241488344534494,
+    "right_supported": true,
+    "bilateral_supported": true,
+    "release": false,
+    "grip": true
+  },
+  {
+    "step": 3421,
+    "gap_m": -0.0007622805569112087,
+    "nearest_shape": "crow_left_front_toe_3_proximal",
+    "toe1_distal_gap_m": 9.892356790878326e-05,
+    "right_supported": true,
+    "bilateral_supported": true,
+    "release": false,
+    "grip": true
+  },
+  {
+    "step": 3422,
+    "gap_m": -0.0006812916384018319,
+    "nearest_shape": "crow_left_front_toe_3_proximal",
+    "toe1_distal_gap_m": 0.0001266538458596228,
+    "right_supported": true,
+    "bilateral_supported": true,
+    "release": false,
+    "grip": true
+  },
+  {
+    "step": 3423,
+    "gap_m": -0.0007135425291230554,
+    "nearest_shape": "crow_left_front_toe_3_proximal",
+    "toe1_distal_gap_m": 9.620384600252802e-05,
+    "right_supported": true,
+    "bilateral_supported": true,
+    "release": false,
+    "grip": true
+  },
+  {
+    "step": 3424,
+    "gap_m": -0.000712237772916291,
+    "nearest_shape": "crow_left_front_toe_3_proximal",
+    "toe1_distal_gap_m": 9.423698472605171e-05,
+    "right_supported": true,
+    "bilateral_supported": true,
+    "release": false,
+    "grip": true
+  },
+  {
+    "step": 3425,
+    "gap_m": -0.000709408292957639,
+    "nearest_shape": "crow_left_front_toe_3_proximal",
+    "toe1_distal_gap_m": 0.00019290644792260836,
+    "right_supported": true,
+    "bilateral_supported": true,
+    "release": false,
+    "grip": true
+  },
+  {
+    "step": 3426,
+    "gap_m": -0.0006893744667921947,
+    "nearest_shape": "crow_left_front_toe_3_proximal",
+    "toe1_distal_gap_m": 0.00014293493061798973,
+    "right_supported": true,
+    "bilateral_supported": true,
+    "release": false,
+    "grip": true
+  },
+  {
+    "step": 3427,
+    "gap_m": -0.0006965206757975836,
+    "nearest_shape": "crow_left_front_toe_3_proximal",
+    "toe1_distal_gap_m": 0.00021367498502047194,
+    "right_supported": true,
+    "bilateral_supported": true,
+    "release": false,
+    "grip": true
+  },
+  {
+    "step": 3428,
+    "gap_m": -0.0006858828751059795,
+    "nearest_shape": "crow_left_front_toe_3_proximal",
+    "toe1_distal_gap_m": 0.00018997703264047802,
+    "right_supported": true,
+    "bilateral_supported": true,
+    "release": false,
+    "grip": true
+  },
+  {
+    "step": 3429,
+    "gap_m": -0.0006883878903614776,
+    "nearest_shape": "crow_left_front_toe_3_proximal",
+    "toe1_distal_gap_m": 7.060377559555547e-05,
+    "right_supported": true,
+    "bilateral_supported": true,
+    "release": false,
+    "grip": true
+  },
+  {
+    "step": 3430,
+    "gap_m": -0.0006883791956016766,
+    "nearest_shape": "crow_left_front_toe_3_proximal",
+    "toe1_distal_gap_m": 0.000165891620851219,
+    "right_supported": true,
+    "bilateral_supported": true,
+    "release": false,
+    "grip": true
+  },
+  {
+    "step": 3431,
+    "gap_m": -0.000627409479929085,
+    "nearest_shape": "crow_left_front_toe_3_proximal",
+    "toe1_distal_gap_m": 0.00011546845472474102,
+    "right_supported": true,
+    "bilateral_supported": true,
+    "release": false,
+    "grip": true
+  },
+  {
+    "step": 3432,
+    "gap_m": -0.0006604957646754103,
+    "nearest_shape": "crow_left_front_toe_3_proximal",
+    "toe1_distal_gap_m": 0.0004735364347538719,
+    "right_supported": true,
+    "bilateral_supported": true,
+    "release": false,
+    "grip": true
+  },
+  {
+    "step": 3433,
+    "gap_m": -0.0006528897281671067,
+    "nearest_shape": "crow_left_front_toe_1_proximal",
+    "toe1_distal_gap_m": -3.3608710983602796e-05,
+    "right_supported": true,
+    "bilateral_supported": true,
+    "release": false,
+    "grip": true
+  },
+  {
+    "step": 3434,
+    "gap_m": -0.0006486947898323783,
+    "nearest_shape": "crow_left_front_toe_3_proximal",
+    "toe1_distal_gap_m": 0.0006246299378922203,
+    "right_supported": true,
+    "bilateral_supported": true,
+    "release": false,
+    "grip": true
+  },
+  {
+    "step": 3435,
+    "gap_m": -0.0006833994909390614,
+    "nearest_shape": "crow_left_front_toe_3_proximal",
+    "toe1_distal_gap_m": 0.00015403723394225022,
+    "right_supported": true,
+    "bilateral_supported": true,
+    "release": false,
+    "grip": true
+  },
+  {
+    "step": 3436,
+    "gap_m": -0.0005919202082363198,
+    "nearest_shape": "crow_left_front_toe_3_proximal",
+    "toe1_distal_gap_m": 4.060783427706216e-05,
+    "right_supported": true,
+    "bilateral_supported": true,
+    "release": false,
+    "grip": true
+  },
+  {
+    "step": 3437,
+    "gap_m": -0.0006004855805062867,
+    "nearest_shape": "crow_left_front_toe_2_proximal",
+    "toe1_distal_gap_m": 0.00015758152145373475,
+    "right_supported": true,
+    "bilateral_supported": true,
+    "release": false,
+    "grip": true
+  },
+  {
+    "step": 3438,
+    "gap_m": -0.0005803526152876881,
+    "nearest_shape": "crow_left_front_toe_1_proximal",
+    "toe1_distal_gap_m": 0.00015268863790191683,
+    "right_supported": false,
+    "bilateral_supported": true,
+    "release": false,
+    "grip": true
+  },
+  {
+    "step": 3439,
+    "gap_m": -0.000676605501196588,
+    "nearest_shape": "crow_left_front_toe_2_proximal",
+    "toe1_distal_gap_m": 0.00021928650724343038,
+    "right_supported": true,
+    "bilateral_supported": true,
+    "release": false,
+    "grip": true
+  },
+  {
+    "step": 3440,
+    "gap_m": -0.0006288470975330251,
+    "nearest_shape": "crow_left_front_toe_1_proximal",
+    "toe1_distal_gap_m": 5.324760541464135e-06,
+    "right_supported": false,
+    "bilateral_supported": true,
+    "release": false,
+    "grip": true
+  },
+  {
+    "step": 3441,
+    "gap_m": -0.0006588256939639575,
+    "nearest_shape": "crow_left_front_toe_1_proximal",
+    "toe1_distal_gap_m": 0.00012292714004779118,
+    "right_supported": true,
+    "bilateral_supported": true,
+    "release": false,
+    "grip": true
+  },
+  {
+    "step": 3442,
+    "gap_m": -0.0006539968793124393,
+    "nearest_shape": "crow_left_front_toe_1_proximal",
+    "toe1_distal_gap_m": 3.753505994765968e-05,
+    "right_supported": false,
+    "bilateral_supported": true,
+    "release": false,
+    "grip": true
+  },
+  {
+    "step": 3443,
+    "gap_m": -0.0006688892709037358,
+    "nearest_shape": "crow_left_front_toe_1_proximal",
+    "toe1_distal_gap_m": 0.00017682613384327125,
+    "right_supported": false,
+    "bilateral_supported": true,
+    "release": false,
+    "grip": true
+  },
+  {
+    "step": 3444,
+    "gap_m": -0.0006618184725836126,
+    "nearest_shape": "crow_left_front_toe_1_proximal",
+    "toe1_distal_gap_m": 0.00020617641851649465,
+    "right_supported": false,
+    "bilateral_supported": true,
+    "release": false,
+    "grip": true
+  },
+  {
+    "step": 3445,
+    "gap_m": -0.0007523060994215694,
+    "nearest_shape": "crow_left_front_toe_1_proximal",
+    "toe1_distal_gap_m": 7.097123375182646e-05,
+    "right_supported": false,
+    "bilateral_supported": true,
+    "release": false,
+    "grip": true
+  },
+  {
+    "step": 3446,
+    "gap_m": -0.000614651162687635,
+    "nearest_shape": "crow_left_front_toe_2_proximal",
+    "toe1_distal_gap_m": 0.0005036853659952378,
+    "right_supported": false,
+    "bilateral_supported": true,
+    "release": false,
+    "grip": true
+  },
+  {
+    "step": 3447,
+    "gap_m": -0.0007549023367959817,
+    "nearest_shape": "crow_left_front_toe_1_proximal",
+    "toe1_distal_gap_m": 0.0001655078469047916,
+    "right_supported": false,
+    "bilateral_supported": true,
+    "release": false,
+    "grip": true
+  },
+  {
+    "step": 3448,
+    "gap_m": -0.000732123658403902,
+    "nearest_shape": "crow_left_front_toe_1_proximal",
+    "toe1_distal_gap_m": 0.00018026719986024772,
+    "right_supported": false,
+    "bilateral_supported": true,
+    "release": false,
+    "grip": true
+  },
+  {
+    "step": 3449,
+    "gap_m": -0.0007781582927165256,
+    "nearest_shape": "crow_left_front_toe_1_proximal",
+    "toe1_distal_gap_m": 0.00030104833516486976,
+    "right_supported": false,
+    "bilateral_supported": true,
+    "release": false,
+    "grip": true
+  },
+  {
+    "step": 3450,
+    "gap_m": -0.000766967669055707,
+    "nearest_shape": "crow_left_front_toe_1_proximal",
+    "toe1_distal_gap_m": 0.0002476836268235777,
+    "right_supported": false,
+    "bilateral_supported": true,
+    "release": false,
+    "grip": true
+  },
+  {
+    "step": 3451,
+    "gap_m": -0.0008820610754869604,
+    "nearest_shape": "crow_left_front_toe_1_proximal",
+    "toe1_distal_gap_m": 6.123818888823657e-05,
+    "right_supported": false,
+    "bilateral_supported": true,
+    "release": false,
+    "grip": true
+  },
+  {
+    "step": 3452,
+    "gap_m": -0.0008437474041923798,
+    "nearest_shape": "crow_left_front_toe_1_proximal",
+    "toe1_distal_gap_m": 0.00018558920035850052,
+    "right_supported": false,
+    "bilateral_supported": true,
+    "release": false,
+    "grip": true
+  },
+  {
+    "step": 3453,
+    "gap_m": -0.0009142819470432176,
+    "nearest_shape": "crow_left_front_toe_1_proximal",
+    "toe1_distal_gap_m": 3.6108969022237425e-05,
+    "right_supported": false,
+    "bilateral_supported": true,
+    "release": false,
+    "grip": true
+  },
+  {
+    "step": 3454,
+    "gap_m": -0.0009181189858785549,
+    "nearest_shape": "crow_left_front_toe_1_proximal",
+    "toe1_distal_gap_m": 7.5954208867343165e-06,
+    "right_supported": false,
+    "bilateral_supported": true,
+    "release": false,
+    "grip": true
+  },
+  {
+    "step": 3455,
+    "gap_m": -0.0009420880285572961,
+    "nearest_shape": "crow_left_front_toe_1_proximal",
+    "toe1_distal_gap_m": 9.486605309774049e-05,
+    "right_supported": true,
+    "bilateral_supported": true,
+    "release": false,
+    "grip": true
+  },
+  {
+    "step": 3456,
+    "gap_m": -0.0009082196307427098,
+    "nearest_shape": "crow_left_front_toe_1_proximal",
+    "toe1_distal_gap_m": 4.40602520759871e-05,
+    "right_supported": false,
+    "bilateral_supported": true,
+    "release": false,
+    "grip": true
+  },
+  {
+    "step": 3457,
+    "gap_m": -0.000904438879326841,
+    "nearest_shape": "crow_left_front_toe_1_proximal",
+    "toe1_distal_gap_m": 0.0002064572287306353,
+    "right_supported": false,
+    "bilateral_supported": true,
+    "release": false,
+    "grip": true
+  },
+  {
+    "step": 3458,
+    "gap_m": -0.000930486524757107,
+    "nearest_shape": "crow_left_front_toe_1_proximal",
+    "toe1_distal_gap_m": 8.711832135620268e-05,
+    "right_supported": false,
+    "bilateral_supported": true,
+    "release": false,
+    "grip": true
+  },
+  {
+    "step": 3459,
+    "gap_m": -0.0009494284412906728,
+    "nearest_shape": "crow_left_front_toe_1_proximal",
+    "toe1_distal_gap_m": -2.223678079239788e-05,
+    "right_supported": false,
+    "bilateral_supported": true,
+    "release": false,
+    "grip": true
+  },
+  {
+    "step": 3460,
+    "gap_m": -0.0009628122466070269,
+    "nearest_shape": "crow_left_front_toe_1_proximal",
+    "toe1_distal_gap_m": 5.617852193242137e-05,
+    "right_supported": false,
+    "bilateral_supported": true,
+    "release": false,
+    "grip": true
+  },
+  {
+    "step": 3461,
+    "gap_m": -0.0009065788528155316,
+    "nearest_shape": "crow_left_front_toe_1_proximal",
+    "toe1_distal_gap_m": 8.403213964371103e-05,
+    "right_supported": false,
+    "bilateral_supported": true,
+    "release": false,
+    "grip": true
+  },
+  {
+    "step": 3462,
+    "gap_m": -0.0009410814038806753,
+    "nearest_shape": "crow_left_front_toe_1_proximal",
+    "toe1_distal_gap_m": 0.00023228662141244402,
+    "right_supported": false,
+    "bilateral_supported": true,
+    "release": false,
+    "grip": true
+  },
+  {
+    "step": 3463,
+    "gap_m": -0.001005259679236599,
+    "nearest_shape": "crow_left_front_toe_1_proximal",
+    "toe1_distal_gap_m": -6.306257385200326e-05,
+    "right_supported": false,
+    "bilateral_supported": true,
+    "release": false,
+    "grip": true
+  },
+  {
+    "step": 3464,
+    "gap_m": -0.0008788400312344652,
+    "nearest_shape": "crow_left_front_toe_1_proximal",
+    "toe1_distal_gap_m": 0.0004046723412094999,
+    "right_supported": false,
+    "bilateral_supported": true,
+    "release": false,
+    "grip": true
+  },
+  {
+    "step": 3465,
+    "gap_m": -0.0009955678335988871,
+    "nearest_shape": "crow_left_front_toe_1_proximal",
+    "toe1_distal_gap_m": 0.00045703569964261614,
+    "right_supported": true,
+    "bilateral_supported": true,
+    "release": false,
+    "grip": true
+  },
+  {
+    "step": 3466,
+    "gap_m": -0.001010604856398055,
+    "nearest_shape": "crow_left_front_toe_1_proximal",
+    "toe1_distal_gap_m": -2.2756649552674313e-05,
+    "right_supported": false,
+    "bilateral_supported": true,
+    "release": false,
+    "grip": true
+  },
+  {
+    "step": 3467,
+    "gap_m": -0.0009550881258584415,
+    "nearest_shape": "crow_left_front_toe_1_proximal",
+    "toe1_distal_gap_m": 2.9864778857482954e-05,
+    "right_supported": false,
+    "bilateral_supported": true,
+    "release": false,
+    "grip": true
+  },
+  {
+    "step": 3468,
+    "gap_m": -0.0009690861559625494,
+    "nearest_shape": "crow_left_front_toe_1_proximal",
+    "toe1_distal_gap_m": 0.00020059189659031584,
+    "right_supported": false,
+    "bilateral_supported": true,
+    "release": false,
+    "grip": true
+  },
+  {
+    "step": 3469,
+    "gap_m": -0.000969387268532157,
+    "nearest_shape": "crow_left_front_toe_1_proximal",
+    "toe1_distal_gap_m": 5.0080175997987975e-05,
+    "right_supported": false,
+    "bilateral_supported": true,
+    "release": false,
+    "grip": true
+  },
+  {
+    "step": 3470,
+    "gap_m": -0.0009517731172914434,
+    "nearest_shape": "crow_left_front_toe_1_proximal",
+    "toe1_distal_gap_m": 5.395701029421718e-05,
+    "right_supported": false,
+    "bilateral_supported": true,
+    "release": false,
+    "grip": true
+  },
+  {
+    "step": 3471,
+    "gap_m": -0.0009756997067273329,
+    "nearest_shape": "crow_left_front_toe_1_proximal",
+    "toe1_distal_gap_m": 2.1526537090199582e-05,
+    "right_supported": true,
+    "bilateral_supported": true,
+    "release": false,
+    "grip": true
+  },
+  {
+    "step": 3472,
+    "gap_m": -0.0009832146667782815,
+    "nearest_shape": "crow_left_front_toe_1_proximal",
+    "toe1_distal_gap_m": 1.8895259309009704e-05,
+    "right_supported": false,
+    "bilateral_supported": true,
+    "release": false,
+    "grip": true
+  },
+  {
+    "step": 3473,
+    "gap_m": -0.000950664804632094,
+    "nearest_shape": "crow_left_front_toe_1_proximal",
+    "toe1_distal_gap_m": 9.058521646135298e-05,
+    "right_supported": false,
+    "bilateral_supported": true,
+    "release": false,
+    "grip": true
+  },
+  {
+    "step": 3474,
+    "gap_m": -0.0009549273142365061,
+    "nearest_shape": "crow_left_front_toe_1_proximal",
+    "toe1_distal_gap_m": 4.5491250496867974e-05,
+    "right_supported": true,
+    "bilateral_supported": true,
+    "release": false,
+    "grip": true
+  },
+  {
+    "step": 3475,
+    "gap_m": -0.0009541184922499321,
+    "nearest_shape": "crow_left_front_toe_1_proximal",
+    "toe1_distal_gap_m": 3.9557333559897545e-05,
+    "right_supported": false,
+    "bilateral_supported": true,
+    "release": false,
+    "grip": true
+  },
+  {
+    "step": 3476,
+    "gap_m": -0.000948383237536668,
+    "nearest_shape": "crow_left_front_toe_1_proximal",
+    "toe1_distal_gap_m": 0.00021652836358696664,
+    "right_supported": true,
+    "bilateral_supported": true,
+    "release": false,
+    "grip": true
+  },
+  {
+    "step": 3477,
+    "gap_m": -0.001053791929395989,
+    "nearest_shape": "crow_left_front_toe_1_proximal",
+    "toe1_distal_gap_m": -1.7336621296389076e-05,
+    "right_supported": true,
+    "bilateral_supported": true,
+    "release": false,
+    "grip": true
+  },
+  {
+    "step": 3478,
+    "gap_m": -0.0009301740184423785,
+    "nearest_shape": "crow_left_front_toe_1_proximal",
+    "toe1_distal_gap_m": 0.00022613527222791613,
+    "right_supported": false,
+    "bilateral_supported": true,
+    "release": false,
+    "grip": true
+  },
+  {
+    "step": 3479,
+    "gap_m": -0.000984579251700042,
+    "nearest_shape": "crow_left_front_toe_1_proximal",
+    "toe1_distal_gap_m": 0.00015791194371410702,
+    "right_supported": true,
+    "bilateral_supported": true,
+    "release": false,
+    "grip": true
+  },
+  {
+    "step": 3480,
+    "gap_m": -0.0009820597097262782,
+    "nearest_shape": "crow_left_front_toe_1_proximal",
+    "toe1_distal_gap_m": 9.749722946788761e-05,
+    "right_supported": false,
+    "bilateral_supported": true,
+    "release": false,
+    "grip": true
+  },
+  {
+    "step": 3481,
+    "gap_m": -0.0009130705020874014,
+    "nearest_shape": "crow_left_front_toe_1_proximal",
+    "toe1_distal_gap_m": 0.00036315223193873064,
+    "right_supported": true,
+    "bilateral_supported": true,
+    "release": false,
+    "grip": true
+  },
+  {
+    "step": 3482,
+    "gap_m": -0.0010859899747728621,
+    "nearest_shape": "crow_left_front_toe_1_proximal",
+    "toe1_distal_gap_m": 8.283066582263215e-05,
+    "right_supported": true,
+    "bilateral_supported": true,
+    "release": false,
+    "grip": true
+  },
+  {
+    "step": 3483,
+    "gap_m": -0.0009860906871938663,
+    "nearest_shape": "crow_left_front_toe_1_proximal",
+    "toe1_distal_gap_m": 0.00010135156904202483,
+    "right_supported": false,
+    "bilateral_supported": true,
+    "release": false,
+    "grip": true
+  },
+  {
+    "step": 3484,
+    "gap_m": -0.0009590165262713946,
+    "nearest_shape": "crow_left_front_toe_1_proximal",
+    "toe1_distal_gap_m": 7.149430853063687e-05,
+    "right_supported": true,
+    "bilateral_supported": true,
+    "release": false,
+    "grip": true
+  },
+  {
+    "step": 3485,
+    "gap_m": -0.0010307603086491604,
+    "nearest_shape": "crow_left_front_toe_1_proximal",
+    "toe1_distal_gap_m": 0.00012459782650244694,
+    "right_supported": true,
+    "bilateral_supported": true,
+    "release": false,
+    "grip": true
+  },
+  {
+    "step": 3486,
+    "gap_m": -0.0009689612871536801,
+    "nearest_shape": "crow_left_front_toe_1_proximal",
+    "toe1_distal_gap_m": 8.541328854678662e-05,
+    "right_supported": false,
+    "bilateral_supported": true,
+    "release": false,
+    "grip": true
+  },
+  {
+    "step": 3487,
+    "gap_m": -0.0009416864123281549,
+    "nearest_shape": "crow_left_front_toe_1_proximal",
+    "toe1_distal_gap_m": 0.0002893409581570562,
+    "right_supported": true,
+    "bilateral_supported": true,
+    "release": false,
+    "grip": true
+  },
+  {
+    "step": 3488,
+    "gap_m": -0.0010769488681541123,
+    "nearest_shape": "crow_left_front_toe_1_proximal",
+    "toe1_distal_gap_m": 0.00017487902023858443,
+    "right_supported": true,
+    "bilateral_supported": true,
+    "release": false,
+    "grip": true
+  },
+  {
+    "step": 3489,
+    "gap_m": -0.0009632670629148715,
+    "nearest_shape": "crow_left_front_toe_1_proximal",
+    "toe1_distal_gap_m": 2.5403352148560543e-05,
+    "right_supported": false,
+    "bilateral_supported": true,
+    "release": false,
+    "grip": true
+  },
+  {
+    "step": 3490,
+    "gap_m": -0.0008845147580954851,
+    "nearest_shape": "crow_left_front_toe_1_proximal",
+    "toe1_distal_gap_m": 0.0003852503045609669,
+    "right_supported": true,
+    "bilateral_supported": true,
+    "release": false,
+    "grip": true
+  },
+  {
+    "step": 3491,
+    "gap_m": -0.001056379584835565,
+    "nearest_shape": "crow_left_front_toe_1_proximal",
+    "toe1_distal_gap_m": 0.0003546205486149555,
+    "right_supported": true,
+    "bilateral_supported": true,
+    "release": false,
+    "grip": true
+  },
+  {
+    "step": 3492,
+    "gap_m": -0.0009961864803908135,
+    "nearest_shape": "crow_left_front_toe_1_proximal",
+    "toe1_distal_gap_m": 0.0001549311363691734,
+    "right_supported": true,
+    "bilateral_supported": true,
+    "release": false,
+    "grip": true
+  },
+  {
+    "step": 3493,
+    "gap_m": -0.0009491774000377692,
+    "nearest_shape": "crow_left_front_toe_1_proximal",
+    "toe1_distal_gap_m": 0.00036678300135934913,
+    "right_supported": true,
+    "bilateral_supported": true,
+    "release": false,
+    "grip": true
+  },
+  {
+    "step": 3494,
+    "gap_m": -0.0009342453055261116,
+    "nearest_shape": "crow_left_front_toe_1_proximal",
+    "toe1_distal_gap_m": 0.0005701010076020335,
+    "right_supported": true,
+    "bilateral_supported": true,
+    "release": false,
+    "grip": true
+  },
+  {
+    "step": 3495,
+    "gap_m": -0.0009649394882305165,
+    "nearest_shape": "crow_left_front_toe_1_proximal",
+    "toe1_distal_gap_m": 0.0004658636779742882,
+    "right_supported": true,
+    "bilateral_supported": true,
+    "release": false,
+    "grip": true
+  },
+  {
+    "step": 3496,
+    "gap_m": -0.0009122115084173876,
+    "nearest_shape": "crow_left_front_toe_1_proximal",
+    "toe1_distal_gap_m": 0.0005048315502059093,
+    "right_supported": true,
+    "bilateral_supported": true,
+    "release": false,
+    "grip": true
+  },
+  {
+    "step": 3497,
+    "gap_m": -0.000903480659856945,
+    "nearest_shape": "crow_left_front_toe_1_proximal",
+    "toe1_distal_gap_m": 0.0008002386911314593,
+    "right_supported": true,
+    "bilateral_supported": true,
+    "release": false,
+    "grip": true
+  },
+  {
+    "step": 3498,
+    "gap_m": -0.0011476359691476035,
+    "nearest_shape": "crow_left_front_toe_1_proximal",
+    "toe1_distal_gap_m": 0.00026815952994196923,
+    "right_supported": true,
+    "bilateral_supported": true,
+    "release": false,
+    "grip": true
+  },
+  {
+    "step": 3499,
+    "gap_m": -0.0009587199837258892,
+    "nearest_shape": "crow_left_front_toe_1_proximal",
+    "toe1_distal_gap_m": 0.00023877851366752717,
+    "right_supported": true,
+    "bilateral_supported": true,
+    "release": false,
+    "grip": true
+  },
+  {
+    "step": 3500,
+    "gap_m": -0.0008649579263134421,
+    "nearest_shape": "crow_left_front_toe_1_proximal",
+    "toe1_distal_gap_m": 0.0005604504891438059,
+    "right_supported": true,
+    "bilateral_supported": true,
+    "release": false,
+    "grip": true
+  },
+  {
+    "step": 3501,
+    "gap_m": -0.001037012384566563,
+    "nearest_shape": "crow_left_front_toe_1_proximal",
+    "toe1_distal_gap_m": 0.000520390193838885,
+    "right_supported": true,
+    "bilateral_supported": true,
+    "release": false,
+    "grip": true
+  },
+  {
+    "step": 3502,
+    "gap_m": -0.0009416054686898143,
+    "nearest_shape": "crow_left_front_toe_1_proximal",
+    "toe1_distal_gap_m": 0.0005630649175572822,
+    "right_supported": true,
+    "bilateral_supported": true,
+    "release": false,
+    "grip": true
+  },
+  {
+    "step": 3503,
+    "gap_m": -0.0009473370335226217,
+    "nearest_shape": "crow_left_front_toe_1_proximal",
+    "toe1_distal_gap_m": 0.0005432167133477689,
+    "right_supported": true,
+    "bilateral_supported": true,
+    "release": false,
+    "grip": true
+  },
+  {
+    "step": 3504,
+    "gap_m": -0.0008806150775106242,
+    "nearest_shape": "crow_left_front_toe_1_proximal",
+    "toe1_distal_gap_m": 0.0007781933003490442,
+    "right_supported": true,
+    "bilateral_supported": true,
+    "release": false,
+    "grip": true
+  },
+  {
+    "step": 3505,
+    "gap_m": -0.0009029975261747938,
+    "nearest_shape": "crow_left_front_toe_1_proximal",
+    "toe1_distal_gap_m": 0.0009088732748834746,
+    "right_supported": true,
+    "bilateral_supported": true,
+    "release": false,
+    "grip": true
+  },
+  {
+    "step": 3506,
+    "gap_m": -0.0009899274938122565,
+    "nearest_shape": "crow_left_front_toe_1_proximal",
+    "toe1_distal_gap_m": 0.000750842652147761,
+    "right_supported": true,
+    "bilateral_supported": true,
+    "release": false,
+    "grip": true
+  },
+  {
+    "step": 3507,
+    "gap_m": -0.0008649209346807754,
+    "nearest_shape": "crow_left_front_toe_1_proximal",
+    "toe1_distal_gap_m": 0.0010005031636254325,
+    "right_supported": true,
+    "bilateral_supported": true,
+    "release": false,
+    "grip": true
+  },
+  {
+    "step": 3508,
+    "gap_m": -0.0009733143172224734,
+    "nearest_shape": "crow_left_front_toe_1_proximal",
+    "toe1_distal_gap_m": 0.0009235971776335519,
+    "right_supported": true,
+    "bilateral_supported": true,
+    "release": false,
+    "grip": true
+  },
+  {
+    "step": 3509,
+    "gap_m": -0.0009751804325483573,
+    "nearest_shape": "crow_left_front_toe_1_proximal",
+    "toe1_distal_gap_m": 0.000786369906829093,
+    "right_supported": true,
+    "bilateral_supported": true,
+    "release": false,
+    "grip": true
+  },
+  {
+    "step": 3510,
+    "gap_m": -0.0008883001261621379,
+    "nearest_shape": "crow_left_front_toe_1_proximal",
+    "toe1_distal_gap_m": 0.0008608024343839463,
+    "right_supported": true,
+    "bilateral_supported": true,
+    "release": false,
+    "grip": true
+  },
+  {
+    "step": 3511,
+    "gap_m": -0.0008981634583068304,
+    "nearest_shape": "crow_left_front_toe_1_proximal",
+    "toe1_distal_gap_m": 0.0009193172408191105,
+    "right_supported": true,
+    "bilateral_supported": true,
+    "release": false,
+    "grip": true
+  },
+  {
+    "step": 3512,
+    "gap_m": -0.0009959926963691024,
+    "nearest_shape": "crow_left_front_toe_1_proximal",
+    "toe1_distal_gap_m": 0.0007460292951747272,
+    "right_supported": true,
+    "bilateral_supported": true,
+    "release": false,
+    "grip": true
+  },
+  {
+    "step": 3513,
+    "gap_m": -0.0008869991939216282,
+    "nearest_shape": "crow_left_front_toe_1_proximal",
+    "toe1_distal_gap_m": 0.000767882292344254,
+    "right_supported": true,
+    "bilateral_supported": true,
+    "release": false,
+    "grip": true
+  },
+  {
+    "step": 3514,
+    "gap_m": -0.0008774692747730156,
+    "nearest_shape": "crow_left_front_toe_1_proximal",
+    "toe1_distal_gap_m": 0.0007224370601160504,
+    "right_supported": true,
+    "bilateral_supported": true,
+    "release": false,
+    "grip": true
+  },
+  {
+    "step": 3515,
+    "gap_m": -0.0009971531376183757,
+    "nearest_shape": "crow_left_front_toe_1_proximal",
+    "toe1_distal_gap_m": 0.0005827475957847911,
+    "right_supported": true,
+    "bilateral_supported": true,
+    "release": false,
+    "grip": true
+  },
+  {
+    "step": 3516,
+    "gap_m": -0.0009137817241961013,
+    "nearest_shape": "crow_left_front_toe_1_proximal",
+    "toe1_distal_gap_m": 0.0006251633959176127,
+    "right_supported": true,
+    "bilateral_supported": true,
+    "release": false,
+    "grip": true
+  },
+  {
+    "step": 3517,
+    "gap_m": -0.0008947612388542636,
+    "nearest_shape": "crow_left_front_toe_1_proximal",
+    "toe1_distal_gap_m": 0.0006414293809704208,
+    "right_supported": true,
+    "bilateral_supported": true,
+    "release": false,
+    "grip": true
+  },
+  {
+    "step": 3518,
+    "gap_m": -0.0009191450649811347,
+    "nearest_shape": "crow_left_front_toe_1_proximal",
+    "toe1_distal_gap_m": 0.0007217275166271145,
+    "right_supported": true,
+    "bilateral_supported": true,
+    "release": false,
+    "grip": true
+  },
+  {
+    "step": 3519,
+    "gap_m": -0.0009400788569062096,
+    "nearest_shape": "crow_left_front_toe_1_proximal",
+    "toe1_distal_gap_m": 0.0006079024734154809,
+    "right_supported": true,
+    "bilateral_supported": true,
+    "release": false,
+    "grip": true
+  },
+  {
+    "step": 3520,
+    "gap_m": -0.0008849958718454773,
+    "nearest_shape": "crow_left_front_toe_1_proximal",
+    "toe1_distal_gap_m": 0.0006930867688108369,
+    "right_supported": true,
+    "bilateral_supported": true,
+    "release": false,
+    "grip": true
+  },
+  {
+    "step": 3521,
+    "gap_m": -0.0009360043703895773,
+    "nearest_shape": "crow_left_front_toe_1_proximal",
+    "toe1_distal_gap_m": 0.0006617007665586649,
+    "right_supported": true,
+    "bilateral_supported": true,
+    "release": false,
+    "grip": true
+  },
+  {
+    "step": 3522,
+    "gap_m": -0.000901768617537678,
+    "nearest_shape": "crow_left_front_toe_1_proximal",
+    "toe1_distal_gap_m": 0.0006172002280124753,
+    "right_supported": true,
+    "bilateral_supported": true,
+    "release": false,
+    "grip": true
+  },
+  {
+    "step": 3523,
+    "gap_m": -0.0008750813244139677,
+    "nearest_shape": "crow_left_front_toe_1_proximal",
+    "toe1_distal_gap_m": 0.0007306457029783615,
+    "right_supported": true,
+    "bilateral_supported": true,
+    "release": false,
+    "grip": true
+  },
+  {
+    "step": 3524,
+    "gap_m": -0.0009870219804054559,
+    "nearest_shape": "crow_left_front_toe_1_proximal",
+    "toe1_distal_gap_m": 0.00048208162608752783,
+    "right_supported": true,
+    "bilateral_supported": true,
+    "release": false,
+    "grip": true
+  },
+  {
+    "step": 3525,
+    "gap_m": -0.0008434974894433594,
+    "nearest_shape": "crow_left_front_toe_1_proximal",
+    "toe1_distal_gap_m": 0.0005684326124367964,
+    "right_supported": true,
+    "bilateral_supported": true,
+    "release": false,
+    "grip": true
+  },
+  {
+    "step": 3526,
+    "gap_m": -0.0009106577861328902,
+    "nearest_shape": "crow_left_front_toe_1_proximal",
+    "toe1_distal_gap_m": 0.0006244063710604125,
+    "right_supported": true,
+    "bilateral_supported": true,
+    "release": false,
+    "grip": true
+  },
+  {
+    "step": 3527,
+    "gap_m": -0.0008858641099223213,
+    "nearest_shape": "crow_left_front_toe_1_proximal",
+    "toe1_distal_gap_m": 0.0007066464416140908,
+    "right_supported": true,
+    "bilateral_supported": true,
+    "release": false,
+    "grip": true
+  },
+  {
+    "step": 3528,
+    "gap_m": -0.0009191565819579167,
+    "nearest_shape": "crow_left_front_toe_1_proximal",
+    "toe1_distal_gap_m": 0.0004930294647831762,
+    "right_supported": true,
+    "bilateral_supported": true,
+    "release": false,
+    "grip": true
+  },
+  {
+    "step": 3529,
+    "gap_m": -0.0008852326085879089,
+    "nearest_shape": "crow_left_front_toe_1_proximal",
+    "toe1_distal_gap_m": 0.0005579160998429797,
+    "right_supported": true,
+    "bilateral_supported": true,
+    "release": false,
+    "grip": true
+  },
+  {
+    "step": 3530,
+    "gap_m": -0.0008959953458928388,
+    "nearest_shape": "crow_left_front_toe_1_proximal",
+    "toe1_distal_gap_m": 0.0004803935211399185,
+    "right_supported": true,
+    "bilateral_supported": true,
+    "release": false,
+    "grip": true
+  },
+  {
+    "step": 3531,
+    "gap_m": -0.0008786445678981639,
+    "nearest_shape": "crow_left_front_toe_1_proximal",
+    "toe1_distal_gap_m": 0.0004836565989663373,
+    "right_supported": true,
+    "bilateral_supported": true,
+    "release": false,
+    "grip": true
+  },
+  {
+    "step": 3532,
+    "gap_m": -0.0008962285784425775,
+    "nearest_shape": "crow_left_front_toe_1_proximal",
+    "toe1_distal_gap_m": 0.000515184747474591,
+    "right_supported": true,
+    "bilateral_supported": true,
+    "release": false,
+    "grip": true
+  },
+  {
+    "step": 3533,
+    "gap_m": -0.0008718402527706365,
+    "nearest_shape": "crow_left_front_toe_1_proximal",
+    "toe1_distal_gap_m": 0.0004902922441510707,
+    "right_supported": true,
+    "bilateral_supported": true,
+    "release": false,
+    "grip": true
+  },
+  {
+    "step": 3534,
+    "gap_m": -0.0009040054537308786,
+    "nearest_shape": "crow_left_front_toe_1_proximal",
+    "toe1_distal_gap_m": 0.00044588734196154833,
+    "right_supported": true,
+    "bilateral_supported": true,
+    "release": false,
+    "grip": true
+  },
+  {
+    "step": 3535,
+    "gap_m": -0.0009004196366968475,
+    "nearest_shape": "crow_left_front_toe_1_proximal",
+    "toe1_distal_gap_m": 0.0005243577168665622,
+    "right_supported": true,
+    "bilateral_supported": true,
+    "release": false,
+    "grip": true
+  },
+  {
+    "step": 3536,
+    "gap_m": -0.0008204431351711283,
+    "nearest_shape": "crow_left_front_toe_1_proximal",
+    "toe1_distal_gap_m": 0.0012086579178597553,
+    "right_supported": true,
+    "bilateral_supported": true,
+    "release": false,
+    "grip": true
+  },
+  {
+    "step": 3537,
+    "gap_m": -0.0008009591599470803,
+    "nearest_shape": "crow_left_front_toe_1_proximal",
+    "toe1_distal_gap_m": 0.0019914315549143732,
+    "right_supported": true,
+    "bilateral_supported": true,
+    "release": false,
+    "grip": true
+  },
+  {
+    "step": 3538,
+    "gap_m": -0.0006986349879507456,
+    "nearest_shape": "crow_left_front_toe_1_proximal",
+    "toe1_distal_gap_m": 0.0027693310531966622,
+    "right_supported": true,
+    "bilateral_supported": true,
+    "release": false,
+    "grip": true
+  },
+  {
+    "step": 3539,
+    "gap_m": -0.0004547237496584783,
+    "nearest_shape": "crow_left_front_toe_1_proximal",
+    "toe1_distal_gap_m": 0.0031888319203568147,
+    "right_supported": true,
+    "bilateral_supported": true,
+    "release": false,
+    "grip": true
+  },
+  {
+    "step": 3540,
+    "gap_m": -0.0003121171163572023,
+    "nearest_shape": "crow_left_front_toe_1_proximal",
+    "toe1_distal_gap_m": 0.003484216845483619,
+    "right_supported": true,
+    "bilateral_supported": true,
+    "release": false,
+    "grip": true
+  },
+  {
+    "step": 3541,
+    "gap_m": -0.00022316923985880865,
+    "nearest_shape": "crow_left_front_toe_1_proximal",
+    "toe1_distal_gap_m": 0.0037055665812419786,
+    "right_supported": true,
+    "bilateral_supported": true,
+    "release": false,
+    "grip": true
+  },
+  {
+    "step": 3542,
+    "gap_m": -0.00017497509103290426,
+    "nearest_shape": "crow_left_rear_toe_distal",
+    "toe1_distal_gap_m": 0.00391538586525262,
+    "right_supported": true,
+    "bilateral_supported": true,
+    "release": false,
+    "grip": true
+  },
+  {
+    "step": 3543,
+    "gap_m": -0.0001239994475176441,
+    "nearest_shape": "crow_left_rear_toe_distal",
+    "toe1_distal_gap_m": 0.004186434849548996,
+    "right_supported": true,
+    "bilateral_supported": true,
+    "release": false,
+    "grip": true
+  },
+  {
+    "step": 3544,
+    "gap_m": -6.406988711969361e-05,
+    "nearest_shape": "crow_left_rear_toe_distal",
+    "toe1_distal_gap_m": 0.004543281280349587,
+    "right_supported": true,
+    "bilateral_supported": true,
+    "release": false,
+    "grip": true
+  },
+  {
+    "step": 3545,
+    "gap_m": -7.152280206916897e-05,
+    "nearest_shape": "crow_left_rear_toe_distal",
+    "toe1_distal_gap_m": 0.0051053743358908735,
+    "right_supported": true,
+    "bilateral_supported": false,
+    "release": false,
+    "grip": false
+  },
+  {
+    "step": 3546,
+    "gap_m": -8.086538635292476e-05,
+    "nearest_shape": "crow_left_rear_toe_distal",
+    "toe1_distal_gap_m": 0.0058247738789528394,
+    "right_supported": true,
+    "bilateral_supported": false,
+    "release": false,
+    "grip": false
+  },
+  {
+    "step": 3547,
+    "gap_m": 7.233261783663042e-06,
+    "nearest_shape": "crow_left_rear_toe_distal",
+    "toe1_distal_gap_m": 0.006556540042871241,
+    "right_supported": true,
+    "bilateral_supported": false,
+    "release": false,
+    "grip": false
+  },
+  {
+    "step": 3548,
+    "gap_m": 0.0002948250413631476,
+    "nearest_shape": "crow_left_rear_toe_proximal",
+    "toe1_distal_gap_m": 0.007223078179817169,
+    "right_supported": true,
+    "bilateral_supported": false,
+    "release": false,
+    "grip": false
+  },
+  {
+    "step": 3549,
+    "gap_m": 0.0006268240781362525,
+    "nearest_shape": "crow_left_rear_toe_proximal",
+    "toe1_distal_gap_m": 0.007832294656458731,
+    "right_supported": true,
+    "bilateral_supported": false,
+    "release": false,
+    "grip": false
+  },
+  {
+    "step": 3550,
+    "gap_m": 0.0010483757639694613,
+    "nearest_shape": "crow_left_rear_toe_proximal",
+    "toe1_distal_gap_m": 0.008425919170360889,
+    "right_supported": true,
+    "bilateral_supported": false,
+    "release": true,
+    "grip": false
+  },
+  {
+    "step": 3551,
+    "gap_m": 0.001431581364556081,
+    "nearest_shape": "crow_left_front_toe_1_proximal",
+    "toe1_distal_gap_m": 0.009036579768733732,
+    "right_supported": true,
+    "bilateral_supported": false,
+    "release": true,
+    "grip": false
+  },
+  {
+    "step": 3552,
+    "gap_m": 0.0015041024477523007,
+    "nearest_shape": "crow_left_front_toe_1_proximal",
+    "toe1_distal_gap_m": 0.009647805027424704,
+    "right_supported": true,
+    "bilateral_supported": false,
+    "release": true,
+    "grip": false
+  },
+  {
+    "step": 3553,
+    "gap_m": 0.0015549833222533588,
+    "nearest_shape": "crow_left_front_toe_1_proximal",
+    "toe1_distal_gap_m": 0.010256367599432999,
+    "right_supported": true,
+    "bilateral_supported": false,
+    "release": true,
+    "grip": false
+  },
+  {
+    "step": 3554,
+    "gap_m": 0.0015922213382296019,
+    "nearest_shape": "crow_left_front_toe_1_proximal",
+    "toe1_distal_gap_m": 0.010873272317176573,
+    "right_supported": true,
+    "bilateral_supported": false,
+    "release": true,
+    "grip": false
+  },
+  {
+    "step": 3555,
+    "gap_m": 0.001505432621329482,
+    "nearest_shape": "crow_left_foot",
+    "toe1_distal_gap_m": 0.011483580055194592,
+    "right_supported": true,
+    "bilateral_supported": false,
+    "release": true,
+    "grip": false
+  },
+  {
+    "step": 3556,
+    "gap_m": 0.0013985511153277175,
+    "nearest_shape": "crow_left_foot",
+    "toe1_distal_gap_m": 0.012126684198011176,
+    "right_supported": true,
+    "bilateral_supported": false,
+    "release": true,
+    "grip": false
+  },
+  {
+    "step": 3557,
+    "gap_m": 0.0012909215064046964,
+    "nearest_shape": "crow_left_foot",
+    "toe1_distal_gap_m": 0.012809466834408874,
+    "right_supported": true,
+    "bilateral_supported": false,
+    "release": true,
+    "grip": false
+  },
+  {
+    "step": 3558,
+    "gap_m": 0.0011846663696106277,
+    "nearest_shape": "crow_left_foot",
+    "toe1_distal_gap_m": 0.013511805640948095,
+    "right_supported": true,
+    "bilateral_supported": false,
+    "release": true,
+    "grip": false
+  },
+  {
+    "step": 3559,
+    "gap_m": 0.001075004589205425,
+    "nearest_shape": "crow_left_foot",
+    "toe1_distal_gap_m": 0.014242399926744656,
+    "right_supported": true,
+    "bilateral_supported": false,
+    "release": true,
+    "grip": false
+  },
+  {
+    "step": 3560,
+    "gap_m": 0.0009673596179435653,
+    "nearest_shape": "crow_left_foot",
+    "toe1_distal_gap_m": 0.014971724116101058,
+    "right_supported": true,
+    "bilateral_supported": false,
+    "release": false,
+    "grip": false
+  },
+  {
+    "step": 3561,
+    "gap_m": 0.0008594059913012916,
+    "nearest_shape": "crow_left_foot",
+    "toe1_distal_gap_m": 0.015676637247048993,
+    "right_supported": true,
+    "bilateral_supported": false,
+    "release": false,
+    "grip": false
+  },
+  {
+    "step": 3562,
+    "gap_m": 0.0007490039207834684,
+    "nearest_shape": "crow_left_foot",
+    "toe1_distal_gap_m": 0.016345239829411287,
+    "right_supported": true,
+    "bilateral_supported": false,
+    "release": false,
+    "grip": false
+  },
+  {
+    "step": 3563,
+    "gap_m": 0.0006383632704236863,
+    "nearest_shape": "crow_left_foot",
+    "toe1_distal_gap_m": 0.016981748629848123,
+    "right_supported": true,
+    "bilateral_supported": false,
+    "release": false,
+    "grip": false
+  },
+  {
+    "step": 3564,
+    "gap_m": 0.0005271115957661832,
+    "nearest_shape": "crow_left_foot",
+    "toe1_distal_gap_m": 0.01758153524502671,
+    "right_supported": true,
+    "bilateral_supported": false,
+    "release": false,
+    "grip": false
+  },
+  {
+    "step": 3565,
+    "gap_m": 0.0004175454182569968,
+    "nearest_shape": "crow_left_foot",
+    "toe1_distal_gap_m": 0.01803097386470944,
+    "right_supported": true,
+    "bilateral_supported": false,
+    "release": false,
+    "grip": false
+  },
+  {
+    "step": 3566,
+    "gap_m": 0.00030537828212193197,
+    "nearest_shape": "crow_left_foot",
+    "toe1_distal_gap_m": 0.01826477468440444,
+    "right_supported": true,
+    "bilateral_supported": false,
+    "release": false,
+    "grip": false
+  },
+  {
+    "step": 3567,
+    "gap_m": 0.00019374059139062177,
+    "nearest_shape": "crow_left_foot",
+    "toe1_distal_gap_m": 0.01829314723119249,
+    "right_supported": true,
+    "bilateral_supported": false,
+    "release": false,
+    "grip": false
+  },
+  {
+    "step": 3568,
+    "gap_m": 8.228691568993446e-05,
+    "nearest_shape": "crow_left_foot",
+    "toe1_distal_gap_m": 0.018230321051409946,
+    "right_supported": true,
+    "bilateral_supported": false,
+    "release": false,
+    "grip": false
+  },
+  {
+    "step": 3569,
+    "gap_m": -4.128332356523323e-09,
+    "nearest_shape": "crow_left_foot",
+    "toe1_distal_gap_m": 0.018158645244949166,
+    "right_supported": true,
+    "bilateral_supported": false,
+    "release": false,
+    "grip": false
+  },
+  {
+    "step": 3570,
+    "gap_m": 2.070616632036948e-06,
+    "nearest_shape": "crow_left_foot",
+    "toe1_distal_gap_m": 0.018136528230796013,
+    "right_supported": true,
+    "bilateral_supported": false,
+    "release": false,
+    "grip": false
+  },
+  {
+    "step": 3571,
+    "gap_m": -4.113874652945243e-05,
+    "nearest_shape": "crow_left_foot",
+    "toe1_distal_gap_m": 0.017011895229964304,
+    "right_supported": true,
+    "bilateral_supported": false,
+    "release": false,
+    "grip": false
+  },
+  {
+    "step": 3572,
+    "gap_m": -8.534531608734436e-05,
+    "nearest_shape": "crow_left_foot",
+    "toe1_distal_gap_m": 0.01528337052759253,
+    "right_supported": true,
+    "bilateral_supported": false,
+    "release": false,
+    "grip": false
+  },
+  {
+    "step": 3573,
+    "gap_m": -0.00011092456287977587,
+    "nearest_shape": "crow_left_foot",
+    "toe1_distal_gap_m": 0.013519606878885863,
+    "right_supported": true,
+    "bilateral_supported": false,
+    "release": false,
+    "grip": false
+  },
+  {
+    "step": 3574,
+    "gap_m": -0.00012638488988059998,
+    "nearest_shape": "crow_left_foot",
+    "toe1_distal_gap_m": 0.011621236311314315,
+    "right_supported": true,
+    "bilateral_supported": false,
+    "release": false,
+    "grip": false
+  },
+  {
+    "step": 3575,
+    "gap_m": -0.00015834023167404787,
+    "nearest_shape": "crow_left_foot",
+    "toe1_distal_gap_m": 0.009221254712762993,
+    "right_supported": true,
+    "bilateral_supported": false,
+    "release": false,
+    "grip": false
+  },
+  {
+    "step": 3576,
+    "gap_m": -0.00014007766260822757,
+    "nearest_shape": "crow_left_foot",
+    "toe1_distal_gap_m": 0.006575802437659269,
+    "right_supported": true,
+    "bilateral_supported": false,
+    "release": false,
+    "grip": false
+  },
+  {
+    "step": 3577,
+    "gap_m": -7.861456766779934e-05,
+    "nearest_shape": "crow_left_front_toe_1_proximal",
+    "toe1_distal_gap_m": 0.004403468982626384,
+    "right_supported": true,
+    "bilateral_supported": false,
+    "release": false,
+    "grip": false
+  },
+  {
+    "step": 3578,
+    "gap_m": -6.870924008845619e-05,
+    "nearest_shape": "crow_left_front_toe_1_proximal",
+    "toe1_distal_gap_m": 0.0024676317970150005,
+    "right_supported": true,
+    "bilateral_supported": false,
+    "release": false,
+    "grip": false
+  },
+  {
+    "step": 3579,
+    "gap_m": -0.00021377092592152896,
+    "nearest_shape": "crow_left_front_toe_1_proximal",
+    "toe1_distal_gap_m": 6.492882192633137e-05,
+    "right_supported": true,
+    "bilateral_supported": false,
+    "release": false,
+    "grip": false
+  },
+  {
+    "step": 3580,
+    "gap_m": -8.562285889403276e-05,
+    "nearest_shape": "crow_left_front_toe_1_distal",
+    "toe1_distal_gap_m": -8.562285889403276e-05,
+    "right_supported": true,
+    "bilateral_supported": false,
+    "release": false,
+    "grip": false
+  },
+  {
+    "step": 3581,
+    "gap_m": -0.0002512365065272734,
+    "nearest_shape": "crow_left_front_toe_1_distal",
+    "toe1_distal_gap_m": -0.0002512365065272734,
+    "right_supported": true,
+    "bilateral_supported": false,
+    "release": false,
+    "grip": false
+  },
+  {
+    "step": 3582,
+    "gap_m": -0.00022368040760788188,
+    "nearest_shape": "crow_left_front_toe_1_distal",
+    "toe1_distal_gap_m": -0.00022368040760788188,
+    "right_supported": true,
+    "bilateral_supported": false,
+    "release": false,
+    "grip": false
+  },
+  {
+    "step": 3583,
+    "gap_m": -0.00021473990810857296,
+    "nearest_shape": "crow_left_front_toe_1_distal",
+    "toe1_distal_gap_m": -0.00021473990810857296,
+    "right_supported": true,
+    "bilateral_supported": false,
+    "release": false,
+    "grip": false
+  },
+  {
+    "step": 3584,
+    "gap_m": -0.00020211886810318075,
+    "nearest_shape": "crow_left_front_toe_1_distal",
+    "toe1_distal_gap_m": -0.00020211886810318075,
+    "right_supported": true,
+    "bilateral_supported": false,
+    "release": false,
+    "grip": false
+  },
+  {
+    "step": 3585,
+    "gap_m": -0.00019284785611677763,
+    "nearest_shape": "crow_left_front_toe_1_distal",
+    "toe1_distal_gap_m": -0.00019284785611677763,
+    "right_supported": true,
+    "bilateral_supported": false,
+    "release": false,
+    "grip": false
+  },
+  {
+    "step": 3586,
+    "gap_m": -0.00032751958602761366,
+    "nearest_shape": "crow_left_front_toe_2_distal",
+    "toe1_distal_gap_m": -0.00029401513908429433,
+    "right_supported": true,
+    "bilateral_supported": false,
+    "release": false,
+    "grip": false
+  },
+  {
+    "step": 3587,
+    "gap_m": -0.00037645329074061096,
+    "nearest_shape": "crow_left_front_toe_1_distal",
+    "toe1_distal_gap_m": -0.00037645329074061096,
+    "right_supported": true,
+    "bilateral_supported": false,
+    "release": false,
+    "grip": false
+  },
+  {
+    "step": 3588,
+    "gap_m": -0.0003325301964342692,
+    "nearest_shape": "crow_left_front_toe_1_distal",
+    "toe1_distal_gap_m": -0.0003325301964342692,
+    "right_supported": true,
+    "bilateral_supported": false,
+    "release": false,
+    "grip": false
+  },
+  {
+    "step": 3589,
+    "gap_m": -0.00023412917244189368,
+    "nearest_shape": "crow_left_front_toe_1_distal",
+    "toe1_distal_gap_m": -0.00023412917244189368,
+    "right_supported": true,
+    "bilateral_supported": false,
+    "release": false,
+    "grip": false
+  },
+  {
+    "step": 3590,
+    "gap_m": -0.00019194418259763785,
+    "nearest_shape": "crow_left_front_toe_1_distal",
+    "toe1_distal_gap_m": -0.00019194418259763785,
+    "right_supported": true,
+    "bilateral_supported": false,
+    "release": false,
+    "grip": false
+  },
+  {
+    "step": 3591,
+    "gap_m": -0.00012847866722268814,
+    "nearest_shape": "crow_left_front_toe_1_distal",
+    "toe1_distal_gap_m": -0.00012847866722268814,
+    "right_supported": true,
+    "bilateral_supported": false,
+    "release": false,
+    "grip": false
+  },
+  {
+    "step": 3592,
+    "gap_m": -5.177797005713469e-05,
+    "nearest_shape": "crow_left_front_toe_1_distal",
+    "toe1_distal_gap_m": -5.177797005713469e-05,
+    "right_supported": true,
+    "bilateral_supported": false,
+    "release": false,
+    "grip": false
+  },
+  {
+    "step": 3593,
+    "gap_m": -3.196814691470984e-06,
+    "nearest_shape": "crow_left_front_toe_1_distal",
+    "toe1_distal_gap_m": -3.196814691470984e-06,
+    "right_supported": true,
+    "bilateral_supported": false,
+    "release": false,
+    "grip": false
+  },
+  {
+    "step": 3594,
+    "gap_m": 3.330855545602418e-06,
+    "nearest_shape": "crow_left_front_toe_1_distal",
+    "toe1_distal_gap_m": 3.330855545602418e-06,
+    "right_supported": true,
+    "bilateral_supported": false,
+    "release": false,
+    "grip": false
+  },
+  {
+    "step": 3595,
+    "gap_m": 3.3163292372032083e-06,
+    "nearest_shape": "crow_left_front_toe_1_distal",
+    "toe1_distal_gap_m": 3.3163292372032083e-06,
+    "right_supported": true,
+    "bilateral_supported": false,
+    "release": false,
+    "grip": false
+  },
+  {
+    "step": 3596,
+    "gap_m": 6.160706948539485e-06,
+    "nearest_shape": "crow_left_front_toe_1_distal",
+    "toe1_distal_gap_m": 6.160706948539485e-06,
+    "right_supported": true,
+    "bilateral_supported": false,
+    "release": false,
+    "grip": false
+  },
+  {
+    "step": 3597,
+    "gap_m": 4.708227436672763e-06,
+    "nearest_shape": "crow_left_front_toe_1_distal",
+    "toe1_distal_gap_m": 4.708227436672763e-06,
+    "right_supported": true,
+    "bilateral_supported": false,
+    "release": false,
+    "grip": false
+  },
+  {
+    "step": 3598,
+    "gap_m": 2.7554526065634577e-06,
+    "nearest_shape": "crow_left_front_toe_1_distal",
+    "toe1_distal_gap_m": 2.7554526065634577e-06,
+    "right_supported": true,
+    "bilateral_supported": false,
+    "release": false,
+    "grip": false
+  },
+  {
+    "step": 3599,
+    "gap_m": 5.938798963461833e-06,
+    "nearest_shape": "crow_left_front_toe_1_distal",
+    "toe1_distal_gap_m": 5.938798963461833e-06,
+    "right_supported": true,
+    "bilateral_supported": false,
+    "release": false,
+    "grip": false
+  },
+  {
+    "step": 3600,
+    "gap_m": 5.78054929414179e-06,
+    "nearest_shape": "crow_left_front_toe_1_distal",
+    "toe1_distal_gap_m": 5.78054929414179e-06,
+    "right_supported": true,
+    "bilateral_supported": false,
+    "release": false,
+    "grip": false
+  },
+  {
+    "step": 3601,
+    "gap_m": 6.34030530433094e-06,
+    "nearest_shape": "crow_left_front_toe_1_distal",
+    "toe1_distal_gap_m": 6.34030530433094e-06,
+    "right_supported": true,
+    "bilateral_supported": false,
+    "release": false,
+    "grip": false
+  },
+  {
+    "step": 3602,
+    "gap_m": 5.259438734167565e-06,
+    "nearest_shape": "crow_left_front_toe_1_distal",
+    "toe1_distal_gap_m": 5.259438734167565e-06,
+    "right_supported": true,
+    "bilateral_supported": false,
+    "release": false,
+    "grip": false
+  },
+  {
+    "step": 3603,
+    "gap_m": 5.4595590882541845e-06,
+    "nearest_shape": "crow_left_front_toe_1_distal",
+    "toe1_distal_gap_m": 5.4595590882541845e-06,
+    "right_supported": true,
+    "bilateral_supported": false,
+    "release": false,
+    "grip": false
+  },
+  {
+    "step": 3604,
+    "gap_m": 6.752090363132401e-06,
+    "nearest_shape": "crow_left_front_toe_1_distal",
+    "toe1_distal_gap_m": 6.752090363132401e-06,
+    "right_supported": true,
+    "bilateral_supported": false,
+    "release": false,
+    "grip": false
+  },
+  {
+    "step": 3605,
+    "gap_m": 4.302329243900671e-06,
+    "nearest_shape": "crow_left_front_toe_1_distal",
+    "toe1_distal_gap_m": 4.302329243900671e-06,
+    "right_supported": true,
+    "bilateral_supported": false,
+    "release": false,
+    "grip": false
+  },
+  {
+    "step": 3606,
+    "gap_m": 6.111208536524471e-06,
+    "nearest_shape": "crow_left_front_toe_1_distal",
+    "toe1_distal_gap_m": 6.111208536524471e-06,
+    "right_supported": true,
+    "bilateral_supported": false,
+    "release": false,
+    "grip": false
+  },
+  {
+    "step": 3607,
+    "gap_m": 5.622038438596322e-06,
+    "nearest_shape": "crow_left_front_toe_1_distal",
+    "toe1_distal_gap_m": 5.622038438596322e-06,
+    "right_supported": true,
+    "bilateral_supported": false,
+    "release": false,
+    "grip": false
+  },
+  {
+    "step": 3608,
+    "gap_m": 5.380150777063719e-06,
+    "nearest_shape": "crow_left_front_toe_1_distal",
+    "toe1_distal_gap_m": 5.380150777063719e-06,
+    "right_supported": true,
+    "bilateral_supported": false,
+    "release": false,
+    "grip": false
+  },
+  {
+    "step": 3609,
+    "gap_m": 4.3000817957425386e-06,
+    "nearest_shape": "crow_left_front_toe_1_distal",
+    "toe1_distal_gap_m": 4.3000817957425386e-06,
+    "right_supported": true,
+    "bilateral_supported": false,
+    "release": false,
+    "grip": false
+  },
+  {
+    "step": 3610,
+    "gap_m": 5.122127381455843e-06,
+    "nearest_shape": "crow_left_front_toe_2_distal",
+    "toe1_distal_gap_m": 5.996261569961303e-06,
+    "right_supported": true,
+    "bilateral_supported": false,
+    "release": false,
+    "grip": false
+  },
+  {
+    "step": 3611,
+    "gap_m": 5.327918681491406e-06,
+    "nearest_shape": "crow_left_front_toe_1_distal",
+    "toe1_distal_gap_m": 5.327918681491406e-06,
+    "right_supported": true,
+    "bilateral_supported": false,
+    "release": false,
+    "grip": false
+  },
+  {
+    "step": 3612,
+    "gap_m": 5.315878417490316e-06,
+    "nearest_shape": "crow_left_front_toe_1_distal",
+    "toe1_distal_gap_m": 5.315878417490316e-06,
+    "right_supported": true,
+    "bilateral_supported": false,
+    "release": false,
+    "grip": false
+  },
+  {
+    "step": 3613,
+    "gap_m": 5.343663317537717e-06,
+    "nearest_shape": "crow_left_front_toe_2_distal",
+    "toe1_distal_gap_m": 5.669319582811416e-06,
+    "right_supported": true,
+    "bilateral_supported": false,
+    "release": false,
+    "grip": false
+  },
+  {
+    "step": 3614,
+    "gap_m": 4.898020948253257e-06,
+    "nearest_shape": "crow_left_front_toe_1_distal",
+    "toe1_distal_gap_m": 4.898020948253257e-06,
+    "right_supported": true,
+    "bilateral_supported": false,
+    "release": false,
+    "grip": false
+  },
+  {
+    "step": 3615,
+    "gap_m": 4.896479409960408e-06,
+    "nearest_shape": "crow_left_front_toe_1_distal",
+    "toe1_distal_gap_m": 4.896479409960408e-06,
+    "right_supported": true,
+    "bilateral_supported": false,
+    "release": false,
+    "grip": false
+  },
+  {
+    "step": 3616,
+    "gap_m": 4.116760389583085e-06,
+    "nearest_shape": "crow_left_front_toe_2_distal",
+    "toe1_distal_gap_m": 5.045576358345127e-06,
+    "right_supported": true,
+    "bilateral_supported": false,
+    "release": false,
+    "grip": false
+  },
+  {
+    "step": 3617,
+    "gap_m": 4.631455824383179e-06,
+    "nearest_shape": "crow_left_front_toe_1_distal",
+    "toe1_distal_gap_m": 4.631455824383179e-06,
+    "right_supported": true,
+    "bilateral_supported": false,
+    "release": false,
+    "grip": false
+  },
+  {
+    "step": 3618,
+    "gap_m": 5.94864339367035e-06,
+    "nearest_shape": "crow_left_front_toe_1_distal",
+    "toe1_distal_gap_m": 5.94864339367035e-06,
+    "right_supported": true,
+    "bilateral_supported": false,
+    "release": false,
+    "grip": false
+  },
+  {
+    "step": 3619,
+    "gap_m": 5.443369665895925e-06,
+    "nearest_shape": "crow_left_front_toe_1_distal",
+    "toe1_distal_gap_m": 5.443369665895925e-06,
+    "right_supported": true,
+    "bilateral_supported": false,
+    "release": false,
+    "grip": false
+  },
+  {
+    "step": 3620,
+    "gap_m": 3.075053199151634e-06,
+    "nearest_shape": "crow_left_front_toe_1_distal",
+    "toe1_distal_gap_m": 3.075053199151634e-06,
+    "right_supported": true,
+    "bilateral_supported": false,
+    "release": false,
+    "grip": false
+  },
+  {
+    "step": 3621,
+    "gap_m": 4.092982862642647e-06,
+    "nearest_shape": "crow_left_front_toe_2_distal",
+    "toe1_distal_gap_m": 4.1681664658677064e-06,
+    "right_supported": true,
+    "bilateral_supported": false,
+    "release": false,
+    "grip": false
+  },
+  {
+    "step": 3622,
+    "gap_m": 4.254813140577851e-06,
+    "nearest_shape": "crow_left_front_toe_1_distal",
+    "toe1_distal_gap_m": 4.254813140577851e-06,
+    "right_supported": true,
+    "bilateral_supported": false,
+    "release": false,
+    "grip": false
+  },
+  {
+    "step": 3623,
+    "gap_m": 5.8806815837128545e-06,
+    "nearest_shape": "crow_left_front_toe_1_distal",
+    "toe1_distal_gap_m": 5.8806815837128545e-06,
+    "right_supported": true,
+    "bilateral_supported": false,
+    "release": false,
+    "grip": false
+  },
+  {
+    "step": 3624,
+    "gap_m": 4.062243458488601e-06,
+    "nearest_shape": "crow_left_front_toe_2_distal",
+    "toe1_distal_gap_m": 4.493912627169527e-06,
+    "right_supported": true,
+    "bilateral_supported": false,
+    "release": false,
+    "grip": false
+  },
+  {
+    "step": 3625,
+    "gap_m": 3.0903734482348733e-06,
+    "nearest_shape": "crow_left_front_toe_1_distal",
+    "toe1_distal_gap_m": 3.0903734482348733e-06,
+    "right_supported": true,
+    "bilateral_supported": false,
+    "release": false,
+    "grip": false
+  },
+  {
+    "step": 3626,
+    "gap_m": 2.6195313952634414e-06,
+    "nearest_shape": "crow_left_front_toe_1_distal",
+    "toe1_distal_gap_m": 2.6195313952634414e-06,
+    "right_supported": true,
+    "bilateral_supported": false,
+    "release": false,
+    "grip": false
+  },
+  {
+    "step": 3627,
+    "gap_m": 2.760270104443241e-06,
+    "nearest_shape": "crow_left_front_toe_1_distal",
+    "toe1_distal_gap_m": 2.760270104443241e-06,
+    "right_supported": true,
+    "bilateral_supported": false,
+    "release": false,
+    "grip": false
+  },
+  {
+    "step": 3628,
+    "gap_m": 3.059394342558308e-06,
+    "nearest_shape": "crow_left_front_toe_1_distal",
+    "toe1_distal_gap_m": 3.059394342558308e-06,
+    "right_supported": true,
+    "bilateral_supported": false,
+    "release": false,
+    "grip": false
+  },
+  {
+    "step": 3629,
+    "gap_m": 3.178309996028361e-06,
+    "nearest_shape": "crow_left_front_toe_3_distal",
+    "toe1_distal_gap_m": 3.888549448598233e-06,
+    "right_supported": true,
+    "bilateral_supported": false,
+    "release": false,
+    "grip": false
+  },
+  {
+    "step": 3630,
+    "gap_m": 3.296203628697092e-06,
+    "nearest_shape": "crow_left_front_toe_1_distal",
+    "toe1_distal_gap_m": 3.296203628697092e-06,
+    "right_supported": true,
+    "bilateral_supported": false,
+    "release": false,
+    "grip": false
+  },
+  {
+    "step": 3631,
+    "gap_m": 2.8396868069560655e-06,
+    "nearest_shape": "crow_left_front_toe_1_distal",
+    "toe1_distal_gap_m": 2.8396868069560655e-06,
+    "right_supported": true,
+    "bilateral_supported": false,
+    "release": false,
+    "grip": false
+  },
+  {
+    "step": 3632,
+    "gap_m": 3.6304179801133207e-06,
+    "nearest_shape": "crow_left_front_toe_1_distal",
+    "toe1_distal_gap_m": 3.6304179801133207e-06,
+    "right_supported": true,
+    "bilateral_supported": false,
+    "release": false,
+    "grip": false
+  },
+  {
+    "step": 3633,
+    "gap_m": 2.3092822712608707e-06,
+    "nearest_shape": "crow_left_front_toe_1_distal",
+    "toe1_distal_gap_m": 2.3092822712608707e-06,
+    "right_supported": true,
+    "bilateral_supported": false,
+    "release": false,
+    "grip": false
+  },
+  {
+    "step": 3634,
+    "gap_m": 3.2512801934128643e-06,
+    "nearest_shape": "crow_left_front_toe_1_distal",
+    "toe1_distal_gap_m": 3.2512801934128643e-06,
+    "right_supported": true,
+    "bilateral_supported": false,
+    "release": false,
+    "grip": false
+  },
+  {
+    "step": 3635,
+    "gap_m": 2.87311848762295e-06,
+    "nearest_shape": "crow_left_front_toe_1_distal",
+    "toe1_distal_gap_m": 2.87311848762295e-06,
+    "right_supported": true,
+    "bilateral_supported": false,
+    "release": false,
+    "grip": false
+  },
+  {
+    "step": 3636,
+    "gap_m": 3.4978937724639003e-06,
+    "nearest_shape": "crow_left_front_toe_1_distal",
+    "toe1_distal_gap_m": 3.4978937724639003e-06,
+    "right_supported": true,
+    "bilateral_supported": false,
+    "release": false,
+    "grip": false
+  },
+  {
+    "step": 3637,
+    "gap_m": 3.018712510412247e-06,
+    "nearest_shape": "crow_left_front_toe_1_distal",
+    "toe1_distal_gap_m": 3.018712510412247e-06,
+    "right_supported": true,
+    "bilateral_supported": false,
+    "release": false,
+    "grip": false
+  },
+  {
+    "step": 3638,
+    "gap_m": 2.8617722741750007e-06,
+    "nearest_shape": "crow_left_front_toe_1_distal",
+    "toe1_distal_gap_m": 2.8617722741750007e-06,
+    "right_supported": true,
+    "bilateral_supported": false,
+    "release": false,
+    "grip": false
+  },
+  {
+    "step": 3639,
+    "gap_m": 2.9607001832201996e-06,
+    "nearest_shape": "crow_left_front_toe_1_distal",
+    "toe1_distal_gap_m": 2.9607001832201996e-06,
+    "right_supported": true,
+    "bilateral_supported": false,
+    "release": false,
+    "grip": false
+  },
+  {
+    "step": 3640,
+    "gap_m": 3.1528720676535227e-06,
+    "nearest_shape": "crow_left_front_toe_1_distal",
+    "toe1_distal_gap_m": 3.1528720676535227e-06,
+    "right_supported": true,
+    "bilateral_supported": false,
+    "release": false,
+    "grip": false
+  },
+  {
+    "step": 3641,
+    "gap_m": 2.1240593837193456e-06,
+    "nearest_shape": "crow_left_front_toe_1_distal",
+    "toe1_distal_gap_m": 2.1240593837193456e-06,
+    "right_supported": true,
+    "bilateral_supported": false,
+    "release": false,
+    "grip": false
+  },
+  {
+    "step": 3642,
+    "gap_m": 1.8904744560066522e-06,
+    "nearest_shape": "crow_left_front_toe_1_distal",
+    "toe1_distal_gap_m": 1.8904744560066522e-06,
+    "right_supported": true,
+    "bilateral_supported": false,
+    "release": false,
+    "grip": false
+  },
+  {
+    "step": 3643,
+    "gap_m": 1.8078005315502743e-06,
+    "nearest_shape": "crow_left_front_toe_1_distal",
+    "toe1_distal_gap_m": 1.8078005315502743e-06,
+    "right_supported": true,
+    "bilateral_supported": false,
+    "release": false,
+    "grip": false
+  },
+  {
+    "step": 3644,
+    "gap_m": 2.004446947791172e-06,
+    "nearest_shape": "crow_left_front_toe_1_distal",
+    "toe1_distal_gap_m": 2.004446947791172e-06,
+    "right_supported": true,
+    "bilateral_supported": false,
+    "release": false,
+    "grip": false
+  },
+  {
+    "step": 3645,
+    "gap_m": 1.9995614516168936e-06,
+    "nearest_shape": "crow_left_front_toe_1_distal",
+    "toe1_distal_gap_m": 1.9995614516168936e-06,
+    "right_supported": true,
+    "bilateral_supported": false,
+    "release": false,
+    "grip": false
+  },
+  {
+    "step": 3646,
+    "gap_m": 1.9185802617241454e-06,
+    "nearest_shape": "crow_left_front_toe_1_distal",
+    "toe1_distal_gap_m": 1.9185802617241454e-06,
+    "right_supported": true,
+    "bilateral_supported": false,
+    "release": false,
+    "grip": false
+  },
+  {
+    "step": 3647,
+    "gap_m": 2.1103201268066196e-06,
+    "nearest_shape": "crow_left_front_toe_1_distal",
+    "toe1_distal_gap_m": 2.1103201268066196e-06,
+    "right_supported": true,
+    "bilateral_supported": false,
+    "release": false,
+    "grip": false
+  },
+  {
+    "step": 3648,
+    "gap_m": 1.8216140756019406e-06,
+    "nearest_shape": "crow_left_front_toe_1_distal",
+    "toe1_distal_gap_m": 1.8216140756019406e-06,
+    "right_supported": true,
+    "bilateral_supported": false,
+    "release": false,
+    "grip": false
+  },
+  {
+    "step": 3649,
+    "gap_m": 2.993319988833787e-06,
+    "nearest_shape": "crow_left_front_toe_1_distal",
+    "toe1_distal_gap_m": 2.993319988833787e-06,
+    "right_supported": true,
+    "bilateral_supported": false,
+    "release": false,
+    "grip": false
+  },
+  {
+    "step": 3650,
+    "gap_m": 1.89276801070698e-06,
+    "nearest_shape": "crow_left_front_toe_1_distal",
+    "toe1_distal_gap_m": 1.89276801070698e-06,
+    "right_supported": true,
+    "bilateral_supported": false,
+    "release": false,
+    "grip": false
+  },
+  {
+    "step": 3651,
+    "gap_m": 2.519507241706409e-06,
+    "nearest_shape": "crow_left_front_toe_1_distal",
+    "toe1_distal_gap_m": 2.519507241706409e-06,
+    "right_supported": true,
+    "bilateral_supported": false,
+    "release": false,
+    "grip": false
+  },
+  {
+    "step": 3652,
+    "gap_m": 3.1102113873457404e-06,
+    "nearest_shape": "crow_left_front_toe_1_distal",
+    "toe1_distal_gap_m": 3.1102113873457404e-06,
+    "right_supported": true,
+    "bilateral_supported": false,
+    "release": false,
+    "grip": false
+  },
+  {
+    "step": 3653,
+    "gap_m": 2.385117967761141e-06,
+    "nearest_shape": "crow_left_front_toe_1_distal",
+    "toe1_distal_gap_m": 2.385117967761141e-06,
+    "right_supported": true,
+    "bilateral_supported": false,
+    "release": false,
+    "grip": false
+  },
+  {
+    "step": 3654,
+    "gap_m": 2.461209519043217e-06,
+    "nearest_shape": "crow_left_front_toe_1_distal",
+    "toe1_distal_gap_m": 2.461209519043217e-06,
+    "right_supported": true,
+    "bilateral_supported": false,
+    "release": false,
+    "grip": false
+  },
+  {
+    "step": 3655,
+    "gap_m": 2.4200258007325837e-06,
+    "nearest_shape": "crow_left_front_toe_1_distal",
+    "toe1_distal_gap_m": 2.4200258007325837e-06,
+    "right_supported": true,
+    "bilateral_supported": false,
+    "release": false,
+    "grip": false
+  },
+  {
+    "step": 3656,
+    "gap_m": 2.3395564500081067e-06,
+    "nearest_shape": "crow_left_front_toe_1_distal",
+    "toe1_distal_gap_m": 2.3395564500081067e-06,
+    "right_supported": true,
+    "bilateral_supported": false,
+    "release": false,
+    "grip": false
+  },
+  {
+    "step": 3657,
+    "gap_m": 2.845326487817268e-06,
+    "nearest_shape": "crow_left_front_toe_1_distal",
+    "toe1_distal_gap_m": 2.845326487817268e-06,
+    "right_supported": true,
+    "bilateral_supported": false,
+    "release": false,
+    "grip": false
+  },
+  {
+    "step": 3658,
+    "gap_m": 3.205516883424131e-06,
+    "nearest_shape": "crow_left_front_toe_1_distal",
+    "toe1_distal_gap_m": 3.205516883424131e-06,
+    "right_supported": true,
+    "bilateral_supported": false,
+    "release": false,
+    "grip": false
+  },
+  {
+    "step": 3659,
+    "gap_m": 3.39701780941587e-06,
+    "nearest_shape": "crow_left_front_toe_1_distal",
+    "toe1_distal_gap_m": 3.39701780941587e-06,
+    "right_supported": true,
+    "bilateral_supported": false,
+    "release": false,
+    "grip": false
+  },
+  {
+    "step": 3660,
+    "gap_m": 2.0342488546085113e-06,
+    "nearest_shape": "crow_left_front_toe_1_distal",
+    "toe1_distal_gap_m": 2.0342488546085113e-06,
+    "right_supported": true,
+    "bilateral_supported": false,
+    "release": false,
+    "grip": false
+  },
+  {
+    "step": 3661,
+    "gap_m": 3.013727615630568e-06,
+    "nearest_shape": "crow_left_front_toe_1_distal",
+    "toe1_distal_gap_m": 3.013727615630568e-06,
+    "right_supported": true,
+    "bilateral_supported": false,
+    "release": false,
+    "grip": false
+  },
+  {
+    "step": 3662,
+    "gap_m": 2.756619551194661e-06,
+    "nearest_shape": "crow_left_front_toe_1_distal",
+    "toe1_distal_gap_m": 2.756619551194661e-06,
+    "right_supported": true,
+    "bilateral_supported": false,
+    "release": false,
+    "grip": false
+  },
+  {
+    "step": 3663,
+    "gap_m": 2.1522511483990092e-06,
+    "nearest_shape": "crow_left_front_toe_1_distal",
+    "toe1_distal_gap_m": 2.1522511483990092e-06,
+    "right_supported": true,
+    "bilateral_supported": false,
+    "release": false,
+    "grip": false
+  },
+  {
+    "step": 3664,
+    "gap_m": 2.510515103103239e-06,
+    "nearest_shape": "crow_left_front_toe_1_distal",
+    "toe1_distal_gap_m": 2.510515103103239e-06,
+    "right_supported": true,
+    "bilateral_supported": false,
+    "release": false,
+    "grip": false
+  },
+  {
+    "step": 3665,
+    "gap_m": 2.6807188311592234e-06,
+    "nearest_shape": "crow_left_front_toe_1_distal",
+    "toe1_distal_gap_m": 2.6807188311592234e-06,
+    "right_supported": true,
+    "bilateral_supported": false,
+    "release": false,
+    "grip": false
+  },
+  {
+    "step": 3666,
+    "gap_m": 1.924279776757687e-06,
+    "nearest_shape": "crow_left_front_toe_1_distal",
+    "toe1_distal_gap_m": 1.924279776757687e-06,
+    "right_supported": true,
+    "bilateral_supported": false,
+    "release": false,
+    "grip": false
+  },
+  {
+    "step": 3667,
+    "gap_m": 2.3252493064132573e-06,
+    "nearest_shape": "crow_left_front_toe_1_distal",
+    "toe1_distal_gap_m": 2.3252493064132573e-06,
+    "right_supported": true,
+    "bilateral_supported": false,
+    "release": false,
+    "grip": false
+  },
+  {
+    "step": 3668,
+    "gap_m": 1.8485710583590609e-06,
+    "nearest_shape": "crow_left_front_toe_1_distal",
+    "toe1_distal_gap_m": 1.8485710583590609e-06,
+    "right_supported": true,
+    "bilateral_supported": false,
+    "release": false,
+    "grip": false
+  },
+  {
+    "step": 3669,
+    "gap_m": 1.992093581273946e-06,
+    "nearest_shape": "crow_left_front_toe_1_distal",
+    "toe1_distal_gap_m": 1.992093581273946e-06,
+    "right_supported": true,
+    "bilateral_supported": false,
+    "release": false,
+    "grip": false
+  },
+  {
+    "step": 3670,
+    "gap_m": 2.7366550119367616e-06,
+    "nearest_shape": "crow_left_front_toe_1_distal",
+    "toe1_distal_gap_m": 2.7366550119367616e-06,
+    "right_supported": true,
+    "bilateral_supported": false,
+    "release": false,
+    "grip": false
+  },
+  {
+    "step": 3671,
+    "gap_m": 1.8529328895677821e-06,
+    "nearest_shape": "crow_left_front_toe_1_distal",
+    "toe1_distal_gap_m": 1.8529328895677821e-06,
+    "right_supported": true,
+    "bilateral_supported": false,
+    "release": false,
+    "grip": false
+  },
+  {
+    "step": 3672,
+    "gap_m": 2.584943071932966e-06,
+    "nearest_shape": "crow_left_front_toe_2_distal",
+    "toe1_distal_gap_m": 2.665050225794663e-06,
+    "right_supported": true,
+    "bilateral_supported": false,
+    "release": false,
+    "grip": false
+  },
+  {
+    "step": 3673,
+    "gap_m": 2.269123919880489e-06,
+    "nearest_shape": "crow_left_front_toe_1_distal",
+    "toe1_distal_gap_m": 2.269123919880489e-06,
+    "right_supported": true,
+    "bilateral_supported": false,
+    "release": false,
+    "grip": false
+  },
+  {
+    "step": 3674,
+    "gap_m": 3.0267835129244025e-06,
+    "nearest_shape": "crow_left_front_toe_1_distal",
+    "toe1_distal_gap_m": 3.0267835129244025e-06,
+    "right_supported": true,
+    "bilateral_supported": false,
+    "release": false,
+    "grip": false
+  },
+  {
+    "step": 3675,
+    "gap_m": 2.186105175293329e-06,
+    "nearest_shape": "crow_left_front_toe_1_distal",
+    "toe1_distal_gap_m": 2.186105175293329e-06,
+    "right_supported": true,
+    "bilateral_supported": false,
+    "release": false,
+    "grip": false
+  },
+  {
+    "step": 3676,
+    "gap_m": 2.310466013746848e-06,
+    "nearest_shape": "crow_left_front_toe_1_distal",
+    "toe1_distal_gap_m": 2.310466013746848e-06,
+    "right_supported": true,
+    "bilateral_supported": false,
+    "release": false,
+    "grip": false
+  },
+  {
+    "step": 3677,
+    "gap_m": 2.2261644262652758e-06,
+    "nearest_shape": "crow_left_front_toe_1_distal",
+    "toe1_distal_gap_m": 2.2261644262652758e-06,
+    "right_supported": true,
+    "bilateral_supported": false,
+    "release": false,
+    "grip": false
+  },
+  {
+    "step": 3678,
+    "gap_m": 2.4494363055974078e-06,
+    "nearest_shape": "crow_left_front_toe_1_distal",
+    "toe1_distal_gap_m": 2.4494363055974078e-06,
+    "right_supported": true,
+    "bilateral_supported": false,
+    "release": false,
+    "grip": false
+  },
+  {
+    "step": 3679,
+    "gap_m": 2.237360968868063e-06,
+    "nearest_shape": "crow_left_front_toe_1_distal",
+    "toe1_distal_gap_m": 2.237360968868063e-06,
+    "right_supported": true,
+    "bilateral_supported": false,
+    "release": false,
+    "grip": false
+  },
+  {
+    "step": 3680,
+    "gap_m": 2.2021708189837175e-06,
+    "nearest_shape": "crow_left_front_toe_1_distal",
+    "toe1_distal_gap_m": 2.2021708189837175e-06,
+    "right_supported": true,
+    "bilateral_supported": false,
+    "release": false,
+    "grip": false
+  },
+  {
+    "step": 3681,
+    "gap_m": 2.298541428795431e-06,
+    "nearest_shape": "crow_left_front_toe_2_distal",
+    "toe1_distal_gap_m": 2.476544742127662e-06,
+    "right_supported": true,
+    "bilateral_supported": false,
+    "release": false,
+    "grip": false
+  },
+  {
+    "step": 3682,
+    "gap_m": 2.1989210196929343e-06,
+    "nearest_shape": "crow_left_front_toe_1_distal",
+    "toe1_distal_gap_m": 2.1989210196929343e-06,
+    "right_supported": true,
+    "bilateral_supported": false,
+    "release": false,
+    "grip": false
+  },
+  {
+    "step": 3683,
+    "gap_m": 2.3416049211438805e-06,
+    "nearest_shape": "crow_left_front_toe_1_distal",
+    "toe1_distal_gap_m": 2.3416049211438805e-06,
+    "right_supported": true,
+    "bilateral_supported": false,
+    "release": false,
+    "grip": false
+  },
+  {
+    "step": 3684,
+    "gap_m": 2.1742631911778054e-06,
+    "nearest_shape": "crow_left_front_toe_1_distal",
+    "toe1_distal_gap_m": 2.1742631911778054e-06,
+    "right_supported": true,
+    "bilateral_supported": false,
+    "release": false,
+    "grip": false
+  },
+  {
+    "step": 3685,
+    "gap_m": 2.3604984955155617e-06,
+    "nearest_shape": "crow_left_front_toe_1_distal",
+    "toe1_distal_gap_m": 2.3604984955155617e-06,
+    "right_supported": true,
+    "bilateral_supported": false,
+    "release": false,
+    "grip": false
+  },
+  {
+    "step": 3686,
+    "gap_m": 1.5763999290166475e-06,
+    "nearest_shape": "crow_left_front_toe_1_distal",
+    "toe1_distal_gap_m": 1.5763999290166475e-06,
+    "right_supported": true,
+    "bilateral_supported": false,
+    "release": false,
+    "grip": false
+  },
+  {
+    "step": 3687,
+    "gap_m": 1.0626421800413732e-06,
+    "nearest_shape": "crow_left_front_toe_1_distal",
+    "toe1_distal_gap_m": 1.0626421800413732e-06,
+    "right_supported": true,
+    "bilateral_supported": false,
+    "release": false,
+    "grip": false
+  },
+  {
+    "step": 3688,
+    "gap_m": 1.9301593517165316e-06,
+    "nearest_shape": "crow_left_front_toe_1_distal",
+    "toe1_distal_gap_m": 1.9301593517165316e-06,
+    "right_supported": true,
+    "bilateral_supported": false,
+    "release": false,
+    "grip": false
+  },
+  {
+    "step": 3689,
+    "gap_m": 1.871528475749784e-06,
+    "nearest_shape": "crow_left_front_toe_1_distal",
+    "toe1_distal_gap_m": 1.871528475749784e-06,
+    "right_supported": true,
+    "bilateral_supported": false,
+    "release": false,
+    "grip": false
+  },
+  {
+    "step": 3690,
+    "gap_m": 1.985673988257053e-06,
+    "nearest_shape": "crow_left_front_toe_2_distal",
+    "toe1_distal_gap_m": 2.228698557857345e-06,
+    "right_supported": true,
+    "bilateral_supported": false,
+    "release": false,
+    "grip": false
+  },
+  {
+    "step": 3691,
+    "gap_m": 8.918563827522985e-07,
+    "nearest_shape": "crow_left_front_toe_1_distal",
+    "toe1_distal_gap_m": 8.918563827522985e-07,
+    "right_supported": true,
+    "bilateral_supported": false,
+    "release": false,
+    "grip": false
+  },
+  {
+    "step": 3692,
+    "gap_m": 3.1226678730081336e-06,
+    "nearest_shape": "crow_left_front_toe_2_distal",
+    "toe1_distal_gap_m": 3.438276890296854e-06,
+    "right_supported": true,
+    "bilateral_supported": false,
+    "release": false,
+    "grip": false
+  },
+  {
+    "step": 3693,
+    "gap_m": 2.864983251381348e-06,
+    "nearest_shape": "crow_left_front_toe_1_distal",
+    "toe1_distal_gap_m": 2.864983251381348e-06,
+    "right_supported": true,
+    "bilateral_supported": false,
+    "release": false,
+    "grip": false
+  },
+  {
+    "step": 3694,
+    "gap_m": 6.55164137025599e-07,
+    "nearest_shape": "crow_left_front_toe_1_distal",
+    "toe1_distal_gap_m": 6.55164137025599e-07,
+    "right_supported": true,
+    "bilateral_supported": false,
+    "release": false,
+    "grip": false
+  },
+  {
+    "step": 3695,
+    "gap_m": 1.3783503674050235e-06,
+    "nearest_shape": "crow_left_front_toe_2_distal",
+    "toe1_distal_gap_m": 1.9046391721636025e-06,
+    "right_supported": true,
+    "bilateral_supported": false,
+    "release": false,
+    "grip": false
+  },
+  {
+    "step": 3696,
+    "gap_m": 1.6873623435095797e-06,
+    "nearest_shape": "crow_left_front_toe_1_distal",
+    "toe1_distal_gap_m": 1.6873623435095797e-06,
+    "right_supported": true,
+    "bilateral_supported": false,
+    "release": false,
+    "grip": false
+  },
+  {
+    "step": 3697,
+    "gap_m": -1.7636816440833036e-06,
+    "nearest_shape": "crow_left_front_toe_1_distal",
+    "toe1_distal_gap_m": -1.7636816440833036e-06,
+    "right_supported": true,
+    "bilateral_supported": false,
+    "release": false,
+    "grip": false
+  },
+  {
+    "step": 3698,
+    "gap_m": 9.826076157390395e-07,
+    "nearest_shape": "crow_left_front_toe_2_distal",
+    "toe1_distal_gap_m": 2.3260648488732105e-06,
+    "right_supported": true,
+    "bilateral_supported": false,
+    "release": false,
+    "grip": false
+  },
+  {
+    "step": 3699,
+    "gap_m": 1.773022105133748e-06,
+    "nearest_shape": "crow_left_front_toe_1_distal",
+    "toe1_distal_gap_m": 1.773022105133748e-06,
+    "right_supported": true,
+    "bilateral_supported": false,
+    "release": false,
+    "grip": false
+  },
+  {
+    "step": 3700,
+    "gap_m": -1.2712425014535511e-06,
+    "nearest_shape": "crow_left_front_toe_1_distal",
+    "toe1_distal_gap_m": -1.2712425014535511e-06,
+    "right_supported": true,
+    "bilateral_supported": false,
+    "release": false,
+    "grip": false
+  },
+  {
+    "step": 3701,
+    "gap_m": 1.9274433927587986e-06,
+    "nearest_shape": "crow_left_front_toe_2_distal",
+    "toe1_distal_gap_m": 4.302452861530692e-06,
+    "right_supported": true,
+    "bilateral_supported": false,
+    "release": false,
+    "grip": false
+  },
+  {
+    "step": 3702,
+    "gap_m": 2.6004995080028404e-06,
+    "nearest_shape": "crow_left_front_toe_1_distal",
+    "toe1_distal_gap_m": 2.6004995080028404e-06,
+    "right_supported": true,
+    "bilateral_supported": false,
+    "release": false,
+    "grip": false
+  },
+  {
+    "step": 3703,
+    "gap_m": -2.8230858468286657e-06,
+    "nearest_shape": "crow_left_front_toe_1_distal",
+    "toe1_distal_gap_m": -2.8230858468286657e-06,
+    "right_supported": true,
+    "bilateral_supported": false,
+    "release": false,
+    "grip": false
+  },
+  {
+    "step": 3704,
+    "gap_m": 8.454791372639048e-07,
+    "nearest_shape": "crow_left_front_toe_2_distal",
+    "toe1_distal_gap_m": 4.037930659152311e-06,
+    "right_supported": true,
+    "bilateral_supported": false,
+    "release": false,
+    "grip": false
+  },
+  {
+    "step": 3705,
+    "gap_m": 2.280370530204079e-06,
+    "nearest_shape": "crow_left_front_toe_1_distal",
+    "toe1_distal_gap_m": 2.280370530204079e-06,
+    "right_supported": true,
+    "bilateral_supported": false,
+    "release": false,
+    "grip": false
+  },
+  {
+    "step": 3706,
+    "gap_m": -2.4002501634937112e-06,
+    "nearest_shape": "crow_left_front_toe_1_distal",
+    "toe1_distal_gap_m": -2.4002501634937112e-06,
+    "right_supported": true,
+    "bilateral_supported": false,
+    "release": false,
+    "grip": false
+  },
+  {
+    "step": 3707,
+    "gap_m": 5.671963694345306e-07,
+    "nearest_shape": "crow_left_front_toe_2_distal",
+    "toe1_distal_gap_m": 3.748120585102266e-06,
+    "right_supported": true,
+    "bilateral_supported": false,
+    "release": false,
+    "grip": false
+  },
+  {
+    "step": 3708,
+    "gap_m": 2.5464978509470715e-06,
+    "nearest_shape": "crow_left_front_toe_1_distal",
+    "toe1_distal_gap_m": 2.5464978509470715e-06,
+    "right_supported": true,
+    "bilateral_supported": false,
+    "release": false,
+    "grip": false
+  },
+  {
+    "step": 3709,
+    "gap_m": -2.301490832502806e-06,
+    "nearest_shape": "crow_left_front_toe_1_distal",
+    "toe1_distal_gap_m": -2.301490832502806e-06,
+    "right_supported": true,
+    "bilateral_supported": false,
+    "release": false,
+    "grip": false
+  },
+  {
+    "step": 3710,
+    "gap_m": 8.099796036317719e-07,
+    "nearest_shape": "crow_left_front_toe_2_distal",
+    "toe1_distal_gap_m": 1.987438637225669e-06,
+    "right_supported": true,
+    "bilateral_supported": false,
+    "release": false,
+    "grip": false
+  },
+  {
+    "step": 3711,
+    "gap_m": 1.856964770917402e-06,
+    "nearest_shape": "crow_left_front_toe_2_distal",
+    "toe1_distal_gap_m": 3.866752931173945e-06,
+    "right_supported": true,
+    "bilateral_supported": false,
+    "release": false,
+    "grip": false
+  },
+  {
+    "step": 3712,
+    "gap_m": 2.1108098576527734e-06,
+    "nearest_shape": "crow_left_front_toe_1_distal",
+    "toe1_distal_gap_m": 2.1108098576527734e-06,
+    "right_supported": true,
+    "bilateral_supported": false,
+    "release": false,
+    "grip": false
+  },
+  {
+    "step": 3713,
+    "gap_m": 6.761136376529087e-07,
+    "nearest_shape": "crow_left_front_toe_1_distal",
+    "toe1_distal_gap_m": 6.761136376529087e-07,
+    "right_supported": true,
+    "bilateral_supported": false,
+    "release": false,
+    "grip": false
+  },
+  {
+    "step": 3714,
+    "gap_m": 2.0404340645222008e-06,
+    "nearest_shape": "crow_left_front_toe_1_distal",
+    "toe1_distal_gap_m": 2.0404340645222008e-06,
+    "right_supported": true,
+    "bilateral_supported": false,
+    "release": false,
+    "grip": false
+  },
+  {
+    "step": 3715,
+    "gap_m": 3.5898430467834475e-07,
+    "nearest_shape": "crow_left_front_toe_1_distal",
+    "toe1_distal_gap_m": 3.5898430467834475e-07,
+    "right_supported": true,
+    "bilateral_supported": false,
+    "release": false,
+    "grip": false
+  },
+  {
+    "step": 3716,
+    "gap_m": 8.772333535064791e-07,
+    "nearest_shape": "crow_left_front_toe_1_distal",
+    "toe1_distal_gap_m": 8.772333535064791e-07,
+    "right_supported": true,
+    "bilateral_supported": false,
+    "release": false,
+    "grip": false
+  },
+  {
+    "step": 3717,
+    "gap_m": 2.018965311587073e-06,
+    "nearest_shape": "crow_left_front_toe_2_distal",
+    "toe1_distal_gap_m": 3.2953352766540434e-06,
+    "right_supported": true,
+    "bilateral_supported": false,
+    "release": false,
+    "grip": false
+  },
+  {
+    "step": 3718,
+    "gap_m": 1.2070809568207053e-06,
+    "nearest_shape": "crow_left_front_toe_1_distal",
+    "toe1_distal_gap_m": 1.2070809568207053e-06,
+    "right_supported": true,
+    "bilateral_supported": false,
+    "release": false,
+    "grip": false
+  },
+  {
+    "step": 3719,
+    "gap_m": 8.118095241524403e-07,
+    "nearest_shape": "crow_left_front_toe_2_distal",
+    "toe1_distal_gap_m": 2.260765236947182e-06,
+    "right_supported": true,
+    "bilateral_supported": false,
+    "release": false,
+    "grip": false
+  },
+  {
+    "step": 3720,
+    "gap_m": 2.1397310756357535e-06,
+    "nearest_shape": "crow_left_front_toe_2_distal",
+    "toe1_distal_gap_m": 3.747917045000826e-06,
+    "right_supported": true,
+    "bilateral_supported": false,
+    "release": false,
+    "grip": false
+  },
+  {
+    "step": 3721,
+    "gap_m": -2.7099744889860777e-06,
+    "nearest_shape": "crow_left_front_toe_1_distal",
+    "toe1_distal_gap_m": -2.7099744889860777e-06,
+    "right_supported": true,
+    "bilateral_supported": false,
+    "release": false,
+    "grip": false
+  },
+  {
+    "step": 3722,
+    "gap_m": -2.4881495882395077e-07,
+    "nearest_shape": "crow_left_front_toe_2_distal",
+    "toe1_distal_gap_m": 2.387377163591553e-06,
+    "right_supported": true,
+    "bilateral_supported": false,
+    "release": false,
+    "grip": false
+  },
+  {
+    "step": 3723,
+    "gap_m": 2.1193169139968604e-06,
+    "nearest_shape": "crow_left_front_toe_1_distal",
+    "toe1_distal_gap_m": 2.1193169139968604e-06,
+    "right_supported": true,
+    "bilateral_supported": false,
+    "release": false,
+    "grip": false
+  },
+  {
+    "step": 3724,
+    "gap_m": -3.890268855034906e-06,
+    "nearest_shape": "crow_left_front_toe_1_distal",
+    "toe1_distal_gap_m": -3.890268855034906e-06,
+    "right_supported": true,
+    "bilateral_supported": false,
+    "release": false,
+    "grip": false
+  },
+  {
+    "step": 3725,
+    "gap_m": 9.627052136862435e-07,
+    "nearest_shape": "crow_left_front_toe_2_distal",
+    "toe1_distal_gap_m": 4.230945962517552e-06,
+    "right_supported": true,
+    "bilateral_supported": false,
+    "release": false,
+    "grip": false
+  },
+  {
+    "step": 3726,
+    "gap_m": 2.2002833290554746e-06,
+    "nearest_shape": "crow_left_front_toe_1_distal",
+    "toe1_distal_gap_m": 2.2002833290554746e-06,
+    "right_supported": true,
+    "bilateral_supported": false,
+    "release": false,
+    "grip": false
+  },
+  {
+    "step": 3727,
+    "gap_m": -3.0144239140592055e-06,
+    "nearest_shape": "crow_left_front_toe_1_distal",
+    "toe1_distal_gap_m": -3.0144239140592055e-06,
+    "right_supported": true,
+    "bilateral_supported": false,
+    "release": false,
+    "grip": false
+  },
+  {
+    "step": 3728,
+    "gap_m": 1.2659554820340646e-06,
+    "nearest_shape": "crow_left_front_toe_1_distal",
+    "toe1_distal_gap_m": 1.2659554820340646e-06,
+    "right_supported": true,
+    "bilateral_supported": false,
+    "release": false,
+    "grip": false
+  },
+  {
+    "step": 3729,
+    "gap_m": 1.9941840721307558e-06,
+    "nearest_shape": "crow_left_front_toe_2_distal",
+    "toe1_distal_gap_m": 3.2656333968719697e-06,
+    "right_supported": true,
+    "bilateral_supported": false,
+    "release": false,
+    "grip": false
+  },
+  {
+    "step": 3730,
+    "gap_m": 2.9653508579682852e-06,
+    "nearest_shape": "crow_left_front_toe_3_distal",
+    "toe1_distal_gap_m": 3.807192644575408e-06,
+    "right_supported": true,
+    "bilateral_supported": false,
+    "release": false,
+    "grip": false
+  },
+  {
+    "step": 3731,
+    "gap_m": -2.628453893281646e-06,
+    "nearest_shape": "crow_left_front_toe_1_distal",
+    "toe1_distal_gap_m": -2.628453893281646e-06,
+    "right_supported": true,
+    "bilateral_supported": false,
+    "release": false,
+    "grip": false
+  },
+  {
+    "step": 3732,
+    "gap_m": 1.1536851549504012e-06,
+    "nearest_shape": "crow_left_front_toe_1_distal",
+    "toe1_distal_gap_m": 1.1536851549504012e-06,
+    "right_supported": true,
+    "bilateral_supported": false,
+    "release": false,
+    "grip": false
+  },
+  {
+    "step": 3733,
+    "gap_m": 2.4307546311261308e-06,
+    "nearest_shape": "crow_left_front_toe_2_distal",
+    "toe1_distal_gap_m": 3.440606678596636e-06,
+    "right_supported": true,
+    "bilateral_supported": false,
+    "release": false,
+    "grip": false
+  },
+  {
+    "step": 3734,
+    "gap_m": -1.8253288638220289e-06,
+    "nearest_shape": "crow_left_front_toe_1_distal",
+    "toe1_distal_gap_m": -1.8253288638220289e-06,
+    "right_supported": true,
+    "bilateral_supported": false,
+    "release": false,
+    "grip": false
+  },
+  {
+    "step": 3735,
+    "gap_m": 1.4520681677759883e-06,
+    "nearest_shape": "crow_left_front_toe_2_distal",
+    "toe1_distal_gap_m": 6.000854592444482e-06,
+    "right_supported": true,
+    "bilateral_supported": false,
+    "release": false,
+    "grip": false
+  },
+  {
+    "step": 3736,
+    "gap_m": 2.5873628488604083e-06,
+    "nearest_shape": "crow_left_front_toe_1_distal",
+    "toe1_distal_gap_m": 2.5873628488604083e-06,
+    "right_supported": true,
+    "bilateral_supported": false,
+    "release": false,
+    "grip": false
+  },
+  {
+    "step": 3737,
+    "gap_m": -2.8902426488924826e-07,
+    "nearest_shape": "crow_left_front_toe_1_distal",
+    "toe1_distal_gap_m": -2.8902426488924826e-07,
+    "right_supported": true,
+    "bilateral_supported": false,
+    "release": false,
+    "grip": false
+  },
+  {
+    "step": 3738,
+    "gap_m": 2.156551925529271e-06,
+    "nearest_shape": "crow_left_front_toe_1_distal",
+    "toe1_distal_gap_m": 2.156551925529271e-06,
+    "right_supported": true,
+    "bilateral_supported": false,
+    "release": false,
+    "grip": false
+  },
+  {
+    "step": 3739,
+    "gap_m": 2.3432033700379606e-06,
+    "nearest_shape": "crow_left_front_toe_2_distal",
+    "toe1_distal_gap_m": 3.2119662778037905e-06,
+    "right_supported": true,
+    "bilateral_supported": false,
+    "release": false,
+    "grip": false
+  },
+  {
+    "step": 3740,
+    "gap_m": 1.2863806080065654e-06,
+    "nearest_shape": "crow_left_front_toe_1_distal",
+    "toe1_distal_gap_m": 1.2863806080065654e-06,
+    "right_supported": true,
+    "bilateral_supported": false,
+    "release": false,
+    "grip": false
+  },
+  {
+    "step": 3741,
+    "gap_m": 2.24761305529092e-06,
+    "nearest_shape": "crow_left_front_toe_2_distal",
+    "toe1_distal_gap_m": 3.38534919698541e-06,
+    "right_supported": true,
+    "bilateral_supported": false,
+    "release": false,
+    "grip": false
+  },
+  {
+    "step": 3742,
+    "gap_m": -1.7750201162444745e-06,
+    "nearest_shape": "crow_left_front_toe_1_distal",
+    "toe1_distal_gap_m": -1.7750201162444745e-06,
+    "right_supported": true,
+    "bilateral_supported": false,
+    "release": false,
+    "grip": false
+  },
+  {
+    "step": 3743,
+    "gap_m": 8.303419303246073e-07,
+    "nearest_shape": "crow_left_front_toe_1_distal",
+    "toe1_distal_gap_m": 8.303419303246073e-07,
+    "right_supported": true,
+    "bilateral_supported": false,
+    "release": false,
+    "grip": false
+  },
+  {
+    "step": 3744,
+    "gap_m": 2.7871637306511876e-06,
+    "nearest_shape": "crow_left_front_toe_2_distal",
+    "toe1_distal_gap_m": 3.900621817938543e-06,
+    "right_supported": true,
+    "bilateral_supported": false,
+    "release": false,
+    "grip": false
+  },
+  {
+    "step": 3745,
+    "gap_m": 2.670282079404729e-06,
+    "nearest_shape": "crow_left_front_toe_2_distal",
+    "toe1_distal_gap_m": 3.7735933606716787e-06,
+    "right_supported": true,
+    "bilateral_supported": false,
+    "release": false,
+    "grip": false
+  },
+  {
+    "step": 3746,
+    "gap_m": -1.3573448500586727e-07,
+    "nearest_shape": "crow_left_front_toe_1_distal",
+    "toe1_distal_gap_m": -1.3573448500586727e-07,
+    "right_supported": true,
+    "bilateral_supported": false,
+    "release": false,
+    "grip": false
+  },
+  {
+    "step": 3747,
+    "gap_m": 1.3012443393148332e-06,
+    "nearest_shape": "crow_left_front_toe_2_distal",
+    "toe1_distal_gap_m": 2.1312749350424487e-06,
+    "right_supported": true,
+    "bilateral_supported": false,
+    "release": false,
+    "grip": false
+  },
+  {
+    "step": 3748,
+    "gap_m": 2.352626518285772e-06,
+    "nearest_shape": "crow_left_front_toe_2_distal",
+    "toe1_distal_gap_m": 3.3934386226980306e-06,
+    "right_supported": true,
+    "bilateral_supported": false,
+    "release": false,
+    "grip": false
+  },
+  {
+    "step": 3749,
+    "gap_m": 8.991104147731965e-07,
+    "nearest_shape": "crow_left_front_toe_1_distal",
+    "toe1_distal_gap_m": 8.991104147731965e-07,
+    "right_supported": true,
+    "bilateral_supported": false,
+    "release": false,
+    "grip": false
+  },
+  {
+    "step": 3750,
+    "gap_m": 1.7912616929183223e-06,
+    "nearest_shape": "crow_left_front_toe_2_distal",
+    "toe1_distal_gap_m": 4.7776738296839705e-06,
+    "right_supported": true,
+    "bilateral_supported": false,
+    "release": false,
+    "grip": false
+  },
+  {
+    "step": 3751,
+    "gap_m": 1.7713902796326342e-06,
+    "nearest_shape": "crow_left_front_toe_1_distal",
+    "toe1_distal_gap_m": 1.7713902796326342e-06,
+    "right_supported": true,
+    "bilateral_supported": false,
+    "release": false,
+    "grip": false
+  },
+  {
+    "step": 3752,
+    "gap_m": -4.2328109535125225e-06,
+    "nearest_shape": "crow_left_front_toe_1_distal",
+    "toe1_distal_gap_m": -4.2328109535125225e-06,
+    "right_supported": true,
+    "bilateral_supported": false,
+    "release": false,
+    "grip": false
+  },
+  {
+    "step": 3753,
+    "gap_m": 8.557538778500295e-07,
+    "nearest_shape": "crow_left_front_toe_1_distal",
+    "toe1_distal_gap_m": 8.557538778500295e-07,
+    "right_supported": true,
+    "bilateral_supported": false,
+    "release": false,
+    "grip": false
+  },
+  {
+    "step": 3754,
+    "gap_m": 2.614802864280008e-06,
+    "nearest_shape": "crow_left_front_toe_2_distal",
+    "toe1_distal_gap_m": 3.529799263525535e-06,
+    "right_supported": true,
+    "bilateral_supported": false,
+    "release": false,
+    "grip": false
+  },
+  {
+    "step": 3755,
+    "gap_m": -1.136389090050649e-07,
+    "nearest_shape": "crow_left_front_toe_1_distal",
+    "toe1_distal_gap_m": -1.136389090050649e-07,
+    "right_supported": true,
+    "bilateral_supported": false,
+    "release": false,
+    "grip": false
+  },
+  {
+    "step": 3756,
+    "gap_m": 2.0826917585675675e-07,
+    "nearest_shape": "crow_left_front_toe_1_distal",
+    "toe1_distal_gap_m": 2.0826917585675675e-07,
+    "right_supported": true,
+    "bilateral_supported": false,
+    "release": false,
+    "grip": false
+  },
+  {
+    "step": 3757,
+    "gap_m": 1.55121682537257e-06,
+    "nearest_shape": "crow_left_front_toe_2_distal",
+    "toe1_distal_gap_m": 5.6071554725353745e-06,
+    "right_supported": true,
+    "bilateral_supported": false,
+    "release": false,
+    "grip": false
+  },
+  {
+    "step": 3758,
+    "gap_m": 2.6743020477421053e-06,
+    "nearest_shape": "crow_left_front_toe_1_distal",
+    "toe1_distal_gap_m": 2.6743020477421053e-06,
+    "right_supported": true,
+    "bilateral_supported": false,
+    "release": false,
+    "grip": false
+  },
+  {
+    "step": 3759,
+    "gap_m": -3.802454856503823e-06,
+    "nearest_shape": "crow_left_front_toe_1_distal",
+    "toe1_distal_gap_m": -3.802454856503823e-06,
+    "right_supported": true,
+    "bilateral_supported": false,
+    "release": false,
+    "grip": false
+  },
+  {
+    "step": 3760,
+    "gap_m": 1.0268864017101698e-06,
+    "nearest_shape": "crow_left_front_toe_2_distal",
+    "toe1_distal_gap_m": 2.806589337454868e-06,
+    "right_supported": true,
+    "bilateral_supported": false,
+    "release": false,
+    "grip": false
+  },
+  {
+    "step": 3761,
+    "gap_m": 2.0568660837883e-06,
+    "nearest_shape": "crow_left_front_toe_1_distal",
+    "toe1_distal_gap_m": 2.0568660837883e-06,
+    "right_supported": true,
+    "bilateral_supported": false,
+    "release": false,
+    "grip": false
+  },
+  {
+    "step": 3762,
+    "gap_m": -4.129262409287293e-06,
+    "nearest_shape": "crow_left_front_toe_1_distal",
+    "toe1_distal_gap_m": -4.129262409287293e-06,
+    "right_supported": true,
+    "bilateral_supported": false,
+    "release": false,
+    "grip": false
+  },
+  {
+    "step": 3763,
+    "gap_m": 7.592131307868066e-07,
+    "nearest_shape": "crow_left_front_toe_2_distal",
+    "toe1_distal_gap_m": 1.5001261359018359e-06,
+    "right_supported": true,
+    "bilateral_supported": false,
+    "release": false,
+    "grip": false
+  },
+  {
+    "step": 3764,
+    "gap_m": 2.163505645663699e-06,
+    "nearest_shape": "crow_left_front_toe_1_distal",
+    "toe1_distal_gap_m": 2.163505645663699e-06,
+    "right_supported": true,
+    "bilateral_supported": false,
+    "release": false,
+    "grip": false
+  },
+  {
+    "step": 3765,
+    "gap_m": -4.355479477996527e-06,
+    "nearest_shape": "crow_left_front_toe_1_distal",
+    "toe1_distal_gap_m": -4.355479477996527e-06,
+    "right_supported": true,
+    "bilateral_supported": false,
+    "release": false,
+    "grip": false
+  },
+  {
+    "step": 3766,
+    "gap_m": 1.2104997575632104e-06,
+    "nearest_shape": "crow_left_front_toe_2_distal",
+    "toe1_distal_gap_m": 1.2386821084606203e-06,
+    "right_supported": true,
+    "bilateral_supported": false,
+    "release": false,
+    "grip": false
+  },
+  {
+    "step": 3767,
+    "gap_m": 2.085484970576479e-06,
+    "nearest_shape": "crow_left_front_toe_2_distal",
+    "toe1_distal_gap_m": 2.9654576384416376e-06,
+    "right_supported": true,
+    "bilateral_supported": false,
+    "release": false,
+    "grip": false
+  },
+  {
+    "step": 3768,
+    "gap_m": -3.1707654999033053e-06,
+    "nearest_shape": "crow_left_front_toe_1_distal",
+    "toe1_distal_gap_m": -3.1707654999033053e-06,
+    "right_supported": true,
+    "bilateral_supported": false,
+    "release": false,
+    "grip": false
+  },
+  {
+    "step": 3769,
+    "gap_m": -3.4453236055081993e-07,
+    "nearest_shape": "crow_left_front_toe_1_distal",
+    "toe1_distal_gap_m": -3.4453236055081993e-07,
+    "right_supported": true,
+    "bilateral_supported": false,
+    "release": false,
+    "grip": false
+  },
+  {
+    "step": 3770,
+    "gap_m": 1.1394558252705855e-06,
+    "nearest_shape": "crow_left_front_toe_2_distal",
+    "toe1_distal_gap_m": 4.833844919109598e-06,
+    "right_supported": true,
+    "bilateral_supported": false,
+    "release": false,
+    "grip": false
+  },
+  {
+    "step": 3771,
+    "gap_m": 2.1986205234261758e-06,
+    "nearest_shape": "crow_left_front_toe_1_distal",
+    "toe1_distal_gap_m": 2.1986205234261758e-06,
+    "right_supported": true,
+    "bilateral_supported": false,
+    "release": false,
+    "grip": false
+  },
+  {
+    "step": 3772,
+    "gap_m": -3.92004487535097e-06,
+    "nearest_shape": "crow_left_front_toe_1_distal",
+    "toe1_distal_gap_m": -3.92004487535097e-06,
+    "right_supported": true,
+    "bilateral_supported": false,
+    "release": false,
+    "grip": false
+  },
+  {
+    "step": 3773,
+    "gap_m": 1.0500457482548464e-06,
+    "nearest_shape": "crow_left_front_toe_1_distal",
+    "toe1_distal_gap_m": 1.0500457482548464e-06,
+    "right_supported": true,
+    "bilateral_supported": false,
+    "release": false,
+    "grip": false
+  },
+  {
+    "step": 3774,
+    "gap_m": 1.9687533136941715e-06,
+    "nearest_shape": "crow_left_front_toe_2_distal",
+    "toe1_distal_gap_m": 3.523096178771612e-06,
+    "right_supported": true,
+    "bilateral_supported": false,
+    "release": false,
+    "grip": false
+  },
+  {
+    "step": 3775,
+    "gap_m": 2.7771354350683564e-06,
+    "nearest_shape": "crow_left_front_toe_1_distal",
+    "toe1_distal_gap_m": 2.7771354350683564e-06,
+    "right_supported": true,
+    "bilateral_supported": false,
+    "release": false,
+    "grip": false
+  },
+  {
+    "step": 3776,
+    "gap_m": -1.924914856607507e-07,
+    "nearest_shape": "crow_left_front_toe_1_distal",
+    "toe1_distal_gap_m": -1.924914856607507e-07,
+    "right_supported": true,
+    "bilateral_supported": false,
+    "release": false,
+    "grip": false
+  },
+  {
+    "step": 3777,
+    "gap_m": 1.0991424496675783e-06,
+    "nearest_shape": "crow_left_front_toe_2_distal",
+    "toe1_distal_gap_m": 3.2756297748820495e-06,
+    "right_supported": true,
+    "bilateral_supported": false,
+    "release": false,
+    "grip": false
+  },
+  {
+    "step": 3778,
+    "gap_m": 2.3245236340299624e-06,
+    "nearest_shape": "crow_left_front_toe_1_distal",
+    "toe1_distal_gap_m": 2.3245236340299624e-06,
+    "right_supported": true,
+    "bilateral_supported": false,
+    "release": false,
+    "grip": false
+  },
+  {
+    "step": 3779,
+    "gap_m": -4.616669426228681e-06,
+    "nearest_shape": "crow_left_front_toe_1_distal",
+    "toe1_distal_gap_m": -4.616669426228681e-06,
+    "right_supported": true,
+    "bilateral_supported": false,
+    "release": false,
+    "grip": false
+  },
+  {
+    "step": 3780,
+    "gap_m": 6.223378783282163e-07,
+    "nearest_shape": "crow_left_front_toe_1_distal",
+    "toe1_distal_gap_m": 6.223378783282163e-07,
+    "right_supported": true,
+    "bilateral_supported": false,
+    "release": false,
+    "grip": false
+  },
+  {
+    "step": 3781,
+    "gap_m": 1.0423835099249157e-06,
+    "nearest_shape": "crow_left_front_toe_2_distal",
+    "toe1_distal_gap_m": 5.549228240385451e-06,
+    "right_supported": true,
+    "bilateral_supported": false,
+    "release": false,
+    "grip": false
+  },
+  {
+    "step": 3782,
+    "gap_m": 2.581580514970927e-06,
+    "nearest_shape": "crow_left_front_toe_1_distal",
+    "toe1_distal_gap_m": 2.581580514970927e-06,
+    "right_supported": true,
+    "bilateral_supported": false,
+    "release": false,
+    "grip": false
+  },
+  {
+    "step": 3783,
+    "gap_m": -3.3138282851744028e-06,
+    "nearest_shape": "crow_left_front_toe_1_distal",
+    "toe1_distal_gap_m": -3.3138282851744028e-06,
+    "right_supported": true,
+    "bilateral_supported": false,
+    "release": false,
+    "grip": false
+  },
+  {
+    "step": 3784,
+    "gap_m": -1.0702093211634178e-08,
+    "nearest_shape": "crow_left_front_toe_1_distal",
+    "toe1_distal_gap_m": -1.0702093211634178e-08,
+    "right_supported": true,
+    "bilateral_supported": false,
+    "release": false,
+    "grip": false
+  },
+  {
+    "step": 3785,
+    "gap_m": 1.367658491437107e-06,
+    "nearest_shape": "crow_left_front_toe_2_distal",
+    "toe1_distal_gap_m": 5.145096779950176e-06,
+    "right_supported": true,
+    "bilateral_supported": false,
+    "release": false,
+    "grip": false
+  },
+  {
+    "step": 3786,
+    "gap_m": 2.7264197659179756e-06,
+    "nearest_shape": "crow_left_front_toe_2_distal",
+    "toe1_distal_gap_m": 3.247997803275393e-06,
+    "right_supported": true,
+    "bilateral_supported": false,
+    "release": false,
+    "grip": false
+  },
+  {
+    "step": 3787,
+    "gap_m": -3.5410840060826065e-06,
+    "nearest_shape": "crow_left_front_toe_1_distal",
+    "toe1_distal_gap_m": -3.5410840060826065e-06,
+    "right_supported": true,
+    "bilateral_supported": false,
+    "release": false,
+    "grip": false
+  },
+  {
+    "step": 3788,
+    "gap_m": 8.672580349491921e-07,
+    "nearest_shape": "crow_left_front_toe_2_distal",
+    "toe1_distal_gap_m": 1.107220178049595e-06,
+    "right_supported": true,
+    "bilateral_supported": false,
+    "release": false,
+    "grip": false
+  },
+  {
+    "step": 3789,
+    "gap_m": 1.5776896981276045e-06,
+    "nearest_shape": "crow_left_front_toe_2_distal",
+    "toe1_distal_gap_m": 3.2511908192520145e-06,
+    "right_supported": true,
+    "bilateral_supported": false,
+    "release": false,
+    "grip": false
+  },
+  {
+    "step": 3790,
+    "gap_m": 4.138618268159644e-07,
+    "nearest_shape": "crow_left_front_toe_1_distal",
+    "toe1_distal_gap_m": 4.138618268159644e-07,
+    "right_supported": true,
+    "bilateral_supported": false,
+    "release": false,
+    "grip": false
+  },
+  {
+    "step": 3791,
+    "gap_m": -2.9527700349599173e-06,
+    "nearest_shape": "crow_left_front_toe_1_distal",
+    "toe1_distal_gap_m": -2.9527700349599173e-06,
+    "right_supported": true,
+    "bilateral_supported": false,
+    "release": false,
+    "grip": false
+  },
+  {
+    "step": 3792,
+    "gap_m": 1.2147322512034986e-06,
+    "nearest_shape": "crow_left_front_toe_2_distal",
+    "toe1_distal_gap_m": 1.6785465381183307e-06,
+    "right_supported": true,
+    "bilateral_supported": false,
+    "release": false,
+    "grip": false
+  },
+  {
+    "step": 3793,
+    "gap_m": 1.757358860016156e-06,
+    "nearest_shape": "crow_left_front_toe_2_distal",
+    "toe1_distal_gap_m": 3.7771457440036182e-06,
+    "right_supported": true,
+    "bilateral_supported": false,
+    "release": false,
+    "grip": false
+  },
+  {
+    "step": 3794,
+    "gap_m": 2.5006380478392876e-06,
+    "nearest_shape": "crow_left_front_toe_1_distal",
+    "toe1_distal_gap_m": 2.5006380478392876e-06,
+    "right_supported": true,
+    "bilateral_supported": false,
+    "release": false,
+    "grip": false
+  },
+  {
+    "step": 3795,
+    "gap_m": -2.6324827051213417e-06,
+    "nearest_shape": "crow_left_front_toe_1_distal",
+    "toe1_distal_gap_m": -2.6324827051213417e-06,
+    "right_supported": true,
+    "bilateral_supported": false,
+    "release": false,
+    "grip": false
+  },
+  {
+    "step": 3796,
+    "gap_m": 1.419813547946791e-06,
+    "nearest_shape": "crow_left_front_toe_2_distal",
+    "toe1_distal_gap_m": 1.6737157133295266e-06,
+    "right_supported": true,
+    "bilateral_supported": false,
+    "release": false,
+    "grip": false
+  },
+  {
+    "step": 3797,
+    "gap_m": 1.7731021338882047e-06,
+    "nearest_shape": "crow_left_front_toe_2_distal",
+    "toe1_distal_gap_m": 5.114403605260831e-06,
+    "right_supported": true,
+    "bilateral_supported": false,
+    "release": false,
+    "grip": false
+  },
+  {
+    "step": 3798,
+    "gap_m": 2.5744794423174233e-06,
+    "nearest_shape": "crow_left_front_toe_2_distal",
+    "toe1_distal_gap_m": 3.3081793818987015e-06,
+    "right_supported": true,
+    "bilateral_supported": false,
+    "release": false,
+    "grip": false
+  },
+  {
+    "step": 3799,
+    "gap_m": -2.48404961721016e-06,
+    "nearest_shape": "crow_left_front_toe_1_distal",
+    "toe1_distal_gap_m": -2.48404961721016e-06,
+    "right_supported": true,
+    "bilateral_supported": false,
+    "release": false,
+    "grip": false
+  },
+  {
+    "step": 3800,
+    "gap_m": 1.2997788180618697e-06,
+    "nearest_shape": "crow_left_front_toe_2_distal",
+    "toe1_distal_gap_m": 1.6806233633440137e-06,
+    "right_supported": true,
+    "bilateral_supported": false,
+    "release": false,
+    "grip": false
+  }
+]

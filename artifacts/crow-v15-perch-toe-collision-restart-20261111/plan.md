@@ -1,0 +1,3 @@
+# Fresh-cache toe/perch collision isolation
+
+The retained autonomous landing shows 52 accepted endpoints with more than 5 mm estimated left distal-toe/perch box overlap, no logged endpoint pair and no positive pair impulse across all sixteen substeps. Independent FP64 CPU collision verifies a selected deep-overlap pose. Reinitialize the v15 model and all six scene-body poses from that exact retained pose and step one native GPU substep with a fresh cache and current positions as drive targets. This isolates whether the contact can be generated from the pose with a fresh cache; it does not reproduce the original cached trajectory, solver history or controller and cannot by itself establish the failure mechanism. Preserve all outcomes.

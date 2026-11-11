@@ -1,0 +1,17 @@
+{
+  "runtime_host_source_sha256": "48bbfb7260e8835a8ea9f0edc17740c6611732b1bfd1ac66bb109a124695de32",
+  "runtime_observer_host_sha256": "98fb529fdb2a3fd891958517c8b7e5839ac1eb5c404de8a466cc91bd828f4d1a",
+  "runtime_perch_half_extents_m": [
+    0.025,
+    0.72,
+    0.055
+  ],
+  "unmodified_scene_perch_half_extents_m": [
+    0.1,
+    0.72,
+    0.055
+  ],
+  "shape_change": "activeNavigation host replaces width before compiling the run",
+  "hysteresis_source_replay_sha256": "a081fc9a815dbfc7ae100cd498f4f68fca21b3f7bf4ad5082441c1e5d94e4a3b",
+  "incorrect_assumption": "Previous SAT, CPU oracle and fresh-cache restart accidentally used the unmodified scene width."
+}

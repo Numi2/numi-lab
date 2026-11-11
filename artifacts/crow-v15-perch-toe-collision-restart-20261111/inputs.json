@@ -1,0 +1,8 @@
+{
+  "source_replay_sha256": "a081fc9a815dbfc7ae100cd498f4f68fca21b3f7bf4ad5082441c1e5d94e4a3b",
+  "snapshot_sha256": "1f551edc824663e142bbb9fe635b1ffe1d4627b87f035c7df9e2a00b45a16762",
+  "accepted_observer_step": 3540,
+  "replay_frame_step": 3539,
+  "lane": 5,
+  "scope": "Fresh-cache one-substep diagnostic, not a replay of the original cached world or a qualification."
+}

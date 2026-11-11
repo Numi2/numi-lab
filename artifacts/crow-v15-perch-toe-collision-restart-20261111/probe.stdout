@@ -1,0 +1,6 @@
+constraints 136 contact_records 2048
+toe_perch 20 40 separation=-0.00199556 impulse=0.000889798
+toe_perch 20 40 separation=-0.0192487 impulse=0.028137
+toe_perch 20 40 separation=0.000226557 impulse=0
+toe_perch 20 40 separation=-0.0157355 impulse=0.0242034
+final_root 5.09476 0.708133 1.02059
