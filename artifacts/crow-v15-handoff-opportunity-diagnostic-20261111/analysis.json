@@ -1,0 +1,315 @@
+{
+  "lane": 7,
+  "perch_xyz": [
+    4.972919464111328,
+    -0.014262390322983265,
+    0.8114758729934692
+  ],
+  "sampled_intervals": 801,
+  "both_feet_impulse_intervals": 14,
+  "failed_gate_counts_among_both_foot_intervals": {
+    "root_center": 14,
+    "vertical_speed": 7,
+    "pitch_rate": 3,
+    "horizontal_speed": 2
+  },
+  "all_proxy_conditions_intervals": [],
+  "first_both_foot_intervals": [
+    {
+      "step": 3177,
+      "checks": {
+        "both_foot_perch_impulse": true,
+        "root_center": false,
+        "lateral": true,
+        "horizontal_speed": true,
+        "vertical_speed": true,
+        "pitch": true,
+        "pitch_rate": true
+      },
+      "x_error_m": 0.0835600741113285,
+      "pitch_rad": 0.05022102607788662,
+      "pitch_rate_rad_s": -0.0285820328,
+      "vx_m_s": 0.0110304998,
+      "vz_m_s": 0.0963863656,
+      "foot_normal_impulse": [
+        0.0029352951630593005,
+        0.006894098460424198
+      ]
+    },
+    {
+      "step": 3209,
+      "checks": {
+        "both_foot_perch_impulse": true,
+        "root_center": false,
+        "lateral": true,
+        "horizontal_speed": true,
+        "vertical_speed": true,
+        "pitch": true,
+        "pitch_rate": true
+      },
+      "x_error_m": 0.04660567411132856,
+      "pitch_rad": 0.046768656102539,
+      "pitch_rate_rad_s": 0.0358877294,
+      "vx_m_s": 0.0424708836,
+      "vz_m_s": -0.0473381504,
+      "foot_normal_impulse": [
+        0.012027194622000002,
+        0.018131068449029997
+      ]
+    },
+    {
+      "step": 3210,
+      "checks": {
+        "both_foot_perch_impulse": true,
+        "root_center": false,
+        "lateral": true,
+        "horizontal_speed": true,
+        "vertical_speed": false,
+        "pitch": true,
+        "pitch_rate": true
+      },
+      "x_error_m": 0.04769810411132848,
+      "pitch_rad": 0.04922134291006793,
+      "pitch_rate_rad_s": 0.0413755998,
+      "vx_m_s": -0.0640321225,
+      "vz_m_s": 0.314151496,
+      "foot_normal_impulse": [
+        0.052251134355000006,
+        0.03229938557759999
+      ]
+    },
+    {
+      "step": 3267,
+      "checks": {
+        "both_foot_perch_impulse": true,
+        "root_center": false,
+        "lateral": true,
+        "horizontal_speed": true,
+        "vertical_speed": true,
+        "pitch": true,
+        "pitch_rate": false
+      },
+      "x_error_m": 0.021540244111327943,
+      "pitch_rad": 0.046877948040503,
+      "pitch_rate_rad_s": 0.238781616,
+      "vx_m_s": 0.0212370437,
+      "vz_m_s": -0.0469001643,
+      "foot_normal_impulse": [
+        0.04561664525,
+        0.023164744544599995
+      ]
+    },
+    {
+      "step": 3268,
+      "checks": {
+        "both_foot_perch_impulse": true,
+        "root_center": false,
+        "lateral": true,
+        "horizontal_speed": true,
+        "vertical_speed": false,
+        "pitch": true,
+        "pitch_rate": true
+      },
+      "x_error_m": 0.021655644111328264,
+      "pitch_rad": 0.04775559380382473,
+      "pitch_rate_rad_s": 0.0366144627,
+      "vx_m_s": -0.0128230117,
+      "vz_m_s": 0.18847023,
+      "foot_normal_impulse": [
+        0.028006234600999994,
+        0.0232505151825
+      ]
+    },
+    {
+      "step": 3340,
+      "checks": {
+        "both_foot_perch_impulse": true,
+        "root_center": false,
+        "lateral": true,
+        "horizontal_speed": true,
+        "vertical_speed": false,
+        "pitch": true,
+        "pitch_rate": false
+      },
+      "x_error_m": -0.02237549588867215,
+      "pitch_rad": 0.02553780575965144,
+      "pitch_rate_rad_s": -0.10526669,
+      "vx_m_s": 0.0749463588,
+      "vz_m_s": 0.388202786,
+      "foot_normal_impulse": [
+        0.075875340802,
+        0.078410055423
+      ]
+    },
+    {
+      "step": 3514,
+      "checks": {
+        "both_foot_perch_impulse": true,
+        "root_center": false,
+        "lateral": true,
+        "horizontal_speed": true,
+        "vertical_speed": true,
+        "pitch": true,
+        "pitch_rate": true
+      },
+      "x_error_m": 0.07371004411132855,
+      "pitch_rad": 0.050046749042943296,
+      "pitch_rate_rad_s": -0.0173787437,
+      "vx_m_s": 0.0660752803,
+      "vz_m_s": 0.107464142,
+      "foot_normal_impulse": [
+        0.018955694400470284,
+        0.01817181047853491
+      ]
+    },
+    {
+      "step": 3535,
+      "checks": {
+        "both_foot_perch_impulse": true,
+        "root_center": false,
+        "lateral": true,
+        "horizontal_speed": true,
+        "vertical_speed": true,
+        "pitch": true,
+        "pitch_rate": true
+      },
+      "x_error_m": 0.03825529411132812,
+      "pitch_rad": 0.041620028620737125,
+      "pitch_rate_rad_s": 0.0900831744,
+      "vx_m_s": 0.0254477262,
+      "vz_m_s": -0.0334232338,
+      "foot_normal_impulse": [
+        0.020302580372,
+        0.028151621078000004
+      ]
+    },
+    {
+      "step": 3536,
+      "checks": {
+        "both_foot_perch_impulse": true,
+        "root_center": false,
+        "lateral": true,
+        "horizontal_speed": false,
+        "vertical_speed": false,
+        "pitch": true,
+        "pitch_rate": true
+      },
+      "x_error_m": 0.039836964111328324,
+      "pitch_rad": 0.04390835845234645,
+      "pitch_rate_rad_s": 0.0360530876,
+      "vx_m_s": -0.0964231119,
+      "vz_m_s": 0.415374458,
+      "foot_normal_impulse": [
+        0.024227670769400002,
+        0.09440068665920004
+      ]
+    },
+    {
+      "step": 3611,
+      "checks": {
+        "both_foot_perch_impulse": true,
+        "root_center": false,
+        "lateral": true,
+        "horizontal_speed": true,
+        "vertical_speed": false,
+        "pitch": true,
+        "pitch_rate": true
+      },
+      "x_error_m": 0.020037254111328295,
+      "pitch_rad": 0.04384006877894323,
+      "pitch_rate_rad_s": -0.00394138135,
+      "vx_m_s": 0.0750261545,
+      "vz_m_s": -0.136678755,
+      "foot_normal_impulse": [
+        0.01400049648,
+        0.0029756416217
+      ]
+    },
+    {
+      "step": 3612,
+      "checks": {
+        "both_foot_perch_impulse": true,
+        "root_center": false,
+        "lateral": true,
+        "horizontal_speed": false,
+        "vertical_speed": false,
+        "pitch": true,
+        "pitch_rate": true
+      },
+      "x_error_m": 0.022224034111328016,
+      "pitch_rad": 0.04604386935013038,
+      "pitch_rate_rad_s": 0.0137896799,
+      "vx_m_s": -0.129829213,
+      "vz_m_s": 0.810831487,
+      "foot_normal_impulse": [
+        0.122116875534,
+        0.2069811379566
+      ]
+    },
+    {
+      "step": 3690,
+      "checks": {
+        "both_foot_perch_impulse": true,
+        "root_center": false,
+        "lateral": true,
+        "horizontal_speed": true,
+        "vertical_speed": true,
+        "pitch": true,
+        "pitch_rate": false
+      },
+      "x_error_m": 0.019566144111327965,
+      "pitch_rad": 0.04982243408902565,
+      "pitch_rate_rad_s": 0.302797884,
+      "vx_m_s": 0.0540942512,
+      "vz_m_s": -0.00134371745,
+      "foot_normal_impulse": [
+        0.040754730813116015,
+        0.017932313855500003
+      ]
+    },
+    {
+      "step": 3691,
+      "checks": {
+        "both_foot_perch_impulse": true,
+        "root_center": false,
+        "lateral": true,
+        "horizontal_speed": true,
+        "vertical_speed": true,
+        "pitch": true,
+        "pitch_rate": true
+      },
+      "x_error_m": 0.01883467411132812,
+      "pitch_rad": 0.05214977258571027,
+      "pitch_rate_rad_s": 0.0459652729,
+      "vx_m_s": 0.0303290859,
+      "vz_m_s": -0.0221479479,
+      "foot_normal_impulse": [
+        0.017269807623883096,
+        0.011197360436069998
+      ]
+    },
+    {
+      "step": 3732,
+      "checks": {
+        "both_foot_perch_impulse": true,
+        "root_center": false,
+        "lateral": true,
+        "horizontal_speed": true,
+        "vertical_speed": false,
+        "pitch": true,
+        "pitch_rate": true
+      },
+      "x_error_m": -0.027063285888671452,
+      "pitch_rad": 0.03173354723876331,
+      "pitch_rate_rad_s": 0.0120377885,
+      "vx_m_s": 0.0620580018,
+      "vz_m_s": 0.249894857,
+      "foot_normal_impulse": [
+        0.052264945273999996,
+        0.0253886114407
+      ]
+    }
+  ],
+  "missing_or_duplicate_substeps": 0,
+  "scope": "Diagnostic reconstruction from lane 7 accepted endpoints and substep normal impulses. Both-foot sum is not the controller compact contact load; joint and solver update indexing can differ by a control step. This does not directly observe internal phase or establish biological realism."
+}
