@@ -1,0 +1,11 @@
+{
+  "remote_commit": "6c8d1d2d830443a3ca67eae2b6417409ffbb5af3",
+  "retired": [
+    {
+      "raw": "artifacts/crow-v15-body-damping-breakdown-20261111/results.txt",
+      "archive": "artifacts/crow-v15-body-damping-breakdown-20261111/results.txt.gz",
+      "sha256": "22f26499930edf35b4aaffdaff634d5b942f9ff179c4a8c41db6632dc2885b5a",
+      "bytes": 2088786
+    }
+  ]
+}
