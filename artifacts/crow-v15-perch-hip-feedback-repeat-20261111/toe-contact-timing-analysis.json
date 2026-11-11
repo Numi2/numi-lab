@@ -1,0 +1,351 @@
+{
+  "rows": [
+    {
+      "lane": 0,
+      "first_scene_contact_step": 3384,
+      "first_episode_end_step": 5000,
+      "hits_before_contact": [],
+      "hits_during_or_after_contact": [
+        [
+          3916,
+          0,
+          [
+            14
+          ]
+        ],
+        [
+          3916,
+          1,
+          [
+            6,
+            14
+          ]
+        ],
+        [
+          3916,
+          2,
+          [
+            6,
+            14
+          ]
+        ],
+        [
+          3916,
+          3,
+          [
+            6,
+            14
+          ]
+        ],
+        [
+          3916,
+          4,
+          [
+            6,
+            14
+          ]
+        ],
+        [
+          3916,
+          5,
+          [
+            6,
+            14
+          ]
+        ],
+        [
+          3916,
+          6,
+          [
+            6,
+            14
+          ]
+        ]
+      ]
+    },
+    {
+      "lane": 1,
+      "first_scene_contact_step": 3452,
+      "first_episode_end_step": 4987,
+      "hits_before_contact": [],
+      "hits_during_or_after_contact": [
+        [
+          3513,
+          2,
+          [
+            8
+          ]
+        ],
+        [
+          3513,
+          3,
+          [
+            8
+          ]
+        ],
+        [
+          4579,
+          1,
+          [
+            6,
+            14
+          ]
+        ],
+        [
+          4579,
+          2,
+          [
+            6
+          ]
+        ],
+        [
+          4895,
+          6,
+          [
+            12
+          ]
+        ],
+        [
+          4895,
+          7,
+          [
+            12
+          ]
+        ],
+        [
+          4895,
+          8,
+          [
+            4,
+            12
+          ]
+        ],
+        [
+          4895,
+          9,
+          [
+            4,
+            12
+          ]
+        ],
+        [
+          4895,
+          10,
+          [
+            4,
+            12
+          ]
+        ],
+        [
+          4895,
+          11,
+          [
+            4,
+            12
+          ]
+        ],
+        [
+          4895,
+          12,
+          [
+            4,
+            12
+          ]
+        ]
+      ]
+    },
+    {
+      "lane": 2,
+      "first_scene_contact_step": 3386,
+      "first_episode_end_step": 3740,
+      "hits_before_contact": [],
+      "hits_during_or_after_contact": [
+        [
+          3633,
+          11,
+          [
+            2,
+            4
+          ]
+        ],
+        [
+          3633,
+          12,
+          [
+            0,
+            2,
+            4,
+            12
+          ]
+        ],
+        [
+          3633,
+          13,
+          [
+            0,
+            2,
+            4,
+            10,
+            12
+          ]
+        ],
+        [
+          3633,
+          14,
+          [
+            8,
+            10,
+            12
+          ]
+        ]
+      ]
+    },
+    {
+      "lane": 3,
+      "first_scene_contact_step": 3499,
+      "first_episode_end_step": 5000,
+      "hits_before_contact": [],
+      "hits_during_or_after_contact": []
+    },
+    {
+      "lane": 4,
+      "first_scene_contact_step": 3368,
+      "first_episode_end_step": 5000,
+      "hits_before_contact": [],
+      "hits_during_or_after_contact": []
+    },
+    {
+      "lane": 5,
+      "first_scene_contact_step": 3365,
+      "first_episode_end_step": 4149,
+      "hits_before_contact": [],
+      "hits_during_or_after_contact": [
+        [
+          3568,
+          3,
+          [
+            0,
+            2,
+            4,
+            12
+          ]
+        ],
+        [
+          3568,
+          4,
+          [
+            0,
+            2,
+            4,
+            8,
+            10,
+            12
+          ]
+        ],
+        [
+          3622,
+          3,
+          [
+            0,
+            2,
+            4,
+            8,
+            10,
+            12
+          ]
+        ],
+        [
+          3622,
+          4,
+          [
+            0,
+            2,
+            4,
+            8,
+            10,
+            12
+          ]
+        ],
+        [
+          3622,
+          5,
+          [
+            0,
+            2,
+            4,
+            8,
+            10,
+            12
+          ]
+        ],
+        [
+          3622,
+          6,
+          [
+            0,
+            2,
+            4,
+            8,
+            10,
+            12
+          ]
+        ],
+        [
+          3937,
+          3,
+          [
+            8
+          ]
+        ],
+        [
+          3937,
+          4,
+          [
+            8
+          ]
+        ]
+      ]
+    },
+    {
+      "lane": 6,
+      "first_scene_contact_step": 3461,
+      "first_episode_end_step": 4088,
+      "hits_before_contact": [],
+      "hits_during_or_after_contact": [
+        [
+          3980,
+          15,
+          [
+            4
+          ]
+        ]
+      ]
+    },
+    {
+      "lane": 7,
+      "first_scene_contact_step": 3299,
+      "first_episode_end_step": 5000,
+      "hits_before_contact": [],
+      "hits_during_or_after_contact": [
+        [
+          3470,
+          3,
+          [
+            2,
+            4
+          ]
+        ],
+        [
+          3470,
+          4,
+          [
+            0,
+            2,
+            4
+          ]
+        ]
+      ]
+    }
+  ],
+  "limitations": "The split uses the first observed scene contact at substep resolution, but reports hits from the same control interval as contact in the after group. It does not rule out below-cap abnormal toe motion, ground contacts, or failures in other starts and layouts."
+}

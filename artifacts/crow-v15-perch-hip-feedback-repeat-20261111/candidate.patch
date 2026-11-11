@@ -1,0 +1,20 @@
+--- a/revised_gait.metal
++++ b/root_balance_latch.metal
+@@ -5105,6 +5105,17 @@
+         // execution still has no teacher authority.
+         if (fixedFlightController && state.threatTeacher.w >= 1.5f && action < 15u)
+             navigationTeacherRequested = 0.0f;
++        // Development-only perching feedback derived from the privileged
++        // teacher's unsaturated landing command. Not an autonomous sensor.
++        if (privilegedCommand && fixedFlightController && state.navigation.z>=5.0f &&
++            state.threatTeacher.w>=1.5f && (state.status.w & 4095u)!=0u &&
++            (action==7u || action==10u) &&
++            state.nutrition.x>-.099f && state.nutrition.x<.349f) {
++            const float vx=state.commandExtension.z;
++            const float err=(state.nutrition.x-.10f+.60f*vx)/.45f;
++            const float delta=clamp(.5f*(err-.032f-.20f*vx),-.16f,.16f);
++            navigationTeacherRequested=clamp(delta/max(abs(actions[action].parameters.x),.001f),-1.0f,1.0f);
++        }
+         const float navigationTeacherBlend = fixedFlightController
+             ? 1.0f
+             : avianNavigationTeacher

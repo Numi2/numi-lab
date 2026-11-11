@@ -1,0 +1,41 @@
+{
+  "rows": [
+    {
+      "lane": 3,
+      "window_inclusive": [
+        3686,
+        5000
+      ],
+      "duration_s": 26.3,
+      "mean_foot_to_nominal_gravity_impulse": 0.9999496867607434,
+      "minimum_100_interval_mean": 0.9988024890361453,
+      "maximum_100_interval_mean": 1.0008049272102406,
+      "nonfoot_perch_impulse_total_ns": 0.0
+    },
+    {
+      "lane": 4,
+      "window_inclusive": [
+        3677,
+        5000
+      ],
+      "duration_s": 26.48,
+      "mean_foot_to_nominal_gravity_impulse": 0.9999595682621351,
+      "minimum_100_interval_mean": 0.9988948599357543,
+      "maximum_100_interval_mean": 1.0006468319218929,
+      "nonfoot_perch_impulse_total_ns": 0.0
+    },
+    {
+      "lane": 7,
+      "window_inclusive": [
+        3935,
+        5000
+      ],
+      "duration_s": 21.32,
+      "mean_foot_to_nominal_gravity_impulse": 0.9998889574856801,
+      "minimum_100_interval_mean": 0.9989722596227515,
+      "maximum_100_interval_mean": 1.0004758597650325,
+      "nonfoot_perch_impulse_total_ns": 0.0
+    }
+  ],
+  "limitations": "Window average is useful evidence, not an external-force and whole-body momentum closure; upright and speed are sampled at endpoints; teacher is on; no release or held-out layout."
+}

@@ -1,0 +1,9 @@
+{
+  "lane": 3,
+  "reference": "artifacts/crow-v15-landing-root-balance-latch-screen-20261111/trial",
+  "samples_compared": 5001,
+  "first_difference_step": null,
+  "reference_only": 0,
+  "repeat_only": 0,
+  "scope": "State and policy-action endpoint samples only, no contact-substep parity asserted."
+}
