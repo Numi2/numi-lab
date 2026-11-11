@@ -1,0 +1,29 @@
+{
+  "source_hashes": {
+    "control.replay.json.gz": "f4509c7d3a8852c1a4c2ed1184caa671ecfc3682cfdf010f6fea530825538ff4",
+    "control.stderr.gz": "10aa751c0c08057446a62cefb8d1156b0fa532321dd2753192d1749f1837b1a0"
+  },
+  "replay_environment": 1,
+  "observer_lane": 1,
+  "observer_step_offset": 1,
+  "max_q_mismatch": 4.999694824814327e-10,
+  "window": "replay steps 100 through 200 inclusive; observer steps 101 through 201 inclusive",
+  "method": "post-hoc bottom-most rotated box point relative to z=0 ground plane; last-substep support sample only",
+  "sides": {
+    "left": {
+      "maximum_minimum_foot_gap_m": 0.003525062685037078,
+      "clear_over_1mm_samples": 35,
+      "longest_clear_run": 10,
+      "clear_with_opposite_sampled_load_count": 35,
+      "longest_clear_with_opposite_sampled_load": 10
+    },
+    "right": {
+      "maximum_minimum_foot_gap_m": 0.004146009475061942,
+      "clear_over_1mm_samples": 42,
+      "longest_clear_run": 11,
+      "clear_with_opposite_sampled_load_count": 42,
+      "longest_clear_with_opposite_sampled_load": 11
+    }
+  },
+  "limitations": "Single retained development lane, accepted poses and last-substep contacts only; does not measure continuous clearance, contact-point slip or all-substep support."
+}
