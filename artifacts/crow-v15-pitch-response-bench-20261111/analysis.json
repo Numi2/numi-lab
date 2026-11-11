@@ -85,7 +85,7 @@
       "final_100_supported_and_pitch_bound": false,
       "all_run_nonfoot_contact_intervals": 0,
       "toe_speed_cap_substeps": 0,
-      "peak_substep_toe_speed_rad_s": 4.91387272,
+      "peak_substep_toe_speed_rad_s": 4.77575779,
       "missing_contact_substeps": 0,
       "missing_velocity_substeps": 0,
       "pass": false

@@ -13,6 +13,7 @@ with gzip.open(A/"substeps.log.gz","rt") as f:
   if z[0] in ("failure","CROW_SUBSTEP_ERROR"):errors.append(line.strip())
   if z[0] not in ("CROW_TWO_TOE_SUBSTEP","CROW_TOE_VELOCITY"):continue
   t,k,e=map(int,z[1:4]);key=e,t,k
+  if t>ends[e]:continue  # rolled-back attempt is not accepted state
   if z[0]=="CROW_TWO_TOE_SUBSTEP":
    coverage[key]+=1
    if int(z[4])>int(z[5]) or len(z[6:])!=37:overflow.append(key)
