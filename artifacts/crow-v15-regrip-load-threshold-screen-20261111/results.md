@@ -1,0 +1,5 @@
+# Rear-toe load-threshold screen
+
+The unchanged reference, prior near-miss arm, and every candidate before threshold changes reproduced their retained state traces exactly. All 16 arms retained 39 consecutive clear, unloaded left-foot release poses with opposite-foot support and no other-body contact across any substep. None passed the entire predeclared regrip gate. One arm (high 0.006 N s, low 0.002 N s) stayed within the 0.5 mm endpoint overlap limit (worst 0.4922 mm), but maintained bilateral supported opposing force for only 98 of the final 100 samples. Its two terminal misses were loss of right rear-toe opposing force; the left foot had been released. Other arms reached 100/100 force samples but exceeded the geometry limit, and some lost support. All outcomes are retained.
+
+This post-release exploration used one developmental start; endpoint geometry is not continuous swept clearance, and the result does not qualify alternate-foot release, actual arrival, perturbed starts, complete navigation or biological realism.
