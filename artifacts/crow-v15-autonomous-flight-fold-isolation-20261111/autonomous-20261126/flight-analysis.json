@@ -130,5 +130,5 @@
   ],
   "contact_capacity_overflows": [],
   "substep_errors": [],
-  "scope": "Self-contact observer logs contacts with positive normal impulse between crow bodies only, steps 380 through 3800. Ground count uses normal impulses for both feet and other crow bodies against the ground at covered substeps. Sampled 12 rad/s speed caps do not identify physical cause. No biological calibration or continuous flight qualification."
+  "scope": "Self-contact observer logs contacts with normal impulse above 1e-7 N s between crow bodies only, steps 380 through 3800. Ground count uses summed normal impulse above 1e-7 N s for both feet and other crow bodies against the ground at covered substeps. Sampled 12 rad/s speed caps do not identify physical cause. No biological calibration or continuous flight qualification."
 }
