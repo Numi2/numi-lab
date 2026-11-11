@@ -1,0 +1,14 @@
+[
+  {
+    "name": "100mg",
+    "segment_mass_kg": 0.0001,
+    "library_sha256": "d93fba90d24b2417bc7b17c6877431ff26ca49f2681aefb2061b1c35a708027b",
+    "source_sha256": "7cf6371486b7e2457c27b8614687778749e16cd84c6f5a4634153bde466e5f26"
+  },
+  {
+    "name": "200mg",
+    "segment_mass_kg": 0.0002,
+    "library_sha256": "cf226cf3aa99fbdb182930f00c91cf24f258e97672ae2a45a7b77ee8ed0e5a1b",
+    "source_sha256": "0ba23ed581efbf147331d1f044be2c740c7b234beac21153e9052e8eef776bea"
+  }
+]

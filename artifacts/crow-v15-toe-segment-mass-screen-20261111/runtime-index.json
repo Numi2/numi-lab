@@ -1,0 +1,22 @@
+[
+  {
+    "path": "build/crow-v15-toe-segment-mass-screen-20261111/100mg/libmetalrobo.dylib",
+    "sha256": "d93fba90d24b2417bc7b17c6877431ff26ca49f2681aefb2061b1c35a708027b",
+    "bytes": 5764080
+  },
+  {
+    "path": "build/crow-v15-toe-segment-mass-screen-20261111/200mg/libmetalrobo.dylib",
+    "sha256": "cf226cf3aa99fbdb182930f00c91cf24f258e97672ae2a45a7b77ee8ed0e5a1b",
+    "bytes": 5764080
+  },
+  {
+    "path": "build/crow-v15-toe-segment-mass-screen-20261111/100mg/zero.policypack",
+    "sha256": "f2574d6c7ddceccb701af544df96c159d66fd16daa81fea986050760906ae165",
+    "bytes": 2346381
+  },
+  {
+    "path": "build/crow-v15-toe-segment-mass-screen-20261111/200mg/zero.policypack",
+    "sha256": "79795ca3ba6b134b278b804d908e0ea9ec38a3e622cf845179b682740d702e54",
+    "bytes": 2346381
+  }
+]
