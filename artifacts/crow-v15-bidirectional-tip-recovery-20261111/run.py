@@ -1,7 +1,7 @@
 from pathlib import Path
 import gzip,hashlib,json,os,subprocess,sys,threading
 R=Path.cwd();A=R/'artifacts/crow-v15-bidirectional-tip-recovery-20261111';B=R/'build/crow-v15-bidirectional-tip-recovery-20261111';J=R/'artifacts/crow-v15-hip-roll-journey-integration-20261111';L=R/'build/crow-v15-landing-phase-observer-20261111';name=sys.argv[1];assert name == 'autonomous';seed=int(sys.argv[2]) if len(sys.argv)>2 else 20261126;assert seed in (20261126,20261127);tag=sys.argv[3] if len(sys.argv)>3 else '';substeps=int(sys.argv[4]) if len(sys.argv)>4 else 16;assert substeps == 16, "release threshold is calibrated only for this 16-substep diagnostic";assert all(c.isalnum() or c=='-' for c in tag);D=A/(name+'-'+str(seed)+(('-'+tag) if tag else ''));D.mkdir(exist_ok=False);cmd=json.loads((J/'rebound-command.json').read_text());
-for k,v in [('--seed',str(seed)),('--steps','4500'),('--physics-substeps',str(substeps)),('--metallib',str(R/'build/crow-v15-bidirectional-tip-recovery-20261111/feedback.metallib')),('--state-trace',str(B/(D.name+'-trace.tsv'))),('--crow-replay-pack',str(B/(D.name+'-replay.json')))]:cmd[cmd.index(k)+1]=v
+for k,v in [('--seed',str(seed)),('--steps','5000'),('--physics-substeps',str(substeps)),('--metallib',str(R/'build/crow-v15-bidirectional-tip-recovery-20261111/feedback.metallib')),('--state-trace',str(B/(D.name+'-trace.tsv'))),('--crow-replay-pack',str(B/(D.name+'-replay.json')))]:cmd[cmd.index(k)+1]=v
 if substeps==32:
  for option,label in (('--policy-pack','landing'),('--base-policy-pack','route')):
   candidate=B/('phys32-'+label+'.policypack')
