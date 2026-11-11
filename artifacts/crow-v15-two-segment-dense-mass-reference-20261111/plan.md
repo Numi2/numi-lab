@@ -1,0 +1,3 @@
+# Dense articulated operator comparison
+
+Compare the GPU dense articulated mass and inverse impulse response on the same 33-body model against the independent FP64 CPU reference at sampled actual frozen-controller flight states, including the state immediately before the streaming inverse-mass failure and later flight poses. Probe all toe segments with nonzero local point impulses. Require normalized matrix and response L2 errors at most 0.0002 for every sampled state, finite outputs and no operator failure. This is a component calculation check, not proof of the full contact solver, accurate ground impulses, continuous landing, nor a performance qualification.
