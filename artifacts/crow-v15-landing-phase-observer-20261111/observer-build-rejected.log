@@ -1,0 +1,14 @@
+/Users/n/Developer/numi-crow-rl-20261107/build/crow-v15-landing-phase-observer-20261111/MetalWorld.mm:22391:45: warning: missing terminating '"' character [-Winvalid-pp-token]
+ 22391 |                         std::fprintf(stderr,"CROW_PHASE_SAMPLE %llu %lu %u %.9g %.9g %.9g %.9g %.9g %.9g %.9g %.9g
+       |                                             ^
+/Users/n/Developer/numi-crow-rl-20261107/build/crow-v15-landing-phase-observer-20261111/MetalWorld.mm:22391:45: error: expected expression
+/Users/n/Developer/numi-crow-rl-20261107/build/crow-v15-landing-phase-observer-20261111/MetalWorld.mm:22392:1: warning: missing terminating '"' character [-Winvalid-pp-token]
+ 22392 | ",
+       | ^
+2 warnings and 1 error generated.
+Traceback (most recent call last):
+  File "/Users/n/Developer/numi-crow-rl-20261107/artifacts/crow-v15-landing-phase-observer-20261111/build-observer.py", line 41, in <module>
+    args[-1]=str(B/"MetalWorld.mm");args[1:1]=["-I"+str(W/"include"),"-I"+str(R/"src/metal")];subprocess.run(args,cwd=R/"build",check=True)
+  File "/Applications/Xcode-26.6.0.app/Contents/Developer/Library/Frameworks/Python3.framework/Versions/3.9/lib/python3.9/subprocess.py", line 528, in run
+    raise CalledProcessError(retcode, process.args,
+subprocess.CalledProcessError: Command '['/usr/bin/clang++', '-I/Users/n/Developer/numi-crow-rl-20261107/build/crow-v15-wide-contact-isolation-20261111/include', '-I/Users/n/Developer/numi-crow-rl-20261107/src/metal', '-DMETALROBO_BUILDING_LIBRARY=1', '-DMETALROBO_DEFAULT_METALLIB="/Users/n/Developer/numi-crow-rl-20261107/build/shaders/MetalRobo.metallib"', '-Dmetalrobo_EXPORTS', '-I/Users/n/Developer/numi-crow-rl-20261107/include', '-I/Users/n/Developer/numi-crow-rl-20261107/matter/include', '-I/Users/n/Developer/numi-crow-rl-20261107/src', '-I/Users/n/Developer/numi-crow-rl-20261107/build/generated', '-F/Applications/Xcode-26.6.0.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/System/Library/Frameworks', '-isystem', '/Library/Developer/CommandLineTools/SDKs/MacOSX26.sdk/usr/include/libxml2', '-x', 'objective-c++', '-O3', '-DNDEBUG', '-std=c++23', '-arch', 'arm64', '-fPIC', '-fobjc-arc', '-Wall', '-Wextra', '-Wpedantic', '-MD', '-MT', '/Users/n/Developer/numi-crow-rl-20261107/build/crow-v15-landing-phase-observer-20261111/MetalWorld.mm.o', '-MF', '/Users/n/Developer/numi-crow-rl-20261107/build/crow-v15-landing-phase-observer-20261111/MetalWorld.mm.o.d', '-o', '/Users/n/Developer/numi-crow-rl-20261107/build/crow-v15-landing-phase-observer-20261111/MetalWorld.mm.o', '-c', '/Users/n/Developer/numi-crow-rl-20261107/build/crow-v15-landing-phase-observer-20261111/MetalWorld.mm']' returned non-zero exit status 1.

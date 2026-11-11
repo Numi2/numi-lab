@@ -1,0 +1,3 @@
+# Read-only release-state observer
+
+Snapshot existing task state after each control submission to record landing phase, release sequence bits, toe-flight counter, accepted contact loads, goal error, pitch and pitch rate in the lane that previously released and regripped. Re-run the same used development trial with no controller or physics changes, and require accepted q/v/action/contact parity to the original before interpreting the observer. Determine whether late one-foot support reflects a repeated release request, an abort or failed grasp. The observer itself does not qualify landing, physical realism or unseen layouts.

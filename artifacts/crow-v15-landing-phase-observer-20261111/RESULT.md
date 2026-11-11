@@ -1,0 +1,3 @@
+# Matched landing phase observer
+
+The observer reproduced accepted first-episode q/v, policy outputs and endpoint contacts at every step in all eight lanes, without missing samples. All-substep diagnostics also reported complete coverage and no overflow. In development lane 5 the release counter advanced from 150 at step 3534 to 189 and reset at step 3574; after regrip it restarted at 3611, reached 150 at 3760 and reset at 3797. The second attempt explains the late one-foot-dominant support. This is a measured controller-state replay, not proof of biological grip or general landing reliability. The observer build failure log and corrected build are both retained.

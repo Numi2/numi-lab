@@ -1,0 +1,37 @@
+--- a/observer.mm
++++ b/self-contact-observer.mm
+@@ -22373,9 +22373,26 @@
+                 residentData->stateArenaGeneration =
+                     selectedState->stateArenaGeneration;
+             }
++            id<MTLBuffer> crowTaskStateCopy = nil;
++            if (crowTraceWindow) {
++                id<MTLBuffer> sourceTaskState = selectedState->buffers[kTaskState];
++                crowTaskStateCopy = [selectedState->device newBufferWithLength:sourceTaskState.length options:MTLResourceStorageModeShared];
++                if (crowTaskStateCopy == nil) throw std::bad_alloc();
++                id<MTLBlitCommandEncoder> taskStateBlit = [commandBuffer blitCommandEncoder];
++                [taskStateBlit copyFromBuffer:sourceTaskState sourceOffset:0 toBuffer:crowTaskStateCopy destinationOffset:0 size:sourceTaskState.length];
++                [taskStateBlit endEncoding];
++            }
+             if (crowTraceWindow) {
+                 [commandBuffer addCompletedHandler:^(id<MTLCommandBuffer> completed) {
+                     if (completed.status != MTLCommandBufferStatusCompleted) { std::fprintf(stderr,"CROW_SUBSTEP_ERROR %llu\n",crowTraceStep); return; }
++                    const auto* crowStates=static_cast<const MRTaskStateGPU*>(crowTaskStateCopy.contents);
++                    for (NSUInteger lane=0;lane<crowTraceLanes;++lane) {
++                        const auto& state=crowStates[lane];
++                        std::fprintf(stderr,"CROW_PHASE_SAMPLE %llu %lu %u %.9g %.9g %.9g %.9g %.9g %.9g %.9g %.9g\n",
++                            crowTraceStep,(unsigned long)lane,state.status.w,state.threatTeacher.w,
++                            state.nutrition.x,state.nutrition.y,state.commandAndPhase.y,state.commandAndPhase.z,
++                            state.threatGeometry.y,state.threatGeometry.z,state.threatGeometry.w);
++                    }
+                     for (NSUInteger sub=0; sub<crowTraceBuffers.count/3; ++sub) {
+                         id<MTLBuffer> cb=crowTraceBuffers[3*sub], sb=crowTraceBuffers[3*sub+1], vb=crowTraceBuffers[3*sub+2];
+                         const auto* velocities=static_cast<const float*>(vb.contents);
+@@ -22385,6 +22402,7 @@
+                             const auto n=std::min<NSUInteger>(statuses[lane].requiredConstraints,crowTraceCapacity);
+                             float up[2]={}, normal[2]={}, toe[16]={}, signedX[16]={}, other=0;
+                             for(NSUInteger i=0;i<n;++i){const auto& c=contacts[lane*crowTraceCapacity+i];
++                                if (crowTraceStep>=380u && crowTraceStep<=3800u && c.bodyA<35u && c.bodyB<35u && c.impulses.x>1.0e-7f) std::fprintf(stderr,"CROW_SELF_CONTACT %llu %lu %lu %u %u %.9g %.9g\n",crowTraceStep,(unsigned long)sub,(unsigned long)lane,c.bodyA,c.bodyB,c.impulses.x,c.pointAndSeparation.w);
+                                 if (((c.bodyA<35u && c.bodyB>=36u)||(c.bodyB<35u && c.bodyA>=36u)) && c.impulses.x>0.0f) std::fprintf(stderr,"CROW_SCENE_CONTACT %llu %lu %lu %u %u %.9g %.9g %.9g %.9g %.9g %.9g %.9g %.9g %.9g %.9g %.9g %.9g %.9g\n",crowTraceStep,(unsigned long)sub,(unsigned long)lane,c.bodyA,c.bodyB,c.impulses.x,c.impulses.y,c.impulses.z,c.pointAndSeparation.x,c.pointAndSeparation.y,c.pointAndSeparation.z,c.pointAndSeparation.w,c.normal.x,c.normal.y,c.normal.z,c.tangent.x,c.tangent.y,c.tangent.z);
+                                 if (!((c.bodyA<35u&&c.bodyB==35u)||(c.bodyB<35u&&c.bodyA==35u)) || c.impulses.x<=0)continue;
+                                 const float sign=c.bodyB==35u?-1.f:1.f;const unsigned body=c.bodyB==35u?c.bodyA:c.bodyB;
