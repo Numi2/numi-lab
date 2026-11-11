@@ -1,0 +1,246 @@
+{
+  "old_reference_qv_exact": null,
+  "replay_environment": 1,
+  "observer_lane": 1,
+  "replay_to_observer_step_offset": 1,
+  "substeps_per_interval": {
+    "zero32": 32,
+    "zero64": 64
+  },
+  "swing_requires_other_foot_upward_impulse_Ns": 0.044148924000000006,
+  "arms": {
+    "zero32": {
+      "failed_environment_steps": 0,
+      "termination_count": 0,
+      "substep_count": 51712,
+      "last_substep_contact_max_error_Ns": 5.830276521984201e-10,
+      "replay_q_mismatch": 4.978141787681523e-10,
+      "lane_1_swing": {
+        "left": {
+          "qualified_samples": 34,
+          "longest_consecutive": 10,
+          "bouts_3_or_more": [
+            {
+              "first_step": 104,
+              "last_step": 109,
+              "samples": 6
+            },
+            {
+              "first_step": 130,
+              "last_step": 136,
+              "samples": 7
+            },
+            {
+              "first_step": 152,
+              "last_step": 161,
+              "samples": 10
+            },
+            {
+              "first_step": 177,
+              "last_step": 186,
+              "samples": 10
+            }
+          ],
+          "max_minimum_gap_m": 0.003333999790682069
+        },
+        "right": {
+          "qualified_samples": 37,
+          "longest_consecutive": 10,
+          "bouts_3_or_more": [
+            {
+              "first_step": 114,
+              "last_step": 123,
+              "samples": 10
+            },
+            {
+              "first_step": 140,
+              "last_step": 148,
+              "samples": 9
+            },
+            {
+              "first_step": 165,
+              "last_step": 173,
+              "samples": 9
+            },
+            {
+              "first_step": 190,
+              "last_step": 198,
+              "samples": 9
+            }
+          ],
+          "max_minimum_gap_m": 0.0036191842674002765
+        }
+      },
+      "lane_1_root_x_displacement_m": 0.03549657016992569,
+      "max_root_speed_m_s": 0.12256368135866738,
+      "max_tilt_rad": 0.030674399808049202,
+      "lanes": [
+        {
+          "lane": 0,
+          "nonfoot_ground_contact_intervals": 0,
+          "no_foot_normal_intervals": 0,
+          "min_total_foot_up_Ns": 0.007669121204291703
+        },
+        {
+          "lane": 1,
+          "nonfoot_ground_contact_intervals": 0,
+          "no_foot_normal_intervals": 0,
+          "min_total_foot_up_Ns": 0.007748287557515662
+        },
+        {
+          "lane": 2,
+          "nonfoot_ground_contact_intervals": 0,
+          "no_foot_normal_intervals": 0,
+          "min_total_foot_up_Ns": 0.0076940593458725195
+        },
+        {
+          "lane": 3,
+          "nonfoot_ground_contact_intervals": 0,
+          "no_foot_normal_intervals": 0,
+          "min_total_foot_up_Ns": 0.007630803633569436
+        },
+        {
+          "lane": 4,
+          "nonfoot_ground_contact_intervals": 0,
+          "no_foot_normal_intervals": 0,
+          "min_total_foot_up_Ns": 0.00777459741645495
+        },
+        {
+          "lane": 5,
+          "nonfoot_ground_contact_intervals": 0,
+          "no_foot_normal_intervals": 0,
+          "min_total_foot_up_Ns": 0.007687019984519716
+        },
+        {
+          "lane": 6,
+          "nonfoot_ground_contact_intervals": 0,
+          "no_foot_normal_intervals": 0,
+          "min_total_foot_up_Ns": 0.007750267462215639
+        },
+        {
+          "lane": 7,
+          "nonfoot_ground_contact_intervals": 0,
+          "no_foot_normal_intervals": 0,
+          "min_total_foot_up_Ns": 0.007603732947859658
+        }
+      ]
+    },
+    "zero64": {
+      "failed_environment_steps": 0,
+      "termination_count": 0,
+      "substep_count": 103424,
+      "last_substep_contact_max_error_Ns": 5.062500002539494e-10,
+      "replay_q_mismatch": 4.998473857042995e-10,
+      "lane_1_swing": {
+        "left": {
+          "qualified_samples": 34,
+          "longest_consecutive": 10,
+          "bouts_3_or_more": [
+            {
+              "first_step": 104,
+              "last_step": 109,
+              "samples": 6
+            },
+            {
+              "first_step": 130,
+              "last_step": 136,
+              "samples": 7
+            },
+            {
+              "first_step": 152,
+              "last_step": 161,
+              "samples": 10
+            },
+            {
+              "first_step": 177,
+              "last_step": 186,
+              "samples": 10
+            }
+          ],
+          "max_minimum_gap_m": 0.0033384113401093637
+        },
+        "right": {
+          "qualified_samples": 35,
+          "longest_consecutive": 10,
+          "bouts_3_or_more": [
+            {
+              "first_step": 114,
+              "last_step": 123,
+              "samples": 10
+            },
+            {
+              "first_step": 140,
+              "last_step": 148,
+              "samples": 9
+            },
+            {
+              "first_step": 166,
+              "last_step": 173,
+              "samples": 8
+            },
+            {
+              "first_step": 191,
+              "last_step": 198,
+              "samples": 8
+            }
+          ],
+          "max_minimum_gap_m": 0.0035995611905817494
+        }
+      },
+      "lane_1_root_x_displacement_m": 0.03700293879956007,
+      "max_root_speed_m_s": 0.13466052568245718,
+      "max_tilt_rad": 0.03060040809214115,
+      "lanes": [
+        {
+          "lane": 0,
+          "nonfoot_ground_contact_intervals": 0,
+          "no_foot_normal_intervals": 0,
+          "min_total_foot_up_Ns": 0.007780082934700629
+        },
+        {
+          "lane": 1,
+          "nonfoot_ground_contact_intervals": 0,
+          "no_foot_normal_intervals": 0,
+          "min_total_foot_up_Ns": 0.00851055699810051
+        },
+        {
+          "lane": 2,
+          "nonfoot_ground_contact_intervals": 0,
+          "no_foot_normal_intervals": 0,
+          "min_total_foot_up_Ns": 0.00775874335900063
+        },
+        {
+          "lane": 3,
+          "nonfoot_ground_contact_intervals": 0,
+          "no_foot_normal_intervals": 0,
+          "min_total_foot_up_Ns": 0.007718867882300601
+        },
+        {
+          "lane": 4,
+          "nonfoot_ground_contact_intervals": 0,
+          "no_foot_normal_intervals": 0,
+          "min_total_foot_up_Ns": 0.0077128160345005985
+        },
+        {
+          "lane": 5,
+          "nonfoot_ground_contact_intervals": 0,
+          "no_foot_normal_intervals": 0,
+          "min_total_foot_up_Ns": 0.007714911735000629
+        },
+        {
+          "lane": 6,
+          "nonfoot_ground_contact_intervals": 0,
+          "no_foot_normal_intervals": 0,
+          "min_total_foot_up_Ns": 0.007699642414400604
+        },
+        {
+          "lane": 7,
+          "nonfoot_ground_contact_intervals": 0,
+          "no_foot_normal_intervals": 0,
+          "min_total_foot_up_Ns": 0.0076494061920006
+        }
+      ]
+    }
+  },
+  "limitations": "one replayed lane for geometry, 2-second window, endpoint gap and complete-interval impulse; no contact-point slip, 32/64-substep convergence, takeoff or course qualification"
+}

@@ -1,0 +1,68 @@
+{
+  "initial_returncode": 1,
+  "actors": [
+    {
+      "name": "landing",
+      "source_sha256": "bb555db89283f6ebe205d16f33310c51e111cf3ac06e58884599ad66bc2c8469",
+      "target_sha256": "e826a1d4b955ca96787a230f4b2fd6b3e0b425a68e537eac976fb0c0edf39c7a",
+      "weights_and_transforms_identical": true
+    },
+    {
+      "name": "route",
+      "source_sha256": "d964761a1f22029da1ef7af5ae9ce6c9f88f8e015f55bd2c3cf21338856c2a31",
+      "target_sha256": "826d7dc98a291208c5ea7f6f32ca8784ce5b60e1298bc8047de2cc8715476ebd",
+      "weights_and_transforms_identical": true
+    }
+  ],
+  "contract": {
+    "world": 16890567359388698936,
+    "task": 4263018666441291915,
+    "observation": 338216794492406674,
+    "action": 5304724975174157631
+  },
+  "argv": [
+    "/Users/n/Developer/numi-crow-rl-20261107/build/bin/metalrobo_task_rollout",
+    "--birdflow-american-crow-journey",
+    "--birdflow-journey-variant",
+    "v15-conditional-landing-navigation",
+    "--metallib",
+    "/Users/n/Developer/numi-crow-rl-20261107/build/crow-v15-toe-launch-control-20261110/control.metallib",
+    "--birdflow-navigation-course",
+    "training",
+    "--envs",
+    "8",
+    "--steps",
+    "201",
+    "--repeats",
+    "1",
+    "--chunk",
+    "1",
+    "--physics-substeps",
+    "32",
+    "--seed",
+    "20261126",
+    "--no-scheduled-resets",
+    "--minimum-difficulty-band",
+    "10",
+    "--maximum-difficulty-band",
+    "10",
+    "--policy-pack",
+    "/Users/n/Developer/numi-crow-rl-20261107/build/crow-v15-walk-temporal-refinement-20261111/zero32/landing.policypack",
+    "--visual-observation-config",
+    "assets/crow_navigation_course/crow-navigation.active-head.visual-observation.json",
+    "--state-trace",
+    "/Users/n/Developer/numi-crow-rl-20261107/build/crow-v15-walk-temporal-refinement-20261111/zero32.tsv",
+    "--state-trace-environment",
+    "1",
+    "--base-policy-pack",
+    "/Users/n/Developer/numi-crow-rl-20261107/build/crow-v15-walk-temporal-refinement-20261111/zero32/route.policypack",
+    "--crow-replay-pack",
+    "/Users/n/Developer/numi-crow-rl-20261107/build/crow-v15-walk-temporal-refinement-20261111/zero32.json"
+  ],
+  "library_sha256": "e17c6f2b3bc989f1645310782f848672debad29f98272cb64b8b56a72e580d14",
+  "shader_sha256": "b30788c68acce16b1e40d4e064b6fe57a46c42ae03d0ee6b8ec2e5f2d55d4e72",
+  "policy_sha256": {
+    "landing": "e826a1d4b955ca96787a230f4b2fd6b3e0b425a68e537eac976fb0c0edf39c7a",
+    "route": "826d7dc98a291208c5ea7f6f32ca8784ce5b60e1298bc8047de2cc8715476ebd"
+  }
+}

@@ -1,0 +1,5 @@
+# Walking time-step refinement
+
+At 32 and 64 physics substeps, all eight development starts retained foot contact throughout the two-second walking window, had no non-foot ground contact there, and had zero failed environment steps or native terminations. The replayed lane showed four alternating physically unloaded, >1 mm-clear swing bouts per foot at each resolution, with the other foot carrying at least half body weight over each qualifying interval. Root forward displacement was 3.55 cm at 32 and 3.70 cm at 64, compared with 2.59 cm at 16 and 5.58 cm at four substeps.
+
+The 32-to-64 difference is smaller than the 16-to-32 difference for this metric, but this limited comparison does not establish numerical convergence, continuous geometry or contact-point slip. It covers only a short walk on development starts, not reliable takeoff, landing, full navigation or biological validation. The failed first preflight due to a malformed substep argument is retained; no physics ran in that attempt. Both actors were rebound without changing their weights or transforms.
