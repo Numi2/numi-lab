@@ -1,0 +1,1889 @@
+{
+  "20261126": {
+    "before_gait_differences": [],
+    "before_gait_difference_count": 0,
+    "max_replay_position_error_m": 4.667734170657155e-09,
+    "max_replay_q_error": 4.997101066273046e-10,
+    "flight_failed_environment_steps": 0,
+    "flight_termination_count": 0,
+    "leg_failed_environment_steps": 0,
+    "leg_termination_count": 0,
+    "lanes": [
+      {
+        "lane": 0,
+        "left_gait_bouts": [
+          [
+            127,
+            137,
+            11
+          ],
+          [
+            153,
+            162,
+            10
+          ],
+          [
+            178,
+            187,
+            10
+          ]
+        ],
+        "right_gait_bouts": [
+          [
+            120,
+            123,
+            4
+          ],
+          [
+            142,
+            149,
+            8
+          ],
+          [
+            166,
+            174,
+            9
+          ],
+          [
+            191,
+            199,
+            9
+          ]
+        ],
+        "gait_alternating": true,
+        "gait_low_support_substeps": [],
+        "gait_nonfoot_contacts": [],
+        "gait_distance_m": 0.024917840059999998,
+        "gait_maximum_tilt_rad": 0.030421387624086176,
+        "gait_maximum_speed_m_s": 0.07669910461702031,
+        "walk_pass": true,
+        "leg_first_unload": 253,
+        "leg_rising": true,
+        "leg_height_gain_m": 0.040185973000000014,
+        "leg_first_recontact": 260,
+        "leg_missing_intervals": [],
+        "paired_differences": [],
+        "leg_minimum_toe_sole_gap_m": 0.006346810289558566,
+        "leg_pass": true,
+        "first_flight_ground_recontact": null,
+        "flight_missing_intervals": [],
+        "flight_metrics": {
+          "353": {
+            "height_gain_m": 0.5144991720000001,
+            "forward_speed_m_s": 0.248580888,
+            "tilt_rad": 0.09138538348563917
+          },
+          "500": {
+            "height_gain_m": 0.9898049120000001,
+            "forward_speed_m_s": 0.265588313,
+            "tilt_rad": 0.045291864081512326
+          }
+        },
+        "first_relative_x_min": [
+          317,
+          -0.2229668053
+        ],
+        "flight_pass": true,
+        "pass": true
+      },
+      {
+        "lane": 1,
+        "left_gait_bouts": [
+          [
+            127,
+            137,
+            11
+          ],
+          [
+            153,
+            162,
+            10
+          ],
+          [
+            178,
+            187,
+            10
+          ]
+        ],
+        "right_gait_bouts": [
+          [
+            120,
+            123,
+            4
+          ],
+          [
+            142,
+            149,
+            8
+          ],
+          [
+            166,
+            174,
+            9
+          ],
+          [
+            191,
+            199,
+            9
+          ]
+        ],
+        "gait_alternating": true,
+        "gait_low_support_substeps": [],
+        "gait_nonfoot_contacts": [],
+        "gait_distance_m": 0.02526652628,
+        "gait_maximum_tilt_rad": 0.03145538376339993,
+        "gait_maximum_speed_m_s": 0.07603361332944221,
+        "walk_pass": true,
+        "leg_first_unload": 253,
+        "leg_rising": true,
+        "leg_height_gain_m": 0.040298237999999986,
+        "leg_first_recontact": 260,
+        "leg_missing_intervals": [],
+        "paired_differences": [],
+        "leg_minimum_toe_sole_gap_m": 0.006395855082002976,
+        "leg_pass": true,
+        "first_flight_ground_recontact": null,
+        "flight_missing_intervals": [],
+        "flight_metrics": {
+          "353": {
+            "height_gain_m": 0.514516085,
+            "forward_speed_m_s": 0.248544991,
+            "tilt_rad": 0.09139794144845714
+          },
+          "500": {
+            "height_gain_m": 0.98505148,
+            "forward_speed_m_s": 0.265722454,
+            "tilt_rad": 0.04490414372618089
+          }
+        },
+        "first_relative_x_min": [
+          317,
+          -0.22353762889999998
+        ],
+        "flight_pass": true,
+        "pass": true
+      },
+      {
+        "lane": 2,
+        "left_gait_bouts": [
+          [
+            127,
+            137,
+            11
+          ],
+          [
+            153,
+            162,
+            10
+          ],
+          [
+            178,
+            187,
+            10
+          ]
+        ],
+        "right_gait_bouts": [
+          [
+            120,
+            123,
+            4
+          ],
+          [
+            142,
+            149,
+            8
+          ],
+          [
+            166,
+            174,
+            9
+          ],
+          [
+            191,
+            199,
+            9
+          ]
+        ],
+        "gait_alternating": true,
+        "gait_low_support_substeps": [],
+        "gait_nonfoot_contacts": [],
+        "gait_distance_m": 0.02545427115,
+        "gait_maximum_tilt_rad": 0.0314527528381623,
+        "gait_maximum_speed_m_s": 0.07603794720752145,
+        "walk_pass": true,
+        "leg_first_unload": 253,
+        "leg_rising": true,
+        "leg_height_gain_m": 0.04030413899999999,
+        "leg_first_recontact": 260,
+        "leg_missing_intervals": [],
+        "paired_differences": [],
+        "leg_minimum_toe_sole_gap_m": 0.0063829038603810395,
+        "leg_pass": true,
+        "first_flight_ground_recontact": null,
+        "flight_missing_intervals": [],
+        "flight_metrics": {
+          "353": {
+            "height_gain_m": 0.514567971,
+            "forward_speed_m_s": 0.248153046,
+            "tilt_rad": 0.09136287914469811
+          },
+          "500": {
+            "height_gain_m": 0.987592463,
+            "forward_speed_m_s": 0.265621305,
+            "tilt_rad": 0.0451670281742654
+          }
+        },
+        "first_relative_x_min": [
+          317,
+          -0.2236457639
+        ],
+        "flight_pass": true,
+        "pass": true
+      },
+      {
+        "lane": 3,
+        "left_gait_bouts": [
+          [
+            127,
+            137,
+            11
+          ],
+          [
+            153,
+            162,
+            10
+          ],
+          [
+            178,
+            187,
+            10
+          ]
+        ],
+        "right_gait_bouts": [
+          [
+            120,
+            123,
+            4
+          ],
+          [
+            142,
+            149,
+            8
+          ],
+          [
+            166,
+            174,
+            9
+          ],
+          [
+            191,
+            199,
+            9
+          ]
+        ],
+        "gait_alternating": true,
+        "gait_low_support_substeps": [],
+        "gait_nonfoot_contacts": [],
+        "gait_distance_m": 0.02482041108,
+        "gait_maximum_tilt_rad": 0.030498513927549983,
+        "gait_maximum_speed_m_s": 0.07571285452822192,
+        "walk_pass": true,
+        "leg_first_unload": 253,
+        "leg_rising": true,
+        "leg_height_gain_m": 0.04022414899999999,
+        "leg_first_recontact": 260,
+        "leg_missing_intervals": [],
+        "paired_differences": [],
+        "leg_minimum_toe_sole_gap_m": 0.006353918520315936,
+        "leg_pass": true,
+        "first_flight_ground_recontact": null,
+        "flight_missing_intervals": [],
+        "flight_metrics": {
+          "353": {
+            "height_gain_m": 0.514516875,
+            "forward_speed_m_s": 0.248478398,
+            "tilt_rad": 0.09138153808202633
+          },
+          "500": {
+            "height_gain_m": 0.9885402759999999,
+            "forward_speed_m_s": 0.265456647,
+            "tilt_rad": 0.04517682177917457
+          }
+        },
+        "first_relative_x_min": [
+          317,
+          -0.2231946368
+        ],
+        "flight_pass": true,
+        "pass": true
+      },
+      {
+        "lane": 4,
+        "left_gait_bouts": [
+          [
+            127,
+            137,
+            11
+          ],
+          [
+            153,
+            162,
+            10
+          ],
+          [
+            178,
+            187,
+            10
+          ]
+        ],
+        "right_gait_bouts": [
+          [
+            120,
+            123,
+            4
+          ],
+          [
+            142,
+            149,
+            8
+          ],
+          [
+            166,
+            174,
+            9
+          ],
+          [
+            191,
+            199,
+            9
+          ]
+        ],
+        "gait_alternating": true,
+        "gait_low_support_substeps": [],
+        "gait_nonfoot_contacts": [],
+        "gait_distance_m": 0.02537583469,
+        "gait_maximum_tilt_rad": 0.03143160045633239,
+        "gait_maximum_speed_m_s": 0.0761432716418054,
+        "walk_pass": true,
+        "leg_first_unload": 253,
+        "leg_rising": true,
+        "leg_height_gain_m": 0.04021909800000001,
+        "leg_first_recontact": 260,
+        "leg_missing_intervals": [],
+        "paired_differences": [],
+        "leg_minimum_toe_sole_gap_m": 0.006347147956221891,
+        "leg_pass": true,
+        "first_flight_ground_recontact": null,
+        "flight_missing_intervals": [],
+        "flight_metrics": {
+          "353": {
+            "height_gain_m": 0.514531851,
+            "forward_speed_m_s": 0.248369664,
+            "tilt_rad": 0.09137075064728623
+          },
+          "500": {
+            "height_gain_m": 0.9914543579999999,
+            "forward_speed_m_s": 0.265819013,
+            "tilt_rad": 0.0453182890486308
+          }
+        },
+        "first_relative_x_min": [
+          317,
+          -0.2231888414
+        ],
+        "flight_pass": true,
+        "pass": true
+      },
+      {
+        "lane": 5,
+        "left_gait_bouts": [
+          [
+            127,
+            137,
+            11
+          ],
+          [
+            153,
+            162,
+            10
+          ],
+          [
+            178,
+            187,
+            10
+          ]
+        ],
+        "right_gait_bouts": [
+          [
+            120,
+            123,
+            4
+          ],
+          [
+            142,
+            149,
+            8
+          ],
+          [
+            166,
+            174,
+            9
+          ],
+          [
+            191,
+            199,
+            9
+          ]
+        ],
+        "gait_alternating": true,
+        "gait_low_support_substeps": [],
+        "gait_nonfoot_contacts": [],
+        "gait_distance_m": 0.024885803260000002,
+        "gait_maximum_tilt_rad": 0.03044029886987697,
+        "gait_maximum_speed_m_s": 0.0761472125976935,
+        "walk_pass": true,
+        "leg_first_unload": 253,
+        "leg_rising": true,
+        "leg_height_gain_m": 0.040146187,
+        "leg_first_recontact": 260,
+        "leg_missing_intervals": [],
+        "paired_differences": [],
+        "leg_minimum_toe_sole_gap_m": 0.006325548991510787,
+        "leg_pass": true,
+        "first_flight_ground_recontact": null,
+        "flight_missing_intervals": [],
+        "flight_metrics": {
+          "353": {
+            "height_gain_m": 0.514528468,
+            "forward_speed_m_s": 0.248351932,
+            "tilt_rad": 0.09136403608966068
+          },
+          "500": {
+            "height_gain_m": 0.990519419,
+            "forward_speed_m_s": 0.265074402,
+            "tilt_rad": 0.045282196265384
+          }
+        },
+        "first_relative_x_min": [
+          317,
+          -0.2230128642
+        ],
+        "flight_pass": true,
+        "pass": true
+      },
+      {
+        "lane": 6,
+        "left_gait_bouts": [
+          [
+            127,
+            137,
+            11
+          ],
+          [
+            153,
+            162,
+            10
+          ],
+          [
+            178,
+            187,
+            10
+          ]
+        ],
+        "right_gait_bouts": [
+          [
+            120,
+            123,
+            4
+          ],
+          [
+            142,
+            149,
+            8
+          ],
+          [
+            166,
+            174,
+            9
+          ],
+          [
+            191,
+            199,
+            9
+          ]
+        ],
+        "gait_alternating": true,
+        "gait_low_support_substeps": [],
+        "gait_nonfoot_contacts": [],
+        "gait_distance_m": 0.025402199499999997,
+        "gait_maximum_tilt_rad": 0.03143516523914309,
+        "gait_maximum_speed_m_s": 0.07650453254130887,
+        "walk_pass": true,
+        "leg_first_unload": 253,
+        "leg_rising": true,
+        "leg_height_gain_m": 0.040099634999999995,
+        "leg_first_recontact": 260,
+        "leg_missing_intervals": [],
+        "paired_differences": [],
+        "leg_minimum_toe_sole_gap_m": 0.006282091237005186,
+        "leg_pass": true,
+        "first_flight_ground_recontact": null,
+        "flight_missing_intervals": [],
+        "flight_metrics": {
+          "353": {
+            "height_gain_m": 0.5145474969999999,
+            "forward_speed_m_s": 0.248175874,
+            "tilt_rad": 0.0913401146410023
+          },
+          "500": {
+            "height_gain_m": 0.994017149,
+            "forward_speed_m_s": 0.2650958,
+            "tilt_rad": 0.04533498228393007
+          }
+        },
+        "first_relative_x_min": [
+          317,
+          -0.2227812112
+        ],
+        "flight_pass": true,
+        "pass": true
+      },
+      {
+        "lane": 7,
+        "left_gait_bouts": [
+          [
+            127,
+            137,
+            11
+          ],
+          [
+            153,
+            162,
+            10
+          ],
+          [
+            178,
+            187,
+            10
+          ]
+        ],
+        "right_gait_bouts": [
+          [
+            120,
+            123,
+            4
+          ],
+          [
+            142,
+            149,
+            8
+          ],
+          [
+            166,
+            174,
+            9
+          ],
+          [
+            191,
+            199,
+            9
+          ]
+        ],
+        "gait_alternating": true,
+        "gait_low_support_substeps": [],
+        "gait_nonfoot_contacts": [],
+        "gait_distance_m": 0.024920644199999998,
+        "gait_maximum_tilt_rad": 0.03042090004209545,
+        "gait_maximum_speed_m_s": 0.07623517120637437,
+        "walk_pass": true,
+        "leg_first_unload": 253,
+        "leg_rising": true,
+        "leg_height_gain_m": 0.04013383300000001,
+        "leg_first_recontact": 260,
+        "leg_missing_intervals": [],
+        "paired_differences": [],
+        "leg_minimum_toe_sole_gap_m": 0.006334205226332379,
+        "leg_pass": true,
+        "first_flight_ground_recontact": null,
+        "flight_missing_intervals": [],
+        "flight_metrics": {
+          "353": {
+            "height_gain_m": 0.514467597,
+            "forward_speed_m_s": 0.24879916,
+            "tilt_rad": 0.09139866145831478
+          },
+          "500": {
+            "height_gain_m": 0.9906152469999999,
+            "forward_speed_m_s": 0.265436232,
+            "tilt_rad": 0.04514101785901564
+          }
+        },
+        "first_relative_x_min": [
+          317,
+          -0.2226868342
+        ],
+        "flight_pass": true,
+        "pass": true
+      }
+    ],
+    "pass": true
+  },
+  "91827463": {
+    "before_gait_differences": [],
+    "before_gait_difference_count": 0,
+    "max_replay_position_error_m": 4.7549369100554465e-09,
+    "max_replay_q_error": 4.999389791038311e-10,
+    "flight_failed_environment_steps": 0,
+    "flight_termination_count": 0,
+    "leg_failed_environment_steps": 0,
+    "leg_termination_count": 0,
+    "lanes": [
+      {
+        "lane": 0,
+        "left_gait_bouts": [
+          [
+            127,
+            137,
+            11
+          ],
+          [
+            153,
+            162,
+            10
+          ],
+          [
+            178,
+            187,
+            10
+          ]
+        ],
+        "right_gait_bouts": [
+          [
+            120,
+            123,
+            4
+          ],
+          [
+            142,
+            149,
+            8
+          ],
+          [
+            166,
+            174,
+            9
+          ],
+          [
+            191,
+            199,
+            9
+          ]
+        ],
+        "gait_alternating": true,
+        "gait_low_support_substeps": [],
+        "gait_nonfoot_contacts": [],
+        "gait_distance_m": 0.024882843699999997,
+        "gait_maximum_tilt_rad": 0.030416284943848196,
+        "gait_maximum_speed_m_s": 0.07630342818263468,
+        "walk_pass": true,
+        "leg_first_unload": 253,
+        "leg_rising": true,
+        "leg_height_gain_m": 0.040132359000000006,
+        "leg_first_recontact": 260,
+        "leg_missing_intervals": [],
+        "paired_differences": [],
+        "leg_minimum_toe_sole_gap_m": 0.0063316787078024316,
+        "leg_pass": true,
+        "first_flight_ground_recontact": null,
+        "flight_missing_intervals": [],
+        "flight_metrics": {
+          "353": {
+            "height_gain_m": 0.514504046,
+            "forward_speed_m_s": 0.248534098,
+            "tilt_rad": 0.09137972129592525
+          },
+          "500": {
+            "height_gain_m": 0.98750284,
+            "forward_speed_m_s": 0.265872657,
+            "tilt_rad": 0.0449999251446643
+          }
+        },
+        "first_relative_x_min": [
+          317,
+          -0.2229265414
+        ],
+        "flight_pass": true,
+        "pass": true
+      },
+      {
+        "lane": 1,
+        "left_gait_bouts": [
+          [
+            127,
+            137,
+            11
+          ],
+          [
+            153,
+            162,
+            10
+          ],
+          [
+            178,
+            187,
+            10
+          ]
+        ],
+        "right_gait_bouts": [
+          [
+            120,
+            123,
+            4
+          ],
+          [
+            142,
+            149,
+            8
+          ],
+          [
+            166,
+            174,
+            9
+          ],
+          [
+            191,
+            199,
+            9
+          ]
+        ],
+        "gait_alternating": true,
+        "gait_low_support_substeps": [],
+        "gait_nonfoot_contacts": [],
+        "gait_distance_m": 0.02545418731,
+        "gait_maximum_tilt_rad": 0.03144517727781113,
+        "gait_maximum_speed_m_s": 0.0759546415086661,
+        "walk_pass": true,
+        "leg_first_unload": 253,
+        "leg_rising": true,
+        "leg_height_gain_m": 0.040121794000000016,
+        "leg_first_recontact": 260,
+        "leg_missing_intervals": [],
+        "paired_differences": [],
+        "leg_minimum_toe_sole_gap_m": 0.006312884484779388,
+        "leg_pass": true,
+        "first_flight_ground_recontact": null,
+        "flight_missing_intervals": [],
+        "flight_metrics": {
+          "353": {
+            "height_gain_m": 0.514526069,
+            "forward_speed_m_s": 0.248365328,
+            "tilt_rad": 0.09136280151428802
+          },
+          "500": {
+            "height_gain_m": 0.9860054260000001,
+            "forward_speed_m_s": 0.265865356,
+            "tilt_rad": 0.04504783134439287
+          }
+        },
+        "first_relative_x_min": [
+          317,
+          -0.2229230143
+        ],
+        "flight_pass": true,
+        "pass": true
+      },
+      {
+        "lane": 2,
+        "left_gait_bouts": [
+          [
+            127,
+            137,
+            11
+          ],
+          [
+            153,
+            162,
+            10
+          ],
+          [
+            178,
+            187,
+            10
+          ]
+        ],
+        "right_gait_bouts": [
+          [
+            120,
+            123,
+            4
+          ],
+          [
+            142,
+            149,
+            8
+          ],
+          [
+            166,
+            174,
+            9
+          ],
+          [
+            191,
+            199,
+            9
+          ]
+        ],
+        "gait_alternating": true,
+        "gait_low_support_substeps": [],
+        "gait_nonfoot_contacts": [],
+        "gait_distance_m": 0.02533970382,
+        "gait_maximum_tilt_rad": 0.03145297833496206,
+        "gait_maximum_speed_m_s": 0.07603296018959625,
+        "walk_pass": true,
+        "leg_first_unload": 253,
+        "leg_rising": true,
+        "leg_height_gain_m": 0.040227651,
+        "leg_first_recontact": 260,
+        "leg_missing_intervals": [],
+        "paired_differences": [],
+        "leg_minimum_toe_sole_gap_m": 0.006357087309682621,
+        "leg_pass": true,
+        "first_flight_ground_recontact": null,
+        "flight_missing_intervals": [],
+        "flight_metrics": {
+          "353": {
+            "height_gain_m": 0.514562025,
+            "forward_speed_m_s": 0.248172611,
+            "tilt_rad": 0.09135912411690626
+          },
+          "500": {
+            "height_gain_m": 0.989681196,
+            "forward_speed_m_s": 0.265703022,
+            "tilt_rad": 0.045336669299383694
+          }
+        },
+        "first_relative_x_min": [
+          317,
+          -0.2234370746
+        ],
+        "flight_pass": true,
+        "pass": true
+      },
+      {
+        "lane": 3,
+        "left_gait_bouts": [
+          [
+            127,
+            137,
+            11
+          ],
+          [
+            153,
+            162,
+            10
+          ],
+          [
+            178,
+            187,
+            10
+          ]
+        ],
+        "right_gait_bouts": [
+          [
+            120,
+            123,
+            4
+          ],
+          [
+            142,
+            149,
+            8
+          ],
+          [
+            166,
+            174,
+            9
+          ],
+          [
+            191,
+            199,
+            9
+          ]
+        ],
+        "gait_alternating": true,
+        "gait_low_support_substeps": [],
+        "gait_nonfoot_contacts": [],
+        "gait_distance_m": 0.02486971482,
+        "gait_maximum_tilt_rad": 0.030421309732694017,
+        "gait_maximum_speed_m_s": 0.07593333307666704,
+        "walk_pass": true,
+        "leg_first_unload": 253,
+        "leg_rising": true,
+        "leg_height_gain_m": 0.04008530100000002,
+        "leg_first_recontact": 260,
+        "leg_missing_intervals": [],
+        "paired_differences": [],
+        "leg_minimum_toe_sole_gap_m": 0.006296174677906417,
+        "leg_pass": true,
+        "first_flight_ground_recontact": null,
+        "flight_missing_intervals": [],
+        "flight_metrics": {
+          "353": {
+            "height_gain_m": 0.5145316129999999,
+            "forward_speed_m_s": 0.248302817,
+            "tilt_rad": 0.09135356100921452
+          },
+          "500": {
+            "height_gain_m": 0.991964517,
+            "forward_speed_m_s": 0.265792757,
+            "tilt_rad": 0.045152117266365886
+          }
+        },
+        "first_relative_x_min": [
+          317,
+          -0.22279557893
+        ],
+        "flight_pass": true,
+        "pass": true
+      },
+      {
+        "lane": 4,
+        "left_gait_bouts": [
+          [
+            127,
+            137,
+            11
+          ],
+          [
+            153,
+            162,
+            10
+          ],
+          [
+            178,
+            187,
+            10
+          ]
+        ],
+        "right_gait_bouts": [
+          [
+            120,
+            123,
+            4
+          ],
+          [
+            142,
+            149,
+            8
+          ],
+          [
+            166,
+            174,
+            9
+          ],
+          [
+            191,
+            199,
+            9
+          ]
+        ],
+        "gait_alternating": true,
+        "gait_low_support_substeps": [],
+        "gait_nonfoot_contacts": [],
+        "gait_distance_m": 0.0253485693,
+        "gait_maximum_tilt_rad": 0.031447324633673106,
+        "gait_maximum_speed_m_s": 0.07621289577586735,
+        "walk_pass": true,
+        "leg_first_unload": 253,
+        "leg_rising": true,
+        "leg_height_gain_m": 0.04023005099999999,
+        "leg_first_recontact": 260,
+        "leg_missing_intervals": [],
+        "paired_differences": [],
+        "leg_minimum_toe_sole_gap_m": 0.006353692309303655,
+        "leg_pass": true,
+        "first_flight_ground_recontact": null,
+        "flight_missing_intervals": [],
+        "flight_metrics": {
+          "353": {
+            "height_gain_m": 0.514514774,
+            "forward_speed_m_s": 0.2485082,
+            "tilt_rad": 0.09138236757150352
+          },
+          "500": {
+            "height_gain_m": 0.9901103119999999,
+            "forward_speed_m_s": 0.265928388,
+            "tilt_rad": 0.045288179913102515
+          }
+        },
+        "first_relative_x_min": [
+          317,
+          -0.22311354979999998
+        ],
+        "flight_pass": true,
+        "pass": true
+      },
+      {
+        "lane": 5,
+        "left_gait_bouts": [
+          [
+            127,
+            137,
+            11
+          ],
+          [
+            153,
+            162,
+            10
+          ],
+          [
+            178,
+            187,
+            10
+          ]
+        ],
+        "right_gait_bouts": [
+          [
+            120,
+            123,
+            4
+          ],
+          [
+            142,
+            149,
+            8
+          ],
+          [
+            166,
+            174,
+            9
+          ],
+          [
+            191,
+            199,
+            9
+          ]
+        ],
+        "gait_alternating": true,
+        "gait_low_support_substeps": [],
+        "gait_nonfoot_contacts": [],
+        "gait_distance_m": 0.02539185338,
+        "gait_maximum_tilt_rad": 0.031461888188769487,
+        "gait_maximum_speed_m_s": 0.07615413556565948,
+        "walk_pass": true,
+        "leg_first_unload": 253,
+        "leg_rising": true,
+        "leg_height_gain_m": 0.040271521000000005,
+        "leg_first_recontact": 260,
+        "leg_missing_intervals": [],
+        "paired_differences": [],
+        "leg_minimum_toe_sole_gap_m": 0.0063740379539016945,
+        "leg_pass": true,
+        "first_flight_ground_recontact": null,
+        "flight_missing_intervals": [],
+        "flight_metrics": {
+          "353": {
+            "height_gain_m": 0.514512405,
+            "forward_speed_m_s": 0.248550862,
+            "tilt_rad": 0.09139290484004571
+          },
+          "500": {
+            "height_gain_m": 0.9888555809999999,
+            "forward_speed_m_s": 0.265729964,
+            "tilt_rad": 0.0451730020095946
+          }
+        },
+        "first_relative_x_min": [
+          317,
+          -0.22326878518999999
+        ],
+        "flight_pass": true,
+        "pass": true
+      },
+      {
+        "lane": 6,
+        "left_gait_bouts": [
+          [
+            127,
+            137,
+            11
+          ],
+          [
+            153,
+            162,
+            10
+          ],
+          [
+            178,
+            187,
+            10
+          ]
+        ],
+        "right_gait_bouts": [
+          [
+            120,
+            123,
+            4
+          ],
+          [
+            142,
+            149,
+            8
+          ],
+          [
+            166,
+            174,
+            9
+          ],
+          [
+            191,
+            199,
+            9
+          ]
+        ],
+        "gait_alternating": true,
+        "gait_low_support_substeps": [],
+        "gait_nonfoot_contacts": [],
+        "gait_distance_m": 0.024960705999999996,
+        "gait_maximum_tilt_rad": 0.03044679676534931,
+        "gait_maximum_speed_m_s": 0.07596650247177167,
+        "walk_pass": true,
+        "leg_first_unload": 253,
+        "leg_rising": true,
+        "leg_height_gain_m": 0.04014147800000001,
+        "leg_first_recontact": 260,
+        "leg_missing_intervals": [],
+        "paired_differences": [],
+        "leg_minimum_toe_sole_gap_m": 0.006331527209251599,
+        "leg_pass": true,
+        "first_flight_ground_recontact": null,
+        "flight_missing_intervals": [],
+        "flight_metrics": {
+          "353": {
+            "height_gain_m": 0.514555335,
+            "forward_speed_m_s": 0.248176351,
+            "tilt_rad": 0.09135262359361394
+          },
+          "500": {
+            "height_gain_m": 0.984759751,
+            "forward_speed_m_s": 0.265566945,
+            "tilt_rad": 0.04521890671328849
+          }
+        },
+        "first_relative_x_min": [
+          317,
+          -0.22319811969999998
+        ],
+        "flight_pass": true,
+        "pass": true
+      },
+      {
+        "lane": 7,
+        "left_gait_bouts": [
+          [
+            127,
+            137,
+            11
+          ],
+          [
+            153,
+            162,
+            10
+          ],
+          [
+            178,
+            187,
+            10
+          ]
+        ],
+        "right_gait_bouts": [
+          [
+            120,
+            123,
+            4
+          ],
+          [
+            142,
+            149,
+            8
+          ],
+          [
+            166,
+            174,
+            9
+          ],
+          [
+            191,
+            199,
+            9
+          ]
+        ],
+        "gait_alternating": true,
+        "gait_low_support_substeps": [],
+        "gait_nonfoot_contacts": [],
+        "gait_distance_m": 0.025151802199999997,
+        "gait_maximum_tilt_rad": 0.03143091544887689,
+        "gait_maximum_speed_m_s": 0.07607883102246416,
+        "walk_pass": true,
+        "leg_first_unload": 253,
+        "leg_rising": true,
+        "leg_height_gain_m": 0.04009674499999999,
+        "leg_first_recontact": 260,
+        "leg_missing_intervals": [],
+        "paired_differences": [],
+        "leg_minimum_toe_sole_gap_m": 0.006312388222343229,
+        "leg_pass": true,
+        "first_flight_ground_recontact": null,
+        "flight_missing_intervals": [],
+        "flight_metrics": {
+          "353": {
+            "height_gain_m": 0.514506608,
+            "forward_speed_m_s": 0.248499662,
+            "tilt_rad": 0.09137372505397168
+          },
+          "500": {
+            "height_gain_m": 0.9894592419999999,
+            "forward_speed_m_s": 0.265715331,
+            "tilt_rad": 0.04511082520434039
+          }
+        },
+        "first_relative_x_min": [
+          317,
+          -0.2228426174
+        ],
+        "flight_pass": true,
+        "pass": true
+      }
+    ],
+    "pass": true
+  },
+  "91827491": {
+    "before_gait_differences": [],
+    "before_gait_difference_count": 0,
+    "max_replay_position_error_m": 6.978668047809242e-09,
+    "max_replay_q_error": 4.994964442062155e-10,
+    "flight_failed_environment_steps": 0,
+    "flight_termination_count": 0,
+    "leg_failed_environment_steps": 0,
+    "leg_termination_count": 0,
+    "lanes": [
+      {
+        "lane": 0,
+        "left_gait_bouts": [
+          [
+            127,
+            137,
+            11
+          ],
+          [
+            153,
+            162,
+            10
+          ],
+          [
+            178,
+            187,
+            10
+          ]
+        ],
+        "right_gait_bouts": [
+          [
+            120,
+            123,
+            4
+          ],
+          [
+            142,
+            149,
+            8
+          ],
+          [
+            166,
+            174,
+            9
+          ],
+          [
+            191,
+            199,
+            9
+          ]
+        ],
+        "gait_alternating": true,
+        "gait_low_support_substeps": [],
+        "gait_nonfoot_contacts": [],
+        "gait_distance_m": 0.025507260100000005,
+        "gait_maximum_tilt_rad": 0.03144989718313132,
+        "gait_maximum_speed_m_s": 0.0770659665120973,
+        "walk_pass": true,
+        "leg_first_unload": 253,
+        "leg_rising": true,
+        "leg_height_gain_m": 0.04019708999999999,
+        "leg_first_recontact": 260,
+        "leg_missing_intervals": [],
+        "paired_differences": [],
+        "leg_minimum_toe_sole_gap_m": 0.0063549193590892485,
+        "leg_pass": true,
+        "first_flight_ground_recontact": null,
+        "flight_missing_intervals": [],
+        "flight_metrics": {
+          "353": {
+            "height_gain_m": 0.514542476,
+            "forward_speed_m_s": 0.248296678,
+            "tilt_rad": 0.09136540991180388
+          },
+          "500": {
+            "height_gain_m": 0.985192911,
+            "forward_speed_m_s": 0.266183645,
+            "tilt_rad": 0.04512783263145049
+          }
+        },
+        "first_relative_x_min": [
+          317,
+          -0.2232422192
+        ],
+        "flight_pass": true,
+        "pass": true
+      },
+      {
+        "lane": 1,
+        "left_gait_bouts": [
+          [
+            127,
+            137,
+            11
+          ],
+          [
+            153,
+            162,
+            10
+          ],
+          [
+            178,
+            187,
+            10
+          ]
+        ],
+        "right_gait_bouts": [
+          [
+            120,
+            123,
+            4
+          ],
+          [
+            142,
+            149,
+            8
+          ],
+          [
+            166,
+            174,
+            9
+          ],
+          [
+            191,
+            199,
+            9
+          ]
+        ],
+        "gait_alternating": true,
+        "gait_low_support_substeps": [],
+        "gait_nonfoot_contacts": [],
+        "gait_distance_m": 0.0253806329,
+        "gait_maximum_tilt_rad": 0.03145808446552201,
+        "gait_maximum_speed_m_s": 0.07599106104565595,
+        "walk_pass": true,
+        "leg_first_unload": 253,
+        "leg_rising": true,
+        "leg_height_gain_m": 0.040158570000000005,
+        "leg_first_recontact": 260,
+        "leg_missing_intervals": [],
+        "paired_differences": [],
+        "leg_minimum_toe_sole_gap_m": 0.006329167053332935,
+        "leg_pass": true,
+        "first_flight_ground_recontact": null,
+        "flight_missing_intervals": [],
+        "flight_metrics": {
+          "353": {
+            "height_gain_m": 0.514512972,
+            "forward_speed_m_s": 0.248485565,
+            "tilt_rad": 0.09137540507238874
+          },
+          "500": {
+            "height_gain_m": 0.986468572,
+            "forward_speed_m_s": 0.265199721,
+            "tilt_rad": 0.04508320806288282
+          }
+        },
+        "first_relative_x_min": [
+          317,
+          -0.22295035089999998
+        ],
+        "flight_pass": true,
+        "pass": true
+      },
+      {
+        "lane": 2,
+        "left_gait_bouts": [
+          [
+            127,
+            137,
+            11
+          ],
+          [
+            153,
+            162,
+            10
+          ],
+          [
+            178,
+            187,
+            10
+          ]
+        ],
+        "right_gait_bouts": [
+          [
+            120,
+            123,
+            4
+          ],
+          [
+            142,
+            149,
+            8
+          ],
+          [
+            166,
+            174,
+            9
+          ],
+          [
+            191,
+            199,
+            9
+          ]
+        ],
+        "gait_alternating": true,
+        "gait_low_support_substeps": [],
+        "gait_nonfoot_contacts": [],
+        "gait_distance_m": 0.0248943493,
+        "gait_maximum_tilt_rad": 0.030508285075348748,
+        "gait_maximum_speed_m_s": 0.07640483079754687,
+        "walk_pass": true,
+        "leg_first_unload": 253,
+        "leg_rising": true,
+        "leg_height_gain_m": 0.040226713,
+        "leg_first_recontact": 260,
+        "leg_missing_intervals": [],
+        "paired_differences": [],
+        "leg_minimum_toe_sole_gap_m": 0.006366157325181849,
+        "leg_pass": true,
+        "first_flight_ground_recontact": null,
+        "flight_missing_intervals": [],
+        "flight_metrics": {
+          "353": {
+            "height_gain_m": 0.514531717,
+            "forward_speed_m_s": 0.248378232,
+            "tilt_rad": 0.09137657115840016
+          },
+          "500": {
+            "height_gain_m": 0.9848052130000001,
+            "forward_speed_m_s": 0.265994221,
+            "tilt_rad": 0.04503929476063805
+          }
+        },
+        "first_relative_x_min": [
+          317,
+          -0.22336962790000003
+        ],
+        "flight_pass": true,
+        "pass": true
+      },
+      {
+        "lane": 3,
+        "left_gait_bouts": [
+          [
+            127,
+            137,
+            11
+          ],
+          [
+            153,
+            162,
+            10
+          ],
+          [
+            178,
+            187,
+            10
+          ]
+        ],
+        "right_gait_bouts": [
+          [
+            120,
+            123,
+            4
+          ],
+          [
+            142,
+            149,
+            8
+          ],
+          [
+            166,
+            174,
+            9
+          ],
+          [
+            191,
+            199,
+            9
+          ]
+        ],
+        "gait_alternating": true,
+        "gait_low_support_substeps": [],
+        "gait_nonfoot_contacts": [],
+        "gait_distance_m": 0.02543087535,
+        "gait_maximum_tilt_rad": 0.03145419752108084,
+        "gait_maximum_speed_m_s": 0.07628560312872089,
+        "walk_pass": true,
+        "leg_first_unload": 253,
+        "leg_rising": true,
+        "leg_height_gain_m": 0.04009476299999998,
+        "leg_first_recontact": 260,
+        "leg_missing_intervals": [],
+        "paired_differences": [],
+        "leg_minimum_toe_sole_gap_m": 0.006302411808866775,
+        "leg_pass": true,
+        "first_flight_ground_recontact": null,
+        "flight_missing_intervals": [],
+        "flight_metrics": {
+          "353": {
+            "height_gain_m": 0.514529974,
+            "forward_speed_m_s": 0.248327076,
+            "tilt_rad": 0.09135745096902824
+          },
+          "500": {
+            "height_gain_m": 0.9834695780000001,
+            "forward_speed_m_s": 0.266083539,
+            "tilt_rad": 0.04484546066745935
+          }
+        },
+        "first_relative_x_min": [
+          317,
+          -0.222856743
+        ],
+        "flight_pass": true,
+        "pass": true
+      },
+      {
+        "lane": 4,
+        "left_gait_bouts": [
+          [
+            127,
+            137,
+            11
+          ],
+          [
+            153,
+            162,
+            10
+          ],
+          [
+            178,
+            187,
+            10
+          ]
+        ],
+        "right_gait_bouts": [
+          [
+            120,
+            123,
+            4
+          ],
+          [
+            142,
+            149,
+            8
+          ],
+          [
+            166,
+            174,
+            9
+          ],
+          [
+            191,
+            199,
+            9
+          ]
+        ],
+        "gait_alternating": true,
+        "gait_low_support_substeps": [],
+        "gait_nonfoot_contacts": [],
+        "gait_distance_m": 0.025497285600000003,
+        "gait_maximum_tilt_rad": 0.03143750498298211,
+        "gait_maximum_speed_m_s": 0.07606212717107241,
+        "walk_pass": true,
+        "leg_first_unload": 253,
+        "leg_rising": true,
+        "leg_height_gain_m": 0.040213794,
+        "leg_first_recontact": 260,
+        "leg_missing_intervals": [],
+        "paired_differences": [],
+        "leg_minimum_toe_sole_gap_m": 0.006346024244316871,
+        "leg_pass": true,
+        "first_flight_ground_recontact": null,
+        "flight_missing_intervals": [],
+        "flight_metrics": {
+          "353": {
+            "height_gain_m": 0.5145869409999999,
+            "forward_speed_m_s": 0.247985706,
+            "tilt_rad": 0.09134453238820468
+          },
+          "500": {
+            "height_gain_m": 0.986086148,
+            "forward_speed_m_s": 0.265858024,
+            "tilt_rad": 0.045141027610651474
+          }
+        },
+        "first_relative_x_min": [
+          317,
+          -0.2235623079
+        ],
+        "flight_pass": true,
+        "pass": true
+      },
+      {
+        "lane": 5,
+        "left_gait_bouts": [
+          [
+            127,
+            137,
+            11
+          ],
+          [
+            153,
+            162,
+            10
+          ],
+          [
+            178,
+            187,
+            10
+          ]
+        ],
+        "right_gait_bouts": [
+          [
+            120,
+            123,
+            4
+          ],
+          [
+            142,
+            149,
+            8
+          ],
+          [
+            166,
+            174,
+            9
+          ],
+          [
+            191,
+            199,
+            9
+          ]
+        ],
+        "gait_alternating": true,
+        "gait_low_support_substeps": [],
+        "gait_nonfoot_contacts": [],
+        "gait_distance_m": 0.02498014874,
+        "gait_maximum_tilt_rad": 0.030405981903809484,
+        "gait_maximum_speed_m_s": 0.07617221978050373,
+        "walk_pass": true,
+        "leg_first_unload": 253,
+        "leg_rising": true,
+        "leg_height_gain_m": 0.040216698999999995,
+        "leg_first_recontact": 260,
+        "leg_missing_intervals": [],
+        "paired_differences": [],
+        "leg_minimum_toe_sole_gap_m": 0.006368245634975796,
+        "leg_pass": true,
+        "first_flight_ground_recontact": null,
+        "flight_missing_intervals": [],
+        "flight_metrics": {
+          "353": {
+            "height_gain_m": 0.5145231640000001,
+            "forward_speed_m_s": 0.248443395,
+            "tilt_rad": 0.09138094127795127
+          },
+          "500": {
+            "height_gain_m": 0.9829170840000001,
+            "forward_speed_m_s": 0.265809655,
+            "tilt_rad": 0.04502172176944938
+          }
+        },
+        "first_relative_x_min": [
+          317,
+          -0.2232767312
+        ],
+        "flight_pass": true,
+        "pass": true
+      },
+      {
+        "lane": 6,
+        "left_gait_bouts": [
+          [
+            127,
+            137,
+            11
+          ],
+          [
+            153,
+            162,
+            10
+          ],
+          [
+            178,
+            187,
+            10
+          ]
+        ],
+        "right_gait_bouts": [
+          [
+            120,
+            123,
+            4
+          ],
+          [
+            142,
+            149,
+            8
+          ],
+          [
+            166,
+            174,
+            9
+          ],
+          [
+            191,
+            199,
+            9
+          ]
+        ],
+        "gait_alternating": true,
+        "gait_low_support_substeps": [],
+        "gait_nonfoot_contacts": [],
+        "gait_distance_m": 0.025421021499999998,
+        "gait_maximum_tilt_rad": 0.03146682354963119,
+        "gait_maximum_speed_m_s": 0.07704551228559356,
+        "walk_pass": true,
+        "leg_first_unload": 253,
+        "leg_rising": true,
+        "leg_height_gain_m": 0.04019916099999998,
+        "leg_first_recontact": 260,
+        "leg_missing_intervals": [],
+        "paired_differences": [],
+        "leg_minimum_toe_sole_gap_m": 0.006363748039347958,
+        "leg_pass": true,
+        "first_flight_ground_recontact": null,
+        "flight_missing_intervals": [],
+        "flight_metrics": {
+          "353": {
+            "height_gain_m": 0.5145147889999999,
+            "forward_speed_m_s": 0.248501226,
+            "tilt_rad": 0.0913844202644794
+          },
+          "500": {
+            "height_gain_m": 0.985501274,
+            "forward_speed_m_s": 0.266459554,
+            "tilt_rad": 0.04522727666299138
+          }
+        },
+        "first_relative_x_min": [
+          317,
+          -0.22320741090000001
+        ],
+        "flight_pass": true,
+        "pass": true
+      },
+      {
+        "lane": 7,
+        "left_gait_bouts": [
+          [
+            127,
+            137,
+            11
+          ],
+          [
+            153,
+            162,
+            10
+          ],
+          [
+            178,
+            187,
+            10
+          ]
+        ],
+        "right_gait_bouts": [
+          [
+            120,
+            123,
+            4
+          ],
+          [
+            142,
+            149,
+            8
+          ],
+          [
+            166,
+            174,
+            9
+          ],
+          [
+            191,
+            199,
+            9
+          ]
+        ],
+        "gait_alternating": true,
+        "gait_low_support_substeps": [],
+        "gait_nonfoot_contacts": [],
+        "gait_distance_m": 0.0249291621,
+        "gait_maximum_tilt_rad": 0.03042407755307338,
+        "gait_maximum_speed_m_s": 0.07611374443419316,
+        "walk_pass": true,
+        "leg_first_unload": 253,
+        "leg_rising": true,
+        "leg_height_gain_m": 0.04017606400000001,
+        "leg_first_recontact": 260,
+        "leg_missing_intervals": [],
+        "paired_differences": [],
+        "leg_minimum_toe_sole_gap_m": 0.006336890552852532,
+        "leg_pass": true,
+        "first_flight_ground_recontact": null,
+        "flight_missing_intervals": [],
+        "flight_metrics": {
+          "353": {
+            "height_gain_m": 0.5145111680000001,
+            "forward_speed_m_s": 0.248495907,
+            "tilt_rad": 0.09137839925813986
+          },
+          "500": {
+            "height_gain_m": 0.988320229,
+            "forward_speed_m_s": 0.265533835,
+            "tilt_rad": 0.045094514675668655
+          }
+        },
+        "first_relative_x_min": [
+          317,
+          -0.2230252814
+        ],
+        "flight_pass": true,
+        "pass": true
+      }
+    ],
+    "pass": true
+  }
+}

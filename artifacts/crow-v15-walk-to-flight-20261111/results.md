@@ -1,0 +1,5 @@
+# Connected walk-to-flight development results
+
+All 24 lanes passed the predeclared connected gait, leg-only control, paired push-off and continuous airborne checks, across the three development seeds and eight starts per seed. Each lane completed at least three alternating clear swings per foot, maintained the specified support threshold across every gait substep, and had no nonfoot contacts. The wing-suppressed comparison established the required rising unloaded intervals, and the flight run matched the leg-only state and substep contacts through them. Flight had no subsequent ground contact through tick 500 and met the specified altitude, velocity and attitude checks. There were no recorded failed environment steps or terminations.
+
+This is a selected development combination, not independent confirmation. It does not demonstrate robustness to a disturbance at push-off, waypoint navigation, toe grip or landing. The initial disturbances had time to settle before the launch. The detailed analysis and native traces are retained here together with the exact runtime and inputs.
