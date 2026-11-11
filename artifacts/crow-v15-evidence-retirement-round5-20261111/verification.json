@@ -1,0 +1,37 @@
+{
+  "independently_fetched_commit": "1592e0aab6c86f3b113d15798532429b01cb71ee",
+  "results": [
+    {
+      "path": "/Users/n/Developer/numi-crow-rl-20261107/artifacts/crow-v15-autonomous-approach-balance-control-20261111/autonomous-20261126/run.stderr.gz",
+      "bytes": 93857279,
+      "compressed_sha256": "971898727683b6377814f10d4b1cb26aa75b2a712c4eee521ec6fb4ca1171b96",
+      "expanded_sha256": "6a22699491543a1c4a47265efdf5d15e6b2d273767186522869e78e6ef7c7c3c",
+      "retired": true,
+      "open_handles": false
+    },
+    {
+      "path": "/Users/n/Developer/numi-crow-rl-20261107/artifacts/crow-v15-perch-alignment-gate-control-20261111/autonomous-20261126/run.stderr.gz",
+      "bytes": 95757706,
+      "compressed_sha256": "68661eb0c57588f3893930556248f7d06cf90dac404117688db0c51e3d9f8ba0",
+      "expanded_sha256": "fc5ce70b30d2090d51dbc1ab2c7b3467f9dff691345c974e0f172687c4428ca6",
+      "retired": true,
+      "open_handles": false
+    },
+    {
+      "path": "/Users/n/Developer/numi-crow-rl-20261107/artifacts/crow-v15-student-state-landing-eval-20261111/autonomous-20261126/run.stderr.gz",
+      "bytes": 77643249,
+      "compressed_sha256": "09908c00a9e4d96dac1b0e87755dbce669da7739162c3216cae15e8d3f76a75e",
+      "expanded_sha256": "4bd14375feeef8b73d275eba8b778784e2f769060addbdd9dd6abf8bffe74756",
+      "retired": true,
+      "open_handles": false
+    },
+    {
+      "path": "/Users/n/Developer/numi-crow-rl-20261107/artifacts/crow-v15-student-reference-approach-eval-20261111/autonomous-20261126/run.stderr.gz",
+      "bytes": 72690840,
+      "compressed_sha256": "4ae959ef9ada8a24f85322e1fd6f1d1858ceb11712cfcbc52fe88570124a40cd",
+      "expanded_sha256": "6462238e79408d2e44113ee8180cffc681aa56f1770f9a45f47f5734d1b17e24",
+      "retired": true,
+      "open_handles": false
+    }
+  ]
+}
