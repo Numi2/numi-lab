@@ -1,0 +1,16 @@
+[
+  {
+    "actor": "landing",
+    "source_sha256": "d5973d635670960c6bb1a39630053975c417e0f335e66998e90fae3cc006afaa",
+    "target_sha256": "d40b2edd182d44a0120d209d00b37fde472dbb73b98c8e7ab9144d26d61ae98c",
+    "identical_layers_and_transforms": true,
+    "output_layer_nonzero_weights": 1920
+  },
+  {
+    "actor": "route",
+    "source_sha256": "2fe607b9868e5c99569e75808f9bf401525a31ee9e8733349cd2cb36c4acfdc5",
+    "target_sha256": "50528f548b8142d19da8318f143e85a71d2ad7098a40fedf24f1a6004ab01d36",
+    "identical_layers_and_transforms": true,
+    "output_layer_nonzero_weights": 2048
+  }
+]

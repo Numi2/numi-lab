@@ -1,0 +1,12 @@
+[
+  {
+    "path": "build/crow-v15-two-segment-walk-learned-binding-20261111/landing.policypack",
+    "sha256": "d40b2edd182d44a0120d209d00b37fde472dbb73b98c8e7ab9144d26d61ae98c",
+    "bytes": 5996440
+  },
+  {
+    "path": "build/crow-v15-two-segment-walk-learned-binding-20261111/route.policypack",
+    "sha256": "50528f548b8142d19da8318f143e85a71d2ad7098a40fedf24f1a6004ab01d36",
+    "bytes": 17228694
+  }
+]
