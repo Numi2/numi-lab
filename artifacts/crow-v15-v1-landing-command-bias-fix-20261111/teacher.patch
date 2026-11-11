@@ -1,0 +1,11 @@
+--- a/toe_memory.metal
++++ b/landing_speed_bias_fix.metal
+@@ -5004,7 +5004,7 @@
+         carrierState.commandAndPhase.x = 0.15f;
+         carrierState.commandAndPhase.y = oracleCommand.y;
+         carrierState.commandExtension.x = oracleCommand.z;
+-        carrierState.commandExtension.z += 0.25f-oracleCommand.x;
++        carrierState.commandExtension.z += (state.navigation.z>=5.0f ? 0.15f : 0.25f)-oracleCommand.x;
+         carrierState.threatGeometry.x += oracleCommand.w;
+         carrierState.threatTeacher.x -= oracleCommand.y;
+         const float teacherRequested =
