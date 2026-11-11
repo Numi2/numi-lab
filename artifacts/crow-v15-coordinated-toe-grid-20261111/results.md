@@ -1,0 +1,3 @@
+# Coordinated front and rear toe feedback
+
+All 16 lanes matched the original through tick 85; both unchanged reference lanes exactly reproduced their 500 recorded state traces. None passed terminal support and grip. The original reference had 377 consecutive supported samples; the rear-only feedback had 250 supported and 175 supported opposing-grip samples. The coordinated front/rear candidates had 180–268 supported samples and 62–201 supported opposing-grip samples; several exceeded the 0.5 mm toe-overlap gate, reaching 0.614 mm. None qualified, and all are rejected. Increased front feedback did not overcome the coupled balance failure in this development start. Full results and both reference traces are retained; no unused layout was consumed.
