@@ -1,0 +1,3 @@
+# Two-segment flight batch-size failure isolation
+
+The first 80-lane, 16-substep frozen-flight admission failed on environment 0, control step 0, substep 1 with a nonfinite result. The one-lane two-step preflight succeeded. Run the same two-step fixed-seed command serially at batch sizes 1, 2, 4, 8, 16, 32 and 80, preserving every native outcome and trace. This identifies whether failure depends on batch size; it does not by itself distinguish different reset states, collision geometry, kernel memory or numerical causes. Do not disable contacts or relax failure criteria. No flight qualification follows.
