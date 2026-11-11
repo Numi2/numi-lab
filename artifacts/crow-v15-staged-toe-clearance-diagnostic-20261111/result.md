@@ -1,0 +1,3 @@
+# Toe-shape clearance at selected staged-release poses
+
+Independent separating-axis box calculations at five recorded lane-4 endpoints show that the left sole is the closest shape at intervals 220 and 235. By interval 250 the sole is about 2.75 mm clear, while a distal front toe remains about 0.13 mm into the perch; at intervals 270 and 290 two distal toe boxes remain approximately 0.08–0.10 mm into it. These are sampled endpoint box separations, not continuous penetration bounds or realistic claw geometry. The exact retained poses and analysis are included; the parent trial's observer and full substep evidence are archived separately.

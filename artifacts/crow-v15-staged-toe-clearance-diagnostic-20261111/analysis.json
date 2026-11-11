@@ -1,0 +1,111 @@
+{
+  "source": "retained lane 4 poses from crow-v15-hip-roll-staged-release-20261111",
+  "rows": [
+    {
+      "step_zero_based": 220,
+      "nearest_shapes": [
+        {
+          "body": "crow_left_foot",
+          "gap_m": -4.7297547295648e-05
+        },
+        {
+          "body": "crow_left_front_toe_1_proximal",
+          "gap_m": 0.0011350237053344633
+        },
+        {
+          "body": "crow_left_front_toe_2_proximal",
+          "gap_m": 0.0035654215713163684
+        },
+        {
+          "body": "crow_left_rear_toe_proximal",
+          "gap_m": 0.004265909130522834
+        }
+      ]
+    },
+    {
+      "step_zero_based": 235,
+      "nearest_shapes": [
+        {
+          "body": "crow_left_foot",
+          "gap_m": -0.00012195724980457873
+        },
+        {
+          "body": "crow_left_front_toe_1_proximal",
+          "gap_m": 0.0004871890698917025
+        },
+        {
+          "body": "crow_left_front_toe_2_proximal",
+          "gap_m": 0.003134731720265696
+        },
+        {
+          "body": "crow_left_front_toe_3_proximal",
+          "gap_m": 0.005782274388313018
+        }
+      ]
+    },
+    {
+      "step_zero_based": 250,
+      "nearest_shapes": [
+        {
+          "body": "crow_left_front_toe_1_distal",
+          "gap_m": -0.00013012699031637182
+        },
+        {
+          "body": "crow_left_front_toe_2_distal",
+          "gap_m": 0.0006421097340916851
+        },
+        {
+          "body": "crow_left_front_toe_1_proximal",
+          "gap_m": 0.0014148726559727737
+        },
+        {
+          "body": "crow_left_foot",
+          "gap_m": 0.002751624137473173
+        }
+      ]
+    },
+    {
+      "step_zero_based": 270,
+      "nearest_shapes": [
+        {
+          "body": "crow_left_front_toe_1_distal",
+          "gap_m": -9.014460359143411e-05
+        },
+        {
+          "body": "crow_left_front_toe_2_distal",
+          "gap_m": -7.667166559868765e-05
+        },
+        {
+          "body": "crow_left_front_toe_3_distal",
+          "gap_m": 0.0009222397958567607
+        },
+        {
+          "body": "crow_left_front_toe_1_proximal",
+          "gap_m": 0.0021348932017869957
+        }
+      ]
+    },
+    {
+      "step_zero_based": 290,
+      "nearest_shapes": [
+        {
+          "body": "crow_left_front_toe_1_distal",
+          "gap_m": -0.00010403740594280841
+        },
+        {
+          "body": "crow_left_front_toe_2_distal",
+          "gap_m": -9.071249972190942e-05
+        },
+        {
+          "body": "crow_left_front_toe_3_distal",
+          "gap_m": 0.00012470245512585104
+        },
+        {
+          "body": "crow_left_front_toe_1_proximal",
+          "gap_m": 0.002148946529636979
+        }
+      ]
+    }
+  ],
+  "limitations": "Box separating-axis distance lower bound at five endpoint samples, not substep penetration or an exact curved biological claw shape."
+}

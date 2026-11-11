@@ -1,0 +1,7 @@
+# Staged toe opening preserves balance but does not yet release
+
+All eight constructed-perch starts completed 550 intervals with complete 32-substep contact observations and no native errors. Named endpoint contact normal sums matched the last-substep observer to within 6.3e-10 N s across 4,400 lane-intervals. Both abrupt +0.50 knee-lift controls fell at intervals 252 and 269. All six delayed and ramped arms stayed above the 0.1 m root fall threshold throughout the horizon and recorded no endpoint toe-speed-cap hits, but none achieved a qualified release or regrip. Endpoint-only speed data do not bound intervening substeps.
+
+With 35 intervals of toe opening before a 20-interval lift ramp, the right foot had opposing toe contacts in every recorded pre-fall release interval for the four delayed lanes. Its vertical impulse exceeded half nominal weight in all but at most two of those intervals, but the left toes did not achieve 1 mm clearance. Independently reconstructed shape gaps show that the left sole cleared in one sampled +0.50 run, while two distal toe boxes remained roughly 0.1 mm in contact with the perch. This is promising balance evidence, not a one-foot release, whole-weight measurement or proof of the mechanism. The ongoing follow-up tests a slightly larger gradual lift.
+
+The body and drive parameters remain experimental; no flight requalification, autonomous route, unseen-layout result, or biological validation is implied.
