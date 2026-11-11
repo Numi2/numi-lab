@@ -6,7 +6,7 @@ from metalrobo.native import PolicyDenseLayerArtifact,write_policy_pack
 R=Path.cwd();A=R/'artifacts/crow-v15-walk-temporal-refinement-20261111';B=R/'build/crow-v15-walk-temporal-refinement-20261111';H=R/'build/crow-v15-head-contact-fix-20261110';cmd0=json.loads((R/'artifacts/crow-v15-toe-launch-control-20261110/control-bindings.json').read_text())['argv'];h=lambda p:hashlib.sha256(p.read_bytes()).hexdigest()
 def command(arm,steps,packs):
  cmd=cmd0.copy()
- cmd[cmd.index('--physics-substeps')+1]=arm[4:]
+ cmd[cmd.index('--physics-substeps')+1]=''.join(c for c in arm[4:] if c.isdigit())
  for k,v in [('--steps',str(steps)),('--policy-pack',str(packs['landing'])),('--base-policy-pack',str(packs['route'])),('--state-trace',str(B/(arm+'.tsv'))),('--crow-replay-pack',str(B/(arm+'.json')))]:cmd[cmd.index(k)+1]=v
  return cmd
 for arm in ('zero32','zero64'):

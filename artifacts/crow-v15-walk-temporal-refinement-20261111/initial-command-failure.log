@@ -1,0 +1,6 @@
+Traceback (most recent call last):
+  File "/Users/n/Developer/numi-crow-rl-20261107/artifacts/crow-v15-walk-temporal-refinement-20261111/run.py", line 17, in <module>
+    if not m:raise RuntimeError('Preflight failure is not a task contract rejection: '+trial.stderr[-1200:])
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+RuntimeError: Preflight failure is not a task contract rejection: task_rollout failed: --physics-substeps requires an integer.
+
