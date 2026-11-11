@@ -1,0 +1,5 @@
+# Quantify joint-motion changes at control boundaries
+
+The previous development gait audit found every measured knee and ankle minimum at the end of a 20 ms control interval. Test whether generalized joint motion changes more sharply at those boundaries than within intervals using the retained synchronized 1.25 ms q samples. Compute first differences and consecutive-difference acceleration proxies for both knees and ankles across steps 202–300; distinguish transitions from substep 15 to the following substep 0 versus other substeps. Require complete ordered q, report distributions by lane and joint, preserve impulse/support data separately, and examine negative as well as positive changes.
+
+These are finite-difference proxies from quantized logged q, not direct torque or true instantaneous acceleration. Boundary concentration is an association and may reflect phase timing, control updates, drive integration or observer behavior. Do not change mechanics or infer biological stiffness from this audit alone.
