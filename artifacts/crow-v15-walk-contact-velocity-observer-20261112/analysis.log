@@ -1,0 +1,161 @@
+{
+  "kinematics_validation": {
+    "pass": true,
+    "checked_body_frames": 1800,
+    "max_errors": {
+      "position_m": 4.110791865307364e-09,
+      "orientation": 2.9798483473448158e-08,
+      "linear_velocity_m_s": 7.142359015752845e-09,
+      "angular_velocity_rad_s": 2.1834520436871483e-07,
+      "q": 4.995613089864293e-10,
+      "v": 4.5251464797502194e-09
+    }
+  },
+  "rows": [
+    {
+      "lane": 0,
+      "side": "left",
+      "loaded_endpoints": 68,
+      "loaded_contact_samples": 451,
+      "impulse_sum_Ns": 0.305840865865518,
+      "impulse_weighted_tangent_speed_m_s": 0.006486223909280338,
+      "max_tangent_speed_m_s": 0.05422833267775157
+    },
+    {
+      "lane": 0,
+      "side": "right",
+      "loaded_endpoints": 64,
+      "loaded_contact_samples": 462,
+      "impulse_sum_Ns": 0.24249634922023597,
+      "impulse_weighted_tangent_speed_m_s": 0.007790254602891046,
+      "max_tangent_speed_m_s": 0.10528200743030523
+    },
+    {
+      "lane": 1,
+      "side": "left",
+      "loaded_endpoints": 67,
+      "loaded_contact_samples": 603,
+      "impulse_sum_Ns": 0.3031085760528797,
+      "impulse_weighted_tangent_speed_m_s": 0.00650185095433989,
+      "max_tangent_speed_m_s": 0.054781233112128166
+    },
+    {
+      "lane": 1,
+      "side": "right",
+      "loaded_endpoints": 64,
+      "loaded_contact_samples": 524,
+      "impulse_sum_Ns": 0.23805763451497075,
+      "impulse_weighted_tangent_speed_m_s": 0.00828298134905571,
+      "max_tangent_speed_m_s": 0.10530063462984186
+    },
+    {
+      "lane": 2,
+      "side": "left",
+      "loaded_endpoints": 67,
+      "loaded_contact_samples": 468,
+      "impulse_sum_Ns": 0.3091996194120298,
+      "impulse_weighted_tangent_speed_m_s": 0.006416810153315139,
+      "max_tangent_speed_m_s": 0.0540444615380203
+    },
+    {
+      "lane": 2,
+      "side": "right",
+      "loaded_endpoints": 64,
+      "loaded_contact_samples": 507,
+      "impulse_sum_Ns": 0.23091674856168107,
+      "impulse_weighted_tangent_speed_m_s": 0.008642851973193975,
+      "max_tangent_speed_m_s": 0.10682868864786078
+    },
+    {
+      "lane": 3,
+      "side": "left",
+      "loaded_endpoints": 67,
+      "loaded_contact_samples": 446,
+      "impulse_sum_Ns": 0.3479300054302928,
+      "impulse_weighted_tangent_speed_m_s": 0.00822418989820487,
+      "max_tangent_speed_m_s": 0.09942131656093633
+    },
+    {
+      "lane": 3,
+      "side": "right",
+      "loaded_endpoints": 64,
+      "loaded_contact_samples": 487,
+      "impulse_sum_Ns": 0.2366362260826371,
+      "impulse_weighted_tangent_speed_m_s": 0.00804028531298894,
+      "max_tangent_speed_m_s": 0.10392402489976657
+    },
+    {
+      "lane": 4,
+      "side": "left",
+      "loaded_endpoints": 68,
+      "loaded_contact_samples": 452,
+      "impulse_sum_Ns": 0.302715580338139,
+      "impulse_weighted_tangent_speed_m_s": 0.006734185683106565,
+      "max_tangent_speed_m_s": 0.055067383745695364
+    },
+    {
+      "lane": 4,
+      "side": "right",
+      "loaded_endpoints": 64,
+      "loaded_contact_samples": 491,
+      "impulse_sum_Ns": 0.2506481546236052,
+      "impulse_weighted_tangent_speed_m_s": 0.008198812360083189,
+      "max_tangent_speed_m_s": 0.10541314887066384
+    },
+    {
+      "lane": 5,
+      "side": "left",
+      "loaded_endpoints": 67,
+      "loaded_contact_samples": 439,
+      "impulse_sum_Ns": 0.31249499714086404,
+      "impulse_weighted_tangent_speed_m_s": 0.006850323764707766,
+      "max_tangent_speed_m_s": 0.054204834002784495
+    },
+    {
+      "lane": 5,
+      "side": "right",
+      "loaded_endpoints": 64,
+      "loaded_contact_samples": 485,
+      "impulse_sum_Ns": 0.2344594871378139,
+      "impulse_weighted_tangent_speed_m_s": 0.007994366821035888,
+      "max_tangent_speed_m_s": 0.10961821671428561
+    },
+    {
+      "lane": 6,
+      "side": "left",
+      "loaded_endpoints": 68,
+      "loaded_contact_samples": 474,
+      "impulse_sum_Ns": 0.31013056653125015,
+      "impulse_weighted_tangent_speed_m_s": 0.006823209390922966,
+      "max_tangent_speed_m_s": 0.05494270566213853
+    },
+    {
+      "lane": 6,
+      "side": "right",
+      "loaded_endpoints": 64,
+      "loaded_contact_samples": 474,
+      "impulse_sum_Ns": 0.232111871270553,
+      "impulse_weighted_tangent_speed_m_s": 0.008458801141044676,
+      "max_tangent_speed_m_s": 0.10546409717541778
+    },
+    {
+      "lane": 7,
+      "side": "left",
+      "loaded_endpoints": 68,
+      "loaded_contact_samples": 474,
+      "impulse_sum_Ns": 0.301177987926236,
+      "impulse_weighted_tangent_speed_m_s": 0.007893125509329494,
+      "max_tangent_speed_m_s": 0.09087876097373236
+    },
+    {
+      "lane": 7,
+      "side": "right",
+      "loaded_endpoints": 65,
+      "loaded_contact_samples": 483,
+      "impulse_sum_Ns": 0.23553613258944991,
+      "impulse_weighted_tangent_speed_m_s": 0.007843767632420501,
+      "max_tangent_speed_m_s": 0.10846491856829661
+    }
+  ],
+  "limits": "Instantaneous accepted-endpoint estimate from solver contact point and post-step native body velocities; normal impulse threshold 1e-7 N s per contact, fixed ground assumed. Contact point and post-step velocity synchronization may differ within the final substep. Not integrated slip distance or biological validation."
+}

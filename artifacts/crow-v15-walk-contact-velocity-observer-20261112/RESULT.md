@@ -1,0 +1,7 @@
+# Loaded foot contact velocity during reference walk
+
+The contact-point observer reproduced all 2,400 logged endpoint q/v/actions/contact records and all 38,400 contact substeps exactly after excluding the added point field. All 12,800 q snapshots were present, final substeps matched endpoints, and no observer errors or overflow were reported.
+
+Independent native forward kinematics matched the lane-5 replay for 1,800 foot/toe body frames. Maximum position error was 4.2e-9 m, orientation error 3.0e-8, linear velocity error 7.2e-9 m/s and angular velocity error 2.2e-7 rad/s. The calculation projects each loaded contact-point body velocity onto the solver tangent plane against stationary ground, weighting by its normal impulse. With threshold 1e-7 N s per contact at each accepted endpoint, the 16 lane-side impulse-weighted mean speeds were 0.0064–0.0087 m/s; individual sampled maxima were 0.054–0.110 m/s. These are development seed 20261126, steps 201–300 only.
+
+This detects model contact motion and provides a reproducible way to compare changes. It is not a total slip distance: only control endpoints are sampled, and solver contact points and post-step body velocities may not be from the same instant within the final substep. It also does not establish a biological friction target or successful toe grip. Do not treat the values as validated ground truth or adjust friction solely to minimize them.
