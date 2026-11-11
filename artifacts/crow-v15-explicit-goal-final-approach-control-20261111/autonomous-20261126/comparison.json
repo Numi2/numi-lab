@@ -1,0 +1,61 @@
+{
+  "rows": [
+    {
+      "lane": 0,
+      "comparison_end_exclusive": 2697,
+      "first_difference": [],
+      "different_samples": 0,
+      "first_missing": []
+    },
+    {
+      "lane": 1,
+      "comparison_end_exclusive": 1764,
+      "first_difference": [],
+      "different_samples": 0,
+      "first_missing": []
+    },
+    {
+      "lane": 2,
+      "comparison_end_exclusive": 1760,
+      "first_difference": [],
+      "different_samples": 0,
+      "first_missing": []
+    },
+    {
+      "lane": 3,
+      "comparison_end_exclusive": 2636,
+      "first_difference": [],
+      "different_samples": 0,
+      "first_missing": []
+    },
+    {
+      "lane": 4,
+      "comparison_end_exclusive": 2707,
+      "first_difference": [],
+      "different_samples": 0,
+      "first_missing": []
+    },
+    {
+      "lane": 5,
+      "comparison_end_exclusive": 2720,
+      "first_difference": [],
+      "different_samples": 0,
+      "first_missing": []
+    },
+    {
+      "lane": 6,
+      "comparison_end_exclusive": 2723,
+      "first_difference": [],
+      "different_samples": 0,
+      "first_missing": []
+    },
+    {
+      "lane": 7,
+      "comparison_end_exclusive": 2665,
+      "first_difference": [],
+      "different_samples": 0,
+      "first_missing": []
+    }
+  ],
+  "scope": "Endpoint accepted q/v, recorded actor outputs and contacts through the interval before the original fifth-waypoint threshold; teacher off in both. Matching endpoints do not prove all substeps identical."
+}
