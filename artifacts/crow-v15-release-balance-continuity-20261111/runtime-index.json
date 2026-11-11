@@ -1,0 +1,17 @@
+[
+  {
+    "path": "build/crow-v15-release-balance-continuity-20261111/probe",
+    "sha256": "f879fc5471e49f1a2008baa67e9df97c3305f39721c3a88d438d67a385f8872b",
+    "bytes": 118328
+  },
+  {
+    "path": "build/crow-v15-release-balance-continuity-20261111/libmetalrobo.dylib",
+    "sha256": "3d3439e883431f2cc5be0033b6aa45bdff1d1b09f72f33615291592b0f3d3b08",
+    "bytes": 5729488
+  },
+  {
+    "path": "build/crow-v15-alternating-foot-release-20261110/teacher.metallib",
+    "sha256": "a1fa801ac2f2ea5e557a54073b280039e5bb60422d8b5beb1cd90b2ec22c459b",
+    "bytes": 4485424
+  }
+]

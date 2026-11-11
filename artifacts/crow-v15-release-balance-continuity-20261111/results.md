@@ -1,0 +1,3 @@
+# Preserve body balance through toe release
+
+The modified controller exactly reproduced all 777 states before the prior release transition. Its toes opened and a measured open-and-supported sample occurred at tick 901, but the bird subsequently fell; the terminal open-and-supported gate failed. Retaining balance feedback through the transition therefore did not solve unsupported release, although the trace differs from the earlier immediate-fall behavior. Both failures remain archived. This is one stationary development start and does not qualify a landing, takeoff, route or biological realism. No reserved layout was used.
