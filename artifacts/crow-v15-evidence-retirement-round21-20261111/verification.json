@@ -1,0 +1,29 @@
+{
+  "independently_fetched_commit": "9b2f28579f8ffa27199ffab3a88bb70750118470",
+  "results": [
+    {
+      "path": "/Users/n/Developer/numi-crow-rl-20261107/artifacts/crow-v15-integrated-walk-rise-hold-20261111/autonomous-20261126/run.stderr.gz",
+      "bytes": 20078237,
+      "sha256": "244d4a0bff85804f99f371d511bb795f00e7d1374e9d0b83b11e1898bee0898f",
+      "verified_archive": "artifacts/crow-v15-integrated-walk-rise-hold-20261111/autonomous-20261126/stderr-parts.json",
+      "open_handles": false,
+      "retired": true
+    },
+    {
+      "path": "/Users/n/Developer/numi-crow-rl-20261107/build/crow-v15-integrated-walk-rise-hold-20261111/autonomous-20261126-replay.json",
+      "bytes": 24081644,
+      "sha256": "282a35e96f8f94f5dea55fd2c431a44f68c30cd2c3e02c9c7c347d7a56844d9a",
+      "verified_archive": "artifacts/crow-v15-integrated-walk-rise-hold-20261111/autonomous-20261126/replay.json.gz",
+      "open_handles": false,
+      "retired": true
+    },
+    {
+      "path": "/Users/n/Developer/numi-crow-rl-20261107/build/crow-v15-integrated-walk-rise-hold-20261111/autonomous-20261126-trace.tsv",
+      "bytes": 517188,
+      "sha256": "ef7fa20ef341c4b1e9e1881bc66e88cbb6f2103096ca2303fdbf39e2466544d3",
+      "verified_archive": "artifacts/crow-v15-integrated-walk-rise-hold-20261111/autonomous-20261126/trace.tsv.gz",
+      "open_handles": false,
+      "retired": true
+    }
+  ]
+}

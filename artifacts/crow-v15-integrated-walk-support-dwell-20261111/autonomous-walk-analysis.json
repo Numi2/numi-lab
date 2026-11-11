@@ -1,0 +1,893 @@
+{
+  "source": "artifacts/crow-v15-integrated-walk-support-dwell-20261111/autonomous-20261126",
+  "replay_validation": {
+    "lane": 5,
+    "observer_to_replay_offset": 1,
+    "q_max_error": 4.997558478159192e-10,
+    "foot_toe_position_max_error_m": 4.528948339103391e-09,
+    "foot_toe_quaternion_max_error": 2.9793361767363444e-08,
+    "replay_ground_z_m": 0.0
+  },
+  "rows": [
+    {
+      "lane": 0,
+      "left_bouts": [
+        [
+          229,
+          236
+        ],
+        [
+          253,
+          260
+        ],
+        [
+          278,
+          285
+        ]
+      ],
+      "right_bouts": [
+        [
+          241,
+          248
+        ],
+        [
+          267,
+          273
+        ],
+        [
+          293,
+          298
+        ]
+      ],
+      "forward_displacement_m": 0.0350050238,
+      "min_foot_upward_impulse_Ns": 0.0576597188546,
+      "intervals_below_half_nominal_weight": [],
+      "both_feet_clear_over_1mm_endpoint_steps": [],
+      "no_foot_normal_intervals": [],
+      "no_foot_normal_substeps": [],
+      "nonfoot_contact_intervals": 0,
+      "max_tilt_rad": 0.026506062466114772,
+      "max_speed_m_s": 0.0894460325399338
+    },
+    {
+      "lane": 1,
+      "left_bouts": [
+        [
+          228,
+          236
+        ],
+        [
+          253,
+          260
+        ],
+        [
+          278,
+          285
+        ]
+      ],
+      "right_bouts": [
+        [
+          242,
+          248
+        ],
+        [
+          267,
+          273
+        ],
+        [
+          293,
+          298
+        ]
+      ],
+      "forward_displacement_m": 0.0353481341,
+      "min_foot_upward_impulse_Ns": 0.06264891837610001,
+      "intervals_below_half_nominal_weight": [],
+      "both_feet_clear_over_1mm_endpoint_steps": [],
+      "no_foot_normal_intervals": [],
+      "no_foot_normal_substeps": [],
+      "nonfoot_contact_intervals": 0,
+      "max_tilt_rad": 0.026809443319141164,
+      "max_speed_m_s": 0.09274944171767868
+    },
+    {
+      "lane": 2,
+      "left_bouts": [
+        [
+          228,
+          236
+        ],
+        [
+          253,
+          260
+        ],
+        [
+          282,
+          286
+        ]
+      ],
+      "right_bouts": [
+        [
+          241,
+          248
+        ],
+        [
+          268,
+          273
+        ],
+        [
+          292,
+          298
+        ]
+      ],
+      "forward_displacement_m": 0.03444706225,
+      "min_foot_upward_impulse_Ns": 0.049345339528899995,
+      "intervals_below_half_nominal_weight": [],
+      "both_feet_clear_over_1mm_endpoint_steps": [],
+      "no_foot_normal_intervals": [],
+      "no_foot_normal_substeps": [],
+      "nonfoot_contact_intervals": 0,
+      "max_tilt_rad": 0.026374334168127872,
+      "max_speed_m_s": 0.09113005126068438
+    },
+    {
+      "lane": 3,
+      "left_bouts": [
+        [
+          228,
+          236
+        ],
+        [
+          253,
+          260
+        ],
+        [
+          278,
+          285
+        ]
+      ],
+      "right_bouts": [
+        [
+          241,
+          248
+        ],
+        [
+          267,
+          273
+        ],
+        [
+          292,
+          298
+        ]
+      ],
+      "forward_displacement_m": 0.0367371878,
+      "min_foot_upward_impulse_Ns": 0.05418842139661452,
+      "intervals_below_half_nominal_weight": [],
+      "both_feet_clear_over_1mm_endpoint_steps": [],
+      "no_foot_normal_intervals": [],
+      "no_foot_normal_substeps": [],
+      "nonfoot_contact_intervals": 0,
+      "max_tilt_rad": 0.026226643338859934,
+      "max_speed_m_s": 0.09368234451102023
+    },
+    {
+      "lane": 4,
+      "left_bouts": [
+        [
+          229,
+          236
+        ],
+        [
+          253,
+          260
+        ],
+        [
+          278,
+          285
+        ]
+      ],
+      "right_bouts": [
+        [
+          241,
+          248
+        ],
+        [
+          268,
+          273
+        ],
+        [
+          293,
+          298
+        ]
+      ],
+      "forward_displacement_m": 0.0333263548,
+      "min_foot_upward_impulse_Ns": 0.056438109947800005,
+      "intervals_below_half_nominal_weight": [],
+      "both_feet_clear_over_1mm_endpoint_steps": [],
+      "no_foot_normal_intervals": [],
+      "no_foot_normal_substeps": [],
+      "nonfoot_contact_intervals": 0,
+      "max_tilt_rad": 0.02650025051723455,
+      "max_speed_m_s": 0.0871560754164961
+    },
+    {
+      "lane": 5,
+      "left_bouts": [
+        [
+          228,
+          236
+        ],
+        [
+          253,
+          260
+        ],
+        [
+          285,
+          287
+        ]
+      ],
+      "right_bouts": [
+        [
+          242,
+          248
+        ],
+        [
+          267,
+          273
+        ]
+      ],
+      "forward_displacement_m": 0.04049992237,
+      "min_foot_upward_impulse_Ns": 0.0,
+      "intervals_below_half_nominal_weight": [
+        284,
+        289,
+        292,
+        294,
+        296,
+        297,
+        299,
+        300
+      ],
+      "both_feet_clear_over_1mm_endpoint_steps": [
+        289,
+        291,
+        293,
+        294,
+        296,
+        298,
+        299,
+        300
+      ],
+      "no_foot_normal_intervals": [
+        294,
+        299,
+        300
+      ],
+      "no_foot_normal_substeps": [
+        [
+          289,
+          8
+        ],
+        [
+          289,
+          9
+        ],
+        [
+          289,
+          10
+        ],
+        [
+          289,
+          11
+        ],
+        [
+          289,
+          12
+        ],
+        [
+          289,
+          13
+        ],
+        [
+          289,
+          14
+        ],
+        [
+          289,
+          15
+        ],
+        [
+          290,
+          0
+        ],
+        [
+          290,
+          1
+        ],
+        [
+          290,
+          2
+        ],
+        [
+          290,
+          3
+        ],
+        [
+          290,
+          4
+        ],
+        [
+          290,
+          5
+        ],
+        [
+          290,
+          6
+        ],
+        [
+          290,
+          7
+        ],
+        [
+          290,
+          8
+        ],
+        [
+          290,
+          9
+        ],
+        [
+          291,
+          7
+        ],
+        [
+          291,
+          8
+        ],
+        [
+          291,
+          9
+        ],
+        [
+          291,
+          10
+        ],
+        [
+          291,
+          11
+        ],
+        [
+          291,
+          12
+        ],
+        [
+          291,
+          13
+        ],
+        [
+          291,
+          14
+        ],
+        [
+          291,
+          15
+        ],
+        [
+          292,
+          0
+        ],
+        [
+          292,
+          1
+        ],
+        [
+          292,
+          2
+        ],
+        [
+          292,
+          3
+        ],
+        [
+          292,
+          4
+        ],
+        [
+          292,
+          5
+        ],
+        [
+          292,
+          6
+        ],
+        [
+          292,
+          7
+        ],
+        [
+          292,
+          8
+        ],
+        [
+          292,
+          9
+        ],
+        [
+          292,
+          10
+        ],
+        [
+          292,
+          11
+        ],
+        [
+          293,
+          13
+        ],
+        [
+          293,
+          14
+        ],
+        [
+          293,
+          15
+        ],
+        [
+          294,
+          0
+        ],
+        [
+          294,
+          1
+        ],
+        [
+          294,
+          2
+        ],
+        [
+          294,
+          3
+        ],
+        [
+          294,
+          4
+        ],
+        [
+          294,
+          5
+        ],
+        [
+          294,
+          6
+        ],
+        [
+          294,
+          7
+        ],
+        [
+          294,
+          8
+        ],
+        [
+          294,
+          9
+        ],
+        [
+          294,
+          10
+        ],
+        [
+          294,
+          11
+        ],
+        [
+          294,
+          12
+        ],
+        [
+          294,
+          13
+        ],
+        [
+          294,
+          14
+        ],
+        [
+          294,
+          15
+        ],
+        [
+          295,
+          0
+        ],
+        [
+          295,
+          1
+        ],
+        [
+          295,
+          2
+        ],
+        [
+          295,
+          3
+        ],
+        [
+          295,
+          4
+        ],
+        [
+          295,
+          5
+        ],
+        [
+          296,
+          1
+        ],
+        [
+          296,
+          2
+        ],
+        [
+          296,
+          3
+        ],
+        [
+          296,
+          4
+        ],
+        [
+          296,
+          5
+        ],
+        [
+          296,
+          6
+        ],
+        [
+          296,
+          7
+        ],
+        [
+          296,
+          8
+        ],
+        [
+          296,
+          9
+        ],
+        [
+          296,
+          10
+        ],
+        [
+          296,
+          11
+        ],
+        [
+          296,
+          12
+        ],
+        [
+          296,
+          13
+        ],
+        [
+          296,
+          14
+        ],
+        [
+          296,
+          15
+        ],
+        [
+          297,
+          0
+        ],
+        [
+          297,
+          1
+        ],
+        [
+          297,
+          2
+        ],
+        [
+          297,
+          3
+        ],
+        [
+          297,
+          4
+        ],
+        [
+          297,
+          5
+        ],
+        [
+          297,
+          6
+        ],
+        [
+          297,
+          7
+        ],
+        [
+          297,
+          8
+        ],
+        [
+          297,
+          9
+        ],
+        [
+          297,
+          10
+        ],
+        [
+          297,
+          11
+        ],
+        [
+          297,
+          12
+        ],
+        [
+          297,
+          13
+        ],
+        [
+          297,
+          14
+        ],
+        [
+          298,
+          7
+        ],
+        [
+          298,
+          8
+        ],
+        [
+          298,
+          9
+        ],
+        [
+          298,
+          10
+        ],
+        [
+          298,
+          11
+        ],
+        [
+          298,
+          12
+        ],
+        [
+          298,
+          13
+        ],
+        [
+          298,
+          14
+        ],
+        [
+          298,
+          15
+        ],
+        [
+          299,
+          0
+        ],
+        [
+          299,
+          1
+        ],
+        [
+          299,
+          2
+        ],
+        [
+          299,
+          3
+        ],
+        [
+          299,
+          4
+        ],
+        [
+          299,
+          5
+        ],
+        [
+          299,
+          6
+        ],
+        [
+          299,
+          7
+        ],
+        [
+          299,
+          8
+        ],
+        [
+          299,
+          9
+        ],
+        [
+          299,
+          10
+        ],
+        [
+          299,
+          11
+        ],
+        [
+          299,
+          12
+        ],
+        [
+          299,
+          13
+        ],
+        [
+          299,
+          14
+        ],
+        [
+          299,
+          15
+        ],
+        [
+          300,
+          0
+        ],
+        [
+          300,
+          1
+        ],
+        [
+          300,
+          2
+        ],
+        [
+          300,
+          3
+        ],
+        [
+          300,
+          4
+        ],
+        [
+          300,
+          5
+        ],
+        [
+          300,
+          6
+        ],
+        [
+          300,
+          7
+        ],
+        [
+          300,
+          8
+        ],
+        [
+          300,
+          9
+        ],
+        [
+          300,
+          10
+        ],
+        [
+          300,
+          11
+        ],
+        [
+          300,
+          12
+        ],
+        [
+          300,
+          13
+        ],
+        [
+          300,
+          14
+        ],
+        [
+          300,
+          15
+        ]
+      ],
+      "nonfoot_contact_intervals": 0,
+      "max_tilt_rad": 0.02617470368339186,
+      "max_speed_m_s": 0.2362074613766814
+    },
+    {
+      "lane": 6,
+      "left_bouts": [
+        [
+          228,
+          236
+        ],
+        [
+          258,
+          261
+        ],
+        [
+          278,
+          285
+        ]
+      ],
+      "right_bouts": [
+        [
+          242,
+          248
+        ],
+        [
+          267,
+          273
+        ],
+        [
+          293,
+          298
+        ]
+      ],
+      "forward_displacement_m": 0.0373998918,
+      "min_foot_upward_impulse_Ns": 0.04976658804339999,
+      "intervals_below_half_nominal_weight": [],
+      "both_feet_clear_over_1mm_endpoint_steps": [],
+      "no_foot_normal_intervals": [],
+      "no_foot_normal_substeps": [],
+      "nonfoot_contact_intervals": 0,
+      "max_tilt_rad": 0.02620238351998509,
+      "max_speed_m_s": 0.0968124668694363
+    },
+    {
+      "lane": 7,
+      "left_bouts": [
+        [
+          228,
+          236
+        ],
+        [
+          253,
+          260
+        ],
+        [
+          278,
+          285
+        ]
+      ],
+      "right_bouts": [
+        [
+          241,
+          248
+        ],
+        [
+          267,
+          273
+        ],
+        [
+          293,
+          298
+        ]
+      ],
+      "forward_displacement_m": 0.034722436259999996,
+      "min_foot_upward_impulse_Ns": 0.0543082370871,
+      "intervals_below_half_nominal_weight": [],
+      "both_feet_clear_over_1mm_endpoint_steps": [],
+      "no_foot_normal_intervals": [],
+      "no_foot_normal_substeps": [],
+      "nonfoot_contact_intervals": 0,
+      "max_tilt_rad": 0.026159086501043684,
+      "max_speed_m_s": 0.09245652442499859
+    }
+  ],
+  "limitations": "Two-second teacher-off integrated development gait. Shape clearance sampled at control endpoints; all contact impulses summed over all configured substeps. The common ground height is taken from lane 1 replay and the same authored task, not independently replayed in every lane. Alternating bouts, slip, continuous clearance, toe speed, takeoff, landing, autonomous navigation, unseen starts and biological realism require separate tests."
+}

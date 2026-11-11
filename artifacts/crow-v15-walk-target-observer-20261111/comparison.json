@@ -1,0 +1,85 @@
+{
+  "rows": [
+    {
+      "lane": 0,
+      "endpoint_differences": 0,
+      "first_endpoint_difference": [],
+      "substep_differences": 0,
+      "first_substep_difference": [],
+      "phase_differences": 0,
+      "first_phase_difference": [],
+      "target_samples": 101
+    },
+    {
+      "lane": 1,
+      "endpoint_differences": 0,
+      "first_endpoint_difference": [],
+      "substep_differences": 0,
+      "first_substep_difference": [],
+      "phase_differences": 0,
+      "first_phase_difference": [],
+      "target_samples": 101
+    },
+    {
+      "lane": 2,
+      "endpoint_differences": 0,
+      "first_endpoint_difference": [],
+      "substep_differences": 0,
+      "first_substep_difference": [],
+      "phase_differences": 0,
+      "first_phase_difference": [],
+      "target_samples": 101
+    },
+    {
+      "lane": 3,
+      "endpoint_differences": 0,
+      "first_endpoint_difference": [],
+      "substep_differences": 0,
+      "first_substep_difference": [],
+      "phase_differences": 0,
+      "first_phase_difference": [],
+      "target_samples": 101
+    },
+    {
+      "lane": 4,
+      "endpoint_differences": 0,
+      "first_endpoint_difference": [],
+      "substep_differences": 0,
+      "first_substep_difference": [],
+      "phase_differences": 0,
+      "first_phase_difference": [],
+      "target_samples": 101
+    },
+    {
+      "lane": 5,
+      "endpoint_differences": 0,
+      "first_endpoint_difference": [],
+      "substep_differences": 0,
+      "first_substep_difference": [],
+      "phase_differences": 0,
+      "first_phase_difference": [],
+      "target_samples": 101
+    },
+    {
+      "lane": 6,
+      "endpoint_differences": 0,
+      "first_endpoint_difference": [],
+      "substep_differences": 0,
+      "first_substep_difference": [],
+      "phase_differences": 0,
+      "first_phase_difference": [],
+      "target_samples": 101
+    },
+    {
+      "lane": 7,
+      "endpoint_differences": 0,
+      "first_endpoint_difference": [],
+      "substep_differences": 0,
+      "first_substep_difference": [],
+      "phase_differences": 0,
+      "first_phase_difference": [],
+      "target_samples": 101
+    }
+  ],
+  "scope": "Endpoint equality covers q, v, actor output and reported contacts; substep equality covers printed aggregate contact fields. This does not prove equality of unlogged solver internals. Target buffer timing and index bindings still require validation."
+}

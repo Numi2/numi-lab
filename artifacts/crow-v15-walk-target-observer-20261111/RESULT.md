@@ -1,0 +1,3 @@
+# Target observer parity
+
+The read-only joint-target observer reproduced the localized-route reference for all eight starts over steps 1–300: accepted q/v, actor output and reported endpoint contacts, phase samples, and printed aggregate contact substep records matched exactly. Each lane included 101 forty-value target samples for steps 200–300. This is parity of logged values, not unlogged solver internals. Target-buffer timing and binding still require independent validation. In the unsupported reference start, loss occurred during a rapid transfer with fluctuating foot loads; this association does not establish its cause.
