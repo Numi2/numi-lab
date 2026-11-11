@@ -1,0 +1,6 @@
+{
+  "host_source_sha256": "17351b2d3e0c3563d4e48ee4b5698585700dd72d79ddc5d4d6510795c8b8c2f0",
+  "host_sha256": "212d83d39d5ed8769d8f47fc5c3375a14a0a035450f4dda13fb70da66d87be16",
+  "toe_half_height_m": 0.003,
+  "scope": "experimental constant damping; no biological calibration"
+}
