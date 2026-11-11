@@ -1,0 +1,11 @@
+{
+  "state_mismatches": 0,
+  "contact_substep_mismatches": 0,
+  "q_substeps_found": 12800,
+  "q_substeps_expected": 12800,
+  "missing_q_examples": [],
+  "max_final_substep_q_vs_endpoint": 0.0,
+  "errors": [],
+  "reference_errors": [],
+  "pass": true
+}

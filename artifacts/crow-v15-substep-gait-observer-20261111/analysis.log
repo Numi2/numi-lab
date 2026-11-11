@@ -1,0 +1,14 @@
+{
+  "seed": 20261126,
+  "bout_count": 48,
+  "minimum_order_counts": {
+    "same_substep": 47,
+    "ankle_first": 1
+  },
+  "edge_censored_count": 0,
+  "ankle_minus_knee_min_ms_range": [
+    -20.0,
+    0.0
+  ],
+  "limitations": "Only previously qualified endpoint-cleared intervals, not complete swing or confirmed continuous clearance. Extrema outside these intervals are not observed. Two distinct control-development seeds were previously tested but this instrument runs one. This is not American-crow kinematics."
+}

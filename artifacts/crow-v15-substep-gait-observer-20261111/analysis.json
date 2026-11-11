@@ -1,0 +1,816 @@
+{
+  "seed": 20261126,
+  "rows": [
+    {
+      "lane": 0,
+      "side": "left",
+      "bouts": [
+        {
+          "endpoint_bounds": [
+            229,
+            236
+          ],
+          "q_samples": 113,
+          "min_sample_index_hip_knee_ankle": [
+            80,
+            80,
+            80
+          ],
+          "ankle_min_after_knee_min_ms": 0.0,
+          "knee_or_ankle_min_at_bout_edge": false
+        },
+        {
+          "endpoint_bounds": [
+            253,
+            260
+          ],
+          "q_samples": 113,
+          "min_sample_index_hip_knee_ankle": [
+            96,
+            96,
+            96
+          ],
+          "ankle_min_after_knee_min_ms": 0.0,
+          "knee_or_ankle_min_at_bout_edge": false
+        },
+        {
+          "endpoint_bounds": [
+            278,
+            285
+          ],
+          "q_samples": 113,
+          "min_sample_index_hip_knee_ankle": [
+            96,
+            96,
+            96
+          ],
+          "ankle_min_after_knee_min_ms": 0.0,
+          "knee_or_ankle_min_at_bout_edge": false
+        }
+      ],
+      "hallux_substeps_with_normal_impulse": 1038,
+      "middle_front_toe_substeps_with_normal_impulse": 137
+    },
+    {
+      "lane": 0,
+      "side": "right",
+      "bouts": [
+        {
+          "endpoint_bounds": [
+            241,
+            248
+          ],
+          "q_samples": 113,
+          "min_sample_index_hip_knee_ankle": [
+            96,
+            80,
+            80
+          ],
+          "ankle_min_after_knee_min_ms": 0.0,
+          "knee_or_ankle_min_at_bout_edge": false
+        },
+        {
+          "endpoint_bounds": [
+            267,
+            273
+          ],
+          "q_samples": 97,
+          "min_sample_index_hip_knee_ankle": [
+            80,
+            64,
+            64
+          ],
+          "ankle_min_after_knee_min_ms": 0.0,
+          "knee_or_ankle_min_at_bout_edge": false
+        },
+        {
+          "endpoint_bounds": [
+            292,
+            298
+          ],
+          "q_samples": 97,
+          "min_sample_index_hip_knee_ankle": [
+            80,
+            64,
+            64
+          ],
+          "ankle_min_after_knee_min_ms": 0.0,
+          "knee_or_ankle_min_at_bout_edge": false
+        }
+      ],
+      "hallux_substeps_with_normal_impulse": 873,
+      "middle_front_toe_substeps_with_normal_impulse": 160
+    },
+    {
+      "lane": 1,
+      "side": "left",
+      "bouts": [
+        {
+          "endpoint_bounds": [
+            228,
+            236
+          ],
+          "q_samples": 129,
+          "min_sample_index_hip_knee_ankle": [
+            96,
+            96,
+            96
+          ],
+          "ankle_min_after_knee_min_ms": 0.0,
+          "knee_or_ankle_min_at_bout_edge": false
+        },
+        {
+          "endpoint_bounds": [
+            253,
+            260
+          ],
+          "q_samples": 113,
+          "min_sample_index_hip_knee_ankle": [
+            96,
+            96,
+            96
+          ],
+          "ankle_min_after_knee_min_ms": 0.0,
+          "knee_or_ankle_min_at_bout_edge": false
+        },
+        {
+          "endpoint_bounds": [
+            278,
+            285
+          ],
+          "q_samples": 113,
+          "min_sample_index_hip_knee_ankle": [
+            96,
+            96,
+            96
+          ],
+          "ankle_min_after_knee_min_ms": 0.0,
+          "knee_or_ankle_min_at_bout_edge": false
+        }
+      ],
+      "hallux_substeps_with_normal_impulse": 1037,
+      "middle_front_toe_substeps_with_normal_impulse": 246
+    },
+    {
+      "lane": 1,
+      "side": "right",
+      "bouts": [
+        {
+          "endpoint_bounds": [
+            241,
+            248
+          ],
+          "q_samples": 113,
+          "min_sample_index_hip_knee_ankle": [
+            96,
+            80,
+            80
+          ],
+          "ankle_min_after_knee_min_ms": 0.0,
+          "knee_or_ankle_min_at_bout_edge": false
+        },
+        {
+          "endpoint_bounds": [
+            266,
+            273
+          ],
+          "q_samples": 113,
+          "min_sample_index_hip_knee_ankle": [
+            96,
+            80,
+            80
+          ],
+          "ankle_min_after_knee_min_ms": 0.0,
+          "knee_or_ankle_min_at_bout_edge": false
+        },
+        {
+          "endpoint_bounds": [
+            292,
+            298
+          ],
+          "q_samples": 97,
+          "min_sample_index_hip_knee_ankle": [
+            80,
+            64,
+            64
+          ],
+          "ankle_min_after_knee_min_ms": 0.0,
+          "knee_or_ankle_min_at_bout_edge": false
+        }
+      ],
+      "hallux_substeps_with_normal_impulse": 884,
+      "middle_front_toe_substeps_with_normal_impulse": 233
+    },
+    {
+      "lane": 2,
+      "side": "left",
+      "bouts": [
+        {
+          "endpoint_bounds": [
+            228,
+            236
+          ],
+          "q_samples": 129,
+          "min_sample_index_hip_knee_ankle": [
+            96,
+            96,
+            96
+          ],
+          "ankle_min_after_knee_min_ms": 0.0,
+          "knee_or_ankle_min_at_bout_edge": false
+        },
+        {
+          "endpoint_bounds": [
+            253,
+            260
+          ],
+          "q_samples": 113,
+          "min_sample_index_hip_knee_ankle": [
+            96,
+            96,
+            96
+          ],
+          "ankle_min_after_knee_min_ms": 0.0,
+          "knee_or_ankle_min_at_bout_edge": false
+        },
+        {
+          "endpoint_bounds": [
+            278,
+            285
+          ],
+          "q_samples": 113,
+          "min_sample_index_hip_knee_ankle": [
+            96,
+            96,
+            96
+          ],
+          "ankle_min_after_knee_min_ms": 0.0,
+          "knee_or_ankle_min_at_bout_edge": false
+        }
+      ],
+      "hallux_substeps_with_normal_impulse": 1037,
+      "middle_front_toe_substeps_with_normal_impulse": 132
+    },
+    {
+      "lane": 2,
+      "side": "right",
+      "bouts": [
+        {
+          "endpoint_bounds": [
+            241,
+            248
+          ],
+          "q_samples": 113,
+          "min_sample_index_hip_knee_ankle": [
+            96,
+            80,
+            80
+          ],
+          "ankle_min_after_knee_min_ms": 0.0,
+          "knee_or_ankle_min_at_bout_edge": false
+        },
+        {
+          "endpoint_bounds": [
+            267,
+            273
+          ],
+          "q_samples": 97,
+          "min_sample_index_hip_knee_ankle": [
+            80,
+            64,
+            64
+          ],
+          "ankle_min_after_knee_min_ms": 0.0,
+          "knee_or_ankle_min_at_bout_edge": false
+        },
+        {
+          "endpoint_bounds": [
+            292,
+            298
+          ],
+          "q_samples": 97,
+          "min_sample_index_hip_knee_ankle": [
+            80,
+            64,
+            64
+          ],
+          "ankle_min_after_knee_min_ms": 0.0,
+          "knee_or_ankle_min_at_bout_edge": false
+        }
+      ],
+      "hallux_substeps_with_normal_impulse": 868,
+      "middle_front_toe_substeps_with_normal_impulse": 161
+    },
+    {
+      "lane": 3,
+      "side": "left",
+      "bouts": [
+        {
+          "endpoint_bounds": [
+            228,
+            236
+          ],
+          "q_samples": 129,
+          "min_sample_index_hip_knee_ankle": [
+            96,
+            96,
+            96
+          ],
+          "ankle_min_after_knee_min_ms": 0.0,
+          "knee_or_ankle_min_at_bout_edge": false
+        },
+        {
+          "endpoint_bounds": [
+            254,
+            260
+          ],
+          "q_samples": 97,
+          "min_sample_index_hip_knee_ankle": [
+            80,
+            80,
+            80
+          ],
+          "ankle_min_after_knee_min_ms": 0.0,
+          "knee_or_ankle_min_at_bout_edge": false
+        },
+        {
+          "endpoint_bounds": [
+            278,
+            285
+          ],
+          "q_samples": 113,
+          "min_sample_index_hip_knee_ankle": [
+            96,
+            96,
+            96
+          ],
+          "ankle_min_after_knee_min_ms": 0.0,
+          "knee_or_ankle_min_at_bout_edge": false
+        }
+      ],
+      "hallux_substeps_with_normal_impulse": 968,
+      "middle_front_toe_substeps_with_normal_impulse": 104
+    },
+    {
+      "lane": 3,
+      "side": "right",
+      "bouts": [
+        {
+          "endpoint_bounds": [
+            243,
+            248
+          ],
+          "q_samples": 81,
+          "min_sample_index_hip_knee_ankle": [
+            64,
+            64,
+            48
+          ],
+          "ankle_min_after_knee_min_ms": -20.0,
+          "knee_or_ankle_min_at_bout_edge": false
+        },
+        {
+          "endpoint_bounds": [
+            266,
+            273
+          ],
+          "q_samples": 113,
+          "min_sample_index_hip_knee_ankle": [
+            96,
+            80,
+            80
+          ],
+          "ankle_min_after_knee_min_ms": 0.0,
+          "knee_or_ankle_min_at_bout_edge": false
+        },
+        {
+          "endpoint_bounds": [
+            292,
+            298
+          ],
+          "q_samples": 97,
+          "min_sample_index_hip_knee_ankle": [
+            80,
+            64,
+            64
+          ],
+          "ankle_min_after_knee_min_ms": 0.0,
+          "knee_or_ankle_min_at_bout_edge": false
+        }
+      ],
+      "hallux_substeps_with_normal_impulse": 865,
+      "middle_front_toe_substeps_with_normal_impulse": 185
+    },
+    {
+      "lane": 4,
+      "side": "left",
+      "bouts": [
+        {
+          "endpoint_bounds": [
+            229,
+            236
+          ],
+          "q_samples": 113,
+          "min_sample_index_hip_knee_ankle": [
+            80,
+            80,
+            80
+          ],
+          "ankle_min_after_knee_min_ms": 0.0,
+          "knee_or_ankle_min_at_bout_edge": false
+        },
+        {
+          "endpoint_bounds": [
+            253,
+            260
+          ],
+          "q_samples": 113,
+          "min_sample_index_hip_knee_ankle": [
+            96,
+            96,
+            96
+          ],
+          "ankle_min_after_knee_min_ms": 0.0,
+          "knee_or_ankle_min_at_bout_edge": false
+        },
+        {
+          "endpoint_bounds": [
+            278,
+            285
+          ],
+          "q_samples": 113,
+          "min_sample_index_hip_knee_ankle": [
+            96,
+            96,
+            96
+          ],
+          "ankle_min_after_knee_min_ms": 0.0,
+          "knee_or_ankle_min_at_bout_edge": false
+        }
+      ],
+      "hallux_substeps_with_normal_impulse": 1036,
+      "middle_front_toe_substeps_with_normal_impulse": 57
+    },
+    {
+      "lane": 4,
+      "side": "right",
+      "bouts": [
+        {
+          "endpoint_bounds": [
+            241,
+            248
+          ],
+          "q_samples": 113,
+          "min_sample_index_hip_knee_ankle": [
+            96,
+            80,
+            80
+          ],
+          "ankle_min_after_knee_min_ms": 0.0,
+          "knee_or_ankle_min_at_bout_edge": false
+        },
+        {
+          "endpoint_bounds": [
+            266,
+            273
+          ],
+          "q_samples": 113,
+          "min_sample_index_hip_knee_ankle": [
+            96,
+            80,
+            80
+          ],
+          "ankle_min_after_knee_min_ms": 0.0,
+          "knee_or_ankle_min_at_bout_edge": false
+        },
+        {
+          "endpoint_bounds": [
+            292,
+            298
+          ],
+          "q_samples": 97,
+          "min_sample_index_hip_knee_ankle": [
+            80,
+            64,
+            64
+          ],
+          "ankle_min_after_knee_min_ms": 0.0,
+          "knee_or_ankle_min_at_bout_edge": false
+        }
+      ],
+      "hallux_substeps_with_normal_impulse": 866,
+      "middle_front_toe_substeps_with_normal_impulse": 182
+    },
+    {
+      "lane": 5,
+      "side": "left",
+      "bouts": [
+        {
+          "endpoint_bounds": [
+            228,
+            236
+          ],
+          "q_samples": 129,
+          "min_sample_index_hip_knee_ankle": [
+            96,
+            96,
+            96
+          ],
+          "ankle_min_after_knee_min_ms": 0.0,
+          "knee_or_ankle_min_at_bout_edge": false
+        },
+        {
+          "endpoint_bounds": [
+            253,
+            260
+          ],
+          "q_samples": 113,
+          "min_sample_index_hip_knee_ankle": [
+            96,
+            96,
+            96
+          ],
+          "ankle_min_after_knee_min_ms": 0.0,
+          "knee_or_ankle_min_at_bout_edge": false
+        },
+        {
+          "endpoint_bounds": [
+            278,
+            285
+          ],
+          "q_samples": 113,
+          "min_sample_index_hip_knee_ankle": [
+            96,
+            96,
+            96
+          ],
+          "ankle_min_after_knee_min_ms": 0.0,
+          "knee_or_ankle_min_at_bout_edge": false
+        }
+      ],
+      "hallux_substeps_with_normal_impulse": 1039,
+      "middle_front_toe_substeps_with_normal_impulse": 49
+    },
+    {
+      "lane": 5,
+      "side": "right",
+      "bouts": [
+        {
+          "endpoint_bounds": [
+            241,
+            248
+          ],
+          "q_samples": 113,
+          "min_sample_index_hip_knee_ankle": [
+            96,
+            80,
+            80
+          ],
+          "ankle_min_after_knee_min_ms": 0.0,
+          "knee_or_ankle_min_at_bout_edge": false
+        },
+        {
+          "endpoint_bounds": [
+            267,
+            273
+          ],
+          "q_samples": 97,
+          "min_sample_index_hip_knee_ankle": [
+            80,
+            64,
+            64
+          ],
+          "ankle_min_after_knee_min_ms": 0.0,
+          "knee_or_ankle_min_at_bout_edge": false
+        },
+        {
+          "endpoint_bounds": [
+            292,
+            298
+          ],
+          "q_samples": 97,
+          "min_sample_index_hip_knee_ankle": [
+            80,
+            64,
+            64
+          ],
+          "ankle_min_after_knee_min_ms": 0.0,
+          "knee_or_ankle_min_at_bout_edge": false
+        }
+      ],
+      "hallux_substeps_with_normal_impulse": 864,
+      "middle_front_toe_substeps_with_normal_impulse": 194
+    },
+    {
+      "lane": 6,
+      "side": "left",
+      "bouts": [
+        {
+          "endpoint_bounds": [
+            229,
+            236
+          ],
+          "q_samples": 113,
+          "min_sample_index_hip_knee_ankle": [
+            80,
+            80,
+            80
+          ],
+          "ankle_min_after_knee_min_ms": 0.0,
+          "knee_or_ankle_min_at_bout_edge": false
+        },
+        {
+          "endpoint_bounds": [
+            253,
+            260
+          ],
+          "q_samples": 113,
+          "min_sample_index_hip_knee_ankle": [
+            96,
+            96,
+            96
+          ],
+          "ankle_min_after_knee_min_ms": 0.0,
+          "knee_or_ankle_min_at_bout_edge": false
+        },
+        {
+          "endpoint_bounds": [
+            278,
+            285
+          ],
+          "q_samples": 113,
+          "min_sample_index_hip_knee_ankle": [
+            96,
+            96,
+            96
+          ],
+          "ankle_min_after_knee_min_ms": 0.0,
+          "knee_or_ankle_min_at_bout_edge": false
+        }
+      ],
+      "hallux_substeps_with_normal_impulse": 1038,
+      "middle_front_toe_substeps_with_normal_impulse": 86
+    },
+    {
+      "lane": 6,
+      "side": "right",
+      "bouts": [
+        {
+          "endpoint_bounds": [
+            241,
+            248
+          ],
+          "q_samples": 113,
+          "min_sample_index_hip_knee_ankle": [
+            96,
+            80,
+            80
+          ],
+          "ankle_min_after_knee_min_ms": 0.0,
+          "knee_or_ankle_min_at_bout_edge": false
+        },
+        {
+          "endpoint_bounds": [
+            267,
+            273
+          ],
+          "q_samples": 97,
+          "min_sample_index_hip_knee_ankle": [
+            80,
+            64,
+            64
+          ],
+          "ankle_min_after_knee_min_ms": 0.0,
+          "knee_or_ankle_min_at_bout_edge": false
+        },
+        {
+          "endpoint_bounds": [
+            292,
+            298
+          ],
+          "q_samples": 97,
+          "min_sample_index_hip_knee_ankle": [
+            80,
+            64,
+            64
+          ],
+          "ankle_min_after_knee_min_ms": 0.0,
+          "knee_or_ankle_min_at_bout_edge": false
+        }
+      ],
+      "hallux_substeps_with_normal_impulse": 865,
+      "middle_front_toe_substeps_with_normal_impulse": 156
+    },
+    {
+      "lane": 7,
+      "side": "left",
+      "bouts": [
+        {
+          "endpoint_bounds": [
+            228,
+            236
+          ],
+          "q_samples": 129,
+          "min_sample_index_hip_knee_ankle": [
+            96,
+            96,
+            96
+          ],
+          "ankle_min_after_knee_min_ms": 0.0,
+          "knee_or_ankle_min_at_bout_edge": false
+        },
+        {
+          "endpoint_bounds": [
+            254,
+            260
+          ],
+          "q_samples": 97,
+          "min_sample_index_hip_knee_ankle": [
+            80,
+            80,
+            80
+          ],
+          "ankle_min_after_knee_min_ms": 0.0,
+          "knee_or_ankle_min_at_bout_edge": false
+        },
+        {
+          "endpoint_bounds": [
+            278,
+            285
+          ],
+          "q_samples": 113,
+          "min_sample_index_hip_knee_ankle": [
+            96,
+            96,
+            96
+          ],
+          "ankle_min_after_knee_min_ms": 0.0,
+          "knee_or_ankle_min_at_bout_edge": false
+        }
+      ],
+      "hallux_substeps_with_normal_impulse": 1040,
+      "middle_front_toe_substeps_with_normal_impulse": 77
+    },
+    {
+      "lane": 7,
+      "side": "right",
+      "bouts": [
+        {
+          "endpoint_bounds": [
+            244,
+            248
+          ],
+          "q_samples": 65,
+          "min_sample_index_hip_knee_ankle": [
+            48,
+            32,
+            32
+          ],
+          "ankle_min_after_knee_min_ms": 0.0,
+          "knee_or_ankle_min_at_bout_edge": false
+        },
+        {
+          "endpoint_bounds": [
+            266,
+            273
+          ],
+          "q_samples": 113,
+          "min_sample_index_hip_knee_ankle": [
+            96,
+            80,
+            80
+          ],
+          "ankle_min_after_knee_min_ms": 0.0,
+          "knee_or_ankle_min_at_bout_edge": false
+        },
+        {
+          "endpoint_bounds": [
+            292,
+            298
+          ],
+          "q_samples": 97,
+          "min_sample_index_hip_knee_ankle": [
+            80,
+            64,
+            64
+          ],
+          "ankle_min_after_knee_min_ms": 0.0,
+          "knee_or_ankle_min_at_bout_edge": false
+        }
+      ],
+      "hallux_substeps_with_normal_impulse": 866,
+      "middle_front_toe_substeps_with_normal_impulse": 187
+    }
+  ],
+  "bout_count": 48,
+  "minimum_order_counts": {
+    "same_substep": 47,
+    "ankle_first": 1
+  },
+  "edge_censored_count": 0,
+  "ankle_minus_knee_min_ms_range": [
+    -20.0,
+    0.0
+  ],
+  "limitations": "Only previously qualified endpoint-cleared intervals, not complete swing or confirmed continuous clearance. Extrema outside these intervals are not observed. Two distinct control-development seeds were previously tested but this instrument runs one. This is not American-crow kinematics."
+}
