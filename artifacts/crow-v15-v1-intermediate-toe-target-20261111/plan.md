@@ -1,0 +1,3 @@
+# Toe contact bracket test
+
+In matched approaches, the +5 mm target first touched with the front toes at root x=5.009 m, whereas +25 mm first touched with the rear toes at root x=5.034 m. Neither produced simultaneous front and rear contact even on one foot. Test only the intermediate +15 mm target with the same model, baseline paused-descent controls, solver, 16-substep sensor and development J full start. The 25 mm first-contact bracket motivates this one candidate; transient contact is not grip. Evaluate actual simultaneously opposed toe forces, foot support, penetration, and first failure. No held-out or autonomous claims follow.
