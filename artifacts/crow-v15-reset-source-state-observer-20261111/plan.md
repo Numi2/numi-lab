@@ -1,0 +1,3 @@
+# Reset contact source observation
+
+The initial toe-speed hits coincide with substantial contact impulses during the first physics interval. Add a read-only GPU snapshot of source positions and velocities for each substep, and verify that each interval's first source state equals the previous accepted endpoint and that the rest of the rollout is identical to the established observer. Use independent forward kinematics to measure initial toe-ground separation. This determines whether the starts have interpenetration; it does not attribute all later hits to startup or justify hiding perturbations.

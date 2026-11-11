@@ -1,0 +1,103 @@
+{
+  "compared_record_counts": [
+    1056,
+    1056
+  ],
+  "differing_records": 0,
+  "first_difference": "[]",
+  "source_samples": 512,
+  "expected_source_samples": 512,
+  "previous_endpoint_compared_components": 1232,
+  "previous_endpoint_max_abs_error": 0.0,
+  "lanes": [
+    {
+      "lane": 0,
+      "root_position_m": [
+        -0.00352119561,
+        -0.000391381996,
+        0.186913505
+      ],
+      "minimum_foot_toe_gap_m": -0.000704857301497214,
+      "lowest_shape": "crow_left_front_toe_3_distal",
+      "toe_v_max": 0.0193545818
+    },
+    {
+      "lane": 1,
+      "root_position_m": [
+        -0.0253438149,
+        -0.00581869483,
+        0.186622441
+      ],
+      "minimum_foot_toe_gap_m": 0.003974907692069193,
+      "lowest_shape": "crow_left_rear_toe_distal",
+      "toe_v_max": 0.0199145209
+    },
+    {
+      "lane": 2,
+      "root_position_m": [
+        -0.000974044669,
+        -0.0313281976,
+        0.186661899
+      ],
+      "minimum_foot_toe_gap_m": -0.006040634403445126,
+      "lowest_shape": "crow_right_front_toe_1_distal",
+      "toe_v_max": 0.0184879154
+    },
+    {
+      "lane": 3,
+      "root_position_m": [
+        -0.00477207638,
+        0.0491425209,
+        0.186776087
+      ],
+      "minimum_foot_toe_gap_m": -0.00047063192808743416,
+      "lowest_shape": "crow_left_front_toe_3_distal",
+      "toe_v_max": 0.0191320293
+    },
+    {
+      "lane": 4,
+      "root_position_m": [
+        -0.0093096653,
+        -0.0367302373,
+        0.187268674
+      ],
+      "minimum_foot_toe_gap_m": 0.005040197835550179,
+      "lowest_shape": "crow_right_foot",
+      "toe_v_max": 0.0163211673
+    },
+    {
+      "lane": 5,
+      "root_position_m": [
+        -0.00304425112,
+        0.00686721224,
+        0.186556533
+      ],
+      "minimum_foot_toe_gap_m": 0.004050588156206106,
+      "lowest_shape": "crow_left_foot",
+      "toe_v_max": 0.0192373823
+    },
+    {
+      "lane": 6,
+      "root_position_m": [
+        0.0288683977,
+        -0.0267817974,
+        0.187044859
+      ],
+      "minimum_foot_toe_gap_m": -0.00030103826827274603,
+      "lowest_shape": "crow_right_rear_toe_distal",
+      "toe_v_max": 0.0193221215
+    },
+    {
+      "lane": 7,
+      "root_position_m": [
+        -0.0413110517,
+        -0.00516343117,
+        0.187363476
+      ],
+      "minimum_foot_toe_gap_m": 0.004718186457627796,
+      "lowest_shape": "crow_left_foot",
+      "toe_v_max": 0.0197267067
+    }
+  ],
+  "scope": "initial preflight step is duplicated; continuity compares actual successive steps 3 and 4; independent FK of unmodified reset source; negative gap denotes overlap with plane, not automatically the cause of all cap hits"
+}
