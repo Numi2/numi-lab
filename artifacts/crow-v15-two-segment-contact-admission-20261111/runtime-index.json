@@ -1,0 +1,17 @@
+[
+  {
+    "path": "build/crow-v15-two-segment-contact-admission-20261111/probe",
+    "sha256": "42d8d586f94eb96dc860f8a55e810616cd97e318ed6a9ed0a81413f9aa515015",
+    "bytes": 101000
+  },
+  {
+    "path": "build/crow-v15-wide-contact-isolation-20261111/libmetalrobo.dylib",
+    "sha256": "36a058d34997300ddb0b07ca2acd4005d842e27839104029c84f098f8110051d",
+    "bytes": 5728528
+  },
+  {
+    "path": "build/crow-v15-wide-contact-isolation-20261111/MetalRobo.metallib",
+    "sha256": "835d0ff74b8338bba6987d88f3355a1344522eaa88fa8e82295b12ba58cedeb5",
+    "bytes": 4465488
+  }
+]

@@ -1,0 +1,11 @@
+--- a/wing_model.hpp
++++ b/two_segment_wing_model.hpp
+@@ -3,7 +3,7 @@
+ #include <stdexcept>
+ inline void crowResearchWingInertia(metalrobo::RobotPack& p) {
+   auto& m=p.mechanics;
+-  if(m.bodies.size()!=25 || m.joints.size()<6 || m.defaultQ.size()!=31) throw std::logic_error("unexpected crow v15 topology");
++  if(m.bodies.size()!=33 || m.joints.size()<6 || m.defaultQ.size()!=39) throw std::logic_error("unexpected crow v15 topology");
+   constexpr double referenceBodyMass=0.3876, referenceWingMass=0.0308, referenceWingMoment=0.0002613;
+   const double actualMass=0.450039991512, ratio=actualMass/referenceBodyMass;
+   // The literature row includes scaled/related-species values; this is a bounded research model, not specimen calibration.
