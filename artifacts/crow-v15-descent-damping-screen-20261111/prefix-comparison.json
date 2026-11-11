@@ -1,0 +1,14 @@
+{
+  "matched_q_v_actions_and_endpoint_contacts_by_lane": [
+    3023,
+    3116,
+    3078,
+    3002,
+    3066,
+    3074,
+    3023,
+    2980
+  ],
+  "first_mismatch": [],
+  "comparison": "all recorded control endpoints strictly before reference phase-one entry; exact JSON-decoded values"
+}
