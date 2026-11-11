@@ -1,0 +1,3 @@
+# Late-route student candidate rejected
+
+On the used development course and seed, only four of eight teacher-off first episodes reached all five waypoints. Three crashed after two waypoints; the first observed contact in each was head against slalom B at the endpoint following termination, with fatal-substep order unproven. Another lane reached only one waypoint. One of the four arrivals ended with 25 intervals of opposing two-foot support, but no physical release or unused-layout success was qualified. The previous actor reached five waypoints in seven of eight starts, so this candidate is rejected rather than promoted. All sixteen substeps were covered with no reported capacity overflow.
