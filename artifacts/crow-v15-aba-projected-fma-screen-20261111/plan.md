@@ -1,0 +1,3 @@
+# Fused projected-parent sum numerical screen
+
+Both fast and strict isolated widened ABA modes exceeded the 5e-5 GPU/CPU scaled-acceleration gate in varied-state tests, chiefly at the low-inertia neck pitch coordinate. As one isolated numerical hypothesis, use explicit fused multiply-add for only the six-term projected-parent accumulation in the forward ABA sweep; leave the equations, body, inputs, host library, remaining shader expressions and original 5e-5 gate unchanged. Use the same 96-state paired 25- and 33-body screens as strict math, retaining all failures. Passing this one screen would be necessary, not sufficient, for any wider solver promotion and says nothing about contact or performance.
