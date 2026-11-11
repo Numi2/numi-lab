@@ -1,7 +1,7 @@
 import sys
 from pathlib import Path
 import gzip,json,math,subprocess
-A=Path('artifacts/crow-v15-gait-onset-ramp-20261111');name=sys.argv[1];P=Path('artifacts/crow-v15-walk-16substep-screen-20261111')
+A=Path('artifacts/crow-v15-gait-onset-ramp-20261111');arm=sys.argv[1];P=Path('artifacts/crow-v15-walk-16substep-screen-20261111')
 def read(path,lim):
  sup={};sub={}
  with gzip.open(path,'rt') as f:
@@ -13,14 +13,14 @@ def read(path,lim):
     v=l.split();lane,t,k=int(v[3]),int(v[1]),int(v[2]);
     if t<=lim:sub[lane,t,k]=list(map(float,v[6:]))
  return sup,sub
-old,os=read(P/'zero16.stderr.gz',99);sup,sub=read(A/(name+'.stderr.gz'),500);diff=[]
+old,os=read(P/'zero16.stderr.gz',99);sup,sub=read(A/(arm+'.stderr.gz'),500);diff=[]
 for l in range(8):
  for t in range(1,100):
   if (l,t) not in old or (l,t) not in sup or any(old[l,t][f]!=sup[l,t][f] for f in ('q','v')) or any(os.get((l,t,k))!=sub.get((l,t,k)) for k in range(16)):diff.append((l,t))
 inputs=[(l,t,sup[l,t]) for l in range(8) for t in range(101,501) if (l,t) in sup];text=''.join(str(l)+' '+str(t)+' '+' '.join(map(str,d['q']+d['v']))+'\n' for l,t,d in inputs);p=subprocess.run(['build/crow-v15-walk-all-lanes-geometry-20261111/kinematics'],input=text,text=True,capture_output=True,check=True);pose={}
 for line in p.stdout.splitlines():
  v=line.split();pose[int(v[0]),int(v[1]),v[2]]=list(map(float,v[3:]))
-with gzip.open(A/(name+'.replay.json.gz'),'rt') as f:replay=json.load(f)['payload']
+with gzip.open(A/(arm+'.replay.json.gz'),'rt') as f:replay=json.load(f)['payload']
 frames={x['step']:x for x in replay['frames']};maxq=maxpos=0.
 for l,t,d in inputs:
  if l!=1:continue
@@ -55,5 +55,5 @@ for l in range(8):
    flags[ind].append(len(gaps)==5 and min(gaps)>.001 and imp[2+ind]<=1e-7 and imp[1-ind]>=.5*.45004*9.81*.02 and imp[6]<=1e-7)
  bs=[bouts(x) for x in flags];order=sorted([(v[0],i) for i in range(2) for v in bs[i]]);alternating=all(order[i][1]!=order[i-1][1] for i in range(1,len(order)));distance=sup[l,500]['q'][0]-sup[l,101]['q'][0] if (l,500) in sup and (l,101) in sup else None;ok=not diff and geomvalid and not missing and min(map(len,bs))>=12 and alternating and not loss and not other and distance is not None and distance>=.05 and max(tilts,default=9)<=.35 and max(speeds,default=9)<=.5
  rows.append({'lane':l,'missing_intervals':missing,'left_bouts':bs[0],'right_bouts':bs[1],'strictly_alternating':alternating,'unsupported_substeps':len(loss),'first_unsupported_substep':loss[0] if loss else None,'nonfoot_substeps':len(other),'first_nonfoot_substep':other[0] if other else None,'forward_displacement_m':distance,'maximum_tilt_rad':max(tilts,default=None),'maximum_root_speed_m_s':max(speeds,default=None),'pass':ok})
-data=json.loads((A/(name+'.stdout')).read_text());out={'baseline_exact_before_gait':not diff,'first_baseline_difference':diff[0] if diff else None,'replay_max_q_error':maxq,'replay_max_position_error_m':maxpos,'lanes':rows,'failed_environment_steps':data['failed_environment_steps'],'termination_count':data['termination_count'],'pass':all(r['pass'] for r in rows) and not data['failed_environment_steps'] and not data['termination_count']};(A/(name+'-analysis.json')).write_text(json.dumps(out,indent=2)+'\n');print('parity',not diff,'first diff',diff[:1],'geometry',geomvalid,'failures',data['failed_environment_steps'],'terminations',data['termination_count']);
+data=json.loads((A/(arm+'.stdout')).read_text());out={'baseline_exact_before_gait':not diff,'first_baseline_difference':diff[0] if diff else None,'replay_max_q_error':maxq,'replay_max_position_error_m':maxpos,'lanes':rows,'failed_environment_steps':data['failed_environment_steps'],'termination_count':data['termination_count'],'pass':all(r['pass'] for r in rows) and not data['failed_environment_steps'] and not data['termination_count']};(A/(arm+'-analysis.json')).write_text(json.dumps(out,indent=2)+'\n');print('parity',not diff,'first diff',diff[:1],'geometry',geomvalid,'failures',data['failed_environment_steps'],'terminations',data['termination_count']);
 for x in rows:print('lane',x['lane'],'pass',x['pass'],'bouts',len(x['left_bouts']),len(x['right_bouts']),'alternating',x['strictly_alternating'],'unsupported',x['unsupported_substeps'],'other',x['nonfoot_substeps'],'forward',x['forward_displacement_m'],'tilt',x['maximum_tilt_rad'],'speed',x['maximum_root_speed_m_s'])
