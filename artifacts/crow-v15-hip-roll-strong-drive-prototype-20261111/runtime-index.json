@@ -1,0 +1,17 @@
+[
+  {
+    "path": "build/crow-v15-hip-roll-strong-drive-prototype-20261111/probe",
+    "sha256": "fa8c3175c5078759af6d1460a456430656d0ceb0627bc22788dcb20b47afb2da",
+    "bytes": 97032
+  },
+  {
+    "path": "build/crow-v15-two-segment-substep-observer-20261111/libmetalrobo.dylib",
+    "sha256": "948e170d7e92eeee41826c1eaedfdec37831fff4f05210211ff72956e0e44032",
+    "bytes": 5729344
+  },
+  {
+    "path": "build/crow-v15-wide-contact-isolation-20261111/MetalRobo.metallib",
+    "sha256": "835d0ff74b8338bba6987d88f3355a1344522eaa88fa8e82295b12ba58cedeb5",
+    "bytes": 4465488
+  }
+]

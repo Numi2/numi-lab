@@ -1,0 +1,3 @@
+# Stronger but bounded hip-roll research drive
+
+This variant retains the 35-body geometry, mass and torso/thigh filter repair, and changes the added hip-roll drives from 0.08 to 8 N m/rad with damping 0.15 N m s/rad and an effort limit of 0.22 N m; angle and speed limits stay +/-0.35 rad and 8 rad/s. These are exploratory parameters, not measured crow biomechanics. The same 12 free-motion GPU states agreed with the CPU dynamics to a worst scaled acceleration error of 7.80e-8, and sampled zero-roll poses remained unchanged relative to the initial prototype. The separate release experiment is the first contact test; neither flight nor the final sequence is qualified.

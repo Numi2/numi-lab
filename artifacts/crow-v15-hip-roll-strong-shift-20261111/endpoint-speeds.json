@@ -1,0 +1,77 @@
+{
+  "rows": [
+    {
+      "lane": 0,
+      "toe_max_abs_rad_s": 12.0,
+      "toe_samples_near_speed_limit": 4,
+      "hip_max_abs_rad_s": 0.605278432,
+      "hip_samples_near_speed_limit": 0,
+      "endpoint_count": 550,
+      "first_toe_limit_step": 360
+    },
+    {
+      "lane": 1,
+      "toe_max_abs_rad_s": 12.0,
+      "toe_samples_near_speed_limit": 4,
+      "hip_max_abs_rad_s": 0.434692174,
+      "hip_samples_near_speed_limit": 0,
+      "endpoint_count": 550,
+      "first_toe_limit_step": 381
+    },
+    {
+      "lane": 2,
+      "toe_max_abs_rad_s": 12.0,
+      "toe_samples_near_speed_limit": 5,
+      "hip_max_abs_rad_s": 0.346444637,
+      "hip_samples_near_speed_limit": 0,
+      "endpoint_count": 550,
+      "first_toe_limit_step": 348
+    },
+    {
+      "lane": 3,
+      "toe_max_abs_rad_s": 12.0,
+      "toe_samples_near_speed_limit": 4,
+      "hip_max_abs_rad_s": 0.409740388,
+      "hip_samples_near_speed_limit": 0,
+      "endpoint_count": 550,
+      "first_toe_limit_step": 372
+    },
+    {
+      "lane": 4,
+      "toe_max_abs_rad_s": 12.0,
+      "toe_samples_near_speed_limit": 5,
+      "hip_max_abs_rad_s": 0.673352778,
+      "hip_samples_near_speed_limit": 0,
+      "endpoint_count": 550,
+      "first_toe_limit_step": 344
+    },
+    {
+      "lane": 5,
+      "toe_max_abs_rad_s": 12.0,
+      "toe_samples_near_speed_limit": 7,
+      "hip_max_abs_rad_s": 0.431226403,
+      "hip_samples_near_speed_limit": 0,
+      "endpoint_count": 550,
+      "first_toe_limit_step": 222
+    },
+    {
+      "lane": 6,
+      "toe_max_abs_rad_s": 12.0,
+      "toe_samples_near_speed_limit": 5,
+      "hip_max_abs_rad_s": 0.276019424,
+      "hip_samples_near_speed_limit": 0,
+      "endpoint_count": 550,
+      "first_toe_limit_step": 354
+    },
+    {
+      "lane": 7,
+      "toe_max_abs_rad_s": 12.0,
+      "toe_samples_near_speed_limit": 4,
+      "hip_max_abs_rad_s": 0.245934278,
+      "hip_samples_near_speed_limit": 0,
+      "endpoint_count": 550,
+      "first_toe_limit_step": 374
+    }
+  ],
+  "limitations": "Only control-interval endpoint velocities; intermediate solver substeps are not recorded. Absence of endpoint cap hits does not establish absence of substep cap hits. This constructed contact test is not a flight qualification."
+}
