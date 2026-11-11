@@ -1,0 +1,131 @@
+{
+  "source": "artifacts/crow-v15-autonomous-sustained-walk-control-20261111/autonomous-20261126/run.stderr.gz",
+  "window_steps": [
+    210,
+    300
+  ],
+  "nominal_weight_impulse_Ns": 0.005518860750000001,
+  "rows": [
+    {
+      "lane": 0,
+      "peak_upward_impulses": [
+        {
+          "total_Ns": 0.0191794876,
+          "step": 278,
+          "substep": 1,
+          "left_Ns": 0.0,
+          "right_Ns": 0.0191794876
+        },
+        {
+          "total_Ns": 0.0179791637,
+          "step": 279,
+          "substep": 8,
+          "left_Ns": 0.0,
+          "right_Ns": 0.0179791637
+        },
+        {
+          "total_Ns": 0.0177774448,
+          "step": 278,
+          "substep": 2,
+          "left_Ns": 0.0,
+          "right_Ns": 0.0177774448
+        },
+        {
+          "total_Ns": 0.0176329855,
+          "step": 279,
+          "substep": 9,
+          "left_Ns": 0.0,
+          "right_Ns": 0.0176329855
+        },
+        {
+          "total_Ns": 0.0174196996,
+          "step": 254,
+          "substep": 7,
+          "left_Ns": 0.0,
+          "right_Ns": 0.0174196996
+        }
+      ]
+    },
+    {
+      "lane": 3,
+      "peak_upward_impulses": [
+        {
+          "total_Ns": 0.0821019821,
+          "step": 254,
+          "substep": 1,
+          "left_Ns": 0.0640340969,
+          "right_Ns": 0.0180678852
+        },
+        {
+          "total_Ns": 0.07431167461,
+          "step": 257,
+          "substep": 8,
+          "left_Ns": 0.00402730051,
+          "right_Ns": 0.0702843741
+        },
+        {
+          "total_Ns": 0.0686886888,
+          "step": 254,
+          "substep": 2,
+          "left_Ns": 0.0541536361,
+          "right_Ns": 0.0145350527
+        },
+        {
+          "total_Ns": 0.06808390636,
+          "step": 260,
+          "substep": 15,
+          "left_Ns": 0.0651063398,
+          "right_Ns": 0.00297756656
+        },
+        {
+          "total_Ns": 0.06782949689,
+          "step": 257,
+          "substep": 9,
+          "left_Ns": 0.00352287269,
+          "right_Ns": 0.0643066242
+        }
+      ]
+    },
+    {
+      "lane": 6,
+      "peak_upward_impulses": [
+        {
+          "total_Ns": 0.0200937428,
+          "step": 253,
+          "substep": 2,
+          "left_Ns": 0.0,
+          "right_Ns": 0.0200937428
+        },
+        {
+          "total_Ns": 0.0192480497,
+          "step": 278,
+          "substep": 1,
+          "left_Ns": 0.0,
+          "right_Ns": 0.0192480497
+        },
+        {
+          "total_Ns": 0.018740641,
+          "step": 253,
+          "substep": 1,
+          "left_Ns": 0.0,
+          "right_Ns": 0.018740641
+        },
+        {
+          "total_Ns": 0.0180982053,
+          "step": 279,
+          "substep": 9,
+          "left_Ns": 0.0,
+          "right_Ns": 0.0180982053
+        },
+        {
+          "total_Ns": 0.0178199653,
+          "step": 278,
+          "substep": 2,
+          "left_Ns": 0.0,
+          "right_Ns": 0.0178199653
+        }
+      ]
+    }
+  ],
+  "limitation": "Selected lanes and time window on a used development start. Correlation of impulse with motion does not prove the cause of instability or establish a solver defect."
+}

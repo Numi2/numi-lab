@@ -1,0 +1,3 @@
+# Walking support impulse comparison
+
+In the used development run, lane 3 was briefly unsupported and moved upward sharply. Its largest combined upward foot impulse during steps 210–300 was 0.0821 N s at step 254, compared with 0.0192 and 0.0201 N s for lanes 0 and 6 in the same window. Nominal body weight per physics substep is approximately 0.00552 N s. This association does not establish whether control, collision dynamics, geometry, or another factor caused the instability; it is not a solver-defect finding. The original contacts, states, and complete substep traces remain in the source artifact.
