@@ -1,0 +1,22 @@
+[
+  {
+    "path": "build/crow-v15-hip-roll-journey-integration-20261111/libmetalrobo.dylib",
+    "sha256": "d1e9bb9c6c6978318382731dd31df8a8aee22104dc23bbbab73eec5c7b81e615",
+    "bytes": 5782160
+  },
+  {
+    "path": "build/crow-v15-hip-roll-journey-integration-20261111/tracking.metallib",
+    "sha256": "701f1dabf89aac70559f5d28c871736cbbc41beaf9b17a3f7b7992768beaced7",
+    "bytes": 4473408
+  },
+  {
+    "path": "build/crow-v15-hip-roll-journey-integration-20261111/landing.policypack",
+    "sha256": "e37af3f13003dc96cec6dcc92fdcb263e4a28c80c9491e8302bf83da155c898b",
+    "bytes": 5996444
+  },
+  {
+    "path": "build/crow-v15-hip-roll-journey-integration-20261111/route.policypack",
+    "sha256": "b9906898718f3d1641bfab9a32b024e8fc96697eac6c3650a238a672d4f99a85",
+    "bytes": 17228698
+  }
+]
