@@ -1,0 +1,14 @@
+{
+  "gentle": {
+    "compared_samples": 80,
+    "mismatches": [],
+    "expected": 80,
+    "pass": true
+  },
+  "moderate": {
+    "compared_samples": 80,
+    "mismatches": [],
+    "expected": 80,
+    "pass": true
+  }
+}

@@ -1,0 +1,5 @@
+# Ramped pitch-response bench: rejected
+
+Both candidate gains failed the predeclared two-sided gate. For -0.03, the +0.04 rad start remained supported without toe-speed caps and finished at 0.139 rad pitch, while the -0.04 rad start fell below 0.1 m root height at interval 132 and incurred 111 capped toe-speed substeps. For -0.06 the corresponding final pitch was 0.197 rad, while the negative start fell at interval 132 and incurred 112 capped substeps. Each sign was duplicated four times deterministically; these duplicates are not independent perturbations.
+
+The 80 logged pre-intervention state samples per arm matched the zero-gain reference exactly. All 550 intervals completed, with no reported missing substeps, observer errors or overflows. Full per-lane contact, cap and support metrics are in the analysis JSON and compressed traces. These outcomes reject both gains for the constructed stationary-perch bench; they do not establish why the fall happens or qualify landing, release or flight. Neither was integrated.
