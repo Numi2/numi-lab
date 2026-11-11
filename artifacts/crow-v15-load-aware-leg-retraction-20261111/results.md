@@ -1,0 +1,5 @@
+# Height-triggered leg retraction after the push
+
+All six variants reproduced the original push q/v through step 250 and had zero failed environment steps, terminations or non-foot ground contact during the leg-only window. The full-crouch retractions at height thresholds 0.166, 0.170 and 0.174 m met the predeclared component gate in 8/8 development starts: at least two consecutive 20 ms intervals of no measurable foot normal impulse across all 16 substeps while rising faster than 0.05 m/s, and at least 20 mm root rise. The 0.170 and 0.174 m full-crouch variants each achieved three such intervals and approximately 49–51 mm root rise per lane. The moderate retractions did not pass all eight lanes.
+
+The paired held-crouch control and original push did not meet the same gate. This is a promising physical leg-push-and-retraction component under suppressed active flapping; passive aerodynamics remain. It does not yet establish foot geometry clearance, generalization, takeoff-to-flight handoff, a complete course, landing, or biological calibration. All variants and failures are retained.

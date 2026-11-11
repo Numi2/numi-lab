@@ -1,0 +1,10 @@
+--- a/push.metal
++++ b/h170-crouch.metal
+@@ -5083,6 +5083,7 @@
+                 navigationTeacherRequested=seconds<4.96f
+                     ? mix(navigationTeacherRequested,crouched,smoothstep(4.3f,4.55f,seconds))
+                     : bilateral ? mix(crouched,extended,smoothstep(4.96f,5.00f,seconds)) : crouched;
++                if (seconds >= 5.00f && state.airReturnTracking.y > 0.170f) navigationTeacherRequested = crouched;
+             }
+         }
+         // Keep the training-only teacher active through the final target.

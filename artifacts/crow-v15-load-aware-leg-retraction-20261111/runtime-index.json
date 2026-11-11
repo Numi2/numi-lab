@@ -1,0 +1,57 @@
+[
+  {
+    "path": "build/bin/metalrobo_task_rollout",
+    "sha256": "5ee04a98f25f7149701bc21ede235428876e535f843366e78dea16fce6035d1d",
+    "bytes": 1081736
+  },
+  {
+    "path": "build/crow-v15-repaired-toe-takeoff-control-20261111/libmetalrobo.dylib",
+    "sha256": "1422e979092f9df80a4c82a9b3512a64d793f8fd8797d89830a7212f79b05f3a",
+    "bytes": 5764480
+  },
+  {
+    "path": "build/crow-v15-walk-16substep-screen-20261111/zero16/landing.policypack",
+    "sha256": "d5973d635670960c6bb1a39630053975c417e0f335e66998e90fae3cc006afaa",
+    "bytes": 5996435
+  },
+  {
+    "path": "build/crow-v15-walk-16substep-screen-20261111/zero16/route.policypack",
+    "sha256": "2fe607b9868e5c99569e75808f9bf401525a31ee9e8733349cd2cb36c4acfdc5",
+    "bytes": 17228689
+  },
+  {
+    "path": "build/crow-v15-load-aware-leg-retraction-20261111/h166-crouch.metallib",
+    "sha256": "480c8d80645be34558124e08448d3fbf5ecd3ddd61a8cab62ed7788df441f33c",
+    "bytes": 4470256
+  },
+  {
+    "path": "build/crow-v15-load-aware-leg-retraction-20261111/h166-moderate.metallib",
+    "sha256": "2aac5d71bd1e8bf7c6e0c7921cd49763bae5a341b1909eba36424b105874aae9",
+    "bytes": 4470288
+  },
+  {
+    "path": "build/crow-v15-load-aware-leg-retraction-20261111/h170-crouch.metallib",
+    "sha256": "44ab8e5933cbe1871cd43f0568815ba238547624ca8624454056d533a1f828e4",
+    "bytes": 4470256
+  },
+  {
+    "path": "build/crow-v15-load-aware-leg-retraction-20261111/h170-moderate.metallib",
+    "sha256": "8db7251b5e4110070b233d73ef96fd3de8dc39199b5311b3556d40d1e455c6bf",
+    "bytes": 4470288
+  },
+  {
+    "path": "build/crow-v15-load-aware-leg-retraction-20261111/h174-crouch.metallib",
+    "sha256": "7b20bc9a122aecac9bcf7f8b4d4998e5e232f80b851435cf91cdd9c4599823a2",
+    "bytes": 4470256
+  },
+  {
+    "path": "build/crow-v15-load-aware-leg-retraction-20261111/h174-moderate.metallib",
+    "sha256": "59ef1a8cc660b28bc5197ccd28333c9e5ac0d4bfac2e3b0935b436e57ba330e7",
+    "bytes": 4470288
+  },
+  {
+    "path": "assets/crow_navigation_course/crow-navigation.active-head.visual-observation.json",
+    "sha256": "d19ff0f9d360b4ffc84bac6a5f3d2be048234b6c03097af7d43fe5f85b316f8f",
+    "bytes": 1566
+  }
+]

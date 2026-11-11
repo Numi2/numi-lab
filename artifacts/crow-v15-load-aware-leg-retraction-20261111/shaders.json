@@ -1,0 +1,26 @@
+[
+  {
+    "name": "h166-crouch",
+    "shader_sha256": "480c8d80645be34558124e08448d3fbf5ecd3ddd61a8cab62ed7788df441f33c"
+  },
+  {
+    "name": "h166-moderate",
+    "shader_sha256": "2aac5d71bd1e8bf7c6e0c7921cd49763bae5a341b1909eba36424b105874aae9"
+  },
+  {
+    "name": "h170-crouch",
+    "shader_sha256": "44ab8e5933cbe1871cd43f0568815ba238547624ca8624454056d533a1f828e4"
+  },
+  {
+    "name": "h170-moderate",
+    "shader_sha256": "8db7251b5e4110070b233d73ef96fd3de8dc39199b5311b3556d40d1e455c6bf"
+  },
+  {
+    "name": "h174-crouch",
+    "shader_sha256": "7b20bc9a122aecac9bcf7f8b4d4998e5e232f80b851435cf91cdd9c4599823a2"
+  },
+  {
+    "name": "h174-moderate",
+    "shader_sha256": "59ef1a8cc660b28bc5197ccd28333c9e5ac0d4bfac2e3b0935b436e57ba330e7"
+  }
+]
