@@ -1,0 +1,9 @@
+{
+  "lane": 5,
+  "samples_expected": 301,
+  "samples_current": 302,
+  "samples_reference": 302,
+  "missing_steps": [],
+  "different_steps": [],
+  "pass": true
+}
