@@ -1,0 +1,21 @@
+{
+  "independently_fetched_commit": "e47df60391042b9b3a7d438983e0a8730355812f",
+  "results": [
+    {
+      "path": "/Users/n/Developer/numi-crow-rl-20261107/build/crow-v15-toe-body-turn-screen-20261111/flight-replay.json",
+      "bytes": 63428788,
+      "sha256": "e9b5622a77381e7e65484c892c56d6a98b22cfceba98323763aea6255b959b31",
+      "verified_archive": "artifacts/crow-v15-toe-body-turn-screen-20261111/flight-replay.json.gz",
+      "open_handles": false,
+      "retired": true
+    },
+    {
+      "path": "/Users/n/Developer/numi-crow-rl-20261107/build/crow-v15-toe-body-turn-screen-20261111/flight-trace.tsv",
+      "bytes": 1340530,
+      "sha256": "08ee6cf3a1ce6f4de971265b04375c051d860839d2a684406d4c5e45b1e4e54b",
+      "verified_archive": "artifacts/crow-v15-toe-body-turn-screen-20261111/flight-trace.tsv.gz",
+      "open_handles": false,
+      "retired": true
+    }
+  ]
+}

@@ -1,0 +1,13 @@
+{
+  "independently_fetched_commit": "afeb8384a22ea05345933038c88d071173011295",
+  "results": [
+    {
+      "path": "/Users/n/Developer/numi-crow-rl-20261107/artifacts/crow-v15-toe-body-turn-screen-20261111/flight.stderr.gz",
+      "bytes": 34351174,
+      "sha256": "3af79d5e515af34a8a55e190905c80c5a38336b7a62364e59013d035ada5d55b",
+      "verified_archive": "artifacts/crow-v15-toe-body-turn-screen-20261111/stderr-parts.json",
+      "open_handles": false,
+      "retired": true
+    }
+  ]
+}
