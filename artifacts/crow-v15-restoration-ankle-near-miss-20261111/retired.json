@@ -1,0 +1,11 @@
+{
+  "remote_commit": "8c5cdf300095f2fb60613064e38861ce6b8f4e1d",
+  "retired": [
+    {
+      "raw": "artifacts/crow-v15-ankle-near-miss-replay-20261111/results.txt",
+      "archive": "artifacts/crow-v15-ankle-near-miss-replay-20261111/results.txt.gz",
+      "sha256": "9194f1c44ec91695467a754b144b66c735f2acba87818ceddd4381f825c8e20e",
+      "bytes": 4397622
+    }
+  ]
+}
