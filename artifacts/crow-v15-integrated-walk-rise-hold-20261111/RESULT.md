@@ -1,0 +1,5 @@
+# Upward-velocity gait hold rejected
+
+On the used development seed, holding leg targets whenever upward velocity exceeded 0.05 m/s during the integrated two-second walk degraded every start. The matched reference had three qualifying swing bouts per foot in every lane, with 0–30 no-foot-normal substeps; the candidate had between zero and three per foot and 99–660 no-foot-normal substeps per lane. Two starts moved backward by approximately 2.2 and 2.9 cm, and forward displacement in the remaining starts was at most 1.9 cm, versus approximately 3 cm forward in each reference. Endpoint samples with both foot/toe boxes above 1 mm increased to 4–33 per lane. No nonfoot ground impulse or toe speed-cap sample was observed in the walking interval; coverage of its 16 substeps was complete.
+
+All eight runs survived the short 600-step horizon; this does not establish that the walk, launch, route or landing succeeded. The candidate is rejected. Its initial seed and course were used during development, and clearance is sampled at control endpoints rather than swept. The other criteria and full traces are retained.

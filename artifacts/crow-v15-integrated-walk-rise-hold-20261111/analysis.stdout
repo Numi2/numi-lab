@@ -1,0 +1,2 @@
+validation {'lane': 5, 'observer_to_replay_offset': 1, 'q_max_error': 4.991302371415429e-10, 'foot_toe_position_max_error_m': 4.067453355882507e-09, 'foot_toe_quaternion_max_error': 2.97801876127318e-08, 'replay_ground_z_m': 0.0}
+[(0, 2, 2, -0.0, 0), (1, 2, 3, 0.0107, 0), (2, 2, 3, 0.0083, 0), (3, 2, 2, 0.0188, 0), (4, 2, 2, 0.0004, 0), (5, 2, 2, 0.0009, 0), (6, 1, 0, -0.0292, 0), (7, 1, 2, -0.0223, 0)]
