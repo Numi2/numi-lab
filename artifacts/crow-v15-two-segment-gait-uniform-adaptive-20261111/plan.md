@@ -1,0 +1,3 @@
+# Uniform motion-scaled standing feedback
+
+Seven motion-scaled lanes and one constant-gain control passed the development gait screen. Apply identical motion-scaled standing feedback to all eight starts, keeping the same stance and gait timing and physical model. Lane 1 must reproduce its preceding adaptive trial across all 301 observed samples. Apply the same strict no-unsupported and no-nonfoot interval, speed, tilt, progression, and all-substep contact plus endpoint swing-clearance gates, including alternation. Follow success with a second development seed and a physical readiness controller; this single test is not a whole-sequence or biological qualification.
