@@ -1,0 +1,13 @@
+--- a/landing.metal
++++ b/slow.metal
+@@ -6734,7 +6734,9 @@
+                     abs(xError) < 0.06f && abs(yError) < 0.16f &&
+                     length(yawFrameLinear.xy) < 0.08f &&
+                     abs(rootLinearVelocity.z) < 0.12f) landingPhase=2.0f;
+-                desiredHeight = landingPhase > 0.5f ? perch.z+0.22f : 1.30f;
++                if (landingPhase >= 1.0f && landingPhase < 1.4f) landingPhase=min(1.4f,landingPhase+0.001f);
++                const float descentBlend=clamp((landingPhase-1.0f)*2.5f,0.0f,1.0f);
++                desiredHeight = landingPhase > 0.5f ? perch.z+mix(0.34f,0.22f,descentBlend) : 1.30f;
+             }
+             // Oracle labels occupy diagnostic spare state only; these will
+             // become independently fingerprinted actor commands, not sensors.
