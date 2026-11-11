@@ -1,0 +1,69 @@
+{
+  "rows": [
+    {
+      "lane": 0,
+      "toe_max_abs_rad_s": 2.32036352,
+      "toe_samples_near_speed_limit": 0,
+      "hip_max_abs_rad_s": 0.254629076,
+      "hip_samples_near_speed_limit": 0,
+      "endpoint_count": 550
+    },
+    {
+      "lane": 1,
+      "toe_max_abs_rad_s": 2.1179812,
+      "toe_samples_near_speed_limit": 0,
+      "hip_max_abs_rad_s": 0.252671599,
+      "hip_samples_near_speed_limit": 0,
+      "endpoint_count": 550
+    },
+    {
+      "lane": 2,
+      "toe_max_abs_rad_s": 11.4964008,
+      "toe_samples_near_speed_limit": 0,
+      "hip_max_abs_rad_s": 1.05012894,
+      "hip_samples_near_speed_limit": 0,
+      "endpoint_count": 550
+    },
+    {
+      "lane": 3,
+      "toe_max_abs_rad_s": 2.1179812,
+      "toe_samples_near_speed_limit": 0,
+      "hip_max_abs_rad_s": 0.318405181,
+      "hip_samples_near_speed_limit": 0,
+      "endpoint_count": 550
+    },
+    {
+      "lane": 4,
+      "toe_max_abs_rad_s": 11.1034689,
+      "toe_samples_near_speed_limit": 0,
+      "hip_max_abs_rad_s": 0.613669872,
+      "hip_samples_near_speed_limit": 0,
+      "endpoint_count": 550
+    },
+    {
+      "lane": 5,
+      "toe_max_abs_rad_s": 10.9157095,
+      "toe_samples_near_speed_limit": 0,
+      "hip_max_abs_rad_s": 0.489758939,
+      "hip_samples_near_speed_limit": 0,
+      "endpoint_count": 550
+    },
+    {
+      "lane": 6,
+      "toe_max_abs_rad_s": 10.499939,
+      "toe_samples_near_speed_limit": 0,
+      "hip_max_abs_rad_s": 0.544539511,
+      "hip_samples_near_speed_limit": 0,
+      "endpoint_count": 550
+    },
+    {
+      "lane": 7,
+      "toe_max_abs_rad_s": 10.6670399,
+      "toe_samples_near_speed_limit": 0,
+      "hip_max_abs_rad_s": 0.341577202,
+      "hip_samples_near_speed_limit": 0,
+      "endpoint_count": 550
+    }
+  ],
+  "limitations": "Only control-interval endpoint velocities; intermediate solver substeps are not recorded. Absence of endpoint cap hits does not establish absence of substep cap hits. This constructed contact test is not a flight qualification."
+}
