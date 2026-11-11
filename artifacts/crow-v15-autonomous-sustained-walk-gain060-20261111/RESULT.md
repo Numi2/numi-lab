@@ -1,0 +1,5 @@
+# Reduced walking gain: rejected
+
+The diagnostic observer matched the original teacher-off controller at all accepted endpoints and in every contact substep through step 200 after excluding its new contact-point field. With gait amplitude reduced from 0.80 to 0.60, every development lane lost measured foot support at some substeps, and lanes 1, 6 and 7 moved backward overall. Lane 7 had 2,378 unloaded substeps and 131 endpoint poses where both feet cleared 1 mm; the results are markedly worse than the original eight-second screen and the candidate is rejected.
+
+Independent foot kinematics matched the retained lane-5 replay to 1.6e-8 m position, 1.6e-8 m/s linear velocity and 4.1e-7 rad/s angular velocity. Across positive-impulse endpoint contacts, sample median tangential point speeds were 0.0033–0.0143 m/s and 95th percentiles 0.0626–0.1077 m/s depending on lane. These are endpoint estimates, not continuous slip measurements or biological criteria. One used development seed/layout; flight and landing were not tested with this gain.
