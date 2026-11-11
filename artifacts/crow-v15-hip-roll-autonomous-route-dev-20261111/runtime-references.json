@@ -1,0 +1,17 @@
+[
+  {
+    "archive": "artifacts/crow-v15-hip-roll-walk-launch-controls-20261111/runtime.tar.gz",
+    "members": [
+      "libmetalrobo.dylib",
+      "gait-080.metallib",
+      "route.policypack",
+      "landing.policypack"
+    ]
+  },
+  {
+    "archive": "artifacts/crow-v15-replay-writer-roundtrip-20261111/runtime.tar.gz",
+    "members": [
+      "metalrobo_task_rollout"
+    ]
+  }
+]

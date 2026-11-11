@@ -1,0 +1,7 @@
+# Teacher-off development route
+
+The experimental 35-body crow used the policy pack with the teacher disabled, no scheduled resets, the development training course and seed 20261126. In the first episodes, 0/8 reached the first waypoint; three physically failed at steps 1468, 1498 and 1507, and five remained incomplete at the 1600-step horizon. The first observed post-launch obstacle contacts for the failed lanes involved the body or left wing and slalom A. Contact telemetry is accepted-step only, so it cannot establish the first intra-substep collider or precise contact ordering. Recorded policy outputs are not applied actuator targets.
+
+For the replayed lane, the closest sampled crow-body position to the gate midpoint was 0.613 m away: the body was at z=1.358 m while the midpoint was at z=0.753 m. This is consistent with missing the gate high, but does not alone establish the native waypoint metric or why the actor commanded that height. The other lanes do not have independently replayed body positions. The final layouts remain unused. The actor, flight body, recovery, autonomous route, landing and biological realism are not qualified by this result.
+
+The exact host, gait shader and policy packs are archived in crow-v15-hip-roll-walk-launch-controls-20261111/runtime.tar.gz; the corrected replay writer is archived in crow-v15-replay-writer-roundtrip-20261111/runtime.tar.gz. The per-run input hashes bind this result to those archived files.
