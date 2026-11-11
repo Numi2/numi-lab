@@ -1,0 +1,138 @@
+{
+  "remote_commit": "3ba269fc1001b8fd5910993a3bb1b8c56907c008",
+  "verification": "independent fetched Git restore, gzip decode, SHA-256 and open-handle checks",
+  "retired": [
+    {
+      "path": "build/crow-v15-delayed-flight-handoff-20261111/hn50-ap18.json",
+      "archive": "artifacts/crow-v15-delayed-flight-handoff-20261111/hn50-ap18.replay.json.gz",
+      "sha256": "99359594ad69b25290f2d99030267feb16d3107b22015fae02f06d7453e0d6f1",
+      "bytes": 16503303
+    },
+    {
+      "path": "build/crow-v15-delayed-flight-handoff-20261111/hn50-ap18.tsv",
+      "archive": "artifacts/crow-v15-delayed-flight-handoff-20261111/hn50-ap18.trace.tsv.gz",
+      "sha256": "ff4a5328c2ea6e41af7dd9d9e3b030c3248455e8b2ddb01788aef4b213ad0c36",
+      "bytes": 365856
+    },
+    {
+      "path": "build/crow-v15-delayed-flight-handoff-20261111/hn50-ap30.json",
+      "archive": "artifacts/crow-v15-delayed-flight-handoff-20261111/hn50-ap30.replay.json.gz",
+      "sha256": "d3941dadf09ecfeb00a2320e07d6b651b90039f415023039daa076f59ab30c90",
+      "bytes": 16505401
+    },
+    {
+      "path": "build/crow-v15-delayed-flight-handoff-20261111/hn50-ap30.tsv",
+      "archive": "artifacts/crow-v15-delayed-flight-handoff-20261111/hn50-ap30.trace.tsv.gz",
+      "sha256": "1b42e772d922d3ed5b108d09b1d69fb719498cb16959fd02f9f14996a0ae9c57",
+      "bytes": 365861
+    },
+    {
+      "path": "build/crow-v15-delayed-flight-handoff-20261111/hn50-ap45.json",
+      "archive": "artifacts/crow-v15-delayed-flight-handoff-20261111/hn50-ap45.replay.json.gz",
+      "sha256": "e984017d5ce325c030431e229c0350b0e4049d06f0363196dc5e8b79a1576efb",
+      "bytes": 16504629
+    },
+    {
+      "path": "build/crow-v15-delayed-flight-handoff-20261111/hn50-ap45.tsv",
+      "archive": "artifacts/crow-v15-delayed-flight-handoff-20261111/hn50-ap45.trace.tsv.gz",
+      "sha256": "ea61dd86f6924e3d273748cc3894f3cfa51625a141318380bf4706438545c1ea",
+      "bytes": 365837
+    },
+    {
+      "path": "build/crow-v15-delayed-flight-handoff-20261111/hn70-ap45.json",
+      "archive": "artifacts/crow-v15-delayed-flight-handoff-20261111/hn70-ap45.replay.json.gz",
+      "sha256": "a0e2f3eae01cfa5702b28debc387bae2738af7c592bc3d8c98c51b1f974c9e21",
+      "bytes": 16499882
+    },
+    {
+      "path": "build/crow-v15-delayed-flight-handoff-20261111/hn70-ap45.tsv",
+      "archive": "artifacts/crow-v15-delayed-flight-handoff-20261111/hn70-ap45.trace.tsv.gz",
+      "sha256": "eff095a36e4518ff86e12e096cadb07eb2dcad24a84dd2b11dd443f65a36ab9a",
+      "bytes": 365855
+    },
+    {
+      "path": "build/crow-v15-delayed-flight-handoff-20261111/hn85-ap45.json",
+      "archive": "artifacts/crow-v15-delayed-flight-handoff-20261111/hn85-ap45.replay.json.gz",
+      "sha256": "9c9014ed0a99761d4dd1f247585e881226bcf606b286a3d75cdb0e4d0275d7cc",
+      "bytes": 16501851
+    },
+    {
+      "path": "build/crow-v15-delayed-flight-handoff-20261111/hn85-ap45.tsv",
+      "archive": "artifacts/crow-v15-delayed-flight-handoff-20261111/hn85-ap45.trace.tsv.gz",
+      "sha256": "c880370cc996134116a5f131ced7d9fbdc01d424af6de21c137413d17105b44f",
+      "bytes": 365878
+    },
+    {
+      "path": "build/crow-v15-delayed-flight-handoff-20261111/hn100-ap45.json",
+      "archive": "artifacts/crow-v15-delayed-flight-handoff-20261111/hn100-ap45.replay.json.gz",
+      "sha256": "03dbc7d5bcf21d53e08e28866a75957c7bace77a244e404bb044f5aea1379557",
+      "bytes": 16489645
+    },
+    {
+      "path": "build/crow-v15-delayed-flight-handoff-20261111/hn100-ap45.tsv",
+      "archive": "artifacts/crow-v15-delayed-flight-handoff-20261111/hn100-ap45.trace.tsv.gz",
+      "sha256": "29869dfbae5fb5d65e11280b976cb37e66966e6450e850886cbf86dbbfe8ee06",
+      "bytes": 365967
+    },
+    {
+      "path": "build/crow-v15-perturbed-leg-handoff-20261111/parity.json",
+      "archive": "artifacts/crow-v15-perturbed-leg-handoff-20261111/parity.replay.json.gz",
+      "sha256": "99359594ad69b25290f2d99030267feb16d3107b22015fae02f06d7453e0d6f1",
+      "bytes": 16503303
+    },
+    {
+      "path": "build/crow-v15-perturbed-leg-handoff-20261111/parity.tsv",
+      "archive": "artifacts/crow-v15-perturbed-leg-handoff-20261111/parity.trace.tsv.gz",
+      "sha256": "ff4a5328c2ea6e41af7dd9d9e3b030c3248455e8b2ddb01788aef4b213ad0c36",
+      "bytes": 365856
+    },
+    {
+      "path": "build/crow-v15-perturbed-leg-handoff-20261111/seed63-flight.json",
+      "archive": "artifacts/crow-v15-perturbed-leg-handoff-20261111/seed63-flight.replay.json.gz",
+      "sha256": "79ad93c94c5c33a9c2a0063e51421ed5e1513f63e300ddeaa906cfa75486fda1",
+      "bytes": 16484093
+    },
+    {
+      "path": "build/crow-v15-perturbed-leg-handoff-20261111/seed63-flight.tsv",
+      "archive": "artifacts/crow-v15-perturbed-leg-handoff-20261111/seed63-flight.trace.tsv.gz",
+      "sha256": "6cfa0a9113196be57dbf6f28768c4b83743a039e1e2bbfa584fd15436b78c6ea",
+      "bytes": 366100
+    },
+    {
+      "path": "build/crow-v15-perturbed-leg-handoff-20261111/seed63-leg.json",
+      "archive": "artifacts/crow-v15-perturbed-leg-handoff-20261111/seed63-leg.replay.json.gz",
+      "sha256": "93c7723e0b55532527925ea0d208c696ec769a3cd48114f0f7e8faeeb47a0080",
+      "bytes": 16501737
+    },
+    {
+      "path": "build/crow-v15-perturbed-leg-handoff-20261111/seed63-leg.tsv",
+      "archive": "artifacts/crow-v15-perturbed-leg-handoff-20261111/seed63-leg.trace.tsv.gz",
+      "sha256": "8fa1febd8ac09d2c4c82c3961feb2956ae9f85ff817feda2f330c784be01184a",
+      "bytes": 366126
+    },
+    {
+      "path": "build/crow-v15-perturbed-leg-handoff-20261111/seed91-flight.json",
+      "archive": "artifacts/crow-v15-perturbed-leg-handoff-20261111/seed91-flight.replay.json.gz",
+      "sha256": "d6ce698c1d010a0796639d62e0818b4e61232ee9db55d07cdc22976d7e60c4b0",
+      "bytes": 16468943
+    },
+    {
+      "path": "build/crow-v15-perturbed-leg-handoff-20261111/seed91-flight.tsv",
+      "archive": "artifacts/crow-v15-perturbed-leg-handoff-20261111/seed91-flight.trace.tsv.gz",
+      "sha256": "68aaa99a6950554259f4893e67a924b41db5045dfaf10f8004ce9aa1662b421a",
+      "bytes": 362981
+    },
+    {
+      "path": "build/crow-v15-perturbed-leg-handoff-20261111/seed91-leg.json",
+      "archive": "artifacts/crow-v15-perturbed-leg-handoff-20261111/seed91-leg.replay.json.gz",
+      "sha256": "4190ad734d9181d2c5a9454c9d53c8ac2e8370ff7596e66d28d2422a7a0f9ebe",
+      "bytes": 16486971
+    },
+    {
+      "path": "build/crow-v15-perturbed-leg-handoff-20261111/seed91-leg.tsv",
+      "archive": "artifacts/crow-v15-perturbed-leg-handoff-20261111/seed91-leg.trace.tsv.gz",
+      "sha256": "f192f25c42f46fa97bbee0b2adfa9915bc37163d1091341f7e5b68911ac4fac5",
+      "bytes": 363006
+    }
+  ]
+}
