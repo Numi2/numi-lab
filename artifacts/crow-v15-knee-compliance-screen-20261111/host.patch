@@ -1,0 +1,16 @@
+--- a/reference.cpp
++++ b/knee-compliance.cpp
+@@ -3401,6 +3401,13 @@
+ }
+ static RobotPack crowHipRollModel(){
+  auto p=crowToeModel();crowResearchWingInertia(p);auto &m=p.mechanics;p.id="crow_v15_experimental_hip_roll";p.sourceRevision+="+hip_roll_experiment";
++ unsigned kneeCount=0;
++ for (std::size_t i=0; i<m.dofNames.size(); ++i) {
++   if (m.dofNames[i] == "crow_left_knee_pitch" || m.dofNames[i] == "crow_right_knee_pitch") {
++     m.dofs[i].drive.x *= 0.4f; m.dofs[i].drive.y *= std::sqrt(0.4f); ++kneeCount;
++   }
++ }
++ crowToeNeed(kneeCount==2u,"expected two knee drives");
+  auto oldBodies=m.bodies;auto oldNames=m.bodyNames;auto oldJoints=m.joints;
+  auto map=[](unsigned i){return i+(i>=8u)+(i>=11u);};
+  m.bodies.clear();m.bodyNames.clear();

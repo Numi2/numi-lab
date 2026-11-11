@@ -1,0 +1,1 @@
+Runner setup failed before launching a simulator: it attempted to remove a teacher flag that was already absent. No rollout or result exists in this directory. The corrected invocation uses a distinct output tag.
