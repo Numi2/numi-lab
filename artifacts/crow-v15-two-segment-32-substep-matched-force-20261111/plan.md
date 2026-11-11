@@ -1,0 +1,3 @@
+# Pre-run force-matched 32-substep screen
+
+The previous 32-substep comparison changed the endpoint impulse threshold in equivalent force units because its substep duration was halved. Repeat it with the contact-trigger threshold halved, from 0.00005 to 0.000025 N s, to preserve its 0.04 N endpoint-equivalent threshold. Keep all other conditions as in the 32-substep screen. Compare with the 16-substep foot-trigger trial while acknowledging that this endpoint feedback still samples only the final substep. Record all 89,600 substeps, every failure and the same 50-interval bilateral support, opposing force, nonfoot-contact and 0.5 mm endpoint-overlap criteria. This is developmental, not proof of grip, biological realism or full-sequence completion.
