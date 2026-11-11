@@ -35,7 +35,7 @@ rows=[]
 for e in range(2):
  sensor_errors=[];trigger=next((t for t in range(1,551) if events.get((e,t),{}).get('release')),None);finish=next((t for t in range(1,551) if events.get((e,t),{}).get('finished')),None);qual=[];grip=[];maxclear=-float('inf');fall=None;peak_right_up=0.;nonfoot=0;missingposes=[]
  for t in range(1,551):
-  x=state.get((e,t));p=pose.get((e,t),{});v=by[e,t];release=trigger is not None and t>=trigger
+  x=state.get((e,t));p=pose.get((e,t),{});v=by[e,t];release=trigger is not None and t>=trigger and (finish is None or t<finish)
   if not x:qual.append(False);grip.append(False);continue
   q=x['q'];u=x['v'];tilt=math.acos(max(-1.,min(1.,1.-2*(q[3]**2+q[4]**2))));speed=math.sqrt(sum(z*z for z in u[:3]));names=[n for n in p if n.startswith('crow_left_') and 'toe' in n];has=len(names)==8 and 'crow_left_foot' in p
   if release and not has:missingposes.append(t)

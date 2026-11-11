@@ -1,0 +1,17 @@
+[
+  {
+    "path": "build/crow-v15-perch-contact-only-eight-starts-20261111/probe",
+    "sha256": "aca1422985a4b6f4e71fe5b51c85510597790d5243bfb9126eed8fd8b888bf65",
+    "bytes": 119960
+  },
+  {
+    "path": "build/crow-v15-toe-velocity-substep-observer-20261111/libmetalrobo.dylib",
+    "sha256": "981e46c4733083d94b3988cb0cad016319a5c84a79df6c33be7e6c7abe4aa799",
+    "bytes": 5729344
+  },
+  {
+    "path": "build/crow-v15-wide-contact-isolation-20261111/MetalRobo.metallib",
+    "sha256": "835d0ff74b8338bba6987d88f3355a1344522eaa88fa8e82295b12ba58cedeb5",
+    "bytes": 4465488
+  }
+]

@@ -1,0 +1,7 @@
+# Eight perturbed stationary perch starts
+
+All eight constructed starts completed 550 control intervals without falling or nonfoot perch impulses. During the commanded release, each achieved at least 34 consecutive 20 ms intervals with endpoint sole/toe clearance of at least 1 mm, no left-foot normal impulse in any of the 32 substeps, opposing right-toe contact and upward support of at least half nominal weight. Maximum minimum clearances were 6.76–7.06 mm. Every lane ended with 100 consecutive bilateral opposing grip intervals and about nominal-weight average upward impulse. No sampled toe velocity reached 11.99 rad/s; the highest was 7.35 rad/s. There were no missing observed substeps, and endpoint normal impulses matched the named-contact data.
+
+The return decision used elapsed phase and contact signals; balance still used exact root position in the known perch frame and velocity. This 35-body v15-derived stationary bench and estimated hip drives are developmental, not evidence of autonomous arrival, full-route success, biological calibration or held-out performance. Clearance was checked at control endpoints and velocities at substep endpoints.
+
+Analysis correction: the earlier two-start report counted some intervals after return began and said 38; the corrected release-only window gives 34 for both. Those two runs have state rows identical to lanes 2 and 5 here. The original traces were not changed.
