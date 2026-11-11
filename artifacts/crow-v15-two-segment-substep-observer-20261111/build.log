@@ -1,0 +1,4 @@
+Traceback (most recent call last):
+  File "/Users/n/Developer/numi-crow-rl-20261107/artifacts/crow-v15-two-segment-substep-observer-20261111/build.py", line 10, in <module>
+    selected=[h for h in hunks if any(h[0].startswith('@@ -'+n+',') for n in ('21422','22032','22347'))];assert len(selected)==3,[h[0] for h in hunks];src=B/'MetalWorld.mm';src.write_text(base);subprocess.run(['patch',str(src)],input=''.join(headers+sum(selected,[])),text=True,check=True)
+AssertionError: ['@@ -7510,7 +7510,6 @@\n', '@@ -11488,7 +11487,8 @@\n', '@@ -11534,7 +11534,7 @@\n', '@@ -20269,6 +20269,14 @@\n', '@@ -21422,6 +21430,13 @@\n', '@@ -22032,6 +22047,19 @@\n', '@@ -22080,6 +22108,11 @@\n', '@@ -22348,6 +22381,40 @@\n']

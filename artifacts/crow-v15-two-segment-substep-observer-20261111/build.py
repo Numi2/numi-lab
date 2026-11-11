@@ -7,7 +7,7 @@ for line in diff[2:]:
   h=[line]
  elif h is not None:h.append(line)
 if h:hunks.append(h)
-selected=[h for h in hunks if any(h[0].startswith('@@ -'+n+',') for n in ('21422','22032','22347'))];assert len(selected)==3,[h[0] for h in hunks];src=B/'MetalWorld.mm';src.write_text(base);subprocess.run(['patch',str(src)],input=''.join(headers+sum(selected,[])),text=True,check=True)
+selected=[h for h in hunks if any(h[0].startswith('@@ -'+n+',') for n in ('21422','22032','22348'))];assert len(selected)==3,[h[0] for h in hunks];src=B/'MetalWorld.mm';src.write_text(base);subprocess.run(['patch',str(src)],input=''.join(headers+sum(selected,[])),text=True,check=True)
 s=src.read_text();start=s.index('                            float up[2]={},normal[2]={},toe[2]={},other=0;');end=s.index('                        }\n                    }\n                }];',start)
 body='''                            float up[2]={}, normal[2]={}, toe[16]={}, signedX[16]={}, other=0;
                             for(NSUInteger i=0;i<n;++i){const auto& c=contacts[lane*crowTraceCapacity+i];

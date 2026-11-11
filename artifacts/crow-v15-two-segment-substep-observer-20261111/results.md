@@ -1,0 +1,3 @@
+# Two-segment substep observer validated on one trial
+
+The instrumented repeat recorded all 1,920 expected substeps without capacity overflow or command-buffer errors and exactly reproduced all 120 accepted q/v trace lines from the uninstrumented run. Its final-substep foot normal impulses matched endpoint contact records within 2.38e-10 N s. The measured interval contained 109 bilateral half-weight support intervals and no nonfoot perch impulse. This validates the observer for this one stationary case only; it does not establish continuous support, opposing toe grip, release, autonomous landing or biological realism. The first build script failed on a diff-hunk offset and was corrected without modifying the physics.

@@ -1,0 +1,11 @@
+{
+  "observed_records": 1920,
+  "missing": [],
+  "bad": [],
+  "errors": [],
+  "q_v_full_line_difference_steps": [],
+  "max_endpoint_normal_impulse_difference": 2.3800000035004154e-10,
+  "bilateral_half_weight_support_intervals": 109,
+  "nonfoot_impulse_intervals": [],
+  "note": "validation of observer on one initialized stationary perch case; no toe opposition, release, route or biological qualification"
+}
