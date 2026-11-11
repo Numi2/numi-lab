@@ -1,0 +1,54 @@
+--- a/separated.metal
++++ b/height.metal
+@@ -5498,6 +5498,22 @@
+                 );
+         }
+     }
++    // Development-only physical two-segment drives. Counter input below is
++    // restricted to accepted toe/foot contact with the course perch.
++    if ((program.schedule.w & MR_TASK_PROGRAM_AVIAN_CROW_HIERARCHICAL_NAVIGATION) != 0u &&
++        state.episode.z == 10u && program.counts0.w >= 5u && dispatch.counts.w == 38u) {
++        for (uint side=0u;side<2u;++side) {
++            const uint ramp=(state.status.w>>(side*6u)) & 63u;
++            const uint frontRamp=ramp>2u ? ramp-2u : 0u;
++            for (uint toe=0u;toe<4u;++toe) {
++                const float proximal=toe==3u ? min(.04f*float(ramp),1.15f) : min(.03f*float(frontRamp),1.05f);
++                for(uint segment=0u;segment<2u;++segment) {
++                    const uint dof=22u+side*8u+toe*2u+segment;
++                    effortTrajectory[pass.controlStep*worldDispatch.effortStepStride + environment*worldDispatch.effortEnvironmentStride + dof]=proximal*(segment==0u ? 1.0f : .75f);
++                }
++            }
++        }
++    }
+     // Experimental bounded toe position drives; no force is injected.
+     if ((program.schedule.w & MR_TASK_PROGRAM_AVIAN_CROW_HIERARCHICAL_NAVIGATION) != 0u &&
+         state.episode.z == 10u && program.counts0.w >= 5u && dispatch.counts.w == 30u) {
+@@ -9336,6 +9352,28 @@
+             if (dispatch.sampling.w==0u) state.nutrition.xy=footLoads;
+         } else state.nutrition.xy=footLoads;
+         if (program.counts0.w>=5u && dispatch.counts.w==38u) {
++            uint perch=MR_INVALID_INDEX;
++            for (uint ri=0u;ri<program.counts1.w;++ri) {
++                const MRTaskRewardOperatorGPU operation=rewards[ri];
++                if (operation.source.x==MR_TASK_REWARD_NAVIGATION_WAYPOINT_PROGRESS || operation.source.x==MR_TASK_REWARD_NAVIGATION_WAYPOINT_REACH) { perch=operation.source.z+4u; break; }
++            }
++            bool loaded[2]={false,false};
++            if (state.navigation.z>=5.0f && perch!=MR_INVALID_INDEX) {
++                for (uint ci=0u;ci<activeContacts;++ci) {
++                    const MRContactConstraintGPU cc=contacts[contactBase+ci];
++                    if (cc.impulses.x<=0.0f || (cc.bodyA!=perch && cc.bodyB!=perch)) continue;
++                    const uint b=cc.bodyA==perch ? cc.bodyB : cc.bodyA;
++                    if (b==robotFirst+10u || (b>=robotFirst+17u && b<=robotFirst+24u)) loaded[0]=true;
++                    if (b==robotFirst+13u || (b>=robotFirst+25u && b<=robotFirst+32u)) loaded[1]=true;
++                }
++            }
++            uint packed=0u;
++            for(uint side=0u;side<2u;++side) {
++                const uint oldRamp=(state.status.w>>(side*6u)) & 63u;
++                const uint ramp=loaded[side] ? min(oldRamp+1u,34u) : (oldRamp>0u ? oldRamp-1u : 0u);
++                packed |= ramp << (side*6u);
++            }
++            state.status.w=(state.status.w & ~4095u) | packed;
+             const float seconds=float(state.episode.x)*dispatch.timing.x;
+             const uint previous=state.status.w;
+             const bool low=seconds>=6.96f && (state.status.w & ((1u<<20)|(1u<<21)))==0u;
