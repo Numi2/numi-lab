@@ -1,0 +1,9 @@
+{
+  "outcome": "native_step_failed_batch_aborted",
+  "baseline_lane_zero_records": 88,
+  "baseline_lane_zero_differences": [],
+  "native_errors": [
+    "failure native step failed 44: one or more MetalWorld control steps rolled back after a GPU environment failure: status=11 environment=7 control_step=0 aba_status=0 failing_substep=20 failing_index=4294967295 aba_diagnostic_0=0.003861 aba_diagnostic_1=0.647904 aba_diagnostic_2=1814.717285 aba_diagnostic_3=0.000000 contact_status=11 required_pairs=20 pair_capacity=512 required_raw_contacts=6 raw_contact_capacity=2048 required_manifolds=6 manifold_capacity=512 required_constraints=6 constraint_capacity=2048 failing_constraint=4294967295 failing_stable_key=0,0 diagnostic_0=0.000000 diagnostic_1=0.000380 diagnostic_2=0.003767 diagnostic_3=0.670850 contact_residuals=0.000000,0.609639,0.000000,0.000000 contact_quality_certificates=0.000000,0.000000,0.000000,0.000000 contact_quality_diagnostics=0.000000,0.000000,0.000000,0.000000 solver_iterations=4 quality_newton=0 quality_pcg=0 quality_backtracks=0 quality_path=0"
+  ],
+  "interpretation": "no lane qualified; one of eight commands caused GPU contact failure and the remaining lanes did not complete"
+}
