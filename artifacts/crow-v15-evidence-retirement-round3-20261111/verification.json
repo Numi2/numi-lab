@@ -1,0 +1,21 @@
+{
+  "independently_fetched_commit": "7d61bd5186e5b71cca2289d2fa6910b2ed32b950",
+  "results": [
+    {
+      "path": "/Users/n/Developer/numi-crow-rl-20261107/artifacts/crow-v15-explicit-goal-final-approach-control-20261111/autonomous-20261126/run.stderr.gz",
+      "bytes": 93860353,
+      "compressed_sha256": "8ee4fad88d75f3ed21f72f57315ad8742188d9398ea112a714333b6462dedc1b",
+      "expanded_sha256": "2e5fb0153eeb8da40ceeef7d67ef55c90648a277ffe16835047b702e397fdaa5",
+      "retired": true,
+      "open_handles": false
+    },
+    {
+      "path": "/Users/n/Developer/numi-crow-rl-20261107/artifacts/crow-v15-aligned-contact-release-control-20261111/autonomous-20261126/run.stderr.gz",
+      "bytes": 90814208,
+      "compressed_sha256": "65c5afab34841b57e4a83b91fda58a39ac1b78ad495fcd6a740dfa04c31e00b0",
+      "expanded_sha256": "90936a4b19a53cc2fff0639b867fd0e470552a3f961af248f6241a0baeab9152",
+      "retired": true,
+      "open_handles": false
+    }
+  ]
+}
