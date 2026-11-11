@@ -1,0 +1,11 @@
+--- a/separated.metal
++++ b/height.metal
+@@ -5078,7 +5078,7 @@
+             const float lift=max(swing,0.0f);
+             if (seconds >= begin && seconds < begin+2.0f)
+                 navigationTeacherRequested=smoothstep(begin,begin+.50f,seconds)*(joint==0u ? -0.30f*swing : joint==1u ? 0.40f*lift : -0.15f*lift);
+-            else if (seconds>=2.0f && seconds<begin)
++            else if (seconds>=0.0f && seconds<begin)
+                 { const uint arm=environment%8u;
+                 const float motion=length(float2(state.commandExtension.z,state.threatGeometry.y)); const float gain=.4f+.4f*smoothstep(.03f,.12f,motion);
+                 const bool supported=dispatch.counts.w==38u ? (state.status.w & (1u<<22))!=0u : (state.nutrition.x+state.nutrition.y)>0.05f;

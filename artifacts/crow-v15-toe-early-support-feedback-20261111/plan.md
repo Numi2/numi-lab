@@ -1,0 +1,3 @@
+# Early support feedback toe impact screen
+
+In retained collision-enabled development traces, lane 1 shows repeated vertical bouncing during the first two seconds, with a rear toe hitting its velocity cap in the same substep as a large ground-contact impulse. The existing support-gated leg feedback does not start until 2 seconds. Prediction: enable that same bounded physical joint feedback from the beginning, conditional on measured support, and compare all eight starts and toe-speed substeps with the accepted route. Require no toe-speed caps, stable contact-driven gait and leg-powered liftoff, and unchanged flight after handoff; this is a development screen, not a biological validation.
