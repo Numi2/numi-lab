@@ -1,0 +1,15 @@
+--- a/deeper.metal
++++ b/wing_relief.metal
+@@ -5092,6 +5092,12 @@
+                 if ((state.status.w & 4096u) != 0u) navigationTeacherRequested = crouched;
+             }
+         }
++        // Experiment: measured-foot-load wing relief during perch approach only.
++        if (fixedFlightController && state.navigation.z>=5.0f && state.threatTeacher.w>0.5f &&
++            state.threatTeacher.w<1.5f && action<=5u) {
++            const float footLoad=max(state.nutrition.x,0.0f)+max(state.nutrition.y,0.0f);
++            navigationTeacherRequested *= 1.0f-0.70f*smoothstep(0.10f,2.0f,footLoad);
++        }
+         // Keep the training-only teacher active through the final target.
+         // Ending at waypoint four taught an aggressive approach crossing but
+         // handed the student a poor terminal arrival geometry. Autonomous
