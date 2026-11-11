@@ -1,0 +1,3 @@
+# Release conditions before the fall
+
+Across the eight positive-or-zero hip-roll constructed-perch starts, the released foot cleared by at least 1 mm for only one or two sampled pre-fall intervals per lane. In six lanes, normal contact disappeared for only two or three intervals; in two lanes it never disappeared. The opposing foot did provide at least half nominal upward impulse for portions of the attempts, but none of the independently checked clearance, no-contact, opposing-grip, support and balance criteria coincided. This identifies clearance/contact timing as a specific remaining failure; it does not by itself determine its physical cause or prove the supporting foot could stably carry the entire bird. See the individual per-lane counts and full retained traces.
