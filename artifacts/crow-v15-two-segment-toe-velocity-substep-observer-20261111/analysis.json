@@ -1,0 +1,293 @@
+{
+  "lanes": [
+    {
+      "lane": 0,
+      "different_endpoint_samples": 0,
+      "missing_substeps": 0,
+      "compared_endpoint_coordinates": 4816,
+      "max_endpoint_error": 0.0,
+      "maximum_abs_toe_speed": 6.43533945,
+      "toe_speed_cap_substeps": [],
+      "observer_pass": true
+    },
+    {
+      "lane": 1,
+      "different_endpoint_samples": 0,
+      "missing_substeps": 0,
+      "compared_endpoint_coordinates": 4816,
+      "max_endpoint_error": 0.0,
+      "maximum_abs_toe_speed": 12.0,
+      "toe_speed_cap_substeps": [
+        {
+          "step": 31,
+          "substep": 5,
+          "toes": [
+            14
+          ]
+        },
+        {
+          "step": 39,
+          "substep": 7,
+          "toes": [
+            14
+          ]
+        },
+        {
+          "step": 39,
+          "substep": 8,
+          "toes": [
+            14
+          ]
+        },
+        {
+          "step": 43,
+          "substep": 14,
+          "toes": [
+            6
+          ]
+        },
+        {
+          "step": 43,
+          "substep": 15,
+          "toes": [
+            6
+          ]
+        },
+        {
+          "step": 44,
+          "substep": 0,
+          "toes": [
+            6
+          ]
+        },
+        {
+          "step": 48,
+          "substep": 2,
+          "toes": [
+            14
+          ]
+        },
+        {
+          "step": 48,
+          "substep": 3,
+          "toes": [
+            14
+          ]
+        },
+        {
+          "step": 52,
+          "substep": 7,
+          "toes": [
+            6
+          ]
+        },
+        {
+          "step": 52,
+          "substep": 8,
+          "toes": [
+            6
+          ]
+        },
+        {
+          "step": 52,
+          "substep": 9,
+          "toes": [
+            6
+          ]
+        },
+        {
+          "step": 56,
+          "substep": 10,
+          "toes": [
+            14
+          ]
+        },
+        {
+          "step": 56,
+          "substep": 11,
+          "toes": [
+            14
+          ]
+        },
+        {
+          "step": 56,
+          "substep": 12,
+          "toes": [
+            14
+          ]
+        },
+        {
+          "step": 56,
+          "substep": 13,
+          "toes": [
+            14
+          ]
+        },
+        {
+          "step": 60,
+          "substep": 9,
+          "toes": [
+            6
+          ]
+        },
+        {
+          "step": 60,
+          "substep": 10,
+          "toes": [
+            6
+          ]
+        },
+        {
+          "step": 60,
+          "substep": 11,
+          "toes": [
+            6
+          ]
+        },
+        {
+          "step": 70,
+          "substep": 9,
+          "toes": [
+            14
+          ]
+        },
+        {
+          "step": 70,
+          "substep": 10,
+          "toes": [
+            14
+          ]
+        },
+        {
+          "step": 85,
+          "substep": 9,
+          "toes": [
+            14
+          ]
+        },
+        {
+          "step": 85,
+          "substep": 10,
+          "toes": [
+            14
+          ]
+        },
+        {
+          "step": 95,
+          "substep": 13,
+          "toes": [
+            6
+          ]
+        }
+      ],
+      "observer_pass": true
+    },
+    {
+      "lane": 2,
+      "different_endpoint_samples": 0,
+      "missing_substeps": 0,
+      "compared_endpoint_coordinates": 4816,
+      "max_endpoint_error": 0.0,
+      "maximum_abs_toe_speed": 12.0,
+      "toe_speed_cap_substeps": [
+        {
+          "step": 1,
+          "substep": 2,
+          "toes": [
+            8
+          ]
+        },
+        {
+          "step": 1,
+          "substep": 3,
+          "toes": [
+            8
+          ]
+        },
+        {
+          "step": 1,
+          "substep": 4,
+          "toes": [
+            8
+          ]
+        },
+        {
+          "step": 2,
+          "substep": 2,
+          "toes": [
+            8
+          ]
+        },
+        {
+          "step": 2,
+          "substep": 3,
+          "toes": [
+            8
+          ]
+        },
+        {
+          "step": 2,
+          "substep": 4,
+          "toes": [
+            8
+          ]
+        }
+      ],
+      "observer_pass": true
+    },
+    {
+      "lane": 3,
+      "different_endpoint_samples": 0,
+      "missing_substeps": 0,
+      "compared_endpoint_coordinates": 4816,
+      "max_endpoint_error": 0.0,
+      "maximum_abs_toe_speed": 6.35867643,
+      "toe_speed_cap_substeps": [],
+      "observer_pass": true
+    },
+    {
+      "lane": 4,
+      "different_endpoint_samples": 0,
+      "missing_substeps": 0,
+      "compared_endpoint_coordinates": 4816,
+      "max_endpoint_error": 0.0,
+      "maximum_abs_toe_speed": 6.42771482,
+      "toe_speed_cap_substeps": [],
+      "observer_pass": true
+    },
+    {
+      "lane": 5,
+      "different_endpoint_samples": 0,
+      "missing_substeps": 0,
+      "compared_endpoint_coordinates": 4816,
+      "max_endpoint_error": 0.0,
+      "maximum_abs_toe_speed": 6.36569166,
+      "toe_speed_cap_substeps": [],
+      "observer_pass": true
+    },
+    {
+      "lane": 6,
+      "different_endpoint_samples": 0,
+      "missing_substeps": 0,
+      "compared_endpoint_coordinates": 4816,
+      "max_endpoint_error": 0.0,
+      "maximum_abs_toe_speed": 6.44599676,
+      "toe_speed_cap_substeps": [],
+      "observer_pass": true
+    },
+    {
+      "lane": 7,
+      "different_endpoint_samples": 0,
+      "missing_substeps": 0,
+      "compared_endpoint_coordinates": 4816,
+      "max_endpoint_error": 0.0,
+      "maximum_abs_toe_speed": 6.41348076,
+      "toe_speed_cap_substeps": [],
+      "observer_pass": true
+    }
+  ],
+  "failed_environment_steps": 0,
+  "terminations": 0,
+  "errors": [],
+  "scope": "actual retained 16-substep generalized velocities; observer validity distinct from physical toe-speed result"
+}
