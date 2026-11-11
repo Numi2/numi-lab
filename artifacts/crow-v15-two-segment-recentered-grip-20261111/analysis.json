@@ -1,0 +1,37 @@
+{
+  "steps": 350,
+  "different_initial_x_shift_m": -0.01,
+  "observed_records": 5600,
+  "missing": [],
+  "bad": [],
+  "errors": [],
+  "support_intervals": 90,
+  "longest_supported_intervals": 90,
+  "opposed_intervals": 0,
+  "supported_opposed_intervals": 0,
+  "longest_supported_opposed_intervals": 0,
+  "minimum_opposed_endpoint_gap_m": null,
+  "opposed_steps": [],
+  "first_front_activation": [
+    null,
+    null
+  ],
+  "last_root_q": [
+    -0.502885044,
+    -0.0117703704,
+    -46.6112289,
+    -0.00307906256,
+    -0.432209939,
+    -0.000435585593,
+    0.901767612
+  ],
+  "last_root_v": [
+    -0.00360758859,
+    -0.000137952113,
+    -14.0448275,
+    -0.00271942001,
+    -0.114479475,
+    -6.61924514e-06
+  ],
+  "scope": "single initialized stationary perch screen; endpoint OBB overlaps and substep impulses, no continuous geometry, release, flight, route or biological qualification"
+}
