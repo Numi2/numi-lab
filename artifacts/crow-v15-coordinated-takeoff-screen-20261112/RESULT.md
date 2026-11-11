@@ -1,0 +1,5 @@
+# Later-wing development takeoff
+
+At the 7.02 s gate, all eight short development lanes matched baseline q/v/actions and contact through step 352; the first logged endpoint difference was step 353. Each foot supplied upward ground impulse, with ground impulse minus body-weight impulse from interval 348 to the last loaded substep 0.395–0.399 N s. Every lane's last loaded sample was step 352 substep 6, and the first two fully unloaded rising intervals began at step 353. There was no nonfoot normal impulse in the measured takeoff window and no toe-speed limit after step 340; root heights at step 500 were 0.938–1.017 m. Runs reported no errors.
+
+These results preserve the reference push-off in the short screen. They do not establish that a downward wing stroke occurred before toe-off: the first changed endpoint came later, and within-interval wing motion requires synchronized q and contact observation. Body-weight subtraction is not isolated leg muscle work. Flight remained unqualified and the approach, landing, release and untouched layouts were not tested. The candidate is not promoted.
