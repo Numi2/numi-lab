@@ -1,0 +1,29 @@
+{
+  "independently_fetched_commit": "4a1302a631630717207cd4265f15460a0c0a4cc3",
+  "results": [
+    {
+      "path": "/Users/n/Developer/numi-crow-rl-20261107/artifacts/crow-v15-autonomous-toe-curl-isolation-20261111/autonomous-20261126/run.stderr.gz",
+      "bytes": 90304408,
+      "compressed_sha256": "d9814922eb42a51cc8f58de404036a4e6878483a91a9f6b4e2ced7352b0e0ea3",
+      "expanded_sha256": "6dff048cd599886cf19eef2b40b734fcdd6c4b9e6c78d506cdac9952d5404d5b",
+      "retired": true,
+      "open_handles": false
+    },
+    {
+      "path": "/Users/n/Developer/numi-crow-rl-20261107/artifacts/crow-v15-landing-handoff-balanced-window-20261111/autonomous-20261126/run.stderr.gz",
+      "bytes": 73533606,
+      "compressed_sha256": "25289a6f25f9086cacf3206575b8433fb8f5a12e5dbd3e2e6630a73bb59f309d",
+      "expanded_sha256": "337b97d2aa8b50ef59df1633dd49f7627ffde75a2fbcfbe5cb1283da7917ca63",
+      "retired": true,
+      "open_handles": false
+    },
+    {
+      "path": "/Users/n/Developer/numi-crow-rl-20261107/artifacts/crow-v15-landing-handoff-center-control-20261111/autonomous-20261126/run.stderr.gz",
+      "bytes": 73533606,
+      "compressed_sha256": "25289a6f25f9086cacf3206575b8433fb8f5a12e5dbd3e2e6630a73bb59f309d",
+      "expanded_sha256": "337b97d2aa8b50ef59df1633dd49f7627ffde75a2fbcfbe5cb1283da7917ca63",
+      "retired": true,
+      "open_handles": false
+    }
+  ]
+}
