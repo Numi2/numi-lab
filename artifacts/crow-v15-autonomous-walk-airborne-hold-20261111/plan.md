@@ -1,0 +1,3 @@
+# Airborne leg-target hold during walking
+
+The original 8-second gait had a brief unweighted transition before the unstable lane acquired large impact impulses. Test holding the last filtered leg target only while both accepted foot-contact loads are below the existing threshold; resume the original gait on contact. This uses joint drives and contact feedback, with no added force. Endpoint analysis found the unweighted signal in only lanes 3 and 6 over the walking window, but accepted controller state and dynamics must be checked. Compare all eight lanes and the entire preceding trajectory, including support, clear steps, impact, forward progress and recovery.

@@ -1,0 +1,142 @@
+{
+  "20261126": {
+    "settling": {
+      "0": {
+        "cap_substeps": 0,
+        "peak_rad_s": 3.9856379
+      },
+      "1": {
+        "cap_substeps": 14,
+        "peak_rad_s": 12.0
+      },
+      "2": {
+        "cap_substeps": 6,
+        "peak_rad_s": 12.0
+      },
+      "3": {
+        "cap_substeps": 0,
+        "peak_rad_s": 2.86867905
+      },
+      "4": {
+        "cap_substeps": 0,
+        "peak_rad_s": 1.54303336
+      },
+      "5": {
+        "cap_substeps": 0,
+        "peak_rad_s": 0.570590496
+      },
+      "6": {
+        "cap_substeps": 0,
+        "peak_rad_s": 1.44699907
+      },
+      "7": {
+        "cap_substeps": 0,
+        "peak_rad_s": 0.567569792
+      }
+    },
+    "walk": {
+      "0": {
+        "cap_substeps": 0,
+        "peak_rad_s": 5.12309694
+      },
+      "1": {
+        "cap_substeps": 0,
+        "peak_rad_s": 4.50735378
+      },
+      "2": {
+        "cap_substeps": 0,
+        "peak_rad_s": 4.84262228
+      },
+      "3": {
+        "cap_substeps": 0,
+        "peak_rad_s": 5.87645435
+      },
+      "4": {
+        "cap_substeps": 0,
+        "peak_rad_s": 4.65653944
+      },
+      "5": {
+        "cap_substeps": 0,
+        "peak_rad_s": 4.70227766
+      },
+      "6": {
+        "cap_substeps": 0,
+        "peak_rad_s": 4.7550025
+      },
+      "7": {
+        "cap_substeps": 0,
+        "peak_rad_s": 4.63516474
+      }
+    }
+  },
+  "20261127": {
+    "settling": {
+      "0": {
+        "cap_substeps": 0,
+        "peak_rad_s": 5.35253429
+      },
+      "1": {
+        "cap_substeps": 9,
+        "peak_rad_s": 12.0
+      },
+      "2": {
+        "cap_substeps": 18,
+        "peak_rad_s": 12.0
+      },
+      "3": {
+        "cap_substeps": 0,
+        "peak_rad_s": 5.30602312
+      },
+      "4": {
+        "cap_substeps": 0,
+        "peak_rad_s": 1.29888415
+      },
+      "5": {
+        "cap_substeps": 9,
+        "peak_rad_s": 12.0
+      },
+      "6": {
+        "cap_substeps": 0,
+        "peak_rad_s": 2.10282826
+      },
+      "7": {
+        "cap_substeps": 12,
+        "peak_rad_s": 12.0
+      }
+    },
+    "walk": {
+      "0": {
+        "cap_substeps": 0,
+        "peak_rad_s": 4.90957069
+      },
+      "1": {
+        "cap_substeps": 0,
+        "peak_rad_s": 4.60084248
+      },
+      "2": {
+        "cap_substeps": 0,
+        "peak_rad_s": 5.04254246
+      },
+      "3": {
+        "cap_substeps": 0,
+        "peak_rad_s": 4.48139191
+      },
+      "4": {
+        "cap_substeps": 0,
+        "peak_rad_s": 4.84346104
+      },
+      "5": {
+        "cap_substeps": 0,
+        "peak_rad_s": 4.58986998
+      },
+      "6": {
+        "cap_substeps": 0,
+        "peak_rad_s": 4.97924805
+      },
+      "7": {
+        "cap_substeps": 0,
+        "peak_rad_s": 4.89258099
+      }
+    }
+  }
+}

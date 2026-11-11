@@ -1,0 +1,131 @@
+{
+  "baseline": {
+    "peak_upward_foot_impulse_Ns": {
+      "0": {
+        "value": 0.0191794876,
+        "step": 278,
+        "substep": 1
+      },
+      "1": {
+        "value": 0.0192968771,
+        "step": 278,
+        "substep": 1
+      },
+      "2": {
+        "value": 0.0213689394,
+        "step": 242,
+        "substep": 8
+      },
+      "3": {
+        "value": 0.0821019821,
+        "step": 254,
+        "substep": 1
+      },
+      "4": {
+        "value": 0.0194050111,
+        "step": 242,
+        "substep": 7
+      },
+      "5": {
+        "value": 0.0196147598,
+        "step": 242,
+        "substep": 7
+      },
+      "6": {
+        "value": 0.0200937428,
+        "step": 253,
+        "substep": 2
+      },
+      "7": {
+        "value": 0.025382068,
+        "step": 242,
+        "substep": 11
+      }
+    },
+    "toe_speed_cap_substeps": {
+      "0": 0,
+      "1": 0,
+      "2": 0,
+      "3": 3,
+      "4": 0,
+      "5": 0,
+      "6": 0,
+      "7": 0
+    },
+    "maximum_toe_joint_speed_rad_s": {
+      "0": 5.12309694,
+      "1": 4.50735378,
+      "2": 4.84262228,
+      "3": 12.0,
+      "4": 4.65653944,
+      "5": 4.70227766,
+      "6": 4.7550025,
+      "7": 4.63516474
+    }
+  },
+  "hold": {
+    "peak_upward_foot_impulse_Ns": {
+      "0": {
+        "value": 0.0191794876,
+        "step": 278,
+        "substep": 1
+      },
+      "1": {
+        "value": 0.0192968771,
+        "step": 278,
+        "substep": 1
+      },
+      "2": {
+        "value": 0.0213689394,
+        "step": 242,
+        "substep": 8
+      },
+      "3": {
+        "value": 0.0296418965,
+        "step": 242,
+        "substep": 13
+      },
+      "4": {
+        "value": 0.0194050111,
+        "step": 242,
+        "substep": 7
+      },
+      "5": {
+        "value": 0.0196147598,
+        "step": 242,
+        "substep": 7
+      },
+      "6": {
+        "value": 0.0200937428,
+        "step": 253,
+        "substep": 2
+      },
+      "7": {
+        "value": 0.025382068,
+        "step": 242,
+        "substep": 11
+      }
+    },
+    "toe_speed_cap_substeps": {
+      "0": 0,
+      "1": 0,
+      "2": 0,
+      "3": 0,
+      "4": 0,
+      "5": 0,
+      "6": 0,
+      "7": 0
+    },
+    "maximum_toe_joint_speed_rad_s": {
+      "0": 5.12309694,
+      "1": 4.50735378,
+      "2": 4.84262228,
+      "3": 5.87645435,
+      "4": 4.65653944,
+      "5": 4.70227766,
+      "6": 4.7550025,
+      "7": 4.63516474
+    }
+  },
+  "limitations": "One used development seed/layout; association is not a causality or biological-realism finding. Cap threshold is 11.99 rad/s."
+}
