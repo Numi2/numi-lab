@@ -1,0 +1,44 @@
+{
+  "source_lane": 3,
+  "source_step": 330,
+  "perturbation_rad": 0.01,
+  "derivatives_m_per_rad": {
+    "14": {
+      "crow_left_foot": -0.048303135793659885,
+      "crow_right_foot": 0.0,
+      "crow_left_front_toe_1_distal": -0.07766337250562048,
+      "crow_right_front_toe_1_distal": 0.0
+    },
+    "15": {
+      "crow_left_foot": -0.024985470316841313,
+      "crow_right_foot": 0.0,
+      "crow_left_front_toe_1_distal": -0.05434570702880191,
+      "crow_right_front_toe_1_distal": 0.0
+    },
+    "16": {
+      "crow_left_foot": -0.029771234525407392,
+      "crow_right_foot": 0.0,
+      "crow_left_front_toe_1_distal": -0.05913147123736799,
+      "crow_right_front_toe_1_distal": 0.0
+    },
+    "17": {
+      "crow_left_foot": 0.0,
+      "crow_right_foot": -0.030658917047028493,
+      "crow_left_front_toe_1_distal": 0.0,
+      "crow_right_front_toe_1_distal": -0.06031099498836536
+    },
+    "18": {
+      "crow_left_foot": 0.0,
+      "crow_right_foot": -0.020963905147261368,
+      "crow_left_front_toe_1_distal": 0.0,
+      "crow_right_front_toe_1_distal": -0.050615983088598236
+    },
+    "19": {
+      "crow_left_foot": 0.0,
+      "crow_right_foot": -0.029023048318378535,
+      "crow_left_front_toe_1_distal": 0.0,
+      "crow_right_front_toe_1_distal": -0.0586751262597154
+    }
+  },
+  "limitation": "Local fixed-root kinematics at a single sampled pose; does not predict dynamic whole-body motion."
+}

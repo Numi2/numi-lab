@@ -1,5 +1,6 @@
 62d044db11f803ff6f982ccc1c0f7c64e90f4488ec8d86151a8e53bec6510434  artifacts/crow-v15-gait-phase-observer-20261111/RESULT.md
 4e695110957a16658385e6a8df2b1afc2434dbff58660995f14a755b9d6bbad3  artifacts/crow-v15-gait-phase-observer-20261111/analysis.json
+821c3a343889b2c78ef1f8d48505965a11caabdcc1534410ee2f9b047fd3c571  artifacts/crow-v15-gait-phase-observer-20261111/analyze-clearance.py
 100a001d5157bf9c02df135e9a00b613c6f3cedaf1a82ac80228300d3624ba36  artifacts/crow-v15-gait-phase-observer-20261111/autonomous-20261126/command.json
 4e695110957a16658385e6a8df2b1afc2434dbff58660995f14a755b9d6bbad3  artifacts/crow-v15-gait-phase-observer-20261111/autonomous-20261126/comparison.stdout
 5379136217ac5beee712556015422a17daab58c5eb42e425f2ce198c19874fac  artifacts/crow-v15-gait-phase-observer-20261111/autonomous-20261126/inputs.json
@@ -10,6 +11,8 @@ be71807f90a567054f95be913798a16bad03869e65da3bf371978945b9a05b4b  artifacts/crow
 077ed02b8ca6601bbb0af70cee860b72a7b437ed94132906696c0100cf1e2353  artifacts/crow-v15-gait-phase-observer-20261111/autonomous-20261126/stderr-parts.json
 6a13cf64c7bab8cc71fbc24b7f8343d521228e2d848f636b665d9a359579dd3a  artifacts/crow-v15-gait-phase-observer-20261111/autonomous-20261126/trace.tsv.gz
 041e7d75c4b15d57300579e92d36af291cc6872ac5bf1983b3aca6d8278e72db  artifacts/crow-v15-gait-phase-observer-20261111/compare.py
+544dedba6ea7c3f5cdce96b732f670301c1d67d32e3f9013b9852e0c2979adbe  artifacts/crow-v15-gait-phase-observer-20261111/kinematic-sensitivity.json
+bd7a575155f39976828169d3f22f1631e8c0e7c01c4df3471e128c41fcf9f6f8  artifacts/crow-v15-gait-phase-observer-20261111/kinematic-sensitivity.py
 38066ba7bc1009a8bec4419dde421376dae5352c558745e7f25d68c4dc8a01b3  artifacts/crow-v15-gait-phase-observer-20261111/phase-analysis.json
 ee1190b97b259f0fbab43555ec97f5a44cb85251436693c780220cd0c856efd4  artifacts/crow-v15-gait-phase-observer-20261111/plan.md
 f46334300fee07b75b737f279ea2808679573af8e5dd3f960a818fc660b0e026  artifacts/crow-v15-gait-phase-observer-20261111/restore-stderr.py
