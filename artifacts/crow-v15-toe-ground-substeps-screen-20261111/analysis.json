@@ -1,0 +1,16 @@
+{
+  "exit": 1,
+  "observed_lane_steps": 0,
+  "lanes_with_hits": 0,
+  "lane_interval_hits": 0,
+  "hits_by_lane": {},
+  "hits_by_step": {},
+  "hits_by_toe": {},
+  "minimum_final_substep_contact_separation_m": null,
+  "errors": [
+    "task_rollout failed: PolicyPack compile failed [incompatible_contract]: contract: policy=(world=17849892828784977451,task=1917818524429010365,observation=9190510776321113153,action=4910593862023342939) task=(world=6082832592547572139,task=11358103705999734615,observation=6935231510031877823,action=13633697340047715001)"
+  ],
+  "scope": "development ground-to-flight accepted endpoints and last-substep contacts only",
+  "output_error": "Expecting value: line 1 column 1 (char 0)",
+  "pass": false
+}
