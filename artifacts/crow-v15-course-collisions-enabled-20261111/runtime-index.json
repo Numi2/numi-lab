@@ -1,0 +1,17 @@
+[
+  {
+    "path": "build/crow-v15-course-collisions-enabled-20261111/enabled/libmetalrobo.dylib",
+    "sha256": "3077a237f93e75f1072c92cbfa3c7a08924a1574fffec8e52736821ff4ac4347",
+    "bytes": 5764848
+  },
+  {
+    "path": "build/crow-v15-course-collisions-enabled-20261111/enabled/landing.policypack",
+    "sha256": "f05721635bc83c465a3f9908aa69936ca45ded1726af20eddb992043f79f7245",
+    "bytes": 5996432
+  },
+  {
+    "path": "build/crow-v15-course-collisions-enabled-20261111/enabled/route.policypack",
+    "sha256": "912ff02c98d1e0ee8bd1c219f10a3323d3e7ac45bd33f6451cd95f1220616015",
+    "bytes": 17228686
+  }
+]

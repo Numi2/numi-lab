@@ -1,0 +1,10 @@
+--- a/separated.metal
++++ b/height.metal
+@@ -3553,6 +3553,7 @@
+                 break;
+             }
+         }
++        if ((program.schedule.w & MR_TASK_PROGRAM_AVIAN_CROW_JOURNEY) != 0u && curriculum == 10u && dispatch.counts.w == 38u) resetScene[sceneBase + 1u].position.xyz = float3(0.25f,0.0f,0.8f);
+         // Journey band three isolates cruise stabilization. Later v3 bands
+         // reset into exact portions of the full 32-second journey.
+         // fingerprinted, physically ordinary airborne state rather than

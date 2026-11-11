@@ -1,0 +1,3 @@
+# Collision-enabled development teacher
+
+The earlier teacher reached five gates only with all course collision masks disabled. Run the corrected teacher's same development starts and course for 1600 intervals with all course collisions enabled, the independently validated endpoint/substep contact observers, and sampled box clearance. Record the first episode only for navigation progress and first fatal contact, including the preceding state/action and contact pair, distinguishing contact termination from numerical failure. Compare q/v/actions to the obstacle-free control through first divergence. The test does not establish autonomy, supported landing, biological realism, unseen-layout success, or release. Do not use reserved final layouts.

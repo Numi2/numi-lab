@@ -1,0 +1,376 @@
+{
+  "lanes": [
+    {
+      "lane": 0,
+      "different_accepted_samples": 0,
+      "different_contact_substeps": 0,
+      "missing_velocity_substeps": 0,
+      "endpoint_velocity_max_error": 0.0,
+      "all_toe_cap_hits": [],
+      "flight_window_cap_hits": []
+    },
+    {
+      "lane": 1,
+      "different_accepted_samples": 0,
+      "different_contact_substeps": 0,
+      "missing_velocity_substeps": 0,
+      "endpoint_velocity_max_error": 0.0,
+      "all_toe_cap_hits": [
+        {
+          "step": 31,
+          "substep": 5,
+          "toes": [
+            14
+          ]
+        },
+        {
+          "step": 39,
+          "substep": 7,
+          "toes": [
+            14
+          ]
+        },
+        {
+          "step": 39,
+          "substep": 8,
+          "toes": [
+            14
+          ]
+        },
+        {
+          "step": 43,
+          "substep": 14,
+          "toes": [
+            6
+          ]
+        },
+        {
+          "step": 43,
+          "substep": 15,
+          "toes": [
+            6
+          ]
+        },
+        {
+          "step": 44,
+          "substep": 0,
+          "toes": [
+            6
+          ]
+        },
+        {
+          "step": 48,
+          "substep": 2,
+          "toes": [
+            14
+          ]
+        },
+        {
+          "step": 48,
+          "substep": 3,
+          "toes": [
+            14
+          ]
+        },
+        {
+          "step": 52,
+          "substep": 7,
+          "toes": [
+            6
+          ]
+        },
+        {
+          "step": 52,
+          "substep": 8,
+          "toes": [
+            6
+          ]
+        },
+        {
+          "step": 52,
+          "substep": 9,
+          "toes": [
+            6
+          ]
+        },
+        {
+          "step": 56,
+          "substep": 10,
+          "toes": [
+            14
+          ]
+        },
+        {
+          "step": 56,
+          "substep": 11,
+          "toes": [
+            14
+          ]
+        },
+        {
+          "step": 56,
+          "substep": 12,
+          "toes": [
+            14
+          ]
+        },
+        {
+          "step": 56,
+          "substep": 13,
+          "toes": [
+            14
+          ]
+        },
+        {
+          "step": 60,
+          "substep": 9,
+          "toes": [
+            6
+          ]
+        },
+        {
+          "step": 60,
+          "substep": 10,
+          "toes": [
+            6
+          ]
+        },
+        {
+          "step": 60,
+          "substep": 11,
+          "toes": [
+            6
+          ]
+        },
+        {
+          "step": 70,
+          "substep": 9,
+          "toes": [
+            14
+          ]
+        },
+        {
+          "step": 70,
+          "substep": 10,
+          "toes": [
+            14
+          ]
+        },
+        {
+          "step": 85,
+          "substep": 9,
+          "toes": [
+            14
+          ]
+        },
+        {
+          "step": 85,
+          "substep": 10,
+          "toes": [
+            14
+          ]
+        },
+        {
+          "step": 95,
+          "substep": 13,
+          "toes": [
+            6
+          ]
+        }
+      ],
+      "flight_window_cap_hits": []
+    },
+    {
+      "lane": 2,
+      "different_accepted_samples": 0,
+      "different_contact_substeps": 0,
+      "missing_velocity_substeps": 0,
+      "endpoint_velocity_max_error": 0.0,
+      "all_toe_cap_hits": [
+        {
+          "step": 1,
+          "substep": 2,
+          "toes": [
+            8
+          ]
+        },
+        {
+          "step": 1,
+          "substep": 3,
+          "toes": [
+            8
+          ]
+        },
+        {
+          "step": 1,
+          "substep": 4,
+          "toes": [
+            8
+          ]
+        },
+        {
+          "step": 2,
+          "substep": 2,
+          "toes": [
+            8
+          ]
+        },
+        {
+          "step": 2,
+          "substep": 3,
+          "toes": [
+            8
+          ]
+        },
+        {
+          "step": 2,
+          "substep": 4,
+          "toes": [
+            8
+          ]
+        }
+      ],
+      "flight_window_cap_hits": []
+    },
+    {
+      "lane": 3,
+      "different_accepted_samples": 0,
+      "different_contact_substeps": 0,
+      "missing_velocity_substeps": 0,
+      "endpoint_velocity_max_error": 0.0,
+      "all_toe_cap_hits": [],
+      "flight_window_cap_hits": []
+    },
+    {
+      "lane": 4,
+      "different_accepted_samples": 0,
+      "different_contact_substeps": 0,
+      "missing_velocity_substeps": 0,
+      "endpoint_velocity_max_error": 0.0,
+      "all_toe_cap_hits": [],
+      "flight_window_cap_hits": []
+    },
+    {
+      "lane": 5,
+      "different_accepted_samples": 0,
+      "different_contact_substeps": 0,
+      "missing_velocity_substeps": 0,
+      "endpoint_velocity_max_error": 0.0,
+      "all_toe_cap_hits": [],
+      "flight_window_cap_hits": []
+    },
+    {
+      "lane": 6,
+      "different_accepted_samples": 0,
+      "different_contact_substeps": 0,
+      "missing_velocity_substeps": 0,
+      "endpoint_velocity_max_error": 0.0,
+      "all_toe_cap_hits": [],
+      "flight_window_cap_hits": []
+    },
+    {
+      "lane": 7,
+      "different_accepted_samples": 0,
+      "different_contact_substeps": 0,
+      "missing_velocity_substeps": 0,
+      "endpoint_velocity_max_error": 0.0,
+      "all_toe_cap_hits": [],
+      "flight_window_cap_hits": []
+    }
+  ],
+  "errors": [],
+  "scope": "development starts, 3-second post-release flight window; eligibility is conservatively inferred, no full-route or landing qualification",
+  "clearance_samples": [
+    {
+      "lane": 0,
+      "end_step": 500,
+      "minimum_step": 500,
+      "minimum_m": 0.816504100169,
+      "bird_shape": "crow_right_wing/collision",
+      "obstacle_shape": "crow_course_gate_right/collision",
+      "bird_body": "crow_right_wing",
+      "obstacle_body": "crow_course_gate_right",
+      "sampling": "accepted_control_steps"
+    },
+    {
+      "lane": 1,
+      "end_step": 500,
+      "minimum_step": 500,
+      "minimum_m": 0.761712999922,
+      "bird_shape": "crow_left_wing/collision",
+      "obstacle_shape": "crow_course_gate_left/collision",
+      "bird_body": "crow_left_wing",
+      "obstacle_body": "crow_course_gate_left",
+      "sampling": "accepted_control_steps"
+    },
+    {
+      "lane": 2,
+      "end_step": 500,
+      "minimum_step": 500,
+      "minimum_m": 0.768680327818,
+      "bird_shape": "crow_left_wing/collision",
+      "obstacle_shape": "crow_course_gate_left/collision",
+      "bird_body": "crow_left_wing",
+      "obstacle_body": "crow_course_gate_left",
+      "sampling": "accepted_control_steps"
+    },
+    {
+      "lane": 3,
+      "end_step": 500,
+      "minimum_step": 500,
+      "minimum_m": 0.851624278698,
+      "bird_shape": "crow_right_wing/collision",
+      "obstacle_shape": "crow_course_gate_right/collision",
+      "bird_body": "crow_right_wing",
+      "obstacle_body": "crow_course_gate_right",
+      "sampling": "accepted_control_steps"
+    },
+    {
+      "lane": 4,
+      "end_step": 500,
+      "minimum_step": 500,
+      "minimum_m": 0.785250384236,
+      "bird_shape": "crow_right_wing/collision",
+      "obstacle_shape": "crow_course_gate_right/collision",
+      "bird_body": "crow_right_wing",
+      "obstacle_body": "crow_course_gate_right",
+      "sampling": "accepted_control_steps"
+    },
+    {
+      "lane": 5,
+      "end_step": 500,
+      "minimum_step": 500,
+      "minimum_m": 0.814282439195,
+      "bird_shape": "crow_head/upper_beak_collision",
+      "obstacle_shape": "crow_course_gate_right/collision",
+      "bird_body": "crow_head",
+      "obstacle_body": "crow_course_gate_right",
+      "sampling": "accepted_control_steps"
+    },
+    {
+      "lane": 6,
+      "end_step": 500,
+      "minimum_step": 500,
+      "minimum_m": 0.743915662594,
+      "bird_shape": "crow_right_wing/collision",
+      "obstacle_shape": "crow_course_gate_right/collision",
+      "bird_body": "crow_right_wing",
+      "obstacle_body": "crow_course_gate_right",
+      "sampling": "accepted_control_steps"
+    },
+    {
+      "lane": 7,
+      "end_step": 500,
+      "minimum_step": 500,
+      "minimum_m": 0.796980404886,
+      "bird_shape": "crow_right_wing/collision",
+      "obstacle_shape": "crow_course_gate_right/collision",
+      "bird_body": "crow_right_wing",
+      "obstacle_body": "crow_course_gate_right",
+      "sampling": "accepted_control_steps"
+    }
+  ],
+  "scene_contact_count": 0,
+  "first_scene_contacts": [],
+  "limitations": "Endpoint sampled minimum clearance only, not continuous. Scene contact reports are substep constraint impulses. Compare both with exact observer parity before use."
+}

@@ -1,0 +1,3 @@
+# Independent endpoint collider witness
+
+The retained CROW_SUPPORT_SAMPLE diagnostic reports only ground and perch contacts, so its empty gate-contact list was not evidence of absent gate contacts. Build a read-only diagnostic variant which preserves the collision-enabled simulation but publishes all accepted endpoint contacts. Compare all q/v/action and existing substep records against the collision-enabled custom overlap control, and compare its endpoint pairs and impulses to the last-substep CROW_SCENE_CONTACT records. Retain both positive and failed controls. This observer change must not change physics or policy.

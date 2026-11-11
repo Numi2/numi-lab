@@ -1,0 +1,52 @@
+{
+  "state_counts": [
+    248,
+    248
+  ],
+  "different_q_v_actions": 0,
+  "substep_record_counts": [
+    7936,
+    7936
+  ],
+  "different_substep_records": 0,
+  "endpoint_scene_contacts": 1041,
+  "matching_last_substep_contacts": 1041,
+  "first_matches": [
+    [
+      0,
+      1,
+      "crow_head",
+      "crow_course_gate_left",
+      1.74857568e-08
+    ],
+    [
+      0,
+      1,
+      "crow_lower_beak",
+      "crow_course_gate_left",
+      9.4490224e-07
+    ],
+    [
+      0,
+      1,
+      "crow_lower_beak",
+      "crow_course_gate_left",
+      0.000114114038
+    ],
+    [
+      1,
+      1,
+      "crow_head",
+      "crow_course_gate_left",
+      3.65177888e-09
+    ],
+    [
+      1,
+      1,
+      "crow_head",
+      "crow_course_gate_left",
+      3.65177888e-09
+    ]
+  ],
+  "limitations": "Artificial initial overlap, with contact terminations and reset; tests observer identity only, not route performance, physical biological realism, or supported landing."
+}

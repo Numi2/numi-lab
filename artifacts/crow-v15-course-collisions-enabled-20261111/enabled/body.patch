@@ -1,0 +1,32 @@
+--- a/reference.cpp
++++ b/enabled.cpp
+@@ -3551,20 +3551,6 @@
+             }
+             if (!foundPerch) throw std::logic_error("navigation perch shape not found");
+         }
+-        // Experimental obstacle-free control: retain bodies and ground, disable only course collisions.
+-        if (activeNavigation) {
+-            unsigned removed=0;
+-            for (auto& object:manifest.scene.objects) {
+-                auto& mechanics=object.mechanics;
+-                for (std::size_t i=0;i<mechanics.shapeNames.size();++i) {
+-                    if (mechanics.shapeNames[i].starts_with("crow_course_")) {
+-                        mechanics.shapes.at(i).collisionMask=0u;
+-                        ++removed;
+-                    }
+-                }
+-            }
+-            if (removed!=5u) throw std::logic_error("expected five collision-disabled course shapes");
+-        }
+         manifest.sensors.id = cueConfig ? "camera_admission_proprioception" : journey
+             ? activeNavigation ? "american_crow_active_head_navigation_rgbd_sensors"
+             : retinal ? "american_crow_retinal_v13_rgb_proprioception_nutrition"
+@@ -5004,7 +4990,7 @@
+                 }
+                 const bool terminated=lane<published.transitions.size() &&
+                    published.transitions[lane].termination.w!=MR_TASK_TERMINATION_CONTINUING;
+-                if(terminated || step%500u==0u) {
++                if(terminated || step%1u==0u) {
+                     record.closed=terminated;
+                     const auto& bs=model.shapes[record.birdShape];
+                     const auto& os=model.shapes[record.obstacleShape];

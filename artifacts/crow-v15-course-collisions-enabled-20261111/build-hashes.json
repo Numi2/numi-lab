@@ -1,0 +1,9 @@
+[
+  {
+    "name": "enabled",
+    "toe_segment_mass_kg": 5e-05,
+    "library_sha256": "3077a237f93e75f1072c92cbfa3c7a08924a1574fffec8e52736821ff4ac4347",
+    "source_sha256": "2a6467fd1666aee62dd9f516595bab5c32b7a0bc82c1d3f12e6318f33993480f",
+    "observer_sha256": "901c275465209df4e29e88866ac9892e89a2c06ca4d0162fa67fe4503ef68c5c"
+  }
+]
