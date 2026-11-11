@@ -1,0 +1,3 @@
+# Toe regrip foot-placement screen
+
+In the completed prior release runs, both feet drifted forward off the narrow perch as the body pitched. Independent local kinematics at a retained return state estimates the left-foot longitudinal response to its hip angle, with a pose check against the recorded run. Test signed -0.10, -0.05, +0.05 and +0.10 rad left-hip placement offsets only after release begins, with two starts per value. Preserve stance balance, contact physics, foot opening and reclosure logic. Require the unchanged supported release, 100 final bilateral opposing-grip intervals, no fall, no nonfoot impulse and complete physics-substep coverage. This isolated constructed test neither proves flight landing nor anatomical calibration.

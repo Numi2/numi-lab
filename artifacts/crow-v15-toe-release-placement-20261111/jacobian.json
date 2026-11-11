@@ -1,0 +1,7 @@
+{
+  "scope": "local fixed-root kinematic sensitivity at one constructed regrip state, not a dynamic stability or biological claim",
+  "reference_foot_position_error_m": 3.504300001219707e-10,
+  "hip_foot_dx_m_per_rad": -0.13675106266999998,
+  "knee_foot_dx_m_per_rad": -0.07351453070999978,
+  "ankle_foot_dx_m_per_rad": -0.012668232259999829
+}
