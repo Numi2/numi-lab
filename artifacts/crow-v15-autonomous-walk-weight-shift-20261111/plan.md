@@ -1,0 +1,3 @@
+# Walking stance-side weight shift
+
+The original extended gait produced at least 13 clear bouts per foot in all development starts but one lane had 334 unsupported substeps and unstable motion. Add a bounded sinusoidal bilateral hip-roll target in phase with the original gait, to move the body toward the stance side; previous constructed-start kinematics associated positive hip roll with moving mass toward the right foot. Preserve the original gated leg actions, body, solver and 8-second walk. This open-loop command is a hypothesis: validate foot impulses and clearance on every lane and reject failures before any integrated run.
