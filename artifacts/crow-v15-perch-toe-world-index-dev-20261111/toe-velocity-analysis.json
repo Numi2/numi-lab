@@ -566,7 +566,8 @@
           ]
         ]
       ],
-      "substeps": 80000
+      "substeps": 80000,
+      "first_episode_hits_after_ground_handoff": []
     },
     {
       "lane": 1,
@@ -825,7 +826,54 @@
           ]
         ]
       ],
-      "substeps": 80000
+      "substeps": 80000,
+      "first_episode_hits_after_ground_handoff": [
+        [
+          3166,
+          1,
+          [
+            8
+          ]
+        ],
+        [
+          3166,
+          2,
+          [
+            8
+          ]
+        ],
+        [
+          3469,
+          10,
+          [
+            8
+          ]
+        ],
+        [
+          3469,
+          11,
+          [
+            0,
+            2,
+            4,
+            8,
+            10,
+            12
+          ]
+        ],
+        [
+          3469,
+          12,
+          [
+            0,
+            2,
+            4,
+            8,
+            10,
+            12
+          ]
+        ]
+      ]
     },
     {
       "lane": 2,
@@ -874,7 +922,8 @@
         ]
       ],
       "hits_after_ground_handoff_step_355": [],
-      "substeps": 80000
+      "substeps": 80000,
+      "first_episode_hits_after_ground_handoff": []
     },
     {
       "lane": 3,
@@ -1162,25 +1211,60 @@
           ]
         ]
       ],
-      "substeps": 80000
+      "substeps": 80000,
+      "first_episode_hits_after_ground_handoff": [
+        [
+          3274,
+          6,
+          [
+            0,
+            2,
+            4
+          ]
+        ],
+        [
+          3274,
+          7,
+          [
+            0,
+            2,
+            4,
+            8,
+            10,
+            12
+          ]
+        ],
+        [
+          3274,
+          8,
+          [
+            8,
+            10,
+            12
+          ]
+        ]
+      ]
     },
     {
       "lane": 4,
       "all_hits": [],
       "hits_after_ground_handoff_step_355": [],
-      "substeps": 80000
+      "substeps": 80000,
+      "first_episode_hits_after_ground_handoff": []
     },
     {
       "lane": 5,
       "all_hits": [],
       "hits_after_ground_handoff_step_355": [],
-      "substeps": 80000
+      "substeps": 80000,
+      "first_episode_hits_after_ground_handoff": []
     },
     {
       "lane": 6,
       "all_hits": [],
       "hits_after_ground_handoff_step_355": [],
-      "substeps": 80000
+      "substeps": 80000,
+      "first_episode_hits_after_ground_handoff": []
     },
     {
       "lane": 7,
@@ -1792,9 +1876,56 @@
           ]
         ]
       ],
-      "substeps": 80000
+      "substeps": 80000,
+      "first_episode_hits_after_ground_handoff": [
+        [
+          3340,
+          3,
+          [
+            0,
+            2,
+            4,
+            8,
+            10,
+            12
+          ]
+        ],
+        [
+          3340,
+          4,
+          [
+            0,
+            2,
+            4,
+            8,
+            10,
+            12
+          ]
+        ],
+        [
+          3340,
+          5,
+          [
+            0,
+            2,
+            4,
+            8,
+            10,
+            12
+          ]
+        ],
+        [
+          3340,
+          6,
+          [
+            8,
+            10,
+            12
+          ]
+        ]
+      ]
     }
   ],
   "missing": [],
-  "scope": "Development route teacher only, no landing; absence of toe speed saturation does not establish biological realism or fix initial ground settling."
+  "scope": "All observed development teacher steps, including attempted landing and later auto-reset episodes; first-episode landing and flight windows are reported separately below. Absence of saturation is not biological validation."
 }

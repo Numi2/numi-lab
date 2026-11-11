@@ -15,4 +15,6 @@ for e in range(8):
   for k in range(16):
    if (e,t,k) not in seen:missing.append([e,t,k,'absent'])
 rows=[{'lane':e,'all_hits':hits[e],'hits_after_ground_handoff_step_355':[v for v in hits[e] if v[0]>=356],'substeps':counts[e]} for e in range(8)]
-(A/'toe-velocity-analysis.json').write_text(json.dumps({'lanes':rows,'missing':missing,'scope':'Development route teacher only, no landing; absence of toe speed saturation does not establish biological realism or fix initial ground settling.'},indent=2)+'\n')
+ends=json.loads((A/'analysis.json').read_text())['first_episode_navigation']['steps_by_environment']
+for row in rows:row['first_episode_hits_after_ground_handoff']=[h for h in row['all_hits'] if 356<=h[0]<=ends[row['lane']]+1]
+(A/'toe-velocity-analysis.json').write_text(json.dumps({'lanes':rows,'missing':missing,'scope':'All observed development teacher steps, including attempted landing and later auto-reset episodes; first-episode landing and flight windows are reported separately below. Absence of saturation is not biological validation.'},indent=2)+'\n')
