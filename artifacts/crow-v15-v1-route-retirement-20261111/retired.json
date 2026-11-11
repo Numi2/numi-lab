@@ -1,0 +1,18 @@
+{
+  "remote_commit": "e73b844d90048161fcefa702fd3481825d286280",
+  "verification": "independent fetched Git restore, gzip decode, SHA-256 and open-handle checks",
+  "retired": [
+    {
+      "path": "build/crow-v15-v1-route-diagnostic-20261111/route.json",
+      "archive": "artifacts/crow-v15-v1-route-diagnostic-20261111/route.json.gz",
+      "sha256": "ffc74aa0053bbbfc36975e9cc10bb0346976463603b9c8449ec9ac0895e49688",
+      "bytes": 98551649
+    },
+    {
+      "path": "build/crow-v15-v1-route-diagnostic-20261111/route.tsv",
+      "archive": "artifacts/crow-v15-v1-route-diagnostic-20261111/route.tsv.gz",
+      "sha256": "49a69a99f1b00add6e35f52aa8e5d1077a980573ffb3633c37acfd3bfcc3850d",
+      "bytes": 2182509
+    }
+  ]
+}
