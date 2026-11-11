@@ -1,0 +1,35 @@
+--- a/aligned.metal
++++ b/support_gate.metal
+@@ -6749,15 +6749,26 @@
+                 if (landingPhase < 0.5f && abs(xError) < 0.05f && abs(yError) < 0.15f &&
+                     length(yawFrameLinear.xy) < 0.20f) landingPhase=1.0f;
+                 uint loadedFeet=0u;
++                float contactNormal=0.0f;
+                 for (uint gi=0u; gi<program.counts0.w; ++gi) {
+                     const MRTaskContactGroupGPU group=contactGroups[gi];
+-                    if ((group.members.z & MR_TASK_CONTACT_SUPPORT) != 0u &&
+-                        compactContact[compactBase+group.members.w] > 0.05f) ++loadedFeet;
++                    if ((group.members.z & MR_TASK_CONTACT_SUPPORT) != 0u) {
++                        const float force=compactContact[compactBase+group.members.w];
++                        if (force > 0.05f) ++loadedFeet;
++                        contactNormal += max(force,0.0f);
++                    }
+                 }
+-                if (landingPhase > 0.5f && loadedFeet >= 2u &&
+-                    abs(xError) < 0.06f && abs(yError) < 0.16f &&
+-                    length(yawFrameLinear.xy) < 0.08f &&
+-                    abs(rootLinearVelocity.z) < 0.12f) landingPhase=2.0f;
++                // Development heuristic only: normal magnitude is not a
++                // measurement of vertical load or opposing grasp.
++                const bool stableContact=landingPhase>0.5f && loadedFeet>=2u && contactNormal>=1.0f &&
++                    (state.status.w&63u)>=3u && ((state.status.w>>6u)&63u)>=3u &&
++                    abs(xError)<0.06f && abs(yError)<0.16f && abs(pitch)<0.15f &&
++                    abs(baseAngular.y)<0.25f && length(yawFrameLinear.xy)<0.08f &&
++                    abs(rootLinearVelocity.z)<0.12f;
++                const uint readyMask=63u<<23u;
++                const uint readyCount=stableContact ? min(((state.status.w>>23u)&63u)+1u,15u) : 0u;
++                state.status.w=(state.status.w & ~readyMask) | (readyCount<<23u);
++                if (readyCount>=15u) landingPhase=2.0f;
+                 desiredHeight = landingPhase > 0.5f ? perch.z+0.15f : 1.30f;
+             }
+             // Oracle labels occupy diagnostic spare state only; these will
