@@ -1,0 +1,1 @@
+{'reference_differences': 0, 'first_reference_differences': [], 'samples': 1400, 'outcome': 'completed transition 58 success 76 release 777', 'release_sample': 777, 'first_open_supported_sample': 810, 'terminal_50_open_and_supported': False, 'terminal_50_supported': False, 'terminal_50_open': True, 'strict_pass': False}

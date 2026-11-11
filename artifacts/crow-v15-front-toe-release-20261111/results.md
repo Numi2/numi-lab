@@ -1,0 +1,3 @@
+# Contact-driven toe release after supported grip
+
+The first 500 saved states exactly matched the held-grip reference. After observed bilateral grip and support, release was requested at tick 777; the toes opened and the first measured open-and-supported sample occurred at tick 810. The bird subsequently fell, failing the terminal support requirement even though toes stayed open. A sharp velocity jump at release coincided with the body controller reverting its balance targets when the phase changed, motivating a separately registered continuity test. This is a failed one-start release, not a full landing or takeoff result. No unused layout was used.
