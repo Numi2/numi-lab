@@ -1,0 +1,9 @@
+# Uniform staged toe release: five of eight development starts
+
+Using the same v15 stationary probe, exploratory higher toe friction and 0.11 rad partial recenter, all eight lanes used the previously promising 0.50 rad leg lift with a ten-interval delay and 20-interval ramp. Constructed initial x shifts spanned 0.003 through 0.010 m in 0.001 m increments. This is a development perturbation screen, not held-out evaluation; the 0.006 and 0.008 m starts had already appeared in the prior study.
+
+Five of eight starts passed the existing combined supported-release and final 100-interval bilateral grip gate (shifts 0.004-0.008 m). At 0.003 m the longest qualifying release was nine intervals, below the unchanged ten-interval gate, and the controller did not return the foot. At 0.009 and 0.010 m the body fell below 0.1 m at intervals 142 and 136, before release was triggered; the modeled narrow perch has no surrounding catch plane. The preregistered six-of-eight/no-falls reliability prediction failed. No controller or material is promoted.
+
+The 550-interval native run completed without reported errors; all expected substeps were observed and the passive endpoint normal-impulse check agreed within 7.34e-10 N s. See `high/analysis.json`, `high/analysis-gates.json` and `high/observer-validation.json` for the unchanged gate, per-lane state and limitations. The reported longest qualified-release streak may continue after the release-finished signal, as in the prior analysis. Full native outputs and the complete candidate source/binary and input hashes are retained.
+
+These are hand-initialized stationary test states, not physically reached arrivals. They do not establish contact-driven walking, takeoff, autonomous navigation or supported landing on unseen layouts, beak pickup, or biological realism. The early falls show that balance and start-state robustness remain unresolved even before the release controller acts.
