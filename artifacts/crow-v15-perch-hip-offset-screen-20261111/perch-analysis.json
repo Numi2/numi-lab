@@ -1,0 +1,285 @@
+{
+  "lanes": [
+    {
+      "lane": 0,
+      "first_perch_contact": {
+        "step": 3384,
+        "substep": 9,
+        "bird": "crow_right_front_toe_1_distal",
+        "other": "crow_course_perch",
+        "normal_impulse": 0.00158661418,
+        "point_m": [
+          5.144104,
+          0.623225987,
+          0.831343174
+        ]
+      },
+      "perch_contact_substeps_by_body": {
+        "crow_right_front_toe_1_distal": 9243,
+        "crow_right_front_toe_2_distal": 7532,
+        "crow_left_front_toe_1_distal": 6367,
+        "crow_right_front_toe_3_distal": 5414,
+        "crow_left_front_toe_2_distal": 4571,
+        "crow_left_front_toe_3_distal": 5641,
+        "crow_left_foot": 383,
+        "crow_right_foot": 330,
+        "crow_left_front_toe_1_proximal": 518,
+        "crow_left_front_toe_2_proximal": 445,
+        "crow_left_front_toe_3_proximal": 451,
+        "crow_right_front_toe_1_proximal": 315,
+        "crow_right_front_toe_2_proximal": 403,
+        "crow_right_front_toe_3_proximal": 291,
+        "crow_left_rear_toe_proximal": 34,
+        "crow_left_rear_toe_distal": 51,
+        "crow_right_rear_toe_distal": 205,
+        "crow_right_rear_toe_proximal": 14
+      },
+      "intervals_with_opposing_toe_normals_both_feet": 0
+    },
+    {
+      "lane": 1,
+      "first_perch_contact": {
+        "step": 3452,
+        "substep": 13,
+        "bird": "crow_right_front_toe_1_distal",
+        "other": "crow_course_perch",
+        "normal_impulse": 0.000989714521,
+        "point_m": [
+          5.21887922,
+          0.536968946,
+          0.778313279
+        ]
+      },
+      "perch_contact_substeps_by_body": {
+        "crow_right_front_toe_1_distal": 3535,
+        "crow_right_front_toe_2_distal": 2343,
+        "crow_right_front_toe_3_distal": 823,
+        "crow_left_front_toe_1_distal": 1422,
+        "crow_left_front_toe_2_distal": 343,
+        "crow_left_front_toe_3_distal": 284,
+        "crow_left_foot": 100,
+        "crow_left_front_toe_1_proximal": 37,
+        "crow_left_front_toe_2_proximal": 59,
+        "crow_left_front_toe_3_proximal": 60,
+        "crow_left_rear_toe_proximal": 126,
+        "crow_left_rear_toe_distal": 28,
+        "crow_right_rear_toe_proximal": 100,
+        "crow_right_foot": 62,
+        "crow_right_front_toe_1_proximal": 16,
+        "crow_right_front_toe_2_proximal": 16,
+        "crow_right_front_toe_3_proximal": 16
+      },
+      "intervals_with_opposing_toe_normals_both_feet": 0
+    },
+    {
+      "lane": 2,
+      "first_perch_contact": {
+        "step": 3385,
+        "substep": 15,
+        "bird": "crow_right_front_toe_1_distal",
+        "other": "crow_course_perch",
+        "normal_impulse": 0.000801770715,
+        "point_m": [
+          5.15366268,
+          0.511901498,
+          0.844890118
+        ]
+      },
+      "perch_contact_substeps_by_body": {
+        "crow_right_front_toe_1_distal": 3801,
+        "crow_right_front_toe_2_distal": 3548,
+        "crow_right_front_toe_3_distal": 3469,
+        "crow_left_front_toe_1_distal": 3448,
+        "crow_left_front_toe_2_distal": 3370,
+        "crow_left_front_toe_3_distal": 3370,
+        "crow_left_front_toe_1_proximal": 586,
+        "crow_left_front_toe_2_proximal": 577,
+        "crow_left_front_toe_3_proximal": 520,
+        "crow_right_front_toe_2_proximal": 602,
+        "crow_right_front_toe_3_proximal": 603,
+        "crow_left_foot": 897,
+        "crow_right_foot": 976,
+        "crow_right_front_toe_1_proximal": 603,
+        "crow_right_rear_toe_distal": 475,
+        "crow_left_rear_toe_distal": 164
+      },
+      "intervals_with_opposing_toe_normals_both_feet": 0
+    },
+    {
+      "lane": 3,
+      "first_perch_contact": {
+        "step": 3300,
+        "substep": 8,
+        "bird": "crow_right_front_toe_1_distal",
+        "other": "crow_course_perch",
+        "normal_impulse": 0.00168054027,
+        "point_m": [
+          4.98165369,
+          0.681524277,
+          0.893789947
+        ]
+      },
+      "perch_contact_substeps_by_body": {
+        "crow_right_front_toe_1_distal": 10954,
+        "crow_right_front_toe_2_distal": 11034,
+        "crow_right_front_toe_3_distal": 10916,
+        "crow_left_front_toe_1_distal": 10815,
+        "crow_left_front_toe_2_distal": 10599,
+        "crow_left_front_toe_3_distal": 10574,
+        "crow_left_foot": 903,
+        "crow_right_foot": 610,
+        "crow_left_front_toe_2_proximal": 1780,
+        "crow_right_rear_toe_distal": 5808,
+        "crow_right_rear_toe_proximal": 3351,
+        "crow_right_front_toe_1_proximal": 1208,
+        "crow_right_front_toe_2_proximal": 1375,
+        "crow_right_front_toe_3_proximal": 1299,
+        "crow_left_front_toe_1_proximal": 1515,
+        "crow_left_front_toe_3_proximal": 1587,
+        "crow_left_rear_toe_proximal": 3543,
+        "crow_left_rear_toe_distal": 5722
+      },
+      "intervals_with_opposing_toe_normals_both_feet": 145
+    },
+    {
+      "lane": 4,
+      "first_perch_contact": {
+        "step": 3366,
+        "substep": 12,
+        "bird": "crow_right_front_toe_1_distal",
+        "other": "crow_course_perch",
+        "normal_impulse": 0.00133549306,
+        "point_m": [
+          5.10355759,
+          0.632569432,
+          0.880607486
+        ]
+      },
+      "perch_contact_substeps_by_body": {
+        "crow_right_front_toe_1_distal": 3449,
+        "crow_right_front_toe_2_distal": 1846,
+        "crow_left_front_toe_1_distal": 1180,
+        "crow_left_front_toe_2_distal": 572,
+        "crow_left_front_toe_3_distal": 515,
+        "crow_right_front_toe_3_distal": 1202,
+        "crow_left_front_toe_1_proximal": 136,
+        "crow_left_front_toe_2_proximal": 127,
+        "crow_left_front_toe_3_proximal": 124,
+        "crow_right_front_toe_1_proximal": 104,
+        "crow_right_front_toe_2_proximal": 100,
+        "crow_right_front_toe_3_proximal": 98,
+        "crow_left_rear_toe_proximal": 86,
+        "crow_right_rear_toe_proximal": 68,
+        "crow_left_rear_toe_distal": 105,
+        "crow_right_rear_toe_distal": 34,
+        "crow_left_foot": 98,
+        "crow_right_foot": 26
+      },
+      "intervals_with_opposing_toe_normals_both_feet": 0
+    },
+    {
+      "lane": 5,
+      "first_perch_contact": {
+        "step": 3366,
+        "substep": 15,
+        "bird": "crow_right_front_toe_1_distal",
+        "other": "crow_course_perch",
+        "normal_impulse": 0.00144599727,
+        "point_m": [
+          5.08066177,
+          0.700080872,
+          0.817936003
+        ]
+      },
+      "perch_contact_substeps_by_body": {
+        "crow_right_front_toe_1_distal": 702,
+        "crow_right_front_toe_2_distal": 483,
+        "crow_left_front_toe_1_distal": 234,
+        "crow_right_front_toe_3_distal": 90,
+        "crow_left_front_toe_2_distal": 102,
+        "crow_left_front_toe_3_distal": 102,
+        "crow_left_foot": 27,
+        "crow_right_foot": 26,
+        "crow_left_rear_toe_proximal": 60,
+        "crow_right_rear_toe_proximal": 35,
+        "crow_left_rear_toe_distal": 104,
+        "crow_right_rear_toe_distal": 89,
+        "crow_body": 13
+      },
+      "intervals_with_opposing_toe_normals_both_feet": 0
+    },
+    {
+      "lane": 6,
+      "first_perch_contact": {
+        "step": 3462,
+        "substep": 2,
+        "bird": "crow_right_front_toe_1_distal",
+        "other": "crow_course_perch",
+        "normal_impulse": 0.000759414339,
+        "point_m": [
+          4.93700457,
+          0.412222803,
+          0.827283144
+        ]
+      },
+      "perch_contact_substeps_by_body": {
+        "crow_right_front_toe_1_distal": 4669,
+        "crow_right_front_toe_2_distal": 3563,
+        "crow_right_front_toe_3_distal": 2009,
+        "crow_left_front_toe_1_distal": 2276,
+        "crow_left_front_toe_2_distal": 1134,
+        "crow_left_front_toe_3_distal": 700,
+        "crow_left_foot": 74,
+        "crow_right_foot": 30,
+        "crow_left_front_toe_1_proximal": 100,
+        "crow_left_front_toe_2_proximal": 98,
+        "crow_left_front_toe_3_proximal": 99,
+        "crow_right_front_toe_1_proximal": 105,
+        "crow_right_front_toe_2_proximal": 103,
+        "crow_right_front_toe_3_proximal": 103,
+        "crow_left_rear_toe_proximal": 120,
+        "crow_left_rear_toe_distal": 36,
+        "crow_right_rear_toe_distal": 34,
+        "crow_right_rear_toe_proximal": 18
+      },
+      "intervals_with_opposing_toe_normals_both_feet": 0
+    },
+    {
+      "lane": 7,
+      "first_perch_contact": {
+        "step": 3298,
+        "substep": 1,
+        "bird": "crow_right_front_toe_1_distal",
+        "other": "crow_course_perch",
+        "normal_impulse": 0.000229742291,
+        "point_m": [
+          4.94780636,
+          0.488574862,
+          0.84833163
+        ]
+      },
+      "perch_contact_substeps_by_body": {
+        "crow_right_front_toe_1_distal": 4847,
+        "crow_right_front_toe_2_distal": 4115,
+        "crow_right_front_toe_3_distal": 3485,
+        "crow_left_front_toe_1_distal": 3236,
+        "crow_left_front_toe_2_distal": 3696,
+        "crow_left_front_toe_3_distal": 3838,
+        "crow_left_front_toe_1_proximal": 3022,
+        "crow_left_front_toe_2_proximal": 3100,
+        "crow_left_front_toe_3_proximal": 3113,
+        "crow_right_front_toe_1_proximal": 3134,
+        "crow_right_front_toe_2_proximal": 3130,
+        "crow_right_front_toe_3_proximal": 3105,
+        "crow_left_foot": 237,
+        "crow_left_rear_toe_proximal": 1556,
+        "crow_left_rear_toe_distal": 3935,
+        "crow_right_rear_toe_proximal": 1448,
+        "crow_right_foot": 196,
+        "crow_right_rear_toe_distal": 3975
+      },
+      "intervals_with_opposing_toe_normals_both_feet": 86
+    }
+  ],
+  "limitations": "Opposing normal impulses are a partial grip check only; weight support, stability, sustained contact and release require independent checks."
+}

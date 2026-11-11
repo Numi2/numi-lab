@@ -1,0 +1,16 @@
+--- a/separated.metal
++++ b/height.metal
+@@ -5105,6 +5105,13 @@
+         // execution still has no teacher authority.
+         if (fixedFlightController && state.threatTeacher.w >= 1.5f && action < 15u)
+             navigationTeacherRequested = 0.0f;
++        // Development-only bounded stance posture screen. A leg target is
++        // changed only after landing-phase selection and bilateral perch touch.
++        if (fixedFlightController && state.navigation.z >= 5.0f && state.threatTeacher.w >= 1.5f &&
++            (state.status.w & 63u)>=3u && ((state.status.w>>6u)&63u)>=3u && (action==7u || action==10u)) {
++            const float offset=(environment/2u)==0u ? -0.15f : (environment/2u)==1u ? -0.05f : (environment/2u)==2u ? 0.05f : 0.15f;
++            navigationTeacherRequested=offset;
++        }
+         const float navigationTeacherBlend = fixedFlightController
+             ? 1.0f
+             : avianNavigationTeacher

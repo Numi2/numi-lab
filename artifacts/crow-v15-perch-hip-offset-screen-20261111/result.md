@@ -1,0 +1,5 @@
+# Result: bounded offsets did not qualify landing
+
+All eight teacher-guided development starts reached five waypoints and touched the perch. At the full 5000-interval task horizon, four first episodes ended in physical failure (three tilt, one contact) and four timed out; no lane achieved a qualified landing. Two lanes showed at most 93 and 86 consecutive intervals of the partial-support criterion. The nominal-weight impulse criterion lasted at most three consecutive intervals in any lane and does not independently exclude aerodynamic assistance. There was no release test.
+
+Seven first episodes hit the toe speed limit after ground handoff; none hit it before the first course-contact interval. All required first-episode substeps were present, no execution errors were detected, and q, v and policy actions matched the aligned-descent baseline over the tested pre-contact prefix. Offsets and starts are confounded, and no setting is promoted. These results are development-only, privileged-teacher runs, not autonomous or held-out qualification.
