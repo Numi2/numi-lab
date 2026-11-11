@@ -1,0 +1,61 @@
+{
+  "rows": [
+    {
+      "lane": 0,
+      "first_reference_perch_foot_impulse": 3187,
+      "first_difference": 2710,
+      "differences_before_first_perch_contact": 477,
+      "missing_before_first_perch_contact": 0
+    },
+    {
+      "lane": 1,
+      "first_reference_perch_foot_impulse": 3221,
+      "first_difference": 2832,
+      "differences_before_first_perch_contact": 389,
+      "missing_before_first_perch_contact": 0
+    },
+    {
+      "lane": 2,
+      "first_reference_perch_foot_impulse": 3199,
+      "first_difference": 2754,
+      "differences_before_first_perch_contact": 445,
+      "missing_before_first_perch_contact": 0
+    },
+    {
+      "lane": 3,
+      "first_reference_perch_foot_impulse": 3159,
+      "first_difference": 2723,
+      "differences_before_first_perch_contact": 436,
+      "missing_before_first_perch_contact": 0
+    },
+    {
+      "lane": 4,
+      "first_reference_perch_foot_impulse": 3210,
+      "first_difference": 2742,
+      "differences_before_first_perch_contact": 468,
+      "missing_before_first_perch_contact": 0
+    },
+    {
+      "lane": 5,
+      "first_reference_perch_foot_impulse": 3222,
+      "first_difference": 2735,
+      "differences_before_first_perch_contact": 487,
+      "missing_before_first_perch_contact": 0
+    },
+    {
+      "lane": 6,
+      "first_reference_perch_foot_impulse": null,
+      "first_difference": null,
+      "differences_before_first_perch_contact": 0,
+      "missing_before_first_perch_contact": 0
+    },
+    {
+      "lane": 7,
+      "first_reference_perch_foot_impulse": 3169,
+      "first_difference": 2689,
+      "differences_before_first_perch_contact": 480,
+      "missing_before_first_perch_contact": 0
+    }
+  ],
+  "scope": "Endpoint accepted q/v, actor output and contact comparison only. Both trials run without a teacher. Substep support is analyzed separately."
+}
