@@ -1,0 +1,11 @@
+--- a/reference.metal
++++ b/inhibited.metal
+@@ -9434,7 +9434,7 @@
+             // Last-substep impulse is only a control signal; full substeps are audited externally.
+             const uint seqMask=(15u<<16u)|(15u<<28u);
+             uint seq=((state.status.w>>16u)&15u)|(((state.status.w>>28u)&15u)<<4u);
+-            if (dispatch.sampling.w==0u && state.navigation.z>=5.0f && state.threatTeacher.w>=1.5f) {
++            if (false && dispatch.sampling.w==0u && state.navigation.z>=5.0f && state.threatTeacher.w>=1.5f) {
+                 const float halfWeightImpulse=.5f*.45006f*9.81f*dispatch.timing.x/16.0f;
+                 const bool rightGrip=up[1]>=halfWeightImpulse && frontX[1]>1.0e-6f && rearX[1]<-1.0e-6f;
+                 const bool bothGrip=loaded[0] && loaded[1] && up[0]>0.0f && up[1]>0.0f &&
