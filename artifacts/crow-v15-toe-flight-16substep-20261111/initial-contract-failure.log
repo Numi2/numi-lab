@@ -1,0 +1,5 @@
+Traceback (most recent call last):
+  File "/Users/n/Developer/numi-crow-rl-20261107/artifacts/crow-v15-toe-flight-16substep-20261111/run.py", line 10, in <module>
+    if p.returncode:raise RuntimeError(str(p.returncode)+' '+p.stderr[-3000:])
+RuntimeError: 1 task_rollout failed: PolicyPack compile failed [incompatible_contract]: contract: policy=(world=10840251074328610384,task=14531384718349021764,observation=12879328728648888963,action=11764145817477608752) task=(world=2115803713859140133,task=13480400359272884822,observation=13658457214943376373,action=7550917962168420946)
+

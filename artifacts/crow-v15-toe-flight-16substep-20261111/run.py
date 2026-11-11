@@ -3,7 +3,7 @@ import gzip,hashlib,json,math,os,statistics,subprocess
 R=Path.cwd();A=R/'artifacts/crow-v15-toe-flight-16substep-20261111';B=R/'build/crow-v15-toe-flight-16substep-20261111';D=R/'build/crow-v15-toe-damping-isolation-20261110/zero';base=json.loads((R/'artifacts/crow-v15-toe-free-flight-20261110/smoke-command.json').read_text());h=lambda p:hashlib.sha256(p.read_bytes()).hexdigest()
 for seed in ('18647329',):
  cmd=list(base)
- for k,v in [('--envs','80'),('--steps','1600'),('--physics-substeps','16'),('--seed',seed),('--state-trace',str(B/(seed+'.tsv'))),('--state-trace-environment','1'),('--policy-pack',str(R/'build/crow-v15-toe-damping-isolation-20261110/zero-4/zero.policypack'))]:cmd[cmd.index(k)+1]=v
+ for k,v in [('--envs','80'),('--steps','1600'),('--physics-substeps','16'),('--seed',seed),('--state-trace',str(B/(seed+'.tsv'))),('--state-trace-environment','1'),('--policy-pack',str(R/'build/crow-v15-toe-flight-16substep-20261111/zero.policypack'))]:cmd[cmd.index(k)+1]=v
  env={**os.environ,'DYLD_LIBRARY_PATH':str(D),'CROW_CONTACT_TRACE':'1','PYTHONDONTWRITEBYTECODE':'1'};p=subprocess.run(cmd,cwd=R,env=env,text=True,capture_output=True,timeout=900);(A/(seed+'.stdout')).write_text(p.stdout)
  with (A/(seed+'.stderr.gz')).open('wb') as f:
   with gzip.GzipFile(fileobj=f,mode='wb',mtime=0) as z:z.write(p.stderr.encode())
@@ -18,7 +18,7 @@ for seed in ('18647329',):
  groups=[]
  for mode in range(5):
   rr=[x for x in rows if x['mode']==mode];heights=[x['mean_height_m'] for x in rr if x['mean_height_m'] is not None];groups.append({'mode':mode,'physical_failures':sum(x['physical_failure'] for x in rr),'passing':sum(x['screen_pass'] for x in rr),'median_mean_height_m':statistics.median(heights) if len(heights)==16 else None,'mode_pass':all(x['screen_pass'] for x in rr)})
- report={'argv':cmd,'shader_sha256':h(R/'build/crow-v15-toe-free-flight-20261110/tracking.metallib'),'zero_policy_sha256':h(R/'build/crow-v15-toe-damping-isolation-20261110/zero-4/zero.policypack'),'library_sha256':h(D/'libmetalrobo.dylib'),'failed_environment_steps':data['failed_environment_steps'],'first_episode':first,'lanes':rows,'groups':groups,'climb_minus_descent_m':groups[3]['median_mean_height_m']-groups[4]['median_mean_height_m'] if all(groups[x]['median_mean_height_m'] is not None for x in (3,4)) else None,'scope':'fixed-head passive-toe body, teacher-off diagnostic, not full navigation or landing'};(A/(seed+'-analysis.json')).write_text(json.dumps(report,indent=2)+'\n')
+ report={'argv':cmd,'shader_sha256':h(R/'build/crow-v15-toe-free-flight-20261110/tracking.metallib'),'zero_policy_sha256':h(R/'build/crow-v15-toe-flight-16substep-20261111/zero.policypack'),'library_sha256':h(D/'libmetalrobo.dylib'),'failed_environment_steps':data['failed_environment_steps'],'first_episode':first,'lanes':rows,'groups':groups,'climb_minus_descent_m':groups[3]['median_mean_height_m']-groups[4]['median_mean_height_m'] if all(groups[x]['median_mean_height_m'] is not None for x in (3,4)) else None,'scope':'fixed-head passive-toe body, teacher-off diagnostic, not full navigation or landing'};(A/(seed+'-analysis.json')).write_text(json.dumps(report,indent=2)+'\n')
  with (A/(seed+'.trace.tsv.gz')).open('wb') as f:
   with gzip.GzipFile(fileobj=f,mode='wb',mtime=0) as z:z.write((B/(seed+'.tsv')).read_bytes())
  print(seed,json.dumps(groups),flush=True)
