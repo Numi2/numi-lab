@@ -1,0 +1,3 @@
+# Toe curl and contact-triggered release
+
+The toe-curl-only development run reached all five waypoints in seven of eight starts; one lane maintained low-motion opposing foot support. Test the existing contact-gated release sequence together with toe curl on the same used start. Toe-flight and release counters occupy distinct bit ranges; the separate leg-fold candidate remains omitted. Retain lane 5 physical replay and independently audit support, sampled clearance, release and regrip. The existing release abort path can abruptly reset targets and remains unqualified; this is an experimental control, not accepted behavior or unseen-layout evidence.

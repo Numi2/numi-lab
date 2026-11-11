@@ -1,0 +1,53 @@
+{
+  "rows": [
+    {
+      "lane": 0,
+      "missing": 0,
+      "differing": 0,
+      "first_difference": []
+    },
+    {
+      "lane": 1,
+      "missing": 0,
+      "differing": 0,
+      "first_difference": []
+    },
+    {
+      "lane": 2,
+      "missing": 0,
+      "differing": 0,
+      "first_difference": []
+    },
+    {
+      "lane": 3,
+      "missing": 0,
+      "differing": 0,
+      "first_difference": []
+    },
+    {
+      "lane": 4,
+      "missing": 0,
+      "differing": 0,
+      "first_difference": []
+    },
+    {
+      "lane": 5,
+      "missing": 0,
+      "differing": 0,
+      "first_difference": []
+    },
+    {
+      "lane": 6,
+      "missing": 0,
+      "differing": 0,
+      "first_difference": []
+    },
+    {
+      "lane": 7,
+      "missing": 0,
+      "differing": 0,
+      "first_difference": []
+    }
+  ],
+  "scope": "Sampled accepted endpoints before the earliest possible toe curl; exact q, velocity, policy output and reported contacts. This verifies only the compared interval and does not by itself establish self-contact-observer completeness."
+}
