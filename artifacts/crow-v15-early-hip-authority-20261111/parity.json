@@ -1,0 +1,115 @@
+{
+  "references": [
+    {
+      "lane": 1,
+      "reference_lane": 1,
+      "samples": 500,
+      "differences": 0,
+      "first_differences": []
+    },
+    {
+      "lane": 5,
+      "reference_lane": 15,
+      "samples": 500,
+      "differences": 0,
+      "first_differences": []
+    },
+    {
+      "lane": 9,
+      "reference_lane": 3,
+      "samples": 500,
+      "differences": 0,
+      "first_differences": []
+    },
+    {
+      "lane": 13,
+      "reference_lane": 5,
+      "samples": 500,
+      "differences": 0,
+      "first_differences": []
+    }
+  ],
+  "initial": [
+    {
+      "lane": 1,
+      "differences": 0,
+      "records": 21
+    },
+    {
+      "lane": 2,
+      "differences": 0,
+      "records": 21
+    },
+    {
+      "lane": 3,
+      "differences": 0,
+      "records": 21
+    },
+    {
+      "lane": 4,
+      "differences": 0,
+      "records": 21
+    },
+    {
+      "lane": 5,
+      "differences": 0,
+      "records": 21
+    },
+    {
+      "lane": 6,
+      "differences": 0,
+      "records": 21
+    },
+    {
+      "lane": 7,
+      "differences": 0,
+      "records": 21
+    },
+    {
+      "lane": 8,
+      "differences": 0,
+      "records": 21
+    },
+    {
+      "lane": 9,
+      "differences": 0,
+      "records": 21
+    },
+    {
+      "lane": 10,
+      "differences": 0,
+      "records": 21
+    },
+    {
+      "lane": 11,
+      "differences": 0,
+      "records": 21
+    },
+    {
+      "lane": 12,
+      "differences": 0,
+      "records": 21
+    },
+    {
+      "lane": 13,
+      "differences": 0,
+      "records": 21
+    },
+    {
+      "lane": 14,
+      "differences": 0,
+      "records": 21
+    },
+    {
+      "lane": 15,
+      "differences": 0,
+      "records": 21
+    },
+    {
+      "lane": 16,
+      "differences": 0,
+      "records": 21
+    }
+  ],
+  "differences": []
+}
