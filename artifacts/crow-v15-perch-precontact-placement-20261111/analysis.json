@@ -1,0 +1,97 @@
+{
+  "rows": [
+    {
+      "hip_offset_rad": 0.02,
+      "exit_code": 0,
+      "last_accepted_zero_based_step": {
+        "0": 299,
+        "1": 299
+      },
+      "first_fall_zero_based_step": {},
+      "first_release_zero_based_step": {
+        "1": 195,
+        "0": 196
+      },
+      "first_return_zero_based_step": {
+        "1": 251,
+        "0": 252
+      },
+      "max_supported_streak": {
+        "0": 150,
+        "1": 150
+      },
+      "toe_cap_substeps_before_end": {},
+      "failure": []
+    },
+    {
+      "hip_offset_rad": 0.04,
+      "exit_code": 0,
+      "last_accepted_zero_based_step": {
+        "0": 299,
+        "1": 299
+      },
+      "first_fall_zero_based_step": {},
+      "first_release_zero_based_step": {
+        "0": 193,
+        "1": 197
+      },
+      "first_return_zero_based_step": {
+        "0": 249,
+        "1": 260
+      },
+      "max_supported_streak": {
+        "0": 150,
+        "1": 150
+      },
+      "toe_cap_substeps_before_end": {},
+      "failure": []
+    },
+    {
+      "hip_offset_rad": 0.06,
+      "exit_code": 0,
+      "last_accepted_zero_based_step": {
+        "0": 299,
+        "1": 299
+      },
+      "first_fall_zero_based_step": {},
+      "first_release_zero_based_step": {
+        "0": 188,
+        "1": 196
+      },
+      "first_return_zero_based_step": {
+        "0": 244,
+        "1": 252
+      },
+      "max_supported_streak": {
+        "0": 150,
+        "1": 150
+      },
+      "toe_cap_substeps_before_end": {},
+      "failure": []
+    },
+    {
+      "hip_offset_rad": 0.08,
+      "exit_code": 0,
+      "last_accepted_zero_based_step": {
+        "0": 299,
+        "1": 299
+      },
+      "first_fall_zero_based_step": {},
+      "first_release_zero_based_step": {
+        "0": 186,
+        "1": 186
+      },
+      "first_return_zero_based_step": {
+        "0": 242,
+        "1": 242
+      },
+      "max_supported_streak": {
+        "0": 150,
+        "1": 150
+      },
+      "toe_cap_substeps_before_end": {},
+      "failure": []
+    }
+  ],
+  "limitations": "Two deliberately difficult constructed starts per gain, not full sequence qualification. Accepted prefixes only; failed attempt logs may include rolled-back substeps. Short 300 interval screen does not establish sustained final grip."
+}

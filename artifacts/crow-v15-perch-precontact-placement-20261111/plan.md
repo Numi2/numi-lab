@@ -1,0 +1,3 @@
+# Contact-driven precontact hip placement
+
+Two difficult starts drifted forward without establishing any front-toe opposing contact. A fixed-root kinematic probe predicts a positive hip target moves each foot rearward, but does not predict the coupled contact response. Compare positive hip target offsets +0.02, +0.04, +0.06 and +0.08 rad from the first interval, in separate two-lane 300-interval trials; decay the offset over 75 intervals after stable bilateral support triggers a weight shift. Use the original 0.5 rad/m, 0.2 s balance feedback and the same staged release. Record solver failures, accepted states, substep contacts and toe velocities. These are constructed development starts, not a flight, full release or landing qualification.
