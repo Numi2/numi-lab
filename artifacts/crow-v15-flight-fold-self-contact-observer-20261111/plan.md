@@ -1,0 +1,3 @@
+# Self-contact observer for the rejected flight fold
+
+The stronger leg fold reduced forward speed and produced rear-toe angle deviations. The existing scene-contact telemetry intentionally excludes body-versus-body contacts, so it cannot test whether self-contact explains those observations. Add a read-only per-substep logger for positive impulses between crow bodies only during steps 380–600. Re-run matched obstacle-free commands with and without the fold, check full accepted-state parity against the earlier host and reject observer effects. This is a diagnosis of a rejected candidate, not a reason to weaken collision physics or a flight qualification.

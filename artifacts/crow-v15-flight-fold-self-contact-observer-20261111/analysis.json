@@ -1,0 +1,168 @@
+{
+  "reference": {
+    "replay_lane": 1,
+    "replay_compared_frames": 600,
+    "replay_first_difference": [],
+    "replay_different_frames": 0,
+    "self_contacts": []
+  },
+  "fold": {
+    "replay_lane": 1,
+    "replay_compared_frames": 600,
+    "replay_first_difference": [],
+    "replay_different_frames": 0,
+    "self_contacts": [
+      {
+        "lane": 0,
+        "bodyA": 0,
+        "bodyB": 26,
+        "contact_samples": 6812,
+        "distinct_step_substeps": 3406,
+        "bodyA_name": "crow_body",
+        "bodyB_name": "crow_left_rear_toe_distal",
+        "maximum_normal_impulse": 0.00497488538,
+        "first": {
+          "step": 388,
+          "substep": 2,
+          "separation_m": 7.32215631e-05
+        }
+      },
+      {
+        "lane": 0,
+        "bodyA": 0,
+        "bodyB": 34,
+        "contact_samples": 6812,
+        "distinct_step_substeps": 3406,
+        "bodyA_name": "crow_body",
+        "bodyB_name": "crow_right_rear_toe_distal",
+        "maximum_normal_impulse": 0.00495666685,
+        "first": {
+          "step": 388,
+          "substep": 2,
+          "separation_m": 7.32208355e-05
+        }
+      },
+      {
+        "lane": 1,
+        "bodyA": 0,
+        "bodyB": 26,
+        "contact_samples": 6812,
+        "distinct_step_substeps": 3406,
+        "bodyA_name": "crow_body",
+        "bodyB_name": "crow_left_rear_toe_distal",
+        "maximum_normal_impulse": 0.00496488111,
+        "first": {
+          "step": 388,
+          "substep": 2,
+          "separation_m": 7.31017717e-05
+        }
+      },
+      {
+        "lane": 1,
+        "bodyA": 0,
+        "bodyB": 34,
+        "contact_samples": 6812,
+        "distinct_step_substeps": 3406,
+        "bodyA_name": "crow_body",
+        "bodyB_name": "crow_right_rear_toe_distal",
+        "maximum_normal_impulse": 0.00497571751,
+        "first": {
+          "step": 388,
+          "substep": 2,
+          "separation_m": 7.32215631e-05
+        }
+      },
+      {
+        "lane": 2,
+        "bodyA": 0,
+        "bodyB": 26,
+        "contact_samples": 6812,
+        "distinct_step_substeps": 3406,
+        "bodyA_name": "crow_body",
+        "bodyB_name": "crow_left_rear_toe_distal",
+        "maximum_normal_impulse": 0.00497506885,
+        "first": {
+          "step": 388,
+          "substep": 2,
+          "separation_m": 7.31032196e-05
+        }
+      },
+      {
+        "lane": 2,
+        "bodyA": 0,
+        "bodyB": 34,
+        "contact_samples": 6812,
+        "distinct_step_substeps": 3406,
+        "bodyA_name": "crow_body",
+        "bodyB_name": "crow_right_rear_toe_distal",
+        "maximum_normal_impulse": 0.00494706538,
+        "first": {
+          "step": 388,
+          "substep": 2,
+          "separation_m": 7.31032196e-05
+        }
+      },
+      {
+        "lane": 3,
+        "bodyA": 0,
+        "bodyB": 26,
+        "contact_samples": 6812,
+        "distinct_step_substeps": 3406,
+        "bodyA_name": "crow_body",
+        "bodyB_name": "crow_left_rear_toe_distal",
+        "maximum_normal_impulse": 0.00494603626,
+        "first": {
+          "step": 388,
+          "substep": 2,
+          "separation_m": 7.32237531e-05
+        }
+      },
+      {
+        "lane": 3,
+        "bodyA": 0,
+        "bodyB": 34,
+        "contact_samples": 6812,
+        "distinct_step_substeps": 3406,
+        "bodyA_name": "crow_body",
+        "bodyB_name": "crow_right_rear_toe_distal",
+        "maximum_normal_impulse": 0.00493852189,
+        "first": {
+          "step": 388,
+          "substep": 2,
+          "separation_m": 7.32237531e-05
+        }
+      },
+      {
+        "lane": 4,
+        "bodyA": 0,
+        "bodyB": 26,
+        "contact_samples": 6812,
+        "distinct_step_substeps": 3406,
+        "bodyA_name": "crow_body",
+        "bodyB_name": "crow_left_rear_toe_distal",
+        "maximum_normal_impulse": 0.00495941937,
+        "first": {
+          "step": 388,
+          "substep": 2,
+          "separation_m": 7.32186891e-05
+        }
+      },
+      {
+        "lane": 4,
+        "bodyA": 0,
+        "bodyB": 34,
+        "contact_samples": 6812,
+        "distinct_step_substeps": 3406,
+        "bodyA_name": "crow_body",
+        "bodyB_name": "crow_right_rear_toe_distal",
+        "maximum_normal_impulse": 0.00495378254,
+        "first": {
+          "step": 388,
+          "substep": 2,
+          "separation_m": 7.34575515e-05
+        }
+      }
+    ]
+  },
+  "scope": "Diagnostic self-contact trace only at substep endpoints 380\u2013600, positive normal impulses above 1e-7. Reference and fold use matched bounded-command obstacle-free runs. Full accepted q/v/action/observation parity is checked only for replay lane 1, not all lanes. Self-contact presence cannot alone establish causation."
+}

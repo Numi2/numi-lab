@@ -1,0 +1,3 @@
+# Self-contact during rejected flight fold
+
+In matched obstacle-free bounded-command screens, the stronger leg fold produced repeated normal-impulse contacts between the crow body and both distal rear toes in all five lanes, beginning at step 388 substep 2. Each pair appeared in 3406 distinct logged step/substeps during the 380–600 observation window. The reference produced none above the logger threshold. Lane 1 accepted state, velocity, observations, and recorded actions matched the original screen for all 600 frames in each condition. This establishes an observed self-contact difference, not that self-contact alone caused the loss of forward speed. It does not qualify flight, landing, or biology. Contact samples may include multiple points for one step/substep.
