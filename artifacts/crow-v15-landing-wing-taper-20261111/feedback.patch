@@ -1,0 +1,71 @@
+--- a/reference.metal
++++ b/feedback.metal
+@@ -5115,7 +5115,7 @@
+         // Ending at waypoint four taught an aggressive approach crossing but
+         // handed the student a poor terminal arrival geometry. Autonomous
+         // execution still has no teacher authority.
+-        if (fixedFlightController && state.threatTeacher.w >= 1.5f && action < 15u)
++        if (fixedFlightController && state.threatTeacher.w >= 2.0f && action < 15u)
+             navigationTeacherRequested = 0.0f;
+         // Development-only perching feedback derived from the privileged
+         // teacher's unsaturated landing command. Not an autonomous sensor.
+@@ -5362,7 +5362,7 @@
+             fixedFlightController && float(state.episode.x)*dispatch.timing.x >= 4.0f && float(state.episode.x)*dispatch.timing.x < 6.0f && binding.actuator.x == MR_TASK_ACTUATOR_FLAPPING_POSITION ? 0.0f : fixedFlightController && state.episode.z == 10u && float(state.episode.x)*dispatch.timing.x >= 4.4f && float(state.episode.x)*dispatch.timing.x < 5.4f && binding.actuator.x == MR_TASK_ACTUATOR_FLAPPING_POSITION && (state.status.w & 8192u) == 0u
+             ? 0.0f : fixedFlightController && state.threatTeacher.w >= 1.5f &&
+             binding.actuator.x == MR_TASK_ACTUATOR_FLAPPING_POSITION
+-            ? 0.0f
++            ? clamp(binding.drive.z + binding.drive.w * avianWingPolicyCommand,0.0f,1.0f) * clamp((2.0f-state.threatTeacher.w)*2.0f,0.0f,1.0f)
+             : avianGroundCurriculum &&
+             binding.actuator.x == MR_TASK_ACTUATOR_FLAPPING_POSITION
+             ? 0.0f
+@@ -6851,9 +6851,29 @@
+                     if ((group.members.z & MR_TASK_CONTACT_SUPPORT)!=0u &&
+                         compactContact[compactBase+group.members.w]>0.05f) ++loadedFeet;
+                 }
+-                if (loadedFeet>=2u && abs(finalGoal.x-pos.x-.012f)<0.025f &&
++                // Once an unstable supported landing is abandoned, allow the
++                // existing approach controller one second before re-arming hold.
++                const bool landingRecovery = phase>1.001f && phase<1.5f;
++                if (landingRecovery) {
++                    phase += .01f;
++                    if (phase>=1.49f) phase=1.0f;
++                }
++                if (!landingRecovery && loadedFeet>=2u && abs(finalGoal.x-pos.x-.012f)<0.025f &&
+                     abs(finalGoal.y-pos.y)<0.16f && length(yawFrameLinear.xy)<0.08f &&
+-                    abs(rootLinearVelocity.z)<0.12f) phase=2.0f;
++                    abs(rootLinearVelocity.z)<0.12f) phase=max(phase,1.5f);
++                // Reduce actual stroke over 0.5 seconds while keeping the frozen
++                // flight law active; land actions are otherwise unchanged.
++                if (phase>=1.5f && phase<2.0f) phase=min(2.0f,phase+.02f);
++                // Trigger only a sustained forward tip with angular motion,
++                // observed while the feet are still supporting the body.
++                if (phase>=2.0f && phase<2.30f) {
++                    if (pitch>.12f && baseAngular.y>.04f) phase=max(2.0f,phase)+.02f;
++                    else phase=2.0f;
++                    // Keep flight in hold while both toe drives open.
++                    if (phase>=2.10f) phase=2.30f;
++                } else if (phase>=2.30f && (state.status.w & 4095u)==0u) {
++                    phase=1.01f;
++                }
+             }
+         }
+         state.commandAndPhase.xyz=float3(0.15f,finalGoalSignal.x,finalGoalSignal.y);
+@@ -9438,6 +9458,9 @@
+             // Last-substep impulse is only a control signal; full substeps are audited externally.
+             const uint seqMask=(15u<<16u)|(15u<<28u);
+             uint seq=((state.status.w>>16u)&15u)|(((state.status.w>>28u)&15u)<<4u);
++            if (dispatch.sampling.w==0u && state.navigation.z>=5.0f && state.threatTeacher.w<1.5f) {
++                seq=0u;state.status.w &= ~seqMask;
++            }
+             if (dispatch.sampling.w==0u && state.navigation.z>=5.0f && state.threatTeacher.w>=1.5f) {
+                 const float halfWeightImpulse=.5f*.45006f*9.81f*dispatch.timing.x/16.0f;
+                 const bool rightGrip=up[1]>=halfWeightImpulse && frontX[1]>1.0e-6f && rearX[1]<-1.0e-6f;
+@@ -9454,7 +9477,7 @@
+             uint packed=0u;
+             for(uint side=0u;side<2u;++side) {
+                 const uint oldRamp=(state.status.w>>(side*6u)) & 63u;
+-                const bool requestOpen=side==0u && seq>=150u && seq<230u;
++                const bool requestOpen=(side==0u && seq>=150u && seq<230u) || (dispatch.sampling.w==0u && state.threatTeacher.w>=2.30f);
+                 const uint ramp=loaded[side] && !requestOpen ? min(oldRamp+1u,34u) : (oldRamp>0u ? oldRamp-1u : 0u);
+                 packed |= ramp << (side*6u);
+             }
