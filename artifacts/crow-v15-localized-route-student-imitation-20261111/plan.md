@@ -1,0 +1,3 @@
+# Localized route correction candidate
+
+The broader corrective training worsened stage-2 imitation error and led to three slalom crashes. Starting again from the previous actor, use only the recovered late observations from its original failing lane 6, a five-fold lower learning rate, and an explicit penalty on changes to all actor outputs. Retain the earlier qualified prefixes and recovery data; validation remains correlated and lane 6 leaks into training. Inspect per-stage drift and then judge any candidate by the same teacher-off physical trial. Do not alter the flight controller or treat training error as success.

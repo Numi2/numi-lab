@@ -1,0 +1,187 @@
+{
+  "data_scope": "Teacher route prefixes, pre-contact approaches from three lanes, and student-visited states with matched teacher recovery on one used layout and seed. Failed first episodes excluded. Correlated validation is not unused-layout evidence; teacher contact balancing is not reproduced by the actor. Includes eight new matching student trajectories with safe teacher recovery; all share the development seed and layout.",
+  "train_lanes": {
+    "teacher_route": [
+      1,
+      3,
+      4,
+      5,
+      7
+    ],
+    "student_recovery": [
+      1,
+      2,
+      3,
+      4,
+      5
+    ],
+    "pre_contact_approach": [
+      0,
+      4
+    ]
+  },
+  "validation_lanes": {
+    "teacher_route": [
+      0,
+      6
+    ],
+    "student_recovery": [
+      0,
+      6
+    ],
+    "pre_contact_approach": [
+      6
+    ]
+  },
+  "train_samples": 4919,
+  "validation_samples": 1785,
+  "train_stage_counts": [
+    1383,
+    1738,
+    875,
+    444,
+    240,
+    239
+  ],
+  "validation_stage_counts": [
+    517,
+    617,
+    262,
+    174,
+    79,
+    136
+  ],
+  "validation_before": {
+    "mae_by_command": [
+      0.019177569076418877,
+      0.10170015692710876,
+      0.06438973546028137,
+      0.057967618107795715
+    ],
+    "mae_by_stage": [
+      0.05582011863589287,
+      0.08380395174026489,
+      0.06038113310933113,
+      0.02438492327928543,
+      0.02084960602223873,
+      0.046085745096206665
+    ]
+  },
+  "history": [
+    {
+      "epoch": 1,
+      "train_loss": 0.12224536985158921,
+      "validation": {
+        "mae_by_command": [
+          0.022031983360648155,
+          0.10404165089130402,
+          0.06504366546869278,
+          0.06272336840629578
+        ],
+        "mae_by_stage": [
+          0.056490182876586914,
+          0.08461468666791916,
+          0.06580742448568344,
+          0.02461910806596279,
+          0.032703254371881485,
+          0.0570211187005043
+        ]
+      },
+      "elapsed_s": 0.05
+    },
+    {
+      "epoch": 10,
+      "train_loss": 0.05771016702055931,
+      "validation": {
+        "mae_by_command": [
+          0.01886570453643799,
+          0.10577594488859177,
+          0.06557691097259521,
+          0.057276587933301926
+        ],
+        "mae_by_stage": [
+          0.055740755051374435,
+          0.08220204710960388,
+          0.06931504607200623,
+          0.027424784377217293,
+          0.02163979969918728,
+          0.04607401788234711
+        ]
+      },
+      "elapsed_s": 0.46
+    },
+    {
+      "epoch": 20,
+      "train_loss": 0.052852436900138855,
+      "validation": {
+        "mae_by_command": [
+          0.018343491479754448,
+          0.1057107225060463,
+          0.06615065783262253,
+          0.05735265091061592
+        ],
+        "mae_by_stage": [
+          0.05576430633664131,
+          0.08228539675474167,
+          0.0698946863412857,
+          0.027392486110329628,
+          0.020869795233011246,
+          0.045183226466178894
+        ]
+      },
+      "elapsed_s": 0.91
+    },
+    {
+      "epoch": 30,
+      "train_loss": 0.05039331465959549,
+      "validation": {
+        "mae_by_command": [
+          0.018065476790070534,
+          0.10505172610282898,
+          0.0662970095872879,
+          0.05753709375858307
+        ],
+        "mae_by_stage": [
+          0.055816080421209335,
+          0.08207755535840988,
+          0.07042242586612701,
+          0.026921140030026436,
+          0.02078944630920887,
+          0.04357292503118515
+        ]
+      },
+      "elapsed_s": 1.36
+    }
+  ],
+  "input_rollout_sha256": "2b26eddc9256de590a28cfde4c4f7fd24320799d8189810f126256f371670f14",
+  "initial_training_wrapper_sha256": "9ad6bd582208d6beaff89dc0f91a58473c5e2cc6347ac25eb461d2e4512a2f8f",
+  "original_actor_sha256": "109f5937dcc27da5c3f6bc2a9838b598e7071ac61887a697dd1219e88f8fb5ff",
+  "unused_critic_stripped": true,
+  "trained_policy_sha256": "23589af614cdb4077dc62285d56ed0180efabb1319ce60691e3e9cc2878cd0fb",
+  "host_sha256": "d1e9bb9c6c6978318382731dd31df8a8aee22104dc23bbbab73eec5c7b81e615",
+  "seed": 20261227,
+  "validation_caveat": "Correlated development split; late recovery lane 6 is used for training and was previously validation. All share one seed and layout.",
+  "approach_command_offset": "For pre-contact approach, use output slots 4\u20137 at step >=2600, slots 0\u20133 earlier; physical landing balance is not learned.",
+  "student_recovery_rollout_sha256": "81f58f9d96cfa2ae0c4f4c41238d7f66479df8a4b5df674444bde9e7ad7adeb6",
+  "near_slalom_rollout_sha256": "9753b31dc35764a95bb88cbafb943ee52a78e1806b82b884c4d1c06ab9833956",
+  "near_slalom_training_lanes": [
+    1,
+    2,
+    3,
+    4,
+    5,
+    7
+  ],
+  "near_slalom_validation_lanes": [
+    0,
+    6
+  ],
+  "late_recovery_rollout_sha256": "38fec0b91521cd00ae014f368b399629224a06063a352dd0c04cdb74349db20a",
+  "late_recovery_train_lanes": [
+    6
+  ],
+  "late_recovery_validation_lanes": [],
+  "anchor_penalty_all_outputs": 2.0,
+  "learning_rate": 2e-05,
+  "epochs": 30
+}
