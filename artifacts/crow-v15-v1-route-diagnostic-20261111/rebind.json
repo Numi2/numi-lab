@@ -1,0 +1,14 @@
+{
+  "source_sha256": "86eb3c91158616557f59bc435f43be8494cfd8bdd24f2e2130d850c3a4e1524b",
+  "output_sha256": "aad28920edac6166eee8808cee7d7f0944f16228bcfcde0a962f64b76ddcc29c",
+  "template_sha256": "2fe607b9868e5c99569e75808f9bf401525a31ee9e8733349cd2cb36c4acfdc5",
+  "matching_tensor_shapes": true,
+  "weights_and_transforms_identical": true,
+  "contract": {
+    "world": 2483285451744114872,
+    "task": 5883102888749022702,
+    "observation": 13772245422576642693,
+    "action": 1023604763094072138
+  },
+  "limitation": "diagnostic transfer only; command interpretation and physical dynamics differ, and matching tensor shapes do not prove observation semantics or policy validity"
+}
