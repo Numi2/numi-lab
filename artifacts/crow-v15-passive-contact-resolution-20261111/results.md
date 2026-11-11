@@ -1,0 +1,3 @@
+# Passive first-contact time-resolution control
+
+Both fixed-target trials completed. Across the first ten 20 ms samples, 16 versus 32 substeps produced maximum root differences of 1.510 mm horizontally and 0.315 mm vertically, and a maximum rear-toe angle difference of 0.0231 rad. Total upward impulse was similar, but its allocation differed: rear-toe and sole groups accumulated respectively 0.454 and 0.429 N s at 16 substeps versus 0.534 and 0.344 N s at 32. Thus contact-load sensitivity appears even with no adaptive controller; the test does not establish its cause, convergence or a solver defect. Landing remains unqualified across resolutions. No reserved layout was used.

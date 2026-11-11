@@ -1,0 +1,17 @@
+[
+  {
+    "path": "build/crow-v15-passive-contact-resolution-20261111/probe",
+    "sha256": "1cc89bbcc8f1543fb127f46630c519d2e3a161fb83b45dcb2252b95a90f3333c",
+    "bytes": 101144
+  },
+  {
+    "path": "build/crow-v15-passive-contact-resolution-20261111/libmetalrobo.dylib",
+    "sha256": "c0d2aef135fe8b20d3c7700e76b23754fa47de905bf5543e21e44168404ec8a4",
+    "bytes": 5729488
+  },
+  {
+    "path": "build/crow-v15-alternating-foot-release-20261110/teacher.metallib",
+    "sha256": "a1fa801ac2f2ea5e557a54073b280039e5bb60422d8b5beb1cd90b2ec22c459b",
+    "bytes": 4485424
+  }
+]
