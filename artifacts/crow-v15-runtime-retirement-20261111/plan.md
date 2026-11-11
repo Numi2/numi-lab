@@ -1,0 +1,3 @@
+# Retire verified task-owned runtime duplicates
+
+Independently fetch the pushed research branch into a separate Git repository, restore each listed experiment's runtime tarball and index from that remote commit, compare each task-owned probe and library byte-for-byte by SHA-256 and size with its local copy, and check open handles before deleting only those duplicate binaries. Keep the archived runtime tarballs, indexes, source, patches, failed and successful traces, shared Metal inputs, and current active experiment. Generated object files and sources are not retired by this script. Record the exact remote commit, archive and hashes for restoration. Any mismatch or in-use file aborts before deletion.
