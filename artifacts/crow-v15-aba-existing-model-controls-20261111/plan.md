@@ -1,0 +1,3 @@
+# Existing floating and fixed-root ABA controls
+
+Run the repository's existing standalone public-ABA probes against the isolated floating-root gravity-reformulated shader: the floating G1 host lifecycle, CPU parity and repeated/batched/offset tests, plus the fixed-root Franka and surgical PSM CPU-parity probes. Change only each ABA context's metallib path and link against the isolated host library; retain the original probe assertions and bounds. Other library pipelines remain as originally compiled. These tests assess regression of the standalone ABA path, not MetalWorld contact, expanded-body admission in other engine layers, actual crow landing or performance.
