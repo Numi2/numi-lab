@@ -1,0 +1,48 @@
+{
+  "environment": 1,
+  "gate_left_m": [
+    1.25270331,
+    0.743984461,
+    0.761119306
+  ],
+  "gate_right_m": [
+    1.31812847,
+    -0.574210584,
+    0.745075941
+  ],
+  "first_waypoint_m": [
+    1.28541589,
+    0.08488693850000001,
+    0.7530976235
+  ],
+  "configured_reach_radius_m": 0.42,
+  "closest_approach": {
+    "step": 951,
+    "root_m": [
+      1.1586393117904663,
+      0.14610086381435394,
+      1.3220367431640625
+    ],
+    "offset_m": [
+      -0.12677657820953359,
+      0.061213925314353934,
+      0.5689391196640625
+    ],
+    "distance_m": 0.5860982573929286
+  },
+  "gate_plane_nearest_sample": {
+    "step": 994,
+    "root_m": [
+      1.2867302894592285,
+      0.19587315618991852,
+      1.3511731624603271
+    ],
+    "offset_m": [
+      0.0013143994592286212,
+      0.11098621768991851,
+      0.5980755389603272
+    ],
+    "distance_m": 0.6082877760285326
+  },
+  "scope": "retained development layout, lane 1 only; scene source ordering is ground then gate-left and gate-right; waypoint is gate midpoint"
+}
