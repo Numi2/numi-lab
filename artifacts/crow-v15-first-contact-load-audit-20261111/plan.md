@@ -1,0 +1,3 @@
+# Initial-perch contact load audit
+
+The matched position perturbations lead to a supported grip in one case but early backward drift and no rear-toe contact in another. Replay those exact two starts for 150 ticks with passive observation only; require every recorded state to match its retained reference. Sum normal and friction impulses at all 16 substeps separately for rear toes, front toes, feet and other bodies, and record their world-origin pitch moments in early windows. This comparison can identify differing applied contact loads; world-origin moments are not a COM-centered balance and do not alone prove causality. Do not alter body, control, contacts or unused layouts. Preserve both outcomes.
