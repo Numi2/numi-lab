@@ -1,5 +1,5 @@
 fb4d2a49be9e3b5e7887f6206534fb526346b7afca30bdd4ff8184eb6f0de029  artifacts/crow-v15-early-wing-takeoff-screen-20261112/PLAN.md
-fa49e1f188942339dd1ffaa37924ef5e7b25626c2393302b526af25cb5a7bbef  artifacts/crow-v15-early-wing-takeoff-screen-20261112/RESULT.md
+c3ed71c340f2cc5f4593b62986af5a2c779627a4b21c0a37ef018df3da6d2aee  artifacts/crow-v15-early-wing-takeoff-screen-20261112/RESULT.md
 3ccee7f863d1b01e04b66c9382cf3e0ec8c3a7feef5c7fa80079922af8a2c4ef  artifacts/crow-v15-early-wing-takeoff-screen-20261112/analysis.json
 3ccee7f863d1b01e04b66c9382cf3e0ec8c3a7feef5c7fa80079922af8a2c4ef  artifacts/crow-v15-early-wing-takeoff-screen-20261112/analysis.log
 968d5cfbfc8d844ef360c8ddc859acaf6024613bd8cacc0f80aebb3bb18da781  artifacts/crow-v15-early-wing-takeoff-screen-20261112/analyze.py
@@ -15,5 +15,8 @@ b79b0b8f58f9f1c104f1e1286b697e3a0ef0ba3351398c4322cd19f4223cef9d  artifacts/crow
 2a5925a2c7d1c4ebf5ba58dea8f56662d34fc6e95e608337977280da98ee6add  artifacts/crow-v15-early-wing-takeoff-screen-20261112/feedback.metallib.gz
 6321abeca9437b94485524c2e23f9df64f1db15aeccac6dbab0f8203cedfe366  artifacts/crow-v15-early-wing-takeoff-screen-20261112/feedback.patch
 470e7fd15844a9fd360547fa96f9e46d08f9f709b6bacf5a80707b3646dde245  artifacts/crow-v15-early-wing-takeoff-screen-20261112/hashes.json
+792efcdfd0e1845227f46dc3725eb0cf486873b776263ad93e40397d6fd41c59  artifacts/crow-v15-early-wing-takeoff-screen-20261112/push-analysis.json
+792efcdfd0e1845227f46dc3725eb0cf486873b776263ad93e40397d6fd41c59  artifacts/crow-v15-early-wing-takeoff-screen-20261112/push-analysis.log
+a0a9298da5648e0c3f79f39d3a642104ca4cbfdbd2ffe23d64d52a377fe8775e  artifacts/crow-v15-early-wing-takeoff-screen-20261112/push-analysis.py
 9daf27f15029e3fd76b0edfb66023bb12415cc324d8db75068e6d92f3f0055c7  artifacts/crow-v15-early-wing-takeoff-screen-20261112/run.log
 685c5245c9e5756ed6fd26329e673b7ba59cd776805f8f15e95f7bf44ca8a21f  artifacts/crow-v15-early-wing-takeoff-screen-20261112/run.py
