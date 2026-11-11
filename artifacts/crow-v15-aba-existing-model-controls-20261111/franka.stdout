@@ -1,0 +1,1 @@
+franka_engine_model=abi_v2 bodies=8 dofs=7 shapes=22 fk_position_error=7.45058e-09 fk_orientation_error=2.22045e-16 forward_inverse_error=1.05471e-15 metal_acceleration_scaled_error=1.41278e-06 metal_next_v_error=1.04845e-08 metal_next_q_error=1.19122e-07 device="Apple M4 Pro" actuation=pass limits=pass com_frames=pass parent_child_exclusions=pass status=ok

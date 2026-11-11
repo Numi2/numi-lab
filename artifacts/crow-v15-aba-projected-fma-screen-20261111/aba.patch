@@ -1,0 +1,23 @@
+--- a/ArticulatedABA.metal
++++ b/fma.metal
+@@ -1417,15 +1417,11 @@
+             for (uint component = 0u;
+                  component < 6u;
+                  ++component) {
+-                projectedParent +=
+-                    projectedInertia[
+-                        localBody * 6u + component
+-                    ] *
+-                    spatialComponent(
+-                        transformedParentAngular,
+-                        transformedParentLinear,
+-                        component
+-                    );
++                projectedParent = fma(
++                    projectedInertia[localBody * 6u + component],
++                    spatialComponent(transformedParentAngular, transformedParentLinear, component),
++                    projectedParent
++                );
+             }
+             const float jointAcceleration =
+                 (

@@ -1,0 +1,3 @@
+# Floating-root gravity reformulation screen
+
+With uniform gravity removed from per-body force accumulation and added only to the published floating-root linear acceleration, the isolated strict-math GPU agreed with the double-precision CPU oracle across all 96 varied states for both models. Worst scaled acceleration errors were 1.62861e-7 for the 33-body two-segment candidate and 1.71794e-7 for the 25-body control, versus prior strict-math errors 6.87735e-5 and 8.12527e-5 respectively. Repeated GPU outputs were exact. This is a first-step free-space result only; see separate gravity/wrench and fixed-root controls. Contact, production integration, physical landing, long-term stability and performance are not established.

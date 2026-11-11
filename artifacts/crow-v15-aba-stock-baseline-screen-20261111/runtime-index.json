@@ -1,0 +1,12 @@
+[
+  {
+    "path": "build/crow-v15-aba-stock-baseline-screen-20261111/control",
+    "sha256": "f09efcb75d57d979c0844e3ad01c61821d590e6f2fbc850eb2fdf1b974746890",
+    "bytes": 60904
+  },
+  {
+    "path": "build/shaders/MetalRobo.metallib",
+    "sha256": "69023c5dcd83c3a10bdc62a5a14d3a9c56d75797de36c95ed090b0f41ef9e135",
+    "bytes": 4467648
+  }
+]

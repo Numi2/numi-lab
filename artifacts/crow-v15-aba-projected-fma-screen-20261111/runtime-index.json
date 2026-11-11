@@ -1,0 +1,17 @@
+[
+  {
+    "path": "build/crow-v15-aba-projected-fma-screen-20261111/aba.metallib",
+    "sha256": "d4e14bc92814ea55681443fb1ce603b99440f909bf4dbad665284cbac104e0e5",
+    "bytes": 34781
+  },
+  {
+    "path": "build/crow-v15-aba-projected-fma-screen-20261111/diagnostic",
+    "sha256": "5d977461236c1a83dc66fd592d7d5cc2c62eaedc1981d367787556250dbf7201",
+    "bytes": 60904
+  },
+  {
+    "path": "build/crow-v15-aba-projected-fma-screen-20261111/control",
+    "sha256": "83281e284344f6f13af8740998b54577f8a0f6334f5f68531f30059e0e052599",
+    "bytes": 60904
+  }
+]

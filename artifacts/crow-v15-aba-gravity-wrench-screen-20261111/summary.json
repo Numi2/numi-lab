@@ -1,0 +1,134 @@
+[
+  {
+    "case": "diagnostic-g0-w0",
+    "exit": 0,
+    "gravity": [
+      0.0,
+      0.0,
+      -9.81
+    ],
+    "wrenches": false,
+    "stderr": "maximum scaled error 1.6286054604317392e-07 lane 73 dof 21 cpu 1.7319816031885464 gpu 1.7319811582565308"
+  },
+  {
+    "case": "diagnostic-g0-w1",
+    "exit": 0,
+    "gravity": [
+      0.0,
+      0.0,
+      -9.81
+    ],
+    "wrenches": true,
+    "stderr": "maximum scaled error 1.2295009679323752e-06 lane 61 dof 17 cpu 1.0228019789193152 gpu 1.0227994918823242"
+  },
+  {
+    "case": "diagnostic-g1-w0",
+    "exit": 0,
+    "gravity": [
+      0.0,
+      0.0,
+      0.0
+    ],
+    "wrenches": false,
+    "stderr": "maximum scaled error 1.6286058619352371e-07 lane 73 dof 21 cpu 1.7319816031886561 gpu 1.7319811582565308"
+  },
+  {
+    "case": "diagnostic-g1-w1",
+    "exit": 0,
+    "gravity": [
+      0.0,
+      0.0,
+      0.0
+    ],
+    "wrenches": true,
+    "stderr": "maximum scaled error 1.2295009831904987e-06 lane 61 dof 17 cpu 1.0228019789193461 gpu 1.0227994918823242"
+  },
+  {
+    "case": "diagnostic-g2-w0",
+    "exit": 0,
+    "gravity": [
+      2.75,
+      -1.25,
+      -7.25
+    ],
+    "wrenches": false,
+    "stderr": "maximum scaled error 1.6286057611529825e-07 lane 73 dof 21 cpu 1.7319816031886286 gpu 1.7319811582565308"
+  },
+  {
+    "case": "diagnostic-g2-w1",
+    "exit": 0,
+    "gravity": [
+      2.75,
+      -1.25,
+      -7.25
+    ],
+    "wrenches": true,
+    "stderr": "maximum scaled error 1.2295009595898041e-06 lane 61 dof 17 cpu 1.0228019789192984 gpu 1.0227994918823242"
+  },
+  {
+    "case": "control-g0-w0",
+    "exit": 0,
+    "gravity": [
+      0.0,
+      0.0,
+      -9.81
+    ],
+    "wrenches": false,
+    "stderr": "maximum scaled error 1.717934727951764e-07 lane 8 dof 21 cpu 1.6281990751646729 gpu 1.6281986236572266"
+  },
+  {
+    "case": "control-g0-w1",
+    "exit": 0,
+    "gravity": [
+      0.0,
+      0.0,
+      -9.81
+    ],
+    "wrenches": true,
+    "stderr": "maximum scaled error 8.5556365826142444e-07 lane 54 dof 18 cpu 0.19782987573017816 gpu 0.19783090054988861"
+  },
+  {
+    "case": "control-g1-w0",
+    "exit": 0,
+    "gravity": [
+      0.0,
+      0.0,
+      0.0
+    ],
+    "wrenches": false,
+    "stderr": "maximum scaled error 1.7179349087506152e-07 lane 8 dof 21 cpu 1.6281990751647204 gpu 1.6281986236572266"
+  },
+  {
+    "case": "control-g1-w1",
+    "exit": 0,
+    "gravity": [
+      0.0,
+      0.0,
+      0.0
+    ],
+    "wrenches": true,
+    "stderr": "maximum scaled error 8.5556364890011001e-07 lane 54 dof 18 cpu 0.19782987573018937 gpu 0.19783090054988861"
+  },
+  {
+    "case": "control-g2-w0",
+    "exit": 0,
+    "gravity": [
+      2.75,
+      -1.25,
+      -7.25
+    ],
+    "wrenches": false,
+    "stderr": "maximum scaled error 1.7179350963083015e-07 lane 8 dof 21 cpu 1.6281990751647697 gpu 1.6281986236572266"
+  },
+  {
+    "case": "control-g2-w1",
+    "exit": 0,
+    "gravity": [
+      2.75,
+      -1.25,
+      -7.25
+    ],
+    "wrenches": true,
+    "stderr": "maximum scaled error 8.5556362531145125e-07 lane 54 dof 18 cpu 0.19782987573021762 gpu 0.19783090054988861"
+  }
+]

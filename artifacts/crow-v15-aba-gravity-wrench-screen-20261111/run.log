@@ -1,0 +1,13 @@
+diagnostic-g0-w0 exit 0
+diagnostic-g0-w1 exit 0
+diagnostic-g1-w0 exit 0
+diagnostic-g1-w1 exit 0
+diagnostic-g2-w0 exit 0
+diagnostic-g2-w1 exit 0
+control-g0-w0 exit 0
+control-g0-w1 exit 0
+control-g1-w0 exit 0
+control-g1-w1 exit 0
+control-g2-w0 exit 0
+control-g2-w1 exit 0
+cases 12 failed 0

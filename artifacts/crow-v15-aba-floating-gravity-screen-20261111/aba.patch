@@ -1,0 +1,28 @@
+--- a/ArticulatedABA.metal
++++ b/floating-gravity.metal
+@@ -993,9 +993,9 @@
+                 )
+             ] = massScale * body.massAndInverseMass.x;
+         }
+-        float3 externalForce =
+-            massScale * body.massAndInverseMass.x *
+-            world.gravityAndTimestep.xyz;
++        float3 externalForce = articulation.rootType == MR_ROOT_FLOATING
++            ? float3(0.0f)
++            : massScale * body.massAndInverseMass.x * world.gravityAndTimestep.xyz;
+         float3 externalTorque = float3(0.0f);
+         if ((dispatch.flags & MR_ABA_HAS_BODY_WRENCHES) != 0u) {
+             device const MRABABodyWrenchGPU& wrench =
+@@ -1381,9 +1381,9 @@
+             rootAngularAcceleration;
+         bodyAccelerationLinear[rootLocal] =
+             rootLinearAcceleration;
+-        candidateAcceleration[0] = rootLinearAcceleration.x;
+-        candidateAcceleration[1] = rootLinearAcceleration.y;
+-        candidateAcceleration[2] = rootLinearAcceleration.z;
++        candidateAcceleration[0] = rootLinearAcceleration.x + world.gravityAndTimestep.x;
++        candidateAcceleration[1] = rootLinearAcceleration.y + world.gravityAndTimestep.y;
++        candidateAcceleration[2] = rootLinearAcceleration.z + world.gravityAndTimestep.z;
+         candidateAcceleration[3] = rootAngularAcceleration.x;
+         candidateAcceleration[4] = rootAngularAcceleration.y;
+         candidateAcceleration[5] = rootAngularAcceleration.z;

@@ -1,0 +1,17 @@
+[
+  {
+    "path": "build/crow-v15-aba-floating-gravity-screen-20261111/aba.metallib",
+    "sha256": "aea09faad74dfa1a35cc0a5f61425feea0cd89cd18e2cf9152b437313c2d1f0e",
+    "bytes": 34781
+  },
+  {
+    "path": "build/crow-v15-aba-floating-gravity-screen-20261111/diagnostic",
+    "sha256": "146442cc3462aa00b7bc1529cbf1c9094ad1a1312ddbe2ac63811fdf977b616c",
+    "bytes": 60904
+  },
+  {
+    "path": "build/crow-v15-aba-floating-gravity-screen-20261111/control",
+    "sha256": "c28cc0d7db6d2a32d1b076355a593e1d876aed11f9de19a09201ac7a2cdd6f7a",
+    "bytes": 60904
+  }
+]

@@ -1,0 +1,3 @@
+# Gravity-vector and external-wrench parity
+
+All 12 conditions passed the predeclared 5e-5 scaled acceleration gate and exact GPU replay: 96 varied states each, for the 25- and 33-body models, with standard, zero and nonvertical uniform gravity, each without and with distributed body forces and torques. The worst scaled error over all 1,152 states was 1.22951e-6. CPU gravity and applied wrenches used the exact float inputs passed to the GPU. This is standalone floating-root single-step free-space evidence; contact, long-horizon dynamics, realistic toes, performance and end-to-end crow execution remain unqualified.
