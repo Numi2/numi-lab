@@ -1,0 +1,11 @@
+{
+  "remote_commit": "857241c0a79ac9f69acffa6a5811b081b174a1d7",
+  "retired": [
+    {
+      "raw": "artifacts/crow-v15-centered-com-grip-screen-20261111/results.txt",
+      "archive": "artifacts/crow-v15-centered-com-grip-screen-20261111/results.txt.gz",
+      "sha256": "342dfb4de445edfd6bb3438589bb949ffa0038cfa119cfdb1672bf742a87a952",
+      "bytes": 2532223
+    }
+  ]
+}
