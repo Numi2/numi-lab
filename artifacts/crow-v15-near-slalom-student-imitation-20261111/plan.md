@@ -1,0 +1,3 @@
+# Later student-state correction
+
+Start with the current student and retain earlier qualified route prefixes and student-state labels. Add only observations before teacher takeover in eight episodes whose teacher recovery reached all five waypoints with no first-episode failure and exact pre-takeover endpoint parity. Split lanes 0 and 6 as correlated development validation, exclude failed episodes and post-takeover samples, freeze the low-level flight law, and evaluate the new actor teacher-off in full-start trials. All data share a used layout and seed; success here is not held-out qualification.
