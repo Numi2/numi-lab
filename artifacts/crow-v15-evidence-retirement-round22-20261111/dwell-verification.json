@@ -1,0 +1,29 @@
+{
+  "independently_fetched_commit": "3e8a4c517cd853e91542286705084e723148eb3a",
+  "results": [
+    {
+      "path": "/Users/n/Developer/numi-crow-rl-20261107/artifacts/crow-v15-integrated-walk-support-dwell-20261111/autonomous-20261126/run.stderr.gz",
+      "bytes": 20472549,
+      "sha256": "6b88fc75599757415f8e42feff93d34675d5159b40b99555c179f8ea07260286",
+      "verified_archive": "artifacts/crow-v15-integrated-walk-support-dwell-20261111/autonomous-20261126/stderr-parts.json",
+      "open_handles": false,
+      "retired": true
+    },
+    {
+      "path": "/Users/n/Developer/numi-crow-rl-20261107/build/crow-v15-integrated-walk-support-dwell-20261111/autonomous-20261126-replay.json",
+      "bytes": 24057866,
+      "sha256": "c5555e00bb20b0c4f619ee8ec030d7659f29d351bd5051f041363235e3585921",
+      "verified_archive": "artifacts/crow-v15-integrated-walk-support-dwell-20261111/autonomous-20261126/replay.json.gz",
+      "open_handles": false,
+      "retired": true
+    },
+    {
+      "path": "/Users/n/Developer/numi-crow-rl-20261107/build/crow-v15-integrated-walk-support-dwell-20261111/autonomous-20261126-trace.tsv",
+      "bytes": 516576,
+      "sha256": "52c61d156e30fb0ae8636f20f07af35d54be29eac6822d85284cbd3c4341816b",
+      "verified_archive": "artifacts/crow-v15-integrated-walk-support-dwell-20261111/autonomous-20261126/trace.tsv.gz",
+      "open_handles": false,
+      "retired": true
+    }
+  ]
+}

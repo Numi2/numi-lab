@@ -1,0 +1,3 @@
+# Extended staged-recovery development trial
+
+The 3800-step staged toe-release run remained physically alive in all eight development starts, but two recovering birds had not landed. One had reversed horizontal velocity toward the perch by step 3800. Run the exact same staged controller, frozen flight law, eight initial states, localized actor and 16 substeps for 6000 steps on the same used development course. Compare the prefix through step 3800 to the archived reference and measure first physical failure, all waypoint criteria, toe speed caps, actual contact, and terminal bilateral opposing support. A longer horizon is not a success unless the same first episodes return and meet the supported landing and release requirements. Reserved layouts remain untouched.
