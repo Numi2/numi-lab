@@ -1,0 +1,2 @@
+locked_max_pose_m 5.55111512313e-17 max_invariant_abs 3.80228903918e-09 reach_m 0.00993346668777 reach_dx_m -0.00197347517933 reach_dz_m -0.00973545870279 orientation_error 0
+failure GPU ABA failed articulation exceeds the Metal ABA body/DoF/q bucket status=0

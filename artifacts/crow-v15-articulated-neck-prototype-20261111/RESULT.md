@@ -1,0 +1,5 @@
+# Result: static reach passes; Metal size gate blocks dynamic test
+
+The isolated model compiles and passes 16 locked-pitch static and invariant comparisons. Maximum sampled body-position difference was 5.56e-17 m and maximum absolute difference across sampled energy and momentum values was 3.81e-9 in their respective units. Opposite 0.4 rad pitch angles moved the head center 9.93 mm while preserving orientation; forward displacement was -1.97 mm and vertical displacement -9.74 mm. This is ability to reposition in the sagittal plane, not evidence of forward neck stretch or bird-like gait.
+
+The requested 12-lane GPU comparison did not run. The host rejected the larger articulation because the existing compiled DoF and q capacity is exceeded. This is an explicit failed screen, not a physics pass. The inherited system supports the previous body, which already used the 40-DoF/41-coordinate ceiling; this model needs one more. It was not integrated, animated, contact-tested, or promoted; dimensions and mass placement remain engineering placeholders.
