@@ -1,0 +1,23 @@
+--- a/leg-jump.metal
++++ b/handoff.metal
+@@ -5299,7 +5299,7 @@
+             )
+             : filtered;
+         const float avianWingAmplitude =
+-            fixedFlightController && state.episode.z == 10u && float(state.episode.x)*dispatch.timing.x >= 4.4f && float(state.episode.x)*dispatch.timing.x < 5.4f && binding.actuator.x == MR_TASK_ACTUATOR_FLAPPING_POSITION
++            fixedFlightController && state.episode.z == 10u && float(state.episode.x)*dispatch.timing.x >= 4.4f && float(state.episode.x)*dispatch.timing.x < 5.4f && binding.actuator.x == MR_TASK_ACTUATOR_FLAPPING_POSITION && (state.status.w & 8192u) == 0u
+             ? 0.0f : fixedFlightController && state.threatTeacher.w >= 1.5f &&
+             binding.actuator.x == MR_TASK_ACTUATOR_FLAPPING_POSITION
+             ? 0.0f
+@@ -9331,7 +9331,10 @@
+             }
+             const uint launchRetractLatch = seconds >= 5.00f && seconds < 5.40f &&
+                 (((state.status.w & 4096u) != 0u) || state.airReturnTracking.y > 0.170f) ? 4096u : 0u;
+-            state.status.w=packed | launchRetractLatch;
++            const uint flightReleaseLatch = seconds >= 5.00f && seconds < 8.00f &&
++                (((state.status.w & 8192u) != 0u) ||
++                 (launchRetractLatch != 0u && state.nutrition.x <= 0.05f && state.nutrition.y <= 0.05f)) ? 8192u : 0u;
++            state.status.w=packed | launchRetractLatch | flightReleaseLatch;
+         }
+     }
+     taskStates[environment] = state;

@@ -1,0 +1,112 @@
+{
+  "failed_environment_steps": 0,
+  "termination_count": 0,
+  "lanes": [
+    {
+      "lane": 0,
+      "baseline_first_unload_step": 253,
+      "first_unload_step": 253,
+      "first_qv_divergence": 253,
+      "leg_jump_matches_through_unload": false,
+      "continuous_airborne_intervals": 103,
+      "first_ground_recontact": null,
+      "step353_height_gain_m": 1.055734097,
+      "step353_forward_speed_m_s": -0.185543329,
+      "step353_tilt_rad": 0.057309869979884485,
+      "lane_pass": false
+    },
+    {
+      "lane": 1,
+      "baseline_first_unload_step": 253,
+      "first_unload_step": 253,
+      "first_qv_divergence": 253,
+      "leg_jump_matches_through_unload": false,
+      "continuous_airborne_intervals": 103,
+      "first_ground_recontact": null,
+      "step353_height_gain_m": 1.0517534290000001,
+      "step353_forward_speed_m_s": -0.182981923,
+      "step353_tilt_rad": 0.057449502199090806,
+      "lane_pass": false
+    },
+    {
+      "lane": 2,
+      "baseline_first_unload_step": 253,
+      "first_unload_step": 253,
+      "first_qv_divergence": 253,
+      "leg_jump_matches_through_unload": false,
+      "continuous_airborne_intervals": 103,
+      "first_ground_recontact": null,
+      "step353_height_gain_m": 1.055455936,
+      "step353_forward_speed_m_s": -0.186096296,
+      "step353_tilt_rad": 0.05715466558181141,
+      "lane_pass": false
+    },
+    {
+      "lane": 3,
+      "baseline_first_unload_step": 253,
+      "first_unload_step": 253,
+      "first_qv_divergence": 253,
+      "leg_jump_matches_through_unload": false,
+      "continuous_airborne_intervals": 103,
+      "first_ground_recontact": null,
+      "step353_height_gain_m": 1.054636017,
+      "step353_forward_speed_m_s": -0.18531163,
+      "step353_tilt_rad": 0.057263401051555,
+      "lane_pass": false
+    },
+    {
+      "lane": 4,
+      "baseline_first_unload_step": 253,
+      "first_unload_step": 253,
+      "first_qv_divergence": 253,
+      "leg_jump_matches_through_unload": false,
+      "continuous_airborne_intervals": 103,
+      "first_ground_recontact": null,
+      "step353_height_gain_m": 1.0562317829999999,
+      "step353_forward_speed_m_s": -0.185551569,
+      "step353_tilt_rad": 0.057221326092771946,
+      "lane_pass": false
+    },
+    {
+      "lane": 5,
+      "baseline_first_unload_step": 253,
+      "first_unload_step": 253,
+      "first_qv_divergence": 253,
+      "leg_jump_matches_through_unload": false,
+      "continuous_airborne_intervals": 103,
+      "first_ground_recontact": null,
+      "step353_height_gain_m": 1.0565628599999999,
+      "step353_forward_speed_m_s": -0.187041044,
+      "step353_tilt_rad": 0.057139213275586506,
+      "lane_pass": false
+    },
+    {
+      "lane": 6,
+      "baseline_first_unload_step": 253,
+      "first_unload_step": 253,
+      "first_qv_divergence": 253,
+      "leg_jump_matches_through_unload": false,
+      "continuous_airborne_intervals": 103,
+      "first_ground_recontact": null,
+      "step353_height_gain_m": 1.057695451,
+      "step353_forward_speed_m_s": -0.188846156,
+      "step353_tilt_rad": 0.05704457870982559,
+      "lane_pass": false
+    },
+    {
+      "lane": 7,
+      "baseline_first_unload_step": 253,
+      "first_unload_step": 253,
+      "first_qv_divergence": 253,
+      "leg_jump_matches_through_unload": false,
+      "continuous_airborne_intervals": 103,
+      "first_ground_recontact": null,
+      "step353_height_gain_m": 1.0548923879999998,
+      "step353_forward_speed_m_s": -0.184933901,
+      "step353_tilt_rad": 0.05733603510134168,
+      "lane_pass": false
+    }
+  ],
+  "pass": false,
+  "scope": "eight development starts, full substep contact through 355, no qualification beyond short handoff"
+}
