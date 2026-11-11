@@ -1,0 +1,262 @@
+{
+  "rows": [
+    {
+      "lane": 0,
+      "reference": {
+        "pass": false,
+        "first_root_below_0_1m": 256,
+        "nonfoot_impulse_intervals": 292,
+        "release_trigger_step": 199,
+        "return_step": null,
+        "terminal_100_bilateral_supported_grip": false,
+        "longest_qualified_release_intervals": 0,
+        "peak_minimum_left_clearance_m": 0.026201258378382684
+      },
+      "candidate": {
+        "pass": false,
+        "first_root_below_0_1m": 256,
+        "nonfoot_impulse_intervals": 292,
+        "release_trigger_step": 199,
+        "return_step": null,
+        "terminal_100_bilateral_supported_grip": false,
+        "longest_qualified_release_intervals": 0,
+        "peak_minimum_left_clearance_m": 0.026201258378382684
+      }
+    },
+    {
+      "lane": 1,
+      "reference": {
+        "pass": false,
+        "first_root_below_0_1m": 293,
+        "nonfoot_impulse_intervals": 255,
+        "release_trigger_step": 234,
+        "return_step": null,
+        "terminal_100_bilateral_supported_grip": false,
+        "longest_qualified_release_intervals": 0,
+        "peak_minimum_left_clearance_m": 0.026450996497200667
+      },
+      "candidate": {
+        "pass": false,
+        "first_root_below_0_1m": 293,
+        "nonfoot_impulse_intervals": 255,
+        "release_trigger_step": 234,
+        "return_step": null,
+        "terminal_100_bilateral_supported_grip": false,
+        "longest_qualified_release_intervals": 0,
+        "peak_minimum_left_clearance_m": 0.026450996497200667
+      }
+    },
+    {
+      "lane": 2,
+      "reference": {
+        "pass": false,
+        "first_root_below_0_1m": null,
+        "nonfoot_impulse_intervals": 0,
+        "release_trigger_step": 199,
+        "return_step": 253,
+        "terminal_100_bilateral_supported_grip": false,
+        "longest_qualified_release_intervals": 41,
+        "peak_minimum_left_clearance_m": 0.00707696150786806
+      },
+      "candidate": {
+        "pass": true,
+        "first_root_below_0_1m": null,
+        "nonfoot_impulse_intervals": 0,
+        "release_trigger_step": 199,
+        "return_step": 253,
+        "terminal_100_bilateral_supported_grip": true,
+        "longest_qualified_release_intervals": 43,
+        "peak_minimum_left_clearance_m": 0.007102669035972259
+      }
+    },
+    {
+      "lane": 3,
+      "reference": {
+        "pass": false,
+        "first_root_below_0_1m": null,
+        "nonfoot_impulse_intervals": 0,
+        "release_trigger_step": 234,
+        "return_step": 289,
+        "terminal_100_bilateral_supported_grip": false,
+        "longest_qualified_release_intervals": 34,
+        "peak_minimum_left_clearance_m": 0.004897254242733788
+      },
+      "candidate": {
+        "pass": true,
+        "first_root_below_0_1m": null,
+        "nonfoot_impulse_intervals": 0,
+        "release_trigger_step": 234,
+        "return_step": 289,
+        "terminal_100_bilateral_supported_grip": true,
+        "longest_qualified_release_intervals": 37,
+        "peak_minimum_left_clearance_m": 0.004830936410369191
+      }
+    },
+    {
+      "lane": 4,
+      "reference": {
+        "pass": false,
+        "first_root_below_0_1m": null,
+        "nonfoot_impulse_intervals": 0,
+        "release_trigger_step": 199,
+        "return_step": null,
+        "terminal_100_bilateral_supported_grip": false,
+        "longest_qualified_release_intervals": 4,
+        "peak_minimum_left_clearance_m": 0.0014578643251073747
+      },
+      "candidate": {
+        "pass": false,
+        "first_root_below_0_1m": null,
+        "nonfoot_impulse_intervals": 0,
+        "release_trigger_step": 199,
+        "return_step": null,
+        "terminal_100_bilateral_supported_grip": false,
+        "longest_qualified_release_intervals": 4,
+        "peak_minimum_left_clearance_m": 0.0014578643251073747
+      }
+    },
+    {
+      "lane": 5,
+      "reference": {
+        "pass": false,
+        "first_root_below_0_1m": null,
+        "nonfoot_impulse_intervals": 0,
+        "release_trigger_step": 234,
+        "return_step": null,
+        "terminal_100_bilateral_supported_grip": false,
+        "longest_qualified_release_intervals": 5,
+        "peak_minimum_left_clearance_m": 0.0013630799834605384
+      },
+      "candidate": {
+        "pass": false,
+        "first_root_below_0_1m": null,
+        "nonfoot_impulse_intervals": 0,
+        "release_trigger_step": 234,
+        "return_step": null,
+        "terminal_100_bilateral_supported_grip": false,
+        "longest_qualified_release_intervals": 5,
+        "peak_minimum_left_clearance_m": 0.0013630799834605384
+      }
+    },
+    {
+      "lane": 6,
+      "reference": {
+        "pass": false,
+        "first_root_below_0_1m": null,
+        "nonfoot_impulse_intervals": 0,
+        "release_trigger_step": 199,
+        "return_step": null,
+        "terminal_100_bilateral_supported_grip": false,
+        "longest_qualified_release_intervals": 4,
+        "peak_minimum_left_clearance_m": 0.0014578643251073747
+      },
+      "candidate": {
+        "pass": false,
+        "first_root_below_0_1m": null,
+        "nonfoot_impulse_intervals": 0,
+        "release_trigger_step": 199,
+        "return_step": null,
+        "terminal_100_bilateral_supported_grip": false,
+        "longest_qualified_release_intervals": 4,
+        "peak_minimum_left_clearance_m": 0.0014578643251073747
+      }
+    },
+    {
+      "lane": 7,
+      "reference": {
+        "pass": false,
+        "first_root_below_0_1m": null,
+        "nonfoot_impulse_intervals": 0,
+        "release_trigger_step": 234,
+        "return_step": null,
+        "terminal_100_bilateral_supported_grip": false,
+        "longest_qualified_release_intervals": 5,
+        "peak_minimum_left_clearance_m": 0.0013630799834605384
+      },
+      "candidate": {
+        "pass": false,
+        "first_root_below_0_1m": null,
+        "nonfoot_impulse_intervals": 0,
+        "release_trigger_step": 234,
+        "return_step": null,
+        "terminal_100_bilateral_supported_grip": false,
+        "longest_qualified_release_intervals": 5,
+        "peak_minimum_left_clearance_m": 0.0013630799834605384
+      }
+    }
+  ],
+  "reference_passes": 0,
+  "candidate_passes": 2,
+  "reference_falls": 2,
+  "candidate_falls": 2,
+  "prefix": [
+    {
+      "lane": 0,
+      "reference_finished_step": null,
+      "candidate_finished_step": null,
+      "compared_before_first_finish": 550,
+      "different_logged_q_v_states": 0,
+      "first_difference": []
+    },
+    {
+      "lane": 1,
+      "reference_finished_step": null,
+      "candidate_finished_step": null,
+      "compared_before_first_finish": 550,
+      "different_logged_q_v_states": 0,
+      "first_difference": []
+    },
+    {
+      "lane": 2,
+      "reference_finished_step": 252,
+      "candidate_finished_step": 252,
+      "compared_before_first_finish": 252,
+      "different_logged_q_v_states": 0,
+      "first_difference": []
+    },
+    {
+      "lane": 3,
+      "reference_finished_step": 288,
+      "candidate_finished_step": 288,
+      "compared_before_first_finish": 288,
+      "different_logged_q_v_states": 0,
+      "first_difference": []
+    },
+    {
+      "lane": 4,
+      "reference_finished_step": null,
+      "candidate_finished_step": null,
+      "compared_before_first_finish": 550,
+      "different_logged_q_v_states": 0,
+      "first_difference": []
+    },
+    {
+      "lane": 5,
+      "reference_finished_step": null,
+      "candidate_finished_step": null,
+      "compared_before_first_finish": 550,
+      "different_logged_q_v_states": 0,
+      "first_difference": []
+    },
+    {
+      "lane": 6,
+      "reference_finished_step": null,
+      "candidate_finished_step": null,
+      "compared_before_first_finish": 550,
+      "different_logged_q_v_states": 0,
+      "first_difference": []
+    },
+    {
+      "lane": 7,
+      "reference_finished_step": null,
+      "candidate_finished_step": null,
+      "compared_before_first_finish": 550,
+      "different_logged_q_v_states": 0,
+      "first_difference": []
+    }
+  ],
+  "candidate_missing_substeps": 0,
+  "candidate_bad_substeps": 0,
+  "candidate_errors": [],
+  "scope": "Constructed stationary-perch development starts, not whole flight, landing, object manipulation or biology."
+}
