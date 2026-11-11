@@ -1,0 +1,3 @@
+# Physical contact resolution check
+
+All 29 recorded initial pose and shape records exactly matched the 16-substep development replay. With the same control timing and motor commands but 32 substeps, the bird never acquired bilateral opposing grip, had a longest supported interval of 24 samples, and fell. Terminal support and grip failed; no grip-pose overlap statistic exists. The 16-substep control had 447 supported samples and 186 supported opposing-grip samples but later fell and exceeded the overlap limit. This shows the current body/controller outcome is highly sensitive to temporal contact resolution; it does not establish the cause or identify a solver defect. Neither version qualifies. No reserved layout was used.
