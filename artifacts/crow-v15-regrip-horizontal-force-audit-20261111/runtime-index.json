@@ -1,0 +1,17 @@
+[
+  {
+    "path": "build/crow-v15-regrip-horizontal-force-audit-20261111/probe",
+    "sha256": "561c11223cebaac0dcdbf67c6bb385e0a9d075054b0234d8b494c64d0491ef93",
+    "bytes": 118376
+  },
+  {
+    "path": "build/crow-v15-regrip-horizontal-force-audit-20261111/libmetalrobo.dylib",
+    "sha256": "c858db61cb0b8c90551a9ff721f388a8172de3a3c47f24686a0689e8a76a9ae5",
+    "bytes": 5729488
+  },
+  {
+    "path": "build/crow-v15-alternating-foot-release-20261110/teacher.metallib",
+    "sha256": "a1fa801ac2f2ea5e557a54073b280039e5bb60422d8b5beb1cd90b2ec22c459b",
+    "bytes": 4485424
+  }
+]
