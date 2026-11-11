@@ -1,0 +1,3 @@
+# Initial toe contact observer
+
+The speed-compensated flight-fold screen had nine toe speed-limit hits in lane 4 during the first 102 intervals, before flight fold. A read-only observer reproduced the exact cap times and toe indices, and matched q, v and policy outputs at recorded endpoint samples 1, 2, 3, 4 and 100. Every cap coincided with ground contact on the affected rear toe; one observed substep had 0.0817 N s total normal ground impulse across the contacts. This establishes coincidence, not the root cause or biological correctness; next isolate initial geometry, toe drive and ground impact.

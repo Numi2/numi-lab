@@ -1,0 +1,1104 @@
+{
+  "lane": 4,
+  "sample_steps": [
+    1,
+    2,
+    3,
+    4,
+    100
+  ],
+  "first_sample_mismatch": [],
+  "caps_match_reference": true,
+  "caps": [
+    {
+      "step": 11,
+      "substep": 10,
+      "toe_dof_index": 14,
+      "ground_contact_count": 64,
+      "total_normal_impulse_ns": 0.08167407333799999,
+      "contacts_on_affected_digit": [
+        {
+          "bird_body": 33,
+          "normal_impulse_ns": 0.00285001029,
+          "separation_m": 1.79213312e-05,
+          "position_m": [
+            -0.073491998,
+            0.0138012003,
+            8.9598434e-06
+          ],
+          "tangent_impulses_ns": [
+            -5.58258398e-05,
+            -0.00150438363
+          ]
+        },
+        {
+          "bird_body": 33,
+          "normal_impulse_ns": 0.00667403499,
+          "separation_m": -0.000148727675,
+          "position_m": [
+            -0.055492796,
+            0.0137726301,
+            -7.43646524e-05
+          ],
+          "tangent_impulses_ns": [
+            -0.000177537324,
+            -0.001433659
+          ]
+        },
+        {
+          "bird_body": 33,
+          "normal_impulse_ns": 0.00275666243,
+          "separation_m": 2.30876758e-05,
+          "position_m": [
+            -0.0734840184,
+            0.0188011918,
+            1.15427174e-05
+          ],
+          "tangent_impulses_ns": [
+            3.128971e-05,
+            -0.00146563258
+          ]
+        },
+        {
+          "bird_body": 33,
+          "normal_impulse_ns": 0.00642184541,
+          "separation_m": -0.000143560392,
+          "position_m": [
+            -0.055484809,
+            0.0187726207,
+            -7.17813164e-05
+          ],
+          "tangent_impulses_ns": [
+            4.41132615e-05,
+            -0.0013976621
+          ]
+        },
+        {
+          "bird_body": 34,
+          "normal_impulse_ns": 0.0011805488,
+          "separation_m": 0.000223988565,
+          "position_m": [
+            -0.0915108323,
+            0.0138297603,
+            0.000111993453
+          ],
+          "tangent_impulses_ns": [
+            -1.63240657e-05,
+            -0.00070730166
+          ]
+        },
+        {
+          "bird_body": 34,
+          "normal_impulse_ns": 0.00284183631,
+          "separation_m": 1.81290161e-05,
+          "position_m": [
+            -0.0735120326,
+            0.013801231,
+            9.06368587e-06
+          ],
+          "tangent_impulses_ns": [
+            -5.53828431e-05,
+            -0.00148681726
+          ]
+        },
+        {
+          "bird_body": 34,
+          "normal_impulse_ns": 0.00114980096,
+          "separation_m": 0.000229154903,
+          "position_m": [
+            -0.0915028453,
+            0.0188297518,
+            0.000114576331
+          ],
+          "tangent_impulses_ns": [
+            7.98997098e-06,
+            -0.000688770087
+          ]
+        },
+        {
+          "bird_body": 34,
+          "normal_impulse_ns": 0.0027502235,
+          "separation_m": 2.32962921e-05,
+          "position_m": [
+            -0.0735040456,
+            0.0188012216,
+            1.16470255e-05
+          ],
+          "tangent_impulses_ns": [
+            3.11244548e-05,
+            -0.00144984631
+          ]
+        }
+      ]
+    },
+    {
+      "step": 11,
+      "substep": 11,
+      "toe_dof_index": 14,
+      "ground_contact_count": 64,
+      "total_normal_impulse_ns": 0.069678987536,
+      "contacts_on_affected_digit": [
+        {
+          "bird_body": 33,
+          "normal_impulse_ns": 0.00231108791,
+          "separation_m": 0.00034895062,
+          "position_m": [
+            -0.073625572,
+            0.0137904361,
+            0.000174474495
+          ],
+          "tangent_impulses_ns": [
+            -4.52694585e-05,
+            -0.00121991232
+          ]
+        },
+        {
+          "bird_body": 33,
+          "normal_impulse_ns": 0.00587807829,
+          "separation_m": -6.20401624e-05,
+          "position_m": [
+            -0.055630289,
+            0.0137628121,
+            -3.10209034e-05
+          ],
+          "tangent_impulses_ns": [
+            -0.000156363923,
+            -0.00126267842
+          ]
+        },
+        {
+          "bird_body": 33,
+          "normal_impulse_ns": 0.00223802775,
+          "separation_m": 0.000353221025,
+          "position_m": [
+            -0.0736178011,
+            0.0187904276,
+            0.000176609406
+          ],
+          "tangent_impulses_ns": [
+            2.54029073e-05,
+            -0.00118989032
+          ]
+        },
+        {
+          "bird_body": 33,
+          "normal_impulse_ns": 0.0056559653,
+          "separation_m": -5.77697538e-05,
+          "position_m": [
+            -0.0556225143,
+            0.0187628046,
+            -2.88859937e-05
+          ],
+          "tangent_impulses_ns": [
+            3.88522385e-05,
+            -0.00123097445
+          ]
+        },
+        {
+          "bird_body": 34,
+          "normal_impulse_ns": 0.000763424498,
+          "separation_m": 0.000820645015,
+          "position_m": [
+            -0.0916500464,
+            0.0138180535,
+            0.000410321692
+          ],
+          "tangent_impulses_ns": [
+            -1.05562704e-05,
+            -0.000457390124
+          ]
+        },
+        {
+          "bird_body": 34,
+          "normal_impulse_ns": 0.0023041307,
+          "separation_m": 0.000349700334,
+          "position_m": [
+            -0.0736562312,
+            0.0137904827,
+            0.000174849352
+          ],
+          "tangent_impulses_ns": [
+            -4.49038234e-05,
+            -0.00120549568
+          ]
+        },
+        {
+          "bird_body": 34,
+          "normal_impulse_ns": 0.000744531048,
+          "separation_m": 0.000824917282,
+          "position_m": [
+            -0.0916422755,
+            0.018818045,
+            0.000412457535
+          ],
+          "tangent_impulses_ns": [
+            5.17374974e-06,
+            -0.000445999613
+          ]
+        },
+        {
+          "bird_body": 34,
+          "normal_impulse_ns": 0.00223247893,
+          "separation_m": 0.000353973533,
+          "position_m": [
+            -0.0736484602,
+            0.0187904742,
+            0.000176985661
+          ],
+          "tangent_impulses_ns": [
+            2.5265108e-05,
+            -0.00117690489
+          ]
+        }
+      ]
+    },
+    {
+      "step": 11,
+      "substep": 12,
+      "toe_dof_index": 14,
+      "ground_contact_count": 64,
+      "total_normal_impulse_ns": 0.05966270013200002,
+      "contacts_on_affected_digit": [
+        {
+          "bird_body": 33,
+          "normal_impulse_ns": 0.00187328935,
+          "separation_m": 0.000877100858,
+          "position_m": [
+            -0.0737686306,
+            0.0137626799,
+            0.000438549614
+          ],
+          "tangent_impulses_ns": [
+            -3.66938839e-05,
+            -0.00098881952
+          ]
+        },
+        {
+          "bird_body": 33,
+          "normal_impulse_ns": 0.0051770485,
+          "separation_m": 0.000217282097,
+          "position_m": [
+            -0.0557807498,
+            0.0137356957,
+            0.000108640234
+          ],
+          "tangent_impulses_ns": [
+            -0.000137715688,
+            -0.00111208914
+          ]
+        },
+        {
+          "bird_body": 33,
+          "normal_impulse_ns": 0.00181623979,
+          "separation_m": 0.000879872765,
+          "position_m": [
+            -0.073761031,
+            0.0187626723,
+            0.000439935277
+          ],
+          "tangent_impulses_ns": [
+            2.06153709e-05,
+            -0.000965638726
+          ]
+        },
+        {
+          "bird_body": 33,
+          "normal_impulse_ns": 0.00498142513,
+          "separation_m": 0.000220052156,
+          "position_m": [
+            -0.0557731465,
+            0.0187356882,
+            0.000110024957
+          ],
+          "tangent_impulses_ns": [
+            3.4218654e-05,
+            -0.00108416623
+          ]
+        },
+        {
+          "bird_body": 34,
+          "normal_impulse_ns": 0.000493497064,
+          "separation_m": 0.00161692116,
+          "position_m": [
+            -0.0917218029,
+            0.0138038648,
+            0.000808459765
+          ],
+          "tangent_impulses_ns": [
+            -6.82384189e-06,
+            -0.000295668608
+          ]
+        },
+        {
+          "bird_body": 34,
+          "normal_impulse_ns": 0.00186733413,
+          "separation_m": 0.000878659892,
+          "position_m": [
+            -0.0738087222,
+            0.0137627404,
+            0.000439329131
+          ],
+          "tangent_impulses_ns": [
+            -3.63913532e-05,
+            -0.000976968557
+          ]
+        },
+        {
+          "bird_body": 34,
+          "normal_impulse_ns": 0.000481932133,
+          "separation_m": 0.00161969126,
+          "position_m": [
+            -0.091714114,
+            0.0188038573,
+            0.000809844467
+          ],
+          "tangent_impulses_ns": [
+            3.34894844e-06,
+            -0.000288693846
+          ]
+        },
+        {
+          "bird_body": 34,
+          "normal_impulse_ns": 0.00181142671,
+          "separation_m": 0.000881428074,
+          "position_m": [
+            -0.0738011226,
+            0.0187627338,
+            0.000440712931
+          ],
+          "tangent_impulses_ns": [
+            2.05000324e-05,
+            -0.00095493719
+          ]
+        }
+      ]
+    },
+    {
+      "step": 15,
+      "substep": 14,
+      "toe_dof_index": 6,
+      "ground_contact_count": 37,
+      "total_normal_impulse_ns": 0.0664289376875,
+      "contacts_on_affected_digit": [
+        {
+          "bird_body": 25,
+          "normal_impulse_ns": 0.00199399912,
+          "separation_m": 7.71495761e-05,
+          "position_m": [
+            -0.0815101117,
+            0.0895073637,
+            3.85694548e-05
+          ],
+          "tangent_impulses_ns": [
+            2.86044433e-05,
+            -0.00100633013
+          ]
+        },
+        {
+          "bird_body": 25,
+          "normal_impulse_ns": 0.0108190337,
+          "separation_m": -0.000242505484,
+          "position_m": [
+            -0.0635129809,
+            0.0894762278,
+            -0.000121258068
+          ],
+          "tangent_impulses_ns": [
+            4.6695237e-05,
+            -0.00234699133
+          ]
+        },
+        {
+          "bird_body": 25,
+          "normal_impulse_ns": 0.00238495832,
+          "separation_m": 4.77023859e-05,
+          "position_m": [
+            -0.0815019831,
+            0.0945072696,
+            2.38455614e-05
+          ],
+          "tangent_impulses_ns": [
+            0.000110118213,
+            -0.00115810102
+          ]
+        },
+        {
+          "bird_body": 25,
+          "normal_impulse_ns": 0.0121218581,
+          "separation_m": -0.000271950819,
+          "position_m": [
+            -0.0635048524,
+            0.0944761336,
+            -0.000135981027
+          ],
+          "tangent_impulses_ns": [
+            0.000459294068,
+            -0.00265327306
+          ]
+        },
+        {
+          "bird_body": 26,
+          "normal_impulse_ns": 0.000944408646,
+          "separation_m": 0.000467841252,
+          "position_m": [
+            -0.0995417908,
+            0.089538984,
+            0.0002339153
+          ],
+          "tangent_impulses_ns": [
+            5.45769872e-05,
+            -0.00056343514
+          ]
+        },
+        {
+          "bird_body": 26,
+          "normal_impulse_ns": 0.00202660495,
+          "separation_m": 7.78573813e-05,
+          "position_m": [
+            -0.0815460458,
+            0.0895074308,
+            3.89233574e-05
+          ],
+          "tangent_impulses_ns": [
+            2.99081312e-05,
+            -0.0010304756
+          ]
+        },
+        {
+          "bird_body": 26,
+          "normal_impulse_ns": 0.00129999267,
+          "separation_m": 0.000438395014,
+          "position_m": [
+            -0.0995336622,
+            0.0945388973,
+            0.000219191861
+          ],
+          "tangent_impulses_ns": [
+            8.97749123e-05,
+            -0.000774413813
+          ]
+        },
+        {
+          "bird_body": 26,
+          "normal_impulse_ns": 0.00242874259,
+          "separation_m": 4.84111224e-05,
+          "position_m": [
+            -0.0815379173,
+            0.0945073366,
+            2.41999296e-05
+          ],
+          "tangent_impulses_ns": [
+            0.000111079113,
+            -0.00118558679
+          ]
+        }
+      ]
+    },
+    {
+      "step": 15,
+      "substep": 15,
+      "toe_dof_index": 6,
+      "ground_contact_count": 37,
+      "total_normal_impulse_ns": 0.05293991186820001,
+      "contacts_on_affected_digit": [
+        {
+          "bird_body": 25,
+          "normal_impulse_ns": 0.00144332834,
+          "separation_m": 0.000385744235,
+          "position_m": [
+            -0.0816211849,
+            0.0895551816,
+            0.000192866792
+          ],
+          "tangent_impulses_ns": [
+            2.07049252e-05,
+            -0.000728418003
+          ]
+        },
+        {
+          "bird_body": 25,
+          "normal_impulse_ns": 0.00894249603,
+          "separation_m": -0.000186726698,
+          "position_m": [
+            -0.0636303276,
+            0.0895209536,
+            -9.33686897e-05
+          ],
+          "tangent_impulses_ns": [
+            3.85960557e-05,
+            -0.00193991105
+          ]
+        },
+        {
+          "bird_body": 25,
+          "normal_impulse_ns": 0.00172427157,
+          "separation_m": 0.000355541764,
+          "position_m": [
+            -0.0816126317,
+            0.0945550874,
+            0.000177765236
+          ],
+          "tangent_impulses_ns": [
+            7.96130116e-05,
+            -0.00083728123
+          ]
+        },
+        {
+          "bird_body": 25,
+          "normal_impulse_ns": 0.0100193489,
+          "separation_m": -0.000216929198,
+          "position_m": [
+            -0.0636217743,
+            0.094520852,
+            -0.000108470231
+          ],
+          "tangent_impulses_ns": [
+            0.000379630539,
+            -0.00219306862
+          ]
+        },
+        {
+          "bird_body": 26,
+          "normal_impulse_ns": 0.000485076336,
+          "separation_m": 0.00106611731,
+          "position_m": [
+            -0.0996021628,
+            0.0895645693,
+            0.000533053302
+          ],
+          "tangent_impulses_ns": [
+            2.80323657e-05,
+            -0.000289397081
+          ]
+        },
+        {
+          "bird_body": 26,
+          "normal_impulse_ns": 0.00146628672,
+          "separation_m": 0.000387630163,
+          "position_m": [
+            -0.0816753656,
+            0.0895552933,
+            0.000193809756
+          ],
+          "tangent_impulses_ns": [
+            2.16390908e-05,
+            -0.000745568424
+          ]
+        },
+        {
+          "bird_body": 26,
+          "normal_impulse_ns": 0.000666794891,
+          "separation_m": 0.00103591383,
+          "position_m": [
+            -0.0995938256,
+            0.0945644826,
+            0.000517951325
+          ],
+          "tangent_impulses_ns": [
+            4.60475239e-05,
+            -0.000397213909
+          ]
+        },
+        {
+          "bird_body": 26,
+          "normal_impulse_ns": 0.00175516051,
+          "separation_m": 0.000357426761,
+          "position_m": [
+            -0.0816668123,
+            0.0945551991,
+            0.000178707734
+          ],
+          "tangent_impulses_ns": [
+            8.0272679e-05,
+            -0.000856778875
+          ]
+        }
+      ]
+    },
+    {
+      "step": 16,
+      "substep": 0,
+      "toe_dof_index": 6,
+      "ground_contact_count": 37,
+      "total_normal_impulse_ns": 0.04568595472627,
+      "contacts_on_affected_digit": [
+        {
+          "bird_body": 25,
+          "normal_impulse_ns": 0.00116296578,
+          "separation_m": 0.000837389147,
+          "position_m": [
+            -0.0817381293,
+            0.089647904,
+            0.000418689218
+          ],
+          "tangent_impulses_ns": [
+            1.66830487e-05,
+            -0.000586924783
+          ]
+        },
+        {
+          "bird_body": 25,
+          "normal_impulse_ns": 0.00787599757,
+          "separation_m": 1.05004156e-05,
+          "position_m": [
+            -0.0637571737,
+            0.0896110013,
+            5.24486632e-06
+          ],
+          "tangent_impulses_ns": [
+            3.3993023e-05,
+            -0.00170855387
+          ]
+        },
+        {
+          "bird_body": 25,
+          "normal_impulse_ns": 0.00138822151,
+          "separation_m": 0.000808101206,
+          "position_m": [
+            -0.0817292184,
+            0.0946478099,
+            0.000404044957
+          ],
+          "tangent_impulses_ns": [
+            6.40969156e-05,
+            -0.000674100243
+          ]
+        },
+        {
+          "bird_body": 25,
+          "normal_impulse_ns": 0.00882442296,
+          "separation_m": -1.87875194e-05,
+          "position_m": [
+            -0.0637482628,
+            0.0946109071,
+            -9.39939855e-06
+          ],
+          "tangent_impulses_ns": [
+            0.000334355136,
+            -0.00193151948
+          ]
+        },
+        {
+          "bird_body": 26,
+          "normal_impulse_ns": 0.00031090877,
+          "separation_m": 0.00180723402,
+          "position_m": [
+            -0.0996625945,
+            0.0896123648,
+            0.000903611653
+          ],
+          "tangent_impulses_ns": [
+            1.79672934e-05,
+            -0.000185488519
+          ]
+        },
+        {
+          "bird_body": 26,
+          "normal_impulse_ns": 0.00118101074,
+          "separation_m": 0.000840944005,
+          "position_m": [
+            -0.0818093941,
+            0.0896480456,
+            0.000420466647
+          ],
+          "tangent_impulses_ns": [
+            1.74290617e-05,
+            -0.000600513071
+          ]
+        },
+        {
+          "bird_body": 26,
+          "normal_impulse_ns": 0.000426983926,
+          "separation_m": 0.00177794602,
+          "position_m": [
+            -0.099654071,
+            0.094612278,
+            0.000888967421
+          ],
+          "tangent_impulses_ns": [
+            2.94866568e-05,
+            -0.000254357001
+          ]
+        },
+        {
+          "bird_body": 26,
+          "normal_impulse_ns": 0.00141255045,
+          "separation_m": 0.000811656995,
+          "position_m": [
+            -0.0818004757,
+            0.0946479514,
+            0.000405822851
+          ],
+          "tangent_impulses_ns": [
+            6.46033295e-05,
+            -0.000689534296
+          ]
+        }
+      ]
+    },
+    {
+      "step": 32,
+      "substep": 15,
+      "toe_dof_index": 6,
+      "ground_contact_count": 37,
+      "total_normal_impulse_ns": 0.03245202725090001,
+      "contacts_on_affected_digit": [
+        {
+          "bird_body": 25,
+          "normal_impulse_ns": 0.00119808072,
+          "separation_m": 0.000913211086,
+          "position_m": [
+            -0.0590797737,
+            0.09262079,
+            0.000456600013
+          ],
+          "tangent_impulses_ns": [
+            7.90870615e-07,
+            -0.000412831199
+          ]
+        },
+        {
+          "bird_body": 25,
+          "normal_impulse_ns": 0.00371261197,
+          "separation_m": 0.000215250926,
+          "position_m": [
+            -0.0410933569,
+            0.0925803706,
+            0.000107619948
+          ],
+          "tangent_impulses_ns": [
+            5.19135256e-06,
+            -0.000654093863
+          ]
+        },
+        {
+          "bird_body": 25,
+          "normal_impulse_ns": 0.00121117895,
+          "separation_m": 0.00089563732,
+          "position_m": [
+            -0.0590692237,
+            0.097620748,
+            0.000447812839
+          ],
+          "tangent_impulses_ns": [
+            4.11040455e-05,
+            -0.000417203584
+          ]
+        },
+        {
+          "bird_body": 25,
+          "normal_impulse_ns": 0.00408339594,
+          "separation_m": 0.000197678106,
+          "position_m": [
+            -0.0410828069,
+            0.0975803286,
+            9.88332322e-05
+          ],
+          "tangent_impulses_ns": [
+            0.000139651558,
+            -0.000708110805
+          ]
+        },
+        {
+          "bird_body": 26,
+          "normal_impulse_ns": 0.000176887042,
+          "separation_m": 0.00164671894,
+          "position_m": [
+            -0.0770370513,
+            0.0926287174,
+            0.000823353883
+          ],
+          "tangent_impulses_ns": [
+            2.64939058e-06,
+            -8.21435824e-05
+          ]
+        },
+        {
+          "bird_body": 26,
+          "normal_impulse_ns": 0.00118115207,
+          "separation_m": 0.000913919823,
+          "position_m": [
+            -0.0590975806,
+            0.0926208273,
+            0.000456954382
+          ],
+          "tangent_impulses_ns": [
+            7.96071049e-07,
+            -0.000394714007
+          ]
+        },
+        {
+          "bird_body": 26,
+          "normal_impulse_ns": 0.000180874806,
+          "separation_m": 0.00162914512,
+          "position_m": [
+            -0.0770264119,
+            0.0976286829,
+            0.000814566738
+          ],
+          "tangent_impulses_ns": [
+            8.08046661e-06,
+            -8.45694667e-05
+          ]
+        },
+        {
+          "bird_body": 26,
+          "normal_impulse_ns": 0.00119397929,
+          "separation_m": 0.000896345126,
+          "position_m": [
+            -0.0590870269,
+            0.0976207852,
+            0.000448166742
+          ],
+          "tangent_impulses_ns": [
+            4.05320388e-05,
+            -0.000398815086
+          ]
+        }
+      ]
+    },
+    {
+      "step": 83,
+      "substep": 12,
+      "toe_dof_index": 14,
+      "ground_contact_count": 26,
+      "total_normal_impulse_ns": 0.028276310399720003,
+      "contacts_on_affected_digit": [
+        {
+          "bird_body": 33,
+          "normal_impulse_ns": 0.00113489165,
+          "separation_m": 0.000807896722,
+          "position_m": [
+            -0.0632074103,
+            0.0239209905,
+            0.000403946964
+          ],
+          "tangent_impulses_ns": [
+            -5.4041484e-05,
+            -0.000482796167
+          ]
+        },
+        {
+          "bird_body": 33,
+          "normal_impulse_ns": 0.00623972155,
+          "separation_m": -2.24536943e-05,
+          "position_m": [
+            -0.0452265851,
+            0.0238991939,
+            -1.12282714e-05
+          ],
+          "tangent_impulses_ns": [
+            -0.000231468322,
+            -0.00122447417
+          ]
+        },
+        {
+          "bird_body": 33,
+          "normal_impulse_ns": 0.000862304529,
+          "separation_m": 0.00083395082,
+          "position_m": [
+            -0.063200146,
+            0.0289209187,
+            0.000416973664
+          ],
+          "tangent_impulses_ns": [
+            -1.75811765e-05,
+            -0.00038260041
+          ]
+        },
+        {
+          "bird_body": 33,
+          "normal_impulse_ns": 0.00524196588,
+          "separation_m": 3.59942169e-06,
+          "position_m": [
+            -0.0452193208,
+            0.0288991202,
+            1.79798826e-06
+          ],
+          "tangent_impulses_ns": [
+            -5.21061065e-06,
+            -0.000988136861
+          ]
+        },
+        {
+          "bird_body": 34,
+          "normal_impulse_ns": 0.000257519889,
+          "separation_m": 0.00173573522,
+          "position_m": [
+            -0.081142351,
+            0.0239894129,
+            0.000867866213
+          ],
+          "tangent_impulses_ns": [
+            -1.39578824e-05,
+            -0.000153857283
+          ]
+        },
+        {
+          "bird_body": 34,
+          "normal_impulse_ns": 0.00116011011,
+          "separation_m": 0.000810271595,
+          "position_m": [
+            -0.0632560179,
+            0.0239210501,
+            0.0004051344
+          ],
+          "tangent_impulses_ns": [
+            -5.47244927e-05,
+            -0.000510502432
+          ]
+        },
+        {
+          "bird_body": 34,
+          "normal_impulse_ns": 0.000224471471,
+          "separation_m": 0.00176178839,
+          "position_m": [
+            -0.0811348334,
+            0.0289893374,
+            0.000880892447
+          ],
+          "tangent_impulses_ns": [
+            -6.66613869e-06,
+            -0.000134516726
+          ]
+        },
+        {
+          "bird_body": 34,
+          "normal_impulse_ns": 0.000893709133,
+          "separation_m": 0.000836324762,
+          "position_m": [
+            -0.0632487535,
+            0.0289209764,
+            0.000418160635
+          ],
+          "tangent_impulses_ns": [
+            -1.7343762e-05,
+            -0.000415940012
+          ]
+        }
+      ]
+    },
+    {
+      "step": 102,
+      "substep": 15,
+      "toe_dof_index": 6,
+      "ground_contact_count": 34,
+      "total_normal_impulse_ns": 0.027834601037690004,
+      "contacts_on_affected_digit": [
+        {
+          "bird_body": 25,
+          "normal_impulse_ns": 0.00108005083,
+          "separation_m": 0.000882577267,
+          "position_m": [
+            -0.0530091748,
+            0.0953849107,
+            0.000441282929
+          ],
+          "tangent_impulses_ns": [
+            -2.02371257e-06,
+            -0.000417942472
+          ]
+        },
+        {
+          "bird_body": 25,
+          "normal_impulse_ns": 0.00422821753,
+          "separation_m": 0.000149595653,
+          "position_m": [
+            -0.03502414,
+            0.0953507498,
+            7.47921367e-05
+          ],
+          "tangent_impulses_ns": [
+            7.21937431e-06,
+            -0.000747270649
+          ]
+        },
+        {
+          "bird_body": 25,
+          "normal_impulse_ns": 0.00126149214,
+          "separation_m": 0.000863254478,
+          "position_m": [
+            -0.053000465,
+            0.100384869,
+            0.000431621243
+          ],
+          "tangent_impulses_ns": [
+            5.02427065e-05,
+            -0.00043644727
+          ]
+        },
+        {
+          "bird_body": 25,
+          "normal_impulse_ns": 0.00469931401,
+          "separation_m": 0.000130272863,
+          "position_m": [
+            -0.0350154303,
+            0.1003507,
+            6.51304508e-05
+          ],
+          "tangent_impulses_ns": [
+            0.000161673321,
+            -0.00081648631
+          ]
+        },
+        {
+          "bird_body": 26,
+          "normal_impulse_ns": 0.000189561921,
+          "separation_m": 0.00167602405,
+          "position_m": [
+            -0.0709803104,
+            0.0953849033,
+            0.000838006323
+          ],
+          "tangent_impulses_ns": [
+            7.04635568e-06,
+            -9.29863454e-05
+          ]
+        },
+        {
+          "bird_body": 26,
+          "normal_impulse_ns": 0.00107504055,
+          "separation_m": 0.000883857836,
+          "position_m": [
+            -0.0530394278,
+            0.0953849778,
+            0.000441923214
+          ],
+          "tangent_impulses_ns": [
+            -1.86646616e-06,
+            -0.000411339628
+          ]
+        },
+        {
+          "bird_body": 26,
+          "normal_impulse_ns": 0.000225014446,
+          "separation_m": 0.00165670319,
+          "position_m": [
+            -0.0709716156,
+            0.100384861,
+            0.000828345539
+          ],
+          "tangent_impulses_ns": [
+            1.38035075e-05,
+            -0.000115255345
+          ]
+        },
+        {
+          "bird_body": 26,
+          "normal_impulse_ns": 0.00125759526,
+          "separation_m": 0.000864539703,
+          "position_m": [
+            -0.0530307144,
+            0.100384928,
+            0.000432263856
+          ],
+          "tangent_impulses_ns": [
+            5.01122158e-05,
+            -0.000432258734
+          ]
+        }
+      ]
+    }
+  ],
+  "scope": "Read-only ground-contact observer on one used initial condition. Endpoint parity at the listed sample steps and identical cap timing do not prove substep equality. Impulse and solver separation are observed contact values, not validation against a physical bird."
+}
