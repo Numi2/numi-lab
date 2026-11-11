@@ -1,0 +1,17 @@
+[
+  {
+    "path": "build/crow-v15-single-foot-release-20261111/probe",
+    "sha256": "87441262b6c97223c7431e43feecad38e5c06810bc674293e452f40b4ec1ff9c",
+    "bytes": 118376
+  },
+  {
+    "path": "build/crow-v15-single-foot-release-20261111/libmetalrobo.dylib",
+    "sha256": "c88cf3b7dbdd62bf7285b50e688be0e3a96d0b96ed290d23cd9cab700e680920",
+    "bytes": 5729488
+  },
+  {
+    "path": "build/crow-v15-alternating-foot-release-20261110/teacher.metallib",
+    "sha256": "a1fa801ac2f2ea5e557a54073b280039e5bb60422d8b5beb1cd90b2ec22c459b",
+    "bytes": 4485424
+  }
+]
