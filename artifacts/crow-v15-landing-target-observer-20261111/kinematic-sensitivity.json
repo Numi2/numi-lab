@@ -1,0 +1,108 @@
+{
+  "source_replay_sha256": "d2b55211949a4fcccc6c290f8fa1f63bb7167374f1dba29beea0134552337da0",
+  "replay_step": 3705,
+  "lane": 5,
+  "rows": [
+    {
+      "variant": "base",
+      "q_index": null,
+      "offset_rad": 0.0,
+      "crow_left_foot_position_m": [
+        5.107761228764272,
+        0.7837287110819392,
+        0.8491752111528703
+      ],
+      "crow_right_foot_position_m": [
+        5.108902129775824,
+        0.7103941210388988,
+        0.8490282888914892
+      ],
+      "center_of_mass_m": [
+        5.085148696397612,
+        0.7459665980245553,
+        1.017610731756864
+      ]
+    },
+    {
+      "variant": "left_plus",
+      "q_index": 14,
+      "offset_rad": 0.02,
+      "crow_left_foot_position_m": [
+        5.1050610706586665,
+        0.7836731269077217,
+        0.8487217980174386
+      ],
+      "crow_right_foot_position_m": [
+        5.108902129775824,
+        0.7103941210388988,
+        0.8490282888914892
+      ],
+      "center_of_mass_m": [
+        5.085071777551928,
+        0.7459650093906203,
+        1.0176037857355595
+      ]
+    },
+    {
+      "variant": "right_plus",
+      "q_index": 17,
+      "offset_rad": 0.02,
+      "crow_left_foot_position_m": [
+        5.107761228764272,
+        0.7837287110819392,
+        0.8491752111528703
+      ],
+      "crow_right_foot_position_m": [
+        5.1062006518889635,
+        0.7103393568022219,
+        0.8485824787107491
+      ],
+      "center_of_mass_m": [
+        5.085071772290953,
+        0.7459650220552577,
+        1.017603989689518
+      ]
+    },
+    {
+      "variant": "left_minus",
+      "q_index": 14,
+      "offset_rad": -0.02,
+      "crow_left_foot_position_m": [
+        5.1104517821212285,
+        0.7837840489916704,
+        0.8496825445897813
+      ],
+      "crow_right_foot_position_m": [
+        5.108902129775824,
+        0.7103941210388988,
+        0.8490282888914892
+      ],
+      "center_of_mass_m": [
+        5.085225461006538,
+        0.7459681821170123,
+        1.0176192149908247
+      ]
+    },
+    {
+      "variant": "right_minus",
+      "q_index": 17,
+      "offset_rad": -0.02,
+      "crow_left_foot_position_m": [
+        5.107761228764272,
+        0.7837287110819392,
+        0.8491752111528703
+      ],
+      "crow_right_foot_position_m": [
+        5.111594156773388,
+        0.7104485391914892,
+        0.8495280467539875
+      ],
+      "center_of_mass_m": [
+        5.085225470404795,
+        0.7459681666031275,
+        1.0176190111722265
+      ]
+    }
+  ],
+  "scope": "Static finite differences at fixed root and all other coordinates. These do not model contact forces, resulting time evolution or control efficacy. Index and frame alignment need independent validation before mapping to applied drive targets."
+}
