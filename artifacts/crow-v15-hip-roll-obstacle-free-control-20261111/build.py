@@ -1,0 +1,23 @@
+from pathlib import Path
+import difflib,shlex,subprocess,hashlib,json
+R=Path.cwd();A=R/'artifacts/crow-v15-hip-roll-obstacle-free-control-20261111';B=R/'build/crow-v15-hip-roll-obstacle-free-control-20261111';W=R/'build/crow-v15-wide-contact-isolation-20261111';P=R/'build/crow-v15-landing-approach-dev-20261111/trace'
+base=(P/'c_api.cpp').read_text();src=(R/'artifacts/crow-v15-hip-roll-strong-drive-prototype-20261111/probe.cpp').read_text();i=src.index('static RobotPack hipRollModel()');j=src.index('\n#ifndef CROW_HIP_ROLL_LIBRARY',i);model=src[i:j].replace('hipRollModel()', 'crowHipRollModel()').replace('toeModel()', 'crowToeModel()').replace('need(', 'crowToeNeed(')
+marker='\n}\n}\n\nstatic MRTaskRolloutHandle*';k=base.index(marker,base.index('static RobotPack crowToeModel()'))+2
+s=base[:k]+'\n'+model+base[k:];needle='manifest.robot = activeNavigation ? crowToeModel() : std::move(*robot);';assert s.count(needle)==1;s=s.replace(needle,'manifest.robot = activeNavigation ? crowHipRollModel() : std::move(*robot);');s=s.replace('if (activeNavigation) crowResearchWingInertia(manifest.robot);', '// Wing inertia was applied before adding hip-roll links.');marker='        manifest.sensors.id = cueConfig ?';assert s.count(marker)==1
+block='''        // Development obstacle-free flight control only: keep ground, disable five course objects.
+        if (activeNavigation) {
+            unsigned removed=0;
+            for (auto& object:manifest.scene.objects) for (std::size_t i=0;i<object.mechanics.shapeNames.size();++i)
+                if (object.mechanics.shapeNames[i].starts_with("crow_course_")) { object.mechanics.shapes.at(i).collisionMask=0u; ++removed; }
+            if (removed!=5u) throw std::logic_error("expected five collision-disabled course shapes");
+        }
+'''
+s=s.replace(marker,block+marker);(B/'c_api.cpp').write_text(s);(A/'host.patch').write_text(''.join(difflib.unified_diff(base.splitlines(True),s.splitlines(True),fromfile='a/two-toe-journey.cpp',tofile='b/hip-roll-journey.cpp')))
+lines=subprocess.check_output(['/opt/homebrew/bin/ninja','-C',str(R/'build'),'-t','commands'],text=True).splitlines();compile=next(x for x in lines if ' -c '+str(R/'src/c_api.cpp') in x);link=next(x for x in lines if x.startswith(': && /usr/bin/c++') and '-dynamiclib' in x and ' -o lib/libmetalrobo.dylib ' in x);args=shlex.split(compile);obj=B/'c_api.cpp.o'
+for k,v in [('-o',str(obj)),('-MF',str(obj)+'.d'),('-MT',str(obj))]:args[args.index(k)+1]=v
+args[-1]=str(B/'c_api.cpp');args[1:1]=['-I'+str(W/'include'),'-I'+str(R/'artifacts/crow-v15-two-segment-frozen-flight-setup-20261111'),'-I'+str(R/'artifacts/crow-clearance-observer-20261109')];subprocess.run(args,cwd=R/'build',check=True)
+args=shlex.split(link[len(': && '):-len(' && :')]);lib=B/'libmetalrobo.dylib';args[args.index('-o')+1]=str(lib);args[args.index('CMakeFiles/metalrobo.dir/src/c_api.cpp.o')]=str(obj)
+files=['src/core/CompiledMetalMultiArticulatedProgram.cpp','src/core/CompiledMetalMultiArticulatedContactProgram.cpp','src/metal/MetalArticulatedInverseMass.mm','src/metal/MetalArticulatedABA.mm','src/metal/MetalWorld.mm','src/metal/MetalMultiArticulatedContact.mm','src/metal/MetalMultiArticulatedABA.mm','src/metal/MetalMultiArticulatedInverseMass.mm']
+for i,n in enumerate(files):
+ old='CMakeFiles/metalrobo.dir/'+n+'.o';assert old in args;args[args.index(old)]=str(R/'build/crow-v15-hip-roll-journey-integration-20261111/MetalWorld.mm.o' if i==4 else W/(str(i)+'.o'))
+subprocess.run(args,cwd=R/'build',check=True);h=lambda p:hashlib.sha256(p.read_bytes()).hexdigest();(A/'build-hashes.json').write_text(json.dumps({'host_source_sha256':h(B/'c_api.cpp'),'host_sha256':h(lib),'unchanged_frozen_controller_sha256':h(R/'artifacts/crow-v15-flight-feedback-freeze-20261110/CrowFlightControllerResearchV2.metal')},indent=2)+'\n');print('isolated host built')

@@ -1,0 +1,107 @@
+{
+  "exit_code": 0,
+  "errors": [],
+  "sample_count": 100,
+  "scope": "five-lane development flight screen with course collisions disabled; not full qualification, autonomous navigation or biological validation",
+  "toe_max_substep_endpoint_rad_s": [
+    12.0,
+    12.0,
+    12.0,
+    12.0,
+    12.0
+  ],
+  "toe_cap_substeps": [
+    57,
+    35,
+    56,
+    33,
+    55
+  ],
+  "toe_cap_substeps_after_observer_step_500": [
+    28,
+    16,
+    28,
+    19,
+    43
+  ],
+  "toe_substep_record_counts": [
+    25616,
+    25616,
+    25616,
+    25616,
+    25616
+  ],
+  "failed_environment_steps": 0,
+  "lanes": [
+    {
+      "lane": 0,
+      "mode": 0,
+      "physical_failure": true,
+      "termination_reason": 3,
+      "steps": 814,
+      "sample_steps": [],
+      "max_heading_error_rad": null,
+      "max_lateral_m_s": null,
+      "max_speed_error_m_s": null,
+      "max_height_error_m": null,
+      "mean_height_m": null,
+      "pass_screen": false
+    },
+    {
+      "lane": 1,
+      "mode": 1,
+      "physical_failure": true,
+      "termination_reason": 3,
+      "steps": 877,
+      "sample_steps": [],
+      "max_heading_error_rad": null,
+      "max_lateral_m_s": null,
+      "max_speed_error_m_s": null,
+      "max_height_error_m": null,
+      "mean_height_m": null,
+      "pass_screen": false
+    },
+    {
+      "lane": 2,
+      "mode": 2,
+      "physical_failure": true,
+      "termination_reason": 3,
+      "steps": 823,
+      "sample_steps": [],
+      "max_heading_error_rad": null,
+      "max_lateral_m_s": null,
+      "max_speed_error_m_s": null,
+      "max_height_error_m": null,
+      "mean_height_m": null,
+      "pass_screen": false
+    },
+    {
+      "lane": 3,
+      "mode": 3,
+      "physical_failure": true,
+      "termination_reason": 3,
+      "steps": 825,
+      "sample_steps": [],
+      "max_heading_error_rad": null,
+      "max_lateral_m_s": null,
+      "max_speed_error_m_s": null,
+      "max_height_error_m": null,
+      "mean_height_m": null,
+      "pass_screen": false
+    },
+    {
+      "lane": 4,
+      "mode": 4,
+      "physical_failure": true,
+      "termination_reason": 3,
+      "steps": 848,
+      "sample_steps": [],
+      "max_heading_error_rad": null,
+      "max_lateral_m_s": null,
+      "max_speed_error_m_s": null,
+      "max_height_error_m": null,
+      "mean_height_m": null,
+      "pass_screen": false
+    }
+  ]
+}

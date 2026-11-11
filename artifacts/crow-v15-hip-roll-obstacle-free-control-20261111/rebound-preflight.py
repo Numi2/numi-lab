@@ -1,0 +1,3 @@
+from pathlib import Path
+import json,os,subprocess
+R=Path.cwd();A=R/'artifacts/crow-v15-hip-roll-obstacle-free-control-20261111';B=R/'build/crow-v15-hip-roll-obstacle-free-control-20261111';cmd=json.loads((A/'rebound-command.json').read_text());p=subprocess.run(cmd,cwd=R,env={**os.environ,'DYLD_LIBRARY_PATH':str(B),'PYTHONDONTWRITEBYTECODE':'1','CROW_EARLY_FLIGHT_TRACE':'1'},text=True,capture_output=True,timeout=180);(A/'rebound.stdout').write_text(p.stdout);(A/'rebound.stderr').write_text(p.stderr);(A/'rebound-result.json').write_text(json.dumps({'return_code':p.returncode,'scope':'two-step obstacle-free contract preflight; not flight qualification'},indent=2)+'\n');print('return_code',p.returncode);print(p.stderr[-400:])

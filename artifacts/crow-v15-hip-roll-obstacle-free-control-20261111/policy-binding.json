@@ -1,0 +1,13 @@
+{
+  "fingerprints": [
+    6593411030356188635,
+    8126342523242169155,
+    13010092274930290330,
+    5306385544315808273
+  ],
+  "source_sha256": "b6f7ab89147275a9d1304b80a2250a8e0cde07413da225d55f548b987b248301",
+  "target_sha256": "fdfd2dd28aeb1fe3a02e4a814527036756d40dba837b6534f9eda34b93a6c73e",
+  "identical_weights_and_transforms": true,
+  "zero_output_verified": true,
+  "scope": "diagnostic control, not navigation policy qualification"
+}
