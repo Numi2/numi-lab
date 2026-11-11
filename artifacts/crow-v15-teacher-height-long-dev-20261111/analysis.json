@@ -1,0 +1,286 @@
+{
+  "teacher": true,
+  "student_authority": 0,
+  "termination_count": 8,
+  "failed_environment_steps": 0,
+  "host_requested_resets": 0,
+  "first_episode_navigation": {
+    "boundary": "waypoint completion; does not establish supported landing",
+    "closed_by_environment": [
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true
+    ],
+    "closed_episode_count": 8,
+    "completion_seen_by_environment": [
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true
+    ],
+    "completion_seen_count": 8,
+    "environment_count": 8,
+    "first_completion_step_by_environment": [
+      2690,
+      2729,
+      2689,
+      2613,
+      2676,
+      2655,
+      2586,
+      2603
+    ],
+    "horizon_censored_count": 0,
+    "maximum_waypoints_by_environment": [
+      5,
+      5,
+      5,
+      5,
+      5,
+      5,
+      5,
+      5
+    ],
+    "physical_failure_by_environment": [
+      false,
+      false,
+      false,
+      false,
+      false,
+      false,
+      false,
+      false
+    ],
+    "physical_failure_count": 0,
+    "safe_completion_by_environment": [
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true
+    ],
+    "safe_completion_count": 8,
+    "schema": "numi.crow-first-episode-evidence.v1",
+    "steps_by_environment": [
+      3000,
+      3000,
+      3000,
+      3000,
+      3000,
+      3000,
+      3000,
+      3000
+    ],
+    "termination_reason_by_environment": [
+      4,
+      4,
+      4,
+      4,
+      4,
+      4,
+      4,
+      4
+    ],
+    "unit": "first episode of each environment since context creation"
+  },
+  "lanes": [
+    {
+      "lane": 0,
+      "first_episode_end_step": 3000,
+      "waypoints": 5,
+      "prefix_different_states": 0,
+      "prefix_different_contact_substeps": 0,
+      "missing_first_episode_substeps": 0,
+      "first_endpoint_nonground_contact": null,
+      "terminal_100_bilateral_opposing_grip": false,
+      "last_position": [
+        4.86199093,
+        0.671524346,
+        1.39298773
+      ],
+      "last_velocity": [
+        0.0060533965,
+        0.000286234077,
+        -0.143135726,
+        -0.00047763437,
+        0.0215499215,
+        -0.00353788584
+      ]
+    },
+    {
+      "lane": 1,
+      "first_episode_end_step": 3000,
+      "waypoints": 5,
+      "prefix_different_states": 0,
+      "prefix_different_contact_substeps": 0,
+      "missing_first_episode_substeps": 0,
+      "first_endpoint_nonground_contact": null,
+      "terminal_100_bilateral_opposing_grip": false,
+      "last_position": [
+        4.92258501,
+        0.584096313,
+        1.3975482
+      ],
+      "last_velocity": [
+        -0.0269162562,
+        -0.000421482895,
+        -0.139653623,
+        -0.00056820421,
+        0.0260831993,
+        -0.0035285214
+      ]
+    },
+    {
+      "lane": 2,
+      "first_episode_end_step": 3000,
+      "waypoints": 5,
+      "prefix_different_states": 0,
+      "prefix_different_contact_substeps": 0,
+      "missing_first_episode_substeps": 0,
+      "first_endpoint_nonground_contact": null,
+      "terminal_100_bilateral_opposing_grip": false,
+      "last_position": [
+        4.8724184,
+        0.560277045,
+        1.39317977
+      ],
+      "last_velocity": [
+        0.00225589727,
+        0.000132699191,
+        -0.142476365,
+        -0.000485275115,
+        0.0218813829,
+        -0.00353654963
+      ]
+    },
+    {
+      "lane": 3,
+      "first_episode_end_step": 3000,
+      "waypoints": 5,
+      "prefix_different_states": 0,
+      "prefix_different_contact_substeps": 0,
+      "missing_first_episode_substeps": 0,
+      "first_endpoint_nonground_contact": null,
+      "terminal_100_bilateral_opposing_grip": false,
+      "last_position": [
+        4.66387081,
+        0.729141355,
+        1.40159202
+      ],
+      "last_velocity": [
+        -0.0366589129,
+        -0.000708915351,
+        -0.141059995,
+        -0.000601852604,
+        0.0288411342,
+        -0.00353465602
+      ]
+    },
+    {
+      "lane": 4,
+      "first_episode_end_step": 3000,
+      "waypoints": 5,
+      "prefix_different_states": 0,
+      "prefix_different_contact_substeps": 0,
+      "missing_first_episode_substeps": 0,
+      "first_endpoint_nonground_contact": null,
+      "terminal_100_bilateral_opposing_grip": false,
+      "last_position": [
+        4.8191514,
+        0.68101126,
+        1.39503706
+      ],
+      "last_velocity": [
+        -0.0155881289,
+        -0.000386522443,
+        -0.140126124,
+        -0.00052886887,
+        0.0239849966,
+        -0.00353095471
+      ]
+    },
+    {
+      "lane": 5,
+      "first_episode_end_step": 3000,
+      "waypoints": 5,
+      "prefix_different_states": 0,
+      "prefix_different_contact_substeps": 0,
+      "missing_first_episode_substeps": 0,
+      "first_endpoint_nonground_contact": null,
+      "terminal_100_bilateral_opposing_grip": false,
+      "last_position": [
+        4.77664089,
+        0.747516811,
+        1.39689589
+      ],
+      "last_velocity": [
+        -0.00467832759,
+        0.000123415623,
+        -0.144121006,
+        -0.00052159105,
+        0.0244000889,
+        -0.00353718782
+      ]
+    },
+    {
+      "lane": 6,
+      "first_episode_end_step": 3000,
+      "waypoints": 5,
+      "prefix_different_states": 0,
+      "prefix_different_contact_substeps": 0,
+      "missing_first_episode_substeps": 0,
+      "first_endpoint_nonground_contact": null,
+      "terminal_100_bilateral_opposing_grip": false,
+      "last_position": [
+        4.56329966,
+        0.458782345,
+        1.40678358
+      ],
+      "last_velocity": [
+        -0.00575496769,
+        0.000874410442,
+        -0.152826414,
+        -0.000588256284,
+        0.0299974643,
+        -0.00354701187
+      ]
+    },
+    {
+      "lane": 7,
+      "first_episode_end_step": 3000,
+      "waypoints": 5,
+      "prefix_different_states": 0,
+      "prefix_different_contact_substeps": 0,
+      "missing_first_episode_substeps": 0,
+      "first_endpoint_nonground_contact": null,
+      "terminal_100_bilateral_opposing_grip": false,
+      "last_position": [
+        4.63050556,
+        0.536027908,
+        1.39973211
+      ],
+      "last_velocity": [
+        -0.0157025792,
+        -0.000105195882,
+        -0.144165844,
+        -0.000557216874,
+        0.0266153961,
+        -0.00353795826
+      ]
+    }
+  ],
+  "errors": [],
+  "limitations": "Teacher on, development training layout. Endpoint non-ground contacts do not constitute a full first-collider or continuous-clearance audit. Terminal grip test uses only the final 100 intervals of the first episode and assumes the target remains the instrumented locomotion support and requires the opposing impulses recorded by the observer; this is not an autonomous landing or toe-release test."
+}
