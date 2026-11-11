@@ -53,6 +53,7 @@ for row in rows:
   if len(pp)!=8 or gg is None:missing+=1;continue
   ds.extend(gap(p,gg) for p in pp)
  row['opposed_grip_pose_samples']=len(ds)//8;row['missing_grip_pose_samples']=missing;row['minimum_grip_sat_gap_m']=min(ds) if ds else None;row['strict_pass']=row['strict_pass'] and not missing and bool(ds) and min(ds)>=-.0005
+for row in rows:row['acquisition_pass']=not parity_diff and row['samples']==500 and row['longest_supported_opposing_grip']>=50 and not row['missing_grip_pose_samples'] and row['minimum_grip_sat_gap_m'] is not None and row['minimum_grip_sat_gap_m']>=-.0005
 out={'baseline_parity_exact':not parity_diff,'baseline_parity_differences':parity_diff[:20], 'rows':rows};(A/'analysis.json').write_text(json.dumps(out,indent=2)+'\n')
 print('Baseline parity:',not parity_diff,'differences',len(parity_diff))
 for a in (7,):
