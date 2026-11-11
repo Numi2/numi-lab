@@ -1,0 +1,30 @@
+{
+  "remote_commit": "c8d6d6ce002d954aee16aafa4a7bb37c3a3b0e68",
+  "verification": "independent fetched Git restore, gzip decode, SHA-256 and open-handle checks",
+  "retired": [
+    {
+      "path": "build/crow-v15-v1-teacher-route-screen-20261111/route.json",
+      "archive": "artifacts/crow-v15-v1-teacher-route-screen-20261111/route.json.gz",
+      "sha256": "dd1f4931cc2cf8dcf4361a0924df88d1aced9c974a18bc434eb86aa2987894d5",
+      "bytes": 97029517
+    },
+    {
+      "path": "build/crow-v15-v1-teacher-route-screen-20261111/route.tsv",
+      "archive": "artifacts/crow-v15-v1-teacher-route-screen-20261111/route.tsv.gz",
+      "sha256": "dbf8027191061aeb07723687adaaec6c6a2eb163d257d459fb734aea32b9a915",
+      "bytes": 2168050
+    },
+    {
+      "path": "build/crow-v15-v1-teacher-launch-parity-20261111/route.json",
+      "archive": "artifacts/crow-v15-v1-teacher-launch-parity-20261111/route.json.gz",
+      "sha256": "01cbd530dab08000e8b0e88bd85c273f6664554eeed793c84839e4bcd75a0384",
+      "bytes": 97034536
+    },
+    {
+      "path": "build/crow-v15-v1-teacher-launch-parity-20261111/route.tsv",
+      "archive": "artifacts/crow-v15-v1-teacher-launch-parity-20261111/route.tsv.gz",
+      "sha256": "30f90b4bbe20898568327b9903c8985d99d2bd8f8cc099bcb294020e261cb497",
+      "bytes": 2168271
+    }
+  ]
+}
