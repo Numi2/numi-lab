@@ -1,11 +1,13 @@
 {
+  "endpoint_replay_offset": 1,
+  "endpoint_q_v_max_error": 4.999084479706539e-09,
   "lane": 7,
   "first_episode_steps": 3800,
   "physical_failure": false,
   "release_spans": [
     [
-      3427,
-      3439
+      3428,
+      3440
     ]
   ],
   "bilateral_grip_spans": [
@@ -22,7 +24,7 @@
       3800
     ]
   ],
-  "largest_minimum_left_gap_m": 0.08044464326330628,
+  "largest_minimum_left_gap_m": 0.08815613172258452,
   "last_100_bilateral_grip": true,
   "missing_substeps": 0,
   "overflow": [],

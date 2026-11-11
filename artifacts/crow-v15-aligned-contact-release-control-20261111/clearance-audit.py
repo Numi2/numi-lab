@@ -4,10 +4,13 @@ A=Path("artifacts/crow-v15-aligned-contact-release-control-20261111/autonomous-2
 with gzip.open(A/"replay.json.gz","rt") as f:d=json.load(f)["payload"]
 assert d["environment"]==7 and d["body_names"][40]=="crow_course_perch" and d["body_state_stride"]==13
 ends=json.loads((A/"run.stdout").read_text())["first_episode_navigation"];end=ends["steps_by_environment"][7]
-values=collections.defaultdict(lambda:[0.]*8);coverage=collections.Counter();overflow=[]
+values=collections.defaultdict(lambda:[0.]*8);coverage=collections.Counter();overflow=[];samples={}
 with gzip.open(A/"run.stderr.gz","rt") as f:
  for line in f:
-  if line.startswith("CROW_TWO_TOE_SUBSTEP "):
+  if line.startswith("CROW_SUPPORT_SAMPLE "):
+   x=json.loads(line.split(" ",1)[1]);
+   if x["lane"]==7:samples[x["step"]]=x
+  elif line.startswith("CROW_TWO_TOE_SUBSTEP "):
    z=line.split();t,k,e=map(int,z[1:4]);
    if e==7 and t<=end:
     coverage[t,k]+=1
@@ -44,10 +47,12 @@ def separation(obj,perch,half):
   if n>1e-8:
    u=[v/n for v in axis];out.append(abs(dot(delta,u))-sum(abs(dot(x,u))*h for x,h in zip(p,half))-sum(abs(dot(x,u))*h for x,h in zip(q,[.1,.72,.055])))
  return max(out)
-nom=.45006*9.81*.02;records=[]
+nom=.45006*9.81*.02;records=[];parity=[]
 for f in d["frames"]:
- t=f["step"]
+ t=f["step"]+1 # accepted endpoint samples are indexed one after replay frames
  if not 3000<=t<=end:continue
+ x=samples.get(t);assert x is not None
+ parity.append(max(abs(a-b) for a,b in zip(x["q"]+x["v"],f["q"]+f["v"])))
  b=f["body_states"];pose=lambda i:b[i*13:i*13+7];perch=pose(40)
  gap=min([separation(pose(i),perch,[.009,.0025,.0092]) for i in range(19,27)]+[separation(pose(11),perch,[.01,.01725,.0092])]);v=values[t];q=f["q"];u=f["v"];tilt=math.acos(max(-1.,min(1.,1.-2*(q[3]**2+q[4]**2))));speed=math.sqrt(sum(x*x for x in u[:3]));complete=all(coverage[t,k]==1 for k in range(16));right=v[1]>=.5*nom and rightfront[t]>1e-6 and v[6]<-1e-6;bilateral=v[0]>0 and v[1]>0 and v[0]+v[1]>=.5*nom and v[5]>1e-6 and v[4]<-1e-6 and rightfront[t]>1e-6 and v[6]<-1e-6
  stable=complete and v[7]<=1e-7 and tilt<=.35 and speed<=.12
@@ -59,5 +64,6 @@ def spans(key):
   if not x[key] and start is not None:result.append([start,x["step"]-1]);start=None
  if start is not None:result.append([start,records[-1]["step"]])
  return result
-out={"lane":7,"first_episode_steps":end,"physical_failure":ends["physical_failure_by_environment"][7],"release_spans":spans("release"),"bilateral_grip_spans":spans("grip"),"largest_minimum_left_gap_m":max((x["gap_m"] for x in records),default=None),"last_100_bilateral_grip":len(records)>=100 and all(x["grip"] for x in records[-100:]),"missing_substeps":sum(coverage[t,k]!=1 for t in range(1,end+1) for k in range(16)),"overflow":overflow,"scope":"Only lane 7. Foot/toe clearance is separating-axis clearance at control endpoints for the estimated box shapes; support impulses and no-left-contact are summed over every substep. Right support requires opposing normals. No claim of continuous geometric clearance between endpoints, an actual release attempt, biological realism or unused-layout success."}
+assert parity and max(parity)<1e-6, max(parity,default=None)
+out={"endpoint_replay_offset":1,"endpoint_q_v_max_error":max(parity),"lane":7,"first_episode_steps":end,"physical_failure":ends["physical_failure_by_environment"][7],"release_spans":spans("release"),"bilateral_grip_spans":spans("grip"),"largest_minimum_left_gap_m":max((x["gap_m"] for x in records),default=None),"last_100_bilateral_grip":len(records)>=100 and all(x["grip"] for x in records[-100:]),"missing_substeps":sum(coverage[t,k]!=1 for t in range(1,end+1) for k in range(16)),"overflow":overflow,"scope":"Only lane 7. Foot/toe clearance is separating-axis clearance at control endpoints for the estimated box shapes; support impulses and no-left-contact are summed over every substep. Right support requires opposing normals. No claim of continuous geometric clearance between endpoints, an actual release attempt, biological realism or unused-layout success."}
 (A/"clearance-audit.json").write_text(json.dumps(out,indent=2)+"\n");print(json.dumps(out,indent=2))
