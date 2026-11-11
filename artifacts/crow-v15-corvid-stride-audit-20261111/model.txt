@@ -1,0 +1,69 @@
+0 crow_left_wing_sweep parent=0 child=1 q=7 axis=0,0,1 p=-0.00377425551,0.0371583328,0.0290732086 c=-0.0224249996,-0.0905762836,0.0119098602
+1 crow_right_wing_sweep parent=0 child=2 q=8 axis=0,0,-1 p=-0.00377425551,-0.0371583328,0.0290732086 c=-0.0224249996,0.0905762836,0.0119098602
+2 crow_left_wing_flap parent=1 child=3 q=9 axis=1,0,0 p=-0.0224249996,-0.0905762836,0.0119098602 c=-0.0224249996,-0.081001021,0.0422462076
+3 crow_right_wing_flap parent=2 child=4 q=10 axis=-1,0,0 p=-0.0224249996,0.0905762836,0.0119098602 c=-0.0224249996,0.081001021,0.0422462076
+4 crow_left_wing_pronation parent=3 child=5 q=11 axis=0,1,0 p=0,0,0 c=0,0,0
+5 crow_right_wing_pronation parent=4 child=6 q=12 axis=0,-1,0 p=0,0,0 c=0,0,0
+6 crow_tail_pitch parent=0 child=7 q=13 axis=0,1,0 p=-0.0164242573,0,0.030798208 c=0.103845,0.0109249996,0.0283359997
+7 crow_left_hip_pitch parent=8 child=9 q=14 axis=0,1,0 p=0,0,0 c=0,0,0.0316249989
+8 crow_left_knee_pitch parent=9 child=10 q=15 axis=0,1,0 p=0,0,-0.0316249989 c=0,0,0.0316249989
+9 crow_left_ankle_pitch parent=10 child=11 q=16 axis=0,1,0 p=0,0,-0.0316249989 c=-0.0287500005,0,0.0092000002
+10 crow_right_hip_pitch parent=12 child=13 q=17 axis=0,1,0 p=0,0,0 c=0,0,0.0316249989
+11 crow_right_knee_pitch parent=13 child=14 q=18 axis=0,1,0 p=0,0,-0.0316249989 c=0,0,0.0316249989
+12 crow_right_ankle_pitch parent=14 child=15 q=19 axis=0,1,0 p=0,0,-0.0316249989 c=-0.0287500005,0,0.0092000002
+13 crow_neck_yaw parent=0 child=16 q=20 axis=0,0,1 p=0.138650745,0,0.0850982144 c=0,0,0
+14 crow_neck_pitch parent=16 child=17 q=21 axis=0,1,0 p=0,0,0 c=-0.0399999991,0,-0.0150000006
+15 crow_beak_open parent=17 child=18 q=22 axis=0,1,0 p=0.0200000107,0,-0.00700000674 c=-0.0249999911,0,0.00399999321
+16 crow_left_front_toe_1_proximal_flex parent=11 child=19 q=23 axis=0,1,0 p=0.0026666671,-0.0120000001,0 c=-0.00899999961,0,0
+17 crow_left_front_toe_1_distal_flex parent=19 child=20 q=24 axis=0,1,0 p=0.00899999961,0,0 c=-0.00899999961,0,0
+18 crow_left_front_toe_2_proximal_flex parent=11 child=21 q=25 axis=0,1,0 p=0.0026666671,0,0 c=-0.00899999961,0,0
+19 crow_left_front_toe_2_distal_flex parent=21 child=22 q=26 axis=0,1,0 p=0.00899999961,0,0 c=-0.00899999961,0,0
+20 crow_left_front_toe_3_proximal_flex parent=11 child=23 q=27 axis=0,1,0 p=0.0026666671,0.0120000001,0 c=-0.00899999961,0,0
+21 crow_left_front_toe_3_distal_flex parent=23 child=24 q=28 axis=0,1,0 p=0.00899999961,0,0 c=-0.00899999961,0,0
+22 crow_left_rear_toe_proximal_flex parent=11 child=25 q=29 axis=0,-1,0 p=-0.0439999998,0,0 c=0.00899999961,0,0
+23 crow_left_rear_toe_distal_flex parent=25 child=26 q=30 axis=0,-1,0 p=-0.00899999961,0,0 c=0.00899999961,0,0
+24 crow_right_front_toe_1_proximal_flex parent=15 child=27 q=31 axis=0,1,0 p=0.0026666671,-0.0120000001,0 c=-0.00899999961,0,0
+25 crow_right_front_toe_1_distal_flex parent=27 child=28 q=32 axis=0,1,0 p=0.00899999961,0,0 c=-0.00899999961,0,0
+26 crow_right_front_toe_2_proximal_flex parent=15 child=29 q=33 axis=0,1,0 p=0.0026666671,0,0 c=-0.00899999961,0,0
+27 crow_right_front_toe_2_distal_flex parent=29 child=30 q=34 axis=0,1,0 p=0.00899999961,0,0 c=-0.00899999961,0,0
+28 crow_right_front_toe_3_proximal_flex parent=15 child=31 q=35 axis=0,1,0 p=0.0026666671,0.0120000001,0 c=-0.00899999961,0,0
+29 crow_right_front_toe_3_distal_flex parent=31 child=32 q=36 axis=0,1,0 p=0.00899999961,0,0 c=-0.00899999961,0,0
+30 crow_right_rear_toe_proximal_flex parent=15 child=33 q=37 axis=0,-1,0 p=-0.0439999998,0,0 c=0.00899999961,0,0
+31 crow_right_rear_toe_distal_flex parent=33 child=34 q=38 axis=0,-1,0 p=-0.00899999961,0,0 c=0.00899999961,0,0
+32 crow_left_hip_roll parent=0 child=8 q=39 axis=1,0,0 p=0.0174007453,0.0368000008,-0.0336017907 c=0,0,0
+33 crow_right_hip_roll parent=0 child=12 q=40 axis=1,0,0 p=0.0174007453,-0.0368000008,-0.0336017907 c=0,0,0
+body 0 crow_body
+body 1 crow_left_wing_sweep
+body 2 crow_right_wing_sweep
+body 3 crow_left_wing_flap_link
+body 4 crow_right_wing_flap_link
+body 5 crow_left_wing
+body 6 crow_right_wing
+body 7 crow_tail
+body 8 crow_left_hip_roll_link
+body 9 crow_left_thigh
+body 10 crow_left_shank
+body 11 crow_left_foot
+body 12 crow_right_hip_roll_link
+body 13 crow_right_thigh
+body 14 crow_right_shank
+body 15 crow_right_foot
+body 16 crow_neck_yaw_link
+body 17 crow_head
+body 18 crow_lower_beak
+body 19 crow_left_front_toe_1_proximal
+body 20 crow_left_front_toe_1_distal
+body 21 crow_left_front_toe_2_proximal
+body 22 crow_left_front_toe_2_distal
+body 23 crow_left_front_toe_3_proximal
+body 24 crow_left_front_toe_3_distal
+body 25 crow_left_rear_toe_proximal
+body 26 crow_left_rear_toe_distal
+body 27 crow_right_front_toe_1_proximal
+body 28 crow_right_front_toe_1_distal
+body 29 crow_right_front_toe_2_proximal
+body 30 crow_right_front_toe_2_distal
+body 31 crow_right_front_toe_3_proximal
+body 32 crow_right_front_toe_3_distal
+body 33 crow_right_rear_toe_proximal
+body 34 crow_right_rear_toe_distal

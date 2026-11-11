@@ -1,0 +1,4029 @@
+{
+  "source": "retained development baseline; see prior replay validation",
+  "angle_method": "sagittal projection in root frame: neck-hip-knee, hip-knee-ankle, knee-ankle-middle interphalangeal; geometry uses physical joint anchors; not a species-calibrated anatomical model",
+  "event_method": "toe segment normal impulse summed over each 20ms interval, threshold 1e-7 N s; within-interval order and contact continuity unknown",
+  "limitations": "cleared bouts are endpoint-resolved swing candidates, not proven stride events; minima can be edge-truncated and sampling can miss extrema; model toe topology differs from bird; related magpie data are not crow targets",
+  "rows": [
+    {
+      "seed": 20261126,
+      "lane": 0,
+      "side": "left",
+      "window_angle_span_deg": [
+        10.313622238795404,
+        13.347861575148016,
+        4.438699332410863
+      ],
+      "rear_toe_loaded_intervals": 67,
+      "middle_toe_loaded_intervals": 15,
+      "whole_foot_loaded_intervals": 71,
+      "rear_toe_loaded_bouts": [
+        [
+          201,
+          226
+        ],
+        [
+          238,
+          251
+        ],
+        [
+          263,
+          276
+        ],
+        [
+          288,
+          300
+        ]
+      ],
+      "middle_toe_loaded_bouts": [
+        [
+          244,
+          248
+        ],
+        [
+          269,
+          273
+        ],
+        [
+          294,
+          298
+        ]
+      ],
+      "clearance_bout_measurements": [
+        {
+          "clearance_bout_endpoints": [
+            229,
+            236
+          ],
+          "samples": 8,
+          "internal_angle_at_first_deg": [
+            124.7421131494485,
+            159.31686037379177,
+            89.67696160091307
+          ],
+          "internal_angle_at_last_deg": [
+            119.33189899471405,
+            152.41450888058196,
+            87.71508258787865
+          ],
+          "sampled_min_step": [
+            234,
+            234,
+            234
+          ],
+          "angle_span_deg": [
+            6.391118367280967,
+            8.681502141480621,
+            2.668421647386097
+          ]
+        },
+        {
+          "clearance_bout_endpoints": [
+            253,
+            260
+          ],
+          "samples": 8,
+          "internal_angle_at_first_deg": [
+            126.66860358663108,
+            162.02268024027208,
+            90.64089745626272
+          ],
+          "internal_angle_at_last_deg": [
+            118.56209243034414,
+            151.126819600741,
+            87.23160737462737
+          ],
+          "sampled_min_step": [
+            259,
+            259,
+            259
+          ],
+          "angle_span_deg": [
+            8.31605483223268,
+            11.388171491828416,
+            3.6318872684294234
+          ]
+        },
+        {
+          "clearance_bout_endpoints": [
+            278,
+            285
+          ],
+          "samples": 8,
+          "internal_angle_at_first_deg": [
+            126.66953355479315,
+            162.02218378445866,
+            90.64126830630919
+          ],
+          "internal_angle_at_last_deg": [
+            118.56221037357008,
+            151.12672357514631,
+            87.23168173392644
+          ],
+          "sampled_min_step": [
+            284,
+            284,
+            284
+          ],
+          "angle_span_deg": [
+            8.316642116356988,
+            11.387905886333982,
+            3.6321308125743315
+          ]
+        }
+      ]
+    },
+    {
+      "seed": 20261126,
+      "lane": 0,
+      "side": "right",
+      "window_angle_span_deg": [
+        11.002999054403162,
+        13.364493237403934,
+        4.417217617617837
+      ],
+      "rear_toe_loaded_intervals": 59,
+      "middle_toe_loaded_intervals": 11,
+      "whole_foot_loaded_intervals": 69,
+      "rear_toe_loaded_bouts": [
+        [
+          201,
+          210
+        ],
+        [
+          216,
+          217
+        ],
+        [
+          224,
+          239
+        ],
+        [
+          250,
+          264
+        ],
+        [
+          275,
+          289
+        ],
+        [
+          300,
+          300
+        ]
+      ],
+      "middle_toe_loaded_bouts": [
+        [
+          205,
+          215
+        ]
+      ],
+      "clearance_bout_measurements": [
+        {
+          "clearance_bout_endpoints": [
+            241,
+            248
+          ],
+          "samples": 8,
+          "internal_angle_at_first_deg": [
+            125.61189578092119,
+            160.6450777185173,
+            90.14750177406856
+          ],
+          "internal_angle_at_last_deg": [
+            118.87954483986968,
+            151.67398740179516,
+            87.44243277398239
+          ],
+          "sampled_min_step": [
+            247,
+            246,
+            246
+          ],
+          "angle_span_deg": [
+            7.227320677624334,
+            9.942674888714436,
+            3.1474090641069665
+          ]
+        },
+        {
+          "clearance_bout_endpoints": [
+            267,
+            273
+          ],
+          "samples": 7,
+          "internal_angle_at_first_deg": [
+            123.6972990263532,
+            157.8748332006184,
+            89.19329095263886
+          ],
+          "internal_angle_at_last_deg": [
+            118.88054377473912,
+            151.6735025103883,
+            87.44268367917364
+          ],
+          "sampled_min_step": [
+            272,
+            271,
+            271
+          ],
+          "angle_span_deg": [
+            5.311769771792655,
+            7.173427908825545,
+            2.1926348324512617
+          ]
+        },
+        {
+          "clearance_bout_endpoints": [
+            292,
+            298
+          ],
+          "samples": 7,
+          "internal_angle_at_first_deg": [
+            123.69517021541733,
+            157.8759183385113,
+            89.19291020977654
+          ],
+          "internal_angle_at_last_deg": [
+            118.88029208384046,
+            151.6736342480686,
+            87.4425563234497
+          ],
+          "sampled_min_step": [
+            297,
+            296,
+            296
+          ],
+          "angle_span_deg": [
+            5.308962665603005,
+            7.174900417908901,
+            2.1920519310838387
+          ]
+        }
+      ]
+    },
+    {
+      "seed": 20261126,
+      "lane": 1,
+      "side": "left",
+      "window_angle_span_deg": [
+        10.31431689480506,
+        13.348407601103986,
+        4.438286695931708
+      ],
+      "rear_toe_loaded_intervals": 67,
+      "middle_toe_loaded_intervals": 20,
+      "whole_foot_loaded_intervals": 70,
+      "rear_toe_loaded_bouts": [
+        [
+          201,
+          226
+        ],
+        [
+          238,
+          251
+        ],
+        [
+          263,
+          276
+        ],
+        [
+          288,
+          300
+        ]
+      ],
+      "middle_toe_loaded_bouts": [
+        [
+          201,
+          210
+        ],
+        [
+          244,
+          248
+        ],
+        [
+          269,
+          273
+        ]
+      ],
+      "clearance_bout_measurements": [
+        {
+          "clearance_bout_endpoints": [
+            228,
+            236
+          ],
+          "samples": 9,
+          "internal_angle_at_first_deg": [
+            126.66495343389452,
+            162.0239450787473,
+            90.6403378723826
+          ],
+          "internal_angle_at_last_deg": [
+            119.33192871607204,
+            152.41449412788796,
+            87.71506236569414
+          ],
+          "sampled_min_step": [
+            234,
+            234,
+            234
+          ],
+          "angle_span_deg": [
+            8.313811391684766,
+            11.388681546000726,
+            3.6317500092413013
+          ]
+        },
+        {
+          "clearance_bout_endpoints": [
+            253,
+            260
+          ],
+          "samples": 8,
+          "internal_angle_at_first_deg": [
+            126.66926111895759,
+            162.02231845709903,
+            90.64113786027902
+          ],
+          "internal_angle_at_last_deg": [
+            118.5621531324417,
+            151.12675167099619,
+            87.23167276539547
+          ],
+          "sampled_min_step": [
+            259,
+            259,
+            259
+          ],
+          "angle_span_deg": [
+            8.316613510695205,
+            11.387864557645486,
+            3.6320975485640474
+          ]
+        },
+        {
+          "clearance_bout_endpoints": [
+            278,
+            285
+          ],
+          "samples": 8,
+          "internal_angle_at_first_deg": [
+            126.66823984818782,
+            162.02276881742247,
+            90.6410450959096
+          ],
+          "internal_angle_at_last_deg": [
+            118.5626037188321,
+            151.12651026472508,
+            87.23177414371503
+          ],
+          "sampled_min_step": [
+            284,
+            284,
+            284
+          ],
+          "angle_span_deg": [
+            8.31571676319028,
+            11.388343989779088,
+            3.631936480156156
+          ]
+        }
+      ]
+    },
+    {
+      "seed": 20261126,
+      "lane": 1,
+      "side": "right",
+      "window_angle_span_deg": [
+        11.00257908528009,
+        13.364056394799661,
+        4.4138065939423825
+      ],
+      "rear_toe_loaded_intervals": 60,
+      "middle_toe_loaded_intervals": 15,
+      "whole_foot_loaded_intervals": 69,
+      "rear_toe_loaded_bouts": [
+        [
+          201,
+          211
+        ],
+        [
+          216,
+          217
+        ],
+        [
+          224,
+          239
+        ],
+        [
+          250,
+          264
+        ],
+        [
+          275,
+          289
+        ],
+        [
+          300,
+          300
+        ]
+      ],
+      "middle_toe_loaded_bouts": [
+        [
+          201,
+          215
+        ]
+      ],
+      "clearance_bout_measurements": [
+        {
+          "clearance_bout_endpoints": [
+            241,
+            248
+          ],
+          "samples": 8,
+          "internal_angle_at_first_deg": [
+            125.61235440574605,
+            160.64483004356174,
+            90.14743191333953
+          ],
+          "internal_angle_at_last_deg": [
+            118.87922979756794,
+            151.6741883214004,
+            87.44233339801285
+          ],
+          "sampled_min_step": [
+            247,
+            246,
+            246
+          ],
+          "angle_span_deg": [
+            7.227987783343025,
+            9.94264213309495,
+            3.147230688307104
+          ]
+        },
+        {
+          "clearance_bout_endpoints": [
+            266,
+            273
+          ],
+          "samples": 8,
+          "internal_angle_at_first_deg": [
+            125.61239366512935,
+            160.6450316589269,
+            90.14740262333623
+          ],
+          "internal_angle_at_last_deg": [
+            118.88047074434589,
+            151.6734691712968,
+            87.44273064658695
+          ],
+          "sampled_min_step": [
+            272,
+            271,
+            271
+          ],
+          "angle_span_deg": [
+            7.226992777195932,
+            9.943298281238754,
+            3.1469990978260967
+          ]
+        },
+        {
+          "clearance_bout_endpoints": [
+            292,
+            298
+          ],
+          "samples": 7,
+          "internal_angle_at_first_deg": [
+            123.6946455520885,
+            157.8761644041078,
+            89.19279260031114
+          ],
+          "internal_angle_at_last_deg": [
+            118.88038608498188,
+            151.67359310987473,
+            87.44257853367495
+          ],
+          "sampled_min_step": [
+            297,
+            296,
+            296
+          ],
+          "angle_span_deg": [
+            5.308787871890345,
+            7.1749797176387915,
+            2.1920388756663414
+          ]
+        }
+      ]
+    },
+    {
+      "seed": 20261126,
+      "lane": 2,
+      "side": "left",
+      "window_angle_span_deg": [
+        10.313454329829824,
+        13.346955725355969,
+        4.437766488068789
+      ],
+      "rear_toe_loaded_intervals": 67,
+      "middle_toe_loaded_intervals": 14,
+      "whole_foot_loaded_intervals": 70,
+      "rear_toe_loaded_bouts": [
+        [
+          201,
+          226
+        ],
+        [
+          238,
+          251
+        ],
+        [
+          263,
+          276
+        ],
+        [
+          288,
+          300
+        ]
+      ],
+      "middle_toe_loaded_bouts": [
+        [
+          244,
+          247
+        ],
+        [
+          269,
+          273
+        ],
+        [
+          294,
+          298
+        ]
+      ],
+      "clearance_bout_measurements": [
+        {
+          "clearance_bout_endpoints": [
+            228,
+            236
+          ],
+          "samples": 9,
+          "internal_angle_at_first_deg": [
+            126.6654028751449,
+            162.0236701148401,
+            90.64061594486805
+          ],
+          "internal_angle_at_last_deg": [
+            119.33164436076719,
+            152.4145844653083,
+            87.71503701452866
+          ],
+          "sampled_min_step": [
+            234,
+            234,
+            234
+          ],
+          "angle_span_deg": [
+            8.314246591098879,
+            11.388422641110878,
+            3.6320194368355345
+          ]
+        },
+        {
+          "clearance_bout_endpoints": [
+            253,
+            260
+          ],
+          "samples": 8,
+          "internal_angle_at_first_deg": [
+            126.66910280536601,
+            162.0224313536169,
+            90.64105444619315
+          ],
+          "internal_angle_at_last_deg": [
+            118.56207720302086,
+            151.12683702306964,
+            87.2315978356754
+          ],
+          "sampled_min_step": [
+            259,
+            259,
+            259
+          ],
+          "angle_span_deg": [
+            8.316504928612574,
+            11.387942765402443,
+            3.632035362997428
+          ]
+        },
+        {
+          "clearance_bout_endpoints": [
+            278,
+            285
+          ],
+          "samples": 8,
+          "internal_angle_at_first_deg": [
+            126.66952238154548,
+            162.02218718736037,
+            90.64124938983166
+          ],
+          "internal_angle_at_last_deg": [
+            118.56239966018364,
+            151.12665999799236,
+            87.23169433795177
+          ],
+          "sampled_min_step": [
+            284,
+            284,
+            284
+          ],
+          "angle_span_deg": [
+            8.317325104558037,
+            11.387601592548265,
+            3.632219465355959
+          ]
+        }
+      ]
+    },
+    {
+      "seed": 20261126,
+      "lane": 2,
+      "side": "right",
+      "window_angle_span_deg": [
+        11.006317131450004,
+        13.364801575987798,
+        4.417011421236452
+      ],
+      "rear_toe_loaded_intervals": 58,
+      "middle_toe_loaded_intervals": 11,
+      "whole_foot_loaded_intervals": 69,
+      "rear_toe_loaded_bouts": [
+        [
+          201,
+          211
+        ],
+        [
+          224,
+          239
+        ],
+        [
+          250,
+          264
+        ],
+        [
+          275,
+          289
+        ],
+        [
+          300,
+          300
+        ]
+      ],
+      "middle_toe_loaded_bouts": [
+        [
+          205,
+          215
+        ]
+      ],
+      "clearance_bout_measurements": [
+        {
+          "clearance_bout_endpoints": [
+            241,
+            248
+          ],
+          "samples": 8,
+          "internal_angle_at_first_deg": [
+            125.61128989985872,
+            160.6454380192923,
+            90.14734299153663
+          ],
+          "internal_angle_at_last_deg": [
+            118.87968423020507,
+            151.67397124975656,
+            87.44241977330277
+          ],
+          "sampled_min_step": [
+            247,
+            246,
+            246
+          ],
+          "angle_span_deg": [
+            7.226999084198695,
+            9.943094470565825,
+            3.1472357708647394
+          ]
+        },
+        {
+          "clearance_bout_endpoints": [
+            267,
+            273
+          ],
+          "samples": 7,
+          "internal_angle_at_first_deg": [
+            123.69662287362229,
+            157.87514711476618,
+            89.1932211611087
+          ],
+          "internal_angle_at_last_deg": [
+            118.88060501817354,
+            151.6734686885305,
+            87.44270701244166
+          ],
+          "sampled_min_step": [
+            272,
+            271,
+            271
+          ],
+          "angle_span_deg": [
+            5.3110259324182465,
+            7.1737823851164535,
+            2.192550743356847
+          ]
+        },
+        {
+          "clearance_bout_endpoints": [
+            292,
+            298
+          ],
+          "samples": 7,
+          "internal_angle_at_first_deg": [
+            123.69585496777064,
+            157.87559631717158,
+            89.1929521729574
+          ],
+          "internal_angle_at_last_deg": [
+            118.88029712746672,
+            151.67363768773666,
+            87.4425463805058
+          ],
+          "sampled_min_step": [
+            297,
+            296,
+            296
+          ],
+          "angle_span_deg": [
+            5.309772687579894,
+            7.174588348468632,
+            2.192092393346371
+          ]
+        }
+      ]
+    },
+    {
+      "seed": 20261126,
+      "lane": 3,
+      "side": "left",
+      "window_angle_span_deg": [
+        10.3115597024388,
+        13.351196348485672,
+        4.437730578615515
+      ],
+      "rear_toe_loaded_intervals": 66,
+      "middle_toe_loaded_intervals": 11,
+      "whole_foot_loaded_intervals": 71,
+      "rear_toe_loaded_bouts": [
+        [
+          201,
+          226
+        ],
+        [
+          238,
+          250
+        ],
+        [
+          263,
+          276
+        ],
+        [
+          288,
+          300
+        ]
+      ],
+      "middle_toe_loaded_bouts": [
+        [
+          269,
+          274
+        ],
+        [
+          294,
+          298
+        ]
+      ],
+      "clearance_bout_measurements": [
+        {
+          "clearance_bout_endpoints": [
+            228,
+            236
+          ],
+          "samples": 9,
+          "internal_angle_at_first_deg": [
+            126.66741076264282,
+            162.0227244592324,
+            90.64098994623366
+          ],
+          "internal_angle_at_last_deg": [
+            119.33185680067105,
+            152.41451315584996,
+            87.71507515483471
+          ],
+          "sampled_min_step": [
+            234,
+            234,
+            234
+          ],
+          "angle_span_deg": [
+            8.316385016583027,
+            11.387369382790666,
+            3.632469899976172
+          ]
+        },
+        {
+          "clearance_bout_endpoints": [
+            254,
+            260
+          ],
+          "samples": 7,
+          "internal_angle_at_first_deg": [
+            124.74432039122266,
+            159.31617937901535,
+            89.67733420433918
+          ],
+          "internal_angle_at_last_deg": [
+            118.56214944946666,
+            151.126749142092,
+            87.23168935692998
+          ],
+          "sampled_min_step": [
+            259,
+            259,
+            259
+          ],
+          "angle_span_deg": [
+            6.3916183742147155,
+            8.681741962500553,
+            2.668285841744833
+          ]
+        },
+        {
+          "clearance_bout_endpoints": [
+            278,
+            285
+          ],
+          "samples": 8,
+          "internal_angle_at_first_deg": [
+            126.6695057311405,
+            162.02219394411227,
+            90.64142747710876
+          ],
+          "internal_angle_at_last_deg": [
+            118.56247209501424,
+            151.1266231781825,
+            87.23173243160541
+          ],
+          "sampled_min_step": [
+            284,
+            284,
+            284
+          ],
+          "angle_span_deg": [
+            8.316969484242478,
+            11.387747429204637,
+            3.6323511821858716
+          ]
+        }
+      ]
+    },
+    {
+      "seed": 20261126,
+      "lane": 3,
+      "side": "right",
+      "window_angle_span_deg": [
+        11.004371984866538,
+        13.36518975858337,
+        4.418975855856644
+      ],
+      "rear_toe_loaded_intervals": 57,
+      "middle_toe_loaded_intervals": 15,
+      "whole_foot_loaded_intervals": 69,
+      "rear_toe_loaded_bouts": [
+        [
+          201,
+          210
+        ],
+        [
+          224,
+          239
+        ],
+        [
+          250,
+          264
+        ],
+        [
+          275,
+          289
+        ],
+        [
+          300,
+          300
+        ]
+      ],
+      "middle_toe_loaded_bouts": [
+        [
+          205,
+          215
+        ],
+        [
+          233,
+          236
+        ]
+      ],
+      "clearance_bout_measurements": [
+        {
+          "clearance_bout_endpoints": [
+            243,
+            248
+          ],
+          "samples": 6,
+          "internal_angle_at_first_deg": [
+            122.85474725397613,
+            156.52243421431854,
+            88.64954518804736
+          ],
+          "internal_angle_at_last_deg": [
+            118.99442426840476,
+            151.746009366444,
+            87.44822689963641
+          ],
+          "sampled_min_step": [
+            247,
+            247,
+            246
+          ],
+          "angle_span_deg": [
+            4.217573256032608,
+            5.551599505724141,
+            1.566232292235938
+          ]
+        },
+        {
+          "clearance_bout_endpoints": [
+            266,
+            273
+          ],
+          "samples": 8,
+          "internal_angle_at_first_deg": [
+            125.61242347101464,
+            160.645031655739,
+            90.1474571050389
+          ],
+          "internal_angle_at_last_deg": [
+            118.88074519006832,
+            151.67346093907446,
+            87.44267390836086
+          ],
+          "sampled_min_step": [
+            272,
+            271,
+            271
+          ],
+          "angle_span_deg": [
+            7.227005332762502,
+            9.943445270943897,
+            3.1469358313085536
+          ]
+        },
+        {
+          "clearance_bout_endpoints": [
+            292,
+            298
+          ],
+          "samples": 7,
+          "internal_angle_at_first_deg": [
+            123.69603273605024,
+            157.87551236404948,
+            89.19300862760944
+          ],
+          "internal_angle_at_last_deg": [
+            118.88047178739284,
+            151.67354367852505,
+            87.44260797427158
+          ],
+          "sampled_min_step": [
+            297,
+            296,
+            296
+          ],
+          "angle_span_deg": [
+            5.310067918935303,
+            7.1743747069462245,
+            2.1922196991529006
+          ]
+        }
+      ]
+    },
+    {
+      "seed": 20261126,
+      "lane": 4,
+      "side": "left",
+      "window_angle_span_deg": [
+        10.314535923875297,
+        13.345924288478102,
+        4.437824470785927
+      ],
+      "rear_toe_loaded_intervals": 67,
+      "middle_toe_loaded_intervals": 6,
+      "whole_foot_loaded_intervals": 71,
+      "rear_toe_loaded_bouts": [
+        [
+          201,
+          226
+        ],
+        [
+          238,
+          251
+        ],
+        [
+          263,
+          276
+        ],
+        [
+          288,
+          300
+        ]
+      ],
+      "middle_toe_loaded_bouts": [
+        [
+          269,
+          274
+        ]
+      ],
+      "clearance_bout_measurements": [
+        {
+          "clearance_bout_endpoints": [
+            229,
+            236
+          ],
+          "samples": 8,
+          "internal_angle_at_first_deg": [
+            124.74162512072542,
+            159.31738092252687,
+            89.67697381000701
+          ],
+          "internal_angle_at_last_deg": [
+            119.33174261695407,
+            152.41456183585763,
+            87.71504991437028
+          ],
+          "sampled_min_step": [
+            234,
+            234,
+            234
+          ],
+          "angle_span_deg": [
+            6.390855755870376,
+            8.681889570301593,
+            2.668526732294879
+          ]
+        },
+        {
+          "clearance_bout_endpoints": [
+            253,
+            260
+          ],
+          "samples": 8,
+          "internal_angle_at_first_deg": [
+            126.66805850386196,
+            162.0229074550919,
+            90.640749510891
+          ],
+          "internal_angle_at_last_deg": [
+            118.5621969768514,
+            151.12677292491114,
+            87.231650290023
+          ],
+          "sampled_min_step": [
+            259,
+            259,
+            259
+          ],
+          "angle_span_deg": [
+            8.315911923885238,
+            11.388176234356791,
+            3.63186346840142
+          ]
+        },
+        {
+          "clearance_bout_endpoints": [
+            278,
+            285
+          ],
+          "samples": 8,
+          "internal_angle_at_first_deg": [
+            126.66948284485707,
+            162.0222042946248,
+            90.64140173010811
+          ],
+          "internal_angle_at_last_deg": [
+            118.5625419073792,
+            151.12652312685273,
+            87.23180351317895
+          ],
+          "sampled_min_step": [
+            284,
+            284,
+            284
+          ],
+          "angle_span_deg": [
+            8.316380249261016,
+            11.38805625758144,
+            3.6321717200976167
+          ]
+        }
+      ]
+    },
+    {
+      "seed": 20261126,
+      "lane": 4,
+      "side": "right",
+      "window_angle_span_deg": [
+        11.003271796956739,
+        13.363354222183062,
+        4.421318925490084
+      ],
+      "rear_toe_loaded_intervals": 57,
+      "middle_toe_loaded_intervals": 14,
+      "whole_foot_loaded_intervals": 69,
+      "rear_toe_loaded_bouts": [
+        [
+          201,
+          210
+        ],
+        [
+          224,
+          239
+        ],
+        [
+          250,
+          264
+        ],
+        [
+          275,
+          289
+        ],
+        [
+          300,
+          300
+        ]
+      ],
+      "middle_toe_loaded_bouts": [
+        [
+          205,
+          215
+        ],
+        [
+          233,
+          235
+        ]
+      ],
+      "clearance_bout_measurements": [
+        {
+          "clearance_bout_endpoints": [
+            241,
+            248
+          ],
+          "samples": 8,
+          "internal_angle_at_first_deg": [
+            125.61163714593151,
+            160.64521423190493,
+            90.1475012571862
+          ],
+          "internal_angle_at_last_deg": [
+            118.8804833081725,
+            151.6735645480976,
+            87.44264134529575
+          ],
+          "sampled_min_step": [
+            247,
+            246,
+            246
+          ],
+          "angle_span_deg": [
+            7.226698060065459,
+            9.942374653185965,
+            3.1476355866844443
+          ]
+        },
+        {
+          "clearance_bout_endpoints": [
+            266,
+            273
+          ],
+          "samples": 8,
+          "internal_angle_at_first_deg": [
+            125.61190943152083,
+            160.64512723250175,
+            90.14716010818303
+          ],
+          "internal_angle_at_last_deg": [
+            118.88057029200807,
+            151.67351746051807,
+            87.44267337120772
+          ],
+          "sampled_min_step": [
+            272,
+            271,
+            271
+          ],
+          "angle_span_deg": [
+            7.226565329324103,
+            9.943594658691524,
+            3.1465829863018655
+          ]
+        },
+        {
+          "clearance_bout_endpoints": [
+            292,
+            298
+          ],
+          "samples": 7,
+          "internal_angle_at_first_deg": [
+            123.6952262064644,
+            157.87599065660774,
+            89.19279606351104
+          ],
+          "internal_angle_at_last_deg": [
+            118.88031459148354,
+            151.6736317523239,
+            87.4425488945943
+          ],
+          "sampled_min_step": [
+            297,
+            296,
+            296
+          ],
+          "angle_span_deg": [
+            5.309316781518831,
+            7.174844358831422,
+            2.192017879818195
+          ]
+        }
+      ]
+    },
+    {
+      "seed": 20261126,
+      "lane": 5,
+      "side": "left",
+      "window_angle_span_deg": [
+        10.311562497376997,
+        13.346971515822474,
+        4.438662502208842
+      ],
+      "rear_toe_loaded_intervals": 67,
+      "middle_toe_loaded_intervals": 5,
+      "whole_foot_loaded_intervals": 70,
+      "rear_toe_loaded_bouts": [
+        [
+          201,
+          226
+        ],
+        [
+          238,
+          251
+        ],
+        [
+          263,
+          276
+        ],
+        [
+          288,
+          300
+        ]
+      ],
+      "middle_toe_loaded_bouts": [
+        [
+          269,
+          273
+        ]
+      ],
+      "clearance_bout_measurements": [
+        {
+          "clearance_bout_endpoints": [
+            228,
+            236
+          ],
+          "samples": 9,
+          "internal_angle_at_first_deg": [
+            126.66728835046791,
+            162.02268380536023,
+            90.64094109038493
+          ],
+          "internal_angle_at_last_deg": [
+            119.3317547102475,
+            152.41454921103204,
+            87.71505647062862
+          ],
+          "sampled_min_step": [
+            234,
+            234,
+            234
+          ],
+          "angle_span_deg": [
+            8.316191807927112,
+            11.387359681128913,
+            3.6324066225106293
+          ]
+        },
+        {
+          "clearance_bout_endpoints": [
+            253,
+            260
+          ],
+          "samples": 8,
+          "internal_angle_at_first_deg": [
+            126.66831905049261,
+            162.0228511248802,
+            90.6407745278426
+          ],
+          "internal_angle_at_last_deg": [
+            118.5621534427063,
+            151.12677229336293,
+            87.23164502644454
+          ],
+          "sampled_min_step": [
+            259,
+            259,
+            259
+          ],
+          "angle_span_deg": [
+            8.315914936448124,
+            11.388266983089778,
+            3.6318040672815357
+          ]
+        },
+        {
+          "clearance_bout_endpoints": [
+            278,
+            285
+          ],
+          "samples": 8,
+          "internal_angle_at_first_deg": [
+            126.66961190836305,
+            162.02213964799626,
+            90.64128757599296
+          ],
+          "internal_angle_at_last_deg": [
+            118.56222878614595,
+            151.12667926377574,
+            87.2316907976404
+          ],
+          "sampled_min_step": [
+            284,
+            284,
+            284
+          ],
+          "angle_span_deg": [
+            8.316780993447964,
+            11.387855218300388,
+            3.632120667692689
+          ]
+        }
+      ]
+    },
+    {
+      "seed": 20261126,
+      "lane": 5,
+      "side": "right",
+      "window_angle_span_deg": [
+        11.006591652801148,
+        13.363613838046518,
+        4.4182044497277815
+      ],
+      "rear_toe_loaded_intervals": 57,
+      "middle_toe_loaded_intervals": 15,
+      "whole_foot_loaded_intervals": 69,
+      "rear_toe_loaded_bouts": [
+        [
+          201,
+          210
+        ],
+        [
+          224,
+          239
+        ],
+        [
+          250,
+          264
+        ],
+        [
+          275,
+          289
+        ],
+        [
+          300,
+          300
+        ]
+      ],
+      "middle_toe_loaded_bouts": [
+        [
+          205,
+          215
+        ],
+        [
+          233,
+          236
+        ]
+      ],
+      "clearance_bout_measurements": [
+        {
+          "clearance_bout_endpoints": [
+            241,
+            248
+          ],
+          "samples": 8,
+          "internal_angle_at_first_deg": [
+            125.61174400655986,
+            160.64518535216746,
+            90.14756977161858
+          ],
+          "internal_angle_at_last_deg": [
+            118.87995886221638,
+            151.6737851263132,
+            87.44251191793231
+          ],
+          "sampled_min_step": [
+            247,
+            246,
+            246
+          ],
+          "angle_span_deg": [
+            7.227108262959973,
+            9.942450757211702,
+            3.147646953885527
+          ]
+        },
+        {
+          "clearance_bout_endpoints": [
+            267,
+            273
+          ],
+          "samples": 7,
+          "internal_angle_at_first_deg": [
+            123.69730683923312,
+            157.874771690316,
+            89.19330873097267
+          ],
+          "internal_angle_at_last_deg": [
+            118.88076721616687,
+            151.6734349232797,
+            87.44268104841944
+          ],
+          "sampled_min_step": [
+            272,
+            271,
+            271
+          ],
+          "angle_span_deg": [
+            5.311681076737486,
+            7.173356028106241,
+            2.1926672464532118
+          ]
+        },
+        {
+          "clearance_bout_endpoints": [
+            292,
+            298
+          ],
+          "samples": 7,
+          "internal_angle_at_first_deg": [
+            123.69427970966919,
+            157.8763040938683,
+            89.1926995828329
+          ],
+          "internal_angle_at_last_deg": [
+            118.8801023578733,
+            151.67375060310565,
+            87.44249192361292
+          ],
+          "sampled_min_step": [
+            297,
+            296,
+            296
+          ],
+          "angle_span_deg": [
+            5.308546399680054,
+            7.175169979422407,
+            2.191918607379904
+          ]
+        }
+      ]
+    },
+    {
+      "seed": 20261126,
+      "lane": 6,
+      "side": "left",
+      "window_angle_span_deg": [
+        10.312566730610044,
+        13.348060402041426,
+        4.437318794945753
+      ],
+      "rear_toe_loaded_intervals": 67,
+      "middle_toe_loaded_intervals": 9,
+      "whole_foot_loaded_intervals": 71,
+      "rear_toe_loaded_bouts": [
+        [
+          201,
+          226
+        ],
+        [
+          238,
+          251
+        ],
+        [
+          263,
+          276
+        ],
+        [
+          288,
+          300
+        ]
+      ],
+      "middle_toe_loaded_bouts": [
+        [
+          269,
+          273
+        ],
+        [
+          294,
+          297
+        ]
+      ],
+      "clearance_bout_measurements": [
+        {
+          "clearance_bout_endpoints": [
+            229,
+            236
+          ],
+          "samples": 8,
+          "internal_angle_at_first_deg": [
+            124.74405144547296,
+            159.3159843038889,
+            89.67751307846191
+          ],
+          "internal_angle_at_last_deg": [
+            119.33237606868111,
+            152.41426595563385,
+            87.71518965704635
+          ],
+          "sampled_min_step": [
+            234,
+            234,
+            234
+          ],
+          "angle_span_deg": [
+            6.392680872996394,
+            8.680822669177644,
+            2.6688839482635984
+          ]
+        },
+        {
+          "clearance_bout_endpoints": [
+            253,
+            260
+          ],
+          "samples": 8,
+          "internal_angle_at_first_deg": [
+            126.66957660918476,
+            162.0221495603361,
+            90.64134014216238
+          ],
+          "internal_angle_at_last_deg": [
+            118.56228764400807,
+            151.12668300666644,
+            87.23171558024148
+          ],
+          "sampled_min_step": [
+            259,
+            259,
+            259
+          ],
+          "angle_span_deg": [
+            8.316905247659207,
+            11.387691842568813,
+            3.632305928044161
+          ]
+        },
+        {
+          "clearance_bout_endpoints": [
+            278,
+            285
+          ],
+          "samples": 8,
+          "internal_angle_at_first_deg": [
+            126.66954077697979,
+            162.02217360127912,
+            90.64126895093291
+          ],
+          "internal_angle_at_last_deg": [
+            118.56222813138443,
+            151.1266936625152,
+            87.23168235170918
+          ],
+          "sampled_min_step": [
+            284,
+            284,
+            284
+          ],
+          "angle_span_deg": [
+            8.31702356921673,
+            11.387731700257149,
+            3.6321803019788206
+          ]
+        }
+      ]
+    },
+    {
+      "seed": 20261126,
+      "lane": 6,
+      "side": "right",
+      "window_angle_span_deg": [
+        11.00551195177026,
+        13.3643069146936,
+        4.420781547449764
+      ],
+      "rear_toe_loaded_intervals": 58,
+      "middle_toe_loaded_intervals": 11,
+      "whole_foot_loaded_intervals": 69,
+      "rear_toe_loaded_bouts": [
+        [
+          201,
+          211
+        ],
+        [
+          224,
+          239
+        ],
+        [
+          250,
+          264
+        ],
+        [
+          275,
+          289
+        ],
+        [
+          300,
+          300
+        ]
+      ],
+      "middle_toe_loaded_bouts": [
+        [
+          205,
+          215
+        ]
+      ],
+      "clearance_bout_measurements": [
+        {
+          "clearance_bout_endpoints": [
+            241,
+            248
+          ],
+          "samples": 8,
+          "internal_angle_at_first_deg": [
+            125.61154585148438,
+            160.6452758188964,
+            90.14745169401223
+          ],
+          "internal_angle_at_last_deg": [
+            118.8799108673288,
+            151.67381447483316,
+            87.44253107436413
+          ],
+          "sampled_min_step": [
+            247,
+            246,
+            246
+          ],
+          "angle_span_deg": [
+            7.2266165220799365,
+            9.942723497627526,
+            3.147438677260567
+          ]
+        },
+        {
+          "clearance_bout_endpoints": [
+            267,
+            273
+          ],
+          "samples": 7,
+          "internal_angle_at_first_deg": [
+            123.69723107038838,
+            157.87484684788762,
+            89.19327913732839
+          ],
+          "internal_angle_at_last_deg": [
+            118.88067890796016,
+            151.67347728338459,
+            87.44266701139207
+          ],
+          "sampled_min_step": [
+            272,
+            271,
+            271
+          ],
+          "angle_span_deg": [
+            5.311622469555516,
+            7.173465448634573,
+            2.1926220803047443
+          ]
+        },
+        {
+          "clearance_bout_endpoints": [
+            292,
+            298
+          ],
+          "samples": 7,
+          "internal_angle_at_first_deg": [
+            123.69535390627698,
+            157.8759000008747,
+            89.19283379061588
+          ],
+          "internal_angle_at_last_deg": [
+            118.88020756816387,
+            151.67368319759606,
+            87.44252108900118
+          ],
+          "sampled_min_step": [
+            297,
+            296,
+            296
+          ],
+          "angle_span_deg": [
+            5.309451997182123,
+            7.1747629350238356,
+            2.1920516529624763
+          ]
+        }
+      ]
+    },
+    {
+      "seed": 20261126,
+      "lane": 7,
+      "side": "left",
+      "window_angle_span_deg": [
+        10.312255599817703,
+        13.36505289544823,
+        4.43774072789742
+      ],
+      "rear_toe_loaded_intervals": 67,
+      "middle_toe_loaded_intervals": 9,
+      "whole_foot_loaded_intervals": 71,
+      "rear_toe_loaded_bouts": [
+        [
+          201,
+          226
+        ],
+        [
+          238,
+          251
+        ],
+        [
+          263,
+          276
+        ],
+        [
+          288,
+          300
+        ]
+      ],
+      "middle_toe_loaded_bouts": [
+        [
+          269,
+          274
+        ],
+        [
+          294,
+          296
+        ]
+      ],
+      "clearance_bout_measurements": [
+        {
+          "clearance_bout_endpoints": [
+            228,
+            236
+          ],
+          "samples": 9,
+          "internal_angle_at_first_deg": [
+            126.66720756060826,
+            162.0226954660098,
+            90.64100460620192
+          ],
+          "internal_angle_at_last_deg": [
+            119.33183091525454,
+            152.41452072840397,
+            87.71507330109904
+          ],
+          "sampled_min_step": [
+            234,
+            234,
+            234
+          ],
+          "angle_span_deg": [
+            8.316234233354479,
+            11.387327424793625,
+            3.632480675317936
+          ]
+        },
+        {
+          "clearance_bout_endpoints": [
+            254,
+            260
+          ],
+          "samples": 7,
+          "internal_angle_at_first_deg": [
+            124.74349980763525,
+            159.3163751945238,
+            89.67707785316469
+          ],
+          "internal_angle_at_last_deg": [
+            118.56276774817171,
+            151.1265317916739,
+            87.2317446354163
+          ],
+          "sampled_min_step": [
+            259,
+            259,
+            259
+          ],
+          "angle_span_deg": [
+            6.390665123128173,
+            8.682002431684793,
+            2.6680080570459666
+          ]
+        },
+        {
+          "clearance_bout_endpoints": [
+            278,
+            285
+          ],
+          "samples": 8,
+          "internal_angle_at_first_deg": [
+            126.66946047762428,
+            162.0222163835485,
+            90.6414003142647
+          ],
+          "internal_angle_at_last_deg": [
+            118.56266798941436,
+            151.12648765453676,
+            87.2318016498866
+          ],
+          "sampled_min_step": [
+            284,
+            284,
+            284
+          ],
+          "angle_span_deg": [
+            8.316006297904849,
+            11.388267349477445,
+            3.632061051336322
+          ]
+        }
+      ]
+    },
+    {
+      "seed": 20261126,
+      "lane": 7,
+      "side": "right",
+      "window_angle_span_deg": [
+        11.013139606443318,
+        13.364453798228567,
+        4.421682790203818
+      ],
+      "rear_toe_loaded_intervals": 57,
+      "middle_toe_loaded_intervals": 14,
+      "whole_foot_loaded_intervals": 70,
+      "rear_toe_loaded_bouts": [
+        [
+          201,
+          210
+        ],
+        [
+          224,
+          239
+        ],
+        [
+          250,
+          264
+        ],
+        [
+          275,
+          289
+        ],
+        [
+          300,
+          300
+        ]
+      ],
+      "middle_toe_loaded_bouts": [
+        [
+          205,
+          215
+        ],
+        [
+          258,
+          260
+        ]
+      ],
+      "clearance_bout_measurements": [
+        {
+          "clearance_bout_endpoints": [
+            244,
+            248
+          ],
+          "samples": 5,
+          "internal_angle_at_first_deg": [
+            120.26488150830217,
+            153.01472771372073,
+            87.64294410457562
+          ],
+          "internal_angle_at_last_deg": [
+            118.87823778146515,
+            151.6748867960883,
+            87.44183292778429
+          ],
+          "sampled_min_step": [
+            247,
+            246,
+            246
+          ],
+          "angle_span_deg": [
+            1.886360755259318,
+            2.310175558057267,
+            0.6431548863264851
+          ]
+        },
+        {
+          "clearance_bout_endpoints": [
+            266,
+            273
+          ],
+          "samples": 8,
+          "internal_angle_at_first_deg": [
+            125.61212262275767,
+            160.64512897359103,
+            90.14734130922706
+          ],
+          "internal_angle_at_last_deg": [
+            118.8805076511828,
+            151.67351220126722,
+            87.44269436903167
+          ],
+          "sampled_min_step": [
+            272,
+            271,
+            271
+          ],
+          "angle_span_deg": [
+            7.2266090327483,
+            9.943644813655027,
+            3.146733125079976
+          ]
+        },
+        {
+          "clearance_bout_endpoints": [
+            292,
+            298
+          ],
+          "samples": 7,
+          "internal_angle_at_first_deg": [
+            123.69473217405445,
+            157.8762755789255,
+            89.19258749958718
+          ],
+          "internal_angle_at_last_deg": [
+            118.87966220064818,
+            151.673986545522,
+            87.44238325010575
+          ],
+          "sampled_min_step": [
+            297,
+            296,
+            296
+          ],
+          "angle_span_deg": [
+            5.30944516009545,
+            7.175205033780628,
+            2.191785457785244
+          ]
+        }
+      ]
+    },
+    {
+      "seed": 20261127,
+      "lane": 0,
+      "side": "left",
+      "window_angle_span_deg": [
+        10.314613125978681,
+        13.346265732285957,
+        4.43770075898378
+      ],
+      "rear_toe_loaded_intervals": 67,
+      "middle_toe_loaded_intervals": 9,
+      "whole_foot_loaded_intervals": 71,
+      "rear_toe_loaded_bouts": [
+        [
+          201,
+          226
+        ],
+        [
+          238,
+          251
+        ],
+        [
+          263,
+          276
+        ],
+        [
+          288,
+          300
+        ]
+      ],
+      "middle_toe_loaded_bouts": [
+        [
+          201,
+          201
+        ],
+        [
+          204,
+          205
+        ],
+        [
+          269,
+          274
+        ]
+      ],
+      "clearance_bout_measurements": [
+        {
+          "clearance_bout_endpoints": [
+            229,
+            236
+          ],
+          "samples": 8,
+          "internal_angle_at_first_deg": [
+            124.7431810288638,
+            159.31652288754827,
+            89.67707299681085
+          ],
+          "internal_angle_at_last_deg": [
+            119.33191868302988,
+            152.41450482657234,
+            87.71507063418045
+          ],
+          "sampled_min_step": [
+            234,
+            234,
+            234
+          ],
+          "angle_span_deg": [
+            6.392239611152391,
+            8.681155489239927,
+            2.6685374429144133
+          ]
+        },
+        {
+          "clearance_bout_endpoints": [
+            253,
+            260
+          ],
+          "samples": 8,
+          "internal_angle_at_first_deg": [
+            126.66809212649206,
+            162.02289538777802,
+            90.64078602077569
+          ],
+          "internal_angle_at_last_deg": [
+            118.56192053182293,
+            151.12696969351092,
+            87.23149637003368
+          ],
+          "sampled_min_step": [
+            259,
+            259,
+            259
+          ],
+          "angle_span_deg": [
+            8.315898659166933,
+            11.388185579482894,
+            3.631893716269275
+          ]
+        },
+        {
+          "clearance_bout_endpoints": [
+            278,
+            285
+          ],
+          "samples": 8,
+          "internal_angle_at_first_deg": [
+            126.66932937482778,
+            162.0222849085292,
+            90.6414151479775
+          ],
+          "internal_angle_at_last_deg": [
+            118.56237823784808,
+            151.1266213317532,
+            87.23172734546907
+          ],
+          "sampled_min_step": [
+            284,
+            284,
+            284
+          ],
+          "angle_span_deg": [
+            8.316409529516292,
+            11.388065704014025,
+            3.6322057536946915
+          ]
+        }
+      ]
+    },
+    {
+      "seed": 20261127,
+      "lane": 0,
+      "side": "right",
+      "window_angle_span_deg": [
+        11.001333454012823,
+        13.362366735828516,
+        4.421460173680188
+      ],
+      "rear_toe_loaded_intervals": 58,
+      "middle_toe_loaded_intervals": 15,
+      "whole_foot_loaded_intervals": 69,
+      "rear_toe_loaded_bouts": [
+        [
+          201,
+          211
+        ],
+        [
+          224,
+          239
+        ],
+        [
+          250,
+          264
+        ],
+        [
+          275,
+          289
+        ],
+        [
+          300,
+          300
+        ]
+      ],
+      "middle_toe_loaded_bouts": [
+        [
+          201,
+          215
+        ]
+      ],
+      "clearance_bout_measurements": [
+        {
+          "clearance_bout_endpoints": [
+            241,
+            248
+          ],
+          "samples": 8,
+          "internal_angle_at_first_deg": [
+            125.61116098162434,
+            160.6455251072501,
+            90.14728782806263
+          ],
+          "internal_angle_at_last_deg": [
+            118.88050591746814,
+            151.67357037226017,
+            87.44261590689725
+          ],
+          "sampled_min_step": [
+            247,
+            246,
+            246
+          ],
+          "angle_span_deg": [
+            7.226561438550846,
+            9.942667351048954,
+            3.147443810504299
+          ]
+        },
+        {
+          "clearance_bout_endpoints": [
+            266,
+            273
+          ],
+          "samples": 8,
+          "internal_angle_at_first_deg": [
+            125.61163928532724,
+            160.64526727933398,
+            90.1471188381182
+          ],
+          "internal_angle_at_last_deg": [
+            118.88098456540918,
+            151.67332211383408,
+            87.44275512408356
+          ],
+          "sampled_min_step": [
+            272,
+            271,
+            271
+          ],
+          "angle_span_deg": [
+            7.225989707211369,
+            9.943694082229598,
+            3.1465668656944246
+          ]
+        },
+        {
+          "clearance_bout_endpoints": [
+            292,
+            298
+          ],
+          "samples": 7,
+          "internal_angle_at_first_deg": [
+            123.69502903926664,
+            157.87607414102976,
+            89.1927863862074
+          ],
+          "internal_angle_at_last_deg": [
+            118.88005064918559,
+            151.67376683126625,
+            87.44248566326111
+          ],
+          "sampled_min_step": [
+            297,
+            296,
+            296
+          ],
+          "angle_span_deg": [
+            5.309174633579531,
+            7.1750573299263465,
+            2.191950756191801
+          ]
+        }
+      ]
+    },
+    {
+      "seed": 20261127,
+      "lane": 1,
+      "side": "left",
+      "window_angle_span_deg": [
+        10.314304241658462,
+        13.358617082026655,
+        4.438019412966156
+      ],
+      "rear_toe_loaded_intervals": 67,
+      "middle_toe_loaded_intervals": 16,
+      "whole_foot_loaded_intervals": 72,
+      "rear_toe_loaded_bouts": [
+        [
+          201,
+          226
+        ],
+        [
+          238,
+          251
+        ],
+        [
+          263,
+          276
+        ],
+        [
+          288,
+          300
+        ]
+      ],
+      "middle_toe_loaded_bouts": [
+        [
+          201,
+          210
+        ],
+        [
+          269,
+          274
+        ]
+      ],
+      "clearance_bout_measurements": [
+        {
+          "clearance_bout_endpoints": [
+            229,
+            236
+          ],
+          "samples": 8,
+          "internal_angle_at_first_deg": [
+            124.74287029158361,
+            159.31661035963845,
+            89.67720424028136
+          ],
+          "internal_angle_at_last_deg": [
+            119.33191970620634,
+            152.41449397157712,
+            87.71508398090617
+          ],
+          "sampled_min_step": [
+            234,
+            234,
+            234
+          ],
+          "angle_span_deg": [
+            6.39208067736736,
+            8.681139653800102,
+            2.6687374088213858
+          ]
+        },
+        {
+          "clearance_bout_endpoints": [
+            254,
+            260
+          ],
+          "samples": 7,
+          "internal_angle_at_first_deg": [
+            124.73705952305113,
+            159.31967077743028,
+            89.6761781888963
+          ],
+          "internal_angle_at_last_deg": [
+            118.56242845743614,
+            151.12673642934715,
+            87.23161819227428
+          ],
+          "sampled_min_step": [
+            259,
+            259,
+            259
+          ],
+          "angle_span_deg": [
+            6.3846289589672125,
+            8.685086493933682,
+            2.667208403337156
+          ]
+        },
+        {
+          "clearance_bout_endpoints": [
+            278,
+            285
+          ],
+          "samples": 8,
+          "internal_angle_at_first_deg": [
+            126.66954241597332,
+            162.02218722550901,
+            90.64140624048879
+          ],
+          "internal_angle_at_last_deg": [
+            118.56189890491198,
+            151.12681656441276,
+            87.23162383884987
+          ],
+          "sampled_min_step": [
+            284,
+            284,
+            284
+          ],
+          "angle_span_deg": [
+            8.317081923145636,
+            11.387711363316043,
+            3.6323368625994306
+          ]
+        }
+      ]
+    },
+    {
+      "seed": 20261127,
+      "lane": 1,
+      "side": "right",
+      "window_angle_span_deg": [
+        11.008829303829003,
+        13.363636176027256,
+        4.420251923629962
+      ],
+      "rear_toe_loaded_intervals": 58,
+      "middle_toe_loaded_intervals": 19,
+      "whole_foot_loaded_intervals": 69,
+      "rear_toe_loaded_bouts": [
+        [
+          201,
+          211
+        ],
+        [
+          224,
+          239
+        ],
+        [
+          250,
+          264
+        ],
+        [
+          275,
+          289
+        ],
+        [
+          300,
+          300
+        ]
+      ],
+      "middle_toe_loaded_bouts": [
+        [
+          201,
+          214
+        ],
+        [
+          257,
+          261
+        ]
+      ],
+      "clearance_bout_measurements": [
+        {
+          "clearance_bout_endpoints": [
+            244,
+            248
+          ],
+          "samples": 5,
+          "internal_angle_at_first_deg": [
+            120.26539610230462,
+            153.0144236736745,
+            87.64296778341586
+          ],
+          "internal_angle_at_last_deg": [
+            118.87879309603727,
+            151.6745473946631,
+            87.44207187762008
+          ],
+          "sampled_min_step": [
+            247,
+            246,
+            246
+          ],
+          "angle_span_deg": [
+            1.886931270260348,
+            2.3097001380899087,
+            0.6438372436233379
+          ]
+        },
+        {
+          "clearance_bout_endpoints": [
+            266,
+            273
+          ],
+          "samples": 8,
+          "internal_angle_at_first_deg": [
+            125.61145460107443,
+            160.64536611186315,
+            90.14713196334256
+          ],
+          "internal_angle_at_last_deg": [
+            118.88051446606241,
+            151.67355484668448,
+            87.4426358290067
+          ],
+          "sampled_min_step": [
+            272,
+            271,
+            271
+          ],
+          "angle_span_deg": [
+            7.225914940895919,
+            9.943874754907085,
+            3.146534225025647
+          ]
+        },
+        {
+          "clearance_bout_endpoints": [
+            292,
+            298
+          ],
+          "samples": 7,
+          "internal_angle_at_first_deg": [
+            123.69332239618512,
+            157.87667823481988,
+            89.19256814013453
+          ],
+          "internal_angle_at_last_deg": [
+            118.88036487587733,
+            151.6736078947011,
+            87.44257147107484
+          ],
+          "sampled_min_step": [
+            297,
+            296,
+            296
+          ],
+          "angle_span_deg": [
+            5.307657059964029,
+            7.175519686804051,
+            2.19177884016554
+          ]
+        }
+      ]
+    },
+    {
+      "seed": 20261127,
+      "lane": 2,
+      "side": "left",
+      "window_angle_span_deg": [
+        10.314245170922746,
+        13.368128414207291,
+        4.438334937325834
+      ],
+      "rear_toe_loaded_intervals": 66,
+      "middle_toe_loaded_intervals": 8,
+      "whole_foot_loaded_intervals": 72,
+      "rear_toe_loaded_bouts": [
+        [
+          201,
+          226
+        ],
+        [
+          238,
+          250
+        ],
+        [
+          263,
+          276
+        ],
+        [
+          288,
+          300
+        ]
+      ],
+      "middle_toe_loaded_bouts": [
+        [
+          201,
+          201
+        ],
+        [
+          204,
+          205
+        ],
+        [
+          269,
+          273
+        ]
+      ],
+      "clearance_bout_measurements": [
+        {
+          "clearance_bout_endpoints": [
+            229,
+            236
+          ],
+          "samples": 8,
+          "internal_angle_at_first_deg": [
+            124.74308495514177,
+            159.31634071901158,
+            89.67711327244544
+          ],
+          "internal_angle_at_last_deg": [
+            119.33201043680842,
+            152.41447155362232,
+            87.71508826294772
+          ],
+          "sampled_min_step": [
+            234,
+            234,
+            234
+          ],
+          "angle_span_deg": [
+            6.391868303286529,
+            8.681113632086692,
+            2.6684923302929917
+          ]
+        },
+        {
+          "clearance_bout_endpoints": [
+            254,
+            260
+          ],
+          "samples": 7,
+          "internal_angle_at_first_deg": [
+            124.7367046662302,
+            159.31984341258857,
+            89.67601246367526
+          ],
+          "internal_angle_at_last_deg": [
+            118.56302952687395,
+            151.1264078134103,
+            87.23180082632852
+          ],
+          "sampled_min_step": [
+            259,
+            259,
+            259
+          ],
+          "angle_span_deg": [
+            6.383912269223444,
+            8.685465808466319,
+            2.666910373811021
+          ]
+        },
+        {
+          "clearance_bout_endpoints": [
+            278,
+            285
+          ],
+          "samples": 8,
+          "internal_angle_at_first_deg": [
+            126.66946866569357,
+            162.02221977462207,
+            90.6412584905748
+          ],
+          "internal_angle_at_last_deg": [
+            118.56242614816955,
+            151.12658787648104,
+            87.23173734338135
+          ],
+          "sampled_min_step": [
+            284,
+            284,
+            284
+          ],
+          "angle_span_deg": [
+            8.316815765117028,
+            11.387873754371924,
+            3.6321048553214013
+          ]
+        }
+      ]
+    },
+    {
+      "seed": 20261127,
+      "lane": 2,
+      "side": "right",
+      "window_angle_span_deg": [
+        11.003954570723948,
+        13.363482468517333,
+        4.4221248049097
+      ],
+      "rear_toe_loaded_intervals": 60,
+      "middle_toe_loaded_intervals": 19,
+      "whole_foot_loaded_intervals": 69,
+      "rear_toe_loaded_bouts": [
+        [
+          201,
+          211
+        ],
+        [
+          216,
+          217
+        ],
+        [
+          224,
+          239
+        ],
+        [
+          250,
+          264
+        ],
+        [
+          275,
+          289
+        ],
+        [
+          300,
+          300
+        ]
+      ],
+      "middle_toe_loaded_bouts": [
+        [
+          202,
+          215
+        ],
+        [
+          257,
+          261
+        ]
+      ],
+      "clearance_bout_measurements": [
+        {
+          "clearance_bout_endpoints": [
+            244,
+            248
+          ],
+          "samples": 5,
+          "internal_angle_at_first_deg": [
+            120.26690867258168,
+            153.01413946658863,
+            87.6435232629367
+          ],
+          "internal_angle_at_last_deg": [
+            118.87429078692493,
+            151.67664106055457,
+            87.44158281163432
+          ],
+          "sampled_min_step": [
+            247,
+            246,
+            246
+          ],
+          "angle_span_deg": [
+            1.8890719416187096,
+            2.310543790331053,
+            0.64456152339244
+          ]
+        },
+        {
+          "clearance_bout_endpoints": [
+            266,
+            273
+          ],
+          "samples": 8,
+          "internal_angle_at_first_deg": [
+            125.61272479828651,
+            160.64500779150242,
+            90.14779069557243
+          ],
+          "internal_angle_at_last_deg": [
+            118.8807065055766,
+            151.6734620908244,
+            87.44267579669857
+          ],
+          "sampled_min_step": [
+            272,
+            271,
+            271
+          ],
+          "angle_span_deg": [
+            7.227158034920095,
+            9.943609570260918,
+            3.147142018641631
+          ]
+        },
+        {
+          "clearance_bout_endpoints": [
+            292,
+            298
+          ],
+          "samples": 7,
+          "internal_angle_at_first_deg": [
+            123.69341528700507,
+            157.87678763850664,
+            89.19249345830734
+          ],
+          "internal_angle_at_last_deg": [
+            118.88025291972012,
+            151.6736632534416,
+            87.44252917232045
+          ],
+          "sampled_min_step": [
+            297,
+            296,
+            296
+          ],
+          "angle_span_deg": [
+            5.307365268802357,
+            7.175767365991106,
+            2.191630221920846
+          ]
+        }
+      ]
+    },
+    {
+      "seed": 20261127,
+      "lane": 3,
+      "side": "left",
+      "window_angle_span_deg": [
+        10.313544847154134,
+        13.349484357268551,
+        4.43723052597457
+      ],
+      "rear_toe_loaded_intervals": 67,
+      "middle_toe_loaded_intervals": 15,
+      "whole_foot_loaded_intervals": 71,
+      "rear_toe_loaded_bouts": [
+        [
+          201,
+          226
+        ],
+        [
+          238,
+          251
+        ],
+        [
+          263,
+          276
+        ],
+        [
+          288,
+          300
+        ]
+      ],
+      "middle_toe_loaded_bouts": [
+        [
+          244,
+          248
+        ],
+        [
+          269,
+          273
+        ],
+        [
+          294,
+          298
+        ]
+      ],
+      "clearance_bout_measurements": [
+        {
+          "clearance_bout_endpoints": [
+            229,
+            236
+          ],
+          "samples": 8,
+          "internal_angle_at_first_deg": [
+            124.74549525488784,
+            159.31535990673981,
+            89.6777214258227
+          ],
+          "internal_angle_at_last_deg": [
+            119.33168937393198,
+            152.41457449829144,
+            87.71504119555016
+          ],
+          "sampled_min_step": [
+            234,
+            234,
+            234
+          ],
+          "angle_span_deg": [
+            6.394419041184975,
+            8.68005709055285,
+            2.6691590619034997
+          ]
+        },
+        {
+          "clearance_bout_endpoints": [
+            253,
+            260
+          ],
+          "samples": 8,
+          "internal_angle_at_first_deg": [
+            126.66920055373195,
+            162.0223713683025,
+            90.64110451483579
+          ],
+          "internal_angle_at_last_deg": [
+            118.56215074850614,
+            151.12679626780348,
+            87.23162467379908
+          ],
+          "sampled_min_step": [
+            259,
+            259,
+            259
+          ],
+          "angle_span_deg": [
+            8.316637214497831,
+            11.38786193792825,
+            3.6320992411252035
+          ]
+        },
+        {
+          "clearance_bout_endpoints": [
+            278,
+            285
+          ],
+          "samples": 8,
+          "internal_angle_at_first_deg": [
+            126.66875548529028,
+            162.022567790119,
+            90.64105639679116
+          ],
+          "internal_angle_at_last_deg": [
+            118.56186900973005,
+            151.12682542562055,
+            87.23162702806849
+          ],
+          "sampled_min_step": [
+            284,
+            284,
+            284
+          ],
+          "angle_span_deg": [
+            8.316312927356151,
+            11.388068955658412,
+            3.632020914341453
+          ]
+        }
+      ]
+    },
+    {
+      "seed": 20261127,
+      "lane": 3,
+      "side": "right",
+      "window_angle_span_deg": [
+        11.005204258383628,
+        13.365127091961853,
+        4.411903912502424
+      ],
+      "rear_toe_loaded_intervals": 59,
+      "middle_toe_loaded_intervals": 11,
+      "whole_foot_loaded_intervals": 69,
+      "rear_toe_loaded_bouts": [
+        [
+          201,
+          210
+        ],
+        [
+          216,
+          217
+        ],
+        [
+          224,
+          239
+        ],
+        [
+          250,
+          264
+        ],
+        [
+          275,
+          289
+        ],
+        [
+          300,
+          300
+        ]
+      ],
+      "middle_toe_loaded_bouts": [
+        [
+          205,
+          215
+        ]
+      ],
+      "clearance_bout_measurements": [
+        {
+          "clearance_bout_endpoints": [
+            241,
+            248
+          ],
+          "samples": 8,
+          "internal_angle_at_first_deg": [
+            125.61193611571878,
+            160.6450469368603,
+            90.14733555373519
+          ],
+          "internal_angle_at_last_deg": [
+            118.87906579107847,
+            151.67426125553493,
+            87.44228639988935
+          ],
+          "sampled_min_step": [
+            247,
+            246,
+            246
+          ],
+          "angle_span_deg": [
+            7.227865599851128,
+            9.942852856574717,
+            3.1471476323259537
+          ]
+        },
+        {
+          "clearance_bout_endpoints": [
+            266,
+            273
+          ],
+          "samples": 8,
+          "internal_angle_at_first_deg": [
+            125.61184616065212,
+            160.64515631299736,
+            90.14718448799077
+          ],
+          "internal_angle_at_last_deg": [
+            118.88080306238142,
+            151.67337944294061,
+            87.44275097034901
+          ],
+          "sampled_min_step": [
+            272,
+            271,
+            271
+          ],
+          "angle_span_deg": [
+            7.2265452788847,
+            9.943422491795076,
+            3.1467380286728144
+          ]
+        },
+        {
+          "clearance_bout_endpoints": [
+            292,
+            298
+          ],
+          "samples": 7,
+          "internal_angle_at_first_deg": [
+            123.69461508874669,
+            157.87627735933756,
+            89.19271245132941
+          ],
+          "internal_angle_at_last_deg": [
+            118.88024469853671,
+            151.6736677646933,
+            87.4425243127234
+          ],
+          "sampled_min_step": [
+            297,
+            296,
+            296
+          ],
+          "angle_span_deg": [
+            5.308400066686687,
+            7.1753453721245535,
+            2.191813614972702
+          ]
+        }
+      ]
+    },
+    {
+      "seed": 20261127,
+      "lane": 4,
+      "side": "left",
+      "window_angle_span_deg": [
+        10.314317522848711,
+        13.36052228186739,
+        4.438152547421737
+      ],
+      "rear_toe_loaded_intervals": 67,
+      "middle_toe_loaded_intervals": 12,
+      "whole_foot_loaded_intervals": 71,
+      "rear_toe_loaded_bouts": [
+        [
+          201,
+          226
+        ],
+        [
+          238,
+          251
+        ],
+        [
+          263,
+          276
+        ],
+        [
+          288,
+          300
+        ]
+      ],
+      "middle_toe_loaded_bouts": [
+        [
+          269,
+          274
+        ],
+        [
+          294,
+          299
+        ]
+      ],
+      "clearance_bout_measurements": [
+        {
+          "clearance_bout_endpoints": [
+            229,
+            236
+          ],
+          "samples": 8,
+          "internal_angle_at_first_deg": [
+            124.74302498215106,
+            159.3164858903846,
+            89.67712261753906
+          ],
+          "internal_angle_at_last_deg": [
+            119.33178535037516,
+            152.41453435298,
+            87.71505497953348
+          ],
+          "sampled_min_step": [
+            234,
+            234,
+            234
+          ],
+          "angle_span_deg": [
+            6.39206475708842,
+            8.68109728662364,
+            2.6686085062484466
+          ]
+        },
+        {
+          "clearance_bout_endpoints": [
+            254,
+            260
+          ],
+          "samples": 7,
+          "internal_angle_at_first_deg": [
+            124.74003038179978,
+            159.31812652703871,
+            89.67681834662957
+          ],
+          "internal_angle_at_last_deg": [
+            118.56276318790634,
+            151.12660951844245,
+            87.23164505404668
+          ],
+          "sampled_min_step": [
+            259,
+            259,
+            259
+          ],
+          "angle_span_deg": [
+            6.387555546256991,
+            8.68355877383803,
+            2.6678510693670034
+          ]
+        },
+        {
+          "clearance_bout_endpoints": [
+            280,
+            286
+          ],
+          "samples": 7,
+          "internal_angle_at_first_deg": [
+            123.66008560106732,
+            157.8346750958227,
+            89.07199357634451
+          ],
+          "internal_angle_at_last_deg": [
+            119.3430668372517,
+            152.415722444605,
+            87.71619224803787
+          ],
+          "sampled_min_step": [
+            284,
+            284,
+            284
+          ],
+          "angle_span_deg": [
+            5.275796268468596,
+            7.174744775214066,
+            2.062311460797204
+          ]
+        }
+      ]
+    },
+    {
+      "seed": 20261127,
+      "lane": 4,
+      "side": "right",
+      "window_angle_span_deg": [
+        11.01029211595646,
+        13.363512734094002,
+        4.397793859229253
+      ],
+      "rear_toe_loaded_intervals": 57,
+      "middle_toe_loaded_intervals": 22,
+      "whole_foot_loaded_intervals": 69,
+      "rear_toe_loaded_bouts": [
+        [
+          201,
+          210
+        ],
+        [
+          224,
+          239
+        ],
+        [
+          250,
+          264
+        ],
+        [
+          275,
+          289
+        ],
+        [
+          300,
+          300
+        ]
+      ],
+      "middle_toe_loaded_bouts": [
+        [
+          205,
+          215
+        ],
+        [
+          258,
+          261
+        ],
+        [
+          283,
+          289
+        ]
+      ],
+      "clearance_bout_measurements": [
+        {
+          "clearance_bout_endpoints": [
+            244,
+            248
+          ],
+          "samples": 5,
+          "internal_angle_at_first_deg": [
+            120.2649517190299,
+            153.01464529856827,
+            87.64289134074244
+          ],
+          "internal_angle_at_last_deg": [
+            118.87874596328787,
+            151.67464336259636,
+            87.44207688156492
+          ],
+          "sampled_min_step": [
+            247,
+            246,
+            246
+          ],
+          "angle_span_deg": [
+            1.8862431434085636,
+            2.3099353186277938,
+            0.6433607664037311
+          ]
+        },
+        {
+          "clearance_bout_endpoints": [
+            266,
+            273
+          ],
+          "samples": 8,
+          "internal_angle_at_first_deg": [
+            125.61180471469741,
+            160.64519899708225,
+            90.1474398271222
+          ],
+          "internal_angle_at_last_deg": [
+            118.88001615352843,
+            151.67379456794356,
+            87.44254596055828
+          ],
+          "sampled_min_step": [
+            272,
+            271,
+            271
+          ],
+          "angle_span_deg": [
+            7.226462015599921,
+            9.943385813457155,
+            3.147014084764294
+          ]
+        },
+        {
+          "clearance_bout_endpoints": [
+            291,
+            298
+          ],
+          "samples": 8,
+          "internal_angle_at_first_deg": [
+            125.6111528664757,
+            160.6455080942033,
+            90.1562283867603
+          ],
+          "internal_angle_at_last_deg": [
+            118.88041925901368,
+            151.67356594399976,
+            87.44260590192697
+          ],
+          "sampled_min_step": [
+            297,
+            296,
+            296
+          ],
+          "angle_span_deg": [
+            7.225129619048786,
+            9.94413484111928,
+            3.156015318097971
+          ]
+        }
+      ]
+    },
+    {
+      "seed": 20261127,
+      "lane": 5,
+      "side": "left",
+      "window_angle_span_deg": [
+        10.314399283929191,
+        13.347314975966128,
+        4.438125191579928
+      ],
+      "rear_toe_loaded_intervals": 67,
+      "middle_toe_loaded_intervals": 5,
+      "whole_foot_loaded_intervals": 71,
+      "rear_toe_loaded_bouts": [
+        [
+          201,
+          226
+        ],
+        [
+          238,
+          251
+        ],
+        [
+          263,
+          276
+        ],
+        [
+          288,
+          300
+        ]
+      ],
+      "middle_toe_loaded_bouts": [
+        [
+          269,
+          273
+        ]
+      ],
+      "clearance_bout_measurements": [
+        {
+          "clearance_bout_endpoints": [
+            229,
+            236
+          ],
+          "samples": 8,
+          "internal_angle_at_first_deg": [
+            124.74270178511658,
+            159.31661561230445,
+            89.6770831980915
+          ],
+          "internal_angle_at_last_deg": [
+            119.331860524296,
+            152.41452847786206,
+            87.71506733793997
+          ],
+          "sampled_min_step": [
+            234,
+            234,
+            234
+          ],
+          "angle_span_deg": [
+            6.391735265612269,
+            8.681264832424688,
+            2.668533425238138
+          ]
+        },
+        {
+          "clearance_bout_endpoints": [
+            253,
+            261
+          ],
+          "samples": 9,
+          "internal_angle_at_first_deg": [
+            126.66822633748453,
+            162.02283746778926,
+            90.64082248910614
+          ],
+          "internal_angle_at_last_deg": [
+            119.33267652992677,
+            152.4141035877149,
+            87.71524952626005
+          ],
+          "sampled_min_step": [
+            259,
+            259,
+            259
+          ],
+          "angle_span_deg": [
+            8.316090026939278,
+            11.388095288941628,
+            3.631941250480267
+          ]
+        },
+        {
+          "clearance_bout_endpoints": [
+            278,
+            285
+          ],
+          "samples": 8,
+          "internal_angle_at_first_deg": [
+            126.66879662157137,
+            162.02254387155358,
+            90.64111017733528
+          ],
+          "internal_angle_at_last_deg": [
+            118.56243968700554,
+            151.12659029196902,
+            87.23173680342909
+          ],
+          "sampled_min_step": [
+            284,
+            284,
+            284
+          ],
+          "angle_span_deg": [
+            8.316104319114345,
+            11.388225959253703,
+            3.631942981425155
+          ]
+        }
+      ]
+    },
+    {
+      "seed": 20261127,
+      "lane": 5,
+      "side": "right",
+      "window_angle_span_deg": [
+        11.004127822175874,
+        13.364348364081053,
+        4.41052471951933
+      ],
+      "rear_toe_loaded_intervals": 58,
+      "middle_toe_loaded_intervals": 11,
+      "whole_foot_loaded_intervals": 69,
+      "rear_toe_loaded_bouts": [
+        [
+          201,
+          211
+        ],
+        [
+          224,
+          239
+        ],
+        [
+          250,
+          264
+        ],
+        [
+          275,
+          289
+        ],
+        [
+          300,
+          300
+        ]
+      ],
+      "middle_toe_loaded_bouts": [
+        [
+          205,
+          215
+        ]
+      ],
+      "clearance_bout_measurements": [
+        {
+          "clearance_bout_endpoints": [
+            241,
+            248
+          ],
+          "samples": 8,
+          "internal_angle_at_first_deg": [
+            125.61125293797136,
+            160.64548244680157,
+            90.14738155166931
+          ],
+          "internal_angle_at_last_deg": [
+            118.88005433125146,
+            151.67374703869905,
+            87.44253185591627
+          ],
+          "sampled_min_step": [
+            247,
+            246,
+            246
+          ],
+          "angle_span_deg": [
+            7.226629683657407,
+            9.942570964236154,
+            3.147539104159435
+          ]
+        },
+        {
+          "clearance_bout_endpoints": [
+            266,
+            273
+          ],
+          "samples": 8,
+          "internal_angle_at_first_deg": [
+            125.61252727192877,
+            160.64500260779758,
+            90.14738577070382
+          ],
+          "internal_angle_at_last_deg": [
+            118.88085080275026,
+            151.67339696775815,
+            87.44269651366153
+          ],
+          "sampled_min_step": [
+            272,
+            271,
+            271
+          ],
+          "angle_span_deg": [
+            7.227076371664154,
+            9.94328233544826,
+            3.146955256856245
+          ]
+        },
+        {
+          "clearance_bout_endpoints": [
+            292,
+            298
+          ],
+          "samples": 7,
+          "internal_angle_at_first_deg": [
+            123.69425078800677,
+            157.87647186491168,
+            89.19262816490603
+          ],
+          "internal_angle_at_last_deg": [
+            118.88035193518584,
+            151.67360324121017,
+            87.44256202081812
+          ],
+          "sampled_min_step": [
+            297,
+            296,
+            296
+          ],
+          "angle_span_deg": [
+            5.307933644942736,
+            7.175530731311028,
+            2.1917173249360786
+          ]
+        }
+      ]
+    },
+    {
+      "seed": 20261127,
+      "lane": 6,
+      "side": "left",
+      "window_angle_span_deg": [
+        10.313975077267585,
+        13.367652405408478,
+        4.438644781186028
+      ],
+      "rear_toe_loaded_intervals": 66,
+      "middle_toe_loaded_intervals": 11,
+      "whole_foot_loaded_intervals": 71,
+      "rear_toe_loaded_bouts": [
+        [
+          201,
+          226
+        ],
+        [
+          238,
+          250
+        ],
+        [
+          263,
+          276
+        ],
+        [
+          288,
+          300
+        ]
+      ],
+      "middle_toe_loaded_bouts": [
+        [
+          245,
+          250
+        ],
+        [
+          294,
+          298
+        ]
+      ],
+      "clearance_bout_measurements": [
+        {
+          "clearance_bout_endpoints": [
+            228,
+            236
+          ],
+          "samples": 9,
+          "internal_angle_at_first_deg": [
+            126.66832466084679,
+            162.02226548865679,
+            90.64118411938352
+          ],
+          "internal_angle_at_last_deg": [
+            119.33247204713912,
+            152.414254905789,
+            87.71519314539857
+          ],
+          "sampled_min_step": [
+            234,
+            234,
+            234
+          ],
+          "angle_span_deg": [
+            8.316969509713218,
+            11.387057838359112,
+            3.632589369864405
+          ]
+        },
+        {
+          "clearance_bout_endpoints": [
+            254,
+            260
+          ],
+          "samples": 7,
+          "internal_angle_at_first_deg": [
+            124.7446388916097,
+            159.31598348981407,
+            89.67722955262961
+          ],
+          "internal_angle_at_last_deg": [
+            118.56323603561776,
+            151.12625344536121,
+            87.2318903175543
+          ],
+          "sampled_min_step": [
+            259,
+            259,
+            259
+          ],
+          "angle_span_deg": [
+            6.391497021126668,
+            8.68178728389887,
+            2.668034747307786
+          ]
+        },
+        {
+          "clearance_bout_endpoints": [
+            278,
+            285
+          ],
+          "samples": 8,
+          "internal_angle_at_first_deg": [
+            126.66967155226767,
+            162.02211732947472,
+            90.64129246737922
+          ],
+          "internal_angle_at_last_deg": [
+            118.56246355192982,
+            151.12660489643113,
+            87.23173406699286
+          ],
+          "sampled_min_step": [
+            284,
+            284,
+            284
+          ],
+          "angle_span_deg": [
+            8.317015240201897,
+            11.387736613885494,
+            3.632177633982323
+          ]
+        }
+      ]
+    },
+    {
+      "seed": 20261127,
+      "lane": 6,
+      "side": "right",
+      "window_angle_span_deg": [
+        11.013685494339526,
+        13.36257593500963,
+        4.425339769328929
+      ],
+      "rear_toe_loaded_intervals": 57,
+      "middle_toe_loaded_intervals": 20,
+      "whole_foot_loaded_intervals": 69,
+      "rear_toe_loaded_bouts": [
+        [
+          201,
+          210
+        ],
+        [
+          224,
+          239
+        ],
+        [
+          250,
+          264
+        ],
+        [
+          275,
+          289
+        ],
+        [
+          300,
+          300
+        ]
+      ],
+      "middle_toe_loaded_bouts": [
+        [
+          205,
+          215
+        ],
+        [
+          233,
+          236
+        ],
+        [
+          257,
+          261
+        ]
+      ],
+      "clearance_bout_measurements": [
+        {
+          "clearance_bout_endpoints": [
+            267,
+            273
+          ],
+          "samples": 7,
+          "internal_angle_at_first_deg": [
+            123.69452355410819,
+            157.87604685233376,
+            89.19287139295774
+          ],
+          "internal_angle_at_last_deg": [
+            118.88046110693534,
+            151.67358913912872,
+            87.44260903181569
+          ],
+          "sampled_min_step": [
+            272,
+            271,
+            271
+          ],
+          "angle_span_deg": [
+            5.309102127608426,
+            7.174685947319716,
+            2.192198087311354
+          ]
+        },
+        {
+          "clearance_bout_endpoints": [
+            292,
+            298
+          ],
+          "samples": 7,
+          "internal_angle_at_first_deg": [
+            123.69602710088738,
+            157.87552069468103,
+            89.19301805378636
+          ],
+          "internal_angle_at_last_deg": [
+            118.88028694997708,
+            151.67364443959403,
+            87.44255942976251
+          ],
+          "sampled_min_step": [
+            297,
+            296,
+            296
+          ],
+          "angle_span_deg": [
+            5.310230874456153,
+            7.174294154288759,
+            2.1922817740123577
+          ]
+        }
+      ]
+    },
+    {
+      "seed": 20261127,
+      "lane": 7,
+      "side": "left",
+      "window_angle_span_deg": [
+        10.311570695685731,
+        13.357416140106807,
+        4.439102886350966
+      ],
+      "rear_toe_loaded_intervals": 67,
+      "middle_toe_loaded_intervals": 24,
+      "whole_foot_loaded_intervals": 70,
+      "rear_toe_loaded_bouts": [
+        [
+          201,
+          226
+        ],
+        [
+          238,
+          251
+        ],
+        [
+          263,
+          276
+        ],
+        [
+          288,
+          300
+        ]
+      ],
+      "middle_toe_loaded_bouts": [
+        [
+          201,
+          210
+        ],
+        [
+          245,
+          248
+        ],
+        [
+          269,
+          273
+        ],
+        [
+          294,
+          298
+        ]
+      ],
+      "clearance_bout_measurements": [
+        {
+          "clearance_bout_endpoints": [
+            228,
+            236
+          ],
+          "samples": 9,
+          "internal_angle_at_first_deg": [
+            126.6672085233002,
+            162.0227637849062,
+            90.64105131860481
+          ],
+          "internal_angle_at_last_deg": [
+            119.3320059746459,
+            152.4144181160962,
+            87.7151426993825
+          ],
+          "sampled_min_step": [
+            234,
+            234,
+            234
+          ],
+          "angle_span_deg": [
+            8.316197796048371,
+            11.387425592730864,
+            3.6325079969110448
+          ]
+        },
+        {
+          "clearance_bout_endpoints": [
+            253,
+            260
+          ],
+          "samples": 8,
+          "internal_angle_at_first_deg": [
+            126.66822187095212,
+            162.02287438092253,
+            90.64063166220785
+          ],
+          "internal_angle_at_last_deg": [
+            118.56247726569356,
+            151.12663922262027,
+            87.2317325250185
+          ],
+          "sampled_min_step": [
+            259,
+            259,
+            259
+          ],
+          "angle_span_deg": [
+            8.315581838906084,
+            11.388409580940106,
+            3.631599682594114
+          ]
+        },
+        {
+          "clearance_bout_endpoints": [
+            280,
+            285
+          ],
+          "samples": 6,
+          "internal_angle_at_first_deg": [
+            123.80245660520418,
+            157.83368321570572,
+            89.07357394826694
+          ],
+          "internal_angle_at_last_deg": [
+            118.58197571520958,
+            151.13474407408572,
+            87.23231104076515
+          ],
+          "sampled_min_step": [
+            284,
+            284,
+            284
+          ],
+          "angle_span_deg": [
+            5.407004249544926,
+            7.176354805024971,
+            2.0626924505052813
+          ]
+        }
+      ]
+    },
+    {
+      "seed": 20261127,
+      "lane": 7,
+      "side": "right",
+      "window_angle_span_deg": [
+        11.010498180372707,
+        13.361527276957702,
+        4.4047826232087175
+      ],
+      "rear_toe_loaded_intervals": 60,
+      "middle_toe_loaded_intervals": 15,
+      "whole_foot_loaded_intervals": 69,
+      "rear_toe_loaded_bouts": [
+        [
+          201,
+          211
+        ],
+        [
+          216,
+          217
+        ],
+        [
+          224,
+          239
+        ],
+        [
+          250,
+          264
+        ],
+        [
+          275,
+          289
+        ],
+        [
+          300,
+          300
+        ]
+      ],
+      "middle_toe_loaded_bouts": [
+        [
+          201,
+          215
+        ]
+      ],
+      "clearance_bout_measurements": [
+        {
+          "clearance_bout_endpoints": [
+            241,
+            248
+          ],
+          "samples": 8,
+          "internal_angle_at_first_deg": [
+            125.61177315004294,
+            160.64513581959784,
+            90.14770109874905
+          ],
+          "internal_angle_at_last_deg": [
+            118.88107245049189,
+            151.67334463485926,
+            87.4426528930227
+          ],
+          "sampled_min_step": [
+            247,
+            246,
+            246
+          ],
+          "angle_span_deg": [
+            7.229425352660442,
+            9.940883754821954,
+            3.148611659555627
+          ]
+        },
+        {
+          "clearance_bout_endpoints": [
+            267,
+            273
+          ],
+          "samples": 7,
+          "internal_angle_at_first_deg": [
+            123.69771722051554,
+            157.87457065096186,
+            89.19325481915749
+          ],
+          "internal_angle_at_last_deg": [
+            118.8806795441767,
+            151.67347477339663,
+            87.44267581327556
+          ],
+          "sampled_min_step": [
+            272,
+            271,
+            271
+          ],
+          "angle_span_deg": [
+            5.312123577712043,
+            7.173135074621911,
+            2.192620924349427
+          ]
+        },
+        {
+          "clearance_bout_endpoints": [
+            292,
+            298
+          ],
+          "samples": 7,
+          "internal_angle_at_first_deg": [
+            123.69733447914517,
+            157.8747155439099,
+            89.19317244137004
+          ],
+          "internal_angle_at_last_deg": [
+            118.8805287900429,
+            151.67352439437127,
+            87.44260245391878
+          ],
+          "sampled_min_step": [
+            297,
+            296,
+            296
+          ],
+          "angle_span_deg": [
+            5.311779713137099,
+            7.1734069354945404,
+            2.1924751427856677
+          ]
+        }
+      ]
+    }
+  ]
+}
