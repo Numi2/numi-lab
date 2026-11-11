@@ -1,14 +1,19 @@
 from pathlib import Path
-import gzip,json
-D=Path("artifacts/crow-v15-landing-staged-long-horizon-20261111");P=D/"autonomous-20261126";R=Path("artifacts/crow-v15-walk-hold-localized-route-20261111/autonomous-20261126")
+import gzip,json,subprocess
+D=Path("artifacts/crow-v15-landing-staged-long-horizon-20261111");P=D/"autonomous-20261126";R=Path("artifacts/crow-v15-landing-staged-recovery-20261111/autonomous-20261126")
 ends=[min(a,b) for a,b in zip(json.loads((P/"run.stdout").read_text())["first_episode_navigation"]["steps_by_environment"],json.loads((R/"run.stdout").read_text())["first_episode_navigation"]["steps_by_environment"])]
 def read(path):
  d={}
- with gzip.open(path/"run.stderr.gz","rt") as f:
+ proc=None
+ if not (path/"run.stderr.gz").exists():
+  manifest=json.loads((path/"stderr-parts.json").read_text());proc=subprocess.Popen(["cat"]+[str(path/p["name"]) for p in manifest["parts"]],stdout=subprocess.PIPE);stream=gzip.open(proc.stdout,"rt")
+ else:stream=gzip.open(path/"run.stderr.gz","rt")
+ with stream as f:
   for l in f:
    if l.startswith("CROW_SUPPORT_SAMPLE "):
     x=json.loads(l.split(" ",1)[1]);e=x["lane"];t=x["step"]
     if t<=ends[e]:d[e,t]=x
+ if proc is not None and proc.wait()!=0:raise RuntimeError("reference archive read failed")
  return d
 a=read(P);b=read(R);rows=[]
 for e,end in enumerate(ends):
