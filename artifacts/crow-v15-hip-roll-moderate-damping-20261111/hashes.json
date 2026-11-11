@@ -1,0 +1,6 @@
+{
+  "host_source_sha256": "e64b88e47a83664d45cd9eb8c55f317988845fa02b8f1f4df3a91da25b52008c",
+  "host_sha256": "c0d53d4ffbb0af3380ddde5db74c63066fc4d965b6eaf0edf411db7b2a323bd6",
+  "toe_drive_damping": 0.015,
+  "scope": "experimental constant damping; no biological calibration"
+}

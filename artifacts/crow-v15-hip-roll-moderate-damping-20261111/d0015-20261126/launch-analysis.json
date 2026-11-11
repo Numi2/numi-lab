@@ -1,0 +1,147 @@
+{
+  "rows": [
+    {
+      "lane": 0,
+      "first_two_unloaded_rising_interval": null,
+      "first_ground_recontact": null,
+      "height_gain_347_to_500_m": 0.012705206999999996,
+      "forward_speed_at_500_m_s": 7.11606845e-07,
+      "tilt_at_500_rad": 0.013388301802552332,
+      "toe_speed_cap_substeps_by_phase": {
+        "settle": 0,
+        "walk": 0,
+        "launch": 0,
+        "after_400": 0
+      },
+      "last_cap": null,
+      "missing_or_duplicate_substeps": 0,
+      "missing_velocity_substeps": 0
+    },
+    {
+      "lane": 1,
+      "first_two_unloaded_rising_interval": 353,
+      "first_ground_recontact": 359,
+      "height_gain_347_to_500_m": 0.76659742,
+      "forward_speed_at_500_m_s": 0.340757906,
+      "tilt_at_500_rad": 0.06766011089513857,
+      "toe_speed_cap_substeps_by_phase": {
+        "settle": 0,
+        "walk": 0,
+        "launch": 6,
+        "after_400": 0
+      },
+      "last_cap": [
+        360,
+        14
+      ],
+      "missing_or_duplicate_substeps": 0,
+      "missing_velocity_substeps": 0
+    },
+    {
+      "lane": 2,
+      "first_two_unloaded_rising_interval": 353,
+      "first_ground_recontact": null,
+      "height_gain_347_to_500_m": 0.795777544,
+      "forward_speed_at_500_m_s": 0.326657057,
+      "tilt_at_500_rad": 0.04416294143222939,
+      "toe_speed_cap_substeps_by_phase": {
+        "settle": 2,
+        "walk": 0,
+        "launch": 0,
+        "after_400": 0
+      },
+      "last_cap": [
+        2,
+        5
+      ],
+      "missing_or_duplicate_substeps": 0,
+      "missing_velocity_substeps": 0
+    },
+    {
+      "lane": 3,
+      "first_two_unloaded_rising_interval": 353,
+      "first_ground_recontact": null,
+      "height_gain_347_to_500_m": 0.816128522,
+      "forward_speed_at_500_m_s": 0.330373883,
+      "tilt_at_500_rad": 0.044689640320255936,
+      "toe_speed_cap_substeps_by_phase": {
+        "settle": 0,
+        "walk": 0,
+        "launch": 0,
+        "after_400": 0
+      },
+      "last_cap": null,
+      "missing_or_duplicate_substeps": 0,
+      "missing_velocity_substeps": 0
+    },
+    {
+      "lane": 4,
+      "first_two_unloaded_rising_interval": 353,
+      "first_ground_recontact": null,
+      "height_gain_347_to_500_m": 0.868897055,
+      "forward_speed_at_500_m_s": 0.344429851,
+      "tilt_at_500_rad": 0.04832137776227617,
+      "toe_speed_cap_substeps_by_phase": {
+        "settle": 0,
+        "walk": 0,
+        "launch": 0,
+        "after_400": 0
+      },
+      "last_cap": null,
+      "missing_or_duplicate_substeps": 0,
+      "missing_velocity_substeps": 0
+    },
+    {
+      "lane": 5,
+      "first_two_unloaded_rising_interval": 353,
+      "first_ground_recontact": null,
+      "height_gain_347_to_500_m": 0.8282174609999999,
+      "forward_speed_at_500_m_s": 0.333633006,
+      "tilt_at_500_rad": 0.04641344692000242,
+      "toe_speed_cap_substeps_by_phase": {
+        "settle": 0,
+        "walk": 0,
+        "launch": 0,
+        "after_400": 0
+      },
+      "last_cap": null,
+      "missing_or_duplicate_substeps": 0,
+      "missing_velocity_substeps": 0
+    },
+    {
+      "lane": 6,
+      "first_two_unloaded_rising_interval": 353,
+      "first_ground_recontact": null,
+      "height_gain_347_to_500_m": 0.859247987,
+      "forward_speed_at_500_m_s": 0.342938095,
+      "tilt_at_500_rad": 0.047346112312547595,
+      "toe_speed_cap_substeps_by_phase": {
+        "settle": 0,
+        "walk": 0,
+        "launch": 0,
+        "after_400": 0
+      },
+      "last_cap": null,
+      "missing_or_duplicate_substeps": 0,
+      "missing_velocity_substeps": 0
+    },
+    {
+      "lane": 7,
+      "first_two_unloaded_rising_interval": 353,
+      "first_ground_recontact": null,
+      "height_gain_347_to_500_m": 0.796514303,
+      "forward_speed_at_500_m_s": 0.322788239,
+      "tilt_at_500_rad": 0.048856351884155276,
+      "toe_speed_cap_substeps_by_phase": {
+        "settle": 0,
+        "walk": 0,
+        "launch": 0,
+        "after_400": 0
+      },
+      "last_cap": null,
+      "missing_or_duplicate_substeps": 0,
+      "missing_velocity_substeps": 0
+    }
+  ],
+  "limitations": "Wing-on only, teacher-guided development starts; unloaded intervals do not prove toe geometry clearance or leg causality. Velocity samples are end-of-substep, not within-substep maxima. No flight recovery, release, supported landing or autonomous course conclusion."
+}

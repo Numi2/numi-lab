@@ -1,0 +1,3 @@
+# Moderate damping rejected
+
+A constant toe drive damping of 0.015 reduced sampled settling speed-limit hits from 20 to 2, but no start achieved three measured clearance bouts per foot and several moved backward. One lane failed to produce two unloaded rising launch intervals and another recontacted the ground during launch. Six launch-phase speed-limit samples occurred in the recontacting lane. The tested setting is rejected; neither toe-limit reduction alone nor the partial launch constitutes success. Substep endpoint sampling, development seed, diagnostic policy rebinding and uncalibrated drives limit the result. The reference gait shader, base host and policy archives are referenced by the run input hashes.
