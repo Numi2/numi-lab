@@ -1,0 +1,62 @@
+{
+  "state_mismatches": 0,
+  "contact_substep_mismatches": 0,
+  "q_substeps_found": 3968,
+  "q_substeps_expected": 3968,
+  "missing_q_examples": [
+    [
+      0,
+      201,
+      0
+    ],
+    [
+      0,
+      201,
+      1
+    ],
+    [
+      0,
+      201,
+      2
+    ],
+    [
+      0,
+      201,
+      3
+    ],
+    [
+      0,
+      201,
+      4
+    ],
+    [
+      0,
+      201,
+      5
+    ],
+    [
+      0,
+      201,
+      6
+    ],
+    [
+      0,
+      201,
+      7
+    ],
+    [
+      0,
+      201,
+      8
+    ],
+    [
+      0,
+      201,
+      9
+    ]
+  ],
+  "max_final_substep_q_vs_endpoint": 0.0,
+  "errors": [],
+  "reference_errors": [],
+  "pass": false
+}

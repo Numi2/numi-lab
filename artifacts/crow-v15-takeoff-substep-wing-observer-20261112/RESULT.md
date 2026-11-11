@@ -1,0 +1,7 @@
+# Takeoff wing and foot-contact timing
+
+The re-observed early-wing candidate matched the 370-interval reference across all 2,960 q/v/action/contact endpoints and 47,360 contact substeps. All 3,968 q snapshots in steps 335–365 were present and each final substep matched its endpoint. An initial verification script erroneously requested the old 201–370 q window; its failed output is retained as verification-initial.log. Correcting the requested window to the preregistered 335–365 produced the reported pass without changing the run.
+
+Native FK reproduced wing and torso replay positions within 1.5e-8 m and orientations within 3.1e-8. In every development lane, foot normal impulse exceeded 1e-7 N s through substep 2 of interval 348, with no above-threshold foot impulse in intervals 349 and 350. From the prior control endpoint to that last loaded substep, each wing body's center moved downward about 8.68 mm in torso coordinates; by the end of interval 348 it had moved down about 36.57 mm. Thus the modeled wing centers move downward while foot loading is still recorded. That order is consistent with the partial pre-toe-off downstroke reported for American crows in the referenced escape study.
+
+The estimate does not measure feather shape, aerodynamic force or an actual joint stroke; each coordinate/contact pair represents the same substep but within-substep ordering is unresolved. The trials are one used development seed with near-identical commanded timing, not independent biological samples. This finding does not qualify the full takeoff or landing.

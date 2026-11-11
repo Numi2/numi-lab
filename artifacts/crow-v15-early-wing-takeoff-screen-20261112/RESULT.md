@@ -1,0 +1,5 @@
+# Earlier wing initiation: short development takeoff
+
+The candidate lifts the existing flap-amplitude gate at 6.90 s. The same eight first episodes on used seed 20261126 matched every logged q/v, policy action, endpoint contact and every contact substep through step 344; the first recorded difference occurred at step 348. All eight completed 500 intervals without reported observer error. Two consecutive unloaded rising intervals started at step 349 versus step 353 in the matched previous controller. Both feet provided upward contact impulse, no nonfoot normal impulse was recorded in steps 340–360, and no toe-speed cap occurred in steps 340–500. Root height at step 500 was 0.934–1.013 m.
+
+The candidate is an engineering trial, not a biological calibration. Full sampled release geometry, contact-point slip and independent perturbations are not established here. The different contact durations mean summed impulses do not isolate leg force or supply a direct biological comparison. The separate synchronized substep observation records wing motion relative to contact. The subsequent full sequence and landing must be checked before any promotion.

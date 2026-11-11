@@ -1,0 +1,161 @@
+{
+  "replay_fk_validation": {
+    "max_position_error_m": 1.4641599894316681e-08,
+    "max_orientation_error": 3.047133363925971e-08
+  },
+  "rows": [
+    {
+      "lane": 0,
+      "last_loaded_substep": [
+        348,
+        2
+      ],
+      "torso_relative_wing_z_start": {
+        "left": 0.01715974933136684,
+        "right": 0.01715975204864092
+      },
+      "wing_z_change_to_last_loaded_m": {
+        "left": -0.0086803234182894,
+        "right": -0.008680039718914399
+      },
+      "wing_z_change_at_end_of_release_interval_m": {
+        "left": -0.03657289244653292,
+        "right": -0.03657276132296351
+      }
+    },
+    {
+      "lane": 1,
+      "last_loaded_substep": [
+        348,
+        2
+      ],
+      "torso_relative_wing_z_start": {
+        "left": 0.017159749758256387,
+        "right": 0.017159749758256376
+      },
+      "wing_z_change_to_last_loaded_m": {
+        "left": -0.008680313232158546,
+        "right": -0.008680047998592195
+      },
+      "wing_z_change_at_end_of_release_interval_m": {
+        "left": -0.03657288658609112,
+        "right": -0.036572765443325654
+      }
+    },
+    {
+      "lane": 2,
+      "last_loaded_substep": [
+        348,
+        2
+      ],
+      "torso_relative_wing_z_start": {
+        "left": 0.017159750622378424,
+        "right": 0.017159753339652695
+      },
+      "wing_z_change_to_last_loaded_m": {
+        "left": -0.008680331021413013,
+        "right": -0.00868003931166323
+      },
+      "wing_z_change_at_end_of_release_interval_m": {
+        "left": -0.03657289424890778,
+        "right": -0.0365727585184218
+      }
+    },
+    {
+      "lane": 3,
+      "last_loaded_substep": [
+        348,
+        2
+      ],
+      "torso_relative_wing_z_start": {
+        "left": 0.017159750225126936,
+        "right": 0.01715975294240116
+      },
+      "wing_z_change_to_last_loaded_m": {
+        "left": -0.008680324843972256,
+        "right": -0.008680041144615343
+      },
+      "wing_z_change_at_end_of_release_interval_m": {
+        "left": -0.0365728929984168,
+        "right": -0.03657275668723182
+      }
+    },
+    {
+      "lane": 4,
+      "last_loaded_substep": [
+        348,
+        2
+      ],
+      "torso_relative_wing_z_start": {
+        "left": 0.017159751062442562,
+        "right": 0.017159751062442562
+      },
+      "wing_z_change_to_last_loaded_m": {
+        "left": -0.008680320007592383,
+        "right": -0.008680049433758977
+      },
+      "wing_z_change_at_end_of_release_interval_m": {
+        "left": -0.0365728899860176,
+        "right": -0.036572764220847584
+      }
+    },
+    {
+      "lane": 5,
+      "last_loaded_substep": [
+        348,
+        2
+      ],
+      "torso_relative_wing_z_start": {
+        "left": 0.017159749494558046,
+        "right": 0.017159749494558056
+      },
+      "wing_z_change_to_last_loaded_m": {
+        "left": -0.008680329340334813,
+        "right": -0.00868003491329161
+      },
+      "wing_z_change_at_end_of_release_interval_m": {
+        "left": -0.03657289669303311,
+        "right": -0.03657275766456132
+      }
+    },
+    {
+      "lane": 6,
+      "last_loaded_substep": [
+        348,
+        2
+      ],
+      "torso_relative_wing_z_start": {
+        "left": 0.017159750189362395,
+        "right": 0.017159750189362378
+      },
+      "wing_z_change_to_last_loaded_m": {
+        "left": -0.008680330438350203,
+        "right": -0.008680036011320941
+      },
+      "wing_z_change_at_end_of_release_interval_m": {
+        "left": -0.03657289650187537,
+        "right": -0.03657275862706785
+      }
+    },
+    {
+      "lane": 7,
+      "last_loaded_substep": [
+        348,
+        2
+      ],
+      "torso_relative_wing_z_start": {
+        "left": 0.017159749322364488,
+        "right": 0.0171597520396386
+      },
+      "wing_z_change_to_last_loaded_m": {
+        "left": -0.00868032351546454,
+        "right": -0.008680042397226096
+      },
+      "wing_z_change_at_end_of_release_interval_m": {
+        "left": -0.03657289043710703,
+        "right": -0.036572761047919296
+      }
+    }
+  ],
+  "limits": "Modeled wing-body center displacement in torso coordinates is not a feather or aerodynamic-force measurement. Impulse threshold 1e-7 N s; coordinates and contact are after the same native substep but within-substep ordering remains unresolved. Development seed."
+}
