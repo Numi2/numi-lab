@@ -1,0 +1,11 @@
+--- a/zero.cpp
++++ b/walk-observer.cpp
+@@ -5075,7 +5075,7 @@
+                         consecutive[lane]=(lastStep[lane]+1ull==step) ? consecutive[lane]+1u : 1u;
+                     else consecutive[lane]=0u;
+                     lastStep[lane]=step;
+-                    if (step>350u && consecutive[lane]>50u && step<2976u && step%100u!=0u) continue;
++                    // Development observer: retain every accepted walking state.
+                     bool opened=false, first=true;
+                     for (size_t i=0; i<count && lane*stride+i<published.contactEvidence.contacts.size(); ++i) {
+                         const auto& c=published.contactEvidence.contacts[lane*stride+i];
