@@ -1,0 +1,5 @@
+# Rear-toe rate screen at the lower load threshold
+
+The unchanged reference, previous 0.4922 mm / 98-of-100 near miss and all candidates before their parameter switch reproduced their earlier recorded states exactly. All 16 retained 39 consecutive clear unloaded left-foot release poses with opposite-foot support, with no other-body contact on any substep. No candidate satisfied the entire gate. Two arms achieved all 100 terminal bilateral supported opposing-force samples, but their worst endpoint overlaps were 0.521 mm and 0.514 mm; other arms kept overlap below 0.5 mm but missed force-continuity or support requirements. The expected one-start solution was not found. All measurements and failures are retained.
+
+This is a single developmental perch start, with endpoint geometry and sampled support; it does not establish a general grip controller, an actual arrival, other-foot release, time convergence, a complete route or biological fidelity. A next experiment should measure acquisition across perturbed starts rather than infer robustness from further local tuning.
