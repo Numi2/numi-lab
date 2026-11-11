@@ -1,0 +1,9 @@
+parity True first diff [] geometry True failures 0 terminations 0
+lane 0 pass True bouts 14 14 alternating True unsupported 0 other 0 forward 0.10919053426 tilt 0.030417352562807455 speed 0.11653539647476532
+lane 1 pass True bouts 14 14 alternating True unsupported 0 other 0 forward 0.1051918902 tilt 0.030373351301911763 speed 0.0777235101317386
+lane 2 pass True bouts 14 14 alternating True unsupported 0 other 0 forward 0.10544188425 tilt 0.030345385095683228 speed 0.07760684610320269
+lane 3 pass True bouts 14 14 alternating True unsupported 0 other 0 forward 0.10521489158 tilt 0.030380399815480054 speed 0.07757829889854218
+lane 4 pass True bouts 14 14 alternating True unsupported 0 other 0 forward 0.10943890079 tilt 0.030380258331216128 speed 0.1171967731807387
+lane 5 pass True bouts 14 14 alternating True unsupported 0 other 0 forward 0.10534452966 tilt 0.030377015233538637 speed 0.07788887834719678
+lane 6 pass True bouts 14 14 alternating True unsupported 0 other 0 forward 0.10548600209999999 tilt 0.030356543474710066 speed 0.07799577795368141
+lane 7 pass True bouts 14 14 alternating True unsupported 0 other 0 forward 0.1038056388 tilt 0.03037131690780532 speed 0.07762581963351234

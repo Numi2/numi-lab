@@ -1,0 +1,32 @@
+/Users/n/Developer/numi-crow-rl-20261107/build/crow-v15-gait-onset-ramp-20261111/baseline.metal:5081:29: warning: unused variable 'extended' [-Wunused-variable]
+                const float extended=joint==0u ? 0.10f : joint==1u ? -0.70f : 0.18f;
+                            ^
+/Users/n/Developer/numi-crow-rl-20261107/build/crow-v15-gait-onset-ramp-20261111/baseline.metal:5082:28: warning: unused variable 'bilateral' [-Wunused-variable]
+                const bool bilateral=state.nutrition.x>0.05f && state.nutrition.y>0.05f;
+                           ^
+2 warnings generated.
+baseline
+/Users/n/Developer/numi-crow-rl-20261107/build/crow-v15-gait-onset-ramp-20261111/ramp050.metal:5081:29: warning: unused variable 'extended' [-Wunused-variable]
+                const float extended=joint==0u ? 0.10f : joint==1u ? -0.70f : 0.18f;
+                            ^
+/Users/n/Developer/numi-crow-rl-20261107/build/crow-v15-gait-onset-ramp-20261111/ramp050.metal:5082:28: warning: unused variable 'bilateral' [-Wunused-variable]
+                const bool bilateral=state.nutrition.x>0.05f && state.nutrition.y>0.05f;
+                           ^
+2 warnings generated.
+ramp050
+/Users/n/Developer/numi-crow-rl-20261107/build/crow-v15-gait-onset-ramp-20261111/ramp100.metal:5081:29: warning: unused variable 'extended' [-Wunused-variable]
+                const float extended=joint==0u ? 0.10f : joint==1u ? -0.70f : 0.18f;
+                            ^
+/Users/n/Developer/numi-crow-rl-20261107/build/crow-v15-gait-onset-ramp-20261111/ramp100.metal:5082:28: warning: unused variable 'bilateral' [-Wunused-variable]
+                const bool bilateral=state.nutrition.x>0.05f && state.nutrition.y>0.05f;
+                           ^
+2 warnings generated.
+ramp100
+/Users/n/Developer/numi-crow-rl-20261107/build/crow-v15-gait-onset-ramp-20261111/ramp150.metal:5081:29: warning: unused variable 'extended' [-Wunused-variable]
+                const float extended=joint==0u ? 0.10f : joint==1u ? -0.70f : 0.18f;
+                            ^
+/Users/n/Developer/numi-crow-rl-20261107/build/crow-v15-gait-onset-ramp-20261111/ramp150.metal:5082:28: warning: unused variable 'bilateral' [-Wunused-variable]
+                const bool bilateral=state.nutrition.x>0.05f && state.nutrition.y>0.05f;
+                           ^
+2 warnings generated.
+ramp150

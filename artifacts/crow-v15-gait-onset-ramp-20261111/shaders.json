@@ -1,0 +1,18 @@
+[
+  {
+    "name": "baseline",
+    "sha256": "8f603e5283ae3915a6ff10d6406554210228d4eddbe8e5410529e2057acfd62f"
+  },
+  {
+    "name": "ramp050",
+    "sha256": "f63ef0a82d6a50437ecbbffc8134273929ea022ddbf738cacdab0738cfd377bc"
+  },
+  {
+    "name": "ramp100",
+    "sha256": "7884b089685adca7c822f31ab7d262c523a07e24fc12cd3b349feafbab6450fe"
+  },
+  {
+    "name": "ramp150",
+    "sha256": "9448574476b639c92fb6c5acc82c344952ddf334a92536d4397344413e46e761"
+  }
+]
