@@ -1,0 +1,3 @@
+# Passive body damping attribution
+
+In the preceding parity-matched 300-tick replay, control-endpoint body-damping estimates accounted for much of the angular-momentum residual. Repeat that exact held-grip replay with observation only, require all 300 state traces to match, and log each authored body's angular and linear world-damping contribution about the world origin. Rank contributions by mean and mean absolute impulse in the same windows as the previous audit. Endpoint estimates are not full substep integrals, are not biological measurements and cannot establish whether changing damping improves stability. Do not alter damping or use reserved layouts.
