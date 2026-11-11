@@ -1,0 +1,4 @@
+b21f0e61e5fe4a942b2926a760323fe1dc7dc8f546f9f1ae5708789524a6e870  src/core/RunProgram.cpp
+01bc92e4ec91c08d890da7b8691400f56490a2518d9ed47ae150bb997c65375c  artifacts/crow-v15-flight-feedback-freeze-20261110/CrowFlightControllerResearchV2.metal
+14104c226ab970a43553a729bd3a83e8d92e8799a7196622803f6118c78fe758  artifacts/crow-v15-hip-roll-strong-drive-prototype-20261111/probe.cpp
+48bbfb7260e8835a8ea9f0edc17740c6611732b1bfd1ac66bb109a124695de32  build/crow-v15-hip-roll-journey-integration-20261111/c_api.cpp
