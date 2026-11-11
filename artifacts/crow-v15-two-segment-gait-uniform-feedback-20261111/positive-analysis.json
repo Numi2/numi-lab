@@ -1,0 +1,651 @@
+{
+  "calibration": {
+    "replay_environment": 1,
+    "compared_components": 12726,
+    "maximum_absolute_pose_error": 2.9793112532594535e-08,
+    "pass": true
+  },
+  "lanes": [
+    {
+      "lane": 0,
+      "sides": {
+        "left": {
+          "bouts": [
+            [
+              228,
+              237
+            ],
+            [
+              253,
+              262
+            ],
+            [
+              279,
+              287
+            ]
+          ],
+          "qualified_intervals": 29,
+          "maximum_minimum_gap_m": 0.003591046002811694
+        },
+        "right": {
+          "bouts": [
+            [
+              219,
+              223
+            ],
+            [
+              241,
+              249
+            ],
+            [
+              266,
+              274
+            ],
+            [
+              295,
+              299
+            ]
+          ],
+          "qualified_intervals": 30,
+          "maximum_minimum_gap_m": 0.003270817960700898
+        }
+      },
+      "swing_sequence": [
+        [
+          219,
+          "right"
+        ],
+        [
+          228,
+          "left"
+        ],
+        [
+          241,
+          "right"
+        ],
+        [
+          253,
+          "left"
+        ],
+        [
+          266,
+          "right"
+        ],
+        [
+          279,
+          "left"
+        ],
+        [
+          295,
+          "right"
+        ]
+      ],
+      "alternating": true,
+      "pass": true
+    },
+    {
+      "lane": 1,
+      "sides": {
+        "left": {
+          "bouts": [
+            [
+              228,
+              237
+            ],
+            [
+              254,
+              261
+            ],
+            [
+              279,
+              287
+            ]
+          ],
+          "qualified_intervals": 27,
+          "maximum_minimum_gap_m": 0.0033715580617319774
+        },
+        "right": {
+          "bouts": [
+            [
+              219,
+              223
+            ],
+            [
+              241,
+              249
+            ],
+            [
+              270,
+              274
+            ],
+            [
+              291,
+              299
+            ]
+          ],
+          "qualified_intervals": 30,
+          "maximum_minimum_gap_m": 0.0032573578261768515
+        }
+      },
+      "swing_sequence": [
+        [
+          219,
+          "right"
+        ],
+        [
+          228,
+          "left"
+        ],
+        [
+          241,
+          "right"
+        ],
+        [
+          254,
+          "left"
+        ],
+        [
+          270,
+          "right"
+        ],
+        [
+          279,
+          "left"
+        ],
+        [
+          291,
+          "right"
+        ]
+      ],
+      "alternating": true,
+      "pass": true
+    },
+    {
+      "lane": 2,
+      "sides": {
+        "left": {
+          "bouts": [
+            [
+              228,
+              237
+            ],
+            [
+              254,
+              262
+            ],
+            [
+              279,
+              287
+            ]
+          ],
+          "qualified_intervals": 28,
+          "maximum_minimum_gap_m": 0.0036447162843043952
+        },
+        "right": {
+          "bouts": [
+            [
+              220,
+              223
+            ],
+            [
+              241,
+              249
+            ],
+            [
+              266,
+              274
+            ],
+            [
+              295,
+              299
+            ]
+          ],
+          "qualified_intervals": 29,
+          "maximum_minimum_gap_m": 0.003271337110489733
+        }
+      },
+      "swing_sequence": [
+        [
+          220,
+          "right"
+        ],
+        [
+          228,
+          "left"
+        ],
+        [
+          241,
+          "right"
+        ],
+        [
+          254,
+          "left"
+        ],
+        [
+          266,
+          "right"
+        ],
+        [
+          279,
+          "left"
+        ],
+        [
+          295,
+          "right"
+        ]
+      ],
+      "alternating": true,
+      "pass": true
+    },
+    {
+      "lane": 3,
+      "sides": {
+        "left": {
+          "bouts": [
+            [
+              228,
+              237
+            ],
+            [
+              253,
+              262
+            ],
+            [
+              279,
+              287
+            ]
+          ],
+          "qualified_intervals": 29,
+          "maximum_minimum_gap_m": 0.0036908147650540728
+        },
+        "right": {
+          "bouts": [
+            [
+              220,
+              223
+            ],
+            [
+              241,
+              249
+            ],
+            [
+              266,
+              274
+            ],
+            [
+              291,
+              293
+            ],
+            [
+              295,
+              299
+            ]
+          ],
+          "qualified_intervals": 30,
+          "maximum_minimum_gap_m": 0.0032828145579681736
+        }
+      },
+      "swing_sequence": [
+        [
+          220,
+          "right"
+        ],
+        [
+          228,
+          "left"
+        ],
+        [
+          241,
+          "right"
+        ],
+        [
+          253,
+          "left"
+        ],
+        [
+          266,
+          "right"
+        ],
+        [
+          279,
+          "left"
+        ],
+        [
+          291,
+          "right"
+        ],
+        [
+          295,
+          "right"
+        ]
+      ],
+      "alternating": false,
+      "pass": false
+    },
+    {
+      "lane": 4,
+      "sides": {
+        "left": {
+          "bouts": [
+            [
+              228,
+              237
+            ],
+            [
+              253,
+              262
+            ],
+            [
+              279,
+              287
+            ]
+          ],
+          "qualified_intervals": 29,
+          "maximum_minimum_gap_m": 0.0036823678802904644
+        },
+        "right": {
+          "bouts": [
+            [
+              220,
+              223
+            ],
+            [
+              241,
+              249
+            ],
+            [
+              268,
+              274
+            ],
+            [
+              297,
+              300
+            ]
+          ],
+          "qualified_intervals": 27,
+          "maximum_minimum_gap_m": 0.0032504698802437552
+        }
+      },
+      "swing_sequence": [
+        [
+          220,
+          "right"
+        ],
+        [
+          228,
+          "left"
+        ],
+        [
+          241,
+          "right"
+        ],
+        [
+          253,
+          "left"
+        ],
+        [
+          268,
+          "right"
+        ],
+        [
+          279,
+          "left"
+        ],
+        [
+          297,
+          "right"
+        ]
+      ],
+      "alternating": true,
+      "pass": true
+    },
+    {
+      "lane": 5,
+      "sides": {
+        "left": {
+          "bouts": [
+            [
+              228,
+              237
+            ],
+            [
+              254,
+              262
+            ],
+            [
+              279,
+              287
+            ]
+          ],
+          "qualified_intervals": 28,
+          "maximum_minimum_gap_m": 0.0034783383628814012
+        },
+        "right": {
+          "bouts": [
+            [
+              219,
+              223
+            ],
+            [
+              241,
+              249
+            ],
+            [
+              266,
+              274
+            ],
+            [
+              295,
+              299
+            ]
+          ],
+          "qualified_intervals": 30,
+          "maximum_minimum_gap_m": 0.0032804349503043635
+        }
+      },
+      "swing_sequence": [
+        [
+          219,
+          "right"
+        ],
+        [
+          228,
+          "left"
+        ],
+        [
+          241,
+          "right"
+        ],
+        [
+          254,
+          "left"
+        ],
+        [
+          266,
+          "right"
+        ],
+        [
+          279,
+          "left"
+        ],
+        [
+          295,
+          "right"
+        ]
+      ],
+      "alternating": true,
+      "pass": true
+    },
+    {
+      "lane": 6,
+      "sides": {
+        "left": {
+          "bouts": [
+            [
+              228,
+              237
+            ],
+            [
+              253,
+              262
+            ],
+            [
+              279,
+              287
+            ]
+          ],
+          "qualified_intervals": 29,
+          "maximum_minimum_gap_m": 0.0036826892140418913
+        },
+        "right": {
+          "bouts": [
+            [
+              220,
+              223
+            ],
+            [
+              241,
+              249
+            ],
+            [
+              266,
+              274
+            ],
+            [
+              291,
+              293
+            ],
+            [
+              295,
+              299
+            ]
+          ],
+          "qualified_intervals": 30,
+          "maximum_minimum_gap_m": 0.0032752938220021056
+        }
+      },
+      "swing_sequence": [
+        [
+          220,
+          "right"
+        ],
+        [
+          228,
+          "left"
+        ],
+        [
+          241,
+          "right"
+        ],
+        [
+          253,
+          "left"
+        ],
+        [
+          266,
+          "right"
+        ],
+        [
+          279,
+          "left"
+        ],
+        [
+          291,
+          "right"
+        ],
+        [
+          295,
+          "right"
+        ]
+      ],
+      "alternating": false,
+      "pass": false
+    },
+    {
+      "lane": 7,
+      "sides": {
+        "left": {
+          "bouts": [
+            [
+              228,
+              237
+            ],
+            [
+              253,
+              262
+            ],
+            [
+              279,
+              287
+            ]
+          ],
+          "qualified_intervals": 29,
+          "maximum_minimum_gap_m": 0.003638349259466482
+        },
+        "right": {
+          "bouts": [
+            [
+              220,
+              223
+            ],
+            [
+              241,
+              249
+            ],
+            [
+              266,
+              274
+            ],
+            [
+              291,
+              293
+            ],
+            [
+              295,
+              299
+            ]
+          ],
+          "qualified_intervals": 30,
+          "maximum_minimum_gap_m": 0.003259850873370114
+        }
+      },
+      "swing_sequence": [
+        [
+          220,
+          "right"
+        ],
+        [
+          228,
+          "left"
+        ],
+        [
+          241,
+          "right"
+        ],
+        [
+          253,
+          "left"
+        ],
+        [
+          266,
+          "right"
+        ],
+        [
+          279,
+          "left"
+        ],
+        [
+          291,
+          "right"
+        ],
+        [
+          295,
+          "right"
+        ]
+      ],
+      "alternating": false,
+      "pass": false
+    }
+  ],
+  "scope": "endpoint vertical clearance plus all-substep impulse, development conditions only"
+}
