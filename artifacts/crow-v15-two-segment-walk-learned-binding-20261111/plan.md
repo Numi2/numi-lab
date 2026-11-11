@@ -1,0 +1,3 @@
+# Rebind learned diagnostic actors for two-segment walk preflight
+
+The prior binding attempt mistakenly assumed the policies were all zero; it stopped before executing. Rebind both existing learned landing and route actors to the exact task contract reported by the failed preflight, without changing any network weights, biases, activation functions, observation/action transforms or clips. Run the same two-interval compatibility check on the two-segment body and retain all outcomes. These actors are learned, their action authority must be analyzed, and this is not evidence of a physical walk, V2 flight equivalence or autonomous navigation.
