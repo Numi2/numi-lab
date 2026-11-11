@@ -1,0 +1,12 @@
+[
+  {
+    "path": "build/crow-v15-two-segment-walk-frozen-preflight-20261111/libmetalrobo.dylib",
+    "sha256": "31cdfda98b8852f64f30d8bbc752571714095248a562186ac9d225b67a20142d",
+    "bytes": 5764848
+  },
+  {
+    "path": "build/crow-v15-two-segment-walk-frozen-preflight-20261111/tracking.metallib",
+    "sha256": "9208198ee81400e64782dc499b011a9f77c8a42509eb51f12f4329e74c25737a",
+    "bytes": 4470688
+  }
+]

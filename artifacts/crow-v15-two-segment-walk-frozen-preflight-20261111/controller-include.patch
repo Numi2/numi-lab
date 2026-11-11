@@ -1,0 +1,11 @@
+--- a/prior-walk-wrapper.metal
++++ b/frozen-controller-walk-wrapper.metal
+@@ -4830,7 +4830,7 @@
+     return 0.0f;
+ }
+ 
+-#include "CrowFlightControllerV1.metal"
++#include "CrowFlightControllerResearchV2.metal"
+ 
+ inline uint taskActionHoldPeriod(device const MRTaskProgramHeaderGPU& program,device const uchar* arena,uint action) {
+     if(program.articulation.z==MR_TASK_PROGRAM_ACTION_HOLD_ABI_VERSION)
