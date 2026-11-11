@@ -1,0 +1,5 @@
+# Horizontal-force audit of the regrip regulation screen
+
+All 16 lanes reproduced all 1,500 saved trace states exactly with the passive observer. The actual signed horizontal force diagnostic showed substantially more opposing grip than the former normal-cone detector in several lanes, but none met both the 100-sample terminal supported-opposition requirement and the predeclared 0.5 mm maximum overlap. The strongest lane held supported opposition for 219 consecutive samples and 98 of the final 100, but reached 0.513 mm overlap in an opposing sample. The unchanged reference had 93 of the final 100 and 0.546 mm overlap. Other parameter choices lost support or sustained opposition.
+
+This post-hoc force measurement is diagnostic only: it changes no earlier acceptance, covers one development start, and uses accepted endpoint poses for geometry. The force is summed across all 16 physics substeps; support and other-body contact in this particular audit use the original sampled contact evidence. Further prospective force-based tests and full-substep unwanted-contact checks are necessary before qualification.

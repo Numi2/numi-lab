@@ -1,0 +1,120 @@
+{
+  "exact_trace_parity_lanes": 16,
+  "samples_per_lane": 1500,
+  "threshold_Ns": 0.0002,
+  "lanes": [
+    {
+      "lane": 1,
+      "terminal_horizontal_supported": 93,
+      "terminal_original_cone": 16,
+      "longest_horizontal_supported": 69,
+      "minimum_gap_m_during_opposition": -0.0005460455797906966
+    },
+    {
+      "lane": 2,
+      "terminal_horizontal_supported": 0,
+      "terminal_original_cone": 0,
+      "longest_horizontal_supported": 52,
+      "minimum_gap_m_during_opposition": -0.000448899577685867
+    },
+    {
+      "lane": 3,
+      "terminal_horizontal_supported": 0,
+      "terminal_original_cone": 0,
+      "longest_horizontal_supported": 52,
+      "minimum_gap_m_during_opposition": -0.0005361064093875531
+    },
+    {
+      "lane": 4,
+      "terminal_horizontal_supported": 0,
+      "terminal_original_cone": 0,
+      "longest_horizontal_supported": 52,
+      "minimum_gap_m_during_opposition": -0.0005179234609942809
+    },
+    {
+      "lane": 5,
+      "terminal_horizontal_supported": 0,
+      "terminal_original_cone": 0,
+      "longest_horizontal_supported": 52,
+      "minimum_gap_m_during_opposition": -0.000448899577685867
+    },
+    {
+      "lane": 6,
+      "terminal_horizontal_supported": 0,
+      "terminal_original_cone": 0,
+      "longest_horizontal_supported": 52,
+      "minimum_gap_m_during_opposition": -0.0008737139085807574
+    },
+    {
+      "lane": 7,
+      "terminal_horizontal_supported": 0,
+      "terminal_original_cone": 0,
+      "longest_horizontal_supported": 52,
+      "minimum_gap_m_during_opposition": -0.0006305454386552126
+    },
+    {
+      "lane": 8,
+      "terminal_horizontal_supported": 0,
+      "terminal_original_cone": 0,
+      "longest_horizontal_supported": 52,
+      "minimum_gap_m_during_opposition": -0.0005516119629822916
+    },
+    {
+      "lane": 9,
+      "terminal_horizontal_supported": 0,
+      "terminal_original_cone": 0,
+      "longest_horizontal_supported": 52,
+      "minimum_gap_m_during_opposition": -0.0005920272406020957
+    },
+    {
+      "lane": 10,
+      "terminal_horizontal_supported": 98,
+      "terminal_original_cone": 47,
+      "longest_horizontal_supported": 219,
+      "minimum_gap_m_during_opposition": -0.0005131630430411718
+    },
+    {
+      "lane": 11,
+      "terminal_horizontal_supported": 0,
+      "terminal_original_cone": 0,
+      "longest_horizontal_supported": 52,
+      "minimum_gap_m_during_opposition": -0.000448899577685867
+    },
+    {
+      "lane": 12,
+      "terminal_horizontal_supported": 0,
+      "terminal_original_cone": 0,
+      "longest_horizontal_supported": 52,
+      "minimum_gap_m_during_opposition": -0.000492342225623256
+    },
+    {
+      "lane": 13,
+      "terminal_horizontal_supported": 94,
+      "terminal_original_cone": 39,
+      "longest_horizontal_supported": 91,
+      "minimum_gap_m_during_opposition": -0.000545320748913572
+    },
+    {
+      "lane": 14,
+      "terminal_horizontal_supported": 72,
+      "terminal_original_cone": 6,
+      "longest_horizontal_supported": 52,
+      "minimum_gap_m_during_opposition": -0.000448899577685867
+    },
+    {
+      "lane": 15,
+      "terminal_horizontal_supported": 93,
+      "terminal_original_cone": 16,
+      "longest_horizontal_supported": 69,
+      "minimum_gap_m_during_opposition": -0.0005460455797906966
+    },
+    {
+      "lane": 16,
+      "terminal_horizontal_supported": 82,
+      "terminal_original_cone": 23,
+      "longest_horizontal_supported": 58,
+      "minimum_gap_m_during_opposition": -0.00045164027699309134
+    }
+  ],
+  "scope": "diagnostic only; no qualification or prospective criterion change"
+}
