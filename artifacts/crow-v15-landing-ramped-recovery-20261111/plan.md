@@ -1,0 +1,3 @@
+# Ramped flight resumption after toe release
+
+The staged toe-opening trial avoided the immediate recovery speed caps in two falling starts, but at resumption their forward velocities rose from about 0.03 m/s to 1.25 and 0.93 m/s within the next 0.9 seconds, and neither landed by the horizon. Test a gradual 0.8-second blend from neutral position-drive requests to the unchanged frozen flight law after the toe-opening stage; no forces or changes to the flight source, body, actor or contact solver are made. Compare full teacher-off trajectories, actual contact, toe limits, waypoint completion and terminal supported landing to both retained references. This is a used development course, not a claim of a safe or realistic landing.
