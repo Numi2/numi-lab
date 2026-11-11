@@ -1,0 +1,5 @@
+# Leg and wing overlap takeoff screen
+
+The 6.90 s wing gate moved the wing before toe-off but unloaded the feet before excess leg push. The 7.02 s gate preserved the full leg push, but the first logged state and contact difference occurred at interval 353, after the last reference foot load at 352 substep 6. Test the intermediate 7.00 s gate on the same development seed and eight paired lanes, using the same body, controls, mechanics, contact and 500-step horizon.
+
+Require exact pre-intervention q/v/actions/contact parity, a positive ground-upward impulse minus body weight from interval 348 through last loading, upward impulse from each foot, no nonfoot ground impulse in the launch window or post-340 toe-speed cap, no solver/observer errors, and continuing flight through interval 500. Determine whether wing displacement before release occurred using a separately parity-verified substep observer if the dynamic criteria pass; endpoint timing alone is insufficient. Do not infer isolated muscle impulse, biological calibration or whole-sequence qualification. Preserve failures.
