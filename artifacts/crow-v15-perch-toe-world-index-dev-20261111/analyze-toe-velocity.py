@@ -17,4 +17,4 @@ for e in range(8):
 rows=[{'lane':e,'all_hits':hits[e],'hits_after_ground_handoff_step_355':[v for v in hits[e] if v[0]>=356],'substeps':counts[e]} for e in range(8)]
 ends=json.loads((A/'analysis.json').read_text())['first_episode_navigation']['steps_by_environment']
 for row in rows:row['first_episode_hits_after_ground_handoff']=[h for h in row['all_hits'] if 356<=h[0]<=ends[row['lane']]+1]
-(A/'toe-velocity-analysis.json').write_text(json.dumps({'lanes':rows,'missing':missing,'scope':'All observed development teacher steps, including attempted landing and later auto-reset episodes; first-episode landing and flight windows are reported separately below. Absence of saturation is not biological validation.'},indent=2)+'\n')
+(A/'toe-velocity-analysis.json').write_text(json.dumps({'lanes':rows,'missing':missing,'scope':'All observed development teacher steps, including attempted landing and later auto-reset episodes; first-episode post-handoff hits are reported separately. Absence of saturation is not biological validation.'},indent=2)+'\n')
