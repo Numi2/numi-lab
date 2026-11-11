@@ -1,0 +1,39 @@
+--- a/reference.metal
++++ b/feedback.metal
+@@ -5083,7 +5083,11 @@
+         if (fixedFlightController && state.episode.z == 10u && action >= 7u && action <= 12u) {
+             const float seconds=float(state.episode.x)*dispatch.timing.x;
+             const uint leg=(action-7u)/3u, joint=(action-7u)%3u;
+-            const float support=dispatch.counts.w==40u ? ((state.status.w & (leg==0u ? (1u<<21) : (1u<<20)))!=0u ? 1.0f : 0.0f) : (leg==0u ? state.nutrition.y : state.nutrition.x);
++            // Require three accepted loaded samples from the opposite foot
++            // before allowing the next swing. Counters occupy flight-toe bits
++            // only in the walking window and are cleared before takeoff.
++            const uint supportDwell=(state.status.w>>(leg==0u ? 25u : 23u))&3u;
++            const float support=dispatch.counts.w==40u ? (supportDwell>=3u ? 1.0f : 0.0f) : (leg==0u ? state.nutrition.y : state.nutrition.x);
+             const float begin=4.0f;
+             const float carrier=sin(kTwoPi*seconds/0.50f)*(leg==0u ? 1.0f : -1.0f);
+             const float swing=seconds >= begin && seconds < begin+2.0f && support > 0.05f ? carrier : 0.0f;
+@@ -5558,7 +5562,7 @@
+             const uint frontRamp=ramp>2u ? ramp-2u : 0u;
+             for (uint toe=0u;toe<4u;++toe) {
+                 const float extension=side==0u && seq>=170u && seq<255u ? -.20f*clamp(float(seq-170u)/35.0f,0.0f,1.0f)*(1.0f-returning) : 0.0f;
+-                const float perchTarget=(toe==3u ? min(.04f*float(ramp),1.15f) : min(.03f*float(frontRamp),1.05f))+extension; const float flightTarget=.025f*float((state.status.w>>23u)&31u); const float proximal=max(perchTarget,flightTarget);
++                const float perchTarget=(toe==3u ? min(.04f*float(ramp),1.15f) : min(.03f*float(frontRamp),1.05f))+extension; const float flightTarget=float(state.episode.x)*dispatch.timing.x<6.0f ? 0.0f : .025f*float((state.status.w>>23u)&31u); const float proximal=max(perchTarget,flightTarget);
+                 for(uint segment=0u;segment<2u;++segment) {
+                     const uint dof=22u+side*8u+toe*2u+segment;
+                     effortTrajectory[pass.controlStep*worldDispatch.effortStepStride + environment*worldDispatch.effortEnvironmentStride + dof]=proximal*(segment==0u ? 1.0f : .75f);
+@@ -9470,7 +9474,13 @@
+             // Toe flight state uses bits 23-27; release uses bits 16-19 and 28-31.
+             const uint oldToeFlight=(state.status.w>>23u)&31u;
+             const bool curlFlight=released && seconds>=7.4f && state.navigation.z<4.0f;
+-            const uint nextToeFlight=curlFlight ? min(oldToeFlight+1u,14u) : (oldToeFlight>0u ? oldToeFlight-1u : 0u);
++            uint nextToeFlight;
++            if (seconds>=4.0f && seconds<6.0f) {
++                const uint left=(oldToeFlight&3u), right=((oldToeFlight>>2u)&3u);
++                nextToeFlight=(footLoads.x>0.05f ? min(left+1u,3u) : 0u) |
++                    ((footLoads.y>0.05f ? min(right+1u,3u) : 0u)<<2u);
++            } else if (seconds>=6.0f && seconds<6.96f) nextToeFlight=0u;
++            else nextToeFlight=curlFlight ? min(oldToeFlight+1u,14u) : (oldToeFlight>0u ? oldToeFlight-1u : 0u);
+             state.status.w=(state.status.w & ~(31u<<23u)) | (nextToeFlight<<23u);
+ 
+         }
