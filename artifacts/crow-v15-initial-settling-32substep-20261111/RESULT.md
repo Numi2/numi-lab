@@ -1,0 +1,3 @@
+# Settling resolution sensitivity
+
+With identical actor weights and body, the same eight development starts were sampled for 120 intervals at 16 and 32 physics substeps. Two lanes hit the 12 rad/s toe limit in both tests: 14 and 6 sampled substeps at 16 versus 69 and 14 at 32. The finer run has twice as many samples per interval, so counts alone are not directly comparable durations; the hits nonetheless persist. All expected toe velocity records were present and no solver errors were logged. The 32-substep version does not solve the issue and was not used for landing or promoted. The release controller is calibrated only for 16 substeps.
