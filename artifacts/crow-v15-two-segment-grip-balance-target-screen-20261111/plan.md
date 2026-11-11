@@ -1,0 +1,3 @@
+# Paired grip balance target development screen
+
+Using the same two previously failed starts (+2 mm forward and +.02 rad roll), test four target positions (-.030, -.020, -.004, +.004 metres), with the same contact-dependent hip controller, gain .5 and damping .2 s. The latter gained a passing roll case in the preceding screen. Keep body, physics, toe controls and all other start values fixed. Success uses the identical terminal bilateral supported opposing-contact, geometric overlap, no fall and no nonfoot impulse checks. These constructed starts do not establish flight arrival, release or biological qualification.
