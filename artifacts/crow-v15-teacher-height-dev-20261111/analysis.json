@@ -1,0 +1,172 @@
+{
+  "height": {
+    "teacher": true,
+    "student_authority": 0,
+    "termination_count": 0,
+    "failed_environment_steps": 0,
+    "host_requested_resets": 0,
+    "lanes": [
+      {
+        "lane": 0,
+        "waypoints": 1,
+        "missing_substeps": 0,
+        "first_ground_impulse_after_launch": null,
+        "first_endpoint_non_ground_contact": null,
+        "last_position_m": [
+          1.90874183,
+          -0.270139486,
+          1.09510827
+        ],
+        "last_velocity": [
+          0.0896786451,
+          -0.0411950424,
+          -0.13432771,
+          -0.0033837941,
+          0.0282441452,
+          0.015552571
+        ]
+      },
+      {
+        "lane": 1,
+        "waypoints": 1,
+        "missing_substeps": 0,
+        "first_ground_impulse_after_launch": null,
+        "first_endpoint_non_ground_contact": null,
+        "last_position_m": [
+          1.89156449,
+          -0.402092665,
+          1.16202319
+        ],
+        "last_velocity": [
+          0.0843570754,
+          -0.0668913722,
+          -0.137120456,
+          -0.00540592987,
+          0.0291869454,
+          0.0153439939
+        ]
+      },
+      {
+        "lane": 2,
+        "waypoints": 1,
+        "missing_substeps": 0,
+        "first_ground_impulse_after_launch": null,
+        "first_endpoint_non_ground_contact": null,
+        "last_position_m": [
+          1.91758001,
+          -0.354471058,
+          1.03878224
+        ],
+        "last_velocity": [
+          0.0891681388,
+          -0.0256530419,
+          -0.135079399,
+          -0.00426179823,
+          0.028396396,
+          0.015843885
+        ]
+      },
+      {
+        "lane": 3,
+        "waypoints": 1,
+        "missing_substeps": 0,
+        "first_ground_impulse_after_launch": null,
+        "first_endpoint_non_ground_contact": null,
+        "last_position_m": [
+          1.91440189,
+          -0.328576058,
+          1.114609
+        ],
+        "last_velocity": [
+          0.0896730199,
+          -0.0578845888,
+          -0.13489157,
+          -0.00355320494,
+          0.0282238144,
+          0.0153521644
+        ]
+      },
+      {
+        "lane": 4,
+        "waypoints": 1,
+        "missing_substeps": 0,
+        "first_ground_impulse_after_launch": null,
+        "first_endpoint_non_ground_contact": null,
+        "last_position_m": [
+          1.90224814,
+          -0.447560668,
+          1.09709024
+        ],
+        "last_velocity": [
+          0.0885310918,
+          -0.0607064553,
+          -0.135513842,
+          -0.00455783354,
+          0.028455101,
+          0.0154070864
+        ]
+      },
+      {
+        "lane": 5,
+        "waypoints": 1,
+        "missing_substeps": 0,
+        "first_ground_impulse_after_launch": null,
+        "first_endpoint_non_ground_contact": null,
+        "last_position_m": [
+          1.91564929,
+          -0.27651605,
+          1.01735353
+        ],
+        "last_velocity": [
+          0.0884062126,
+          -0.0456849858,
+          -0.134836957,
+          -0.00356314122,
+          0.0284631103,
+          0.0154876979
+        ]
+      },
+      {
+        "lane": 6,
+        "waypoints": 1,
+        "missing_substeps": 0,
+        "first_ground_impulse_after_launch": null,
+        "first_endpoint_non_ground_contact": null,
+        "last_position_m": [
+          1.93855512,
+          -0.283980608,
+          1.04284382
+        ],
+        "last_velocity": [
+          0.0887080058,
+          -0.026956033,
+          -0.134418085,
+          -0.00375925121,
+          0.0284362007,
+          0.0158072691
+        ]
+      },
+      {
+        "lane": 7,
+        "waypoints": 1,
+        "missing_substeps": 0,
+        "first_ground_impulse_after_launch": null,
+        "first_endpoint_non_ground_contact": null,
+        "last_position_m": [
+          1.88481474,
+          -0.280413181,
+          1.01894701
+        ],
+        "last_velocity": [
+          0.0888159275,
+          -0.0402740799,
+          -0.134975612,
+          -0.00346481847,
+          0.0284167491,
+          0.0156321637
+        ]
+      }
+    ]
+  },
+  "limitations": "Matched development teacher-guided trial only. Non-ground contacts are sampled at control-step endpoints and are not a complete substep first-collider or clearance audit. No landing or autonomous qualification."
+}

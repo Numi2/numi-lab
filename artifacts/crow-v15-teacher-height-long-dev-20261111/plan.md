@@ -1,0 +1,3 @@
+# Extended continuous teacher route
+
+With the isolated command and height changes, 8/8 matched development starts reached the first gate in 1300 steps. Repeat the same starts and teacher on the same training layout for 3200 steps without scheduled resets, matching all prior recorded prefix states and substeps exactly. Record progress and first failures including preceding states. This is teacher guidance on a development layout and does not qualify autonomous navigation, unseen layouts, toe flight, or supported landing. Stop describing the teacher as reliable unless it reaches all gates and lands under appropriate controls and perturbations.
