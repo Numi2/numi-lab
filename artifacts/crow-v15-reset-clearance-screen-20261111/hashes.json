@@ -1,0 +1,14 @@
+[
+  {
+    "name": "z010",
+    "added_m": 0.01,
+    "shader_sha256": "eed0c9d6b2529bb6ca628e741b1179d5d5274f48eea78e74de18f77ce5b6f181",
+    "source_sha256": "22a61107bf66dbe3dd79f48a8cb02d6f1db4c5b77edc6f6eeac120596ba953ab"
+  },
+  {
+    "name": "z016",
+    "added_m": 0.016,
+    "shader_sha256": "9daf6852122f503c16168298d83e9afd964c7d3520e071ac28d916617894be8a",
+    "source_sha256": "5e881e771235befed997c41c1d31b363f909edaa4e1ee798f562e66bfd17655e"
+  }
+]

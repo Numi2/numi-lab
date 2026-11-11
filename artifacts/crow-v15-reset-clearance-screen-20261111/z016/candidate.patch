@@ -1,0 +1,12 @@
+--- a/gait.metal
++++ b/clearance.metal
+@@ -3553,6 +3553,9 @@
+                 break;
+             }
+         }
++        // Development test only: physical vertical clearance at reset.
++        if ((program.schedule.w & MR_TASK_PROGRAM_AVIAN_CROW_JOURNEY) != 0u && curriculum == 10u && dispatch.counts.w == 38u)
++            resetQ[qBase + program.root.z + 2u] += .016f;
+         // Journey band three isolates cruise stabilization. Later v3 bands
+         // reset into exact portions of the full 32-second journey.
+         // fingerprinted, physically ordinary airborne state rather than

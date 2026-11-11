@@ -1,0 +1,12 @@
+[
+  {
+    "path": "build/crow-v15-reset-clearance-screen-20261111/z010/tracking.metallib",
+    "sha256": "eed0c9d6b2529bb6ca628e741b1179d5d5274f48eea78e74de18f77ce5b6f181",
+    "bytes": 4471408
+  },
+  {
+    "path": "build/crow-v15-reset-clearance-screen-20261111/z016/tracking.metallib",
+    "sha256": "9daf6852122f503c16168298d83e9afd964c7d3520e071ac28d916617894be8a",
+    "bytes": 4471408
+  }
+]

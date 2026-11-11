@@ -1,0 +1,3 @@
+# Reset clearance sensitivity
+
+The source-state observer found initial ground interpenetration in 4/8 development starts, up to 6.04 mm. Test fixed 10 mm and 16 mm vertical offsets from the same randomized reset state with all velocities and toe properties unchanged. This tests whether starting overlap contributes to cap hits; it adds a physical drop and is not an adaptive pose correction. For each variant require zero all-substep toe caps and the unchanged sustained walking gate in all eight starts. If successful, repeat on new development perturbations and check takeoff, flight, grip, and landing before considering adoption. No final layouts are used.
