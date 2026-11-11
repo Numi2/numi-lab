@@ -1,0 +1,150 @@
+{
+  "remote_commit": "d14974e4839e540ab6fb61d099b217a83df6b3aa",
+  "verification": "independent fetched Git restore, gzip decode, SHA-256 and open-handle checks",
+  "retired": [
+    {
+      "path": "build/crow-v15-forward-leg-jump-20261111/hn50-ap18.json",
+      "archive": "artifacts/crow-v15-forward-leg-jump-20261111/hn50-ap18.replay.json.gz",
+      "sha256": "8f5240fb1d1cc61a1a3c52daa53766a895c7b814c02725a12bb835045c0d43c4",
+      "bytes": 9006836
+    },
+    {
+      "path": "build/crow-v15-forward-leg-jump-20261111/hn50-ap18.tsv",
+      "archive": "artifacts/crow-v15-forward-leg-jump-20261111/hn50-ap18.trace.tsv.gz",
+      "sha256": "6681a82a0e7f9263000f954fe6f1a8826df996e8d93573ccf63b961c2dad9909",
+      "bytes": 198354
+    },
+    {
+      "path": "build/crow-v15-forward-leg-jump-20261111/hn50-ap30.json",
+      "archive": "artifacts/crow-v15-forward-leg-jump-20261111/hn50-ap30.replay.json.gz",
+      "sha256": "65d32ee2a754df38ee9a171881d1cd519cd009529d754f989dc069f903e132e1",
+      "bytes": 9009002
+    },
+    {
+      "path": "build/crow-v15-forward-leg-jump-20261111/hn50-ap30.tsv",
+      "archive": "artifacts/crow-v15-forward-leg-jump-20261111/hn50-ap30.trace.tsv.gz",
+      "sha256": "77ee7c13b3ed20cae463a17b3b52fa0a9299953e21764b14d4d1849e52f19314",
+      "bytes": 198341
+    },
+    {
+      "path": "build/crow-v15-forward-leg-jump-20261111/hn50-ap45.json",
+      "archive": "artifacts/crow-v15-forward-leg-jump-20261111/hn50-ap45.replay.json.gz",
+      "sha256": "9c10255780afe7d1419d7d88213b19da2b5ec5e83c223b0ae1cd3cff8d8d3efc",
+      "bytes": 9008445
+    },
+    {
+      "path": "build/crow-v15-forward-leg-jump-20261111/hn50-ap45.tsv",
+      "archive": "artifacts/crow-v15-forward-leg-jump-20261111/hn50-ap45.trace.tsv.gz",
+      "sha256": "548059e2b614f042b1930f130a9e1e99d27f01133359f8cd176abd7c3c5de181",
+      "bytes": 198335
+    },
+    {
+      "path": "build/crow-v15-forward-leg-jump-20261111/hn70-ap18.json",
+      "archive": "artifacts/crow-v15-forward-leg-jump-20261111/hn70-ap18.replay.json.gz",
+      "sha256": "653c6ee79c76a0382d02a8d85f649a4a81eeef824fb76dd8caeea9d88af1479f",
+      "bytes": 9007733
+    },
+    {
+      "path": "build/crow-v15-forward-leg-jump-20261111/hn70-ap18.tsv",
+      "archive": "artifacts/crow-v15-forward-leg-jump-20261111/hn70-ap18.trace.tsv.gz",
+      "sha256": "1ed056d5f2d6dd5f83d0335873ccf043d8966dfdaf3f78389477536d3a1f2477",
+      "bytes": 198352
+    },
+    {
+      "path": "build/crow-v15-forward-leg-jump-20261111/hn70-ap30.json",
+      "archive": "artifacts/crow-v15-forward-leg-jump-20261111/hn70-ap30.replay.json.gz",
+      "sha256": "8a4ffab5f64ac069d06a3d8e3ca03f02ae039db4234e7b44122917dcb345f568",
+      "bytes": 9006804
+    },
+    {
+      "path": "build/crow-v15-forward-leg-jump-20261111/hn70-ap30.tsv",
+      "archive": "artifacts/crow-v15-forward-leg-jump-20261111/hn70-ap30.trace.tsv.gz",
+      "sha256": "bfa1b5981d8c33e70c9840c0936dd35681aa8cae738f05f5509f5e21ee67cc29",
+      "bytes": 198356
+    },
+    {
+      "path": "build/crow-v15-forward-leg-jump-20261111/hn70-ap45.json",
+      "archive": "artifacts/crow-v15-forward-leg-jump-20261111/hn70-ap45.replay.json.gz",
+      "sha256": "6b089c68eb05c441379760925398e7e11bcc6007824a86e7c16987bdda1af4c2",
+      "bytes": 9005436
+    },
+    {
+      "path": "build/crow-v15-forward-leg-jump-20261111/hn70-ap45.tsv",
+      "archive": "artifacts/crow-v15-forward-leg-jump-20261111/hn70-ap45.trace.tsv.gz",
+      "sha256": "06b34f3b94351ebf442e8d04ea52bb8fab1e7dadbea4528c93eace5704088bbc",
+      "bytes": 198348
+    },
+    {
+      "path": "build/crow-v15-forward-leg-jump-20261111/hn85-ap18.json",
+      "archive": "artifacts/crow-v15-forward-leg-jump-20261111/hn85-ap18.replay.json.gz",
+      "sha256": "ee7a8c8a10dd8dd4b27e6b820a744b6ec4db9666f8e92cb949331dabb248b323",
+      "bytes": 9007175
+    },
+    {
+      "path": "build/crow-v15-forward-leg-jump-20261111/hn85-ap18.tsv",
+      "archive": "artifacts/crow-v15-forward-leg-jump-20261111/hn85-ap18.trace.tsv.gz",
+      "sha256": "46c72a85c060a025318a7c1826d3e0f45e871daa8fb4f99c496caa0a29cbf2e0",
+      "bytes": 198316
+    },
+    {
+      "path": "build/crow-v15-forward-leg-jump-20261111/hn85-ap30.json",
+      "archive": "artifacts/crow-v15-forward-leg-jump-20261111/hn85-ap30.replay.json.gz",
+      "sha256": "5c93d035fd2b8b57b7e27a9c8f4e51bb1b33c9e47448487d8d5a7856576edfc2",
+      "bytes": 9008529
+    },
+    {
+      "path": "build/crow-v15-forward-leg-jump-20261111/hn85-ap30.tsv",
+      "archive": "artifacts/crow-v15-forward-leg-jump-20261111/hn85-ap30.trace.tsv.gz",
+      "sha256": "996766530b9908d3dfa8a576315d0e8f5248385438c7b5b009e73d689737cb7a",
+      "bytes": 198334
+    },
+    {
+      "path": "build/crow-v15-forward-leg-jump-20261111/hn85-ap45.json",
+      "archive": "artifacts/crow-v15-forward-leg-jump-20261111/hn85-ap45.replay.json.gz",
+      "sha256": "31fd221f2f1c92b760c92d134cf74ab1fc953881a7c702e469e0f5873b44a263",
+      "bytes": 9007698
+    },
+    {
+      "path": "build/crow-v15-forward-leg-jump-20261111/hn85-ap45.tsv",
+      "archive": "artifacts/crow-v15-forward-leg-jump-20261111/hn85-ap45.trace.tsv.gz",
+      "sha256": "f594ea4b56dc81e879e0dc559abd419b080da5c380d338db269c79bb3e0b1f47",
+      "bytes": 198315
+    },
+    {
+      "path": "build/crow-v15-forward-leg-jump-20261111/hn100-ap18.json",
+      "archive": "artifacts/crow-v15-forward-leg-jump-20261111/hn100-ap18.replay.json.gz",
+      "sha256": "70766e1bb6d1c7d21e259ddc4006244c2e930d7c4b9492e60f72b2296547203b",
+      "bytes": 9015776
+    },
+    {
+      "path": "build/crow-v15-forward-leg-jump-20261111/hn100-ap18.tsv",
+      "archive": "artifacts/crow-v15-forward-leg-jump-20261111/hn100-ap18.trace.tsv.gz",
+      "sha256": "9f8e33337c8b13eb86413126ed381108dc2f01d6a75d68345aa320a551e2bfdc",
+      "bytes": 198325
+    },
+    {
+      "path": "build/crow-v15-forward-leg-jump-20261111/hn100-ap30.json",
+      "archive": "artifacts/crow-v15-forward-leg-jump-20261111/hn100-ap30.replay.json.gz",
+      "sha256": "ab95955f4b47c9b2e9fed97dbfebe7173edfda9635eec9e748047e9960e93cfe",
+      "bytes": 9012759
+    },
+    {
+      "path": "build/crow-v15-forward-leg-jump-20261111/hn100-ap30.tsv",
+      "archive": "artifacts/crow-v15-forward-leg-jump-20261111/hn100-ap30.trace.tsv.gz",
+      "sha256": "634e9fa5be9ce96463b1d3643c7c4ce2d71270e4f077a940c142eefe6536ac10",
+      "bytes": 198348
+    },
+    {
+      "path": "build/crow-v15-forward-leg-jump-20261111/hn100-ap45.json",
+      "archive": "artifacts/crow-v15-forward-leg-jump-20261111/hn100-ap45.replay.json.gz",
+      "sha256": "2e4571f14c9cf5478e445491c171fc1e5aed64ca2f549361a1ebbb433aa031ae",
+      "bytes": 9011482
+    },
+    {
+      "path": "build/crow-v15-forward-leg-jump-20261111/hn100-ap45.tsv",
+      "archive": "artifacts/crow-v15-forward-leg-jump-20261111/hn100-ap45.trace.tsv.gz",
+      "sha256": "3e217ea6497151d491c9c2ab72f81711475200c85efc0e48f1181c2631d768c8",
+      "bytes": 198342
+    }
+  ]
+}
