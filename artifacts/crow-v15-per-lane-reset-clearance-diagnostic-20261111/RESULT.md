@@ -1,0 +1,3 @@
+# Seed-specific reset-clearance sensitivity
+
+For eight measured development starts only, precomputed root offsets produced independent first-state foot/toe clearance of 0.5 mm in every lane, with exact observer parity for 1056 selected endpoint and substep records. Over 120 intervals, the overlap-affected lane 2 had zero toe speed-limit samples versus six in the baseline; lane 1 still had 13 versus 14. Other lanes had none. This demonstrates partial sensitivity, not a complete fix. The offsets are seed- and lane-specific, cannot generalize, and are not a deployable reset policy. Walking, takeoff, flight and landing were not evaluated with these offsets.

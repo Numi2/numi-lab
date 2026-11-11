@@ -1,0 +1,125 @@
+{
+  "baseline16": {
+    "lanes": [
+      {
+        "lane": 0,
+        "cap_substeps": 0,
+        "peak_toe_speed_rad_s": 3.9856379,
+        "records": 1920,
+        "expected_records": 1920
+      },
+      {
+        "lane": 1,
+        "cap_substeps": 14,
+        "peak_toe_speed_rad_s": 12.0,
+        "records": 1920,
+        "expected_records": 1920
+      },
+      {
+        "lane": 2,
+        "cap_substeps": 6,
+        "peak_toe_speed_rad_s": 12.0,
+        "records": 1920,
+        "expected_records": 1920
+      },
+      {
+        "lane": 3,
+        "cap_substeps": 0,
+        "peak_toe_speed_rad_s": 2.86867905,
+        "records": 1920,
+        "expected_records": 1920
+      },
+      {
+        "lane": 4,
+        "cap_substeps": 0,
+        "peak_toe_speed_rad_s": 1.54303336,
+        "records": 1920,
+        "expected_records": 1920
+      },
+      {
+        "lane": 5,
+        "cap_substeps": 0,
+        "peak_toe_speed_rad_s": 0.570590496,
+        "records": 1920,
+        "expected_records": 1920
+      },
+      {
+        "lane": 6,
+        "cap_substeps": 0,
+        "peak_toe_speed_rad_s": 1.44699907,
+        "records": 1920,
+        "expected_records": 1920
+      },
+      {
+        "lane": 7,
+        "cap_substeps": 0,
+        "peak_toe_speed_rad_s": 0.567569792,
+        "records": 1920,
+        "expected_records": 1920
+      }
+    ],
+    "errors": []
+  },
+  "candidate16": {
+    "lanes": [
+      {
+        "lane": 0,
+        "cap_substeps": 0,
+        "peak_toe_speed_rad_s": 8.94887352,
+        "records": 1920,
+        "expected_records": 1920
+      },
+      {
+        "lane": 1,
+        "cap_substeps": 13,
+        "peak_toe_speed_rad_s": 12.0,
+        "records": 1920,
+        "expected_records": 1920
+      },
+      {
+        "lane": 2,
+        "cap_substeps": 0,
+        "peak_toe_speed_rad_s": 4.46517849,
+        "records": 1920,
+        "expected_records": 1920
+      },
+      {
+        "lane": 3,
+        "cap_substeps": 0,
+        "peak_toe_speed_rad_s": 2.64620209,
+        "records": 1920,
+        "expected_records": 1920
+      },
+      {
+        "lane": 4,
+        "cap_substeps": 0,
+        "peak_toe_speed_rad_s": 0.489370197,
+        "records": 1920,
+        "expected_records": 1920
+      },
+      {
+        "lane": 5,
+        "cap_substeps": 0,
+        "peak_toe_speed_rad_s": 0.511084974,
+        "records": 1920,
+        "expected_records": 1920
+      },
+      {
+        "lane": 6,
+        "cap_substeps": 0,
+        "peak_toe_speed_rad_s": 0.588183999,
+        "records": 1920,
+        "expected_records": 1920
+      },
+      {
+        "lane": 7,
+        "cap_substeps": 0,
+        "peak_toe_speed_rad_s": 0.511535048,
+        "records": 1920,
+        "expected_records": 1920
+      }
+    ],
+    "errors": []
+  },
+  "scope": "Same used development seed, v15 body and identical policy and time step; seed-specific placement offsets change the reset positions. Counts are end-of-substep velocity observations, not maxima within substeps. This initial-contact diagnostic does not qualify walking, takeoff, flight or landing, and the lane-specific offsets do not generalize."
+}

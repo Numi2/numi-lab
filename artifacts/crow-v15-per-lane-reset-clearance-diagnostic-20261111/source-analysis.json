@@ -1,0 +1,102 @@
+{
+  "compared_records": [
+    1056,
+    1056
+  ],
+  "differing_records": 0,
+  "first_difference": "[]",
+  "source_samples": 512,
+  "expected_source_samples": 512,
+  "previous_endpoint_max_abs_error": 0.0,
+  "lanes": [
+    {
+      "lane": 0,
+      "initial_root_m": [
+        -0.00352119561,
+        -0.000391381996,
+        0.188118368
+      ],
+      "minimum_foot_toe_gap_m": 0.0005000056984984774,
+      "lowest_shape": "crow_left_front_toe_3_distal",
+      "toe_v_max": 0.0193545818
+    },
+    {
+      "lane": 1,
+      "initial_root_m": [
+        -0.0253438149,
+        -0.00581869483,
+        0.183147535
+      ],
+      "minimum_foot_toe_gap_m": 0.000500001692046689,
+      "lowest_shape": "crow_left_rear_toe_distal",
+      "toe_v_max": 0.0199145209
+    },
+    {
+      "lane": 2,
+      "initial_root_m": [
+        -0.000974044669,
+        -0.0313281976,
+        0.19320254
+      ],
+      "minimum_foot_toe_gap_m": 0.0005000065965587875,
+      "lowest_shape": "crow_right_front_toe_1_distal",
+      "toe_v_max": 0.0184879154
+    },
+    {
+      "lane": 3,
+      "initial_root_m": [
+        -0.00477207638,
+        0.0491425209,
+        0.187746719
+      ],
+      "minimum_foot_toe_gap_m": 0.0005000000719065905,
+      "lowest_shape": "crow_left_front_toe_3_distal",
+      "toe_v_max": 0.0191320293
+    },
+    {
+      "lane": 4,
+      "initial_root_m": [
+        -0.0093096653,
+        -0.0367302373,
+        0.182728469
+      ],
+      "minimum_foot_toe_gap_m": 0.0004999928355691966,
+      "lowest_shape": "crow_right_foot",
+      "toe_v_max": 0.0163211673
+    },
+    {
+      "lane": 5,
+      "initial_root_m": [
+        -0.00304425112,
+        0.00686721224,
+        0.183005944
+      ],
+      "minimum_foot_toe_gap_m": 0.0004999991562218489,
+      "lowest_shape": "crow_left_foot",
+      "toe_v_max": 0.0192373823
+    },
+    {
+      "lane": 6,
+      "initial_root_m": [
+        0.0288683977,
+        -0.0267817974,
+        0.187845901
+      ],
+      "minimum_foot_toe_gap_m": 0.0005000037317069352,
+      "lowest_shape": "crow_right_rear_toe_distal",
+      "toe_v_max": 0.0193221215
+    },
+    {
+      "lane": 7,
+      "initial_root_m": [
+        -0.0413110517,
+        -0.00516343117,
+        0.183145285
+      ],
+      "minimum_foot_toe_gap_m": 0.0004999954576677627,
+      "lowest_shape": "crow_left_foot",
+      "toe_v_max": 0.0197267067
+    }
+  ],
+  "scope": "Read-only first source state from v15 with hip roll, compared with the matching seed-specific corrected-reset run. Negative separation denotes initial overlap; geometry is estimated, and overlap alone does not prove causation."
+}

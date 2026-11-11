@@ -1,0 +1,14 @@
+--- a/reference.metal
++++ b/release.metal
+@@ -3552,6 +3552,11 @@
+             default:
+                 break;
+             }
++        }
++        // Seed-specific initial-geometry diagnostic: not a general reset controller.
++        if ((program.schedule.w & MR_TASK_PROGRAM_AVIAN_CROW_JOURNEY) != 0u && curriculum == 10u && dispatch.counts.w == 40u) {
++            const float offsets[8]={0.0012048573f,-0.0034749077f,0.0065406344f,0.0009706319f,-0.0045401978f,-0.0035505882f,0.0008010383f,-0.0042181865f};
++            resetQ[qBase + program.root.z + 2u] += offsets[environment%8u];
+         }
+         // Journey band three isolates cruise stabilization. Later v3 bands
+         // reset into exact portions of the full 32-second journey.

@@ -1,0 +1,3 @@
+# Per-lane reset geometry sensitivity
+
+The measured v15 reset starts have both foot/toe overlap up to 6.04 mm and positive gaps up to 5.04 mm. For the same eight used starts only, apply a precomputed root-z correction that would place the lowest estimated foot/toe box 0.5 mm above ground. All velocities, physics, geometry, frozen control and policy remain unchanged. Test 120 intervals with every toe speed substep, verify initial clearance independently and preserve all failures. The corrections depend on the exact seed and lane and cannot be used as a general reset controller or held-out result. Success requires an actual geometry-aware reset and separate perturbed walking, flight and landing tests.
