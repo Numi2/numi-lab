@@ -1,0 +1,17 @@
+[
+  {
+    "path": "build/crow-v15-aba-math-mode-comparison-20261111/fast.metallib",
+    "sha256": "cb5b00583f5f99235504c8b5c5178b102ab284b4f1de100657cec71cd423b737",
+    "bytes": 35421
+  },
+  {
+    "path": "build/crow-v15-aba-math-mode-comparison-20261111/diagnostic",
+    "sha256": "9c5a9ccbef60682484459b029fc38ad11da07b212b136664a0f0988bd3e3fc4f",
+    "bytes": 60760
+  },
+  {
+    "path": "build/crow-v15-aba-math-mode-comparison-20261111/control",
+    "sha256": "9bc3ec85e6b77b783bd2ad6418dbdd158d8949eee234cef9362195a10043c3bb",
+    "bytes": 60760
+  }
+]
