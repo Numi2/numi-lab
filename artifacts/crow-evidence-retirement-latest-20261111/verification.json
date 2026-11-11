@@ -1,0 +1,18 @@
+[
+  {
+    "path": "build/crow-v15-perch-pitch-balance-screen-20261111/replay.json",
+    "archive_commit": "cf05034527346f290a068a1dd06841fbf805d011",
+    "archive_sha256": "78faa3e55405f8cf2f22776afdff0ba60adca5cb4fb54ee9113c8ac0a7f291d5",
+    "restored_sha256": "b0f140b005f68f514827ba78a8e20169ee8ae3cccc4af642929c73ed02c7dde8",
+    "local_sha256": "b0f140b005f68f514827ba78a8e20169ee8ae3cccc4af642929c73ed02c7dde8",
+    "open_handles": false
+  },
+  {
+    "path": "build/crow-v15-perch-strong-balance-screen-20261111/replay.json",
+    "archive_commit": "cf05034527346f290a068a1dd06841fbf805d011",
+    "archive_sha256": "916efe13b76b1f4956086161182f6bab953c6c4f917bea3805776d7ce7bc0657",
+    "restored_sha256": "7a00e2dee11b5115adcf592173b69285b802d7d7723bbd1f09c8b46b6ee30d77",
+    "local_sha256": "7a00e2dee11b5115adcf592173b69285b802d7d7723bbd1f09c8b46b6ee30d77",
+    "open_handles": false
+  }
+]
