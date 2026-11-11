@@ -4,14 +4,18 @@ R=Path.cwd();A=Path("artifacts/crow-v15-small-ankle-delay-screen-20261112");asse
 spec=importlib.util.spec_from_file_location("c","artifacts/crow-v15-corvid-stride-audit-20261111/analyze.py");c=importlib.util.module_from_spec(spec);spec.loader.exec_module(c)
 coarse=json.loads((A/"coarse-comparison.json").read_text());rows=[]
 for seed in (20261126,20261127):
- path=A/f"autonomous-{seed}";q={}
+ path=A/f"autonomous-{seed}";q={};endpoints={}
  with gzip.open(path/"run.stderr.gz","rt") as f:
   for l in f:
+   if l.startswith("CROW_SUPPORT_SAMPLE "):
+    x=json.loads(l.split(" ",1)[1]);t,e=x["step"],x["lane"]
+    if 201<=t<=300:endpoints[e,t]=x["q"]
    if l.startswith("CROW_Q_SUBSTEP "):
     z=l.split();t,k,e=map(int,z[1:4]);key=e,t,k
     if key in q:raise ValueError("duplicate q")
     v=list(map(float,z[4:]));assert len(v)==41 and all(map(math.isfinite,v));q[key]=v
- assert len(q)==12800 and all((e,t,k) in q for e in range(8) for t in range(201,301) for k in range(16))
+ assert len(q)==12800 and len(endpoints)==800 and all((e,t,k) in q for e in range(8) for t in range(201,301) for k in range(16))
+ assert max(abs(x-y) for e in range(8) for t in range(201,301) for x,y in zip(q[e,t,15],endpoints[e,t]))<1e-6
  inp="".join(f"{e} {t} {k} "+" ".join(map(str,v))+"\n" for (e,t,k),v in sorted(q.items()));env={**os.environ,"DYLD_LIBRARY_PATH":str(R/"build/crow-v15-hip-roll-journey-integration-20261111")}
  p=subprocess.run(["build/crow-v15-substep-gait-observer-20261111/kinematics"],input=inp,text=True,capture_output=True,env=env,check=True);body={}
  for l in p.stdout.splitlines():
