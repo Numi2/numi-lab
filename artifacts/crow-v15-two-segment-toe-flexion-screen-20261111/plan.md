@@ -1,0 +1,3 @@
+# Pre-run exploratory toe-flexion screen
+
+Eight identical constructed stationary starts test proximal flexion caps 0.55, 0.65, 0.75, 0.85, 0.95, 1.05, 1.15 and 1.20 radians; distal target is 0.75 times proximal. The same contact-triggered law, 16 substeps and 350 control intervals apply. Lane zero must match the retained single-lane baseline exactly. Record every lane and every substep. Passing requires at least 50 consecutive intervals with bilateral supported opposing toe forces, bounded root tilt and speed, no nonfoot impulse, and endpoint oriented-box penetration at most 0.5 mm; report first fall and all failures. This development test establishes neither flight arrival, release, nor biological qualification.
