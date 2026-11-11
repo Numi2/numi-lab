@@ -1,0 +1,14 @@
+--- a/reference.metal
++++ b/feedback.metal
+@@ -6847,9 +6847,9 @@
+                     if ((group.members.z & MR_TASK_CONTACT_SUPPORT)!=0u &&
+                         compactContact[compactBase+group.members.w]>0.05f) ++loadedFeet;
+                 }
+-                if (loadedFeet>=2u && abs(finalGoal.x-pos.x-.012f)<0.025f &&
++                if (loadedFeet>=2u && abs(finalGoal.x-pos.x-.012f)<0.020f &&
+                     abs(finalGoal.y-pos.y)<0.16f && length(yawFrameLinear.xy)<0.08f &&
+-                    abs(rootLinearVelocity.z)<0.12f) phase=2.0f;
++                    abs(rootLinearVelocity.z)<0.12f && abs(pitch)<0.10f && abs(baseAngular.y)<0.10f) phase=2.0f;
+             }
+         }
+         state.commandAndPhase.xyz=float3(0.15f,finalGoalSignal.x,finalGoalSignal.y);
