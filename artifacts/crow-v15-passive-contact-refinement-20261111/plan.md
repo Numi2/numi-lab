@@ -1,0 +1,3 @@
+# Passive contact temporal refinement
+
+The identical fixed-target start showed contact-load and trajectory differences between 16 and 32 substeps. Repeat both as exact 80-state references, then run the same body, initial state, default joint targets, solver and 20 ms control period at 64 substeps. Compare first-ten-sample root position, rear-toe angle and group-summed normal/friction impulses for 16 versus 32 and 32 versus 64. No adaptive control or injected force is used. This is a limited refinement diagnostic: smaller differences alone do not prove convergence or biological realism, and larger differences do not by themselves locate a solver defect. Preserve all outcomes. No reserved layout is used.
