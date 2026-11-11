@@ -1,0 +1,5 @@
+# Release pitch-feedback screen: censored by native solver rejection
+
+This eight-lane constructed stationary-perch experiment ended at the native step for interval 130. The contact solver rejected lane 7 (+0.5 pitch-feedback gain) at substep 24 with status 11 and reported residual 0.805998; the batch rolled back. All eight lanes have 130 observed completed states, and their later release and regrip outcomes are censored, not successes or completed failures. Exact diagnostics and traces are retained. The analysis explicitly lists the unobserved substeps and records no passing lanes; a zero pass count here is not an estimate of full-horizon performance. The first qualifying release intervals began in some lanes, but none can satisfy the full 350-interval terminal-grip criterion in this interrupted run.
+
+A follow-up screen removes the aggressive +0.5 and -0.5 gains and retains zero-feedback controls. The exact feedback signs are hypotheses, not a qualified controller; this test is not an autonomous landing or full-sequence test.
