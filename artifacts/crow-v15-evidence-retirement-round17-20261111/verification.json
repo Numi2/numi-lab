@@ -1,0 +1,29 @@
+{
+  "independently_fetched_commit": "416ad09f01898a91c5901d570972b3ae74b8db11",
+  "results": [
+    {
+      "path": "/Users/n/Developer/numi-crow-rl-20261107/artifacts/crow-v15-landing-tip-recovery-20261111/autonomous-20261126/run.stderr.gz",
+      "bytes": 79326947,
+      "sha256": "a6c5079c04264aa7ec342562665d33df4b4e2eef1e34f4404adb0388bf126b74",
+      "verified_archive": "artifacts/crow-v15-landing-tip-recovery-20261111/autonomous-20261126/stderr-parts.json",
+      "open_handles": false,
+      "retired": true
+    },
+    {
+      "path": "/Users/n/Developer/numi-crow-rl-20261107/build/crow-v15-landing-tip-recovery-20261111/autonomous-20261126-replay.json",
+      "bytes": 145246825,
+      "sha256": "742f764126686e9a009180c100e12cdd8e679853867b5e65e71f953eb6089241",
+      "verified_archive": "artifacts/crow-v15-landing-tip-recovery-20261111/autonomous-20261126/replay.json.gz",
+      "open_handles": false,
+      "retired": true
+    },
+    {
+      "path": "/Users/n/Developer/numi-crow-rl-20261107/build/crow-v15-landing-tip-recovery-20261111/autonomous-20261126-trace.tsv",
+      "bytes": 3212994,
+      "sha256": "2c5779eeebd1a226dc9493e0443a777630e43b123d3970bc0a3950d2fbd826e3",
+      "verified_archive": "artifacts/crow-v15-landing-tip-recovery-20261111/autonomous-20261126/trace.tsv.gz",
+      "open_handles": false,
+      "retired": true
+    }
+  ]
+}

@@ -1,0 +1,93 @@
+{
+  "rows": [
+    {
+      "lane": 0,
+      "matched_endpoint_samples": 275,
+      "range_m_s": [
+        0.06922969986071431,
+        0.2589948649509435
+      ],
+      "count_below_qualified_command_min_0_15": 140,
+      "count_negative": 0,
+      "median_m_s": 0.1457458684050161
+    },
+    {
+      "lane": 1,
+      "matched_endpoint_samples": 684,
+      "range_m_s": [
+        0.07173091953178878,
+        0.26236673728471205
+      ],
+      "count_below_qualified_command_min_0_15": 404,
+      "count_negative": 0,
+      "median_m_s": 0.14261659533994686
+    },
+    {
+      "lane": 2,
+      "matched_endpoint_samples": 722,
+      "range_m_s": [
+        0.05354653623355918,
+        0.2807442867322403
+      ],
+      "count_below_qualified_command_min_0_15": 429,
+      "count_negative": 0,
+      "median_m_s": 0.14438448242580737
+    },
+    {
+      "lane": 3,
+      "matched_endpoint_samples": 798,
+      "range_m_s": [
+        0.0632765158320042,
+        0.24605193107300039
+      ],
+      "count_below_qualified_command_min_0_15": 474,
+      "count_negative": 0,
+      "median_m_s": 0.14058540898337685
+    },
+    {
+      "lane": 4,
+      "matched_endpoint_samples": 734,
+      "range_m_s": [
+        0.041906210022180854,
+        0.25981403406432235
+      ],
+      "count_below_qualified_command_min_0_15": 430,
+      "count_negative": 0,
+      "median_m_s": 0.13631250583528787
+    },
+    {
+      "lane": 5,
+      "matched_endpoint_samples": 616,
+      "range_m_s": [
+        0.07432440944183413,
+        0.2459705044262987
+      ],
+      "count_below_qualified_command_min_0_15": 371,
+      "count_negative": 0,
+      "median_m_s": 0.13478779406702196
+    },
+    {
+      "lane": 6,
+      "matched_endpoint_samples": 471,
+      "range_m_s": [
+        0.07273773351964088,
+        0.24525858390943883
+      ],
+      "count_below_qualified_command_min_0_15": 244,
+      "count_negative": 0,
+      "median_m_s": 0.1453817732518107
+    },
+    {
+      "lane": 7,
+      "matched_endpoint_samples": 775,
+      "range_m_s": [
+        0.07028338764982466,
+        0.25495164885934773
+      ],
+      "count_below_qualified_command_min_0_15": 457,
+      "count_negative": 0,
+      "median_m_s": 0.13535066510493796
+    }
+  ],
+  "limitations": "Reconstructed command from accepted endpoint pose, velocities and logged final-goal error at same numbered samples; timing must be confirmed before treating as applied command. Frozen flight screen covered independent commands at 0.15\u20130.85 m/s under specified disturbances, not arbitrary combined commands; outside that screen is unqualified, not evidence of instability by itself."
+}
