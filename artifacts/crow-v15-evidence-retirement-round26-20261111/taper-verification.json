@@ -1,0 +1,29 @@
+{
+  "independently_fetched_commit": "cc64984b6049983196598d1d39f9b6fabc0776dc",
+  "results": [
+    {
+      "path": "/Users/n/Developer/numi-crow-rl-20261107/artifacts/crow-v15-landing-wing-taper-20261111/autonomous-20261126/run.stderr.gz",
+      "bytes": 111928593,
+      "sha256": "af01a9fdbcc71270a66c418c9bbce758ca6187a24e3f04f5c0ef6849cae12624",
+      "verified_archive": "artifacts/crow-v15-landing-wing-taper-20261111/autonomous-20261126/stderr-parts.json",
+      "open_handles": false,
+      "retired": true
+    },
+    {
+      "path": "/Users/n/Developer/numi-crow-rl-20261107/build/crow-v15-landing-wing-taper-20261111/autonomous-20261126-replay.json",
+      "bytes": 191686851,
+      "sha256": "153d0e2214cd29b1a662d2b430ff194c1f3c7ac2c6f617e46f053775fa4042d5",
+      "verified_archive": "artifacts/crow-v15-landing-wing-taper-20261111/autonomous-20261126/replay.json.gz",
+      "open_handles": false,
+      "retired": true
+    },
+    {
+      "path": "/Users/n/Developer/numi-crow-rl-20261107/build/crow-v15-landing-wing-taper-20261111/autonomous-20261126-trace.tsv",
+      "bytes": 4228490,
+      "sha256": "6d44b8eeba9fe93322e3bf2643862a815b868b87e6f526ec84cfc69f926d392e",
+      "verified_archive": "artifacts/crow-v15-landing-wing-taper-20261111/autonomous-20261126/trace.tsv.gz",
+      "open_handles": false,
+      "retired": true
+    }
+  ]
+}
