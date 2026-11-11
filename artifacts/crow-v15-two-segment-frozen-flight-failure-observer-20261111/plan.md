@@ -1,0 +1,3 @@
+# Two-segment flight accepted-state observer
+
+The 80-lane two-step test passes, while 3- and 4-step requests fail with a nonfinite contact inverse-mass response at index 374. Build an isolated host-only observer that additionally prints the already-published q, v and policy actions for steps one and two when an explicit environment variable is set; retain all dynamics and shaders unchanged. Run matched 80-lane 2- and 3-step cases and compare all published states and actions in their accepted prefixes, plus the original two-step environment-zero trace. Retain errors and all samples. This does not establish flight qualification or identify a cause without further inverse-mass inspection.
