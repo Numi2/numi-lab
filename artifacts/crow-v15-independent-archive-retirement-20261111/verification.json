@@ -1,0 +1,81 @@
+{
+  "independent_fetched_commit": "f219c9569a6c0694688666d0b5c4a27befd6bff3",
+  "manifest_checks": [
+    {
+      "artifact": "crow-v15-toes-perch-teacher-integration-20261111",
+      "restored_selected_files": [
+        "teacher-20261126/replay.json.gz",
+        "teacher-20261126/trace.tsv.gz"
+      ],
+      "selected_manifest_entries": "verified"
+    },
+    {
+      "artifact": "crow-v15-teacher-landing-flare-control-20261111",
+      "restored_selected_files": [
+        "teacher-20261126/replay.json.gz",
+        "teacher-20261126/trace.tsv.gz"
+      ],
+      "selected_manifest_entries": "verified"
+    },
+    {
+      "artifact": "crow-v15-contact-gated-flight-leg-tuck-20261111",
+      "restored_selected_files": [
+        "flight-replay.json.gz",
+        "flight-trace.tsv.gz"
+      ],
+      "selected_manifest_entries": "verified"
+    }
+  ],
+  "verified_redundant_uncompressed_files": [
+    {
+      "path": "/Users/n/Developer/numi-crow-rl-20261107/build/crow-v15-toes-perch-teacher-integration-20261111/teacher-20261126-replay.json",
+      "bytes": 145519081,
+      "sha256": "8ad14a3436d60d63d96702a964809eb86a1e5399958056e4af4c2cca0c155265",
+      "restored_gzip": "/tmp/crow-restore-f219c956-20261111/artifacts/crow-v15-toes-perch-teacher-integration-20261111/teacher-20261126/replay.json.gz",
+      "open_handles": false
+    },
+    {
+      "path": "/Users/n/Developer/numi-crow-rl-20261107/build/crow-v15-toes-perch-teacher-integration-20261111/teacher-20261126-trace.tsv",
+      "bytes": 3222184,
+      "sha256": "fa726a1190f49e387e1c2215903f81af6eabe5d86198774533f872eeb48be378",
+      "restored_gzip": "/tmp/crow-restore-f219c956-20261111/artifacts/crow-v15-toes-perch-teacher-integration-20261111/teacher-20261126/trace.tsv.gz",
+      "open_handles": false
+    },
+    {
+      "path": "/Users/n/Developer/numi-crow-rl-20261107/build/crow-v15-teacher-landing-flare-control-20261111/teacher-20261126-replay.json",
+      "bytes": 145689703,
+      "sha256": "21018aaabc2abcf70b16cfc1bdd0b50308a1a1bfde1c97d793010ec9c98dae17",
+      "restored_gzip": "/tmp/crow-restore-f219c956-20261111/artifacts/crow-v15-teacher-landing-flare-control-20261111/teacher-20261126/replay.json.gz",
+      "open_handles": false
+    },
+    {
+      "path": "/Users/n/Developer/numi-crow-rl-20261107/build/crow-v15-teacher-landing-flare-control-20261111/teacher-20261126-trace.tsv",
+      "bytes": 3329193,
+      "sha256": "3840248dc505bee8a5c818bee5661d4a204009b61511476236f46804350cc2a5",
+      "restored_gzip": "/tmp/crow-restore-f219c956-20261111/artifacts/crow-v15-teacher-landing-flare-control-20261111/teacher-20261126/trace.tsv.gz",
+      "open_handles": false
+    },
+    {
+      "path": "/Users/n/Developer/numi-crow-rl-20261107/build/crow-v15-contact-gated-flight-leg-tuck-20261111/flight-replay.json",
+      "bytes": 63182734,
+      "sha256": "64092ba199d102b5a351643b7bc82b74e9a1c0ef87d8b2bb8dc083d05d04be6e",
+      "restored_gzip": "/tmp/crow-restore-f219c956-20261111/artifacts/crow-v15-contact-gated-flight-leg-tuck-20261111/flight-replay.json.gz",
+      "open_handles": false
+    },
+    {
+      "path": "/Users/n/Developer/numi-crow-rl-20261107/build/crow-v15-contact-gated-flight-leg-tuck-20261111/flight-trace.tsv",
+      "bytes": 1339263,
+      "sha256": "9194ae35ff1a6b42e81c3ae8f09bbc5de280b81e39e6f6a68d66926ebf06f7cb",
+      "restored_gzip": "/tmp/crow-restore-f219c956-20261111/artifacts/crow-v15-contact-gated-flight-leg-tuck-20261111/flight-trace.tsv.gz",
+      "open_handles": false
+    }
+  ],
+  "retired": true,
+  "retired_paths": [
+    "/Users/n/Developer/numi-crow-rl-20261107/build/crow-v15-toes-perch-teacher-integration-20261111/teacher-20261126-replay.json",
+    "/Users/n/Developer/numi-crow-rl-20261107/build/crow-v15-toes-perch-teacher-integration-20261111/teacher-20261126-trace.tsv",
+    "/Users/n/Developer/numi-crow-rl-20261107/build/crow-v15-teacher-landing-flare-control-20261111/teacher-20261126-replay.json",
+    "/Users/n/Developer/numi-crow-rl-20261107/build/crow-v15-teacher-landing-flare-control-20261111/teacher-20261126-trace.tsv"
+  ],
+  "retired_bytes": 297760161
+}
