@@ -1,0 +1,72 @@
+{
+  "rows": [
+    {
+      "lane": 0,
+      "samples": 928,
+      "max_abs_toe_velocity_rad_s": 6.22554207,
+      "at_or_above_11_99_count": 0,
+      "at_or_above_11_99_after_release_count": 0,
+      "max_last_substep_error": 0.0
+    },
+    {
+      "lane": 1,
+      "samples": 928,
+      "max_abs_toe_velocity_rad_s": 4.788867,
+      "at_or_above_11_99_count": 0,
+      "at_or_above_11_99_after_release_count": 0,
+      "max_last_substep_error": 0.0
+    },
+    {
+      "lane": 2,
+      "samples": 928,
+      "max_abs_toe_velocity_rad_s": 4.97520256,
+      "at_or_above_11_99_count": 0,
+      "at_or_above_11_99_after_release_count": 0,
+      "max_last_substep_error": 0.0
+    },
+    {
+      "lane": 3,
+      "samples": 928,
+      "max_abs_toe_velocity_rad_s": 6.48629141,
+      "at_or_above_11_99_count": 0,
+      "at_or_above_11_99_after_release_count": 0,
+      "max_last_substep_error": 0.0
+    },
+    {
+      "lane": 4,
+      "samples": 928,
+      "max_abs_toe_velocity_rad_s": 8.87887478,
+      "at_or_above_11_99_count": 0,
+      "at_or_above_11_99_after_release_count": 0,
+      "max_last_substep_error": 0.0
+    },
+    {
+      "lane": 5,
+      "samples": 928,
+      "max_abs_toe_velocity_rad_s": 11.4119511,
+      "at_or_above_11_99_count": 0,
+      "at_or_above_11_99_after_release_count": 0,
+      "max_last_substep_error": 0.0
+    },
+    {
+      "lane": 6,
+      "samples": 928,
+      "max_abs_toe_velocity_rad_s": 12.0,
+      "at_or_above_11_99_count": 27,
+      "at_or_above_11_99_after_release_count": 0,
+      "max_last_substep_error": 0.0
+    },
+    {
+      "lane": 7,
+      "samples": 928,
+      "max_abs_toe_velocity_rad_s": 12.0,
+      "at_or_above_11_99_count": 14,
+      "at_or_above_11_99_after_release_count": 0,
+      "max_last_substep_error": 0.0
+    }
+  ],
+  "missing_or_duplicate_samples": 0,
+  "bad_records": [],
+  "bad_record_count": 0,
+  "interpretation": "Velocity samples are end-of-substep generalized velocities; they do not prove no instantaneous within-substep excursion. Check observer agreement and trajectory repeat before use."
+}
