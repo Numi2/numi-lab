@@ -1,0 +1,30 @@
+--- a/centered.metal
++++ b/rear-gated.metal
+@@ -6737,7 +6737,7 @@
+                         compactContact[compactBase+group.members.w] > 0.05f) ++loadedFeet;
+                 }
+                 const bool toeRampsReady=(state.status.w & 63u)>=20u && ((state.status.w>>6u)&63u)>=20u;
+-                if (landingPhase > 0.5f && loadedFeet >= 2u && toeRampsReady &&
++                if (landingPhase > 0.5f && loadedFeet >= 2u && toeRampsReady && ((state.status.w >> 28u) & 15u) >= 10u &&
+                     abs(xError) < 0.06f && abs(yError) < 0.16f &&
+                     length(yawFrameLinear.xy) < 0.08f &&
+                     abs(rootLinearVelocity.z) < 0.12f) landingPhase=2.0f;
+@@ -9355,7 +9355,17 @@
+             const uint lowLoad1 = lowLoad ? 16384u : 0u;
+             const uint lowLoad2 = lowLoad && (state.status.w & 16384u) != 0u ? 32768u : 0u;
+             const uint flightReleaseLatch = seconds >= 5.00f && seconds < 8.00f && (((state.status.w & 8192u) != 0u) || (lowLoad && (state.status.w & 32768u) != 0u)) ? 8192u : 0u;
+-            state.status.w=packed | launchRetractLatch | lowLoad1 | lowLoad2 | flightReleaseLatch;
++            uint rearStable=0u;
++            if (state.navigation.z>=5.0f) {
++                bool bothRearAndLoaded=true;
++                for (uint side=0u; side<2u; ++side) {
++                    const uint w=compactBase+contactGroups[3u+side].reference.y;
++                    const float3 rearForce=float3(compactContact[w],compactContact[w+1u],compactContact[w+2u]);
++                    bothRearAndLoaded &= compactContact[compactBase+contactGroups[side].members.w]>0.05f && length(rearForce)>0.05f;
++                }
++                rearStable=bothRearAndLoaded ? min(((state.status.w>>28u)&15u)+1u,15u) : 0u;
++            }
++            state.status.w=packed | launchRetractLatch | lowLoad1 | lowLoad2 | flightReleaseLatch | (rearStable<<28u);
+         }
+     }
+     taskStates[environment] = state;
