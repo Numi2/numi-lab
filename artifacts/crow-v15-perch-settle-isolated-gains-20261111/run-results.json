@@ -1,0 +1,18 @@
+[
+  {
+    "gain": 0.5,
+    "exit_code": 1
+  },
+  {
+    "gain": 1.0,
+    "exit_code": 1
+  },
+  {
+    "gain": 1.5,
+    "exit_code": 1
+  },
+  {
+    "gain": 2.5,
+    "exit_code": 1
+  }
+]
