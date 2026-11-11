@@ -1,0 +1,9 @@
+reference 0 samples 170 last 3475 pitch range 0.35 0.624 support-COM x -0.1115 -0.0544 torque 0.00415 0.00996
+reference 5 samples 102 last 3800 pitch range -0.28 -0.212 support-COM x 0.0201 0.0336 torque -0.00292 0.00074
+reference 6 samples 298 last 3798 pitch range 0.656 1.189 support-COM x -0.1684 -0.1185 torque 0.00976 0.01213
+reference 7 samples 40 last 3800 pitch range 0.016 0.076 support-COM x -0.0348 0.0165 torque -0.0029 0.00352
+damping 1 samples 109 last 3497 pitch range -1.199 -0.56 support-COM x 0.1229 0.1931 torque -0.01687 -0.00874
+damping 3 samples 231 last 3680 pitch range 0.605 1.173 support-COM x -0.1687 -0.1136 torque 0.00602 0.01929
+damping 4 samples 107 last 3468 pitch range -1.197 -0.55 support-COM x 0.1288 0.19 torque -0.01694 -0.01124
+damping 6 samples 105 last 3781 pitch range -1.196 -0.528 support-COM x 0.1236 0.1926 torque -0.01708 -0.01057
+damping 7 samples 111 last 3385 pitch range -1.198 -0.545 support-COM x 0.1223 0.1938 torque -0.01886 -0.01014
