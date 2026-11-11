@@ -1,0 +1,5 @@
+# Centered landing handoff control
+
+On the used development course and seed, tightening the position and body pitch/rate gate prevented the two physical falls seen in the release-inhibited reference: all eight first episodes survived 3800 steps, seven reached all five waypoints and one stalled at three. However, none achieved even one interval meeting the half-weight bilateral opposing-normal criterion or finished with supported landing. Lane 7 had no measured grip or release in the independently replay-aligned clearance audit. All first-episode substeps were present, with no contact-capacity overflow. The birds instead remained airborne or had transient contact; survival is not landing success.
+
+This controller is not accepted. A tighter handoff alone traded falls for failure to settle. Root-to-goal position is only a proxy for the physical center of mass and foot load; the course and seed were used in development. The trial does not qualify deliberate release, biological realism or unused layouts.
