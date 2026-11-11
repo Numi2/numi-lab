@@ -1,0 +1,63 @@
+{
+  "rows": [
+    {
+      "lane": 0,
+      "common_first_episode_end": 5000,
+      "first_difference": [
+        3300
+      ],
+      "different_endpoint_count": 1701
+    },
+    {
+      "lane": 1,
+      "common_first_episode_end": 5000,
+      "first_difference": [],
+      "different_endpoint_count": 0
+    },
+    {
+      "lane": 2,
+      "common_first_episode_end": 4610,
+      "first_difference": [
+        4496
+      ],
+      "different_endpoint_count": 115
+    },
+    {
+      "lane": 3,
+      "common_first_episode_end": 5000,
+      "first_difference": [],
+      "different_endpoint_count": 0
+    },
+    {
+      "lane": 4,
+      "common_first_episode_end": 5000,
+      "first_difference": [],
+      "different_endpoint_count": 0
+    },
+    {
+      "lane": 5,
+      "common_first_episode_end": 3919,
+      "first_difference": [
+        3692
+      ],
+      "different_endpoint_count": 228
+    },
+    {
+      "lane": 6,
+      "common_first_episode_end": 5000,
+      "first_difference": [
+        3496
+      ],
+      "different_endpoint_count": 1505
+    },
+    {
+      "lane": 7,
+      "common_first_episode_end": 5000,
+      "first_difference": [
+        3757
+      ],
+      "different_endpoint_count": 1244
+    }
+  ],
+  "scope": "Accepted q, v, policy output and endpoint contacts only through the shorter first episode. A match is not an all-substep or biological claim."
+}

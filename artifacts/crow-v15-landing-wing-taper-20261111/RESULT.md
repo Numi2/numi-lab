@@ -1,0 +1,5 @@
+# Wing taper rejected
+
+The half-second taper of actual wing stroke delayed the two used-course backward tilt terminations from reference steps 3919 and 4610 to 4130 and 4761, but neither bird stabilized. All eight first episodes reached five waypoint criteria; six timed out at 5000 and none met final 25- or 250-interval bilateral opposing half-weight support. The two other recovery starts flew farther away from the perch, and this does not constitute a landing.
+
+Compared with the reference, lane 0 had eight and lane 2 thirteen toe-speed-limit substeps after step 500, versus none; lane 6 had two versus four. No nonfoot perch impulse, post-step-400 ground normal impulse, missing contact substeps, overflow or substep error was recorded. Self-contact observation is limited to step 3800 or the first-episode end. The retained endpoint comparisons show unchanged logged states in the three unaffected lanes; divergence in the other five begins at or after the relevant landing event. Applied actuator targets and continuous clearance were not recorded. This candidate is rejected and does not qualify biological realism or unused layouts.
