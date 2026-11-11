@@ -1,0 +1,32 @@
+[
+  {
+    "path": "build/crow-v15-toe-mass-clearance-screen-20261111/m010/libmetalrobo.dylib",
+    "sha256": "74f31458ed9fec3d4ae69ff236ce8cddce4911bbf6b4c41c436aad4ae1aec964",
+    "bytes": 5764848
+  },
+  {
+    "path": "build/crow-v15-toe-mass-clearance-screen-20261111/m020/libmetalrobo.dylib",
+    "sha256": "c8447e18d3b5a87f3f0b63250794a0f5cc7c8be8d2c55ec8eddf6e03e761c60e",
+    "bytes": 5764848
+  },
+  {
+    "path": "build/crow-v15-toe-mass-clearance-screen-20261111/m010/landing.policypack",
+    "sha256": "7705d17b42a49d3ce28b405caba9ff78a526fb279648ae3d9165f305f640f643",
+    "bytes": 5996429
+  },
+  {
+    "path": "build/crow-v15-toe-mass-clearance-screen-20261111/m010/route.policypack",
+    "sha256": "733051a048857c7a80a19c1661bbc84e9e56250ac7a2e66bec8919867fd5755d",
+    "bytes": 17228683
+  },
+  {
+    "path": "build/crow-v15-toe-mass-clearance-screen-20261111/m020/landing.policypack",
+    "sha256": "b3d0d35dc23385ac99b9df6db058bd3db6d30b9a23033ccfe0133863e74bc1a7",
+    "bytes": 5996429
+  },
+  {
+    "path": "build/crow-v15-toe-mass-clearance-screen-20261111/m020/route.policypack",
+    "sha256": "e8de7b5b2d5ad60b33ee88749d6b8ab4c64415cfcee8f72ee9b58986e2b59c2a",
+    "bytes": 17228683
+  }
+]

@@ -1,0 +1,16 @@
+[
+  {
+    "name": "m010",
+    "toe_segment_mass_kg": 0.0001,
+    "library_sha256": "74f31458ed9fec3d4ae69ff236ce8cddce4911bbf6b4c41c436aad4ae1aec964",
+    "source_sha256": "d6eb49768c04e61e77d8b373a1638969a9936999a11ef8f40314a7ecbb483bcc",
+    "observer_sha256": "5d16771df5b9bdd06892918d00b600b8d997f6c0d6bbe7147c1c259f3a3d0d25"
+  },
+  {
+    "name": "m020",
+    "toe_segment_mass_kg": 0.0002,
+    "library_sha256": "c8447e18d3b5a87f3f0b63250794a0f5cc7c8be8d2c55ec8eddf6e03e761c60e",
+    "source_sha256": "8661948627608acae85c35bb87f8848d1f90e7a9dc942db954869d0ac97e7efe",
+    "observer_sha256": "5d16771df5b9bdd06892918d00b600b8d997f6c0d6bbe7147c1c259f3a3d0d25"
+  }
+]

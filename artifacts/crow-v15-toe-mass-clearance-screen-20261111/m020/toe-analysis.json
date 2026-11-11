@@ -1,0 +1,295 @@
+{
+  "variant": "m020",
+  "lanes": [
+    {
+      "lane": 0,
+      "missing_substeps": 0,
+      "compared_endpoint_coordinates": 4816,
+      "max_endpoint_error": 0.0,
+      "maximum_abs_toe_speed": 12.0,
+      "toe_speed_cap_substeps": [
+        {
+          "step": 5,
+          "substep": 1,
+          "toes": [
+            4
+          ]
+        }
+      ],
+      "gait_pass": true,
+      "pass": false
+    },
+    {
+      "lane": 1,
+      "missing_substeps": 0,
+      "compared_endpoint_coordinates": 4816,
+      "max_endpoint_error": 0.0,
+      "maximum_abs_toe_speed": 12.0,
+      "toe_speed_cap_substeps": [
+        {
+          "step": 5,
+          "substep": 3,
+          "toes": [
+            6
+          ]
+        },
+        {
+          "step": 5,
+          "substep": 4,
+          "toes": [
+            6
+          ]
+        },
+        {
+          "step": 5,
+          "substep": 5,
+          "toes": [
+            6
+          ]
+        },
+        {
+          "step": 13,
+          "substep": 6,
+          "toes": [
+            14
+          ]
+        },
+        {
+          "step": 13,
+          "substep": 7,
+          "toes": [
+            14
+          ]
+        },
+        {
+          "step": 27,
+          "substep": 13,
+          "toes": [
+            6
+          ]
+        },
+        {
+          "step": 35,
+          "substep": 15,
+          "toes": [
+            14
+          ]
+        },
+        {
+          "step": 36,
+          "substep": 0,
+          "toes": [
+            14
+          ]
+        },
+        {
+          "step": 44,
+          "substep": 12,
+          "toes": [
+            6
+          ]
+        },
+        {
+          "step": 44,
+          "substep": 13,
+          "toes": [
+            6
+          ]
+        },
+        {
+          "step": 44,
+          "substep": 14,
+          "toes": [
+            6
+          ]
+        },
+        {
+          "step": 53,
+          "substep": 10,
+          "toes": [
+            14
+          ]
+        },
+        {
+          "step": 53,
+          "substep": 11,
+          "toes": [
+            14
+          ]
+        },
+        {
+          "step": 53,
+          "substep": 12,
+          "toes": [
+            14
+          ]
+        },
+        {
+          "step": 53,
+          "substep": 13,
+          "toes": [
+            14
+          ]
+        },
+        {
+          "step": 68,
+          "substep": 4,
+          "toes": [
+            14
+          ]
+        },
+        {
+          "step": 68,
+          "substep": 5,
+          "toes": [
+            14
+          ]
+        },
+        {
+          "step": 84,
+          "substep": 6,
+          "toes": [
+            14
+          ]
+        },
+        {
+          "step": 84,
+          "substep": 7,
+          "toes": [
+            14
+          ]
+        },
+        {
+          "step": 84,
+          "substep": 8,
+          "toes": [
+            14
+          ]
+        },
+        {
+          "step": 92,
+          "substep": 11,
+          "toes": [
+            14
+          ]
+        },
+        {
+          "step": 92,
+          "substep": 12,
+          "toes": [
+            6,
+            14
+          ]
+        },
+        {
+          "step": 92,
+          "substep": 13,
+          "toes": [
+            6,
+            14
+          ]
+        },
+        {
+          "step": 92,
+          "substep": 14,
+          "toes": [
+            6,
+            14
+          ]
+        },
+        {
+          "step": 105,
+          "substep": 4,
+          "toes": [
+            14
+          ]
+        },
+        {
+          "step": 105,
+          "substep": 5,
+          "toes": [
+            14
+          ]
+        },
+        {
+          "step": 109,
+          "substep": 1,
+          "toes": [
+            6
+          ]
+        },
+        {
+          "step": 109,
+          "substep": 2,
+          "toes": [
+            6
+          ]
+        }
+      ],
+      "gait_pass": false,
+      "pass": false
+    },
+    {
+      "lane": 2,
+      "missing_substeps": 0,
+      "compared_endpoint_coordinates": 4816,
+      "max_endpoint_error": 0.0,
+      "maximum_abs_toe_speed": 6.37676287,
+      "toe_speed_cap_substeps": [],
+      "gait_pass": true,
+      "pass": true
+    },
+    {
+      "lane": 3,
+      "missing_substeps": 0,
+      "compared_endpoint_coordinates": 4816,
+      "max_endpoint_error": 0.0,
+      "maximum_abs_toe_speed": 6.37760878,
+      "toe_speed_cap_substeps": [],
+      "gait_pass": true,
+      "pass": true
+    },
+    {
+      "lane": 4,
+      "missing_substeps": 0,
+      "compared_endpoint_coordinates": 4816,
+      "max_endpoint_error": 0.0,
+      "maximum_abs_toe_speed": 6.42354584,
+      "toe_speed_cap_substeps": [],
+      "gait_pass": true,
+      "pass": true
+    },
+    {
+      "lane": 5,
+      "missing_substeps": 0,
+      "compared_endpoint_coordinates": 4816,
+      "max_endpoint_error": 0.0,
+      "maximum_abs_toe_speed": 6.08044958,
+      "toe_speed_cap_substeps": [],
+      "gait_pass": true,
+      "pass": true
+    },
+    {
+      "lane": 6,
+      "missing_substeps": 0,
+      "compared_endpoint_coordinates": 4816,
+      "max_endpoint_error": 0.0,
+      "maximum_abs_toe_speed": 6.40430069,
+      "toe_speed_cap_substeps": [],
+      "gait_pass": true,
+      "pass": true
+    },
+    {
+      "lane": 7,
+      "missing_substeps": 0,
+      "compared_endpoint_coordinates": 4816,
+      "max_endpoint_error": 0.0,
+      "maximum_abs_toe_speed": 6.0760603,
+      "toe_speed_cap_substeps": [],
+      "gait_pass": true,
+      "pass": true
+    }
+  ],
+  "errors": [],
+  "scope": "uncalibrated development damping sensitivity; substep velocities, not flight or landing"
+}

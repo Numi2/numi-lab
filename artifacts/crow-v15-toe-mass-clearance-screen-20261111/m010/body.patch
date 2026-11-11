@@ -1,0 +1,11 @@
+--- a/reference.cpp
++++ b/m010.cpp
+@@ -3372,7 +3372,7 @@
+ static RobotPack crowToeModel() {
+   auto p=makeAmericanCrowActiveHeadRobotPack(); auto& m=p.mechanics;
+   p.id="american_crow_toe_two_segment_prototype_v0"; m.name=p.id; p.sourceRevision+="+exploratory-toes-two-segment-v0";
+-  constexpr float mass=0.00005f, hx=0.009f, hy=0.0025f, hz=0.0092f;
++  constexpr float mass=.00010f, hx=0.009f, hy=0.0025f, hz=0.0092f;
+   constexpr float ix=mass*(hy*hy+hz*hz)/3, iy=mass*(hx*hx+hz*hz)/3, iz=mass*(hx*hx+hy*hy)/3;
+   for (int side=0;side<2;side++) {
+     const std::string footName=side==0?"crow_left_foot":"crow_right_foot";
