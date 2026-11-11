@@ -1,0 +1,3 @@
+# Extended slow-fold flight screen
+
+All five bounded-command lanes stayed airborne through 1600 intervals with no logged crow self-contact in steps 380–1600 and no ground-contact impulse from step 400 onward. The first 600 lane-1 accepted q, velocity, observation and action frames matched the prior slow-fold observer. Nevertheless, all five failed the predeclared sampled forward-speed error limit: worst errors were 0.241–0.244 m/s against a 0.20 m/s bound. One lane also had nine toe speed-cap samples during initial settling, none after step 500. This physically promising fold is not qualified for the route, perturbed recovery, landing, or biological realism; the six reported flight-state samples per lane do not establish continuous tracking.
