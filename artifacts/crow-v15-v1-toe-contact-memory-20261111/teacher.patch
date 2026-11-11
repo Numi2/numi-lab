@@ -1,0 +1,16 @@
+--- a/wing_relief.metal
++++ b/contact_memory.metal
+@@ -9342,8 +9342,11 @@
+                 for (uint side=0u;side<2u;++side) {
+                     const bool loaded=compactContact[compactBase+contactGroups[side].members.w]>0.05f;
+                     const uint previous=(state.status.w>>(side*6u))&63u;
+-                    const uint next=loaded ? min(previous+1u,34u) : (previous>0u ? previous-1u : 0u);
+-                    packed |= next << (side*6u);
++                    const uint graceShift=16u+side*6u;
++                    const uint oldGrace=(state.status.w>>graceShift)&63u;
++                    const uint grace=loaded ? 15u : (oldGrace>0u ? oldGrace-1u : 0u);
++                    const uint next=(loaded || grace>0u) ? min(previous+1u,34u) : (previous>0u ? previous-1u : 0u);
++                    packed |= (next << (side*6u)) | (grace << graceShift);
+                 }
+             }
+             const uint launchRetractLatch = seconds >= 5.00f && seconds < 5.40f &&
