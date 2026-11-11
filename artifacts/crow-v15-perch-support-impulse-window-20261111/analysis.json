@@ -1,0 +1,92 @@
+{
+  "lane": 3,
+  "window_inclusive": [
+    3686,
+    5000
+  ],
+  "sampled_control_interval_s": 0.02,
+  "nominal_impulse_ns": 0.0882978467230074,
+  "feet_weight_fraction_mean": 0.9999496867607434,
+  "feet_weight_fraction_median": 0.9998578647353336,
+  "feet_weight_fraction_min": 0.903830177058745,
+  "feet_weight_fraction_max": 1.0415585541821972,
+  "feet_weight_fraction_minimum_100_interval_mean": 0.9988024890361453,
+  "feet_weight_fraction_maximum_100_interval_mean": 1.0008049272102406,
+  "nonfoot_perch_vertical_impulse_total_ns": 0.0,
+  "perch_contact_body_record_counts": {
+    "10": 116,
+    "13": 106,
+    "17": 63114,
+    "19": 63119,
+    "21": 63120,
+    "23": 83947,
+    "31": 83943,
+    "29": 21015,
+    "27": 20997,
+    "25": 20989,
+    "32": 83728,
+    "24": 83667,
+    "18": 41661,
+    "30": 41651,
+    "20": 41650,
+    "22": 41646,
+    "26": 41638,
+    "28": 41629
+  },
+  "number_of_endpoint_samples": 1315,
+  "first_sample": {
+    "position": [
+      4.99637699,
+      0.7332775,
+      1.08908594
+    ],
+    "root_velocity": [
+      0.00732421502,
+      0.0051879785,
+      0.0136365788,
+      -0.0251771621,
+      0.138606474,
+      -0.0308722574
+    ],
+    "wing_angles": [
+      -2.78581701e-05,
+      -0.000140622811,
+      0.349962145,
+      0.349960178
+    ],
+    "wing_rates": [
+      -0.00330105936,
+      -0.00459528202,
+      -0.0008096128,
+      -0.000668004621
+    ]
+  },
+  "last_sample": {
+    "position": [
+      4.99273586,
+      0.735318184,
+      1.09195983
+    ],
+    "root_velocity": [
+      -3.12691482e-05,
+      0.000160607888,
+      0.00270675728,
+      -0.000704676029,
+      -0.00858656783,
+      0.00291566504
+    ],
+    "wing_angles": [
+      -4.14138376e-05,
+      -3.99845849e-05,
+      0.349959582,
+      0.349959493
+    ],
+    "wing_rates": [
+      -0.00246962579,
+      -0.000218562724,
+      -0.00048772525,
+      -0.000495112035
+    ]
+  },
+  "limitations": "Perch forces are reconstructed from logged positive-normal substep contact impulses with native tangent basis; no measurement of total external aerodynamic forces, unlogged contacts, or exact whole-body momentum. Endpoint state does not prove continuous posture. Check numerical precision, sign conventions, and momentum independently before calling this fully weight-bearing."
+}
