@@ -1,0 +1,300 @@
+{
+  "lanes": [
+    {
+      "lane": 0,
+      "start_seconds": 4,
+      "complete": true,
+      "baseline_sample_differences": null,
+      "forward_displacement_m": -0.0365579333,
+      "maximum_speed_m_s": 0.4284494629356003,
+      "maximum_tilt_rad": 0.027250513814698663,
+      "unsupported_intervals": 31,
+      "nonfoot_impulse_intervals": 0,
+      "missing_substeps": 0,
+      "initial_speed_m_s": 9.013655854309386e-05,
+      "left_swing_bouts": [
+        [
+          228,
+          237
+        ]
+      ],
+      "right_swing_bouts": [
+        [
+          219,
+          223
+        ],
+        [
+          241,
+          244
+        ]
+      ],
+      "alternating": true,
+      "pass": false
+    },
+    {
+      "lane": 1,
+      "start_seconds": 4,
+      "complete": true,
+      "baseline_sample_differences": null,
+      "forward_displacement_m": -0.005029721199999997,
+      "maximum_speed_m_s": 0.378936624334235,
+      "maximum_tilt_rad": 0.030119851498105865,
+      "unsupported_intervals": 18,
+      "nonfoot_impulse_intervals": 0,
+      "missing_substeps": 0,
+      "initial_speed_m_s": 0.0001310953344296148,
+      "left_swing_bouts": [
+        [
+          228,
+          237
+        ],
+        [
+          253,
+          262
+        ]
+      ],
+      "right_swing_bouts": [
+        [
+          220,
+          223
+        ],
+        [
+          244,
+          249
+        ]
+      ],
+      "alternating": true,
+      "pass": false
+    },
+    {
+      "lane": 2,
+      "start_seconds": 4,
+      "complete": true,
+      "baseline_sample_differences": null,
+      "forward_displacement_m": -0.019133418799999996,
+      "maximum_speed_m_s": 0.3828308686862967,
+      "maximum_tilt_rad": 0.028066161005707437,
+      "unsupported_intervals": 21,
+      "nonfoot_impulse_intervals": 0,
+      "missing_substeps": 0,
+      "initial_speed_m_s": 9.41975690607205e-05,
+      "left_swing_bouts": [
+        [
+          228,
+          237
+        ],
+        [
+          253,
+          262
+        ]
+      ],
+      "right_swing_bouts": [
+        [
+          219,
+          223
+        ],
+        [
+          241,
+          244
+        ],
+        [
+          246,
+          249
+        ],
+        [
+          266,
+          268
+        ]
+      ],
+      "alternating": false,
+      "pass": false
+    },
+    {
+      "lane": 3,
+      "start_seconds": 4,
+      "complete": true,
+      "baseline_sample_differences": null,
+      "forward_displacement_m": -0.03296972438,
+      "maximum_speed_m_s": 0.3490190592992012,
+      "maximum_tilt_rad": 0.0294781381486854,
+      "unsupported_intervals": 19,
+      "nonfoot_impulse_intervals": 0,
+      "missing_substeps": 0,
+      "initial_speed_m_s": 7.074078511389064e-05,
+      "left_swing_bouts": [
+        [
+          228,
+          237
+        ]
+      ],
+      "right_swing_bouts": [
+        [
+          219,
+          223
+        ],
+        [
+          241,
+          244
+        ],
+        [
+          246,
+          249
+        ],
+        [
+          292,
+          299
+        ]
+      ],
+      "alternating": false,
+      "pass": false
+    },
+    {
+      "lane": 4,
+      "start_seconds": 4,
+      "complete": true,
+      "baseline_sample_differences": null,
+      "forward_displacement_m": -0.0180114992,
+      "maximum_speed_m_s": 0.32538809047706113,
+      "maximum_tilt_rad": 0.028393530920929957,
+      "unsupported_intervals": 17,
+      "nonfoot_impulse_intervals": 0,
+      "missing_substeps": 0,
+      "initial_speed_m_s": 6.320998621054328e-05,
+      "left_swing_bouts": [
+        [
+          228,
+          237
+        ]
+      ],
+      "right_swing_bouts": [
+        [
+          219,
+          223
+        ],
+        [
+          241,
+          244
+        ],
+        [
+          246,
+          249
+        ]
+      ],
+      "alternating": false,
+      "pass": false
+    },
+    {
+      "lane": 5,
+      "start_seconds": 4,
+      "complete": true,
+      "baseline_sample_differences": null,
+      "forward_displacement_m": 0.01536986465,
+      "maximum_speed_m_s": 0.40094685018378246,
+      "maximum_tilt_rad": 0.028438582861656354,
+      "unsupported_intervals": 18,
+      "nonfoot_impulse_intervals": 0,
+      "missing_substeps": 0,
+      "initial_speed_m_s": 0.00010408267861678403,
+      "left_swing_bouts": [
+        [
+          228,
+          237
+        ],
+        [
+          253,
+          262
+        ]
+      ],
+      "right_swing_bouts": [
+        [
+          219,
+          223
+        ],
+        [
+          241,
+          249
+        ],
+        [
+          266,
+          268
+        ]
+      ],
+      "alternating": true,
+      "pass": false
+    },
+    {
+      "lane": 6,
+      "start_seconds": 4,
+      "complete": true,
+      "baseline_sample_differences": null,
+      "forward_displacement_m": -0.0349956322,
+      "maximum_speed_m_s": 0.4380945126474853,
+      "maximum_tilt_rad": 0.028253912210624406,
+      "unsupported_intervals": 21,
+      "nonfoot_impulse_intervals": 0,
+      "missing_substeps": 0,
+      "initial_speed_m_s": 8.339981690095836e-05,
+      "left_swing_bouts": [
+        [
+          228,
+          237
+        ],
+        [
+          253,
+          262
+        ]
+      ],
+      "right_swing_bouts": [
+        [
+          219,
+          223
+        ],
+        [
+          241,
+          244
+        ],
+        [
+          246,
+          249
+        ]
+      ],
+      "alternating": false,
+      "pass": false
+    },
+    {
+      "lane": 7,
+      "start_seconds": 4,
+      "complete": true,
+      "baseline_sample_differences": null,
+      "forward_displacement_m": -0.07469984169999999,
+      "maximum_speed_m_s": 0.44177588229423637,
+      "maximum_tilt_rad": 0.028458659111230244,
+      "unsupported_intervals": 35,
+      "nonfoot_impulse_intervals": 0,
+      "missing_substeps": 0,
+      "initial_speed_m_s": 8.68688322988382e-05,
+      "left_swing_bouts": [
+        [
+          228,
+          237
+        ]
+      ],
+      "right_swing_bouts": [
+        [
+          219,
+          223
+        ],
+        [
+          241,
+          244
+        ]
+      ],
+      "alternating": true,
+      "pass": false
+    }
+  ],
+  "failed_environment_steps": 0,
+  "termination_count": 0,
+  "errors": [],
+  "scope": "development settling comparison; no takeoff, landing, held-out or biological qualification"
+}

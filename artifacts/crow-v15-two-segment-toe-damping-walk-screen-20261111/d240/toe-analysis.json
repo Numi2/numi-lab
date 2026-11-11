@@ -1,0 +1,87 @@
+{
+  "variant": "d240",
+  "lanes": [
+    {
+      "lane": 0,
+      "missing_substeps": 0,
+      "compared_endpoint_coordinates": 4816,
+      "max_endpoint_error": 0.0,
+      "maximum_abs_toe_speed": 3.73310399,
+      "toe_speed_cap_substeps": [],
+      "gait_pass": false,
+      "pass": false
+    },
+    {
+      "lane": 1,
+      "missing_substeps": 0,
+      "compared_endpoint_coordinates": 4816,
+      "max_endpoint_error": 0.0,
+      "maximum_abs_toe_speed": 4.58520603,
+      "toe_speed_cap_substeps": [],
+      "gait_pass": false,
+      "pass": false
+    },
+    {
+      "lane": 2,
+      "missing_substeps": 0,
+      "compared_endpoint_coordinates": 4816,
+      "max_endpoint_error": 0.0,
+      "maximum_abs_toe_speed": 4.59147215,
+      "toe_speed_cap_substeps": [],
+      "gait_pass": false,
+      "pass": false
+    },
+    {
+      "lane": 3,
+      "missing_substeps": 0,
+      "compared_endpoint_coordinates": 4816,
+      "max_endpoint_error": 0.0,
+      "maximum_abs_toe_speed": 1.95613277,
+      "toe_speed_cap_substeps": [],
+      "gait_pass": false,
+      "pass": false
+    },
+    {
+      "lane": 4,
+      "missing_substeps": 0,
+      "compared_endpoint_coordinates": 4816,
+      "max_endpoint_error": 0.0,
+      "maximum_abs_toe_speed": 2.77412868,
+      "toe_speed_cap_substeps": [],
+      "gait_pass": false,
+      "pass": false
+    },
+    {
+      "lane": 5,
+      "missing_substeps": 0,
+      "compared_endpoint_coordinates": 4816,
+      "max_endpoint_error": 0.0,
+      "maximum_abs_toe_speed": 2.14859581,
+      "toe_speed_cap_substeps": [],
+      "gait_pass": false,
+      "pass": false
+    },
+    {
+      "lane": 6,
+      "missing_substeps": 0,
+      "compared_endpoint_coordinates": 4816,
+      "max_endpoint_error": 0.0,
+      "maximum_abs_toe_speed": 3.25894499,
+      "toe_speed_cap_substeps": [],
+      "gait_pass": false,
+      "pass": false
+    },
+    {
+      "lane": 7,
+      "missing_substeps": 0,
+      "compared_endpoint_coordinates": 4816,
+      "max_endpoint_error": 0.0,
+      "maximum_abs_toe_speed": 2.55828667,
+      "toe_speed_cap_substeps": [],
+      "gait_pass": false,
+      "pass": false
+    }
+  ],
+  "errors": [],
+  "scope": "uncalibrated development damping sensitivity; substep velocities, not flight or landing"
+}

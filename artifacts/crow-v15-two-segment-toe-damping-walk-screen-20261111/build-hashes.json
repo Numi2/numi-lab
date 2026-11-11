@@ -1,0 +1,23 @@
+[
+  {
+    "name": "d012",
+    "toe_joint_damping": 0.012,
+    "library_sha256": "14826ad481a2711868c1c7154178ef8d7f19f5ee991d969bcae1999a65e6fcad",
+    "source_sha256": "e19c4b8de58aaa07c8d88b4bc6325e81d9d5b6965b553acd9a5965ec0e873a88",
+    "observer_sha256": "5d16771df5b9bdd06892918d00b600b8d997f6c0d6bbe7147c1c259f3a3d0d25"
+  },
+  {
+    "name": "d120",
+    "toe_joint_damping": 0.12,
+    "library_sha256": "2d8e63abfed50487b045f8aaf169e8ff150d1e892c1eb1b1afc1fe5e4a905a67",
+    "source_sha256": "8bd0cdd3a29a77946254220615dc0e6a00df0696afa316275dc51b79cee8597a",
+    "observer_sha256": "5d16771df5b9bdd06892918d00b600b8d997f6c0d6bbe7147c1c259f3a3d0d25"
+  },
+  {
+    "name": "d240",
+    "toe_joint_damping": 0.24,
+    "library_sha256": "7d0481f0b50686bf95776b42d405cd393903f8d42cc50bfbcd7a3436f9be6ffc",
+    "source_sha256": "b0e87d5b33397f55984044c3fbc99b23879aa41413255d3c05ca77cb38e9d90e",
+    "observer_sha256": "5d16771df5b9bdd06892918d00b600b8d997f6c0d6bbe7147c1c259f3a3d0d25"
+  }
+]
