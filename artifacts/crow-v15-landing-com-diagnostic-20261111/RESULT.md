@@ -1,0 +1,3 @@
+# Landing center-of-mass comparison
+
+For lane 7 on a used development course, independent articulated kinematics show the release-inhibited failure trajectory had its estimated center of mass about 29 mm behind the perch center at replay frame 3280; by frame 3440 it was 92 mm behind and the bird was tipping backward. The earlier single supported trajectory was about 9–11 mm ahead of perch center over the corresponding frames. The first episode of the failing bird ended at step 3509. Body-center positions and contact geometry are estimated; foot body centers are not measured centers of pressure. Different arrival histories make this a diagnostic association rather than proof of cause, and neither trajectory is unused-layout evidence.
