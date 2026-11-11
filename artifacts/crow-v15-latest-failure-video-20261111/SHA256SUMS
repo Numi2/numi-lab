@@ -1,0 +1,9 @@
+b4d190f78adf32e448684ee98ebb8c950bfd19230d8ed2c0264438acef9fca07  artifacts/crow-v15-latest-failure-video-20261111/crow-latest-development-runs.mp4
+149ba5b3364ab8fb8facfa336d4b5404313d89af25415c7239d6f977c1b58b29  artifacts/crow-v15-latest-failure-video-20261111/recovery-audit.json
+b1b390c28a7151b0700e53b0e1fb4e30a0da8a6d109d06d82e602647aa6ccad0  artifacts/crow-v15-latest-failure-video-20261111/taper-audit.json
+b3073bca6d9e4b98ce83ec4faf59e5d337c61f3336b483df48fee163e9720655  artifacts/crow-v15-latest-failure-video-20261111/walk-reduced-audit.json
+1d54c42d8090c4b85ee83cb0ffdce0bc8ff6830556d2480cfeaef2083e667d97  artifacts/crow-v15-latest-failure-video-20261111/walk-reference-audit.json
+7d47c71fccab5a9d44669f7359eaf00691044f06933cb8684019ea9c10ac5b59  artifacts/crow-v15-walk-seed27-reference-20261111/autonomous-20261127/replay.json.gz
+2209ec447093a64dc0ce71e7b488019f54b8380ef8946f909d7acf42160fa394  artifacts/crow-v15-walk-seed27-reduced-20261111/autonomous-20261127/replay.json.gz
+5da7e7b24469d9ef9b961752c6db50a35d2e957f1f582fb853eb92007c23b5ba  artifacts/crow-v15-landing-wing-taper-20261111/autonomous-20261126/replay.json.gz
+471cdad828588ed1e09d7bee1645381cf3e417390e9ee0b6e643ac0fd766de96  artifacts/crow-v15-bidirectional-tip-recovery-20261111/autonomous-20261126/replay.json.gz
