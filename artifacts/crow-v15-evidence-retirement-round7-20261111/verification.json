@@ -1,0 +1,13 @@
+{
+  "independently_fetched_commit": "291fb40f3ce8d82c9aa35d22fe523a20aa0ee433",
+  "results": [
+    {
+      "path": "/Users/n/Developer/numi-crow-rl-20261107/artifacts/crow-v15-contact-pitch-feedback-control-20261111/autonomous-20261126/run.stderr.gz",
+      "bytes": 83004542,
+      "compressed_sha256": "a95dcb4e4c4f2a00aa6f5121cd5c6db63b2cc544a5e521ea4c69495255696efc",
+      "expanded_sha256": "820f07cb9a141fcc29509fff9e077f72f031afd4fbab0310b0bebbcf2ec5aa54",
+      "retired": true,
+      "open_handles": false
+    }
+  ]
+}
