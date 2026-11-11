@@ -1,0 +1,29 @@
+{
+  "independently_fetched_commit": "747b2cbbddde5a606bc0fd92c3fe769b61b0b94e",
+  "results": [
+    {
+      "path": "/Users/n/Developer/numi-crow-rl-20261107/artifacts/crow-v15-autonomous-walk-hold-journey-20261111/autonomous-20261126/run.stderr.gz",
+      "bytes": 87079700,
+      "compressed_sha256": "409c9292a1f3fee643cdc7697f2c4bc4f68d1be7391683c95fdb4368a8e4e271",
+      "expanded_sha256": "e9c4236de3173b3a1f97cda87a9ba8069dfc7e3f63c48747f69209d722bb132d",
+      "retired": true,
+      "open_handles": false
+    },
+    {
+      "path": "/Users/n/Developer/numi-crow-rl-20261107/artifacts/crow-v15-walk-hold-wing-off-20261111/autonomous-20261126/run.stderr.gz",
+      "bytes": 22063779,
+      "compressed_sha256": "703cd879045f20d46feed68f9598d5dec23be2df172598ee1fa5ea9b625238ca",
+      "expanded_sha256": "2582ac78c331c5ea37bc0696b4885894f6e3d4a85a822d71eb6eeaf8638defea",
+      "retired": true,
+      "open_handles": false
+    },
+    {
+      "path": "/Users/n/Developer/numi-crow-rl-20261107/artifacts/crow-v15-walk-hold-slower-cycle-20261111/autonomous-20261126/run.stderr.gz",
+      "bytes": 25982788,
+      "compressed_sha256": "7a501c5101388ff3927bbd851ce41e856ee38443cff48a1976f0740df554ca28",
+      "expanded_sha256": "a2220d89a3c30e89107ce4a43b940ff64465ba1635aa58ee0845fded6998b4a8",
+      "retired": true,
+      "open_handles": false
+    }
+  ]
+}
