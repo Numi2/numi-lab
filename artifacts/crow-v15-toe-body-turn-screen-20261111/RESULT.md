@@ -1,0 +1,5 @@
+# Toe-equipped turn screen
+
+All twelve first episodes survived 1600 steps on the used obstacle-free development course with complete contact substeps and no contact overflow. In the sampled final state, the +90-degree starts had turned to approximately +0.92 radians (0.65 radians short) and the -90-degree starts to approximately -0.76 radians (0.81 short). Both signed 180-degree target variants chose the same positive shortest direction at the observed starting heading, so they do not test both half-turn directions; both ended around +0.92 radians, 2.23 radians short. Zero-target controls ended at approximately +0.02 radians. The late heading samples show continued gradual rotation, but do not demonstrate reaching or holding the requested headings.
+
+No ground normal impulse or toe speed cap was recorded after step 400; four starts had 3, 6, 11 or 14 cap substeps before that. Root height, attitude and heading are sampled at sparse logged endpoints. This screen does not qualify turns, recovery under disturbed starts, navigation, landing, unused layouts or bird-like flight.

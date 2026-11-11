@@ -1,0 +1,16 @@
+{
+  "bytes": 34351174,
+  "compressed_sha256": "3af79d5e515af34a8a55e190905c80c5a38336b7a62364e59013d035ada5d55b",
+  "parts": [
+    {
+      "name": "flight.stderr.gz.part000",
+      "bytes": 33554432,
+      "sha256": "ca75a5dc83b9c108825a1e819a66f8bf548726798e1359ba64cd58648f923f40"
+    },
+    {
+      "name": "flight.stderr.gz.part001",
+      "bytes": 796742,
+      "sha256": "7e30943776bd6fde5486e53dc4a97aadacc17a708b0d5d57568cce03e950c332"
+    }
+  ]
+}
