@@ -1,0 +1,19 @@
+control exact True first difference None
+seed 63 pass 8 /8 geometry 8 leg 8 paired 8 recontacts 0
+  0 pass True unload 253 firstdiff 255 clear 0.006333193686597006 vx353 0.248549998 ground None
+  1 pass True unload 253 firstdiff 255 clear 0.006316057742626778 vx353 0.248392552 ground None
+  2 pass True unload 253 firstdiff 255 clear 0.006354681159850396 vx353 0.248164624 ground None
+  3 pass True unload 253 firstdiff 255 clear 0.0062993308063943425 vx353 0.248330444 ground None
+  4 pass True unload 253 firstdiff 255 clear 0.006350532827647363 vx353 0.248499647 ground None
+  5 pass True unload 253 firstdiff 255 clear 0.0063766593099479005 vx353 0.248533994 ground None
+  6 pass True unload 253 firstdiff 255 clear 0.006333126428971757 vx353 0.248181805 ground None
+  7 pass True unload 253 firstdiff 255 clear 0.006311966572155214 vx353 0.248488635 ground None
+seed 91 pass 8 /8 geometry 8 leg 8 paired 8 recontacts 0
+  0 pass True unload 253 firstdiff 255 clear 0.006355101067099033 vx353 0.248304799 ground None
+  1 pass True unload 253 firstdiff 255 clear 0.006329024325321205 vx353 0.248488247 ground None
+  2 pass True unload 253 firstdiff 255 clear 0.006365414409665152 vx353 0.24837257 ground None
+  3 pass True unload 253 firstdiff 255 clear 0.006308385100950328 vx353 0.248384088 ground None
+  4 pass True unload 253 firstdiff 255 clear 0.006346119522358291 vx353 0.247972369 ground None
+  5 pass True unload 253 firstdiff 255 clear 0.006368990786057179 vx353 0.248468891 ground None
+  6 pass True unload 253 firstdiff 255 clear 0.0063736953400489425 vx353 0.248610914 ground None
+  7 pass True unload 253 firstdiff 255 clear 0.006339224661419266 vx353 0.248523742 ground None

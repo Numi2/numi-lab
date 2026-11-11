@@ -1,0 +1,5 @@
+/Users/n/Developer/numi-crow-rl-20261107/build/crow-v15-perturbed-leg-handoff-20261111/c_api.cpp:3385:13: warning: unused function 'close' [-Wunused-function]
+ 3385 | static void close(double a, double b, const char* why) { crowToeNeed(std::abs(a-b)<=2e-7*(1+std::abs(a)),why); }
+      |             ^~~~~
+1 warning generated.
+library_sha256 ac72f2784ccb3c53944e60018972c80b834ef497311778c82de9446b7080bc01

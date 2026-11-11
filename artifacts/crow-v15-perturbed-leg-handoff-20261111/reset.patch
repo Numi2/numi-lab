@@ -1,0 +1,29 @@
+--- a/zero.cpp
++++ b/perturbed.cpp
+@@ -501,6 +501,26 @@
+             handle.resetV.begin() +
+                 static_cast<std::ptrdiff_t>(vBase)
+         );
++    }
++
++    // Development-only bounded reset perturbations; lane zero is an exact control.
++    for (std::size_t e=1; e<environmentCount && e<8u; ++e) {
++        const std::size_t qb=e*nq, vb=e*nv;
++        float roll=0.f,pitch=0.f,yaw=0.f;
++        if(e==1u) handle.resetV[vb]+=0.05f;
++        if(e==2u) handle.resetV[vb]-=0.05f;
++        if(e==3u) roll=0.03f;
++        if(e==4u) roll=-0.03f;
++        if(e==5u) pitch=0.03f;
++        if(e==6u) pitch=-0.03f;
++        if(e==7u) {yaw=0.02f;handle.resetV[vb+1]+=0.03f;}
++        const float cr=std::cos(roll*0.5f),sr=std::sin(roll*0.5f),cp=std::cos(pitch*0.5f),sp=std::sin(pitch*0.5f),cy=std::cos(yaw*0.5f),sy=std::sin(yaw*0.5f);
++        const float dx=sr*cp*cy-cr*sp*sy,dy=cr*sp*cy+sr*cp*sy,dz=cr*cp*sy-sr*sp*cy,dw=cr*cp*cy+sr*sp*sy;
++        const float x=handle.resetQ[qb+3],y=handle.resetQ[qb+4],z=handle.resetQ[qb+5],w=handle.resetQ[qb+6];
++        handle.resetQ[qb+3]=dw*x+dx*w+dy*z-dz*y;
++        handle.resetQ[qb+4]=dw*y-dx*z+dy*w+dz*x;
++        handle.resetQ[qb+5]=dw*z+dx*y-dy*x+dz*w;
++        handle.resetQ[qb+6]=dw*w-dx*x-dy*y-dz*z;
+     }
+ 
+     const std::size_t sceneBodyCount =
