@@ -1,0 +1,16 @@
+{
+  "lanes": [
+    {
+      "lane": 0,
+      "missing": 0,
+      "different": 0,
+      "pass": true
+    },
+    {
+      "lane": 1,
+      "missing": 0,
+      "different": 0,
+      "pass": true
+    }
+  ]
+}
