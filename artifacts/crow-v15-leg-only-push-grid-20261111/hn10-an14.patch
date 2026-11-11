@@ -1,0 +1,11 @@
+--- a/wing-suppressed.metal
++++ b/hn10-an14.metal
+@@ -5083,7 +5083,7 @@
+             const uint joint=(action-7u)%3u;
+             if (seconds >= 4.3f && seconds < 5.4f) {
+                 const float crouched=joint==0u ? -0.85f : joint==1u ? 1.00f : -0.50f;
+-                const float extended=joint==0u ? -0.50f : joint==1u ? -0.70f : -0.30f;
++                const float extended=joint==0u ? -0.10f : joint==1u ? -0.70f : -0.14f;
+                 const bool bilateral=state.nutrition.x>0.05f && state.nutrition.y>0.05f;
+                 navigationTeacherRequested=seconds<4.96f
+                     ? mix(navigationTeacherRequested,crouched,smoothstep(4.3f,4.55f,seconds))
