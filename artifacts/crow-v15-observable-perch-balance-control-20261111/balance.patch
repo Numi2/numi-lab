@@ -1,0 +1,28 @@
+--- a/reference.metal
++++ b/balance.metal
+@@ -5116,6 +5116,15 @@
+             const float delta=clamp(.5f*(err-.032f-.20f*vx),-.16f,.16f);
+             navigationTeacherRequested=clamp(delta/max(abs(actions[action].parameters.x),.001f),-1.0f,1.0f);
+         }
++        // Autonomous supported balance uses the explicit goal, root velocity,
++        // and toe contact state. It applies bounded joint targets, not forces.
++        if (!privilegedCommand && fixedFlightController && state.navigation.z>=5.0f &&
++            state.threatTeacher.w>=1.5f && (state.status.w & 4095u)!=0u &&
++            (action==7u || action==10u)) {
++            const float vx=state.commandExtension.z;
++            const float delta=clamp(.5f*(state.nutrition.z-.012f-.20f*vx),-.16f,.16f);
++            navigationTeacherRequested=clamp(delta/max(abs(actions[action].parameters.x),.001f),-1.0f,1.0f);
++        }
+         const float navigationTeacherBlend = fixedFlightController
+             ? 1.0f
+             : avianNavigationTeacher
+@@ -6811,6 +6820,9 @@
+                 if (loadedFeet>=2u && abs(finalGoal.x-pos.x)<0.06f &&
+                     abs(finalGoal.y-pos.y)<0.16f && length(yawFrameLinear.xy)<0.08f &&
+                     abs(rootLinearVelocity.z)<0.12f) phase=2.0f;
++                // Store only the explicit final-goal longitudinal error after
++                // support has been established, for contact-driven hip balance.
++                if (phase>=1.5f) state.nutrition.z=finalGoal.x-pos.x;
+             }
+         }
+         state.commandAndPhase.xyz=float3(0.15f,0.0f,0.0f);

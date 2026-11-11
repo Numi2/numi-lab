@@ -1,0 +1,47 @@
+--- a/reference.metal
++++ b/approach.metal
+@@ -4995,6 +4995,18 @@
+             0.15f*actorLatent.z,0.975f+0.325f*actorLatent.w);
+         const bool privilegedCommand = (dispatch.sampling.w != 0u && dispatch.assistance.x < 0.5f);
+         float4 oracleCommand = privilegedCommand ? state.nutrition : actorCommand;
++        // Bounded autonomous terminal guidance from the explicit final goal
++        // and accepted proprioception; no obstacle geometry or teacher route.
++        if (dispatch.sampling.w==0u && fixedFlightController && state.navigation.z>=5.0f) {
++            const float ex=state.commandAndPhase.y;
++            const float ey=state.commandAndPhase.z;
++            const float vx=state.commandExtension.z;
++            const float vz=state.threatGeometry.y;
++            const float height=state.threatTeacher.w>0.5f
++                ? state.nutrition.z+.03f+clamp(-.35f*vz,0.0f,.35f) : 1.30f;
++            oracleCommand=float4(clamp(.55f*(ex+.02f)+.10f-.65f*vx,-.10f,.35f),
++                clamp(.80f*ey,-.30f,.30f),clamp(state.commandExtension.x,-.15f,.15f),height);
++        }
+         if (!privilegedCommand && (state.status.w & (8192u | 16384u)) != 0u) {
+             const float launchSeconds = float(state.episode.x)*dispatch.timing.x;
+             const float blend = smoothstep(7.0f,8.0f,launchSeconds);
+@@ -6789,6 +6801,7 @@
+         const float pitch = asin(clamp(2.0f*(orientation.w*orientation.y-orientation.z*orientation.x),-1.0f,1.0f));
+         const float roll = atan2(2.0f*(orientation.w*orientation.x+orientation.y*orientation.z),1.0f-2.0f*(orientation.x*orientation.x+orientation.y*orientation.y));
+         float phase=state.threatTeacher.w;
++        float3 finalGoalSignal=float3(0.0f);
+         if (state.navigation.z >= float(kCrowNavigationWaypointCount)) {
+             uint course=MR_INVALID_INDEX;
+             for (uint i=0u;i<program.counts1.w;++i) {
+@@ -6800,6 +6813,7 @@
+                 // The fifth waypoint is an explicit goal observation; no
+                 // obstacle collision geometry or teacher route is consulted.
+                 const float3 finalGoal=crowNavigationWaypointTarget(sceneState+sceneBase,course,4u);
++                finalGoalSignal=float3(finalGoal.x-pos.x,finalGoal.y-pos.y,finalGoal.z);
+                 if (phase < 0.5f && length(finalGoal.xy-pos.xy)<0.08f &&
+                     length(yawFrameLinear.xy)<0.08f) phase=1.0f;
+                 uint loadedFeet=0u;
+@@ -6813,7 +6827,8 @@
+                     abs(rootLinearVelocity.z)<0.12f) phase=2.0f;
+             }
+         }
+-        state.commandAndPhase.xyz=float3(0.15f,0.0f,0.0f);
++        state.commandAndPhase.xyz=float3(0.15f,finalGoalSignal.x,finalGoalSignal.y);
++        if (state.navigation.z >= float(kCrowNavigationWaypointCount)) state.nutrition.z=finalGoalSignal.z;
+         state.commandExtension.xyz=float3(-heading,baseAngular.z,yawFrameLinear.x);
+         state.threatGeometry=float4(-pos.z,rootLinearVelocity.z,pitch,baseAngular.y);
+         state.threatTeacher=float4(yawFrameLinear.y,roll,baseAngular.x,phase);

@@ -1,0 +1,3 @@
+# Bounded explicit-goal final approach
+
+After all five waypoint thresholds, replace the learned high-level flight commands with bounded feedback computed from the explicitly observed final waypoint and accepted body velocities. Use the existing autonomous alignment gate and descent flare. Keep the low-level flight law, toe controller and all collisions unchanged. Compare accepted states and contacts up to the fifth waypoint against the teacher-off development control, then assess uninterrupted first-episode waypoint, substep contact and landing outcomes. This candidate must not use privileged obstacle geometry or teacher route and is not qualified by compilation.

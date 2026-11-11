@@ -1,0 +1,3 @@
+# Observable contact-conditioned perch balance candidate
+
+Use accepted foot contacts, root longitudinal velocity, and the explicit final waypoint error for bounded hip position feedback only after bilateral support has activated landing phase. This is derived from the previously tested teacher balance algebra, but uses no teacher command and introduces no force injection. The added state value may affect observation operators and must be audited. First establish exact accepted-state and action parity before supported activation, then measure complete contact impulses, stability and release. This is a development hypothesis, not an integrated result.

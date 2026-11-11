@@ -1,0 +1,21 @@
+--- a/reference.metal
++++ b/goal-balance.metal
+@@ -5112,7 +5112,7 @@
+             (action==7u || action==10u) &&
+             state.nutrition.x>-.099f && state.nutrition.x<.349f) {
+             const float vx=state.commandExtension.z;
+-            const float err=(state.nutrition.x-.10f+.65f*vx)/.55f;
++            const float err=state.commandAndPhase.y+.02f;
+             const float delta=clamp(.5f*(err-.032f-.20f*vx),-.16f,.16f);
+             navigationTeacherRequested=clamp(delta/max(abs(actions[action].parameters.x),.001f),-1.0f,1.0f);
+         }
+@@ -6775,7 +6775,8 @@
+             // become independently fingerprinted actor commands, not sensors.
+             state.nutrition=float4(0.25f-errorOffset,desiredLateral,-heading,desiredHeight);
+             // Policy observations do not expose privileged teacher commands.
+-            state.commandAndPhase.xyz=float3(0.15f,0.0f,0.0f);
++            const float goalError=landingPhase>=1.5f ? crowNavigationWaypointTarget(sceneState+sceneBase,course,4u).x-pos.x : 0.0f;
++            state.commandAndPhase.xyz=float3(0.15f,goalError,0.0f);
+             state.commandExtension.xyz=float3(-heading,baseAngular.z,yawFrameLinear.x);
+             state.threatGeometry=float4(-pos.z,rootLinearVelocity.z,pitch,baseAngular.y);
+             state.threatTeacher=float4(yawFrameLinear.y,roll,baseAngular.x,landingPhase);
