@@ -1,0 +1,43 @@
+{
+  "source": "retained lift screen lane 1 control interval 101",
+  "method": "independent native FP64 forward kinematics; central difference +/-0.1 rad at fixed root and other joints",
+  "rows": [
+    {
+      "q_index": 14,
+      "body": "crow_left_foot",
+      "dx_per_rad": -0.13409282120365,
+      "dz_per_rad": -0.0270437879836
+    },
+    {
+      "q_index": 15,
+      "body": "crow_left_foot",
+      "dx_per_rad": -0.07146253760855,
+      "dz_per_rad": -0.0190123621697
+    },
+    {
+      "q_index": 16,
+      "body": "crow_left_foot",
+      "dx_per_rad": -0.009072558763249996,
+      "dz_per_rad": -0.02873749632595
+    },
+    {
+      "q_index": 17,
+      "body": "crow_right_foot",
+      "dx_per_rad": -0.13403003622794998,
+      "dz_per_rad": -0.02721720750495
+    },
+    {
+      "q_index": 18,
+      "body": "crow_right_foot",
+      "dx_per_rad": -0.07140484134205,
+      "dz_per_rad": -0.0191462008424
+    },
+    {
+      "q_index": 19,
+      "body": "crow_right_foot",
+      "dx_per_rad": -0.008997766463799996,
+      "dz_per_rad": -0.028761003522049997
+    }
+  ],
+  "limitation": "static local sensitivity; not a simulated step or evidence of walking"
+}
