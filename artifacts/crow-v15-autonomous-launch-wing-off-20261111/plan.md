@@ -1,0 +1,3 @@
+# Matched wing-suppressed autonomous launch
+
+Repeat the first 500 steps on the same previously used autonomous seed with wing actuation suppressed after six seconds. Require exact accepted q/v and substep contact parity through two consecutive unloaded rising intervals, both foot support impulses beforehand, endpoint 1 mm foot/toe clearance, no nonfoot ground impulse and at least 2 cm further rise with wings suppressed. Compare normal wing-on trajectory to its own release replay. This isolates leg contribution, but passive aerodynamic forces remain and this is not a held-out or biological validation.
