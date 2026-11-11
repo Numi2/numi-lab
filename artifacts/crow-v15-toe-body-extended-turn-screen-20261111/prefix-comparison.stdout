@@ -1,0 +1,5 @@
+{"exact_q_v_policy_samples": 240, "first_mismatch": [], "scope": "all logged samples through step 1600, not unsampled substeps"}
+0 good samples [2300, 2400, 2500, 2600, 2700, 2800, 2900, 3000] height 0.922 0.948 max tilt 0.064
+1 good samples [2600, 2700, 2800, 2900, 3000] height 0.921 0.948 max tilt 0.063
+6 good samples [2300, 2400, 2500, 2600, 2700, 2800, 2900, 3000] height 0.922 0.948 max tilt 0.064
+7 good samples [2600, 2700, 2800, 2900, 3000] height 0.921 0.948 max tilt 0.063

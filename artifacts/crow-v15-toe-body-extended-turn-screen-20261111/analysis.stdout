@@ -1,0 +1,13 @@
+0 target 1.57 end 3000 fail False final_error 0.021 toe_caps 0 toe_caps_after400 0 ground_after400 0 missing 0
+1 target -1.57 end 3000 fail False final_error 0.021 toe_caps 14 toe_caps_after400 0 ground_after400 0 missing 0
+2 target 3.14 end 3000 fail False final_error 1.118 toe_caps 6 toe_caps_after400 0 ground_after400 0 missing 0
+3 target -3.14 end 3000 fail False final_error 1.119 toe_caps 0 toe_caps_after400 0 ground_after400 0 missing 0
+4 target 0 end 3000 fail False final_error 0.021 toe_caps 0 toe_caps_after400 0 ground_after400 0 missing 0
+5 target 0 end 3000 fail False final_error 0.021 toe_caps 0 toe_caps_after400 0 ground_after400 0 missing 0
+6 target 1.57 end 3000 fail False final_error 0.021 toe_caps 0 toe_caps_after400 0 ground_after400 0 missing 0
+7 target -1.57 end 3000 fail False final_error 0.021 toe_caps 0 toe_caps_after400 0 ground_after400 0 missing 0
+8 target 3.14 end 3000 fail False final_error 1.119 toe_caps 11 toe_caps_after400 0 ground_after400 0 missing 0
+9 target -3.14 end 3000 fail False final_error 1.118 toe_caps 0 toe_caps_after400 0 ground_after400 0 missing 0
+10 target 0 end 3000 fail False final_error 0.021 toe_caps 0 toe_caps_after400 0 ground_after400 0 missing 0
+11 target 0 end 3000 fail False final_error 0.021 toe_caps 3 toe_caps_after400 0 ground_after400 0 missing 0
+failed steps 0 overflows 0 errors []
