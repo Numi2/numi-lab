@@ -1,0 +1,16 @@
+[
+  {
+    "name": "d006",
+    "toe_joint_damping": 0.006,
+    "library_sha256": "f9385c4443e7e51b957f6e37cb124f368563c7dab959916d3b6c5000fcf3ad06",
+    "source_sha256": "77a2c13fb913dfa88eacf8da072c9597155a6f51e6e349678b5476befdc2005d",
+    "observer_sha256": "5d16771df5b9bdd06892918d00b600b8d997f6c0d6bbe7147c1c259f3a3d0d25"
+  },
+  {
+    "name": "d008",
+    "toe_joint_damping": 0.008,
+    "library_sha256": "98e2fd9e59ca28bdaf7ddf29a0427e4813d9e0fa7d6b69da50a8cf31fc374be8",
+    "source_sha256": "e5745a1b632989c15f456b1cd80925e3e86b91959c7e696ffd25e5161a2047e9",
+    "observer_sha256": "5d16771df5b9bdd06892918d00b600b8d997f6c0d6bbe7147c1c259f3a3d0d25"
+  }
+]

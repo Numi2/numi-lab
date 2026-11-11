@@ -1,0 +1,356 @@
+{
+  "lanes": [
+    {
+      "lane": 0,
+      "start_seconds": 4,
+      "complete": true,
+      "baseline_sample_differences": null,
+      "forward_displacement_m": 0.042639128,
+      "maximum_speed_m_s": 0.25228604191624315,
+      "maximum_tilt_rad": 0.026378657621179316,
+      "unsupported_intervals": 2,
+      "nonfoot_impulse_intervals": 0,
+      "missing_substeps": 0,
+      "initial_speed_m_s": 6.905545885767764e-05,
+      "left_swing_bouts": [
+        [
+          228,
+          237
+        ],
+        [
+          254,
+          262
+        ],
+        [
+          279,
+          287
+        ]
+      ],
+      "right_swing_bouts": [
+        [
+          219,
+          223
+        ],
+        [
+          241,
+          249
+        ],
+        [
+          266,
+          274
+        ]
+      ],
+      "alternating": true,
+      "pass": false
+    },
+    {
+      "lane": 1,
+      "start_seconds": 4,
+      "complete": true,
+      "baseline_sample_differences": null,
+      "forward_displacement_m": 0.040647182700000006,
+      "maximum_speed_m_s": 0.1963108956255892,
+      "maximum_tilt_rad": 0.026352107440556313,
+      "unsupported_intervals": 3,
+      "nonfoot_impulse_intervals": 0,
+      "missing_substeps": 0,
+      "initial_speed_m_s": 6.93697840714553e-05,
+      "left_swing_bouts": [
+        [
+          228,
+          237
+        ],
+        [
+          254,
+          262
+        ],
+        [
+          279,
+          286
+        ]
+      ],
+      "right_swing_bouts": [
+        [
+          219,
+          223
+        ],
+        [
+          241,
+          249
+        ],
+        [
+          266,
+          274
+        ]
+      ],
+      "alternating": true,
+      "pass": false
+    },
+    {
+      "lane": 2,
+      "start_seconds": 4,
+      "complete": true,
+      "baseline_sample_differences": null,
+      "forward_displacement_m": 0.041060798350000004,
+      "maximum_speed_m_s": 0.23692912204249333,
+      "maximum_tilt_rad": 0.02642173782343678,
+      "unsupported_intervals": 2,
+      "nonfoot_impulse_intervals": 0,
+      "missing_substeps": 0,
+      "initial_speed_m_s": 6.05728074342503e-05,
+      "left_swing_bouts": [
+        [
+          228,
+          237
+        ],
+        [
+          254,
+          262
+        ],
+        [
+          279,
+          287
+        ]
+      ],
+      "right_swing_bouts": [
+        [
+          219,
+          223
+        ],
+        [
+          241,
+          249
+        ],
+        [
+          266,
+          274
+        ],
+        [
+          297,
+          299
+        ]
+      ],
+      "alternating": true,
+      "pass": false
+    },
+    {
+      "lane": 3,
+      "start_seconds": 4,
+      "complete": true,
+      "baseline_sample_differences": null,
+      "forward_displacement_m": 0.0408361852,
+      "maximum_speed_m_s": 0.2010563164021883,
+      "maximum_tilt_rad": 0.02638281107313946,
+      "unsupported_intervals": 3,
+      "nonfoot_impulse_intervals": 0,
+      "missing_substeps": 0,
+      "initial_speed_m_s": 5.6000175848648765e-05,
+      "left_swing_bouts": [
+        [
+          228,
+          237
+        ],
+        [
+          254,
+          262
+        ],
+        [
+          279,
+          287
+        ]
+      ],
+      "right_swing_bouts": [
+        [
+          219,
+          223
+        ],
+        [
+          241,
+          249
+        ],
+        [
+          266,
+          274
+        ]
+      ],
+      "alternating": true,
+      "pass": false
+    },
+    {
+      "lane": 4,
+      "start_seconds": 4,
+      "complete": true,
+      "baseline_sample_differences": null,
+      "forward_displacement_m": 0.045862426,
+      "maximum_speed_m_s": 0.18506204191289413,
+      "maximum_tilt_rad": 0.02645678283127254,
+      "unsupported_intervals": 4,
+      "nonfoot_impulse_intervals": 0,
+      "missing_substeps": 0,
+      "initial_speed_m_s": 5.98846146869871e-05,
+      "left_swing_bouts": [
+        [
+          228,
+          237
+        ],
+        [
+          254,
+          262
+        ],
+        [
+          279,
+          287
+        ]
+      ],
+      "right_swing_bouts": [
+        [
+          219,
+          223
+        ],
+        [
+          241,
+          249
+        ],
+        [
+          266,
+          274
+        ]
+      ],
+      "alternating": true,
+      "pass": false
+    },
+    {
+      "lane": 5,
+      "start_seconds": 4,
+      "complete": true,
+      "baseline_sample_differences": null,
+      "forward_displacement_m": 0.043254183630000005,
+      "maximum_speed_m_s": 0.21567392341262454,
+      "maximum_tilt_rad": 0.026471646209728125,
+      "unsupported_intervals": 3,
+      "nonfoot_impulse_intervals": 0,
+      "missing_substeps": 0,
+      "initial_speed_m_s": 9.758557063577384e-05,
+      "left_swing_bouts": [
+        [
+          228,
+          237
+        ],
+        [
+          254,
+          262
+        ],
+        [
+          279,
+          287
+        ]
+      ],
+      "right_swing_bouts": [
+        [
+          219,
+          223
+        ],
+        [
+          241,
+          249
+        ],
+        [
+          266,
+          274
+        ]
+      ],
+      "alternating": true,
+      "pass": false
+    },
+    {
+      "lane": 6,
+      "start_seconds": 4,
+      "complete": true,
+      "baseline_sample_differences": null,
+      "forward_displacement_m": 0.0409440324,
+      "maximum_speed_m_s": 0.204070066303311,
+      "maximum_tilt_rad": 0.026404843959082585,
+      "unsupported_intervals": 3,
+      "nonfoot_impulse_intervals": 0,
+      "missing_substeps": 0,
+      "initial_speed_m_s": 8.086831984618935e-05,
+      "left_swing_bouts": [
+        [
+          228,
+          237
+        ],
+        [
+          254,
+          262
+        ],
+        [
+          279,
+          287
+        ]
+      ],
+      "right_swing_bouts": [
+        [
+          219,
+          223
+        ],
+        [
+          241,
+          249
+        ],
+        [
+          266,
+          274
+        ]
+      ],
+      "alternating": true,
+      "pass": false
+    },
+    {
+      "lane": 7,
+      "start_seconds": 4,
+      "complete": true,
+      "baseline_sample_differences": null,
+      "forward_displacement_m": 0.042353982841,
+      "maximum_speed_m_s": 0.2161505047595524,
+      "maximum_tilt_rad": 0.026411936667711668,
+      "unsupported_intervals": 4,
+      "nonfoot_impulse_intervals": 0,
+      "missing_substeps": 0,
+      "initial_speed_m_s": 9.925663434681718e-05,
+      "left_swing_bouts": [
+        [
+          228,
+          237
+        ],
+        [
+          254,
+          262
+        ],
+        [
+          279,
+          287
+        ]
+      ],
+      "right_swing_bouts": [
+        [
+          219,
+          223
+        ],
+        [
+          241,
+          249
+        ],
+        [
+          266,
+          274
+        ]
+      ],
+      "alternating": true,
+      "pass": false
+    }
+  ],
+  "failed_environment_steps": 0,
+  "termination_count": 0,
+  "errors": [],
+  "scope": "development settling comparison; no takeoff, landing, held-out or biological qualification"
+}

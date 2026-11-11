@@ -1,0 +1,32 @@
+[
+  {
+    "path": "build/crow-v15-two-segment-toe-damping-narrow-screen-20261111/d006/libmetalrobo.dylib",
+    "sha256": "f9385c4443e7e51b957f6e37cb124f368563c7dab959916d3b6c5000fcf3ad06",
+    "bytes": 5764848
+  },
+  {
+    "path": "build/crow-v15-two-segment-toe-damping-narrow-screen-20261111/d008/libmetalrobo.dylib",
+    "sha256": "98e2fd9e59ca28bdaf7ddf29a0427e4813d9e0fa7d6b69da50a8cf31fc374be8",
+    "bytes": 5764848
+  },
+  {
+    "path": "build/crow-v15-two-segment-toe-damping-narrow-screen-20261111/d006/landing.policypack",
+    "sha256": "622a9177d499c4d579cbe181b6ffd55f451b1e269cdfc24af52e31b21a46c60f",
+    "bytes": 5996429
+  },
+  {
+    "path": "build/crow-v15-two-segment-toe-damping-narrow-screen-20261111/d006/route.policypack",
+    "sha256": "9b528b46544eb462913713a745b5831056f6002f7b275bae8cd4440c446e4c68",
+    "bytes": 17228683
+  },
+  {
+    "path": "build/crow-v15-two-segment-toe-damping-narrow-screen-20261111/d008/landing.policypack",
+    "sha256": "d94935e83f05586978c8e5b5d19fafdb97f3cab8d076ed048f6c750b1f533441",
+    "bytes": 5996429
+  },
+  {
+    "path": "build/crow-v15-two-segment-toe-damping-narrow-screen-20261111/d008/route.policypack",
+    "sha256": "a00ad5d210385a74a238ed5d46fc186f1e5ef90ef49978c11da3dea07edd0f5c",
+    "bytes": 17228683
+  }
+]
