@@ -34,3 +34,10 @@ fc63f87e71d91e42b6717951a16cd8887c9622776ce023c3519d245ae34b7b67  artifacts/crow
 78319f97ba6a077d9842b69cc3052764c8f390a94d955ce09a4e77b6e4c48870  artifacts/crow-v15-knee-command-range-screen-20261111/prefix-comparison-20261126.json
 78319f97ba6a077d9842b69cc3052764c8f390a94d955ce09a4e77b6e4c48870  artifacts/crow-v15-knee-command-range-screen-20261111/prefix-comparison-20261127.json
 f3e6db3833ca06c2d02e1bcd87bc7d1fea765474080fb4538fdfa473199e0ecc  artifacts/crow-v15-knee-command-range-screen-20261111/run.py
+00c4c74cd29893bafa5b0caab0eeef32c3c1c1d870fee79a66511842d111feca  artifacts/crow-v15-knee-command-range-screen-20261111/video/README.md
+b5898f57513bffaee0644b5b8d84449e81d73f86dbeb4edac4b3be7061cbe9c4  artifacts/crow-v15-knee-command-range-screen-20261111/video/candidate-audit.json
+8c5b77d345d1360a7517700a134e34c2fd3e7a3e0df245af939927523a8e80dc  artifacts/crow-v15-knee-command-range-screen-20261111/video/candidate-render.log
+d2eca43315e859e1117279a61cd8b4901ef6a96902fcfc7e1fcdeabbf0b33ed6  artifacts/crow-v15-knee-command-range-screen-20261111/video/comparison.mp4
+c445d9805cb443ac749474b9f5d428d07f7fb12f8a3f613e40c04ea04a282b6f  artifacts/crow-v15-knee-command-range-screen-20261111/video/first-render-failure.log
+6206eee8e00e701de76b4673e7c7fb683e61ae8e5331ccf84a644c15e2225514  artifacts/crow-v15-knee-command-range-screen-20261111/video/reference-audit.json
+8c5b77d345d1360a7517700a134e34c2fd3e7a3e0df245af939927523a8e80dc  artifacts/crow-v15-knee-command-range-screen-20261111/video/reference-render.log

@@ -1,0 +1,5 @@
+# Walking comparison video
+
+`comparison.mp4` shows two seconds of the baseline walk, then the same accepted development seed 20261127 lane 5 with larger knee commands. The latter failed the predeclared foot-support gate across the matched starts; it is not an adopted fix. Camera yaw -1.25 rad, pitch 0.20 rad, distance 1.05 m, world-up, 1280 x 720, 50 fps. Replayed frame indices 199-298, 100 per arm, are rendered from accepted-state recordings. The camera removes global root translation; the clip cannot establish distance, stability or contact forces by sight. Visual toe geometry, skin and feathers are estimated. See the two audits and the physical study for details.
+
+Renderer `Numi2/numi-gpu-physics-pigeon-sim` revision d7718eae2e56ef94ec8ee9ce725032bf09458414, release binary SHA-256 8316472abd1f25ede1118ecd1a13ae7136d12331e5eaf1bb204943ef75ab5072. First capture failed because its working directory lacked renderer assets; the retry used the renderer checkout. Labels were added after capture. Foot support is measured in the companion traces, not inferred from the labels.
