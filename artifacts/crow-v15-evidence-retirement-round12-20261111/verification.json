@@ -1,0 +1,37 @@
+{
+  "independently_fetched_commit": "554ca56ffd4883b79f4a0aea7b34ba73b7468089",
+  "results": [
+    {
+      "path": "/Users/n/Developer/numi-crow-rl-20261107/artifacts/crow-v15-autonomous-gated-phase-walk-20261111/autonomous-20261126/run.stderr.gz",
+      "bytes": 25694838,
+      "compressed_sha256": "19170eb0856d7f703c2389ef40dc73f332b806e33a11e263f39dfe79e9bd2de2",
+      "expanded_sha256": "079b6f8b67ca0f23907a52b4201ede6790ebed52e929287421a83117f78241e6",
+      "retired": true,
+      "open_handles": false
+    },
+    {
+      "path": "/Users/n/Developer/numi-crow-rl-20261107/artifacts/crow-v15-autonomous-neutral-transfer-walk-20261111/autonomous-20261126/run.stderr.gz",
+      "bytes": 25300601,
+      "compressed_sha256": "96759d945a10b6567aa9153be52273ab5d941282e2fb1cada7dfd4dbc8d37c34",
+      "expanded_sha256": "901aeabdac88d48006a6d60fbf55febb82f45eee2d9fe4ae4ab12e1919e7a66a",
+      "retired": true,
+      "open_handles": false
+    },
+    {
+      "path": "/Users/n/Developer/numi-crow-rl-20261107/artifacts/crow-v15-autonomous-toe-support-walk-20261111/autonomous-20261126/run.stderr.gz",
+      "bytes": 25256094,
+      "compressed_sha256": "be30c37a4befaaf1909012ce2844e77c7442af8cadce7a6e6e1cb5f9f188dad7",
+      "expanded_sha256": "46c943fd32f9802f5054d4d2f93b7fee2842b16f5ec4a8a5f4f7f7b16f23b00b",
+      "retired": true,
+      "open_handles": false
+    },
+    {
+      "path": "/Users/n/Developer/numi-crow-rl-20261107/artifacts/crow-v15-gait-phase-observer-20261111/autonomous-20261126/run.stderr.gz",
+      "bytes": 20087673,
+      "compressed_sha256": "6ecf14f983e77a24fd42c8d1b40381911d68aefdf0a6d83e4bb732b5b4dd4fd9",
+      "expanded_sha256": "763fbd28e3bd13bf85f8fc21c2fcf465330022adf55d55707b04ea6629ee556e",
+      "retired": true,
+      "open_handles": false
+    }
+  ]
+}

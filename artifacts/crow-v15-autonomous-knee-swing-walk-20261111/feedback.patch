@@ -1,0 +1,35 @@
+--- a/reference.metal
++++ b/feedback.metal
+@@ -5085,11 +5085,12 @@
+             const uint leg=(action-7u)/3u, joint=(action-7u)%3u;
+             const float support=dispatch.counts.w==40u ? ((state.status.w & (leg==0u ? (1u<<21) : (1u<<20)))!=0u ? 1.0f : 0.0f) : (leg==0u ? state.nutrition.y : state.nutrition.x);
+             const float begin=4.0f;
+-            const float carrier=sin(kTwoPi*seconds/0.50f)*(leg==0u ? 1.0f : -1.0f);
+-            const float swing=seconds >= begin && seconds < begin+8.0f && support > 0.05f ? carrier : 0.0f;
++            const uint gaitPhase=((state.status.w>>16u)&15u)|(((state.status.w>>28u)&1u)<<4u);
++            const float carrier=sin(kTwoPi*float(gaitPhase)/25.0f)*(leg==0u ? 1.0f : -1.0f);
++            const float swing=seconds >= begin && seconds < begin+8.0f ? carrier : 0.0f;
+             const float lift=max(swing,0.0f);
+             if (seconds >= begin && seconds < begin+8.0f)
+-                navigationTeacherRequested=0.80f*smoothstep(begin,begin+.50f,seconds)*(joint==0u ? -0.30f*swing : joint==1u ? 0.40f*lift : -0.15f*lift);
++                navigationTeacherRequested=0.80f*smoothstep(begin,begin+.50f,seconds)*(joint==0u ? -0.30f*swing : joint==1u ? -0.30f*lift : -0.15f*lift);
+             else if (seconds>=2.0f && seconds<begin)
+                 { const uint arm=environment%8u;
+                 const float motion=length(float2(state.commandExtension.z,state.threatGeometry.y)); const float gain=.4f+.4f*smoothstep(.03f,.12f,motion);
+@@ -9468,6 +9469,16 @@
+             const bool curlFlight=released && seconds>=7.4f && state.navigation.z<4.0f;
+             const uint nextToeFlight=curlFlight ? min(oldToeFlight+1u,14u) : (oldToeFlight>0u ? oldToeFlight-1u : 0u);
+             state.status.w=(state.status.w & ~(31u<<23u)) | (nextToeFlight<<23u);
++            // Walking phase uses otherwise idle release bits only before flight. Hold at a step boundary until the next stance foot is in accepted contact; clear before takeoff.
++            if (dispatch.sampling.w==0u && state.navigation.z<5.0f) {
++                const uint gaitMask=(15u<<16u)|(1u<<28u);
++                uint gait=((state.status.w>>16u)&15u)|(((state.status.w>>28u)&1u)<<4u);
++                if (seconds>=4.0f && seconds<12.0f) {
++                    const bool canAdvance=(gait==12u ? footLoads.x>0.05f : (gait==24u || gait==0u) ? footLoads.y>0.05f : true);
++                    if (canAdvance) gait=(gait+1u)%25u;
++                } else gait=0u;
++                state.status.w=(state.status.w & ~gaitMask)|((gait&15u)<<16u)|((gait>>4u)<<28u);
++            }
+ 
+         }
+         if (program.counts0.w>=5u && dispatch.counts.w==30u) {

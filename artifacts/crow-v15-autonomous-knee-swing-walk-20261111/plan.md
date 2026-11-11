@@ -1,0 +1,3 @@
+# Knee swing sign test
+
+The gait phase continued to advance, but later swinging toes stayed within 1 mm of the ground and retained impulse. Independent forward kinematics at a sampled stance state gives negative foot-height derivative for positive knee angle. Change only the knee swing sign and amplitude so the commanded knee motion tends to raise rather than lower the foot; preserve contact-gated phase, hip and ankle targets, body and solver. Test sustained support and clear alternating swings on the used development seed. This local derivative does not predict whole-body dynamics or biological accuracy.

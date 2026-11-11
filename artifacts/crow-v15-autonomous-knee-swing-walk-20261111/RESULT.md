@@ -1,0 +1,3 @@
+# Knee swing sign: rejected
+
+The local kinematic prediction did not transfer to the coupled dynamics. On the used development course all eight teacher-off starts moved backward by 0.84–0.92 m over the eight-second walking window; none recorded a qualifying clear swing bout. Each lane had 293–451 substeps with no measured foot normal impulse, and each had 6–13 endpoints at which both feet cleared 1 mm. No nonfoot ground impulses were recorded. The first 200 accepted states and all recorded substep contact aggregates matched the original run; see comparison.stdout. These data do not qualify walking, takeoff, landing or biological realism.
