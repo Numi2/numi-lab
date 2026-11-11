@@ -1,0 +1,3 @@
+# Stronger perch-contact pitch response screen
+
+The weaker bounded hip response did not stabilize landing: three first episodes failed, and the most promising active lane had begun tipping at the 4200-interval cutoff. Screen symmetric hip gains -1.0, -0.5, +0.5, +1.0, each in two starts, bounded to 0.6 normalized action and gated by measured perch contact. Compare each start against its own weaker and aligned-descent baseline: gain and start remain confounded. The same frozen flight law, collision-enabled course and aligned approach are retained. Require complete substeps, report failed and censored starts, partial versus full support separately, and toe-speed hits. This screen does not test release or autonomous held-out execution.

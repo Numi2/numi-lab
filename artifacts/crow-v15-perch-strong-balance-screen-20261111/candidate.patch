@@ -1,0 +1,16 @@
+--- a/separated.metal
++++ b/height.metal
+@@ -5105,6 +5105,13 @@
+         // execution still has no teacher authority.
+         if (fixedFlightController && state.threatTeacher.w >= 1.5f && action < 15u)
+             navigationTeacherRequested = 0.0f;
++        // Development-only sign-and-gain screen: accepted perch contact gates
++        // bounded hip commands based on measured body pitch and pitch rate.
++        if (fixedFlightController && state.navigation.z >= 5.0f &&
++            (state.status.w & 4095u)!=0u && (action==7u || action==10u)) {
++            const float g=(environment/2u)==0u ? -1.00f : (environment/2u)==1u ? -0.50f : (environment/2u)==2u ? 0.50f : 1.00f;
++            navigationTeacherRequested=clamp(g*(state.threatGeometry.z+0.20f*state.threatGeometry.w),-0.60f,0.60f);
++        }
+         const float navigationTeacherBlend = fixedFlightController
+             ? 1.0f
+             : avianNavigationTeacher

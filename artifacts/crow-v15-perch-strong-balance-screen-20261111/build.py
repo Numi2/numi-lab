@@ -1,0 +1,11 @@
+from pathlib import Path
+import difflib,hashlib,json,subprocess
+R=Path.cwd();A=R/'artifacts/crow-v15-perch-strong-balance-screen-20261111';B=R/'build/crow-v15-perch-strong-balance-screen-20261111';W=R/'build/crow-v15-wide-contact-isolation-20261111';F=R/'artifacts/crow-v15-flight-feedback-freeze-20261110';base=(R/'artifacts/crow-v15-perch-aligned-descent-dev-20261111/candidate.metal').read_text();old='''        if (fixedFlightController && state.threatTeacher.w >= 1.5f && action < 15u)
+            navigationTeacherRequested = 0.0f;''';new=old+'''
+        // Development-only sign-and-gain screen: accepted perch contact gates
+        // bounded hip commands based on measured body pitch and pitch rate.
+        if (fixedFlightController && state.navigation.z >= 5.0f &&
+            (state.status.w & 4095u)!=0u && (action==7u || action==10u)) {
+            const float g=(environment/2u)==0u ? -1.00f : (environment/2u)==1u ? -0.50f : (environment/2u)==2u ? 0.50f : 1.00f;
+            navigationTeacherRequested=clamp(g*(state.threatGeometry.z+0.20f*state.threatGeometry.w),-0.60f,0.60f);
+        }''';assert base.count(old)==1;s=base.replace(old,new);(A/'candidate.metal').write_text(s);(A/'candidate.patch').write_text(''.join(difflib.unified_diff(base.splitlines(True),s.splitlines(True),fromfile='a/separated.metal',tofile='b/height.metal')));air=B/'tracking.air';subprocess.run(['xcrun','-sdk','macosx','metal','-std=metal4.0','-O3','-fno-fast-math','-I',str(F),'-I',str(W/'include'),'-I',str(R/'include'),'-I',str(R/'src/metal'),'-c',str(A/'candidate.metal'),'-o',str(air)],check=True);replaced={p.name:p for p in (W/'shaders').glob('*.air')};airs=[str(replaced.get(p.name,p)) for p in sorted((R/'build/shaders').glob('MetalRobo*.air')) if p.name not in ('MetalRoboLocomotionTask.air','MetalRoboFlappingWingDynamics.air')];ml=B/'tracking.metallib';subprocess.run(['xcrun','-sdk','macosx','metallib',*airs,str(R/'build/crow-v15-wing-aero-alignment-20261110/aero.air'),str(air),'-o',str(ml)],check=True);(A/'hashes.json').write_text(json.dumps({'shader_sha256':hashlib.sha256(ml.read_bytes()).hexdigest(),'source_sha256':hashlib.sha256((A/'candidate.metal').read_bytes()).hexdigest(),'frozen_flight_source_sha256':hashlib.sha256((F/'CrowFlightControllerResearchV2.metal').read_bytes()).hexdigest()},indent=2)+'\n')

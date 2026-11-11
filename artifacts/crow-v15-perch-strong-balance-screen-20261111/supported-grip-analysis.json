@@ -1,0 +1,69 @@
+{
+  "rows": [
+    {
+      "lane": 0,
+      "opposing_intervals": 42,
+      "opposing_longest_intervals": 28,
+      "supported_stable_intervals": 42,
+      "supported_stable_longest_intervals": 28,
+      "first_episode_end": 4158
+    },
+    {
+      "lane": 1,
+      "opposing_intervals": 120,
+      "opposing_longest_intervals": 112,
+      "supported_stable_intervals": 1,
+      "supported_stable_longest_intervals": 1,
+      "first_episode_end": 4164
+    },
+    {
+      "lane": 2,
+      "opposing_intervals": 0,
+      "opposing_longest_intervals": 0,
+      "supported_stable_intervals": 0,
+      "supported_stable_longest_intervals": 0,
+      "first_episode_end": 4200
+    },
+    {
+      "lane": 3,
+      "opposing_intervals": 0,
+      "opposing_longest_intervals": 0,
+      "supported_stable_intervals": 0,
+      "supported_stable_longest_intervals": 0,
+      "first_episode_end": 3643
+    },
+    {
+      "lane": 4,
+      "opposing_intervals": 328,
+      "opposing_longest_intervals": 328,
+      "supported_stable_intervals": 328,
+      "supported_stable_longest_intervals": 328,
+      "first_episode_end": 3918
+    },
+    {
+      "lane": 5,
+      "opposing_intervals": 0,
+      "opposing_longest_intervals": 0,
+      "supported_stable_intervals": 0,
+      "supported_stable_longest_intervals": 0,
+      "first_episode_end": 4200
+    },
+    {
+      "lane": 6,
+      "opposing_intervals": 0,
+      "opposing_longest_intervals": 0,
+      "supported_stable_intervals": 0,
+      "supported_stable_longest_intervals": 0,
+      "first_episode_end": 4200
+    },
+    {
+      "lane": 7,
+      "opposing_intervals": 0,
+      "opposing_longest_intervals": 0,
+      "supported_stable_intervals": 0,
+      "supported_stable_longest_intervals": 0,
+      "first_episode_end": 4200
+    }
+  ],
+  "criteria": "Both feet opposing front/rear normal impulses >0.0002 Ns, each foot upward impulse >0.0002 Ns, combined upward impulse >= half nominal weight over 0.02 s, root tilt <=0.35 rad, speed <=0.12 m/s. Contacts are aggregated over all physics substeps; state is sampled at control endpoints. This does not establish release or continuous geometric clearance."
+}
