@@ -1,0 +1,5 @@
+# Contact-synchronized substep gait observer
+
+The retained 20 ms endpoint samples cannot distinguish the ordering of knee and ankle extrema within a control interval. In a separate diagnostic host, snapshot the already published native generalized coordinates after each physics substep, synchronized with the existing substep contact snapshots. Print q only for steps 201–300 and all eight lanes to avoid large evidence. The observer changes no forces, control, integrator, body, scene or sensor.
+
+Before using its measurements, run the unchanged development baseline on seed 20261126 and compare all logged accepted q/v, policy output and contact summaries to the retained original over steps 1–300, with complete substep records and no overflow or solver errors. Confirm every control endpoint matches its final recorded substep and count all 16 q snapshots per interval. Any discrepancy rejects the observer until explained. Record source and binary hashes; preserve failures. A passing observer enables better temporal comparison only, and does not establish realistic gait or crow-specific targets.

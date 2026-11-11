@@ -1,0 +1,52 @@
+--- a/MetalWorld.mm
++++ b/MetalWorld.mm
+@@ -21430,6 +21430,7 @@
+             const NSUInteger crowTraceCapacity = diagnostics.layout.contactDispatch.constraintCapacity;
+             const NSUInteger crowTraceLanes = batch.environmentCount;
+             const NSUInteger crowTraceVStride = diagnostics.layout.dispatch.vStride;
++            const NSUInteger crowTraceQStride = diagnostics.layout.dispatch.qStride;
+             for (std::uint32_t controlStep = 0u;
+                  controlStep <
+                      diagnostics.layout.dispatch.controlStepCount;
+@@ -22044,18 +22045,22 @@
+                         id<MTLBuffer> sourceContacts = selectedState->buffers[kContacts];
+                         id<MTLBuffer> sourceStatuses = selectedState->buffers[kContactStatuses];
+                         id<MTLBuffer> sourceVelocities = selectedState->buffers[destinationV];
++                        id<MTLBuffer> sourceCoordinates = selectedState->buffers[destinationQ];
+                         id<MTLBuffer> contactsCopy = [selectedState->device newBufferWithLength:sourceContacts.length options:MTLResourceStorageModeShared];
+                         id<MTLBuffer> statusCopy = [selectedState->device newBufferWithLength:sourceStatuses.length options:MTLResourceStorageModeShared];
+                         id<MTLBuffer> velocityCopy = [selectedState->device newBufferWithLength:sourceVelocities.length options:MTLResourceStorageModeShared];
+-                        if (contactsCopy == nil || statusCopy == nil || velocityCopy == nil || crowTraceVStride < 40) throw std::bad_alloc();
++                        id<MTLBuffer> coordinateCopy = [selectedState->device newBufferWithLength:sourceCoordinates.length options:MTLResourceStorageModeShared];
++                        if (contactsCopy == nil || statusCopy == nil || velocityCopy == nil || coordinateCopy == nil || crowTraceVStride < 40 || crowTraceQStride < 41) throw std::bad_alloc();
+                         id<MTLBlitCommandEncoder> blit = [commandBuffer blitCommandEncoder];
+                         [blit copyFromBuffer:sourceContacts sourceOffset:0 toBuffer:contactsCopy destinationOffset:0 size:sourceContacts.length];
+                         [blit copyFromBuffer:sourceStatuses sourceOffset:0 toBuffer:statusCopy destinationOffset:0 size:sourceStatuses.length];
+                         [blit copyFromBuffer:sourceVelocities sourceOffset:0 toBuffer:velocityCopy destinationOffset:0 size:sourceVelocities.length];
++                        [blit copyFromBuffer:sourceCoordinates sourceOffset:0 toBuffer:coordinateCopy destinationOffset:0 size:sourceCoordinates.length];
+                         [blit endEncoding];
+                         [crowTraceBuffers addObject:contactsCopy];
+                         [crowTraceBuffers addObject:statusCopy];
+                         [crowTraceBuffers addObject:velocityCopy];
++                        [crowTraceBuffers addObject:coordinateCopy];
+                     }
+                     std::swap(sourceQ, destinationQ);
+                     std::swap(sourceV, destinationV);
+@@ -22393,13 +22398,15 @@
+                             state.nutrition.x,state.nutrition.y,state.commandAndPhase.y,state.commandAndPhase.z,
+                             state.threatGeometry.y,state.threatGeometry.z,state.threatGeometry.w);
+                     }
+-                    for (NSUInteger sub=0; sub<crowTraceBuffers.count/3; ++sub) {
+-                        id<MTLBuffer> cb=crowTraceBuffers[3*sub], sb=crowTraceBuffers[3*sub+1], vb=crowTraceBuffers[3*sub+2];
++                    for (NSUInteger sub=0; sub<crowTraceBuffers.count/4; ++sub) {
++                        id<MTLBuffer> cb=crowTraceBuffers[4*sub], sb=crowTraceBuffers[4*sub+1], vb=crowTraceBuffers[4*sub+2], qb=crowTraceBuffers[4*sub+3];
++                        const auto* coordinates=static_cast<const float*>(qb.contents);
+                         const auto* velocities=static_cast<const float*>(vb.contents);
+                         const auto* contacts=static_cast<const MRContactConstraintGPU*>(cb.contents);
+                         const auto* statuses=static_cast<const MRMetalWorldContactStatusGPU*>(sb.contents);
+                         for (NSUInteger lane=0;lane<crowTraceLanes;++lane) {
+                             const auto n=std::min<NSUInteger>(statuses[lane].requiredConstraints,crowTraceCapacity);
++                            if (crowTraceStep >= 201 && crowTraceStep <= 300) { std::fprintf(stderr,"CROW_Q_SUBSTEP %llu %lu %lu",crowTraceStep,(unsigned long)sub,(unsigned long)lane); for (NSUInteger j=0;j<crowTraceQStride;++j) std::fprintf(stderr," %.9g",coordinates[lane*crowTraceQStride+j]); std::fprintf(stderr,"\n"); }
+                             float up[2]={}, normal[2]={}, toe[16]={}, signedX[16]={}, other=0;
+                             for(NSUInteger i=0;i<n;++i){const auto& c=contacts[lane*crowTraceCapacity+i];
+                                 if (crowTraceStep>=380u && crowTraceStep<=3800u && c.bodyA<35u && c.bodyB<35u && c.impulses.x>1.0e-7f) std::fprintf(stderr,"CROW_SELF_CONTACT %llu %lu %lu %u %u %.9g %.9g\n",crowTraceStep,(unsigned long)sub,(unsigned long)lane,c.bodyA,c.bodyB,c.impulses.x,c.pointAndSeparation.w);
