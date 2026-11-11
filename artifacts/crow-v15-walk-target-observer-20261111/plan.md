@@ -1,0 +1,3 @@
+# Read-only joint-target observer for walking
+
+Instrument the existing 16-substep teacher-off localized-route journey by copying the already-generated effort/target trajectory buffer to a read-only host buffer after encoding, logging 40 values per lane and step 200–300. Keep the same original task shader, policy, body and physics. Compare every accepted q/v, actor output, endpoint contacts and contact substep over the first 300 intervals to the retained localized-route run before interpreting values. Independently check the buffer stride, index mapping and timing against actual bindings; raw action and target values are not actuator torques. This diagnostic uses the used development seed and does not qualify walking or landing.

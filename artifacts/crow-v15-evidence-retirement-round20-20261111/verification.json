@@ -1,0 +1,29 @@
+{
+  "independently_fetched_commit": "6e7094936e7eed8ff67654e3cf355daa64e2ae40",
+  "results": [
+    {
+      "path": "/Users/n/Developer/numi-crow-rl-20261107/artifacts/crow-v15-landing-wing-ramp-recovery-20261111/autonomous-20261126/run.stderr.gz",
+      "bytes": 80183210,
+      "sha256": "23ee93cb4468586abeb9f0a1a28d1ac2b092f478ccafa356f36edd06e39c8fd7",
+      "verified_archive": "artifacts/crow-v15-landing-wing-ramp-recovery-20261111/autonomous-20261126/stderr-parts.json",
+      "open_handles": false,
+      "retired": true
+    },
+    {
+      "path": "/Users/n/Developer/numi-crow-rl-20261107/build/crow-v15-landing-wing-ramp-recovery-20261111/autonomous-20261126-replay.json",
+      "bytes": 145246825,
+      "sha256": "a197c9fe2358cdef2bbdaf214c2b9038d6d606df1a1e2f28584b16b0cb0c24d8",
+      "verified_archive": "artifacts/crow-v15-landing-wing-ramp-recovery-20261111/autonomous-20261126/replay.json.gz",
+      "open_handles": false,
+      "retired": true
+    },
+    {
+      "path": "/Users/n/Developer/numi-crow-rl-20261107/build/crow-v15-landing-wing-ramp-recovery-20261111/autonomous-20261126-trace.tsv",
+      "bytes": 3212994,
+      "sha256": "2c5779eeebd1a226dc9493e0443a777630e43b123d3970bc0a3950d2fbd826e3",
+      "verified_archive": "artifacts/crow-v15-landing-wing-ramp-recovery-20261111/autonomous-20261126/trace.tsv.gz",
+      "open_handles": false,
+      "retired": true
+    }
+  ]
+}
