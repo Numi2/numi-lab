@@ -1,0 +1,35 @@
+--- a/reference.metal
++++ b/tuck-flight.metal
+@@ -4990,9 +4990,15 @@
+             ? clamp(float4(actionStream[actionBase+commandOffset+0u],actionStream[actionBase+commandOffset+1u],
+                            actionStream[actionBase+commandOffset+2u],actionStream[actionBase+commandOffset+3u]),-1.0f,1.0f)
+             : float4(0.0f);
+-        const float4 actorCommand = float4(
+-            0.10f+0.30f*actorLatent.x,0.30f*actorLatent.y,
+-            0.15f*actorLatent.z,0.975f+0.325f*actorLatent.w);
++        // Obstacle-free bounded-command development screen only.
++        // Keeps the exact hierarchical journey path and frozen flight law;
++        // commands replace the actor, so this is not autonomous navigation.
++        const uint flightMode=environment%5u;
++        const float rate=flightMode==1u ? .03f : flightMode==2u ? -.03f : 0.0f;
++        const float elapsed=max(0.0f,float(state.episode.x)*dispatch.timing.x-7.2f);
++        const float desiredHeading=clamp(rate*elapsed+state.commandExtension.x,-.15f,.15f);
++        const float height=flightMode==3u ? 1.05f : flightMode==4u ? .65f : .85f;
++        const float4 actorCommand=float4(.35f,0.0f,desiredHeading,height);
+         const bool privilegedCommand = (dispatch.sampling.w != 0u && dispatch.assistance.x < 0.5f);
+         float4 oracleCommand = privilegedCommand ? state.nutrition : actorCommand;
+         if (!privilegedCommand && (state.status.w & (8192u | 16384u)) != 0u) {
+@@ -5098,6 +5104,13 @@
+                     : bilateral ? mix(crouched,extended,smoothstep(6.96f,6.98f,seconds)) : crouched;
+                 if ((state.status.w & 4096u) != 0u) navigationTeacherRequested = crouched;
+             }
++        }
++        // Experiment: physical joint targets share the liftoff/toe ramp and release before the final approach.
++        if (fixedFlightController && state.episode.z==10u && dispatch.counts.w==40u && action>=7u && action<=12u) {
++            const uint joint=(action-7u)%3u;
++            const float blend=float((state.status.w>>23u)&31u)/14.0f;
++            const float tuck=joint==0u ? 0.40f : joint==1u ? 0.50f : 0.30f;
++            navigationTeacherRequested=mix(navigationTeacherRequested,tuck,clamp(blend,0.0f,1.0f));
+         }
+         // Keep the training-only teacher active through the final target.
+         // Ending at waypoint four taught an aggressive approach crossing but
