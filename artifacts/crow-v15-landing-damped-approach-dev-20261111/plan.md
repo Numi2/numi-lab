@@ -1,0 +1,3 @@
+# Velocity-damped landing approach screen
+
+The stronger proportional approach produced approximately 0.5 m/s forward/backward oscillations and no perch contact in eight development first episodes. Prediction: add bounded velocity feedback to the original positional command to reduce oscillation, without changing the frozen low-level flight law or the successful route. Use the same 5000-step collision-enabled development starts and substep observer. Require all waypoints, no unwanted course contacts, physical perch support, stable opposing toe grip, and an actual release; no hovering, mere target proximity, or timer counts as landing. This screen is not an autonomous or held-out qualification.

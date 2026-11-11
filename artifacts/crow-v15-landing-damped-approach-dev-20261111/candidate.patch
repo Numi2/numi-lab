@@ -1,0 +1,11 @@
+--- a/separated.metal
++++ b/height.metal
+@@ -6727,7 +6727,7 @@
+                 const float3 landingTarget = perch + float3(0.0f,0.55f,0.0f);
+                 const float xError = landingTarget.x-pos.x;
+                 const float yError = landingTarget.y-pos.y;
+-                const float commandedForward = clamp(0.45f*xError+0.10f,-0.20f,0.20f);
++                const float commandedForward = clamp(0.45f*xError+0.10f-0.60f*yawFrameLinear.x,-0.10f,0.35f);
+                 desiredLateral = clamp(0.80f*yError,-0.30f,0.30f);
+                 errorOffset = 0.25f-commandedForward;
+                 if (landingPhase < 0.5f && length(float2(xError,yError)) < 0.08f &&
