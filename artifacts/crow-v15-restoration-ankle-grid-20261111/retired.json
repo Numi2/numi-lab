@@ -1,0 +1,11 @@
+{
+  "remote_commit": "96c0af3fbc9cdc254d56a02840065de66f19738f",
+  "retired": [
+    {
+      "raw": "artifacts/crow-v15-ankle-grip-grid-20261111/results.txt",
+      "archive": "artifacts/crow-v15-ankle-grip-grid-20261111/results.txt.gz",
+      "sha256": "bc9737d93ba383beefb574367757f5d37e25751b3c08d79dc56b7f2060aa59c7",
+      "bytes": 21109991
+    }
+  ]
+}
