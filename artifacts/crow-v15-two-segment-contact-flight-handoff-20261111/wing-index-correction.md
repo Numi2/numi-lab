@@ -1,0 +1,3 @@
+# Wing-motion observer correction
+
+The initial offline analysis incorrectly treated q[7] and q[8], the wing-sweep joints, as the flap joints. The native model joint map records the left and right flap at q[9] and q[10], with standing defaults 0.35 rad. The initial report is preserved as analysis-initial-wrong-wing-indices.json. The corrected observer detects >0.02 rad deviation of either actual flap from its accepted interval-350 standing angle. This changes no simulation states or predeclared height, contact, toe-speed, attitude or duration gates. Release eligibility remains an inference from observed contact and body state, not direct latch telemetry.

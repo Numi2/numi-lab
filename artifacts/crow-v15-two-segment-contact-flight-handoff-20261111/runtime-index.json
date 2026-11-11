@@ -1,0 +1,12 @@
+[
+  {
+    "path": "build/crow-v15-two-segment-contact-flight-handoff-20261111/tracking.metallib",
+    "sha256": "58e238c2b168a767185b49a9f008380656010dcba726d2e9a4a2725d0fde31a0",
+    "bytes": 4471584
+  },
+  {
+    "path": "build/crow-v15-two-segment-contact-flight-handoff-20261111/joint-map",
+    "sha256": "498da3d4d7c734b76f5def3f4ee3236840536459876a2145f9118225604183ac",
+    "bytes": 61656
+  }
+]

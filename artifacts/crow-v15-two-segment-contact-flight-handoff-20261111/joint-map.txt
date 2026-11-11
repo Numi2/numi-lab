@@ -1,0 +1,7 @@
+0 crow_left_wing_sweep q=7 default=0
+1 crow_right_wing_sweep q=8 default=0
+2 crow_left_wing_flap q=9 default=0.35
+3 crow_right_wing_flap q=10 default=0.35
+4 crow_left_wing_pronation q=11 default=0
+5 crow_right_wing_pronation q=12 default=0
+6 crow_tail_pitch q=13 default=0
