@@ -1,0 +1,11 @@
+--- a/reference.metal
++++ b/feedback.metal
+@@ -5183,7 +5183,7 @@
+         // serve as actor-visible external memory during the delay.
+         const bool walkAirborneHold=fixedFlightController && state.episode.z==10u && action>=7u && action<=12u &&
+             float(state.episode.x)*dispatch.timing.x>=4.0f && float(state.episode.x)*dispatch.timing.x<6.0f &&
+-            dispatch.counts.w==40u && (state.status.w & (1u<<22))==0u;
++            dispatch.counts.w==40u && ((state.status.w & (1u<<22))==0u || state.threatGeometry.y>.05f);
+         const float requested = walkAirborneHold ? actionHistory[delayBase + filterSlot*program.counts0.x + action] :
+             !actionAvailable ? 0.0f : actionSelected ? requestedBeforeAvailability :
+             actionHistory[delayBase + rawLastSlot*program.counts0.x + action];

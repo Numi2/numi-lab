@@ -1,0 +1,3 @@
+# Contact and upward-velocity gait hold
+
+In the integrated two-second walk, one start briefly lost both-foot support immediately after an endpoint upward speed of 0.053 m/s. Test extending the existing hold-last-filtered-leg-target condition to upward root speeds above 0.05 m/s during the walk. This uses accepted proprioception and existing position drives, injects no force and preserves the phase clock and launch. Other lanes also occasionally exceed this threshold, so compare all eight matched starts and include non-foot contact, substep support, endpoint foot clearance, alternation, displacement and toe speed; improvement in one start is insufficient if other starts regress. This is a 600-step development screen, not a final route or biology claim.
