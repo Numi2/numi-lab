@@ -1,0 +1,26 @@
+--- a/apps/task_rollout.swift
++++ b/apps/task_rollout.swift
+@@ -3375,14 +3375,21 @@
+                         : "hierarchical; state-triggered approach supervisor",
+                     "frames": crowReplayFrames,
+                 ]
++                // Hash the same Foundation number representations that a
++                // reader obtains after parsing the serialized payload. Float
++                // bridging can otherwise change the canonical JSON on decode.
++                let initialPayloadData = try JSONSerialization.data(
++                    withJSONObject: payload, options: [.sortedKeys]
++                )
++                let roundTrippedPayload = try JSONSerialization.jsonObject(with: initialPayloadData)
+                 let payloadData = try JSONSerialization.data(
+-                    withJSONObject: payload, options: [.sortedKeys]
++                    withJSONObject: roundTrippedPayload, options: [.sortedKeys]
+                 )
+                 crowReplayPayloadSHA256 = try sha256Hex(payloadData)
+                 let envelope: [String: Any] = [
+                     "schema": "numi.crow-replay.v1",
+                     "payload_sha256": crowReplayPayloadSHA256,
+-                    "payload": payload,
++                    "payload": roundTrippedPayload,
+                 ]
+                 let replayData = try JSONSerialization.data(
+                     withJSONObject: envelope,

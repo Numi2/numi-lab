@@ -1,0 +1,13 @@
+{
+  "frame_count_baseline": 50,
+  "frame_count_roundtrip": 50,
+  "accepted_frame_mismatches": {
+    "q": 0,
+    "v": 0,
+    "body_states": 0,
+    "accepted_actions": 0
+  },
+  "full_parsed_payload_equal": true,
+  "baseline_embedded_payload_sha256": "07a87cad20f128a9454bc313820b592626d0bb94fcd8da0cdc87883969b1463c",
+  "roundtrip_embedded_payload_sha256": "759d909a238f4091779b53c197930f5fff5d45c7c495013d036abd851feb7d35"
+}

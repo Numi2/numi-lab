@@ -1,0 +1,3 @@
+# Native replay writer round-trip experiment
+
+The writer hashes pre-serialization Foundation values, but the loader hashes parsed values; float-number formatting can differ. In an isolated copy of the rollout executable, serialize and parse the payload before both hashing and writing it. Verify a newly generated replay using the unmodified strict renderer loader, and compare accepted state with the baseline executable under identical inputs. Retain the failure from the older file; normalization does not independently verify its embedded payload hash. No shared executable or source is overwritten.

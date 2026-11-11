@@ -1,0 +1,17 @@
+[0/1] Planning build
+Building for debugging...
+[0/10] Write swift-version-3CD7052B146186F2.txt
+Build complete! (0.19s)
+Test Suite 'Selected tests' started at 2026-11-11 14:26:19.933.
+Test Suite 'BirdFlowMetalPackageTests.xctest' started at 2026-11-11 14:26:19.938.
+Test Suite 'BirdFlowMetalPackageTests.xctest' passed at 2026-11-11 14:26:19.938.
+	 Executed 0 tests, with 0 failures (0 unexpected) in 0.000 (0.000) seconds
+Test Suite 'Selected tests' passed at 2026-11-11 14:26:19.938.
+	 Executed 0 tests, with 0 failures (0 unexpected) in 0.000 (0.005) seconds
+◇ Test run started.
+↳ Testing Library Version: 1902
+↳ Target Platform: arm64e-apple-macos14.0
+◇ Test "two-segment native replay exposes both hinges" started.
+✘ Test "two-segment native replay exposes both hinges" recorded an issue at CrowV15ReplayTests.swift:259:2: Caught error: CrowReplayPack schema or payload SHA-256 is invalid
+✘ Test "two-segment native replay exposes both hinges" failed after 0.112 seconds with 1 issue.
+✘ Test run with 1 test in 0 suites failed after 0.112 seconds with 1 issue.
