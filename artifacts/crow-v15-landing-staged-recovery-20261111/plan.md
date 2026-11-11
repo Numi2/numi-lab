@@ -1,0 +1,3 @@
+# Staged toe opening before landing recovery
+
+In the supported-tip recovery test, the two formerly failing starts flew away but had 20 and 11 toe speed-cap substeps; each first cap coincided with rear-toe/perch contact. Test a staged response to the same measured forward-tip trigger: maintain landing hold while both existing contact-driven toe target ramps open, then return to the existing bounded approach controller for one second. Toe ramp clearance is a drive state, not proof of physical separation: explicitly audit toe/perch contacts, speed caps, fall times, supported landings and waypoint completion. The v15 body, frozen flight controller, route actor and walking recovery are unchanged. Compare with both retained development trials. No unused layouts are used.
