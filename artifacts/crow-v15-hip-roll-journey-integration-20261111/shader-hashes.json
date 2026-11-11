@@ -1,0 +1,6 @@
+{
+  "shader_sha256": "701f1dabf89aac70559f5d28c871736cbbc41beaf9b17a3f7b7992768beaced7",
+  "source_sha256": "7b41a69d8f65062e04f030c340207dcde64897ceb722b84b251bd8d474c73749",
+  "frozen_flight_source_sha256": "01bc92e4ec91c08d890da7b8691400f56490a2518d9ed47ae150bb997c65375c",
+  "scope": "binding adaptation only; new grip-release controller not integrated"
+}

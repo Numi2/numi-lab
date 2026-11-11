@@ -1,0 +1,5 @@
+from pathlib import Path
+import json,os,subprocess
+R=Path.cwd();A=R/'artifacts/crow-v15-hip-roll-journey-integration-20261111';B=R/'build/crow-v15-hip-roll-journey-integration-20261111';cmd=json.loads((R/'artifacts/crow-v15-landing-approach-dev-20261111/binding/command.json').read_text())
+for k,v in [('--steps','2'),('--metallib',str(B/'tracking.metallib')),('--visual-observation-config',str(A/'crow-navigation.hip-roll.visual-observation.json')),('--state-trace',str(B/'preflight.tsv')),('--crow-replay-pack',str(B/'preflight-replay.json'))]:cmd[cmd.index(k)+1]=v
+(A/'preflight-command.json').write_text(json.dumps(cmd,indent=2)+'\n');p=subprocess.run(cmd,cwd=R,env={**os.environ,'DYLD_LIBRARY_PATH':str(B),'PYTHONDONTWRITEBYTECODE':'1'},text=True,capture_output=True,timeout=180);(A/'preflight.stdout').write_text(p.stdout);(A/'preflight.stderr').write_text(p.stderr);(A/'preflight-result.json').write_text(json.dumps({'return_code':p.returncode,'scope':'isolated contract preflight only'},indent=2)+'\n');print('return_code',p.returncode);print(p.stderr[-4000:])

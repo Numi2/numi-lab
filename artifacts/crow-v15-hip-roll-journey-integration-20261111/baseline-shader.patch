@@ -1,0 +1,64 @@
+--- a/two-toe-journey.metal
++++ b/hip-roll-journey.metal
+@@ -5071,7 +5071,7 @@
+         if (fixedFlightController && state.episode.z == 10u && action >= 7u && action <= 12u) {
+             const float seconds=float(state.episode.x)*dispatch.timing.x;
+             const uint leg=(action-7u)/3u, joint=(action-7u)%3u;
+-            const float support=dispatch.counts.w==38u ? ((state.status.w & (leg==0u ? (1u<<21) : (1u<<20)))!=0u ? 1.0f : 0.0f) : (leg==0u ? state.nutrition.y : state.nutrition.x);
++            const float support=dispatch.counts.w==40u ? ((state.status.w & (leg==0u ? (1u<<21) : (1u<<20)))!=0u ? 1.0f : 0.0f) : (leg==0u ? state.nutrition.y : state.nutrition.x);
+             const float begin=4.0f;
+             const float carrier=sin(kTwoPi*seconds/0.50f)*(leg==0u ? 1.0f : -1.0f);
+             const float swing=seconds >= begin && seconds < begin+2.0f && support > 0.05f ? carrier : 0.0f;
+@@ -5081,7 +5081,7 @@
+             else if (seconds>=2.0f && seconds<begin)
+                 { const uint arm=environment%8u;
+                 const float motion=length(float2(state.commandExtension.z,state.threatGeometry.y)); const float gain=.4f+.4f*smoothstep(.03f,.12f,motion);
+-                const bool supported=dispatch.counts.w==38u ? (state.status.w & (1u<<22))!=0u : (state.nutrition.x+state.nutrition.y)>0.05f;
++                const bool supported=dispatch.counts.w==40u ? (state.status.w & (1u<<22))!=0u : (state.nutrition.x+state.nutrition.y)>0.05f;
+                 const float feedback=joint==0u ? -gain*state.commandExtension.z : joint==1u ? -.5f*gain*state.threatGeometry.y : 0.0f;
+                 navigationTeacherRequested=supported ? clamp(feedback,-.25f,.25f) : 0.0f; }
+         }
+@@ -5092,7 +5092,7 @@
+             if (seconds >= 6.3f && seconds < 7.4f) {
+                 const float crouched=joint==0u ? -0.85f : joint==1u ? 1.00f : -0.50f;
+                 const float extended=joint==0u ? -0.50f : joint==1u ? -0.70f : 0.18f;
+-                const bool bilateral=dispatch.counts.w==38u ? (state.status.w & ((1u<<20)|(1u<<21)))==((1u<<20)|(1u<<21)) : (state.nutrition.x>0.05f && state.nutrition.y>0.05f);
++                const bool bilateral=dispatch.counts.w==40u ? (state.status.w & ((1u<<20)|(1u<<21)))==((1u<<20)|(1u<<21)) : (state.nutrition.x>0.05f && state.nutrition.y>0.05f);
+                 navigationTeacherRequested=seconds<6.96f
+                     ? mix(navigationTeacherRequested,crouched,smoothstep(6.3f,6.55f,seconds))
+                     : bilateral ? mix(crouched,extended,smoothstep(6.96f,6.98f,seconds)) : crouched;
+@@ -5512,7 +5512,7 @@
+     // Development-only physical two-segment drives. Counter input below is
+     // restricted to accepted toe/foot contact with the course perch.
+     if ((program.schedule.w & MR_TASK_PROGRAM_AVIAN_CROW_HIERARCHICAL_NAVIGATION) != 0u &&
+-        state.episode.z == 10u && program.counts0.w >= 5u && dispatch.counts.w == 38u) {
++        state.episode.z == 10u && program.counts0.w >= 5u && dispatch.counts.w == 40u) {
+         for (uint side=0u;side<2u;++side) {
+             const uint ramp=(state.status.w>>(side*6u)) & 63u;
+             const uint frontRamp=ramp>2u ? ramp-2u : 0u;
+@@ -9357,12 +9357,12 @@
+     // Accepted foot force diagnostic feedback for this isolated band-10 bench.
+     if ((program.schedule.w & MR_TASK_PROGRAM_AVIAN_CROW_HIERARCHICAL_NAVIGATION) != 0u && state.episode.z == 10u && program.counts0.w >= 2u) {
+         const float2 footLoads=float2(compactContact[compactBase+contactGroups[0].members.w],compactContact[compactBase+contactGroups[1].members.w]);
+-        if (dispatch.counts.w==38u) {
++        if (dispatch.counts.w==40u) {
+             const uint mask=(1u<<20)|(1u<<21)|(1u<<22);
+             state.status.w=(state.status.w & ~mask) | (footLoads.x>0.05f ? 1u<<20 : 0u) | (footLoads.y>0.05f ? 1u<<21 : 0u) | (footLoads.x+footLoads.y>0.05f ? 1u<<22 : 0u);
+             if (dispatch.sampling.w==0u) state.nutrition.xy=footLoads;
+         } else state.nutrition.xy=footLoads;
+-        if (program.counts0.w>=5u && dispatch.counts.w==38u) {
++        if (program.counts0.w>=5u && dispatch.counts.w==40u) {
+             uint perch=MR_INVALID_INDEX;
+             for (uint ri=0u;ri<program.counts1.w;++ri) {
+                 const MRTaskRewardOperatorGPU operation=rewards[ri];
+@@ -9374,8 +9374,8 @@
+                     const MRContactConstraintGPU cc=contacts[contactBase+ci];
+                     if (cc.impulses.x<=0.0f || (cc.bodyA!=perch && cc.bodyB!=perch)) continue;
+                     const uint b=cc.bodyA==perch ? cc.bodyB : cc.bodyA;
+-                    if (b==robotFirst+10u || (b>=robotFirst+17u && b<=robotFirst+24u)) loaded[0]=true;
+-                    if (b==robotFirst+13u || (b>=robotFirst+25u && b<=robotFirst+32u)) loaded[1]=true;
++                    if (b==robotFirst+11u || (b>=robotFirst+19u && b<=robotFirst+26u)) loaded[0]=true;
++                    if (b==robotFirst+15u || (b>=robotFirst+27u && b<=robotFirst+34u)) loaded[1]=true;
+                 }
+             }
+             uint packed=0u;
