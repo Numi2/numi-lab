@@ -1,0 +1,32 @@
+[
+  {
+    "path": "build/crow-v15-aba-40-body-isolation-20261111/libmetalrobo.dylib",
+    "sha256": "07d3192304b0db462c5926f4862b98f8fd3f10620faf7074e32335f09de84736",
+    "bytes": 5728528
+  },
+  {
+    "path": "build/crow-v15-aba-40-body-isolation-20261111/aba.metallib",
+    "sha256": "116952a409102d41f3b038c5aee16c372c889f9f9edf4aeb30366cc83658db7c",
+    "bytes": 34733
+  },
+  {
+    "path": "build/crow-v15-aba-40-body-isolation-20261111/probe",
+    "sha256": "ef4e187f0f5ca1e8bce308b3699564cc57df1429d667084ace447dfbda7477af",
+    "bytes": 60760
+  },
+  {
+    "path": "build/crow-v15-aba-40-body-isolation-20261111/control",
+    "sha256": "95772fea2fc227da3b2e119c3c9b40233d26867335366ee0e0cc9006b3668818",
+    "bytes": 60760
+  },
+  {
+    "path": "build/crow-v15-aba-40-body-isolation-20261111/diagnostic",
+    "sha256": "825c0475d8acfda2b307c8834e666084aa8a9e00b00ea1377ff187ccc98e2c31",
+    "bytes": 60760
+  },
+  {
+    "path": "build/crow-v15-aba-40-body-isolation-20261111/distribution",
+    "sha256": "de6d36c4b91716dcc56f9f5ca5d14352f9ed83bc771faa934bdbc152942bd539",
+    "bytes": 60912
+  }
+]
