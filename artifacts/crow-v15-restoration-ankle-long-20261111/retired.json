@@ -1,0 +1,11 @@
+{
+  "remote_commit": "d4d01b6e39cb039f277041638b941f0552cc0dfb",
+  "retired": [
+    {
+      "raw": "artifacts/crow-v15-ankle-grip-long-replay-20261111/results.txt",
+      "archive": "artifacts/crow-v15-ankle-grip-long-replay-20261111/results.txt.gz",
+      "sha256": "12a666ff48b1fd6b46f64d63128c79f91f80ea145a4b53bc03217870c0c9ddc6",
+      "bytes": 4041872
+    }
+  ]
+}
