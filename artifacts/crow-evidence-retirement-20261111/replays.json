@@ -1,0 +1,47 @@
+[
+  {
+    "independent_clone_commit": "2e147adfade82cdd0b8e9051434964a5c4aba301",
+    "archive": "artifacts/crow-v15-landing-approach-dev-20261111/trial/replay.json.gz",
+    "archive_sha256": "b279f40799d6190c86f585b063daa8acfba3d4bb7fe8cc86844d3a1e4c18e4ac",
+    "restored_raw_sha256": "43700aafcfcc3e9f68fcc7c1c427fe4c8cdf88d97945ad818981fbeecaf0e064",
+    "local_raw_sha256": "43700aafcfcc3e9f68fcc7c1c427fe4c8cdf88d97945ad818981fbeecaf0e064",
+    "retired_duplicate": "/Users/n/Developer/numi-crow-rl-20261107/build/crow-v15-landing-approach-dev-20261111/replay.json",
+    "open_handles": false
+  },
+  {
+    "independent_clone_commit": "2e147adfade82cdd0b8e9051434964a5c4aba301",
+    "archive": "artifacts/crow-v15-landing-forward-envelope-dev-20261111/trial/replay.json.gz",
+    "archive_sha256": "89b65b9a7bf79fda82eb92dd7e9f10223c3e78216fd4ce9c106d09c1a29e365e",
+    "restored_raw_sha256": "5becc982b7508b601c8ecdfdcb48b7dd4ac488585157675f80499c3554cc05f4",
+    "local_raw_sha256": "5becc982b7508b601c8ecdfdcb48b7dd4ac488585157675f80499c3554cc05f4",
+    "retired_duplicate": "/Users/n/Developer/numi-crow-rl-20261107/build/crow-v15-landing-forward-envelope-dev-20261111/replay.json",
+    "open_handles": false
+  },
+  {
+    "independent_clone_commit": "2e147adfade82cdd0b8e9051434964a5c4aba301",
+    "archive": "artifacts/crow-v15-landing-damped-approach-dev-20261111/trial/replay.json.gz",
+    "archive_sha256": "b6924bf4bed77c27580c1c32554eca2c8a04666a33b21ae5a3b022175a5ad146",
+    "restored_raw_sha256": "8617317c61939541b8912ea2856b32d3ac9443527522cc58d1f18b86f6b55a86",
+    "local_raw_sha256": "8617317c61939541b8912ea2856b32d3ac9443527522cc58d1f18b86f6b55a86",
+    "retired_duplicate": "/Users/n/Developer/numi-crow-rl-20261107/build/crow-v15-landing-damped-approach-dev-20261111/replay.json",
+    "open_handles": false
+  },
+  {
+    "independent_clone_commit": "2e147adfade82cdd0b8e9051434964a5c4aba301",
+    "archive": "artifacts/crow-v15-landing-descent-dev-20261111/trial/replay.json.gz",
+    "archive_sha256": "c45699dc5314bcf80db8dfec030f54699643a1710b45aa1717cf410bc1239d37",
+    "restored_raw_sha256": "75aae231018bf62dda9d485b3ec1a30074e7c993ea91a35bfbf4f4716bef3574",
+    "local_raw_sha256": "75aae231018bf62dda9d485b3ec1a30074e7c993ea91a35bfbf4f4716bef3574",
+    "retired_duplicate": "/Users/n/Developer/numi-crow-rl-20261107/build/crow-v15-landing-descent-dev-20261111/replay.json",
+    "open_handles": false
+  },
+  {
+    "independent_clone_commit": "2e147adfade82cdd0b8e9051434964a5c4aba301",
+    "archive": "artifacts/crow-v15-perch-toe-world-index-dev-20261111/trial/replay.json.gz",
+    "archive_sha256": "9406de841d0e4eb873a11262017d63aba9c8f3eb88318e21de11c1811dbbec13",
+    "restored_raw_sha256": "a397e98b9892da2cef1758e718be17ad7fa8a6418714bc2e89e82316ca767974",
+    "local_raw_sha256": "a397e98b9892da2cef1758e718be17ad7fa8a6418714bc2e89e82316ca767974",
+    "retired_duplicate": "/Users/n/Developer/numi-crow-rl-20261107/build/crow-v15-perch-toe-world-index-dev-20261111/replay.json",
+    "open_handles": false
+  }
+]

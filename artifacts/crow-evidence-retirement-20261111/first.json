@@ -1,0 +1,10 @@
+{
+  "remote": "git@github.com:Numi2/numi-lab.git",
+  "independent_clone_commit": "2e147adfade82cdd0b8e9051434964a5c4aba301",
+  "archive": "artifacts/crow-v15-teacher-clearance-route-dev-20261111/height/replay.json.gz",
+  "archive_sha256": "535df568966e98df2c058092e2f27e4e03fc3767e14e9dc7bf44a7f930200e27",
+  "restored_raw_sha256": "295654d1a6678d18b55406eb6a6adeb660ffc871cbfbe828c20a268690ebda1b",
+  "local_raw_sha256": "295654d1a6678d18b55406eb6a6adeb660ffc871cbfbe828c20a268690ebda1b",
+  "retired_duplicate": "/Users/n/Developer/numi-crow-rl-20261107/build/crow-v15-teacher-clearance-route-dev-20261111/height/replay.json",
+  "open_handles": false
+}

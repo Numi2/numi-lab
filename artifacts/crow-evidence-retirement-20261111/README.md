@@ -1,0 +1,3 @@
+# Verified retirement of duplicate raw replays
+
+These six raw build replays were duplicate decompressions of compressed evidence already pushed to the named GitHub branch. An independently cloned repository fetched each compressed archive and its manifest from commit 2e147adfade82cdd0b8e9051434964a5c4aba301. The compressed SHA-256 matched that manifest, decompression succeeded, and the restored raw SHA-256 matched the temporary build file. Each target was checked for open handles before only that duplicate was removed. The Git-tracked compressed evidence remains unchanged. The independent temporary verification clone was removed after verification.
