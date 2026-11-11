@@ -1,0 +1,3 @@
+# Balance screen for two-segment grip
+
+Test the two previously failed constructed starts, +2 mm forward and +0.02 rad roll, with four fixed contact-triggered hip feedback settings: (gain, velocity damping seconds) (1, .2), (.5, .2), (1.5, .2), (1, .4). All other body, physics, toe controls and initial conditions match the preceding perturbation experiment. The original setting is a paired control. Success requires the unchanged strict supported opposing-contact and overlap criteria over the final 100 intervals, no falls or nonfoot impulses. These are development starts and do not establish landing or release. Record all results including solver failures.
