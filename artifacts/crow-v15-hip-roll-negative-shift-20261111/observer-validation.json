@@ -1,0 +1,8 @@
+{
+  "observed_endpoint_state_count": 2824,
+  "compared_last_substeps": 2824,
+  "max_absolute_normal_impulse_difference_ns": 1.0151124316126747e-09,
+  "differences_over_1e-6_ns": 0,
+  "first_differences": [],
+  "limitations": "Checks summed foot/toe normal impulses against native named endpoint contacts in the last substep, not friction signs, all-substep coverage, or state reconstruction."
+}

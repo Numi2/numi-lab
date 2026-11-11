@@ -1,0 +1,5 @@
+# Opposite weak hip-roll shift: interrupted
+
+The eight-lane run stopped during control interval 353 when lane 5's contact solve was rejected at substep 15, status 11. Each lane has 353 completed endpoint states; later outcomes are censored. Two lanes achieved only one qualifying release interval each; the others achieved none. No lane issued a return or satisfied the ten-interval release requirement before the batch stopped. One zero-target control had fallen by then; lack of a recorded fall in the other lanes is not a completed success.
+
+The zero-target lanes' 706 common q/v endpoint states exactly matched the corresponding positive-screen controls before interruption. Independent named-contact normal sums match the last-substep observer to 1.1e-9 N s across all 2,824 observed lane-intervals, and reconstructed feet agree with native poses to 9.5e-8 m at sampled times. The native error, censored data, and missing planned substeps are in analysis.json and the compressed trace. Toe speed caps were not observed in this experiment. The result is not an autonomous or biological qualification.

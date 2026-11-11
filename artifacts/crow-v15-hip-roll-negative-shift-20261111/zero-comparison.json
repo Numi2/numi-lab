@@ -1,0 +1,8 @@
+{
+  "reference": "artifacts/crow-v15-hip-roll-filtered-release-20261111",
+  "compared_endpoint_states": 706,
+  "first_difference": null,
+  "reference_only": 394,
+  "repeat_only": 0,
+  "scope": "Zero-drive lanes 6 and 7, q/v endpoint samples; batch rejection censors the negative experiment."
+}

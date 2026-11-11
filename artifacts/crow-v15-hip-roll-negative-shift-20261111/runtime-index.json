@@ -1,0 +1,12 @@
+[
+  {
+    "path": "build/crow-v15-hip-roll-substep-observer-20261111/libmetalrobo.dylib",
+    "sha256": "2401d8c6aa048f7a4a75b51d2fbc1498b97b66fd3e3e6aeb19b3014fa5af7aea",
+    "bytes": 5729344
+  },
+  {
+    "path": "build/crow-v15-wide-contact-isolation-20261111/MetalRobo.metallib",
+    "sha256": "835d0ff74b8338bba6987d88f3355a1344522eaa88fa8e82295b12ba58cedeb5",
+    "bytes": 4465488
+  }
+]
