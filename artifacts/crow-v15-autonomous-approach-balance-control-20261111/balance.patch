@@ -1,0 +1,17 @@
+--- a/reference.metal
++++ b/balance.metal
+@@ -5128,6 +5128,14 @@
+             const float delta=clamp(.5f*(err-.032f-.20f*vx),-.16f,.16f);
+             navigationTeacherRequested=clamp(delta/max(abs(actions[action].parameters.x),.001f),-1.0f,1.0f);
+         }
++        // Contact-conditioned hip balance uses final-goal error and body
++        // velocity, with bounded position drives only after support phase.
++        if (dispatch.sampling.w==0u && fixedFlightController && state.navigation.z>=5.0f &&
++            state.threatTeacher.w>=1.5f && (state.status.w & 4095u)!=0u &&
++            (action==7u || action==10u)) {
++            const float delta=clamp(.5f*(state.commandAndPhase.y-.012f-.20f*state.commandExtension.z),-.16f,.16f);
++            navigationTeacherRequested=clamp(delta/max(abs(actions[action].parameters.x),.001f),-1.0f,1.0f);
++        }
+         const float navigationTeacherBlend = fixedFlightController
+             ? 1.0f
+             : avianNavigationTeacher
