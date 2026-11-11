@@ -1,0 +1,86 @@
+{
+  "verified_remote_commit": "e8ba2eee89819b8b4feb1159f21404a114bbaaa2",
+  "remote_branch": "agent/american-crow-rl-20261107",
+  "independent_clone": "/tmp/crow-restore-check-20261110",
+  "files_retired": [
+    {
+      "raw_path": "/Users/n/Developer/numi-crow-rl-20261107/build/crow-v15-qualified-route-imitation-eval-20261111/autonomous-20261126-replay.json",
+      "bytes": 115329600,
+      "raw_sha256": "209a2cb71be872994ea4d8583048e35c16ae596ee07460bae387f59be94757ba",
+      "remote_object": "artifacts/crow-v15-qualified-route-imitation-eval-20261111/autonomous-20261126/replay.json.gz",
+      "remote_compressed_sha256": "338146bb2ddada8fca443f6de6e6b15e0e9b358e9d76cd7bf89e1e9ca9a3b9a4"
+    },
+    {
+      "raw_path": "/Users/n/Developer/numi-crow-rl-20261107/build/crow-v15-qualified-route-imitation-eval-20261111/autonomous-20261126-trace.tsv",
+      "bytes": 2626540,
+      "raw_sha256": "2813805fbac2b038563f87328882ffdc8dd0cf961c876f2d24dd8e316cc77173",
+      "remote_object": "artifacts/crow-v15-qualified-route-imitation-eval-20261111/autonomous-20261126/trace.tsv.gz",
+      "remote_compressed_sha256": "055883b330bdf8d44cb1dc5f5ab26ec1cc445f37923df137d0a48547012cb3fd"
+    },
+    {
+      "raw_path": "/Users/n/Developer/numi-crow-rl-20261107/build/crow-v15-flight-fold-self-contact-observer-20261111/reference-replay.json",
+      "bytes": 24040597,
+      "raw_sha256": "0df55488dbd26b54c4d7ac8134f8d8d3af54796b0152f7ad048cfb094ba9c841",
+      "remote_object": "artifacts/crow-v15-flight-fold-self-contact-observer-20261111/reference/replay.json.gz",
+      "remote_compressed_sha256": "4b28abef11a959dd2875407a93f838cae753f07d71c5891556a7c52af6142094"
+    },
+    {
+      "raw_path": "/Users/n/Developer/numi-crow-rl-20261107/build/crow-v15-flight-fold-self-contact-observer-20261111/reference-trace.tsv",
+      "bytes": 517481,
+      "raw_sha256": "dcfab20225a0d8da4dd1973e091fbaca3d6c08706e527d23178b9bc8bc63b96d",
+      "remote_object": "artifacts/crow-v15-flight-fold-self-contact-observer-20261111/reference/trace.tsv.gz",
+      "remote_compressed_sha256": "f548987ab0ae44a2a2ba84c35b3eb2f60515b5262255e326e3af55ad359a41c7"
+    },
+    {
+      "raw_path": "/Users/n/Developer/numi-crow-rl-20261107/build/crow-v15-flight-fold-self-contact-observer-20261111/fold-replay.json",
+      "bytes": 23791748,
+      "raw_sha256": "e75da81eef5430b73a80ae051c3f7ca20e5d507d99857614aafb6f91152ff96c",
+      "remote_object": "artifacts/crow-v15-flight-fold-self-contact-observer-20261111/fold/replay.json.gz",
+      "remote_compressed_sha256": "addc739a916175e091d5e650b72cce53fca158474e0cd6a7db7310608dcc3524"
+    },
+    {
+      "raw_path": "/Users/n/Developer/numi-crow-rl-20261107/build/crow-v15-flight-fold-self-contact-observer-20261111/fold-trace.tsv",
+      "bytes": 517082,
+      "raw_sha256": "7dc80a5611bb1ef4e76a427d7481e82740a21b695713f0d3b0f6b1e20427b2bb",
+      "remote_object": "artifacts/crow-v15-flight-fold-self-contact-observer-20261111/fold/trace.tsv.gz",
+      "remote_compressed_sha256": "d12d4a19631280a6f75104be94f9a8f2ccaf32fc81881ae87a243e8887d6da9d"
+    },
+    {
+      "raw_path": "/Users/n/Developer/numi-crow-rl-20261107/build/crow-v15-flight-moderate-fold-control-20261111/moderate-replay.json",
+      "bytes": 24084370,
+      "raw_sha256": "ea695a97ad2459645348d021f595eafe8fb2ed1c0a470b876a15c7b6d0f17bce",
+      "remote_object": "artifacts/crow-v15-flight-moderate-fold-control-20261111/moderate/replay.json.gz",
+      "remote_compressed_sha256": "94cb3dace949ac80b54f8ce5d7bd97ddabcd2fb64e9213e9ceaf5e9ed2c856f2"
+    },
+    {
+      "raw_path": "/Users/n/Developer/numi-crow-rl-20261107/build/crow-v15-flight-moderate-fold-control-20261111/moderate-trace.tsv",
+      "bytes": 517478,
+      "raw_sha256": "5b3f790b956747ef7bc307554750af54db984231d69e7fd3542c65627420921d",
+      "remote_object": "artifacts/crow-v15-flight-moderate-fold-control-20261111/moderate/trace.tsv.gz",
+      "remote_compressed_sha256": "5edb0ee9329abcf0901b1262bb0f5b0944f693507135c5c0b6b9ef24f1eebe7f"
+    },
+    {
+      "raw_path": "/Users/n/Developer/numi-crow-rl-20261107/build/crow-v15-student-state-teacher-recovery-20261111/recovery-20261126-replay.json",
+      "bytes": 115349383,
+      "raw_sha256": "393b5b56ec79ad922e41ebb044a2356e22b1eb9f9d1034569695d0a16453f5d9",
+      "remote_object": "artifacts/crow-v15-student-state-teacher-recovery-20261111/recovery-20261126/replay.json.gz",
+      "remote_compressed_sha256": "50bb6e032cba7ba3bde0b4a50c9de588108b5801dfce7718e4838bd4e247564e"
+    },
+    {
+      "raw_path": "/Users/n/Developer/numi-crow-rl-20261107/build/crow-v15-student-state-teacher-recovery-20261111/recovery-20261126-trace.tsv",
+      "bytes": 2628360,
+      "raw_sha256": "7f9e79b4a1f57b8676b023c3356749492d97eae374198ce98aea39d643659690",
+      "remote_object": "artifacts/crow-v15-student-state-teacher-recovery-20261111/recovery-20261126/trace.tsv.gz",
+      "remote_compressed_sha256": "e911e843ad032318341a87349bf4edff45b93b11df13e32d7a151269c862c025"
+    },
+    {
+      "raw_path": "/Users/n/Developer/numi-crow-rl-20261107/build/crow-v15-student-state-teacher-recovery-20261111/recovery-20261126-rollout.bin",
+      "bytes": 95424956,
+      "raw_sha256": "81f58f9d96cfa2ae0c4f4c41238d7f66479df8a4b5df674444bde9e7ad7adeb6",
+      "remote_object": "artifacts/crow-v15-student-state-teacher-recovery-20261111/recovery-20261126/rollout.bin.gz",
+      "remote_compressed_sha256": "5ac2399384307ca501db2b15cb87fa6d6e941a7c3d81f13af8dd03325ee4d4bd"
+    }
+  ],
+  "bytes_retired": 404827595,
+  "method": "Independently fetched remote Git object; remote manifest hash; gzip expansion matches raw SHA-256; lsof clear; immediate rehash before removal. Tracked compressed evidence remains."
+}
