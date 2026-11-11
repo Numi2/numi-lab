@@ -1,0 +1,29 @@
+{
+  "independently_fetched_commit": "c49aa590a3c87e36c948ccf6268dbd091b164634",
+  "results": [
+    {
+      "path": "/Users/n/Developer/numi-crow-rl-20261107/artifacts/crow-v15-landing-phase-observer-20261111/autonomous-20261126/run.stderr.gz",
+      "bytes": 87192078,
+      "compressed_sha256": "20d27cae613389355fd7bd2992a75e00a16419bc41166f57d39225d3a1fe291a",
+      "expanded_sha256": "e2107874b3f43559adcef1570ff4495a8cc4223b80dca36de6489cbfed81ad03",
+      "retired": true,
+      "open_handles": false
+    },
+    {
+      "path": "/Users/n/Developer/numi-crow-rl-20261107/artifacts/crow-v15-near-slalom-autonomous-eval-20261111/autonomous-20261126/run.stderr.gz",
+      "bytes": 85736330,
+      "compressed_sha256": "33640bf1622bfa5a553ade29fc3c2eccd5a35793fcb4a2894e857dd1c9fb6d3e",
+      "expanded_sha256": "a870ec57c60d446d59140da10896364024c4caa762fdb280f03b7128955b1834",
+      "retired": true,
+      "open_handles": false
+    },
+    {
+      "path": "/Users/n/Developer/numi-crow-rl-20261107/artifacts/crow-v15-matched-release-inhibited-20261111/autonomous-20261126/run.stderr.gz",
+      "bytes": 87984088,
+      "compressed_sha256": "0b1e7412a7e9dc22605fa9c64a50388dc8df32e22b7915ba93bc7bc19dc6bf95",
+      "expanded_sha256": "0af60b5c8d2e48de8f0494ac3cbf9bb42b312c7b7158e1ea143351ff1c2cc03e",
+      "retired": true,
+      "open_handles": false
+    }
+  ]
+}
