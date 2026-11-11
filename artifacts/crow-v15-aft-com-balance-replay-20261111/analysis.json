@@ -1,0 +1,24 @@
+{
+  "baseline_parity_exact": true,
+  "baseline_parity_differences": [],
+  "rows": [
+    {
+      "case": 1,
+      "arm": 7,
+      "outcome": "completed transition 58 success 76 release 999",
+      "samples": 1000,
+      "longest_opposing_grip": 54,
+      "longest_supported_opposing_grip": 54,
+      "longest_supported": 377,
+      "terminal_100_supported": false,
+      "terminal_100_grip_and_support": false,
+      "terminal_100_grip_samples": 0,
+      "first_release_without_grip": null,
+      "terminal_max_toe_abs_rad": 0.710082,
+      "strict_pass": false,
+      "opposed_grip_pose_samples": 99,
+      "missing_grip_pose_samples": 0,
+      "minimum_grip_sat_gap_m": -0.000448899577685867
+    }
+  ]
+}
