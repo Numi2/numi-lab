@@ -8,7 +8,7 @@ def samples(p):
    if l.startswith('CROW_SUPPORT_SAMPLE '):
     x=json.loads(l.split(' ',1)[1]);d[x['step']]=x
  return d
-states=samples(A/'route.stderr.gz');ref=samples(B/'route.stderr.gz');diff=[t for t in range(1,2420) if t not in states or t not in ref or any(states[t][k]!=ref[t][k] for k in ('q','v'))]
+states=samples(A/'route.stderr.gz');ref=samples(B/'route.stderr.gz');firstBaseline=json.loads((B/'analysis.json').read_text())['first_perch_foot_impulse_step'];cutoff=min(out['first_perch_foot_impulse_step'] or 3001,firstBaseline or 3001);diff=[t for t in range(1,cutoff) if t not in states or t not in ref or any(states[t][k]!=ref[t][k] for k in ('q','v'))]
 with gzip.open(A/'route.stderr.gz','rt') as f:
  for l in f:
   if l.startswith('CROW_PERCH_SUBSTEP '):
