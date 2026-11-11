@@ -1,0 +1,458 @@
+{
+  "source_stderr_sha256": "5aec6a71edcaccf0a01e9fcc2dbfc4a2885d287b4c0bc3ef4e78ec01e642f579",
+  "source_replay_sha256": "5bb29837a31ade4cc7fc28438d268442bb90ddad41eeec56df7c15e60d030ad0",
+  "max_q_mismatch": 4.993438718070564e-10,
+  "max_position_mismatch_m": 4.8903542837443085e-09,
+  "max_quaternion_mismatch": 2.9798382166044794e-08,
+  "lanes": [
+    {
+      "lane": 0,
+      "forward_displacement_m": 0.02583691196,
+      "left": {
+        "qualified_samples": 33,
+        "longest_consecutive": 10,
+        "bouts_3_or_more": [
+          [
+            107,
+            109,
+            3
+          ],
+          [
+            128,
+            136,
+            9
+          ],
+          [
+            152,
+            161,
+            10
+          ],
+          [
+            177,
+            186,
+            10
+          ]
+        ]
+      },
+      "right": {
+        "qualified_samples": 37,
+        "longest_consecutive": 10,
+        "bouts_3_or_more": [
+          [
+            114,
+            123,
+            10
+          ],
+          [
+            140,
+            148,
+            9
+          ],
+          [
+            165,
+            173,
+            9
+          ],
+          [
+            190,
+            198,
+            9
+          ]
+        ]
+      }
+    },
+    {
+      "lane": 1,
+      "forward_displacement_m": 0.025858353610000002,
+      "left": {
+        "qualified_samples": 33,
+        "longest_consecutive": 10,
+        "bouts_3_or_more": [
+          [
+            107,
+            109,
+            3
+          ],
+          [
+            128,
+            136,
+            9
+          ],
+          [
+            152,
+            161,
+            10
+          ],
+          [
+            177,
+            186,
+            10
+          ]
+        ]
+      },
+      "right": {
+        "qualified_samples": 37,
+        "longest_consecutive": 10,
+        "bouts_3_or_more": [
+          [
+            114,
+            123,
+            10
+          ],
+          [
+            140,
+            148,
+            9
+          ],
+          [
+            165,
+            173,
+            9
+          ],
+          [
+            190,
+            198,
+            9
+          ]
+        ]
+      }
+    },
+    {
+      "lane": 2,
+      "forward_displacement_m": 0.02604530705,
+      "left": {
+        "qualified_samples": 33,
+        "longest_consecutive": 10,
+        "bouts_3_or_more": [
+          [
+            107,
+            109,
+            3
+          ],
+          [
+            128,
+            136,
+            9
+          ],
+          [
+            152,
+            161,
+            10
+          ],
+          [
+            177,
+            186,
+            10
+          ]
+        ]
+      },
+      "right": {
+        "qualified_samples": 37,
+        "longest_consecutive": 10,
+        "bouts_3_or_more": [
+          [
+            114,
+            123,
+            10
+          ],
+          [
+            140,
+            148,
+            9
+          ],
+          [
+            165,
+            173,
+            9
+          ],
+          [
+            190,
+            198,
+            9
+          ]
+        ]
+      }
+    },
+    {
+      "lane": 3,
+      "forward_displacement_m": 0.02586882888,
+      "left": {
+        "qualified_samples": 33,
+        "longest_consecutive": 10,
+        "bouts_3_or_more": [
+          [
+            107,
+            109,
+            3
+          ],
+          [
+            128,
+            136,
+            9
+          ],
+          [
+            152,
+            161,
+            10
+          ],
+          [
+            177,
+            186,
+            10
+          ]
+        ]
+      },
+      "right": {
+        "qualified_samples": 37,
+        "longest_consecutive": 10,
+        "bouts_3_or_more": [
+          [
+            114,
+            123,
+            10
+          ],
+          [
+            140,
+            148,
+            9
+          ],
+          [
+            165,
+            173,
+            9
+          ],
+          [
+            190,
+            198,
+            9
+          ]
+        ]
+      }
+    },
+    {
+      "lane": 4,
+      "forward_displacement_m": 0.02604016199,
+      "left": {
+        "qualified_samples": 33,
+        "longest_consecutive": 10,
+        "bouts_3_or_more": [
+          [
+            107,
+            109,
+            3
+          ],
+          [
+            128,
+            136,
+            9
+          ],
+          [
+            152,
+            161,
+            10
+          ],
+          [
+            177,
+            186,
+            10
+          ]
+        ]
+      },
+      "right": {
+        "qualified_samples": 37,
+        "longest_consecutive": 10,
+        "bouts_3_or_more": [
+          [
+            114,
+            123,
+            10
+          ],
+          [
+            140,
+            148,
+            9
+          ],
+          [
+            165,
+            173,
+            9
+          ],
+          [
+            190,
+            198,
+            9
+          ]
+        ]
+      }
+    },
+    {
+      "lane": 5,
+      "forward_displacement_m": 0.02588564136,
+      "left": {
+        "qualified_samples": 33,
+        "longest_consecutive": 10,
+        "bouts_3_or_more": [
+          [
+            107,
+            109,
+            3
+          ],
+          [
+            128,
+            136,
+            9
+          ],
+          [
+            152,
+            161,
+            10
+          ],
+          [
+            177,
+            186,
+            10
+          ]
+        ]
+      },
+      "right": {
+        "qualified_samples": 37,
+        "longest_consecutive": 10,
+        "bouts_3_or_more": [
+          [
+            114,
+            123,
+            10
+          ],
+          [
+            140,
+            148,
+            9
+          ],
+          [
+            165,
+            173,
+            9
+          ],
+          [
+            190,
+            198,
+            9
+          ]
+        ]
+      }
+    },
+    {
+      "lane": 6,
+      "forward_displacement_m": 0.0260910988,
+      "left": {
+        "qualified_samples": 32,
+        "longest_consecutive": 10,
+        "bouts_3_or_more": [
+          [
+            107,
+            109,
+            3
+          ],
+          [
+            128,
+            135,
+            8
+          ],
+          [
+            152,
+            161,
+            10
+          ],
+          [
+            177,
+            186,
+            10
+          ]
+        ]
+      },
+      "right": {
+        "qualified_samples": 37,
+        "longest_consecutive": 10,
+        "bouts_3_or_more": [
+          [
+            114,
+            123,
+            10
+          ],
+          [
+            140,
+            148,
+            9
+          ],
+          [
+            165,
+            173,
+            9
+          ],
+          [
+            190,
+            198,
+            9
+          ]
+        ]
+      }
+    },
+    {
+      "lane": 7,
+      "forward_displacement_m": 0.0259478436,
+      "left": {
+        "qualified_samples": 33,
+        "longest_consecutive": 10,
+        "bouts_3_or_more": [
+          [
+            107,
+            109,
+            3
+          ],
+          [
+            128,
+            136,
+            9
+          ],
+          [
+            152,
+            161,
+            10
+          ],
+          [
+            177,
+            186,
+            10
+          ]
+        ]
+      },
+      "right": {
+        "qualified_samples": 37,
+        "longest_consecutive": 10,
+        "bouts_3_or_more": [
+          [
+            114,
+            123,
+            10
+          ],
+          [
+            140,
+            148,
+            9
+          ],
+          [
+            165,
+            173,
+            9
+          ],
+          [
+            190,
+            198,
+            9
+          ]
+        ]
+      }
+    }
+  ],
+  "scope": "accepted-pose geometry plus all-substep contact, two seconds, development starts; no within-step clearance, slip, landing or full-route qualification"
+}
