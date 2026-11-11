@@ -1,0 +1,77 @@
+{
+  "rows": [
+    {
+      "lane": 0,
+      "prefix_endpoint_differences": 0,
+      "first_endpoint_difference": [],
+      "prefix_contact_substep_differences": 0,
+      "first_substep_difference": [],
+      "walk_candidate_toe_caps": 0,
+      "walk_reference_toe_caps": 0
+    },
+    {
+      "lane": 1,
+      "prefix_endpoint_differences": 0,
+      "first_endpoint_difference": [],
+      "prefix_contact_substep_differences": 0,
+      "first_substep_difference": [],
+      "walk_candidate_toe_caps": 0,
+      "walk_reference_toe_caps": 0
+    },
+    {
+      "lane": 2,
+      "prefix_endpoint_differences": 0,
+      "first_endpoint_difference": [],
+      "prefix_contact_substep_differences": 0,
+      "first_substep_difference": [],
+      "walk_candidate_toe_caps": 0,
+      "walk_reference_toe_caps": 0
+    },
+    {
+      "lane": 3,
+      "prefix_endpoint_differences": 0,
+      "first_endpoint_difference": [],
+      "prefix_contact_substep_differences": 0,
+      "first_substep_difference": [],
+      "walk_candidate_toe_caps": 2,
+      "walk_reference_toe_caps": 0
+    },
+    {
+      "lane": 4,
+      "prefix_endpoint_differences": 0,
+      "first_endpoint_difference": [],
+      "prefix_contact_substep_differences": 0,
+      "first_substep_difference": [],
+      "walk_candidate_toe_caps": 0,
+      "walk_reference_toe_caps": 0
+    },
+    {
+      "lane": 5,
+      "prefix_endpoint_differences": 0,
+      "first_endpoint_difference": [],
+      "prefix_contact_substep_differences": 0,
+      "first_substep_difference": [],
+      "walk_candidate_toe_caps": 0,
+      "walk_reference_toe_caps": 0
+    },
+    {
+      "lane": 6,
+      "prefix_endpoint_differences": 0,
+      "first_endpoint_difference": [],
+      "prefix_contact_substep_differences": 0,
+      "first_substep_difference": [],
+      "walk_candidate_toe_caps": 0,
+      "walk_reference_toe_caps": 0
+    },
+    {
+      "lane": 7,
+      "prefix_endpoint_differences": 0,
+      "first_endpoint_difference": [],
+      "prefix_contact_substep_differences": 0,
+      "first_substep_difference": [],
+      "walk_candidate_toe_caps": 3,
+      "walk_reference_toe_caps": 0
+    }
+  ],
+  "scope": "Accepted endpoint q/v, actor output, reported contacts and printed aggregate contact substeps 1\u2013199 before gait adjustment. Equality of logged output does not establish parity of unlogged internals. Toe speed limit counted only in 201\u2013300."
+}
