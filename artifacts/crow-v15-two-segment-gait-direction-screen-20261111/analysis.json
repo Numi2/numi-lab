@@ -1,0 +1,112 @@
+{
+  "lanes": [
+    {
+      "lane": 0,
+      "hip_coefficient": -0.3,
+      "complete": true,
+      "baseline_sample_differences": 0,
+      "forward_displacement_m": 0.044593050999999995,
+      "maximum_speed_m_s": 0.16113945260512422,
+      "maximum_tilt_rad": 0.03037742783835037,
+      "unsupported_intervals": 0,
+      "nonfoot_impulse_intervals": 0,
+      "missing_substeps": 0,
+      "pass": true
+    },
+    {
+      "lane": 1,
+      "hip_coefficient": 0.3,
+      "complete": true,
+      "baseline_sample_differences": null,
+      "forward_displacement_m": 0.12000871830000001,
+      "maximum_speed_m_s": 0.36560505635658835,
+      "maximum_tilt_rad": 0.07134709972941483,
+      "unsupported_intervals": 9,
+      "nonfoot_impulse_intervals": 0,
+      "missing_substeps": 0,
+      "pass": false
+    },
+    {
+      "lane": 2,
+      "hip_coefficient": -0.5,
+      "complete": true,
+      "baseline_sample_differences": null,
+      "forward_displacement_m": 0.32870114517,
+      "maximum_speed_m_s": 0.4126954383159448,
+      "maximum_tilt_rad": 0.07897105566981434,
+      "unsupported_intervals": 7,
+      "nonfoot_impulse_intervals": 0,
+      "missing_substeps": 0,
+      "pass": false
+    },
+    {
+      "lane": 3,
+      "hip_coefficient": 0.5,
+      "complete": true,
+      "baseline_sample_differences": null,
+      "forward_displacement_m": 0.3230840358,
+      "maximum_speed_m_s": 0.4091728806230824,
+      "maximum_tilt_rad": 0.14788518739237727,
+      "unsupported_intervals": 1,
+      "nonfoot_impulse_intervals": 0,
+      "missing_substeps": 0,
+      "pass": false
+    },
+    {
+      "lane": 4,
+      "hip_coefficient": -0.3,
+      "complete": true,
+      "baseline_sample_differences": 0,
+      "forward_displacement_m": 0.047214110399999995,
+      "maximum_speed_m_s": 0.1729045505233948,
+      "maximum_tilt_rad": 0.030440759724630936,
+      "unsupported_intervals": 0,
+      "nonfoot_impulse_intervals": 0,
+      "missing_substeps": 0,
+      "pass": true
+    },
+    {
+      "lane": 5,
+      "hip_coefficient": 0.3,
+      "complete": true,
+      "baseline_sample_differences": null,
+      "forward_displacement_m": 0.11396725961,
+      "maximum_speed_m_s": 0.3253516728751544,
+      "maximum_tilt_rad": 0.06382798696206501,
+      "unsupported_intervals": 5,
+      "nonfoot_impulse_intervals": 0,
+      "missing_substeps": 0,
+      "pass": false
+    },
+    {
+      "lane": 6,
+      "hip_coefficient": -0.5,
+      "complete": true,
+      "baseline_sample_differences": null,
+      "forward_displacement_m": 0.287878804,
+      "maximum_speed_m_s": 0.40972025012283403,
+      "maximum_tilt_rad": 0.06505925078575943,
+      "unsupported_intervals": 6,
+      "nonfoot_impulse_intervals": 0,
+      "missing_substeps": 0,
+      "pass": false
+    },
+    {
+      "lane": 7,
+      "hip_coefficient": 0.5,
+      "complete": true,
+      "baseline_sample_differences": null,
+      "forward_displacement_m": 0.33392602579999997,
+      "maximum_speed_m_s": 0.4909711161048041,
+      "maximum_tilt_rad": 0.11953391685164495,
+      "unsupported_intervals": 0,
+      "nonfoot_impulse_intervals": 0,
+      "missing_substeps": 0,
+      "pass": true
+    }
+  ],
+  "failed_environment_steps": 0,
+  "termination_count": 0,
+  "errors": [],
+  "scope": "development directional screen; no full foot geometry qualification"
+}

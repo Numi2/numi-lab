@@ -1,0 +1,13 @@
+--- a/walking-wrapper.metal
++++ b/gait-directions.metal
+@@ -5075,7 +5075,9 @@
+             const float swing=seconds >= 2.0f && seconds < 4.0f && support > 0.05f ? carrier : 0.0f;
+             const float lift=max(swing,0.0f);
+             if (seconds >= 2.0f && seconds < 4.0f)
+-                navigationTeacherRequested=smoothstep(2.0f,2.50f,seconds)*(joint==0u ? -0.30f*swing : joint==1u ? 0.40f*lift : -0.15f*lift);
++                { const uint arm=environment%4u;
++                const float hip=arm==0u ? -.30f : arm==1u ? .30f : arm==2u ? -.50f : .50f;
++                navigationTeacherRequested=smoothstep(2.0f,2.50f,seconds)*(joint==0u ? hip*swing : joint==1u ? 0.40f*lift : -0.15f*lift); }
+         }
+         // Symmetric preparation; extension uses both accepted foot loads.
+         if (fixedFlightController && state.episode.z == 10u && action >= 7u && action <= 12u) {
