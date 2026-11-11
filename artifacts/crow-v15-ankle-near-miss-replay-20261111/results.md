@@ -1,0 +1,3 @@
+# Independent long replay of ankle-range near miss
+
+The independent one-lane replay exactly reproduced all 500 recorded traces from batch lane 5. Across 1,000 steps the longest continuous supported interval was 447 samples and the longest simultaneous supported opposing-grip interval was 186 samples. Neither terminal support nor terminal grip passed. The worst independent toe/perch overlap at an opposing-grip pose was 0.621 mm, beyond the predeclared 0.5 mm limit. This setting is rejected, despite its 500-step near miss; it cannot qualify landing. The test used one development start and no reserved layouts.
