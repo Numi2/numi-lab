@@ -1,0 +1,23 @@
+--- a/contact-gated.metal
++++ b/rear-first.metal
+@@ -5504,7 +5504,7 @@
+         for (uint side=0u;side<2u;++side) {
+             const uint ramp=(state.status.w>>(side*6u)) & 63u;
+             for (uint toe=0u;toe<4u;++toe) {
+-                const float target=!closing ? 0.0f : toe==3u ? min(0.050f*float(ramp),0.85f) : min(0.025f*float(ramp),0.85f);
++                const float target=!closing ? 0.0f : toe==3u ? min(0.050f*float(ramp),0.85f) : min(0.025f*float(ramp>17u ? ramp-17u : 0u),0.85f);
+                 effortTrajectory[pass.controlStep*worldDispatch.effortStepStride + environment*worldDispatch.effortEnvironmentStride + 22u + side*4u + toe]=target;
+             }
+         }
+@@ -9345,7 +9345,10 @@
+                     const uint graceShift=16u+side*6u;
+                     const uint oldGrace=(state.status.w>>graceShift)&63u;
+                     const uint grace=loaded ? 15u : (oldGrace>0u ? oldGrace-1u : 0u);
+-                    const uint next=(loaded || grace>0u) ? min(previous+1u,34u) : (previous>0u ? previous-1u : 0u);
++                    const uint rearWrench=compactBase+contactGroups[3u+side].reference.y;
++                    const float3 rearForce=float3(compactContact[rearWrench],compactContact[rearWrench+1u],compactContact[rearWrench+2u]);
++                    const bool canAdvance=previous<17u || length(rearForce)>0.05f;
++                    const uint next=(loaded || grace>0u) ? (canAdvance ? min(previous+1u,51u) : previous) : (previous>0u ? previous-1u : 0u);
+                     packed |= (next << (side*6u)) | (grace << graceShift);
+                 }
+             }
