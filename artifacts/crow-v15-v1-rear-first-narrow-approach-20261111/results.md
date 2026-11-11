@@ -1,0 +1,3 @@
+# Narrower approach with rear-first closure
+
+The single development J privileged-teacher episode matched prior q/v through step 1305 and completed five waypoints. The rear-first controller on the +15 mm approach produced eight separate bilateral half-weight support intervals, at most one consecutive interval, and no supported opposing toe-force interval. There was no non-foot perch impulse and no physical first-episode termination before the 3000-step timeout. The route summary's safe-completion field is waypoint-only and does not establish a landing. Contact-driven release, stable grip, autonomous navigation and independent layouts remain unverified.
