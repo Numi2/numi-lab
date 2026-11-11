@@ -1,0 +1,17 @@
+[
+  {
+    "path": "build/crow-v15-moment-accounting-check-20261111/probe",
+    "sha256": "2943f44d33e9682d6ef349e17d7ec62c2a461993a06c14017f09a9ac21b69bab",
+    "bytes": 101816
+  },
+  {
+    "path": "build/crow-v15-moment-accounting-check-20261111/libmetalrobo.dylib",
+    "sha256": "35b55e2fba4202be0f7830fb08bf84522944a76778a0a5066fe80b2b73ef7cb4",
+    "bytes": 5729488
+  },
+  {
+    "path": "build/crow-v15-alternating-foot-release-20261110/teacher.metallib",
+    "sha256": "a1fa801ac2f2ea5e557a54073b280039e5bb60422d8b5beb1cd90b2ec22c459b",
+    "bytes": 4485424
+  }
+]

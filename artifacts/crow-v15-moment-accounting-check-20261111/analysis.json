@@ -1,0 +1,90 @@
+{
+  "exact_trace_parity": true,
+  "max_angular_momentum_disagreement": 0.0,
+  "windows": [
+    {
+      "ticks": [
+        20,
+        69
+      ],
+      "mean_delta_H": -6.730162564966e-05,
+      "mean_contact_moment": 0.00173173718387314,
+      "mean_contact_torsion": 0.0,
+      "mean_gravity_moment": 0.0015743350863285854,
+      "mean_estimated_damping_moment": -0.0029757448035887,
+      "mean_residual_before_damping": -0.0033733738958513855,
+      "mean_residual_after_damping": -0.0003976290922626854,
+      "mean_abs_residual_after_damping": 0.0004246543732347315
+    },
+    {
+      "ticks": [
+        80,
+        109
+      ],
+      "mean_delta_H": -2.4669309530966664e-05,
+      "mean_contact_moment": -0.0018056538169426,
+      "mean_contact_torsion": 0.0,
+      "mean_gravity_moment": 0.0022020087370626003,
+      "mean_estimated_damping_moment": -0.00036123355576827,
+      "mean_residual_before_damping": -0.0004210242296509671,
+      "mean_residual_after_damping": -5.979067388269715e-05,
+      "mean_abs_residual_after_damping": 0.00015460888326882148
+    },
+    {
+      "ticks": [
+        120,
+        159
+      ],
+      "mean_delta_H": 1.3495567466249993e-06,
+      "mean_contact_moment": -0.0021143024147025,
+      "mean_contact_torsion": 0.0,
+      "mean_gravity_moment": 0.0022536479598652547,
+      "mean_estimated_damping_moment": -0.0002232778081564225,
+      "mean_residual_before_damping": -0.0001379959884161297,
+      "mean_residual_after_damping": 8.52818197402928e-05,
+      "mean_abs_residual_after_damping": 9.657830019061101e-05
+    },
+    {
+      "ticks": [
+        160,
+        199
+      ],
+      "mean_delta_H": 1.1077338526025e-05,
+      "mean_contact_moment": -0.00212346753687575,
+      "mean_contact_torsion": 0.0,
+      "mean_gravity_moment": 0.002449206565121559,
+      "mean_estimated_damping_moment": -0.00039201145102242497,
+      "mean_residual_before_damping": -0.00031466168971978437,
+      "mean_residual_after_damping": 7.734976130264066e-05,
+      "mean_abs_residual_after_damping": 8.837921468266626e-05
+    },
+    {
+      "ticks": [
+        200,
+        239
+      ],
+      "mean_delta_H": 4.658383682825e-06,
+      "mean_contact_moment": -0.00215641244431,
+      "mean_contact_torsion": 0.0,
+      "mean_gravity_moment": 0.002756217164471675,
+      "mean_estimated_damping_moment": -0.0006379774547876,
+      "mean_residual_before_damping": -0.0005951463364788502,
+      "mean_residual_after_damping": 4.283111830874983e-05,
+      "mean_abs_residual_after_damping": 7.880386963804418e-05
+    },
+    {
+      "ticks": [
+        240,
+        279
+      ],
+      "mean_delta_H": 1.68452318702e-05,
+      "mean_contact_moment": -0.0022072866093365,
+      "mean_contact_torsion": 0.0,
+      "mean_gravity_moment": 0.0032229679332984153,
+      "mean_estimated_damping_moment": -0.00101039071085595,
+      "mean_residual_before_damping": -0.0009988360920917152,
+      "mean_residual_after_damping": 1.1554618764234764e-05,
+      "mean_abs_residual_after_damping": 9.663540533603822e-05
+    }
+  ]
+}
