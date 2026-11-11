@@ -1,0 +1,7 @@
+# One-foot release geometry and available joints
+
+The current two-segment-toe v15 research body has one pitch hinge at each hip, knee and ankle; all toe flexion hinges are parallel to the pitch axis. There is no active hip abduction/adduction degree of freedom. This limits direct lateral placement and balance control; it does not prove single-foot release is impossible, since contact forces, other joints and wings also act.
+
+For the retained 32-substep gentle-release screen, independent articulated kinematics reconstructed both foot centers against native poses to within 6.92e-9 m on the sampled frames. Just before release, the total body center of mass was about 3.6 cm lateral to the supporting right foot center. In the zero-feedback starts the offset grew to about 5.7–5.9 cm by interval 200 while fore-aft displacement also grew; both later fell. The same trend appears in the -0.25 starts. A foot center is not center of pressure or a support polygon; the intervention also changes multiple controls, so these data do not isolate cause. They do motivate a physically actuated pre-release weight shift and more realistic multidirectional leg articulation rather than pitch feedback alone.
+
+The body audit and reconstructed states are development diagnostics only, not a change to the frozen flight controller or a successful release. Any body-topology change needs fresh neutral-state invariants, binding validation, flight requalification, walking, takeoff, landing, and two-layout autonomous tests before use.

@@ -1,0 +1,12 @@
+[
+  {
+    "path": "build/crow-v15-landing-com-diagnostic-20261111/kinematics",
+    "sha256": "e68e75e86e4b5e6e9431c95d0ce34a8cc39a1a6cc60e184683df335df79b2b4b",
+    "bytes": 63192
+  },
+  {
+    "path": "build/crow-v15-two-segment-substep-observer-20261111/libmetalrobo.dylib",
+    "sha256": "948e170d7e92eeee41826c1eaedfdec37831fff4f05210211ff72956e0e44032",
+    "bytes": 5729344
+  }
+]
