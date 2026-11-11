@@ -20,4 +20,5 @@ for e in range(8):
 try:
  data=json.loads((A/'stdout').read_text());failed=data['failed_environment_steps'];termination=data['termination_count']
 except Exception as ex:failed=None;termination=None;errors.append(str(ex))
+for row in out:row['pass']=bool(row['pass'] and failed==0 and termination==0 and not errors)
 report={'lanes':out,'failed_environment_steps':failed,'termination_count':termination,'errors':errors[-5:],'scope':'development directional screen; no full foot geometry qualification'};(A/'analysis.json').write_text(json.dumps(report,indent=2)+'\n');print(json.dumps(report,indent=2))
