@@ -1,0 +1,38 @@
+--- a/reference.metal
++++ b/feedback.metal
+@@ -6851,9 +6851,23 @@
+                     if ((group.members.z & MR_TASK_CONTACT_SUPPORT)!=0u &&
+                         compactContact[compactBase+group.members.w]>0.05f) ++loadedFeet;
+                 }
+-                if (loadedFeet>=2u && abs(finalGoal.x-pos.x-.012f)<0.025f &&
++                // Once an unstable supported landing is abandoned, allow the
++                // existing approach controller one second before re-arming hold.
++                const bool landingRecovery = phase>1.001f && phase<1.5f;
++                if (landingRecovery) {
++                    phase += .01f;
++                    if (phase>=1.49f) phase=1.0f;
++                }
++                if (!landingRecovery && loadedFeet>=2u && abs(finalGoal.x-pos.x-.012f)<0.025f &&
+                     abs(finalGoal.y-pos.y)<0.16f && length(yawFrameLinear.xy)<0.08f &&
+-                    abs(rootLinearVelocity.z)<0.12f) phase=2.0f;
++                    abs(rootLinearVelocity.z)<0.12f) phase=max(phase,2.0f);
++                // Trigger only a sustained forward tip with angular motion,
++                // observed while the feet are still supporting the body.
++                if (phase>=1.5f) {
++                    if (pitch>.12f && baseAngular.y>.04f) phase=max(2.0f,phase)+.02f;
++                    else phase=2.0f;
++                    if (phase>=2.10f) phase=1.01f;
++                }
+             }
+         }
+         state.commandAndPhase.xyz=float3(0.15f,finalGoalSignal.x,finalGoalSignal.y);
+@@ -9438,6 +9452,9 @@
+             // Last-substep impulse is only a control signal; full substeps are audited externally.
+             const uint seqMask=(15u<<16u)|(15u<<28u);
+             uint seq=((state.status.w>>16u)&15u)|(((state.status.w>>28u)&15u)<<4u);
++            if (dispatch.sampling.w==0u && state.navigation.z>=5.0f && state.threatTeacher.w<1.5f) {
++                seq=0u;state.status.w &= ~seqMask;
++            }
+             if (dispatch.sampling.w==0u && state.navigation.z>=5.0f && state.threatTeacher.w>=1.5f) {
+                 const float halfWeightImpulse=.5f*.45006f*9.81f*dispatch.timing.x/16.0f;
+                 const bool rightGrip=up[1]>=halfWeightImpulse && frontX[1]>1.0e-6f && rearX[1]<-1.0e-6f;
