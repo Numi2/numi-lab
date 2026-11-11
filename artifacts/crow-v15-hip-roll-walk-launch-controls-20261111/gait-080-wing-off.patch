@@ -1,0 +1,19 @@
+--- a/reference.metal
++++ b/gait-080-wing-off.metal
+@@ -5077,7 +5077,7 @@
+             const float swing=seconds >= begin && seconds < begin+2.0f && support > 0.05f ? carrier : 0.0f;
+             const float lift=max(swing,0.0f);
+             if (seconds >= begin && seconds < begin+2.0f)
+-                navigationTeacherRequested=0.85f*smoothstep(begin,begin+.50f,seconds)*(joint==0u ? -0.30f*swing : joint==1u ? 0.40f*lift : -0.15f*lift);
++                navigationTeacherRequested=0.80f*smoothstep(begin,begin+.50f,seconds)*(joint==0u ? -0.30f*swing : joint==1u ? 0.40f*lift : -0.15f*lift);
+             else if (seconds>=2.0f && seconds<begin)
+                 { const uint arm=environment%8u;
+                 const float motion=length(float2(state.commandExtension.z,state.threatGeometry.y)); const float gain=.4f+.4f*smoothstep(.03f,.12f,motion);
+@@ -5323,6 +5323,7 @@
+             )
+             : filtered;
+         const float avianWingAmplitude =
++            fixedFlightController && float(state.episode.x)*dispatch.timing.x >= 6.0f && binding.actuator.x == MR_TASK_ACTUATOR_FLAPPING_POSITION ? 0.0f :
+             fixedFlightController && float(state.episode.x)*dispatch.timing.x >= 6.0f && (state.status.w & 8192u)==0u && binding.actuator.x == MR_TASK_ACTUATOR_FLAPPING_POSITION ? 0.0f :
+             fixedFlightController && float(state.episode.x)*dispatch.timing.x >= 4.0f && float(state.episode.x)*dispatch.timing.x < 6.0f && binding.actuator.x == MR_TASK_ACTUATOR_FLAPPING_POSITION ? 0.0f : fixedFlightController && state.episode.z == 10u && float(state.episode.x)*dispatch.timing.x >= 4.4f && float(state.episode.x)*dispatch.timing.x < 5.4f && binding.actuator.x == MR_TASK_ACTUATOR_FLAPPING_POSITION && (state.status.w & 8192u) == 0u
+             ? 0.0f : fixedFlightController && state.threatTeacher.w >= 1.5f &&

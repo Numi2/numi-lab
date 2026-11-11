@@ -1,0 +1,14 @@
+{
+  "wing-off": {
+    "source_sha256": "0e888d820dba2d8928c53281e1be32cccf1b16fce3f3c6145d86ea10f30f99e1",
+    "metallib_sha256": "9d7ef6d2731bfca435328e22ce2453b57a38441fa802b5ee616d32f1fb171aad"
+  },
+  "gait-080": {
+    "source_sha256": "d03d9c4e0bbec11fcd41b583e1d884867286cd69a9ce693ef90a0b7c0a39a38e",
+    "metallib_sha256": "e901e8ea5447e7c426ec5319a454196bccd6817eb5cc05c573539fadf4a10ce7"
+  },
+  "gait-080-wing-off": {
+    "source_sha256": "54c814389dd0030ca9de2388615254cd71d05e6a241e300544ae600d31be3d34",
+    "metallib_sha256": "57cc7594d2082ca93f0b7caf9058425e331b6e095e202496bbe6348e78a8a9b4"
+  }
+}

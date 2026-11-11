@@ -1,0 +1,23 @@
+{
+  "fingerprints": [
+    1497260016572508426,
+    8839340777103626901,
+    4921445392142307213,
+    13936985418269655791
+  ],
+  "reports": [
+    {
+      "actor": "landing",
+      "source_sha256": "e37af3f13003dc96cec6dcc92fdcb263e4a28c80c9491e8302bf83da155c898b",
+      "target_sha256": "782fb6c4a1bdd82fdb170f2fec006c73058cbe1fb689518ba7dfe8024d8d63ca",
+      "identical_layers_and_transforms": true
+    },
+    {
+      "actor": "route",
+      "source_sha256": "b9906898718f3d1641bfab9a32b024e8fc96697eac6c3650a238a672d4f99a85",
+      "target_sha256": "adf2a768fe68ae4247931df5364b65d3f18e100d094d6711608ec1df217149f1",
+      "identical_layers_and_transforms": true
+    }
+  ],
+  "scope": "Diagnostic rebinding only; matching fingerprints or weights do not prove observation semantic equivalence."
+}

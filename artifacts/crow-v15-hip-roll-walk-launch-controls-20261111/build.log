@@ -1,0 +1,12 @@
+/Users/n/Developer/numi-crow-rl-20261107/artifacts/crow-v15-hip-roll-walk-launch-controls-20261111/wing-off.metal:5082:30: warning: unused variable 'arm' [-Wunused-variable]
+                { const uint arm=environment%8u;
+                             ^
+1 warning generated.
+/Users/n/Developer/numi-crow-rl-20261107/artifacts/crow-v15-hip-roll-walk-launch-controls-20261111/gait-080.metal:5082:30: warning: unused variable 'arm' [-Wunused-variable]
+                { const uint arm=environment%8u;
+                             ^
+1 warning generated.
+/Users/n/Developer/numi-crow-rl-20261107/artifacts/crow-v15-hip-roll-walk-launch-controls-20261111/gait-080-wing-off.metal:5082:30: warning: unused variable 'arm' [-Wunused-variable]
+                { const uint arm=environment%8u;
+                             ^
+1 warning generated.
