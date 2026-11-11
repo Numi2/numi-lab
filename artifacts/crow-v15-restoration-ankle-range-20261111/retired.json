@@ -1,0 +1,11 @@
+{
+  "remote_commit": "171d1dd12c7edc6ef1982758333f911fb7b82739",
+  "retired": [
+    {
+      "raw": "artifacts/crow-v15-ankle-range-grid-20261111/results.txt",
+      "archive": "artifacts/crow-v15-ankle-range-grid-20261111/results.txt.gz",
+      "sha256": "2242cbcdd223750299ef3f946df4a6a765c9de71bf62747413ad599434eae0b3",
+      "bytes": 20524930
+    }
+  ]
+}
