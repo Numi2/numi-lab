@@ -1,0 +1,5 @@
+# Pitch-response batch censored by solver rollback
+
+The native eight-lane trial stopped at attempted zero-based control step 31 (the 32nd interval): the solver reported status 11 for lane 4, substep 9, and rolled back that interval. All eight lanes have 31 accepted intervals, so none reached the 550-interval or final-support gates. All six candidate lanes matched their same-pitch zero-gain lane exactly in recorded q/v through the first ten accepted intervals, before the new response term. Recorded contact and velocity substeps are complete over the accepted prefix, with no reported capacity overflow; the failed attempted interval is not accepted state.
+
+The -0.15-gain, positive-pitch lane had a -0.66 rad/s sampled pitch rate at its last accepted endpoint, while the matched zero-gain lane was at +0.14 rad/s. That observation does not identify the numerical failure mechanism or establish long-term balance for any gain. Keep all arms experimental and repeat separately so that one rollback cannot censor the others; do not infer a reliable response or landing from this prefix. The full native rollback diagnostic, source, binary hashes and partial logs are retained.

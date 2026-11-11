@@ -1,0 +1,191 @@
+{
+  "rows": [
+    {
+      "lane": 0,
+      "gain": 0,
+      "initial_pitch_rad": 0.04,
+      "accepted_intervals": 31,
+      "fall_below_root_height_0_1m": null,
+      "max_abs_pitch_rad": 0.039995313775296505,
+      "max_abs_pitch_rate_rad_s": 0.142592564,
+      "final_pitch_rad": 0.03652841740774757,
+      "final_pitch_rate_rad_s": 0.135156617,
+      "final_100_supported_and_pitch_bound": false,
+      "all_run_nonfoot_contact_intervals": 0,
+      "toe_speed_cap_substeps": 0,
+      "peak_substep_toe_speed_rad_s": 3.08981562,
+      "missing_contact_substeps": 0,
+      "missing_velocity_substeps": 0,
+      "pass": false
+    },
+    {
+      "lane": 1,
+      "gain": 0,
+      "initial_pitch_rad": -0.04,
+      "accepted_intervals": 31,
+      "fall_below_root_height_0_1m": null,
+      "max_abs_pitch_rad": 0.04175373098543755,
+      "max_abs_pitch_rate_rad_s": 0.149581268,
+      "final_pitch_rad": 0.01661268370356092,
+      "final_pitch_rate_rad_s": 0.132696584,
+      "final_100_supported_and_pitch_bound": false,
+      "all_run_nonfoot_contact_intervals": 0,
+      "toe_speed_cap_substeps": 0,
+      "peak_substep_toe_speed_rad_s": 4.00975132,
+      "missing_contact_substeps": 0,
+      "missing_velocity_substeps": 0,
+      "pass": false
+    },
+    {
+      "lane": 2,
+      "gain": 0.15,
+      "initial_pitch_rad": 0.04,
+      "accepted_intervals": 31,
+      "fall_below_root_height_0_1m": null,
+      "max_abs_pitch_rad": 0.04114797235901048,
+      "max_abs_pitch_rate_rad_s": 0.158594683,
+      "final_pitch_rad": 0.04114797235901048,
+      "final_pitch_rate_rad_s": 0.122584529,
+      "final_100_supported_and_pitch_bound": false,
+      "all_run_nonfoot_contact_intervals": 0,
+      "toe_speed_cap_substeps": 0,
+      "peak_substep_toe_speed_rad_s": 2.59221005,
+      "missing_contact_substeps": 0,
+      "missing_velocity_substeps": 0,
+      "pass": false
+    },
+    {
+      "lane": 3,
+      "gain": 0.15,
+      "initial_pitch_rad": -0.04,
+      "accepted_intervals": 31,
+      "fall_below_root_height_0_1m": null,
+      "max_abs_pitch_rad": 0.04175373098543755,
+      "max_abs_pitch_rate_rad_s": 0.138805941,
+      "final_pitch_rad": 0.01714266193349965,
+      "final_pitch_rate_rad_s": 0.12993592,
+      "final_100_supported_and_pitch_bound": false,
+      "all_run_nonfoot_contact_intervals": 0,
+      "toe_speed_cap_substeps": 0,
+      "peak_substep_toe_speed_rad_s": 4.00975132,
+      "missing_contact_substeps": 0,
+      "missing_velocity_substeps": 0,
+      "pass": false
+    },
+    {
+      "lane": 4,
+      "gain": -0.15,
+      "initial_pitch_rad": 0.04,
+      "accepted_intervals": 31,
+      "fall_below_root_height_0_1m": null,
+      "max_abs_pitch_rad": 0.039995313775296505,
+      "max_abs_pitch_rate_rad_s": 0.662694454,
+      "final_pitch_rad": 0.008043151983638643,
+      "final_pitch_rate_rad_s": -0.662694454,
+      "final_100_supported_and_pitch_bound": false,
+      "all_run_nonfoot_contact_intervals": 0,
+      "toe_speed_cap_substeps": 0,
+      "peak_substep_toe_speed_rad_s": 4.91387272,
+      "missing_contact_substeps": 0,
+      "missing_velocity_substeps": 0,
+      "pass": false
+    },
+    {
+      "lane": 5,
+      "gain": -0.15,
+      "initial_pitch_rad": -0.04,
+      "accepted_intervals": 31,
+      "fall_below_root_height_0_1m": null,
+      "max_abs_pitch_rad": 0.04175373098543755,
+      "max_abs_pitch_rate_rad_s": 0.168632388,
+      "final_pitch_rad": 0.01642834927678742,
+      "final_pitch_rate_rad_s": 0.168632388,
+      "final_100_supported_and_pitch_bound": false,
+      "all_run_nonfoot_contact_intervals": 0,
+      "toe_speed_cap_substeps": 0,
+      "peak_substep_toe_speed_rad_s": 4.00975132,
+      "missing_contact_substeps": 0,
+      "missing_velocity_substeps": 0,
+      "pass": false
+    },
+    {
+      "lane": 6,
+      "gain": 0.3,
+      "initial_pitch_rad": 0.04,
+      "accepted_intervals": 31,
+      "fall_below_root_height_0_1m": null,
+      "max_abs_pitch_rad": 0.039995313775296505,
+      "max_abs_pitch_rate_rad_s": 0.163248181,
+      "final_pitch_rad": 0.03092395172449998,
+      "final_pitch_rate_rad_s": -0.0735133737,
+      "final_100_supported_and_pitch_bound": false,
+      "all_run_nonfoot_contact_intervals": 0,
+      "toe_speed_cap_substeps": 0,
+      "peak_substep_toe_speed_rad_s": 5.7446661,
+      "missing_contact_substeps": 0,
+      "missing_velocity_substeps": 0,
+      "pass": false
+    },
+    {
+      "lane": 7,
+      "gain": 0.3,
+      "initial_pitch_rad": -0.04,
+      "accepted_intervals": 31,
+      "fall_below_root_height_0_1m": null,
+      "max_abs_pitch_rad": 0.04175373098543755,
+      "max_abs_pitch_rate_rad_s": 0.140761152,
+      "final_pitch_rad": 0.017336040981214707,
+      "final_pitch_rate_rad_s": 0.106828831,
+      "final_100_supported_and_pitch_bound": false,
+      "all_run_nonfoot_contact_intervals": 0,
+      "toe_speed_cap_substeps": 0,
+      "peak_substep_toe_speed_rad_s": 4.00975132,
+      "missing_contact_substeps": 0,
+      "missing_velocity_substeps": 0,
+      "pass": false
+    }
+  ],
+  "paired_prefix": [
+    {
+      "lane": 2,
+      "reference_lane": 0,
+      "matched_steps": 10,
+      "first_mismatch": null
+    },
+    {
+      "lane": 3,
+      "reference_lane": 1,
+      "matched_steps": 10,
+      "first_mismatch": null
+    },
+    {
+      "lane": 4,
+      "reference_lane": 0,
+      "matched_steps": 10,
+      "first_mismatch": null
+    },
+    {
+      "lane": 5,
+      "reference_lane": 1,
+      "matched_steps": 10,
+      "first_mismatch": null
+    },
+    {
+      "lane": 6,
+      "reference_lane": 0,
+      "matched_steps": 10,
+      "first_mismatch": null
+    },
+    {
+      "lane": 7,
+      "reference_lane": 1,
+      "matched_steps": 10,
+      "first_mismatch": null
+    }
+  ],
+  "observer_errors": [
+    "failure native step failed 31: one or more MetalWorld control steps rolled back after a GPU environment failure: status=11 environment=4 control_step=0 aba_status=0 failing_substep=9 failing_index=4294967295 aba_diagnostic_0=0.003861 aba_diagnostic_1=0.643139 aba_diagnostic_2=1634.201416 aba_diagnostic_3=0.000000 contact_status=11 required_pairs=16 pair_capacity=512 required_raw_contacts=2 raw_contact_capacity=2048 required_manifolds=2 manifold_capacity=512 required_constraints=2 constraint_capacity=2048 failing_constraint=4294967295 failing_stable_key=0,0 diagnostic_0=0.000000 diagnostic_1=0.000000 diagnostic_2=0.003767 diagnostic_3=0.670865 contact_residuals=0.000000,0.450620,0.000000,0.000000 contact_quality_certificates=0.000000,0.000000,0.000000,0.000000 contact_quality_diagnostics=0.000000,0.000000,0.000000,0.000000 solver_iterations=12 quality_newton=0 quality_pcg=0 quality_backtracks=0 quality_path=0"
+  ],
+  "overflows": [],
+  "limits": "Pitch/rate sampled at control endpoints, velocity caps at physics-substep endpoints. This stationary bench is not an autonomous landing or a biological validation."
+}
