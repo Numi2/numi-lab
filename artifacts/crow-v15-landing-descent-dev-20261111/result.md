@@ -1,0 +1,3 @@
+# Result: physical touchdown followed by failure
+
+All eight development first episodes completed all five waypoints and made physical right-front-toe contact with the perch, with complete first-episode substep coverage. All eight first episodes failed afterward: seven on contact and one on tilt. No interval showed opposing toe-normal impulses simultaneously on both feet. Contact alone did not establish weight-bearing grip, release, or successful landing. Later samples include automatically reset episodes and are not evidence of continuous first-episode success. This is a privileged teacher on development starts, not the requested held-out autonomous task.
