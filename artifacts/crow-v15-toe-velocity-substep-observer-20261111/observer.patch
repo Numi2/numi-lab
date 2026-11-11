@@ -1,0 +1,73 @@
+--- a/MetalWorld.mm
++++ b/two_toe_observer.mm
+@@ -21422,6 +21422,14 @@
+             const std::size_t rodWitnessCount =
+                 requirements.entries[kRodWitnessesA]
+                     .logicalElements;
++            static unsigned long long crowTraceSubmission = 0;
++            const bool crowTraceEnabled = std::getenv("CROW_SUBSTEP_TRACE") != nullptr;
++            const unsigned long long crowTraceStep = crowTraceEnabled ? ++crowTraceSubmission : 0;
++            const bool crowTraceWindow = crowTraceEnabled && crowTraceStep >= 1 && crowTraceStep <= 3005;
++            NSMutableArray<id<MTLBuffer>>* crowTraceBuffers = crowTraceWindow ? [NSMutableArray array] : nil;
++            const NSUInteger crowTraceCapacity = diagnostics.layout.contactDispatch.constraintCapacity;
++            const NSUInteger crowTraceLanes = batch.environmentCount;
++            const NSUInteger crowTraceNV = world.nv();
+             for (std::uint32_t controlStep = 0u;
+                  controlStep <
+                      diagnostics.layout.dispatch.controlStepCount;
+@@ -22032,6 +22040,22 @@
+                             "failed to encode MetalWorld substep graph"
+                         );
+                     }
++                    if (crowTraceWindow && controlStep == 0u) {
++                        id<MTLBuffer> sourceContacts = selectedState->buffers[kContacts];
++                        id<MTLBuffer> sourceStatuses = selectedState->buffers[kContactStatuses];
++                        id<MTLBuffer> contactsCopy = [selectedState->device newBufferWithLength:sourceContacts.length options:MTLResourceStorageModeShared];
++                        id<MTLBuffer> statusCopy = [selectedState->device newBufferWithLength:sourceStatuses.length options:MTLResourceStorageModeShared];
++                        id<MTLBuffer> velocityCopy = [selectedState->device newBufferWithLength:selectedState->buffers[destinationV].length options:MTLResourceStorageModeShared];
++                        if (contactsCopy == nil || statusCopy == nil || velocityCopy == nil) throw std::bad_alloc();
++                        id<MTLBlitCommandEncoder> blit = [commandBuffer blitCommandEncoder];
++                        [blit copyFromBuffer:sourceContacts sourceOffset:0 toBuffer:contactsCopy destinationOffset:0 size:sourceContacts.length];
++                        [blit copyFromBuffer:sourceStatuses sourceOffset:0 toBuffer:statusCopy destinationOffset:0 size:sourceStatuses.length];
++                        [blit copyFromBuffer:selectedState->buffers[destinationV] sourceOffset:0 toBuffer:velocityCopy destinationOffset:0 size:selectedState->buffers[destinationV].length];
++                        [blit endEncoding];
++                        [crowTraceBuffers addObject:contactsCopy];
++                        [crowTraceBuffers addObject:statusCopy];
++                        [crowTraceBuffers addObject:velocityCopy];
++                    }
+                     std::swap(sourceQ, destinationQ);
+                     std::swap(sourceV, destinationV);
+                     if (config.multicopterProgram.valid()) {
+@@ -22348,6 +22372,32 @@
+                 residentData->stateArenaGeneration =
+                     selectedState->stateArenaGeneration;
+             }
++            if (crowTraceWindow) {
++                [commandBuffer addCompletedHandler:^(id<MTLCommandBuffer> completed) {
++                    if (completed.status != MTLCommandBufferStatusCompleted) { std::fprintf(stderr,"CROW_SUBSTEP_ERROR %llu\n",crowTraceStep); return; }
++                    for (NSUInteger sub=0; sub<crowTraceBuffers.count/3; ++sub) {
++                        id<MTLBuffer> cb=crowTraceBuffers[3*sub], sb=crowTraceBuffers[3*sub+1], vb=crowTraceBuffers[3*sub+2];
++                        const auto* velocities=static_cast<const float*>(vb.contents);
++                        const auto* contacts=static_cast<const MRContactConstraintGPU*>(cb.contents);
++                        const auto* statuses=static_cast<const MRMetalWorldContactStatusGPU*>(sb.contents);
++                        for (NSUInteger lane=0;lane<crowTraceLanes;++lane) {
++                            const auto n=std::min<NSUInteger>(statuses[lane].requiredConstraints,crowTraceCapacity);
++                            std::fprintf(stderr,"CROW_TOE_VELOCITY %llu %lu %lu",crowTraceStep,(unsigned long)sub,(unsigned long)lane); for(NSUInteger j=0;j<crowTraceNV;++j)std::fprintf(stderr," %.9g",velocities[lane*crowTraceNV+j]); std::fprintf(stderr,"\n");
++                            float up[2]={}, normal[2]={}, toe[16]={}, signedX[16]={}, other=0;
++                            for(NSUInteger i=0;i<n;++i){const auto& c=contacts[lane*crowTraceCapacity+i];
++                                if (!((c.bodyA<35u&&c.bodyB==35u)||(c.bodyB<35u&&c.bodyA==35u)) || c.impulses.x<=0)continue;
++                                const float sign=c.bodyB==35u?-1.f:1.f;const unsigned body=c.bodyB==35u?c.bodyA:c.bodyB;
++                                const int side=(body==11u||(body>=19u&&body<=26u))?0:((body==15u||(body>=27u&&body<=34u))?1:-1);
++                                if(side<0){other+=c.impulses.x;continue;}const float vz=c.normal.x*c.tangent.y-c.normal.y*c.tangent.x;
++                                up[side]+=sign*(c.normal.z*c.impulses.x+c.tangent.z*c.impulses.y+vz*c.impulses.z);normal[side]+=c.impulses.x;
++                                if(body>=19u&&body<=34u){toe[body-19u]+=c.impulses.x;signedX[body-19u]+=sign*c.normal.x*c.impulses.x;}
++                            }
++                            std::fprintf(stderr,"CROW_TWO_TOE_SUBSTEP %llu %lu %lu %u %lu %.9g %.9g %.9g %.9g %.9g",crowTraceStep,(unsigned long)sub,(unsigned long)lane,statuses[lane].requiredConstraints,(unsigned long)crowTraceCapacity,up[0],up[1],normal[0],normal[1],other);
++                            for(int k=0;k<16;k++)std::fprintf(stderr," %.9g",toe[k]);for(int k=0;k<16;k++)std::fprintf(stderr," %.9g",signedX[k]);std::fprintf(stderr,"\n");
++                        }
++                    }
++                }];
++            }
+             ++selectedState->stats.submissionCount;
+             [commandBuffer commit];
+             submission.state_ = std::move(pending);

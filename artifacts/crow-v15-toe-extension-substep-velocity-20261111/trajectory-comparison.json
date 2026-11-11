@@ -1,0 +1,6 @@
+{
+  "compared_endpoints": 4400,
+  "maximum_absolute_q_or_v_difference": 0.0,
+  "first_difference_over_1e-7": null,
+  "scope": "End-of-interval state equivalence for matched stationary starts; not a guarantee of identical intermediate contacts."
+}
