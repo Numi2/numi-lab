@@ -1,3 +1,5 @@
+**Correction:** The geometry claims in the original result below used the wrong perch width and are retracted. The corrected audit is in `artifacts/crow-v15-perch-geometry-correction-20261111/RESULT.md`: the foot cleared the actual perch for ten sampled intervals, and the latch run subsequently achieved 192 intervals of bilateral support. The hysteresis controller nevertheless stalled. These results are from one development start, not overall qualification.
+
 # Release abort latch: support improved, clearance unproven
 
 On the used development seed and layout, the modified run matched the original at every first-episode endpoint in seven lanes and through step 3574 in lane 5; only lane 5 then diverged. Lane 5 held bilateral opposing toe support for steps 3609–3800 after the aborted first release, including the final 100 intervals. Final-25 maximum root speeds were 0.00522 m/s and 0.0213 rad/s. All 16 substeps were captured with no reported capacity overflow or nonfoot perch impulse.

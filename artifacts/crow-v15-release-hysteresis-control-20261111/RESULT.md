@@ -1,3 +1,5 @@
+**Correction:** The geometry claims in the original result below used the wrong perch width and are retracted. The corrected audit is in `artifacts/crow-v15-perch-geometry-correction-20261111/RESULT.md`: the foot cleared the actual perch for ten sampled intervals, and the latch run subsequently achieved 192 intervals of bilateral support. The hysteresis controller nevertheless stalled. These results are from one development start, not overall qualification.
+
 # Hysteresis release: rejected; deep toe penetration discovered
 
 On the used development layout and seed, the lower hold threshold kept the release phase active but the left foot did not achieve 1 mm clearance and the controller stalled at sequence 220 without terminal bilateral grip. Seven lanes matched the latch control throughout their first episodes; lane 5 first diverged at step 3575. All substeps were covered and no contact capacity overflow was reported. Reject the hysteresis candidate.
