@@ -37,7 +37,7 @@ for seed in ('63','91'):
   metrics={}
   for t in (353,500):
    if (l,t) in f and (l,247) in f:
-    q=f[l,t]['q'];v=f[l,t]['v'];metrics[str(t)]={'height_gain_m':q[2]-f[l,247]['q'][2],'forward_speed_m_s':v[0],'tilt_rad':math.acos(max(-1.,min(1.,1-2*(q[3]**2+q[4]**2)))}
+    q=f[l,t]['q'];v=f[l,t]['v'];metrics[str(t)]={'height_gain_m':q[2]-f[l,247]['q'][2],'forward_speed_m_s':v[0],'tilt_rad':math.acos(max(-1.,min(1.,1-2*(q[3]**2+q[4]**2))))}
   seen=[(t,f[l,t]['q'][0]-f[l,247]['q'][0]) for t in range(247,501) if (l,t) in f and (l,247) in f];m=metrics.get('353',{});z=metrics.get('500',{});ok=not pd and legpass and match and not missing and ffirst==first and ground is None and m.get('height_gain_m',-1)>=.15 and m.get('forward_speed_m_s',-1)>.2 and m.get('tilt_rad',9)<=.35 and z.get('forward_speed_m_s',-1)>.2 and z.get('tilt_rad',9)<=.35
   lanes.append({'lane':l,'initial_observed_q':f.get((l,1),{}).get('q'),'initial_observed_v':f.get((l,1),{}).get('v'),'prepush_q':f.get((l,247),{}).get('q'),'prepush_v':f.get((l,247),{}).get('v'),'leg_first_unload':first,'leg_two_rising_intervals':rising,'leg_precontact_height_gain_m':leg_rise,'leg_max_nonfoot_impulse_Ns':other,'first_paired_difference':min(diffs) if diffs else None,'leg_jump_exact_in_flight':match,'first_flight_unload':ffirst,'first_flight_ground_recontact':ground,'min_relative_x_m':min(seen,key=lambda x:x[1]) if seen else None,'metrics':metrics,'pass_before_geometry':ok})
  text=''.join(str(l)+' '+str(t)+' '+' '.join(map(str,d['q']+d['v']))+'\n' for l,t,d in geom);p=subprocess.run(['build/crow-v15-walk-all-lanes-geometry-20261111/kinematics'],input=text,text=True,capture_output=True,check=True);poses={}
