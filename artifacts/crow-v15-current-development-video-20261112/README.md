@@ -1,0 +1,7 @@
+# Development excerpts, 2026-11-12
+
+This is a progress video, not a successful full sequence or an evaluation on unused layouts. The first excerpt is lane 7 of `crow-v15-overlap-takeoff-screen-20261112`, development seed 20261126, frames 329–370, shown at half speed. Its wing initially moves upward under load, so this timing was not promoted. The second is lane 5 of `crow-v15-early-wing-sequence-screen-20261112`, same used seed and training course, frames 4000–4282, ending shortly before tilt termination at interval 4284. The lane briefly grips the perch but fails; the earlier takeoff was also rejected because its ground impulse preempted the push. The excerpts are different runs, not one continuous sequence.
+
+BirdFlow rendered the native recorded link states. The feather surfaces, mesh registration, and some toe geometry are estimated, not measured anatomy or additional simulated contacts. The camera removes root trajectory for close inspection and the research perch is a renderer override; see the capture audits. No claims of whole-scene fidelity or biological validation follow from this presentation.
+
+Renderer repository Numi2/numi-gpu-physics-pigeon-sim revision d7718eae2e56ef94ec8ee9ce725032bf09458414, capture binary SHA-256 8316472abd1f25ede1118ecd1a13ae7136d12331e5eaf1bb204943ef75ab5072. `render.sh` records capture settings on macmini; `compose.sh` was run on the local workstation with its Python and ffmpeg. The original runs, analyses, and full failure evidence are in the related artifact directories.
