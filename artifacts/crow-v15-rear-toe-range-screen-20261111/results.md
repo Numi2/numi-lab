@@ -1,0 +1,3 @@
+# Existing rear-toe joint range screen
+
+The 1,000-tick development replay matched the reference through tick 85. Raising only the reacquisition command cap from 0.85 rad to the existing 1.2 rad position limit increased opposing-grip pose samples from 118 to 134 relative to the 0.85 rad feedback trial, with 0.449 mm worst observed toe overlap during those samples. It reduced the longest supported run from 199 to 192 samples; terminal grip and support failed, and the toes ultimately reached the joint limit. The candidate is rejected. Increased reach did not solve body balance, and this one-start diagnostic does not qualify walking, departure, navigation or real-bird motion.
