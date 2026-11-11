@@ -1,0 +1,7 @@
+artifacts/crow-v15-gait-action-smoothing-screen-20261112/autonomous-20261126 q_error 4.996185409833487e-10 position_error_m 1.513523841963278e-08 rotation_error 2.979723287560935e-08
+Traceback (most recent call last):
+  File "/Users/n/Developer/numi-crow-rl-20261107/artifacts/crow-v15-gait-action-smoothing-screen-20261112/compare.py", line 26, in <module>
+    c=parse(C);r=parse(R);assert json.loads((C/"run-result.json").read_text())["exit_code"]==0
+  File "/Users/n/Developer/numi-crow-rl-20261107/artifacts/crow-v15-gait-action-smoothing-screen-20261112/compare.py", line 23, in parse
+    assert len(st)==2400 and len(sub)==38400 and len(q)==12800
+AssertionError
