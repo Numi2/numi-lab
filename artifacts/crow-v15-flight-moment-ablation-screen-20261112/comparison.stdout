@@ -1,0 +1,754 @@
+{
+  "prefix_sample_count": 96,
+  "prefix_mismatches": [],
+  "rows": [
+    {
+      "lane": 0,
+      "ablated_command": "yaw",
+      "target_heading_rad": 1.5707963267948966,
+      "candidate_end": 1600,
+      "physical_failure": false,
+      "candidate_ground_substeps_after400": 0,
+      "candidate_toe_cap_substeps_after400": 0,
+      "missing_contact_substeps": 0,
+      "candidate_last_sample_heading_error": 1.2198276850736298,
+      "reference_heading_error_at_same_last_sample": 0.6554465512875013,
+      "common_sample_position_differences": [
+        {
+          "step": 500,
+          "position_difference_m": 0.0012446463189099697
+        },
+        {
+          "step": 600,
+          "position_difference_m": 0.015221827568297696
+        },
+        {
+          "step": 700,
+          "position_difference_m": 0.03938430369965231
+        },
+        {
+          "step": 800,
+          "position_difference_m": 0.10924259072728558
+        },
+        {
+          "step": 900,
+          "position_difference_m": 0.17159477455314143
+        },
+        {
+          "step": 1000,
+          "position_difference_m": 0.27534772103077104
+        },
+        {
+          "step": 1100,
+          "position_difference_m": 0.38695413036414983
+        },
+        {
+          "step": 1200,
+          "position_difference_m": 0.5211208991416053
+        },
+        {
+          "step": 1300,
+          "position_difference_m": 0.6777408654602719
+        },
+        {
+          "step": 1400,
+          "position_difference_m": 0.848400576811014
+        },
+        {
+          "step": 1500,
+          "position_difference_m": 1.043044507739105
+        },
+        {
+          "step": 1600,
+          "position_difference_m": 1.2520462474109395
+        }
+      ]
+    },
+    {
+      "lane": 1,
+      "ablated_command": "yaw",
+      "target_heading_rad": -1.5707963267948966,
+      "candidate_end": 1600,
+      "physical_failure": false,
+      "candidate_ground_substeps_after400": 0,
+      "candidate_toe_cap_substeps_after400": 0,
+      "missing_contact_substeps": 0,
+      "candidate_last_sample_heading_error": 1.379158998644896,
+      "reference_heading_error_at_same_last_sample": 0.8146716676347165,
+      "common_sample_position_differences": [
+        {
+          "step": 500,
+          "position_difference_m": 0.0012698912526558756
+        },
+        {
+          "step": 600,
+          "position_difference_m": 0.017550482258753563
+        },
+        {
+          "step": 700,
+          "position_difference_m": 0.04265592912314949
+        },
+        {
+          "step": 800,
+          "position_difference_m": 0.11561761049083472
+        },
+        {
+          "step": 900,
+          "position_difference_m": 0.18431365516921225
+        },
+        {
+          "step": 1000,
+          "position_difference_m": 0.28791693856314443
+        },
+        {
+          "step": 1100,
+          "position_difference_m": 0.41027580519122425
+        },
+        {
+          "step": 1200,
+          "position_difference_m": 0.5474488913171485
+        },
+        {
+          "step": 1300,
+          "position_difference_m": 0.7132920754184544
+        },
+        {
+          "step": 1400,
+          "position_difference_m": 0.8932739863469188
+        },
+        {
+          "step": 1500,
+          "position_difference_m": 1.0965313395394176
+        },
+        {
+          "step": 1600,
+          "position_difference_m": 1.3185475523780128
+        }
+      ]
+    },
+    {
+      "lane": 2,
+      "ablated_command": "yaw",
+      "target_heading_rad": 3.141592653589793,
+      "candidate_end": 1600,
+      "physical_failure": false,
+      "candidate_ground_substeps_after400": 0,
+      "candidate_toe_cap_substeps_after400": 0,
+      "missing_contact_substeps": 0,
+      "candidate_last_sample_heading_error": 2.790631993542045,
+      "reference_heading_error_at_same_last_sample": 2.2262484999084076,
+      "common_sample_position_differences": [
+        {
+          "step": 500,
+          "position_difference_m": 0.0012492017443261755
+        },
+        {
+          "step": 600,
+          "position_difference_m": 0.015351974443840894
+        },
+        {
+          "step": 700,
+          "position_difference_m": 0.03928947834186652
+        },
+        {
+          "step": 800,
+          "position_difference_m": 0.10928168536603906
+        },
+        {
+          "step": 900,
+          "position_difference_m": 0.17160863933090595
+        },
+        {
+          "step": 1000,
+          "position_difference_m": 0.27530229521433774
+        },
+        {
+          "step": 1100,
+          "position_difference_m": 0.38700441927000845
+        },
+        {
+          "step": 1200,
+          "position_difference_m": 0.5210781862619978
+        },
+        {
+          "step": 1300,
+          "position_difference_m": 0.6777690023991261
+        },
+        {
+          "step": 1400,
+          "position_difference_m": 0.8483882801033723
+        },
+        {
+          "step": 1500,
+          "position_difference_m": 1.0430519151524364
+        },
+        {
+          "step": 1600,
+          "position_difference_m": 1.252058517640635
+        }
+      ]
+    },
+    {
+      "lane": 3,
+      "ablated_command": "yaw",
+      "target_heading_rad": -3.141592653589793,
+      "candidate_end": 1600,
+      "physical_failure": false,
+      "candidate_ground_substeps_after400": 0,
+      "candidate_toe_cap_substeps_after400": 0,
+      "missing_contact_substeps": 0,
+      "candidate_last_sample_heading_error": 2.790783511470231,
+      "reference_heading_error_at_same_last_sample": 2.226400886087028,
+      "common_sample_position_differences": [
+        {
+          "step": 500,
+          "position_difference_m": 0.0012481511473392507
+        },
+        {
+          "step": 600,
+          "position_difference_m": 0.015289487989728179
+        },
+        {
+          "step": 700,
+          "position_difference_m": 0.039315253492057146
+        },
+        {
+          "step": 800,
+          "position_difference_m": 0.10926061764094247
+        },
+        {
+          "step": 900,
+          "position_difference_m": 0.17158811018562517
+        },
+        {
+          "step": 1000,
+          "position_difference_m": 0.27531399801011786
+        },
+        {
+          "step": 1100,
+          "position_difference_m": 0.38697227483445756
+        },
+        {
+          "step": 1200,
+          "position_difference_m": 0.5210863941750161
+        },
+        {
+          "step": 1300,
+          "position_difference_m": 0.6777506290973113
+        },
+        {
+          "step": 1400,
+          "position_difference_m": 0.8483883413385449
+        },
+        {
+          "step": 1500,
+          "position_difference_m": 1.0430434966288857
+        },
+        {
+          "step": 1600,
+          "position_difference_m": 1.2520517848760657
+        }
+      ]
+    },
+    {
+      "lane": 4,
+      "ablated_command": "yaw",
+      "target_heading_rad": 0,
+      "candidate_end": 1600,
+      "physical_failure": false,
+      "candidate_ground_substeps_after400": 0,
+      "candidate_toe_cap_substeps_after400": 0,
+      "missing_contact_substeps": 0,
+      "candidate_last_sample_heading_error": 0.04248271058104274,
+      "reference_heading_error_at_same_last_sample": 0.020480838569112002,
+      "common_sample_position_differences": [
+        {
+          "step": 500,
+          "position_difference_m": 0.0005996727214134654
+        },
+        {
+          "step": 600,
+          "position_difference_m": 0.008347846593322144
+        },
+        {
+          "step": 700,
+          "position_difference_m": 0.01814263612785336
+        },
+        {
+          "step": 800,
+          "position_difference_m": 0.03751016040484579
+        },
+        {
+          "step": 900,
+          "position_difference_m": 0.05289031241499169
+        },
+        {
+          "step": 1000,
+          "position_difference_m": 0.07207373775419837
+        },
+        {
+          "step": 1100,
+          "position_difference_m": 0.09008362423775097
+        },
+        {
+          "step": 1200,
+          "position_difference_m": 0.10847669465266756
+        },
+        {
+          "step": 1300,
+          "position_difference_m": 0.12727257514079632
+        },
+        {
+          "step": 1400,
+          "position_difference_m": 0.1455354085949647
+        },
+        {
+          "step": 1500,
+          "position_difference_m": 0.16425807442690896
+        },
+        {
+          "step": 1600,
+          "position_difference_m": 0.1826310355440138
+        }
+      ]
+    },
+    {
+      "lane": 5,
+      "ablated_command": "yaw",
+      "target_heading_rad": 0,
+      "candidate_end": 1600,
+      "physical_failure": false,
+      "candidate_ground_substeps_after400": 0,
+      "candidate_toe_cap_substeps_after400": 0,
+      "missing_contact_substeps": 0,
+      "candidate_last_sample_heading_error": 0.042482863101583834,
+      "reference_heading_error_at_same_last_sample": 0.020480895692349805,
+      "common_sample_position_differences": [
+        {
+          "step": 500,
+          "position_difference_m": 0.0006080945755026914
+        },
+        {
+          "step": 600,
+          "position_difference_m": 0.00836676236806786
+        },
+        {
+          "step": 700,
+          "position_difference_m": 0.018242857539662413
+        },
+        {
+          "step": 800,
+          "position_difference_m": 0.03761794656918344
+        },
+        {
+          "step": 900,
+          "position_difference_m": 0.05300788052540857
+        },
+        {
+          "step": 1000,
+          "position_difference_m": 0.07220224910270262
+        },
+        {
+          "step": 1100,
+          "position_difference_m": 0.09020631541638906
+        },
+        {
+          "step": 1200,
+          "position_difference_m": 0.10860661601222435
+        },
+        {
+          "step": 1300,
+          "position_difference_m": 0.12739835443874029
+        },
+        {
+          "step": 1400,
+          "position_difference_m": 0.1456624456899917
+        },
+        {
+          "step": 1500,
+          "position_difference_m": 0.16438198917315222
+        },
+        {
+          "step": 1600,
+          "position_difference_m": 0.18274429143502982
+        }
+      ]
+    },
+    {
+      "lane": 6,
+      "ablated_command": "pitch",
+      "target_heading_rad": 1.5707963267948966,
+      "candidate_end": 1600,
+      "physical_failure": false,
+      "candidate_ground_substeps_after400": 0,
+      "candidate_toe_cap_substeps_after400": 0,
+      "missing_contact_substeps": 0,
+      "candidate_last_sample_heading_error": 0.664712475850886,
+      "reference_heading_error_at_same_last_sample": 0.6555214996947453,
+      "common_sample_position_differences": [
+        {
+          "step": 500,
+          "position_difference_m": 0.023784946594227405
+        },
+        {
+          "step": 600,
+          "position_difference_m": 0.4166170848532878
+        },
+        {
+          "step": 700,
+          "position_difference_m": 0.296501407903323
+        },
+        {
+          "step": 800,
+          "position_difference_m": 0.21670320931255535
+        },
+        {
+          "step": 900,
+          "position_difference_m": 0.2631985798801352
+        },
+        {
+          "step": 1000,
+          "position_difference_m": 0.4004006382432554
+        },
+        {
+          "step": 1100,
+          "position_difference_m": 0.5987999293686451
+        },
+        {
+          "step": 1200,
+          "position_difference_m": 0.7980681345400932
+        },
+        {
+          "step": 1300,
+          "position_difference_m": 0.9625637224102075
+        },
+        {
+          "step": 1400,
+          "position_difference_m": 1.1178061556530852
+        },
+        {
+          "step": 1500,
+          "position_difference_m": 1.3004017913621781
+        },
+        {
+          "step": 1600,
+          "position_difference_m": 1.4689813789726454
+        }
+      ]
+    },
+    {
+      "lane": 7,
+      "ablated_command": "pitch",
+      "target_heading_rad": -1.5707963267948966,
+      "candidate_end": 1600,
+      "physical_failure": false,
+      "candidate_ground_substeps_after400": 0,
+      "candidate_toe_cap_substeps_after400": 0,
+      "missing_contact_substeps": 0,
+      "candidate_last_sample_heading_error": 0.8037372575224707,
+      "reference_heading_error_at_same_last_sample": 0.8148698557477697,
+      "common_sample_position_differences": [
+        {
+          "step": 500,
+          "position_difference_m": 0.02380844847046109
+        },
+        {
+          "step": 600,
+          "position_difference_m": 0.4467147469924228
+        },
+        {
+          "step": 700,
+          "position_difference_m": 0.4929087846870369
+        },
+        {
+          "step": 800,
+          "position_difference_m": 0.07149359966194473
+        },
+        {
+          "step": 900,
+          "position_difference_m": 0.16579813388388914
+        },
+        {
+          "step": 1000,
+          "position_difference_m": 0.2691908429874931
+        },
+        {
+          "step": 1100,
+          "position_difference_m": 0.4445196073743473
+        },
+        {
+          "step": 1200,
+          "position_difference_m": 0.6432298538288341
+        },
+        {
+          "step": 1300,
+          "position_difference_m": 0.8331034195785925
+        },
+        {
+          "step": 1400,
+          "position_difference_m": 0.9870974414074437
+        },
+        {
+          "step": 1500,
+          "position_difference_m": 1.1608153263564267
+        },
+        {
+          "step": 1600,
+          "position_difference_m": 1.339747814564321
+        }
+      ]
+    },
+    {
+      "lane": 8,
+      "ablated_command": "pitch",
+      "target_heading_rad": 3.141592653589793,
+      "candidate_end": 1600,
+      "physical_failure": false,
+      "candidate_ground_substeps_after400": 0,
+      "candidate_toe_cap_substeps_after400": 0,
+      "missing_contact_substeps": 0,
+      "candidate_last_sample_heading_error": 2.2355582772183604,
+      "reference_heading_error_at_same_last_sample": 2.2263879987955635,
+      "common_sample_position_differences": [
+        {
+          "step": 500,
+          "position_difference_m": 0.023817013258159554
+        },
+        {
+          "step": 600,
+          "position_difference_m": 0.4159113747702131
+        },
+        {
+          "step": 700,
+          "position_difference_m": 0.2938668906581634
+        },
+        {
+          "step": 800,
+          "position_difference_m": 0.21828013213501526
+        },
+        {
+          "step": 900,
+          "position_difference_m": 0.26445644460536816
+        },
+        {
+          "step": 1000,
+          "position_difference_m": 0.4020409105322616
+        },
+        {
+          "step": 1100,
+          "position_difference_m": 0.6004565607291851
+        },
+        {
+          "step": 1200,
+          "position_difference_m": 0.7996389503535931
+        },
+        {
+          "step": 1300,
+          "position_difference_m": 0.9640268419100879
+        },
+        {
+          "step": 1400,
+          "position_difference_m": 1.1193324654914973
+        },
+        {
+          "step": 1500,
+          "position_difference_m": 1.3019028069783491
+        },
+        {
+          "step": 1600,
+          "position_difference_m": 1.47042475378044
+        }
+      ]
+    },
+    {
+      "lane": 9,
+      "ablated_command": "pitch",
+      "target_heading_rad": -3.141592653589793,
+      "candidate_end": 1600,
+      "physical_failure": false,
+      "candidate_ground_substeps_after400": 0,
+      "candidate_toe_cap_substeps_after400": 0,
+      "missing_contact_substeps": 0,
+      "candidate_last_sample_heading_error": 2.235116450516301,
+      "reference_heading_error_at_same_last_sample": 2.2259729062496816,
+      "common_sample_position_differences": [
+        {
+          "step": 500,
+          "position_difference_m": 0.02380647279499734
+        },
+        {
+          "step": 600,
+          "position_difference_m": 0.4145088791611214
+        },
+        {
+          "step": 700,
+          "position_difference_m": 0.2901587414128132
+        },
+        {
+          "step": 800,
+          "position_difference_m": 0.22054219120976573
+        },
+        {
+          "step": 900,
+          "position_difference_m": 0.2664194020429309
+        },
+        {
+          "step": 1000,
+          "position_difference_m": 0.40445675541582615
+        },
+        {
+          "step": 1100,
+          "position_difference_m": 0.6029109825226044
+        },
+        {
+          "step": 1200,
+          "position_difference_m": 0.8019884124974452
+        },
+        {
+          "step": 1300,
+          "position_difference_m": 0.966252708706299
+        },
+        {
+          "step": 1400,
+          "position_difference_m": 1.1216314126603564
+        },
+        {
+          "step": 1500,
+          "position_difference_m": 1.3041511858876083
+        },
+        {
+          "step": 1600,
+          "position_difference_m": 1.4725973813786766
+        }
+      ]
+    },
+    {
+      "lane": 10,
+      "ablated_command": "pitch",
+      "target_heading_rad": 0,
+      "candidate_end": 1600,
+      "physical_failure": false,
+      "candidate_ground_substeps_after400": 0,
+      "candidate_toe_cap_substeps_after400": 0,
+      "missing_contact_substeps": 0,
+      "candidate_last_sample_heading_error": 0.02049712308766998,
+      "reference_heading_error_at_same_last_sample": 0.020480928092070097,
+      "common_sample_position_differences": [
+        {
+          "step": 500,
+          "position_difference_m": 0.023829593738289752
+        },
+        {
+          "step": 600,
+          "position_difference_m": 0.3834278072511664
+        },
+        {
+          "step": 700,
+          "position_difference_m": 0.17401410595485733
+        },
+        {
+          "step": 800,
+          "position_difference_m": 0.2949415097891942
+        },
+        {
+          "step": 900,
+          "position_difference_m": 0.3174985713309373
+        },
+        {
+          "step": 1000,
+          "position_difference_m": 0.4698867976729239
+        },
+        {
+          "step": 1100,
+          "position_difference_m": 0.6732046208160958
+        },
+        {
+          "step": 1200,
+          "position_difference_m": 0.8682677809442941
+        },
+        {
+          "step": 1300,
+          "position_difference_m": 1.0301550399531787
+        },
+        {
+          "step": 1400,
+          "position_difference_m": 1.1911387139296306
+        },
+        {
+          "step": 1500,
+          "position_difference_m": 1.3792783252834877
+        },
+        {
+          "step": 1600,
+          "position_difference_m": 1.5528844676905011
+        }
+      ]
+    },
+    {
+      "lane": 11,
+      "ablated_command": "pitch",
+      "target_heading_rad": 0,
+      "candidate_end": 1600,
+      "physical_failure": false,
+      "candidate_ground_substeps_after400": 0,
+      "candidate_toe_cap_substeps_after400": 0,
+      "missing_contact_substeps": 0,
+      "candidate_last_sample_heading_error": 0.02049718803458288,
+      "reference_heading_error_at_same_last_sample": 0.020480876060085185,
+      "common_sample_position_differences": [
+        {
+          "step": 500,
+          "position_difference_m": 0.02380033725692207
+        },
+        {
+          "step": 600,
+          "position_difference_m": 0.38948014942745435
+        },
+        {
+          "step": 700,
+          "position_difference_m": 0.18927087064220294
+        },
+        {
+          "step": 800,
+          "position_difference_m": 0.2855183438490645
+        },
+        {
+          "step": 900,
+          "position_difference_m": 0.30917106832247904
+        },
+        {
+          "step": 1000,
+          "position_difference_m": 0.4594621391888974
+        },
+        {
+          "step": 1100,
+          "position_difference_m": 0.6628556798932801
+        },
+        {
+          "step": 1200,
+          "position_difference_m": 0.8583275017993989
+        },
+        {
+          "step": 1300,
+          "position_difference_m": 1.0206023333623746
+        },
+        {
+          "step": 1400,
+          "position_difference_m": 1.1810918001575827
+        },
+        {
+          "step": 1500,
+          "position_difference_m": 1.3692696898365553
+        },
+        {
+          "step": 1600,
+          "position_difference_m": 1.5430300199759364
+        }
+      ]
+    }
+  ],
+  "candidate_errors": [],
+  "overflow_count": 0,
+  "failed_environment_steps": 0,
+  "limits": "development-only matched starts; command ablation retains response filter and other body moment, actual wrenches unmeasured; sparse kinematic samples are not continuous or aerodynamic/biological qualification"
+}

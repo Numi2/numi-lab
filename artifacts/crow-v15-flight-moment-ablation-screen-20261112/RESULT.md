@@ -1,0 +1,7 @@
+# Flight body-moment command ablation
+
+All twelve development lanes ran the full 1,600 intervals without a reported physical failure, missing contact substeps, overflow or post-step-400 ground impulse. The 96 available sampled states/actions before step 450 match the retained same-lane reference exactly. This is a sparse-sample comparison, not a claim that every intermediate state was checked.
+
+After requesting zero yaw moment from 9 s onward, the two ±90-degree target lanes ended with heading errors of 1.220 and 1.379 rad versus 0.655 and 0.815 rad for their matched references at the same final sample. Position differed by 1.25–1.32 m. The yaw-command change materially affected turning, but the retained actuator filter means the applied wrench may decay rather than instantaneously disappear; actual torque was not recorded. The pitch moment remained active.
+
+When instead requesting zero pitch moment, the six final positions differed 1.34–1.55 m from their matched reference positions; heading errors changed little in these samples. Yaw moment remained active. These exploratory single-seed trials do not by themselves isolate the force source, measure muscle-scale moments, establish continuous control or prove the altered trajectories succeed. The prior direct-body-wrench finding remains a material obstacle to claiming that the existing flight controller is biologically realistic or qualified. No controller was promoted.
