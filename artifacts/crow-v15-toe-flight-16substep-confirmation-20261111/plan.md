@@ -1,0 +1,3 @@
+# Independent-seed 16-substep toe-flight confirmation
+
+The first matched seed passed all 80 frozen-flight lanes at 16 substeps. Without changing the zero policy, body, controller, tracking limits or sampling, repeat the same 80-lane, 1,600-tick five-mode flight screen on seed 18647357, which was used previously at four substeps but not in the first 16-substep trial. Require all lanes to pass the original heading, speed, height, toe-speed, solver and physical-failure criteria and a climb-minus-descent median separation of at least 0.25 m. Preserve every outcome and runtime fingerprint. This is independent of the first seed within the bounded flight screen, not an unused course, contact, landing, full-route or biological qualification.
