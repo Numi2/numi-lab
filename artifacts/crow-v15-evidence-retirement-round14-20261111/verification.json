@@ -1,0 +1,29 @@
+{
+  "independently_fetched_commit": "3bfde8215415d9bf308fa6bc8ec9296e1c7e26cd",
+  "results": [
+    {
+      "path": "/Users/n/Developer/numi-crow-rl-20261107/artifacts/crow-v15-autonomous-walk-airborne-hold-20261111/autonomous-20261126/run.stderr.gz",
+      "bytes": 25567534,
+      "compressed_sha256": "1ca7cc9a5cd9ae7dc7f992b06ab440b047fff4dab7af5c4871ebf142b64de4cc",
+      "expanded_sha256": "4ff230e032d38955ef1175a6d12bf37aa4d638d22136ac013adcc7cf9efd8ec5",
+      "retired": true,
+      "open_handles": false
+    },
+    {
+      "path": "/Users/n/Developer/numi-crow-rl-20261107/artifacts/crow-v15-autonomous-walk-airborne-hold-20261111/autonomous-20261127/run.stderr.gz",
+      "bytes": 25348395,
+      "compressed_sha256": "d61c4efae07a09c69f31d8738025e04a6bc22764f48aaf4cc27baa0fa5ac547d",
+      "expanded_sha256": "ec4f034e3a155aaaed006a19bc987dfd08266abf446d70c9782d7b225a70bf70",
+      "retired": true,
+      "open_handles": false
+    },
+    {
+      "path": "/Users/n/Developer/numi-crow-rl-20261107/artifacts/crow-v15-walk-hold-slip-observer-20261111/autonomous-20261126/run.stderr.gz",
+      "bytes": 29798369,
+      "compressed_sha256": "54166b6c0daf3327cd5ae6b3ee0899842a48a7c929c1f461675d440ed53558cf",
+      "expanded_sha256": "7e0f496422e9b4896c77bdc8fd64f2491b4483424fdd4602a59cfd2cbd8b5b69",
+      "retired": true,
+      "open_handles": false
+    }
+  ]
+}
