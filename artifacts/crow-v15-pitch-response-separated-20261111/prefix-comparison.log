@@ -1,0 +1,17 @@
+{
+  "positive": {
+    "compared_samples": 80,
+    "mismatches": [],
+    "expected": 80
+  },
+  "negative": {
+    "compared_samples": 80,
+    "mismatches": [],
+    "expected": 80
+  },
+  "strong_positive": {
+    "compared_samples": 80,
+    "mismatches": [],
+    "expected": 80
+  }
+}
