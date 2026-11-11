@@ -1,0 +1,2 @@
+locked_max_pose_m 5.55111512313e-17 max_invariant_abs 3.80228903918e-09 reach_m 0.00993346668777 reach_dx_m -0.00197347517933 reach_dz_m -0.00973545870279 orientation_error 0
+gpu_scaled_acceleration_error 1.18377691961e-06 lanes 12 device Apple M4 Pro

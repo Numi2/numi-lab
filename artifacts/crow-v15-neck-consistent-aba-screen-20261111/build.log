@@ -1,0 +1,18 @@
+compiled src/core/CompiledMetalMultiArticulatedProgram.cpp
+compiled src/core/CompiledMetalMultiArticulatedContactProgram.cpp
+compiled src/metal/MetalArticulatedInverseMass.mm
+compiled src/metal/MetalArticulatedABA.mm
+compiled src/metal/MetalWorld.mm
+compiled src/metal/MetalMultiArticulatedContact.mm
+compiled src/metal/MetalMultiArticulatedABA.mm
+compiled src/metal/MetalMultiArticulatedInverseMass.mm
+In file included from /Users/n/Developer/numi-crow-rl-20261107/artifacts/crow-v15-neck-consistent-aba-screen-20261111/probe.cpp:2:
+In file included from /Users/n/Developer/numi-crow-rl-20261107/artifacts/crow-v15-neck-consistent-aba-screen-20261111/../crow-v15-hip-roll-strong-drive-prototype-20261111/probe.cpp:2:
+/Users/n/Developer/numi-crow-rl-20261107/artifacts/crow-v15-neck-consistent-aba-screen-20261111/../crow-v15-hip-roll-strong-drive-prototype-20261111/../crow-v15-two-segment-toe-prototype-20261111/probe.cpp:75:78: warning: non-void function does not return a value in all control paths [-Wreturn-type]
+   75 |   } catch(const std::exception& e){std::cerr<<e.what()<<std::endl;return 1;} }
+      |                                                                              ^
+1 warning generated.
+/Users/n/Developer/numi-crow-rl-20261107/build/crow-v15-wide-contact-isolation-20261111/source/ArticulatedABA.metal a16d156f3e525cd1bc5a9f1eeb4e021150e1d0fb3c601da9e88e200f9672aa7a
+/Users/n/Developer/numi-crow-rl-20261107/build/crow-v15-neck-consistent-aba-screen-20261111/libmetalrobo.dylib ebdf69598218d342d6d194dc25c9514abc44bbeec46df7bef6eedd18a9821aa4
+/Users/n/Developer/numi-crow-rl-20261107/build/crow-v15-neck-consistent-aba-screen-20261111/aba.metallib 280356d1fd3260aa9ae4582bee0865405f77f007c3e5ec1553a94ed16663d831
+/Users/n/Developer/numi-crow-rl-20261107/build/crow-v15-neck-consistent-aba-screen-20261111/probe eb978f3e0037c8317fc38d1663d400ee07df8956a1145434af9585323ef95fd9

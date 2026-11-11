@@ -1,0 +1,7 @@
+31b8ea1b6b7ca1d9955134594f47a05ac106027d9e3190d71ae3e5e33e703f1a  src/core/CrowEmbodiment.cpp
+14104c226ab970a43553a729bd3a83e8d92e8799a7196622803f6118c78fe758  artifacts/crow-v15-hip-roll-strong-drive-prototype-20261111/probe.cpp
+5d8a112b6d4540b198e5a3362ccf9e6af9c1ecdf61f32af8c4131076975efac8  artifacts/crow-v15-two-segment-toe-prototype-20261111/probe.cpp
+a16d156f3e525cd1bc5a9f1eeb4e021150e1d0fb3c601da9e88e200f9672aa7a  build/crow-v15-wide-contact-isolation-20261111/source/ArticulatedABA.metal
+ebdf69598218d342d6d194dc25c9514abc44bbeec46df7bef6eedd18a9821aa4  build/crow-v15-neck-consistent-aba-screen-20261111/libmetalrobo.dylib
+280356d1fd3260aa9ae4582bee0865405f77f007c3e5ec1553a94ed16663d831  build/crow-v15-neck-consistent-aba-screen-20261111/aba.metallib
+eb978f3e0037c8317fc38d1663d400ee07df8956a1145434af9585323ef95fd9  build/crow-v15-neck-consistent-aba-screen-20261111/probe
