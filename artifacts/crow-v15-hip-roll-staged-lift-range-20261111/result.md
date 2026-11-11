@@ -1,0 +1,5 @@
+# Staged lift range: release not achieved
+
+The eight constructed stationary trials completed 550 control intervals each without reported substep observer errors or missing substeps. The nominal knee offsets were +0.50, +0.55, +0.65 and +0.75 radians, two starts per offset. No lane met the ten-interval qualified release gate, switched to return, or established terminal bilateral regrip. None fell below the 0.1 m root-height threshold. Peak clearance was 0.45–0.64 mm, below the 1 mm gate; peaks may occur before the knee ramp has fully developed. All endpoint samples stayed below the toe velocity cap, which does not rule out intermediate hits. Last-substep foot normal impulses matched independently named endpoint evidence to 6.21e-10 N s.
+
+This is a stationary development screen using a modified experimental body and privileged geometric sensing; it does not establish continuous flight, landing, walking, biological realism, or autonomous navigation. The half-weight support gate is not evidence of sustained full-weight support.
