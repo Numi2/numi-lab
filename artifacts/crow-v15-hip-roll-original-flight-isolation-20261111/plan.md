@@ -1,0 +1,3 @@
+# Isolate the frozen flight setup on the 35-body candidate
+
+The first 35-body obstacle-free screen used the newer walking/takeoff task shader, whereas the old 33-body flight envelope used an earlier task shader with a different launch schedule. Their initial accepted states are very close, but their action schedules differ; differences cannot isolate the body or frozen flight law. Reuse the exact old flight-envelope task shader and frozen research flight source with the new 35-body host, same zero diagnostic policy, development seed and 5 mode lanes. Course collisions are disabled for this flight control only. Capture substep toe speeds, accepted states, heading, speed and height; this is a development screen, not qualification.
