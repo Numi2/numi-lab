@@ -1,0 +1,17 @@
+[
+  {
+    "path": "build/crow-v15-regrip-regulation-grid-20261111/probe",
+    "sha256": "95d2c8b1720ecf8212216986d33da00c0db5c7f51634d51ad3f125bec0190ca9",
+    "bytes": 102120
+  },
+  {
+    "path": "build/crow-v15-regrip-regulation-grid-20261111/libmetalrobo.dylib",
+    "sha256": "625c0301a2a9ed6e82968ffd9243c353fdabb1e7467562f6460b79f42f97ceaa",
+    "bytes": 5729488
+  },
+  {
+    "path": "build/crow-v15-alternating-foot-release-20261110/teacher.metallib",
+    "sha256": "a1fa801ac2f2ea5e557a54073b280039e5bb60422d8b5beb1cd90b2ec22c459b",
+    "bytes": 4485424
+  }
+]
