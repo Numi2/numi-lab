@@ -1,0 +1,13 @@
+--- a/toe_memory.metal
++++ b/bilateral_handoff.metal
+@@ -5096,7 +5096,9 @@
+         if (fixedFlightController && state.navigation.z>=5.0f && state.threatTeacher.w>0.5f &&
+             state.threatTeacher.w<1.5f && action<=5u) {
+             const float footLoad=max(state.nutrition.x,0.0f)+max(state.nutrition.y,0.0f);
+-            navigationTeacherRequested *= 1.0f-0.70f*smoothstep(0.10f,2.0f,footLoad);
++            const uint leftGrace=(state.status.w>>16u)&63u, rightGrace=(state.status.w>>22u)&63u;
++            const float bilateralMemory=float(min(leftGrace,rightGrace))/15.0f;
++            navigationTeacherRequested *= 1.0f-0.70f*max(smoothstep(0.10f,2.0f,footLoad),bilateralMemory);
+         }
+         // Keep the training-only teacher active through the final target.
+         // Ending at waypoint four taught an aggressive approach crossing but
