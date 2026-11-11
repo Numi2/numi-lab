@@ -1,0 +1,29 @@
+--- a/revised_gait.metal
++++ b/root_balance_latch.metal
+@@ -5105,6 +5105,17 @@
+         // execution still has no teacher authority.
+         if (fixedFlightController && state.threatTeacher.w >= 1.5f && action < 15u)
+             navigationTeacherRequested = 0.0f;
++        // Development-only perching feedback derived from the privileged
++        // teacher's unsaturated landing command. Not an autonomous sensor.
++        if (privilegedCommand && fixedFlightController && state.navigation.z>=5.0f &&
++            state.threatTeacher.w>=1.5f && (state.status.w & 4095u)!=0u &&
++            (action==7u || action==10u) && ((environment/2u)&1u)!=0u &&
++            state.nutrition.x>-.099f && state.nutrition.x<.349f) {
++            const float vx=state.commandExtension.z;
++            const float err=(state.nutrition.x-.10f+.60f*vx)/.45f;
++            const float delta=clamp(.5f*(err-.032f-.20f*vx),-.16f,.16f);
++            navigationTeacherRequested=clamp(delta/max(abs(actions[action].parameters.x),.001f),-1.0f,1.0f);
++        }
+         const float navigationTeacherBlend = fixedFlightController
+             ? 1.0f
+             : avianNavigationTeacher
+@@ -9370,7 +9381,7 @@
+             uint packed=0u;
+             for(uint side=0u;side<2u;++side) {
+                 const uint oldRamp=(state.status.w>>(side*6u)) & 63u;
+-                const uint ramp=loaded[side] ? min(oldRamp+1u,34u) : (oldRamp>0u ? oldRamp-1u : 0u);
++                const uint ramp=environment>=4u ? ((loaded[side] || oldRamp>0u) ? min(oldRamp+1u,34u) : 0u) : (loaded[side] ? min(oldRamp+1u,34u) : (oldRamp>0u ? oldRamp-1u : 0u));
+                 packed |= ramp << (side*6u);
+             }
+             state.status.w=(state.status.w & ~4095u) | packed;
