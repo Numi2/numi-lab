@@ -1,0 +1,3 @@
+# Regrip feedback response audit
+
+This post-hoc comparison describes six sustained-support lanes from the force-feedback screen, including its unchanged reference. Between steps 1000 and 1249, mean left rear-toe angle in the reference was 0.654 rad with 0.00126 N s mean opposing horizontal impulse. In the five selected force-feedback variants the mean angle was 0.495 rad and the mean opposing impulse was approximately zero; by the final 100 steps their rear joints approached the 0.85 rad target cap and opposing force remained weak. Front forces and load distribution also changed. These observations motivate isolating the rear regulator but do not establish a cause. Full per-window values and the original trace hash are retained.

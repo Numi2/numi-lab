@@ -1,0 +1,510 @@
+{
+  "source_sha256": "d7a04d25d5d93215a33016c9188d5bdd054555d48d88eca7426cce44d3c2dd8d",
+  "scope": "post-hoc descriptive means only; no proof of causation",
+  "rows": [
+    {
+      "lane": 1,
+      "window": [
+        877,
+        925
+      ],
+      "mean_signed_opposing_horizontal_impulse_Ns": {
+        "left_front": 0.005264097047916669,
+        "left_rear": 0.0,
+        "right_front": 0.00477954582669187,
+        "right_rear": 0.0019003114479166662
+      },
+      "mean_rear_toe_angles_rad": [
+        0.09402737208333335,
+        0.8037326666666665
+      ],
+      "mean_foot_upward_impulses_Ns": [
+        0.036374745833333326,
+        0.05622316458333334
+      ]
+    },
+    {
+      "lane": 1,
+      "window": [
+        925,
+        1000
+      ],
+      "mean_signed_opposing_horizontal_impulse_Ns": {
+        "left_front": 0.0087196220650168,
+        "left_rear": 0.0,
+        "right_front": 0.0026923292475916297,
+        "right_rear": 0.0010428762476000005
+      },
+      "mean_rear_toe_angles_rad": [
+        0.34003308000000015,
+        0.7342083466666665
+      ],
+      "mean_foot_upward_impulses_Ns": [
+        0.037360273733333324,
+        0.05664424133333333
+      ]
+    },
+    {
+      "lane": 1,
+      "window": [
+        1000,
+        1250
+      ],
+      "mean_signed_opposing_horizontal_impulse_Ns": {
+        "left_front": 0.0037908877910630356,
+        "left_rear": 0.0012589258883599992,
+        "right_front": 0.005068336221772003,
+        "right_rear": 0.0014446122819120005
+      },
+      "mean_rear_toe_angles_rad": [
+        0.6536425520000004,
+        0.6665554480000008
+      ],
+      "mean_foot_upward_impulses_Ns": [
+        0.04969877547999997,
+        0.038885851079999985
+      ]
+    },
+    {
+      "lane": 1,
+      "window": [
+        1400,
+        1500
+      ],
+      "mean_signed_opposing_horizontal_impulse_Ns": {
+        "left_front": 0.00594586444,
+        "left_rear": 0.001825501397999999,
+        "right_front": 0.007535782799999997,
+        "right_rear": 0.0021671155200000012
+      },
+      "mean_rear_toe_angles_rad": [
+        0.6800662999999999,
+        0.6811740000000002
+      ],
+      "mean_foot_upward_impulses_Ns": [
+        0.054911975,
+        0.033712321
+      ]
+    },
+    {
+      "lane": 2,
+      "window": [
+        877,
+        925
+      ],
+      "mean_signed_opposing_horizontal_impulse_Ns": {
+        "left_front": 0.0010768973304625966,
+        "left_rear": 0.0,
+        "right_front": 0.0076845640625000005,
+        "right_rear": 0.0030508181250000006
+      },
+      "mean_rear_toe_angles_rad": [
+        0.04709416460416666,
+        0.8139959583333335
+      ],
+      "mean_foot_upward_impulses_Ns": [
+        0.02915975,
+        0.06001074583333332
+      ]
+    },
+    {
+      "lane": 2,
+      "window": [
+        925,
+        1000
+      ],
+      "mean_signed_opposing_horizontal_impulse_Ns": {
+        "left_front": 0.0035638710668368812,
+        "left_rear": 0.0,
+        "right_front": 0.005043136293333332,
+        "right_rear": 0.002401033066666667
+      },
+      "mean_rear_toe_angles_rad": [
+        0.17009898933333334,
+        0.7993612800000003
+      ],
+      "mean_foot_upward_impulses_Ns": [
+        0.03342461066666667,
+        0.057326578666666635
+      ]
+    },
+    {
+      "lane": 2,
+      "window": [
+        1000,
+        1250
+      ],
+      "mean_signed_opposing_horizontal_impulse_Ns": {
+        "left_front": 0.003846411404784801,
+        "left_rear": 0.0,
+        "right_front": 0.004620382864,
+        "right_rear": 0.0019744466680000003
+      },
+      "mean_rear_toe_angles_rad": [
+        0.4950930040000002,
+        0.815487396
+      ],
+      "mean_foot_upward_impulses_Ns": [
+        0.0369402052,
+        0.05400311439999999
+      ]
+    },
+    {
+      "lane": 2,
+      "window": [
+        1400,
+        1500
+      ],
+      "mean_signed_opposing_horizontal_impulse_Ns": {
+        "left_front": 0.002359340557773722,
+        "left_rear": 0.00019999549505200003,
+        "right_front": 0.0034251848329999997,
+        "right_rear": 0.0007848153996299999
+      },
+      "mean_rear_toe_angles_rad": [
+        0.8479294399999996,
+        0.8449856999999996
+      ],
+      "mean_foot_upward_impulses_Ns": [
+        0.04242801,
+        0.04603882100000001
+      ]
+    },
+    {
+      "lane": 5,
+      "window": [
+        877,
+        925
+      ],
+      "mean_signed_opposing_horizontal_impulse_Ns": {
+        "left_front": 0.0011985386104622251,
+        "left_rear": 0.0,
+        "right_front": 0.007236085987500001,
+        "right_rear": 0.0028781837500000003
+      },
+      "mean_rear_toe_angles_rad": [
+        0.04709424585416667,
+        0.8175430416666666
+      ],
+      "mean_foot_upward_impulses_Ns": [
+        0.029843883333333338,
+        0.05940307916666665
+      ]
+    },
+    {
+      "lane": 5,
+      "window": [
+        925,
+        1000
+      ],
+      "mean_signed_opposing_horizontal_impulse_Ns": {
+        "left_front": 0.003604100516451919,
+        "left_rear": 0.0,
+        "right_front": 0.004960715413333334,
+        "right_rear": 0.0022160704000000002
+      },
+      "mean_rear_toe_angles_rad": [
+        0.17009887999999995,
+        0.7980323466666666
+      ],
+      "mean_foot_upward_impulses_Ns": [
+        0.032774301333333346,
+        0.05801161333333333
+      ]
+    },
+    {
+      "lane": 5,
+      "window": [
+        1000,
+        1250
+      ],
+      "mean_signed_opposing_horizontal_impulse_Ns": {
+        "left_front": 0.0039969506853441625,
+        "left_rear": 0.0,
+        "right_front": 0.004750570200000001,
+        "right_rear": 0.0019636998039999996
+      },
+      "mean_rear_toe_angles_rad": [
+        0.49509276000000013,
+        0.8077483119999999
+      ],
+      "mean_foot_upward_impulses_Ns": [
+        0.035897341199999995,
+        0.05514470160000002
+      ]
+    },
+    {
+      "lane": 5,
+      "window": [
+        1400,
+        1500
+      ],
+      "mean_signed_opposing_horizontal_impulse_Ns": {
+        "left_front": 0.0023633705388098163,
+        "left_rear": 0.00029389155531999995,
+        "right_front": 0.0037563957189999998,
+        "right_rear": 0.0011992784056000004
+      },
+      "mean_rear_toe_angles_rad": [
+        0.8484208,
+        0.8458162800000001
+      ],
+      "mean_foot_upward_impulses_Ns": [
+        0.041920269,
+        0.046545776000000004
+      ]
+    },
+    {
+      "lane": 8,
+      "window": [
+        877,
+        925
+      ],
+      "mean_signed_opposing_horizontal_impulse_Ns": {
+        "left_front": 0.0012890386622806877,
+        "left_rear": 0.0,
+        "right_front": 0.007007209570833333,
+        "right_rear": 0.002872370000000001
+      },
+      "mean_rear_toe_angles_rad": [
+        0.047094277104166665,
+        0.8182466875
+      ],
+      "mean_foot_upward_impulses_Ns": [
+        0.02996849583333333,
+        0.05935181875
+      ]
+    },
+    {
+      "lane": 8,
+      "window": [
+        925,
+        1000
+      ],
+      "mean_signed_opposing_horizontal_impulse_Ns": {
+        "left_front": 0.0038809019785962656,
+        "left_rear": 0.0,
+        "right_front": 0.005040036706666666,
+        "right_rear": 0.002403000533333334
+      },
+      "mean_rear_toe_angles_rad": [
+        0.17009912800000004,
+        0.8025948400000003
+      ],
+      "mean_foot_upward_impulses_Ns": [
+        0.03321259333333333,
+        0.05775577333333331
+      ]
+    },
+    {
+      "lane": 8,
+      "window": [
+        1000,
+        1250
+      ],
+      "mean_signed_opposing_horizontal_impulse_Ns": {
+        "left_front": 0.004073249159107997,
+        "left_rear": 0.0,
+        "right_front": 0.004730446492,
+        "right_rear": 0.002026555720000001
+      },
+      "mean_rear_toe_angles_rad": [
+        0.49509291599999994,
+        0.8080324720000003
+      ],
+      "mean_foot_upward_impulses_Ns": [
+        0.03607129560000001,
+        0.05502679079999998
+      ]
+    },
+    {
+      "lane": 8,
+      "window": [
+        1400,
+        1500
+      ],
+      "mean_signed_opposing_horizontal_impulse_Ns": {
+        "left_front": 0.001819025276387998,
+        "left_rear": 0.00014996177965999997,
+        "right_front": 0.0031302103139999996,
+        "right_rear": 0.0010132689649199997
+      },
+      "mean_rear_toe_angles_rad": [
+        0.8484249200000004,
+        0.8462616300000002
+      ],
+      "mean_foot_upward_impulses_Ns": [
+        0.04194977900000001,
+        0.04650971899999999
+      ]
+    },
+    {
+      "lane": 11,
+      "window": [
+        877,
+        925
+      ],
+      "mean_signed_opposing_horizontal_impulse_Ns": {
+        "left_front": 0.00110664235230875,
+        "left_rear": 0.0,
+        "right_front": 0.007207417957291664,
+        "right_rear": 0.002965487083333334
+      },
+      "mean_rear_toe_angles_rad": [
+        0.04709410210416667,
+        0.8171308333333336
+      ],
+      "mean_foot_upward_impulses_Ns": [
+        0.029479995833333345,
+        0.05972506250000003
+      ]
+    },
+    {
+      "lane": 11,
+      "window": [
+        925,
+        1000
+      ],
+      "mean_signed_opposing_horizontal_impulse_Ns": {
+        "left_front": 0.0035135441365311787,
+        "left_rear": 0.0,
+        "right_front": 0.0049162683066666674,
+        "right_rear": 0.0024047937333333334
+      },
+      "mean_rear_toe_angles_rad": [
+        0.1700987800000001,
+        0.8044573200000003
+      ],
+      "mean_foot_upward_impulses_Ns": [
+        0.033000471999999996,
+        0.05776061466666667
+      ]
+    },
+    {
+      "lane": 11,
+      "window": [
+        1000,
+        1250
+      ],
+      "mean_signed_opposing_horizontal_impulse_Ns": {
+        "left_front": 0.004009041527520002,
+        "left_rear": 0.0,
+        "right_front": 0.004788521316000001,
+        "right_rear": 0.0020249249680000005
+      },
+      "mean_rear_toe_angles_rad": [
+        0.4950931239999997,
+        0.8124470720000002
+      ],
+      "mean_foot_upward_impulses_Ns": [
+        0.03675504199999999,
+        0.05428986640000003
+      ]
+    },
+    {
+      "lane": 11,
+      "window": [
+        1400,
+        1500
+      ],
+      "mean_signed_opposing_horizontal_impulse_Ns": {
+        "left_front": 0.0025662145605900603,
+        "left_rear": 0.00037086439748999984,
+        "right_front": 0.004034125321999999,
+        "right_rear": 0.00120988205947
+      },
+      "mean_rear_toe_angles_rad": [
+        0.8483109900000002,
+        0.8441381299999999
+      ],
+      "mean_foot_upward_impulses_Ns": [
+        0.042037610999999996,
+        0.04639901299999998
+      ]
+    },
+    {
+      "lane": 14,
+      "window": [
+        877,
+        925
+      ],
+      "mean_signed_opposing_horizontal_impulse_Ns": {
+        "left_front": 0.00148110167850288,
+        "left_rear": 0.0,
+        "right_front": 0.007018883594166667,
+        "right_rear": 0.0030100449999999994
+      },
+      "mean_rear_toe_angles_rad": [
+        0.04709430418749999,
+        0.8173358333333334
+      ],
+      "mean_foot_upward_impulses_Ns": [
+        0.029068654166666666,
+        0.06037347083333333
+      ]
+    },
+    {
+      "lane": 14,
+      "window": [
+        925,
+        1000
+      ],
+      "mean_signed_opposing_horizontal_impulse_Ns": {
+        "left_front": 0.0036746515497333336,
+        "left_rear": 0.0,
+        "right_front": 0.004936149937333332,
+        "right_rear": 0.0024128297333333333
+      },
+      "mean_rear_toe_angles_rad": [
+        0.17009893866666664,
+        0.7998375333333332
+      ],
+      "mean_foot_upward_impulses_Ns": [
+        0.03359267333333334,
+        0.05728083466666667
+      ]
+    },
+    {
+      "lane": 14,
+      "window": [
+        1000,
+        1250
+      ],
+      "mean_signed_opposing_horizontal_impulse_Ns": {
+        "left_front": 0.00370607352396,
+        "left_rear": 0.0,
+        "right_front": 0.004753801208,
+        "right_rear": 0.0020815547200000004
+      },
+      "mean_rear_toe_angles_rad": [
+        0.49509285199999997,
+        0.8129209439999995
+      ],
+      "mean_foot_upward_impulses_Ns": [
+        0.037254271199999994,
+        0.053573723600000026
+      ]
+    },
+    {
+      "lane": 14,
+      "window": [
+        1400,
+        1500
+      ],
+      "mean_signed_opposing_horizontal_impulse_Ns": {
+        "left_front": 0.0021031613599929245,
+        "left_rear": 0.00019355905606999998,
+        "right_front": 0.003284085280300001,
+        "right_rear": 0.0008239376197999998
+      },
+      "mean_rear_toe_angles_rad": [
+        0.84859073,
+        0.84453794
+      ],
+      "mean_foot_upward_impulses_Ns": [
+        0.042892194,
+        0.04554593800000002
+      ]
+    }
+  ]
+}
