@@ -1,0 +1,294 @@
+{
+  "remote_commit": "9a2b9a7f8903fbcb287f233a5bdc180a6058c8b6",
+  "verification": "independent fetched Git restore, gzip decode, SHA-256 and open-handle checks",
+  "retired": [
+    {
+      "path": "build/crow-v15-latched-leg-retraction-20261111/h166-fast.json",
+      "archive": "artifacts/crow-v15-latched-leg-retraction-20261111/h166-fast.replay.json.gz",
+      "sha256": "13f0704a1e279a9c21cd610ca24591ffa6605d5a7524d11ad2ace8e893ff754f",
+      "bytes": 9005038
+    },
+    {
+      "path": "build/crow-v15-latched-leg-retraction-20261111/h166-fast.tsv",
+      "archive": "artifacts/crow-v15-latched-leg-retraction-20261111/h166-fast.trace.tsv.gz",
+      "sha256": "3b0c490844489e4bdc23205e8a09751fa46bf52c073d6e5d984d25bdfd50cbdd",
+      "bytes": 198279
+    },
+    {
+      "path": "build/crow-v15-latched-leg-retraction-20261111/h166-base.json",
+      "archive": "artifacts/crow-v15-latched-leg-retraction-20261111/h166-base.replay.json.gz",
+      "sha256": "7de1a829e6b0b00bc86f8b08155d1181ad6d6aa4d7d471af714a6bdad3d82c34",
+      "bytes": 9006288
+    },
+    {
+      "path": "build/crow-v15-latched-leg-retraction-20261111/h166-base.tsv",
+      "archive": "artifacts/crow-v15-latched-leg-retraction-20261111/h166-base.trace.tsv.gz",
+      "sha256": "43053de54159d8b663bbbe8b5f6f698fe42f58fa0fe5a74e058c82c57a86aee7",
+      "bytes": 198313
+    },
+    {
+      "path": "build/crow-v15-latched-leg-retraction-20261111/h170-fast.json",
+      "archive": "artifacts/crow-v15-latched-leg-retraction-20261111/h170-fast.replay.json.gz",
+      "sha256": "845c45f7f10ef228144bb6c8ad8bb10519e8d0868d6d900794c78d059d3ead0c",
+      "bytes": 9005437
+    },
+    {
+      "path": "build/crow-v15-latched-leg-retraction-20261111/h170-fast.tsv",
+      "archive": "artifacts/crow-v15-latched-leg-retraction-20261111/h170-fast.trace.tsv.gz",
+      "sha256": "2e97c0b07652d11fca8bf84c8a19b06b8eb3dda12391e0335a7f3607d3a97f34",
+      "bytes": 198289
+    },
+    {
+      "path": "build/crow-v15-latched-leg-retraction-20261111/h170-base.json",
+      "archive": "artifacts/crow-v15-latched-leg-retraction-20261111/h170-base.replay.json.gz",
+      "sha256": "46afb9c15376a24d93d78304287c76ee07c8b350e6fc6337e628f30247e77623",
+      "bytes": 9006122
+    },
+    {
+      "path": "build/crow-v15-latched-leg-retraction-20261111/h170-base.tsv",
+      "archive": "artifacts/crow-v15-latched-leg-retraction-20261111/h170-base.trace.tsv.gz",
+      "sha256": "83ae40d74d46de18bf91b33ce31e454b474ed5d4a648122157856abe829a4ae7",
+      "bytes": 198333
+    },
+    {
+      "path": "build/crow-v15-latched-leg-retraction-20261111/h174-fast.json",
+      "archive": "artifacts/crow-v15-latched-leg-retraction-20261111/h174-fast.replay.json.gz",
+      "sha256": "845c45f7f10ef228144bb6c8ad8bb10519e8d0868d6d900794c78d059d3ead0c",
+      "bytes": 9005437
+    },
+    {
+      "path": "build/crow-v15-latched-leg-retraction-20261111/h174-fast.tsv",
+      "archive": "artifacts/crow-v15-latched-leg-retraction-20261111/h174-fast.trace.tsv.gz",
+      "sha256": "2e97c0b07652d11fca8bf84c8a19b06b8eb3dda12391e0335a7f3607d3a97f34",
+      "bytes": 198289
+    },
+    {
+      "path": "build/crow-v15-latched-leg-retraction-20261111/h174-base.json",
+      "archive": "artifacts/crow-v15-latched-leg-retraction-20261111/h174-base.replay.json.gz",
+      "sha256": "46afb9c15376a24d93d78304287c76ee07c8b350e6fc6337e628f30247e77623",
+      "bytes": 9006122
+    },
+    {
+      "path": "build/crow-v15-latched-leg-retraction-20261111/h174-base.tsv",
+      "archive": "artifacts/crow-v15-latched-leg-retraction-20261111/h174-base.trace.tsv.gz",
+      "sha256": "83ae40d74d46de18bf91b33ce31e454b474ed5d4a648122157856abe829a4ae7",
+      "bytes": 198333
+    },
+    {
+      "path": "build/crow-v15-contact-flight-handoff-20261111/handoff.json",
+      "archive": "artifacts/crow-v15-contact-flight-handoff-20261111/handoff.replay.json.gz",
+      "sha256": "9bb29351bc45e7bab05bfe7642c1be4dfca5a8a113cd4757a87ff06c33749117",
+      "bytes": 16356268
+    },
+    {
+      "path": "build/crow-v15-contact-flight-handoff-20261111/handoff.tsv",
+      "archive": "artifacts/crow-v15-contact-flight-handoff-20261111/handoff.trace.tsv.gz",
+      "sha256": "108fe0a3a2196b9ea8985b99ca479c04a47820b22eb0331df4861a9e4ba79074",
+      "bytes": 365808
+    },
+    {
+      "path": "build/crow-v15-bounded-launch-commands-20261111/v040-h065.json",
+      "archive": "artifacts/crow-v15-bounded-launch-commands-20261111/v040-h065.replay.json.gz",
+      "sha256": "c486cc1c86022f4f82888a7e68cc4a10c138fd7248c4f3376ac49d9410c99ec7",
+      "bytes": 16493017
+    },
+    {
+      "path": "build/crow-v15-bounded-launch-commands-20261111/v040-h065.tsv",
+      "archive": "artifacts/crow-v15-bounded-launch-commands-20261111/v040-h065.trace.tsv.gz",
+      "sha256": "0561b002c69203d976fe2b496036f40f05ca72ec8a27d43a3be70792c7f493d7",
+      "bytes": 365931
+    },
+    {
+      "path": "build/crow-v15-bounded-launch-commands-20261111/v040-h085.json",
+      "archive": "artifacts/crow-v15-bounded-launch-commands-20261111/v040-h085.replay.json.gz",
+      "sha256": "baf78c3a078b050e957a5f62c079be1a776a3e0b0735939b35d673da447768d5",
+      "bytes": 16434186
+    },
+    {
+      "path": "build/crow-v15-bounded-launch-commands-20261111/v040-h085.tsv",
+      "archive": "artifacts/crow-v15-bounded-launch-commands-20261111/v040-h085.trace.tsv.gz",
+      "sha256": "d95f0b356801be4df0a6fdd942db9fd3d9ab878a2f4560618bc391d68bfe81b9",
+      "bytes": 365963
+    },
+    {
+      "path": "build/crow-v15-bounded-launch-commands-20261111/v040-h105.json",
+      "archive": "artifacts/crow-v15-bounded-launch-commands-20261111/v040-h105.replay.json.gz",
+      "sha256": "f31ee1a737e3baedd48de801060eb748ebaeb4ac31ffd6519cf4585182b1bed1",
+      "bytes": 16372347
+    },
+    {
+      "path": "build/crow-v15-bounded-launch-commands-20261111/v040-h105.tsv",
+      "archive": "artifacts/crow-v15-bounded-launch-commands-20261111/v040-h105.trace.tsv.gz",
+      "sha256": "9d63af2cd9ab999ed3e363eae421e829d57e2911cfd16f127e00388528975448",
+      "bytes": 365915
+    },
+    {
+      "path": "build/crow-v15-bounded-launch-commands-20261111/v070-h065.json",
+      "archive": "artifacts/crow-v15-bounded-launch-commands-20261111/v070-h065.replay.json.gz",
+      "sha256": "0b183aed62c6280a4a189ee58c4fc26a48ff74332adb3a7867bedbc8ae58d657",
+      "bytes": 16480352
+    },
+    {
+      "path": "build/crow-v15-bounded-launch-commands-20261111/v070-h065.tsv",
+      "archive": "artifacts/crow-v15-bounded-launch-commands-20261111/v070-h065.trace.tsv.gz",
+      "sha256": "7efc442348c16d9d7d6e7f53b8fa5261c49339e40a163ef0638bdc2cd7bab87f",
+      "bytes": 365916
+    },
+    {
+      "path": "build/crow-v15-bounded-launch-commands-20261111/v070-h085.json",
+      "archive": "artifacts/crow-v15-bounded-launch-commands-20261111/v070-h085.replay.json.gz",
+      "sha256": "494d4fe4914d595c59f71135545493b966430c4ce0e1fde3bf0846fc82bfb0cc",
+      "bytes": 16425539
+    },
+    {
+      "path": "build/crow-v15-bounded-launch-commands-20261111/v070-h085.tsv",
+      "archive": "artifacts/crow-v15-bounded-launch-commands-20261111/v070-h085.trace.tsv.gz",
+      "sha256": "8d0e4c703a78c7ee51368528c0e51c9dd3e673b2e06779c1536f35a0fc14f498",
+      "bytes": 366038
+    },
+    {
+      "path": "build/crow-v15-bounded-launch-commands-20261111/v070-h105.json",
+      "archive": "artifacts/crow-v15-bounded-launch-commands-20261111/v070-h105.replay.json.gz",
+      "sha256": "ac1e8c162a6355766b18b651b684ea4de5a2a6e383367051a4a9b2eed56a1648",
+      "bytes": 16370679
+    },
+    {
+      "path": "build/crow-v15-bounded-launch-commands-20261111/v070-h105.tsv",
+      "archive": "artifacts/crow-v15-bounded-launch-commands-20261111/v070-h105.trace.tsv.gz",
+      "sha256": "912d5077f4df2b25c82688d306540b2be84447681cace2c6461d80fc7f726b79",
+      "bytes": 365876
+    },
+    {
+      "path": "build/crow-v15-propulsive-leg-push-20261111/hn50-an30.json",
+      "archive": "artifacts/crow-v15-propulsive-leg-push-20261111/hn50-an30.replay.json.gz",
+      "sha256": "ba1e51bcd2a672e5b7ec1a616069cab68d90eb61daa7046117fdd1b61d157eaf",
+      "bytes": 16499110
+    },
+    {
+      "path": "build/crow-v15-propulsive-leg-push-20261111/hn50-an30.tsv",
+      "archive": "artifacts/crow-v15-propulsive-leg-push-20261111/hn50-an30.trace.tsv.gz",
+      "sha256": "623e6bed4f792a67123267d51d0e9b5753e73d4313367d95a23f397cfa46ad57",
+      "bytes": 365824
+    },
+    {
+      "path": "build/crow-v15-propulsive-leg-push-20261111/hn50-ap18.json",
+      "archive": "artifacts/crow-v15-propulsive-leg-push-20261111/hn50-ap18.replay.json.gz",
+      "sha256": "50168f72395167be2c404a8ba1e19a4933bade0dea6aea05fcfb137956d95cf0",
+      "bytes": 16500371
+    },
+    {
+      "path": "build/crow-v15-propulsive-leg-push-20261111/hn50-ap18.tsv",
+      "archive": "artifacts/crow-v15-propulsive-leg-push-20261111/hn50-ap18.trace.tsv.gz",
+      "sha256": "0dd9f8de7429e522212ff449cb9bcd9784f76909adaa286247dfb495657a6e14",
+      "bytes": 365863
+    },
+    {
+      "path": "build/crow-v15-propulsive-leg-push-20261111/hn50-ap70.json",
+      "archive": "artifacts/crow-v15-propulsive-leg-push-20261111/hn50-ap70.replay.json.gz",
+      "sha256": "d0ff40cb369d902059a19f58f6f9689f3ba39f4b807fda82df88089759df44fa",
+      "bytes": 16505264
+    },
+    {
+      "path": "build/crow-v15-propulsive-leg-push-20261111/hn50-ap70.tsv",
+      "archive": "artifacts/crow-v15-propulsive-leg-push-20261111/hn50-ap70.trace.tsv.gz",
+      "sha256": "64d3e8243c86f4a786d8513b76bfe702257af7076d18e0c1f58473973cc667a8",
+      "bytes": 365883
+    },
+    {
+      "path": "build/crow-v15-propulsive-leg-push-20261111/hp10-an30.json",
+      "archive": "artifacts/crow-v15-propulsive-leg-push-20261111/hp10-an30.replay.json.gz",
+      "sha256": "0defa94a6395a780b156c65b4dd654eeeeb3956d0c177b9cab9b2d8fb97fa09c",
+      "bytes": 16487474
+    },
+    {
+      "path": "build/crow-v15-propulsive-leg-push-20261111/hp10-an30.tsv",
+      "archive": "artifacts/crow-v15-propulsive-leg-push-20261111/hp10-an30.trace.tsv.gz",
+      "sha256": "d6ee57aef9f0dedf93710599f94a719ab98dd8c5ef747f5ba8ab8b2fd0b23331",
+      "bytes": 365986
+    },
+    {
+      "path": "build/crow-v15-propulsive-leg-push-20261111/hp10-ap18.json",
+      "archive": "artifacts/crow-v15-propulsive-leg-push-20261111/hp10-ap18.replay.json.gz",
+      "sha256": "c486cc1c86022f4f82888a7e68cc4a10c138fd7248c4f3376ac49d9410c99ec7",
+      "bytes": 16493017
+    },
+    {
+      "path": "build/crow-v15-propulsive-leg-push-20261111/hp10-ap18.tsv",
+      "archive": "artifacts/crow-v15-propulsive-leg-push-20261111/hp10-ap18.trace.tsv.gz",
+      "sha256": "0561b002c69203d976fe2b496036f40f05ca72ec8a27d43a3be70792c7f493d7",
+      "bytes": 365931
+    },
+    {
+      "path": "build/crow-v15-propulsive-leg-push-20261111/hp10-ap70.json",
+      "archive": "artifacts/crow-v15-propulsive-leg-push-20261111/hp10-ap70.replay.json.gz",
+      "sha256": "db8e2f93c1d8130c72b1752e73e3c35f5a6edf50d29d813df657f7462fa4999f",
+      "bytes": 16484656
+    },
+    {
+      "path": "build/crow-v15-propulsive-leg-push-20261111/hp10-ap70.tsv",
+      "archive": "artifacts/crow-v15-propulsive-leg-push-20261111/hp10-ap70.trace.tsv.gz",
+      "sha256": "bfc1271dc152b7a8c004879412fe9f0461a8d61398c73d299eb20f74f674dff9",
+      "bytes": 365973
+    },
+    {
+      "path": "build/crow-v15-propulsive-leg-push-20261111/hp70-an30.json",
+      "archive": "artifacts/crow-v15-propulsive-leg-push-20261111/hp70-an30.replay.json.gz",
+      "sha256": "ac78bd7b4238325a6b3e901392fa98cb42659403eaa73169ebe5b20c0ef6a797",
+      "bytes": 16477809
+    },
+    {
+      "path": "build/crow-v15-propulsive-leg-push-20261111/hp70-an30.tsv",
+      "archive": "artifacts/crow-v15-propulsive-leg-push-20261111/hp70-an30.trace.tsv.gz",
+      "sha256": "72a26d4dc14d62d42ec422cf9b86e19f57d2c9c2dcb5f0d3769a97979b008b16",
+      "bytes": 365940
+    },
+    {
+      "path": "build/crow-v15-propulsive-leg-push-20261111/hp70-ap18.json",
+      "archive": "artifacts/crow-v15-propulsive-leg-push-20261111/hp70-ap18.replay.json.gz",
+      "sha256": "33818cbb2319f70cedda73450703f50017c3a3efbae81ea084c259be2ca71f2a",
+      "bytes": 16489788
+    },
+    {
+      "path": "build/crow-v15-propulsive-leg-push-20261111/hp70-ap18.tsv",
+      "archive": "artifacts/crow-v15-propulsive-leg-push-20261111/hp70-ap18.trace.tsv.gz",
+      "sha256": "7e9ce6cc47ee26c7cd9c1e4f3e7e2ee2b39d4c6085fd7006e14712ea91922aae",
+      "bytes": 365964
+    },
+    {
+      "path": "build/crow-v15-propulsive-leg-push-20261111/hp70-ap70.json",
+      "archive": "artifacts/crow-v15-propulsive-leg-push-20261111/hp70-ap70.replay.json.gz",
+      "sha256": "c7c6fcc5f7bfffdb1a3d8336782046936bde005db59d802b9ad79fc591b58c82",
+      "bytes": 16484514
+    },
+    {
+      "path": "build/crow-v15-propulsive-leg-push-20261111/hp70-ap70.tsv",
+      "archive": "artifacts/crow-v15-propulsive-leg-push-20261111/hp70-ap70.trace.tsv.gz",
+      "sha256": "4888c76fd59cbf0aea0493d4019389a86f50fff100398aaec2043f8134f74092",
+      "bytes": 366009
+    },
+    {
+      "path": "build/crow-v15-propulsive-launch-controls-20261111/wing-suppressed.json",
+      "archive": "artifacts/crow-v15-propulsive-launch-controls-20261111/wing-suppressed.replay.json.gz",
+      "sha256": "eafb7f13336c94fd4d611426f8eb1546fe9a600a5c3c62aaa36ccc6b79185dc8",
+      "bytes": 9007257
+    },
+    {
+      "path": "build/crow-v15-propulsive-launch-controls-20261111/wing-suppressed.tsv",
+      "archive": "artifacts/crow-v15-propulsive-launch-controls-20261111/wing-suppressed.trace.tsv.gz",
+      "sha256": "09c0649961d521f20b00f1d2af5e35df62594875f692bee99107969b1a79cda7",
+      "bytes": 198375
+    },
+    {
+      "path": "build/crow-v15-propulsive-launch-controls-20261111/held-crouch.json",
+      "archive": "artifacts/crow-v15-propulsive-launch-controls-20261111/held-crouch.replay.json.gz",
+      "sha256": "56046be3bc1d232fdb7bccb7b6d246fa1e651bed9531fdfeac588c0689438ae8",
+      "bytes": 9008669
+    },
+    {
+      "path": "build/crow-v15-propulsive-launch-controls-20261111/held-crouch.tsv",
+      "archive": "artifacts/crow-v15-propulsive-launch-controls-20261111/held-crouch.trace.tsv.gz",
+      "sha256": "3b3fdd63315ae7a7c977417821c1545eae366bf27f8c2ed09858f88deb20bbad",
+      "bytes": 198340
+    }
+  ]
+}
