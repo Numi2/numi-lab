@@ -1,0 +1,22 @@
+[
+  {
+    "name": "o18",
+    "offset": "0.18f",
+    "sha256": "d822b83e75d282a3c0ba24a3c518ff3f76a57de800f4f7cf5c04b63d8abf6ccc"
+  },
+  {
+    "name": "o21",
+    "offset": "0.21f",
+    "sha256": "d062b8a365122b1e8517dccd5f63352f1209d4c1f713d8b31398012627fb3774"
+  },
+  {
+    "name": "o24",
+    "offset": "0.24f",
+    "sha256": "860ed9a406760cdf6b14e2bfe57d27363940d0d886faf2a5fb99c53ee0e7f719"
+  },
+  {
+    "name": "o27",
+    "offset": "0.27f",
+    "sha256": "785a31e89f378445fdf4dd7999a95009d139966f8eed1c5fe320a01953eca37c"
+  }
+]

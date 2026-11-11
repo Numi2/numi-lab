@@ -1,0 +1,20 @@
+--- a/toe_memory.metal
++++ b/o18.metal
+@@ -5004,7 +5004,7 @@
+         carrierState.commandAndPhase.x = 0.15f;
+         carrierState.commandAndPhase.y = oracleCommand.y;
+         carrierState.commandExtension.x = oracleCommand.z;
+-        carrierState.commandExtension.z += 0.25f-oracleCommand.x;
++        carrierState.commandExtension.z += (state.navigation.z>=5.0f ? 0.18f : 0.25f)-oracleCommand.x;
+         carrierState.threatGeometry.x += oracleCommand.w;
+         carrierState.threatTeacher.x -= oracleCommand.y;
+         const float teacherRequested =
+@@ -6746,7 +6746,7 @@
+                     landingPhase=clamp(landingPhase+(alignedForDescent ? 0.001f : -0.002f),1.0f,1.4f);
+                 }
+                 const float descentBlend=clamp((landingPhase-1.0f)*2.5f,0.0f,1.0f);
+-                desiredHeight = landingPhase > 0.5f ? perch.z+mix(0.34f,0.20f,descentBlend) : 1.30f;
++                desiredHeight = 1.30f;
+             }
+             // Oracle labels occupy diagnostic spare state only; these will
+             // become independently fingerprinted actor commands, not sensors.
