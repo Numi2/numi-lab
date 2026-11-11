@@ -1,0 +1,16 @@
+--- a/reference.metal
++++ b/feedback.metal
+@@ -5206,7 +5206,12 @@
+         ];
+         const MRTaskActionBindingGPU binding =
+             actions[action];
+-        const float responseTimeSeconds = binding.parameters.w;
++        const float responseTimeSeconds =
++            fixedFlightController && state.episode.z == 10u &&
++            action >= 7u && action <= 12u &&
++            float(state.episode.x)*dispatch.timing.x >= 4.0f &&
++            float(state.episode.x)*dispatch.timing.x < 6.0f
++            ? max(binding.parameters.w, 0.05f) : binding.parameters.w;
+         const float responseFraction =
+             responseTimeSeconds > 0.0f
+             ? clamp(
