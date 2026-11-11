@@ -1,0 +1,18 @@
+[
+  {
+    "name": "m10d12",
+    "toe_segment_mass_kg": 0.0001,
+    "toe_joint_damping": 0.012,
+    "library_sha256": "d1cc09c6897400a11b1e71dfe6a623b6293cbf1c12b781a586a010d6818290a0",
+    "source_sha256": "e900b29c44fbfe87dc6330fae72585781243cf02cf7b441f67c1765f8ffca65c",
+    "observer_sha256": "5d16771df5b9bdd06892918d00b600b8d997f6c0d6bbe7147c1c259f3a3d0d25"
+  },
+  {
+    "name": "m10d30",
+    "toe_segment_mass_kg": 0.0001,
+    "toe_joint_damping": 0.03,
+    "library_sha256": "994694b6b91429da5509686235e25b0a165730ba701117dbcc0696c27de86e8d",
+    "source_sha256": "15ab29572a00cc964c2dfc7af19ca269de207fd2709d4b9fee0b8932ec06b6cf",
+    "observer_sha256": "5d16771df5b9bdd06892918d00b600b8d997f6c0d6bbe7147c1c259f3a3d0d25"
+  }
+]
