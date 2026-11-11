@@ -1,0 +1,27 @@
+lane 0 coverage error 0
+[3300, 3349] pitch 0.037 pitchrate -0.078 moments {'rear_toes': 0.004029, 'front_toes': 0.0, 'feet': -0.004593, 'other': 0.0}
+[3350, 3399] pitch 0.084 pitchrate 0.111 moments {'rear_toes': 0.00462, 'front_toes': -9.6e-05, 'feet': -0.003857, 'other': 0.0}
+[3400, 3449] pitch 0.217 pitchrate 0.169 moments {'rear_toes': 0.008654, 'front_toes': -0.001729, 'feet': -0.004821, 'other': 0.0}
+[3450, 3475] pitch 0.421 pitchrate 0.295 moments {'rear_toes': 0.009452, 'front_toes': -0.00247, 'feet': -0.001171, 'other': 0.0}
+lane 5 coverage error 0
+[3300, 3349] pitch 0.041 pitchrate 0.087 moments {'rear_toes': 0.0, 'front_toes': 5e-05, 'feet': 0.0, 'other': 0.0}
+[3350, 3399] pitch 0.034 pitchrate -0.054 moments {'rear_toes': 0.0, 'front_toes': 0.0, 'feet': 0.0, 'other': 0.0}
+[3400, 3449] pitch 0.026 pitchrate 0.076 moments {'rear_toes': 0.0, 'front_toes': 0.0, 'feet': 0.0, 'other': 0.0}
+[3450, 3499] pitch 0.034 pitchrate 0.042 moments {'rear_toes': 0.0, 'front_toes': 0.0, 'feet': 0.0, 'other': 0.0}
+[3500, 3549] pitch 0.043 pitchrate 0.02 moments {'rear_toes': 0.0, 'front_toes': 1.8e-05, 'feet': 0.0, 'other': 0.0}
+[3550, 3599] pitch 0.038 pitchrate 0.043 moments {'rear_toes': 0.0, 'front_toes': 0.0, 'feet': 0.0, 'other': 0.0}
+[3600, 3649] pitch 0.051 pitchrate -0.059 moments {'rear_toes': 0.0, 'front_toes': 5.7e-05, 'feet': 0.0, 'other': 0.0}
+[3650, 3699] pitch 0.046 pitchrate 0.083 moments {'rear_toes': 0.0, 'front_toes': -5e-05, 'feet': -7.5e-05, 'other': 0.0}
+[3700, 3749] pitch 0.029 pitchrate 0.015 moments {'rear_toes': 0.002648, 'front_toes': -0.007603, 'feet': -0.000259, 'other': 0.0}
+[3750, 3799] pitch -0.191 pitchrate -0.052 moments {'rear_toes': 0.007446, 'front_toes': -0.010501, 'feet': 0.0, 'other': 0.0}
+lane 6 coverage error 0
+[3300, 3349] pitch 0.034 pitchrate 0.029 moments {'rear_toes': 0.0, 'front_toes': 0.0, 'feet': 0.0, 'other': 0.0}
+[3350, 3399] pitch 0.043 pitchrate -0.05 moments {'rear_toes': 0.0, 'front_toes': 2.9e-05, 'feet': 0.0, 'other': 0.0}
+[3400, 3449] pitch 0.041 pitchrate 0.09 moments {'rear_toes': 0.0, 'front_toes': 0.0, 'feet': 0.0, 'other': 0.0}
+[3450, 3499] pitch 0.052 pitchrate 0.032 moments {'rear_toes': 0.0, 'front_toes': 2.1e-05, 'feet': -8e-06, 'other': 0.0}
+[3500, 3549] pitch 0.022 pitchrate -0.009 moments {'rear_toes': 0.003154, 'front_toes': -0.002695, 'feet': -0.000305, 'other': 0.0}
+[3550, 3599] pitch 0.127 pitchrate 0.066 moments {'rear_toes': 0.007739, 'front_toes': -0.007919, 'feet': -0.000556, 'other': 0.0}
+[3600, 3649] pitch 0.172 pitchrate 0.047 moments {'rear_toes': 0.008784, 'front_toes': -0.005195, 'feet': -0.00457, 'other': 0.0}
+[3650, 3699] pitch 0.203 pitchrate 0.05 moments {'rear_toes': 0.005429, 'front_toes': -0.003512, 'feet': -0.001802, 'other': 0.0}
+[3700, 3749] pitch 0.304 pitchrate 0.139 moments {'rear_toes': 0.002567, 'front_toes': -0.002406, 'feet': 0.002036, 'other': 0.0}
+[3750, 3798] pitch 0.538 pitchrate 0.904 moments {'rear_toes': 0.012031, 'front_toes': -0.002022, 'feet': 0.0, 'other': 0.0}
