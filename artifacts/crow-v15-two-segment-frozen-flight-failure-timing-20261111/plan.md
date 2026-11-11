@@ -1,0 +1,3 @@
+# Two-segment flight failure timing isolation
+
+The 80-lane 200-step trial failed with a chunk-relative control step of zero, but 80 lanes completed a matched two-step run. Determine the shortest tested episode horizon that fails using serial horizons 4, 8, 16, 32, 64, 128 and 200, followed by a binary search between the last success and first failure. Keep the same seed, 80 environments, body, frozen controller, physics, collision settings and one-step chunk. Retain every failure and compressed successful environment-zero trace, and compare common prefixes of successful traces. A changed horizon could itself alter runtime behavior; common-prefix checks are required before interpreting the resulting boundary as elapsed failure time. No flight qualification follows.
