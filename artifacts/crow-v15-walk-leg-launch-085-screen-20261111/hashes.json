@@ -1,0 +1,7 @@
+{
+  "on_metallib": "bc3d98cd6240505462a0b5dcb8d387c4f8c7c628df7793931cccb94cfb2e91df",
+  "off_metallib": "d4a6762b855751cb56c0454e049a205160d81c5bf0cf427d98c44c752bff4455",
+  "flight_controller": "01bc92e4ec91c08d890da7b8691400f56490a2518d9ed47ae150bb997c65375c",
+  "revised_gait_shader": "110e24da874c9cb499f5f8ca2c8428a0079311635c87bf161ee645db61bbf430",
+  "wing_off_source": "cf9038201cea784666fbd3d41e4baa20d515c1faa292d01b413a06136a0c784d"
+}

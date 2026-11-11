@@ -1,0 +1,12 @@
+[
+  {
+    "path": "build/crow-v15-walk-leg-launch-085-screen-20261111/on.metallib",
+    "sha256": "bc3d98cd6240505462a0b5dcb8d387c4f8c7c628df7793931cccb94cfb2e91df",
+    "bytes": 4473088
+  },
+  {
+    "path": "build/crow-v15-walk-leg-launch-085-screen-20261111/off.metallib",
+    "sha256": "d4a6762b855751cb56c0454e049a205160d81c5bf0cf427d98c44c752bff4455",
+    "bytes": 4473104
+  }
+]
