@@ -1,0 +1,14 @@
+--- a/reference.metal
++++ b/feedback.metal
+@@ -5088,8 +5088,10 @@
+             const float carrier=sin(kTwoPi*seconds/0.50f)*(leg==0u ? 1.0f : -1.0f);
+             const float swing=seconds >= begin && seconds < begin+2.0f && support > 0.05f ? carrier : 0.0f;
+             const float lift=max(swing,0.0f);
++            const float ankleCarrier=sin(kTwoPi*seconds/0.50f - 0.25f)*(leg==0u ? 1.0f : -1.0f);
++            const float ankleLift=seconds >= begin && seconds < begin+2.0f && support > 0.05f ? max(ankleCarrier,0.0f) : 0.0f;
+             if (seconds >= begin && seconds < begin+2.0f)
+-                navigationTeacherRequested=0.80f*smoothstep(begin,begin+.50f,seconds)*(joint==0u ? -0.30f*swing : joint==1u ? 0.40f*lift : -0.15f*lift);
++                navigationTeacherRequested=0.80f*smoothstep(begin,begin+.50f,seconds)*(joint==0u ? -0.30f*swing : joint==1u ? 0.40f*lift : -0.15f*ankleLift);
+             else if (seconds>=2.0f && seconds<begin)
+                 { const uint arm=environment%8u;
+                 const float motion=length(float2(state.commandExtension.z,state.threatGeometry.y)); const float gain=.4f+.4f*smoothstep(.03f,.12f,motion);
