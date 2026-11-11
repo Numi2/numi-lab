@@ -1,0 +1,11 @@
+--- a/calibrated.metal
++++ b/pause.metal
+@@ -6722,7 +6722,7 @@
+             float errorOffset = 0.0f;
+             if (landing) {
+                 const float3 perch = sceneState[sceneBase+course+4u].position.xyz;
+-                const float3 landingTarget = perch + float3(-0.035f,0.55f,0.0f);
++                const float3 landingTarget = perch + float3(0.005f,0.55f,0.0f);
+                 const float xError = landingTarget.x-pos.x;
+                 const float yError = landingTarget.y-pos.y;
+                 const float commandedForward = clamp(0.45f*xError,-0.20f,0.20f);

@@ -1,0 +1,3 @@
+# Intermediate target: no grip before timeout
+
+A single development J teacher trial reached five waypoints with exact q/v parity through step 1305 and no observer gaps or overflow. There were two consecutive bilateral half-weight support intervals and no supported opposing toe-force intervals. The first foot contact occurred at 2094; no non-foot perch impulse was observed before the 3000-step timeout. The source's safe_completion field means waypoint completion without an observed physical termination and does not mean the crow landed. The approach did not demonstrate grip, release, a supported landing, or autonomous execution.
