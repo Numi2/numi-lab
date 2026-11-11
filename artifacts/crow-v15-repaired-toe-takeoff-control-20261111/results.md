@@ -1,0 +1,5 @@
+# Matched leg push with the repaired toe body
+
+Push and crouch-only control had identical q/v in every lane through step 247. In all eight push lanes, the root rose approximately 19.2 mm and reached about 0.432 m/s upward; the controls rose about 0.4 mm and reached about 0.001 m/s. There were no native failures, terminations or non-foot ground contacts in the leg-only window. However, no push lane achieved even one control interval with both feet fully unloaded at the predeclared 1e-7 N s summed-normal threshold while moving upward, so the leg-hop gate failed. The controlled comparison does not establish a reliable leg-powered takeoff.
+
+In the representative lane, the upward push interval had approximately 0.273 N s total foot normal impulse; later intervals still had toe contact as the root rose and fell. The observation covers all 16 substeps and suggests the feet remain loaded while the body extends, but does not by itself establish the cause. Active flapping was suppressed during the leg-only window; passive aerodynamic forces were not removed. This was one development seed, eight starts, and no unused layouts.

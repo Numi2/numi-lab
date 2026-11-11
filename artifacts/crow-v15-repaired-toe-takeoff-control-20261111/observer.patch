@@ -1,0 +1,11 @@
+--- a/walk.mm
++++ b/launch.mm
+@@ -21433,7 +21433,7 @@
+             static unsigned long long crowTraceSubmission = 0;
+             const bool crowTraceEnabled = std::getenv("CROW_SUBSTEP_TRACE") != nullptr;
+             const unsigned long long crowTraceStep = crowTraceEnabled ? ++crowTraceSubmission : 0;
+-            const bool crowTraceWindow = crowTraceEnabled && crowTraceStep >= 1 && crowTraceStep <= 205;
++            const bool crowTraceWindow = crowTraceEnabled && crowTraceStep >= 1 && crowTraceStep <= 355;
+             NSMutableArray<id<MTLBuffer>>* crowTraceBuffers = crowTraceWindow ? [NSMutableArray array] : nil;
+             const NSUInteger crowTraceCapacity = diagnostics.layout.contactDispatch.constraintCapacity;
+             const NSUInteger crowTraceLanes = batch.environmentCount;

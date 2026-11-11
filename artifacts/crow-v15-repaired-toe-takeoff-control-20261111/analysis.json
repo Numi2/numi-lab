@@ -1,0 +1,211 @@
+{
+  "preextension_qv_equal_through_step": 247,
+  "arms": {
+    "control": {
+      "failed_environment_steps": 0,
+      "termination_count": 0,
+      "lanes": [
+        {
+          "lane": 0,
+          "unloaded_upward_samples": 0,
+          "longest_unloaded_upward_run": 0,
+          "first_unloaded_upward_step": null,
+          "maximum_height_gain_m": 0.00036831199999998177,
+          "max_upward_speed_m_s": 0.000885689806,
+          "total_foot_normal_impulse_Ns": 2.03070659245,
+          "total_foot_upward_impulse_Ns": 2.0307065954900003,
+          "nonfoot_contact_intervals": 0,
+          "passes_leg_hop_gate": false
+        },
+        {
+          "lane": 1,
+          "unloaded_upward_samples": 0,
+          "longest_unloaded_upward_run": 0,
+          "first_unloaded_upward_step": null,
+          "maximum_height_gain_m": 0.0003666730000000118,
+          "max_upward_speed_m_s": 0.000882781693,
+          "total_foot_normal_impulse_Ns": 2.0307175710700003,
+          "total_foot_upward_impulse_Ns": 2.0307175727000004,
+          "nonfoot_contact_intervals": 0,
+          "passes_leg_hop_gate": false
+        },
+        {
+          "lane": 2,
+          "unloaded_upward_samples": 0,
+          "longest_unloaded_upward_run": 0,
+          "first_unloaded_upward_step": null,
+          "maximum_height_gain_m": 0.00036911700000000214,
+          "max_upward_speed_m_s": 0.000894760014,
+          "total_foot_normal_impulse_Ns": 2.03070902845,
+          "total_foot_upward_impulse_Ns": 2.0307090317100003,
+          "nonfoot_contact_intervals": 0,
+          "passes_leg_hop_gate": false
+        },
+        {
+          "lane": 3,
+          "unloaded_upward_samples": 0,
+          "longest_unloaded_upward_run": 0,
+          "first_unloaded_upward_step": null,
+          "maximum_height_gain_m": 0.0003664050000000141,
+          "max_upward_speed_m_s": 0.00089153013,
+          "total_foot_normal_impulse_Ns": 2.03071943929,
+          "total_foot_upward_impulse_Ns": 2.03071944093,
+          "nonfoot_contact_intervals": 0,
+          "passes_leg_hop_gate": false
+        },
+        {
+          "lane": 4,
+          "unloaded_upward_samples": 0,
+          "longest_unloaded_upward_run": 0,
+          "first_unloaded_upward_step": null,
+          "maximum_height_gain_m": 0.00036710500000000645,
+          "max_upward_speed_m_s": 0.000881144369,
+          "total_foot_normal_impulse_Ns": 2.03070626827,
+          "total_foot_upward_impulse_Ns": 2.03070626779,
+          "nonfoot_contact_intervals": 0,
+          "passes_leg_hop_gate": false
+        },
+        {
+          "lane": 5,
+          "unloaded_upward_samples": 0,
+          "longest_unloaded_upward_run": 0,
+          "first_unloaded_upward_step": null,
+          "maximum_height_gain_m": 0.00036738899999999575,
+          "max_upward_speed_m_s": 0.000892539043,
+          "total_foot_normal_impulse_Ns": 2.03070952636,
+          "total_foot_upward_impulse_Ns": 2.03070952937,
+          "nonfoot_contact_intervals": 0,
+          "passes_leg_hop_gate": false
+        },
+        {
+          "lane": 6,
+          "unloaded_upward_samples": 0,
+          "longest_unloaded_upward_run": 0,
+          "first_unloaded_upward_step": null,
+          "maximum_height_gain_m": 0.00036860999999999144,
+          "max_upward_speed_m_s": 0.000901744701,
+          "total_foot_normal_impulse_Ns": 2.03071880297,
+          "total_foot_upward_impulse_Ns": 2.0307188058000003,
+          "nonfoot_contact_intervals": 0,
+          "passes_leg_hop_gate": false
+        },
+        {
+          "lane": 7,
+          "unloaded_upward_samples": 0,
+          "longest_unloaded_upward_run": 0,
+          "first_unloaded_upward_step": null,
+          "maximum_height_gain_m": 0.0003681190000000001,
+          "max_upward_speed_m_s": 0.000902270782,
+          "total_foot_normal_impulse_Ns": 2.0307207233100004,
+          "total_foot_upward_impulse_Ns": 2.0307207242400005,
+          "nonfoot_contact_intervals": 0,
+          "passes_leg_hop_gate": false
+        }
+      ]
+    },
+    "push": {
+      "failed_environment_steps": 0,
+      "termination_count": 0,
+      "lanes": [
+        {
+          "lane": 0,
+          "unloaded_upward_samples": 0,
+          "longest_unloaded_upward_run": 0,
+          "first_unloaded_upward_step": null,
+          "maximum_height_gain_m": 0.019214436,
+          "max_upward_speed_m_s": 0.432320952,
+          "total_foot_normal_impulse_Ns": 2.036768400680552,
+          "total_foot_upward_impulse_Ns": 2.0367684032705524,
+          "nonfoot_contact_intervals": 0,
+          "passes_leg_hop_gate": false
+        },
+        {
+          "lane": 1,
+          "unloaded_upward_samples": 0,
+          "longest_unloaded_upward_run": 0,
+          "first_unloaded_upward_step": null,
+          "maximum_height_gain_m": 0.019203618000000006,
+          "max_upward_speed_m_s": 0.432141364,
+          "total_foot_normal_impulse_Ns": 2.0367756015075007,
+          "total_foot_upward_impulse_Ns": 2.0367756026775004,
+          "nonfoot_contact_intervals": 0,
+          "passes_leg_hop_gate": false
+        },
+        {
+          "lane": 2,
+          "unloaded_upward_samples": 0,
+          "longest_unloaded_upward_run": 0,
+          "first_unloaded_upward_step": null,
+          "maximum_height_gain_m": 0.01921772999999999,
+          "max_upward_speed_m_s": 0.4322882,
+          "total_foot_normal_impulse_Ns": 2.036767110385458,
+          "total_foot_upward_impulse_Ns": 2.036767111555458,
+          "nonfoot_contact_intervals": 0,
+          "passes_leg_hop_gate": false
+        },
+        {
+          "lane": 3,
+          "unloaded_upward_samples": 0,
+          "longest_unloaded_upward_run": 0,
+          "first_unloaded_upward_step": null,
+          "maximum_height_gain_m": 0.019205570000000005,
+          "max_upward_speed_m_s": 0.432088763,
+          "total_foot_normal_impulse_Ns": 2.0367686301740924,
+          "total_foot_upward_impulse_Ns": 2.0367686315740925,
+          "nonfoot_contact_intervals": 0,
+          "passes_leg_hop_gate": false
+        },
+        {
+          "lane": 4,
+          "unloaded_upward_samples": 0,
+          "longest_unloaded_upward_run": 0,
+          "first_unloaded_upward_step": null,
+          "maximum_height_gain_m": 0.019222111000000014,
+          "max_upward_speed_m_s": 0.432252198,
+          "total_foot_normal_impulse_Ns": 2.03675950598521,
+          "total_foot_upward_impulse_Ns": 2.03675950621521,
+          "nonfoot_contact_intervals": 0,
+          "passes_leg_hop_gate": false
+        },
+        {
+          "lane": 5,
+          "unloaded_upward_samples": 0,
+          "longest_unloaded_upward_run": 0,
+          "first_unloaded_upward_step": null,
+          "maximum_height_gain_m": 0.019217805000000004,
+          "max_upward_speed_m_s": 0.432214856,
+          "total_foot_normal_impulse_Ns": 2.0367755750896825,
+          "total_foot_upward_impulse_Ns": 2.0367755769396827,
+          "nonfoot_contact_intervals": 0,
+          "passes_leg_hop_gate": false
+        },
+        {
+          "lane": 6,
+          "unloaded_upward_samples": 0,
+          "longest_unloaded_upward_run": 0,
+          "first_unloaded_upward_step": null,
+          "maximum_height_gain_m": 0.019246012000000007,
+          "max_upward_speed_m_s": 0.432844818,
+          "total_foot_normal_impulse_Ns": 2.036771037920528,
+          "total_foot_upward_impulse_Ns": 2.0367710388705276,
+          "nonfoot_contact_intervals": 0,
+          "passes_leg_hop_gate": false
+        },
+        {
+          "lane": 7,
+          "unloaded_upward_samples": 0,
+          "longest_unloaded_upward_run": 0,
+          "first_unloaded_upward_step": null,
+          "maximum_height_gain_m": 0.019216224999999976,
+          "max_upward_speed_m_s": 0.432002306,
+          "total_foot_normal_impulse_Ns": 2.0367629489471004,
+          "total_foot_upward_impulse_Ns": 2.0367629494071005,
+          "nonfoot_contact_intervals": 0,
+          "passes_leg_hop_gate": false
+        }
+      ]
+    }
+  },
+  "component_gate": false,
+  "scope": "one development seed, eight perturbed starts, no active flapping in leg-only window but passive aerodynamics retained; no takeoff-to-flight or biological qualification"
+}
