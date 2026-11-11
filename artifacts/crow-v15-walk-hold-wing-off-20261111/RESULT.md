@@ -1,0 +1,5 @@
+# Matched takeoff after walking recovery
+
+For all eight first episodes on the used development seed, the wing-suppressed and wing-on runs matched accepted q/v and all recorded foot-contact substeps through two consecutive unloaded rising intervals. Both feet supplied upward contact impulse before release, no nonfoot ground impulse was recorded in that launch window, and independently reconstructed foot/toe box clearance exceeded 7 mm at the sampled rising endpoints. With wing actuation suppressed, the body rose 4.30–4.38 cm before recontact; the wing-on runs subsequently met the flight-handoff criteria. Passive aerodynamic forces remained, so this establishes leg contribution rather than isolated muscular or biological qualification.
+
+The wing-suppressed fall back onto the ground caused toe-speed cap hits at recontact in all eight lanes. Two lanes also had initial settling cap hits in both arms. The normal wing-on path did not show the post-takeoff ground recontact in this screen. This is not evidence of successful landing, release, an unseen layout or an entirely qualified full sequence.

@@ -1,0 +1,1304 @@
+{
+  "seed": 20261126,
+  "replay_geometry_validation": {
+    "passed": true,
+    "lane": 7,
+    "samples": 2,
+    "q_error": 4.995727165280073e-10,
+    "max_position_error_m": 4.643465414247912e-09,
+    "max_quaternion_error": 2.902220396764278e-08
+  },
+  "on_errors": {
+    "failed_environment_steps": 0,
+    "termination_count": 1
+  },
+  "off_errors": {
+    "failed_environment_steps": 0,
+    "termination_count": 0
+  },
+  "rows": [
+    {
+      "lane": 0,
+      "first_unloaded_rising_interval_off": 353,
+      "first_off_recontact": 361,
+      "wing_off_max_rise_before_recontact_m": 0.043078123999999995,
+      "foot_upward_impulse_until_unload_Ns": [
+        0.4321973118,
+        0.44319276594
+      ],
+      "max_nonfoot_interval_impulse_Ns": 0.0,
+      "paired_qv_or_contact_differences": [],
+      "minimum_sole_toe_gap_m": 0.007291167091097936,
+      "missing_intervals": {
+        "on": 0,
+        "off": 0
+      },
+      "first_on_ground_recontact": null,
+      "flight_metrics": {
+        "400": {
+          "height_gain_m": 0.640199169,
+          "forward_speed_m_s": -0.019949073,
+          "tilt_rad": 0.07609398068631631
+        },
+        "500": {
+          "height_gain_m": 0.838324772,
+          "forward_speed_m_s": 0.270137429,
+          "tilt_rad": 0.04025278646336425
+        }
+      },
+      "toe_limit_hits_on": [],
+      "toe_limit_hits_off": [
+        [
+          361,
+          2,
+          [
+            6,
+            14
+          ]
+        ],
+        [
+          361,
+          3,
+          [
+            6,
+            14
+          ]
+        ],
+        [
+          361,
+          4,
+          [
+            6,
+            14
+          ]
+        ],
+        [
+          361,
+          5,
+          [
+            6,
+            14
+          ]
+        ],
+        [
+          361,
+          6,
+          [
+            6,
+            14
+          ]
+        ],
+        [
+          361,
+          7,
+          [
+            6,
+            14
+          ]
+        ],
+        [
+          361,
+          8,
+          [
+            6,
+            14
+          ]
+        ],
+        [
+          361,
+          9,
+          [
+            6,
+            14
+          ]
+        ],
+        [
+          361,
+          10,
+          [
+            6,
+            14
+          ]
+        ],
+        [
+          361,
+          11,
+          [
+            6,
+            14
+          ]
+        ],
+        [
+          361,
+          12,
+          [
+            6,
+            14
+          ]
+        ]
+      ],
+      "on_first_episode_end": 3800,
+      "off_first_episode_end": 500,
+      "leg_control_pass": true,
+      "flight_handoff_pass": true
+    },
+    {
+      "lane": 1,
+      "first_unloaded_rising_interval_off": 353,
+      "first_off_recontact": 361,
+      "wing_off_max_rise_before_recontact_m": 0.043427661000000006,
+      "foot_upward_impulse_until_unload_Ns": [
+        0.42814367667,
+        0.44907324712999996
+      ],
+      "max_nonfoot_interval_impulse_Ns": 0.0,
+      "paired_qv_or_contact_differences": [],
+      "minimum_sole_toe_gap_m": 0.007367492663989818,
+      "missing_intervals": {
+        "on": 0,
+        "off": 0
+      },
+      "first_on_ground_recontact": null,
+      "flight_metrics": {
+        "400": {
+          "height_gain_m": 0.621823818,
+          "forward_speed_m_s": -0.0143487006,
+          "tilt_rad": 0.07782749673709315
+        },
+        "500": {
+          "height_gain_m": 0.767336816,
+          "forward_speed_m_s": 0.267871588,
+          "tilt_rad": 0.038501667876029655
+        }
+      },
+      "toe_limit_hits_on": [
+        [
+          25,
+          9,
+          [
+            14
+          ]
+        ],
+        [
+          25,
+          10,
+          [
+            14
+          ]
+        ],
+        [
+          32,
+          13,
+          [
+            14
+          ]
+        ],
+        [
+          32,
+          14,
+          [
+            14
+          ]
+        ],
+        [
+          32,
+          15,
+          [
+            14
+          ]
+        ],
+        [
+          52,
+          7,
+          [
+            14
+          ]
+        ],
+        [
+          52,
+          8,
+          [
+            14
+          ]
+        ],
+        [
+          60,
+          2,
+          [
+            14
+          ]
+        ],
+        [
+          60,
+          3,
+          [
+            14
+          ]
+        ],
+        [
+          60,
+          4,
+          [
+            14
+          ]
+        ],
+        [
+          67,
+          2,
+          [
+            14
+          ]
+        ],
+        [
+          87,
+          12,
+          [
+            14
+          ]
+        ],
+        [
+          87,
+          13,
+          [
+            14
+          ]
+        ],
+        [
+          87,
+          14,
+          [
+            14
+          ]
+        ]
+      ],
+      "toe_limit_hits_off": [
+        [
+          25,
+          9,
+          [
+            14
+          ]
+        ],
+        [
+          25,
+          10,
+          [
+            14
+          ]
+        ],
+        [
+          32,
+          13,
+          [
+            14
+          ]
+        ],
+        [
+          32,
+          14,
+          [
+            14
+          ]
+        ],
+        [
+          32,
+          15,
+          [
+            14
+          ]
+        ],
+        [
+          52,
+          7,
+          [
+            14
+          ]
+        ],
+        [
+          52,
+          8,
+          [
+            14
+          ]
+        ],
+        [
+          60,
+          2,
+          [
+            14
+          ]
+        ],
+        [
+          60,
+          3,
+          [
+            14
+          ]
+        ],
+        [
+          60,
+          4,
+          [
+            14
+          ]
+        ],
+        [
+          67,
+          2,
+          [
+            14
+          ]
+        ],
+        [
+          87,
+          12,
+          [
+            14
+          ]
+        ],
+        [
+          87,
+          13,
+          [
+            14
+          ]
+        ],
+        [
+          87,
+          14,
+          [
+            14
+          ]
+        ],
+        [
+          361,
+          3,
+          [
+            6,
+            14
+          ]
+        ],
+        [
+          361,
+          4,
+          [
+            6,
+            14
+          ]
+        ],
+        [
+          361,
+          5,
+          [
+            6,
+            14
+          ]
+        ],
+        [
+          361,
+          6,
+          [
+            6,
+            14
+          ]
+        ],
+        [
+          361,
+          7,
+          [
+            6,
+            14
+          ]
+        ],
+        [
+          361,
+          8,
+          [
+            6,
+            14
+          ]
+        ],
+        [
+          361,
+          9,
+          [
+            6,
+            14
+          ]
+        ],
+        [
+          361,
+          10,
+          [
+            6,
+            14
+          ]
+        ],
+        [
+          361,
+          11,
+          [
+            6,
+            14
+          ]
+        ],
+        [
+          361,
+          12,
+          [
+            6,
+            14
+          ]
+        ],
+        [
+          361,
+          13,
+          [
+            6,
+            14
+          ]
+        ]
+      ],
+      "on_first_episode_end": 3800,
+      "off_first_episode_end": 500,
+      "leg_control_pass": true,
+      "flight_handoff_pass": true
+    },
+    {
+      "lane": 2,
+      "first_unloaded_rising_interval_off": 353,
+      "first_off_recontact": 361,
+      "wing_off_max_rise_before_recontact_m": 0.043433025000000014,
+      "foot_upward_impulse_until_unload_Ns": [
+        0.43041798176,
+        0.44682771169
+      ],
+      "max_nonfoot_interval_impulse_Ns": 0.0,
+      "paired_qv_or_contact_differences": [],
+      "minimum_sole_toe_gap_m": 0.007404355018362733,
+      "missing_intervals": {
+        "on": 0,
+        "off": 0
+      },
+      "first_on_ground_recontact": null,
+      "flight_metrics": {
+        "400": {
+          "height_gain_m": 0.633235708,
+          "forward_speed_m_s": -0.0194806904,
+          "tilt_rad": 0.07659343391526088
+        },
+        "500": {
+          "height_gain_m": 0.810943022,
+          "forward_speed_m_s": 0.258624494,
+          "tilt_rad": 0.03871793395861989
+        }
+      },
+      "toe_limit_hits_on": [
+        [
+          1,
+          3,
+          [
+            8
+          ]
+        ],
+        [
+          1,
+          4,
+          [
+            8
+          ]
+        ],
+        [
+          1,
+          5,
+          [
+            8
+          ]
+        ],
+        [
+          2,
+          3,
+          [
+            8
+          ]
+        ],
+        [
+          2,
+          4,
+          [
+            8
+          ]
+        ],
+        [
+          2,
+          5,
+          [
+            8
+          ]
+        ]
+      ],
+      "toe_limit_hits_off": [
+        [
+          1,
+          3,
+          [
+            8
+          ]
+        ],
+        [
+          1,
+          4,
+          [
+            8
+          ]
+        ],
+        [
+          1,
+          5,
+          [
+            8
+          ]
+        ],
+        [
+          2,
+          3,
+          [
+            8
+          ]
+        ],
+        [
+          2,
+          4,
+          [
+            8
+          ]
+        ],
+        [
+          2,
+          5,
+          [
+            8
+          ]
+        ],
+        [
+          361,
+          3,
+          [
+            6,
+            14
+          ]
+        ],
+        [
+          361,
+          4,
+          [
+            6,
+            14
+          ]
+        ],
+        [
+          361,
+          5,
+          [
+            6,
+            14
+          ]
+        ],
+        [
+          361,
+          6,
+          [
+            6,
+            14
+          ]
+        ],
+        [
+          361,
+          7,
+          [
+            6,
+            14
+          ]
+        ],
+        [
+          361,
+          8,
+          [
+            6,
+            14
+          ]
+        ],
+        [
+          361,
+          9,
+          [
+            6,
+            14
+          ]
+        ],
+        [
+          361,
+          10,
+          [
+            6,
+            14
+          ]
+        ],
+        [
+          361,
+          11,
+          [
+            6,
+            14
+          ]
+        ],
+        [
+          361,
+          12,
+          [
+            6,
+            14
+          ]
+        ],
+        [
+          361,
+          13,
+          [
+            6,
+            14
+          ]
+        ]
+      ],
+      "on_first_episode_end": 3800,
+      "off_first_episode_end": 500,
+      "leg_control_pass": true,
+      "flight_handoff_pass": true
+    },
+    {
+      "lane": 3,
+      "first_unloaded_rising_interval_off": 353,
+      "first_off_recontact": 361,
+      "wing_off_max_rise_before_recontact_m": 0.043176203999999996,
+      "foot_upward_impulse_until_unload_Ns": [
+        0.43081160423000003,
+        0.44509096475000004
+      ],
+      "max_nonfoot_interval_impulse_Ns": 0.0,
+      "paired_qv_or_contact_differences": [],
+      "minimum_sole_toe_gap_m": 0.0073267261410218665,
+      "missing_intervals": {
+        "on": 0,
+        "off": 0
+      },
+      "first_on_ground_recontact": null,
+      "flight_metrics": {
+        "400": {
+          "height_gain_m": 0.638966993,
+          "forward_speed_m_s": -0.0194896851,
+          "tilt_rad": 0.0766366910459803
+        },
+        "500": {
+          "height_gain_m": 0.823145405,
+          "forward_speed_m_s": 0.268024594,
+          "tilt_rad": 0.0389996215098352
+        }
+      },
+      "toe_limit_hits_on": [],
+      "toe_limit_hits_off": [
+        [
+          361,
+          2,
+          [
+            6,
+            14
+          ]
+        ],
+        [
+          361,
+          3,
+          [
+            6,
+            14
+          ]
+        ],
+        [
+          361,
+          4,
+          [
+            6,
+            14
+          ]
+        ],
+        [
+          361,
+          5,
+          [
+            6,
+            14
+          ]
+        ],
+        [
+          361,
+          6,
+          [
+            6,
+            14
+          ]
+        ],
+        [
+          361,
+          7,
+          [
+            6,
+            14
+          ]
+        ],
+        [
+          361,
+          8,
+          [
+            6,
+            14
+          ]
+        ],
+        [
+          361,
+          9,
+          [
+            6,
+            14
+          ]
+        ],
+        [
+          361,
+          10,
+          [
+            6,
+            14
+          ]
+        ],
+        [
+          361,
+          11,
+          [
+            6,
+            14
+          ]
+        ],
+        [
+          361,
+          12,
+          [
+            6,
+            14
+          ]
+        ]
+      ],
+      "on_first_episode_end": 3800,
+      "off_first_episode_end": 500,
+      "leg_control_pass": true,
+      "flight_handoff_pass": true
+    },
+    {
+      "lane": 4,
+      "first_unloaded_rising_interval_off": 353,
+      "first_off_recontact": 361,
+      "wing_off_max_rise_before_recontact_m": 0.043525203999999984,
+      "foot_upward_impulse_until_unload_Ns": [
+        0.43287813516999996,
+        0.44483161888999995
+      ],
+      "max_nonfoot_interval_impulse_Ns": 0.0,
+      "paired_qv_or_contact_differences": [],
+      "minimum_sole_toe_gap_m": 0.007446922757019529,
+      "missing_intervals": {
+        "on": 0,
+        "off": 0
+      },
+      "first_on_ground_recontact": null,
+      "flight_metrics": {
+        "400": {
+          "height_gain_m": 0.6402384640000001,
+          "forward_speed_m_s": -0.0215302054,
+          "tilt_rad": 0.07653269097305082
+        },
+        "500": {
+          "height_gain_m": 0.849006534,
+          "forward_speed_m_s": 0.272556216,
+          "tilt_rad": 0.04072026991137046
+        }
+      },
+      "toe_limit_hits_on": [],
+      "toe_limit_hits_off": [
+        [
+          361,
+          3,
+          [
+            6,
+            14
+          ]
+        ],
+        [
+          361,
+          4,
+          [
+            6,
+            14
+          ]
+        ],
+        [
+          361,
+          5,
+          [
+            6,
+            14
+          ]
+        ],
+        [
+          361,
+          6,
+          [
+            6,
+            14
+          ]
+        ],
+        [
+          361,
+          7,
+          [
+            6,
+            14
+          ]
+        ],
+        [
+          361,
+          8,
+          [
+            6,
+            14
+          ]
+        ],
+        [
+          361,
+          9,
+          [
+            6,
+            14
+          ]
+        ],
+        [
+          361,
+          10,
+          [
+            6,
+            14
+          ]
+        ],
+        [
+          361,
+          11,
+          [
+            6,
+            14
+          ]
+        ],
+        [
+          361,
+          12,
+          [
+            6,
+            14
+          ]
+        ],
+        [
+          361,
+          13,
+          [
+            6,
+            14
+          ]
+        ]
+      ],
+      "on_first_episode_end": 3460,
+      "off_first_episode_end": 500,
+      "leg_control_pass": true,
+      "flight_handoff_pass": true
+    },
+    {
+      "lane": 5,
+      "first_unloaded_rising_interval_off": 353,
+      "first_off_recontact": 361,
+      "wing_off_max_rise_before_recontact_m": 0.04365260899999998,
+      "foot_upward_impulse_until_unload_Ns": [
+        0.43224477828999996,
+        0.44613709782
+      ],
+      "max_nonfoot_interval_impulse_Ns": 0.0,
+      "paired_qv_or_contact_differences": [],
+      "minimum_sole_toe_gap_m": 0.007489067224556296,
+      "missing_intervals": {
+        "on": 0,
+        "off": 0
+      },
+      "first_on_ground_recontact": null,
+      "flight_metrics": {
+        "400": {
+          "height_gain_m": 0.6420014350000001,
+          "forward_speed_m_s": -0.0222635493,
+          "tilt_rad": 0.07637639831998863
+        },
+        "500": {
+          "height_gain_m": 0.834373936,
+          "forward_speed_m_s": 0.280298978,
+          "tilt_rad": 0.041229450442991186
+        }
+      },
+      "toe_limit_hits_on": [],
+      "toe_limit_hits_off": [
+        [
+          361,
+          3,
+          [
+            6,
+            14
+          ]
+        ],
+        [
+          361,
+          4,
+          [
+            6,
+            14
+          ]
+        ],
+        [
+          361,
+          5,
+          [
+            6,
+            14
+          ]
+        ],
+        [
+          361,
+          6,
+          [
+            6,
+            14
+          ]
+        ],
+        [
+          361,
+          7,
+          [
+            6,
+            14
+          ]
+        ],
+        [
+          361,
+          8,
+          [
+            6,
+            14
+          ]
+        ],
+        [
+          361,
+          9,
+          [
+            6,
+            14
+          ]
+        ],
+        [
+          361,
+          10,
+          [
+            6,
+            14
+          ]
+        ],
+        [
+          361,
+          11,
+          [
+            6,
+            14
+          ]
+        ],
+        [
+          361,
+          12,
+          [
+            6,
+            14
+          ]
+        ],
+        [
+          361,
+          13,
+          [
+            6,
+            14
+          ]
+        ]
+      ],
+      "on_first_episode_end": 3800,
+      "off_first_episode_end": 500,
+      "leg_control_pass": true,
+      "flight_handoff_pass": true
+    },
+    {
+      "lane": 6,
+      "first_unloaded_rising_interval_off": 353,
+      "first_off_recontact": 361,
+      "wing_off_max_rise_before_recontact_m": 0.043809339,
+      "foot_upward_impulse_until_unload_Ns": [
+        0.43256897327,
+        0.44663400167
+      ],
+      "max_nonfoot_interval_impulse_Ns": 0.0,
+      "paired_qv_or_contact_differences": [],
+      "minimum_sole_toe_gap_m": 0.0075457953884480525,
+      "missing_intervals": {
+        "on": 0,
+        "off": 0
+      },
+      "first_on_ground_recontact": null,
+      "flight_metrics": {
+        "400": {
+          "height_gain_m": 0.6317924260000001,
+          "forward_speed_m_s": -0.0189705621,
+          "tilt_rad": 0.07647901906529642
+        },
+        "500": {
+          "height_gain_m": 0.831162154,
+          "forward_speed_m_s": 0.257715583,
+          "tilt_rad": 0.03942322882350256
+        }
+      },
+      "toe_limit_hits_on": [],
+      "toe_limit_hits_off": [
+        [
+          361,
+          3,
+          [
+            6,
+            14
+          ]
+        ],
+        [
+          361,
+          4,
+          [
+            6,
+            14
+          ]
+        ],
+        [
+          361,
+          5,
+          [
+            6,
+            14
+          ]
+        ],
+        [
+          361,
+          6,
+          [
+            6,
+            14
+          ]
+        ],
+        [
+          361,
+          7,
+          [
+            6,
+            14
+          ]
+        ],
+        [
+          361,
+          8,
+          [
+            6,
+            14
+          ]
+        ],
+        [
+          361,
+          9,
+          [
+            6,
+            14
+          ]
+        ],
+        [
+          361,
+          10,
+          [
+            6,
+            14
+          ]
+        ],
+        [
+          361,
+          11,
+          [
+            6,
+            14
+          ]
+        ],
+        [
+          361,
+          12,
+          [
+            6,
+            14
+          ]
+        ],
+        [
+          361,
+          13,
+          [
+            6,
+            14
+          ]
+        ]
+      ],
+      "on_first_episode_end": 3800,
+      "off_first_episode_end": 500,
+      "leg_control_pass": true,
+      "flight_handoff_pass": true
+    },
+    {
+      "lane": 7,
+      "first_unloaded_rising_interval_off": 353,
+      "first_off_recontact": 361,
+      "wing_off_max_rise_before_recontact_m": 0.04323948900000002,
+      "foot_upward_impulse_until_unload_Ns": [
+        0.42984252294,
+        0.44639229455
+      ],
+      "max_nonfoot_interval_impulse_Ns": 0.0,
+      "paired_qv_or_contact_differences": [],
+      "minimum_sole_toe_gap_m": 0.0073415005596042075,
+      "missing_intervals": {
+        "on": 0,
+        "off": 0
+      },
+      "first_on_ground_recontact": null,
+      "flight_metrics": {
+        "400": {
+          "height_gain_m": 0.6301409149999999,
+          "forward_speed_m_s": -0.01774179,
+          "tilt_rad": 0.07661280890743262
+        },
+        "500": {
+          "height_gain_m": 0.8131573940000001,
+          "forward_speed_m_s": 0.266176283,
+          "tilt_rad": 0.03914650074881441
+        }
+      },
+      "toe_limit_hits_on": [],
+      "toe_limit_hits_off": [
+        [
+          361,
+          2,
+          [
+            6,
+            14
+          ]
+        ],
+        [
+          361,
+          3,
+          [
+            6,
+            14
+          ]
+        ],
+        [
+          361,
+          4,
+          [
+            6,
+            14
+          ]
+        ],
+        [
+          361,
+          5,
+          [
+            6,
+            14
+          ]
+        ],
+        [
+          361,
+          6,
+          [
+            6,
+            14
+          ]
+        ],
+        [
+          361,
+          7,
+          [
+            6,
+            14
+          ]
+        ],
+        [
+          361,
+          8,
+          [
+            6,
+            14
+          ]
+        ],
+        [
+          361,
+          9,
+          [
+            6,
+            14
+          ]
+        ],
+        [
+          361,
+          10,
+          [
+            6,
+            14
+          ]
+        ],
+        [
+          361,
+          11,
+          [
+            6,
+            14
+          ]
+        ],
+        [
+          361,
+          12,
+          [
+            6,
+            14
+          ]
+        ]
+      ],
+      "on_first_episode_end": 3800,
+      "off_first_episode_end": 500,
+      "leg_control_pass": true,
+      "flight_handoff_pass": true
+    }
+  ],
+  "limitations": "Teacher-off selected development starts. Wing-suppressed control does not eliminate passive aerodynamic forces. Ground clearance is sampled at control endpoints. This is not landing, release, held-out route, full ground-sequence qualification, or biological validation."
+}
