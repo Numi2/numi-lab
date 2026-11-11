@@ -1,0 +1,130 @@
+[
+  {
+    "lane": 1,
+    "other_contact_samples": 32,
+    "first_open_supported": 901,
+    "terminal_50_open_supported": 0,
+    "grip_gap_m": -0.000448899577685867,
+    "strict_pass": false
+  },
+  {
+    "lane": 2,
+    "other_contact_samples": 0,
+    "first_open_supported": 810,
+    "terminal_50_open_supported": 0,
+    "grip_gap_m": -0.000448899577685867,
+    "strict_pass": false
+  },
+  {
+    "lane": 3,
+    "other_contact_samples": 1,
+    "first_open_supported": 810,
+    "terminal_50_open_supported": 0,
+    "grip_gap_m": -0.000448899577685867,
+    "strict_pass": false
+  },
+  {
+    "lane": 4,
+    "other_contact_samples": 232,
+    "first_open_supported": 810,
+    "terminal_50_open_supported": 0,
+    "grip_gap_m": -0.000448899577685867,
+    "strict_pass": false
+  },
+  {
+    "lane": 5,
+    "other_contact_samples": 19,
+    "first_open_supported": 934,
+    "terminal_50_open_supported": 0,
+    "grip_gap_m": -0.000448899577685867,
+    "strict_pass": false
+  },
+  {
+    "lane": 6,
+    "other_contact_samples": 0,
+    "first_open_supported": 810,
+    "terminal_50_open_supported": 0,
+    "grip_gap_m": -0.000448899577685867,
+    "strict_pass": false
+  },
+  {
+    "lane": 7,
+    "other_contact_samples": 0,
+    "first_open_supported": 810,
+    "terminal_50_open_supported": 0,
+    "grip_gap_m": -0.000448899577685867,
+    "strict_pass": false
+  },
+  {
+    "lane": 8,
+    "other_contact_samples": 5,
+    "first_open_supported": 969,
+    "terminal_50_open_supported": 1,
+    "grip_gap_m": -0.000448899577685867,
+    "strict_pass": false
+  },
+  {
+    "lane": 9,
+    "other_contact_samples": 0,
+    "first_open_supported": 810,
+    "terminal_50_open_supported": 0,
+    "grip_gap_m": -0.000448899577685867,
+    "strict_pass": false
+  },
+  {
+    "lane": 10,
+    "other_contact_samples": 0,
+    "first_open_supported": 810,
+    "terminal_50_open_supported": 0,
+    "grip_gap_m": -0.000448899577685867,
+    "strict_pass": false
+  },
+  {
+    "lane": 11,
+    "other_contact_samples": 2,
+    "first_open_supported": 811,
+    "terminal_50_open_supported": 0,
+    "grip_gap_m": -0.000448899577685867,
+    "strict_pass": false
+  },
+  {
+    "lane": 12,
+    "other_contact_samples": 0,
+    "first_open_supported": 810,
+    "terminal_50_open_supported": 0,
+    "grip_gap_m": -0.000448899577685867,
+    "strict_pass": false
+  },
+  {
+    "lane": 13,
+    "other_contact_samples": 0,
+    "first_open_supported": 810,
+    "terminal_50_open_supported": 0,
+    "grip_gap_m": -0.000448899577685867,
+    "strict_pass": false
+  },
+  {
+    "lane": 14,
+    "other_contact_samples": 0,
+    "first_open_supported": 810,
+    "terminal_50_open_supported": 0,
+    "grip_gap_m": -0.000448899577685867,
+    "strict_pass": false
+  },
+  {
+    "lane": 15,
+    "other_contact_samples": 0,
+    "first_open_supported": 810,
+    "terminal_50_open_supported": 0,
+    "grip_gap_m": -0.000448899577685867,
+    "strict_pass": false
+  },
+  {
+    "lane": 16,
+    "other_contact_samples": 0,
+    "first_open_supported": 810,
+    "terminal_50_open_supported": 0,
+    "grip_gap_m": -0.000448899577685867,
+    "strict_pass": false
+  }
+]

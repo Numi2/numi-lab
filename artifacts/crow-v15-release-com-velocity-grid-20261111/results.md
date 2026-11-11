@@ -1,0 +1,3 @@
+# Balance target and velocity feedback during physical toe release
+
+The unchanged lane exactly reproduced all 1,100 saved reference states, and all 15 candidates matched it through the 777 states before release. No candidate passed the 50-sample terminal open-toe and supported gate, and several produced nonfoot contact. One candidate had just one qualifying terminal sample; the others had none. The measured grip overlap before release remained 0.449 mm. Adjusting post-release COM target and velocity feedback alone did not produce a supported release, so none is promoted. This was a single development start; no unused layout was used.
