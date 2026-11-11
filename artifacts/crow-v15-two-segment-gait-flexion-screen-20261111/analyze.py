@@ -16,7 +16,7 @@ for e in range(8):
  if complete:
   disp=samples[-1]['q'][0]-samples[0]['q'][0];speed=max(math.sqrt(sum(z*z for z in x['v'][:3])) for x in samples);tilt=max(math.acos(max(-1.,min(1.,1.-2*(x['q'][3]**2+x['q'][4]**2)))) for x in samples);air=sum(sub[e,t][2]+sub[e,t][3]<=1e-7 for t in range(101,202));nonfoot=sum(sub[e,t][4]>1e-7 for t in range(101,202));coverage=sum(cover[e,t,k]!=1 for t in range(101,202) for k in range(16))
  else:disp=speed=tilt=air=nonfoot=coverage=None
- out.append({'lane':e,'hip_coefficient':[.50,.30,.30,.30][e%4],'knee_coefficient':[.80,.40,.60,.80][e%4],'complete':complete,'baseline_sample_differences':diff,'forward_displacement_m':disp,'maximum_speed_m_s':speed,'maximum_tilt_rad':tilt,'unsupported_intervals':air,'nonfoot_impulse_intervals':nonfoot,'missing_substeps':coverage,'pass':bool(complete and disp>=.015 and speed<=.5 and tilt<=.35 and air==0 and nonfoot==0 and coverage==0 and (diff is None or diff==0))})
+ out.append({'lane':e,'hip_coefficient':[-.30,-.30,-.30,-.50][e%4],'knee_coefficient':[.40,-.40,-.80,-.80][e%4],'complete':complete,'baseline_sample_differences':diff,'forward_displacement_m':disp,'maximum_speed_m_s':speed,'maximum_tilt_rad':tilt,'unsupported_intervals':air,'nonfoot_impulse_intervals':nonfoot,'missing_substeps':coverage,'pass':bool(complete and disp>=.015 and speed<=.5 and tilt<=.35 and air==0 and nonfoot==0 and coverage==0 and (diff is None or diff==0))})
 try:
  data=json.loads((A/'stdout').read_text());failed=data['failed_environment_steps'];termination=data['termination_count']
 except Exception as ex:failed=None;termination=None;errors.append(str(ex))
