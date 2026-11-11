@@ -1,0 +1,3 @@
+# Narrowed toe-contact bracket
+
+The +15 mm development J privileged-teacher approach matched q/v through waypoint five at step 1305. All five waypoints were reached; minimum accepted obstacle clearance was 0.13897 m. The observer recorded 122 bilateral half-weight supported intervals, including 119 consecutive intervals (2.38 s), with zero supported opposing toe-force intervals. The first episode failed at step 2425 with tail-ground contact; no non-foot perch impulse was recorded. This is an improvement in temporary support over the other tested positions, not a grip, release, supported landing, autonomous result, or held-out qualification.
