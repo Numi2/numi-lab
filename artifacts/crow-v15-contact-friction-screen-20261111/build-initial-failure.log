@@ -1,0 +1,9 @@
+In file included from artifacts/crow-v15-contact-friction-screen-20261111/probe.cpp:2:
+In file included from artifacts/crow-v15-contact-friction-screen-20261111/../crow-v15-hip-roll-strong-drive-prototype-20261111/probe.cpp:2:
+artifacts/crow-v15-contact-friction-screen-20261111/../crow-v15-hip-roll-strong-drive-prototype-20261111/../crow-v15-two-segment-toe-prototype-20261111/probe.cpp:75:78: warning: non-void function does not return a value in all control paths [-Wreturn-type]
+   75 |   } catch(const std::exception& e){std::cerr<<e.what()<<std::endl;return 1;} }
+      |                                                                              ^
+artifacts/crow-v15-contact-friction-screen-20261111/probe.cpp:15:12: error: variable 'm' declared with deduced type 'auto &' cannot appear in its own initializer
+   15 |    auto& m=m.robot.mechanics; auto material=m.materials.at(0); material.friction.x=1.8f; material.friction.y=1.35f;
+      |            ^
+1 warning and 1 error generated.

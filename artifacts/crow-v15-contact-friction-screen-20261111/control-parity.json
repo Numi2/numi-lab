@@ -1,0 +1,9 @@
+{
+  "reference_states": 4400,
+  "control_states": 4400,
+  "different_arrays": 0,
+  "max_abs_difference": 0.0,
+  "examples": [],
+  "parity": true,
+  "scope": "Exact decimal logged q/v parity; does not establish unlogged solver internals."
+}

@@ -1,0 +1,200 @@
+{
+  "rows": [
+    {
+      "lane": 0,
+      "baseline": {
+        "pass": false,
+        "first_root_below_0_1m": 252,
+        "nonfoot_impulse_intervals": 296,
+        "release_trigger_step": 198,
+        "return_step": null,
+        "terminal_100_bilateral_supported_grip": false,
+        "longest_qualified_release_intervals": 0,
+        "peak_minimum_left_clearance_m": 0.035417001413182554
+      },
+      "high_friction": {
+        "pass": false,
+        "first_root_below_0_1m": 256,
+        "nonfoot_impulse_intervals": 292,
+        "release_trigger_step": 199,
+        "return_step": null,
+        "terminal_100_bilateral_supported_grip": false,
+        "longest_qualified_release_intervals": 0,
+        "peak_minimum_left_clearance_m": 0.026201258378382684
+      }
+    },
+    {
+      "lane": 1,
+      "baseline": {
+        "pass": false,
+        "first_root_below_0_1m": 269,
+        "nonfoot_impulse_intervals": 279,
+        "release_trigger_step": 222,
+        "return_step": null,
+        "terminal_100_bilateral_supported_grip": false,
+        "longest_qualified_release_intervals": 0,
+        "peak_minimum_left_clearance_m": 0.025272202646948697
+      },
+      "high_friction": {
+        "pass": false,
+        "first_root_below_0_1m": 293,
+        "nonfoot_impulse_intervals": 255,
+        "release_trigger_step": 234,
+        "return_step": null,
+        "terminal_100_bilateral_supported_grip": false,
+        "longest_qualified_release_intervals": 0,
+        "peak_minimum_left_clearance_m": 0.026450996497200667
+      }
+    },
+    {
+      "lane": 2,
+      "baseline": {
+        "pass": false,
+        "first_root_below_0_1m": null,
+        "nonfoot_impulse_intervals": 0,
+        "release_trigger_step": 198,
+        "return_step": null,
+        "terminal_100_bilateral_supported_grip": false,
+        "longest_qualified_release_intervals": 0,
+        "peak_minimum_left_clearance_m": 0.0031503744501717793
+      },
+      "high_friction": {
+        "pass": false,
+        "first_root_below_0_1m": null,
+        "nonfoot_impulse_intervals": 0,
+        "release_trigger_step": 199,
+        "return_step": 253,
+        "terminal_100_bilateral_supported_grip": false,
+        "longest_qualified_release_intervals": 41,
+        "peak_minimum_left_clearance_m": 0.00707696150786806
+      }
+    },
+    {
+      "lane": 3,
+      "baseline": {
+        "pass": false,
+        "first_root_below_0_1m": null,
+        "nonfoot_impulse_intervals": 0,
+        "release_trigger_step": 222,
+        "return_step": null,
+        "terminal_100_bilateral_supported_grip": false,
+        "longest_qualified_release_intervals": 0,
+        "peak_minimum_left_clearance_m": 0.002658730861729207
+      },
+      "high_friction": {
+        "pass": false,
+        "first_root_below_0_1m": null,
+        "nonfoot_impulse_intervals": 0,
+        "release_trigger_step": 234,
+        "return_step": 289,
+        "terminal_100_bilateral_supported_grip": false,
+        "longest_qualified_release_intervals": 34,
+        "peak_minimum_left_clearance_m": 0.004897254242733788
+      }
+    },
+    {
+      "lane": 4,
+      "baseline": {
+        "pass": false,
+        "first_root_below_0_1m": null,
+        "nonfoot_impulse_intervals": 0,
+        "release_trigger_step": 198,
+        "return_step": null,
+        "terminal_100_bilateral_supported_grip": false,
+        "longest_qualified_release_intervals": 0,
+        "peak_minimum_left_clearance_m": 0.00045364825587519003
+      },
+      "high_friction": {
+        "pass": false,
+        "first_root_below_0_1m": null,
+        "nonfoot_impulse_intervals": 0,
+        "release_trigger_step": 199,
+        "return_step": null,
+        "terminal_100_bilateral_supported_grip": false,
+        "longest_qualified_release_intervals": 4,
+        "peak_minimum_left_clearance_m": 0.0014578643251073747
+      }
+    },
+    {
+      "lane": 5,
+      "baseline": {
+        "pass": false,
+        "first_root_below_0_1m": null,
+        "nonfoot_impulse_intervals": 0,
+        "release_trigger_step": 222,
+        "return_step": null,
+        "terminal_100_bilateral_supported_grip": false,
+        "longest_qualified_release_intervals": 0,
+        "peak_minimum_left_clearance_m": 0.0006433022459652396
+      },
+      "high_friction": {
+        "pass": false,
+        "first_root_below_0_1m": null,
+        "nonfoot_impulse_intervals": 0,
+        "release_trigger_step": 234,
+        "return_step": null,
+        "terminal_100_bilateral_supported_grip": false,
+        "longest_qualified_release_intervals": 5,
+        "peak_minimum_left_clearance_m": 0.0013630799834605384
+      }
+    },
+    {
+      "lane": 6,
+      "baseline": {
+        "pass": false,
+        "first_root_below_0_1m": null,
+        "nonfoot_impulse_intervals": 0,
+        "release_trigger_step": 198,
+        "return_step": null,
+        "terminal_100_bilateral_supported_grip": false,
+        "longest_qualified_release_intervals": 0,
+        "peak_minimum_left_clearance_m": 0.00045364825587519003
+      },
+      "high_friction": {
+        "pass": false,
+        "first_root_below_0_1m": null,
+        "nonfoot_impulse_intervals": 0,
+        "release_trigger_step": 199,
+        "return_step": null,
+        "terminal_100_bilateral_supported_grip": false,
+        "longest_qualified_release_intervals": 4,
+        "peak_minimum_left_clearance_m": 0.0014578643251073747
+      }
+    },
+    {
+      "lane": 7,
+      "baseline": {
+        "pass": false,
+        "first_root_below_0_1m": null,
+        "nonfoot_impulse_intervals": 0,
+        "release_trigger_step": 222,
+        "return_step": null,
+        "terminal_100_bilateral_supported_grip": false,
+        "longest_qualified_release_intervals": 0,
+        "peak_minimum_left_clearance_m": 0.0006433022459652396
+      },
+      "high_friction": {
+        "pass": false,
+        "first_root_below_0_1m": null,
+        "nonfoot_impulse_intervals": 0,
+        "release_trigger_step": 234,
+        "return_step": null,
+        "terminal_100_bilateral_supported_grip": false,
+        "longest_qualified_release_intervals": 5,
+        "peak_minimum_left_clearance_m": 0.0013630799834605384
+      }
+    }
+  ],
+  "baseline_passes": 0,
+  "high_friction_passes": 0,
+  "baseline_fall_lanes": 2,
+  "high_friction_fall_lanes": 2,
+  "baseline_nonfoot_intervals": 575,
+  "high_friction_nonfoot_intervals": 547,
+  "high_missing_substeps": 0,
+  "high_bad_substeps": 0,
+  "high_errors": [],
+  "control_state_parity": true,
+  "observer_max_difference_ns": 1.005991996302913e-09,
+  "scope": "Eight constructed stationary-perch lanes, with changes only to foot/toe material; these are development outcomes and endpoint geometry checks, not full autonomous landing, beak manipulation, a calibrated biological friction value or an independent held-out test."
+}
