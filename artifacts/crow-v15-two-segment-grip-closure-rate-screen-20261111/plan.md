@@ -1,0 +1,3 @@
+# Paired grip closure-rate development screen
+
+Using the same +2 mm forward and +.02 rad roll starts, vary rear and front toe target increments per .02 second interval through (.02,.015), (.04,.03), (.08,.06), (.04,.015) radians, keeping contact-triggering and physical actuator effort, velocity bounds, body, solver and gain .5 unchanged. The original setting is an exact paired control from the prior screen. Require identical terminal bilateral supported opposing-contact, geometric overlap, no fall and no nonfoot impulse checks. These constructed starts do not establish flight arrival, release or biological qualification.
