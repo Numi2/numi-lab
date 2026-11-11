@@ -1,0 +1,4002 @@
+{
+  "method": "Foot normal impulse threshold 1e-7 Ns/substep; bracketed by loaded samples; intervals overlap previously support-qualified endpoint-clear fragments. Extrema not extension onset.",
+  "rows": [
+    {
+      "dataset": "reference",
+      "seed": 20261126,
+      "lane": 0,
+      "side": "left",
+      "unloaded_intervals": [
+        {
+          "first_substep": [
+            228,
+            3
+          ],
+          "last_substep": [
+            238,
+            4
+          ],
+          "duration_ms": 202.5,
+          "overlapping_qualified_bouts": [
+            [
+              229,
+              236
+            ]
+          ],
+          "ankle_minus_knee_min_ms": 0.0,
+          "knee_min_substep": [
+            234,
+            15
+          ],
+          "ankle_min_substep": [
+            234,
+            15
+          ],
+          "knee_edge": false,
+          "ankle_edge": false
+        },
+        {
+          "first_substep": [
+            252,
+            3
+          ],
+          "last_substep": [
+            263,
+            2
+          ],
+          "duration_ms": 220.0,
+          "overlapping_qualified_bouts": [
+            [
+              253,
+              260
+            ]
+          ],
+          "ankle_minus_knee_min_ms": 0.0,
+          "knee_min_substep": [
+            259,
+            15
+          ],
+          "ankle_min_substep": [
+            259,
+            15
+          ],
+          "knee_edge": false,
+          "ankle_edge": false
+        },
+        {
+          "first_substep": [
+            277,
+            2
+          ],
+          "last_substep": [
+            288,
+            2
+          ],
+          "duration_ms": 221.25,
+          "overlapping_qualified_bouts": [
+            [
+              278,
+              285
+            ]
+          ],
+          "ankle_minus_knee_min_ms": 0.0,
+          "knee_min_substep": [
+            284,
+            15
+          ],
+          "ankle_min_substep": [
+            284,
+            15
+          ],
+          "knee_edge": false,
+          "ankle_edge": false
+        }
+      ]
+    },
+    {
+      "dataset": "reference",
+      "seed": 20261126,
+      "lane": 0,
+      "side": "right",
+      "unloaded_intervals": [
+        {
+          "first_substep": [
+            240,
+            2
+          ],
+          "last_substep": [
+            250,
+            6
+          ],
+          "duration_ms": 206.25,
+          "overlapping_qualified_bouts": [
+            [
+              241,
+              248
+            ]
+          ],
+          "ankle_minus_knee_min_ms": 0.0,
+          "knee_min_substep": [
+            246,
+            15
+          ],
+          "ankle_min_substep": [
+            246,
+            15
+          ],
+          "knee_edge": false,
+          "ankle_edge": false
+        },
+        {
+          "first_substep": [
+            265,
+            2
+          ],
+          "last_substep": [
+            275,
+            5
+          ],
+          "duration_ms": 205.0,
+          "overlapping_qualified_bouts": [
+            [
+              267,
+              273
+            ]
+          ],
+          "ankle_minus_knee_min_ms": 0.0,
+          "knee_min_substep": [
+            271,
+            15
+          ],
+          "ankle_min_substep": [
+            271,
+            15
+          ],
+          "knee_edge": false,
+          "ankle_edge": false
+        },
+        {
+          "first_substep": [
+            290,
+            2
+          ],
+          "last_substep": [
+            300,
+            4
+          ],
+          "duration_ms": 203.75,
+          "overlapping_qualified_bouts": [
+            [
+              292,
+              298
+            ]
+          ],
+          "ankle_minus_knee_min_ms": 0.0,
+          "knee_min_substep": [
+            296,
+            15
+          ],
+          "ankle_min_substep": [
+            296,
+            15
+          ],
+          "knee_edge": false,
+          "ankle_edge": false
+        }
+      ]
+    },
+    {
+      "dataset": "reference",
+      "seed": 20261126,
+      "lane": 1,
+      "side": "left",
+      "unloaded_intervals": [
+        {
+          "first_substep": [
+            227,
+            10
+          ],
+          "last_substep": [
+            238,
+            4
+          ],
+          "duration_ms": 213.75,
+          "overlapping_qualified_bouts": [
+            [
+              228,
+              236
+            ]
+          ],
+          "ankle_minus_knee_min_ms": 0.0,
+          "knee_min_substep": [
+            234,
+            15
+          ],
+          "ankle_min_substep": [
+            234,
+            15
+          ],
+          "knee_edge": false,
+          "ankle_edge": false
+        },
+        {
+          "first_substep": [
+            252,
+            3
+          ],
+          "last_substep": [
+            263,
+            2
+          ],
+          "duration_ms": 220.0,
+          "overlapping_qualified_bouts": [
+            [
+              253,
+              260
+            ]
+          ],
+          "ankle_minus_knee_min_ms": 0.0,
+          "knee_min_substep": [
+            259,
+            15
+          ],
+          "ankle_min_substep": [
+            259,
+            15
+          ],
+          "knee_edge": false,
+          "ankle_edge": false
+        },
+        {
+          "first_substep": [
+            277,
+            3
+          ],
+          "last_substep": [
+            288,
+            2
+          ],
+          "duration_ms": 220.0,
+          "overlapping_qualified_bouts": [
+            [
+              278,
+              285
+            ]
+          ],
+          "ankle_minus_knee_min_ms": 0.0,
+          "knee_min_substep": [
+            284,
+            15
+          ],
+          "ankle_min_substep": [
+            284,
+            15
+          ],
+          "knee_edge": false,
+          "ankle_edge": false
+        }
+      ]
+    },
+    {
+      "dataset": "reference",
+      "seed": 20261126,
+      "lane": 1,
+      "side": "right",
+      "unloaded_intervals": [
+        {
+          "first_substep": [
+            240,
+            3
+          ],
+          "last_substep": [
+            250,
+            5
+          ],
+          "duration_ms": 203.75,
+          "overlapping_qualified_bouts": [
+            [
+              241,
+              248
+            ]
+          ],
+          "ankle_minus_knee_min_ms": 0.0,
+          "knee_min_substep": [
+            246,
+            15
+          ],
+          "ankle_min_substep": [
+            246,
+            15
+          ],
+          "knee_edge": false,
+          "ankle_edge": false
+        },
+        {
+          "first_substep": [
+            265,
+            2
+          ],
+          "last_substep": [
+            275,
+            5
+          ],
+          "duration_ms": 205.0,
+          "overlapping_qualified_bouts": [
+            [
+              266,
+              273
+            ]
+          ],
+          "ankle_minus_knee_min_ms": 0.0,
+          "knee_min_substep": [
+            271,
+            15
+          ],
+          "ankle_min_substep": [
+            271,
+            15
+          ],
+          "knee_edge": false,
+          "ankle_edge": false
+        },
+        {
+          "first_substep": [
+            290,
+            3
+          ],
+          "last_substep": [
+            300,
+            4
+          ],
+          "duration_ms": 202.5,
+          "overlapping_qualified_bouts": [
+            [
+              292,
+              298
+            ]
+          ],
+          "ankle_minus_knee_min_ms": 0.0,
+          "knee_min_substep": [
+            296,
+            15
+          ],
+          "ankle_min_substep": [
+            296,
+            15
+          ],
+          "knee_edge": false,
+          "ankle_edge": false
+        }
+      ]
+    },
+    {
+      "dataset": "reference",
+      "seed": 20261126,
+      "lane": 2,
+      "side": "left",
+      "unloaded_intervals": [
+        {
+          "first_substep": [
+            227,
+            11
+          ],
+          "last_substep": [
+            238,
+            4
+          ],
+          "duration_ms": 212.5,
+          "overlapping_qualified_bouts": [
+            [
+              228,
+              236
+            ]
+          ],
+          "ankle_minus_knee_min_ms": 0.0,
+          "knee_min_substep": [
+            234,
+            15
+          ],
+          "ankle_min_substep": [
+            234,
+            15
+          ],
+          "knee_edge": false,
+          "ankle_edge": false
+        },
+        {
+          "first_substep": [
+            252,
+            3
+          ],
+          "last_substep": [
+            263,
+            2
+          ],
+          "duration_ms": 220.0,
+          "overlapping_qualified_bouts": [
+            [
+              253,
+              260
+            ]
+          ],
+          "ankle_minus_knee_min_ms": 0.0,
+          "knee_min_substep": [
+            259,
+            15
+          ],
+          "ankle_min_substep": [
+            259,
+            15
+          ],
+          "knee_edge": false,
+          "ankle_edge": false
+        },
+        {
+          "first_substep": [
+            277,
+            3
+          ],
+          "last_substep": [
+            288,
+            2
+          ],
+          "duration_ms": 220.0,
+          "overlapping_qualified_bouts": [
+            [
+              278,
+              285
+            ]
+          ],
+          "ankle_minus_knee_min_ms": 0.0,
+          "knee_min_substep": [
+            284,
+            15
+          ],
+          "ankle_min_substep": [
+            284,
+            15
+          ],
+          "knee_edge": false,
+          "ankle_edge": false
+        }
+      ]
+    },
+    {
+      "dataset": "reference",
+      "seed": 20261126,
+      "lane": 2,
+      "side": "right",
+      "unloaded_intervals": [
+        {
+          "first_substep": [
+            240,
+            2
+          ],
+          "last_substep": [
+            250,
+            5
+          ],
+          "duration_ms": 205.0,
+          "overlapping_qualified_bouts": [
+            [
+              241,
+              248
+            ]
+          ],
+          "ankle_minus_knee_min_ms": 0.0,
+          "knee_min_substep": [
+            246,
+            15
+          ],
+          "ankle_min_substep": [
+            246,
+            15
+          ],
+          "knee_edge": false,
+          "ankle_edge": false
+        },
+        {
+          "first_substep": [
+            265,
+            2
+          ],
+          "last_substep": [
+            275,
+            5
+          ],
+          "duration_ms": 205.0,
+          "overlapping_qualified_bouts": [
+            [
+              267,
+              273
+            ]
+          ],
+          "ankle_minus_knee_min_ms": 0.0,
+          "knee_min_substep": [
+            271,
+            15
+          ],
+          "ankle_min_substep": [
+            271,
+            15
+          ],
+          "knee_edge": false,
+          "ankle_edge": false
+        },
+        {
+          "first_substep": [
+            290,
+            3
+          ],
+          "last_substep": [
+            300,
+            4
+          ],
+          "duration_ms": 202.5,
+          "overlapping_qualified_bouts": [
+            [
+              292,
+              298
+            ]
+          ],
+          "ankle_minus_knee_min_ms": 0.0,
+          "knee_min_substep": [
+            296,
+            15
+          ],
+          "ankle_min_substep": [
+            296,
+            15
+          ],
+          "knee_edge": false,
+          "ankle_edge": false
+        }
+      ]
+    },
+    {
+      "dataset": "reference",
+      "seed": 20261126,
+      "lane": 3,
+      "side": "left",
+      "unloaded_intervals": [
+        {
+          "first_substep": [
+            227,
+            8
+          ],
+          "last_substep": [
+            238,
+            4
+          ],
+          "duration_ms": 216.25,
+          "overlapping_qualified_bouts": [
+            [
+              228,
+              236
+            ]
+          ],
+          "ankle_minus_knee_min_ms": 0.0,
+          "knee_min_substep": [
+            234,
+            15
+          ],
+          "ankle_min_substep": [
+            234,
+            15
+          ],
+          "knee_edge": false,
+          "ankle_edge": false
+        },
+        {
+          "first_substep": [
+            253,
+            4
+          ],
+          "last_substep": [
+            263,
+            2
+          ],
+          "duration_ms": 198.75,
+          "overlapping_qualified_bouts": [
+            [
+              254,
+              260
+            ]
+          ],
+          "ankle_minus_knee_min_ms": 0.0,
+          "knee_min_substep": [
+            259,
+            15
+          ],
+          "ankle_min_substep": [
+            259,
+            15
+          ],
+          "knee_edge": false,
+          "ankle_edge": false
+        },
+        {
+          "first_substep": [
+            277,
+            2
+          ],
+          "last_substep": [
+            288,
+            2
+          ],
+          "duration_ms": 221.25,
+          "overlapping_qualified_bouts": [
+            [
+              278,
+              285
+            ]
+          ],
+          "ankle_minus_knee_min_ms": 0.0,
+          "knee_min_substep": [
+            284,
+            15
+          ],
+          "ankle_min_substep": [
+            284,
+            15
+          ],
+          "knee_edge": false,
+          "ankle_edge": false
+        }
+      ]
+    },
+    {
+      "dataset": "reference",
+      "seed": 20261126,
+      "lane": 3,
+      "side": "right",
+      "unloaded_intervals": [
+        {
+          "first_substep": [
+            240,
+            1
+          ],
+          "last_substep": [
+            250,
+            4
+          ],
+          "duration_ms": 205.0,
+          "overlapping_qualified_bouts": [
+            [
+              243,
+              248
+            ]
+          ],
+          "ankle_minus_knee_min_ms": -20.0,
+          "knee_min_substep": [
+            247,
+            15
+          ],
+          "ankle_min_substep": [
+            246,
+            15
+          ],
+          "knee_edge": false,
+          "ankle_edge": false
+        },
+        {
+          "first_substep": [
+            265,
+            2
+          ],
+          "last_substep": [
+            275,
+            5
+          ],
+          "duration_ms": 205.0,
+          "overlapping_qualified_bouts": [
+            [
+              266,
+              273
+            ]
+          ],
+          "ankle_minus_knee_min_ms": 0.0,
+          "knee_min_substep": [
+            271,
+            15
+          ],
+          "ankle_min_substep": [
+            271,
+            15
+          ],
+          "knee_edge": false,
+          "ankle_edge": false
+        },
+        {
+          "first_substep": [
+            290,
+            2
+          ],
+          "last_substep": [
+            300,
+            4
+          ],
+          "duration_ms": 203.75,
+          "overlapping_qualified_bouts": [
+            [
+              292,
+              298
+            ]
+          ],
+          "ankle_minus_knee_min_ms": 0.0,
+          "knee_min_substep": [
+            296,
+            15
+          ],
+          "ankle_min_substep": [
+            296,
+            15
+          ],
+          "knee_edge": false,
+          "ankle_edge": false
+        }
+      ]
+    },
+    {
+      "dataset": "reference",
+      "seed": 20261126,
+      "lane": 4,
+      "side": "left",
+      "unloaded_intervals": [
+        {
+          "first_substep": [
+            228,
+            3
+          ],
+          "last_substep": [
+            238,
+            4
+          ],
+          "duration_ms": 202.5,
+          "overlapping_qualified_bouts": [
+            [
+              229,
+              236
+            ]
+          ],
+          "ankle_minus_knee_min_ms": 0.0,
+          "knee_min_substep": [
+            234,
+            15
+          ],
+          "ankle_min_substep": [
+            234,
+            15
+          ],
+          "knee_edge": false,
+          "ankle_edge": false
+        },
+        {
+          "first_substep": [
+            252,
+            5
+          ],
+          "last_substep": [
+            263,
+            3
+          ],
+          "duration_ms": 218.75,
+          "overlapping_qualified_bouts": [
+            [
+              253,
+              260
+            ]
+          ],
+          "ankle_minus_knee_min_ms": 0.0,
+          "knee_min_substep": [
+            259,
+            15
+          ],
+          "ankle_min_substep": [
+            259,
+            15
+          ],
+          "knee_edge": false,
+          "ankle_edge": false
+        },
+        {
+          "first_substep": [
+            277,
+            2
+          ],
+          "last_substep": [
+            288,
+            2
+          ],
+          "duration_ms": 221.25,
+          "overlapping_qualified_bouts": [
+            [
+              278,
+              285
+            ]
+          ],
+          "ankle_minus_knee_min_ms": 0.0,
+          "knee_min_substep": [
+            284,
+            15
+          ],
+          "ankle_min_substep": [
+            284,
+            15
+          ],
+          "knee_edge": false,
+          "ankle_edge": false
+        }
+      ]
+    },
+    {
+      "dataset": "reference",
+      "seed": 20261126,
+      "lane": 4,
+      "side": "right",
+      "unloaded_intervals": [
+        {
+          "first_substep": [
+            240,
+            2
+          ],
+          "last_substep": [
+            250,
+            5
+          ],
+          "duration_ms": 205.0,
+          "overlapping_qualified_bouts": [
+            [
+              241,
+              248
+            ]
+          ],
+          "ankle_minus_knee_min_ms": 0.0,
+          "knee_min_substep": [
+            246,
+            15
+          ],
+          "ankle_min_substep": [
+            246,
+            15
+          ],
+          "knee_edge": false,
+          "ankle_edge": false
+        },
+        {
+          "first_substep": [
+            265,
+            2
+          ],
+          "last_substep": [
+            275,
+            5
+          ],
+          "duration_ms": 205.0,
+          "overlapping_qualified_bouts": [
+            [
+              266,
+              273
+            ]
+          ],
+          "ankle_minus_knee_min_ms": 0.0,
+          "knee_min_substep": [
+            271,
+            15
+          ],
+          "ankle_min_substep": [
+            271,
+            15
+          ],
+          "knee_edge": false,
+          "ankle_edge": false
+        },
+        {
+          "first_substep": [
+            290,
+            3
+          ],
+          "last_substep": [
+            300,
+            4
+          ],
+          "duration_ms": 202.5,
+          "overlapping_qualified_bouts": [
+            [
+              292,
+              298
+            ]
+          ],
+          "ankle_minus_knee_min_ms": 0.0,
+          "knee_min_substep": [
+            296,
+            15
+          ],
+          "ankle_min_substep": [
+            296,
+            15
+          ],
+          "knee_edge": false,
+          "ankle_edge": false
+        }
+      ]
+    },
+    {
+      "dataset": "reference",
+      "seed": 20261126,
+      "lane": 5,
+      "side": "left",
+      "unloaded_intervals": [
+        {
+          "first_substep": [
+            227,
+            9
+          ],
+          "last_substep": [
+            238,
+            4
+          ],
+          "duration_ms": 215.0,
+          "overlapping_qualified_bouts": [
+            [
+              228,
+              236
+            ]
+          ],
+          "ankle_minus_knee_min_ms": 0.0,
+          "knee_min_substep": [
+            234,
+            15
+          ],
+          "ankle_min_substep": [
+            234,
+            15
+          ],
+          "knee_edge": false,
+          "ankle_edge": false
+        },
+        {
+          "first_substep": [
+            252,
+            3
+          ],
+          "last_substep": [
+            263,
+            2
+          ],
+          "duration_ms": 220.0,
+          "overlapping_qualified_bouts": [
+            [
+              253,
+              260
+            ]
+          ],
+          "ankle_minus_knee_min_ms": 0.0,
+          "knee_min_substep": [
+            259,
+            15
+          ],
+          "ankle_min_substep": [
+            259,
+            15
+          ],
+          "knee_edge": false,
+          "ankle_edge": false
+        },
+        {
+          "first_substep": [
+            277,
+            2
+          ],
+          "last_substep": [
+            288,
+            2
+          ],
+          "duration_ms": 221.25,
+          "overlapping_qualified_bouts": [
+            [
+              278,
+              285
+            ]
+          ],
+          "ankle_minus_knee_min_ms": 0.0,
+          "knee_min_substep": [
+            284,
+            15
+          ],
+          "ankle_min_substep": [
+            284,
+            15
+          ],
+          "knee_edge": false,
+          "ankle_edge": false
+        }
+      ]
+    },
+    {
+      "dataset": "reference",
+      "seed": 20261126,
+      "lane": 5,
+      "side": "right",
+      "unloaded_intervals": [
+        {
+          "first_substep": [
+            240,
+            2
+          ],
+          "last_substep": [
+            250,
+            5
+          ],
+          "duration_ms": 205.0,
+          "overlapping_qualified_bouts": [
+            [
+              241,
+              248
+            ]
+          ],
+          "ankle_minus_knee_min_ms": 0.0,
+          "knee_min_substep": [
+            246,
+            15
+          ],
+          "ankle_min_substep": [
+            246,
+            15
+          ],
+          "knee_edge": false,
+          "ankle_edge": false
+        },
+        {
+          "first_substep": [
+            265,
+            2
+          ],
+          "last_substep": [
+            275,
+            5
+          ],
+          "duration_ms": 205.0,
+          "overlapping_qualified_bouts": [
+            [
+              267,
+              273
+            ]
+          ],
+          "ankle_minus_knee_min_ms": 0.0,
+          "knee_min_substep": [
+            271,
+            15
+          ],
+          "ankle_min_substep": [
+            271,
+            15
+          ],
+          "knee_edge": false,
+          "ankle_edge": false
+        },
+        {
+          "first_substep": [
+            290,
+            2
+          ],
+          "last_substep": [
+            300,
+            5
+          ],
+          "duration_ms": 205.0,
+          "overlapping_qualified_bouts": [
+            [
+              292,
+              298
+            ]
+          ],
+          "ankle_minus_knee_min_ms": 0.0,
+          "knee_min_substep": [
+            296,
+            15
+          ],
+          "ankle_min_substep": [
+            296,
+            15
+          ],
+          "knee_edge": false,
+          "ankle_edge": false
+        }
+      ]
+    },
+    {
+      "dataset": "reference",
+      "seed": 20261126,
+      "lane": 6,
+      "side": "left",
+      "unloaded_intervals": [
+        {
+          "first_substep": [
+            228,
+            3
+          ],
+          "last_substep": [
+            238,
+            4
+          ],
+          "duration_ms": 202.5,
+          "overlapping_qualified_bouts": [
+            [
+              229,
+              236
+            ]
+          ],
+          "ankle_minus_knee_min_ms": 0.0,
+          "knee_min_substep": [
+            234,
+            15
+          ],
+          "ankle_min_substep": [
+            234,
+            15
+          ],
+          "knee_edge": false,
+          "ankle_edge": false
+        },
+        {
+          "first_substep": [
+            252,
+            2
+          ],
+          "last_substep": [
+            263,
+            2
+          ],
+          "duration_ms": 221.25,
+          "overlapping_qualified_bouts": [
+            [
+              253,
+              260
+            ]
+          ],
+          "ankle_minus_knee_min_ms": 0.0,
+          "knee_min_substep": [
+            259,
+            15
+          ],
+          "ankle_min_substep": [
+            259,
+            15
+          ],
+          "knee_edge": false,
+          "ankle_edge": false
+        },
+        {
+          "first_substep": [
+            277,
+            3
+          ],
+          "last_substep": [
+            288,
+            2
+          ],
+          "duration_ms": 220.0,
+          "overlapping_qualified_bouts": [
+            [
+              278,
+              285
+            ]
+          ],
+          "ankle_minus_knee_min_ms": 0.0,
+          "knee_min_substep": [
+            284,
+            15
+          ],
+          "ankle_min_substep": [
+            284,
+            15
+          ],
+          "knee_edge": false,
+          "ankle_edge": false
+        }
+      ]
+    },
+    {
+      "dataset": "reference",
+      "seed": 20261126,
+      "lane": 6,
+      "side": "right",
+      "unloaded_intervals": [
+        {
+          "first_substep": [
+            240,
+            2
+          ],
+          "last_substep": [
+            250,
+            6
+          ],
+          "duration_ms": 206.25,
+          "overlapping_qualified_bouts": [
+            [
+              241,
+              248
+            ]
+          ],
+          "ankle_minus_knee_min_ms": 0.0,
+          "knee_min_substep": [
+            246,
+            15
+          ],
+          "ankle_min_substep": [
+            246,
+            15
+          ],
+          "knee_edge": false,
+          "ankle_edge": false
+        },
+        {
+          "first_substep": [
+            265,
+            2
+          ],
+          "last_substep": [
+            275,
+            5
+          ],
+          "duration_ms": 205.0,
+          "overlapping_qualified_bouts": [
+            [
+              267,
+              273
+            ]
+          ],
+          "ankle_minus_knee_min_ms": 0.0,
+          "knee_min_substep": [
+            271,
+            15
+          ],
+          "ankle_min_substep": [
+            271,
+            15
+          ],
+          "knee_edge": false,
+          "ankle_edge": false
+        },
+        {
+          "first_substep": [
+            290,
+            2
+          ],
+          "last_substep": [
+            300,
+            4
+          ],
+          "duration_ms": 203.75,
+          "overlapping_qualified_bouts": [
+            [
+              292,
+              298
+            ]
+          ],
+          "ankle_minus_knee_min_ms": 0.0,
+          "knee_min_substep": [
+            296,
+            15
+          ],
+          "ankle_min_substep": [
+            296,
+            15
+          ],
+          "knee_edge": false,
+          "ankle_edge": false
+        }
+      ]
+    },
+    {
+      "dataset": "reference",
+      "seed": 20261126,
+      "lane": 7,
+      "side": "left",
+      "unloaded_intervals": [
+        {
+          "first_substep": [
+            227,
+            10
+          ],
+          "last_substep": [
+            238,
+            4
+          ],
+          "duration_ms": 213.75,
+          "overlapping_qualified_bouts": [
+            [
+              228,
+              236
+            ]
+          ],
+          "ankle_minus_knee_min_ms": 0.0,
+          "knee_min_substep": [
+            234,
+            15
+          ],
+          "ankle_min_substep": [
+            234,
+            15
+          ],
+          "knee_edge": false,
+          "ankle_edge": false
+        },
+        {
+          "first_substep": [
+            253,
+            4
+          ],
+          "last_substep": [
+            263,
+            2
+          ],
+          "duration_ms": 198.75,
+          "overlapping_qualified_bouts": [
+            [
+              254,
+              260
+            ]
+          ],
+          "ankle_minus_knee_min_ms": 0.0,
+          "knee_min_substep": [
+            259,
+            15
+          ],
+          "ankle_min_substep": [
+            259,
+            15
+          ],
+          "knee_edge": false,
+          "ankle_edge": false
+        },
+        {
+          "first_substep": [
+            277,
+            2
+          ],
+          "last_substep": [
+            288,
+            1
+          ],
+          "duration_ms": 220.0,
+          "overlapping_qualified_bouts": [
+            [
+              278,
+              285
+            ]
+          ],
+          "ankle_minus_knee_min_ms": 0.0,
+          "knee_min_substep": [
+            284,
+            15
+          ],
+          "ankle_min_substep": [
+            284,
+            15
+          ],
+          "knee_edge": false,
+          "ankle_edge": false
+        }
+      ]
+    },
+    {
+      "dataset": "reference",
+      "seed": 20261126,
+      "lane": 7,
+      "side": "right",
+      "unloaded_intervals": [
+        {
+          "first_substep": [
+            240,
+            1
+          ],
+          "last_substep": [
+            250,
+            4
+          ],
+          "duration_ms": 205.0,
+          "overlapping_qualified_bouts": [
+            [
+              244,
+              248
+            ]
+          ],
+          "ankle_minus_knee_min_ms": 0.0,
+          "knee_min_substep": [
+            246,
+            15
+          ],
+          "ankle_min_substep": [
+            246,
+            15
+          ],
+          "knee_edge": false,
+          "ankle_edge": false
+        },
+        {
+          "first_substep": [
+            265,
+            2
+          ],
+          "last_substep": [
+            275,
+            5
+          ],
+          "duration_ms": 205.0,
+          "overlapping_qualified_bouts": [
+            [
+              266,
+              273
+            ]
+          ],
+          "ankle_minus_knee_min_ms": 0.0,
+          "knee_min_substep": [
+            271,
+            15
+          ],
+          "ankle_min_substep": [
+            271,
+            15
+          ],
+          "knee_edge": false,
+          "ankle_edge": false
+        },
+        {
+          "first_substep": [
+            291,
+            2
+          ],
+          "last_substep": [
+            300,
+            5
+          ],
+          "duration_ms": 185.0,
+          "overlapping_qualified_bouts": [
+            [
+              292,
+              298
+            ]
+          ],
+          "ankle_minus_knee_min_ms": 0.0,
+          "knee_min_substep": [
+            296,
+            15
+          ],
+          "ankle_min_substep": [
+            296,
+            15
+          ],
+          "knee_edge": false,
+          "ankle_edge": false
+        }
+      ]
+    },
+    {
+      "dataset": "small-delay",
+      "seed": 20261126,
+      "lane": 0,
+      "side": "left",
+      "unloaded_intervals": [
+        {
+          "first_substep": [
+            227,
+            12
+          ],
+          "last_substep": [
+            238,
+            4
+          ],
+          "duration_ms": 211.25,
+          "overlapping_qualified_bouts": [
+            [
+              228,
+              236
+            ]
+          ],
+          "ankle_minus_knee_min_ms": 0.0,
+          "knee_min_substep": [
+            234,
+            15
+          ],
+          "ankle_min_substep": [
+            234,
+            15
+          ],
+          "knee_edge": false,
+          "ankle_edge": false
+        },
+        {
+          "first_substep": [
+            253,
+            5
+          ],
+          "last_substep": [
+            262,
+            12
+          ],
+          "duration_ms": 190.0,
+          "overlapping_qualified_bouts": [
+            [
+              254,
+              260
+            ]
+          ],
+          "ankle_minus_knee_min_ms": 0.0,
+          "knee_min_substep": [
+            259,
+            15
+          ],
+          "ankle_min_substep": [
+            259,
+            15
+          ],
+          "knee_edge": false,
+          "ankle_edge": false
+        },
+        {
+          "first_substep": [
+            277,
+            0
+          ],
+          "last_substep": [
+            287,
+            8
+          ],
+          "duration_ms": 211.25,
+          "overlapping_qualified_bouts": [
+            [
+              278,
+              285
+            ]
+          ],
+          "ankle_minus_knee_min_ms": 0.0,
+          "knee_min_substep": [
+            284,
+            15
+          ],
+          "ankle_min_substep": [
+            284,
+            15
+          ],
+          "knee_edge": false,
+          "ankle_edge": false
+        }
+      ]
+    },
+    {
+      "dataset": "small-delay",
+      "seed": 20261126,
+      "lane": 0,
+      "side": "right",
+      "unloaded_intervals": [
+        {
+          "first_substep": [
+            239,
+            15
+          ],
+          "last_substep": [
+            250,
+            1
+          ],
+          "duration_ms": 203.75,
+          "overlapping_qualified_bouts": [
+            [
+              241,
+              247
+            ]
+          ],
+          "ankle_minus_knee_min_ms": 20.0,
+          "knee_min_substep": [
+            246,
+            15
+          ],
+          "ankle_min_substep": [
+            247,
+            15
+          ],
+          "knee_edge": false,
+          "ankle_edge": false
+        },
+        {
+          "first_substep": [
+            266,
+            2
+          ],
+          "last_substep": [
+            275,
+            5
+          ],
+          "duration_ms": 185.0,
+          "overlapping_qualified_bouts": [
+            [
+              267,
+              273
+            ]
+          ],
+          "ankle_minus_knee_min_ms": 20.0,
+          "knee_min_substep": [
+            271,
+            15
+          ],
+          "ankle_min_substep": [
+            272,
+            15
+          ],
+          "knee_edge": false,
+          "ankle_edge": false
+        }
+      ]
+    },
+    {
+      "dataset": "small-delay",
+      "seed": 20261126,
+      "lane": 1,
+      "side": "left",
+      "unloaded_intervals": [
+        {
+          "first_substep": [
+            227,
+            12
+          ],
+          "last_substep": [
+            238,
+            4
+          ],
+          "duration_ms": 211.25,
+          "overlapping_qualified_bouts": [
+            [
+              228,
+              236
+            ]
+          ],
+          "ankle_minus_knee_min_ms": 0.0,
+          "knee_min_substep": [
+            234,
+            15
+          ],
+          "ankle_min_substep": [
+            234,
+            15
+          ],
+          "knee_edge": false,
+          "ankle_edge": false
+        },
+        {
+          "first_substep": [
+            253,
+            6
+          ],
+          "last_substep": [
+            262,
+            12
+          ],
+          "duration_ms": 188.75,
+          "overlapping_qualified_bouts": [
+            [
+              254,
+              260
+            ]
+          ],
+          "ankle_minus_knee_min_ms": 0.0,
+          "knee_min_substep": [
+            259,
+            15
+          ],
+          "ankle_min_substep": [
+            259,
+            15
+          ],
+          "knee_edge": false,
+          "ankle_edge": false
+        },
+        {
+          "first_substep": [
+            277,
+            0
+          ],
+          "last_substep": [
+            287,
+            9
+          ],
+          "duration_ms": 212.5,
+          "overlapping_qualified_bouts": [
+            [
+              278,
+              285
+            ]
+          ],
+          "ankle_minus_knee_min_ms": 0.0,
+          "knee_min_substep": [
+            284,
+            15
+          ],
+          "ankle_min_substep": [
+            284,
+            15
+          ],
+          "knee_edge": false,
+          "ankle_edge": false
+        }
+      ]
+    },
+    {
+      "dataset": "small-delay",
+      "seed": 20261126,
+      "lane": 1,
+      "side": "right",
+      "unloaded_intervals": [
+        {
+          "first_substep": [
+            239,
+            14
+          ],
+          "last_substep": [
+            250,
+            2
+          ],
+          "duration_ms": 206.25,
+          "overlapping_qualified_bouts": [
+            [
+              241,
+              248
+            ]
+          ],
+          "ankle_minus_knee_min_ms": 20.0,
+          "knee_min_substep": [
+            246,
+            15
+          ],
+          "ankle_min_substep": [
+            247,
+            15
+          ],
+          "knee_edge": false,
+          "ankle_edge": false
+        },
+        {
+          "first_substep": [
+            266,
+            2
+          ],
+          "last_substep": [
+            275,
+            5
+          ],
+          "duration_ms": 185.0,
+          "overlapping_qualified_bouts": [
+            [
+              267,
+              273
+            ]
+          ],
+          "ankle_minus_knee_min_ms": 20.0,
+          "knee_min_substep": [
+            271,
+            15
+          ],
+          "ankle_min_substep": [
+            272,
+            15
+          ],
+          "knee_edge": false,
+          "ankle_edge": false
+        }
+      ]
+    },
+    {
+      "dataset": "small-delay",
+      "seed": 20261126,
+      "lane": 2,
+      "side": "left",
+      "unloaded_intervals": [
+        {
+          "first_substep": [
+            227,
+            12
+          ],
+          "last_substep": [
+            238,
+            4
+          ],
+          "duration_ms": 211.25,
+          "overlapping_qualified_bouts": [
+            [
+              228,
+              236
+            ]
+          ],
+          "ankle_minus_knee_min_ms": 0.0,
+          "knee_min_substep": [
+            234,
+            15
+          ],
+          "ankle_min_substep": [
+            234,
+            15
+          ],
+          "knee_edge": false,
+          "ankle_edge": false
+        },
+        {
+          "first_substep": [
+            253,
+            5
+          ],
+          "last_substep": [
+            262,
+            13
+          ],
+          "duration_ms": 191.25,
+          "overlapping_qualified_bouts": [
+            [
+              254,
+              260
+            ]
+          ],
+          "ankle_minus_knee_min_ms": 0.0,
+          "knee_min_substep": [
+            259,
+            15
+          ],
+          "ankle_min_substep": [
+            259,
+            15
+          ],
+          "knee_edge": false,
+          "ankle_edge": false
+        },
+        {
+          "first_substep": [
+            277,
+            0
+          ],
+          "last_substep": [
+            287,
+            9
+          ],
+          "duration_ms": 212.5,
+          "overlapping_qualified_bouts": [
+            [
+              278,
+              285
+            ]
+          ],
+          "ankle_minus_knee_min_ms": 0.0,
+          "knee_min_substep": [
+            284,
+            15
+          ],
+          "ankle_min_substep": [
+            284,
+            15
+          ],
+          "knee_edge": false,
+          "ankle_edge": false
+        }
+      ]
+    },
+    {
+      "dataset": "small-delay",
+      "seed": 20261126,
+      "lane": 2,
+      "side": "right",
+      "unloaded_intervals": [
+        {
+          "first_substep": [
+            239,
+            14
+          ],
+          "last_substep": [
+            250,
+            0
+          ],
+          "duration_ms": 203.75,
+          "overlapping_qualified_bouts": [
+            [
+              241,
+              247
+            ]
+          ],
+          "ankle_minus_knee_min_ms": 20.0,
+          "knee_min_substep": [
+            246,
+            15
+          ],
+          "ankle_min_substep": [
+            247,
+            15
+          ],
+          "knee_edge": false,
+          "ankle_edge": false
+        },
+        {
+          "first_substep": [
+            266,
+            2
+          ],
+          "last_substep": [
+            275,
+            5
+          ],
+          "duration_ms": 185.0,
+          "overlapping_qualified_bouts": [
+            [
+              267,
+              273
+            ]
+          ],
+          "ankle_minus_knee_min_ms": 20.0,
+          "knee_min_substep": [
+            271,
+            15
+          ],
+          "ankle_min_substep": [
+            272,
+            15
+          ],
+          "knee_edge": false,
+          "ankle_edge": false
+        }
+      ]
+    },
+    {
+      "dataset": "small-delay",
+      "seed": 20261126,
+      "lane": 3,
+      "side": "left",
+      "unloaded_intervals": [
+        {
+          "first_substep": [
+            227,
+            12
+          ],
+          "last_substep": [
+            238,
+            4
+          ],
+          "duration_ms": 211.25,
+          "overlapping_qualified_bouts": [
+            [
+              228,
+              236
+            ]
+          ],
+          "ankle_minus_knee_min_ms": 0.0,
+          "knee_min_substep": [
+            234,
+            15
+          ],
+          "ankle_min_substep": [
+            234,
+            15
+          ],
+          "knee_edge": false,
+          "ankle_edge": false
+        },
+        {
+          "first_substep": [
+            253,
+            4
+          ],
+          "last_substep": [
+            262,
+            12
+          ],
+          "duration_ms": 191.25,
+          "overlapping_qualified_bouts": [
+            [
+              254,
+              260
+            ]
+          ],
+          "ankle_minus_knee_min_ms": 0.0,
+          "knee_min_substep": [
+            259,
+            15
+          ],
+          "ankle_min_substep": [
+            259,
+            15
+          ],
+          "knee_edge": false,
+          "ankle_edge": false
+        },
+        {
+          "first_substep": [
+            277,
+            0
+          ],
+          "last_substep": [
+            287,
+            9
+          ],
+          "duration_ms": 212.5,
+          "overlapping_qualified_bouts": [
+            [
+              278,
+              285
+            ]
+          ],
+          "ankle_minus_knee_min_ms": 0.0,
+          "knee_min_substep": [
+            284,
+            15
+          ],
+          "ankle_min_substep": [
+            284,
+            15
+          ],
+          "knee_edge": false,
+          "ankle_edge": false
+        }
+      ]
+    },
+    {
+      "dataset": "small-delay",
+      "seed": 20261126,
+      "lane": 3,
+      "side": "right",
+      "unloaded_intervals": [
+        {
+          "first_substep": [
+            239,
+            14
+          ],
+          "last_substep": [
+            250,
+            1
+          ],
+          "duration_ms": 205.0,
+          "overlapping_qualified_bouts": [
+            [
+              241,
+              247
+            ]
+          ],
+          "ankle_minus_knee_min_ms": 20.0,
+          "knee_min_substep": [
+            246,
+            15
+          ],
+          "ankle_min_substep": [
+            247,
+            15
+          ],
+          "knee_edge": false,
+          "ankle_edge": false
+        },
+        {
+          "first_substep": [
+            266,
+            2
+          ],
+          "last_substep": [
+            275,
+            5
+          ],
+          "duration_ms": 185.0,
+          "overlapping_qualified_bouts": [
+            [
+              267,
+              273
+            ]
+          ],
+          "ankle_minus_knee_min_ms": 20.0,
+          "knee_min_substep": [
+            271,
+            15
+          ],
+          "ankle_min_substep": [
+            272,
+            15
+          ],
+          "knee_edge": false,
+          "ankle_edge": false
+        }
+      ]
+    },
+    {
+      "dataset": "small-delay",
+      "seed": 20261126,
+      "lane": 4,
+      "side": "left",
+      "unloaded_intervals": [
+        {
+          "first_substep": [
+            227,
+            12
+          ],
+          "last_substep": [
+            238,
+            4
+          ],
+          "duration_ms": 211.25,
+          "overlapping_qualified_bouts": [
+            [
+              228,
+              236
+            ]
+          ],
+          "ankle_minus_knee_min_ms": 0.0,
+          "knee_min_substep": [
+            234,
+            15
+          ],
+          "ankle_min_substep": [
+            234,
+            15
+          ],
+          "knee_edge": false,
+          "ankle_edge": false
+        },
+        {
+          "first_substep": [
+            253,
+            5
+          ],
+          "last_substep": [
+            262,
+            12
+          ],
+          "duration_ms": 190.0,
+          "overlapping_qualified_bouts": [
+            [
+              254,
+              260
+            ]
+          ],
+          "ankle_minus_knee_min_ms": 0.0,
+          "knee_min_substep": [
+            259,
+            15
+          ],
+          "ankle_min_substep": [
+            259,
+            15
+          ],
+          "knee_edge": false,
+          "ankle_edge": false
+        },
+        {
+          "first_substep": [
+            277,
+            0
+          ],
+          "last_substep": [
+            287,
+            9
+          ],
+          "duration_ms": 212.5,
+          "overlapping_qualified_bouts": [
+            [
+              278,
+              285
+            ]
+          ],
+          "ankle_minus_knee_min_ms": 0.0,
+          "knee_min_substep": [
+            284,
+            15
+          ],
+          "ankle_min_substep": [
+            284,
+            15
+          ],
+          "knee_edge": false,
+          "ankle_edge": false
+        }
+      ]
+    },
+    {
+      "dataset": "small-delay",
+      "seed": 20261126,
+      "lane": 4,
+      "side": "right",
+      "unloaded_intervals": [
+        {
+          "first_substep": [
+            239,
+            14
+          ],
+          "last_substep": [
+            250,
+            2
+          ],
+          "duration_ms": 206.25,
+          "overlapping_qualified_bouts": [
+            [
+              241,
+              247
+            ]
+          ],
+          "ankle_minus_knee_min_ms": 20.0,
+          "knee_min_substep": [
+            246,
+            15
+          ],
+          "ankle_min_substep": [
+            247,
+            15
+          ],
+          "knee_edge": false,
+          "ankle_edge": false
+        },
+        {
+          "first_substep": [
+            266,
+            2
+          ],
+          "last_substep": [
+            275,
+            5
+          ],
+          "duration_ms": 185.0,
+          "overlapping_qualified_bouts": [
+            [
+              267,
+              273
+            ]
+          ],
+          "ankle_minus_knee_min_ms": 20.0,
+          "knee_min_substep": [
+            271,
+            15
+          ],
+          "ankle_min_substep": [
+            272,
+            15
+          ],
+          "knee_edge": false,
+          "ankle_edge": false
+        }
+      ]
+    },
+    {
+      "dataset": "small-delay",
+      "seed": 20261126,
+      "lane": 5,
+      "side": "left",
+      "unloaded_intervals": [
+        {
+          "first_substep": [
+            227,
+            12
+          ],
+          "last_substep": [
+            238,
+            4
+          ],
+          "duration_ms": 211.25,
+          "overlapping_qualified_bouts": [
+            [
+              228,
+              236
+            ]
+          ],
+          "ankle_minus_knee_min_ms": 0.0,
+          "knee_min_substep": [
+            234,
+            15
+          ],
+          "ankle_min_substep": [
+            234,
+            15
+          ],
+          "knee_edge": false,
+          "ankle_edge": false
+        },
+        {
+          "first_substep": [
+            253,
+            4
+          ],
+          "last_substep": [
+            262,
+            12
+          ],
+          "duration_ms": 191.25,
+          "overlapping_qualified_bouts": [
+            [
+              254,
+              260
+            ]
+          ],
+          "ankle_minus_knee_min_ms": 0.0,
+          "knee_min_substep": [
+            259,
+            15
+          ],
+          "ankle_min_substep": [
+            259,
+            15
+          ],
+          "knee_edge": false,
+          "ankle_edge": false
+        },
+        {
+          "first_substep": [
+            277,
+            0
+          ],
+          "last_substep": [
+            287,
+            9
+          ],
+          "duration_ms": 212.5,
+          "overlapping_qualified_bouts": [
+            [
+              278,
+              285
+            ]
+          ],
+          "ankle_minus_knee_min_ms": 0.0,
+          "knee_min_substep": [
+            284,
+            15
+          ],
+          "ankle_min_substep": [
+            284,
+            15
+          ],
+          "knee_edge": false,
+          "ankle_edge": false
+        }
+      ]
+    },
+    {
+      "dataset": "small-delay",
+      "seed": 20261126,
+      "lane": 5,
+      "side": "right",
+      "unloaded_intervals": [
+        {
+          "first_substep": [
+            239,
+            15
+          ],
+          "last_substep": [
+            250,
+            1
+          ],
+          "duration_ms": 203.75,
+          "overlapping_qualified_bouts": [
+            [
+              241,
+              247
+            ]
+          ],
+          "ankle_minus_knee_min_ms": 20.0,
+          "knee_min_substep": [
+            246,
+            15
+          ],
+          "ankle_min_substep": [
+            247,
+            15
+          ],
+          "knee_edge": false,
+          "ankle_edge": false
+        },
+        {
+          "first_substep": [
+            266,
+            2
+          ],
+          "last_substep": [
+            275,
+            5
+          ],
+          "duration_ms": 185.0,
+          "overlapping_qualified_bouts": [
+            [
+              267,
+              273
+            ]
+          ],
+          "ankle_minus_knee_min_ms": 20.0,
+          "knee_min_substep": [
+            271,
+            15
+          ],
+          "ankle_min_substep": [
+            272,
+            15
+          ],
+          "knee_edge": false,
+          "ankle_edge": false
+        }
+      ]
+    },
+    {
+      "dataset": "small-delay",
+      "seed": 20261126,
+      "lane": 6,
+      "side": "left",
+      "unloaded_intervals": [
+        {
+          "first_substep": [
+            227,
+            12
+          ],
+          "last_substep": [
+            238,
+            4
+          ],
+          "duration_ms": 211.25,
+          "overlapping_qualified_bouts": [
+            [
+              228,
+              236
+            ]
+          ],
+          "ankle_minus_knee_min_ms": 0.0,
+          "knee_min_substep": [
+            234,
+            15
+          ],
+          "ankle_min_substep": [
+            234,
+            15
+          ],
+          "knee_edge": false,
+          "ankle_edge": false
+        },
+        {
+          "first_substep": [
+            253,
+            5
+          ],
+          "last_substep": [
+            262,
+            13
+          ],
+          "duration_ms": 191.25,
+          "overlapping_qualified_bouts": [
+            [
+              254,
+              260
+            ]
+          ],
+          "ankle_minus_knee_min_ms": 0.0,
+          "knee_min_substep": [
+            259,
+            15
+          ],
+          "ankle_min_substep": [
+            259,
+            15
+          ],
+          "knee_edge": false,
+          "ankle_edge": false
+        },
+        {
+          "first_substep": [
+            277,
+            0
+          ],
+          "last_substep": [
+            287,
+            8
+          ],
+          "duration_ms": 211.25,
+          "overlapping_qualified_bouts": [
+            [
+              278,
+              285
+            ]
+          ],
+          "ankle_minus_knee_min_ms": 0.0,
+          "knee_min_substep": [
+            284,
+            15
+          ],
+          "ankle_min_substep": [
+            284,
+            15
+          ],
+          "knee_edge": false,
+          "ankle_edge": false
+        }
+      ]
+    },
+    {
+      "dataset": "small-delay",
+      "seed": 20261126,
+      "lane": 6,
+      "side": "right",
+      "unloaded_intervals": [
+        {
+          "first_substep": [
+            239,
+            15
+          ],
+          "last_substep": [
+            250,
+            0
+          ],
+          "duration_ms": 202.5,
+          "overlapping_qualified_bouts": [
+            [
+              241,
+              247
+            ]
+          ],
+          "ankle_minus_knee_min_ms": 20.0,
+          "knee_min_substep": [
+            246,
+            15
+          ],
+          "ankle_min_substep": [
+            247,
+            15
+          ],
+          "knee_edge": false,
+          "ankle_edge": false
+        },
+        {
+          "first_substep": [
+            266,
+            2
+          ],
+          "last_substep": [
+            275,
+            5
+          ],
+          "duration_ms": 185.0,
+          "overlapping_qualified_bouts": [
+            [
+              267,
+              273
+            ]
+          ],
+          "ankle_minus_knee_min_ms": 20.0,
+          "knee_min_substep": [
+            271,
+            15
+          ],
+          "ankle_min_substep": [
+            272,
+            15
+          ],
+          "knee_edge": false,
+          "ankle_edge": false
+        }
+      ]
+    },
+    {
+      "dataset": "small-delay",
+      "seed": 20261126,
+      "lane": 7,
+      "side": "left",
+      "unloaded_intervals": [
+        {
+          "first_substep": [
+            227,
+            12
+          ],
+          "last_substep": [
+            238,
+            0
+          ],
+          "duration_ms": 206.25,
+          "overlapping_qualified_bouts": [
+            [
+              228,
+              235
+            ]
+          ],
+          "ankle_minus_knee_min_ms": 0.0,
+          "knee_min_substep": [
+            234,
+            15
+          ],
+          "ankle_min_substep": [
+            234,
+            15
+          ],
+          "knee_edge": false,
+          "ankle_edge": false
+        },
+        {
+          "first_substep": [
+            252,
+            3
+          ],
+          "last_substep": [
+            263,
+            0
+          ],
+          "duration_ms": 217.5,
+          "overlapping_qualified_bouts": [
+            [
+              253,
+              260
+            ]
+          ],
+          "ankle_minus_knee_min_ms": 0.0,
+          "knee_min_substep": [
+            259,
+            15
+          ],
+          "ankle_min_substep": [
+            259,
+            15
+          ],
+          "knee_edge": false,
+          "ankle_edge": false
+        },
+        {
+          "first_substep": [
+            278,
+            5
+          ],
+          "last_substep": [
+            287,
+            10
+          ],
+          "duration_ms": 187.5,
+          "overlapping_qualified_bouts": [
+            [
+              279,
+              285
+            ]
+          ],
+          "ankle_minus_knee_min_ms": 0.0,
+          "knee_min_substep": [
+            284,
+            15
+          ],
+          "ankle_min_substep": [
+            284,
+            15
+          ],
+          "knee_edge": false,
+          "ankle_edge": false
+        }
+      ]
+    },
+    {
+      "dataset": "small-delay",
+      "seed": 20261126,
+      "lane": 7,
+      "side": "right",
+      "unloaded_intervals": [
+        {
+          "first_substep": [
+            241,
+            4
+          ],
+          "last_substep": [
+            251,
+            4
+          ],
+          "duration_ms": 201.25,
+          "overlapping_qualified_bouts": [
+            [
+              246,
+              248
+            ]
+          ],
+          "ankle_minus_knee_min_ms": 0.0,
+          "knee_min_substep": [
+            247,
+            15
+          ],
+          "ankle_min_substep": [
+            247,
+            15
+          ],
+          "knee_edge": false,
+          "ankle_edge": false
+        },
+        {
+          "first_substep": [
+            266,
+            4
+          ],
+          "last_substep": [
+            275,
+            2
+          ],
+          "duration_ms": 178.75,
+          "overlapping_qualified_bouts": [
+            [
+              269,
+              273
+            ]
+          ],
+          "ankle_minus_knee_min_ms": 20.0,
+          "knee_min_substep": [
+            271,
+            15
+          ],
+          "ankle_min_substep": [
+            272,
+            15
+          ],
+          "knee_edge": false,
+          "ankle_edge": false
+        },
+        {
+          "first_substep": [
+            291,
+            2
+          ],
+          "last_substep": [
+            300,
+            4
+          ],
+          "duration_ms": 183.75,
+          "overlapping_qualified_bouts": [
+            [
+              292,
+              298
+            ]
+          ],
+          "ankle_minus_knee_min_ms": 20.0,
+          "knee_min_substep": [
+            296,
+            15
+          ],
+          "ankle_min_substep": [
+            297,
+            15
+          ],
+          "knee_edge": false,
+          "ankle_edge": false
+        }
+      ]
+    },
+    {
+      "dataset": "small-delay",
+      "seed": 20261127,
+      "lane": 0,
+      "side": "left",
+      "unloaded_intervals": [
+        {
+          "first_substep": [
+            227,
+            12
+          ],
+          "last_substep": [
+            238,
+            4
+          ],
+          "duration_ms": 211.25,
+          "overlapping_qualified_bouts": [
+            [
+              228,
+              236
+            ]
+          ],
+          "ankle_minus_knee_min_ms": 0.0,
+          "knee_min_substep": [
+            234,
+            15
+          ],
+          "ankle_min_substep": [
+            234,
+            15
+          ],
+          "knee_edge": false,
+          "ankle_edge": false
+        },
+        {
+          "first_substep": [
+            253,
+            5
+          ],
+          "last_substep": [
+            262,
+            12
+          ],
+          "duration_ms": 190.0,
+          "overlapping_qualified_bouts": [
+            [
+              254,
+              260
+            ]
+          ],
+          "ankle_minus_knee_min_ms": 0.0,
+          "knee_min_substep": [
+            259,
+            15
+          ],
+          "ankle_min_substep": [
+            259,
+            15
+          ],
+          "knee_edge": false,
+          "ankle_edge": false
+        },
+        {
+          "first_substep": [
+            277,
+            1
+          ],
+          "last_substep": [
+            287,
+            8
+          ],
+          "duration_ms": 210.0,
+          "overlapping_qualified_bouts": [
+            [
+              278,
+              285
+            ]
+          ],
+          "ankle_minus_knee_min_ms": 0.0,
+          "knee_min_substep": [
+            284,
+            15
+          ],
+          "ankle_min_substep": [
+            284,
+            15
+          ],
+          "knee_edge": false,
+          "ankle_edge": false
+        }
+      ]
+    },
+    {
+      "dataset": "small-delay",
+      "seed": 20261127,
+      "lane": 0,
+      "side": "right",
+      "unloaded_intervals": [
+        {
+          "first_substep": [
+            239,
+            14
+          ],
+          "last_substep": [
+            250,
+            2
+          ],
+          "duration_ms": 206.25,
+          "overlapping_qualified_bouts": [
+            [
+              241,
+              247
+            ]
+          ],
+          "ankle_minus_knee_min_ms": 20.0,
+          "knee_min_substep": [
+            246,
+            15
+          ],
+          "ankle_min_substep": [
+            247,
+            15
+          ],
+          "knee_edge": false,
+          "ankle_edge": false
+        },
+        {
+          "first_substep": [
+            266,
+            2
+          ],
+          "last_substep": [
+            275,
+            5
+          ],
+          "duration_ms": 185.0,
+          "overlapping_qualified_bouts": [
+            [
+              267,
+              273
+            ]
+          ],
+          "ankle_minus_knee_min_ms": 20.0,
+          "knee_min_substep": [
+            271,
+            15
+          ],
+          "ankle_min_substep": [
+            272,
+            15
+          ],
+          "knee_edge": false,
+          "ankle_edge": false
+        }
+      ]
+    },
+    {
+      "dataset": "small-delay",
+      "seed": 20261127,
+      "lane": 1,
+      "side": "left",
+      "unloaded_intervals": [
+        {
+          "first_substep": [
+            227,
+            12
+          ],
+          "last_substep": [
+            238,
+            4
+          ],
+          "duration_ms": 211.25,
+          "overlapping_qualified_bouts": [
+            [
+              228,
+              236
+            ]
+          ],
+          "ankle_minus_knee_min_ms": 0.0,
+          "knee_min_substep": [
+            234,
+            15
+          ],
+          "ankle_min_substep": [
+            234,
+            15
+          ],
+          "knee_edge": false,
+          "ankle_edge": false
+        },
+        {
+          "first_substep": [
+            253,
+            5
+          ],
+          "last_substep": [
+            262,
+            12
+          ],
+          "duration_ms": 190.0,
+          "overlapping_qualified_bouts": [
+            [
+              254,
+              260
+            ]
+          ],
+          "ankle_minus_knee_min_ms": 0.0,
+          "knee_min_substep": [
+            259,
+            15
+          ],
+          "ankle_min_substep": [
+            259,
+            15
+          ],
+          "knee_edge": false,
+          "ankle_edge": false
+        },
+        {
+          "first_substep": [
+            277,
+            1
+          ],
+          "last_substep": [
+            287,
+            8
+          ],
+          "duration_ms": 210.0,
+          "overlapping_qualified_bouts": [
+            [
+              278,
+              285
+            ]
+          ],
+          "ankle_minus_knee_min_ms": 0.0,
+          "knee_min_substep": [
+            284,
+            15
+          ],
+          "ankle_min_substep": [
+            284,
+            15
+          ],
+          "knee_edge": false,
+          "ankle_edge": false
+        }
+      ]
+    },
+    {
+      "dataset": "small-delay",
+      "seed": 20261127,
+      "lane": 1,
+      "side": "right",
+      "unloaded_intervals": [
+        {
+          "first_substep": [
+            239,
+            14
+          ],
+          "last_substep": [
+            250,
+            1
+          ],
+          "duration_ms": 205.0,
+          "overlapping_qualified_bouts": [
+            [
+              241,
+              247
+            ]
+          ],
+          "ankle_minus_knee_min_ms": 20.0,
+          "knee_min_substep": [
+            246,
+            15
+          ],
+          "ankle_min_substep": [
+            247,
+            15
+          ],
+          "knee_edge": false,
+          "ankle_edge": false
+        },
+        {
+          "first_substep": [
+            266,
+            2
+          ],
+          "last_substep": [
+            275,
+            5
+          ],
+          "duration_ms": 185.0,
+          "overlapping_qualified_bouts": [
+            [
+              267,
+              273
+            ]
+          ],
+          "ankle_minus_knee_min_ms": 20.0,
+          "knee_min_substep": [
+            271,
+            15
+          ],
+          "ankle_min_substep": [
+            272,
+            15
+          ],
+          "knee_edge": false,
+          "ankle_edge": false
+        }
+      ]
+    },
+    {
+      "dataset": "small-delay",
+      "seed": 20261127,
+      "lane": 2,
+      "side": "left",
+      "unloaded_intervals": [
+        {
+          "first_substep": [
+            227,
+            12
+          ],
+          "last_substep": [
+            238,
+            4
+          ],
+          "duration_ms": 211.25,
+          "overlapping_qualified_bouts": [
+            [
+              228,
+              236
+            ]
+          ],
+          "ankle_minus_knee_min_ms": 0.0,
+          "knee_min_substep": [
+            234,
+            15
+          ],
+          "ankle_min_substep": [
+            234,
+            15
+          ],
+          "knee_edge": false,
+          "ankle_edge": false
+        },
+        {
+          "first_substep": [
+            253,
+            5
+          ],
+          "last_substep": [
+            262,
+            13
+          ],
+          "duration_ms": 191.25,
+          "overlapping_qualified_bouts": [
+            [
+              254,
+              260
+            ]
+          ],
+          "ankle_minus_knee_min_ms": 0.0,
+          "knee_min_substep": [
+            259,
+            15
+          ],
+          "ankle_min_substep": [
+            259,
+            15
+          ],
+          "knee_edge": false,
+          "ankle_edge": false
+        },
+        {
+          "first_substep": [
+            277,
+            0
+          ],
+          "last_substep": [
+            287,
+            9
+          ],
+          "duration_ms": 212.5,
+          "overlapping_qualified_bouts": [
+            [
+              278,
+              285
+            ]
+          ],
+          "ankle_minus_knee_min_ms": 0.0,
+          "knee_min_substep": [
+            284,
+            15
+          ],
+          "ankle_min_substep": [
+            284,
+            15
+          ],
+          "knee_edge": false,
+          "ankle_edge": false
+        }
+      ]
+    },
+    {
+      "dataset": "small-delay",
+      "seed": 20261127,
+      "lane": 2,
+      "side": "right",
+      "unloaded_intervals": [
+        {
+          "first_substep": [
+            239,
+            15
+          ],
+          "last_substep": [
+            250,
+            0
+          ],
+          "duration_ms": 202.5,
+          "overlapping_qualified_bouts": [
+            [
+              241,
+              247
+            ]
+          ],
+          "ankle_minus_knee_min_ms": 20.0,
+          "knee_min_substep": [
+            246,
+            15
+          ],
+          "ankle_min_substep": [
+            247,
+            15
+          ],
+          "knee_edge": false,
+          "ankle_edge": false
+        },
+        {
+          "first_substep": [
+            266,
+            2
+          ],
+          "last_substep": [
+            275,
+            5
+          ],
+          "duration_ms": 185.0,
+          "overlapping_qualified_bouts": [
+            [
+              267,
+              273
+            ]
+          ],
+          "ankle_minus_knee_min_ms": 20.0,
+          "knee_min_substep": [
+            271,
+            15
+          ],
+          "ankle_min_substep": [
+            272,
+            15
+          ],
+          "knee_edge": false,
+          "ankle_edge": false
+        }
+      ]
+    },
+    {
+      "dataset": "small-delay",
+      "seed": 20261127,
+      "lane": 3,
+      "side": "left",
+      "unloaded_intervals": [
+        {
+          "first_substep": [
+            227,
+            13
+          ],
+          "last_substep": [
+            238,
+            4
+          ],
+          "duration_ms": 210.0,
+          "overlapping_qualified_bouts": [
+            [
+              228,
+              236
+            ]
+          ],
+          "ankle_minus_knee_min_ms": 0.0,
+          "knee_min_substep": [
+            234,
+            15
+          ],
+          "ankle_min_substep": [
+            234,
+            15
+          ],
+          "knee_edge": false,
+          "ankle_edge": false
+        },
+        {
+          "first_substep": [
+            253,
+            5
+          ],
+          "last_substep": [
+            262,
+            13
+          ],
+          "duration_ms": 191.25,
+          "overlapping_qualified_bouts": [
+            [
+              254,
+              260
+            ]
+          ],
+          "ankle_minus_knee_min_ms": 0.0,
+          "knee_min_substep": [
+            259,
+            15
+          ],
+          "ankle_min_substep": [
+            259,
+            15
+          ],
+          "knee_edge": false,
+          "ankle_edge": false
+        },
+        {
+          "first_substep": [
+            277,
+            0
+          ],
+          "last_substep": [
+            287,
+            9
+          ],
+          "duration_ms": 212.5,
+          "overlapping_qualified_bouts": [
+            [
+              278,
+              285
+            ]
+          ],
+          "ankle_minus_knee_min_ms": 0.0,
+          "knee_min_substep": [
+            284,
+            15
+          ],
+          "ankle_min_substep": [
+            284,
+            15
+          ],
+          "knee_edge": false,
+          "ankle_edge": false
+        }
+      ]
+    },
+    {
+      "dataset": "small-delay",
+      "seed": 20261127,
+      "lane": 3,
+      "side": "right",
+      "unloaded_intervals": [
+        {
+          "first_substep": [
+            239,
+            15
+          ],
+          "last_substep": [
+            250,
+            0
+          ],
+          "duration_ms": 202.5,
+          "overlapping_qualified_bouts": [
+            [
+              241,
+              247
+            ]
+          ],
+          "ankle_minus_knee_min_ms": 20.0,
+          "knee_min_substep": [
+            246,
+            15
+          ],
+          "ankle_min_substep": [
+            247,
+            15
+          ],
+          "knee_edge": false,
+          "ankle_edge": false
+        },
+        {
+          "first_substep": [
+            266,
+            3
+          ],
+          "last_substep": [
+            275,
+            4
+          ],
+          "duration_ms": 182.5,
+          "overlapping_qualified_bouts": [
+            [
+              267,
+              273
+            ]
+          ],
+          "ankle_minus_knee_min_ms": 20.0,
+          "knee_min_substep": [
+            271,
+            15
+          ],
+          "ankle_min_substep": [
+            272,
+            15
+          ],
+          "knee_edge": false,
+          "ankle_edge": false
+        }
+      ]
+    },
+    {
+      "dataset": "small-delay",
+      "seed": 20261127,
+      "lane": 4,
+      "side": "left",
+      "unloaded_intervals": [
+        {
+          "first_substep": [
+            227,
+            12
+          ],
+          "last_substep": [
+            238,
+            4
+          ],
+          "duration_ms": 211.25,
+          "overlapping_qualified_bouts": [
+            [
+              228,
+              236
+            ]
+          ],
+          "ankle_minus_knee_min_ms": 0.0,
+          "knee_min_substep": [
+            234,
+            15
+          ],
+          "ankle_min_substep": [
+            234,
+            15
+          ],
+          "knee_edge": false,
+          "ankle_edge": false
+        },
+        {
+          "first_substep": [
+            253,
+            5
+          ],
+          "last_substep": [
+            262,
+            13
+          ],
+          "duration_ms": 191.25,
+          "overlapping_qualified_bouts": [
+            [
+              254,
+              260
+            ]
+          ],
+          "ankle_minus_knee_min_ms": 0.0,
+          "knee_min_substep": [
+            259,
+            15
+          ],
+          "ankle_min_substep": [
+            259,
+            15
+          ],
+          "knee_edge": false,
+          "ankle_edge": false
+        },
+        {
+          "first_substep": [
+            277,
+            0
+          ],
+          "last_substep": [
+            287,
+            9
+          ],
+          "duration_ms": 212.5,
+          "overlapping_qualified_bouts": [
+            [
+              278,
+              285
+            ]
+          ],
+          "ankle_minus_knee_min_ms": 0.0,
+          "knee_min_substep": [
+            284,
+            15
+          ],
+          "ankle_min_substep": [
+            284,
+            15
+          ],
+          "knee_edge": false,
+          "ankle_edge": false
+        }
+      ]
+    },
+    {
+      "dataset": "small-delay",
+      "seed": 20261127,
+      "lane": 4,
+      "side": "right",
+      "unloaded_intervals": [
+        {
+          "first_substep": [
+            239,
+            15
+          ],
+          "last_substep": [
+            250,
+            0
+          ],
+          "duration_ms": 202.5,
+          "overlapping_qualified_bouts": [
+            [
+              241,
+              247
+            ]
+          ],
+          "ankle_minus_knee_min_ms": 20.0,
+          "knee_min_substep": [
+            246,
+            15
+          ],
+          "ankle_min_substep": [
+            247,
+            15
+          ],
+          "knee_edge": false,
+          "ankle_edge": false
+        },
+        {
+          "first_substep": [
+            266,
+            2
+          ],
+          "last_substep": [
+            275,
+            5
+          ],
+          "duration_ms": 185.0,
+          "overlapping_qualified_bouts": [
+            [
+              267,
+              273
+            ]
+          ],
+          "ankle_minus_knee_min_ms": 20.0,
+          "knee_min_substep": [
+            271,
+            15
+          ],
+          "ankle_min_substep": [
+            272,
+            15
+          ],
+          "knee_edge": false,
+          "ankle_edge": false
+        }
+      ]
+    },
+    {
+      "dataset": "small-delay",
+      "seed": 20261127,
+      "lane": 5,
+      "side": "left",
+      "unloaded_intervals": [
+        {
+          "first_substep": [
+            227,
+            12
+          ],
+          "last_substep": [
+            238,
+            4
+          ],
+          "duration_ms": 211.25,
+          "overlapping_qualified_bouts": [
+            [
+              228,
+              236
+            ]
+          ],
+          "ankle_minus_knee_min_ms": 0.0,
+          "knee_min_substep": [
+            234,
+            15
+          ],
+          "ankle_min_substep": [
+            234,
+            15
+          ],
+          "knee_edge": false,
+          "ankle_edge": false
+        },
+        {
+          "first_substep": [
+            253,
+            5
+          ],
+          "last_substep": [
+            262,
+            13
+          ],
+          "duration_ms": 191.25,
+          "overlapping_qualified_bouts": [
+            [
+              254,
+              260
+            ]
+          ],
+          "ankle_minus_knee_min_ms": 0.0,
+          "knee_min_substep": [
+            259,
+            15
+          ],
+          "ankle_min_substep": [
+            259,
+            15
+          ],
+          "knee_edge": false,
+          "ankle_edge": false
+        },
+        {
+          "first_substep": [
+            277,
+            0
+          ],
+          "last_substep": [
+            287,
+            8
+          ],
+          "duration_ms": 211.25,
+          "overlapping_qualified_bouts": [
+            [
+              278,
+              285
+            ]
+          ],
+          "ankle_minus_knee_min_ms": 0.0,
+          "knee_min_substep": [
+            284,
+            15
+          ],
+          "ankle_min_substep": [
+            284,
+            15
+          ],
+          "knee_edge": false,
+          "ankle_edge": false
+        }
+      ]
+    },
+    {
+      "dataset": "small-delay",
+      "seed": 20261127,
+      "lane": 5,
+      "side": "right",
+      "unloaded_intervals": [
+        {
+          "first_substep": [
+            239,
+            15
+          ],
+          "last_substep": [
+            250,
+            0
+          ],
+          "duration_ms": 202.5,
+          "overlapping_qualified_bouts": [
+            [
+              241,
+              247
+            ]
+          ],
+          "ankle_minus_knee_min_ms": 20.0,
+          "knee_min_substep": [
+            246,
+            15
+          ],
+          "ankle_min_substep": [
+            247,
+            15
+          ],
+          "knee_edge": false,
+          "ankle_edge": false
+        },
+        {
+          "first_substep": [
+            266,
+            2
+          ],
+          "last_substep": [
+            275,
+            5
+          ],
+          "duration_ms": 185.0,
+          "overlapping_qualified_bouts": [
+            [
+              267,
+              273
+            ]
+          ],
+          "ankle_minus_knee_min_ms": 20.0,
+          "knee_min_substep": [
+            271,
+            15
+          ],
+          "ankle_min_substep": [
+            272,
+            15
+          ],
+          "knee_edge": false,
+          "ankle_edge": false
+        }
+      ]
+    },
+    {
+      "dataset": "small-delay",
+      "seed": 20261127,
+      "lane": 6,
+      "side": "left",
+      "unloaded_intervals": [
+        {
+          "first_substep": [
+            227,
+            12
+          ],
+          "last_substep": [
+            238,
+            4
+          ],
+          "duration_ms": 211.25,
+          "overlapping_qualified_bouts": [
+            [
+              228,
+              236
+            ]
+          ],
+          "ankle_minus_knee_min_ms": 0.0,
+          "knee_min_substep": [
+            234,
+            15
+          ],
+          "ankle_min_substep": [
+            234,
+            15
+          ],
+          "knee_edge": false,
+          "ankle_edge": false
+        },
+        {
+          "first_substep": [
+            253,
+            5
+          ],
+          "last_substep": [
+            262,
+            12
+          ],
+          "duration_ms": 190.0,
+          "overlapping_qualified_bouts": [
+            [
+              254,
+              260
+            ]
+          ],
+          "ankle_minus_knee_min_ms": 0.0,
+          "knee_min_substep": [
+            259,
+            15
+          ],
+          "ankle_min_substep": [
+            259,
+            15
+          ],
+          "knee_edge": false,
+          "ankle_edge": false
+        },
+        {
+          "first_substep": [
+            277,
+            0
+          ],
+          "last_substep": [
+            287,
+            9
+          ],
+          "duration_ms": 212.5,
+          "overlapping_qualified_bouts": [
+            [
+              278,
+              285
+            ]
+          ],
+          "ankle_minus_knee_min_ms": 0.0,
+          "knee_min_substep": [
+            284,
+            15
+          ],
+          "ankle_min_substep": [
+            284,
+            15
+          ],
+          "knee_edge": false,
+          "ankle_edge": false
+        }
+      ]
+    },
+    {
+      "dataset": "small-delay",
+      "seed": 20261127,
+      "lane": 6,
+      "side": "right",
+      "unloaded_intervals": [
+        {
+          "first_substep": [
+            239,
+            14
+          ],
+          "last_substep": [
+            250,
+            1
+          ],
+          "duration_ms": 205.0,
+          "overlapping_qualified_bouts": [
+            [
+              241,
+              247
+            ]
+          ],
+          "ankle_minus_knee_min_ms": 20.0,
+          "knee_min_substep": [
+            246,
+            15
+          ],
+          "ankle_min_substep": [
+            247,
+            15
+          ],
+          "knee_edge": false,
+          "ankle_edge": false
+        },
+        {
+          "first_substep": [
+            266,
+            2
+          ],
+          "last_substep": [
+            275,
+            5
+          ],
+          "duration_ms": 185.0,
+          "overlapping_qualified_bouts": [
+            [
+              267,
+              273
+            ]
+          ],
+          "ankle_minus_knee_min_ms": 20.0,
+          "knee_min_substep": [
+            271,
+            15
+          ],
+          "ankle_min_substep": [
+            272,
+            15
+          ],
+          "knee_edge": false,
+          "ankle_edge": false
+        }
+      ]
+    },
+    {
+      "dataset": "small-delay",
+      "seed": 20261127,
+      "lane": 7,
+      "side": "left",
+      "unloaded_intervals": [
+        {
+          "first_substep": [
+            227,
+            12
+          ],
+          "last_substep": [
+            238,
+            4
+          ],
+          "duration_ms": 211.25,
+          "overlapping_qualified_bouts": [
+            [
+              228,
+              236
+            ]
+          ],
+          "ankle_minus_knee_min_ms": 0.0,
+          "knee_min_substep": [
+            234,
+            15
+          ],
+          "ankle_min_substep": [
+            234,
+            15
+          ],
+          "knee_edge": false,
+          "ankle_edge": false
+        },
+        {
+          "first_substep": [
+            253,
+            5
+          ],
+          "last_substep": [
+            262,
+            12
+          ],
+          "duration_ms": 190.0,
+          "overlapping_qualified_bouts": [
+            [
+              254,
+              260
+            ]
+          ],
+          "ankle_minus_knee_min_ms": 0.0,
+          "knee_min_substep": [
+            259,
+            15
+          ],
+          "ankle_min_substep": [
+            259,
+            15
+          ],
+          "knee_edge": false,
+          "ankle_edge": false
+        },
+        {
+          "first_substep": [
+            277,
+            1
+          ],
+          "last_substep": [
+            287,
+            9
+          ],
+          "duration_ms": 211.25,
+          "overlapping_qualified_bouts": [
+            [
+              278,
+              285
+            ]
+          ],
+          "ankle_minus_knee_min_ms": 0.0,
+          "knee_min_substep": [
+            284,
+            15
+          ],
+          "ankle_min_substep": [
+            284,
+            15
+          ],
+          "knee_edge": false,
+          "ankle_edge": false
+        }
+      ]
+    },
+    {
+      "dataset": "small-delay",
+      "seed": 20261127,
+      "lane": 7,
+      "side": "right",
+      "unloaded_intervals": [
+        {
+          "first_substep": [
+            239,
+            15
+          ],
+          "last_substep": [
+            250,
+            1
+          ],
+          "duration_ms": 203.75,
+          "overlapping_qualified_bouts": [
+            [
+              241,
+              247
+            ]
+          ],
+          "ankle_minus_knee_min_ms": 20.0,
+          "knee_min_substep": [
+            246,
+            15
+          ],
+          "ankle_min_substep": [
+            247,
+            15
+          ],
+          "knee_edge": false,
+          "ankle_edge": false
+        },
+        {
+          "first_substep": [
+            266,
+            2
+          ],
+          "last_substep": [
+            275,
+            5
+          ],
+          "duration_ms": 185.0,
+          "overlapping_qualified_bouts": [
+            [
+              267,
+              273
+            ]
+          ],
+          "ankle_minus_knee_min_ms": 20.0,
+          "knee_min_substep": [
+            271,
+            15
+          ],
+          "ankle_min_substep": [
+            272,
+            15
+          ],
+          "knee_edge": false,
+          "ankle_edge": false
+        }
+      ]
+    }
+  ],
+  "limitations": "Development only; no proof of continuous clearance or contact-point slip; threshold/contact chatter can fragment swing; no crow reference angles."
+}

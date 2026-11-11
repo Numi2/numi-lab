@@ -1,0 +1,7 @@
+# Observed unloading windows and boundary-locked extrema
+
+The matched reference on development seed 20261126 contained 48 bracketed unloaded intervals overlapping the prior support-qualified cleared endpoints. Over those intervals the knee and ankle minima coincided in 47 and ankle preceded knee by 20 ms in one. The 0.10 rad candidate had 41 and 40 such intervals across the two used seeds; 49 had coincident minima and 32 had ankle minima 20 ms later. None of these minima lay at an unloaded-window boundary. This does not revise or pass the original stricter endpoint-fragment gate.
+
+A notable limitation emerged: **all 129 paired minima occurred at physics substep 15, the end of a 20 ms controller interval**. Physical q varied within the intervals, and an independent focused reconstruction of reference lane 0 near step 234 confirmed the sampled knee and ankle angles decreased through substep 15, then increased on the next substep. The exact control-boundary locking warrants investigating the drive and integrator before interpreting these values as biological joint timing; the present evidence does not establish the cause. The calculation measures minima, not extension onsets.
+
+Foot unloading uses a 1e-7 N s per-substep threshold and is bracketed by loaded samples; chatter may fragment it and zero recorded normal impulse does not prove geometric clearance or toe release. These used-seed observations do not validate sustained walking, crow-specific movement or slip. Full per-interval data and script are retained.
