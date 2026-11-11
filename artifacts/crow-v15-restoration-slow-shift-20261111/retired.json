@@ -1,0 +1,11 @@
+{
+  "remote_commit": "24c75f3fea30c6f3afa9315eb6768e71c2a5f4cd",
+  "retired": [
+    {
+      "raw": "artifacts/crow-v15-slow-com-shift-screen-20261111/results.txt",
+      "archive": "artifacts/crow-v15-slow-com-shift-screen-20261111/results.txt.gz",
+      "sha256": "0c1403d907a0ec7134d6106a59b008410fe5dcab095b2bd9eb7368dc2f098c1b",
+      "bytes": 3563108
+    }
+  ]
+}
