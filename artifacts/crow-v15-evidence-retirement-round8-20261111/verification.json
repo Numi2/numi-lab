@@ -1,0 +1,21 @@
+{
+  "independently_fetched_commit": "80e3efe893a88dcadbe469df2da88d0f4de057f5",
+  "results": [
+    {
+      "path": "/Users/n/Developer/numi-crow-rl-20261107/artifacts/crow-v15-contact-pitch-opposite-control-20261111/autonomous-20261126/run.stderr.gz",
+      "bytes": 84492508,
+      "compressed_sha256": "97699c1752756918f4bd8beb1d44eeccbd67a056ba1aab1fd603223d1300b5ff",
+      "expanded_sha256": "e6f9cad9d18f1d3383613a62c2f034552a04ff160a406944b139d5279415d67c",
+      "retired": true,
+      "open_handles": false
+    },
+    {
+      "path": "/Users/n/Developer/numi-crow-rl-20261107/artifacts/crow-v15-autonomous-flight-fold-isolation-20261111/autonomous-20261126/run.stderr.gz",
+      "bytes": 85167385,
+      "compressed_sha256": "9f2e741d936c2a5f9f5baac38604529d91352a8384fbd59c9f7ac4cf660847f6",
+      "expanded_sha256": "f5d6eb259f6e2b61137e757131b037d5f67cb10eedf68a98b1d29f7d727eb6de",
+      "retired": true,
+      "open_handles": false
+    }
+  ]
+}
