@@ -1,0 +1,3 @@
+# Correction before policy binding
+
+The proposed zero-policy assertion failed before writing a policy or running the preflight. Inspection shows the prior `zero16` name denotes zero added-body damping, not zero-valued actor weights. Both landing and route policies contain learned weights. The previous plan's zero-output characterization is wrong. Preserve the failed assertion; do not run that script as a valid experiment. Any following preflight must explicitly identify the learned policies and compare all weights and transforms exactly, while separately tracing which outputs reach the ground and flight actuators. This is not teacher-off autonomous navigation qualification.
