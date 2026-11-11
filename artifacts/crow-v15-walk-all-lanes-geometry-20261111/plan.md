@@ -1,0 +1,5 @@
+# All-lane swing geometry for repaired-toe walking
+
+The 16-substep repaired-toe test recorded q/v and all-substep contact in eight development starts, but its native replay contains body poses for only one lane. Reconstruct the sole and toe poses for every retained q/v using the v15 physical model and FP64 forward kinematics. First compare every reconstructed foot/toe pose for replay lane 1 against its retained native replay at the correctly aligned observer step. Reject the analysis if the maximum position or rotation mismatch exceeds 1e-5, or the q alignment fails.
+
+For each lane and foot in the same two-second window, apply the existing >1 mm ground-clearance, <=1e-7 N s full-interval unloaded-foot, >=half-body-weight opposite-foot upward-impulse, and no non-foot ground-contact criteria. Report all qualifying bouts and forward displacement; do not infer continuous between-pose geometry, contact-point slip, long-term gait stability, takeoff or full-route success. This is post-hoc analysis of already-retained development traces and does not use reserved layouts.
