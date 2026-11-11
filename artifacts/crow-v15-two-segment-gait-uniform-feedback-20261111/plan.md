@@ -1,0 +1,3 @@
+# Uniform supported stance feedback, development seed
+
+The .8 velocity-feedback trial settled the disturbed lane and passed contact, swing and progress checks; 1.6 caused loss of support in another lane. Apply the .8 gains and delayed stance/gait uniformly to all eight starting states and require each lane to pass every previously defined physical gate. The matching lane 1 must reproduce all accepted q/v, policy and contact samples from the preceding run through interval 301. This seed and fixed waiting time are development only. A passing result must be followed by fresh development starts, a physical readiness gate and full sequence validation; it does not qualify landing, autonomous navigation or real-bird dynamics.
