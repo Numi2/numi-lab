@@ -1,0 +1,5 @@
+from pathlib import Path
+import json,os,subprocess
+R=Path.cwd();A=R/'artifacts/crow-v15-two-segment-frozen-flight-setup-20261111';B=R/'build/crow-v15-two-segment-frozen-flight-setup-20261111';cmd=json.loads((R/'artifacts/crow-v15-toe-free-flight-20261110/smoke-command.json').read_text())
+for k,v in [('--metallib',str(B/'tracking.metallib')),('--physics-substeps','16'),('--state-trace',str(B/'preflight.tsv')),('--policy-pack',str(R/'build/crow-v15-toe-flight-16substep-20261111/zero.policypack'))]:cmd[cmd.index(k)+1]=v
+(A/'preflight-command.json').write_text(json.dumps(cmd,indent=2)+'\n');p=subprocess.run(cmd,cwd=R,env={**os.environ,'DYLD_LIBRARY_PATH':str(B),'CROW_CONTACT_TRACE':'1','PYTHONDONTWRITEBYTECODE':'1'},text=True,capture_output=True,timeout=180);(A/'preflight.stdout').write_text(p.stdout);(A/'preflight.stderr').write_text(p.stderr);(A/'preflight-result.json').write_text(json.dumps({'return_code':p.returncode,'scope':'contract preflight only'},indent=2)+'\n');print('return_code',p.returncode);print(p.stderr[-4000:])
