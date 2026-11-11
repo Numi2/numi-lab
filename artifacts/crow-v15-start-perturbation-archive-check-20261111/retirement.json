@@ -1,0 +1,25 @@
+{
+  "reason": "Verified exact bytes restored from independently fetched GitHub archive; retired only redundant uncompressed build outputs.",
+  "retired": [
+    {
+      "path": "/Users/n/Developer/numi-crow-rl-20261107/build/crow-v15-start-perturbation-controls-20261111/single-20261126-replay.json",
+      "bytes": 12164856,
+      "sha256": "9cf3b607e17b493ca0e0e1d14e08043b5c96890c61e6c462222e8632f7f96f94"
+    },
+    {
+      "path": "/Users/n/Developer/numi-crow-rl-20261107/build/crow-v15-start-perturbation-controls-20261111/single-20261126-trace.tsv",
+      "bytes": 265934,
+      "sha256": "9323e5f910ba07ae1497423dc7362cfb45aeb10c3d2e8d9efede6874ad786b33"
+    },
+    {
+      "path": "/Users/n/Developer/numi-crow-rl-20261107/build/crow-v15-start-perturbation-controls-20261111/none-20261126-replay.json",
+      "bytes": 12282140,
+      "sha256": "a9a4174be7948fc5b61d0c560d274c5539ea926ab1fd8fafd8c93247db09076c"
+    },
+    {
+      "path": "/Users/n/Developer/numi-crow-rl-20261107/build/crow-v15-start-perturbation-controls-20261111/none-20261126-trace.tsv",
+      "bytes": 266015,
+      "sha256": "7d87962747dbcea10475c1d5b73e5168812d6954188d3baeb592fcc26046bf0c"
+    }
+  ]
+}
