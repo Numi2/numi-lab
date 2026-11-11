@@ -1,0 +1,7 @@
+In file included from /Users/n/Developer/numi-crow-rl-20261107/artifacts/crow-v15-pregrip-balance-screen-20261111/perch_probe.cpp:2:
+/Users/n/Developer/numi-crow-rl-20261107/artifacts/crow-v15-pregrip-balance-screen-20261111/toe_model.cpp:82:78: warning: non-void function does not return a value in all control paths [-Wreturn-type]
+   82 |   } catch(const std::exception& e){std::cerr<<e.what()<<std::endl;return 1;} }
+      |                                                                              ^
+1 warning generated.
+probe_sha256 296038aa45231ec98406f31cd97f15c6ab4e9eaa3bae2957e4cdcf1856a0570a
+observer_library_sha256 befdd6d681f6ea56eae4a5cc6b4f4720e2e25db7cee8a6bfc8e6b3018ec90641

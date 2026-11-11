@@ -1,0 +1,5 @@
+# Pregrip balance screen results
+
+All sixteen native cases completed; the four unchanged controls exactly reproduced the preceding study through 900 samples and all interventions matched their initial control sample. The original controller acquired the specified 50-sample opposed, supported contact only at the reference start, and requested release at step 777. The stronger early hip feedback acquired the same 50-sample condition for the +2 mm start, but it fell by the end and never requested release; it also caused the reference start to fall. The stronger early ankle feedback and the combined change acquired none of the four starts. All 15 nonreference or modified cases ended below the elevated perch, including the briefly acquired case. Some runs had nonfoot contact; details and overlap are in the analysis.
+
+Therefore none of the changes qualifies robust grip, release, regrip, or landing. A brief acquisition is not a stable grip. This isolated perch screen is not a flight arrival, navigation, convergence, or biological validation.
