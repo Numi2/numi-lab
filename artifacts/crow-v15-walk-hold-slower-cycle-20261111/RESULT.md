@@ -1,0 +1,3 @@
+# Slower walk with contact recovery: not selected
+
+The 0.75-second cycle and contact-triggered hold produced 10 alternating clear-swing bouts per foot in all eight development starts. Five starts had no unloaded substeps or sampled simultaneous foot clearance, but three had 29–34 unloaded substeps and two sampled endpoints with both feet more than 1 mm clear. Their forward displacement was 0.101–0.115 m. This is less consistent than the 0.50-second recovery on the same seed, which had two affected starts and one sampled simultaneous clearance, and it is not selected. No contact-point slip observer or full journey was run on this candidate; no biological or unused-layout claim follows.
