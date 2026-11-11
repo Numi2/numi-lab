@@ -1,0 +1,18 @@
+{
+  "remote_commit": "fed9f0706cef2d276ffc434b1ad7890058a85ea5",
+  "verification": "independent fetched Git restore, gzip decode, SHA-256 and open-handle checks",
+  "retired": [
+    {
+      "path": "build/crow-v15-v1-teacher-landing-approach-20261111/route.json",
+      "archive": "artifacts/crow-v15-v1-teacher-landing-approach-20261111/route.json.gz",
+      "sha256": "bd689d67082d1722cddc24d4acd1ef06006d11814ce001a3e10b2553360fb1a3",
+      "bytes": 97829780
+    },
+    {
+      "path": "build/crow-v15-v1-teacher-landing-approach-20261111/route.tsv",
+      "archive": "artifacts/crow-v15-v1-teacher-landing-approach-20261111/route.tsv.gz",
+      "sha256": "bb5d199813629061dc3949fc6ec7c403197dd763ed8efbb6a0c4782aec9b190b",
+      "bytes": 2176641
+    }
+  ]
+}
