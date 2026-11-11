@@ -1,0 +1,447 @@
+{
+  "lanes": [
+    {
+      "lane": 0,
+      "pre_treatment_different_samples": 0,
+      "push": {
+        "complete": true,
+        "missing_substeps": 0,
+        "reference_root_height_m": 0.175548628,
+        "maximum_rise_m": 0.04048405599999999,
+        "maximum_upward_speed_m_s": 1.02571154,
+        "unsupported_intervals": 58,
+        "nonfoot_impulse_intervals": 0,
+        "toe_speed_cap_hits": [
+          {
+            "step": 361,
+            "indices": [
+              6,
+              14
+            ]
+          },
+          {
+            "step": 372,
+            "indices": [
+              6,
+              14
+            ]
+          },
+          {
+            "step": 379,
+            "indices": [
+              14
+            ]
+          }
+        ],
+        "event": {
+          "step": 355,
+          "rise_m": 0.03672578899999998,
+          "vertical_speed_m_s": 0.181889251,
+          "maximum_prior_interval_upward_impulse_Ns": 0.35328433040999996
+        }
+      },
+      "control": {
+        "complete": true,
+        "missing_substeps": 0,
+        "reference_root_height_m": 0.175548628,
+        "maximum_rise_m": 0.009869292000000002,
+        "maximum_upward_speed_m_s": 0.40553242,
+        "unsupported_intervals": 69,
+        "nonfoot_impulse_intervals": 0,
+        "toe_speed_cap_hits": [
+          {
+            "step": 358,
+            "indices": [
+              6
+            ]
+          },
+          {
+            "step": 417,
+            "indices": [
+              14
+            ]
+          }
+        ],
+        "event": null
+      },
+      "pass": false
+    },
+    {
+      "lane": 1,
+      "pre_treatment_different_samples": 0,
+      "push": {
+        "complete": true,
+        "missing_substeps": 0,
+        "reference_root_height_m": 0.175548881,
+        "maximum_rise_m": 0.04721745900000002,
+        "maximum_upward_speed_m_s": 1.13653398,
+        "unsupported_intervals": 27,
+        "nonfoot_impulse_intervals": 0,
+        "toe_speed_cap_hits": [
+          {
+            "step": 43,
+            "indices": [
+              6
+            ]
+          },
+          {
+            "step": 361,
+            "indices": [
+              6,
+              14
+            ]
+          },
+          {
+            "step": 370,
+            "indices": [
+              6,
+              14
+            ]
+          },
+          {
+            "step": 371,
+            "indices": [
+              0,
+              2,
+              4,
+              8,
+              10,
+              12
+            ]
+          }
+        ],
+        "event": {
+          "step": 355,
+          "rise_m": 0.03739334700000002,
+          "vertical_speed_m_s": 0.190127656,
+          "maximum_prior_interval_upward_impulse_Ns": 0.35742441752000004
+        }
+      },
+      "control": {
+        "complete": true,
+        "missing_substeps": 0,
+        "reference_root_height_m": 0.175548881,
+        "maximum_rise_m": 0.002088741000000005,
+        "maximum_upward_speed_m_s": 0.0813283846,
+        "unsupported_intervals": 0,
+        "nonfoot_impulse_intervals": 0,
+        "toe_speed_cap_hits": [
+          {
+            "step": 43,
+            "indices": [
+              6
+            ]
+          }
+        ],
+        "event": null
+      },
+      "pass": false
+    },
+    {
+      "lane": 2,
+      "pre_treatment_different_samples": 0,
+      "push": {
+        "complete": true,
+        "missing_substeps": 0,
+        "reference_root_height_m": 0.17554836,
+        "maximum_rise_m": 0.03765825900000003,
+        "maximum_upward_speed_m_s": 1.01059914,
+        "unsupported_intervals": 32,
+        "nonfoot_impulse_intervals": 0,
+        "toe_speed_cap_hits": [
+          {
+            "step": 361,
+            "indices": [
+              6,
+              14
+            ]
+          },
+          {
+            "step": 371,
+            "indices": [
+              6,
+              14
+            ]
+          }
+        ],
+        "event": {
+          "step": 355,
+          "rise_m": 0.036198377000000004,
+          "vertical_speed_m_s": 0.17528905,
+          "maximum_prior_interval_upward_impulse_Ns": 0.34996198163000003
+        }
+      },
+      "control": {
+        "complete": true,
+        "missing_substeps": 0,
+        "reference_root_height_m": 0.17554836,
+        "maximum_rise_m": 0.012266367,
+        "maximum_upward_speed_m_s": 0.429901779,
+        "unsupported_intervals": 76,
+        "nonfoot_impulse_intervals": 0,
+        "toe_speed_cap_hits": [
+          {
+            "step": 362,
+            "indices": [
+              6,
+              14
+            ]
+          },
+          {
+            "step": 387,
+            "indices": [
+              14
+            ]
+          }
+        ],
+        "event": null
+      },
+      "pass": false
+    },
+    {
+      "lane": 3,
+      "pre_treatment_different_samples": 0,
+      "push": {
+        "complete": true,
+        "missing_substeps": 0,
+        "reference_root_height_m": 0.175548136,
+        "maximum_rise_m": 0.03899093000000001,
+        "maximum_upward_speed_m_s": 0.829579949,
+        "unsupported_intervals": 19,
+        "nonfoot_impulse_intervals": 0,
+        "toe_speed_cap_hits": [
+          {
+            "step": 361,
+            "indices": [
+              6,
+              14
+            ]
+          },
+          {
+            "step": 362,
+            "indices": [
+              0,
+              2,
+              4,
+              8,
+              10,
+              12
+            ]
+          }
+        ],
+        "event": {
+          "step": 355,
+          "rise_m": 0.037267223000000016,
+          "vertical_speed_m_s": 0.188607737,
+          "maximum_prior_interval_upward_impulse_Ns": 0.35663992393
+        }
+      },
+      "control": {
+        "complete": true,
+        "missing_substeps": 0,
+        "reference_root_height_m": 0.175548136,
+        "maximum_rise_m": 0.009097874000000006,
+        "maximum_upward_speed_m_s": 0.301941693,
+        "unsupported_intervals": 69,
+        "nonfoot_impulse_intervals": 0,
+        "toe_speed_cap_hits": [],
+        "event": null
+      },
+      "pass": false
+    },
+    {
+      "lane": 4,
+      "pre_treatment_different_samples": 0,
+      "push": {
+        "complete": true,
+        "missing_substeps": 0,
+        "reference_root_height_m": 0.175547346,
+        "maximum_rise_m": 0.040237262999999995,
+        "maximum_upward_speed_m_s": 0.842966914,
+        "unsupported_intervals": 21,
+        "nonfoot_impulse_intervals": 0,
+        "toe_speed_cap_hits": [],
+        "event": {
+          "step": 355,
+          "rise_m": 0.03826981800000001,
+          "vertical_speed_m_s": 0.20092313,
+          "maximum_prior_interval_upward_impulse_Ns": 0.36276593309000005
+        }
+      },
+      "control": {
+        "complete": true,
+        "missing_substeps": 0,
+        "reference_root_height_m": 0.175547346,
+        "maximum_rise_m": 0.011397794000000017,
+        "maximum_upward_speed_m_s": 0.380799413,
+        "unsupported_intervals": 70,
+        "nonfoot_impulse_intervals": 0,
+        "toe_speed_cap_hits": [],
+        "event": null
+      },
+      "pass": true
+    },
+    {
+      "lane": 5,
+      "pre_treatment_different_samples": 0,
+      "push": {
+        "complete": true,
+        "missing_substeps": 0,
+        "reference_root_height_m": 0.175547451,
+        "maximum_rise_m": 0.037762716,
+        "maximum_upward_speed_m_s": 0.923873067,
+        "unsupported_intervals": 62,
+        "nonfoot_impulse_intervals": 0,
+        "toe_speed_cap_hits": [
+          {
+            "step": 361,
+            "indices": [
+              6,
+              14
+            ]
+          },
+          {
+            "step": 371,
+            "indices": [
+              6,
+              14
+            ]
+          }
+        ],
+        "event": {
+          "step": 355,
+          "rise_m": 0.036282167000000004,
+          "vertical_speed_m_s": 0.176339477,
+          "maximum_prior_interval_upward_impulse_Ns": 0.35052652003
+        }
+      },
+      "control": {
+        "complete": true,
+        "missing_substeps": 0,
+        "reference_root_height_m": 0.175547451,
+        "maximum_rise_m": 0.010419115000000007,
+        "maximum_upward_speed_m_s": 0.35965097,
+        "unsupported_intervals": 67,
+        "nonfoot_impulse_intervals": 0,
+        "toe_speed_cap_hits": [],
+        "event": null
+      },
+      "pass": false
+    },
+    {
+      "lane": 6,
+      "pre_treatment_different_samples": 0,
+      "push": {
+        "complete": true,
+        "missing_substeps": 0,
+        "reference_root_height_m": 0.175549567,
+        "maximum_rise_m": 0.038271710000000014,
+        "maximum_upward_speed_m_s": 0.964760065,
+        "unsupported_intervals": 26,
+        "nonfoot_impulse_intervals": 0,
+        "toe_speed_cap_hits": [
+          {
+            "step": 361,
+            "indices": [
+              6,
+              14
+            ]
+          },
+          {
+            "step": 372,
+            "indices": [
+              6,
+              14
+            ]
+          }
+        ],
+        "event": {
+          "step": 355,
+          "rise_m": 0.03668946000000001,
+          "vertical_speed_m_s": 0.18146196,
+          "maximum_prior_interval_upward_impulse_Ns": 0.35307689198000003
+        }
+      },
+      "control": {
+        "complete": true,
+        "missing_substeps": 0,
+        "reference_root_height_m": 0.175549567,
+        "maximum_rise_m": 0.01002618600000002,
+        "maximum_upward_speed_m_s": 0.370372832,
+        "unsupported_intervals": 69,
+        "nonfoot_impulse_intervals": 0,
+        "toe_speed_cap_hits": [],
+        "event": null
+      },
+      "pass": false
+    },
+    {
+      "lane": 7,
+      "pre_treatment_different_samples": 0,
+      "push": {
+        "complete": true,
+        "missing_substeps": 0,
+        "reference_root_height_m": 0.175548688,
+        "maximum_rise_m": 0.03848542199999999,
+        "maximum_upward_speed_m_s": 0.97298342,
+        "unsupported_intervals": 58,
+        "nonfoot_impulse_intervals": 0,
+        "toe_speed_cap_hits": [
+          {
+            "step": 361,
+            "indices": [
+              6,
+              14
+            ]
+          },
+          {
+            "step": 372,
+            "indices": [
+              6,
+              14
+            ]
+          },
+          {
+            "step": 379,
+            "indices": [
+              6,
+              14
+            ]
+          }
+        ],
+        "event": {
+          "step": 355,
+          "rise_m": 0.03686171699999999,
+          "vertical_speed_m_s": 0.183560833,
+          "maximum_prior_interval_upward_impulse_Ns": 0.35411719824
+        }
+      },
+      "control": {
+        "complete": true,
+        "missing_substeps": 0,
+        "reference_root_height_m": 0.175548688,
+        "maximum_rise_m": 0.011999084999999993,
+        "maximum_upward_speed_m_s": 0.413891345,
+        "unsupported_intervals": 70,
+        "nonfoot_impulse_intervals": 0,
+        "toe_speed_cap_hits": [
+          {
+            "step": 449,
+            "indices": [
+              6
+            ]
+          }
+        ],
+        "event": null
+      },
+      "pass": false
+    }
+  ],
+  "push_failed_environment_steps": 0,
+  "control_failed_environment_steps": 0,
+  "push_terminations": 0,
+  "control_terminations": 0,
+  "push_errors": [],
+  "control_errors": [],
+  "scope": "paired wing-suppressed leg launch development comparison; not flight handoff or landing"
+}
