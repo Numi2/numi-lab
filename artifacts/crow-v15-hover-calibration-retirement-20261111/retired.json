@@ -1,0 +1,54 @@
+{
+  "remote_commit": "8afbbbe5aceef6cc11464315f825b17089f0d0ab",
+  "verification": "independent fetched Git restore, gzip decode, SHA-256 and open-handle checks",
+  "retired": [
+    {
+      "path": "build/crow-v15-landing-hover-calibration-20261111/o18.json",
+      "archive": "artifacts/crow-v15-landing-hover-calibration-20261111/o18.json.gz",
+      "sha256": "65ed161b61fcdf9bcbfd2a25500d0f8ec5cd885fce1bacbf35148b0ea1156c80",
+      "bytes": 71258519
+    },
+    {
+      "path": "build/crow-v15-landing-hover-calibration-20261111/o18.tsv",
+      "archive": "artifacts/crow-v15-landing-hover-calibration-20261111/o18.tsv.gz",
+      "sha256": "3bb92bd819ac22a2cae06f47a613fdbd84273a912c1d72e58466cbbc14c4d0a0",
+      "bytes": 1596659
+    },
+    {
+      "path": "build/crow-v15-landing-hover-calibration-20261111/o21.json",
+      "archive": "artifacts/crow-v15-landing-hover-calibration-20261111/o21.json.gz",
+      "sha256": "9445d2a85f232b4a6727bce4de31de8280384049b149187c931327fb918db2e5",
+      "bytes": 71268617
+    },
+    {
+      "path": "build/crow-v15-landing-hover-calibration-20261111/o21.tsv",
+      "archive": "artifacts/crow-v15-landing-hover-calibration-20261111/o21.tsv.gz",
+      "sha256": "6ae6f477416326f002151cb36691a9e068277ea623ec71ac602b2e1a96c4560d",
+      "bytes": 1596711
+    },
+    {
+      "path": "build/crow-v15-landing-hover-calibration-20261111/o24.json",
+      "archive": "artifacts/crow-v15-landing-hover-calibration-20261111/o24.json.gz",
+      "sha256": "eab2b381bbd9de4c6001fe864c34bf46ead8ed6f05bbf726c656f5a0ca644812",
+      "bytes": 71268603
+    },
+    {
+      "path": "build/crow-v15-landing-hover-calibration-20261111/o24.tsv",
+      "archive": "artifacts/crow-v15-landing-hover-calibration-20261111/o24.tsv.gz",
+      "sha256": "fcd5910feaa137d09d266da621b6ca9f7b99b53421a6e14393366fe216878486",
+      "bytes": 1596727
+    },
+    {
+      "path": "build/crow-v15-landing-hover-calibration-20261111/o27.json",
+      "archive": "artifacts/crow-v15-landing-hover-calibration-20261111/o27.json.gz",
+      "sha256": "39feff263a841c49681e903a6187958423d85b0393d35b08437934bd23e736c7",
+      "bytes": 71263102
+    },
+    {
+      "path": "build/crow-v15-landing-hover-calibration-20261111/o27.tsv",
+      "archive": "artifacts/crow-v15-landing-hover-calibration-20261111/o27.tsv.gz",
+      "sha256": "6fdd79452a4d57cb425308fa17acc5f7fa4ce080e46f080abe6f4e3bb44ce049",
+      "bytes": 1596669
+    }
+  ]
+}
