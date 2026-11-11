@@ -1,0 +1,3 @@
+# Teacher recovery near development slalom collisions
+
+Repeat the newer student on a previously used development course and seed, enable labels with student authority, and transfer to the teacher at steps 1500, 1600 or 1700 according to lane. The student first episodes in lanes 1 and 2 previously hit slalom A near step 1760. Require accepted endpoint parity before each takeover and verify whether the teacher actually reaches all five waypoints without first-episode failure. This is a privileged recovery diagnostic, not autonomous capability or a final-layout test. Exclude failed episodes and do not train on labels from an unqualified recovery.

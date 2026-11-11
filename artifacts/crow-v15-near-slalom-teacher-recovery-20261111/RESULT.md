@@ -1,0 +1,3 @@
+# Teacher recovery near slalom
+
+On one used development seed and course, teacher authority began at steps 1500, 1600 or 1700 after actual student-controlled trajectories. All eight first episodes reached five waypoints without physical failure, including two lanes whose teacher-off counterparts hit the slalom. Accepted endpoint q, v, policy outputs and contacts matched the teacher-off reference at every recorded pre-takeover step. These are privileged recoveries, not autonomous navigation or unused-layout evidence. Only pre-takeover student-visited states from these successful first episodes are eligible for corrective labels.
