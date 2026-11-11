@@ -1,0 +1,3 @@
+# Forward leg-jump screen
+
+The -0.50/0.18 arm exactly reproduced the earlier wing-suppressed leg jump, with every variant matching through step 248. Six of the twelve tested hip/ankle combinations passed the leg-only gate in all eight development starts; one additional arm passed six of eight. The -1.00 hip / 0.45 ankle arm first unloaded at step 258 with minimum upward velocity 0.274 m/s and forward velocity 0.031 m/s, then recontacted at step 264 with wings deliberately suppressed. It needs independent toe geometry and a delayed wing handoff before it can support any full-takeoff claim. Other variants and all failures remain in the analysis. No reserved layout was used.
