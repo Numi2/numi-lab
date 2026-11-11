@@ -1,0 +1,259 @@
+{
+  "seed": 20261126,
+  "lanes": [
+    {
+      "lane": 0,
+      "max_abs_toe_speed_rad_s": 6.18161821,
+      "all_hits": [],
+      "gait_hits": []
+    },
+    {
+      "lane": 1,
+      "max_abs_toe_speed_rad_s": 12.0,
+      "all_hits": [
+        [
+          31,
+          5,
+          [
+            14
+          ]
+        ],
+        [
+          39,
+          7,
+          [
+            14
+          ]
+        ],
+        [
+          39,
+          8,
+          [
+            14
+          ]
+        ],
+        [
+          43,
+          14,
+          [
+            6
+          ]
+        ],
+        [
+          43,
+          15,
+          [
+            6
+          ]
+        ],
+        [
+          44,
+          0,
+          [
+            6
+          ]
+        ],
+        [
+          48,
+          2,
+          [
+            14
+          ]
+        ],
+        [
+          48,
+          3,
+          [
+            14
+          ]
+        ],
+        [
+          52,
+          7,
+          [
+            6
+          ]
+        ],
+        [
+          52,
+          8,
+          [
+            6
+          ]
+        ],
+        [
+          52,
+          9,
+          [
+            6
+          ]
+        ],
+        [
+          56,
+          10,
+          [
+            14
+          ]
+        ],
+        [
+          56,
+          11,
+          [
+            14
+          ]
+        ],
+        [
+          56,
+          12,
+          [
+            14
+          ]
+        ],
+        [
+          56,
+          13,
+          [
+            14
+          ]
+        ],
+        [
+          60,
+          9,
+          [
+            6
+          ]
+        ],
+        [
+          60,
+          10,
+          [
+            6
+          ]
+        ],
+        [
+          60,
+          11,
+          [
+            6
+          ]
+        ],
+        [
+          70,
+          9,
+          [
+            14
+          ]
+        ],
+        [
+          70,
+          10,
+          [
+            14
+          ]
+        ],
+        [
+          85,
+          9,
+          [
+            14
+          ]
+        ],
+        [
+          85,
+          10,
+          [
+            14
+          ]
+        ],
+        [
+          95,
+          13,
+          [
+            6
+          ]
+        ]
+      ],
+      "gait_hits": []
+    },
+    {
+      "lane": 2,
+      "max_abs_toe_speed_rad_s": 12.0,
+      "all_hits": [
+        [
+          1,
+          2,
+          [
+            8
+          ]
+        ],
+        [
+          1,
+          3,
+          [
+            8
+          ]
+        ],
+        [
+          1,
+          4,
+          [
+            8
+          ]
+        ],
+        [
+          2,
+          2,
+          [
+            8
+          ]
+        ],
+        [
+          2,
+          3,
+          [
+            8
+          ]
+        ],
+        [
+          2,
+          4,
+          [
+            8
+          ]
+        ]
+      ],
+      "gait_hits": []
+    },
+    {
+      "lane": 3,
+      "max_abs_toe_speed_rad_s": 6.07456255,
+      "all_hits": [],
+      "gait_hits": []
+    },
+    {
+      "lane": 4,
+      "max_abs_toe_speed_rad_s": 5.64765739,
+      "all_hits": [],
+      "gait_hits": []
+    },
+    {
+      "lane": 5,
+      "max_abs_toe_speed_rad_s": 6.07210636,
+      "all_hits": [],
+      "gait_hits": []
+    },
+    {
+      "lane": 6,
+      "max_abs_toe_speed_rad_s": 6.07652664,
+      "all_hits": [],
+      "gait_hits": []
+    },
+    {
+      "lane": 7,
+      "max_abs_toe_speed_rad_s": 5.79852915,
+      "all_hits": [],
+      "gait_hits": []
+    }
+  ],
+  "scope": "All 16 toe velocities at all 16 substeps over 355 first-episode intervals. A velocity below the configured cap does not establish biological realism."
+}
