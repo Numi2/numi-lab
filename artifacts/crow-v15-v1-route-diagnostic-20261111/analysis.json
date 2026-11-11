@@ -1,0 +1,128 @@
+{
+  "first_episode": {
+    "boundary": "waypoint completion; does not establish supported landing",
+    "closed_by_environment": [
+      true
+    ],
+    "closed_episode_count": 1,
+    "completion_seen_by_environment": [
+      false
+    ],
+    "completion_seen_count": 0,
+    "environment_count": 1,
+    "first_completion_step_by_environment": [
+      null
+    ],
+    "horizon_censored_count": 0,
+    "maximum_waypoints_by_environment": [
+      2
+    ],
+    "physical_failure_by_environment": [
+      true
+    ],
+    "physical_failure_count": 1,
+    "safe_completion_by_environment": [
+      false
+    ],
+    "safe_completion_count": 0,
+    "schema": "numi.crow-first-episode-evidence.v1",
+    "steps_by_environment": [
+      1113
+    ],
+    "termination_reason_by_environment": [
+      3
+    ],
+    "unit": "first episode of each environment since context creation"
+  },
+  "first_fatal_contact": {
+    "step": 1114,
+    "position_m": [
+      3.56150699,
+      -0.267861992,
+      1.06146836
+    ],
+    "orientation_xyzw": [
+      0.0106389225,
+      0.0389213376,
+      -0.0802814364,
+      0.995955229
+    ],
+    "linear_velocity_m_s": [
+      0.0397015959,
+      -0.0896797702,
+      -0.0680111349
+    ],
+    "angular_velocity_rad_s": [
+      0.0621339343,
+      0.0644019395,
+      -0.202049553
+    ],
+    "policy_action": [
+      0.475324392,
+      -0.111088537,
+      -0.288676947,
+      -0.408880472,
+      0.563497543,
+      -0.481397599,
+      -0.868019223,
+      0.396009713,
+      0.193909436,
+      -0.743416667,
+      0.377399921,
+      0.287186712,
+      0.677228332,
+      0.884929419,
+      -0.615884423,
+      0.297627807,
+      0,
+      0
+    ],
+    "contacts": [
+      {
+        "a": 6,
+        "a_name": "crow_right_wing",
+        "b": 29,
+        "b_name": "crow_course_slalom_b",
+        "normal_impulse": 0.00107953825,
+        "separation": -0.00056190131
+      }
+    ]
+  },
+  "clearance_samples": [
+    {
+      "lane": 0,
+      "end_step": 500,
+      "minimum_step": 497,
+      "minimum_m": 0.135398602666,
+      "bird_shape": "crow_right_wing/collision",
+      "obstacle_shape": "crow_course_gate_right/collision",
+      "bird_body": "crow_right_wing",
+      "obstacle_body": "crow_course_gate_right",
+      "sampling": "accepted_control_steps"
+    },
+    {
+      "lane": 0,
+      "end_step": 1000,
+      "minimum_step": 598,
+      "minimum_m": 0.0375126928045,
+      "bird_shape": "crow_right_wing/collision",
+      "obstacle_shape": "crow_course_gate_right/collision",
+      "bird_body": "crow_right_wing",
+      "obstacle_body": "crow_course_gate_right",
+      "sampling": "accepted_control_steps"
+    },
+    {
+      "lane": 0,
+      "end_step": 1114,
+      "minimum_step": 1067,
+      "minimum_m": 0,
+      "bird_shape": "crow_right_wing/collision",
+      "obstacle_shape": "crow_course_slalom_b/collision",
+      "bird_body": "crow_right_wing",
+      "obstacle_body": "crow_course_slalom_b",
+      "sampling": "accepted_control_steps"
+    }
+  ],
+  "overall_termination_count": 2,
+  "scope": "development J only; source actor V2 adapter, execution V1 adapter; diagnostic transfer; post-failure resets do not count as continuous navigation"
+}

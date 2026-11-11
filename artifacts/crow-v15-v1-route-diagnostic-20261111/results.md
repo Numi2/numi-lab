@@ -1,0 +1,5 @@
+# Existing navigation actor with repaired V1 flight: diagnostic failure
+
+After explicit diagnostic rebinding to the updated body and 16-substep contract, the old V2-trained navigation actor reached two waypoints in its first episode, then collided with the slalom B obstacle. At the first fatal contact (step 1114), the pair was right wing / slalom B, with the recorded pose, velocity and commanded actions retained in analysis.json. The accepted-step clearance samples recorded 0.0375 m by step 1000 and zero by the failure, below the required 0.05 m. The runtime recorded two terminations in 3000 steps and automatically restarted after failure despite scheduled resets being disabled; all post-failure movement is excluded from continuous-run claims. No solver environment step failed.
+
+This actor was trained for a different low-level flight adapter, and matching tensor shapes and rebinding do not prove equal observation or action semantics. This exposed development course is not a held-out final layout. This does not qualify navigation, grip, or landing.
