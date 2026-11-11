@@ -3,3 +3,5 @@
 c7ad98414062d68d5112a067634dca427bbc22e476cd9aa05c968bfd31b2c9bf  build/crow-v15-hip-roll-walk-launch-matched-20261111/kinematics
 d1e9bb9c6c6978318382731dd31df8a8aee22104dc23bbbab73eec5c7b81e615  build/crow-v15-hip-roll-journey-integration-20261111/libmetalrobo.dylib
 22e3221ce51bf82b9f1c795cd1cc1af221f3cffcfabdd6deebff4c7062e3cc77  build/crow-v15-hip-roll-journey-integration-20261111/MetalWorld.mm
+98fb529fdb2a3fd891958517c8b7e5839ac1eb5c404de8a466cc91bd828f4d1a  build/crow-v15-landing-phase-observer-20261111/libmetalrobo.dylib
+d653ea811675585df538f7b5a83d7a78678ff723bed768229f6c0a3be50efb61  build/crow-v15-landing-phase-observer-20261111/MetalWorld.mm
