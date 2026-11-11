@@ -1,0 +1,60 @@
+{
+  "rows": [
+    {
+      "lane": 0,
+      "advances": 99,
+      "holds": 0,
+      "other_transitions": 0,
+      "phases_seen": 25
+    },
+    {
+      "lane": 1,
+      "advances": 99,
+      "holds": 0,
+      "other_transitions": 0,
+      "phases_seen": 25
+    },
+    {
+      "lane": 2,
+      "advances": 99,
+      "holds": 0,
+      "other_transitions": 0,
+      "phases_seen": 25
+    },
+    {
+      "lane": 3,
+      "advances": 99,
+      "holds": 0,
+      "other_transitions": 0,
+      "phases_seen": 25
+    },
+    {
+      "lane": 4,
+      "advances": 99,
+      "holds": 0,
+      "other_transitions": 0,
+      "phases_seen": 25
+    },
+    {
+      "lane": 5,
+      "advances": 99,
+      "holds": 0,
+      "other_transitions": 0,
+      "phases_seen": 25
+    },
+    {
+      "lane": 6,
+      "advances": 99,
+      "holds": 0,
+      "other_transitions": 0,
+      "phases_seen": 25
+    },
+    {
+      "lane": 7,
+      "advances": 99,
+      "holds": 0,
+      "other_transitions": 0,
+      "phases_seen": 25
+    }
+  ]
+}
