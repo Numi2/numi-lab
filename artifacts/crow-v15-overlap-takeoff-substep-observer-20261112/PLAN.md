@@ -1,0 +1,3 @@
+# Substep overlap of leg push and wing movement
+
+Re-observe the 7.00 s gate candidate with the already validated q/contact substep host and identical inputs. Require exact endpoint and contact parity against its retained 370-step prefix, complete q snapshots at steps 335–365, and independently validate wing body poses against the lane-7 replay. For each lane, compare torso-relative wing-body center height at the end of interval 351 to its height at the final loaded substep of interval 352, with the same impulse threshold as the prior probe. Record the last loaded sample and all coverage. This measures modeled geometry, not aerodynamic force or real feathers; within-substep timing remains unresolved.
