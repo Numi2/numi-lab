@@ -1,0 +1,3 @@
+# Pre-run 12/6 iteration convergence screen
+
+At 32 substeps, increasing contact iterations from 4/2 to 8/4 reduced worst overlap of the sustained 1.15-radian rear-toe case from 0.97 to 0.58 mm, still above the existing 0.5 mm limit. Repeat the exact eight-lane constructed-start experiment with velocity iterations 12 and final velocity iterations 6, unchanged physics, controls, thresholds and timestep. Retain all 89,600 substeps and failures. Require no fall, 100 terminal supported-opposed intervals, at least 50 consecutive supported-opposed intervals, no nonfoot contact and at most 0.5 mm overlap during opposed intervals. This is a convergence sensitivity test only and does not qualify flight arrival, perturbations, release, real crow anatomy or full sequence.
