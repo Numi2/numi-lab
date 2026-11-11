@@ -1,0 +1,9 @@
+[
+  {
+    "name": "trace",
+    "toe_segment_mass_kg": 5e-05,
+    "library_sha256": "0c57499e4a4a6b0282e6a748b1e42a1cca2650c085ceb86eb466fd6d84f9baf6",
+    "source_sha256": "1c88e7cf190899ff7e5dc4b8d0f6c45f673a24c4c0c1985c4821a01c1c3c12e5",
+    "observer_sha256": "901c275465209df4e29e88866ac9892e89a2c06ca4d0162fa67fe4503ef68c5c"
+  }
+]

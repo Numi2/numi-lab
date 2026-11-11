@@ -1,0 +1,13 @@
+--- a/reference.cpp
++++ b/trace.cpp
+@@ -5074,10 +5074,6 @@
+                     for (size_t i=0; i<count && lane*stride+i<published.contactEvidence.contacts.size(); ++i) {
+                         const auto& c=published.contactEvidence.contacts[lane*stride+i];
+                         const std::string a=name(c.bodyA), b=name(c.bodyB);
+-                        if (a.find("crow_course_perch")==std::string::npos &&
+-                            b.find("crow_course_perch")==std::string::npos &&
+-                            a.find("locomotion_ground")==std::string::npos &&
+-                            b.find("locomotion_ground")==std::string::npos) continue;
+                         if (!opened) {
+                             std::fprintf(stderr, "CROW_SUPPORT_SAMPLE {\"step\":%llu,\"lane\":%zu",
+                                 static_cast<unsigned long long>(handle->submittedControlSteps+1u), lane);

@@ -1,0 +1,22 @@
+[
+  {
+    "path": "build/crow-v15-landing-approach-dev-20261111/tracking.metallib",
+    "sha256": "5987e909a075bd3d69a1c443f400905f27406a314614d760d40829e4ce62bfd3",
+    "bytes": 4471952
+  },
+  {
+    "path": "build/crow-v15-landing-approach-dev-20261111/trace/libmetalrobo.dylib",
+    "sha256": "1dcdb91d16ecba27f71531e1b0980e3759eb916e11b602b402411ee256aa181b",
+    "bytes": 5764848
+  },
+  {
+    "path": "build/crow-v15-landing-approach-dev-20261111/route.policypack",
+    "sha256": "8e57f3a52808342483b414bbcb30347428fccd3dd04c8b3774ff90f203668725",
+    "bytes": 17228682
+  },
+  {
+    "path": "build/crow-v15-landing-approach-dev-20261111/landing.policypack",
+    "sha256": "63ef886bf379dbb0d22fb3fb61e2b91f4526c2cc9260c5568bc0f62357c6ea47",
+    "bytes": 5996428
+  }
+]
