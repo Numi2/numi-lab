@@ -1,0 +1,5 @@
+# Exploratory earlier wing initiation during takeoff
+
+The matched development takeoff suppresses flapping until a status gate; in the published near-vertical American crow escape observations, partial downstroke preceded toe-off. Test whether lifting the existing flapping-amplitude gate at 6.90 s, shortly before the previous 7.06 s unloaded interval, changes wing and leg coordination and compromises the existing physically driven takeoff. This one timing is an engineering candidate, not a fitted biological timing and not evidence of species realism.
+
+Repeat the existing teacher-off, no-reset development run at seed 20261126 with all physics and commands unchanged except the gated amplitude condition. Compare all available states and foot contacts to the original wing-on control before intervention, actual wing orientation and contact timing around release, both-foot impulse, clearance, nonfoot impacts, toe speed caps, flight-handoff measures, and full run failures. Diagnose whether another gate prevents the intended actuation. Reject regressions and preserve the complete record. One used seed is insufficient to qualify the takeoff, gait, flight, or navigation.
