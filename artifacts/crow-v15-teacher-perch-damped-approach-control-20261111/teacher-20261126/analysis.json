@@ -1,0 +1,409 @@
+{
+  "teacher": true,
+  "action_source": "birdflow_assisted_teacher_with_observed_policy",
+  "host_requested_resets": 0,
+  "failed_environment_steps": 0,
+  "rows": [
+    {
+      "lane": 0,
+      "first_episode_steps": 3800,
+      "physical_failure": false,
+      "max_waypoints": 5,
+      "first_observed_non_ground_contact": null,
+      "last_observed_first_episode_state": {
+        "observer_step": 3800,
+        "position_m": [
+          4.98672676,
+          0.669175506,
+          1.4008863
+        ],
+        "attitude_roll_pitch_yaw_rad": [
+          -0.00018356109437906955,
+          0.04392242403623666,
+          0.020731800044830495
+        ],
+        "linear_velocity_m_s": [
+          -0.0378694497,
+          -0.00132881408,
+          -0.149649605
+        ],
+        "angular_velocity_rad_s": [
+          -0.00341670658,
+          0.0439421311,
+          0.0152873052
+        ],
+        "policy_action": [
+          0.0787379816,
+          0.0771611035,
+          -0.0694324449,
+          1,
+          0.106412962,
+          0.0775517672,
+          -0.0242042691,
+          1,
+          -0.0369820483,
+          0.0348497927,
+          -0.40295893,
+          0.399196386,
+          0.184992254,
+          -0.209135696,
+          0.354611993,
+          0,
+          0,
+          0
+        ]
+      }
+    },
+    {
+      "lane": 1,
+      "first_episode_steps": 3800,
+      "physical_failure": false,
+      "max_waypoints": 5,
+      "first_observed_non_ground_contact": null,
+      "last_observed_first_episode_state": {
+        "observer_step": 3800,
+        "position_m": [
+          5.12844515,
+          0.585391045,
+          1.38600862
+        ],
+        "attitude_roll_pitch_yaw_rad": [
+          0.0002840097451207828,
+          0.01638235433566733,
+          0.020728408305926687
+        ],
+        "linear_velocity_m_s": [
+          -0.0964317992,
+          -0.00394917233,
+          -0.0824479461
+        ],
+        "angular_velocity_rad_s": [
+          -0.00404927507,
+          0.0481628999,
+          0.0152219282
+        ],
+        "policy_action": [
+          -0.0863002688,
+          0.0931870565,
+          -0.0650504455,
+          1,
+          -0.0695953518,
+          0.0813329369,
+          -0.0225559566,
+          1,
+          -0.11687205,
+          0.0563816614,
+          -0.338561684,
+          0.348290652,
+          0.23593004,
+          -0.0836589038,
+          0.297945052,
+          0,
+          0,
+          0
+        ]
+      }
+    },
+    {
+      "lane": 2,
+      "first_episode_steps": 3800,
+      "physical_failure": false,
+      "max_waypoints": 5,
+      "first_observed_non_ground_contact": null,
+      "last_observed_first_episode_state": {
+        "observer_step": 3800,
+        "position_m": [
+          5.01194048,
+          0.558210909,
+          1.39643621
+        ],
+        "attitude_roll_pitch_yaw_rad": [
+          -0.00015563274029825087,
+          0.04400378394701883,
+          0.0207332083659409
+        ],
+        "linear_velocity_m_s": [
+          -0.0255364794,
+          -0.000974989205,
+          -0.150467917
+        ],
+        "angular_velocity_rad_s": [
+          -0.00329822511,
+          0.0398120247,
+          0.0153041063
+        ],
+        "policy_action": [
+          0.0077443663,
+          0.0749500692,
+          -0.0560325347,
+          1,
+          0.0277979225,
+          0.0738520622,
+          -0.0126998564,
+          1,
+          -0.0392047167,
+          0.0422117226,
+          -0.451776028,
+          0.438084602,
+          0.236029148,
+          -0.269223541,
+          0.338806838,
+          0,
+          0,
+          0
+        ]
+      }
+    },
+    {
+      "lane": 3,
+      "first_episode_steps": 3800,
+      "physical_failure": false,
+      "max_waypoints": 5,
+      "first_observed_non_ground_contact": null,
+      "last_observed_first_episode_state": {
+        "observer_step": 3800,
+        "position_m": [
+          4.89674616,
+          0.730473518,
+          1.36154807
+        ],
+        "attitude_roll_pitch_yaw_rad": [
+          5.233634765970519e-05,
+          0.03648441832626739,
+          0.020725158877696565
+        ],
+        "linear_velocity_m_s": [
+          0.0867778659,
+          0.00292015611,
+          -0.159581184
+        ],
+        "angular_velocity_rad_s": [
+          -0.00262984936,
+          0.00310061313,
+          0.0152119594
+        ],
+        "policy_action": [
+          -0.160019636,
+          0.277127117,
+          0.0574390292,
+          1,
+          -0.143669888,
+          0.277536422,
+          0.0396400206,
+          1,
+          0.0670282841,
+          0.0909727961,
+          -0.581626475,
+          0.590960264,
+          0.245120049,
+          -0.35257265,
+          0.457174152,
+          0,
+          0,
+          0
+        ]
+      }
+    },
+    {
+      "lane": 4,
+      "first_episode_steps": 3800,
+      "physical_failure": false,
+      "max_waypoints": 5,
+      "first_observed_non_ground_contact": null,
+      "last_observed_first_episode_state": {
+        "observer_step": 3800,
+        "position_m": [
+          4.95463848,
+          0.678956747,
+          1.39274895
+        ],
+        "attitude_roll_pitch_yaw_rad": [
+          -0.00020823972281153763,
+          0.048584128588217305,
+          0.02073009822376349
+        ],
+        "linear_velocity_m_s": [
+          0.00494761532,
+          0.000221854891,
+          -0.164688662
+        ],
+        "angular_velocity_rad_s": [
+          -0.00300741778,
+          0.0324136317,
+          0.0153447529
+        ],
+        "policy_action": [
+          -0.00189594051,
+          0.0877336711,
+          0.0125650838,
+          1,
+          0.0185603574,
+          0.10331288,
+          -0.00695400452,
+          1,
+          -0.0368369445,
+          0.0523413084,
+          -0.463310927,
+          0.432253361,
+          0.238001347,
+          -0.308659911,
+          0.285953343,
+          0,
+          0,
+          0
+        ]
+      }
+    },
+    {
+      "lane": 5,
+      "first_episode_steps": 3800,
+      "physical_failure": false,
+      "max_waypoints": 5,
+      "first_observed_non_ground_contact": null,
+      "last_observed_first_episode_state": {
+        "observer_step": 3800,
+        "position_m": [
+          4.91661596,
+          0.745912731,
+          1.385198
+        ],
+        "attitude_roll_pitch_yaw_rad": [
+          -0.00023676231104144375,
+          0.05324450797966826,
+          0.02072317544049935
+        ],
+        "linear_velocity_m_s": [
+          0.0540165938,
+          0.00211807713,
+          -0.181937441
+        ],
+        "angular_velocity_rad_s": [
+          -0.00268823956,
+          0.019326061,
+          0.0153773911
+        ],
+        "policy_action": [
+          -0.015609283,
+          0.169245422,
+          -0.0174550712,
+          1,
+          -0.00563643919,
+          0.166003585,
+          -0.042085439,
+          1,
+          -0.000759899092,
+          0.0997823477,
+          -0.488348812,
+          0.50082314,
+          0.226802871,
+          -0.365960449,
+          0.385561496,
+          0,
+          0,
+          0
+        ]
+      }
+    },
+    {
+      "lane": 6,
+      "first_episode_steps": 3800,
+      "physical_failure": false,
+      "max_waypoints": 5,
+      "first_observed_non_ground_contact": null,
+      "last_observed_first_episode_state": {
+        "observer_step": 3800,
+        "position_m": [
+          4.84782934,
+          0.462025315,
+          1.35585701
+        ],
+        "attitude_roll_pitch_yaw_rad": [
+          0.00012141953185737785,
+          0.0334754888874075,
+          0.02071145441496563
+        ],
+        "linear_velocity_m_s": [
+          0.102446221,
+          0.00340602966,
+          -0.1569774
+        ],
+        "angular_velocity_rad_s": [
+          -0.00259666936,
+          -0.00177107344,
+          0.0151815554
+        ],
+        "policy_action": [
+          -0.165213093,
+          0.279029548,
+          -0.0154071767,
+          0.958688974,
+          -0.152558297,
+          0.292171836,
+          -0.0246334653,
+          1,
+          0.107522443,
+          0.102984108,
+          -0.569498122,
+          0.613925755,
+          0.202386782,
+          -0.242100492,
+          0.50098902,
+          0,
+          0,
+          0
+        ]
+      }
+    },
+    {
+      "lane": 7,
+      "first_episode_steps": 3800,
+      "physical_failure": false,
+      "max_waypoints": 5,
+      "first_observed_non_ground_contact": null,
+      "last_observed_first_episode_state": {
+        "observer_step": 3800,
+        "position_m": [
+          4.89649105,
+          0.538352132,
+          1.35907602
+        ],
+        "attitude_roll_pitch_yaw_rad": [
+          0.00027499998828615967,
+          0.020407881237095814,
+          0.020728245865952403
+        ],
+        "linear_velocity_m_s": [
+          0.0356437042,
+          0.000912658521,
+          -0.123560131
+        ],
+        "angular_velocity_rad_s": [
+          -0.00325691747,
+          0.0138271004,
+          0.0151607459
+        ],
+        "policy_action": [
+          -0.185451031,
+          0.189430356,
+          -0.0146340905,
+          1,
+          -0.180746287,
+          0.186896399,
+          0.0105405543,
+          1,
+          -0.0413820483,
+          0.0773222446,
+          -0.513625026,
+          0.496516645,
+          0.314431101,
+          -0.370321363,
+          0.34896028,
+          0,
+          0,
+          0
+        ]
+      }
+    }
+  ],
+  "limitations": "Contact is endpoint observation, not complete substep coverage; ordering at a fatal step is not established. Policy actions are recorded actor outputs and not the applied actuator targets. Telemetry can include subsequent episodes; analysis stops at first episode boundary. Not a final-layout result."
+}

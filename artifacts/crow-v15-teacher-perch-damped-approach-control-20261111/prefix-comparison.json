@@ -1,0 +1,58 @@
+[
+  {
+    "lane": 0,
+    "through_reference_waypoint_step": 2676,
+    "missing_count": 0,
+    "difference_count": 0,
+    "first_difference": null
+  },
+  {
+    "lane": 1,
+    "through_reference_waypoint_step": 2709,
+    "missing_count": 0,
+    "difference_count": 0,
+    "first_difference": null
+  },
+  {
+    "lane": 2,
+    "through_reference_waypoint_step": 2678,
+    "missing_count": 0,
+    "difference_count": 0,
+    "first_difference": null
+  },
+  {
+    "lane": 3,
+    "through_reference_waypoint_step": 2598,
+    "missing_count": 0,
+    "difference_count": 0,
+    "first_difference": null
+  },
+  {
+    "lane": 4,
+    "through_reference_waypoint_step": 2654,
+    "missing_count": 0,
+    "difference_count": 0,
+    "first_difference": null
+  },
+  {
+    "lane": 5,
+    "through_reference_waypoint_step": 2643,
+    "missing_count": 0,
+    "difference_count": 0,
+    "first_difference": null
+  },
+  {
+    "lane": 6,
+    "through_reference_waypoint_step": 2567,
+    "missing_count": 0,
+    "difference_count": 0,
+    "first_difference": null
+  },
+  {
+    "lane": 7,
+    "through_reference_waypoint_step": 2591,
+    "missing_count": 0,
+    "difference_count": 0,
+    "first_difference": null
+  }
+]
