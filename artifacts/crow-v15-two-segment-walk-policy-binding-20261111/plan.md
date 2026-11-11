@@ -1,0 +1,3 @@
+# Rebind diagnostic zero policies for two-segment walking preflight
+
+The prior two-step run rejected the original single-segment diagnostic policy before simulation because the 33-body task contract changed. Rebind the existing all-zero diagnostic policy to the exact contract reported by the owning runtime, verifying all policy layers, activation, transforms and zero output are unchanged. Then repeat the same two-interval preflight, recording any additional base-policy mismatch instead of bypassing it. The frozen V2 controller source, body, solver, wrapper and visual config remain unchanged. Success only establishes native contract wiring, not locomotion.
