@@ -1,0 +1,11 @@
+{
+  "remote_commit": "f9d3c3e2d9aa3b5316d8614b98e91d438b89983c",
+  "retired": [
+    {
+      "raw": "artifacts/crow-v15-aft-com-grip-grid-20261111/results.txt",
+      "archive": "artifacts/crow-v15-aft-com-grip-grid-20261111/results.txt.gz",
+      "sha256": "6c836b16a50564b38bfcc443e425485329aaadca3cfac95049e626911a87a431",
+      "bytes": 20387479
+    }
+  ]
+}
