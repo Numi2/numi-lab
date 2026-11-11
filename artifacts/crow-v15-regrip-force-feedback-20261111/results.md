@@ -1,0 +1,5 @@
+# Physical toe-force feedback screen
+
+The unchanged baseline exactly reproduced all 1,500 saved states, all fifteen candidates matched the first 877 states, and all sixteen requested release at step 777. All retained the same 39-sample clear, unloaded left-foot release with opposite-foot support, and the observer recorded no non-foot ground contact over any substep. None passed the prospectively declared final support, opposing-force and geometry gate. The reference retained supported opposing force in 93 of the final 100 samples with 0.546 mm worst overlap. Candidate terminal opposing-force counts ranged from 0 to 38 of 100, and only five candidates retained terminal support; some also exceeded the 0.5 mm overlap limit. Thus replacing both front and rear regulation with these simple per-toe force thresholds worsened the result and is not promoted.
+
+The force detector integrates normal and both friction components over 16 substeps. Clearance and overlap use accepted endpoint box geometry; the trial is one development start, not both-foot release, robust acquisition, full navigation, or biological validation. All outcomes and the exact runtime are retained.
