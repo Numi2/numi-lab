@@ -1,0 +1,3 @@
+# Rear-toe impulse bands
+
+Both separate 1,000-tick development replays matched the reference through tick 85. A 0.002 N s lower rear-impulse threshold produced 40 consecutive supported opposing-grip samples and 183 consecutive supported samples; a 0.005 N s threshold produced 57 and 171, respectively. Both fell and failed terminal grip and support. Worst independent toe/perch overlaps during grip were 0.449 mm and 0.497 mm respectively, the latter close to the prespecified 0.5 mm limit. The baseline lower-threshold reacquisition trial had 22 consecutive supported grip and 199 consecutive support. More continuous contact did not stabilize the body in these tests. Both candidates are rejected; this is one development start and does not qualify the complete sequence.
