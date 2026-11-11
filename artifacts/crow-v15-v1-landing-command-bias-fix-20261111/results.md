@@ -1,0 +1,5 @@
+# Landing adapter offset experiment: failed physical hypothesis
+
+The adapter algebra shows that a zero requested speed enters V1 as a +0.10 m/s speed error under the old offset. Changing only the post-waypoint-five adapter offset removed that term and exactly preserved all q/v through waypoint five, but the physical result contradicted the hypothesis that the correction would center the bird: the teacher remained about 0.20 m forward of the desired root position, hovered without any foot contact and timed out. No nonfoot perch impulse or failed native environment step was recorded, and the full perch substep recorder was complete without overflow or errors.
+
+The algebraic error is not enough to infer physical equilibrium; the unchanged flight law has its own coupled dynamics and feed-forward behavior. This is not a qualifying landing, grip, release, autonomous policy or held-out result. The observed directional reversal motivates measuring the actual closed-loop landing response before selecting a new offset.
