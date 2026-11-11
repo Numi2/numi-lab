@@ -1,0 +1,17 @@
+[
+  {
+    "path": "build/crow-v15-anticipatory-foot-placement-20261111/probe",
+    "sha256": "20d87670175cf71d841b08afb15820e480e7b71ed20368eb3d4a1efd4d5282f9",
+    "bytes": 102136
+  },
+  {
+    "path": "build/crow-v15-anticipatory-foot-placement-20261111/libmetalrobo.dylib",
+    "sha256": "c9bcea5a2e3cd7b341766e0f9b4398f25a60b9d6671b81cd2d8badde04b247b4",
+    "bytes": 5729488
+  },
+  {
+    "path": "build/crow-v15-alternating-foot-release-20261110/teacher.metallib",
+    "sha256": "a1fa801ac2f2ea5e557a54073b280039e5bb60422d8b5beb1cd90b2ec22c459b",
+    "bytes": 4485424
+  }
+]
