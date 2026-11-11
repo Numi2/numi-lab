@@ -1,0 +1,7 @@
+# Stronger teacher perch approach rejected
+
+The candidate changed only the bounded teacher forward-speed command after all five waypoint criteria. The full-start development trial matched all eight reference accepted q/v, policy outputs and endpoint contacts through their respective final waypoint steps. All eight reached all five waypoints, and toe-perch contact was observed in every lane. None registered a foot-support step. Three first episodes physically failed, while the other five remained incomplete at 3800 steps. The setting is rejected as a landing controller.
+
+The first recorded fatal collider sets were body and thighs against the perch for lane 2, body against the perch for lane 4, and thighs against the perch for lane 5. Before the fatal contacts, lanes 2 and 5 had downward root speeds of 1.11 and 1.00 m/s respectively. Lane 4 had upward root speed 0.052 m/s at the recorded pre-contact state. These are control-endpoint traces; they cannot establish first intra-substep collision ordering or sustained grip. The simulation did not schedule resets but automatically continued some lanes after physical termination, so all conclusions use first episodes only.
+
+This is a privileged teacher diagnostic on a used development course, not an autonomous or held-out result. Original host and policies, the parity shader and replay writer are archived in their referenced earlier runtimes.
