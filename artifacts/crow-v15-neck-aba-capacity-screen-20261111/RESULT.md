@@ -1,0 +1,3 @@
+# Result: compile rejected a shared ABI change
+
+The isolated build did not compile and the GPU experiment did not run. Raising MR_ARTICULATED_ABA_MAX_DOFS from 40 to 48 enlarged MRBoundedDriveFailureGPU from the asserted 14,288 bytes to 20,208 bytes. The existing static assertion rejected the layout. This is not a solver failure or evidence of neck dynamics. Enlarging the capacity changes a shared host/Metal data layout, so compiling only a replacement ABA admission component is insufficient to establish ABI safety. Do not force the assertion or promote the build. Any follow-up must explicitly audit and consistently rebuild all affected host and shader consumers, and verify binary layout and full contact-world behavior separately.

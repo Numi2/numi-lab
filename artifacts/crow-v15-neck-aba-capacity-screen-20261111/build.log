@@ -1,0 +1,17 @@
+In file included from /Users/n/Developer/numi-crow-rl-20261107/src/metal/MetalArticulatedABA.mm:4:
+In file included from /Users/n/Developer/numi-crow-rl-20261107/include/metalrobo/MetalArticulatedABA.hpp:3:
+In file included from /Users/n/Developer/numi-crow-rl-20261107/include/metalrobo/EngineModel.hpp:3:
+In file included from /Users/n/Developer/numi-crow-rl-20261107/include/metalrobo/Collision.hpp:3:
+/Users/n/Developer/numi-crow-rl-20261107/build/crow-v15-neck-aba-capacity-screen-20261111/include/metalrobo/engine_types.h:1772:15: error: static assertion failed due to requirement 'sizeof(MRBoundedDriveFailureGPU) == 14288'
+ 1772 | static_assert(sizeof(MRBoundedDriveFailureGPU) == 14288);
+      |               ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/Users/n/Developer/numi-crow-rl-20261107/build/crow-v15-neck-aba-capacity-screen-20261111/include/metalrobo/engine_types.h:1772:48: note: expression evaluates to '20208 == 14288'
+ 1772 | static_assert(sizeof(MRBoundedDriveFailureGPU) == 14288);
+      |               ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^~~~~~~~
+1 error generated.
+Traceback (most recent call last):
+  File "/Users/n/Developer/numi-crow-rl-20261107/artifacts/crow-v15-neck-aba-capacity-screen-20261111/build.py", line 13, in <module>
+    subprocess.run(args,cwd=R/"build",check=True)
+  File "/Applications/Xcode-26.6.0.app/Contents/Developer/Library/Frameworks/Python3.framework/Versions/3.9/lib/python3.9/subprocess.py", line 528, in run
+    raise CalledProcessError(retcode, process.args,
+subprocess.CalledProcessError: Command '['/usr/bin/clang++', '-I/Users/n/Developer/numi-crow-rl-20261107/build/crow-v15-neck-aba-capacity-screen-20261111/include', '-DMETALROBO_BUILDING_LIBRARY=1', '-DMETALROBO_DEFAULT_METALLIB="/Users/n/Developer/numi-crow-rl-20261107/build/shaders/MetalRobo.metallib"', '-Dmetalrobo_EXPORTS', '-I/Users/n/Developer/numi-crow-rl-20261107/include', '-I/Users/n/Developer/numi-crow-rl-20261107/matter/include', '-I/Users/n/Developer/numi-crow-rl-20261107/src', '-I/Users/n/Developer/numi-crow-rl-20261107/build/generated', '-F/Applications/Xcode-26.6.0.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/System/Library/Frameworks', '-isystem', '/Library/Developer/CommandLineTools/SDKs/MacOSX26.sdk/usr/include/libxml2', '-x', 'objective-c++', '-O3', '-DNDEBUG', '-std=c++23', '-arch', 'arm64', '-fPIC', '-fobjc-arc', '-Wall', '-Wextra', '-Wpedantic', '-MD', '-MT', '/Users/n/Developer/numi-crow-rl-20261107/build/crow-v15-neck-aba-capacity-screen-20261111/MetalArticulatedABA.mm.o', '-MF', '/Users/n/Developer/numi-crow-rl-20261107/build/crow-v15-neck-aba-capacity-screen-20261111/MetalArticulatedABA.mm.o.d', '-o', '/Users/n/Developer/numi-crow-rl-20261107/build/crow-v15-neck-aba-capacity-screen-20261111/MetalArticulatedABA.mm.o', '-c', '/Users/n/Developer/numi-crow-rl-20261107/src/metal/MetalArticulatedABA.mm']' returned non-zero exit status 1.
