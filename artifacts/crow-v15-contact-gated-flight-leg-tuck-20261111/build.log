@@ -1,0 +1,11 @@
+/Users/n/Developer/numi-crow-rl-20261107/artifacts/crow-v15-contact-gated-flight-leg-tuck-20261111/tuck-gait.metal:5082:30: warning: unused variable 'arm' [-Wunused-variable]
+                { const uint arm=environment%8u;
+                             ^
+1 warning generated.
+/Users/n/Developer/numi-crow-rl-20261107/artifacts/crow-v15-contact-gated-flight-leg-tuck-20261111/tuck-flight.metal:5088:30: warning: unused variable 'arm' [-Wunused-variable]
+                { const uint arm=environment%8u;
+                             ^
+/Users/n/Developer/numi-crow-rl-20261107/artifacts/crow-v15-contact-gated-flight-leg-tuck-20261111/tuck-flight.metal:4989:22: warning: unused variable 'actorLatent' [-Wunused-variable]
+        const float4 actorLatent = fixedFlightController
+                     ^
+2 warnings generated.
