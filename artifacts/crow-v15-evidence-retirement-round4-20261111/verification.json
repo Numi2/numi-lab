@@ -1,0 +1,26 @@
+{
+  "independently_fetched_commit": "2659f44177871aa2d6ec5d0289ef2a7adcd818c7",
+  "results": [
+    {
+      "path": "/Users/n/Developer/numi-crow-rl-20261107/artifacts/crow-v15-perch-lower-approach-control-20261111/autonomous-20261126/run.stderr.gz",
+      "bytes": 78992323,
+      "sha256": "d0e2750a93eaa89767765996ec3c4165ad5c303ea82e5410cf36683404a14ab8",
+      "remote_source": "artifacts/crow-v15-perch-lower-approach-control-20261111/autonomous-20261126/stderr-parts.json",
+      "retired": true
+    },
+    {
+      "path": "/Users/n/Developer/numi-crow-rl-20261107/build/crow-v15-near-slalom-teacher-recovery-20261111/recovery-20261126-rollout.bin",
+      "bytes": 95424956,
+      "sha256": "9753b31dc35764a95bb88cbafb943ee52a78e1806b82b884c4d1c06ab9833956",
+      "remote_source": "artifacts/crow-v15-near-slalom-teacher-recovery-20261111/recovery-20261126/rollout.bin.gz",
+      "retired": true
+    },
+    {
+      "path": "/Users/n/Developer/numi-crow-rl-20261107/build/crow-v15-student-state-teacher-recovery-20261111/recovery-20261126-rollout.bin",
+      "bytes": 95424956,
+      "sha256": "81f58f9d96cfa2ae0c4f4c41238d7f66479df8a4b5df674444bde9e7ad7adeb6",
+      "remote_source": "artifacts/crow-v15-student-state-teacher-recovery-20261111/recovery-20261126/rollout.bin.gz",
+      "retired": true
+    }
+  ]
+}
