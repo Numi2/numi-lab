@@ -52,6 +52,9 @@
         290,
         292
       ],
+      "both_feet_clear_over_1mm_endpoint_steps": [
+        291
+      ],
       "no_foot_normal_intervals": [],
       "no_foot_normal_substeps": [
         [
@@ -199,6 +202,9 @@
         278,
         290,
         292
+      ],
+      "both_feet_clear_over_1mm_endpoint_steps": [
+        291
       ],
       "no_foot_normal_intervals": [],
       "no_foot_normal_substeps": [
@@ -348,6 +354,9 @@
         278,
         290,
         292
+      ],
+      "both_feet_clear_over_1mm_endpoint_steps": [
+        291
       ],
       "no_foot_normal_intervals": [],
       "no_foot_normal_substeps": [
@@ -499,6 +508,9 @@
         290,
         292
       ],
+      "both_feet_clear_over_1mm_endpoint_steps": [
+        291
+      ],
       "no_foot_normal_intervals": [],
       "no_foot_normal_substeps": [
         [
@@ -648,6 +660,9 @@
         278,
         290,
         292
+      ],
+      "both_feet_clear_over_1mm_endpoint_steps": [
+        291
       ],
       "no_foot_normal_intervals": [],
       "no_foot_normal_substeps": [
@@ -799,6 +814,9 @@
         290,
         292
       ],
+      "both_feet_clear_over_1mm_endpoint_steps": [
+        291
+      ],
       "no_foot_normal_intervals": [],
       "no_foot_normal_substeps": [
         [
@@ -949,6 +967,9 @@
         290,
         292
       ],
+      "both_feet_clear_over_1mm_endpoint_steps": [
+        291
+      ],
       "no_foot_normal_intervals": [],
       "no_foot_normal_substeps": [
         [
@@ -1097,6 +1118,10 @@
         278,
         290,
         292
+      ],
+      "both_feet_clear_over_1mm_endpoint_steps": [
+        291,
+        293
       ],
       "no_foot_normal_intervals": [],
       "no_foot_normal_substeps": [
