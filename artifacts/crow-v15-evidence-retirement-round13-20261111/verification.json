@@ -1,0 +1,29 @@
+{
+  "independently_fetched_commit": "772724eb199827cba0c14e50645193d1bffd7630",
+  "results": [
+    {
+      "path": "/Users/n/Developer/numi-crow-rl-20261107/artifacts/crow-v15-autonomous-knee-swing-walk-20261111/autonomous-20261126/run.stderr.gz",
+      "bytes": 25861119,
+      "compressed_sha256": "ec6f4409d9ec01f02959a9d26b1f6698cdebc4d6a9d9dc186c9c207300b6298e",
+      "expanded_sha256": "d4d3b8d6dbc88e4897f98255716e263cd2213c815e486fe0cd74d70887efc8fc",
+      "retired": true,
+      "open_handles": false
+    },
+    {
+      "path": "/Users/n/Developer/numi-crow-rl-20261107/artifacts/crow-v15-autonomous-walk-weight-shift-20261111/autonomous-20261126/run.stderr.gz",
+      "bytes": 22842255,
+      "compressed_sha256": "4fb4ed9317fb9ed799601954884ef1f866a18f9824b6ee77a61587e415305c36",
+      "expanded_sha256": "2e3a206ec427afd8ce6478f2a3f0a773a466a152b5e6d7557cdc4004507b806f",
+      "retired": true,
+      "open_handles": false
+    },
+    {
+      "path": "/Users/n/Developer/numi-crow-rl-20261107/artifacts/crow-v15-autonomous-walk-slower-cycle-20261111/autonomous-20261126/run.stderr.gz",
+      "bytes": 26020424,
+      "compressed_sha256": "a14759b578bb62e36d50a297968beade4b418aa76a04ddd311c4f2d1ba0079bd",
+      "expanded_sha256": "a08487d2d12528b268cfc12a5419c6799ca75d0186ea3feae7d2b135ca99badc",
+      "retired": true,
+      "open_handles": false
+    }
+  ]
+}
