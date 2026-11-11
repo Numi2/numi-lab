@@ -1,0 +1,11 @@
+{
+  "frozen_controller_sha256": "01bc92e4ec91c08d890da7b8691400f56490a2518d9ed47ae150bb997c65375c",
+  "wing_model_guard_adjusted_sha256": "ed2e2e09e260404eaf15a707882c098bdd17b294c3ccd055dcbe331057bd22c4",
+  "wing_model_original_sha256": "ce0652bf8aacb2e53f23189ce9b65268d36e7634dc0a912cc5c6a78dc8cfbae3",
+  "research_aero_air_sha256": "dd767d3e79909a2b3555c6f8c32ae911111fe08d0de2ef718642c65090ab0066",
+  "tracking_source_sha256": "19c585d23e268f95cd0e674bb549418e12b1a102c6353ad8cce7583c5d0e5860",
+  "c_api_source_sha256": "1a28f21aea129c7b2be1a0dddf63475aa68d27946f85a6f7dc7c8c3712751b70",
+  "host_sha256": "28b65f0b068e2f78d2ce5635161a3f19b2d6c7de001d00c7f93d326c4027c669",
+  "metallib_sha256": "4b1fcba9e16ab3bdde59d90985bc7db10dc599fb897553dbb107dadbd517abb3",
+  "serial_ABA": true
+}

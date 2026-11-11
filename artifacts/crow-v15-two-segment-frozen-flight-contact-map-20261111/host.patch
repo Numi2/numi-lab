@@ -1,0 +1,87 @@
+--- a/research-wing-one-segment.cpp
++++ b/research-wing-two-segment.cpp
+@@ -1207,6 +1207,7 @@
+     std::optional<metalrobo::FiniteResourceConfig> resources=std::nullopt
+ ) {
+     metalrobo::MetalWorldConfig worldConfig;
++    worldConfig.preferParallelABA = false;
+     if (metallibPath != nullptr && metallibPath[0] != '\0') {
+         worldConfig.metallibPath = metallibPath;
+     }
+@@ -3370,41 +3371,33 @@
+ }
+ static RobotPack crowToeModel() {
+   auto p=makeAmericanCrowActiveHeadRobotPack(); auto& m=p.mechanics;
+-  p.id="american_crow_toe_prototype_v0"; m.name=p.id; p.sourceRevision+="+exploratory-toes-v0";
+-  constexpr float mass=0.0001f, hx=0.018f, hy=0.0025f, hz=0.0092f;
++  p.id="american_crow_toe_two_segment_prototype_v0"; m.name=p.id; p.sourceRevision+="+exploratory-toes-two-segment-v0";
++  constexpr float mass=0.00005f, hx=0.009f, hy=0.0025f, hz=0.0092f;
+   constexpr float ix=mass*(hy*hy+hz*hz)/3, iy=mass*(hx*hx+hz*hz)/3, iz=mass*(hx*hx+hy*hy)/3;
+   for (int side=0;side<2;side++) {
+     const std::string footName=side==0?"crow_left_foot":"crow_right_foot";
+     auto it=std::find(m.bodyNames.begin(),m.bodyNames.end(),footName); crowToeNeed(it!=m.bodyNames.end(),"foot missing"); const unsigned foot=static_cast<unsigned>(it-m.bodyNames.begin()); auto& parent=m.bodies.at(foot);
+-    float dx[4]={.020666667f,.020666667f,.020666667f,-.062f},dy[4]={-.012f,0,.012f,0};
++    const float dx[4]={.020666667f,.020666667f,.020666667f,-.062f},dy[4]={-.012f,0,.012f,0};
+     float sx=0,sy=0,sz=0;
+-    for (int t=0;t<4;t++) { sx+=ix+mass*dy[t]*dy[t]; sy+=iy+mass*dx[t]*dx[t]; sz+=iz+mass*(dx[t]*dx[t]+dy[t]*dy[t]); }
+-    const float pm=parent.massAndInverseMass.x-4*mass; crowToeNeed(pm>0,"negative foot mass");
+-    parent.massAndInverseMass={pm,1/pm,0,0}; crowToeDiagonal(parent,parent.inertiaRow0.x-sx,parent.inertiaRow1.y-sy,parent.inertiaRow2.z-sz);
+-    for (unsigned s=0;s<m.shapeNames.size();s++) if (m.shapeNames[s]==(side==0?"crow_left_foot/sole":"crow_right_foot/sole")) {
+-      auto& shape=m.shapes[s]; shape.dimensions.x=.010f;
+-      // Keep the parent sole bounding envelope conservative for legacy observations.
+-    }
+-    for (int t=0;t<4;t++) {
+-      const unsigned bi=m.bodies.size(), ji=m.joints.size(), qi=m.defaultQ.size(), vi=m.defaultV.size();
++    for(int t=0;t<4;t++) for(int seg=0;seg<2;seg++) { const float sign=t==3?-1.f:1.f; const float x=dx[t]+sign*(seg==0?-hx:hx); sx+=ix+mass*dy[t]*dy[t]; sy+=iy+mass*x*x; sz+=iz+mass*(x*x+dy[t]*dy[t]); }
++    const float pm=parent.massAndInverseMass.x-8*mass;crowToeNeed(pm>0,"negative foot mass");parent.massAndInverseMass={pm,1/pm,0,0};crowToeDiagonal(parent,parent.inertiaRow0.x-sx,parent.inertiaRow1.y-sy,parent.inertiaRow2.z-sz);
++    for(unsigned si=0;si<m.shapeNames.size();si++)if(m.shapeNames[si]==(side==0?"crow_left_foot/sole":"crow_right_foot/sole"))m.shapes[si].dimensions.x=.010f;
++    for(int t=0;t<4;t++) {
+       const float sign=t==3?-1.f:1.f;
+-      std::string name=std::string("crow_")+(side==0?"left_":"right_")+(t==3?"rear_toe":("front_toe_"+std::to_string(t+1)));
+-      MRBodyPropertiesGPU b{}; b.articulationIndex=0; b.parentBody=foot; b.inboundJoint=ji; b.motionType=MR_MOTION_DYNAMIC;
+-      b.massAndInverseMass={mass,1/mass,0,0}; crowToeDiagonal(b,ix,iy,iz); b.dampingAndSpeedLimits={0.f,0.f,30,35}; m.bodies.push_back(b); m.bodyNames.push_back(name);
+-      MRJointDescriptorGPU j{}; j.parentBody=foot; j.childBody=bi; j.jointType=MR_JOINT_REVOLUTE; j.qOffset=qi; j.nq=1; j.vOffset=vi; j.nv=1;
+-      j.axis0={0,sign,0,0}; j.parentAnchor={dx[t]-sign*hx,dy[t],0,0}; j.childAnchor={-sign*hx,0,0,0}; j.parentRotation=j.childRotation={0,0,0,1};
+-      m.joints.push_back(j); m.jointNames.push_back(name+"_flex");
+-      MRDofPropertiesGPU d{}; d.articulationIndex=0; d.jointIndex=ji; d.qIndex=qi; d.vIndex=vi;
+-      d.flags=MR_DOF_FLAG_ACTUATED|MR_DOF_FLAG_POSITION_LIMIT|MR_DOF_FLAG_VELOCITY_LIMIT|MR_DOF_FLAG_EFFORT_LIMIT|MR_DOF_FLAG_DRIVE;
+-      d.limits={-.3f,1.2f,12.f,.02f}; d.drive={.1f,.003f,.00005f,0}; m.dofs.push_back(d); m.dofNames.push_back(name+"_flex"); m.defaultQ.push_back(0); m.defaultV.push_back(0);
+-      if (!m.actuatorProfiles.empty()) m.actuatorProfiles.emplace_back();
+-      MRShapeGPU shape=m.shapes.front(); shape.bodyIndex=bi; shape.localPosition={0,0,0,1}; shape.localRotation={0,0,0,1}; shape.dimensions={hx,hy,hz,0};
+-      shape.slotGeneration=m.shapes.size()+1; shape.contactRestAndBoundingRadius.z=std::sqrt(hx*hx+hy*hy+hz*hz); m.shapes.push_back(shape); m.shapeNames.push_back(name+"/collision");
++      const std::string digit=std::string("crow_")+(side==0?"left_":"right_")+(t==3?"rear_toe":("front_toe_"+std::to_string(t+1)));
++      unsigned previous=foot;
++      for(int seg=0;seg<2;seg++) {
++        const unsigned bi=m.bodies.size(),ji=m.joints.size(),qi=m.defaultQ.size(),vi=m.defaultV.size();const std::string name=digit+(seg==0?"_proximal":"_distal");
++        MRBodyPropertiesGPU b{};b.articulationIndex=0;b.parentBody=previous;b.inboundJoint=ji;b.motionType=MR_MOTION_DYNAMIC;b.massAndInverseMass={mass,1/mass,0,0};crowToeDiagonal(b,ix,iy,iz);b.dampingAndSpeedLimits={0,0,30,35};m.bodies.push_back(b);m.bodyNames.push_back(name);
++        MRJointDescriptorGPU j{};j.parentBody=previous;j.childBody=bi;j.jointType=MR_JOINT_REVOLUTE;j.qOffset=qi;j.nq=1;j.vOffset=vi;j.nv=1;j.axis0={0,sign,0,0};if(seg==0)j.parentAnchor={dx[t]-sign*2*hx,dy[t],0,0};else j.parentAnchor={sign*hx,0,0,0};j.childAnchor={-sign*hx,0,0,0};j.parentRotation=j.childRotation={0,0,0,1};m.joints.push_back(j);m.jointNames.push_back(name+"_flex");
++        MRDofPropertiesGPU d{};d.articulationIndex=0;d.jointIndex=ji;d.qIndex=qi;d.vIndex=vi;d.flags=MR_DOF_FLAG_ACTUATED|MR_DOF_FLAG_POSITION_LIMIT|MR_DOF_FLAG_VELOCITY_LIMIT|MR_DOF_FLAG_EFFORT_LIMIT|MR_DOF_FLAG_DRIVE;d.limits={-.3f,1.2f,12.f,.02f};d.drive={.1f,.003f,.00005f,0};m.dofs.push_back(d);m.dofNames.push_back(name+"_flex");m.defaultQ.push_back(0);m.defaultV.push_back(0);if(!m.actuatorProfiles.empty())m.actuatorProfiles.emplace_back();
++        MRShapeGPU shape=m.shapes.front();shape.bodyIndex=bi;shape.localPosition={0,0,0,1};shape.localRotation={0,0,0,1};shape.dimensions={hx,hy,hz,0};shape.slotGeneration=m.shapes.size()+1;shape.contactRestAndBoundingRadius.z=std::sqrt(hx*hx+hy*hy+hz*hz);m.shapes.push_back(shape);m.shapeNames.push_back(name+"/collision");previous=bi;
++      }
+     }
+   }
+-  auto& a=m.articulations.at(0); a.bodyCount=m.world.bodyCount=m.bodies.size(); a.jointCount=m.world.jointCount=m.joints.size(); a.nq=m.world.nq=m.defaultQ.size(); a.nv=m.world.nv=m.defaultV.size(); m.world.shapeCount=m.shapes.size();
+-  for(auto& role:p.roles) { if(role.id=="whole_body")role.members=m.bodyNames; if(role.id=="all_joints")role.members=m.jointNames; if(role.id=="all_dofs")role.members=m.dofNames; }
+-  std::string reason; crowToeNeed(m.valid(&reason),"invalid model: "+reason); return p;
++  auto& a=m.articulations.at(0);a.bodyCount=m.world.bodyCount=m.bodies.size();a.jointCount=m.world.jointCount=m.joints.size();a.nq=m.world.nq=m.defaultQ.size();a.nv=m.world.nv=m.defaultV.size();m.world.shapeCount=m.shapes.size();
++  for(auto& role:p.roles){if(role.id=="whole_body")role.members=m.bodyNames;if(role.id=="all_joints")role.members=m.jointNames;if(role.id=="all_dofs")role.members=m.dofNames;}
++  std::string reason;crowToeNeed(m.valid(&reason),"invalid model: "+reason);return p;
+ }
+ }
+ 
+@@ -3615,11 +3608,11 @@
+             for (auto& group : manifest.task.contactGroups) {
+                 const std::string side=group.id=="left_foot_contact" ? "left" : group.id=="right_foot_contact" ? "right" : "";
+                 if (side.empty()) continue;
+-                for (unsigned digit=1u;digit<=3u;++digit) group.bodies.push_back("crow_"+side+"_front_toe_"+std::to_string(digit));
+-                group.bodies.push_back("crow_"+side+"_rear_toe");
++                for (unsigned digit=1u;digit<=3u;++digit) for(const char* segment : {"_proximal", "_distal"}) group.bodies.push_back("crow_"+side+"_front_toe_"+std::to_string(digit)+segment);
++                for(const char* segment : {"_proximal", "_distal"}) group.bodies.push_back("crow_"+side+"_rear_toe"+segment);
+             }
+-            manifest.task.contactGroups.push_back({.id="left_rear_toe_wrench",.bodies={"crow_left_rear_toe"},.referenceBody="crow_left_rear_toe"});
+-            manifest.task.contactGroups.push_back({.id="right_rear_toe_wrench",.bodies={"crow_right_rear_toe"},.referenceBody="crow_right_rear_toe"});
++            manifest.task.contactGroups.push_back({.id="left_rear_toe_wrench",.bodies={"crow_left_rear_toe_proximal", "crow_left_rear_toe_distal"},.referenceBody="crow_left_rear_toe_proximal"});
++            manifest.task.contactGroups.push_back({.id="right_rear_toe_wrench",.bodies={"crow_right_rear_toe_proximal", "crow_right_rear_toe_distal"},.referenceBody="crow_right_rear_toe_proximal"});
+         }
+         if (retinal) {
+             auto p=visualSensorProgram(*visual_sensor);p.retinal=retina;
