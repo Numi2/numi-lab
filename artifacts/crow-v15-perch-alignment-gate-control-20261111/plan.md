@@ -1,0 +1,3 @@
+# Contact and alignment gate control
+
+Keep flight support active until both feet are loaded and the body is within 2.5 cm of the previously bench-tested longitudinal balance point, with the existing velocity and lateral gates. The failed autonomous landing handed control to contact balance while its body was substantially behind that point; a same-course teacher reference aligned before settling. Change only this threshold, retain all toe and collision physics, compare accepted state before first perch contact, and audit all first episodes and 16 substeps. This is a development hypothesis, not a qualified landing or an unused-layout test.

@@ -1,0 +1,3 @@
+# Aligned handoff development control
+
+One of eight teacher-off first episodes completed five waypoints and ended with sustained opposing bilateral toe support. Lane 7 had 553 consecutive 20 ms intervals of at least half estimated body-weight upward support, no nonfoot perch impulse, complete substep coverage, and low terminal motion. Lanes 1 and 2 struck slalom obstacles; the other five reached the perch but did not sustain support. All six arrivals survived to the 3800-step horizon. Endpoint states matched the balance reference before first perch contact. This is one used development layout and seed, not qualification, toe release, a complete walking-to-landing demonstration, or a result on unused layouts. Contact geometry and biomechanics are estimated.

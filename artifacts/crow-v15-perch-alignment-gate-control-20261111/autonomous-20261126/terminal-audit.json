@@ -1,0 +1,86 @@
+{
+  "final_25_endpoints": [
+    {
+      "lane": 7,
+      "control_endpoint_count": 25,
+      "body_height_range_m": [
+        1.05024886,
+        1.05036962
+      ],
+      "maximum_linear_speed_m_s": 0.006760712995173683,
+      "maximum_angular_speed_rad_s": 0.02978612915709179,
+      "pitch_range_rad": [
+        0.04922165643232934,
+        0.050750588806325034
+      ],
+      "max_toe_speed_rad_s": 0.716032803,
+      "positive_endpoint_collider_pairs": [
+        [
+          "crow_left_front_toe_1_distal",
+          "crow_course_perch"
+        ],
+        [
+          "crow_left_front_toe_1_proximal",
+          "crow_course_perch"
+        ],
+        [
+          "crow_left_front_toe_2_distal",
+          "crow_course_perch"
+        ],
+        [
+          "crow_left_front_toe_2_proximal",
+          "crow_course_perch"
+        ],
+        [
+          "crow_left_front_toe_3_distal",
+          "crow_course_perch"
+        ],
+        [
+          "crow_left_front_toe_3_proximal",
+          "crow_course_perch"
+        ],
+        [
+          "crow_left_rear_toe_distal",
+          "crow_course_perch"
+        ],
+        [
+          "crow_left_rear_toe_proximal",
+          "crow_course_perch"
+        ],
+        [
+          "crow_right_front_toe_1_distal",
+          "crow_course_perch"
+        ],
+        [
+          "crow_right_front_toe_1_proximal",
+          "crow_course_perch"
+        ],
+        [
+          "crow_right_front_toe_2_distal",
+          "crow_course_perch"
+        ],
+        [
+          "crow_right_front_toe_2_proximal",
+          "crow_course_perch"
+        ],
+        [
+          "crow_right_front_toe_3_distal",
+          "crow_course_perch"
+        ],
+        [
+          "crow_right_front_toe_3_proximal",
+          "crow_course_perch"
+        ],
+        [
+          "crow_right_rear_toe_distal",
+          "crow_course_perch"
+        ],
+        [
+          "crow_right_rear_toe_proximal",
+          "crow_course_perch"
+        ]
+      ]
+    }
+  ],
+  "limits": "Endpoint stability and collision samples are independent of the substep impulse aggregation. Pair presence alone is not a biological or stability qualification. The test runs without teacher control; toe release and unused-layout success are not established. Termination ordering within substeps remains unresolved."
+}
