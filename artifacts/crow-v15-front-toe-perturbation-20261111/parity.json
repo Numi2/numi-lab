@@ -1,0 +1,87 @@
+{
+  "exact_reference_samples": 1000,
+  "reference_differences": 0,
+  "first_differences": [],
+  "initial_shapes": {
+    "1": {
+      "records": 21,
+      "reference_records": 21,
+      "differences": 0
+    },
+    "2": {
+      "records": 21,
+      "reference_records": 21,
+      "differences": 0
+    },
+    "3": {
+      "records": 21,
+      "reference_records": 21,
+      "differences": 0
+    },
+    "4": {
+      "records": 21,
+      "reference_records": 21,
+      "differences": 0
+    },
+    "5": {
+      "records": 21,
+      "reference_records": 21,
+      "differences": 0
+    },
+    "6": {
+      "records": 21,
+      "reference_records": 21,
+      "differences": 0
+    },
+    "7": {
+      "records": 21,
+      "reference_records": 21,
+      "differences": 0
+    },
+    "8": {
+      "records": 21,
+      "reference_records": 21,
+      "differences": 0
+    },
+    "9": {
+      "records": 21,
+      "reference_records": 21,
+      "differences": 0
+    },
+    "10": {
+      "records": 21,
+      "reference_records": 21,
+      "differences": 0
+    },
+    "11": {
+      "records": 21,
+      "reference_records": 21,
+      "differences": 0
+    },
+    "12": {
+      "records": 21,
+      "reference_records": 21,
+      "differences": 0
+    },
+    "13": {
+      "records": 21,
+      "reference_records": 21,
+      "differences": 0
+    },
+    "14": {
+      "records": 21,
+      "reference_records": 21,
+      "differences": 0
+    },
+    "15": {
+      "records": 21,
+      "reference_records": 21,
+      "differences": 0
+    },
+    "16": {
+      "records": 21,
+      "reference_records": 21,
+      "differences": 0
+    }
+  }
+}
