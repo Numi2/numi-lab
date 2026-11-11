@@ -1,0 +1,110 @@
+{
+  "source": "artifacts/crow-v15-perch-strong-balance-screen-20261111",
+  "rows": [
+    {
+      "lane": 0,
+      "start_step": 356,
+      "end_step": 3383,
+      "max_abs_toe_speed_rad_s": 0.866397798,
+      "toe_values_ge_5_rad_s": 0,
+      "toe_values_ge_10_rad_s": 0,
+      "toe_samples": 775168,
+      "min_endpoint_toe_angle_rad": -0.000739112205,
+      "max_endpoint_toe_angle_rad": 0.00350860786,
+      "angle_samples": 48448,
+      "endpoint_values_outside_joint_limits": 0
+    },
+    {
+      "lane": 1,
+      "start_step": 356,
+      "end_step": 3451,
+      "max_abs_toe_speed_rad_s": 0.870340347,
+      "toe_values_ge_5_rad_s": 0,
+      "toe_values_ge_10_rad_s": 0,
+      "toe_samples": 792576,
+      "min_endpoint_toe_angle_rad": -0.000750625913,
+      "max_endpoint_toe_angle_rad": 0.00351538626,
+      "angle_samples": 49536,
+      "endpoint_values_outside_joint_limits": 0
+    },
+    {
+      "lane": 2,
+      "start_step": 356,
+      "end_step": 3384,
+      "max_abs_toe_speed_rad_s": 0.861185789,
+      "toe_values_ge_5_rad_s": 0,
+      "toe_values_ge_10_rad_s": 0,
+      "toe_samples": 775424,
+      "min_endpoint_toe_angle_rad": -0.000738626346,
+      "max_endpoint_toe_angle_rad": 0.00348431547,
+      "angle_samples": 48464,
+      "endpoint_values_outside_joint_limits": 0
+    },
+    {
+      "lane": 3,
+      "start_step": 356,
+      "end_step": 3299,
+      "max_abs_toe_speed_rad_s": 0.859307468,
+      "toe_values_ge_5_rad_s": 0,
+      "toe_values_ge_10_rad_s": 0,
+      "toe_samples": 753664,
+      "min_endpoint_toe_angle_rad": -0.000731028093,
+      "max_endpoint_toe_angle_rad": 0.00348279229,
+      "angle_samples": 47104,
+      "endpoint_values_outside_joint_limits": 0
+    },
+    {
+      "lane": 4,
+      "start_step": 356,
+      "end_step": 3365,
+      "max_abs_toe_speed_rad_s": 0.86546272,
+      "toe_values_ge_5_rad_s": 0,
+      "toe_values_ge_10_rad_s": 0,
+      "toe_samples": 770560,
+      "min_endpoint_toe_angle_rad": -0.000731146138,
+      "max_endpoint_toe_angle_rad": 0.00351286167,
+      "angle_samples": 48160,
+      "endpoint_values_outside_joint_limits": 0
+    },
+    {
+      "lane": 5,
+      "start_step": 356,
+      "end_step": 3365,
+      "max_abs_toe_speed_rad_s": 0.86488837,
+      "toe_values_ge_5_rad_s": 0,
+      "toe_values_ge_10_rad_s": 0,
+      "toe_samples": 770560,
+      "min_endpoint_toe_angle_rad": -0.000735160138,
+      "max_endpoint_toe_angle_rad": 0.0035051771,
+      "angle_samples": 48160,
+      "endpoint_values_outside_joint_limits": 0
+    },
+    {
+      "lane": 6,
+      "start_step": 356,
+      "end_step": 3461,
+      "max_abs_toe_speed_rad_s": 0.858615518,
+      "toe_values_ge_5_rad_s": 0,
+      "toe_values_ge_10_rad_s": 0,
+      "toe_samples": 795136,
+      "min_endpoint_toe_angle_rad": -0.000728558342,
+      "max_endpoint_toe_angle_rad": 0.00348344143,
+      "angle_samples": 49696,
+      "endpoint_values_outside_joint_limits": 0
+    },
+    {
+      "lane": 7,
+      "start_step": 356,
+      "end_step": 3297,
+      "max_abs_toe_speed_rad_s": 0.85701251,
+      "toe_values_ge_5_rad_s": 0,
+      "toe_values_ge_10_rad_s": 0,
+      "toe_samples": 753152,
+      "min_endpoint_toe_angle_rad": -0.000733782246,
+      "max_endpoint_toe_angle_rad": 0.00346945296,
+      "angle_samples": 47072,
+      "endpoint_values_outside_joint_limits": 0
+    }
+  ],
+  "scope": "Teacher-guided development starts, first episode only, from post-handoff step 356 through control interval preceding first observed course contact. Speeds are all substeps; joint angles are control-endpoint samples. The configured toe limits are -0.3 to 1.2 rad and 12 rad/s; being within limits does not establish natural toe posture, contact-free flight on other starts, or biological realism."
+}
