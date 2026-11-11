@@ -1,0 +1,32 @@
+[
+  {
+    "path": "build/bin/metalrobo_task_rollout",
+    "sha256": "5ee04a98f25f7149701bc21ede235428876e535f843366e78dea16fce6035d1d",
+    "bytes": 1081736
+  },
+  {
+    "path": "build/crow-v15-toe-damping-isolation-20261110/zero/libmetalrobo.dylib",
+    "sha256": "2295467d0b549ddfa5936414417dc1a95f8632392eadddd9449592c15a0bca2b",
+    "bytes": 5763712
+  },
+  {
+    "path": "build/crow-v15-toe-free-flight-20261110/tracking.metallib",
+    "sha256": "b499fe30e5a08ef4f78eb281dedc4e33ffa145007dfdd470a7537d75ef286237",
+    "bytes": 4462848
+  },
+  {
+    "path": "build/crow-v15-toe-damping-isolation-20261110/zero-4/zero.policypack",
+    "sha256": "71c59b13d9cbd2107aa9b9c7ddb5a1d0ed7183f090b93358bf75de11714d1638",
+    "bytes": 2346376
+  },
+  {
+    "path": "build/crow-v15-toe-flight-16substep-20261111/zero.policypack",
+    "sha256": "5ea8c0534b72bee96c2d83d052d6412f6e2a28b9d9a71a2471b65fa3093413bb",
+    "bytes": 2346372
+  },
+  {
+    "path": "artifacts/crow-v15-visual-binding-fix-20261110/crow-navigation.toe-body.visual-observation.json",
+    "sha256": "8204b9261feeb307a9cc195a4045e6f489a4f047670563931d815e9fedaf48c3",
+    "bytes": 1570
+  }
+]
