@@ -1,0 +1,5 @@
+# Landing control without release sequence
+
+On one used development seed, both teacher-off controls matched at sampled accepted q, v, actor output and contacts through first perch impulse in every lane. The first later differences were steps 3508 (lane 2) and 3350 (lane 7). Seven of eight reached all five waypoints, one stalled at waypoint three, and both lanes that had sustained opposing foot support later fell, including with the release sequence absent. The no-release control had maximum supported bilateral opposing intervals of 212 and 190 in those lanes; neither maintained support to the first-episode end. Substep coverage was complete and no capacity overflows were recorded.
+
+This suggests balancing or handoff remains a problem beyond release, but the shaders also differ in landing leg overrides, so this is not a strictly isolated release ablation. The stricter release-trigger-only control is separate. First fatal collider, continuous clearance and biological validity are not established. The course and seed were used in development, not held out.
