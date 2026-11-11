@@ -8,7 +8,7 @@
       "toe_speed_cap_substeps": 0,
       "first_cap": [],
       "toe_speed_cap_substeps_after_500": 0,
-      "self_contact_samples_steps_380_to_end": 0,
+      "self_contact_samples_steps_380_to_3800_or_end": 0,
       "first_self_contact": [],
       "distinct_self_contact_step_substeps": 0,
       "ground_contact_substeps_after_400": 0,
@@ -27,7 +27,7 @@
         ]
       ],
       "toe_speed_cap_substeps_after_500": 0,
-      "self_contact_samples_steps_380_to_end": 0,
+      "self_contact_samples_steps_380_to_3800_or_end": 0,
       "first_self_contact": [],
       "distinct_self_contact_step_substeps": 0,
       "ground_contact_substeps_after_400": 0,
@@ -46,7 +46,7 @@
         ]
       ],
       "toe_speed_cap_substeps_after_500": 0,
-      "self_contact_samples_steps_380_to_end": 0,
+      "self_contact_samples_steps_380_to_3800_or_end": 0,
       "first_self_contact": [],
       "distinct_self_contact_step_substeps": 0,
       "ground_contact_substeps_after_400": 0,
@@ -60,7 +60,7 @@
       "toe_speed_cap_substeps": 0,
       "first_cap": [],
       "toe_speed_cap_substeps_after_500": 0,
-      "self_contact_samples_steps_380_to_end": 0,
+      "self_contact_samples_steps_380_to_3800_or_end": 0,
       "first_self_contact": [],
       "distinct_self_contact_step_substeps": 0,
       "ground_contact_substeps_after_400": 0,
@@ -74,7 +74,7 @@
       "toe_speed_cap_substeps": 0,
       "first_cap": [],
       "toe_speed_cap_substeps_after_500": 0,
-      "self_contact_samples_steps_380_to_end": 0,
+      "self_contact_samples_steps_380_to_3800_or_end": 0,
       "first_self_contact": [],
       "distinct_self_contact_step_substeps": 0,
       "ground_contact_substeps_after_400": 0,
@@ -88,7 +88,7 @@
       "toe_speed_cap_substeps": 0,
       "first_cap": [],
       "toe_speed_cap_substeps_after_500": 0,
-      "self_contact_samples_steps_380_to_end": 0,
+      "self_contact_samples_steps_380_to_3800_or_end": 0,
       "first_self_contact": [],
       "distinct_self_contact_step_substeps": 0,
       "ground_contact_substeps_after_400": 0,
@@ -107,7 +107,7 @@
         ]
       ],
       "toe_speed_cap_substeps_after_500": 4,
-      "self_contact_samples_steps_380_to_end": 0,
+      "self_contact_samples_steps_380_to_3800_or_end": 0,
       "first_self_contact": [],
       "distinct_self_contact_step_substeps": 0,
       "ground_contact_substeps_after_400": 0,
@@ -121,7 +121,7 @@
       "toe_speed_cap_substeps": 0,
       "first_cap": [],
       "toe_speed_cap_substeps_after_500": 0,
-      "self_contact_samples_steps_380_to_end": 0,
+      "self_contact_samples_steps_380_to_3800_or_end": 0,
       "first_self_contact": [],
       "distinct_self_contact_step_substeps": 0,
       "ground_contact_substeps_after_400": 0,
@@ -130,5 +130,5 @@
   ],
   "contact_capacity_overflows": [],
   "substep_errors": [],
-  "scope": "Self-contact observer logs contacts with normal impulse above 1e-7 N s between crow bodies only, steps 380 through each first-episode end. Ground count uses summed normal impulse above 1e-7 N s for both feet and other crow bodies against the ground at covered substeps. Sampled 12 rad/s speed caps do not identify physical cause. No biological calibration or continuous flight qualification."
+  "scope": "Self-contact observer logs contacts with normal impulse above 1e-7 N s between crow bodies only, steps 380 through the earlier of 3800 and first-episode end; self-contact after 3800 was not instrumented. Ground count uses summed normal impulse above 1e-7 N s for both feet and other crow bodies against the ground at covered substeps. Sampled 12 rad/s speed caps do not identify physical cause. No biological calibration or continuous flight qualification."
 }

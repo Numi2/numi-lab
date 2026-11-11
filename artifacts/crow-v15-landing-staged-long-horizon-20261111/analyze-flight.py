@@ -1,10 +1,12 @@
 from pathlib import Path
-import collections,gzip,json
+import collections,gzip,json,subprocess
 p=Path("artifacts/crow-v15-landing-staged-long-horizon-20261111/autonomous-20261126")
 first=json.loads((p/"run.stdout").read_text())["first_episode_navigation"]
 ends=first["steps_by_environment"]
 coverage=collections.Counter();caps=collections.defaultdict(list);selfhits=collections.defaultdict(list);ground=collections.defaultdict(list);overflow=[];errors=[]
-with gzip.open(p/"run.stderr.gz","rt") as f:
+manifest=json.loads((p/"stderr-parts.json").read_text())
+proc=subprocess.Popen(["cat"]+[str(p/x["name"]) for x in manifest["parts"]],stdout=subprocess.PIPE)
+with gzip.open(proc.stdout,"rt") as f:
  for line in f:
   if line.startswith("CROW_TWO_TOE_SUBSTEP "):
    z=line.split();t,k,e=map(int,z[1:4])
@@ -17,11 +19,12 @@ with gzip.open(p/"run.stderr.gz","rt") as f:
    if t<=ends[e] and max(abs(float(v)) for v in z[4:])>=11.99:caps[e].append([t,k])
   elif line.startswith("CROW_SELF_CONTACT "):
    z=line.split();t,k,e,a,b=map(int,z[1:6])
-   if t<=ends[e]:selfhits[e].append([t,k,a,b,float(z[6])])
+   if t<=min(ends[e],3800):selfhits[e].append([t,k,a,b,float(z[6])])
   elif line.startswith("CROW_SUBSTEP_ERROR"):errors.append(line.strip())
+if proc.wait()!=0:raise RuntimeError("archive read failed")
 rows=[]
 for e,end in enumerate(ends):
  h=selfhits[e];c=caps[e]
- rows.append({"lane":e,"first_episode_steps":end,"physical_failure":first["physical_failure_by_environment"][e],"waypoints":first["maximum_waypoints_by_environment"][e],"toe_speed_cap_substeps":len(c),"first_cap":c[:1],"toe_speed_cap_substeps_after_500":sum(t>=500 for t,k in c),"self_contact_samples_steps_380_to_end":len(h),"first_self_contact":h[:1],"distinct_self_contact_step_substeps":len(set((z[0],z[1]) for z in h)),"ground_contact_substeps_after_400":len(ground[e]),"missing_or_duplicate_substeps":sum(coverage[e,t,k]!=1 for t in range(1,end+1) for k in range(16))})
-out={"lanes":rows,"contact_capacity_overflows":overflow,"substep_errors":errors[-10:],"scope":"Self-contact observer logs contacts with normal impulse above 1e-7 N s between crow bodies only, steps 380 through each first-episode end. Ground count uses summed normal impulse above 1e-7 N s for both feet and other crow bodies against the ground at covered substeps. Sampled 12 rad/s speed caps do not identify physical cause. No biological calibration or continuous flight qualification."}
+ rows.append({"lane":e,"first_episode_steps":end,"physical_failure":first["physical_failure_by_environment"][e],"waypoints":first["maximum_waypoints_by_environment"][e],"toe_speed_cap_substeps":len(c),"first_cap":c[:1],"toe_speed_cap_substeps_after_500":sum(t>=500 for t,k in c),"self_contact_samples_steps_380_to_3800_or_end":len(h),"first_self_contact":h[:1],"distinct_self_contact_step_substeps":len(set((z[0],z[1]) for z in h)),"ground_contact_substeps_after_400":len(ground[e]),"missing_or_duplicate_substeps":sum(coverage[e,t,k]!=1 for t in range(1,end+1) for k in range(16))})
+out={"lanes":rows,"contact_capacity_overflows":overflow,"substep_errors":errors[-10:],"scope":"Self-contact observer logs contacts with normal impulse above 1e-7 N s between crow bodies only, steps 380 through the earlier of 3800 and first-episode end; self-contact after 3800 was not instrumented. Ground count uses summed normal impulse above 1e-7 N s for both feet and other crow bodies against the ground at covered substeps. Sampled 12 rad/s speed caps do not identify physical cause. No biological calibration or continuous flight qualification."}
 (p/"flight-analysis.json").write_text(json.dumps(out,indent=2)+"\n");print(json.dumps(out,indent=2))
