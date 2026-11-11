@@ -1,0 +1,7 @@
+from pathlib import Path
+import difflib,hashlib,json,subprocess
+R=Path.cwd();A=R/'artifacts/crow-v15-propulsive-leg-push-20261111';B=R/'build/crow-v15-propulsive-leg-push-20261111';base=(R/'build/crow-v15-bounded-launch-commands-20261111/v040-h065.metal').read_text();needle='const float extended=joint==0u ? 0.10f : joint==1u ? -0.70f : 0.18f;';assert base.count(needle)==1;rows=[]
+for hip in ('-0.50','0.10','0.70'):
+ for ankle in ('-0.30','0.18','0.70'):
+  name='h'+{'-0.50':'n50','0.10':'p10','0.70':'p70'}[hip]+'-a'+{'-0.30':'n30','0.18':'p18','0.70':'p70'}[ankle];replacement='const float extended=joint==0u ? '+hip+'f : joint==1u ? -0.70f : '+ankle+'f;';s=base.replace(needle,replacement);src=B/(name+'.metal');src.write_text(s);(A/(name+'.patch')).write_text(''.join(difflib.unified_diff(base.splitlines(True),s.splitlines(True),fromfile='a/bounded.metal',tofile='b/'+name+'.metal')));air=B/(name+'.air');shader=B/(name+'.metallib');subprocess.run(['xcrun','-sdk','macosx','metal','-std=metal4.0','-O3','-fno-fast-math','-I',str(R/'include'),'-I',str(R/'src/metal'),'-c',str(src),'-o',str(air)],check=True);subprocess.run(['xcrun','-sdk','macosx','metallib',*[str(p) for p in sorted((R/'build/shaders').glob('MetalRobo*.air')) if p.name!='MetalRoboLocomotionTask.air'],str(air),'-o',str(shader)],check=True);rows.append({'name':name,'sha256':hashlib.sha256(shader.read_bytes()).hexdigest()});print(name,flush=True)
+(A/'shaders.json').write_text(json.dumps(rows,indent=2)+'\n')
