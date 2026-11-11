@@ -1,0 +1,5 @@
+# Force audit of the regrip regulation screen
+
+The single-start release replay revealed actual opposing horizontal toe forces frequently missed by the existing normal-direction cone detector. Passively instrument the already-completed 16-lane regulation screen to measure signed horizontal impulses from normal and both friction terms over all 16 substeps, without changing actions or dynamics. Require every saved trace in every lane to reproduce exactly before interpreting the results.
+
+For each lane report the final 100 samples with actual bilateral front/rear horizontal opposition of at least 0.0002 N s per group and the existing support, tilt and speed conditions; compute minimum independent toe-box separation for every such sample. Report the original cone metric separately. Check the predeclared maximum 0.5 mm overlap, but this post-hoc diagnostic does not qualify any controller: any candidate requires a prospectively declared, independent replay, both-foot release, perturbation, arrival-state, resolution and full-route tests. Do not use reserved layouts.
