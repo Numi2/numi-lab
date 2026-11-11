@@ -1,0 +1,66 @@
+{
+  "remote_commit": "2179917bf162d8d0b25265158a23ce0e70f331e6",
+  "verification": "independent fetched Git restore, gzip decode, SHA-256 and open-handle checks",
+  "retired": [
+    {
+      "path": "build/crow-v15-v1-intermediate-toe-target-20261111/route.json",
+      "archive": "artifacts/crow-v15-v1-intermediate-toe-target-20261111/route.json.gz",
+      "sha256": "714ae224bcfb7ed0dc2c762e1e9920798fe6d93e45a1811f3fcd1e0fdc4b3e0e",
+      "bytes": 98137442
+    },
+    {
+      "path": "build/crow-v15-v1-intermediate-toe-target-20261111/route.tsv",
+      "archive": "artifacts/crow-v15-v1-intermediate-toe-target-20261111/route.tsv.gz",
+      "sha256": "480e7f1a3f5708726152fc529256709dc8c0e0794a5b7a6231809b6ccd55cfad",
+      "bytes": 2174750
+    },
+    {
+      "path": "build/crow-v15-v1-sustained-rear-contact-gate-20261111/route.json",
+      "archive": "artifacts/crow-v15-v1-sustained-rear-contact-gate-20261111/route.json.gz",
+      "sha256": "49620c4853557b881da8c17e2c611af3c9b0db973ae3fb77d3b40df13eba78df",
+      "bytes": 98090563
+    },
+    {
+      "path": "build/crow-v15-v1-sustained-rear-contact-gate-20261111/route.tsv",
+      "archive": "artifacts/crow-v15-v1-sustained-rear-contact-gate-20261111/route.tsv.gz",
+      "sha256": "e3f38803703aa1bdc8f67bad6398687df0433b6ef07f1e6e235c3eb55af2c414",
+      "bytes": 2176629
+    },
+    {
+      "path": "build/crow-v15-v1-rear-first-toe-control-20261111/route.json",
+      "archive": "artifacts/crow-v15-v1-rear-first-toe-control-20261111/route.json.gz",
+      "sha256": "8692bb5033275d9ffc95cb4243c9c1c593ab651a707577f2a319332eff67dc40",
+      "bytes": 97411151
+    },
+    {
+      "path": "build/crow-v15-v1-rear-first-toe-control-20261111/route.tsv",
+      "archive": "artifacts/crow-v15-v1-rear-first-toe-control-20261111/route.tsv.gz",
+      "sha256": "7f55f7b55fd48e7ac222730945131f921eb3ab9b738e868a89f29d26b376aa58",
+      "bytes": 2174946
+    },
+    {
+      "path": "build/crow-v15-v1-rear-first-narrow-approach-20261111/route.json",
+      "archive": "artifacts/crow-v15-v1-rear-first-narrow-approach-20261111/route.json.gz",
+      "sha256": "1d19fc5f7e856480c8e46be1e3ab3f4d8b4a017ad0915b06e599425a88c50aab",
+      "bytes": 97199155
+    },
+    {
+      "path": "build/crow-v15-v1-rear-first-narrow-approach-20261111/route.tsv",
+      "archive": "artifacts/crow-v15-v1-rear-first-narrow-approach-20261111/route.tsv.gz",
+      "sha256": "4f1894aefe2c7b11125547996db5157d109604c08131e8a14200eb66b831aec1",
+      "bytes": 2174443
+    },
+    {
+      "path": "build/crow-v15-v1-contact-balance-landing-20261111/route.json",
+      "archive": "artifacts/crow-v15-v1-contact-balance-landing-20261111/route.json.gz",
+      "sha256": "8e5cfe34031e70b2fd1f92011e2f273d0d36b8e89eba3e87803cd51de5ff2bfe",
+      "bytes": 97163085
+    },
+    {
+      "path": "build/crow-v15-v1-contact-balance-landing-20261111/route.tsv",
+      "archive": "artifacts/crow-v15-v1-contact-balance-landing-20261111/route.tsv.gz",
+      "sha256": "79a9097e3d3469b1e38eaddbe5c43c45d389c841188cbb84842e8bd313c9d279",
+      "bytes": 2173397
+    }
+  ]
+}
