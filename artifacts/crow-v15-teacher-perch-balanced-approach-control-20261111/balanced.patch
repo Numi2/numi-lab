@@ -1,0 +1,20 @@
+--- a/reference.metal
++++ b/balanced.metal
+@@ -5112,7 +5112,7 @@
+             (action==7u || action==10u) &&
+             state.nutrition.x>-.099f && state.nutrition.x<.349f) {
+             const float vx=state.commandExtension.z;
+-            const float err=(state.nutrition.x-.10f+.60f*vx)/.45f;
++            const float err=(state.nutrition.x-.10f+.65f*vx)/.55f;
+             const float delta=clamp(.5f*(err-.032f-.20f*vx),-.16f,.16f);
+             navigationTeacherRequested=clamp(delta/max(abs(actions[action].parameters.x),.001f),-1.0f,1.0f);
+         }
+@@ -6754,7 +6754,7 @@
+                 const float3 landingTarget = perch + float3(0.02f,0.55f,0.0f);
+                 const float xError = landingTarget.x-pos.x;
+                 const float yError = landingTarget.y-pos.y;
+-                const float commandedForward = clamp(0.80f*xError+0.10f-0.25f*yawFrameLinear.x,-0.10f,0.35f);
++                const float commandedForward = clamp(0.55f*xError+0.10f-0.65f*yawFrameLinear.x,-0.10f,0.35f);
+                 desiredLateral = clamp(0.80f*yError,-0.30f,0.30f);
+                 errorOffset = 0.25f-commandedForward;
+                 if (landingPhase < 0.5f && abs(xError) < 0.05f && abs(yError) < 0.15f &&

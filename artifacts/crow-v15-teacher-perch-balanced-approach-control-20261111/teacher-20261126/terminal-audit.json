@@ -1,0 +1,396 @@
+{
+  "final_25_endpoints": [
+    {
+      "lane": 0,
+      "control_endpoint_count": 25,
+      "body_height_range_m": [
+        1.02915144,
+        1.02937162
+      ],
+      "maximum_linear_speed_m_s": 0.013454710647158873,
+      "maximum_angular_speed_rad_s": 0.06783785006029382,
+      "pitch_range_rad": [
+        -0.1311380182677846,
+        -0.12911131909324597
+      ],
+      "max_toe_speed_rad_s": 5.81445789,
+      "positive_endpoint_collider_pairs": [
+        [
+          "crow_left_front_toe_1_distal",
+          "crow_course_perch"
+        ],
+        [
+          "crow_left_front_toe_1_proximal",
+          "crow_course_perch"
+        ],
+        [
+          "crow_left_front_toe_2_distal",
+          "crow_course_perch"
+        ],
+        [
+          "crow_left_front_toe_2_proximal",
+          "crow_course_perch"
+        ],
+        [
+          "crow_left_front_toe_3_distal",
+          "crow_course_perch"
+        ],
+        [
+          "crow_left_front_toe_3_proximal",
+          "crow_course_perch"
+        ],
+        [
+          "crow_left_rear_toe_distal",
+          "crow_course_perch"
+        ],
+        [
+          "crow_left_rear_toe_proximal",
+          "crow_course_perch"
+        ],
+        [
+          "crow_right_front_toe_1_distal",
+          "crow_course_perch"
+        ],
+        [
+          "crow_right_front_toe_1_proximal",
+          "crow_course_perch"
+        ],
+        [
+          "crow_right_front_toe_2_distal",
+          "crow_course_perch"
+        ],
+        [
+          "crow_right_front_toe_2_proximal",
+          "crow_course_perch"
+        ],
+        [
+          "crow_right_front_toe_3_distal",
+          "crow_course_perch"
+        ],
+        [
+          "crow_right_front_toe_3_proximal",
+          "crow_course_perch"
+        ],
+        [
+          "crow_right_rear_toe_distal",
+          "crow_course_perch"
+        ],
+        [
+          "crow_right_rear_toe_proximal",
+          "crow_course_perch"
+        ]
+      ]
+    },
+    {
+      "lane": 4,
+      "control_endpoint_count": 25,
+      "body_height_range_m": [
+        1.0597415,
+        1.06450868
+      ],
+      "maximum_linear_speed_m_s": 0.03831027968683551,
+      "maximum_angular_speed_rad_s": 0.24604610171919725,
+      "pitch_range_rad": [
+        -0.380746245421248,
+        -0.3112463203117191
+      ],
+      "max_toe_speed_rad_s": 6.24802351,
+      "positive_endpoint_collider_pairs": [
+        [
+          "crow_left_front_toe_1_distal",
+          "crow_course_perch"
+        ],
+        [
+          "crow_left_front_toe_2_distal",
+          "crow_course_perch"
+        ],
+        [
+          "crow_left_front_toe_3_distal",
+          "crow_course_perch"
+        ],
+        [
+          "crow_left_rear_toe_distal",
+          "crow_course_perch"
+        ],
+        [
+          "crow_left_rear_toe_proximal",
+          "crow_course_perch"
+        ],
+        [
+          "crow_right_front_toe_1_distal",
+          "crow_course_perch"
+        ],
+        [
+          "crow_right_front_toe_2_distal",
+          "crow_course_perch"
+        ],
+        [
+          "crow_right_front_toe_3_distal",
+          "crow_course_perch"
+        ],
+        [
+          "crow_right_rear_toe_distal",
+          "crow_course_perch"
+        ],
+        [
+          "crow_right_rear_toe_proximal",
+          "crow_course_perch"
+        ]
+      ]
+    },
+    {
+      "lane": 6,
+      "control_endpoint_count": 25,
+      "body_height_range_m": [
+        1.02261901,
+        1.02272999
+      ],
+      "maximum_linear_speed_m_s": 0.00531439351889135,
+      "maximum_angular_speed_rad_s": 0.023203498359961033,
+      "pitch_range_rad": [
+        0.03988614845164287,
+        0.04111310094986605
+      ],
+      "max_toe_speed_rad_s": 0.90358609,
+      "positive_endpoint_collider_pairs": [
+        [
+          "crow_left_front_toe_1_distal",
+          "crow_course_perch"
+        ],
+        [
+          "crow_left_front_toe_1_proximal",
+          "crow_course_perch"
+        ],
+        [
+          "crow_left_front_toe_2_distal",
+          "crow_course_perch"
+        ],
+        [
+          "crow_left_front_toe_2_proximal",
+          "crow_course_perch"
+        ],
+        [
+          "crow_left_front_toe_3_distal",
+          "crow_course_perch"
+        ],
+        [
+          "crow_left_front_toe_3_proximal",
+          "crow_course_perch"
+        ],
+        [
+          "crow_left_rear_toe_distal",
+          "crow_course_perch"
+        ],
+        [
+          "crow_left_rear_toe_proximal",
+          "crow_course_perch"
+        ],
+        [
+          "crow_right_front_toe_1_distal",
+          "crow_course_perch"
+        ],
+        [
+          "crow_right_front_toe_1_proximal",
+          "crow_course_perch"
+        ],
+        [
+          "crow_right_front_toe_2_distal",
+          "crow_course_perch"
+        ],
+        [
+          "crow_right_front_toe_2_proximal",
+          "crow_course_perch"
+        ],
+        [
+          "crow_right_front_toe_3_distal",
+          "crow_course_perch"
+        ],
+        [
+          "crow_right_front_toe_3_proximal",
+          "crow_course_perch"
+        ],
+        [
+          "crow_right_rear_toe_distal",
+          "crow_course_perch"
+        ],
+        [
+          "crow_right_rear_toe_proximal",
+          "crow_course_perch"
+        ]
+      ]
+    }
+  ],
+  "failure_lane_2_last_samples": [
+    {
+      "step": 3435,
+      "q": [
+        5.35943556,
+        0.560808301,
+        0.948907077,
+        0.000432920118,
+        0.550792515,
+        0.000742024218,
+        0.834641874
+      ],
+      "v": [
+        0.107448079,
+        -0.00222514872,
+        -0.136318043,
+        0.000682633603,
+        0.764213741,
+        -0.00461531617
+      ],
+      "positive_collider_pairs": [
+        [
+          "crow_left_front_toe_1_distal",
+          "crow_course_perch"
+        ],
+        [
+          "crow_left_front_toe_2_distal",
+          "crow_course_perch"
+        ],
+        [
+          "crow_left_front_toe_3_distal",
+          "crow_course_perch"
+        ],
+        [
+          "crow_left_rear_toe_distal",
+          "crow_course_perch"
+        ],
+        [
+          "crow_left_rear_toe_proximal",
+          "crow_course_perch"
+        ],
+        [
+          "crow_right_front_toe_1_distal",
+          "crow_course_perch"
+        ],
+        [
+          "crow_right_front_toe_2_distal",
+          "crow_course_perch"
+        ],
+        [
+          "crow_right_rear_toe_distal",
+          "crow_course_perch"
+        ],
+        [
+          "crow_right_rear_toe_proximal",
+          "crow_course_perch"
+        ]
+      ]
+    },
+    {
+      "step": 3436,
+      "q": [
+        5.36158705,
+        0.560779691,
+        0.946166456,
+        0.000431938999,
+        0.557497323,
+        0.000702083344,
+        0.83017832
+      ],
+      "v": [
+        0.108381182,
+        -0.00119259453,
+        -0.1416682,
+        -0.00989408139,
+        0.801860988,
+        0.00642220536
+      ],
+      "positive_collider_pairs": [
+        [
+          "crow_left_front_toe_1_distal",
+          "crow_course_perch"
+        ],
+        [
+          "crow_left_front_toe_3_distal",
+          "crow_course_perch"
+        ],
+        [
+          "crow_left_rear_toe_distal",
+          "crow_course_perch"
+        ],
+        [
+          "crow_left_rear_toe_proximal",
+          "crow_course_perch"
+        ],
+        [
+          "crow_right_front_toe_1_distal",
+          "crow_course_perch"
+        ],
+        [
+          "crow_right_front_toe_2_distal",
+          "crow_course_perch"
+        ],
+        [
+          "crow_right_front_toe_3_distal",
+          "crow_course_perch"
+        ],
+        [
+          "crow_right_rear_toe_distal",
+          "crow_course_perch"
+        ],
+        [
+          "crow_right_rear_toe_proximal",
+          "crow_course_perch"
+        ]
+      ]
+    },
+    {
+      "step": 3437,
+      "q": [
+        5.36373138,
+        0.560750902,
+        0.943348229,
+        0.000406765525,
+        0.564417601,
+        0.000631518429,
+        0.825489104
+      ],
+      "v": [
+        0.106983565,
+        -0.000931271235,
+        -0.144488364,
+        -0.00515333563,
+        0.825693786,
+        -0.00786537863
+      ],
+      "positive_collider_pairs": [
+        [
+          "crow_left_front_toe_2_distal",
+          "crow_course_perch"
+        ],
+        [
+          "crow_left_front_toe_3_distal",
+          "crow_course_perch"
+        ],
+        [
+          "crow_left_rear_toe_distal",
+          "crow_course_perch"
+        ],
+        [
+          "crow_left_rear_toe_proximal",
+          "crow_course_perch"
+        ],
+        [
+          "crow_right_front_toe_1_distal",
+          "crow_course_perch"
+        ],
+        [
+          "crow_right_front_toe_3_distal",
+          "crow_course_perch"
+        ],
+        [
+          "crow_right_rear_toe_distal",
+          "crow_course_perch"
+        ],
+        [
+          "crow_right_rear_toe_proximal",
+          "crow_course_perch"
+        ]
+      ]
+    }
+  ],
+  "limits": "Endpoint stability and collision samples are independent of the substep impulse aggregation. Pair presence alone is not a biological or stability qualification. Teacher is privileged; no toe release or autonomy is established. Termination ordering within substeps remains unresolved."
+}
