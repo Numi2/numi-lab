@@ -1,0 +1,10 @@
+{
+  "curl-gait": {
+    "source_sha256": "a46c6b1af287d1126e2c1857a66b87a47f12c297c70fed469d399f3205cb494c",
+    "metallib_sha256": "f49b0b7be2eb7b4d0fce59a82a6af90f7d5795e1232c003d080796510cf6ef34"
+  },
+  "curl-flight": {
+    "source_sha256": "578d1329b9d4a87df1b31033405d3540def1f2f7668704d88477fdb9f480eca0",
+    "metallib_sha256": "c5511c36d00034bffdb8aed5ccb3beff0698795d05d5402c036c3b9a27d8db94"
+  }
+}

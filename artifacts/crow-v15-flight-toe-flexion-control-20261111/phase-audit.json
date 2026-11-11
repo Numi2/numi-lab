@@ -1,0 +1,82 @@
+{
+  "rows": [
+    {
+      "lane": 0,
+      "first_episode_steps": 1600,
+      "flight_ground_impulse_substeps_from_400": 0,
+      "first_ground_impulses": [],
+      "toe_cap_substeps": [],
+      "missing_or_duplicate_contact_substeps": 0
+    },
+    {
+      "lane": 1,
+      "first_episode_steps": 1600,
+      "flight_ground_impulse_substeps_from_400": 0,
+      "first_ground_impulses": [],
+      "toe_cap_substeps": [],
+      "missing_or_duplicate_contact_substeps": 0
+    },
+    {
+      "lane": 2,
+      "first_episode_steps": 1600,
+      "flight_ground_impulse_substeps_from_400": 0,
+      "first_ground_impulses": [],
+      "toe_cap_substeps": [],
+      "missing_or_duplicate_contact_substeps": 0
+    },
+    {
+      "lane": 3,
+      "first_episode_steps": 1600,
+      "flight_ground_impulse_substeps_from_400": 0,
+      "first_ground_impulses": [],
+      "toe_cap_substeps": [],
+      "missing_or_duplicate_contact_substeps": 0
+    },
+    {
+      "lane": 4,
+      "first_episode_steps": 1600,
+      "flight_ground_impulse_substeps_from_400": 0,
+      "first_ground_impulses": [],
+      "toe_cap_substeps": [
+        [
+          11,
+          10
+        ],
+        [
+          11,
+          11
+        ],
+        [
+          11,
+          12
+        ],
+        [
+          15,
+          14
+        ],
+        [
+          15,
+          15
+        ],
+        [
+          16,
+          0
+        ],
+        [
+          32,
+          15
+        ],
+        [
+          83,
+          12
+        ],
+        [
+          102,
+          15
+        ]
+      ],
+      "missing_or_duplicate_contact_substeps": 0
+    }
+  ],
+  "limits": "Observer records end-of-substep contact and velocity samples. Course colliders disabled, teacher off with diagnostic command substitution; not autonomous, recovery or landing qualification."
+}

@@ -1,0 +1,142 @@
+{
+  "exit_code": 0,
+  "errors": [],
+  "sample_count": 100,
+  "scope": "five-lane hierarchical journey task with bounded diagnostic commands and course collisions disabled; not autonomous navigation, perturbed recovery, landing or biological validation",
+  "toe_max_substep_endpoint_rad_s": [
+    5.22184277,
+    5.73029566,
+    7.94317627,
+    5.83905172,
+    12.0
+  ],
+  "toe_cap_substeps": [
+    0,
+    0,
+    0,
+    0,
+    9
+  ],
+  "toe_cap_substeps_after_observer_step_500": [
+    0,
+    0,
+    0,
+    0,
+    0
+  ],
+  "toe_substep_record_counts": [
+    25616,
+    25616,
+    25616,
+    25616,
+    25616
+  ],
+  "failed_environment_steps": 0,
+  "lanes": [
+    {
+      "lane": 0,
+      "mode": 0,
+      "physical_failure": false,
+      "termination_reason": 0,
+      "steps": 1600,
+      "sample_steps": [
+        1000,
+        1100,
+        1200,
+        1300,
+        1400,
+        1500
+      ],
+      "max_heading_error_rad": 0.020979512529274318,
+      "max_lateral_m_s": 0.001113046193069461,
+      "max_speed_error_m_s": 0.16599648787023613,
+      "max_height_error_m": 0.09809341400000005,
+      "mean_height_m": 0.9390038451666667,
+      "pass_screen": true
+    },
+    {
+      "lane": 1,
+      "mode": 1,
+      "physical_failure": false,
+      "termination_reason": 0,
+      "steps": 1600,
+      "sample_steps": [
+        1000,
+        1100,
+        1200,
+        1300,
+        1400,
+        1500
+      ],
+      "max_heading_error_rad": 0.04028123501552022,
+      "max_lateral_m_s": 0.00749686419742987,
+      "max_speed_error_m_s": 0.16657585950379122,
+      "max_height_error_m": 0.098148668,
+      "mean_height_m": 0.9390626451666667,
+      "pass_screen": true
+    },
+    {
+      "lane": 2,
+      "mode": 2,
+      "physical_failure": false,
+      "termination_reason": 0,
+      "steps": 1600,
+      "sample_steps": [
+        1000,
+        1100,
+        1200,
+        1300,
+        1400,
+        1500
+      ],
+      "max_heading_error_rad": 0.06054264258150355,
+      "max_lateral_m_s": 0.012328369435613037,
+      "max_speed_error_m_s": 0.1592599963611966,
+      "max_height_error_m": 0.097359741,
+      "mean_height_m": 0.9383323988333333,
+      "pass_screen": true
+    },
+    {
+      "lane": 3,
+      "mode": 3,
+      "physical_failure": false,
+      "termination_reason": 0,
+      "steps": 1600,
+      "sample_steps": [
+        1000,
+        1100,
+        1200,
+        1300,
+        1400,
+        1500
+      ],
+      "max_heading_error_rad": 0.020979623613313274,
+      "max_lateral_m_s": 0.0011399351224998001,
+      "max_speed_error_m_s": 0.1683571466324101,
+      "max_height_error_m": 0.09800452999999987,
+      "mean_height_m": 1.1389453,
+      "pass_screen": true
+    },
+    {
+      "lane": 4,
+      "mode": 4,
+      "physical_failure": false,
+      "termination_reason": 0,
+      "steps": 1600,
+      "sample_steps": [
+        1000,
+        1100,
+        1200,
+        1300,
+        1400,
+        1500
+      ],
+      "max_heading_error_rad": 0.020979379493857975,
+      "max_lateral_m_s": 0.001086948998528659,
+      "max_speed_error_m_s": 0.16362596765690687,
+      "max_height_error_m": 0.09816119699999992,
+      "mean_height_m": 0.7390568256666666,
+      "pass_screen": false
+    }
+  ]
+}
