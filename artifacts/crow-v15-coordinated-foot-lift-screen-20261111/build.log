@@ -1,0 +1,7 @@
+/Users/n/Developer/numi-crow-rl-20261107/artifacts/crow-v15-coordinated-foot-lift-screen-20261111/feedback.metal:5104:30: warning: unused variable 'arm' [-Wunused-variable]
+                { const uint arm=environment%8u;
+                             ^
+/Users/n/Developer/numi-crow-rl-20261107/artifacts/crow-v15-coordinated-foot-lift-screen-20261111/feedback.metal:5086:25: warning: unused variable 'support' [-Wunused-variable]
+            const float support=dispatch.counts.w==40u ? ((state.status.w & (leg==0u ? (1u<<21) : (1u<<20)))!=0u ? 1.0f : 0.0f) : (leg==0u ? state.nutrition.y : state.nutrition.x);
+                        ^
+2 warnings generated.

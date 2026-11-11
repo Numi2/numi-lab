@@ -1,0 +1,517 @@
+{
+  "rows": [
+    {
+      "seed": 20261126,
+      "lane": 0,
+      "baseline": {
+        "roll_span_rad": 0.04525810324763769,
+        "pitch_span_rad": 0.017940883143584534,
+        "height_span_m": 0.001869097000000014,
+        "minimum_height_m": 0.176321775,
+        "hip_spans_rad": [
+          0.18000646690000002,
+          0.1920399512
+        ],
+        "ankle_spans_rad": [
+          0.077468321,
+          0.07709886199999999
+        ]
+      },
+      "candidate": {
+        "roll_span_rad": 0.04242190386373035,
+        "pitch_span_rad": 0.04767907415297745,
+        "height_span_m": 0.0014604629999999952,
+        "minimum_height_m": 0.176985636,
+        "hip_spans_rad": [
+          0.2950099035,
+          0.196237184
+        ],
+        "ankle_spans_rad": [
+          0.39620751099999996,
+          0.39668513899999996
+        ]
+      }
+    },
+    {
+      "seed": 20261126,
+      "lane": 1,
+      "baseline": {
+        "roll_span_rad": 0.04533583339876709,
+        "pitch_span_rad": 0.018698387153328916,
+        "height_span_m": 0.0018850569999999955,
+        "minimum_height_m": 0.176308721,
+        "hip_spans_rad": [
+          0.18001850679999998,
+          0.1920324337
+        ],
+        "ankle_spans_rad": [
+          0.07746160099999999,
+          0.077039256
+        ]
+      },
+      "candidate": {
+        "roll_span_rad": 0.04189635254380461,
+        "pitch_span_rad": 0.05028285755767895,
+        "height_span_m": 0.0014371569999999945,
+        "minimum_height_m": 0.176980466,
+        "hip_spans_rad": [
+          0.2949294133,
+          0.196278073
+        ],
+        "ankle_spans_rad": [
+          0.396189138,
+          0.39665514200000007
+        ]
+      }
+    },
+    {
+      "seed": 20261126,
+      "lane": 2,
+      "baseline": {
+        "roll_span_rad": 0.04498423919616752,
+        "pitch_span_rad": 0.01792934432684568,
+        "height_span_m": 0.0018583389999999866,
+        "minimum_height_m": 0.17632395,
+        "hip_spans_rad": [
+          0.18000350919999997,
+          0.1920978654
+        ],
+        "ankle_spans_rad": [
+          0.07745200399999999,
+          0.07709528500000001
+        ]
+      },
+      "candidate": {
+        "roll_span_rad": 0.042170907930956514,
+        "pitch_span_rad": 0.04869887337409093,
+        "height_span_m": 0.0014481989999999834,
+        "minimum_height_m": 0.176986098,
+        "hip_spans_rad": [
+          0.29495221699999996,
+          0.196261391
+        ],
+        "ankle_spans_rad": [
+          0.396190643,
+          0.39667092300000006
+        ]
+      }
+    },
+    {
+      "seed": 20261126,
+      "lane": 3,
+      "baseline": {
+        "roll_span_rad": 0.04486274573100227,
+        "pitch_span_rad": 0.017639318538490076,
+        "height_span_m": 0.0022757799999999773,
+        "minimum_height_m": 0.176328793,
+        "hip_spans_rad": [
+          0.1799705098,
+          0.19206389010000002
+        ],
+        "ankle_spans_rad": [
+          0.077451199,
+          0.077129855
+        ]
+      },
+      "candidate": {
+        "roll_span_rad": 0.0424430515711996,
+        "pitch_span_rad": 0.04751934487625433,
+        "height_span_m": 0.001464634999999992,
+        "minimum_height_m": 0.176991999,
+        "hip_spans_rad": [
+          0.2949642647,
+          0.19626508699999998
+        ],
+        "ankle_spans_rad": [
+          0.39619785499999993,
+          0.39669901099999993
+        ]
+      }
+    },
+    {
+      "seed": 20261126,
+      "lane": 4,
+      "baseline": {
+        "roll_span_rad": 0.04513902099556064,
+        "pitch_span_rad": 0.01792198304494247,
+        "height_span_m": 0.0018824339999999884,
+        "minimum_height_m": 0.176318675,
+        "hip_spans_rad": [
+          0.1800224038,
+          0.19204466070000004
+        ],
+        "ankle_spans_rad": [
+          0.07745285399999999,
+          0.07717084899999999
+        ]
+      },
+      "candidate": {
+        "roll_span_rad": 0.042141762146796616,
+        "pitch_span_rad": 0.04802603248742197,
+        "height_span_m": 0.0014486009999999938,
+        "minimum_height_m": 0.176990837,
+        "hip_spans_rad": [
+          0.2949871851,
+          0.19632071299999998
+        ],
+        "ankle_spans_rad": [
+          0.39618907800000003,
+          0.3966715190000001
+        ]
+      }
+    },
+    {
+      "seed": 20261126,
+      "lane": 5,
+      "baseline": {
+        "roll_span_rad": 0.045046532199302464,
+        "pitch_span_rad": 0.017795930857396065,
+        "height_span_m": 0.0018698269999999906,
+        "minimum_height_m": 0.176333115,
+        "hip_spans_rad": [
+          0.1799705103,
+          0.19210267859999997
+        ],
+        "ankle_spans_rad": [
+          0.07746772499999999,
+          0.077115938
+        ]
+      },
+      "candidate": {
+        "roll_span_rad": 0.04240558322831843,
+        "pitch_span_rad": 0.04802369151884521,
+        "height_span_m": 0.0014522080000000104,
+        "minimum_height_m": 0.176994517,
+        "hip_spans_rad": [
+          0.29492123610000004,
+          0.19630952899999998
+        ],
+        "ankle_spans_rad": [
+          0.39619925599999994,
+          0.396694184
+        ]
+      }
+    },
+    {
+      "seed": 20261126,
+      "lane": 6,
+      "baseline": {
+        "roll_span_rad": 0.04493962270857868,
+        "pitch_span_rad": 0.017702459133496665,
+        "height_span_m": 0.0018721969999999921,
+        "minimum_height_m": 0.176328242,
+        "hip_spans_rad": [
+          0.1799880494,
+          0.1920837466
+        ],
+        "ankle_spans_rad": [
+          0.07744406199999998,
+          0.07716099900000001
+        ]
+      },
+      "candidate": {
+        "roll_span_rad": 0.042379158880909575,
+        "pitch_span_rad": 0.0482103498724722,
+        "height_span_m": 0.001454994000000015,
+        "minimum_height_m": 0.176986024,
+        "hip_spans_rad": [
+          0.29498703400000004,
+          0.196272813
+        ],
+        "ankle_spans_rad": [
+          0.39619538200000004,
+          0.396671608
+        ]
+      }
+    },
+    {
+      "seed": 20261126,
+      "lane": 7,
+      "baseline": {
+        "roll_span_rad": 0.044953173333235105,
+        "pitch_span_rad": 0.01795166593128764,
+        "height_span_m": 0.0018660129999999997,
+        "minimum_height_m": 0.176333666,
+        "hip_spans_rad": [
+          0.17998261799999998,
+          0.19221691010000003
+        ],
+        "ankle_spans_rad": [
+          0.07745160199999998,
+          0.077175558
+        ]
+      },
+      "candidate": {
+        "roll_span_rad": 0.04199646438560628,
+        "pitch_span_rad": 0.04984039344519179,
+        "height_span_m": 0.0014325379999999832,
+        "minimum_height_m": 0.17698583,
+        "hip_spans_rad": [
+          0.2949158777,
+          0.19630267500000004
+        ],
+        "ankle_spans_rad": [
+          0.39620104400000006,
+          0.39666833
+        ]
+      }
+    },
+    {
+      "seed": 20261127,
+      "lane": 0,
+      "baseline": {
+        "roll_span_rad": 0.045393366564300236,
+        "pitch_span_rad": 0.018206630225815642,
+        "height_span_m": 0.001898496999999999,
+        "minimum_height_m": 0.176311061,
+        "hip_spans_rad": [
+          0.18002371509999998,
+          0.1920106936
+        ],
+        "ankle_spans_rad": [
+          0.07745075200000001,
+          0.07717344200000001
+        ]
+      },
+      "candidate": {
+        "roll_span_rad": 0.04220664401663124,
+        "pitch_span_rad": 0.04921557940203397,
+        "height_span_m": 0.0014455770000000034,
+        "minimum_height_m": 0.176988333,
+        "hip_spans_rad": [
+          0.2949101644,
+          0.19628249799999997
+        ],
+        "ankle_spans_rad": [
+          0.396193966,
+          0.396666929
+        ]
+      }
+    },
+    {
+      "seed": 20261127,
+      "lane": 1,
+      "baseline": {
+        "roll_span_rad": 0.04522434266624431,
+        "pitch_span_rad": 0.018278070217983652,
+        "height_span_m": 0.001882538000000017,
+        "minimum_height_m": 0.176313743,
+        "hip_spans_rad": [
+          0.18001833539999998,
+          0.1921415106
+        ],
+        "ankle_spans_rad": [
+          0.077457517,
+          0.077151566
+        ]
+      },
+      "candidate": {
+        "roll_span_rad": 0.04208521265347472,
+        "pitch_span_rad": 0.049130911811255895,
+        "height_span_m": 0.0014503000000000155,
+        "minimum_height_m": 0.176983908,
+        "hip_spans_rad": [
+          0.294974215,
+          0.196299836
+        ],
+        "ankle_spans_rad": [
+          0.39619216300000004,
+          0.396666094
+        ]
+      }
+    },
+    {
+      "seed": 20261127,
+      "lane": 2,
+      "baseline": {
+        "roll_span_rad": 0.04527607194236741,
+        "pitch_span_rad": 0.018467265900040386,
+        "height_span_m": 0.0019351390000000024,
+        "minimum_height_m": 0.176311061,
+        "hip_spans_rad": [
+          0.18001727030000003,
+          0.19205629829999998
+        ],
+        "ankle_spans_rad": [
+          0.077462003,
+          0.07718241199999998
+        ]
+      },
+      "candidate": {
+        "roll_span_rad": 0.04191455064217537,
+        "pitch_span_rad": 0.04994490274606843,
+        "height_span_m": 0.0014365169999999983,
+        "minimum_height_m": 0.176978692,
+        "hip_spans_rad": [
+          0.2948672155,
+          0.19633501800000003
+        ],
+        "ankle_spans_rad": [
+          0.39618667899999993,
+          0.396679148
+        ]
+      }
+    },
+    {
+      "seed": 20261127,
+      "lane": 3,
+      "baseline": {
+        "roll_span_rad": 0.044947263627461306,
+        "pitch_span_rad": 0.017862730009840948,
+        "height_span_m": 0.0018170770000000003,
+        "minimum_height_m": 0.176325664,
+        "hip_spans_rad": [
+          0.18000510300000003,
+          0.1920784338
+        ],
+        "ankle_spans_rad": [
+          0.07744284000000001,
+          0.077005729
+        ]
+      },
+      "candidate": {
+        "roll_span_rad": 0.042181013387836946,
+        "pitch_span_rad": 0.04909412112017006,
+        "height_span_m": 0.0014598079999999791,
+        "minimum_height_m": 0.176972806,
+        "hip_spans_rad": [
+          0.2949395047,
+          0.19634595500000002
+        ],
+        "ankle_spans_rad": [
+          0.396202355,
+          0.39666208700000005
+        ]
+      }
+    },
+    {
+      "seed": 20261127,
+      "lane": 4,
+      "baseline": {
+        "roll_span_rad": 0.045052698893770664,
+        "pitch_span_rad": 0.019649470180179394,
+        "height_span_m": 0.0021055789999999963,
+        "minimum_height_m": 0.176316738,
+        "hip_spans_rad": [
+          0.1800185815,
+          0.19216705839999998
+        ],
+        "ankle_spans_rad": [
+          0.07745870999999999,
+          0.07675767
+        ]
+      },
+      "candidate": {
+        "roll_span_rad": 0.04239094280177937,
+        "pitch_span_rad": 0.04768236644140278,
+        "height_span_m": 0.0014533399999999974,
+        "minimum_height_m": 0.176992238,
+        "hip_spans_rad": [
+          0.29498755229999996,
+          0.19629370399999999
+        ],
+        "ankle_spans_rad": [
+          0.396209464,
+          0.396695852
+        ]
+      }
+    },
+    {
+      "seed": 20261127,
+      "lane": 5,
+      "baseline": {
+        "roll_span_rad": 0.04534605199894173,
+        "pitch_span_rad": 0.018454350943126484,
+        "height_span_m": 0.001827894999999996,
+        "minimum_height_m": 0.176310003,
+        "hip_spans_rad": [
+          0.1800199899,
+          0.19205971789999998
+        ],
+        "ankle_spans_rad": [
+          0.077458158,
+          0.076981306
+        ]
+      },
+      "candidate": {
+        "roll_span_rad": 0.04217944001912805,
+        "pitch_span_rad": 0.048483178870556656,
+        "height_span_m": 0.001453890999999985,
+        "minimum_height_m": 0.176982254,
+        "hip_spans_rad": [
+          0.2949433789,
+          0.196296916
+        ],
+        "ankle_spans_rad": [
+          0.396189153,
+          0.39667964
+        ]
+      }
+    },
+    {
+      "seed": 20261127,
+      "lane": 6,
+      "baseline": {
+        "roll_span_rad": 0.04486416952181911,
+        "pitch_span_rad": 0.018645361438165507,
+        "height_span_m": 0.0018774719999999911,
+        "minimum_height_m": 0.176337048,
+        "hip_spans_rad": [
+          0.1800124798,
+          0.19222638799999997
+        ],
+        "ankle_spans_rad": [
+          0.07746751599999999,
+          0.07723592199999998
+        ]
+      },
+      "candidate": {
+        "roll_span_rad": 0.042511812005374155,
+        "pitch_span_rad": 0.047694440922052175,
+        "height_span_m": 0.0014683010000000052,
+        "minimum_height_m": 0.17699413,
+        "hip_spans_rad": [
+          0.29493362860000005,
+          0.19628298299999997
+        ],
+        "ankle_spans_rad": [
+          0.396201522,
+          0.39668704600000004
+        ]
+      }
+    },
+    {
+      "seed": 20261127,
+      "lane": 7,
+      "baseline": {
+        "roll_span_rad": 0.04489179236759,
+        "pitch_span_rad": 0.018656301970341134,
+        "height_span_m": 0.0018543900000000113,
+        "minimum_height_m": 0.176330358,
+        "hip_spans_rad": [
+          0.17997068920000003,
+          0.1921708285
+        ],
+        "ankle_spans_rad": [
+          0.077475548,
+          0.076878787
+        ]
+      },
+      "candidate": {
+        "roll_span_rad": 0.042419064659333976,
+        "pitch_span_rad": 0.0475230615414192,
+        "height_span_m": 0.001469567000000005,
+        "minimum_height_m": 0.176992089,
+        "hip_spans_rad": [
+          0.2949772587,
+          0.196258731
+        ],
+        "ankle_spans_rad": [
+          0.39619185,
+          0.39670470399999996
+        ]
+      }
+    }
+  ],
+  "scope": "Rigid root rotation and displacement from control endpoints only; no flexible torso geometry or biological validation."
+}

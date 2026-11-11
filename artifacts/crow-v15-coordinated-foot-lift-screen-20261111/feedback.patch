@@ -1,0 +1,69 @@
+--- a/reference.metal
++++ b/feedback.metal
+@@ -5085,11 +5085,21 @@
+             const uint leg=(action-7u)/3u, joint=(action-7u)%3u;
+             const float support=dispatch.counts.w==40u ? ((state.status.w & (leg==0u ? (1u<<21) : (1u<<20)))!=0u ? 1.0f : 0.0f) : (leg==0u ? state.nutrition.y : state.nutrition.x);
+             const float begin=4.0f;
+-            const float carrier=sin(kTwoPi*seconds/0.50f)*(leg==0u ? 1.0f : -1.0f);
+-            const float swing=seconds >= begin && seconds < begin+2.0f && support > 0.05f ? carrier : 0.0f;
+-            const float lift=max(swing,0.0f);
++            const uint walkSeq=((state.status.w>>16u)&15u)|(((state.status.w>>28u)&15u)<<4u);
++            const float leftPhase=clamp((float(walkSeq)-15.0f)/20.0f,0.0f,1.0f);
++            const float rightPhase=clamp((float(walkSeq)-61.0f)/20.0f,0.0f,1.0f);
++            const float leftSwing=walkSeq>=16u && walkSeq<=35u ? sin(0.5f*kTwoPi*leftPhase) : 0.0f;
++            const float rightSwing=walkSeq>=62u && walkSeq<=81u ? sin(0.5f*kTwoPi*rightPhase) : 0.0f;
++            float leftHip=0.0f, rightHip=0.0f;
++            if (walkSeq>=16u && walkSeq<=35u) leftHip=-.36f*leftSwing-.18f*smoothstep(.55f,1.0f,leftPhase);
++            else if (walkSeq>=36u && walkSeq<=61u) leftHip=-.18f;
++            else if (walkSeq>=62u && walkSeq<=81u) leftHip=mix(-.18f,.18f,rightPhase);
++            else if (walkSeq>=82u && walkSeq<=91u) leftHip=.18f;
++            if (walkSeq>=62u && walkSeq<=81u) rightHip=-.36f*rightSwing-.18f*smoothstep(.55f,1.0f,rightPhase);
++            else if (walkSeq>=82u && walkSeq<=91u) rightHip=-.18f;
++            const float lift=leg==0u ? leftSwing : rightSwing;
+             if (seconds >= begin && seconds < begin+2.0f)
+-                navigationTeacherRequested=0.80f*smoothstep(begin,begin+.50f,seconds)*(joint==0u ? -0.30f*swing : joint==1u ? 0.40f*lift : -0.15f*lift);
++                navigationTeacherRequested=0.80f*(joint==0u ? (leg==0u ? leftHip : rightHip) : joint==1u ? 0.50f*lift : -0.77f*lift);
+             else if (seconds>=2.0f && seconds<begin)
+                 { const uint arm=environment%8u;
+                 const float motion=length(float2(state.commandExtension.z,state.threatGeometry.y)); const float gain=.4f+.4f*smoothstep(.03f,.12f,motion);
+@@ -5551,8 +5561,21 @@
+         const uint seq=((state.status.w>>16u)&15u)|(((state.status.w>>28u)&15u)<<4u);
+         const float returning=seq>=230u ? clamp(float(seq-230u)/25.0f,0.0f,1.0f) : 0.0f;
+         const float shift=seq>=50u && seq<255u ? clamp(float(min(seq,125u)-50u)/75.0f,0.0f,1.0f)*(1.0f-returning) : 0.0f;
+-        effortTrajectory[pass.controlStep*worldDispatch.effortStepStride + environment*worldDispatch.effortEnvironmentStride + 38u]=.22f*shift;
+-        effortTrajectory[pass.controlStep*worldDispatch.effortStepStride + environment*worldDispatch.effortEnvironmentStride + 39u]=.22f*shift;
++        const float walkSeconds=float(state.episode.x)*dispatch.timing.x;
++        float rollTarget=.22f*shift;
++        if (state.navigation.z<5.0f) {
++            rollTarget=0.0f;
++            if (walkSeconds>=4.0f && walkSeconds<6.0f) {
++                if (seq<=15u) rollTarget=.12f*float(seq)/15.0f;
++                else if (seq<=35u) rollTarget=.12f;
++                else if (seq<=45u) rollTarget=.12f*(1.0f-float(seq-35u)/10.0f);
++                else if (seq<=61u) rollTarget=-.12f*float(seq-46u)/15.0f;
++                else if (seq<=81u) rollTarget=-.12f;
++                else if (seq<=91u) rollTarget=-.12f*(1.0f-float(seq-81u)/10.0f);
++            }
++        }
++        effortTrajectory[pass.controlStep*worldDispatch.effortStepStride + environment*worldDispatch.effortEnvironmentStride + 38u]=rollTarget;
++        effortTrajectory[pass.controlStep*worldDispatch.effortStepStride + environment*worldDispatch.effortEnvironmentStride + 39u]=rollTarget;
+         for (uint side=0u;side<2u;++side) {
+             const uint ramp=(state.status.w>>(side*6u)) & 63u;
+             const uint frontRamp=ramp>2u ? ramp-2u : 0u;
+@@ -9451,6 +9474,16 @@
+                 else if (seq<255u) seq+=1u;
+                 state.status.w=(state.status.w & ~seqMask)|((seq&15u)<<16u)|((seq>>4u)<<28u);
+             }
++            const float walkSeconds=float(state.episode.x)*dispatch.timing.x;
++            if (dispatch.sampling.w==0u && state.navigation.z<5.0f && walkSeconds>=4.0f && walkSeconds<6.0f) {
++                if (seq==15u) { if (footLoads.y>=2.2f) seq=16u; }
++                else if (seq==61u) { if (footLoads.x>=2.2f) seq=62u; }
++                else if (seq>=91u) seq=0u;
++                else ++seq;
++                state.status.w=(state.status.w & ~seqMask)|((seq&15u)<<16u)|((seq>>4u)<<28u);
++            } else if (state.navigation.z<5.0f && walkSeconds>=6.0f && walkSeconds<6.1f) {
++                seq=0u; state.status.w &= ~seqMask;
++            }
+             uint packed=0u;
+             for(uint side=0u;side<2u;++side) {
+                 const uint oldRamp=(state.status.w>>(side*6u)) & 63u;
