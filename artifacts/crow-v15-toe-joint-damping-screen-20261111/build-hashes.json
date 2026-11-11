@@ -1,0 +1,14 @@
+[
+  {
+    "name": "d010",
+    "toe_joint_damping": 0.01,
+    "library_sha256": "35247f89be88084068305c70301ba60e8b6bac6e0070c6427de114e65b107355",
+    "source_sha256": "09506a7946e535bab7ce52375aeff9f32df4e2cc53462c133d4ccd9708cd450c"
+  },
+  {
+    "name": "d030",
+    "toe_joint_damping": 0.03,
+    "library_sha256": "cb77f7d2261d250f714a190498a4328f46537ba94bbf97b99a50a01d35066c1a",
+    "source_sha256": "984265333d7aa609d54f18bd1975c9ea3520c93c64536a0d07ffbb214bb597fc"
+  }
+]
