@@ -1,0 +1,117 @@
+{
+  "rows": [
+    {
+      "lane": 0,
+      "first_state_difference": [
+        102
+      ],
+      "state_difference_count": 399,
+      "first_substep_contact_difference": [
+        [
+          102,
+          0
+        ]
+      ],
+      "substep_contact_difference_count": 3965
+    },
+    {
+      "lane": 1,
+      "first_state_difference": [
+        102
+      ],
+      "state_difference_count": 399,
+      "first_substep_contact_difference": [
+        [
+          103,
+          12
+        ]
+      ],
+      "substep_contact_difference_count": 3891
+    },
+    {
+      "lane": 2,
+      "first_state_difference": [
+        102
+      ],
+      "state_difference_count": 399,
+      "first_substep_contact_difference": [
+        [
+          102,
+          0
+        ]
+      ],
+      "substep_contact_difference_count": 3980
+    },
+    {
+      "lane": 3,
+      "first_state_difference": [
+        102
+      ],
+      "state_difference_count": 399,
+      "first_substep_contact_difference": [
+        [
+          102,
+          0
+        ]
+      ],
+      "substep_contact_difference_count": 3974
+    },
+    {
+      "lane": 4,
+      "first_state_difference": [
+        102
+      ],
+      "state_difference_count": 399,
+      "first_substep_contact_difference": [
+        [
+          102,
+          0
+        ]
+      ],
+      "substep_contact_difference_count": 3995
+    },
+    {
+      "lane": 5,
+      "first_state_difference": [
+        102
+      ],
+      "state_difference_count": 399,
+      "first_substep_contact_difference": [
+        [
+          102,
+          0
+        ]
+      ],
+      "substep_contact_difference_count": 3993
+    },
+    {
+      "lane": 6,
+      "first_state_difference": [
+        102
+      ],
+      "state_difference_count": 399,
+      "first_substep_contact_difference": [
+        [
+          102,
+          0
+        ]
+      ],
+      "substep_contact_difference_count": 3984
+    },
+    {
+      "lane": 7,
+      "first_state_difference": [
+        102
+      ],
+      "state_difference_count": 399,
+      "first_substep_contact_difference": [
+        [
+          102,
+          0
+        ]
+      ],
+      "substep_contact_difference_count": 3991
+    }
+  ],
+  "scope": "Compares accepted endpoint q, v and contacts and all recorded substep aggregate contacts for the first 500 intervals of matching development seed. A match does not establish physical realism or other seeds. The gait control used privileged navigation after this time."
+}
