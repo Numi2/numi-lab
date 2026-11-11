@@ -1,0 +1,3 @@
+# Toe ground-contact substep comparison
+
+Repeat the matched second-seed 80-lane 250-interval frozen-controller ground-to-flight start with 32 rather than 16 substeps, retaining the same body, controller, host, other solver settings, inputs and seed. Count every accepted endpoint that reaches 11.99 rad/s or more on any toe, the lanes affected, endpoint contact overlap and any solver or physical failures. The 16-substep observation was 56/80 lanes and 87 lane-interval hits. Require zero hits, no physics or GPU failures and no missing observations for this limited mitigation screen; separately retain overlap statistics and contact evidence. This comparison does not prove biological calibration, landing, or continuous trajectory qualification.
