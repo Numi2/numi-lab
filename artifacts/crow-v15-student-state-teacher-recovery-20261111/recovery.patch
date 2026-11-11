@@ -1,0 +1,29 @@
+--- a/reference.metal
++++ b/recovery.metal
+@@ -4993,7 +4993,7 @@
+         const float4 actorCommand = float4(
+             0.10f+0.30f*actorLatent.x,0.30f*actorLatent.y,
+             0.15f*actorLatent.z,0.975f+0.325f*actorLatent.w);
+-        const bool privilegedCommand = (dispatch.sampling.w != 0u && dispatch.assistance.x < 0.5f && float(state.episode.x)*dispatch.timing.x >= 8.0f);
++        const bool privilegedCommand = (dispatch.sampling.w != 0u && state.episode.x >= (900u + 100u * environment) && float(state.episode.x)*dispatch.timing.x >= 8.0f);
+         float4 oracleCommand = privilegedCommand ? state.nutrition : actorCommand;
+         if (!privilegedCommand && (state.status.w & (8192u | 16384u)) != 0u) {
+             const float launchSeconds = float(state.episode.x)*dispatch.timing.x;
+@@ -6774,7 +6774,7 @@
+             // Oracle labels occupy diagnostic spare state only; these will
+             // become independently fingerprinted actor commands, not sensors.
+             state.nutrition=float4(0.25f-errorOffset,desiredLateral,-heading,desiredHeight);
+-            if (dispatch.assistance.x < 0.5f) {
++            if (state.episode.x >= (900u + 100u * environment)) {
+             // Policy observations do not expose privileged teacher commands.
+             state.commandAndPhase.xyz=float3(0.15f,0.0f,0.0f);
+             state.commandExtension.xyz=float3(-heading,baseAngular.z,yawFrameLinear.x);
+@@ -6783,7 +6783,7 @@
+             }
+         }
+     }
+-    if ((program.schedule.w & MR_TASK_PROGRAM_AVIAN_CROW_HIERARCHICAL_NAVIGATION) != 0u && !(dispatch.sampling.w != 0u && dispatch.assistance.x < 0.5f && float(state.episode.x)*dispatch.timing.x >= 8.0f)) {
++    if ((program.schedule.w & MR_TASK_PROGRAM_AVIAN_CROW_HIERARCHICAL_NAVIGATION) != 0u && !(dispatch.sampling.w != 0u && state.episode.x >= (900u + 100u * environment) && float(state.episode.x)*dispatch.timing.x >= 8.0f)) {
+         // Accepted proprioceptive feedback and explicit final waypoint goal.
+         // The actor, not the route teacher, owns navigation commands.
+         const float3 pos = rootWorldPosition(program,q);

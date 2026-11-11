@@ -1,0 +1,3 @@
+# Student-state teacher recovery diagnostic
+
+On previously used development layout and seed, start with the trained route student and enable teacher labels without teacher authority. At control step 900 + 100 times the lane index, give the privileged teacher command authority for that lane. Compare accepted states and actions with the teacher-off run before takeover, then measure whether each first episode safely reaches all five waypoints. This is diagnostic only and cannot establish autonomous capability. Do not train on student-state labels unless recovery and pre-takeover parity are established.
