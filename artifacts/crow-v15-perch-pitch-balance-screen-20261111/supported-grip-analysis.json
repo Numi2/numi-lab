@@ -1,0 +1,69 @@
+{
+  "rows": [
+    {
+      "lane": 0,
+      "opposing_intervals": 193,
+      "opposing_longest_intervals": 193,
+      "supported_stable_intervals": 103,
+      "supported_stable_longest_intervals": 103,
+      "first_episode_end": 4036
+    },
+    {
+      "lane": 1,
+      "opposing_intervals": 0,
+      "opposing_longest_intervals": 0,
+      "supported_stable_intervals": 0,
+      "supported_stable_longest_intervals": 0,
+      "first_episode_end": 4200
+    },
+    {
+      "lane": 2,
+      "opposing_intervals": 118,
+      "opposing_longest_intervals": 118,
+      "supported_stable_intervals": 101,
+      "supported_stable_longest_intervals": 101,
+      "first_episode_end": 4200
+    },
+    {
+      "lane": 3,
+      "opposing_intervals": 153,
+      "opposing_longest_intervals": 153,
+      "supported_stable_intervals": 80,
+      "supported_stable_longest_intervals": 80,
+      "first_episode_end": 3785
+    },
+    {
+      "lane": 4,
+      "opposing_intervals": 0,
+      "opposing_longest_intervals": 0,
+      "supported_stable_intervals": 0,
+      "supported_stable_longest_intervals": 0,
+      "first_episode_end": 4200
+    },
+    {
+      "lane": 5,
+      "opposing_intervals": 0,
+      "opposing_longest_intervals": 0,
+      "supported_stable_intervals": 0,
+      "supported_stable_longest_intervals": 0,
+      "first_episode_end": 4200
+    },
+    {
+      "lane": 6,
+      "opposing_intervals": 0,
+      "opposing_longest_intervals": 0,
+      "supported_stable_intervals": 0,
+      "supported_stable_longest_intervals": 0,
+      "first_episode_end": 4200
+    },
+    {
+      "lane": 7,
+      "opposing_intervals": 140,
+      "opposing_longest_intervals": 140,
+      "supported_stable_intervals": 97,
+      "supported_stable_longest_intervals": 97,
+      "first_episode_end": 3664
+    }
+  ],
+  "criteria": "Both feet opposing front/rear normal impulses >0.0002 Ns, each foot upward impulse >0.0002 Ns, combined upward impulse >= half nominal weight over 0.02 s, root tilt <=0.35 rad, speed <=0.12 m/s. Contacts are aggregated over all physics substeps; state is sampled at control endpoints. This does not establish release or continuous geometric clearance."
+}
