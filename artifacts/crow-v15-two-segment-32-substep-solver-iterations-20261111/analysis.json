@@ -1,0 +1,197 @@
+{
+  "observed_records": 89600,
+  "missing_count": 0,
+  "bad_count": 0,
+  "errors": [],
+  "lane_zero_difference_from_old_solver_control": 350,
+  "first_difference_from_old_solver_control": [
+    1
+  ],
+  "lanes": [
+    {
+      "lane": 0,
+      "initial_x_shift_m": 0.0,
+      "toe_flexion_cap_rad": 0.55,
+      "hip_balance_gain": 0.0,
+      "velocity_damping_seconds": 0.2,
+      "rear_toe_cap_rad": 0.55,
+      "states": 350,
+      "support_intervals": 277,
+      "longest_supported_intervals": 226,
+      "opposed_intervals": 0,
+      "longest_supported_opposed_intervals": 0,
+      "terminal_100_supported_opposed": false,
+      "minimum_opposed_endpoint_gap_m": null,
+      "opposed_pose_missing_steps": [],
+      "first_root_below_0_1m": 337,
+      "nonfoot_impulse_intervals": 0,
+      "first_front_activation": [
+        12,
+        259
+      ],
+      "pass": false
+    },
+    {
+      "lane": 1,
+      "initial_x_shift_m": 0.0,
+      "toe_flexion_cap_rad": 1.05,
+      "hip_balance_gain": 1.0,
+      "velocity_damping_seconds": 0.2,
+      "rear_toe_cap_rad": 1.05,
+      "states": 350,
+      "support_intervals": 301,
+      "longest_supported_intervals": 300,
+      "opposed_intervals": 262,
+      "longest_supported_opposed_intervals": 227,
+      "terminal_100_supported_opposed": false,
+      "minimum_opposed_endpoint_gap_m": -0.0004372759964571468,
+      "opposed_pose_missing_steps": [],
+      "first_root_below_0_1m": null,
+      "nonfoot_impulse_intervals": 0,
+      "first_front_activation": [
+        18,
+        12
+      ],
+      "pass": false
+    },
+    {
+      "lane": 2,
+      "initial_x_shift_m": 0.0,
+      "toe_flexion_cap_rad": 1.05,
+      "hip_balance_gain": 1.0,
+      "velocity_damping_seconds": 0.2,
+      "rear_toe_cap_rad": 0.65,
+      "states": 350,
+      "support_intervals": 113,
+      "longest_supported_intervals": 112,
+      "opposed_intervals": 0,
+      "longest_supported_opposed_intervals": 0,
+      "terminal_100_supported_opposed": false,
+      "minimum_opposed_endpoint_gap_m": null,
+      "opposed_pose_missing_steps": [],
+      "first_root_below_0_1m": 183,
+      "nonfoot_impulse_intervals": 0,
+      "first_front_activation": [
+        18,
+        12
+      ],
+      "pass": false
+    },
+    {
+      "lane": 3,
+      "initial_x_shift_m": 0.0,
+      "toe_flexion_cap_rad": 1.05,
+      "hip_balance_gain": 1.0,
+      "velocity_damping_seconds": 0.2,
+      "rear_toe_cap_rad": 0.75,
+      "states": 350,
+      "support_intervals": 102,
+      "longest_supported_intervals": 101,
+      "opposed_intervals": 0,
+      "longest_supported_opposed_intervals": 0,
+      "terminal_100_supported_opposed": false,
+      "minimum_opposed_endpoint_gap_m": null,
+      "opposed_pose_missing_steps": [],
+      "first_root_below_0_1m": 174,
+      "nonfoot_impulse_intervals": 0,
+      "first_front_activation": [
+        18,
+        12
+      ],
+      "pass": false
+    },
+    {
+      "lane": 4,
+      "initial_x_shift_m": 0.0,
+      "toe_flexion_cap_rad": 1.05,
+      "hip_balance_gain": 1.0,
+      "velocity_damping_seconds": 0.2,
+      "rear_toe_cap_rad": 0.85,
+      "states": 350,
+      "support_intervals": 140,
+      "longest_supported_intervals": 139,
+      "opposed_intervals": 0,
+      "longest_supported_opposed_intervals": 0,
+      "terminal_100_supported_opposed": false,
+      "minimum_opposed_endpoint_gap_m": null,
+      "opposed_pose_missing_steps": [],
+      "first_root_below_0_1m": 219,
+      "nonfoot_impulse_intervals": 0,
+      "first_front_activation": [
+        18,
+        12
+      ],
+      "pass": false
+    },
+    {
+      "lane": 5,
+      "initial_x_shift_m": 0.0,
+      "toe_flexion_cap_rad": 1.05,
+      "hip_balance_gain": 1.0,
+      "velocity_damping_seconds": 0.2,
+      "rear_toe_cap_rad": 0.95,
+      "states": 350,
+      "support_intervals": 211,
+      "longest_supported_intervals": 210,
+      "opposed_intervals": 180,
+      "longest_supported_opposed_intervals": 129,
+      "terminal_100_supported_opposed": false,
+      "minimum_opposed_endpoint_gap_m": -0.00047162384401849833,
+      "opposed_pose_missing_steps": [],
+      "first_root_below_0_1m": 317,
+      "nonfoot_impulse_intervals": 0,
+      "first_front_activation": [
+        18,
+        12
+      ],
+      "pass": false
+    },
+    {
+      "lane": 6,
+      "initial_x_shift_m": 0.0,
+      "toe_flexion_cap_rad": 1.05,
+      "hip_balance_gain": 1.0,
+      "velocity_damping_seconds": 0.2,
+      "rear_toe_cap_rad": 1.15,
+      "states": 350,
+      "support_intervals": 336,
+      "longest_supported_intervals": 335,
+      "opposed_intervals": 263,
+      "longest_supported_opposed_intervals": 263,
+      "terminal_100_supported_opposed": true,
+      "minimum_opposed_endpoint_gap_m": -0.0005765508371560965,
+      "opposed_pose_missing_steps": [],
+      "first_root_below_0_1m": null,
+      "nonfoot_impulse_intervals": 0,
+      "first_front_activation": [
+        18,
+        12
+      ],
+      "pass": false
+    },
+    {
+      "lane": 7,
+      "initial_x_shift_m": 0.0,
+      "toe_flexion_cap_rad": 1.05,
+      "hip_balance_gain": 1.0,
+      "velocity_damping_seconds": 0.2,
+      "rear_toe_cap_rad": 1.2,
+      "states": 350,
+      "support_intervals": 336,
+      "longest_supported_intervals": 335,
+      "opposed_intervals": 264,
+      "longest_supported_opposed_intervals": 264,
+      "terminal_100_supported_opposed": true,
+      "minimum_opposed_endpoint_gap_m": -0.0006140189228723072,
+      "opposed_pose_missing_steps": [],
+      "first_root_below_0_1m": null,
+      "nonfoot_impulse_intervals": 0,
+      "first_front_activation": [
+        18,
+        12
+      ],
+      "pass": false
+    }
+  ],
+  "scope": "constructed development stationary starts; no flight arrival, release, continuous geometry or biological qualification"
+}
