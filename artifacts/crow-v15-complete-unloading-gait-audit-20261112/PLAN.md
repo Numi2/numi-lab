@@ -1,0 +1,5 @@
+# Observed unloaded intervals and joint timing
+
+The previously measured endpoint-clear fragments can truncate the actual unloading interval and make the extremum test inconclusive. In retained 1.25 ms substep q and contact traces, locate maximal periods of foot normal impulse no greater than 1e-7 N s per substep, bounded by above-threshold substeps on both ends. Use only periods which overlap previously identified supported endpoint-cleared bouts; report window boundaries and any angle minima at those boundaries separately. Reconstruct physical joint angles with the existing validated native FK. Apply the same method to the unmodified reference and 0.10 rad candidate on development seed 20261126; include 20261127 candidate where data exist.
+
+This is an exploratory reassessment, not a change in the original predeclared gate. Absence of recorded normal impulse is not proven geometric clearance, contact thresholds and chatter can split a real swing, and extrema timing is not the onset of extension reported in the magpie study. No independent trials, American-crow calibration, unsupported walking or landing qualification follow from this observation.
