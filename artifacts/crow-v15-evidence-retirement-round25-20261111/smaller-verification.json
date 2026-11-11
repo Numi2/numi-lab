@@ -1,0 +1,29 @@
+{
+  "independently_fetched_commit": "d8c4c0558dc876feb067dbe1d0cf78dced2c7921",
+  "results": [
+    {
+      "path": "/Users/n/Developer/numi-crow-rl-20261107/artifacts/crow-v15-integrated-walk-smaller-stride-20261111/autonomous-20261126/run.stderr.gz",
+      "bytes": 14282148,
+      "sha256": "08687d26092f218117664a1195c831253593f938f613850b07ee649ae25a7099",
+      "verified_archive": "artifacts/crow-v15-integrated-walk-smaller-stride-20261111/autonomous-20261126/stderr-parts.json",
+      "open_handles": false,
+      "retired": true
+    },
+    {
+      "path": "/Users/n/Developer/numi-crow-rl-20261107/build/crow-v15-integrated-walk-smaller-stride-20261111/autonomous-20261126-replay.json",
+      "bytes": 12139332,
+      "sha256": "1db08296334136b237b1737b84dddbfc8c97236c0a9d8c4390a25acc3dd6a497",
+      "verified_archive": "artifacts/crow-v15-integrated-walk-smaller-stride-20261111/autonomous-20261126/replay.json.gz",
+      "open_handles": false,
+      "retired": true
+    },
+    {
+      "path": "/Users/n/Developer/numi-crow-rl-20261107/build/crow-v15-integrated-walk-smaller-stride-20261111/autonomous-20261126-trace.tsv",
+      "bytes": 265112,
+      "sha256": "69b6591b542d6a2b1751e511e43a8f99660730c278836928d947bac311138292",
+      "verified_archive": "artifacts/crow-v15-integrated-walk-smaller-stride-20261111/autonomous-20261126/trace.tsv.gz",
+      "open_handles": false,
+      "retired": true
+    }
+  ]
+}
