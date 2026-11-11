@@ -1,0 +1,3 @@
+# Walking on a second development seed
+
+If uniform feedback passes the preceding matched run, evaluate its identical frozen shader and physical body on seed 20261127 with eight new development starts and the same 301 intervals. Use the same strict forward progress, no unsupported or nonfoot impulse, root speed/tilt, alternating sustained physical swing and complete all-substep observation gates, and record failures without selecting lanes. This is a development seed, not an untouched final-layout evaluation or proof of stability across all possible starts. The previous seed and its exact-match control remain retained.
