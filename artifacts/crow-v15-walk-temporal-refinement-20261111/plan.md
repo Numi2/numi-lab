@@ -1,0 +1,5 @@
+# Repaired-toe walking time refinement
+
+Walking travel in the same two-second development window was 5.58 cm at four substeps and 2.59 cm at sixteen, despite qualifying physically unloaded alternating swings in the replayed lane and continuous foot contact across all eight lanes. Run the unchanged repaired-toe body, gait, scene, actor weights and eight starts at 32 and 64 substeps. Rebind policy fingerprints only if required and verify exact weights and transforms. Record all substep contacts and check replay alignment and last-substep contact parity.
+
+For the replayed lane report forward displacement, foot/toe accepted-pose clearance, all-substep foot unloading and opposite-foot support, root speed and tilt. For all eight lanes report non-foot contact, any no-foot-contact intervals, native failures and terminations. Compare 16/32/64 displacement and alternating swing; do not call similar results biological validation or infer a solver defect from differences. This is a short development screen, not a long walk, slip test, takeoff, landing or autonomous route; no reserved layouts are used.
