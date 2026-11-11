@@ -1,0 +1,48 @@
+--- a/two-segment-walk.metal
++++ b/contact-driven-toes.metal
+@@ -5489,7 +5489,22 @@
+                 );
+         }
+     }
+-    // Experimental bounded toe position drives; no force is injected.
++    // Two-segment position targets, gated by accepted foot contact counters.
++    if ((program.schedule.w & MR_TASK_PROGRAM_AVIAN_CROW_HIERARCHICAL_NAVIGATION) != 0u &&
++        state.episode.z == 10u && program.counts0.w >= 5u && dispatch.counts.w == 38u) {
++        for (uint side=0u;side<2u;++side) {
++            const uint ramp=(state.status.w>>(side*6u)) & 63u;
++            const uint frontRamp=ramp>2u ? ramp-2u : 0u;
++            for (uint toe=0u;toe<4u;++toe) {
++                const float proximal=toe==3u ? min(.04f*float(ramp),1.15f) : min(.03f*float(frontRamp),1.05f);
++                for(uint segment=0u;segment<2u;++segment) {
++                    const uint dof=22u+side*8u+toe*2u+segment;
++                    effortTrajectory[pass.controlStep*worldDispatch.effortStepStride + environment*worldDispatch.effortEnvironmentStride + dof]=proximal*(segment==0u ? 1.0f : .75f);
++                }
++            }
++        }
++    }
++    // Retain the one-segment candidate for its original 30-velocity body.
+     if ((program.schedule.w & MR_TASK_PROGRAM_AVIAN_CROW_HIERARCHICAL_NAVIGATION) != 0u &&
+         state.episode.z == 10u && program.counts0.w >= 5u && dispatch.counts.w == 30u) {
+         const float seconds=float(state.episode.x)*dispatch.timing.x;
+@@ -9321,16 +9336,17 @@
+     // Accepted foot force diagnostic feedback for this isolated band-10 bench.
+     if ((program.schedule.w & MR_TASK_PROGRAM_AVIAN_CROW_HIERARCHICAL_NAVIGATION) != 0u && state.episode.z == 10u && program.counts0.w >= 2u) {
+         state.nutrition.xy=float2(compactContact[compactBase+contactGroups[0].members.w],compactContact[compactBase+contactGroups[1].members.w]);
+-        if (program.counts0.w>=5u && dispatch.counts.w==30u) {
++        if (program.counts0.w>=5u && (dispatch.counts.w==30u || dispatch.counts.w==38u)) {
+             const float seconds=float(state.episode.x)*dispatch.timing.x;
+             uint packed=0u;
+-            if (state.navigation.z>=5.0f && seconds<55.0f) {
++            if (state.navigation.z>=5.0f && (dispatch.counts.w==38u || seconds<55.0f)) {
+                 for (uint side=0u;side<2u;++side) {
+                     const uint w=compactBase+contactGroups[3u+side].reference.y;
+                     const float3 force=float3(compactContact[w],compactContact[w+1u],compactContact[w+2u]);
+-                    const bool loaded=length(force)>0.05f && true;
++                    const bool loaded=dispatch.counts.w==38u ? state.nutrition[side]>0.05f : length(force)>0.05f;
+                     const uint previous=(state.status.w>>(side*6u))&63u;
+-                    const uint next=loaded ? min(previous+1u,34u) : (previous>0u ? previous-1u : 0u);
++                    const uint limit=dispatch.counts.w==38u ? 42u : 34u;
++                    const uint next=loaded ? min(previous+1u,limit) : (previous>0u ? previous-1u : 0u);
+                     packed |= next << (side*6u);
+                 }
+             }
