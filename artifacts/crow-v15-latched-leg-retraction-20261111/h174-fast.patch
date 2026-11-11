@@ -1,0 +1,23 @@
+--- a/push.metal
++++ b/h174-fast.metal
+@@ -5082,7 +5082,8 @@
+                 const bool bilateral=state.nutrition.x>0.05f && state.nutrition.y>0.05f;
+                 navigationTeacherRequested=seconds<4.96f
+                     ? mix(navigationTeacherRequested,crouched,smoothstep(4.3f,4.55f,seconds))
+-                    : bilateral ? mix(crouched,extended,smoothstep(4.96f,5.00f,seconds)) : crouched;
++                    : bilateral ? mix(crouched,extended,smoothstep(4.96f,4.98f,seconds)) : crouched;
++                if ((state.status.w & 4096u) != 0u) navigationTeacherRequested = crouched;
+             }
+         }
+         // Keep the training-only teacher active through the final target.
+@@ -9328,7 +9329,9 @@
+                     packed |= next << (side*6u);
+                 }
+             }
+-            state.status.w=packed;
++            const uint launchRetractLatch = seconds >= 5.00f && seconds < 5.40f &&
++                (((state.status.w & 4096u) != 0u) || state.airReturnTracking.y > 0.174f) ? 4096u : 0u;
++            state.status.w=packed | launchRetractLatch;
+         }
+     }
+     taskStates[environment] = state;

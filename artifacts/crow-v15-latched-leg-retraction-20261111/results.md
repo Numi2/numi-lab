@@ -1,0 +1,5 @@
+# Latched retraction after the first push
+
+All variants matched the original push q/v through step 248, with zero native failures or terminations. The 0.170 and 0.174 m threshold variants with a 0.02 s push ramp passed the stricter first-unloading test in all eight development lanes: the first interval without measurable foot normal impulse across all 16 substeps was upward, and three consecutive such rising intervals followed. Root rise was approximately 55 mm. Other variants failed the declared gate. The held-crouch and original-push controls did not produce a corresponding first clean jump.
+
+In a representative successful lane the feet first unloaded at step 253 with root vertical speed 0.632 m/s; the bird remained airborne through step 261, then contacted the ground at step 262. The active wings were intentionally suppressed until step 270, so this is a leg-jump component, not a sustained takeoff or flight handoff. Backward horizontal velocity was observed during ascent; passive aerodynamics were not disabled. Further geometry, independent starts, finer-step, transition and full-route checks are required. All tested variants and failures are retained.

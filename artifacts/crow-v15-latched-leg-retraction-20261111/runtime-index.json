@@ -1,0 +1,57 @@
+[
+  {
+    "path": "build/bin/metalrobo_task_rollout",
+    "sha256": "5ee04a98f25f7149701bc21ede235428876e535f843366e78dea16fce6035d1d",
+    "bytes": 1081736
+  },
+  {
+    "path": "build/crow-v15-repaired-toe-takeoff-control-20261111/libmetalrobo.dylib",
+    "sha256": "1422e979092f9df80a4c82a9b3512a64d793f8fd8797d89830a7212f79b05f3a",
+    "bytes": 5764480
+  },
+  {
+    "path": "build/crow-v15-walk-16substep-screen-20261111/zero16/landing.policypack",
+    "sha256": "d5973d635670960c6bb1a39630053975c417e0f335e66998e90fae3cc006afaa",
+    "bytes": 5996435
+  },
+  {
+    "path": "build/crow-v15-walk-16substep-screen-20261111/zero16/route.policypack",
+    "sha256": "2fe607b9868e5c99569e75808f9bf401525a31ee9e8733349cd2cb36c4acfdc5",
+    "bytes": 17228689
+  },
+  {
+    "path": "build/crow-v15-latched-leg-retraction-20261111/h166-fast.metallib",
+    "sha256": "b3724a07812584ed57adaf30bf6705034508b4ddaec03c8c7b168e7600463451",
+    "bytes": 4470320
+  },
+  {
+    "path": "build/crow-v15-latched-leg-retraction-20261111/h166-base.metallib",
+    "sha256": "66ea90c98ad7c50fa42125717f1c3940fab6af2066ddcd126b9ec0ae32cd5c2e",
+    "bytes": 4470320
+  },
+  {
+    "path": "build/crow-v15-latched-leg-retraction-20261111/h170-fast.metallib",
+    "sha256": "833faafd492e51456de2c270bc6374ba6a5e8135037235a89ea9f26b5e58ac38",
+    "bytes": 4470320
+  },
+  {
+    "path": "build/crow-v15-latched-leg-retraction-20261111/h170-base.metallib",
+    "sha256": "67f1903e56c06d9c60f8d940dbb1f9ac49f94db0b0357f75f304a27bb52140f8",
+    "bytes": 4470320
+  },
+  {
+    "path": "build/crow-v15-latched-leg-retraction-20261111/h174-fast.metallib",
+    "sha256": "f88d6bf7f15a36426cbd198878823c0369f7ade8f30bf718ed0fa97b2377c486",
+    "bytes": 4470320
+  },
+  {
+    "path": "build/crow-v15-latched-leg-retraction-20261111/h174-base.metallib",
+    "sha256": "a8ee144840ab66b752a723fe1538568e63f935df5f59a62e2d519eb1ed07c393",
+    "bytes": 4470320
+  },
+  {
+    "path": "assets/crow_navigation_course/crow-navigation.active-head.visual-observation.json",
+    "sha256": "d19ff0f9d360b4ffc84bac6a5f3d2be048234b6c03097af7d43fe5f85b316f8f",
+    "bytes": 1566
+  }
+]

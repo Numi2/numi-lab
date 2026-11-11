@@ -1,0 +1,26 @@
+[
+  {
+    "name": "h166-fast",
+    "sha256": "b3724a07812584ed57adaf30bf6705034508b4ddaec03c8c7b168e7600463451"
+  },
+  {
+    "name": "h166-base",
+    "sha256": "66ea90c98ad7c50fa42125717f1c3940fab6af2066ddcd126b9ec0ae32cd5c2e"
+  },
+  {
+    "name": "h170-fast",
+    "sha256": "833faafd492e51456de2c270bc6374ba6a5e8135037235a89ea9f26b5e58ac38"
+  },
+  {
+    "name": "h170-base",
+    "sha256": "67f1903e56c06d9c60f8d940dbb1f9ac49f94db0b0357f75f304a27bb52140f8"
+  },
+  {
+    "name": "h174-fast",
+    "sha256": "f88d6bf7f15a36426cbd198878823c0369f7ade8f30bf718ed0fa97b2377c486"
+  },
+  {
+    "name": "h174-base",
+    "sha256": "a8ee144840ab66b752a723fe1538568e63f935df5f59a62e2d519eb1ed07c393"
+  }
+]
