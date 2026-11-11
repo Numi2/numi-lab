@@ -1,0 +1,3 @@
+from pathlib import Path
+import hashlib,subprocess
+R=Path.cwd();A=R/'artifacts/crow-v15-com-velocity-balance-screen-20261111';B=R/'build/crow-v15-com-velocity-balance-screen-20261111';L=R/'build/crow-v15-regrip-force-feedback-20261111';subprocess.run(['xcrun','clang++','-std=c++20','-O2','-I','include','-I','artifacts/crow-v15-wing-inertia-prototype-20261110',str(A/'perch_probe.cpp'),'-L',str(L),'-lmetalrobo','-Wl,-rpath,'+str(L),'-o',str(B/'probe')],check=True);print('probe_sha256',hashlib.sha256((B/'probe').read_bytes()).hexdigest());print('observer_library_sha256',hashlib.sha256((L/'libmetalrobo.dylib').read_bytes()).hexdigest())
