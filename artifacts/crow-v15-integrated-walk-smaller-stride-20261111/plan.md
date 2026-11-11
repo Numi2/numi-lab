@@ -1,0 +1,3 @@
+# Smaller stride development control
+
+The 0.65 joint-command scaling preserved three qualifying swing bouts per foot in all eight used starts and reduced the original start-3 unsupported count from 30 to 10 physics substeps, while reducing forward motion. It did not eliminate unsupported substeps. Test scaling 0.50 under the same seed, body, timings, contact gating and 300-step horizon. Compare all foot/toe clearance bouts, substep support, nonfoot contact, displacement and toe limits to both the 0.80 reference and the 0.65 candidate; reject a trade that removes meaningful steps or destabilizes other starts. This is a development test only.
