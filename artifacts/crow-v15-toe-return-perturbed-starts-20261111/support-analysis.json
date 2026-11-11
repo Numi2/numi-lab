@@ -1,0 +1,78 @@
+{
+  "nominal_mass_kg": 0.45006,
+  "rows": [
+    {
+      "lane": 0,
+      "finished_step": 256,
+      "last_100_mean_weight_fraction": 1.0004454217197516,
+      "last_100_min_weight_fraction": 0.9784096985958562,
+      "last_100_max_weight_fraction": 1.0183328887669434,
+      "last_100_nonfoot_contact_intervals": 0,
+      "last_100_bilateral_opposed_intervals": 100
+    },
+    {
+      "lane": 1,
+      "finished_step": 254,
+      "last_100_mean_weight_fraction": 1.000570798941927,
+      "last_100_min_weight_fraction": 0.9770635289063052,
+      "last_100_max_weight_fraction": 1.0200042548528923,
+      "last_100_nonfoot_contact_intervals": 0,
+      "last_100_bilateral_opposed_intervals": 100
+    },
+    {
+      "lane": 2,
+      "finished_step": null,
+      "last_100_mean_weight_fraction": 0.0,
+      "last_100_min_weight_fraction": 0.0,
+      "last_100_max_weight_fraction": 0.0,
+      "last_100_nonfoot_contact_intervals": 0,
+      "last_100_bilateral_opposed_intervals": 0
+    },
+    {
+      "lane": 3,
+      "finished_step": 244,
+      "last_100_mean_weight_fraction": 1.0005604825946464,
+      "last_100_min_weight_fraction": 0.9798633021090448,
+      "last_100_max_weight_fraction": 1.0155674701371789,
+      "last_100_nonfoot_contact_intervals": 0,
+      "last_100_bilateral_opposed_intervals": 100
+    },
+    {
+      "lane": 4,
+      "finished_step": 266,
+      "last_100_mean_weight_fraction": 1.0004382175927624,
+      "last_100_min_weight_fraction": 0.9801153891279778,
+      "last_100_max_weight_fraction": 1.0259752946158318,
+      "last_100_nonfoot_contact_intervals": 0,
+      "last_100_bilateral_opposed_intervals": 100
+    },
+    {
+      "lane": 5,
+      "finished_step": null,
+      "last_100_mean_weight_fraction": 0.0,
+      "last_100_min_weight_fraction": 0.0,
+      "last_100_max_weight_fraction": 0.0,
+      "last_100_nonfoot_contact_intervals": 0,
+      "last_100_bilateral_opposed_intervals": 0
+    },
+    {
+      "lane": 6,
+      "finished_step": 258,
+      "last_100_mean_weight_fraction": 1.0004130277667664,
+      "last_100_min_weight_fraction": 0.9818255182919768,
+      "last_100_max_weight_fraction": 1.0252178033745458,
+      "last_100_nonfoot_contact_intervals": 0,
+      "last_100_bilateral_opposed_intervals": 100
+    },
+    {
+      "lane": 7,
+      "finished_step": null,
+      "last_100_mean_weight_fraction": 0.0,
+      "last_100_min_weight_fraction": 0.0,
+      "last_100_max_weight_fraction": 0.0,
+      "last_100_nonfoot_contact_intervals": 0,
+      "last_100_bilateral_opposed_intervals": 0
+    }
+  ],
+  "limitations": "Impulse-derived force fraction, no isolated aerodynamic force or momentum audit. Opposing normals alone do not establish biological grip. Applies to final two seconds of constructed bench only."
+}

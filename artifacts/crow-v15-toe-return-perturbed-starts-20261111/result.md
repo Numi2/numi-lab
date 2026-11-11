@@ -1,0 +1,5 @@
+# Short-return perturbed starts: five of eight component passes
+
+All eight constructed stationary starts completed 550 control intervals, with complete substep records and no logged solver errors. Five starts met the release, return and final 100-interval supported opposing-contact gates. Their end-of-substep toe velocities stayed below the 12 rad/s cap, with a maximum of 9.22 rad/s. Final-window mean foot impulse was approximately nominal body weight; this does not independently isolate all external forces. Three starts fell below root height 0.1 m before release, at accepted steps 128, 145 and 197, and each hit the toe speed cap after or during failure. Two of those starts drifted forward before the grip gate. No full-sequence success or robustness claim is supported.
+
+These are explicitly constructed development starts with a 35-body experimental v15-derived model and privileged position/clearance sensing, not autonomous flight, a supported landing from the air, reserved layouts, or biological validation. All failures and substep traces are retained.
