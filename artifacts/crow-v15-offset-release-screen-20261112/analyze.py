@@ -1,6 +1,6 @@
 from pathlib import Path
 import collections,gzip,json,math
-A=Path('artifacts/crow-v15-offset-release-screen-20261112/mixed');state={};pose={};events={};by=collections.defaultdict(lambda:[0.]*37);coverage=collections.Counter();bad=[];errors=[];caps=collections.Counter()
+A=Path('artifacts/crow-v15-offset-release-screen-20261112/mixed');state={};pose={};events={};by=collections.defaultdict(lambda:[0.]*37);coverage=collections.Counter();bad=[];errors=[];caps=collections.Counter();velocity_coverage=collections.Counter()
 with gzip.open(A/'trace.log.gz','rt') as f:
  for l in f:
   a=l.split()
@@ -14,12 +14,13 @@ with gzip.open(A/'substeps.log.gz','rt') as f:
   a=l.split()
   if a and a[0] in ('CROW_SUBSTEP_ERROR','failure'):errors.append(l.strip())
   if a and a[0]=='CROW_TOE_VELOCITY':
-   t,sub,e=map(int,a[1:4]);v=list(map(float,a[4:]));caps[e]+=max(abs(w) for w in v[-18:-2])>=11.99
+   t,sub,e=map(int,a[1:4]);v=list(map(float,a[4:]));velocity_coverage[e,t,sub]+=1;caps[e]+=max(abs(w) for w in v[-18:-2])>=11.99
   if a and a[0]=='CROW_TWO_TOE_SUBSTEP':
    t,sub,e=map(int,a[1:4]);key=e,t,sub;coverage[key]+=1
    if int(a[4])>int(a[5]) or len(a[6:])!=37:bad.append(key)
    for i,v in enumerate(map(float,a[6:])):by[e,t][i]+=v
 missing=[(e,t,i) for e in range(8) for t in range(1,551) for i in range(32) if coverage[e,t,i]!=1]
+missing_velocity=[(e,t,i) for e in range(8) for t in range(1,551) for i in range(32) if velocity_coverage[e,t,i]!=1]
 def dot(a,b):return sum(x*y for x,y in zip(a,b))
 def cross(a,b):return [a[1]*b[2]-a[2]*b[1],a[2]*b[0]-a[0]*b[2],a[0]*b[1]-a[1]*b[0]]
 def rotcols(q):
@@ -68,6 +69,6 @@ for e in range(8):
    reasons['all_criteria']+=ok
   qual.append(ok);leftopp=sum(v[21+i] for i in range(6))>=.0002 and sum(v[21+i] for i in (6,7))<=-.0002;grip.append(finish is not None and t>=finish and min(v[0],v[1])>.0002 and v[0]+v[1]>=.5*.45006*9.81*.02 and leftopp and rightopp and abs(v[4])<=1e-7 and tilt<=.35 and speed<=.12);peak_right_up=max(peak_right_up,v[1]);nonfoot+=abs(v[4])>1e-7
   if fall is None and q[2]<.1:fall=t
- rows.append({'states_observed':sum((e,t) in state for t in range(1,551)),'lane':e,'left_hip_placement_offset_rad':-.04,'phase_velocity_damping_s':.4,'hip_roll_target_rad':[.22,.22,.22,.22,.22,.22,.22,.22][e],'knee_target_offset_rad':[.50,.50,.50,.50,.50,.50,.30,.30][e],'initial_x_shift_m':-.01,'toe_speed_cap_substeps':caps[e],'sensor_clearance_max_abs_error_m':max(sensor_errors) if sensor_errors else None,'release_trigger_step':trigger,'return_step':finish,'terminal_100_bilateral_supported_grip':all(grip[-100:]),'longest_qualified_release_intervals':longest(qual),'peak_minimum_left_clearance_m':maxclear if maxclear!=-float('inf') else None,'maximum_right_upward_impulse_per_interval':peak_right_up,'nonfoot_impulse_intervals':nonfoot,'first_root_below_0_1m':fall,'missing_pose_steps':missingposes,'pass':len(sensor_errors)==550 and max(sensor_errors)<=3e-6 and trigger is not None and finish is not None and longest(qual)>=10 and all(grip[-100:]) and fall is None and not nonfoot and not missingposes and all((e,t) in state for t in range(1,551)) and not errors and caps[e]==0})
+ rows.append({'states_observed':sum((e,t) in state for t in range(1,551)),'lane':e,'left_hip_placement_offset_rad':-.04,'phase_velocity_damping_s':.4,'hip_roll_target_rad':[.22,.22,.22,.22,.22,.22,.22,.22][e],'knee_target_offset_rad':.65,'toe_extension_target_rad':[0,0,-.1,-.1,-.2,-.2,-.28,-.28][e],'initial_x_shift_m':-.01,'toe_speed_cap_substeps':caps[e],'sensor_clearance_max_abs_error_m':max(sensor_errors) if sensor_errors else None,'release_trigger_step':trigger,'return_step':finish,'terminal_100_bilateral_supported_grip':all(grip[-100:]),'longest_qualified_release_intervals':longest(qual),'peak_minimum_left_clearance_m':maxclear if maxclear!=-float('inf') else None,'maximum_right_upward_impulse_per_interval':peak_right_up,'nonfoot_impulse_intervals':nonfoot,'first_root_below_0_1m':fall,'missing_pose_steps':missingposes,'pass':len(sensor_errors)==550 and max(sensor_errors)<=3e-6 and trigger is not None and finish is not None and longest(qual)>=10 and all(grip[-100:]) and fall is None and not nonfoot and not missingposes and all((e,t) in state for t in range(1,551)) and not errors and not bad and not missing and not missing_velocity and caps[e]==0})
  reason_rows.append(dict(lane=e,**reasons))
-out={'lanes':rows,'missing_substeps':len(missing),'bad_substeps':len(bad),'errors':errors,'scope':'initialized -10 mm grip-to-release development test with initial -0.025 m/s velocity','pre_fall_gate_counts':reason_rows};(A/'analysis-gates.json').write_text(json.dumps(out,indent=2)+'\n');print(json.dumps(out,indent=2))
+out={'lanes':rows,'missing_substeps':len(missing),'bad_substeps':len(bad),'missing_velocity_substeps':len(missing_velocity),'errors':errors,'scope':'initialized -10 mm grip-to-release development test with initial -0.025 m/s velocity','pre_fall_gate_counts':reason_rows};(A/'analysis-gates.json').write_text(json.dumps(out,indent=2)+'\n');print(json.dumps(out,indent=2))
