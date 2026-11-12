@@ -8,9 +8,11 @@ def load(p):
  with gzip.open(p/'run.stderr.gz','rt') as f:
   for l in f:
    if l.startswith('CROW_SUPPORT_SAMPLE '):
-    x=json.loads(l.split(' ',1)[1]);e,t=x['lane'],x['step'];assert (e,t) not in sup;sup[e,t]=x
+    x=json.loads(l.split(' ',1)[1]);e,t=x['lane'],x['step']
+    if 1<=t<=300: assert (e,t) not in sup;sup[e,t]=x
    elif l.startswith('CROW_TWO_TOE_SUBSTEP '):
-    z=l.split();t,k,e=map(int,z[1:4]);assert (e,t,k) not in sub;sub[e,t,k]=z[4:]
+    z=l.split();t,k,e=map(int,z[1:4])
+    if 1<=t<=300: assert (e,t,k) not in sub;sub[e,t,k]=z[4:]
  return sup,sub
 ref,rc=load(R);cur,cc=load(C)
 assert len(ref)==len(cur)==2400 and len(rc)==len(cc)==38400

@@ -1,0 +1,4 @@
+Traceback (most recent call last):
+  File "/Users/n/Developer/numi-crow-rl-20261107/artifacts/crow-v15-gait-slip-observer-20261112/analyze.py", line 16, in <module>
+    assert len(ref)==len(cur)==2400 and len(rc)==len(cc)==38400
+AssertionError

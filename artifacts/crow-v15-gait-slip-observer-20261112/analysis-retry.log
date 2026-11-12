@@ -1,0 +1,170 @@
+{
+  "trace_parity": {
+    "state_count": 2400,
+    "substep_contact_count": 38400,
+    "state_mismatches": 0,
+    "contact_mismatches": 0,
+    "examples": {
+      "states": [],
+      "contacts": []
+    }
+  },
+  "kinematics_replay_validation": {
+    "max_q_error": 4.995613089864293e-10,
+    "max_position_error_m": 4.110791865307364e-09,
+    "max_linear_velocity_error_m_s": 7.142359015752845e-09,
+    "max_angular_velocity_error_rad_s": 2.1834520436871483e-07,
+    "max_ground_speed": 0.0,
+    "replay_samples": 100,
+    "foot_bodies_per_sample": 18
+  },
+  "contact_point_samples": 7720,
+  "nonvertical_contacts_excluded": 0,
+  "rows": [
+    {
+      "lane": 0,
+      "side": "left",
+      "count": 451,
+      "median_m_s": 0.002976228283976389,
+      "p95_m_s": 0.03358447271113249,
+      "max_m_s": 0.05422833324305789,
+      "fraction_over_0_01m_s": 0.21729490022172948
+    },
+    {
+      "lane": 0,
+      "side": "right",
+      "count": 462,
+      "median_m_s": 0.003006524090779302,
+      "p95_m_s": 0.03610634715375609,
+      "max_m_s": 0.1052820074864271,
+      "fraction_over_0_01m_s": 0.18181818181818182
+    },
+    {
+      "lane": 1,
+      "side": "left",
+      "count": 603,
+      "median_m_s": 0.0017768769399547227,
+      "p95_m_s": 0.029694086299922318,
+      "max_m_s": 0.05478123364564679,
+      "fraction_over_0_01m_s": 0.19734660033167495
+    },
+    {
+      "lane": 1,
+      "side": "right",
+      "count": 524,
+      "median_m_s": 0.0019089922638237905,
+      "p95_m_s": 0.03562978703328657,
+      "max_m_s": 0.10530063469078442,
+      "fraction_over_0_01m_s": 0.18129770992366412
+    },
+    {
+      "lane": 2,
+      "side": "left",
+      "count": 468,
+      "median_m_s": 0.002607015379536161,
+      "p95_m_s": 0.034559823384936635,
+      "max_m_s": 0.05404446212974212,
+      "fraction_over_0_01m_s": 0.21581196581196582
+    },
+    {
+      "lane": 2,
+      "side": "right",
+      "count": 507,
+      "median_m_s": 0.0025185500687364996,
+      "p95_m_s": 0.04145361897071424,
+      "max_m_s": 0.10682868870923358,
+      "fraction_over_0_01m_s": 0.19723865877712032
+    },
+    {
+      "lane": 3,
+      "side": "left",
+      "count": 446,
+      "median_m_s": 0.003584799304184387,
+      "p95_m_s": 0.039444656478889256,
+      "max_m_s": 0.09942131670423825,
+      "fraction_over_0_01m_s": 0.23094170403587444
+    },
+    {
+      "lane": 3,
+      "side": "right",
+      "count": 487,
+      "median_m_s": 0.002785491385039436,
+      "p95_m_s": 0.03840336804876749,
+      "max_m_s": 0.10392402495433588,
+      "fraction_over_0_01m_s": 0.19301848049281314
+    },
+    {
+      "lane": 4,
+      "side": "left",
+      "count": 452,
+      "median_m_s": 0.002414371994973766,
+      "p95_m_s": 0.03264785831336674,
+      "max_m_s": 0.05506738430557661,
+      "fraction_over_0_01m_s": 0.21460176991150443
+    },
+    {
+      "lane": 4,
+      "side": "right",
+      "count": 491,
+      "median_m_s": 0.0022464411017171023,
+      "p95_m_s": 0.03021548064597394,
+      "max_m_s": 0.10541314893469879,
+      "fraction_over_0_01m_s": 0.18126272912423624
+    },
+    {
+      "lane": 5,
+      "side": "left",
+      "count": 439,
+      "median_m_s": 0.002420064104404599,
+      "p95_m_s": 0.03410048829120839,
+      "max_m_s": 0.05420483458583326,
+      "fraction_over_0_01m_s": 0.214123006833713
+    },
+    {
+      "lane": 5,
+      "side": "right",
+      "count": 485,
+      "median_m_s": 0.0024238648414874396,
+      "p95_m_s": 0.038154761683516,
+      "max_m_s": 0.10961821678145131,
+      "fraction_over_0_01m_s": 0.19381443298969073
+    },
+    {
+      "lane": 6,
+      "side": "left",
+      "count": 474,
+      "median_m_s": 0.003343597082115837,
+      "p95_m_s": 0.033211501784164606,
+      "max_m_s": 0.05494270628422195,
+      "fraction_over_0_01m_s": 0.20253164556962025
+    },
+    {
+      "lane": 6,
+      "side": "right",
+      "count": 474,
+      "median_m_s": 0.0026548597804577135,
+      "p95_m_s": 0.036055531566008645,
+      "max_m_s": 0.10546409722043132,
+      "fraction_over_0_01m_s": 0.19831223628691982
+    },
+    {
+      "lane": 7,
+      "side": "left",
+      "count": 474,
+      "median_m_s": 0.003496500558083617,
+      "p95_m_s": 0.04032942894415266,
+      "max_m_s": 0.09087876102217905,
+      "fraction_over_0_01m_s": 0.3227848101265823
+    },
+    {
+      "lane": 7,
+      "side": "right",
+      "count": 483,
+      "median_m_s": 0.002534438005266623,
+      "p95_m_s": 0.03863253649754753,
+      "max_m_s": 0.10846491862036982,
+      "fraction_over_0_01m_s": 0.19047619047619047
+    }
+  ],
+  "scope": "Instantaneous accepted endpoint contact-point velocity over 2 s; not integrated slip distance, friction, or biological gait validation. Contacts are correlated samples."
+}

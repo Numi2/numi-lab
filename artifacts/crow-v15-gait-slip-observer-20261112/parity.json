@@ -1,0 +1,21 @@
+{
+  "trace_parity": {
+    "state_count": 2400,
+    "substep_contact_count": 38400,
+    "state_mismatches": 0,
+    "contact_mismatches": 0,
+    "examples": {
+      "states": [],
+      "contacts": []
+    }
+  },
+  "kinematics_replay_validation": {
+    "max_q_error": 4.995613089864293e-10,
+    "max_position_error_m": 4.110791865307364e-09,
+    "max_linear_velocity_error_m_s": 7.142359015752845e-09,
+    "max_angular_velocity_error_rad_s": 2.1834520436871483e-07,
+    "max_ground_speed": 0.0,
+    "replay_samples": 100,
+    "foot_bodies_per_sample": 18
+  }
+}
