@@ -1,0 +1,17 @@
+{
+  "source_sha256": "a8a99b32778ebad1dfb4018c4ee9116fb815ad7fa6c8f2ea47a9df5f7a9f6bdf",
+  "counts": {
+    "baseline": 72,
+    "sweep_pairs": 72,
+    "pronation_pairs": 72
+  },
+  "delta_rad": 0.03,
+  "mapping": {
+    "baseline": 0,
+    "sweep_plus": 1,
+    "sweep_minus": 2,
+    "pronation_plus": 3,
+    "pronation_minus": 4
+  },
+  "limits": "Only state pairs with both positive and negative counterfactual coordinate perturbations within authored position limits. Other q and all v unchanged."
+}

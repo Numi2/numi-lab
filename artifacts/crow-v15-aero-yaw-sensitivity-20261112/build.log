@@ -1,0 +1,12 @@
+In file included from artifacts/crow-v15-aero-yaw-sensitivity-20261112/evaluate.mm:2:
+In file included from artifacts/crow-v15-aero-yaw-sensitivity-20261112/../crow-v15-hip-roll-strong-drive-prototype-20261111/probe.cpp:2:
+artifacts/crow-v15-aero-yaw-sensitivity-20261112/../crow-v15-hip-roll-strong-drive-prototype-20261111/../crow-v15-two-segment-toe-prototype-20261111/probe.cpp:75:78: warning: non-void function does not return a value in all control paths [-Wreturn-type]
+   75 |   } catch(const std::exception& e){std::cerr<<e.what()<<std::endl;return 1;} }
+      |                                                                              ^
+artifacts/crow-v15-aero-yaw-sensitivity-20261112/evaluate.mm:13:134: warning: 'newLibraryWithFile:error:' is deprecated: first deprecated in macOS 13.0 - Use -newLibraryWithURL:error: instead [-Wdeprecated-declarations]
+   13 |  id<MTLDevice> device=MTLCreateSystemDefaultDevice();need(device!=nil,"no metal device");NSError*error=nil;id<MTLLibrary>lib=[device newLibraryWithFile:[NSString stringWithUTF8String:argv[1]] error:&error];need(lib!=nil,"load metallib");id<MTLFunction>fn=[lib newFunctionWithName:@"mr_step_compiled_flapping_wings"];need(fn!=nil,"missing kernel");id<MTLComputePipelineState>pipeline=[device newComputePipelineStateWithFunction:fn error:&error];need(pipeline!=nil,"pipeline");id<MTLCommandQueue>queue=[device newCommandQueue];
+      |                                                                                                                                      ^
+/Applications/Xcode-26.6.0.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/System/Library/Frameworks/Metal.framework/Headers/MTLDevice.h:765:1: note: 'newLibraryWithFile:error:' has been explicitly marked deprecated here
+  765 | - (nullable id <MTLLibrary>)newLibraryWithFile:(NSString *)filepath error:(__autoreleasing NSError **)error
+      | ^
+2 warnings generated.

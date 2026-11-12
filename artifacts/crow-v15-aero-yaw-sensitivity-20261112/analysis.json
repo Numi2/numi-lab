@@ -1,0 +1,59 @@
+{
+  "baseline_comparison_max_component_abs_difference": 0.0,
+  "repeated_output_identical": true,
+  "sample_coverage": {
+    "baseline": 72,
+    "sweep_pairs": 72,
+    "pronation_pairs": 72
+  },
+  "source_output_sha256": "47c779b836302058c982862d385226336d3adc18368a7135fcd8b225fb09aeac",
+  "rows": {
+    "sweep": {
+      "central_wing_yaw_moment_difference_Nm": {
+        "count": 72,
+        "min": -0.00022887154200000029,
+        "median": -0.00013960108600000035,
+        "max": 7.031837419999997e-05,
+        "mean": -9.57032990513889e-05
+      },
+      "central_yaw_sensitivity_Nm_per_rad": {
+        "count": 72,
+        "min": -0.003814525700000005,
+        "median": -0.0023266847666666727,
+        "max": 0.001171972903333333,
+        "mean": -0.001595054984189815
+      },
+      "absolute_sensitivity_Nm_per_rad": {
+        "count": 72,
+        "min": 3.523798666666633e-05,
+        "median": 0.0020135375500000027,
+        "max": 0.003814525700000005,
+        "mean": 0.0018703741312731486
+      }
+    },
+    "pronation": {
+      "central_wing_yaw_moment_difference_Nm": {
+        "count": 72,
+        "min": -6.755516900000015e-05,
+        "median": -9.958149999999958e-07,
+        "max": 0.00014157849899999958,
+        "mean": 2.785035462499996e-06
+      },
+      "central_yaw_sensitivity_Nm_per_rad": {
+        "count": 72,
+        "min": -0.001125919483333336,
+        "median": -1.65969166666666e-05,
+        "max": 0.002359641649999993,
+        "mean": 4.641725770833332e-05
+      },
+      "absolute_sensitivity_Nm_per_rad": {
+        "count": 72,
+        "min": 2.099893333333937e-06,
+        "median": 0.00012760863999999988,
+        "max": 0.002359641649999993,
+        "mean": 0.0003944879064583334
+      }
+    }
+  },
+  "scope": "Counterfactual pose perturbations at 72 sparse endpoints in previously used simulated flights. Instantaneous wing contributions only; no tail or full net root moment, no integrated impulse, actual dynamics or crow aerodynamic validation."
+}

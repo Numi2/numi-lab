@@ -1,0 +1,7 @@
+# Local wing-yaw sensitivity at retained flight states
+
+For each of 72 retained endpoint states from the prior simulated flight trials, both opposite +/-0.03-rad antisymmetric perturbations of the left/right wing sweep and pronation positions were within the authored joint limits. All other sampled positions and velocities were held fixed. The same v15 robot fingerprint 15100829319006411524 and corrected aerodynamic kernel were used. All 72 unperturbed results reproduced the earlier evaluator's components exactly, and the 360-state GPU evaluation was byte-identical on repeat.
+
+The summed wing yaw-moment central sensitivity to antisymmetric sweep ranged from -0.00381 to +0.00117 N m/rad across the 72 samples, with median absolute sensitivity 0.00201 N m/rad. The corresponding pronation median absolute sensitivity was 0.000128 N m/rad, with a range of signed sensitivities from -0.00113 to +0.00236 N m/rad. The signs and magnitudes vary across sampled states; these are not fixed steering gains. They show that this particular modeled wing force changes with these local pose perturbations.
+
+These are sparse counterfactual snapshots, not commanded or physically reachable trajectories, wingbeat-integrated moments, full net aerodynamic loads, or real-crow measurements. The input selection and position-limit checks, exact baseline comparison, source and runtime hashes, output and scripts are retained. The diagnostic does not establish whether a feedback controller can use these effects reliably or qualify flight.
