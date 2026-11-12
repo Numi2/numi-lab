@@ -1,0 +1,66 @@
+[
+  {
+    "lane": 0,
+    "common_first_episode_end": 1056,
+    "state_incomplete_steps": [],
+    "state_first_difference": null,
+    "contact_incomplete_steps": [],
+    "contact_first_difference": null
+  },
+  {
+    "lane": 1,
+    "common_first_episode_end": 1060,
+    "state_incomplete_steps": [],
+    "state_first_difference": null,
+    "contact_incomplete_steps": [],
+    "contact_first_difference": null
+  },
+  {
+    "lane": 2,
+    "common_first_episode_end": 941,
+    "state_incomplete_steps": [],
+    "state_first_difference": null,
+    "contact_incomplete_steps": [],
+    "contact_first_difference": null
+  },
+  {
+    "lane": 3,
+    "common_first_episode_end": 832,
+    "state_incomplete_steps": [],
+    "state_first_difference": null,
+    "contact_incomplete_steps": [],
+    "contact_first_difference": null
+  },
+  {
+    "lane": 4,
+    "common_first_episode_end": 856,
+    "state_incomplete_steps": [],
+    "state_first_difference": null,
+    "contact_incomplete_steps": [],
+    "contact_first_difference": null
+  },
+  {
+    "lane": 5,
+    "common_first_episode_end": 954,
+    "state_incomplete_steps": [],
+    "state_first_difference": null,
+    "contact_incomplete_steps": [],
+    "contact_first_difference": null
+  },
+  {
+    "lane": 6,
+    "common_first_episode_end": 965,
+    "state_incomplete_steps": [],
+    "state_first_difference": null,
+    "contact_incomplete_steps": [],
+    "contact_first_difference": null
+  },
+  {
+    "lane": 7,
+    "common_first_episode_end": 954,
+    "state_incomplete_steps": [],
+    "state_first_difference": null,
+    "contact_incomplete_steps": [],
+    "contact_first_difference": null
+  }
+]

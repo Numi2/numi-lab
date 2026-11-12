@@ -1,0 +1,2977 @@
+[
+  {
+    "lane": 0,
+    "end": 1056,
+    "termination_reason": 3,
+    "status_count": 4432,
+    "expected_status_count": 4432,
+    "mismatched_count": 0,
+    "last_three_step_status": [
+      {
+        "step": 1054,
+        "substep": 0,
+        "required": 0,
+        "active": 0,
+        "code": 0
+      },
+      {
+        "step": 1054,
+        "substep": 1,
+        "required": 0,
+        "active": 0,
+        "code": 0
+      },
+      {
+        "step": 1054,
+        "substep": 2,
+        "required": 0,
+        "active": 0,
+        "code": 0
+      },
+      {
+        "step": 1054,
+        "substep": 3,
+        "required": 0,
+        "active": 0,
+        "code": 0
+      },
+      {
+        "step": 1054,
+        "substep": 4,
+        "required": 0,
+        "active": 0,
+        "code": 0
+      },
+      {
+        "step": 1054,
+        "substep": 5,
+        "required": 0,
+        "active": 0,
+        "code": 0
+      },
+      {
+        "step": 1054,
+        "substep": 6,
+        "required": 0,
+        "active": 0,
+        "code": 0
+      },
+      {
+        "step": 1054,
+        "substep": 7,
+        "required": 0,
+        "active": 0,
+        "code": 0
+      },
+      {
+        "step": 1054,
+        "substep": 8,
+        "required": 0,
+        "active": 0,
+        "code": 0
+      },
+      {
+        "step": 1054,
+        "substep": 9,
+        "required": 0,
+        "active": 0,
+        "code": 0
+      },
+      {
+        "step": 1054,
+        "substep": 10,
+        "required": 0,
+        "active": 0,
+        "code": 0
+      },
+      {
+        "step": 1054,
+        "substep": 11,
+        "required": 0,
+        "active": 0,
+        "code": 0
+      },
+      {
+        "step": 1054,
+        "substep": 12,
+        "required": 0,
+        "active": 0,
+        "code": 0
+      },
+      {
+        "step": 1054,
+        "substep": 13,
+        "required": 0,
+        "active": 0,
+        "code": 0
+      },
+      {
+        "step": 1054,
+        "substep": 14,
+        "required": 0,
+        "active": 0,
+        "code": 0
+      },
+      {
+        "step": 1054,
+        "substep": 15,
+        "required": 0,
+        "active": 0,
+        "code": 0
+      },
+      {
+        "step": 1055,
+        "substep": 0,
+        "required": 0,
+        "active": 0,
+        "code": 0
+      },
+      {
+        "step": 1055,
+        "substep": 1,
+        "required": 0,
+        "active": 0,
+        "code": 0
+      },
+      {
+        "step": 1055,
+        "substep": 2,
+        "required": 0,
+        "active": 0,
+        "code": 0
+      },
+      {
+        "step": 1055,
+        "substep": 3,
+        "required": 0,
+        "active": 0,
+        "code": 0
+      },
+      {
+        "step": 1055,
+        "substep": 4,
+        "required": 0,
+        "active": 0,
+        "code": 0
+      },
+      {
+        "step": 1055,
+        "substep": 5,
+        "required": 0,
+        "active": 0,
+        "code": 0
+      },
+      {
+        "step": 1055,
+        "substep": 6,
+        "required": 0,
+        "active": 0,
+        "code": 0
+      },
+      {
+        "step": 1055,
+        "substep": 7,
+        "required": 0,
+        "active": 0,
+        "code": 0
+      },
+      {
+        "step": 1055,
+        "substep": 8,
+        "required": 0,
+        "active": 0,
+        "code": 0
+      },
+      {
+        "step": 1055,
+        "substep": 9,
+        "required": 0,
+        "active": 0,
+        "code": 0
+      },
+      {
+        "step": 1055,
+        "substep": 10,
+        "required": 0,
+        "active": 0,
+        "code": 0
+      },
+      {
+        "step": 1055,
+        "substep": 11,
+        "required": 0,
+        "active": 0,
+        "code": 0
+      },
+      {
+        "step": 1055,
+        "substep": 12,
+        "required": 0,
+        "active": 0,
+        "code": 0
+      },
+      {
+        "step": 1055,
+        "substep": 13,
+        "required": 0,
+        "active": 0,
+        "code": 0
+      },
+      {
+        "step": 1055,
+        "substep": 14,
+        "required": 0,
+        "active": 0,
+        "code": 0
+      },
+      {
+        "step": 1055,
+        "substep": 15,
+        "required": 0,
+        "active": 0,
+        "code": 0
+      },
+      {
+        "step": 1056,
+        "substep": 0,
+        "required": 0,
+        "active": 0,
+        "code": 0
+      },
+      {
+        "step": 1056,
+        "substep": 1,
+        "required": 0,
+        "active": 0,
+        "code": 0
+      },
+      {
+        "step": 1056,
+        "substep": 2,
+        "required": 0,
+        "active": 0,
+        "code": 0
+      },
+      {
+        "step": 1056,
+        "substep": 3,
+        "required": 0,
+        "active": 0,
+        "code": 0
+      },
+      {
+        "step": 1056,
+        "substep": 4,
+        "required": 0,
+        "active": 0,
+        "code": 0
+      },
+      {
+        "step": 1056,
+        "substep": 5,
+        "required": 0,
+        "active": 0,
+        "code": 0
+      },
+      {
+        "step": 1056,
+        "substep": 6,
+        "required": 0,
+        "active": 0,
+        "code": 0
+      },
+      {
+        "step": 1056,
+        "substep": 7,
+        "required": 0,
+        "active": 0,
+        "code": 0
+      },
+      {
+        "step": 1056,
+        "substep": 8,
+        "required": 0,
+        "active": 0,
+        "code": 0
+      },
+      {
+        "step": 1056,
+        "substep": 9,
+        "required": 0,
+        "active": 0,
+        "code": 0
+      },
+      {
+        "step": 1056,
+        "substep": 10,
+        "required": 0,
+        "active": 0,
+        "code": 0
+      },
+      {
+        "step": 1056,
+        "substep": 11,
+        "required": 0,
+        "active": 0,
+        "code": 0
+      },
+      {
+        "step": 1056,
+        "substep": 12,
+        "required": 0,
+        "active": 0,
+        "code": 0
+      },
+      {
+        "step": 1056,
+        "substep": 13,
+        "required": 0,
+        "active": 0,
+        "code": 0
+      },
+      {
+        "step": 1056,
+        "substep": 14,
+        "required": 1,
+        "active": 1,
+        "code": 0
+      },
+      {
+        "step": 1056,
+        "substep": 15,
+        "required": 1,
+        "active": 1,
+        "code": 0
+      }
+    ],
+    "contacts_near_end": []
+  },
+  {
+    "lane": 1,
+    "end": 1060,
+    "termination_reason": 0,
+    "status_count": 4496,
+    "expected_status_count": 4496,
+    "mismatched_count": 0,
+    "last_three_step_status": [
+      {
+        "step": 1058,
+        "substep": 0,
+        "required": 0,
+        "active": 0,
+        "code": 0
+      },
+      {
+        "step": 1058,
+        "substep": 1,
+        "required": 0,
+        "active": 0,
+        "code": 0
+      },
+      {
+        "step": 1058,
+        "substep": 2,
+        "required": 0,
+        "active": 0,
+        "code": 0
+      },
+      {
+        "step": 1058,
+        "substep": 3,
+        "required": 0,
+        "active": 0,
+        "code": 0
+      },
+      {
+        "step": 1058,
+        "substep": 4,
+        "required": 0,
+        "active": 0,
+        "code": 0
+      },
+      {
+        "step": 1058,
+        "substep": 5,
+        "required": 0,
+        "active": 0,
+        "code": 0
+      },
+      {
+        "step": 1058,
+        "substep": 6,
+        "required": 0,
+        "active": 0,
+        "code": 0
+      },
+      {
+        "step": 1058,
+        "substep": 7,
+        "required": 0,
+        "active": 0,
+        "code": 0
+      },
+      {
+        "step": 1058,
+        "substep": 8,
+        "required": 0,
+        "active": 0,
+        "code": 0
+      },
+      {
+        "step": 1058,
+        "substep": 9,
+        "required": 0,
+        "active": 0,
+        "code": 0
+      },
+      {
+        "step": 1058,
+        "substep": 10,
+        "required": 0,
+        "active": 0,
+        "code": 0
+      },
+      {
+        "step": 1058,
+        "substep": 11,
+        "required": 0,
+        "active": 0,
+        "code": 0
+      },
+      {
+        "step": 1058,
+        "substep": 12,
+        "required": 0,
+        "active": 0,
+        "code": 0
+      },
+      {
+        "step": 1058,
+        "substep": 13,
+        "required": 0,
+        "active": 0,
+        "code": 0
+      },
+      {
+        "step": 1058,
+        "substep": 14,
+        "required": 0,
+        "active": 0,
+        "code": 0
+      },
+      {
+        "step": 1058,
+        "substep": 15,
+        "required": 0,
+        "active": 0,
+        "code": 0
+      },
+      {
+        "step": 1059,
+        "substep": 0,
+        "required": 0,
+        "active": 0,
+        "code": 0
+      },
+      {
+        "step": 1059,
+        "substep": 1,
+        "required": 0,
+        "active": 0,
+        "code": 0
+      },
+      {
+        "step": 1059,
+        "substep": 2,
+        "required": 0,
+        "active": 0,
+        "code": 0
+      },
+      {
+        "step": 1059,
+        "substep": 3,
+        "required": 0,
+        "active": 0,
+        "code": 0
+      },
+      {
+        "step": 1059,
+        "substep": 4,
+        "required": 0,
+        "active": 0,
+        "code": 0
+      },
+      {
+        "step": 1059,
+        "substep": 5,
+        "required": 0,
+        "active": 0,
+        "code": 0
+      },
+      {
+        "step": 1059,
+        "substep": 6,
+        "required": 0,
+        "active": 0,
+        "code": 0
+      },
+      {
+        "step": 1059,
+        "substep": 7,
+        "required": 0,
+        "active": 0,
+        "code": 0
+      },
+      {
+        "step": 1059,
+        "substep": 8,
+        "required": 0,
+        "active": 0,
+        "code": 0
+      },
+      {
+        "step": 1059,
+        "substep": 9,
+        "required": 0,
+        "active": 0,
+        "code": 0
+      },
+      {
+        "step": 1059,
+        "substep": 10,
+        "required": 0,
+        "active": 0,
+        "code": 0
+      },
+      {
+        "step": 1059,
+        "substep": 11,
+        "required": 0,
+        "active": 0,
+        "code": 0
+      },
+      {
+        "step": 1059,
+        "substep": 12,
+        "required": 0,
+        "active": 0,
+        "code": 0
+      },
+      {
+        "step": 1059,
+        "substep": 13,
+        "required": 0,
+        "active": 0,
+        "code": 0
+      },
+      {
+        "step": 1059,
+        "substep": 14,
+        "required": 0,
+        "active": 0,
+        "code": 0
+      },
+      {
+        "step": 1059,
+        "substep": 15,
+        "required": 0,
+        "active": 0,
+        "code": 0
+      },
+      {
+        "step": 1060,
+        "substep": 0,
+        "required": 0,
+        "active": 0,
+        "code": 0
+      },
+      {
+        "step": 1060,
+        "substep": 1,
+        "required": 0,
+        "active": 0,
+        "code": 0
+      },
+      {
+        "step": 1060,
+        "substep": 2,
+        "required": 0,
+        "active": 0,
+        "code": 0
+      },
+      {
+        "step": 1060,
+        "substep": 3,
+        "required": 0,
+        "active": 0,
+        "code": 0
+      },
+      {
+        "step": 1060,
+        "substep": 4,
+        "required": 0,
+        "active": 0,
+        "code": 0
+      },
+      {
+        "step": 1060,
+        "substep": 5,
+        "required": 0,
+        "active": 0,
+        "code": 0
+      },
+      {
+        "step": 1060,
+        "substep": 6,
+        "required": 0,
+        "active": 0,
+        "code": 0
+      },
+      {
+        "step": 1060,
+        "substep": 7,
+        "required": 0,
+        "active": 0,
+        "code": 0
+      },
+      {
+        "step": 1060,
+        "substep": 8,
+        "required": 0,
+        "active": 0,
+        "code": 0
+      },
+      {
+        "step": 1060,
+        "substep": 9,
+        "required": 0,
+        "active": 0,
+        "code": 0
+      },
+      {
+        "step": 1060,
+        "substep": 10,
+        "required": 0,
+        "active": 0,
+        "code": 0
+      },
+      {
+        "step": 1060,
+        "substep": 11,
+        "required": 0,
+        "active": 0,
+        "code": 0
+      },
+      {
+        "step": 1060,
+        "substep": 12,
+        "required": 0,
+        "active": 0,
+        "code": 0
+      },
+      {
+        "step": 1060,
+        "substep": 13,
+        "required": 0,
+        "active": 0,
+        "code": 0
+      },
+      {
+        "step": 1060,
+        "substep": 14,
+        "required": 0,
+        "active": 0,
+        "code": 0
+      },
+      {
+        "step": 1060,
+        "substep": 15,
+        "required": 0,
+        "active": 0,
+        "code": 0
+      }
+    ],
+    "contacts_near_end": []
+  },
+  {
+    "lane": 2,
+    "end": 941,
+    "termination_reason": 3,
+    "status_count": 2592,
+    "expected_status_count": 2592,
+    "mismatched_count": 0,
+    "last_three_step_status": [
+      {
+        "step": 939,
+        "substep": 0,
+        "required": 0,
+        "active": 0,
+        "code": 0
+      },
+      {
+        "step": 939,
+        "substep": 1,
+        "required": 0,
+        "active": 0,
+        "code": 0
+      },
+      {
+        "step": 939,
+        "substep": 2,
+        "required": 0,
+        "active": 0,
+        "code": 0
+      },
+      {
+        "step": 939,
+        "substep": 3,
+        "required": 0,
+        "active": 0,
+        "code": 0
+      },
+      {
+        "step": 939,
+        "substep": 4,
+        "required": 0,
+        "active": 0,
+        "code": 0
+      },
+      {
+        "step": 939,
+        "substep": 5,
+        "required": 0,
+        "active": 0,
+        "code": 0
+      },
+      {
+        "step": 939,
+        "substep": 6,
+        "required": 0,
+        "active": 0,
+        "code": 0
+      },
+      {
+        "step": 939,
+        "substep": 7,
+        "required": 0,
+        "active": 0,
+        "code": 0
+      },
+      {
+        "step": 939,
+        "substep": 8,
+        "required": 0,
+        "active": 0,
+        "code": 0
+      },
+      {
+        "step": 939,
+        "substep": 9,
+        "required": 0,
+        "active": 0,
+        "code": 0
+      },
+      {
+        "step": 939,
+        "substep": 10,
+        "required": 0,
+        "active": 0,
+        "code": 0
+      },
+      {
+        "step": 939,
+        "substep": 11,
+        "required": 0,
+        "active": 0,
+        "code": 0
+      },
+      {
+        "step": 939,
+        "substep": 12,
+        "required": 0,
+        "active": 0,
+        "code": 0
+      },
+      {
+        "step": 939,
+        "substep": 13,
+        "required": 0,
+        "active": 0,
+        "code": 0
+      },
+      {
+        "step": 939,
+        "substep": 14,
+        "required": 0,
+        "active": 0,
+        "code": 0
+      },
+      {
+        "step": 939,
+        "substep": 15,
+        "required": 0,
+        "active": 0,
+        "code": 0
+      },
+      {
+        "step": 940,
+        "substep": 0,
+        "required": 0,
+        "active": 0,
+        "code": 0
+      },
+      {
+        "step": 940,
+        "substep": 1,
+        "required": 0,
+        "active": 0,
+        "code": 0
+      },
+      {
+        "step": 940,
+        "substep": 2,
+        "required": 0,
+        "active": 0,
+        "code": 0
+      },
+      {
+        "step": 940,
+        "substep": 3,
+        "required": 0,
+        "active": 0,
+        "code": 0
+      },
+      {
+        "step": 940,
+        "substep": 4,
+        "required": 0,
+        "active": 0,
+        "code": 0
+      },
+      {
+        "step": 940,
+        "substep": 5,
+        "required": 0,
+        "active": 0,
+        "code": 0
+      },
+      {
+        "step": 940,
+        "substep": 6,
+        "required": 0,
+        "active": 0,
+        "code": 0
+      },
+      {
+        "step": 940,
+        "substep": 7,
+        "required": 0,
+        "active": 0,
+        "code": 0
+      },
+      {
+        "step": 940,
+        "substep": 8,
+        "required": 0,
+        "active": 0,
+        "code": 0
+      },
+      {
+        "step": 940,
+        "substep": 9,
+        "required": 0,
+        "active": 0,
+        "code": 0
+      },
+      {
+        "step": 940,
+        "substep": 10,
+        "required": 0,
+        "active": 0,
+        "code": 0
+      },
+      {
+        "step": 940,
+        "substep": 11,
+        "required": 0,
+        "active": 0,
+        "code": 0
+      },
+      {
+        "step": 940,
+        "substep": 12,
+        "required": 0,
+        "active": 0,
+        "code": 0
+      },
+      {
+        "step": 940,
+        "substep": 13,
+        "required": 0,
+        "active": 0,
+        "code": 0
+      },
+      {
+        "step": 940,
+        "substep": 14,
+        "required": 0,
+        "active": 0,
+        "code": 0
+      },
+      {
+        "step": 940,
+        "substep": 15,
+        "required": 0,
+        "active": 0,
+        "code": 0
+      },
+      {
+        "step": 941,
+        "substep": 0,
+        "required": 0,
+        "active": 0,
+        "code": 0
+      },
+      {
+        "step": 941,
+        "substep": 1,
+        "required": 0,
+        "active": 0,
+        "code": 0
+      },
+      {
+        "step": 941,
+        "substep": 2,
+        "required": 0,
+        "active": 0,
+        "code": 0
+      },
+      {
+        "step": 941,
+        "substep": 3,
+        "required": 0,
+        "active": 0,
+        "code": 0
+      },
+      {
+        "step": 941,
+        "substep": 4,
+        "required": 0,
+        "active": 0,
+        "code": 0
+      },
+      {
+        "step": 941,
+        "substep": 5,
+        "required": 0,
+        "active": 0,
+        "code": 0
+      },
+      {
+        "step": 941,
+        "substep": 6,
+        "required": 0,
+        "active": 0,
+        "code": 0
+      },
+      {
+        "step": 941,
+        "substep": 7,
+        "required": 0,
+        "active": 0,
+        "code": 0
+      },
+      {
+        "step": 941,
+        "substep": 8,
+        "required": 0,
+        "active": 0,
+        "code": 0
+      },
+      {
+        "step": 941,
+        "substep": 9,
+        "required": 0,
+        "active": 0,
+        "code": 0
+      },
+      {
+        "step": 941,
+        "substep": 10,
+        "required": 0,
+        "active": 0,
+        "code": 0
+      },
+      {
+        "step": 941,
+        "substep": 11,
+        "required": 0,
+        "active": 0,
+        "code": 0
+      },
+      {
+        "step": 941,
+        "substep": 12,
+        "required": 0,
+        "active": 0,
+        "code": 0
+      },
+      {
+        "step": 941,
+        "substep": 13,
+        "required": 0,
+        "active": 0,
+        "code": 0
+      },
+      {
+        "step": 941,
+        "substep": 14,
+        "required": 0,
+        "active": 0,
+        "code": 0
+      },
+      {
+        "step": 941,
+        "substep": 15,
+        "required": 0,
+        "active": 0,
+        "code": 0
+      }
+    ],
+    "contacts_near_end": []
+  },
+  {
+    "lane": 3,
+    "end": 832,
+    "termination_reason": 3,
+    "status_count": 848,
+    "expected_status_count": 848,
+    "mismatched_count": 0,
+    "last_three_step_status": [
+      {
+        "step": 830,
+        "substep": 0,
+        "required": 0,
+        "active": 0,
+        "code": 0
+      },
+      {
+        "step": 830,
+        "substep": 1,
+        "required": 0,
+        "active": 0,
+        "code": 0
+      },
+      {
+        "step": 830,
+        "substep": 2,
+        "required": 0,
+        "active": 0,
+        "code": 0
+      },
+      {
+        "step": 830,
+        "substep": 3,
+        "required": 0,
+        "active": 0,
+        "code": 0
+      },
+      {
+        "step": 830,
+        "substep": 4,
+        "required": 0,
+        "active": 0,
+        "code": 0
+      },
+      {
+        "step": 830,
+        "substep": 5,
+        "required": 0,
+        "active": 0,
+        "code": 0
+      },
+      {
+        "step": 830,
+        "substep": 6,
+        "required": 0,
+        "active": 0,
+        "code": 0
+      },
+      {
+        "step": 830,
+        "substep": 7,
+        "required": 0,
+        "active": 0,
+        "code": 0
+      },
+      {
+        "step": 830,
+        "substep": 8,
+        "required": 0,
+        "active": 0,
+        "code": 0
+      },
+      {
+        "step": 830,
+        "substep": 9,
+        "required": 0,
+        "active": 0,
+        "code": 0
+      },
+      {
+        "step": 830,
+        "substep": 10,
+        "required": 0,
+        "active": 0,
+        "code": 0
+      },
+      {
+        "step": 830,
+        "substep": 11,
+        "required": 0,
+        "active": 0,
+        "code": 0
+      },
+      {
+        "step": 830,
+        "substep": 12,
+        "required": 0,
+        "active": 0,
+        "code": 0
+      },
+      {
+        "step": 830,
+        "substep": 13,
+        "required": 0,
+        "active": 0,
+        "code": 0
+      },
+      {
+        "step": 830,
+        "substep": 14,
+        "required": 0,
+        "active": 0,
+        "code": 0
+      },
+      {
+        "step": 830,
+        "substep": 15,
+        "required": 0,
+        "active": 0,
+        "code": 0
+      },
+      {
+        "step": 831,
+        "substep": 0,
+        "required": 0,
+        "active": 0,
+        "code": 0
+      },
+      {
+        "step": 831,
+        "substep": 1,
+        "required": 0,
+        "active": 0,
+        "code": 0
+      },
+      {
+        "step": 831,
+        "substep": 2,
+        "required": 0,
+        "active": 0,
+        "code": 0
+      },
+      {
+        "step": 831,
+        "substep": 3,
+        "required": 0,
+        "active": 0,
+        "code": 0
+      },
+      {
+        "step": 831,
+        "substep": 4,
+        "required": 0,
+        "active": 0,
+        "code": 0
+      },
+      {
+        "step": 831,
+        "substep": 5,
+        "required": 0,
+        "active": 0,
+        "code": 0
+      },
+      {
+        "step": 831,
+        "substep": 6,
+        "required": 0,
+        "active": 0,
+        "code": 0
+      },
+      {
+        "step": 831,
+        "substep": 7,
+        "required": 0,
+        "active": 0,
+        "code": 0
+      },
+      {
+        "step": 831,
+        "substep": 8,
+        "required": 0,
+        "active": 0,
+        "code": 0
+      },
+      {
+        "step": 831,
+        "substep": 9,
+        "required": 0,
+        "active": 0,
+        "code": 0
+      },
+      {
+        "step": 831,
+        "substep": 10,
+        "required": 0,
+        "active": 0,
+        "code": 0
+      },
+      {
+        "step": 831,
+        "substep": 11,
+        "required": 0,
+        "active": 0,
+        "code": 0
+      },
+      {
+        "step": 831,
+        "substep": 12,
+        "required": 0,
+        "active": 0,
+        "code": 0
+      },
+      {
+        "step": 831,
+        "substep": 13,
+        "required": 0,
+        "active": 0,
+        "code": 0
+      },
+      {
+        "step": 831,
+        "substep": 14,
+        "required": 0,
+        "active": 0,
+        "code": 0
+      },
+      {
+        "step": 831,
+        "substep": 15,
+        "required": 0,
+        "active": 0,
+        "code": 0
+      },
+      {
+        "step": 832,
+        "substep": 0,
+        "required": 0,
+        "active": 0,
+        "code": 0
+      },
+      {
+        "step": 832,
+        "substep": 1,
+        "required": 0,
+        "active": 0,
+        "code": 0
+      },
+      {
+        "step": 832,
+        "substep": 2,
+        "required": 0,
+        "active": 0,
+        "code": 0
+      },
+      {
+        "step": 832,
+        "substep": 3,
+        "required": 0,
+        "active": 0,
+        "code": 0
+      },
+      {
+        "step": 832,
+        "substep": 4,
+        "required": 0,
+        "active": 0,
+        "code": 0
+      },
+      {
+        "step": 832,
+        "substep": 5,
+        "required": 0,
+        "active": 0,
+        "code": 0
+      },
+      {
+        "step": 832,
+        "substep": 6,
+        "required": 0,
+        "active": 0,
+        "code": 0
+      },
+      {
+        "step": 832,
+        "substep": 7,
+        "required": 0,
+        "active": 0,
+        "code": 0
+      },
+      {
+        "step": 832,
+        "substep": 8,
+        "required": 0,
+        "active": 0,
+        "code": 0
+      },
+      {
+        "step": 832,
+        "substep": 9,
+        "required": 0,
+        "active": 0,
+        "code": 0
+      },
+      {
+        "step": 832,
+        "substep": 10,
+        "required": 0,
+        "active": 0,
+        "code": 0
+      },
+      {
+        "step": 832,
+        "substep": 11,
+        "required": 0,
+        "active": 0,
+        "code": 0
+      },
+      {
+        "step": 832,
+        "substep": 12,
+        "required": 0,
+        "active": 0,
+        "code": 0
+      },
+      {
+        "step": 832,
+        "substep": 13,
+        "required": 0,
+        "active": 0,
+        "code": 0
+      },
+      {
+        "step": 832,
+        "substep": 14,
+        "required": 0,
+        "active": 0,
+        "code": 0
+      },
+      {
+        "step": 832,
+        "substep": 15,
+        "required": 0,
+        "active": 0,
+        "code": 0
+      }
+    ],
+    "contacts_near_end": []
+  },
+  {
+    "lane": 4,
+    "end": 856,
+    "termination_reason": 3,
+    "status_count": 1232,
+    "expected_status_count": 1232,
+    "mismatched_count": 0,
+    "last_three_step_status": [
+      {
+        "step": 854,
+        "substep": 0,
+        "required": 0,
+        "active": 0,
+        "code": 0
+      },
+      {
+        "step": 854,
+        "substep": 1,
+        "required": 1,
+        "active": 1,
+        "code": 0
+      },
+      {
+        "step": 854,
+        "substep": 2,
+        "required": 1,
+        "active": 1,
+        "code": 0
+      },
+      {
+        "step": 854,
+        "substep": 3,
+        "required": 0,
+        "active": 0,
+        "code": 0
+      },
+      {
+        "step": 854,
+        "substep": 4,
+        "required": 0,
+        "active": 0,
+        "code": 0
+      },
+      {
+        "step": 854,
+        "substep": 5,
+        "required": 0,
+        "active": 0,
+        "code": 0
+      },
+      {
+        "step": 854,
+        "substep": 6,
+        "required": 0,
+        "active": 0,
+        "code": 0
+      },
+      {
+        "step": 854,
+        "substep": 7,
+        "required": 0,
+        "active": 0,
+        "code": 0
+      },
+      {
+        "step": 854,
+        "substep": 8,
+        "required": 0,
+        "active": 0,
+        "code": 0
+      },
+      {
+        "step": 854,
+        "substep": 9,
+        "required": 0,
+        "active": 0,
+        "code": 0
+      },
+      {
+        "step": 854,
+        "substep": 10,
+        "required": 0,
+        "active": 0,
+        "code": 0
+      },
+      {
+        "step": 854,
+        "substep": 11,
+        "required": 0,
+        "active": 0,
+        "code": 0
+      },
+      {
+        "step": 854,
+        "substep": 12,
+        "required": 0,
+        "active": 0,
+        "code": 0
+      },
+      {
+        "step": 854,
+        "substep": 13,
+        "required": 0,
+        "active": 0,
+        "code": 0
+      },
+      {
+        "step": 854,
+        "substep": 14,
+        "required": 0,
+        "active": 0,
+        "code": 0
+      },
+      {
+        "step": 854,
+        "substep": 15,
+        "required": 0,
+        "active": 0,
+        "code": 0
+      },
+      {
+        "step": 855,
+        "substep": 0,
+        "required": 0,
+        "active": 0,
+        "code": 0
+      },
+      {
+        "step": 855,
+        "substep": 1,
+        "required": 0,
+        "active": 0,
+        "code": 0
+      },
+      {
+        "step": 855,
+        "substep": 2,
+        "required": 0,
+        "active": 0,
+        "code": 0
+      },
+      {
+        "step": 855,
+        "substep": 3,
+        "required": 0,
+        "active": 0,
+        "code": 0
+      },
+      {
+        "step": 855,
+        "substep": 4,
+        "required": 0,
+        "active": 0,
+        "code": 0
+      },
+      {
+        "step": 855,
+        "substep": 5,
+        "required": 0,
+        "active": 0,
+        "code": 0
+      },
+      {
+        "step": 855,
+        "substep": 6,
+        "required": 0,
+        "active": 0,
+        "code": 0
+      },
+      {
+        "step": 855,
+        "substep": 7,
+        "required": 0,
+        "active": 0,
+        "code": 0
+      },
+      {
+        "step": 855,
+        "substep": 8,
+        "required": 0,
+        "active": 0,
+        "code": 0
+      },
+      {
+        "step": 855,
+        "substep": 9,
+        "required": 1,
+        "active": 1,
+        "code": 0
+      },
+      {
+        "step": 855,
+        "substep": 10,
+        "required": 1,
+        "active": 1,
+        "code": 0
+      },
+      {
+        "step": 855,
+        "substep": 11,
+        "required": 1,
+        "active": 1,
+        "code": 0
+      },
+      {
+        "step": 855,
+        "substep": 12,
+        "required": 1,
+        "active": 1,
+        "code": 0
+      },
+      {
+        "step": 855,
+        "substep": 13,
+        "required": 1,
+        "active": 1,
+        "code": 0
+      },
+      {
+        "step": 855,
+        "substep": 14,
+        "required": 1,
+        "active": 1,
+        "code": 0
+      },
+      {
+        "step": 855,
+        "substep": 15,
+        "required": 1,
+        "active": 1,
+        "code": 0
+      },
+      {
+        "step": 856,
+        "substep": 0,
+        "required": 1,
+        "active": 1,
+        "code": 0
+      },
+      {
+        "step": 856,
+        "substep": 1,
+        "required": 1,
+        "active": 1,
+        "code": 0
+      },
+      {
+        "step": 856,
+        "substep": 2,
+        "required": 1,
+        "active": 1,
+        "code": 0
+      },
+      {
+        "step": 856,
+        "substep": 3,
+        "required": 0,
+        "active": 0,
+        "code": 0
+      },
+      {
+        "step": 856,
+        "substep": 4,
+        "required": 0,
+        "active": 0,
+        "code": 0
+      },
+      {
+        "step": 856,
+        "substep": 5,
+        "required": 1,
+        "active": 1,
+        "code": 0
+      },
+      {
+        "step": 856,
+        "substep": 6,
+        "required": 1,
+        "active": 1,
+        "code": 0
+      },
+      {
+        "step": 856,
+        "substep": 7,
+        "required": 1,
+        "active": 1,
+        "code": 0
+      },
+      {
+        "step": 856,
+        "substep": 8,
+        "required": 1,
+        "active": 1,
+        "code": 0
+      },
+      {
+        "step": 856,
+        "substep": 9,
+        "required": 1,
+        "active": 1,
+        "code": 0
+      },
+      {
+        "step": 856,
+        "substep": 10,
+        "required": 1,
+        "active": 1,
+        "code": 0
+      },
+      {
+        "step": 856,
+        "substep": 11,
+        "required": 1,
+        "active": 1,
+        "code": 0
+      },
+      {
+        "step": 856,
+        "substep": 12,
+        "required": 1,
+        "active": 1,
+        "code": 0
+      },
+      {
+        "step": 856,
+        "substep": 13,
+        "required": 1,
+        "active": 1,
+        "code": 0
+      },
+      {
+        "step": 856,
+        "substep": 14,
+        "required": 1,
+        "active": 1,
+        "code": 0
+      },
+      {
+        "step": 856,
+        "substep": 15,
+        "required": 1,
+        "active": 1,
+        "code": 0
+      }
+    ],
+    "contacts_near_end": [
+      {
+        "step": 854,
+        "substep": 2,
+        "bodyA": 5,
+        "bodyB": 38,
+        "normal_impulse": 0.12115173,
+        "point_xyz": [
+          2.54822922,
+          0.176722392,
+          1.21570539
+        ],
+        "separation": 2.79752567e-05
+      },
+      {
+        "step": 855,
+        "substep": 12,
+        "bodyA": 5,
+        "bodyB": 38,
+        "normal_impulse": 0.0157153811,
+        "point_xyz": [
+          2.55132675,
+          0.103660844,
+          1.23692131
+        ],
+        "separation": 0.000374939147
+      },
+      {
+        "step": 855,
+        "substep": 13,
+        "bodyA": 5,
+        "bodyB": 38,
+        "normal_impulse": 0.016375104,
+        "point_xyz": [
+          2.54384279,
+          0.187282771,
+          1.25239515
+        ],
+        "separation": 7.80166829e-06
+      },
+      {
+        "step": 856,
+        "substep": 1,
+        "bodyA": 5,
+        "bodyB": 38,
+        "normal_impulse": 0.10246291,
+        "point_xyz": [
+          2.54319191,
+          0.187407076,
+          1.25649726
+        ],
+        "separation": 0.000293020217
+      },
+      {
+        "step": 856,
+        "substep": 6,
+        "bodyA": 5,
+        "bodyB": 38,
+        "normal_impulse": 0.0607978068,
+        "point_xyz": [
+          2.55169821,
+          0.102775067,
+          1.25185394
+        ],
+        "separation": 0.000127489664
+      },
+      {
+        "step": 856,
+        "substep": 7,
+        "bodyA": 5,
+        "bodyB": 38,
+        "normal_impulse": 0.0424016491,
+        "point_xyz": [
+          2.55189466,
+          0.102636591,
+          1.25182903
+        ],
+        "separation": -0.000528348959
+      },
+      {
+        "step": 856,
+        "substep": 9,
+        "bodyA": 5,
+        "bodyB": 38,
+        "normal_impulse": 0.0203891657,
+        "point_xyz": [
+          2.55211449,
+          0.102313399,
+          1.25177383
+        ],
+        "separation": -0.00139926339
+      },
+      {
+        "step": 856,
+        "substep": 10,
+        "bodyA": 5,
+        "bodyB": 38,
+        "normal_impulse": 0.0116076013,
+        "point_xyz": [
+          2.55216265,
+          0.102171928,
+          1.25175166
+        ],
+        "separation": -0.00165805628
+      },
+      {
+        "step": 856,
+        "substep": 11,
+        "bodyA": 5,
+        "bodyB": 38,
+        "normal_impulse": 0.00917155668,
+        "point_xyz": [
+          2.55219436,
+          0.102026656,
+          1.25172687
+        ],
+        "separation": -0.00186870131
+      },
+      {
+        "step": 856,
+        "substep": 13,
+        "bodyA": 5,
+        "bodyB": 38,
+        "normal_impulse": 0.00629077852,
+        "point_xyz": [
+          2.55222845,
+          0.101715416,
+          1.25166249
+        ],
+        "separation": -0.00219098618
+      }
+    ]
+  },
+  {
+    "lane": 5,
+    "end": 954,
+    "termination_reason": 3,
+    "status_count": 2800,
+    "expected_status_count": 2800,
+    "mismatched_count": 0,
+    "last_three_step_status": [
+      {
+        "step": 952,
+        "substep": 0,
+        "required": 0,
+        "active": 0,
+        "code": 0
+      },
+      {
+        "step": 952,
+        "substep": 1,
+        "required": 0,
+        "active": 0,
+        "code": 0
+      },
+      {
+        "step": 952,
+        "substep": 2,
+        "required": 0,
+        "active": 0,
+        "code": 0
+      },
+      {
+        "step": 952,
+        "substep": 3,
+        "required": 0,
+        "active": 0,
+        "code": 0
+      },
+      {
+        "step": 952,
+        "substep": 4,
+        "required": 0,
+        "active": 0,
+        "code": 0
+      },
+      {
+        "step": 952,
+        "substep": 5,
+        "required": 0,
+        "active": 0,
+        "code": 0
+      },
+      {
+        "step": 952,
+        "substep": 6,
+        "required": 0,
+        "active": 0,
+        "code": 0
+      },
+      {
+        "step": 952,
+        "substep": 7,
+        "required": 0,
+        "active": 0,
+        "code": 0
+      },
+      {
+        "step": 952,
+        "substep": 8,
+        "required": 0,
+        "active": 0,
+        "code": 0
+      },
+      {
+        "step": 952,
+        "substep": 9,
+        "required": 0,
+        "active": 0,
+        "code": 0
+      },
+      {
+        "step": 952,
+        "substep": 10,
+        "required": 0,
+        "active": 0,
+        "code": 0
+      },
+      {
+        "step": 952,
+        "substep": 11,
+        "required": 0,
+        "active": 0,
+        "code": 0
+      },
+      {
+        "step": 952,
+        "substep": 12,
+        "required": 0,
+        "active": 0,
+        "code": 0
+      },
+      {
+        "step": 952,
+        "substep": 13,
+        "required": 0,
+        "active": 0,
+        "code": 0
+      },
+      {
+        "step": 952,
+        "substep": 14,
+        "required": 0,
+        "active": 0,
+        "code": 0
+      },
+      {
+        "step": 952,
+        "substep": 15,
+        "required": 0,
+        "active": 0,
+        "code": 0
+      },
+      {
+        "step": 953,
+        "substep": 0,
+        "required": 0,
+        "active": 0,
+        "code": 0
+      },
+      {
+        "step": 953,
+        "substep": 1,
+        "required": 0,
+        "active": 0,
+        "code": 0
+      },
+      {
+        "step": 953,
+        "substep": 2,
+        "required": 0,
+        "active": 0,
+        "code": 0
+      },
+      {
+        "step": 953,
+        "substep": 3,
+        "required": 0,
+        "active": 0,
+        "code": 0
+      },
+      {
+        "step": 953,
+        "substep": 4,
+        "required": 0,
+        "active": 0,
+        "code": 0
+      },
+      {
+        "step": 953,
+        "substep": 5,
+        "required": 0,
+        "active": 0,
+        "code": 0
+      },
+      {
+        "step": 953,
+        "substep": 6,
+        "required": 0,
+        "active": 0,
+        "code": 0
+      },
+      {
+        "step": 953,
+        "substep": 7,
+        "required": 0,
+        "active": 0,
+        "code": 0
+      },
+      {
+        "step": 953,
+        "substep": 8,
+        "required": 0,
+        "active": 0,
+        "code": 0
+      },
+      {
+        "step": 953,
+        "substep": 9,
+        "required": 0,
+        "active": 0,
+        "code": 0
+      },
+      {
+        "step": 953,
+        "substep": 10,
+        "required": 0,
+        "active": 0,
+        "code": 0
+      },
+      {
+        "step": 953,
+        "substep": 11,
+        "required": 0,
+        "active": 0,
+        "code": 0
+      },
+      {
+        "step": 953,
+        "substep": 12,
+        "required": 0,
+        "active": 0,
+        "code": 0
+      },
+      {
+        "step": 953,
+        "substep": 13,
+        "required": 0,
+        "active": 0,
+        "code": 0
+      },
+      {
+        "step": 953,
+        "substep": 14,
+        "required": 0,
+        "active": 0,
+        "code": 0
+      },
+      {
+        "step": 953,
+        "substep": 15,
+        "required": 0,
+        "active": 0,
+        "code": 0
+      },
+      {
+        "step": 954,
+        "substep": 0,
+        "required": 0,
+        "active": 0,
+        "code": 0
+      },
+      {
+        "step": 954,
+        "substep": 1,
+        "required": 0,
+        "active": 0,
+        "code": 0
+      },
+      {
+        "step": 954,
+        "substep": 2,
+        "required": 0,
+        "active": 0,
+        "code": 0
+      },
+      {
+        "step": 954,
+        "substep": 3,
+        "required": 0,
+        "active": 0,
+        "code": 0
+      },
+      {
+        "step": 954,
+        "substep": 4,
+        "required": 0,
+        "active": 0,
+        "code": 0
+      },
+      {
+        "step": 954,
+        "substep": 5,
+        "required": 0,
+        "active": 0,
+        "code": 0
+      },
+      {
+        "step": 954,
+        "substep": 6,
+        "required": 0,
+        "active": 0,
+        "code": 0
+      },
+      {
+        "step": 954,
+        "substep": 7,
+        "required": 1,
+        "active": 1,
+        "code": 0
+      },
+      {
+        "step": 954,
+        "substep": 8,
+        "required": 2,
+        "active": 2,
+        "code": 0
+      },
+      {
+        "step": 954,
+        "substep": 9,
+        "required": 0,
+        "active": 0,
+        "code": 0
+      },
+      {
+        "step": 954,
+        "substep": 10,
+        "required": 0,
+        "active": 0,
+        "code": 0
+      },
+      {
+        "step": 954,
+        "substep": 11,
+        "required": 0,
+        "active": 0,
+        "code": 0
+      },
+      {
+        "step": 954,
+        "substep": 12,
+        "required": 0,
+        "active": 0,
+        "code": 0
+      },
+      {
+        "step": 954,
+        "substep": 13,
+        "required": 0,
+        "active": 0,
+        "code": 0
+      },
+      {
+        "step": 954,
+        "substep": 14,
+        "required": 0,
+        "active": 0,
+        "code": 0
+      },
+      {
+        "step": 954,
+        "substep": 15,
+        "required": 0,
+        "active": 0,
+        "code": 0
+      }
+    ],
+    "contacts_near_end": [
+      {
+        "step": 954,
+        "substep": 8,
+        "bodyA": 6,
+        "bodyB": 39,
+        "normal_impulse": 0.000451699307,
+        "point_xyz": [
+          3.60021114,
+          -0.340318382,
+          1.00755
+        ],
+        "separation": 0.00134921074
+      },
+      {
+        "step": 954,
+        "substep": 8,
+        "bodyA": 6,
+        "bodyB": 39,
+        "normal_impulse": 0.0513563268,
+        "point_xyz": [
+          3.60063767,
+          -0.326969028,
+          1.03169191
+        ],
+        "separation": 0.000496387482
+      }
+    ]
+  },
+  {
+    "lane": 6,
+    "end": 965,
+    "termination_reason": 3,
+    "status_count": 2976,
+    "expected_status_count": 2976,
+    "mismatched_count": 0,
+    "last_three_step_status": [
+      {
+        "step": 963,
+        "substep": 0,
+        "required": 0,
+        "active": 0,
+        "code": 0
+      },
+      {
+        "step": 963,
+        "substep": 1,
+        "required": 0,
+        "active": 0,
+        "code": 0
+      },
+      {
+        "step": 963,
+        "substep": 2,
+        "required": 0,
+        "active": 0,
+        "code": 0
+      },
+      {
+        "step": 963,
+        "substep": 3,
+        "required": 0,
+        "active": 0,
+        "code": 0
+      },
+      {
+        "step": 963,
+        "substep": 4,
+        "required": 0,
+        "active": 0,
+        "code": 0
+      },
+      {
+        "step": 963,
+        "substep": 5,
+        "required": 0,
+        "active": 0,
+        "code": 0
+      },
+      {
+        "step": 963,
+        "substep": 6,
+        "required": 0,
+        "active": 0,
+        "code": 0
+      },
+      {
+        "step": 963,
+        "substep": 7,
+        "required": 0,
+        "active": 0,
+        "code": 0
+      },
+      {
+        "step": 963,
+        "substep": 8,
+        "required": 0,
+        "active": 0,
+        "code": 0
+      },
+      {
+        "step": 963,
+        "substep": 9,
+        "required": 0,
+        "active": 0,
+        "code": 0
+      },
+      {
+        "step": 963,
+        "substep": 10,
+        "required": 0,
+        "active": 0,
+        "code": 0
+      },
+      {
+        "step": 963,
+        "substep": 11,
+        "required": 0,
+        "active": 0,
+        "code": 0
+      },
+      {
+        "step": 963,
+        "substep": 12,
+        "required": 0,
+        "active": 0,
+        "code": 0
+      },
+      {
+        "step": 963,
+        "substep": 13,
+        "required": 0,
+        "active": 0,
+        "code": 0
+      },
+      {
+        "step": 963,
+        "substep": 14,
+        "required": 0,
+        "active": 0,
+        "code": 0
+      },
+      {
+        "step": 963,
+        "substep": 15,
+        "required": 0,
+        "active": 0,
+        "code": 0
+      },
+      {
+        "step": 964,
+        "substep": 0,
+        "required": 0,
+        "active": 0,
+        "code": 0
+      },
+      {
+        "step": 964,
+        "substep": 1,
+        "required": 0,
+        "active": 0,
+        "code": 0
+      },
+      {
+        "step": 964,
+        "substep": 2,
+        "required": 0,
+        "active": 0,
+        "code": 0
+      },
+      {
+        "step": 964,
+        "substep": 3,
+        "required": 0,
+        "active": 0,
+        "code": 0
+      },
+      {
+        "step": 964,
+        "substep": 4,
+        "required": 0,
+        "active": 0,
+        "code": 0
+      },
+      {
+        "step": 964,
+        "substep": 5,
+        "required": 0,
+        "active": 0,
+        "code": 0
+      },
+      {
+        "step": 964,
+        "substep": 6,
+        "required": 0,
+        "active": 0,
+        "code": 0
+      },
+      {
+        "step": 964,
+        "substep": 7,
+        "required": 0,
+        "active": 0,
+        "code": 0
+      },
+      {
+        "step": 964,
+        "substep": 8,
+        "required": 0,
+        "active": 0,
+        "code": 0
+      },
+      {
+        "step": 964,
+        "substep": 9,
+        "required": 0,
+        "active": 0,
+        "code": 0
+      },
+      {
+        "step": 964,
+        "substep": 10,
+        "required": 0,
+        "active": 0,
+        "code": 0
+      },
+      {
+        "step": 964,
+        "substep": 11,
+        "required": 0,
+        "active": 0,
+        "code": 0
+      },
+      {
+        "step": 964,
+        "substep": 12,
+        "required": 0,
+        "active": 0,
+        "code": 0
+      },
+      {
+        "step": 964,
+        "substep": 13,
+        "required": 0,
+        "active": 0,
+        "code": 0
+      },
+      {
+        "step": 964,
+        "substep": 14,
+        "required": 0,
+        "active": 0,
+        "code": 0
+      },
+      {
+        "step": 964,
+        "substep": 15,
+        "required": 0,
+        "active": 0,
+        "code": 0
+      },
+      {
+        "step": 965,
+        "substep": 0,
+        "required": 0,
+        "active": 0,
+        "code": 0
+      },
+      {
+        "step": 965,
+        "substep": 1,
+        "required": 0,
+        "active": 0,
+        "code": 0
+      },
+      {
+        "step": 965,
+        "substep": 2,
+        "required": 1,
+        "active": 1,
+        "code": 0
+      },
+      {
+        "step": 965,
+        "substep": 3,
+        "required": 0,
+        "active": 0,
+        "code": 0
+      },
+      {
+        "step": 965,
+        "substep": 4,
+        "required": 0,
+        "active": 0,
+        "code": 0
+      },
+      {
+        "step": 965,
+        "substep": 5,
+        "required": 0,
+        "active": 0,
+        "code": 0
+      },
+      {
+        "step": 965,
+        "substep": 6,
+        "required": 0,
+        "active": 0,
+        "code": 0
+      },
+      {
+        "step": 965,
+        "substep": 7,
+        "required": 0,
+        "active": 0,
+        "code": 0
+      },
+      {
+        "step": 965,
+        "substep": 8,
+        "required": 0,
+        "active": 0,
+        "code": 0
+      },
+      {
+        "step": 965,
+        "substep": 9,
+        "required": 0,
+        "active": 0,
+        "code": 0
+      },
+      {
+        "step": 965,
+        "substep": 10,
+        "required": 0,
+        "active": 0,
+        "code": 0
+      },
+      {
+        "step": 965,
+        "substep": 11,
+        "required": 0,
+        "active": 0,
+        "code": 0
+      },
+      {
+        "step": 965,
+        "substep": 12,
+        "required": 0,
+        "active": 0,
+        "code": 0
+      },
+      {
+        "step": 965,
+        "substep": 13,
+        "required": 0,
+        "active": 0,
+        "code": 0
+      },
+      {
+        "step": 965,
+        "substep": 14,
+        "required": 0,
+        "active": 0,
+        "code": 0
+      },
+      {
+        "step": 965,
+        "substep": 15,
+        "required": 0,
+        "active": 0,
+        "code": 0
+      }
+    ],
+    "contacts_near_end": [
+      {
+        "step": 965,
+        "substep": 2,
+        "bodyA": 6,
+        "bodyB": 39,
+        "normal_impulse": 0.0940124467,
+        "point_xyz": [
+          3.74078131,
+          -0.332474232,
+          1.22403646
+        ],
+        "separation": 0.000967202708
+      }
+    ]
+  },
+  {
+    "lane": 7,
+    "end": 954,
+    "termination_reason": 3,
+    "status_count": 2800,
+    "expected_status_count": 2800,
+    "mismatched_count": 0,
+    "last_three_step_status": [
+      {
+        "step": 952,
+        "substep": 0,
+        "required": 0,
+        "active": 0,
+        "code": 0
+      },
+      {
+        "step": 952,
+        "substep": 1,
+        "required": 0,
+        "active": 0,
+        "code": 0
+      },
+      {
+        "step": 952,
+        "substep": 2,
+        "required": 0,
+        "active": 0,
+        "code": 0
+      },
+      {
+        "step": 952,
+        "substep": 3,
+        "required": 0,
+        "active": 0,
+        "code": 0
+      },
+      {
+        "step": 952,
+        "substep": 4,
+        "required": 0,
+        "active": 0,
+        "code": 0
+      },
+      {
+        "step": 952,
+        "substep": 5,
+        "required": 0,
+        "active": 0,
+        "code": 0
+      },
+      {
+        "step": 952,
+        "substep": 6,
+        "required": 0,
+        "active": 0,
+        "code": 0
+      },
+      {
+        "step": 952,
+        "substep": 7,
+        "required": 0,
+        "active": 0,
+        "code": 0
+      },
+      {
+        "step": 952,
+        "substep": 8,
+        "required": 0,
+        "active": 0,
+        "code": 0
+      },
+      {
+        "step": 952,
+        "substep": 9,
+        "required": 0,
+        "active": 0,
+        "code": 0
+      },
+      {
+        "step": 952,
+        "substep": 10,
+        "required": 0,
+        "active": 0,
+        "code": 0
+      },
+      {
+        "step": 952,
+        "substep": 11,
+        "required": 0,
+        "active": 0,
+        "code": 0
+      },
+      {
+        "step": 952,
+        "substep": 12,
+        "required": 0,
+        "active": 0,
+        "code": 0
+      },
+      {
+        "step": 952,
+        "substep": 13,
+        "required": 0,
+        "active": 0,
+        "code": 0
+      },
+      {
+        "step": 952,
+        "substep": 14,
+        "required": 0,
+        "active": 0,
+        "code": 0
+      },
+      {
+        "step": 952,
+        "substep": 15,
+        "required": 0,
+        "active": 0,
+        "code": 0
+      },
+      {
+        "step": 953,
+        "substep": 0,
+        "required": 0,
+        "active": 0,
+        "code": 0
+      },
+      {
+        "step": 953,
+        "substep": 1,
+        "required": 0,
+        "active": 0,
+        "code": 0
+      },
+      {
+        "step": 953,
+        "substep": 2,
+        "required": 1,
+        "active": 1,
+        "code": 0
+      },
+      {
+        "step": 953,
+        "substep": 3,
+        "required": 1,
+        "active": 1,
+        "code": 0
+      },
+      {
+        "step": 953,
+        "substep": 4,
+        "required": 0,
+        "active": 0,
+        "code": 0
+      },
+      {
+        "step": 953,
+        "substep": 5,
+        "required": 0,
+        "active": 0,
+        "code": 0
+      },
+      {
+        "step": 953,
+        "substep": 6,
+        "required": 0,
+        "active": 0,
+        "code": 0
+      },
+      {
+        "step": 953,
+        "substep": 7,
+        "required": 0,
+        "active": 0,
+        "code": 0
+      },
+      {
+        "step": 953,
+        "substep": 8,
+        "required": 0,
+        "active": 0,
+        "code": 0
+      },
+      {
+        "step": 953,
+        "substep": 9,
+        "required": 0,
+        "active": 0,
+        "code": 0
+      },
+      {
+        "step": 953,
+        "substep": 10,
+        "required": 0,
+        "active": 0,
+        "code": 0
+      },
+      {
+        "step": 953,
+        "substep": 11,
+        "required": 0,
+        "active": 0,
+        "code": 0
+      },
+      {
+        "step": 953,
+        "substep": 12,
+        "required": 0,
+        "active": 0,
+        "code": 0
+      },
+      {
+        "step": 953,
+        "substep": 13,
+        "required": 0,
+        "active": 0,
+        "code": 0
+      },
+      {
+        "step": 953,
+        "substep": 14,
+        "required": 0,
+        "active": 0,
+        "code": 0
+      },
+      {
+        "step": 953,
+        "substep": 15,
+        "required": 0,
+        "active": 0,
+        "code": 0
+      },
+      {
+        "step": 954,
+        "substep": 0,
+        "required": 0,
+        "active": 0,
+        "code": 0
+      },
+      {
+        "step": 954,
+        "substep": 1,
+        "required": 0,
+        "active": 0,
+        "code": 0
+      },
+      {
+        "step": 954,
+        "substep": 2,
+        "required": 0,
+        "active": 0,
+        "code": 0
+      },
+      {
+        "step": 954,
+        "substep": 3,
+        "required": 0,
+        "active": 0,
+        "code": 0
+      },
+      {
+        "step": 954,
+        "substep": 4,
+        "required": 0,
+        "active": 0,
+        "code": 0
+      },
+      {
+        "step": 954,
+        "substep": 5,
+        "required": 0,
+        "active": 0,
+        "code": 0
+      },
+      {
+        "step": 954,
+        "substep": 6,
+        "required": 0,
+        "active": 0,
+        "code": 0
+      },
+      {
+        "step": 954,
+        "substep": 7,
+        "required": 0,
+        "active": 0,
+        "code": 0
+      },
+      {
+        "step": 954,
+        "substep": 8,
+        "required": 0,
+        "active": 0,
+        "code": 0
+      },
+      {
+        "step": 954,
+        "substep": 9,
+        "required": 0,
+        "active": 0,
+        "code": 0
+      },
+      {
+        "step": 954,
+        "substep": 10,
+        "required": 0,
+        "active": 0,
+        "code": 0
+      },
+      {
+        "step": 954,
+        "substep": 11,
+        "required": 0,
+        "active": 0,
+        "code": 0
+      },
+      {
+        "step": 954,
+        "substep": 12,
+        "required": 0,
+        "active": 0,
+        "code": 0
+      },
+      {
+        "step": 954,
+        "substep": 13,
+        "required": 0,
+        "active": 0,
+        "code": 0
+      },
+      {
+        "step": 954,
+        "substep": 14,
+        "required": 0,
+        "active": 0,
+        "code": 0
+      },
+      {
+        "step": 954,
+        "substep": 15,
+        "required": 0,
+        "active": 0,
+        "code": 0
+      }
+    ],
+    "contacts_near_end": [
+      {
+        "step": 953,
+        "substep": 2,
+        "bodyA": 6,
+        "bodyB": 39,
+        "normal_impulse": 0.138185859,
+        "point_xyz": [
+          3.51484179,
+          -0.240037978,
+          1.13797665
+        ],
+        "separation": 0.000839578395
+      },
+      {
+        "step": 953,
+        "substep": 3,
+        "bodyA": 6,
+        "bodyB": 39,
+        "normal_impulse": 0.127651855,
+        "point_xyz": [
+          3.51203775,
+          -0.325557142,
+          1.1409682
+        ],
+        "separation": -8.59015563e-05
+      }
+    ]
+  }
+]

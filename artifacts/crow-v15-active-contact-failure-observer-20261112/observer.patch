@@ -1,0 +1,15 @@
+--- build/crow-v15-integrated-first-episode-route-screen-20261112/MetalWorld.mm	2026-11-12 17:13:11
++++ build/crow-v15-active-contact-failure-observer-20261112/MetalWorld.mm	2026-11-12 17:33:49
+@@ -22426,6 +22426,12 @@
+                         const auto* statuses=static_cast<const MRMetalWorldContactStatusGPU*>(sb.contents);
+                         for (NSUInteger lane=0;lane<crowTraceLanes;++lane) {
+                             const auto n=std::min<NSUInteger>(statuses[lane].requiredConstraints,crowTraceCapacity);
++                            if (crowTraceStep>=780 && crowTraceStep<=1060) {
++                                std::fprintf(stderr,"CROW_CONTACT_STATUS %llu %lu %lu %u %u %u\n",crowTraceStep,(unsigned long)sub,(unsigned long)lane,statuses[lane].requiredConstraints,statuses[lane].activeContacts,statuses[lane].code);
++                                const auto activeN=std::min<NSUInteger>(statuses[lane].activeContacts,crowTraceCapacity);
++                                for(NSUInteger ai=0;ai<activeN;++ai) {const auto& ac=contacts[lane*crowTraceCapacity+ai]; if (ac.impulses.x!=0.0f) std::fprintf(stderr,"CROW_ACTIVE_CONTACT %llu %lu %lu %u %u %.9g %.9g %.9g %.9g %.9g\n",crowTraceStep,(unsigned long)sub,(unsigned long)lane,ac.bodyA,ac.bodyB,ac.impulses.x,ac.pointAndSeparation.x,ac.pointAndSeparation.y,ac.pointAndSeparation.z,ac.pointAndSeparation.w);}
++                            }
++                            
+                             if (sub==0 && crowTraceStep>=201 && crowTraceStep<=300) { std::fprintf(stderr,"CROW_DRIVE_TARGET %llu %lu",crowTraceStep,(unsigned long)lane); for (NSUInteger j=0;j<crowTraceVStride;++j) std::fprintf(stderr," %.9g",targets[lane*diagnostics.layout.dispatch.effortEnvironmentStride+j]); std::fprintf(stderr,"\n"); }
+                             if (crowTraceStep >= 335 && crowTraceStep <= 365) { std::fprintf(stderr,"CROW_Q_SUBSTEP %llu %lu %lu",crowTraceStep,(unsigned long)sub,(unsigned long)lane); for (NSUInteger j=0;j<crowTraceQStride;++j) std::fprintf(stderr," %.9g",coordinates[lane*crowTraceQStride+j]); std::fprintf(stderr,"\n"); }
+                             float up[2]={}, normal[2]={}, toe[16]={}, signedX[16]={}, other=0;

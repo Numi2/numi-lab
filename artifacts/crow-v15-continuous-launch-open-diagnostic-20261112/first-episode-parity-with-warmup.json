@@ -1,0 +1,66 @@
+[
+  {
+    "lane": 0,
+    "common_first_episode_end": 1057,
+    "state_incomplete_steps": [],
+    "state_first_difference": 1049,
+    "contact_incomplete_steps": [],
+    "contact_first_difference": 1049
+  },
+  {
+    "lane": 1,
+    "common_first_episode_end": 1201,
+    "state_incomplete_steps": [],
+    "state_first_difference": 801,
+    "contact_incomplete_steps": [],
+    "contact_first_difference": 801
+  },
+  {
+    "lane": 2,
+    "common_first_episode_end": 942,
+    "state_incomplete_steps": [],
+    "state_first_difference": 942,
+    "contact_incomplete_steps": [],
+    "contact_first_difference": 942
+  },
+  {
+    "lane": 3,
+    "common_first_episode_end": 833,
+    "state_incomplete_steps": [],
+    "state_first_difference": 833,
+    "contact_incomplete_steps": [],
+    "contact_first_difference": 833
+  },
+  {
+    "lane": 4,
+    "common_first_episode_end": 857,
+    "state_incomplete_steps": [],
+    "state_first_difference": 854,
+    "contact_incomplete_steps": [],
+    "contact_first_difference": 854
+  },
+  {
+    "lane": 5,
+    "common_first_episode_end": 955,
+    "state_incomplete_steps": [],
+    "state_first_difference": 954,
+    "contact_incomplete_steps": [],
+    "contact_first_difference": 954
+  },
+  {
+    "lane": 6,
+    "common_first_episode_end": 966,
+    "state_incomplete_steps": [],
+    "state_first_difference": 965,
+    "contact_incomplete_steps": [],
+    "contact_first_difference": 965
+  },
+  {
+    "lane": 7,
+    "common_first_episode_end": 955,
+    "state_incomplete_steps": [],
+    "state_first_difference": 953,
+    "contact_incomplete_steps": [],
+    "contact_first_difference": 953
+  }
+]
