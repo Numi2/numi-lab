@@ -1,0 +1,7 @@
+# Differential wing-pronation turn: insufficient
+
+Six obstacle-free development lanes used alternating +90/-90 degree heading requests and normalized differential-pronation residuals 0, 0.12 and 0.24. The run matched all 48 logged q/v/action samples before 9 s against the earlier bank-feedback test. The two identified direct body moments were disabled only after 9 s; the earlier launch retained its original assistance. All six first episodes reached 16 s with no reported physical termination, contact overflow, missing contact substeps or toe-speed cap after interval 400. Two lanes had 6 and 14 toe-speed-cap substeps earlier in the run.
+
+Final heading errors ranged 1.466–1.535 rad for the 1.571-rad demands. Sampled post-10-s root height ranged 0.873–1.000 m across the lanes. The actual wing-pronation q differed from the prior bank-feedback experiment, but that experiment had a different post-9-s intervention, so its delta cannot isolate the effect of this change. The demands did not yield a qualified turn, and final course progress or sustained flight is not established by this short screen. A stronger-input screen is a separate sensitivity experiment, not a calibrated recommendation.
+
+This is one used seed, a simplified wing model with other aerodynamic closures and sparse endpoint observations. It does not establish biological flight, continuous clearance or generalization; the controller is not frozen.

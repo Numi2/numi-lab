@@ -1,0 +1,103 @@
+{
+  "prefix_samples": 48,
+  "prefix_mismatches": [],
+  "rows": [
+    {
+      "lane": 0,
+      "residual_normalized": 0.0,
+      "matched_sample_steps": [
+        500,
+        600,
+        700,
+        800
+      ],
+      "mean_left_pronation_delta_vs_bank_rad": -0.0007730162500000012,
+      "mean_right_pronation_delta_vs_bank_rad": 0.0046020095,
+      "sample_height_range_m": [
+        0.917286932,
+        0.959186614
+      ]
+    },
+    {
+      "lane": 1,
+      "residual_normalized": 0.0,
+      "matched_sample_steps": [
+        500,
+        600,
+        700,
+        800
+      ],
+      "mean_left_pronation_delta_vs_bank_rad": -0.001371524325000005,
+      "mean_right_pronation_delta_vs_bank_rad": 0.006631858499999997,
+      "sample_height_range_m": [
+        0.910483599,
+        0.952672303
+      ]
+    },
+    {
+      "lane": 2,
+      "residual_normalized": 0.12,
+      "matched_sample_steps": [
+        500,
+        600,
+        700,
+        800
+      ],
+      "mean_left_pronation_delta_vs_bank_rad": -0.010096281749999998,
+      "mean_right_pronation_delta_vs_bank_rad": 0.008675962750000002,
+      "sample_height_range_m": [
+        0.897342682,
+        0.93544507
+      ]
+    },
+    {
+      "lane": 3,
+      "residual_normalized": 0.12,
+      "matched_sample_steps": [
+        500,
+        600,
+        700,
+        800
+      ],
+      "mean_left_pronation_delta_vs_bank_rad": 0.0014137431000000086,
+      "mean_right_pronation_delta_vs_bank_rad": 0.019029520499999994,
+      "sample_height_range_m": [
+        0.917668939,
+        0.972805321
+      ]
+    },
+    {
+      "lane": 4,
+      "residual_normalized": 0.24,
+      "matched_sample_steps": [
+        500,
+        600,
+        700,
+        800
+      ],
+      "mean_left_pronation_delta_vs_bank_rad": -0.02143673575000001,
+      "mean_right_pronation_delta_vs_bank_rad": 0.03933795880000001,
+      "sample_height_range_m": [
+        0.873078167,
+        0.913624763
+      ]
+    },
+    {
+      "lane": 5,
+      "residual_normalized": 0.24,
+      "matched_sample_steps": [
+        500,
+        600,
+        700,
+        800
+      ],
+      "mean_left_pronation_delta_vs_bank_rad": -0.003157683724999992,
+      "mean_right_pronation_delta_vs_bank_rad": 0.04376669225,
+      "sample_height_range_m": [
+        0.918485045,
+        1.00006568
+      ]
+    }
+  ],
+  "scope": "Compared prior bank-feedback screen before 9 s; after 9 s the other screen uses a different bank intervention, so sampled pronation differences are not a controlled actuator-effect estimate. Sparse samples do not measure stroke loads or continuous extremes."
+}
