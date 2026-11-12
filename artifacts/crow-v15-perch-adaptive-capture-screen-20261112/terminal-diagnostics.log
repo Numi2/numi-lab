@@ -1,0 +1,86 @@
+[
+  {
+    "lane": 2,
+    "failed_intervals_by_condition": {
+      "left_and_right_load": 0,
+      "half_weight": 0,
+      "left_opposition": 0,
+      "right_opposition": 0,
+      "no_nonfoot": 0,
+      "upright": 0,
+      "slow": 0
+    },
+    "max_speed_m_s": 0.016873316677311845,
+    "minimum_foot_upward_impulse_ns": 0.08670092373600001
+  },
+  {
+    "lane": 3,
+    "failed_intervals_by_condition": {
+      "left_and_right_load": 0,
+      "half_weight": 0,
+      "left_opposition": 0,
+      "right_opposition": 0,
+      "no_nonfoot": 0,
+      "upright": 0,
+      "slow": 0
+    },
+    "max_speed_m_s": 0.016581056069266537,
+    "minimum_foot_upward_impulse_ns": 0.087242365398
+  },
+  {
+    "lane": 4,
+    "failed_intervals_by_condition": {
+      "left_and_right_load": 0,
+      "half_weight": 0,
+      "left_opposition": 0,
+      "right_opposition": 0,
+      "no_nonfoot": 0,
+      "upright": 0,
+      "slow": 0
+    },
+    "max_speed_m_s": 0.016930216352217364,
+    "minimum_foot_upward_impulse_ns": 0.086596374427
+  },
+  {
+    "lane": 5,
+    "failed_intervals_by_condition": {
+      "left_and_right_load": 0,
+      "half_weight": 0,
+      "left_opposition": 100,
+      "right_opposition": 0,
+      "no_nonfoot": 0,
+      "upright": 0,
+      "slow": 0
+    },
+    "max_speed_m_s": 0.02456785220082905,
+    "minimum_foot_upward_impulse_ns": 0.084093975184
+  },
+  {
+    "lane": 6,
+    "failed_intervals_by_condition": {
+      "left_and_right_load": 0,
+      "half_weight": 0,
+      "left_opposition": 0,
+      "right_opposition": 0,
+      "no_nonfoot": 0,
+      "upright": 0,
+      "slow": 0
+    },
+    "max_speed_m_s": 0.017057161870173598,
+    "minimum_foot_upward_impulse_ns": 0.08717690957
+  },
+  {
+    "lane": 7,
+    "failed_intervals_by_condition": {
+      "left_and_right_load": 0,
+      "half_weight": 0,
+      "left_opposition": 0,
+      "right_opposition": 0,
+      "no_nonfoot": 0,
+      "upright": 0,
+      "slow": 0
+    },
+    "max_speed_m_s": 0.01727266358157374,
+    "minimum_foot_upward_impulse_ns": 0.086793177507
+  }
+]

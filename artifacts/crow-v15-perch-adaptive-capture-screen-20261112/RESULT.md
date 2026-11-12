@@ -1,0 +1,5 @@
+# Position-conditioned constructed perch capture: 7/8, not qualified
+
+The bounded geometric rule passed both unchanged controls and five of six development perturbations under the strict existing release, continuous support, and final 100-interval bilateral opposing-grip gates. The higher start (+2 mm fore-aft, +3 mm height) remained upright with foot support, but achieved only 8 consecutive qualifying release intervals and never returned to full opposing left-toe grip. It is a failure, not a partial pass. This rule was tuned on these cases and is not a held-out evaluation.
+
+The two unchanged control lanes exactly matched 1,100 earlier endpoint states and 35,200 substep contacts. All 140,800 substeps were observed; the last-substep normal impulse observer agreed to within 7.9e-10 N s. See analysis-gates.json and terminal-diagnostics.json for per-lane details. The known perch position and initial root state are supplied directly. The perch has uncalibrated high friction. These are stationary, artificially constructed starts, not a flight-to-landing demonstration and not a biologically qualified grip or autonomous mission.
