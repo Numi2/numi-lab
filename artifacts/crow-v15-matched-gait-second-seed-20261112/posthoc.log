@@ -1,0 +1,65 @@
+{
+  "scope": "Post-hoc descriptive whole-substep finite-difference motion proxies across 8 dependent lanes from one used seed. These are not joint torque or biological acceleration validation.",
+  "rows": [
+    {
+      "joint": "left_knee",
+      "reference": {
+        "count": 12672,
+        "mean": 136.65918242424266,
+        "p95": 964.5836800000395,
+        "max": 1103.400960000016
+      },
+      "candidate": {
+        "count": 12672,
+        "mean": 21.836094292929246,
+        "p95": 86.212480000043,
+        "max": 493.98463999999365
+      }
+    },
+    {
+      "joint": "left_ankle",
+      "reference": {
+        "count": 12672,
+        "mean": 52.989790050505086,
+        "p95": 175.95327999996968,
+        "max": 917.8252799999952
+      },
+      "candidate": {
+        "count": 12672,
+        "mean": 11.451875555555558,
+        "p95": 42.353280000018145,
+        "max": 707.8553600000248
+      }
+    },
+    {
+      "joint": "right_knee",
+      "reference": {
+        "count": 12672,
+        "mean": 151.06890217171755,
+        "p95": 1030.1401600000304,
+        "max": 1098.1939200000213
+      },
+      "candidate": {
+        "count": 12672,
+        "mean": 23.312749393939473,
+        "p95": 89.0342399999966,
+        "max": 628.7193600000052
+      }
+    },
+    {
+      "joint": "right_ankle",
+      "reference": {
+        "count": 12672,
+        "mean": 57.66604883838373,
+        "p95": 176.47680000001387,
+        "max": 929.4041599999936
+      },
+      "candidate": {
+        "count": 12672,
+        "mean": 9.983178080808065,
+        "p95": 34.84671999999023,
+        "max": 259.21856000000076
+      }
+    }
+  ]
+}

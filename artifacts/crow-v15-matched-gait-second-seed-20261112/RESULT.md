@@ -1,0 +1,7 @@
+# Matched gait smoothing rejected on the second development seed
+
+The two-second same-binary test matched pre-walk q/v/action/contact samples and all contact substeps in every lane, with 792 of 800 walking state samples subsequently different. Both runs completed, with no logged solver errors, nonfoot impulse intervals or toe-speed caps during the window. The candidate again reduced interval-boundary knee/ankle q second-difference means to 5.3–13.5% and full-substep p95 values to 8.6–24.1% of matched controls; these remain simulation motion proxies, not measured crow biomechanics.
+
+The candidate failed the prespecified physical gates. Its eight-lane total of both-feet-unloaded substeps rose from zero to 133, including 118 in lane 2 and 15 in lane 4. Forward displacement in lanes 2 and 3 was only 28.9% and 60.1% of their matched controls, despite support-qualified endpoint-clearance bouts on both sides. Other lanes traveled 104.8–120.3% of control. Thus the pass on the first seed does not generalize even to this previously used second development seed. Do not promote this smoothing configuration; investigate the conditions behind the loss of support and travel rather than interpreting smoothness alone as success.
+
+This result is not a final held-out seed, extended-walking, takeoff, flight or landing test. Clearance is sampled at endpoints and the target-history prototype is not reset/rollback or arbitrary-chunk safe.

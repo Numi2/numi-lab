@@ -1,0 +1,3 @@
+# Matched gait smoothing on a second development seed
+
+Repeat the same-binary, same-controller physical smoothing comparison on development seed 20261127, using exactly the host, Metal library and rebound actor weights from the preceding 20261126 experiment. This seed was used earlier and is not a held-out final evaluation. Require exact sampled q/v/actions and all contact substeps before the walking window, an observed within-walk difference, the same support, clearance, travel, toe-speed, unloaded-substep and boundary-motion gates, and report full-substep p95 separately. A two-second pass will not establish sustained walking, flight, landing, biological fidelity or reset/rollback safety.
