@@ -1,0 +1,3 @@
+# Static foot placement sensitivity
+
+Using the step-10 state of the negative-pitch development bench, native forward kinematics predicts that increasing left hip coordinate q14 by +0.1 rad moves the modeled left foot center from x=0.0386 m to x=0.0251 m; +0.2 rad moves it to x=0.0115 m. Positive q15 changes also move it rearward; q16 has a much smaller x effect. These perturbations are isolated mathematical pose changes. They do not demonstrate the realized motion when the feet are loaded, do not establish a safe or biological joint range, and are not simulated walking or landing. A separately recorded contact-driven experiment tests that hypothesis.
