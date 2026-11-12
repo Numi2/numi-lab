@@ -1,0 +1,29 @@
+{
+  "old_fingerprints": [
+    2801281168732241546,
+    11277588021153534235,
+    12261780384824823292,
+    10276987404240961652
+  ],
+  "new_fingerprints": [
+    6593411030356188635,
+    17567659005219078532,
+    15807381546928729743,
+    5306385544315808273
+  ],
+  "reports": [
+    {
+      "actor": "landing",
+      "source_sha256": "967ebb5b36c0134f243b5c19a5e810d2e76b741bc4437ba9036d30916863e638",
+      "target_sha256": "68ad340e5dc67f325ac9e7639561524424bcaa497daaaf57cf456fdf1231b7f5",
+      "identical_layers_and_transforms": true
+    },
+    {
+      "actor": "route",
+      "source_sha256": "521f73cdb510d1a954dd70a7fc14d36871408c024ec782baa0e54c7959d57292",
+      "target_sha256": "d196d670685d3b3e2e36c2d3540322b3d608c5031c9e085ea9066e4358d4f307",
+      "identical_layers_and_transforms": true
+    }
+  ],
+  "scope": "Diagnostic world rebinding, unchanged weights and transforms. State parity still required."
+}

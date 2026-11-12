@@ -1,0 +1,8 @@
+0 end 1056 reason 3 contact {'step': 1049, 'substep': 10, 'lane': 0, 'bodyA': 6, 'bodyB': 39, 'normal_impulse': 0.0131870639} names ['crow_right_wing', 'crow_course_slalom_b'] context_steps [1046, 1047, 1048, 1049]
+1 end 1200 reason 0 contact {'step': 801, 'substep': 3, 'lane': 1, 'bodyA': 5, 'bodyB': 38, 'normal_impulse': 0.0506842658} names ['crow_left_wing', 'crow_course_slalom_a'] context_steps [798, 799, 800, 801]
+2 end 941 reason 3 contact None names None context_steps [938, 939, 940, 941]
+3 end 832 reason 3 contact None names None context_steps [829, 830, 831, 832]
+4 end 856 reason 3 contact {'step': 854, 'substep': 2, 'lane': 4, 'bodyA': 5, 'bodyB': 38, 'normal_impulse': 0.12115173} names ['crow_left_wing', 'crow_course_slalom_a'] context_steps [851, 852, 853, 854]
+5 end 954 reason 3 contact {'step': 954, 'substep': 8, 'lane': 5, 'bodyA': 6, 'bodyB': 39, 'normal_impulse': 0.000451699307} names ['crow_right_wing', 'crow_course_slalom_b'] context_steps [951, 952, 953, 954]
+6 end 965 reason 3 contact {'step': 965, 'substep': 2, 'lane': 6, 'bodyA': 6, 'bodyB': 39, 'normal_impulse': 0.0940124467} names ['crow_right_wing', 'crow_course_slalom_b'] context_steps [962, 963, 964, 965]
+7 end 954 reason 3 contact {'step': 953, 'substep': 2, 'lane': 7, 'bodyA': 6, 'bodyB': 39, 'normal_impulse': 0.138185859} names ['crow_right_wing', 'crow_course_slalom_b'] context_steps [950, 951, 952, 953]

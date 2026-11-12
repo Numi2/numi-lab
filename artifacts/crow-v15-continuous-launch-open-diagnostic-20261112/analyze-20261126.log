@@ -1,0 +1,8 @@
+0 end 1200 reason 0 wp 3 coverage {'body': 19200, 'toe': 19200, 'contact': 19200} caps [] nonfoot {'early': 0, 'walk_4_10': 0, 'takeoff_10_12_5': 0, 'post_12_5': 0} scene None
+1 end 1200 reason 0 wp 1 coverage {'body': 19200, 'toe': 19200, 'contact': 19200} caps [('crow_right_rear_toe_proximal_flex', 'early', 3)] nonfoot {'early': 0, 'walk_4_10': 0, 'takeoff_10_12_5': 0, 'post_12_5': 0} scene None
+2 end 1200 reason 0 wp 1 coverage {'body': 19200, 'toe': 19200, 'contact': 19200} caps [('crow_right_front_toe_1_proximal_flex', 'early', 6)] nonfoot {'early': 0, 'walk_4_10': 0, 'takeoff_10_12_5': 0, 'post_12_5': 0} scene None
+3 end 1200 reason 0 wp 2 coverage {'body': 19200, 'toe': 19200, 'contact': 19200} caps [] nonfoot {'early': 0, 'walk_4_10': 0, 'takeoff_10_12_5': 0, 'post_12_5': 0} scene None
+4 end 1200 reason 0 wp 1 coverage {'body': 19200, 'toe': 19200, 'contact': 19200} caps [] nonfoot {'early': 0, 'walk_4_10': 0, 'takeoff_10_12_5': 0, 'post_12_5': 0} scene None
+5 end 1200 reason 0 wp 2 coverage {'body': 19200, 'toe': 19200, 'contact': 19200} caps [] nonfoot {'early': 0, 'walk_4_10': 0, 'takeoff_10_12_5': 0, 'post_12_5': 0} scene None
+6 end 1200 reason 0 wp 2 coverage {'body': 19200, 'toe': 19200, 'contact': 19200} caps [] nonfoot {'early': 0, 'walk_4_10': 0, 'takeoff_10_12_5': 0, 'post_12_5': 0} scene None
+7 end 1200 reason 0 wp 2 coverage {'body': 19200, 'toe': 19200, 'contact': 19200} caps [] nonfoot {'early': 0, 'walk_4_10': 0, 'takeoff_10_12_5': 0, 'post_12_5': 0} scene None

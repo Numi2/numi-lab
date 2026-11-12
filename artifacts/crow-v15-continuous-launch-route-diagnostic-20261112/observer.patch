@@ -1,0 +1,10 @@
+--- build/crow-v15-flight-leg-retraction-blend-20261112/MetalWorld.mm	2026-11-12 16:49:46
++++ build/crow-v15-continuous-launch-route-diagnostic-20261112/MetalWorld.mm	2026-11-12 17:13:11
+@@ -22441,6 +22441,7 @@
+                             }
+                             std::fprintf(stderr,"CROW_TWO_TOE_SUBSTEP %llu %lu %lu %u %lu %.9g %.9g %.9g %.9g %.9g",crowTraceStep,(unsigned long)sub,(unsigned long)lane,statuses[lane].requiredConstraints,(unsigned long)crowTraceCapacity,up[0],up[1],normal[0],normal[1],other);
+                             for(int k=0;k<16;k++)std::fprintf(stderr," %.9g",toe[k]);for(int k=0;k<16;k++)std::fprintf(stderr," %.9g",signedX[k]);std::fprintf(stderr,"\n");
++                            std::fprintf(stderr,"CROW_BODY_JOINT_V_SUBSTEP %llu %lu %lu",crowTraceStep,(unsigned long)sub,(unsigned long)lane);for(int j=6;j<=21;++j)std::fprintf(stderr," %.9g",velocities[lane*crowTraceVStride+j]);for(int j=38;j<=39;++j)std::fprintf(stderr," %.9g",velocities[lane*crowTraceVStride+j]);std::fprintf(stderr,"\n");
+                             std::fprintf(stderr,"CROW_TOE_V_SUBSTEP %llu %lu %lu",crowTraceStep,(unsigned long)sub,(unsigned long)lane);for(int k=0;k<16;k++)std::fprintf(stderr," %.9g",velocities[lane*crowTraceVStride+22+k]);std::fprintf(stderr,"\n");
+                             if (crowWorkWindow) {
+                                 const auto* v0=static_cast<const float*>(crowWorkBuffers[4*sub].contents);

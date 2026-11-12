@@ -1,0 +1,32 @@
+/Users/n/Developer/numi-crow-rl-20261107/artifacts/crow-v15-continuous-launch-route-diagnostic-20261112/flexed.metal:5123:45: warning: unused variable 'anklePhase' [-Wunused-variable]
+                if(joint==2u) { const float anklePhase[8]={.10f,.10f,.11f,.11f,.115f,.115f,.125f,.125f}; const uint arm=environment%8u; const float transitionStart[8]={4.5f,4.5f,4.5f,4.5f,4.5f,4.5f,4.5f,4.5f}; const float transitionEnd[8]={5.5f,5.5f,5.5f,5.5f,5.5f,5.5f,5.5f,5.5f}; const float added=(support>0.05f ? .015f*smoothstep(transitionStart[arm],transitionEnd[arm],seconds) : 0.0f); navigationTeacherRequested-=fade*(.10f+added)*sin(M_PI_F*phase); }
+                                            ^
+/Users/n/Developer/numi-crow-rl-20261107/artifacts/crow-v15-continuous-launch-route-diagnostic-20261112/flexed.metal:5137:30: warning: unused variable 'arm' [-Wunused-variable]
+                { const uint arm=environment%8u;
+                             ^
+/Users/n/Developer/numi-crow-rl-20261107/artifacts/crow-v15-continuous-launch-route-diagnostic-20261112/flexed.metal:5095:24: warning: unused variable 'gaitArm' [-Wunused-variable]
+            const uint gaitArm=environment%8u;
+                       ^
+/Users/n/Developer/numi-crow-rl-20261107/artifacts/crow-v15-continuous-launch-route-diagnostic-20261112/flexed.metal:5165:30: warning: unused variable 'arm' [-Wunused-variable]
+                { const uint arm=environment%8u;
+                             ^
+/Users/n/Developer/numi-crow-rl-20261107/artifacts/crow-v15-continuous-launch-route-diagnostic-20261112/flexed.metal:5188:28: warning: unused variable 'experimentArm' [-Wunused-variable]
+                const uint experimentArm=environment%8u;
+                           ^
+/Users/n/Developer/numi-crow-rl-20261107/artifacts/crow-v15-continuous-launch-route-diagnostic-20261112/flexed.metal:5204:29: warning: unused variable 'crouched' [-Wunused-variable]
+                const float crouched=joint==0u ? -0.85f : joint==1u ? 1.00f : -0.50f;
+                            ^
+6 warnings generated.
+/Users/n/Developer/numi-crow-rl-20261107/artifacts/crow-v15-continuous-launch-route-diagnostic-20261112/control.metal:5120:45: warning: unused variable 'anklePhase' [-Wunused-variable]
+                if(joint==2u) { const float anklePhase[8]={.10f,.10f,.11f,.11f,.115f,.115f,.125f,.125f}; const uint arm=environment%8u; const float transitionStart[8]={4.5f,4.5f,4.5f,4.5f,4.5f,4.5f,4.5f,4.5f}; const float transitionEnd[8]={5.5f,5.5f,5.5f,5.5f,5.5f,5.5f,5.5f,5.5f}; const float added=(support>0.05f ? .015f*smoothstep(transitionStart[arm],transitionEnd[arm],seconds) : 0.0f); navigationTeacherRequested-=fade*(.10f+added)*sin(M_PI_F*phase); }
+                                            ^
+/Users/n/Developer/numi-crow-rl-20261107/artifacts/crow-v15-continuous-launch-route-diagnostic-20261112/control.metal:5134:30: warning: unused variable 'arm' [-Wunused-variable]
+                { const uint arm=environment%8u;
+                             ^
+/Users/n/Developer/numi-crow-rl-20261107/artifacts/crow-v15-continuous-launch-route-diagnostic-20261112/control.metal:5162:30: warning: unused variable 'arm' [-Wunused-variable]
+                { const uint arm=environment%8u;
+                             ^
+/Users/n/Developer/numi-crow-rl-20261107/artifacts/crow-v15-continuous-launch-route-diagnostic-20261112/control.metal:5185:28: warning: unused variable 'experimentArm' [-Wunused-variable]
+                const uint experimentArm=environment%8u;
+                           ^
+4 warnings generated.
