@@ -1,0 +1,7 @@
+# Rear-toe target exploratory screen
+
+All eight same-lane accepted states and contact samples matched the earlier walk reference through step 485; full 6,000 toe/contact substeps through step 575 were observed without toe-speed caps, nonfoot ground impulses, overflow, or reported solver errors. The feet retained observed load for all 240 transition substeps and all were foot-unloaded in the final 80 substeps. All completed the short horizon. Each lane advanced through the same late-fade handoff.
+
+The +0.05 and +0.10 rad target lanes match their own earlier coordinated-handoff trajectories through step 526, diverge first at step 527 after preload begins, and avoid the rear toe caps seen in the old trajectories. However, the zero-target lanes also avoid a toe cap despite differing from their old same-lane hard-cutoff reference from step 502. Thus the observed sensitivity across related starts or source configurations means the intervention is not causally established by this screen. Other target levels are one start each. Run matched zero-target and fixed-target trajectories on both development seeds with explicit observer coverage before choosing a parameter.
+
+The short flight horizon, unobserved body/wing speed caps, changing contact point, and total normal impulse do not establish leg-only takeoff, genuine material grip, reliable flight or biological realism. A separate screen examines the incorrectly timed wing-onset ramp while retaining the zero-target gait.
