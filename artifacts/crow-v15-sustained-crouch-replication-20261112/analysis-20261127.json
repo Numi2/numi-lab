@@ -1,0 +1,465 @@
+{
+  "rows": [
+    {
+      "lane": 0,
+      "arm": "crouch",
+      "prefix_match": {
+        "state": true,
+        "contact": true
+      },
+      "prefix_record_counts": {
+        "state": 300,
+        "contact": 4800
+      },
+      "baseline": {
+        "contact": 4800,
+        "toe_coverage": 4800,
+        "all_unloaded": 65,
+        "post6_unloaded": 65
+      },
+      "candidate": {
+        "contact": 4800,
+        "toe_coverage": 4800,
+        "all_unloaded": 0,
+        "post6_unloaded": 0,
+        "nonfoot": 0,
+        "overflow": 0
+      },
+      "baseline_caps": [
+        [
+          302,
+          10
+        ],
+        [
+          302,
+          11
+        ],
+        [
+          307,
+          2
+        ],
+        [
+          307,
+          3
+        ],
+        [
+          307,
+          4
+        ],
+        [
+          307,
+          5
+        ]
+      ],
+      "caps": [],
+      "dx_m": 0.26138036,
+      "failure": false,
+      "end": 500,
+      "engineering_screen": true
+    },
+    {
+      "lane": 1,
+      "arm": "crouch",
+      "prefix_match": {
+        "state": true,
+        "contact": true
+      },
+      "prefix_record_counts": {
+        "state": 300,
+        "contact": 4800
+      },
+      "baseline": {
+        "contact": 4800,
+        "toe_coverage": 4800,
+        "all_unloaded": 65,
+        "post6_unloaded": 65
+      },
+      "candidate": {
+        "contact": 4800,
+        "toe_coverage": 4800,
+        "all_unloaded": 0,
+        "post6_unloaded": 0,
+        "nonfoot": 0,
+        "overflow": 0
+      },
+      "baseline_caps": [
+        [
+          302,
+          10
+        ],
+        [
+          302,
+          11
+        ],
+        [
+          307,
+          2
+        ],
+        [
+          307,
+          3
+        ],
+        [
+          307,
+          4
+        ],
+        [
+          307,
+          5
+        ]
+      ],
+      "caps": [],
+      "dx_m": 0.2614910794,
+      "failure": false,
+      "end": 500,
+      "engineering_screen": true
+    },
+    {
+      "lane": 2,
+      "arm": "crouch",
+      "prefix_match": {
+        "state": true,
+        "contact": true
+      },
+      "prefix_record_counts": {
+        "state": 300,
+        "contact": 4800
+      },
+      "baseline": {
+        "contact": 4800,
+        "toe_coverage": 4800,
+        "all_unloaded": 65,
+        "post6_unloaded": 65
+      },
+      "candidate": {
+        "contact": 4800,
+        "toe_coverage": 4800,
+        "all_unloaded": 0,
+        "post6_unloaded": 0,
+        "nonfoot": 0,
+        "overflow": 0
+      },
+      "baseline_caps": [
+        [
+          302,
+          10
+        ],
+        [
+          302,
+          11
+        ],
+        [
+          307,
+          2
+        ],
+        [
+          307,
+          3
+        ],
+        [
+          307,
+          4
+        ],
+        [
+          307,
+          5
+        ]
+      ],
+      "caps": [],
+      "dx_m": 0.2613454599,
+      "failure": false,
+      "end": 500,
+      "engineering_screen": true
+    },
+    {
+      "lane": 3,
+      "arm": "crouch",
+      "prefix_match": {
+        "state": true,
+        "contact": true
+      },
+      "prefix_record_counts": {
+        "state": 300,
+        "contact": 4800
+      },
+      "baseline": {
+        "contact": 4800,
+        "toe_coverage": 4800,
+        "all_unloaded": 72,
+        "post6_unloaded": 72
+      },
+      "candidate": {
+        "contact": 4800,
+        "toe_coverage": 4800,
+        "all_unloaded": 0,
+        "post6_unloaded": 0,
+        "nonfoot": 0,
+        "overflow": 0
+      },
+      "baseline_caps": [
+        [
+          302,
+          10
+        ],
+        [
+          302,
+          11
+        ],
+        [
+          307,
+          2
+        ],
+        [
+          307,
+          3
+        ],
+        [
+          307,
+          4
+        ],
+        [
+          307,
+          5
+        ]
+      ],
+      "caps": [],
+      "dx_m": 0.2613765648,
+      "failure": false,
+      "end": 500,
+      "engineering_screen": true
+    },
+    {
+      "lane": 4,
+      "arm": "crouch",
+      "prefix_match": {
+        "state": true,
+        "contact": true
+      },
+      "prefix_record_counts": {
+        "state": 300,
+        "contact": 4800
+      },
+      "baseline": {
+        "contact": 4800,
+        "toe_coverage": 4800,
+        "all_unloaded": 65,
+        "post6_unloaded": 65
+      },
+      "candidate": {
+        "contact": 4800,
+        "toe_coverage": 4800,
+        "all_unloaded": 0,
+        "post6_unloaded": 0,
+        "nonfoot": 0,
+        "overflow": 0
+      },
+      "baseline_caps": [
+        [
+          302,
+          10
+        ],
+        [
+          302,
+          11
+        ],
+        [
+          307,
+          2
+        ],
+        [
+          307,
+          3
+        ],
+        [
+          307,
+          4
+        ],
+        [
+          307,
+          5
+        ]
+      ],
+      "caps": [],
+      "dx_m": 0.26141708267999997,
+      "failure": false,
+      "end": 500,
+      "engineering_screen": true
+    },
+    {
+      "lane": 5,
+      "arm": "crouch",
+      "prefix_match": {
+        "state": true,
+        "contact": true
+      },
+      "prefix_record_counts": {
+        "state": 300,
+        "contact": 4800
+      },
+      "baseline": {
+        "contact": 4800,
+        "toe_coverage": 4800,
+        "all_unloaded": 71,
+        "post6_unloaded": 71
+      },
+      "candidate": {
+        "contact": 4800,
+        "toe_coverage": 4800,
+        "all_unloaded": 0,
+        "post6_unloaded": 0,
+        "nonfoot": 0,
+        "overflow": 0
+      },
+      "baseline_caps": [
+        [
+          302,
+          10
+        ],
+        [
+          302,
+          11
+        ],
+        [
+          307,
+          2
+        ],
+        [
+          307,
+          3
+        ],
+        [
+          307,
+          4
+        ],
+        [
+          307,
+          5
+        ]
+      ],
+      "caps": [],
+      "dx_m": 0.2613089983,
+      "failure": false,
+      "end": 500,
+      "engineering_screen": true
+    },
+    {
+      "lane": 6,
+      "arm": "crouch",
+      "prefix_match": {
+        "state": true,
+        "contact": true
+      },
+      "prefix_record_counts": {
+        "state": 300,
+        "contact": 4800
+      },
+      "baseline": {
+        "contact": 4800,
+        "toe_coverage": 4800,
+        "all_unloaded": 65,
+        "post6_unloaded": 65
+      },
+      "candidate": {
+        "contact": 4800,
+        "toe_coverage": 4800,
+        "all_unloaded": 0,
+        "post6_unloaded": 0,
+        "nonfoot": 0,
+        "overflow": 0
+      },
+      "baseline_caps": [
+        [
+          302,
+          10
+        ],
+        [
+          302,
+          11
+        ],
+        [
+          307,
+          2
+        ],
+        [
+          307,
+          3
+        ],
+        [
+          307,
+          4
+        ],
+        [
+          307,
+          5
+        ]
+      ],
+      "caps": [],
+      "dx_m": 0.26141230482,
+      "failure": false,
+      "end": 500,
+      "engineering_screen": true
+    },
+    {
+      "lane": 7,
+      "arm": "crouch",
+      "prefix_match": {
+        "state": true,
+        "contact": true
+      },
+      "prefix_record_counts": {
+        "state": 300,
+        "contact": 4800
+      },
+      "baseline": {
+        "contact": 4800,
+        "toe_coverage": 4800,
+        "all_unloaded": 65,
+        "post6_unloaded": 65
+      },
+      "candidate": {
+        "contact": 4800,
+        "toe_coverage": 4800,
+        "all_unloaded": 0,
+        "post6_unloaded": 0,
+        "nonfoot": 0,
+        "overflow": 0
+      },
+      "baseline_caps": [
+        [
+          302,
+          10
+        ],
+        [
+          302,
+          11
+        ],
+        [
+          307,
+          2
+        ],
+        [
+          307,
+          3
+        ],
+        [
+          307,
+          4
+        ],
+        [
+          307,
+          5
+        ]
+      ],
+      "caps": [],
+      "dx_m": 0.2614476269,
+      "failure": false,
+      "end": 500,
+      "engineering_screen": true
+    }
+  ],
+  "errors": {
+    "baseline": [],
+    "candidate": []
+  },
+  "scope": "Used-seed uniform crouch continuation with matched same-lane source trajectories. Contact proxy is not material slip. Physical or biological qualification does not follow."
+}

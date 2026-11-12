@@ -1,0 +1,5 @@
+# Walk-to-launch handoff: all candidates failed
+
+All eight trajectories exactly matched the uniform walking reference through 485 endpoint states and 7,760 contact substeps. They survived 575 steps with 6,000 observed toe-velocity and contact substeps, no ground nonfoot impulses, overflow or solver errors. In the 240 substeps from steps 501–515, the hard-cutoff controls had 163–165 both-feet-unloaded substeps; the alternative crouch hold/fades still had 110–126. Seven of eight lanes also reached the toe speed cap, once at step 502 for each hard cutoff, or later at step 552 for the affected alternatives. No arm meets the no-gap/no-cap screen.
+
+All lanes were foot-unloaded in the last five observed steps and rose, but this does not prove leg-powered takeoff: upward ground normal impulse across steps 549–556 was 0.238–0.258 N s and may include other forces, and no matched held-leg test or body/wing speed observer was used here. Results expose an unqualified transition on one already-used seed, not success on the full journey. Continue with a coordinated gait, toe and crouch handoff rather than claiming a successful landing or flight.
