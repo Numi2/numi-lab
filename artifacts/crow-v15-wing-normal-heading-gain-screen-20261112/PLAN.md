@@ -1,0 +1,3 @@
+# Heading feedback gain sensitivity
+
+Repeat the prior used-seed, obstacle-free wing-normal heading screen with gain 1.4, yaw-rate damping 0.2 and action bound +/-0.30 instead of 0.7, 0.1 and +/-0.20. All other targets, per-lane normal blends, initial conditions, policies, physical model and intervention time are unchanged. Require exact pre-command/control parity and report final 20–24 s body-heading and path errors, survival, contacts and observation gaps in both directions. This is a control sensitivity experiment in an uncalibrated flight model, not flight qualification or proof of biological realism.
