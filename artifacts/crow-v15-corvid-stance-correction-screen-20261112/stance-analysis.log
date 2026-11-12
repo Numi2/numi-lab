@@ -1,0 +1,5 @@
+stances 54 rejected {'partial': 25, 'under_40ms': 22}
+hip_change_deg median -11.172110280134504 range -17.06919058548304 4.371886907531595 negative 52 positive 2
+knee_change_deg median -1.1454268739422133 range -13.961134416498837 10.771086106781823 negative 29 positive 25
+ankle_mid_minus_early_deg median 1.3422478063676166 range -6.490451997950068 4.657447699791248 negative 18 positive 36
+ankle_late_minus_mid_deg median -0.3648430978989339 range -2.1571287814819016 8.197385345134016 negative 36 positive 18
