@@ -1,0 +1,10 @@
+{
+  "state_samples": 2400,
+  "contact_substeps": 38400,
+  "state_mismatches": 0,
+  "contact_mismatches": 0,
+  "first_state_mismatch": [],
+  "first_contact_mismatch": [],
+  "pass": true,
+  "scope": "Exact logged endpoints and substeps, not an independent biological validation."
+}

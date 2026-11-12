@@ -1,0 +1,7 @@
+trimmed
+Traceback (most recent call last):
+  File "/Users/n/Developer/numi-crow-rl-20261107/artifacts/crow-v15-shank-proxy-trim-screen-20261112/support-projection.py", line 30, in <module>
+    v=[r["com_minus_rear_contact_m"] for r in out[n]["rows"] if r["step"]==t and r["com_minus_rear_contact_m"] is not None];print(t,"median_com_minus_rear_contact_m",statistics.median(v),"negative",sum(x<0 for x in v),"samples",len(v))
+  File "/Applications/Xcode-26.6.0.app/Contents/Developer/Library/Frameworks/Python3.framework/Versions/3.9/lib/python3.9/statistics.py", line 430, in median
+    raise StatisticsError("no median for empty data")
+statistics.StatisticsError: no median for empty data

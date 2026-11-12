@@ -1,0 +1,20 @@
+{
+  "entries": 32,
+  "changes": [
+    {
+      "index": 23,
+      "control_body": 10,
+      "candidate_body": 10,
+      "control_radius_m": 0.035598956,
+      "candidate_radius_m": 0.0359626375
+    },
+    {
+      "index": 25,
+      "control_body": 14,
+      "candidate_body": 14,
+      "control_radius_m": 0.035598956,
+      "candidate_radius_m": 0.0359626375
+    }
+  ],
+  "scope": "All 32 collision-envelope radius entries are compared directly. The normal world fingerprint differs because of the diagnostic shank-proxy change; the layout-audit host must not be used as a production policy contract. The active Metal task source reads contactMemberRadii in its link-clearance reward branch; altered geometry can change observations and behavior through other pathways even when layout tables match."
+}

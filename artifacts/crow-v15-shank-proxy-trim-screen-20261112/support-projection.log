@@ -1,0 +1,12 @@
+trimmed
+1 median_com_minus_rear_contact_m None negative 0 samples 0
+25 median_com_minus_rear_contact_m 0.012740203833972659 negative 0 samples 6
+50 median_com_minus_rear_contact_m 0.0007946955751270448 negative 4 samples 8
+75 median_com_minus_rear_contact_m -0.014107875572449842 negative 8 samples 8
+100 median_com_minus_rear_contact_m -0.02774304520889087 negative 8 samples 8
+pair_excluded
+1 median_com_minus_rear_contact_m None negative 0 samples 0
+25 median_com_minus_rear_contact_m 0.016668677031995982 negative 0 samples 5
+50 median_com_minus_rear_contact_m 0.01687279178668318 negative 0 samples 5
+75 median_com_minus_rear_contact_m 0.016880362731798444 negative 0 samples 5
+100 median_com_minus_rear_contact_m 0.016308823294092924 negative 0 samples 5

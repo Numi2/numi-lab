@@ -1,0 +1,941 @@
+{
+  "control": {
+    "rows": [
+      {
+        "lane": 0,
+        "steps": 175,
+        "physical_failure": true,
+        "reason": 3,
+        "final_position_m": [
+          -0.251503408,
+          -0.04814592,
+          0.139966071
+        ],
+        "final_pitch_rad": -0.7816826369597567,
+        "first_nonfoot_ground_substep": [
+          176,
+          10,
+          0.00683492282
+        ],
+        "following_endpoint_ground_pairs": [
+          [
+            "crow_left_rear_toe_distal",
+            "locomotion_ground"
+          ],
+          [
+            "crow_right_rear_toe_distal",
+            "locomotion_ground"
+          ],
+          [
+            "crow_tail",
+            "locomotion_ground"
+          ]
+        ],
+        "self_contact_endpoint_pair_counts": [
+          {
+            "pair": [
+              "crow_right_rear_toe_proximal",
+              "crow_right_shank"
+            ],
+            "count": 179
+          },
+          {
+            "pair": [
+              "crow_left_rear_toe_proximal",
+              "crow_left_shank"
+            ],
+            "count": 177
+          }
+        ],
+        "toe_velocity_cap_samples": 43
+      },
+      {
+        "lane": 1,
+        "steps": 171,
+        "physical_failure": true,
+        "reason": 3,
+        "final_position_m": [
+          -0.258402556,
+          0.0148568805,
+          0.138722152
+        ],
+        "final_pitch_rad": -0.7911870160705285,
+        "first_nonfoot_ground_substep": [
+          171,
+          10,
+          0.00150644849
+        ],
+        "following_endpoint_ground_pairs": [
+          [
+            "crow_body",
+            "locomotion_ground"
+          ],
+          [
+            "crow_left_rear_toe_distal",
+            "locomotion_ground"
+          ],
+          [
+            "crow_right_rear_toe_distal",
+            "locomotion_ground"
+          ]
+        ],
+        "self_contact_endpoint_pair_counts": [
+          {
+            "pair": [
+              "crow_left_rear_toe_proximal",
+              "crow_left_shank"
+            ],
+            "count": 175
+          },
+          {
+            "pair": [
+              "crow_right_rear_toe_proximal",
+              "crow_right_shank"
+            ],
+            "count": 175
+          }
+        ],
+        "toe_velocity_cap_samples": 41
+      },
+      {
+        "lane": 2,
+        "steps": 223,
+        "physical_failure": true,
+        "reason": 3,
+        "final_position_m": [
+          -0.249733135,
+          -0.0189514738,
+          0.137807652
+        ],
+        "final_pitch_rad": -0.7545714934944705,
+        "first_nonfoot_ground_substep": [
+          224,
+          8,
+          0.032583952
+        ],
+        "following_endpoint_ground_pairs": [
+          [
+            "crow_body",
+            "locomotion_ground"
+          ],
+          [
+            "crow_left_rear_toe_distal",
+            "locomotion_ground"
+          ]
+        ],
+        "self_contact_endpoint_pair_counts": [
+          {
+            "pair": [
+              "crow_right_rear_toe_proximal",
+              "crow_right_shank"
+            ],
+            "count": 239
+          },
+          {
+            "pair": [
+              "crow_left_rear_toe_proximal",
+              "crow_left_shank"
+            ],
+            "count": 234
+          }
+        ],
+        "toe_velocity_cap_samples": 46
+      },
+      {
+        "lane": 3,
+        "steps": 230,
+        "physical_failure": true,
+        "reason": 3,
+        "final_position_m": [
+          -0.242432594,
+          -0.0120452773,
+          0.137811959
+        ],
+        "final_pitch_rad": -0.7528943473692417,
+        "first_nonfoot_ground_substep": [
+          231,
+          9,
+          0.0313573442
+        ],
+        "following_endpoint_ground_pairs": [
+          [
+            "crow_body",
+            "locomotion_ground"
+          ],
+          [
+            "crow_right_rear_toe_distal",
+            "locomotion_ground"
+          ]
+        ],
+        "self_contact_endpoint_pair_counts": [
+          {
+            "pair": [
+              "crow_left_rear_toe_proximal",
+              "crow_left_shank"
+            ],
+            "count": 254
+          },
+          {
+            "pair": [
+              "crow_right_rear_toe_proximal",
+              "crow_right_shank"
+            ],
+            "count": 254
+          }
+        ],
+        "toe_velocity_cap_samples": 47
+      },
+      {
+        "lane": 4,
+        "steps": 212,
+        "physical_failure": true,
+        "reason": 3,
+        "final_position_m": [
+          -0.230113775,
+          0.021483317,
+          0.137417018
+        ],
+        "final_pitch_rad": -0.7416039202024668,
+        "first_nonfoot_ground_substep": [
+          213,
+          12,
+          0.0231727809
+        ],
+        "following_endpoint_ground_pairs": [
+          [
+            "crow_body",
+            "locomotion_ground"
+          ],
+          [
+            "crow_right_rear_toe_distal",
+            "locomotion_ground"
+          ]
+        ],
+        "self_contact_endpoint_pair_counts": [
+          {
+            "pair": [
+              "crow_left_rear_toe_proximal",
+              "crow_left_shank"
+            ],
+            "count": 219
+          },
+          {
+            "pair": [
+              "crow_right_rear_toe_proximal",
+              "crow_right_shank"
+            ],
+            "count": 216
+          }
+        ],
+        "toe_velocity_cap_samples": 35
+      },
+      {
+        "lane": 5,
+        "steps": 156,
+        "physical_failure": true,
+        "reason": 3,
+        "final_position_m": [
+          -0.213167772,
+          0.0131243207,
+          0.13879934
+        ],
+        "final_pitch_rad": -0.7899942388880202,
+        "first_nonfoot_ground_substep": [
+          156,
+          13,
+          0.0213948097
+        ],
+        "following_endpoint_ground_pairs": [
+          [
+            "crow_body",
+            "locomotion_ground"
+          ]
+        ],
+        "self_contact_endpoint_pair_counts": [
+          {
+            "pair": [
+              "crow_left_rear_toe_proximal",
+              "crow_left_shank"
+            ],
+            "count": 160
+          },
+          {
+            "pair": [
+              "crow_right_rear_toe_proximal",
+              "crow_right_shank"
+            ],
+            "count": 156
+          }
+        ],
+        "toe_velocity_cap_samples": 45
+      },
+      {
+        "lane": 6,
+        "steps": 185,
+        "physical_failure": true,
+        "reason": 3,
+        "final_position_m": [
+          -0.220830411,
+          0.0407774746,
+          0.139965922
+        ],
+        "final_pitch_rad": -0.7806145421894283,
+        "first_nonfoot_ground_substep": [
+          186,
+          11,
+          0.00327070267
+        ],
+        "following_endpoint_ground_pairs": [
+          [
+            "crow_left_rear_toe_distal",
+            "locomotion_ground"
+          ],
+          [
+            "crow_right_rear_toe_distal",
+            "locomotion_ground"
+          ],
+          [
+            "crow_tail",
+            "locomotion_ground"
+          ]
+        ],
+        "self_contact_endpoint_pair_counts": [
+          {
+            "pair": [
+              "crow_left_rear_toe_proximal",
+              "crow_left_shank"
+            ],
+            "count": 189
+          },
+          {
+            "pair": [
+              "crow_right_rear_toe_proximal",
+              "crow_right_shank"
+            ],
+            "count": 188
+          }
+        ],
+        "toe_velocity_cap_samples": 46
+      },
+      {
+        "lane": 7,
+        "steps": 200,
+        "physical_failure": true,
+        "reason": 3,
+        "final_position_m": [
+          -0.236309543,
+          0.052817408,
+          0.140161455
+        ],
+        "final_pitch_rad": -0.7783769864383416,
+        "first_nonfoot_ground_substep": [
+          201,
+          13,
+          0.00801648758
+        ],
+        "following_endpoint_ground_pairs": [
+          [
+            "crow_left_rear_toe_distal",
+            "locomotion_ground"
+          ],
+          [
+            "crow_right_rear_toe_distal",
+            "locomotion_ground"
+          ],
+          [
+            "crow_tail",
+            "locomotion_ground"
+          ]
+        ],
+        "self_contact_endpoint_pair_counts": [
+          {
+            "pair": [
+              "crow_left_rear_toe_proximal",
+              "crow_left_shank"
+            ],
+            "count": 204
+          },
+          {
+            "pair": [
+              "crow_right_rear_toe_proximal",
+              "crow_right_shank"
+            ],
+            "count": 200
+          }
+        ],
+        "toe_velocity_cap_samples": 54
+      }
+    ],
+    "episode": {
+      "boundary": "waypoint completion; does not establish supported landing",
+      "closed_by_environment": [
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true
+      ],
+      "closed_episode_count": 8,
+      "completion_seen_by_environment": [
+        false,
+        false,
+        false,
+        false,
+        false,
+        false,
+        false,
+        false
+      ],
+      "completion_seen_count": 0,
+      "environment_count": 8,
+      "first_completion_step_by_environment": [
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "horizon_censored_count": 0,
+      "maximum_waypoints_by_environment": [
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ],
+      "physical_failure_by_environment": [
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true
+      ],
+      "physical_failure_count": 8,
+      "safe_completion_by_environment": [
+        false,
+        false,
+        false,
+        false,
+        false,
+        false,
+        false,
+        false
+      ],
+      "safe_completion_count": 0,
+      "schema": "numi.crow-first-episode-evidence.v1",
+      "steps_by_environment": [
+        175,
+        171,
+        223,
+        230,
+        212,
+        156,
+        185,
+        200
+      ],
+      "termination_reason_by_environment": [
+        3,
+        3,
+        3,
+        3,
+        3,
+        3,
+        3,
+        3
+      ],
+      "unit": "first episode of each environment since context creation"
+    },
+    "errors": [],
+    "exit_code": 0
+  },
+  "candidate": {
+    "rows": [
+      {
+        "lane": 0,
+        "steps": 168,
+        "physical_failure": true,
+        "reason": 3,
+        "final_position_m": [
+          -0.151486173,
+          -0.031526655,
+          0.132868886
+        ],
+        "final_pitch_rad": -0.6963860664478079,
+        "first_nonfoot_ground_substep": [
+          169,
+          14,
+          0.00378583279
+        ],
+        "following_endpoint_ground_pairs": [
+          [
+            "crow_body",
+            "locomotion_ground"
+          ],
+          [
+            "crow_left_rear_toe_distal",
+            "locomotion_ground"
+          ],
+          [
+            "crow_right_rear_toe_distal",
+            "locomotion_ground"
+          ]
+        ],
+        "self_contact_endpoint_pair_counts": [
+          {
+            "pair": [
+              "crow_left_rear_toe_distal",
+              "crow_left_shank"
+            ],
+            "count": 180
+          },
+          {
+            "pair": [
+              "crow_right_rear_toe_distal",
+              "crow_right_shank"
+            ],
+            "count": 180
+          }
+        ],
+        "toe_velocity_cap_samples": 0
+      },
+      {
+        "lane": 1,
+        "steps": 179,
+        "physical_failure": true,
+        "reason": 3,
+        "final_position_m": [
+          -0.224264503,
+          0.0101831136,
+          0.132632837
+        ],
+        "final_pitch_rad": -0.6985926313007794,
+        "first_nonfoot_ground_substep": [
+          180,
+          10,
+          0.00863629859
+        ],
+        "following_endpoint_ground_pairs": [
+          [
+            "crow_body",
+            "locomotion_ground"
+          ],
+          [
+            "crow_left_rear_toe_distal",
+            "locomotion_ground"
+          ],
+          [
+            "crow_right_rear_toe_distal",
+            "locomotion_ground"
+          ]
+        ],
+        "self_contact_endpoint_pair_counts": [
+          {
+            "pair": [
+              "crow_right_rear_toe_distal",
+              "crow_right_shank"
+            ],
+            "count": 202
+          },
+          {
+            "pair": [
+              "crow_left_rear_toe_distal",
+              "crow_left_shank"
+            ],
+            "count": 192
+          }
+        ],
+        "toe_velocity_cap_samples": 3
+      },
+      {
+        "lane": 2,
+        "steps": 183,
+        "physical_failure": true,
+        "reason": 3,
+        "final_position_m": [
+          -0.188078687,
+          -0.00696172658,
+          0.132101133
+        ],
+        "final_pitch_rad": -0.7041064460883222,
+        "first_nonfoot_ground_substep": [
+          184,
+          0,
+          0.00255095493
+        ],
+        "following_endpoint_ground_pairs": [
+          [
+            "crow_body",
+            "locomotion_ground"
+          ],
+          [
+            "crow_left_rear_toe_distal",
+            "locomotion_ground"
+          ],
+          [
+            "crow_right_rear_toe_distal",
+            "locomotion_ground"
+          ]
+        ],
+        "self_contact_endpoint_pair_counts": [
+          {
+            "pair": [
+              "crow_left_rear_toe_distal",
+              "crow_left_shank"
+            ],
+            "count": 205
+          },
+          {
+            "pair": [
+              "crow_right_rear_toe_distal",
+              "crow_right_shank"
+            ],
+            "count": 192
+          }
+        ],
+        "toe_velocity_cap_samples": 0
+      },
+      {
+        "lane": 3,
+        "steps": 179,
+        "physical_failure": true,
+        "reason": 3,
+        "final_position_m": [
+          -0.119598515,
+          -0.0209610108,
+          0.13270916
+        ],
+        "final_pitch_rad": -0.6978840779981472,
+        "first_nonfoot_ground_substep": [
+          180,
+          11,
+          0.00328602502
+        ],
+        "following_endpoint_ground_pairs": [
+          [
+            "crow_body",
+            "locomotion_ground"
+          ],
+          [
+            "crow_left_rear_toe_distal",
+            "locomotion_ground"
+          ],
+          [
+            "crow_right_rear_toe_distal",
+            "locomotion_ground"
+          ]
+        ],
+        "self_contact_endpoint_pair_counts": [
+          {
+            "pair": [
+              "crow_left_rear_toe_distal",
+              "crow_left_shank"
+            ],
+            "count": 199
+          },
+          {
+            "pair": [
+              "crow_right_rear_toe_distal",
+              "crow_right_shank"
+            ],
+            "count": 196
+          }
+        ],
+        "toe_velocity_cap_samples": 0
+      },
+      {
+        "lane": 4,
+        "steps": 174,
+        "physical_failure": true,
+        "reason": 3,
+        "final_position_m": [
+          -0.10276214,
+          0.0389075913,
+          0.132080719
+        ],
+        "final_pitch_rad": -0.7042988614940479,
+        "first_nonfoot_ground_substep": [
+          175,
+          0,
+          0.0111473026
+        ],
+        "following_endpoint_ground_pairs": [
+          [
+            "crow_body",
+            "locomotion_ground"
+          ],
+          [
+            "crow_left_rear_toe_distal",
+            "locomotion_ground"
+          ],
+          [
+            "crow_right_rear_toe_distal",
+            "locomotion_ground"
+          ]
+        ],
+        "self_contact_endpoint_pair_counts": [
+          {
+            "pair": [
+              "crow_left_rear_toe_distal",
+              "crow_left_shank"
+            ],
+            "count": 197
+          },
+          {
+            "pair": [
+              "crow_right_rear_toe_distal",
+              "crow_right_shank"
+            ],
+            "count": 197
+          }
+        ],
+        "toe_velocity_cap_samples": 0
+      },
+      {
+        "lane": 5,
+        "steps": 174,
+        "physical_failure": true,
+        "reason": 3,
+        "final_position_m": [
+          -0.157718256,
+          0.0189688038,
+          0.132906377
+        ],
+        "final_pitch_rad": -0.6958901178372094,
+        "first_nonfoot_ground_substep": [
+          175,
+          15,
+          0.0114641087
+        ],
+        "following_endpoint_ground_pairs": [
+          [
+            "crow_body",
+            "locomotion_ground"
+          ],
+          [
+            "crow_left_rear_toe_distal",
+            "locomotion_ground"
+          ],
+          [
+            "crow_right_rear_toe_distal",
+            "locomotion_ground"
+          ]
+        ],
+        "self_contact_endpoint_pair_counts": [
+          {
+            "pair": [
+              "crow_right_rear_toe_distal",
+              "crow_right_shank"
+            ],
+            "count": 202
+          },
+          {
+            "pair": [
+              "crow_left_rear_toe_distal",
+              "crow_left_shank"
+            ],
+            "count": 197
+          }
+        ],
+        "toe_velocity_cap_samples": 7
+      },
+      {
+        "lane": 6,
+        "steps": 170,
+        "physical_failure": true,
+        "reason": 3,
+        "final_position_m": [
+          -0.108474419,
+          0.0305565968,
+          0.132629484
+        ],
+        "final_pitch_rad": -0.6987072846743353,
+        "first_nonfoot_ground_substep": [
+          171,
+          10,
+          0.011991499
+        ],
+        "following_endpoint_ground_pairs": [
+          [
+            "crow_body",
+            "locomotion_ground"
+          ],
+          [
+            "crow_left_rear_toe_distal",
+            "locomotion_ground"
+          ],
+          [
+            "crow_right_rear_toe_distal",
+            "locomotion_ground"
+          ]
+        ],
+        "self_contact_endpoint_pair_counts": [
+          {
+            "pair": [
+              "crow_left_rear_toe_distal",
+              "crow_left_shank"
+            ],
+            "count": 195
+          },
+          {
+            "pair": [
+              "crow_right_rear_toe_distal",
+              "crow_right_shank"
+            ],
+            "count": 195
+          }
+        ],
+        "toe_velocity_cap_samples": 0
+      },
+      {
+        "lane": 7,
+        "steps": 235,
+        "physical_failure": true,
+        "reason": 3,
+        "final_position_m": [
+          -0.167170778,
+          0.0663722306,
+          0.133456245
+        ],
+        "final_pitch_rad": -0.6892463463326807,
+        "first_nonfoot_ground_substep": [
+          236,
+          12,
+          0.0338368788
+        ],
+        "following_endpoint_ground_pairs": [
+          [
+            "crow_body",
+            "locomotion_ground"
+          ],
+          [
+            "crow_right_rear_toe_distal",
+            "locomotion_ground"
+          ]
+        ],
+        "self_contact_endpoint_pair_counts": [
+          {
+            "pair": [
+              "crow_right_rear_toe_distal",
+              "crow_right_shank"
+            ],
+            "count": 275
+          },
+          {
+            "pair": [
+              "crow_left_rear_toe_distal",
+              "crow_left_shank"
+            ],
+            "count": 232
+          }
+        ],
+        "toe_velocity_cap_samples": 3
+      }
+    ],
+    "episode": {
+      "boundary": "waypoint completion; does not establish supported landing",
+      "closed_by_environment": [
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true
+      ],
+      "closed_episode_count": 8,
+      "completion_seen_by_environment": [
+        false,
+        false,
+        false,
+        false,
+        false,
+        false,
+        false,
+        false
+      ],
+      "completion_seen_count": 0,
+      "environment_count": 8,
+      "first_completion_step_by_environment": [
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "horizon_censored_count": 0,
+      "maximum_waypoints_by_environment": [
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ],
+      "physical_failure_by_environment": [
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true
+      ],
+      "physical_failure_count": 8,
+      "safe_completion_by_environment": [
+        false,
+        false,
+        false,
+        false,
+        false,
+        false,
+        false,
+        false
+      ],
+      "safe_completion_count": 0,
+      "schema": "numi.crow-first-episode-evidence.v1",
+      "steps_by_environment": [
+        168,
+        179,
+        183,
+        179,
+        174,
+        174,
+        170,
+        235
+      ],
+      "termination_reason_by_environment": [
+        3,
+        3,
+        3,
+        3,
+        3,
+        3,
+        3,
+        3
+      ],
+      "unit": "first episode of each environment since context creation"
+    },
+    "errors": [],
+    "exit_code": 0
+  },
+  "scope": "Diagnostic same body, same actor weights and seed, differs only in two shortened shank collision boxes and fingerprints. Paired whole trajectories can diverge; no-exclusion parity is audited separately. Results are censored at each first episode; endpoint pairs after recorded failure cannot establish the precise first fatal substep. No result of this engineering proxy is biological or full-sequence qualification."
+}

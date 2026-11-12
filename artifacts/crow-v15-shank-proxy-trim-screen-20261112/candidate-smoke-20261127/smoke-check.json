@@ -1,0 +1,15 @@
+{
+  "steps_requested": 2,
+  "environments": 8,
+  "sample_counts": {
+    "CROW_PHASE_SAMPLE": 24,
+    "CROW_TWO_TOE_SUBSTEP": 384,
+    "CROW_TOE_V_SUBSTEP": 384,
+    "CROW_FLIGHT_SAMPLE": 24,
+    "CROW_SUPPORT_SAMPLE": 24
+  },
+  "maximum_active_contacts": 36,
+  "errors": [],
+  "passed_short_smoke": true,
+  "caveat": "This two-step diagnostic precedes the longer changed-body trial and does not establish walking, takeoff, flight, or landing qualification."
+}

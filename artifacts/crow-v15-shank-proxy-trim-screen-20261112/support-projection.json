@@ -1,0 +1,731 @@
+{
+  "trimmed": {
+    "rows": [
+      {
+        "lane": 0,
+        "step": 1,
+        "com_x_m": -0.013198191570431365,
+        "min_foot_contact_x_m": null,
+        "max_foot_contact_x_m": null,
+        "com_minus_rear_contact_m": null,
+        "foot_contact_count": 0
+      },
+      {
+        "lane": 0,
+        "step": 25,
+        "com_x_m": -0.03885055812420342,
+        "min_foot_contact_x_m": -0.049277015,
+        "max_foot_contact_x_m": -0.0125325387,
+        "com_minus_rear_contact_m": 0.010426456875796582,
+        "foot_contact_count": 8
+      },
+      {
+        "lane": 0,
+        "step": 50,
+        "com_x_m": -0.0504670936897272,
+        "min_foot_contact_x_m": -0.0497497395,
+        "max_foot_contact_x_m": -0.0125240386,
+        "com_minus_rear_contact_m": -0.0007173541897271957,
+        "foot_contact_count": 10
+      },
+      {
+        "lane": 0,
+        "step": 75,
+        "com_x_m": -0.06589394002677755,
+        "min_foot_contact_x_m": -0.0497575104,
+        "max_foot_contact_x_m": -0.0134805199,
+        "com_minus_rear_contact_m": -0.016136429626777547,
+        "foot_contact_count": 8
+      },
+      {
+        "lane": 0,
+        "step": 100,
+        "com_x_m": -0.0815393073059444,
+        "min_foot_contact_x_m": -0.0498329401,
+        "max_foot_contact_x_m": -0.0495365821,
+        "com_minus_rear_contact_m": -0.0317063672059444,
+        "foot_contact_count": 4
+      },
+      {
+        "lane": 1,
+        "step": 1,
+        "com_x_m": -0.017206681764978807,
+        "min_foot_contact_x_m": null,
+        "max_foot_contact_x_m": null,
+        "com_minus_rear_contact_m": null,
+        "foot_contact_count": 0
+      },
+      {
+        "lane": 1,
+        "step": 25,
+        "com_x_m": -0.07744178580612245,
+        "min_foot_contact_x_m": null,
+        "max_foot_contact_x_m": null,
+        "com_minus_rear_contact_m": null,
+        "foot_contact_count": 0
+      },
+      {
+        "lane": 1,
+        "step": 50,
+        "com_x_m": -0.11895138715954344,
+        "min_foot_contact_x_m": -0.104216389,
+        "max_foot_contact_x_m": -0.0859724656,
+        "com_minus_rear_contact_m": -0.014734998159543433,
+        "foot_contact_count": 12
+      },
+      {
+        "lane": 1,
+        "step": 75,
+        "com_x_m": -0.13298626188576304,
+        "min_foot_contact_x_m": -0.104218774,
+        "max_foot_contact_x_m": -0.0859714001,
+        "com_minus_rear_contact_m": -0.02876748788576304,
+        "foot_contact_count": 12
+      },
+      {
+        "lane": 1,
+        "step": 100,
+        "com_x_m": -0.14887603348395725,
+        "min_foot_contact_x_m": -0.122236058,
+        "max_foot_contact_x_m": -0.104069836,
+        "com_minus_rear_contact_m": -0.02663997548395726,
+        "foot_contact_count": 8
+      },
+      {
+        "lane": 2,
+        "step": 1,
+        "com_x_m": 0.014084968362946844,
+        "min_foot_contact_x_m": null,
+        "max_foot_contact_x_m": null,
+        "com_minus_rear_contact_m": null,
+        "foot_contact_count": 0
+      },
+      {
+        "lane": 2,
+        "step": 25,
+        "com_x_m": -0.035731150319222485,
+        "min_foot_contact_x_m": null,
+        "max_foot_contact_x_m": null,
+        "com_minus_rear_contact_m": null,
+        "foot_contact_count": 0
+      },
+      {
+        "lane": 2,
+        "step": 50,
+        "com_x_m": -0.08079823331473647,
+        "min_foot_contact_x_m": -0.0674764439,
+        "max_foot_contact_x_m": -0.0491821095,
+        "com_minus_rear_contact_m": -0.013321789414736468,
+        "foot_contact_count": 12
+      },
+      {
+        "lane": 2,
+        "step": 75,
+        "com_x_m": -0.09436046841998612,
+        "min_foot_contact_x_m": -0.0674787462,
+        "max_foot_contact_x_m": -0.0491808876,
+        "com_minus_rear_contact_m": -0.026881722219986123,
+        "foot_contact_count": 12
+      },
+      {
+        "lane": 2,
+        "step": 100,
+        "com_x_m": -0.11036380396079853,
+        "min_foot_contact_x_m": -0.0854980797,
+        "max_foot_contact_x_m": -0.0667279065,
+        "com_minus_rear_contact_m": -0.02486572426079854,
+        "foot_contact_count": 12
+      },
+      {
+        "lane": 3,
+        "step": 1,
+        "com_x_m": 0.0059613211284653715,
+        "min_foot_contact_x_m": null,
+        "max_foot_contact_x_m": null,
+        "com_minus_rear_contact_m": null,
+        "foot_contact_count": 0
+      },
+      {
+        "lane": 3,
+        "step": 25,
+        "com_x_m": -0.003221105251647422,
+        "min_foot_contact_x_m": -0.0171627142,
+        "max_foot_contact_x_m": 0.0192118827,
+        "com_minus_rear_contact_m": 0.01394160894835258,
+        "foot_contact_count": 14
+      },
+      {
+        "lane": 3,
+        "step": 50,
+        "com_x_m": -0.013656731451076626,
+        "min_foot_contact_x_m": -0.0176246576,
+        "max_foot_contact_x_m": 0.019337289,
+        "com_minus_rear_contact_m": 0.003967926148923374,
+        "foot_contact_count": 12
+      },
+      {
+        "lane": 3,
+        "step": 75,
+        "com_x_m": -0.027409580062902762,
+        "min_foot_contact_x_m": -0.0176195651,
+        "max_foot_contact_x_m": 0.0184400566,
+        "com_minus_rear_contact_m": -0.00979001496290276,
+        "foot_contact_count": 8
+      },
+      {
+        "lane": 3,
+        "step": 100,
+        "com_x_m": -0.0440667426270696,
+        "min_foot_contact_x_m": -0.0176431201,
+        "max_foot_contact_x_m": 0.00104743708,
+        "com_minus_rear_contact_m": -0.026423622527069597,
+        "foot_contact_count": 10
+      },
+      {
+        "lane": 4,
+        "step": 1,
+        "com_x_m": 0.025950162020598782,
+        "min_foot_contact_x_m": null,
+        "max_foot_contact_x_m": null,
+        "com_minus_rear_contact_m": null,
+        "foot_contact_count": 0
+      },
+      {
+        "lane": 4,
+        "step": 25,
+        "com_x_m": 0.012450836742051226,
+        "min_foot_contact_x_m": 0.000259339344,
+        "max_foot_contact_x_m": 0.0371540822,
+        "com_minus_rear_contact_m": 0.012191497398051226,
+        "foot_contact_count": 4
+      },
+      {
+        "lane": 4,
+        "step": 50,
+        "com_x_m": 0.001407153978823503,
+        "min_foot_contact_x_m": -0.00018665567,
+        "max_foot_contact_x_m": 0.0362069272,
+        "com_minus_rear_contact_m": 0.0015938096488235028,
+        "foot_contact_count": 10
+      },
+      {
+        "lane": 4,
+        "step": 75,
+        "com_x_m": -0.0132283931518832,
+        "min_foot_contact_x_m": -0.000192284118,
+        "max_foot_contact_x_m": 0.0361933187,
+        "com_minus_rear_contact_m": -0.0130361090338832,
+        "foot_contact_count": 8
+      },
+      {
+        "lane": 4,
+        "step": 100,
+        "com_x_m": -0.029504404529125037,
+        "min_foot_contact_x_m": -0.000253448263,
+        "max_foot_contact_x_m": 0.000168704428,
+        "com_minus_rear_contact_m": -0.029250956266125037,
+        "foot_contact_count": 4
+      },
+      {
+        "lane": 5,
+        "step": 1,
+        "com_x_m": 0.029419106693884377,
+        "min_foot_contact_x_m": null,
+        "max_foot_contact_x_m": null,
+        "com_minus_rear_contact_m": null,
+        "foot_contact_count": 0
+      },
+      {
+        "lane": 5,
+        "step": 25,
+        "com_x_m": -0.028265160730105907,
+        "min_foot_contact_x_m": -0.041554071,
+        "max_foot_contact_x_m": -0.0415420197,
+        "com_minus_rear_contact_m": 0.01328891026989409,
+        "foot_contact_count": 2
+      },
+      {
+        "lane": 5,
+        "step": 50,
+        "com_x_m": -0.0541875561946605,
+        "min_foot_contact_x_m": -0.0561789535,
+        "max_foot_contact_x_m": -0.0197644718,
+        "com_minus_rear_contact_m": 0.0019913973053395026,
+        "foot_contact_count": 14
+      },
+      {
+        "lane": 5,
+        "step": 75,
+        "com_x_m": -0.06869391724598718,
+        "min_foot_contact_x_m": -0.0561819747,
+        "max_foot_contact_x_m": -0.0197639577,
+        "com_minus_rear_contact_m": -0.012511942545987184,
+        "foot_contact_count": 14
+      },
+      {
+        "lane": 5,
+        "step": 100,
+        "com_x_m": -0.08504337073382448,
+        "min_foot_contact_x_m": -0.0561972558,
+        "max_foot_contact_x_m": -0.0557861738,
+        "com_minus_rear_contact_m": -0.028846114933824482,
+        "foot_contact_count": 4
+      },
+      {
+        "lane": 6,
+        "step": 1,
+        "com_x_m": 0.02312630143697809,
+        "min_foot_contact_x_m": null,
+        "max_foot_contact_x_m": null,
+        "com_minus_rear_contact_m": null,
+        "foot_contact_count": 0
+      },
+      {
+        "lane": 6,
+        "step": 25,
+        "com_x_m": 0.00496158041576868,
+        "min_foot_contact_x_m": -0.00606743479,
+        "max_foot_contact_x_m": 0.0306734443,
+        "com_minus_rear_contact_m": 0.01102901520576868,
+        "foot_contact_count": 10
+      },
+      {
+        "lane": 6,
+        "step": 50,
+        "com_x_m": -0.006438569468569413,
+        "min_foot_contact_x_m": -0.00643415097,
+        "max_foot_contact_x_m": 0.0298201852,
+        "com_minus_rear_contact_m": -4.4184985694131415e-06,
+        "foot_contact_count": 8
+      },
+      {
+        "lane": 6,
+        "step": 75,
+        "com_x_m": -0.021618910701016483,
+        "min_foot_contact_x_m": -0.00643926859,
+        "max_foot_contact_x_m": 0.0298267156,
+        "com_minus_rear_contact_m": -0.015179642111016483,
+        "foot_contact_count": 8
+      },
+      {
+        "lane": 6,
+        "step": 100,
+        "com_x_m": -0.037416592501701935,
+        "min_foot_contact_x_m": -0.00654322375,
+        "max_foot_contact_x_m": -0.00624984177,
+        "com_minus_rear_contact_m": -0.030873368751701935,
+        "foot_contact_count": 4
+      },
+      {
+        "lane": 7,
+        "step": 1,
+        "com_x_m": 0.023208558031946908,
+        "min_foot_contact_x_m": null,
+        "max_foot_contact_x_m": null,
+        "com_minus_rear_contact_m": null,
+        "foot_contact_count": 0
+      },
+      {
+        "lane": 7,
+        "step": 25,
+        "com_x_m": -0.03533478478564579,
+        "min_foot_contact_x_m": -0.050539881,
+        "max_foot_contact_x_m": -0.0138111282,
+        "com_minus_rear_contact_m": 0.01520509621435421,
+        "foot_contact_count": 14
+      },
+      {
+        "lane": 7,
+        "step": 50,
+        "com_x_m": -0.07141072999740661,
+        "min_foot_contact_x_m": -0.0748246685,
+        "max_foot_contact_x_m": -0.0388249531,
+        "com_minus_rear_contact_m": 0.003413938502593389,
+        "foot_contact_count": 13
+      },
+      {
+        "lane": 7,
+        "step": 75,
+        "com_x_m": -0.08523895610544067,
+        "min_foot_contact_x_m": -0.0756004527,
+        "max_foot_contact_x_m": -0.0388225801,
+        "com_minus_rear_contact_m": -0.009638503405440674,
+        "foot_contact_count": 13
+      },
+      {
+        "lane": 7,
+        "step": 100,
+        "com_x_m": -0.1002792625792965,
+        "min_foot_contact_x_m": -0.0756192282,
+        "max_foot_contact_x_m": -0.0563403182,
+        "com_minus_rear_contact_m": -0.024660034379296494,
+        "foot_contact_count": 12
+      }
+    ]
+  },
+  "pair_excluded": {
+    "rows": [
+      {
+        "lane": 0,
+        "step": 1,
+        "com_x_m": -0.013198189534628032,
+        "min_foot_contact_x_m": null,
+        "max_foot_contact_x_m": null,
+        "com_minus_rear_contact_m": null,
+        "foot_contact_count": 0
+      },
+      {
+        "lane": 0,
+        "step": 25,
+        "com_x_m": -0.02811137700404373,
+        "min_foot_contact_x_m": -0.0443047807,
+        "max_foot_contact_x_m": -0.025972845,
+        "com_minus_rear_contact_m": 0.016193403695956267,
+        "foot_contact_count": 10
+      },
+      {
+        "lane": 0,
+        "step": 50,
+        "com_x_m": -0.02798957724210232,
+        "min_foot_contact_x_m": -0.0443042591,
+        "max_foot_contact_x_m": -0.0259731226,
+        "com_minus_rear_contact_m": 0.01631468185789768,
+        "foot_contact_count": 10
+      },
+      {
+        "lane": 0,
+        "step": 75,
+        "com_x_m": -0.027993015180375707,
+        "min_foot_contact_x_m": -0.0443038717,
+        "max_foot_contact_x_m": -0.0259725396,
+        "com_minus_rear_contact_m": 0.01631085651962429,
+        "foot_contact_count": 10
+      },
+      {
+        "lane": 0,
+        "step": 100,
+        "com_x_m": -0.027994515705907073,
+        "min_foot_contact_x_m": -0.044303339,
+        "max_foot_contact_x_m": -0.0259719957,
+        "com_minus_rear_contact_m": 0.016308823294092924,
+        "foot_contact_count": 10
+      },
+      {
+        "lane": 1,
+        "step": 1,
+        "com_x_m": -0.017206675290575086,
+        "min_foot_contact_x_m": null,
+        "max_foot_contact_x_m": null,
+        "com_minus_rear_contact_m": null,
+        "foot_contact_count": 0
+      },
+      {
+        "lane": 1,
+        "step": 25,
+        "com_x_m": -0.02733913800164138,
+        "min_foot_contact_x_m": null,
+        "max_foot_contact_x_m": null,
+        "com_minus_rear_contact_m": null,
+        "foot_contact_count": 0
+      },
+      {
+        "lane": 1,
+        "step": 50,
+        "com_x_m": -0.04524924310251197,
+        "min_foot_contact_x_m": null,
+        "max_foot_contact_x_m": null,
+        "com_minus_rear_contact_m": null,
+        "foot_contact_count": 0
+      },
+      {
+        "lane": 1,
+        "step": 75,
+        "com_x_m": -0.04720366956006024,
+        "min_foot_contact_x_m": -0.0665214136,
+        "max_foot_contact_x_m": -0.0482321158,
+        "com_minus_rear_contact_m": 0.019317744039939758,
+        "foot_contact_count": 12
+      },
+      {
+        "lane": 1,
+        "step": 100,
+        "com_x_m": -0.04614802518913258,
+        "min_foot_contact_x_m": -0.0483754128,
+        "max_foot_contact_x_m": -0.0480887443,
+        "com_minus_rear_contact_m": 0.0022273876108674234,
+        "foot_contact_count": 8
+      },
+      {
+        "lane": 2,
+        "step": 1,
+        "com_x_m": 0.014084967430136909,
+        "min_foot_contact_x_m": null,
+        "max_foot_contact_x_m": null,
+        "com_minus_rear_contact_m": null,
+        "foot_contact_count": 0
+      },
+      {
+        "lane": 2,
+        "step": 25,
+        "com_x_m": 0.001972133775203521,
+        "min_foot_contact_x_m": null,
+        "max_foot_contact_x_m": null,
+        "com_minus_rear_contact_m": null,
+        "foot_contact_count": 0
+      },
+      {
+        "lane": 2,
+        "step": 50,
+        "com_x_m": -0.013474635589828051,
+        "min_foot_contact_x_m": null,
+        "max_foot_contact_x_m": null,
+        "com_minus_rear_contact_m": null,
+        "foot_contact_count": 0
+      },
+      {
+        "lane": 2,
+        "step": 75,
+        "com_x_m": -0.014062161183078086,
+        "min_foot_contact_x_m": null,
+        "max_foot_contact_x_m": null,
+        "com_minus_rear_contact_m": null,
+        "foot_contact_count": 0
+      },
+      {
+        "lane": 2,
+        "step": 100,
+        "com_x_m": -0.02398561233389878,
+        "min_foot_contact_x_m": null,
+        "max_foot_contact_x_m": null,
+        "com_minus_rear_contact_m": null,
+        "foot_contact_count": 0
+      },
+      {
+        "lane": 3,
+        "step": 1,
+        "com_x_m": 0.0059613210980644865,
+        "min_foot_contact_x_m": null,
+        "max_foot_contact_x_m": null,
+        "com_minus_rear_contact_m": null,
+        "foot_contact_count": 0
+      },
+      {
+        "lane": 3,
+        "step": 25,
+        "com_x_m": 0.0008471651847804792,
+        "min_foot_contact_x_m": -0.0163233448,
+        "max_foot_contact_x_m": 0.00192243233,
+        "com_minus_rear_contact_m": 0.01717050998478048,
+        "foot_contact_count": 10
+      },
+      {
+        "lane": 3,
+        "step": 50,
+        "com_x_m": 0.0013137136720629368,
+        "min_foot_contact_x_m": -0.0163200051,
+        "max_foot_contact_x_m": 0.00192885986,
+        "com_minus_rear_contact_m": 0.017633718772062938,
+        "foot_contact_count": 7
+      },
+      {
+        "lane": 3,
+        "step": 75,
+        "com_x_m": 0.001292295078358554,
+        "min_foot_contact_x_m": -0.016319707,
+        "max_foot_contact_x_m": 0.00192858698,
+        "com_minus_rear_contact_m": 0.017612002078358554,
+        "foot_contact_count": 6
+      },
+      {
+        "lane": 3,
+        "step": 100,
+        "com_x_m": 0.0012900929471298486,
+        "min_foot_contact_x_m": -0.0163193606,
+        "max_foot_contact_x_m": 0.00192835368,
+        "com_minus_rear_contact_m": 0.01760945354712985,
+        "foot_contact_count": 6
+      },
+      {
+        "lane": 4,
+        "step": 1,
+        "com_x_m": 0.02595016182223923,
+        "min_foot_contact_x_m": null,
+        "max_foot_contact_x_m": null,
+        "com_minus_rear_contact_m": null,
+        "foot_contact_count": 0
+      },
+      {
+        "lane": 4,
+        "step": 25,
+        "com_x_m": 0.015920505712094055,
+        "min_foot_contact_x_m": 0.000942541752,
+        "max_foot_contact_x_m": 0.0193134826,
+        "com_minus_rear_contact_m": 0.014977963960094055,
+        "foot_contact_count": 3
+      },
+      {
+        "lane": 4,
+        "step": 50,
+        "com_x_m": 0.01649685600262561,
+        "min_foot_contact_x_m": 0.00117863482,
+        "max_foot_contact_x_m": 0.0195415653,
+        "com_minus_rear_contact_m": 0.015318221182625609,
+        "foot_contact_count": 8
+      },
+      {
+        "lane": 4,
+        "step": 75,
+        "com_x_m": 0.016498166657842983,
+        "min_foot_contact_x_m": 0.0011790609,
+        "max_foot_contact_x_m": 0.0195414517,
+        "com_minus_rear_contact_m": 0.015319105757842982,
+        "foot_contact_count": 8
+      },
+      {
+        "lane": 4,
+        "step": 100,
+        "com_x_m": 0.016496627097005973,
+        "min_foot_contact_x_m": 0.00117964484,
+        "max_foot_contact_x_m": 0.019542031,
+        "com_minus_rear_contact_m": 0.015316982257005972,
+        "foot_contact_count": 8
+      },
+      {
+        "lane": 5,
+        "step": 1,
+        "com_x_m": 0.029419107599374123,
+        "min_foot_contact_x_m": null,
+        "max_foot_contact_x_m": null,
+        "com_minus_rear_contact_m": null,
+        "foot_contact_count": 0
+      },
+      {
+        "lane": 5,
+        "step": 25,
+        "com_x_m": 0.02055766686848136,
+        "min_foot_contact_x_m": 0.00161922025,
+        "max_foot_contact_x_m": 0.0198732801,
+        "com_minus_rear_contact_m": 0.018938446618481358,
+        "foot_contact_count": 12
+      },
+      {
+        "lane": 5,
+        "step": 50,
+        "com_x_m": 0.007762021683849299,
+        "min_foot_contact_x_m": -0.010678459,
+        "max_foot_contact_x_m": 0.0255364012,
+        "com_minus_rear_contact_m": 0.0184404806838493,
+        "foot_contact_count": 20
+      },
+      {
+        "lane": 5,
+        "step": 75,
+        "com_x_m": 0.004197221584884711,
+        "min_foot_contact_x_m": null,
+        "max_foot_contact_x_m": null,
+        "com_minus_rear_contact_m": null,
+        "foot_contact_count": 0
+      },
+      {
+        "lane": 5,
+        "step": 100,
+        "com_x_m": -0.008457823641660573,
+        "min_foot_contact_x_m": null,
+        "max_foot_contact_x_m": null,
+        "com_minus_rear_contact_m": null,
+        "foot_contact_count": 0
+      },
+      {
+        "lane": 6,
+        "step": 1,
+        "com_x_m": 0.023126299719895035,
+        "min_foot_contact_x_m": null,
+        "max_foot_contact_x_m": null,
+        "com_minus_rear_contact_m": null,
+        "foot_contact_count": 0
+      },
+      {
+        "lane": 6,
+        "step": 25,
+        "com_x_m": 0.011435985271995982,
+        "min_foot_contact_x_m": -0.00523269176,
+        "max_foot_contact_x_m": 0.0130514707,
+        "com_minus_rear_contact_m": 0.016668677031995982,
+        "foot_contact_count": 10
+      },
+      {
+        "lane": 6,
+        "step": 50,
+        "com_x_m": 0.011654400946683179,
+        "min_foot_contact_x_m": -0.00521839084,
+        "max_foot_contact_x_m": 0.0130533725,
+        "com_minus_rear_contact_m": 0.01687279178668318,
+        "foot_contact_count": 7
+      },
+      {
+        "lane": 6,
+        "step": 75,
+        "com_x_m": 0.011661426131798446,
+        "min_foot_contact_x_m": -0.0052189366,
+        "max_foot_contact_x_m": 0.013052538,
+        "com_minus_rear_contact_m": 0.016880362731798444,
+        "foot_contact_count": 7
+      },
+      {
+        "lane": 6,
+        "step": 100,
+        "com_x_m": 0.011661435474489525,
+        "min_foot_contact_x_m": -0.00521942088,
+        "max_foot_contact_x_m": 0.0130520454,
+        "com_minus_rear_contact_m": 0.016880856354489524,
+        "foot_contact_count": 7
+      },
+      {
+        "lane": 7,
+        "step": 1,
+        "com_x_m": 0.023208559313232614,
+        "min_foot_contact_x_m": null,
+        "max_foot_contact_x_m": null,
+        "com_minus_rear_contact_m": null,
+        "foot_contact_count": 0
+      },
+      {
+        "lane": 7,
+        "step": 25,
+        "com_x_m": 0.008071524805618237,
+        "min_foot_contact_x_m": null,
+        "max_foot_contact_x_m": null,
+        "com_minus_rear_contact_m": null,
+        "foot_contact_count": 0
+      },
+      {
+        "lane": 7,
+        "step": 50,
+        "com_x_m": -0.012050954309085135,
+        "min_foot_contact_x_m": null,
+        "max_foot_contact_x_m": null,
+        "com_minus_rear_contact_m": null,
+        "foot_contact_count": 0
+      },
+      {
+        "lane": 7,
+        "step": 75,
+        "com_x_m": -0.011259100144228056,
+        "min_foot_contact_x_m": null,
+        "max_foot_contact_x_m": null,
+        "com_minus_rear_contact_m": null,
+        "foot_contact_count": 0
+      },
+      {
+        "lane": 7,
+        "step": 100,
+        "com_x_m": -0.033459959756899756,
+        "min_foot_contact_x_m": null,
+        "max_foot_contact_x_m": null,
+        "com_minus_rear_contact_m": null,
+        "foot_contact_count": 0
+      }
+    ]
+  },
+  "scope": "Native whole-body COM versus minimum world-x accepted foot/toe contact points at selected endpoints. This is a one-dimensional support proxy, not a full contact polygon, center of pressure, friction cone, or proof of instability; forces are dynamic and contact/pose timestamps may differ. Pair-excluded trajectory is diagnostic and cannot establish physical realism."
+}
