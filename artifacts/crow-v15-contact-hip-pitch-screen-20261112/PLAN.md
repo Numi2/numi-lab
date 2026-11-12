@@ -1,0 +1,3 @@
+# Contact-conditioned hip pitch feedback screen
+
+The matched axis-isolation test found that artificially enabled pitch moment, not yaw moment, restores continuous support. Test signed bounded pitch and pitch-rate feedback through existing hip position drives only when each foot has accepted support; all direct body moments remain disabled. Two lanes retain zero feedback and six test signed gains 0.5, 1 and 2. Compare against matched no-moment starts with pre-4 s parity, contact, joint speed, progress and corvid-informed stance signs. One start per gain is exploratory and cannot qualify gait, biological realism, takeoff or navigation.

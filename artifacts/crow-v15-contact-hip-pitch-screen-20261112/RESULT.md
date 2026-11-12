@@ -1,0 +1,7 @@
+# Result: contact-conditioned hip pitch feedback
+
+All lanes matched the corresponding unmodified integrated gait for 200 pre-4-second states and 3200 contact substeps. Zero-gain controls also matched the 4–6 second contact-speed proxies exactly. The gain arms each have one start and are exploratory. Direct root moments remained disabled.
+
+The -1, +1 and -2 arms eliminated the 26–27 both-feet-unloaded substeps observed in their matched no-feedback controls. They increased left/right loaded contact-speed integrals by factors of 1.466/1.442, 1.235/1.352, and 2.554/1.963, respectively. The -0.5 and +0.5 arms still had 28 and 25 unloaded substeps; +2 had 32 unloaded and four toe-speed-cap substeps. No lane passed the full exploratory screen against the earlier baseline. The +1 and -1 arms also exhibited all four selected related-corvid stance median signs; these signs are only hypotheses, not fitted American-crow data. The contact-speed measure uses changing, impulse-weighted contact points and is a proxy, not material-point slip. All metrics are limited to the 4–6-second window on one used development seed; no arm qualifies walking, takeoff, flight, or landing. Intermediate gains are being tested separately.
+
+The evaluator's gain labels were corrected to reflect the shader gains before this report. Both the earlier observer comparison and the more appropriate same-start, same-integrated-controller comparison are retained. The latter isolates this feedback, while the former is a different configuration and does not prove a causal improvement.

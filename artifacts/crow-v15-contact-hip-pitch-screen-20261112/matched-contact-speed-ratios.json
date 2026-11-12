@@ -1,0 +1,66 @@
+[
+  {
+    "lane": 0,
+    "gain": 0,
+    "contact_speed_integral_ratio_feedback_vs_matched_control": {
+      "left": 1.0,
+      "right": 1.0
+    }
+  },
+  {
+    "lane": 1,
+    "gain": 0,
+    "contact_speed_integral_ratio_feedback_vs_matched_control": {
+      "left": 1.0,
+      "right": 1.0
+    }
+  },
+  {
+    "lane": 2,
+    "gain": -0.5,
+    "contact_speed_integral_ratio_feedback_vs_matched_control": {
+      "left": 0.9904829294063487,
+      "right": 1.082527246716842
+    }
+  },
+  {
+    "lane": 3,
+    "gain": 0.5,
+    "contact_speed_integral_ratio_feedback_vs_matched_control": {
+      "left": 1.0288798314649388,
+      "right": 0.977088784626509
+    }
+  },
+  {
+    "lane": 4,
+    "gain": -1,
+    "contact_speed_integral_ratio_feedback_vs_matched_control": {
+      "left": 1.4657832735254233,
+      "right": 1.4420461519950505
+    }
+  },
+  {
+    "lane": 5,
+    "gain": 1,
+    "contact_speed_integral_ratio_feedback_vs_matched_control": {
+      "left": 1.2347266829039731,
+      "right": 1.352199746589695
+    }
+  },
+  {
+    "lane": 6,
+    "gain": -2,
+    "contact_speed_integral_ratio_feedback_vs_matched_control": {
+      "left": 2.5540323829495906,
+      "right": 1.9629518798440142
+    }
+  },
+  {
+    "lane": 7,
+    "gain": 2,
+    "contact_speed_integral_ratio_feedback_vs_matched_control": {
+      "left": 3.039375432009646,
+      "right": 2.8033469288891557
+    }
+  }
+]
