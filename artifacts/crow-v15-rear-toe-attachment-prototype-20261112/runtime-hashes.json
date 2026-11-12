@@ -1,0 +1,18 @@
+{
+  "probe": {
+    "path": "build/crow-v15-rear-toe-attachment-prototype-20261112/probe",
+    "sha256": "b0d31de9ff91071e804ae5dc9015f117deb50a728abae38fdcf29711c28bfd89"
+  },
+  "structure": {
+    "path": "build/crow-v15-rear-toe-attachment-prototype-20261112/structure",
+    "sha256": "8c0153a519449690c63111d7c7d607b7be146337834fdd9279a2021e4d810205"
+  },
+  "host": {
+    "path": "build/crow-v15-hip-roll-journey-integration-20261111/libmetalrobo.dylib",
+    "sha256": "d1e9bb9c6c6978318382731dd31df8a8aee22104dc23bbbab73eec5c7b81e615"
+  },
+  "metallib": {
+    "path": "build/crow-v15-wide-contact-isolation-20261111/MetalRobo.metallib",
+    "sha256": "835d0ff74b8338bba6987d88f3355a1344522eaa88fa8e82295b12ba58cedeb5"
+  }
+}

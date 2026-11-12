@@ -1,0 +1,19 @@
+#include "attachment.hpp"
+#include <cstring>
+int main(){try{
+ auto a=hipRollModel(),b=attachedModel();const auto& x=a.mechanics;const auto& y=b.mechanics;
+ auto idx=[](const auto&v,const std::string&s){auto it=std::find(v.begin(),v.end(),s);need(it!=v.end(),"missing "+s);return static_cast<unsigned>(it-v.begin());};
+ for(const char* side:{"left","right"}){
+  auto pre=std::string("crow_")+side;unsigned si=idx(x.shapeNames,pre+"_foot/sole"),ji=idx(x.jointNames,pre+"_rear_toe_proximal_flex"),di=idx(x.jointNames,pre+"_rear_toe_distal_flex"),fi=x.joints[ji].parentBody,ui=x.bodies[fi].inboundJoint;const double shift=x.joints[ui].childAnchor.x-y.joints[ui].childAnchor.x;
+  auto metric=[&](const EngineModel& m,double origin){const auto& f=m.bodies[fi];const auto& j=m.joints[ji];const auto& d=m.joints[di];const auto& p=m.bodies[j.childBody];const auto& t=m.bodies[d.childBody];double px=origin+j.parentAnchor.x-j.childAnchor.x,tx=px+d.parentAnchor.x-d.childAnchor.x;double fm=f.massAndInverseMass.x,pm=p.massAndInverseMass.x,tm=t.massAndInverseMass.x;return std::array<double,4>{fm+pm+tm,fm*origin+pm*px+tm*tx,f.inertiaRow1.y+fm*origin*origin+p.inertiaRow1.y+pm*px*px+t.inertiaRow1.y+tm*tx*tx,f.inertiaRow2.z+fm*origin*origin+p.inertiaRow2.z+pm*px*px+t.inertiaRow2.z+tm*tx*tx};};
+  auto u=metric(x,0),v=metric(y,shift);for(int k=0;k<4;k++)need(std::abs(u[k]-v[k])<1e-10,"assembly conservation failure");
+  const auto& shape=y.shapes[si];const auto& joint=y.joints[ji];double gap=shape.localPosition.x-shape.dimensions.x-joint.parentAnchor.x;need(std::abs(gap)<1e-8,"gap remains");need(y.bodies[fi].centerOfMass.x==0,"COM field changed");
+  std::cout<<std::setprecision(12)<<side<<" gap_m "<<gap<<" origin_shift_m "<<shift<<" mass_diff_kg "<<v[0]-u[0]<<" first_moment_diff_kg_m "<<v[1]-u[1]<<" iy_diff "<<v[2]-u[2]<<" iz_diff "<<v[3]-u[3]<<"\n";
+ }
+ for(unsigned i=0;i<x.shapes.size();i++){const auto&u=x.shapes[i];const auto&v=y.shapes[i];need(u.bodyIndex==v.bodyIndex && u.dimensions.x==v.dimensions.x && u.dimensions.y==v.dimensions.y && u.dimensions.z==v.dimensions.z && u.localRotation.x==v.localRotation.x && u.localRotation.y==v.localRotation.y && u.localRotation.z==v.localRotation.z && u.localRotation.w==v.localRotation.w,"shape changed");if(x.bodyNames[u.bodyIndex]!="crow_left_foot"&&x.bodyNames[u.bodyIndex]!="crow_right_foot")need(u.localPosition.x==v.localPosition.x&&u.localPosition.y==v.localPosition.y&&u.localPosition.z==v.localPosition.z,"other shape moved");}
+ need(x.dofNames==y.dofNames&&x.defaultQ==y.defaultQ&&x.defaultV==y.defaultV,"DOFs changed");
+ for(unsigned i=0;i<x.dofs.size();i++)need(std::memcmp(&x.dofs[i],&y.dofs[i],sizeof(x.dofs[i]))==0,"DOF properties changed");
+ for(unsigned i=0;i<x.joints.size();i++){auto z=y.joints[i];const auto& j=x.joints[i];const auto& parent=x.bodyNames[j.parentBody];const auto& child=x.bodyNames[j.childBody];if(parent=="crow_left_foot"||parent=="crow_right_foot")z.parentAnchor.x=j.parentAnchor.x;if(child=="crow_left_foot"||child=="crow_right_foot")z.childAnchor.x=j.childAnchor.x;need(std::memcmp(&j,&z,sizeof(j))==0,"unexpected joint modification");}
+ for(unsigned i=0;i<x.shapes.size();i++){auto z=y.shapes[i];const auto& sh=x.shapes[i];if(x.bodyNames[sh.bodyIndex]=="crow_left_foot"||x.bodyNames[sh.bodyIndex]=="crow_right_foot")z.localPosition.x=sh.localPosition.x;need(std::memcmp(&sh,&z,sizeof(sh))==0,"unexpected shape modification");}
+ for(unsigned i=0;i<x.bodies.size();i++)if(x.bodyNames[i]!="crow_left_foot"&&x.bodyNames[i]!="crow_right_foot")need(std::memcmp(&x.bodies[i],&y.bodies[i],sizeof(x.bodies[i]))==0,"other body changed");std::cout<<"unchanged_shape_extents "<<x.shapes.size()<<" unchanged_dof_defaults "<<x.defaultV.size()<<"\n";return 0;
+}catch(const std::exception&e){std::cerr<<"failure "<<e.what()<<"\n";return 1;}}
