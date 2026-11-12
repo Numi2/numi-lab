@@ -1,0 +1,24 @@
+{
+  "sham": {
+    "state_count": 2400,
+    "state_mismatches": 0,
+    "substeps": 38400,
+    "contact_mismatches": 0,
+    "examples": {
+      "states": [],
+      "contacts": []
+    },
+    "pass": true
+  },
+  "candidate": {
+    "state_count": 2400,
+    "state_mismatches": 0,
+    "substeps": 38400,
+    "contact_mismatches": 0,
+    "examples": {
+      "states": [],
+      "contacts": []
+    },
+    "pass": true
+  }
+}

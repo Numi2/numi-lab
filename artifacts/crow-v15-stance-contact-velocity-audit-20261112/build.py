@@ -1,0 +1,9 @@
+from pathlib import Path
+import hashlib,json,shlex,subprocess
+R=Path.cwd();A=R/"artifacts/crow-v15-stance-contact-velocity-audit-20261112";B=R/"build/crow-v15-stance-contact-velocity-audit-20261112";M=R/"build/crow-v15-matched-binary-gait-screen-20261112";W=R/"build/crow-v15-wide-contact-isolation-20261111";H=R/"build/crow-v15-substep-target-interpolation-screen-20261112";P=R/"build/crow-v15-gait-slip-observer-20261112"
+lines=subprocess.check_output(["/opt/homebrew/bin/ninja","-C",str(R/"build"),"-t","commands"],text=True).splitlines();line=next(x for x in lines if x.startswith(": && /usr/bin/c++") and "-dynamiclib" in x and " -o lib/libmetalrobo.dylib " in x);args=shlex.split(line[len(": && "):-len(" && :")]);args[args.index("-o")+1]=str(B/"libmetalrobo.dylib");args[args.index("CMakeFiles/metalrobo.dir/src/c_api.cpp.o")]=str(P/"c_api.cpp.o");args[args.index("CMakeFiles/metalrobo.dir/src/core/TaskProgram.cpp.o")]=str(M/"TaskProgram.cpp.o")
+files=["src/core/CompiledMetalMultiArticulatedProgram.cpp","src/core/CompiledMetalMultiArticulatedContactProgram.cpp","src/metal/MetalArticulatedInverseMass.mm","src/metal/MetalArticulatedABA.mm","src/metal/MetalWorld.mm","src/metal/MetalMultiArticulatedContact.mm","src/metal/MetalMultiArticulatedABA.mm","src/metal/MetalMultiArticulatedInverseMass.mm"]
+for i,n in enumerate(files):
+ key="CMakeFiles/metalrobo.dir/"+n+".o";assert key in args;args[args.index(key)]=str(H/"MetalWorld.mm.o" if i==4 else W/(str(i)+".o"))
+subprocess.run(args,cwd=R/"build",check=True)
+h=lambda p:hashlib.sha256(p.read_bytes()).hexdigest();(A/"hashes.json").write_text(json.dumps({"observer_host_sha256":h(B/"libmetalrobo.dylib"),"reference_host_sha256":h(M/"libmetalrobo.dylib"),"point_observer_object_sha256":h(P/"c_api.cpp.o"),"task_object_sha256":h(M/"TaskProgram.cpp.o")},indent=2)+"\n")

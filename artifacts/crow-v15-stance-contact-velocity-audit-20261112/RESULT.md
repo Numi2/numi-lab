@@ -1,0 +1,7 @@
+# Contact-point motion in the rejected stance-continuity gait
+
+The observer reproduced both prior arms exactly: 2,400 q/v/action/contact endpoint records and 38,400 contact-substep records matched for each arm after omitting only the newly reported contact point. Native foot/toe forward kinematics agreed with 100 replay frames in lane 5: maximum position errors were below 8e-9 m, linear-velocity errors below 1.3e-8 m/s, and angular-velocity errors below 1.3e-7 rad/s; ground was static.
+
+For loaded, approximately vertical ground contacts sampled at the control-interval endpoints during the two-second gait window, the sham had 8,329 contact-point samples, median tangential speed 0.00276 m/s and 95th percentile 0.03484 m/s. The candidate had 9,909 samples, median 0.02266 m/s and 95th percentile 0.09640 m/s. Using 0.01 m/s solely as a descriptive threshold, 22.7% of sham and 65.3% of candidate samples exceeded it. This is consistent with the faster candidate producing much more contact-point movement while loaded; it is not proof of the distance slipped, net propulsive cause, or a friction coefficient defect.
+
+The observations are correlated samples across eight lanes on one previously used seed, and include contact transitions; they are not independent bird observations or an American-crow target. The candidate also failed support and swing gates, so it remains rejected. See analysis.json for lane/foot breakdown, replay validation, input hashes and full scope.
