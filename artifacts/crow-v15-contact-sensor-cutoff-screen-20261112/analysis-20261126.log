@@ -1,0 +1,48 @@
+{
+  "support_groups": {
+    "flagged": {
+      "samples": 761,
+      "median_error_m_s": 0.0005161213847512721,
+      "p95_error_m_s": 0.0009393404492949245,
+      "max_error_m_s": 0.0010633355250874946
+    },
+    "unflagged": {
+      "samples": 403,
+      "median_error_m_s": 0.0,
+      "p95_error_m_s": 0.00027933103036408,
+      "max_error_m_s": 0.04500978473581213
+    }
+  },
+  "seed": 20261126,
+  "lanes": [
+    2,
+    3,
+    4,
+    5,
+    6,
+    7
+  ],
+  "interval_steps": [
+    202,
+    298
+  ],
+  "samples": 1164,
+  "median_error_m_s": 0.00023289808226019393,
+  "p95_error_m_s": 0.0009177330110579363,
+  "count_error_above_0_02_m_s": 1,
+  "big_error_impulse_below_1e_5_ns": 1,
+  "big_error_same_step_support_flags": 0,
+  "big_error_prev_step_closer": 1,
+  "big_error_next_step_closer": 0,
+  "limits": "Retained trajectories; final-substep reference cutoff differs from shader; delayed and changing contact state, quantization and possible frame timing mismatch. No causation inferred."
+}
+{'lane': 2, 'step': 217, 'side': 'right', 'sensor_m_s': -0.04500978473581213, 'reference_m_s': 0.0, 'absolute_error_m_s': 0.04500978473581213, 'previous_error_m_s': 0.044907468268255944, 'next_error_m_s': 0.04500978473581213, 'loaded_impulse_ns': 0.0, 'same_step_support_flag': False}
+{'lane': 2, 'step': 242, 'side': 'right', 'sensor_m_s': -0.009784735812133072, 'reference_m_s': 0.0, 'absolute_error_m_s': 0.009784735812133072, 'previous_error_m_s': 0.007021482748022146, 'next_error_m_s': 0.009784735812133072, 'loaded_impulse_ns': 0.0, 'same_step_support_flag': False}
+{'lane': 7, 'step': 278, 'side': 'left', 'sensor_m_s': -0.06262230919765166, 'reference_m_s': -0.061515174150667686, 'absolute_error_m_s': 0.0011071350469839744, 'previous_error_m_s': 0.061949954806722635, 'next_error_m_s': 0.031080617856638487, 'loaded_impulse_ns': 1.039439439e-06, 'same_step_support_flag': False}
+{'lane': 4, 'step': 291, 'side': 'right', 'sensor_m_s': -0.005870841487279843, 'reference_m_s': -0.006934177012367338, 'absolute_error_m_s': 0.0010633355250874946, 'previous_error_m_s': 0.00422732711978141, 'next_error_m_s': 0.00825531844227129, 'loaded_impulse_ns': 0.004852000558, 'same_step_support_flag': True}
+{'lane': 2, 'step': 278, 'side': 'left', 'sensor_m_s': -0.06653620352250489, 'reference_m_s': -0.06548299086546454, 'absolute_error_m_s': 0.0010532126570403505, 'previous_error_m_s': 0.06629830720852042, 'next_error_m_s': 0.05553515338353085, 'loaded_impulse_ns': 1.913629447e-06, 'same_step_support_flag': False}
+{'lane': 2, 'step': 267, 'side': 'left', 'sensor_m_s': 0.0273972602739726, 'reference_m_s': 0.026344327530940317, 'absolute_error_m_s': 0.0010529327430322845, 'previous_error_m_s': 0.05655093717845161, 'next_error_m_s': 0.016880465363391994, 'loaded_impulse_ns': 0.00685680470669, 'same_step_support_flag': True}
+{'lane': 6, 'step': 253, 'side': 'left', 'sensor_m_s': -0.03718199608610567, 'reference_m_s': -0.03823031984487362, 'absolute_error_m_s': 0.001048323758767948, 'previous_error_m_s': 0.001945742105323299, 'next_error_m_s': 0.03440877394161664, 'loaded_impulse_ns': 0.003768889174, 'same_step_support_flag': True}
+{'lane': 5, 'step': 254, 'side': 'right', 'sensor_m_s': 0.0136986301369863, 'reference_m_s': 0.014716999635717787, 'absolute_error_m_s': 0.0010183694987314865, 'previous_error_m_s': 0.06693446026633677, 'next_error_m_s': 0.07376385857354163, 'loaded_impulse_ns': 0.00043924467442, 'same_step_support_flag': True}
+{'lane': 6, 'step': 290, 'side': 'left', 'sensor_m_s': 0.0136986301369863, 'reference_m_s': 0.012701741801470202, 'absolute_error_m_s': 0.0009968883355160989, 'previous_error_m_s': 0.0136986301369863, 'next_error_m_s': 0.07409644772602943, 'loaded_impulse_ns': 0.006210242020365, 'same_step_support_flag': True}
+{'lane': 5, 'step': 278, 'side': 'left', 'sensor_m_s': -0.01761252446183953, 'reference_m_s': -0.01662542233967498, 'absolute_error_m_s': 0.0009871021221645494, 'previous_error_m_s': 0.017951841866575367, 'next_error_m_s': 0.2060110855882751, 'loaded_impulse_ns': 0.001418614556064, 'same_step_support_flag': True}

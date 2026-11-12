@@ -1,0 +1,4 @@
+6236d600f3814da9ae8ff354b06ef3b667f34f4ce572299faa17c8c4d0e18a21  artifacts/crow-v15-contact-sensor-cutoff-screen-20261112/PLAN.md
+e25c4a6d60d280ba98ce7b6743767b7f5a6e91728809beb5fe49577d4e529b93  artifacts/crow-v15-contact-sensor-cutoff-screen-20261112/screen.metal
+e3c42127cddf66b3dfeed6ea462457541c4e0fd29fc15eb2b6755e66ce196513  artifacts/crow-v15-contact-sensor-cutoff-screen-20261112/build.py
+fb60ecaade85c1367162402c2723be9e00d1c17357776e3a359436eaa8846cfe  artifacts/crow-v15-contact-sensor-cutoff-screen-20261112/run.py

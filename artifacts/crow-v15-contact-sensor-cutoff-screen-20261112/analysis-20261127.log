@@ -1,0 +1,48 @@
+{
+  "support_groups": {
+    "flagged": {
+      "samples": 763,
+      "median_error_m_s": 0.0005478346964135584,
+      "p95_error_m_s": 0.0009452091932642243,
+      "max_error_m_s": 0.001085128540306686
+    },
+    "unflagged": {
+      "samples": 401,
+      "median_error_m_s": 0.0,
+      "p95_error_m_s": 0.00025906276995306746,
+      "max_error_m_s": 0.04500978473581213
+    }
+  },
+  "seed": 20261127,
+  "lanes": [
+    2,
+    3,
+    4,
+    5,
+    6,
+    7
+  ],
+  "interval_steps": [
+    202,
+    298
+  ],
+  "samples": 1164,
+  "median_error_m_s": 0.00024394331665911727,
+  "p95_error_m_s": 0.0009190289377238668,
+  "count_error_above_0_02_m_s": 1,
+  "big_error_impulse_below_1e_5_ns": 1,
+  "big_error_same_step_support_flags": 0,
+  "big_error_prev_step_closer": 1,
+  "big_error_next_step_closer": 0,
+  "limits": "Retained trajectories; final-substep reference cutoff differs from shader; delayed and changing contact state, quantization and possible frame timing mismatch. No causation inferred."
+}
+{'lane': 2, 'step': 217, 'side': 'right', 'sensor_m_s': -0.04500978473581213, 'reference_m_s': 0.0, 'absolute_error_m_s': 0.04500978473581213, 'previous_error_m_s': 0.044890875692992334, 'next_error_m_s': 0.04500978473581213, 'loaded_impulse_ns': 0.0, 'same_step_support_flag': False}
+{'lane': 2, 'step': 242, 'side': 'right', 'sensor_m_s': -0.0019569471624266144, 'reference_m_s': 0.0, 'absolute_error_m_s': 0.0019569471624266144, 'previous_error_m_s': 0.0008916686321458144, 'next_error_m_s': 0.0019569471624266144, 'loaded_impulse_ns': 0.0, 'same_step_support_flag': False}
+{'lane': 4, 'step': 253, 'side': 'left', 'sensor_m_s': -0.03522504892367906, 'reference_m_s': -0.036310177463985745, 'absolute_error_m_s': 0.001085128540306686, 'previous_error_m_s': 0.004062723302824374, 'next_error_m_s': 0.03197501421071021, 'loaded_impulse_ns': 0.00379070494, 'same_step_support_flag': True}
+{'lane': 2, 'step': 227, 'side': 'left', 'sensor_m_s': -0.136986301369863, 'reference_m_s': -0.13805147159782089, 'absolute_error_m_s': 0.001065170227957879, 'previous_error_m_s': 0.13540944223425974, 'next_error_m_s': 0.034242757530782666, 'loaded_impulse_ns': 0.0006858968497200001, 'same_step_support_flag': True}
+{'lane': 2, 'step': 291, 'side': 'right', 'sensor_m_s': -0.011741682974559686, 'reference_m_s': -0.012801964406665563, 'absolute_error_m_s': 0.0010602814321058768, 'previous_error_m_s': 0.0048035338703516705, 'next_error_m_s': 0.011153403426427053, 'loaded_impulse_ns': 0.004583211268, 'same_step_support_flag': True}
+{'lane': 3, 'step': 277, 'side': 'right', 'sensor_m_s': 0.06262230919765166, 'reference_m_s': 0.061565538626802696, 'absolute_error_m_s': 0.0010567705708489639, 'previous_error_m_s': 0.06262230919765166, 'next_error_m_s': 0.028168599445043845, 'loaded_impulse_ns': 2.26164566e-05, 'same_step_support_flag': False}
+{'lane': 7, 'step': 252, 'side': 'right', 'sensor_m_s': 0.015655577299412915, 'reference_m_s': 0.014606769316291448, 'absolute_error_m_s': 0.0010488079831214667, 'previous_error_m_s': 0.015655577299412915, 'next_error_m_s': 0.06265384173473884, 'loaded_impulse_ns': 0.00843579176356, 'same_step_support_flag': True}
+{'lane': 4, 'step': 279, 'side': 'left', 'sensor_m_s': -0.23483365949119372, 'reference_m_s': -0.233809304561533, 'absolute_error_m_s': 0.0010243549296607146, 'previous_error_m_s': 0.22431888525037996, 'next_error_m_s': 0.23483365949119372, 'loaded_impulse_ns': 9.14857737e-05, 'same_step_support_flag': True}
+{'lane': 7, 'step': 253, 'side': 'left', 'sensor_m_s': -0.03718199608610567, 'reference_m_s': -0.03820531730592982, 'absolute_error_m_s': 0.0010233212198241456, 'previous_error_m_s': 0.0047550157811054525, 'next_error_m_s': 0.03430496718647658, 'loaded_impulse_ns': 0.003810504886, 'same_step_support_flag': True}
+{'lane': 4, 'step': 213, 'side': 'left', 'sensor_m_s': 0.08414872798434442, 'reference_m_s': 0.0831586586797341, 'absolute_error_m_s': 0.0009900693046103193, 'previous_error_m_s': 0.08612690569129282, 'next_error_m_s': 0.012205708298199627, 'loaded_impulse_ns': 0.000470549479, 'same_step_support_flag': True}
