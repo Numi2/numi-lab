@@ -1,0 +1,7 @@
+# Whole-foot walking impulse observer
+
+The candidate's forward displacement is millimeters over two seconds, far below the 0.5–1.2 m/s walking interval analyzed in the related magpie kinematics study (Verstappen et al., https://doi.org/10.1242/jeb.203.14.2159). The two tasks, species, conditions and speed choices differ, so that interval is not an American-crow minimum or pass threshold. Diagnose before changing control.
+
+Add a read-only host trace to the existing accepted substep observer: decompose horizontal ground impulse into sole, front-toe and rear-toe groups per foot, summing normal and both tangential components with the existing force sign convention. Rerun exactly the eight-lane sole-gated swing screen for 300 intervals, 16 substeps, same model, shader, starts and policy; no scheduled resets. Require all 2,400 q/v/policy/contact endpoint records and 38,400 original toe/contact substeps to match the retained run exactly, and report observer source and binary hashes. If parity fails, do not interpret as a passive observer.
+
+For 201–300 report per-lane world-x braking and propulsive impulses by body group, timing and net, along with body velocity and displacement and other external aerodynamic forces not included. World x is a proxy for forward and may differ from the bird heading; impulses are not motor work or friction coefficients. Keep the earlier failed gait gates and all evidence. No controller change or biological fit is authorized by this audit alone.
