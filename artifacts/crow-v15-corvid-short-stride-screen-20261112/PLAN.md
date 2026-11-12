@@ -1,0 +1,3 @@
+# Shorter physical stride with corvid-informed stance
+
+Keep the gentle .10/.10 stance-phase knee/ankle targets, reduce hip swing amplitude to .15, .20 or .25 versus the .30 baseline, and pair each with zero or .25 audited contact-velocity feedback. The two reference lanes retain the exact original gait. Determine whether smaller physical strides preserve at least .05 m progress and continuous collective support while reducing normal-load-weighted foot contact-point speed by at least 25% per foot, without toe caps or nonfoot collision. Report joint phase separately. Used seed and estimated morphology preclude biological or mission qualification.

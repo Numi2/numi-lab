@@ -1,0 +1,5 @@
+# Corvid-informed short-stride screen
+
+Pre-intervention and two reference lanes matched exactly. Reducing hip swing from .30 to .15 rad gave left/right contact-point-speed integral ratios of .847/.818 without feedback and .816/.843 with .25 feedback; both retained collective support, avoided observed toe-speed caps and non-foot contacts, and progressed .093 and .088 m over the 2 s gait window. All candidates failed the predeclared requirement of <=.75 of baseline on each foot; longer tested strides also had brief unloaded intervals in some lanes.
+
+Across 46 complete stance windows from closely related development starts, median knee and early-to-middle ankle changes were negative, but median late-to-middle ankle change remained negative and 16 windows moved in the opposite direction from the median. The contact-speed signal is normal-weighted across changing contacts and is not tracked-material slip. Different species, speeds and experimental geometry prevent a numerical biological fit. No gait, takeoff, landing, or full mission was qualified.
