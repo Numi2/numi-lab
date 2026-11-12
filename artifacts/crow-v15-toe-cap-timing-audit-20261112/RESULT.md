@@ -1,0 +1,7 @@
+# Timing and location of the perch toe-speed cap
+
+In lane 3 of the retained perturbation bench, the two -12 rad/s samples at interval 262, substeps 5 and 6 are the right rear proximal toe. This mapping follows the bench's explicit toe-coordinate indexing. Correcting for the zero-based endpoint trace, the left-foot release had already been marked finished before both samples: this particular cap occurs during return and support transfer, not during the commanded left-toe extension and not in flight.
+
+At the preceding endpoint, the right rear distal toe had two recorded positive normal impulses totaling approximately 0.000321 N s. At the endpoint of the cap interval, the left sole recorded 0.01074 N s normal impulse while the right rear toe's recorded endpoint contacts had negligible normal impulse; the right rear proximal position was 0.623 rad and endpoint velocity -8.06 rad/s, with its commanded rear target still 1.15 rad. The source logs and full window are retained. Endpoint contact records do not establish the contact impulses at the exact capped substeps; the actuator torque is also not logged. The temporal association therefore does not establish why the toe accelerated or prescribe a safe fix.
+
+This identifies the other foot and a return/support-transfer window for the next physical experiment. It is one constructed perch start, not proof of robust grip, flight-toe behavior, walking, a continuous landing, or an American-crow measurement.

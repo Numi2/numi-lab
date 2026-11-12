@@ -1,0 +1,288 @@
+{
+  "input_sha256": {
+    "trace.log.gz": "805e140990f17bf62738b36fb8d57465173407505b179d8ddbf5ca3177a44415",
+    "substeps.log.gz": "0b9aec5e4932546b40eb8d3f3e9243b761a31e9427fbd3169a1cebd27b4c6178"
+  },
+  "caps": [
+    {
+      "interval": 262,
+      "substep": 5,
+      "slot": 14,
+      "velocity": -12.0
+    },
+    {
+      "interval": 262,
+      "substep": 6,
+      "slot": 14,
+      "velocity": -12.0
+    }
+  ],
+  "window": {
+    "259": {
+      "contacts": [
+        {
+          "a": "crow_right_rear_toe_distal",
+          "b": "locomotion_ground",
+          "normal_impulse": 0.000538839842,
+          "separation": -0.000302179804
+        },
+        {
+          "a": "crow_right_rear_toe_distal",
+          "b": "locomotion_ground",
+          "normal_impulse": 5.45702816e-09,
+          "separation": -0.000264306145
+        }
+      ],
+      "right_rear_proximal_q_rad": 0.827573061,
+      "right_rear_proximal_v_rad_s": 2.42345977,
+      "root_height_m": 0.189148575,
+      "right_rear_target_rad": 1.14999998,
+      "right_front_target_rad": 1.04999995,
+      "release_active": false,
+      "release_finished": true,
+      "left_up_impulse": 0.0,
+      "right_up_impulse": 2.98774139e-05
+    },
+    "260": {
+      "contacts": [
+        {
+          "a": "crow_right_rear_toe_distal",
+          "b": "locomotion_ground",
+          "normal_impulse": 0.000451276748,
+          "separation": -0.00104613008
+        },
+        {
+          "a": "crow_right_rear_toe_distal",
+          "b": "locomotion_ground",
+          "normal_impulse": 5.64681623e-37,
+          "separation": -0.00101439923
+        }
+      ],
+      "right_rear_proximal_q_rad": 0.863741577,
+      "right_rear_proximal_v_rad_s": 0.635816872,
+      "root_height_m": 0.18703486,
+      "right_rear_target_rad": 1.14999998,
+      "right_front_target_rad": 1.04999995,
+      "release_active": false,
+      "release_finished": true,
+      "left_up_impulse": 0.0,
+      "right_up_impulse": 2.15179844e-05
+    },
+    "261": {
+      "contacts": [
+        {
+          "a": "crow_right_rear_toe_proximal",
+          "b": "locomotion_ground",
+          "normal_impulse": 0.0,
+          "separation": 0.000386223081
+        },
+        {
+          "a": "crow_right_rear_toe_distal",
+          "b": "locomotion_ground",
+          "normal_impulse": 0.000296387618,
+          "separation": -0.00148966687
+        },
+        {
+          "a": "crow_right_rear_toe_distal",
+          "b": "locomotion_ground",
+          "normal_impulse": 2.41964335e-05,
+          "separation": -0.00138778903
+        }
+      ],
+      "right_rear_proximal_q_rad": 0.804076254,
+      "right_rear_proximal_v_rad_s": -7.09852457,
+      "root_height_m": 0.182956547,
+      "right_rear_target_rad": 1.14999998,
+      "right_front_target_rad": 1.04999995,
+      "release_active": false,
+      "release_finished": true,
+      "left_up_impulse": 0.0,
+      "right_up_impulse": 0.00117728696
+    },
+    "262": {
+      "contacts": [
+        {
+          "a": "crow_left_foot",
+          "b": "locomotion_ground",
+          "normal_impulse": 0.0107429605,
+          "separation": -1.78526188e-05
+        },
+        {
+          "a": "crow_right_foot",
+          "b": "locomotion_ground",
+          "normal_impulse": 0.0,
+          "separation": 0.000622186693
+        },
+        {
+          "a": "crow_right_rear_toe_proximal",
+          "b": "locomotion_ground",
+          "normal_impulse": 1.0571116e-14,
+          "separation": 0.000285900664
+        },
+        {
+          "a": "crow_right_rear_toe_proximal",
+          "b": "locomotion_ground",
+          "normal_impulse": 0.0,
+          "separation": 0.00106071972
+        },
+        {
+          "a": "crow_right_rear_toe_proximal",
+          "b": "locomotion_ground",
+          "normal_impulse": 0.0,
+          "separation": 0.000140537915
+        },
+        {
+          "a": "crow_right_rear_toe_distal",
+          "b": "locomotion_ground",
+          "normal_impulse": 1.9276891e-24,
+          "separation": 0.000771841151
+        },
+        {
+          "a": "crow_right_rear_toe_distal",
+          "b": "locomotion_ground",
+          "normal_impulse": 2.86300456e-26,
+          "separation": 0.000932961353
+        },
+        {
+          "a": "crow_right_rear_toe_distal",
+          "b": "locomotion_ground",
+          "normal_impulse": 0.0,
+          "separation": -0.00044339447
+        }
+      ],
+      "right_rear_proximal_q_rad": 0.623286963,
+      "right_rear_proximal_v_rad_s": -8.05597973,
+      "root_height_m": 0.180292979,
+      "right_rear_target_rad": 1.14999998,
+      "right_front_target_rad": 1.04999995,
+      "release_active": false,
+      "release_finished": true,
+      "left_up_impulse": 0.0107384296,
+      "right_up_impulse": 9.04489733e-15
+    },
+    "263": {
+      "contacts": [
+        {
+          "a": "crow_left_foot",
+          "b": "locomotion_ground",
+          "normal_impulse": 0.00251537422,
+          "separation": -6.19575731e-05
+        },
+        {
+          "a": "crow_right_foot",
+          "b": "locomotion_ground",
+          "normal_impulse": 0.0,
+          "separation": 0.000216098357
+        },
+        {
+          "a": "crow_right_rear_toe_proximal",
+          "b": "locomotion_ground",
+          "normal_impulse": 8.73552037e-28,
+          "separation": 0.00114439288
+        },
+        {
+          "a": "crow_right_rear_toe_proximal",
+          "b": "locomotion_ground",
+          "normal_impulse": 0.0,
+          "separation": 0.00191325916
+        },
+        {
+          "a": "crow_right_rear_toe_proximal",
+          "b": "locomotion_ground",
+          "normal_impulse": 0.0,
+          "separation": 0.000841170317
+        },
+        {
+          "a": "crow_right_rear_toe_distal",
+          "b": "locomotion_ground",
+          "normal_impulse": 9.87806228e-38,
+          "separation": 0.0019114149
+        },
+        {
+          "a": "crow_right_rear_toe_distal",
+          "b": "locomotion_ground",
+          "normal_impulse": 9.95447004e-38,
+          "separation": 0.00207674224
+        },
+        {
+          "a": "crow_right_rear_toe_distal",
+          "b": "locomotion_ground",
+          "normal_impulse": 0.0,
+          "separation": 0.000244000476
+        }
+      ],
+      "right_rear_proximal_q_rad": 0.541628778,
+      "right_rear_proximal_v_rad_s": -0.351634413,
+      "root_height_m": 0.180058777,
+      "right_rear_target_rad": 1.14999998,
+      "right_front_target_rad": 1.04999995,
+      "release_active": false,
+      "release_finished": true,
+      "left_up_impulse": 0.0025141181,
+      "right_up_impulse": 7.82068824e-28
+    },
+    "264": {
+      "contacts": [
+        {
+          "a": "crow_left_foot",
+          "b": "locomotion_ground",
+          "normal_impulse": 0.000230490448,
+          "separation": -6.00070634e-05
+        },
+        {
+          "a": "crow_right_foot",
+          "b": "locomotion_ground",
+          "normal_impulse": 0.00215853588,
+          "separation": -5.72811223e-05
+        },
+        {
+          "a": "crow_right_rear_toe_proximal",
+          "b": "locomotion_ground",
+          "normal_impulse": 1.72282987e-37,
+          "separation": 0.000665769097
+        },
+        {
+          "a": "crow_right_rear_toe_proximal",
+          "b": "locomotion_ground",
+          "normal_impulse": 0.0,
+          "separation": 0.00145519804
+        },
+        {
+          "a": "crow_right_rear_toe_proximal",
+          "b": "locomotion_ground",
+          "normal_impulse": 0.0,
+          "separation": 0.000393423194
+        },
+        {
+          "a": "crow_right_rear_toe_distal",
+          "b": "locomotion_ground",
+          "normal_impulse": 9.87806228e-38,
+          "separation": 0.000872776262
+        },
+        {
+          "a": "crow_right_rear_toe_distal",
+          "b": "locomotion_ground",
+          "normal_impulse": 9.95447004e-38,
+          "separation": 0.00104645325
+        },
+        {
+          "a": "crow_right_rear_toe_distal",
+          "b": "locomotion_ground",
+          "normal_impulse": 0.000723838166,
+          "separation": -0.000306143687
+        }
+      ],
+      "right_rear_proximal_q_rad": 0.565113842,
+      "right_rear_proximal_v_rad_s": 0.313922822,
+      "root_height_m": 0.179903969,
+      "right_rear_target_rad": 1.14999998,
+      "right_front_target_rad": 1.04999995,
+      "release_active": false,
+      "release_finished": true,
+      "left_up_impulse": 0.000230360791,
+      "right_up_impulse": 0.00283332798
+    }
+  },
+  "index_mapping": "Bench source maps toe velocity slots 0-7 to left, 8-15 to right, digit 3 to rear and segment 0 to proximal; nv=40 and nq=41. Trace step is zero-based; substep interval is one-based.",
+  "scope": "One constructed perturbed perch bench, sampled endpoint contacts and velocities, not direct drive torques or continuous flight."
+}
