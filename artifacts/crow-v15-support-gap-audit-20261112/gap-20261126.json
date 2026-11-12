@@ -1,0 +1,171 @@
+{
+  "threshold_sensitivity": {
+    "1e-07": {
+      "4": 1,
+      "5": 0,
+      "6": 1,
+      "7": 2
+    },
+    "1e-09": {
+      "4": 0,
+      "5": 0,
+      "6": 0,
+      "7": 2
+    },
+    "1e-12": {
+      "4": 0,
+      "5": 0,
+      "6": 0,
+      "7": 2
+    },
+    "1e-14": {
+      "4": 0,
+      "5": 0,
+      "6": 0,
+      "7": 0
+    }
+  },
+  "seed": 20261126,
+  "input_sha256": "39f18db566b74c5ec411661f7dc3309ccf33a8d2dc1f87616b935f537e7d46ea",
+  "rows": [
+    {
+      "lane": 4,
+      "start_substep": 1452,
+      "count": 1,
+      "duration_ms": 1.25,
+      "before": {
+        "sample": 1451,
+        "foot_normal_impulses_ns": [
+          0.0,
+          1.30223867e-07
+        ],
+        "nonfoot_ground_impulse_ns": 0.0,
+        "root_height_m": 0.173547313,
+        "root_vertical_speed_m_s": -0.0252736676
+      },
+      "first": {
+        "sample": 1452,
+        "foot_normal_impulses_ns": [
+          0.0,
+          5.48226247e-08
+        ],
+        "nonfoot_ground_impulse_ns": 0.0,
+        "root_height_m": 0.173501074,
+        "root_vertical_speed_m_s": -0.0369919799
+      },
+      "last": {
+        "sample": 1452,
+        "foot_normal_impulses_ns": [
+          0.0,
+          5.48226247e-08
+        ],
+        "nonfoot_ground_impulse_ns": 0.0,
+        "root_height_m": 0.173501074,
+        "root_vertical_speed_m_s": -0.0369919799
+      },
+      "after": {
+        "sample": 1453,
+        "foot_normal_impulses_ns": [
+          0.0,
+          0.00309458282
+        ],
+        "nonfoot_ground_impulse_ns": 0.0,
+        "root_height_m": 0.173448563,
+        "root_vertical_speed_m_s": -0.0420040712
+      }
+    },
+    {
+      "lane": 6,
+      "start_substep": 1452,
+      "count": 1,
+      "duration_ms": 1.25,
+      "before": {
+        "sample": 1451,
+        "foot_normal_impulses_ns": [
+          0.0,
+          1.36436739e-07
+        ],
+        "nonfoot_ground_impulse_ns": 0.0,
+        "root_height_m": 0.173651263,
+        "root_vertical_speed_m_s": -0.0331879184
+      },
+      "first": {
+        "sample": 1452,
+        "foot_normal_impulses_ns": [
+          0.0,
+          5.94323097e-08
+        ],
+        "nonfoot_ground_impulse_ns": 0.0,
+        "root_height_m": 0.173595145,
+        "root_vertical_speed_m_s": -0.044893343
+      },
+      "last": {
+        "sample": 1452,
+        "foot_normal_impulses_ns": [
+          0.0,
+          5.94323097e-08
+        ],
+        "nonfoot_ground_impulse_ns": 0.0,
+        "root_height_m": 0.173595145,
+        "root_vertical_speed_m_s": -0.044893343
+      },
+      "after": {
+        "sample": 1453,
+        "foot_normal_impulses_ns": [
+          0.0,
+          0.0023953761
+        ],
+        "nonfoot_ground_impulse_ns": 0.0,
+        "root_height_m": 0.173530862,
+        "root_vertical_speed_m_s": -0.0514276884
+      }
+    },
+    {
+      "lane": 7,
+      "start_substep": 1051,
+      "count": 2,
+      "duration_ms": 2.5,
+      "before": {
+        "sample": 1050,
+        "foot_normal_impulses_ns": [
+          9.13752309e-14,
+          1.50297421e-06
+        ],
+        "nonfoot_ground_impulse_ns": 0.0,
+        "root_height_m": 0.173326612,
+        "root_vertical_speed_m_s": -0.0864481106
+      },
+      "first": {
+        "sample": 1051,
+        "foot_normal_impulses_ns": [
+          5.19490592e-14,
+          0.0
+        ],
+        "nonfoot_ground_impulse_ns": 0.0,
+        "root_height_m": 0.173203096,
+        "root_vertical_speed_m_s": -0.0988150835
+      },
+      "last": {
+        "sample": 1052,
+        "foot_normal_impulses_ns": [
+          2.98731173e-14,
+          0.0
+        ],
+        "nonfoot_ground_impulse_ns": 0.0,
+        "root_height_m": 0.173064172,
+        "root_vertical_speed_m_s": -0.111135729
+      },
+      "after": {
+        "sample": 1053,
+        "foot_normal_impulses_ns": [
+          0.00430445373,
+          0.0
+        ],
+        "nonfoot_ground_impulse_ns": 0.0,
+        "root_height_m": 0.172922358,
+        "root_vertical_speed_m_s": -0.113457069
+      }
+    }
+  ],
+  "scope": "Ground contact normal impulse summed for modeled foot and toe collision bodies, recorded on accepted 1.25 ms substeps. Neighboring impulses and root speed are descriptive; they cannot by themselves establish flight, balance, a fall, or support on unobserved surfaces. Threshold is 1e-7 Ns per foot and individual constraint sums are used by this logger."
+}
