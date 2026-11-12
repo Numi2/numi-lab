@@ -202,5 +202,7 @@
     "missing_toe_group": 43
   },
   "max_joint_anchor_error_m": 2.0762746125294616e-09,
-  "scope": "1.25 ms synchronized model q and contact substeps, same event selection as endpoint analysis. Anatomical mapping, biological sample, surface and speed remain unvalidated. Angle minima are not a robust estimate of extension onset; discrete impulse/contact timing is not a measured EMG or video timing. No causal or biological qualification."
+  "scope": "1.25 ms synchronized model q and contact substeps, same event selection as endpoint analysis. Anatomical mapping, biological sample, surface and speed remain unvalidated. Angle minima are not a robust estimate of extension onset; discrete impulse/contact timing is not a measured EMG or video timing. No causal or biological qualification.",
+  "knee_minimum_at_final_control_substep_count": 13,
+  "ankle_minimum_at_final_control_substep_count": 13
 }
