@@ -1,0 +1,18 @@
+sham
+0 2.13 {'clear': 22, 'own_unloaded': 32, 'other_support': 53, 'no_nonfoot': 100, 'all_conditions': 21, 'clear_with_other_support': 22} ('crow_right_rear_toe_distal', 41)
+1 2.11 {'clear': 22, 'own_unloaded': 32, 'other_support': 50, 'no_nonfoot': 100, 'all_conditions': 21, 'clear_with_other_support': 22} ('crow_right_rear_toe_distal', 41)
+2 2.12 {'clear': 23, 'own_unloaded': 32, 'other_support': 50, 'no_nonfoot': 100, 'all_conditions': 22, 'clear_with_other_support': 23} ('crow_right_foot', 40)
+3 2.19 {'clear': 22, 'own_unloaded': 32, 'other_support': 52, 'no_nonfoot': 100, 'all_conditions': 20, 'clear_with_other_support': 22} ('crow_right_foot', 39)
+4 2.09 {'clear': 23, 'own_unloaded': 32, 'other_support': 52, 'no_nonfoot': 100, 'all_conditions': 22, 'clear_with_other_support': 23} ('crow_right_rear_toe_distal', 40)
+5 2.29 {'clear': 23, 'own_unloaded': 32, 'other_support': 51, 'no_nonfoot': 100, 'all_conditions': 22, 'clear_with_other_support': 23} ('crow_right_foot', 39)
+6 2.07 {'clear': 23, 'own_unloaded': 32, 'other_support': 53, 'no_nonfoot': 100, 'all_conditions': 22, 'clear_with_other_support': 23} ('crow_right_foot', 40)
+7 2.13 {'clear': 26, 'own_unloaded': 32, 'other_support': 49, 'no_nonfoot': 100, 'all_conditions': 23, 'clear_with_other_support': 26} ('crow_right_foot', 40)
+candidate
+0 1.56 {'clear': 2, 'own_unloaded': 26, 'other_support': 51, 'no_nonfoot': 100, 'all_conditions': 0, 'clear_with_other_support': 1} ('crow_right_rear_toe_distal', 43)
+1 1.54 {'clear': 2, 'own_unloaded': 25, 'other_support': 47, 'no_nonfoot': 100, 'all_conditions': 0, 'clear_with_other_support': 1} ('crow_right_rear_toe_distal', 43)
+2 1.5 {'clear': 2, 'own_unloaded': 26, 'other_support': 48, 'no_nonfoot': 100, 'all_conditions': 0, 'clear_with_other_support': 1} ('crow_right_rear_toe_distal', 44)
+3 1.38 {'clear': 1, 'own_unloaded': 25, 'other_support': 51, 'no_nonfoot': 100, 'all_conditions': 0, 'clear_with_other_support': 0} ('crow_right_rear_toe_distal', 45)
+4 0.96 {'clear': 0, 'own_unloaded': 26, 'other_support': 50, 'no_nonfoot': 100, 'all_conditions': 0, 'clear_with_other_support': 0} ('crow_right_rear_toe_distal', 44)
+5 1.05 {'clear': 1, 'own_unloaded': 29, 'other_support': 49, 'no_nonfoot': 100, 'all_conditions': 0, 'clear_with_other_support': 1} ('crow_right_rear_toe_distal', 43)
+6 0.95 {'clear': 0, 'own_unloaded': 26, 'other_support': 51, 'no_nonfoot': 100, 'all_conditions': 0, 'clear_with_other_support': 0} ('crow_right_rear_toe_distal', 44)
+7 0.98 {'clear': 0, 'own_unloaded': 25, 'other_support': 47, 'no_nonfoot': 100, 'all_conditions': 0, 'clear_with_other_support': 0} ('crow_right_rear_toe_distal', 44)

@@ -1,0 +1,879 @@
+{
+  "arms": {
+    "sham": [
+      {
+        "lane": 0,
+        "side": "left",
+        "max_endpoint_clearance_m": 0.0024677381879558424,
+        "condition_counts": {
+          "clear": 25,
+          "own_unloaded": 27,
+          "other_support": 50,
+          "no_nonfoot": 100,
+          "all_conditions": 22,
+          "clear_with_other_support": 25
+        },
+        "most_limiting_shapes": [
+          [
+            "crow_left_foot",
+            38
+          ],
+          [
+            "crow_left_rear_toe_distal",
+            31
+          ],
+          [
+            "crow_left_rear_toe_proximal",
+            27
+          ]
+        ]
+      },
+      {
+        "lane": 0,
+        "side": "right",
+        "max_endpoint_clearance_m": 0.0021302582573197136,
+        "condition_counts": {
+          "clear": 22,
+          "own_unloaded": 32,
+          "other_support": 53,
+          "no_nonfoot": 100,
+          "all_conditions": 21,
+          "clear_with_other_support": 22
+        },
+        "most_limiting_shapes": [
+          [
+            "crow_right_rear_toe_distal",
+            41
+          ],
+          [
+            "crow_right_foot",
+            38
+          ],
+          [
+            "crow_right_rear_toe_proximal",
+            18
+          ]
+        ]
+      },
+      {
+        "lane": 1,
+        "side": "left",
+        "max_endpoint_clearance_m": 0.0024699175532302605,
+        "condition_counts": {
+          "clear": 26,
+          "own_unloaded": 27,
+          "other_support": 52,
+          "no_nonfoot": 100,
+          "all_conditions": 23,
+          "clear_with_other_support": 26
+        },
+        "most_limiting_shapes": [
+          [
+            "crow_left_foot",
+            38
+          ],
+          [
+            "crow_left_rear_toe_distal",
+            31
+          ],
+          [
+            "crow_left_rear_toe_proximal",
+            28
+          ]
+        ]
+      },
+      {
+        "lane": 1,
+        "side": "right",
+        "max_endpoint_clearance_m": 0.0021094583434771545,
+        "condition_counts": {
+          "clear": 22,
+          "own_unloaded": 32,
+          "other_support": 50,
+          "no_nonfoot": 100,
+          "all_conditions": 21,
+          "clear_with_other_support": 22
+        },
+        "most_limiting_shapes": [
+          [
+            "crow_right_rear_toe_distal",
+            41
+          ],
+          [
+            "crow_right_foot",
+            37
+          ],
+          [
+            "crow_right_rear_toe_proximal",
+            19
+          ]
+        ]
+      },
+      {
+        "lane": 2,
+        "side": "left",
+        "max_endpoint_clearance_m": 0.0024692601047751964,
+        "condition_counts": {
+          "clear": 25,
+          "own_unloaded": 27,
+          "other_support": 52,
+          "no_nonfoot": 100,
+          "all_conditions": 22,
+          "clear_with_other_support": 25
+        },
+        "most_limiting_shapes": [
+          [
+            "crow_left_foot",
+            39
+          ],
+          [
+            "crow_left_rear_toe_distal",
+            32
+          ],
+          [
+            "crow_left_rear_toe_proximal",
+            25
+          ]
+        ]
+      },
+      {
+        "lane": 2,
+        "side": "right",
+        "max_endpoint_clearance_m": 0.0021191815992116676,
+        "condition_counts": {
+          "clear": 23,
+          "own_unloaded": 32,
+          "other_support": 50,
+          "no_nonfoot": 100,
+          "all_conditions": 22,
+          "clear_with_other_support": 23
+        },
+        "most_limiting_shapes": [
+          [
+            "crow_right_foot",
+            40
+          ],
+          [
+            "crow_right_rear_toe_distal",
+            39
+          ],
+          [
+            "crow_right_rear_toe_proximal",
+            18
+          ]
+        ]
+      },
+      {
+        "lane": 3,
+        "side": "left",
+        "max_endpoint_clearance_m": 0.0025572392252195056,
+        "condition_counts": {
+          "clear": 27,
+          "own_unloaded": 28,
+          "other_support": 49,
+          "no_nonfoot": 100,
+          "all_conditions": 25,
+          "clear_with_other_support": 27
+        },
+        "most_limiting_shapes": [
+          [
+            "crow_left_foot",
+            38
+          ],
+          [
+            "crow_left_rear_toe_distal",
+            32
+          ],
+          [
+            "crow_left_rear_toe_proximal",
+            27
+          ]
+        ]
+      },
+      {
+        "lane": 3,
+        "side": "right",
+        "max_endpoint_clearance_m": 0.0021875418260177554,
+        "condition_counts": {
+          "clear": 22,
+          "own_unloaded": 32,
+          "other_support": 52,
+          "no_nonfoot": 100,
+          "all_conditions": 20,
+          "clear_with_other_support": 22
+        },
+        "most_limiting_shapes": [
+          [
+            "crow_right_foot",
+            39
+          ],
+          [
+            "crow_right_rear_toe_distal",
+            38
+          ],
+          [
+            "crow_right_rear_toe_proximal",
+            19
+          ]
+        ]
+      },
+      {
+        "lane": 4,
+        "side": "left",
+        "max_endpoint_clearance_m": 0.002472274680882852,
+        "condition_counts": {
+          "clear": 26,
+          "own_unloaded": 27,
+          "other_support": 50,
+          "no_nonfoot": 100,
+          "all_conditions": 23,
+          "clear_with_other_support": 26
+        },
+        "most_limiting_shapes": [
+          [
+            "crow_left_foot",
+            37
+          ],
+          [
+            "crow_left_rear_toe_distal",
+            32
+          ],
+          [
+            "crow_left_rear_toe_proximal",
+            27
+          ]
+        ]
+      },
+      {
+        "lane": 4,
+        "side": "right",
+        "max_endpoint_clearance_m": 0.0020926262873009454,
+        "condition_counts": {
+          "clear": 23,
+          "own_unloaded": 32,
+          "other_support": 52,
+          "no_nonfoot": 100,
+          "all_conditions": 22,
+          "clear_with_other_support": 23
+        },
+        "most_limiting_shapes": [
+          [
+            "crow_right_rear_toe_distal",
+            40
+          ],
+          [
+            "crow_right_foot",
+            39
+          ],
+          [
+            "crow_right_rear_toe_proximal",
+            18
+          ]
+        ]
+      },
+      {
+        "lane": 5,
+        "side": "left",
+        "max_endpoint_clearance_m": 0.0024655439998519813,
+        "condition_counts": {
+          "clear": 25,
+          "own_unloaded": 27,
+          "other_support": 52,
+          "no_nonfoot": 100,
+          "all_conditions": 22,
+          "clear_with_other_support": 25
+        },
+        "most_limiting_shapes": [
+          [
+            "crow_left_foot",
+            37
+          ],
+          [
+            "crow_left_rear_toe_distal",
+            32
+          ],
+          [
+            "crow_left_rear_toe_proximal",
+            27
+          ]
+        ]
+      },
+      {
+        "lane": 5,
+        "side": "right",
+        "max_endpoint_clearance_m": 0.0022938004400459983,
+        "condition_counts": {
+          "clear": 23,
+          "own_unloaded": 32,
+          "other_support": 51,
+          "no_nonfoot": 100,
+          "all_conditions": 22,
+          "clear_with_other_support": 23
+        },
+        "most_limiting_shapes": [
+          [
+            "crow_right_foot",
+            39
+          ],
+          [
+            "crow_right_rear_toe_distal",
+            39
+          ],
+          [
+            "crow_right_rear_toe_proximal",
+            19
+          ]
+        ]
+      },
+      {
+        "lane": 6,
+        "side": "left",
+        "max_endpoint_clearance_m": 0.0024962016452408763,
+        "condition_counts": {
+          "clear": 26,
+          "own_unloaded": 27,
+          "other_support": 49,
+          "no_nonfoot": 100,
+          "all_conditions": 23,
+          "clear_with_other_support": 26
+        },
+        "most_limiting_shapes": [
+          [
+            "crow_left_foot",
+            39
+          ],
+          [
+            "crow_left_rear_toe_distal",
+            33
+          ],
+          [
+            "crow_left_rear_toe_proximal",
+            25
+          ]
+        ]
+      },
+      {
+        "lane": 6,
+        "side": "right",
+        "max_endpoint_clearance_m": 0.0020695098727388592,
+        "condition_counts": {
+          "clear": 23,
+          "own_unloaded": 32,
+          "other_support": 53,
+          "no_nonfoot": 100,
+          "all_conditions": 22,
+          "clear_with_other_support": 23
+        },
+        "most_limiting_shapes": [
+          [
+            "crow_right_foot",
+            40
+          ],
+          [
+            "crow_right_rear_toe_distal",
+            39
+          ],
+          [
+            "crow_right_rear_toe_proximal",
+            19
+          ]
+        ]
+      },
+      {
+        "lane": 7,
+        "side": "left",
+        "max_endpoint_clearance_m": 0.002491175147453112,
+        "condition_counts": {
+          "clear": 26,
+          "own_unloaded": 28,
+          "other_support": 51,
+          "no_nonfoot": 100,
+          "all_conditions": 25,
+          "clear_with_other_support": 26
+        },
+        "most_limiting_shapes": [
+          [
+            "crow_left_foot",
+            39
+          ],
+          [
+            "crow_left_rear_toe_distal",
+            31
+          ],
+          [
+            "crow_left_rear_toe_proximal",
+            27
+          ]
+        ]
+      },
+      {
+        "lane": 7,
+        "side": "right",
+        "max_endpoint_clearance_m": 0.002127423698513157,
+        "condition_counts": {
+          "clear": 26,
+          "own_unloaded": 32,
+          "other_support": 49,
+          "no_nonfoot": 100,
+          "all_conditions": 23,
+          "clear_with_other_support": 26
+        },
+        "most_limiting_shapes": [
+          [
+            "crow_right_foot",
+            40
+          ],
+          [
+            "crow_right_rear_toe_distal",
+            38
+          ],
+          [
+            "crow_right_rear_toe_proximal",
+            20
+          ]
+        ]
+      }
+    ],
+    "candidate": [
+      {
+        "lane": 0,
+        "side": "left",
+        "max_endpoint_clearance_m": 0.0029849407989198194,
+        "condition_counts": {
+          "clear": 7,
+          "own_unloaded": 26,
+          "other_support": 46,
+          "no_nonfoot": 100,
+          "all_conditions": 4,
+          "clear_with_other_support": 6
+        },
+        "most_limiting_shapes": [
+          [
+            "crow_left_rear_toe_distal",
+            35
+          ],
+          [
+            "crow_left_rear_toe_proximal",
+            33
+          ],
+          [
+            "crow_left_foot",
+            31
+          ]
+        ]
+      },
+      {
+        "lane": 0,
+        "side": "right",
+        "max_endpoint_clearance_m": 0.0015592168528458811,
+        "condition_counts": {
+          "clear": 2,
+          "own_unloaded": 26,
+          "other_support": 51,
+          "no_nonfoot": 100,
+          "all_conditions": 0,
+          "clear_with_other_support": 1
+        },
+        "most_limiting_shapes": [
+          [
+            "crow_right_rear_toe_distal",
+            43
+          ],
+          [
+            "crow_right_foot",
+            29
+          ],
+          [
+            "crow_right_rear_toe_proximal",
+            25
+          ]
+        ]
+      },
+      {
+        "lane": 1,
+        "side": "left",
+        "max_endpoint_clearance_m": 0.0029218064653225156,
+        "condition_counts": {
+          "clear": 7,
+          "own_unloaded": 26,
+          "other_support": 48,
+          "no_nonfoot": 100,
+          "all_conditions": 4,
+          "clear_with_other_support": 6
+        },
+        "most_limiting_shapes": [
+          [
+            "crow_left_rear_toe_distal",
+            37
+          ],
+          [
+            "crow_left_rear_toe_proximal",
+            32
+          ],
+          [
+            "crow_left_foot",
+            30
+          ]
+        ]
+      },
+      {
+        "lane": 1,
+        "side": "right",
+        "max_endpoint_clearance_m": 0.0015400165617545283,
+        "condition_counts": {
+          "clear": 2,
+          "own_unloaded": 25,
+          "other_support": 47,
+          "no_nonfoot": 100,
+          "all_conditions": 0,
+          "clear_with_other_support": 1
+        },
+        "most_limiting_shapes": [
+          [
+            "crow_right_rear_toe_distal",
+            43
+          ],
+          [
+            "crow_right_foot",
+            30
+          ],
+          [
+            "crow_right_rear_toe_proximal",
+            24
+          ]
+        ]
+      },
+      {
+        "lane": 2,
+        "side": "left",
+        "max_endpoint_clearance_m": 0.0028895722823324022,
+        "condition_counts": {
+          "clear": 7,
+          "own_unloaded": 25,
+          "other_support": 48,
+          "no_nonfoot": 100,
+          "all_conditions": 4,
+          "clear_with_other_support": 6
+        },
+        "most_limiting_shapes": [
+          [
+            "crow_left_rear_toe_distal",
+            37
+          ],
+          [
+            "crow_left_rear_toe_proximal",
+            31
+          ],
+          [
+            "crow_left_foot",
+            31
+          ]
+        ]
+      },
+      {
+        "lane": 2,
+        "side": "right",
+        "max_endpoint_clearance_m": 0.0015028531612793078,
+        "condition_counts": {
+          "clear": 2,
+          "own_unloaded": 26,
+          "other_support": 48,
+          "no_nonfoot": 100,
+          "all_conditions": 0,
+          "clear_with_other_support": 1
+        },
+        "most_limiting_shapes": [
+          [
+            "crow_right_rear_toe_distal",
+            44
+          ],
+          [
+            "crow_right_foot",
+            29
+          ],
+          [
+            "crow_right_rear_toe_proximal",
+            24
+          ]
+        ]
+      },
+      {
+        "lane": 3,
+        "side": "left",
+        "max_endpoint_clearance_m": 0.0026947385644676344,
+        "condition_counts": {
+          "clear": 8,
+          "own_unloaded": 25,
+          "other_support": 47,
+          "no_nonfoot": 100,
+          "all_conditions": 5,
+          "clear_with_other_support": 7
+        },
+        "most_limiting_shapes": [
+          [
+            "crow_left_rear_toe_distal",
+            36
+          ],
+          [
+            "crow_left_rear_toe_proximal",
+            34
+          ],
+          [
+            "crow_left_foot",
+            28
+          ]
+        ]
+      },
+      {
+        "lane": 3,
+        "side": "right",
+        "max_endpoint_clearance_m": 0.0013775691320426844,
+        "condition_counts": {
+          "clear": 1,
+          "own_unloaded": 25,
+          "other_support": 51,
+          "no_nonfoot": 100,
+          "all_conditions": 0,
+          "clear_with_other_support": 0
+        },
+        "most_limiting_shapes": [
+          [
+            "crow_right_rear_toe_distal",
+            45
+          ],
+          [
+            "crow_right_foot",
+            27
+          ],
+          [
+            "crow_right_rear_toe_proximal",
+            24
+          ]
+        ]
+      },
+      {
+        "lane": 4,
+        "side": "left",
+        "max_endpoint_clearance_m": 0.001524548568187345,
+        "condition_counts": {
+          "clear": 4,
+          "own_unloaded": 23,
+          "other_support": 47,
+          "no_nonfoot": 100,
+          "all_conditions": 3,
+          "clear_with_other_support": 4
+        },
+        "most_limiting_shapes": [
+          [
+            "crow_left_rear_toe_distal",
+            37
+          ],
+          [
+            "crow_left_rear_toe_proximal",
+            34
+          ],
+          [
+            "crow_left_foot",
+            27
+          ]
+        ]
+      },
+      {
+        "lane": 4,
+        "side": "right",
+        "max_endpoint_clearance_m": 0.0009640153035012176,
+        "condition_counts": {
+          "clear": 0,
+          "own_unloaded": 26,
+          "other_support": 50,
+          "no_nonfoot": 100,
+          "all_conditions": 0,
+          "clear_with_other_support": 0
+        },
+        "most_limiting_shapes": [
+          [
+            "crow_right_rear_toe_distal",
+            44
+          ],
+          [
+            "crow_right_foot",
+            31
+          ],
+          [
+            "crow_right_rear_toe_proximal",
+            21
+          ]
+        ]
+      },
+      {
+        "lane": 5,
+        "side": "left",
+        "max_endpoint_clearance_m": 0.001482515994073676,
+        "condition_counts": {
+          "clear": 4,
+          "own_unloaded": 23,
+          "other_support": 49,
+          "no_nonfoot": 100,
+          "all_conditions": 3,
+          "clear_with_other_support": 4
+        },
+        "most_limiting_shapes": [
+          [
+            "crow_left_rear_toe_proximal",
+            36
+          ],
+          [
+            "crow_left_rear_toe_distal",
+            36
+          ],
+          [
+            "crow_left_foot",
+            28
+          ]
+        ]
+      },
+      {
+        "lane": 5,
+        "side": "right",
+        "max_endpoint_clearance_m": 0.001050623702680855,
+        "condition_counts": {
+          "clear": 1,
+          "own_unloaded": 29,
+          "other_support": 49,
+          "no_nonfoot": 100,
+          "all_conditions": 0,
+          "clear_with_other_support": 1
+        },
+        "most_limiting_shapes": [
+          [
+            "crow_right_rear_toe_distal",
+            43
+          ],
+          [
+            "crow_right_foot",
+            32
+          ],
+          [
+            "crow_right_rear_toe_proximal",
+            22
+          ]
+        ]
+      },
+      {
+        "lane": 6,
+        "side": "left",
+        "max_endpoint_clearance_m": 0.001492171489384719,
+        "condition_counts": {
+          "clear": 4,
+          "own_unloaded": 22,
+          "other_support": 46,
+          "no_nonfoot": 100,
+          "all_conditions": 3,
+          "clear_with_other_support": 4
+        },
+        "most_limiting_shapes": [
+          [
+            "crow_left_rear_toe_distal",
+            38
+          ],
+          [
+            "crow_left_rear_toe_proximal",
+            31
+          ],
+          [
+            "crow_left_foot",
+            28
+          ]
+        ]
+      },
+      {
+        "lane": 6,
+        "side": "right",
+        "max_endpoint_clearance_m": 0.0009517873242719556,
+        "condition_counts": {
+          "clear": 0,
+          "own_unloaded": 26,
+          "other_support": 51,
+          "no_nonfoot": 100,
+          "all_conditions": 0,
+          "clear_with_other_support": 0
+        },
+        "most_limiting_shapes": [
+          [
+            "crow_right_rear_toe_distal",
+            44
+          ],
+          [
+            "crow_right_foot",
+            33
+          ],
+          [
+            "crow_right_rear_toe_proximal",
+            20
+          ]
+        ]
+      },
+      {
+        "lane": 7,
+        "side": "left",
+        "max_endpoint_clearance_m": 0.00155241742953292,
+        "condition_counts": {
+          "clear": 7,
+          "own_unloaded": 23,
+          "other_support": 49,
+          "no_nonfoot": 100,
+          "all_conditions": 5,
+          "clear_with_other_support": 7
+        },
+        "most_limiting_shapes": [
+          [
+            "crow_left_rear_toe_distal",
+            38
+          ],
+          [
+            "crow_left_rear_toe_proximal",
+            32
+          ],
+          [
+            "crow_left_foot",
+            28
+          ]
+        ]
+      },
+      {
+        "lane": 7,
+        "side": "right",
+        "max_endpoint_clearance_m": 0.0009848153618428664,
+        "condition_counts": {
+          "clear": 0,
+          "own_unloaded": 25,
+          "other_support": 47,
+          "no_nonfoot": 100,
+          "all_conditions": 0,
+          "clear_with_other_support": 0
+        },
+        "most_limiting_shapes": [
+          [
+            "crow_right_rear_toe_distal",
+            44
+          ],
+          [
+            "crow_right_foot",
+            34
+          ],
+          [
+            "crow_right_rear_toe_proximal",
+            20
+          ]
+        ]
+      }
+    ]
+  },
+  "input_sha256": {
+    "sham/run.stderr.gz": "fb01ea3f7a641e6be6838ed2dd4986350d636214b47df76fa3db77c188288b93",
+    "sham/replay.json.gz": "80923be230025cf98aee1b4c1dcb11e144b881b04cc05499e4d0aa34b400b377",
+    "candidate/run.stderr.gz": "7bbf52d837847ed94bd442af92ea164309a6d4c841db0ad1f481291e367b7f54",
+    "candidate/replay.json.gz": "a882ccac95f37f04d4db0fa95b8e51a6d09e3d966d878acb5222a6f880445195"
+  },
+  "scope": "Endpoint geometry and integrated normal impulses in the two-second window on one used development seed. Thresholds reproduce the existing engineering clearance-bout gate, not crow measurements. These are component tests, not continuous foot trajectory or biological validation."
+}
