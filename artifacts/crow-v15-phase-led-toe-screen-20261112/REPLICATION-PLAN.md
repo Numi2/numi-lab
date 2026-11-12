@@ -1,0 +1,3 @@
+# Unchanged second development-start test
+
+Before inspecting the next result, run the same compiled host and shader, identical phase-led -0.02 rad toe intervention and sham, for eight lanes and 300 control steps on previously used development seed 20261127. Apply all criteria in PLAN.md to this seed independently, including every-lane 90% travel and at least three clearance bouts per foot, per-lane unloaded-substep comparison, and the aggregate clearance and contact-point speed gates. Preserve failed results. This is not an unused seed and a pass does not qualify sustained gait or biology. If it passes, design a separate longer continuous physical walking experiment before considering promotion.

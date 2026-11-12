@@ -1,0 +1,25 @@
+--- a/gait.metal
++++ b/toe-swing.metal
+@@ -5554,7 +5554,12 @@
+             const uint frontRamp=ramp>2u ? ramp-2u : 0u;
+             for (uint toe=0u;toe<4u;++toe) {
+                 const float extension=side==0u && seq>=170u && seq<255u ? -.20f*clamp(float(seq-170u)/35.0f,0.0f,1.0f)*(1.0f-returning) : 0.0f;
+-                const float perchTarget=(toe==3u ? min(.04f*float(ramp),1.15f) : min(.03f*float(frontRamp),1.05f))+extension; const float flightTarget=.025f*float((state.status.w>>23u)&31u); const float proximal=max(perchTarget,flightTarget);
++                const float perchTarget=(toe==3u ? min(.04f*float(ramp),1.15f) : min(.03f*float(frontRamp),1.05f))+extension; const float flightTarget=.025f*float((state.status.w>>23u)&31u); float proximal=max(perchTarget,flightTarget);
++                const float walkingSeconds=float(state.episode.x)*dispatch.timing.x;
++                const float carrier=sin(kTwoPi*(walkingSeconds+5.0f/1000.0f)/0.50f+0.50f)*(side==0u ? 1.0f : -1.0f);
++                const bool oppositeSupported=(state.status.w & (side==0u ? (1u<<21) : (1u<<20)))!=0u;
++                if (program.interactionTiming.w>=0.5f && walkingSeconds>=4.0f && walkingSeconds<6.0f && toe==3u && carrier>0.40f && oppositeSupported && (state.status.w & (side==0u ? (1u<<20) : (1u<<21)))==0u)
++                    proximal=min(proximal,-.02f*smoothstep(.40f,.80f,carrier));
+                 for(uint segment=0u;segment<2u;++segment) {
+                     const uint dof=22u+side*8u+toe*2u+segment;
+                     effortTrajectory[pass.controlStep*worldDispatch.effortStepStride + environment*worldDispatch.effortEnvironmentStride + dof]=proximal*(segment==0u ? 1.0f : .75f);
+@@ -5575,7 +5580,7 @@
+             }
+         }
+     }
+-    if (program.interactionTiming.w < 0.5f || state.episode.x == 0u || float(state.episode.x)*dispatch.timing.x < 4.0f || float(state.episode.x)*dispatch.timing.x >= 6.0f) {
++    if (true) {
+         for (uint i=0u; i<dispatch.counts.w; ++i) {
+             const uint e=environment*worldDispatch.effortEnvironmentStride+i;
+             effortTrajectory[worldDispatch.effortStepStride+e]=effortTrajectory[e];

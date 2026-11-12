@@ -1,0 +1,18 @@
+artifacts/crow-v15-phase-led-toe-screen-20261112/sham-20261126-paired q_error 4.999694547258571e-10 position_error_m 1.5787311384445568e-08 rotation_error 2.9783623063509514e-08
+artifacts/crow-v15-phase-led-toe-screen-20261112/candidate-20261126-rebound q_error 4.996643099275389e-10 position_error_m 1.513035609243808e-08 rotation_error 2.9788859477424093e-08
+{
+  "sham": {
+    "count": 8154,
+    "median_m_s": 0.00298703989160262,
+    "p95_m_s": 0.03813063569308496,
+    "max_m_s": 0.12616346857984012,
+    "fraction_over_0_01m_s": 0.23706156487613442
+  },
+  "candidate": {
+    "count": 8127,
+    "median_m_s": 0.0029170972505593476,
+    "p95_m_s": 0.03465514610116102,
+    "max_m_s": 0.08745832337283056,
+    "fraction_over_0_01m_s": 0.22283745539559494
+  }
+}
