@@ -1,0 +1,50 @@
+[
+  {
+    "lane": 0,
+    "course_episode_transitions": 1139,
+    "first_different_trace_submission": 1140,
+    "missing_trace_submissions": []
+  },
+  {
+    "lane": 1,
+    "course_episode_transitions": 1199,
+    "first_different_trace_submission": 801,
+    "missing_trace_submissions": []
+  },
+  {
+    "lane": 2,
+    "course_episode_transitions": 941,
+    "first_different_trace_submission": 942,
+    "missing_trace_submissions": []
+  },
+  {
+    "lane": 3,
+    "course_episode_transitions": 900,
+    "first_different_trace_submission": 901,
+    "missing_trace_submissions": []
+  },
+  {
+    "lane": 4,
+    "course_episode_transitions": 1069,
+    "first_different_trace_submission": 947,
+    "missing_trace_submissions": []
+  },
+  {
+    "lane": 5,
+    "course_episode_transitions": 923,
+    "first_different_trace_submission": 924,
+    "missing_trace_submissions": []
+  },
+  {
+    "lane": 6,
+    "course_episode_transitions": 954,
+    "first_different_trace_submission": 954,
+    "missing_trace_submissions": []
+  },
+  {
+    "lane": 7,
+    "course_episode_transitions": 925,
+    "first_different_trace_submission": 926,
+    "missing_trace_submissions": []
+  }
+]

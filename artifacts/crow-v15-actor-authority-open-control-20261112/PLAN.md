@@ -1,0 +1,7 @@
+# Matched route-actor, obstacle-disabled control
+
+Repeat the retained actor-authority course trial with the same current v15 shader, eight development starts, seed, active launch, teacher-off policy commands and low-level feedback. Disable course-object collisions using the previously constructed open host, with policies rebound to its changed world; preserve ground and identical scene observations. Record every accepted state and native replay, comparing each lane with its same-lane collision-enabled state up to that lane’s course termination. The obstacle-disabled result measures survival and state divergence under route commands; waypoint counters in this control are not course-navigation success. Identify the first differences relative to retained obstacle contacts and report any instability or physical failure. Starts are correlated and the seed/layout are development inputs. This test does not qualify biological flight, grasping or landing.
+
+The first setup was interrupted before completion after discovering that the support observer is nested under CROW_CONTACT_TRACE; its exit status and empty partial logs are retained. The corrected run enables both observer gates. Joint-substep logging remains disabled, so this comparison does not establish absence of joint-speed caps.
+
+Source audit correction: both arms retain a fixed-speed feedback correction and a zero-heading correction in lanes 2–7. The actor is not the sole speed/steering authority. This compares obstacle effects under the same mixed controller, not a clean policy-only flight test.
