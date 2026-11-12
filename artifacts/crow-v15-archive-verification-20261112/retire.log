@@ -1,0 +1,6 @@
+{
+  "remote_commit": "750047a2956c538d9cdee973d762e0c6fac171a0",
+  "retired_files": 22,
+  "retired_bytes": 184161264,
+  "verification": "Independent filtered remote clone, git-stored manifest hash, downloaded compressed blob hash, decompressed exact raw SHA-256, local archive hash and no open handles checked before retirement. Only named generated duplicate traces/replays removed."
+}

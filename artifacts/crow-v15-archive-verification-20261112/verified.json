@@ -1,0 +1,161 @@
+{
+  "remote_commit": "750047a2956c538d9cdee973d762e0c6fac171a0",
+  "files_verified": 22,
+  "total_raw_bytes": 184161264,
+  "files": [
+    {
+      "raw": "build/crow-v15-standing-target-feedback-matched-20261112/candidate-20261127-rebound-minus-replay.json",
+      "raw_sha256": "c2ffd0d711667bc47685a3cb4c30e05169a8a7def0c7b721bd436fec3ad2732a",
+      "raw_bytes": 6142570,
+      "archive": "artifacts/crow-v15-standing-target-feedback-matched-20261112/candidate-20261127-rebound-minus/replay.json.gz",
+      "compressed_sha256": "518fc80592017f4054bf8315e9efc174dcea9ba6b4c5af51896aea497ac2dc02"
+    },
+    {
+      "raw": "build/crow-v15-standing-target-feedback-matched-20261112/candidate-20261127-rebound-minus-trace.tsv",
+      "raw_sha256": "d740be7377239972886d74b18490241cb9133edbd606ffd1fac347f0d757bd1a",
+      "raw_bytes": 134009,
+      "archive": "artifacts/crow-v15-standing-target-feedback-matched-20261112/candidate-20261127-rebound-minus/trace.tsv.gz",
+      "compressed_sha256": "95ead8de07ef76fcb1292827994ecc624289f2607107630475453c621c19b07c"
+    },
+    {
+      "raw": "build/crow-v15-standing-target-feedback-matched-20261112/candidate-20261127-rebound-plus-replay.json",
+      "raw_sha256": "06adc673b246b4ab94a0826118404d3964b00c9d9283149c15f6bb3980a8d360",
+      "raw_bytes": 6116953,
+      "archive": "artifacts/crow-v15-standing-target-feedback-matched-20261112/candidate-20261127-rebound-plus/replay.json.gz",
+      "compressed_sha256": "896770a973f783593599e187b30976c998f76dda943c72dcefc0ed95c50103c6"
+    },
+    {
+      "raw": "build/crow-v15-standing-target-feedback-matched-20261112/candidate-20261127-rebound-plus-trace.tsv",
+      "raw_sha256": "b28521c901195d78438e99249b492ddff85c22aea7fde333ca039399959f2ace",
+      "raw_bytes": 133412,
+      "archive": "artifacts/crow-v15-standing-target-feedback-matched-20261112/candidate-20261127-rebound-plus/trace.tsv.gz",
+      "compressed_sha256": "da4650c31d180a4d2fb2ac1b67eef5d5ef13d01481da946cd87282e3b6f2c14e"
+    },
+    {
+      "raw": "build/crow-v15-standing-walk-integration-20261112/candidate-20261127-rebound-integrated-replay.json",
+      "raw_sha256": "764bee44e7fbbb34cfd294cb929f5cf3e2395b7bd4f6e015401797fb9b4b0f5c",
+      "raw_bytes": 12200463,
+      "archive": "artifacts/crow-v15-standing-walk-integration-20261112/candidate-20261127-rebound-integrated/replay.json.gz",
+      "compressed_sha256": "3206e34b414f8dec670662901bd3704ab767d87e2159cd44b47d635b48cdae34"
+    },
+    {
+      "raw": "build/crow-v15-standing-walk-integration-20261112/candidate-20261127-rebound-integrated-trace.tsv",
+      "raw_sha256": "5fa8f8f965f3c875d80af8761b599c90ffca6ac1331fb3e8579d10798b7642bf",
+      "raw_bytes": 265648,
+      "archive": "artifacts/crow-v15-standing-walk-integration-20261112/candidate-20261127-rebound-integrated/trace.tsv.gz",
+      "compressed_sha256": "722ebfa80fb2cb99e131ec997bf8697a197a6a3c1d28ec5799850b03c438b18a"
+    },
+    {
+      "raw": "build/crow-v15-toe-preload-dose-screen-20261112/candidate-20261127-rebound-screen-replay.json",
+      "raw_sha256": "17119651f2edb390eb1286dc05aeb7062cac806f4ffd043970022314044a46bd",
+      "raw_bytes": 12200136,
+      "archive": "artifacts/crow-v15-toe-preload-dose-screen-20261112/candidate-20261127-rebound-screen/replay.json.gz",
+      "compressed_sha256": "90918d43653bf3d024825043b2de8c7fb138fd65b35850eb3abe3bbc6128d6e3"
+    },
+    {
+      "raw": "build/crow-v15-toe-preload-dose-screen-20261112/candidate-20261127-rebound-screen-trace.tsv",
+      "raw_sha256": "0f38acffc028549e3033e501f31d7f82114fb8abf756b711b9b453558e6025c1",
+      "raw_bytes": 265603,
+      "archive": "artifacts/crow-v15-toe-preload-dose-screen-20261112/candidate-20261127-rebound-screen/trace.tsv.gz",
+      "compressed_sha256": "66cbe229a178ba152860791bf9699160f3506e1e021643d7260671a10e68224e"
+    },
+    {
+      "raw": "build/crow-v15-toe-preload-matched-trial-20261112/candidate-20261127-rebound-low-replay.json",
+      "raw_sha256": "64a3f83240c2f9beec0a84e42eb92c8f1dd4ae2383e981948dced8e60b377e31",
+      "raw_bytes": 12202196,
+      "archive": "artifacts/crow-v15-toe-preload-matched-trial-20261112/candidate-20261127-rebound-low/replay.json.gz",
+      "compressed_sha256": "89f5172dd63ee80912e35eb065452d15f43b95cca3bb7d62329361186c32808c"
+    },
+    {
+      "raw": "build/crow-v15-toe-preload-matched-trial-20261112/candidate-20261127-rebound-low-trace.tsv",
+      "raw_sha256": "0a3af5ff5e318e0e7f89334c30f73eab24544221f4d5dd12c876e2db9f707210",
+      "raw_bytes": 265846,
+      "archive": "artifacts/crow-v15-toe-preload-matched-trial-20261112/candidate-20261127-rebound-low/trace.tsv.gz",
+      "compressed_sha256": "730953eaa8a63472fbb1d55ef19c67e920c56bf8dccb2184bddc78a9d1dfcf63"
+    },
+    {
+      "raw": "build/crow-v15-toe-preload-matched-trial-20261112/candidate-20261127-rebound-zero-replay.json",
+      "raw_sha256": "76b127860e6d85c050a2f5fe998f1afecceeff1dacc38a0b0c50d03d0addfaaa",
+      "raw_bytes": 12197596,
+      "archive": "artifacts/crow-v15-toe-preload-matched-trial-20261112/candidate-20261127-rebound-zero/replay.json.gz",
+      "compressed_sha256": "8f0bd91a880da2a0465623dd143adff948388a396455a69c6f5d3e083c6fed5e"
+    },
+    {
+      "raw": "build/crow-v15-toe-preload-matched-trial-20261112/candidate-20261127-rebound-zero-trace.tsv",
+      "raw_sha256": "3de9b0b7bbfc9abe4a4e8b688eb1489195d15a7c44bad32ceb302064e0e8e447",
+      "raw_bytes": 265866,
+      "archive": "artifacts/crow-v15-toe-preload-matched-trial-20261112/candidate-20261127-rebound-zero/trace.tsv.gz",
+      "compressed_sha256": "648b353ee5883f85034914ae428f9c5b77dc41cc9ea110fa349e3b2b10cb0ccf"
+    },
+    {
+      "raw": "build/crow-v15-toe-preload-second-seed-20261112/candidate-20261126-rebound-low-replay.json",
+      "raw_sha256": "f41591b23354eee85ff69542db1442a57d3390263c2360923ee3e68906d1655e",
+      "raw_bytes": 12104997,
+      "archive": "artifacts/crow-v15-toe-preload-second-seed-20261112/candidate-20261126-rebound-low/replay.json.gz",
+      "compressed_sha256": "fc42349ca5ac2e9830e8c2060c61197a76382a0ba502d3bdcb780546346982c6"
+    },
+    {
+      "raw": "build/crow-v15-toe-preload-second-seed-20261112/candidate-20261126-rebound-low-trace.tsv",
+      "raw_sha256": "51b6f7be1ad17ad53de4e69eb6aa7d0fb8fa20cb4e96d88c05a2a176b1ec59a4",
+      "raw_bytes": 265017,
+      "archive": "artifacts/crow-v15-toe-preload-second-seed-20261112/candidate-20261126-rebound-low/trace.tsv.gz",
+      "compressed_sha256": "ff918e830aa74a15a67b0737f10f3f788834112a0e398612329a12024dccbc15"
+    },
+    {
+      "raw": "build/crow-v15-toe-preload-second-seed-20261112/candidate-20261126-rebound-zero-replay.json",
+      "raw_sha256": "36765d8ba23bc746f8ac7aafce47536ebc0ac7073f40fef40884428a32893bb3",
+      "raw_bytes": 12109293,
+      "archive": "artifacts/crow-v15-toe-preload-second-seed-20261112/candidate-20261126-rebound-zero/replay.json.gz",
+      "compressed_sha256": "ba407671570456b6aefa0599935585b38fb3ef37687c4ae1e2b6796df007c999"
+    },
+    {
+      "raw": "build/crow-v15-toe-preload-second-seed-20261112/candidate-20261126-rebound-zero-trace.tsv",
+      "raw_sha256": "978d5df54ad3f9aa20eabc99a837e6b9b0542ebedfb67a432363592b51ff9b23",
+      "raw_bytes": 265122,
+      "archive": "artifacts/crow-v15-toe-preload-second-seed-20261112/candidate-20261126-rebound-zero/trace.tsv.gz",
+      "compressed_sha256": "3a5acfb191ca646c96fd1fe955981acf5a7c08017ba964b7560ccd1a84999c5d"
+    },
+    {
+      "raw": "build/crow-v15-wing-bank-turn-screen-20261112/bank-replay.json",
+      "raw_sha256": "072c1602bc6a360196b67d80fd891a0b6d0a8fc1b7e704574d7413d5dbcede03",
+      "raw_bytes": 31660556,
+      "archive": "artifacts/crow-v15-wing-bank-turn-screen-20261112/bank-replay.json.gz",
+      "compressed_sha256": "7ec8c6288e4d0bbf8615e0b16ba7df7550c521f90965cb5f3c5c293c0033606e"
+    },
+    {
+      "raw": "build/crow-v15-wing-bank-turn-screen-20261112/bank-trace.tsv",
+      "raw_sha256": "1012f750435582f2a9a2d3c6a671fec3ab8c3f15fff85cd3e726c24a157f981a",
+      "raw_bytes": 681623,
+      "archive": "artifacts/crow-v15-wing-bank-turn-screen-20261112/bank-trace.tsv.gz",
+      "compressed_sha256": "61fe345f238980c0edc2f4c53412688f5a6f72d7218b61a5b166b2e4d3abc38a"
+    },
+    {
+      "raw": "build/crow-v15-wing-load-observer-20261112/bank-replay.json",
+      "raw_sha256": "072c1602bc6a360196b67d80fd891a0b6d0a8fc1b7e704574d7413d5dbcede03",
+      "raw_bytes": 31660556,
+      "archive": "artifacts/crow-v15-wing-load-observer-20261112/bank-replay.json.gz",
+      "compressed_sha256": "7ec8c6288e4d0bbf8615e0b16ba7df7550c521f90965cb5f3c5c293c0033606e"
+    },
+    {
+      "raw": "build/crow-v15-wing-load-observer-20261112/bank-trace.tsv",
+      "raw_sha256": "1012f750435582f2a9a2d3c6a671fec3ab8c3f15fff85cd3e726c24a157f981a",
+      "raw_bytes": 681623,
+      "archive": "artifacts/crow-v15-wing-load-observer-20261112/bank-trace.tsv.gz",
+      "compressed_sha256": "61fe345f238980c0edc2f4c53412688f5a6f72d7218b61a5b166b2e4d3abc38a"
+    },
+    {
+      "raw": "build/crow-v15-wing-root-moment-observer-20261112/bank-replay.json",
+      "raw_sha256": "072c1602bc6a360196b67d80fd891a0b6d0a8fc1b7e704574d7413d5dbcede03",
+      "raw_bytes": 31660556,
+      "archive": "artifacts/crow-v15-wing-root-moment-observer-20261112/bank-replay.json.gz",
+      "compressed_sha256": "7ec8c6288e4d0bbf8615e0b16ba7df7550c521f90965cb5f3c5c293c0033606e"
+    },
+    {
+      "raw": "build/crow-v15-wing-root-moment-observer-20261112/bank-trace.tsv",
+      "raw_sha256": "1012f750435582f2a9a2d3c6a671fec3ab8c3f15fff85cd3e726c24a157f981a",
+      "raw_bytes": 681623,
+      "archive": "artifacts/crow-v15-wing-root-moment-observer-20261112/bank-trace.tsv.gz",
+      "compressed_sha256": "61fe345f238980c0edc2f4c53412688f5a6f72d7218b61a5b166b2e4d3abc38a"
+    }
+  ]
+}
