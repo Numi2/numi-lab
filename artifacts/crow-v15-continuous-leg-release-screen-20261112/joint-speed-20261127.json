@@ -1,0 +1,70 @@
+{
+  "rows": [
+    {
+      "lane": 0,
+      "drive_records": 58240,
+      "expected": 58240,
+      "complete": true,
+      "speed_limited_joints": [],
+      "all_joint_limit_hits": 0
+    },
+    {
+      "lane": 1,
+      "drive_records": 58240,
+      "expected": 58240,
+      "complete": true,
+      "speed_limited_joints": [],
+      "all_joint_limit_hits": 0
+    },
+    {
+      "lane": 2,
+      "drive_records": 58240,
+      "expected": 58240,
+      "complete": true,
+      "speed_limited_joints": [],
+      "all_joint_limit_hits": 0
+    },
+    {
+      "lane": 3,
+      "drive_records": 58240,
+      "expected": 58240,
+      "complete": true,
+      "speed_limited_joints": [],
+      "all_joint_limit_hits": 0
+    },
+    {
+      "lane": 4,
+      "drive_records": 58240,
+      "expected": 58240,
+      "complete": true,
+      "speed_limited_joints": [],
+      "all_joint_limit_hits": 0
+    },
+    {
+      "lane": 5,
+      "drive_records": 58240,
+      "expected": 58240,
+      "complete": true,
+      "speed_limited_joints": [],
+      "all_joint_limit_hits": 0
+    },
+    {
+      "lane": 6,
+      "drive_records": 58240,
+      "expected": 58240,
+      "complete": true,
+      "speed_limited_joints": [],
+      "all_joint_limit_hits": 0
+    },
+    {
+      "lane": 7,
+      "drive_records": 58240,
+      "expected": 58240,
+      "complete": true,
+      "speed_limited_joints": [],
+      "all_joint_limit_hits": 0
+    }
+  ],
+  "errors": [],
+  "scope": "Authored joint speed limits, endpoint velocities at each substep during steps 535\u2013625 only; not biological speed limits or full-flight observation."
+}

@@ -1,0 +1,9 @@
+{'lane': 0, 'drive_records': 58240, 'expected': 58240, 'complete': True, 'speed_limited_joints': [], 'all_joint_limit_hits': 0}
+{'lane': 1, 'drive_records': 58240, 'expected': 58240, 'complete': True, 'speed_limited_joints': [], 'all_joint_limit_hits': 0}
+{'lane': 2, 'drive_records': 58240, 'expected': 58240, 'complete': True, 'speed_limited_joints': [], 'all_joint_limit_hits': 0}
+{'lane': 3, 'drive_records': 58240, 'expected': 58240, 'complete': True, 'speed_limited_joints': [], 'all_joint_limit_hits': 0}
+{'lane': 4, 'drive_records': 58240, 'expected': 58240, 'complete': True, 'speed_limited_joints': [], 'all_joint_limit_hits': 0}
+{'lane': 5, 'drive_records': 58240, 'expected': 58240, 'complete': True, 'speed_limited_joints': [], 'all_joint_limit_hits': 0}
+{'lane': 6, 'drive_records': 58240, 'expected': 58240, 'complete': True, 'speed_limited_joints': [], 'all_joint_limit_hits': 0}
+{'lane': 7, 'drive_records': 58240, 'expected': 58240, 'complete': True, 'speed_limited_joints': [], 'all_joint_limit_hits': 0}
+errors []
