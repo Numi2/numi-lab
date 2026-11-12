@@ -1,0 +1,197 @@
+{
+  "scope": "Lane 7 only on a previously used development course and older unqualified controller; first episode only. Full-body center of mass reconstructed from the v15 articulated model and independently checked against stored body positions. The vertical-impulse-weighted location is diagnostic; summed contact impulse is not a full momentum budget, as gravity, aero, motor transfers, and other contacts must also be considered.",
+  "validation": {
+    "body_position_max_error_m": 2.4521867584433873e-07,
+    "body_states_checked": 595,
+    "samples": 17
+  },
+  "rows": [
+    {
+      "step": 3750,
+      "pitch_rad": 0.0391730114058716,
+      "mass_kg": 0.4500599934908678,
+      "com_x_m": 4.969350069642721,
+      "com_z_m": 1.0554346228061187,
+      "root_x_m": 4.95114422,
+      "vertical_foot_impulse_ns": 0.0,
+      "contact_x_relative_com_m": null,
+      "foot_contact_pitch_angular_impulse_about_com_nms": 0.0
+    },
+    {
+      "step": 3775,
+      "pitch_rad": 0.016123806784226917,
+      "mass_kg": 0.4500599934908678,
+      "com_x_m": 4.973082096272181,
+      "com_z_m": 1.0461487766030506,
+      "root_x_m": 4.95515537,
+      "vertical_foot_impulse_ns": 0.060030736142465006,
+      "contact_x_relative_com_m": 0.014556405820551177,
+      "foot_contact_pitch_angular_impulse_about_com_nms": -0.009587317673887145
+    },
+    {
+      "step": 3800,
+      "pitch_rad": 0.013175144824215708,
+      "mass_kg": 0.4500599934908678,
+      "com_x_m": 4.974160699250924,
+      "com_z_m": 1.049823412407884,
+      "root_x_m": 4.95586872,
+      "vertical_foot_impulse_ns": 0.09476536631668515,
+      "contact_x_relative_com_m": -0.021849007343572424,
+      "foot_contact_pitch_angular_impulse_about_com_nms": 0.015619914305929414
+    },
+    {
+      "step": 3825,
+      "pitch_rad": 0.002657749906578679,
+      "mass_kg": 0.4500599934908678,
+      "com_x_m": 4.973466758315368,
+      "com_z_m": 1.0494405681510224,
+      "root_x_m": 4.95552969,
+      "vertical_foot_impulse_ns": 0.09033034808885182,
+      "contact_x_relative_com_m": 0.019346092908025803,
+      "foot_contact_pitch_angular_impulse_about_com_nms": -0.01710334827654701
+    },
+    {
+      "step": 3850,
+      "pitch_rad": 0.0070245080826300535,
+      "mass_kg": 0.4500599934908678,
+      "com_x_m": 4.971848014749608,
+      "com_z_m": 1.0501849894603466,
+      "root_x_m": 4.95357561,
+      "vertical_foot_impulse_ns": 0.08286072638795514,
+      "contact_x_relative_com_m": -0.022487996043799363,
+      "foot_contact_pitch_angular_impulse_about_com_nms": 0.01690611307824144
+    },
+    {
+      "step": 3875,
+      "pitch_rad": -0.008792267184966911,
+      "mass_kg": 0.4500599934908678,
+      "com_x_m": 4.970508935536444,
+      "com_z_m": 1.0502591219211355,
+      "root_x_m": 4.95258236,
+      "vertical_foot_impulse_ns": 0.07940369027077185,
+      "contact_x_relative_com_m": 0.02260822836643772,
+      "foot_contact_pitch_angular_impulse_about_com_nms": -0.017604337289637156
+    },
+    {
+      "step": 3900,
+      "pitch_rad": -0.011009511257053855,
+      "mass_kg": 0.4500599934908678,
+      "com_x_m": 4.968929004462552,
+      "com_z_m": 1.0503132961109964,
+      "root_x_m": 4.95067835,
+      "vertical_foot_impulse_ns": 0.1026974056001981,
+      "contact_x_relative_com_m": -0.017845780396661404,
+      "foot_contact_pitch_angular_impulse_about_com_nms": 0.015318831718666315
+    },
+    {
+      "step": 3925,
+      "pitch_rad": -0.031906455841270345,
+      "mass_kg": 0.4500599934908678,
+      "com_x_m": 4.964621014198378,
+      "com_z_m": 1.0515790136497911,
+      "root_x_m": 4.94672728,
+      "vertical_foot_impulse_ns": 0.07385987705421715,
+      "contact_x_relative_com_m": 0.034284182964431587,
+      "foot_contact_pitch_angular_impulse_about_com_nms": -0.018063201172693964
+    },
+    {
+      "step": 3950,
+      "pitch_rad": -0.06298902059720955,
+      "mass_kg": 0.4500599934908678,
+      "com_x_m": 4.956218490415814,
+      "com_z_m": 1.0506676026437518,
+      "root_x_m": 4.93805265,
+      "vertical_foot_impulse_ns": 0.10870719341239136,
+      "contact_x_relative_com_m": -0.0022086724777521383,
+      "foot_contact_pitch_angular_impulse_about_com_nms": 0.01580800758391136
+    },
+    {
+      "step": 3975,
+      "pitch_rad": -0.11939882214021905,
+      "mass_kg": 0.4500599934908678,
+      "com_x_m": 4.946789004410048,
+      "com_z_m": 1.0489342287606622,
+      "root_x_m": 4.9290309,
+      "vertical_foot_impulse_ns": 0.04668557705696949,
+      "contact_x_relative_com_m": 0.04641013696703311,
+      "foot_contact_pitch_angular_impulse_about_com_nms": -0.019472825925795585
+    },
+    {
+      "step": 4000,
+      "pitch_rad": -0.1562371695180604,
+      "mass_kg": 0.4500599934908678,
+      "com_x_m": 4.9267145276433375,
+      "com_z_m": 1.0433578391665512,
+      "root_x_m": 4.90834713,
+      "vertical_foot_impulse_ns": 0.08782498590944718,
+      "contact_x_relative_com_m": 0.021585263174631386,
+      "foot_contact_pitch_angular_impulse_about_com_nms": -0.001946618354715629
+    },
+    {
+      "step": 4025,
+      "pitch_rad": -0.1883642359471267,
+      "mass_kg": 0.4500599934908678,
+      "com_x_m": 4.921370123079761,
+      "com_z_m": 1.0431112507343996,
+      "root_x_m": 4.90313816,
+      "vertical_foot_impulse_ns": 0.08715723092392492,
+      "contact_x_relative_com_m": 0.017093809616637756,
+      "foot_contact_pitch_angular_impulse_about_com_nms": -0.0006308309617253009
+    },
+    {
+      "step": 4050,
+      "pitch_rad": -0.24295895039047663,
+      "mass_kg": 0.4500599934908678,
+      "com_x_m": 4.9117344339339954,
+      "com_z_m": 1.0404774622621613,
+      "root_x_m": 4.89377069,
+      "vertical_foot_impulse_ns": 0.08860110411960037,
+      "contact_x_relative_com_m": 0.035287018150794935,
+      "foot_contact_pitch_angular_impulse_about_com_nms": -0.0022731218285965793
+    },
+    {
+      "step": 4075,
+      "pitch_rad": -0.32337668874363906,
+      "mass_kg": 0.4500599934908678,
+      "com_x_m": 4.896862822760726,
+      "com_z_m": 1.0343863626673089,
+      "root_x_m": 4.87940598,
+      "vertical_foot_impulse_ns": 0.08998480502851854,
+      "contact_x_relative_com_m": 0.05107047217540295,
+      "foot_contact_pitch_angular_impulse_about_com_nms": -0.0035011967431421115
+    },
+    {
+      "step": 4100,
+      "pitch_rad": -0.49314695669637143,
+      "mass_kg": 0.4500599934908678,
+      "com_x_m": 4.871484581590012,
+      "com_z_m": 1.0133141104515788,
+      "root_x_m": 4.85542536,
+      "vertical_foot_impulse_ns": 0.09355207751816033,
+      "contact_x_relative_com_m": 0.0944601497333819,
+      "foot_contact_pitch_angular_impulse_about_com_nms": -0.006916930292105191
+    },
+    {
+      "step": 4125,
+      "pitch_rad": -0.7256393814610713,
+      "mass_kg": 0.4500599934908678,
+      "com_x_m": 4.83922153015224,
+      "com_z_m": 0.9861795254125792,
+      "root_x_m": 4.82582998,
+      "vertical_foot_impulse_ns": 0.08645657461830339,
+      "contact_x_relative_com_m": 0.1328958220354206,
+      "foot_contact_pitch_angular_impulse_about_com_nms": -0.009387930389867542
+    },
+    {
+      "step": 4150,
+      "pitch_rad": -1.0675564582035284,
+      "mass_kg": 0.4500599934908678,
+      "com_x_m": 4.792606436612818,
+      "com_z_m": 0.9363992139371556,
+      "root_x_m": 4.78435612,
+      "vertical_foot_impulse_ns": 0.08759324446366622,
+      "contact_x_relative_com_m": 0.16410005103285652,
+      "foot_contact_pitch_angular_impulse_about_com_nms": -0.012370959927453075
+    }
+  ]
+}
