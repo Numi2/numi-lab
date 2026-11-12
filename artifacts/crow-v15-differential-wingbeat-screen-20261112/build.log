@@ -1,0 +1,21 @@
+/Users/n/Developer/numi-crow-rl-20261107/artifacts/crow-v15-differential-wingbeat-screen-20261112/baseline.metal:5098:30: warning: unused variable 'arm' [-Wunused-variable]
+                { const uint arm=environment%8u;
+                             ^
+/Users/n/Developer/numi-crow-rl-20261107/artifacts/crow-v15-differential-wingbeat-screen-20261112/baseline.metal:4989:22: warning: unused variable 'actorLatent' [-Wunused-variable]
+        const float4 actorLatent = fixedFlightController
+                     ^
+2 warnings generated.
+/Users/n/Developer/numi-crow-rl-20261107/artifacts/crow-v15-differential-wingbeat-screen-20261112/positive.metal:5098:30: warning: unused variable 'arm' [-Wunused-variable]
+                { const uint arm=environment%8u;
+                             ^
+/Users/n/Developer/numi-crow-rl-20261107/artifacts/crow-v15-differential-wingbeat-screen-20261112/positive.metal:4989:22: warning: unused variable 'actorLatent' [-Wunused-variable]
+        const float4 actorLatent = fixedFlightController
+                     ^
+2 warnings generated.
+/Users/n/Developer/numi-crow-rl-20261107/artifacts/crow-v15-differential-wingbeat-screen-20261112/negative.metal:5098:30: warning: unused variable 'arm' [-Wunused-variable]
+                { const uint arm=environment%8u;
+                             ^
+/Users/n/Developer/numi-crow-rl-20261107/artifacts/crow-v15-differential-wingbeat-screen-20261112/negative.metal:4989:22: warning: unused variable 'actorLatent' [-Wunused-variable]
+        const float4 actorLatent = fixedFlightController
+                     ^
+2 warnings generated.

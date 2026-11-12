@@ -1,0 +1,14 @@
+{
+  "baseline": {
+    "source_sha256": "6b1c4d25958f3778695e5b48c86f823e6f31cc3c2557cf606a468828c0bc7ed3",
+    "metallib_sha256": "4080961bd78f388ecb962198451b71e32c09db2787efb956f066cb64df9e487b"
+  },
+  "positive": {
+    "source_sha256": "c99f564859138d2e8ffb27e9077f80be847682df95bd176281df64165290a236",
+    "metallib_sha256": "70225f8f5d1d0ad9f9e9c470129e55081ea01847dae3009f6df0bc4016668976"
+  },
+  "negative": {
+    "source_sha256": "563aeddb292ac1f173936fe972137ae9f3196620ffafa80360421cfce9376feb",
+    "metallib_sha256": "fcb76aa55df525c9ff1dea34697f58161557082b573cb42d05a95cdd00c317a5"
+  }
+}
