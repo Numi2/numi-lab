@@ -1,0 +1,701 @@
+{
+  "rows": [
+    {
+      "lane": 0,
+      "extension": {
+        "windows": {
+          "348_355": {
+            "upward_normal_impulse_ns": 0.71390496495973,
+            "unloaded_substeps": 0
+          },
+          "348_360": {
+            "upward_normal_impulse_ns": 0.7139073062771955,
+            "unloaded_substeps": 76
+          },
+          "348_375": {
+            "upward_normal_impulse_ns": 0.7139073062771955,
+            "unloaded_substeps": 316
+          },
+          "348_400": {
+            "upward_normal_impulse_ns": 0.7139073062771955,
+            "unloaded_substeps": 716
+          }
+        },
+        "samples": {
+          "347": {
+            "root_z_m": 0.162478134,
+            "root_vz_m_s": 0.000371102651
+          },
+          "355": {
+            "root_z_m": 0.179550886,
+            "root_vz_m_s": 0.444825232
+          },
+          "360": {
+            "root_z_m": 0.257677913,
+            "root_vz_m_s": 0.740729451
+          },
+          "375": {
+            "root_z_m": 0.526500225,
+            "root_vz_m_s": 0.506471694
+          },
+          "400": {
+            "root_z_m": 0.784087539,
+            "root_vz_m_s": 0.491252393
+          }
+        }
+      },
+      "crouch_hold": {
+        "windows": {
+          "348_355": {
+            "upward_normal_impulse_ns": 0.6579581293532002,
+            "unloaded_substeps": 36
+          },
+          "348_360": {
+            "upward_normal_impulse_ns": 0.6579581293532002,
+            "unloaded_substeps": 116
+          },
+          "348_375": {
+            "upward_normal_impulse_ns": 0.6579581293532002,
+            "unloaded_substeps": 356
+          },
+          "348_400": {
+            "upward_normal_impulse_ns": 0.6579581293532002,
+            "unloaded_substeps": 756
+          }
+        },
+        "samples": {
+          "347": {
+            "root_z_m": 0.162478134,
+            "root_vz_m_s": 0.000371102651
+          },
+          "355": {
+            "root_z_m": 0.166795895,
+            "root_vz_m_s": 0.350186378
+          },
+          "360": {
+            "root_z_m": 0.238034382,
+            "root_vz_m_s": 0.684446514
+          },
+          "375": {
+            "root_z_m": 0.508945107,
+            "root_vz_m_s": 0.56746757
+          },
+          "400": {
+            "root_z_m": 0.841617644,
+            "root_vz_m_s": 0.697268009
+          }
+        }
+      }
+    },
+    {
+      "lane": 1,
+      "extension": {
+        "windows": {
+          "348_355": {
+            "upward_normal_impulse_ns": 0.71129360643539,
+            "unloaded_substeps": 0
+          },
+          "348_360": {
+            "upward_normal_impulse_ns": 0.71129360643539,
+            "unloaded_substeps": 80
+          },
+          "348_375": {
+            "upward_normal_impulse_ns": 0.71129360643539,
+            "unloaded_substeps": 320
+          },
+          "348_400": {
+            "upward_normal_impulse_ns": 0.71129360643539,
+            "unloaded_substeps": 720
+          }
+        },
+        "samples": {
+          "347": {
+            "root_z_m": 0.162477985,
+            "root_vz_m_s": 0.000371080387
+          },
+          "355": {
+            "root_z_m": 0.179583952,
+            "root_vz_m_s": 0.453602612
+          },
+          "360": {
+            "root_z_m": 0.260435581,
+            "root_vz_m_s": 0.76314193
+          },
+          "375": {
+            "root_z_m": 0.530881822,
+            "root_vz_m_s": 0.510145724
+          },
+          "400": {
+            "root_z_m": 0.796643257,
+            "root_vz_m_s": 0.525496185
+          }
+        }
+      },
+      "crouch_hold": {
+        "windows": {
+          "348_355": {
+            "upward_normal_impulse_ns": 0.6437990488449999,
+            "unloaded_substeps": 36
+          },
+          "348_360": {
+            "upward_normal_impulse_ns": 0.6437990488449999,
+            "unloaded_substeps": 116
+          },
+          "348_375": {
+            "upward_normal_impulse_ns": 0.6437990488449999,
+            "unloaded_substeps": 356
+          },
+          "348_400": {
+            "upward_normal_impulse_ns": 0.6437990488449999,
+            "unloaded_substeps": 756
+          }
+        },
+        "samples": {
+          "347": {
+            "root_z_m": 0.162477985,
+            "root_vz_m_s": 0.000371080387
+          },
+          "355": {
+            "root_z_m": 0.166509688,
+            "root_vz_m_s": 0.333068788
+          },
+          "360": {
+            "root_z_m": 0.238234118,
+            "root_vz_m_s": 0.691420317
+          },
+          "375": {
+            "root_z_m": 0.510749757,
+            "root_vz_m_s": 0.580125093
+          },
+          "400": {
+            "root_z_m": 0.852422178,
+            "root_vz_m_s": 0.70099324
+          }
+        }
+      }
+    },
+    {
+      "lane": 2,
+      "extension": {
+        "windows": {
+          "348_355": {
+            "upward_normal_impulse_ns": 0.7126699563916098,
+            "unloaded_substeps": 0
+          },
+          "348_360": {
+            "upward_normal_impulse_ns": 0.7126699563916098,
+            "unloaded_substeps": 80
+          },
+          "348_375": {
+            "upward_normal_impulse_ns": 0.7126699563916098,
+            "unloaded_substeps": 320
+          },
+          "348_400": {
+            "upward_normal_impulse_ns": 0.7126699563916098,
+            "unloaded_substeps": 720
+          }
+        },
+        "samples": {
+          "347": {
+            "root_z_m": 0.162439033,
+            "root_vz_m_s": 0.000351296854
+          },
+          "355": {
+            "root_z_m": 0.17976144,
+            "root_vz_m_s": 0.463949084
+          },
+          "360": {
+            "root_z_m": 0.262341976,
+            "root_vz_m_s": 0.775837123
+          },
+          "375": {
+            "root_z_m": 0.53530252,
+            "root_vz_m_s": 0.522931039
+          },
+          "400": {
+            "root_z_m": 0.809302568,
+            "root_vz_m_s": 0.55528295
+          }
+        }
+      },
+      "crouch_hold": {
+        "windows": {
+          "348_355": {
+            "upward_normal_impulse_ns": 0.6268867018104001,
+            "unloaded_substeps": 37
+          },
+          "348_360": {
+            "upward_normal_impulse_ns": 0.6268867018104001,
+            "unloaded_substeps": 117
+          },
+          "348_375": {
+            "upward_normal_impulse_ns": 0.6268867018104001,
+            "unloaded_substeps": 357
+          },
+          "348_400": {
+            "upward_normal_impulse_ns": 0.6268867018104001,
+            "unloaded_substeps": 757
+          }
+        },
+        "samples": {
+          "347": {
+            "root_z_m": 0.162439033,
+            "root_vz_m_s": 0.000351296854
+          },
+          "355": {
+            "root_z_m": 0.165949956,
+            "root_vz_m_s": 0.302598327
+          },
+          "360": {
+            "root_z_m": 0.235758528,
+            "root_vz_m_s": 0.677612424
+          },
+          "375": {
+            "root_z_m": 0.509278774,
+            "root_vz_m_s": 0.591521084
+          },
+          "400": {
+            "root_z_m": 0.874937713,
+            "root_vz_m_s": 0.771272004
+          }
+        }
+      }
+    },
+    {
+      "lane": 3,
+      "extension": {
+        "windows": {
+          "348_355": {
+            "upward_normal_impulse_ns": 0.7052087219171003,
+            "unloaded_substeps": 0
+          },
+          "348_360": {
+            "upward_normal_impulse_ns": 0.7052108595991982,
+            "unloaded_substeps": 76
+          },
+          "348_375": {
+            "upward_normal_impulse_ns": 0.7052108595991982,
+            "unloaded_substeps": 316
+          },
+          "348_400": {
+            "upward_normal_impulse_ns": 0.7052108595991982,
+            "unloaded_substeps": 716
+          }
+        },
+        "samples": {
+          "347": {
+            "root_z_m": 0.162431329,
+            "root_vz_m_s": 0.000348740752
+          },
+          "355": {
+            "root_z_m": 0.179437712,
+            "root_vz_m_s": 0.454530537
+          },
+          "360": {
+            "root_z_m": 0.262165844,
+            "root_vz_m_s": 0.779011071
+          },
+          "375": {
+            "root_z_m": 0.536483943,
+            "root_vz_m_s": 0.526655674
+          },
+          "400": {
+            "root_z_m": 0.811287522,
+            "root_vz_m_s": 0.552190959
+          }
+        }
+      },
+      "crouch_hold": {
+        "windows": {
+          "348_355": {
+            "upward_normal_impulse_ns": 0.6158542919336999,
+            "unloaded_substeps": 36
+          },
+          "348_360": {
+            "upward_normal_impulse_ns": 0.6158542919336999,
+            "unloaded_substeps": 116
+          },
+          "348_375": {
+            "upward_normal_impulse_ns": 0.6158542919336999,
+            "unloaded_substeps": 356
+          },
+          "348_400": {
+            "upward_normal_impulse_ns": 0.6158542919336999,
+            "unloaded_substeps": 756
+          }
+        },
+        "samples": {
+          "347": {
+            "root_z_m": 0.162431329,
+            "root_vz_m_s": 0.000348740752
+          },
+          "355": {
+            "root_z_m": 0.165600196,
+            "root_vz_m_s": 0.283714324
+          },
+          "360": {
+            "root_z_m": 0.234678611,
+            "root_vz_m_s": 0.674146831
+          },
+          "375": {
+            "root_z_m": 0.508373618,
+            "root_vz_m_s": 0.596314192
+          },
+          "400": {
+            "root_z_m": 0.877042234,
+            "root_vz_m_s": 0.779227257
+          }
+        }
+      }
+    },
+    {
+      "lane": 4,
+      "extension": {
+        "windows": {
+          "348_355": {
+            "upward_normal_impulse_ns": 0.7054189749318197,
+            "unloaded_substeps": 0
+          },
+          "348_360": {
+            "upward_normal_impulse_ns": 0.7054211144576247,
+            "unloaded_substeps": 76
+          },
+          "348_375": {
+            "upward_normal_impulse_ns": 0.7054211144576247,
+            "unloaded_substeps": 316
+          },
+          "348_400": {
+            "upward_normal_impulse_ns": 0.7054211144576247,
+            "unloaded_substeps": 716
+          }
+        },
+        "samples": {
+          "347": {
+            "root_z_m": 0.162429795,
+            "root_vz_m_s": 0.000347072928
+          },
+          "355": {
+            "root_z_m": 0.179429635,
+            "root_vz_m_s": 0.453822017
+          },
+          "360": {
+            "root_z_m": 0.261958152,
+            "root_vz_m_s": 0.777615726
+          },
+          "375": {
+            "root_z_m": 0.535788178,
+            "root_vz_m_s": 0.52616936
+          },
+          "400": {
+            "root_z_m": 0.80967927,
+            "root_vz_m_s": 0.551995993
+          }
+        }
+      },
+      "crouch_hold": {
+        "windows": {
+          "348_355": {
+            "upward_normal_impulse_ns": 0.6191340143403999,
+            "unloaded_substeps": 36
+          },
+          "348_360": {
+            "upward_normal_impulse_ns": 0.6191340143403999,
+            "unloaded_substeps": 116
+          },
+          "348_375": {
+            "upward_normal_impulse_ns": 0.6191340143403999,
+            "unloaded_substeps": 356
+          },
+          "348_400": {
+            "upward_normal_impulse_ns": 0.6191340143403999,
+            "unloaded_substeps": 756
+          }
+        },
+        "samples": {
+          "347": {
+            "root_z_m": 0.162429795,
+            "root_vz_m_s": 0.000347072928
+          },
+          "355": {
+            "root_z_m": 0.165704176,
+            "root_vz_m_s": 0.290097028
+          },
+          "360": {
+            "root_z_m": 0.235240683,
+            "root_vz_m_s": 0.677523315
+          },
+          "375": {
+            "root_z_m": 0.509341896,
+            "root_vz_m_s": 0.598095059
+          },
+          "400": {
+            "root_z_m": 0.880988061,
+            "root_vz_m_s": 0.807059169
+          }
+        }
+      }
+    },
+    {
+      "lane": 5,
+      "extension": {
+        "windows": {
+          "348_355": {
+            "upward_normal_impulse_ns": 0.70237913229619,
+            "unloaded_substeps": 0
+          },
+          "348_360": {
+            "upward_normal_impulse_ns": 0.70237913229619,
+            "unloaded_substeps": 80
+          },
+          "348_375": {
+            "upward_normal_impulse_ns": 0.70237913229619,
+            "unloaded_substeps": 320
+          },
+          "348_400": {
+            "upward_normal_impulse_ns": 0.70237913229619,
+            "unloaded_substeps": 720
+          }
+        },
+        "samples": {
+          "347": {
+            "root_z_m": 0.162426755,
+            "root_vz_m_s": 0.000347557972
+          },
+          "355": {
+            "root_z_m": 0.17971237,
+            "root_vz_m_s": 0.457676768
+          },
+          "360": {
+            "root_z_m": 0.264219254,
+            "root_vz_m_s": 0.793689013
+          },
+          "375": {
+            "root_z_m": 0.54087466,
+            "root_vz_m_s": 0.534372568
+          },
+          "400": {
+            "root_z_m": 0.822192132,
+            "root_vz_m_s": 0.54575032
+          }
+        }
+      },
+      "crouch_hold": {
+        "windows": {
+          "348_355": {
+            "upward_normal_impulse_ns": 0.5904137630123999,
+            "unloaded_substeps": 36
+          },
+          "348_360": {
+            "upward_normal_impulse_ns": 0.5904137630123999,
+            "unloaded_substeps": 116
+          },
+          "348_375": {
+            "upward_normal_impulse_ns": 0.5904137630123999,
+            "unloaded_substeps": 356
+          },
+          "348_400": {
+            "upward_normal_impulse_ns": 0.5904137630123999,
+            "unloaded_substeps": 756
+          }
+        },
+        "samples": {
+          "347": {
+            "root_z_m": 0.162426755,
+            "root_vz_m_s": 0.000347557972
+          },
+          "355": {
+            "root_z_m": 0.164880231,
+            "root_vz_m_s": 0.237690136
+          },
+          "360": {
+            "root_z_m": 0.233101696,
+            "root_vz_m_s": 0.703828275
+          },
+          "375": {
+            "root_z_m": 0.510240376,
+            "root_vz_m_s": 0.60318774
+          },
+          "400": {
+            "root_z_m": 0.896439433,
+            "root_vz_m_s": 0.852442503
+          }
+        }
+      }
+    },
+    {
+      "lane": 6,
+      "extension": {
+        "windows": {
+          "348_355": {
+            "upward_normal_impulse_ns": 0.7168134795212998,
+            "unloaded_substeps": 2
+          },
+          "348_360": {
+            "upward_normal_impulse_ns": 0.7168134795212998,
+            "unloaded_substeps": 82
+          },
+          "348_375": {
+            "upward_normal_impulse_ns": 0.7168134795212998,
+            "unloaded_substeps": 322
+          },
+          "348_400": {
+            "upward_normal_impulse_ns": 0.7168134795212998,
+            "unloaded_substeps": 722
+          }
+        },
+        "samples": {
+          "347": {
+            "root_z_m": 0.162432298,
+            "root_vz_m_s": 0.000348726462
+          },
+          "355": {
+            "root_z_m": 0.180016711,
+            "root_vz_m_s": 0.481298715
+          },
+          "360": {
+            "root_z_m": 0.265251577,
+            "root_vz_m_s": 0.796623111
+          },
+          "375": {
+            "root_z_m": 0.540333033,
+            "root_vz_m_s": 0.525714397
+          },
+          "400": {
+            "root_z_m": 0.816266418,
+            "root_vz_m_s": 0.553790092
+          }
+        }
+      },
+      "crouch_hold": {
+        "windows": {
+          "348_355": {
+            "upward_normal_impulse_ns": 0.6105773936812999,
+            "unloaded_substeps": 36
+          },
+          "348_360": {
+            "upward_normal_impulse_ns": 0.6105773936812999,
+            "unloaded_substeps": 116
+          },
+          "348_375": {
+            "upward_normal_impulse_ns": 0.6105773936812999,
+            "unloaded_substeps": 356
+          },
+          "348_400": {
+            "upward_normal_impulse_ns": 0.6105773936812999,
+            "unloaded_substeps": 756
+          }
+        },
+        "samples": {
+          "347": {
+            "root_z_m": 0.162432298,
+            "root_vz_m_s": 0.000348726462
+          },
+          "355": {
+            "root_z_m": 0.165440962,
+            "root_vz_m_s": 0.273431212
+          },
+          "360": {
+            "root_z_m": 0.233700618,
+            "root_vz_m_s": 0.668050587
+          },
+          "375": {
+            "root_z_m": 0.509244382,
+            "root_vz_m_s": 0.612565815
+          },
+          "400": {
+            "root_z_m": 0.889412105,
+            "root_vz_m_s": 0.793319046
+          }
+        }
+      }
+    },
+    {
+      "lane": 7,
+      "extension": {
+        "windows": {
+          "348_355": {
+            "upward_normal_impulse_ns": 0.7050690938487401,
+            "unloaded_substeps": 0
+          },
+          "348_360": {
+            "upward_normal_impulse_ns": 0.7050690938487401,
+            "unloaded_substeps": 80
+          },
+          "348_375": {
+            "upward_normal_impulse_ns": 0.7050690938487401,
+            "unloaded_substeps": 320
+          },
+          "348_400": {
+            "upward_normal_impulse_ns": 0.7050690938487401,
+            "unloaded_substeps": 720
+          }
+        },
+        "samples": {
+          "347": {
+            "root_z_m": 0.162437409,
+            "root_vz_m_s": 0.000350155693
+          },
+          "355": {
+            "root_z_m": 0.17959252,
+            "root_vz_m_s": 0.467458993
+          },
+          "360": {
+            "root_z_m": 0.265923858,
+            "root_vz_m_s": 0.811668456
+          },
+          "375": {
+            "root_z_m": 0.54169333,
+            "root_vz_m_s": 0.525084972
+          },
+          "400": {
+            "root_z_m": 0.808828771,
+            "root_vz_m_s": 0.529750705
+          }
+        }
+      },
+      "crouch_hold": {
+        "windows": {
+          "348_355": {
+            "upward_normal_impulse_ns": 0.6008462774267002,
+            "unloaded_substeps": 36
+          },
+          "348_360": {
+            "upward_normal_impulse_ns": 0.6008462774267002,
+            "unloaded_substeps": 116
+          },
+          "348_375": {
+            "upward_normal_impulse_ns": 0.6008462774267002,
+            "unloaded_substeps": 356
+          },
+          "348_400": {
+            "upward_normal_impulse_ns": 0.6008462774267002,
+            "unloaded_substeps": 756
+          }
+        },
+        "samples": {
+          "347": {
+            "root_z_m": 0.162437409,
+            "root_vz_m_s": 0.000350155693
+          },
+          "355": {
+            "root_z_m": 0.165339649,
+            "root_vz_m_s": 0.262475133
+          },
+          "360": {
+            "root_z_m": 0.234786525,
+            "root_vz_m_s": 0.6837008
+          },
+          "375": {
+            "root_z_m": 0.511274397,
+            "root_vz_m_s": 0.611556649
+          },
+          "400": {
+            "root_z_m": 0.90261811,
+            "root_vz_m_s": 0.870664656
+          }
+        }
+      }
+    }
+  ],
+  "limits": "Retained exact-prefix matched development pair. Foot vertical component of normal impulse only, excludes tangential ground impulse, moments and all aerodynamic impulse; windows include gravity, recontacts and feedback interactions. Crouch hold is powered and wings active. Differences do not identify leg muscle work or leg-only takeoff."
+}
