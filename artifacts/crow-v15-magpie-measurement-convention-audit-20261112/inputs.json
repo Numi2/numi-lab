@@ -1,0 +1,8 @@
+{
+  "source_commit": "4ab800743a06cc955774b1812849c720ae19d24f",
+  "input_sha256": {
+    "artifacts/crow-v15-substep-slip-observer-20261112/candidate-20261127-rebound-low/run.stderr.gz": "0059fb376fc371057558d166f605e21190001aa6f63f9c5f9fc6513475b69ca5",
+    "artifacts/crow-v15-substep-slip-observer-20261112/candidate-20261127-rebound-low/replay.json.gz": "89f5172dd63ee80912e35eb065452d15f43b95cca3bb7d62329361186c32808c",
+    "build/crow-v15-gait-slip-observer-20261112/kinematics": "5d816c5ee0cc23833b8bb1b5df2d1509fe48135aafd6072ae1b3f9f84d449481"
+  }
+}
