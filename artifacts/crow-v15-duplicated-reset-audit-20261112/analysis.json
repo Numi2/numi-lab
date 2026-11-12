@@ -1,0 +1,655 @@
+{
+  "20261127": {
+    "double": [
+      {
+        "lane": 0,
+        "first_recorded_roll_rad": 0.06533811887307991,
+        "first_recorded_q_legs": [
+          -0.126639247,
+          0.27213642,
+          -0.154029682,
+          -0.135659158,
+          0.273926735,
+          -0.166003868
+        ],
+        "first_recorded_horizontal_velocity_m_s": [
+          0.00695859268,
+          -0.0333095081
+        ],
+        "unloaded_0_2": 110,
+        "unloaded_2_3": 0,
+        "toe_cap_substeps_0_3": 0,
+        "peak_abs_com_vz_0_3_m_s": 0.1851784441152155
+      },
+      {
+        "lane": 1,
+        "first_recorded_roll_rad": -0.01949311724902517,
+        "first_recorded_q_legs": [
+          -0.123861961,
+          0.271752596,
+          -0.163764611,
+          -0.124873087,
+          0.28320241,
+          -0.153795525
+        ],
+        "first_recorded_horizontal_velocity_m_s": [
+          -0.0048244982,
+          0.0274534468
+        ],
+        "unloaded_0_2": 655,
+        "unloaded_2_3": 0,
+        "toe_cap_substeps_0_3": 9,
+        "peak_abs_com_vz_0_3_m_s": 0.3761200674860058
+      },
+      {
+        "lane": 2,
+        "first_recorded_roll_rad": 0.02551791525426799,
+        "first_recorded_q_legs": [
+          -0.116115578,
+          0.285810888,
+          -0.165094376,
+          -0.127765,
+          0.280231535,
+          -0.167518303
+        ],
+        "first_recorded_horizontal_velocity_m_s": [
+          0.0511420295,
+          0.0114912828
+        ],
+        "unloaded_0_2": 648,
+        "unloaded_2_3": 0,
+        "toe_cap_substeps_0_3": 8,
+        "peak_abs_com_vz_0_3_m_s": 0.37894692991131135
+      },
+      {
+        "lane": 3,
+        "first_recorded_roll_rad": -0.09376260295519451,
+        "first_recorded_q_legs": [
+          -0.107688472,
+          0.292294651,
+          -0.168218151,
+          -0.125586927,
+          0.286778063,
+          -0.159321353
+        ],
+        "first_recorded_horizontal_velocity_m_s": [
+          0.0439734384,
+          -0.0186397452
+        ],
+        "unloaded_0_2": 39,
+        "unloaded_2_3": 0,
+        "toe_cap_substeps_0_3": 0,
+        "peak_abs_com_vz_0_3_m_s": 0.20277325263204193
+      },
+      {
+        "lane": 4,
+        "first_recorded_roll_rad": 0.11257902070097761,
+        "first_recorded_q_legs": [
+          -0.115854703,
+          0.284217119,
+          -0.151901945,
+          -0.110629112,
+          0.277252465,
+          -0.164043918
+        ],
+        "first_recorded_horizontal_velocity_m_s": [
+          -0.0514277257,
+          0.0250249077
+        ],
+        "unloaded_0_2": 38,
+        "unloaded_2_3": 0,
+        "toe_cap_substeps_0_3": 0,
+        "peak_abs_com_vz_0_3_m_s": 0.21048485757029484
+      },
+      {
+        "lane": 5,
+        "first_recorded_roll_rad": 0.01751297966820177,
+        "first_recorded_q_legs": [
+          -0.121338964,
+          0.270538747,
+          -0.156561375,
+          -0.131538525,
+          0.277058303,
+          -0.149491176
+        ],
+        "first_recorded_horizontal_velocity_m_s": [
+          -0.0247454271,
+          0.00922862347
+        ],
+        "unloaded_0_2": 235,
+        "unloaded_2_3": 0,
+        "toe_cap_substeps_0_3": 2,
+        "peak_abs_com_vz_0_3_m_s": 0.39796771037764606
+      },
+      {
+        "lane": 6,
+        "first_recorded_roll_rad": -0.0720812884064487,
+        "first_recorded_q_legs": [
+          -0.113652706,
+          0.269797057,
+          -0.153048933,
+          -0.116386898,
+          0.269993275,
+          -0.163897455
+        ],
+        "first_recorded_horizontal_velocity_m_s": [
+          -0.0620023794,
+          -0.0122654475
+        ],
+        "unloaded_0_2": 56,
+        "unloaded_2_3": 0,
+        "toe_cap_substeps_0_3": 0,
+        "peak_abs_com_vz_0_3_m_s": 0.20686499869768477
+      },
+      {
+        "lane": 7,
+        "first_recorded_roll_rad": 0.026547401771800178,
+        "first_recorded_q_legs": [
+          -0.110843249,
+          0.270658046,
+          -0.164977074,
+          -0.123473033,
+          0.286157638,
+          -0.148229823
+        ],
+        "first_recorded_horizontal_velocity_m_s": [
+          0.00411746046,
+          -0.0132927028
+        ],
+        "unloaded_0_2": 188,
+        "unloaded_2_3": 0,
+        "toe_cap_substeps_0_3": 0,
+        "peak_abs_com_vz_0_3_m_s": 0.28953522726353675
+      }
+    ],
+    "single": [
+      {
+        "lane": 0,
+        "first_recorded_roll_rad": 0.032694880121028655,
+        "first_recorded_q_legs": [
+          -0.122920878,
+          0.276704133,
+          -0.157498732,
+          -0.125988886,
+          0.277320743,
+          -0.162625104
+        ],
+        "first_recorded_horizontal_velocity_m_s": [
+          0.00168503146,
+          -0.0109180966
+        ],
+        "unloaded_0_2": 960,
+        "unloaded_2_3": 48,
+        "toe_cap_substeps_0_3": 4,
+        "peak_abs_com_vz_0_3_m_s": 0.383300731537867
+      },
+      {
+        "lane": 1,
+        "first_recorded_roll_rad": -0.009797494305791882,
+        "first_recorded_q_legs": [
+          -0.121815681,
+          0.276538551,
+          -0.161710665,
+          -0.122203246,
+          0.281473488,
+          -0.157379135
+        ],
+        "first_recorded_horizontal_velocity_m_s": [
+          -0.00059698784,
+          0.00669024698
+        ],
+        "unloaded_0_2": 203,
+        "unloaded_2_3": 0,
+        "toe_cap_substeps_0_3": 3,
+        "peak_abs_com_vz_0_3_m_s": 0.3761464109687797
+      },
+      {
+        "lane": 2,
+        "first_recorded_roll_rad": 0.01279772306632898,
+        "first_recorded_q_legs": [
+          -0.118214116,
+          0.282500237,
+          -0.162175491,
+          -0.123385862,
+          0.28014788,
+          -0.163131446
+        ],
+        "first_recorded_horizontal_velocity_m_s": [
+          0.0290445611,
+          0.0127388453
+        ],
+        "unloaded_0_2": 623,
+        "unloaded_2_3": 0,
+        "toe_cap_substeps_0_3": 10,
+        "peak_abs_com_vz_0_3_m_s": 0.37892200386423686
+      },
+      {
+        "lane": 3,
+        "first_recorded_roll_rad": -0.04690113441798003,
+        "first_recorded_q_legs": [
+          -0.115027525,
+          0.284858137,
+          -0.163274229,
+          -0.122487098,
+          0.282920063,
+          -0.159666777
+        ],
+        "first_recorded_horizontal_velocity_m_s": [
+          0.0314108804,
+          -0.0121909846
+        ],
+        "unloaded_0_2": 51,
+        "unloaded_2_3": 0,
+        "toe_cap_substeps_0_3": 0,
+        "peak_abs_com_vz_0_3_m_s": 0.20278732821115508
+      },
+      {
+        "lane": 4,
+        "first_recorded_roll_rad": 0.05634655963508007,
+        "first_recorded_q_legs": [
+          -0.118068889,
+          0.281924218,
+          -0.156687111,
+          -0.116024375,
+          0.278726637,
+          -0.161767811
+        ],
+        "first_recorded_horizontal_velocity_m_s": [
+          -0.0325843096,
+          0.00956398156
+        ],
+        "unloaded_0_2": 53,
+        "unloaded_2_3": 0,
+        "toe_cap_substeps_0_3": 0,
+        "peak_abs_com_vz_0_3_m_s": 0.2104686251975241
+      },
+      {
+        "lane": 5,
+        "first_recorded_roll_rad": 0.008805199119688181,
+        "first_recorded_q_legs": [
+          -0.120633468,
+          0.276099265,
+          -0.158480018,
+          -0.124657787,
+          0.278649598,
+          -0.155847311
+        ],
+        "first_recorded_horizontal_velocity_m_s": [
+          -0.0130575895,
+          0.00191095669
+        ],
+        "unloaded_0_2": 182,
+        "unloaded_2_3": 0,
+        "toe_cap_substeps_0_3": 6,
+        "peak_abs_com_vz_0_3_m_s": 0.3980209327569508
+      },
+      {
+        "lane": 6,
+        "first_recorded_roll_rad": -0.0360478893009225,
+        "first_recorded_q_legs": [
+          -0.11720749,
+          0.275831819,
+          -0.157117903,
+          -0.118347697,
+          0.275859982,
+          -0.161754355
+        ],
+        "first_recorded_horizontal_velocity_m_s": [
+          -0.0367910489,
+          0.00257650227
+        ],
+        "unloaded_0_2": 131,
+        "unloaded_2_3": 0,
+        "toe_cap_substeps_0_3": 0,
+        "peak_abs_com_vz_0_3_m_s": 0.3620780751188391
+      },
+      {
+        "lane": 7,
+        "first_recorded_roll_rad": 0.013281086785630898,
+        "first_recorded_q_legs": [
+          -0.116146497,
+          0.276114523,
+          -0.162137926,
+          -0.12158531,
+          0.282685995,
+          -0.155412465
+        ],
+        "first_recorded_horizontal_velocity_m_s": [
+          -0.00731484313,
+          -0.00566814747
+        ],
+        "unloaded_0_2": 273,
+        "unloaded_2_3": 0,
+        "toe_cap_substeps_0_3": 6,
+        "peak_abs_com_vz_0_3_m_s": 0.39845853753411614
+      }
+    ]
+  },
+  "20261126": {
+    "double": [
+      {
+        "lane": 0,
+        "first_recorded_roll_rad": -0.05863170007860362,
+        "first_recorded_q_legs": [
+          -0.113859452,
+          0.285863072,
+          -0.153467596,
+          -0.11280676,
+          0.279613495,
+          -0.162033543
+        ],
+        "first_recorded_horizontal_velocity_m_s": [
+          -0.0535678566,
+          0.0117288595
+        ],
+        "unloaded_0_2": 36,
+        "unloaded_2_3": 0,
+        "toe_cap_substeps_0_3": 0,
+        "peak_abs_com_vz_0_3_m_s": 0.19472228111932247
+      },
+      {
+        "lane": 1,
+        "first_recorded_roll_rad": -0.025724243464327258,
+        "first_recorded_q_legs": [
+          -0.125613883,
+          0.274535388,
+          -0.161187991,
+          -0.120208353,
+          0.290353447,
+          -0.156220421
+        ],
+        "first_recorded_horizontal_velocity_m_s": [
+          -0.00396205345,
+          -0.0245950017
+        ],
+        "unloaded_0_2": 465,
+        "unloaded_2_3": 0,
+        "toe_cap_substeps_0_3": 3,
+        "peak_abs_com_vz_0_3_m_s": 0.37589043331186317
+      },
+      {
+        "lane": 2,
+        "first_recorded_roll_rad": 0.0929542178975676,
+        "first_recorded_q_legs": [
+          -0.131725773,
+          0.268250495,
+          -0.160888985,
+          -0.0943320468,
+          0.292152911,
+          -0.152268022
+        ],
+        "first_recorded_horizontal_velocity_m_s": [
+          -0.096604012,
+          -0.0177692343
+        ],
+        "unloaded_0_2": 45,
+        "unloaded_2_3": 0,
+        "toe_cap_substeps_0_3": 6,
+        "peak_abs_com_vz_0_3_m_s": 0.20603519008306515
+      },
+      {
+        "lane": 3,
+        "first_recorded_roll_rad": -0.06684281599675122,
+        "first_recorded_q_legs": [
+          -0.111361273,
+          0.278980553,
+          -0.149648979,
+          -0.128502205,
+          0.279446214,
+          -0.168802127
+        ],
+        "first_recorded_horizontal_velocity_m_s": [
+          0.0175978765,
+          0.00498294411
+        ],
+        "unloaded_0_2": 56,
+        "unloaded_2_3": 0,
+        "toe_cap_substeps_0_3": 0,
+        "peak_abs_com_vz_0_3_m_s": 0.17996247708942725
+      },
+      {
+        "lane": 4,
+        "first_recorded_roll_rad": 0.09587091818751758,
+        "first_recorded_q_legs": [
+          -0.108110242,
+          0.271178275,
+          -0.163799107,
+          -0.114534438,
+          0.273005307,
+          -0.158124313
+        ],
+        "first_recorded_horizontal_velocity_m_s": [
+          0.0361639559,
+          0.00763161667
+        ],
+        "unloaded_0_2": 47,
+        "unloaded_2_3": 0,
+        "toe_cap_substeps_0_3": 0,
+        "peak_abs_com_vz_0_3_m_s": 0.19414221237112336
+      },
+      {
+        "lane": 5,
+        "first_recorded_roll_rad": -0.11094095918396074,
+        "first_recorded_q_legs": [
+          -0.11544311,
+          0.270531744,
+          -0.1579988,
+          -0.115267485,
+          0.283183575,
+          -0.159010142
+        ],
+        "first_recorded_horizontal_velocity_m_s": [
+          0.0332954787,
+          0.013466998
+        ],
+        "unloaded_0_2": 48,
+        "unloaded_2_3": 0,
+        "toe_cap_substeps_0_3": 0,
+        "peak_abs_com_vz_0_3_m_s": 0.21073898166835545
+      },
+      {
+        "lane": 6,
+        "first_recorded_roll_rad": 0.0973117889110642,
+        "first_recorded_q_legs": [
+          -0.112603575,
+          0.280329645,
+          -0.156964555,
+          -0.132189795,
+          0.277117074,
+          -0.168984801
+        ],
+        "first_recorded_horizontal_velocity_m_s": [
+          -0.0171934385,
+          0.0301018003
+        ],
+        "unloaded_0_2": 41,
+        "unloaded_2_3": 0,
+        "toe_cap_substeps_0_3": 0,
+        "peak_abs_com_vz_0_3_m_s": 0.19033534501538724
+      },
+      {
+        "lane": 7,
+        "first_recorded_roll_rad": -0.11063804880710827,
+        "first_recorded_q_legs": [
+          -0.122664437,
+          0.275662065,
+          -0.152283862,
+          -0.10617128,
+          0.28696084,
+          -0.163018107
+        ],
+        "first_recorded_horizontal_velocity_m_s": [
+          0.0270402338,
+          -0.00399700459
+        ],
+        "unloaded_0_2": 48,
+        "unloaded_2_3": 0,
+        "toe_cap_substeps_0_3": 0,
+        "peak_abs_com_vz_0_3_m_s": 0.19315788717272603
+      }
+    ],
+    "single": [
+      {
+        "lane": 0,
+        "first_recorded_roll_rad": -0.029304427950243222,
+        "first_recorded_q_legs": [
+          -0.11724706,
+          0.282575577,
+          -0.157197475,
+          -0.116873838,
+          0.279788792,
+          -0.160939649
+        ],
+        "first_recorded_horizontal_velocity_m_s": [
+          -0.023444755,
+          0.0128606474
+        ],
+        "unloaded_0_2": 162,
+        "unloaded_2_3": 0,
+        "toe_cap_substeps_0_3": 0,
+        "peak_abs_com_vz_0_3_m_s": 0.3613097491302839
+      },
+      {
+        "lane": 1,
+        "first_recorded_roll_rad": -0.01289466048582063,
+        "first_recorded_q_legs": [
+          -0.122549661,
+          0.277592093,
+          -0.16057834,
+          -0.120161667,
+          0.284237802,
+          -0.158291057
+        ],
+        "first_recorded_horizontal_velocity_m_s": [
+          -0.000378668599,
+          -0.0201960076
+        ],
+        "unloaded_0_2": 1144,
+        "unloaded_2_3": 29,
+        "toe_cap_substeps_0_3": 4,
+        "peak_abs_com_vz_0_3_m_s": 0.3758998345690678
+      },
+      {
+        "lane": 2,
+        "first_recorded_roll_rad": 0.04789150211767839,
+        "first_recorded_q_legs": [
+          -0.124662481,
+          0.275378495,
+          -0.160370931,
+          -0.114878505,
+          0.284409285,
+          -0.15573518
+        ],
+        "first_recorded_horizontal_velocity_m_s": [
+          0.00171786768,
+          -0.0128296558
+        ],
+        "unloaded_0_2": 66,
+        "unloaded_2_3": 0,
+        "toe_cap_substeps_0_3": 0,
+        "peak_abs_com_vz_0_3_m_s": 0.20145693439269716
+      },
+      {
+        "lane": 3,
+        "first_recorded_roll_rad": -0.033477747403238535,
+        "first_recorded_q_legs": [
+          -0.11629346,
+          0.279512823,
+          -0.155812696,
+          -0.123663306,
+          0.279772609,
+          -0.163565069
+        ],
+        "first_recorded_horizontal_velocity_m_s": [
+          0.0133184837,
+          0.00934565347
+        ],
+        "unloaded_0_2": 250,
+        "unloaded_2_3": 0,
+        "toe_cap_substeps_0_3": 0,
+        "peak_abs_com_vz_0_3_m_s": 0.37663685061965985
+      },
+      {
+        "lane": 4,
+        "first_recorded_roll_rad": 0.047974683373248235,
+        "first_recorded_q_legs": [
+          -0.115113877,
+          0.27632767,
+          -0.161690772,
+          -0.117550127,
+          0.276994646,
+          -0.159128219
+        ],
+        "first_recorded_horizontal_velocity_m_s": [
+          0.0231531523,
+          0.0042873323
+        ],
+        "unloaded_0_2": 63,
+        "unloaded_2_3": 0,
+        "toe_cap_substeps_0_3": 0,
+        "peak_abs_com_vz_0_3_m_s": 0.2785335591724105
+      },
+      {
+        "lane": 5,
+        "first_recorded_roll_rad": -0.05541817192761439,
+        "first_recorded_q_legs": [
+          -0.117924243,
+          0.276062697,
+          -0.159072727,
+          -0.117835924,
+          0.281471848,
+          -0.159514695
+        ],
+        "first_recorded_horizontal_velocity_m_s": [
+          0.0169099551,
+          0.0129442727
+        ],
+        "unloaded_0_2": 58,
+        "unloaded_2_3": 0,
+        "toe_cap_substeps_0_3": 0,
+        "peak_abs_com_vz_0_3_m_s": 0.21068772247485498
+      },
+      {
+        "lane": 6,
+        "first_recorded_roll_rad": 0.048743667469190545,
+        "first_recorded_q_legs": [
+          -0.116778143,
+          0.280136168,
+          -0.158611283,
+          -0.124883868,
+          0.278651088,
+          -0.16369085
+        ],
+        "first_recorded_horizontal_velocity_m_s": [
+          -0.00872697961,
+          0.0206103455
+        ],
+        "unloaded_0_2": 73,
+        "unloaded_2_3": 0,
+        "toe_cap_substeps_0_3": 0,
+        "peak_abs_com_vz_0_3_m_s": 0.22382200448385986
+      },
+      {
+        "lane": 7,
+        "first_recorded_roll_rad": -0.05530492656234294,
+        "first_recorded_q_legs": [
+          -0.121273652,
+          0.278063983,
+          -0.156833813,
+          -0.114528902,
+          0.28298977,
+          -0.161337033
+        ],
+        "first_recorded_horizontal_velocity_m_s": [
+          0.0205269381,
+          -0.00260440237
+        ],
+        "unloaded_0_2": 59,
+        "unloaded_2_3": 0,
+        "toe_cap_substeps_0_3": 0,
+        "peak_abs_com_vz_0_3_m_s": 0.2260402671958681
+      }
+    ]
+  },
+  "scope": "Different initialized states by design. First recorded endpoint is after the first physical interval and is duplicated in this observer, so it is not the pre-integration reset state. Foot load counts and velocity caps do not diagnose contact penetration, realism or stability. Both seeds are exposed development cases."
+}
