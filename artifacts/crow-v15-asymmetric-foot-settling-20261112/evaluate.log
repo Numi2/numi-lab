@@ -1,0 +1,16 @@
+20261126 0 pass False failed ['knee_phase'] p95 {'left': 1.0, 'right': 1.0} dx 0.0732 knee advance 0.0
+20261126 1 pass False failed ['knee_phase'] p95 {'left': 1.0, 'right': 1.0} dx 0.0738 knee advance 0.0
+20261126 2 pass False failed ['contact_speed'] p95 {'left': 0.73, 'right': 1.71} dx 0.1123 knee advance 16.2
+20261126 3 pass False failed ['contact_speed', 'recovery_coverage'] p95 {'left': 0.81, 'right': 1.95} dx 0.1116 knee advance 10.1
+20261126 4 pass False failed ['contact_speed'] p95 {'left': 0.57, 'right': 2.15} dx 0.098 knee advance 5.4
+20261126 5 pass False failed ['support', 'knee_phase'] p95 {'left': 0.55, 'right': 1.26} dx 0.1003 knee advance 3.7
+20261126 6 pass False failed ['support', 'knee_phase'] p95 {'left': 1.14, 'right': 1.01} dx 0.083 knee advance -2.9
+20261126 7 pass False failed ['support', 'recovery_coverage'] p95 {'left': 1.05, 'right': 1.24} dx 0.0837 knee advance 5.2
+20261127 0 pass False failed ['knee_phase'] p95 {'left': 1.0, 'right': 1.0} dx 0.0764 knee advance 0.0
+20261127 1 pass False failed ['knee_phase'] p95 {'left': 1.0, 'right': 1.0} dx 0.073 knee advance 0.0
+20261127 2 pass False failed ['support', 'knee_phase'] p95 {'left': 0.98, 'right': 0.96} dx 0.113 knee advance 4.0
+20261127 3 pass False failed ['contact_speed', 'knee_phase'] p95 {'left': 0.79, 'right': 1.94} dx 0.1108 knee advance 2.3
+20261127 4 pass False failed ['contact_speed'] p95 {'left': 0.9, 'right': 1.74} dx 0.0997 knee advance 5.4
+20261127 5 pass False failed ['support'] p95 {'left': 0.62, 'right': 1.34} dx 0.1003 knee advance 5.8
+20261127 6 pass False failed ['contact_speed', 'knee_phase'] p95 {'left': 1.1, 'right': 1.74} dx 0.0766 knee advance 2.9
+20261127 7 pass False failed ['support', 'contact_speed'] p95 {'left': 1.19, 'right': 1.51} dx 0.0874 knee advance 5.1

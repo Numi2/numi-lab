@@ -1,0 +1,218 @@
+{
+  "seed": 20261126,
+  "rows": [
+    {
+      "lane": 0,
+      "side": "left",
+      "valid_samples": 0,
+      "rear_only_samples": 0,
+      "active_contact_vs_recorded_disagreements": 0,
+      "examples": []
+    },
+    {
+      "lane": 0,
+      "side": "right",
+      "valid_samples": 0,
+      "rear_only_samples": 0,
+      "active_contact_vs_recorded_disagreements": 0,
+      "examples": []
+    },
+    {
+      "lane": 1,
+      "side": "left",
+      "valid_samples": 0,
+      "rear_only_samples": 0,
+      "active_contact_vs_recorded_disagreements": 0,
+      "examples": []
+    },
+    {
+      "lane": 1,
+      "side": "right",
+      "valid_samples": 0,
+      "rear_only_samples": 0,
+      "active_contact_vs_recorded_disagreements": 0,
+      "examples": []
+    },
+    {
+      "lane": 2,
+      "side": "left",
+      "valid_samples": 100,
+      "rear_only_samples": 38,
+      "active_contact_vs_recorded_disagreements": 0,
+      "examples": []
+    },
+    {
+      "lane": 2,
+      "side": "right",
+      "valid_samples": 100,
+      "rear_only_samples": 39,
+      "active_contact_vs_recorded_disagreements": 1,
+      "examples": [
+        {
+          "step": 205,
+          "sensor_rear_front": [
+            true,
+            false
+          ],
+          "trace_rear_front": [
+            true,
+            true
+          ]
+        }
+      ]
+    },
+    {
+      "lane": 3,
+      "side": "left",
+      "valid_samples": 100,
+      "rear_only_samples": 37,
+      "active_contact_vs_recorded_disagreements": 0,
+      "examples": []
+    },
+    {
+      "lane": 3,
+      "side": "right",
+      "valid_samples": 100,
+      "rear_only_samples": 40,
+      "active_contact_vs_recorded_disagreements": 1,
+      "examples": [
+        {
+          "step": 205,
+          "sensor_rear_front": [
+            true,
+            false
+          ],
+          "trace_rear_front": [
+            true,
+            true
+          ]
+        }
+      ]
+    },
+    {
+      "lane": 4,
+      "side": "left",
+      "valid_samples": 100,
+      "rear_only_samples": 38,
+      "active_contact_vs_recorded_disagreements": 1,
+      "examples": [
+        {
+          "step": 263,
+          "sensor_rear_front": [
+            false,
+            false
+          ],
+          "trace_rear_front": [
+            true,
+            false
+          ]
+        }
+      ]
+    },
+    {
+      "lane": 4,
+      "side": "right",
+      "valid_samples": 100,
+      "rear_only_samples": 36,
+      "active_contact_vs_recorded_disagreements": 1,
+      "examples": [
+        {
+          "step": 205,
+          "sensor_rear_front": [
+            true,
+            false
+          ],
+          "trace_rear_front": [
+            true,
+            true
+          ]
+        }
+      ]
+    },
+    {
+      "lane": 5,
+      "side": "left",
+      "valid_samples": 100,
+      "rear_only_samples": 41,
+      "active_contact_vs_recorded_disagreements": 0,
+      "examples": []
+    },
+    {
+      "lane": 5,
+      "side": "right",
+      "valid_samples": 100,
+      "rear_only_samples": 34,
+      "active_contact_vs_recorded_disagreements": 1,
+      "examples": [
+        {
+          "step": 205,
+          "sensor_rear_front": [
+            true,
+            false
+          ],
+          "trace_rear_front": [
+            true,
+            true
+          ]
+        }
+      ]
+    },
+    {
+      "lane": 6,
+      "side": "left",
+      "valid_samples": 100,
+      "rear_only_samples": 40,
+      "active_contact_vs_recorded_disagreements": 0,
+      "examples": []
+    },
+    {
+      "lane": 6,
+      "side": "right",
+      "valid_samples": 100,
+      "rear_only_samples": 34,
+      "active_contact_vs_recorded_disagreements": 1,
+      "examples": [
+        {
+          "step": 205,
+          "sensor_rear_front": [
+            true,
+            false
+          ],
+          "trace_rear_front": [
+            true,
+            true
+          ]
+        }
+      ]
+    },
+    {
+      "lane": 7,
+      "side": "left",
+      "valid_samples": 100,
+      "rear_only_samples": 39,
+      "active_contact_vs_recorded_disagreements": 0,
+      "examples": []
+    },
+    {
+      "lane": 7,
+      "side": "right",
+      "valid_samples": 100,
+      "rear_only_samples": 35,
+      "active_contact_vs_recorded_disagreements": 1,
+      "examples": [
+        {
+          "step": 205,
+          "sensor_rear_front": [
+            true,
+            false
+          ],
+          "trace_rear_front": [
+            true,
+            true
+          ]
+        }
+      ]
+    }
+  ],
+  "scope": "Sensor uses active contacts after publishing; trace uses final-substep required constraints. Different buffers and timing can disagree. This is not force confirmation at action application."
+}

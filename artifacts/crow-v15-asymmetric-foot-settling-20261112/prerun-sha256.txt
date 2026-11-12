@@ -1,0 +1,2 @@
+1ff203552431055eb321439a853e29d13aa6f43027950e3dd2c2e0e399184b81  artifacts/crow-v15-asymmetric-foot-settling-20261112/PLAN.md
+68bb09eadd89a1e6f44aaf0d7900f45762525fa254e56a10d9234bc68d3dc2e0  artifacts/crow-v15-asymmetric-foot-settling-20261112/screen.metal

@@ -1,0 +1,16 @@
+20261126 0 ratio 1.0 physical False coverage {'previous': {'left': 4, 'right': 3}, 'trial': {'left': 4, 'right': 3}} pass False
+20261126 1 ratio 1.0 physical False coverage {'previous': {'left': 4, 'right': 3}, 'trial': {'left': 4, 'right': 3}} pass False
+20261126 2 ratio 1.0 physical False coverage {'previous': {'left': 4, 'right': 3}, 'trial': {'left': 4, 'right': 3}} pass False
+20261126 3 ratio 1.0 physical False coverage {'previous': {'left': 4, 'right': 3}, 'trial': {'left': 4, 'right': 3}} pass False
+20261126 4 ratio 1.01 physical False coverage {'previous': {'left': 4, 'right': 3}, 'trial': {'left': 4, 'right': 3}} pass False
+20261126 5 ratio 1.03 physical False coverage {'previous': {'left': 4, 'right': 3}, 'trial': {'left': 4, 'right': 3}} pass False
+20261126 6 ratio 1.01 physical False coverage {'previous': {'left': 4, 'right': 3}, 'trial': {'left': 4, 'right': 3}} pass False
+20261126 7 ratio 0.96 physical False coverage {'previous': {'left': 4, 'right': 3}, 'trial': {'left': 4, 'right': 3}} pass False
+20261127 0 ratio 1.0 physical False coverage {'previous': {'left': 4, 'right': 3}, 'trial': {'left': 4, 'right': 3}} pass False
+20261127 1 ratio 1.0 physical False coverage {'previous': {'left': 4, 'right': 3}, 'trial': {'left': 4, 'right': 3}} pass False
+20261127 2 ratio 1.0 physical False coverage {'previous': {'left': 4, 'right': 3}, 'trial': {'left': 4, 'right': 3}} pass False
+20261127 3 ratio 1.0 physical False coverage {'previous': {'left': 4, 'right': 3}, 'trial': {'left': 4, 'right': 3}} pass False
+20261127 4 ratio 1.03 physical False coverage {'previous': {'left': 4, 'right': 3}, 'trial': {'left': 4, 'right': 3}} pass False
+20261127 5 ratio 1.01 physical False coverage {'previous': {'left': 4, 'right': 3}, 'trial': {'left': 4, 'right': 3}} pass False
+20261127 6 ratio 0.97 physical False coverage {'previous': {'left': 4, 'right': 3}, 'trial': {'left': 4, 'right': 3}} pass False
+20261127 7 ratio 0.97 physical False coverage {'previous': {'left': 4, 'right': 3}, 'trial': {'left': 4, 'right': 3}} pass False

@@ -1,0 +1,2807 @@
+{
+  "20261126-candidate": {
+    "input": "artifacts/crow-v15-asymmetric-foot-settling-20261112/candidate-20261126-rebound-phase/run.stderr.gz",
+    "sha256": "053dd6948b6c30f9094036c9764806baa390cf2b6c972cfa93dc3203c5a440a5",
+    "groups": {
+      "touchdown": {
+        "hallux_first": 56
+      },
+      "liftoff": {
+        "hallux_first": 64
+      }
+    },
+    "rows": [
+      {
+        "lane": 0,
+        "side": "left",
+        "events": [
+          {
+            "type": "liftoff",
+            "order": "hallux_first",
+            "from_sample": 18,
+            "to_sample": 205,
+            "gap_ms": 126.25,
+            "states": [
+              2,
+              0
+            ]
+          },
+          {
+            "type": "touchdown",
+            "order": "hallux_first",
+            "from_sample": 205,
+            "to_sample": 390,
+            "gap_ms": 215.0,
+            "states": [
+              1,
+              3
+            ]
+          },
+          {
+            "type": "liftoff",
+            "order": "hallux_first",
+            "from_sample": 390,
+            "to_sample": 438,
+            "gap_ms": 41.25,
+            "states": [
+              2,
+              0
+            ]
+          },
+          {
+            "type": "touchdown",
+            "order": "hallux_first",
+            "from_sample": 468,
+            "to_sample": 775,
+            "gap_ms": 187.5,
+            "states": [
+              1,
+              3
+            ]
+          },
+          {
+            "type": "liftoff",
+            "order": "hallux_first",
+            "from_sample": 775,
+            "to_sample": 845,
+            "gap_ms": 62.5,
+            "states": [
+              2,
+              0
+            ]
+          },
+          {
+            "type": "touchdown",
+            "order": "hallux_first",
+            "from_sample": 875,
+            "to_sample": 1157,
+            "gap_ms": 163.75,
+            "states": [
+              1,
+              3
+            ]
+          },
+          {
+            "type": "liftoff",
+            "order": "hallux_first",
+            "from_sample": 1157,
+            "to_sample": 1259,
+            "gap_ms": 85.0,
+            "states": [
+              2,
+              0
+            ]
+          },
+          {
+            "type": "touchdown",
+            "order": "hallux_first",
+            "from_sample": 1270,
+            "to_sample": 1555,
+            "gap_ms": 161.25,
+            "states": [
+              1,
+              3
+            ]
+          }
+        ]
+      },
+      {
+        "lane": 0,
+        "side": "right",
+        "events": [
+          {
+            "type": "liftoff",
+            "order": "hallux_first",
+            "from_sample": 187,
+            "to_sample": 269,
+            "gap_ms": 66.25,
+            "states": [
+              2,
+              0
+            ]
+          },
+          {
+            "type": "touchdown",
+            "order": "hallux_first",
+            "from_sample": 455,
+            "to_sample": 581,
+            "gap_ms": 147.5,
+            "states": [
+              1,
+              3
+            ]
+          },
+          {
+            "type": "liftoff",
+            "order": "hallux_first",
+            "from_sample": 581,
+            "to_sample": 669,
+            "gap_ms": 80.0,
+            "states": [
+              2,
+              0
+            ]
+          },
+          {
+            "type": "touchdown",
+            "order": "hallux_first",
+            "from_sample": 669,
+            "to_sample": 965,
+            "gap_ms": 177.5,
+            "states": [
+              1,
+              3
+            ]
+          },
+          {
+            "type": "liftoff",
+            "order": "hallux_first",
+            "from_sample": 965,
+            "to_sample": 1047,
+            "gap_ms": 65.0,
+            "states": [
+              2,
+              0
+            ]
+          },
+          {
+            "type": "touchdown",
+            "order": "hallux_first",
+            "from_sample": 1079,
+            "to_sample": 1361,
+            "gap_ms": 170.0,
+            "states": [
+              1,
+              3
+            ]
+          },
+          {
+            "type": "liftoff",
+            "order": "hallux_first",
+            "from_sample": 1361,
+            "to_sample": 1448,
+            "gap_ms": 70.0,
+            "states": [
+              2,
+              0
+            ]
+          }
+        ]
+      },
+      {
+        "lane": 1,
+        "side": "left",
+        "events": [
+          {
+            "type": "liftoff",
+            "order": "hallux_first",
+            "from_sample": 18,
+            "to_sample": 205,
+            "gap_ms": 126.25,
+            "states": [
+              2,
+              0
+            ]
+          },
+          {
+            "type": "touchdown",
+            "order": "hallux_first",
+            "from_sample": 205,
+            "to_sample": 390,
+            "gap_ms": 215.0,
+            "states": [
+              1,
+              3
+            ]
+          },
+          {
+            "type": "liftoff",
+            "order": "hallux_first",
+            "from_sample": 390,
+            "to_sample": 438,
+            "gap_ms": 41.25,
+            "states": [
+              2,
+              0
+            ]
+          },
+          {
+            "type": "touchdown",
+            "order": "hallux_first",
+            "from_sample": 468,
+            "to_sample": 775,
+            "gap_ms": 187.5,
+            "states": [
+              1,
+              3
+            ]
+          },
+          {
+            "type": "liftoff",
+            "order": "hallux_first",
+            "from_sample": 775,
+            "to_sample": 845,
+            "gap_ms": 61.25,
+            "states": [
+              2,
+              0
+            ]
+          },
+          {
+            "type": "touchdown",
+            "order": "hallux_first",
+            "from_sample": 875,
+            "to_sample": 1157,
+            "gap_ms": 163.75,
+            "states": [
+              1,
+              3
+            ]
+          },
+          {
+            "type": "liftoff",
+            "order": "hallux_first",
+            "from_sample": 1157,
+            "to_sample": 1252,
+            "gap_ms": 76.25,
+            "states": [
+              2,
+              0
+            ]
+          },
+          {
+            "type": "touchdown",
+            "order": "hallux_first",
+            "from_sample": 1270,
+            "to_sample": 1555,
+            "gap_ms": 161.25,
+            "states": [
+              1,
+              3
+            ]
+          }
+        ]
+      },
+      {
+        "lane": 1,
+        "side": "right",
+        "events": [
+          {
+            "type": "liftoff",
+            "order": "hallux_first",
+            "from_sample": 187,
+            "to_sample": 269,
+            "gap_ms": 66.25,
+            "states": [
+              2,
+              0
+            ]
+          },
+          {
+            "type": "touchdown",
+            "order": "hallux_first",
+            "from_sample": 455,
+            "to_sample": 580,
+            "gap_ms": 146.25,
+            "states": [
+              1,
+              3
+            ]
+          },
+          {
+            "type": "liftoff",
+            "order": "hallux_first",
+            "from_sample": 580,
+            "to_sample": 669,
+            "gap_ms": 80.0,
+            "states": [
+              2,
+              0
+            ]
+          },
+          {
+            "type": "touchdown",
+            "order": "hallux_first",
+            "from_sample": 679,
+            "to_sample": 965,
+            "gap_ms": 177.5,
+            "states": [
+              1,
+              3
+            ]
+          },
+          {
+            "type": "liftoff",
+            "order": "hallux_first",
+            "from_sample": 965,
+            "to_sample": 1047,
+            "gap_ms": 65.0,
+            "states": [
+              2,
+              0
+            ]
+          },
+          {
+            "type": "touchdown",
+            "order": "hallux_first",
+            "from_sample": 1078,
+            "to_sample": 1362,
+            "gap_ms": 171.25,
+            "states": [
+              1,
+              3
+            ]
+          },
+          {
+            "type": "liftoff",
+            "order": "hallux_first",
+            "from_sample": 1362,
+            "to_sample": 1453,
+            "gap_ms": 76.25,
+            "states": [
+              2,
+              0
+            ]
+          }
+        ]
+      },
+      {
+        "lane": 2,
+        "side": "left",
+        "events": [
+          {
+            "type": "liftoff",
+            "order": "hallux_first",
+            "from_sample": 18,
+            "to_sample": 161,
+            "gap_ms": 73.75,
+            "states": [
+              2,
+              0
+            ]
+          },
+          {
+            "type": "touchdown",
+            "order": "hallux_first",
+            "from_sample": 194,
+            "to_sample": 377,
+            "gap_ms": 208.75,
+            "states": [
+              1,
+              3
+            ]
+          },
+          {
+            "type": "liftoff",
+            "order": "hallux_first",
+            "from_sample": 377,
+            "to_sample": 470,
+            "gap_ms": 98.75,
+            "states": [
+              2,
+              0
+            ]
+          },
+          {
+            "type": "touchdown",
+            "order": "hallux_first",
+            "from_sample": 642,
+            "to_sample": 742,
+            "gap_ms": 111.25,
+            "states": [
+              1,
+              3
+            ]
+          },
+          {
+            "type": "liftoff",
+            "order": "hallux_first",
+            "from_sample": 742,
+            "to_sample": 873,
+            "gap_ms": 130.0,
+            "states": [
+              2,
+              0
+            ]
+          },
+          {
+            "type": "touchdown",
+            "order": "hallux_first",
+            "from_sample": 873,
+            "to_sample": 1151,
+            "gap_ms": 195.0,
+            "states": [
+              1,
+              3
+            ]
+          },
+          {
+            "type": "liftoff",
+            "order": "hallux_first",
+            "from_sample": 1151,
+            "to_sample": 1261,
+            "gap_ms": 101.25,
+            "states": [
+              2,
+              0
+            ]
+          },
+          {
+            "type": "touchdown",
+            "order": "hallux_first",
+            "from_sample": 1261,
+            "to_sample": 1544,
+            "gap_ms": 188.75,
+            "states": [
+              1,
+              3
+            ]
+          }
+        ]
+      },
+      {
+        "lane": 2,
+        "side": "right",
+        "events": [
+          {
+            "type": "liftoff",
+            "order": "hallux_first",
+            "from_sample": 194,
+            "to_sample": 283,
+            "gap_ms": 107.5,
+            "states": [
+              2,
+              0
+            ]
+          },
+          {
+            "type": "touchdown",
+            "order": "hallux_first",
+            "from_sample": 434,
+            "to_sample": 563,
+            "gap_ms": 142.5,
+            "states": [
+              1,
+              3
+            ]
+          },
+          {
+            "type": "liftoff",
+            "order": "hallux_first",
+            "from_sample": 563,
+            "to_sample": 669,
+            "gap_ms": 101.25,
+            "states": [
+              2,
+              0
+            ]
+          },
+          {
+            "type": "touchdown",
+            "order": "hallux_first",
+            "from_sample": 669,
+            "to_sample": 951,
+            "gap_ms": 198.75,
+            "states": [
+              1,
+              3
+            ]
+          },
+          {
+            "type": "liftoff",
+            "order": "hallux_first",
+            "from_sample": 951,
+            "to_sample": 1071,
+            "gap_ms": 107.5,
+            "states": [
+              2,
+              0
+            ]
+          },
+          {
+            "type": "touchdown",
+            "order": "hallux_first",
+            "from_sample": 1071,
+            "to_sample": 1342,
+            "gap_ms": 185.0,
+            "states": [
+              1,
+              3
+            ]
+          },
+          {
+            "type": "liftoff",
+            "order": "hallux_first",
+            "from_sample": 1342,
+            "to_sample": 1469,
+            "gap_ms": 131.25,
+            "states": [
+              2,
+              0
+            ]
+          }
+        ]
+      },
+      {
+        "lane": 3,
+        "side": "left",
+        "events": [
+          {
+            "type": "liftoff",
+            "order": "hallux_first",
+            "from_sample": 18,
+            "to_sample": 161,
+            "gap_ms": 73.75,
+            "states": [
+              2,
+              0
+            ]
+          },
+          {
+            "type": "touchdown",
+            "order": "hallux_first",
+            "from_sample": 194,
+            "to_sample": 377,
+            "gap_ms": 208.75,
+            "states": [
+              1,
+              3
+            ]
+          },
+          {
+            "type": "liftoff",
+            "order": "hallux_first",
+            "from_sample": 377,
+            "to_sample": 470,
+            "gap_ms": 98.75,
+            "states": [
+              2,
+              0
+            ]
+          },
+          {
+            "type": "touchdown",
+            "order": "hallux_first",
+            "from_sample": 470,
+            "to_sample": 741,
+            "gap_ms": 182.5,
+            "states": [
+              1,
+              3
+            ]
+          },
+          {
+            "type": "liftoff",
+            "order": "hallux_first",
+            "from_sample": 741,
+            "to_sample": 839,
+            "gap_ms": 88.75,
+            "states": [
+              2,
+              0
+            ]
+          },
+          {
+            "type": "touchdown",
+            "order": "hallux_first",
+            "from_sample": 1053,
+            "to_sample": 1153,
+            "gap_ms": 102.5,
+            "states": [
+              1,
+              3
+            ]
+          },
+          {
+            "type": "liftoff",
+            "order": "hallux_first",
+            "from_sample": 1153,
+            "to_sample": 1276,
+            "gap_ms": 111.25,
+            "states": [
+              2,
+              0
+            ]
+          },
+          {
+            "type": "touchdown",
+            "order": "hallux_first",
+            "from_sample": 1276,
+            "to_sample": 1550,
+            "gap_ms": 195.0,
+            "states": [
+              1,
+              3
+            ]
+          }
+        ]
+      },
+      {
+        "lane": 3,
+        "side": "right",
+        "events": [
+          {
+            "type": "liftoff",
+            "order": "hallux_first",
+            "from_sample": 194,
+            "to_sample": 283,
+            "gap_ms": 108.75,
+            "states": [
+              2,
+              0
+            ]
+          },
+          {
+            "type": "touchdown",
+            "order": "hallux_first",
+            "from_sample": 434,
+            "to_sample": 563,
+            "gap_ms": 142.5,
+            "states": [
+              1,
+              3
+            ]
+          },
+          {
+            "type": "liftoff",
+            "order": "hallux_first",
+            "from_sample": 563,
+            "to_sample": 669,
+            "gap_ms": 101.25,
+            "states": [
+              2,
+              0
+            ]
+          },
+          {
+            "type": "touchdown",
+            "order": "hallux_first",
+            "from_sample": 669,
+            "to_sample": 960,
+            "gap_ms": 210.0,
+            "states": [
+              1,
+              3
+            ]
+          },
+          {
+            "type": "liftoff",
+            "order": "hallux_first",
+            "from_sample": 960,
+            "to_sample": 1071,
+            "gap_ms": 105.0,
+            "states": [
+              2,
+              0
+            ]
+          },
+          {
+            "type": "touchdown",
+            "order": "hallux_first",
+            "from_sample": 1071,
+            "to_sample": 1349,
+            "gap_ms": 195.0,
+            "states": [
+              1,
+              3
+            ]
+          },
+          {
+            "type": "liftoff",
+            "order": "hallux_first",
+            "from_sample": 1349,
+            "to_sample": 1471,
+            "gap_ms": 107.5,
+            "states": [
+              2,
+              0
+            ]
+          }
+        ]
+      },
+      {
+        "lane": 4,
+        "side": "left",
+        "events": [
+          {
+            "type": "liftoff",
+            "order": "hallux_first",
+            "from_sample": 18,
+            "to_sample": 149,
+            "gap_ms": 58.75,
+            "states": [
+              2,
+              0
+            ]
+          },
+          {
+            "type": "touchdown",
+            "order": "hallux_first",
+            "from_sample": 176,
+            "to_sample": 345,
+            "gap_ms": 188.75,
+            "states": [
+              1,
+              3
+            ]
+          },
+          {
+            "type": "liftoff",
+            "order": "hallux_first",
+            "from_sample": 345,
+            "to_sample": 445,
+            "gap_ms": 76.25,
+            "states": [
+              2,
+              0
+            ]
+          },
+          {
+            "type": "touchdown",
+            "order": "hallux_first",
+            "from_sample": 470,
+            "to_sample": 749,
+            "gap_ms": 198.75,
+            "states": [
+              1,
+              3
+            ]
+          },
+          {
+            "type": "liftoff",
+            "order": "hallux_first",
+            "from_sample": 749,
+            "to_sample": 864,
+            "gap_ms": 92.5,
+            "states": [
+              2,
+              0
+            ]
+          },
+          {
+            "type": "touchdown",
+            "order": "hallux_first",
+            "from_sample": 864,
+            "to_sample": 1153,
+            "gap_ms": 205.0,
+            "states": [
+              1,
+              3
+            ]
+          },
+          {
+            "type": "liftoff",
+            "order": "hallux_first",
+            "from_sample": 1153,
+            "to_sample": 1272,
+            "gap_ms": 98.75,
+            "states": [
+              2,
+              0
+            ]
+          },
+          {
+            "type": "touchdown",
+            "order": "hallux_first",
+            "from_sample": 1272,
+            "to_sample": 1550,
+            "gap_ms": 202.5,
+            "states": [
+              1,
+              3
+            ]
+          }
+        ]
+      },
+      {
+        "lane": 4,
+        "side": "right",
+        "events": [
+          {
+            "type": "liftoff",
+            "order": "hallux_first",
+            "from_sample": 151,
+            "to_sample": 268,
+            "gap_ms": 82.5,
+            "states": [
+              2,
+              0
+            ]
+          },
+          {
+            "type": "touchdown",
+            "order": "hallux_first",
+            "from_sample": 299,
+            "to_sample": 546,
+            "gap_ms": 196.25,
+            "states": [
+              1,
+              3
+            ]
+          },
+          {
+            "type": "liftoff",
+            "order": "hallux_first",
+            "from_sample": 546,
+            "to_sample": 671,
+            "gap_ms": 106.25,
+            "states": [
+              2,
+              0
+            ]
+          },
+          {
+            "type": "touchdown",
+            "order": "hallux_first",
+            "from_sample": 671,
+            "to_sample": 951,
+            "gap_ms": 200.0,
+            "states": [
+              1,
+              3
+            ]
+          },
+          {
+            "type": "liftoff",
+            "order": "hallux_first",
+            "from_sample": 951,
+            "to_sample": 1070,
+            "gap_ms": 96.25,
+            "states": [
+              2,
+              0
+            ]
+          },
+          {
+            "type": "touchdown",
+            "order": "hallux_first",
+            "from_sample": 1070,
+            "to_sample": 1347,
+            "gap_ms": 196.25,
+            "states": [
+              1,
+              3
+            ]
+          },
+          {
+            "type": "liftoff",
+            "order": "hallux_first",
+            "from_sample": 1347,
+            "to_sample": 1466,
+            "gap_ms": 101.25,
+            "states": [
+              2,
+              0
+            ]
+          }
+        ]
+      },
+      {
+        "lane": 5,
+        "side": "left",
+        "events": [
+          {
+            "type": "liftoff",
+            "order": "hallux_first",
+            "from_sample": 18,
+            "to_sample": 149,
+            "gap_ms": 58.75,
+            "states": [
+              2,
+              0
+            ]
+          },
+          {
+            "type": "touchdown",
+            "order": "hallux_first",
+            "from_sample": 176,
+            "to_sample": 342,
+            "gap_ms": 185.0,
+            "states": [
+              1,
+              3
+            ]
+          },
+          {
+            "type": "liftoff",
+            "order": "hallux_first",
+            "from_sample": 342,
+            "to_sample": 470,
+            "gap_ms": 108.75,
+            "states": [
+              2,
+              0
+            ]
+          },
+          {
+            "type": "touchdown",
+            "order": "hallux_first",
+            "from_sample": 470,
+            "to_sample": 749,
+            "gap_ms": 200.0,
+            "states": [
+              1,
+              3
+            ]
+          },
+          {
+            "type": "liftoff",
+            "order": "hallux_first",
+            "from_sample": 749,
+            "to_sample": 864,
+            "gap_ms": 92.5,
+            "states": [
+              2,
+              0
+            ]
+          },
+          {
+            "type": "touchdown",
+            "order": "hallux_first",
+            "from_sample": 864,
+            "to_sample": 1156,
+            "gap_ms": 208.75,
+            "states": [
+              1,
+              3
+            ]
+          },
+          {
+            "type": "liftoff",
+            "order": "hallux_first",
+            "from_sample": 1156,
+            "to_sample": 1268,
+            "gap_ms": 100.0,
+            "states": [
+              2,
+              0
+            ]
+          },
+          {
+            "type": "touchdown",
+            "order": "hallux_first",
+            "from_sample": 1268,
+            "to_sample": 1556,
+            "gap_ms": 208.75,
+            "states": [
+              1,
+              3
+            ]
+          }
+        ]
+      },
+      {
+        "lane": 5,
+        "side": "right",
+        "events": [
+          {
+            "type": "liftoff",
+            "order": "hallux_first",
+            "from_sample": 151,
+            "to_sample": 268,
+            "gap_ms": 82.5,
+            "states": [
+              2,
+              0
+            ]
+          },
+          {
+            "type": "touchdown",
+            "order": "hallux_first",
+            "from_sample": 284,
+            "to_sample": 545,
+            "gap_ms": 195.0,
+            "states": [
+              1,
+              3
+            ]
+          },
+          {
+            "type": "liftoff",
+            "order": "hallux_first",
+            "from_sample": 545,
+            "to_sample": 671,
+            "gap_ms": 105.0,
+            "states": [
+              2,
+              0
+            ]
+          },
+          {
+            "type": "touchdown",
+            "order": "hallux_first",
+            "from_sample": 671,
+            "to_sample": 950,
+            "gap_ms": 198.75,
+            "states": [
+              1,
+              3
+            ]
+          },
+          {
+            "type": "liftoff",
+            "order": "hallux_first",
+            "from_sample": 950,
+            "to_sample": 1068,
+            "gap_ms": 93.75,
+            "states": [
+              2,
+              0
+            ]
+          },
+          {
+            "type": "touchdown",
+            "order": "hallux_first",
+            "from_sample": 1234,
+            "to_sample": 1352,
+            "gap_ms": 127.5,
+            "states": [
+              1,
+              3
+            ]
+          },
+          {
+            "type": "liftoff",
+            "order": "hallux_first",
+            "from_sample": 1352,
+            "to_sample": 1463,
+            "gap_ms": 86.25,
+            "states": [
+              2,
+              0
+            ]
+          }
+        ]
+      },
+      {
+        "lane": 6,
+        "side": "left",
+        "events": [
+          {
+            "type": "liftoff",
+            "order": "hallux_first",
+            "from_sample": 18,
+            "to_sample": 120,
+            "gap_ms": 22.5,
+            "states": [
+              2,
+              0
+            ]
+          },
+          {
+            "type": "touchdown",
+            "order": "hallux_first",
+            "from_sample": 120,
+            "to_sample": 185,
+            "gap_ms": 22.5,
+            "states": [
+              1,
+              3
+            ]
+          },
+          {
+            "type": "liftoff",
+            "order": "hallux_first",
+            "from_sample": 352,
+            "to_sample": 447,
+            "gap_ms": 78.75,
+            "states": [
+              2,
+              0
+            ]
+          },
+          {
+            "type": "touchdown",
+            "order": "hallux_first",
+            "from_sample": 447,
+            "to_sample": 742,
+            "gap_ms": 192.5,
+            "states": [
+              1,
+              3
+            ]
+          },
+          {
+            "type": "liftoff",
+            "order": "hallux_first",
+            "from_sample": 742,
+            "to_sample": 845,
+            "gap_ms": 85.0,
+            "states": [
+              2,
+              0
+            ]
+          },
+          {
+            "type": "touchdown",
+            "order": "hallux_first",
+            "from_sample": 1048,
+            "to_sample": 1128,
+            "gap_ms": 95.0,
+            "states": [
+              1,
+              3
+            ]
+          },
+          {
+            "type": "liftoff",
+            "order": "hallux_first",
+            "from_sample": 1128,
+            "to_sample": 1246,
+            "gap_ms": 112.5,
+            "states": [
+              2,
+              0
+            ]
+          },
+          {
+            "type": "touchdown",
+            "order": "hallux_first",
+            "from_sample": 1449,
+            "to_sample": 1543,
+            "gap_ms": 113.75,
+            "states": [
+              1,
+              3
+            ]
+          }
+        ]
+      },
+      {
+        "lane": 6,
+        "side": "right",
+        "events": [
+          {
+            "type": "liftoff",
+            "order": "hallux_first",
+            "from_sample": 170,
+            "to_sample": 259,
+            "gap_ms": 78.75,
+            "states": [
+              2,
+              0
+            ]
+          },
+          {
+            "type": "touchdown",
+            "order": "hallux_first",
+            "from_sample": 259,
+            "to_sample": 545,
+            "gap_ms": 198.75,
+            "states": [
+              1,
+              3
+            ]
+          },
+          {
+            "type": "liftoff",
+            "order": "hallux_first",
+            "from_sample": 545,
+            "to_sample": 652,
+            "gap_ms": 81.25,
+            "states": [
+              2,
+              0
+            ]
+          },
+          {
+            "type": "touchdown",
+            "order": "hallux_first",
+            "from_sample": 669,
+            "to_sample": 943,
+            "gap_ms": 191.25,
+            "states": [
+              1,
+              3
+            ]
+          },
+          {
+            "type": "liftoff",
+            "order": "hallux_first",
+            "from_sample": 943,
+            "to_sample": 1051,
+            "gap_ms": 87.5,
+            "states": [
+              2,
+              0
+            ]
+          },
+          {
+            "type": "touchdown",
+            "order": "hallux_first",
+            "from_sample": 1051,
+            "to_sample": 1345,
+            "gap_ms": 196.25,
+            "states": [
+              1,
+              3
+            ]
+          },
+          {
+            "type": "liftoff",
+            "order": "hallux_first",
+            "from_sample": 1345,
+            "to_sample": 1451,
+            "gap_ms": 83.75,
+            "states": [
+              2,
+              0
+            ]
+          }
+        ]
+      },
+      {
+        "lane": 7,
+        "side": "left",
+        "events": [
+          {
+            "type": "liftoff",
+            "order": "hallux_first",
+            "from_sample": 18,
+            "to_sample": 120,
+            "gap_ms": 22.5,
+            "states": [
+              2,
+              0
+            ]
+          },
+          {
+            "type": "touchdown",
+            "order": "hallux_first",
+            "from_sample": 120,
+            "to_sample": 185,
+            "gap_ms": 22.5,
+            "states": [
+              1,
+              3
+            ]
+          },
+          {
+            "type": "liftoff",
+            "order": "hallux_first",
+            "from_sample": 351,
+            "to_sample": 446,
+            "gap_ms": 82.5,
+            "states": [
+              2,
+              0
+            ]
+          },
+          {
+            "type": "touchdown",
+            "order": "hallux_first",
+            "from_sample": 627,
+            "to_sample": 742,
+            "gap_ms": 110.0,
+            "states": [
+              1,
+              3
+            ]
+          },
+          {
+            "type": "liftoff",
+            "order": "hallux_first",
+            "from_sample": 742,
+            "to_sample": 845,
+            "gap_ms": 103.75,
+            "states": [
+              2,
+              0
+            ]
+          },
+          {
+            "type": "touchdown",
+            "order": "hallux_first",
+            "from_sample": 871,
+            "to_sample": 1142,
+            "gap_ms": 192.5,
+            "states": [
+              1,
+              3
+            ]
+          },
+          {
+            "type": "liftoff",
+            "order": "hallux_first",
+            "from_sample": 1142,
+            "to_sample": 1245,
+            "gap_ms": 86.25,
+            "states": [
+              2,
+              0
+            ]
+          },
+          {
+            "type": "touchdown",
+            "order": "hallux_first",
+            "from_sample": 1245,
+            "to_sample": 1525,
+            "gap_ms": 170.0,
+            "states": [
+              1,
+              3
+            ]
+          }
+        ]
+      },
+      {
+        "lane": 7,
+        "side": "right",
+        "events": [
+          {
+            "type": "liftoff",
+            "order": "hallux_first",
+            "from_sample": 168,
+            "to_sample": 253,
+            "gap_ms": 71.25,
+            "states": [
+              2,
+              0
+            ]
+          },
+          {
+            "type": "touchdown",
+            "order": "hallux_first",
+            "from_sample": 253,
+            "to_sample": 546,
+            "gap_ms": 200.0,
+            "states": [
+              1,
+              3
+            ]
+          },
+          {
+            "type": "liftoff",
+            "order": "hallux_first",
+            "from_sample": 546,
+            "to_sample": 650,
+            "gap_ms": 81.25,
+            "states": [
+              2,
+              0
+            ]
+          },
+          {
+            "type": "touchdown",
+            "order": "hallux_first",
+            "from_sample": 650,
+            "to_sample": 944,
+            "gap_ms": 192.5,
+            "states": [
+              1,
+              3
+            ]
+          },
+          {
+            "type": "liftoff",
+            "order": "hallux_first",
+            "from_sample": 944,
+            "to_sample": 1065,
+            "gap_ms": 97.5,
+            "states": [
+              2,
+              0
+            ]
+          },
+          {
+            "type": "touchdown",
+            "order": "hallux_first",
+            "from_sample": 1065,
+            "to_sample": 1341,
+            "gap_ms": 188.75,
+            "states": [
+              1,
+              3
+            ]
+          },
+          {
+            "type": "liftoff",
+            "order": "hallux_first",
+            "from_sample": 1341,
+            "to_sample": 1451,
+            "gap_ms": 90.0,
+            "states": [
+              2,
+              0
+            ]
+          }
+        ]
+      }
+    ]
+  },
+  "20261127-candidate": {
+    "input": "artifacts/crow-v15-asymmetric-foot-settling-20261112/candidate-20261127-rebound-phase/run.stderr.gz",
+    "sha256": "b21b1a66024edb16b7b6f50ed11e089496c36eb1699634beab06bfdedf46b03a",
+    "groups": {
+      "touchdown": {
+        "hallux_first": 56
+      },
+      "liftoff": {
+        "hallux_first": 59
+      }
+    },
+    "rows": [
+      {
+        "lane": 0,
+        "side": "left",
+        "events": [
+          {
+            "type": "touchdown",
+            "order": "hallux_first",
+            "from_sample": 205,
+            "to_sample": 390,
+            "gap_ms": 215.0,
+            "states": [
+              1,
+              3
+            ]
+          },
+          {
+            "type": "liftoff",
+            "order": "hallux_first",
+            "from_sample": 390,
+            "to_sample": 438,
+            "gap_ms": 41.25,
+            "states": [
+              2,
+              0
+            ]
+          },
+          {
+            "type": "touchdown",
+            "order": "hallux_first",
+            "from_sample": 466,
+            "to_sample": 775,
+            "gap_ms": 187.5,
+            "states": [
+              1,
+              3
+            ]
+          },
+          {
+            "type": "liftoff",
+            "order": "hallux_first",
+            "from_sample": 775,
+            "to_sample": 845,
+            "gap_ms": 61.25,
+            "states": [
+              2,
+              0
+            ]
+          },
+          {
+            "type": "touchdown",
+            "order": "hallux_first",
+            "from_sample": 875,
+            "to_sample": 1157,
+            "gap_ms": 163.75,
+            "states": [
+              1,
+              3
+            ]
+          },
+          {
+            "type": "liftoff",
+            "order": "hallux_first",
+            "from_sample": 1157,
+            "to_sample": 1271,
+            "gap_ms": 100.0,
+            "states": [
+              2,
+              0
+            ]
+          },
+          {
+            "type": "touchdown",
+            "order": "hallux_first",
+            "from_sample": 1271,
+            "to_sample": 1555,
+            "gap_ms": 161.25,
+            "states": [
+              1,
+              3
+            ]
+          }
+        ]
+      },
+      {
+        "lane": 0,
+        "side": "right",
+        "events": [
+          {
+            "type": "liftoff",
+            "order": "hallux_first",
+            "from_sample": 187,
+            "to_sample": 269,
+            "gap_ms": 66.25,
+            "states": [
+              2,
+              0
+            ]
+          },
+          {
+            "type": "touchdown",
+            "order": "hallux_first",
+            "from_sample": 453,
+            "to_sample": 581,
+            "gap_ms": 147.5,
+            "states": [
+              1,
+              3
+            ]
+          },
+          {
+            "type": "liftoff",
+            "order": "hallux_first",
+            "from_sample": 581,
+            "to_sample": 669,
+            "gap_ms": 80.0,
+            "states": [
+              2,
+              0
+            ]
+          },
+          {
+            "type": "touchdown",
+            "order": "hallux_first",
+            "from_sample": 669,
+            "to_sample": 965,
+            "gap_ms": 177.5,
+            "states": [
+              1,
+              3
+            ]
+          },
+          {
+            "type": "liftoff",
+            "order": "hallux_first",
+            "from_sample": 965,
+            "to_sample": 1047,
+            "gap_ms": 65.0,
+            "states": [
+              2,
+              0
+            ]
+          },
+          {
+            "type": "touchdown",
+            "order": "hallux_first",
+            "from_sample": 1079,
+            "to_sample": 1362,
+            "gap_ms": 171.25,
+            "states": [
+              1,
+              3
+            ]
+          },
+          {
+            "type": "liftoff",
+            "order": "hallux_first",
+            "from_sample": 1362,
+            "to_sample": 1448,
+            "gap_ms": 70.0,
+            "states": [
+              2,
+              0
+            ]
+          }
+        ]
+      },
+      {
+        "lane": 1,
+        "side": "left",
+        "events": [
+          {
+            "type": "touchdown",
+            "order": "hallux_first",
+            "from_sample": 205,
+            "to_sample": 390,
+            "gap_ms": 215.0,
+            "states": [
+              1,
+              3
+            ]
+          },
+          {
+            "type": "liftoff",
+            "order": "hallux_first",
+            "from_sample": 390,
+            "to_sample": 438,
+            "gap_ms": 41.25,
+            "states": [
+              2,
+              0
+            ]
+          },
+          {
+            "type": "touchdown",
+            "order": "hallux_first",
+            "from_sample": 466,
+            "to_sample": 775,
+            "gap_ms": 187.5,
+            "states": [
+              1,
+              3
+            ]
+          },
+          {
+            "type": "liftoff",
+            "order": "hallux_first",
+            "from_sample": 775,
+            "to_sample": 845,
+            "gap_ms": 61.25,
+            "states": [
+              2,
+              0
+            ]
+          },
+          {
+            "type": "touchdown",
+            "order": "hallux_first",
+            "from_sample": 875,
+            "to_sample": 1156,
+            "gap_ms": 162.5,
+            "states": [
+              1,
+              3
+            ]
+          },
+          {
+            "type": "liftoff",
+            "order": "hallux_first",
+            "from_sample": 1156,
+            "to_sample": 1256,
+            "gap_ms": 82.5,
+            "states": [
+              2,
+              0
+            ]
+          },
+          {
+            "type": "touchdown",
+            "order": "hallux_first",
+            "from_sample": 1256,
+            "to_sample": 1554,
+            "gap_ms": 160.0,
+            "states": [
+              1,
+              3
+            ]
+          }
+        ]
+      },
+      {
+        "lane": 1,
+        "side": "right",
+        "events": [
+          {
+            "type": "liftoff",
+            "order": "hallux_first",
+            "from_sample": 188,
+            "to_sample": 269,
+            "gap_ms": 67.5,
+            "states": [
+              2,
+              0
+            ]
+          },
+          {
+            "type": "touchdown",
+            "order": "hallux_first",
+            "from_sample": 453,
+            "to_sample": 580,
+            "gap_ms": 145.0,
+            "states": [
+              1,
+              3
+            ]
+          },
+          {
+            "type": "liftoff",
+            "order": "hallux_first",
+            "from_sample": 580,
+            "to_sample": 669,
+            "gap_ms": 80.0,
+            "states": [
+              2,
+              0
+            ]
+          },
+          {
+            "type": "touchdown",
+            "order": "hallux_first",
+            "from_sample": 679,
+            "to_sample": 965,
+            "gap_ms": 177.5,
+            "states": [
+              1,
+              3
+            ]
+          },
+          {
+            "type": "liftoff",
+            "order": "hallux_first",
+            "from_sample": 965,
+            "to_sample": 1047,
+            "gap_ms": 65.0,
+            "states": [
+              2,
+              0
+            ]
+          },
+          {
+            "type": "touchdown",
+            "order": "hallux_first",
+            "from_sample": 1079,
+            "to_sample": 1362,
+            "gap_ms": 171.25,
+            "states": [
+              1,
+              3
+            ]
+          },
+          {
+            "type": "liftoff",
+            "order": "hallux_first",
+            "from_sample": 1362,
+            "to_sample": 1448,
+            "gap_ms": 71.25,
+            "states": [
+              2,
+              0
+            ]
+          }
+        ]
+      },
+      {
+        "lane": 2,
+        "side": "left",
+        "events": [
+          {
+            "type": "liftoff",
+            "order": "hallux_first",
+            "from_sample": 18,
+            "to_sample": 161,
+            "gap_ms": 73.75,
+            "states": [
+              2,
+              0
+            ]
+          },
+          {
+            "type": "touchdown",
+            "order": "hallux_first",
+            "from_sample": 194,
+            "to_sample": 379,
+            "gap_ms": 212.5,
+            "states": [
+              1,
+              3
+            ]
+          },
+          {
+            "type": "liftoff",
+            "order": "hallux_first",
+            "from_sample": 379,
+            "to_sample": 435,
+            "gap_ms": 55.0,
+            "states": [
+              2,
+              0
+            ]
+          },
+          {
+            "type": "touchdown",
+            "order": "hallux_first",
+            "from_sample": 470,
+            "to_sample": 756,
+            "gap_ms": 202.5,
+            "states": [
+              1,
+              3
+            ]
+          },
+          {
+            "type": "liftoff",
+            "order": "hallux_first",
+            "from_sample": 756,
+            "to_sample": 839,
+            "gap_ms": 61.25,
+            "states": [
+              2,
+              0
+            ]
+          },
+          {
+            "type": "touchdown",
+            "order": "hallux_first",
+            "from_sample": 872,
+            "to_sample": 1149,
+            "gap_ms": 195.0,
+            "states": [
+              1,
+              3
+            ]
+          },
+          {
+            "type": "liftoff",
+            "order": "hallux_first",
+            "from_sample": 1149,
+            "to_sample": 1257,
+            "gap_ms": 95.0,
+            "states": [
+              2,
+              0
+            ]
+          },
+          {
+            "type": "touchdown",
+            "order": "hallux_first",
+            "from_sample": 1276,
+            "to_sample": 1551,
+            "gap_ms": 195.0,
+            "states": [
+              1,
+              3
+            ]
+          }
+        ]
+      },
+      {
+        "lane": 2,
+        "side": "right",
+        "events": [
+          {
+            "type": "liftoff",
+            "order": "hallux_first",
+            "from_sample": 194,
+            "to_sample": 283,
+            "gap_ms": 107.5,
+            "states": [
+              2,
+              0
+            ]
+          },
+          {
+            "type": "touchdown",
+            "order": "hallux_first",
+            "from_sample": 433,
+            "to_sample": 563,
+            "gap_ms": 138.75,
+            "states": [
+              1,
+              3
+            ]
+          },
+          {
+            "type": "liftoff",
+            "order": "hallux_first",
+            "from_sample": 563,
+            "to_sample": 670,
+            "gap_ms": 121.25,
+            "states": [
+              2,
+              0
+            ]
+          },
+          {
+            "type": "touchdown",
+            "order": "hallux_first",
+            "from_sample": 670,
+            "to_sample": 953,
+            "gap_ms": 201.25,
+            "states": [
+              1,
+              3
+            ]
+          },
+          {
+            "type": "liftoff",
+            "order": "hallux_first",
+            "from_sample": 953,
+            "to_sample": 1071,
+            "gap_ms": 106.25,
+            "states": [
+              2,
+              0
+            ]
+          },
+          {
+            "type": "touchdown",
+            "order": "hallux_first",
+            "from_sample": 1071,
+            "to_sample": 1347,
+            "gap_ms": 192.5,
+            "states": [
+              1,
+              3
+            ]
+          },
+          {
+            "type": "liftoff",
+            "order": "hallux_first",
+            "from_sample": 1347,
+            "to_sample": 1471,
+            "gap_ms": 113.75,
+            "states": [
+              2,
+              0
+            ]
+          }
+        ]
+      },
+      {
+        "lane": 3,
+        "side": "left",
+        "events": [
+          {
+            "type": "liftoff",
+            "order": "hallux_first",
+            "from_sample": 18,
+            "to_sample": 161,
+            "gap_ms": 73.75,
+            "states": [
+              2,
+              0
+            ]
+          },
+          {
+            "type": "touchdown",
+            "order": "hallux_first",
+            "from_sample": 195,
+            "to_sample": 380,
+            "gap_ms": 213.75,
+            "states": [
+              1,
+              3
+            ]
+          },
+          {
+            "type": "liftoff",
+            "order": "hallux_first",
+            "from_sample": 380,
+            "to_sample": 435,
+            "gap_ms": 53.75,
+            "states": [
+              2,
+              0
+            ]
+          },
+          {
+            "type": "touchdown",
+            "order": "hallux_first",
+            "from_sample": 462,
+            "to_sample": 758,
+            "gap_ms": 205.0,
+            "states": [
+              1,
+              3
+            ]
+          },
+          {
+            "type": "liftoff",
+            "order": "hallux_first",
+            "from_sample": 758,
+            "to_sample": 872,
+            "gap_ms": 100.0,
+            "states": [
+              2,
+              0
+            ]
+          },
+          {
+            "type": "touchdown",
+            "order": "hallux_first",
+            "from_sample": 872,
+            "to_sample": 1151,
+            "gap_ms": 197.5,
+            "states": [
+              1,
+              3
+            ]
+          },
+          {
+            "type": "liftoff",
+            "order": "hallux_first",
+            "from_sample": 1151,
+            "to_sample": 1276,
+            "gap_ms": 113.75,
+            "states": [
+              2,
+              0
+            ]
+          },
+          {
+            "type": "touchdown",
+            "order": "hallux_first",
+            "from_sample": 1276,
+            "to_sample": 1542,
+            "gap_ms": 185.0,
+            "states": [
+              1,
+              3
+            ]
+          }
+        ]
+      },
+      {
+        "lane": 3,
+        "side": "right",
+        "events": [
+          {
+            "type": "touchdown",
+            "order": "hallux_first",
+            "from_sample": 454,
+            "to_sample": 563,
+            "gap_ms": 127.5,
+            "states": [
+              1,
+              3
+            ]
+          },
+          {
+            "type": "liftoff",
+            "order": "hallux_first",
+            "from_sample": 563,
+            "to_sample": 670,
+            "gap_ms": 123.75,
+            "states": [
+              2,
+              0
+            ]
+          },
+          {
+            "type": "touchdown",
+            "order": "hallux_first",
+            "from_sample": 670,
+            "to_sample": 955,
+            "gap_ms": 205.0,
+            "states": [
+              1,
+              3
+            ]
+          },
+          {
+            "type": "liftoff",
+            "order": "hallux_first",
+            "from_sample": 955,
+            "to_sample": 1070,
+            "gap_ms": 105.0,
+            "states": [
+              2,
+              0
+            ]
+          },
+          {
+            "type": "touchdown",
+            "order": "hallux_first",
+            "from_sample": 1070,
+            "to_sample": 1347,
+            "gap_ms": 192.5,
+            "states": [
+              1,
+              3
+            ]
+          },
+          {
+            "type": "liftoff",
+            "order": "hallux_first",
+            "from_sample": 1347,
+            "to_sample": 1469,
+            "gap_ms": 110.0,
+            "states": [
+              2,
+              0
+            ]
+          }
+        ]
+      },
+      {
+        "lane": 4,
+        "side": "left",
+        "events": [
+          {
+            "type": "liftoff",
+            "order": "hallux_first",
+            "from_sample": 17,
+            "to_sample": 149,
+            "gap_ms": 58.75,
+            "states": [
+              2,
+              0
+            ]
+          },
+          {
+            "type": "touchdown",
+            "order": "hallux_first",
+            "from_sample": 176,
+            "to_sample": 342,
+            "gap_ms": 185.0,
+            "states": [
+              1,
+              3
+            ]
+          },
+          {
+            "type": "liftoff",
+            "order": "hallux_first",
+            "from_sample": 342,
+            "to_sample": 470,
+            "gap_ms": 108.75,
+            "states": [
+              2,
+              0
+            ]
+          },
+          {
+            "type": "touchdown",
+            "order": "hallux_first",
+            "from_sample": 470,
+            "to_sample": 749,
+            "gap_ms": 200.0,
+            "states": [
+              1,
+              3
+            ]
+          },
+          {
+            "type": "liftoff",
+            "order": "hallux_first",
+            "from_sample": 749,
+            "to_sample": 864,
+            "gap_ms": 92.5,
+            "states": [
+              2,
+              0
+            ]
+          },
+          {
+            "type": "touchdown",
+            "order": "hallux_first",
+            "from_sample": 864,
+            "to_sample": 1153,
+            "gap_ms": 205.0,
+            "states": [
+              1,
+              3
+            ]
+          },
+          {
+            "type": "liftoff",
+            "order": "hallux_first",
+            "from_sample": 1153,
+            "to_sample": 1267,
+            "gap_ms": 92.5,
+            "states": [
+              2,
+              0
+            ]
+          },
+          {
+            "type": "touchdown",
+            "order": "hallux_first",
+            "from_sample": 1267,
+            "to_sample": 1553,
+            "gap_ms": 206.25,
+            "states": [
+              1,
+              3
+            ]
+          }
+        ]
+      },
+      {
+        "lane": 4,
+        "side": "right",
+        "events": [
+          {
+            "type": "liftoff",
+            "order": "hallux_first",
+            "from_sample": 151,
+            "to_sample": 268,
+            "gap_ms": 82.5,
+            "states": [
+              2,
+              0
+            ]
+          },
+          {
+            "type": "touchdown",
+            "order": "hallux_first",
+            "from_sample": 284,
+            "to_sample": 545,
+            "gap_ms": 195.0,
+            "states": [
+              1,
+              3
+            ]
+          },
+          {
+            "type": "liftoff",
+            "order": "hallux_first",
+            "from_sample": 545,
+            "to_sample": 671,
+            "gap_ms": 105.0,
+            "states": [
+              2,
+              0
+            ]
+          },
+          {
+            "type": "touchdown",
+            "order": "hallux_first",
+            "from_sample": 671,
+            "to_sample": 951,
+            "gap_ms": 200.0,
+            "states": [
+              1,
+              3
+            ]
+          },
+          {
+            "type": "liftoff",
+            "order": "hallux_first",
+            "from_sample": 951,
+            "to_sample": 1071,
+            "gap_ms": 98.75,
+            "states": [
+              2,
+              0
+            ]
+          },
+          {
+            "type": "touchdown",
+            "order": "hallux_first",
+            "from_sample": 1071,
+            "to_sample": 1350,
+            "gap_ms": 200.0,
+            "states": [
+              1,
+              3
+            ]
+          },
+          {
+            "type": "liftoff",
+            "order": "hallux_first",
+            "from_sample": 1350,
+            "to_sample": 1467,
+            "gap_ms": 95.0,
+            "states": [
+              2,
+              0
+            ]
+          }
+        ]
+      },
+      {
+        "lane": 5,
+        "side": "left",
+        "events": [
+          {
+            "type": "touchdown",
+            "order": "hallux_first",
+            "from_sample": 176,
+            "to_sample": 343,
+            "gap_ms": 186.25,
+            "states": [
+              1,
+              3
+            ]
+          },
+          {
+            "type": "liftoff",
+            "order": "hallux_first",
+            "from_sample": 343,
+            "to_sample": 445,
+            "gap_ms": 76.25,
+            "states": [
+              2,
+              0
+            ]
+          },
+          {
+            "type": "touchdown",
+            "order": "hallux_first",
+            "from_sample": 470,
+            "to_sample": 749,
+            "gap_ms": 198.75,
+            "states": [
+              1,
+              3
+            ]
+          },
+          {
+            "type": "liftoff",
+            "order": "hallux_first",
+            "from_sample": 749,
+            "to_sample": 863,
+            "gap_ms": 91.25,
+            "states": [
+              2,
+              0
+            ]
+          },
+          {
+            "type": "touchdown",
+            "order": "hallux_first",
+            "from_sample": 863,
+            "to_sample": 1154,
+            "gap_ms": 206.25,
+            "states": [
+              1,
+              3
+            ]
+          },
+          {
+            "type": "liftoff",
+            "order": "hallux_first",
+            "from_sample": 1154,
+            "to_sample": 1266,
+            "gap_ms": 92.5,
+            "states": [
+              2,
+              0
+            ]
+          },
+          {
+            "type": "touchdown",
+            "order": "hallux_first",
+            "from_sample": 1266,
+            "to_sample": 1555,
+            "gap_ms": 208.75,
+            "states": [
+              1,
+              3
+            ]
+          }
+        ]
+      },
+      {
+        "lane": 5,
+        "side": "right",
+        "events": [
+          {
+            "type": "liftoff",
+            "order": "hallux_first",
+            "from_sample": 166,
+            "to_sample": 268,
+            "gap_ms": 82.5,
+            "states": [
+              2,
+              0
+            ]
+          },
+          {
+            "type": "touchdown",
+            "order": "hallux_first",
+            "from_sample": 297,
+            "to_sample": 546,
+            "gap_ms": 196.25,
+            "states": [
+              1,
+              3
+            ]
+          },
+          {
+            "type": "liftoff",
+            "order": "hallux_first",
+            "from_sample": 546,
+            "to_sample": 671,
+            "gap_ms": 106.25,
+            "states": [
+              2,
+              0
+            ]
+          },
+          {
+            "type": "touchdown",
+            "order": "hallux_first",
+            "from_sample": 671,
+            "to_sample": 952,
+            "gap_ms": 201.25,
+            "states": [
+              1,
+              3
+            ]
+          },
+          {
+            "type": "liftoff",
+            "order": "hallux_first",
+            "from_sample": 952,
+            "to_sample": 1071,
+            "gap_ms": 97.5,
+            "states": [
+              2,
+              0
+            ]
+          },
+          {
+            "type": "touchdown",
+            "order": "hallux_first",
+            "from_sample": 1234,
+            "to_sample": 1352,
+            "gap_ms": 126.25,
+            "states": [
+              1,
+              3
+            ]
+          },
+          {
+            "type": "liftoff",
+            "order": "hallux_first",
+            "from_sample": 1352,
+            "to_sample": 1463,
+            "gap_ms": 85.0,
+            "states": [
+              2,
+              0
+            ]
+          }
+        ]
+      },
+      {
+        "lane": 6,
+        "side": "left",
+        "events": [
+          {
+            "type": "liftoff",
+            "order": "hallux_first",
+            "from_sample": 18,
+            "to_sample": 120,
+            "gap_ms": 22.5,
+            "states": [
+              2,
+              0
+            ]
+          },
+          {
+            "type": "touchdown",
+            "order": "hallux_first",
+            "from_sample": 120,
+            "to_sample": 185,
+            "gap_ms": 22.5,
+            "states": [
+              1,
+              3
+            ]
+          },
+          {
+            "type": "liftoff",
+            "order": "hallux_first",
+            "from_sample": 350,
+            "to_sample": 447,
+            "gap_ms": 83.75,
+            "states": [
+              2,
+              0
+            ]
+          },
+          {
+            "type": "touchdown",
+            "order": "hallux_first",
+            "from_sample": 447,
+            "to_sample": 745,
+            "gap_ms": 196.25,
+            "states": [
+              1,
+              3
+            ]
+          },
+          {
+            "type": "liftoff",
+            "order": "hallux_first",
+            "from_sample": 770,
+            "to_sample": 844,
+            "gap_ms": 83.75,
+            "states": [
+              2,
+              0
+            ]
+          },
+          {
+            "type": "touchdown",
+            "order": "hallux_first",
+            "from_sample": 872,
+            "to_sample": 1143,
+            "gap_ms": 190.0,
+            "states": [
+              1,
+              3
+            ]
+          },
+          {
+            "type": "liftoff",
+            "order": "hallux_first",
+            "from_sample": 1143,
+            "to_sample": 1245,
+            "gap_ms": 75.0,
+            "states": [
+              2,
+              0
+            ]
+          },
+          {
+            "type": "touchdown",
+            "order": "hallux_first",
+            "from_sample": 1245,
+            "to_sample": 1539,
+            "gap_ms": 190.0,
+            "states": [
+              1,
+              3
+            ]
+          }
+        ]
+      },
+      {
+        "lane": 6,
+        "side": "right",
+        "events": [
+          {
+            "type": "liftoff",
+            "order": "hallux_first",
+            "from_sample": 168,
+            "to_sample": 253,
+            "gap_ms": 71.25,
+            "states": [
+              2,
+              0
+            ]
+          },
+          {
+            "type": "touchdown",
+            "order": "hallux_first",
+            "from_sample": 253,
+            "to_sample": 545,
+            "gap_ms": 198.75,
+            "states": [
+              1,
+              3
+            ]
+          },
+          {
+            "type": "liftoff",
+            "order": "hallux_first",
+            "from_sample": 545,
+            "to_sample": 665,
+            "gap_ms": 97.5,
+            "states": [
+              2,
+              0
+            ]
+          },
+          {
+            "type": "touchdown",
+            "order": "hallux_first",
+            "from_sample": 665,
+            "to_sample": 947,
+            "gap_ms": 191.25,
+            "states": [
+              1,
+              3
+            ]
+          },
+          {
+            "type": "liftoff",
+            "order": "hallux_first",
+            "from_sample": 947,
+            "to_sample": 1053,
+            "gap_ms": 90.0,
+            "states": [
+              2,
+              0
+            ]
+          },
+          {
+            "type": "touchdown",
+            "order": "hallux_first",
+            "from_sample": 1053,
+            "to_sample": 1340,
+            "gap_ms": 187.5,
+            "states": [
+              1,
+              3
+            ]
+          },
+          {
+            "type": "liftoff",
+            "order": "hallux_first",
+            "from_sample": 1340,
+            "to_sample": 1452,
+            "gap_ms": 87.5,
+            "states": [
+              2,
+              0
+            ]
+          }
+        ]
+      },
+      {
+        "lane": 7,
+        "side": "left",
+        "events": [
+          {
+            "type": "touchdown",
+            "order": "hallux_first",
+            "from_sample": 120,
+            "to_sample": 185,
+            "gap_ms": 22.5,
+            "states": [
+              1,
+              3
+            ]
+          },
+          {
+            "type": "liftoff",
+            "order": "hallux_first",
+            "from_sample": 350,
+            "to_sample": 446,
+            "gap_ms": 82.5,
+            "states": [
+              2,
+              0
+            ]
+          },
+          {
+            "type": "touchdown",
+            "order": "hallux_first",
+            "from_sample": 446,
+            "to_sample": 746,
+            "gap_ms": 197.5,
+            "states": [
+              1,
+              3
+            ]
+          },
+          {
+            "type": "liftoff",
+            "order": "hallux_first",
+            "from_sample": 746,
+            "to_sample": 845,
+            "gap_ms": 83.75,
+            "states": [
+              2,
+              0
+            ]
+          },
+          {
+            "type": "touchdown",
+            "order": "hallux_first",
+            "from_sample": 845,
+            "to_sample": 1142,
+            "gap_ms": 192.5,
+            "states": [
+              1,
+              3
+            ]
+          },
+          {
+            "type": "liftoff",
+            "order": "hallux_first",
+            "from_sample": 1142,
+            "to_sample": 1245,
+            "gap_ms": 87.5,
+            "states": [
+              2,
+              0
+            ]
+          },
+          {
+            "type": "touchdown",
+            "order": "hallux_first",
+            "from_sample": 1427,
+            "to_sample": 1526,
+            "gap_ms": 116.25,
+            "states": [
+              1,
+              3
+            ]
+          }
+        ]
+      },
+      {
+        "lane": 7,
+        "side": "right",
+        "events": [
+          {
+            "type": "liftoff",
+            "order": "hallux_first",
+            "from_sample": 169,
+            "to_sample": 253,
+            "gap_ms": 71.25,
+            "states": [
+              2,
+              0
+            ]
+          },
+          {
+            "type": "touchdown",
+            "order": "hallux_first",
+            "from_sample": 253,
+            "to_sample": 545,
+            "gap_ms": 197.5,
+            "states": [
+              1,
+              3
+            ]
+          },
+          {
+            "type": "liftoff",
+            "order": "hallux_first",
+            "from_sample": 545,
+            "to_sample": 665,
+            "gap_ms": 98.75,
+            "states": [
+              2,
+              0
+            ]
+          },
+          {
+            "type": "touchdown",
+            "order": "hallux_first",
+            "from_sample": 665,
+            "to_sample": 942,
+            "gap_ms": 190.0,
+            "states": [
+              1,
+              3
+            ]
+          },
+          {
+            "type": "liftoff",
+            "order": "hallux_first",
+            "from_sample": 942,
+            "to_sample": 1064,
+            "gap_ms": 107.5,
+            "states": [
+              2,
+              0
+            ]
+          },
+          {
+            "type": "touchdown",
+            "order": "hallux_first",
+            "from_sample": 1064,
+            "to_sample": 1341,
+            "gap_ms": 188.75,
+            "states": [
+              1,
+              3
+            ]
+          },
+          {
+            "type": "liftoff",
+            "order": "hallux_first",
+            "from_sample": 1341,
+            "to_sample": 1451,
+            "gap_ms": 87.5,
+            "states": [
+              2,
+              0
+            ]
+          }
+        ]
+      }
+    ]
+  }
+}
