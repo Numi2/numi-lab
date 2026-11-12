@@ -1,0 +1,113 @@
+{
+  "files": [
+    {
+      "id": 6948896,
+      "name": "rsfs20160081_si_001.csv",
+      "size": 91667,
+      "is_link_only": false,
+      "download_url": "https://ndownloader.figshare.com/files/6948896",
+      "supplied_md5": "787c6d021354cac813ef1f47c34d2246",
+      "computed_md5": "787c6d021354cac813ef1f47c34d2246",
+      "mimetype": "text/plain"
+    }
+  ],
+  "folder_structure": {},
+  "authors": [
+    {
+      "id": 3349562,
+      "full_name": "Marco KleinHeerenbrink",
+      "first_name": "Marco",
+      "last_name": "KleinHeerenbrink",
+      "is_active": false,
+      "url_name": "_",
+      "orcid_id": ""
+    },
+    {
+      "id": 150704,
+      "full_name": "Anders Hedenstr\u00f6m",
+      "first_name": "Anders",
+      "last_name": "Hedenstr\u00f6m",
+      "is_active": false,
+      "url_name": "_",
+      "orcid_id": ""
+    }
+  ],
+  "custom_fields": [],
+  "figshare_url": "https://rs.figshare.com/articles/dataset/Compiled_dataset_of_aerodynamic_forces_and_measures_of_posture_from_Wake_analysis_of_drag_components_in_gliding_flight_of_a_jackdaw_i_Corvus_monedula_i_during_moult/4236305",
+  "download_disabled": false,
+  "description": "MoultStage: categorical moult stage; AirSpeed (m/s); Weight (N); Lift (N); LiftCoef (-); DragWeightSupport (-); WeightSupport (-); Dideal (N); DragInduced (N); SpanEfficiency (-); DragCoef_ind (-); DragProfile (N); DragCoef_pro (-); DragBody (N); DragCoef_bod (-); WingSpan (m); WingArea (m2); TailSpan (m); TailArea (m2); TailHeight (-); PrimSep 7-10 (-); BodyAngle (degrees); SpanRatio (-); SpanCamber (-);",
+  "funding": null,
+  "funding_list": [],
+  "version": 2,
+  "status": "public",
+  "size": 183160,
+  "created_date": "2016-11-29T11:58:46Z",
+  "modified_date": "2023-05-31T00:43:14Z",
+  "is_public": true,
+  "is_confidential": false,
+  "is_metadata_record": false,
+  "confidential_reason": "",
+  "metadata_reason": "",
+  "license": {
+    "value": 1,
+    "name": "CC BY 4.0",
+    "url": "https://creativecommons.org/licenses/by/4.0/"
+  },
+  "tags": [
+    "animal flight",
+    "moult",
+    "gliding",
+    "aerodynamic efficiency",
+    "wind tunnel"
+  ],
+  "keywords": [
+    "animal flight",
+    "moult",
+    "gliding",
+    "aerodynamic efficiency",
+    "wind tunnel"
+  ],
+  "categories": [],
+  "references": [
+    "https://doi.org/10.1098/rsfs.2016.0081"
+  ],
+  "has_linked_file": false,
+  "citation": "KleinHeerenbrink, Marco; Hedenstr\u00f6m, Anders (2016). Compiled dataset of aerodynamic forces and measures of posture from Wake analysis of drag components in gliding flight of a jackdaw (Corvus monedula) during moult. The Royal Society. Dataset. https://doi.org/10.6084/m9.figshare.4236305.v2",
+  "related_materials": [
+    {
+      "id": 5941190,
+      "identifier": "10.1098/rsfs.2016.0081",
+      "title": "Wake analysis of drag components in gliding flight of a jackdaw (Corvus monedula) during moult",
+      "relation": "IsSupplementTo",
+      "identifier_type": "DOI",
+      "is_linkout": true,
+      "link": "https://doi.org/10.1098/rsfs.2016.0081"
+    }
+  ],
+  "is_embargoed": false,
+  "embargo_date": null,
+  "embargo_type": null,
+  "embargo_title": "",
+  "embargo_reason": "",
+  "embargo_options": [],
+  "id": 4236305,
+  "title": "Compiled dataset of aerodynamic forces and measures of posture from Wake analysis of drag components in gliding flight of a jackdaw (<i>Corvus monedula</i>) during moult",
+  "doi": "10.6084/m9.figshare.4236305.v2",
+  "handle": "",
+  "url": "https://api.figshare.com/v2/articles/4236305",
+  "published_date": "2016-11-29T11:58:46Z",
+  "thumb": "",
+  "defined_type": 3,
+  "defined_type_name": "dataset",
+  "group_id": 5736,
+  "url_private_api": "https://api.figshare.com/v2/account/articles/4236305",
+  "url_public_api": "https://api.figshare.com/v2/articles/4236305",
+  "url_private_html": "https://figshare.com/account/articles/4236305",
+  "url_public_html": "https://rs.figshare.com/articles/dataset/Compiled_dataset_of_aerodynamic_forces_and_measures_of_posture_from_Wake_analysis_of_drag_components_in_gliding_flight_of_a_jackdaw_i_Corvus_monedula_i_during_moult/4236305",
+  "timeline": {
+    "posted": "2016-11-29T11:58:46",
+    "firstOnline": "2016-11-17"
+  },
+  "resource_title": "Wake analysis of drag components in gliding flight of a jackdaw (<i>Corvus monedula</i>) during moult",
+  "resource_doi": "10.1098/rsfs.2016.0081"
+}

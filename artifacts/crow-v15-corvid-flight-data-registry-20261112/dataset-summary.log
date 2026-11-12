@@ -1,0 +1,100 @@
+{
+  "source_doi": "10.6084/m9.figshare.4236305.v2",
+  "license": "CC BY 4.0",
+  "sha256": "0f1d6dd1063ac3ed332c529438a1bcb99b233368b47aa50f47aabb500e833666",
+  "rows": 212,
+  "moult_stages": {
+    "pre-moult": 69,
+    "stage I": 10,
+    "stage II": 26,
+    "stage IV": 65,
+    "stage III": 42
+  },
+  "pre_moult_descriptive": {
+    "AirSpeed": {
+      "count": 69,
+      "min": 6.80928118115867,
+      "median": 9.69900975378835,
+      "max": 11.7090558360368
+    },
+    "Weight": {
+      "count": 69,
+      "min": 2.09934,
+      "median": 2.11896,
+      "max": 2.13858
+    },
+    "Lift": {
+      "count": 69,
+      "min": 1.71704022587112,
+      "median": 2.19156242240257,
+      "max": 2.50473772902251
+    },
+    "WeightSupport": {
+      "count": 68,
+      "min": 0.807852704980223,
+      "median": 1.04140475514703,
+      "max": 1.1895278323389
+    },
+    "DragInduced": {
+      "count": 69,
+      "min": 0.0557752487718872,
+      "median": 0.0831911499977087,
+      "max": 0.147188236753198
+    },
+    "DragProfile": {
+      "count": 68,
+      "min": 0.0182302056889722,
+      "median": 0.06534651034133596,
+      "max": 0.1475769253588
+    },
+    "DragBody": {
+      "count": 69,
+      "min": 0.0402803880439753,
+      "median": 0.090307529981212,
+      "max": 0.150070734752528
+    },
+    "WingSpan": {
+      "count": 31,
+      "min": 0.474392538981529,
+      "median": 0.525591166507676,
+      "max": 0.63141885867871
+    },
+    "WingArea": {
+      "count": 31,
+      "min": 0.0490194625540516,
+      "median": 0.0524081320053228,
+      "max": 0.0669838444860251
+    },
+    "TailSpan": {
+      "count": 29,
+      "min": 0.0431770320420838,
+      "median": 0.0824114374473057,
+      "max": 0.187003589409232
+    },
+    "TailArea": {
+      "count": 27,
+      "min": 0.00290815607177801,
+      "median": 0.00462801055518652,
+      "max": 0.0136380633183149
+    },
+    "BodyAngle": {
+      "count": 31,
+      "min": 3.36866976502629,
+      "median": 12.9277988565898,
+      "max": 19.4055063669669
+    },
+    "SpanRatio": {
+      "count": 31,
+      "min": 0.708048565644072,
+      "median": 0.784464427623397,
+      "max": 0.942416206983149
+    },
+    "SpanCamber": {
+      "count": 31,
+      "min": 0.0875937152157351,
+      "median": 0.147961813835017,
+      "max": 0.221596234030572
+    }
+  },
+  "limitation": "Single jackdaw fast gliding, not independent crow powered-flight trials. Repeated wake measurements are correlated, and missing posture entries remain missing."
+}
