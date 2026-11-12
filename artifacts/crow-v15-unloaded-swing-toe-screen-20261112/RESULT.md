@@ -1,0 +1,7 @@
+# Rear-toe extension after accepted unloading: rejected
+
+The candidate delayed rear-toe extension until the moving foot's accepted load bit was off, its opposite foot reported support, and the positive swing carrier was active. It and the sham shared one host/shader, initial states, physical body, material and actor weights. All prewalk q/v/action and contact samples matched; 2,400 endpoint records and 38,400 contact substeps were available per arm, with no logged solver errors, additional toe-speed caps, nonfoot contacts or neither-foot-loaded substeps. Every candidate lane had three support-qualified endpoint-clearance bouts per foot.
+
+The pooled sole-clear-but-toe-low interval count fell from 49 to 22, and instantaneous loaded endpoint contact-point speeds fell from 0.00276 to 0.00203 m/s median and 0.03484 to 0.02839 m/s p95. Those are dependent sampled contact velocities, including transitions, not integrated slip or crow targets. Candidate root travel was 15.19–15.96 mm over two seconds versus 25.07–29.71 mm for the matched sham. Every lane therefore failed the declared minimum progress gate.
+
+The later trigger improved displacement relative to the earlier -0.20-rad swing extension experiment, but that experiment used a different shader build and is not an isolated causal comparison. The current evidence does not establish why propulsion declined, realistic crow gait or safety over longer or disturbed starts. No controller was promoted.
