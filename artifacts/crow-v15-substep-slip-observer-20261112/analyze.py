@@ -59,7 +59,7 @@ for fr in r['frames']:
   b=names.index(name);raw=fr['body_states'][b*13:b*13+13];calc=bodies[5,i,b]
   max_pos=max(max_pos,math.dist(raw[:3],calc[:3]));max_vel=max(max_vel,math.dist(raw[7:10],calc[7:10]));max_ang=max(max_ang,math.dist(raw[10:13],calc[10:13]))
 assert max_pos<1e-5 and max_vel<1e-4 and max_ang<1e-4,(max_pos,max_vel,max_ang)
-speeds=collections.defaultdict(list);timeseries=collections.defaultdict(dict);loaded=collections.Counter();excluded=0
+speeds=collections.defaultdict(list);timeseries=collections.defaultdict(dict);body_metric=collections.defaultdict(list);loaded=collections.Counter();excluded=0
 for (e,t,k),ps in points.items():
  groups=collections.defaultdict(list);i=(t-201)*16+k+1
  for body,a in ps:
@@ -70,7 +70,7 @@ for (e,t,k),ps in points.items():
   assert side is not None,(body,name)
   b=bodies[e,i,body];rx,ry,rz=[a[j]-b[j] for j in range(3)];wx,wy,wz=b[10:13]
   vv=[b[7]+wy*rz-wz*ry,b[8]+wz*rx-wx*rz,b[9]+wx*ry-wy*rx];dot=sum(vv[j]*normal[j] for j in range(3));tang=math.sqrt(max(0,sum(x*x for x in vv)-dot*dot))
-  groups[side].append((tang,a[-1]))
+  groups[side].append((tang,a[-1]));body_metric[body].append((tang,a[-1]))
  for side,items in groups.items():
   value=sum(speed*imp for speed,imp in items)/sum(imp for _,imp in items)
   speeds[e,side].append(value);timeseries[e,side][(t-201)*16+k]=value;loaded[e,side]+=1
@@ -89,6 +89,6 @@ for e in range(8):
   interior.sort()
   boundary=sorted(value for t,value in series.items() if t%16==15)
   rows.append({'lane':e,'side':side,'loaded_substeps':loaded[e,side],'mean_m_s':statistics.mean(values),'p95_m_s':values[int(.95*(len(values)-1))],'integral_of_mean_contact_speed_m':sum(values)*.02/16,'max_m_s':values[-1], 'frame_boundary_weighted_p95_m_s':boundary[int(.95*(len(boundary)-1))] if boundary else None, 'interior_after_10ms_edge_trim':{'samples':len(interior),'mean_m_s':statistics.mean(interior) if interior else None,'p95_m_s':interior[int(.95*(len(interior)-1))] if interior else None}})
-out={'window_seconds':[4,6],'substep_duration_seconds':.02/16,'states':len(q),'loaded_contact_groups':sum(loaded.values()),'excluded_nonvertical_contact_points':excluded,'validation':{'q_endpoint_max_abs':endpoint_q,'v_endpoint_max_abs':endpoint_v,'foot_position_max_abs_m':max_pos,'foot_velocity_max_abs_m_s':max_vel,'foot_angular_velocity_max_abs_rad_s':max_ang,'ground_max_speed':ground_speed,'endpoint_contact_record_mismatches':len(mismatches)},'rows':rows,'limitations':'Impulse-weighted speed integrated only while loaded; multiple changing contact points, and contact points are from collision while q/v are end-of-substep states. This is a speed integral proxy, not tracked material-point slip distance.'}
+out={'window_seconds':[4,6],'substep_duration_seconds':.02/16,'states':len(q),'loaded_contact_groups':sum(loaded.values()),'excluded_nonvertical_contact_points':excluded,'validation':{'q_endpoint_max_abs':endpoint_q,'v_endpoint_max_abs':endpoint_v,'foot_position_max_abs_m':max_pos,'foot_velocity_max_abs_m_s':max_vel,'foot_angular_velocity_max_abs_rad_s':max_ang,'ground_max_speed':ground_speed,'endpoint_contact_record_mismatches':len(mismatches)},'rows':rows,'per_body':[{'body':names[b],'contact_points':len(pts),'impulse_weighted_mean_m_s':sum(speed*imp for speed,imp in pts)/sum(imp for _,imp in pts),'normal_impulse_ns':sum(imp for _,imp in pts)} for b,pts in sorted(body_metric.items())],'limitations':'Impulse-weighted speed integrated only while loaded; multiple changing contact points, and contact points are from collision while q/v are end-of-substep states. This is a speed integral proxy, not tracked material-point slip distance.'}
 (A/'substep-contact-speed.json').write_text(json.dumps(out,indent=2)+'\n')
 for x in rows:print(x)

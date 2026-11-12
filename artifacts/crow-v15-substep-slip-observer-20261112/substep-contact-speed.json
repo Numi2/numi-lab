@@ -258,5 +258,115 @@
       }
     }
   ],
+  "per_body": [
+    {
+      "body": "crow_left_foot",
+      "contact_points": 6586,
+      "impulse_weighted_mean_m_s": 0.026529840709481726,
+      "normal_impulse_ns": 8.460983636790306
+    },
+    {
+      "body": "crow_right_foot",
+      "contact_points": 9885,
+      "impulse_weighted_mean_m_s": 0.0323348777391378,
+      "normal_impulse_ns": 9.758631098707754
+    },
+    {
+      "body": "crow_left_front_toe_1_proximal",
+      "contact_points": 6314,
+      "impulse_weighted_mean_m_s": 0.04717670283435583,
+      "normal_impulse_ns": 1.284166256595108
+    },
+    {
+      "body": "crow_left_front_toe_1_distal",
+      "contact_points": 7279,
+      "impulse_weighted_mean_m_s": 0.03882157277392608,
+      "normal_impulse_ns": 1.037426824798493
+    },
+    {
+      "body": "crow_left_front_toe_2_proximal",
+      "contact_points": 2663,
+      "impulse_weighted_mean_m_s": 0.07668925540684503,
+      "normal_impulse_ns": 0.05580394641272803
+    },
+    {
+      "body": "crow_left_front_toe_2_distal",
+      "contact_points": 6362,
+      "impulse_weighted_mean_m_s": 0.04191876262538347,
+      "normal_impulse_ns": 0.9895915062625908
+    },
+    {
+      "body": "crow_left_front_toe_3_proximal",
+      "contact_points": 3839,
+      "impulse_weighted_mean_m_s": 0.010897433464209858,
+      "normal_impulse_ns": 0.4083104577041651
+    },
+    {
+      "body": "crow_left_front_toe_3_distal",
+      "contact_points": 5822,
+      "impulse_weighted_mean_m_s": 0.040904470979534986,
+      "normal_impulse_ns": 0.9890148824613235
+    },
+    {
+      "body": "crow_left_rear_toe_proximal",
+      "contact_points": 14719,
+      "impulse_weighted_mean_m_s": 0.03289973055868372,
+      "normal_impulse_ns": 21.02624383595624
+    },
+    {
+      "body": "crow_left_rear_toe_distal",
+      "contact_points": 6301,
+      "impulse_weighted_mean_m_s": 0.06618088388566107,
+      "normal_impulse_ns": 1.6574857477606733
+    },
+    {
+      "body": "crow_right_front_toe_1_proximal",
+      "contact_points": 6008,
+      "impulse_weighted_mean_m_s": 0.006751694182702288,
+      "normal_impulse_ns": 0.4754502943949381
+    },
+    {
+      "body": "crow_right_front_toe_1_distal",
+      "contact_points": 7714,
+      "impulse_weighted_mean_m_s": 0.08112045202291694,
+      "normal_impulse_ns": 1.0029809018637905
+    },
+    {
+      "body": "crow_right_front_toe_2_proximal",
+      "contact_points": 5566,
+      "impulse_weighted_mean_m_s": 0.014693854111469215,
+      "normal_impulse_ns": 0.10036109809893931
+    },
+    {
+      "body": "crow_right_front_toe_2_distal",
+      "contact_points": 6681,
+      "impulse_weighted_mean_m_s": 0.08104347526159351,
+      "normal_impulse_ns": 1.0079161264827887
+    },
+    {
+      "body": "crow_right_front_toe_3_proximal",
+      "contact_points": 10879,
+      "impulse_weighted_mean_m_s": 0.028683103469601363,
+      "normal_impulse_ns": 1.765021535042059
+    },
+    {
+      "body": "crow_right_front_toe_3_distal",
+      "contact_points": 8478,
+      "impulse_weighted_mean_m_s": 0.07370797486526812,
+      "normal_impulse_ns": 1.0777960648097171
+    },
+    {
+      "body": "crow_right_rear_toe_proximal",
+      "contact_points": 12881,
+      "impulse_weighted_mean_m_s": 0.03041066534466265,
+      "normal_impulse_ns": 18.122184285588748
+    },
+    {
+      "body": "crow_right_rear_toe_distal",
+      "contact_points": 7019,
+      "impulse_weighted_mean_m_s": 0.06807925566887452,
+      "normal_impulse_ns": 1.4047467174124604
+    }
+  ],
   "limitations": "Impulse-weighted speed integrated only while loaded; multiple changing contact points, and contact points are from collision while q/v are end-of-substep states. This is a speed integral proxy, not tracked material-point slip distance."
 }
