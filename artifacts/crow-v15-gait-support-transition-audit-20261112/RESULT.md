@@ -1,0 +1,5 @@
+# Matched gait support-transition audit
+
+In failed second-seed lane 2, the candidate first had neither foot recording positive normal impulse at interval 220, substep 14. There were 118 such substeps in the two-second window, with a longest consecutive sequence of 24 substeps (30 ms at 1.25 ms per substep). The matched unsmoothed run had none. During intervals 216–227, sampled vertical root velocity ranged from -0.106 to +0.154 m/s in the candidate versus -0.0087 to +0.0192 m/s in the control. The retained phase flags also changed repeatedly around the candidate loss of support; those flags are controller inputs, not force measurements.
+
+This identifies a contact/vertical-motion transition coincident with the forward-travel regression, and gives concrete times for investigating the controller and contact dynamics. It does not establish whether interpolation, contact dynamics, support sensing or a combination caused the oscillation; the endpoint phase/state data are not continuously sampled. The evidence is one matched development lane, not a biological target or a completed gait.

@@ -1,0 +1,290 @@
+{
+  "sham": {
+    "lane": 2,
+    "all_window_unloaded_substeps": 0,
+    "first_unloaded_substep": null,
+    "longest_consecutive_unloaded_substeps": 0,
+    "min_vz_216_227_m_s": -0.00869785529,
+    "max_vz_216_227_m_s": 0.0191667639,
+    "timeline": [
+      {
+        "step": 216,
+        "last_status_support_bits": 5,
+        "root_x_m": 0.010094624,
+        "root_z_m": 0.177061215,
+        "root_vx_m_s": 0.0443180986,
+        "root_vz_m_s": -0.00795611739,
+        "left_normal_impulse_ns": 0.08569889795,
+        "right_normal_impulse_ns": 3.178869672600001e-05,
+        "both_unloaded_substeps": 0
+      },
+      {
+        "step": 217,
+        "last_status_support_bits": 5,
+        "root_x_m": 0.0108530335,
+        "root_z_m": 0.176947087,
+        "root_vx_m_s": 0.0347139537,
+        "root_vz_m_s": -0.00754134031,
+        "left_normal_impulse_ns": 0.08829428254999998,
+        "right_normal_impulse_ns": 3.910615541000001e-06,
+        "both_unloaded_substeps": 0
+      },
+      {
+        "step": 218,
+        "last_status_support_bits": 5,
+        "root_x_m": 0.0114471018,
+        "root_z_m": 0.176829427,
+        "root_vx_m_s": 0.027075544,
+        "root_vz_m_s": -0.0022514856,
+        "left_normal_impulse_ns": 0.09086016749000002,
+        "right_normal_impulse_ns": 4.810809601e-07,
+        "both_unloaded_substeps": 0
+      },
+      {
+        "step": 219,
+        "last_status_support_bits": 5,
+        "root_x_m": 0.0117314653,
+        "root_z_m": 0.176764205,
+        "root_vx_m_s": 0.00407604873,
+        "root_vz_m_s": -0.00366222067,
+        "left_normal_impulse_ns": 0.08927501504999999,
+        "right_normal_impulse_ns": 5.918220592000001e-08,
+        "both_unloaded_substeps": 0
+      },
+      {
+        "step": 220,
+        "last_status_support_bits": 5,
+        "root_x_m": 0.0116079571,
+        "root_z_m": 0.176683962,
+        "root_vx_m_s": -0.0104504805,
+        "root_vz_m_s": -0.008311579,
+        "left_normal_impulse_ns": 0.08772032566,
+        "right_normal_impulse_ns": 6.7417644504999995e-09,
+        "both_unloaded_substeps": 0
+      },
+      {
+        "step": 221,
+        "last_status_support_bits": 5,
+        "root_x_m": 0.0113419918,
+        "root_z_m": 0.176581532,
+        "root_vx_m_s": -0.0122835161,
+        "root_vz_m_s": -0.00869785529,
+        "left_normal_impulse_ns": 0.08812848803,
+        "right_normal_impulse_ns": 4.2918835426e-10,
+        "both_unloaded_substeps": 0
+      },
+      {
+        "step": 222,
+        "last_status_support_bits": 5,
+        "root_x_m": 0.0111466758,
+        "root_z_m": 0.176456466,
+        "root_vx_m_s": -0.00713591184,
+        "root_vz_m_s": -0.00805313326,
+        "left_normal_impulse_ns": 0.08825329877000002,
+        "right_normal_impulse_ns": 2.2381098928999998e-11,
+        "both_unloaded_substeps": 0
+      },
+      {
+        "step": 223,
+        "last_status_support_bits": 5,
+        "root_x_m": 0.0110208038,
+        "root_z_m": 0.176358879,
+        "root_vx_m_s": -0.00614457997,
+        "root_vz_m_s": -0.00445875106,
+        "left_normal_impulse_ns": 0.08953135134,
+        "right_normal_impulse_ns": 1.1849158354e-12,
+        "both_unloaded_substeps": 0
+      },
+      {
+        "step": 224,
+        "last_status_support_bits": 7,
+        "root_x_m": 0.0109787583,
+        "root_z_m": 0.176390231,
+        "root_vx_m_s": -0.00279283314,
+        "root_vz_m_s": 0.0110231983,
+        "left_normal_impulse_ns": 0.07073842546,
+        "right_normal_impulse_ns": 0.024400430378,
+        "both_unloaded_substeps": 0
+      },
+      {
+        "step": 225,
+        "last_status_support_bits": 7,
+        "root_x_m": 0.0112232631,
+        "root_z_m": 0.177091375,
+        "root_vx_m_s": 0.0111500751,
+        "root_vz_m_s": 0.0191667639,
+        "left_normal_impulse_ns": 0.017088452735999998,
+        "right_normal_impulse_ns": 0.07597444567,
+        "both_unloaded_substeps": 0
+      },
+      {
+        "step": 226,
+        "last_status_support_bits": 7,
+        "root_x_m": 0.0115705207,
+        "root_z_m": 0.177306786,
+        "root_vx_m_s": 0.021089334,
+        "root_vz_m_s": 0.0131961685,
+        "left_normal_impulse_ns": 0.028498020839999996,
+        "right_normal_impulse_ns": 0.05643470375,
+        "both_unloaded_substeps": 0
+      },
+      {
+        "step": 227,
+        "last_status_support_bits": 6,
+        "root_x_m": 0.0126116807,
+        "root_z_m": 0.177836135,
+        "root_vx_m_s": 0.0710559413,
+        "root_vz_m_s": -0.00846652873,
+        "left_normal_impulse_ns": 0.007267431587,
+        "right_normal_impulse_ns": 0.07239618088899999,
+        "both_unloaded_substeps": 0
+      }
+    ]
+  },
+  "candidate": {
+    "lane": 2,
+    "all_window_unloaded_substeps": 118,
+    "first_unloaded_substep": [
+      220,
+      14
+    ],
+    "longest_consecutive_unloaded_substeps": 24,
+    "min_vz_216_227_m_s": -0.105826244,
+    "max_vz_216_227_m_s": 0.154206544,
+    "timeline": [
+      {
+        "step": 216,
+        "last_status_support_bits": 5,
+        "root_x_m": 0.0107183019,
+        "root_z_m": 0.177029699,
+        "root_vx_m_s": 0.0926534161,
+        "root_vz_m_s": -0.00776213314,
+        "left_normal_impulse_ns": 0.10214371468,
+        "right_normal_impulse_ns": 0.0009725440873500002,
+        "both_unloaded_substeps": 0
+      },
+      {
+        "step": 217,
+        "last_status_support_bits": 7,
+        "root_x_m": 0.0116679454,
+        "root_z_m": 0.176926598,
+        "root_vx_m_s": 0.0122484611,
+        "root_vz_m_s": 0.020771388,
+        "left_normal_impulse_ns": 0.0767582124,
+        "right_normal_impulse_ns": 0.021441628449697,
+        "both_unloaded_substeps": 0
+      },
+      {
+        "step": 218,
+        "last_status_support_bits": 7,
+        "root_x_m": 0.0123529648,
+        "root_z_m": 0.177314073,
+        "root_vx_m_s": 0.0717195421,
+        "root_vz_m_s": 0.0263843108,
+        "left_normal_impulse_ns": 0.08910938142000001,
+        "right_normal_impulse_ns": 0.0068779614717999985,
+        "both_unloaded_substeps": 0
+      },
+      {
+        "step": 219,
+        "last_status_support_bits": 5,
+        "root_x_m": 0.0145432064,
+        "root_z_m": 0.177887529,
+        "root_vx_m_s": 0.135794953,
+        "root_vz_m_s": 0.040533375,
+        "left_normal_impulse_ns": 0.09591080948,
+        "right_normal_impulse_ns": 0.0003626461149,
+        "both_unloaded_substeps": 0
+      },
+      {
+        "step": 220,
+        "last_status_support_bits": 0,
+        "root_x_m": 0.0169705916,
+        "root_z_m": 0.177498296,
+        "root_vx_m_s": 0.126370698,
+        "root_vz_m_s": -0.101184733,
+        "left_normal_impulse_ns": 0.02231035699950279,
+        "right_normal_impulse_ns": 0.0,
+        "both_unloaded_substeps": 2
+      },
+      {
+        "step": 221,
+        "last_status_support_bits": 5,
+        "root_x_m": 0.0179680288,
+        "root_z_m": 0.177735373,
+        "root_vx_m_s": -0.0311639588,
+        "root_vz_m_s": 0.154206544,
+        "left_normal_impulse_ns": 0.19686237519837912,
+        "right_normal_impulse_ns": 0.0021613307225500002,
+        "both_unloaded_substeps": 3
+      },
+      {
+        "step": 222,
+        "last_status_support_bits": 0,
+        "root_x_m": 0.0172121096,
+        "root_z_m": 0.178742379,
+        "root_vx_m_s": -0.0332830399,
+        "root_vz_m_s": -0.0416673347,
+        "left_normal_impulse_ns": 0.004982157730000001,
+        "right_normal_impulse_ns": 0.0,
+        "both_unloaded_substeps": 14
+      },
+      {
+        "step": 223,
+        "last_status_support_bits": 7,
+        "root_x_m": 0.0164830424,
+        "root_z_m": 0.176119223,
+        "root_vx_m_s": -0.043464005,
+        "root_vz_m_s": -0.105826244,
+        "left_normal_impulse_ns": 0.052645737139999996,
+        "right_normal_impulse_ns": 0.00292620924,
+        "both_unloaded_substeps": 10
+      },
+      {
+        "step": 224,
+        "last_status_support_bits": 0,
+        "root_x_m": 0.0157295391,
+        "root_z_m": 0.17851378,
+        "root_vx_m_s": -0.049996417,
+        "root_vz_m_s": 0.104443513,
+        "left_normal_impulse_ns": 0.182678405779939,
+        "right_normal_impulse_ns": 0.00448455213756,
+        "both_unloaded_substeps": 1
+      },
+      {
+        "step": 225,
+        "last_status_support_bits": 0,
+        "root_x_m": 0.0147065884,
+        "root_z_m": 0.178508192,
+        "root_vx_m_s": -0.0515101925,
+        "root_vz_m_s": -0.0915039107,
+        "left_normal_impulse_ns": 5.843164219e-08,
+        "right_normal_impulse_ns": 0.0,
+        "both_unloaded_substeps": 16
+      },
+      {
+        "step": 226,
+        "last_status_support_bits": 7,
+        "root_x_m": 0.0133092273,
+        "root_z_m": 0.176729769,
+        "root_vx_m_s": -0.0983516946,
+        "root_vz_m_s": 0.0447462238,
+        "left_normal_impulse_ns": 0.14493395248,
+        "right_normal_impulse_ns": 0.0008716953239999999,
+        "both_unloaded_substeps": 3
+      },
+      {
+        "step": 227,
+        "last_status_support_bits": 6,
+        "root_x_m": 0.0112733636,
+        "root_z_m": 0.177289367,
+        "root_vx_m_s": -0.108161986,
+        "root_vz_m_s": -0.0232458748,
+        "left_normal_impulse_ns": 0.043076747112000005,
+        "right_normal_impulse_ns": 0.01650507058306,
+        "both_unloaded_substeps": 0
+      }
+    ]
+  },
+  "scope": "Accepted endpoint phase and state observations with all contact substeps, one used development lane; phase bits indicate control flags, not a direct measure of force. Temporal association does not prove a cause."
+}
