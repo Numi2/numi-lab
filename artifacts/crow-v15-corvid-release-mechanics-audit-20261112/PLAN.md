@@ -1,0 +1,3 @@
+# Retained-trace toe-off mechanics comparison
+
+The held gait had 14/40 rear-first complete stances; the later driven gait had 0/40 despite earlier and stronger rear toe commands. Examine retained substep contact times and coordinated leg, front-toe and rear-toe joint states, pairing stance order within the same lane and foot. Differences in trajectories and controllers make this an observational comparison, not a causal experiment or direct magpie kinematic fit. No new simulator runs or changes are made. Compare absolute and stance-relative front/rear release times and actual joint angles at last front contact. Preserve no-group and partial stances separately and avoid describing post-termination states as success.
