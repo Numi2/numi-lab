@@ -1,0 +1,129 @@
+{
+  "valid_matched_replay": true,
+  "parity": {
+    "reference_state_samples": 117,
+    "state_mismatches": 0,
+    "reference_contact_samples": 148832,
+    "contact_mismatches": 0,
+    "same_first_episodes": true,
+    "examples": {
+      "states": [],
+      "contacts": []
+    }
+  },
+  "first_observed_positive_impulse_pair_in_logged_window": {
+    "step": 1215,
+    "substep": 13,
+    "lane": 4,
+    "bodyA": 7,
+    "bodyB": 35,
+    "pair_key": "12884901917",
+    "impulse": [
+      1.81061995,
+      -0.525654912,
+      -0.950731874
+    ],
+    "point": [
+      -32.7733421,
+      -23.8828716,
+      -0.000205389922
+    ],
+    "separation": -0.000413626898,
+    "normal": [
+      4.47034836e-08,
+      -5.58793545e-08,
+      -1.0
+    ],
+    "pre_solve_normal_velocity": -1.79237592,
+    "bodyA_name": "crow_tail",
+    "bodyB_name": "locomotion_ground",
+    "prior_control_state": {
+      "step": 1214,
+      "position_m": [
+        -32.4447594,
+        -23.727459,
+        0.199493662
+      ],
+      "roll_rad": 0.23046816786879012,
+      "pitch_rad": -0.7376725924292171,
+      "yaw_rad": -0.04778093152893248,
+      "linear_velocity_m_s": [
+        -8.7610321,
+        -1.50682676,
+        -1.66377437
+      ],
+      "angular_velocity_rad_s": [
+        -0.0516511612,
+        -0.00128066586,
+        -0.119403087
+      ],
+      "policy_action": [
+        -1,
+        0.762060523,
+        -0.495621532,
+        -1,
+        -1,
+        0.734475732,
+        -1,
+        -1,
+        -0.567012906,
+        0.232040614,
+        -0.658584833,
+        -1,
+        -1,
+        0.937325716,
+        -0.642527878,
+        -1,
+        0,
+        0
+      ],
+      "policy_action_caveat": "Raw policy output, not necessarily the executed fixed-controller command."
+    },
+    "position_drive_targets_at_contact_control_step": [
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      -0.00676548202,
+      0.00676548202,
+      -0.294560522,
+      -0.213762015,
+      -0.149439439,
+      0.128401071,
+      0.270000011,
+      -0.189999998,
+      0.415000021,
+      -0.211999997,
+      -0.189999998,
+      0.415000021,
+      -0.211999997,
+      0.0,
+      0.0,
+      0.0,
+      0.349999994,
+      0.262499988,
+      0.349999994,
+      0.262499988,
+      0.349999994,
+      0.262499988,
+      0.349999994,
+      0.262499988,
+      0.349999994,
+      0.262499988,
+      0.349999994,
+      0.262499988,
+      0.349999994,
+      0.262499988,
+      0.349999994,
+      0.262499988,
+      0.0,
+      0.0
+    ]
+  },
+  "pair_count_in_window": 32,
+  "q_substep_count": 1696,
+  "target_sample_count": 106,
+  "scope": "Observer only covers a prespecified window near a failure in one development lane. Body pair and positive impulse do not establish fatal cause or uniquely name collider shapes. No biological or flight qualification."
+}

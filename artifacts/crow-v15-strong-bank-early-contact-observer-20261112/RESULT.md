@@ -1,0 +1,7 @@
+# Matched replay of earlier flight contact
+
+The passive replay reproduced all 117 retained first-episode state/action samples and all 148,832 first-episode contact-substep aggregates exactly, with identical episode outcomes. In lane 4, the first positive ground contact after the 9-second controller intervention occurred at interval 1215, substep 13, between the tail body and ground body; the observer identifies bodies, not unique collision shapes. A second positive ground-contact substep occurred at interval 1258; termination followed at interval 1302. No other positive foot or nonfoot ground-contact substeps were recorded in that lane from intervals 450–1302.
+
+At the previous sampled control state, root height was 0.199 m, pitch was -0.738 rad, roll 0.230 rad, and vertical velocity -1.664 m/s; forward/world-axis velocity components were -8.761 and -1.507 m/s. The first contact normal impulse was 1.811 N s. Full targets, raw policy outputs and state are in analysis.json. Raw policy outputs are not necessarily the applied commands: the position-drive target samples describe the executed position-drive channel, not the complete wing forces. The bird was already in a steep descending attitude; this observation does not identify the cause of the instability or prove that the first contact caused its later termination.
+
+The scene is an obstacle-free flight diagnostic with a used development seed. The old direct body moments were retained before the 9-second intervention. This does not qualify physical flight, route execution, or biological aerodynamics.
