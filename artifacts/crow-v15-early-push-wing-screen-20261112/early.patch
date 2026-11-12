@@ -1,0 +1,32 @@
+--- a/baseline.metal
++++ b/early.metal
+@@ -5120,9 +5120,9 @@
+                 const float crouched=joint==0u ? -0.85f : joint==1u ? 1.00f : -0.50f;
+                 const float extended=joint==0u ? -0.50f : joint==1u ? -0.70f : 0.18f;
+                 const bool bilateral=dispatch.counts.w==40u ? (state.status.w & ((1u<<20)|(1u<<21)))==((1u<<20)|(1u<<21)) : (state.nutrition.x>0.05f && state.nutrition.y>0.05f);
+-                navigationTeacherRequested=seconds<6.96f
++                navigationTeacherRequested=seconds<6.92f
+                     ? mix(navigationTeacherRequested,crouched,smoothstep(6.3f,6.55f,seconds))
+-                    : bilateral ? mix(crouched,extended,smoothstep(6.96f,6.98f,seconds)) : crouched;
++                    : bilateral ? mix(crouched,extended,smoothstep(6.92f,6.94f,seconds)) : crouched;
+                 if ((state.status.w & 4096u) != 0u) navigationTeacherRequested = crouched;
+             }
+         }
+@@ -5373,7 +5373,7 @@
+             )
+             : filtered;
+         const float avianWingAmplitude =
+-            fixedFlightController && float(state.episode.x)*dispatch.timing.x >= 6.0f && (state.status.w & 8192u)==0u && binding.actuator.x == MR_TASK_ACTUATOR_FLAPPING_POSITION ? 0.0f :
++            fixedFlightController && float(state.episode.x)*dispatch.timing.x >= 6.0f && float(state.episode.x)*dispatch.timing.x < 6.96f && (state.status.w & 8192u)==0u && binding.actuator.x == MR_TASK_ACTUATOR_FLAPPING_POSITION ? 0.0f :
+             fixedFlightController && float(state.episode.x)*dispatch.timing.x >= 4.0f && float(state.episode.x)*dispatch.timing.x < 6.0f && binding.actuator.x == MR_TASK_ACTUATOR_FLAPPING_POSITION ? 0.0f : fixedFlightController && state.episode.z == 10u && float(state.episode.x)*dispatch.timing.x >= 4.4f && float(state.episode.x)*dispatch.timing.x < 5.4f && binding.actuator.x == MR_TASK_ACTUATOR_FLAPPING_POSITION && (state.status.w & 8192u) == 0u
+             ? 0.0f : fixedFlightController && state.threatTeacher.w >= 1.5f &&
+             binding.actuator.x == MR_TASK_ACTUATOR_FLAPPING_POSITION
+@@ -9507,7 +9507,7 @@
+             state.status.w=(state.status.w & ~4095u) | packed;
+             const float seconds=float(state.episode.x)*dispatch.timing.x;
+             const uint previous=state.status.w;
+-            const bool low=seconds>=6.96f && (state.status.w & ((1u<<20)|(1u<<21)))==0u;
++            const bool low=seconds>=6.92f && (state.status.w & ((1u<<20)|(1u<<21)))==0u;
+             const uint low1=low ? 16384u : 0u;
+             const uint low2=low && (previous&16384u)!=0u ? 32768u : 0u;
+             const bool released=(previous&8192u)!=0u || (low && (previous&32768u)!=0u && state.airReturnTracking.y>.185f && state.threatGeometry.y>.05f);

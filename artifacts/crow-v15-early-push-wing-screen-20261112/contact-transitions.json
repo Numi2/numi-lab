@@ -1,0 +1,272 @@
+{
+  "baseline": [
+    {
+      "lane": 0,
+      "initially_loaded": true,
+      "transitions": [
+        [
+          352,
+          8,
+          "unloaded"
+        ]
+      ]
+    },
+    {
+      "lane": 1,
+      "initially_loaded": true,
+      "transitions": [
+        [
+          352,
+          8,
+          "unloaded"
+        ]
+      ]
+    },
+    {
+      "lane": 2,
+      "initially_loaded": true,
+      "transitions": [
+        [
+          352,
+          8,
+          "unloaded"
+        ]
+      ]
+    },
+    {
+      "lane": 3,
+      "initially_loaded": true,
+      "transitions": [
+        [
+          352,
+          8,
+          "unloaded"
+        ]
+      ]
+    },
+    {
+      "lane": 4,
+      "initially_loaded": true,
+      "transitions": [
+        [
+          352,
+          8,
+          "unloaded"
+        ]
+      ]
+    },
+    {
+      "lane": 5,
+      "initially_loaded": true,
+      "transitions": [
+        [
+          352,
+          8,
+          "unloaded"
+        ]
+      ]
+    },
+    {
+      "lane": 6,
+      "initially_loaded": true,
+      "transitions": [
+        [
+          352,
+          8,
+          "unloaded"
+        ]
+      ]
+    },
+    {
+      "lane": 7,
+      "initially_loaded": true,
+      "transitions": [
+        [
+          352,
+          8,
+          "unloaded"
+        ]
+      ]
+    }
+  ],
+  "early": [
+    {
+      "lane": 0,
+      "initially_loaded": true,
+      "transitions": [
+        [
+          350,
+          8,
+          "unloaded"
+        ]
+      ]
+    },
+    {
+      "lane": 1,
+      "initially_loaded": true,
+      "transitions": [
+        [
+          350,
+          7,
+          "unloaded"
+        ]
+      ]
+    },
+    {
+      "lane": 2,
+      "initially_loaded": true,
+      "transitions": [
+        [
+          350,
+          8,
+          "unloaded"
+        ]
+      ]
+    },
+    {
+      "lane": 3,
+      "initially_loaded": true,
+      "transitions": [
+        [
+          350,
+          7,
+          "unloaded"
+        ]
+      ]
+    },
+    {
+      "lane": 4,
+      "initially_loaded": true,
+      "transitions": [
+        [
+          350,
+          7,
+          "unloaded"
+        ]
+      ]
+    },
+    {
+      "lane": 5,
+      "initially_loaded": true,
+      "transitions": [
+        [
+          350,
+          7,
+          "unloaded"
+        ]
+      ]
+    },
+    {
+      "lane": 6,
+      "initially_loaded": true,
+      "transitions": [
+        [
+          350,
+          7,
+          "unloaded"
+        ]
+      ]
+    },
+    {
+      "lane": 7,
+      "initially_loaded": true,
+      "transitions": [
+        [
+          350,
+          7,
+          "unloaded"
+        ]
+      ]
+    }
+  ],
+  "earlyinv": [
+    {
+      "lane": 0,
+      "initially_loaded": true,
+      "transitions": [
+        [
+          351,
+          3,
+          "unloaded"
+        ]
+      ]
+    },
+    {
+      "lane": 1,
+      "initially_loaded": true,
+      "transitions": [
+        [
+          351,
+          3,
+          "unloaded"
+        ]
+      ]
+    },
+    {
+      "lane": 2,
+      "initially_loaded": true,
+      "transitions": [
+        [
+          351,
+          3,
+          "unloaded"
+        ]
+      ]
+    },
+    {
+      "lane": 3,
+      "initially_loaded": true,
+      "transitions": [
+        [
+          351,
+          3,
+          "unloaded"
+        ]
+      ]
+    },
+    {
+      "lane": 4,
+      "initially_loaded": true,
+      "transitions": [
+        [
+          351,
+          3,
+          "unloaded"
+        ]
+      ]
+    },
+    {
+      "lane": 5,
+      "initially_loaded": true,
+      "transitions": [
+        [
+          351,
+          3,
+          "unloaded"
+        ]
+      ]
+    },
+    {
+      "lane": 6,
+      "initially_loaded": true,
+      "transitions": [
+        [
+          351,
+          3,
+          "unloaded"
+        ]
+      ]
+    },
+    {
+      "lane": 7,
+      "initially_loaded": true,
+      "transitions": [
+        [
+          351,
+          3,
+          "unloaded"
+        ]
+      ]
+    }
+  ]
+}
