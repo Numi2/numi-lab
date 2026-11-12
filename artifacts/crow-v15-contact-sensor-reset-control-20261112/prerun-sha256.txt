@@ -1,0 +1,2 @@
+0fb26d19bd539600b488c75b0daa14b2dbc5a3c6f1fac5c536f376ed9cbfca6d  artifacts/crow-v15-contact-sensor-reset-control-20261112/PLAN.md
+899646ddf58e9b2a16bba2273450c5452e34e4764bb98c57546af9ee2afdedf8  artifacts/crow-v15-contact-sensor-reset-control-20261112/run.py
