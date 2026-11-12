@@ -1,0 +1,143 @@
+{
+  "rows": [
+    {
+      "lane": 0,
+      "matched_steps": [
+        500,
+        600,
+        700,
+        800,
+        900,
+        1000,
+        1100,
+        1200,
+        1300,
+        1400,
+        1500,
+        1600
+      ],
+      "mean_left_sweep_delta_rad": -0.029986715701666666,
+      "mean_right_sweep_delta_rad": 0.029991114236666665,
+      "final_delta_rad": [
+        -0.02997405271,
+        0.029983387359999995
+      ]
+    },
+    {
+      "lane": 1,
+      "matched_steps": [
+        500,
+        600,
+        700,
+        800,
+        900,
+        1000,
+        1100,
+        1200,
+        1300,
+        1400,
+        1500,
+        1600
+      ],
+      "mean_left_sweep_delta_rad": 0.029989942174166666,
+      "mean_right_sweep_delta_rad": -0.029985627748333334,
+      "final_delta_rad": [
+        0.02998043224,
+        -0.02997065661
+      ]
+    },
+    {
+      "lane": 2,
+      "matched_steps": [
+        500,
+        600,
+        700,
+        800,
+        900,
+        1000,
+        1100,
+        1200,
+        1300,
+        1400,
+        1500,
+        1600
+      ],
+      "mean_left_sweep_delta_rad": -0.029986709370833333,
+      "mean_right_sweep_delta_rad": 0.029991116459166668,
+      "final_delta_rad": [
+        -0.029974084819999997,
+        0.02998337432
+      ]
+    },
+    {
+      "lane": 3,
+      "matched_steps": [
+        500,
+        600,
+        700,
+        800,
+        900,
+        1000,
+        1100,
+        1200,
+        1300,
+        1400,
+        1500,
+        1600
+      ],
+      "mean_left_sweep_delta_rad": -0.0299867132825,
+      "mean_right_sweep_delta_rad": 0.029991115920833332,
+      "final_delta_rad": [
+        -0.029974069469999996,
+        0.029983389219999997
+      ]
+    },
+    {
+      "lane": 4,
+      "matched_steps": [
+        500,
+        600,
+        700,
+        800,
+        900,
+        1000,
+        1100,
+        1200,
+        1300,
+        1400,
+        1500,
+        1600
+      ],
+      "mean_left_sweep_delta_rad": 0.0076715179405833335,
+      "mean_right_sweep_delta_rad": -0.007670745553416666,
+      "final_delta_rad": [
+        0.00856609359,
+        -0.008563659383
+      ]
+    },
+    {
+      "lane": 5,
+      "matched_steps": [
+        500,
+        600,
+        700,
+        800,
+        900,
+        1000,
+        1100,
+        1200,
+        1300,
+        1400,
+        1500,
+        1600
+      ],
+      "mean_left_sweep_delta_rad": 0.0076780746095,
+      "mean_right_sweep_delta_rad": -0.0076772978031666664,
+      "final_delta_rad": [
+        0.008566086430000001,
+        -0.008563675623999999
+      ]
+    }
+  ],
+  "limits": "sampled joint angles only, not commanded torque or aerodynamic force; divergence can include closed-loop trajectory effects"
+}

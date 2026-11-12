@@ -1,0 +1,72 @@
+{
+  "before_intervention": {
+    "samples": 48,
+    "baseline_samples": 48,
+    "enhanced_samples": 48,
+    "mismatches": [],
+    "pass": true
+  },
+  "rows": [
+    {
+      "lane": 0,
+      "heading_target_rad": 1.5707963267948966,
+      "baseline_final_heading_error_rad": 1.228742992809881,
+      "enhanced_final_heading_error_rad": 1.2263139779957615,
+      "enhanced_first_episode_steps": 1600,
+      "enhanced_failure": false,
+      "enhanced_ground_substeps": 0,
+      "enhanced_missing_substeps": 0
+    },
+    {
+      "lane": 1,
+      "heading_target_rad": -1.5707963267948966,
+      "baseline_final_heading_error_rad": 1.3679797384901593,
+      "enhanced_final_heading_error_rad": 1.365477813598898,
+      "enhanced_first_episode_steps": 1600,
+      "enhanced_failure": false,
+      "enhanced_ground_substeps": 0,
+      "enhanced_missing_substeps": 0
+    },
+    {
+      "lane": 2,
+      "heading_target_rad": 3.141592653589793,
+      "baseline_final_heading_error_rad": 2.7996300141386303,
+      "enhanced_final_heading_error_rad": 2.7972016813404297,
+      "enhanced_first_episode_steps": 1600,
+      "enhanced_failure": false,
+      "enhanced_ground_substeps": 0,
+      "enhanced_missing_substeps": 0
+    },
+    {
+      "lane": 3,
+      "heading_target_rad": -3.141592653589793,
+      "baseline_final_heading_error_rad": 2.79974920289491,
+      "enhanced_final_heading_error_rad": 2.797320293209478,
+      "enhanced_first_episode_steps": 1600,
+      "enhanced_failure": false,
+      "enhanced_ground_substeps": 0,
+      "enhanced_missing_substeps": 0
+    },
+    {
+      "lane": 4,
+      "heading_target_rad": 0,
+      "baseline_final_heading_error_rad": 0.04258406414487027,
+      "enhanced_final_heading_error_rad": 0.042709980434345894,
+      "enhanced_first_episode_steps": 1600,
+      "enhanced_failure": false,
+      "enhanced_ground_substeps": 0,
+      "enhanced_missing_substeps": 0
+    },
+    {
+      "lane": 5,
+      "heading_target_rad": 0,
+      "baseline_final_heading_error_rad": 0.042584066251374925,
+      "enhanced_final_heading_error_rad": 0.0427099998564033,
+      "enhanced_first_episode_steps": 1600,
+      "enhanced_failure": false,
+      "enhanced_ground_substeps": 0,
+      "enhanced_missing_substeps": 0
+    }
+  ],
+  "limits": "Sparse samples, previously used development seed and obstacle-free commands. Actuator source suppression applies only after 9 s, only to two identified body-moment channels."
+}
