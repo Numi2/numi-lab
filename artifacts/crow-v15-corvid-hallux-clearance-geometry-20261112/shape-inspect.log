@@ -1,0 +1,6 @@
+crow_left_foot/sole half 0.009999999776 0.01724999957 0.009200000204 contact_offset 0.001000000047 rest_offset 0 radius 0.05531966314
+crow_right_foot/sole half 0.009999999776 0.01724999957 0.009200000204 contact_offset 0.001000000047 rest_offset 0 radius 0.05531966314
+crow_left_rear_toe_proximal/collision half 0.008999999613 0.002499999944 0.009200000204 contact_offset 0.001000000047 rest_offset 0 radius 0.01311068237
+crow_left_rear_toe_distal/collision half 0.008999999613 0.002499999944 0.009200000204 contact_offset 0.001000000047 rest_offset 0 radius 0.01311068237
+crow_right_rear_toe_proximal/collision half 0.008999999613 0.002499999944 0.009200000204 contact_offset 0.001000000047 rest_offset 0 radius 0.01311068237
+crow_right_rear_toe_distal/collision half 0.008999999613 0.002499999944 0.009200000204 contact_offset 0.001000000047 rest_offset 0 radius 0.01311068237

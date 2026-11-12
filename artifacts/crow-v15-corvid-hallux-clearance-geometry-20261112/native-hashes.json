@@ -1,0 +1,5 @@
+{
+  "forward_kinematics_binary_sha256": "5d816c5ee0cc23833b8bb1b5df2d1509fe48135aafd6072ae1b3f9f84d449481",
+  "linked_library_sha256": "d1e9bb9c6c6978318382731dd31df8a8aee22104dc23bbbab73eec5c7b81e615",
+  "shape_inspector_binary_sha256": "9432b18fd943c9cb60bf750ddc0b994f353ce7a896b05ea1907af7fed3f7e066"
+}

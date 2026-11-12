@@ -1,0 +1,2268 @@
+{
+  "ground_z_m": 0.0,
+  "summary": [
+    {
+      "requested_offset_rad": 0,
+      "proximal_bottom_gap_m": {
+        "min": 0.0004205463455995342,
+        "median": 0.0004611536306161094,
+        "max": 0.0005608352315013415
+      },
+      "distal_bottom_gap_m": {
+        "min": 0.0006726631880366353,
+        "median": 0.0011507432113285216,
+        "max": 0.0019005509528306572
+      },
+      "min_bottom_gap_m": {
+        "min": 0.0004205463455995342,
+        "median": 0.0004611536306161094,
+        "max": 0.0005608352315013415
+      },
+      "min_gap_change_m": {
+        "min": 0.0,
+        "median": 0.0,
+        "max": 0.0
+      },
+      "min_gap_over_1mm": 0,
+      "at_lower_limit": 0
+    },
+    {
+      "requested_offset_rad": -0.05,
+      "proximal_bottom_gap_m": {
+        "min": 0.00044709408816269273,
+        "median": 0.0004890967430805108,
+        "max": 0.0006015417613765596
+      },
+      "distal_bottom_gap_m": {
+        "min": 0.0015919272315315473,
+        "median": 0.00208946691875101,
+        "max": 0.0028690189510584534
+      },
+      "min_bottom_gap_m": {
+        "min": 0.00044709408816269273,
+        "median": 0.0004890967430805108,
+        "max": 0.0006015417613765596
+      },
+      "min_gap_change_m": {
+        "min": 1.6445761700664696e-05,
+        "median": 2.863961930849295e-05,
+        "max": 4.776120675402222e-05
+      },
+      "min_gap_over_1mm": 0,
+      "at_lower_limit": 0
+    },
+    {
+      "requested_offset_rad": -0.1,
+      "proximal_bottom_gap_m": {
+        "min": 0.00048772844943931193,
+        "median": 0.0005432953089077319,
+        "max": 0.0006650932530418395
+      },
+      "distal_bottom_gap_m": {
+        "min": 0.0025312755141854958,
+        "median": 0.0030456532662502464,
+        "max": 0.0038542952007365825
+      },
+      "min_bottom_gap_m": {
+        "min": 0.00048772844943931193,
+        "median": 0.0005432953089077319,
+        "max": 0.0006650932530418395
+      },
+      "min_gap_change_m": {
+        "min": 5.584112638281659e-05,
+        "median": 8.018407450781449e-05,
+        "max": 0.0001183232450454718
+      },
+      "min_gap_over_1mm": 0,
+      "at_lower_limit": 0
+    },
+    {
+      "requested_offset_rad": -0.2,
+      "proximal_bottom_gap_m": {
+        "min": 0.0006373709919216698,
+        "median": 0.0007127548126913364,
+        "max": 0.0008600390357381207
+      },
+      "distal_bottom_gap_m": {
+        "min": 0.004460788939299258,
+        "median": 0.005005396391705597,
+        "max": 0.0058653858879710394
+      },
+      "min_bottom_gap_m": {
+        "min": 0.0006373709919216698,
+        "median": 0.0007127548126913364,
+        "max": 0.0008600390357381207
+      },
+      "min_gap_change_m": {
+        "min": 0.00020302967717451131,
+        "median": 0.0002514152272598087,
+        "max": 0.0003270877934743368
+      },
+      "min_gap_over_1mm": 0,
+      "at_lower_limit": 0
+    }
+  ],
+  "events": [
+    {
+      "lane": 0,
+      "side": "left",
+      "last_front": [
+        252,
+        1
+      ],
+      "poses": [
+        {
+          "lane": 0,
+          "side": 0,
+          "t": 252,
+          "substep": 1,
+          "offset_requested_rad": 0,
+          "actual_q_rad": -0.0275257137,
+          "proximal_bottom_gap_m": 0.0005094848671858849,
+          "distal_bottom_gap_m": 0.0007040310146724099,
+          "minimum_bottom_gap_m": 0.0005094848671858849
+        },
+        {
+          "lane": 0,
+          "side": 0,
+          "t": 252,
+          "substep": 1,
+          "offset_requested_rad": -0.05,
+          "actual_q_rad": -0.0775257137,
+          "proximal_bottom_gap_m": 0.0005259306288865496,
+          "distal_bottom_gap_m": 0.0016224205514893935,
+          "minimum_bottom_gap_m": 0.0005259306288865496
+        },
+        {
+          "lane": 0,
+          "side": 0,
+          "t": 252,
+          "substep": 1,
+          "offset_requested_rad": -0.1,
+          "actual_q_rad": -0.12752571370000002,
+          "proximal_bottom_gap_m": 0.0005653259935687015,
+          "distal_bottom_gap_m": 0.002561019037522271,
+          "minimum_bottom_gap_m": 0.0005653259935687015
+        },
+        {
+          "lane": 0,
+          "side": 0,
+          "t": 252,
+          "substep": 1,
+          "offset_requested_rad": -0.2,
+          "actual_q_rad": -0.22752571370000002,
+          "proximal_bottom_gap_m": 0.0007125145443603962,
+          "distal_bottom_gap_m": 0.0044894141795742415,
+          "minimum_bottom_gap_m": 0.0007125145443603962
+        }
+      ]
+    },
+    {
+      "lane": 0,
+      "side": "left",
+      "last_front": [
+        277,
+        2
+      ],
+      "poses": [
+        {
+          "lane": 0,
+          "side": 0,
+          "t": 277,
+          "substep": 2,
+          "offset_requested_rad": 0,
+          "actual_q_rad": -0.0314475298,
+          "proximal_bottom_gap_m": 0.00042940545268595545,
+          "distal_bottom_gap_m": 0.0006726631880366353,
+          "minimum_bottom_gap_m": 0.00042940545268595545
+        },
+        {
+          "lane": 0,
+          "side": 0,
+          "t": 277,
+          "substep": 2,
+          "offset_requested_rad": -0.05,
+          "actual_q_rad": -0.0814475298,
+          "proximal_bottom_gap_m": 0.00044709408816269273,
+          "distal_bottom_gap_m": 0.0015919272315315473,
+          "minimum_bottom_gap_m": 0.00044709408816269273
+        },
+        {
+          "lane": 0,
+          "side": 0,
+          "t": 277,
+          "substep": 2,
+          "offset_requested_rad": -0.1,
+          "actual_q_rad": -0.13144752980000002,
+          "proximal_bottom_gap_m": 0.00048772844943931193,
+          "distal_bottom_gap_m": 0.0025312755141854958,
+          "minimum_bottom_gap_m": 0.00048772844943931193
+        },
+        {
+          "lane": 0,
+          "side": 0,
+          "t": 277,
+          "substep": 2,
+          "offset_requested_rad": -0.2,
+          "actual_q_rad": -0.2314475298,
+          "proximal_bottom_gap_m": 0.0006373709919216698,
+          "distal_bottom_gap_m": 0.004460788939299258,
+          "minimum_bottom_gap_m": 0.0006373709919216698
+        }
+      ]
+    },
+    {
+      "lane": 0,
+      "side": "right",
+      "last_front": [
+        239,
+        11
+      ],
+      "poses": [
+        {
+          "lane": 0,
+          "side": 1,
+          "t": 239,
+          "substep": 11,
+          "offset_requested_rad": 0,
+          "actual_q_rad": -0.0328253433,
+          "proximal_bottom_gap_m": 0.0004663117343034571,
+          "distal_bottom_gap_m": 0.0007721771664180397,
+          "minimum_bottom_gap_m": 0.0004663117343034571
+        },
+        {
+          "lane": 0,
+          "side": 1,
+          "t": 239,
+          "substep": 11,
+          "offset_requested_rad": -0.05,
+          "actual_q_rad": -0.08282534329999999,
+          "proximal_bottom_gap_m": 0.00048558748815155477,
+          "distal_bottom_gap_m": 0.0016935895513964915,
+          "minimum_bottom_gap_m": 0.00048558748815155477
+        },
+        {
+          "lane": 0,
+          "side": 1,
+          "t": 239,
+          "substep": 11,
+          "offset_requested_rad": -0.1,
+          "actual_q_rad": -0.1328253433,
+          "proximal_bottom_gap_m": 0.0005278046552492522,
+          "distal_bottom_gap_m": 0.0026349239735817386,
+          "minimum_bottom_gap_m": 0.0005278046552492522
+        },
+        {
+          "lane": 0,
+          "side": 1,
+          "t": 239,
+          "substep": 11,
+          "offset_requested_rad": -0.2,
+          "actual_q_rad": -0.23282534330000001,
+          "proximal_bottom_gap_m": 0.0006805840676294677,
+          "distal_bottom_gap_m": 0.00456790363247212,
+          "minimum_bottom_gap_m": 0.0006805840676294677
+        }
+      ]
+    },
+    {
+      "lane": 0,
+      "side": "right",
+      "last_front": [
+        264,
+        10
+      ],
+      "poses": [
+        {
+          "lane": 0,
+          "side": 1,
+          "t": 264,
+          "substep": 10,
+          "offset_requested_rad": 0,
+          "actual_q_rad": -0.0329573862,
+          "proximal_bottom_gap_m": 0.000446040307948415,
+          "distal_bottom_gap_m": 0.0007527274289141506,
+          "minimum_bottom_gap_m": 0.000446040307948415
+        },
+        {
+          "lane": 0,
+          "side": 1,
+          "t": 264,
+          "substep": 10,
+          "offset_requested_rad": -0.05,
+          "actual_q_rad": -0.08295738620000001,
+          "proximal_bottom_gap_m": 0.00046534246426348756,
+          "distal_bottom_gap_m": 0.001673686765242547,
+          "minimum_bottom_gap_m": 0.00046534246426348756
+        },
+        {
+          "lane": 0,
+          "side": 1,
+          "t": 264,
+          "substep": 10,
+          "offset_requested_rad": -0.1,
+          "actual_q_rad": -0.1329573862,
+          "proximal_bottom_gap_m": 0.0005075857810345925,
+          "distal_bottom_gap_m": 0.002614567030568074,
+          "minimum_bottom_gap_m": 0.0005075857810345925
+        },
+        {
+          "lane": 0,
+          "side": 1,
+          "t": 264,
+          "substep": 10,
+          "offset_requested_rad": -0.2,
+          "actual_q_rad": -0.2329573862,
+          "proximal_bottom_gap_m": 0.0006604164737338877,
+          "distal_bottom_gap_m": 0.0045466395916651785,
+          "minimum_bottom_gap_m": 0.0006604164737338877
+        }
+      ]
+    },
+    {
+      "lane": 0,
+      "side": "right",
+      "last_front": [
+        289,
+        10
+      ],
+      "poses": [
+        {
+          "lane": 0,
+          "side": 1,
+          "t": 289,
+          "substep": 10,
+          "offset_requested_rad": 0,
+          "actual_q_rad": -0.0329054482,
+          "proximal_bottom_gap_m": 0.0004944297895821768,
+          "distal_bottom_gap_m": 0.0007897612561686886,
+          "minimum_bottom_gap_m": 0.0004944297895821768
+        },
+        {
+          "lane": 0,
+          "side": 1,
+          "t": 289,
+          "substep": 10,
+          "offset_requested_rad": -0.05,
+          "actual_q_rad": -0.08290544820000001,
+          "proximal_bottom_gap_m": 0.0005134448174637929,
+          "distal_bottom_gap_m": 0.0017102659561231137,
+          "minimum_bottom_gap_m": 0.0005134448174637929
+        },
+        {
+          "lane": 0,
+          "side": 1,
+          "t": 289,
+          "substep": 10,
+          "offset_requested_rad": -0.1,
+          "actual_q_rad": -0.1329054482,
+          "proximal_bottom_gap_m": 0.0005554018004089167,
+          "distal_bottom_gap_m": 0.002650721181586796,
+          "minimum_bottom_gap_m": 0.0005554018004089167
+        },
+        {
+          "lane": 0,
+          "side": 1,
+          "t": 289,
+          "substep": 10,
+          "offset_requested_rad": -0.2,
+          "actual_q_rad": -0.2329054482,
+          "proximal_bottom_gap_m": 0.0007076650682455252,
+          "distal_bottom_gap_m": 0.00458203662537854,
+          "minimum_bottom_gap_m": 0.0007076650682455252
+        }
+      ]
+    },
+    {
+      "lane": 1,
+      "side": "left",
+      "last_front": [
+        252,
+        1
+      ],
+      "poses": [
+        {
+          "lane": 1,
+          "side": 0,
+          "t": 252,
+          "substep": 1,
+          "offset_requested_rad": 0,
+          "actual_q_rad": -0.0341570638,
+          "proximal_bottom_gap_m": 0.0005110200663453815,
+          "distal_bottom_gap_m": 0.000829802691536841,
+          "minimum_bottom_gap_m": 0.0005110200663453815
+        },
+        {
+          "lane": 1,
+          "side": 0,
+          "t": 252,
+          "substep": 1,
+          "offset_requested_rad": -0.05,
+          "actual_q_rad": -0.0841570638,
+          "proximal_bottom_gap_m": 0.0005305937429548151,
+          "distal_bottom_gap_m": 0.001753681613908209,
+          "minimum_bottom_gap_m": 0.0005305937429548151
+        },
+        {
+          "lane": 1,
+          "side": 0,
+          "t": 252,
+          "substep": 1,
+          "offset_requested_rad": -0.1,
+          "actual_q_rad": -0.1341570638,
+          "proximal_bottom_gap_m": 0.0005731070163924809,
+          "distal_bottom_gap_m": 0.0026974430504022734,
+          "minimum_bottom_gap_m": 0.0005731070163924809
+        },
+        {
+          "lane": 1,
+          "side": 0,
+          "t": 252,
+          "substep": 1,
+          "offset_requested_rad": -0.2,
+          "actual_q_rad": -0.2341570638,
+          "proximal_bottom_gap_m": 0.0007264702381319862,
+          "distal_bottom_gap_m": 0.004635134017520413,
+          "minimum_bottom_gap_m": 0.0007264702381319862
+        }
+      ]
+    },
+    {
+      "lane": 1,
+      "side": "left",
+      "last_front": [
+        277,
+        1
+      ],
+      "poses": [
+        {
+          "lane": 1,
+          "side": 0,
+          "t": 277,
+          "substep": 1,
+          "offset_requested_rad": 0,
+          "actual_q_rad": -0.0374405012,
+          "proximal_bottom_gap_m": 0.00042855028993551633,
+          "distal_bottom_gap_m": 0.0008023264771063968,
+          "minimum_bottom_gap_m": 0.00042855028993551633
+        },
+        {
+          "lane": 1,
+          "side": 0,
+          "t": 277,
+          "substep": 1,
+          "offset_requested_rad": -0.05,
+          "actual_q_rad": -0.08744050119999999,
+          "proximal_bottom_gap_m": 0.0004495259516404601,
+          "distal_bottom_gap_m": 0.0017271074006948162,
+          "minimum_bottom_gap_m": 0.0004495259516404601
+        },
+        {
+          "lane": 1,
+          "side": 0,
+          "t": 277,
+          "substep": 1,
+          "offset_requested_rad": -0.1,
+          "actual_q_rad": -0.1374405012,
+          "proximal_bottom_gap_m": 0.0004934363826784097,
+          "distal_bottom_gap_m": 0.002671629805345169,
+          "minimum_bottom_gap_m": 0.0004934363826784097
+        },
+        {
+          "lane": 1,
+          "side": 0,
+          "t": 277,
+          "substep": 1,
+          "offset_requested_rad": -0.2,
+          "actual_q_rad": -0.23744050120000001,
+          "proximal_bottom_gap_m": 0.0006495654892621303,
+          "distal_bottom_gap_m": 0.0046104123587604965,
+          "minimum_bottom_gap_m": 0.0006495654892621303
+        }
+      ]
+    },
+    {
+      "lane": 1,
+      "side": "right",
+      "last_front": [
+        239,
+        11
+      ],
+      "poses": [
+        {
+          "lane": 1,
+          "side": 1,
+          "t": 239,
+          "substep": 11,
+          "offset_requested_rad": 0,
+          "actual_q_rad": -0.039481014,
+          "proximal_bottom_gap_m": 0.0004662785733481386,
+          "distal_bottom_gap_m": 0.000891772678031125,
+          "minimum_bottom_gap_m": 0.0004662785733481386
+        },
+        {
+          "lane": 1,
+          "side": 1,
+          "t": 239,
+          "substep": 11,
+          "offset_requested_rad": -0.05,
+          "actual_q_rad": -0.089481014,
+          "proximal_bottom_gap_m": 0.000488553006999912,
+          "distal_bottom_gap_m": 0.0018185904256781266,
+          "minimum_bottom_gap_m": 0.000488553006999912
+        },
+        {
+          "lane": 1,
+          "side": 1,
+          "t": 239,
+          "substep": 11,
+          "offset_requested_rad": -0.1,
+          "actual_q_rad": -0.13948101400000001,
+          "proximal_bottom_gap_m": 0.0005337583301816707,
+          "distal_bottom_gap_m": 0.0027650146619785133,
+          "minimum_bottom_gap_m": 0.0005337583301816707
+        },
+        {
+          "lane": 1,
+          "side": 1,
+          "t": 239,
+          "substep": 11,
+          "offset_requested_rad": -0.2,
+          "actual_q_rad": -0.23948101400000002,
+          "proximal_bottom_gap_m": 0.0006924526532071599,
+          "distal_bottom_gap_m": 0.004707177236405829,
+          "minimum_bottom_gap_m": 0.0006924526532071599
+        }
+      ]
+    },
+    {
+      "lane": 1,
+      "side": "right",
+      "last_front": [
+        264,
+        10
+      ],
+      "poses": [
+        {
+          "lane": 1,
+          "side": 1,
+          "t": 264,
+          "substep": 10,
+          "offset_requested_rad": 0,
+          "actual_q_rad": -0.0402193815,
+          "proximal_bottom_gap_m": 0.00043490333262978173,
+          "distal_bottom_gap_m": 0.0008723077649589704,
+          "minimum_bottom_gap_m": 0.00043490333262978173
+        },
+        {
+          "lane": 1,
+          "side": 1,
+          "t": 264,
+          "substep": 10,
+          "offset_requested_rad": -0.05,
+          "actual_q_rad": -0.0902193815,
+          "proximal_bottom_gap_m": 0.000457487406642202,
+          "distal_bottom_gap_m": 0.0017989876670354097,
+          "minimum_bottom_gap_m": 0.000457487406642202
+        },
+        {
+          "lane": 1,
+          "side": 1,
+          "t": 264,
+          "substep": 10,
+          "offset_requested_rad": -0.1,
+          "actual_q_rad": -0.14021938150000002,
+          "proximal_bottom_gap_m": 0.0005030010788300201,
+          "distal_bottom_gap_m": 0.002745244115276097,
+          "minimum_bottom_gap_m": 0.0005030010788300201
+        },
+        {
+          "lane": 1,
+          "side": 1,
+          "t": 264,
+          "substep": 10,
+          "offset_requested_rad": -0.2,
+          "actual_q_rad": -0.2402193815,
+          "proximal_bottom_gap_m": 0.0006623051481102551,
+          "distal_bottom_gap_m": 0.004686983037440053,
+          "minimum_bottom_gap_m": 0.0006623051481102551
+        }
+      ]
+    },
+    {
+      "lane": 1,
+      "side": "right",
+      "last_front": [
+        289,
+        10
+      ],
+      "poses": [
+        {
+          "lane": 1,
+          "side": 1,
+          "t": 289,
+          "substep": 10,
+          "offset_requested_rad": 0,
+          "actual_q_rad": -0.0394110084,
+          "proximal_bottom_gap_m": 0.0004781849374119636,
+          "distal_bottom_gap_m": 0.0008915482775131173,
+          "minimum_bottom_gap_m": 0.0004781849374119636
+        },
+        {
+          "lane": 1,
+          "side": 1,
+          "t": 289,
+          "substep": 10,
+          "offset_requested_rad": -0.05,
+          "actual_q_rad": -0.0894110084,
+          "proximal_bottom_gap_m": 0.0005001558863858158,
+          "distal_bottom_gap_m": 0.0018178330317633207,
+          "minimum_bottom_gap_m": 0.0005001558863858158
+        },
+        {
+          "lane": 1,
+          "side": 1,
+          "t": 289,
+          "substep": 10,
+          "offset_requested_rad": -0.1,
+          "actual_q_rad": -0.1394110084,
+          "proximal_bottom_gap_m": 0.0005450585222741885,
+          "distal_bottom_gap_m": 0.0027637559662975885,
+          "minimum_bottom_gap_m": 0.0005450585222741885
+        },
+        {
+          "lane": 1,
+          "side": 1,
+          "t": 289,
+          "substep": 10,
+          "offset_requested_rad": -0.2,
+          "actual_q_rad": -0.2394110084,
+          "proximal_bottom_gap_m": 0.0007031528852248364,
+          "distal_bottom_gap_m": 0.004705015941713669,
+          "minimum_bottom_gap_m": 0.0007031528852248364
+        }
+      ]
+    },
+    {
+      "lane": 2,
+      "side": "left",
+      "last_front": [
+        252,
+        1
+      ],
+      "poses": [
+        {
+          "lane": 2,
+          "side": 0,
+          "t": 252,
+          "substep": 1,
+          "offset_requested_rad": 0,
+          "actual_q_rad": -0.0408017337,
+          "proximal_bottom_gap_m": 0.0004891759620017453,
+          "distal_bottom_gap_m": 0.0009273392701559698,
+          "minimum_bottom_gap_m": 0.0004891759620017453
+        },
+        {
+          "lane": 2,
+          "side": 0,
+          "t": 252,
+          "substep": 1,
+          "offset_requested_rad": -0.05,
+          "actual_q_rad": -0.0908017337,
+          "proximal_bottom_gap_m": 0.0005117292948976677,
+          "distal_bottom_gap_m": 0.0018564997247080706,
+          "minimum_bottom_gap_m": 0.0005117292948976677
+        },
+        {
+          "lane": 2,
+          "side": 0,
+          "t": 252,
+          "substep": 1,
+          "offset_requested_rad": -0.1,
+          "actual_q_rad": -0.14080173370000001,
+          "proximal_bottom_gap_m": 0.000557211657699782,
+          "distal_bottom_gap_m": 0.0028052279834347316,
+          "minimum_bottom_gap_m": 0.000557211657699782
+        },
+        {
+          "lane": 2,
+          "side": 0,
+          "t": 252,
+          "substep": 1,
+          "offset_requested_rad": -0.2,
+          "actual_q_rad": -0.24080173370000002,
+          "proximal_bottom_gap_m": 0.0007164517176543855,
+          "distal_bottom_gap_m": 0.004751859624938714,
+          "minimum_bottom_gap_m": 0.0007164517176543855
+        }
+      ]
+    },
+    {
+      "lane": 2,
+      "side": "left",
+      "last_front": [
+        277,
+        2
+      ],
+      "poses": [
+        {
+          "lane": 2,
+          "side": 0,
+          "t": 277,
+          "substep": 2,
+          "offset_requested_rad": 0,
+          "actual_q_rad": -0.0453213118,
+          "proximal_bottom_gap_m": 0.0004614281658200693,
+          "distal_bottom_gap_m": 0.0009605378293386039,
+          "minimum_bottom_gap_m": 0.0004614281658200693
+        },
+        {
+          "lane": 2,
+          "side": 0,
+          "t": 277,
+          "substep": 2,
+          "offset_requested_rad": -0.05,
+          "actual_q_rad": -0.0953213118,
+          "proximal_bottom_gap_m": 0.0004855191099716154,
+          "distal_bottom_gap_m": 0.0018912864611660904,
+          "minimum_bottom_gap_m": 0.0004855191099716154
+        },
+        {
+          "lane": 2,
+          "side": 0,
+          "t": 277,
+          "substep": 2,
+          "offset_requested_rad": -0.1,
+          "actual_q_rad": -0.14532131180000002,
+          "proximal_bottom_gap_m": 0.0005325332444701472,
+          "distal_bottom_gap_m": 0.0028414445970720605,
+          "minimum_bottom_gap_m": 0.0005325332444701472
+        },
+        {
+          "lane": 2,
+          "side": 0,
+          "t": 277,
+          "substep": 2,
+          "offset_requested_rad": -0.2,
+          "actual_q_rad": -0.2453213118,
+          "proximal_bottom_gap_m": 0.0006948040387793741,
+          "distal_bottom_gap_m": 0.004790447201454089,
+          "minimum_bottom_gap_m": 0.0006948040387793741
+        }
+      ]
+    },
+    {
+      "lane": 2,
+      "side": "right",
+      "last_front": [
+        239,
+        11
+      ],
+      "poses": [
+        {
+          "lane": 2,
+          "side": 1,
+          "t": 239,
+          "substep": 11,
+          "offset_requested_rad": 0,
+          "actual_q_rad": -0.047596775,
+          "proximal_bottom_gap_m": 0.0004507071613247763,
+          "distal_bottom_gap_m": 0.0010231128936904008,
+          "minimum_bottom_gap_m": 0.0004507071613247763
+        },
+        {
+          "lane": 2,
+          "side": 1,
+          "t": 239,
+          "substep": 11,
+          "offset_requested_rad": -0.05,
+          "actual_q_rad": -0.097596775,
+          "proximal_bottom_gap_m": 0.0004766382754496871,
+          "distal_bottom_gap_m": 0.0019561112163624522,
+          "minimum_bottom_gap_m": 0.0004766382754496871
+        },
+        {
+          "lane": 2,
+          "side": 1,
+          "t": 239,
+          "substep": 11,
+          "offset_requested_rad": -0.1,
+          "actual_q_rad": -0.147596775,
+          "proximal_bottom_gap_m": 0.0005254861198152449,
+          "distal_bottom_gap_m": 0.0029083283574174792,
+          "minimum_bottom_gap_m": 0.0005254861198152449
+        },
+        {
+          "lane": 2,
+          "side": 1,
+          "t": 239,
+          "substep": 11,
+          "offset_requested_rad": -0.2,
+          "actual_q_rad": -0.24759677500000002,
+          "proximal_bottom_gap_m": 0.0006913866478635289,
+          "distal_bottom_gap_m": 0.00486085681872718,
+          "minimum_bottom_gap_m": 0.0006913866478635289
+        }
+      ]
+    },
+    {
+      "lane": 2,
+      "side": "right",
+      "last_front": [
+        264,
+        10
+      ],
+      "poses": [
+        {
+          "lane": 2,
+          "side": 1,
+          "t": 264,
+          "substep": 10,
+          "offset_requested_rad": 0,
+          "actual_q_rad": -0.0476474054,
+          "proximal_bottom_gap_m": 0.00043631525981345856,
+          "distal_bottom_gap_m": 0.0010071668190965478,
+          "minimum_bottom_gap_m": 0.00043631525981345856
+        },
+        {
+          "lane": 2,
+          "side": 1,
+          "t": 264,
+          "substep": 10,
+          "offset_requested_rad": -0.05,
+          "actual_q_rad": -0.0976474054,
+          "proximal_bottom_gap_m": 0.0004622226045897255,
+          "distal_bottom_gap_m": 0.0019395171279417856,
+          "minimum_bottom_gap_m": 0.0004622226045897255
+        },
+        {
+          "lane": 2,
+          "side": 1,
+          "t": 264,
+          "substep": 10,
+          "offset_requested_rad": -0.1,
+          "actual_q_rad": -0.14764740540000001,
+          "proximal_bottom_gap_m": 0.0005110466140904792,
+          "distal_bottom_gap_m": 0.002891091634563246,
+          "minimum_bottom_gap_m": 0.0005110466140904792
+        },
+        {
+          "lane": 2,
+          "side": 1,
+          "t": 264,
+          "substep": 10,
+          "offset_requested_rad": -0.2,
+          "actual_q_rad": -0.24764740540000002,
+          "proximal_bottom_gap_m": 0.000676899514174531,
+          "distal_bottom_gap_m": 0.004842357372730699,
+          "minimum_bottom_gap_m": 0.000676899514174531
+        }
+      ]
+    },
+    {
+      "lane": 2,
+      "side": "right",
+      "last_front": [
+        289,
+        10
+      ],
+      "poses": [
+        {
+          "lane": 2,
+          "side": 1,
+          "t": 289,
+          "substep": 10,
+          "offset_requested_rad": 0,
+          "actual_q_rad": -0.0460552648,
+          "proximal_bottom_gap_m": 0.000474502833573422,
+          "distal_bottom_gap_m": 0.0010049666862766392,
+          "minimum_bottom_gap_m": 0.000474502833573422
+        },
+        {
+          "lane": 2,
+          "side": 1,
+          "t": 289,
+          "substep": 10,
+          "offset_requested_rad": -0.05,
+          "actual_q_rad": -0.09605526480000001,
+          "proximal_bottom_gap_m": 0.0004993925148807348,
+          "distal_bottom_gap_m": 0.0019362296048617313,
+          "minimum_bottom_gap_m": 0.0004993925148807348
+        },
+        {
+          "lane": 2,
+          "side": 1,
+          "t": 289,
+          "substep": 10,
+          "offset_requested_rad": -0.1,
+          "actual_q_rad": -0.1460552648,
+          "proximal_bottom_gap_m": 0.0005472028155894294,
+          "distal_bottom_gap_m": 0.0028868217984135396,
+          "minimum_bottom_gap_m": 0.0005472028155894294
+        },
+        {
+          "lane": 2,
+          "side": 1,
+          "t": 289,
+          "substep": 10,
+          "offset_requested_rad": -0.2,
+          "actual_q_rad": -0.2460552648,
+          "proximal_bottom_gap_m": 0.0007110502808786012,
+          "distal_bottom_gap_m": 0.004836447694322439,
+          "minimum_bottom_gap_m": 0.0007110502808786012
+        }
+      ]
+    },
+    {
+      "lane": 3,
+      "side": "left",
+      "last_front": [
+        252,
+        1
+      ],
+      "poses": [
+        {
+          "lane": 3,
+          "side": 0,
+          "t": 252,
+          "substep": 1,
+          "offset_requested_rad": 0,
+          "actual_q_rad": -0.0511777736,
+          "proximal_bottom_gap_m": 0.0005278345598890566,
+          "distal_bottom_gap_m": 0.0011556018970822635,
+          "minimum_bottom_gap_m": 0.0005278345598890566
+        },
+        {
+          "lane": 3,
+          "side": 0,
+          "t": 252,
+          "substep": 1,
+          "offset_requested_rad": -0.05,
+          "actual_q_rad": -0.10117777359999999,
+          "proximal_bottom_gap_m": 0.0005551183487861322,
+          "distal_bottom_gap_m": 0.002091425757592953,
+          "minimum_bottom_gap_m": 0.0005551183487861322
+        },
+        {
+          "lane": 3,
+          "side": 0,
+          "t": 252,
+          "substep": 1,
+          "offset_requested_rad": -0.1,
+          "actual_q_rad": -0.1511777736,
+          "proximal_bottom_gap_m": 0.0006053124085871834,
+          "distal_bottom_gap_m": 0.003046319920579032,
+          "minimum_bottom_gap_m": 0.0006053124085871834
+        },
+        {
+          "lane": 3,
+          "side": 0,
+          "t": 252,
+          "substep": 1,
+          "offset_requested_rad": -0.2,
+          "actual_q_rad": -0.2511777736,
+          "proximal_bottom_gap_m": 0.0007738725547018176,
+          "distal_bottom_gap_m": 0.005003730501322284,
+          "minimum_bottom_gap_m": 0.0007738725547018176
+        }
+      ]
+    },
+    {
+      "lane": 3,
+      "side": "left",
+      "last_front": [
+        277,
+        1
+      ],
+      "poses": [
+        {
+          "lane": 3,
+          "side": 0,
+          "t": 277,
+          "substep": 1,
+          "offset_requested_rad": 0,
+          "actual_q_rad": -0.0505447276,
+          "proximal_bottom_gap_m": 0.0004373380752599673,
+          "distal_bottom_gap_m": 0.0010514288869912618,
+          "minimum_bottom_gap_m": 0.0004373380752599673
+        },
+        {
+          "lane": 3,
+          "side": 0,
+          "t": 277,
+          "substep": 1,
+          "offset_requested_rad": -0.05,
+          "actual_q_rad": -0.1005447276,
+          "proximal_bottom_gap_m": 0.0004642765218119977,
+          "distal_bottom_gap_m": 0.0019869574578737694,
+          "minimum_bottom_gap_m": 0.0004642765218119977
+        },
+        {
+          "lane": 3,
+          "side": 0,
+          "t": 277,
+          "substep": 1,
+          "offset_requested_rad": -0.1,
+          "actual_q_rad": -0.1505447276,
+          "proximal_bottom_gap_m": 0.0005141267051279163,
+          "distal_bottom_gap_m": 0.002941591856176916,
+          "minimum_bottom_gap_m": 0.0005141267051279163
+        },
+        {
+          "lane": 3,
+          "side": 0,
+          "t": 277,
+          "substep": 1,
+          "offset_requested_rad": -0.2,
+          "actual_q_rad": -0.2505447276,
+          "proximal_bottom_gap_m": 0.0006820069280883186,
+          "distal_bottom_gap_m": 0.004898591989079038,
+          "minimum_bottom_gap_m": 0.0006820069280883186
+        }
+      ]
+    },
+    {
+      "lane": 3,
+      "side": "right",
+      "last_front": [
+        239,
+        11
+      ],
+      "poses": [
+        {
+          "lane": 3,
+          "side": 1,
+          "t": 239,
+          "substep": 11,
+          "offset_requested_rad": 0,
+          "actual_q_rad": -0.0542554036,
+          "proximal_bottom_gap_m": 0.0004608790954121495,
+          "distal_bottom_gap_m": 0.0011489404420703484,
+          "minimum_bottom_gap_m": 0.0004608790954121495
+        },
+        {
+          "lane": 3,
+          "side": 1,
+          "t": 239,
+          "substep": 11,
+          "offset_requested_rad": -0.05,
+          "actual_q_rad": -0.1042554036,
+          "proximal_bottom_gap_m": 0.0004896404791611096,
+          "distal_bottom_gap_m": 0.0020875080799090673,
+          "minimum_bottom_gap_m": 0.0004896404791611096
+        },
+        {
+          "lane": 3,
+          "side": 1,
+          "t": 239,
+          "substep": 11,
+          "offset_requested_rad": -0.1,
+          "actual_q_rad": -0.1542554036,
+          "proximal_bottom_gap_m": 0.0005413065939322559,
+          "distal_bottom_gap_m": 0.003044986611921461,
+          "minimum_bottom_gap_m": 0.0005413065939322559
+        },
+        {
+          "lane": 3,
+          "side": 1,
+          "t": 239,
+          "substep": 11,
+          "offset_requested_rad": -0.2,
+          "actual_q_rad": -0.2542554036,
+          "proximal_bottom_gap_m": 0.0007127795359018699,
+          "distal_bottom_gap_m": 0.005007062282088911,
+          "minimum_bottom_gap_m": 0.0007127795359018699
+        }
+      ]
+    },
+    {
+      "lane": 3,
+      "side": "right",
+      "last_front": [
+        264,
+        10
+      ],
+      "poses": [
+        {
+          "lane": 3,
+          "side": 1,
+          "t": 264,
+          "substep": 10,
+          "offset_requested_rad": 0,
+          "actual_q_rad": -0.0535675995,
+          "proximal_bottom_gap_m": 0.00043462896635603626,
+          "distal_bottom_gap_m": 0.00111197858060115,
+          "minimum_bottom_gap_m": 0.00043462896635603626
+        },
+        {
+          "lane": 3,
+          "side": 1,
+          "t": 264,
+          "substep": 10,
+          "offset_requested_rad": -0.05,
+          "actual_q_rad": -0.1035675995,
+          "proximal_bottom_gap_m": 0.00046314999642176405,
+          "distal_bottom_gap_m": 0.0020493836749370924,
+          "minimum_bottom_gap_m": 0.00046314999642176405
+        },
+        {
+          "lane": 3,
+          "side": 1,
+          "t": 264,
+          "substep": 10,
+          "offset_requested_rad": -0.1,
+          "actual_q_rad": -0.1535675995,
+          "proximal_bottom_gap_m": 0.0005145767050082073,
+          "distal_bottom_gap_m": 0.0030057296896919914,
+          "minimum_bottom_gap_m": 0.0005145767050082073
+        },
+        {
+          "lane": 3,
+          "side": 1,
+          "t": 264,
+          "substep": 10,
+          "offset_requested_rad": -0.2,
+          "actual_q_rad": -0.2535675995,
+          "proximal_bottom_gap_m": 0.0006855760668031986,
+          "distal_bottom_gap_m": 0.004965641644768388,
+          "minimum_bottom_gap_m": 0.0006855760668031986
+        }
+      ]
+    },
+    {
+      "lane": 3,
+      "side": "right",
+      "last_front": [
+        289,
+        10
+      ],
+      "poses": [
+        {
+          "lane": 3,
+          "side": 1,
+          "t": 289,
+          "substep": 10,
+          "offset_requested_rad": 0,
+          "actual_q_rad": -0.0527448021,
+          "proximal_bottom_gap_m": 0.0004700996551450301,
+          "distal_bottom_gap_m": 0.0011219093029114918,
+          "minimum_bottom_gap_m": 0.0004700996551450301
+        },
+        {
+          "lane": 3,
+          "side": 1,
+          "t": 289,
+          "substep": 10,
+          "offset_requested_rad": -0.05,
+          "actual_q_rad": -0.1027448021,
+          "proximal_bottom_gap_m": 0.000497988228335064,
+          "distal_bottom_gap_m": 0.0020583614876285,
+          "minimum_bottom_gap_m": 0.000497988228335064
+        },
+        {
+          "lane": 3,
+          "side": 1,
+          "t": 289,
+          "substep": 10,
+          "offset_requested_rad": -0.1,
+          "actual_q_rad": -0.15274480210000002,
+          "proximal_bottom_gap_m": 0.000548785084278967,
+          "distal_bottom_gap_m": 0.003013821834577825,
+          "minimum_bottom_gap_m": 0.000548785084278967
+        },
+        {
+          "lane": 3,
+          "side": 1,
+          "t": 289,
+          "substep": 10,
+          "offset_requested_rad": -0.2,
+          "actual_q_rad": -0.2527448021,
+          "proximal_bottom_gap_m": 0.0007185388402584994,
+          "distal_bottom_gap_m": 0.004972172860713577,
+          "minimum_bottom_gap_m": 0.0007185388402584994
+        }
+      ]
+    },
+    {
+      "lane": 4,
+      "side": "left",
+      "last_front": [
+        252,
+        1
+      ],
+      "poses": [
+        {
+          "lane": 4,
+          "side": 0,
+          "t": 252,
+          "substep": 1,
+          "offset_requested_rad": 0,
+          "actual_q_rad": -0.057138782,
+          "proximal_bottom_gap_m": 0.000528648997079979,
+          "distal_bottom_gap_m": 0.0012665472388526267,
+          "minimum_bottom_gap_m": 0.000528648997079979
+        },
+        {
+          "lane": 4,
+          "side": 0,
+          "t": 252,
+          "substep": 1,
+          "offset_requested_rad": -0.05,
+          "actual_q_rad": -0.107138782,
+          "proximal_bottom_gap_m": 0.000558621540132859,
+          "distal_bottom_gap_m": 0.002207428960644126,
+          "minimum_bottom_gap_m": 0.000558621540132859
+        },
+        {
+          "lane": 4,
+          "side": 0,
+          "t": 252,
+          "substep": 1,
+          "offset_requested_rad": -0.1,
+          "actual_q_rad": -0.157138782,
+          "proximal_bottom_gap_m": 0.0006114926140277453,
+          "distal_bottom_gap_m": 0.003167088053408658,
+          "minimum_bottom_gap_m": 0.0006114926140277453
+        },
+        {
+          "lane": 4,
+          "side": 0,
+          "t": 252,
+          "substep": 1,
+          "offset_requested_rad": -0.2,
+          "actual_q_rad": -0.257138782,
+          "proximal_bottom_gap_m": 0.0007853448496482479,
+          "distal_bottom_gap_m": 0.005133102821774675,
+          "minimum_bottom_gap_m": 0.0007853448496482479
+        }
+      ]
+    },
+    {
+      "lane": 4,
+      "side": "left",
+      "last_front": [
+        277,
+        1
+      ],
+      "poses": [
+        {
+          "lane": 4,
+          "side": 0,
+          "t": 277,
+          "substep": 1,
+          "offset_requested_rad": 0,
+          "actual_q_rad": -0.0543074198,
+          "proximal_bottom_gap_m": 0.00046270053646850495,
+          "distal_bottom_gap_m": 0.0011525459805866948,
+          "minimum_bottom_gap_m": 0.00046270053646850495
+        },
+        {
+          "lane": 4,
+          "side": 0,
+          "t": 277,
+          "substep": 1,
+          "offset_requested_rad": -0.05,
+          "actual_q_rad": -0.1043074198,
+          "proximal_bottom_gap_m": 0.0004914587450197631,
+          "distal_bottom_gap_m": 0.0020925385726003557,
+          "minimum_bottom_gap_m": 0.0004914587450197631
+        },
+        {
+          "lane": 4,
+          "side": 0,
+          "t": 277,
+          "substep": 1,
+          "offset_requested_rad": -0.1,
+          "actual_q_rad": -0.1543074198,
+          "proximal_bottom_gap_m": 0.0005431209468319629,
+          "distal_bottom_gap_m": 0.003051433292132269,
+          "minimum_bottom_gap_m": 0.0005431209468319629
+        },
+        {
+          "lane": 4,
+          "side": 0,
+          "t": 277,
+          "substep": 1,
+          "offset_requested_rad": -0.2,
+          "actual_q_rad": -0.2543074198,
+          "proximal_bottom_gap_m": 0.00071458389054096,
+          "distal_bottom_gap_m": 0.005016300909206966,
+          "minimum_bottom_gap_m": 0.00071458389054096
+        }
+      ]
+    },
+    {
+      "lane": 4,
+      "side": "right",
+      "last_front": [
+        239,
+        11
+      ],
+      "poses": [
+        {
+          "lane": 4,
+          "side": 1,
+          "t": 239,
+          "substep": 11,
+          "offset_requested_rad": 0,
+          "actual_q_rad": -0.0621948801,
+          "proximal_bottom_gap_m": 0.0004338146841891405,
+          "distal_bottom_gap_m": 0.001272243328680379,
+          "minimum_bottom_gap_m": 0.0004338146841891405
+        },
+        {
+          "lane": 4,
+          "side": 1,
+          "t": 239,
+          "substep": 11,
+          "offset_requested_rad": -0.05,
+          "actual_q_rad": -0.1121948801,
+          "proximal_bottom_gap_m": 0.000466257297059576,
+          "distal_bottom_gap_m": 0.0022168345914819164,
+          "minimum_bottom_gap_m": 0.000466257297059576
+        },
+        {
+          "lane": 4,
+          "side": 1,
+          "t": 239,
+          "substep": 11,
+          "offset_requested_rad": -0.1,
+          "actual_q_rad": -0.1621948801,
+          "proximal_bottom_gap_m": 0.0005215878179294833,
+          "distal_bottom_gap_m": 0.0031799382307298955,
+          "minimum_bottom_gap_m": 0.0005215878179294833
+        },
+        {
+          "lane": 4,
+          "side": 1,
+          "t": 239,
+          "substep": 11,
+          "offset_requested_rad": -0.2,
+          "actual_q_rad": -0.2621948801,
+          "proximal_bottom_gap_m": 0.0007003025315428322,
+          "distal_bottom_gap_m": 0.005152013354061534,
+          "minimum_bottom_gap_m": 0.0007003025315428322
+        }
+      ]
+    },
+    {
+      "lane": 4,
+      "side": "right",
+      "last_front": [
+        264,
+        10
+      ],
+      "poses": [
+        {
+          "lane": 4,
+          "side": 1,
+          "t": 264,
+          "substep": 10,
+          "offset_requested_rad": 0,
+          "actual_q_rad": -0.0599425808,
+          "proximal_bottom_gap_m": 0.00042535780371088724,
+          "distal_bottom_gap_m": 0.0012181378241550682,
+          "minimum_bottom_gap_m": 0.00042535780371088724
+        },
+        {
+          "lane": 4,
+          "side": 1,
+          "t": 264,
+          "substep": 10,
+          "offset_requested_rad": -0.05,
+          "actual_q_rad": -0.1099425808,
+          "proximal_bottom_gap_m": 0.000456696020239818,
+          "distal_bottom_gap_m": 0.00216064742242913,
+          "minimum_bottom_gap_m": 0.000456696020239818
+        },
+        {
+          "lane": 4,
+          "side": 1,
+          "t": 264,
+          "substep": 10,
+          "offset_requested_rad": -0.1,
+          "actual_q_rad": -0.1599425808,
+          "proximal_bottom_gap_m": 0.0005109272232877854,
+          "distal_bottom_gap_m": 0.003121791016117488,
+          "minimum_bottom_gap_m": 0.0005109272232877854
+        },
+        {
+          "lane": 4,
+          "side": 1,
+          "t": 264,
+          "substep": 10,
+          "offset_requested_rad": -0.2,
+          "actual_q_rad": -0.2599425808,
+          "proximal_bottom_gap_m": 0.0006874695081425658,
+          "distal_bottom_gap_m": 0.005090330185376659,
+          "minimum_bottom_gap_m": 0.0006874695081425658
+        }
+      ]
+    },
+    {
+      "lane": 4,
+      "side": "right",
+      "last_front": [
+        289,
+        10
+      ],
+      "poses": [
+        {
+          "lane": 4,
+          "side": 1,
+          "t": 289,
+          "substep": 10,
+          "offset_requested_rad": 0,
+          "actual_q_rad": -0.0583074316,
+          "proximal_bottom_gap_m": 0.00045990457724688627,
+          "distal_bottom_gap_m": 0.00121240295294576,
+          "minimum_bottom_gap_m": 0.00045990457724688627
+        },
+        {
+          "lane": 4,
+          "side": 1,
+          "t": 289,
+          "substep": 10,
+          "offset_requested_rad": -0.05,
+          "actual_q_rad": -0.1083074316,
+          "proximal_bottom_gap_m": 0.0004902383748684024,
+          "distal_bottom_gap_m": 0.0021538015646011214,
+          "minimum_bottom_gap_m": 0.0004902383748684024
+        },
+        {
+          "lane": 4,
+          "side": 1,
+          "t": 289,
+          "substep": 10,
+          "offset_requested_rad": -0.1,
+          "actual_q_rad": -0.1583074316,
+          "proximal_bottom_gap_m": 0.000543469670983501,
+          "distal_bottom_gap_m": 0.0031139396331426924,
+          "minimum_bottom_gap_m": 0.000543469670983501
+        },
+        {
+          "lane": 4,
+          "side": 1,
+          "t": 289,
+          "substep": 10,
+          "offset_requested_rad": -0.2,
+          "actual_q_rad": -0.2583074316,
+          "proximal_bottom_gap_m": 0.0007180356573581355,
+          "distal_bottom_gap_m": 0.0050807939198001546,
+          "minimum_bottom_gap_m": 0.0007180356573581355
+        }
+      ]
+    },
+    {
+      "lane": 5,
+      "side": "left",
+      "last_front": [
+        252,
+        1
+      ],
+      "poses": [
+        {
+          "lane": 5,
+          "side": 0,
+          "t": 252,
+          "substep": 1,
+          "offset_requested_rad": 0,
+          "actual_q_rad": -0.0602356344,
+          "proximal_bottom_gap_m": 0.000513031960595647,
+          "distal_bottom_gap_m": 0.001312628043730309,
+          "minimum_bottom_gap_m": 0.000513031960595647
+        },
+        {
+          "lane": 5,
+          "side": 0,
+          "t": 252,
+          "substep": 1,
+          "offset_requested_rad": -0.05,
+          "actual_q_rad": -0.1102356344,
+          "proximal_bottom_gap_m": 0.0005444588005765316,
+          "distal_bottom_gap_m": 0.0022573585178768847,
+          "minimum_bottom_gap_m": 0.0005444588005765316
+        },
+        {
+          "lane": 5,
+          "side": 0,
+          "t": 252,
+          "substep": 1,
+          "offset_requested_rad": -0.1,
+          "actual_q_rad": -0.1602356344,
+          "proximal_bottom_gap_m": 0.0005987775102331613,
+          "distal_bottom_gap_m": 0.0032206995044668837,
+          "minimum_bottom_gap_m": 0.0005987775102331613
+        },
+        {
+          "lane": 5,
+          "side": 0,
+          "t": 252,
+          "substep": 1,
+          "offset_requested_rad": -0.2,
+          "actual_q_rad": -0.2602356344,
+          "proximal_bottom_gap_m": 0.0007754905862298166,
+          "distal_bottom_gap_m": 0.005193541113688402,
+          "minimum_bottom_gap_m": 0.0007754905862298166
+        }
+      ]
+    },
+    {
+      "lane": 5,
+      "side": "left",
+      "last_front": [
+        277,
+        1
+      ],
+      "poses": [
+        {
+          "lane": 5,
+          "side": 0,
+          "t": 277,
+          "substep": 1,
+          "offset_requested_rad": 0,
+          "actual_q_rad": -0.0612708591,
+          "proximal_bottom_gap_m": 0.0004483238218976355,
+          "distal_bottom_gap_m": 0.0012676261982100655,
+          "minimum_bottom_gap_m": 0.0004483238218976355
+        },
+        {
+          "lane": 5,
+          "side": 0,
+          "t": 277,
+          "substep": 1,
+          "offset_requested_rad": -0.05,
+          "actual_q_rad": -0.11127085910000001,
+          "proximal_bottom_gap_m": 0.000480242164760291,
+          "distal_bottom_gap_m": 0.002212852599168799,
+          "minimum_bottom_gap_m": 0.000480242164760291
+        },
+        {
+          "lane": 5,
+          "side": 0,
+          "t": 277,
+          "substep": 1,
+          "offset_requested_rad": -0.1,
+          "actual_q_rad": -0.1612708591,
+          "proximal_bottom_gap_m": 0.0005350501295118253,
+          "distal_bottom_gap_m": 0.003176637998256463,
+          "minimum_bottom_gap_m": 0.0005350501295118253
+        },
+        {
+          "lane": 5,
+          "side": 0,
+          "t": 277,
+          "substep": 1,
+          "offset_requested_rad": -0.2,
+          "actual_q_rad": -0.26127085910000003,
+          "proximal_bottom_gap_m": 0.0007127300894808029,
+          "distal_bottom_gap_m": 0.005150209577866006,
+          "minimum_bottom_gap_m": 0.0007127300894808029
+        }
+      ]
+    },
+    {
+      "lane": 5,
+      "side": "right",
+      "last_front": [
+        239,
+        11
+      ],
+      "poses": [
+        {
+          "lane": 5,
+          "side": 1,
+          "t": 239,
+          "substep": 11,
+          "offset_requested_rad": 0,
+          "actual_q_rad": -0.0686169118,
+          "proximal_bottom_gap_m": 0.0004205463455995342,
+          "distal_bottom_gap_m": 0.001375832666758602,
+          "minimum_bottom_gap_m": 0.0004205463455995342
+        },
+        {
+          "lane": 5,
+          "side": 1,
+          "t": 239,
+          "substep": 11,
+          "offset_requested_rad": -0.05,
+          "actual_q_rad": -0.1186169118,
+          "proximal_bottom_gap_m": 0.0004558025494625813,
+          "distal_bottom_gap_m": 0.0023255755148159345,
+          "minimum_bottom_gap_m": 0.0004558025494625813
+        },
+        {
+          "lane": 5,
+          "side": 1,
+          "t": 239,
+          "substep": 11,
+          "offset_requested_rad": -0.1,
+          "actual_q_rad": -0.1686169118,
+          "proximal_bottom_gap_m": 0.000513932763521319,
+          "distal_bottom_gap_m": 0.00329351891441451,
+          "minimum_bottom_gap_m": 0.000513932763521319
+        },
+        {
+          "lane": 5,
+          "side": 1,
+          "t": 239,
+          "substep": 11,
+          "offset_requested_rad": -0.2,
+          "actual_q_rad": -0.2686169118,
+          "proximal_bottom_gap_m": 0.0006981772312293511,
+          "distal_bottom_gap_m": 0.005274290505845967,
+          "minimum_bottom_gap_m": 0.0006981772312293511
+        }
+      ]
+    },
+    {
+      "lane": 5,
+      "side": "right",
+      "last_front": [
+        264,
+        10
+      ],
+      "poses": [
+        {
+          "lane": 5,
+          "side": 1,
+          "t": 264,
+          "substep": 10,
+          "offset_requested_rad": 0,
+          "actual_q_rad": -0.0654527023,
+          "proximal_bottom_gap_m": 0.00043303050300828004,
+          "distal_bottom_gap_m": 0.001325707880761251,
+          "minimum_bottom_gap_m": 0.00043303050300828004
+        },
+        {
+          "lane": 5,
+          "side": 1,
+          "t": 264,
+          "substep": 10,
+          "offset_requested_rad": -0.05,
+          "actual_q_rad": -0.1154527023,
+          "proximal_bottom_gap_m": 0.0004667695513388692,
+          "distal_bottom_gap_m": 0.0022729868982128126,
+          "minimum_bottom_gap_m": 0.0004667695513388692
+        },
+        {
+          "lane": 5,
+          "side": 1,
+          "t": 264,
+          "substep": 10,
+          "offset_requested_rad": -0.1,
+          "actual_q_rad": -0.1654527023,
+          "proximal_bottom_gap_m": 0.0005233900572196165,
+          "distal_bottom_gap_m": 0.003238632770507158,
+          "minimum_bottom_gap_m": 0.0005233900572196165
+        },
+        {
+          "lane": 5,
+          "side": 1,
+          "t": 264,
+          "substep": 10,
+          "offset_requested_rad": -0.2,
+          "actual_q_rad": -0.2654527023,
+          "proximal_bottom_gap_m": 0.0007046525165256331,
+          "distal_bottom_gap_m": 0.005215330757696491,
+          "minimum_bottom_gap_m": 0.0007046525165256331
+        }
+      ]
+    },
+    {
+      "lane": 5,
+      "side": "right",
+      "last_front": [
+        289,
+        10
+      ],
+      "poses": [
+        {
+          "lane": 5,
+          "side": 1,
+          "t": 289,
+          "substep": 10,
+          "offset_requested_rad": 0,
+          "actual_q_rad": -0.0475351401,
+          "proximal_bottom_gap_m": 0.0005481561506875347,
+          "distal_bottom_gap_m": 0.0011330343183379391,
+          "minimum_bottom_gap_m": 0.0005481561506875347
+        },
+        {
+          "lane": 5,
+          "side": 1,
+          "t": 289,
+          "substep": 10,
+          "offset_requested_rad": -0.05,
+          "actual_q_rad": -0.0975351401,
+          "proximal_bottom_gap_m": 0.0005741986523373488,
+          "distal_bottom_gap_m": 0.0020730462638909614,
+          "minimum_bottom_gap_m": 0.0005741986523373488
+        },
+        {
+          "lane": 5,
+          "side": 1,
+          "t": 289,
+          "substep": 10,
+          "offset_requested_rad": -0.1,
+          "actual_q_rad": -0.14753514010000002,
+          "proximal_bottom_gap_m": 0.0006231573699280717,
+          "distal_bottom_gap_m": 0.003032228086940753,
+          "minimum_bottom_gap_m": 0.0006231573699280717
+        },
+        {
+          "lane": 5,
+          "side": 1,
+          "t": 289,
+          "substep": 10,
+          "offset_requested_rad": -0.2,
+          "actual_q_rad": -0.2475351401,
+          "proximal_bottom_gap_m": 0.0007892769950043638,
+          "distal_bottom_gap_m": 0.00499846962310784,
+          "minimum_bottom_gap_m": 0.0007892769950043638
+        }
+      ]
+    },
+    {
+      "lane": 6,
+      "side": "left",
+      "last_front": [
+        252,
+        1
+      ],
+      "poses": [
+        {
+          "lane": 6,
+          "side": 0,
+          "t": 252,
+          "substep": 1,
+          "offset_requested_rad": 0,
+          "actual_q_rad": -0.0721017867,
+          "proximal_bottom_gap_m": 0.0004501588702430035,
+          "distal_bottom_gap_m": 0.0014778244983948575,
+          "minimum_bottom_gap_m": 0.0004501588702430035
+        },
+        {
+          "lane": 6,
+          "side": 0,
+          "t": 252,
+          "substep": 1,
+          "offset_requested_rad": -0.05,
+          "actual_q_rad": -0.1221017867,
+          "proximal_bottom_gap_m": 0.00048705048476198505,
+          "distal_bottom_gap_m": 0.002432504426508912,
+          "minimum_bottom_gap_m": 0.00048705048476198505
+        },
+        {
+          "lane": 6,
+          "side": 0,
+          "t": 252,
+          "substep": 1,
+          "offset_requested_rad": -0.1,
+          "actual_q_rad": -0.1721017867,
+          "proximal_bottom_gap_m": 0.0005468067922463991,
+          "distal_bottom_gap_m": 0.003405186425906861,
+          "minimum_bottom_gap_m": 0.0005468067922463991
+        },
+        {
+          "lane": 6,
+          "side": 0,
+          "t": 252,
+          "substep": 1,
+          "offset_requested_rad": -0.2,
+          "actual_q_rad": -0.2721017867,
+          "proximal_bottom_gap_m": 0.0007342592710152373,
+          "distal_bottom_gap_m": 0.00539479292573946,
+          "minimum_bottom_gap_m": 0.0007342592710152373
+        }
+      ]
+    },
+    {
+      "lane": 6,
+      "side": "left",
+      "last_front": [
+        277,
+        1
+      ],
+      "poses": [
+        {
+          "lane": 6,
+          "side": 0,
+          "t": 277,
+          "substep": 1,
+          "offset_requested_rad": 0,
+          "actual_q_rad": -0.0760899931,
+          "proximal_bottom_gap_m": 0.0004446612226211774,
+          "distal_bottom_gap_m": 0.0015422811260828208,
+          "minimum_bottom_gap_m": 0.0004446612226211774
+        },
+        {
+          "lane": 6,
+          "side": 0,
+          "t": 277,
+          "substep": 1,
+          "offset_requested_rad": -0.05,
+          "actual_q_rad": -0.12608999310000002,
+          "proximal_bottom_gap_m": 0.00048329780120744473,
+          "distal_bottom_gap_m": 0.0024983948216093857,
+          "minimum_bottom_gap_m": 0.00048329780120744473
+        },
+        {
+          "lane": 6,
+          "side": 0,
+          "t": 277,
+          "substep": 1,
+          "offset_requested_rad": -0.1,
+          "actual_q_rad": -0.1760899931,
+          "proximal_bottom_gap_m": 0.0005447897380667296,
+          "distal_bottom_gap_m": 0.0034723271823002087,
+          "minimum_bottom_gap_m": 0.0005447897380667296
+        },
+        {
+          "lane": 6,
+          "side": 0,
+          "t": 277,
+          "substep": 1,
+          "offset_requested_rad": -0.2,
+          "actual_q_rad": -0.27608999310000004,
+          "proximal_bottom_gap_m": 0.0007356681530049577,
+          "distal_bottom_gap_m": 0.0054638721515827115,
+          "minimum_bottom_gap_m": 0.0007356681530049577
+        }
+      ]
+    },
+    {
+      "lane": 6,
+      "side": "right",
+      "last_front": [
+        239,
+        11
+      ],
+      "poses": [
+        {
+          "lane": 6,
+          "side": 1,
+          "t": 239,
+          "substep": 11,
+          "offset_requested_rad": 0,
+          "actual_q_rad": -0.0828642547,
+          "proximal_bottom_gap_m": 0.0004369387704096731,
+          "distal_bottom_gap_m": 0.0016571450328924844,
+          "minimum_bottom_gap_m": 0.0004369387704096731
+        },
+        {
+          "lane": 6,
+          "side": 1,
+          "t": 239,
+          "substep": 11,
+          "offset_requested_rad": -0.05,
+          "actual_q_rad": -0.13286425470000002,
+          "proximal_bottom_gap_m": 0.00047853142630478913,
+          "distal_bottom_gap_m": 0.002617480607813104,
+          "minimum_bottom_gap_m": 0.00047853142630478913
+        },
+        {
+          "lane": 6,
+          "side": 1,
+          "t": 239,
+          "substep": 11,
+          "offset_requested_rad": -0.1,
+          "actual_q_rad": -0.1828642547,
+          "proximal_bottom_gap_m": 0.0005429636170227146,
+          "distal_bottom_gap_m": 0.0035953094585459613,
+          "minimum_bottom_gap_m": 0.0005429636170227146
+        },
+        {
+          "lane": 6,
+          "side": 1,
+          "t": 239,
+          "substep": 11,
+          "offset_requested_rad": -0.2,
+          "actual_q_rad": -0.2828642547,
+          "proximal_bottom_gap_m": 0.0007396457308333285,
+          "distal_bottom_gap_m": 0.005593633120719898,
+          "minimum_bottom_gap_m": 0.0007396457308333285
+        }
+      ]
+    },
+    {
+      "lane": 6,
+      "side": "right",
+      "last_front": [
+        264,
+        10
+      ],
+      "poses": [
+        {
+          "lane": 6,
+          "side": 1,
+          "t": 264,
+          "substep": 10,
+          "offset_requested_rad": 0,
+          "actual_q_rad": -0.0615101568,
+          "proximal_bottom_gap_m": 0.0005306942377945132,
+          "distal_bottom_gap_m": 0.0013828016680551818,
+          "minimum_bottom_gap_m": 0.0005306942377945132
+        },
+        {
+          "lane": 6,
+          "side": 1,
+          "t": 264,
+          "substep": 10,
+          "offset_requested_rad": -0.05,
+          "actual_q_rad": -0.11151015680000001,
+          "proximal_bottom_gap_m": 0.0005632061374764522,
+          "distal_bottom_gap_m": 0.0023338772975531694,
+          "minimum_bottom_gap_m": 0.0005632061374764522
+        },
+        {
+          "lane": 6,
+          "side": 1,
+          "t": 264,
+          "substep": 10,
+          "offset_requested_rad": -0.1,
+          "actual_q_rad": -0.1615101568,
+          "proximal_bottom_gap_m": 0.0006186056556294565,
+          "distal_bottom_gap_m": 0.003303414789769742,
+          "minimum_bottom_gap_m": 0.0006186056556294565
+        },
+        {
+          "lane": 6,
+          "side": 1,
+          "t": 264,
+          "substep": 10,
+          "offset_requested_rad": -0.2,
+          "actual_q_rad": -0.2615101568,
+          "proximal_bottom_gap_m": 0.000797456806549383,
+          "distal_bottom_gap_m": 0.005288141919180861,
+          "minimum_bottom_gap_m": 0.000797456806549383
+        }
+      ]
+    },
+    {
+      "lane": 6,
+      "side": "right",
+      "last_front": [
+        289,
+        10
+      ],
+      "poses": [
+        {
+          "lane": 6,
+          "side": 1,
+          "t": 289,
+          "substep": 10,
+          "offset_requested_rad": 0,
+          "actual_q_rad": -0.0602407753,
+          "proximal_bottom_gap_m": 0.0005325889915315258,
+          "distal_bottom_gap_m": 0.0013602760953405572,
+          "minimum_bottom_gap_m": 0.0005325889915315258
+        },
+        {
+          "lane": 6,
+          "side": 1,
+          "t": 289,
+          "substep": 10,
+          "offset_requested_rad": -0.05,
+          "actual_q_rad": -0.11024077530000001,
+          "proximal_bottom_gap_m": 0.0005644810349036654,
+          "distal_bottom_gap_m": 0.00231105944772317,
+          "minimum_bottom_gap_m": 0.0005644810349036654
+        },
+        {
+          "lane": 6,
+          "side": 1,
+          "t": 289,
+          "substep": 10,
+          "offset_requested_rad": -0.1,
+          "actual_q_rad": -0.1602407753,
+          "proximal_bottom_gap_m": 0.0006192635970257484,
+          "distal_bottom_gap_m": 0.00328036778242413,
+          "minimum_bottom_gap_m": 0.0006192635970257484
+        },
+        {
+          "lane": 6,
+          "side": 1,
+          "t": 289,
+          "substep": 10,
+          "offset_requested_rad": -0.2,
+          "actual_q_rad": -0.2602407753,
+          "proximal_bottom_gap_m": 0.0007968956938920069,
+          "distal_bottom_gap_m": 0.005264828087503327,
+          "minimum_bottom_gap_m": 0.0007968956938920069
+        }
+      ]
+    },
+    {
+      "lane": 7,
+      "side": "left",
+      "last_front": [
+        252,
+        1
+      ],
+      "poses": [
+        {
+          "lane": 7,
+          "side": 0,
+          "t": 252,
+          "substep": 1,
+          "offset_requested_rad": 0,
+          "actual_q_rad": -0.0868984982,
+          "proximal_bottom_gap_m": 0.000447201993593915,
+          "distal_bottom_gap_m": 0.0017580965052120517,
+          "minimum_bottom_gap_m": 0.000447201993593915
+        },
+        {
+          "lane": 7,
+          "side": 0,
+          "t": 252,
+          "substep": 1,
+          "offset_requested_rad": -0.05,
+          "actual_q_rad": -0.1368984982,
+          "proximal_bottom_gap_m": 0.0004908115519281792,
+          "distal_bottom_gap_m": 0.002723877562620809,
+          "minimum_bottom_gap_m": 0.0004908115519281792
+        },
+        {
+          "lane": 7,
+          "side": 0,
+          "t": 252,
+          "substep": 1,
+          "offset_requested_rad": -0.1,
+          "actual_q_rad": -0.18689849819999999,
+          "proximal_bottom_gap_m": 0.0005572479070177563,
+          "distal_bottom_gap_m": 0.003706903914716439,
+          "minimum_bottom_gap_m": 0.0005572479070177563
+        },
+        {
+          "lane": 7,
+          "side": 0,
+          "t": 252,
+          "substep": 1,
+          "offset_requested_rad": -0.2,
+          "actual_q_rad": -0.2868984982,
+          "proximal_bottom_gap_m": 0.0007578801422598088,
+          "distal_bottom_gap_m": 0.005714827324347969,
+          "minimum_bottom_gap_m": 0.0007578801422598088
+        }
+      ]
+    },
+    {
+      "lane": 7,
+      "side": "left",
+      "last_front": [
+        277,
+        1
+      ],
+      "poses": [
+        {
+          "lane": 7,
+          "side": 0,
+          "t": 277,
+          "substep": 1,
+          "offset_requested_rad": 0,
+          "actual_q_rad": -0.096761778,
+          "proximal_bottom_gap_m": 0.0004237262653667261,
+          "distal_bottom_gap_m": 0.0019005509528306572,
+          "minimum_bottom_gap_m": 0.0004237262653667261
+        },
+        {
+          "lane": 7,
+          "side": 0,
+          "t": 277,
+          "substep": 1,
+          "offset_requested_rad": -0.05,
+          "actual_q_rad": -0.146761778,
+          "proximal_bottom_gap_m": 0.00047148747212074835,
+          "distal_bottom_gap_m": 0.0028690189510584534,
+          "minimum_bottom_gap_m": 0.00047148747212074835
+        },
+        {
+          "lane": 7,
+          "side": 0,
+          "t": 277,
+          "substep": 1,
+          "offset_requested_rad": -0.1,
+          "actual_q_rad": -0.196761778,
+          "proximal_bottom_gap_m": 0.0005420495104121979,
+          "distal_bottom_gap_m": 0.0038542952007365825,
+          "minimum_bottom_gap_m": 0.0005420495104121979
+        },
+        {
+          "lane": 7,
+          "side": 0,
+          "t": 277,
+          "substep": 1,
+          "offset_requested_rad": -0.2,
+          "actual_q_rad": -0.29676177800000003,
+          "proximal_bottom_gap_m": 0.0007508140588410629,
+          "distal_bottom_gap_m": 0.0058653858879710394,
+          "minimum_bottom_gap_m": 0.0007508140588410629
+        }
+      ]
+    },
+    {
+      "lane": 7,
+      "side": "right",
+      "last_front": [
+        239,
+        11
+      ],
+      "poses": [
+        {
+          "lane": 7,
+          "side": 1,
+          "t": 239,
+          "substep": 11,
+          "offset_requested_rad": 0,
+          "actual_q_rad": -0.079572469,
+          "proximal_bottom_gap_m": 0.0005608352315013415,
+          "distal_bottom_gap_m": 0.0017586851918155056,
+          "minimum_bottom_gap_m": 0.0005608352315013415
+        },
+        {
+          "lane": 7,
+          "side": 1,
+          "t": 239,
+          "substep": 11,
+          "offset_requested_rad": -0.05,
+          "actual_q_rad": -0.12957246900000002,
+          "proximal_bottom_gap_m": 0.0006015417613765596,
+          "distal_bottom_gap_m": 0.002723831393808416,
+          "minimum_bottom_gap_m": 0.0006015417613765596
+        },
+        {
+          "lane": 7,
+          "side": 1,
+          "t": 239,
+          "substep": 11,
+          "offset_requested_rad": -0.1,
+          "actual_q_rad": -0.179572469,
+          "proximal_bottom_gap_m": 0.0006650932530418395,
+          "distal_bottom_gap_m": 0.0037065179387773765,
+          "minimum_bottom_gap_m": 0.0006650932530418395
+        },
+        {
+          "lane": 7,
+          "side": 1,
+          "t": 239,
+          "substep": 11,
+          "offset_requested_rad": -0.2,
+          "actual_q_rad": -0.279572469,
+          "proximal_bottom_gap_m": 0.0008600390357381207,
+          "distal_bottom_gap_m": 0.005714649536796502,
+          "minimum_bottom_gap_m": 0.0008600390357381207
+        }
+      ]
+    },
+    {
+      "lane": 7,
+      "side": "right",
+      "last_front": [
+        264,
+        10
+      ],
+      "poses": [
+        {
+          "lane": 7,
+          "side": 1,
+          "t": 264,
+          "substep": 10,
+          "offset_requested_rad": 0,
+          "actual_q_rad": -0.0770341381,
+          "proximal_bottom_gap_m": 0.000504994033084136,
+          "distal_bottom_gap_m": 0.0016565320456684123,
+          "minimum_bottom_gap_m": 0.000504994033084136
+        },
+        {
+          "lane": 7,
+          "side": 1,
+          "t": 264,
+          "substep": 10,
+          "offset_requested_rad": -0.05,
+          "actual_q_rad": -0.1270341381,
+          "proximal_bottom_gap_m": 0.0005446678697218332,
+          "distal_bottom_gap_m": 0.0026189516633163303,
+          "minimum_bottom_gap_m": 0.0005446678697218332
+        },
+        {
+          "lane": 7,
+          "side": 1,
+          "t": 264,
+          "substep": 10,
+          "offset_requested_rad": -0.1,
+          "actual_q_rad": -0.17703413810000002,
+          "proximal_bottom_gap_m": 0.0006071922035058852,
+          "distal_bottom_gap_m": 0.0035990371488927343,
+          "minimum_bottom_gap_m": 0.0006071922035058852
+        },
+        {
+          "lane": 7,
+          "side": 1,
+          "t": 264,
+          "substep": 10,
+          "offset_requested_rad": -0.2,
+          "actual_q_rad": -0.2770341381,
+          "proximal_bottom_gap_m": 0.0008001105256951226,
+          "distal_bottom_gap_m": 0.005602368878162688,
+          "minimum_bottom_gap_m": 0.0008001105256951226
+        }
+      ]
+    },
+    {
+      "lane": 7,
+      "side": "right",
+      "last_front": [
+        289,
+        10
+      ],
+      "poses": [
+        {
+          "lane": 7,
+          "side": 1,
+          "t": 289,
+          "substep": 10,
+          "offset_requested_rad": 0,
+          "actual_q_rad": -0.0807323083,
+          "proximal_bottom_gap_m": 0.0005241945470921654,
+          "distal_bottom_gap_m": 0.0017415836447335232,
+          "minimum_bottom_gap_m": 0.0005241945470921654
+        },
+        {
+          "lane": 7,
+          "side": 1,
+          "t": 289,
+          "substep": 10,
+          "offset_requested_rad": -0.05,
+          "actual_q_rad": -0.1307323083,
+          "proximal_bottom_gap_m": 0.0005654878228303229,
+          "distal_bottom_gap_m": 0.002705528047050919,
+          "minimum_bottom_gap_m": 0.0005654878228303229
+        },
+        {
+          "lane": 7,
+          "side": 1,
+          "t": 289,
+          "substep": 10,
+          "offset_requested_rad": -0.1,
+          "actual_q_rad": -0.1807323083,
+          "proximal_bottom_gap_m": 0.0006296223644804613,
+          "distal_bottom_gap_m": 0.0036869647292311486,
+          "minimum_bottom_gap_m": 0.0006296223644804613
+        },
+        {
+          "lane": 7,
+          "side": 1,
+          "t": 289,
+          "substep": 10,
+          "offset_requested_rad": -0.2,
+          "actual_q_rad": -0.2807323083,
+          "proximal_bottom_gap_m": 0.0008257173431072858,
+          "distal_bottom_gap_m": 0.005692465020681735,
+          "minimum_bottom_gap_m": 0.0008257173431072858
+        }
+      ]
+    }
+  ],
+  "scope": "Static native FK at retained last-front-contact joint state and counterfactual proximal angles, with endpoint velocities supplied only to satisfy input shape. No dynamic contact response, actuator feasibility or biological inference. Gap is collision-box geometric bottom minus ground, not exact solver separation. Toe box dimensions +/- (9, 2.5, 9.2) mm. q at substep and ground reference sampling may have rounding differences."
+}

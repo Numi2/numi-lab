@@ -1,0 +1,7 @@
+# Rear-toe static clearance sensitivity
+
+At each of 40 retained last-front-contact substeps, native forward kinematics places the rear proximal collision box closest to the ground. Its median geometric bottom gap is 0.461 mm. An additional -0.20 rad proximal rotation, holding all other coordinates fixed and respecting the model's -0.30 rad lower limit, raises the distal box median bottom from 1.15 to 5.01 mm, but the proximal minimum only from 0.461 to 0.713 mm; none of the 40 proximal minima exceeds 1 mm. This explains why visual toe-tip lift alone is insufficient evidence that the whole simulated toe has cleared the surface. At -0.05 and -0.10 rad, the median proximal minimum rises only 0.029 and 0.080 mm.
+
+The native model inspector reports a 1 mm contact offset and zero rest offset for both rear-toe boxes; each has half extents 9 x 2.5 x 9.2 mm. Contact creation also depends on the other shape, solver state and motion, so geometric clearance or proximity cannot prove an accepted impulse or predict a release. The near-hinge tall rectangular proxy and its lever geometry are an engineering explanation worth testing, not established crow anatomy. No dynamic contact solve or achievable-motor-state claim is made by this counterfactual. Body coordinates came from sampled substeps; endpoint velocities were supplied only as native forward-kinematics inputs.
+
+No model or controller change is admitted. This single previously used seed and short walking window do not qualify walking, toe grip, flight or a full sequence.
