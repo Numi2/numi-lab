@@ -1,0 +1,133 @@
+{
+  "rows": [
+    {
+      "lane": 0,
+      "normal_blend": 0,
+      "pronation_offset": 0,
+      "end_step": 1200,
+      "termination": 0,
+      "yaw_change_rad": -0.17176625553992703,
+      "trajectory_angle_rad": -0.1207346098786556,
+      "dx_m": 3.52923584,
+      "dy_m": -0.4281834584,
+      "max_abs_roll_rad": 0.0009095144435307864,
+      "height_range_m": [
+        1.00397694,
+        1.05904233
+      ]
+    },
+    {
+      "lane": 1,
+      "normal_blend": 0,
+      "pronation_offset": 0,
+      "end_step": 1200,
+      "termination": 0,
+      "yaw_change_rad": -0.1722190863113418,
+      "trajectory_angle_rad": -0.12965645364646167,
+      "dx_m": 3.5252825000000003,
+      "dy_m": -0.4596542362,
+      "max_abs_roll_rad": 0.0009187203072966586,
+      "height_range_m": [
+        1.15445507,
+        1.20841825
+      ]
+    },
+    {
+      "lane": 2,
+      "normal_blend": 0.15,
+      "pronation_offset": 0.2,
+      "end_step": 1200,
+      "termination": 0,
+      "yaw_change_rad": -0.2550400428776988,
+      "trajectory_angle_rad": -0.17820656992586964,
+      "dx_m": 5.97458935,
+      "dy_m": -1.0761269965,
+      "max_abs_roll_rad": 0.0008306045903367637,
+      "height_range_m": [
+        1.02701437,
+        1.05095983
+      ]
+    },
+    {
+      "lane": 3,
+      "normal_blend": 0.15,
+      "pronation_offset": -0.2,
+      "end_step": 1200,
+      "termination": 0,
+      "yaw_change_rad": -0.01329126984685737,
+      "trajectory_angle_rad": -0.07033115467591738,
+      "dx_m": 5.92380285,
+      "dy_m": -0.4173162024,
+      "max_abs_roll_rad": 0.001056348003512088,
+      "height_range_m": [
+        1.17753506,
+        1.19987309
+      ]
+    },
+    {
+      "lane": 4,
+      "normal_blend": 0.35,
+      "pronation_offset": 0.2,
+      "end_step": 1200,
+      "termination": 0,
+      "yaw_change_rad": -0.4198157496317866,
+      "trajectory_angle_rad": -0.24405911891854515,
+      "dx_m": 5.925114746,
+      "dy_m": -1.4754910850999998,
+      "max_abs_roll_rad": 0.0009945933927436412,
+      "height_range_m": [
+        1.02386653,
+        1.04576099
+      ]
+    },
+    {
+      "lane": 5,
+      "normal_blend": 0.35,
+      "pronation_offset": -0.2,
+      "end_step": 1200,
+      "termination": 0,
+      "yaw_change_rad": 0.16793399857043811,
+      "trajectory_angle_rad": 0.013876608259741444,
+      "dx_m": 5.963261245,
+      "dy_m": 0.0827551521,
+      "max_abs_roll_rad": 0.0009654715430291121,
+      "height_range_m": [
+        1.1742394,
+        1.19532895
+      ]
+    },
+    {
+      "lane": 6,
+      "normal_blend": 0.6,
+      "pronation_offset": 0.2,
+      "end_step": 1200,
+      "termination": 0,
+      "yaw_change_rad": -0.6028368862825597,
+      "trajectory_angle_rad": -0.31350692696613086,
+      "dx_m": 6.2223765239999995,
+      "dy_m": -2.0172860152,
+      "max_abs_roll_rad": 0.0016456405013544127,
+      "height_range_m": [
+        1.00471318,
+        1.03231585
+      ]
+    },
+    {
+      "lane": 7,
+      "normal_blend": 0.6,
+      "pronation_offset": -0.2,
+      "end_step": 1200,
+      "termination": 0,
+      "yaw_change_rad": 0.39806211282797516,
+      "trajectory_angle_rad": 0.11163709632653358,
+      "dx_m": 6.34897506,
+      "dy_m": 0.7117403689999999,
+      "max_abs_roll_rad": 0.0015157543301002154,
+      "height_range_m": [
+        1.15617216,
+        1.18219113
+      ]
+    }
+  ],
+  "scope": "Used seed, model sensitivity test with closure changed throughout candidate trajectories, 50 Hz endpoint sampling, no qualified flight or biological force law."
+}
