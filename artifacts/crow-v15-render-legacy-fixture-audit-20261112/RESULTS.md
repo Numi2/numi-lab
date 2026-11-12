@@ -1,0 +1,3 @@
+# Replay fixture test follow-up
+
+The two tests previously blocked by absent legacy replay files pass when the three exact fixture blobs are temporarily restored from their tracked Git objects: canonical neural replay payload locks and v10 root-relative articulation. The restored fixtures matched their Git object identities before removal, and their original sparse-checkout skip-worktree flags were reinstated. The focused v15 replay test also passes after restoring the updated renderer sources. The separate standing-image quality test still fails identically on the pre-change revision and the changed revision, as documented in the baseline test audit; the full suite was not rerun with all fixtures present.
