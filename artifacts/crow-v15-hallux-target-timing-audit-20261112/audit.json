@@ -1,0 +1,1830 @@
+{
+  "unloaded_release": {
+    "counts": {
+      "complete_stances": 40,
+      "no_target_before_front_last": 40,
+      "rear_last_after_front_last": 40
+    },
+    "events": [
+      {
+        "lane": 0,
+        "side": 0,
+        "stance_first": [
+          238,
+          5
+        ],
+        "last_front": [
+          252,
+          1
+        ],
+        "last_rear": [
+          252,
+          12
+        ],
+        "rear_minus_front_ms": 13.75,
+        "first_command_before_front": null,
+        "command_lead_ms": null,
+        "target_at_front_last_rad": 0.0,
+        "post_step_own_support_flag": false,
+        "post_step_opposite_support_flag": true
+      },
+      {
+        "lane": 0,
+        "side": 0,
+        "stance_first": [
+          263,
+          5
+        ],
+        "last_front": [
+          277,
+          2
+        ],
+        "last_rear": [
+          277,
+          11
+        ],
+        "rear_minus_front_ms": 11.25,
+        "first_command_before_front": null,
+        "command_lead_ms": null,
+        "target_at_front_last_rad": 0.0,
+        "post_step_own_support_flag": false,
+        "post_step_opposite_support_flag": true
+      },
+      {
+        "lane": 0,
+        "side": 1,
+        "stance_first": [
+          225,
+          6
+        ],
+        "last_front": [
+          239,
+          11
+        ],
+        "last_rear": [
+          240,
+          0
+        ],
+        "rear_minus_front_ms": 6.25,
+        "first_command_before_front": null,
+        "command_lead_ms": null,
+        "target_at_front_last_rad": 0.0,
+        "post_step_own_support_flag": true,
+        "post_step_opposite_support_flag": true
+      },
+      {
+        "lane": 0,
+        "side": 1,
+        "stance_first": [
+          250,
+          8
+        ],
+        "last_front": [
+          264,
+          10
+        ],
+        "last_rear": [
+          264,
+          14
+        ],
+        "rear_minus_front_ms": 5.0,
+        "first_command_before_front": null,
+        "command_lead_ms": null,
+        "target_at_front_last_rad": 0.0,
+        "post_step_own_support_flag": false,
+        "post_step_opposite_support_flag": true
+      },
+      {
+        "lane": 0,
+        "side": 1,
+        "stance_first": [
+          275,
+          9
+        ],
+        "last_front": [
+          289,
+          10
+        ],
+        "last_rear": [
+          289,
+          14
+        ],
+        "rear_minus_front_ms": 5.0,
+        "first_command_before_front": null,
+        "command_lead_ms": null,
+        "target_at_front_last_rad": 0.0,
+        "post_step_own_support_flag": false,
+        "post_step_opposite_support_flag": true
+      },
+      {
+        "lane": 1,
+        "side": 0,
+        "stance_first": [
+          238,
+          6
+        ],
+        "last_front": [
+          252,
+          1
+        ],
+        "last_rear": [
+          252,
+          12
+        ],
+        "rear_minus_front_ms": 13.75,
+        "first_command_before_front": null,
+        "command_lead_ms": null,
+        "target_at_front_last_rad": 0.0,
+        "post_step_own_support_flag": false,
+        "post_step_opposite_support_flag": true
+      },
+      {
+        "lane": 1,
+        "side": 0,
+        "stance_first": [
+          263,
+          5
+        ],
+        "last_front": [
+          277,
+          2
+        ],
+        "last_rear": [
+          277,
+          11
+        ],
+        "rear_minus_front_ms": 11.25,
+        "first_command_before_front": null,
+        "command_lead_ms": null,
+        "target_at_front_last_rad": 0.0,
+        "post_step_own_support_flag": false,
+        "post_step_opposite_support_flag": true
+      },
+      {
+        "lane": 1,
+        "side": 1,
+        "stance_first": [
+          225,
+          6
+        ],
+        "last_front": [
+          239,
+          11
+        ],
+        "last_rear": [
+          240,
+          0
+        ],
+        "rear_minus_front_ms": 6.25,
+        "first_command_before_front": null,
+        "command_lead_ms": null,
+        "target_at_front_last_rad": 0.0,
+        "post_step_own_support_flag": true,
+        "post_step_opposite_support_flag": true
+      },
+      {
+        "lane": 1,
+        "side": 1,
+        "stance_first": [
+          250,
+          8
+        ],
+        "last_front": [
+          264,
+          10
+        ],
+        "last_rear": [
+          264,
+          14
+        ],
+        "rear_minus_front_ms": 5.0,
+        "first_command_before_front": null,
+        "command_lead_ms": null,
+        "target_at_front_last_rad": 0.0,
+        "post_step_own_support_flag": false,
+        "post_step_opposite_support_flag": true
+      },
+      {
+        "lane": 1,
+        "side": 1,
+        "stance_first": [
+          275,
+          9
+        ],
+        "last_front": [
+          289,
+          10
+        ],
+        "last_rear": [
+          289,
+          14
+        ],
+        "rear_minus_front_ms": 5.0,
+        "first_command_before_front": null,
+        "command_lead_ms": null,
+        "target_at_front_last_rad": 0.0,
+        "post_step_own_support_flag": false,
+        "post_step_opposite_support_flag": true
+      },
+      {
+        "lane": 2,
+        "side": 0,
+        "stance_first": [
+          238,
+          5
+        ],
+        "last_front": [
+          252,
+          1
+        ],
+        "last_rear": [
+          252,
+          12
+        ],
+        "rear_minus_front_ms": 13.75,
+        "first_command_before_front": null,
+        "command_lead_ms": null,
+        "target_at_front_last_rad": 0.0,
+        "post_step_own_support_flag": false,
+        "post_step_opposite_support_flag": true
+      },
+      {
+        "lane": 2,
+        "side": 0,
+        "stance_first": [
+          263,
+          5
+        ],
+        "last_front": [
+          277,
+          2
+        ],
+        "last_rear": [
+          277,
+          11
+        ],
+        "rear_minus_front_ms": 11.25,
+        "first_command_before_front": null,
+        "command_lead_ms": null,
+        "target_at_front_last_rad": 0.0,
+        "post_step_own_support_flag": false,
+        "post_step_opposite_support_flag": true
+      },
+      {
+        "lane": 2,
+        "side": 1,
+        "stance_first": [
+          225,
+          6
+        ],
+        "last_front": [
+          239,
+          11
+        ],
+        "last_rear": [
+          240,
+          0
+        ],
+        "rear_minus_front_ms": 6.25,
+        "first_command_before_front": null,
+        "command_lead_ms": null,
+        "target_at_front_last_rad": 0.0,
+        "post_step_own_support_flag": true,
+        "post_step_opposite_support_flag": true
+      },
+      {
+        "lane": 2,
+        "side": 1,
+        "stance_first": [
+          250,
+          9
+        ],
+        "last_front": [
+          264,
+          10
+        ],
+        "last_rear": [
+          264,
+          14
+        ],
+        "rear_minus_front_ms": 5.0,
+        "first_command_before_front": null,
+        "command_lead_ms": null,
+        "target_at_front_last_rad": 0.0,
+        "post_step_own_support_flag": false,
+        "post_step_opposite_support_flag": true
+      },
+      {
+        "lane": 2,
+        "side": 1,
+        "stance_first": [
+          275,
+          9
+        ],
+        "last_front": [
+          289,
+          10
+        ],
+        "last_rear": [
+          289,
+          14
+        ],
+        "rear_minus_front_ms": 5.0,
+        "first_command_before_front": null,
+        "command_lead_ms": null,
+        "target_at_front_last_rad": 0.0,
+        "post_step_own_support_flag": false,
+        "post_step_opposite_support_flag": true
+      },
+      {
+        "lane": 3,
+        "side": 0,
+        "stance_first": [
+          238,
+          5
+        ],
+        "last_front": [
+          252,
+          1
+        ],
+        "last_rear": [
+          252,
+          11
+        ],
+        "rear_minus_front_ms": 12.5,
+        "first_command_before_front": null,
+        "command_lead_ms": null,
+        "target_at_front_last_rad": 0.0,
+        "post_step_own_support_flag": false,
+        "post_step_opposite_support_flag": true
+      },
+      {
+        "lane": 3,
+        "side": 0,
+        "stance_first": [
+          263,
+          5
+        ],
+        "last_front": [
+          277,
+          2
+        ],
+        "last_rear": [
+          277,
+          11
+        ],
+        "rear_minus_front_ms": 11.25,
+        "first_command_before_front": null,
+        "command_lead_ms": null,
+        "target_at_front_last_rad": 0.0,
+        "post_step_own_support_flag": false,
+        "post_step_opposite_support_flag": true
+      },
+      {
+        "lane": 3,
+        "side": 1,
+        "stance_first": [
+          225,
+          7
+        ],
+        "last_front": [
+          239,
+          11
+        ],
+        "last_rear": [
+          239,
+          15
+        ],
+        "rear_minus_front_ms": 5.0,
+        "first_command_before_front": null,
+        "command_lead_ms": null,
+        "target_at_front_last_rad": 0.0,
+        "post_step_own_support_flag": true,
+        "post_step_opposite_support_flag": true
+      },
+      {
+        "lane": 3,
+        "side": 1,
+        "stance_first": [
+          250,
+          9
+        ],
+        "last_front": [
+          264,
+          10
+        ],
+        "last_rear": [
+          264,
+          14
+        ],
+        "rear_minus_front_ms": 5.0,
+        "first_command_before_front": null,
+        "command_lead_ms": null,
+        "target_at_front_last_rad": 0.0,
+        "post_step_own_support_flag": false,
+        "post_step_opposite_support_flag": true
+      },
+      {
+        "lane": 3,
+        "side": 1,
+        "stance_first": [
+          275,
+          9
+        ],
+        "last_front": [
+          289,
+          10
+        ],
+        "last_rear": [
+          289,
+          14
+        ],
+        "rear_minus_front_ms": 5.0,
+        "first_command_before_front": null,
+        "command_lead_ms": null,
+        "target_at_front_last_rad": 0.0,
+        "post_step_own_support_flag": false,
+        "post_step_opposite_support_flag": true
+      },
+      {
+        "lane": 4,
+        "side": 0,
+        "stance_first": [
+          238,
+          5
+        ],
+        "last_front": [
+          252,
+          1
+        ],
+        "last_rear": [
+          252,
+          12
+        ],
+        "rear_minus_front_ms": 13.75,
+        "first_command_before_front": null,
+        "command_lead_ms": null,
+        "target_at_front_last_rad": 0.0,
+        "post_step_own_support_flag": false,
+        "post_step_opposite_support_flag": true
+      },
+      {
+        "lane": 4,
+        "side": 0,
+        "stance_first": [
+          263,
+          5
+        ],
+        "last_front": [
+          277,
+          2
+        ],
+        "last_rear": [
+          277,
+          11
+        ],
+        "rear_minus_front_ms": 11.25,
+        "first_command_before_front": null,
+        "command_lead_ms": null,
+        "target_at_front_last_rad": 0.0,
+        "post_step_own_support_flag": false,
+        "post_step_opposite_support_flag": true
+      },
+      {
+        "lane": 4,
+        "side": 1,
+        "stance_first": [
+          225,
+          7
+        ],
+        "last_front": [
+          239,
+          11
+        ],
+        "last_rear": [
+          240,
+          0
+        ],
+        "rear_minus_front_ms": 6.25,
+        "first_command_before_front": null,
+        "command_lead_ms": null,
+        "target_at_front_last_rad": 0.0,
+        "post_step_own_support_flag": true,
+        "post_step_opposite_support_flag": true
+      },
+      {
+        "lane": 4,
+        "side": 1,
+        "stance_first": [
+          250,
+          9
+        ],
+        "last_front": [
+          264,
+          10
+        ],
+        "last_rear": [
+          264,
+          14
+        ],
+        "rear_minus_front_ms": 5.0,
+        "first_command_before_front": null,
+        "command_lead_ms": null,
+        "target_at_front_last_rad": 0.0,
+        "post_step_own_support_flag": false,
+        "post_step_opposite_support_flag": true
+      },
+      {
+        "lane": 4,
+        "side": 1,
+        "stance_first": [
+          275,
+          9
+        ],
+        "last_front": [
+          289,
+          10
+        ],
+        "last_rear": [
+          289,
+          14
+        ],
+        "rear_minus_front_ms": 5.0,
+        "first_command_before_front": null,
+        "command_lead_ms": null,
+        "target_at_front_last_rad": 0.0,
+        "post_step_own_support_flag": false,
+        "post_step_opposite_support_flag": true
+      },
+      {
+        "lane": 5,
+        "side": 0,
+        "stance_first": [
+          238,
+          5
+        ],
+        "last_front": [
+          252,
+          1
+        ],
+        "last_rear": [
+          252,
+          12
+        ],
+        "rear_minus_front_ms": 13.75,
+        "first_command_before_front": null,
+        "command_lead_ms": null,
+        "target_at_front_last_rad": 0.0,
+        "post_step_own_support_flag": false,
+        "post_step_opposite_support_flag": true
+      },
+      {
+        "lane": 5,
+        "side": 0,
+        "stance_first": [
+          263,
+          5
+        ],
+        "last_front": [
+          277,
+          2
+        ],
+        "last_rear": [
+          277,
+          10
+        ],
+        "rear_minus_front_ms": 10.0,
+        "first_command_before_front": null,
+        "command_lead_ms": null,
+        "target_at_front_last_rad": 0.0,
+        "post_step_own_support_flag": false,
+        "post_step_opposite_support_flag": true
+      },
+      {
+        "lane": 5,
+        "side": 1,
+        "stance_first": [
+          225,
+          7
+        ],
+        "last_front": [
+          239,
+          11
+        ],
+        "last_rear": [
+          240,
+          0
+        ],
+        "rear_minus_front_ms": 6.25,
+        "first_command_before_front": null,
+        "command_lead_ms": null,
+        "target_at_front_last_rad": 0.0,
+        "post_step_own_support_flag": true,
+        "post_step_opposite_support_flag": true
+      },
+      {
+        "lane": 5,
+        "side": 1,
+        "stance_first": [
+          250,
+          9
+        ],
+        "last_front": [
+          264,
+          10
+        ],
+        "last_rear": [
+          264,
+          15
+        ],
+        "rear_minus_front_ms": 6.25,
+        "first_command_before_front": null,
+        "command_lead_ms": null,
+        "target_at_front_last_rad": 0.0,
+        "post_step_own_support_flag": true,
+        "post_step_opposite_support_flag": true
+      },
+      {
+        "lane": 5,
+        "side": 1,
+        "stance_first": [
+          275,
+          9
+        ],
+        "last_front": [
+          289,
+          10
+        ],
+        "last_rear": [
+          289,
+          14
+        ],
+        "rear_minus_front_ms": 5.0,
+        "first_command_before_front": null,
+        "command_lead_ms": null,
+        "target_at_front_last_rad": 0.0,
+        "post_step_own_support_flag": false,
+        "post_step_opposite_support_flag": true
+      },
+      {
+        "lane": 6,
+        "side": 0,
+        "stance_first": [
+          238,
+          5
+        ],
+        "last_front": [
+          252,
+          1
+        ],
+        "last_rear": [
+          252,
+          11
+        ],
+        "rear_minus_front_ms": 12.5,
+        "first_command_before_front": null,
+        "command_lead_ms": null,
+        "target_at_front_last_rad": 0.0,
+        "post_step_own_support_flag": false,
+        "post_step_opposite_support_flag": true
+      },
+      {
+        "lane": 6,
+        "side": 0,
+        "stance_first": [
+          263,
+          5
+        ],
+        "last_front": [
+          277,
+          2
+        ],
+        "last_rear": [
+          277,
+          10
+        ],
+        "rear_minus_front_ms": 10.0,
+        "first_command_before_front": null,
+        "command_lead_ms": null,
+        "target_at_front_last_rad": 0.0,
+        "post_step_own_support_flag": false,
+        "post_step_opposite_support_flag": true
+      },
+      {
+        "lane": 6,
+        "side": 1,
+        "stance_first": [
+          225,
+          6
+        ],
+        "last_front": [
+          239,
+          11
+        ],
+        "last_rear": [
+          240,
+          0
+        ],
+        "rear_minus_front_ms": 6.25,
+        "first_command_before_front": null,
+        "command_lead_ms": null,
+        "target_at_front_last_rad": 0.0,
+        "post_step_own_support_flag": true,
+        "post_step_opposite_support_flag": true
+      },
+      {
+        "lane": 6,
+        "side": 1,
+        "stance_first": [
+          250,
+          9
+        ],
+        "last_front": [
+          264,
+          10
+        ],
+        "last_rear": [
+          264,
+          14
+        ],
+        "rear_minus_front_ms": 5.0,
+        "first_command_before_front": null,
+        "command_lead_ms": null,
+        "target_at_front_last_rad": 0.0,
+        "post_step_own_support_flag": false,
+        "post_step_opposite_support_flag": true
+      },
+      {
+        "lane": 6,
+        "side": 1,
+        "stance_first": [
+          275,
+          9
+        ],
+        "last_front": [
+          289,
+          10
+        ],
+        "last_rear": [
+          289,
+          14
+        ],
+        "rear_minus_front_ms": 5.0,
+        "first_command_before_front": null,
+        "command_lead_ms": null,
+        "target_at_front_last_rad": 0.0,
+        "post_step_own_support_flag": false,
+        "post_step_opposite_support_flag": true
+      },
+      {
+        "lane": 7,
+        "side": 0,
+        "stance_first": [
+          238,
+          5
+        ],
+        "last_front": [
+          252,
+          1
+        ],
+        "last_rear": [
+          252,
+          11
+        ],
+        "rear_minus_front_ms": 12.5,
+        "first_command_before_front": null,
+        "command_lead_ms": null,
+        "target_at_front_last_rad": 0.0,
+        "post_step_own_support_flag": false,
+        "post_step_opposite_support_flag": true
+      },
+      {
+        "lane": 7,
+        "side": 0,
+        "stance_first": [
+          263,
+          5
+        ],
+        "last_front": [
+          277,
+          2
+        ],
+        "last_rear": [
+          277,
+          11
+        ],
+        "rear_minus_front_ms": 11.25,
+        "first_command_before_front": null,
+        "command_lead_ms": null,
+        "target_at_front_last_rad": 0.0,
+        "post_step_own_support_flag": false,
+        "post_step_opposite_support_flag": true
+      },
+      {
+        "lane": 7,
+        "side": 1,
+        "stance_first": [
+          225,
+          6
+        ],
+        "last_front": [
+          239,
+          11
+        ],
+        "last_rear": [
+          240,
+          0
+        ],
+        "rear_minus_front_ms": 6.25,
+        "first_command_before_front": null,
+        "command_lead_ms": null,
+        "target_at_front_last_rad": 0.0,
+        "post_step_own_support_flag": true,
+        "post_step_opposite_support_flag": true
+      },
+      {
+        "lane": 7,
+        "side": 1,
+        "stance_first": [
+          250,
+          9
+        ],
+        "last_front": [
+          264,
+          10
+        ],
+        "last_rear": [
+          264,
+          14
+        ],
+        "rear_minus_front_ms": 5.0,
+        "first_command_before_front": null,
+        "command_lead_ms": null,
+        "target_at_front_last_rad": 0.0,
+        "post_step_own_support_flag": false,
+        "post_step_opposite_support_flag": true
+      },
+      {
+        "lane": 7,
+        "side": 1,
+        "stance_first": [
+          275,
+          9
+        ],
+        "last_front": [
+          289,
+          10
+        ],
+        "last_rear": [
+          289,
+          14
+        ],
+        "rear_minus_front_ms": 5.0,
+        "first_command_before_front": null,
+        "command_lead_ms": null,
+        "target_at_front_last_rad": 0.0,
+        "post_step_own_support_flag": false,
+        "post_step_opposite_support_flag": true
+      }
+    ]
+  },
+  "loaded_release": {
+    "counts": {
+      "complete_stances": 40,
+      "target_before_or_at_front_last": 16,
+      "rear_last_after_front_last": 40,
+      "no_target_before_front_last": 24
+    },
+    "events": [
+      {
+        "lane": 0,
+        "side": 0,
+        "stance_first": [
+          238,
+          5
+        ],
+        "last_front": [
+          252,
+          1
+        ],
+        "last_rear": [
+          252,
+          12
+        ],
+        "rear_minus_front_ms": 13.75,
+        "first_command_before_front": [
+          252,
+          0
+        ],
+        "command_lead_ms": 1.25,
+        "target_at_front_last_rad": -0.00520201493,
+        "post_step_own_support_flag": false,
+        "post_step_opposite_support_flag": true
+      },
+      {
+        "lane": 0,
+        "side": 0,
+        "stance_first": [
+          263,
+          5
+        ],
+        "last_front": [
+          277,
+          2
+        ],
+        "last_rear": [
+          277,
+          11
+        ],
+        "rear_minus_front_ms": 11.25,
+        "first_command_before_front": [
+          277,
+          0
+        ],
+        "command_lead_ms": 2.5,
+        "target_at_front_last_rad": -0.00520194275,
+        "post_step_own_support_flag": false,
+        "post_step_opposite_support_flag": true
+      },
+      {
+        "lane": 0,
+        "side": 1,
+        "stance_first": [
+          225,
+          6
+        ],
+        "last_front": [
+          239,
+          11
+        ],
+        "last_rear": [
+          240,
+          0
+        ],
+        "rear_minus_front_ms": 6.25,
+        "first_command_before_front": null,
+        "command_lead_ms": null,
+        "target_at_front_last_rad": 0.0,
+        "post_step_own_support_flag": true,
+        "post_step_opposite_support_flag": true
+      },
+      {
+        "lane": 0,
+        "side": 1,
+        "stance_first": [
+          250,
+          8
+        ],
+        "last_front": [
+          264,
+          10
+        ],
+        "last_rear": [
+          264,
+          14
+        ],
+        "rear_minus_front_ms": 5.0,
+        "first_command_before_front": null,
+        "command_lead_ms": null,
+        "target_at_front_last_rad": 0.0,
+        "post_step_own_support_flag": false,
+        "post_step_opposite_support_flag": true
+      },
+      {
+        "lane": 0,
+        "side": 1,
+        "stance_first": [
+          275,
+          9
+        ],
+        "last_front": [
+          289,
+          10
+        ],
+        "last_rear": [
+          289,
+          14
+        ],
+        "rear_minus_front_ms": 5.0,
+        "first_command_before_front": null,
+        "command_lead_ms": null,
+        "target_at_front_last_rad": 0.0,
+        "post_step_own_support_flag": false,
+        "post_step_opposite_support_flag": true
+      },
+      {
+        "lane": 1,
+        "side": 0,
+        "stance_first": [
+          238,
+          5
+        ],
+        "last_front": [
+          252,
+          1
+        ],
+        "last_rear": [
+          252,
+          11
+        ],
+        "rear_minus_front_ms": 12.5,
+        "first_command_before_front": [
+          252,
+          0
+        ],
+        "command_lead_ms": 1.25,
+        "target_at_front_last_rad": -0.00520201493,
+        "post_step_own_support_flag": false,
+        "post_step_opposite_support_flag": true
+      },
+      {
+        "lane": 1,
+        "side": 0,
+        "stance_first": [
+          263,
+          5
+        ],
+        "last_front": [
+          277,
+          2
+        ],
+        "last_rear": [
+          277,
+          11
+        ],
+        "rear_minus_front_ms": 11.25,
+        "first_command_before_front": [
+          277,
+          0
+        ],
+        "command_lead_ms": 2.5,
+        "target_at_front_last_rad": -0.00520194275,
+        "post_step_own_support_flag": false,
+        "post_step_opposite_support_flag": true
+      },
+      {
+        "lane": 1,
+        "side": 1,
+        "stance_first": [
+          225,
+          6
+        ],
+        "last_front": [
+          239,
+          11
+        ],
+        "last_rear": [
+          240,
+          0
+        ],
+        "rear_minus_front_ms": 6.25,
+        "first_command_before_front": null,
+        "command_lead_ms": null,
+        "target_at_front_last_rad": 0.0,
+        "post_step_own_support_flag": true,
+        "post_step_opposite_support_flag": true
+      },
+      {
+        "lane": 1,
+        "side": 1,
+        "stance_first": [
+          250,
+          8
+        ],
+        "last_front": [
+          264,
+          10
+        ],
+        "last_rear": [
+          264,
+          14
+        ],
+        "rear_minus_front_ms": 5.0,
+        "first_command_before_front": null,
+        "command_lead_ms": null,
+        "target_at_front_last_rad": 0.0,
+        "post_step_own_support_flag": false,
+        "post_step_opposite_support_flag": true
+      },
+      {
+        "lane": 1,
+        "side": 1,
+        "stance_first": [
+          275,
+          9
+        ],
+        "last_front": [
+          289,
+          10
+        ],
+        "last_rear": [
+          289,
+          14
+        ],
+        "rear_minus_front_ms": 5.0,
+        "first_command_before_front": null,
+        "command_lead_ms": null,
+        "target_at_front_last_rad": 0.0,
+        "post_step_own_support_flag": false,
+        "post_step_opposite_support_flag": true
+      },
+      {
+        "lane": 2,
+        "side": 0,
+        "stance_first": [
+          238,
+          5
+        ],
+        "last_front": [
+          252,
+          1
+        ],
+        "last_rear": [
+          252,
+          12
+        ],
+        "rear_minus_front_ms": 13.75,
+        "first_command_before_front": [
+          252,
+          0
+        ],
+        "command_lead_ms": 1.25,
+        "target_at_front_last_rad": -0.00520201493,
+        "post_step_own_support_flag": false,
+        "post_step_opposite_support_flag": true
+      },
+      {
+        "lane": 2,
+        "side": 0,
+        "stance_first": [
+          263,
+          5
+        ],
+        "last_front": [
+          277,
+          2
+        ],
+        "last_rear": [
+          277,
+          11
+        ],
+        "rear_minus_front_ms": 11.25,
+        "first_command_before_front": [
+          277,
+          0
+        ],
+        "command_lead_ms": 2.5,
+        "target_at_front_last_rad": -0.00520194275,
+        "post_step_own_support_flag": false,
+        "post_step_opposite_support_flag": true
+      },
+      {
+        "lane": 2,
+        "side": 1,
+        "stance_first": [
+          225,
+          6
+        ],
+        "last_front": [
+          239,
+          11
+        ],
+        "last_rear": [
+          240,
+          0
+        ],
+        "rear_minus_front_ms": 6.25,
+        "first_command_before_front": null,
+        "command_lead_ms": null,
+        "target_at_front_last_rad": 0.0,
+        "post_step_own_support_flag": true,
+        "post_step_opposite_support_flag": true
+      },
+      {
+        "lane": 2,
+        "side": 1,
+        "stance_first": [
+          250,
+          8
+        ],
+        "last_front": [
+          264,
+          10
+        ],
+        "last_rear": [
+          264,
+          14
+        ],
+        "rear_minus_front_ms": 5.0,
+        "first_command_before_front": null,
+        "command_lead_ms": null,
+        "target_at_front_last_rad": 0.0,
+        "post_step_own_support_flag": false,
+        "post_step_opposite_support_flag": true
+      },
+      {
+        "lane": 2,
+        "side": 1,
+        "stance_first": [
+          275,
+          9
+        ],
+        "last_front": [
+          289,
+          10
+        ],
+        "last_rear": [
+          289,
+          14
+        ],
+        "rear_minus_front_ms": 5.0,
+        "first_command_before_front": null,
+        "command_lead_ms": null,
+        "target_at_front_last_rad": 0.0,
+        "post_step_own_support_flag": false,
+        "post_step_opposite_support_flag": true
+      },
+      {
+        "lane": 3,
+        "side": 0,
+        "stance_first": [
+          238,
+          5
+        ],
+        "last_front": [
+          252,
+          1
+        ],
+        "last_rear": [
+          252,
+          11
+        ],
+        "rear_minus_front_ms": 12.5,
+        "first_command_before_front": [
+          252,
+          0
+        ],
+        "command_lead_ms": 1.25,
+        "target_at_front_last_rad": -0.00520201493,
+        "post_step_own_support_flag": false,
+        "post_step_opposite_support_flag": true
+      },
+      {
+        "lane": 3,
+        "side": 0,
+        "stance_first": [
+          263,
+          5
+        ],
+        "last_front": [
+          277,
+          2
+        ],
+        "last_rear": [
+          277,
+          10
+        ],
+        "rear_minus_front_ms": 10.0,
+        "first_command_before_front": [
+          277,
+          0
+        ],
+        "command_lead_ms": 2.5,
+        "target_at_front_last_rad": -0.00520194275,
+        "post_step_own_support_flag": false,
+        "post_step_opposite_support_flag": true
+      },
+      {
+        "lane": 3,
+        "side": 1,
+        "stance_first": [
+          225,
+          6
+        ],
+        "last_front": [
+          239,
+          11
+        ],
+        "last_rear": [
+          240,
+          0
+        ],
+        "rear_minus_front_ms": 6.25,
+        "first_command_before_front": null,
+        "command_lead_ms": null,
+        "target_at_front_last_rad": 0.0,
+        "post_step_own_support_flag": true,
+        "post_step_opposite_support_flag": true
+      },
+      {
+        "lane": 3,
+        "side": 1,
+        "stance_first": [
+          250,
+          8
+        ],
+        "last_front": [
+          264,
+          10
+        ],
+        "last_rear": [
+          264,
+          14
+        ],
+        "rear_minus_front_ms": 5.0,
+        "first_command_before_front": null,
+        "command_lead_ms": null,
+        "target_at_front_last_rad": 0.0,
+        "post_step_own_support_flag": false,
+        "post_step_opposite_support_flag": true
+      },
+      {
+        "lane": 3,
+        "side": 1,
+        "stance_first": [
+          275,
+          9
+        ],
+        "last_front": [
+          289,
+          10
+        ],
+        "last_rear": [
+          289,
+          14
+        ],
+        "rear_minus_front_ms": 5.0,
+        "first_command_before_front": null,
+        "command_lead_ms": null,
+        "target_at_front_last_rad": 0.0,
+        "post_step_own_support_flag": false,
+        "post_step_opposite_support_flag": true
+      },
+      {
+        "lane": 4,
+        "side": 0,
+        "stance_first": [
+          238,
+          5
+        ],
+        "last_front": [
+          252,
+          1
+        ],
+        "last_rear": [
+          252,
+          11
+        ],
+        "rear_minus_front_ms": 12.5,
+        "first_command_before_front": [
+          252,
+          0
+        ],
+        "command_lead_ms": 1.25,
+        "target_at_front_last_rad": -0.00520201493,
+        "post_step_own_support_flag": false,
+        "post_step_opposite_support_flag": true
+      },
+      {
+        "lane": 4,
+        "side": 0,
+        "stance_first": [
+          263,
+          5
+        ],
+        "last_front": [
+          277,
+          2
+        ],
+        "last_rear": [
+          277,
+          10
+        ],
+        "rear_minus_front_ms": 10.0,
+        "first_command_before_front": [
+          277,
+          0
+        ],
+        "command_lead_ms": 2.5,
+        "target_at_front_last_rad": -0.00520194275,
+        "post_step_own_support_flag": false,
+        "post_step_opposite_support_flag": true
+      },
+      {
+        "lane": 4,
+        "side": 1,
+        "stance_first": [
+          225,
+          6
+        ],
+        "last_front": [
+          239,
+          11
+        ],
+        "last_rear": [
+          240,
+          0
+        ],
+        "rear_minus_front_ms": 6.25,
+        "first_command_before_front": null,
+        "command_lead_ms": null,
+        "target_at_front_last_rad": 0.0,
+        "post_step_own_support_flag": true,
+        "post_step_opposite_support_flag": true
+      },
+      {
+        "lane": 4,
+        "side": 1,
+        "stance_first": [
+          250,
+          8
+        ],
+        "last_front": [
+          264,
+          10
+        ],
+        "last_rear": [
+          264,
+          15
+        ],
+        "rear_minus_front_ms": 6.25,
+        "first_command_before_front": null,
+        "command_lead_ms": null,
+        "target_at_front_last_rad": 0.0,
+        "post_step_own_support_flag": true,
+        "post_step_opposite_support_flag": true
+      },
+      {
+        "lane": 4,
+        "side": 1,
+        "stance_first": [
+          275,
+          9
+        ],
+        "last_front": [
+          289,
+          10
+        ],
+        "last_rear": [
+          289,
+          14
+        ],
+        "rear_minus_front_ms": 5.0,
+        "first_command_before_front": null,
+        "command_lead_ms": null,
+        "target_at_front_last_rad": 0.0,
+        "post_step_own_support_flag": false,
+        "post_step_opposite_support_flag": true
+      },
+      {
+        "lane": 5,
+        "side": 0,
+        "stance_first": [
+          238,
+          5
+        ],
+        "last_front": [
+          252,
+          1
+        ],
+        "last_rear": [
+          252,
+          12
+        ],
+        "rear_minus_front_ms": 13.75,
+        "first_command_before_front": [
+          252,
+          0
+        ],
+        "command_lead_ms": 1.25,
+        "target_at_front_last_rad": -0.00520201493,
+        "post_step_own_support_flag": false,
+        "post_step_opposite_support_flag": true
+      },
+      {
+        "lane": 5,
+        "side": 0,
+        "stance_first": [
+          263,
+          5
+        ],
+        "last_front": [
+          277,
+          2
+        ],
+        "last_rear": [
+          277,
+          10
+        ],
+        "rear_minus_front_ms": 10.0,
+        "first_command_before_front": [
+          277,
+          0
+        ],
+        "command_lead_ms": 2.5,
+        "target_at_front_last_rad": -0.00520194275,
+        "post_step_own_support_flag": false,
+        "post_step_opposite_support_flag": true
+      },
+      {
+        "lane": 5,
+        "side": 1,
+        "stance_first": [
+          225,
+          6
+        ],
+        "last_front": [
+          239,
+          11
+        ],
+        "last_rear": [
+          240,
+          0
+        ],
+        "rear_minus_front_ms": 6.25,
+        "first_command_before_front": null,
+        "command_lead_ms": null,
+        "target_at_front_last_rad": 0.0,
+        "post_step_own_support_flag": true,
+        "post_step_opposite_support_flag": true
+      },
+      {
+        "lane": 5,
+        "side": 1,
+        "stance_first": [
+          250,
+          8
+        ],
+        "last_front": [
+          264,
+          10
+        ],
+        "last_rear": [
+          264,
+          15
+        ],
+        "rear_minus_front_ms": 6.25,
+        "first_command_before_front": null,
+        "command_lead_ms": null,
+        "target_at_front_last_rad": 0.0,
+        "post_step_own_support_flag": true,
+        "post_step_opposite_support_flag": true
+      },
+      {
+        "lane": 5,
+        "side": 1,
+        "stance_first": [
+          275,
+          9
+        ],
+        "last_front": [
+          289,
+          10
+        ],
+        "last_rear": [
+          289,
+          14
+        ],
+        "rear_minus_front_ms": 5.0,
+        "first_command_before_front": null,
+        "command_lead_ms": null,
+        "target_at_front_last_rad": 0.0,
+        "post_step_own_support_flag": false,
+        "post_step_opposite_support_flag": true
+      },
+      {
+        "lane": 6,
+        "side": 0,
+        "stance_first": [
+          238,
+          5
+        ],
+        "last_front": [
+          252,
+          1
+        ],
+        "last_rear": [
+          252,
+          11
+        ],
+        "rear_minus_front_ms": 12.5,
+        "first_command_before_front": [
+          252,
+          0
+        ],
+        "command_lead_ms": 1.25,
+        "target_at_front_last_rad": -0.00520201493,
+        "post_step_own_support_flag": false,
+        "post_step_opposite_support_flag": true
+      },
+      {
+        "lane": 6,
+        "side": 0,
+        "stance_first": [
+          263,
+          5
+        ],
+        "last_front": [
+          277,
+          2
+        ],
+        "last_rear": [
+          277,
+          10
+        ],
+        "rear_minus_front_ms": 10.0,
+        "first_command_before_front": [
+          277,
+          0
+        ],
+        "command_lead_ms": 2.5,
+        "target_at_front_last_rad": -0.00520194275,
+        "post_step_own_support_flag": false,
+        "post_step_opposite_support_flag": true
+      },
+      {
+        "lane": 6,
+        "side": 1,
+        "stance_first": [
+          225,
+          6
+        ],
+        "last_front": [
+          239,
+          11
+        ],
+        "last_rear": [
+          240,
+          0
+        ],
+        "rear_minus_front_ms": 6.25,
+        "first_command_before_front": null,
+        "command_lead_ms": null,
+        "target_at_front_last_rad": 0.0,
+        "post_step_own_support_flag": true,
+        "post_step_opposite_support_flag": true
+      },
+      {
+        "lane": 6,
+        "side": 1,
+        "stance_first": [
+          250,
+          9
+        ],
+        "last_front": [
+          264,
+          10
+        ],
+        "last_rear": [
+          264,
+          14
+        ],
+        "rear_minus_front_ms": 5.0,
+        "first_command_before_front": null,
+        "command_lead_ms": null,
+        "target_at_front_last_rad": 0.0,
+        "post_step_own_support_flag": false,
+        "post_step_opposite_support_flag": true
+      },
+      {
+        "lane": 6,
+        "side": 1,
+        "stance_first": [
+          275,
+          9
+        ],
+        "last_front": [
+          289,
+          10
+        ],
+        "last_rear": [
+          289,
+          14
+        ],
+        "rear_minus_front_ms": 5.0,
+        "first_command_before_front": null,
+        "command_lead_ms": null,
+        "target_at_front_last_rad": 0.0,
+        "post_step_own_support_flag": false,
+        "post_step_opposite_support_flag": true
+      },
+      {
+        "lane": 7,
+        "side": 0,
+        "stance_first": [
+          238,
+          5
+        ],
+        "last_front": [
+          252,
+          1
+        ],
+        "last_rear": [
+          252,
+          11
+        ],
+        "rear_minus_front_ms": 12.5,
+        "first_command_before_front": [
+          252,
+          0
+        ],
+        "command_lead_ms": 1.25,
+        "target_at_front_last_rad": -0.00520201493,
+        "post_step_own_support_flag": false,
+        "post_step_opposite_support_flag": true
+      },
+      {
+        "lane": 7,
+        "side": 0,
+        "stance_first": [
+          263,
+          5
+        ],
+        "last_front": [
+          277,
+          2
+        ],
+        "last_rear": [
+          277,
+          10
+        ],
+        "rear_minus_front_ms": 10.0,
+        "first_command_before_front": [
+          277,
+          0
+        ],
+        "command_lead_ms": 2.5,
+        "target_at_front_last_rad": -0.00520194275,
+        "post_step_own_support_flag": false,
+        "post_step_opposite_support_flag": true
+      },
+      {
+        "lane": 7,
+        "side": 1,
+        "stance_first": [
+          225,
+          6
+        ],
+        "last_front": [
+          239,
+          11
+        ],
+        "last_rear": [
+          240,
+          0
+        ],
+        "rear_minus_front_ms": 6.25,
+        "first_command_before_front": null,
+        "command_lead_ms": null,
+        "target_at_front_last_rad": 0.0,
+        "post_step_own_support_flag": true,
+        "post_step_opposite_support_flag": true
+      },
+      {
+        "lane": 7,
+        "side": 1,
+        "stance_first": [
+          250,
+          9
+        ],
+        "last_front": [
+          264,
+          10
+        ],
+        "last_rear": [
+          264,
+          14
+        ],
+        "rear_minus_front_ms": 5.0,
+        "first_command_before_front": null,
+        "command_lead_ms": null,
+        "target_at_front_last_rad": 0.0,
+        "post_step_own_support_flag": false,
+        "post_step_opposite_support_flag": true
+      },
+      {
+        "lane": 7,
+        "side": 1,
+        "stance_first": [
+          275,
+          9
+        ],
+        "last_front": [
+          289,
+          10
+        ],
+        "last_rear": [
+          289,
+          14
+        ],
+        "rear_minus_front_ms": 5.0,
+        "first_command_before_front": null,
+        "command_lead_ms": null,
+        "target_at_front_last_rad": 0.0,
+        "post_step_own_support_flag": false,
+        "post_step_opposite_support_flag": true
+      }
+    ]
+  },
+  "method": "Actual substep-zero captured proximal targets for rear toe (dof 28 left, 36 right), threshold -0.001 rad, joined to measured contact groups at 1.25 ms. Foot-normal contact >1e-7; bridge at most two silent substeps; only complete stances with both front/rear toe contact. Target is held/interpolated by the actual actuator system; target does not prove motor followed. Commands on same control interval as last contact are not necessarily applied before that substep. Status flags are sampled after the interval and must not be treated as causal pre-step gate values. Stance detection and contact thresholds are engineering choices; toe anatomical identity remains unverified."
+}

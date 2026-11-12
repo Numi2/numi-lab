@@ -1,0 +1,2 @@
+unloaded_release {'complete_stances': 40, 'no_target_before_front_last': 40, 'rear_last_after_front_last': 40} lead median/range None
+loaded_release {'complete_stances': 40, 'target_before_or_at_front_last': 16, 'rear_last_after_front_last': 40, 'no_target_before_front_last': 24} lead median/range (1.875, 1.25, 2.5)
