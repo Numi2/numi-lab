@@ -1,0 +1,17 @@
+{
+  "control": [
+    2801281168732241546,
+    10205657253310701228,
+    4287182078978984971,
+    3807034227416306949
+  ],
+  "high": [
+    4102200840525473412,
+    11171622882452738193,
+    4287182078978984971,
+    3807034227416306949
+  ],
+  "same_observation_action_layout_hashes": true,
+  "different_world_hashes": true,
+  "scope": "Diagnostic-only host omits the world fingerprint from the observation/action hashes while retaining all other original hash inputs. Actor contract failure is expected. Equality corroborates unchanged compiled observation/action layout inputs, not equivalence of physical trajectories or an approval to promote the high-traction world. Normal host retains full world-bound fingerprints."
+}

@@ -1,0 +1,4 @@
+/Users/n/Developer/numi-crow-rl-20261107/build/crow-v15-walk-traction-screen-20261112/c_api.cpp:3367:13: warning: unused function 'close' [-Wunused-function]
+ 3367 | static void close(double a, double b, const char* why) { crowToeNeed(std::abs(a-b)<=2e-7*(1+std::abs(a)),why); }
+      |             ^~~~~
+1 warning generated.

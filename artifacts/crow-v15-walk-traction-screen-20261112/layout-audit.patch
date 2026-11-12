@@ -1,0 +1,25 @@
+--- a/TaskProgram.cpp
++++ b/layout-audit-only.cpp
+@@ -1,3 +1,4 @@
++#include <cstdlib>
+ #include "metalrobo/TaskProgram.hpp"
+ 
+ #include "metalrobo/MetalWorld.hpp"
+@@ -4829,7 +4830,7 @@
+         staged->header.actionAvailabilityProgram=std::uint64_t(pack.actionAvailableAfterSteps)|(std::uint64_t(offset)<<32u);
+     }
+     Hash actionHash;
+-    actionHash.scalar(world.fingerprint());
++    if (std::getenv("CROW_LAYOUT_AUDIT_IGNORE_WORLD") == nullptr) actionHash.scalar(world.fingerprint());
+     actionHash.span<MRTaskActionBindingGPU>(
+         staged->actionBindings
+     );
+@@ -4847,7 +4848,7 @@
+ 
+     Hash observationHash;
+     observationHash.string("nonoverlapping-two-array-temporal-history-v2");
+-    observationHash.scalar(world.fingerprint());
++    if (std::getenv("CROW_LAYOUT_AUDIT_IGNORE_WORLD") == nullptr) observationHash.scalar(world.fingerprint());
+     observationHash.scalar(staged->layout.actorFrameSize);
+     observationHash.scalar(staged->layout.actorHistoryLength);
+     observationHash.scalar(staged->layout.actorObservationSize);

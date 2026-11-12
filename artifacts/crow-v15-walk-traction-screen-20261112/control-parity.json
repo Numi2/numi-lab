@@ -1,0 +1,9 @@
+{
+  "state_samples": 2400,
+  "state_mismatches": 0,
+  "contact_substeps": 38400,
+  "contact_mismatches": 0,
+  "state_examples": [],
+  "contact_examples": [],
+  "pass": true
+}

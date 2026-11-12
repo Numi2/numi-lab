@@ -1,0 +1,29 @@
+{
+  "old_fingerprints": [
+    2801281168732241546,
+    10205657253310701228,
+    12261780384824823292,
+    10276987404240961652
+  ],
+  "new_fingerprints": [
+    4102200840525473412,
+    11171622882452738193,
+    7550243608514282385,
+    4517252002230013787
+  ],
+  "reports": [
+    {
+      "actor": "landing",
+      "source_sha256": "e37af3f13003dc96cec6dcc92fdcb263e4a28c80c9491e8302bf83da155c898b",
+      "target_sha256": "f2969a65c652b8d00bebf719673c1869f57feb6e8254e166ab01246b589fa641",
+      "identical_layers_and_transforms": true
+    },
+    {
+      "actor": "route",
+      "source_sha256": "23589af614cdb4077dc62285d56ed0180efabb1319ce60691e3e9cc2878cd0fb",
+      "target_sha256": "103ccd02bcd1828ca89f5a39e1f881757be4abfb801349e44792e9fbc66f42a7",
+      "identical_layers_and_transforms": true
+    }
+  ],
+  "scope": "Diagnostic rebinding to changed world/task signature only. Exact weights and observation/action transforms checked; physical effects are not assumed."
+}

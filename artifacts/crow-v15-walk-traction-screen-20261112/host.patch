@@ -1,0 +1,20 @@
+--- a/contact-observer.cpp
++++ b/traction-observer.cpp
+@@ -1,3 +1,4 @@
++#include <cstdlib>
+ #include "box_distance.hpp"
+ #include "metalrobo/RetinalObserver.hpp"
+ #include "metalrobo/CrowForaging.hpp"
+@@ -3418,6 +3419,12 @@
+  for(unsigned side=0;side<2;++side){unsigned oldJ=side==0?7u:10u;auto j=oldJoints[oldJ];j.childBody=map(j.childBody)-1u;j.parentBody=0;j.qOffset=newQ+side;j.vOffset=newV+side;j.axis0={1,0,0,0};j.childAnchor={0,0,0,0};m.joints.push_back(j);m.jointNames.push_back(side==0?"crow_left_hip_roll":"crow_right_hip_roll");auto d=m.dofs.at(oldJoints[oldJ].vOffset);d.jointIndex=newJointBase+side;d.qIndex=newQ+side;d.vIndex=newV+side;d.limits={-.35f,.35f,8.f,.22f};d.drive={8.f,.15f,.00005f,0};m.dofs.push_back(d);m.dofNames.push_back(side==0?"crow_left_hip_roll":"crow_right_hip_roll");m.defaultQ.push_back(0);m.defaultV.push_back(0);if(!m.actuatorProfiles.empty())m.actuatorProfiles.emplace_back();}
+  auto&a=m.articulations.at(0);a.bodyCount=m.world.bodyCount=m.bodies.size();a.jointCount=m.world.jointCount=m.joints.size();a.nq=m.world.nq=m.defaultQ.size();a.nv=m.world.nv=m.defaultV.size();
+  for(auto& r:p.roles){if(r.id=="whole_body")r.members=m.bodyNames;if(r.id=="all_joints")r.members=m.jointNames;if(r.id=="all_dofs")r.members=m.dofNames;}
++ if (std::getenv("CROW_EXPERIMENT_TRACTION_HIGH") != nullptr) {
++  auto material=m.materials.at(0);material.friction.x=1.8f;material.friction.y=1.35f;
++  const unsigned materialIndex=m.materials.size();m.materials.push_back(material);m.world.materialCount=m.materials.size();unsigned changed=0;
++  for(auto& shape:m.shapes) {const auto& name=m.bodyNames.at(shape.bodyIndex);if(name=="crow_left_foot" || name=="crow_right_foot" || name.find("_toe_")!=std::string::npos){shape.materialIndex=materialIndex;++changed;}}
++  crowToeNeed(changed==18u,"expected 16 toe and two foot shapes");
++ }
+  std::string why;crowToeNeed(m.valid(&why),"model invalid: "+why);return p;
+ }
+ }

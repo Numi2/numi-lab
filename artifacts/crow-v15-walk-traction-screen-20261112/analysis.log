@@ -1,0 +1,16 @@
+artifacts/crow-v15-walk-traction-screen-20261112/control-20261126 q_error 4.995613089864293e-10 position_error_m 1.5772100494795444e-08 rotation_error 2.9798483473448158e-08
+artifacts/crow-v15-walk-traction-screen-20261112/high-20261126 q_error 4.99725316682742e-10 position_error_m 1.5285701198438292e-08 rotation_error 2.9803653275889495e-08
+{
+  "control_parity": {
+    "state_samples": 2400,
+    "state_mismatches": 0,
+    "contact_substeps": 38400,
+    "contact_mismatches": 0,
+    "state_examples": [],
+    "contact_examples": [],
+    "pass": true
+  },
+  "complete_first_episodes": true,
+  "scope": "Matched one used seed; high material altered from initialization. Instantaneous endpoint contact velocity and correlated samples are not integrated slip or a biological target."
+}
+arms [('control', {'count': 7720, 'median_m_s': 0.0025730393885831856, 'p95_m_s': 0.03562978703328657, 'max_m_s': 0.10961821678145131, 'fraction_over_0_01m_s': 0.20764248704663213}), ('high', {'count': 7785, 'median_m_s': 0.002775737588016361, 'p95_m_s': 0.04362791510254034, 'max_m_s': 0.27189641911278367, 'fraction_over_0_01m_s': 0.242903018625562})]
