@@ -1,0 +1,3 @@
+# Stance knee-flexion screen
+
+Related black-billed magpie data reports knee flexion during stance, but does not specify a target for the slower American crow model. Test a bounded additional knee-flexion position command of .05, .10 or .20 normalized in matched lane pairs while the same foot is loaded and the stance waveform is negative; retain .34 hip stroke in candidates and .30 in two exact controls. Require exact prefix and controls, more than 5% extra 4–6 s displacement in both lanes of a setting, no both-feet-unloaded substeps, no toe-speed caps, no nonfoot impulse and each foot contact-point-speed p95 <=1.5x its matched baseline. Uses development seed 20261127 and the existing physical body, not a biological fit.
