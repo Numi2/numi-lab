@@ -1,0 +1,4 @@
+Traceback (most recent call last):
+  File "/Users/n/Developer/numi-crow-rl-20261107/artifacts/crow-v15-walk-takeoff-integration-20261112/analyze.py", line 22, in <module>
+    assert not err and not re and len(s)==3200 and len(sub)==51200 and len(tc)==51200 and all(c==1 for c in tc.values())
+AssertionError
