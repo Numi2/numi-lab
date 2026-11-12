@@ -1,0 +1,21 @@
+{
+  "source": "artifacts/crow-v15-two-segment-toe-prototype-20261111/probe.cpp",
+  "source_sha256": "5d8a112b6d4540b198e5a3362ccf9e6af9c1ecdf61f32af8c4131076975efac8",
+  "model_segment_longitudinal_half_extent_m": 0.009,
+  "segments_per_digit": 2,
+  "model_front_longitudinal_extent_m": 0.036,
+  "model_front_ratios": {
+    "outer_to_middle": 1.0
+  },
+  "hooded_crow_radiographic_model_estimates": {
+    "digit_2_over_3": {
+      "male": 0.709,
+      "female": 0.699
+    },
+    "digit_3_over_4": {
+      "male": 1.36,
+      "female": 1.356
+    }
+  },
+  "scope": "Related-species skeletal group estimates versus simplified model collision extent, not equivalent measurement protocols or American-crow calibration."
+}
