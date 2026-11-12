@@ -1,0 +1,16 @@
+1318ba738b79a2178796f0601b6c8f0f5d776a52f935789d7ed8d2c455ef79bc  artifacts/crow-v15-perch-com-feedback-screen-20261112/PLAN.md
+02c4be74a6f5f8dd7210813f4e58c01c5a7fc95f5a1c55e3ed9680fd0c76efc3  artifacts/crow-v15-perch-com-feedback-screen-20261112/RESULT.md
+0e5fc02b374a96ef59411cd4e733c93943641166406365b967736892ca0c2b31  artifacts/crow-v15-perch-com-feedback-screen-20261112/analyze.py
+347b7801ea137afcc92dd96f7faca70a859014f07744957ddb2e006c44a75d57  artifacts/crow-v15-perch-com-feedback-screen-20261112/build.log
+6705c5148017c7979d475150da9e744a3a95707f2a138366c1aa61b6939d220c  artifacts/crow-v15-perch-com-feedback-screen-20261112/compare-arms.py
+35eeaef23d87220396fd0f8460413111bfa71622c22289ae3c4f194f0440d9d1  artifacts/crow-v15-perch-com-feedback-screen-20261112/inputs.json
+702f49828bbb85e716c31c388b4190329efbdbed8e38c24e608f09ecf40b0050  artifacts/crow-v15-perch-com-feedback-screen-20261112/mixed-analysis.log
+0550218779e55c99e7dc267108d6067f766a2f4f3ca60e01c7fe0fdf60d3e4e8  artifacts/crow-v15-perch-com-feedback-screen-20261112/mixed/analysis.json
+1b115372efe4fabeedb639521d8d185658ac175ac85815218204da70c987d3d7  artifacts/crow-v15-perch-com-feedback-screen-20261112/mixed/run-result.json
+be1de9def44fbd7ee34db1011f135949f2a4ec1f7dd6730f84d5d563c47b7e24  artifacts/crow-v15-perch-com-feedback-screen-20261112/mixed/substeps.log.gz
+c6f7ca1edf0271a9b5017a682ee398233f8ad15281849231ea60fabd51d4b75c  artifacts/crow-v15-perch-com-feedback-screen-20261112/mixed/trace.log.gz
+3b4bbfaba1e9c440d786c00c022b51a615e848776e57ef27902249e7aa1e5e94  artifacts/crow-v15-perch-com-feedback-screen-20261112/prefix-comparison.json
+3b4bbfaba1e9c440d786c00c022b51a615e848776e57ef27902249e7aa1e5e94  artifacts/crow-v15-perch-com-feedback-screen-20261112/prefix-comparison.log
+6eabcec3c419937132991cda2974b84d967acc1e3f2d3cca4d5e5fece25c489c  artifacts/crow-v15-perch-com-feedback-screen-20261112/probe.cpp
+08c66b90588eef910a1544c7fd12e7000fdfe415c4ac077868e830f4ccb35308  artifacts/crow-v15-perch-com-feedback-screen-20261112/run.log
+b028e3bcf393d190c13d3dfd839f34424e7a0b6e41b5da0091c4848f3b52c637  artifacts/crow-v15-perch-com-feedback-screen-20261112/run.py

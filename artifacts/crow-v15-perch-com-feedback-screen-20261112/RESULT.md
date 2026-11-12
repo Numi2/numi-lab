@@ -1,0 +1,7 @@
+# Whole-body center-of-mass perch feedback: rejected
+
+This stationary v15 perch bench compared two contact-conditioned hip corrections using the modeled whole-body center-of-mass position and velocity, versus the retained no-added-feedback baseline. Eight lanes consist of two deterministic copies of each combination of gain (+0.5 and -0.5) and initial body pitch (+0.04 and -0.04 rad); they are not eight independent perturbations. The correction uses perfect simulated body state, so it is a privileged diagnostic, not a deployable sensor or an autonomous landing controller.
+
+Both gains passed the engineering support and pitch screen from the positive initial pitch, with no nonfoot contact or toe velocity cap. Both failed the negative pitch start: root height crossed below 0.1 m at intervals 135 and 127, versus 136 for the original no-added-feedback reference. They had toe speed caps and nonfoot contacts. Therefore neither gain qualifies as a two-sided balance fix. Complete coverage was recorded at all 32 substeps of all 550 accepted intervals; no observer errors or contact overflows were detected. The 80 per-lane initial samples exactly match the retained reference before the intervention.
+
+No candidate was promoted. This is a stationary engineering screen; neither biological realism nor in-flight landing capability is established. Sources, inputs, full compressed traces, analysis and the failure evidence are retained here.
