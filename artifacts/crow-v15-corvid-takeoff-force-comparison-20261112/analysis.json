@@ -1,0 +1,295 @@
+{
+  "candidate": [
+    {
+      "lane": 0,
+      "per_foot_unfiltered_peak_vertical_bodyweights": [
+        7.258510680850209,
+        7.5984501330279075
+      ],
+      "per_foot_25ms_average_peak_vertical_bodyweights": [
+        2.1263580440039185,
+        2.2011713028816677
+      ],
+      "combined_unfiltered_peak_vertical_bodyweights": 14.856960813878118,
+      "combined_upward_impulse_Ns": 1.493448676350001,
+      "last_loaded_step_substep": [
+        352,
+        6
+      ],
+      "samples": 336
+    },
+    {
+      "lane": 1,
+      "per_foot_unfiltered_peak_vertical_bodyweights": [
+        7.139258550779704,
+        7.93194256622619
+      ],
+      "per_foot_25ms_average_peak_vertical_bodyweights": [
+        2.086101982460782,
+        2.2583107501851716
+      ],
+      "combined_unfiltered_peak_vertical_bodyweights": 15.071201117005895,
+      "combined_upward_impulse_Ns": 1.4952743200899998,
+      "last_loaded_step_substep": [
+        352,
+        6
+      ],
+      "samples": 336
+    },
+    {
+      "lane": 2,
+      "per_foot_unfiltered_peak_vertical_bodyweights": [
+        7.259004116021589,
+        7.803795158267039
+      ],
+      "per_foot_25ms_average_peak_vertical_bodyweights": [
+        2.1131329459617185,
+        2.2313170928438444
+      ],
+      "combined_unfiltered_peak_vertical_bodyweights": 15.062799274288627,
+      "combined_upward_impulse_Ns": 1.4953041877700004,
+      "last_loaded_step_substep": [
+        352,
+        6
+      ],
+      "samples": 336
+    },
+    {
+      "lane": 3,
+      "per_foot_unfiltered_peak_vertical_bodyweights": [
+        7.278235838800606,
+        7.631275911427914
+      ],
+      "per_foot_25ms_average_peak_vertical_bodyweights": [
+        2.127185002266998,
+        2.20542274997607
+      ],
+      "combined_unfiltered_peak_vertical_bodyweights": 14.909511750228521,
+      "combined_upward_impulse_Ns": 1.49396119716,
+      "last_loaded_step_substep": [
+        352,
+        6
+      ],
+      "samples": 336
+    },
+    {
+      "lane": 4,
+      "per_foot_unfiltered_peak_vertical_bodyweights": [
+        7.340924755167992,
+        7.764235471967651
+      ],
+      "per_foot_25ms_average_peak_vertical_bodyweights": [
+        2.1296295003457004,
+        2.2188677893349635
+      ],
+      "combined_unfiltered_peak_vertical_bodyweights": 15.105160227135643,
+      "combined_upward_impulse_Ns": 1.4957671962400003,
+      "last_loaded_step_substep": [
+        352,
+        6
+      ],
+      "samples": 336
+    },
+    {
+      "lane": 5,
+      "per_foot_unfiltered_peak_vertical_bodyweights": [
+        7.369824668977196,
+        7.812930068945841
+      ],
+      "per_foot_25ms_average_peak_vertical_bodyweights": [
+        2.13037933843502,
+        2.2242494314610126
+      ],
+      "combined_unfiltered_peak_vertical_bodyweights": 15.182754737923037,
+      "combined_upward_impulse_Ns": 1.4964389175000004,
+      "last_loaded_step_substep": [
+        352,
+        6
+      ],
+      "samples": 336
+    },
+    {
+      "lane": 6,
+      "per_foot_unfiltered_peak_vertical_bodyweights": [
+        7.398883220599467,
+        7.87711347853812
+      ],
+      "per_foot_25ms_average_peak_vertical_bodyweights": [
+        2.1298347986946395,
+        2.232579953571033
+      ],
+      "combined_unfiltered_peak_vertical_bodyweights": 15.275996699137586,
+      "combined_upward_impulse_Ns": 1.4972599481299997,
+      "last_loaded_step_substep": [
+        352,
+        6
+      ],
+      "samples": 336
+    },
+    {
+      "lane": 7,
+      "per_foot_unfiltered_peak_vertical_bodyweights": [
+        7.199728041697735,
+        7.755306437112043
+      ],
+      "per_foot_25ms_average_peak_vertical_bodyweights": [
+        2.1067271854068794,
+        2.2284071674575223
+      ],
+      "combined_unfiltered_peak_vertical_bodyweights": 14.955034478809779,
+      "combined_upward_impulse_Ns": 1.4942935830500006,
+      "last_loaded_step_substep": [
+        352,
+        6
+      ],
+      "samples": 336
+    }
+  ],
+  "baseline": [
+    {
+      "lane": 0,
+      "per_foot_unfiltered_peak_vertical_bodyweights": [
+        7.258510680850209,
+        7.5984501330279075
+      ],
+      "per_foot_25ms_average_peak_vertical_bodyweights": [
+        2.1263580440039185,
+        2.2011713028816677
+      ],
+      "combined_unfiltered_peak_vertical_bodyweights": 14.856960813878118,
+      "combined_upward_impulse_Ns": 1.493448676350001,
+      "last_loaded_step_substep": [
+        352,
+        6
+      ],
+      "samples": 336
+    },
+    {
+      "lane": 1,
+      "per_foot_unfiltered_peak_vertical_bodyweights": [
+        7.139258550779704,
+        7.93194256622619
+      ],
+      "per_foot_25ms_average_peak_vertical_bodyweights": [
+        2.086101982460782,
+        2.2583107501851716
+      ],
+      "combined_unfiltered_peak_vertical_bodyweights": 15.071201117005895,
+      "combined_upward_impulse_Ns": 1.4952743200899998,
+      "last_loaded_step_substep": [
+        352,
+        6
+      ],
+      "samples": 336
+    },
+    {
+      "lane": 2,
+      "per_foot_unfiltered_peak_vertical_bodyweights": [
+        7.259004116021589,
+        7.803795158267039
+      ],
+      "per_foot_25ms_average_peak_vertical_bodyweights": [
+        2.1131329459617185,
+        2.2313170928438444
+      ],
+      "combined_unfiltered_peak_vertical_bodyweights": 15.062799274288627,
+      "combined_upward_impulse_Ns": 1.4953041877700004,
+      "last_loaded_step_substep": [
+        352,
+        6
+      ],
+      "samples": 336
+    },
+    {
+      "lane": 3,
+      "per_foot_unfiltered_peak_vertical_bodyweights": [
+        7.278235838800606,
+        7.631275911427914
+      ],
+      "per_foot_25ms_average_peak_vertical_bodyweights": [
+        2.127185002266998,
+        2.20542274997607
+      ],
+      "combined_unfiltered_peak_vertical_bodyweights": 14.909511750228521,
+      "combined_upward_impulse_Ns": 1.49396119716,
+      "last_loaded_step_substep": [
+        352,
+        6
+      ],
+      "samples": 336
+    },
+    {
+      "lane": 4,
+      "per_foot_unfiltered_peak_vertical_bodyweights": [
+        7.340924755167992,
+        7.764235471967651
+      ],
+      "per_foot_25ms_average_peak_vertical_bodyweights": [
+        2.1296295003457004,
+        2.2188677893349635
+      ],
+      "combined_unfiltered_peak_vertical_bodyweights": 15.105160227135643,
+      "combined_upward_impulse_Ns": 1.4957671962400003,
+      "last_loaded_step_substep": [
+        352,
+        6
+      ],
+      "samples": 336
+    },
+    {
+      "lane": 5,
+      "per_foot_unfiltered_peak_vertical_bodyweights": [
+        7.369824668977196,
+        7.812930068945841
+      ],
+      "per_foot_25ms_average_peak_vertical_bodyweights": [
+        2.13037933843502,
+        2.2242494314610126
+      ],
+      "combined_unfiltered_peak_vertical_bodyweights": 15.182754737923037,
+      "combined_upward_impulse_Ns": 1.4964389175000004,
+      "last_loaded_step_substep": [
+        352,
+        6
+      ],
+      "samples": 336
+    },
+    {
+      "lane": 6,
+      "per_foot_unfiltered_peak_vertical_bodyweights": [
+        7.398883220599467,
+        7.87711347853812
+      ],
+      "per_foot_25ms_average_peak_vertical_bodyweights": [
+        2.1298347986946395,
+        2.232579953571033
+      ],
+      "combined_unfiltered_peak_vertical_bodyweights": 15.275996699137586,
+      "combined_upward_impulse_Ns": 1.4972599481299997,
+      "last_loaded_step_substep": [
+        352,
+        6
+      ],
+      "samples": 336
+    },
+    {
+      "lane": 7,
+      "per_foot_unfiltered_peak_vertical_bodyweights": [
+        7.199728041697735,
+        7.755306437112043
+      ],
+      "per_foot_25ms_average_peak_vertical_bodyweights": [
+        2.1067271854068794,
+        2.2284071674575223
+      ],
+      "combined_unfiltered_peak_vertical_bodyweights": 14.955034478809779,
+      "combined_upward_impulse_Ns": 1.4942935830500006,
+      "last_loaded_step_substep": [
+        352,
+        6
+      ],
+      "samples": 336
+    }
+  ],
+  "limits": "Solver substep impulse over 1.25ms, upward component and 25ms box-average, not a 40Hz zero-phase-filtered force-plate vector. No direct biological pass/fail or muscle-force inference. Used seed and one model, paired starts, no population claim."
+}
