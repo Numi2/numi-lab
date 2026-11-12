@@ -1,0 +1,5 @@
+# Continuous capture rule: constructed stationary perch
+
+All eight lanes, including two unchanged controls, passed the strict development gate. Qualified one-foot release lasted 42–61 intervals; the opposite foot remained loaded and opposed, the released foot returned, and both feet had supported opposing grip for the final 100 intervals. No fall or nonfoot impulse occurred. All 140800 contact substeps were observed without reported overflow or substep errors. The two controls matched 1100 prior states and 35200 prior contact substeps exactly; endpoint normal impulses agreed within 7.4e-10 N s.
+
+The clipped correction is fitted to prior starts, uses privileged initial position and height in the known perch frame, and assumes high, uncalibrated friction. One combination was not among the previous offset screen but is not a genuinely held-out landing distribution. The test starts already perched and stationary; no approach, impact, autonomous navigation, real branch, low-friction behavior or biological validity has been established.
