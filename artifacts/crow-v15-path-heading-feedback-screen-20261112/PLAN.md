@@ -1,0 +1,3 @@
+# Bounded path-heading feedback screen
+
+On previously used seed 20261126, with ground retained, obstacles disabled and direct body moments off, two controls retain the unmodified fixed-command run. The other lanes use .55 m/s and a desired world velocity heading ramping to +/- .35 rad from 12–13 s. Compute heading from accepted yaw-frame velocities and attitude, apply antisymmetric flap action bounded to +/- .10 with gains .15, .30 and .60 in opposite-sign pairs. Compare unchanged controls and 9 s prefixes, and report heading, speed, roll, altitude, contact, joint caps and failures. A sustained velocity-direction target is not a completed curved waypoint or a frozen controller; the uncalibrated aerodynamic model and different height targets limit realism.
