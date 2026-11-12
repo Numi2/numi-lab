@@ -1,0 +1,7 @@
+# Stationary perch arrival-position screen
+
+The unchanged zero-offset lanes exactly reproduced all 71,500 reference q/v, contact and toe-velocity records. All eight initialized lanes completed the 550-interval recording with complete 32-substep observations and no recorded observer errors or contact overflow.
+
+At the -10 mm initial root offset, both +0.04 and -0.04 rad initial-pitch lanes met the declared final-100-interval bilateral opposing-toe support and posture criterion, with no recorded nonfoot contact or toe-speed cap during the run. The original zero-offset negative-pitch lane fell at interval 136, and the +10 mm negative-pitch lane fell at 104. Both -20 mm lanes fell. The zero and +10 mm positive-pitch lanes met the stated screen. Falls are defined by the specified root-height threshold; the recording continues after falls and is not an episode-success count.
+
+The -10 mm pair provides a small observed stationary basin for these two initial conditions, not a measured tolerance, autonomous arrival, release/regrip, full-course success, or proof of biological realism. Endpoint pitch and integrated contact samples are not simultaneous; there may be transient effects within an interval. Offset labels refer to initialized root position, not an independently controlled foot contact location. The paired-prefix field in analysis.json compares different initial offsets and is descriptive; it is not the separate zero-offset reference-parity test.

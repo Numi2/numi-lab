@@ -1,0 +1,7 @@
+{
+  "candidate_samples": 71500,
+  "reference_samples": 71500,
+  "mismatch_count": 0,
+  "mismatch_examples": [],
+  "pass": true
+}
