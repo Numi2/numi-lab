@@ -1,0 +1,355 @@
+{
+  "candidate": {
+    "errors": [],
+    "rows": [
+      {
+        "lane": 0,
+        "preparation_unloaded_substeps": 0,
+        "walking_unloaded_substeps": 0,
+        "preparation_nonfoot_intervals": 0,
+        "walking_nonfoot_intervals": 0,
+        "toe_speed_cap_substeps": 0,
+        "root_height_min_m": 0.170064867,
+        "root_height_max_m": 0.177228838
+      },
+      {
+        "lane": 1,
+        "preparation_unloaded_substeps": 202,
+        "walking_unloaded_substeps": 0,
+        "preparation_nonfoot_intervals": 0,
+        "walking_nonfoot_intervals": 0,
+        "toe_speed_cap_substeps": 1,
+        "root_height_min_m": 0.170054987,
+        "root_height_max_m": 0.180891484
+      },
+      {
+        "lane": 2,
+        "preparation_unloaded_substeps": 158,
+        "walking_unloaded_substeps": 0,
+        "preparation_nonfoot_intervals": 0,
+        "walking_nonfoot_intervals": 0,
+        "toe_speed_cap_substeps": 2,
+        "root_height_min_m": 0.170062006,
+        "root_height_max_m": 0.180845723
+      },
+      {
+        "lane": 3,
+        "preparation_unloaded_substeps": 0,
+        "walking_unloaded_substeps": 0,
+        "preparation_nonfoot_intervals": 0,
+        "walking_nonfoot_intervals": 0,
+        "toe_speed_cap_substeps": 0,
+        "root_height_min_m": 0.170054704,
+        "root_height_max_m": 0.17723076
+      },
+      {
+        "lane": 4,
+        "preparation_unloaded_substeps": 0,
+        "walking_unloaded_substeps": 0,
+        "preparation_nonfoot_intervals": 0,
+        "walking_nonfoot_intervals": 0,
+        "toe_speed_cap_substeps": 0,
+        "root_height_min_m": 0.170049787,
+        "root_height_max_m": 0.177228227
+      },
+      {
+        "lane": 5,
+        "preparation_unloaded_substeps": 433,
+        "walking_unloaded_substeps": 0,
+        "preparation_nonfoot_intervals": 0,
+        "walking_nonfoot_intervals": 0,
+        "toe_speed_cap_substeps": 1,
+        "root_height_min_m": 0.170051023,
+        "root_height_max_m": 0.181728289
+      },
+      {
+        "lane": 6,
+        "preparation_unloaded_substeps": 0,
+        "walking_unloaded_substeps": 0,
+        "preparation_nonfoot_intervals": 0,
+        "walking_nonfoot_intervals": 0,
+        "toe_speed_cap_substeps": 0,
+        "root_height_min_m": 0.170053706,
+        "root_height_max_m": 0.177227572
+      },
+      {
+        "lane": 7,
+        "preparation_unloaded_substeps": 70,
+        "walking_unloaded_substeps": 0,
+        "preparation_nonfoot_intervals": 0,
+        "walking_nonfoot_intervals": 0,
+        "toe_speed_cap_substeps": 0,
+        "root_height_min_m": 0.170052797,
+        "root_height_max_m": 0.181471929
+      }
+    ],
+    "first_episode": {
+      "boundary": "waypoint completion; does not establish supported landing",
+      "closed_by_environment": [
+        false,
+        false,
+        false,
+        false,
+        false,
+        false,
+        false,
+        false
+      ],
+      "closed_episode_count": 0,
+      "completion_seen_by_environment": [
+        false,
+        false,
+        false,
+        false,
+        false,
+        false,
+        false,
+        false
+      ],
+      "completion_seen_count": 0,
+      "environment_count": 8,
+      "first_completion_step_by_environment": [
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "horizon_censored_count": 8,
+      "maximum_waypoints_by_environment": [
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ],
+      "physical_failure_by_environment": [
+        false,
+        false,
+        false,
+        false,
+        false,
+        false,
+        false,
+        false
+      ],
+      "physical_failure_count": 0,
+      "safe_completion_by_environment": [
+        false,
+        false,
+        false,
+        false,
+        false,
+        false,
+        false,
+        false
+      ],
+      "safe_completion_count": 0,
+      "schema": "numi.crow-first-episode-evidence.v1",
+      "steps_by_environment": [
+        300,
+        300,
+        300,
+        300,
+        300,
+        300,
+        300,
+        300
+      ],
+      "termination_reason_by_environment": [
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ],
+      "unit": "first episode of each environment since context creation"
+    }
+  },
+  "prior": {
+    "errors": [],
+    "rows": [
+      {
+        "lane": 0,
+        "preparation_unloaded_substeps": 0,
+        "walking_unloaded_substeps": 0,
+        "preparation_nonfoot_intervals": 0,
+        "walking_nonfoot_intervals": 0,
+        "toe_speed_cap_substeps": 3,
+        "root_height_min_m": 0.16995272,
+        "root_height_max_m": 0.177228838
+      },
+      {
+        "lane": 1,
+        "preparation_unloaded_substeps": 202,
+        "walking_unloaded_substeps": 0,
+        "preparation_nonfoot_intervals": 0,
+        "walking_nonfoot_intervals": 0,
+        "toe_speed_cap_substeps": 4,
+        "root_height_min_m": 0.169959798,
+        "root_height_max_m": 0.180891484
+      },
+      {
+        "lane": 2,
+        "preparation_unloaded_substeps": 158,
+        "walking_unloaded_substeps": 0,
+        "preparation_nonfoot_intervals": 0,
+        "walking_nonfoot_intervals": 0,
+        "toe_speed_cap_substeps": 5,
+        "root_height_min_m": 0.169964895,
+        "root_height_max_m": 0.180845723
+      },
+      {
+        "lane": 3,
+        "preparation_unloaded_substeps": 0,
+        "walking_unloaded_substeps": 0,
+        "preparation_nonfoot_intervals": 0,
+        "walking_nonfoot_intervals": 0,
+        "toe_speed_cap_substeps": 2,
+        "root_height_min_m": 0.169991344,
+        "root_height_max_m": 0.17723076
+      },
+      {
+        "lane": 4,
+        "preparation_unloaded_substeps": 0,
+        "walking_unloaded_substeps": 0,
+        "preparation_nonfoot_intervals": 0,
+        "walking_nonfoot_intervals": 0,
+        "toe_speed_cap_substeps": 2,
+        "root_height_min_m": 0.169992238,
+        "root_height_max_m": 0.177228227
+      },
+      {
+        "lane": 5,
+        "preparation_unloaded_substeps": 433,
+        "walking_unloaded_substeps": 0,
+        "preparation_nonfoot_intervals": 0,
+        "walking_nonfoot_intervals": 0,
+        "toe_speed_cap_substeps": 4,
+        "root_height_min_m": 0.169969723,
+        "root_height_max_m": 0.181728289
+      },
+      {
+        "lane": 6,
+        "preparation_unloaded_substeps": 0,
+        "walking_unloaded_substeps": 0,
+        "preparation_nonfoot_intervals": 0,
+        "walking_nonfoot_intervals": 0,
+        "toe_speed_cap_substeps": 3,
+        "root_height_min_m": 0.169978023,
+        "root_height_max_m": 0.177227572
+      },
+      {
+        "lane": 7,
+        "preparation_unloaded_substeps": 70,
+        "walking_unloaded_substeps": 0,
+        "preparation_nonfoot_intervals": 0,
+        "walking_nonfoot_intervals": 0,
+        "toe_speed_cap_substeps": 3,
+        "root_height_min_m": 0.169978887,
+        "root_height_max_m": 0.181471929
+      }
+    ],
+    "first_episode": {
+      "boundary": "waypoint completion; does not establish supported landing",
+      "closed_by_environment": [
+        false,
+        false,
+        false,
+        false,
+        false,
+        false,
+        false,
+        false
+      ],
+      "closed_episode_count": 0,
+      "completion_seen_by_environment": [
+        false,
+        false,
+        false,
+        false,
+        false,
+        false,
+        false,
+        false
+      ],
+      "completion_seen_count": 0,
+      "environment_count": 8,
+      "first_completion_step_by_environment": [
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "horizon_censored_count": 8,
+      "maximum_waypoints_by_environment": [
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ],
+      "physical_failure_by_environment": [
+        false,
+        false,
+        false,
+        false,
+        false,
+        false,
+        false,
+        false
+      ],
+      "physical_failure_count": 0,
+      "safe_completion_by_environment": [
+        false,
+        false,
+        false,
+        false,
+        false,
+        false,
+        false,
+        false
+      ],
+      "safe_completion_count": 0,
+      "schema": "numi.crow-first-episode-evidence.v1",
+      "steps_by_environment": [
+        300,
+        300,
+        300,
+        300,
+        300,
+        300,
+        300,
+        300
+      ],
+      "termination_reason_by_environment": [
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ],
+      "unit": "first episode of each environment since context creation"
+    }
+  },
+  "scope": "Native recorded normal impulse; 2\u20134 s preparation and 4\u20136 s walk. Zero foot normal means airborne or loss of accepted normal impulse; not automatically a fall. Ground-contact classification, q and toe cap sampled; unobserved link forces and biological validation remain outside scope."
+}

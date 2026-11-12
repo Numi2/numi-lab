@@ -1,0 +1,143 @@
+{
+  "held": [
+    {
+      "lane": 0,
+      "low_all": 58,
+      "foot_unloaded_entire_interval": 4,
+      "foot_unloaded_final_substep": 4,
+      "toe_loaded_somewhere_in_interval": 54,
+      "toe_loaded_final_substep": 54
+    },
+    {
+      "lane": 1,
+      "low_all": 58,
+      "foot_unloaded_entire_interval": 4,
+      "foot_unloaded_final_substep": 4,
+      "toe_loaded_somewhere_in_interval": 54,
+      "toe_loaded_final_substep": 54
+    },
+    {
+      "lane": 2,
+      "low_all": 58,
+      "foot_unloaded_entire_interval": 4,
+      "foot_unloaded_final_substep": 4,
+      "toe_loaded_somewhere_in_interval": 54,
+      "toe_loaded_final_substep": 54
+    },
+    {
+      "lane": 3,
+      "low_all": 59,
+      "foot_unloaded_entire_interval": 3,
+      "foot_unloaded_final_substep": 3,
+      "toe_loaded_somewhere_in_interval": 56,
+      "toe_loaded_final_substep": 56
+    },
+    {
+      "lane": 4,
+      "low_all": 58,
+      "foot_unloaded_entire_interval": 3,
+      "foot_unloaded_final_substep": 3,
+      "toe_loaded_somewhere_in_interval": 55,
+      "toe_loaded_final_substep": 55
+    },
+    {
+      "lane": 5,
+      "low_all": 58,
+      "foot_unloaded_entire_interval": 4,
+      "foot_unloaded_final_substep": 4,
+      "toe_loaded_somewhere_in_interval": 54,
+      "toe_loaded_final_substep": 54
+    },
+    {
+      "lane": 6,
+      "low_all": 58,
+      "foot_unloaded_entire_interval": 4,
+      "foot_unloaded_final_substep": 4,
+      "toe_loaded_somewhere_in_interval": 54,
+      "toe_loaded_final_substep": 54
+    },
+    {
+      "lane": 7,
+      "low_all": 58,
+      "foot_unloaded_entire_interval": 4,
+      "foot_unloaded_final_substep": 4,
+      "toe_loaded_somewhere_in_interval": 54,
+      "toe_loaded_final_substep": 54
+    }
+  ],
+  "candidate": [
+    {
+      "lane": 0,
+      "low_all": 62,
+      "foot_unloaded_entire_interval": 3,
+      "foot_unloaded_final_substep": 8,
+      "toe_loaded_somewhere_in_interval": 58,
+      "toe_loaded_final_substep": 54,
+      "sole_loaded_only_in_interval": 1
+    },
+    {
+      "lane": 1,
+      "low_all": 62,
+      "foot_unloaded_entire_interval": 3,
+      "foot_unloaded_final_substep": 8,
+      "toe_loaded_somewhere_in_interval": 58,
+      "toe_loaded_final_substep": 54,
+      "sole_loaded_only_in_interval": 1
+    },
+    {
+      "lane": 2,
+      "low_all": 62,
+      "foot_unloaded_entire_interval": 3,
+      "foot_unloaded_final_substep": 8,
+      "toe_loaded_somewhere_in_interval": 58,
+      "toe_loaded_final_substep": 54,
+      "sole_loaded_only_in_interval": 1
+    },
+    {
+      "lane": 3,
+      "low_all": 62,
+      "foot_unloaded_entire_interval": 3,
+      "foot_unloaded_final_substep": 8,
+      "toe_loaded_somewhere_in_interval": 58,
+      "toe_loaded_final_substep": 54,
+      "sole_loaded_only_in_interval": 1
+    },
+    {
+      "lane": 4,
+      "low_all": 62,
+      "foot_unloaded_entire_interval": 3,
+      "foot_unloaded_final_substep": 8,
+      "toe_loaded_somewhere_in_interval": 58,
+      "toe_loaded_final_substep": 54,
+      "sole_loaded_only_in_interval": 1
+    },
+    {
+      "lane": 5,
+      "low_all": 62,
+      "foot_unloaded_entire_interval": 3,
+      "foot_unloaded_final_substep": 8,
+      "toe_loaded_somewhere_in_interval": 58,
+      "toe_loaded_final_substep": 54,
+      "sole_loaded_only_in_interval": 1
+    },
+    {
+      "lane": 6,
+      "low_all": 62,
+      "foot_unloaded_entire_interval": 3,
+      "foot_unloaded_final_substep": 8,
+      "toe_loaded_somewhere_in_interval": 58,
+      "toe_loaded_final_substep": 54,
+      "sole_loaded_only_in_interval": 1
+    },
+    {
+      "lane": 7,
+      "low_all": 62,
+      "foot_unloaded_entire_interval": 3,
+      "foot_unloaded_final_substep": 8,
+      "toe_loaded_somewhere_in_interval": 58,
+      "toe_loaded_final_substep": 54,
+      "sole_loaded_only_in_interval": 1
+    }
+  ],
+  "scope": "Geometry is at each endpoint; contact load categories use the same 20 ms interval or its final recorded substep, not synchronized continuous toe clearance. Low geometric clearance alone is not evidence of dragging. A loaded toe with a lifted sole can be normal push-off; an unloaded low toe may be nearing or leaving ground. Neither this grouping nor endpoint point speeds alone measures integrated slip."
+}

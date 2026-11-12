@@ -1,0 +1,18 @@
+artifacts/crow-v15-rear-toe-matched-trial-20261112/candidate-20261127-rebound-control q_error 4.75524908338798e-09 position_error_m 2.0616216330345636e-08 rotation_error 2.9934084104040536e-08
+artifacts/crow-v15-rear-toe-matched-trial-20261112/candidate-20261127-rebound-preload q_error 4.552917376443588e-09 position_error_m 1.7081445715053e-08 rotation_error 2.981552319417132e-08
+{
+  "sham": {
+    "count": 8295,
+    "median_m_s": 0.0036049269762914106,
+    "p95_m_s": 0.04053810478098695,
+    "max_m_s": 0.24976010279586933,
+    "fraction_over_0_01m_s": 0.23339361060880048
+  },
+  "candidate": {
+    "count": 8502,
+    "median_m_s": 0.0032505105791470076,
+    "p95_m_s": 0.07716757454565258,
+    "max_m_s": 0.3048258504321114,
+    "fraction_over_0_01m_s": 0.22594683603857915
+  }
+}
