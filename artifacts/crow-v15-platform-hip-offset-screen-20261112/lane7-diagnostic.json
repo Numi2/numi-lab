@@ -1,0 +1,18 @@
+{
+  "lane": 7,
+  "first_episode_end": 4800,
+  "expected_substeps": 16016,
+  "coverage": {
+    "contact": 16016,
+    "toe": 16016
+  },
+  "toe_caps": {
+    "toe": 0
+  },
+  "platform_contact_counts": {
+    "foot": 209188
+  },
+  "overflow": [],
+  "errors": [],
+  "scope": "Velocity streams are only qualified where coverage is complete. Nonfoot counts cover platform contacts with positive normal impulse, not every possible collider. Used development start and old flight law."
+}

@@ -1,0 +1,1 @@
+{'scope': 'First-episode endpoint samples only, not continuous substep extrema; used development start and old flight law.', 'samples': 1001, 'max_tilt_rad': 0.045817434435925786, 'max_root_speed_m_s': 0.23127854904967965, 'p95_root_speed_m_s': 0.02492893151577642, 'samples_over_tilt_0_35': 0, 'samples_over_speed_0_12': 26}
