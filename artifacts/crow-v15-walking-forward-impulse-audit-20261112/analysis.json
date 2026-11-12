@@ -1,0 +1,347 @@
+{
+  "parity": {
+    "endpoint_mismatches": 0,
+    "substep_mismatches": 0
+  },
+  "first_episode_steps": [
+    300,
+    300,
+    300,
+    300,
+    300,
+    300,
+    300,
+    300
+  ],
+  "lanes": [
+    {
+      "lane": 0,
+      "root_x_displacement_m": 0.03809650768,
+      "start_root_x_velocity_m_s": 0.000684486062,
+      "end_root_x_velocity_m_s": -0.0145534063,
+      "ground_world_x_net_Ns": 0.007921614962274415,
+      "ground_world_x_positive_Ns": 0.5440381450680644,
+      "ground_world_x_negative_Ns": -0.5361165301057903,
+      "components": {
+        "left_sole": {
+          "net_Ns": -0.15212004232099935,
+          "positive_Ns": 0.027209869615905827,
+          "negative_Ns": -0.1793299119369053
+        },
+        "left_front": {
+          "net_Ns": -0.09002016380570002,
+          "positive_Ns": 0.01477290448870789,
+          "negative_Ns": -0.10479306829440788
+        },
+        "left_rear": {
+          "net_Ns": 0.24155273789917744,
+          "positive_Ns": 0.3339974819983704,
+          "negative_Ns": -0.09244474409919312
+        },
+        "right_sole": {
+          "net_Ns": -0.1692751989126771,
+          "positive_Ns": 0.014775134464863,
+          "negative_Ns": -0.18405033337754012
+        },
+        "right_front": {
+          "net_Ns": -0.0805533589994832,
+          "positive_Ns": 0.020567676900750995,
+          "negative_Ns": -0.10112103590023422
+        },
+        "right_rear": {
+          "net_Ns": 0.25833764110195695,
+          "positive_Ns": 0.3136574176877501,
+          "negative_Ns": -0.055319776585793234
+        }
+      }
+    },
+    {
+      "lane": 1,
+      "root_x_displacement_m": 0.028577231779999997,
+      "start_root_x_velocity_m_s": 0.000941708568,
+      "end_root_x_velocity_m_s": -0.0171152968,
+      "ground_world_x_net_Ns": 0.0030513616489957276,
+      "ground_world_x_positive_Ns": 0.503687604399031,
+      "ground_world_x_negative_Ns": -0.5006362427500358,
+      "components": {
+        "left_sole": {
+          "net_Ns": -0.1742234622228114,
+          "positive_Ns": 0.008849314215159998,
+          "negative_Ns": -0.1830727764379714
+        },
+        "left_front": {
+          "net_Ns": -0.12643800630430105,
+          "positive_Ns": 0.0068690457486075,
+          "negative_Ns": -0.13330705205290852
+        },
+        "left_rear": {
+          "net_Ns": 0.30446161813649314,
+          "positive_Ns": 0.3464120508248953,
+          "negative_Ns": -0.0419504326884026
+        },
+        "right_sole": {
+          "net_Ns": -0.17735493904924002,
+          "positive_Ns": 0.011070476605610002,
+          "negative_Ns": -0.18842541565485016
+        },
+        "right_front": {
+          "net_Ns": -0.07702923628089516,
+          "positive_Ns": 0.013118851880826012,
+          "negative_Ns": -0.0901480881617212
+        },
+        "right_rear": {
+          "net_Ns": 0.2536353873697504,
+          "positive_Ns": 0.33771325208286485,
+          "negative_Ns": -0.08407786471311444
+        }
+      }
+    },
+    {
+      "lane": 2,
+      "root_x_displacement_m": 0.027134999660000002,
+      "start_root_x_velocity_m_s": 0.000837178319,
+      "end_root_x_velocity_m_s": -0.0201958995,
+      "ground_world_x_net_Ns": 0.0014343450959763812,
+      "ground_world_x_positive_Ns": 0.5532479562760313,
+      "ground_world_x_negative_Ns": -0.5518136111800553,
+      "components": {
+        "left_sole": {
+          "net_Ns": -0.16304184331453742,
+          "positive_Ns": 0.021550690054460007,
+          "negative_Ns": -0.18459253336899745
+        },
+        "left_front": {
+          "net_Ns": -0.16043592669807133,
+          "positive_Ns": 0.006666766914297998,
+          "negative_Ns": -0.16710269361236935
+        },
+        "left_rear": {
+          "net_Ns": 0.35918843553052704,
+          "positive_Ns": 0.3887255319241527,
+          "negative_Ns": -0.029537096393625773
+        },
+        "right_sole": {
+          "net_Ns": -0.1922861988454081,
+          "positive_Ns": 0.009612512297944001,
+          "negative_Ns": -0.20189871114335212
+        },
+        "right_front": {
+          "net_Ns": -0.07700749011378798,
+          "positive_Ns": 0.016746909348668997,
+          "negative_Ns": -0.09375439946245688
+        },
+        "right_rear": {
+          "net_Ns": 0.23501736853725408,
+          "positive_Ns": 0.3207875633984543,
+          "negative_Ns": -0.08577019486120044
+        }
+      }
+    },
+    {
+      "lane": 3,
+      "root_x_displacement_m": 0.0258691665,
+      "start_root_x_velocity_m_s": 5.16844921e-05,
+      "end_root_x_velocity_m_s": -0.0397407375,
+      "ground_world_x_net_Ns": -0.007218232788695242,
+      "ground_world_x_positive_Ns": 0.5419165565796896,
+      "ground_world_x_negative_Ns": -0.5491347893683851,
+      "components": {
+        "left_sole": {
+          "net_Ns": -0.16336279220575475,
+          "positive_Ns": 0.02987973852476526,
+          "negative_Ns": -0.1932425307305201
+        },
+        "left_front": {
+          "net_Ns": -0.18122255293779158,
+          "positive_Ns": 0.015639231065418698,
+          "negative_Ns": -0.19686178400321033
+        },
+        "left_rear": {
+          "net_Ns": 0.381452377750956,
+          "positive_Ns": 0.4128866783528667,
+          "negative_Ns": -0.0314343006019104
+        },
+        "right_sole": {
+          "net_Ns": -0.1992827151366801,
+          "positive_Ns": 0.012949037009710002,
+          "negative_Ns": -0.21223175214639003
+        },
+        "right_front": {
+          "net_Ns": -0.12847743519521138,
+          "positive_Ns": 0.009016683165809801,
+          "negative_Ns": -0.13749411836102104
+        },
+        "right_rear": {
+          "net_Ns": 0.2836748849357861,
+          "positive_Ns": 0.3471543679081738,
+          "negative_Ns": -0.06347948297238772
+        }
+      }
+    },
+    {
+      "lane": 4,
+      "root_x_displacement_m": 0.0301899093,
+      "start_root_x_velocity_m_s": 0.000513833831,
+      "end_root_x_velocity_m_s": -0.0197431296,
+      "ground_world_x_net_Ns": 0.0029985097215357304,
+      "ground_world_x_positive_Ns": 0.5678965305436477,
+      "ground_world_x_negative_Ns": -0.5648980208221115,
+      "components": {
+        "left_sole": {
+          "net_Ns": -0.17505691041946625,
+          "positive_Ns": 0.026201810654696837,
+          "negative_Ns": -0.20125872107416318
+        },
+        "left_front": {
+          "net_Ns": -0.08115522092109136,
+          "positive_Ns": 0.023190006266666303,
+          "negative_Ns": -0.1043452271877576
+        },
+        "left_rear": {
+          "net_Ns": 0.2583689843844722,
+          "positive_Ns": 0.3359561530859747,
+          "negative_Ns": -0.07758716870150276
+        },
+        "right_sole": {
+          "net_Ns": -0.19752386738386507,
+          "positive_Ns": 0.012130055649999999,
+          "negative_Ns": -0.20965392303386496
+        },
+        "right_front": {
+          "net_Ns": -0.10601642948438561,
+          "positive_Ns": 0.012640182794456997,
+          "negative_Ns": -0.11865661227884257
+        },
+        "right_rear": {
+          "net_Ns": 0.304381953545872,
+          "positive_Ns": 0.3483908121145918,
+          "negative_Ns": -0.044008858568719736
+        }
+      }
+    },
+    {
+      "lane": 5,
+      "root_x_displacement_m": 0.0259095263,
+      "start_root_x_velocity_m_s": 0.000785995333,
+      "end_root_x_velocity_m_s": -0.0197473411,
+      "ground_world_x_net_Ns": 0.001422618270131076,
+      "ground_world_x_positive_Ns": 0.5684645050759846,
+      "ground_world_x_negative_Ns": -0.5670418868058541,
+      "components": {
+        "left_sole": {
+          "net_Ns": -0.2232540364081709,
+          "positive_Ns": 0.014986977808001,
+          "negative_Ns": -0.23824101421617194
+        },
+        "left_front": {
+          "net_Ns": -0.0682145231844338,
+          "positive_Ns": 0.018913652212198578,
+          "negative_Ns": -0.0871281753966323
+        },
+        "left_rear": {
+          "net_Ns": 0.26796564856834626,
+          "positive_Ns": 0.3426619604869085,
+          "negative_Ns": -0.0746963119185621
+        },
+        "right_sole": {
+          "net_Ns": -0.21509870815161092,
+          "positive_Ns": 0.014486631344347998,
+          "negative_Ns": -0.2295853394959589
+        },
+        "right_front": {
+          "net_Ns": -0.07176355457704048,
+          "positive_Ns": 0.013207500998168597,
+          "negative_Ns": -0.08497105557520913
+        },
+        "right_rear": {
+          "net_Ns": 0.3117877920230406,
+          "positive_Ns": 0.36260770043408247,
+          "negative_Ns": -0.0508199084110422
+        }
+      }
+    },
+    {
+      "lane": 6,
+      "root_x_displacement_m": 0.026269621,
+      "start_root_x_velocity_m_s": 0.000294129888,
+      "end_root_x_velocity_m_s": -0.0149375191,
+      "ground_world_x_net_Ns": 0.003345515374235932,
+      "ground_world_x_positive_Ns": 0.5047549211019101,
+      "ground_world_x_negative_Ns": -0.5014094057276747,
+      "components": {
+        "left_sole": {
+          "net_Ns": -0.18021900134114174,
+          "positive_Ns": 0.014369483685788255,
+          "negative_Ns": -0.1945884850269299
+        },
+        "left_front": {
+          "net_Ns": -0.10542920589322015,
+          "positive_Ns": 0.008121244855820033,
+          "negative_Ns": -0.11355045074904013
+        },
+        "left_rear": {
+          "net_Ns": 0.27293478094446433,
+          "positive_Ns": 0.3306880884671523,
+          "negative_Ns": -0.0577533075226881
+        },
+        "right_sole": {
+          "net_Ns": -0.16370028660851438,
+          "positive_Ns": 0.012834912944461001,
+          "negative_Ns": -0.17653519955297542
+        },
+        "right_front": {
+          "net_Ns": -0.05832325797731619,
+          "positive_Ns": 0.015078634699636988,
+          "negative_Ns": -0.07340189267695323
+        },
+        "right_rear": {
+          "net_Ns": 0.23808248624996434,
+          "positive_Ns": 0.32141775197182804,
+          "negative_Ns": -0.08333526572186373
+        }
+      }
+    },
+    {
+      "lane": 7,
+      "root_x_displacement_m": 0.03178829374,
+      "start_root_x_velocity_m_s": 0.000333753531,
+      "end_root_x_velocity_m_s": -0.018540265,
+      "ground_world_x_net_Ns": 0.0041993429747534325,
+      "ground_world_x_positive_Ns": 0.595363596888974,
+      "ground_world_x_negative_Ns": -0.5911642539142204,
+      "components": {
+        "left_sole": {
+          "net_Ns": -0.23762240158579978,
+          "positive_Ns": 0.0064696182688379145,
+          "negative_Ns": -0.24409201985463763
+        },
+        "left_front": {
+          "net_Ns": -0.062306344730786695,
+          "positive_Ns": 0.019286493537813403,
+          "negative_Ns": -0.08159283826860005
+        },
+        "left_rear": {
+          "net_Ns": 0.3011605411826548,
+          "positive_Ns": 0.37559318780364764,
+          "negative_Ns": -0.07443264662099291
+        },
+        "right_sole": {
+          "net_Ns": -0.22046141691638368,
+          "positive_Ns": 0.0159174569165066,
+          "negative_Ns": -0.2363788738328903
+        },
+        "right_front": {
+          "net_Ns": -0.05598676498453469,
+          "positive_Ns": 0.01950686928930497,
+          "negative_Ns": -0.07549363427383968
+        },
+        "right_rear": {
+          "net_Ns": 0.2794157300096034,
+          "positive_Ns": 0.3214763300538733,
+          "negative_Ns": -0.04206060004426997
+        }
+      }
+    }
+  ],
+  "scope": "Native accepted ground impulses, 1.25 ms steps and 4-6s only, in world x (not per-sample body-forward projection). Positive/negative totals are sums of signed group or total substeps, respectively, not individual contact work. Changes in whole-body momentum also include other external forces. Root velocity is not COM velocity; no direct friction or energy measurement, and no biological validation."
+}
