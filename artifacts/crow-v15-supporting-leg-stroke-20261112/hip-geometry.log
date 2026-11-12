@@ -1,0 +1,65 @@
+{
+  "source": "retained held sham lane 5 step 320",
+  "impulse_left_right": [
+    0.08976556548000002,
+    0.0
+  ],
+  "kinematics_sha256": "c7ad98414062d68d5112a067634dca427bbc22e476cd9aa05c968bfd31b2c9bf",
+  "positions": [
+    {
+      "offset_rad": -0.1,
+      "body": "crow_left_foot",
+      "position_m": [
+        0.11053795924575478,
+        0.045889223316165254,
+        0.012570839811788612
+      ]
+    },
+    {
+      "offset_rad": -0.1,
+      "body": "crow_left_front_toe_2_distal",
+      "position_m": [
+        0.14005179104934198,
+        0.046101175361236375,
+        0.015570818744435526
+      ]
+    },
+    {
+      "offset_rad": 0,
+      "body": "crow_left_foot",
+      "position_m": [
+        0.09725361244721051,
+        0.045803932872181784,
+        0.00925940659120835
+      ]
+    },
+    {
+      "offset_rad": 0,
+      "body": "crow_left_front_toe_2_distal",
+      "position_m": [
+        0.12691937421811159,
+        0.046032323300632366,
+        0.009297895037632646
+      ]
+    },
+    {
+      "offset_rad": 0.1,
+      "body": "crow_left_foot",
+      "position_m": [
+        0.08370509845951164,
+        0.045709684348145666,
+        0.0072907470881363665
+      ]
+    },
+    {
+      "offset_rad": 0.1,
+      "body": "crow_left_front_toe_2_distal",
+      "position_m": [
+        0.11322637971230881,
+        0.04595223115831045,
+        0.004367360484503962
+      ]
+    }
+  ],
+  "scope": "Frozen-pose native forward kinematics, torso held fixed, not a dynamic step or force prediction; hip angle offsets are diagnostic."
+}

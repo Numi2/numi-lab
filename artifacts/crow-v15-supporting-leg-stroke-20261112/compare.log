@@ -1,0 +1,131 @@
+artifacts/crow-v15-upper-body-transition-isolation-20261112/sham-20261127-held q_error 4.999847202924457e-10 position_error_m 2.004080082142684e-08 rotation_error 2.9792866307215784e-08
+artifacts/crow-v15-supporting-leg-stroke-20261112/sham-20261127-stance q_error 4.999542446704197e-10 position_error_m 3.1021306270716715e-08 rotation_error 2.99184969753008e-08
+{
+  "pass": false,
+  "toe_low": {
+    "sham": 60,
+    "candidate": 3054
+  },
+  "rows": [
+    {
+      "lane": 0,
+      "pass": false,
+      "travel_fraction": 3.6201089221876046,
+      "bouts": [
+        1,
+        2
+      ],
+      "unloaded": [
+        1,
+        0
+      ],
+      "toe_speed_caps": 0,
+      "toe_speed_coverage": 4800
+    },
+    {
+      "lane": 1,
+      "pass": false,
+      "travel_fraction": 3.4018761536638533,
+      "bouts": [
+        1,
+        1
+      ],
+      "unloaded": [
+        0,
+        0
+      ],
+      "toe_speed_caps": 0,
+      "toe_speed_coverage": 4800
+    },
+    {
+      "lane": 2,
+      "pass": false,
+      "travel_fraction": 3.7258787433798983,
+      "bouts": [
+        1,
+        1
+      ],
+      "unloaded": [
+        3,
+        0
+      ],
+      "toe_speed_caps": 0,
+      "toe_speed_coverage": 4800
+    },
+    {
+      "lane": 3,
+      "pass": false,
+      "travel_fraction": 3.4151990240001058,
+      "bouts": [
+        1,
+        2
+      ],
+      "unloaded": [
+        6,
+        0
+      ],
+      "toe_speed_caps": 0,
+      "toe_speed_coverage": 4800
+    },
+    {
+      "lane": 4,
+      "pass": false,
+      "travel_fraction": 3.507695107953864,
+      "bouts": [
+        1,
+        1
+      ],
+      "unloaded": [
+        5,
+        0
+      ],
+      "toe_speed_caps": 0,
+      "toe_speed_coverage": 4800
+    },
+    {
+      "lane": 5,
+      "pass": false,
+      "travel_fraction": 3.5861440545869367,
+      "bouts": [
+        1,
+        2
+      ],
+      "unloaded": [
+        7,
+        0
+      ],
+      "toe_speed_caps": 0,
+      "toe_speed_coverage": 4800
+    },
+    {
+      "lane": 6,
+      "pass": false,
+      "travel_fraction": 3.4699583569463055,
+      "bouts": [
+        1,
+        2
+      ],
+      "unloaded": [
+        8,
+        0
+      ],
+      "toe_speed_caps": 0,
+      "toe_speed_coverage": 4800
+    },
+    {
+      "lane": 7,
+      "pass": false,
+      "travel_fraction": 3.4248763507244826,
+      "bouts": [
+        1,
+        2
+      ],
+      "unloaded": [
+        9,
+        0
+      ],
+      "toe_speed_caps": 0,
+      "toe_speed_coverage": 4800
+    }
+  ]
+}
