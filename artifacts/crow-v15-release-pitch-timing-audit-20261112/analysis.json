@@ -1,0 +1,509 @@
+{
+  "runs": {
+    "early": [
+      {
+        "lane": 0,
+        "end": 5000,
+        "physical_failure": false,
+        "events": {
+          "pitch_0.1": null,
+          "pitch_0.2": null,
+          "pitch_0.4": null,
+          "pitch_0.8": null,
+          "weight_shift": null,
+          "release_request": null,
+          "release_complete_or_abort": null
+        }
+      },
+      {
+        "lane": 1,
+        "end": 3737,
+        "physical_failure": true,
+        "events": {
+          "pitch_0.1": {
+            "step": 3652,
+            "pitch": -0.10082536346073172,
+            "sequence": 0
+          },
+          "pitch_0.2": {
+            "step": 3665,
+            "pitch": -0.20365933282136522,
+            "sequence": 0
+          },
+          "pitch_0.4": {
+            "step": 3686,
+            "pitch": -0.4050458877580195,
+            "sequence": 0
+          },
+          "pitch_0.8": {
+            "step": 3717,
+            "pitch": -0.8143088047134133,
+            "sequence": 0
+          },
+          "weight_shift": null,
+          "release_request": null,
+          "release_complete_or_abort": null
+        }
+      },
+      {
+        "lane": 2,
+        "end": 3531,
+        "physical_failure": true,
+        "events": {
+          "pitch_0.1": {
+            "step": 3334,
+            "pitch": -0.10073322236844147,
+            "sequence": 0
+          },
+          "pitch_0.2": {
+            "step": 3365,
+            "pitch": -0.20069533205525755,
+            "sequence": 28
+          },
+          "pitch_0.4": {
+            "step": 3451,
+            "pitch": -0.4029708997799798,
+            "sequence": 114
+          },
+          "pitch_0.8": {
+            "step": 3505,
+            "pitch": -0.8054718857522464,
+            "sequence": 168
+          },
+          "weight_shift": {
+            "step": 3387,
+            "pitch": -0.23780184636754576,
+            "sequence": 50
+          },
+          "release_request": {
+            "step": 3487,
+            "pitch": -0.6239844210054082,
+            "sequence": 150
+          },
+          "release_complete_or_abort": {
+            "step": 3514,
+            "pitch": -0.9282180461129688,
+            "sequence": 230
+          }
+        }
+      },
+      {
+        "lane": 3,
+        "end": 3657,
+        "physical_failure": true,
+        "events": {
+          "pitch_0.1": {
+            "step": 3445,
+            "pitch": 0.10278234902252746,
+            "sequence": 0
+          },
+          "pitch_0.2": {
+            "step": 3497,
+            "pitch": 0.2003225336820731,
+            "sequence": 41
+          },
+          "pitch_0.4": {
+            "step": 3590,
+            "pitch": 0.40372061553126953,
+            "sequence": 134
+          },
+          "pitch_0.8": {
+            "step": 3632,
+            "pitch": 0.8114182506426971,
+            "sequence": 149
+          },
+          "weight_shift": {
+            "step": 3506,
+            "pitch": 0.21061012375225585,
+            "sequence": 50
+          },
+          "release_request": null,
+          "release_complete_or_abort": null
+        }
+      },
+      {
+        "lane": 4,
+        "end": 4497,
+        "physical_failure": true,
+        "events": {
+          "pitch_0.1": {
+            "step": 4307,
+            "pitch": -0.10113575637582754,
+            "sequence": 0
+          },
+          "pitch_0.2": {
+            "step": 4331,
+            "pitch": -0.20109455724849315,
+            "sequence": 18
+          },
+          "pitch_0.4": {
+            "step": 4416,
+            "pitch": -0.4006973585781047,
+            "sequence": 103
+          },
+          "pitch_0.8": {
+            "step": 4471,
+            "pitch": -0.8065248385141507,
+            "sequence": 157
+          },
+          "weight_shift": {
+            "step": 4363,
+            "pitch": -0.2588155405690933,
+            "sequence": 50
+          },
+          "release_request": {
+            "step": 4464,
+            "pitch": -0.7276543681428034,
+            "sequence": 150
+          },
+          "release_complete_or_abort": {
+            "step": 4483,
+            "pitch": -0.96329454320162,
+            "sequence": 230
+          }
+        }
+      },
+      {
+        "lane": 5,
+        "end": 4284,
+        "physical_failure": true,
+        "events": {
+          "pitch_0.1": {
+            "step": 4084,
+            "pitch": -0.10414216176710775,
+            "sequence": 0
+          },
+          "pitch_0.2": {
+            "step": 4118,
+            "pitch": -0.20081110407840277,
+            "sequence": 33
+          },
+          "pitch_0.4": {
+            "step": 4206,
+            "pitch": -0.4003455111033769,
+            "sequence": 121
+          },
+          "pitch_0.8": {
+            "step": 4259,
+            "pitch": -0.8099337536193654,
+            "sequence": 244
+          },
+          "weight_shift": {
+            "step": 4135,
+            "pitch": -0.22713655197386626,
+            "sequence": 50
+          },
+          "release_request": {
+            "step": 4236,
+            "pitch": -0.5755789430234944,
+            "sequence": 150
+          },
+          "release_complete_or_abort": {
+            "step": 4245,
+            "pitch": -0.6467682292679771,
+            "sequence": 230
+          }
+        }
+      },
+      {
+        "lane": 6,
+        "end": 5000,
+        "physical_failure": false,
+        "events": {
+          "pitch_0.1": null,
+          "pitch_0.2": null,
+          "pitch_0.4": null,
+          "pitch_0.8": null,
+          "weight_shift": null,
+          "release_request": null,
+          "release_complete_or_abort": null
+        }
+      },
+      {
+        "lane": 7,
+        "end": 3846,
+        "physical_failure": true,
+        "events": {
+          "pitch_0.1": {
+            "step": 3638,
+            "pitch": 0.10280955734365697,
+            "sequence": 0
+          },
+          "pitch_0.2": {
+            "step": 3688,
+            "pitch": 0.20045635754327126,
+            "sequence": 43
+          },
+          "pitch_0.4": {
+            "step": 3780,
+            "pitch": 0.4026055487432245,
+            "sequence": 135
+          },
+          "pitch_0.8": {
+            "step": 3821,
+            "pitch": 0.8007931874747742,
+            "sequence": 149
+          },
+          "weight_shift": {
+            "step": 3695,
+            "pitch": 0.20823815173860688,
+            "sequence": 50
+          },
+          "release_request": null,
+          "release_complete_or_abort": null
+        }
+      }
+    ],
+    "downstroke": [
+      {
+        "lane": 0,
+        "end": 4251,
+        "physical_failure": true,
+        "events": {
+          "pitch_0.1": {
+            "step": 4039,
+            "pitch": 0.101194917986575,
+            "sequence": 0
+          },
+          "pitch_0.2": {
+            "step": 4094,
+            "pitch": 0.2003374084818793,
+            "sequence": 47
+          },
+          "pitch_0.4": {
+            "step": 4184,
+            "pitch": 0.40335520699510297,
+            "sequence": 137
+          },
+          "pitch_0.8": {
+            "step": 4226,
+            "pitch": 0.8080740156575532,
+            "sequence": 149
+          },
+          "weight_shift": {
+            "step": 4097,
+            "pitch": 0.20395088818363824,
+            "sequence": 50
+          },
+          "release_request": null,
+          "release_complete_or_abort": null
+        }
+      },
+      {
+        "lane": 1,
+        "end": 5000,
+        "physical_failure": false,
+        "events": {
+          "pitch_0.1": null,
+          "pitch_0.2": null,
+          "pitch_0.4": null,
+          "pitch_0.8": null,
+          "weight_shift": null,
+          "release_request": null,
+          "release_complete_or_abort": null
+        }
+      },
+      {
+        "lane": 2,
+        "end": 4503,
+        "physical_failure": true,
+        "events": {
+          "pitch_0.1": {
+            "step": 4302,
+            "pitch": -0.10138232074122429,
+            "sequence": 0
+          },
+          "pitch_0.2": {
+            "step": 4340,
+            "pitch": -0.20156819260332678,
+            "sequence": 34
+          },
+          "pitch_0.4": {
+            "step": 4428,
+            "pitch": -0.40073973615577074,
+            "sequence": 122
+          },
+          "pitch_0.8": {
+            "step": 4479,
+            "pitch": -0.8102523671285938,
+            "sequence": 251
+          },
+          "weight_shift": {
+            "step": 4356,
+            "pitch": -0.22606655966651232,
+            "sequence": 50
+          },
+          "release_request": {
+            "step": 4456,
+            "pitch": -0.5583392005489397,
+            "sequence": 150
+          },
+          "release_complete_or_abort": {
+            "step": 4458,
+            "pitch": -0.5726767784127714,
+            "sequence": 230
+          }
+        }
+      },
+      {
+        "lane": 3,
+        "end": 4235,
+        "physical_failure": true,
+        "events": {
+          "pitch_0.1": {
+            "step": 3985,
+            "pitch": 0.10343315327283419,
+            "sequence": 0
+          },
+          "pitch_0.2": {
+            "step": 4084,
+            "pitch": 0.20047682844200582,
+            "sequence": 98
+          },
+          "pitch_0.4": {
+            "step": 4173,
+            "pitch": 0.4059745332212587,
+            "sequence": 245
+          },
+          "pitch_0.8": {
+            "step": 4207,
+            "pitch": 0.8096084145624921,
+            "sequence": 255
+          },
+          "weight_shift": {
+            "step": 4036,
+            "pitch": 0.1660535641270124,
+            "sequence": 50
+          },
+          "release_request": {
+            "step": 4136,
+            "pitch": 0.2822015345883526,
+            "sequence": 150
+          },
+          "release_complete_or_abort": {
+            "step": 4158,
+            "pitch": 0.34681112423187005,
+            "sequence": 230
+          }
+        }
+      },
+      {
+        "lane": 4,
+        "end": 5000,
+        "physical_failure": false,
+        "events": {
+          "pitch_0.1": {
+            "step": 4823,
+            "pitch": -0.10204887083972446,
+            "sequence": 10
+          },
+          "pitch_0.2": {
+            "step": 4880,
+            "pitch": -0.2005553966532721,
+            "sequence": 67
+          },
+          "pitch_0.4": {
+            "step": 4973,
+            "pitch": -0.4047374829547297,
+            "sequence": 234
+          },
+          "pitch_0.8": null,
+          "weight_shift": {
+            "step": 4863,
+            "pitch": -0.17809606028332664,
+            "sequence": 50
+          },
+          "release_request": {
+            "step": 4963,
+            "pitch": -0.3585545989627972,
+            "sequence": 150
+          },
+          "release_complete_or_abort": {
+            "step": 4969,
+            "pitch": -0.37558228681484196,
+            "sequence": 230
+          }
+        }
+      },
+      {
+        "lane": 5,
+        "end": 5000,
+        "physical_failure": false,
+        "events": {
+          "pitch_0.1": null,
+          "pitch_0.2": null,
+          "pitch_0.4": null,
+          "pitch_0.8": null,
+          "weight_shift": null,
+          "release_request": null,
+          "release_complete_or_abort": null
+        }
+      },
+      {
+        "lane": 6,
+        "end": 4341,
+        "physical_failure": true,
+        "events": {
+          "pitch_0.1": {
+            "step": 4169,
+            "pitch": -0.10507312931014678,
+            "sequence": 0
+          },
+          "pitch_0.2": {
+            "step": 4196,
+            "pitch": -0.20060284611452617,
+            "sequence": 20
+          },
+          "pitch_0.4": {
+            "step": 4266,
+            "pitch": -0.40075233211035227,
+            "sequence": 90
+          },
+          "pitch_0.8": {
+            "step": 4313,
+            "pitch": -0.803710825656427,
+            "sequence": 137
+          },
+          "weight_shift": {
+            "step": 4226,
+            "pitch": -0.26609228961027126,
+            "sequence": 50
+          },
+          "release_request": null,
+          "release_complete_or_abort": null
+        }
+      },
+      {
+        "lane": 7,
+        "end": 3442,
+        "physical_failure": true,
+        "events": {
+          "pitch_0.1": {
+            "step": 3335,
+            "pitch": 0.10374576993445356,
+            "sequence": 0
+          },
+          "pitch_0.2": {
+            "step": 3354,
+            "pitch": 0.2034366205611403,
+            "sequence": 0
+          },
+          "pitch_0.4": {
+            "step": 3381,
+            "pitch": 0.4082839421410451,
+            "sequence": 0
+          },
+          "pitch_0.8": {
+            "step": 3415,
+            "pitch": 0.8128623333579001,
+            "sequence": 0
+          },
+          "weight_shift": null,
+          "release_request": null,
+          "release_complete_or_abort": null
+        }
+      }
+    ]
+  },
+  "limitations": "Used development seed; endpoint and phase samples may differ within each interval. Sequence range indicates a controller request, not proof that toes opened or slipped. Timing is descriptive, not causation."
+}
