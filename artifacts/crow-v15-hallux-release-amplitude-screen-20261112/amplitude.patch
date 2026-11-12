@@ -1,0 +1,13 @@
+--- release-002/task.metal
++++ release-005/task.metal
+@@ -5564,8 +5564,8 @@
+                 const float walkingSeconds=float(state.episode.x)*dispatch.timing.x;
+                 const float carrier=sin(kTwoPi*(walkingSeconds+5.0f/1000.0f)/0.50f+0.50f)*(side==0u ? 1.0f : -1.0f);
+                 const bool oppositeSupported=(state.status.w & (side==0u ? (1u<<21) : (1u<<20)))!=0u;
+-                if (walkingSeconds>=4.0f && walkingSeconds<10.0f && toe==3u && carrier>0.40f && oppositeSupported && (program.interactionTiming.w>=0.5f || (state.status.w & (side==0u ? (1u<<20) : (1u<<21)))==0u))
+-                    proximal=min(proximal,-.02f*smoothstep(.40f,.80f,carrier));
++                if (walkingSeconds>=4.0f && walkingSeconds<10.0f && toe==3u && carrier>0.40f && oppositeSupported)
++                    proximal=min(proximal,(program.interactionTiming.w>=0.5f ? -.05f : -.02f)*smoothstep(.40f,.80f,carrier));
+                 for(uint segment=0u;segment<2u;++segment) {
+                     const uint dof=22u+side*8u+toe*2u+segment;
+                     effortTrajectory[pass.controlStep*worldDispatch.effortStepStride + environment*worldDispatch.effortEnvironmentStride + dof]=proximal*(segment==0u ? 1.0f : .75f);
