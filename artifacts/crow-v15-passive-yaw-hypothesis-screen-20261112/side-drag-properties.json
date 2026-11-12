@@ -1,0 +1,7 @@
+{
+  "samples": 10000,
+  "seed": 20261112,
+  "maximum_air_relative_power": 0.0,
+  "mirror_force_error": 0.0,
+  "scope": "Analytical scalar force law only; a numerical simulation parity check is separate. Positive lateral motion with zero spin produces a restoring positive yaw moment for a rearward force point."
+}

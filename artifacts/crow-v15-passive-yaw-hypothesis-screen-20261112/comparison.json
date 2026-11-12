@@ -1,0 +1,209 @@
+{
+  "rows": [
+    {
+      "lane": 0,
+      "offset_m": 0,
+      "flight": {
+        "samples": 12,
+        "mismatches": 0,
+        "first_mismatch": null
+      },
+      "sub": {
+        "samples": 12816,
+        "mismatches": 0,
+        "first_mismatch": null
+      },
+      "wrench": {
+        "samples": 1600,
+        "mismatches": 0,
+        "first_mismatch": null
+      },
+      "toe": {
+        "samples": 12816,
+        "mismatches": 0,
+        "first_mismatch": null
+      }
+    },
+    {
+      "lane": 1,
+      "offset_m": 0,
+      "flight": {
+        "samples": 12,
+        "mismatches": 0,
+        "first_mismatch": null
+      },
+      "sub": {
+        "samples": 12816,
+        "mismatches": 0,
+        "first_mismatch": null
+      },
+      "wrench": {
+        "samples": 1600,
+        "mismatches": 0,
+        "first_mismatch": null
+      },
+      "toe": {
+        "samples": 12816,
+        "mismatches": 0,
+        "first_mismatch": null
+      }
+    },
+    {
+      "lane": 2,
+      "offset_m": 0.03,
+      "flight": {
+        "samples": 12,
+        "mismatches": 12,
+        "first_mismatch": [
+          2,
+          1
+        ]
+      },
+      "sub": {
+        "samples": 12816,
+        "mismatches": 5543,
+        "first_mismatch": [
+          2,
+          1,
+          0
+        ]
+      },
+      "wrench": {
+        "samples": 1600,
+        "mismatches": 1600,
+        "first_mismatch": [
+          2,
+          451,
+          0
+        ]
+      },
+      "toe": {
+        "samples": 12816,
+        "mismatches": 12814,
+        "first_mismatch": [
+          2,
+          1,
+          1
+        ]
+      }
+    },
+    {
+      "lane": 3,
+      "offset_m": 0.03,
+      "flight": {
+        "samples": 12,
+        "mismatches": 12,
+        "first_mismatch": [
+          3,
+          1
+        ]
+      },
+      "sub": {
+        "samples": 12816,
+        "mismatches": 5544,
+        "first_mismatch": [
+          3,
+          3,
+          13
+        ]
+      },
+      "wrench": {
+        "samples": 1600,
+        "mismatches": 1600,
+        "first_mismatch": [
+          3,
+          451,
+          0
+        ]
+      },
+      "toe": {
+        "samples": 12816,
+        "mismatches": 12808,
+        "first_mismatch": [
+          3,
+          1,
+          4
+        ]
+      }
+    },
+    {
+      "lane": 4,
+      "offset_m": 0.06,
+      "flight": {
+        "samples": 12,
+        "mismatches": 12,
+        "first_mismatch": [
+          4,
+          1
+        ]
+      },
+      "sub": {
+        "samples": 12816,
+        "mismatches": 5564,
+        "first_mismatch": [
+          4,
+          3,
+          10
+        ]
+      },
+      "wrench": {
+        "samples": 1600,
+        "mismatches": 1600,
+        "first_mismatch": [
+          4,
+          451,
+          0
+        ]
+      },
+      "toe": {
+        "samples": 12816,
+        "mismatches": 12804,
+        "first_mismatch": [
+          4,
+          1,
+          6
+        ]
+      }
+    },
+    {
+      "lane": 5,
+      "offset_m": 0.06,
+      "flight": {
+        "samples": 12,
+        "mismatches": 12,
+        "first_mismatch": [
+          5,
+          1
+        ]
+      },
+      "sub": {
+        "samples": 12816,
+        "mismatches": 5550,
+        "first_mismatch": [
+          5,
+          3,
+          6
+        ]
+      },
+      "wrench": {
+        "samples": 1600,
+        "mismatches": 1600,
+        "first_mismatch": [
+          5,
+          451,
+          0
+        ]
+      },
+      "toe": {
+        "samples": 12816,
+        "mismatches": 12816,
+        "first_mismatch": [
+          5,
+          1,
+          0
+        ]
+      }
+    }
+  ],
+  "scope": "Matched control and intervention. Zero-offset lanes require exact recorded flight, toe, contact and modeled-wrench parity, including post-first-episode records; other lanes first mismatch is limited to sampled fields. Force model remains uncalibrated."
+}

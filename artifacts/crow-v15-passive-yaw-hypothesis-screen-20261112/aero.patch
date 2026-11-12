@@ -1,0 +1,32 @@
+--- a/baseline.metal
++++ b/passive.metal
+@@ -104,8 +104,17 @@
+         );
+         const float dragScale = 0.5f * dispatch.windVelocityAndDensity.w *
+             fuselage.referenceAreasAndDrag.w;
+-        const float3 localForce = dragScale *
++        // Experimental side-drag application point; zero reproduces the
++        // original body force and moment exactly. This is not calibrated.
++        const float distances[3] = {0.0f, 0.03f, 0.06f};
++        const float distance = distances[(environment % 6u) / 2u];
++        const float3 sideOffset = -distance * forward;
++        const float sideAir = distance > 0.0f
++            ? dot(incomingAir - cross(rootAngularVelocity, sideOffset), span)
++            : localAir.y;
++        float3 localForce = dragScale *
+             fuselage.referenceAreasAndDrag.xyz * localAir * abs(localAir);
++        if (distance > 0.0f) localForce.y = dragScale * fuselage.referenceAreasAndDrag.y * sideAir * abs(sideAir);
+         const float3 localAngularVelocity = float3(
+             dot(rootAngularVelocity, forward),
+             dot(rootAngularVelocity, span), dot(rootAngularVelocity, up)
+@@ -114,8 +123,9 @@
+             localAngularVelocity;
+         const float3 force = forward * localForce.x + span * localForce.y +
+             up * localForce.z;
+-        const float3 torque = forward * localTorque.x + span * localTorque.y +
++        float3 torque = forward * localTorque.x + span * localTorque.y +
+             up * localTorque.z;
++        if (distance > 0.0f) torque += cross(sideOffset, span * localForce.y);
+         if (all(isfinite(force)) && all(isfinite(torque))) {
+             const uint wrenchIndex =
+                 environment * dispatch.bodyStride + fuselage.bodyIndex;
