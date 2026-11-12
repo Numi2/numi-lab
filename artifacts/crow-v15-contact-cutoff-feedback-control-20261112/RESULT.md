@@ -1,0 +1,7 @@
+# Tiny-contact cutoff did not change the measured gait
+
+The native feedback-controlled trial was rerun on both used development seeds with only the per-contact sensor cutoff changed from 1e-9 to 1e-7 N s. All eight lanes on each seed reproduced the same-lane baseline's 300 endpoint states and 4,800 contact substeps exactly. The separate lane-5 accepted-state replay matched every recorded frame's q, v, actions, observations, body states, outcomes and reward on each seed. This is recorded parity for these fields and lanes, not a proof of arbitrary reset, rollback, other lanes' reward or production equivalence.
+
+In the 20261127 comparison, 14 of 1,164 recorded per-foot sensor values changed; none had the same-step support flag on. On both seeds, the revised output had no absolute sensor/reference difference above 0.02 m/s during the audited window; the maximum was 0.00131 m/s. The independent reconstruction uses the same 1e-7 cutoff, so this agreement does not establish whether smaller physical contacts should be ignored. The active controller's recorded behavior did not improve, and its earlier knee/contact-feedback gait remained below the established physical gate.
+
+The sensor remains experimental: it temporarily aliases a task power field, uses delayed accepted states and has unresolved contact/state timing. These closely related starts are not biological or independent-layout validation. The result does not establish stable walking, leg-powered takeoff, qualified flight, toe grip or supported landings.

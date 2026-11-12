@@ -1,0 +1,48 @@
+{
+  "support_groups": {
+    "flagged": {
+      "samples": 811,
+      "median_error_m_s": 0.000471648022643387,
+      "p95_error_m_s": 0.0009296177906065461,
+      "max_error_m_s": 0.0010544172761729198
+    },
+    "unflagged": {
+      "samples": 353,
+      "median_error_m_s": 0.0,
+      "p95_error_m_s": 0.0,
+      "max_error_m_s": 0.0009232235504623987
+    }
+  },
+  "seed": 20261126,
+  "lanes": [
+    2,
+    3,
+    4,
+    5,
+    6,
+    7
+  ],
+  "interval_steps": [
+    202,
+    298
+  ],
+  "samples": 1164,
+  "median_error_m_s": 0.0002520788362959116,
+  "p95_error_m_s": 0.0009093904191202241,
+  "count_error_above_0_02_m_s": 0,
+  "big_error_impulse_below_1e_5_ns": 0,
+  "big_error_same_step_support_flags": 0,
+  "big_error_prev_step_closer": 0,
+  "big_error_next_step_closer": 0,
+  "limits": "Retained trajectories; final-substep reference cutoff differs from shader; delayed and changing contact state, quantization and possible frame timing mismatch. No causation inferred."
+}
+{'lane': 3, 'step': 227, 'side': 'right', 'sensor_m_s': 0.13307240704500978, 'reference_m_s': 0.1341268243211827, 'absolute_error_m_s': 0.0010544172761729198, 'previous_error_m_s': 0.10258134829095365, 'next_error_m_s': 0.03502424016077166, 'loaded_impulse_ns': 0.0015963810121799999, 'same_step_support_flag': True}
+{'lane': 6, 'step': 264, 'side': 'right', 'sensor_m_s': 0.0547945205479452, 'reference_m_s': 0.05581850296266444, 'absolute_error_m_s': 0.0010239824147192378, 'previous_error_m_s': 0.1499573674516025, 'next_error_m_s': 0.0636388216088109, 'loaded_impulse_ns': 0.00103223743, 'same_step_support_flag': True}
+{'lane': 3, 'step': 224, 'side': 'right', 'sensor_m_s': 0.05870841487279843, 'reference_m_s': 0.05971215591771742, 'absolute_error_m_s': 0.0010037410449189876, 'previous_error_m_s': 0.05870841487279843, 'next_error_m_s': 0.05870841487279843, 'loaded_impulse_ns': 0.000115438968, 'same_step_support_flag': True}
+{'lane': 4, 'step': 241, 'side': 'left', 'sensor_m_s': 0.0684931506849315, 'reference_m_s': 0.06947148583574765, 'absolute_error_m_s': 0.000978335150816148, 'previous_error_m_s': 0.07068379563301846, 'next_error_m_s': 0.04521806939735753, 'loaded_impulse_ns': 0.00072545744553, 'same_step_support_flag': True}
+{'lane': 2, 'step': 209, 'side': 'left', 'sensor_m_s': 0.009784735812133072, 'reference_m_s': 0.00880835691589027, 'absolute_error_m_s': 0.0009763788962428022, 'previous_error_m_s': 0.011603866738913999, 'next_error_m_s': 0.0043798512551759565, 'loaded_impulse_ns': 0.001968639433917, 'same_step_support_flag': True}
+{'lane': 7, 'step': 286, 'side': 'right', 'sensor_m_s': 0.0136986301369863, 'reference_m_s': 0.012722522764159649, 'absolute_error_m_s': 0.0009761073728266519, 'previous_error_m_s': 0.019360455679574902, 'next_error_m_s': 0.016962209172482125, 'loaded_impulse_ns': 0.005680622253850002, 'same_step_support_flag': True}
+{'lane': 4, 'step': 217, 'side': 'left', 'sensor_m_s': 0.005870841487279843, 'reference_m_s': 0.004895667815597386, 'absolute_error_m_s': 0.0009751736716824572, 'previous_error_m_s': 0.11310213109459989, 'next_error_m_s': 0.008737188010873559, 'loaded_impulse_ns': 0.00467950083236, 'same_step_support_flag': True}
+{'lane': 7, 'step': 213, 'side': 'left', 'sensor_m_s': 0.023483365949119372, 'reference_m_s': 0.024457619170486194, 'absolute_error_m_s': 0.000974253221366822, 'previous_error_m_s': 0.03233723242594935, 'next_error_m_s': 0.01022750062262387, 'loaded_impulse_ns': 0.001726159094187, 'same_step_support_flag': True}
+{'lane': 6, 'step': 205, 'side': 'right', 'sensor_m_s': 0.0019569471624266144, 'reference_m_s': 0.0009840929941623074, 'absolute_error_m_s': 0.000972854168264307, 'previous_error_m_s': 0.0017835139856023862, 'next_error_m_s': 0.0008525469167467306, 'loaded_impulse_ns': 0.004137263804343001, 'same_step_support_flag': True}
+{'lane': 2, 'step': 211, 'side': 'right', 'sensor_m_s': -0.005870841487279843, 'reference_m_s': -0.006840704112880705, 'absolute_error_m_s': 0.0009698626256008621, 'previous_error_m_s': 0.01670384935506308, 'next_error_m_s': 0.037150063514648266, 'loaded_impulse_ns': 0.006375935190800001, 'same_step_support_flag': True}

@@ -1,0 +1,48 @@
+{
+  "support_groups": {
+    "flagged": {
+      "samples": 814,
+      "median_error_m_s": 0.0004718796174022239,
+      "p95_error_m_s": 0.0009411608157089474,
+      "max_error_m_s": 0.0013141917223553497
+    },
+    "unflagged": {
+      "samples": 350,
+      "median_error_m_s": 0.0,
+      "p95_error_m_s": 0.0,
+      "max_error_m_s": 0.0009456828768415471
+    }
+  },
+  "seed": 20261127,
+  "lanes": [
+    2,
+    3,
+    4,
+    5,
+    6,
+    7
+  ],
+  "interval_steps": [
+    202,
+    298
+  ],
+  "samples": 1164,
+  "median_error_m_s": 0.00027392803770201035,
+  "p95_error_m_s": 0.0009133761038390541,
+  "count_error_above_0_02_m_s": 0,
+  "big_error_impulse_below_1e_5_ns": 0,
+  "big_error_same_step_support_flags": 0,
+  "big_error_prev_step_closer": 0,
+  "big_error_next_step_closer": 0,
+  "limits": "Retained trajectories; final-substep reference cutoff differs from shader; delayed and changing contact state, quantization and possible frame timing mismatch. No causation inferred."
+}
+{'lane': 3, 'step': 227, 'side': 'left', 'sensor_m_s': 0.0, 'reference_m_s': -0.0013141917223553497, 'absolute_error_m_s': 0.0013141917223553497, 'previous_error_m_s': 0.00423212208485398, 'next_error_m_s': 0.0013831047985920096, 'loaded_impulse_ns': 0.001339333889, 'same_step_support_flag': True}
+{'lane': 6, 'step': 252, 'side': 'right', 'sensor_m_s': 0.11741682974559686, 'reference_m_s': 0.11864358205793862, 'absolute_error_m_s': 0.0012267523123417612, 'previous_error_m_s': 0.012241107767620121, 'next_error_m_s': 0.11741682974559686, 'loaded_impulse_ns': 0.001077185007, 'same_step_support_flag': True}
+{'lane': 7, 'step': 277, 'side': 'left', 'sensor_m_s': 0.050880626223091974, 'reference_m_s': 0.04979653310863729, 'absolute_error_m_s': 0.001084093114454683, 'previous_error_m_s': 0.053283848356163954, 'next_error_m_s': 0.051260753604863395, 'loaded_impulse_ns': 0.0009495947009999999, 'same_step_support_flag': True}
+{'lane': 3, 'step': 290, 'side': 'left', 'sensor_m_s': 0.16634050880626222, 'reference_m_s': 0.16737642768538918, 'absolute_error_m_s': 0.0010359188791269625, 'previous_error_m_s': 0.08137116401104563, 'next_error_m_s': 0.13519381161637406, 'loaded_impulse_ns': 0.000860673259, 'same_step_support_flag': True}
+{'lane': 7, 'step': 279, 'side': 'right', 'sensor_m_s': 0.03131115459882583, 'reference_m_s': 0.03029198607077562, 'absolute_error_m_s': 0.0010191685280502086, 'previous_error_m_s': 0.07072894625496662, 'next_error_m_s': 0.024006701179683478, 'loaded_impulse_ns': 0.016026879552000002, 'same_step_support_flag': True}
+{'lane': 5, 'step': 292, 'side': 'left', 'sensor_m_s': 0.009784735812133072, 'reference_m_s': 0.008771592904647444, 'absolute_error_m_s': 0.0010131429074856282, 'previous_error_m_s': 0.07944615230560433, 'next_error_m_s': 0.013908049755101834, 'loaded_impulse_ns': 0.0071878633233489996, 'same_step_support_flag': True}
+{'lane': 6, 'step': 284, 'side': 'right', 'sensor_m_s': 0.005870841487279843, 'reference_m_s': 0.004879724885302804, 'absolute_error_m_s': 0.0009911166019770387, 'previous_error_m_s': 0.004210780072336416, 'next_error_m_s': 0.006399579497401121, 'loaded_impulse_ns': 0.005785588178, 'same_step_support_flag': True}
+{'lane': 6, 'step': 262, 'side': 'left', 'sensor_m_s': 0.0547945205479452, 'reference_m_s': 0.05577999701891615, 'absolute_error_m_s': 0.0009854764709709488, 'previous_error_m_s': 0.0547945205479452, 'next_error_m_s': 0.0547945205479452, 'loaded_impulse_ns': 0.00011336315259, 'same_step_support_flag': True}
+{'lane': 4, 'step': 240, 'side': 'right', 'sensor_m_s': 0.0019569471624266144, 'reference_m_s': 0.0009755903452069939, 'absolute_error_m_s': 0.0009813568172196206, 'previous_error_m_s': 0.003195507759997852, 'next_error_m_s': 0.0019302294915625987, 'loaded_impulse_ns': 0.002860172857141, 'same_step_support_flag': True}
+{'lane': 6, 'step': 238, 'side': 'right', 'sensor_m_s': 0.003913894324853229, 'reference_m_s': 0.002934183125695154, 'absolute_error_m_s': 0.0009797111991580749, 'previous_error_m_s': 0.005090741185736264, 'next_error_m_s': 0.0019877918630571726, 'loaded_impulse_ns': 0.003571722061145, 'same_step_support_flag': True}

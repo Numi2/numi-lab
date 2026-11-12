@@ -1,0 +1,11 @@
+--- artifacts/crow-v15-knee-contact-feedback-screen-20261112/screen.metal	2026-11-12 19:07:32
++++ artifacts/crow-v15-contact-cutoff-feedback-control-20261112/screen.metal	2026-11-12 19:20:10
+@@ -9761,7 +9761,7 @@
+     for (uint ci=0u;ci<activeContacts;++ci) {
+         const MRContactConstraintGPU cc=contacts[contactBase+ci];
+         const bool a=cc.bodyA>=robotFirst && cc.bodyA<robotEnd, bb=cc.bodyB>=robotFirst && cc.bodyB<robotEnd;
+-        if (a==bb || abs(cc.impulses.x)<1.e-9f) continue;
++        if (a==bb || abs(cc.impulses.x)<=1.e-7f) continue;
+         const uint rb=a ? cc.bodyA : cc.bodyB, other=a ? cc.bodyB : cc.bodyA;
+         if (other<robotEnd || other-robotEnd>=dispatch.strides.w) continue;
+         const int side=(rb==robotFirst+11u || (rb>=robotFirst+19u && rb<=robotFirst+26u)) ? 0 : ((rb==robotFirst+15u || (rb>=robotFirst+27u && rb<=robotFirst+34u)) ? 1 : -1);

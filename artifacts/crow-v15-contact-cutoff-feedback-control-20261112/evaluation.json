@@ -1,0 +1,549 @@
+{
+  "20261126": {
+    "lane_parity": {
+      "0": {
+        "endpoints": 0,
+        "substeps": 0
+      },
+      "1": {
+        "endpoints": 0,
+        "substeps": 0
+      },
+      "2": {
+        "endpoints": 0,
+        "substeps": 0
+      },
+      "3": {
+        "endpoints": 0,
+        "substeps": 0
+      },
+      "4": {
+        "endpoints": 0,
+        "substeps": 0
+      },
+      "5": {
+        "endpoints": 0,
+        "substeps": 0
+      },
+      "6": {
+        "endpoints": 0,
+        "substeps": 0
+      },
+      "7": {
+        "endpoints": 0,
+        "substeps": 0
+      }
+    },
+    "replay_environment": 5,
+    "replay_frames": 300,
+    "replay_differences": {
+      "q": {
+        "count": 0,
+        "first_frame": null
+      },
+      "v": {
+        "count": 0,
+        "first_frame": null
+      },
+      "reward": {
+        "count": 0,
+        "first_frame": null
+      },
+      "actor_observation": {
+        "count": 0,
+        "first_frame": null
+      },
+      "accepted_actions": {
+        "count": 0,
+        "first_frame": null
+      },
+      "body_states": {
+        "count": 0,
+        "first_frame": null
+      },
+      "done": {
+        "count": 0,
+        "first_frame": null
+      },
+      "termination_reason": {
+        "count": 0,
+        "first_frame": null
+      },
+      "timeout": {
+        "count": 0,
+        "first_frame": null
+      },
+      "tracking_score": {
+        "count": 0,
+        "first_frame": null
+      },
+      "outcomes": {
+        "count": 0,
+        "first_frame": null
+      }
+    },
+    "sensor_samples": 1164,
+    "max_sensor_reference_error_m_s": 0.0010544172761729198,
+    "sensor_errors_above_0_02": 0
+  },
+  "20261127": {
+    "lane_parity": {
+      "0": {
+        "endpoints": 0,
+        "substeps": 0
+      },
+      "1": {
+        "endpoints": 0,
+        "substeps": 0
+      },
+      "2": {
+        "endpoints": 0,
+        "substeps": 0
+      },
+      "3": {
+        "endpoints": 0,
+        "substeps": 0
+      },
+      "4": {
+        "endpoints": 0,
+        "substeps": 0
+      },
+      "5": {
+        "endpoints": 0,
+        "substeps": 0
+      },
+      "6": {
+        "endpoints": 0,
+        "substeps": 0
+      },
+      "7": {
+        "endpoints": 0,
+        "substeps": 0
+      }
+    },
+    "replay_environment": 5,
+    "replay_frames": 300,
+    "replay_differences": {
+      "q": {
+        "count": 0,
+        "first_frame": null
+      },
+      "v": {
+        "count": 0,
+        "first_frame": null
+      },
+      "reward": {
+        "count": 0,
+        "first_frame": null
+      },
+      "actor_observation": {
+        "count": 0,
+        "first_frame": null
+      },
+      "accepted_actions": {
+        "count": 0,
+        "first_frame": null
+      },
+      "body_states": {
+        "count": 0,
+        "first_frame": null
+      },
+      "done": {
+        "count": 0,
+        "first_frame": null
+      },
+      "termination_reason": {
+        "count": 0,
+        "first_frame": null
+      },
+      "timeout": {
+        "count": 0,
+        "first_frame": null
+      },
+      "tracking_score": {
+        "count": 0,
+        "first_frame": null
+      },
+      "outcomes": {
+        "count": 0,
+        "first_frame": null
+      }
+    },
+    "sensor_samples": 1164,
+    "max_sensor_reference_error_m_s": 0.0013141917223553497,
+    "sensor_errors_above_0_02": 0
+  },
+  "changed_sensor_values_20261127": {
+    "prior_audit_path": "artifacts/crow-v15-contact-sensor-discrepancy-audit-20261112/analysis.json",
+    "prior_audit_sha256": "5fb9ae9db15016bb93541176b57b5a59ad92520c8e7168f11635a9c341a3b28f",
+    "count": 14,
+    "support_flagged": 0,
+    "largest_difference_m_s": 0.15459882583170254,
+    "records": [
+      {
+        "old": {
+          "lane": 2,
+          "step": 254,
+          "side": "left",
+          "sensor_m_s": -0.12720156555772993,
+          "reference_m_s": 0.0,
+          "absolute_error_m_s": 0.12720156555772993,
+          "previous_error_m_s": 0.12782374008603553,
+          "next_error_m_s": 0.12720156555772993,
+          "loaded_impulse_ns": 0.0,
+          "same_step_support_flag": false
+        },
+        "new": {
+          "lane": 2,
+          "step": 254,
+          "side": "left",
+          "sensor_m_s": 0.0,
+          "reference_m_s": 0.0,
+          "absolute_error_m_s": 0.0,
+          "previous_error_m_s": 0.0006221745283056089,
+          "next_error_m_s": 0.0,
+          "loaded_impulse_ns": 0.0,
+          "same_step_support_flag": false
+        }
+      },
+      {
+        "old": {
+          "lane": 3,
+          "step": 254,
+          "side": "left",
+          "sensor_m_s": -0.12720156555772993,
+          "reference_m_s": 0.0,
+          "absolute_error_m_s": 0.12720156555772993,
+          "previous_error_m_s": 0.12781446305576155,
+          "next_error_m_s": 0.12720156555772993,
+          "loaded_impulse_ns": 0.0,
+          "same_step_support_flag": false
+        },
+        "new": {
+          "lane": 3,
+          "step": 254,
+          "side": "left",
+          "sensor_m_s": 0.0,
+          "reference_m_s": 0.0,
+          "absolute_error_m_s": 0.0,
+          "previous_error_m_s": 0.0006128974980316177,
+          "next_error_m_s": 0.0,
+          "loaded_impulse_ns": 0.0,
+          "same_step_support_flag": false
+        }
+      },
+      {
+        "old": {
+          "lane": 4,
+          "step": 288,
+          "side": "left",
+          "sensor_m_s": 0.15459882583170254,
+          "reference_m_s": 0.0,
+          "absolute_error_m_s": 0.15459882583170254,
+          "previous_error_m_s": 0.09132377175469508,
+          "next_error_m_s": 0.1395902352420493,
+          "loaded_impulse_ns": 0.0,
+          "same_step_support_flag": false
+        },
+        "new": {
+          "lane": 4,
+          "step": 288,
+          "side": "left",
+          "sensor_m_s": 0.0,
+          "reference_m_s": 0.0,
+          "absolute_error_m_s": 0.0,
+          "previous_error_m_s": 0.06327505407700745,
+          "next_error_m_s": 0.01500859058965324,
+          "loaded_impulse_ns": 0.0,
+          "same_step_support_flag": false
+        }
+      },
+      {
+        "old": {
+          "lane": 5,
+          "step": 263,
+          "side": "left",
+          "sensor_m_s": 0.14285714285714285,
+          "reference_m_s": 0.0,
+          "absolute_error_m_s": 0.14285714285714285,
+          "previous_error_m_s": 0.06957257961541452,
+          "next_error_m_s": 0.127051017044378,
+          "loaded_impulse_ns": 0.0,
+          "same_step_support_flag": false
+        },
+        "new": {
+          "lane": 5,
+          "step": 263,
+          "side": "left",
+          "sensor_m_s": 0.0,
+          "reference_m_s": 0.0,
+          "absolute_error_m_s": 0.0,
+          "previous_error_m_s": 0.07328456324172833,
+          "next_error_m_s": 0.01580612581276485,
+          "loaded_impulse_ns": 0.0,
+          "same_step_support_flag": false
+        }
+      },
+      {
+        "old": {
+          "lane": 5,
+          "step": 267,
+          "side": "right",
+          "sensor_m_s": -0.0136986301369863,
+          "reference_m_s": 0.0,
+          "absolute_error_m_s": 0.0136986301369863,
+          "previous_error_m_s": 0.011681408755648768,
+          "next_error_m_s": 0.0136986301369863,
+          "loaded_impulse_ns": 0.0,
+          "same_step_support_flag": false
+        },
+        "new": {
+          "lane": 5,
+          "step": 267,
+          "side": "right",
+          "sensor_m_s": 0.0,
+          "reference_m_s": 0.0,
+          "absolute_error_m_s": 0.0,
+          "previous_error_m_s": 0.0020172213813375323,
+          "next_error_m_s": 0.0,
+          "loaded_impulse_ns": 0.0,
+          "same_step_support_flag": false
+        }
+      },
+      {
+        "old": {
+          "lane": 6,
+          "step": 219,
+          "side": "right",
+          "sensor_m_s": -0.043052837573385516,
+          "reference_m_s": 0.0,
+          "absolute_error_m_s": 0.043052837573385516,
+          "previous_error_m_s": 0.03353422169800934,
+          "next_error_m_s": 0.043052837573385516,
+          "loaded_impulse_ns": 0.0,
+          "same_step_support_flag": false
+        },
+        "new": {
+          "lane": 6,
+          "step": 219,
+          "side": "right",
+          "sensor_m_s": 0.0,
+          "reference_m_s": 0.0,
+          "absolute_error_m_s": 0.0,
+          "previous_error_m_s": 0.009518615875376175,
+          "next_error_m_s": 0.0,
+          "loaded_impulse_ns": 0.0,
+          "same_step_support_flag": false
+        }
+      },
+      {
+        "old": {
+          "lane": 6,
+          "step": 263,
+          "side": "left",
+          "sensor_m_s": 0.11350293542074363,
+          "reference_m_s": 0.0,
+          "absolute_error_m_s": 0.11350293542074363,
+          "previous_error_m_s": 0.05772293840182748,
+          "next_error_m_s": 0.07915019596019053,
+          "loaded_impulse_ns": 0.0,
+          "same_step_support_flag": false
+        },
+        "new": {
+          "lane": 6,
+          "step": 263,
+          "side": "left",
+          "sensor_m_s": 0.0,
+          "reference_m_s": 0.0,
+          "absolute_error_m_s": 0.0,
+          "previous_error_m_s": 0.05577999701891615,
+          "next_error_m_s": 0.0343527394605531,
+          "loaded_impulse_ns": 0.0,
+          "same_step_support_flag": false
+        }
+      },
+      {
+        "old": {
+          "lane": 6,
+          "step": 267,
+          "side": "right",
+          "sensor_m_s": -0.0547945205479452,
+          "reference_m_s": 0.0,
+          "absolute_error_m_s": 0.0547945205479452,
+          "previous_error_m_s": 0.05372443384794458,
+          "next_error_m_s": 0.0547945205479452,
+          "loaded_impulse_ns": 0.0,
+          "same_step_support_flag": false
+        },
+        "new": {
+          "lane": 6,
+          "step": 267,
+          "side": "right",
+          "sensor_m_s": 0.0,
+          "reference_m_s": 0.0,
+          "absolute_error_m_s": 0.0,
+          "previous_error_m_s": 0.0010700867000006272,
+          "next_error_m_s": 0.0,
+          "loaded_impulse_ns": 0.0,
+          "same_step_support_flag": false
+        }
+      },
+      {
+        "old": {
+          "lane": 6,
+          "step": 280,
+          "side": "left",
+          "sensor_m_s": -0.005870841487279843,
+          "reference_m_s": 0.0,
+          "absolute_error_m_s": 0.005870841487279843,
+          "previous_error_m_s": 0.01618505600782605,
+          "next_error_m_s": 0.005870841487279843,
+          "loaded_impulse_ns": 0.0,
+          "same_step_support_flag": false
+        },
+        "new": {
+          "lane": 6,
+          "step": 280,
+          "side": "left",
+          "sensor_m_s": 0.0,
+          "reference_m_s": 0.0,
+          "absolute_error_m_s": 0.0,
+          "previous_error_m_s": 0.010314214520546205,
+          "next_error_m_s": 0.0,
+          "loaded_impulse_ns": 0.0,
+          "same_step_support_flag": false
+        }
+      },
+      {
+        "old": {
+          "lane": 6,
+          "step": 288,
+          "side": "left",
+          "sensor_m_s": 0.12524461839530332,
+          "reference_m_s": 0.0,
+          "absolute_error_m_s": 0.12524461839530332,
+          "previous_error_m_s": 0.06797613266161767,
+          "next_error_m_s": 0.07585092362679634,
+          "loaded_impulse_ns": 0.0,
+          "same_step_support_flag": false
+        },
+        "new": {
+          "lane": 6,
+          "step": 288,
+          "side": "left",
+          "sensor_m_s": 0.0,
+          "reference_m_s": 0.0,
+          "absolute_error_m_s": 0.0,
+          "previous_error_m_s": 0.057268485733685655,
+          "next_error_m_s": 0.04939369476850698,
+          "loaded_impulse_ns": 0.0,
+          "same_step_support_flag": false
+        }
+      },
+      {
+        "old": {
+          "lane": 6,
+          "step": 292,
+          "side": "right",
+          "sensor_m_s": -0.0684931506849315,
+          "reference_m_s": 0.0,
+          "absolute_error_m_s": 0.0684931506849315,
+          "previous_error_m_s": 0.06717422626284225,
+          "next_error_m_s": 0.0684931506849315,
+          "loaded_impulse_ns": 0.0,
+          "same_step_support_flag": false
+        },
+        "new": {
+          "lane": 6,
+          "step": 292,
+          "side": "right",
+          "sensor_m_s": 0.0,
+          "reference_m_s": 0.0,
+          "absolute_error_m_s": 0.0,
+          "previous_error_m_s": 0.0013189244220892552,
+          "next_error_m_s": 0.0,
+          "loaded_impulse_ns": 0.0,
+          "same_step_support_flag": false
+        }
+      },
+      {
+        "old": {
+          "lane": 7,
+          "step": 241,
+          "side": "right",
+          "sensor_m_s": 0.08414872798434442,
+          "reference_m_s": 0.0,
+          "absolute_error_m_s": 0.08414872798434442,
+          "previous_error_m_s": 0.08405352214994476,
+          "next_error_m_s": 0.08414872798434442,
+          "loaded_impulse_ns": 0.0,
+          "same_step_support_flag": false
+        },
+        "new": {
+          "lane": 7,
+          "step": 241,
+          "side": "right",
+          "sensor_m_s": 0.0,
+          "reference_m_s": 0.0,
+          "absolute_error_m_s": 0.0,
+          "previous_error_m_s": 9.520583439966577e-05,
+          "next_error_m_s": 0.0,
+          "loaded_impulse_ns": 0.0,
+          "same_step_support_flag": false
+        }
+      },
+      {
+        "old": {
+          "lane": 7,
+          "step": 265,
+          "side": "right",
+          "sensor_m_s": 0.043052837573385516,
+          "reference_m_s": 0.0,
+          "absolute_error_m_s": 0.043052837573385516,
+          "previous_error_m_s": 0.0549922490061255,
+          "next_error_m_s": 0.043052837573385516,
+          "loaded_impulse_ns": 0.0,
+          "same_step_support_flag": false
+        },
+        "new": {
+          "lane": 7,
+          "step": 265,
+          "side": "right",
+          "sensor_m_s": 0.0,
+          "reference_m_s": 0.0,
+          "absolute_error_m_s": 0.0,
+          "previous_error_m_s": 0.011939411432739985,
+          "next_error_m_s": 0.0,
+          "loaded_impulse_ns": 0.0,
+          "same_step_support_flag": false
+        }
+      },
+      {
+        "old": {
+          "lane": 7,
+          "step": 292,
+          "side": "right",
+          "sensor_m_s": -0.06653620352250489,
+          "reference_m_s": 0.0,
+          "absolute_error_m_s": 0.06653620352250489,
+          "previous_error_m_s": 0.06557875071588806,
+          "next_error_m_s": 0.06653620352250489,
+          "loaded_impulse_ns": 0.0,
+          "same_step_support_flag": false
+        },
+        "new": {
+          "lane": 7,
+          "step": 292,
+          "side": "right",
+          "sensor_m_s": 0.0,
+          "reference_m_s": 0.0,
+          "absolute_error_m_s": 0.0,
+          "previous_error_m_s": 0.000957452806616828,
+          "next_error_m_s": 0.0,
+          "loaded_impulse_ns": 0.0,
+          "same_step_support_flag": false
+        }
+      }
+    ]
+  }
+}

@@ -1,0 +1,4 @@
+7b4951bee4231b185e41750f86ea3dd80524c4ea379026e38e3094f32e2f17d6  artifacts/crow-v15-contact-cutoff-feedback-control-20261112/PLAN.md
+7f4221cf9a5dc8bec32c287780490129211c6892b6c28acfcc87b8c68ee60c7c  artifacts/crow-v15-contact-cutoff-feedback-control-20261112/screen.metal
+ddc00cc815c14c1ef1c33910716942990148f554821719b363dd5ffdbc4d1550  artifacts/crow-v15-contact-cutoff-feedback-control-20261112/build.py
+c1c250ca6aaac2f28bbbc5882ac700a8aa38dc8b07b21e6a5a7848897e8217c3  artifacts/crow-v15-contact-cutoff-feedback-control-20261112/run.py
