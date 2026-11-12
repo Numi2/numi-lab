@@ -1,0 +1,3 @@
+# Corrected body and path heading feedback
+
+The prior trial accidentally replaced the actor heading command before the 12-second intervention and did not preserve the matched prefix; retain it as invalid. Add a strict time gate so the new body-heading feedback begins only after 12 s. Compare the two unchanged controls through 24 s and all other lanes through at least 12 s against the reference, with paired .5, 1 and 2 gains on the normal wing-sweep drive and the existing bounded velocity-heading flap feedback. Assess velocity and body-heading errors, roll, speed, height, caps and contacts. No direct body moments, obstacle collisions disabled, development seed only.

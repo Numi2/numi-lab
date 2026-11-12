@@ -1,0 +1,133 @@
+{
+  "rows": [
+    {
+      "lane": 0,
+      "path_heading_target_rad": 0,
+      "end_step": 1200,
+      "termination": 0,
+      "yaw_change_rad": -0.17176625553992703,
+      "trajectory_angle_rad": -0.1207346098786556,
+      "dx_m": 3.52923584,
+      "dy_m": -0.4281834584,
+      "max_abs_roll_rad": 0.0009095144435307864,
+      "height_range_m": [
+        1.00397694,
+        1.05904233
+      ],
+      "mean_abs_world_vy_m_s": 0.03558475885461666
+    },
+    {
+      "lane": 1,
+      "path_heading_target_rad": 0,
+      "end_step": 1200,
+      "termination": 0,
+      "yaw_change_rad": -0.1722190863113418,
+      "trajectory_angle_rad": -0.12965645364646167,
+      "dx_m": 3.5252825000000003,
+      "dy_m": -0.4596542362,
+      "max_abs_roll_rad": 0.0009187203072966586,
+      "height_range_m": [
+        1.15445507,
+        1.20841825
+      ],
+      "mean_abs_world_vy_m_s": 0.038200642857166664
+    },
+    {
+      "lane": 2,
+      "path_heading_target_rad": 0.35,
+      "end_step": 1200,
+      "termination": 0,
+      "yaw_change_rad": 0.07122095984654135,
+      "trajectory_angle_rad": 0.19625885472281104,
+      "dx_m": 6.49091006,
+      "dy_m": 1.290510372,
+      "max_abs_roll_rad": 0.03550295176964055,
+      "height_range_m": [
+        1.01066864,
+        1.05973577
+      ],
+      "mean_abs_world_vy_m_s": 0.10984445173795
+    },
+    {
+      "lane": 3,
+      "path_heading_target_rad": -0.35,
+      "end_step": 1200,
+      "termination": 0,
+      "yaw_change_rad": -0.16478463241523328,
+      "trajectory_angle_rad": -0.2683460192993692,
+      "dx_m": 5.8537601299999995,
+      "dy_m": -1.6096569010000001,
+      "max_abs_roll_rad": 0.035670840729195484,
+      "height_range_m": [
+        1.1663878,
+        1.20823646
+      ],
+      "mean_abs_world_vy_m_s": 0.13382444335516666
+    },
+    {
+      "lane": 4,
+      "path_heading_target_rad": 0.35,
+      "end_step": 1200,
+      "termination": 0,
+      "yaw_change_rad": 0.07258666850761761,
+      "trajectory_angle_rad": 0.19455596006416725,
+      "dx_m": 6.47575796,
+      "dy_m": 1.2760382921,
+      "max_abs_roll_rad": 0.03627517572316794,
+      "height_range_m": [
+        1.01109517,
+        1.05943012
+      ],
+      "mean_abs_world_vy_m_s": 0.10868122450182667
+    },
+    {
+      "lane": 5,
+      "path_heading_target_rad": -0.35,
+      "end_step": 1200,
+      "termination": 0,
+      "yaw_change_rad": -0.16364232801789802,
+      "trajectory_angle_rad": -0.26671077810291377,
+      "dx_m": 5.86347425,
+      "dy_m": -1.6020195118,
+      "max_abs_roll_rad": 0.03596176812711208,
+      "height_range_m": [
+        1.16578865,
+        1.20925438
+      ],
+      "mean_abs_world_vy_m_s": 0.133181724266
+    },
+    {
+      "lane": 6,
+      "path_heading_target_rad": 0.35,
+      "end_step": 1200,
+      "termination": 0,
+      "yaw_change_rad": 0.07218652343186065,
+      "trajectory_angle_rad": 0.18853554836639108,
+      "dx_m": 6.493584519999999,
+      "dy_m": 1.2389866205,
+      "max_abs_roll_rad": 0.03735322939858128,
+      "height_range_m": [
+        1.01085007,
+        1.05944717
+      ],
+      "mean_abs_world_vy_m_s": 0.10575690942036667
+    },
+    {
+      "lane": 7,
+      "path_heading_target_rad": -0.35,
+      "end_step": 1200,
+      "termination": 0,
+      "yaw_change_rad": -0.1638814632270903,
+      "trajectory_angle_rad": -0.26457057591429,
+      "dx_m": 5.84963358,
+      "dy_m": -1.5847918409000001,
+      "max_abs_roll_rad": 0.03684529489200833,
+      "height_range_m": [
+        1.16676843,
+        1.20791042
+      ],
+      "mean_abs_world_vy_m_s": 0.1317390893425
+    }
+  ],
+  "scope": "Velocity-heading feedback is an exploratory bounded controller; world-path angle is measured over the whole 12\u201324 s interval. Yaw and path heading are 50 Hz samples; no biological validation."
+}
