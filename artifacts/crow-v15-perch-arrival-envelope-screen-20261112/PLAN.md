@@ -1,0 +1,5 @@
+# Initial perch arrival envelope
+
+The negative-pitch development start lacks opposing front-toe normal contact and falls; contact-gated hip corrections delayed but did not prevent that failure. Map a small longitudinal arrival-position envelope before changing friction or adding more feedback. Set the initial root position to -0.02, -0.01, 0 and +0.01 m relative to the retained benchmark in matched +0.04/-0.04 rad pitch pairs. Use the original zero-offset physical controller without added hip command. These are explicitly initialized stationary bench states, not autonomous arrivals.
+
+Require complete 550-interval substep evidence, supported opposing front/rear toes, bounded posture and no nonfoot contacts, toe-speed caps or falls. The unchanged x=0 pair must reproduce the existing baseline exactly before interpreting other pairs. Record each constructed state and failed or incomplete outcomes. An observed stable basin only informs future continuous approach control; it does not prove the crow can arrive there, release, navigate or generalize to either reserved layout.
