@@ -1,0 +1,3 @@
+# Contact-gated hip-stride screen
+
+Against the retained .30 hip baseline and identical 4 s prefixes, use seed 20261127 with two baseline controls and six lanes with .34 swing strength. Scale the hip position-drive command to 25%, 50% or 75% while the same foot is detected in support; retain knee, ankle and toe targets. This is a contact-conditioned exploratory physical controller, not measured crow kinematics. Require at least 5% more 4–6 s progress in both lanes of a setting, no both-feet-unloaded substeps, no toe-speed cap, no nonfoot ground impulse, and each foot's contact-point-speed p95 at most 1.5x its matched baseline. If switching causes chattering or any gate fails, reject. No qualification from this single used seed.
