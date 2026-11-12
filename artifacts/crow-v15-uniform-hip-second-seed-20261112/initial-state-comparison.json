@@ -1,0 +1,133 @@
+{
+  "scope": "Endpoint state difference between two already-used seeds, matched lane indices, not an IID biological sampling model; generalized velocity components have mixed linear and angular units.",
+  "rows": [
+    {
+      "step": 1,
+      "lane": 0,
+      "root_position_distance_m": 0.05271770707893394,
+      "quaternion_angular_distance_rad": 0.12446130351599519,
+      "max_joint_coordinate_difference_rad": 0.022852397999999996,
+      "max_generalized_velocity_difference": 2.603568911
+    },
+    {
+      "step": 1,
+      "lane": 1,
+      "root_position_distance_m": 0.02506917038617243,
+      "quaternion_angular_distance_rad": 0.0064322554820156475,
+      "max_joint_coordinate_difference_rad": 0.007151036999999971,
+      "max_generalized_velocity_difference": 0.871624648
+    },
+    {
+      "step": 1,
+      "lane": 2,
+      "root_position_distance_m": 0.007727947981274451,
+      "quaternion_angular_distance_rad": 0.06776888186768902,
+      "max_joint_coordinate_difference_rad": 0.2000178262747,
+      "max_generalized_velocity_difference": 7.49672299353
+    },
+    {
+      "step": 1,
+      "lane": 3,
+      "root_position_distance_m": 0.053397167982985744,
+      "quaternion_angular_distance_rad": 0.0271429623986239,
+      "max_joint_coordinate_difference_rad": 0.018569172000000023,
+      "max_generalized_velocity_difference": 2.4646288199999997
+    },
+    {
+      "step": 1,
+      "lane": 4,
+      "root_position_distance_m": 0.05796502069793931,
+      "quaternion_angular_distance_rad": 0.016857440327827874,
+      "max_joint_coordinate_difference_rad": 0.013038843999999994,
+      "max_generalized_velocity_difference": 1.6115618930000002
+    },
+    {
+      "step": 1,
+      "lane": 5,
+      "root_position_distance_m": 0.014064182556870032,
+      "quaternion_angular_distance_rad": 0.12859079172247131,
+      "max_joint_coordinate_difference_rad": 0.016271039999999987,
+      "max_generalized_velocity_difference": 1.8844519279999998
+    },
+    {
+      "step": 1,
+      "lane": 6,
+      "root_position_distance_m": 0.07446007440827745,
+      "quaternion_angular_distance_rad": 0.16940354215582348,
+      "max_joint_coordinate_difference_rad": 0.0164417403987,
+      "max_generalized_velocity_difference": 1.846141462
+    },
+    {
+      "step": 1,
+      "lane": 7,
+      "root_position_distance_m": 0.07044636936252202,
+      "quaternion_angular_distance_rad": 0.13719293128779378,
+      "max_joint_coordinate_difference_rad": 0.01730175299999999,
+      "max_generalized_velocity_difference": 2.053590777
+    },
+    {
+      "step": 200,
+      "lane": 0,
+      "root_position_distance_m": 0.03718176114631105,
+      "quaternion_angular_distance_rad": 0.002974002104345113,
+      "max_joint_coordinate_difference_rad": 0.0005542059000000002,
+      "max_generalized_velocity_difference": 0.018736898999999974
+    },
+    {
+      "step": 200,
+      "lane": 1,
+      "root_position_distance_m": 0.0454245138635688,
+      "quaternion_angular_distance_rad": 0.0006536006756544863,
+      "max_joint_coordinate_difference_rad": 0.0005235106126400001,
+      "max_generalized_velocity_difference": 0.018644721476700002
+    },
+    {
+      "step": 200,
+      "lane": 2,
+      "root_position_distance_m": 0.015046753863312673,
+      "quaternion_angular_distance_rad": 0.004452886477576413,
+      "max_joint_coordinate_difference_rad": 0.0009719189000000003,
+      "max_generalized_velocity_difference": 0.023131071999999975
+    },
+    {
+      "step": 200,
+      "lane": 3,
+      "root_position_distance_m": 0.05514590019031043,
+      "quaternion_angular_distance_rad": 0.0010093411222508667,
+      "max_joint_coordinate_difference_rad": 0.00032559029999999767,
+      "max_generalized_velocity_difference": 0.039371192000000055
+    },
+    {
+      "step": 200,
+      "lane": 4,
+      "root_position_distance_m": 0.05912981755891556,
+      "quaternion_angular_distance_rad": 0.0021676373759774055,
+      "max_joint_coordinate_difference_rad": 0.0023563895,
+      "max_generalized_velocity_difference": 0.0102232159211
+    },
+    {
+      "step": 200,
+      "lane": 5,
+      "root_position_distance_m": 0.056864648516743825,
+      "quaternion_angular_distance_rad": 0.00045259358880489026,
+      "max_joint_coordinate_difference_rad": 0.0015742237999999999,
+      "max_generalized_velocity_difference": 0.02957785099999999
+    },
+    {
+      "step": 200,
+      "lane": 6,
+      "root_position_distance_m": 0.04759426023581358,
+      "quaternion_angular_distance_rad": 0.003982750157549084,
+      "max_joint_coordinate_difference_rad": 0.003805583300000002,
+      "max_generalized_velocity_difference": 0.06488078900000005
+    },
+    {
+      "step": 200,
+      "lane": 7,
+      "root_position_distance_m": 0.1058048610803044,
+      "quaternion_angular_distance_rad": 0.0028230605194670805,
+      "max_joint_coordinate_difference_rad": 0.0054738782999999985,
+      "max_generalized_velocity_difference": 0.022061109000000023
+    }
+  ]
+}

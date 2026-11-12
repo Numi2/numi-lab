@@ -1,0 +1,7 @@
+from pathlib import Path
+import json,statistics
+p=Path('artifacts/crow-v15-uniform-hip-second-seed-20261112');base=json.loads((p/'substep-contact-speed-control.json').read_text());test=json.loads((p/'substep-contact-speed-hip.json').read_text());x={(r['lane'],r['side']):r for r in base['rows']};y={(r['lane'],r['side']):r for r in test['rows']};st=json.loads((p/'stance-analysis-hip.json').read_text());h=json.loads((p/'handoff-analysis.json').read_text());rows=[]
+for e in range(8):
+ med={k:statistics.median(z[k] for z in st['records'] if z['lane']==e) for k in ('hip_change_deg','knee_change_deg','ankle_mid_minus_early_deg','ankle_late_minus_mid_deg')};ratios={side:y[e,side]['integral_of_mean_contact_speed_m']/x[e,side]['integral_of_mean_contact_speed_m'] for side in ('left','right')};ctrl=h['arms']['baseline']['rows'][e];cur=h['arms']['flexed']['rows'][e];pre=h['prefix'][str(e)]
+ rows.append({'lane':e,'prefix_endpoints':pre['matched_endpoints_before_200'],'prefix_substeps':pre['matched_substeps_before_200'],'baseline_unloaded':ctrl['unloaded_substeps_4_to_6s'],'candidate_unloaded':cur['unloaded_substeps_4_to_6s'],'matched_contact_speed_ratios':ratios,'stance_phase_medians_deg':med,'failed':cur['failed'],'end':cur['end_step'],'toe_caps_after_7_4s':cur['toe_caps_after_7_4s'],'foot_loaded_after_8s':cur['foot_loaded_after_8s']})
+(p/'matched-comparison.json').write_text(json.dumps(rows,indent=2)+'\n');print(json.dumps(rows,indent=2))
