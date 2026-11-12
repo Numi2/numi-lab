@@ -1,0 +1,374 @@
+{
+  "20261126": [
+    {
+      "lane": 0,
+      "front_peak": 0.15,
+      "previous_and_trial_median_ms": {
+        "previous": 170.0,
+        "trial": 170.0
+      },
+      "event_count_by_foot": {
+        "previous": {
+          "left": 4,
+          "right": 3
+        },
+        "trial": {
+          "left": 4,
+          "right": 3
+        }
+      },
+      "trial_to_previous_ratio": 1.0,
+      "physical_gates_pass": false,
+      "preregistered_toe_gate_pass": false,
+      "joint_screen_pass": false,
+      "posthoc_both_arms_hallux_first": true
+    },
+    {
+      "lane": 1,
+      "front_peak": 0.15,
+      "previous_and_trial_median_ms": {
+        "previous": 171.25,
+        "trial": 171.25
+      },
+      "event_count_by_foot": {
+        "previous": {
+          "left": 4,
+          "right": 3
+        },
+        "trial": {
+          "left": 4,
+          "right": 3
+        }
+      },
+      "trial_to_previous_ratio": 1.0,
+      "physical_gates_pass": false,
+      "preregistered_toe_gate_pass": false,
+      "joint_screen_pass": false,
+      "posthoc_both_arms_hallux_first": true
+    },
+    {
+      "lane": 2,
+      "front_peak": 0.1,
+      "previous_and_trial_median_ms": {
+        "previous": 188.75,
+        "trial": 192.5
+      },
+      "event_count_by_foot": {
+        "previous": {
+          "left": 4,
+          "right": 3
+        },
+        "trial": {
+          "left": 4,
+          "right": 3
+        }
+      },
+      "trial_to_previous_ratio": 1.0198675496688743,
+      "physical_gates_pass": false,
+      "preregistered_toe_gate_pass": false,
+      "joint_screen_pass": false,
+      "posthoc_both_arms_hallux_first": true
+    },
+    {
+      "lane": 3,
+      "front_peak": 0.1,
+      "previous_and_trial_median_ms": {
+        "previous": 195.0,
+        "trial": 191.25
+      },
+      "event_count_by_foot": {
+        "previous": {
+          "left": 4,
+          "right": 3
+        },
+        "trial": {
+          "left": 4,
+          "right": 3
+        }
+      },
+      "trial_to_previous_ratio": 0.9807692307692307,
+      "physical_gates_pass": false,
+      "preregistered_toe_gate_pass": false,
+      "joint_screen_pass": false,
+      "posthoc_both_arms_hallux_first": true
+    },
+    {
+      "lane": 4,
+      "front_peak": 0.05,
+      "previous_and_trial_median_ms": {
+        "previous": 197.5,
+        "trial": 185.0
+      },
+      "event_count_by_foot": {
+        "previous": {
+          "left": 4,
+          "right": 3
+        },
+        "trial": {
+          "left": 4,
+          "right": 3
+        }
+      },
+      "trial_to_previous_ratio": 0.9367088607594937,
+      "physical_gates_pass": false,
+      "preregistered_toe_gate_pass": false,
+      "joint_screen_pass": false,
+      "posthoc_both_arms_hallux_first": true
+    },
+    {
+      "lane": 5,
+      "front_peak": 0.05,
+      "previous_and_trial_median_ms": {
+        "previous": 192.5,
+        "trial": 183.75
+      },
+      "event_count_by_foot": {
+        "previous": {
+          "left": 4,
+          "right": 3
+        },
+        "trial": {
+          "left": 4,
+          "right": 3
+        }
+      },
+      "trial_to_previous_ratio": 0.9545454545454546,
+      "physical_gates_pass": false,
+      "preregistered_toe_gate_pass": false,
+      "joint_screen_pass": false,
+      "posthoc_both_arms_hallux_first": true
+    },
+    {
+      "lane": 6,
+      "front_peak": 0,
+      "previous_and_trial_median_ms": {
+        "previous": 190.0,
+        "trial": 178.75
+      },
+      "event_count_by_foot": {
+        "previous": {
+          "left": 4,
+          "right": 3
+        },
+        "trial": {
+          "left": 4,
+          "right": 3
+        }
+      },
+      "trial_to_previous_ratio": 0.9407894736842105,
+      "physical_gates_pass": false,
+      "preregistered_toe_gate_pass": false,
+      "joint_screen_pass": false,
+      "posthoc_both_arms_hallux_first": true
+    },
+    {
+      "lane": 7,
+      "front_peak": 0,
+      "previous_and_trial_median_ms": {
+        "previous": 196.25,
+        "trial": 173.75
+      },
+      "event_count_by_foot": {
+        "previous": {
+          "left": 4,
+          "right": 3
+        },
+        "trial": {
+          "left": 4,
+          "right": 3
+        }
+      },
+      "trial_to_previous_ratio": 0.8853503184713376,
+      "physical_gates_pass": false,
+      "preregistered_toe_gate_pass": false,
+      "joint_screen_pass": false,
+      "posthoc_both_arms_hallux_first": true
+    }
+  ],
+  "20261127": [
+    {
+      "lane": 0,
+      "front_peak": 0.15,
+      "previous_and_trial_median_ms": {
+        "previous": 171.25,
+        "trial": 171.25
+      },
+      "event_count_by_foot": {
+        "previous": {
+          "left": 4,
+          "right": 3
+        },
+        "trial": {
+          "left": 4,
+          "right": 3
+        }
+      },
+      "trial_to_previous_ratio": 1.0,
+      "physical_gates_pass": false,
+      "preregistered_toe_gate_pass": false,
+      "joint_screen_pass": false,
+      "posthoc_both_arms_hallux_first": true
+    },
+    {
+      "lane": 1,
+      "front_peak": 0.15,
+      "previous_and_trial_median_ms": {
+        "previous": 171.25,
+        "trial": 171.25
+      },
+      "event_count_by_foot": {
+        "previous": {
+          "left": 4,
+          "right": 3
+        },
+        "trial": {
+          "left": 4,
+          "right": 3
+        }
+      },
+      "trial_to_previous_ratio": 1.0,
+      "physical_gates_pass": false,
+      "preregistered_toe_gate_pass": false,
+      "joint_screen_pass": false,
+      "posthoc_both_arms_hallux_first": true
+    },
+    {
+      "lane": 2,
+      "front_peak": 0.1,
+      "previous_and_trial_median_ms": {
+        "previous": 195.0,
+        "trial": 192.5
+      },
+      "event_count_by_foot": {
+        "previous": {
+          "left": 4,
+          "right": 3
+        },
+        "trial": {
+          "left": 4,
+          "right": 3
+        }
+      },
+      "trial_to_previous_ratio": 0.9871794871794872,
+      "physical_gates_pass": false,
+      "preregistered_toe_gate_pass": false,
+      "joint_screen_pass": false,
+      "posthoc_both_arms_hallux_first": true
+    },
+    {
+      "lane": 3,
+      "front_peak": 0.1,
+      "previous_and_trial_median_ms": {
+        "previous": 197.5,
+        "trial": 192.5
+      },
+      "event_count_by_foot": {
+        "previous": {
+          "left": 4,
+          "right": 3
+        },
+        "trial": {
+          "left": 4,
+          "right": 3
+        }
+      },
+      "trial_to_previous_ratio": 0.9746835443037974,
+      "physical_gates_pass": false,
+      "preregistered_toe_gate_pass": false,
+      "joint_screen_pass": false,
+      "posthoc_both_arms_hallux_first": true
+    },
+    {
+      "lane": 4,
+      "front_peak": 0.05,
+      "previous_and_trial_median_ms": {
+        "previous": 195.0,
+        "trial": 185.0
+      },
+      "event_count_by_foot": {
+        "previous": {
+          "left": 4,
+          "right": 3
+        },
+        "trial": {
+          "left": 4,
+          "right": 3
+        }
+      },
+      "trial_to_previous_ratio": 0.9487179487179487,
+      "physical_gates_pass": false,
+      "preregistered_toe_gate_pass": false,
+      "joint_screen_pass": false,
+      "posthoc_both_arms_hallux_first": true
+    },
+    {
+      "lane": 5,
+      "front_peak": 0.05,
+      "previous_and_trial_median_ms": {
+        "previous": 196.25,
+        "trial": 183.75
+      },
+      "event_count_by_foot": {
+        "previous": {
+          "left": 4,
+          "right": 3
+        },
+        "trial": {
+          "left": 4,
+          "right": 3
+        }
+      },
+      "trial_to_previous_ratio": 0.9363057324840764,
+      "physical_gates_pass": false,
+      "preregistered_toe_gate_pass": false,
+      "joint_screen_pass": false,
+      "posthoc_both_arms_hallux_first": true
+    },
+    {
+      "lane": 6,
+      "front_peak": 0,
+      "previous_and_trial_median_ms": {
+        "previous": 196.25,
+        "trial": 178.75
+      },
+      "event_count_by_foot": {
+        "previous": {
+          "left": 4,
+          "right": 3
+        },
+        "trial": {
+          "left": 4,
+          "right": 3
+        }
+      },
+      "trial_to_previous_ratio": 0.910828025477707,
+      "physical_gates_pass": false,
+      "preregistered_toe_gate_pass": false,
+      "joint_screen_pass": false,
+      "posthoc_both_arms_hallux_first": true
+    },
+    {
+      "lane": 7,
+      "front_peak": 0,
+      "previous_and_trial_median_ms": {
+        "previous": 196.25,
+        "trial": 171.25
+      },
+      "event_count_by_foot": {
+        "previous": {
+          "left": 4,
+          "right": 3
+        },
+        "trial": {
+          "left": 4,
+          "right": 3
+        }
+      },
+      "trial_to_previous_ratio": 0.8726114649681529,
+      "physical_gates_pass": false,
+      "preregistered_toe_gate_pass": false,
+      "joint_screen_pass": false,
+      "posthoc_both_arms_hallux_first": true
+    }
+  ]
+}

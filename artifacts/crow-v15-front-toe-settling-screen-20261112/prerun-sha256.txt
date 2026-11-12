@@ -1,0 +1,2 @@
+fdf7bc35e7dd7ffa2b6d6bea4517ccd00d3d3510363bfc104b543c0aaaa8f141  artifacts/crow-v15-front-toe-settling-screen-20261112/PLAN.md
+d8bbb944634cb21f2a4147ac55bfbc556334e4f4aadba4f88e62e110575570dc  artifacts/crow-v15-front-toe-settling-screen-20261112/screen.metal
