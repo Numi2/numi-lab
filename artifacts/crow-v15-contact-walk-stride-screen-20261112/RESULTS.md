@@ -1,0 +1,5 @@
+# Walking hip-stroke screen: rejected
+
+Two .30-stroke controls matched all 300 endpoint states and 4,800 contact substeps per lane against their same-seed baselines. Over the 4–6 s interval, hip stroke .40 increased root-forward displacement from .131–.139 m to .192–.194 m with no both-feet-unloaded substeps or toe-speed caps, but the right-foot 50 Hz contact-point speed p95 rose 1.88–1.94 times baseline, above the predeclared 1.5x gate. Stroke .50 produced .234 m but 14–16 unloaded substeps and contact-point speed multiples 4.3–8.6; stroke .60 produced .250–.258 m but 20–26 unloaded substeps and multiples 3.9–13.0. No tested lane hit a toe-speed cap during walking. Point speed is not integrated slip, and individual brief unloads do not alone prove a fall.
+
+All three increases fail the preregistered support/contact-speed gate; none is promoted. Results use a previously used seed and model, not real-crow gait or held-out validation. The experiment identifies a contact/stability bottleneck rather than a safe gait-speed improvement.
