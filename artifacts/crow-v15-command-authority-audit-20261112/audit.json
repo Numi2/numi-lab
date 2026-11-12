@@ -2,50 +2,50 @@
   {
     "artifact": "crow-v15-true-toe-control-replication-20261112",
     "sha256": "e5692bc70f73e66c429acd2f10e72b208f53d0903f27e803de28a87b972aaaa7",
-    "comment_line": 1,
-    "condition_line": 1,
-    "replacement_line": 1
+    "comment_line": 5011,
+    "condition_line": 5013,
+    "replacement_line": 5019
   },
   {
     "artifact": "crow-v15-toe-bypass-paired-control-20261112",
     "sha256": "1c2051535bbf3e6a5a074227ae17b4a7e9c7e57339449358c1db90a34d757a33",
-    "comment_line": 1,
-    "condition_line": 1,
-    "replacement_line": 1
+    "comment_line": 5011,
+    "condition_line": 5013,
+    "replacement_line": 5019
   },
   {
     "artifact": "crow-v15-integrated-leg-push-control-20261112",
     "sha256": "569a694046015a2877d78a556c2ce71121a720916e6ec1609f251cd8b148bad5",
-    "comment_line": 1,
-    "condition_line": 1,
-    "replacement_line": 1
+    "comment_line": 5011,
+    "condition_line": 5013,
+    "replacement_line": 5019
   },
   {
     "artifact": "crow-v15-leg-first-wing-delay-screen-20261112",
     "sha256": "aea4dad733a37c1ba6808285685adce14fecf2a8570d472b555202ad4bc73be4",
-    "comment_line": 1,
-    "condition_line": 1,
-    "replacement_line": 1
+    "comment_line": 5011,
+    "condition_line": 5013,
+    "replacement_line": 5019
   },
   {
     "artifact": "crow-v15-leg-first-wing-delay-hold-20261112",
     "sha256": "aee02597a5b4ce4cb917480451409638cde304257a520cd2f22abcf3d15c3746",
-    "comment_line": 1,
-    "condition_line": 1,
-    "replacement_line": 1
+    "comment_line": 5011,
+    "condition_line": 5013,
+    "replacement_line": 5019
   },
   {
     "artifact": "crow-v15-continuous-leg-release-screen-20261112",
     "sha256": "a8e3e8abed51f3a552c17137d6cec20d5a442273e11fcede8bc6782b6a82fbea",
-    "comment_line": 1,
-    "condition_line": 1,
-    "replacement_line": 1
+    "comment_line": 5011,
+    "condition_line": 5013,
+    "replacement_line": 5019
   },
   {
     "artifact": "crow-v15-continuous-leg-release-hold-20261112",
     "sha256": "55b7e2f3c5d93eb5af9fa022ff02c467bcde35f84fc357df43b66295174c24cb",
-    "comment_line": 1,
-    "condition_line": 1,
-    "replacement_line": 1
+    "comment_line": 5011,
+    "condition_line": 5013,
+    "replacement_line": 5019
   }
 ]
