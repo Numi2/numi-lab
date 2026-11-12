@@ -1,0 +1,3 @@
+# Bounded speed feedback beyond 16 seconds
+
+Use the obstacle-free diagnostic host (five course collisions disabled, ground retained) and identical actor weights. Apply the .55 m/s speed target and .24 gain symmetric sweep feedback to all eight used-seed starts after 9 s; both direct body moments remain disabled throughout, no resets, 16 substeps. Continue to 24 s, checking all joint speed limits, ground contacts, altitude, attitude, heading and longitudinal/lateral velocities. Compare lane 5 against its exact earlier same-arm run through 16 s; if it does not match, investigate before attributing differences. This is a development control test, not biological qualification, obstacle navigation or a supported landing.

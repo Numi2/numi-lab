@@ -1,0 +1,105 @@
+{
+  "interval_s": [
+    12,
+    24
+  ],
+  "rows": [
+    {
+      "lane": 0,
+      "height_range_m": [
+        1.07223952,
+        1.22528195
+      ],
+      "mean_world_vx_m_s": 0.23448545592116668,
+      "mean_abs_world_vy_m_s": 0.093671625846015,
+      "maximum_abs_roll_rad": 0.030608281526933418,
+      "maximum_abs_pitch_rad": 0.07561066526845843,
+      "net_lateral_displacement_m": 0.2148508389
+    },
+    {
+      "lane": 1,
+      "height_range_m": [
+        1.05409408,
+        1.23336136
+      ],
+      "mean_world_vx_m_s": 0.236119866778,
+      "mean_abs_world_vy_m_s": 0.11012341212846917,
+      "maximum_abs_roll_rad": 0.03799952294880827,
+      "maximum_abs_pitch_rad": 0.07709753282266245,
+      "net_lateral_displacement_m": 0.3798038515
+    },
+    {
+      "lane": 2,
+      "height_range_m": [
+        1.02743959,
+        1.18673265
+      ],
+      "mean_world_vx_m_s": 0.235226818277,
+      "mean_abs_world_vy_m_s": 0.10390132472821462,
+      "maximum_abs_roll_rad": 0.034847783039040736,
+      "maximum_abs_pitch_rad": 0.07432059053623263,
+      "net_lateral_displacement_m": 0.2671388539
+    },
+    {
+      "lane": 3,
+      "height_range_m": [
+        1.06334245,
+        1.17919075
+      ],
+      "mean_world_vx_m_s": 0.236773331708,
+      "mean_abs_world_vy_m_s": 0.10487931987867667,
+      "maximum_abs_roll_rad": 0.03556483974857088,
+      "maximum_abs_pitch_rad": 0.07615823289022788,
+      "net_lateral_displacement_m": 0.34408700449999996
+    },
+    {
+      "lane": 4,
+      "height_range_m": [
+        1.02223146,
+        1.17850363
+      ],
+      "mean_world_vx_m_s": 0.232331572006,
+      "mean_abs_world_vy_m_s": 0.09077239278648616,
+      "maximum_abs_roll_rad": 0.03224628791421719,
+      "maximum_abs_pitch_rad": 0.07463423935223139,
+      "net_lateral_displacement_m": 0.309197351
+    },
+    {
+      "lane": 5,
+      "height_range_m": [
+        1.0575304,
+        1.17815411
+      ],
+      "mean_world_vx_m_s": 0.23654729988783332,
+      "mean_abs_world_vy_m_s": 0.10641843750905333,
+      "maximum_abs_roll_rad": 0.03598085177178743,
+      "maximum_abs_pitch_rad": 0.07583026342488858,
+      "net_lateral_displacement_m": 0.31773156599999997
+    },
+    {
+      "lane": 6,
+      "height_range_m": [
+        1.05087841,
+        1.16479373
+      ],
+      "mean_world_vx_m_s": 0.23653773471616668,
+      "mean_abs_world_vy_m_s": 0.09090713619491667,
+      "maximum_abs_roll_rad": 0.029462049572123547,
+      "maximum_abs_pitch_rad": 0.07615925366010011,
+      "net_lateral_displacement_m": 0.373955652
+    },
+    {
+      "lane": 7,
+      "height_range_m": [
+        1.07802033,
+        1.21440148
+      ],
+      "mean_world_vx_m_s": 0.23491117721883334,
+      "mean_abs_world_vy_m_s": 0.10394642137186516,
+      "maximum_abs_roll_rad": 0.036826846844965934,
+      "maximum_abs_pitch_rad": 0.07625248486876027,
+      "net_lateral_displacement_m": 0.30780214100000003
+    }
+  ],
+  "scope": "Endpoint sampling at 50 Hz; world-frame velocities are not body-relative speed tracking error, and extrema are sampled."
+}
