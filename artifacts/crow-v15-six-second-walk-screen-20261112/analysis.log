@@ -1,0 +1,505 @@
+artifacts/crow-v15-six-second-walk-screen-20261112/sham-20261126-dev q_error 4.999694547258571e-10 position_error_m 1.5787311384445568e-08 rotation_error 2.9783623063509514e-08
+artifacts/crow-v15-six-second-walk-screen-20261112/candidate-20261126-rebound q_error 4.999160807539482e-10 position_error_m 1.6382979918041812e-08 rotation_error 2.979900116505378e-08
+artifacts/crow-v15-six-second-walk-screen-20261112/sham-20261126-dev q_error 4.989013646650164e-10 position_error_m 1.6721234318859164e-08 rotation_error 2.980118362912866e-08
+artifacts/crow-v15-six-second-walk-screen-20261112/candidate-20261126-rebound q_error 4.992981028628662e-10 position_error_m 1.506179841083908e-08 rotation_error 2.9801191922018585e-08
+artifacts/crow-v15-six-second-walk-screen-20261112/sham-20261126-dev q_error 4.999618496981384e-10 position_error_m 1.6975247075477873e-08 rotation_error 2.9788696793493704e-08
+artifacts/crow-v15-six-second-walk-screen-20261112/candidate-20261126-rebound q_error 4.994163554927766e-10 position_error_m 1.6319302434746042e-08 rotation_error 2.9782058092874632e-08
+{
+  "coverage_complete": true,
+  "rows": [
+    {
+      "lane": 0,
+      "first_prefix_state_mismatch": [],
+      "first_prefix_contact_mismatch": [],
+      "first_mismatch_to_two_second_build": {
+        "sham": null,
+        "candidate": null
+      },
+      "arms": {
+        "sham": {
+          "end": 500,
+          "physical_failure": false,
+          "reason": 0,
+          "missing_contact_substeps": 0,
+          "both_unloaded_substeps": 117,
+          "nonfoot_substeps": 0,
+          "toe_cap_substeps": 0,
+          "first_height_below_0_1m": null
+        },
+        "candidate": {
+          "end": 500,
+          "physical_failure": false,
+          "reason": 0,
+          "missing_contact_substeps": 0,
+          "both_unloaded_substeps": 0,
+          "nonfoot_substeps": 0,
+          "toe_cap_substeps": 0,
+          "first_height_below_0_1m": null
+        }
+      },
+      "window_gates": [
+        {
+          "first": 201,
+          "candidate_travel_m": 0.0290145492,
+          "sham_travel_m": 0.0289496509,
+          "candidate_swing_bouts": [
+            3,
+            3
+          ]
+        },
+        {
+          "first": 301,
+          "candidate_travel_m": 0.023464312799999998,
+          "sham_travel_m": 0.022171773,
+          "candidate_swing_bouts": [
+            4,
+            4
+          ]
+        },
+        {
+          "first": 401,
+          "candidate_travel_m": 0.025331404099999996,
+          "sham_travel_m": 0.0343798734,
+          "candidate_swing_bouts": [
+            4,
+            4
+          ]
+        }
+      ],
+      "pass": true
+    },
+    {
+      "lane": 1,
+      "first_prefix_state_mismatch": [],
+      "first_prefix_contact_mismatch": [],
+      "first_mismatch_to_two_second_build": {
+        "sham": null,
+        "candidate": null
+      },
+      "arms": {
+        "sham": {
+          "end": 500,
+          "physical_failure": false,
+          "reason": 0,
+          "missing_contact_substeps": 0,
+          "both_unloaded_substeps": 108,
+          "nonfoot_substeps": 0,
+          "toe_cap_substeps": 0,
+          "first_height_below_0_1m": null
+        },
+        "candidate": {
+          "end": 500,
+          "physical_failure": false,
+          "reason": 0,
+          "missing_contact_substeps": 0,
+          "both_unloaded_substeps": 0,
+          "nonfoot_substeps": 0,
+          "toe_cap_substeps": 0,
+          "first_height_below_0_1m": null
+        }
+      },
+      "window_gates": [
+        {
+          "first": 201,
+          "candidate_travel_m": 0.0316527709,
+          "sham_travel_m": 0.0301120812,
+          "candidate_swing_bouts": [
+            3,
+            3
+          ]
+        },
+        {
+          "first": 301,
+          "candidate_travel_m": 0.0239393273,
+          "sham_travel_m": 0.021861393899999998,
+          "candidate_swing_bouts": [
+            4,
+            4
+          ]
+        },
+        {
+          "first": 401,
+          "candidate_travel_m": 0.025453295600000002,
+          "sham_travel_m": 0.0342185945,
+          "candidate_swing_bouts": [
+            4,
+            4
+          ]
+        }
+      ],
+      "pass": true
+    },
+    {
+      "lane": 2,
+      "first_prefix_state_mismatch": [],
+      "first_prefix_contact_mismatch": [],
+      "first_mismatch_to_two_second_build": {
+        "sham": null,
+        "candidate": null
+      },
+      "arms": {
+        "sham": {
+          "end": 500,
+          "physical_failure": false,
+          "reason": 0,
+          "missing_contact_substeps": 0,
+          "both_unloaded_substeps": 354,
+          "nonfoot_substeps": 0,
+          "toe_cap_substeps": 0,
+          "first_height_below_0_1m": null
+        },
+        "candidate": {
+          "end": 500,
+          "physical_failure": false,
+          "reason": 0,
+          "missing_contact_substeps": 0,
+          "both_unloaded_substeps": 0,
+          "nonfoot_substeps": 0,
+          "toe_cap_substeps": 0,
+          "first_height_below_0_1m": null
+        }
+      },
+      "window_gates": [
+        {
+          "first": 201,
+          "candidate_travel_m": 0.0295837452,
+          "sham_travel_m": 0.0292093274,
+          "candidate_swing_bouts": [
+            3,
+            3
+          ]
+        },
+        {
+          "first": 301,
+          "candidate_travel_m": 0.023530349199999998,
+          "sham_travel_m": -0.01910830566,
+          "candidate_swing_bouts": [
+            4,
+            4
+          ]
+        },
+        {
+          "first": 401,
+          "candidate_travel_m": 0.025736428800000002,
+          "sham_travel_m": 0.03476374759,
+          "candidate_swing_bouts": [
+            4,
+            4
+          ]
+        }
+      ],
+      "pass": true
+    },
+    {
+      "lane": 3,
+      "first_prefix_state_mismatch": [],
+      "first_prefix_contact_mismatch": [],
+      "first_mismatch_to_two_second_build": {
+        "sham": null,
+        "candidate": null
+      },
+      "arms": {
+        "sham": {
+          "end": 500,
+          "physical_failure": false,
+          "reason": 0,
+          "missing_contact_substeps": 0,
+          "both_unloaded_substeps": 141,
+          "nonfoot_substeps": 0,
+          "toe_cap_substeps": 0,
+          "first_height_below_0_1m": null
+        },
+        "candidate": {
+          "end": 500,
+          "physical_failure": false,
+          "reason": 0,
+          "missing_contact_substeps": 0,
+          "both_unloaded_substeps": 0,
+          "nonfoot_substeps": 0,
+          "toe_cap_substeps": 0,
+          "first_height_below_0_1m": null
+        }
+      },
+      "window_gates": [
+        {
+          "first": 201,
+          "candidate_travel_m": 0.0303011947,
+          "sham_travel_m": 0.0315955915,
+          "candidate_swing_bouts": [
+            3,
+            3
+          ]
+        },
+        {
+          "first": 301,
+          "candidate_travel_m": 0.023449301699999998,
+          "sham_travel_m": 0.011704407600000001,
+          "candidate_swing_bouts": [
+            4,
+            4
+          ]
+        },
+        {
+          "first": 401,
+          "candidate_travel_m": 0.0260348469,
+          "sham_travel_m": 0.03476750480000001,
+          "candidate_swing_bouts": [
+            4,
+            4
+          ]
+        }
+      ],
+      "pass": true
+    },
+    {
+      "lane": 4,
+      "first_prefix_state_mismatch": [],
+      "first_prefix_contact_mismatch": [],
+      "first_mismatch_to_two_second_build": {
+        "sham": null,
+        "candidate": null
+      },
+      "arms": {
+        "sham": {
+          "end": 500,
+          "physical_failure": false,
+          "reason": 0,
+          "missing_contact_substeps": 0,
+          "both_unloaded_substeps": 94,
+          "nonfoot_substeps": 0,
+          "toe_cap_substeps": 0,
+          "first_height_below_0_1m": null
+        },
+        "candidate": {
+          "end": 500,
+          "physical_failure": false,
+          "reason": 0,
+          "missing_contact_substeps": 0,
+          "both_unloaded_substeps": 0,
+          "nonfoot_substeps": 0,
+          "toe_cap_substeps": 0,
+          "first_height_below_0_1m": null
+        }
+      },
+      "window_gates": [
+        {
+          "first": 201,
+          "candidate_travel_m": 0.0282526612,
+          "sham_travel_m": 0.029940949799999998,
+          "candidate_swing_bouts": [
+            3,
+            3
+          ]
+        },
+        {
+          "first": 301,
+          "candidate_travel_m": 0.024025676699999998,
+          "sham_travel_m": 0.0209099762,
+          "candidate_swing_bouts": [
+            4,
+            4
+          ]
+        },
+        {
+          "first": 401,
+          "candidate_travel_m": 0.0249176361,
+          "sham_travel_m": 0.0332795977,
+          "candidate_swing_bouts": [
+            4,
+            4
+          ]
+        }
+      ],
+      "pass": true
+    },
+    {
+      "lane": 5,
+      "first_prefix_state_mismatch": [],
+      "first_prefix_contact_mismatch": [],
+      "first_mismatch_to_two_second_build": {
+        "sham": null,
+        "candidate": null
+      },
+      "arms": {
+        "sham": {
+          "end": 500,
+          "physical_failure": false,
+          "reason": 0,
+          "missing_contact_substeps": 0,
+          "both_unloaded_substeps": 89,
+          "nonfoot_substeps": 0,
+          "toe_cap_substeps": 0,
+          "first_height_below_0_1m": null
+        },
+        "candidate": {
+          "end": 500,
+          "physical_failure": false,
+          "reason": 0,
+          "missing_contact_substeps": 0,
+          "both_unloaded_substeps": 0,
+          "nonfoot_substeps": 0,
+          "toe_cap_substeps": 0,
+          "first_height_below_0_1m": null
+        }
+      },
+      "window_gates": [
+        {
+          "first": 201,
+          "candidate_travel_m": 0.03115694413,
+          "sham_travel_m": 0.025669427629999998,
+          "candidate_swing_bouts": [
+            3,
+            3
+          ]
+        },
+        {
+          "first": 301,
+          "candidate_travel_m": 0.0234117266,
+          "sham_travel_m": 0.019865967300000002,
+          "candidate_swing_bouts": [
+            4,
+            4
+          ]
+        },
+        {
+          "first": 401,
+          "candidate_travel_m": 0.025066036799999997,
+          "sham_travel_m": 0.03311087559999999,
+          "candidate_swing_bouts": [
+            4,
+            4
+          ]
+        }
+      ],
+      "pass": true
+    },
+    {
+      "lane": 6,
+      "first_prefix_state_mismatch": [],
+      "first_prefix_contact_mismatch": [],
+      "first_mismatch_to_two_second_build": {
+        "sham": null,
+        "candidate": null
+      },
+      "arms": {
+        "sham": {
+          "end": 500,
+          "physical_failure": false,
+          "reason": 0,
+          "missing_contact_substeps": 0,
+          "both_unloaded_substeps": 107,
+          "nonfoot_substeps": 0,
+          "toe_cap_substeps": 0,
+          "first_height_below_0_1m": null
+        },
+        "candidate": {
+          "end": 500,
+          "physical_failure": false,
+          "reason": 0,
+          "missing_contact_substeps": 0,
+          "both_unloaded_substeps": 0,
+          "nonfoot_substeps": 0,
+          "toe_cap_substeps": 0,
+          "first_height_below_0_1m": null
+        }
+      },
+      "window_gates": [
+        {
+          "first": 201,
+          "candidate_travel_m": 0.0309365299,
+          "sham_travel_m": 0.0253410433,
+          "candidate_swing_bouts": [
+            3,
+            3
+          ]
+        },
+        {
+          "first": 301,
+          "candidate_travel_m": 0.024502515700000005,
+          "sham_travel_m": 0.023091196999999994,
+          "candidate_swing_bouts": [
+            4,
+            4
+          ]
+        },
+        {
+          "first": 401,
+          "candidate_travel_m": 0.0249282871,
+          "sham_travel_m": 0.0322358982,
+          "candidate_swing_bouts": [
+            4,
+            4
+          ]
+        }
+      ],
+      "pass": true
+    },
+    {
+      "lane": 7,
+      "first_prefix_state_mismatch": [],
+      "first_prefix_contact_mismatch": [],
+      "first_mismatch_to_two_second_build": {
+        "sham": null,
+        "candidate": null
+      },
+      "arms": {
+        "sham": {
+          "end": 500,
+          "physical_failure": false,
+          "reason": 0,
+          "missing_contact_substeps": 0,
+          "both_unloaded_substeps": 121,
+          "nonfoot_substeps": 0,
+          "toe_cap_substeps": 0,
+          "first_height_below_0_1m": null
+        },
+        "candidate": {
+          "end": 500,
+          "physical_failure": false,
+          "reason": 0,
+          "missing_contact_substeps": 0,
+          "both_unloaded_substeps": 0,
+          "nonfoot_substeps": 0,
+          "toe_cap_substeps": 0,
+          "first_height_below_0_1m": null
+        }
+      },
+      "window_gates": [
+        {
+          "first": 201,
+          "candidate_travel_m": 0.031748318100000006,
+          "sham_travel_m": 0.026243075700000004,
+          "candidate_swing_bouts": [
+            3,
+            3
+          ]
+        },
+        {
+          "first": 301,
+          "candidate_travel_m": 0.023545195300000002,
+          "sham_travel_m": 0.021445707459999998,
+          "candidate_swing_bouts": [
+            4,
+            4
+          ]
+        },
+        {
+          "first": 401,
+          "candidate_travel_m": 0.024943593899999998,
+          "sham_travel_m": 0.03400979195,
+          "candidate_swing_bouts": [
+            4,
+            4
+          ]
+        }
+      ],
+      "pass": true
+    }
+  ],
+  "errors": {
+    "sham": [],
+    "candidate": []
+  },
+  "all_gates_pass": true,
+  "scope": "Six-second matched development walk; endpoint clearance only, no biological or full-sequence qualification."
+}
