@@ -1,0 +1,5 @@
+# Smaller walking hip-stroke changes: rejected
+
+Both .30 controls matched their same-seed reference at all 300 endpoints and 4,800 contact substeps per lane. At .325, forward displacement rose from .1307 to .1338 m in one lane but fell from .1393 to .1342 m in the other; right-foot 50 Hz contact-point speed p95 rose 2.33–2.58 times baseline and one lane recorded one both-feet-unloaded substep. At .350, displacement rose from about .131 to .160 m and both feet remained continuously supported collectively; p95 ratios remained below 1.5 in these two lanes, but one lane hit a toe speed limit twice. At .375, displacement rose to .180–.181 m with no unloaded or toe-cap substeps, but right-foot p95 was 2.21–2.22 times baseline. No candidate satisfies the predeclared combined progress, toe, support and per-foot contact-speed gates; none is promoted or tested on the second seed. Point speed is not integrated slip.
+
+This is a single used-seed mechanical screen; biological whole-gait validation and full-sequence compatibility remain open.
