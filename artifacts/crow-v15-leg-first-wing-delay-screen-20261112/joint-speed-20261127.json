@@ -1,0 +1,664 @@
+{
+  "rows": [
+    {
+      "lane": 0,
+      "drive_records": 58240,
+      "expected": 58240,
+      "complete": true,
+      "speed_limited_joints": [],
+      "all_joint_limit_hits": 0
+    },
+    {
+      "lane": 1,
+      "drive_records": 58240,
+      "expected": 58240,
+      "complete": true,
+      "speed_limited_joints": [],
+      "all_joint_limit_hits": 0
+    },
+    {
+      "lane": 2,
+      "drive_records": 58240,
+      "expected": 58240,
+      "complete": true,
+      "speed_limited_joints": [
+        {
+          "index": 14,
+          "name": "crow_left_knee_pitch",
+          "limit_rad_s": 22.0,
+          "peak_rad_s": 22.0,
+          "hits": 14,
+          "examples": [
+            [
+              558,
+              7
+            ],
+            [
+              558,
+              8
+            ],
+            [
+              558,
+              9
+            ],
+            [
+              558,
+              10
+            ],
+            [
+              558,
+              11
+            ],
+            [
+              558,
+              12
+            ],
+            [
+              558,
+              13
+            ],
+            [
+              558,
+              14
+            ],
+            [
+              558,
+              15
+            ],
+            [
+              559,
+              0
+            ]
+          ]
+        },
+        {
+          "index": 17,
+          "name": "crow_right_knee_pitch",
+          "limit_rad_s": 22.0,
+          "peak_rad_s": 22.0,
+          "hits": 14,
+          "examples": [
+            [
+              558,
+              7
+            ],
+            [
+              558,
+              8
+            ],
+            [
+              558,
+              9
+            ],
+            [
+              558,
+              10
+            ],
+            [
+              558,
+              11
+            ],
+            [
+              558,
+              12
+            ],
+            [
+              558,
+              13
+            ],
+            [
+              558,
+              14
+            ],
+            [
+              558,
+              15
+            ],
+            [
+              559,
+              0
+            ]
+          ]
+        }
+      ],
+      "all_joint_limit_hits": 28
+    },
+    {
+      "lane": 3,
+      "drive_records": 58240,
+      "expected": 58240,
+      "complete": true,
+      "speed_limited_joints": [
+        {
+          "index": 14,
+          "name": "crow_left_knee_pitch",
+          "limit_rad_s": 22.0,
+          "peak_rad_s": 22.0,
+          "hits": 14,
+          "examples": [
+            [
+              558,
+              7
+            ],
+            [
+              558,
+              8
+            ],
+            [
+              558,
+              9
+            ],
+            [
+              558,
+              10
+            ],
+            [
+              558,
+              11
+            ],
+            [
+              558,
+              12
+            ],
+            [
+              558,
+              13
+            ],
+            [
+              558,
+              14
+            ],
+            [
+              558,
+              15
+            ],
+            [
+              559,
+              0
+            ]
+          ]
+        },
+        {
+          "index": 17,
+          "name": "crow_right_knee_pitch",
+          "limit_rad_s": 22.0,
+          "peak_rad_s": 22.0,
+          "hits": 14,
+          "examples": [
+            [
+              558,
+              7
+            ],
+            [
+              558,
+              8
+            ],
+            [
+              558,
+              9
+            ],
+            [
+              558,
+              10
+            ],
+            [
+              558,
+              11
+            ],
+            [
+              558,
+              12
+            ],
+            [
+              558,
+              13
+            ],
+            [
+              558,
+              14
+            ],
+            [
+              558,
+              15
+            ],
+            [
+              559,
+              0
+            ]
+          ]
+        }
+      ],
+      "all_joint_limit_hits": 28
+    },
+    {
+      "lane": 4,
+      "drive_records": 58240,
+      "expected": 58240,
+      "complete": true,
+      "speed_limited_joints": [
+        {
+          "index": 14,
+          "name": "crow_left_knee_pitch",
+          "limit_rad_s": 22.0,
+          "peak_rad_s": 22.0,
+          "hits": 22,
+          "examples": [
+            [
+              565,
+              2
+            ],
+            [
+              565,
+              3
+            ],
+            [
+              565,
+              4
+            ],
+            [
+              565,
+              5
+            ],
+            [
+              565,
+              6
+            ],
+            [
+              565,
+              7
+            ],
+            [
+              565,
+              8
+            ],
+            [
+              565,
+              9
+            ],
+            [
+              565,
+              10
+            ],
+            [
+              565,
+              11
+            ]
+          ]
+        },
+        {
+          "index": 17,
+          "name": "crow_right_knee_pitch",
+          "limit_rad_s": 22.0,
+          "peak_rad_s": 22.0,
+          "hits": 22,
+          "examples": [
+            [
+              565,
+              2
+            ],
+            [
+              565,
+              3
+            ],
+            [
+              565,
+              4
+            ],
+            [
+              565,
+              5
+            ],
+            [
+              565,
+              6
+            ],
+            [
+              565,
+              7
+            ],
+            [
+              565,
+              8
+            ],
+            [
+              565,
+              9
+            ],
+            [
+              565,
+              10
+            ],
+            [
+              565,
+              11
+            ]
+          ]
+        }
+      ],
+      "all_joint_limit_hits": 44
+    },
+    {
+      "lane": 5,
+      "drive_records": 58240,
+      "expected": 58240,
+      "complete": true,
+      "speed_limited_joints": [
+        {
+          "index": 14,
+          "name": "crow_left_knee_pitch",
+          "limit_rad_s": 22.0,
+          "peak_rad_s": 22.0,
+          "hits": 22,
+          "examples": [
+            [
+              565,
+              2
+            ],
+            [
+              565,
+              3
+            ],
+            [
+              565,
+              4
+            ],
+            [
+              565,
+              5
+            ],
+            [
+              565,
+              6
+            ],
+            [
+              565,
+              7
+            ],
+            [
+              565,
+              8
+            ],
+            [
+              565,
+              9
+            ],
+            [
+              565,
+              10
+            ],
+            [
+              565,
+              11
+            ]
+          ]
+        },
+        {
+          "index": 17,
+          "name": "crow_right_knee_pitch",
+          "limit_rad_s": 22.0,
+          "peak_rad_s": 22.0,
+          "hits": 22,
+          "examples": [
+            [
+              565,
+              2
+            ],
+            [
+              565,
+              3
+            ],
+            [
+              565,
+              4
+            ],
+            [
+              565,
+              5
+            ],
+            [
+              565,
+              6
+            ],
+            [
+              565,
+              7
+            ],
+            [
+              565,
+              8
+            ],
+            [
+              565,
+              9
+            ],
+            [
+              565,
+              10
+            ],
+            [
+              565,
+              11
+            ]
+          ]
+        }
+      ],
+      "all_joint_limit_hits": 44
+    },
+    {
+      "lane": 6,
+      "drive_records": 58240,
+      "expected": 58240,
+      "complete": true,
+      "speed_limited_joints": [
+        {
+          "index": 14,
+          "name": "crow_left_knee_pitch",
+          "limit_rad_s": 22.0,
+          "peak_rad_s": 22.0,
+          "hits": 22,
+          "examples": [
+            [
+              565,
+              2
+            ],
+            [
+              565,
+              3
+            ],
+            [
+              565,
+              4
+            ],
+            [
+              565,
+              5
+            ],
+            [
+              565,
+              6
+            ],
+            [
+              565,
+              7
+            ],
+            [
+              565,
+              8
+            ],
+            [
+              565,
+              9
+            ],
+            [
+              565,
+              10
+            ],
+            [
+              565,
+              11
+            ]
+          ]
+        },
+        {
+          "index": 17,
+          "name": "crow_right_knee_pitch",
+          "limit_rad_s": 22.0,
+          "peak_rad_s": 22.0,
+          "hits": 22,
+          "examples": [
+            [
+              565,
+              2
+            ],
+            [
+              565,
+              3
+            ],
+            [
+              565,
+              4
+            ],
+            [
+              565,
+              5
+            ],
+            [
+              565,
+              6
+            ],
+            [
+              565,
+              7
+            ],
+            [
+              565,
+              8
+            ],
+            [
+              565,
+              9
+            ],
+            [
+              565,
+              10
+            ],
+            [
+              565,
+              11
+            ]
+          ]
+        }
+      ],
+      "all_joint_limit_hits": 44
+    },
+    {
+      "lane": 7,
+      "drive_records": 58240,
+      "expected": 58240,
+      "complete": true,
+      "speed_limited_joints": [
+        {
+          "index": 14,
+          "name": "crow_left_knee_pitch",
+          "limit_rad_s": 22.0,
+          "peak_rad_s": 22.0,
+          "hits": 22,
+          "examples": [
+            [
+              565,
+              2
+            ],
+            [
+              565,
+              3
+            ],
+            [
+              565,
+              4
+            ],
+            [
+              565,
+              5
+            ],
+            [
+              565,
+              6
+            ],
+            [
+              565,
+              7
+            ],
+            [
+              565,
+              8
+            ],
+            [
+              565,
+              9
+            ],
+            [
+              565,
+              10
+            ],
+            [
+              565,
+              11
+            ]
+          ]
+        },
+        {
+          "index": 17,
+          "name": "crow_right_knee_pitch",
+          "limit_rad_s": 22.0,
+          "peak_rad_s": 22.0,
+          "hits": 22,
+          "examples": [
+            [
+              565,
+              2
+            ],
+            [
+              565,
+              3
+            ],
+            [
+              565,
+              4
+            ],
+            [
+              565,
+              5
+            ],
+            [
+              565,
+              6
+            ],
+            [
+              565,
+              7
+            ],
+            [
+              565,
+              8
+            ],
+            [
+              565,
+              9
+            ],
+            [
+              565,
+              10
+            ],
+            [
+              565,
+              11
+            ]
+          ]
+        }
+      ],
+      "all_joint_limit_hits": 44
+    }
+  ],
+  "errors": [],
+  "scope": "Authored joint speed limits, endpoint velocities at each substep during steps 535\u2013625 only; not biological speed limits or full-flight observation."
+}

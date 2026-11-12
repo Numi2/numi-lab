@@ -1,0 +1,922 @@
+[
+  {
+    "lane": 0,
+    "state_incomplete_steps": [],
+    "state_first_difference": 551,
+    "contact_incomplete_steps": [],
+    "contact_first_difference": 551,
+    "crouch_hold": {
+      "windows": {
+        "549_556": {
+          "count": 128,
+          "vertical_contact_ns": 0.5046053586699999,
+          "normal_ns": 0.5046053586699999,
+          "unloaded_substeps": 74
+        },
+        "549_560": {
+          "count": 192,
+          "vertical_contact_ns": 0.5046053586699999,
+          "normal_ns": 0.5046053586699999,
+          "unloaded_substeps": 138
+        },
+        "549_575": {
+          "count": 432,
+          "vertical_contact_ns": 0.5046053586699999,
+          "normal_ns": 0.5046053586699999,
+          "unloaded_substeps": 378
+        },
+        "549_600": {
+          "count": 832,
+          "vertical_contact_ns": 0.5046053586699999,
+          "normal_ns": 0.5046053586699999,
+          "unloaded_substeps": 778
+        }
+      },
+      "root": {
+        "548": {
+          "z_m": 0.163230211,
+          "vz_m_s": 0.000635006058
+        },
+        "556": {
+          "z_m": 0.203684956,
+          "vz_m_s": 0.394065976
+        },
+        "560": {
+          "z_m": 0.269189835,
+          "vz_m_s": 0.442991823
+        },
+        "575": {
+          "z_m": 0.561401844,
+          "vz_m_s": 1.1958971
+        },
+        "600": {
+          "z_m": 0.939395726,
+          "vz_m_s": 0.500196338
+        },
+        "625": {
+          "z_m": 1.05053222,
+          "vz_m_s": -0.120200723
+        }
+      }
+    },
+    "extension": {
+      "windows": {
+        "549_556": {
+          "count": 128,
+          "vertical_contact_ns": 0.48304002843199995,
+          "normal_ns": 0.48304002843199995,
+          "unloaded_substeps": 71
+        },
+        "549_560": {
+          "count": 192,
+          "vertical_contact_ns": 0.48304002843199995,
+          "normal_ns": 0.48304002843199995,
+          "unloaded_substeps": 135
+        },
+        "549_575": {
+          "count": 432,
+          "vertical_contact_ns": 0.48304002843199995,
+          "normal_ns": 0.48304002843199995,
+          "unloaded_substeps": 375
+        },
+        "549_600": {
+          "count": 832,
+          "vertical_contact_ns": 0.48304002843199995,
+          "normal_ns": 0.48304002843199995,
+          "unloaded_substeps": 775
+        }
+      },
+      "root": {
+        "548": {
+          "z_m": 0.163230211,
+          "vz_m_s": 0.000635006058
+        },
+        "556": {
+          "z_m": 0.200508624,
+          "vz_m_s": 0.362029701
+        },
+        "560": {
+          "z_m": 0.265993357,
+          "vz_m_s": 0.446727842
+        },
+        "575": {
+          "z_m": 0.55794853,
+          "vz_m_s": 1.19346142
+        },
+        "600": {
+          "z_m": 0.935713232,
+          "vz_m_s": 0.500627041
+        },
+        "625": {
+          "z_m": 1.0474273,
+          "vz_m_s": -0.119104534
+        }
+      }
+    }
+  },
+  {
+    "lane": 1,
+    "state_incomplete_steps": [],
+    "state_first_difference": 551,
+    "contact_incomplete_steps": [],
+    "contact_first_difference": 551,
+    "crouch_hold": {
+      "windows": {
+        "549_556": {
+          "count": 128,
+          "vertical_contact_ns": 0.50466675532,
+          "normal_ns": 0.50466675532,
+          "unloaded_substeps": 74
+        },
+        "549_560": {
+          "count": 192,
+          "vertical_contact_ns": 0.50466675532,
+          "normal_ns": 0.50466675532,
+          "unloaded_substeps": 138
+        },
+        "549_575": {
+          "count": 432,
+          "vertical_contact_ns": 0.50466675532,
+          "normal_ns": 0.50466675532,
+          "unloaded_substeps": 378
+        },
+        "549_600": {
+          "count": 832,
+          "vertical_contact_ns": 0.50466675532,
+          "normal_ns": 0.50466675532,
+          "unloaded_substeps": 778
+        }
+      },
+      "root": {
+        "548": {
+          "z_m": 0.163226828,
+          "vz_m_s": 0.000634141557
+        },
+        "556": {
+          "z_m": 0.203786165,
+          "vz_m_s": 0.411261737
+        },
+        "560": {
+          "z_m": 0.273851216,
+          "vz_m_s": 0.503571868
+        },
+        "575": {
+          "z_m": 0.597472131,
+          "vz_m_s": 1.31212926
+        },
+        "600": {
+          "z_m": 1.04411542,
+          "vz_m_s": 0.626108587
+        },
+        "625": {
+          "z_m": 1.19665551,
+          "vz_m_s": -0.0846549794
+        }
+      }
+    },
+    "extension": {
+      "windows": {
+        "549_556": {
+          "count": 128,
+          "vertical_contact_ns": 0.47608592413800005,
+          "normal_ns": 0.47608592413800005,
+          "unloaded_substeps": 71
+        },
+        "549_560": {
+          "count": 192,
+          "vertical_contact_ns": 0.47608592413800005,
+          "normal_ns": 0.47608592413800005,
+          "unloaded_substeps": 135
+        },
+        "549_575": {
+          "count": 432,
+          "vertical_contact_ns": 0.47608592413800005,
+          "normal_ns": 0.47608592413800005,
+          "unloaded_substeps": 375
+        },
+        "549_600": {
+          "count": 832,
+          "vertical_contact_ns": 0.47608592413800005,
+          "normal_ns": 0.47608592413800005,
+          "unloaded_substeps": 775
+        }
+      },
+      "root": {
+        "548": {
+          "z_m": 0.163226828,
+          "vz_m_s": 0.000634141557
+        },
+        "556": {
+          "z_m": 0.199292049,
+          "vz_m_s": 0.369820058
+        },
+        "560": {
+          "z_m": 0.269025445,
+          "vz_m_s": 0.504446805
+        },
+        "575": {
+          "z_m": 0.592411041,
+          "vz_m_s": 1.31070042
+        },
+        "600": {
+          "z_m": 1.03913522,
+          "vz_m_s": 0.628281832
+        },
+        "625": {
+          "z_m": 1.19297099,
+          "vz_m_s": -0.0834548026
+        }
+      }
+    }
+  },
+  {
+    "lane": 2,
+    "state_incomplete_steps": [],
+    "state_first_difference": 551,
+    "contact_incomplete_steps": [],
+    "contact_first_difference": 551,
+    "crouch_hold": {
+      "windows": {
+        "549_556": {
+          "count": 128,
+          "vertical_contact_ns": 0.5271185711600002,
+          "normal_ns": 0.5271185711600002,
+          "unloaded_substeps": 56
+        },
+        "549_560": {
+          "count": 192,
+          "vertical_contact_ns": 0.5271185711600002,
+          "normal_ns": 0.5271185711600002,
+          "unloaded_substeps": 120
+        },
+        "549_575": {
+          "count": 432,
+          "vertical_contact_ns": 0.5271185711600002,
+          "normal_ns": 0.5271185711600002,
+          "unloaded_substeps": 360
+        },
+        "549_600": {
+          "count": 832,
+          "vertical_contact_ns": 0.5271185711600002,
+          "normal_ns": 0.5271185711600002,
+          "unloaded_substeps": 760
+        }
+      },
+      "root": {
+        "548": {
+          "z_m": 0.163229078,
+          "vz_m_s": 0.000634754368
+        },
+        "556": {
+          "z_m": 0.183918983,
+          "vz_m_s": 0.225426257
+        },
+        "560": {
+          "z_m": 0.228599042,
+          "vz_m_s": 0.274580777
+        },
+        "575": {
+          "z_m": 0.514558971,
+          "vz_m_s": 1.23210943
+        },
+        "600": {
+          "z_m": 0.931717217,
+          "vz_m_s": 0.56581986
+        },
+        "625": {
+          "z_m": 1.07975245,
+          "vz_m_s": -0.0291633364
+        }
+      }
+    },
+    "extension": {
+      "windows": {
+        "549_556": {
+          "count": 128,
+          "vertical_contact_ns": 0.6114439000980001,
+          "normal_ns": 0.6114439000980001,
+          "unloaded_substeps": 42
+        },
+        "549_560": {
+          "count": 192,
+          "vertical_contact_ns": 0.6114439000980001,
+          "normal_ns": 0.6114439000980001,
+          "unloaded_substeps": 106
+        },
+        "549_575": {
+          "count": 432,
+          "vertical_contact_ns": 0.6114439000980001,
+          "normal_ns": 0.6114439000980001,
+          "unloaded_substeps": 346
+        },
+        "549_600": {
+          "count": 832,
+          "vertical_contact_ns": 0.6114439000980001,
+          "normal_ns": 0.6114439000980001,
+          "unloaded_substeps": 746
+        }
+      },
+      "root": {
+        "548": {
+          "z_m": 0.163229078,
+          "vz_m_s": 0.000634754368
+        },
+        "556": {
+          "z_m": 0.19961746,
+          "vz_m_s": 0.372361302
+        },
+        "560": {
+          "z_m": 0.254563838,
+          "vz_m_s": 0.362003088
+        },
+        "575": {
+          "z_m": 0.546470463,
+          "vz_m_s": 1.21662879
+        },
+        "600": {
+          "z_m": 0.945917666,
+          "vz_m_s": 0.528014541
+        },
+        "625": {
+          "z_m": 1.08002818,
+          "vz_m_s": -0.0426842943
+        }
+      }
+    }
+  },
+  {
+    "lane": 3,
+    "state_incomplete_steps": [],
+    "state_first_difference": 551,
+    "contact_incomplete_steps": [],
+    "contact_first_difference": 551,
+    "crouch_hold": {
+      "windows": {
+        "549_556": {
+          "count": 128,
+          "vertical_contact_ns": 0.52710996113,
+          "normal_ns": 0.52710996113,
+          "unloaded_substeps": 56
+        },
+        "549_560": {
+          "count": 192,
+          "vertical_contact_ns": 0.52710996113,
+          "normal_ns": 0.52710996113,
+          "unloaded_substeps": 120
+        },
+        "549_575": {
+          "count": 432,
+          "vertical_contact_ns": 0.52710996113,
+          "normal_ns": 0.52710996113,
+          "unloaded_substeps": 360
+        },
+        "549_600": {
+          "count": 832,
+          "vertical_contact_ns": 0.52710996113,
+          "normal_ns": 0.52710996113,
+          "unloaded_substeps": 760
+        }
+      },
+      "root": {
+        "548": {
+          "z_m": 0.163228557,
+          "vz_m_s": 0.000634562515
+        },
+        "556": {
+          "z_m": 0.183916956,
+          "vz_m_s": 0.225409865
+        },
+        "560": {
+          "z_m": 0.231101587,
+          "vz_m_s": 0.319819927
+        },
+        "575": {
+          "z_m": 0.547227561,
+          "vz_m_s": 1.34685445
+        },
+        "600": {
+          "z_m": 1.02890301,
+          "vz_m_s": 0.69894886
+        },
+        "625": {
+          "z_m": 1.19212461,
+          "vz_m_s": -0.16705513
+        }
+      }
+    },
+    "extension": {
+      "windows": {
+        "549_556": {
+          "count": 128,
+          "vertical_contact_ns": 0.6114620039551999,
+          "normal_ns": 0.6114620039551999,
+          "unloaded_substeps": 42
+        },
+        "549_560": {
+          "count": 192,
+          "vertical_contact_ns": 0.6114620039551999,
+          "normal_ns": 0.6114620039551999,
+          "unloaded_substeps": 106
+        },
+        "549_575": {
+          "count": 432,
+          "vertical_contact_ns": 0.6114620039551999,
+          "normal_ns": 0.6114620039551999,
+          "unloaded_substeps": 346
+        },
+        "549_600": {
+          "count": 832,
+          "vertical_contact_ns": 0.6114620039551999,
+          "normal_ns": 0.6114620039551999,
+          "unloaded_substeps": 746
+        }
+      },
+      "root": {
+        "548": {
+          "z_m": 0.163228557,
+          "vz_m_s": 0.000634562515
+        },
+        "556": {
+          "z_m": 0.199618369,
+          "vz_m_s": 0.372402459
+        },
+        "560": {
+          "z_m": 0.257266611,
+          "vz_m_s": 0.40614745
+        },
+        "575": {
+          "z_m": 0.579012752,
+          "vz_m_s": 1.33080924
+        },
+        "600": {
+          "z_m": 1.04614043,
+          "vz_m_s": 0.658669353
+        },
+        "625": {
+          "z_m": 1.1930294,
+          "vz_m_s": -0.185423851
+        }
+      }
+    }
+  },
+  {
+    "lane": 4,
+    "state_incomplete_steps": [],
+    "state_first_difference": 551,
+    "contact_incomplete_steps": [],
+    "contact_first_difference": 551,
+    "crouch_hold": {
+      "windows": {
+        "549_556": {
+          "count": 128,
+          "vertical_contact_ns": 0.6754980219949998,
+          "normal_ns": 0.6754980219949998,
+          "unloaded_substeps": 24
+        },
+        "549_560": {
+          "count": 192,
+          "vertical_contact_ns": 0.6754980219949998,
+          "normal_ns": 0.6754980219949998,
+          "unloaded_substeps": 88
+        },
+        "549_575": {
+          "count": 432,
+          "vertical_contact_ns": 0.8657716436397668,
+          "normal_ns": 0.8657716436397668,
+          "unloaded_substeps": 302
+        },
+        "549_600": {
+          "count": 832,
+          "vertical_contact_ns": 0.8657716436397668,
+          "normal_ns": 0.8657716436397668,
+          "unloaded_substeps": 702
+        }
+      },
+      "root": {
+        "548": {
+          "z_m": 0.163233072,
+          "vz_m_s": 0.000637338613
+        },
+        "556": {
+          "z_m": 0.167714283,
+          "vz_m_s": -0.0143100107
+        },
+        "560": {
+          "z_m": 0.175146773,
+          "vz_m_s": -0.275348306
+        },
+        "575": {
+          "z_m": 0.272664875,
+          "vz_m_s": 1.15757525
+        },
+        "600": {
+          "z_m": 0.773114562,
+          "vz_m_s": 0.86267513
+        },
+        "625": {
+          "z_m": 1.04205179,
+          "vz_m_s": 0.113791689
+        }
+      }
+    },
+    "extension": {
+      "windows": {
+        "549_556": {
+          "count": 128,
+          "vertical_contact_ns": 0.700601075078648,
+          "normal_ns": 0.700601075078648,
+          "unloaded_substeps": 11
+        },
+        "549_560": {
+          "count": 192,
+          "vertical_contact_ns": 0.7609381862925478,
+          "normal_ns": 0.7609381862925478,
+          "unloaded_substeps": 63
+        },
+        "549_575": {
+          "count": 432,
+          "vertical_contact_ns": 0.8380804994721732,
+          "normal_ns": 0.8380804994721732,
+          "unloaded_substeps": 288
+        },
+        "549_600": {
+          "count": 832,
+          "vertical_contact_ns": 0.8380804994721732,
+          "normal_ns": 0.8380804994721732,
+          "unloaded_substeps": 688
+        }
+      },
+      "root": {
+        "548": {
+          "z_m": 0.163233072,
+          "vz_m_s": 0.000637338613
+        },
+        "556": {
+          "z_m": 0.179337859,
+          "vz_m_s": 0.0369772464
+        },
+        "560": {
+          "z_m": 0.191078484,
+          "vz_m_s": -0.120339997
+        },
+        "575": {
+          "z_m": 0.374414623,
+          "vz_m_s": 1.2579968
+        },
+        "600": {
+          "z_m": 0.84779197,
+          "vz_m_s": 0.7209723
+        },
+        "625": {
+          "z_m": 1.05584562,
+          "vz_m_s": 0.0368192047
+        }
+      }
+    }
+  },
+  {
+    "lane": 5,
+    "state_incomplete_steps": [],
+    "state_first_difference": 551,
+    "contact_incomplete_steps": [],
+    "contact_first_difference": 551,
+    "crouch_hold": {
+      "windows": {
+        "549_556": {
+          "count": 128,
+          "vertical_contact_ns": 0.6757148215150002,
+          "normal_ns": 0.6757148215150002,
+          "unloaded_substeps": 24
+        },
+        "549_560": {
+          "count": 192,
+          "vertical_contact_ns": 0.6757148215150002,
+          "normal_ns": 0.6757148215150002,
+          "unloaded_substeps": 88
+        },
+        "549_575": {
+          "count": 432,
+          "vertical_contact_ns": 0.8682693221513101,
+          "normal_ns": 0.8682693221513101,
+          "unloaded_substeps": 302
+        },
+        "549_600": {
+          "count": 832,
+          "vertical_contact_ns": 0.8682693221513101,
+          "normal_ns": 0.8682693221513101,
+          "unloaded_substeps": 702
+        }
+      },
+      "root": {
+        "548": {
+          "z_m": 0.163230062,
+          "vz_m_s": 0.000634974043
+        },
+        "556": {
+          "z_m": 0.167728826,
+          "vz_m_s": -0.0138446605
+        },
+        "560": {
+          "z_m": 0.175191149,
+          "vz_m_s": -0.275011957
+        },
+        "575": {
+          "z_m": 0.283356935,
+          "vz_m_s": 1.27394104
+        },
+        "600": {
+          "z_m": 0.836996138,
+          "vz_m_s": 0.994038284
+        },
+        "625": {
+          "z_m": 1.1367768,
+          "vz_m_s": -0.00856954604
+        }
+      }
+    },
+    "extension": {
+      "windows": {
+        "549_556": {
+          "count": 128,
+          "vertical_contact_ns": 0.7020190524289704,
+          "normal_ns": 0.7020190524289704,
+          "unloaded_substeps": 11
+        },
+        "549_560": {
+          "count": 192,
+          "vertical_contact_ns": 0.7624581762729703,
+          "normal_ns": 0.7624581762729703,
+          "unloaded_substeps": 64
+        },
+        "549_575": {
+          "count": 432,
+          "vertical_contact_ns": 0.8400880017618936,
+          "normal_ns": 0.8400880017618936,
+          "unloaded_substeps": 289
+        },
+        "549_600": {
+          "count": 832,
+          "vertical_contact_ns": 0.8400880017618936,
+          "normal_ns": 0.8400880017618936,
+          "unloaded_substeps": 689
+        }
+      },
+      "root": {
+        "548": {
+          "z_m": 0.163230062,
+          "vz_m_s": 0.000634974043
+        },
+        "556": {
+          "z_m": 0.179324046,
+          "vz_m_s": 0.0402888767
+        },
+        "560": {
+          "z_m": 0.191185057,
+          "vz_m_s": -0.117718354
+        },
+        "575": {
+          "z_m": 0.393412679,
+          "vz_m_s": 1.37560284
+        },
+        "600": {
+          "z_m": 0.926199734,
+          "vz_m_s": 0.871767998
+        },
+        "625": {
+          "z_m": 1.15795815,
+          "vz_m_s": -0.109053783
+        }
+      }
+    }
+  },
+  {
+    "lane": 6,
+    "state_incomplete_steps": [],
+    "state_first_difference": 551,
+    "contact_incomplete_steps": [],
+    "contact_first_difference": 551,
+    "crouch_hold": {
+      "windows": {
+        "549_556": {
+          "count": 128,
+          "vertical_contact_ns": 0.7063834548899999,
+          "normal_ns": 0.7063834548899999,
+          "unloaded_substeps": 0
+        },
+        "549_560": {
+          "count": 192,
+          "vertical_contact_ns": 0.7921318642020001,
+          "normal_ns": 0.7921318642020001,
+          "unloaded_substeps": 45
+        },
+        "549_575": {
+          "count": 432,
+          "vertical_contact_ns": 0.9583077642340002,
+          "normal_ns": 0.9583077642340002,
+          "unloaded_substeps": 265
+        },
+        "549_600": {
+          "count": 832,
+          "vertical_contact_ns": 0.9583077642340002,
+          "normal_ns": 0.9583077642340002,
+          "unloaded_substeps": 665
+        }
+      },
+      "root": {
+        "548": {
+          "z_m": 0.163232267,
+          "vz_m_s": 0.000635602861
+        },
+        "556": {
+          "z_m": 0.163336545,
+          "vz_m_s": 0.000667263987
+        },
+        "560": {
+          "z_m": 0.17167069,
+          "vz_m_s": -0.174799457
+        },
+        "575": {
+          "z_m": 0.288374752,
+          "vz_m_s": 1.1707505
+        },
+        "600": {
+          "z_m": 0.785484672,
+          "vz_m_s": 0.84276545
+        },
+        "625": {
+          "z_m": 1.04645109,
+          "vz_m_s": 0.10299091
+        }
+      }
+    },
+    "extension": {
+      "windows": {
+        "549_556": {
+          "count": 128,
+          "vertical_contact_ns": 0.7415537666817094,
+          "normal_ns": 0.7415537666817094,
+          "unloaded_substeps": 11
+        },
+        "549_560": {
+          "count": 192,
+          "vertical_contact_ns": 0.8448208319413092,
+          "normal_ns": 0.8448208319413092,
+          "unloaded_substeps": 49
+        },
+        "549_575": {
+          "count": 432,
+          "vertical_contact_ns": 0.917735286082503,
+          "normal_ns": 0.917735286082503,
+          "unloaded_substeps": 274
+        },
+        "549_600": {
+          "count": 832,
+          "vertical_contact_ns": 0.917735286082503,
+          "normal_ns": 0.917735286082503,
+          "unloaded_substeps": 674
+        }
+      },
+      "root": {
+        "548": {
+          "z_m": 0.163232267,
+          "vz_m_s": 0.000635602861
+        },
+        "556": {
+          "z_m": 0.179398254,
+          "vz_m_s": 0.0709280223
+        },
+        "560": {
+          "z_m": 0.189463943,
+          "vz_m_s": -0.0698548481
+        },
+        "575": {
+          "z_m": 0.379824281,
+          "vz_m_s": 1.2629962
+        },
+        "600": {
+          "z_m": 0.851927221,
+          "vz_m_s": 0.712167919
+        },
+        "625": {
+          "z_m": 1.05577278,
+          "vz_m_s": 0.0292278789
+        }
+      }
+    }
+  },
+  {
+    "lane": 7,
+    "state_incomplete_steps": [],
+    "state_first_difference": 551,
+    "contact_incomplete_steps": [],
+    "contact_first_difference": 551,
+    "crouch_hold": {
+      "windows": {
+        "549_556": {
+          "count": 128,
+          "vertical_contact_ns": 0.7063833528900001,
+          "normal_ns": 0.7063833528900001,
+          "unloaded_substeps": 0
+        },
+        "549_560": {
+          "count": 192,
+          "vertical_contact_ns": 0.792139478772,
+          "normal_ns": 0.792139478772,
+          "unloaded_substeps": 45
+        },
+        "549_575": {
+          "count": 432,
+          "vertical_contact_ns": 0.9584408484339999,
+          "normal_ns": 0.9584408484339999,
+          "unloaded_substeps": 265
+        },
+        "549_600": {
+          "count": 832,
+          "vertical_contact_ns": 0.9584408484339999,
+          "normal_ns": 0.9584408484339999,
+          "unloaded_substeps": 665
+        }
+      },
+      "root": {
+        "548": {
+          "z_m": 0.1632341,
+          "vz_m_s": 0.00063619198
+        },
+        "556": {
+          "z_m": 0.163338482,
+          "vz_m_s": 0.000667862885
+        },
+        "560": {
+          "z_m": 0.171673223,
+          "vz_m_s": -0.17478925
+        },
+        "575": {
+          "z_m": 0.29839012,
+          "vz_m_s": 1.28487325
+        },
+        "600": {
+          "z_m": 0.849745333,
+          "vz_m_s": 0.981485546
+        },
+        "625": {
+          "z_m": 1.13953745,
+          "vz_m_s": -0.0421392322
+        }
+      }
+    },
+    "extension": {
+      "windows": {
+        "549_556": {
+          "count": 128,
+          "vertical_contact_ns": 0.7417640142266304,
+          "normal_ns": 0.7417640142266304,
+          "unloaded_substeps": 11
+        },
+        "549_560": {
+          "count": 192,
+          "vertical_contact_ns": 0.8447313304671304,
+          "normal_ns": 0.8447313304671304,
+          "unloaded_substeps": 49
+        },
+        "549_575": {
+          "count": 432,
+          "vertical_contact_ns": 0.9176359481303592,
+          "normal_ns": 0.9176359481303592,
+          "unloaded_substeps": 274
+        },
+        "549_600": {
+          "count": 832,
+          "vertical_contact_ns": 0.9176359481303592,
+          "normal_ns": 0.9176359481303592,
+          "unloaded_substeps": 674
+        }
+      },
+      "root": {
+        "548": {
+          "z_m": 0.1632341,
+          "vz_m_s": 0.00063619198
+        },
+        "556": {
+          "z_m": 0.179407939,
+          "vz_m_s": 0.0713229403
+        },
+        "560": {
+          "z_m": 0.189456388,
+          "vz_m_s": -0.0699502379
+        },
+        "575": {
+          "z_m": 0.398079634,
+          "vz_m_s": 1.38052249
+        },
+        "600": {
+          "z_m": 0.930053949,
+          "vz_m_s": 0.863875568
+        },
+        "625": {
+          "z_m": 1.1556015,
+          "vz_m_s": -0.133818358
+        }
+      }
+    }
+  }
+]

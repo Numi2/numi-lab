@@ -1,0 +1,578 @@
+{
+  "rows": [
+    {
+      "lane": 0,
+      "arm": 0.0,
+      "prefix_equal": {
+        "state": true,
+        "contact": true
+      },
+      "prefix_record_counts": {
+        "state": 485,
+        "contact": 7760
+      },
+      "end": 625,
+      "failure": false,
+      "termination_reason": 0,
+      "stats": {
+        "contact": 6800,
+        "overflow": 0,
+        "nonfoot": 0,
+        "toe_coverage": 6800,
+        "transition_coverage": 240,
+        "transition_unloaded": 0,
+        "launch_normal_impulse_ns": 0.5046743797800001,
+        "post_push_coverage": 80,
+        "post_push_loaded": 0
+      },
+      "caps": [],
+      "z_vz_samples": {
+        "500": [
+          0.169793874,
+          -0.00911416207
+        ],
+        "515": [
+          0.171255544,
+          0.0708377585
+        ],
+        "530": [
+          0.163380712,
+          -0.00901930593
+        ],
+        "548": [
+          0.163229853,
+          0.000634971366
+        ],
+        "556": [
+          0.203701034,
+          0.394184887
+        ],
+        "570": [
+          0.476577848,
+          0.876970232
+        ],
+        "575": [
+          0.561418951,
+          1.19588506
+        ],
+        "600": [
+          0.939406514,
+          0.500191391
+        ],
+        "625": [
+          1.05054533,
+          -0.120193243
+        ]
+      }
+    },
+    {
+      "lane": 1,
+      "arm": 0.0,
+      "prefix_equal": {
+        "state": true,
+        "contact": true
+      },
+      "prefix_record_counts": {
+        "state": 485,
+        "contact": 7760
+      },
+      "end": 625,
+      "failure": false,
+      "termination_reason": 0,
+      "stats": {
+        "contact": 6800,
+        "overflow": 0,
+        "nonfoot": 0,
+        "toe_coverage": 6800,
+        "transition_coverage": 240,
+        "transition_unloaded": 0,
+        "launch_normal_impulse_ns": 0.50460140276,
+        "post_push_coverage": 80,
+        "post_push_loaded": 0
+      },
+      "caps": [],
+      "z_vz_samples": {
+        "500": [
+          0.169791713,
+          -0.00903720129
+        ],
+        "515": [
+          0.171247512,
+          0.0695128664
+        ],
+        "530": [
+          0.16335015,
+          -0.0110102957
+        ],
+        "548": [
+          0.163227528,
+          0.00063416292
+        ],
+        "556": [
+          0.203771651,
+          0.411150932
+        ],
+        "570": [
+          0.501914203,
+          0.975670516
+        ],
+        "575": [
+          0.597453356,
+          1.31212676
+        ],
+        "600": [
+          1.04409134,
+          0.626088798
+        ],
+        "625": [
+          1.19662178,
+          -0.0846822113
+        ]
+      }
+    },
+    {
+      "lane": 2,
+      "arm": 0.04,
+      "prefix_equal": {
+        "state": true,
+        "contact": true
+      },
+      "prefix_record_counts": {
+        "state": 485,
+        "contact": 7760
+      },
+      "end": 625,
+      "failure": false,
+      "termination_reason": 0,
+      "stats": {
+        "contact": 6800,
+        "overflow": 0,
+        "nonfoot": 0,
+        "toe_coverage": 6800,
+        "transition_coverage": 240,
+        "transition_unloaded": 0,
+        "launch_normal_impulse_ns": 0.5271081212999998,
+        "post_push_coverage": 80,
+        "post_push_loaded": 0
+      },
+      "caps": [],
+      "z_vz_samples": {
+        "500": [
+          0.169793054,
+          -0.00912308227
+        ],
+        "515": [
+          0.171249613,
+          0.0699400902
+        ],
+        "530": [
+          0.163379595,
+          -0.00901067629
+        ],
+        "548": [
+          0.163228884,
+          0.000634718162
+        ],
+        "556": [
+          0.183916867,
+          0.225405291
+        ],
+        "570": [
+          0.426313818,
+          0.892995596
+        ],
+        "575": [
+          0.514558434,
+          1.23212266
+        ],
+        "600": [
+          0.931725144,
+          0.565835059
+        ],
+        "625": [
+          1.07976377,
+          -0.0291689783
+        ]
+      }
+    },
+    {
+      "lane": 3,
+      "arm": 0.04,
+      "prefix_equal": {
+        "state": true,
+        "contact": true
+      },
+      "prefix_record_counts": {
+        "state": 485,
+        "contact": 7760
+      },
+      "end": 625,
+      "failure": false,
+      "termination_reason": 0,
+      "stats": {
+        "contact": 6800,
+        "overflow": 0,
+        "nonfoot": 0,
+        "toe_coverage": 6800,
+        "transition_coverage": 240,
+        "transition_unloaded": 0,
+        "launch_normal_impulse_ns": 0.52710045941,
+        "post_push_coverage": 80,
+        "post_push_loaded": 0
+      },
+      "caps": [],
+      "z_vz_samples": {
+        "500": [
+          0.169791862,
+          -0.00905432925
+        ],
+        "515": [
+          0.171245053,
+          0.0690641254
+        ],
+        "530": [
+          0.163379073,
+          -0.00937078521
+        ],
+        "548": [
+          0.163232028,
+          0.000637137739
+        ],
+        "556": [
+          0.183918342,
+          0.22537984
+        ],
+        "570": [
+          0.448455036,
+          0.988819182
+        ],
+        "575": [
+          0.547194183,
+          1.34669006
+        ],
+        "600": [
+          1.02875781,
+          0.698710918
+        ],
+        "625": [
+          1.19188666,
+          -0.167130142
+        ]
+      }
+    },
+    {
+      "lane": 4,
+      "arm": 0.08,
+      "prefix_equal": {
+        "state": true,
+        "contact": true
+      },
+      "prefix_record_counts": {
+        "state": 485,
+        "contact": 7760
+      },
+      "end": 625,
+      "failure": false,
+      "termination_reason": 0,
+      "stats": {
+        "contact": 6800,
+        "overflow": 0,
+        "nonfoot": 0,
+        "toe_coverage": 6800,
+        "transition_coverage": 240,
+        "transition_unloaded": 0,
+        "launch_normal_impulse_ns": 0.675756813415,
+        "post_push_coverage": 80,
+        "post_push_loaded": 0
+      },
+      "caps": [
+        [
+          562,
+          1
+        ],
+        [
+          562,
+          2
+        ],
+        [
+          562,
+          3
+        ]
+      ],
+      "z_vz_samples": {
+        "500": [
+          0.169793636,
+          -0.0090827588
+        ],
+        "515": [
+          0.171256125,
+          0.0711153746
+        ],
+        "530": [
+          0.16338098,
+          -0.00929336343
+        ],
+        "548": [
+          0.163227826,
+          0.000634293654
+        ],
+        "556": [
+          0.167730033,
+          -0.0137531152
+        ],
+        "570": [
+          0.214138582,
+          0.383642286
+        ],
+        "575": [
+          0.273243994,
+          1.15846848
+        ],
+        "600": [
+          0.773770452,
+          0.862253964
+        ],
+        "625": [
+          1.04244018,
+          0.113210268
+        ]
+      }
+    },
+    {
+      "lane": 5,
+      "arm": 0.08,
+      "prefix_equal": {
+        "state": true,
+        "contact": true
+      },
+      "prefix_record_counts": {
+        "state": 485,
+        "contact": 7760
+      },
+      "end": 625,
+      "failure": false,
+      "termination_reason": 0,
+      "stats": {
+        "contact": 6800,
+        "overflow": 0,
+        "nonfoot": 0,
+        "toe_coverage": 6800,
+        "transition_coverage": 240,
+        "transition_unloaded": 0,
+        "launch_normal_impulse_ns": 0.6757250955239997,
+        "post_push_coverage": 80,
+        "post_push_loaded": 0
+      },
+      "caps": [
+        [
+          562,
+          1
+        ],
+        [
+          562,
+          2
+        ],
+        [
+          562,
+          3
+        ]
+      ],
+      "z_vz_samples": {
+        "500": [
+          0.169793263,
+          -0.00913001318
+        ],
+        "515": [
+          0.171254635,
+          0.0707056597
+        ],
+        "530": [
+          0.163381293,
+          -0.00900311396
+        ],
+        "548": [
+          0.163231403,
+          0.000635438249
+        ],
+        "556": [
+          0.167731076,
+          -0.0138233798
+        ],
+        "570": [
+          0.215991572,
+          0.429578125
+        ],
+        "575": [
+          0.283341259,
+          1.27390778
+        ],
+        "600": [
+          0.83695519,
+          0.993967831
+        ],
+        "625": [
+          1.13670981,
+          -0.00859294459
+        ]
+      }
+    },
+    {
+      "lane": 6,
+      "arm": 0.12,
+      "prefix_equal": {
+        "state": true,
+        "contact": true
+      },
+      "prefix_record_counts": {
+        "state": 485,
+        "contact": 7760
+      },
+      "end": 625,
+      "failure": false,
+      "termination_reason": 0,
+      "stats": {
+        "contact": 6800,
+        "overflow": 0,
+        "nonfoot": 0,
+        "toe_coverage": 6800,
+        "transition_coverage": 240,
+        "transition_unloaded": 0,
+        "launch_normal_impulse_ns": 0.7063830813799996,
+        "post_push_coverage": 80,
+        "post_push_loaded": 0
+      },
+      "caps": [
+        [
+          562,
+          1
+        ],
+        [
+          562,
+          2
+        ],
+        [
+          562,
+          3
+        ]
+      ],
+      "z_vz_samples": {
+        "500": [
+          0.169791564,
+          -0.0090599712
+        ],
+        "515": [
+          0.171244949,
+          0.0690955147
+        ],
+        "530": [
+          0.163378879,
+          -0.00941487774
+        ],
+        "548": [
+          0.163230896,
+          0.00063682755
+        ],
+        "556": [
+          0.163335398,
+          0.000667421438
+        ],
+        "570": [
+          0.226487532,
+          0.417229474
+        ],
+        "575": [
+          0.288218319,
+          1.17072856
+        ],
+        "600": [
+          0.78539145,
+          0.842985809
+        ],
+        "625": [
+          1.04645443,
+          0.103103146
+        ]
+      }
+    },
+    {
+      "lane": 7,
+      "arm": 0.12,
+      "prefix_equal": {
+        "state": true,
+        "contact": true
+      },
+      "prefix_record_counts": {
+        "state": 485,
+        "contact": 7760
+      },
+      "end": 625,
+      "failure": false,
+      "termination_reason": 0,
+      "stats": {
+        "contact": 6800,
+        "overflow": 0,
+        "nonfoot": 0,
+        "toe_coverage": 6800,
+        "transition_coverage": 240,
+        "transition_unloaded": 0,
+        "launch_normal_impulse_ns": 0.7063837002400002,
+        "post_push_coverage": 80,
+        "post_push_loaded": 0
+      },
+      "caps": [
+        [
+          562,
+          1
+        ],
+        [
+          562,
+          2
+        ],
+        [
+          562,
+          3
+        ]
+      ],
+      "z_vz_samples": {
+        "500": [
+          0.16979228,
+          -0.00909453258
+        ],
+        "515": [
+          0.171248645,
+          0.0697737858
+        ],
+        "530": [
+          0.163379773,
+          -0.00904435478
+        ],
+        "548": [
+          0.163228408,
+          0.000634544471
+        ],
+        "556": [
+          0.163332537,
+          0.000666359323
+        ],
+        "570": [
+          0.228611201,
+          0.45964089
+        ],
+        "575": [
+          0.298366517,
+          1.28500426
+        ],
+        "600": [
+          0.849854708,
+          0.981856287
+        ],
+        "625": [
+          1.1397872,
+          -0.0419798344
+        ]
+      }
+    }
+  ],
+  "errors": [],
+  "scope": "Exploratory used-seed handoff. Total normal impulse includes gravity/aerodynamics; no leg-only work claim. Body/wing caps unobserved."
+}
