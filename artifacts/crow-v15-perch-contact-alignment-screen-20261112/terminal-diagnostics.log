@@ -1,0 +1,86 @@
+[
+  {
+    "lane": 2,
+    "failed_intervals_by_condition": {
+      "left_and_right_load": 0,
+      "half_weight": 0,
+      "left_opposition": 0,
+      "right_opposition": 0,
+      "no_nonfoot": 0,
+      "upright": 0,
+      "slow": 0
+    },
+    "max_speed_m_s": 0.016418411715000348,
+    "minimum_foot_upward_impulse_ns": 0.087606398091
+  },
+  {
+    "lane": 3,
+    "failed_intervals_by_condition": {
+      "left_and_right_load": 0,
+      "half_weight": 0,
+      "left_opposition": 100,
+      "right_opposition": 0,
+      "no_nonfoot": 0,
+      "upright": 0,
+      "slow": 0
+    },
+    "max_speed_m_s": 0.025320137623275635,
+    "minimum_foot_upward_impulse_ns": 0.085663657812
+  },
+  {
+    "lane": 4,
+    "failed_intervals_by_condition": {
+      "left_and_right_load": 0,
+      "half_weight": 0,
+      "left_opposition": 0,
+      "right_opposition": 0,
+      "no_nonfoot": 0,
+      "upright": 0,
+      "slow": 0
+    },
+    "max_speed_m_s": 0.016581056069266537,
+    "minimum_foot_upward_impulse_ns": 0.087242365398
+  },
+  {
+    "lane": 5,
+    "failed_intervals_by_condition": {
+      "left_and_right_load": 0,
+      "half_weight": 0,
+      "left_opposition": 0,
+      "right_opposition": 0,
+      "no_nonfoot": 0,
+      "upright": 0,
+      "slow": 0
+    },
+    "max_speed_m_s": 0.016419847287342644,
+    "minimum_foot_upward_impulse_ns": 0.08700771460000001
+  },
+  {
+    "lane": 6,
+    "failed_intervals_by_condition": {
+      "left_and_right_load": 0,
+      "half_weight": 0,
+      "left_opposition": 100,
+      "right_opposition": 0,
+      "no_nonfoot": 0,
+      "upright": 0,
+      "slow": 0
+    },
+    "max_speed_m_s": 0.02637850376076051,
+    "minimum_foot_upward_impulse_ns": 0.084796808552
+  },
+  {
+    "lane": 7,
+    "failed_intervals_by_condition": {
+      "left_and_right_load": 0,
+      "half_weight": 0,
+      "left_opposition": 0,
+      "right_opposition": 0,
+      "no_nonfoot": 0,
+      "upright": 0,
+      "slow": 0
+    },
+    "max_speed_m_s": 0.01852518375862184,
+    "minimum_foot_upward_impulse_ns": 0.08682484382200001
+  }
+]

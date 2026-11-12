@@ -1,0 +1,5 @@
+# Initial foot alignment on difficult constructed arrivals
+
+Four of the six +6 mm forward starts passed the full release and terminal regrip gates; the +0.06 rad early hip offset passed both tested approach velocities. The +0.03 rad and +0.09 rad offsets each passed one of two velocities. The other two cases stayed upright and supported but achieved only six or nine consecutive qualified release intervals, did not trigger the return phase, and lacked left toe opposition during all 100 terminal intervals. Both unchanged controls passed. No lane fell or had nonfoot contact.
+
+The two controls reproduced 1,100 endpoint states and 35,200 substep contact records exactly against the earlier retained runs. All 140,800 substeps were recorded and endpoint normal impulses matched within 7.34e-10 N s. The early alignment was motivated by independently reconstructed v15 kinematics at the failed state; it is a bounded joint-position intervention on a constructed, high-friction perch. It is not a biological measurement, a general arrival policy, an autonomous landing, or qualification across a distribution of starts.

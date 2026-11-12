@@ -1,0 +1,67 @@
+{
+  "source": "lane 3 endpoint of first control interval from retained +6 mm constructed start",
+  "method": "independent articulated forward kinematics, all other coordinates and velocities held fixed",
+  "rows": [
+    {
+      "hip_q_index": 14,
+      "hip_offset_rad": -0.08,
+      "toe_body": "crow_left_front_toe_2_proximal",
+      "position_m": [
+        0.0587886928102629,
+        0.03018901109641305,
+        0.024419281122625296
+      ]
+    },
+    {
+      "hip_q_index": 14,
+      "hip_offset_rad": 0,
+      "toe_body": "crow_left_front_toe_2_proximal",
+      "position_m": [
+        0.048166456570379795,
+        0.03005065564109752,
+        0.02096231652614243
+      ]
+    },
+    {
+      "hip_q_index": 14,
+      "hip_offset_rad": 0.08,
+      "toe_body": "crow_left_front_toe_2_proximal",
+      "position_m": [
+        0.037301709926845505,
+        0.02994668940643016,
+        0.01836460203392107
+      ]
+    },
+    {
+      "hip_q_index": 17,
+      "hip_offset_rad": -0.08,
+      "toe_body": "crow_right_front_toe_2_proximal",
+      "position_m": [
+        0.0587886900151499,
+        -0.04335211697874004,
+        0.02736253133936625
+      ]
+    },
+    {
+      "hip_q_index": 17,
+      "hip_offset_rad": 0,
+      "toe_body": "crow_right_front_toe_2_proximal",
+      "position_m": [
+        0.04816645377462771,
+        -0.043490472434056994,
+        0.023905566742857834
+      ]
+    },
+    {
+      "hip_q_index": 17,
+      "hip_offset_rad": 0.08,
+      "toe_body": "crow_right_front_toe_2_proximal",
+      "position_m": [
+        0.03730170713045432,
+        -0.043594438668723624,
+        0.02130785225066206
+      ]
+    }
+  ],
+  "limitations": "local geometry only; does not predict resulting contact, force or controller stability"
+}
