@@ -1,0 +1,26 @@
+lane 0
+10 pitch 0.031 comx 0.0016 up 0.0438 0.0446 front/rear 0.0 0.0 0.0 0.0 qualified False
+20 pitch 0.014 comx -0.0009 up 0.0447 0.0424 front/rear 0.0092 -0.00463 0.00814 -0.00478 qualified True
+40 pitch 0.055 comx 0.0063 up 0.0607 0.0294 front/rear 0.01611 -0.04217 0.01447 -0.02054 qualified True
+60 pitch 0.081 comx 0.0141 up 0.0489 0.0393 front/rear 0.01714 -0.03652 0.01662 -0.02898 qualified True
+80 pitch 0.124 comx 0.0219 up 0.0432 0.0454 front/rear 0.01893 -0.03302 0.02133 -0.03579 qualified True
+100 pitch 0.144 comx 0.0259 up 0.0442 0.0435 front/rear 0.03823 -0.01847 0.03795 -0.01772 qualified True
+110 pitch 0.144 comx 0.0258 up 0.046 0.0422 front/rear 0.04029 -0.01969 0.03783 -0.018 qualified True
+120 pitch 0.144 comx 0.0258 up 0.043 0.0451 front/rear 0.03586 -0.01725 0.03561 -0.01614 qualified True
+130 pitch 0.143 comx 0.0258 up 0.0438 0.0446 front/rear 0.04032 -0.0186 0.04035 -0.01937 qualified True
+136 pitch 0.143 comx 0.0257 up 0.0415 0.0467 front/rear 0.03566 -0.01562 0.03722 -0.01782 qualified True
+140 pitch 0.144 comx 0.0258 up 0.0435 0.0452 front/rear 0.03904 -0.01947 0.03957 -0.01919 qualified True
+150 pitch 0.143 comx 0.0257 up 0.0437 0.0448 front/rear 0.03612 -0.01674 0.03823 -0.01916 qualified True
+lane 1
+10 pitch -0.032 comx 0.0073 up 0.0439 0.0445 front/rear 0.0 -1e-05 0.0 -1e-05 qualified False
+20 pitch -0.012 comx 0.0122 up 0.0439 0.0445 front/rear 0.0 -0.00465 0.0 -0.00465 qualified False
+40 pitch 0.045 comx 0.0224 up 0.0447 0.0437 front/rear 0.0 -0.01133 0.0 -0.01042 qualified False
+60 pitch 0.12 comx 0.0369 up 0.0424 0.0466 front/rear 0.0 -0.0132 0.0 -0.01106 qualified False
+80 pitch 0.221 comx 0.0606 up 0.0428 0.0456 front/rear 0.0 0.0 0.0 0.0 qualified False
+100 pitch 0.358 comx 0.0925 up 0.0431 0.0452 front/rear 0.0 -0.0 0.0 -0.0 qualified False
+110 pitch 0.442 comx 0.111 up 0.0461 0.0367 front/rear 0.0 0.00619 0.0 0.00318 qualified False
+120 pitch 0.537 comx 0.1324 up 0.0449 0.041 front/rear 0.0 0.01769 0.0 0.01534 qualified False
+130 pitch 0.651 comx 0.1631 up 0.0777 0.0853 front/rear 0.0 0.01797 0.0 0.02098 qualified False
+136 pitch 0.677 comx 0.1832 up 0.0 0.0 front/rear 0.0 0.0 0.0 0.0 qualified False
+140 pitch 0.677 comx 0.1978 up 0.0 0.0 front/rear 0.0 0.0 0.0 0.0 qualified False
+150 pitch 0.699 comx 0.2674 up 0.0 0.0 front/rear 0.0 0.0 0.0 0.0 qualified False
