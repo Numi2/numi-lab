@@ -1,0 +1,15 @@
+--- a/TaskProgram.cpp
++++ b/TaskProgram.cpp
+@@ -1,3 +1,4 @@
++#include <cstdlib>
+ #include "metalrobo/TaskProgram.hpp"
+ 
+ #include "metalrobo/MetalWorld.hpp"
+@@ -4592,6 +4593,7 @@
+             ? 0.0f
+             : pack.interactionResetPhaseFraction,
+     };
++    staged->header.interactionTiming.w = std::getenv("CROW_EXPERIMENT_GAIT_SMOOTH") != nullptr ? 1.0f : 0.0f;
+     const float resetProbability =
+         pack.interactionResetPhaseProbability >= 0.0f
+         ? pack.interactionResetPhaseProbability
