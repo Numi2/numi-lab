@@ -1,0 +1,7 @@
+# Wing-load analysis of the strong-pronation screen
+
+The retained instrumented run has 9,600 finite kernel-wrench/source-state records in two one-second windows. Native forward kinematics reconstructed torso and both wing centers at one aligned replay state within 6.19e-8 m, and the 48 sampled pre-intervention states match the prior observer reference. This is one alignment check, not complete validation of the force model.
+
+During the 14–15 s window, the strongest positive-demand lane's mean world-z moments about the root from left and right wing kernel wrenches were -0.23766 and +0.24079 N m; the measured root kernel contribution was -0.00011 N m, leaving +0.00302 N m from those three contributions. For the corresponding negative-demand lane they were +0.07799, -0.07801 and approximately zero N m. These large opposing modeled contributions nearly cancel in those windows, consistent with a small net yaw contribution from the measured parts, but they do not establish why the wing model behaves that way or whether a different controller can steer.
+
+The separate tail wrench is not present in this observer and is excluded from these totals. Other applied forces, joint impulses and angular-momentum changes are also omitted. These windows, the estimated blade-element closure and development seed do not establish biological aerodynamics; the net is not the complete external moment and must not be labeled as such.
