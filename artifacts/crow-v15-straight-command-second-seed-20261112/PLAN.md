@@ -1,0 +1,3 @@
+# Second development seed: bounded speed commands
+
+Use the same open-flight host, no direct body moments, smooth launch, 16 substeps and 24-second first episodes. Test gain .80 for four speed commands (.35, .55, .75, .95 m/s) with a .95 m and 1.10 m height setting for each, transitioning from the actor to fixed straight commands during 9–9.5 s. Eight starts use previously used development seed 20261126; neither this seed nor the collision-disabled course qualifies as held out. Match all eight states/contact substeps through 9 s against the prior collision-enabled same-seed reference, then measure body-forward error, world-lateral speed, altitude, attitude, speed caps and contacts. No inference is made about turns, recovery, real-crow aerodynamics or landing.

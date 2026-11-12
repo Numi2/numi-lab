@@ -1,0 +1,213 @@
+{
+  "rows": [
+    {
+      "lane": 0,
+      "speed_target": 0.35,
+      "height_target": 0.95,
+      "end_step": 1200,
+      "termination": 0,
+      "samples": 600,
+      "height_range_m": [
+        1.00397694,
+        1.05904233
+      ],
+      "mean_height_error_m": 0.07749231499999998,
+      "mean_body_forward_m_s": 0.2958377394560553,
+      "mean_abs_forward_error_m_s": 0.07738363255656032,
+      "mean_abs_world_lateral_speed_m_s": 0.03558475885461666,
+      "final_position_m": [
+        4.8758235,
+        -0.476135492,
+        1.0396235
+      ],
+      "final_velocity_m_s": [
+        0.26386416,
+        -0.0559382141,
+        0.0964365602
+      ]
+    },
+    {
+      "lane": 1,
+      "speed_target": 0.35,
+      "height_target": 1.1,
+      "end_step": 1200,
+      "termination": 0,
+      "samples": 600,
+      "height_range_m": [
+        1.15445507,
+        1.20841825
+      ],
+      "mean_height_error_m": 0.07745992043333327,
+      "mean_body_forward_m_s": 0.2958523078145137,
+      "mean_abs_forward_error_m_s": 0.07585149394816197,
+      "mean_abs_world_lateral_speed_m_s": 0.038200642857166664,
+      "final_position_m": [
+        4.8795042,
+        -0.438996017,
+        1.19003892
+      ],
+      "final_velocity_m_s": [
+        0.260327637,
+        -0.0577406697,
+        0.0963576362
+      ]
+    },
+    {
+      "lane": 2,
+      "speed_target": 0.55,
+      "height_target": 0.95,
+      "end_step": 1200,
+      "termination": 0,
+      "samples": 600,
+      "height_range_m": [
+        1.01435125,
+        1.05973577
+      ],
+      "mean_height_error_m": 0.08370626088333344,
+      "mean_body_forward_m_s": 0.5088029924696412,
+      "mean_abs_forward_error_m_s": 0.06341685052718965,
+      "mean_abs_world_lateral_speed_m_s": 0.06765198792416667,
+      "final_position_m": [
+        7.64672184,
+        -0.866000175,
+        1.04832816
+      ],
+      "final_velocity_m_s": [
+        0.460704386,
+        -0.105282396,
+        0.0867994204
+      ]
+    },
+    {
+      "lane": 3,
+      "speed_target": 0.55,
+      "height_target": 1.1,
+      "end_step": 1200,
+      "termination": 0,
+      "samples": 600,
+      "height_range_m": [
+        1.16571784,
+        1.20823646
+      ],
+      "mean_height_error_m": 0.08385780061666659,
+      "mean_body_forward_m_s": 0.5068480698629503,
+      "mean_abs_forward_error_m_s": 0.06145956399705071,
+      "mean_abs_world_lateral_speed_m_s": 0.0689344910475,
+      "final_position_m": [
+        7.59505653,
+        -0.839968026,
+        1.19855893
+      ],
+      "final_velocity_m_s": [
+        0.461592615,
+        -0.107197918,
+        0.0860076621
+      ]
+    },
+    {
+      "lane": 4,
+      "speed_target": 0.75,
+      "height_target": 0.95,
+      "end_step": 1200,
+      "termination": 0,
+      "samples": 600,
+      "height_range_m": [
+        1.0326215,
+        1.05655706
+      ],
+      "mean_height_error_m": 0.0928436877833334,
+      "mean_body_forward_m_s": 0.7018444325379051,
+      "mean_abs_forward_error_m_s": 0.048180670048310545,
+      "mean_abs_world_lateral_speed_m_s": 0.10077558829033334,
+      "final_position_m": [
+        10.4413776,
+        -1.27914715,
+        1.0548346
+      ],
+      "final_velocity_m_s": [
+        0.68737185,
+        -0.165786698,
+        0.0757819191
+      ]
+    },
+    {
+      "lane": 5,
+      "speed_target": 0.75,
+      "height_target": 1.1,
+      "end_step": 1200,
+      "termination": 0,
+      "samples": 600,
+      "height_range_m": [
+        1.18243039,
+        1.20648825
+      ],
+      "mean_height_error_m": 0.09281716758333336,
+      "mean_body_forward_m_s": 0.7019220216985456,
+      "mean_abs_forward_error_m_s": 0.04813099190436009,
+      "mean_abs_world_lateral_speed_m_s": 0.10307050093033333,
+      "final_position_m": [
+        10.4597473,
+        -1.32808304,
+        1.20475137
+      ],
+      "final_velocity_m_s": [
+        0.687855661,
+        -0.168299615,
+        0.0757020861
+      ]
+    },
+    {
+      "lane": 6,
+      "speed_target": 0.95,
+      "height_target": 0.95,
+      "end_step": 1200,
+      "termination": 0,
+      "samples": 600,
+      "height_range_m": [
+        1.02477789,
+        1.06763744
+      ],
+      "mean_height_error_m": 0.09779685923333337,
+      "mean_body_forward_m_s": 0.9221991094906288,
+      "mean_abs_forward_error_m_s": 0.054518154751795556,
+      "mean_abs_world_lateral_speed_m_s": 0.12431001087183333,
+      "final_position_m": [
+        13.5220003,
+        -1.58350205,
+        1.06242514
+      ],
+      "final_velocity_m_s": [
+        0.887564778,
+        -0.205369964,
+        0.0673693269
+      ]
+    },
+    {
+      "lane": 7,
+      "speed_target": 0.95,
+      "height_target": 1.1,
+      "end_step": 1200,
+      "termination": 0,
+      "samples": 600,
+      "height_range_m": [
+        1.17120135,
+        1.21842849
+      ],
+      "mean_height_error_m": 0.09705655304999983,
+      "mean_body_forward_m_s": 0.9275905898445643,
+      "mean_abs_forward_error_m_s": 0.0591438464256717,
+      "mean_abs_world_lateral_speed_m_s": 0.12792120802416668,
+      "final_position_m": [
+        13.4983845,
+        -1.62405586,
+        1.21275342
+      ],
+      "final_velocity_m_s": [
+        0.882708371,
+        -0.206982225,
+        0.067847915
+      ]
+    }
+  ],
+  "scope": "Used seed. 50 Hz endpoint samples; body-forward velocity projected into yaw frame, not a continuous error bound."
+}

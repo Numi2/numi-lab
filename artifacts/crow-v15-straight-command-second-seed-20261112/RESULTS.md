@@ -1,0 +1,7 @@
+# Explicit straight-flight commands on second development seed
+
+All eight starts on previously used seed 20261126 matched the collision-enabled reference before the 9 s command change: 3,600 state samples and 57,600 contact substeps. In the ground-enabled, obstacle-collision-disabled diagnostic, all remained airborne through 8–24 s without reported physical termination, nonfoot ground impulse or observed post-4-s joint-speed cap. Two starts hit toe-speed limits early. Direct body moments were disabled throughout.
+
+With gain .80 and speed requests .35, .55, .75 and .95 m/s, sampled 12–24 s mean body-yaw-frame forward speeds were .296, .507–.509, .702 and .922–.928 m/s respectively. Mean absolute speed errors were .076–.077, .061–.063, .048 and .055–.059 m/s. With each speed tested at .95 and 1.10 m height requests, mean height ran .077–.098 m above request; mean absolute world-lateral speed rose from .036–.038 to .124–.128 m/s as requested speed increased. Values are 50 Hz endpoint estimates, and each command pair represents one lane per height.
+
+These are positive development results for bounded straight-speed response, not qualification or freezing of flight. High-speed lateral drift, height bias, initial contact transients, turns, climb/descent and recovery need further tests. This seed and layout were used previously; waypoint flags with obstacles disabled do not demonstrate navigation or landing.
