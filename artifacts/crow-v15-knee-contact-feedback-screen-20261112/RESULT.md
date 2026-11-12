@@ -1,0 +1,7 @@
+# Knee timing with measured contact feedback: rejected
+
+Both used-seed native v15 runs completed. The zero-warp, zero-feedback control lanes exactly matched all 300 endpoint states and 4,800 contact substeps per lane, and every lane matched the baseline before the four-second intervention. None of the 12 altered lanes passed the preregistered gates.
+
+For gain +0.5 with 0.16 knee warp, right-foot 50 Hz contact-point-speed p95 ranged from 1.88 to 2.56 times baseline; for gain +1 it ranged from 1.79 to 3.51. Both exceed the 1.5 gate, and some lanes also lost support or usable recovery windows. Feedback reduced the ratio in several paired conditions relative to knee-warp-only, but it did not produce a qualified candidate. A brief simultaneous unload does not by itself demonstrate a fall.
+
+The signal was active: each altered lane reported 56–65 distinct packed values in its 99 audited steps. Mean absolute differences versus independent kinematics were 0.0005–0.0024 m/s, with isolated maxima 0.012–0.155 m/s. Those maxima, different tiny-contact cutoffs, one-step delay and staggered contact/state timing limit interpretation. The experimental host temporarily uses a power-state field and has not been qualified for production reset, rollback or full journey. Endpoint contact speed is not accumulated material slip. These are correlated development starts, not a biological fit; no complete walking, takeoff, flight or landing is established.

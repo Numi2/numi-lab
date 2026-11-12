@@ -1,0 +1,4 @@
+851fb2bed46d3da7e38a0db84e8a4099e774ad409ebefe73b4e3d65c22713967  artifacts/crow-v15-knee-contact-feedback-screen-20261112/PLAN.md
+5e90266c73a61ff2f4cef1a781ec6b49e6469126bfaeb3ff288f5b2cef3f4e02  artifacts/crow-v15-knee-contact-feedback-screen-20261112/screen.metal
+c00be7a3e4ced4582adeed3f1e4a15d3d07782ccabf2eedc53bf434e4ecf0ae4  artifacts/crow-v15-knee-contact-feedback-screen-20261112/build.py
+e29a2a299771082e0fc194fc4cc6e051ec960f581b75675cc93f38ba1fb06f9e  artifacts/crow-v15-knee-contact-feedback-screen-20261112/run.py
