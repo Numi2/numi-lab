@@ -1,0 +1,8 @@
+0 failure True supported False precontact_v 0.137 0.005 -0.352 rpy -0.0 0.051 0.021
+1 failure False supported False precontact_v 0.146 0.004 -0.215 rpy -0.0 0.05 0.021
+2 failure False supported False precontact_v 0.163 0.005 -0.343 rpy 0.0 0.047 0.02
+3 failure False supported False precontact_v 0.142 0.005 -0.349 rpy 0.0 0.051 0.021
+4 failure False supported False precontact_v 0.138 0.005 -0.306 rpy -0.0 0.05 0.021
+5 failure False supported True precontact_v 0.124 0.004 -0.051 rpy -0.0 0.049 0.02
+6 failure True supported False precontact_v 0.125 0.004 -0.349 rpy -0.0 0.05 0.021
+7 failure False supported False precontact_v 0.133 0.005 -0.311 rpy -0.0 0.05 0.021
