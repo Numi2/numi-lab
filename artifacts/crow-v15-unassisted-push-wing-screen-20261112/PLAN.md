@@ -1,0 +1,5 @@
+# Unassisted push and early wingbeat screen
+
+The last screen found no launch from latched leg extension alone. Test a wingbeat initiated only after both feet have loaded and the push begins, while the identified direct body moments remain disabled from 6.30 s. Eight lanes, used seed 20261127, 16 substeps, teacher off: lanes 0–1 matched no-assistance controls; lanes 2–7 use the same push latch and phase-inverted wing oscillator, with 0.04, 0.10, 0.20 s smooth onset durations in pairs. Reset the knee target to the ordinary baseline in all lanes. The phase choice follows the direction measured in prior synchronized wing-center screens; it is not established that the current onset produces downstroke before toe-off, which must be measured. The timings are design settings, not crow measurements.
+
+Use the previously parity-validated synchronized observer. Report prefix parity, substep contact transitions, wing-center motion, body attitude, root height and later support. Ground impulse includes gravity, passive response, and aerodynamic forces. Only a screen: keep failures, do not infer biological realism, isolated leg work, long-term flight, or landing.

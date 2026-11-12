@@ -1,0 +1,777 @@
+{
+  "prefix": {
+    "0": {
+      "first_endpoint_divergence": null,
+      "first_substep_divergence": null,
+      "matched_endpoints_before_100": 100,
+      "matched_substeps_before_100": 1600
+    },
+    "1": {
+      "first_endpoint_divergence": null,
+      "first_substep_divergence": null,
+      "matched_endpoints_before_100": 100,
+      "matched_substeps_before_100": 1600
+    },
+    "2": {
+      "first_endpoint_divergence": 351,
+      "first_substep_divergence": [
+        351,
+        0
+      ],
+      "matched_endpoints_before_100": 100,
+      "matched_substeps_before_100": 1600
+    },
+    "3": {
+      "first_endpoint_divergence": 351,
+      "first_substep_divergence": [
+        351,
+        0
+      ],
+      "matched_endpoints_before_100": 100,
+      "matched_substeps_before_100": 1600
+    },
+    "4": {
+      "first_endpoint_divergence": 351,
+      "first_substep_divergence": [
+        351,
+        0
+      ],
+      "matched_endpoints_before_100": 100,
+      "matched_substeps_before_100": 1600
+    },
+    "5": {
+      "first_endpoint_divergence": 351,
+      "first_substep_divergence": [
+        351,
+        0
+      ],
+      "matched_endpoints_before_100": 100,
+      "matched_substeps_before_100": 1600
+    },
+    "6": {
+      "first_endpoint_divergence": 351,
+      "first_substep_divergence": [
+        351,
+        0
+      ],
+      "matched_endpoints_before_100": 100,
+      "matched_substeps_before_100": 1600
+    },
+    "7": {
+      "first_endpoint_divergence": 351,
+      "first_substep_divergence": [
+        351,
+        0
+      ],
+      "matched_endpoints_before_100": 100,
+      "matched_substeps_before_100": 1600
+    }
+  },
+  "arms": {
+    "baseline": {
+      "meta": {
+        "boundary": "waypoint completion; does not establish supported landing",
+        "closed_by_environment": [
+          false,
+          false,
+          false,
+          false,
+          false,
+          false,
+          false,
+          false
+        ],
+        "closed_episode_count": 0,
+        "completion_seen_by_environment": [
+          false,
+          false,
+          false,
+          false,
+          false,
+          false,
+          false,
+          false
+        ],
+        "completion_seen_count": 0,
+        "environment_count": 8,
+        "first_completion_step_by_environment": [
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null
+        ],
+        "horizon_censored_count": 8,
+        "maximum_waypoints_by_environment": [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
+        "physical_failure_by_environment": [
+          false,
+          false,
+          false,
+          false,
+          false,
+          false,
+          false,
+          false
+        ],
+        "physical_failure_count": 0,
+        "safe_completion_by_environment": [
+          false,
+          false,
+          false,
+          false,
+          false,
+          false,
+          false,
+          false
+        ],
+        "safe_completion_count": 0,
+        "schema": "numi.crow-first-episode-evidence.v1",
+        "steps_by_environment": [
+          600,
+          600,
+          600,
+          600,
+          600,
+          600,
+          600,
+          600
+        ],
+        "termination_reason_by_environment": [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
+        "unit": "first episode of each environment since context creation"
+      },
+      "errors": [],
+      "rows": [
+        {
+          "lane": 0,
+          "end_step": 600,
+          "unloaded_substeps_4_to_6s": 0,
+          "toe_caps_4_to_6s": 0,
+          "combined_upward_impulse_348_to_353_Ns": 0.6132322460467,
+          "failed": false,
+          "reason": 0,
+          "waypoints": 0,
+          "height_min_max_after_8s": [
+            0.17553331,
+            0.175588638
+          ],
+          "final_position": [
+            0.12796326,
+            -0.0336915031,
+            0.17553468
+          ],
+          "final_velocity": [
+            -5.28968883e-07,
+            2.5570958e-07,
+            -1.75778055e-07
+          ],
+          "final_attitude_rad": {
+            "yaw": 0.011147806758564775,
+            "pitch": -0.013627449560431418,
+            "roll": -3.393495060955433e-07
+          },
+          "toe_caps_after_7_4s": 0,
+          "foot_loaded_after_8s": 3200,
+          "first_nonfoot_contact": []
+        },
+        {
+          "lane": 1,
+          "end_step": 600,
+          "unloaded_substeps_4_to_6s": 0,
+          "toe_caps_4_to_6s": 0,
+          "combined_upward_impulse_348_to_353_Ns": 0.6121710709339,
+          "failed": false,
+          "reason": 0,
+          "waypoints": 0,
+          "height_min_max_after_8s": [
+            0.175533414,
+            0.175587893
+          ],
+          "final_position": [
+            0.197837472,
+            0.00997793581,
+            0.175534815
+          ],
+          "final_velocity": [
+            2.64784461e-07,
+            2.18899725e-08,
+            -1.2374227e-08
+          ],
+          "final_attitude_rad": {
+            "yaw": -0.007562402646685559,
+            "pitch": -0.013610493874623689,
+            "roll": -2.6768062881599743e-06
+          },
+          "toe_caps_after_7_4s": 0,
+          "foot_loaded_after_8s": 3200,
+          "first_nonfoot_contact": []
+        },
+        {
+          "lane": 2,
+          "end_step": 600,
+          "unloaded_substeps_4_to_6s": 0,
+          "toe_caps_4_to_6s": 0,
+          "combined_upward_impulse_348_to_353_Ns": 0.6131122763319997,
+          "failed": false,
+          "reason": 0,
+          "waypoints": 0,
+          "height_min_max_after_8s": [
+            0.175533473,
+            0.175589368
+          ],
+          "final_position": [
+            0.159528717,
+            -0.0046062055,
+            0.175534904
+          ],
+          "final_velocity": [
+            -1.83261079e-07,
+            -9.04273847e-08,
+            -9.76683907e-08
+          ],
+          "final_attitude_rad": {
+            "yaw": 0.011010814083320615,
+            "pitch": -0.01355192765230766,
+            "roll": 2.5880397968916085e-06
+          },
+          "toe_caps_after_7_4s": 0,
+          "foot_loaded_after_8s": 3200,
+          "first_nonfoot_contact": []
+        },
+        {
+          "lane": 3,
+          "end_step": 600,
+          "unloaded_substeps_4_to_6s": 0,
+          "toe_caps_4_to_6s": 0,
+          "combined_upward_impulse_348_to_353_Ns": 0.6121842450162999,
+          "failed": false,
+          "reason": 0,
+          "waypoints": 0,
+          "height_min_max_after_8s": [
+            0.175533101,
+            0.175590992
+          ],
+          "final_position": [
+            0.16035223,
+            -0.0198882408,
+            0.175534904
+          ],
+          "final_velocity": [
+            1.57636848e-07,
+            -7.74646836e-08,
+            -3.10527462e-08
+          ],
+          "final_attitude_rad": {
+            "yaw": 0.009826456699991935,
+            "pitch": -0.013651142365595151,
+            "roll": -2.7476341049005576e-06
+          },
+          "toe_caps_after_7_4s": 0,
+          "foot_loaded_after_8s": 3200,
+          "first_nonfoot_contact": []
+        },
+        {
+          "lane": 4,
+          "end_step": 600,
+          "unloaded_substeps_4_to_6s": 0,
+          "toe_caps_4_to_6s": 0,
+          "combined_upward_impulse_348_to_353_Ns": 0.6122098365506,
+          "failed": false,
+          "reason": 0,
+          "waypoints": 0,
+          "height_min_max_after_8s": [
+            0.175533578,
+            0.175587818
+          ],
+          "final_position": [
+            0.176925272,
+            0.0390341058,
+            0.175534725
+          ],
+          "final_velocity": [
+            -6.2621092e-07,
+            -4.1794646e-08,
+            -1.40091913e-07
+          ],
+          "final_attitude_rad": {
+            "yaw": 0.005585395532688171,
+            "pitch": -0.013546851050143366,
+            "roll": 7.793723847056413e-06
+          },
+          "toe_caps_after_7_4s": 0,
+          "foot_loaded_after_8s": 3200,
+          "first_nonfoot_contact": []
+        },
+        {
+          "lane": 5,
+          "end_step": 600,
+          "unloaded_substeps_4_to_6s": 0,
+          "toe_caps_4_to_6s": 0,
+          "combined_upward_impulse_348_to_353_Ns": 0.6121991396336003,
+          "failed": false,
+          "reason": 0,
+          "waypoints": 0,
+          "height_min_max_after_8s": [
+            0.175533473,
+            0.175590262
+          ],
+          "final_position": [
+            0.226789981,
+            0.0169375949,
+            0.17553471
+          ],
+          "final_velocity": [
+            -1.91083103e-07,
+            1.08412344e-07,
+            -7.70357431e-08
+          ],
+          "final_attitude_rad": {
+            "yaw": -0.002481603706373172,
+            "pitch": -0.013542862483994444,
+            "roll": 5.293415117572459e-06
+          },
+          "toe_caps_after_7_4s": 0,
+          "foot_loaded_after_8s": 3200,
+          "first_nonfoot_contact": []
+        },
+        {
+          "lane": 6,
+          "end_step": 600,
+          "unloaded_substeps_4_to_6s": 0,
+          "toe_caps_4_to_6s": 0,
+          "combined_upward_impulse_348_to_353_Ns": 0.6119764684991995,
+          "failed": false,
+          "reason": 0,
+          "waypoints": 0,
+          "height_min_max_after_8s": [
+            0.175533578,
+            0.175589323
+          ],
+          "final_position": [
+            0.174175113,
+            0.0313162506,
+            0.17553471
+          ],
+          "final_velocity": [
+            -4.41789695e-07,
+            -9.77405801e-09,
+            -1.62528977e-07
+          ],
+          "final_attitude_rad": {
+            "yaw": 0.00410479349992065,
+            "pitch": -0.013544843870487216,
+            "roll": 5.6695600819755205e-06
+          },
+          "toe_caps_after_7_4s": 0,
+          "foot_loaded_after_8s": 3200,
+          "first_nonfoot_contact": []
+        },
+        {
+          "lane": 7,
+          "end_step": 600,
+          "unloaded_substeps_4_to_6s": 0,
+          "toe_caps_4_to_6s": 0,
+          "combined_upward_impulse_348_to_353_Ns": 0.6123956739445999,
+          "failed": false,
+          "reason": 0,
+          "waypoints": 0,
+          "height_min_max_after_8s": [
+            0.175533026,
+            0.175589487
+          ],
+          "final_position": [
+            0.215328038,
+            0.0551728085,
+            0.175534859
+          ],
+          "final_velocity": [
+            -5.10673146e-07,
+            1.05583958e-07,
+            -1.19824421e-07
+          ],
+          "final_attitude_rad": {
+            "yaw": 0.00011122984273126032,
+            "pitch": -0.013640586207509003,
+            "roll": 2.3113616365665856e-06
+          },
+          "toe_caps_after_7_4s": 0,
+          "foot_loaded_after_8s": 3200,
+          "first_nonfoot_contact": []
+        }
+      ]
+    },
+    "flexed": {
+      "meta": {
+        "boundary": "waypoint completion; does not establish supported landing",
+        "closed_by_environment": [
+          false,
+          false,
+          false,
+          false,
+          false,
+          false,
+          false,
+          false
+        ],
+        "closed_episode_count": 0,
+        "completion_seen_by_environment": [
+          false,
+          false,
+          false,
+          false,
+          false,
+          false,
+          false,
+          false
+        ],
+        "completion_seen_count": 0,
+        "environment_count": 8,
+        "first_completion_step_by_environment": [
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null
+        ],
+        "horizon_censored_count": 8,
+        "maximum_waypoints_by_environment": [
+          0,
+          0,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1
+        ],
+        "physical_failure_by_environment": [
+          false,
+          false,
+          false,
+          false,
+          false,
+          false,
+          false,
+          false
+        ],
+        "physical_failure_count": 0,
+        "safe_completion_by_environment": [
+          false,
+          false,
+          false,
+          false,
+          false,
+          false,
+          false,
+          false
+        ],
+        "safe_completion_count": 0,
+        "schema": "numi.crow-first-episode-evidence.v1",
+        "steps_by_environment": [
+          500,
+          500,
+          500,
+          500,
+          500,
+          500,
+          500,
+          500
+        ],
+        "termination_reason_by_environment": [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
+        "unit": "first episode of each environment since context creation"
+      },
+      "errors": [],
+      "rows": [
+        {
+          "lane": 0,
+          "end_step": 500,
+          "unloaded_substeps_4_to_6s": 0,
+          "toe_caps_4_to_6s": 0,
+          "combined_upward_impulse_348_to_353_Ns": 0.6132322460467,
+          "failed": false,
+          "reason": 0,
+          "waypoints": 0,
+          "height_min_max_after_8s": [
+            0.175534129,
+            0.17553775
+          ],
+          "final_position": [
+            0.128079697,
+            -0.0337039158,
+            0.175535589
+          ],
+          "final_velocity": [
+            0.000113280039,
+            -4.55842383e-05,
+            2.66550614e-05
+          ],
+          "final_attitude_rad": {
+            "yaw": 0.011531408417751797,
+            "pitch": -0.013562681197468207,
+            "roll": 8.998044344812664e-06
+          },
+          "toe_caps_after_7_4s": 0,
+          "foot_loaded_after_8s": 1600,
+          "first_nonfoot_contact": []
+        },
+        {
+          "lane": 1,
+          "end_step": 500,
+          "unloaded_substeps_4_to_6s": 0,
+          "toe_caps_4_to_6s": 0,
+          "combined_upward_impulse_348_to_353_Ns": 0.6121710709339,
+          "failed": false,
+          "reason": 0,
+          "waypoints": 0,
+          "height_min_max_after_8s": [
+            0.17553468,
+            0.175538957
+          ],
+          "final_position": [
+            0.197959393,
+            0.00996276736,
+            0.175535798
+          ],
+          "final_velocity": [
+            0.00011662818,
+            -5.66839735e-05,
+            2.50975427e-05
+          ],
+          "final_attitude_rad": {
+            "yaw": -0.007160921857519093,
+            "pitch": -0.013566761626468827,
+            "roll": 4.763014526809423e-06
+          },
+          "toe_caps_after_7_4s": 0,
+          "foot_loaded_after_8s": 1600,
+          "first_nonfoot_contact": []
+        },
+        {
+          "lane": 2,
+          "end_step": 500,
+          "unloaded_substeps_4_to_6s": 0,
+          "toe_caps_4_to_6s": 0,
+          "combined_upward_impulse_348_to_353_Ns": 0.4000683193554399,
+          "failed": false,
+          "reason": 0,
+          "waypoints": 1,
+          "height_min_max_after_8s": [
+            0.782882631,
+            1.17314005
+          ],
+          "final_position": [
+            1.44730735,
+            -0.114271253,
+            1.17314005
+          ],
+          "final_velocity": [
+            0.801727772,
+            -0.200225562,
+            0.149465904
+          ],
+          "final_attitude_rad": {
+            "yaw": -0.005555746629264062,
+            "pitch": 0.11523579795185285,
+            "roll": 0.025818842656193414
+          },
+          "toe_caps_after_7_4s": 0,
+          "foot_loaded_after_8s": 0,
+          "first_nonfoot_contact": []
+        },
+        {
+          "lane": 3,
+          "end_step": 500,
+          "unloaded_substeps_4_to_6s": 0,
+          "toe_caps_4_to_6s": 0,
+          "combined_upward_impulse_348_to_353_Ns": 0.3966401437146001,
+          "failed": false,
+          "reason": 0,
+          "waypoints": 1,
+          "height_min_max_after_8s": [
+            0.785225928,
+            1.18752742
+          ],
+          "final_position": [
+            1.4716593,
+            -0.151419967,
+            1.18752742
+          ],
+          "final_velocity": [
+            0.808468759,
+            -0.204370484,
+            0.185831279
+          ],
+          "final_attitude_rad": {
+            "yaw": -0.004753755372319727,
+            "pitch": 0.11673438182830251,
+            "roll": 0.029463444844069993
+          },
+          "toe_caps_after_7_4s": 0,
+          "foot_loaded_after_8s": 0,
+          "first_nonfoot_contact": []
+        },
+        {
+          "lane": 4,
+          "end_step": 500,
+          "unloaded_substeps_4_to_6s": 0,
+          "toe_caps_4_to_6s": 0,
+          "combined_upward_impulse_348_to_353_Ns": 0.5042979840287501,
+          "failed": false,
+          "reason": 0,
+          "waypoints": 1,
+          "height_min_max_after_8s": [
+            0.783990622,
+            1.02433896
+          ],
+          "final_position": [
+            1.13226449,
+            -0.134411439,
+            1.02433896
+          ],
+          "final_velocity": [
+            0.578216791,
+            -0.194902897,
+            0.0633138493
+          ],
+          "final_attitude_rad": {
+            "yaw": -0.005947127590740215,
+            "pitch": 0.08768795597703703,
+            "roll": 0.026343771646716488
+          },
+          "toe_caps_after_7_4s": 0,
+          "foot_loaded_after_8s": 0,
+          "first_nonfoot_contact": []
+        },
+        {
+          "lane": 5,
+          "end_step": 500,
+          "unloaded_substeps_4_to_6s": 0,
+          "toe_caps_4_to_6s": 0,
+          "combined_upward_impulse_348_to_353_Ns": 0.5017916804604998,
+          "failed": false,
+          "reason": 0,
+          "waypoints": 1,
+          "height_min_max_after_8s": [
+            0.76837343,
+            1.04955101
+          ],
+          "final_position": [
+            1.19590473,
+            -0.229369462,
+            1.04726279
+          ],
+          "final_velocity": [
+            0.591611862,
+            -0.219330356,
+            0.0178273618
+          ],
+          "final_attitude_rad": {
+            "yaw": -0.011048944249149288,
+            "pitch": 0.09114809446188521,
+            "roll": 0.02112984936235277
+          },
+          "toe_caps_after_7_4s": 0,
+          "foot_loaded_after_8s": 0,
+          "first_nonfoot_contact": []
+        },
+        {
+          "lane": 6,
+          "end_step": 500,
+          "unloaded_substeps_4_to_6s": 0,
+          "toe_caps_4_to_6s": 0,
+          "combined_upward_impulse_348_to_353_Ns": 0.5889988518575002,
+          "failed": false,
+          "reason": 0,
+          "waypoints": 1,
+          "height_min_max_after_8s": [
+            0.769882739,
+            1.01861453
+          ],
+          "final_position": [
+            1.04527307,
+            -0.181213826,
+            1.01861453
+          ],
+          "final_velocity": [
+            0.567402422,
+            -0.16100134,
+            0.0857762992
+          ],
+          "final_attitude_rad": {
+            "yaw": -0.00622363577889064,
+            "pitch": 0.08759785653548272,
+            "roll": 0.02569178298037824
+          },
+          "toe_caps_after_7_4s": 0,
+          "foot_loaded_after_8s": 0,
+          "first_nonfoot_contact": []
+        },
+        {
+          "lane": 7,
+          "end_step": 500,
+          "unloaded_substeps_4_to_6s": 0,
+          "toe_caps_4_to_6s": 0,
+          "combined_upward_impulse_348_to_353_Ns": 0.5869672678439002,
+          "failed": false,
+          "reason": 0,
+          "waypoints": 1,
+          "height_min_max_after_8s": [
+            0.740496039,
+            1.06132066
+          ],
+          "final_position": [
+            1.07627356,
+            -0.225825951,
+            1.06046271
+          ],
+          "final_velocity": [
+            0.576692939,
+            -0.195553288,
+            0.0604120083
+          ],
+          "final_attitude_rad": {
+            "yaw": -0.008580572212275293,
+            "pitch": 0.09082949160141204,
+            "roll": 0.01900293222537799
+          },
+          "toe_caps_after_7_4s": 0,
+          "foot_loaded_after_8s": 0,
+          "first_nonfoot_contact": []
+        }
+      ]
+    }
+  },
+  "scope": "Both arms suppress body moments 13 and 14 after 6.30 s. Compare no-assistance control against latched push plus early smooth-onset phase-inverted wingbeat; lanes 0 and 1 remain matched controls. Other aerodynamic closures remain. Endpoint contacts do not provide a guaranteed fatal collider audit."
+}
