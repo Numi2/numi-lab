@@ -1,0 +1,213 @@
+{
+  "rows": [
+    {
+      "lane": 0,
+      "axes": [
+        {
+          "axis": "roll",
+          "torso_world_span_rad": 0.04063376342249836,
+          "head_world_span_rad": 0.04065058337775395,
+          "relative_angle_span_rad": 0.00048630342456329294,
+          "head_torso_correlation": 0.9999683647470345
+        },
+        {
+          "axis": "pitch",
+          "torso_world_span_rad": 0.0631402270265077,
+          "head_world_span_rad": 0.06018502446362678,
+          "relative_angle_span_rad": 0.021859923296547734,
+          "head_torso_correlation": 0.960462733043344
+        },
+        {
+          "axis": "yaw",
+          "torso_world_span_rad": 0.010242063070419406,
+          "head_world_span_rad": 0.010468460749492531,
+          "relative_angle_span_rad": 0.0077981696953178265,
+          "head_torso_correlation": 0.6586702033128254
+        }
+      ]
+    },
+    {
+      "lane": 1,
+      "axes": [
+        {
+          "axis": "roll",
+          "torso_world_span_rad": 0.040562824008860326,
+          "head_world_span_rad": 0.040573215918002184,
+          "relative_angle_span_rad": 0.0004911691049350516,
+          "head_torso_correlation": 0.9999684907110269
+        },
+        {
+          "axis": "pitch",
+          "torso_world_span_rad": 0.06534266087791227,
+          "head_world_span_rad": 0.06124897304297304,
+          "relative_angle_span_rad": 0.022058624625052203,
+          "head_torso_correlation": 0.958891193240094
+        },
+        {
+          "axis": "yaw",
+          "torso_world_span_rad": 0.00596163913813106,
+          "head_world_span_rad": 0.006519492858343215,
+          "relative_angle_span_rad": 0.007939385262896233,
+          "head_torso_correlation": 0.17362567923982286
+        }
+      ]
+    },
+    {
+      "lane": 2,
+      "axes": [
+        {
+          "axis": "roll",
+          "torso_world_span_rad": 0.04059280339932727,
+          "head_world_span_rad": 0.04061684142572604,
+          "relative_angle_span_rad": 0.0004906465293056488,
+          "head_torso_correlation": 0.9999681469439106
+        },
+        {
+          "axis": "pitch",
+          "torso_world_span_rad": 0.06396954016627338,
+          "head_world_span_rad": 0.06066089126677013,
+          "relative_angle_span_rad": 0.022015677277780664,
+          "head_torso_correlation": 0.9597665657951019
+        },
+        {
+          "axis": "yaw",
+          "torso_world_span_rad": 0.013316980557676255,
+          "head_world_span_rad": 0.013535542723541117,
+          "relative_angle_span_rad": 0.008062936940170693,
+          "head_torso_correlation": 0.8282122374939785
+        }
+      ]
+    },
+    {
+      "lane": 3,
+      "axes": [
+        {
+          "axis": "roll",
+          "torso_world_span_rad": 0.041869290207201634,
+          "head_world_span_rad": 0.041820158103820795,
+          "relative_angle_span_rad": 0.000505152634710784,
+          "head_torso_correlation": 0.9999678003179048
+        },
+        {
+          "axis": "pitch",
+          "torso_world_span_rad": 0.06452983519438273,
+          "head_world_span_rad": 0.0608892371260055,
+          "relative_angle_span_rad": 0.02142048187590615,
+          "head_torso_correlation": 0.9618025151194995
+        },
+        {
+          "axis": "yaw",
+          "torso_world_span_rad": 0.008993669319342737,
+          "head_world_span_rad": 0.009110833579267317,
+          "relative_angle_span_rad": 0.007483142991125429,
+          "head_torso_correlation": 0.5647579119393951
+        }
+      ]
+    },
+    {
+      "lane": 4,
+      "axes": [
+        {
+          "axis": "roll",
+          "torso_world_span_rad": 0.04060585303156512,
+          "head_world_span_rad": 0.04062214660605619,
+          "relative_angle_span_rad": 0.0004923835282038356,
+          "head_torso_correlation": 0.9999684573340868
+        },
+        {
+          "axis": "pitch",
+          "torso_world_span_rad": 0.06493411062031863,
+          "head_world_span_rad": 0.06117281093051618,
+          "relative_angle_span_rad": 0.022146973060046142,
+          "head_torso_correlation": 0.9594733965252775
+        },
+        {
+          "axis": "yaw",
+          "torso_world_span_rad": 0.008301110658924686,
+          "head_world_span_rad": 0.008646936195186984,
+          "relative_angle_span_rad": 0.007963409522775959,
+          "head_torso_correlation": 0.5239123208422739
+        }
+      ]
+    },
+    {
+      "lane": 5,
+      "axes": [
+        {
+          "axis": "roll",
+          "torso_world_span_rad": 0.04056685379622305,
+          "head_world_span_rad": 0.04058196851980528,
+          "relative_angle_span_rad": 0.0005057732239002596,
+          "head_torso_correlation": 0.9999677656143856
+        },
+        {
+          "axis": "pitch",
+          "torso_world_span_rad": 0.06534031693037101,
+          "head_world_span_rad": 0.06129118939932994,
+          "relative_angle_span_rad": 0.022210827928001754,
+          "head_torso_correlation": 0.9590142144883251
+        },
+        {
+          "axis": "yaw",
+          "torso_world_span_rad": 0.007701217411714411,
+          "head_world_span_rad": 0.0075345552372510375,
+          "relative_angle_span_rad": 0.008141419348540449,
+          "head_torso_correlation": 0.39958569293187046
+        }
+      ]
+    },
+    {
+      "lane": 6,
+      "axes": [
+        {
+          "axis": "roll",
+          "torso_world_span_rad": 0.0405963196189246,
+          "head_world_span_rad": 0.04061723641319631,
+          "relative_angle_span_rad": 0.0004899837252667974,
+          "head_torso_correlation": 0.9999695725289678
+        },
+        {
+          "axis": "pitch",
+          "torso_world_span_rad": 0.06492723991578792,
+          "head_world_span_rad": 0.061217102086788974,
+          "relative_angle_span_rad": 0.022273044230298182,
+          "head_torso_correlation": 0.9588370145844466
+        },
+        {
+          "axis": "yaw",
+          "torso_world_span_rad": 0.010747021799153723,
+          "head_world_span_rad": 0.011044575173202155,
+          "relative_angle_span_rad": 0.008010454291992857,
+          "head_torso_correlation": 0.7338184158958851
+        }
+      ]
+    },
+    {
+      "lane": 7,
+      "axes": [
+        {
+          "axis": "roll",
+          "torso_world_span_rad": 0.040586763009210575,
+          "head_world_span_rad": 0.04060434749478142,
+          "relative_angle_span_rad": 0.0004969079968532878,
+          "head_torso_correlation": 0.999968341249613
+        },
+        {
+          "axis": "pitch",
+          "torso_world_span_rad": 0.0653147356488692,
+          "head_world_span_rad": 0.06132944283376959,
+          "relative_angle_span_rad": 0.022215780687036876,
+          "head_torso_correlation": 0.9587325040734529
+        },
+        {
+          "axis": "yaw",
+          "torso_world_span_rad": 0.007704017257248929,
+          "head_world_span_rad": 0.006864597845381336,
+          "relative_angle_span_rad": 0.007985690359079575,
+          "head_torso_correlation": 0.31512516681340885
+        }
+      ]
+    }
+  ],
+  "scope": "Passive 800 Hz mechanical reconstruction, one used development seed over 4\u20136 seconds. Euler angle spans are small-angle diagnostics, not direct eye-gaze or crow head-stabilization measurement. No visual or vestibular behavior target is implied."
+}
