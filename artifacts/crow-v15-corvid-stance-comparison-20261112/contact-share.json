@@ -1,0 +1,253 @@
+{
+  "scope": "Post-hoc summed simulated ground-contact normal impulses in steps 201-300; the remainder is assigned to each foot collider. Not vertical force, duty factor or a biological measurement. Anatomical mapping of the foot collider is unresolved.",
+  "results": [
+    {
+      "seed": 20261126,
+      "arm": "sham",
+      "lanes": [
+        {
+          "lane": 0,
+          "foot_plus_toe_normal_impulse": 8.834954042856024,
+          "toe_normal_impulse": 3.9480686583145026,
+          "toe_fraction": 0.44686917885067273,
+          "foot_collider_fraction": 0.5531308211493273
+        },
+        {
+          "lane": 1,
+          "foot_plus_toe_normal_impulse": 8.834705358981235,
+          "toe_normal_impulse": 4.12810737543549,
+          "toe_fraction": 0.4672603338422503,
+          "foot_collider_fraction": 0.5327396661577497
+        },
+        {
+          "lane": 2,
+          "foot_plus_toe_normal_impulse": 8.837700336553343,
+          "toe_normal_impulse": 4.127899202458376,
+          "toe_fraction": 0.467078430503589,
+          "foot_collider_fraction": 0.532921569496411
+        },
+        {
+          "lane": 3,
+          "foot_plus_toe_normal_impulse": 8.834757858769267,
+          "toe_normal_impulse": 3.893656116322332,
+          "toe_fraction": 0.44072018481610553,
+          "foot_collider_fraction": 0.5592798151838945
+        },
+        {
+          "lane": 4,
+          "foot_plus_toe_normal_impulse": 8.834301893297498,
+          "toe_normal_impulse": 4.117777023076284,
+          "toe_fraction": 0.46611232815129433,
+          "foot_collider_fraction": 0.5338876718487057
+        },
+        {
+          "lane": 5,
+          "foot_plus_toe_normal_impulse": 8.83433558776803,
+          "toe_normal_impulse": 3.9635684943113794,
+          "toe_fraction": 0.4486549616475192,
+          "foot_collider_fraction": 0.5513450383524807
+        },
+        {
+          "lane": 6,
+          "foot_plus_toe_normal_impulse": 8.835046145449684,
+          "toe_normal_impulse": 4.018531900701863,
+          "toe_fraction": 0.4548399447547343,
+          "foot_collider_fraction": 0.5451600552452657
+        },
+        {
+          "lane": 7,
+          "foot_plus_toe_normal_impulse": 8.83443115145049,
+          "toe_normal_impulse": 4.037221526699599,
+          "toe_fraction": 0.4569871514632545,
+          "foot_collider_fraction": 0.5430128485367455
+        }
+      ]
+    },
+    {
+      "seed": 20261126,
+      "arm": "candidate",
+      "lanes": [
+        {
+          "lane": 0,
+          "foot_plus_toe_normal_impulse": 8.834462796843118,
+          "toe_normal_impulse": 3.8831426865707774,
+          "toe_fraction": 0.43954485698421514,
+          "foot_collider_fraction": 0.5604551430157849
+        },
+        {
+          "lane": 1,
+          "foot_plus_toe_normal_impulse": 8.834573722526418,
+          "toe_normal_impulse": 4.055656843144102,
+          "toe_fraction": 0.45906650060579357,
+          "foot_collider_fraction": 0.5409334993942064
+        },
+        {
+          "lane": 2,
+          "foot_plus_toe_normal_impulse": 8.834629551506099,
+          "toe_normal_impulse": 3.9670210484366497,
+          "toe_fraction": 0.44903083092605334,
+          "foot_collider_fraction": 0.5509691690739467
+        },
+        {
+          "lane": 3,
+          "foot_plus_toe_normal_impulse": 8.83444409729012,
+          "toe_normal_impulse": 3.9428048905217974,
+          "toe_fraction": 0.4462991499070343,
+          "foot_collider_fraction": 0.5537008500929658
+        },
+        {
+          "lane": 4,
+          "foot_plus_toe_normal_impulse": 8.834331459802764,
+          "toe_normal_impulse": 4.07894247352797,
+          "toe_fraction": 0.461714900792169,
+          "foot_collider_fraction": 0.5382850992078311
+        },
+        {
+          "lane": 5,
+          "foot_plus_toe_normal_impulse": 8.834640229854958,
+          "toe_normal_impulse": 3.9272480588996572,
+          "toe_fraction": 0.4445283516614838,
+          "foot_collider_fraction": 0.5554716483385161
+        },
+        {
+          "lane": 6,
+          "foot_plus_toe_normal_impulse": 8.834717522185075,
+          "toe_normal_impulse": 3.990597038963931,
+          "toe_fraction": 0.45169492164781105,
+          "foot_collider_fraction": 0.5483050783521889
+        },
+        {
+          "lane": 7,
+          "foot_plus_toe_normal_impulse": 8.834444455104382,
+          "toe_normal_impulse": 3.9515550937904522,
+          "toe_fraction": 0.44728959629230736,
+          "foot_collider_fraction": 0.5527104037076928
+        }
+      ]
+    },
+    {
+      "seed": 20261127,
+      "arm": "sham",
+      "lanes": [
+        {
+          "lane": 0,
+          "foot_plus_toe_normal_impulse": 8.835030386810896,
+          "toe_normal_impulse": 4.126176193927519,
+          "toe_fraction": 0.467024561691056,
+          "foot_collider_fraction": 0.532975438308944
+        },
+        {
+          "lane": 1,
+          "foot_plus_toe_normal_impulse": 8.834411750951455,
+          "toe_normal_impulse": 4.113196506815624,
+          "toe_fraction": 0.4655880462411816,
+          "foot_collider_fraction": 0.5344119537588183
+        },
+        {
+          "lane": 2,
+          "foot_plus_toe_normal_impulse": 8.834804413486701,
+          "toe_normal_impulse": 4.196842421651766,
+          "toe_fraction": 0.47503512531020037,
+          "foot_collider_fraction": 0.5249648746897997
+        },
+        {
+          "lane": 3,
+          "foot_plus_toe_normal_impulse": 8.835769959383013,
+          "toe_normal_impulse": 4.108334558955697,
+          "toe_fraction": 0.46496622001718285,
+          "foot_collider_fraction": 0.5350337799828171
+        },
+        {
+          "lane": 4,
+          "foot_plus_toe_normal_impulse": 8.834151677904774,
+          "toe_normal_impulse": 4.010467450776463,
+          "toe_fraction": 0.4539731257735931,
+          "foot_collider_fraction": 0.5460268742264069
+        },
+        {
+          "lane": 5,
+          "foot_plus_toe_normal_impulse": 8.83465091909401,
+          "toe_normal_impulse": 4.2507395903189185,
+          "toe_fraction": 0.48114403491958574,
+          "foot_collider_fraction": 0.5188559650804142
+        },
+        {
+          "lane": 6,
+          "foot_plus_toe_normal_impulse": 8.834820299867582,
+          "toe_normal_impulse": 3.916359226853804,
+          "toe_fraction": 0.4432868008546256,
+          "foot_collider_fraction": 0.5567131991453744
+        },
+        {
+          "lane": 7,
+          "foot_plus_toe_normal_impulse": 8.834792651241946,
+          "toe_normal_impulse": 4.173986350813912,
+          "toe_fraction": 0.4724487054291146,
+          "foot_collider_fraction": 0.5275512945708855
+        }
+      ]
+    },
+    {
+      "seed": 20261127,
+      "arm": "candidate",
+      "lanes": [
+        {
+          "lane": 0,
+          "foot_plus_toe_normal_impulse": 8.834530598936862,
+          "toe_normal_impulse": 4.0344040564866965,
+          "toe_fraction": 0.4566630916386426,
+          "foot_collider_fraction": 0.5433369083613574
+        },
+        {
+          "lane": 1,
+          "foot_plus_toe_normal_impulse": 8.834406913989719,
+          "toe_normal_impulse": 4.080002677148591,
+          "toe_fraction": 0.46183096577628835,
+          "foot_collider_fraction": 0.5381690342237117
+        },
+        {
+          "lane": 2,
+          "foot_plus_toe_normal_impulse": 8.834521810658199,
+          "toe_normal_impulse": 4.110624428861433,
+          "toe_fraction": 0.46529110652058925,
+          "foot_collider_fraction": 0.5347088934794108
+        },
+        {
+          "lane": 3,
+          "foot_plus_toe_normal_impulse": 8.834551369481247,
+          "toe_normal_impulse": 4.0445204103744015,
+          "toe_fraction": 0.4578071077096347,
+          "foot_collider_fraction": 0.5421928922903654
+        },
+        {
+          "lane": 4,
+          "foot_plus_toe_normal_impulse": 8.834543839186866,
+          "toe_normal_impulse": 3.978313200941722,
+          "toe_fraction": 0.4503133691289586,
+          "foot_collider_fraction": 0.5496866308710414
+        },
+        {
+          "lane": 5,
+          "foot_plus_toe_normal_impulse": 8.834544961493355,
+          "toe_normal_impulse": 4.1244052897153205,
+          "toe_fraction": 0.46684977072301276,
+          "foot_collider_fraction": 0.5331502292769873
+        },
+        {
+          "lane": 6,
+          "foot_plus_toe_normal_impulse": 8.834694566005963,
+          "toe_normal_impulse": 3.89588365219909,
+          "toe_fraction": 0.4409754772043424,
+          "foot_collider_fraction": 0.5590245227956576
+        },
+        {
+          "lane": 7,
+          "foot_plus_toe_normal_impulse": 8.834635014317154,
+          "toe_normal_impulse": 4.195946802227505,
+          "toe_fraction": 0.4749428579027515,
+          "foot_collider_fraction": 0.5250571420972485
+        }
+      ]
+    }
+  ]
+}
