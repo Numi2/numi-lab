@@ -1,0 +1,42 @@
+[
+  {
+    "lane": 0,
+    "state_first_difference": 502,
+    "contact_first_difference": 502
+  },
+  {
+    "lane": 1,
+    "state_first_difference": 502,
+    "contact_first_difference": 502
+  },
+  {
+    "lane": 2,
+    "state_first_difference": 527,
+    "contact_first_difference": 527
+  },
+  {
+    "lane": 3,
+    "state_first_difference": 527,
+    "contact_first_difference": 527
+  },
+  {
+    "lane": 4,
+    "state_first_difference": 488,
+    "contact_first_difference": 488
+  },
+  {
+    "lane": 5,
+    "state_first_difference": 488,
+    "contact_first_difference": 488
+  },
+  {
+    "lane": 6,
+    "state_first_difference": 488,
+    "contact_first_difference": 488
+  },
+  {
+    "lane": 7,
+    "state_first_difference": 488,
+    "contact_first_difference": 488
+  }
+]

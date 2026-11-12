@@ -1,0 +1,617 @@
+{
+  "rows": [
+    {
+      "lane": 0,
+      "drive_records": 42240,
+      "expected": 42240,
+      "complete": true,
+      "speed_limited_joints": [
+        {
+          "index": 14,
+          "name": "crow_left_knee_pitch",
+          "limit_rad_s": 22.0,
+          "peak_rad_s": 22.0,
+          "hits": 3,
+          "examples": [
+            [
+              573,
+              1
+            ],
+            [
+              573,
+              2
+            ],
+            [
+              573,
+              3
+            ]
+          ]
+        },
+        {
+          "index": 17,
+          "name": "crow_right_knee_pitch",
+          "limit_rad_s": 22.0,
+          "peak_rad_s": 22.0,
+          "hits": 3,
+          "examples": [
+            [
+              573,
+              1
+            ],
+            [
+              573,
+              2
+            ],
+            [
+              573,
+              3
+            ]
+          ]
+        }
+      ],
+      "all_joint_limit_hits": 6
+    },
+    {
+      "lane": 1,
+      "drive_records": 42240,
+      "expected": 42240,
+      "complete": true,
+      "speed_limited_joints": [
+        {
+          "index": 14,
+          "name": "crow_left_knee_pitch",
+          "limit_rad_s": 22.0,
+          "peak_rad_s": 22.0,
+          "hits": 3,
+          "examples": [
+            [
+              573,
+              1
+            ],
+            [
+              573,
+              2
+            ],
+            [
+              573,
+              3
+            ]
+          ]
+        },
+        {
+          "index": 17,
+          "name": "crow_right_knee_pitch",
+          "limit_rad_s": 22.0,
+          "peak_rad_s": 22.0,
+          "hits": 3,
+          "examples": [
+            [
+              573,
+              1
+            ],
+            [
+              573,
+              2
+            ],
+            [
+              573,
+              3
+            ]
+          ]
+        }
+      ],
+      "all_joint_limit_hits": 6
+    },
+    {
+      "lane": 2,
+      "drive_records": 42240,
+      "expected": 42240,
+      "complete": true,
+      "speed_limited_joints": [
+        {
+          "index": 14,
+          "name": "crow_left_knee_pitch",
+          "limit_rad_s": 22.0,
+          "peak_rad_s": 22.0,
+          "hits": 3,
+          "examples": [
+            [
+              573,
+              1
+            ],
+            [
+              573,
+              2
+            ],
+            [
+              573,
+              3
+            ]
+          ]
+        },
+        {
+          "index": 17,
+          "name": "crow_right_knee_pitch",
+          "limit_rad_s": 22.0,
+          "peak_rad_s": 22.0,
+          "hits": 3,
+          "examples": [
+            [
+              573,
+              1
+            ],
+            [
+              573,
+              2
+            ],
+            [
+              573,
+              3
+            ]
+          ]
+        }
+      ],
+      "all_joint_limit_hits": 6
+    },
+    {
+      "lane": 3,
+      "drive_records": 42240,
+      "expected": 42240,
+      "complete": true,
+      "speed_limited_joints": [
+        {
+          "index": 14,
+          "name": "crow_left_knee_pitch",
+          "limit_rad_s": 22.0,
+          "peak_rad_s": 22.0,
+          "hits": 24,
+          "examples": [
+            [
+              560,
+              3
+            ],
+            [
+              560,
+              4
+            ],
+            [
+              560,
+              5
+            ],
+            [
+              560,
+              6
+            ],
+            [
+              560,
+              7
+            ],
+            [
+              560,
+              8
+            ],
+            [
+              560,
+              9
+            ],
+            [
+              560,
+              10
+            ],
+            [
+              560,
+              11
+            ],
+            [
+              560,
+              12
+            ]
+          ]
+        },
+        {
+          "index": 17,
+          "name": "crow_right_knee_pitch",
+          "limit_rad_s": 22.0,
+          "peak_rad_s": 22.0,
+          "hits": 24,
+          "examples": [
+            [
+              560,
+              3
+            ],
+            [
+              560,
+              4
+            ],
+            [
+              560,
+              5
+            ],
+            [
+              560,
+              6
+            ],
+            [
+              560,
+              7
+            ],
+            [
+              560,
+              8
+            ],
+            [
+              560,
+              9
+            ],
+            [
+              560,
+              10
+            ],
+            [
+              560,
+              11
+            ],
+            [
+              560,
+              12
+            ]
+          ]
+        }
+      ],
+      "all_joint_limit_hits": 48
+    },
+    {
+      "lane": 4,
+      "drive_records": 42240,
+      "expected": 42240,
+      "complete": true,
+      "speed_limited_joints": [
+        {
+          "index": 14,
+          "name": "crow_left_knee_pitch",
+          "limit_rad_s": 22.0,
+          "peak_rad_s": 22.0,
+          "hits": 25,
+          "examples": [
+            [
+              565,
+              2
+            ],
+            [
+              565,
+              3
+            ],
+            [
+              565,
+              4
+            ],
+            [
+              565,
+              5
+            ],
+            [
+              565,
+              6
+            ],
+            [
+              565,
+              7
+            ],
+            [
+              565,
+              8
+            ],
+            [
+              565,
+              9
+            ],
+            [
+              565,
+              10
+            ],
+            [
+              565,
+              11
+            ]
+          ]
+        },
+        {
+          "index": 17,
+          "name": "crow_right_knee_pitch",
+          "limit_rad_s": 22.0,
+          "peak_rad_s": 22.0,
+          "hits": 25,
+          "examples": [
+            [
+              565,
+              2
+            ],
+            [
+              565,
+              3
+            ],
+            [
+              565,
+              4
+            ],
+            [
+              565,
+              5
+            ],
+            [
+              565,
+              6
+            ],
+            [
+              565,
+              7
+            ],
+            [
+              565,
+              8
+            ],
+            [
+              565,
+              9
+            ],
+            [
+              565,
+              10
+            ],
+            [
+              565,
+              11
+            ]
+          ]
+        }
+      ],
+      "all_joint_limit_hits": 50
+    },
+    {
+      "lane": 5,
+      "drive_records": 42240,
+      "expected": 42240,
+      "complete": true,
+      "speed_limited_joints": [
+        {
+          "index": 14,
+          "name": "crow_left_knee_pitch",
+          "limit_rad_s": 22.0,
+          "peak_rad_s": 22.0,
+          "hits": 24,
+          "examples": [
+            [
+              567,
+              3
+            ],
+            [
+              567,
+              4
+            ],
+            [
+              567,
+              5
+            ],
+            [
+              567,
+              6
+            ],
+            [
+              567,
+              7
+            ],
+            [
+              567,
+              8
+            ],
+            [
+              567,
+              9
+            ],
+            [
+              567,
+              10
+            ],
+            [
+              567,
+              11
+            ],
+            [
+              567,
+              12
+            ]
+          ]
+        },
+        {
+          "index": 17,
+          "name": "crow_right_knee_pitch",
+          "limit_rad_s": 22.0,
+          "peak_rad_s": 22.0,
+          "hits": 24,
+          "examples": [
+            [
+              567,
+              3
+            ],
+            [
+              567,
+              4
+            ],
+            [
+              567,
+              5
+            ],
+            [
+              567,
+              6
+            ],
+            [
+              567,
+              7
+            ],
+            [
+              567,
+              8
+            ],
+            [
+              567,
+              9
+            ],
+            [
+              567,
+              10
+            ],
+            [
+              567,
+              11
+            ],
+            [
+              567,
+              12
+            ]
+          ]
+        }
+      ],
+      "all_joint_limit_hits": 48
+    },
+    {
+      "lane": 6,
+      "drive_records": 42240,
+      "expected": 42240,
+      "complete": true,
+      "speed_limited_joints": [
+        {
+          "index": 14,
+          "name": "crow_left_knee_pitch",
+          "limit_rad_s": 22.0,
+          "peak_rad_s": 22.0,
+          "hits": 14,
+          "examples": [
+            [
+              571,
+              2
+            ],
+            [
+              571,
+              3
+            ],
+            [
+              571,
+              4
+            ],
+            [
+              571,
+              5
+            ],
+            [
+              571,
+              6
+            ],
+            [
+              571,
+              7
+            ],
+            [
+              571,
+              8
+            ],
+            [
+              571,
+              9
+            ],
+            [
+              571,
+              10
+            ],
+            [
+              571,
+              11
+            ]
+          ]
+        },
+        {
+          "index": 17,
+          "name": "crow_right_knee_pitch",
+          "limit_rad_s": 22.0,
+          "peak_rad_s": 22.0,
+          "hits": 14,
+          "examples": [
+            [
+              571,
+              2
+            ],
+            [
+              571,
+              3
+            ],
+            [
+              571,
+              4
+            ],
+            [
+              571,
+              5
+            ],
+            [
+              571,
+              6
+            ],
+            [
+              571,
+              7
+            ],
+            [
+              571,
+              8
+            ],
+            [
+              571,
+              9
+            ],
+            [
+              571,
+              10
+            ],
+            [
+              571,
+              11
+            ]
+          ]
+        }
+      ],
+      "all_joint_limit_hits": 28
+    },
+    {
+      "lane": 7,
+      "drive_records": 42240,
+      "expected": 42240,
+      "complete": true,
+      "speed_limited_joints": [
+        {
+          "index": 20,
+          "name": "crow_neck_pitch",
+          "limit_rad_s": 8.0,
+          "peak_rad_s": 8.0,
+          "hits": 3,
+          "examples": [
+            [
+              575,
+              9
+            ],
+            [
+              575,
+              10
+            ],
+            [
+              575,
+              11
+            ]
+          ]
+        }
+      ],
+      "all_joint_limit_hits": 3
+    }
+  ],
+  "errors": [],
+  "scope": "Authored joint speed limits, endpoint velocities at each substep during steps 535\u2013600 only; not biological speed limits or full-flight observation."
+}
