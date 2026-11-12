@@ -1,0 +1,29 @@
+{
+  "old_fingerprints": [
+    6593411030356188635,
+    4014310644627923811,
+    15807381546928729743,
+    5306385544315808273
+  ],
+  "new_fingerprints": [
+    6593411030356188635,
+    17567659005219078532,
+    15807381546928729743,
+    5306385544315808273
+  ],
+  "reports": [
+    {
+      "actor": "landing",
+      "source_sha256": "e36c56c1cda06fb278eddb4f0fa5dff8c3eb7a764aecddeffcb7312e6c9cb97c",
+      "target_sha256": "f214ff31804e87e95abe6ba0103b10b801fd86d020a072d4e98eb222e80e1eac",
+      "identical_layers_and_transforms": true
+    },
+    {
+      "actor": "route",
+      "source_sha256": "581d4d9c5818a4fb90c1acfe8e26b67a462c33387f4b6e0d6073b142a153786f",
+      "target_sha256": "ddc363b2fa7e052e3297283af8dc3381de3d80ba53163b49d06a771fe4812f99",
+      "identical_layers_and_transforms": true
+    }
+  ],
+  "scope": "Diagnostic rebinding to changed task signature only. Exact weights and observation/action transforms checked; semantic equivalence requires matched pre-walk trajectory."
+}

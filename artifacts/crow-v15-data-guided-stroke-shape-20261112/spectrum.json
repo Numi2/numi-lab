@@ -1,0 +1,64 @@
+{
+  "results": [
+    {
+      "name": "sham",
+      "windows": [
+        {
+          "start_step": 450,
+          "peak_hz": 9.200000000000001,
+          "concentration": 0.8879913742275126
+        },
+        {
+          "start_step": 700,
+          "peak_hz": 9.200000000000001,
+          "concentration": 0.8719661155013526
+        },
+        {
+          "start_step": 950,
+          "peak_hz": 9.200000000000001,
+          "concentration": 0.870608391157111
+        },
+        {
+          "start_step": 1200,
+          "peak_hz": 9.200000000000001,
+          "concentration": 0.8754807046763363
+        }
+      ],
+      "median_peak_hz": 9.200000000000001,
+      "median_concentration": 0.8737234100888445,
+      "training_score": 5.765297652925057,
+      "replay_sha256": "c588a61aced7504a1f80cb3f15834e12ff6e18b151324250997d541927562196"
+    },
+    {
+      "name": "warped",
+      "windows": [
+        {
+          "start_step": 450,
+          "peak_hz": 4.6000000000000005,
+          "concentration": 0.6642323265221781
+        },
+        {
+          "start_step": 700,
+          "peak_hz": 4.6000000000000005,
+          "concentration": 0.63041382944547
+        },
+        {
+          "start_step": 950,
+          "peak_hz": 4.6000000000000005,
+          "concentration": 0.6381700776518648
+        },
+        {
+          "start_step": 1200,
+          "peak_hz": 4.6000000000000005,
+          "concentration": 0.6374304723304329
+        }
+      ],
+      "median_peak_hz": 4.6000000000000005,
+      "median_concentration": 0.6378002749911489,
+      "training_score": 0.33570588235727206,
+      "replay_sha256": "b9ebc7d69ac06877091449b9bed93ae692e7c88b4fb9e89898759611e9c4c011"
+    }
+  ],
+  "improved_training_objective": true,
+  "scope": "One development seed and lane; rigid tail COM proxy versus carrion-crow tail-feather sensor. Behavioral label includes flying other than flapping. Similarity is not biological or flight qualification."
+}

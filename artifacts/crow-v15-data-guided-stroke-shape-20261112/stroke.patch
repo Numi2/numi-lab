@@ -1,0 +1,14 @@
+--- a/sweep-pitch.metal
++++ b/stroke-shape.metal
+@@ -5495,7 +5495,10 @@
+                     // zero-action trim and bounded residual span, so initial
+                     // policy exploration begins in the viable wingbeat band.
+                     avianWingAmplitude *
+-                    sin(state.commandAndPhase.w)
++                    sin(state.commandAndPhase.w +
++                        ((program.interactionTiming.w >= 0.5f) ?
++                        0.7f * smoothstep(9.0f, 10.0f, float(state.episode.x) * dispatch.timing.x) *
++                            sin(state.commandAndPhase.w) : 0.0f))
+             : defaultQ[binding.indices.z] +
+                 binding.parameters.x *
+                     avianNonWingCommand *

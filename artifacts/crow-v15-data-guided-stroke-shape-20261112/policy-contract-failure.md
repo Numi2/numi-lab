@@ -1,0 +1,1 @@
+The first changed-stroke attempt failed policy compatibility before simulation: the research switch changes the task-header fingerprint. Retained as warped-failed. Rebind diagnostic copies only to the observed signature, verify identical weights and transformations, and demand matched pre-intervention trajectories.
