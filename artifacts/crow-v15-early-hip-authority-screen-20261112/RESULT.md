@@ -1,0 +1,7 @@
+# Early hip authority: failed standing screen
+
+All eight development lanes fell before completing the first 300-step episode: steps 165, 146, 160, 179, 190, 171, 175 and 194 for respective hip offsets -0.30, -0.20, -0.10, 0, +0.05, +0.10, +0.20 and +0.30. There were no reported substep errors or constraint overflows. The unchanged zero-offset lane matched the prior offset study exactly across 300 endpoint records and 4,800 contact substeps; changed lanes diverged in physical q/v from their same-lane predecessor at the first sampled endpoint. This confirms an early physical effect, not an isolated measure of applied motor torque.
+
+At step 100 the changed lanes had pitch from -0.246 to -0.361 radians; the unchanged lane was -0.286. No candidate is admitted: all fell, the altered toe/shank geometry itself remains unvalidated, and lanes are not independent replicated estimates of an offset. Full gait scores are not calculated after failure. The prior study's initially masked offset, this screen, the raw compressed traces and the unchanged-lane parity are retained to avoid mistaking requested commands for effective control.
+
+The 2-step smoke preceded the 300-step test. Each run's inputs.json identifies its actual host and shader; the inherited hashes.json build host field refers to an earlier observer. This test is not contact-feedback balancing, corvid gait validation, leg-powered takeoff, landing grip, flight qualification or a complete autonomous sequence.
