@@ -1,0 +1,3 @@
+# Moderate crouch through takeoff and short flight
+
+The 0.45-rad setting yielded slightly greater selected modeled knee flexion than 0.40 and did not exceed the 1.5x per-foot sampled contact-speed, unloaded-foot or toe-speed-cap screen in its four lanes across two used seeds. It is not an accurate crow gait fit and does not validate unused starts. Test it uniformly in all eight lanes on used seed 20261127 through 12 s with teacher off, contact-gated release, and the two identified direct body moments ablated after 7.10 s. Compare every lane to the matched 0.40 run for support, toe caps, sampled point speed, push impulse, flight and waypoint progress. Preserve failures and all anatomical and aerodynamic limitations.
