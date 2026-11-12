@@ -1,0 +1,194 @@
+{
+  "held": {
+    "rows": [
+      {
+        "lane": 0,
+        "n": 200,
+        "minimum_deg": 150.64223796389058,
+        "maximum_deg": 164.06521620671128,
+        "median_deg": 163.26810493290142,
+        "interval_loaded_median_deg": 163.87689253933905,
+        "interval_unloaded_median_deg": 152.8511075252038
+      },
+      {
+        "lane": 1,
+        "n": 200,
+        "minimum_deg": 150.64220719605652,
+        "maximum_deg": 164.06511548072922,
+        "median_deg": 163.26042010769805,
+        "interval_loaded_median_deg": 163.8759977511355,
+        "interval_unloaded_median_deg": 152.85107165804527
+      },
+      {
+        "lane": 2,
+        "n": 200,
+        "minimum_deg": 150.64226867442886,
+        "maximum_deg": 164.06489689732672,
+        "median_deg": 163.2718060397845,
+        "interval_loaded_median_deg": 163.8782175615583,
+        "interval_unloaded_median_deg": 152.8510545839027
+      },
+      {
+        "lane": 3,
+        "n": 200,
+        "minimum_deg": 150.64085484375212,
+        "maximum_deg": 164.06655664149548,
+        "median_deg": 163.2564833719178,
+        "interval_loaded_median_deg": 163.87662015519876,
+        "interval_unloaded_median_deg": 152.85207908975207
+      },
+      {
+        "lane": 4,
+        "n": 200,
+        "minimum_deg": 150.64228918631827,
+        "maximum_deg": 164.06554915249166,
+        "median_deg": 163.26734934479646,
+        "interval_loaded_median_deg": 163.87589530627994,
+        "interval_unloaded_median_deg": 152.85090257819724
+      },
+      {
+        "lane": 5,
+        "n": 200,
+        "minimum_deg": 150.64216966732036,
+        "maximum_deg": 164.0658736184964,
+        "median_deg": 163.27184362581647,
+        "interval_loaded_median_deg": 163.87795629279935,
+        "interval_unloaded_median_deg": 152.85131413378792
+      },
+      {
+        "lane": 6,
+        "n": 200,
+        "minimum_deg": 150.6421150071459,
+        "maximum_deg": 164.06413704068603,
+        "median_deg": 163.2655256773999,
+        "interval_loaded_median_deg": 163.8750347236573,
+        "interval_unloaded_median_deg": 152.8509179334665
+      },
+      {
+        "lane": 7,
+        "n": 200,
+        "minimum_deg": 150.64241552351402,
+        "maximum_deg": 164.0632456902292,
+        "median_deg": 163.27966590359716,
+        "interval_loaded_median_deg": 163.8812057656931,
+        "interval_unloaded_median_deg": 152.85147375983212
+      }
+    ],
+    "all_minimum_deg": 150.64085484375212,
+    "all_maximum_deg": 164.06655664149548,
+    "all_median_deg": 163.27778588580048,
+    "max_parent_child_anchor_error_m": 2.1840872305107707e-09,
+    "max_angle_vs_revolute_error_deg": 4.897339920262311e-07
+  },
+  "candidate": {
+    "rows": [
+      {
+        "lane": 0,
+        "n": 200,
+        "minimum_deg": 136.76059883367927,
+        "maximum_deg": 164.29134328626878,
+        "median_deg": 162.71183638639326,
+        "interval_loaded_median_deg": 163.81323686993835,
+        "interval_unloaded_median_deg": 140.76401863747822
+      },
+      {
+        "lane": 1,
+        "n": 200,
+        "minimum_deg": 131.03259043104026,
+        "maximum_deg": 158.5358535673839,
+        "median_deg": 156.93901761693033,
+        "interval_loaded_median_deg": 158.07465696959625,
+        "interval_unloaded_median_deg": 135.0364439590426
+      },
+      {
+        "lane": 2,
+        "n": 200,
+        "minimum_deg": 125.30325351867285,
+        "maximum_deg": 152.793653665744,
+        "median_deg": 151.4880757740561,
+        "interval_loaded_median_deg": 152.33296081279244,
+        "interval_unloaded_median_deg": 129.73594899620718
+      },
+      {
+        "lane": 3,
+        "n": 200,
+        "minimum_deg": 119.58406621810319,
+        "maximum_deg": 147.04538173377293,
+        "median_deg": 145.67457640750564,
+        "interval_loaded_median_deg": 146.59994067418154,
+        "interval_unloaded_median_deg": 125.54964915081754
+      },
+      {
+        "lane": 4,
+        "n": 200,
+        "minimum_deg": 113.84543663459075,
+        "maximum_deg": 141.25449458098367,
+        "median_deg": 139.9313417555398,
+        "interval_loaded_median_deg": 140.85622963548374,
+        "interval_unloaded_median_deg": 118.82025646140167
+      },
+      {
+        "lane": 5,
+        "n": 200,
+        "minimum_deg": 108.11546158777806,
+        "maximum_deg": 135.41698792085438,
+        "median_deg": 134.3312371256142,
+        "interval_loaded_median_deg": 135.1214558567473,
+        "interval_unloaded_median_deg": 112.74248771474498
+      },
+      {
+        "lane": 6,
+        "n": 200,
+        "minimum_deg": 102.39672855539271,
+        "maximum_deg": 129.69752747736175,
+        "median_deg": 128.6415119042607,
+        "interval_loaded_median_deg": 129.3870304720571,
+        "interval_unloaded_median_deg": 108.39461121075259
+      },
+      {
+        "lane": 7,
+        "n": 200,
+        "minimum_deg": 96.66684176329797,
+        "maximum_deg": 123.96701577416538,
+        "median_deg": 122.90651617750461,
+        "interval_loaded_median_deg": 123.64381804237527,
+        "interval_unloaded_median_deg": 102.51440205488578
+      }
+    ],
+    "all_minimum_deg": 96.66684176329797,
+    "all_maximum_deg": 164.29134328626878,
+    "all_median_deg": 135.36819136802075,
+    "max_parent_child_anchor_error_m": 2.18468260866769e-09,
+    "max_angle_vs_revolute_error_deg": 9.921269850110548e-07
+  },
+  "reference": {
+    "species": "black-billed magpie, Pica pica as named in source",
+    "doi": "10.1242/jeb.203.14.2159",
+    "walking_stance_knee_min_deg_mean_sd": [
+      72,
+      12
+    ],
+    "walking_stance_n": 26,
+    "walking_recovery_knee_min_deg_mean_sd": [
+      50,
+      12
+    ],
+    "walking_recovery_n": 20,
+    "walking_pre_stance_knee_max_deg_mean_sd": [
+      143,
+      9
+    ],
+    "walking_pre_stance_n": 34,
+    "qualification": "Table 1 is means and standard deviations over observed events, not a population range. Different species, speed, surface, landmark estimation, stance/recovery phase and sample design; current full-window geometric extremes are not phase-matched estimates. Do not infer fit or choose physical limits from this comparison alone."
+  },
+  "geometry": {
+    "segment_local_half_length_m": 0.031625,
+    "knee_configured_limits_rad": [
+      -0.1,
+      1.55
+    ],
+    "angle_at_positive_configured_limit_deg": 91.1915417547224,
+    "limit_scope": "Configured constraint limit from inherited source geometry. Solver tolerance and actual joint coordinate range are not tested by this geometric calculation."
+  },
+  "scope": "800 endpoints per arm, both knees, world 3D angle between vectors hip-to-knee and ankle-to-knee from native FK and parent-child joint anchors. Not projected onto sagittal plane, filtered, or event-normalized like the published video. Interval load is normal impulse at any substep, not necessarily load at endpoint. FK anchor identity and q relation checked independently; source model geometry is estimated, not specimen data."
+}
