@@ -1,0 +1,4 @@
+25269c288913ae8fde9e0dde35160ea3da9e850fbf67b6fa97f4f89851365f4a  artifacts/crow-v15-knee-phase-advance-screen-20261112/PLAN.md
+e8ddd7fbf210f91c4fd076d12fb61a4724d7d29725000d0f23cdfe14dec8312f  artifacts/crow-v15-knee-phase-advance-screen-20261112/screen.metal
+482271afac80f0dc5d996c829b680d4de72df24990e28fe994031e5b8cff97b3  artifacts/crow-v15-knee-phase-advance-screen-20261112/build.py
+4688081c49e9582c4bf522df4f98ba923ec0346ecc44783a0a7d4e2d6627c320  artifacts/crow-v15-knee-phase-advance-screen-20261112/run.py
