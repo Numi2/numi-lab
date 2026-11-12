@@ -1,0 +1,20 @@
+--- reduced/task.metal
++++ toe-release/task.metal
+@@ -5089,7 +5089,7 @@
+             if (seconds >= begin && seconds < begin+6.0f)
+                 navigationTeacherRequested=0.80f*smoothstep(begin,begin+.50f,seconds)*(joint==0u ? -0.30f*swing : joint==1u ? 0.40f*lift : -0.15f*lift);
+             if (seconds>=begin && seconds<begin+6.0f && support>0.05f && lift>0.0f) {
+-                const float amplitude=(program.interactionTiming.w>=0.5f ? 0.15f : 0.20f)*smoothstep(begin,begin+.50f,seconds)*lift;
++                const float amplitude=0.15f*smoothstep(begin,begin+.50f,seconds)*lift;
+                 navigationTeacherRequested += joint==0u ? -0.5f*amplitude/0.70f : joint==1u ? amplitude/0.75f : -0.5f*amplitude/0.65f;
+             }
+             else if (seconds>=2.0f && seconds<begin)
+@@ -5564,7 +5564,7 @@
+                 const float walkingSeconds=float(state.episode.x)*dispatch.timing.x;
+                 const float carrier=sin(kTwoPi*(walkingSeconds+5.0f/1000.0f)/0.50f+0.50f)*(side==0u ? 1.0f : -1.0f);
+                 const bool oppositeSupported=(state.status.w & (side==0u ? (1u<<21) : (1u<<20)))!=0u;
+-                if (false && program.interactionTiming.w>=0.5f && walkingSeconds>=4.0f && walkingSeconds<10.0f && toe==3u && carrier>0.40f && oppositeSupported && (state.status.w & (side==0u ? (1u<<20) : (1u<<21)))==0u)
++                if (program.interactionTiming.w>=0.5f && walkingSeconds>=4.0f && walkingSeconds<10.0f && toe==3u && carrier>0.40f && oppositeSupported && (state.status.w & (side==0u ? (1u<<20) : (1u<<21)))==0u)
+                     proximal=min(proximal,-.02f*smoothstep(.40f,.80f,carrier));
+                 for(uint segment=0u;segment<2u;++segment) {
+                     const uint dof=22u+side*8u+toe*2u+segment;
