@@ -1,0 +1,19 @@
+{
+  "compile": [
+    "xcrun",
+    "clang++",
+    "-std=c++20",
+    "-O2",
+    "-I/Users/n/Developer/numi-crow-rl-20261107/build/crow-v15-wide-contact-isolation-20261111/include",
+    "-Iinclude",
+    "/Users/n/Developer/numi-crow-rl-20261107/artifacts/crow-v15-gait-substep-phase-observer-20261112/kinematics.cpp",
+    "-L/Users/n/Developer/numi-crow-rl-20261107/build/crow-v15-hip-roll-journey-integration-20261111",
+    "-lmetalrobo",
+    "-Wl,-rpath,/Users/n/Developer/numi-crow-rl-20261107/build/crow-v15-hip-roll-journey-integration-20261111",
+    "-o",
+    "/Users/n/Developer/numi-crow-rl-20261107/build/crow-v15-gait-substep-phase-observer-20261112/kinematics"
+  ],
+  "source_sha256": "18c85b1d2fb82462a0021244cab3568ed4fd9bf1cd58f9f9e702a5c850639f4e",
+  "binary_sha256": "93611a09aaa05e6bee87095d7a3eba4b748bf9a0e6a2c0a0ce77aa87a5aa1c92",
+  "library_sha256": "d1e9bb9c6c6978318382731dd31df8a8aee22104dc23bbbab73eec5c7b81e615"
+}

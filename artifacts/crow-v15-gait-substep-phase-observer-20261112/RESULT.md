@@ -1,0 +1,9 @@
+# Synchronized whole-leg phase check
+
+The already archived phase-screen host recorded 12,800 q snapshots and 12,800 contact records across the 4–6 s window. All 800 final substep q values match their endpoint samples exactly, and lane 5's endpoint q matches its replay to 4.87e-9. No trace errors or contact overflows were reported. Reconstructed knee and ankle joint anchors agree within 2.08e-9 m. This verifies the recorded model alignment, not anatomical accuracy.
+
+Using the prior event-selection rule, the zero-delay lanes had four ankle-first and two same-substep knee/ankle proxy minima. The 0.3-rad lanes had five knee-first windows and the 0.6-rad lanes had two; the 0.9-rad lanes had no qualifying windows. The observer also recorded 30 partial contacts, 43 missing-toe-group contacts and 92 incomplete pairs across all arms. These are selected windows, not a representative biological gait dataset. The earlier screen found that the delayed conditions worsened contact quality and rejected them.
+
+All 13 knee and ankle minima coincided with the last substep of a 20 ms control interval. The underlying q values do change between substeps, but this boundary locking means the finer logging has not established more precise biological phase timing or ruled out a controller-related artifact. A minimum angle is also an imperfect proxy for the onset of extension. The second-front-toe landmark is not validated as the observed magpie digit, and differences in species, speed, surface, model geometry, segmentation and filtered empirical measurement remain. This evidence does not qualify a whole-gait fit.
+
+An initial observer rebuild failed the existing policy contract because it used a different task fingerprint; that failed run is retained and no contract was bypassed. The high-resolution records used above were already present in the accepted phase-screen run, so no new simulation or disk-heavy duplicate replay was needed.

@@ -1,0 +1,10 @@
+{
+  "source": "artifacts/crow-v15-magpie-phase-fit-screen-20261112/candidate-20261127-rebound-phase",
+  "q_substeps": 12800,
+  "contact_substeps": 12800,
+  "endpoint_samples": 800,
+  "max_q_error_final_substep_to_endpoint": 0.0,
+  "max_q_error_endpoint_to_lane5_replay": 4.868469183350044e-09,
+  "errors": [],
+  "pass": true
+}
