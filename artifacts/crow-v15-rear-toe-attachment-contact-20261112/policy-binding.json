@@ -1,0 +1,29 @@
+{
+  "old_fingerprints": [
+    2801281168732241546,
+    11277588021153534235,
+    12261780384824823292,
+    10276987404240961652
+  ],
+  "new_fingerprints": [
+    4795118019749428542,
+    8129837372010403964,
+    693352712018776759,
+    8352269268059722849
+  ],
+  "reports": [
+    {
+      "actor": "landing",
+      "source_sha256": "967ebb5b36c0134f243b5c19a5e810d2e76b741bc4437ba9036d30916863e638",
+      "target_sha256": "2e021fe4163bb734c6fa37e85346315049a7c693c50c9bb6c85b8830efd7e6e3",
+      "identical_layers_and_transforms": true
+    },
+    {
+      "actor": "route",
+      "source_sha256": "521f73cdb510d1a954dd70a7fc14d36871408c024ec782baa0e54c7959d57292",
+      "target_sha256": "eac773a6cf90645c3eb572802d3f4d2f8f28f2d4893f8e569e3e16e9af63624d",
+      "identical_layers_and_transforms": true
+    }
+  ],
+  "scope": "Diagnostic rebinding to changed world/task and observation signatures. World differs; geometry-dependent radii are reported separately; all other diagnostic hash inputs match. Exact weights and transforms are checked. Sensor values, physical behavior and policy validity on the changed body are not assumed."
+}

@@ -1,0 +1,20 @@
+{
+  "entries": 32,
+  "changes": [
+    {
+      "index": 0,
+      "control_body": 11,
+      "candidate_body": 11,
+      "control_radius_m": 0.0553196631,
+      "candidate_radius_m": 0.0559703819
+    },
+    {
+      "index": 9,
+      "control_body": 15,
+      "candidate_body": 15,
+      "control_radius_m": 0.0553196631,
+      "candidate_radius_m": 0.0559703819
+    }
+  ],
+  "scope": "The world-bound and collision-radius fingerprints genuinely differ. Layout audit separately suppresses those two ingredients only for diagnosis, and must not be used as a production policy contract. The active Metal task source reads contactMemberRadii in its link-clearance reward branch; altered geometry can change observations and behavior through other pathways even when layout tables match."
+}

@@ -1,0 +1,18 @@
+{
+  "host": {
+    "path": "build/crow-v15-rear-toe-attachment-contact-20261112/libmetalrobo.dylib",
+    "sha256": "fb23a47140266714e6214e2367317930a5c446bfc59088dd2061a979ff083445"
+  },
+  "fk": {
+    "path": "build/crow-v15-rear-toe-attachment-contact-20261112/kinematics",
+    "sha256": "061c7daf0e5b38723df9f932ef4b537fc0098372598be7e99ab01a9c4c18118e"
+  },
+  "fk_velocity": {
+    "path": "build/crow-v15-rear-toe-attachment-contact-20261112/kinematics-velocity",
+    "sha256": "372f293cbd350f7dca75546362889734468e99a6c4eaa2ded60986bfc1744774"
+  },
+  "metallib": {
+    "path": "build/crow-v15-reduced-lift-toe-release-screen-20261112/support-aware.metallib",
+    "sha256": "78828cf8f3bd7b9e24154b7d03c72c694c90ee84761a5916e6f435b1c0cc1cf7"
+  }
+}

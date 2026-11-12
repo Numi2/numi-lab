@@ -1,0 +1,1 @@
+The initially copied smoke checker retained a caveat from the earlier toe-proportion study stating the smoke followed a long trial. That statement did not apply here: this candidate smoke was completed before any long candidate run. The original output is retained and only its descriptive caveat was corrected; numeric and error checks are unchanged.
