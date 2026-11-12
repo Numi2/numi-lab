@@ -1,0 +1,3 @@
+# Smooth-launch obstacle-free flight diagnostic
+
+Keep the v15 body, ground, perturbations and smooth launch with direct body moments disabled from episode start. Disable the five course-object collision masks only for this diagnostic. Rebind the existing policy packs to the new world fingerprint without changing weights or transforms. Before interpreting flight, compare state, actions and contact with the original collision-enabled path up to the first intervention. Screen bounded symmetric sweep offsets or speed feedback after 9 seconds. Measure continuous attitude, trajectory, velocities, joint limits and ground contacts; this is a flight diagnostic, not navigation, landing or real-world qualification.

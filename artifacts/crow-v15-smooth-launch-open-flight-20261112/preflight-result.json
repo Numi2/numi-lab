@@ -1,0 +1,4 @@
+{
+  "return_code": 1,
+  "scope": "contract preflight; expected mismatch until diagnostic rebinding"
+}

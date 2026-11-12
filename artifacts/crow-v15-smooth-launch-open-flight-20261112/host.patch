@@ -1,0 +1,16 @@
+--- a/gait-observer.cpp
++++ b/open-flight.cpp
+@@ -3571,6 +3571,13 @@
+                 }
+             }
+             if (!foundPerch) throw std::logic_error("navigation perch shape not found");
++        }
++        // Flight diagnostics only: keep the ground and disable the five course object collisions.
++        if (activeNavigation) {
++            unsigned removed=0;
++            for (auto& object:manifest.scene.objects) for (std::size_t i=0;i<object.mechanics.shapeNames.size();++i)
++                if (object.mechanics.shapeNames[i].starts_with("crow_course_")) { object.mechanics.shapes.at(i).collisionMask=0u; ++removed; }
++            if (removed!=5u) throw std::logic_error("expected five collision-disabled course shapes");
+         }
+         manifest.sensors.id = cueConfig ? "camera_admission_proprioception" : journey
+             ? activeNavigation ? "american_crow_active_head_navigation_rgbd_sensors"
