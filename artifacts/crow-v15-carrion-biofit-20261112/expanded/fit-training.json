@@ -1,0 +1,174 @@
+{
+  "training_subjects": [
+    {
+      "individual_id": 0,
+      "count": 12,
+      "peak_hz": 4.5,
+      "concentration": 0.6901587015459255
+    },
+    {
+      "individual_id": 1,
+      "count": 12,
+      "peak_hz": 4.6000000000000005,
+      "concentration": 0.7018297222830954
+    },
+    {
+      "individual_id": 2,
+      "count": 12,
+      "peak_hz": 4.5,
+      "concentration": 0.6180291904828892
+    },
+    {
+      "individual_id": 3,
+      "count": 12,
+      "peak_hz": 4.0,
+      "concentration": 0.6116476367312393
+    },
+    {
+      "individual_id": 4,
+      "count": 12,
+      "peak_hz": 4.300000000000001,
+      "concentration": 0.4816694818452177
+    },
+    {
+      "individual_id": 5,
+      "count": 12,
+      "peak_hz": 4.300000000000001,
+      "concentration": 0.6467688032322717
+    },
+    {
+      "individual_id": 6,
+      "count": 12,
+      "peak_hz": 4.5,
+      "concentration": 0.696684687928662
+    },
+    {
+      "individual_id": 7,
+      "count": 12,
+      "peak_hz": 3.8000000000000003,
+      "concentration": 0.49683338957626544
+    }
+  ],
+  "candidates": [
+    {
+      "name": "crow-v15-sweep-pitch-feedback-screen-20261112",
+      "windows": [
+        {
+          "start_step": 450,
+          "peak_hz": 9.200000000000001,
+          "concentration": 0.8879913742275126
+        },
+        {
+          "start_step": 700,
+          "peak_hz": 9.200000000000001,
+          "concentration": 0.8719661155013526
+        },
+        {
+          "start_step": 950,
+          "peak_hz": 9.200000000000001,
+          "concentration": 0.870608391157111
+        },
+        {
+          "start_step": 1200,
+          "peak_hz": 9.200000000000001,
+          "concentration": 0.8754807046763363
+        }
+      ],
+      "median_peak_hz": 9.200000000000001,
+      "median_concentration": 0.8737234100888445,
+      "training_score": 5.765297652925057
+    },
+    {
+      "name": "crow-v15-bank-pitch-feedback-screen-20261112",
+      "windows": [
+        {
+          "start_step": 450,
+          "peak_hz": 9.200000000000001,
+          "concentration": 0.9025314358560032
+        },
+        {
+          "start_step": 700,
+          "peak_hz": 9.200000000000001,
+          "concentration": 0.9081325011657803
+        },
+        {
+          "start_step": 950,
+          "peak_hz": 9.200000000000001,
+          "concentration": 0.9073353910350135
+        },
+        {
+          "start_step": 1200,
+          "peak_hz": 9.200000000000001,
+          "concentration": 0.9071632943489136
+        }
+      ],
+      "median_peak_hz": 9.200000000000001,
+      "median_concentration": 0.9072493426919636,
+      "training_score": 5.899401383337533
+    },
+    {
+      "name": "crow-v15-flight-sideslip-feedback-screen-20261112",
+      "windows": [
+        {
+          "start_step": 450,
+          "peak_hz": 9.200000000000001,
+          "concentration": 0.9025314358560032
+        },
+        {
+          "start_step": 700,
+          "peak_hz": 9.200000000000001,
+          "concentration": 0.9081325011657803
+        },
+        {
+          "start_step": 950,
+          "peak_hz": 9.200000000000001,
+          "concentration": 0.9073353910350135
+        },
+        {
+          "start_step": 1200,
+          "peak_hz": 9.200000000000001,
+          "concentration": 0.9071632943489136
+        }
+      ],
+      "median_peak_hz": 9.200000000000001,
+      "median_concentration": 0.9072493426919636,
+      "training_score": 5.899401383337533
+    },
+    {
+      "name": "crow-v15-forward-pitch-feedback-screen-20261112",
+      "windows": [
+        {
+          "start_step": 450,
+          "peak_hz": 9.200000000000001,
+          "concentration": 0.9005263301815517
+        },
+        {
+          "start_step": 700,
+          "peak_hz": 9.200000000000001,
+          "concentration": 0.90758004472759
+        },
+        {
+          "start_step": 950,
+          "peak_hz": 9.200000000000001,
+          "concentration": 0.906844968619114
+        },
+        {
+          "start_step": 1200,
+          "peak_hz": 9.200000000000001,
+          "concentration": 0.9067509561566715
+        }
+      ],
+      "median_peak_hz": 9.200000000000001,
+      "median_concentration": 0.9067979623878928,
+      "training_score": 5.89759586212125
+    }
+  ],
+  "selected": "crow-v15-sweep-pitch-feedback-screen-20261112",
+  "objective": "median per-individual abs(peak difference)/1 Hz + abs(concentration difference)/0.25",
+  "scope": "Exploratory model ranking only, uncalibrated tail-COM sensor proxy; different species, broad behavior label, one simulated start per candidate, and no controller or flight qualification. No held-out subjects were used for selection.",
+  "input_sha256": {
+    "PLAN.md": "5dd0c0d46e13225c88c59df1b7e3ce201e773e346490f0e7a000aa735eb93000",
+    "source-sample-index.json": "f2cf30d39798143bfb7d6b57a1bd361e80f212505e7f65196439cb4addf67df2",
+    "sim-tail-states.json": "2b6ac85e48fb7fe37bf6affac6ca3a22acc7299dfacef99561e27f845f8d89ed"
+  }
+}

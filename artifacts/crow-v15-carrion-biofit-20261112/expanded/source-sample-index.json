@@ -1,0 +1,1295 @@
+{
+  "record": "https://doi.org/10.5281/zenodo.7947104",
+  "zip_name": "formatted_baglione_crows.zip",
+  "source_zip_size": 277468692,
+  "published_md5_not_independently_verified": "a7b17e3beca03cdde3c11f0e310191fd",
+  "partial_entry_note": "Only initial bytes read; full ZIP/entry checksums not independently verified. HTTP range responses were checked and selected exact source rows hashed.",
+  "metadata_sha256": "38f811e2328bd6708e375b072583953751e647c697b2e51a796157b5df21949e",
+  "license_sha256": "e554b25c62974b9a65f66276ca3988bc5cac19b31e061a372cca3d52cb6c0820",
+  "selected_uncompressed_sha256": "dc9bd9e78ffeb2ac2b67ab13bf5344d2131e12a664a1abca7dab90d53f44fe18",
+  "sample_rate_hz": 50,
+  "rows": [
+    {
+      "individual_id": 0,
+      "split": "fit",
+      "clip_id": "19_AL_Azul_07",
+      "start_row": 89750,
+      "row_count": 250,
+      "source_rows_sha256": "c5a5d9a029df07e4858f2821d7e28be46fb5886f802bc51004eddaaa4d805bec",
+      "peak_hz": 3.6,
+      "band_concentration": 0.2475107414450609
+    },
+    {
+      "individual_id": 0,
+      "split": "fit",
+      "clip_id": "19_AL_Azul_07",
+      "start_row": 110250,
+      "row_count": 250,
+      "source_rows_sha256": "f96a3132941c986446a2a83d95e0a85c2659fdfa868160ef9cec668757fd0a8a",
+      "peak_hz": 5.0,
+      "band_concentration": 0.6749583582641723
+    },
+    {
+      "individual_id": 0,
+      "split": "fit",
+      "clip_id": "19_AL_Azul_07",
+      "start_row": 134750,
+      "row_count": 250,
+      "source_rows_sha256": "de680e45d6b7deb585be1dbbb9c3cc6999572f6315e280bc0cbfca4aa265f107",
+      "peak_hz": 4.2,
+      "band_concentration": 0.7053590448276787
+    },
+    {
+      "individual_id": 0,
+      "split": "fit",
+      "clip_id": "19_AL_Azul_07",
+      "start_row": 149250,
+      "row_count": 250,
+      "source_rows_sha256": "fa69be1e722f9ada64751106cda639c7c26fb015acb17418e3249b0df4d277bd",
+      "peak_hz": 4.800000000000001,
+      "band_concentration": 0.666427045298021
+    },
+    {
+      "individual_id": 0,
+      "split": "fit",
+      "clip_id": "19_AL_Azul_07",
+      "start_row": 150250,
+      "row_count": 250,
+      "source_rows_sha256": "5520af2855b4a27501540203be4c275af6b6dd717486c1236516af74d5d12fe3",
+      "peak_hz": 4.4,
+      "band_concentration": 0.7291123758484025
+    },
+    {
+      "individual_id": 0,
+      "split": "fit",
+      "clip_id": "19_AL_Azul_07",
+      "start_row": 226750,
+      "row_count": 250,
+      "source_rows_sha256": "a3bb5bd3ef7b25148e85692a85ad66d9080bf67fa4a8090fb4ba753eadf76eab",
+      "peak_hz": 3.2,
+      "band_concentration": 0.5407180614613182
+    },
+    {
+      "individual_id": 0,
+      "split": "fit",
+      "clip_id": "19_AL_Azul_07",
+      "start_row": 261000,
+      "row_count": 250,
+      "source_rows_sha256": "dfd03151f3a1455908c3b36fd44941ce643709e624bd03ec491f10e6de18498e",
+      "peak_hz": 5.0,
+      "band_concentration": 0.5428349816136577
+    },
+    {
+      "individual_id": 0,
+      "split": "fit",
+      "clip_id": "19_AL_Azul_07",
+      "start_row": 268000,
+      "row_count": 250,
+      "source_rows_sha256": "05e6b88f3c40a659596518649726449570954bd76afb575fbbb8b417dbe7d31c",
+      "peak_hz": 5.6000000000000005,
+      "band_concentration": 0.7125511163326957
+    },
+    {
+      "individual_id": 0,
+      "split": "fit",
+      "clip_id": "19_AL_Azul_07",
+      "start_row": 269000,
+      "row_count": 250,
+      "source_rows_sha256": "961acdfcbb70a1860ba08f533b64738228236d204b607530aeede28d97ec2df8",
+      "peak_hz": 4.6000000000000005,
+      "band_concentration": 0.7131594226974536
+    },
+    {
+      "individual_id": 0,
+      "split": "fit",
+      "clip_id": "19_AL_Azul_07",
+      "start_row": 306250,
+      "row_count": 250,
+      "source_rows_sha256": "254810297b46932ed92acf22c9812ad9d9b2fcc4f0fa956ac67f314f3822df01",
+      "peak_hz": 4.2,
+      "band_concentration": 0.7270387007608508
+    },
+    {
+      "individual_id": 0,
+      "split": "fit",
+      "clip_id": "19_AL_Azul_07",
+      "start_row": 334250,
+      "row_count": 250,
+      "source_rows_sha256": "937998a0f4c5edba4ddc1ddee4cd68145a3fff08309ba9c87b5d02068fcbd2d0",
+      "peak_hz": 5.2,
+      "band_concentration": 0.7657365210972333
+    },
+    {
+      "individual_id": 0,
+      "split": "fit",
+      "clip_id": "19_AL_Azul_07",
+      "start_row": 438500,
+      "row_count": 250,
+      "source_rows_sha256": "faf058fb160e77daf85c21063d8ac9cd3957e0731394d353283d1901367e9dac",
+      "peak_hz": 4.2,
+      "band_concentration": 0.6740002710379867
+    },
+    {
+      "individual_id": 1,
+      "split": "fit",
+      "clip_id": "19_AL_Naranja_03",
+      "start_row": 14000,
+      "row_count": 250,
+      "source_rows_sha256": "988e9ce1a8c3ca4200422d0814c458c7e05102a5a509d5abc9d65e715c2239c6",
+      "peak_hz": 4.6000000000000005,
+      "band_concentration": 0.7245012266437475
+    },
+    {
+      "individual_id": 1,
+      "split": "fit",
+      "clip_id": "19_AL_Naranja_03",
+      "start_row": 91750,
+      "row_count": 250,
+      "source_rows_sha256": "0fa280d63f7dbd60dd780f7699718c1d4dd657eaad5393b8138d9dad41dcf432",
+      "peak_hz": 3.8000000000000003,
+      "band_concentration": 0.6663043566797766
+    },
+    {
+      "individual_id": 1,
+      "split": "fit",
+      "clip_id": "19_AL_Naranja_03",
+      "start_row": 98500,
+      "row_count": 250,
+      "source_rows_sha256": "e86ed4eadfedc2082ed75ef51f1d46cdc548749d76d57ba2cd370f2e7fdcccc6",
+      "peak_hz": 5.0,
+      "band_concentration": 0.7113771111828381
+    },
+    {
+      "individual_id": 1,
+      "split": "fit",
+      "clip_id": "19_AL_Naranja_03",
+      "start_row": 99750,
+      "row_count": 250,
+      "source_rows_sha256": "562274aef119f31fde210e0fef477d559a45147fb8c9294c6bc4986119cdc207",
+      "peak_hz": 5.0,
+      "band_concentration": 0.7350870026212917
+    },
+    {
+      "individual_id": 1,
+      "split": "fit",
+      "clip_id": "19_AL_Naranja_03",
+      "start_row": 131750,
+      "row_count": 250,
+      "source_rows_sha256": "765ad3c712c83b3c5574a72d2b876a27fac98acbe00573d2a123cb8becc4d25a",
+      "peak_hz": 4.0,
+      "band_concentration": 0.6553999905334825
+    },
+    {
+      "individual_id": 1,
+      "split": "fit",
+      "clip_id": "19_AL_Naranja_03",
+      "start_row": 136250,
+      "row_count": 250,
+      "source_rows_sha256": "b8ec4369c05c53822196c11f4151f72aab85aa422220a33d8ac49d2b1e049e10",
+      "peak_hz": 4.0,
+      "band_concentration": 0.42349080363969815
+    },
+    {
+      "individual_id": 1,
+      "split": "fit",
+      "clip_id": "19_AL_Naranja_03",
+      "start_row": 171500,
+      "row_count": 250,
+      "source_rows_sha256": "8782697e4123d73aa71ae57238f8c64c16029834e61cb9e9ba8a4b03c289afe0",
+      "peak_hz": 4.2,
+      "band_concentration": 0.6976088274933008
+    },
+    {
+      "individual_id": 1,
+      "split": "fit",
+      "clip_id": "19_AL_Naranja_03",
+      "start_row": 186750,
+      "row_count": 250,
+      "source_rows_sha256": "96211b02870ab6a769bd27274135eb89029ef12092ed242fca7bfbc32f6bf342",
+      "peak_hz": 4.6000000000000005,
+      "band_concentration": 0.7984755936382727
+    },
+    {
+      "individual_id": 1,
+      "split": "fit",
+      "clip_id": "19_AL_Naranja_03",
+      "start_row": 248000,
+      "row_count": 250,
+      "source_rows_sha256": "745087068db08d1d442e708230af0f45edd38138994058522b5eab6ff41acb14",
+      "peak_hz": 4.6000000000000005,
+      "band_concentration": 0.7102132999970812
+    },
+    {
+      "individual_id": 1,
+      "split": "fit",
+      "clip_id": "19_AL_Naranja_03",
+      "start_row": 250500,
+      "row_count": 250,
+      "source_rows_sha256": "3e4b818471bf362b0c0f06005931dc034d2fabb7276cec695a5ddb2536a51101",
+      "peak_hz": 5.4,
+      "band_concentration": 0.6210362294097747
+    },
+    {
+      "individual_id": 1,
+      "split": "fit",
+      "clip_id": "19_AL_Naranja_03",
+      "start_row": 285250,
+      "row_count": 250,
+      "source_rows_sha256": "62526190ce4181338964c685709883094405c9b9230fa352eba4c05b47c199c0",
+      "peak_hz": 4.4,
+      "band_concentration": 0.7060506170728901
+    },
+    {
+      "individual_id": 1,
+      "split": "fit",
+      "clip_id": "19_AL_Naranja_03",
+      "start_row": 286500,
+      "row_count": 250,
+      "source_rows_sha256": "93c36724b0340f59189aeccba41e32081393ef2ae97c1fcb1c145701e7c1d471",
+      "peak_hz": 4.6000000000000005,
+      "band_concentration": 0.6752971338101619
+    },
+    {
+      "individual_id": 2,
+      "split": "fit",
+      "clip_id": "19_AL_Rosa_24",
+      "start_row": 5000,
+      "row_count": 250,
+      "source_rows_sha256": "693eb230322185b62eb7a908018e6c8de72b46f20afc85cec0c5d11e9a22a942",
+      "peak_hz": 4.6000000000000005,
+      "band_concentration": 0.6843485848713615
+    },
+    {
+      "individual_id": 2,
+      "split": "fit",
+      "clip_id": "19_AL_Rosa_24",
+      "start_row": 7750,
+      "row_count": 250,
+      "source_rows_sha256": "a212e98265df66063797f5495026894b4d538842e308dba3b6b70a84dcc86dc1",
+      "peak_hz": 1.0,
+      "band_concentration": 0.16451003178656204
+    },
+    {
+      "individual_id": 2,
+      "split": "fit",
+      "clip_id": "19_AL_Rosa_24",
+      "start_row": 9000,
+      "row_count": 250,
+      "source_rows_sha256": "834369a810322db83aa63356e228c2e089e3b41630f5d2412252aa5537d309e6",
+      "peak_hz": 5.800000000000001,
+      "band_concentration": 0.628334808894046
+    },
+    {
+      "individual_id": 2,
+      "split": "fit",
+      "clip_id": "19_AL_Rosa_24",
+      "start_row": 38000,
+      "row_count": 250,
+      "source_rows_sha256": "0c031cbfd8353342791a0f14b2724c33b1c1a2bd03793a2162e45c80920bfbcd",
+      "peak_hz": 4.2,
+      "band_concentration": 0.5135732092211883
+    },
+    {
+      "individual_id": 2,
+      "split": "fit",
+      "clip_id": "19_AL_Rosa_24",
+      "start_row": 62750,
+      "row_count": 250,
+      "source_rows_sha256": "9048cb941edb008350a784c320c023a4ce61bc96a001f77ea63532d8b62ebe61",
+      "peak_hz": 4.6000000000000005,
+      "band_concentration": 0.6077235720717323
+    },
+    {
+      "individual_id": 2,
+      "split": "fit",
+      "clip_id": "19_AL_Rosa_24",
+      "start_row": 63750,
+      "row_count": 250,
+      "source_rows_sha256": "1a55b722793c637f0c09aa0b20e31f63cd3de7d2187644d07ba4da7478801772",
+      "peak_hz": 3.8000000000000003,
+      "band_concentration": 0.6867373293730883
+    },
+    {
+      "individual_id": 2,
+      "split": "fit",
+      "clip_id": "19_AL_Rosa_24",
+      "start_row": 114250,
+      "row_count": 250,
+      "source_rows_sha256": "843e99aeb4a00f9998725796a1069270470921ac24144d32837f085c65d51a97",
+      "peak_hz": 5.0,
+      "band_concentration": 0.6725539882993136
+    },
+    {
+      "individual_id": 2,
+      "split": "fit",
+      "clip_id": "19_AL_Rosa_24",
+      "start_row": 127750,
+      "row_count": 250,
+      "source_rows_sha256": "c4cc717bd6acced46cec53aabaee312502495ded3d4bfc2a5ce0a7e7f8a85734",
+      "peak_hz": 5.6000000000000005,
+      "band_concentration": 0.6898350892841653
+    },
+    {
+      "individual_id": 2,
+      "split": "fit",
+      "clip_id": "19_AL_Rosa_24",
+      "start_row": 128750,
+      "row_count": 250,
+      "source_rows_sha256": "467cb6d796f7e9149ca752f39cf80fcbe4cffe5f27b6cf2a1e52488e05813caa",
+      "peak_hz": 5.2,
+      "band_concentration": 0.5240540830814204
+    },
+    {
+      "individual_id": 2,
+      "split": "fit",
+      "clip_id": "19_AL_Rosa_24",
+      "start_row": 136500,
+      "row_count": 250,
+      "source_rows_sha256": "9f9c00bac9ed79c8029ea24c916f7a178afebf1060f18bcc9d4d6983c1a473a1",
+      "peak_hz": 4.2,
+      "band_concentration": 0.5637961166566579
+    },
+    {
+      "individual_id": 2,
+      "split": "fit",
+      "clip_id": "19_AL_Rosa_24",
+      "start_row": 145500,
+      "row_count": 250,
+      "source_rows_sha256": "399fe6e89b3dae5a0e3a401b5384072d9cfa7b435855169df2e16dc1279a2f57",
+      "peak_hz": 4.4,
+      "band_concentration": 0.7342847929924079
+    },
+    {
+      "individual_id": 2,
+      "split": "fit",
+      "clip_id": "19_AL_Rosa_24",
+      "start_row": 159000,
+      "row_count": 250,
+      "source_rows_sha256": "d681defd73505e85a15c0e4f934696ffa4c3ed3b28ad7775c3b102367d1661c4",
+      "peak_hz": 4.2,
+      "band_concentration": 0.49501132242111723
+    },
+    {
+      "individual_id": 3,
+      "split": "fit",
+      "clip_id": "19_BA_Amarilla_06",
+      "start_row": 750,
+      "row_count": 250,
+      "source_rows_sha256": "0ac182932570e292d32cf031477c86aeb538b9dfe86446632881a43fcba49460",
+      "peak_hz": 3.8000000000000003,
+      "band_concentration": 0.5022837585517537
+    },
+    {
+      "individual_id": 3,
+      "split": "fit",
+      "clip_id": "19_BA_Amarilla_06",
+      "start_row": 37750,
+      "row_count": 250,
+      "source_rows_sha256": "04ca24bef920d77a4533a7adc7031d2cc9c14f479771f031b7331d3b673972d4",
+      "peak_hz": 4.2,
+      "band_concentration": 0.5501576777677345
+    },
+    {
+      "individual_id": 3,
+      "split": "fit",
+      "clip_id": "19_BA_Amarilla_06",
+      "start_row": 38750,
+      "row_count": 250,
+      "source_rows_sha256": "96882ea6645cf70d2786a98c693953954bcd4933e0ed79b97a28b2a723b86243",
+      "peak_hz": 3.8000000000000003,
+      "band_concentration": 0.7212420249669754
+    },
+    {
+      "individual_id": 3,
+      "split": "fit",
+      "clip_id": "19_BA_Amarilla_06",
+      "start_row": 39750,
+      "row_count": 250,
+      "source_rows_sha256": "034b798942bead461919e33d3bc93d2cfe90c39ce98cf97a79d0dfde4e934391",
+      "peak_hz": 3.2,
+      "band_concentration": 0.2353181531070629
+    },
+    {
+      "individual_id": 3,
+      "split": "fit",
+      "clip_id": "19_BA_Amarilla_06",
+      "start_row": 98250,
+      "row_count": 250,
+      "source_rows_sha256": "8e699de37d1f86fdb2f686f5c084ae51db458af96e727d22cc9d2f255ccf2761",
+      "peak_hz": 4.6000000000000005,
+      "band_concentration": 0.3556097864599009
+    },
+    {
+      "individual_id": 3,
+      "split": "fit",
+      "clip_id": "19_BA_Amarilla_06",
+      "start_row": 116500,
+      "row_count": 250,
+      "source_rows_sha256": "1753cc1a64bf0d5ebe2aabe997e6431be7435f12670086447ce95733f0827d42",
+      "peak_hz": 4.4,
+      "band_concentration": 0.7074130955526704
+    },
+    {
+      "individual_id": 3,
+      "split": "fit",
+      "clip_id": "19_BA_Amarilla_06",
+      "start_row": 182000,
+      "row_count": 250,
+      "source_rows_sha256": "f7065d115dda14cb968ee991f5de37cdd3dd2b1138bf1ab7ee9e7db0761ccc1b",
+      "peak_hz": 4.4,
+      "band_concentration": 0.7521547617526356
+    },
+    {
+      "individual_id": 3,
+      "split": "fit",
+      "clip_id": "19_BA_Amarilla_06",
+      "start_row": 193250,
+      "row_count": 250,
+      "source_rows_sha256": "7c98fa0e19816a5ebc7194cf9ff361fa19bc5dd80f8a27341c9ef6db6169d762",
+      "peak_hz": 4.800000000000001,
+      "band_concentration": 0.7393736727291302
+    },
+    {
+      "individual_id": 3,
+      "split": "fit",
+      "clip_id": "19_BA_Amarilla_06",
+      "start_row": 194250,
+      "row_count": 250,
+      "source_rows_sha256": "4b8edbb443ec6f97ac110402fbfd0ce6479121b7ee914498076be19be37dcf4e",
+      "peak_hz": 3.6,
+      "band_concentration": 0.5391422771828496
+    },
+    {
+      "individual_id": 3,
+      "split": "fit",
+      "clip_id": "19_BA_Amarilla_06",
+      "start_row": 202500,
+      "row_count": 250,
+      "source_rows_sha256": "9f98f6309ab85a1f287204a90fab581fe2f7248c0e8598939205ad7d8c201c8d",
+      "peak_hz": 3.8000000000000003,
+      "band_concentration": 0.6731375956947443
+    },
+    {
+      "individual_id": 3,
+      "split": "fit",
+      "clip_id": "19_BA_Amarilla_06",
+      "start_row": 224500,
+      "row_count": 250,
+      "source_rows_sha256": "831324788a32f653338b76ef8ad2cd6e4dd1c69628c22046a2a97440ea44149a",
+      "peak_hz": 3.6,
+      "band_concentration": 0.6967808159004308
+    },
+    {
+      "individual_id": 3,
+      "split": "fit",
+      "clip_id": "19_BA_Amarilla_06",
+      "start_row": 230500,
+      "row_count": 250,
+      "source_rows_sha256": "489deafee58b0f0047d77a3023ec04e3b9d7ab22bb845d527562c0617efc1329",
+      "peak_hz": 4.2,
+      "band_concentration": 0.3391175781892334
+    },
+    {
+      "individual_id": 4,
+      "split": "fit",
+      "clip_id": "19_BD_Rosa_03",
+      "start_row": 750,
+      "row_count": 250,
+      "source_rows_sha256": "a9f32ae4ebed4249b215b7f9f0b6f8ad11868822aad8b6ae46a21a18b977d2df",
+      "peak_hz": 3.8000000000000003,
+      "band_concentration": 0.4522606152741223
+    },
+    {
+      "individual_id": 4,
+      "split": "fit",
+      "clip_id": "19_BD_Rosa_03",
+      "start_row": 7500,
+      "row_count": 250,
+      "source_rows_sha256": "36136b3959e19da8c5670469e78629a3285720c59d97bdb07cbd367f3231aa2d",
+      "peak_hz": 3.6,
+      "band_concentration": 0.3117567331263847
+    },
+    {
+      "individual_id": 4,
+      "split": "fit",
+      "clip_id": "19_BD_Rosa_03",
+      "start_row": 9250,
+      "row_count": 250,
+      "source_rows_sha256": "8476c57114d2498b9775172aec11c7c0ca0d9da790ddc83184625e53a307fbc2",
+      "peak_hz": 8.0,
+      "band_concentration": 0.209277585473241
+    },
+    {
+      "individual_id": 4,
+      "split": "fit",
+      "clip_id": "19_BD_Rosa_03",
+      "start_row": 39500,
+      "row_count": 250,
+      "source_rows_sha256": "d6460d905d4d38f9a9ab692c98dbd326b00aa5ff9c1a5fa702a174564f9bcc17",
+      "peak_hz": 3.6,
+      "band_concentration": 0.3511658159625336
+    },
+    {
+      "individual_id": 4,
+      "split": "fit",
+      "clip_id": "19_BD_Rosa_03",
+      "start_row": 54000,
+      "row_count": 250,
+      "source_rows_sha256": "74f1b18e292ed1e31a99b1af7ecf1b30732ae6d60ede6b33f4a5598ff7263037",
+      "peak_hz": 4.0,
+      "band_concentration": 0.30645102959717513
+    },
+    {
+      "individual_id": 4,
+      "split": "fit",
+      "clip_id": "19_BD_Rosa_03",
+      "start_row": 67500,
+      "row_count": 250,
+      "source_rows_sha256": "bbf214207deaf8a7fc9073d036cecdbf1bea0df094c2d1d304ac1eb0f14e6752",
+      "peak_hz": 5.0,
+      "band_concentration": 0.6391739839887859
+    },
+    {
+      "individual_id": 4,
+      "split": "fit",
+      "clip_id": "19_BD_Rosa_03",
+      "start_row": 113250,
+      "row_count": 250,
+      "source_rows_sha256": "e13ccdadb19e1c6c35547b437e4cb28dbe9aa35a617db200d0bd20bc53e65e43",
+      "peak_hz": 3.6,
+      "band_concentration": 0.48532833020637256
+    },
+    {
+      "individual_id": 4,
+      "split": "fit",
+      "clip_id": "19_BD_Rosa_03",
+      "start_row": 125500,
+      "row_count": 250,
+      "source_rows_sha256": "e492547a5defaf36be3429455bf9ec4846e4fef7b395135c828e19e90f89a535",
+      "peak_hz": 4.2,
+      "band_concentration": 0.4804590528423484
+    },
+    {
+      "individual_id": 4,
+      "split": "fit",
+      "clip_id": "19_BD_Rosa_03",
+      "start_row": 165750,
+      "row_count": 250,
+      "source_rows_sha256": "9e956d5858d57e9839d9840434efe2c502e9ad5aaa236eca2ecea863daaf0dcb",
+      "peak_hz": 4.4,
+      "band_concentration": 0.48287991084808696
+    },
+    {
+      "individual_id": 4,
+      "split": "fit",
+      "clip_id": "19_BD_Rosa_03",
+      "start_row": 168250,
+      "row_count": 250,
+      "source_rows_sha256": "55bf708b4c4409b4f032f7b3ce4452adf7bb35b47a1bf62f5201d6fc36240619",
+      "peak_hz": 4.800000000000001,
+      "band_concentration": 0.7048913250846366
+    },
+    {
+      "individual_id": 4,
+      "split": "fit",
+      "clip_id": "19_BD_Rosa_03",
+      "start_row": 202000,
+      "row_count": 250,
+      "source_rows_sha256": "a0e2e8a954c5571d9e6864248b4c47b68ad3f449a1e2394fd9ed091522c65c3d",
+      "peak_hz": 4.4,
+      "band_concentration": 0.6568954643396199
+    },
+    {
+      "individual_id": 4,
+      "split": "fit",
+      "clip_id": "19_BD_Rosa_03",
+      "start_row": 204500,
+      "row_count": 250,
+      "source_rows_sha256": "acac73aee051f24f1dd075ebcc40dd327890c89bf7ca38732b368239aa25aab9",
+      "peak_hz": 4.800000000000001,
+      "band_concentration": 0.6833638249275941
+    },
+    {
+      "individual_id": 5,
+      "split": "fit",
+      "clip_id": "19_BPBO_Azul_13",
+      "start_row": 35750,
+      "row_count": 250,
+      "source_rows_sha256": "80edce4d497bc42c152aed0177363d196a01a483ffcdb11435a22a32c86dfd5d",
+      "peak_hz": 4.6000000000000005,
+      "band_concentration": 0.5506252343940982
+    },
+    {
+      "individual_id": 5,
+      "split": "fit",
+      "clip_id": "19_BPBO_Azul_13",
+      "start_row": 68500,
+      "row_count": 250,
+      "source_rows_sha256": "e23988a0d8b2e00189af560cbfd7230a134442952faca7f1efacf9a0b52397e0",
+      "peak_hz": 5.800000000000001,
+      "band_concentration": 0.5959628432343796
+    },
+    {
+      "individual_id": 5,
+      "split": "fit",
+      "clip_id": "19_BPBO_Azul_13",
+      "start_row": 71000,
+      "row_count": 250,
+      "source_rows_sha256": "4ae48bba2e861c46b7b6c9a9a73491db213bb74a1590d21cc093ac2fe5b78019",
+      "peak_hz": 1.0,
+      "band_concentration": 0.19114971665067898
+    },
+    {
+      "individual_id": 5,
+      "split": "fit",
+      "clip_id": "19_BPBO_Azul_13",
+      "start_row": 95250,
+      "row_count": 250,
+      "source_rows_sha256": "dfcf5dbe8c6760c25b96bcfb37b46550807967102df42834cda0b8495cd2c403",
+      "peak_hz": 5.2,
+      "band_concentration": 0.6975747632301638
+    },
+    {
+      "individual_id": 5,
+      "split": "fit",
+      "clip_id": "19_BPBO_Azul_13",
+      "start_row": 140500,
+      "row_count": 250,
+      "source_rows_sha256": "df057f680aac2aaf96f7e2be4d133f339ff59c63b8e23da3a81d34cc35cafd46",
+      "peak_hz": 4.4,
+      "band_concentration": 0.7776127279397331
+    },
+    {
+      "individual_id": 5,
+      "split": "fit",
+      "clip_id": "19_BPBO_Azul_13",
+      "start_row": 148000,
+      "row_count": 250,
+      "source_rows_sha256": "52590c646409a64cc5cf7cdcc28ee13b34e331f6b98233a4371e1e4993cc6a6d",
+      "peak_hz": 4.2,
+      "band_concentration": 0.7515809489931256
+    },
+    {
+      "individual_id": 5,
+      "split": "fit",
+      "clip_id": "19_BPBO_Azul_13",
+      "start_row": 164500,
+      "row_count": 250,
+      "source_rows_sha256": "96b6eddcd172d31334c79c931f00a8a1007bd4632a7227af5b331a432dce938d",
+      "peak_hz": 4.4,
+      "band_concentration": 0.7417479758755472
+    },
+    {
+      "individual_id": 5,
+      "split": "fit",
+      "clip_id": "19_BPBO_Azul_13",
+      "start_row": 172000,
+      "row_count": 250,
+      "source_rows_sha256": "db3d0ff7792dbdaa4e41ecee7724bb1bdd6d939a2e641fcd80cfbdcf97862581",
+      "peak_hz": 3.8000000000000003,
+      "band_concentration": 0.5900913784142098
+    },
+    {
+      "individual_id": 5,
+      "split": "fit",
+      "clip_id": "19_BPBO_Azul_13",
+      "start_row": 181000,
+      "row_count": 250,
+      "source_rows_sha256": "d0816443fa862164a215f211d997cbbd1053f6e496b11085b7b6d618daa51f90",
+      "peak_hz": 4.4,
+      "band_concentration": 0.7002395536839828
+    },
+    {
+      "individual_id": 5,
+      "split": "fit",
+      "clip_id": "19_BPBO_Azul_13",
+      "start_row": 184750,
+      "row_count": 250,
+      "source_rows_sha256": "702f739aad81fb8290a0c4e330afe128ccb276d8748d072c59c7968c7908a361",
+      "peak_hz": 3.2,
+      "band_concentration": 0.2887055202706416
+    },
+    {
+      "individual_id": 5,
+      "split": "fit",
+      "clip_id": "19_BPBO_Azul_13",
+      "start_row": 188000,
+      "row_count": 250,
+      "source_rows_sha256": "d4ac73e244aa48c046056b3b0885b408d3ac57b2aad47983692cc25621582325",
+      "peak_hz": 3.8000000000000003,
+      "band_concentration": 0.48306748861687654
+    },
+    {
+      "individual_id": 5,
+      "split": "fit",
+      "clip_id": "19_BPBO_Azul_13",
+      "start_row": 225250,
+      "row_count": 250,
+      "source_rows_sha256": "4726d282e7d9e30e811137508c68a55557c0bb577b8b1acb5840cf23ca638b72",
+      "peak_hz": 4.2,
+      "band_concentration": 0.7451953894915812
+    },
+    {
+      "individual_id": 6,
+      "split": "fit",
+      "clip_id": "19_BV_Azul_21",
+      "start_row": 516000,
+      "row_count": 250,
+      "source_rows_sha256": "124ec58cc4815477747df22863a62625661e3f59994407ccf2319edca09104dd",
+      "peak_hz": 5.4,
+      "band_concentration": 0.5393292527889254
+    },
+    {
+      "individual_id": 6,
+      "split": "fit",
+      "clip_id": "19_BV_Azul_21",
+      "start_row": 530250,
+      "row_count": 250,
+      "source_rows_sha256": "8f4eca7a552ab75d9289906bb2b67f127dc2ae3488ea224c23ff7e84627d86b9",
+      "peak_hz": 5.4,
+      "band_concentration": 0.5599439429264539
+    },
+    {
+      "individual_id": 6,
+      "split": "fit",
+      "clip_id": "19_BV_Azul_21",
+      "start_row": 531250,
+      "row_count": 250,
+      "source_rows_sha256": "45604deaf49baf8c05967f089661a79bbc838f2edbd1131820493369ec321e72",
+      "peak_hz": 3.6,
+      "band_concentration": 0.6831164531005072
+    },
+    {
+      "individual_id": 6,
+      "split": "fit",
+      "clip_id": "19_BV_Azul_21",
+      "start_row": 537500,
+      "row_count": 250,
+      "source_rows_sha256": "82ef904db0c0802f723e53d13ba7b637b4dd4dd0346bb40683e570f8a7f143b8",
+      "peak_hz": 4.800000000000001,
+      "band_concentration": 0.7972725373002036
+    },
+    {
+      "individual_id": 6,
+      "split": "fit",
+      "clip_id": "19_BV_Azul_21",
+      "start_row": 540750,
+      "row_count": 250,
+      "source_rows_sha256": "a1003a7db161d8f20a99e95a599609dde420436058805107663a9ebb62194b4f",
+      "peak_hz": 5.0,
+      "band_concentration": 0.7507052023252941
+    },
+    {
+      "individual_id": 6,
+      "split": "fit",
+      "clip_id": "19_BV_Azul_21",
+      "start_row": 544000,
+      "row_count": 250,
+      "source_rows_sha256": "69d676868b41308c6f8946b2e71e67f143c8c66e2a0b610a0cccd8b8376cc4a5",
+      "peak_hz": 3.4000000000000004,
+      "band_concentration": 0.49626265997195246
+    },
+    {
+      "individual_id": 6,
+      "split": "fit",
+      "clip_id": "19_BV_Azul_21",
+      "start_row": 545000,
+      "row_count": 250,
+      "source_rows_sha256": "ae7ca30725e2224a702e6b5672418ef9ccfdc61656658bc54814ed9bc0bc98b9",
+      "peak_hz": 3.8000000000000003,
+      "band_concentration": 0.6340164950720737
+    },
+    {
+      "individual_id": 6,
+      "split": "fit",
+      "clip_id": "19_BV_Azul_21",
+      "start_row": 554500,
+      "row_count": 250,
+      "source_rows_sha256": "80e8f37327abf2de78231afede6850f38560a2b62816abe1c7f3844ac2fb5044",
+      "peak_hz": 5.0,
+      "band_concentration": 0.8319053373387965
+    },
+    {
+      "individual_id": 6,
+      "split": "fit",
+      "clip_id": "19_BV_Azul_21",
+      "start_row": 557000,
+      "row_count": 250,
+      "source_rows_sha256": "dd100d41453889786904ad1555af9a9a57dbef0424bc81677faa67ccc53ab8ab",
+      "peak_hz": 4.4,
+      "band_concentration": 0.7644237562314534
+    },
+    {
+      "individual_id": 6,
+      "split": "fit",
+      "clip_id": "19_BV_Azul_21",
+      "start_row": 559000,
+      "row_count": 250,
+      "source_rows_sha256": "3ed1c68f25b003d81656e2cf3c28a11175b6253710cdc89bfa8f80b8bc1f9489",
+      "peak_hz": 3.6,
+      "band_concentration": 0.45166438456894253
+    },
+    {
+      "individual_id": 6,
+      "split": "fit",
+      "clip_id": "19_BV_Azul_21",
+      "start_row": 560000,
+      "row_count": 250,
+      "source_rows_sha256": "fa3ff11f8989b1cea7050e58313646dac87388764e715fa6796f317fd5441a17",
+      "peak_hz": 3.8000000000000003,
+      "band_concentration": 0.7102529227568168
+    },
+    {
+      "individual_id": 6,
+      "split": "fit",
+      "clip_id": "19_BV_Azul_21",
+      "start_row": 577500,
+      "row_count": 250,
+      "source_rows_sha256": "346e434c5eb9e8eb4e476be5f401a7380fe2cd17e0f33b4962de409b84a131fe",
+      "peak_hz": 4.6000000000000005,
+      "band_concentration": 0.7459902752947761
+    },
+    {
+      "individual_id": 7,
+      "split": "fit",
+      "clip_id": "19_BV_Morado_11",
+      "start_row": 17500,
+      "row_count": 250,
+      "source_rows_sha256": "164dce50558f1edb4b2c61c29f2483147f32cba21efbf000aeea65b501339263",
+      "peak_hz": 5.2,
+      "band_concentration": 0.6073467140985263
+    },
+    {
+      "individual_id": 7,
+      "split": "fit",
+      "clip_id": "19_BV_Morado_11",
+      "start_row": 21250,
+      "row_count": 250,
+      "source_rows_sha256": "6cfea2165d8a5c3e5fc29b1b6470d2913a1f794c8dbe6034a74b319eef86b7f8",
+      "peak_hz": 3.8000000000000003,
+      "band_concentration": 0.4940675860161951
+    },
+    {
+      "individual_id": 7,
+      "split": "fit",
+      "clip_id": "19_BV_Morado_11",
+      "start_row": 23250,
+      "row_count": 250,
+      "source_rows_sha256": "20dce23221b5cac367e8ea8b5a178570632d8df796ccf5c69bf615a7fe7dab37",
+      "peak_hz": 3.6,
+      "band_concentration": 0.49959919313633583
+    },
+    {
+      "individual_id": 7,
+      "split": "fit",
+      "clip_id": "19_BV_Morado_11",
+      "start_row": 25500,
+      "row_count": 250,
+      "source_rows_sha256": "c1fa9395744d53f7d7f4f934a611ad5af8f932a1aa5657e83ad17f5ca8e7313c",
+      "peak_hz": 3.6,
+      "band_concentration": 0.6435384427726171
+    },
+    {
+      "individual_id": 7,
+      "split": "fit",
+      "clip_id": "19_BV_Morado_11",
+      "start_row": 46500,
+      "row_count": 250,
+      "source_rows_sha256": "064e484a3ec9c83642b5d92405719e71c4f3f20f4b8a347f1f379ea4816522fc",
+      "peak_hz": 5.2,
+      "band_concentration": 0.7168892123806724
+    },
+    {
+      "individual_id": 7,
+      "split": "fit",
+      "clip_id": "19_BV_Morado_11",
+      "start_row": 48500,
+      "row_count": 250,
+      "source_rows_sha256": "971d7bbde576b2e56de8db432d9ef242aa7f33ebbbadc5751d3ab6766205e43b",
+      "peak_hz": 4.0,
+      "band_concentration": 0.4544273326598914
+    },
+    {
+      "individual_id": 7,
+      "split": "fit",
+      "clip_id": "19_BV_Morado_11",
+      "start_row": 50000,
+      "row_count": 250,
+      "source_rows_sha256": "140489fbfb3694ebd5c65e0899f0504b80fa14cfe270591467827a004106d61e",
+      "peak_hz": 3.8000000000000003,
+      "band_concentration": 0.3116946024017537
+    },
+    {
+      "individual_id": 7,
+      "split": "fit",
+      "clip_id": "19_BV_Morado_11",
+      "start_row": 56000,
+      "row_count": 250,
+      "source_rows_sha256": "5ac5b7b4384ef3d49c0a5dfe17be35fc010d4968c92e1daf6fc30605d0d74b1b",
+      "peak_hz": 4.800000000000001,
+      "band_concentration": 0.26844456662729954
+    },
+    {
+      "individual_id": 7,
+      "split": "fit",
+      "clip_id": "19_BV_Morado_11",
+      "start_row": 57000,
+      "row_count": 250,
+      "source_rows_sha256": "94f17cba95dd76ed26e666e56e4b644e4234717a1bfe95bfbd87914b8769c906",
+      "peak_hz": 3.8000000000000003,
+      "band_concentration": 0.5298543068627125
+    },
+    {
+      "individual_id": 7,
+      "split": "fit",
+      "clip_id": "19_BV_Morado_11",
+      "start_row": 96000,
+      "row_count": 250,
+      "source_rows_sha256": "f4d64c5de02466bc45e817b78134108ebea90bc21077df1487f859ae46878c67",
+      "peak_hz": 5.2,
+      "band_concentration": 0.5256720614463374
+    },
+    {
+      "individual_id": 7,
+      "split": "fit",
+      "clip_id": "19_BV_Morado_11",
+      "start_row": 97000,
+      "row_count": 250,
+      "source_rows_sha256": "e9745f65b7bbf8bf45ee980c9325c8330715d3feff71bac7bb3a04be005355e8",
+      "peak_hz": 3.2,
+      "band_concentration": 0.44073457858366855
+    },
+    {
+      "individual_id": 7,
+      "split": "fit",
+      "clip_id": "19_BV_Morado_11",
+      "start_row": 98000,
+      "row_count": 250,
+      "source_rows_sha256": "8a957241d375ea8c192405a9a1e7c052f870096bf13a92ce609adc42d7eda125",
+      "peak_hz": 3.2,
+      "band_concentration": 0.46634161044353584
+    },
+    {
+      "individual_id": 8,
+      "split": "held_out",
+      "clip_id": "19_CV_azul_33",
+      "start_row": 9250,
+      "row_count": 250,
+      "source_rows_sha256": "3a50897968968f5a038651e00f23e5f593dec179f6ab342e71cb0ef8a51c7440",
+      "peak_hz": 5.0,
+      "band_concentration": 0.590416883148232
+    },
+    {
+      "individual_id": 8,
+      "split": "held_out",
+      "clip_id": "19_CV_azul_33",
+      "start_row": 10750,
+      "row_count": 250,
+      "source_rows_sha256": "4d79db5f26ccd7a7ee7fed3c56a23f8597fe74280eab56f193dad860133aa97c",
+      "peak_hz": 5.2,
+      "band_concentration": 0.3809758644914046
+    },
+    {
+      "individual_id": 8,
+      "split": "held_out",
+      "clip_id": "19_CV_azul_33",
+      "start_row": 62000,
+      "row_count": 250,
+      "source_rows_sha256": "3eb0e2ffbe29ee80270132fdb402c3783df901f6aa51e3ec850c693b005a91c4",
+      "peak_hz": 3.8000000000000003,
+      "band_concentration": 0.43140271144214576
+    },
+    {
+      "individual_id": 8,
+      "split": "held_out",
+      "clip_id": "19_CV_azul_33",
+      "start_row": 92750,
+      "row_count": 250,
+      "source_rows_sha256": "1b43583f088844fa1dcf253946690d95e2368d70246212832c5dda882039900d",
+      "peak_hz": 4.2,
+      "band_concentration": 0.5840856173775183
+    },
+    {
+      "individual_id": 8,
+      "split": "held_out",
+      "clip_id": "19_CV_azul_33",
+      "start_row": 94000,
+      "row_count": 250,
+      "source_rows_sha256": "5f818e0812bb0d7ee7cd7365e5df2dc7b3db894d6557ecb4659ced7d8fe13f51",
+      "peak_hz": 4.4,
+      "band_concentration": 0.5833582890529772
+    },
+    {
+      "individual_id": 8,
+      "split": "held_out",
+      "clip_id": "19_CV_azul_33",
+      "start_row": 115000,
+      "row_count": 250,
+      "source_rows_sha256": "b0168ad2c15b23e986c2861dadc2cc4d438673adc5d7e244b16274a917248f39",
+      "peak_hz": 4.4,
+      "band_concentration": 0.6756421648805019
+    },
+    {
+      "individual_id": 8,
+      "split": "held_out",
+      "clip_id": "19_CV_azul_33",
+      "start_row": 116000,
+      "row_count": 250,
+      "source_rows_sha256": "30cbc991a8a3af001e7cfcf349840310b73d71b8906a11ded091cb224c4e227f",
+      "peak_hz": 3.4000000000000004,
+      "band_concentration": 0.36741650108425566
+    },
+    {
+      "individual_id": 8,
+      "split": "held_out",
+      "clip_id": "19_CV_azul_33",
+      "start_row": 119000,
+      "row_count": 250,
+      "source_rows_sha256": "8a90c9286744620ee67a181e3e1503f2dc1498a33dd93ed2bd177ab7397f215b",
+      "peak_hz": 3.4000000000000004,
+      "band_concentration": 0.4622565057932602
+    },
+    {
+      "individual_id": 8,
+      "split": "held_out",
+      "clip_id": "19_CV_azul_33",
+      "start_row": 129000,
+      "row_count": 250,
+      "source_rows_sha256": "faaae0c2f538162600667ff2d1ffb2524dfcaafc0719fcb7e008fdc9bff25d18",
+      "peak_hz": 4.800000000000001,
+      "band_concentration": 0.6081683247971893
+    },
+    {
+      "individual_id": 8,
+      "split": "held_out",
+      "clip_id": "19_CV_azul_33",
+      "start_row": 130000,
+      "row_count": 250,
+      "source_rows_sha256": "613909098860eb6820873fdc0a30fdd7146eee06e8655ecdad8f88690e9a2998",
+      "peak_hz": 3.8000000000000003,
+      "band_concentration": 0.5815464518949665
+    },
+    {
+      "individual_id": 8,
+      "split": "held_out",
+      "clip_id": "19_CV_azul_33",
+      "start_row": 131500,
+      "row_count": 250,
+      "source_rows_sha256": "763e410b1331b2507ce954c8ac8c35530e9e8ee1e1acecb2d0704b0b549c393c",
+      "peak_hz": 4.4,
+      "band_concentration": 0.6325317116795025
+    },
+    {
+      "individual_id": 8,
+      "split": "held_out",
+      "clip_id": "19_CV_azul_33",
+      "start_row": 133500,
+      "row_count": 250,
+      "source_rows_sha256": "2a7e96d4c9289ca228718b6eb6c365f821651b324386bb473b566e3f3ca24ca6",
+      "peak_hz": 4.2,
+      "band_concentration": 0.6097204986639516
+    },
+    {
+      "individual_id": 10,
+      "split": "held_out",
+      "clip_id": "19_EB_Verde_21",
+      "start_row": 107000,
+      "row_count": 250,
+      "source_rows_sha256": "45d971b44e77cc6330d1427d7ce877aafb58a01a88fd4f5c3cbb1312941f30ad",
+      "peak_hz": 5.800000000000001,
+      "band_concentration": 0.4354854844466931
+    },
+    {
+      "individual_id": 10,
+      "split": "held_out",
+      "clip_id": "19_EB_Verde_21",
+      "start_row": 134750,
+      "row_count": 250,
+      "source_rows_sha256": "4ff4c87fad0a02f54fcb78157f7cacee5635798f21bb3bf902a66daa8a4b118c",
+      "peak_hz": 6.2,
+      "band_concentration": 0.6879112460020634
+    },
+    {
+      "individual_id": 10,
+      "split": "held_out",
+      "clip_id": "19_EB_Verde_21",
+      "start_row": 143500,
+      "row_count": 250,
+      "source_rows_sha256": "e309661a87de91cdf492c286b3cd7bcbe56ea55c71d5f972485cc07725c31065",
+      "peak_hz": 4.2,
+      "band_concentration": 0.441133678552026
+    },
+    {
+      "individual_id": 10,
+      "split": "held_out",
+      "clip_id": "19_EB_Verde_21",
+      "start_row": 195250,
+      "row_count": 250,
+      "source_rows_sha256": "397e94c90966e64a2203b145ebec082bc838c0c3ccbd772bceb444b65f723053",
+      "peak_hz": 6.4,
+      "band_concentration": 0.9181321810974833
+    },
+    {
+      "individual_id": 10,
+      "split": "held_out",
+      "clip_id": "19_EB_Verde_21",
+      "start_row": 257750,
+      "row_count": 250,
+      "source_rows_sha256": "bba268d0ed8a2dbadabf9ac1ba9a391c343a2a1d40c9ed066b35fbbff97288fc",
+      "peak_hz": 6.0,
+      "band_concentration": 0.6674054851456954
+    },
+    {
+      "individual_id": 10,
+      "split": "held_out",
+      "clip_id": "19_EB_Verde_21",
+      "start_row": 262500,
+      "row_count": 250,
+      "source_rows_sha256": "5d2fbfb09b8ffca8efe784b46d5b01ea389f9d056a1d98b2cd1d3804fb5d93e2",
+      "peak_hz": 11.0,
+      "band_concentration": 0.3580146010881654
+    },
+    {
+      "individual_id": 10,
+      "split": "held_out",
+      "clip_id": "19_EB_Verde_21",
+      "start_row": 301750,
+      "row_count": 250,
+      "source_rows_sha256": "9ae34b851a4d94ce2def8741a362d8f17d88900db8f75d846f4aeef7b03c194a",
+      "peak_hz": 6.6000000000000005,
+      "band_concentration": 0.8505965189087404
+    },
+    {
+      "individual_id": 10,
+      "split": "held_out",
+      "clip_id": "19_EB_Verde_21",
+      "start_row": 308250,
+      "row_count": 250,
+      "source_rows_sha256": "77c19ed4b5e98056b33eaaba0a1e93c0fced99db3cdab3a725211aeaf8a3b9df",
+      "peak_hz": 5.0,
+      "band_concentration": 0.5285615491037
+    },
+    {
+      "individual_id": 10,
+      "split": "held_out",
+      "clip_id": "19_EB_Verde_21",
+      "start_row": 309250,
+      "row_count": 250,
+      "source_rows_sha256": "ab46220a5c21eafb008116036fab67e3cf8af9abba27c97c514cf0671b86634f",
+      "peak_hz": 7.4,
+      "band_concentration": 0.3085933695394185
+    }
+  ],
+  "individuals": [
+    {
+      "individual_id": 0,
+      "split": "fit",
+      "clip_id": "19_AL_Azul_07",
+      "zip_entry_crc32": "ac0b407b",
+      "zip_entry_uncompressed_bytes": 82756636,
+      "rows_scanned": 438750,
+      "windows": 12,
+      "peak_median_hz": 4.5
+    },
+    {
+      "individual_id": 1,
+      "split": "fit",
+      "clip_id": "19_AL_Naranja_03",
+      "zip_entry_crc32": "222017b0",
+      "zip_entry_uncompressed_bytes": 90527906,
+      "rows_scanned": 286750,
+      "windows": 12,
+      "peak_median_hz": 4.6000000000000005
+    },
+    {
+      "individual_id": 2,
+      "split": "fit",
+      "clip_id": "19_AL_Rosa_24",
+      "zip_entry_crc32": "1e2de85e",
+      "zip_entry_uncompressed_bytes": 78423552,
+      "rows_scanned": 159250,
+      "windows": 12,
+      "peak_median_hz": 4.5
+    },
+    {
+      "individual_id": 3,
+      "split": "fit",
+      "clip_id": "19_BA_Amarilla_06",
+      "zip_entry_crc32": "1d16d873",
+      "zip_entry_uncompressed_bytes": 70440567,
+      "rows_scanned": 230750,
+      "windows": 12,
+      "peak_median_hz": 4.0
+    },
+    {
+      "individual_id": 4,
+      "split": "fit",
+      "clip_id": "19_BD_Rosa_03",
+      "zip_entry_crc32": "69928d3b",
+      "zip_entry_uncompressed_bytes": 23577881,
+      "rows_scanned": 204750,
+      "windows": 12,
+      "peak_median_hz": 4.300000000000001
+    },
+    {
+      "individual_id": 5,
+      "split": "fit",
+      "clip_id": "19_BPBO_Azul_13",
+      "zip_entry_crc32": "1e6f74d5",
+      "zip_entry_uncompressed_bytes": 28135568,
+      "rows_scanned": 225500,
+      "windows": 12,
+      "peak_median_hz": 4.300000000000001
+    },
+    {
+      "individual_id": 6,
+      "split": "fit",
+      "clip_id": "19_BV_Azul_21",
+      "zip_entry_crc32": "2118cf7b",
+      "zip_entry_uncompressed_bytes": 91170290,
+      "rows_scanned": 577750,
+      "windows": 12,
+      "peak_median_hz": 4.5
+    },
+    {
+      "individual_id": 7,
+      "split": "fit",
+      "clip_id": "19_BV_Morado_11",
+      "zip_entry_crc32": "79fd5047",
+      "zip_entry_uncompressed_bytes": 70242210,
+      "rows_scanned": 98250,
+      "windows": 12,
+      "peak_median_hz": 3.8000000000000003
+    },
+    {
+      "individual_id": 8,
+      "split": "held_out",
+      "clip_id": "19_CV_azul_33",
+      "zip_entry_crc32": "cb1e7261",
+      "zip_entry_uncompressed_bytes": 18360635,
+      "rows_scanned": 133750,
+      "windows": 12,
+      "peak_median_hz": 4.300000000000001
+    },
+    {
+      "individual_id": 9,
+      "split": "held_out",
+      "clip_id": "19_EB_Rojo_26",
+      "zip_entry_crc32": "80e3d042",
+      "zip_entry_uncompressed_bytes": 16066485,
+      "rows_scanned": 196094,
+      "windows": 0,
+      "peak_median_hz": null
+    },
+    {
+      "individual_id": 10,
+      "split": "held_out",
+      "clip_id": "19_EB_Verde_21",
+      "zip_entry_crc32": "9c7a8ea3",
+      "zip_entry_uncompressed_bytes": 26349200,
+      "rows_scanned": 328004,
+      "windows": 9,
+      "peak_median_hz": 6.2
+    }
+  ]
+}

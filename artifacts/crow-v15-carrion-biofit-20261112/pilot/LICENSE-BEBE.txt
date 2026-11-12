@@ -1,0 +1,14 @@
+Title: 
+Bio-logger Ethogram Benchmark: A benchmark for computational analysis of animal behavior, using animal-borne tags
+
+Authors: B. Hoffman, M. Cusimano, V. Baglione, D. Canestrari, D. Chevallier, D. DeSantis, L. Jeantet, M. Ladds, T. Maekawa, V. Mata-Silva, V. Moreno-González, A. Pagano, E. Trapote, O. Vainio, A. Vehkaoja, K. Yoda, K. Zacarian, A. Friedlaender, and C. Rutz
+Date: April 12, 2023
+Contact: Benjamin Hoffman, benjamin@earthspecies.org
+
+--------------------------------------------------------------------------------------------------------------
+
+NOTE: if you use this dataset, cite the publication listed at doi:10.5281/zenodo.7807281
+
+--------------------------------------------------------------------------------------------------------------
+
+This work is licensed under the Creative Commons Attribution 4.0 International License. To view a copy of this license, visit http://creativecommons.org/licenses/by/4.0/ or send a letter to Creative Commons, PO Box 1866, Mountain View, CA 94042, USA.
