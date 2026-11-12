@@ -1,0 +1,110 @@
+{
+  "seed": 20261126,
+  "rows": [
+    {
+      "lane": 4,
+      "side": "left",
+      "first_target_difference": {
+        "step": 211,
+        "knee_target_delta_rad": -0.0019199840000000412,
+        "ankle_target_delta_rad": 0.003199995000000011,
+        "previous_recorded_valid": true,
+        "previous_recorded_rear": false,
+        "previous_recorded_front": false
+      },
+      "differing_steps": 90
+    },
+    {
+      "lane": 4,
+      "side": "right",
+      "first_target_difference": {
+        "step": 212,
+        "knee_target_delta_rad": 0.0,
+        "ankle_target_delta_rad": 0.0018209820000000265,
+        "previous_recorded_valid": true,
+        "previous_recorded_rear": true,
+        "previous_recorded_front": false
+      },
+      "differing_steps": 89
+    },
+    {
+      "lane": 5,
+      "side": "left",
+      "first_target_difference": {
+        "step": 211,
+        "knee_target_delta_rad": -0.0038400290000000226,
+        "ankle_target_delta_rad": 0.006399990000000022,
+        "previous_recorded_valid": true,
+        "previous_recorded_rear": false,
+        "previous_recorded_front": false
+      },
+      "differing_steps": 90
+    },
+    {
+      "lane": 5,
+      "side": "right",
+      "first_target_difference": {
+        "step": 212,
+        "knee_target_delta_rad": 0.0,
+        "ankle_target_delta_rad": 0.009560137999999996,
+        "previous_recorded_valid": true,
+        "previous_recorded_rear": true,
+        "previous_recorded_front": false
+      },
+      "differing_steps": 89
+    },
+    {
+      "lane": 6,
+      "side": "left",
+      "first_target_difference": {
+        "step": 211,
+        "knee_target_delta_rad": -0.0038400290000000226,
+        "ankle_target_delta_rad": 0.006399990000000022,
+        "previous_recorded_valid": true,
+        "previous_recorded_rear": false,
+        "previous_recorded_front": false
+      },
+      "differing_steps": 90
+    },
+    {
+      "lane": 6,
+      "side": "right",
+      "first_target_difference": {
+        "step": 212,
+        "knee_target_delta_rad": 0.0,
+        "ankle_target_delta_rad": 0.008649646999999983,
+        "previous_recorded_valid": true,
+        "previous_recorded_rear": true,
+        "previous_recorded_front": false
+      },
+      "differing_steps": 89
+    },
+    {
+      "lane": 7,
+      "side": "left",
+      "first_target_difference": {
+        "step": 211,
+        "knee_target_delta_rad": -0.007679998000000077,
+        "ankle_target_delta_rad": 0.012800009000000001,
+        "previous_recorded_valid": true,
+        "previous_recorded_rear": false,
+        "previous_recorded_front": false
+      },
+      "differing_steps": 90
+    },
+    {
+      "lane": 7,
+      "side": "right",
+      "first_target_difference": {
+        "step": 212,
+        "knee_target_delta_rad": 0.0,
+        "ankle_target_delta_rad": 0.010015368000000024,
+        "previous_recorded_valid": true,
+        "previous_recorded_rear": true,
+        "previous_recorded_front": false
+      },
+      "differing_steps": 89
+    }
+  ],
+  "scope": "Targets compared with same-lane prior trajectories. Once trajectories diverge, differences do not isolate the added command. Prior recorded sensor sample is a timing proxy, not proof of the exact consumption boundary."
+}

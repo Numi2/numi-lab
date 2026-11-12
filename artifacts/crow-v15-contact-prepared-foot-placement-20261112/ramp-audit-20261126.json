@@ -1,0 +1,93 @@
+{
+  "seed": 20261126,
+  "rows": [
+    {
+      "lane": 4,
+      "side": "left",
+      "verified": 99,
+      "mode_counts": {
+        "fall": 35,
+        "rise": 26,
+        "hold": 38
+      },
+      "violations": []
+    },
+    {
+      "lane": 4,
+      "side": "right",
+      "verified": 99,
+      "mode_counts": {
+        "fall": 30,
+        "hold": 38,
+        "rise": 31
+      },
+      "violations": []
+    },
+    {
+      "lane": 5,
+      "side": "left",
+      "verified": 99,
+      "mode_counts": {
+        "fall": 34,
+        "rise": 28,
+        "hold": 37
+      },
+      "violations": []
+    },
+    {
+      "lane": 5,
+      "side": "right",
+      "verified": 99,
+      "mode_counts": {
+        "fall": 30,
+        "hold": 37,
+        "rise": 32
+      },
+      "violations": []
+    },
+    {
+      "lane": 6,
+      "side": "left",
+      "verified": 99,
+      "mode_counts": {
+        "fall": 35,
+        "rise": 27,
+        "hold": 37
+      },
+      "violations": []
+    },
+    {
+      "lane": 6,
+      "side": "right",
+      "verified": 99,
+      "mode_counts": {
+        "fall": 31,
+        "hold": 38,
+        "rise": 30
+      },
+      "violations": []
+    },
+    {
+      "lane": 7,
+      "side": "left",
+      "verified": 99,
+      "mode_counts": {
+        "fall": 33,
+        "rise": 28,
+        "hold": 38
+      },
+      "violations": []
+    },
+    {
+      "lane": 7,
+      "side": "right",
+      "verified": 99,
+      "mode_counts": {
+        "fall": 31,
+        "hold": 37,
+        "rise": 31
+      },
+      "violations": []
+    }
+  ]
+}

@@ -1,0 +1,374 @@
+{
+  "20261126": [
+    {
+      "lane": 0,
+      "knee_offset": 0,
+      "previous_and_trial_median_ms": {
+        "previous": 170.0,
+        "trial": 170.0
+      },
+      "event_count_by_foot": {
+        "previous": {
+          "left": 4,
+          "right": 3
+        },
+        "trial": {
+          "left": 4,
+          "right": 3
+        }
+      },
+      "trial_to_previous_ratio": 1.0,
+      "physical_gates_pass": false,
+      "preregistered_toe_gate_pass": false,
+      "joint_screen_pass": false,
+      "posthoc_both_arms_hallux_first": true
+    },
+    {
+      "lane": 1,
+      "knee_offset": 0,
+      "previous_and_trial_median_ms": {
+        "previous": 171.25,
+        "trial": 171.25
+      },
+      "event_count_by_foot": {
+        "previous": {
+          "left": 4,
+          "right": 3
+        },
+        "trial": {
+          "left": 4,
+          "right": 3
+        }
+      },
+      "trial_to_previous_ratio": 1.0,
+      "physical_gates_pass": false,
+      "preregistered_toe_gate_pass": false,
+      "joint_screen_pass": false,
+      "posthoc_both_arms_hallux_first": true
+    },
+    {
+      "lane": 2,
+      "knee_offset": 0,
+      "previous_and_trial_median_ms": {
+        "previous": 188.75,
+        "trial": 188.75
+      },
+      "event_count_by_foot": {
+        "previous": {
+          "left": 4,
+          "right": 3
+        },
+        "trial": {
+          "left": 4,
+          "right": 3
+        }
+      },
+      "trial_to_previous_ratio": 1.0,
+      "physical_gates_pass": false,
+      "preregistered_toe_gate_pass": false,
+      "joint_screen_pass": false,
+      "posthoc_both_arms_hallux_first": true
+    },
+    {
+      "lane": 3,
+      "knee_offset": 0,
+      "previous_and_trial_median_ms": {
+        "previous": 195.0,
+        "trial": 195.0
+      },
+      "event_count_by_foot": {
+        "previous": {
+          "left": 4,
+          "right": 3
+        },
+        "trial": {
+          "left": 4,
+          "right": 3
+        }
+      },
+      "trial_to_previous_ratio": 1.0,
+      "physical_gates_pass": false,
+      "preregistered_toe_gate_pass": false,
+      "joint_screen_pass": false,
+      "posthoc_both_arms_hallux_first": true
+    },
+    {
+      "lane": 4,
+      "knee_offset": -0.015,
+      "previous_and_trial_median_ms": {
+        "previous": 197.5,
+        "trial": 188.75
+      },
+      "event_count_by_foot": {
+        "previous": {
+          "left": 4,
+          "right": 3
+        },
+        "trial": {
+          "left": 4,
+          "right": 3
+        }
+      },
+      "trial_to_previous_ratio": 0.9556962025316456,
+      "physical_gates_pass": false,
+      "preregistered_toe_gate_pass": false,
+      "joint_screen_pass": false,
+      "posthoc_both_arms_hallux_first": false
+    },
+    {
+      "lane": 5,
+      "knee_offset": -0.015,
+      "previous_and_trial_median_ms": {
+        "previous": 192.5,
+        "trial": 180.0
+      },
+      "event_count_by_foot": {
+        "previous": {
+          "left": 4,
+          "right": 3
+        },
+        "trial": {
+          "left": 4,
+          "right": 3
+        }
+      },
+      "trial_to_previous_ratio": 0.935064935064935,
+      "physical_gates_pass": false,
+      "preregistered_toe_gate_pass": false,
+      "joint_screen_pass": false,
+      "posthoc_both_arms_hallux_first": true
+    },
+    {
+      "lane": 6,
+      "knee_offset": -0.03,
+      "previous_and_trial_median_ms": {
+        "previous": 190.0,
+        "trial": 192.5
+      },
+      "event_count_by_foot": {
+        "previous": {
+          "left": 4,
+          "right": 3
+        },
+        "trial": {
+          "left": 4,
+          "right": 3
+        }
+      },
+      "trial_to_previous_ratio": 1.013157894736842,
+      "physical_gates_pass": false,
+      "preregistered_toe_gate_pass": false,
+      "joint_screen_pass": false,
+      "posthoc_both_arms_hallux_first": true
+    },
+    {
+      "lane": 7,
+      "knee_offset": -0.03,
+      "previous_and_trial_median_ms": {
+        "previous": 196.25,
+        "trial": 189.375
+      },
+      "event_count_by_foot": {
+        "previous": {
+          "left": 4,
+          "right": 3
+        },
+        "trial": {
+          "left": 3,
+          "right": 3
+        }
+      },
+      "trial_to_previous_ratio": 0.964968152866242,
+      "physical_gates_pass": true,
+      "preregistered_toe_gate_pass": false,
+      "joint_screen_pass": false,
+      "posthoc_both_arms_hallux_first": true
+    }
+  ],
+  "20261127": [
+    {
+      "lane": 0,
+      "knee_offset": 0,
+      "previous_and_trial_median_ms": {
+        "previous": 171.25,
+        "trial": 171.25
+      },
+      "event_count_by_foot": {
+        "previous": {
+          "left": 4,
+          "right": 3
+        },
+        "trial": {
+          "left": 4,
+          "right": 3
+        }
+      },
+      "trial_to_previous_ratio": 1.0,
+      "physical_gates_pass": false,
+      "preregistered_toe_gate_pass": false,
+      "joint_screen_pass": false,
+      "posthoc_both_arms_hallux_first": true
+    },
+    {
+      "lane": 1,
+      "knee_offset": 0,
+      "previous_and_trial_median_ms": {
+        "previous": 171.25,
+        "trial": 171.25
+      },
+      "event_count_by_foot": {
+        "previous": {
+          "left": 4,
+          "right": 3
+        },
+        "trial": {
+          "left": 4,
+          "right": 3
+        }
+      },
+      "trial_to_previous_ratio": 1.0,
+      "physical_gates_pass": false,
+      "preregistered_toe_gate_pass": false,
+      "joint_screen_pass": false,
+      "posthoc_both_arms_hallux_first": true
+    },
+    {
+      "lane": 2,
+      "knee_offset": 0,
+      "previous_and_trial_median_ms": {
+        "previous": 195.0,
+        "trial": 195.0
+      },
+      "event_count_by_foot": {
+        "previous": {
+          "left": 4,
+          "right": 3
+        },
+        "trial": {
+          "left": 4,
+          "right": 3
+        }
+      },
+      "trial_to_previous_ratio": 1.0,
+      "physical_gates_pass": false,
+      "preregistered_toe_gate_pass": false,
+      "joint_screen_pass": false,
+      "posthoc_both_arms_hallux_first": true
+    },
+    {
+      "lane": 3,
+      "knee_offset": 0,
+      "previous_and_trial_median_ms": {
+        "previous": 197.5,
+        "trial": 197.5
+      },
+      "event_count_by_foot": {
+        "previous": {
+          "left": 4,
+          "right": 3
+        },
+        "trial": {
+          "left": 4,
+          "right": 3
+        }
+      },
+      "trial_to_previous_ratio": 1.0,
+      "physical_gates_pass": false,
+      "preregistered_toe_gate_pass": false,
+      "joint_screen_pass": false,
+      "posthoc_both_arms_hallux_first": true
+    },
+    {
+      "lane": 4,
+      "knee_offset": -0.015,
+      "previous_and_trial_median_ms": {
+        "previous": 195.0,
+        "trial": 187.5
+      },
+      "event_count_by_foot": {
+        "previous": {
+          "left": 4,
+          "right": 3
+        },
+        "trial": {
+          "left": 4,
+          "right": 3
+        }
+      },
+      "trial_to_previous_ratio": 0.9615384615384616,
+      "physical_gates_pass": false,
+      "preregistered_toe_gate_pass": false,
+      "joint_screen_pass": false,
+      "posthoc_both_arms_hallux_first": false
+    },
+    {
+      "lane": 5,
+      "knee_offset": -0.015,
+      "previous_and_trial_median_ms": {
+        "previous": 196.25,
+        "trial": 195.0
+      },
+      "event_count_by_foot": {
+        "previous": {
+          "left": 4,
+          "right": 3
+        },
+        "trial": {
+          "left": 4,
+          "right": 3
+        }
+      },
+      "trial_to_previous_ratio": 0.9936305732484076,
+      "physical_gates_pass": false,
+      "preregistered_toe_gate_pass": false,
+      "joint_screen_pass": false,
+      "posthoc_both_arms_hallux_first": true
+    },
+    {
+      "lane": 6,
+      "knee_offset": -0.03,
+      "previous_and_trial_median_ms": {
+        "previous": 196.25,
+        "trial": 196.25
+      },
+      "event_count_by_foot": {
+        "previous": {
+          "left": 4,
+          "right": 3
+        },
+        "trial": {
+          "left": 4,
+          "right": 3
+        }
+      },
+      "trial_to_previous_ratio": 1.0,
+      "physical_gates_pass": false,
+      "preregistered_toe_gate_pass": false,
+      "joint_screen_pass": false,
+      "posthoc_both_arms_hallux_first": true
+    },
+    {
+      "lane": 7,
+      "knee_offset": -0.03,
+      "previous_and_trial_median_ms": {
+        "previous": 196.25,
+        "trial": 186.875
+      },
+      "event_count_by_foot": {
+        "previous": {
+          "left": 4,
+          "right": 3
+        },
+        "trial": {
+          "left": 3,
+          "right": 3
+        }
+      },
+      "trial_to_previous_ratio": 0.9522292993630573,
+      "physical_gates_pass": false,
+      "preregistered_toe_gate_pass": false,
+      "joint_screen_pass": false,
+      "posthoc_both_arms_hallux_first": true
+    }
+  ]
+}
