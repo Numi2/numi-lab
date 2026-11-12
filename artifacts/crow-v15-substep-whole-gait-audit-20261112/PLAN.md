@@ -1,0 +1,3 @@
+# Whole-gait substep audit
+
+Use the already validated passive substep recording to reconstruct torso, head, hip, knee, ankle and a modeled toe landmark at 800 Hz. Compare knee and ankle-proxy minimum timing in recovery windows segmented from recorded front/rear toe contacts, using both raw and smoothed curves. Report exclusions, anchor/replay agreement and torso/head motion. Related-magpie findings motivate the comparison, but the second simulated front-toe base is an unverified anatomical proxy, minima are not extension onsets, and species, speed and surface differ. This is not a real-crow fit or proof of stable locomotion.
