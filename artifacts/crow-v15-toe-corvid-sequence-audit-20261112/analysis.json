@@ -1437,8 +1437,7 @@
         "hallux_first": 56
       },
       "liftoff": {
-        "hallux_first": 62,
-        "digit3_first": 2
+        "hallux_first": 62
       }
     },
     "rows": [
@@ -2426,17 +2425,6 @@
         "side": "right",
         "events": [
           {
-            "type": "liftoff",
-            "order": "digit3_first",
-            "from_sample": 2,
-            "to_sample": 192,
-            "gap_ms": 135.0,
-            "states": [
-              1,
-              0
-            ]
-          },
-          {
             "type": "touchdown",
             "order": "hallux_first",
             "from_sample": 433,
@@ -2780,17 +2768,6 @@
         "side": "right",
         "events": [
           {
-            "type": "liftoff",
-            "order": "digit3_first",
-            "from_sample": 2,
-            "to_sample": 193,
-            "gap_ms": 135.0,
-            "states": [
-              1,
-              0
-            ]
-          },
-          {
             "type": "touchdown",
             "order": "hallux_first",
             "from_sample": 433,
@@ -2868,7 +2845,7 @@
         "hallux_first": 56
       },
       "liftoff": {
-        "hallux_first": 64
+        "hallux_first": 60
       }
     },
     "rows": [
@@ -2876,17 +2853,6 @@
         "lane": 0,
         "side": "left",
         "events": [
-          {
-            "type": "liftoff",
-            "order": "hallux_first",
-            "from_sample": 2,
-            "to_sample": 205,
-            "gap_ms": 126.25,
-            "states": [
-              2,
-              0
-            ]
-          },
           {
             "type": "touchdown",
             "order": "hallux_first",
@@ -3053,17 +3019,6 @@
         "lane": 1,
         "side": "left",
         "events": [
-          {
-            "type": "liftoff",
-            "order": "hallux_first",
-            "from_sample": 2,
-            "to_sample": 205,
-            "gap_ms": 126.25,
-            "states": [
-              2,
-              0
-            ]
-          },
           {
             "type": "touchdown",
             "order": "hallux_first",
@@ -3762,17 +3717,6 @@
         "side": "left",
         "events": [
           {
-            "type": "liftoff",
-            "order": "hallux_first",
-            "from_sample": 2,
-            "to_sample": 205,
-            "gap_ms": 126.25,
-            "states": [
-              2,
-              0
-            ]
-          },
-          {
             "type": "touchdown",
             "order": "hallux_first",
             "from_sample": 205,
@@ -4116,17 +4060,6 @@
         "side": "left",
         "events": [
           {
-            "type": "liftoff",
-            "order": "hallux_first",
-            "from_sample": 2,
-            "to_sample": 205,
-            "gap_ms": 126.25,
-            "states": [
-              2,
-              0
-            ]
-          },
-          {
             "type": "touchdown",
             "order": "hallux_first",
             "from_sample": 205,
@@ -4298,8 +4231,7 @@
         "hallux_first": 56
       },
       "liftoff": {
-        "hallux_first": 62,
-        "digit3_first": 2
+        "hallux_first": 58
       }
     },
     "rows": [
@@ -4307,17 +4239,6 @@
         "lane": 0,
         "side": "left",
         "events": [
-          {
-            "type": "liftoff",
-            "order": "hallux_first",
-            "from_sample": 2,
-            "to_sample": 205,
-            "gap_ms": 126.25,
-            "states": [
-              2,
-              0
-            ]
-          },
           {
             "type": "touchdown",
             "order": "hallux_first",
@@ -4484,17 +4405,6 @@
         "lane": 1,
         "side": "left",
         "events": [
-          {
-            "type": "liftoff",
-            "order": "hallux_first",
-            "from_sample": 2,
-            "to_sample": 205,
-            "gap_ms": 126.25,
-            "states": [
-              2,
-              0
-            ]
-          },
           {
             "type": "touchdown",
             "order": "hallux_first",
@@ -4933,17 +4843,6 @@
         "side": "right",
         "events": [
           {
-            "type": "liftoff",
-            "order": "digit3_first",
-            "from_sample": 2,
-            "to_sample": 190,
-            "gap_ms": 132.5,
-            "states": [
-              1,
-              0
-            ]
-          },
-          {
             "type": "touchdown",
             "order": "hallux_first",
             "from_sample": 454,
@@ -5192,17 +5091,6 @@
         "lane": 5,
         "side": "left",
         "events": [
-          {
-            "type": "liftoff",
-            "order": "hallux_first",
-            "from_sample": 2,
-            "to_sample": 161,
-            "gap_ms": 73.75,
-            "states": [
-              2,
-              0
-            ]
-          },
           {
             "type": "touchdown",
             "order": "hallux_first",
@@ -5464,17 +5352,6 @@
         "side": "right",
         "events": [
           {
-            "type": "liftoff",
-            "order": "digit3_first",
-            "from_sample": 2,
-            "to_sample": 192,
-            "gap_ms": 135.0,
-            "states": [
-              1,
-              0
-            ]
-          },
-          {
             "type": "touchdown",
             "order": "hallux_first",
             "from_sample": 433,
@@ -5546,17 +5423,6 @@
         "lane": 7,
         "side": "left",
         "events": [
-          {
-            "type": "liftoff",
-            "order": "hallux_first",
-            "from_sample": 2,
-            "to_sample": 161,
-            "gap_ms": 73.75,
-            "states": [
-              2,
-              0
-            ]
-          },
           {
             "type": "touchdown",
             "order": "hallux_first",

@@ -8,7 +8,7 @@ def sha(p):
   for b in iter(lambda:f.read(1<<20),b''):h.update(b)
  return h.hexdigest()
 def persistent(samples):
- stable=[False,False];pending=[0,0];states=[]
+ stable=list(samples[0]);pending=[0,0];states=[]
  for pair in samples:
   for k,x in enumerate(pair):
    if x==stable[k]:pending[k]=0
@@ -36,6 +36,10 @@ def events(states):
     else:order='complex'
     found.append({'type':typ,'order':order,'from_sample':start,'to_sample':changes[j][0],'gap_ms':(changes[j][0]-changes[i+1][0])*1.25,'states':seq});break
  return found
+# A loaded first sample is left-censored; it must not manufacture a landing.
+assert events(persistent([(True,True)]*10+[(False,True)]*10+[(False,False)]*10))==[]
+synthetic=([(False,False)]*8+[(True,False)]*8+[(True,True)]*8+[(False,True)]*8+[(False,False)]*8+[(True,False)]*8+[(True,True)]*8)
+assert [(x['type'],x['order']) for x in events(persistent(synthetic))]==[('liftoff','hallux_first'),('touchdown','hallux_first')]
 results={}
 for (seed,arm),p in paths.items():
  values={(e,side):{} for e in range(8) for side in (0,1)}

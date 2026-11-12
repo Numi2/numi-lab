@@ -1,0 +1,9 @@
+> Superseded: the original filter synthesized a contact at the left boundary. Use RESULT.md and the corrected analysis; these initial counts are preserved for audit.
+
+# Toe contact order in retained development walks
+
+With the preregistered 3-substep persistence filter, the two baseline batches each showed 56 complete hallux-first touchdown sequences and 64 hallux-first lift-off sequences. The two negative-ankle-feedback batches each showed 56 hallux-first touchdowns, 62 hallux-first lift-offs and two digit-3-first lift-offs. These are repeated events from 16 correlated lane/side pairs per batch, not independent birds or new held-out starts. Boundary and incomplete sequences are excluded. Each pair is a simulated two-segment body group and not an anatomically validated digit.
+
+Order alone is misleading: in baseline, the median lag between first hallux-group loading and both groups loading was about 171 ms; in the candidate it was about 189–194 ms. The imposed gait carrier period is 500 ms, so these are substantial portions of that experimental cycle. Median time from the first group unloading to both groups unloaded was 70 ms in baseline and about 100–101 ms in the candidate. The paper does not provide a directly comparable timing target here; no biological error or significance is inferred from these lags. The impulse threshold and 3.75 ms filter, different walking speed, group proxies and intermittent contact complicate comparison with visual toe touchdown and lift-off.
+
+The observed ordering agrees qualitatively with the related-magpie description but does not prove foot grip, complete contact timing, crow anatomy, natural walking or landing. The negative-ankle candidate previously failed most joint/support gates and is not promoted. A subsequent intervention should address the long loading sequence and whole-foot support using actual ground contacts rather than copying a visual pose.
