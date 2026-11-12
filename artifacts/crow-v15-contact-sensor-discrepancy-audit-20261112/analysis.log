@@ -1,0 +1,48 @@
+{
+  "support_groups": {
+    "flagged": {
+      "samples": 814,
+      "median_error_m_s": 0.0004718796174022239,
+      "p95_error_m_s": 0.0009411608157089474,
+      "max_error_m_s": 0.0013141917223553497
+    },
+    "unflagged": {
+      "samples": 350,
+      "median_error_m_s": 0.0,
+      "p95_error_m_s": 0.0007932725904030435,
+      "max_error_m_s": 0.15459882583170254
+    }
+  },
+  "seed": 20261127,
+  "lanes": [
+    2,
+    3,
+    4,
+    5,
+    6,
+    7
+  ],
+  "interval_steps": [
+    202,
+    298
+  ],
+  "samples": 1164,
+  "median_error_m_s": 0.0002908530810718235,
+  "p95_error_m_s": 0.0009337825980779346,
+  "count_error_above_0_02_m_s": 12,
+  "big_error_impulse_below_1e_5_ns": 12,
+  "big_error_same_step_support_flags": 0,
+  "big_error_prev_step_closer": 9,
+  "big_error_next_step_closer": 4,
+  "limits": "Retained trajectories; final-substep reference cutoff differs from shader; delayed and changing contact state, quantization and possible frame timing mismatch. No causation inferred."
+}
+{'lane': 4, 'step': 288, 'side': 'left', 'sensor_m_s': 0.15459882583170254, 'reference_m_s': 0.0, 'absolute_error_m_s': 0.15459882583170254, 'previous_error_m_s': 0.09132377175469508, 'next_error_m_s': 0.1395902352420493, 'loaded_impulse_ns': 0.0, 'same_step_support_flag': False}
+{'lane': 5, 'step': 263, 'side': 'left', 'sensor_m_s': 0.14285714285714285, 'reference_m_s': 0.0, 'absolute_error_m_s': 0.14285714285714285, 'previous_error_m_s': 0.06957257961541452, 'next_error_m_s': 0.127051017044378, 'loaded_impulse_ns': 0.0, 'same_step_support_flag': False}
+{'lane': 2, 'step': 254, 'side': 'left', 'sensor_m_s': -0.12720156555772993, 'reference_m_s': 0.0, 'absolute_error_m_s': 0.12720156555772993, 'previous_error_m_s': 0.12782374008603553, 'next_error_m_s': 0.12720156555772993, 'loaded_impulse_ns': 0.0, 'same_step_support_flag': False}
+{'lane': 3, 'step': 254, 'side': 'left', 'sensor_m_s': -0.12720156555772993, 'reference_m_s': 0.0, 'absolute_error_m_s': 0.12720156555772993, 'previous_error_m_s': 0.12781446305576155, 'next_error_m_s': 0.12720156555772993, 'loaded_impulse_ns': 0.0, 'same_step_support_flag': False}
+{'lane': 6, 'step': 288, 'side': 'left', 'sensor_m_s': 0.12524461839530332, 'reference_m_s': 0.0, 'absolute_error_m_s': 0.12524461839530332, 'previous_error_m_s': 0.06797613266161767, 'next_error_m_s': 0.07585092362679634, 'loaded_impulse_ns': 0.0, 'same_step_support_flag': False}
+{'lane': 6, 'step': 263, 'side': 'left', 'sensor_m_s': 0.11350293542074363, 'reference_m_s': 0.0, 'absolute_error_m_s': 0.11350293542074363, 'previous_error_m_s': 0.05772293840182748, 'next_error_m_s': 0.07915019596019053, 'loaded_impulse_ns': 0.0, 'same_step_support_flag': False}
+{'lane': 7, 'step': 241, 'side': 'right', 'sensor_m_s': 0.08414872798434442, 'reference_m_s': 0.0, 'absolute_error_m_s': 0.08414872798434442, 'previous_error_m_s': 0.08405352214994476, 'next_error_m_s': 0.08414872798434442, 'loaded_impulse_ns': 0.0, 'same_step_support_flag': False}
+{'lane': 6, 'step': 292, 'side': 'right', 'sensor_m_s': -0.0684931506849315, 'reference_m_s': 0.0, 'absolute_error_m_s': 0.0684931506849315, 'previous_error_m_s': 0.06717422626284225, 'next_error_m_s': 0.0684931506849315, 'loaded_impulse_ns': 0.0, 'same_step_support_flag': False}
+{'lane': 7, 'step': 292, 'side': 'right', 'sensor_m_s': -0.06653620352250489, 'reference_m_s': 0.0, 'absolute_error_m_s': 0.06653620352250489, 'previous_error_m_s': 0.06557875071588806, 'next_error_m_s': 0.06653620352250489, 'loaded_impulse_ns': 0.0, 'same_step_support_flag': False}
+{'lane': 6, 'step': 267, 'side': 'right', 'sensor_m_s': -0.0547945205479452, 'reference_m_s': 0.0, 'absolute_error_m_s': 0.0547945205479452, 'previous_error_m_s': 0.05372443384794458, 'next_error_m_s': 0.0547945205479452, 'loaded_impulse_ns': 0.0, 'same_step_support_flag': False}

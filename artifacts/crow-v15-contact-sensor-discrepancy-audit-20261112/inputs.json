@@ -1,0 +1,15 @@
+{
+  "source_evidence_commit": "0b34380ceb8b982054980195a9c822bcdc15f5b3",
+  "verified_source_files": [
+    {
+      "path": "artifacts/crow-v15-knee-contact-feedback-screen-20261112/candidate-20261127-rebound-phase/replay.json.gz",
+      "sha256": "74e72e163542ab1952eb2261614464b2efd7a245c8d01f4e09b3ad2a48bea63c",
+      "bytes": 3359822
+    },
+    {
+      "path": "artifacts/crow-v15-knee-contact-feedback-screen-20261112/candidate-20261127-rebound-phase/run.stderr.gz",
+      "sha256": "a23a21c7f21b82ac62959d45f0057f6e18724c347eb3d0b7dd01bfbd190558df",
+      "bytes": 28241332
+    }
+  ]
+}

@@ -1,0 +1,5 @@
+# Large sensor discrepancies coincide with unflagged support
+
+Among 1,164 foot/step comparisons from six correlated development lanes, 12 absolute differences exceeded 0.02 m/s. Every one had zero reference impulse above 1e-7 N s and an off same-step support flag. In 814 observations with the same-step support flag on, the median discrepancy was 0.000472 m/s and the maximum 0.001314 m/s; across all observations the median was 0.000291 m/s and the 95th percentile 0.000934 m/s. Nine of the 12 large events had a closer previous-step reference.
+
+This identifies a concrete association, not the cause. The sensor includes impulses down to 1e-9 N s, whereas the offline reconstruction records only those above 1e-7 N s; it also uses potentially staggered contact and accepted-state times. The same-step support bit is not yet an instrumented proof of what the next action consumed. The magnitudes, timing and sign of tiny contacts have not been established, and these are not independent birds or a biological fit. The source trace and reconstructed records remain available at the Git commit in inputs.json.
