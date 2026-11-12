@@ -1,0 +1,421 @@
+{
+  "rows": [
+    {
+      "seed": 20261126,
+      "lane": 0,
+      "sides": [
+        {
+          "active_intervals": 27,
+          "intervals_with_any_summed_contact": 0,
+          "intervals_with_half_weight_impulse": 0,
+          "loaded_intervals": []
+        },
+        {
+          "active_intervals": 39,
+          "intervals_with_any_summed_contact": 7,
+          "intervals_with_half_weight_impulse": 0,
+          "loaded_intervals": [
+            216,
+            217,
+            218,
+            224,
+            250,
+            275,
+            300
+          ]
+        }
+      ]
+    },
+    {
+      "seed": 20261126,
+      "lane": 1,
+      "sides": [
+        {
+          "active_intervals": 27,
+          "intervals_with_any_summed_contact": 0,
+          "intervals_with_half_weight_impulse": 0,
+          "loaded_intervals": []
+        },
+        {
+          "active_intervals": 39,
+          "intervals_with_any_summed_contact": 7,
+          "intervals_with_half_weight_impulse": 0,
+          "loaded_intervals": [
+            216,
+            217,
+            218,
+            224,
+            250,
+            275,
+            300
+          ]
+        }
+      ]
+    },
+    {
+      "seed": 20261126,
+      "lane": 2,
+      "sides": [
+        {
+          "active_intervals": 27,
+          "intervals_with_any_summed_contact": 0,
+          "intervals_with_half_weight_impulse": 0,
+          "loaded_intervals": []
+        },
+        {
+          "active_intervals": 39,
+          "intervals_with_any_summed_contact": 7,
+          "intervals_with_half_weight_impulse": 0,
+          "loaded_intervals": [
+            216,
+            217,
+            218,
+            224,
+            250,
+            275,
+            300
+          ]
+        }
+      ]
+    },
+    {
+      "seed": 20261126,
+      "lane": 3,
+      "sides": [
+        {
+          "active_intervals": 27,
+          "intervals_with_any_summed_contact": 0,
+          "intervals_with_half_weight_impulse": 0,
+          "loaded_intervals": []
+        },
+        {
+          "active_intervals": 39,
+          "intervals_with_any_summed_contact": 7,
+          "intervals_with_half_weight_impulse": 0,
+          "loaded_intervals": [
+            216,
+            217,
+            218,
+            224,
+            250,
+            275,
+            300
+          ]
+        }
+      ]
+    },
+    {
+      "seed": 20261126,
+      "lane": 4,
+      "sides": [
+        {
+          "active_intervals": 27,
+          "intervals_with_any_summed_contact": 0,
+          "intervals_with_half_weight_impulse": 0,
+          "loaded_intervals": []
+        },
+        {
+          "active_intervals": 39,
+          "intervals_with_any_summed_contact": 7,
+          "intervals_with_half_weight_impulse": 0,
+          "loaded_intervals": [
+            216,
+            217,
+            218,
+            224,
+            250,
+            275,
+            300
+          ]
+        }
+      ]
+    },
+    {
+      "seed": 20261126,
+      "lane": 5,
+      "sides": [
+        {
+          "active_intervals": 27,
+          "intervals_with_any_summed_contact": 0,
+          "intervals_with_half_weight_impulse": 0,
+          "loaded_intervals": []
+        },
+        {
+          "active_intervals": 39,
+          "intervals_with_any_summed_contact": 7,
+          "intervals_with_half_weight_impulse": 0,
+          "loaded_intervals": [
+            216,
+            217,
+            218,
+            224,
+            250,
+            275,
+            300
+          ]
+        }
+      ]
+    },
+    {
+      "seed": 20261126,
+      "lane": 6,
+      "sides": [
+        {
+          "active_intervals": 27,
+          "intervals_with_any_summed_contact": 0,
+          "intervals_with_half_weight_impulse": 0,
+          "loaded_intervals": []
+        },
+        {
+          "active_intervals": 39,
+          "intervals_with_any_summed_contact": 7,
+          "intervals_with_half_weight_impulse": 0,
+          "loaded_intervals": [
+            216,
+            217,
+            218,
+            224,
+            250,
+            275,
+            300
+          ]
+        }
+      ]
+    },
+    {
+      "seed": 20261126,
+      "lane": 7,
+      "sides": [
+        {
+          "active_intervals": 27,
+          "intervals_with_any_summed_contact": 0,
+          "intervals_with_half_weight_impulse": 0,
+          "loaded_intervals": []
+        },
+        {
+          "active_intervals": 39,
+          "intervals_with_any_summed_contact": 7,
+          "intervals_with_half_weight_impulse": 0,
+          "loaded_intervals": [
+            216,
+            217,
+            218,
+            224,
+            250,
+            275,
+            300
+          ]
+        }
+      ]
+    },
+    {
+      "seed": 20261127,
+      "lane": 0,
+      "sides": [
+        {
+          "active_intervals": 27,
+          "intervals_with_any_summed_contact": 0,
+          "intervals_with_half_weight_impulse": 0,
+          "loaded_intervals": []
+        },
+        {
+          "active_intervals": 39,
+          "intervals_with_any_summed_contact": 7,
+          "intervals_with_half_weight_impulse": 0,
+          "loaded_intervals": [
+            216,
+            217,
+            218,
+            224,
+            250,
+            275,
+            300
+          ]
+        }
+      ]
+    },
+    {
+      "seed": 20261127,
+      "lane": 1,
+      "sides": [
+        {
+          "active_intervals": 27,
+          "intervals_with_any_summed_contact": 0,
+          "intervals_with_half_weight_impulse": 0,
+          "loaded_intervals": []
+        },
+        {
+          "active_intervals": 39,
+          "intervals_with_any_summed_contact": 7,
+          "intervals_with_half_weight_impulse": 0,
+          "loaded_intervals": [
+            216,
+            217,
+            218,
+            224,
+            250,
+            275,
+            300
+          ]
+        }
+      ]
+    },
+    {
+      "seed": 20261127,
+      "lane": 2,
+      "sides": [
+        {
+          "active_intervals": 27,
+          "intervals_with_any_summed_contact": 0,
+          "intervals_with_half_weight_impulse": 0,
+          "loaded_intervals": []
+        },
+        {
+          "active_intervals": 39,
+          "intervals_with_any_summed_contact": 7,
+          "intervals_with_half_weight_impulse": 0,
+          "loaded_intervals": [
+            216,
+            217,
+            218,
+            224,
+            250,
+            275,
+            300
+          ]
+        }
+      ]
+    },
+    {
+      "seed": 20261127,
+      "lane": 3,
+      "sides": [
+        {
+          "active_intervals": 27,
+          "intervals_with_any_summed_contact": 0,
+          "intervals_with_half_weight_impulse": 0,
+          "loaded_intervals": []
+        },
+        {
+          "active_intervals": 39,
+          "intervals_with_any_summed_contact": 7,
+          "intervals_with_half_weight_impulse": 0,
+          "loaded_intervals": [
+            216,
+            217,
+            218,
+            224,
+            250,
+            275,
+            300
+          ]
+        }
+      ]
+    },
+    {
+      "seed": 20261127,
+      "lane": 4,
+      "sides": [
+        {
+          "active_intervals": 27,
+          "intervals_with_any_summed_contact": 0,
+          "intervals_with_half_weight_impulse": 0,
+          "loaded_intervals": []
+        },
+        {
+          "active_intervals": 39,
+          "intervals_with_any_summed_contact": 7,
+          "intervals_with_half_weight_impulse": 0,
+          "loaded_intervals": [
+            216,
+            217,
+            218,
+            224,
+            250,
+            275,
+            300
+          ]
+        }
+      ]
+    },
+    {
+      "seed": 20261127,
+      "lane": 5,
+      "sides": [
+        {
+          "active_intervals": 27,
+          "intervals_with_any_summed_contact": 0,
+          "intervals_with_half_weight_impulse": 0,
+          "loaded_intervals": []
+        },
+        {
+          "active_intervals": 39,
+          "intervals_with_any_summed_contact": 7,
+          "intervals_with_half_weight_impulse": 0,
+          "loaded_intervals": [
+            216,
+            217,
+            218,
+            224,
+            250,
+            275,
+            300
+          ]
+        }
+      ]
+    },
+    {
+      "seed": 20261127,
+      "lane": 6,
+      "sides": [
+        {
+          "active_intervals": 27,
+          "intervals_with_any_summed_contact": 0,
+          "intervals_with_half_weight_impulse": 0,
+          "loaded_intervals": []
+        },
+        {
+          "active_intervals": 39,
+          "intervals_with_any_summed_contact": 7,
+          "intervals_with_half_weight_impulse": 0,
+          "loaded_intervals": [
+            216,
+            217,
+            218,
+            224,
+            250,
+            275,
+            300
+          ]
+        }
+      ]
+    },
+    {
+      "seed": 20261127,
+      "lane": 7,
+      "sides": [
+        {
+          "active_intervals": 27,
+          "intervals_with_any_summed_contact": 0,
+          "intervals_with_half_weight_impulse": 0,
+          "loaded_intervals": []
+        },
+        {
+          "active_intervals": 39,
+          "intervals_with_any_summed_contact": 7,
+          "intervals_with_half_weight_impulse": 0,
+          "loaded_intervals": [
+            216,
+            217,
+            218,
+            224,
+            250,
+            275,
+            300
+          ]
+        }
+      ]
+    }
+  ],
+  "scope": "Descriptive overlap between recorded control-interval toe target and summed foot normal impulse from all 16 substeps. Any-overlap threshold is a numerical instrumentation threshold, not true support classification. Does not expose the prior accepted status bit, actual torque, continuous kinematics or real-crow data."
+}
