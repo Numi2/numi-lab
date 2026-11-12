@@ -1,0 +1,5 @@
+# Hip phase and lift screen
+
+The preceding hip timing screen found -0.9 rad at lift 0.15 on lane 0 yielded more displacement and continuously loaded feet, but excessive low-toe intervals and missing toe groups. Test that hip phase across eight starts and sweep lift amplitude [0.15, 0.20, 0.25, 0.30, 0.35, 0.40, 0.45, 0.50]; other controls and world are unchanged. Lane 0 is the exact prior candidate control and must match its complete recorded endpoint and contact trace; all lanes must match prior pre-walk trace. The starts differ across lanes, so the screen alone cannot show a paired effect of lift. Promising settings require matched repeated starts.
+
+Reject losses of continuous support, toe clearance, elevated contact-point speed or absent toe group engagement; report travel, contact order and first failures. Never infer biological validation from an engineering sweep. Retain the used-seed trace and assess full sequence on unused layouts only after a physically stable controller qualifies.

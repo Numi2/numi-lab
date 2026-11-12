@@ -1,3 +1,5 @@
+**Correction:** The subsequent hip-lift screen showed that low-toe endpoint counts can include loaded toe push-off; they do not establish toe dragging or failed swing clearance. See `artifacts/crow-v15-walk-hip-lift-screen-20261112/RESULT.md`. The findings below remain as originally recorded, but those interpretations are superseded.
+
 # Hip phase screen: not admitted
 
 All eight first episodes ran 300 intervals without reported physical failure or logged contact overflow. The pre-walk recorded endpoints and substeps match the preceding sweep, and the unchanged phase/lift lane 6 reproduces every recorded endpoint and contact substep exactly. This supports the intervention comparison for these recorded states; it does not establish identity of all hidden state.
