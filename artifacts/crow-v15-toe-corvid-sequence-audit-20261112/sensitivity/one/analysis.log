@@ -1,0 +1,4 @@
+20261126-baseline {'touchdown': {'hallux_first': 56}, 'liftoff': {'hallux_first': 64}}
+20261126-candidate {'touchdown': {'hallux_first': 56}, 'liftoff': {'hallux_first': 62}}
+20261127-baseline {'touchdown': {'hallux_first': 56}, 'liftoff': {'hallux_first': 60}}
+20261127-candidate {'touchdown': {'hallux_first': 56}, 'liftoff': {'hallux_first': 58}}
