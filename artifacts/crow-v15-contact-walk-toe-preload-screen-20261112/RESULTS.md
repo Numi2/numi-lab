@@ -1,0 +1,5 @@
+# Rear-toe preload with .35 hip stroke
+
+Two .30/.05 controls exactly matched their same-lane baseline at all 300 endpoints and 4,800 contact substeps each. The .35-stroke lanes moved .160–.162 m in 4–6 s versus .131–.139 m for their baselines; all retained continuous collective foot support and no observed toe-speed caps or nonfoot impulse during walking. At rear-toe preload .03, one of two lanes exceeded the 1.5x per-foot 50 Hz contact-point-speed gate (1.57x); at .04, one exceeded it (1.55x). Both .05 lanes passed these specific gates, with contact-point-speed ratios at most 1.38x. A previous .35/.05 lane, however, hit a toe-speed limit for two substeps, so this is not a robust setting established over all starts. Point speed is not integrated slip.
+
+These are used-seed development results on the existing simplified toe model; no biological gait, full-sequence or held-out qualification follows. A slightly reduced uniform hip stroke with .05 preload is being tested separately across all eight starts.
