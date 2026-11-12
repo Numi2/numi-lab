@@ -1,0 +1,5 @@
+# Sectional-flow aerodynamic sensitivity
+
+A purely diagnostic variant removes local spanwise airflow before computing the wing-element force; the current model uses full local airflow speed. On 72 dependent saved flight states, the unmodified kernel exactly reproduced its prior output, and both calculations repeated identically. Median absolute changes in the summed wing force were 0.00190 N forward, 0.000279 N lateral, and 0.0176 N vertical; 95th percentiles were 0.0162, 0.00154 and 0.167 N. Median absolute change in summed wing yaw moment about the root was 0.0000105 N m; p95 was 0.000146 N m.
+
+These are instantaneous counterfactual wing loads on identical states, not complete body loads or an integrated wingbeat. The approximation changes more than one force contribution by changing its local velocity input. Standard sectional blade-element reasoning motivates the diagnostic, while real flapping wings can also have spanwise effects; this does not establish which closure is correct for a crow. No aerodynamic variant is promoted and neither is calibrated against real-crow force measurements.

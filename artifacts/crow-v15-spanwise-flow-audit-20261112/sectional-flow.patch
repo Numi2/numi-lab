@@ -1,0 +1,13 @@
+--- a/current-aero.metal
++++ b/sectional-flow-diagnostic.metal
+@@ -289,8 +289,9 @@
+                 cross(pronationAxisWorld * pronationAngularRate, fromWingOrigin);
+             const float3 pointVelocity = rootVelocity +
+                 cross(rootAngularVelocity, rootToPoint) + strokeVelocity;
+-            const float3 incomingAir =
++            const float3 fullIncomingAir =
+                 dispatch.windVelocityAndDensity.xyz - pointVelocity;
++            const float3 incomingAir = fullIncomingAir - span * dot(fullIncomingAir, span);
+             const float speedSquared = dot(incomingAir, incomingAir);
+             if (!(speedSquared > 1.0e-8f) || !isfinite(speedSquared)) {
+                 continue;

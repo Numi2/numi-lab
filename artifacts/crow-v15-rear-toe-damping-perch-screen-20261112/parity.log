@@ -1,0 +1,12 @@
+{
+  "trace.log.gz": {
+    "previous_decompressed_sha256": "4cff0b22b95aa1e7545e99a6677bbb85957166a6dc08c8e3cfc6a9a80b41a4c0",
+    "baseline_decompressed_sha256": "4cff0b22b95aa1e7545e99a6677bbb85957166a6dc08c8e3cfc6a9a80b41a4c0",
+    "exact": true
+  },
+  "substeps.log.gz": {
+    "previous_decompressed_sha256": "8b54b12a16c89bbe5b132c86b3eea1c7691f48479dbfd95c03dff00ad23decfa",
+    "baseline_decompressed_sha256": "8b54b12a16c89bbe5b132c86b3eea1c7691f48479dbfd95c03dff00ad23decfa",
+    "exact": true
+  }
+}

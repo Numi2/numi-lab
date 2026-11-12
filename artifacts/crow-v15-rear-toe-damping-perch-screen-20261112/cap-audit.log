@@ -1,0 +1,99 @@
+{
+  "baseline": [
+    {
+      "lane": 3,
+      "interval": 262,
+      "substep": 5,
+      "slot": 14,
+      "velocity_rad_s": -12.0
+    },
+    {
+      "lane": 3,
+      "interval": 262,
+      "substep": 6,
+      "slot": 14,
+      "velocity_rad_s": -12.0
+    }
+  ],
+  "double": [
+    {
+      "lane": 5,
+      "interval": 250,
+      "substep": 1,
+      "slot": 14,
+      "velocity_rad_s": -12.0
+    },
+    {
+      "lane": 5,
+      "interval": 250,
+      "substep": 2,
+      "slot": 14,
+      "velocity_rad_s": -12.0
+    },
+    {
+      "lane": 7,
+      "interval": 277,
+      "substep": 11,
+      "slot": 14,
+      "velocity_rad_s": -12.0
+    },
+    {
+      "lane": 7,
+      "interval": 277,
+      "substep": 12,
+      "slot": 14,
+      "velocity_rad_s": -12.0
+    },
+    {
+      "lane": 7,
+      "interval": 277,
+      "substep": 13,
+      "slot": 14,
+      "velocity_rad_s": -12.0
+    }
+  ],
+  "triple": [
+    {
+      "lane": 5,
+      "interval": 250,
+      "substep": 30,
+      "slot": 14,
+      "velocity_rad_s": -12.0
+    },
+    {
+      "lane": 5,
+      "interval": 250,
+      "substep": 31,
+      "slot": 14,
+      "velocity_rad_s": -12.0
+    },
+    {
+      "lane": 7,
+      "interval": 272,
+      "substep": 29,
+      "slot": 14,
+      "velocity_rad_s": -12.0
+    },
+    {
+      "lane": 7,
+      "interval": 272,
+      "substep": 30,
+      "slot": 14,
+      "velocity_rad_s": -12.0
+    },
+    {
+      "lane": 3,
+      "interval": 277,
+      "substep": 30,
+      "slot": 14,
+      "velocity_rad_s": -12.0
+    },
+    {
+      "lane": 3,
+      "interval": 277,
+      "substep": 31,
+      "slot": 14,
+      "velocity_rad_s": -12.0
+    }
+  ]
+}

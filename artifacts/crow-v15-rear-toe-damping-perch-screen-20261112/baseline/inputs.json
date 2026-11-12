@@ -1,0 +1,7 @@
+{
+  "damping": "0.003",
+  "gain": 0,
+  "probe_sha256": "12d70c70b5eed176863a8e686ef7c92b29ccf8705a6a23a33d02229fcbe38e00",
+  "host_sha256": "981e46c4733083d94b3988cb0cad016319a5c84a79df6c33be7e6c7abe4aa799",
+  "metallib_sha256": "835d0ff74b8338bba6987d88f3355a1344522eaa88fa8e82295b12ba58cedeb5"
+}

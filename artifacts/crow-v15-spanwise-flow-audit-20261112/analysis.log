@@ -1,0 +1,28 @@
+{
+  "sample_count": 72,
+  "original_matches_prior": true,
+  "both_repeat_identically": true,
+  "absolute_difference_statistics": {
+    "force_x_N": {
+      "median_abs": 0.0019021074,
+      "p95_abs": 0.0162151072,
+      "max_abs": 0.0162924443
+    },
+    "force_y_N": {
+      "median_abs": 0.0002786698,
+      "p95_abs": 0.0015411905,
+      "max_abs": 0.0037259886
+    },
+    "force_z_N": {
+      "median_abs": 0.017578229299999998,
+      "p95_abs": 0.1669809222,
+      "max_abs": 0.1670101584
+    },
+    "root_yaw_moment_Nm": {
+      "median_abs": 1.04686e-05,
+      "p95_abs": 0.0001463087,
+      "max_abs": 0.0002047023
+    }
+  },
+  "scope": "Dependent sparse snapshots; counterfactual modeling comparison only. Not net body load, integrated flight, aerodynamic calibration or controller qualification."
+}
