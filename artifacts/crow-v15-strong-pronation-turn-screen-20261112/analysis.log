@@ -1,0 +1,7 @@
+0 target 1.57 end 800 fail False final_error 1.466 toe_caps 0 toe_caps_after400 0 ground_after400 0 missing 0
+1 target -1.57 end 800 fail False final_error 1.526 toe_caps 14 toe_caps_after400 0 ground_after400 0 missing 0
+2 target 1.57 end 800 fail False final_error 1.501 toe_caps 6 toe_caps_after400 0 ground_after400 0 missing 0
+3 target -1.57 end 800 fail False final_error 1.557 toe_caps 0 toe_caps_after400 0 ground_after400 0 missing 0
+4 target 1.57 end 800 fail False final_error 1.501 toe_caps 0 toe_caps_after400 0 ground_after400 0 missing 0
+5 target -1.57 end 800 fail False final_error 1.581 toe_caps 0 toe_caps_after400 0 ground_after400 0 missing 0
+failed steps 0 overflows 0 errors []

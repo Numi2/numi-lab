@@ -1,0 +1,3 @@
+# Stronger differential-pronation sensitivity
+
+The previous 0.12 and 0.24 normalized differential wing-pronation trials generated little observed heading change. Screen 0, 0.60 and 1.00 normalized residuals on the same +/-90 degree diagnostic with the two known direct body moments disabled after 9 s. These are sensitivity tests of bounded simulated joints, not calibrated crow controls. Measure actual q changes, both turn directions, altitude and failure. Same-seed pre-9-s states must match; large inputs, altered speed and aerodynamic closures prevent biological interpretation. Do not promote without controlled turns and realistic qualification.
