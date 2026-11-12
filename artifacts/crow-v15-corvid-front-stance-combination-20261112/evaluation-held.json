@@ -1,0 +1,45 @@
+{
+  "checks": {
+    "comparison_and_prefix": false,
+    "minimum_three_clearance_bouts": false,
+    "no_more_unloaded_per_lane": false,
+    "zero_toe_caps": true,
+    "all_lanes_90_percent_travel": false,
+    "toe_low_at_most_120_percent": false,
+    "contact_point_speed": false,
+    "step_200_parity": true,
+    "complete_first_episode": true
+  },
+  "passed": false,
+  "ratios": [
+    1.036274592500765,
+    1.1775586722538127,
+    0.2669891001626462,
+    0.6803052948917226,
+    1.0742762486401962,
+    1.202417706035053,
+    -0.3194377980867266,
+    0.8844195234233496
+  ],
+  "toe_low": {
+    "sham": 49,
+    "candidate": 388
+  },
+  "contact_speed": {
+    "sham": {
+      "count": 8329,
+      "median_m_s": 0.0027555170683266446,
+      "p95_m_s": 0.0348377125065742,
+      "max_m_s": 0.10688597397169214,
+      "fraction_over_0_01m_s": 0.22739824708848602
+    },
+    "candidate": {
+      "count": 8888,
+      "median_m_s": 0.006465919870051574,
+      "p95_m_s": 0.07899008369422955,
+      "max_m_s": 0.1811642023491333,
+      "fraction_over_0_01m_s": 0.40672817281728174
+    }
+  },
+  "limits": "Previously used development seed; two seconds walking. Endpoint toe clearance and contact point velocities are sampled measures, not biological qualification."
+}
