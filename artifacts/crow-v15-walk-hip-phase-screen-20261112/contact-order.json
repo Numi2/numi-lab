@@ -1,0 +1,2172 @@
+{
+  "held": {
+    "counts": {
+      "partial_runs": 32,
+      "complete_runs_with_both_toe_groups": 40,
+      "touchdown_rear_first": 40,
+      "toeoff_rear_first": 14,
+      "toeoff_front_first": 26
+    },
+    "events": [
+      {
+        "lane": 0,
+        "side": "left",
+        "first_step": 238,
+        "first_substep": 4,
+        "last_step": 253,
+        "last_substep": 1,
+        "rear_minus_front_first_substeps": -37,
+        "rear_minus_front_last_substeps": -17,
+        "touchdown": "rear_first",
+        "toeoff": "rear_first"
+      },
+      {
+        "lane": 0,
+        "side": "left",
+        "first_step": 263,
+        "first_substep": 0,
+        "last_step": 278,
+        "last_substep": 2,
+        "rear_minus_front_first_substeps": -41,
+        "rear_minus_front_last_substeps": 30,
+        "touchdown": "rear_first",
+        "toeoff": "front_first"
+      },
+      {
+        "lane": 0,
+        "side": "right",
+        "first_step": 224,
+        "first_substep": 0,
+        "last_step": 240,
+        "last_substep": 0,
+        "rear_minus_front_first_substeps": -154,
+        "rear_minus_front_last_substeps": 16,
+        "touchdown": "rear_first",
+        "toeoff": "front_first"
+      },
+      {
+        "lane": 0,
+        "side": "right",
+        "first_step": 250,
+        "first_substep": 0,
+        "last_step": 265,
+        "last_substep": 2,
+        "rear_minus_front_first_substeps": -120,
+        "rear_minus_front_last_substeps": 31,
+        "touchdown": "rear_first",
+        "toeoff": "front_first"
+      },
+      {
+        "lane": 0,
+        "side": "right",
+        "first_step": 275,
+        "first_substep": 3,
+        "last_step": 290,
+        "last_substep": 14,
+        "rear_minus_front_first_substeps": -117,
+        "rear_minus_front_last_substeps": -26,
+        "touchdown": "rear_first",
+        "toeoff": "rear_first"
+      },
+      {
+        "lane": 1,
+        "side": "left",
+        "first_step": 238,
+        "first_substep": 4,
+        "last_step": 253,
+        "last_substep": 2,
+        "rear_minus_front_first_substeps": -37,
+        "rear_minus_front_last_substeps": 1,
+        "touchdown": "rear_first",
+        "toeoff": "front_first"
+      },
+      {
+        "lane": 1,
+        "side": "left",
+        "first_step": 263,
+        "first_substep": 0,
+        "last_step": 278,
+        "last_substep": 2,
+        "rear_minus_front_first_substeps": -42,
+        "rear_minus_front_last_substeps": 31,
+        "touchdown": "rear_first",
+        "toeoff": "front_first"
+      },
+      {
+        "lane": 1,
+        "side": "right",
+        "first_step": 224,
+        "first_substep": 0,
+        "last_step": 240,
+        "last_substep": 0,
+        "rear_minus_front_first_substeps": -153,
+        "rear_minus_front_last_substeps": 15,
+        "touchdown": "rear_first",
+        "toeoff": "front_first"
+      },
+      {
+        "lane": 1,
+        "side": "right",
+        "first_step": 250,
+        "first_substep": 1,
+        "last_step": 265,
+        "last_substep": 2,
+        "rear_minus_front_first_substeps": -118,
+        "rear_minus_front_last_substeps": 32,
+        "touchdown": "rear_first",
+        "toeoff": "front_first"
+      },
+      {
+        "lane": 1,
+        "side": "right",
+        "first_step": 275,
+        "first_substep": 3,
+        "last_step": 290,
+        "last_substep": 13,
+        "rear_minus_front_first_substeps": -117,
+        "rear_minus_front_last_substeps": -18,
+        "touchdown": "rear_first",
+        "toeoff": "rear_first"
+      },
+      {
+        "lane": 2,
+        "side": "left",
+        "first_step": 238,
+        "first_substep": 4,
+        "last_step": 253,
+        "last_substep": 2,
+        "rear_minus_front_first_substeps": -38,
+        "rear_minus_front_last_substeps": -16,
+        "touchdown": "rear_first",
+        "toeoff": "rear_first"
+      },
+      {
+        "lane": 2,
+        "side": "left",
+        "first_step": 263,
+        "first_substep": 0,
+        "last_step": 278,
+        "last_substep": 2,
+        "rear_minus_front_first_substeps": -42,
+        "rear_minus_front_last_substeps": 29,
+        "touchdown": "rear_first",
+        "toeoff": "front_first"
+      },
+      {
+        "lane": 2,
+        "side": "right",
+        "first_step": 224,
+        "first_substep": 0,
+        "last_step": 240,
+        "last_substep": 0,
+        "rear_minus_front_first_substeps": -154,
+        "rear_minus_front_last_substeps": 16,
+        "touchdown": "rear_first",
+        "toeoff": "front_first"
+      },
+      {
+        "lane": 2,
+        "side": "right",
+        "first_step": 250,
+        "first_substep": 0,
+        "last_step": 265,
+        "last_substep": 1,
+        "rear_minus_front_first_substeps": -120,
+        "rear_minus_front_last_substeps": 29,
+        "touchdown": "rear_first",
+        "toeoff": "front_first"
+      },
+      {
+        "lane": 2,
+        "side": "right",
+        "first_step": 275,
+        "first_substep": 3,
+        "last_step": 290,
+        "last_substep": 14,
+        "rear_minus_front_first_substeps": -118,
+        "rear_minus_front_last_substeps": -26,
+        "touchdown": "rear_first",
+        "toeoff": "rear_first"
+      },
+      {
+        "lane": 3,
+        "side": "left",
+        "first_step": 238,
+        "first_substep": 4,
+        "last_step": 252,
+        "last_substep": 12,
+        "rear_minus_front_first_substeps": -37,
+        "rear_minus_front_last_substeps": -29,
+        "touchdown": "rear_first",
+        "toeoff": "rear_first"
+      },
+      {
+        "lane": 3,
+        "side": "left",
+        "first_step": 263,
+        "first_substep": 4,
+        "last_step": 278,
+        "last_substep": 3,
+        "rear_minus_front_first_substeps": -80,
+        "rear_minus_front_last_substeps": 15,
+        "touchdown": "rear_first",
+        "toeoff": "front_first"
+      },
+      {
+        "lane": 3,
+        "side": "right",
+        "first_step": 224,
+        "first_substep": 1,
+        "last_step": 240,
+        "last_substep": 0,
+        "rear_minus_front_first_substeps": -153,
+        "rear_minus_front_last_substeps": 15,
+        "touchdown": "rear_first",
+        "toeoff": "front_first"
+      },
+      {
+        "lane": 3,
+        "side": "right",
+        "first_step": 249,
+        "first_substep": 14,
+        "last_step": 264,
+        "last_substep": 13,
+        "rear_minus_front_first_substeps": -142,
+        "rear_minus_front_last_substeps": 6,
+        "touchdown": "rear_first",
+        "toeoff": "front_first"
+      },
+      {
+        "lane": 3,
+        "side": "right",
+        "first_step": 275,
+        "first_substep": 3,
+        "last_step": 290,
+        "last_substep": 14,
+        "rear_minus_front_first_substeps": -115,
+        "rear_minus_front_last_substeps": -27,
+        "touchdown": "rear_first",
+        "toeoff": "rear_first"
+      },
+      {
+        "lane": 4,
+        "side": "left",
+        "first_step": 238,
+        "first_substep": 4,
+        "last_step": 253,
+        "last_substep": 1,
+        "rear_minus_front_first_substeps": -37,
+        "rear_minus_front_last_substeps": -12,
+        "touchdown": "rear_first",
+        "toeoff": "rear_first"
+      },
+      {
+        "lane": 4,
+        "side": "left",
+        "first_step": 263,
+        "first_substep": 0,
+        "last_step": 278,
+        "last_substep": 2,
+        "rear_minus_front_first_substeps": -42,
+        "rear_minus_front_last_substeps": 29,
+        "touchdown": "rear_first",
+        "toeoff": "front_first"
+      },
+      {
+        "lane": 4,
+        "side": "right",
+        "first_step": 224,
+        "first_substep": 0,
+        "last_step": 240,
+        "last_substep": 0,
+        "rear_minus_front_first_substeps": -154,
+        "rear_minus_front_last_substeps": 15,
+        "touchdown": "rear_first",
+        "toeoff": "front_first"
+      },
+      {
+        "lane": 4,
+        "side": "right",
+        "first_step": 250,
+        "first_substep": 1,
+        "last_step": 265,
+        "last_substep": 3,
+        "rear_minus_front_first_substeps": -118,
+        "rear_minus_front_last_substeps": 32,
+        "touchdown": "rear_first",
+        "toeoff": "front_first"
+      },
+      {
+        "lane": 4,
+        "side": "right",
+        "first_step": 275,
+        "first_substep": 3,
+        "last_step": 290,
+        "last_substep": 14,
+        "rear_minus_front_first_substeps": -117,
+        "rear_minus_front_last_substeps": -28,
+        "touchdown": "rear_first",
+        "toeoff": "rear_first"
+      },
+      {
+        "lane": 5,
+        "side": "left",
+        "first_step": 238,
+        "first_substep": 4,
+        "last_step": 253,
+        "last_substep": 0,
+        "rear_minus_front_first_substeps": -37,
+        "rear_minus_front_last_substeps": -21,
+        "touchdown": "rear_first",
+        "toeoff": "rear_first"
+      },
+      {
+        "lane": 5,
+        "side": "left",
+        "first_step": 263,
+        "first_substep": 1,
+        "last_step": 278,
+        "last_substep": 2,
+        "rear_minus_front_first_substeps": -42,
+        "rear_minus_front_last_substeps": 18,
+        "touchdown": "rear_first",
+        "toeoff": "front_first"
+      },
+      {
+        "lane": 5,
+        "side": "right",
+        "first_step": 224,
+        "first_substep": 0,
+        "last_step": 240,
+        "last_substep": 0,
+        "rear_minus_front_first_substeps": -154,
+        "rear_minus_front_last_substeps": 15,
+        "touchdown": "rear_first",
+        "toeoff": "front_first"
+      },
+      {
+        "lane": 5,
+        "side": "right",
+        "first_step": 250,
+        "first_substep": 0,
+        "last_step": 265,
+        "last_substep": 0,
+        "rear_minus_front_first_substeps": -125,
+        "rear_minus_front_last_substeps": 23,
+        "touchdown": "rear_first",
+        "toeoff": "front_first"
+      },
+      {
+        "lane": 5,
+        "side": "right",
+        "first_step": 275,
+        "first_substep": 3,
+        "last_step": 290,
+        "last_substep": 14,
+        "rear_minus_front_first_substeps": -117,
+        "rear_minus_front_last_substeps": -27,
+        "touchdown": "rear_first",
+        "toeoff": "rear_first"
+      },
+      {
+        "lane": 6,
+        "side": "left",
+        "first_step": 238,
+        "first_substep": 4,
+        "last_step": 253,
+        "last_substep": 2,
+        "rear_minus_front_first_substeps": -38,
+        "rear_minus_front_last_substeps": 1,
+        "touchdown": "rear_first",
+        "toeoff": "front_first"
+      },
+      {
+        "lane": 6,
+        "side": "left",
+        "first_step": 263,
+        "first_substep": 0,
+        "last_step": 278,
+        "last_substep": 3,
+        "rear_minus_front_first_substeps": -41,
+        "rear_minus_front_last_substeps": 30,
+        "touchdown": "rear_first",
+        "toeoff": "front_first"
+      },
+      {
+        "lane": 6,
+        "side": "right",
+        "first_step": 224,
+        "first_substep": 2,
+        "last_step": 240,
+        "last_substep": 0,
+        "rear_minus_front_first_substeps": -151,
+        "rear_minus_front_last_substeps": 15,
+        "touchdown": "rear_first",
+        "toeoff": "front_first"
+      },
+      {
+        "lane": 6,
+        "side": "right",
+        "first_step": 250,
+        "first_substep": 1,
+        "last_step": 265,
+        "last_substep": 2,
+        "rear_minus_front_first_substeps": -119,
+        "rear_minus_front_last_substeps": 31,
+        "touchdown": "rear_first",
+        "toeoff": "front_first"
+      },
+      {
+        "lane": 6,
+        "side": "right",
+        "first_step": 275,
+        "first_substep": 3,
+        "last_step": 290,
+        "last_substep": 14,
+        "rear_minus_front_first_substeps": -117,
+        "rear_minus_front_last_substeps": -18,
+        "touchdown": "rear_first",
+        "toeoff": "rear_first"
+      },
+      {
+        "lane": 7,
+        "side": "left",
+        "first_step": 238,
+        "first_substep": 4,
+        "last_step": 252,
+        "last_substep": 4,
+        "rear_minus_front_first_substeps": -38,
+        "rear_minus_front_last_substeps": 12,
+        "touchdown": "rear_first",
+        "toeoff": "front_first"
+      },
+      {
+        "lane": 7,
+        "side": "left",
+        "first_step": 262,
+        "first_substep": 15,
+        "last_step": 277,
+        "last_substep": 2,
+        "rear_minus_front_first_substeps": -41,
+        "rear_minus_front_last_substeps": 19,
+        "touchdown": "rear_first",
+        "toeoff": "front_first"
+      },
+      {
+        "lane": 7,
+        "side": "right",
+        "first_step": 224,
+        "first_substep": 2,
+        "last_step": 240,
+        "last_substep": 0,
+        "rear_minus_front_first_substeps": -150,
+        "rear_minus_front_last_substeps": 15,
+        "touchdown": "rear_first",
+        "toeoff": "front_first"
+      },
+      {
+        "lane": 7,
+        "side": "right",
+        "first_step": 250,
+        "first_substep": 2,
+        "last_step": 265,
+        "last_substep": 13,
+        "rear_minus_front_first_substeps": -119,
+        "rear_minus_front_last_substeps": -19,
+        "touchdown": "rear_first",
+        "toeoff": "rear_first"
+      },
+      {
+        "lane": 7,
+        "side": "right",
+        "first_step": 275,
+        "first_substep": 5,
+        "last_step": 290,
+        "last_substep": 14,
+        "rear_minus_front_first_substeps": -99,
+        "rear_minus_front_last_substeps": -24,
+        "touchdown": "rear_first",
+        "toeoff": "rear_first"
+      }
+    ],
+    "missing": []
+  },
+  "opposite_support_sham": {
+    "counts": {
+      "partial_runs": 32,
+      "complete_runs_with_both_toe_groups": 40,
+      "touchdown_rear_first": 40,
+      "toeoff_front_first": 40
+    },
+    "events": [
+      {
+        "lane": 0,
+        "side": "left",
+        "first_step": 238,
+        "first_substep": 5,
+        "last_step": 252,
+        "last_substep": 12,
+        "rear_minus_front_first_substeps": -89,
+        "rear_minus_front_last_substeps": 11,
+        "touchdown": "rear_first",
+        "toeoff": "front_first"
+      },
+      {
+        "lane": 0,
+        "side": "left",
+        "first_step": 263,
+        "first_substep": 4,
+        "last_step": 277,
+        "last_substep": 10,
+        "rear_minus_front_first_substeps": -90,
+        "rear_minus_front_last_substeps": 8,
+        "touchdown": "rear_first",
+        "toeoff": "front_first"
+      },
+      {
+        "lane": 0,
+        "side": "right",
+        "first_step": 225,
+        "first_substep": 5,
+        "last_step": 240,
+        "last_substep": 0,
+        "rear_minus_front_first_substeps": -109,
+        "rear_minus_front_last_substeps": 5,
+        "touchdown": "rear_first",
+        "toeoff": "front_first"
+      },
+      {
+        "lane": 0,
+        "side": "right",
+        "first_step": 250,
+        "first_substep": 7,
+        "last_step": 264,
+        "last_substep": 15,
+        "rear_minus_front_first_substeps": -100,
+        "rear_minus_front_last_substeps": 5,
+        "touchdown": "rear_first",
+        "toeoff": "front_first"
+      },
+      {
+        "lane": 0,
+        "side": "right",
+        "first_step": 275,
+        "first_substep": 7,
+        "last_step": 289,
+        "last_substep": 14,
+        "rear_minus_front_first_substeps": -99,
+        "rear_minus_front_last_substeps": 4,
+        "touchdown": "rear_first",
+        "toeoff": "front_first"
+      },
+      {
+        "lane": 1,
+        "side": "left",
+        "first_step": 238,
+        "first_substep": 5,
+        "last_step": 252,
+        "last_substep": 11,
+        "rear_minus_front_first_substeps": -88,
+        "rear_minus_front_last_substeps": 10,
+        "touchdown": "rear_first",
+        "toeoff": "front_first"
+      },
+      {
+        "lane": 1,
+        "side": "left",
+        "first_step": 263,
+        "first_substep": 4,
+        "last_step": 277,
+        "last_substep": 10,
+        "rear_minus_front_first_substeps": -89,
+        "rear_minus_front_last_substeps": 8,
+        "touchdown": "rear_first",
+        "toeoff": "front_first"
+      },
+      {
+        "lane": 1,
+        "side": "right",
+        "first_step": 225,
+        "first_substep": 5,
+        "last_step": 240,
+        "last_substep": 0,
+        "rear_minus_front_first_substeps": -109,
+        "rear_minus_front_last_substeps": 5,
+        "touchdown": "rear_first",
+        "toeoff": "front_first"
+      },
+      {
+        "lane": 1,
+        "side": "right",
+        "first_step": 250,
+        "first_substep": 7,
+        "last_step": 264,
+        "last_substep": 15,
+        "rear_minus_front_first_substeps": -100,
+        "rear_minus_front_last_substeps": 5,
+        "touchdown": "rear_first",
+        "toeoff": "front_first"
+      },
+      {
+        "lane": 1,
+        "side": "right",
+        "first_step": 275,
+        "first_substep": 7,
+        "last_step": 289,
+        "last_substep": 14,
+        "rear_minus_front_first_substeps": -99,
+        "rear_minus_front_last_substeps": 4,
+        "touchdown": "rear_first",
+        "toeoff": "front_first"
+      },
+      {
+        "lane": 2,
+        "side": "left",
+        "first_step": 238,
+        "first_substep": 5,
+        "last_step": 252,
+        "last_substep": 12,
+        "rear_minus_front_first_substeps": -89,
+        "rear_minus_front_last_substeps": 11,
+        "touchdown": "rear_first",
+        "toeoff": "front_first"
+      },
+      {
+        "lane": 2,
+        "side": "left",
+        "first_step": 263,
+        "first_substep": 4,
+        "last_step": 277,
+        "last_substep": 10,
+        "rear_minus_front_first_substeps": -90,
+        "rear_minus_front_last_substeps": 8,
+        "touchdown": "rear_first",
+        "toeoff": "front_first"
+      },
+      {
+        "lane": 2,
+        "side": "right",
+        "first_step": 225,
+        "first_substep": 5,
+        "last_step": 240,
+        "last_substep": 0,
+        "rear_minus_front_first_substeps": -109,
+        "rear_minus_front_last_substeps": 5,
+        "touchdown": "rear_first",
+        "toeoff": "front_first"
+      },
+      {
+        "lane": 2,
+        "side": "right",
+        "first_step": 250,
+        "first_substep": 7,
+        "last_step": 264,
+        "last_substep": 15,
+        "rear_minus_front_first_substeps": -100,
+        "rear_minus_front_last_substeps": 4,
+        "touchdown": "rear_first",
+        "toeoff": "front_first"
+      },
+      {
+        "lane": 2,
+        "side": "right",
+        "first_step": 275,
+        "first_substep": 7,
+        "last_step": 289,
+        "last_substep": 14,
+        "rear_minus_front_first_substeps": -99,
+        "rear_minus_front_last_substeps": 4,
+        "touchdown": "rear_first",
+        "toeoff": "front_first"
+      },
+      {
+        "lane": 3,
+        "side": "left",
+        "first_step": 238,
+        "first_substep": 5,
+        "last_step": 252,
+        "last_substep": 11,
+        "rear_minus_front_first_substeps": -88,
+        "rear_minus_front_last_substeps": 10,
+        "touchdown": "rear_first",
+        "toeoff": "front_first"
+      },
+      {
+        "lane": 3,
+        "side": "left",
+        "first_step": 263,
+        "first_substep": 4,
+        "last_step": 277,
+        "last_substep": 10,
+        "rear_minus_front_first_substeps": -90,
+        "rear_minus_front_last_substeps": 8,
+        "touchdown": "rear_first",
+        "toeoff": "front_first"
+      },
+      {
+        "lane": 3,
+        "side": "right",
+        "first_step": 225,
+        "first_substep": 5,
+        "last_step": 240,
+        "last_substep": 0,
+        "rear_minus_front_first_substeps": -109,
+        "rear_minus_front_last_substeps": 5,
+        "touchdown": "rear_first",
+        "toeoff": "front_first"
+      },
+      {
+        "lane": 3,
+        "side": "right",
+        "first_step": 250,
+        "first_substep": 7,
+        "last_step": 264,
+        "last_substep": 15,
+        "rear_minus_front_first_substeps": -100,
+        "rear_minus_front_last_substeps": 4,
+        "touchdown": "rear_first",
+        "toeoff": "front_first"
+      },
+      {
+        "lane": 3,
+        "side": "right",
+        "first_step": 275,
+        "first_substep": 7,
+        "last_step": 289,
+        "last_substep": 14,
+        "rear_minus_front_first_substeps": -99,
+        "rear_minus_front_last_substeps": 4,
+        "touchdown": "rear_first",
+        "toeoff": "front_first"
+      },
+      {
+        "lane": 4,
+        "side": "left",
+        "first_step": 238,
+        "first_substep": 5,
+        "last_step": 252,
+        "last_substep": 11,
+        "rear_minus_front_first_substeps": -89,
+        "rear_minus_front_last_substeps": 10,
+        "touchdown": "rear_first",
+        "toeoff": "front_first"
+      },
+      {
+        "lane": 4,
+        "side": "left",
+        "first_step": 263,
+        "first_substep": 4,
+        "last_step": 277,
+        "last_substep": 10,
+        "rear_minus_front_first_substeps": -90,
+        "rear_minus_front_last_substeps": 8,
+        "touchdown": "rear_first",
+        "toeoff": "front_first"
+      },
+      {
+        "lane": 4,
+        "side": "right",
+        "first_step": 225,
+        "first_substep": 5,
+        "last_step": 240,
+        "last_substep": 0,
+        "rear_minus_front_first_substeps": -109,
+        "rear_minus_front_last_substeps": 5,
+        "touchdown": "rear_first",
+        "toeoff": "front_first"
+      },
+      {
+        "lane": 4,
+        "side": "right",
+        "first_step": 250,
+        "first_substep": 7,
+        "last_step": 264,
+        "last_substep": 15,
+        "rear_minus_front_first_substeps": -100,
+        "rear_minus_front_last_substeps": 4,
+        "touchdown": "rear_first",
+        "toeoff": "front_first"
+      },
+      {
+        "lane": 4,
+        "side": "right",
+        "first_step": 275,
+        "first_substep": 7,
+        "last_step": 289,
+        "last_substep": 14,
+        "rear_minus_front_first_substeps": -99,
+        "rear_minus_front_last_substeps": 4,
+        "touchdown": "rear_first",
+        "toeoff": "front_first"
+      },
+      {
+        "lane": 5,
+        "side": "left",
+        "first_step": 238,
+        "first_substep": 5,
+        "last_step": 252,
+        "last_substep": 12,
+        "rear_minus_front_first_substeps": -93,
+        "rear_minus_front_last_substeps": 11,
+        "touchdown": "rear_first",
+        "toeoff": "front_first"
+      },
+      {
+        "lane": 5,
+        "side": "left",
+        "first_step": 263,
+        "first_substep": 4,
+        "last_step": 277,
+        "last_substep": 10,
+        "rear_minus_front_first_substeps": -90,
+        "rear_minus_front_last_substeps": 8,
+        "touchdown": "rear_first",
+        "toeoff": "front_first"
+      },
+      {
+        "lane": 5,
+        "side": "right",
+        "first_step": 225,
+        "first_substep": 5,
+        "last_step": 240,
+        "last_substep": 0,
+        "rear_minus_front_first_substeps": -109,
+        "rear_minus_front_last_substeps": 5,
+        "touchdown": "rear_first",
+        "toeoff": "front_first"
+      },
+      {
+        "lane": 5,
+        "side": "right",
+        "first_step": 250,
+        "first_substep": 7,
+        "last_step": 264,
+        "last_substep": 15,
+        "rear_minus_front_first_substeps": -100,
+        "rear_minus_front_last_substeps": 4,
+        "touchdown": "rear_first",
+        "toeoff": "front_first"
+      },
+      {
+        "lane": 5,
+        "side": "right",
+        "first_step": 275,
+        "first_substep": 7,
+        "last_step": 289,
+        "last_substep": 14,
+        "rear_minus_front_first_substeps": -99,
+        "rear_minus_front_last_substeps": 4,
+        "touchdown": "rear_first",
+        "toeoff": "front_first"
+      },
+      {
+        "lane": 6,
+        "side": "left",
+        "first_step": 238,
+        "first_substep": 5,
+        "last_step": 252,
+        "last_substep": 12,
+        "rear_minus_front_first_substeps": -89,
+        "rear_minus_front_last_substeps": 11,
+        "touchdown": "rear_first",
+        "toeoff": "front_first"
+      },
+      {
+        "lane": 6,
+        "side": "left",
+        "first_step": 263,
+        "first_substep": 4,
+        "last_step": 277,
+        "last_substep": 11,
+        "rear_minus_front_first_substeps": -90,
+        "rear_minus_front_last_substeps": 9,
+        "touchdown": "rear_first",
+        "toeoff": "front_first"
+      },
+      {
+        "lane": 6,
+        "side": "right",
+        "first_step": 225,
+        "first_substep": 5,
+        "last_step": 240,
+        "last_substep": 0,
+        "rear_minus_front_first_substeps": -109,
+        "rear_minus_front_last_substeps": 5,
+        "touchdown": "rear_first",
+        "toeoff": "front_first"
+      },
+      {
+        "lane": 6,
+        "side": "right",
+        "first_step": 250,
+        "first_substep": 7,
+        "last_step": 264,
+        "last_substep": 15,
+        "rear_minus_front_first_substeps": -100,
+        "rear_minus_front_last_substeps": 5,
+        "touchdown": "rear_first",
+        "toeoff": "front_first"
+      },
+      {
+        "lane": 6,
+        "side": "right",
+        "first_step": 275,
+        "first_substep": 7,
+        "last_step": 289,
+        "last_substep": 14,
+        "rear_minus_front_first_substeps": -99,
+        "rear_minus_front_last_substeps": 4,
+        "touchdown": "rear_first",
+        "toeoff": "front_first"
+      },
+      {
+        "lane": 7,
+        "side": "left",
+        "first_step": 238,
+        "first_substep": 5,
+        "last_step": 252,
+        "last_substep": 12,
+        "rear_minus_front_first_substeps": -88,
+        "rear_minus_front_last_substeps": 11,
+        "touchdown": "rear_first",
+        "toeoff": "front_first"
+      },
+      {
+        "lane": 7,
+        "side": "left",
+        "first_step": 263,
+        "first_substep": 4,
+        "last_step": 277,
+        "last_substep": 11,
+        "rear_minus_front_first_substeps": -90,
+        "rear_minus_front_last_substeps": 9,
+        "touchdown": "rear_first",
+        "toeoff": "front_first"
+      },
+      {
+        "lane": 7,
+        "side": "right",
+        "first_step": 225,
+        "first_substep": 5,
+        "last_step": 240,
+        "last_substep": 0,
+        "rear_minus_front_first_substeps": -109,
+        "rear_minus_front_last_substeps": 5,
+        "touchdown": "rear_first",
+        "toeoff": "front_first"
+      },
+      {
+        "lane": 7,
+        "side": "right",
+        "first_step": 250,
+        "first_substep": 7,
+        "last_step": 264,
+        "last_substep": 15,
+        "rear_minus_front_first_substeps": -100,
+        "rear_minus_front_last_substeps": 4,
+        "touchdown": "rear_first",
+        "toeoff": "front_first"
+      },
+      {
+        "lane": 7,
+        "side": "right",
+        "first_step": 275,
+        "first_substep": 7,
+        "last_step": 289,
+        "last_substep": 14,
+        "rear_minus_front_first_substeps": -99,
+        "rear_minus_front_last_substeps": 4,
+        "touchdown": "rear_first",
+        "toeoff": "front_first"
+      }
+    ],
+    "missing": []
+  },
+  "own_or_opposite_candidate": {
+    "counts": {
+      "partial_runs": 28,
+      "runs_without_both_toe_groups": 96,
+      "complete_runs_with_both_toe_groups": 49,
+      "touchdown_rear_first": 27,
+      "toeoff_rear_first": 22,
+      "touchdown_front_first": 15,
+      "toeoff_front_first": 23,
+      "toeoff_same_substep": 4,
+      "touchdown_same_substep": 7
+    },
+    "events": [
+      {
+        "lane": 0,
+        "side": "left",
+        "first_step": 239,
+        "first_substep": 0,
+        "last_step": 254,
+        "last_substep": 9,
+        "rear_minus_front_first_substeps": -160,
+        "rear_minus_front_last_substeps": -64,
+        "touchdown": "rear_first",
+        "toeoff": "rear_first"
+      },
+      {
+        "lane": 0,
+        "side": "left",
+        "first_step": 264,
+        "first_substep": 0,
+        "last_step": 279,
+        "last_substep": 12,
+        "rear_minus_front_first_substeps": -165,
+        "rear_minus_front_last_substeps": -66,
+        "touchdown": "rear_first",
+        "toeoff": "rear_first"
+      },
+      {
+        "lane": 0,
+        "side": "right",
+        "first_step": 225,
+        "first_substep": 4,
+        "last_step": 242,
+        "last_substep": 4,
+        "rear_minus_front_first_substeps": -176,
+        "rear_minus_front_last_substeps": -57,
+        "touchdown": "rear_first",
+        "toeoff": "rear_first"
+      },
+      {
+        "lane": 0,
+        "side": "right",
+        "first_step": 251,
+        "first_substep": 4,
+        "last_step": 267,
+        "last_substep": 12,
+        "rear_minus_front_first_substeps": -167,
+        "rear_minus_front_last_substeps": -65,
+        "touchdown": "rear_first",
+        "toeoff": "rear_first"
+      },
+      {
+        "lane": 0,
+        "side": "right",
+        "first_step": 274,
+        "first_substep": 14,
+        "last_step": 292,
+        "last_substep": 11,
+        "rear_minus_front_first_substeps": -197,
+        "rear_minus_front_last_substeps": -64,
+        "touchdown": "rear_first",
+        "toeoff": "rear_first"
+      },
+      {
+        "lane": 1,
+        "side": "left",
+        "first_step": 242,
+        "first_substep": 5,
+        "last_step": 254,
+        "last_substep": 12,
+        "rear_minus_front_first_substeps": -88,
+        "rear_minus_front_last_substeps": -68,
+        "touchdown": "rear_first",
+        "toeoff": "rear_first"
+      },
+      {
+        "lane": 1,
+        "side": "left",
+        "first_step": 267,
+        "first_substep": 0,
+        "last_step": 278,
+        "last_substep": 3,
+        "rear_minus_front_first_substeps": -96,
+        "rear_minus_front_last_substeps": -40,
+        "touchdown": "rear_first",
+        "toeoff": "rear_first"
+      },
+      {
+        "lane": 1,
+        "side": "right",
+        "first_step": 226,
+        "first_substep": 5,
+        "last_step": 241,
+        "last_substep": 4,
+        "rear_minus_front_first_substeps": -135,
+        "rear_minus_front_last_substeps": -61,
+        "touchdown": "rear_first",
+        "toeoff": "rear_first"
+      },
+      {
+        "lane": 1,
+        "side": "right",
+        "first_step": 251,
+        "first_substep": 4,
+        "last_step": 266,
+        "last_substep": 4,
+        "rear_minus_front_first_substeps": -156,
+        "rear_minus_front_last_substeps": -26,
+        "touchdown": "rear_first",
+        "toeoff": "rear_first"
+      },
+      {
+        "lane": 1,
+        "side": "right",
+        "first_step": 276,
+        "first_substep": 3,
+        "last_step": 291,
+        "last_substep": 4,
+        "rear_minus_front_first_substeps": -151,
+        "rear_minus_front_last_substeps": -45,
+        "touchdown": "rear_first",
+        "toeoff": "rear_first"
+      },
+      {
+        "lane": 2,
+        "side": "left",
+        "first_step": 237,
+        "first_substep": 7,
+        "last_step": 253,
+        "last_substep": 0,
+        "rear_minus_front_first_substeps": -143,
+        "rear_minus_front_last_substeps": -37,
+        "touchdown": "rear_first",
+        "toeoff": "rear_first"
+      },
+      {
+        "lane": 2,
+        "side": "left",
+        "first_step": 266,
+        "first_substep": 6,
+        "last_step": 278,
+        "last_substep": 2,
+        "rear_minus_front_first_substeps": -82,
+        "rear_minus_front_last_substeps": -29,
+        "touchdown": "rear_first",
+        "toeoff": "rear_first"
+      },
+      {
+        "lane": 2,
+        "side": "right",
+        "first_step": 229,
+        "first_substep": 4,
+        "last_step": 240,
+        "last_substep": 6,
+        "rear_minus_front_first_substeps": -84,
+        "rear_minus_front_last_substeps": -11,
+        "touchdown": "rear_first",
+        "toeoff": "rear_first"
+      },
+      {
+        "lane": 2,
+        "side": "right",
+        "first_step": 254,
+        "first_substep": 9,
+        "last_step": 265,
+        "last_substep": 5,
+        "rear_minus_front_first_substeps": -82,
+        "rear_minus_front_last_substeps": -10,
+        "touchdown": "rear_first",
+        "toeoff": "rear_first"
+      },
+      {
+        "lane": 2,
+        "side": "right",
+        "first_step": 279,
+        "first_substep": 8,
+        "last_step": 290,
+        "last_substep": 5,
+        "rear_minus_front_first_substeps": -83,
+        "rear_minus_front_last_substeps": -10,
+        "touchdown": "rear_first",
+        "toeoff": "rear_first"
+      },
+      {
+        "lane": 3,
+        "side": "left",
+        "first_step": 243,
+        "first_substep": 2,
+        "last_step": 252,
+        "last_substep": 15,
+        "rear_minus_front_first_substeps": 53,
+        "rear_minus_front_last_substeps": 47,
+        "touchdown": "front_first",
+        "toeoff": "front_first"
+      },
+      {
+        "lane": 3,
+        "side": "left",
+        "first_step": 266,
+        "first_substep": 2,
+        "last_step": 269,
+        "last_substep": 5,
+        "rear_minus_front_first_substeps": -3,
+        "rear_minus_front_last_substeps": 8,
+        "touchdown": "rear_first",
+        "toeoff": "front_first"
+      },
+      {
+        "lane": 3,
+        "side": "left",
+        "first_step": 269,
+        "first_substep": 11,
+        "last_step": 270,
+        "last_substep": 8,
+        "rear_minus_front_first_substeps": 1,
+        "rear_minus_front_last_substeps": 0,
+        "touchdown": "front_first",
+        "toeoff": "same_substep"
+      },
+      {
+        "lane": 3,
+        "side": "left",
+        "first_step": 271,
+        "first_substep": 10,
+        "last_step": 272,
+        "last_substep": 4,
+        "rear_minus_front_first_substeps": 0,
+        "rear_minus_front_last_substeps": 1,
+        "touchdown": "same_substep",
+        "toeoff": "front_first"
+      },
+      {
+        "lane": 3,
+        "side": "left",
+        "first_step": 273,
+        "first_substep": 8,
+        "last_step": 274,
+        "last_substep": 5,
+        "rear_minus_front_first_substeps": -2,
+        "rear_minus_front_last_substeps": 2,
+        "touchdown": "rear_first",
+        "toeoff": "front_first"
+      },
+      {
+        "lane": 3,
+        "side": "right",
+        "first_step": 228,
+        "first_substep": 1,
+        "last_step": 230,
+        "last_substep": 9,
+        "rear_minus_front_first_substeps": -1,
+        "rear_minus_front_last_substeps": 0,
+        "touchdown": "rear_first",
+        "toeoff": "same_substep"
+      },
+      {
+        "lane": 3,
+        "side": "right",
+        "first_step": 231,
+        "first_substep": 14,
+        "last_step": 232,
+        "last_substep": 10,
+        "rear_minus_front_first_substeps": 2,
+        "rear_minus_front_last_substeps": 1,
+        "touchdown": "front_first",
+        "toeoff": "front_first"
+      },
+      {
+        "lane": 3,
+        "side": "right",
+        "first_step": 234,
+        "first_substep": 1,
+        "last_step": 234,
+        "last_substep": 11,
+        "rear_minus_front_first_substeps": 0,
+        "rear_minus_front_last_substeps": 0,
+        "touchdown": "same_substep",
+        "toeoff": "same_substep"
+      },
+      {
+        "lane": 3,
+        "side": "right",
+        "first_step": 236,
+        "first_substep": 3,
+        "last_step": 236,
+        "last_substep": 10,
+        "rear_minus_front_first_substeps": 0,
+        "rear_minus_front_last_substeps": 0,
+        "touchdown": "same_substep",
+        "toeoff": "same_substep"
+      },
+      {
+        "lane": 3,
+        "side": "right",
+        "first_step": 238,
+        "first_substep": 12,
+        "last_step": 239,
+        "last_substep": 5,
+        "rear_minus_front_first_substeps": 1,
+        "rear_minus_front_last_substeps": 2,
+        "touchdown": "front_first",
+        "toeoff": "front_first"
+      },
+      {
+        "lane": 3,
+        "side": "right",
+        "first_step": 240,
+        "first_substep": 11,
+        "last_step": 241,
+        "last_substep": 8,
+        "rear_minus_front_first_substeps": 0,
+        "rear_minus_front_last_substeps": 5,
+        "touchdown": "same_substep",
+        "toeoff": "front_first"
+      },
+      {
+        "lane": 3,
+        "side": "right",
+        "first_step": 252,
+        "first_substep": 2,
+        "last_step": 264,
+        "last_substep": 11,
+        "rear_minus_front_first_substeps": 53,
+        "rear_minus_front_last_substeps": 63,
+        "touchdown": "front_first",
+        "toeoff": "front_first"
+      },
+      {
+        "lane": 3,
+        "side": "right",
+        "first_step": 279,
+        "first_substep": 3,
+        "last_step": 280,
+        "last_substep": 1,
+        "rear_minus_front_first_substeps": -2,
+        "rear_minus_front_last_substeps": 1,
+        "touchdown": "rear_first",
+        "toeoff": "front_first"
+      },
+      {
+        "lane": 3,
+        "side": "right",
+        "first_step": 281,
+        "first_substep": 3,
+        "last_step": 281,
+        "last_substep": 14,
+        "rear_minus_front_first_substeps": 0,
+        "rear_minus_front_last_substeps": 1,
+        "touchdown": "same_substep",
+        "toeoff": "front_first"
+      },
+      {
+        "lane": 3,
+        "side": "right",
+        "first_step": 283,
+        "first_substep": 3,
+        "last_step": 283,
+        "last_substep": 15,
+        "rear_minus_front_first_substeps": 2,
+        "rear_minus_front_last_substeps": 1,
+        "touchdown": "front_first",
+        "toeoff": "front_first"
+      },
+      {
+        "lane": 3,
+        "side": "right",
+        "first_step": 285,
+        "first_substep": 5,
+        "last_step": 286,
+        "last_substep": 1,
+        "rear_minus_front_first_substeps": 0,
+        "rear_minus_front_last_substeps": 2,
+        "touchdown": "same_substep",
+        "toeoff": "front_first"
+      },
+      {
+        "lane": 4,
+        "side": "left",
+        "first_step": 238,
+        "first_substep": 0,
+        "last_step": 254,
+        "last_substep": 11,
+        "rear_minus_front_first_substeps": 110,
+        "rear_minus_front_last_substeps": 114,
+        "touchdown": "front_first",
+        "toeoff": "front_first"
+      },
+      {
+        "lane": 4,
+        "side": "right",
+        "first_step": 228,
+        "first_substep": 7,
+        "last_step": 241,
+        "last_substep": 7,
+        "rear_minus_front_first_substeps": 63,
+        "rear_minus_front_last_substeps": 88,
+        "touchdown": "front_first",
+        "toeoff": "front_first"
+      },
+      {
+        "lane": 4,
+        "side": "right",
+        "first_step": 258,
+        "first_substep": 10,
+        "last_step": 267,
+        "last_substep": 9,
+        "rear_minus_front_first_substeps": -1,
+        "rear_minus_front_last_substeps": 135,
+        "touchdown": "rear_first",
+        "toeoff": "front_first"
+      },
+      {
+        "lane": 4,
+        "side": "right",
+        "first_step": 276,
+        "first_substep": 1,
+        "last_step": 281,
+        "last_substep": 1,
+        "rear_minus_front_first_substeps": 64,
+        "rear_minus_front_last_substeps": -5,
+        "touchdown": "front_first",
+        "toeoff": "rear_first"
+      },
+      {
+        "lane": 4,
+        "side": "right",
+        "first_step": 282,
+        "first_substep": 8,
+        "last_step": 283,
+        "last_substep": 3,
+        "rear_minus_front_first_substeps": -1,
+        "rear_minus_front_last_substeps": 2,
+        "touchdown": "rear_first",
+        "toeoff": "front_first"
+      },
+      {
+        "lane": 5,
+        "side": "left",
+        "first_step": 222,
+        "first_substep": 3,
+        "last_step": 223,
+        "last_substep": 1,
+        "rear_minus_front_first_substeps": 3,
+        "rear_minus_front_last_substeps": 1,
+        "touchdown": "front_first",
+        "toeoff": "front_first"
+      },
+      {
+        "lane": 5,
+        "side": "right",
+        "first_step": 230,
+        "first_substep": 3,
+        "last_step": 241,
+        "last_substep": 9,
+        "rear_minus_front_first_substeps": 19,
+        "rear_minus_front_last_substeps": 113,
+        "touchdown": "front_first",
+        "toeoff": "front_first"
+      },
+      {
+        "lane": 6,
+        "side": "left",
+        "first_step": 238,
+        "first_substep": 4,
+        "last_step": 252,
+        "last_substep": 11,
+        "rear_minus_front_first_substeps": -101,
+        "rear_minus_front_last_substeps": -1,
+        "touchdown": "rear_first",
+        "toeoff": "rear_first"
+      },
+      {
+        "lane": 6,
+        "side": "left",
+        "first_step": 263,
+        "first_substep": 4,
+        "last_step": 277,
+        "last_substep": 11,
+        "rear_minus_front_first_substeps": -100,
+        "rear_minus_front_last_substeps": -1,
+        "touchdown": "rear_first",
+        "toeoff": "rear_first"
+      },
+      {
+        "lane": 6,
+        "side": "right",
+        "first_step": 225,
+        "first_substep": 4,
+        "last_step": 240,
+        "last_substep": 2,
+        "rear_minus_front_first_substeps": -110,
+        "rear_minus_front_last_substeps": -2,
+        "touchdown": "rear_first",
+        "toeoff": "rear_first"
+      },
+      {
+        "lane": 6,
+        "side": "right",
+        "first_step": 250,
+        "first_substep": 7,
+        "last_step": 265,
+        "last_substep": 1,
+        "rear_minus_front_first_substeps": -107,
+        "rear_minus_front_last_substeps": -1,
+        "touchdown": "rear_first",
+        "toeoff": "rear_first"
+      },
+      {
+        "lane": 6,
+        "side": "right",
+        "first_step": 275,
+        "first_substep": 7,
+        "last_step": 290,
+        "last_substep": 1,
+        "rear_minus_front_first_substeps": -108,
+        "rear_minus_front_last_substeps": -2,
+        "touchdown": "rear_first",
+        "toeoff": "rear_first"
+      },
+      {
+        "lane": 7,
+        "side": "left",
+        "first_step": 242,
+        "first_substep": 6,
+        "last_step": 254,
+        "last_substep": 10,
+        "rear_minus_front_first_substeps": 1,
+        "rear_minus_front_last_substeps": 151,
+        "touchdown": "front_first",
+        "toeoff": "front_first"
+      },
+      {
+        "lane": 7,
+        "side": "left",
+        "first_step": 267,
+        "first_substep": 6,
+        "last_step": 279,
+        "last_substep": 11,
+        "rear_minus_front_first_substeps": -22,
+        "rear_minus_front_last_substeps": 154,
+        "touchdown": "rear_first",
+        "toeoff": "front_first"
+      },
+      {
+        "lane": 7,
+        "side": "right",
+        "first_step": 232,
+        "first_substep": 2,
+        "last_step": 232,
+        "last_substep": 12,
+        "rear_minus_front_first_substeps": 1,
+        "rear_minus_front_last_substeps": -1,
+        "touchdown": "front_first",
+        "toeoff": "rear_first"
+      },
+      {
+        "lane": 7,
+        "side": "right",
+        "first_step": 234,
+        "first_substep": 8,
+        "last_step": 240,
+        "last_substep": 10,
+        "rear_minus_front_first_substeps": 6,
+        "rear_minus_front_last_substeps": 83,
+        "touchdown": "front_first",
+        "toeoff": "front_first"
+      },
+      {
+        "lane": 7,
+        "side": "right",
+        "first_step": 249,
+        "first_substep": 1,
+        "last_step": 257,
+        "last_substep": 6,
+        "rear_minus_front_first_substeps": 116,
+        "rear_minus_front_last_substeps": 9,
+        "touchdown": "front_first",
+        "toeoff": "front_first"
+      },
+      {
+        "lane": 7,
+        "side": "right",
+        "first_step": 281,
+        "first_substep": 4,
+        "last_step": 281,
+        "last_substep": 15,
+        "rear_minus_front_first_substeps": 0,
+        "rear_minus_front_last_substeps": 2,
+        "touchdown": "same_substep",
+        "toeoff": "front_first"
+      }
+    ],
+    "missing": [
+      {
+        "lane": 0,
+        "side": 0,
+        "missing_front": true,
+        "missing_rear": false
+      },
+      {
+        "lane": 0,
+        "side": 0,
+        "missing_front": true,
+        "missing_rear": false
+      },
+      {
+        "lane": 0,
+        "side": 0,
+        "missing_front": true,
+        "missing_rear": false
+      },
+      {
+        "lane": 0,
+        "side": 1,
+        "missing_front": false,
+        "missing_rear": true
+      },
+      {
+        "lane": 0,
+        "side": 1,
+        "missing_front": true,
+        "missing_rear": false
+      },
+      {
+        "lane": 0,
+        "side": 1,
+        "missing_front": true,
+        "missing_rear": false
+      },
+      {
+        "lane": 1,
+        "side": 0,
+        "missing_front": false,
+        "missing_rear": true
+      },
+      {
+        "lane": 1,
+        "side": 0,
+        "missing_front": true,
+        "missing_rear": false
+      },
+      {
+        "lane": 1,
+        "side": 0,
+        "missing_front": true,
+        "missing_rear": false
+      },
+      {
+        "lane": 1,
+        "side": 0,
+        "missing_front": true,
+        "missing_rear": false
+      },
+      {
+        "lane": 1,
+        "side": 0,
+        "missing_front": false,
+        "missing_rear": true
+      },
+      {
+        "lane": 1,
+        "side": 0,
+        "missing_front": true,
+        "missing_rear": false
+      },
+      {
+        "lane": 1,
+        "side": 1,
+        "missing_front": true,
+        "missing_rear": false
+      },
+      {
+        "lane": 1,
+        "side": 1,
+        "missing_front": false,
+        "missing_rear": true
+      },
+      {
+        "lane": 1,
+        "side": 1,
+        "missing_front": true,
+        "missing_rear": false
+      },
+      {
+        "lane": 1,
+        "side": 1,
+        "missing_front": true,
+        "missing_rear": false
+      },
+      {
+        "lane": 1,
+        "side": 1,
+        "missing_front": true,
+        "missing_rear": false
+      },
+      {
+        "lane": 2,
+        "side": 0,
+        "missing_front": false,
+        "missing_rear": true
+      },
+      {
+        "lane": 2,
+        "side": 0,
+        "missing_front": false,
+        "missing_rear": true
+      },
+      {
+        "lane": 2,
+        "side": 0,
+        "missing_front": true,
+        "missing_rear": false
+      },
+      {
+        "lane": 2,
+        "side": 0,
+        "missing_front": false,
+        "missing_rear": true
+      },
+      {
+        "lane": 2,
+        "side": 0,
+        "missing_front": true,
+        "missing_rear": false
+      },
+      {
+        "lane": 2,
+        "side": 1,
+        "missing_front": true,
+        "missing_rear": false
+      },
+      {
+        "lane": 2,
+        "side": 1,
+        "missing_front": true,
+        "missing_rear": false
+      },
+      {
+        "lane": 2,
+        "side": 1,
+        "missing_front": false,
+        "missing_rear": true
+      },
+      {
+        "lane": 2,
+        "side": 1,
+        "missing_front": true,
+        "missing_rear": false
+      },
+      {
+        "lane": 2,
+        "side": 1,
+        "missing_front": true,
+        "missing_rear": false
+      },
+      {
+        "lane": 2,
+        "side": 1,
+        "missing_front": false,
+        "missing_rear": true
+      },
+      {
+        "lane": 2,
+        "side": 1,
+        "missing_front": true,
+        "missing_rear": false
+      },
+      {
+        "lane": 2,
+        "side": 1,
+        "missing_front": true,
+        "missing_rear": false
+      },
+      {
+        "lane": 2,
+        "side": 1,
+        "missing_front": false,
+        "missing_rear": true
+      },
+      {
+        "lane": 3,
+        "side": 0,
+        "missing_front": true,
+        "missing_rear": false
+      },
+      {
+        "lane": 3,
+        "side": 0,
+        "missing_front": true,
+        "missing_rear": false
+      },
+      {
+        "lane": 3,
+        "side": 0,
+        "missing_front": false,
+        "missing_rear": true
+      },
+      {
+        "lane": 3,
+        "side": 0,
+        "missing_front": true,
+        "missing_rear": false
+      },
+      {
+        "lane": 3,
+        "side": 1,
+        "missing_front": false,
+        "missing_rear": true
+      },
+      {
+        "lane": 3,
+        "side": 1,
+        "missing_front": true,
+        "missing_rear": false
+      },
+      {
+        "lane": 3,
+        "side": 1,
+        "missing_front": false,
+        "missing_rear": true
+      },
+      {
+        "lane": 3,
+        "side": 1,
+        "missing_front": true,
+        "missing_rear": false
+      },
+      {
+        "lane": 4,
+        "side": 0,
+        "missing_front": true,
+        "missing_rear": false
+      },
+      {
+        "lane": 4,
+        "side": 0,
+        "missing_front": true,
+        "missing_rear": false
+      },
+      {
+        "lane": 4,
+        "side": 0,
+        "missing_front": false,
+        "missing_rear": true
+      },
+      {
+        "lane": 4,
+        "side": 0,
+        "missing_front": true,
+        "missing_rear": false
+      },
+      {
+        "lane": 4,
+        "side": 0,
+        "missing_front": false,
+        "missing_rear": true
+      },
+      {
+        "lane": 4,
+        "side": 1,
+        "missing_front": false,
+        "missing_rear": true
+      },
+      {
+        "lane": 4,
+        "side": 1,
+        "missing_front": false,
+        "missing_rear": true
+      },
+      {
+        "lane": 4,
+        "side": 1,
+        "missing_front": false,
+        "missing_rear": true
+      },
+      {
+        "lane": 4,
+        "side": 1,
+        "missing_front": true,
+        "missing_rear": false
+      },
+      {
+        "lane": 4,
+        "side": 1,
+        "missing_front": true,
+        "missing_rear": false
+      },
+      {
+        "lane": 5,
+        "side": 0,
+        "missing_front": false,
+        "missing_rear": true
+      },
+      {
+        "lane": 5,
+        "side": 0,
+        "missing_front": true,
+        "missing_rear": false
+      },
+      {
+        "lane": 5,
+        "side": 0,
+        "missing_front": true,
+        "missing_rear": false
+      },
+      {
+        "lane": 5,
+        "side": 0,
+        "missing_front": false,
+        "missing_rear": true
+      },
+      {
+        "lane": 5,
+        "side": 0,
+        "missing_front": false,
+        "missing_rear": true
+      },
+      {
+        "lane": 5,
+        "side": 0,
+        "missing_front": true,
+        "missing_rear": false
+      },
+      {
+        "lane": 5,
+        "side": 0,
+        "missing_front": false,
+        "missing_rear": true
+      },
+      {
+        "lane": 5,
+        "side": 0,
+        "missing_front": true,
+        "missing_rear": false
+      },
+      {
+        "lane": 5,
+        "side": 0,
+        "missing_front": true,
+        "missing_rear": false
+      },
+      {
+        "lane": 5,
+        "side": 0,
+        "missing_front": true,
+        "missing_rear": false
+      },
+      {
+        "lane": 5,
+        "side": 0,
+        "missing_front": false,
+        "missing_rear": true
+      },
+      {
+        "lane": 5,
+        "side": 0,
+        "missing_front": false,
+        "missing_rear": true
+      },
+      {
+        "lane": 5,
+        "side": 1,
+        "missing_front": false,
+        "missing_rear": true
+      },
+      {
+        "lane": 5,
+        "side": 1,
+        "missing_front": false,
+        "missing_rear": true
+      },
+      {
+        "lane": 5,
+        "side": 1,
+        "missing_front": false,
+        "missing_rear": true
+      },
+      {
+        "lane": 5,
+        "side": 1,
+        "missing_front": true,
+        "missing_rear": false
+      },
+      {
+        "lane": 5,
+        "side": 1,
+        "missing_front": false,
+        "missing_rear": true
+      },
+      {
+        "lane": 5,
+        "side": 1,
+        "missing_front": true,
+        "missing_rear": false
+      },
+      {
+        "lane": 5,
+        "side": 1,
+        "missing_front": true,
+        "missing_rear": false
+      },
+      {
+        "lane": 5,
+        "side": 1,
+        "missing_front": false,
+        "missing_rear": true
+      },
+      {
+        "lane": 5,
+        "side": 1,
+        "missing_front": false,
+        "missing_rear": true
+      },
+      {
+        "lane": 5,
+        "side": 1,
+        "missing_front": true,
+        "missing_rear": false
+      },
+      {
+        "lane": 5,
+        "side": 1,
+        "missing_front": true,
+        "missing_rear": false
+      },
+      {
+        "lane": 6,
+        "side": 0,
+        "missing_front": false,
+        "missing_rear": true
+      },
+      {
+        "lane": 7,
+        "side": 0,
+        "missing_front": true,
+        "missing_rear": false
+      },
+      {
+        "lane": 7,
+        "side": 0,
+        "missing_front": true,
+        "missing_rear": false
+      },
+      {
+        "lane": 7,
+        "side": 0,
+        "missing_front": true,
+        "missing_rear": false
+      },
+      {
+        "lane": 7,
+        "side": 0,
+        "missing_front": true,
+        "missing_rear": false
+      },
+      {
+        "lane": 7,
+        "side": 0,
+        "missing_front": false,
+        "missing_rear": true
+      },
+      {
+        "lane": 7,
+        "side": 0,
+        "missing_front": false,
+        "missing_rear": true
+      },
+      {
+        "lane": 7,
+        "side": 0,
+        "missing_front": true,
+        "missing_rear": false
+      },
+      {
+        "lane": 7,
+        "side": 0,
+        "missing_front": false,
+        "missing_rear": true
+      },
+      {
+        "lane": 7,
+        "side": 0,
+        "missing_front": false,
+        "missing_rear": true
+      },
+      {
+        "lane": 7,
+        "side": 0,
+        "missing_front": true,
+        "missing_rear": false
+      },
+      {
+        "lane": 7,
+        "side": 0,
+        "missing_front": false,
+        "missing_rear": true
+      },
+      {
+        "lane": 7,
+        "side": 0,
+        "missing_front": false,
+        "missing_rear": true
+      },
+      {
+        "lane": 7,
+        "side": 1,
+        "missing_front": false,
+        "missing_rear": true
+      },
+      {
+        "lane": 7,
+        "side": 1,
+        "missing_front": false,
+        "missing_rear": true
+      },
+      {
+        "lane": 7,
+        "side": 1,
+        "missing_front": true,
+        "missing_rear": false
+      },
+      {
+        "lane": 7,
+        "side": 1,
+        "missing_front": true,
+        "missing_rear": false
+      },
+      {
+        "lane": 7,
+        "side": 1,
+        "missing_front": true,
+        "missing_rear": false
+      },
+      {
+        "lane": 7,
+        "side": 1,
+        "missing_front": true,
+        "missing_rear": false
+      },
+      {
+        "lane": 7,
+        "side": 1,
+        "missing_front": false,
+        "missing_rear": true
+      },
+      {
+        "lane": 7,
+        "side": 1,
+        "missing_front": true,
+        "missing_rear": false
+      },
+      {
+        "lane": 7,
+        "side": 1,
+        "missing_front": true,
+        "missing_rear": false
+      },
+      {
+        "lane": 7,
+        "side": 1,
+        "missing_front": true,
+        "missing_rear": false
+      },
+      {
+        "lane": 7,
+        "side": 1,
+        "missing_front": true,
+        "missing_rear": false
+      }
+    ]
+  },
+  "method": "Foot normal >1e-7 at 1.25 ms substeps, foot-contact runs bridge at most two silent substeps. In complete runs, compare first and last positive normal impulses for rear-toe two segments and front-toe six segments. Equal substep means unresolved order, not simultaneous biological contact. Group sums can mix toe segments and do not establish plantar identity or biological timing; thresholds and gap merging are engineering choices. Used development seed and 4\u20136 s only.",
+  "corvid_reference": {
+    "species": "black-billed magpie, Pica pica",
+    "doi": "10.1242/jeb.203.14.2159",
+    "observation": "Hallux contact precedes front toe contact; hallux leaves before the third digit in filmed steps on thin cork; distal toe flexes after leaving the ground and extends later in recovery. Surface and species limits apply. No American-crow angle or timing transfer is asserted."
+  }
+}
