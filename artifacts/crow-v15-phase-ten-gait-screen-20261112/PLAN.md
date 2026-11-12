@@ -1,0 +1,3 @@
+# Phase lead paired gait test
+
+The prior five-millisecond lead with a 16-substep interpolation failed on development seed 20261127. Test whether a ten-millisecond carrier lead in the smoothed candidate can preserve contact and travel: the same-binary sham retains a five-millisecond carrier lead and bypasses interpolation. Both use the same initial state, policy weights, material and gait amplitude. This paired comparison changes phase as well as interpolation and cannot attribute any gain to either alone. It does not establish biological realism. Require exact prewalk state/contact parity and the previously declared gait gates on all eight lanes. Only if they pass, test the other development seed, longer walk, disturbed starts, and takeoff transition.

@@ -1,0 +1,7 @@
+# Ten-millisecond phase lead: rejected
+
+The paired seed 20261127 screening run failed. The smoothed ten-millisecond candidate and unsmoothed five-millisecond sham shared one host and shader and identical policy weights and initial conditions. All eight pre-walk state and contact traces matched exactly and both runs completed their 300 intervals without logged solver errors. Candidate locomotion remained contact driven on the v15 body.
+
+Across lanes, the candidate advanced 15.12–21.72 mm in the two-second walking window versus 25.07–29.71 mm for its matched sham. Every lane failed the prespecified 90% travel threshold. Candidate lane 3 had 15 unloaded substeps versus none for the sham. All lanes recorded at least three support-qualified endpoint-clearance bouts per foot; no candidate toe-speed caps or nonfoot impulses were recorded. Mean boundary second-difference proxies in knee and ankle coordinates were 4.7–13.1% of sham. These proxies are not actual torque or biological motion; smoothing alone does not offset failure of support and displacement.
+
+The previous five-millisecond smoothed candidate on the same used seed had 133 unloaded substeps, versus 15 here, but it was a different shader build: that difference is descriptive, not a controlled causal comparison. The paired comparison here changes both phase and interpolation; neither effect is isolated. See the full per-lane comparison, traces, runtime hashes and scripts. No controller was promoted, and this is not evidence of realistic crow gait, whole-sequence performance, flight or landing.
