@@ -1,0 +1,12 @@
+--- a/held-upper.metal
++++ b/support-stroke.metal
+@@ -5082,7 +5082,8 @@
+             const float support=dispatch.counts.w==40u ? ((state.status.w & (leg==0u ? (1u<<21) : (1u<<20)))!=0u ? 1.0f : 0.0f) : (leg==0u ? state.nutrition.y : state.nutrition.x);
+             const float begin=4.0f;
+             const float carrier=sin(kTwoPi*(seconds+5.0f/1000.0f)/0.50f)*(leg==0u ? 1.0f : -1.0f);
+-            const float swing=seconds >= begin && seconds < begin+6.0f && support > 0.05f ? carrier : 0.0f;
++            const float ownSupport=dispatch.counts.w==40u ? ((state.status.w & (leg==0u ? (1u<<20) : (1u<<21)))!=0u ? 1.0f : 0.0f) : (leg==0u ? state.nutrition.x : state.nutrition.y);
++            const float swing=seconds >= begin && seconds < begin+6.0f && (carrier >= 0.0f ? support > 0.05f : ownSupport > 0.05f) ? carrier : 0.0f;
+             const float lift=max(swing,0.0f);
+             if (seconds >= begin && seconds < begin+6.0f)
+                 navigationTeacherRequested=0.80f*smoothstep(begin,begin+.50f,seconds)*(joint==0u ? -0.30f*swing : joint==1u ? 0.40f*lift : -0.15f*lift);
