@@ -1,0 +1,7 @@
+# Toe preload dose screen: one setting merits matched follow-up
+
+All eight development starts completed 300 intervals with no reported physical failure or trace errors. Before toe preload activated, all 1,208 samples and 19,328 contact substeps exactly matched the standing-feedback reference through 3 s. The 0.20-rad lane exactly reproduced its prior integrated run at all 300 state samples and 4,800 contact substeps.
+
+During 4–6 s, the single 0.05-rad lane had zero recorded toe-speed-cap substeps, zero both-feet-unloaded substeps, 3 and 4 support-qualified swing bouts and 131.8 mm forward displacement. Its sampled left/right contact-point p95 speeds were 0.0440/0.0349 m/s. The single zero-dose lane had 3 toe-cap substeps, 130.9 mm displacement and p95 0.0395/0.0311 m/s. The two lanes are different starts and this is not a causal comparison of doses. Higher doses had variable higher contact-point speeds; the 0.15-rad lane 7 had two toe-cap substeps and one unloaded substep. These contact-point samples are not integrated slip distances, and different travel speeds confound a direct interpretation.
+
+The 0.05-rad setting merits all-start, same-configuration comparison against zero and the existing 0.20-rad preload, including individual lanes, caps, unloaded support, contact speeds, movement and stance events. The early feedback still has toe-cap events before walking. These are development starts, not qualification, grip, takeoff, flight or landing. No setting is promoted.
