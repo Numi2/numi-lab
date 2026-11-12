@@ -1,0 +1,66 @@
+[
+  {
+    "lane": 0,
+    "previous_arm": "zero floor",
+    "state_incomplete_steps": [],
+    "state_first_difference": 527,
+    "contact_incomplete_steps": [],
+    "contact_first_difference": 527
+  },
+  {
+    "lane": 1,
+    "previous_arm": "zero floor",
+    "state_incomplete_steps": [],
+    "state_first_difference": 528,
+    "contact_incomplete_steps": [],
+    "contact_first_difference": 528
+  },
+  {
+    "lane": 2,
+    "previous_arm": "true bypass",
+    "state_incomplete_steps": [],
+    "state_first_difference": null,
+    "contact_incomplete_steps": [],
+    "contact_first_difference": null
+  },
+  {
+    "lane": 3,
+    "previous_arm": "true bypass",
+    "state_incomplete_steps": [],
+    "state_first_difference": null,
+    "contact_incomplete_steps": [],
+    "contact_first_difference": null
+  },
+  {
+    "lane": 4,
+    "previous_arm": ".05 preload",
+    "state_incomplete_steps": [],
+    "state_first_difference": 527,
+    "contact_incomplete_steps": [],
+    "contact_first_difference": 527
+  },
+  {
+    "lane": 5,
+    "previous_arm": ".05 preload",
+    "state_incomplete_steps": [],
+    "state_first_difference": 527,
+    "contact_incomplete_steps": [],
+    "contact_first_difference": 527
+  },
+  {
+    "lane": 6,
+    "previous_arm": ".10 preload",
+    "state_incomplete_steps": [],
+    "state_first_difference": 527,
+    "contact_incomplete_steps": [],
+    "contact_first_difference": 527
+  },
+  {
+    "lane": 7,
+    "previous_arm": ".10 preload",
+    "state_incomplete_steps": [],
+    "state_first_difference": 527,
+    "contact_incomplete_steps": [],
+    "contact_first_difference": 527
+  }
+]

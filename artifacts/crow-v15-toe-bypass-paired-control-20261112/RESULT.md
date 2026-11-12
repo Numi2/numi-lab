@@ -1,0 +1,7 @@
+# Same-lane untreated toe control
+
+Across two used seeds, every untreated lane survived to step 625 with complete joint and toe observer coverage in the defined windows, no observed toe or joint speed-limit hits, nonfoot ground impulse or solver errors, and no both-foot-unloaded substep in steps 501–515. Foot load was absent in all final observed steps 621–625. These results do not establish meaningful support at the tiny contact threshold, material-point slip or sustained flight.
+
+The untouched repeated lanes 2–3 matched accepted states and contact records exactly through step 625 on both seeds. The same-lane zero-floor, .05 and .10 rad floor versions matched their bypass counterparts through step 526 or later, and first diverged at step 527 or 528, after the intervention could act. Thus zero was not an untreated setting, and the control confound is real.
+
+Differences in total normal impulse during 549–556 ranged from approximately -0.0064 to +0.0071 N s for the zero-floor arms, -0.0010 to -0.0003 N s for .05, and +0.0028 to +0.0033 N s for .10; the coupled trajectories include wings, gravity, contacts and feedback. These small, correlated development comparisons do not establish a biological advantage. The bypass is used in the follow-on matched leg-extension control because it passes this short screen without the extra operation, not because grip or full takeoff is qualified. Longer flight, landing, navigation, material slip and unused layouts remain untested here.
