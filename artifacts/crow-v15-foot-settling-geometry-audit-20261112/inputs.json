@@ -1,0 +1,15 @@
+{
+  "model_toe_box_half_extents_m": [
+    0.009,
+    0.0025,
+    0.0092
+  ],
+  "input_sha256": {
+    "build/crow-v15-gait-slip-observer-20261112/c_api.cpp": "e6598286a93649257417acd1315d6462af57cb4eb1c928e760fdc46b3f52221f",
+    "artifacts/crow-v15-whole-gait-audit-20261111/audit.json": "e4e440499d23b36be8cf7c587500ef9c6c7ffb576f44793e7a8a1b08c727c3a0",
+    "artifacts/crow-v15-toe-corvid-sequence-audit-20261112/analysis.json": "a528d1823f09cfc580c00f30b609d6e35c06100a4a5f2bae807255f051e6a4f9",
+    "artifacts/crow-v15-front-toe-settling-screen-20261112/toe-sequence.json": "431593cd37e42d23bc9a92e9f441da48008ef3459019ba3cd6085a981f675b0b"
+  },
+  "previous_trace_commit": "f3a719864a49b01d4557c2f48223e11382d31a36",
+  "trial_trace_commit": "b0f3fd4cf5be8ed05174e497ddf90b754d756141"
+}

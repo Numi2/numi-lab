@@ -1,0 +1,2 @@
+63f838d182fddceafbbaae72011343de73cb26a7a683d5cf3833b88b410bda15  artifacts/crow-v15-foot-settling-geometry-audit-20261112/PLAN.md
+b6333386e2ada465fbb7689109b2e4ad18f58061568ab7ab9b52f7d55a5c86bf  artifacts/crow-v15-foot-settling-geometry-audit-20261112/analyze.py
