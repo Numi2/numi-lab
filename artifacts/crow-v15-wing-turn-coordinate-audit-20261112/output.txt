@@ -1,0 +1,12 @@
+0 crow_left_wing_sweep axis 0 0 1 q 7 default 0 parent 0 child 1
+1 crow_right_wing_sweep axis 0 0 -1 q 8 default 0 parent 0 child 2
+2 crow_left_wing_flap axis 1 0 0 q 9 default 0.35 parent 1 child 3
+3 crow_right_wing_flap axis -1 0 0 q 10 default 0.35 parent 2 child 4
+4 crow_left_wing_pronation axis 0 1 0 q 11 default 0 parent 3 child 5
+5 crow_right_wing_pronation axis 0 -1 0 q 12 default 0 parent 4 child 6
+0 wing.left_flap target crow_left_wing_flap scale 1.2
+1 wing.right_flap target crow_right_wing_flap scale 1.2
+2 wing.left_sweep target crow_left_wing_sweep scale 0.2
+3 wing.right_sweep target crow_right_wing_sweep scale 0.2
+4 wing.left_pronation target crow_left_wing_pronation scale 0.3
+5 wing.right_pronation target crow_right_wing_pronation scale 0.3
