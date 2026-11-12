@@ -1,0 +1,5 @@
+# Stronger closed-loop bank screen
+
+The previous bounded feedback generated small roll and less than 3% final heading improvement. Test three higher bank targets, 0.12, 0.18 and 0.24 rad, in matched ±90-degree obstacle-free development lanes with live roll and roll-rate feedback. The differential action correction is limited to ±0.45. Both direct yaw/pitch moment channels remain suppressed after 9 seconds, but earlier takeoff retains the old controller. These are engineering candidates, not measured crow movements.
+
+Retain the same six starts, flight model, development seed and matched baseline. Require exact pre-intervention sampled q, velocity and actions, full contact evidence, no physical failure in either direction, sampled post-intervention absolute roll below 0.35 rad, sampled height 0.65–1.15 m, and at least 15% reduction in final absolute heading error in both directions relative to the same lane. Samples alone cannot prove continuous safety. Even if these diagnostic thresholds pass, this is not flight, biological, recovery, landing or unseen-layout qualification.
