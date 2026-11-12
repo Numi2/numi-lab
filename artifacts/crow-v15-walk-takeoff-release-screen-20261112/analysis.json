@@ -1,0 +1,651 @@
+{
+  "20261126": {
+    "prefix": {
+      "endpoints_compared": 3200,
+      "endpoint_mismatches": 138,
+      "substeps_compared": 51200,
+      "substep_mismatches": 2024,
+      "first_endpoint_divergence_by_lane": {
+        "0": null,
+        "1": 355,
+        "2": null,
+        "3": 355,
+        "4": 355,
+        "5": null,
+        "6": null,
+        "7": null
+      },
+      "first_substep_divergence_by_lane": {
+        "0": null,
+        "1": [
+          357,
+          6
+        ],
+        "2": null,
+        "3": [
+          357,
+          5
+        ],
+        "4": [
+          357,
+          7
+        ],
+        "5": null,
+        "6": null,
+        "7": null
+      }
+    },
+    "steps": [
+      400,
+      400,
+      400,
+      400,
+      400,
+      400,
+      400,
+      400
+    ],
+    "physical_failure": [
+      false,
+      false,
+      false,
+      false,
+      false,
+      false,
+      false,
+      false
+    ],
+    "rows": [
+      {
+        "lane": 0,
+        "upward_foot_impulse_348_to_353_Ns": [
+          0.35676918782,
+          0.37731631962
+        ],
+        "peak_root_z_348_to_370_m": 0.405117184,
+        "toe_cap_6_to_8s": 0,
+        "upward_foot_impulse_6_8_to_7_4_Ns": [
+          0.66400192979,
+          0.6881545574500001
+        ],
+        "normal_foot_impulse_6_8_to_7_4_Ns": [
+          0.66400192979,
+          0.6881545574500001
+        ],
+        "last_loaded_6_8_to_8s": [
+          352,
+          7
+        ],
+        "loaded_substeps_7_4_to_8s": 0,
+        "root_z_6_8_7_4_8s": [
+          0.162994459,
+          0.405117184,
+          0.782885671
+        ],
+        "root_vz_6_8_7_4_8s": [
+          0.000979908858,
+          0.47390002,
+          0.611846864
+        ],
+        "nonfoot_ground_impulse_6_to_8_Ns": 0.0
+      },
+      {
+        "lane": 1,
+        "upward_foot_impulse_348_to_353_Ns": [
+          0.3511580361499999,
+          0.37322555937999996
+        ],
+        "peak_root_z_348_to_370_m": 0.401245117,
+        "toe_cap_6_to_8s": 0,
+        "upward_foot_impulse_6_8_to_7_4_Ns": [
+          0.6568855140599998,
+          0.6855631246299999
+        ],
+        "normal_foot_impulse_6_8_to_7_4_Ns": [
+          0.6568855140599998,
+          0.6855631246299999
+        ],
+        "last_loaded_6_8_to_8s": [
+          352,
+          7
+        ],
+        "loaded_substeps_7_4_to_8s": 0,
+        "root_z_6_8_7_4_8s": [
+          0.163010865,
+          0.401245117,
+          0.754888773
+        ],
+        "root_vz_6_8_7_4_8s": [
+          0.000980715849,
+          0.468439072,
+          0.510462761
+        ],
+        "nonfoot_ground_impulse_6_to_8_Ns": 0.0
+      },
+      {
+        "lane": 2,
+        "upward_foot_impulse_348_to_353_Ns": [
+          0.35714394688000006,
+          0.37403006152
+        ],
+        "peak_root_z_348_to_370_m": 0.404621422,
+        "toe_cap_6_to_8s": 0,
+        "upward_foot_impulse_6_8_to_7_4_Ns": [
+          0.6643146218,
+          0.68492321438
+        ],
+        "normal_foot_impulse_6_8_to_7_4_Ns": [
+          0.6643146218,
+          0.68492321438
+        ],
+        "last_loaded_6_8_to_8s": [
+          352,
+          7
+        ],
+        "loaded_substeps_7_4_to_8s": 0,
+        "root_z_6_8_7_4_8s": [
+          0.162998855,
+          0.404621422,
+          0.779953003
+        ],
+        "root_vz_6_8_7_4_8s": [
+          0.000987631851,
+          0.477394074,
+          0.554965913
+        ],
+        "nonfoot_ground_impulse_6_to_8_Ns": 0.0
+      },
+      {
+        "lane": 3,
+        "upward_foot_impulse_348_to_353_Ns": [
+          0.3534498616600001,
+          0.36945201583000004
+        ],
+        "peak_root_z_348_to_370_m": 0.401841491,
+        "toe_cap_6_to_8s": 0,
+        "upward_foot_impulse_6_8_to_7_4_Ns": [
+          0.6590360562699998,
+          0.6819361475299998
+        ],
+        "normal_foot_impulse_6_8_to_7_4_Ns": [
+          0.6590360562699998,
+          0.6819361475299998
+        ],
+        "last_loaded_6_8_to_8s": [
+          352,
+          7
+        ],
+        "loaded_substeps_7_4_to_8s": 0,
+        "root_z_6_8_7_4_8s": [
+          0.163013905,
+          0.401841491,
+          0.791599631
+        ],
+        "root_vz_6_8_7_4_8s": [
+          0.00098064926,
+          0.480056524,
+          0.594898224
+        ],
+        "nonfoot_ground_impulse_6_to_8_Ns": 0.0
+      },
+      {
+        "lane": 4,
+        "upward_foot_impulse_348_to_353_Ns": [
+          0.35317190948999994,
+          0.3734346702300001
+        ],
+        "peak_root_z_348_to_370_m": 0.402252287,
+        "toe_cap_6_to_8s": 0,
+        "upward_foot_impulse_6_8_to_7_4_Ns": [
+          0.6595470253100001,
+          0.6851261127799999
+        ],
+        "normal_foot_impulse_6_8_to_7_4_Ns": [
+          0.6595470253100001,
+          0.6851261127799999
+        ],
+        "last_loaded_6_8_to_8s": [
+          352,
+          7
+        ],
+        "loaded_substeps_7_4_to_8s": 0,
+        "root_z_6_8_7_4_8s": [
+          0.163008645,
+          0.402252287,
+          0.759157419
+        ],
+        "root_vz_6_8_7_4_8s": [
+          0.000983403064,
+          0.46846965,
+          0.52768743
+        ],
+        "nonfoot_ground_impulse_6_to_8_Ns": 0.0
+      },
+      {
+        "lane": 5,
+        "upward_foot_impulse_348_to_353_Ns": [
+          0.36096621615999996,
+          0.37803223839999994
+        ],
+        "peak_root_z_348_to_370_m": 0.407748908,
+        "toe_cap_6_to_8s": 0,
+        "upward_foot_impulse_6_8_to_7_4_Ns": [
+          0.6653246186999999,
+          0.69174638036
+        ],
+        "normal_foot_impulse_6_8_to_7_4_Ns": [
+          0.6653246186999999,
+          0.69174638036
+        ],
+        "last_loaded_6_8_to_8s": [
+          352,
+          7
+        ],
+        "loaded_substeps_7_4_to_8s": 0,
+        "root_z_6_8_7_4_8s": [
+          0.162986755,
+          0.407748908,
+          0.804563522
+        ],
+        "root_vz_6_8_7_4_8s": [
+          0.000976687064,
+          0.484015346,
+          0.645751715
+        ],
+        "nonfoot_ground_impulse_6_to_8_Ns": 0.0
+      },
+      {
+        "lane": 6,
+        "upward_foot_impulse_348_to_353_Ns": [
+          0.35774973408,
+          0.37192586799
+        ],
+        "peak_root_z_348_to_370_m": 0.403974473,
+        "toe_cap_6_to_8s": 0,
+        "upward_foot_impulse_6_8_to_7_4_Ns": [
+          0.6640933202900002,
+          0.6836495440099998
+        ],
+        "normal_foot_impulse_6_8_to_7_4_Ns": [
+          0.6640933202900002,
+          0.6836495440099998
+        ],
+        "last_loaded_6_8_to_8s": [
+          352,
+          7
+        ],
+        "loaded_substeps_7_4_to_8s": 0,
+        "root_z_6_8_7_4_8s": [
+          0.163001746,
+          0.403974473,
+          0.785751343
+        ],
+        "root_vz_6_8_7_4_8s": [
+          0.000980325975,
+          0.476113945,
+          0.594032466
+        ],
+        "nonfoot_ground_impulse_6_to_8_Ns": 0.0
+      },
+      {
+        "lane": 7,
+        "upward_foot_impulse_348_to_353_Ns": [
+          0.36150137955000006,
+          0.37739151036999996
+        ],
+        "peak_root_z_348_to_370_m": 0.406496108,
+        "toe_cap_6_to_8s": 0,
+        "upward_foot_impulse_6_8_to_7_4_Ns": [
+          0.6663223273899999,
+          0.6906407831200002
+        ],
+        "normal_foot_impulse_6_8_to_7_4_Ns": [
+          0.6663223273899999,
+          0.6906407831200002
+        ],
+        "last_loaded_6_8_to_8s": [
+          352,
+          7
+        ],
+        "loaded_substeps_7_4_to_8s": 0,
+        "root_z_6_8_7_4_8s": [
+          0.162987709,
+          0.406496108,
+          0.763528287
+        ],
+        "root_vz_6_8_7_4_8s": [
+          0.000974206254,
+          0.472883254,
+          0.518080473
+        ],
+        "nonfoot_ground_impulse_6_to_8_Ns": 0.0
+      }
+    ]
+  },
+  "20261127": {
+    "prefix": {
+      "endpoints_compared": 3200,
+      "endpoint_mismatches": 184,
+      "substeps_compared": 51200,
+      "substep_mismatches": 2701,
+      "first_endpoint_divergence_by_lane": {
+        "0": null,
+        "1": 355,
+        "2": null,
+        "3": null,
+        "4": null,
+        "5": 355,
+        "6": 355,
+        "7": 355
+      },
+      "first_substep_divergence_by_lane": {
+        "0": null,
+        "1": [
+          357,
+          6
+        ],
+        "2": null,
+        "3": null,
+        "4": null,
+        "5": [
+          357,
+          6
+        ],
+        "6": [
+          357,
+          7
+        ],
+        "7": [
+          357,
+          2
+        ]
+      }
+    },
+    "steps": [
+      400,
+      400,
+      400,
+      400,
+      400,
+      400,
+      400,
+      400
+    ],
+    "physical_failure": [
+      false,
+      false,
+      false,
+      false,
+      false,
+      false,
+      false,
+      false
+    ],
+    "rows": [
+      {
+        "lane": 0,
+        "upward_foot_impulse_348_to_353_Ns": [
+          0.35837216281999995,
+          0.37900940423000007
+        ],
+        "peak_root_z_348_to_370_m": 0.405766606,
+        "toe_cap_6_to_8s": 0,
+        "upward_foot_impulse_6_8_to_7_4_Ns": [
+          0.6641865316700001,
+          0.6912624475100002
+        ],
+        "normal_foot_impulse_6_8_to_7_4_Ns": [
+          0.6641865316700001,
+          0.6912624475100002
+        ],
+        "last_loaded_6_8_to_8s": [
+          352,
+          7
+        ],
+        "loaded_substeps_7_4_to_8s": 0,
+        "root_z_6_8_7_4_8s": [
+          0.162988916,
+          0.405766606,
+          0.754851699
+        ],
+        "root_vz_6_8_7_4_8s": [
+          0.000980493729,
+          0.473391086,
+          0.5345186
+        ],
+        "nonfoot_ground_impulse_6_to_8_Ns": 0.0
+      },
+      {
+        "lane": 1,
+        "upward_foot_impulse_348_to_353_Ns": [
+          0.35013542034,
+          0.37400936663999995
+        ],
+        "peak_root_z_348_to_370_m": 0.401004493,
+        "toe_cap_6_to_8s": 0,
+        "upward_foot_impulse_6_8_to_7_4_Ns": [
+          0.6562350062699999,
+          0.6859733788100004
+        ],
+        "normal_foot_impulse_6_8_to_7_4_Ns": [
+          0.6562350062699999,
+          0.6859733788100004
+        ],
+        "last_loaded_6_8_to_8s": [
+          352,
+          7
+        ],
+        "loaded_substeps_7_4_to_8s": 0,
+        "root_z_6_8_7_4_8s": [
+          0.163011074,
+          0.401004493,
+          0.749620378
+        ],
+        "root_vz_6_8_7_4_8s": [
+          0.00098163099,
+          0.46721971,
+          0.499033749
+        ],
+        "nonfoot_ground_impulse_6_to_8_Ns": 0.0
+      },
+      {
+        "lane": 2,
+        "upward_foot_impulse_348_to_353_Ns": [
+          0.35915192147,
+          0.38216805909999996
+        ],
+        "peak_root_z_348_to_370_m": 0.407102317,
+        "toe_cap_6_to_8s": 0,
+        "upward_foot_impulse_6_8_to_7_4_Ns": [
+          0.6654388609399999,
+          0.69395235447
+        ],
+        "normal_foot_impulse_6_8_to_7_4_Ns": [
+          0.6654388609399999,
+          0.69395235447
+        ],
+        "last_loaded_6_8_to_8s": [
+          352,
+          7
+        ],
+        "loaded_substeps_7_4_to_8s": 0,
+        "root_z_6_8_7_4_8s": [
+          0.162981659,
+          0.407102317,
+          0.764456391
+        ],
+        "root_vz_6_8_7_4_8s": [
+          0.000973370974,
+          0.471482933,
+          0.548436344
+        ],
+        "nonfoot_ground_impulse_6_to_8_Ns": 0.0
+      },
+      {
+        "lane": 3,
+        "upward_foot_impulse_348_to_353_Ns": [
+          0.35713473825000003,
+          0.3780172228999999
+        ],
+        "peak_root_z_348_to_370_m": 0.405649006,
+        "toe_cap_6_to_8s": 0,
+        "upward_foot_impulse_6_8_to_7_4_Ns": [
+          0.66232244739,
+          0.6909004360600003
+        ],
+        "normal_foot_impulse_6_8_to_7_4_Ns": [
+          0.66232244739,
+          0.6909004360600003
+        ],
+        "last_loaded_6_8_to_8s": [
+          352,
+          7
+        ],
+        "loaded_substeps_7_4_to_8s": 0,
+        "root_z_6_8_7_4_8s": [
+          0.162996024,
+          0.405649006,
+          0.775220275
+        ],
+        "root_vz_6_8_7_4_8s": [
+          0.000971517584,
+          0.475440592,
+          0.553361595
+        ],
+        "nonfoot_ground_impulse_6_to_8_Ns": 0.0
+      },
+      {
+        "lane": 4,
+        "upward_foot_impulse_348_to_353_Ns": [
+          0.35472647812999997,
+          0.37685396034
+        ],
+        "peak_root_z_348_to_370_m": 0.405056655,
+        "toe_cap_6_to_8s": 0,
+        "upward_foot_impulse_6_8_to_7_4_Ns": [
+          0.6619947198000001,
+          0.6876522235499996
+        ],
+        "normal_foot_impulse_6_8_to_7_4_Ns": [
+          0.6619947198000001,
+          0.6876522235499996
+        ],
+        "last_loaded_6_8_to_8s": [
+          352,
+          7
+        ],
+        "loaded_substeps_7_4_to_8s": 0,
+        "root_z_6_8_7_4_8s": [
+          0.162998244,
+          0.405056655,
+          0.803590953
+        ],
+        "root_vz_6_8_7_4_8s": [
+          0.000983106205,
+          0.481818616,
+          0.65346235
+        ],
+        "nonfoot_ground_impulse_6_to_8_Ns": 0.0
+      },
+      {
+        "lane": 5,
+        "upward_foot_impulse_348_to_353_Ns": [
+          0.35249912418,
+          0.3716657213
+        ],
+        "peak_root_z_348_to_370_m": 0.402165264,
+        "toe_cap_6_to_8s": 0,
+        "upward_foot_impulse_6_8_to_7_4_Ns": [
+          0.6581392940500003,
+          0.68409090396
+        ],
+        "normal_foot_impulse_6_8_to_7_4_Ns": [
+          0.6581392940500003,
+          0.68409090396
+        ],
+        "last_loaded_6_8_to_8s": [
+          352,
+          7
+        ],
+        "loaded_substeps_7_4_to_8s": 0,
+        "root_z_6_8_7_4_8s": [
+          0.163012788,
+          0.402165264,
+          0.778282046
+        ],
+        "root_vz_6_8_7_4_8s": [
+          0.000977585209,
+          0.476231784,
+          0.565983474
+        ],
+        "nonfoot_ground_impulse_6_to_8_Ns": 0.0
+      },
+      {
+        "lane": 6,
+        "upward_foot_impulse_348_to_353_Ns": [
+          0.3548941855600001,
+          0.37053171863999995
+        ],
+        "peak_root_z_348_to_370_m": 0.403489202,
+        "toe_cap_6_to_8s": 0,
+        "upward_foot_impulse_6_8_to_7_4_Ns": [
+          0.6612638808900001,
+          0.6822300587699999
+        ],
+        "normal_foot_impulse_6_8_to_7_4_Ns": [
+          0.6612638808900001,
+          0.6822300587699999
+        ],
+        "last_loaded_6_8_to_8s": [
+          352,
+          7
+        ],
+        "loaded_substeps_7_4_to_8s": 0,
+        "root_z_6_8_7_4_8s": [
+          0.163008526,
+          0.403489202,
+          0.819571972
+        ],
+        "root_vz_6_8_7_4_8s": [
+          0.000980064739,
+          0.486241251,
+          0.711717069
+        ],
+        "nonfoot_ground_impulse_6_to_8_Ns": 0.0
+      },
+      {
+        "lane": 7,
+        "upward_foot_impulse_348_to_353_Ns": [
+          0.34956122099000003,
+          0.36852452734999996
+        ],
+        "peak_root_z_348_to_370_m": 0.399590671,
+        "toe_cap_6_to_8s": 0,
+        "upward_foot_impulse_6_8_to_7_4_Ns": [
+          0.6554674865199999,
+          0.68068337015
+        ],
+        "normal_foot_impulse_6_8_to_7_4_Ns": [
+          0.6554674865199999,
+          0.68068337015
+        ],
+        "last_loaded_6_8_to_8s": [
+          352,
+          7
+        ],
+        "loaded_substeps_7_4_to_8s": 0,
+        "root_z_6_8_7_4_8s": [
+          0.163026005,
+          0.399590671,
+          0.782103837
+        ],
+        "root_vz_6_8_7_4_8s": [
+          0.000981851015,
+          0.472514778,
+          0.592052042
+        ],
+        "nonfoot_ground_impulse_6_to_8_Ns": 0.0
+      }
+    ]
+  }
+}
