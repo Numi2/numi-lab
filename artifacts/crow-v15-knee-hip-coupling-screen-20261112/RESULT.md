@@ -1,0 +1,7 @@
+# Reduced hip swing with advanced knee: rejected
+
+Both used-seed native v15 runs completed 300 transitions. The two zero-warp controls in each seed exactly matched 300 endpoint states and 4,800 contact substeps per lane; all lanes matched the prior uniform-gait baseline before the four-second intervention. All 12 altered lanes failed at least the preregistered contact-speed gate.
+
+With the 0.16 knee warp and hip carrier reduced from 0.125 to 0.10, the median detected knee minimum was 14.4–17.3 percentage points earlier than baseline. However, the right-foot 50 Hz contact-point speed p95 was 2.51–3.02 times baseline, and three lanes briefly had both feet unloaded. Relative to the same-lane knee-only trial, all four paired right-foot ratios worsened: 2.11→2.59, 2.39→2.51, 2.16→2.55 and 2.81→3.02. With the hip carrier at 0.075, the ratios ranged 1.54–2.04 and were still above the 1.5 gate. Forward root displacement was positive, approximately 0.089–0.107 m over two seconds for the modified-hip conditions. No modified lane hit a toe-speed cap or registered nonfoot ground impulse.
+
+The two seeds and lanes are correlated development tests. The speed is an endpoint point-motion proxy, not integrated slip or proof of a friction defect; the recovery landmark and contact segmentation are not biologically validated. The stronger knee-only result also showed increased contact motion in a separate 800 Hz development-lane measurement. The reduced-hip approach is not promoted, and does not qualify a biological gait, takeoff, flight or landing.

@@ -1,0 +1,4 @@
+ddd100b8c33968f5db4c87e663ab5fe34a5cace5adb439f69d4a73f9eefd6941  artifacts/crow-v15-knee-hip-coupling-screen-20261112/PLAN.md
+360ca9981b6f3ea546185435f84a28b9c44fb07663038651f3f0d306ebe2aa15  artifacts/crow-v15-knee-hip-coupling-screen-20261112/screen.metal
+6b0adb3c59bdd56554148725c87afe373f761a77bdda24c467b4918dbf1a1a84  artifacts/crow-v15-knee-hip-coupling-screen-20261112/build.py
+18a8b7a13db0401dbd2e1b35eec8be094effcac1a48278f91b67330995bec274  artifacts/crow-v15-knee-hip-coupling-screen-20261112/run.py

@@ -1,0 +1,235 @@
+{
+  "inputs": {
+    "baseline": {
+      "path": "artifacts/crow-v15-knee-warp-contact-timing-audit-20261112/analysis-baseline.json",
+      "sha256": "12c79894c368fd8c5257f18dd9c54896fb6c35cb58bc8f46d82029519e88d546"
+    },
+    "phase": {
+      "path": "artifacts/crow-v15-knee-warp-contact-timing-audit-20261112/analysis-phase.json",
+      "sha256": "90f494653983057ae5258d644b4a48fb683aa2ef87733246cb999b2e6ecebd5e"
+    }
+  },
+  "results": {
+    "baseline": {
+      "crow_left_foot": {
+        "normal_impulse_ns": 1.2181659619009715,
+        "high_speed_impulse_ns": 0.05501372922331951,
+        "samples": 1640,
+        "high_fraction": 0.04516111182212769
+      },
+      "crow_left_front_toe_1_distal": {
+        "normal_impulse_ns": 0.18609503265626634,
+        "high_speed_impulse_ns": 0.023605978081049334,
+        "samples": 1896,
+        "high_fraction": 0.12684904988652557
+      },
+      "crow_left_front_toe_1_proximal": {
+        "normal_impulse_ns": 0.14564397326362535,
+        "high_speed_impulse_ns": 1.2753884870417053e-05,
+        "samples": 1759,
+        "high_fraction": 8.756891606720771e-05
+      },
+      "crow_left_front_toe_2_distal": {
+        "normal_impulse_ns": 0.16983775568889742,
+        "high_speed_impulse_ns": 0.02337535001919265,
+        "samples": 1544,
+        "high_fraction": 0.1376334132794993
+      },
+      "crow_left_front_toe_2_proximal": {
+        "normal_impulse_ns": 0.009223367151674681,
+        "high_speed_impulse_ns": 3.020135209637339e-08,
+        "samples": 1316,
+        "high_fraction": 3.2744388898028143e-06
+      },
+      "crow_left_front_toe_3_distal": {
+        "normal_impulse_ns": 0.16463861332735247,
+        "high_speed_impulse_ns": 0.022779202174863487,
+        "samples": 1397,
+        "high_fraction": 0.13835880729614378
+      },
+      "crow_left_front_toe_3_proximal": {
+        "normal_impulse_ns": 0.016748422367841066,
+        "high_speed_impulse_ns": 1.1179533167103621e-05,
+        "samples": 1140,
+        "high_fraction": 0.0006674976855473645
+      },
+      "crow_left_rear_toe_distal": {
+        "normal_impulse_ns": 0.16199150957528535,
+        "high_speed_impulse_ns": 0.04899040253247469,
+        "samples": 2700,
+        "high_fraction": 0.302425742317726
+      },
+      "crow_left_rear_toe_proximal": {
+        "normal_impulse_ns": 2.594312288321717,
+        "high_speed_impulse_ns": 0.23711128590919378,
+        "samples": 2766,
+        "high_fraction": 0.09139658589929553
+      },
+      "crow_right_foot": {
+        "normal_impulse_ns": 1.0420699177491657,
+        "high_speed_impulse_ns": 0.07517744929711793,
+        "samples": 1764,
+        "high_fraction": 0.07214242347528713
+      },
+      "crow_right_front_toe_1_distal": {
+        "normal_impulse_ns": 0.14734942935727535,
+        "high_speed_impulse_ns": 0.020492506408362584,
+        "samples": 2230,
+        "high_fraction": 0.13907421628810515
+      },
+      "crow_right_front_toe_1_proximal": {
+        "normal_impulse_ns": 0.13895636442301657,
+        "high_speed_impulse_ns": 0.001587314739099677,
+        "samples": 1833,
+        "high_fraction": 0.011423116499129967
+      },
+      "crow_right_front_toe_2_distal": {
+        "normal_impulse_ns": 0.1451237117762994,
+        "high_speed_impulse_ns": 0.02084505112809845,
+        "samples": 2290,
+        "high_fraction": 0.14363642490229303
+      },
+      "crow_right_front_toe_2_proximal": {
+        "normal_impulse_ns": 0.026239383865355296,
+        "high_speed_impulse_ns": 0.0009276259359035313,
+        "samples": 1745,
+        "high_fraction": 0.03535242826826836
+      },
+      "crow_right_front_toe_3_distal": {
+        "normal_impulse_ns": 0.1495299083744139,
+        "high_speed_impulse_ns": 0.021456982890682038,
+        "samples": 2291,
+        "high_fraction": 0.1434962618779585
+      },
+      "crow_right_front_toe_3_proximal": {
+        "normal_impulse_ns": 0.05641018809847037,
+        "high_speed_impulse_ns": 0.005171115528749733,
+        "samples": 1688,
+        "high_fraction": 0.09166988629293285
+      },
+      "crow_right_rear_toe_distal": {
+        "normal_impulse_ns": 0.15794374210004575,
+        "high_speed_impulse_ns": 0.07019445158863585,
+        "samples": 2177,
+        "high_fraction": 0.4444269247728272
+      },
+      "crow_right_rear_toe_proximal": {
+        "normal_impulse_ns": 2.296646121461923,
+        "high_speed_impulse_ns": 0.29847421871914803,
+        "samples": 2493,
+        "high_fraction": 0.1299609094888137
+      }
+    },
+    "phase": {
+      "crow_left_foot": {
+        "normal_impulse_ns": 1.1680850548181876,
+        "high_speed_impulse_ns": 0.14818794091175755,
+        "samples": 1604,
+        "high_fraction": 0.12686399873066007
+      },
+      "crow_left_front_toe_1_distal": {
+        "normal_impulse_ns": 0.17732545911898426,
+        "high_speed_impulse_ns": 0.04668457758222768,
+        "samples": 2336,
+        "high_fraction": 0.2632705862664798
+      },
+      "crow_left_front_toe_1_proximal": {
+        "normal_impulse_ns": 0.15502528934888135,
+        "high_speed_impulse_ns": 0.006187021089288687,
+        "samples": 1858,
+        "high_fraction": 0.039909753532953694
+      },
+      "crow_left_front_toe_2_distal": {
+        "normal_impulse_ns": 0.16333974557650902,
+        "high_speed_impulse_ns": 0.045557820700990695,
+        "samples": 2137,
+        "high_fraction": 0.27891448306224537
+      },
+      "crow_left_front_toe_2_proximal": {
+        "normal_impulse_ns": 0.00911619617969322,
+        "high_speed_impulse_ns": 0.0002622075231082865,
+        "samples": 1481,
+        "high_fraction": 0.028762821459718774
+      },
+      "crow_left_front_toe_3_distal": {
+        "normal_impulse_ns": 0.15931963199493088,
+        "high_speed_impulse_ns": 0.045623153949015595,
+        "samples": 1773,
+        "high_fraction": 0.2863624110710173
+      },
+      "crow_left_front_toe_3_proximal": {
+        "normal_impulse_ns": 0.014609499000565343,
+        "high_speed_impulse_ns": 1.5282357681271517e-05,
+        "samples": 1130,
+        "high_fraction": 0.0010460562460547166
+      },
+      "crow_left_rear_toe_distal": {
+        "normal_impulse_ns": 0.16509432336608854,
+        "high_speed_impulse_ns": 0.0710127884026922,
+        "samples": 3094,
+        "high_fraction": 0.430134646393776
+      },
+      "crow_left_rear_toe_proximal": {
+        "normal_impulse_ns": 2.578264073136256,
+        "high_speed_impulse_ns": 0.33721584831732976,
+        "samples": 3083,
+        "high_fraction": 0.1307918191277952
+      },
+      "crow_right_foot": {
+        "normal_impulse_ns": 0.9436962048660166,
+        "high_speed_impulse_ns": 0.13226320612989237,
+        "samples": 1835,
+        "high_fraction": 0.14015443258953314
+      },
+      "crow_right_front_toe_1_distal": {
+        "normal_impulse_ns": 0.156457478668719,
+        "high_speed_impulse_ns": 0.05196431090293997,
+        "samples": 2483,
+        "high_fraction": 0.332130565730057
+      },
+      "crow_right_front_toe_1_proximal": {
+        "normal_impulse_ns": 0.09374095282828687,
+        "high_speed_impulse_ns": 0.0011986580288211627,
+        "samples": 1961,
+        "high_fraction": 0.012786919618972133
+      },
+      "crow_right_front_toe_2_distal": {
+        "normal_impulse_ns": 0.15397362669268763,
+        "high_speed_impulse_ns": 0.054235537292668924,
+        "samples": 2532,
+        "high_fraction": 0.3522391363874046
+      },
+      "crow_right_front_toe_2_proximal": {
+        "normal_impulse_ns": 0.0397191781874398,
+        "high_speed_impulse_ns": 0.0017091528936449426,
+        "samples": 1891,
+        "high_fraction": 0.04303092288514216
+      },
+      "crow_right_front_toe_3_distal": {
+        "normal_impulse_ns": 0.15913909903245577,
+        "high_speed_impulse_ns": 0.056086140522947414,
+        "samples": 2546,
+        "high_fraction": 0.3524346993538582
+      },
+      "crow_right_front_toe_3_proximal": {
+        "normal_impulse_ns": 0.09006444894939374,
+        "high_speed_impulse_ns": 0.012447329079813677,
+        "samples": 1841,
+        "high_fraction": 0.1382046881429064
+      },
+      "crow_right_rear_toe_distal": {
+        "normal_impulse_ns": 0.16209501564968143,
+        "high_speed_impulse_ns": 0.05675836163450509,
+        "samples": 2669,
+        "high_fraction": 0.35015488543565615
+      },
+      "crow_right_rear_toe_proximal": {
+        "normal_impulse_ns": 2.4403104706533094,
+        "high_speed_impulse_ns": 0.44604915968160835,
+        "samples": 2618,
+        "high_fraction": 0.18278377487033196
+      }
+    }
+  },
+  "scope": "One previously used seed and lane, two-second window, positive ground contacts, simulated segment labels. Descriptive and post-hoc. Contact and state timings may differ; speed is not stance-integrated slip."
+}
