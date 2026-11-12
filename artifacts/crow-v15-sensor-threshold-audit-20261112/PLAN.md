@@ -1,0 +1,3 @@
+# Matched contact threshold for independent sensor audit
+
+Repeat the exact candidate with a passive observer logging positive ground contact normal impulses above 1e-9 N s instead of 1e-7 N s, matching the shader threshold in magnitude. Compare all candidate states/contact summaries exactly against the archived prior run and independently reconstruct velocities. Test whether isolated apparent discrepancies were caused by omitted low-impulse contacts. Contact-point geometry and accepted q/v remain staggered, and any negative impulse treatment is distinct. This measures the sensor, not biological gait quality.
