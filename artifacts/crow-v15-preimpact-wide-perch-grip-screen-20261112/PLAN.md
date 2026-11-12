@@ -1,0 +1,3 @@
+# Pre-impact wide-perch physical continuation
+
+Use eight correlated, physically recorded approach states from before the retained lane-5 first perch contact, with each toe/foot oriented box bottom above the course perch top. Translate the whole state into the stationary perch frame. Test the existing physical capture/release control on the course-perch box with its real .10 m half-width. This removes the deep seated-state transfer overlap while preserving the actual approach q/v. The solver/controller warm-start, aerodynamic forces and entire task history are not transferred, and friction is uncalibrated. This is an isolated continuation development test, not a continuous autonomous landing.

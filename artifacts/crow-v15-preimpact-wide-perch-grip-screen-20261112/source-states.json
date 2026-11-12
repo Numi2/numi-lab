@@ -1,0 +1,120 @@
+{
+  "source": "artifacts/crow-v15-localized-route-autonomous-eval-20261111/autonomous-20261126/replay.json.gz",
+  "sha256": "de4352b569fe044ed49c4c6aaf4b11e49e5192beee6e70475d0eca29cb1bb166",
+  "lane": 5,
+  "selection": [
+    {
+      "step": 3190,
+      "source_perch_center_m": [
+        5.105739593505859,
+        0.19684675335884094,
+        0.7846338152885437
+      ],
+      "root_relative_top_m": [
+        -0.16328668594360352,
+        0.5486126840114594,
+        0.20738268613815303
+      ],
+      "minimum_toe_or_foot_bottom_above_top_m": 0.026651075943478313
+    },
+    {
+      "step": 3195,
+      "source_perch_center_m": [
+        5.105739593505859,
+        0.19684675335884094,
+        0.7846338152885437
+      ],
+      "root_relative_top_m": [
+        -0.1610107421875,
+        0.5487407147884369,
+        0.220911271572113
+      ],
+      "minimum_toe_or_foot_bottom_above_top_m": 0.039933316309663104
+    },
+    {
+      "step": 3200,
+      "source_perch_center_m": [
+        5.105739593505859,
+        0.19684675335884094,
+        0.7846338152885437
+      ],
+      "root_relative_top_m": [
+        -0.15845584869384766,
+        0.5488813817501068,
+        0.20220065832138057
+      ],
+      "minimum_toe_or_foot_bottom_above_top_m": 0.021230013462588564
+    },
+    {
+      "step": 3205,
+      "source_perch_center_m": [
+        5.105739593505859,
+        0.19684675335884094,
+        0.7846338152885437
+      ],
+      "root_relative_top_m": [
+        -0.15247535705566406,
+        0.5491236746311188,
+        0.21725917577743525
+      ],
+      "minimum_toe_or_foot_bottom_above_top_m": 0.03615365607965124
+    },
+    {
+      "step": 3210,
+      "source_perch_center_m": [
+        5.105739593505859,
+        0.19684675335884094,
+        0.7846338152885437
+      ],
+      "root_relative_top_m": [
+        -0.1465282440185547,
+        0.5493784844875336,
+        0.19580972909927363
+      ],
+      "minimum_toe_or_foot_bottom_above_top_m": 0.014846229222875842
+    },
+    {
+      "step": 3215,
+      "source_perch_center_m": [
+        5.105739593505859,
+        0.19684675335884094,
+        0.7846338152885437
+      ],
+      "root_relative_top_m": [
+        -0.13735008239746094,
+        0.5497101843357086,
+        0.20900083303451533
+      ],
+      "minimum_toe_or_foot_bottom_above_top_m": 0.027994355038925167
+    },
+    {
+      "step": 3220,
+      "source_perch_center_m": [
+        5.105739593505859,
+        0.19684675335884094,
+        0.7846338152885437
+      ],
+      "root_relative_top_m": [
+        -0.12827682495117188,
+        0.5500611364841461,
+        0.18807566881179805
+      ],
+      "minimum_toe_or_foot_bottom_above_top_m": 0.007297644522000489
+    },
+    {
+      "step": 3230,
+      "source_perch_center_m": [
+        5.105739593505859,
+        0.19684675335884094,
+        0.7846338152885437
+      ],
+      "root_relative_top_m": [
+        -0.10515499114990234,
+        0.5508720576763153,
+        0.18167961359024043
+      ],
+      "minimum_toe_or_foot_bottom_above_top_m": 0.001163670508965835
+    }
+  ],
+  "note": "Eight correlated pre-impact states from a used teacher-off journey. A conservative oriented-foot-or-toe bottom is above the perch top in every state."
+}

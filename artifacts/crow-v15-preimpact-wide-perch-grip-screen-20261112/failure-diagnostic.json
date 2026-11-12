@@ -1,0 +1,123 @@
+{
+  "failing_lane": 1,
+  "last_accepted_step": 18,
+  "last_root_position_perch_frame_m": [
+    -0.244449019,
+    0.553796053,
+    -0.0549040921
+  ],
+  "last_root_velocity_m_s": [
+    -0.315508962,
+    0.0144419083,
+    -1.96891189
+  ],
+  "last_root_angular_velocity_rad_s": [
+    -0.000595732999,
+    -0.00590944616,
+    0.000168271421
+  ],
+  "last_attitude_roll_pitch_yaw_rad": [
+    -0.012457691721464091,
+    0.046387742238034206,
+    0.01867230168239097
+  ],
+  "last_recorded_toe_controller_values": [
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0
+  ],
+  "first_accepted_contact_step": 3,
+  "first_accepted_named_contacts": [
+    {
+      "step": 3,
+      "body_a": "crow_left_front_toe_1_distal",
+      "body_b": "locomotion_ground",
+      "normal_impulse_ns": 0.00131241581,
+      "separation_m": -0.00139488187
+    },
+    {
+      "step": 3,
+      "body_a": "crow_left_front_toe_1_distal",
+      "body_b": "locomotion_ground",
+      "normal_impulse_ns": 0.000866537273,
+      "separation_m": -0.00138630252
+    },
+    {
+      "step": 3,
+      "body_a": "crow_left_front_toe_2_distal",
+      "body_b": "locomotion_ground",
+      "normal_impulse_ns": 0.00109535793,
+      "separation_m": -0.00137216796
+    },
+    {
+      "step": 3,
+      "body_a": "crow_left_front_toe_2_distal",
+      "body_b": "locomotion_ground",
+      "normal_impulse_ns": 0.000647278212,
+      "separation_m": -0.00136358675
+    },
+    {
+      "step": 3,
+      "body_a": "crow_left_front_toe_3_distal",
+      "body_b": "locomotion_ground",
+      "normal_impulse_ns": 0.000890647352,
+      "separation_m": -0.00134934566
+    },
+    {
+      "step": 3,
+      "body_a": "crow_left_front_toe_3_distal",
+      "body_b": "locomotion_ground",
+      "normal_impulse_ns": 0.000430187414,
+      "separation_m": -0.00134075806
+    },
+    {
+      "step": 3,
+      "body_a": "crow_right_front_toe_1_distal",
+      "body_b": "locomotion_ground",
+      "normal_impulse_ns": 0.00135080633,
+      "separation_m": -0.00150131562
+    },
+    {
+      "step": 3,
+      "body_a": "crow_right_front_toe_1_distal",
+      "body_b": "locomotion_ground",
+      "normal_impulse_ns": 0.000897240767,
+      "separation_m": -0.00149267621
+    },
+    {
+      "step": 3,
+      "body_a": "crow_right_front_toe_2_distal",
+      "body_b": "locomotion_ground",
+      "normal_impulse_ns": 0.00113227125,
+      "separation_m": -0.00147850986
+    },
+    {
+      "step": 3,
+      "body_a": "crow_right_front_toe_2_distal",
+      "body_b": "locomotion_ground",
+      "normal_impulse_ns": 0.000679905643,
+      "separation_m": -0.00146986754
+    },
+    {
+      "step": 3,
+      "body_a": "crow_right_front_toe_3_distal",
+      "body_b": "locomotion_ground",
+      "normal_impulse_ns": 0.000919348793,
+      "separation_m": -0.00145561609
+    },
+    {
+      "step": 3,
+      "body_a": "crow_right_front_toe_3_distal",
+      "body_b": "locomotion_ground",
+      "normal_impulse_ns": 0.000459101371,
+      "separation_m": -0.00144697016
+    }
+  ],
+  "failure_messages": [
+    "failure native step failed 19: one or more MetalWorld control steps rolled back after a GPU environment failure: status=11 environment=1 control_step=0 aba_status=0 failing_substep=13 failing_index=4294967295 aba_diagnostic_0=0.003861 aba_diagnostic_1=0.644128 aba_diagnostic_2=2369.501953 aba_diagnostic_3=0.000000 contact_status=11 required_pairs=8 pair_capacity=512 required_raw_contacts=6 raw_contact_capacity=2048 required_manifolds=2 manifold_capacity=512 required_constraints=6 constraint_capacity=2048 failing_constraint=4294967295 failing_stable_key=0,0 diagnostic_0=1.000000 diagnostic_1=0.004832 diagnostic_2=0.003769 diagnostic_3=0.670865 contact_residuals=0.000100,0.127784,0.000000,0.000000 contact_quality_certificates=0.000000,0.000000,0.000000,0.000000 contact_quality_diagnostics=0.000000,0.000000,0.000000,0.000000 solver_iterations=12 quality_newton=0 quality_pcg=0 quality_backtracks=0 quality_path=0"
+  ],
+  "limitations": "The native failure output does not identify the failing collider pair or exact ordering within the failed substep. The recorded control values are toe target/latch data, not full applied actuator efforts. The transferred run does not continue the original controller or warm-start state."
+}

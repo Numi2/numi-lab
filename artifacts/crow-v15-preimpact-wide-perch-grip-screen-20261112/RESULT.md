@@ -1,0 +1,5 @@
+# Pre-impact wide-perch continuation failed
+
+The batch began from eight physically recorded, above-surface approach states. In lane 1 the first accepted contacts were the front toes and wide perch at step 3. The bird then moved behind the perch edge; after accepted step 18 its root was .244 m behind the perch center and .055 m below the top, moving backward .316 m/s and downward 1.969 m/s. The next control step rolled back at substep 13 with MR_STEP_DID_NOT_CONVERGE. The failing collider pair and exact ordering were not captured, so the rollback is not by itself evidence of a solver defect.
+
+The stationary-perch controller suppressed contact-latch operation until step 10; lane 1's initial contacts had vanished by then, and toe targets stayed zero. This is a concrete timing hypothesis, not proof that earlier closure would save the bird. The continuation had no original policy/action history or solver warm start, uses uncalibrated high friction, and is not a continuous autonomous landing. The eight samples are correlated and used in development.
