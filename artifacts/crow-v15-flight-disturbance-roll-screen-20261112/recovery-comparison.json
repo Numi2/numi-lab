@@ -1,0 +1,96 @@
+{
+  "rows": [
+    {
+      "lane": 2,
+      "axis": "roll",
+      "sign": 1,
+      "attitude_abs_mean_difference_rad": [
+        1.5254968181713608e-06,
+        5.773350270877053e-06,
+        0.00015130045046981788
+      ],
+      "height_abs_mean_difference_m": 5.41840000001792e-07,
+      "horizontal_velocity_vector_mean_difference_m_s": 9.826585440352995e-05,
+      "peak_axis_deviation_12_to_16s_rad": 0.012880754898929954,
+      "observable_disturbance": true,
+      "pass_tracking_only": true
+    },
+    {
+      "lane": 3,
+      "axis": "roll",
+      "sign": -1,
+      "attitude_abs_mean_difference_rad": [
+        1.4848418059014428e-06,
+        6.281589183655401e-06,
+        0.00014967508251033352
+      ],
+      "height_abs_mean_difference_m": 5.206500000021208e-07,
+      "horizontal_velocity_vector_mean_difference_m_s": 9.72252216880746e-05,
+      "peak_axis_deviation_12_to_16s_rad": 0.012866953302552052,
+      "observable_disturbance": true,
+      "pass_tracking_only": true
+    },
+    {
+      "lane": 4,
+      "axis": "pitch",
+      "sign": 1,
+      "attitude_abs_mean_difference_rad": [
+        3.6223310628375283e-07,
+        2.2467037932586004e-05,
+        4.083952824045833e-05
+      ],
+      "height_abs_mean_difference_m": 3.617145000002209e-06,
+      "horizontal_velocity_vector_mean_difference_m_s": 8.590838218487426e-05,
+      "peak_axis_deviation_12_to_16s_rad": 0.014571748128772238,
+      "observable_disturbance": true,
+      "pass_tracking_only": true
+    },
+    {
+      "lane": 5,
+      "axis": "pitch",
+      "sign": -1,
+      "attitude_abs_mean_difference_rad": [
+        3.9809429343201126e-07,
+        2.1241366614822845e-06,
+        4.187862401576155e-05
+      ],
+      "height_abs_mean_difference_m": 1.9689999999794594e-07,
+      "horizontal_velocity_vector_mean_difference_m_s": 2.7354208557845286e-05,
+      "peak_axis_deviation_12_to_16s_rad": 0.014563270690568592,
+      "observable_disturbance": true,
+      "pass_tracking_only": true
+    },
+    {
+      "lane": 6,
+      "axis": "yaw",
+      "sign": 1,
+      "attitude_abs_mean_difference_rad": [
+        5.9503811804185145e-06,
+        2.446994216376605e-05,
+        0.0006151017360015449
+      ],
+      "height_abs_mean_difference_m": 9.468449999971984e-07,
+      "horizontal_velocity_vector_mean_difference_m_s": 0.00039574069488952857,
+      "peak_axis_deviation_12_to_16s_rad": 0.016363607064264686,
+      "observable_disturbance": true,
+      "pass_tracking_only": true
+    },
+    {
+      "lane": 7,
+      "axis": "yaw",
+      "sign": -1,
+      "attitude_abs_mean_difference_rad": [
+        5.932681822882754e-06,
+        2.4481265197649622e-05,
+        0.0006155424197360159
+      ],
+      "height_abs_mean_difference_m": 1.0874499999935505e-06,
+      "horizontal_velocity_vector_mean_difference_m_s": 0.0003952388291638828,
+      "peak_axis_deviation_12_to_16s_rad": 0.016306824208620195,
+      "observable_disturbance": true,
+      "pass_tracking_only": true
+    }
+  ],
+  "prefix_differences": 0,
+  "scope": "Tracking criteria only; survival, substep caps and contacts must be checked in analysis-20261126.json. Injected external torque is a prescribed test disturbance, not continuous controller authority. No biological calibration or perturbed-start qualification."
+}
