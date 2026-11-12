@@ -1,0 +1,7 @@
+# Immediate contact-driven toe closure: transferred pre-impact trial
+
+This is an isolated continuation from physically reached states in a previous development-route run, on its 0.20 m wide perch. The original flight-controller history and solver warm start were not transferred. Eight lanes start from different pre-impact samples; a single lane failure stops the batch, so the result is not an evaluation of all eight complete landings or of the original continuous journey.
+
+Relative to the matched delayed-latch probe, the only control change starts the toe-contact latch immediately. Recorded states match up to the first accepted contact in each lane. Lane 1 first contacts the perch at step 3. At its last accepted state, step 18, its toe targets have closed, but its root is 0.244 m behind and 0.061 m below the perch reference, falling at 1.936 m/s. The solver rolls back step 19 with status 11; the failing collider pair is not reported. The delayed version likewise falls and rolls back at step 19. Immediate closure alone did not rescue this transferred-state experiment. It does not establish that the original continuous flight controller fails for the same reason, nor that the contact solver itself is defective.
+
+The wide course perch is not equivalent to the narrow branch used in the earlier opposed-toe grip test; normal support, friction and release on the actual surface need separate evaluation. The coefficients are experimental and not crow-specific measurements.

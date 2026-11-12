@@ -1,0 +1,46 @@
+{
+  "lanes": [
+    {
+      "lane": 0,
+      "first_baseline_foot_contact_step": 2,
+      "matching_records_compared": 6
+    },
+    {
+      "lane": 1,
+      "first_baseline_foot_contact_step": 3,
+      "matching_records_compared": 8
+    },
+    {
+      "lane": 2,
+      "first_baseline_foot_contact_step": 2,
+      "matching_records_compared": 6
+    },
+    {
+      "lane": 3,
+      "first_baseline_foot_contact_step": 3,
+      "matching_records_compared": 8
+    },
+    {
+      "lane": 4,
+      "first_baseline_foot_contact_step": 2,
+      "matching_records_compared": 6
+    },
+    {
+      "lane": 5,
+      "first_baseline_foot_contact_step": 4,
+      "matching_records_compared": 10
+    },
+    {
+      "lane": 6,
+      "first_baseline_foot_contact_step": 2,
+      "matching_records_compared": 6
+    },
+    {
+      "lane": 7,
+      "first_baseline_foot_contact_step": 1,
+      "matching_records_compared": 4
+    }
+  ],
+  "differences": [],
+  "limitations": "Only retained common prefix through first accepted contact is compared; stopping early reduces coverage and does not establish parity afterward."
+}
