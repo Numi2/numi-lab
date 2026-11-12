@@ -1,0 +1,15 @@
+{
+  "whole_sha256": "7a2a9dabab828b91a9e497bae2fc4d334019973494436085af2a32178b473410",
+  "parts": [
+    {
+      "name": "run.stderr.gz.part000",
+      "bytes": 33554432,
+      "sha256": "a6992ab45c02dccba34f956c7ccc29d5e96699474d99a3fbe1d5861462f6ec0e"
+    },
+    {
+      "name": "run.stderr.gz.part001",
+      "bytes": 24232319,
+      "sha256": "ef789f4178d6e756c4fdb5f8e6825f54f49c1e3e0fa25e125897c1768af70521"
+    }
+  ]
+}
