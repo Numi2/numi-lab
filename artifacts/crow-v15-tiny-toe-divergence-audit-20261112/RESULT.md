@@ -1,0 +1,7 @@
+# Rear-toe walking divergence audit
+
+The rejected 0.02 rad swing-toe experiment first differs from its matched sham at endpoint interval 215 in all eight lanes. The largest joint-position difference there is the right rear proximal toe, about -0.00361 rad; the largest velocity difference is about 0.269 rad/s. The logged policy actions are still equal, and root forward velocity differs by less than 0.00000031 m/s at that endpoint. By interval 300, the candidate root is 3.28–8.27 mm behind its matched control. This locates the initial difference but does not establish why total forward travel falls.
+
+For example, lane 0 endpoint contact at interval 214 shows 0.00278 N s normal impulse on the left rear toe and 0.0000456 N s over the entire right foot; at 215 the corresponding sums are 0.00384 and 0.00000555 N s. These are endpoint contact records, not all-substep integrated foot loads. The shader gates the toe command using support status from an earlier control interval. Neither the actual gate bit, applied toe torque nor toe-specific substep impulses were captured, so the audit cannot establish the responsible contact or drive mechanism. Test those directly before changing the controller.
+
+This is one used development seed and an already rejected two-second gait; it is not biological validation, sustained walking or an end-to-end sequence. The first analysis attempt had an incorrect sample count assertion and was corrected before the retained report; no physics run was affected.

@@ -1,0 +1,1071 @@
+{
+  "rows": [
+    {
+      "lane": 0,
+      "first_divergent_interval": 215,
+      "q_max_abs": 0.003613937558,
+      "v_max_abs": 0.26903431455,
+      "left_rear_prox_q_difference_rad": -1.750999999994285e-07,
+      "right_rear_prox_q_difference_rad": -0.003613937558,
+      "root_forward_velocity_difference_m_s": 9.680000000178435e-08,
+      "policy_outputs_equal_at_first_divergence": true,
+      "step201_root_x_delta_m": 0.0,
+      "step250_root_x_delta_m": -0.0016824696,
+      "step300_root_x_delta_m": -0.0040841578
+    },
+    {
+      "lane": 1,
+      "first_divergent_interval": 215,
+      "q_max_abs": 0.003613936613,
+      "v_max_abs": 0.26903408018,
+      "left_rear_prox_q_difference_rad": -2.0489999999484532e-07,
+      "right_rear_prox_q_difference_rad": -0.003613936613,
+      "root_forward_velocity_difference_m_s": 2.8679999999892125e-07,
+      "policy_outputs_equal_at_first_divergence": true,
+      "step201_root_x_delta_m": 0.0,
+      "step250_root_x_delta_m": -0.0020413574999999986,
+      "step300_root_x_delta_m": -0.004063911700000002
+    },
+    {
+      "lane": 2,
+      "first_divergent_interval": 215,
+      "q_max_abs": 0.0036139368730000003,
+      "v_max_abs": 0.26903419312300003,
+      "left_rear_prox_q_difference_rad": -1.7880000000025653e-07,
+      "right_rear_prox_q_difference_rad": -0.0036139368730000003,
+      "root_forward_velocity_difference_m_s": 2.4960000000184834e-07,
+      "policy_outputs_equal_at_first_divergence": true,
+      "step201_root_x_delta_m": 0.0,
+      "step250_root_x_delta_m": -0.0019186901999999999,
+      "step300_root_x_delta_m": -0.0038832872999999962
+    },
+    {
+      "lane": 3,
+      "first_divergent_interval": 215,
+      "q_max_abs": 0.003613937729,
+      "v_max_abs": 0.26903423306,
+      "left_rear_prox_q_difference_rad": -2.8319999999942835e-07,
+      "right_rear_prox_q_difference_rad": -0.003613937729,
+      "root_forward_velocity_difference_m_s": 1.0429999999783668e-07,
+      "policy_outputs_equal_at_first_divergence": true,
+      "step201_root_x_delta_m": 0.0,
+      "step250_root_x_delta_m": -0.0010155164599999996,
+      "step300_root_x_delta_m": -0.00748685332
+    },
+    {
+      "lane": 4,
+      "first_divergent_interval": 215,
+      "q_max_abs": 0.003613936119,
+      "v_max_abs": 0.26903418868900003,
+      "left_rear_prox_q_difference_rad": -1.8250000000108457e-07,
+      "right_rear_prox_q_difference_rad": -0.003613936119,
+      "root_forward_velocity_difference_m_s": 3.0549999999879285e-07,
+      "policy_outputs_equal_at_first_divergence": true,
+      "step201_root_x_delta_m": 0.0,
+      "step250_root_x_delta_m": -0.0013108224999999994,
+      "step300_root_x_delta_m": -0.003276240100000001
+    },
+    {
+      "lane": 5,
+      "first_divergent_interval": 215,
+      "q_max_abs": 0.0036139367560000003,
+      "v_max_abs": 0.26903416336,
+      "left_rear_prox_q_difference_rad": -2.8680000000586015e-07,
+      "right_rear_prox_q_difference_rad": -0.0036139367560000003,
+      "root_forward_velocity_difference_m_s": -1.4900000004647307e-08,
+      "policy_outputs_equal_at_first_divergence": true,
+      "step201_root_x_delta_m": 0.0,
+      "step250_root_x_delta_m": -0.0013001226000000018,
+      "step300_root_x_delta_m": -0.0036875455999999945
+    },
+    {
+      "lane": 6,
+      "first_divergent_interval": 215,
+      "q_max_abs": 0.003613936841,
+      "v_max_abs": 0.26903402907,
+      "left_rear_prox_q_difference_rad": -2.3840000000496797e-07,
+      "right_rear_prox_q_difference_rad": -0.003613936841,
+      "root_forward_velocity_difference_m_s": 1.5269999999872885e-07,
+      "policy_outputs_equal_at_first_divergence": true,
+      "step201_root_x_delta_m": 0.0,
+      "step250_root_x_delta_m": -0.0017388593399999992,
+      "step300_root_x_delta_m": -0.0044116508
+    },
+    {
+      "lane": 7,
+      "first_divergent_interval": 215,
+      "q_max_abs": 0.003613936237,
+      "v_max_abs": 0.269033836353,
+      "left_rear_prox_q_difference_rad": -2.607999999987287e-07,
+      "right_rear_prox_q_difference_rad": -0.003613936237,
+      "root_forward_velocity_difference_m_s": 2.610000000152768e-08,
+      "policy_outputs_equal_at_first_divergence": true,
+      "step201_root_x_delta_m": 0.0,
+      "step250_root_x_delta_m": -0.0019554225800000003,
+      "step300_root_x_delta_m": -0.008272864899999998
+    }
+  ],
+  "contact_windows": [
+    {
+      "lane": 0,
+      "interval": 214,
+      "arm": "sham",
+      "left": {
+        "normal_impulse_sum": 0.0027839029817340135,
+        "loaded_contacts": 5,
+        "rear_toe_normal_impulse_sum": 0.0027839028601999998
+      },
+      "right": {
+        "normal_impulse_sum": 4.556580870276685e-05,
+        "loaded_contacts": 4,
+        "rear_toe_normal_impulse_sum": 5.3354209464165405e-12
+      }
+    },
+    {
+      "lane": 0,
+      "interval": 214,
+      "arm": "candidate",
+      "left": {
+        "normal_impulse_sum": 0.0027839029817340135,
+        "loaded_contacts": 5,
+        "rear_toe_normal_impulse_sum": 0.0027839028601999998
+      },
+      "right": {
+        "normal_impulse_sum": 4.556580870276685e-05,
+        "loaded_contacts": 4,
+        "rear_toe_normal_impulse_sum": 5.3354209464165405e-12
+      }
+    },
+    {
+      "lane": 0,
+      "interval": 215,
+      "arm": "sham",
+      "left": {
+        "normal_impulse_sum": 0.0038356196197011313,
+        "loaded_contacts": 7,
+        "rear_toe_normal_impulse_sum": 0.003835619604756
+      },
+      "right": {
+        "normal_impulse_sum": 5.547887145944386e-06,
+        "loaded_contacts": 1,
+        "rear_toe_normal_impulse_sum": 6.448321821013472e-13
+      }
+    },
+    {
+      "lane": 0,
+      "interval": 215,
+      "arm": "candidate",
+      "left": {
+        "normal_impulse_sum": 0.0038356342833761317,
+        "loaded_contacts": 7,
+        "rear_toe_normal_impulse_sum": 0.003835634268431
+      },
+      "right": {
+        "normal_impulse_sum": 5.547887683393013e-06,
+        "loaded_contacts": 1,
+        "rear_toe_normal_impulse_sum": 6.448513743025002e-13
+      }
+    },
+    {
+      "lane": 0,
+      "interval": 216,
+      "arm": "sham",
+      "left": {
+        "normal_impulse_sum": 0.005566446455205027,
+        "loaded_contacts": 6,
+        "rear_toe_normal_impulse_sum": 0.005566446453366621
+      },
+      "right": {
+        "normal_impulse_sum": 6.823014266386602e-07,
+        "loaded_contacts": 1,
+        "rear_toe_normal_impulse_sum": 7.932678249562057e-14
+      }
+    },
+    {
+      "lane": 0,
+      "interval": 216,
+      "arm": "candidate",
+      "left": {
+        "normal_impulse_sum": 0.005566636638820852,
+        "loaded_contacts": 6,
+        "rear_toe_normal_impulse_sum": 0.005566636636982446
+      },
+      "right": {
+        "normal_impulse_sum": 6.823014386350469e-07,
+        "loaded_contacts": 1,
+        "rear_toe_normal_impulse_sum": 7.932911394286788e-14
+      }
+    },
+    {
+      "lane": 0,
+      "interval": 220,
+      "arm": "sham",
+      "left": {
+        "normal_impulse_sum": 0.00520796282709193,
+        "loaded_contacts": 5,
+        "rear_toe_normal_impulse_sum": 0.0001852165872915088
+      },
+      "right": {
+        "normal_impulse_sum": 9.849553214154971e-11,
+        "loaded_contacts": 0,
+        "rear_toe_normal_impulse_sum": 1.7227182819358283e-17
+      }
+    },
+    {
+      "lane": 0,
+      "interval": 220,
+      "arm": "candidate",
+      "left": {
+        "normal_impulse_sum": 0.005235545863710882,
+        "loaded_contacts": 5,
+        "rear_toe_normal_impulse_sum": 0.0001590568731104616
+      },
+      "right": {
+        "normal_impulse_sum": 8.598662341396189e-11,
+        "loaded_contacts": 0,
+        "rear_toe_normal_impulse_sum": 1.1666418749508798e-17
+      }
+    },
+    {
+      "lane": 1,
+      "interval": 214,
+      "arm": "sham",
+      "left": {
+        "normal_impulse_sum": 0.0028141227105740684,
+        "loaded_contacts": 5,
+        "rear_toe_normal_impulse_sum": 0.0028141225879999994
+      },
+      "right": {
+        "normal_impulse_sum": 4.814328429733413e-05,
+        "loaded_contacts": 2,
+        "rear_toe_normal_impulse_sum": 5.851141473223129e-12
+      }
+    },
+    {
+      "lane": 1,
+      "interval": 214,
+      "arm": "candidate",
+      "left": {
+        "normal_impulse_sum": 0.0028141227105740684,
+        "loaded_contacts": 5,
+        "rear_toe_normal_impulse_sum": 0.0028141225879999994
+      },
+      "right": {
+        "normal_impulse_sum": 4.814328429733413e-05,
+        "loaded_contacts": 2,
+        "rear_toe_normal_impulse_sum": 5.851141473223129e-12
+      }
+    },
+    {
+      "lane": 1,
+      "interval": 215,
+      "arm": "sham",
+      "left": {
+        "normal_impulse_sum": 0.0036493268464275527,
+        "loaded_contacts": 8,
+        "rear_toe_normal_impulse_sum": 0.0036493268313548
+      },
+      "right": {
+        "normal_impulse_sum": 5.922113875136394e-06,
+        "loaded_contacts": 1,
+        "rear_toe_normal_impulse_sum": 7.055956418779724e-13
+      }
+    },
+    {
+      "lane": 1,
+      "interval": 215,
+      "arm": "candidate",
+      "left": {
+        "normal_impulse_sum": 0.003649343459358652,
+        "loaded_contacts": 8,
+        "rear_toe_normal_impulse_sum": 0.0036493434442859
+      },
+      "right": {
+        "normal_impulse_sum": 5.922113880931314e-06,
+        "loaded_contacts": 1,
+        "rear_toe_normal_impulse_sum": 7.056166359199773e-13
+      }
+    },
+    {
+      "lane": 1,
+      "interval": 216,
+      "arm": "sham",
+      "left": {
+        "normal_impulse_sum": 0.005333641853132968,
+        "loaded_contacts": 6,
+        "rear_toe_normal_impulse_sum": 0.005333641851278746
+      },
+      "right": {
+        "normal_impulse_sum": 7.285320452812177e-07,
+        "loaded_contacts": 1,
+        "rear_toe_normal_impulse_sum": 8.680184085969399e-14
+      }
+    },
+    {
+      "lane": 1,
+      "interval": 216,
+      "arm": "candidate",
+      "left": {
+        "normal_impulse_sum": 0.00533372320860607,
+        "loaded_contacts": 6,
+        "rear_toe_normal_impulse_sum": 0.005333723206751849
+      },
+      "right": {
+        "normal_impulse_sum": 7.285320462109494e-07,
+        "loaded_contacts": 1,
+        "rear_toe_normal_impulse_sum": 8.680439731702025e-14
+      }
+    },
+    {
+      "lane": 1,
+      "interval": 220,
+      "arm": "sham",
+      "left": {
+        "normal_impulse_sum": 0.005221253765743658,
+        "loaded_contacts": 5,
+        "rear_toe_normal_impulse_sum": 0.00018597865824323382
+      },
+      "right": {
+        "normal_impulse_sum": 1.019457900373977e-10,
+        "loaded_contacts": 0,
+        "rear_toe_normal_impulse_sum": 1.878020281147158e-17
+      }
+    },
+    {
+      "lane": 1,
+      "interval": 220,
+      "arm": "candidate",
+      "left": {
+        "normal_impulse_sum": 0.005249836871557843,
+        "loaded_contacts": 5,
+        "rear_toe_normal_impulse_sum": 0.0001595540353574193
+      },
+      "right": {
+        "normal_impulse_sum": 8.862413631545017e-11,
+        "loaded_contacts": 0,
+        "rear_toe_normal_impulse_sum": 1.2366511146945956e-17
+      }
+    },
+    {
+      "lane": 2,
+      "interval": 214,
+      "arm": "sham",
+      "left": {
+        "normal_impulse_sum": 0.0027823641060959925,
+        "loaded_contacts": 6,
+        "rear_toe_normal_impulse_sum": 0.002782363992698
+      },
+      "right": {
+        "normal_impulse_sum": 4.032425348801862e-05,
+        "loaded_contacts": 2,
+        "rear_toe_normal_impulse_sum": 6.369540038009419e-12
+      }
+    },
+    {
+      "lane": 2,
+      "interval": 214,
+      "arm": "candidate",
+      "left": {
+        "normal_impulse_sum": 0.0027823641060959925,
+        "loaded_contacts": 6,
+        "rear_toe_normal_impulse_sum": 0.002782363992698
+      },
+      "right": {
+        "normal_impulse_sum": 4.032425348801862e-05,
+        "loaded_contacts": 2,
+        "rear_toe_normal_impulse_sum": 6.369540038009419e-12
+      }
+    },
+    {
+      "lane": 2,
+      "interval": 215,
+      "arm": "sham",
+      "left": {
+        "normal_impulse_sum": 0.0037418182069880917,
+        "loaded_contacts": 8,
+        "rear_toe_normal_impulse_sum": 0.0037418181930761007
+      },
+      "right": {
+        "normal_impulse_sum": 4.9601674836545695e-06,
+        "loaded_contacts": 1,
+        "rear_toe_normal_impulse_sum": 7.646076659009729e-13
+      }
+    },
+    {
+      "lane": 2,
+      "interval": 215,
+      "arm": "candidate",
+      "left": {
+        "normal_impulse_sum": 0.003741808983471791,
+        "loaded_contacts": 8,
+        "rear_toe_normal_impulse_sum": 0.0037418089695598
+      },
+      "right": {
+        "normal_impulse_sum": 4.960167490307636e-06,
+        "loaded_contacts": 1,
+        "rear_toe_normal_impulse_sum": 7.64642481929719e-13
+      }
+    },
+    {
+      "lane": 2,
+      "interval": 216,
+      "arm": "sham",
+      "left": {
+        "normal_impulse_sum": 0.0054630614480531345,
+        "loaded_contacts": 6,
+        "rear_toe_normal_impulse_sum": 0.005463061446341771
+      },
+      "right": {
+        "normal_impulse_sum": 6.101940026399135e-07,
+        "loaded_contacts": 1,
+        "rear_toe_normal_impulse_sum": 9.406147248785823e-14
+      }
+    },
+    {
+      "lane": 2,
+      "interval": 216,
+      "arm": "candidate",
+      "left": {
+        "normal_impulse_sum": 0.005462704967079595,
+        "loaded_contacts": 6,
+        "rear_toe_normal_impulse_sum": 0.00546270496536823
+      },
+      "right": {
+        "normal_impulse_sum": 6.101940037597834e-07,
+        "loaded_contacts": 1,
+        "rear_toe_normal_impulse_sum": 9.406573466743484e-14
+      }
+    },
+    {
+      "lane": 2,
+      "interval": 220,
+      "arm": "sham",
+      "left": {
+        "normal_impulse_sum": 0.005077695752870643,
+        "loaded_contacts": 5,
+        "rear_toe_normal_impulse_sum": 0.00017267921557025183
+      },
+      "right": {
+        "normal_impulse_sum": 8.802800169597787e-11,
+        "loaded_contacts": 0,
+        "rear_toe_normal_impulse_sum": 2.044380472451942e-17
+      }
+    },
+    {
+      "lane": 2,
+      "interval": 220,
+      "arm": "candidate",
+      "left": {
+        "normal_impulse_sum": 0.0051036973544918915,
+        "loaded_contacts": 5,
+        "rear_toe_normal_impulse_sum": 0.00014804766889149932
+      },
+      "right": {
+        "normal_impulse_sum": 7.684901550527997e-11,
+        "loaded_contacts": 0,
+        "rear_toe_normal_impulse_sum": 1.3852157555424812e-17
+      }
+    },
+    {
+      "lane": 3,
+      "interval": 214,
+      "arm": "sham",
+      "left": {
+        "normal_impulse_sum": 0.002831414617427906,
+        "loaded_contacts": 5,
+        "rear_toe_normal_impulse_sum": 0.0028314144700000215
+      },
+      "right": {
+        "normal_impulse_sum": 4.544585501041252e-05,
+        "loaded_contacts": 4,
+        "rear_toe_normal_impulse_sum": 2.39782589794348e-12
+      }
+    },
+    {
+      "lane": 3,
+      "interval": 214,
+      "arm": "candidate",
+      "left": {
+        "normal_impulse_sum": 0.002831414617427906,
+        "loaded_contacts": 5,
+        "rear_toe_normal_impulse_sum": 0.0028314144700000215
+      },
+      "right": {
+        "normal_impulse_sum": 4.544585501041252e-05,
+        "loaded_contacts": 4,
+        "rear_toe_normal_impulse_sum": 2.39782589794348e-12
+      }
+    },
+    {
+      "lane": 3,
+      "interval": 215,
+      "arm": "sham",
+      "left": {
+        "normal_impulse_sum": 0.0038121679980439786,
+        "loaded_contacts": 7,
+        "rear_toe_normal_impulse_sum": 0.00381216797991
+      },
+      "right": {
+        "normal_impulse_sum": 5.273022574208775e-06,
+        "loaded_contacts": 1,
+        "rear_toe_normal_impulse_sum": 2.9497803160527654e-13
+      }
+    },
+    {
+      "lane": 3,
+      "interval": 215,
+      "arm": "candidate",
+      "left": {
+        "normal_impulse_sum": 0.0038121857728079787,
+        "loaded_contacts": 7,
+        "rear_toe_normal_impulse_sum": 0.003812185754674
+      },
+      "right": {
+        "normal_impulse_sum": 5.273025626545048e-06,
+        "loaded_contacts": 1,
+        "rear_toe_normal_impulse_sum": 2.949780312491139e-13
+      }
+    },
+    {
+      "lane": 3,
+      "interval": 216,
+      "arm": "sham",
+      "left": {
+        "normal_impulse_sum": 0.005251053979930335,
+        "loaded_contacts": 6,
+        "rear_toe_normal_impulse_sum": 0.005251053977699638
+      },
+      "right": {
+        "normal_impulse_sum": 6.475196625331901e-07,
+        "loaded_contacts": 1,
+        "rear_toe_normal_impulse_sum": 3.6287974026542905e-14
+      }
+    },
+    {
+      "lane": 3,
+      "interval": 216,
+      "arm": "candidate",
+      "left": {
+        "normal_impulse_sum": 0.005251015786924554,
+        "loaded_contacts": 6,
+        "rear_toe_normal_impulse_sum": 0.005251015784693856
+      },
+      "right": {
+        "normal_impulse_sum": 6.47519662914446e-07,
+        "loaded_contacts": 1,
+        "rear_toe_normal_impulse_sum": 3.6287973968078536e-14
+      }
+    },
+    {
+      "lane": 3,
+      "interval": 220,
+      "arm": "sham",
+      "left": {
+        "normal_impulse_sum": 0.005006805473412859,
+        "loaded_contacts": 7,
+        "rear_toe_normal_impulse_sum": 0.00014665963139134876
+      },
+      "right": {
+        "normal_impulse_sum": 8.553813677801347e-11,
+        "loaded_contacts": 0,
+        "rear_toe_normal_impulse_sum": 7.806593829907175e-18
+      }
+    },
+    {
+      "lane": 3,
+      "interval": 220,
+      "arm": "candidate",
+      "left": {
+        "normal_impulse_sum": 0.005031630595435933,
+        "loaded_contacts": 7,
+        "rear_toe_normal_impulse_sum": 0.00012494209420742163
+      },
+      "right": {
+        "normal_impulse_sum": 7.297281525168871e-11,
+        "loaded_contacts": 0,
+        "rear_toe_normal_impulse_sum": 4.9778194034082935e-18
+      }
+    },
+    {
+      "lane": 4,
+      "interval": 214,
+      "arm": "sham",
+      "left": {
+        "normal_impulse_sum": 0.0028378915167262494,
+        "loaded_contacts": 5,
+        "rear_toe_normal_impulse_sum": 0.0028378911888
+      },
+      "right": {
+        "normal_impulse_sum": 4.65280739864103e-05,
+        "loaded_contacts": 2,
+        "rear_toe_normal_impulse_sum": 2.3364696337025796e-12
+      }
+    },
+    {
+      "lane": 4,
+      "interval": 214,
+      "arm": "candidate",
+      "left": {
+        "normal_impulse_sum": 0.0028378915167262494,
+        "loaded_contacts": 5,
+        "rear_toe_normal_impulse_sum": 0.0028378911888
+      },
+      "right": {
+        "normal_impulse_sum": 4.65280739864103e-05,
+        "loaded_contacts": 2,
+        "rear_toe_normal_impulse_sum": 2.3364696337025796e-12
+      }
+    },
+    {
+      "lane": 4,
+      "interval": 215,
+      "arm": "sham",
+      "left": {
+        "normal_impulse_sum": 0.0038502630391606817,
+        "loaded_contacts": 7,
+        "rear_toe_normal_impulse_sum": 0.0038502629988219996
+      },
+      "right": {
+        "normal_impulse_sum": 5.723303895783817e-06,
+        "loaded_contacts": 1,
+        "rear_toe_normal_impulse_sum": 2.817481920125636e-13
+      }
+    },
+    {
+      "lane": 4,
+      "interval": 215,
+      "arm": "candidate",
+      "left": {
+        "normal_impulse_sum": 0.0038501321448296817,
+        "loaded_contacts": 7,
+        "rear_toe_normal_impulse_sum": 0.0038501321044909997
+      },
+      "right": {
+        "normal_impulse_sum": 5.723303902687056e-06,
+        "loaded_contacts": 1,
+        "rear_toe_normal_impulse_sum": 2.817565213502968e-13
+      }
+    },
+    {
+      "lane": 4,
+      "interval": 216,
+      "arm": "sham",
+      "left": {
+        "normal_impulse_sum": 0.00547884779050494,
+        "loaded_contacts": 6,
+        "rear_toe_normal_impulse_sum": 0.00547884778554251
+      },
+      "right": {
+        "normal_impulse_sum": 7.04074383073666e-07,
+        "loaded_contacts": 1,
+        "rear_toe_normal_impulse_sum": 3.466045517923336e-14
+      }
+    },
+    {
+      "lane": 4,
+      "interval": 216,
+      "arm": "candidate",
+      "left": {
+        "normal_impulse_sum": 0.005478760235010003,
+        "loaded_contacts": 6,
+        "rear_toe_normal_impulse_sum": 0.005478760230047572
+      },
+      "right": {
+        "normal_impulse_sum": 7.04074384100902e-07,
+        "loaded_contacts": 1,
+        "rear_toe_normal_impulse_sum": 3.4661469318406654e-14
+      }
+    },
+    {
+      "lane": 4,
+      "interval": 220,
+      "arm": "sham",
+      "left": {
+        "normal_impulse_sum": 0.005103535964904229,
+        "loaded_contacts": 5,
+        "rear_toe_normal_impulse_sum": 0.0001850579405030917
+      },
+      "right": {
+        "normal_impulse_sum": 9.853733761161473e-11,
+        "loaded_contacts": 0,
+        "rear_toe_normal_impulse_sum": 7.499335939319634e-18
+      }
+    },
+    {
+      "lane": 4,
+      "interval": 220,
+      "arm": "candidate",
+      "left": {
+        "normal_impulse_sum": 0.005132273830708274,
+        "loaded_contacts": 5,
+        "rear_toe_normal_impulse_sum": 0.00015806808720713795
+      },
+      "right": {
+        "normal_impulse_sum": 8.507919071111451e-11,
+        "loaded_contacts": 0,
+        "rear_toe_normal_impulse_sum": 4.931316900306828e-18
+      }
+    },
+    {
+      "lane": 5,
+      "interval": 214,
+      "arm": "sham",
+      "left": {
+        "normal_impulse_sum": 0.0027738777056039035,
+        "loaded_contacts": 5,
+        "rear_toe_normal_impulse_sum": 0.002773877597
+      },
+      "right": {
+        "normal_impulse_sum": 5.013415690428903e-05,
+        "loaded_contacts": 4,
+        "rear_toe_normal_impulse_sum": 7.33821726830731e-12
+      }
+    },
+    {
+      "lane": 5,
+      "interval": 214,
+      "arm": "candidate",
+      "left": {
+        "normal_impulse_sum": 0.0027738777056039035,
+        "loaded_contacts": 5,
+        "rear_toe_normal_impulse_sum": 0.002773877597
+      },
+      "right": {
+        "normal_impulse_sum": 5.013415690428903e-05,
+        "loaded_contacts": 4,
+        "rear_toe_normal_impulse_sum": 7.33821726830731e-12
+      }
+    },
+    {
+      "lane": 5,
+      "interval": 215,
+      "arm": "sham",
+      "left": {
+        "normal_impulse_sum": 0.003832888744201759,
+        "loaded_contacts": 7,
+        "rear_toe_normal_impulse_sum": 0.00383288873084743
+      },
+      "right": {
+        "normal_impulse_sum": 6.000308011847697e-06,
+        "loaded_contacts": 1,
+        "rear_toe_normal_impulse_sum": 8.85610799052978e-13
+      }
+    },
+    {
+      "lane": 5,
+      "interval": 215,
+      "arm": "candidate",
+      "left": {
+        "normal_impulse_sum": 0.003832957185706459,
+        "loaded_contacts": 7,
+        "rear_toe_normal_impulse_sum": 0.0038329571723521305
+      },
+      "right": {
+        "normal_impulse_sum": 6.000309575138576e-06,
+        "loaded_contacts": 1,
+        "rear_toe_normal_impulse_sum": 8.856358298564541e-13
+      }
+    },
+    {
+      "lane": 5,
+      "interval": 216,
+      "arm": "sham",
+      "left": {
+        "normal_impulse_sum": 0.005550449135390632,
+        "loaded_contacts": 6,
+        "rear_toe_normal_impulse_sum": 0.005550449133747849
+      },
+      "right": {
+        "normal_impulse_sum": 7.375848243038261e-07,
+        "loaded_contacts": 1,
+        "rear_toe_normal_impulse_sum": 1.0894716374707616e-13
+      }
+    },
+    {
+      "lane": 5,
+      "interval": 216,
+      "arm": "candidate",
+      "left": {
+        "normal_impulse_sum": 0.005550570187009334,
+        "loaded_contacts": 6,
+        "rear_toe_normal_impulse_sum": 0.0055505701853665506
+      },
+      "right": {
+        "normal_impulse_sum": 7.375848599370801e-07,
+        "loaded_contacts": 1,
+        "rear_toe_normal_impulse_sum": 1.0895023359272757e-13
+      }
+    },
+    {
+      "lane": 5,
+      "interval": 220,
+      "arm": "sham",
+      "left": {
+        "normal_impulse_sum": 0.00526099797693768,
+        "loaded_contacts": 5,
+        "rear_toe_normal_impulse_sum": 0.00019901440633730394
+      },
+      "right": {
+        "normal_impulse_sum": 1.0054100972622821e-10,
+        "loaded_contacts": 0,
+        "rear_toe_normal_impulse_sum": 2.3532407966507837e-17
+      }
+    },
+    {
+      "lane": 5,
+      "interval": 220,
+      "arm": "candidate",
+      "left": {
+        "normal_impulse_sum": 0.005291771501348467,
+        "loaded_contacts": 5,
+        "rear_toe_normal_impulse_sum": 0.0001704543336480889
+      },
+      "right": {
+        "normal_impulse_sum": 8.651388835619129e-11,
+        "loaded_contacts": 0,
+        "rear_toe_normal_impulse_sum": 1.5463350010536353e-17
+      }
+    },
+    {
+      "lane": 6,
+      "interval": 214,
+      "arm": "sham",
+      "left": {
+        "normal_impulse_sum": 0.0023921764733184294,
+        "loaded_contacts": 6,
+        "rear_toe_normal_impulse_sum": 0.0023921763184001623
+      },
+      "right": {
+        "normal_impulse_sum": 4.7279157730621105e-05,
+        "loaded_contacts": 6,
+        "rear_toe_normal_impulse_sum": 2.80838965953864e-12
+      }
+    },
+    {
+      "lane": 6,
+      "interval": 214,
+      "arm": "candidate",
+      "left": {
+        "normal_impulse_sum": 0.0023921764733184294,
+        "loaded_contacts": 6,
+        "rear_toe_normal_impulse_sum": 0.0023921763184001623
+      },
+      "right": {
+        "normal_impulse_sum": 4.7279157730621105e-05,
+        "loaded_contacts": 6,
+        "rear_toe_normal_impulse_sum": 2.80838965953864e-12
+      }
+    },
+    {
+      "lane": 6,
+      "interval": 215,
+      "arm": "sham",
+      "left": {
+        "normal_impulse_sum": 0.0033338589268409225,
+        "loaded_contacts": 8,
+        "rear_toe_normal_impulse_sum": 0.0033338589077854
+      },
+      "right": {
+        "normal_impulse_sum": 5.542244876598807e-06,
+        "loaded_contacts": 1,
+        "rear_toe_normal_impulse_sum": 3.380075586352511e-13
+      }
+    },
+    {
+      "lane": 6,
+      "interval": 215,
+      "arm": "candidate",
+      "left": {
+        "normal_impulse_sum": 0.003333876997929223,
+        "loaded_contacts": 8,
+        "rear_toe_normal_impulse_sum": 0.003333876978873701
+      },
+      "right": {
+        "normal_impulse_sum": 5.542247399390091e-06,
+        "loaded_contacts": 1,
+        "rear_toe_normal_impulse_sum": 3.3809870282840607e-13
+      }
+    },
+    {
+      "lane": 6,
+      "interval": 216,
+      "arm": "sham",
+      "left": {
+        "normal_impulse_sum": 0.005228953309602745,
+        "loaded_contacts": 5,
+        "rear_toe_normal_impulse_sum": 0.0052289533072585985
+      },
+      "right": {
+        "normal_impulse_sum": 6.808927905646819e-07,
+        "loaded_contacts": 1,
+        "rear_toe_normal_impulse_sum": 4.154590223710311e-14
+      }
+    },
+    {
+      "lane": 6,
+      "interval": 216,
+      "arm": "candidate",
+      "left": {
+        "normal_impulse_sum": 0.005228914149434763,
+        "loaded_contacts": 5,
+        "rear_toe_normal_impulse_sum": 0.005228914147090615
+      },
+      "right": {
+        "normal_impulse_sum": 6.808928463499426e-07,
+        "loaded_contacts": 1,
+        "rear_toe_normal_impulse_sum": 4.156055860607553e-14
+      }
+    },
+    {
+      "lane": 6,
+      "interval": 220,
+      "arm": "sham",
+      "left": {
+        "normal_impulse_sum": 0.005474525858123692,
+        "loaded_contacts": 5,
+        "rear_toe_normal_impulse_sum": 0.00018699052492315586
+      },
+      "right": {
+        "normal_impulse_sum": 6.52920481594517e-11,
+        "loaded_contacts": 0,
+        "rear_toe_normal_impulse_sum": 8.604343230057018e-18
+      }
+    },
+    {
+      "lane": 6,
+      "interval": 220,
+      "arm": "candidate",
+      "left": {
+        "normal_impulse_sum": 0.005503373781229392,
+        "loaded_contacts": 5,
+        "rear_toe_normal_impulse_sum": 0.00016139173462885584
+      },
+      "right": {
+        "normal_impulse_sum": 5.618397020143714e-11,
+        "loaded_contacts": 0,
+        "rear_toe_normal_impulse_sum": 5.6354497990816506e-18
+      }
+    },
+    {
+      "lane": 7,
+      "interval": 214,
+      "arm": "sham",
+      "left": {
+        "normal_impulse_sum": 0.0021584142110648284,
+        "loaded_contacts": 6,
+        "rear_toe_normal_impulse_sum": 0.0021584141076
+      },
+      "right": {
+        "normal_impulse_sum": 5.1657389194922584e-05,
+        "loaded_contacts": 2,
+        "rear_toe_normal_impulse_sum": 7.607307334622441e-12
+      }
+    },
+    {
+      "lane": 7,
+      "interval": 214,
+      "arm": "candidate",
+      "left": {
+        "normal_impulse_sum": 0.0021584142110648284,
+        "loaded_contacts": 6,
+        "rear_toe_normal_impulse_sum": 0.0021584141076
+      },
+      "right": {
+        "normal_impulse_sum": 5.1657389194922584e-05,
+        "loaded_contacts": 2,
+        "rear_toe_normal_impulse_sum": 7.607307334622441e-12
+      }
+    },
+    {
+      "lane": 7,
+      "interval": 215,
+      "arm": "sham",
+      "left": {
+        "normal_impulse_sum": 0.0032432759255165105,
+        "loaded_contacts": 7,
+        "rear_toe_normal_impulse_sum": 0.0032432759128089993
+      },
+      "right": {
+        "normal_impulse_sum": 6.3544356361678775e-06,
+        "loaded_contacts": 1,
+        "rear_toe_normal_impulse_sum": 9.141312104207195e-13
+      }
+    },
+    {
+      "lane": 7,
+      "interval": 215,
+      "arm": "candidate",
+      "left": {
+        "normal_impulse_sum": 0.0032433131047855113,
+        "loaded_contacts": 7,
+        "rear_toe_normal_impulse_sum": 0.003243313092078
+      },
+      "right": {
+        "normal_impulse_sum": 6.354435641027732e-06,
+        "loaded_contacts": 1,
+        "rear_toe_normal_impulse_sum": 9.141571011041187e-13
+      }
+    },
+    {
+      "lane": 7,
+      "interval": 216,
+      "arm": "sham",
+      "left": {
+        "normal_impulse_sum": 0.004971242791848786,
+        "loaded_contacts": 4,
+        "rear_toe_normal_impulse_sum": 0.004971242790285656
+      },
+      "right": {
+        "normal_impulse_sum": 7.817163129151004e-07,
+        "loaded_contacts": 1,
+        "rear_toe_normal_impulse_sum": 1.1245573081112234e-13
+      }
+    },
+    {
+      "lane": 7,
+      "interval": 216,
+      "arm": "candidate",
+      "left": {
+        "normal_impulse_sum": 0.0049710407765927505,
+        "loaded_contacts": 4,
+        "rear_toe_normal_impulse_sum": 0.004971040775029621
+      },
+      "right": {
+        "normal_impulse_sum": 7.817163134784624e-07,
+        "loaded_contacts": 1,
+        "rear_toe_normal_impulse_sum": 1.1245892841196992e-13
+      }
+    },
+    {
+      "lane": 7,
+      "interval": 220,
+      "arm": "sham",
+      "left": {
+        "normal_impulse_sum": 0.005386980213756761,
+        "loaded_contacts": 5,
+        "rear_toe_normal_impulse_sum": 0.0001723198883564024
+      },
+      "right": {
+        "normal_impulse_sum": 1.0377813501622572e-10,
+        "loaded_contacts": 0,
+        "rear_toe_normal_impulse_sum": 2.4209117693561212e-17
+      }
+    },
+    {
+      "lane": 7,
+      "interval": 220,
+      "arm": "candidate",
+      "left": {
+        "normal_impulse_sum": 0.005410758305522566,
+        "loaded_contacts": 5,
+        "rear_toe_normal_impulse_sum": 0.00014852100802220747
+      },
+      "right": {
+        "normal_impulse_sum": 8.909648992956447e-11,
+        "loaded_contacts": 0,
+        "rear_toe_normal_impulse_sum": 1.5853484500279795e-17
+      }
+    }
+  ],
+  "scope": "Endpoint accepted state comparison of a contact-switched physical toe command and matched sham. First observed divergence is not proof of cause; feedback and contacts are coupled, applied toe torque and exact switch events are not logged."
+}
