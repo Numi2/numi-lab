@@ -1,0 +1,15 @@
+zero 0 {'partial': 24, 'both_groups': 48, 'rear_first': 48, 'missing_group': 2} missing duration {'n': 2, 'median_s': 0.01375, 'max_s': 0.01375, 'below_10ms': 0, 'below_20ms': 2}
+zero 2 {'partial': 24, 'both_groups': 48, 'rear_first': 48, 'missing_group': 2} missing duration {'n': 2, 'median_s': 0.01375, 'max_s': 0.01375, 'below_10ms': 0, 'below_20ms': 2}
+zero 4 {'partial': 24, 'both_groups': 48, 'rear_first': 48, 'missing_group': 2} missing duration {'n': 2, 'median_s': 0.01375, 'max_s': 0.01375, 'below_10ms': 0, 'below_20ms': 2}
+zero 8 {'partial': 24, 'both_groups': 48, 'rear_first': 48, 'missing_group': 2} missing duration {'n': 2, 'median_s': 0.01375, 'max_s': 0.01375, 'below_10ms': 0, 'below_20ms': 2}
+zero 16 {'partial': 24, 'both_groups': 48, 'rear_first': 48} missing duration {'n': 0, 'median_s': None, 'max_s': None, 'below_10ms': 0, 'below_20ms': 0}
+low 0 {'partial': 24, 'both_groups': 48, 'rear_first': 48, 'missing_group': 7} missing duration {'n': 7, 'median_s': 0.01375, 'max_s': 0.01375, 'below_10ms': 1, 'below_20ms': 7}
+low 2 {'partial': 24, 'both_groups': 48, 'rear_first': 48, 'missing_group': 7} missing duration {'n': 7, 'median_s': 0.01375, 'max_s': 0.01375, 'below_10ms': 1, 'below_20ms': 7}
+low 4 {'partial': 24, 'both_groups': 48, 'rear_first': 48, 'missing_group': 7} missing duration {'n': 7, 'median_s': 0.01375, 'max_s': 0.01375, 'below_10ms': 1, 'below_20ms': 7}
+low 8 {'partial': 24, 'both_groups': 48, 'rear_first': 48, 'missing_group': 7} missing duration {'n': 7, 'median_s': 0.01375, 'max_s': 0.01375, 'below_10ms': 1, 'below_20ms': 7}
+low 16 {'partial': 24, 'both_groups': 48, 'rear_first': 48} missing duration {'n': 0, 'median_s': None, 'max_s': None, 'below_10ms': 0, 'below_20ms': 0}
+high 0 {'partial': 24, 'both_groups': 48, 'rear_first': 48} missing duration {'n': 0, 'median_s': None, 'max_s': None, 'below_10ms': 0, 'below_20ms': 0}
+high 2 {'partial': 24, 'both_groups': 48, 'rear_first': 48} missing duration {'n': 0, 'median_s': None, 'max_s': None, 'below_10ms': 0, 'below_20ms': 0}
+high 4 {'partial': 24, 'both_groups': 48, 'rear_first': 48} missing duration {'n': 0, 'median_s': None, 'max_s': None, 'below_10ms': 0, 'below_20ms': 0}
+high 8 {'partial': 24, 'both_groups': 48, 'rear_first': 48} missing duration {'n': 0, 'median_s': None, 'max_s': None, 'below_10ms': 0, 'below_20ms': 0}
+high 16 {'partial': 24, 'both_groups': 48, 'rear_first': 48} missing duration {'n': 0, 'median_s': None, 'max_s': None, 'below_10ms': 0, 'below_20ms': 0}

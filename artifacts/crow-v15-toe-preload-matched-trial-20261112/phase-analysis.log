@@ -1,0 +1,3 @@
+zero 32 {'ankle_first': 16, 'same_endpoint': 16} {'partial_contact': 24, 'incomplete_pair': 26, 'missing_toe_group': 2} maxerr 2.051138642707859e-09
+low 25 {'ankle_first': 16, 'same_endpoint': 9} {'partial_contact': 24, 'incomplete_pair': 38, 'missing_toe_group': 7} maxerr 2.076275568619199e-09
+high 32 {'ankle_first': 16, 'same_endpoint': 16} {'partial_contact': 24, 'incomplete_pair': 24} maxerr 2.0762658531761298e-09
