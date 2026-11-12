@@ -1,0 +1,333 @@
+{
+  "rows": [
+    {
+      "lane": 0,
+      "reference": {
+        "initial_unloaded_substeps": 1007,
+        "nonfoot_initial_substeps": 0,
+        "initial_cap_hits": 4,
+        "postsettle_cap_hits": 0,
+        "walking_unloaded_substeps": 0,
+        "wp": 0,
+        "final_position": [
+          0.771927714,
+          0.0191923007,
+          0.958583057
+        ],
+        "final_velocity": [
+          0.584208608,
+          0.00732831378,
+          -0.0213954616
+        ],
+        "reason": 0
+      },
+      "supported": {
+        "initial_unloaded_substeps": 168,
+        "nonfoot_initial_substeps": 0,
+        "initial_cap_hits": 0,
+        "postsettle_cap_hits": 0,
+        "walking_unloaded_substeps": 0,
+        "wp": 0,
+        "final_position": [
+          0.768937767,
+          0.0231744479,
+          0.94730556
+        ],
+        "final_velocity": [
+          0.596737504,
+          0.00862977002,
+          -0.00122543063
+        ],
+        "reason": 0
+      }
+    },
+    {
+      "lane": 1,
+      "reference": {
+        "initial_unloaded_substeps": 203,
+        "nonfoot_initial_substeps": 0,
+        "initial_cap_hits": 3,
+        "postsettle_cap_hits": 0,
+        "walking_unloaded_substeps": 0,
+        "wp": 0,
+        "final_position": [
+          0.777110577,
+          0.0509649292,
+          1.04166353
+        ],
+        "final_velocity": [
+          0.606080949,
+          -0.00941516086,
+          0.175882414
+        ],
+        "reason": 0
+      },
+      "supported": {
+        "initial_unloaded_substeps": 251,
+        "nonfoot_initial_substeps": 0,
+        "initial_cap_hits": 3,
+        "postsettle_cap_hits": 0,
+        "walking_unloaded_substeps": 0,
+        "wp": 0,
+        "final_position": [
+          0.77704829,
+          0.0514491722,
+          1.04732525
+        ],
+        "final_velocity": [
+          0.59223038,
+          -0.0110870879,
+          0.177450925
+        ],
+        "reason": 0
+      }
+    },
+    {
+      "lane": 2,
+      "reference": {
+        "initial_unloaded_substeps": 623,
+        "nonfoot_initial_substeps": 0,
+        "initial_cap_hits": 11,
+        "postsettle_cap_hits": 0,
+        "walking_unloaded_substeps": 0,
+        "wp": 0,
+        "final_position": [
+          0.731979191,
+          0.00678480277,
+          0.981108129
+        ],
+        "final_velocity": [
+          0.599120677,
+          -0.00586959952,
+          -0.0160464998
+        ],
+        "reason": 0
+      },
+      "supported": {
+        "initial_unloaded_substeps": 334,
+        "nonfoot_initial_substeps": 0,
+        "initial_cap_hits": 4,
+        "postsettle_cap_hits": 0,
+        "walking_unloaded_substeps": 0,
+        "wp": 0,
+        "final_position": [
+          0.779041588,
+          0.00743024563,
+          0.992926359
+        ],
+        "final_velocity": [
+          0.602167666,
+          -0.00401845528,
+          0.054784786
+        ],
+        "reason": 0
+      }
+    },
+    {
+      "lane": 3,
+      "reference": {
+        "initial_unloaded_substeps": 51,
+        "nonfoot_initial_substeps": 0,
+        "initial_cap_hits": 0,
+        "postsettle_cap_hits": 0,
+        "walking_unloaded_substeps": 0,
+        "wp": 0,
+        "final_position": [
+          0.735462427,
+          -0.0188829768,
+          0.991590321
+        ],
+        "final_velocity": [
+          0.591011882,
+          -0.00439730892,
+          -0.0134283174
+        ],
+        "reason": 0
+      },
+      "supported": {
+        "initial_unloaded_substeps": 56,
+        "nonfoot_initial_substeps": 0,
+        "initial_cap_hits": 0,
+        "postsettle_cap_hits": 0,
+        "walking_unloaded_substeps": 0,
+        "wp": 0,
+        "final_position": [
+          0.7356686,
+          -0.0185375065,
+          0.991580009
+        ],
+        "final_velocity": [
+          0.592342854,
+          -0.00492549175,
+          -0.0130513329
+        ],
+        "reason": 0
+      }
+    },
+    {
+      "lane": 4,
+      "reference": {
+        "initial_unloaded_substeps": 53,
+        "nonfoot_initial_substeps": 0,
+        "initial_cap_hits": 0,
+        "postsettle_cap_hits": 0,
+        "walking_unloaded_substeps": 0,
+        "wp": 0,
+        "final_position": [
+          0.75689429,
+          -0.0144492295,
+          1.02371264
+        ],
+        "final_velocity": [
+          0.587789655,
+          -0.0164141078,
+          -0.0336565748
+        ],
+        "reason": 0
+      },
+      "supported": {
+        "initial_unloaded_substeps": 53,
+        "nonfoot_initial_substeps": 0,
+        "initial_cap_hits": 0,
+        "postsettle_cap_hits": 0,
+        "walking_unloaded_substeps": 0,
+        "wp": 0,
+        "final_position": [
+          0.756441176,
+          -0.0139718121,
+          1.0226351
+        ],
+        "final_velocity": [
+          0.587242067,
+          -0.0170757622,
+          -0.0364109352
+        ],
+        "reason": 0
+      }
+    },
+    {
+      "lane": 5,
+      "reference": {
+        "initial_unloaded_substeps": 182,
+        "nonfoot_initial_substeps": 0,
+        "initial_cap_hits": 6,
+        "postsettle_cap_hits": 0,
+        "walking_unloaded_substeps": 0,
+        "wp": 0,
+        "final_position": [
+          0.772371948,
+          -0.0274431743,
+          1.05308938
+        ],
+        "final_velocity": [
+          0.584525406,
+          -0.0137370285,
+          -0.146982044
+        ],
+        "reason": 0
+      },
+      "supported": {
+        "initial_unloaded_substeps": 1399,
+        "nonfoot_initial_substeps": 0,
+        "initial_cap_hits": 14,
+        "postsettle_cap_hits": 0,
+        "walking_unloaded_substeps": 0,
+        "wp": 0,
+        "final_position": [
+          0.85616833,
+          -0.0153537421,
+          1.06130469
+        ],
+        "final_velocity": [
+          0.589361131,
+          -0.0253903456,
+          -0.0577476211
+        ],
+        "reason": 0
+      }
+    },
+    {
+      "lane": 6,
+      "reference": {
+        "initial_unloaded_substeps": 131,
+        "nonfoot_initial_substeps": 0,
+        "initial_cap_hits": 0,
+        "postsettle_cap_hits": 0,
+        "walking_unloaded_substeps": 0,
+        "wp": 0,
+        "final_position": [
+          0.739207566,
+          -0.0399102606,
+          1.05703676
+        ],
+        "final_velocity": [
+          0.590542555,
+          -0.0289284382,
+          -0.10745091
+        ],
+        "reason": 0
+      },
+      "supported": {
+        "initial_unloaded_substeps": 143,
+        "nonfoot_initial_substeps": 0,
+        "initial_cap_hits": 0,
+        "postsettle_cap_hits": 0,
+        "walking_unloaded_substeps": 0,
+        "wp": 0,
+        "final_position": [
+          0.747584522,
+          -0.0425054207,
+          1.06091774
+        ],
+        "final_velocity": [
+          0.591272593,
+          -0.0312047768,
+          -0.106125429
+        ],
+        "reason": 0
+      }
+    },
+    {
+      "lane": 7,
+      "reference": {
+        "initial_unloaded_substeps": 273,
+        "nonfoot_initial_substeps": 0,
+        "initial_cap_hits": 7,
+        "postsettle_cap_hits": 0,
+        "walking_unloaded_substeps": 0,
+        "wp": 0,
+        "final_position": [
+          0.755102098,
+          -0.0324762426,
+          1.11301398
+        ],
+        "final_velocity": [
+          0.578811526,
+          -0.0719378069,
+          -0.197602943
+        ],
+        "reason": 0
+      },
+      "supported": {
+        "initial_unloaded_substeps": 621,
+        "nonfoot_initial_substeps": 0,
+        "initial_cap_hits": 4,
+        "postsettle_cap_hits": 0,
+        "walking_unloaded_substeps": 0,
+        "wp": 0,
+        "final_position": [
+          0.748570204,
+          -0.0246568657,
+          1.1092422
+        ],
+        "final_velocity": [
+          0.576398909,
+          -0.0566514097,
+          -0.19529514
+        ],
+        "reason": 0
+      }
+    }
+  ],
+  "scope": "Not identical starting states: the same random channels are applied once versus twice. Both runs are ten seconds; supported reset q differs while perturbation random channels remain the same."
+}
