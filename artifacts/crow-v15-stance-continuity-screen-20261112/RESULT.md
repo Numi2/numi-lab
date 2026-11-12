@@ -1,0 +1,7 @@
+# Contact-gated stance continuity: rejected pending contact-point audit
+
+The candidate retained a negative-carrier support-phase hip command when the opposite foot's accepted load bit was off; both the candidate and matched sham kept lifting gated on opposite-foot support and used direct target steps without interpolation. The same binary, five-millisecond phase, starting states and actor weights were used. All pre-walk q/v/action and contact samples matched, all runs reached 300 intervals, and there were no logged solver errors or candidate nonfoot impulses or toe-speed caps.
+
+The candidate moved 41.45–53.79 mm in two seconds versus 25.07–29.71 mm for the sham, but had only one or two support-qualified endpoint-clearance bouts per foot versus the declared minimum of two, with several lanes short on both feet. It also had 34 neither-foot-loaded substeps versus zero in the matched sham. Thus the prespecified gate fails, despite higher progress. Knee and ankle boundary second-difference means were 99–106% of control; those proxies were descriptive and are not evidence of joint torque.
+
+Candidate foot center-of-mass motion during load was high (approximately 0.12–0.15 m, depending on lane and foot), but this proxy includes rotation and intermittent contacts; it cannot establish sliding. A separately parity-checked contact-point velocity observer is needed to investigate. This is one used development seed and a two-second gait window, not a validated walking controller, species-specific locomotion, takeoff or landing. No controller was promoted.

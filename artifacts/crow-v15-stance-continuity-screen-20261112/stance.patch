@@ -1,0 +1,20 @@
+--- a/gait.metal
++++ b/stance-continuity.metal
+@@ -5082,7 +5082,7 @@
+             const float support=dispatch.counts.w==40u ? ((state.status.w & (leg==0u ? (1u<<21) : (1u<<20)))!=0u ? 1.0f : 0.0f) : (leg==0u ? state.nutrition.y : state.nutrition.x);
+             const float begin=4.0f;
+             const float carrier=sin(kTwoPi*(seconds+5.0f/1000.0f)/0.50f)*(leg==0u ? 1.0f : -1.0f);
+-            const float swing=seconds >= begin && seconds < begin+2.0f && support > 0.05f ? carrier : 0.0f;
++            const float swing=seconds >= begin && seconds < begin+2.0f ? (support > 0.05f ? carrier : (program.interactionTiming.w >= 0.5f ? min(carrier,0.0f) : 0.0f)) : 0.0f;
+             const float lift=max(swing,0.0f);
+             if (seconds >= begin && seconds < begin+2.0f)
+                 navigationTeacherRequested=0.80f*smoothstep(begin,begin+.50f,seconds)*(joint==0u ? -0.30f*swing : joint==1u ? 0.40f*lift : -0.15f*lift);
+@@ -5575,7 +5575,7 @@
+             }
+         }
+     }
+-    if (program.interactionTiming.w < 0.5f || state.episode.x == 0u || float(state.episode.x)*dispatch.timing.x < 4.0f || float(state.episode.x)*dispatch.timing.x >= 6.0f) {
++    if (true) {
+         for (uint i=0u; i<dispatch.counts.w; ++i) {
+             const uint e=environment*worldDispatch.effortEnvironmentStride+i;
+             effortTrajectory[worldDispatch.effortStepStride+e]=effortTrajectory[e];
