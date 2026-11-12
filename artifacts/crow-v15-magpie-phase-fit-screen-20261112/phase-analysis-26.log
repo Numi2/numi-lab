@@ -1,0 +1,2 @@
+baseline 27 {'ankle_first': 16, 'same_endpoint': 11} {'partial_contact': 24, 'incomplete_pair': 34, 'missing_toe_group': 5} maxerr 2.0762720462813096e-09
+phase 14 {'ankle_first': 4, 'same_endpoint': 3, 'knee_first': 7} {'partial_contact': 30, 'incomplete_pair': 90, 'missing_toe_group': 42} maxerr 2.0762615286089953e-09
