@@ -1,0 +1,333 @@
+{
+  "counts": {
+    "events": 40,
+    "previous_opposite_support_before_last_interval": 40,
+    "prior_opposite_support_at_last": 16,
+    "prior_opposite_support_1_before_last": 0,
+    "prior_opposite_support_2_before_last": 0,
+    "command_without_previous_opposite_support": 0
+  },
+  "events": [
+    {
+      "lane": 0,
+      "side": 0,
+      "front_last_step": 252,
+      "first_prior_opposite_flag_step": 238,
+      "first_captured_release_target_step": 252,
+      "prior_opposite_support_intervals_before_last": 3
+    },
+    {
+      "lane": 0,
+      "side": 0,
+      "front_last_step": 277,
+      "first_prior_opposite_flag_step": 263,
+      "first_captured_release_target_step": 277,
+      "prior_opposite_support_intervals_before_last": 3
+    },
+    {
+      "lane": 0,
+      "side": 1,
+      "front_last_step": 239,
+      "first_prior_opposite_flag_step": 225,
+      "first_captured_release_target_step": null,
+      "prior_opposite_support_intervals_before_last": 3
+    },
+    {
+      "lane": 0,
+      "side": 1,
+      "front_last_step": 264,
+      "first_prior_opposite_flag_step": 250,
+      "first_captured_release_target_step": null,
+      "prior_opposite_support_intervals_before_last": 3
+    },
+    {
+      "lane": 0,
+      "side": 1,
+      "front_last_step": 289,
+      "first_prior_opposite_flag_step": 275,
+      "first_captured_release_target_step": null,
+      "prior_opposite_support_intervals_before_last": 3
+    },
+    {
+      "lane": 1,
+      "side": 0,
+      "front_last_step": 252,
+      "first_prior_opposite_flag_step": 238,
+      "first_captured_release_target_step": 252,
+      "prior_opposite_support_intervals_before_last": 3
+    },
+    {
+      "lane": 1,
+      "side": 0,
+      "front_last_step": 277,
+      "first_prior_opposite_flag_step": 263,
+      "first_captured_release_target_step": 277,
+      "prior_opposite_support_intervals_before_last": 3
+    },
+    {
+      "lane": 1,
+      "side": 1,
+      "front_last_step": 239,
+      "first_prior_opposite_flag_step": 225,
+      "first_captured_release_target_step": null,
+      "prior_opposite_support_intervals_before_last": 3
+    },
+    {
+      "lane": 1,
+      "side": 1,
+      "front_last_step": 264,
+      "first_prior_opposite_flag_step": 250,
+      "first_captured_release_target_step": null,
+      "prior_opposite_support_intervals_before_last": 3
+    },
+    {
+      "lane": 1,
+      "side": 1,
+      "front_last_step": 289,
+      "first_prior_opposite_flag_step": 275,
+      "first_captured_release_target_step": null,
+      "prior_opposite_support_intervals_before_last": 3
+    },
+    {
+      "lane": 2,
+      "side": 0,
+      "front_last_step": 252,
+      "first_prior_opposite_flag_step": 238,
+      "first_captured_release_target_step": 252,
+      "prior_opposite_support_intervals_before_last": 3
+    },
+    {
+      "lane": 2,
+      "side": 0,
+      "front_last_step": 277,
+      "first_prior_opposite_flag_step": 263,
+      "first_captured_release_target_step": 277,
+      "prior_opposite_support_intervals_before_last": 3
+    },
+    {
+      "lane": 2,
+      "side": 1,
+      "front_last_step": 239,
+      "first_prior_opposite_flag_step": 225,
+      "first_captured_release_target_step": null,
+      "prior_opposite_support_intervals_before_last": 3
+    },
+    {
+      "lane": 2,
+      "side": 1,
+      "front_last_step": 264,
+      "first_prior_opposite_flag_step": 250,
+      "first_captured_release_target_step": null,
+      "prior_opposite_support_intervals_before_last": 3
+    },
+    {
+      "lane": 2,
+      "side": 1,
+      "front_last_step": 289,
+      "first_prior_opposite_flag_step": 275,
+      "first_captured_release_target_step": null,
+      "prior_opposite_support_intervals_before_last": 3
+    },
+    {
+      "lane": 3,
+      "side": 0,
+      "front_last_step": 252,
+      "first_prior_opposite_flag_step": 238,
+      "first_captured_release_target_step": 252,
+      "prior_opposite_support_intervals_before_last": 3
+    },
+    {
+      "lane": 3,
+      "side": 0,
+      "front_last_step": 277,
+      "first_prior_opposite_flag_step": 263,
+      "first_captured_release_target_step": 277,
+      "prior_opposite_support_intervals_before_last": 3
+    },
+    {
+      "lane": 3,
+      "side": 1,
+      "front_last_step": 239,
+      "first_prior_opposite_flag_step": 225,
+      "first_captured_release_target_step": null,
+      "prior_opposite_support_intervals_before_last": 3
+    },
+    {
+      "lane": 3,
+      "side": 1,
+      "front_last_step": 264,
+      "first_prior_opposite_flag_step": 250,
+      "first_captured_release_target_step": null,
+      "prior_opposite_support_intervals_before_last": 3
+    },
+    {
+      "lane": 3,
+      "side": 1,
+      "front_last_step": 289,
+      "first_prior_opposite_flag_step": 275,
+      "first_captured_release_target_step": null,
+      "prior_opposite_support_intervals_before_last": 3
+    },
+    {
+      "lane": 4,
+      "side": 0,
+      "front_last_step": 252,
+      "first_prior_opposite_flag_step": 238,
+      "first_captured_release_target_step": 252,
+      "prior_opposite_support_intervals_before_last": 3
+    },
+    {
+      "lane": 4,
+      "side": 0,
+      "front_last_step": 277,
+      "first_prior_opposite_flag_step": 263,
+      "first_captured_release_target_step": 277,
+      "prior_opposite_support_intervals_before_last": 3
+    },
+    {
+      "lane": 4,
+      "side": 1,
+      "front_last_step": 239,
+      "first_prior_opposite_flag_step": 225,
+      "first_captured_release_target_step": null,
+      "prior_opposite_support_intervals_before_last": 2
+    },
+    {
+      "lane": 4,
+      "side": 1,
+      "front_last_step": 264,
+      "first_prior_opposite_flag_step": 250,
+      "first_captured_release_target_step": null,
+      "prior_opposite_support_intervals_before_last": 3
+    },
+    {
+      "lane": 4,
+      "side": 1,
+      "front_last_step": 289,
+      "first_prior_opposite_flag_step": 275,
+      "first_captured_release_target_step": null,
+      "prior_opposite_support_intervals_before_last": 3
+    },
+    {
+      "lane": 5,
+      "side": 0,
+      "front_last_step": 252,
+      "first_prior_opposite_flag_step": 238,
+      "first_captured_release_target_step": 252,
+      "prior_opposite_support_intervals_before_last": 3
+    },
+    {
+      "lane": 5,
+      "side": 0,
+      "front_last_step": 277,
+      "first_prior_opposite_flag_step": 263,
+      "first_captured_release_target_step": 277,
+      "prior_opposite_support_intervals_before_last": 3
+    },
+    {
+      "lane": 5,
+      "side": 1,
+      "front_last_step": 239,
+      "first_prior_opposite_flag_step": 225,
+      "first_captured_release_target_step": null,
+      "prior_opposite_support_intervals_before_last": 3
+    },
+    {
+      "lane": 5,
+      "side": 1,
+      "front_last_step": 264,
+      "first_prior_opposite_flag_step": 250,
+      "first_captured_release_target_step": null,
+      "prior_opposite_support_intervals_before_last": 3
+    },
+    {
+      "lane": 5,
+      "side": 1,
+      "front_last_step": 289,
+      "first_prior_opposite_flag_step": 275,
+      "first_captured_release_target_step": null,
+      "prior_opposite_support_intervals_before_last": 3
+    },
+    {
+      "lane": 6,
+      "side": 0,
+      "front_last_step": 252,
+      "first_prior_opposite_flag_step": 238,
+      "first_captured_release_target_step": 252,
+      "prior_opposite_support_intervals_before_last": 3
+    },
+    {
+      "lane": 6,
+      "side": 0,
+      "front_last_step": 277,
+      "first_prior_opposite_flag_step": 263,
+      "first_captured_release_target_step": 277,
+      "prior_opposite_support_intervals_before_last": 3
+    },
+    {
+      "lane": 6,
+      "side": 1,
+      "front_last_step": 239,
+      "first_prior_opposite_flag_step": 225,
+      "first_captured_release_target_step": null,
+      "prior_opposite_support_intervals_before_last": 3
+    },
+    {
+      "lane": 6,
+      "side": 1,
+      "front_last_step": 264,
+      "first_prior_opposite_flag_step": 250,
+      "first_captured_release_target_step": null,
+      "prior_opposite_support_intervals_before_last": 3
+    },
+    {
+      "lane": 6,
+      "side": 1,
+      "front_last_step": 289,
+      "first_prior_opposite_flag_step": 275,
+      "first_captured_release_target_step": null,
+      "prior_opposite_support_intervals_before_last": 3
+    },
+    {
+      "lane": 7,
+      "side": 0,
+      "front_last_step": 252,
+      "first_prior_opposite_flag_step": 238,
+      "first_captured_release_target_step": 252,
+      "prior_opposite_support_intervals_before_last": 3
+    },
+    {
+      "lane": 7,
+      "side": 0,
+      "front_last_step": 277,
+      "first_prior_opposite_flag_step": 263,
+      "first_captured_release_target_step": 277,
+      "prior_opposite_support_intervals_before_last": 3
+    },
+    {
+      "lane": 7,
+      "side": 1,
+      "front_last_step": 239,
+      "first_prior_opposite_flag_step": 225,
+      "first_captured_release_target_step": null,
+      "prior_opposite_support_intervals_before_last": 3
+    },
+    {
+      "lane": 7,
+      "side": 1,
+      "front_last_step": 264,
+      "first_prior_opposite_flag_step": 250,
+      "first_captured_release_target_step": null,
+      "prior_opposite_support_intervals_before_last": 3
+    },
+    {
+      "lane": 7,
+      "side": 1,
+      "front_last_step": 289,
+      "first_prior_opposite_flag_step": 275,
+      "first_captured_release_target_step": null,
+      "prior_opposite_support_intervals_before_last": 3
+    }
+  ],
+  "limits": "Flags are copied after the preceding submitted control interval; command buffers and interpolated targets have their own timing. The comparison is observational, not a proof of the exact gate evaluation or of why release is late."
+}
