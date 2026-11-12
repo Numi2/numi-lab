@@ -27,9 +27,9 @@ for e in range(8):
   windows={}
   for lo,hi in ((549,556),(549,560),(549,575),(549,600)):
    v=[c[e,t,k] for t in range(lo,hi+1) for k in range(16) if (e,t,k) in c]
-   windows[f"{lo}_{hi}"]={"count":len(v),"vertical_normal_ns":sum(z[0]+z[1] for z in v),"normal_ns":sum(z[2]+z[3] for z in v),"unloaded_substeps":sum(z[2]+z[3]<=1e-7 for z in v)}
+   windows[f"{lo}_{hi}"]={"count":len(v),"vertical_contact_ns":sum(z[0]+z[1] for z in v),"normal_ns":sum(z[2]+z[3] for z in v),"unloaded_substeps":sum(z[2]+z[3]<=1e-7 for z in v)}
   x[label]={"windows":windows,"root":{str(t):{"z_m":s[e,t]["q"][2],"vz_m_s":s[e,t]["v"][2]} for t in (548,556,560,575,600,625) if (e,t) in s}}
  rows.append(x)
 (A/("paired-"+seed+".json")).write_text(json.dumps(rows,indent=2)+"\n")
 for x in rows:
- print(x["lane"],"first state/contact",x["state_first_difference"],x["contact_first_difference"],"missing",len(x["state_incomplete_steps"]),len(x["contact_incomplete_steps"]),"normal 549–556 extension/hold",round(x["extension"]["windows"]["549_556"]["vertical_normal_ns"],4),round(x["crouch_hold"]["windows"]["549_556"]["vertical_normal_ns"],4),"vz 556 extension/hold",x["extension"]["root"].get("556",{}).get("vz_m_s"),x["crouch_hold"]["root"].get("556",{}).get("vz_m_s"))
+ print(x["lane"],"first state/contact",x["state_first_difference"],x["contact_first_difference"],"missing",len(x["state_incomplete_steps"]),len(x["contact_incomplete_steps"]),"vertical contact 549–556 extension/hold",round(x["extension"]["windows"]["549_556"]["vertical_contact_ns"],4),round(x["crouch_hold"]["windows"]["549_556"]["vertical_contact_ns"],4),"vz 556 extension/hold",x["extension"]["root"].get("556",{}).get("vz_m_s"),x["crouch_hold"]["root"].get("556",{}).get("vz_m_s"))

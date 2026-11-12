@@ -5,19 +5,19 @@
       "extension": {
         "windows": {
           "348_355": {
-            "upward_normal_impulse_ns": 0.71390496495973,
+            "vertical_contact_impulse_ns": 0.71390496495973,
             "unloaded_substeps": 0
           },
           "348_360": {
-            "upward_normal_impulse_ns": 0.7139073062771955,
+            "vertical_contact_impulse_ns": 0.7139073062771955,
             "unloaded_substeps": 76
           },
           "348_375": {
-            "upward_normal_impulse_ns": 0.7139073062771955,
+            "vertical_contact_impulse_ns": 0.7139073062771955,
             "unloaded_substeps": 316
           },
           "348_400": {
-            "upward_normal_impulse_ns": 0.7139073062771955,
+            "vertical_contact_impulse_ns": 0.7139073062771955,
             "unloaded_substeps": 716
           }
         },
@@ -47,19 +47,19 @@
       "crouch_hold": {
         "windows": {
           "348_355": {
-            "upward_normal_impulse_ns": 0.6579581293532002,
+            "vertical_contact_impulse_ns": 0.6579581293532002,
             "unloaded_substeps": 36
           },
           "348_360": {
-            "upward_normal_impulse_ns": 0.6579581293532002,
+            "vertical_contact_impulse_ns": 0.6579581293532002,
             "unloaded_substeps": 116
           },
           "348_375": {
-            "upward_normal_impulse_ns": 0.6579581293532002,
+            "vertical_contact_impulse_ns": 0.6579581293532002,
             "unloaded_substeps": 356
           },
           "348_400": {
-            "upward_normal_impulse_ns": 0.6579581293532002,
+            "vertical_contact_impulse_ns": 0.6579581293532002,
             "unloaded_substeps": 756
           }
         },
@@ -92,19 +92,19 @@
       "extension": {
         "windows": {
           "348_355": {
-            "upward_normal_impulse_ns": 0.71129360643539,
+            "vertical_contact_impulse_ns": 0.71129360643539,
             "unloaded_substeps": 0
           },
           "348_360": {
-            "upward_normal_impulse_ns": 0.71129360643539,
+            "vertical_contact_impulse_ns": 0.71129360643539,
             "unloaded_substeps": 80
           },
           "348_375": {
-            "upward_normal_impulse_ns": 0.71129360643539,
+            "vertical_contact_impulse_ns": 0.71129360643539,
             "unloaded_substeps": 320
           },
           "348_400": {
-            "upward_normal_impulse_ns": 0.71129360643539,
+            "vertical_contact_impulse_ns": 0.71129360643539,
             "unloaded_substeps": 720
           }
         },
@@ -134,19 +134,19 @@
       "crouch_hold": {
         "windows": {
           "348_355": {
-            "upward_normal_impulse_ns": 0.6437990488449999,
+            "vertical_contact_impulse_ns": 0.6437990488449999,
             "unloaded_substeps": 36
           },
           "348_360": {
-            "upward_normal_impulse_ns": 0.6437990488449999,
+            "vertical_contact_impulse_ns": 0.6437990488449999,
             "unloaded_substeps": 116
           },
           "348_375": {
-            "upward_normal_impulse_ns": 0.6437990488449999,
+            "vertical_contact_impulse_ns": 0.6437990488449999,
             "unloaded_substeps": 356
           },
           "348_400": {
-            "upward_normal_impulse_ns": 0.6437990488449999,
+            "vertical_contact_impulse_ns": 0.6437990488449999,
             "unloaded_substeps": 756
           }
         },
@@ -179,19 +179,19 @@
       "extension": {
         "windows": {
           "348_355": {
-            "upward_normal_impulse_ns": 0.7126699563916098,
+            "vertical_contact_impulse_ns": 0.7126699563916098,
             "unloaded_substeps": 0
           },
           "348_360": {
-            "upward_normal_impulse_ns": 0.7126699563916098,
+            "vertical_contact_impulse_ns": 0.7126699563916098,
             "unloaded_substeps": 80
           },
           "348_375": {
-            "upward_normal_impulse_ns": 0.7126699563916098,
+            "vertical_contact_impulse_ns": 0.7126699563916098,
             "unloaded_substeps": 320
           },
           "348_400": {
-            "upward_normal_impulse_ns": 0.7126699563916098,
+            "vertical_contact_impulse_ns": 0.7126699563916098,
             "unloaded_substeps": 720
           }
         },
@@ -221,19 +221,19 @@
       "crouch_hold": {
         "windows": {
           "348_355": {
-            "upward_normal_impulse_ns": 0.6268867018104001,
+            "vertical_contact_impulse_ns": 0.6268867018104001,
             "unloaded_substeps": 37
           },
           "348_360": {
-            "upward_normal_impulse_ns": 0.6268867018104001,
+            "vertical_contact_impulse_ns": 0.6268867018104001,
             "unloaded_substeps": 117
           },
           "348_375": {
-            "upward_normal_impulse_ns": 0.6268867018104001,
+            "vertical_contact_impulse_ns": 0.6268867018104001,
             "unloaded_substeps": 357
           },
           "348_400": {
-            "upward_normal_impulse_ns": 0.6268867018104001,
+            "vertical_contact_impulse_ns": 0.6268867018104001,
             "unloaded_substeps": 757
           }
         },
@@ -266,19 +266,19 @@
       "extension": {
         "windows": {
           "348_355": {
-            "upward_normal_impulse_ns": 0.7052087219171003,
+            "vertical_contact_impulse_ns": 0.7052087219171003,
             "unloaded_substeps": 0
           },
           "348_360": {
-            "upward_normal_impulse_ns": 0.7052108595991982,
+            "vertical_contact_impulse_ns": 0.7052108595991982,
             "unloaded_substeps": 76
           },
           "348_375": {
-            "upward_normal_impulse_ns": 0.7052108595991982,
+            "vertical_contact_impulse_ns": 0.7052108595991982,
             "unloaded_substeps": 316
           },
           "348_400": {
-            "upward_normal_impulse_ns": 0.7052108595991982,
+            "vertical_contact_impulse_ns": 0.7052108595991982,
             "unloaded_substeps": 716
           }
         },
@@ -308,19 +308,19 @@
       "crouch_hold": {
         "windows": {
           "348_355": {
-            "upward_normal_impulse_ns": 0.6158542919336999,
+            "vertical_contact_impulse_ns": 0.6158542919336999,
             "unloaded_substeps": 36
           },
           "348_360": {
-            "upward_normal_impulse_ns": 0.6158542919336999,
+            "vertical_contact_impulse_ns": 0.6158542919336999,
             "unloaded_substeps": 116
           },
           "348_375": {
-            "upward_normal_impulse_ns": 0.6158542919336999,
+            "vertical_contact_impulse_ns": 0.6158542919336999,
             "unloaded_substeps": 356
           },
           "348_400": {
-            "upward_normal_impulse_ns": 0.6158542919336999,
+            "vertical_contact_impulse_ns": 0.6158542919336999,
             "unloaded_substeps": 756
           }
         },
@@ -353,19 +353,19 @@
       "extension": {
         "windows": {
           "348_355": {
-            "upward_normal_impulse_ns": 0.7054189749318197,
+            "vertical_contact_impulse_ns": 0.7054189749318197,
             "unloaded_substeps": 0
           },
           "348_360": {
-            "upward_normal_impulse_ns": 0.7054211144576247,
+            "vertical_contact_impulse_ns": 0.7054211144576247,
             "unloaded_substeps": 76
           },
           "348_375": {
-            "upward_normal_impulse_ns": 0.7054211144576247,
+            "vertical_contact_impulse_ns": 0.7054211144576247,
             "unloaded_substeps": 316
           },
           "348_400": {
-            "upward_normal_impulse_ns": 0.7054211144576247,
+            "vertical_contact_impulse_ns": 0.7054211144576247,
             "unloaded_substeps": 716
           }
         },
@@ -395,19 +395,19 @@
       "crouch_hold": {
         "windows": {
           "348_355": {
-            "upward_normal_impulse_ns": 0.6191340143403999,
+            "vertical_contact_impulse_ns": 0.6191340143403999,
             "unloaded_substeps": 36
           },
           "348_360": {
-            "upward_normal_impulse_ns": 0.6191340143403999,
+            "vertical_contact_impulse_ns": 0.6191340143403999,
             "unloaded_substeps": 116
           },
           "348_375": {
-            "upward_normal_impulse_ns": 0.6191340143403999,
+            "vertical_contact_impulse_ns": 0.6191340143403999,
             "unloaded_substeps": 356
           },
           "348_400": {
-            "upward_normal_impulse_ns": 0.6191340143403999,
+            "vertical_contact_impulse_ns": 0.6191340143403999,
             "unloaded_substeps": 756
           }
         },
@@ -440,19 +440,19 @@
       "extension": {
         "windows": {
           "348_355": {
-            "upward_normal_impulse_ns": 0.70237913229619,
+            "vertical_contact_impulse_ns": 0.70237913229619,
             "unloaded_substeps": 0
           },
           "348_360": {
-            "upward_normal_impulse_ns": 0.70237913229619,
+            "vertical_contact_impulse_ns": 0.70237913229619,
             "unloaded_substeps": 80
           },
           "348_375": {
-            "upward_normal_impulse_ns": 0.70237913229619,
+            "vertical_contact_impulse_ns": 0.70237913229619,
             "unloaded_substeps": 320
           },
           "348_400": {
-            "upward_normal_impulse_ns": 0.70237913229619,
+            "vertical_contact_impulse_ns": 0.70237913229619,
             "unloaded_substeps": 720
           }
         },
@@ -482,19 +482,19 @@
       "crouch_hold": {
         "windows": {
           "348_355": {
-            "upward_normal_impulse_ns": 0.5904137630123999,
+            "vertical_contact_impulse_ns": 0.5904137630123999,
             "unloaded_substeps": 36
           },
           "348_360": {
-            "upward_normal_impulse_ns": 0.5904137630123999,
+            "vertical_contact_impulse_ns": 0.5904137630123999,
             "unloaded_substeps": 116
           },
           "348_375": {
-            "upward_normal_impulse_ns": 0.5904137630123999,
+            "vertical_contact_impulse_ns": 0.5904137630123999,
             "unloaded_substeps": 356
           },
           "348_400": {
-            "upward_normal_impulse_ns": 0.5904137630123999,
+            "vertical_contact_impulse_ns": 0.5904137630123999,
             "unloaded_substeps": 756
           }
         },
@@ -527,19 +527,19 @@
       "extension": {
         "windows": {
           "348_355": {
-            "upward_normal_impulse_ns": 0.7168134795212998,
+            "vertical_contact_impulse_ns": 0.7168134795212998,
             "unloaded_substeps": 2
           },
           "348_360": {
-            "upward_normal_impulse_ns": 0.7168134795212998,
+            "vertical_contact_impulse_ns": 0.7168134795212998,
             "unloaded_substeps": 82
           },
           "348_375": {
-            "upward_normal_impulse_ns": 0.7168134795212998,
+            "vertical_contact_impulse_ns": 0.7168134795212998,
             "unloaded_substeps": 322
           },
           "348_400": {
-            "upward_normal_impulse_ns": 0.7168134795212998,
+            "vertical_contact_impulse_ns": 0.7168134795212998,
             "unloaded_substeps": 722
           }
         },
@@ -569,19 +569,19 @@
       "crouch_hold": {
         "windows": {
           "348_355": {
-            "upward_normal_impulse_ns": 0.6105773936812999,
+            "vertical_contact_impulse_ns": 0.6105773936812999,
             "unloaded_substeps": 36
           },
           "348_360": {
-            "upward_normal_impulse_ns": 0.6105773936812999,
+            "vertical_contact_impulse_ns": 0.6105773936812999,
             "unloaded_substeps": 116
           },
           "348_375": {
-            "upward_normal_impulse_ns": 0.6105773936812999,
+            "vertical_contact_impulse_ns": 0.6105773936812999,
             "unloaded_substeps": 356
           },
           "348_400": {
-            "upward_normal_impulse_ns": 0.6105773936812999,
+            "vertical_contact_impulse_ns": 0.6105773936812999,
             "unloaded_substeps": 756
           }
         },
@@ -614,19 +614,19 @@
       "extension": {
         "windows": {
           "348_355": {
-            "upward_normal_impulse_ns": 0.7050690938487401,
+            "vertical_contact_impulse_ns": 0.7050690938487401,
             "unloaded_substeps": 0
           },
           "348_360": {
-            "upward_normal_impulse_ns": 0.7050690938487401,
+            "vertical_contact_impulse_ns": 0.7050690938487401,
             "unloaded_substeps": 80
           },
           "348_375": {
-            "upward_normal_impulse_ns": 0.7050690938487401,
+            "vertical_contact_impulse_ns": 0.7050690938487401,
             "unloaded_substeps": 320
           },
           "348_400": {
-            "upward_normal_impulse_ns": 0.7050690938487401,
+            "vertical_contact_impulse_ns": 0.7050690938487401,
             "unloaded_substeps": 720
           }
         },
@@ -656,19 +656,19 @@
       "crouch_hold": {
         "windows": {
           "348_355": {
-            "upward_normal_impulse_ns": 0.6008462774267002,
+            "vertical_contact_impulse_ns": 0.6008462774267002,
             "unloaded_substeps": 36
           },
           "348_360": {
-            "upward_normal_impulse_ns": 0.6008462774267002,
+            "vertical_contact_impulse_ns": 0.6008462774267002,
             "unloaded_substeps": 116
           },
           "348_375": {
-            "upward_normal_impulse_ns": 0.6008462774267002,
+            "vertical_contact_impulse_ns": 0.6008462774267002,
             "unloaded_substeps": 356
           },
           "348_400": {
-            "upward_normal_impulse_ns": 0.6008462774267002,
+            "vertical_contact_impulse_ns": 0.6008462774267002,
             "unloaded_substeps": 756
           }
         },
@@ -697,5 +697,5 @@
       }
     }
   ],
-  "limits": "Retained exact-prefix matched development pair. Foot vertical component of normal impulse only, excludes tangential ground impulse, moments and all aerodynamic impulse; windows include gravity, recontacts and feedback interactions. Crouch hold is powered and wings active. Differences do not identify leg muscle work or leg-only takeoff."
+  "limits": "Retained exact-prefix matched development pair. Foot vertical total contact impulse includes normal and tangential components; excludes moments and all aerodynamic impulse; windows include gravity, recontacts and feedback interactions. Crouch hold is powered and wings active. Differences do not identify leg muscle work or leg-only takeoff."
 }

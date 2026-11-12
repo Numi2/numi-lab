@@ -9,25 +9,25 @@
       "windows": {
         "549_556": {
           "count": 128,
-          "vertical_normal_ns": 0.5046053586699999,
+          "vertical_contact_ns": 0.5046053586699999,
           "normal_ns": 0.5046053586699999,
           "unloaded_substeps": 74
         },
         "549_560": {
           "count": 192,
-          "vertical_normal_ns": 0.5046053586699999,
+          "vertical_contact_ns": 0.5046053586699999,
           "normal_ns": 0.5046053586699999,
           "unloaded_substeps": 138
         },
         "549_575": {
           "count": 432,
-          "vertical_normal_ns": 0.5046053586699999,
+          "vertical_contact_ns": 0.5046053586699999,
           "normal_ns": 0.5046053586699999,
           "unloaded_substeps": 378
         },
         "549_600": {
           "count": 832,
-          "vertical_normal_ns": 0.5046053586699999,
+          "vertical_contact_ns": 0.5046053586699999,
           "normal_ns": 0.5046053586699999,
           "unloaded_substeps": 778
         }
@@ -63,25 +63,25 @@
       "windows": {
         "549_556": {
           "count": 128,
-          "vertical_normal_ns": 0.48304002843199995,
+          "vertical_contact_ns": 0.48304002843199995,
           "normal_ns": 0.48304002843199995,
           "unloaded_substeps": 71
         },
         "549_560": {
           "count": 192,
-          "vertical_normal_ns": 0.48304002843199995,
+          "vertical_contact_ns": 0.48304002843199995,
           "normal_ns": 0.48304002843199995,
           "unloaded_substeps": 135
         },
         "549_575": {
           "count": 432,
-          "vertical_normal_ns": 0.48304002843199995,
+          "vertical_contact_ns": 0.48304002843199995,
           "normal_ns": 0.48304002843199995,
           "unloaded_substeps": 375
         },
         "549_600": {
           "count": 832,
-          "vertical_normal_ns": 0.48304002843199995,
+          "vertical_contact_ns": 0.48304002843199995,
           "normal_ns": 0.48304002843199995,
           "unloaded_substeps": 775
         }
@@ -124,25 +124,25 @@
       "windows": {
         "549_556": {
           "count": 128,
-          "vertical_normal_ns": 0.50466675532,
+          "vertical_contact_ns": 0.50466675532,
           "normal_ns": 0.50466675532,
           "unloaded_substeps": 74
         },
         "549_560": {
           "count": 192,
-          "vertical_normal_ns": 0.50466675532,
+          "vertical_contact_ns": 0.50466675532,
           "normal_ns": 0.50466675532,
           "unloaded_substeps": 138
         },
         "549_575": {
           "count": 432,
-          "vertical_normal_ns": 0.50466675532,
+          "vertical_contact_ns": 0.50466675532,
           "normal_ns": 0.50466675532,
           "unloaded_substeps": 378
         },
         "549_600": {
           "count": 832,
-          "vertical_normal_ns": 0.50466675532,
+          "vertical_contact_ns": 0.50466675532,
           "normal_ns": 0.50466675532,
           "unloaded_substeps": 778
         }
@@ -178,25 +178,25 @@
       "windows": {
         "549_556": {
           "count": 128,
-          "vertical_normal_ns": 0.47608592413800005,
+          "vertical_contact_ns": 0.47608592413800005,
           "normal_ns": 0.47608592413800005,
           "unloaded_substeps": 71
         },
         "549_560": {
           "count": 192,
-          "vertical_normal_ns": 0.47608592413800005,
+          "vertical_contact_ns": 0.47608592413800005,
           "normal_ns": 0.47608592413800005,
           "unloaded_substeps": 135
         },
         "549_575": {
           "count": 432,
-          "vertical_normal_ns": 0.47608592413800005,
+          "vertical_contact_ns": 0.47608592413800005,
           "normal_ns": 0.47608592413800005,
           "unloaded_substeps": 375
         },
         "549_600": {
           "count": 832,
-          "vertical_normal_ns": 0.47608592413800005,
+          "vertical_contact_ns": 0.47608592413800005,
           "normal_ns": 0.47608592413800005,
           "unloaded_substeps": 775
         }
@@ -239,25 +239,25 @@
       "windows": {
         "549_556": {
           "count": 128,
-          "vertical_normal_ns": 0.5048505106000002,
+          "vertical_contact_ns": 0.5048505106000002,
           "normal_ns": 0.5048505106000002,
           "unloaded_substeps": 74
         },
         "549_560": {
           "count": 192,
-          "vertical_normal_ns": 0.5048505106000002,
+          "vertical_contact_ns": 0.5048505106000002,
           "normal_ns": 0.5048505106000002,
           "unloaded_substeps": 138
         },
         "549_575": {
           "count": 432,
-          "vertical_normal_ns": 0.5048505106000002,
+          "vertical_contact_ns": 0.5048505106000002,
           "normal_ns": 0.5048505106000002,
           "unloaded_substeps": 378
         },
         "549_600": {
           "count": 832,
-          "vertical_normal_ns": 0.5048505106000002,
+          "vertical_contact_ns": 0.5048505106000002,
           "normal_ns": 0.5048505106000002,
           "unloaded_substeps": 778
         }
@@ -293,25 +293,25 @@
       "windows": {
         "549_556": {
           "count": 128,
-          "vertical_normal_ns": 0.48321861767800006,
+          "vertical_contact_ns": 0.48321861767800006,
           "normal_ns": 0.48321861767800006,
           "unloaded_substeps": 71
         },
         "549_560": {
           "count": 192,
-          "vertical_normal_ns": 0.48321861767800006,
+          "vertical_contact_ns": 0.48321861767800006,
           "normal_ns": 0.48321861767800006,
           "unloaded_substeps": 135
         },
         "549_575": {
           "count": 432,
-          "vertical_normal_ns": 0.48321861767800006,
+          "vertical_contact_ns": 0.48321861767800006,
           "normal_ns": 0.48321861767800006,
           "unloaded_substeps": 375
         },
         "549_600": {
           "count": 832,
-          "vertical_normal_ns": 0.48321861767800006,
+          "vertical_contact_ns": 0.48321861767800006,
           "normal_ns": 0.48321861767800006,
           "unloaded_substeps": 775
         }
@@ -354,25 +354,25 @@
       "windows": {
         "549_556": {
           "count": 128,
-          "vertical_normal_ns": 0.5048493150400001,
+          "vertical_contact_ns": 0.5048493150400001,
           "normal_ns": 0.5048493150400001,
           "unloaded_substeps": 74
         },
         "549_560": {
           "count": 192,
-          "vertical_normal_ns": 0.5048493150400001,
+          "vertical_contact_ns": 0.5048493150400001,
           "normal_ns": 0.5048493150400001,
           "unloaded_substeps": 138
         },
         "549_575": {
           "count": 432,
-          "vertical_normal_ns": 0.5048493150400001,
+          "vertical_contact_ns": 0.5048493150400001,
           "normal_ns": 0.5048493150400001,
           "unloaded_substeps": 378
         },
         "549_600": {
           "count": 832,
-          "vertical_normal_ns": 0.5048493150400001,
+          "vertical_contact_ns": 0.5048493150400001,
           "normal_ns": 0.5048493150400001,
           "unloaded_substeps": 778
         }
@@ -408,25 +408,25 @@
       "windows": {
         "549_556": {
           "count": 128,
-          "vertical_normal_ns": 0.48327727968100004,
+          "vertical_contact_ns": 0.48327727968100004,
           "normal_ns": 0.48327727968100004,
           "unloaded_substeps": 71
         },
         "549_560": {
           "count": 192,
-          "vertical_normal_ns": 0.48327727968100004,
+          "vertical_contact_ns": 0.48327727968100004,
           "normal_ns": 0.48327727968100004,
           "unloaded_substeps": 135
         },
         "549_575": {
           "count": 432,
-          "vertical_normal_ns": 0.48327727968100004,
+          "vertical_contact_ns": 0.48327727968100004,
           "normal_ns": 0.48327727968100004,
           "unloaded_substeps": 375
         },
         "549_600": {
           "count": 832,
-          "vertical_normal_ns": 0.48327727968100004,
+          "vertical_contact_ns": 0.48327727968100004,
           "normal_ns": 0.48327727968100004,
           "unloaded_substeps": 775
         }
@@ -469,25 +469,25 @@
       "windows": {
         "549_556": {
           "count": 128,
-          "vertical_normal_ns": 0.5048109832,
+          "vertical_contact_ns": 0.5048109832,
           "normal_ns": 0.5048109832,
           "unloaded_substeps": 74
         },
         "549_560": {
           "count": 192,
-          "vertical_normal_ns": 0.5048109832,
+          "vertical_contact_ns": 0.5048109832,
           "normal_ns": 0.5048109832,
           "unloaded_substeps": 138
         },
         "549_575": {
           "count": 432,
-          "vertical_normal_ns": 0.5048109832,
+          "vertical_contact_ns": 0.5048109832,
           "normal_ns": 0.5048109832,
           "unloaded_substeps": 378
         },
         "549_600": {
           "count": 832,
-          "vertical_normal_ns": 0.5048109832,
+          "vertical_contact_ns": 0.5048109832,
           "normal_ns": 0.5048109832,
           "unloaded_substeps": 778
         }
@@ -523,25 +523,25 @@
       "windows": {
         "549_556": {
           "count": 128,
-          "vertical_normal_ns": 0.483679315514,
+          "vertical_contact_ns": 0.483679315514,
           "normal_ns": 0.483679315514,
           "unloaded_substeps": 71
         },
         "549_560": {
           "count": 192,
-          "vertical_normal_ns": 0.483679315514,
+          "vertical_contact_ns": 0.483679315514,
           "normal_ns": 0.483679315514,
           "unloaded_substeps": 135
         },
         "549_575": {
           "count": 432,
-          "vertical_normal_ns": 0.483679315514,
+          "vertical_contact_ns": 0.483679315514,
           "normal_ns": 0.483679315514,
           "unloaded_substeps": 375
         },
         "549_600": {
           "count": 832,
-          "vertical_normal_ns": 0.483679315514,
+          "vertical_contact_ns": 0.483679315514,
           "normal_ns": 0.483679315514,
           "unloaded_substeps": 775
         }
@@ -584,25 +584,25 @@
       "windows": {
         "549_556": {
           "count": 128,
-          "vertical_normal_ns": 0.5048556410299999,
+          "vertical_contact_ns": 0.5048556410299999,
           "normal_ns": 0.5048556410299999,
           "unloaded_substeps": 74
         },
         "549_560": {
           "count": 192,
-          "vertical_normal_ns": 0.5048556410299999,
+          "vertical_contact_ns": 0.5048556410299999,
           "normal_ns": 0.5048556410299999,
           "unloaded_substeps": 138
         },
         "549_575": {
           "count": 432,
-          "vertical_normal_ns": 0.5048556410299999,
+          "vertical_contact_ns": 0.5048556410299999,
           "normal_ns": 0.5048556410299999,
           "unloaded_substeps": 378
         },
         "549_600": {
           "count": 832,
-          "vertical_normal_ns": 0.5048556410299999,
+          "vertical_contact_ns": 0.5048556410299999,
           "normal_ns": 0.5048556410299999,
           "unloaded_substeps": 778
         }
@@ -638,25 +638,25 @@
       "windows": {
         "549_556": {
           "count": 128,
-          "vertical_normal_ns": 0.483180436843,
+          "vertical_contact_ns": 0.483180436843,
           "normal_ns": 0.483180436843,
           "unloaded_substeps": 71
         },
         "549_560": {
           "count": 192,
-          "vertical_normal_ns": 0.483180436843,
+          "vertical_contact_ns": 0.483180436843,
           "normal_ns": 0.483180436843,
           "unloaded_substeps": 135
         },
         "549_575": {
           "count": 432,
-          "vertical_normal_ns": 0.483180436843,
+          "vertical_contact_ns": 0.483180436843,
           "normal_ns": 0.483180436843,
           "unloaded_substeps": 375
         },
         "549_600": {
           "count": 832,
-          "vertical_normal_ns": 0.483180436843,
+          "vertical_contact_ns": 0.483180436843,
           "normal_ns": 0.483180436843,
           "unloaded_substeps": 775
         }
@@ -699,25 +699,25 @@
       "windows": {
         "549_556": {
           "count": 128,
-          "vertical_normal_ns": 0.50485186447,
+          "vertical_contact_ns": 0.50485186447,
           "normal_ns": 0.50485186447,
           "unloaded_substeps": 74
         },
         "549_560": {
           "count": 192,
-          "vertical_normal_ns": 0.50485186447,
+          "vertical_contact_ns": 0.50485186447,
           "normal_ns": 0.50485186447,
           "unloaded_substeps": 138
         },
         "549_575": {
           "count": 432,
-          "vertical_normal_ns": 0.50485186447,
+          "vertical_contact_ns": 0.50485186447,
           "normal_ns": 0.50485186447,
           "unloaded_substeps": 378
         },
         "549_600": {
           "count": 832,
-          "vertical_normal_ns": 0.50485186447,
+          "vertical_contact_ns": 0.50485186447,
           "normal_ns": 0.50485186447,
           "unloaded_substeps": 778
         }
@@ -753,25 +753,25 @@
       "windows": {
         "549_556": {
           "count": 128,
-          "vertical_normal_ns": 0.483254640551,
+          "vertical_contact_ns": 0.483254640551,
           "normal_ns": 0.483254640551,
           "unloaded_substeps": 71
         },
         "549_560": {
           "count": 192,
-          "vertical_normal_ns": 0.483254640551,
+          "vertical_contact_ns": 0.483254640551,
           "normal_ns": 0.483254640551,
           "unloaded_substeps": 135
         },
         "549_575": {
           "count": 432,
-          "vertical_normal_ns": 0.483254640551,
+          "vertical_contact_ns": 0.483254640551,
           "normal_ns": 0.483254640551,
           "unloaded_substeps": 375
         },
         "549_600": {
           "count": 832,
-          "vertical_normal_ns": 0.483254640551,
+          "vertical_contact_ns": 0.483254640551,
           "normal_ns": 0.483254640551,
           "unloaded_substeps": 775
         }
@@ -814,25 +814,25 @@
       "windows": {
         "549_556": {
           "count": 128,
-          "vertical_normal_ns": 0.50485370237,
+          "vertical_contact_ns": 0.50485370237,
           "normal_ns": 0.50485370237,
           "unloaded_substeps": 74
         },
         "549_560": {
           "count": 192,
-          "vertical_normal_ns": 0.50485370237,
+          "vertical_contact_ns": 0.50485370237,
           "normal_ns": 0.50485370237,
           "unloaded_substeps": 138
         },
         "549_575": {
           "count": 432,
-          "vertical_normal_ns": 0.50485370237,
+          "vertical_contact_ns": 0.50485370237,
           "normal_ns": 0.50485370237,
           "unloaded_substeps": 378
         },
         "549_600": {
           "count": 832,
-          "vertical_normal_ns": 0.50485370237,
+          "vertical_contact_ns": 0.50485370237,
           "normal_ns": 0.50485370237,
           "unloaded_substeps": 778
         }
@@ -868,25 +868,25 @@
       "windows": {
         "549_556": {
           "count": 128,
-          "vertical_normal_ns": 0.48324664666399997,
+          "vertical_contact_ns": 0.48324664666399997,
           "normal_ns": 0.48324664666399997,
           "unloaded_substeps": 71
         },
         "549_560": {
           "count": 192,
-          "vertical_normal_ns": 0.48324664666399997,
+          "vertical_contact_ns": 0.48324664666399997,
           "normal_ns": 0.48324664666399997,
           "unloaded_substeps": 135
         },
         "549_575": {
           "count": 432,
-          "vertical_normal_ns": 0.48324664666399997,
+          "vertical_contact_ns": 0.48324664666399997,
           "normal_ns": 0.48324664666399997,
           "unloaded_substeps": 375
         },
         "549_600": {
           "count": 832,
-          "vertical_normal_ns": 0.48324664666399997,
+          "vertical_contact_ns": 0.48324664666399997,
           "normal_ns": 0.48324664666399997,
           "unloaded_substeps": 775
         }
