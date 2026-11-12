@@ -1,0 +1,265 @@
+{
+  "pre_intervention_parity": {
+    "state_samples": 3600,
+    "contact_substeps": 57600
+  },
+  "rows": [
+    {
+      "lane": 0,
+      "arm": "control",
+      "first_episode_steps": 800,
+      "termination": 0,
+      "waypoints": 1,
+      "position_m": [
+        0.818081319,
+        0.0480734035,
+        1.14150417
+      ],
+      "velocity_m_s": [
+        0.074654527,
+        -0.00286123808,
+        -0.250323325
+      ],
+      "attitude_roll_pitch_yaw_rad": [
+        0.001304289135561106,
+        0.04973021450223922,
+        -0.05290056309550795
+      ],
+      "matched_position_delta_m": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "matched_velocity_delta_m_s": [
+        0.0,
+        0.0,
+        0.0
+      ]
+    },
+    {
+      "lane": 1,
+      "arm": "control",
+      "first_episode_steps": 800,
+      "termination": 0,
+      "waypoints": 1,
+      "position_m": [
+        0.89582628,
+        -0.0649609044,
+        1.16333079
+      ],
+      "velocity_m_s": [
+        0.0785076991,
+        -0.0225853417,
+        -0.273525208
+      ],
+      "attitude_roll_pitch_yaw_rad": [
+        0.003654728274329215,
+        0.04920827224621803,
+        -0.052320199055371226
+      ],
+      "matched_position_delta_m": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "matched_velocity_delta_m_s": [
+        0.0,
+        0.0,
+        0.0
+      ]
+    },
+    {
+      "lane": 2,
+      "arm": "sweep +",
+      "first_episode_steps": 650,
+      "termination": 3,
+      "waypoints": 2,
+      "position_m": [
+        3.39954042,
+        -0.305277258,
+        1.253057
+      ],
+      "velocity_m_s": [
+        0.49302718,
+        0.0193753522,
+        -0.146976396
+      ],
+      "attitude_roll_pitch_yaw_rad": [
+        -0.034517847276943084,
+        0.14398179321639298,
+        -0.04696229744779666
+      ],
+      "matched_position_delta_m": [
+        2.28167545,
+        -0.2711395508,
+        0.11097942999999999
+      ],
+      "matched_velocity_delta_m_s": [
+        0.715900898,
+        1.5584800000002785e-05,
+        -0.2425798695
+      ]
+    },
+    {
+      "lane": 3,
+      "arm": "sweep -",
+      "first_episode_steps": 800,
+      "termination": 0,
+      "waypoints": 0,
+      "position_m": [
+        -8.04409313,
+        0.427709669,
+        1.35266685
+      ],
+      "velocity_m_s": [
+        -3.16869187,
+        0.21233514,
+        -0.338719517
+      ],
+      "attitude_roll_pitch_yaw_rad": [
+        -0.010085755077198966,
+        -0.3568762306825433,
+        -0.05646505333762311
+      ],
+      "matched_position_delta_m": [
+        -8.854113994,
+        0.47717376440000003,
+        0.15412199000000015
+      ],
+      "matched_velocity_delta_m_s": [
+        -3.2481261754,
+        0.2256928724,
+        -0.059920430000000025
+      ]
+    },
+    {
+      "lane": 4,
+      "arm": "pronation +",
+      "first_episode_steps": 800,
+      "termination": 0,
+      "waypoints": 1,
+      "position_m": [
+        1.15433812,
+        -0.02351081,
+        1.15352654
+      ],
+      "velocity_m_s": [
+        0.00218971027,
+        0.0365537144,
+        -0.265476525
+      ],
+      "attitude_roll_pitch_yaw_rad": [
+        -0.0030364787823855192,
+        0.043771289806707525,
+        -0.03183688701078295
+      ],
+      "matched_position_delta_m": [
+        0.34988605800000006,
+        -0.02188734199,
+        -0.01657664999999997
+      ],
+      "matched_velocity_delta_m_s": [
+        -0.06449932653,
+        0.0522758625,
+        0.025381147999999965
+      ]
+    },
+    {
+      "lane": 5,
+      "arm": "pronation -",
+      "first_episode_steps": 800,
+      "termination": 0,
+      "waypoints": 1,
+      "position_m": [
+        1.13239002,
+        -0.0456718095,
+        1.16283226
+      ],
+      "velocity_m_s": [
+        0.0182233099,
+        0.00285989046,
+        -0.269261777
+      ],
+      "attitude_roll_pitch_yaw_rad": [
+        -0.0005402426047920468,
+        0.046158396628963844,
+        -0.03488345025577421
+      ],
+      "matched_position_delta_m": [
+        0.2289381600000001,
+        0.009098879999999997,
+        -0.012956500000000037
+      ],
+      "matched_velocity_delta_m_s": [
+        -0.053277736500000006,
+        0.023924231560000002,
+        -0.003797112999999963
+      ]
+    },
+    {
+      "lane": 6,
+      "arm": "tail +",
+      "first_episode_steps": 800,
+      "termination": 0,
+      "waypoints": 1,
+      "position_m": [
+        0.710513413,
+        0.00406271592,
+        1.16773343
+      ],
+      "velocity_m_s": [
+        0.0573760606,
+        0.00271331891,
+        -0.293569118
+      ],
+      "attitude_roll_pitch_yaw_rad": [
+        -0.001244885224025023,
+        0.047139202277860566,
+        -0.03090511586725902
+      ],
+      "matched_position_delta_m": [
+        -0.05820786899999997,
+        0.02497475222,
+        0.011653059999999993
+      ],
+      "matched_velocity_delta_m_s": [
+        -0.009427960999999999,
+        0.024296959809999998,
+        -0.0038602650000000294
+      ]
+    },
+    {
+      "lane": 7,
+      "arm": "tail -",
+      "first_episode_steps": 800,
+      "termination": 0,
+      "waypoints": 1,
+      "position_m": [
+        0.898968697,
+        -0.130599275,
+        1.16206813
+      ],
+      "velocity_m_s": [
+        0.0808571205,
+        -0.0280527156,
+        -0.288133591
+      ],
+      "attitude_roll_pitch_yaw_rad": [
+        0.0039328487701702376,
+        0.050238961253110156,
+        -0.04242944305154572
+      ],
+      "matched_position_delta_m": [
+        0.07753825200000009,
+        -0.01027852999999998,
+        -0.01168108000000001
+      ],
+      "matched_velocity_delta_m_s": [
+        -0.0002495198999999948,
+        -0.0089382436,
+        -0.007415890000000036
+      ]
+    }
+  ],
+  "scope": "One lane per signed input on a used layout and seed. Model responses are not independent biological validation or navigation qualification."
+}
