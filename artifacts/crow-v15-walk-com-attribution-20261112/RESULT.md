@@ -1,0 +1,5 @@
+# Whole-body movement in the rejected toe trial
+
+Native v15 forward kinematics applied to the retained matched walking states shows that the rear-toe candidate moved its whole-body center of mass 3.275–8.273 mm less in the forward direction than the no-toe control over the sampled two-second window, across eight lanes. The corresponding root displacement differences were 3.276–8.273 mm. Thus the reduced root progress is accompanied by nearly identical reduced whole-body center-of-mass travel; it is not merely a torso-versus-limbs displacement artifact.
+
+The calculation uses modeled body masses and native articulated kinematics on the accepted recorded q/v states. The earlier gait analysis independently checked selected replayed body poses and state agreement. This result does not determine which joint forces or ground impulses caused the difference, establish real-crow mass distribution, or validate gait. The seed was previously used for development; the trial and toe intervention remain rejected.
