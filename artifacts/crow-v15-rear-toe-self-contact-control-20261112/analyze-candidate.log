@@ -1,0 +1,10 @@
+artifacts/crow-v15-rear-toe-self-contact-control-20261112/candidate-20261127 q_error 4.998169100822736e-10 position_error_m 1.6578648398988837e-08 rotation_error 2.9775994918892585e-08
+0 travel 0.04287596515 bouts [3, 4] zero 0 nonfoot []
+1 travel 0.0429009144 bouts [3, 4] zero 0 nonfoot []
+2 travel 0.04291182055 bouts [3, 4] zero 0 nonfoot []
+3 travel 0.0426471587 bouts [3, 4] zero 0 nonfoot []
+4 travel 0.04265307777 bouts [3, 4] zero 0 nonfoot []
+5 travel 0.043408431100000006 bouts [3, 4] zero 0 nonfoot []
+6 travel 0.04292046906 bouts [3, 4] zero 0 nonfoot []
+7 travel 0.043233006567 bouts [3, 4] zero 0 nonfoot []
+low toe 87

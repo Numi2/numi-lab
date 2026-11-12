@@ -1,0 +1,17 @@
+{
+  "control": [
+    4795118019749428542,
+    8129837372010403964,
+    1862456784842250713,
+    3807034227416306949
+  ],
+  "high": [
+    11479254550980920722,
+    562485309174313330,
+    1862456784842250713,
+    3807034227416306949
+  ],
+  "same_other_observation_action_hashes": true,
+  "different_world_hashes": true,
+  "scope": "Diagnostic-only host omits the world fingerprint and contact-member radii from the observation/action hashes while retaining all other original hash inputs; changed radii remain meaningful model data. Actor contract failure is expected. Equality corroborates unchanged compiled observation/action layout inputs, not equivalence of physical trajectories or an approval to promote the changed toe geometry world. Normal host retains full world-bound fingerprints."
+}

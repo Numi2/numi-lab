@@ -108,7 +108,7 @@ def analyze(path,ground,expected=None):
    for si,side in enumerate(('left','right')):
     clearance=[]
     for name in names(side):
-     z=body[e,t,name];xq,yq,zq,wq=z[3:7];row=(2*(xq*zq-yq*wq),2*(yq*zq+xq*wq),1-2*(xq*xq+yq*yq));h=(.010,.01725,.0092) if name.endswith('_foot') else ((.00648,.0025,.0092) if ('_front_toe_1_' in name or '_front_toe_3_' in name) else (.009,.0025,.0092));clearance.append(z[2]+(row[0]*0.000650716945529 if name.endswith(_foot) else 0.0)-ground-sum(abs(a)*b for a,b in zip(row,h)))
+     z=body[e,t,name];xq,yq,zq,wq=z[3:7];row=(2*(xq*zq-yq*wq),2*(yq*zq+xq*wq),1-2*(xq*xq+yq*yq));h=(.010,.01725,.0092) if name.endswith('_foot') else (.009,.0025,.0092);clearance.append(z[2]+(row[0]*0.000650716945529 if name.endswith('_foot') else 0.0)-ground-sum(abs(a)*b for a,b in zip(row,h)))
     groups.append(min(clearance));toe_drag[si]+=clearance[0]>.001 and min(clearance[1:])<=.001
     foot=body[e,t,'crow_'+side+'_foot'][:3]
     if previous[si] is not None and summ[si]>EPS and previous[si][1]:footmotion[si]+=math.dist(foot,previous[si][0])

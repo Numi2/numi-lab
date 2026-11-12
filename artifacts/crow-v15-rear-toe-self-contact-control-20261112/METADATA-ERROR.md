@@ -1,0 +1,1 @@
+The copied audit descriptions initially said radii changed, which was true of the previous geometry modification but not this collision-exclusion experiment. Raw values correctly showed zero changes. The initial JSON outputs are retained with inherited-metadata-error names and the descriptions were corrected; no fingerprints or numeric results were changed.

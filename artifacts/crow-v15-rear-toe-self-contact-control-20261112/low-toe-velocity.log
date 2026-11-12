@@ -1,0 +1,2 @@
+held {'low_toe_endpoints': 49, 'without_accepted_toe_contact': 49} {'count': 0, 'median_m_s': None, 'p95_m_s': None, 'over_0_01_fraction': None, 'max_m_s': None}
+attached {'low_toe_endpoints': 87, 'without_accepted_toe_contact': 53, 'with_accepted_toe_contact': 34} {'count': 56, 'median_m_s': 0.0950444248413594, 'p95_m_s': 0.10676841166593051, 'over_0_01_fraction': 1.0, 'max_m_s': 0.10890462330833678}

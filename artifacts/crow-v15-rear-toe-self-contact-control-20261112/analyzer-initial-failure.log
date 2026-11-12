@@ -1,0 +1,7 @@
+artifacts/crow-v15-rear-toe-self-contact-control-20261112/candidate-20261127 q_error 4.998169100822736e-10 position_error_m 1.6578648398988837e-08 rotation_error 2.9775994918892585e-08
+Traceback (most recent call last):
+  File "/Users/n/Developer/numi-crow-rl-20261107/artifacts/crow-v15-rear-toe-self-contact-control-20261112/analyze-candidate.py", line 3, in <module>
+    p=Path("artifacts/crow-v15-rear-toe-self-contact-control-20261112");s=importlib.util.spec_from_file_location("audit",p/"audit-ratio.py");a=importlib.util.module_from_spec(s);s.loader.exec_module(a);ground=next(x["ground_z_m"] for x in json.loads(Path("artifacts/crow-v15-whole-gait-audit-20261111/audit.json").read_text())["rows"] if x["seed"]==20261127);d=p/"candidate-20261127";episode=json.loads((d/"run.stdout").read_text())["first_episode_navigation"];assert episode["steps_by_environment"]==[300]*8 and not any(episode["physical_failure_by_environment"]);rows=a.analyze(d,ground);sub={}
+  File "artifacts/crow-v15-rear-toe-self-contact-control-20261112/audit-ratio.py", line 111, in analyze
+    z=body[e,t,name];xq,yq,zq,wq=z[3:7];row=(2*(xq*zq-yq*wq),2*(yq*zq+xq*wq),1-2*(xq*xq+yq*yq));h=(.010,.01725,.0092) if name.endswith('_foot') else ((.00648,.0025,.0092) if ('_front_toe_1_' in name or '_front_toe_3_' in name) else (.009,.0025,.0092));clearance.append(z[2]+(row[0]*0.000650716945529 if name.endswith(_foot) else 0.0)-ground-sum(abs(a)*b for a,b in zip(row,h)))
+NameError: name '_foot' is not defined
