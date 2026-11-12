@@ -1,0 +1,3 @@
+# Smooth support-gated ankle transition
+
+The support-gated .11–.125 ankle candidate met per-foot contact-speed thresholds and the related-corvid phase-direction signs, but lost both feet for one 22.5–23.75 ms period near t=4.54 s in every candidate. Test .115 target with three progressively later and slower introductions of its additional .015 ankle modulation while retaining .10 baseline; use accepted opposite-foot contact and the same unchanged references. Preserve whole 4–6 s support and per-foot gates and report phase signs. A short ramp experiment is not sustained-walk or biological qualification.

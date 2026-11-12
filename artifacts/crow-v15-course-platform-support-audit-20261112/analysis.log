@@ -1,0 +1,170 @@
+{
+  "source": "crow-v15-localized-route-autonomous-eval-20261111/autonomous-20261126",
+  "platform_half_width_m": 0.1,
+  "mass_kg": 0.45006,
+  "control_interval_s": 0.02,
+  "support_threshold": "upward foot impulse >= half body weight over interval, no nonfoot normal impulse",
+  "interpretation": "Development seed and layout. Impulses measured over full physics substeps; tangential magnitudes are summed per contact and cannot establish slip, friction coefficient or grip. These data do not test intentional toe release, takeoff, flight-controller qualification or held-out layouts. Consult source audit for contact coverage and toe velocity caps.",
+  "rows": [
+    {
+      "lane": 0,
+      "episode_steps": 3475,
+      "waypoints": 5,
+      "physical_failure": true,
+      "max_supported_intervals": 170,
+      "max_bilateral_supported_intervals": 170,
+      "max_single_foot_supported_intervals": 0,
+      "last_25_supported_intervals": 25,
+      "last_25_nonfoot_contact_intervals": 0,
+      "last_25_mean_upward_impulse_Ns": 0.08746999578753624,
+      "last_25_foot_normal_impulses_Ns": [
+        1.067085437053739,
+        1.6601097387445305
+      ],
+      "last_25_foot_tangent_impulse_magnitudes_Ns": [
+        0.4180125109301796,
+        0.7413979329930126
+      ]
+    },
+    {
+      "lane": 1,
+      "episode_steps": 3800,
+      "waypoints": 5,
+      "physical_failure": false,
+      "max_supported_intervals": 1,
+      "max_bilateral_supported_intervals": 1,
+      "max_single_foot_supported_intervals": 0,
+      "last_25_supported_intervals": 0,
+      "last_25_nonfoot_contact_intervals": 0,
+      "last_25_mean_upward_impulse_Ns": 0.0,
+      "last_25_foot_normal_impulses_Ns": [
+        0.0,
+        0.0
+      ],
+      "last_25_foot_tangent_impulse_magnitudes_Ns": [
+        0.0,
+        0.0
+      ]
+    },
+    {
+      "lane": 2,
+      "episode_steps": 3800,
+      "waypoints": 5,
+      "physical_failure": false,
+      "max_supported_intervals": 1,
+      "max_bilateral_supported_intervals": 1,
+      "max_single_foot_supported_intervals": 0,
+      "last_25_supported_intervals": 0,
+      "last_25_nonfoot_contact_intervals": 0,
+      "last_25_mean_upward_impulse_Ns": 0.0,
+      "last_25_foot_normal_impulses_Ns": [
+        0.0,
+        0.0
+      ],
+      "last_25_foot_tangent_impulse_magnitudes_Ns": [
+        0.0,
+        0.0
+      ]
+    },
+    {
+      "lane": 3,
+      "episode_steps": 3800,
+      "waypoints": 5,
+      "physical_failure": false,
+      "max_supported_intervals": 1,
+      "max_bilateral_supported_intervals": 1,
+      "max_single_foot_supported_intervals": 0,
+      "last_25_supported_intervals": 0,
+      "last_25_nonfoot_contact_intervals": 0,
+      "last_25_mean_upward_impulse_Ns": 0.0,
+      "last_25_foot_normal_impulses_Ns": [
+        0.0,
+        0.0
+      ],
+      "last_25_foot_tangent_impulse_magnitudes_Ns": [
+        0.0,
+        0.0
+      ]
+    },
+    {
+      "lane": 4,
+      "episode_steps": 3800,
+      "waypoints": 5,
+      "physical_failure": false,
+      "max_supported_intervals": 2,
+      "max_bilateral_supported_intervals": 2,
+      "max_single_foot_supported_intervals": 1,
+      "last_25_supported_intervals": 0,
+      "last_25_nonfoot_contact_intervals": 0,
+      "last_25_mean_upward_impulse_Ns": 0.0,
+      "last_25_foot_normal_impulses_Ns": [
+        0.0,
+        0.0
+      ],
+      "last_25_foot_tangent_impulse_magnitudes_Ns": [
+        0.0,
+        0.0
+      ]
+    },
+    {
+      "lane": 5,
+      "episode_steps": 3800,
+      "waypoints": 5,
+      "physical_failure": false,
+      "max_supported_intervals": 98,
+      "max_bilateral_supported_intervals": 98,
+      "max_single_foot_supported_intervals": 0,
+      "last_25_supported_intervals": 25,
+      "last_25_nonfoot_contact_intervals": 0,
+      "last_25_mean_upward_impulse_Ns": 0.0882698958277748,
+      "last_25_foot_normal_impulses_Ns": [
+        2.540448728139567,
+        1.7830997027799675
+      ],
+      "last_25_foot_tangent_impulse_magnitudes_Ns": [
+        1.2523161045441713,
+        0.885085553223336
+      ]
+    },
+    {
+      "lane": 6,
+      "episode_steps": 3798,
+      "waypoints": 5,
+      "physical_failure": true,
+      "max_supported_intervals": 297,
+      "max_bilateral_supported_intervals": 212,
+      "max_single_foot_supported_intervals": 12,
+      "last_25_supported_intervals": 25,
+      "last_25_nonfoot_contact_intervals": 0,
+      "last_25_mean_upward_impulse_Ns": 0.08668196179474857,
+      "last_25_foot_normal_impulses_Ns": [
+        1.3296890558105843,
+        1.3449989885063456
+      ],
+      "last_25_foot_tangent_impulse_magnitudes_Ns": [
+        0.7089815067828171,
+        0.7655135805056787
+      ]
+    },
+    {
+      "lane": 7,
+      "episode_steps": 3800,
+      "waypoints": 5,
+      "physical_failure": false,
+      "max_supported_intervals": 39,
+      "max_bilateral_supported_intervals": 39,
+      "max_single_foot_supported_intervals": 0,
+      "last_25_supported_intervals": 25,
+      "last_25_nonfoot_contact_intervals": 0,
+      "last_25_mean_upward_impulse_Ns": 0.0881417717270065,
+      "last_25_foot_normal_impulses_Ns": [
+        1.5242159601064735,
+        1.208670867874318
+      ],
+      "last_25_foot_tangent_impulse_magnitudes_Ns": [
+        0.777836619551405,
+        0.5734229589269227
+      ]
+    }
+  ]
+}
