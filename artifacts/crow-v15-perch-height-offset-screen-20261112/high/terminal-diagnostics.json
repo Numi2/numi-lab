@@ -1,0 +1,114 @@
+[
+  {
+    "lane": 0,
+    "failed_intervals_by_condition": {
+      "left_and_right_load": 0,
+      "half_weight": 0,
+      "left_opposition": 0,
+      "right_opposition": 0,
+      "no_nonfoot": 0,
+      "upright": 0,
+      "slow": 0
+    },
+    "max_speed_m_s": 0.018623604556709493,
+    "minimum_foot_upward_impulse_ns": 0.086787922228
+  },
+  {
+    "lane": 1,
+    "failed_intervals_by_condition": {
+      "left_and_right_load": 0,
+      "half_weight": 0,
+      "left_opposition": 0,
+      "right_opposition": 0,
+      "no_nonfoot": 0,
+      "upright": 0,
+      "slow": 0
+    },
+    "max_speed_m_s": 0.015945579003800323,
+    "minimum_foot_upward_impulse_ns": 0.087006045473
+  },
+  {
+    "lane": 2,
+    "failed_intervals_by_condition": {
+      "left_and_right_load": 0,
+      "half_weight": 0,
+      "left_opposition": 0,
+      "right_opposition": 0,
+      "no_nonfoot": 0,
+      "upright": 0,
+      "slow": 0
+    },
+    "max_speed_m_s": 0.016261809300383567,
+    "minimum_foot_upward_impulse_ns": 0.087468941711
+  },
+  {
+    "lane": 3,
+    "failed_intervals_by_condition": {
+      "left_and_right_load": 0,
+      "half_weight": 0,
+      "left_opposition": 0,
+      "right_opposition": 0,
+      "no_nonfoot": 0,
+      "upright": 0,
+      "slow": 0
+    },
+    "max_speed_m_s": 0.016028146913347047,
+    "minimum_foot_upward_impulse_ns": 0.08685941205200001
+  },
+  {
+    "lane": 4,
+    "failed_intervals_by_condition": {
+      "left_and_right_load": 0,
+      "half_weight": 0,
+      "left_opposition": 0,
+      "right_opposition": 0,
+      "no_nonfoot": 0,
+      "upright": 0,
+      "slow": 0
+    },
+    "max_speed_m_s": 0.018327765266726276,
+    "minimum_foot_upward_impulse_ns": 0.087344462256
+  },
+  {
+    "lane": 5,
+    "failed_intervals_by_condition": {
+      "left_and_right_load": 0,
+      "half_weight": 0,
+      "left_opposition": 100,
+      "right_opposition": 0,
+      "no_nonfoot": 0,
+      "upright": 0,
+      "slow": 0
+    },
+    "max_speed_m_s": 0.0248836765436043,
+    "minimum_foot_upward_impulse_ns": 0.08599140492299999
+  },
+  {
+    "lane": 6,
+    "failed_intervals_by_condition": {
+      "left_and_right_load": 0,
+      "half_weight": 0,
+      "left_opposition": 100,
+      "right_opposition": 0,
+      "no_nonfoot": 0,
+      "upright": 0,
+      "slow": 0
+    },
+    "max_speed_m_s": 0.026040610231106535,
+    "minimum_foot_upward_impulse_ns": 0.085031915231
+  },
+  {
+    "lane": 7,
+    "failed_intervals_by_condition": {
+      "left_and_right_load": 0,
+      "half_weight": 0,
+      "left_opposition": 0,
+      "right_opposition": 0,
+      "no_nonfoot": 0,
+      "upright": 0,
+      "slow": 0
+    },
+    "max_speed_m_s": 0.019209060087247664,
+    "minimum_foot_upward_impulse_ns": 0.08662087093100002
+  }
+]

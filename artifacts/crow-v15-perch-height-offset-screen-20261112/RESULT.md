@@ -1,0 +1,5 @@
+# Higher-start capture-offset sensitivity
+
+On the previously failed constructed start (+2 mm fore-aft, +3 mm height, -0.025 m/s), capture offsets 0, 0.005, 0.010 and 0.040 rad passed the complete release and final 100-interval supported opposed regrip checks. Offsets 0.015 and 0.025 rad failed, despite staying upright and supported; the former had ten consecutive qualifying release intervals but never completed the controller's return, and the latter achieved nine. The nonmonotonic outcome demonstrates sensitivity to contact geometry; it is not a continuous validated envelope. Two unchanged controls passed and exactly reproduced 1,100 endpoint states and 35,200 substep contacts. All 140,800 substeps were observed; the endpoint normal impulse observer agrees within 7.8e-10 N s.
+
+The tested offsets and state were chosen after seeing development failures. Known perch geometry and uncalibrated high friction are supplied directly. This is not a real landing or independent qualification, and no navigation controller was promoted.
