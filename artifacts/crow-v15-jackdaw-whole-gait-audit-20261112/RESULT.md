@@ -1,0 +1,7 @@
+# Exploratory jackdaw-informed audit
+
+Biplanar X-ray work on jackdaws reports fore-aft limb coordination and distinctive side-to-side hip and pelvic mobility ([Stößel and Fischer 2012](https://doi.org/10.1242/jeb.070458)). It is a related-corvid source, not an American crow measurement. The available abstract does not provide numeric gait traces; no quantitative fit is claimed.
+
+For each of 16 closely related development starts, all 300 retained 20 ms walking intervals have 16 foot-contact samples and an endpoint state. Classifying each foot as loaded at 5% of model body-weight impulse gives 122–123 left-only, 104 right-only and 73–74 double-support intervals per lane. Left/right hip-roll and root orientation vary with the support class. Across each support class, the largest within-class hip-roll ranges in these recordings are at most 0.0082 rad for left and 0.0083 rad for right; root-roll ranges reach 0.0435 rad. These values are descriptive and are not measured jackdaw targets. Classification permits contact switching within a 20 ms interval; the root is not a pelvic-joint or center-of-mass measurement.
+
+The walk is much slower than the cited magpie measurements, the starts are correlated, contact-point slip remains unmeasured, and left and right ankle timing previously differed. Greater realistic mobility cannot be inferred from an arbitrary target. This audit does not qualify gait, takeoff, flight or landing.
