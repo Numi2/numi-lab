@@ -1,0 +1,12 @@
+/Users/n/Developer/numi-crow-rl-20261107/artifacts/crow-v15-phase-lead-gait-screen-20261112/task5.metal:5090:30: warning: unused variable 'arm' [-Wunused-variable]
+                { const uint arm=environment%8u;
+                             ^
+1 warning generated.
+/Users/n/Developer/numi-crow-rl-20261107/artifacts/crow-v15-phase-lead-gait-screen-20261112/task10.metal:5090:30: warning: unused variable 'arm' [-Wunused-variable]
+                { const uint arm=environment%8u;
+                             ^
+1 warning generated.
+/Users/n/Developer/numi-crow-rl-20261107/artifacts/crow-v15-phase-lead-gait-screen-20261112/task20.metal:5090:30: warning: unused variable 'arm' [-Wunused-variable]
+                { const uint arm=environment%8u;
+                             ^
+1 warning generated.
