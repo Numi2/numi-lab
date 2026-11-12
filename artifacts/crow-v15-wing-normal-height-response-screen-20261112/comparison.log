@@ -1,0 +1,7 @@
+parity {'states': 3600, 'contacts': 57600, 'differences': []}
+{'lane': 2, 'gain': 0.6, 'target_m': 1.15, 'end_step': 1200, 'pre_height_m': 1.0263312152, 'post_height_m': 1.1871229544, 'post_abs_height_error_m': 0.03712295440000008, 'post_abs_heading_rad': 0.037351683211585815, 'termination': 0}
+{'lane': 3, 'gain': 0.6, 'target_m': 0.9, 'end_step': 1200, 'pre_height_m': 1.1762962582, 'post_height_m': 0.93712265792, 'post_abs_height_error_m': 0.037122657919999975, 'post_abs_heading_rad': 0.03746064708853981, 'termination': 0}
+{'lane': 4, 'gain': 1.2, 'target_m': 1.15, 'end_step': 1200, 'pre_height_m': 1.0262006302, 'post_height_m': 1.1757620656, 'post_abs_height_error_m': 0.025762065600000095, 'post_abs_heading_rad': 0.03778948435964404, 'termination': 0}
+{'lane': 5, 'gain': 1.2, 'target_m': 0.9, 'end_step': 1200, 'pre_height_m': 1.176192787, 'post_height_m': 0.92576222718, 'post_abs_height_error_m': 0.025762227179999975, 'post_abs_heading_rad': 0.037710331096666834, 'termination': 0}
+{'lane': 6, 'gain': 1.8, 'target_m': 1.15, 'end_step': 1200, 'pre_height_m': 1.0264171666, 'post_height_m': 1.1696411946, 'post_abs_height_error_m': 0.01964119460000009, 'post_abs_heading_rad': 0.038085375703623046, 'termination': 0}
+{'lane': 7, 'gain': 1.8, 'target_m': 0.9, 'end_step': 1200, 'pre_height_m': 1.1766441248, 'post_height_m': 0.91964077233, 'post_abs_height_error_m': 0.019640772329999973, 'post_abs_heading_rad': 0.038353117481944664, 'termination': 0}

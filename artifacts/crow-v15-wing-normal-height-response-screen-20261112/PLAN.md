@@ -1,0 +1,3 @@
+# Experimental wing-normal height response
+
+With direct body moments disabled, use the 0.60 experimental wing-normal closure and existing bounded wing position actions. After 12 s request a +0.20 m change in even candidate lanes and -0.20 m in odd candidate lanes, testing common-mode flap feedback gains .60, 1.20, 1.80. Keep zero heading target and fixed speed. Retain original lanes 0–1 and verify full control parity, plus lanes 6–7 through the intervention. Report actual climb and descent, terminal altitude error, heading drift, joint speed caps and all failures. The closure and numerical commands are uncalibrated, and used-seed obstacle-free trials are not qualification.

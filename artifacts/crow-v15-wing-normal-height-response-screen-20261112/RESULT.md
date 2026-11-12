@@ -1,0 +1,5 @@
+# Wing-normal height-response development screen
+
+In six obstacle-free used-seed lanes, the experimental feedback and force model produced an approximately .14–.16 m climb or .24–.26 m descent after the target change, based on mean heights immediately before the command and at 20–24 s. Mean absolute final altitude error was .020–.037 m and mean absolute heading was .037–.038 rad; all lanes survived 24 s. Body and wing joint-speed observations covered 19200 substeps per lane with no body or wing caps; early toe caps occurred in two total lanes. Two original controls for the whole run and two candidate lanes before the intervention matched 3600 states and 57600 contact substeps exactly.
+
+The symmetry across lanes is striking; an identical-start no-target-step control is prepared but has not yet been run. The explicit task body-wrench actions were ablated, but other uncalibrated aerodynamic closures remain, including a stroke-dependent yaw moment. This is not a perturbed-start, obstacle, held-out, biological or full-route qualification.
