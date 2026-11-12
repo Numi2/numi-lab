@@ -1,0 +1,601 @@
+{
+  "rows": [
+    {
+      "lane": 0,
+      "end": 5000,
+      "terminated": false,
+      "events": [
+        {
+          "absolute_pitch_threshold": 0.1,
+          "step": null,
+          "state": null,
+          "phase": null
+        },
+        {
+          "absolute_pitch_threshold": 0.2,
+          "step": null,
+          "state": null,
+          "phase": null
+        },
+        {
+          "absolute_pitch_threshold": 0.4,
+          "step": null,
+          "state": null,
+          "phase": null
+        },
+        {
+          "absolute_pitch_threshold": 0.8,
+          "step": null,
+          "state": null,
+          "phase": null
+        },
+        {
+          "absolute_pitch_threshold": 1.1,
+          "step": null,
+          "state": null,
+          "phase": null
+        }
+      ]
+    },
+    {
+      "lane": 1,
+      "end": 3737,
+      "terminated": true,
+      "events": [
+        {
+          "absolute_pitch_threshold": 0.1,
+          "step": 3652,
+          "state": {
+            "pitch": -0.10082536346073172,
+            "pitch_rate_world_y": -0.463736087,
+            "x": 5.17446136,
+            "z": 0.979784071,
+            "vx": -0.0397216342
+          },
+          "phase": {
+            "status": 7353750,
+            "sequence": 0,
+            "landing_phase": 2.0
+          }
+        },
+        {
+          "absolute_pitch_threshold": 0.2,
+          "step": 3665,
+          "state": {
+            "pitch": -0.20365933282136522,
+            "pitch_rate_world_y": -0.451626539,
+            "x": 5.16106892,
+            "z": 0.97668916,
+            "vx": -0.0415160917
+          },
+          "phase": {
+            "status": 7354530,
+            "sequence": 0,
+            "landing_phase": 2.0
+          }
+        },
+        {
+          "absolute_pitch_threshold": 0.4,
+          "step": 3686,
+          "state": {
+            "pitch": -0.4050458877580195,
+            "pitch_rate_world_y": -0.426172525,
+            "x": 5.14330673,
+            "z": 0.973284602,
+            "vx": -0.0932616219
+          },
+          "phase": {
+            "status": 7354530,
+            "sequence": 0,
+            "landing_phase": 2.0
+          }
+        },
+        {
+          "absolute_pitch_threshold": 0.8,
+          "step": 3717,
+          "state": {
+            "pitch": -0.8143088047134133,
+            "pitch_rate_world_y": -0.811610162,
+            "x": 5.06920433,
+            "z": 0.915579379,
+            "vx": -0.127200708
+          },
+          "phase": {
+            "status": 7354530,
+            "sequence": 0,
+            "landing_phase": 2.0
+          }
+        },
+        {
+          "absolute_pitch_threshold": 1.1,
+          "step": 3733,
+          "state": {
+            "pitch": -1.1078430526668035,
+            "pitch_rate_world_y": -1.04822564,
+            "x": 5.03765631,
+            "z": 0.853740096,
+            "vx": -0.067297928
+          },
+          "phase": {
+            "status": 7354530,
+            "sequence": 0,
+            "landing_phase": 2.0
+          }
+        }
+      ]
+    },
+    {
+      "lane": 2,
+      "end": 3531,
+      "terminated": true,
+      "events": [
+        {
+          "absolute_pitch_threshold": 0.1,
+          "step": 3334,
+          "state": {
+            "pitch": -0.10073322236844147,
+            "pitch_rate_world_y": -0.399494648,
+            "x": 5.12570572,
+            "z": 1.04343235,
+            "vx": 0.00650660414
+          },
+          "phase": {
+            "status": 7353751,
+            "sequence": 0,
+            "landing_phase": 2.0
+          }
+        },
+        {
+          "absolute_pitch_threshold": 0.2,
+          "step": 3365,
+          "state": {
+            "pitch": -0.20069533205525755,
+            "pitch_rate_world_y": -0.0692734048,
+            "x": 5.12116289,
+            "z": 1.03784359,
+            "vx": -0.0168124065
+          },
+          "phase": {
+            "status": 276576418,
+            "sequence": 28,
+            "landing_phase": 2.0
+          }
+        },
+        {
+          "absolute_pitch_threshold": 0.4,
+          "step": 3451,
+          "state": {
+            "pitch": -0.4029708997799798,
+            "pitch_rate_world_y": -0.130801424,
+            "x": 5.08748245,
+            "z": 1.02347767,
+            "vx": -0.0370791852
+          },
+          "phase": {
+            "status": 1886533794,
+            "sequence": 114,
+            "landing_phase": 2.0
+          }
+        },
+        {
+          "absolute_pitch_threshold": 0.8,
+          "step": 3505,
+          "state": {
+            "pitch": -0.8054718857522464,
+            "pitch_rate_world_y": -0.54482013,
+            "x": 5.03332758,
+            "z": 0.969322145,
+            "vx": -0.090944536
+          },
+          "phase": {
+            "status": 2691184783,
+            "sequence": 168,
+            "landing_phase": 2.0
+          }
+        },
+        {
+          "absolute_pitch_threshold": 1.1,
+          "step": 3527,
+          "state": {
+            "pitch": -1.111577372401947,
+            "pitch_rate_world_y": -0.768596888,
+            "x": 4.991467,
+            "z": 0.924538255,
+            "vx": -0.0572350733
+          },
+          "phase": {
+            "status": 4033034387,
+            "sequence": 243,
+            "landing_phase": 2.0
+          }
+        }
+      ]
+    },
+    {
+      "lane": 3,
+      "end": 3657,
+      "terminated": true,
+      "events": [
+        {
+          "absolute_pitch_threshold": 0.1,
+          "step": 3445,
+          "state": {
+            "pitch": 0.10278234902252746,
+            "pitch_rate_world_y": 0.170317456,
+            "x": 5.00920296,
+            "z": 1.0882591,
+            "vx": 0.00828554854
+          },
+          "phase": {
+            "status": 7354335,
+            "sequence": 0,
+            "landing_phase": 2.0
+          }
+        },
+        {
+          "absolute_pitch_threshold": 0.2,
+          "step": 3497,
+          "state": {
+            "pitch": 0.2003225336820731,
+            "pitch_rate_world_y": 0.0444784611,
+            "x": 5.02354336,
+            "z": 1.09002769,
+            "vx": 0.0103418324
+          },
+          "phase": {
+            "status": 544815266,
+            "sequence": 41,
+            "landing_phase": 2.0
+          }
+        },
+        {
+          "absolute_pitch_threshold": 0.4,
+          "step": 3590,
+          "state": {
+            "pitch": 0.40372061553126953,
+            "pitch_rate_world_y": 0.194858134,
+            "x": 5.05950212,
+            "z": 1.08789003,
+            "vx": 0.0396554284
+          },
+          "phase": {
+            "status": 2155231394,
+            "sequence": 134,
+            "landing_phase": 2.0
+          }
+        },
+        {
+          "absolute_pitch_threshold": 0.8,
+          "step": 3632,
+          "state": {
+            "pitch": 0.8114182506426971,
+            "pitch_rate_world_y": 0.712501705,
+            "x": 5.14629269,
+            "z": 1.0345273,
+            "vx": 0.0873517767
+          },
+          "phase": {
+            "status": 2423601314,
+            "sequence": 149,
+            "landing_phase": 2.0
+          }
+        },
+        {
+          "absolute_pitch_threshold": 1.1,
+          "step": 3652,
+          "state": {
+            "pitch": 1.1108637527848741,
+            "pitch_rate_world_y": 0.702541471,
+            "x": 5.18008471,
+            "z": 0.992961764,
+            "vx": 0.0955531448
+          },
+          "phase": {
+            "status": 2423601314,
+            "sequence": 149,
+            "landing_phase": 2.0
+          }
+        }
+      ]
+    },
+    {
+      "lane": 4,
+      "end": 4497,
+      "terminated": true,
+      "events": [
+        {
+          "absolute_pitch_threshold": 0.1,
+          "step": 4307,
+          "state": {
+            "pitch": -0.10113575637582754,
+            "pitch_rate_world_y": -0.383111924,
+            "x": 5.07127666,
+            "z": 1.07510602,
+            "vx": -0.0246060397
+          },
+          "phase": {
+            "status": 7353620,
+            "sequence": 0,
+            "landing_phase": 2.0
+          }
+        },
+        {
+          "absolute_pitch_threshold": 0.2,
+          "step": 4331,
+          "state": {
+            "pitch": -0.20109455724849315,
+            "pitch_rate_world_y": -0.0760257617,
+            "x": 5.07068968,
+            "z": 1.06966817,
+            "vx": -0.0187773574
+          },
+          "phase": {
+            "status": 275921058,
+            "sequence": 18,
+            "landing_phase": 2.0
+          }
+        },
+        {
+          "absolute_pitch_threshold": 0.4,
+          "step": 4416,
+          "state": {
+            "pitch": -0.4006973585781047,
+            "pitch_rate_world_y": -0.20430173,
+            "x": 5.03752565,
+            "z": 1.05638766,
+            "vx": -0.0375293568
+          },
+          "phase": {
+            "status": 1618426018,
+            "sequence": 103,
+            "landing_phase": 2.0
+          }
+        },
+        {
+          "absolute_pitch_threshold": 0.8,
+          "step": 4471,
+          "state": {
+            "pitch": -0.8065248385141507,
+            "pitch_rate_world_y": -0.622399092,
+            "x": 4.98271036,
+            "z": 1.00132167,
+            "vx": -0.063915804
+          },
+          "phase": {
+            "status": 2424125594,
+            "sequence": 157,
+            "landing_phase": 2.0
+          }
+        },
+        {
+          "absolute_pitch_threshold": 1.1,
+          "step": 4494,
+          "state": {
+            "pitch": -1.117930203411117,
+            "pitch_rate_world_y": -0.95825994,
+            "x": 4.93913698,
+            "z": 0.954934299,
+            "vx": -0.0822462142
+          },
+          "phase": {
+            "status": 4032903321,
+            "sequence": 241,
+            "landing_phase": 2.0
+          }
+        }
+      ]
+    },
+    {
+      "lane": 5,
+      "end": 4284,
+      "terminated": true,
+      "events": [
+        {
+          "absolute_pitch_threshold": 0.1,
+          "step": 4084,
+          "state": {
+            "pitch": -0.10414216176710775,
+            "pitch_rate_world_y": -0.226000592,
+            "x": 5.05936193,
+            "z": 1.01684356,
+            "vx": 0.0142580299
+          },
+          "phase": {
+            "status": 7353945,
+            "sequence": 0,
+            "landing_phase": 2.0
+          }
+        },
+        {
+          "absolute_pitch_threshold": 0.2,
+          "step": 4118,
+          "state": {
+            "pitch": -0.20081110407840277,
+            "pitch_rate_world_y": -0.0560775846,
+            "x": 5.04822731,
+            "z": 1.01405811,
+            "vx": -0.0120362667
+          },
+          "phase": {
+            "status": 544290978,
+            "sequence": 33,
+            "landing_phase": 2.0
+          }
+        },
+        {
+          "absolute_pitch_threshold": 0.4,
+          "step": 4206,
+          "state": {
+            "pitch": -0.4003455111033769,
+            "pitch_rate_world_y": -0.143704012,
+            "x": 5.01519299,
+            "z": 0.999729395,
+            "vx": -0.039703723
+          },
+          "phase": {
+            "status": 1886992546,
+            "sequence": 121,
+            "landing_phase": 2.0
+          }
+        },
+        {
+          "absolute_pitch_threshold": 0.8,
+          "step": 4259,
+          "state": {
+            "pitch": -0.8099337536193654,
+            "pitch_rate_world_y": -0.668675959,
+            "x": 4.95011473,
+            "z": 0.948570669,
+            "vx": -0.124294773
+          },
+          "phase": {
+            "status": 4034148514,
+            "sequence": 244,
+            "landing_phase": 2.0
+          }
+        },
+        {
+          "absolute_pitch_threshold": 1.1,
+          "step": 4279,
+          "state": {
+            "pitch": -1.1088682159447778,
+            "pitch_rate_world_y": -0.784582376,
+            "x": 4.90974712,
+            "z": 0.903408408,
+            "vx": -0.0645042285
+          },
+          "phase": {
+            "status": 4033820822,
+            "sequence": 255,
+            "landing_phase": 2.0
+          }
+        }
+      ]
+    },
+    {
+      "lane": 6,
+      "end": 5000,
+      "terminated": false,
+      "events": [
+        {
+          "absolute_pitch_threshold": 0.1,
+          "step": null,
+          "state": null,
+          "phase": null
+        },
+        {
+          "absolute_pitch_threshold": 0.2,
+          "step": null,
+          "state": null,
+          "phase": null
+        },
+        {
+          "absolute_pitch_threshold": 0.4,
+          "step": null,
+          "state": null,
+          "phase": null
+        },
+        {
+          "absolute_pitch_threshold": 0.8,
+          "step": null,
+          "state": null,
+          "phase": null
+        },
+        {
+          "absolute_pitch_threshold": 1.1,
+          "step": null,
+          "state": null,
+          "phase": null
+        }
+      ]
+    },
+    {
+      "lane": 7,
+      "end": 3846,
+      "terminated": true,
+      "events": [
+        {
+          "absolute_pitch_threshold": 0.1,
+          "step": 3638,
+          "state": {
+            "pitch": 0.10280955734365697,
+            "pitch_rate_world_y": 0.159179315,
+            "x": 4.97555351,
+            "z": 1.04680634,
+            "vx": 0.00863464642
+          },
+          "phase": {
+            "status": 7354270,
+            "sequence": 0,
+            "landing_phase": 2.0
+          }
+        },
+        {
+          "absolute_pitch_threshold": 0.2,
+          "step": 3688,
+          "state": {
+            "pitch": 0.20045635754327126,
+            "pitch_rate_world_y": 0.0605388917,
+            "x": 4.98988438,
+            "z": 1.04856551,
+            "vx": 0.0101719713
+          },
+          "phase": {
+            "status": 544946338,
+            "sequence": 43,
+            "landing_phase": 2.0
+          }
+        },
+        {
+          "absolute_pitch_threshold": 0.4,
+          "step": 3780,
+          "state": {
+            "pitch": 0.4026055487432245,
+            "pitch_rate_world_y": 0.17641142,
+            "x": 5.02562475,
+            "z": 1.04636109,
+            "vx": 0.0420284905
+          },
+          "phase": {
+            "status": 2155296930,
+            "sequence": 135,
+            "landing_phase": 2.0
+          }
+        },
+        {
+          "absolute_pitch_threshold": 0.8,
+          "step": 3821,
+          "state": {
+            "pitch": 0.8007931874747742,
+            "pitch_rate_world_y": 0.713396609,
+            "x": 5.11163378,
+            "z": 0.994117618,
+            "vx": 0.0885261297
+          },
+          "phase": {
+            "status": 2423601314,
+            "sequence": 149,
+            "landing_phase": 2.0
+          }
+        },
+        {
+          "absolute_pitch_threshold": 1.1,
+          "step": 3841,
+          "state": {
+            "pitch": 1.1023607465547127,
+            "pitch_rate_world_y": 0.70260638,
+            "x": 5.1452775,
+            "z": 0.952864408,
+            "vx": 0.0882538557
+          },
+          "phase": {
+            "status": 2423601314,
+            "sequence": 149,
+            "landing_phase": 2.0
+          }
+        }
+      ]
+    }
+  ],
+  "limitations": "Existing used-seed early-wing run; endpoint state, not torque measurement. Phase/status decoding follows the experimental feedback implementation. Thresholds describe divergence and do not establish causation; the action field was not the applied joint target."
+}
