@@ -1,0 +1,34 @@
+--- a/contact-observer.cpp
++++ b/capsule-observer.cpp
+@@ -1,3 +1,4 @@
++#include <cstdlib>
+ #include "box_distance.hpp"
+ #include "metalrobo/RetinalObserver.hpp"
+ #include "metalrobo/CrowForaging.hpp"
+@@ -3420,6 +3421,17 @@
+  for(auto& r:p.roles){if(r.id=="whole_body")r.members=m.bodyNames;if(r.id=="all_joints")r.members=m.jointNames;if(r.id=="all_dofs")r.members=m.dofNames;}
+  std::string why;crowToeNeed(m.valid(&why),"model invalid: "+why);return p;
+ }
++static RobotPack crowCapsuleModel(){
++ auto p=crowHipRollModel();auto&m=p.mechanics;
++ for(const char* side:{"left","right"})for(const char* part:{"proximal","distal"}){
++  std::string n=std::string("crow_")+side+"_rear_toe_"+part+"/collision";
++  auto i=std::find(m.shapeNames.begin(),m.shapeNames.end(),n);crowToeNeed(i!=m.shapeNames.end(),"missing rear toe shape");auto&s=m.shapes.at(i-m.shapeNames.begin());
++  crowToeNeed(s.shapeType==MR_SHAPE_BOX && std::abs(s.dimensions.x-.009f)<1e-7f && std::abs(s.dimensions.y-.0025f)<1e-7f && std::abs(s.dimensions.z-.0092f)<1e-7f,"unexpected original rear shape");
++  s.shapeType=MR_SHAPE_CAPSULE;s.localPosition.z-=.0067f;s.localRotation={0.f,0.f,.7071067811865475f,.7071067811865475f};s.dimensions={.0025f,.0065f,0.f,0.f};s.contactRestAndBoundingRadius.z=.009f;
++ }
++ p.id="crow_v15_rear_capsule_experiment";p.sourceRevision+="+rear-capsule-prototype";std::string why;crowToeNeed(m.valid(&why),"invalid model "+why);return p;
++}
++
+ }
+ 
+ static MRTaskRolloutHandle* createBirdFlowAmericanCrowRun(
+@@ -3553,7 +3565,7 @@
+                 ? "birdflow_american_crow_journey_v8_neural_run"
+                 : "birdflow_american_crow_journey_v7_run"
+             : "birdflow_american_crow_estimated_hybrid_run";
+-        manifest.robot = activeNavigation ? crowHipRollModel() : std::move(*robot);
++        manifest.robot = activeNavigation ? (std::getenv("CROW_EXPERIMENT_REAR_CAPSULE") != nullptr ? crowCapsuleModel() : crowHipRollModel()) : std::move(*robot);
+         // Wing inertia was applied before adding hip-roll links.
+         manifest.scene = cueConfig ? metalrobo::makeAmericanCrowForagingFixtureManifest(cueConfig->occluded!=0).scene : worldModelNavigation
+             ? metalrobo::makeBirdFlowAmericanCrowNavigationScenePack()

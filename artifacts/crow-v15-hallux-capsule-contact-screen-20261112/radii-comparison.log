@@ -1,0 +1,62 @@
+{
+  "entries": 32,
+  "changes": [
+    {
+      "index": 7,
+      "control_body": 25,
+      "candidate_body": 25,
+      "control_radius_m": 0.0131106824,
+      "candidate_radius_m": 0.0156999994
+    },
+    {
+      "index": 8,
+      "control_body": 26,
+      "candidate_body": 26,
+      "control_radius_m": 0.0131106824,
+      "candidate_radius_m": 0.0156999994
+    },
+    {
+      "index": 16,
+      "control_body": 33,
+      "candidate_body": 33,
+      "control_radius_m": 0.0131106824,
+      "candidate_radius_m": 0.0156999994
+    },
+    {
+      "index": 17,
+      "control_body": 34,
+      "candidate_body": 34,
+      "control_radius_m": 0.0131106824,
+      "candidate_radius_m": 0.0156999994
+    },
+    {
+      "index": 28,
+      "control_body": 25,
+      "candidate_body": 25,
+      "control_radius_m": 0.0131106824,
+      "candidate_radius_m": 0.0156999994
+    },
+    {
+      "index": 29,
+      "control_body": 26,
+      "candidate_body": 26,
+      "control_radius_m": 0.0131106824,
+      "candidate_radius_m": 0.0156999994
+    },
+    {
+      "index": 30,
+      "control_body": 33,
+      "candidate_body": 33,
+      "control_radius_m": 0.0131106824,
+      "candidate_radius_m": 0.0156999994
+    },
+    {
+      "index": 31,
+      "control_body": 34,
+      "candidate_body": 34,
+      "control_radius_m": 0.0131106824,
+      "candidate_radius_m": 0.0156999994
+    }
+  ],
+  "scope": "All 32 collision-envelope radius entries are compared directly. The normal world fingerprint differs because of the diagnostic capsule-proxy change; the layout-audit host must not be used as a production policy contract. The active Metal task source reads contactMemberRadii in its link-clearance reward branch; altered geometry can change observations and behavior through other pathways even when layout tables match."
+}

@@ -1,0 +1,3 @@
+# Analysis adjustments for a changed collision body
+
+The candidate rear-toe ground gap is computed from its actual capsule, not the old box. Forward kinematics still applies because shapes alone changed, while recorded replay validates the retained body states. The held box control retains its box clearance calculation. Different geometry necessarily permits prewalk physical divergence, so step-200 candidate-versus-held parity is reported diagnostically, not used as a gate. The separate same-binary unchanged-box run must match the retained box run exactly. These scripts must not score after a first-episode failure.

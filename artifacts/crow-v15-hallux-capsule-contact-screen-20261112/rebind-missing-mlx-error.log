@@ -1,0 +1,6 @@
+Traceback (most recent call last):
+  File "/Users/n/Developer/numi-crow-rl-20261107/artifacts/crow-v15-hallux-capsule-contact-screen-20261112/rebind.py", line 3, in <module>
+    from metalrobo.mlx_policy_learning import read_policy_pack
+  File "/Users/n/Developer/numi-crow-rl-20261107/python/metalrobo/mlx_policy_learning.py", line 18, in <module>
+    import mlx.core as mx
+ModuleNotFoundError: No module named 'mlx'

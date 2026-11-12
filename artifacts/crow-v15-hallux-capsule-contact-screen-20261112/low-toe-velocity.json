@@ -1,0 +1,244 @@
+{
+  "held": {
+    "counts": {
+      "low_toe_endpoints": 49,
+      "without_accepted_toe_contact": 49
+    },
+    "sides": {
+      "left": 19,
+      "right": 30
+    },
+    "contact_speed": {
+      "count": 0,
+      "median_m_s": null,
+      "p95_m_s": null,
+      "over_0_01_fraction": null,
+      "max_m_s": null
+    },
+    "contact_normal_impulses": {
+      "count": 0,
+      "median": null,
+      "max": null
+    },
+    "contact_parts": {},
+    "contact_phases": {},
+    "samples": []
+  },
+  "opposite_support_sham": {
+    "counts": {
+      "low_toe_endpoints": 198,
+      "without_accepted_toe_contact": 64,
+      "with_accepted_toe_contact": 134
+    },
+    "sides": {
+      "right": 116,
+      "left": 82
+    },
+    "contact_speed": {
+      "count": 342,
+      "median_m_s": 0.045520567142230545,
+      "p95_m_s": 0.06992713136122534,
+      "over_0_01_fraction": 0.9473684210526315,
+      "max_m_s": 0.07115042312994398
+    },
+    "contact_normal_impulses": {
+      "count": 342,
+      "median": 8.435508425e-05,
+      "max": 0.00225078454
+    },
+    "contact_parts": {
+      "rear_toe_distal": 147,
+      "rear_toe_proximal": 195
+    },
+    "contact_phases": {
+      "negative_carrier": 321,
+      "positive_carrier": 21
+    },
+    "samples": [
+      {
+        "lane": 0,
+        "step": 225,
+        "side": "right",
+        "contact_speeds_m_s": [
+          0.04743400185214678
+        ],
+        "lowest_toe_gap_m": 0.0003136793204751784
+      },
+      {
+        "lane": 2,
+        "step": 225,
+        "side": "right",
+        "contact_speeds_m_s": [
+          0.04761010227058626
+        ],
+        "lowest_toe_gap_m": 0.0003147618311163166
+      },
+      {
+        "lane": 3,
+        "step": 225,
+        "side": "right",
+        "contact_speeds_m_s": [
+          0.04771227348019588
+        ],
+        "lowest_toe_gap_m": 0.0003261932112310108
+      },
+      {
+        "lane": 4,
+        "step": 225,
+        "side": "right",
+        "contact_speeds_m_s": [
+          0.047515592519615096
+        ],
+        "lowest_toe_gap_m": 0.0003087079254509087
+      },
+      {
+        "lane": 0,
+        "step": 226,
+        "side": "right",
+        "contact_speeds_m_s": [
+          0.044817612102778216,
+          0.044820151131174275
+        ],
+        "lowest_toe_gap_m": 0.0005631024705214129
+      },
+      {
+        "lane": 1,
+        "step": 226,
+        "side": "right",
+        "contact_speeds_m_s": [
+          0.045287807847059734,
+          0.04530264120205144
+        ],
+        "lowest_toe_gap_m": 0.0005758389049959293
+      },
+      {
+        "lane": 2,
+        "step": 226,
+        "side": "right",
+        "contact_speeds_m_s": [
+          0.0447921740869881,
+          0.0447958688759766
+        ],
+        "lowest_toe_gap_m": 0.0005602849503262997
+      },
+      {
+        "lane": 3,
+        "step": 226,
+        "side": "right",
+        "contact_speeds_m_s": [
+          0.04578939306665918,
+          0.045799900716248
+        ],
+        "lowest_toe_gap_m": 0.0005142956199888811
+      }
+    ]
+  },
+  "own_or_opposite_candidate": {
+    "counts": {
+      "low_toe_endpoints": 186,
+      "without_accepted_toe_contact": 94,
+      "with_accepted_toe_contact": 92
+    },
+    "sides": {
+      "right": 93,
+      "left": 93
+    },
+    "contact_speed": {
+      "count": 114,
+      "median_m_s": 0.04474424890946385,
+      "p95_m_s": 0.06015901808315614,
+      "over_0_01_fraction": 0.9736842105263158,
+      "max_m_s": 0.06186356198129437
+    },
+    "contact_normal_impulses": {
+      "count": 114,
+      "median": 6.396095385e-06,
+      "max": 0.00450600917
+    },
+    "contact_parts": {
+      "rear_toe_proximal": 84,
+      "rear_toe_distal": 30
+    },
+    "contact_phases": {
+      "positive_carrier": 29,
+      "negative_carrier": 85
+    },
+    "samples": [
+      {
+        "lane": 0,
+        "step": 226,
+        "side": "left",
+        "contact_speeds_m_s": [
+          0.019095246307503096,
+          0.019179921827158355
+        ],
+        "lowest_toe_gap_m": 0.0008816659202958788
+      },
+      {
+        "lane": 1,
+        "step": 226,
+        "side": "left",
+        "contact_speeds_m_s": [
+          0.015207858658487968,
+          0.015346961113932429
+        ],
+        "lowest_toe_gap_m": 0.0008960414844758949
+      },
+      {
+        "lane": 2,
+        "step": 226,
+        "side": "left",
+        "contact_speeds_m_s": [
+          0.013507325660990189
+        ],
+        "lowest_toe_gap_m": 0.0008938213580409362
+      },
+      {
+        "lane": 3,
+        "step": 226,
+        "side": "left",
+        "contact_speeds_m_s": [
+          0.012190642334968058
+        ],
+        "lowest_toe_gap_m": 0.0008870214214653127
+      },
+      {
+        "lane": 4,
+        "step": 226,
+        "side": "left",
+        "contact_speeds_m_s": [
+          0.009067131412233267
+        ],
+        "lowest_toe_gap_m": 0.0009046161848665834
+      },
+      {
+        "lane": 6,
+        "step": 226,
+        "side": "left",
+        "contact_speeds_m_s": [
+          0.008936763570963716
+        ],
+        "lowest_toe_gap_m": 0.0009543519047788772
+      },
+      {
+        "lane": 0,
+        "step": 238,
+        "side": "left",
+        "contact_speeds_m_s": [
+          0.053616436696792884
+        ],
+        "lowest_toe_gap_m": 0.00042829898732033717
+      },
+      {
+        "lane": 1,
+        "step": 238,
+        "side": "left",
+        "contact_speeds_m_s": [
+          0.051955917670002065
+        ],
+        "lowest_toe_gap_m": 0.00043269443278185285
+      }
+    ]
+  },
+  "scope": "Previously used seed; 100 endpoints per lane. Foot-box and toe-box gap and positive accepted endpoint toe contacts are evaluated at the same logged state. Contact point speeds use native FK world linear/angular velocities and stored points. These sampled contacts are not integrated slip, kinetic friction, stance duty factor, or biological validation; low gaps without accepted contact are not demonstrated dragging."
+}
