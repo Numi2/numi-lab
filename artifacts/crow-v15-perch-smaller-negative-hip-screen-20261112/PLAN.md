@@ -1,0 +1,3 @@
+# Isolated smaller opposite hip offsets
+
+Repeat the retained paired stationary-perch test after excluding the -0.24 rad setting implicated in the interrupted batch. Lanes 0/1 and 6/7 are zero-offset controls, 2/3 use -0.08 rad, and 4/5 use -0.16 rad; each pair has matched +0.04 and -0.04 rad initial pitch. Capture all contacts, toe substeps, physical failures and incomplete batches, and propagate the child exit code. Require the existing support, posture, toe speed and nonfoot-contact criteria on both initial poses before considering a setting. These are development starts, not a landing or release qualification.
