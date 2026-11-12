@@ -1,0 +1,7 @@
+/Users/n/Developer/numi-crow-rl-20261107/artifacts/crow-v15-sweep-pitch-feedback-screen-20261112/feedback.metal:5098:30: warning: unused variable 'arm' [-Wunused-variable]
+                { const uint arm=environment%8u;
+                             ^
+/Users/n/Developer/numi-crow-rl-20261107/artifacts/crow-v15-sweep-pitch-feedback-screen-20261112/feedback.metal:4989:22: warning: unused variable 'actorLatent' [-Wunused-variable]
+        const float4 actorLatent = fixedFlightController
+                     ^
+2 warnings generated.

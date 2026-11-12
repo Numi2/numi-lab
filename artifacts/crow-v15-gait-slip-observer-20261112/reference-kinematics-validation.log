@@ -1,0 +1,8 @@
+{
+  "states": 100,
+  "foot_and_toe_bodies": 18,
+  "max_position_error_m": 4.110791865307364e-09,
+  "max_linear_velocity_error_m_s": 7.142359015752845e-09,
+  "max_angular_velocity_error_rad_s": 2.1834520436871483e-07,
+  "pass": true
+}

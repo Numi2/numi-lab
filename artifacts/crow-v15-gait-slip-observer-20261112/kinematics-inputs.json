@@ -1,0 +1,19 @@
+{
+  "compile": [
+    "xcrun",
+    "clang++",
+    "-std=c++20",
+    "-O2",
+    "-I/Users/n/Developer/numi-crow-rl-20261107/build/crow-v15-wide-contact-isolation-20261111/include",
+    "-Iinclude",
+    "/Users/n/Developer/numi-crow-rl-20261107/artifacts/crow-v15-gait-slip-observer-20261112/kinematics.cpp",
+    "-L/Users/n/Developer/numi-crow-rl-20261107/build/crow-v15-hip-roll-journey-integration-20261111",
+    "-lmetalrobo",
+    "-Wl,-rpath,/Users/n/Developer/numi-crow-rl-20261107/build/crow-v15-hip-roll-journey-integration-20261111",
+    "-o",
+    "/Users/n/Developer/numi-crow-rl-20261107/build/crow-v15-gait-slip-observer-20261112/kinematics"
+  ],
+  "source_sha256": "e2a681a356ddea26c5a71fddc77d9ecd2e3f50aed1af5c56882198ebe2151b76",
+  "binary_sha256": "5d816c5ee0cc23833b8bb1b5df2d1509fe48135aafd6072ae1b3f9f84d449481",
+  "library_sha256": "d1e9bb9c6c6978318382731dd31df8a8aee22104dc23bbbab73eec5c7b81e615"
+}
