@@ -1,0 +1,75 @@
+{
+  "remote_commit": "4ab800743a06cc955774b1812849c720ae19d24f",
+  "files": [
+    {
+      "path": "artifacts/crow-v15-continuous-launch-open-diagnostic-20261112/candidate-20261126-rebound-hip/run.stderr.gz",
+      "sha256": "3ab2733e3dd26d7cfbdd4eaae7f7d8e2babc1a61c7dea4c1747ee2cc9f358c0c",
+      "bytes": 61808730
+    },
+    {
+      "path": "artifacts/crow-v15-flight-joint-speed-observer-20261112/candidate-20261126-rebound-flexed/run.stderr.gz",
+      "sha256": "7ffdb77234759d12063d3b50d744c51521c53de74bf9ea8f111c754a7aaa0ede",
+      "bytes": 60750473
+    },
+    {
+      "path": "artifacts/crow-v15-wing-normal-height-response-screen-20261112/candidate-20261126-rebound-flexed/run.stderr.gz",
+      "sha256": "170c693a4e4112e237e77a6d40dc3190b53a12c744db98e5bba5cce61f7d01f5",
+      "bytes": 60142262
+    },
+    {
+      "path": "artifacts/crow-v15-flight-disturbance-recovery-screen-20261112/candidate-20261126-rebound-flexed/run.stderr.gz",
+      "sha256": "25f9f932cefb8a7f4b0d4deca34d86daf0ac88932342662ed1c324d867b74d4b",
+      "bytes": 60010926
+    },
+    {
+      "path": "artifacts/crow-v15-wing-normal-height-no-step-control-20261112/candidate-20261126-rebound-flexed/run.stderr.gz",
+      "sha256": "75f4392d6ae1d463e19ff634e7a62e4a3c146680269b70135ebcc11f4cfc4ea2",
+      "bytes": 59956070
+    },
+    {
+      "path": "artifacts/crow-v15-release-perturbation-screen-20261112/control/substeps.log.gz",
+      "sha256": "5c1148ea495fab55ff387b8566395bbe6894a41b909f1d238295588f3d76b3d6",
+      "bytes": 56860006
+    },
+    {
+      "path": "artifacts/crow-v15-release-perturbation-screen-20261112/release/substeps.log.gz",
+      "sha256": "0b9aec5e4932546b40eb8d3f3e9243b761a31e9427fbd3169a1cebd27b4c6178",
+      "bytes": 51240649
+    },
+    {
+      "path": "artifacts/crow-v15-rear-toe-damping-perch-screen-20261112/baseline/substeps.log.gz",
+      "sha256": "0b9aec5e4932546b40eb8d3f3e9243b761a31e9427fbd3169a1cebd27b4c6178",
+      "bytes": 51240649
+    },
+    {
+      "path": "artifacts/crow-v15-rear-toe-damping-perch-screen-20261112/double/substeps.log.gz",
+      "sha256": "27ac23c675a46690105987bb6e7b60e5236fc5c0a44161dfaff0ee57cb1a288d",
+      "bytes": 51097366
+    },
+    {
+      "path": "artifacts/crow-v15-rear-toe-damping-perch-screen-20261112/triple/substeps.log.gz",
+      "sha256": "82b59902f23db8288fd3eaeeae4161dbf89e605ea60579d28ddedc3395c4657f",
+      "bytes": 50906228
+    },
+    {
+      "path": "artifacts/crow-v15-speed-feedback-long-flight-20261112/candidate-20261127-rebound-flexed/run.stderr.gz",
+      "sha256": "e99bb4a572ecb52bb6bc96556527f21679fbf0fe17f3efcb6589a1b71e1d9025",
+      "bytes": 50828321
+    },
+    {
+      "path": "artifacts/crow-v15-differential-flap-screen-20261112/candidate-20261126-rebound-flexed/run.stderr.gz",
+      "sha256": "21a836d84d8d241fc88877011c948b283a5e5cf348b2d5f05b1cb0635a5ecca0",
+      "bytes": 50623889
+    },
+    {
+      "path": "artifacts/crow-v15-bounded-turn-response-20261112/candidate-20261126-rebound-flexed/run.stderr.gz",
+      "sha256": "d51b75eaf7afb983e75f9560f665971aae4924f13c80c49d5c09e3a64f5fd156",
+      "bytes": 50410197
+    },
+    {
+      "path": "artifacts/crow-v15-differential-pronation-screen-20261112/candidate-20261126-rebound-flexed/run.stderr.gz",
+      "sha256": "876fd0f432ad3587f2eabdbd266797c075276895e8a2b7313453a6088ded6bf4",
+      "bytes": 50401203
+    }
+  ]
+}
