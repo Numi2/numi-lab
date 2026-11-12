@@ -1,0 +1,141 @@
+{
+  "interval_steps": [
+    201,
+    299
+  ],
+  "rows": [
+    {
+      "lane": 2,
+      "unique_packed_values": 46,
+      "most_common_packed": [
+        [
+          524800,
+          17
+        ],
+        [
+          526848,
+          10
+        ],
+        [
+          524801,
+          7
+        ]
+      ],
+      "decoded_abs_mean_m_s": 0.011148668682915258,
+      "reconstructed_abs_mean_m_s": 0.01117014203665296,
+      "mean_abs_difference_m_s": 0.00034306346520077846,
+      "max_abs_difference_m_s": 0.00113255855426104
+    },
+    {
+      "lane": 3,
+      "unique_packed_values": 46,
+      "most_common_packed": [
+        [
+          524800,
+          19
+        ],
+        [
+          526848,
+          11
+        ],
+        [
+          524801,
+          5
+        ]
+      ],
+      "decoded_abs_mean_m_s": 0.01110913439680563,
+      "reconstructed_abs_mean_m_s": 0.011135005566755125,
+      "mean_abs_difference_m_s": 0.00033547123223291313,
+      "max_abs_difference_m_s": 0.0010306279028270277
+    },
+    {
+      "lane": 4,
+      "unique_packed_values": 46,
+      "most_common_packed": [
+        [
+          524800,
+          16
+        ],
+        [
+          526848,
+          9
+        ],
+        [
+          524801,
+          6
+        ]
+      ],
+      "decoded_abs_mean_m_s": 0.011781217260669314,
+      "reconstructed_abs_mean_m_s": 0.011788204231247643,
+      "mean_abs_difference_m_s": 0.0003138181459247496,
+      "max_abs_difference_m_s": 0.0010139331553149986
+    },
+    {
+      "lane": 5,
+      "unique_packed_values": 48,
+      "most_common_packed": [
+        [
+          524800,
+          16
+        ],
+        [
+          526848,
+          9
+        ],
+        [
+          524799,
+          6
+        ]
+      ],
+      "decoded_abs_mean_m_s": 0.011771333689141907,
+      "reconstructed_abs_mean_m_s": 0.01180423599107102,
+      "mean_abs_difference_m_s": 0.0003263149670562743,
+      "max_abs_difference_m_s": 0.000977158317039855
+    },
+    {
+      "lane": 6,
+      "unique_packed_values": 49,
+      "most_common_packed": [
+        [
+          524800,
+          16
+        ],
+        [
+          526848,
+          8
+        ],
+        [
+          523776,
+          6
+        ]
+      ],
+      "decoded_abs_mean_m_s": 0.013461424420328529,
+      "reconstructed_abs_mean_m_s": 0.013490478086067358,
+      "mean_abs_difference_m_s": 0.0003005804365631946,
+      "max_abs_difference_m_s": 0.0011333974084910547
+    },
+    {
+      "lane": 7,
+      "unique_packed_values": 47,
+      "most_common_packed": [
+        [
+          524800,
+          19
+        ],
+        [
+          527872,
+          6
+        ],
+        [
+          524801,
+          5
+        ]
+      ],
+      "decoded_abs_mean_m_s": 0.013204451560615943,
+      "reconstructed_abs_mean_m_s": 0.013240113617305354,
+      "mean_abs_difference_m_s": 0.00029607208141427434,
+      "max_abs_difference_m_s": 0.0009692801185117233
+    }
+  ],
+  "limits": "Independent reconstruction uses final-substep q/v, ground confirmed stationary in prior replay, and positive impulses >1e-9, matching the shader threshold in magnitude; negative impulses would remain a difference. Contact geometry and q/v have substep timing offsets; this is a measurement audit, not ground truth slip."
+}

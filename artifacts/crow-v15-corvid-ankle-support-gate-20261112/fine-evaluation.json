@@ -1,0 +1,110 @@
+{
+  "baseline": "crow-v15-substep-slip-observer-20261112/substep-contact-speed.json",
+  "condition": "at least 25% reduction for each foot, no simultaneous unload, no toe cap, no nonfoot contact, >= 0.05 m progress",
+  "rows": [
+    {
+      "lane": 0,
+      "gain": 0,
+      "contact_integral_ratio": {
+        "left": 1.0,
+        "right": 1.0
+      },
+      "both_unloaded_substeps": 0,
+      "toe_cap_substeps": 0,
+      "nonfoot_ground_impulse": 0.0,
+      "dx_m": 0.1308898777,
+      "pass_screen": false
+    },
+    {
+      "lane": 1,
+      "gain": 0,
+      "contact_integral_ratio": {
+        "left": 1.0,
+        "right": 1.0
+      },
+      "both_unloaded_substeps": 0,
+      "toe_cap_substeps": 0,
+      "nonfoot_ground_impulse": 0.0,
+      "dx_m": 0.131770099,
+      "pass_screen": false
+    },
+    {
+      "lane": 2,
+      "gain": 0,
+      "contact_integral_ratio": {
+        "left": 0.6904969887021248,
+        "right": 0.6574233284868308
+      },
+      "both_unloaded_substeps": 19,
+      "toe_cap_substeps": 0,
+      "nonfoot_ground_impulse": 0.0,
+      "dx_m": 0.0677311057,
+      "pass_screen": false
+    },
+    {
+      "lane": 3,
+      "gain": 0,
+      "contact_integral_ratio": {
+        "left": 0.7153382694291003,
+        "right": 0.7345890490759729
+      },
+      "both_unloaded_substeps": 19,
+      "toe_cap_substeps": 0,
+      "nonfoot_ground_impulse": 0.0,
+      "dx_m": 0.0679361122,
+      "pass_screen": false
+    },
+    {
+      "lane": 4,
+      "gain": 0,
+      "contact_integral_ratio": {
+        "left": 0.6898449293132661,
+        "right": 0.5982030532632394
+      },
+      "both_unloaded_substeps": 19,
+      "toe_cap_substeps": 0,
+      "nonfoot_ground_impulse": 0.0,
+      "dx_m": 0.06691530163000001,
+      "pass_screen": false
+    },
+    {
+      "lane": 5,
+      "gain": 0,
+      "contact_integral_ratio": {
+        "left": 0.694101105988828,
+        "right": 0.5976095839665533
+      },
+      "both_unloaded_substeps": 19,
+      "toe_cap_substeps": 0,
+      "nonfoot_ground_impulse": 0.0,
+      "dx_m": 0.0668280983,
+      "pass_screen": false
+    },
+    {
+      "lane": 6,
+      "gain": 0,
+      "contact_integral_ratio": {
+        "left": 0.6980862853252248,
+        "right": 0.7417833482194974
+      },
+      "both_unloaded_substeps": 18,
+      "toe_cap_substeps": 0,
+      "nonfoot_ground_impulse": 0.0,
+      "dx_m": 0.05963673253,
+      "pass_screen": false
+    },
+    {
+      "lane": 7,
+      "gain": 0,
+      "contact_integral_ratio": {
+        "left": 0.6950659654122651,
+        "right": 0.7492819810777109
+      },
+      "both_unloaded_substeps": 18,
+      "toe_cap_substeps": 0,
+      "nonfoot_ground_impulse": 0.0,
+      "dx_m": 0.0599185713,
+      "pass_screen": false
+    }
+  ]
+}
