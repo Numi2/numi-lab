@@ -1,0 +1,8 @@
+20261127 4 left {'step': 227, 'knee_target_delta_rad': 0.0, 'ankle_target_delta_rad': -0.0004683730000000219, 'previous_recorded_valid': True, 'previous_recorded_rear': False, 'previous_recorded_front': True}
+20261127 4 right {'step': 219, 'knee_target_delta_rad': -0.0050000000000001155, 'ankle_target_delta_rad': 0.008333324999999947, 'previous_recorded_valid': True, 'previous_recorded_rear': False, 'previous_recorded_front': False}
+20261127 5 left {'step': 221, 'knee_target_delta_rad': 0.0, 'ankle_target_delta_rad': -0.0004683429999999822, 'previous_recorded_valid': True, 'previous_recorded_rear': True, 'previous_recorded_front': False}
+20261127 5 right {'step': 219, 'knee_target_delta_rad': -0.010000000000000009, 'ankle_target_delta_rad': 0.01666667999999999, 'previous_recorded_valid': True, 'previous_recorded_rear': False, 'previous_recorded_front': False}
+20261127 6 left {'step': 220, 'knee_target_delta_rad': 0.0, 'ankle_target_delta_rad': -0.0004683429999999822, 'previous_recorded_valid': True, 'previous_recorded_rear': True, 'previous_recorded_front': False}
+20261127 6 right {'step': 219, 'knee_target_delta_rad': -0.010000000000000009, 'ankle_target_delta_rad': 0.01666667999999999, 'previous_recorded_valid': True, 'previous_recorded_rear': False, 'previous_recorded_front': False}
+20261127 7 left {'step': 226, 'knee_target_delta_rad': 0.0, 'ankle_target_delta_rad': 0.0004683440000000094, 'previous_recorded_valid': True, 'previous_recorded_rear': False, 'previous_recorded_front': True}
+20261127 7 right {'step': 220, 'knee_target_delta_rad': -0.019999979999999917, 'ankle_target_delta_rad': 0.03333333199999999, 'previous_recorded_valid': True, 'previous_recorded_rear': False, 'previous_recorded_front': False}

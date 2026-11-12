@@ -1,0 +1,8 @@
+20261127 4 left {'fall': 34, 'hold': 38, 'rise': 27} trace mismatches 0
+20261127 4 right {'fall': 32, 'hold': 37, 'rise': 30} trace mismatches 0
+20261127 5 left {'fall': 34, 'hold': 37, 'rise': 28} trace mismatches 0
+20261127 5 right {'fall': 33, 'hold': 37, 'rise': 29} trace mismatches 0
+20261127 6 left {'fall': 34, 'hold': 38, 'rise': 27} trace mismatches 0
+20261127 6 right {'fall': 33, 'hold': 35, 'rise': 31} trace mismatches 0
+20261127 7 left {'fall': 36, 'hold': 37, 'rise': 26} trace mismatches 0
+20261127 7 right {'fall': 31, 'hold': 36, 'rise': 32} trace mismatches 0
