@@ -1,0 +1,3 @@
+# Same-lane no-step control for common-controller climb and descent
+
+Repeat the preceding height pulse run with the same candidate, seed, starts, wing forces, zero-turn commands, speed and nominal height, but with the height pulse disabled. Compare complete recorded accepted states and actions, per lane and step. They must match through the pulse start, and controls 0–3 must match throughout, before attributing candidate height differences to the command. Measure changes against each exact same-lane control through pulse and recovery. All starts and the layout are development-only; full joint caps, physical aerodynamics, perturbations, navigation, landing and unseen-layout qualification remain out of scope.

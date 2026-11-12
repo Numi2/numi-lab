@@ -1,0 +1,69 @@
+{
+  "same_first_episode_navigation": false,
+  "replay_environment": 5,
+  "replay_reward_difference_count": 599,
+  "first_replay_reward_difference": {
+    "frame": 601,
+    "base": 0.11207183450460434,
+    "candidate": 0.11206100136041641
+  },
+  "rows": [
+    {
+      "lane": 0,
+      "base_steps": 1200,
+      "candidate_steps": 1200,
+      "missing_steps": [],
+      "first_different_trace_submission": null
+    },
+    {
+      "lane": 1,
+      "base_steps": 1200,
+      "candidate_steps": 1200,
+      "missing_steps": [],
+      "first_different_trace_submission": null
+    },
+    {
+      "lane": 2,
+      "base_steps": 1200,
+      "candidate_steps": 1200,
+      "missing_steps": [],
+      "first_different_trace_submission": null
+    },
+    {
+      "lane": 3,
+      "base_steps": 1200,
+      "candidate_steps": 1200,
+      "missing_steps": [],
+      "first_different_trace_submission": null
+    },
+    {
+      "lane": 4,
+      "base_steps": 1200,
+      "candidate_steps": 1200,
+      "missing_steps": [],
+      "first_different_trace_submission": 603
+    },
+    {
+      "lane": 5,
+      "base_steps": 1200,
+      "candidate_steps": 1200,
+      "missing_steps": [],
+      "first_different_trace_submission": 603
+    },
+    {
+      "lane": 6,
+      "base_steps": 1200,
+      "candidate_steps": 1200,
+      "missing_steps": [],
+      "first_different_trace_submission": 603
+    },
+    {
+      "lane": 7,
+      "base_steps": 1200,
+      "candidate_steps": 1200,
+      "missing_steps": [],
+      "first_different_trace_submission": 603
+    }
+  ],
+  "note": "State hashes include q, v, accepted policy actions and contact details; reward comparison covers only replay environment 5, not a full reward decomposition. Trace submission includes a pre-reset warmup."
+}

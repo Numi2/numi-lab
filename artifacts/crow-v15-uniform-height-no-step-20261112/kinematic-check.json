@@ -1,0 +1,18 @@
+[
+  {
+    "lane": 4,
+    "control_lane": 0,
+    "mean_abs_derivative_discrepancy_m_s": 0.00294683917784225,
+    "max_abs_derivative_discrepancy_m_s": 0.02364305345000353,
+    "peak_abs_differential_rate_m_s": 0.516849499999994,
+    "scope": "50 Hz endpoints, trapezoidal velocity approximation, different related starts; does not identify force sources or exclude assistance"
+  },
+  {
+    "lane": 6,
+    "control_lane": 0,
+    "mean_abs_derivative_discrepancy_m_s": 0.003130219564215525,
+    "max_abs_derivative_discrepancy_m_s": 0.03391222204999722,
+    "peak_abs_differential_rate_m_s": 0.4814144999999992,
+    "scope": "50 Hz endpoints, trapezoidal velocity approximation, different related starts; does not identify force sources or exclude assistance"
+  }
+]
