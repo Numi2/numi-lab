@@ -1,0 +1,3 @@
+# Post-hoc motor-target transition check
+
+The six-step follow-up showed identical physical targets and q/v even though the logged policy action differed. The shader contains a standing-curriculum multiplier that can mask leg commands. A post-hoc retained-trace comparison found the first q/v difference at step 102 (2.04 s) in all changed-offset lanes. Re-run 110 steps on the instrumented host with and without the offset shader, recording drive targets at steps 98-106 and checking unchanged-lane and reference physical trajectories. This diagnoses timing only; it is not a new independent test of balance.

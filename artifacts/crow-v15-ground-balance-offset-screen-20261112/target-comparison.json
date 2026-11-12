@@ -1,0 +1,101 @@
+{
+  "rows": [
+    {
+      "step": 1,
+      "lane": 0,
+      "target_differences": [],
+      "state_matches_baseline": true
+    },
+    {
+      "step": 1,
+      "lane": 1,
+      "target_differences": [],
+      "state_matches_baseline": true
+    },
+    {
+      "step": 1,
+      "lane": 2,
+      "target_differences": [],
+      "state_matches_baseline": true
+    },
+    {
+      "step": 1,
+      "lane": 3,
+      "target_differences": [],
+      "state_matches_baseline": true
+    },
+    {
+      "step": 1,
+      "lane": 4,
+      "target_differences": [],
+      "state_matches_baseline": true
+    },
+    {
+      "step": 1,
+      "lane": 5,
+      "target_differences": [],
+      "state_matches_baseline": true
+    },
+    {
+      "step": 1,
+      "lane": 6,
+      "target_differences": [],
+      "state_matches_baseline": true
+    },
+    {
+      "step": 1,
+      "lane": 7,
+      "target_differences": [],
+      "state_matches_baseline": true
+    },
+    {
+      "step": 2,
+      "lane": 0,
+      "target_differences": [],
+      "state_matches_baseline": true
+    },
+    {
+      "step": 2,
+      "lane": 1,
+      "target_differences": [],
+      "state_matches_baseline": true
+    },
+    {
+      "step": 2,
+      "lane": 2,
+      "target_differences": [],
+      "state_matches_baseline": true
+    },
+    {
+      "step": 2,
+      "lane": 3,
+      "target_differences": [],
+      "state_matches_baseline": true
+    },
+    {
+      "step": 2,
+      "lane": 4,
+      "target_differences": [],
+      "state_matches_baseline": true
+    },
+    {
+      "step": 2,
+      "lane": 5,
+      "target_differences": [],
+      "state_matches_baseline": true
+    },
+    {
+      "step": 2,
+      "lane": 6,
+      "target_differences": [],
+      "state_matches_baseline": true
+    },
+    {
+      "step": 2,
+      "lane": 7,
+      "target_differences": [],
+      "state_matches_baseline": true
+    }
+  ],
+  "scope": "Two-step drive target buffer comparison with identical instrumented host, initial seed and model. Buffer represents motor targets, not measured applied torque; instrumentation parity with the retained host must be checked independently."
+}
