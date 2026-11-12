@@ -1,0 +1,48 @@
+--- a/reference.metal
++++ b/enhanced.metal
+@@ -4990,14 +4990,18 @@
+             ? clamp(float4(actionStream[actionBase+commandOffset+0u],actionStream[actionBase+commandOffset+1u],
+                            actionStream[actionBase+commandOffset+2u],actionStream[actionBase+commandOffset+3u]),-1.0f,1.0f)
+             : float4(0.0f);
+-        const float4 actorCommand = float4(
+-            0.10f+0.30f*actorLatent.x,0.30f*actorLatent.y,
+-            0.15f*actorLatent.z,0.975f+0.325f*actorLatent.w);
++        // Diagnostic turn demands after launch, expressed as bounded heading error.
++        const uint mode=environment%6u;
++        const float seconds=float(state.episode.x)*dispatch.timing.x;
++        const float heading=-state.commandExtension.x;
++        const float desired=seconds<9.0f ? 0.0f : mode==0u ? 1.5707963f : mode==1u ? -1.5707963f : mode==2u ? 3.1415926f : mode==3u ? -3.1415926f : 0.0f;
++        const float error=atan2(sin(desired-heading),cos(desired-heading));
++        const float4 actorCommand=float4(.35f,0.0f,clamp(error,-.15f,.15f),.85f);
+         const bool privilegedCommand = (dispatch.sampling.w != 0u && dispatch.assistance.x < 0.5f);
+         float4 oracleCommand = privilegedCommand ? state.nutrition : actorCommand;
+         // Bounded autonomous terminal guidance from the explicit final goal
+         // and accepted proprioception; no obstacle geometry or teacher route.
+-        if (dispatch.sampling.w==0u && fixedFlightController && state.navigation.z>=5.0f) {
++        if (false && dispatch.sampling.w==0u && fixedFlightController && state.navigation.z>=5.0f) {
+             const float ex=state.commandAndPhase.y;
+             const float ey=state.commandAndPhase.z;
+             const float vx=state.commandExtension.z;
+@@ -5146,6 +5150,11 @@
+             const float returning=seq>=230u ? clamp(float(seq-230u)/25.0f,0.0f,1.0f) : 0.0f;
+             const float target=(action==8u ? .65f : -.325f)*raising*(1.0f-returning);
+             navigationTeacherRequested=clamp(target/max(abs(actions[action].parameters.x),.001f),-1.0f,1.0f);
++        }
++        // Exploratory differential wing sweep in the second matched group.
++        if (fixedFlightController && true && float(state.episode.x)*dispatch.timing.x >= 9.0f && (action == 2u || action == 3u)) {
++            const float sweep = clamp(-1.25f * oracleCommand.z - 0.08f * carrierState.commandExtension.y, -0.35f, 0.35f);
++            navigationTeacherRequested = action == 2u ? sweep : -sweep;
+         }
+         const float navigationTeacherBlend = fixedFlightController
+             ? 1.0f
+@@ -5791,6 +5800,10 @@
+                     1.0f
+                 );
+             }
++            // Remove the two known direct moment actuators at application, after filtering.
++            if ((program.schedule.w & MR_TASK_PROGRAM_AVIAN_CROW_HIERARCHICAL_NAVIGATION) != 0u &&
++                taskStates[environment].episode.z == 10u && (action == 13u || action == 14u) &&
++                float(taskStates[environment].episode.x)*dispatch.timing.x >= 9.0f) requested = 0.0f;
+             float3 local = float3(0.0f);
+             local[component % 3u] = binding.parameters.x * requested;
+             const float3 world = rotate(pose.orientation, local);
