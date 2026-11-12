@@ -1,0 +1,12 @@
+{
+  "seed": 20261127,
+  "lanes": [
+    4,
+    5
+  ],
+  "expected_endpoints": 1000,
+  "expected_substeps": 16000,
+  "endpoint_mismatch_count": 0,
+  "contact_mismatch_count": 0,
+  "first_mismatches": []
+}

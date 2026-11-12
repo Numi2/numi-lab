@@ -1,0 +1,8 @@
+0 end 800 reason 0 wp 1 coverage {'body': 12800, 'toe': 12800, 'contact': 12800} caps [] nonfoot {'early': 0, 'walk_4_6': 0, 'takeoff_6_8': 0, 'flight_8plus': 0} scene None
+1 end 800 reason 0 wp 1 coverage {'body': 12800, 'toe': 12800, 'contact': 12800} caps [('crow_neck_pitch', 'early', 1), ('crow_left_rear_toe_proximal_flex', 'early', 5), ('crow_right_rear_toe_proximal_flex', 'early', 7)] nonfoot {'early': 0, 'walk_4_6': 0, 'takeoff_6_8': 0, 'flight_8plus': 0} scene None
+2 end 800 reason 0 wp 1 coverage {'body': 12800, 'toe': 12800, 'contact': 12800} caps [('crow_left_rear_toe_proximal_flex', 'early', 7), ('crow_right_rear_toe_proximal_flex', 'early', 1)] nonfoot {'early': 0, 'walk_4_6': 0, 'takeoff_6_8': 0, 'flight_8plus': 0} scene None
+3 end 800 reason 0 wp 1 coverage {'body': 12800, 'toe': 12800, 'contact': 12800} caps [] nonfoot {'early': 0, 'walk_4_6': 0, 'takeoff_6_8': 0, 'flight_8plus': 0} scene None
+4 end 800 reason 0 wp 1 coverage {'body': 12800, 'toe': 12800, 'contact': 12800} caps [] nonfoot {'early': 0, 'walk_4_6': 0, 'takeoff_6_8': 0, 'flight_8plus': 0} scene None
+5 end 800 reason 0 wp 1 coverage {'body': 12800, 'toe': 12800, 'contact': 12800} caps [('crow_neck_pitch', 'early', 2), ('crow_right_rear_toe_proximal_flex', 'early', 2)] nonfoot {'early': 0, 'walk_4_6': 0, 'takeoff_6_8': 0, 'flight_8plus': 0} scene None
+6 end 800 reason 0 wp 1 coverage {'body': 12800, 'toe': 12800, 'contact': 12800} caps [] nonfoot {'early': 0, 'walk_4_6': 0, 'takeoff_6_8': 0, 'flight_8plus': 0} scene None
+7 end 800 reason 0 wp 1 coverage {'body': 12800, 'toe': 12800, 'contact': 12800} caps [] nonfoot {'early': 0, 'walk_4_6': 0, 'takeoff_6_8': 0, 'flight_8plus': 0} scene None
