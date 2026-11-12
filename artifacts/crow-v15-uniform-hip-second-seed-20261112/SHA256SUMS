@@ -1,5 +1,5 @@
 56527d914c06dd0929b1fb73265f66793bd0c499c6c59723fa2303d129950cfe  ./PLAN.md
-63cf7c631e5a0d26cd4984964745c8828c180ee56e5ed4a0551fee9a073d7730  ./RESULT.md
+756de4d91fa6f045c0e2e7d617d8d217d423d2bee2bb21bcda3057d841376e0f  ./RESULT.md
 c3c8b72f4bb73ea22f9b04b58fea169c3294e8b1a942252fc4d59c168c9db27c  ./build.log
 3941560f1f03c5683e2d48707dabf7d9f0d48120dad53d48fc916a8133a17989  ./build.py
 44ec0e82f74f2b1ddc817f5b435c639433fd563f8c323591453644198774f44c  ./candidate-20261126-rebound-control/command.json
@@ -31,10 +31,16 @@ c489e561598de29a7423bd3b001014dae3e6c3a907e56ea05fd6edfd93045cbc  ./initial-stat
 63bcb46a0cdc0639efeb1a6be81cdeba6f436571824cd8ff84749a4d430b61d2  ./run.py
 736274421806f7ce77b5c3e49501e5fdb35d082ae61650493d9b67ded1f828b8  ./stance-analysis-hip.json
 b86cf399124f4dd48420b351da5cdca3a4bbd51e8cc03006505e4eaa04205751  ./stance-analysis.py
+b3bb77defb06fe4fd140801ccf189d31c8ebcbb468fb98f0177c8ace4d3e9025  ./stance-hallux-digit3.json
+42dbdf760ccb850556c06ea4d151f31bb81fceed841820af978c748fccecda67  ./stance-hallux-digit3.log
+871252f740e1cc1c8c50fd6c0e0803b31cacfa6ce2f84348137139e24f6aeb1c  ./stance-hallux-digit3.py
 8904af7ab45338b29386f76b36d61fe860b8aeafa49fc511c360d9d787727c7d  ./stance-hip.log
 f042a747f1184a8be2518bed5733048cd78e0a514faec405574e0c3fc0c1828a  ./substep-analysis-fine.py
 2be2915ea53d3fd8e1323bfb8fb064b0288dbceb152f4b7613676eb96b56def8  ./substep-contact-speed-control.json
 e6ce07434ffcd256b12cf149cfe6bf1c42edbecfdd4c755d8a92d82bcb3f85e3  ./substep-contact-speed-hip.json
 7980f63b93a12c175c9e756b7d29ee90cc3a1bf7c96653d921f1da1273ae4c95  ./substep-control.log
 3884c1959a2a3dd817a19a13c45d5f6cd79dfa6d198be779a7aef3660c1966df  ./substep-hip.log
+3e6e9fded73537a2d616a80bde0b0378eb9c06aa599d00808ab39d5c6b9a2c8e  ./toe-contact-sequence.json
+62c41092ffcee88e828e354e47a73c19684c57a0859cfb84acca7faf8d2086d7  ./toe-contact-sequence.log
+d8bc74a6af19ec2181ebd453e362f4400abb5f185401812d5c98e539e353ace0  ./toe-contact-sequence.py
 b2e917cc30595de9587efbbba6778a88f270ac924b0704b44958b5c2c61652e8  ./wing.metal
