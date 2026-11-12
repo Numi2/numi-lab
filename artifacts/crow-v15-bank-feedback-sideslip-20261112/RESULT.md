@@ -1,0 +1,7 @@
+# Turn screen shows large sideways translation
+
+In the bounded bank-feedback development screen, sampled body heading changed only +0.083/-0.061 rad between steps 500 and 800 for the smallest pair, while world lateral displacement was -1.52/+1.59 m. For the largest pair, heading changed +0.073/-0.073 rad while lateral displacement was -6.41/+6.76 m. This is sideways translation with little heading change, not a completed coordinated turn. The runs remained obstacle-free; these displacements would not establish navigability in an obstacle layout.
+
+At the largest setting during the 14–15 s window, mean yaw-aligned ground-relative forward/lateral speeds were -0.373/-1.121 m/s and +0.238/+1.217 m/s. These projections use heading in the horizontal plane; they are not full body-frame airspeed or a measured biological sideslip angle. The trace contains all 9,600 source states in the two windows, with earlier observer parity and one-frame pose validation documented in the parent artifacts.
+
+In the current kernel, modeled fuselage drag is applied at the root COM with angular damping; that component alone does not create an offset lateral-force yaw moment. Tail and wing loads can still produce yaw, and this static observation does not prove which modeling assumption causes the response. Resolve force and moment contributions and assess directionally stable forward flight under controlled lateral perturbations before claiming a physical turn controller. The launch still used direct body moments before 9 s; no flight or navigation qualification follows.

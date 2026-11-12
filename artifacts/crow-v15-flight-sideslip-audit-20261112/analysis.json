@@ -1,215 +1,807 @@
 {
+  "input_sha256": {
+    "feedback.stderr.gz": "bf263a28e8968c93e2c7c7e6bbfdf475a60d16a3de9dfd5dd6d1790473e71b92",
+    "feedback.stdout": "ce371809ec595ca595e244b40ec2c97f6da246f9cce16224c16d4d02c3011e49"
+  },
   "rows": [
     {
       "lane": 0,
-      "steps": [
-        451,
-        500
-      ],
-      "forward_ground_speed_mean_m_s": 0.4714300342870671,
-      "lateral_ground_speed_mean_m_s": -0.10845743152152963,
-      "heading_mean_rad": 0.019905298850858816
-    },
-    {
-      "lane": 0,
-      "steps": [
-        701,
-        750
-      ],
-      "forward_ground_speed_mean_m_s": -0.1065831961394251,
-      "lateral_ground_speed_mean_m_s": -0.24888507082574496,
-      "heading_mean_rad": 0.08067764516338446
+      "count": 12,
+      "end_step": 1600,
+      "fraction_abs_slip_over_45deg": 1.0,
+      "last_sample": {
+        "lane": 0,
+        "step": 1600,
+        "height_m": 1.04307413,
+        "yaw_rad": 0.3527106282674337,
+        "horizontal_speed_m_s": 0.7761886007063364,
+        "body_relative_forward_m_s": -0.1052358036349493,
+        "body_relative_lateral_m_s": -0.7690215663424316,
+        "velocity_direction_minus_yaw_rad": -1.7067953703973844
+      }
     },
     {
       "lane": 1,
-      "steps": [
-        451,
-        500
-      ],
-      "forward_ground_speed_mean_m_s": 0.47410332312907516,
-      "lateral_ground_speed_mean_m_s": 0.11047667978962537,
-      "heading_mean_rad": 0.008511696604262696
-    },
-    {
-      "lane": 1,
-      "steps": [
-        701,
-        750
-      ],
-      "forward_ground_speed_mean_m_s": 0.08596815900082515,
-      "lateral_ground_speed_mean_m_s": 0.26548517146656553,
-      "heading_mean_rad": -0.035816526840439865
+      "count": 12,
+      "end_step": 1600,
+      "fraction_abs_slip_over_45deg": 0.9166666666666666,
+      "last_sample": {
+        "lane": 1,
+        "step": 1600,
+        "height_m": 0.995390117,
+        "yaw_rad": -0.2630301057509265,
+        "horizontal_speed_m_s": 0.8366071423201147,
+        "body_relative_forward_m_s": 0.23515011335839345,
+        "body_relative_lateral_m_s": 0.8028797760365891,
+        "velocity_direction_minus_yaw_rad": 1.2858812951335379
+      }
     },
     {
       "lane": 2,
-      "steps": [
-        451,
-        500
-      ],
-      "forward_ground_speed_mean_m_s": 0.46537255226964613,
-      "lateral_ground_speed_mean_m_s": -0.2053552529258321,
-      "heading_mean_rad": 0.02028753249952826
-    },
-    {
-      "lane": 2,
-      "steps": [
-        701,
-        750
-      ],
-      "forward_ground_speed_mean_m_s": -0.17316515743312047,
-      "lateral_ground_speed_mean_m_s": -0.4930484329383846,
-      "heading_mean_rad": 0.07989605548658642
+      "count": 12,
+      "end_step": 1600,
+      "fraction_abs_slip_over_45deg": 1.0,
+      "last_sample": {
+        "lane": 2,
+        "step": 1600,
+        "height_m": 1.37842953,
+        "yaw_rad": 0.26830117412536486,
+        "horizontal_speed_m_s": 1.4550970377807348,
+        "body_relative_forward_m_s": -0.7687090310326442,
+        "body_relative_lateral_m_s": -1.2354731138179909,
+        "velocity_direction_minus_yaw_rad": -2.127378259069271
+      }
     },
     {
       "lane": 3,
-      "steps": [
-        451,
-        500
-      ],
-      "forward_ground_speed_mean_m_s": 0.4695520607877731,
-      "lateral_ground_speed_mean_m_s": 0.20957496095942127,
-      "heading_mean_rad": 0.006956558922203358
-    },
-    {
-      "lane": 3,
-      "steps": [
-        701,
-        750
-      ],
-      "forward_ground_speed_mean_m_s": 0.17183441902496302,
-      "lateral_ground_speed_mean_m_s": 0.5442763447565111,
-      "heading_mean_rad": -0.044584890484305334
+      "count": 12,
+      "end_step": 1600,
+      "fraction_abs_slip_over_45deg": 1.0,
+      "last_sample": {
+        "lane": 3,
+        "step": 1600,
+        "height_m": 1.12985098,
+        "yaw_rad": -0.23807823527155747,
+        "horizontal_speed_m_s": 1.3569483274284586,
+        "body_relative_forward_m_s": 0.22921926360141848,
+        "body_relative_lateral_m_s": 1.337448052264055,
+        "velocity_direction_minus_yaw_rad": 1.40105985101777
+      }
     },
     {
       "lane": 4,
-      "steps": [
-        451,
-        500
-      ],
-      "forward_ground_speed_mean_m_s": 0.4635880318854473,
-      "lateral_ground_speed_mean_m_s": -0.28104786443343355,
-      "heading_mean_rad": 0.020849391463543726
-    },
-    {
-      "lane": 4,
-      "steps": [
-        701,
-        750
-      ],
-      "forward_ground_speed_mean_m_s": -0.37314578998538833,
-      "lateral_ground_speed_mean_m_s": -1.1209072190953366,
-      "heading_mean_rad": 0.07271748152645574
+      "count": 10,
+      "end_step": 1466,
+      "fraction_abs_slip_over_45deg": 1.0,
+      "last_sample": {
+        "lane": 4,
+        "step": 1400,
+        "height_m": 0.467844635,
+        "yaw_rad": 0.27983613656333156,
+        "horizontal_speed_m_s": 7.1375227637627745,
+        "body_relative_forward_m_s": -7.136422262833187,
+        "body_relative_lateral_m_s": 0.12533351415584115,
+        "velocity_direction_minus_yaw_rad": 3.124031945171873
+      }
     },
     {
       "lane": 5,
-      "steps": [
-        451,
-        500
-      ],
-      "forward_ground_speed_mean_m_s": 0.46656677835893723,
-      "lateral_ground_speed_mean_m_s": 0.2864892096556317,
-      "heading_mean_rad": 0.006116824950372795
-    },
-    {
-      "lane": 5,
-      "steps": [
-        701,
-        750
-      ],
-      "forward_ground_speed_mean_m_s": 0.23790502227958696,
-      "lateral_ground_speed_mean_m_s": 1.2174631434631642,
-      "heading_mean_rad": -0.05231575712661889
-    },
-    {
-      "lane": 0,
-      "steps": [
-        500,
-        800
-      ],
-      "world_displacement_x_y_m": [
-        0.6689416130000001,
-        -1.516823303
-      ],
-      "heading_start_end_rad": [
-        0.02249446411645061,
-        0.10500432285641394
-      ]
-    },
-    {
-      "lane": 1,
-      "steps": [
-        500,
-        800
-      ],
-      "world_displacement_x_y_m": [
-        1.6349750799999998,
-        1.5888936259
-      ],
-      "heading_start_end_rad": [
-        0.006222719003158268,
-        -0.05490142113837592
-      ]
-    },
-    {
-      "lane": 2,
-      "steps": [
-        500,
-        800
-      ],
-      "world_displacement_x_y_m": [
-        0.328111201,
-        -3.030171398
-      ],
-      "heading_start_end_rad": [
-        0.02192084704819213,
-        0.10503455913906252
-      ]
-    },
-    {
-      "lane": 3,
-      "steps": [
-        500,
-        800
-      ],
-      "world_displacement_x_y_m": [
-        1.930202241,
-        3.232142533
-      ],
-      "heading_start_end_rad": [
-        0.0040130093192361355,
-        -0.06533576895696706
-      ]
-    },
-    {
-      "lane": 4,
-      "steps": [
-        500,
-        800
-      ],
-      "world_displacement_x_y_m": [
-        -0.5586162065,
-        -6.408830498
-      ],
-      "heading_start_end_rad": [
-        0.02247666574624171,
-        0.09560397408686003
-      ]
-    },
-    {
-      "lane": 5,
-      "steps": [
-        500,
-        800
-      ],
-      "world_displacement_x_y_m": [
-        1.9617562849999999,
-        6.759337042
-      ],
-      "heading_start_end_rad": [
-        0.0016859815697636599,
-        -0.07141030452346124
-      ]
+      "count": 12,
+      "end_step": 1600,
+      "fraction_abs_slip_over_45deg": 1.0,
+      "last_sample": {
+        "lane": 5,
+        "step": 1600,
+        "height_m": 1.30340338,
+        "yaw_rad": -0.1540897566122336,
+        "horizontal_speed_m_s": 1.7770178245460806,
+        "body_relative_forward_m_s": 0.02496509223650417,
+        "body_relative_lateral_m_s": 1.7768424502257107,
+        "velocity_direction_minus_yaw_rad": 1.5567469947091928
+      }
     }
   ],
-  "scope": "Ground-relative horizontal velocity rotated by sampled yaw only, not full body-frame airspeed or biological sideslip. Source states precede kernel evaluation. Selected windows and endpoints are not continuous collision or flight qualification. Used development seed; known direct moments off only after 9s."
+  "samples": [
+    {
+      "lane": 0,
+      "step": 500,
+      "height_m": 0.956421137,
+      "yaw_rad": 0.021669586043683232,
+      "horizontal_speed_m_s": 0.6646364655213122,
+      "body_relative_forward_m_s": 0.4686604622407835,
+      "body_relative_lateral_m_s": -0.47127380834597377,
+      "velocity_direction_minus_yaw_rad": -0.7881785060798866
+    },
+    {
+      "lane": 1,
+      "step": 500,
+      "height_m": 0.955100179,
+      "yaw_rad": 0.003547452546958378,
+      "horizontal_speed_m_s": 0.6856463069265395,
+      "body_relative_forward_m_s": 0.49323844732560906,
+      "body_relative_lateral_m_s": 0.47626325942888426,
+      "velocity_direction_minus_yaw_rad": 0.7678907640875055
+    },
+    {
+      "lane": 2,
+      "step": 500,
+      "height_m": 1.03451633,
+      "yaw_rad": 0.0221212763970205,
+      "horizontal_speed_m_s": 0.8646383067779805,
+      "body_relative_forward_m_s": 0.4292902131730295,
+      "body_relative_lateral_m_s": -0.750539349016258,
+      "velocity_direction_minus_yaw_rad": -1.0512379155682607
+    },
+    {
+      "lane": 3,
+      "step": 500,
+      "height_m": 1.03390861,
+      "yaw_rad": -6.332702050566967e-05,
+      "horizontal_speed_m_s": 0.8848871677242212,
+      "body_relative_forward_m_s": 0.4554147388268996,
+      "body_relative_lateral_m_s": 0.7586980395797928,
+      "velocity_direction_minus_yaw_rad": 1.0301869765621476
+    },
+    {
+      "lane": 4,
+      "step": 500,
+      "height_m": 1.07575023,
+      "yaw_rad": 0.021685545882057813,
+      "horizontal_speed_m_s": 1.0925472087024615,
+      "body_relative_forward_m_s": 0.3472986350992452,
+      "body_relative_lateral_m_s": -1.0358779181456383,
+      "velocity_direction_minus_yaw_rad": -1.2473039203481147
+    },
+    {
+      "lane": 5,
+      "step": 500,
+      "height_m": 1.07341313,
+      "yaw_rad": -0.0017716607982943282,
+      "horizontal_speed_m_s": 1.111746244236786,
+      "body_relative_forward_m_s": 0.37484292962973936,
+      "body_relative_lateral_m_s": 1.0466482167763886,
+      "velocity_direction_minus_yaw_rad": 1.2268914235879755
+    },
+    {
+      "lane": 0,
+      "step": 600,
+      "height_m": 1.01184046,
+      "yaw_rad": 0.04011476011147855,
+      "horizontal_speed_m_s": 0.748790715460764,
+      "body_relative_forward_m_s": -0.08091354783604651,
+      "body_relative_lateral_m_s": -0.7444061615387305,
+      "velocity_direction_minus_yaw_rad": -1.679066698092898
+    },
+    {
+      "lane": 1,
+      "step": 600,
+      "height_m": 0.980587959,
+      "yaw_rad": -0.015645403791047573,
+      "horizontal_speed_m_s": 0.8073332881584905,
+      "body_relative_forward_m_s": 0.2578809245515332,
+      "body_relative_lateral_m_s": 0.7650388662814763,
+      "velocity_direction_minus_yaw_rad": 1.2456756654079637
+    },
+    {
+      "lane": 2,
+      "step": 600,
+      "height_m": 1.1636126,
+      "yaw_rad": 0.03706169510019834,
+      "horizontal_speed_m_s": 1.27252732137105,
+      "body_relative_forward_m_s": -0.341857033869135,
+      "body_relative_lateral_m_s": -1.2257485680309714,
+      "velocity_direction_minus_yaw_rad": -1.8427814983567796
+    },
+    {
+      "lane": 3,
+      "step": 600,
+      "height_m": 1.13225067,
+      "yaw_rad": -0.019711378401662958,
+      "horizontal_speed_m_s": 1.2599346797377993,
+      "body_relative_forward_m_s": 0.010388941679975193,
+      "body_relative_lateral_m_s": 1.2598918473808618,
+      "velocity_direction_minus_yaw_rad": 1.5625506140805088
+    },
+    {
+      "lane": 4,
+      "step": 600,
+      "height_m": 1.29874694,
+      "yaw_rad": 0.027135767594827696,
+      "horizontal_speed_m_s": 1.8064789312966916,
+      "body_relative_forward_m_s": -0.6991777412816236,
+      "body_relative_lateral_m_s": -1.665688030609323,
+      "velocity_direction_minus_yaw_rad": -1.9682144359049074
+    },
+    {
+      "lane": 5,
+      "step": 600,
+      "height_m": 1.25291646,
+      "yaw_rad": -0.015842870973916724,
+      "horizontal_speed_m_s": 1.716511179692124,
+      "body_relative_forward_m_s": -0.31991331269758894,
+      "body_relative_lateral_m_s": 1.6864359170650103,
+      "velocity_direction_minus_yaw_rad": 1.758266660522616
+    },
+    {
+      "lane": 0,
+      "step": 700,
+      "height_m": 1.06839907,
+      "yaw_rad": 0.07337507067200824,
+      "horizontal_speed_m_s": 0.8228059576382707,
+      "body_relative_forward_m_s": -0.27164376743219876,
+      "body_relative_lateral_m_s": -0.7766719433198763,
+      "velocity_direction_minus_yaw_rad": -1.9072515725333397
+    },
+    {
+      "lane": 1,
+      "step": 700,
+      "height_m": 1.01058626,
+      "yaw_rad": -0.043636885526763425,
+      "horizontal_speed_m_s": 0.8137571129887662,
+      "body_relative_forward_m_s": 0.09044658749383572,
+      "body_relative_lateral_m_s": 0.8087150633879223,
+      "velocity_direction_minus_yaw_rad": 1.4594192918111473
+    },
+    {
+      "lane": 2,
+      "step": 700,
+      "height_m": 1.24846911,
+      "yaw_rad": 0.062486745903047744,
+      "horizontal_speed_m_s": 1.3980575674355118,
+      "body_relative_forward_m_s": -0.5565226998279533,
+      "body_relative_lateral_m_s": -1.2825160608896506,
+      "velocity_direction_minus_yaw_rad": -1.9802067167208321
+    },
+    {
+      "lane": 3,
+      "step": 700,
+      "height_m": 1.14888251,
+      "yaw_rad": -0.04642005301412778,
+      "horizontal_speed_m_s": 1.3231723651227987,
+      "body_relative_forward_m_s": 0.012290669005469997,
+      "body_relative_lateral_m_s": 1.323115281175476,
+      "velocity_direction_minus_yaw_rad": 1.5615074041424841
+    },
+    {
+      "lane": 4,
+      "step": 700,
+      "height_m": 1.48464191,
+      "yaw_rad": 0.03480590527313576,
+      "horizontal_speed_m_s": 2.053375932730798,
+      "body_relative_forward_m_s": -1.1490684142691274,
+      "body_relative_lateral_m_s": -1.7017621750547602,
+      "velocity_direction_minus_yaw_rad": -2.1646989557444316
+    },
+    {
+      "lane": 5,
+      "step": 700,
+      "height_m": 1.31619334,
+      "yaw_rad": -0.03547207449561964,
+      "horizontal_speed_m_s": 1.7739159513723215,
+      "body_relative_forward_m_s": -0.21637179552625393,
+      "body_relative_lateral_m_s": 1.7606706246864894,
+      "velocity_direction_minus_yaw_rad": 1.6930749149423439
+    },
+    {
+      "lane": 0,
+      "step": 800,
+      "height_m": 1.0492872,
+      "yaw_rad": 0.10640646107886353,
+      "horizontal_speed_m_s": 0.7629924992021433,
+      "body_relative_forward_m_s": -0.11243820874786639,
+      "body_relative_lateral_m_s": -0.754662310608065,
+      "velocity_direction_minus_yaw_rad": -1.71869974176389
+    },
+    {
+      "lane": 1,
+      "step": 800,
+      "height_m": 0.996409416,
+      "yaw_rad": -0.069667112980667,
+      "horizontal_speed_m_s": 0.8288907781896022,
+      "body_relative_forward_m_s": 0.2470354785356266,
+      "body_relative_lateral_m_s": 0.7912227211806031,
+      "velocity_direction_minus_yaw_rad": 1.2681666592382401
+    },
+    {
+      "lane": 2,
+      "step": 800,
+      "height_m": 1.29338622,
+      "yaw_rad": 0.0871987644544857,
+      "horizontal_speed_m_s": 1.373373182956211,
+      "body_relative_forward_m_s": -0.5882582984687147,
+      "body_relative_lateral_m_s": -1.2410101022739366,
+      "velocity_direction_minus_yaw_rad": -2.0134412736446463
+    },
+    {
+      "lane": 3,
+      "step": 800,
+      "height_m": 1.11526847,
+      "yaw_rad": -0.07039207282035938,
+      "horizontal_speed_m_s": 1.3793023683726617,
+      "body_relative_forward_m_s": 0.35227716778876256,
+      "body_relative_lateral_m_s": 1.333557580479059,
+      "velocity_direction_minus_yaw_rad": 1.3125324185690077
+    },
+    {
+      "lane": 4,
+      "step": 800,
+      "height_m": 1.59495044,
+      "yaw_rad": 0.04040890521147338,
+      "horizontal_speed_m_s": 2.178601778790188,
+      "body_relative_forward_m_s": -1.4647226644548441,
+      "body_relative_lateral_m_s": -1.6127285037414303,
+      "velocity_direction_minus_yaw_rad": -2.3081378755208455
+    },
+    {
+      "lane": 5,
+      "step": 800,
+      "height_m": 1.30574334,
+      "yaw_rad": -0.052995848252941076,
+      "horizontal_speed_m_s": 1.7464290048133453,
+      "body_relative_forward_m_s": -0.09177584219141152,
+      "body_relative_lateral_m_s": 1.7440159012014167,
+      "velocity_direction_minus_yaw_rad": 1.6233711152952215
+    },
+    {
+      "lane": 0,
+      "step": 900,
+      "height_m": 1.04771733,
+      "yaw_rad": 0.13629310335990696,
+      "horizontal_speed_m_s": 0.788346464238328,
+      "body_relative_forward_m_s": -0.06416136997058808,
+      "body_relative_lateral_m_s": -0.7857311666725272,
+      "velocity_direction_minus_yaw_rad": -1.6522737200670803
+    },
+    {
+      "lane": 1,
+      "step": 900,
+      "height_m": 0.995187998,
+      "yaw_rad": -0.0905466487400358,
+      "horizontal_speed_m_s": 0.8839657785482876,
+      "body_relative_forward_m_s": 0.3219928611283585,
+      "body_relative_lateral_m_s": 0.8232351395724394,
+      "velocity_direction_minus_yaw_rad": 1.1979588614300118
+    },
+    {
+      "lane": 2,
+      "step": 900,
+      "height_m": 1.3241967,
+      "yaw_rad": 0.10956104113582897,
+      "horizontal_speed_m_s": 1.4215372634687062,
+      "body_relative_forward_m_s": -0.6042407671401774,
+      "body_relative_lateral_m_s": -1.2867250237544725,
+      "velocity_direction_minus_yaw_rad": -2.0098261591451134
+    },
+    {
+      "lane": 3,
+      "step": 900,
+      "height_m": 1.12334752,
+      "yaw_rad": -0.08610364634621255,
+      "horizontal_speed_m_s": 1.4291875065443016,
+      "body_relative_forward_m_s": 0.3331267461175512,
+      "body_relative_lateral_m_s": 1.3898213913605773,
+      "velocity_direction_minus_yaw_rad": 1.3355441723438202
+    },
+    {
+      "lane": 4,
+      "step": 900,
+      "height_m": 1.68502748,
+      "yaw_rad": 0.04046573106664006,
+      "horizontal_speed_m_s": 2.470866145121645,
+      "body_relative_forward_m_s": -1.834878063376437,
+      "body_relative_lateral_m_s": -1.6548117716671689,
+      "velocity_direction_minus_yaw_rad": -2.4077482802465755
+    },
+    {
+      "lane": 5,
+      "step": 900,
+      "height_m": 1.3130846,
+      "yaw_rad": -0.0647668610122281,
+      "horizontal_speed_m_s": 1.8263529446488243,
+      "body_relative_forward_m_s": 0.012033668906748035,
+      "body_relative_lateral_m_s": 1.8263132998585083,
+      "velocity_direction_minus_yaw_rad": 1.5642073725543142
+    },
+    {
+      "lane": 0,
+      "step": 1000,
+      "height_m": 1.05422115,
+      "yaw_rad": 0.16730889670458918,
+      "horizontal_speed_m_s": 0.763749725245484,
+      "body_relative_forward_m_s": -0.0984553874525234,
+      "body_relative_lateral_m_s": -0.7573771712258864,
+      "velocity_direction_minus_yaw_rad": -1.7000665984116432
+    },
+    {
+      "lane": 1,
+      "step": 1000,
+      "height_m": 1.00824666,
+      "yaw_rad": -0.11467129445144618,
+      "horizontal_speed_m_s": 0.8227722392016954,
+      "body_relative_forward_m_s": 0.22156958296661217,
+      "body_relative_lateral_m_s": 0.7923768532112566,
+      "velocity_direction_minus_yaw_rad": 1.2981339840340407
+    },
+    {
+      "lane": 2,
+      "step": 1000,
+      "height_m": 1.33841395,
+      "yaw_rad": 0.13354275797867907,
+      "horizontal_speed_m_s": 1.378972301632823,
+      "body_relative_forward_m_s": -0.616453410468911,
+      "body_relative_lateral_m_s": -1.2335111679234094,
+      "velocity_direction_minus_yaw_rad": -2.0342479404230875
+    },
+    {
+      "lane": 3,
+      "step": 1000,
+      "height_m": 1.15636277,
+      "yaw_rad": -0.10810150033582445,
+      "horizontal_speed_m_s": 1.3228718671621351,
+      "body_relative_forward_m_s": 0.13221179748548434,
+      "body_relative_lateral_m_s": 1.316248463450078,
+      "velocity_direction_minus_yaw_rad": 1.470686181633824
+    },
+    {
+      "lane": 4,
+      "step": 1000,
+      "height_m": 1.73934519,
+      "yaw_rad": 0.041045159036310314,
+      "horizontal_speed_m_s": 2.631526560019524,
+      "body_relative_forward_m_s": -2.135898032868923,
+      "body_relative_lateral_m_s": -1.5371635011523184,
+      "velocity_direction_minus_yaw_rad": -2.517780255876835
+    },
+    {
+      "lane": 5,
+      "step": 1000,
+      "height_m": 1.31720173,
+      "yaw_rad": -0.0803397183208603,
+      "horizontal_speed_m_s": 1.756711644642559,
+      "body_relative_forward_m_s": -0.004774191309059872,
+      "body_relative_lateral_m_s": 1.756705157253234,
+      "velocity_direction_minus_yaw_rad": 1.5735140165196302
+    },
+    {
+      "lane": 0,
+      "step": 1100,
+      "height_m": 1.04375196,
+      "yaw_rad": 0.19731408759710753,
+      "horizontal_speed_m_s": 0.7766471147495452,
+      "body_relative_forward_m_s": -0.10957462042309302,
+      "body_relative_lateral_m_s": -0.7688784971683942,
+      "velocity_direction_minus_yaw_rad": -1.7123553902505506
+    },
+    {
+      "lane": 1,
+      "step": 1100,
+      "height_m": 1.00022185,
+      "yaw_rad": -0.13866431365525841,
+      "horizontal_speed_m_s": 0.8256185028814771,
+      "body_relative_forward_m_s": 0.20036872658287674,
+      "body_relative_lateral_m_s": 0.8009358811464299,
+      "velocity_direction_minus_yaw_rad": 1.325659318366585
+    },
+    {
+      "lane": 2,
+      "step": 1100,
+      "height_m": 1.33125389,
+      "yaw_rad": 0.15488225450171136,
+      "horizontal_speed_m_s": 1.3973326739931005,
+      "body_relative_forward_m_s": -0.6397102282237491,
+      "body_relative_lateral_m_s": -1.2423000546223235,
+      "velocity_direction_minus_yaw_rad": -2.046324527447488
+    },
+    {
+      "lane": 3,
+      "step": 1100,
+      "height_m": 1.13460386,
+      "yaw_rad": -0.12895396523492172,
+      "horizontal_speed_m_s": 1.3476210211406574,
+      "body_relative_forward_m_s": 0.23400092728873093,
+      "body_relative_lateral_m_s": 1.3271495705639973,
+      "velocity_direction_minus_yaw_rad": 1.3962716954805574
+    },
+    {
+      "lane": 4,
+      "step": 1100,
+      "height_m": 1.74613571,
+      "yaw_rad": 0.03638911314411659,
+      "horizontal_speed_m_s": 3.0416637305518597,
+      "body_relative_forward_m_s": -2.664671961093768,
+      "body_relative_lateral_m_s": -1.4667111472663419,
+      "velocity_direction_minus_yaw_rad": -2.6384205895303716
+    },
+    {
+      "lane": 5,
+      "step": 1100,
+      "height_m": 1.30306304,
+      "yaw_rad": -0.09094379363758397,
+      "horizontal_speed_m_s": 1.7725239413583473,
+      "body_relative_forward_m_s": 0.01664145206162576,
+      "body_relative_lateral_m_s": 1.7724458199792203,
+      "velocity_direction_minus_yaw_rad": 1.5614076262193375
+    },
+    {
+      "lane": 0,
+      "step": 1200,
+      "height_m": 1.04251266,
+      "yaw_rad": 0.22929577992405112,
+      "horizontal_speed_m_s": 0.7939798049934371,
+      "body_relative_forward_m_s": -0.1040493672085022,
+      "body_relative_lateral_m_s": -0.787132555495532,
+      "velocity_direction_minus_yaw_rad": -1.7022222245392655
+    },
+    {
+      "lane": 1,
+      "step": 1200,
+      "height_m": 0.99286437,
+      "yaw_rad": -0.16681872020192992,
+      "horizontal_speed_m_s": 0.8584839801339171,
+      "body_relative_forward_m_s": 0.2468883921479493,
+      "body_relative_lateral_m_s": 0.8222170431030801,
+      "velocity_direction_minus_yaw_rad": 1.2790904156064429
+    },
+    {
+      "lane": 2,
+      "step": 1200,
+      "height_m": 1.3330574,
+      "yaw_rad": 0.1791140767542589,
+      "horizontal_speed_m_s": 1.4426333896535235,
+      "body_relative_forward_m_s": -0.6716206298602054,
+      "body_relative_lateral_m_s": -1.2767602854449207,
+      "velocity_direction_minus_yaw_rad": -2.055054370002156
+    },
+    {
+      "lane": 3,
+      "step": 1200,
+      "height_m": 1.11474812,
+      "yaw_rad": -0.15378684256873143,
+      "horizontal_speed_m_s": 1.4143351174524041,
+      "body_relative_forward_m_s": 0.3067169083198976,
+      "body_relative_lateral_m_s": 1.3806768494509456,
+      "velocity_direction_minus_yaw_rad": 1.3521965187146592
+    },
+    {
+      "lane": 4,
+      "step": 1200,
+      "height_m": 1.66361272,
+      "yaw_rad": 0.026898464046187478,
+      "horizontal_speed_m_s": 3.9842551946793394,
+      "body_relative_forward_m_s": -3.7221573323381425,
+      "body_relative_lateral_m_s": -1.4212087283895714,
+      "velocity_direction_minus_yaw_rad": -2.7768528254181217
+    },
+    {
+      "lane": 5,
+      "step": 1200,
+      "height_m": 1.29970586,
+      "yaw_rad": -0.10665060588927278,
+      "horizontal_speed_m_s": 1.8202210040587876,
+      "body_relative_forward_m_s": 0.03353159689733884,
+      "body_relative_lateral_m_s": 1.8199121230505322,
+      "velocity_direction_minus_yaw_rad": 1.5523735673291337
+    },
+    {
+      "lane": 0,
+      "step": 1300,
+      "height_m": 1.04181254,
+      "yaw_rad": 0.26154226868158337,
+      "horizontal_speed_m_s": 0.765374877540848,
+      "body_relative_forward_m_s": -0.09953431259907197,
+      "body_relative_lateral_m_s": -0.7588752359815797,
+      "velocity_direction_minus_yaw_rad": -1.7012121895793426
+    },
+    {
+      "lane": 1,
+      "step": 1300,
+      "height_m": 0.991229951,
+      "yaw_rad": -0.19195051767148982,
+      "horizontal_speed_m_s": 0.8342652806598058,
+      "body_relative_forward_m_s": 0.24538435133031464,
+      "body_relative_lateral_m_s": 0.797361322511059,
+      "velocity_direction_minus_yaw_rad": 1.272248812688927
+    },
+    {
+      "lane": 2,
+      "step": 1300,
+      "height_m": 1.34147179,
+      "yaw_rad": 0.2031534260118356,
+      "horizontal_speed_m_s": 1.415856581487862,
+      "body_relative_forward_m_s": -0.6925596933255085,
+      "body_relative_lateral_m_s": -1.2349133291544683,
+      "velocity_direction_minus_yaw_rad": -2.0819059587618476
+    },
+    {
+      "lane": 3,
+      "step": 1300,
+      "height_m": 1.12853408,
+      "yaw_rad": -0.17587030760253186,
+      "horizontal_speed_m_s": 1.3521124800221649,
+      "body_relative_forward_m_s": 0.19560225122522487,
+      "body_relative_lateral_m_s": 1.337889351907441,
+      "velocity_direction_minus_yaw_rad": 1.4256227468206013
+    },
+    {
+      "lane": 4,
+      "step": 1300,
+      "height_m": 1.33249116,
+      "yaw_rad": 0.015708788315447027,
+      "horizontal_speed_m_s": 6.09769372881165,
+      "body_relative_forward_m_s": -5.953759305905157,
+      "body_relative_lateral_m_s": -1.3170493300315924,
+      "velocity_direction_minus_yaw_rad": -2.9238855827355845
+    },
+    {
+      "lane": 5,
+      "step": 1300,
+      "height_m": 1.2987175,
+      "yaw_rad": -0.1203977651046868,
+      "horizontal_speed_m_s": 1.7792924291572518,
+      "body_relative_forward_m_s": 0.02220400574707143,
+      "body_relative_lateral_m_s": 1.779153880524419,
+      "velocity_direction_minus_yaw_rad": 1.5583168817509678
+    },
+    {
+      "lane": 0,
+      "step": 1400,
+      "height_m": 1.05187404,
+      "yaw_rad": 0.2915928352531467,
+      "horizontal_speed_m_s": 0.7900400318734878,
+      "body_relative_forward_m_s": -0.09175711738125417,
+      "body_relative_lateral_m_s": -0.7846934964510313,
+      "velocity_direction_minus_yaw_rad": -1.6872013974608266
+    },
+    {
+      "lane": 1,
+      "step": 1400,
+      "height_m": 1.00529087,
+      "yaw_rad": -0.21404760816454482,
+      "horizontal_speed_m_s": 0.8554116059068889,
+      "body_relative_forward_m_s": 0.24270190178017995,
+      "body_relative_lateral_m_s": 0.8202589849507815,
+      "velocity_direction_minus_yaw_rad": 1.2831195039959624
+    },
+    {
+      "lane": 2,
+      "step": 1400,
+      "height_m": 1.36619103,
+      "yaw_rad": 0.22474553730420568,
+      "horizontal_speed_m_s": 1.4697878166482496,
+      "body_relative_forward_m_s": -0.7200241743055337,
+      "body_relative_lateral_m_s": -1.2813435973162168,
+      "velocity_direction_minus_yaw_rad": -2.082751953075127
+    },
+    {
+      "lane": 3,
+      "step": 1400,
+      "height_m": 1.1454736,
+      "yaw_rad": -0.19529961762635145,
+      "horizontal_speed_m_s": 1.3927971632953888,
+      "body_relative_forward_m_s": 0.2417730799107916,
+      "body_relative_lateral_m_s": 1.3716521847444167,
+      "velocity_direction_minus_yaw_rad": 1.3963243571389081
+    },
+    {
+      "lane": 4,
+      "step": 1400,
+      "height_m": 0.467844635,
+      "yaw_rad": 0.27983613656333156,
+      "horizontal_speed_m_s": 7.1375227637627745,
+      "body_relative_forward_m_s": -7.136422262833187,
+      "body_relative_lateral_m_s": 0.12533351415584115,
+      "velocity_direction_minus_yaw_rad": 3.124031945171873
+    },
+    {
+      "lane": 5,
+      "step": 1400,
+      "height_m": 1.31219006,
+      "yaw_rad": -0.12984395242237798,
+      "horizontal_speed_m_s": 1.8469306693388925,
+      "body_relative_forward_m_s": 0.07730672435195976,
+      "body_relative_lateral_m_s": 1.8453120515822194,
+      "velocity_direction_minus_yaw_rad": 1.5289272317736051
+    },
+    {
+      "lane": 0,
+      "step": 1500,
+      "height_m": 1.05535686,
+      "yaw_rad": 0.3227402036042506,
+      "horizontal_speed_m_s": 0.7633742331874349,
+      "body_relative_forward_m_s": -0.09999306321506268,
+      "body_relative_lateral_m_s": -0.7567969392137979,
+      "velocity_direction_minus_yaw_rad": -1.7021620908546191
+    },
+    {
+      "lane": 1,
+      "step": 1500,
+      "height_m": 1.00976968,
+      "yaw_rad": -0.23914794738320325,
+      "horizontal_speed_m_s": 0.8232311327712983,
+      "body_relative_forward_m_s": 0.22925071488754384,
+      "body_relative_lateral_m_s": 0.7906665591053318,
+      "velocity_direction_minus_yaw_rad": 1.28858858957035
+    },
+    {
+      "lane": 2,
+      "step": 1500,
+      "height_m": 1.38239622,
+      "yaw_rad": 0.24788642701723618,
+      "horizontal_speed_m_s": 1.4308686144859017,
+      "body_relative_forward_m_s": -0.7348704975725635,
+      "body_relative_lateral_m_s": -1.2277419695189447,
+      "velocity_direction_minus_yaw_rad": -2.110152291695514
+    },
+    {
+      "lane": 3,
+      "step": 1500,
+      "height_m": 1.14086723,
+      "yaw_rad": -0.21840242969884868,
+      "horizontal_speed_m_s": 1.3554618594239778,
+      "body_relative_forward_m_s": 0.27277472867696506,
+      "body_relative_lateral_m_s": 1.3277314486553053,
+      "velocity_direction_minus_yaw_rad": 1.3681714793771032
+    },
+    {
+      "lane": 5,
+      "step": 1500,
+      "height_m": 1.31707978,
+      "yaw_rad": -0.14411785088722226,
+      "horizontal_speed_m_s": 1.7673540222454869,
+      "body_relative_forward_m_s": 0.02806851478588046,
+      "body_relative_lateral_m_s": 1.7671311208919995,
+      "velocity_direction_minus_yaw_rad": 1.554913999594704
+    },
+    {
+      "lane": 0,
+      "step": 1600,
+      "height_m": 1.04307413,
+      "yaw_rad": 0.3527106282674337,
+      "horizontal_speed_m_s": 0.7761886007063364,
+      "body_relative_forward_m_s": -0.1052358036349493,
+      "body_relative_lateral_m_s": -0.7690215663424316,
+      "velocity_direction_minus_yaw_rad": -1.7067953703973844
+    },
+    {
+      "lane": 1,
+      "step": 1600,
+      "height_m": 0.995390117,
+      "yaw_rad": -0.2630301057509265,
+      "horizontal_speed_m_s": 0.8366071423201147,
+      "body_relative_forward_m_s": 0.23515011335839345,
+      "body_relative_lateral_m_s": 0.8028797760365891,
+      "velocity_direction_minus_yaw_rad": 1.2858812951335379
+    },
+    {
+      "lane": 2,
+      "step": 1600,
+      "height_m": 1.37842953,
+      "yaw_rad": 0.26830117412536486,
+      "horizontal_speed_m_s": 1.4550970377807348,
+      "body_relative_forward_m_s": -0.7687090310326442,
+      "body_relative_lateral_m_s": -1.2354731138179909,
+      "velocity_direction_minus_yaw_rad": -2.127378259069271
+    },
+    {
+      "lane": 3,
+      "step": 1600,
+      "height_m": 1.12985098,
+      "yaw_rad": -0.23807823527155747,
+      "horizontal_speed_m_s": 1.3569483274284586,
+      "body_relative_forward_m_s": 0.22921926360141848,
+      "body_relative_lateral_m_s": 1.337448052264055,
+      "velocity_direction_minus_yaw_rad": 1.40105985101777
+    },
+    {
+      "lane": 5,
+      "step": 1600,
+      "height_m": 1.30340338,
+      "yaw_rad": -0.1540897566122336,
+      "horizontal_speed_m_s": 1.7770178245460806,
+      "body_relative_forward_m_s": 0.02496509223650417,
+      "body_relative_lateral_m_s": 1.7768424502257107,
+      "velocity_direction_minus_yaw_rad": 1.5567469947091928
+    }
+  ],
+  "scope": "Retained 100-control-interval endpoint snapshots, one previously used seed; uses projected body x-axis and simulated world linear velocity. The assumption is corroborated by the aerodynamic kernel, but not independently by filmed crow motion. This is descriptive sideslip of the simulation, not integrated displacement, aerodynamic cause, or qualified flight."
 }

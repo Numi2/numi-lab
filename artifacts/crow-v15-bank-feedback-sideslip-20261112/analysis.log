@@ -1,0 +1,215 @@
+{
+  "rows": [
+    {
+      "lane": 0,
+      "steps": [
+        451,
+        500
+      ],
+      "forward_ground_speed_mean_m_s": 0.4714300342870671,
+      "lateral_ground_speed_mean_m_s": -0.10845743152152963,
+      "heading_mean_rad": 0.019905298850858816
+    },
+    {
+      "lane": 0,
+      "steps": [
+        701,
+        750
+      ],
+      "forward_ground_speed_mean_m_s": -0.1065831961394251,
+      "lateral_ground_speed_mean_m_s": -0.24888507082574496,
+      "heading_mean_rad": 0.08067764516338446
+    },
+    {
+      "lane": 1,
+      "steps": [
+        451,
+        500
+      ],
+      "forward_ground_speed_mean_m_s": 0.47410332312907516,
+      "lateral_ground_speed_mean_m_s": 0.11047667978962537,
+      "heading_mean_rad": 0.008511696604262696
+    },
+    {
+      "lane": 1,
+      "steps": [
+        701,
+        750
+      ],
+      "forward_ground_speed_mean_m_s": 0.08596815900082515,
+      "lateral_ground_speed_mean_m_s": 0.26548517146656553,
+      "heading_mean_rad": -0.035816526840439865
+    },
+    {
+      "lane": 2,
+      "steps": [
+        451,
+        500
+      ],
+      "forward_ground_speed_mean_m_s": 0.46537255226964613,
+      "lateral_ground_speed_mean_m_s": -0.2053552529258321,
+      "heading_mean_rad": 0.02028753249952826
+    },
+    {
+      "lane": 2,
+      "steps": [
+        701,
+        750
+      ],
+      "forward_ground_speed_mean_m_s": -0.17316515743312047,
+      "lateral_ground_speed_mean_m_s": -0.4930484329383846,
+      "heading_mean_rad": 0.07989605548658642
+    },
+    {
+      "lane": 3,
+      "steps": [
+        451,
+        500
+      ],
+      "forward_ground_speed_mean_m_s": 0.4695520607877731,
+      "lateral_ground_speed_mean_m_s": 0.20957496095942127,
+      "heading_mean_rad": 0.006956558922203358
+    },
+    {
+      "lane": 3,
+      "steps": [
+        701,
+        750
+      ],
+      "forward_ground_speed_mean_m_s": 0.17183441902496302,
+      "lateral_ground_speed_mean_m_s": 0.5442763447565111,
+      "heading_mean_rad": -0.044584890484305334
+    },
+    {
+      "lane": 4,
+      "steps": [
+        451,
+        500
+      ],
+      "forward_ground_speed_mean_m_s": 0.4635880318854473,
+      "lateral_ground_speed_mean_m_s": -0.28104786443343355,
+      "heading_mean_rad": 0.020849391463543726
+    },
+    {
+      "lane": 4,
+      "steps": [
+        701,
+        750
+      ],
+      "forward_ground_speed_mean_m_s": -0.37314578998538833,
+      "lateral_ground_speed_mean_m_s": -1.1209072190953366,
+      "heading_mean_rad": 0.07271748152645574
+    },
+    {
+      "lane": 5,
+      "steps": [
+        451,
+        500
+      ],
+      "forward_ground_speed_mean_m_s": 0.46656677835893723,
+      "lateral_ground_speed_mean_m_s": 0.2864892096556317,
+      "heading_mean_rad": 0.006116824950372795
+    },
+    {
+      "lane": 5,
+      "steps": [
+        701,
+        750
+      ],
+      "forward_ground_speed_mean_m_s": 0.23790502227958696,
+      "lateral_ground_speed_mean_m_s": 1.2174631434631642,
+      "heading_mean_rad": -0.05231575712661889
+    },
+    {
+      "lane": 0,
+      "steps": [
+        500,
+        800
+      ],
+      "world_displacement_x_y_m": [
+        0.6689416130000001,
+        -1.516823303
+      ],
+      "heading_start_end_rad": [
+        0.02249446411645061,
+        0.10500432285641394
+      ]
+    },
+    {
+      "lane": 1,
+      "steps": [
+        500,
+        800
+      ],
+      "world_displacement_x_y_m": [
+        1.6349750799999998,
+        1.5888936259
+      ],
+      "heading_start_end_rad": [
+        0.006222719003158268,
+        -0.05490142113837592
+      ]
+    },
+    {
+      "lane": 2,
+      "steps": [
+        500,
+        800
+      ],
+      "world_displacement_x_y_m": [
+        0.328111201,
+        -3.030171398
+      ],
+      "heading_start_end_rad": [
+        0.02192084704819213,
+        0.10503455913906252
+      ]
+    },
+    {
+      "lane": 3,
+      "steps": [
+        500,
+        800
+      ],
+      "world_displacement_x_y_m": [
+        1.930202241,
+        3.232142533
+      ],
+      "heading_start_end_rad": [
+        0.0040130093192361355,
+        -0.06533576895696706
+      ]
+    },
+    {
+      "lane": 4,
+      "steps": [
+        500,
+        800
+      ],
+      "world_displacement_x_y_m": [
+        -0.5586162065,
+        -6.408830498
+      ],
+      "heading_start_end_rad": [
+        0.02247666574624171,
+        0.09560397408686003
+      ]
+    },
+    {
+      "lane": 5,
+      "steps": [
+        500,
+        800
+      ],
+      "world_displacement_x_y_m": [
+        1.9617562849999999,
+        6.759337042
+      ],
+      "heading_start_end_rad": [
+        0.0016859815697636599,
+        -0.07141030452346124
+      ]
+    }
+  ],
+  "scope": "Ground-relative horizontal velocity rotated by sampled yaw only, not full body-frame airspeed or biological sideslip. Source states precede kernel evaluation. Selected windows and endpoints are not continuous collision or flight qualification. Used development seed; known direct moments off only after 9s."
+}
