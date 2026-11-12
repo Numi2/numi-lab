@@ -1,0 +1,185 @@
+artifacts/crow-v15-substep-target-interpolation-screen-20261112/candidate-20261126 q_error 4.995613089864293e-10 position_error_m 1.5772100494795444e-08 rotation_error 2.9798483473448158e-08
+{
+  "rows": [
+    {
+      "lane": 0,
+      "prefix_state_mismatches": [],
+      "prefix_contact_mismatches": [],
+      "candidate_unloaded_substeps": 0,
+      "reference_unloaded_substeps": 0,
+      "candidate_nonfoot_intervals": [],
+      "candidate_caps": 0,
+      "reference_caps": 0,
+      "candidate_swing_counts": [
+        3,
+        3
+      ],
+      "candidate_travel_m": 0.031340358799999996,
+      "reference_travel_m": 0.031340358799999996,
+      "pass": true
+    },
+    {
+      "lane": 1,
+      "prefix_state_mismatches": [],
+      "prefix_contact_mismatches": [],
+      "candidate_unloaded_substeps": 0,
+      "reference_unloaded_substeps": 0,
+      "candidate_nonfoot_intervals": [],
+      "candidate_caps": 0,
+      "reference_caps": 0,
+      "candidate_swing_counts": [
+        3,
+        3
+      ],
+      "candidate_travel_m": 0.03135441059999999,
+      "reference_travel_m": 0.03135441059999999,
+      "pass": true
+    },
+    {
+      "lane": 2,
+      "prefix_state_mismatches": [],
+      "prefix_contact_mismatches": [],
+      "candidate_unloaded_substeps": 0,
+      "reference_unloaded_substeps": 0,
+      "candidate_nonfoot_intervals": [],
+      "candidate_caps": 0,
+      "reference_caps": 0,
+      "candidate_swing_counts": [
+        3,
+        3
+      ],
+      "candidate_travel_m": 0.030861166750000002,
+      "reference_travel_m": 0.030861166750000002,
+      "pass": true
+    },
+    {
+      "lane": 3,
+      "prefix_state_mismatches": [],
+      "prefix_contact_mismatches": [],
+      "candidate_unloaded_substeps": 30,
+      "reference_unloaded_substeps": 30,
+      "candidate_nonfoot_intervals": [],
+      "candidate_caps": 0,
+      "reference_caps": 0,
+      "candidate_swing_counts": [
+        3,
+        3
+      ],
+      "candidate_travel_m": 0.031137459899999997,
+      "reference_travel_m": 0.031137459899999997,
+      "pass": true
+    },
+    {
+      "lane": 4,
+      "prefix_state_mismatches": [],
+      "prefix_contact_mismatches": [],
+      "candidate_unloaded_substeps": 0,
+      "reference_unloaded_substeps": 0,
+      "candidate_nonfoot_intervals": [],
+      "candidate_caps": 0,
+      "reference_caps": 0,
+      "candidate_swing_counts": [
+        3,
+        3
+      ],
+      "candidate_travel_m": 0.030291686800000002,
+      "reference_travel_m": 0.030291686800000002,
+      "pass": true
+    },
+    {
+      "lane": 5,
+      "prefix_state_mismatches": [],
+      "prefix_contact_mismatches": [],
+      "candidate_unloaded_substeps": 0,
+      "reference_unloaded_substeps": 0,
+      "candidate_nonfoot_intervals": [],
+      "candidate_caps": 0,
+      "reference_caps": 0,
+      "candidate_swing_counts": [
+        3,
+        3
+      ],
+      "candidate_travel_m": 0.03084139017,
+      "reference_travel_m": 0.03084139017,
+      "pass": true
+    },
+    {
+      "lane": 6,
+      "prefix_state_mismatches": [],
+      "prefix_contact_mismatches": [],
+      "candidate_unloaded_substeps": 0,
+      "reference_unloaded_substeps": 0,
+      "candidate_nonfoot_intervals": [],
+      "candidate_caps": 0,
+      "reference_caps": 0,
+      "candidate_swing_counts": [
+        3,
+        3
+      ],
+      "candidate_travel_m": 0.031059786699999998,
+      "reference_travel_m": 0.031059786699999998,
+      "pass": true
+    },
+    {
+      "lane": 7,
+      "prefix_state_mismatches": [],
+      "prefix_contact_mismatches": [],
+      "candidate_unloaded_substeps": 0,
+      "reference_unloaded_substeps": 0,
+      "candidate_nonfoot_intervals": [],
+      "candidate_caps": 0,
+      "reference_caps": 0,
+      "candidate_swing_counts": [
+        3,
+        3
+      ],
+      "candidate_travel_m": 0.0307338499,
+      "reference_travel_m": 0.0307338499,
+      "pass": true
+    }
+  ],
+  "boundary_acceleration": [
+    {
+      "joint": "left_knee",
+      "candidate_mean": 533.6550949494939,
+      "reference_mean": 533.6550949494939,
+      "fraction": 1.0,
+      "candidate_within_mean": 110.86694071380482,
+      "reference_within_mean": 110.86694071380482,
+      "pass": false
+    },
+    {
+      "joint": "left_ankle",
+      "candidate_mean": 334.0180929292935,
+      "reference_mean": 334.0180929292935,
+      "fraction": 1.0,
+      "candidate_within_mean": 33.13809066666698,
+      "reference_within_mean": 33.13809066666698,
+      "pass": false
+    },
+    {
+      "joint": "right_knee",
+      "candidate_mean": 566.1595321212139,
+      "reference_mean": 566.1595321212139,
+      "fraction": 1.0,
+      "candidate_within_mean": 124.08696263973017,
+      "reference_within_mean": 124.08696263973017,
+      "pass": false
+    },
+    {
+      "joint": "right_ankle",
+      "candidate_mean": 372.89906343434325,
+      "reference_mean": 372.89906343434325,
+      "fraction": 1.0,
+      "candidate_within_mean": 37.12569179797995,
+      "reference_within_mean": 37.12569179797995,
+      "pass": false
+    }
+  ],
+  "candidate_unloaded_substeps": 30,
+  "reference_unloaded_substeps": 30,
+  "candidate_errors": [],
+  "reference_errors": [],
+  "all_gates_pass": false,
+  "limits": "Intervention starts at the first interval, so prefix mismatches are expected. Development seed only, 2s walking window. q second differences are sampled acceleration proxies, not actual torque or biological validation."
+}
