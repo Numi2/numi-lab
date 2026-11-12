@@ -1,5 +1,5 @@
 from pathlib import Path
-import collections,gzip,json,math,numpy as np
+import collections,gzip,json,math
 A=Path('artifacts/crow-v15-offset-release-screen-20261112/mixed');state={};pose={};events={};by=collections.defaultdict(lambda:[0.]*37);coverage=collections.Counter();bad=[];errors=[];caps=collections.Counter()
 with gzip.open(A/'trace.log.gz','rt') as f:
  for l in f:
@@ -20,15 +20,25 @@ with gzip.open(A/'substeps.log.gz','rt') as f:
    if int(a[4])>int(a[5]) or len(a[6:])!=37:bad.append(key)
    for i,v in enumerate(map(float,a[6:])):by[e,t][i]+=v
 missing=[(e,t,i) for e in range(8) for t in range(1,551) for i in range(32) if coverage[e,t,i]!=1]
-def rot(q):
- x,y,z,w=q;return np.array([[1-2*(y*y+z*z),2*(x*y-z*w),2*(x*z+y*w)],[2*(x*y+z*w),1-2*(x*x+z*z),2*(y*z-x*w)],[2*(x*z-y*w),2*(y*z+x*w),1-2*(x*x+y*y)]])
+def dot(a,b):return sum(x*y for x,y in zip(a,b))
+def cross(a,b):return [a[1]*b[2]-a[2]*b[1],a[2]*b[0]-a[0]*b[2],a[0]*b[1]-a[1]*b[0]]
+def rotcols(q):
+ x,y,z,w=q
+ return [[1-2*(y*y+z*z),2*(x*y+z*w),2*(x*z-y*w)],
+         [2*(x*y-z*w),1-2*(x*x+z*z),2*(y*z+x*w)],
+         [2*(x*z+y*w),2*(y*z-x*w),1-2*(x*x+y*y)]]
 def gap(obj,half):
- P=rot(obj[3:]);Q=np.eye(3);d=np.array([0.,0.,-.055])-np.array(obj[:3]);axes=[*P.T,*Q.T]+[np.cross(P[:,i],Q[:,j]) for i in range(3) for j in range(3)];v=[]
+ P=rotcols(obj[3:]);Q=[[1.,0.,0.],[0.,1.,0.],[0.,0.,1.]]
+ d=[-obj[0],-obj[1],-.055-obj[2]]
+ axes=P+Q+[cross(p,q) for p in P for q in Q];values=[]
  for u in axes:
-  n=np.linalg.norm(u)
+  n=math.sqrt(dot(u,u))
   if n>1e-8:
-   u=u/n;v.append(abs(d@u)-sum(abs(P.T@u)*half)-sum(abs(Q.T@u)*[.025,.72,.055]))
- return float(max(v))
+   u=[x/n for x in u]
+   values.append(abs(dot(d,u))-sum(abs(dot(p,u))*h for p,h in zip(P,half))-sum(abs(dot(q,u))*h for q,h in zip(Q,[.025,.72,.055])))
+ return max(values)
+assert abs(gap([0,0,0,0,0,0,1],[.009,.0025,.0092])+.0092)<1e-12
+assert abs(gap([0,0,.02,0,0,0,1],[.009,.0025,.0092])-.0108)<1e-12
 def longest(a):
  best=cur=0
  for v in a:cur=cur+1 if v else 0;best=max(best,cur)
