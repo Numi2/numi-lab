@@ -1,0 +1,5 @@
+# Early fore-aft balance on difficult perch starts
+
+The unchanged controls reproduced 1,100 endpoint states and 35,200 substeps exactly and passed release/regrip. Increasing the early hip position feedback from 0.5 to 1.0 recovered the +3 mm height start: it completed 42 consecutive qualified release intervals and met every terminal bilateral grip gate. The +6 mm forward start still fell at step 118. The −0.010 m/s start achieved 40 release intervals, remained supported and upright, but missed left-toe opposition in one of the final 100 intervals and therefore failed the strict gate. Gain 2.0 failed all three starts, falling at steps 195, 210 and 244. The +6 mm gain-1 lane had two nonfoot-contact intervals; the other gain-1 lanes had none.
+
+All 140,800 substeps were present and the endpoint observer's foot-normal impulse sums matched within 7.34e-10 N s. The diagnostic starts and deliberately high friction are constructed, not a landing distribution or calibrated crow contact. The gain-1 response is promising but not yet reliable or integrated into autonomous landing. Full terminal conditions are in `high/terminal-diagnostics.json`.

@@ -1,0 +1,6 @@
+{
+  "arm": "high",
+  "probe_sha256": "b2e7ad15af1b71ee1a7a84622eb9f5bf3313bb8750ae2059593603b1f4a15cdc",
+  "observer_host_sha256": "2401d8c6aa048f7a4a75b51d2fbc1498b97b66fd3e3e6aeb19b3014fa5af7aea",
+  "metallib_sha256": "835d0ff74b8338bba6987d88f3355a1344522eaa88fa8e82295b12ba58cedeb5"
+}
