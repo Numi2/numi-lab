@@ -1,0 +1,2693 @@
+{
+  "rows": [
+    {
+      "arm": "sham",
+      "lane": 0,
+      "interval": 210,
+      "right_rear_proximal_command_rad": 0.0,
+      "right_rear_proximal_velocity_min_rad_s": 0.039310839,
+      "right_rear_proximal_velocity_max_rad_s": 0.0899374261
+    },
+    {
+      "arm": "sham",
+      "lane": 0,
+      "interval": 211,
+      "right_rear_proximal_command_rad": 0.0,
+      "right_rear_proximal_velocity_min_rad_s": 0.00651744008,
+      "right_rear_proximal_velocity_max_rad_s": 0.0367697254
+    },
+    {
+      "arm": "sham",
+      "lane": 0,
+      "interval": 212,
+      "right_rear_proximal_command_rad": 0.0,
+      "right_rear_proximal_velocity_min_rad_s": -0.00603393465,
+      "right_rear_proximal_velocity_max_rad_s": 0.00508697797
+    },
+    {
+      "arm": "sham",
+      "lane": 0,
+      "interval": 213,
+      "right_rear_proximal_command_rad": 0.0,
+      "right_rear_proximal_velocity_min_rad_s": -0.00746106217,
+      "right_rear_proximal_velocity_max_rad_s": -0.00690537877
+    },
+    {
+      "arm": "sham",
+      "lane": 0,
+      "interval": 214,
+      "right_rear_proximal_command_rad": 0.0,
+      "right_rear_proximal_velocity_min_rad_s": -0.0083263563,
+      "right_rear_proximal_velocity_max_rad_s": -0.00477421423
+    },
+    {
+      "arm": "sham",
+      "lane": 0,
+      "interval": 215,
+      "right_rear_proximal_command_rad": 0.0,
+      "right_rear_proximal_velocity_min_rad_s": -0.00500233285,
+      "right_rear_proximal_velocity_max_rad_s": -0.00170318445
+    },
+    {
+      "arm": "sham",
+      "lane": 0,
+      "interval": 216,
+      "right_rear_proximal_command_rad": 0.0,
+      "right_rear_proximal_velocity_min_rad_s": -0.00247686426,
+      "right_rear_proximal_velocity_max_rad_s": -0.000246081239
+    },
+    {
+      "arm": "sham",
+      "lane": 0,
+      "interval": 217,
+      "right_rear_proximal_command_rad": 0.0,
+      "right_rear_proximal_velocity_min_rad_s": -0.00102214958,
+      "right_rear_proximal_velocity_max_rad_s": 0.00137766404
+    },
+    {
+      "arm": "sham",
+      "lane": 0,
+      "interval": 218,
+      "right_rear_proximal_command_rad": 0.0,
+      "right_rear_proximal_velocity_min_rad_s": -0.000833089929,
+      "right_rear_proximal_velocity_max_rad_s": 0.00165690447
+    },
+    {
+      "arm": "sham",
+      "lane": 0,
+      "interval": 219,
+      "right_rear_proximal_command_rad": 0.0,
+      "right_rear_proximal_velocity_min_rad_s": -0.000914783566,
+      "right_rear_proximal_velocity_max_rad_s": 0.00135321473
+    },
+    {
+      "arm": "sham",
+      "lane": 0,
+      "interval": 220,
+      "right_rear_proximal_command_rad": 0.0,
+      "right_rear_proximal_velocity_min_rad_s": -0.000916138757,
+      "right_rear_proximal_velocity_max_rad_s": 0.000859919644
+    },
+    {
+      "arm": "sham",
+      "lane": 0,
+      "interval": 221,
+      "right_rear_proximal_command_rad": 0.0,
+      "right_rear_proximal_velocity_min_rad_s": -0.00040339632,
+      "right_rear_proximal_velocity_max_rad_s": 0.000239713947
+    },
+    {
+      "arm": "sham",
+      "lane": 0,
+      "interval": 222,
+      "right_rear_proximal_command_rad": 0.0,
+      "right_rear_proximal_velocity_min_rad_s": -0.000249708653,
+      "right_rear_proximal_velocity_max_rad_s": -3.32617892e-05
+    },
+    {
+      "arm": "sham",
+      "lane": 0,
+      "interval": 223,
+      "right_rear_proximal_command_rad": 0.0,
+      "right_rear_proximal_velocity_min_rad_s": -0.000737128779,
+      "right_rear_proximal_velocity_max_rad_s": 0.000301892229
+    },
+    {
+      "arm": "sham",
+      "lane": 0,
+      "interval": 224,
+      "right_rear_proximal_command_rad": 0.0,
+      "right_rear_proximal_velocity_min_rad_s": -1.62626159,
+      "right_rear_proximal_velocity_max_rad_s": -0.0750113726
+    },
+    {
+      "arm": "sham",
+      "lane": 0,
+      "interval": 225,
+      "right_rear_proximal_command_rad": 0.0,
+      "right_rear_proximal_velocity_min_rad_s": -0.33296445,
+      "right_rear_proximal_velocity_max_rad_s": 0.880031168
+    },
+    {
+      "arm": "sham",
+      "lane": 0,
+      "interval": 226,
+      "right_rear_proximal_command_rad": 0.0,
+      "right_rear_proximal_velocity_min_rad_s": -3.52658105,
+      "right_rear_proximal_velocity_max_rad_s": 0.845268488
+    },
+    {
+      "arm": "sham",
+      "lane": 0,
+      "interval": 227,
+      "right_rear_proximal_command_rad": 0.0,
+      "right_rear_proximal_velocity_min_rad_s": -1.76269686,
+      "right_rear_proximal_velocity_max_rad_s": 2.42413998
+    },
+    {
+      "arm": "sham",
+      "lane": 0,
+      "interval": 228,
+      "right_rear_proximal_command_rad": 0.0,
+      "right_rear_proximal_velocity_min_rad_s": -1.60343349,
+      "right_rear_proximal_velocity_max_rad_s": 2.19016647
+    },
+    {
+      "arm": "sham",
+      "lane": 0,
+      "interval": 229,
+      "right_rear_proximal_command_rad": 0.0,
+      "right_rear_proximal_velocity_min_rad_s": -1.3876543,
+      "right_rear_proximal_velocity_max_rad_s": 0.151254669
+    },
+    {
+      "arm": "sham",
+      "lane": 0,
+      "interval": 230,
+      "right_rear_proximal_command_rad": 0.0,
+      "right_rear_proximal_velocity_min_rad_s": 0.229747832,
+      "right_rear_proximal_velocity_max_rad_s": 1.00290179
+    },
+    {
+      "arm": "sham",
+      "lane": 1,
+      "interval": 210,
+      "right_rear_proximal_command_rad": 0.0,
+      "right_rear_proximal_velocity_min_rad_s": 0.03571444,
+      "right_rear_proximal_velocity_max_rad_s": 0.0865150094
+    },
+    {
+      "arm": "sham",
+      "lane": 1,
+      "interval": 211,
+      "right_rear_proximal_command_rad": 0.0,
+      "right_rear_proximal_velocity_min_rad_s": 0.00432446459,
+      "right_rear_proximal_velocity_max_rad_s": 0.0332510658
+    },
+    {
+      "arm": "sham",
+      "lane": 1,
+      "interval": 212,
+      "right_rear_proximal_command_rad": 0.0,
+      "right_rear_proximal_velocity_min_rad_s": -0.00690318551,
+      "right_rear_proximal_velocity_max_rad_s": 0.00299019623
+    },
+    {
+      "arm": "sham",
+      "lane": 1,
+      "interval": 213,
+      "right_rear_proximal_command_rad": 0.0,
+      "right_rear_proximal_velocity_min_rad_s": -0.00787794404,
+      "right_rear_proximal_velocity_max_rad_s": -0.00737571251
+    },
+    {
+      "arm": "sham",
+      "lane": 1,
+      "interval": 214,
+      "right_rear_proximal_command_rad": 0.0,
+      "right_rear_proximal_velocity_min_rad_s": -0.00838996191,
+      "right_rear_proximal_velocity_max_rad_s": -0.00458540395
+    },
+    {
+      "arm": "sham",
+      "lane": 1,
+      "interval": 215,
+      "right_rear_proximal_command_rad": 0.0,
+      "right_rear_proximal_velocity_min_rad_s": -0.00481682457,
+      "right_rear_proximal_velocity_max_rad_s": -0.00145927782
+    },
+    {
+      "arm": "sham",
+      "lane": 1,
+      "interval": 216,
+      "right_rear_proximal_command_rad": 0.0,
+      "right_rear_proximal_velocity_min_rad_s": -0.00227145199,
+      "right_rear_proximal_velocity_max_rad_s": -0.000119985467
+    },
+    {
+      "arm": "sham",
+      "lane": 1,
+      "interval": 217,
+      "right_rear_proximal_command_rad": 0.0,
+      "right_rear_proximal_velocity_min_rad_s": -0.000892548007,
+      "right_rear_proximal_velocity_max_rad_s": 0.00149075128
+    },
+    {
+      "arm": "sham",
+      "lane": 1,
+      "interval": 218,
+      "right_rear_proximal_command_rad": 0.0,
+      "right_rear_proximal_velocity_min_rad_s": -0.000822318078,
+      "right_rear_proximal_velocity_max_rad_s": 0.00165324309
+    },
+    {
+      "arm": "sham",
+      "lane": 1,
+      "interval": 219,
+      "right_rear_proximal_command_rad": 0.0,
+      "right_rear_proximal_velocity_min_rad_s": -0.000907077803,
+      "right_rear_proximal_velocity_max_rad_s": 0.00139623345
+    },
+    {
+      "arm": "sham",
+      "lane": 1,
+      "interval": 220,
+      "right_rear_proximal_command_rad": 0.0,
+      "right_rear_proximal_velocity_min_rad_s": -0.000933255302,
+      "right_rear_proximal_velocity_max_rad_s": 0.000841518224
+    },
+    {
+      "arm": "sham",
+      "lane": 1,
+      "interval": 221,
+      "right_rear_proximal_command_rad": 0.0,
+      "right_rear_proximal_velocity_min_rad_s": -0.000407651736,
+      "right_rear_proximal_velocity_max_rad_s": 0.000223175841
+    },
+    {
+      "arm": "sham",
+      "lane": 1,
+      "interval": 222,
+      "right_rear_proximal_command_rad": 0.0,
+      "right_rear_proximal_velocity_min_rad_s": -0.000290759432,
+      "right_rear_proximal_velocity_max_rad_s": -4.61210802e-05
+    },
+    {
+      "arm": "sham",
+      "lane": 1,
+      "interval": 223,
+      "right_rear_proximal_command_rad": 0.0,
+      "right_rear_proximal_velocity_min_rad_s": -0.000790416903,
+      "right_rear_proximal_velocity_max_rad_s": 0.00028300847
+    },
+    {
+      "arm": "sham",
+      "lane": 1,
+      "interval": 224,
+      "right_rear_proximal_command_rad": 0.0,
+      "right_rear_proximal_velocity_min_rad_s": -1.61773634,
+      "right_rear_proximal_velocity_max_rad_s": -0.0566605777
+    },
+    {
+      "arm": "sham",
+      "lane": 1,
+      "interval": 225,
+      "right_rear_proximal_command_rad": 0.0,
+      "right_rear_proximal_velocity_min_rad_s": -0.327239066,
+      "right_rear_proximal_velocity_max_rad_s": 0.872592509
+    },
+    {
+      "arm": "sham",
+      "lane": 1,
+      "interval": 226,
+      "right_rear_proximal_command_rad": 0.0,
+      "right_rear_proximal_velocity_min_rad_s": -3.53379321,
+      "right_rear_proximal_velocity_max_rad_s": 0.837562859
+    },
+    {
+      "arm": "sham",
+      "lane": 1,
+      "interval": 227,
+      "right_rear_proximal_command_rad": 0.0,
+      "right_rear_proximal_velocity_min_rad_s": -1.71258843,
+      "right_rear_proximal_velocity_max_rad_s": 2.4548955
+    },
+    {
+      "arm": "sham",
+      "lane": 1,
+      "interval": 228,
+      "right_rear_proximal_command_rad": 0.0,
+      "right_rear_proximal_velocity_min_rad_s": -1.61406744,
+      "right_rear_proximal_velocity_max_rad_s": 2.20923805
+    },
+    {
+      "arm": "sham",
+      "lane": 1,
+      "interval": 229,
+      "right_rear_proximal_command_rad": 0.0,
+      "right_rear_proximal_velocity_min_rad_s": -1.36580825,
+      "right_rear_proximal_velocity_max_rad_s": 0.0888076201
+    },
+    {
+      "arm": "sham",
+      "lane": 1,
+      "interval": 230,
+      "right_rear_proximal_command_rad": 0.0,
+      "right_rear_proximal_velocity_min_rad_s": 0.166016981,
+      "right_rear_proximal_velocity_max_rad_s": 0.991998076
+    },
+    {
+      "arm": "sham",
+      "lane": 2,
+      "interval": 210,
+      "right_rear_proximal_command_rad": 0.0,
+      "right_rear_proximal_velocity_min_rad_s": 0.0251223184,
+      "right_rear_proximal_velocity_max_rad_s": 0.0649845004
+    },
+    {
+      "arm": "sham",
+      "lane": 2,
+      "interval": 211,
+      "right_rear_proximal_command_rad": 0.0,
+      "right_rear_proximal_velocity_min_rad_s": 0.00172098691,
+      "right_rear_proximal_velocity_max_rad_s": 0.0232921895
+    },
+    {
+      "arm": "sham",
+      "lane": 2,
+      "interval": 212,
+      "right_rear_proximal_command_rad": 0.0,
+      "right_rear_proximal_velocity_min_rad_s": -0.00600748789,
+      "right_rear_proximal_velocity_max_rad_s": 0.000729935651
+    },
+    {
+      "arm": "sham",
+      "lane": 2,
+      "interval": 213,
+      "right_rear_proximal_command_rad": 0.0,
+      "right_rear_proximal_velocity_min_rad_s": -0.00676221028,
+      "right_rear_proximal_velocity_max_rad_s": -0.00582101243
+    },
+    {
+      "arm": "sham",
+      "lane": 2,
+      "interval": 214,
+      "right_rear_proximal_command_rad": 0.0,
+      "right_rear_proximal_velocity_min_rad_s": -0.00684312126,
+      "right_rear_proximal_velocity_max_rad_s": -0.00349326385
+    },
+    {
+      "arm": "sham",
+      "lane": 2,
+      "interval": 215,
+      "right_rear_proximal_command_rad": 0.0,
+      "right_rear_proximal_velocity_min_rad_s": -0.00375566352,
+      "right_rear_proximal_velocity_max_rad_s": -0.000977243762
+    },
+    {
+      "arm": "sham",
+      "lane": 2,
+      "interval": 216,
+      "right_rear_proximal_command_rad": 0.0,
+      "right_rear_proximal_velocity_min_rad_s": -0.0018035156,
+      "right_rear_proximal_velocity_max_rad_s": 8.43294765e-05
+    },
+    {
+      "arm": "sham",
+      "lane": 2,
+      "interval": 217,
+      "right_rear_proximal_command_rad": 0.0,
+      "right_rear_proximal_velocity_min_rad_s": -0.000829437573,
+      "right_rear_proximal_velocity_max_rad_s": 0.0015235187
+    },
+    {
+      "arm": "sham",
+      "lane": 2,
+      "interval": 218,
+      "right_rear_proximal_command_rad": 0.0,
+      "right_rear_proximal_velocity_min_rad_s": -0.000817566179,
+      "right_rear_proximal_velocity_max_rad_s": 0.00166154292
+    },
+    {
+      "arm": "sham",
+      "lane": 2,
+      "interval": 219,
+      "right_rear_proximal_command_rad": 0.0,
+      "right_rear_proximal_velocity_min_rad_s": -0.000994465197,
+      "right_rear_proximal_velocity_max_rad_s": 0.00131800643
+    },
+    {
+      "arm": "sham",
+      "lane": 2,
+      "interval": 220,
+      "right_rear_proximal_command_rad": 0.0,
+      "right_rear_proximal_velocity_min_rad_s": -0.00100143836,
+      "right_rear_proximal_velocity_max_rad_s": 0.000760686118
+    },
+    {
+      "arm": "sham",
+      "lane": 2,
+      "interval": 221,
+      "right_rear_proximal_command_rad": 0.0,
+      "right_rear_proximal_velocity_min_rad_s": -0.00046591385,
+      "right_rear_proximal_velocity_max_rad_s": 0.000153864268
+    },
+    {
+      "arm": "sham",
+      "lane": 2,
+      "interval": 222,
+      "right_rear_proximal_command_rad": 0.0,
+      "right_rear_proximal_velocity_min_rad_s": -0.000325824803,
+      "right_rear_proximal_velocity_max_rad_s": -4.70346095e-05
+    },
+    {
+      "arm": "sham",
+      "lane": 2,
+      "interval": 223,
+      "right_rear_proximal_command_rad": 0.0,
+      "right_rear_proximal_velocity_min_rad_s": -0.000779474736,
+      "right_rear_proximal_velocity_max_rad_s": 0.000312414311
+    },
+    {
+      "arm": "sham",
+      "lane": 2,
+      "interval": 224,
+      "right_rear_proximal_command_rad": 0.0,
+      "right_rear_proximal_velocity_min_rad_s": -1.57975018,
+      "right_rear_proximal_velocity_max_rad_s": -0.177034765
+    },
+    {
+      "arm": "sham",
+      "lane": 2,
+      "interval": 225,
+      "right_rear_proximal_command_rad": 0.0,
+      "right_rear_proximal_velocity_min_rad_s": -0.245299891,
+      "right_rear_proximal_velocity_max_rad_s": 0.876084566
+    },
+    {
+      "arm": "sham",
+      "lane": 2,
+      "interval": 226,
+      "right_rear_proximal_command_rad": 0.0,
+      "right_rear_proximal_velocity_min_rad_s": -3.56026077,
+      "right_rear_proximal_velocity_max_rad_s": 0.830643713
+    },
+    {
+      "arm": "sham",
+      "lane": 2,
+      "interval": 227,
+      "right_rear_proximal_command_rad": 0.0,
+      "right_rear_proximal_velocity_min_rad_s": -1.57326519,
+      "right_rear_proximal_velocity_max_rad_s": 2.46612668
+    },
+    {
+      "arm": "sham",
+      "lane": 2,
+      "interval": 228,
+      "right_rear_proximal_command_rad": 0.0,
+      "right_rear_proximal_velocity_min_rad_s": -1.69080675,
+      "right_rear_proximal_velocity_max_rad_s": 2.20470691
+    },
+    {
+      "arm": "sham",
+      "lane": 2,
+      "interval": 229,
+      "right_rear_proximal_command_rad": 0.0,
+      "right_rear_proximal_velocity_min_rad_s": -1.24317825,
+      "right_rear_proximal_velocity_max_rad_s": 0.103567846
+    },
+    {
+      "arm": "sham",
+      "lane": 2,
+      "interval": 230,
+      "right_rear_proximal_command_rad": 0.0,
+      "right_rear_proximal_velocity_min_rad_s": 0.176962018,
+      "right_rear_proximal_velocity_max_rad_s": 0.980867922
+    },
+    {
+      "arm": "sham",
+      "lane": 3,
+      "interval": 210,
+      "right_rear_proximal_command_rad": 0.0,
+      "right_rear_proximal_velocity_min_rad_s": 0.0292430967,
+      "right_rear_proximal_velocity_max_rad_s": 0.0651222765
+    },
+    {
+      "arm": "sham",
+      "lane": 3,
+      "interval": 211,
+      "right_rear_proximal_command_rad": 0.0,
+      "right_rear_proximal_velocity_min_rad_s": 0.00545699568,
+      "right_rear_proximal_velocity_max_rad_s": 0.0274953004
+    },
+    {
+      "arm": "sham",
+      "lane": 3,
+      "interval": 212,
+      "right_rear_proximal_command_rad": 0.0,
+      "right_rear_proximal_velocity_min_rad_s": -0.00393209327,
+      "right_rear_proximal_velocity_max_rad_s": 0.00436145207
+    },
+    {
+      "arm": "sham",
+      "lane": 3,
+      "interval": 213,
+      "right_rear_proximal_command_rad": 0.0,
+      "right_rear_proximal_velocity_min_rad_s": -0.0051671816,
+      "right_rear_proximal_velocity_max_rad_s": -0.00472115632
+    },
+    {
+      "arm": "sham",
+      "lane": 3,
+      "interval": 214,
+      "right_rear_proximal_command_rad": 0.0,
+      "right_rear_proximal_velocity_min_rad_s": -0.00620398065,
+      "right_rear_proximal_velocity_max_rad_s": -0.00349164242
+    },
+    {
+      "arm": "sham",
+      "lane": 3,
+      "interval": 215,
+      "right_rear_proximal_command_rad": 0.0,
+      "right_rear_proximal_velocity_min_rad_s": -0.00382292503,
+      "right_rear_proximal_velocity_max_rad_s": -0.00126290694
+    },
+    {
+      "arm": "sham",
+      "lane": 3,
+      "interval": 216,
+      "right_rear_proximal_command_rad": 0.0,
+      "right_rear_proximal_velocity_min_rad_s": -0.00218047109,
+      "right_rear_proximal_velocity_max_rad_s": -0.000114989656
+    },
+    {
+      "arm": "sham",
+      "lane": 3,
+      "interval": 217,
+      "right_rear_proximal_command_rad": 0.0,
+      "right_rear_proximal_velocity_min_rad_s": -0.00100344024,
+      "right_rear_proximal_velocity_max_rad_s": 0.00152315036
+    },
+    {
+      "arm": "sham",
+      "lane": 3,
+      "interval": 218,
+      "right_rear_proximal_command_rad": 0.0,
+      "right_rear_proximal_velocity_min_rad_s": -0.000840149412,
+      "right_rear_proximal_velocity_max_rad_s": 0.00163874566
+    },
+    {
+      "arm": "sham",
+      "lane": 3,
+      "interval": 219,
+      "right_rear_proximal_command_rad": 0.0,
+      "right_rear_proximal_velocity_min_rad_s": -0.00103248097,
+      "right_rear_proximal_velocity_max_rad_s": 0.00124351576
+    },
+    {
+      "arm": "sham",
+      "lane": 3,
+      "interval": 220,
+      "right_rear_proximal_command_rad": 0.0,
+      "right_rear_proximal_velocity_min_rad_s": -0.00099572714,
+      "right_rear_proximal_velocity_max_rad_s": 0.000737663067
+    },
+    {
+      "arm": "sham",
+      "lane": 3,
+      "interval": 221,
+      "right_rear_proximal_command_rad": 0.0,
+      "right_rear_proximal_velocity_min_rad_s": -0.000456375477,
+      "right_rear_proximal_velocity_max_rad_s": 0.000175338544
+    },
+    {
+      "arm": "sham",
+      "lane": 3,
+      "interval": 222,
+      "right_rear_proximal_command_rad": 0.0,
+      "right_rear_proximal_velocity_min_rad_s": -0.000293179677,
+      "right_rear_proximal_velocity_max_rad_s": -1.76626199e-05
+    },
+    {
+      "arm": "sham",
+      "lane": 3,
+      "interval": 223,
+      "right_rear_proximal_command_rad": 0.0,
+      "right_rear_proximal_velocity_min_rad_s": -0.000740917982,
+      "right_rear_proximal_velocity_max_rad_s": 0.000277854153
+    },
+    {
+      "arm": "sham",
+      "lane": 3,
+      "interval": 224,
+      "right_rear_proximal_command_rad": 0.0,
+      "right_rear_proximal_velocity_min_rad_s": -1.60950089,
+      "right_rear_proximal_velocity_max_rad_s": 0.000857378123
+    },
+    {
+      "arm": "sham",
+      "lane": 3,
+      "interval": 225,
+      "right_rear_proximal_command_rad": 0.0,
+      "right_rear_proximal_velocity_min_rad_s": -0.379835606,
+      "right_rear_proximal_velocity_max_rad_s": 0.855881691
+    },
+    {
+      "arm": "sham",
+      "lane": 3,
+      "interval": 226,
+      "right_rear_proximal_command_rad": 0.0,
+      "right_rear_proximal_velocity_min_rad_s": -3.55757308,
+      "right_rear_proximal_velocity_max_rad_s": 0.824357092
+    },
+    {
+      "arm": "sham",
+      "lane": 3,
+      "interval": 227,
+      "right_rear_proximal_command_rad": 0.0,
+      "right_rear_proximal_velocity_min_rad_s": -1.80968046,
+      "right_rear_proximal_velocity_max_rad_s": 2.41042209
+    },
+    {
+      "arm": "sham",
+      "lane": 3,
+      "interval": 228,
+      "right_rear_proximal_command_rad": 0.0,
+      "right_rear_proximal_velocity_min_rad_s": -1.33407164,
+      "right_rear_proximal_velocity_max_rad_s": 2.18749642
+    },
+    {
+      "arm": "sham",
+      "lane": 3,
+      "interval": 229,
+      "right_rear_proximal_command_rad": 0.0,
+      "right_rear_proximal_velocity_min_rad_s": -1.18800032,
+      "right_rear_proximal_velocity_max_rad_s": 0.243716523
+    },
+    {
+      "arm": "sham",
+      "lane": 3,
+      "interval": 230,
+      "right_rear_proximal_command_rad": 0.0,
+      "right_rear_proximal_velocity_min_rad_s": 0.31441617,
+      "right_rear_proximal_velocity_max_rad_s": 0.966412842
+    },
+    {
+      "arm": "sham",
+      "lane": 4,
+      "interval": 210,
+      "right_rear_proximal_command_rad": 0.0,
+      "right_rear_proximal_velocity_min_rad_s": 0.0177475773,
+      "right_rear_proximal_velocity_max_rad_s": 0.0403250046
+    },
+    {
+      "arm": "sham",
+      "lane": 4,
+      "interval": 211,
+      "right_rear_proximal_command_rad": 0.0,
+      "right_rear_proximal_velocity_min_rad_s": 0.00308049447,
+      "right_rear_proximal_velocity_max_rad_s": 0.0167374834
+    },
+    {
+      "arm": "sham",
+      "lane": 4,
+      "interval": 212,
+      "right_rear_proximal_command_rad": 0.0,
+      "right_rear_proximal_velocity_min_rad_s": -0.00255618431,
+      "right_rear_proximal_velocity_max_rad_s": 0.00236268388
+    },
+    {
+      "arm": "sham",
+      "lane": 4,
+      "interval": 213,
+      "right_rear_proximal_command_rad": 0.0,
+      "right_rear_proximal_velocity_min_rad_s": -0.00330261537,
+      "right_rear_proximal_velocity_max_rad_s": -0.00317409402
+    },
+    {
+      "arm": "sham",
+      "lane": 4,
+      "interval": 214,
+      "right_rear_proximal_command_rad": 0.0,
+      "right_rear_proximal_velocity_min_rad_s": -0.00428908272,
+      "right_rear_proximal_velocity_max_rad_s": -0.0020076381
+    },
+    {
+      "arm": "sham",
+      "lane": 4,
+      "interval": 215,
+      "right_rear_proximal_command_rad": 0.0,
+      "right_rear_proximal_velocity_min_rad_s": -0.00255164341,
+      "right_rear_proximal_velocity_max_rad_s": -0.000586843351
+    },
+    {
+      "arm": "sham",
+      "lane": 4,
+      "interval": 216,
+      "right_rear_proximal_command_rad": 0.0,
+      "right_rear_proximal_velocity_min_rad_s": -0.00151752657,
+      "right_rear_proximal_velocity_max_rad_s": 0.000281412329
+    },
+    {
+      "arm": "sham",
+      "lane": 4,
+      "interval": 217,
+      "right_rear_proximal_command_rad": 0.0,
+      "right_rear_proximal_velocity_min_rad_s": -0.00089599035,
+      "right_rear_proximal_velocity_max_rad_s": 0.00146250322
+    },
+    {
+      "arm": "sham",
+      "lane": 4,
+      "interval": 218,
+      "right_rear_proximal_command_rad": 0.0,
+      "right_rear_proximal_velocity_min_rad_s": -0.00102007366,
+      "right_rear_proximal_velocity_max_rad_s": 0.00145669235
+    },
+    {
+      "arm": "sham",
+      "lane": 4,
+      "interval": 219,
+      "right_rear_proximal_command_rad": 0.0,
+      "right_rear_proximal_velocity_min_rad_s": -0.00112567563,
+      "right_rear_proximal_velocity_max_rad_s": 0.00114934857
+    },
+    {
+      "arm": "sham",
+      "lane": 4,
+      "interval": 220,
+      "right_rear_proximal_command_rad": 0.0,
+      "right_rear_proximal_velocity_min_rad_s": -0.00104817771,
+      "right_rear_proximal_velocity_max_rad_s": 0.000715015398
+    },
+    {
+      "arm": "sham",
+      "lane": 4,
+      "interval": 221,
+      "right_rear_proximal_command_rad": 0.0,
+      "right_rear_proximal_velocity_min_rad_s": -0.000461192452,
+      "right_rear_proximal_velocity_max_rad_s": 0.000178588976
+    },
+    {
+      "arm": "sham",
+      "lane": 4,
+      "interval": 222,
+      "right_rear_proximal_command_rad": 0.0,
+      "right_rear_proximal_velocity_min_rad_s": -0.000203920848,
+      "right_rear_proximal_velocity_max_rad_s": -3.73575472e-06
+    },
+    {
+      "arm": "sham",
+      "lane": 4,
+      "interval": 223,
+      "right_rear_proximal_command_rad": 0.0,
+      "right_rear_proximal_velocity_min_rad_s": -0.000716509239,
+      "right_rear_proximal_velocity_max_rad_s": 0.000320380524
+    },
+    {
+      "arm": "sham",
+      "lane": 4,
+      "interval": 224,
+      "right_rear_proximal_command_rad": 0.0,
+      "right_rear_proximal_velocity_min_rad_s": -1.63119972,
+      "right_rear_proximal_velocity_max_rad_s": -0.0667046607
+    },
+    {
+      "arm": "sham",
+      "lane": 4,
+      "interval": 225,
+      "right_rear_proximal_command_rad": 0.0,
+      "right_rear_proximal_velocity_min_rad_s": -0.317643881,
+      "right_rear_proximal_velocity_max_rad_s": 0.897719979
+    },
+    {
+      "arm": "sham",
+      "lane": 4,
+      "interval": 226,
+      "right_rear_proximal_command_rad": 0.0,
+      "right_rear_proximal_velocity_min_rad_s": -3.54884386,
+      "right_rear_proximal_velocity_max_rad_s": 0.858536005
+    },
+    {
+      "arm": "sham",
+      "lane": 4,
+      "interval": 227,
+      "right_rear_proximal_command_rad": 0.0,
+      "right_rear_proximal_velocity_min_rad_s": -1.7181679,
+      "right_rear_proximal_velocity_max_rad_s": 2.43423033
+    },
+    {
+      "arm": "sham",
+      "lane": 4,
+      "interval": 228,
+      "right_rear_proximal_command_rad": 0.0,
+      "right_rear_proximal_velocity_min_rad_s": -1.69642365,
+      "right_rear_proximal_velocity_max_rad_s": 2.19086003
+    },
+    {
+      "arm": "sham",
+      "lane": 4,
+      "interval": 229,
+      "right_rear_proximal_command_rad": 0.0,
+      "right_rear_proximal_velocity_min_rad_s": -1.45179009,
+      "right_rear_proximal_velocity_max_rad_s": 0.192701831
+    },
+    {
+      "arm": "sham",
+      "lane": 4,
+      "interval": 230,
+      "right_rear_proximal_command_rad": 0.0,
+      "right_rear_proximal_velocity_min_rad_s": 0.271111578,
+      "right_rear_proximal_velocity_max_rad_s": 1.00759017
+    },
+    {
+      "arm": "sham",
+      "lane": 5,
+      "interval": 210,
+      "right_rear_proximal_command_rad": 0.0,
+      "right_rear_proximal_velocity_min_rad_s": 0.0386924073,
+      "right_rear_proximal_velocity_max_rad_s": 0.0909046084
+    },
+    {
+      "arm": "sham",
+      "lane": 5,
+      "interval": 211,
+      "right_rear_proximal_command_rad": 0.0,
+      "right_rear_proximal_velocity_min_rad_s": 0.00559771573,
+      "right_rear_proximal_velocity_max_rad_s": 0.0361160785
+    },
+    {
+      "arm": "sham",
+      "lane": 5,
+      "interval": 212,
+      "right_rear_proximal_command_rad": 0.0,
+      "right_rear_proximal_velocity_min_rad_s": -0.00665957341,
+      "right_rear_proximal_velocity_max_rad_s": 0.00417052954
+    },
+    {
+      "arm": "sham",
+      "lane": 5,
+      "interval": 213,
+      "right_rear_proximal_command_rad": 0.0,
+      "right_rear_proximal_velocity_min_rad_s": -0.00781362969,
+      "right_rear_proximal_velocity_max_rad_s": -0.00749034015
+    },
+    {
+      "arm": "sham",
+      "lane": 5,
+      "interval": 214,
+      "right_rear_proximal_command_rad": 0.0,
+      "right_rear_proximal_velocity_min_rad_s": -0.0085890498,
+      "right_rear_proximal_velocity_max_rad_s": -0.00483595487
+    },
+    {
+      "arm": "sham",
+      "lane": 5,
+      "interval": 215,
+      "right_rear_proximal_command_rad": 0.0,
+      "right_rear_proximal_velocity_min_rad_s": -0.00504099904,
+      "right_rear_proximal_velocity_max_rad_s": -0.00165758864
+    },
+    {
+      "arm": "sham",
+      "lane": 5,
+      "interval": 216,
+      "right_rear_proximal_command_rad": 0.0,
+      "right_rear_proximal_velocity_min_rad_s": -0.00243436778,
+      "right_rear_proximal_velocity_max_rad_s": -0.000195172048
+    },
+    {
+      "arm": "sham",
+      "lane": 5,
+      "interval": 217,
+      "right_rear_proximal_command_rad": 0.0,
+      "right_rear_proximal_velocity_min_rad_s": -0.00100737764,
+      "right_rear_proximal_velocity_max_rad_s": 0.00138495653
+    },
+    {
+      "arm": "sham",
+      "lane": 5,
+      "interval": 218,
+      "right_rear_proximal_command_rad": 0.0,
+      "right_rear_proximal_velocity_min_rad_s": -0.000833136961,
+      "right_rear_proximal_velocity_max_rad_s": 0.00165344682
+    },
+    {
+      "arm": "sham",
+      "lane": 5,
+      "interval": 219,
+      "right_rear_proximal_command_rad": 0.0,
+      "right_rear_proximal_velocity_min_rad_s": -0.00088584004,
+      "right_rear_proximal_velocity_max_rad_s": 0.0014140812
+    },
+    {
+      "arm": "sham",
+      "lane": 5,
+      "interval": 220,
+      "right_rear_proximal_command_rad": 0.0,
+      "right_rear_proximal_velocity_min_rad_s": -0.000909526541,
+      "right_rear_proximal_velocity_max_rad_s": 0.000866444083
+    },
+    {
+      "arm": "sham",
+      "lane": 5,
+      "interval": 221,
+      "right_rear_proximal_command_rad": 0.0,
+      "right_rear_proximal_velocity_min_rad_s": -0.000396073883,
+      "right_rear_proximal_velocity_max_rad_s": 0.000246486452
+    },
+    {
+      "arm": "sham",
+      "lane": 5,
+      "interval": 222,
+      "right_rear_proximal_command_rad": 0.0,
+      "right_rear_proximal_velocity_min_rad_s": -0.000284553564,
+      "right_rear_proximal_velocity_max_rad_s": -5.27790617e-05
+    },
+    {
+      "arm": "sham",
+      "lane": 5,
+      "interval": 223,
+      "right_rear_proximal_command_rad": 0.0,
+      "right_rear_proximal_velocity_min_rad_s": -0.000800737354,
+      "right_rear_proximal_velocity_max_rad_s": 0.000282546243
+    },
+    {
+      "arm": "sham",
+      "lane": 5,
+      "interval": 224,
+      "right_rear_proximal_command_rad": 0.0,
+      "right_rear_proximal_velocity_min_rad_s": -1.63423538,
+      "right_rear_proximal_velocity_max_rad_s": -0.0357470848
+    },
+    {
+      "arm": "sham",
+      "lane": 5,
+      "interval": 225,
+      "right_rear_proximal_command_rad": 0.0,
+      "right_rear_proximal_velocity_min_rad_s": -0.346197307,
+      "right_rear_proximal_velocity_max_rad_s": 0.866999328
+    },
+    {
+      "arm": "sham",
+      "lane": 5,
+      "interval": 226,
+      "right_rear_proximal_command_rad": 0.0,
+      "right_rear_proximal_velocity_min_rad_s": -3.50351977,
+      "right_rear_proximal_velocity_max_rad_s": 0.83493644
+    },
+    {
+      "arm": "sham",
+      "lane": 5,
+      "interval": 227,
+      "right_rear_proximal_command_rad": 0.0,
+      "right_rear_proximal_velocity_min_rad_s": -1.76655114,
+      "right_rear_proximal_velocity_max_rad_s": 2.45294666
+    },
+    {
+      "arm": "sham",
+      "lane": 5,
+      "interval": 228,
+      "right_rear_proximal_command_rad": 0.0,
+      "right_rear_proximal_velocity_min_rad_s": -1.68546212,
+      "right_rear_proximal_velocity_max_rad_s": 2.2091105
+    },
+    {
+      "arm": "sham",
+      "lane": 5,
+      "interval": 229,
+      "right_rear_proximal_command_rad": 0.0,
+      "right_rear_proximal_velocity_min_rad_s": -1.36898947,
+      "right_rear_proximal_velocity_max_rad_s": 0.0365805812
+    },
+    {
+      "arm": "sham",
+      "lane": 5,
+      "interval": 230,
+      "right_rear_proximal_command_rad": 0.0,
+      "right_rear_proximal_velocity_min_rad_s": 0.114516214,
+      "right_rear_proximal_velocity_max_rad_s": 0.981950283
+    },
+    {
+      "arm": "sham",
+      "lane": 6,
+      "interval": 210,
+      "right_rear_proximal_command_rad": 0.0,
+      "right_rear_proximal_velocity_min_rad_s": 0.0427547134,
+      "right_rear_proximal_velocity_max_rad_s": 0.0941052884
+    },
+    {
+      "arm": "sham",
+      "lane": 6,
+      "interval": 211,
+      "right_rear_proximal_command_rad": 0.0,
+      "right_rear_proximal_velocity_min_rad_s": 0.0083010681,
+      "right_rear_proximal_velocity_max_rad_s": 0.0401367433
+    },
+    {
+      "arm": "sham",
+      "lane": 6,
+      "interval": 212,
+      "right_rear_proximal_command_rad": 0.0,
+      "right_rear_proximal_velocity_min_rad_s": -0.00550076831,
+      "right_rear_proximal_velocity_max_rad_s": 0.00677490234
+    },
+    {
+      "arm": "sham",
+      "lane": 6,
+      "interval": 213,
+      "right_rear_proximal_command_rad": 0.0,
+      "right_rear_proximal_velocity_min_rad_s": -0.00743403332,
+      "right_rear_proximal_velocity_max_rad_s": -0.0063987067
+    },
+    {
+      "arm": "sham",
+      "lane": 6,
+      "interval": 214,
+      "right_rear_proximal_command_rad": 0.0,
+      "right_rear_proximal_velocity_min_rad_s": -0.00841233414,
+      "right_rear_proximal_velocity_max_rad_s": -0.00513646519
+    },
+    {
+      "arm": "sham",
+      "lane": 6,
+      "interval": 215,
+      "right_rear_proximal_command_rad": 0.0,
+      "right_rear_proximal_velocity_min_rad_s": -0.00537594687,
+      "right_rear_proximal_velocity_max_rad_s": -0.00194662693
+    },
+    {
+      "arm": "sham",
+      "lane": 6,
+      "interval": 216,
+      "right_rear_proximal_command_rad": 0.0,
+      "right_rear_proximal_velocity_min_rad_s": -0.00279682502,
+      "right_rear_proximal_velocity_max_rad_s": -0.000321920204
+    },
+    {
+      "arm": "sham",
+      "lane": 6,
+      "interval": 217,
+      "right_rear_proximal_command_rad": 0.0,
+      "right_rear_proximal_velocity_min_rad_s": -0.00113365741,
+      "right_rear_proximal_velocity_max_rad_s": 0.00128668279
+    },
+    {
+      "arm": "sham",
+      "lane": 6,
+      "interval": 218,
+      "right_rear_proximal_command_rad": 0.0,
+      "right_rear_proximal_velocity_min_rad_s": -0.000897079823,
+      "right_rear_proximal_velocity_max_rad_s": 0.00159647025
+    },
+    {
+      "arm": "sham",
+      "lane": 6,
+      "interval": 219,
+      "right_rear_proximal_command_rad": 0.0,
+      "right_rear_proximal_velocity_min_rad_s": -0.000890691997,
+      "right_rear_proximal_velocity_max_rad_s": 0.00147248222
+    },
+    {
+      "arm": "sham",
+      "lane": 6,
+      "interval": 220,
+      "right_rear_proximal_command_rad": 0.0,
+      "right_rear_proximal_velocity_min_rad_s": -0.000857700827,
+      "right_rear_proximal_velocity_max_rad_s": 0.000916197198
+    },
+    {
+      "arm": "sham",
+      "lane": 6,
+      "interval": 221,
+      "right_rear_proximal_command_rad": 0.0,
+      "right_rear_proximal_velocity_min_rad_s": -0.000343302876,
+      "right_rear_proximal_velocity_max_rad_s": 0.000319704093
+    },
+    {
+      "arm": "sham",
+      "lane": 6,
+      "interval": 222,
+      "right_rear_proximal_command_rad": 0.0,
+      "right_rear_proximal_velocity_min_rad_s": -0.000268164615,
+      "right_rear_proximal_velocity_max_rad_s": -6.43888416e-05
+    },
+    {
+      "arm": "sham",
+      "lane": 6,
+      "interval": 223,
+      "right_rear_proximal_command_rad": 0.0,
+      "right_rear_proximal_velocity_min_rad_s": -0.000813429593,
+      "right_rear_proximal_velocity_max_rad_s": 0.000305782654
+    },
+    {
+      "arm": "sham",
+      "lane": 6,
+      "interval": 224,
+      "right_rear_proximal_command_rad": 0.0,
+      "right_rear_proximal_velocity_min_rad_s": -1.52048433,
+      "right_rear_proximal_velocity_max_rad_s": 0.000885777874
+    },
+    {
+      "arm": "sham",
+      "lane": 6,
+      "interval": 225,
+      "right_rear_proximal_command_rad": 0.0,
+      "right_rear_proximal_velocity_min_rad_s": -0.460616082,
+      "right_rear_proximal_velocity_max_rad_s": 0.796954751
+    },
+    {
+      "arm": "sham",
+      "lane": 6,
+      "interval": 226,
+      "right_rear_proximal_command_rad": 0.0,
+      "right_rear_proximal_velocity_min_rad_s": -3.4227016,
+      "right_rear_proximal_velocity_max_rad_s": 0.776144207
+    },
+    {
+      "arm": "sham",
+      "lane": 6,
+      "interval": 227,
+      "right_rear_proximal_command_rad": 0.0,
+      "right_rear_proximal_velocity_min_rad_s": -1.84737599,
+      "right_rear_proximal_velocity_max_rad_s": 2.37519073
+    },
+    {
+      "arm": "sham",
+      "lane": 6,
+      "interval": 228,
+      "right_rear_proximal_command_rad": 0.0,
+      "right_rear_proximal_velocity_min_rad_s": -1.86777759,
+      "right_rear_proximal_velocity_max_rad_s": 2.14198422
+    },
+    {
+      "arm": "sham",
+      "lane": 6,
+      "interval": 229,
+      "right_rear_proximal_command_rad": 0.0,
+      "right_rear_proximal_velocity_min_rad_s": -1.46464312,
+      "right_rear_proximal_velocity_max_rad_s": -0.030083077
+    },
+    {
+      "arm": "sham",
+      "lane": 6,
+      "interval": 230,
+      "right_rear_proximal_command_rad": 0.0,
+      "right_rear_proximal_velocity_min_rad_s": 0.0383695662,
+      "right_rear_proximal_velocity_max_rad_s": 0.957277656
+    },
+    {
+      "arm": "sham",
+      "lane": 7,
+      "interval": 210,
+      "right_rear_proximal_command_rad": 0.0,
+      "right_rear_proximal_velocity_min_rad_s": 0.0211550798,
+      "right_rear_proximal_velocity_max_rad_s": 0.0570058376
+    },
+    {
+      "arm": "sham",
+      "lane": 7,
+      "interval": 211,
+      "right_rear_proximal_command_rad": 0.0,
+      "right_rear_proximal_velocity_min_rad_s": 0.00065528485,
+      "right_rear_proximal_velocity_max_rad_s": 0.0195766743
+    },
+    {
+      "arm": "sham",
+      "lane": 7,
+      "interval": 212,
+      "right_rear_proximal_command_rad": 0.0,
+      "right_rear_proximal_velocity_min_rad_s": -0.00574856997,
+      "right_rear_proximal_velocity_max_rad_s": -0.000212472136
+    },
+    {
+      "arm": "sham",
+      "lane": 7,
+      "interval": 213,
+      "right_rear_proximal_command_rad": 0.0,
+      "right_rear_proximal_velocity_min_rad_s": -0.00639130408,
+      "right_rear_proximal_velocity_max_rad_s": -0.0052850456
+    },
+    {
+      "arm": "sham",
+      "lane": 7,
+      "interval": 214,
+      "right_rear_proximal_command_rad": 0.0,
+      "right_rear_proximal_velocity_min_rad_s": -0.00630104821,
+      "right_rear_proximal_velocity_max_rad_s": -0.00311762141
+    },
+    {
+      "arm": "sham",
+      "lane": 7,
+      "interval": 215,
+      "right_rear_proximal_command_rad": 0.0,
+      "right_rear_proximal_velocity_min_rad_s": -0.00345805846,
+      "right_rear_proximal_velocity_max_rad_s": -0.000629513816
+    },
+    {
+      "arm": "sham",
+      "lane": 7,
+      "interval": 216,
+      "right_rear_proximal_command_rad": 0.0,
+      "right_rear_proximal_velocity_min_rad_s": -0.00170361786,
+      "right_rear_proximal_velocity_max_rad_s": 0.000207059682
+    },
+    {
+      "arm": "sham",
+      "lane": 7,
+      "interval": 217,
+      "right_rear_proximal_command_rad": 0.0,
+      "right_rear_proximal_velocity_min_rad_s": -0.000755622168,
+      "right_rear_proximal_velocity_max_rad_s": 0.00157235435
+    },
+    {
+      "arm": "sham",
+      "lane": 7,
+      "interval": 218,
+      "right_rear_proximal_command_rad": 0.0,
+      "right_rear_proximal_velocity_min_rad_s": -0.000927154149,
+      "right_rear_proximal_velocity_max_rad_s": 0.00153341528
+    },
+    {
+      "arm": "sham",
+      "lane": 7,
+      "interval": 219,
+      "right_rear_proximal_command_rad": 0.0,
+      "right_rear_proximal_velocity_min_rad_s": -0.000984624377,
+      "right_rear_proximal_velocity_max_rad_s": 0.00137452211
+    },
+    {
+      "arm": "sham",
+      "lane": 7,
+      "interval": 220,
+      "right_rear_proximal_command_rad": 0.0,
+      "right_rear_proximal_velocity_min_rad_s": -0.000976090902,
+      "right_rear_proximal_velocity_max_rad_s": 0.000801612798
+    },
+    {
+      "arm": "sham",
+      "lane": 7,
+      "interval": 221,
+      "right_rear_proximal_command_rad": 0.0,
+      "right_rear_proximal_velocity_min_rad_s": -0.000376612734,
+      "right_rear_proximal_velocity_max_rad_s": 0.000244126029
+    },
+    {
+      "arm": "sham",
+      "lane": 7,
+      "interval": 222,
+      "right_rear_proximal_command_rad": 0.0,
+      "right_rear_proximal_velocity_min_rad_s": -0.00028733426,
+      "right_rear_proximal_velocity_max_rad_s": -3.17117483e-05
+    },
+    {
+      "arm": "sham",
+      "lane": 7,
+      "interval": 223,
+      "right_rear_proximal_command_rad": 0.0,
+      "right_rear_proximal_velocity_min_rad_s": -0.000804549665,
+      "right_rear_proximal_velocity_max_rad_s": 0.000306413247
+    },
+    {
+      "arm": "sham",
+      "lane": 7,
+      "interval": 224,
+      "right_rear_proximal_command_rad": 0.0,
+      "right_rear_proximal_velocity_min_rad_s": -1.5726552,
+      "right_rear_proximal_velocity_max_rad_s": 0.000883664819
+    },
+    {
+      "arm": "sham",
+      "lane": 7,
+      "interval": 225,
+      "right_rear_proximal_command_rad": 0.0,
+      "right_rear_proximal_velocity_min_rad_s": -0.448182136,
+      "right_rear_proximal_velocity_max_rad_s": 0.818095028
+    },
+    {
+      "arm": "sham",
+      "lane": 7,
+      "interval": 226,
+      "right_rear_proximal_command_rad": 0.0,
+      "right_rear_proximal_velocity_min_rad_s": -3.41677332,
+      "right_rear_proximal_velocity_max_rad_s": 0.796748519
+    },
+    {
+      "arm": "sham",
+      "lane": 7,
+      "interval": 227,
+      "right_rear_proximal_command_rad": 0.0,
+      "right_rear_proximal_velocity_min_rad_s": -1.88564253,
+      "right_rear_proximal_velocity_max_rad_s": 2.38892269
+    },
+    {
+      "arm": "sham",
+      "lane": 7,
+      "interval": 228,
+      "right_rear_proximal_command_rad": 0.0,
+      "right_rear_proximal_velocity_min_rad_s": -1.90024674,
+      "right_rear_proximal_velocity_max_rad_s": 2.15726686
+    },
+    {
+      "arm": "sham",
+      "lane": 7,
+      "interval": 229,
+      "right_rear_proximal_command_rad": 0.0,
+      "right_rear_proximal_velocity_min_rad_s": -1.4951216,
+      "right_rear_proximal_velocity_max_rad_s": -0.119188979
+    },
+    {
+      "arm": "sham",
+      "lane": 7,
+      "interval": 230,
+      "right_rear_proximal_command_rad": 0.0,
+      "right_rear_proximal_velocity_min_rad_s": -0.0522110239,
+      "right_rear_proximal_velocity_max_rad_s": 0.955430865
+    },
+    {
+      "arm": "candidate",
+      "lane": 0,
+      "interval": 210,
+      "right_rear_proximal_command_rad": 0.0,
+      "right_rear_proximal_velocity_min_rad_s": 0.039310839,
+      "right_rear_proximal_velocity_max_rad_s": 0.0899374261
+    },
+    {
+      "arm": "candidate",
+      "lane": 0,
+      "interval": 211,
+      "right_rear_proximal_command_rad": 0.0,
+      "right_rear_proximal_velocity_min_rad_s": 0.00651744008,
+      "right_rear_proximal_velocity_max_rad_s": 0.0367697254
+    },
+    {
+      "arm": "candidate",
+      "lane": 0,
+      "interval": 212,
+      "right_rear_proximal_command_rad": 0.0,
+      "right_rear_proximal_velocity_min_rad_s": -0.00603393465,
+      "right_rear_proximal_velocity_max_rad_s": 0.00508697797
+    },
+    {
+      "arm": "candidate",
+      "lane": 0,
+      "interval": 213,
+      "right_rear_proximal_command_rad": 0.0,
+      "right_rear_proximal_velocity_min_rad_s": -0.00746106217,
+      "right_rear_proximal_velocity_max_rad_s": -0.00690537877
+    },
+    {
+      "arm": "candidate",
+      "lane": 0,
+      "interval": 214,
+      "right_rear_proximal_command_rad": 0.0,
+      "right_rear_proximal_velocity_min_rad_s": -0.0083263563,
+      "right_rear_proximal_velocity_max_rad_s": -0.00477421423
+    },
+    {
+      "arm": "candidate",
+      "lane": 0,
+      "interval": 215,
+      "right_rear_proximal_command_rad": -0.013660646,
+      "right_rear_proximal_velocity_min_rad_s": -0.270737499,
+      "right_rear_proximal_velocity_max_rad_s": -0.036645636
+    },
+    {
+      "arm": "candidate",
+      "lane": 0,
+      "interval": 216,
+      "right_rear_proximal_command_rad": -0.0199999996,
+      "right_rear_proximal_velocity_min_rad_s": -0.371038347,
+      "right_rear_proximal_velocity_max_rad_s": -0.289983451
+    },
+    {
+      "arm": "candidate",
+      "lane": 0,
+      "interval": 217,
+      "right_rear_proximal_command_rad": -0.0199999996,
+      "right_rear_proximal_velocity_min_rad_s": -0.358215898,
+      "right_rear_proximal_velocity_max_rad_s": -0.237410992
+    },
+    {
+      "arm": "candidate",
+      "lane": 0,
+      "interval": 218,
+      "right_rear_proximal_command_rad": -0.0199999996,
+      "right_rear_proximal_velocity_min_rad_s": -0.228773579,
+      "right_rear_proximal_velocity_max_rad_s": -0.100280493
+    },
+    {
+      "arm": "candidate",
+      "lane": 0,
+      "interval": 219,
+      "right_rear_proximal_command_rad": -0.0199999996,
+      "right_rear_proximal_velocity_min_rad_s": -0.0941589922,
+      "right_rear_proximal_velocity_max_rad_s": -0.0172471106
+    },
+    {
+      "arm": "candidate",
+      "lane": 0,
+      "interval": 220,
+      "right_rear_proximal_command_rad": -0.0199999996,
+      "right_rear_proximal_velocity_min_rad_s": -0.0144664124,
+      "right_rear_proximal_velocity_max_rad_s": 0.0147111416
+    },
+    {
+      "arm": "candidate",
+      "lane": 0,
+      "interval": 221,
+      "right_rear_proximal_command_rad": -0.0199999996,
+      "right_rear_proximal_velocity_min_rad_s": 0.0157250855,
+      "right_rear_proximal_velocity_max_rad_s": 0.0190723538
+    },
+    {
+      "arm": "candidate",
+      "lane": 0,
+      "interval": 222,
+      "right_rear_proximal_command_rad": -0.0199999996,
+      "right_rear_proximal_velocity_min_rad_s": 0.0116802324,
+      "right_rear_proximal_velocity_max_rad_s": 0.0180924535
+    },
+    {
+      "arm": "candidate",
+      "lane": 0,
+      "interval": 223,
+      "right_rear_proximal_command_rad": -0.0199999996,
+      "right_rear_proximal_velocity_min_rad_s": 0.00502005871,
+      "right_rear_proximal_velocity_max_rad_s": 0.0104911868
+    },
+    {
+      "arm": "candidate",
+      "lane": 0,
+      "interval": 224,
+      "right_rear_proximal_command_rad": -0.0199999996,
+      "right_rear_proximal_velocity_min_rad_s": 0.00240542134,
+      "right_rear_proximal_velocity_max_rad_s": 0.145153746
+    },
+    {
+      "arm": "candidate",
+      "lane": 0,
+      "interval": 225,
+      "right_rear_proximal_command_rad": 0.0,
+      "right_rear_proximal_velocity_min_rad_s": 0.247543544,
+      "right_rear_proximal_velocity_max_rad_s": 0.709178567
+    },
+    {
+      "arm": "candidate",
+      "lane": 0,
+      "interval": 226,
+      "right_rear_proximal_command_rad": 0.0,
+      "right_rear_proximal_velocity_min_rad_s": -3.39153624,
+      "right_rear_proximal_velocity_max_rad_s": 0.654818892
+    },
+    {
+      "arm": "candidate",
+      "lane": 0,
+      "interval": 227,
+      "right_rear_proximal_command_rad": 0.0,
+      "right_rear_proximal_velocity_min_rad_s": -1.62227857,
+      "right_rear_proximal_velocity_max_rad_s": 2.21758938
+    },
+    {
+      "arm": "candidate",
+      "lane": 0,
+      "interval": 228,
+      "right_rear_proximal_command_rad": 0.0,
+      "right_rear_proximal_velocity_min_rad_s": -2.50399113,
+      "right_rear_proximal_velocity_max_rad_s": 1.95387733
+    },
+    {
+      "arm": "candidate",
+      "lane": 0,
+      "interval": 229,
+      "right_rear_proximal_command_rad": 0.0,
+      "right_rear_proximal_velocity_min_rad_s": -1.57049251,
+      "right_rear_proximal_velocity_max_rad_s": 0.121400476
+    },
+    {
+      "arm": "candidate",
+      "lane": 0,
+      "interval": 230,
+      "right_rear_proximal_command_rad": 0.0,
+      "right_rear_proximal_velocity_min_rad_s": 0.194274575,
+      "right_rear_proximal_velocity_max_rad_s": 1.07175529
+    },
+    {
+      "arm": "candidate",
+      "lane": 1,
+      "interval": 210,
+      "right_rear_proximal_command_rad": 0.0,
+      "right_rear_proximal_velocity_min_rad_s": 0.03571444,
+      "right_rear_proximal_velocity_max_rad_s": 0.0865150094
+    },
+    {
+      "arm": "candidate",
+      "lane": 1,
+      "interval": 211,
+      "right_rear_proximal_command_rad": 0.0,
+      "right_rear_proximal_velocity_min_rad_s": 0.00432446459,
+      "right_rear_proximal_velocity_max_rad_s": 0.0332510658
+    },
+    {
+      "arm": "candidate",
+      "lane": 1,
+      "interval": 212,
+      "right_rear_proximal_command_rad": 0.0,
+      "right_rear_proximal_velocity_min_rad_s": -0.00690318551,
+      "right_rear_proximal_velocity_max_rad_s": 0.00299019623
+    },
+    {
+      "arm": "candidate",
+      "lane": 1,
+      "interval": 213,
+      "right_rear_proximal_command_rad": 0.0,
+      "right_rear_proximal_velocity_min_rad_s": -0.00787794404,
+      "right_rear_proximal_velocity_max_rad_s": -0.00737571251
+    },
+    {
+      "arm": "candidate",
+      "lane": 1,
+      "interval": 214,
+      "right_rear_proximal_command_rad": 0.0,
+      "right_rear_proximal_velocity_min_rad_s": -0.00838996191,
+      "right_rear_proximal_velocity_max_rad_s": -0.00458540395
+    },
+    {
+      "arm": "candidate",
+      "lane": 1,
+      "interval": 215,
+      "right_rear_proximal_command_rad": -0.013660646,
+      "right_rear_proximal_velocity_min_rad_s": -0.270493358,
+      "right_rear_proximal_velocity_max_rad_s": -0.0364601202
+    },
+    {
+      "arm": "candidate",
+      "lane": 1,
+      "interval": 216,
+      "right_rear_proximal_command_rad": -0.0199999996,
+      "right_rear_proximal_velocity_min_rad_s": -0.370847732,
+      "right_rear_proximal_velocity_max_rad_s": -0.289777875
+    },
+    {
+      "arm": "candidate",
+      "lane": 1,
+      "interval": 217,
+      "right_rear_proximal_command_rad": -0.0199999996,
+      "right_rear_proximal_velocity_min_rad_s": -0.358087331,
+      "right_rear_proximal_velocity_max_rad_s": -0.237368137
+    },
+    {
+      "arm": "candidate",
+      "lane": 1,
+      "interval": 218,
+      "right_rear_proximal_command_rad": -0.0199999996,
+      "right_rear_proximal_velocity_min_rad_s": -0.228761852,
+      "right_rear_proximal_velocity_max_rad_s": -0.100290313
+    },
+    {
+      "arm": "candidate",
+      "lane": 1,
+      "interval": 219,
+      "right_rear_proximal_command_rad": -0.0199999996,
+      "right_rear_proximal_velocity_min_rad_s": -0.0941516906,
+      "right_rear_proximal_velocity_max_rad_s": -0.0172603037
+    },
+    {
+      "arm": "candidate",
+      "lane": 1,
+      "interval": 220,
+      "right_rear_proximal_command_rad": -0.0199999996,
+      "right_rear_proximal_velocity_min_rad_s": -0.0144828688,
+      "right_rear_proximal_velocity_max_rad_s": 0.0147053106
+    },
+    {
+      "arm": "candidate",
+      "lane": 1,
+      "interval": 221,
+      "right_rear_proximal_command_rad": -0.0199999996,
+      "right_rear_proximal_velocity_min_rad_s": 0.0157142319,
+      "right_rear_proximal_velocity_max_rad_s": 0.0190708302
+    },
+    {
+      "arm": "candidate",
+      "lane": 1,
+      "interval": 222,
+      "right_rear_proximal_command_rad": -0.0199999996,
+      "right_rear_proximal_velocity_min_rad_s": 0.0116200224,
+      "right_rear_proximal_velocity_max_rad_s": 0.0180649105
+    },
+    {
+      "arm": "candidate",
+      "lane": 1,
+      "interval": 223,
+      "right_rear_proximal_command_rad": -0.0199999996,
+      "right_rear_proximal_velocity_min_rad_s": 0.00502137141,
+      "right_rear_proximal_velocity_max_rad_s": 0.0104523553
+    },
+    {
+      "arm": "candidate",
+      "lane": 1,
+      "interval": 224,
+      "right_rear_proximal_command_rad": -0.0199999996,
+      "right_rear_proximal_velocity_min_rad_s": 0.00240543857,
+      "right_rear_proximal_velocity_max_rad_s": 0.145565942
+    },
+    {
+      "arm": "candidate",
+      "lane": 1,
+      "interval": 225,
+      "right_rear_proximal_command_rad": 0.0,
+      "right_rear_proximal_velocity_min_rad_s": 0.248710588,
+      "right_rear_proximal_velocity_max_rad_s": 0.712708175
+    },
+    {
+      "arm": "candidate",
+      "lane": 1,
+      "interval": 226,
+      "right_rear_proximal_command_rad": 0.0,
+      "right_rear_proximal_velocity_min_rad_s": -3.38715863,
+      "right_rear_proximal_velocity_max_rad_s": 0.657275259
+    },
+    {
+      "arm": "candidate",
+      "lane": 1,
+      "interval": 227,
+      "right_rear_proximal_command_rad": 0.0,
+      "right_rear_proximal_velocity_min_rad_s": -1.60552156,
+      "right_rear_proximal_velocity_max_rad_s": 2.2272625
+    },
+    {
+      "arm": "candidate",
+      "lane": 1,
+      "interval": 228,
+      "right_rear_proximal_command_rad": 0.0,
+      "right_rear_proximal_velocity_min_rad_s": -2.51188779,
+      "right_rear_proximal_velocity_max_rad_s": 1.95786667
+    },
+    {
+      "arm": "candidate",
+      "lane": 1,
+      "interval": 229,
+      "right_rear_proximal_command_rad": 0.0,
+      "right_rear_proximal_velocity_min_rad_s": -1.53854215,
+      "right_rear_proximal_velocity_max_rad_s": 0.0426463448
+    },
+    {
+      "arm": "candidate",
+      "lane": 1,
+      "interval": 230,
+      "right_rear_proximal_command_rad": 0.0,
+      "right_rear_proximal_velocity_min_rad_s": 0.112121344,
+      "right_rear_proximal_velocity_max_rad_s": 1.05842769
+    },
+    {
+      "arm": "candidate",
+      "lane": 2,
+      "interval": 210,
+      "right_rear_proximal_command_rad": 0.0,
+      "right_rear_proximal_velocity_min_rad_s": 0.0251223184,
+      "right_rear_proximal_velocity_max_rad_s": 0.0649845004
+    },
+    {
+      "arm": "candidate",
+      "lane": 2,
+      "interval": 211,
+      "right_rear_proximal_command_rad": 0.0,
+      "right_rear_proximal_velocity_min_rad_s": 0.00172098691,
+      "right_rear_proximal_velocity_max_rad_s": 0.0232921895
+    },
+    {
+      "arm": "candidate",
+      "lane": 2,
+      "interval": 212,
+      "right_rear_proximal_command_rad": 0.0,
+      "right_rear_proximal_velocity_min_rad_s": -0.00600748789,
+      "right_rear_proximal_velocity_max_rad_s": 0.000729935651
+    },
+    {
+      "arm": "candidate",
+      "lane": 2,
+      "interval": 213,
+      "right_rear_proximal_command_rad": 0.0,
+      "right_rear_proximal_velocity_min_rad_s": -0.00676221028,
+      "right_rear_proximal_velocity_max_rad_s": -0.00582101243
+    },
+    {
+      "arm": "candidate",
+      "lane": 2,
+      "interval": 214,
+      "right_rear_proximal_command_rad": 0.0,
+      "right_rear_proximal_velocity_min_rad_s": -0.00684312126,
+      "right_rear_proximal_velocity_max_rad_s": -0.00349326385
+    },
+    {
+      "arm": "candidate",
+      "lane": 2,
+      "interval": 215,
+      "right_rear_proximal_command_rad": -0.013660646,
+      "right_rear_proximal_velocity_min_rad_s": -0.270011932,
+      "right_rear_proximal_velocity_max_rad_s": -0.0353989601
+    },
+    {
+      "arm": "candidate",
+      "lane": 2,
+      "interval": 216,
+      "right_rear_proximal_command_rad": -0.0199999996,
+      "right_rear_proximal_velocity_min_rad_s": -0.37068969,
+      "right_rear_proximal_velocity_max_rad_s": -0.289310068
+    },
+    {
+      "arm": "candidate",
+      "lane": 2,
+      "interval": 217,
+      "right_rear_proximal_command_rad": -0.0199999996,
+      "right_rear_proximal_velocity_min_rad_s": -0.358023375,
+      "right_rear_proximal_velocity_max_rad_s": -0.237423062
+    },
+    {
+      "arm": "candidate",
+      "lane": 2,
+      "interval": 218,
+      "right_rear_proximal_command_rad": -0.0199999996,
+      "right_rear_proximal_velocity_min_rad_s": -0.228759155,
+      "right_rear_proximal_velocity_max_rad_s": -0.100389823
+    },
+    {
+      "arm": "candidate",
+      "lane": 2,
+      "interval": 219,
+      "right_rear_proximal_command_rad": -0.0199999996,
+      "right_rear_proximal_velocity_min_rad_s": -0.0942373425,
+      "right_rear_proximal_velocity_max_rad_s": -0.0173219368
+    },
+    {
+      "arm": "candidate",
+      "lane": 2,
+      "interval": 220,
+      "right_rear_proximal_command_rad": -0.0199999996,
+      "right_rear_proximal_velocity_min_rad_s": -0.0145511311,
+      "right_rear_proximal_velocity_max_rad_s": 0.0146636665
+    },
+    {
+      "arm": "candidate",
+      "lane": 2,
+      "interval": 221,
+      "right_rear_proximal_command_rad": -0.0199999996,
+      "right_rear_proximal_velocity_min_rad_s": 0.0156501569,
+      "right_rear_proximal_velocity_max_rad_s": 0.0190984439
+    },
+    {
+      "arm": "candidate",
+      "lane": 2,
+      "interval": 222,
+      "right_rear_proximal_command_rad": -0.0199999996,
+      "right_rear_proximal_velocity_min_rad_s": 0.0116378702,
+      "right_rear_proximal_velocity_max_rad_s": 0.0180329811
+    },
+    {
+      "arm": "candidate",
+      "lane": 2,
+      "interval": 223,
+      "right_rear_proximal_command_rad": -0.0199999996,
+      "right_rear_proximal_velocity_min_rad_s": 0.00503062503,
+      "right_rear_proximal_velocity_max_rad_s": 0.0104600368
+    },
+    {
+      "arm": "candidate",
+      "lane": 2,
+      "interval": 224,
+      "right_rear_proximal_command_rad": -0.0199999996,
+      "right_rear_proximal_velocity_min_rad_s": 0.00242090062,
+      "right_rear_proximal_velocity_max_rad_s": 0.148470894
+    },
+    {
+      "arm": "candidate",
+      "lane": 2,
+      "interval": 225,
+      "right_rear_proximal_command_rad": 0.0,
+      "right_rear_proximal_velocity_min_rad_s": 0.250801474,
+      "right_rear_proximal_velocity_max_rad_s": 0.696093202
+    },
+    {
+      "arm": "candidate",
+      "lane": 2,
+      "interval": 226,
+      "right_rear_proximal_command_rad": 0.0,
+      "right_rear_proximal_velocity_min_rad_s": -3.40919542,
+      "right_rear_proximal_velocity_max_rad_s": 0.641858816
+    },
+    {
+      "arm": "candidate",
+      "lane": 2,
+      "interval": 227,
+      "right_rear_proximal_command_rad": 0.0,
+      "right_rear_proximal_velocity_min_rad_s": -1.62788939,
+      "right_rear_proximal_velocity_max_rad_s": 2.23425865
+    },
+    {
+      "arm": "candidate",
+      "lane": 2,
+      "interval": 228,
+      "right_rear_proximal_command_rad": 0.0,
+      "right_rear_proximal_velocity_min_rad_s": -2.34371495,
+      "right_rear_proximal_velocity_max_rad_s": 1.96812546
+    },
+    {
+      "arm": "candidate",
+      "lane": 2,
+      "interval": 229,
+      "right_rear_proximal_command_rad": 0.0,
+      "right_rear_proximal_velocity_min_rad_s": -1.36855352,
+      "right_rear_proximal_velocity_max_rad_s": -0.0620967299
+    },
+    {
+      "arm": "candidate",
+      "lane": 2,
+      "interval": 230,
+      "right_rear_proximal_command_rad": 0.0,
+      "right_rear_proximal_velocity_min_rad_s": 0.000502464827,
+      "right_rear_proximal_velocity_max_rad_s": 0.971444547
+    },
+    {
+      "arm": "candidate",
+      "lane": 3,
+      "interval": 210,
+      "right_rear_proximal_command_rad": 0.0,
+      "right_rear_proximal_velocity_min_rad_s": 0.0292430967,
+      "right_rear_proximal_velocity_max_rad_s": 0.0651222765
+    },
+    {
+      "arm": "candidate",
+      "lane": 3,
+      "interval": 211,
+      "right_rear_proximal_command_rad": 0.0,
+      "right_rear_proximal_velocity_min_rad_s": 0.00545699568,
+      "right_rear_proximal_velocity_max_rad_s": 0.0274953004
+    },
+    {
+      "arm": "candidate",
+      "lane": 3,
+      "interval": 212,
+      "right_rear_proximal_command_rad": 0.0,
+      "right_rear_proximal_velocity_min_rad_s": -0.00393209327,
+      "right_rear_proximal_velocity_max_rad_s": 0.00436145207
+    },
+    {
+      "arm": "candidate",
+      "lane": 3,
+      "interval": 213,
+      "right_rear_proximal_command_rad": 0.0,
+      "right_rear_proximal_velocity_min_rad_s": -0.0051671816,
+      "right_rear_proximal_velocity_max_rad_s": -0.00472115632
+    },
+    {
+      "arm": "candidate",
+      "lane": 3,
+      "interval": 214,
+      "right_rear_proximal_command_rad": 0.0,
+      "right_rear_proximal_velocity_min_rad_s": -0.00620398065,
+      "right_rear_proximal_velocity_max_rad_s": -0.00349164242
+    },
+    {
+      "arm": "candidate",
+      "lane": 3,
+      "interval": 215,
+      "right_rear_proximal_command_rad": -0.013660646,
+      "right_rear_proximal_velocity_min_rad_s": -0.27029714,
+      "right_rear_proximal_velocity_max_rad_s": -0.0354662277
+    },
+    {
+      "arm": "candidate",
+      "lane": 3,
+      "interval": 216,
+      "right_rear_proximal_command_rad": -0.0199999996,
+      "right_rear_proximal_velocity_min_rad_s": -0.370845705,
+      "right_rear_proximal_velocity_max_rad_s": -0.289686471
+    },
+    {
+      "arm": "candidate",
+      "lane": 3,
+      "interval": 217,
+      "right_rear_proximal_command_rad": -0.0199999996,
+      "right_rear_proximal_velocity_min_rad_s": -0.358199149,
+      "right_rear_proximal_velocity_max_rad_s": -0.237512067
+    },
+    {
+      "arm": "candidate",
+      "lane": 3,
+      "interval": 218,
+      "right_rear_proximal_command_rad": -0.0199999996,
+      "right_rear_proximal_velocity_min_rad_s": -0.228779644,
+      "right_rear_proximal_velocity_max_rad_s": -0.100386664
+    },
+    {
+      "arm": "candidate",
+      "lane": 3,
+      "interval": 219,
+      "right_rear_proximal_command_rad": -0.0199999996,
+      "right_rear_proximal_velocity_min_rad_s": -0.0942735299,
+      "right_rear_proximal_velocity_max_rad_s": -0.0173215382
+    },
+    {
+      "arm": "candidate",
+      "lane": 3,
+      "interval": 220,
+      "right_rear_proximal_command_rad": -0.0199999996,
+      "right_rear_proximal_velocity_min_rad_s": -0.0145468013,
+      "right_rear_proximal_velocity_max_rad_s": 0.014677193
+    },
+    {
+      "arm": "candidate",
+      "lane": 3,
+      "interval": 221,
+      "right_rear_proximal_command_rad": -0.0199999996,
+      "right_rear_proximal_velocity_min_rad_s": 0.0156622268,
+      "right_rear_proximal_velocity_max_rad_s": 0.0191028081
+    },
+    {
+      "arm": "candidate",
+      "lane": 3,
+      "interval": 222,
+      "right_rear_proximal_command_rad": -0.0199999996,
+      "right_rear_proximal_velocity_min_rad_s": 0.0116846887,
+      "right_rear_proximal_velocity_max_rad_s": 0.0180825051
+    },
+    {
+      "arm": "candidate",
+      "lane": 3,
+      "interval": 223,
+      "right_rear_proximal_command_rad": -0.0199999996,
+      "right_rear_proximal_velocity_min_rad_s": 0.00501860958,
+      "right_rear_proximal_velocity_max_rad_s": 0.0104813557
+    },
+    {
+      "arm": "candidate",
+      "lane": 3,
+      "interval": 224,
+      "right_rear_proximal_command_rad": -0.0199999996,
+      "right_rear_proximal_velocity_min_rad_s": 0.00226153363,
+      "right_rear_proximal_velocity_max_rad_s": 0.132951036
+    },
+    {
+      "arm": "candidate",
+      "lane": 3,
+      "interval": 225,
+      "right_rear_proximal_command_rad": 0.0,
+      "right_rear_proximal_velocity_min_rad_s": 0.237095565,
+      "right_rear_proximal_velocity_max_rad_s": 0.984977543
+    },
+    {
+      "arm": "candidate",
+      "lane": 3,
+      "interval": 226,
+      "right_rear_proximal_command_rad": 0.0,
+      "right_rear_proximal_velocity_min_rad_s": -3.34833574,
+      "right_rear_proximal_velocity_max_rad_s": 0.847753882
+    },
+    {
+      "arm": "candidate",
+      "lane": 3,
+      "interval": 227,
+      "right_rear_proximal_command_rad": 0.0,
+      "right_rear_proximal_velocity_min_rad_s": -1.05455935,
+      "right_rear_proximal_velocity_max_rad_s": 2.26593089
+    },
+    {
+      "arm": "candidate",
+      "lane": 3,
+      "interval": 228,
+      "right_rear_proximal_command_rad": 0.0,
+      "right_rear_proximal_velocity_min_rad_s": -2.96475387,
+      "right_rear_proximal_velocity_max_rad_s": 1.27488482
+    },
+    {
+      "arm": "candidate",
+      "lane": 3,
+      "interval": 229,
+      "right_rear_proximal_command_rad": 0.0,
+      "right_rear_proximal_velocity_min_rad_s": -1.67035437,
+      "right_rear_proximal_velocity_max_rad_s": 0.488776565
+    },
+    {
+      "arm": "candidate",
+      "lane": 3,
+      "interval": 230,
+      "right_rear_proximal_command_rad": 0.0,
+      "right_rear_proximal_velocity_min_rad_s": 0.579068244,
+      "right_rear_proximal_velocity_max_rad_s": 1.30689645
+    },
+    {
+      "arm": "candidate",
+      "lane": 4,
+      "interval": 210,
+      "right_rear_proximal_command_rad": 0.0,
+      "right_rear_proximal_velocity_min_rad_s": 0.0177475773,
+      "right_rear_proximal_velocity_max_rad_s": 0.0403250046
+    },
+    {
+      "arm": "candidate",
+      "lane": 4,
+      "interval": 211,
+      "right_rear_proximal_command_rad": 0.0,
+      "right_rear_proximal_velocity_min_rad_s": 0.00308049447,
+      "right_rear_proximal_velocity_max_rad_s": 0.0167374834
+    },
+    {
+      "arm": "candidate",
+      "lane": 4,
+      "interval": 212,
+      "right_rear_proximal_command_rad": 0.0,
+      "right_rear_proximal_velocity_min_rad_s": -0.00255618431,
+      "right_rear_proximal_velocity_max_rad_s": 0.00236268388
+    },
+    {
+      "arm": "candidate",
+      "lane": 4,
+      "interval": 213,
+      "right_rear_proximal_command_rad": 0.0,
+      "right_rear_proximal_velocity_min_rad_s": -0.00330261537,
+      "right_rear_proximal_velocity_max_rad_s": -0.00317409402
+    },
+    {
+      "arm": "candidate",
+      "lane": 4,
+      "interval": 214,
+      "right_rear_proximal_command_rad": 0.0,
+      "right_rear_proximal_velocity_min_rad_s": -0.00428908272,
+      "right_rear_proximal_velocity_max_rad_s": -0.0020076381
+    },
+    {
+      "arm": "candidate",
+      "lane": 4,
+      "interval": 215,
+      "right_rear_proximal_command_rad": -0.013660646,
+      "right_rear_proximal_velocity_min_rad_s": -0.269694984,
+      "right_rear_proximal_velocity_max_rad_s": -0.0341949463
+    },
+    {
+      "arm": "candidate",
+      "lane": 4,
+      "interval": 216,
+      "right_rear_proximal_command_rad": -0.0199999996,
+      "right_rear_proximal_velocity_min_rad_s": -0.37072134,
+      "right_rear_proximal_velocity_max_rad_s": -0.289024055
+    },
+    {
+      "arm": "candidate",
+      "lane": 4,
+      "interval": 217,
+      "right_rear_proximal_command_rad": -0.0199999996,
+      "right_rear_proximal_velocity_min_rad_s": -0.358090699,
+      "right_rear_proximal_velocity_max_rad_s": -0.23760438
+    },
+    {
+      "arm": "candidate",
+      "lane": 4,
+      "interval": 218,
+      "right_rear_proximal_command_rad": -0.0199999996,
+      "right_rear_proximal_velocity_min_rad_s": -0.228960216,
+      "right_rear_proximal_velocity_max_rad_s": -0.100490101
+    },
+    {
+      "arm": "candidate",
+      "lane": 4,
+      "interval": 219,
+      "right_rear_proximal_command_rad": -0.0199999996,
+      "right_rear_proximal_velocity_min_rad_s": -0.0943695158,
+      "right_rear_proximal_velocity_max_rad_s": -0.0173747782
+    },
+    {
+      "arm": "candidate",
+      "lane": 4,
+      "interval": 220,
+      "right_rear_proximal_command_rad": -0.0199999996,
+      "right_rear_proximal_velocity_min_rad_s": -0.0145981377,
+      "right_rear_proximal_velocity_max_rad_s": 0.0146539724
+    },
+    {
+      "arm": "candidate",
+      "lane": 4,
+      "interval": 221,
+      "right_rear_proximal_command_rad": -0.0199999996,
+      "right_rear_proximal_velocity_min_rad_s": 0.015660977,
+      "right_rear_proximal_velocity_max_rad_s": 0.0190687105
+    },
+    {
+      "arm": "candidate",
+      "lane": 4,
+      "interval": 222,
+      "right_rear_proximal_command_rad": -0.0199999996,
+      "right_rear_proximal_velocity_min_rad_s": 0.0117036961,
+      "right_rear_proximal_velocity_max_rad_s": 0.0181113277
+    },
+    {
+      "arm": "candidate",
+      "lane": 4,
+      "interval": 223,
+      "right_rear_proximal_command_rad": -0.0199999996,
+      "right_rear_proximal_velocity_min_rad_s": 0.00503015891,
+      "right_rear_proximal_velocity_max_rad_s": 0.0105053438
+    },
+    {
+      "arm": "candidate",
+      "lane": 4,
+      "interval": 224,
+      "right_rear_proximal_command_rad": -0.0199999996,
+      "right_rear_proximal_velocity_min_rad_s": 0.00239547808,
+      "right_rear_proximal_velocity_max_rad_s": 0.147689268
+    },
+    {
+      "arm": "candidate",
+      "lane": 4,
+      "interval": 225,
+      "right_rear_proximal_command_rad": 0.0,
+      "right_rear_proximal_velocity_min_rad_s": 0.248389989,
+      "right_rear_proximal_velocity_max_rad_s": 0.699605644
+    },
+    {
+      "arm": "candidate",
+      "lane": 4,
+      "interval": 226,
+      "right_rear_proximal_command_rad": 0.0,
+      "right_rear_proximal_velocity_min_rad_s": -3.43197465,
+      "right_rear_proximal_velocity_max_rad_s": 0.647074461
+    },
+    {
+      "arm": "candidate",
+      "lane": 4,
+      "interval": 227,
+      "right_rear_proximal_command_rad": 0.0,
+      "right_rear_proximal_velocity_min_rad_s": -1.60812449,
+      "right_rear_proximal_velocity_max_rad_s": 2.26218581
+    },
+    {
+      "arm": "candidate",
+      "lane": 4,
+      "interval": 228,
+      "right_rear_proximal_command_rad": 0.0,
+      "right_rear_proximal_velocity_min_rad_s": -2.38951206,
+      "right_rear_proximal_velocity_max_rad_s": 1.99350357
+    },
+    {
+      "arm": "candidate",
+      "lane": 4,
+      "interval": 229,
+      "right_rear_proximal_command_rad": 0.0,
+      "right_rear_proximal_velocity_min_rad_s": -1.55850148,
+      "right_rear_proximal_velocity_max_rad_s": 0.16409339
+    },
+    {
+      "arm": "candidate",
+      "lane": 4,
+      "interval": 230,
+      "right_rear_proximal_command_rad": 0.0,
+      "right_rear_proximal_velocity_min_rad_s": 0.24125801,
+      "right_rear_proximal_velocity_max_rad_s": 1.08127439
+    },
+    {
+      "arm": "candidate",
+      "lane": 5,
+      "interval": 210,
+      "right_rear_proximal_command_rad": 0.0,
+      "right_rear_proximal_velocity_min_rad_s": 0.0386924073,
+      "right_rear_proximal_velocity_max_rad_s": 0.0909046084
+    },
+    {
+      "arm": "candidate",
+      "lane": 5,
+      "interval": 211,
+      "right_rear_proximal_command_rad": 0.0,
+      "right_rear_proximal_velocity_min_rad_s": 0.00559771573,
+      "right_rear_proximal_velocity_max_rad_s": 0.0361160785
+    },
+    {
+      "arm": "candidate",
+      "lane": 5,
+      "interval": 212,
+      "right_rear_proximal_command_rad": 0.0,
+      "right_rear_proximal_velocity_min_rad_s": -0.00665957341,
+      "right_rear_proximal_velocity_max_rad_s": 0.00417052954
+    },
+    {
+      "arm": "candidate",
+      "lane": 5,
+      "interval": 213,
+      "right_rear_proximal_command_rad": 0.0,
+      "right_rear_proximal_velocity_min_rad_s": -0.00781362969,
+      "right_rear_proximal_velocity_max_rad_s": -0.00749034015
+    },
+    {
+      "arm": "candidate",
+      "lane": 5,
+      "interval": 214,
+      "right_rear_proximal_command_rad": 0.0,
+      "right_rear_proximal_velocity_min_rad_s": -0.0085890498,
+      "right_rear_proximal_velocity_max_rad_s": -0.00483595487
+    },
+    {
+      "arm": "candidate",
+      "lane": 5,
+      "interval": 215,
+      "right_rear_proximal_command_rad": -0.013660646,
+      "right_rear_proximal_velocity_min_rad_s": -0.270691752,
+      "right_rear_proximal_velocity_max_rad_s": -0.036684297
+    },
+    {
+      "arm": "candidate",
+      "lane": 5,
+      "interval": 216,
+      "right_rear_proximal_command_rad": -0.0199999996,
+      "right_rear_proximal_velocity_min_rad_s": -0.370986998,
+      "right_rear_proximal_velocity_max_rad_s": -0.289940834
+    },
+    {
+      "arm": "candidate",
+      "lane": 5,
+      "interval": 217,
+      "right_rear_proximal_command_rad": -0.0199999996,
+      "right_rear_proximal_velocity_min_rad_s": -0.358200729,
+      "right_rear_proximal_velocity_max_rad_s": -0.237376824
+    },
+    {
+      "arm": "candidate",
+      "lane": 5,
+      "interval": 218,
+      "right_rear_proximal_command_rad": -0.0199999996,
+      "right_rear_proximal_velocity_min_rad_s": -0.228773654,
+      "right_rear_proximal_velocity_max_rad_s": -0.10027381
+    },
+    {
+      "arm": "candidate",
+      "lane": 5,
+      "interval": 219,
+      "right_rear_proximal_command_rad": -0.0199999996,
+      "right_rear_proximal_velocity_min_rad_s": -0.0941305757,
+      "right_rear_proximal_velocity_max_rad_s": -0.0172491763
+    },
+    {
+      "arm": "candidate",
+      "lane": 5,
+      "interval": 220,
+      "right_rear_proximal_command_rad": -0.0199999996,
+      "right_rear_proximal_velocity_min_rad_s": -0.0144594274,
+      "right_rear_proximal_velocity_max_rad_s": 0.0147231482
+    },
+    {
+      "arm": "candidate",
+      "lane": 5,
+      "interval": 221,
+      "right_rear_proximal_command_rad": -0.0199999996,
+      "right_rear_proximal_velocity_min_rad_s": 0.0157383457,
+      "right_rear_proximal_velocity_max_rad_s": 0.0190627892
+    },
+    {
+      "arm": "candidate",
+      "lane": 5,
+      "interval": 222,
+      "right_rear_proximal_command_rad": -0.0199999996,
+      "right_rear_proximal_velocity_min_rad_s": 0.011610318,
+      "right_rear_proximal_velocity_max_rad_s": 0.0180737264
+    },
+    {
+      "arm": "candidate",
+      "lane": 5,
+      "interval": 223,
+      "right_rear_proximal_command_rad": -0.0199999996,
+      "right_rear_proximal_velocity_min_rad_s": 0.00501904776,
+      "right_rear_proximal_velocity_max_rad_s": 0.0104382522
+    },
+    {
+      "arm": "candidate",
+      "lane": 5,
+      "interval": 224,
+      "right_rear_proximal_command_rad": -0.0199999996,
+      "right_rear_proximal_velocity_min_rad_s": 0.00240734266,
+      "right_rear_proximal_velocity_max_rad_s": 0.143972918
+    },
+    {
+      "arm": "candidate",
+      "lane": 5,
+      "interval": 225,
+      "right_rear_proximal_command_rad": 0.0,
+      "right_rear_proximal_velocity_min_rad_s": 0.247461364,
+      "right_rear_proximal_velocity_max_rad_s": 0.713495314
+    },
+    {
+      "arm": "candidate",
+      "lane": 5,
+      "interval": 226,
+      "right_rear_proximal_command_rad": 0.0,
+      "right_rear_proximal_velocity_min_rad_s": -3.3890748,
+      "right_rear_proximal_velocity_max_rad_s": 0.65821588
+    },
+    {
+      "arm": "candidate",
+      "lane": 5,
+      "interval": 227,
+      "right_rear_proximal_command_rad": 0.0,
+      "right_rear_proximal_velocity_min_rad_s": -1.61303735,
+      "right_rear_proximal_velocity_max_rad_s": 2.22368026
+    },
+    {
+      "arm": "candidate",
+      "lane": 5,
+      "interval": 228,
+      "right_rear_proximal_command_rad": 0.0,
+      "right_rear_proximal_velocity_min_rad_s": -2.4450798,
+      "right_rear_proximal_velocity_max_rad_s": 1.95582426
+    },
+    {
+      "arm": "candidate",
+      "lane": 5,
+      "interval": 229,
+      "right_rear_proximal_command_rad": 0.0,
+      "right_rear_proximal_velocity_min_rad_s": -1.48578,
+      "right_rear_proximal_velocity_max_rad_s": -0.0015543499
+    },
+    {
+      "arm": "candidate",
+      "lane": 5,
+      "interval": 230,
+      "right_rear_proximal_command_rad": 0.0,
+      "right_rear_proximal_velocity_min_rad_s": 0.0653462186,
+      "right_rear_proximal_velocity_max_rad_s": 1.02103674
+    },
+    {
+      "arm": "candidate",
+      "lane": 6,
+      "interval": 210,
+      "right_rear_proximal_command_rad": 0.0,
+      "right_rear_proximal_velocity_min_rad_s": 0.0427547134,
+      "right_rear_proximal_velocity_max_rad_s": 0.0941052884
+    },
+    {
+      "arm": "candidate",
+      "lane": 6,
+      "interval": 211,
+      "right_rear_proximal_command_rad": 0.0,
+      "right_rear_proximal_velocity_min_rad_s": 0.0083010681,
+      "right_rear_proximal_velocity_max_rad_s": 0.0401367433
+    },
+    {
+      "arm": "candidate",
+      "lane": 6,
+      "interval": 212,
+      "right_rear_proximal_command_rad": 0.0,
+      "right_rear_proximal_velocity_min_rad_s": -0.00550076831,
+      "right_rear_proximal_velocity_max_rad_s": 0.00677490234
+    },
+    {
+      "arm": "candidate",
+      "lane": 6,
+      "interval": 213,
+      "right_rear_proximal_command_rad": 0.0,
+      "right_rear_proximal_velocity_min_rad_s": -0.00743403332,
+      "right_rear_proximal_velocity_max_rad_s": -0.0063987067
+    },
+    {
+      "arm": "candidate",
+      "lane": 6,
+      "interval": 214,
+      "right_rear_proximal_command_rad": 0.0,
+      "right_rear_proximal_velocity_min_rad_s": -0.00841233414,
+      "right_rear_proximal_velocity_max_rad_s": -0.00513646519
+    },
+    {
+      "arm": "candidate",
+      "lane": 6,
+      "interval": 215,
+      "right_rear_proximal_command_rad": -0.013660646,
+      "right_rear_proximal_velocity_min_rad_s": -0.270980656,
+      "right_rear_proximal_velocity_max_rad_s": -0.0370192453
+    },
+    {
+      "arm": "candidate",
+      "lane": 6,
+      "interval": 216,
+      "right_rear_proximal_command_rad": -0.0199999996,
+      "right_rear_proximal_velocity_min_rad_s": -0.371024221,
+      "right_rear_proximal_velocity_max_rad_s": -0.290302873
+    },
+    {
+      "arm": "candidate",
+      "lane": 6,
+      "interval": 217,
+      "right_rear_proximal_command_rad": -0.0199999996,
+      "right_rear_proximal_velocity_min_rad_s": -0.358328879,
+      "right_rear_proximal_velocity_max_rad_s": -0.237432212
+    },
+    {
+      "arm": "candidate",
+      "lane": 6,
+      "interval": 218,
+      "right_rear_proximal_command_rad": -0.0199999996,
+      "right_rear_proximal_velocity_min_rad_s": -0.22883752,
+      "right_rear_proximal_velocity_max_rad_s": -0.100351006
+    },
+    {
+      "arm": "candidate",
+      "lane": 6,
+      "interval": 219,
+      "right_rear_proximal_command_rad": -0.0199999996,
+      "right_rear_proximal_velocity_min_rad_s": -0.0941350982,
+      "right_rear_proximal_velocity_max_rad_s": -0.0172353759
+    },
+    {
+      "arm": "candidate",
+      "lane": 6,
+      "interval": 220,
+      "right_rear_proximal_command_rad": -0.0199999996,
+      "right_rear_proximal_velocity_min_rad_s": -0.0144089954,
+      "right_rear_proximal_velocity_max_rad_s": 0.0147826644
+    },
+    {
+      "arm": "candidate",
+      "lane": 6,
+      "interval": 221,
+      "right_rear_proximal_command_rad": -0.0199999996,
+      "right_rear_proximal_velocity_min_rad_s": 0.0158143658,
+      "right_rear_proximal_velocity_max_rad_s": 0.019031195
+    },
+    {
+      "arm": "candidate",
+      "lane": 6,
+      "interval": 222,
+      "right_rear_proximal_command_rad": -0.0199999996,
+      "right_rear_proximal_velocity_min_rad_s": 0.0116055952,
+      "right_rear_proximal_velocity_max_rad_s": 0.0181189887
+    },
+    {
+      "arm": "candidate",
+      "lane": 6,
+      "interval": 223,
+      "right_rear_proximal_command_rad": -0.0199999996,
+      "right_rear_proximal_velocity_min_rad_s": 0.00504192896,
+      "right_rear_proximal_velocity_max_rad_s": 0.0104045309
+    },
+    {
+      "arm": "candidate",
+      "lane": 6,
+      "interval": 224,
+      "right_rear_proximal_command_rad": -0.0199999996,
+      "right_rear_proximal_velocity_min_rad_s": 0.00220340886,
+      "right_rear_proximal_velocity_max_rad_s": 0.0785662532
+    },
+    {
+      "arm": "candidate",
+      "lane": 6,
+      "interval": 225,
+      "right_rear_proximal_command_rad": 0.0,
+      "right_rear_proximal_velocity_min_rad_s": 0.18074058,
+      "right_rear_proximal_velocity_max_rad_s": 0.949812889
+    },
+    {
+      "arm": "candidate",
+      "lane": 6,
+      "interval": 226,
+      "right_rear_proximal_command_rad": 0.0,
+      "right_rear_proximal_velocity_min_rad_s": -3.36603379,
+      "right_rear_proximal_velocity_max_rad_s": 0.832033157
+    },
+    {
+      "arm": "candidate",
+      "lane": 6,
+      "interval": 227,
+      "right_rear_proximal_command_rad": 0.0,
+      "right_rear_proximal_velocity_min_rad_s": -1.24962246,
+      "right_rear_proximal_velocity_max_rad_s": 2.31300688
+    },
+    {
+      "arm": "candidate",
+      "lane": 6,
+      "interval": 228,
+      "right_rear_proximal_command_rad": 0.0,
+      "right_rear_proximal_velocity_min_rad_s": -3.02665067,
+      "right_rear_proximal_velocity_max_rad_s": 1.96488667
+    },
+    {
+      "arm": "candidate",
+      "lane": 6,
+      "interval": 229,
+      "right_rear_proximal_command_rad": 0.0,
+      "right_rear_proximal_velocity_min_rad_s": -1.62102616,
+      "right_rear_proximal_velocity_max_rad_s": -0.140730426
+    },
+    {
+      "arm": "candidate",
+      "lane": 6,
+      "interval": 230,
+      "right_rear_proximal_command_rad": 0.0,
+      "right_rear_proximal_velocity_min_rad_s": -0.0705142021,
+      "right_rear_proximal_velocity_max_rad_s": 0.994741678
+    },
+    {
+      "arm": "candidate",
+      "lane": 7,
+      "interval": 210,
+      "right_rear_proximal_command_rad": 0.0,
+      "right_rear_proximal_velocity_min_rad_s": 0.0211550798,
+      "right_rear_proximal_velocity_max_rad_s": 0.0570058376
+    },
+    {
+      "arm": "candidate",
+      "lane": 7,
+      "interval": 211,
+      "right_rear_proximal_command_rad": 0.0,
+      "right_rear_proximal_velocity_min_rad_s": 0.00065528485,
+      "right_rear_proximal_velocity_max_rad_s": 0.0195766743
+    },
+    {
+      "arm": "candidate",
+      "lane": 7,
+      "interval": 212,
+      "right_rear_proximal_command_rad": 0.0,
+      "right_rear_proximal_velocity_min_rad_s": -0.00574856997,
+      "right_rear_proximal_velocity_max_rad_s": -0.000212472136
+    },
+    {
+      "arm": "candidate",
+      "lane": 7,
+      "interval": 213,
+      "right_rear_proximal_command_rad": 0.0,
+      "right_rear_proximal_velocity_min_rad_s": -0.00639130408,
+      "right_rear_proximal_velocity_max_rad_s": -0.0052850456
+    },
+    {
+      "arm": "candidate",
+      "lane": 7,
+      "interval": 214,
+      "right_rear_proximal_command_rad": 0.0,
+      "right_rear_proximal_velocity_min_rad_s": -0.00630104821,
+      "right_rear_proximal_velocity_max_rad_s": -0.00311762141
+    },
+    {
+      "arm": "candidate",
+      "lane": 7,
+      "interval": 215,
+      "right_rear_proximal_command_rad": -0.013660646,
+      "right_rear_proximal_velocity_min_rad_s": -0.269757807,
+      "right_rear_proximal_velocity_max_rad_s": -0.0351013578
+    },
+    {
+      "arm": "candidate",
+      "lane": 7,
+      "interval": 216,
+      "right_rear_proximal_command_rad": -0.0199999996,
+      "right_rear_proximal_velocity_min_rad_s": -0.370464206,
+      "right_rear_proximal_velocity_max_rad_s": -0.289209366
+    },
+    {
+      "arm": "candidate",
+      "lane": 7,
+      "interval": 217,
+      "right_rear_proximal_command_rad": -0.0199999996,
+      "right_rear_proximal_velocity_min_rad_s": -0.35795176,
+      "right_rear_proximal_velocity_max_rad_s": -0.237432286
+    },
+    {
+      "arm": "candidate",
+      "lane": 7,
+      "interval": 218,
+      "right_rear_proximal_command_rad": -0.0199999996,
+      "right_rear_proximal_velocity_min_rad_s": -0.228866726,
+      "right_rear_proximal_velocity_max_rad_s": -0.100467004
+    },
+    {
+      "arm": "candidate",
+      "lane": 7,
+      "interval": 219,
+      "right_rear_proximal_command_rad": -0.0199999996,
+      "right_rear_proximal_velocity_min_rad_s": -0.0942301676,
+      "right_rear_proximal_velocity_max_rad_s": -0.0173446387
+    },
+    {
+      "arm": "candidate",
+      "lane": 7,
+      "interval": 220,
+      "right_rear_proximal_command_rad": -0.0199999996,
+      "right_rear_proximal_velocity_min_rad_s": -0.0145264557,
+      "right_rear_proximal_velocity_max_rad_s": 0.0147141004
+    },
+    {
+      "arm": "candidate",
+      "lane": 7,
+      "interval": 221,
+      "right_rear_proximal_command_rad": -0.0199999996,
+      "right_rear_proximal_velocity_min_rad_s": 0.0157394707,
+      "right_rear_proximal_velocity_max_rad_s": 0.0190181453
+    },
+    {
+      "arm": "candidate",
+      "lane": 7,
+      "interval": 222,
+      "right_rear_proximal_command_rad": -0.0199999996,
+      "right_rear_proximal_velocity_min_rad_s": 0.0116275819,
+      "right_rear_proximal_velocity_max_rad_s": 0.0181111991
+    },
+    {
+      "arm": "candidate",
+      "lane": 7,
+      "interval": 223,
+      "right_rear_proximal_command_rad": -0.0199999996,
+      "right_rear_proximal_velocity_min_rad_s": 0.00504033826,
+      "right_rear_proximal_velocity_max_rad_s": 0.0104065696
+    },
+    {
+      "arm": "candidate",
+      "lane": 7,
+      "interval": 224,
+      "right_rear_proximal_command_rad": -0.0199999996,
+      "right_rear_proximal_velocity_min_rad_s": 0.00231790612,
+      "right_rear_proximal_velocity_max_rad_s": 0.0928666592
+    },
+    {
+      "arm": "candidate",
+      "lane": 7,
+      "interval": 225,
+      "right_rear_proximal_command_rad": 0.0,
+      "right_rear_proximal_velocity_min_rad_s": 0.193591192,
+      "right_rear_proximal_velocity_max_rad_s": 0.962504923
+    },
+    {
+      "arm": "candidate",
+      "lane": 7,
+      "interval": 226,
+      "right_rear_proximal_command_rad": 0.0,
+      "right_rear_proximal_velocity_min_rad_s": -3.35920835,
+      "right_rear_proximal_velocity_max_rad_s": 0.839739323
+    },
+    {
+      "arm": "candidate",
+      "lane": 7,
+      "interval": 227,
+      "right_rear_proximal_command_rad": 0.0,
+      "right_rear_proximal_velocity_min_rad_s": -1.11913133,
+      "right_rear_proximal_velocity_max_rad_s": 2.340909
+    },
+    {
+      "arm": "candidate",
+      "lane": 7,
+      "interval": 228,
+      "right_rear_proximal_command_rad": 0.0,
+      "right_rear_proximal_velocity_min_rad_s": -3.07615066,
+      "right_rear_proximal_velocity_max_rad_s": 1.96850705
+    },
+    {
+      "arm": "candidate",
+      "lane": 7,
+      "interval": 229,
+      "right_rear_proximal_command_rad": 0.0,
+      "right_rear_proximal_velocity_min_rad_s": -1.69776428,
+      "right_rear_proximal_velocity_max_rad_s": -0.24723506
+    },
+    {
+      "arm": "candidate",
+      "lane": 7,
+      "interval": 230,
+      "right_rear_proximal_command_rad": 0.0,
+      "right_rear_proximal_velocity_min_rad_s": -0.167044818,
+      "right_rear_proximal_velocity_max_rad_s": 0.985004902
+    }
+  ],
+  "scope": "Recorded position target and post-substep joint velocity, not applied torque. Both sampled from the original contact-switched run; target is held in each control interval. Results alone do not prove the travel-loss mechanism."
+}

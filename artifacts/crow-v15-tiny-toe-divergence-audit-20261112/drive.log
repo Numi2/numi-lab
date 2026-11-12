@@ -1,0 +1,82 @@
+[
+  {
+    "arm": "sham",
+    "lane": 0,
+    "interval": 214,
+    "right_rear_proximal_command_rad": 0.0,
+    "right_rear_proximal_velocity_min_rad_s": -0.0083263563,
+    "right_rear_proximal_velocity_max_rad_s": -0.00477421423
+  },
+  {
+    "arm": "sham",
+    "lane": 0,
+    "interval": 215,
+    "right_rear_proximal_command_rad": 0.0,
+    "right_rear_proximal_velocity_min_rad_s": -0.00500233285,
+    "right_rear_proximal_velocity_max_rad_s": -0.00170318445
+  },
+  {
+    "arm": "sham",
+    "lane": 0,
+    "interval": 216,
+    "right_rear_proximal_command_rad": 0.0,
+    "right_rear_proximal_velocity_min_rad_s": -0.00247686426,
+    "right_rear_proximal_velocity_max_rad_s": -0.000246081239
+  },
+  {
+    "arm": "sham",
+    "lane": 0,
+    "interval": 220,
+    "right_rear_proximal_command_rad": 0.0,
+    "right_rear_proximal_velocity_min_rad_s": -0.000916138757,
+    "right_rear_proximal_velocity_max_rad_s": 0.000859919644
+  },
+  {
+    "arm": "sham",
+    "lane": 0,
+    "interval": 225,
+    "right_rear_proximal_command_rad": 0.0,
+    "right_rear_proximal_velocity_min_rad_s": -0.33296445,
+    "right_rear_proximal_velocity_max_rad_s": 0.880031168
+  },
+  {
+    "arm": "candidate",
+    "lane": 0,
+    "interval": 214,
+    "right_rear_proximal_command_rad": 0.0,
+    "right_rear_proximal_velocity_min_rad_s": -0.0083263563,
+    "right_rear_proximal_velocity_max_rad_s": -0.00477421423
+  },
+  {
+    "arm": "candidate",
+    "lane": 0,
+    "interval": 215,
+    "right_rear_proximal_command_rad": -0.013660646,
+    "right_rear_proximal_velocity_min_rad_s": -0.270737499,
+    "right_rear_proximal_velocity_max_rad_s": -0.036645636
+  },
+  {
+    "arm": "candidate",
+    "lane": 0,
+    "interval": 216,
+    "right_rear_proximal_command_rad": -0.0199999996,
+    "right_rear_proximal_velocity_min_rad_s": -0.371038347,
+    "right_rear_proximal_velocity_max_rad_s": -0.289983451
+  },
+  {
+    "arm": "candidate",
+    "lane": 0,
+    "interval": 220,
+    "right_rear_proximal_command_rad": -0.0199999996,
+    "right_rear_proximal_velocity_min_rad_s": -0.0144664124,
+    "right_rear_proximal_velocity_max_rad_s": 0.0147111416
+  },
+  {
+    "arm": "candidate",
+    "lane": 0,
+    "interval": 225,
+    "right_rear_proximal_command_rad": 0.0,
+    "right_rear_proximal_velocity_min_rad_s": 0.247543544,
+    "right_rear_proximal_velocity_max_rad_s": 0.709178567
+  }
+]
