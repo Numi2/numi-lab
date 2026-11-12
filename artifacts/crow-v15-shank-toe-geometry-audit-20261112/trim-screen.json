@@ -1,0 +1,641 @@
+{
+  "trials": {
+    "0": {
+      "rear_toe_proximal": {
+        "min_separation_m": -0.0037731496124031386,
+        "median_separation_m": -0.0019671474778879157,
+        "overlap_count": 4800,
+        "within_1mm_count": 4800,
+        "count": 4800,
+        "worst": {
+          "lane": 2,
+          "step": 246,
+          "side": "right",
+          "gap_m": -0.0037731496124031386
+        }
+      },
+      "rear_toe_distal": {
+        "min_separation_m": -0.00028215473973269845,
+        "median_separation_m": -2.6529031313601847e-06,
+        "overlap_count": 3381,
+        "within_1mm_count": 4788,
+        "count": 4800,
+        "worst": {
+          "lane": 5,
+          "step": 10,
+          "side": "left",
+          "gap_m": -0.00028215473973269845
+        }
+      },
+      "front_toe_1_proximal": {
+        "min_separation_m": 0.016800062177159254,
+        "median_separation_m": 0.018366463266455624,
+        "overlap_count": 0,
+        "within_1mm_count": 0,
+        "count": 4800,
+        "worst": {
+          "lane": 7,
+          "step": 5,
+          "side": "right",
+          "gap_m": 0.016800062177159254
+        }
+      },
+      "front_toe_1_distal": {
+        "min_separation_m": 0.033755548719415426,
+        "median_separation_m": 0.03613689751222228,
+        "overlap_count": 0,
+        "within_1mm_count": 0,
+        "count": 4800,
+        "worst": {
+          "lane": 7,
+          "step": 5,
+          "side": "right",
+          "gap_m": 0.033755548719415426
+        }
+      },
+      "front_toe_2_proximal": {
+        "min_separation_m": 0.017268185944932055,
+        "median_separation_m": 0.018365996275162583,
+        "overlap_count": 0,
+        "within_1mm_count": 0,
+        "count": 4800,
+        "worst": {
+          "lane": 2,
+          "step": 246,
+          "side": "right",
+          "gap_m": 0.017268185944932055
+        }
+      },
+      "front_toe_2_distal": {
+        "min_separation_m": 0.03440999108834214,
+        "median_separation_m": 0.03613647675528152,
+        "overlap_count": 0,
+        "within_1mm_count": 0,
+        "count": 4800,
+        "worst": {
+          "lane": 3,
+          "step": 246,
+          "side": "right",
+          "gap_m": 0.03440999108834214
+        }
+      },
+      "front_toe_3_proximal": {
+        "min_separation_m": 0.017267271217201348,
+        "median_separation_m": 0.01836648140911261,
+        "overlap_count": 0,
+        "within_1mm_count": 0,
+        "count": 4800,
+        "worst": {
+          "lane": 2,
+          "step": 246,
+          "side": "right",
+          "gap_m": 0.017267271217201348
+        }
+      },
+      "front_toe_3_distal": {
+        "min_separation_m": 0.03440857851152991,
+        "median_separation_m": 0.036137174860417696,
+        "overlap_count": 0,
+        "within_1mm_count": 0,
+        "count": 4800,
+        "worst": {
+          "lane": 2,
+          "step": 246,
+          "side": "right",
+          "gap_m": 0.03440857851152991
+        }
+      }
+    },
+    "2": {
+      "rear_toe_proximal": {
+        "min_separation_m": -0.0018768829694484762,
+        "median_separation_m": 4.555262231292073e-06,
+        "overlap_count": 1850,
+        "within_1mm_count": 4800,
+        "count": 4800,
+        "worst": {
+          "lane": 2,
+          "step": 246,
+          "side": "right",
+          "gap_m": -0.0018768829694484762
+        }
+      },
+      "rear_toe_distal": {
+        "min_separation_m": 0.0017178452602673033,
+        "median_separation_m": 0.001997347096868638,
+        "overlap_count": 0,
+        "within_1mm_count": 0,
+        "count": 4800,
+        "worst": {
+          "lane": 5,
+          "step": 10,
+          "side": "left",
+          "gap_m": 0.0017178452602673033
+        }
+      },
+      "front_toe_1_proximal": {
+        "min_separation_m": 0.016800062177159247,
+        "median_separation_m": 0.018366463266455628,
+        "overlap_count": 0,
+        "within_1mm_count": 0,
+        "count": 4800,
+        "worst": {
+          "lane": 7,
+          "step": 5,
+          "side": "right",
+          "gap_m": 0.016800062177159247
+        }
+      },
+      "front_toe_1_distal": {
+        "min_separation_m": 0.03375554871941541,
+        "median_separation_m": 0.03613689751222228,
+        "overlap_count": 0,
+        "within_1mm_count": 0,
+        "count": 4800,
+        "worst": {
+          "lane": 7,
+          "step": 5,
+          "side": "right",
+          "gap_m": 0.03375554871941541
+        }
+      },
+      "front_toe_2_proximal": {
+        "min_separation_m": 0.01726818594493207,
+        "median_separation_m": 0.018365996275162583,
+        "overlap_count": 0,
+        "within_1mm_count": 0,
+        "count": 4800,
+        "worst": {
+          "lane": 2,
+          "step": 246,
+          "side": "right",
+          "gap_m": 0.01726818594493207
+        }
+      },
+      "front_toe_2_distal": {
+        "min_separation_m": 0.03440999108834214,
+        "median_separation_m": 0.03613647675528152,
+        "overlap_count": 0,
+        "within_1mm_count": 0,
+        "count": 4800,
+        "worst": {
+          "lane": 3,
+          "step": 246,
+          "side": "right",
+          "gap_m": 0.03440999108834214
+        }
+      },
+      "front_toe_3_proximal": {
+        "min_separation_m": 0.017267271217201355,
+        "median_separation_m": 0.018366481409112602,
+        "overlap_count": 0,
+        "within_1mm_count": 0,
+        "count": 4800,
+        "worst": {
+          "lane": 2,
+          "step": 246,
+          "side": "right",
+          "gap_m": 0.017267271217201355
+        }
+      },
+      "front_toe_3_distal": {
+        "min_separation_m": 0.03440857851152991,
+        "median_separation_m": 0.03613717486041769,
+        "overlap_count": 0,
+        "within_1mm_count": 0,
+        "count": 4800,
+        "worst": {
+          "lane": 2,
+          "step": 246,
+          "side": "right",
+          "gap_m": 0.03440857851152991
+        }
+      }
+    },
+    "4": {
+      "rear_toe_proximal": {
+        "min_separation_m": 1.9383673506220833e-05,
+        "median_separation_m": 0.001976291699103981,
+        "overlap_count": 0,
+        "within_1mm_count": 472,
+        "count": 4800,
+        "worst": {
+          "lane": 2,
+          "step": 246,
+          "side": "right",
+          "gap_m": 1.9383673506220833e-05
+        }
+      },
+      "rear_toe_distal": {
+        "min_separation_m": 0.003717845260267305,
+        "median_separation_m": 0.003997347096868636,
+        "overlap_count": 0,
+        "within_1mm_count": 0,
+        "count": 4800,
+        "worst": {
+          "lane": 5,
+          "step": 10,
+          "side": "left",
+          "gap_m": 0.003717845260267305
+        }
+      },
+      "front_toe_1_proximal": {
+        "min_separation_m": 0.016800062177159247,
+        "median_separation_m": 0.01836646326645562,
+        "overlap_count": 0,
+        "within_1mm_count": 0,
+        "count": 4800,
+        "worst": {
+          "lane": 7,
+          "step": 5,
+          "side": "right",
+          "gap_m": 0.016800062177159247
+        }
+      },
+      "front_toe_1_distal": {
+        "min_separation_m": 0.03375554871941541,
+        "median_separation_m": 0.03613689751222228,
+        "overlap_count": 0,
+        "within_1mm_count": 0,
+        "count": 4800,
+        "worst": {
+          "lane": 7,
+          "step": 5,
+          "side": "right",
+          "gap_m": 0.03375554871941541
+        }
+      },
+      "front_toe_2_proximal": {
+        "min_separation_m": 0.017268185944932055,
+        "median_separation_m": 0.018365996275162583,
+        "overlap_count": 0,
+        "within_1mm_count": 0,
+        "count": 4800,
+        "worst": {
+          "lane": 2,
+          "step": 246,
+          "side": "right",
+          "gap_m": 0.017268185944932055
+        }
+      },
+      "front_toe_2_distal": {
+        "min_separation_m": 0.03440999108834214,
+        "median_separation_m": 0.03613647675528152,
+        "overlap_count": 0,
+        "within_1mm_count": 0,
+        "count": 4800,
+        "worst": {
+          "lane": 3,
+          "step": 246,
+          "side": "right",
+          "gap_m": 0.03440999108834214
+        }
+      },
+      "front_toe_3_proximal": {
+        "min_separation_m": 0.017267271217201355,
+        "median_separation_m": 0.018366481409112612,
+        "overlap_count": 0,
+        "within_1mm_count": 0,
+        "count": 4800,
+        "worst": {
+          "lane": 2,
+          "step": 246,
+          "side": "right",
+          "gap_m": 0.017267271217201355
+        }
+      },
+      "front_toe_3_distal": {
+        "min_separation_m": 0.034408578511529904,
+        "median_separation_m": 0.03613717486041769,
+        "overlap_count": 0,
+        "within_1mm_count": 0,
+        "count": 4800,
+        "worst": {
+          "lane": 2,
+          "step": 246,
+          "side": "right",
+          "gap_m": 0.034408578511529904
+        }
+      }
+    },
+    "6": {
+      "rear_toe_proximal": {
+        "min_separation_m": 0.0019156503164608901,
+        "median_separation_m": 0.003947993838540744,
+        "overlap_count": 0,
+        "within_1mm_count": 0,
+        "count": 4800,
+        "worst": {
+          "lane": 2,
+          "step": 246,
+          "side": "right",
+          "gap_m": 0.0019156503164608901
+        }
+      },
+      "rear_toe_distal": {
+        "min_separation_m": 0.005717845260267314,
+        "median_separation_m": 0.005997347096868635,
+        "overlap_count": 0,
+        "within_1mm_count": 0,
+        "count": 4800,
+        "worst": {
+          "lane": 5,
+          "step": 10,
+          "side": "left",
+          "gap_m": 0.005717845260267314
+        }
+      },
+      "front_toe_1_proximal": {
+        "min_separation_m": 0.016800062177159254,
+        "median_separation_m": 0.018366463266455624,
+        "overlap_count": 0,
+        "within_1mm_count": 0,
+        "count": 4800,
+        "worst": {
+          "lane": 7,
+          "step": 5,
+          "side": "right",
+          "gap_m": 0.016800062177159254
+        }
+      },
+      "front_toe_1_distal": {
+        "min_separation_m": 0.033755548719415426,
+        "median_separation_m": 0.03613689751222228,
+        "overlap_count": 0,
+        "within_1mm_count": 0,
+        "count": 4800,
+        "worst": {
+          "lane": 7,
+          "step": 5,
+          "side": "right",
+          "gap_m": 0.033755548719415426
+        }
+      },
+      "front_toe_2_proximal": {
+        "min_separation_m": 0.01726818594493206,
+        "median_separation_m": 0.018365996275162583,
+        "overlap_count": 0,
+        "within_1mm_count": 0,
+        "count": 4800,
+        "worst": {
+          "lane": 2,
+          "step": 246,
+          "side": "right",
+          "gap_m": 0.01726818594493206
+        }
+      },
+      "front_toe_2_distal": {
+        "min_separation_m": 0.03440999108834215,
+        "median_separation_m": 0.03613647675528152,
+        "overlap_count": 0,
+        "within_1mm_count": 0,
+        "count": 4800,
+        "worst": {
+          "lane": 3,
+          "step": 246,
+          "side": "right",
+          "gap_m": 0.03440999108834215
+        }
+      },
+      "front_toe_3_proximal": {
+        "min_separation_m": 0.017267271217201348,
+        "median_separation_m": 0.01836648140911261,
+        "overlap_count": 0,
+        "within_1mm_count": 0,
+        "count": 4800,
+        "worst": {
+          "lane": 2,
+          "step": 246,
+          "side": "right",
+          "gap_m": 0.017267271217201348
+        }
+      },
+      "front_toe_3_distal": {
+        "min_separation_m": 0.034408578511529904,
+        "median_separation_m": 0.03613717486041769,
+        "overlap_count": 0,
+        "within_1mm_count": 0,
+        "count": 4800,
+        "worst": {
+          "lane": 2,
+          "step": 246,
+          "side": "right",
+          "gap_m": 0.034408578511529904
+        }
+      }
+    },
+    "8": {
+      "rear_toe_proximal": {
+        "min_separation_m": 0.0038119169594155733,
+        "median_separation_m": 0.005919717130040032,
+        "overlap_count": 0,
+        "within_1mm_count": 0,
+        "count": 4800,
+        "worst": {
+          "lane": 2,
+          "step": 246,
+          "side": "right",
+          "gap_m": 0.0038119169594155733
+        }
+      },
+      "rear_toe_distal": {
+        "min_separation_m": 0.007717845260267309,
+        "median_separation_m": 0.007997347096868637,
+        "overlap_count": 0,
+        "within_1mm_count": 0,
+        "count": 4800,
+        "worst": {
+          "lane": 5,
+          "step": 10,
+          "side": "left",
+          "gap_m": 0.007717845260267309
+        }
+      },
+      "front_toe_1_proximal": {
+        "min_separation_m": 0.016800062177159247,
+        "median_separation_m": 0.018366463266455618,
+        "overlap_count": 0,
+        "within_1mm_count": 0,
+        "count": 4800,
+        "worst": {
+          "lane": 7,
+          "step": 5,
+          "side": "right",
+          "gap_m": 0.016800062177159247
+        }
+      },
+      "front_toe_1_distal": {
+        "min_separation_m": 0.03375554871941541,
+        "median_separation_m": 0.03613689751222228,
+        "overlap_count": 0,
+        "within_1mm_count": 0,
+        "count": 4800,
+        "worst": {
+          "lane": 7,
+          "step": 5,
+          "side": "right",
+          "gap_m": 0.03375554871941541
+        }
+      },
+      "front_toe_2_proximal": {
+        "min_separation_m": 0.01726818594493206,
+        "median_separation_m": 0.018365996275162583,
+        "overlap_count": 0,
+        "within_1mm_count": 0,
+        "count": 4800,
+        "worst": {
+          "lane": 2,
+          "step": 246,
+          "side": "right",
+          "gap_m": 0.01726818594493206
+        }
+      },
+      "front_toe_2_distal": {
+        "min_separation_m": 0.03440999108834215,
+        "median_separation_m": 0.03613647675528152,
+        "overlap_count": 0,
+        "within_1mm_count": 0,
+        "count": 4800,
+        "worst": {
+          "lane": 3,
+          "step": 246,
+          "side": "right",
+          "gap_m": 0.03440999108834215
+        }
+      },
+      "front_toe_3_proximal": {
+        "min_separation_m": 0.017267271217201355,
+        "median_separation_m": 0.01836648140911261,
+        "overlap_count": 0,
+        "within_1mm_count": 0,
+        "count": 4800,
+        "worst": {
+          "lane": 2,
+          "step": 246,
+          "side": "right",
+          "gap_m": 0.017267271217201355
+        }
+      },
+      "front_toe_3_distal": {
+        "min_separation_m": 0.03440857851152992,
+        "median_separation_m": 0.03613717486041769,
+        "overlap_count": 0,
+        "within_1mm_count": 0,
+        "count": 4800,
+        "worst": {
+          "lane": 2,
+          "step": 246,
+          "side": "right",
+          "gap_m": 0.03440857851152992
+        }
+      }
+    },
+    "10": {
+      "rear_toe_proximal": {
+        "min_separation_m": 0.005708183602370243,
+        "median_separation_m": 0.007891432359504274,
+        "overlap_count": 0,
+        "within_1mm_count": 0,
+        "count": 4800,
+        "worst": {
+          "lane": 2,
+          "step": 246,
+          "side": "right",
+          "gap_m": 0.005708183602370243
+        }
+      },
+      "rear_toe_distal": {
+        "min_separation_m": 0.00971784526026731,
+        "median_separation_m": 0.009997347096868635,
+        "overlap_count": 0,
+        "within_1mm_count": 0,
+        "count": 4800,
+        "worst": {
+          "lane": 5,
+          "step": 10,
+          "side": "left",
+          "gap_m": 0.00971784526026731
+        }
+      },
+      "front_toe_1_proximal": {
+        "min_separation_m": 0.016800062177159254,
+        "median_separation_m": 0.018366463266455624,
+        "overlap_count": 0,
+        "within_1mm_count": 0,
+        "count": 4800,
+        "worst": {
+          "lane": 7,
+          "step": 5,
+          "side": "right",
+          "gap_m": 0.016800062177159254
+        }
+      },
+      "front_toe_1_distal": {
+        "min_separation_m": 0.033755548719415426,
+        "median_separation_m": 0.03613689751222228,
+        "overlap_count": 0,
+        "within_1mm_count": 0,
+        "count": 4800,
+        "worst": {
+          "lane": 7,
+          "step": 5,
+          "side": "right",
+          "gap_m": 0.033755548719415426
+        }
+      },
+      "front_toe_2_proximal": {
+        "min_separation_m": 0.01726818594493206,
+        "median_separation_m": 0.018365996275162583,
+        "overlap_count": 0,
+        "within_1mm_count": 0,
+        "count": 4800,
+        "worst": {
+          "lane": 2,
+          "step": 246,
+          "side": "right",
+          "gap_m": 0.01726818594493206
+        }
+      },
+      "front_toe_2_distal": {
+        "min_separation_m": 0.03440999108834214,
+        "median_separation_m": 0.03613647675528152,
+        "overlap_count": 0,
+        "within_1mm_count": 0,
+        "count": 4800,
+        "worst": {
+          "lane": 3,
+          "step": 246,
+          "side": "right",
+          "gap_m": 0.03440999108834214
+        }
+      },
+      "front_toe_3_proximal": {
+        "min_separation_m": 0.017267271217201348,
+        "median_separation_m": 0.018366481409112605,
+        "overlap_count": 0,
+        "within_1mm_count": 0,
+        "count": 4800,
+        "worst": {
+          "lane": 2,
+          "step": 246,
+          "side": "right",
+          "gap_m": 0.017267271217201348
+        }
+      },
+      "front_toe_3_distal": {
+        "min_separation_m": 0.03440857851152991,
+        "median_separation_m": 0.03613717486041769,
+        "overlap_count": 0,
+        "within_1mm_count": 0,
+        "count": 4800,
+        "worst": {
+          "lane": 2,
+          "step": 246,
+          "side": "right",
+          "gap_m": 0.03440857851152991
+        }
+      }
+    }
+  },
+  "scope": "Counterfactual box SAT evaluated against fixed kinematics from the two-exclusion diagnostic, not rerun dynamics. Each integer is mm removed from lower shank box only, its upper end held fixed. All 8 toes compared per side across 300 endpoints, not continuous substeps. This geometry is an engineering screen, not measured crow morphology; contact margin, perch grasp and flight are not qualified."
+}

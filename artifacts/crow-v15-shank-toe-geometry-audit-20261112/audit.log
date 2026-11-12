@@ -1,0 +1,2 @@
+reattached {'count': 1600, 'overlap_count': 1595, 'max_overlap_m': 0.0009873432696213685, 'median_separation_m': -8.539247860353191e-05, 'max_separation_m': 0.0001662037448077816}
+pair_excluded_diagnostic {'count': 1600, 'overlap_count': 1600, 'max_overlap_m': 0.0021367204551769325, 'median_separation_m': -0.0019619753473837376, 'max_separation_m': -0.001503309514129192}
