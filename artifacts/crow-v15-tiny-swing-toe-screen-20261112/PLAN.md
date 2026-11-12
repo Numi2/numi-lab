@@ -1,0 +1,3 @@
+# Smaller unloaded rear-toe command
+
+The matched -0.05 rad rear proximal toe intervention improved clearance and loaded contact speed but failed the 90% matched progress requirement in all eight lanes. Test -0.02 rad with the same accepted own-foot unloading and opposite-foot support conditions. Use the same predeclared full contact, pre-gait parity, step clearance, loaded contact speed, travel and safety criteria as the preceding small-toe screen. This is an engineering search, not a measured crow target; a preliminary pass would still require independent starts, longer walks and flight-toe, takeoff and landing transitions.

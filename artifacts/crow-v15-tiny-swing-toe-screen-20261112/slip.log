@@ -1,0 +1,18 @@
+artifacts/crow-v15-tiny-swing-toe-screen-20261112/sham-20261127-dev2 q_error 4.994049063178352e-10 position_error_m 1.6398655941414724e-08 rotation_error 2.9792866307215784e-08
+artifacts/crow-v15-tiny-swing-toe-screen-20261112/candidate-20261127-rebound q_error 4.981231815914811e-10 position_error_m 1.649786758907925e-08 rotation_error 2.9784382023791822e-08
+{
+  "sham": {
+    "count": 8329,
+    "median_m_s": 0.0027555170683266446,
+    "p95_m_s": 0.0348377125065742,
+    "max_m_s": 0.10688597397169214,
+    "fraction_over_0_01m_s": 0.22739824708848602
+  },
+  "candidate": {
+    "count": 8041,
+    "median_m_s": 0.0023516677597478237,
+    "p95_m_s": 0.029353009019426536,
+    "max_m_s": 0.09513495700072569,
+    "fraction_over_0_01m_s": 0.16963064295485636
+  }
+}
