@@ -1,0 +1,3 @@
+# Forward and higher perch capture sensitivity
+
+The height-gated capture rule fell on +4 mm forward starts at +2 and +4 mm height, after both feet remained rear-contact only without front opposition. Repeat each failed start at three physical hip capture offsets .015, .030 and .045 rad and compare two exact controls. Test whether lack of front opposition can be physically recovered, not whether a fitted root-height threshold generalizes. Known perch geometry, initial state, high uncalibrated friction, and all existing release/regrip gates remain unchanged. This is a constructed development screen, not a landing or holdout.
