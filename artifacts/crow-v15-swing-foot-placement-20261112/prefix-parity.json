@@ -1,0 +1,16 @@
+{
+  "20261126": {
+    "sha256": "dbc242bf1c5636c1c8ce95df7715ca43f880dd814ffa7e3e54ea12a0196258aa",
+    "counts": {
+      "state": 1600,
+      "contact": 25600
+    }
+  },
+  "20261127": {
+    "sha256": "6324652f9f8fdc40069c347b9241367d504a0b1f2c567f5e58b6b803a89f172e",
+    "counts": {
+      "state": 1600,
+      "contact": 25600
+    }
+  }
+}

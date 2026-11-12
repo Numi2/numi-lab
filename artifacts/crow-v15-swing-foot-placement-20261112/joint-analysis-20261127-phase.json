@@ -1,0 +1,476 @@
+{
+  "magpie_walking_reference": {
+    "doi": "10.1242/jeb.203.14.2159",
+    "table": 1,
+    "knee_minimum_percent_mean_sd_n": [
+      27.3,
+      7.9,
+      16
+    ],
+    "ankle_minimum_percent_mean_sd_n": [
+      52.3,
+      9.3,
+      16
+    ],
+    "speed_m_s": [
+      0.5,
+      1.2
+    ]
+  },
+  "substep_seconds": 0.00125,
+  "seed": 20261127,
+  "arm": "phase",
+  "window_seconds": [
+    4,
+    6
+  ],
+  "recovery_count": 16,
+  "order_counts": {
+    "raw": {
+      "ankle_first": 2,
+      "same_substep": 2,
+      "knee_first": 12
+    },
+    "21ms_boxcar": {
+      "ankle_first": 4,
+      "knee_first": 12
+    }
+  },
+  "rejections": {
+    "partial_contact": 30,
+    "missing_toe_group": 42,
+    "incomplete_pair": 80,
+    "recovery_under_40ms": 2
+  },
+  "max_joint_anchor_error_m": 2.033134073102309e-09,
+  "max_replay_body_position_error_m": 1.9085126829837198e-08,
+  "body_motion": [
+    {
+      "lane": 0,
+      "root_z_span_m": 0.004012659000000002,
+      "roll_span_rad": 0.04960541915108206,
+      "pitch_span_rad": 0.030272936672838594,
+      "head_torso_local_span_m": [
+        0.00021032804671630712,
+        0.00034776635370079186,
+        0.0006847843682828841
+      ]
+    },
+    {
+      "lane": 1,
+      "root_z_span_m": 0.004022493999999988,
+      "roll_span_rad": 0.049754768741769984,
+      "pitch_span_rad": 0.0305158623450104,
+      "head_torso_local_span_m": [
+        0.00017819706952185155,
+        0.00034012901915223844,
+        0.0005778003373089063
+      ]
+    },
+    {
+      "lane": 2,
+      "root_z_span_m": 0.004857242000000012,
+      "roll_span_rad": 0.04413555616354756,
+      "pitch_span_rad": 0.037059601983845884,
+      "head_torso_local_span_m": [
+        0.0002918536405205896,
+        0.0003851318894434413,
+        0.0009598686978478932
+      ]
+    },
+    {
+      "lane": 3,
+      "root_z_span_m": 0.004548416,
+      "roll_span_rad": 0.04292202904632109,
+      "pitch_span_rad": 0.03657975896172137,
+      "head_torso_local_span_m": [
+        0.00028897224906090924,
+        0.0003549225984470013,
+        0.0009488495476468045
+      ]
+    },
+    {
+      "lane": 4,
+      "root_z_span_m": 0.003988326000000014,
+      "roll_span_rad": 0.03780532053766981,
+      "pitch_span_rad": 0.03646727771976508,
+      "head_torso_local_span_m": [
+        0.00032756098201872086,
+        0.00033636047816245696,
+        0.001079795579273235
+      ]
+    },
+    {
+      "lane": 5,
+      "root_z_span_m": 0.004716829000000006,
+      "roll_span_rad": 0.0438567205038852,
+      "pitch_span_rad": 0.041071875438735014,
+      "head_torso_local_span_m": [
+        0.00027972986017330004,
+        0.00039057037473846923,
+        0.0009175114667434175
+      ]
+    },
+    {
+      "lane": 6,
+      "root_z_span_m": 0.0039481369999999905,
+      "roll_span_rad": 0.04264300073194814,
+      "pitch_span_rad": 0.03216331550216622,
+      "head_torso_local_span_m": [
+        0.0002878805323086875,
+        0.0004292187457099662,
+        0.0009435045707008871
+      ]
+    },
+    {
+      "lane": 7,
+      "root_z_span_m": 0.004618049000000013,
+      "roll_span_rad": 0.046877905626170766,
+      "pitch_span_rad": 0.03976149415176365,
+      "head_torso_local_span_m": [
+        0.00027724863983175085,
+        0.000326502623644859,
+        0.0009034723453595073
+      ]
+    }
+  ],
+  "records": [
+    {
+      "lane": 0,
+      "side": "left",
+      "recovery_seconds": 0.19,
+      "raw": {
+        "knee_min_deg": 113.83577198243437,
+        "ankle_proxy_min_deg": 74.34612034772235,
+        "ankle_minus_knee_minimum_seconds": -0.02,
+        "knee_minimum_recovery_percent": 46.71052631578947,
+        "ankle_proxy_minimum_recovery_percent": 36.18421052631579,
+        "order": "ankle_first"
+      },
+      "21ms_boxcar": {
+        "knee_min_deg": 113.86969974591919,
+        "ankle_proxy_min_deg": 74.37578127257822,
+        "ankle_minus_knee_minimum_seconds": -0.005,
+        "knee_minimum_recovery_percent": 42.10526315789474,
+        "ankle_proxy_minimum_recovery_percent": 39.473684210526315,
+        "order": "ankle_first"
+      }
+    },
+    {
+      "lane": 0,
+      "side": "right",
+      "recovery_seconds": 0.1925,
+      "raw": {
+        "knee_min_deg": 113.76605619630574,
+        "ankle_proxy_min_deg": 74.27780142923054,
+        "ankle_minus_knee_minimum_seconds": 0.0,
+        "knee_minimum_recovery_percent": 44.15584415584416,
+        "ankle_proxy_minimum_recovery_percent": 44.15584415584416,
+        "order": "same_substep"
+      },
+      "21ms_boxcar": {
+        "knee_min_deg": 113.93920050436,
+        "ankle_proxy_min_deg": 74.35491323129729,
+        "ankle_minus_knee_minimum_seconds": -0.00375,
+        "knee_minimum_recovery_percent": 42.857142857142854,
+        "ankle_proxy_minimum_recovery_percent": 40.90909090909091,
+        "order": "ankle_first"
+      }
+    },
+    {
+      "lane": 1,
+      "side": "left",
+      "recovery_seconds": 0.19,
+      "raw": {
+        "knee_min_deg": 113.83572442693703,
+        "ankle_proxy_min_deg": 74.346151115538,
+        "ankle_minus_knee_minimum_seconds": -0.02,
+        "knee_minimum_recovery_percent": 46.71052631578947,
+        "ankle_proxy_minimum_recovery_percent": 36.18421052631579,
+        "order": "ankle_first"
+      },
+      "21ms_boxcar": {
+        "knee_min_deg": 113.86966317773025,
+        "ankle_proxy_min_deg": 74.37580376958758,
+        "ankle_minus_knee_minimum_seconds": -0.005,
+        "knee_minimum_recovery_percent": 42.10526315789474,
+        "ankle_proxy_minimum_recovery_percent": 39.473684210526315,
+        "order": "ankle_first"
+      }
+    },
+    {
+      "lane": 1,
+      "side": "right",
+      "recovery_seconds": 0.18125,
+      "raw": {
+        "knee_min_deg": 113.59445476250474,
+        "ankle_proxy_min_deg": 74.28093648162663,
+        "ankle_minus_knee_minimum_seconds": 0.0,
+        "knee_minimum_recovery_percent": 40.689655172413794,
+        "ankle_proxy_minimum_recovery_percent": 40.689655172413794,
+        "order": "same_substep"
+      },
+      "21ms_boxcar": {
+        "knee_min_deg": 113.73862112319694,
+        "ankle_proxy_min_deg": 74.35969316446725,
+        "ankle_minus_knee_minimum_seconds": -0.00125,
+        "knee_minimum_recovery_percent": 37.93103448275862,
+        "ankle_proxy_minimum_recovery_percent": 37.241379310344826,
+        "order": "ankle_first"
+      }
+    },
+    {
+      "lane": 2,
+      "side": "left",
+      "recovery_seconds": 0.1525,
+      "raw": {
+        "knee_min_deg": 113.63865272712982,
+        "ankle_proxy_min_deg": 74.37823251997351,
+        "ankle_minus_knee_minimum_seconds": 0.0275,
+        "knee_minimum_recovery_percent": 29.508196721311474,
+        "ankle_proxy_minimum_recovery_percent": 47.540983606557376,
+        "order": "knee_first"
+      },
+      "21ms_boxcar": {
+        "knee_min_deg": 113.65799436688599,
+        "ankle_proxy_min_deg": 74.41439275325075,
+        "ankle_minus_knee_minimum_seconds": 0.035,
+        "knee_minimum_recovery_percent": 28.688524590163933,
+        "ankle_proxy_minimum_recovery_percent": 51.63934426229508,
+        "order": "knee_first"
+      }
+    },
+    {
+      "lane": 2,
+      "side": "right",
+      "recovery_seconds": 0.15375,
+      "raw": {
+        "knee_min_deg": 115.3457902303425,
+        "ankle_proxy_min_deg": 74.33839884453727,
+        "ankle_minus_knee_minimum_seconds": 0.02,
+        "knee_minimum_recovery_percent": 42.27642276422764,
+        "ankle_proxy_minimum_recovery_percent": 55.28455284552845,
+        "order": "knee_first"
+      },
+      "21ms_boxcar": {
+        "knee_min_deg": 115.59942341421765,
+        "ankle_proxy_min_deg": 74.43494339638579,
+        "ankle_minus_knee_minimum_seconds": 0.02,
+        "knee_minimum_recovery_percent": 39.02439024390244,
+        "ankle_proxy_minimum_recovery_percent": 52.03252032520325,
+        "order": "knee_first"
+      }
+    },
+    {
+      "lane": 2,
+      "side": "right",
+      "recovery_seconds": 0.15375,
+      "raw": {
+        "knee_min_deg": 115.34504595816108,
+        "ankle_proxy_min_deg": 74.33859009700883,
+        "ankle_minus_knee_minimum_seconds": 0.02,
+        "knee_minimum_recovery_percent": 41.46341463414634,
+        "ankle_proxy_minimum_recovery_percent": 54.47154471544715,
+        "order": "knee_first"
+      },
+      "21ms_boxcar": {
+        "knee_min_deg": 115.59888591239498,
+        "ankle_proxy_min_deg": 74.43499923203767,
+        "ankle_minus_knee_minimum_seconds": 0.02,
+        "knee_minimum_recovery_percent": 38.21138211382114,
+        "ankle_proxy_minimum_recovery_percent": 51.21951219512195,
+        "order": "knee_first"
+      }
+    },
+    {
+      "lane": 3,
+      "side": "left",
+      "recovery_seconds": 0.1525,
+      "raw": {
+        "knee_min_deg": 113.6391924533766,
+        "ankle_proxy_min_deg": 74.37901454959425,
+        "ankle_minus_knee_minimum_seconds": 0.0275,
+        "knee_minimum_recovery_percent": 29.508196721311474,
+        "ankle_proxy_minimum_recovery_percent": 47.540983606557376,
+        "order": "knee_first"
+      },
+      "21ms_boxcar": {
+        "knee_min_deg": 113.65846530449348,
+        "ankle_proxy_min_deg": 74.41482506310636,
+        "ankle_minus_knee_minimum_seconds": 0.035,
+        "knee_minimum_recovery_percent": 28.688524590163933,
+        "ankle_proxy_minimum_recovery_percent": 51.63934426229508,
+        "order": "knee_first"
+      }
+    },
+    {
+      "lane": 3,
+      "side": "right",
+      "recovery_seconds": 0.1525,
+      "raw": {
+        "knee_min_deg": 115.34438361894497,
+        "ankle_proxy_min_deg": 74.33895209256978,
+        "ankle_minus_knee_minimum_seconds": 0.02,
+        "knee_minimum_recovery_percent": 42.622950819672134,
+        "ankle_proxy_minimum_recovery_percent": 55.73770491803279,
+        "order": "knee_first"
+      },
+      "21ms_boxcar": {
+        "knee_min_deg": 115.59843553386122,
+        "ankle_proxy_min_deg": 74.43547272541498,
+        "ankle_minus_knee_minimum_seconds": 0.02,
+        "knee_minimum_recovery_percent": 39.34426229508197,
+        "ankle_proxy_minimum_recovery_percent": 52.459016393442624,
+        "order": "knee_first"
+      }
+    },
+    {
+      "lane": 3,
+      "side": "right",
+      "recovery_seconds": 0.15375,
+      "raw": {
+        "knee_min_deg": 115.34454060938202,
+        "ankle_proxy_min_deg": 74.33862086517965,
+        "ankle_minus_knee_minimum_seconds": 0.02,
+        "knee_minimum_recovery_percent": 41.46341463414634,
+        "ankle_proxy_minimum_recovery_percent": 54.47154471544715,
+        "order": "knee_first"
+      },
+      "21ms_boxcar": {
+        "knee_min_deg": 115.598450430764,
+        "ankle_proxy_min_deg": 74.43503117326595,
+        "ankle_minus_knee_minimum_seconds": 0.02,
+        "knee_minimum_recovery_percent": 38.21138211382114,
+        "ankle_proxy_minimum_recovery_percent": 51.21951219512195,
+        "order": "knee_first"
+      }
+    },
+    {
+      "lane": 4,
+      "side": "right",
+      "recovery_seconds": 0.1325,
+      "raw": {
+        "knee_min_deg": 113.90505060176359,
+        "ankle_proxy_min_deg": 75.73886084018774,
+        "ankle_minus_knee_minimum_seconds": 0.04,
+        "knee_minimum_recovery_percent": 18.867924528301888,
+        "ankle_proxy_minimum_recovery_percent": 49.056603773584904,
+        "order": "knee_first"
+      },
+      "21ms_boxcar": {
+        "knee_min_deg": 114.06743412199123,
+        "ankle_proxy_min_deg": 75.81385170306606,
+        "ankle_minus_knee_minimum_seconds": 0.04125,
+        "knee_minimum_recovery_percent": 15.09433962264151,
+        "ankle_proxy_minimum_recovery_percent": 46.22641509433962,
+        "order": "knee_first"
+      }
+    },
+    {
+      "lane": 4,
+      "side": "right",
+      "recovery_seconds": 0.14875,
+      "raw": {
+        "knee_min_deg": 115.75663993367077,
+        "ankle_proxy_min_deg": 75.69458752760525,
+        "ankle_minus_knee_minimum_seconds": 0.02,
+        "knee_minimum_recovery_percent": 39.49579831932773,
+        "ankle_proxy_minimum_recovery_percent": 52.94117647058823,
+        "order": "knee_first"
+      },
+      "21ms_boxcar": {
+        "knee_min_deg": 115.90590292259328,
+        "ankle_proxy_min_deg": 75.75277051840725,
+        "ankle_minus_knee_minimum_seconds": 0.02,
+        "knee_minimum_recovery_percent": 35.294117647058826,
+        "ankle_proxy_minimum_recovery_percent": 48.739495798319325,
+        "order": "knee_first"
+      }
+    },
+    {
+      "lane": 5,
+      "side": "right",
+      "recovery_seconds": 0.1525,
+      "raw": {
+        "knee_min_deg": 116.20041809474253,
+        "ankle_proxy_min_deg": 75.77045390690112,
+        "ankle_minus_knee_minimum_seconds": 0.02,
+        "knee_minimum_recovery_percent": 41.80327868852459,
+        "ankle_proxy_minimum_recovery_percent": 54.91803278688525,
+        "order": "knee_first"
+      },
+      "21ms_boxcar": {
+        "knee_min_deg": 116.44831843145113,
+        "ankle_proxy_min_deg": 75.86644536625438,
+        "ankle_minus_knee_minimum_seconds": 0.02,
+        "knee_minimum_recovery_percent": 38.52459016393443,
+        "ankle_proxy_minimum_recovery_percent": 51.63934426229508,
+        "order": "knee_first"
+      }
+    },
+    {
+      "lane": 6,
+      "side": "right",
+      "recovery_seconds": 0.1475,
+      "raw": {
+        "knee_min_deg": 116.60446449725433,
+        "ankle_proxy_min_deg": 76.94455322265911,
+        "ankle_minus_knee_minimum_seconds": 0.06,
+        "knee_minimum_recovery_percent": 38.983050847457626,
+        "ankle_proxy_minimum_recovery_percent": 79.66101694915254,
+        "order": "knee_first"
+      },
+      "21ms_boxcar": {
+        "knee_min_deg": 116.73903607305043,
+        "ankle_proxy_min_deg": 77.04393284912838,
+        "ankle_minus_knee_minimum_seconds": 0.06125,
+        "knee_minimum_recovery_percent": 33.898305084745765,
+        "ankle_proxy_minimum_recovery_percent": 75.42372881355932,
+        "order": "knee_first"
+      }
+    },
+    {
+      "lane": 7,
+      "side": "left",
+      "recovery_seconds": 0.14625,
+      "raw": {
+        "knee_min_deg": 115.26603450466597,
+        "ankle_proxy_min_deg": 77.24229474543161,
+        "ankle_minus_knee_minimum_seconds": 0.04,
+        "knee_minimum_recovery_percent": 20.512820512820515,
+        "ankle_proxy_minimum_recovery_percent": 47.863247863247864,
+        "order": "knee_first"
+      },
+      "21ms_boxcar": {
+        "knee_min_deg": 115.29237553172185,
+        "ankle_proxy_min_deg": 77.27858917936864,
+        "ankle_minus_knee_minimum_seconds": 0.04,
+        "knee_minimum_recovery_percent": 24.786324786324787,
+        "ankle_proxy_minimum_recovery_percent": 52.136752136752136,
+        "order": "knee_first"
+      }
+    },
+    {
+      "lane": 7,
+      "side": "right",
+      "recovery_seconds": 0.15375,
+      "raw": {
+        "knee_min_deg": 117.05576215659151,
+        "ankle_proxy_min_deg": 77.20251235164949,
+        "ankle_minus_knee_minimum_seconds": 0.02,
+        "knee_minimum_recovery_percent": 41.46341463414634,
+        "ankle_proxy_minimum_recovery_percent": 54.47154471544715,
+        "order": "knee_first"
+      },
+      "21ms_boxcar": {
+        "knee_min_deg": 117.29833701912618,
+        "ankle_proxy_min_deg": 77.29792484463174,
+        "ankle_minus_knee_minimum_seconds": 0.02,
+        "knee_minimum_recovery_percent": 38.21138211382114,
+        "ankle_proxy_minimum_recovery_percent": 51.21951219512195,
+        "order": "knee_first"
+      }
+    }
+  ],
+  "scope": "Development baseline, matched accepted contact substeps and 800 Hz q/v; 3D geometric ankle proxy uses second modeled front-toe base, whose anatomical identity is unverified. Group <=2 silent substeps, reject incomplete contacts, missing toe groups, contact or recovery under 40 ms; smoothing is a centered 21.25 ms boxcar without a biological sampling calibration. Minimum-angle ordering is a proxy for extension onset, not direct onset measurement. Different species, speeds, surfaces and anatomy prevent biological validation."
+}
