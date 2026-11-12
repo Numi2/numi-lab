@@ -1,0 +1,262 @@
+{
+  "window_seconds": [
+    4,
+    6
+  ],
+  "substep_duration_seconds": 0.00125,
+  "states": 12800,
+  "loaded_contact_groups": 16617,
+  "excluded_nonvertical_contact_points": 0,
+  "validation": {
+    "q_endpoint_max_abs": 0.0,
+    "v_endpoint_max_abs": 0.0,
+    "foot_position_max_abs_m": 1.447998583330377e-08,
+    "foot_velocity_max_abs_m_s": 1.4730585673678643e-08,
+    "foot_angular_velocity_max_abs_rad_s": 3.9058880175054525e-07,
+    "ground_max_speed": 0,
+    "endpoint_contact_record_mismatches": 0
+  },
+  "rows": [
+    {
+      "lane": 0,
+      "side": "left",
+      "loaded_substeps": 1072,
+      "mean_m_s": 0.05213710185984246,
+      "p95_m_s": 0.2547015163023176,
+      "integral_of_mean_contact_speed_m": 0.06986371649218891,
+      "max_m_s": 0.5246643224036972,
+      "frame_boundary_weighted_p95_m_s": 0.08269142069009396,
+      "interior_after_10ms_edge_trim": {
+        "samples": 992,
+        "mean_m_s": 0.04888911403858748,
+        "p95_m_s": 0.23594680661469014
+      }
+    },
+    {
+      "lane": 0,
+      "side": "right",
+      "loaded_substeps": 1004,
+      "mean_m_s": 0.052757471068694405,
+      "p95_m_s": 0.24435474181973293,
+      "integral_of_mean_contact_speed_m": 0.06621062619121143,
+      "max_m_s": 0.63778387387205,
+      "frame_boundary_weighted_p95_m_s": 0.08012202292441163,
+      "interior_after_10ms_edge_trim": {
+        "samples": 930,
+        "mean_m_s": 0.045003267914474225,
+        "p95_m_s": 0.21758612423388154
+      }
+    },
+    {
+      "lane": 1,
+      "side": "left",
+      "loaded_substeps": 1071,
+      "mean_m_s": 0.0511808390651087,
+      "p95_m_s": 0.2542829231753105,
+      "integral_of_mean_contact_speed_m": 0.06851834829841427,
+      "max_m_s": 0.5083299805629797,
+      "frame_boundary_weighted_p95_m_s": 0.08291888894455951,
+      "interior_after_10ms_edge_trim": {
+        "samples": 991,
+        "mean_m_s": 0.0478413364538512,
+        "p95_m_s": 0.23501949402936065
+      }
+    },
+    {
+      "lane": 1,
+      "side": "right",
+      "loaded_substeps": 1002,
+      "mean_m_s": 0.050934616870815706,
+      "p95_m_s": 0.23343245116620123,
+      "integral_of_mean_contact_speed_m": 0.06379560763069667,
+      "max_m_s": 0.6360415082294208,
+      "frame_boundary_weighted_p95_m_s": 0.0758850355386428,
+      "interior_after_10ms_edge_trim": {
+        "samples": 931,
+        "mean_m_s": 0.0450539481577799,
+        "p95_m_s": 0.21663462758795515
+      }
+    },
+    {
+      "lane": 2,
+      "side": "left",
+      "loaded_substeps": 1072,
+      "mean_m_s": 0.052185353999411856,
+      "p95_m_s": 0.2578500166199342,
+      "integral_of_mean_contact_speed_m": 0.06992837435921186,
+      "max_m_s": 0.5233632293988213,
+      "frame_boundary_weighted_p95_m_s": 0.08224865166144618,
+      "interior_after_10ms_edge_trim": {
+        "samples": 992,
+        "mean_m_s": 0.048926109244969325,
+        "p95_m_s": 0.238804808077808
+      }
+    },
+    {
+      "lane": 2,
+      "side": "right",
+      "loaded_substeps": 1004,
+      "mean_m_s": 0.0529892993709988,
+      "p95_m_s": 0.24583315270611167,
+      "integral_of_mean_contact_speed_m": 0.06650157071060353,
+      "max_m_s": 0.6374595454750484,
+      "frame_boundary_weighted_p95_m_s": 0.06977053517058168,
+      "interior_after_10ms_edge_trim": {
+        "samples": 930,
+        "mean_m_s": 0.04523559226999636,
+        "p95_m_s": 0.21530927222283894
+      }
+    },
+    {
+      "lane": 3,
+      "side": "left",
+      "loaded_substeps": 1082,
+      "mean_m_s": 0.05069770843149882,
+      "p95_m_s": 0.2278823893703768,
+      "integral_of_mean_contact_speed_m": 0.06856865065360217,
+      "max_m_s": 0.4966139008492559,
+      "frame_boundary_weighted_p95_m_s": 0.11692285188095249,
+      "interior_after_10ms_edge_trim": {
+        "samples": 1002,
+        "mean_m_s": 0.04861904787453467,
+        "p95_m_s": 0.2250893524186047
+      }
+    },
+    {
+      "lane": 3,
+      "side": "right",
+      "loaded_substeps": 1001,
+      "mean_m_s": 0.049085393814844405,
+      "p95_m_s": 0.23480953841509092,
+      "integral_of_mean_contact_speed_m": 0.06141809901082405,
+      "max_m_s": 0.6369830191478225,
+      "frame_boundary_weighted_p95_m_s": 0.07130914693160861,
+      "interior_after_10ms_edge_trim": {
+        "samples": 937,
+        "mean_m_s": 0.041033221897935394,
+        "p95_m_s": 0.2011116562196777
+      }
+    },
+    {
+      "lane": 4,
+      "side": "left",
+      "loaded_substeps": 1072,
+      "mean_m_s": 0.051823975157543105,
+      "p95_m_s": 0.24264815949592844,
+      "integral_of_mean_contact_speed_m": 0.06944412671110772,
+      "max_m_s": 0.522561389222693,
+      "frame_boundary_weighted_p95_m_s": 0.08273706027159575,
+      "interior_after_10ms_edge_trim": {
+        "samples": 992,
+        "mean_m_s": 0.048471525371446965,
+        "p95_m_s": 0.22894707014854163
+      }
+    },
+    {
+      "lane": 4,
+      "side": "right",
+      "loaded_substeps": 1005,
+      "mean_m_s": 0.05389943860841004,
+      "p95_m_s": 0.2516834680944788,
+      "integral_of_mean_contact_speed_m": 0.06771116975181513,
+      "max_m_s": 0.6376001461531817,
+      "frame_boundary_weighted_p95_m_s": 0.07013957482410108,
+      "interior_after_10ms_edge_trim": {
+        "samples": 931,
+        "mean_m_s": 0.04570084134260048,
+        "p95_m_s": 0.21325966357942
+      }
+    },
+    {
+      "lane": 5,
+      "side": "left",
+      "loaded_substeps": 1073,
+      "mean_m_s": 0.05151784699340235,
+      "p95_m_s": 0.24264695682085538,
+      "integral_of_mean_contact_speed_m": 0.06909831227990088,
+      "max_m_s": 0.5117119350262769,
+      "frame_boundary_weighted_p95_m_s": 0.08218461705781527,
+      "interior_after_10ms_edge_trim": {
+        "samples": 993,
+        "mean_m_s": 0.0484469329942517,
+        "p95_m_s": 0.2356701632780603
+      }
+    },
+    {
+      "lane": 5,
+      "side": "right",
+      "loaded_substeps": 1005,
+      "mean_m_s": 0.05402448160686409,
+      "p95_m_s": 0.2510386525296287,
+      "integral_of_mean_contact_speed_m": 0.06786825501862302,
+      "max_m_s": 0.637306084323528,
+      "frame_boundary_weighted_p95_m_s": 0.07038543076189167,
+      "interior_after_10ms_edge_trim": {
+        "samples": 931,
+        "mean_m_s": 0.04583892603564884,
+        "p95_m_s": 0.21552784572387487
+      }
+    },
+    {
+      "lane": 6,
+      "side": "left",
+      "loaded_substeps": 1072,
+      "mean_m_s": 0.051416524275645144,
+      "p95_m_s": 0.24342650090908557,
+      "integral_of_mean_contact_speed_m": 0.06889814252936442,
+      "max_m_s": 0.5082000834786161,
+      "frame_boundary_weighted_p95_m_s": 0.08225487347158172,
+      "interior_after_10ms_edge_trim": {
+        "samples": 992,
+        "mean_m_s": 0.04808031417273178,
+        "p95_m_s": 0.22756120684319142
+      }
+    },
+    {
+      "lane": 6,
+      "side": "right",
+      "loaded_substeps": 1005,
+      "mean_m_s": 0.05403183121259917,
+      "p95_m_s": 0.25327189688763374,
+      "integral_of_mean_contact_speed_m": 0.06787748796082765,
+      "max_m_s": 0.6377483147181975,
+      "frame_boundary_weighted_p95_m_s": 0.07042447630686355,
+      "interior_after_10ms_edge_trim": {
+        "samples": 931,
+        "mean_m_s": 0.04583342794078352,
+        "p95_m_s": 0.215815706697015
+      }
+    },
+    {
+      "lane": 7,
+      "side": "left",
+      "loaded_substeps": 1072,
+      "mean_m_s": 0.05147358154916068,
+      "p95_m_s": 0.2428143002037691,
+      "integral_of_mean_contact_speed_m": 0.06897459927587525,
+      "max_m_s": 0.5152755054806121,
+      "frame_boundary_weighted_p95_m_s": 0.0827166813859685,
+      "interior_after_10ms_edge_trim": {
+        "samples": 992,
+        "mean_m_s": 0.048134982693951577,
+        "p95_m_s": 0.22799554094962632
+      }
+    },
+    {
+      "lane": 7,
+      "side": "right",
+      "loaded_substeps": 1005,
+      "mean_m_s": 0.053910241281350496,
+      "p95_m_s": 0.2514291629138231,
+      "integral_of_mean_contact_speed_m": 0.06772474060969656,
+      "max_m_s": 0.6375692320884577,
+      "frame_boundary_weighted_p95_m_s": 0.07011107611789869,
+      "interior_after_10ms_edge_trim": {
+        "samples": 931,
+        "mean_m_s": 0.045721392588812734,
+        "p95_m_s": 0.21589828137750988
+      }
+    }
+  ],
+  "limitations": "Impulse-weighted speed integrated only while loaded; multiple changing contact points, and contact points are from collision while q/v are end-of-substep states. This is a speed integral proxy, not tracked material-point slip distance."
+}
