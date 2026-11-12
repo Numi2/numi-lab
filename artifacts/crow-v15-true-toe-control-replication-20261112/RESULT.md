@@ -1,0 +1,7 @@
+# Development replication of the leg handoff and toe variants
+
+All 16 closely related starts across two previously used seeds survived to step 625, reproduced their same-lane sustained-walk state and contact records through step 485, retained nonzero foot impulses in all 240 transition substeps at 501–515, and had no observed foot load in the 80 final substeps at 621–625. Contact and toe records are complete through step 625; all 58,240 joint-drive samples per lane are present for steps 535–625. No toe or authored joint speed-limit hit was observed in those windows, and no solver error, overflow or nonfoot ground impulse was logged.
+
+All variants used the same .20 s contact-released leg handoff and .05 s wing ramp. The lanes differed by loaded rear-toe operation: zero floor, true bypass, .05 or .10 rad preload. Total foot normal impulse over steps 549–556 ranged approximately .477–.487 N s, but different lanes are not matched same-start controls, and the resultant includes gravity, wings and feedback. A true same-lane bypass comparison is in progress; these observations cannot establish which toe operation caused any difference.
+
+This is a brief development screen using correlated starts and does not qualify the biological gait, material slip, leg-powered takeoff, sustained flight, navigation or landing. The near-zero impulse threshold does not itself establish meaningful support.
