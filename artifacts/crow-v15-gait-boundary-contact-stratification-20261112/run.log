@@ -1,0 +1,12 @@
+{'joint': 'ankle', 'phase': 'boundary', 'contact': 'all_loaded', 'count': 1036, 'mean_abs_rad_s2': 180.21763768339744, 'median_abs_rad_s2': 10.805119999997004, 'p95_abs_rad_s2': 885.5059199999893}
+{'joint': 'ankle', 'phase': 'boundary', 'contact': 'all_unloaded', 'count': 547, 'mean_abs_rad_s2': 682.1898483363794, 'median_abs_rad_s2': 874.7961600000131, 'p95_abs_rad_s2': 885.6102399999876}
+{'joint': 'ankle', 'phase': 'boundary', 'contact': 'mixed', 'count': 1, 'mean_abs_rad_s2': 15.068160000009101, 'median_abs_rad_s2': 15.068160000009101, 'p95_abs_rad_s2': 15.068160000009101}
+{'joint': 'ankle', 'phase': 'inside', 'contact': 'all_loaded', 'count': 15360, 'mean_abs_rad_s2': 21.437781458333426, 'median_abs_rad_s2': 3.6435199999829138, 'p95_abs_rad_s2': 109.37728000001812}
+{'joint': 'ankle', 'phase': 'inside', 'contact': 'all_unloaded', 'count': 8169, 'mean_abs_rad_s2': 59.850185785285994, 'median_abs_rad_s2': 40.00703999999189, 'p95_abs_rad_s2': 157.71839999999315}
+{'joint': 'ankle', 'phase': 'inside', 'contact': 'mixed', 'count': 231, 'mean_abs_rad_s2': 71.57248831168809, 'median_abs_rad_s2': 73.72800000000623, 'p95_abs_rad_s2': 136.280959999997}
+{'joint': 'knee', 'phase': 'boundary', 'contact': 'all_loaded', 'count': 1036, 'mean_abs_rad_s2': 327.0847376061775, 'median_abs_rad_s2': 76.67520000005368, 'p95_abs_rad_s2': 1068.9350399999853}
+{'joint': 'knee', 'phase': 'boundary', 'contact': 'all_unloaded', 'count': 547, 'mean_abs_rad_s2': 972.8797180255957, 'median_abs_rad_s2': 1065.1020799999956, 'p95_abs_rad_s2': 1077.2889599999758}
+{'joint': 'knee', 'phase': 'boundary', 'contact': 'mixed', 'count': 1, 'mean_abs_rad_s2': 28.190719999976466, 'median_abs_rad_s2': 28.190719999976466, 'p95_abs_rad_s2': 28.190719999976466}
+{'joint': 'knee', 'phase': 'inside', 'contact': 'all_loaded', 'count': 15360, 'mean_abs_rad_s2': 66.07374316666674, 'median_abs_rad_s2': 5.263359999965189, 'p95_abs_rad_s2': 338.3827200000056}
+{'joint': 'knee', 'phase': 'inside', 'contact': 'all_unloaded', 'count': 8169, 'mean_abs_rad_s2': 210.8165581295142, 'median_abs_rad_s2': 122.10815999999625, 'p95_abs_rad_s2': 997.7535999999532}
+{'joint': 'knee', 'phase': 'inside', 'contact': 'mixed', 'count': 231, 'mean_abs_rad_s2': 234.62862961038923, 'median_abs_rad_s2': 226.45952000004854, 'p95_abs_rad_s2': 486.48832000001363}
