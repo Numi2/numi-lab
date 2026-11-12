@@ -1,0 +1,3 @@
+held 24 {'ankle_first': 8, 'same_endpoint': 16} {'partial_contact': 32, 'incomplete_pair': 32} maxerr 2.1838251110880016e-09
+matched 16 {'same_endpoint': 16} {'partial_contact': 32, 'missing_toe_group': 52, 'incomplete_pair': 92} maxerr 2.1713016635838006e-09
+crouch_screen 20 {'same_endpoint': 11, 'ankle_first': 9} {'partial_contact': 26, 'missing_toe_group': 23, 'incomplete_pair': 59} maxerr 2.1423111988045075e-09
