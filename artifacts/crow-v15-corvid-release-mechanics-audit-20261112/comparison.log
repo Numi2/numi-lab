@@ -1,0 +1,68 @@
+{
+  "matched_ordinal_pairs": 40,
+  "unmatched_held": 0,
+  "unmatched_driven": 0,
+  "held_rear_minus_front_ms": {
+    "min": -36.25,
+    "median": 18.75,
+    "max": 40.0
+  },
+  "driven_rear_minus_front_ms": {
+    "min": 5.0,
+    "median": 7.5,
+    "max": 13.75
+  },
+  "front_stance_duration_change_ms": {
+    "min": -50.0,
+    "median": -7.5,
+    "max": 43.75
+  },
+  "rear_stance_duration_change_ms": {
+    "min": -42.5,
+    "median": -9.375,
+    "max": 38.75
+  },
+  "joint_change_rad": {
+    "hip": {
+      "min": -0.0023201850000000024,
+      "median": 0.014591403500000003,
+      "max": 0.028358198399999993
+    },
+    "knee": {
+      "min": -0.023850499999999997,
+      "median": 0.001704781999999988,
+      "max": 0.006777256999999981
+    },
+    "ankle": {
+      "min": -0.0009654759999999929,
+      "median": 0.0016070824999999955,
+      "max": 0.010385260000000007
+    },
+    "front1_proximal": {
+      "min": -0.002666827584,
+      "median": 0.000305056208,
+      "max": 0.026326973553
+    },
+    "front2_proximal": {
+      "min": 0.00011879392000000008,
+      "median": 0.00037895833550000005,
+      "max": 0.021311032407
+    },
+    "front3_proximal": {
+      "min": -0.0014101203419999999,
+      "median": 0.00024064516014999998,
+      "max": 0.023304453979999997
+    },
+    "rear_proximal": {
+      "min": -0.09172953759000001,
+      "median": -0.0495223849,
+      "max": -0.02403081235
+    },
+    "rear_distal": {
+      "min": -0.061803378584,
+      "median": -0.0263124408795,
+      "max": -0.00422509352
+    }
+  }
+}
+skipped [('held', {'partial': 32}), ('driven', {'partial': 32, 'missing_group': 12})]
