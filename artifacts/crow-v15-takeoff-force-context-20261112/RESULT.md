@@ -1,0 +1,7 @@
+# Related-species takeoff force context
+
+The [Meilak et al. preprint](https://doi.org/10.1101/2021.11.19.469279) describes six force-platform takeoffs from one carrion crow (Corvus corone, 440 g) and six from one raven. Its reported crow peak ground reaction force is 2.20 ± 0.29 bodyweights per leg; the text describes 10 kHz sampling and 40 Hz low-pass filtering. The source is a preprint, the sample is one bird, the species is not the American crow, and the report alone does not establish a population range. Study methods and event definitions should be verified before quantitative comparison.
+
+For the retained v15 development launch, the unfiltered vertical impulse per 1.25 ms physics substep divided by duration and the model's total weight peaks at roughly 1.60–1.62 bodyweights for each foot in the eight dependent lanes, and 3.19–3.23 bodyweights when foot impulses are summed in the same substep. This descriptive window runs from interval 348 through interval 353, which includes substeps after unloading. It is not the same sampled, filtered force waveform or necessarily the same takeoff context as the biological study. Impulse-derived substep estimates, maximum values, different force definitions, and species differences prevent treating agreement or disagreement as validation. The preceding result still requires biological, perturbed-start and full-sequence qualification.
+
+Reproduce with analyze.py. The exact per-lane values and integrated upward impulses are in analysis.json; existing physics records remain the source of evidence.

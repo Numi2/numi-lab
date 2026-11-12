@@ -1,0 +1,96 @@
+{
+  "rows": [
+    {
+      "lane": 0,
+      "substeps": 96,
+      "peak_instantaneous_substep_equivalent_force_over_bodyweight_left": 1.6067630044842134,
+      "peak_instantaneous_substep_equivalent_force_over_bodyweight_right": 1.605473058909848,
+      "peak_summed_feet_over_bodyweight": 3.2122360633940614,
+      "integrated_upward_impulse_Ns": [
+        0.234686216875,
+        0.23687857715100002
+      ]
+    },
+    {
+      "lane": 1,
+      "substeps": 96,
+      "peak_instantaneous_substep_equivalent_force_over_bodyweight_left": 1.6123846629034801,
+      "peak_instantaneous_substep_equivalent_force_over_bodyweight_right": 1.6163017503204802,
+      "peak_summed_feet_over_bodyweight": 3.2286864132239605,
+      "integrated_upward_impulse_Ns": [
+        0.2350321250890001,
+        0.23648592007299996
+      ]
+    },
+    {
+      "lane": 2,
+      "substeps": 96,
+      "peak_instantaneous_substep_equivalent_force_over_bodyweight_left": 1.6052202676068605,
+      "peak_instantaneous_substep_equivalent_force_over_bodyweight_right": 1.604912294625299,
+      "peak_summed_feet_over_bodyweight": 3.2101325622321593,
+      "integrated_upward_impulse_Ns": [
+        0.234479800474,
+        0.237064285804
+      ]
+    },
+    {
+      "lane": 3,
+      "substeps": 96,
+      "peak_instantaneous_substep_equivalent_force_over_bodyweight_left": 1.6204179657912186,
+      "peak_instantaneous_substep_equivalent_force_over_bodyweight_right": 1.6105015514297942,
+      "peak_summed_feet_over_bodyweight": 3.230919517221013,
+      "integrated_upward_impulse_Ns": [
+        0.23362898185900002,
+        0.23788548648
+      ]
+    },
+    {
+      "lane": 4,
+      "substeps": 96,
+      "peak_instantaneous_substep_equivalent_force_over_bodyweight_left": 1.617097081132188,
+      "peak_instantaneous_substep_equivalent_force_over_bodyweight_right": 1.5950557875554294,
+      "peak_summed_feet_over_bodyweight": 3.2121528686876175,
+      "integrated_upward_impulse_Ns": [
+        0.23503939216999994,
+        0.236504306092
+      ]
+    },
+    {
+      "lane": 5,
+      "substeps": 96,
+      "peak_instantaneous_substep_equivalent_force_over_bodyweight_left": 1.6170478064698404,
+      "peak_instantaneous_substep_equivalent_force_over_bodyweight_right": 1.5986978073327904,
+      "peak_summed_feet_over_bodyweight": 3.215745613802631,
+      "integrated_upward_impulse_Ns": [
+        0.23446048036400002,
+        0.23708077166900007
+      ]
+    },
+    {
+      "lane": 6,
+      "substeps": 96,
+      "peak_instantaneous_substep_equivalent_force_over_bodyweight_left": 1.6184970548495898,
+      "peak_instantaneous_substep_equivalent_force_over_bodyweight_right": 1.6125824410409337,
+      "peak_summed_feet_over_bodyweight": 3.2310794958905236,
+      "integrated_upward_impulse_Ns": [
+        0.23473030325899996,
+        0.236773441475
+      ]
+    },
+    {
+      "lane": 7,
+      "substeps": 96,
+      "peak_instantaneous_substep_equivalent_force_over_bodyweight_left": 1.5965963301393313,
+      "peak_instantaneous_substep_equivalent_force_over_bodyweight_right": 1.596243806296435,
+      "peak_summed_feet_over_bodyweight": 3.192840136435766,
+      "integrated_upward_impulse_Ns": [
+        0.234613179122,
+        0.236969335117
+      ]
+    }
+  ],
+  "window": "interval 348 through first two-unloaded-rising endpoint; each substep 0.00125 s",
+  "mass_kg": 0.45006,
+  "gravity_m_s2": 9.81,
+  "scope": "Unfiltered contact impulses divided by substep duration. Not directly comparable to 10 kHz, 40 Hz filtered experimental force data; no ground-reaction force waveform matching or American-crow biological validation."
+}
