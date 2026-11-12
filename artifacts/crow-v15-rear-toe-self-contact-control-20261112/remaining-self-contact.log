@@ -1,0 +1,31 @@
+{
+  "lane_endpoints_with_remaining_distal_shank_contact": 578,
+  "possible_lane_endpoints": 800,
+  "first_step_by_lane": {
+    "0": 3,
+    "1": 3,
+    "3": 3,
+    "4": 3,
+    "5": 3,
+    "6": 3,
+    "7": 3,
+    "2": 4
+  },
+  "pair_contact_counts": [
+    {
+      "pair": [
+        "crow_left_rear_toe_distal",
+        "crow_left_shank"
+      ],
+      "count": 1130
+    },
+    {
+      "pair": [
+        "crow_right_rear_toe_distal",
+        "crow_right_shank"
+      ],
+      "count": 1124
+    }
+  ],
+  "scope": "Endpoint positive-impulse samples during first 100 intervals only, not a measure of anatomical penetration or substep coverage."
+}
