@@ -1,0 +1,1460 @@
+{
+  "prefix": {
+    "count": 48,
+    "expected": 48,
+    "mismatches": [],
+    "pass": true
+  },
+  "errors": [],
+  "rows": [
+    {
+      "lane": 0,
+      "bank_limit_rad": 0.12,
+      "pitch_gain": 0.2,
+      "candidate_end": 1600,
+      "candidate_failure": false,
+      "candidate_reason": 0,
+      "control_end": 1600,
+      "control_failure": false,
+      "missing_substeps": 0,
+      "nonfoot_substeps": 0,
+      "first_nonfoot": null,
+      "sampled_eng_pass": true,
+      "samples": [
+        {
+          "step": 500,
+          "height_m": 0.956421137,
+          "roll_pitch_yaw_rad": [
+            0.07751823435396386,
+            0.07103136522039769,
+            0.021669586043683232
+          ],
+          "speed_m_s": 0.6836783420750568,
+          "heading_error_rad": 1.5491267407512133,
+          "control_height_m": 0.955394983,
+          "control_roll_pitch_yaw_rad": [
+            0.07752649254080202,
+            0.07502677508255025,
+            0.02179352709597764
+          ],
+          "control_speed_m_s": 0.6944523526244599,
+          "control_heading_error_rad": 1.5490027996989189
+        },
+        {
+          "step": 600,
+          "height_m": 1.01184046,
+          "roll_pitch_yaw_rad": [
+            0.07002360840844345,
+            0.013541439165255872,
+            0.04011476011147855
+          ],
+          "speed_m_s": 0.7561174027771885,
+          "heading_error_rad": 1.530681566683418,
+          "control_height_m": 1.00392878,
+          "control_roll_pitch_yaw_rad": [
+            0.0700485677770359,
+            0.017374662583193437,
+            0.03823574930638114
+          ],
+          "control_speed_m_s": 0.7550306443262148,
+          "control_heading_error_rad": 1.5325605774885154
+        },
+        {
+          "step": 700,
+          "height_m": 1.06839907,
+          "roll_pitch_yaw_rad": [
+            0.07422656535636268,
+            0.03092355870596286,
+            0.07337507067200824
+          ],
+          "speed_m_s": 0.823547350669897,
+          "heading_error_rad": 1.4974212561228883,
+          "control_height_m": 1.06457996,
+          "control_roll_pitch_yaw_rad": [
+            0.07413898107497309,
+            0.0317527848826058,
+            0.07136774482109598
+          ],
+          "control_speed_m_s": 0.8207194903754585,
+          "control_heading_error_rad": 1.4994285819738007
+        },
+        {
+          "step": 800,
+          "height_m": 1.0492872,
+          "roll_pitch_yaw_rad": [
+            0.0704923426622155,
+            0.04708998768774602,
+            0.10640646107886353
+          ],
+          "speed_m_s": 0.7793688337624912,
+          "heading_error_rad": 1.464389865716033,
+          "control_height_m": 1.04645264,
+          "control_roll_pitch_yaw_rad": [
+            0.0706175363405293,
+            0.05013264624735478,
+            0.10454822378215892
+          ],
+          "control_speed_m_s": 0.7774993133259962,
+          "control_heading_error_rad": 1.4662481030127377
+        },
+        {
+          "step": 900,
+          "height_m": 1.04771733,
+          "roll_pitch_yaw_rad": [
+            0.07997141374860052,
+            0.043888312073846664,
+            0.13629310335990696
+          ],
+          "speed_m_s": 0.8167331322055157,
+          "heading_error_rad": 1.4345032234349895,
+          "control_height_m": 1.04339099,
+          "control_roll_pitch_yaw_rad": [
+            0.0800663386433966,
+            0.047547610787556205,
+            0.1344717668288366
+          ],
+          "control_speed_m_s": 0.816299928258323,
+          "control_heading_error_rad": 1.43632455996606
+        },
+        {
+          "step": 1000,
+          "height_m": 1.05422115,
+          "roll_pitch_yaw_rad": [
+            0.07906511302862619,
+            0.04283753335783478,
+            0.16730889670458918
+          ],
+          "speed_m_s": 0.7752752749754241,
+          "heading_error_rad": 1.4034874300903073,
+          "control_height_m": 1.04983616,
+          "control_roll_pitch_yaw_rad": [
+            0.079073181809707,
+            0.04596767737271501,
+            0.1654687405068884
+          ],
+          "control_speed_m_s": 0.7739996325899441,
+          "control_heading_error_rad": 1.4053275862880081
+        },
+        {
+          "step": 1100,
+          "height_m": 1.04375196,
+          "roll_pitch_yaw_rad": [
+            0.07057259836930586,
+            0.0436326200469564,
+            0.19731408759710753
+          ],
+          "speed_m_s": 0.7907749849919922,
+          "heading_error_rad": 1.373482239197789,
+          "control_height_m": 1.03977036,
+          "control_roll_pitch_yaw_rad": [
+            0.07053744732579703,
+            0.04645162846004838,
+            0.19546220963586222
+          ],
+          "control_speed_m_s": 0.7889802301764067,
+          "control_heading_error_rad": 1.3753341171590343
+        },
+        {
+          "step": 1200,
+          "height_m": 1.04251266,
+          "roll_pitch_yaw_rad": [
+            0.07403300265471291,
+            0.04285398787472659,
+            0.22929577992405112
+          ],
+          "speed_m_s": 0.7947872456726196,
+          "heading_error_rad": 1.3415005468708454,
+          "control_height_m": 1.03870237,
+          "control_roll_pitch_yaw_rad": [
+            0.07402624143286547,
+            0.045695938661280196,
+            0.22745941024499736
+          ],
+          "control_speed_m_s": 0.7931030816388085,
+          "control_heading_error_rad": 1.3433369165498992
+        },
+        {
+          "step": 1300,
+          "height_m": 1.04181254,
+          "roll_pitch_yaw_rad": [
+            0.07045402686583174,
+            0.04244245140150521,
+            0.26154226868158337
+          ],
+          "speed_m_s": 0.7789629226686324,
+          "heading_error_rad": 1.3092540581133132,
+          "control_height_m": 1.03787494,
+          "control_roll_pitch_yaw_rad": [
+            0.07056976597626899,
+            0.045335182516353247,
+            0.2597172283803571
+          ],
+          "control_speed_m_s": 0.7774576913463314,
+          "control_heading_error_rad": 1.3110790984145395
+        },
+        {
+          "step": 1400,
+          "height_m": 1.05187404,
+          "roll_pitch_yaw_rad": [
+            0.07988982923954312,
+            0.04198139719671492,
+            0.2915928352531467
+          ],
+          "speed_m_s": 0.8185644665206838,
+          "heading_error_rad": 1.2792034915417498,
+          "control_height_m": 1.04784,
+          "control_roll_pitch_yaw_rad": [
+            0.07997241558179724,
+            0.0449928648230738,
+            0.2897922040069755
+          ],
+          "control_speed_m_s": 0.8172726383979159,
+          "control_heading_error_rad": 1.281004122787921
+        },
+        {
+          "step": 1500,
+          "height_m": 1.05535686,
+          "roll_pitch_yaw_rad": [
+            0.07908024256790626,
+            0.04360740085173922,
+            0.3227402036042506
+          ],
+          "speed_m_s": 0.7751082102470477,
+          "heading_error_rad": 1.248056123190646,
+          "control_height_m": 1.05134976,
+          "control_roll_pitch_yaw_rad": [
+            0.07908862119938789,
+            0.04665255836641669,
+            0.32096089933888516
+          ],
+          "control_speed_m_s": 0.7737475373334036,
+          "control_heading_error_rad": 1.2498354274560115
+        },
+        {
+          "step": 1600,
+          "height_m": 1.04307413,
+          "roll_pitch_yaw_rad": [
+            0.0705650066198496,
+            0.04392884224784897,
+            0.3527106282674337
+          ],
+          "speed_m_s": 0.7903202992305723,
+          "heading_error_rad": 1.2180856985274628,
+          "control_height_m": 1.03912294,
+          "control_roll_pitch_yaw_rad": [
+            0.07053276159078516,
+            0.046880040667254375,
+            0.3509362210839971
+          ],
+          "control_speed_m_s": 0.788671635415671,
+          "control_heading_error_rad": 1.2198601057108995
+        }
+      ]
+    },
+    {
+      "lane": 1,
+      "bank_limit_rad": 0.12,
+      "pitch_gain": 0.2,
+      "candidate_end": 1600,
+      "candidate_failure": false,
+      "candidate_reason": 0,
+      "control_end": 1600,
+      "control_failure": false,
+      "missing_substeps": 0,
+      "nonfoot_substeps": 0,
+      "first_nonfoot": null,
+      "sampled_eng_pass": true,
+      "samples": [
+        {
+          "step": 500,
+          "height_m": 0.955100179,
+          "roll_pitch_yaw_rad": [
+            -0.07707933576873498,
+            0.08050207913513523,
+            0.003547452546958378
+          ],
+          "speed_m_s": 0.7045495792118607,
+          "heading_error_rad": 1.5743437793418549,
+          "control_height_m": 0.954234898,
+          "control_roll_pitch_yaw_rad": [
+            -0.07709342937021427,
+            0.08463115529763561,
+            0.0032813039810077904
+          ],
+          "control_speed_m_s": 0.7156884518072428,
+          "control_heading_error_rad": 1.5740776307759043
+        },
+        {
+          "step": 600,
+          "height_m": 0.980587959,
+          "roll_pitch_yaw_rad": [
+            -0.07066501722319153,
+            0.053780307299604854,
+            -0.015645403791047573
+          ],
+          "speed_m_s": 0.8178354178086414,
+          "heading_error_rad": 1.555150923003849,
+          "control_height_m": 0.972462296,
+          "control_roll_pitch_yaw_rad": [
+            -0.0709308839652235,
+            0.06216232296243947,
+            -0.015355963159681036
+          ],
+          "control_speed_m_s": 0.8489231134847589,
+          "control_heading_error_rad": 1.5554403636352154
+        },
+        {
+          "step": 700,
+          "height_m": 1.01058626,
+          "roll_pitch_yaw_rad": [
+            -0.07399484885231467,
+            0.061413868781711754,
+            -0.043636885526763425
+          ],
+          "speed_m_s": 0.8149465479427241,
+          "heading_error_rad": 1.527159441268133,
+          "control_height_m": 1.00042546,
+          "control_roll_pitch_yaw_rad": [
+            -0.07410550557987299,
+            0.06226581066413479,
+            -0.04307886898536965
+          ],
+          "control_speed_m_s": 0.8311536213198041,
+          "control_heading_error_rad": 1.527717457809527
+        },
+        {
+          "step": 800,
+          "height_m": 0.996409416,
+          "roll_pitch_yaw_rad": [
+            -0.07154854596410454,
+            0.07762529036905225,
+            -0.069667112980667
+          ],
+          "speed_m_s": 0.8425702244582396,
+          "heading_error_rad": 1.5011292138142296,
+          "control_height_m": 0.993690431,
+          "control_roll_pitch_yaw_rad": [
+            -0.0715146401444212,
+            0.07832712305703884,
+            -0.06939994373336476
+          ],
+          "control_speed_m_s": 0.8489723806199202,
+          "control_heading_error_rad": 1.5013963830615318
+        },
+        {
+          "step": 900,
+          "height_m": 0.995187998,
+          "roll_pitch_yaw_rad": [
+            -0.0798143127719754,
+            0.0706399668565505,
+            -0.0905466487400358
+          ],
+          "speed_m_s": 0.9092324149204447,
+          "heading_error_rad": 1.4802496780548609,
+          "control_height_m": 0.990336299,
+          "control_roll_pitch_yaw_rad": [
+            -0.07979085380224281,
+            0.07685581443183098,
+            -0.09027715671188272
+          ],
+          "control_speed_m_s": 0.9281497043172123,
+          "control_heading_error_rad": 1.4805191700830138
+        },
+        {
+          "step": 1000,
+          "height_m": 1.00824666,
+          "roll_pitch_yaw_rad": [
+            -0.07859713623264047,
+            0.06601770474427945,
+            -0.11467129445144618
+          ],
+          "speed_m_s": 0.8339061661785315,
+          "heading_error_rad": 1.4561250323434505,
+          "control_height_m": 0.998887539,
+          "control_roll_pitch_yaw_rad": [
+            -0.07853003898409103,
+            0.0710922502063003,
+            -0.11335075661785217
+          ],
+          "control_speed_m_s": 0.860192918686497,
+          "control_heading_error_rad": 1.4574455701770443
+        },
+        {
+          "step": 1100,
+          "height_m": 1.00022185,
+          "roll_pitch_yaw_rad": [
+            -0.0705900733727153,
+            0.06952397038523747,
+            -0.13866431365525841
+          ],
+          "speed_m_s": 0.8396529064109669,
+          "heading_error_rad": 1.4321320131396382,
+          "control_height_m": 0.993049383,
+          "control_roll_pitch_yaw_rad": [
+            -0.07069056274841118,
+            0.0711793188269488,
+            -0.13695742713955614
+          ],
+          "control_speed_m_s": 0.8549873190809829,
+          "control_heading_error_rad": 1.4338388996553404
+        },
+        {
+          "step": 1200,
+          "height_m": 0.99286437,
+          "roll_pitch_yaw_rad": [
+            -0.07447247863117663,
+            0.07091338095525457,
+            -0.16681872020192992
+          ],
+          "speed_m_s": 0.859451576424843,
+          "heading_error_rad": 1.4039776065929666,
+          "control_height_m": 0.988534093,
+          "control_roll_pitch_yaw_rad": [
+            -0.0745061979172761,
+            0.07381553085653844,
+            -0.16497773576076277
+          ],
+          "control_speed_m_s": 0.8714220299817199,
+          "control_heading_error_rad": 1.4058185910341339
+        },
+        {
+          "step": 1300,
+          "height_m": 0.991229951,
+          "roll_pitch_yaw_rad": [
+            -0.07131435137583735,
+            0.06810251049349951,
+            -0.19195051767148982
+          ],
+          "speed_m_s": 0.8451733839355228,
+          "heading_error_rad": 1.3788458091234068,
+          "control_height_m": 0.984704673,
+          "control_roll_pitch_yaw_rad": [
+            -0.07131254149418005,
+            0.07306584910076991,
+            -0.18967629243468703
+          ],
+          "control_speed_m_s": 0.8652791204531665,
+          "control_heading_error_rad": 1.3811200343602095
+        },
+        {
+          "step": 1400,
+          "height_m": 1.00529087,
+          "roll_pitch_yaw_rad": [
+            -0.07992874435893005,
+            0.06718463947189195,
+            -0.21404760816454482
+          ],
+          "speed_m_s": 0.881779691913839,
+          "heading_error_rad": 1.3567487186303517,
+          "control_height_m": 0.997465789,
+          "control_roll_pitch_yaw_rad": [
+            -0.0798684166403419,
+            0.07121706230934877,
+            -0.2110638001875601
+          ],
+          "control_speed_m_s": 0.9033772349902986,
+          "control_heading_error_rad": 1.3597325266073366
+        },
+        {
+          "step": 1500,
+          "height_m": 1.00976968,
+          "roll_pitch_yaw_rad": [
+            -0.07861923661816345,
+            0.07090065142906977,
+            -0.23914794738320325
+          ],
+          "speed_m_s": 0.8351669084478415,
+          "heading_error_rad": 1.3316483794116933,
+          "control_height_m": 1.00334775,
+          "control_roll_pitch_yaw_rad": [
+            -0.07858584201684164,
+            0.07378482103826216,
+            -0.23555722164859208
+          ],
+          "control_speed_m_s": 0.8520288474740105,
+          "control_heading_error_rad": 1.3352391051463044
+        },
+        {
+          "step": 1600,
+          "height_m": 0.995390117,
+          "roll_pitch_yaw_rad": [
+            -0.0706821190109491,
+            0.07034364626110919,
+            -0.2630301057509265
+          ],
+          "speed_m_s": 0.8503246244529464,
+          "heading_error_rad": 1.30776622104397,
+          "control_height_m": 0.98954308,
+          "control_roll_pitch_yaw_rad": [
+            -0.07078036505499495,
+            0.07403597648958388,
+            -0.25902558920904273
+          ],
+          "control_speed_m_s": 0.8658870520975291,
+          "control_heading_error_rad": 1.3117707375858538
+        }
+      ]
+    },
+    {
+      "lane": 2,
+      "bank_limit_rad": 0.18,
+      "pitch_gain": 0.4,
+      "candidate_end": 1600,
+      "candidate_failure": false,
+      "candidate_reason": 0,
+      "control_end": 1600,
+      "control_failure": false,
+      "missing_substeps": 0,
+      "nonfoot_substeps": 0,
+      "first_nonfoot": null,
+      "sampled_eng_pass": false,
+      "samples": [
+        {
+          "step": 500,
+          "height_m": 1.03451633,
+          "roll_pitch_yaw_rad": [
+            0.13614856291108454,
+            0.06590563631364708,
+            0.0221212763970205
+          ],
+          "speed_m_s": 0.8674940124058986,
+          "heading_error_rad": 1.5486750503978761,
+          "control_height_m": 1.03283572,
+          "control_roll_pitch_yaw_rad": [
+            0.13624889865705536,
+            0.07375537321424978,
+            0.02269310909173577
+          ],
+          "control_speed_m_s": 0.8829398120716457,
+          "control_heading_error_rad": 1.5481032177031608
+        },
+        {
+          "step": 600,
+          "height_m": 1.1636126,
+          "roll_pitch_yaw_rad": [
+            0.13013269951250905,
+            0.018742228414672636,
+            0.03706169510019834
+          ],
+          "speed_m_s": 1.2770213990873984,
+          "heading_error_rad": 1.5337346316946983,
+          "control_height_m": 1.15195084,
+          "control_roll_pitch_yaw_rad": [
+            0.13008120157086958,
+            0.02524978572999823,
+            0.0354562110015564
+          ],
+          "control_speed_m_s": 1.2635385729113893,
+          "control_heading_error_rad": 1.5353401157933402
+        },
+        {
+          "step": 700,
+          "height_m": 1.24846911,
+          "roll_pitch_yaw_rad": [
+            0.1339327690482581,
+            0.017099695279381873,
+            0.062486745903047744
+          ],
+          "speed_m_s": 1.3996230690069855,
+          "heading_error_rad": 1.5083095808918487,
+          "control_height_m": 1.22542036,
+          "control_roll_pitch_yaw_rad": [
+            0.13388901387005223,
+            0.0290710095622536,
+            0.061775176406904386
+          ],
+          "control_speed_m_s": 1.3701222725956237,
+          "control_heading_error_rad": 1.5090211503879922
+        },
+        {
+          "step": 800,
+          "height_m": 1.29338622,
+          "roll_pitch_yaw_rad": [
+            0.12480817370728531,
+            0.013766598116013141,
+            0.0871987644544857
+          ],
+          "speed_m_s": 1.3784470783008287,
+          "heading_error_rad": 1.483597562340411,
+          "control_height_m": 1.25458443,
+          "control_roll_pitch_yaw_rad": [
+            0.12527535269681905,
+            0.032095714649887024,
+            0.08768447643580193
+          ],
+          "control_speed_m_s": 1.3329405387646016,
+          "control_heading_error_rad": 1.4831118503590945
+        },
+        {
+          "step": 900,
+          "height_m": 1.3241967,
+          "roll_pitch_yaw_rad": [
+            0.1362615332551266,
+            0.011694717935061305,
+            0.10956104113582897
+          ],
+          "speed_m_s": 1.4421843573606377,
+          "heading_error_rad": 1.4612352856590676,
+          "control_height_m": 1.26477253,
+          "control_roll_pitch_yaw_rad": [
+            0.13681231580088202,
+            0.03758427040185321,
+            0.11180469328353701
+          ],
+          "control_speed_m_s": 1.3740969531556866,
+          "control_heading_error_rad": 1.4589916335113595
+        },
+        {
+          "step": 1000,
+          "height_m": 1.33841395,
+          "roll_pitch_yaw_rad": [
+            0.13982902443074677,
+            0.010936305466301038,
+            0.13354275797867907
+          ],
+          "speed_m_s": 1.3857497352415378,
+          "heading_error_rad": 1.4372535688162176,
+          "control_height_m": 1.25413191,
+          "control_roll_pitch_yaw_rad": [
+            0.13961258279406236,
+            0.04597355438599701,
+            0.13811408944017015
+          ],
+          "control_speed_m_s": 1.3028333894898545,
+          "control_heading_error_rad": 1.4326822373547263
+        },
+        {
+          "step": 1100,
+          "height_m": 1.33125389,
+          "roll_pitch_yaw_rad": [
+            0.13232220530566843,
+            0.0095964639652606,
+            0.15488225450171136
+          ],
+          "speed_m_s": 1.4054087523848815,
+          "heading_error_rad": 1.415914072293185,
+          "control_height_m": 1.21839631,
+          "control_roll_pitch_yaw_rad": [
+            0.1310625657754758,
+            0.05534242641009071,
+            0.162276590266738
+          ],
+          "control_speed_m_s": 1.3026961963948287,
+          "control_heading_error_rad": 1.4085197365281585
+        },
+        {
+          "step": 1200,
+          "height_m": 1.3330574,
+          "roll_pitch_yaw_rad": [
+            0.1347766674443769,
+            0.005596454763819854,
+            0.1791140767542589
+          ],
+          "speed_m_s": 1.442899589995706,
+          "heading_error_rad": 1.3916822500406376,
+          "control_height_m": 1.18996632,
+          "control_roll_pitch_yaw_rad": [
+            0.13436055571372482,
+            0.0634932071664513,
+            0.18973884163087704
+          ],
+          "control_speed_m_s": 1.3174110441909193,
+          "control_heading_error_rad": 1.3810574851640196
+        },
+        {
+          "step": 1300,
+          "height_m": 1.34147179,
+          "roll_pitch_yaw_rad": [
+            0.12493859112457742,
+            0.0015874279942631362,
+            0.2031534260118356
+          ],
+          "speed_m_s": 1.4216337481211785,
+          "heading_error_rad": 1.367642900783061,
+          "control_height_m": 1.17290366,
+          "control_roll_pitch_yaw_rad": [
+            0.1258932092895115,
+            0.06479071753064095,
+            0.2166796771597617
+          ],
+          "control_speed_m_s": 1.285757482538421,
+          "control_heading_error_rad": 1.354116649635135
+        },
+        {
+          "step": 1400,
+          "height_m": 1.36619103,
+          "roll_pitch_yaw_rad": [
+            0.13594960880446788,
+            -0.0012261735104335948,
+            0.22474553730420568
+          ],
+          "speed_m_s": 1.4902202714506732,
+          "heading_error_rad": 1.3460507894906908,
+          "control_height_m": 1.1856755,
+          "control_roll_pitch_yaw_rad": [
+            0.13745394897662266,
+            0.06415979147460658,
+            0.24122381390966605
+          ],
+          "control_speed_m_s": 1.3408386904572929,
+          "control_heading_error_rad": 1.3295725128852305
+        },
+        {
+          "step": 1500,
+          "height_m": 1.38239622,
+          "roll_pitch_yaw_rad": [
+            0.13995477160117828,
+            -0.0029878012263068582,
+            0.24788642701723618
+          ],
+          "speed_m_s": 1.4370412984925152,
+          "heading_error_rad": 1.3229098997776605,
+          "control_height_m": 1.1910187,
+          "control_roll_pitch_yaw_rad": [
+            0.13939538638227425,
+            0.06580728051362211,
+            0.2676278542872438
+          ],
+          "control_speed_m_s": 1.280051715875949,
+          "control_heading_error_rad": 1.3031684725076529
+        },
+        {
+          "step": 1600,
+          "height_m": 1.37842953,
+          "roll_pitch_yaw_rad": [
+            0.13297406829100059,
+            -0.005668007714420718,
+            0.26830117412536486
+          ],
+          "speed_m_s": 1.4628311414499862,
+          "heading_error_rad": 1.3024951526695316,
+          "control_height_m": 1.1754142,
+          "control_roll_pitch_yaw_rad": [
+            0.13089952783876438,
+            0.06656843323547906,
+            0.29130199366950177
+          ],
+          "control_speed_m_s": 1.2912370132713076,
+          "control_heading_error_rad": 1.2794943331253947
+        }
+      ]
+    },
+    {
+      "lane": 3,
+      "bank_limit_rad": 0.18,
+      "pitch_gain": 0.4,
+      "candidate_end": 1600,
+      "candidate_failure": false,
+      "candidate_reason": 0,
+      "control_end": 1600,
+      "control_failure": false,
+      "missing_substeps": 0,
+      "nonfoot_substeps": 0,
+      "first_nonfoot": null,
+      "sampled_eng_pass": false,
+      "samples": [
+        {
+          "step": 500,
+          "height_m": 1.03390861,
+          "roll_pitch_yaw_rad": [
+            -0.1361504853774974,
+            0.07789534516108912,
+            -6.332702050566967e-05
+          ],
+          "speed_m_s": 0.8878776881268924,
+          "heading_error_rad": 1.5707329997743908,
+          "control_height_m": 1.03210521,
+          "control_roll_pitch_yaw_rad": [
+            -0.1362600995062075,
+            0.08593261213298382,
+            -0.0008401962312469702
+          ],
+          "control_speed_m_s": 0.9039283360163219,
+          "control_heading_error_rad": 1.5699561305636496
+        },
+        {
+          "step": 600,
+          "height_m": 1.13225067,
+          "roll_pitch_yaw_rad": [
+            -0.13071496157742177,
+            0.06671686649230685,
+            -0.019711378401662958
+          ],
+          "speed_m_s": 1.2662422444852932,
+          "heading_error_rad": 1.5510849483932336,
+          "control_height_m": 1.11643636,
+          "control_roll_pitch_yaw_rad": [
+            -0.13132799350899263,
+            0.07969950827262597,
+            -0.021247578865540344
+          ],
+          "control_speed_m_s": 1.292902233158031,
+          "control_heading_error_rad": 1.5495487479293562
+        },
+        {
+          "step": 700,
+          "height_m": 1.14888251,
+          "roll_pitch_yaw_rad": [
+            -0.13478180684152224,
+            0.1014368614154725,
+            -0.04642005301412778
+          ],
+          "speed_m_s": 1.3236425785902912,
+          "heading_error_rad": 1.5243762737807687,
+          "control_height_m": 1.13479364,
+          "control_roll_pitch_yaw_rad": [
+            -0.13546218730435444,
+            0.11252083442140752,
+            -0.04956329408035618
+          ],
+          "control_speed_m_s": 1.3616065821856875,
+          "control_heading_error_rad": 1.5212330327145405
+        },
+        {
+          "step": 800,
+          "height_m": 1.11526847,
+          "roll_pitch_yaw_rad": [
+            -0.1290302117967413,
+            0.11519415865060059,
+            -0.07039207282035938
+          ],
+          "speed_m_s": 1.3866574452979474,
+          "heading_error_rad": 1.5004042539745372,
+          "control_height_m": 1.09295499,
+          "control_roll_pitch_yaw_rad": [
+            -0.1289516203624838,
+            0.11883076366107301,
+            -0.0723226814688316
+          ],
+          "control_speed_m_s": 1.4440495298504186,
+          "control_heading_error_rad": 1.498473645326065
+        },
+        {
+          "step": 900,
+          "height_m": 1.12334752,
+          "roll_pitch_yaw_rad": [
+            -0.1388023284032872,
+            0.09203096506669983,
+            -0.08610364634621255
+          ],
+          "speed_m_s": 1.447923702658823,
+          "heading_error_rad": 1.484692680448684,
+          "control_height_m": 1.1078186,
+          "control_roll_pitch_yaw_rad": [
+            -0.13883472526854007,
+            0.1022709109017535,
+            -0.08788322232819568
+          ],
+          "control_speed_m_s": 1.4886668104445082,
+          "control_heading_error_rad": 1.482913104466701
+        },
+        {
+          "step": 1000,
+          "height_m": 1.15636277,
+          "roll_pitch_yaw_rad": [
+            -0.13948041191096316,
+            0.09510771299256625,
+            -0.10810150033582445
+          ],
+          "speed_m_s": 1.3308955500245108,
+          "heading_error_rad": 1.462694826459072,
+          "control_height_m": 1.13290894,
+          "control_roll_pitch_yaw_rad": [
+            -0.1394023434376125,
+            0.10352538430879431,
+            -0.11036103819667849
+          ],
+          "control_speed_m_s": 1.3772869560341514,
+          "control_heading_error_rad": 1.4604352885982181
+        },
+        {
+          "step": 1100,
+          "height_m": 1.13460386,
+          "roll_pitch_yaw_rad": [
+            -0.13218261554093758,
+            0.10859932644603161,
+            -0.12895396523492172
+          ],
+          "speed_m_s": 1.3579863560360679,
+          "heading_error_rad": 1.441842361559975,
+          "control_height_m": 1.11637533,
+          "control_roll_pitch_yaw_rad": [
+            -0.1323608173991249,
+            0.11126252962542725,
+            -0.13210382829059555
+          ],
+          "control_speed_m_s": 1.3957260738972488,
+          "control_heading_error_rad": 1.438692498504301
+        },
+        {
+          "step": 1200,
+          "height_m": 1.11474812,
+          "roll_pitch_yaw_rad": [
+            -0.1358209094655704,
+            0.09976725459374698,
+            -0.15378684256873143
+          ],
+          "speed_m_s": 1.4152664113962654,
+          "heading_error_rad": 1.4170094842261651,
+          "control_height_m": 1.10264671,
+          "control_roll_pitch_yaw_rad": [
+            -0.13575173480297348,
+            0.10789069690507726,
+            -0.15674118151283345
+          ],
+          "control_speed_m_s": 1.4400274840946654,
+          "control_heading_error_rad": 1.414055145282063
+        },
+        {
+          "step": 1300,
+          "height_m": 1.12853408,
+          "roll_pitch_yaw_rad": [
+            -0.12832245770712528,
+            0.09383001218831379,
+            -0.17587030760253186
+          ],
+          "speed_m_s": 1.3565562483015499,
+          "heading_error_rad": 1.3949260191923647,
+          "control_height_m": 1.10537553,
+          "control_roll_pitch_yaw_rad": [
+            -0.1286818066425974,
+            0.10439952731946248,
+            -0.1788206027819933
+          ],
+          "control_speed_m_s": 1.4029731360428883,
+          "control_heading_error_rad": 1.3919757240129034
+        },
+        {
+          "step": 1400,
+          "height_m": 1.1454736,
+          "roll_pitch_yaw_rad": [
+            -0.13892672008285806,
+            0.101471134198059,
+            -0.19529961762635145
+          ],
+          "speed_m_s": 1.4096856771676052,
+          "heading_error_rad": 1.375496709168545,
+          "control_height_m": 1.12279356,
+          "control_roll_pitch_yaw_rad": [
+            -0.13894695527097126,
+            0.1053248979043327,
+            -0.19839795221813813
+          ],
+          "control_speed_m_s": 1.4546692626250302,
+          "control_heading_error_rad": 1.3723983745767585
+        },
+        {
+          "step": 1500,
+          "height_m": 1.14086723,
+          "roll_pitch_yaw_rad": [
+            -0.1394164924717889,
+            0.10334393676643368,
+            -0.21840242969884868
+          ],
+          "speed_m_s": 1.364375859305371,
+          "heading_error_rad": 1.3523938970960478,
+          "control_height_m": 1.12665701,
+          "control_roll_pitch_yaw_rad": [
+            -0.139222269082101,
+            0.10866514625568653,
+            -0.2213865533469761
+          ],
+          "control_speed_m_s": 1.3902539192725076,
+          "control_heading_error_rad": 1.3494097734479205
+        },
+        {
+          "step": 1600,
+          "height_m": 1.12985098,
+          "roll_pitch_yaw_rad": [
+            -0.13228736049543888,
+            0.0982598773089963,
+            -0.23807823527155747
+          ],
+          "speed_m_s": 1.365474740860008,
+          "heading_error_rad": 1.332718091523339,
+          "control_height_m": 1.11071146,
+          "control_roll_pitch_yaw_rad": [
+            -0.1324198811010466,
+            0.1086084882278874,
+            -0.24130744593528983
+          ],
+          "control_speed_m_s": 1.4018609083616846,
+          "control_heading_error_rad": 1.3294888808596068
+        }
+      ]
+    },
+    {
+      "lane": 4,
+      "bank_limit_rad": 0.24,
+      "pitch_gain": 0.8,
+      "candidate_end": 1466,
+      "candidate_failure": true,
+      "candidate_reason": 3,
+      "control_end": 1302,
+      "control_failure": true,
+      "missing_substeps": 0,
+      "nonfoot_substeps": 5,
+      "first_nonfoot": [
+        1381,
+        13
+      ],
+      "sampled_eng_pass": false,
+      "samples": [
+        {
+          "step": 500,
+          "height_m": 1.07575023,
+          "roll_pitch_yaw_rad": [
+            0.1946264899175518,
+            0.05695241474306601,
+            0.021685545882057813
+          ],
+          "speed_m_s": 1.0925845487792312,
+          "heading_error_rad": 1.5491107809128388,
+          "control_height_m": 1.0716083,
+          "control_roll_pitch_yaw_rad": [
+            0.19473373176281836,
+            0.07259525251792948,
+            0.023469932060980032
+          ],
+          "control_speed_m_s": 1.1143453908045549,
+          "control_heading_error_rad": 1.5473263947339164
+        },
+        {
+          "step": 600,
+          "height_m": 1.29874694,
+          "roll_pitch_yaw_rad": [
+            0.1908786420714432,
+            0.007430666726703614,
+            0.027135767594827696
+          ],
+          "speed_m_s": 1.807273174315274,
+          "heading_error_rad": 1.543660559200069,
+          "control_height_m": 1.2748847,
+          "control_roll_pitch_yaw_rad": [
+            0.19095547850161665,
+            0.02929800626520076,
+            0.028267183536924347
+          ],
+          "control_speed_m_s": 1.7625516422579453,
+          "control_heading_error_rad": 1.5425291432579722
+        },
+        {
+          "step": 700,
+          "height_m": 1.48464191,
+          "roll_pitch_yaw_rad": [
+            0.19329484393753688,
+            -0.031205358728130426,
+            0.03480590527313576
+          ],
+          "speed_m_s": 2.055435301098467,
+          "heading_error_rad": 1.5359904215217608,
+          "control_height_m": 1.43857872,
+          "control_roll_pitch_yaw_rad": [
+            0.19346030929165106,
+            -0.006205377542756853,
+            0.037346987946803085
+          ],
+          "control_speed_m_s": 1.9592338612002635,
+          "control_heading_error_rad": 1.5334493388480934
+        },
+        {
+          "step": 800,
+          "height_m": 1.59495044,
+          "roll_pitch_yaw_rad": [
+            0.18422217211504247,
+            -0.071234950262185,
+            0.04040890521147338
+          ],
+          "speed_m_s": 2.1811381560008347,
+          "heading_error_rad": 1.5303874215834232,
+          "control_height_m": 1.54831922,
+          "control_roll_pitch_yaw_rad": [
+            0.18514664570639905,
+            -0.05625794177596737,
+            0.04285167789846323
+          ],
+          "control_speed_m_s": 2.089771411028479,
+          "control_heading_error_rad": 1.5279446488964332
+        },
+        {
+          "step": 900,
+          "height_m": 1.68502748,
+          "roll_pitch_yaw_rad": [
+            0.19084055651365617,
+            -0.10902043834444276,
+            0.04046573106664006
+          ],
+          "speed_m_s": 2.4889399117851054,
+          "heading_error_rad": 1.5303305957282565,
+          "control_height_m": 1.66268981,
+          "control_roll_pitch_yaw_rad": [
+            0.1904830147741628,
+            -0.12586235390580836,
+            0.039254896821631746
+          ],
+          "control_speed_m_s": 2.5267374351881493,
+          "control_heading_error_rad": 1.5315414299732648
+        },
+        {
+          "step": 1000,
+          "height_m": 1.73934519,
+          "roll_pitch_yaw_rad": [
+            0.18899206942969377,
+            -0.15161910093358338,
+            0.041045159036310314
+          ],
+          "speed_m_s": 2.6342490154343197,
+          "heading_error_rad": 1.5297511677585862,
+          "control_height_m": 1.73183978,
+          "control_roll_pitch_yaw_rad": [
+            0.1818158053822834,
+            -0.23621362810776117,
+            0.030548432992698576
+          ],
+          "control_speed_m_s": 3.0450758270952756,
+          "control_heading_error_rad": 1.540247893802198
+        },
+        {
+          "step": 1100,
+          "height_m": 1.74613571,
+          "roll_pitch_yaw_rad": [
+            0.18384347500330134,
+            -0.21555289457413748,
+            0.03638911314411659
+          ],
+          "speed_m_s": 3.0458137346679095,
+          "heading_error_rad": 1.53440721365078,
+          "control_height_m": 1.58029258,
+          "control_roll_pitch_yaw_rad": [
+            0.16500430589231493,
+            -0.42623759530326233,
+            0.014554073509948395
+          ],
+          "control_speed_m_s": 4.598174446246411,
+          "control_heading_error_rad": 1.5562422532849483
+        },
+        {
+          "step": 1200,
+          "height_m": 1.66361272,
+          "roll_pitch_yaw_rad": [
+            0.17316672299974542,
+            -0.332945726425003,
+            0.026898464046187478
+          ],
+          "speed_m_s": 3.9868769706227685,
+          "heading_error_rad": 1.543897862748709,
+          "control_height_m": 0.636782885,
+          "control_roll_pitch_yaw_rad": [
+            0.24258112600186726,
+            -0.6939090159471076,
+            -0.028143544506014355
+          ],
+          "control_speed_m_s": 8.790763787897946,
+          "control_heading_error_rad": 1.5989398713009109
+        },
+        {
+          "step": 1300,
+          "height_m": 1.33249116,
+          "roll_pitch_yaw_rad": [
+            0.17211300742557395,
+            -0.5189721647321759,
+            0.015708788315447027
+          ],
+          "speed_m_s": 6.123077501076782,
+          "heading_error_rad": 1.5550875384794496,
+          "control_height_m": 0.224735945,
+          "control_roll_pitch_yaw_rad": [
+            0.25036937294494527,
+            -0.7018768306455339,
+            0.2555396528118483
+          ],
+          "control_speed_m_s": 8.490211297010616,
+          "control_heading_error_rad": 1.3152566739830482
+        },
+        {
+          "step": 1400,
+          "height_m": 0.467844635,
+          "roll_pitch_yaw_rad": [
+            0.2034195843768148,
+            -0.6863860885018805,
+            0.27983613656333156
+          ],
+          "speed_m_s": 7.158845759029968,
+          "heading_error_rad": 1.290960190231565,
+          "control_height_m": null,
+          "control_roll_pitch_yaw_rad": null,
+          "control_speed_m_s": null,
+          "control_heading_error_rad": null
+        }
+      ]
+    },
+    {
+      "lane": 5,
+      "bank_limit_rad": 0.24,
+      "pitch_gain": 0.8,
+      "candidate_end": 1600,
+      "candidate_failure": false,
+      "candidate_reason": 0,
+      "control_end": 1600,
+      "control_failure": false,
+      "missing_substeps": 0,
+      "nonfoot_substeps": 0,
+      "first_nonfoot": null,
+      "sampled_eng_pass": false,
+      "samples": [
+        {
+          "step": 500,
+          "height_m": 1.07341313,
+          "roll_pitch_yaw_rad": [
+            -0.19467045560641652,
+            0.07194964816707279,
+            -0.0017716607982943282
+          ],
+          "speed_m_s": 1.1117977088154705,
+          "heading_error_rad": 1.5690246659966023,
+          "control_height_m": 1.06913888,
+          "control_roll_pitch_yaw_rad": [
+            -0.19482864617278553,
+            0.08702578028691213,
+            -0.0037822718241139583
+          ],
+          "control_speed_m_s": 1.134003241170629,
+          "control_heading_error_rad": 1.5670140549707825
+        },
+        {
+          "step": 600,
+          "height_m": 1.25291646,
+          "roll_pitch_yaw_rad": [
+            -0.1913718387242432,
+            0.08042380968997043,
+            -0.015842870973916724
+          ],
+          "speed_m_s": 1.7189380278909976,
+          "heading_error_rad": 1.5549534558209799,
+          "control_height_m": 1.23266876,
+          "control_roll_pitch_yaw_rad": [
+            -0.19214456753514927,
+            0.10674282263216024,
+            -0.02168553619815377
+          ],
+          "control_speed_m_s": 1.7175072094488504,
+          "control_heading_error_rad": 1.5491107905967427
+        },
+        {
+          "step": 700,
+          "height_m": 1.31619334,
+          "roll_pitch_yaw_rad": [
+            -0.19506799095295715,
+            0.11335416184198474,
+            -0.03547207449561964
+          ],
+          "speed_m_s": 1.7743630699707298,
+          "heading_error_rad": 1.535324252299277,
+          "control_height_m": 1.27830994,
+          "control_roll_pitch_yaw_rad": [
+            -0.19695932815864087,
+            0.16577900476459836,
+            -0.0477240169178661
+          ],
+          "control_speed_m_s": 1.799387208788378,
+          "control_heading_error_rad": 1.5230723098770305
+        },
+        {
+          "step": 800,
+          "height_m": 1.30574334,
+          "roll_pitch_yaw_rad": [
+            -0.19230824413067657,
+            0.12783814393089313,
+            -0.052995848252941076
+          ],
+          "speed_m_s": 1.752120213363789,
+          "heading_error_rad": 1.5178004785419554,
+          "control_height_m": 1.19081628,
+          "control_roll_pitch_yaw_rad": [
+            -0.19884656092842473,
+            0.18467499519179467,
+            -0.0692338740994583
+          ],
+          "control_speed_m_s": 1.9988407789471399,
+          "control_heading_error_rad": 1.5015624526954383
+        },
+        {
+          "step": 900,
+          "height_m": 1.3130846,
+          "roll_pitch_yaw_rad": [
+            -0.20043742188106511,
+            0.13240079077805658,
+            -0.0647668610122281
+          ],
+          "speed_m_s": 1.8400058543407274,
+          "heading_error_rad": 1.5060294657826685,
+          "control_height_m": 1.14381349,
+          "control_roll_pitch_yaw_rad": [
+            -0.20390283869192533,
+            0.1798002331670318,
+            -0.08319526022224795
+          ],
+          "control_speed_m_s": 2.166287416690792,
+          "control_heading_error_rad": 1.4876010665726487
+        },
+        {
+          "step": 1000,
+          "height_m": 1.31720173,
+          "roll_pitch_yaw_rad": [
+            -0.20081968673531778,
+            0.13780463086493705,
+            -0.0803397183208603
+          ],
+          "speed_m_s": 1.764034208429052,
+          "heading_error_rad": 1.4904566084740363,
+          "control_height_m": 1.15636635,
+          "control_roll_pitch_yaw_rad": [
+            -0.20201913432919963,
+            0.17856727721722776,
+            -0.09976445573172804
+          ],
+          "control_speed_m_s": 2.0546147692284804,
+          "control_heading_error_rad": 1.4710318710631685
+        },
+        {
+          "step": 1100,
+          "height_m": 1.30306304,
+          "roll_pitch_yaw_rad": [
+            -0.19497381209164602,
+            0.13999252250305608,
+            -0.09094379363758397
+          ],
+          "speed_m_s": 1.7787434781268243,
+          "heading_error_rad": 1.4798525331573127,
+          "control_height_m": 1.15011156,
+          "control_roll_pitch_yaw_rad": [
+            -0.19816488509768534,
+            0.17704556293727794,
+            -0.11217174389368226
+          ],
+          "control_speed_m_s": 2.044217551983863,
+          "control_heading_error_rad": 1.4586245829012143
+        },
+        {
+          "step": 1200,
+          "height_m": 1.29970586,
+          "roll_pitch_yaw_rad": [
+            -0.1974751121759218,
+            0.13933149273718484,
+            -0.10665060588927278
+          ],
+          "speed_m_s": 1.8209395675287225,
+          "heading_error_rad": 1.464145720905624,
+          "control_height_m": 1.15369534,
+          "control_roll_pitch_yaw_rad": [
+            -0.19901676592108453,
+            0.17010219797004827,
+            -0.12949871498541723
+          ],
+          "control_speed_m_s": 2.063428099879502,
+          "control_heading_error_rad": 1.4412976118094794
+        },
+        {
+          "step": 1300,
+          "height_m": 1.2987175,
+          "roll_pitch_yaw_rad": [
+            -0.19413801862646984,
+            0.13702209539859714,
+            -0.1203977651046868
+          ],
+          "speed_m_s": 1.7840431077476817,
+          "heading_error_rad": 1.4503985616902098,
+          "control_height_m": 1.15904248,
+          "control_roll_pitch_yaw_rad": [
+            -0.1980023353350516,
+            0.1653825811079867,
+            -0.14552198116171133
+          ],
+          "control_speed_m_s": 2.0001722669299973,
+          "control_heading_error_rad": 1.4252743456331851
+        },
+        {
+          "step": 1400,
+          "height_m": 1.31219006,
+          "roll_pitch_yaw_rad": [
+            -0.20136005576617255,
+            0.13628015090585033,
+            -0.12984395242237798
+          ],
+          "speed_m_s": 1.860280018597666,
+          "heading_error_rad": 1.4409523743725186,
+          "control_height_m": 1.1782918,
+          "control_roll_pitch_yaw_rad": [
+            -0.20357800879670343,
+            0.1626067336798006,
+            -0.156738724790457
+          ],
+          "control_speed_m_s": 2.0530632297647347,
+          "control_heading_error_rad": 1.4140576020044395
+        },
+        {
+          "step": 1500,
+          "height_m": 1.31707978,
+          "roll_pitch_yaw_rad": [
+            -0.2011818500925366,
+            0.1391689641036614,
+            -0.14411785088722226
+          ],
+          "speed_m_s": 1.774751487380068,
+          "heading_error_rad": 1.4266784759076743,
+          "control_height_m": 1.19068408,
+          "control_roll_pitch_yaw_rad": [
+            -0.20200287129404024,
+            0.1609921210248624,
+            -0.17090461293130607
+          ],
+          "control_speed_m_s": 1.935949931635022,
+          "control_heading_error_rad": 1.3998917138635905
+        },
+        {
+          "step": 1600,
+          "height_m": 1.30340338,
+          "roll_pitch_yaw_rad": [
+            -0.1951264378473926,
+            0.13983417155570713,
+            -0.1540897566122336
+          ],
+          "speed_m_s": 1.7831653686660884,
+          "heading_error_rad": 1.4167065701826629,
+          "control_height_m": 1.18639708,
+          "control_roll_pitch_yaw_rad": [
+            -0.19686763660611623,
+            0.16114555703271305,
+            -0.18104656596565374
+          ],
+          "control_speed_m_s": 1.9252511574320288,
+          "control_heading_error_rad": 1.3897497608292428
+        }
+      ]
+    }
+  ],
+  "paired_passes": [
+    {
+      "lanes": [
+        0,
+        1
+      ],
+      "pass": true
+    },
+    {
+      "lanes": [
+        2,
+        3
+      ],
+      "pass": false
+    },
+    {
+      "lanes": [
+        4,
+        5
+      ],
+      "pass": false
+    }
+  ],
+  "scope": "One used development seed, sparse endpoint engineering bounds; body moments suppressed only after 9 s, not biological or flight qualification."
+}
