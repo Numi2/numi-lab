@@ -1,0 +1,5 @@
+# Constructed-perch rear-toe cap context
+
+A post-hoc inspection of all six lane/interval cap events across the retained baseline, double-damping and triple-damping arms shows the right rear proximal position target held at +1.15 rad throughout each five-endpoint window, while the capped velocity was -12 rad/s and the preceding endpoint joint position was 0.56–0.76 rad. The toe therefore moved in the direction of decreasing joint angle despite a larger unchanged closing target. Right rear toe contacts appeared in the immediately preceding endpoint records. Source windows, mapped joint slots and raw events are in context.json.
+
+This is not an impulse balance: endpoint contacts are not synchronized to the exact capped substep, commanded targets are not measured torques, and multi-body coupling and solver effects remain possible. It rules out a sudden change in the logged right-rear target at these times but does not identify the individual cause, establish an actual landed approach, or validate real-crow grip mechanics. The original failed arms remain unchanged in the referenced perch screen.
