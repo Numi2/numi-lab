@@ -1,0 +1,662 @@
+{
+  "20261126": [
+    {
+      "lane": 0,
+      "warp": 0,
+      "hip_gain": 0,
+      "ankle_gain": 0,
+      "gates": {
+        "support": true,
+        "toe_speed": true,
+        "nonfoot": true,
+        "contact_speed": true,
+        "progress": true,
+        "recovery_coverage": true,
+        "knee_phase": false
+      },
+      "passes": false,
+      "speed_p95_ratio": {
+        "left": 1.0,
+        "right": 1.0
+      },
+      "unloaded_substeps": 0,
+      "dx_m": 0.0731754406,
+      "recovery": {
+        "baseline": {
+          "count": 2,
+          "left": 1,
+          "right": 1,
+          "knee_median_percent": 45.433185235816815
+        },
+        "phase": {
+          "count": 2,
+          "left": 1,
+          "right": 1,
+          "knee_median_percent": 45.433185235816815
+        }
+      },
+      "knee_phase_advance_percent_points": 0.0,
+      "parity": {
+        "endpoints": 0,
+        "substeps": 0
+      }
+    },
+    {
+      "lane": 1,
+      "warp": 0,
+      "hip_gain": 0,
+      "ankle_gain": 0,
+      "gates": {
+        "support": true,
+        "toe_speed": true,
+        "nonfoot": true,
+        "contact_speed": true,
+        "progress": true,
+        "recovery_coverage": true,
+        "knee_phase": false
+      },
+      "passes": false,
+      "speed_p95_ratio": {
+        "left": 1.0,
+        "right": 1.0
+      },
+      "unloaded_substeps": 0,
+      "dx_m": 0.07380067951,
+      "recovery": {
+        "baseline": {
+          "count": 2,
+          "left": 1,
+          "right": 1,
+          "knee_median_percent": 43.70009074410163
+        },
+        "phase": {
+          "count": 2,
+          "left": 1,
+          "right": 1,
+          "knee_median_percent": 43.70009074410163
+        }
+      },
+      "knee_phase_advance_percent_points": 0.0,
+      "parity": {
+        "endpoints": 0,
+        "substeps": 0
+      }
+    },
+    {
+      "lane": 2,
+      "warp": 0.16,
+      "hip_gain": 0.5,
+      "ankle_gain": -0.5,
+      "gates": {
+        "support": true,
+        "toe_speed": true,
+        "nonfoot": true,
+        "contact_speed": false,
+        "progress": true,
+        "recovery_coverage": true,
+        "knee_phase": true
+      },
+      "passes": false,
+      "speed_p95_ratio": {
+        "left": 0.7345137725445509,
+        "right": 1.7086872310483863
+      },
+      "unloaded_substeps": 0,
+      "dx_m": 0.11226759384,
+      "recovery": {
+        "baseline": {
+          "count": 2,
+          "left": 1,
+          "right": 1,
+          "knee_median_percent": 45.433185235816815
+        },
+        "phase": {
+          "count": 3,
+          "left": 1,
+          "right": 2,
+          "knee_median_percent": 29.26829268292683
+        }
+      },
+      "knee_phase_advance_percent_points": 16.164892552889985,
+      "parity": {
+        "endpoints": 98,
+        "substeps": 1568
+      }
+    },
+    {
+      "lane": 3,
+      "warp": 0.16,
+      "hip_gain": 0.5,
+      "ankle_gain": -0.5,
+      "gates": {
+        "support": true,
+        "toe_speed": true,
+        "nonfoot": true,
+        "contact_speed": false,
+        "progress": true,
+        "recovery_coverage": false,
+        "knee_phase": true
+      },
+      "passes": false,
+      "speed_p95_ratio": {
+        "left": 0.8057770530454701,
+        "right": 1.9523298463614929
+      },
+      "unloaded_substeps": 0,
+      "dx_m": 0.1116296212,
+      "recovery": {
+        "baseline": {
+          "count": 2,
+          "left": 1,
+          "right": 1,
+          "knee_median_percent": 45.433185235816815
+        },
+        "phase": {
+          "count": 2,
+          "left": 0,
+          "right": 2,
+          "knee_median_percent": 35.36585365853659
+        }
+      },
+      "knee_phase_advance_percent_points": 10.067331577280228,
+      "parity": {
+        "endpoints": 98,
+        "substeps": 1568
+      }
+    },
+    {
+      "lane": 4,
+      "warp": 0.16,
+      "hip_gain": 0.5,
+      "ankle_gain": -0.5,
+      "gates": {
+        "support": true,
+        "toe_speed": true,
+        "nonfoot": true,
+        "contact_speed": false,
+        "progress": true,
+        "recovery_coverage": true,
+        "knee_phase": true
+      },
+      "passes": false,
+      "speed_p95_ratio": {
+        "left": 0.9042700414035805,
+        "right": 1.7136581123960983
+      },
+      "unloaded_substeps": 0,
+      "dx_m": 0.10635680703,
+      "recovery": {
+        "baseline": {
+          "count": 1,
+          "left": 1,
+          "right": 0,
+          "knee_median_percent": 46.35761589403973
+        },
+        "phase": {
+          "count": 3,
+          "left": 1,
+          "right": 2,
+          "knee_median_percent": 25.641025641025642
+        }
+      },
+      "knee_phase_advance_percent_points": 20.71659025301409,
+      "parity": {
+        "endpoints": 98,
+        "substeps": 1568
+      }
+    },
+    {
+      "lane": 5,
+      "warp": 0.16,
+      "hip_gain": 0.5,
+      "ankle_gain": -0.5,
+      "gates": {
+        "support": false,
+        "toe_speed": true,
+        "nonfoot": true,
+        "contact_speed": false,
+        "progress": true,
+        "recovery_coverage": false,
+        "knee_phase": false
+      },
+      "passes": false,
+      "speed_p95_ratio": {
+        "left": 0.707699570447627,
+        "right": 1.6259980884953806
+      },
+      "unloaded_substeps": 7,
+      "dx_m": 0.11125031146,
+      "recovery": {
+        "baseline": {
+          "count": 2,
+          "left": 1,
+          "right": 1,
+          "knee_median_percent": 43.384287399074665
+        },
+        "phase": {
+          "count": 2,
+          "left": 0,
+          "right": 2,
+          "knee_median_percent": 41.630014660802345
+        }
+      },
+      "knee_phase_advance_percent_points": 1.75427273827232,
+      "parity": {
+        "endpoints": 98,
+        "substeps": 1568
+      }
+    },
+    {
+      "lane": 6,
+      "warp": 0.16,
+      "hip_gain": 0.5,
+      "ankle_gain": -0.5,
+      "gates": {
+        "support": false,
+        "toe_speed": true,
+        "nonfoot": true,
+        "contact_speed": false,
+        "progress": true,
+        "recovery_coverage": true,
+        "knee_phase": true
+      },
+      "passes": false,
+      "speed_p95_ratio": {
+        "left": 0.9171358536201426,
+        "right": 1.5870079945208377
+      },
+      "unloaded_substeps": 1,
+      "dx_m": 0.11554186079999999,
+      "recovery": {
+        "baseline": {
+          "count": 2,
+          "left": 1,
+          "right": 1,
+          "knee_median_percent": 43.523635533226766
+        },
+        "phase": {
+          "count": 3,
+          "left": 1,
+          "right": 2,
+          "knee_median_percent": 29.26829268292683
+        }
+      },
+      "knee_phase_advance_percent_points": 14.255342850299936,
+      "parity": {
+        "endpoints": 98,
+        "substeps": 1568
+      }
+    },
+    {
+      "lane": 7,
+      "warp": 0.16,
+      "hip_gain": 0.5,
+      "ankle_gain": -0.5,
+      "gates": {
+        "support": true,
+        "toe_speed": true,
+        "nonfoot": true,
+        "contact_speed": true,
+        "progress": true,
+        "recovery_coverage": true,
+        "knee_phase": true
+      },
+      "passes": true,
+      "speed_p95_ratio": {
+        "left": 0.8615787791121734,
+        "right": 0.9609283103660576
+      },
+      "unloaded_substeps": 0,
+      "dx_m": 0.1115281433,
+      "recovery": {
+        "baseline": {
+          "count": 1,
+          "left": 1,
+          "right": 0,
+          "knee_median_percent": 46.71052631578947
+        },
+        "phase": {
+          "count": 3,
+          "left": 1,
+          "right": 2,
+          "knee_median_percent": 29.26829268292683
+        }
+      },
+      "knee_phase_advance_percent_points": 17.442233632862642,
+      "parity": {
+        "endpoints": 98,
+        "substeps": 1568
+      }
+    }
+  ],
+  "20261127": [
+    {
+      "lane": 0,
+      "warp": 0,
+      "hip_gain": 0,
+      "ankle_gain": 0,
+      "gates": {
+        "support": true,
+        "toe_speed": true,
+        "nonfoot": true,
+        "contact_speed": true,
+        "progress": true,
+        "recovery_coverage": true,
+        "knee_phase": false
+      },
+      "passes": false,
+      "speed_p95_ratio": {
+        "left": 1.0,
+        "right": 1.0
+      },
+      "unloaded_substeps": 0,
+      "dx_m": 0.0763827413,
+      "recovery": {
+        "baseline": {
+          "count": 2,
+          "left": 1,
+          "right": 1,
+          "knee_median_percent": 45.433185235816815
+        },
+        "phase": {
+          "count": 2,
+          "left": 1,
+          "right": 1,
+          "knee_median_percent": 45.433185235816815
+        }
+      },
+      "knee_phase_advance_percent_points": 0.0,
+      "parity": {
+        "endpoints": 0,
+        "substeps": 0
+      }
+    },
+    {
+      "lane": 1,
+      "warp": 0,
+      "hip_gain": 0,
+      "ankle_gain": 0,
+      "gates": {
+        "support": true,
+        "toe_speed": true,
+        "nonfoot": true,
+        "contact_speed": true,
+        "progress": true,
+        "recovery_coverage": true,
+        "knee_phase": false
+      },
+      "passes": false,
+      "speed_p95_ratio": {
+        "left": 1.0,
+        "right": 1.0
+      },
+      "unloaded_substeps": 0,
+      "dx_m": 0.07303484719999999,
+      "recovery": {
+        "baseline": {
+          "count": 2,
+          "left": 1,
+          "right": 1,
+          "knee_median_percent": 43.70009074410163
+        },
+        "phase": {
+          "count": 2,
+          "left": 1,
+          "right": 1,
+          "knee_median_percent": 43.70009074410163
+        }
+      },
+      "knee_phase_advance_percent_points": 0.0,
+      "parity": {
+        "endpoints": 0,
+        "substeps": 0
+      }
+    },
+    {
+      "lane": 2,
+      "warp": 0.16,
+      "hip_gain": 0.5,
+      "ankle_gain": -0.5,
+      "gates": {
+        "support": false,
+        "toe_speed": true,
+        "nonfoot": true,
+        "contact_speed": true,
+        "progress": true,
+        "recovery_coverage": true,
+        "knee_phase": false
+      },
+      "passes": false,
+      "speed_p95_ratio": {
+        "left": 0.9769716888004941,
+        "right": 0.9615089255273968
+      },
+      "unloaded_substeps": 1,
+      "dx_m": 0.112985556,
+      "recovery": {
+        "baseline": {
+          "count": 2,
+          "left": 1,
+          "right": 1,
+          "knee_median_percent": 45.433185235816815
+        },
+        "phase": {
+          "count": 3,
+          "left": 1,
+          "right": 2,
+          "knee_median_percent": 41.46341463414634
+        }
+      },
+      "knee_phase_advance_percent_points": 3.9697706016704757,
+      "parity": {
+        "endpoints": 98,
+        "substeps": 1568
+      }
+    },
+    {
+      "lane": 3,
+      "warp": 0.16,
+      "hip_gain": 0.5,
+      "ankle_gain": -0.5,
+      "gates": {
+        "support": true,
+        "toe_speed": true,
+        "nonfoot": true,
+        "contact_speed": false,
+        "progress": true,
+        "recovery_coverage": true,
+        "knee_phase": false
+      },
+      "passes": false,
+      "speed_p95_ratio": {
+        "left": 0.7933366963236558,
+        "right": 1.9373346258156203
+      },
+      "unloaded_substeps": 0,
+      "dx_m": 0.1108297566,
+      "recovery": {
+        "baseline": {
+          "count": 2,
+          "left": 1,
+          "right": 1,
+          "knee_median_percent": 43.72675315249931
+        },
+        "phase": {
+          "count": 3,
+          "left": 1,
+          "right": 2,
+          "knee_median_percent": 41.46341463414634
+        }
+      },
+      "knee_phase_advance_percent_points": 2.263338518352974,
+      "parity": {
+        "endpoints": 98,
+        "substeps": 1568
+      }
+    },
+    {
+      "lane": 4,
+      "warp": 0.16,
+      "hip_gain": 0.5,
+      "ankle_gain": -0.5,
+      "gates": {
+        "support": false,
+        "toe_speed": true,
+        "nonfoot": true,
+        "contact_speed": true,
+        "progress": true,
+        "recovery_coverage": true,
+        "knee_phase": false
+      },
+      "passes": false,
+      "speed_p95_ratio": {
+        "left": 0.997156187565031,
+        "right": 1.1842784608870667
+      },
+      "unloaded_substeps": 1,
+      "dx_m": 0.11107776923,
+      "recovery": {
+        "baseline": {
+          "count": 1,
+          "left": 1,
+          "right": 0,
+          "knee_median_percent": 46.35761589403973
+        },
+        "phase": {
+          "count": 3,
+          "left": 1,
+          "right": 2,
+          "knee_median_percent": 41.46341463414634
+        }
+      },
+      "knee_phase_advance_percent_points": 4.894201259893393,
+      "parity": {
+        "endpoints": 98,
+        "substeps": 1568
+      }
+    },
+    {
+      "lane": 5,
+      "warp": 0.16,
+      "hip_gain": 0.5,
+      "ankle_gain": -0.5,
+      "gates": {
+        "support": false,
+        "toe_speed": true,
+        "nonfoot": true,
+        "contact_speed": false,
+        "progress": true,
+        "recovery_coverage": false,
+        "knee_phase": false
+      },
+      "passes": false,
+      "speed_p95_ratio": {
+        "left": 0.7978041161270113,
+        "right": 2.0253149257346186
+      },
+      "unloaded_substeps": 1,
+      "dx_m": 0.10906315929999999,
+      "recovery": {
+        "baseline": {
+          "count": 2,
+          "left": 1,
+          "right": 1,
+          "knee_median_percent": 45.433185235816815
+        },
+        "phase": {
+          "count": 2,
+          "left": 0,
+          "right": 2,
+          "knee_median_percent": 41.2267296471242
+        }
+      },
+      "knee_phase_advance_percent_points": 4.206455588692613,
+      "parity": {
+        "endpoints": 98,
+        "substeps": 1568
+      }
+    },
+    {
+      "lane": 6,
+      "warp": 0.16,
+      "hip_gain": 0.5,
+      "ankle_gain": -0.5,
+      "gates": {
+        "support": true,
+        "toe_speed": true,
+        "nonfoot": true,
+        "contact_speed": true,
+        "progress": true,
+        "recovery_coverage": true,
+        "knee_phase": true
+      },
+      "passes": true,
+      "speed_p95_ratio": {
+        "left": 1.0132341258251691,
+        "right": 1.0918714193494443
+      },
+      "unloaded_substeps": 0,
+      "dx_m": 0.11366495343,
+      "recovery": {
+        "baseline": {
+          "count": 2,
+          "left": 1,
+          "right": 1,
+          "knee_median_percent": 43.523635533226766
+        },
+        "phase": {
+          "count": 3,
+          "left": 1,
+          "right": 2,
+          "knee_median_percent": 29.26829268292683
+        }
+      },
+      "knee_phase_advance_percent_points": 14.255342850299936,
+      "parity": {
+        "endpoints": 98,
+        "substeps": 1568
+      }
+    },
+    {
+      "lane": 7,
+      "warp": 0.16,
+      "hip_gain": 0.5,
+      "ankle_gain": -0.5,
+      "gates": {
+        "support": false,
+        "toe_speed": true,
+        "nonfoot": true,
+        "contact_speed": true,
+        "progress": true,
+        "recovery_coverage": true,
+        "knee_phase": false
+      },
+      "passes": false,
+      "speed_p95_ratio": {
+        "left": 0.8079305211962617,
+        "right": 1.3492525123167154
+      },
+      "unloaded_substeps": 8,
+      "dx_m": 0.1116036063,
+      "recovery": {
+        "baseline": {
+          "count": 2,
+          "left": 1,
+          "right": 1,
+          "knee_median_percent": 45.433185235816815
+        },
+        "phase": {
+          "count": 3,
+          "left": 1,
+          "right": 2,
+          "knee_median_percent": 41.46341463414634
+        }
+      },
+      "knee_phase_advance_percent_points": 3.9697706016704757,
+      "parity": {
+        "endpoints": 98,
+        "substeps": 1568
+      }
+    }
+  ]
+}
