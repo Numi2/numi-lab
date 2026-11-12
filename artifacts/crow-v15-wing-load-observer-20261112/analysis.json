@@ -1,0 +1,645 @@
+{
+  "sparse_state_parity_samples": 72,
+  "sparse_state_mismatches": [],
+  "wrench_substep_records": 9600,
+  "errors": [],
+  "rows": [
+    {
+      "lane": 0,
+      "steps": [
+        451,
+        500
+      ],
+      "left_flap_q_rad": [
+        -0.277409971,
+        0.972685933
+      ],
+      "right_flap_q_rad": [
+        -0.230161458,
+        0.962716341
+      ],
+      "left_flap_v_rad_s": [
+        -34.1625099,
+        35.8384819
+      ],
+      "right_flap_v_rad_s": [
+        -32.3267212,
+        33.3536758
+      ],
+      "left_force_z_N": {
+        "mean": 2.1919520297475175,
+        "min": -0.0122181578,
+        "max": 14.6523142,
+        "signed_integral_1s": 2.1919520297475166
+      },
+      "right_force_z_N": {
+        "mean": 2.1007105467304874,
+        "min": -0.00923474599,
+        "max": 13.2280273,
+        "signed_integral_1s": 2.100710546730485
+      },
+      "left_com_torque_z_Nm": {
+        "mean": -0.019982301179447146,
+        "min": -0.158416554,
+        "max": 0.000899114995,
+        "signed_integral_1s": -0.01998230117944714
+      },
+      "right_com_torque_z_Nm": {
+        "mean": 0.018549303665983893,
+        "min": -0.00137197599,
+        "max": 0.12450365,
+        "signed_integral_1s": 0.018549303665983893
+      },
+      "root_kernel_torque_z_Nm": {
+        "mean": -2.556437862824375e-05,
+        "min": -0.00166682375,
+        "max": 0.00147089013,
+        "signed_integral_1s": -2.5564378628243732e-05
+      }
+    },
+    {
+      "lane": 0,
+      "steps": [
+        701,
+        750
+      ],
+      "left_flap_q_rad": [
+        -0.230009586,
+        0.967819512
+      ],
+      "right_flap_q_rad": [
+        -0.236458257,
+        0.962229073
+      ],
+      "left_flap_v_rad_s": [
+        -32.6136398,
+        34.2327728
+      ],
+      "right_flap_v_rad_s": [
+        -32.4692078,
+        33.1194649
+      ],
+      "left_force_z_N": {
+        "mean": 2.1510524514147726,
+        "min": -0.000904841698,
+        "max": 13.0596018,
+        "signed_integral_1s": 2.1510524514147735
+      },
+      "right_force_z_N": {
+        "mean": 2.1602332942420586,
+        "min": -0.00128270476,
+        "max": 12.7815895,
+        "signed_integral_1s": 2.160233294242057
+      },
+      "left_com_torque_z_Nm": {
+        "mean": 8.0448951842925e-05,
+        "min": -0.0120615344,
+        "max": 0.0118515715,
+        "signed_integral_1s": 8.044895184292482e-05
+      },
+      "right_com_torque_z_Nm": {
+        "mean": 0.00019893850005750876,
+        "min": -0.0107440483,
+        "max": 0.0123210922,
+        "signed_integral_1s": 0.0001989385000575082
+      },
+      "root_kernel_torque_z_Nm": {
+        "mean": -0.0001594961984601925,
+        "min": -0.000687359949,
+        "max": 0.000205977412,
+        "signed_integral_1s": -0.00015949619846019253
+      }
+    },
+    {
+      "lane": 1,
+      "steps": [
+        451,
+        500
+      ],
+      "left_flap_q_rad": [
+        -0.231757283,
+        0.964789808
+      ],
+      "right_flap_q_rad": [
+        -0.278417379,
+        0.972716689
+      ],
+      "left_flap_v_rad_s": [
+        -32.4441299,
+        33.4977837
+      ],
+      "right_flap_v_rad_s": [
+        -34.1790085,
+        35.8163795
+      ],
+      "left_force_z_N": {
+        "mean": 2.1010718886952233,
+        "min": -0.00949864928,
+        "max": 13.276125,
+        "signed_integral_1s": 2.1010718886952238
+      },
+      "right_force_z_N": {
+        "mean": 2.1956888897310187,
+        "min": -0.0107662212,
+        "max": 14.7102203,
+        "signed_integral_1s": 2.1956888897310196
+      },
+      "left_com_torque_z_Nm": {
+        "mean": -0.01929184806108084,
+        "min": -0.12806128,
+        "max": 0.00145140267,
+        "signed_integral_1s": -0.019291848061080818
+      },
+      "right_com_torque_z_Nm": {
+        "mean": 0.020629978248897087,
+        "min": -0.000927693327,
+        "max": 0.157402098,
+        "signed_integral_1s": 0.020629978248897087
+      },
+      "root_kernel_torque_z_Nm": {
+        "mean": 6.5171153680775e-06,
+        "min": -0.00163316797,
+        "max": 0.00192783552,
+        "signed_integral_1s": 6.5171153680774956e-06
+      }
+    },
+    {
+      "lane": 1,
+      "steps": [
+        701,
+        750
+      ],
+      "left_flap_q_rad": [
+        -0.237269267,
+        0.96080792
+      ],
+      "right_flap_q_rad": [
+        -0.231100947,
+        0.967820346
+      ],
+      "left_flap_v_rad_s": [
+        -32.4641075,
+        33.1601906
+      ],
+      "right_flap_v_rad_s": [
+        -32.605072,
+        34.3568039
+      ],
+      "left_force_z_N": {
+        "mean": 2.15755861580731,
+        "min": -0.00267728302,
+        "max": 12.8618364,
+        "signed_integral_1s": 2.1575586158073095
+      },
+      "right_force_z_N": {
+        "mean": 2.1514133082966627,
+        "min": -0.00137891003,
+        "max": 13.2677555,
+        "signed_integral_1s": 2.1514133082966613
+      },
+      "left_com_torque_z_Nm": {
+        "mean": -0.0019490206950767924,
+        "min": -0.0212684888,
+        "max": 0.00194597943,
+        "signed_integral_1s": -0.001949020695076793
+      },
+      "right_com_torque_z_Nm": {
+        "mean": 0.001722962921324,
+        "min": -0.00374895823,
+        "max": 0.0212274361,
+        "signed_integral_1s": 0.0017229629213240004
+      },
+      "root_kernel_torque_z_Nm": {
+        "mean": 9.38930939428425e-05,
+        "min": -0.000738336239,
+        "max": 0.00123701652,
+        "signed_integral_1s": 9.389309394284243e-05
+      }
+    },
+    {
+      "lane": 2,
+      "steps": [
+        451,
+        500
+      ],
+      "left_flap_q_rad": [
+        -0.325534433,
+        0.998074114
+      ],
+      "right_flap_q_rad": [
+        -0.247017711,
+        0.965514123
+      ],
+      "left_flap_v_rad_s": [
+        -37.376915,
+        38.5567017
+      ],
+      "right_flap_v_rad_s": [
+        -32.6520042,
+        33.3088036
+      ],
+      "left_force_z_N": {
+        "mean": 2.2646078486270467,
+        "min": -0.0166074838,
+        "max": 16.857048,
+        "signed_integral_1s": 2.2646078486270476
+      },
+      "right_force_z_N": {
+        "mean": 2.0505223031511988,
+        "min": -0.00564868096,
+        "max": 13.6800041,
+        "signed_integral_1s": 2.050522303151198
+      },
+      "left_com_torque_z_Nm": {
+        "mean": -0.020706238280052146,
+        "min": -0.183411643,
+        "max": 0.00249973638,
+        "signed_integral_1s": -0.020706238280052133
+      },
+      "right_com_torque_z_Nm": {
+        "mean": 0.017271328772946088,
+        "min": -0.00217293901,
+        "max": 0.119375691,
+        "signed_integral_1s": 0.017271328772946095
+      },
+      "root_kernel_torque_z_Nm": {
+        "mean": 6.98732516147725e-05,
+        "min": -0.00293462956,
+        "max": 0.0031098614,
+        "signed_integral_1s": 6.987325161477239e-05
+      }
+    },
+    {
+      "lane": 2,
+      "steps": [
+        701,
+        750
+      ],
+      "left_flap_q_rad": [
+        -0.237035125,
+        0.961408079
+      ],
+      "right_flap_q_rad": [
+        -0.23990187,
+        0.956290424
+      ],
+      "left_flap_v_rad_s": [
+        -32.3631096,
+        34.1288681
+      ],
+      "right_flap_v_rad_s": [
+        -32.2675552,
+        32.5618553
+      ],
+      "left_force_z_N": {
+        "mean": 2.1529453593968504,
+        "min": -0.00241351523,
+        "max": 12.9456215,
+        "signed_integral_1s": 2.1529453593968526
+      },
+      "right_force_z_N": {
+        "mean": 2.1606361173711126,
+        "min": -0.011044086,
+        "max": 12.666995,
+        "signed_integral_1s": 2.1606361173711117
+      },
+      "left_com_torque_z_Nm": {
+        "mean": 0.0008747660050976039,
+        "min": -0.00970502943,
+        "max": 0.0137567241,
+        "signed_integral_1s": 0.000874766005097605
+      },
+      "right_com_torque_z_Nm": {
+        "mean": -0.0003015681931286323,
+        "min": -0.0105133932,
+        "max": 0.0111009851,
+        "signed_integral_1s": -0.0003015681931286323
+      },
+      "root_kernel_torque_z_Nm": {
+        "mean": -0.0001686637954981625,
+        "min": -0.000800411857,
+        "max": 0.000282727298,
+        "signed_integral_1s": -0.0001686637954981626
+      }
+    },
+    {
+      "lane": 3,
+      "steps": [
+        451,
+        500
+      ],
+      "left_flap_q_rad": [
+        -0.249718681,
+        0.968448639
+      ],
+      "right_flap_q_rad": [
+        -0.327069432,
+        0.998224735
+      ],
+      "left_flap_v_rad_s": [
+        -32.7745476,
+        33.4728622
+      ],
+      "right_flap_v_rad_s": [
+        -37.4154205,
+        38.5611725
+      ],
+      "left_force_z_N": {
+        "mean": 2.050896109284055,
+        "min": -0.00533134444,
+        "max": 13.7557621,
+        "signed_integral_1s": 2.050896109284054
+      },
+      "right_force_z_N": {
+        "mean": 2.274621735261285,
+        "min": -0.0127872201,
+        "max": 16.9449806,
+        "signed_integral_1s": 2.2746217352612854
+      },
+      "left_com_torque_z_Nm": {
+        "mean": -0.018576952985608474,
+        "min": -0.128341213,
+        "max": 0.0021838746,
+        "signed_integral_1s": -0.018576952985608457
+      },
+      "right_com_torque_z_Nm": {
+        "mean": 0.021301451308054074,
+        "min": -0.0025356072,
+        "max": 0.180923223,
+        "signed_integral_1s": 0.021301451308054085
+      },
+      "root_kernel_torque_z_Nm": {
+        "mean": -5.0092740168875e-05,
+        "min": -0.00328952121,
+        "max": 0.00256844121,
+        "signed_integral_1s": -5.0092740168875044e-05
+      }
+    },
+    {
+      "lane": 3,
+      "steps": [
+        701,
+        750
+      ],
+      "left_flap_q_rad": [
+        -0.240488783,
+        0.95354563
+      ],
+      "right_flap_q_rad": [
+        -0.239942238,
+        0.960361302
+      ],
+      "left_flap_v_rad_s": [
+        -32.2559357,
+        32.6437111
+      ],
+      "right_flap_v_rad_s": [
+        -32.3609886,
+        34.2120705
+      ],
+      "left_force_z_N": {
+        "mean": 2.1556853311634843,
+        "min": -0.0050786417,
+        "max": 12.8557987,
+        "signed_integral_1s": 2.1556853311634825
+      },
+      "right_force_z_N": {
+        "mean": 2.149950119814251,
+        "min": -0.00737057207,
+        "max": 13.2137394,
+        "signed_integral_1s": 2.14995011981425
+      },
+      "left_com_torque_z_Nm": {
+        "mean": -0.005861957460409216,
+        "min": -0.044006791,
+        "max": 0.00278212177,
+        "signed_integral_1s": -0.005861957460409213
+      },
+      "right_com_torque_z_Nm": {
+        "mean": 0.0053852275056341225,
+        "min": -0.00426617917,
+        "max": 0.046082437,
+        "signed_integral_1s": 0.005385227505634125
+      },
+      "root_kernel_torque_z_Nm": {
+        "mean": 0.0001036323753621725,
+        "min": -0.000830947945,
+        "max": 0.00143705413,
+        "signed_integral_1s": 0.0001036323753621724
+      }
+    },
+    {
+      "lane": 4,
+      "steps": [
+        451,
+        500
+      ],
+      "left_flap_q_rad": [
+        -0.373424411,
+        1.01818514
+      ],
+      "right_flap_q_rad": [
+        -0.249574497,
+        0.949835658
+      ],
+      "left_flap_v_rad_s": [
+        -40.5008278,
+        41.2011795
+      ],
+      "right_flap_v_rad_s": [
+        -32.1715584,
+        33.6835938
+      ],
+      "left_force_z_N": {
+        "mean": 2.5304937607967912,
+        "min": -0.0185780637,
+        "max": 19.295702,
+        "signed_integral_1s": 2.5304937607967934
+      },
+      "right_force_z_N": {
+        "mean": 1.8839357385926403,
+        "min": -0.00416810485,
+        "max": 14.350008,
+        "signed_integral_1s": 1.8839357385926403
+      },
+      "left_com_torque_z_Nm": {
+        "mean": -0.0220706731222484,
+        "min": -0.20916599,
+        "max": 0.0104850968,
+        "signed_integral_1s": -0.0220706731222484
+      },
+      "right_com_torque_z_Nm": {
+        "mean": 0.013833640821189062,
+        "min": -0.0042225155,
+        "max": 0.119766675,
+        "signed_integral_1s": 0.013833640821189062
+      },
+      "root_kernel_torque_z_Nm": {
+        "mean": 0.000307981898504608,
+        "min": -0.00413156534,
+        "max": 0.00477492716,
+        "signed_integral_1s": 0.00030798189850460766
+      }
+    },
+    {
+      "lane": 4,
+      "steps": [
+        701,
+        750
+      ],
+      "left_flap_q_rad": [
+        -0.310842663,
+        1.01106894
+      ],
+      "right_flap_q_rad": [
+        -0.30403322,
+        1.07064867
+      ],
+      "left_flap_v_rad_s": [
+        -34.2098885,
+        34.3468628
+      ],
+      "right_flap_v_rad_s": [
+        -37.1917076,
+        38.796524
+      ],
+      "left_force_z_N": {
+        "mean": 2.1830359000213373,
+        "min": -0.797508776,
+        "max": 14.0288353,
+        "signed_integral_1s": 2.183035900021339
+      },
+      "right_force_z_N": {
+        "mean": 2.514027268517506,
+        "min": -0.673205972,
+        "max": 17.2271042,
+        "signed_integral_1s": 2.5140272685175034
+      },
+      "left_com_torque_z_Nm": {
+        "mean": 0.10659337668679075,
+        "min": -0.016545495,
+        "max": 0.737995386,
+        "signed_integral_1s": 0.10659337668679075
+      },
+      "right_com_torque_z_Nm": {
+        "mean": -0.11705937867997125,
+        "min": -0.892367959,
+        "max": 0.0126307774,
+        "signed_integral_1s": -0.11705937867997115
+      },
+      "root_kernel_torque_z_Nm": {
+        "mean": 0.0008643352978547625,
+        "min": -0.00224572234,
+        "max": 0.00519480556,
+        "signed_integral_1s": 0.0008643352978547614
+      }
+    },
+    {
+      "lane": 5,
+      "steps": [
+        451,
+        500
+      ],
+      "left_flap_q_rad": [
+        -0.246006548,
+        0.946918011
+      ],
+      "right_flap_q_rad": [
+        -0.375398338,
+        1.01826775
+      ],
+      "left_flap_v_rad_s": [
+        -32.2009392,
+        33.8433304
+      ],
+      "right_flap_v_rad_s": [
+        -40.5689697,
+        41.2287064
+      ],
+      "left_force_z_N": {
+        "mean": 1.870317069608425,
+        "min": -0.00286473683,
+        "max": 14.4137707,
+        "signed_integral_1s": 1.8703170696084284
+      },
+      "right_force_z_N": {
+        "mean": 2.551179695701203,
+        "min": -0.00919488817,
+        "max": 19.4122772,
+        "signed_integral_1s": 2.5511796957012014
+      },
+      "left_com_torque_z_Nm": {
+        "mean": -0.015997404035212097,
+        "min": -0.136965424,
+        "max": 0.00369756017,
+        "signed_integral_1s": -0.015997404035212097
+      },
+      "right_com_torque_z_Nm": {
+        "mean": 0.022187324920974763,
+        "min": -0.010211735,
+        "max": 0.204505384,
+        "signed_integral_1s": 0.022187324920974777
+      },
+      "root_kernel_torque_z_Nm": {
+        "mean": -0.00024663375100785,
+        "min": -0.00496822642,
+        "max": 0.00376403658,
+        "signed_integral_1s": -0.00024663375100784994
+      }
+    },
+    {
+      "lane": 5,
+      "steps": [
+        701,
+        750
+      ],
+      "left_flap_q_rad": [
+        -0.281045407,
+        1.03382874
+      ],
+      "right_flap_q_rad": [
+        -0.310683846,
+        1.0111016
+      ],
+      "left_flap_v_rad_s": [
+        -35.9136734,
+        37.1095352
+      ],
+      "right_flap_v_rad_s": [
+        -33.5247231,
+        34.3503189
+      ],
+      "left_force_z_N": {
+        "mean": 2.3231000638278627,
+        "min": -0.432916403,
+        "max": 15.2011433,
+        "signed_integral_1s": 2.3231000638278654
+      },
+      "right_force_z_N": {
+        "mean": 2.2547189130120087,
+        "min": -0.750683546,
+        "max": 13.5144444,
+        "signed_integral_1s": 2.254718913012008
+      },
+      "left_com_torque_z_Nm": {
+        "mean": 0.0033760265411834998,
+        "min": -0.152532488,
+        "max": 0.0631733835,
+        "signed_integral_1s": 0.0033760265411834954
+      },
+      "right_com_torque_z_Nm": {
+        "mean": -0.022653330065679125,
+        "min": -0.149377033,
+        "max": 0.0268770792,
+        "signed_integral_1s": -0.022653330065679097
+      },
+      "root_kernel_torque_z_Nm": {
+        "mean": -0.0004415659609471461,
+        "min": -0.00221784436,
+        "max": 0.00166762341,
+        "signed_integral_1s": -0.00044156596094714563
+      }
+    }
+  ],
+  "scope": "Wrench after minus before existing flapping kernel, in world axes. Wing torques are about their body COM; root z torque excludes moments from wing-force lever arms. Source q/v precede that kernel and substep integration. Each integral uses 800 substeps at 0.00125s. Six development lanes, two selected 1s intervals; no calibrated aerodynamic ground truth, total root moment, continuous whole-run envelope, landing or qualification."
+}

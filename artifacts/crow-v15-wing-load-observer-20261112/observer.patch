@@ -1,0 +1,84 @@
+--- a/MetalWorld.mm
++++ b/MetalWorld.mm
+@@ -21427,6 +21427,11 @@
+             const unsigned long long crowTraceStep = crowTraceEnabled ? ++crowTraceSubmission : 0;
+             const bool crowTraceWindow = crowTraceEnabled && crowTraceStep >= 1 && crowTraceStep <= 5005;
+             NSMutableArray<id<MTLBuffer>>* crowTraceBuffers = crowTraceWindow ? [NSMutableArray array] : nil;
++            const bool crowAeroWindow = std::getenv("CROW_AERO_TRACE") != nullptr && ((crowTraceStep >= 451 && crowTraceStep <= 500) || (crowTraceStep >= 701 && crowTraceStep <= 750));
++            NSMutableArray<id<MTLBuffer>>* crowAeroBuffers = crowAeroWindow ? [NSMutableArray array] : nil;
++            const NSUInteger crowAeroBodyStride = world.model().bodies.size();
++            const NSUInteger crowAeroQStride = diagnostics.layout.dispatch.qStride;
++            const NSUInteger crowAeroVStride = diagnostics.layout.dispatch.vStride;
+             const NSUInteger crowTraceCapacity = diagnostics.layout.contactDispatch.constraintCapacity;
+             const NSUInteger crowTraceLanes = batch.environmentCount;
+             const NSUInteger crowTraceVStride = diagnostics.layout.dispatch.vStride;
+@@ -21663,6 +21668,27 @@
+                         contactMode &&
+                         config.ccdMode ==
+                             MetalWorldCCDMode::hybrid;
++                    auto crowCaptureFlapping = [&]() -> bool {
++                        if (!config.flappingWingProgram.valid()) return true;
++                        if (!crowAeroWindow || controlStep != 0u) return encodeFlappingWingActuation(*selectedState,commandBuffer,sourceQ,sourceV,batch.environmentCount);
++                        id<MTLBuffer> wrench=selectedState->buffers[kBodyWrenchPlaceholder], q=selectedState->buffers[sourceQ], v=selectedState->buffers[sourceV];
++                        id<MTLBuffer> before=[selectedState->device newBufferWithLength:wrench.length options:MTLResourceStorageModeShared];
++                        id<MTLBuffer> after=[selectedState->device newBufferWithLength:wrench.length options:MTLResourceStorageModeShared];
++                        id<MTLBuffer> qc=[selectedState->device newBufferWithLength:q.length options:MTLResourceStorageModeShared];
++                        id<MTLBuffer> vc=[selectedState->device newBufferWithLength:v.length options:MTLResourceStorageModeShared];
++                        if (before==nil || after==nil || qc==nil || vc==nil) throw std::bad_alloc();
++                        id<MTLBlitCommandEncoder> pre=[commandBuffer blitCommandEncoder];
++                        [pre copyFromBuffer:wrench sourceOffset:0 toBuffer:before destinationOffset:0 size:wrench.length];
++                        [pre copyFromBuffer:q sourceOffset:0 toBuffer:qc destinationOffset:0 size:q.length];
++                        [pre copyFromBuffer:v sourceOffset:0 toBuffer:vc destinationOffset:0 size:v.length];
++                        [pre endEncoding];
++                        const bool ok=encodeFlappingWingActuation(*selectedState,commandBuffer,sourceQ,sourceV,batch.environmentCount);
++                        id<MTLBlitCommandEncoder> post=[commandBuffer blitCommandEncoder];
++                        [post copyFromBuffer:wrench sourceOffset:0 toBuffer:after destinationOffset:0 size:wrench.length];
++                        [post endEncoding];
++                        [crowAeroBuffers addObject:before];[crowAeroBuffers addObject:after];[crowAeroBuffers addObject:qc];[crowAeroBuffers addObject:vc];
++                        return ok;
++                    };
+                     const bool encodedABA =
+                         (
+                             !hasBodyWrenches ||
+@@ -21766,14 +21792,7 @@
+                             )
+                         ) &&
+                         (
+-                            !config.flappingWingProgram.valid() ||
+-                            encodeFlappingWingActuation(
+-                                *selectedState,
+-                                commandBuffer,
+-                                sourceQ,
+-                                sourceV,
+-                                batch.environmentCount
+-                            )
++                            crowCaptureFlapping()
+                         ) &&
+                         (
+                             useHybridContact ||
+@@ -22373,6 +22392,25 @@
+                 residentData->stateArenaGeneration =
+                     selectedState->stateArenaGeneration;
+             }
++            if (crowAeroWindow) {
++                [commandBuffer addCompletedHandler:^(id<MTLCommandBuffer> completed) {
++                    if (completed.status != MTLCommandBufferStatusCompleted) { std::fprintf(stderr,"CROW_AERO_ERROR %llu\n",crowTraceStep); return; }
++                    for(NSUInteger sub=0;sub<crowAeroBuffers.count/4;++sub) {
++                        const auto* before=static_cast<const MRABABodyWrenchGPU*>(crowAeroBuffers[4*sub].contents);
++                        const auto* after=static_cast<const MRABABodyWrenchGPU*>(crowAeroBuffers[4*sub+1].contents);
++                        const auto* q=static_cast<const float*>(crowAeroBuffers[4*sub+2].contents);
++                        const auto* v=static_cast<const float*>(crowAeroBuffers[4*sub+3].contents);
++                        for(NSUInteger lane=0;lane<crowTraceLanes;++lane) {
++                            std::fprintf(stderr,"CROW_WING_WRENCH %llu %lu %lu %.9g %.9g %.9g %.9g",crowTraceStep,(unsigned long)sub,(unsigned long)lane,q[lane*crowAeroQStride+9],q[lane*crowAeroQStride+10],v[lane*crowAeroVStride+8],v[lane*crowAeroVStride+9]);
++                            const int ids[3]={5,6,0};
++                            for(int j=0;j<3;++j) { const auto& a=after[lane*crowAeroBodyStride+ids[j]]; const auto& b=before[lane*crowAeroBodyStride+ids[j]];
++                                std::fprintf(stderr," %.9g %.9g %.9g %.9g %.9g %.9g",a.force.x-b.force.x,a.force.y-b.force.y,a.force.z-b.force.z,a.torque.x-b.torque.x,a.torque.y-b.torque.y,a.torque.z-b.torque.z);
++                            }
++                            std::fprintf(stderr,"\n");
++                        }
++                    }
++                }];
++            }
+             if (crowTraceWindow) {
+                 [commandBuffer addCompletedHandler:^(id<MTLCommandBuffer> completed) {
+                     if (completed.status != MTLCommandBufferStatusCompleted) { std::fprintf(stderr,"CROW_SUBSTEP_ERROR %llu\n",crowTraceStep); return; }
