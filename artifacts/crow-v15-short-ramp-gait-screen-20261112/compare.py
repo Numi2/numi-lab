@@ -32,6 +32,7 @@ for e in range(8):
  def un(sub):return sum(sub[e,t,k][2]<=1e-7 and sub[e,t,k][3]<=1e-7 for t in range(201,301) for k in range(16))
  def non(sub):return [t for t in range(201,301) if sum(sub[e,t,k][4] for k in range(16))>1e-7]
  row={"lane":e,"prefix_state_mismatches":sd[:3],"prefix_contact_mismatches":cd[:3],"candidate_unloaded_substeps":un(c[1]),"reference_unloaded_substeps":un(r[1]),"candidate_nonfoot_intervals":non(c[1]),"candidate_caps":c[3][e],"reference_caps":r[3][e],"candidate_swing_counts":[len(v) for v in crow[e]["support_qualified_swing_bouts"]],"candidate_travel_m":crow[e]["forward_root_displacement_m"],"reference_travel_m":ref["baseline"][e]["forward_root_displacement_m"]}
+ row["whole_body_metrics"]={k:crow[e][k] for k in ("root_height_span_m","whole_body_com_height_span_m","root_roll_span_rad","root_pitch_span_rad","joint_spans_rad","head_world_axis_spans_m","head_relative_to_torso_axis_spans_m","foot_loaded_fraction_window","both_loaded_fraction_window","neither_loaded_fraction_window","sole_clear_but_toes_below_clearance_intervals","foot_COM_motion_while_loaded_proxy_m","stride_metrics_status")}
  row["pass"]=not row["candidate_nonfoot_intervals"] and row["candidate_caps"]<=row["reference_caps"] and min(row["candidate_swing_counts"])>=2 and row["candidate_travel_m"]>=.9*row["reference_travel_m"]
  rows.append(row)
 def meanacc(q,j):
