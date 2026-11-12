@@ -2,7 +2,7 @@ from pathlib import Path
 import collections,gzip,importlib.util,json,math,sys
 def mod(n,p):
  s=importlib.util.spec_from_file_location(n,p);m=importlib.util.module_from_spec(s);s.loader.exec_module(m);return m
-a=mod("a","artifacts/crow-v15-whole-gait-audit-20261111/audit.py");A=Path("artifacts/crow-v15-matched-binary-gait-screen-20261112");variant="candidate";C=A/"candidate-20261126";R=A/"sham-20261126"
+a=mod("a","artifacts/crow-v15-whole-gait-audit-20261111/audit.py");A=Path("artifacts/crow-v15-matched-binary-gait-screen-20261112");variant="candidate";C=A/"candidate-20261126-rebound";R=A/"sham-20261126"
 old=json.loads(Path("artifacts/crow-v15-whole-gait-audit-20261111/audit.json").read_text());ref=next(z for z in old["rows"] if z["seed"]==20261126);crow=a.analyze(C,ref["ground_z_m"]); matched_ref=a.analyze(R,ref["ground_z_m"])
 def parse(p):
  st={};sub={};q={};caps=collections.Counter();bad=[]

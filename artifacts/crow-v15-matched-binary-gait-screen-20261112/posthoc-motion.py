@@ -1,7 +1,7 @@
 from pathlib import Path
 import collections,gzip,json,sys
 A=Path('artifacts/crow-v15-matched-binary-gait-screen-20261112');name='candidate'
-files={'reference':A/'sham-20261126/run.stderr.gz','candidate':A/(name+'-20261126/run.stderr.gz')}
+files={'reference':A/'sham-20261126/run.stderr.gz','candidate':A/(name+'-20261126-rebound/run.stderr.gz')}
 def load(path):
  q={}
  with gzip.open(path,'rt') as f:
@@ -22,4 +22,4 @@ q={name:load(p) for name,p in files.items()}
 out={'scope':'Post-hoc descriptive whole-substep finite-difference motion proxies across 8 dependent lanes from one used seed. These are not joint torque or biological acceleration validation.','rows':[]}
 for name,j in (('left_knee',15),('left_ankle',16),('right_knee',18),('right_ankle',19)):
  out['rows'].append({'joint':name,'reference':stats(q['reference'],j),'candidate':stats(q['candidate'],j)})
-(A/(name+'-posthoc-motion.json')).write_text(json.dumps(out,indent=2)+'\n');print(json.dumps(out,indent=2))
+(A/'candidate-posthoc-motion.json').write_text(json.dumps(out,indent=2)+'\n');print(json.dumps(out,indent=2))
