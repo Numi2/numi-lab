@@ -1,0 +1,298 @@
+[
+  {
+    "lane": 0,
+    "target_rad": 0,
+    "steps": 1200,
+    "reason": 0,
+    "physical_failure": false,
+    "sample_count": 1200,
+    "initial": {
+      "samples": 50,
+      "yaw_rad": 0.006495632528219502,
+      "height_m": 0.5713642582599999,
+      "forward_speed_m_s": -0.013702598452385336
+    },
+    "turn": {
+      "samples": 50,
+      "yaw_rad": -0.028097635509796118,
+      "height_m": 1.074696634,
+      "forward_speed_m_s": 0.5226107339883402
+    },
+    "recovery": {
+      "samples": 50,
+      "yaw_rad": -0.03573510652007216,
+      "height_m": 1.0761476866000002,
+      "forward_speed_m_s": 0.5181467455573011
+    },
+    "end": {
+      "episode_transition": 1200,
+      "yaw_rad": -0.03681516155580011,
+      "height_m": 1.08597934,
+      "forward_speed_m_s": 0.5104796097724277,
+      "position_m": [
+        6.08227158,
+        -0.141996399,
+        1.08597934
+      ]
+    }
+  },
+  {
+    "lane": 1,
+    "target_rad": 0,
+    "steps": 1200,
+    "reason": 0,
+    "physical_failure": false,
+    "sample_count": 1200,
+    "initial": {
+      "samples": 50,
+      "yaw_rad": 0.012983662875932509,
+      "height_m": 0.5714541756999999,
+      "forward_speed_m_s": -0.014710391699341886
+    },
+    "turn": {
+      "samples": 50,
+      "yaw_rad": -0.02651533147185779,
+      "height_m": 1.0747020082,
+      "forward_speed_m_s": 0.5226276458385901
+    },
+    "recovery": {
+      "samples": 50,
+      "yaw_rad": -0.03553865496820699,
+      "height_m": 1.0761510753999999,
+      "forward_speed_m_s": 0.5180760568715945
+    },
+    "end": {
+      "episode_transition": 1200,
+      "yaw_rad": -0.03669919814159046,
+      "height_m": 1.08598411,
+      "forward_speed_m_s": 0.5103906388955041,
+      "position_m": [
+        6.09931087,
+        -0.145453721,
+        1.08598411
+      ]
+    }
+  },
+  {
+    "lane": 2,
+    "target_rad": 0.15,
+    "steps": 1200,
+    "reason": 0,
+    "physical_failure": false,
+    "sample_count": 1200,
+    "initial": {
+      "samples": 50,
+      "yaw_rad": 0.011176945639751228,
+      "height_m": 0.57145671106,
+      "forward_speed_m_s": -0.014495658496073096
+    },
+    "turn": {
+      "samples": 50,
+      "yaw_rad": 0.08494381738146402,
+      "height_m": 1.0746038081999998,
+      "forward_speed_m_s": 0.521358266319327
+    },
+    "recovery": {
+      "samples": 50,
+      "yaw_rad": -0.009320931535191694,
+      "height_m": 1.0762287126000003,
+      "forward_speed_m_s": 0.5183180031381801
+    },
+    "end": {
+      "episode_transition": 1200,
+      "yaw_rad": -0.021315564539069038,
+      "height_m": 1.08600557,
+      "forward_speed_m_s": 0.5113511519533918,
+      "position_m": [
+        6.0947957,
+        0.250711322,
+        1.08600557
+      ]
+    }
+  },
+  {
+    "lane": 3,
+    "target_rad": -0.15,
+    "steps": 1200,
+    "reason": 0,
+    "physical_failure": false,
+    "sample_count": 1200,
+    "initial": {
+      "samples": 50,
+      "yaw_rad": 0.008180791640622697,
+      "height_m": 0.57136702774,
+      "forward_speed_m_s": -0.013775011966226906
+    },
+    "turn": {
+      "samples": 50,
+      "yaw_rad": -0.13801647654215143,
+      "height_m": 1.0747403482,
+      "forward_speed_m_s": 0.5235122866480048
+    },
+    "recovery": {
+      "samples": 50,
+      "yaw_rad": -0.06187193114761379,
+      "height_m": 1.0761088155999998,
+      "forward_speed_m_s": 0.5165279990527765
+    },
+    "end": {
+      "episode_transition": 1200,
+      "yaw_rad": -0.052269185696429195,
+      "height_m": 1.08594584,
+      "forward_speed_m_s": 0.5094457632625642,
+      "position_m": [
+        6.08967495,
+        -0.483812004,
+        1.08594584
+      ]
+    }
+  },
+  {
+    "lane": 4,
+    "target_rad": 0.3,
+    "steps": 1200,
+    "reason": 0,
+    "physical_failure": false,
+    "sample_count": 1200,
+    "initial": {
+      "samples": 50,
+      "yaw_rad": 0.010056730294537084,
+      "height_m": 0.57145026566,
+      "forward_speed_m_s": -0.014680565584477645
+    },
+    "turn": {
+      "samples": 50,
+      "yaw_rad": 0.18647551075414812,
+      "height_m": 1.0745624252000001,
+      "forward_speed_m_s": 0.5174627804665008
+    },
+    "recovery": {
+      "samples": 50,
+      "yaw_rad": 0.022572556540102758,
+      "height_m": 1.0762339685999998,
+      "forward_speed_m_s": 0.5188906332641066
+    },
+    "end": {
+      "episode_transition": 1200,
+      "yaw_rad": -0.0024975406207649476,
+      "height_m": 1.08610451,
+      "forward_speed_m_s": 0.5107342115709893,
+      "position_m": [
+        6.12621546,
+        0.620121121,
+        1.08610451
+      ]
+    }
+  },
+  {
+    "lane": 5,
+    "target_rad": -0.3,
+    "steps": 1200,
+    "reason": 0,
+    "physical_failure": false,
+    "sample_count": 1200,
+    "initial": {
+      "samples": 50,
+      "yaw_rad": 0.00733933387259948,
+      "height_m": 0.5714286536000001,
+      "forward_speed_m_s": -0.014063652229118062
+    },
+    "turn": {
+      "samples": 50,
+      "yaw_rad": -0.23339465518966582,
+      "height_m": 1.0744445346,
+      "forward_speed_m_s": 0.528278462225922
+    },
+    "recovery": {
+      "samples": 50,
+      "yaw_rad": -0.0901478003525337,
+      "height_m": 1.0760783094000004,
+      "forward_speed_m_s": 0.5145062698811698
+    },
+    "end": {
+      "episode_transition": 1200,
+      "yaw_rad": -0.06918140011650714,
+      "height_m": 1.08587861,
+      "forward_speed_m_s": 0.5088338900280954,
+      "position_m": [
+        6.14291954,
+        -0.902802289,
+        1.08587861
+      ]
+    }
+  },
+  {
+    "lane": 6,
+    "target_rad": 0.45,
+    "steps": 1200,
+    "reason": 0,
+    "physical_failure": false,
+    "sample_count": 1200,
+    "initial": {
+      "samples": 50,
+      "yaw_rad": 0.010131508019140778,
+      "height_m": 0.5713724609199999,
+      "forward_speed_m_s": -0.013960746509278633
+    },
+    "turn": {
+      "samples": 50,
+      "yaw_rad": 0.23043753837345127,
+      "height_m": 1.0735398682000001,
+      "forward_speed_m_s": 0.5379578940622604
+    },
+    "recovery": {
+      "samples": 50,
+      "yaw_rad": 0.04822640695052897,
+      "height_m": 1.0761492063999998,
+      "forward_speed_m_s": 0.5202978607890705
+    },
+    "end": {
+      "episode_transition": 1200,
+      "yaw_rad": 0.013325468264721016,
+      "height_m": 1.08610165,
+      "forward_speed_m_s": 0.5113376608211098,
+      "position_m": [
+        6.20370293,
+        0.837949693,
+        1.08610165
+      ]
+    }
+  },
+  {
+    "lane": 7,
+    "target_rad": -0.45,
+    "steps": 1200,
+    "reason": 0,
+    "physical_failure": false,
+    "sample_count": 1200,
+    "initial": {
+      "samples": 50,
+      "yaw_rad": 0.007616189803893569,
+      "height_m": 0.57145806438,
+      "forward_speed_m_s": -0.014573354307818203
+    },
+    "turn": {
+      "samples": 50,
+      "yaw_rad": -0.282442647302301,
+      "height_m": 1.0718359646,
+      "forward_speed_m_s": 0.5853542991272249
+    },
+    "recovery": {
+      "samples": 50,
+      "yaw_rad": -0.11969026021482333,
+      "height_m": 1.0760522343999996,
+      "forward_speed_m_s": 0.5122467675468699
+    },
+    "end": {
+      "episode_transition": 1200,
+      "yaw_rad": -0.08701630610416723,
+      "height_m": 1.08584809,
+      "forward_speed_m_s": 0.5074523596984511,
+      "position_m": [
+        6.20958328,
+        -1.18618488,
+        1.08584809
+      ]
+    }
+  }
+]
