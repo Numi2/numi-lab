@@ -1,0 +1,9 @@
+c8a621c2920b8841e9fd1cb1dbc73e0d5c32494690b8a8c1a262b8df6ee703a0  artifacts/crow-v15-carrion-biofit-20261112/expanded/evaluate-heldout.py
+6ec9f65a24e17a71154e932012d0c0d84775ff66092840c137dd158d96bce1b0  artifacts/crow-v15-carrion-biofit-20261112/expanded/extract-phase.log
+6859705b552cbbcd83098b343e60c75dc720e1db1d0a3b5094bda959253f7086  artifacts/crow-v15-carrion-biofit-20261112/expanded/extract-phase.py
+e0c1d9237bc4030c49af2e28738aa6ad53f1487a24dea1c60ab290fd6238071c  artifacts/crow-v15-carrion-biofit-20261112/expanded/heldout.json
+e0c1d9237bc4030c49af2e28738aa6ad53f1487a24dea1c60ab290fd6238071c  artifacts/crow-v15-carrion-biofit-20261112/expanded/heldout.log
+4b2c782290b7abdfa81b239bc9485331e55bdd9a51dc2ed66e9db9782ae12457  artifacts/crow-v15-carrion-biofit-20261112/expanded/phase-diagnostic.json
+4b2c782290b7abdfa81b239bc9485331e55bdd9a51dc2ed66e9db9782ae12457  artifacts/crow-v15-carrion-biofit-20261112/expanded/phase-diagnostic.log
+fe1dff249e93a810b10c01db10dd0fac9bb9b6f37a5ceb15f1c494b73841104d  artifacts/crow-v15-carrion-biofit-20261112/expanded/phase-diagnostic.py
+f3dbda512e4e42a17283056890e398d003ad37ab46c80d92a13f5fcdd42d75b2  artifacts/crow-v15-carrion-biofit-20261112/expanded/sim-flap-velocity.json

@@ -1,0 +1,51 @@
+{
+  "selected": "crow-v15-sweep-pitch-feedback-screen-20261112",
+  "rows": [
+    {
+      "start_step": 450,
+      "flap_velocity_peak_hz": 4.6000000000000005,
+      "squared_flap_velocity_peak_hz": 9.200000000000001,
+      "tail_world_vertical_acceleration_peak_hz": 9.200000000000001,
+      "largest_absolute_correlation_over_plus_minus_0_2s": {
+        "lag_steps": 6,
+        "correlation": 0.9036681549386444
+      }
+    },
+    {
+      "start_step": 700,
+      "flap_velocity_peak_hz": 4.6000000000000005,
+      "squared_flap_velocity_peak_hz": 9.200000000000001,
+      "tail_world_vertical_acceleration_peak_hz": 9.200000000000001,
+      "largest_absolute_correlation_over_plus_minus_0_2s": {
+        "lag_steps": 6,
+        "correlation": 0.8937181192327511
+      }
+    },
+    {
+      "start_step": 950,
+      "flap_velocity_peak_hz": 4.6000000000000005,
+      "squared_flap_velocity_peak_hz": 9.200000000000001,
+      "tail_world_vertical_acceleration_peak_hz": 9.200000000000001,
+      "largest_absolute_correlation_over_plus_minus_0_2s": {
+        "lag_steps": 6,
+        "correlation": 0.8926748674606172
+      }
+    },
+    {
+      "start_step": 1200,
+      "flap_velocity_peak_hz": 4.6000000000000005,
+      "squared_flap_velocity_peak_hz": 9.200000000000001,
+      "tail_world_vertical_acceleration_peak_hz": 9.200000000000001,
+      "largest_absolute_correlation_over_plus_minus_0_2s": {
+        "lag_steps": 6,
+        "correlation": 0.8931943788115672
+      }
+    }
+  ],
+  "inputs": {
+    "sim-flap-velocity.json": "f3dbda512e4e42a17283056890e398d003ad37ab46c80d92a13f5fcdd42d75b2",
+    "sim-tail-states.json": "2b6ac85e48fb7fe37bf6affac6ca3a22acc7299dfacef99561e27f845f8d89ed",
+    "fit-training.json": "23dcc7b417c0eb48d2dff3b94390c7e143e8787663644174f43b4597d2e5cc7f"
+  },
+  "scope": "Post-hoc spectral and lagged association, not force attribution: phase-harmonic structure can occur for several reasons; squared joint velocity is only one factor in the unsteady wing closure. Four dependent windows from one simulated lane; not crow kinematics."
+}

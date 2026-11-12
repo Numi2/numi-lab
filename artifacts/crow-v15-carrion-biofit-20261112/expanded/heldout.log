@@ -1,0 +1,33 @@
+{
+  "training_commit": "96d91e799",
+  "training_result_sha256": "23dcc7b417c0eb48d2dff3b94390c7e143e8787663644174f43b4597d2e5cc7f",
+  "selected": "crow-v15-sweep-pitch-feedback-screen-20261112",
+  "sim_median_peak_hz": 9.200000000000001,
+  "sim_median_concentration": 0.8737234100888445,
+  "held_out_subjects": [
+    {
+      "individual_id": 8,
+      "count": 12,
+      "peak_hz": 4.300000000000001,
+      "concentration": 0.5837219532152478,
+      "absolute_peak_difference_hz": 4.9,
+      "absolute_concentration_difference": 0.2900014568735967,
+      "score": 6.060005827494387
+    },
+    {
+      "individual_id": 9,
+      "count": 0,
+      "status": "no usable flying windows in selected clip"
+    },
+    {
+      "individual_id": 10,
+      "count": 9,
+      "peak_hz": 6.2,
+      "concentration": 0.5285615491037,
+      "absolute_peak_difference_hz": 3.000000000000001,
+      "absolute_concentration_difference": 0.34516186098514445,
+      "score": 4.380647443940578
+    }
+  ],
+  "scope": "Only two of three held-out carrion crows supplied selected flying windows. Tail feather tag and simulated tail COM are different sensors; no flapping-only annotation, independent simulation replicate, or biological qualification."
+}
