@@ -1,0 +1,86 @@
+{
+  "rows": [
+    {
+      "lane": 0,
+      "baseline_lane": 0,
+      "last_pre_shift_interval": 87,
+      "states_compared": 87,
+      "contacts_compared": 2784,
+      "state_mismatch_examples": [],
+      "contact_mismatch_examples": [],
+      "pass": true
+    },
+    {
+      "lane": 1,
+      "baseline_lane": 1,
+      "last_pre_shift_interval": 97,
+      "states_compared": 97,
+      "contacts_compared": 3104,
+      "state_mismatch_examples": [],
+      "contact_mismatch_examples": [],
+      "pass": true
+    },
+    {
+      "lane": 2,
+      "baseline_lane": 2,
+      "last_pre_shift_interval": 86,
+      "states_compared": 86,
+      "contacts_compared": 2752,
+      "state_mismatch_examples": [],
+      "contact_mismatch_examples": [],
+      "pass": true
+    },
+    {
+      "lane": 3,
+      "baseline_lane": 3,
+      "last_pre_shift_interval": 99,
+      "states_compared": 99,
+      "contacts_compared": 3168,
+      "state_mismatch_examples": [],
+      "contact_mismatch_examples": [],
+      "pass": true
+    },
+    {
+      "lane": 4,
+      "baseline_lane": 4,
+      "last_pre_shift_interval": 85,
+      "states_compared": 85,
+      "contacts_compared": 2720,
+      "state_mismatch_examples": [],
+      "contact_mismatch_examples": [],
+      "pass": true
+    },
+    {
+      "lane": 5,
+      "baseline_lane": 5,
+      "last_pre_shift_interval": 95,
+      "states_compared": 95,
+      "contacts_compared": 3040,
+      "state_mismatch_examples": [],
+      "contact_mismatch_examples": [],
+      "pass": true
+    },
+    {
+      "lane": 6,
+      "baseline_lane": 6,
+      "last_pre_shift_interval": 86,
+      "states_compared": 86,
+      "contacts_compared": 2752,
+      "state_mismatch_examples": [],
+      "contact_mismatch_examples": [],
+      "pass": true
+    },
+    {
+      "lane": 7,
+      "baseline_lane": 7,
+      "last_pre_shift_interval": 116,
+      "states_compared": 116,
+      "contacts_compared": 3712,
+      "state_mismatch_examples": [],
+      "contact_mismatch_examples": [],
+      "pass": true
+    }
+  ],
+  "pass": true,
+  "scope": "exact pre-shift comparison; controller switch follows support streak 50"
+}

@@ -1,0 +1,42 @@
+{
+  "rows": [
+    {
+      "lane": 0,
+      "last_100_intervals_failed_criteria": {
+        "left_support": 1
+      },
+      "first_examples": {
+        "left_support": {
+          "step": 524,
+          "left_impulse": -0.00019466929407999968,
+          "right_impulse": 0.08776395117999998,
+          "left_front_vertical_impulse": 0.020120959101,
+          "left_rear_vertical_impulse": -0.024064269803,
+          "right_front_vertical_impulse": 0.053994632094199996,
+          "right_rear_vertical_impulse": -0.09176753583690002
+        }
+      },
+      "toe_cap_samples": []
+    },
+    {
+      "lane": 3,
+      "last_100_intervals_failed_criteria": {},
+      "first_examples": {},
+      "toe_cap_samples": [
+        {
+          "step": 262,
+          "substep": 5,
+          "toe_velocity_slot": 14,
+          "velocity": -12.0
+        },
+        {
+          "step": 262,
+          "substep": 6,
+          "toe_velocity_slot": 14,
+          "velocity": -12.0
+        }
+      ]
+    }
+  ],
+  "scope": "Development bench; logged impulses and sampled toe velocity, not proof of physical root cause. Counts are dependent interval observations."
+}
