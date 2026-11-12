@@ -1,0 +1,91 @@
+{
+  "matched_pre_turn_samples": 48,
+  "pre_turn_mismatches": 0,
+  "rows": [
+    {
+      "lane": 0,
+      "target_max_bank_rad": 0.15,
+      "terminal_step": 800,
+      "heading_error_rad": 1.4675322421835086,
+      "max_abs_sampled_roll_rad": 0.028329675502400283,
+      "sample_height_range_m": [
+        0.914629996,
+        0.949235141
+      ],
+      "final_ground_speed_m_s": 0.25266186720892736,
+      "final_track_minus_heading_rad": 0.9314498504549914,
+      "toe_caps": 0
+    },
+    {
+      "lane": 1,
+      "target_max_bank_rad": 0.15,
+      "terminal_step": 800,
+      "heading_error_rad": 1.534521733837595,
+      "max_abs_sampled_roll_rad": 0.02902704569329782,
+      "sample_height_range_m": [
+        0.916706443,
+        0.962260842
+      ],
+      "final_ground_speed_m_s": 0.20907479483689434,
+      "final_track_minus_heading_rad": -1.5273286182829828,
+      "toe_caps": 14
+    },
+    {
+      "lane": 2,
+      "target_max_bank_rad": 0.3,
+      "terminal_step": 800,
+      "heading_error_rad": 1.468169423118694,
+      "max_abs_sampled_roll_rad": 0.05838283094678352,
+      "sample_height_range_m": [
+        0.918180108,
+        0.944931209
+      ],
+      "final_ground_speed_m_s": 0.461405774878567,
+      "final_track_minus_heading_rad": 1.0751612939513249,
+      "toe_caps": 6
+    },
+    {
+      "lane": 3,
+      "target_max_bank_rad": 0.3,
+      "terminal_step": 800,
+      "heading_error_rad": 1.5393441442533535,
+      "max_abs_sampled_roll_rad": 0.05974439012243698,
+      "sample_height_range_m": [
+        0.921924055,
+        0.984396756
+      ],
+      "final_ground_speed_m_s": 0.4250062328432046,
+      "final_track_minus_heading_rad": -1.6747390459618114,
+      "toe_caps": 0
+    },
+    {
+      "lane": 4,
+      "target_max_bank_rad": 0.45,
+      "terminal_step": 800,
+      "heading_error_rad": 1.4669885618471705,
+      "max_abs_sampled_roll_rad": 0.138437546985624,
+      "sample_height_range_m": [
+        0.982473731,
+        1.13788831
+      ],
+      "final_ground_speed_m_s": 1.4626087158876802,
+      "final_track_minus_heading_rad": 1.1971269547521435,
+      "toe_caps": 0
+    },
+    {
+      "lane": 5,
+      "target_max_bank_rad": 0.45,
+      "terminal_step": 800,
+      "heading_error_rad": 1.5184764150729593,
+      "max_abs_sampled_roll_rad": 0.14723160056844986,
+      "sample_height_range_m": [
+        0.988035321,
+        1.26847088
+      ],
+      "final_ground_speed_m_s": 1.3931368244790594,
+      "final_track_minus_heading_rad": -1.832107112434774,
+      "toe_caps": 0
+    }
+  ],
+  "scope": "Sparse logged snapshots only; no continuous extrema or biological bank calibration. Direct body moments persist through the assisted launch, then are off from 9 seconds. Used development seed; not qualified flight."
+}

@@ -1,0 +1,5 @@
+# Bounded wing roll-feedback screen
+
+All six first episodes reach 16 s in the used, obstacle-free development scenario. Removing body moments from 9 s, we applied a bounded differential wing-position residual from measured roll and roll rate, with paired +/-90 degree heading demands and target bank magnitudes 0.15, 0.30 and 0.45 rad. The previous open-loop wing screen and this experiment have 48 exactly matching sparse pre-turn q, v and action samples. Early takeoff remains assisted.
+
+By the final sample, heading errors remain 1.47–1.54 rad. Sampled final roll is much smaller than the previous open-loop screen, but ground-velocity direction still differs from body heading by about 0.93–1.83 rad, with speeds 0.21–1.46 m/s. This is not a successful commanded turn. Two lanes have toe velocity-cap events before the observed flight phase; neither has such an event after interval 400. Sparse data do not establish the continuous extrema, safe perturbed flight, actual aerodynamic moment balance, biological realism, or path completion. The controller is not promoted.

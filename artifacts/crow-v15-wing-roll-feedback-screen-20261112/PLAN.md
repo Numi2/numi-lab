@@ -1,0 +1,5 @@
+# Exploratory bounded roll-feedback flight screen
+
+Hypothesis: feedback on measured roll and roll rate can reduce excessive bank while bilateral wing asymmetry steers. Existing direct body moments remain active during early launch but are disabled in this diagnostic flight phase; no new body wrench is applied. This does not qualify flight or implement navigation.
+
+Protocol: same six-lane obstacle-free used development seed and initial conditions as the previous reverse-wing screen, same +/-90-degree demands after 9 s, with exploratory maximum bank angles 0.15, 0.30 and 0.45 rad and proportional/derivative gains 0.9 and 0.12. Fixed before the run. Report first-episode survival, body heading and course, sideslip, vertical motion, saturation and contact flags. Do not promote unless straight flight, both turn directions, height changes and recoveries succeed on perturbations with independent starts and no unphysical assistance. The magnitude is a control design parameter, not a biological measurement.
