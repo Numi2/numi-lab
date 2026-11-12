@@ -1,0 +1,3 @@
+# Extend the continuous development-route landing
+
+The previous run stopped at 3800 intervals, shortly after one development lane settled on the wide course platform. Re-run that exact used seed/layout and controller for 4400 intervals, without scheduled resets or teacher, keeping full accepted contact evidence. Compare the overlapping first-episode prefix to the archived 3800-interval run before interpreting any continuation. Measure physical support, toe joint angles and deliberate release or its absence; preserve physical failures. This is a development diagnostic of the existing controller, not a qualified gait, flight controller or unused-layout mission.

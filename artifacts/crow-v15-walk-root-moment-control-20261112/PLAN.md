@@ -1,0 +1,3 @@
+# Root-moment counterfactual during walking
+
+Matched to the integrated gait candidate, temporarily allow the existing task body-moment actions only from 4–6 seconds; otherwise retain the same shader, host, model and policy. Compare against the prior no-direct-moment candidate at identical starts. Exact parity before 4 seconds is required. This counterfactual intentionally adds artificial authority and can only diagnose sensitivity; it must not be promoted as physical gait. If support changes, it still does not prove it explains all differences between the earlier isolated gait and the integrated model.
