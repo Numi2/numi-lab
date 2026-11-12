@@ -1,0 +1,199 @@
+{
+  "rows": [
+    {
+      "lane": 0,
+      "command": "baseline",
+      "end_step": 1200,
+      "termination": 0,
+      "height_range_m": [
+        1.07223952,
+        1.22528195
+      ],
+      "mean_world_vx_m_s": 0.23448545592116668,
+      "mean_abs_world_vy_m_s": 0.093671625846015,
+      "final_position_m": [
+        4.17864513,
+        0.191316351,
+        1.18517137
+      ],
+      "final_velocity_m_s": [
+        0.186504543,
+        0.194240868,
+        0.0936440974
+      ]
+    },
+    {
+      "lane": 1,
+      "command": "baseline",
+      "end_step": 1200,
+      "termination": 0,
+      "height_range_m": [
+        1.05409408,
+        1.23336136
+      ],
+      "mean_world_vx_m_s": 0.236119866778,
+      "mean_abs_world_vy_m_s": 0.11012341212846917,
+      "final_position_m": [
+        4.25877619,
+        0.305685133,
+        1.18274939
+      ],
+      "final_velocity_m_s": [
+        0.183150813,
+        0.193686858,
+        0.0999415144
+      ]
+    },
+    {
+      "lane": 2,
+      "command": {
+        "speed_m_s": 0.35,
+        "height_m": 0.95
+      },
+      "end_step": 1200,
+      "termination": 0,
+      "height_range_m": [
+        1.01591384,
+        1.074705
+      ],
+      "mean_world_vx_m_s": 0.20380059124720834,
+      "mean_abs_world_vy_m_s": 0.027748730180065,
+      "final_position_m": [
+        3.77506137,
+        -0.332587063,
+        1.05082965
+      ],
+      "final_velocity_m_s": [
+        0.190082267,
+        -0.0424090922,
+        0.0953182951
+      ]
+    },
+    {
+      "lane": 3,
+      "command": {
+        "speed_m_s": 0.35,
+        "height_m": 1.1
+      },
+      "end_step": 1200,
+      "termination": 0,
+      "height_range_m": [
+        1.16615105,
+        1.22442508
+      ],
+      "mean_world_vx_m_s": 0.20457283442684165,
+      "mean_abs_world_vy_m_s": 0.027119776952698668,
+      "final_position_m": [
+        3.75297022,
+        -0.361021996,
+        1.20080495
+      ],
+      "final_velocity_m_s": [
+        0.19095844,
+        -0.0420095958,
+        0.0951637551
+      ]
+    },
+    {
+      "lane": 4,
+      "command": {
+        "speed_m_s": 0.55,
+        "height_m": 0.95
+      },
+      "end_step": 1200,
+      "termination": 0,
+      "height_range_m": [
+        1.02281284,
+        1.0743736
+      ],
+      "mean_world_vx_m_s": 0.42690382431833335,
+      "mean_abs_world_vy_m_s": 0.0577739804395,
+      "final_position_m": [
+        6.60396481,
+        -0.712417185,
+        1.05528629
+      ],
+      "final_velocity_m_s": [
+        0.413458079,
+        -0.0948668271,
+        0.0857220218
+      ]
+    },
+    {
+      "lane": 5,
+      "command": {
+        "speed_m_s": 0.55,
+        "height_m": 1.1
+      },
+      "end_step": 1200,
+      "termination": 0,
+      "height_range_m": [
+        1.17303407,
+        1.22400963
+      ],
+      "mean_world_vx_m_s": 0.42625306943333335,
+      "mean_abs_world_vy_m_s": 0.0598939570915,
+      "final_position_m": [
+        6.66897345,
+        -0.759188235,
+        1.20527577
+      ],
+      "final_velocity_m_s": [
+        0.412890792,
+        -0.0969308689,
+        0.085767284
+      ]
+    },
+    {
+      "lane": 6,
+      "command": {
+        "speed_m_s": 0.75,
+        "height_m": 0.95
+      },
+      "end_step": 1200,
+      "termination": 0,
+      "height_range_m": [
+        1.03310347,
+        1.07304502
+      ],
+      "mean_world_vx_m_s": 0.6455220274083333,
+      "mean_abs_world_vy_m_s": 0.09217286659666667,
+      "final_position_m": [
+        9.58393192,
+        -1.17531872,
+        1.06091058
+      ],
+      "final_velocity_m_s": [
+        0.636935413,
+        -0.152130827,
+        0.0771087855
+      ]
+    },
+    {
+      "lane": 7,
+      "command": {
+        "speed_m_s": 0.75,
+        "height_m": 1.1
+      },
+      "end_step": 1200,
+      "termination": 0,
+      "height_range_m": [
+        1.18328643,
+        1.22196913
+      ],
+      "mean_world_vx_m_s": 0.646887282425,
+      "mean_abs_world_vy_m_s": 0.0911926877565,
+      "final_position_m": [
+        9.61853981,
+        -1.14914322,
+        1.21072495
+      ],
+      "final_velocity_m_s": [
+        0.638967276,
+        -0.151532531,
+        0.0770399272
+      ]
+    }
+  ],
+  "scope": "50 Hz endpoint samples; world velocity differs from body-relative requested speed."
+}
