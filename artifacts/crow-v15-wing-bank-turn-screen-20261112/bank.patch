@@ -1,0 +1,25 @@
+--- a/reference.metal
++++ b/bank.metal
+@@ -4994,7 +4994,7 @@
+         const uint mode=environment%6u;
+         const float seconds=float(state.episode.x)*dispatch.timing.x;
+         const float heading=-state.commandExtension.x;
+-        const float desired=seconds<9.0f ? 0.0f : mode==0u ? 1.5707963f : mode==1u ? -1.5707963f : mode==2u ? 3.1415926f : mode==3u ? -3.1415926f : 0.0f;
++        const float desired=seconds<9.0f ? 0.0f : (mode%2u)==0u ? 1.5707963f : -1.5707963f;
+         const float error=atan2(sin(desired-heading),cos(desired-heading));
+         const float4 actorCommand=float4(.35f,0.0f,clamp(error,-.15f,.15f),.85f);
+         const bool privilegedCommand = (dispatch.sampling.w != 0u && dispatch.assistance.x < 0.5f);
+@@ -5155,6 +5155,13 @@
+         if (fixedFlightController && false && float(state.episode.x)*dispatch.timing.x >= 9.0f && (action == 2u || action == 3u)) {
+             const float sweep = clamp(-1.25f * oracleCommand.z - 0.08f * carrierState.commandExtension.y, -0.35f, 0.35f);
+             navigationTeacherRequested = action == 2u ? sweep : -sweep;
++        }
++        // After the existing launch, command a bounded differential wingbeat
++        // at the actual position actuators; this applies no new body moment.
++        if (fixedFlightController && seconds >= 9.0f && action < 2u) {
++            const float strength[3]={0.12f,0.24f,0.36f};
++            const float bank=clamp(strength[(environment%6u)/2u]*error/1.5707963f,-strength[(environment%6u)/2u],strength[(environment%6u)/2u]);
++            navigationTeacherRequested=clamp(navigationTeacherRequested+(action==0u ? bank : -bank),-1.0f,1.0f);
+         }
+         const float navigationTeacherBlend = fixedFlightController
+             ? 1.0f

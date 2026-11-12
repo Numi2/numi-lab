@@ -1,0 +1,127 @@
+{
+  "prefix_samples": 48,
+  "prefix_mismatches": [],
+  "rows": [
+    {
+      "lane": 0,
+      "target_sign": 1,
+      "strength": 0.12,
+      "matched_sample_steps": [
+        500,
+        600,
+        700,
+        800
+      ],
+      "mean_left_flap_delta_rad": 0.002737053250000017,
+      "mean_right_flap_delta_rad": -0.0035574030000000284,
+      "max_abs_flap_delta_rad": 0.011056706999999999,
+      "final_yaw_rad": 0.10750397658622551,
+      "prior_final_yaw_rad": 0.10500015672679301,
+      "sample_height_range_m": [
+        0.917912066,
+        0.973924279
+      ]
+    },
+    {
+      "lane": 1,
+      "target_sign": -1,
+      "strength": 0.12,
+      "matched_sample_steps": [
+        500,
+        600,
+        700,
+        800
+      ],
+      "mean_left_flap_delta_rad": -0.003987680750000035,
+      "mean_right_flap_delta_rad": 0.002780236499999998,
+      "max_abs_flap_delta_rad": 0.011489166999999995,
+      "final_yaw_rad": -0.0560304421630575,
+      "prior_final_yaw_rad": -0.044672726304224045,
+      "sample_height_range_m": [
+        0.908471346,
+        0.945637226
+      ]
+    },
+    {
+      "lane": 2,
+      "target_sign": 1,
+      "strength": 0.24,
+      "matched_sample_steps": [
+        500,
+        600,
+        700,
+        800
+      ],
+      "mean_left_flap_delta_rad": -0.0029713062500000137,
+      "mean_right_flap_delta_rad": -0.008974883999999995,
+      "max_abs_flap_delta_rad": 0.02448617,
+      "final_yaw_rad": 0.1066066576893948,
+      "prior_final_yaw_rad": 0.10490862907790256,
+      "sample_height_range_m": [
+        0.932155371,
+        0.998566031
+      ]
+    },
+    {
+      "lane": 3,
+      "target_sign": -1,
+      "strength": 0.24,
+      "matched_sample_steps": [
+        500,
+        600,
+        700,
+        800
+      ],
+      "mean_left_flap_delta_rad": -0.009032487749999978,
+      "mean_right_flap_delta_rad": -0.00487393475000001,
+      "max_abs_flap_delta_rad": 0.023940533000000014,
+      "final_yaw_rad": -0.06574643212285942,
+      "prior_final_yaw_rad": 0.10478991767417589,
+      "sample_height_range_m": [
+        0.925752699,
+        0.945759416
+      ]
+    },
+    {
+      "lane": 4,
+      "target_sign": 1,
+      "strength": 0.36,
+      "matched_sample_steps": [
+        500,
+        600,
+        700,
+        800
+      ],
+      "mean_left_flap_delta_rad": 0.012608490750000027,
+      "mean_right_flap_delta_rad": 0.04007854275000003,
+      "max_abs_flap_delta_rad": 0.0836352090000001,
+      "final_yaw_rad": -0.126996875371566,
+      "prior_final_yaw_rad": 0.03908917432295766,
+      "sample_height_range_m": [
+        1.0419147,
+        1.53535461
+      ]
+    },
+    {
+      "lane": 5,
+      "target_sign": -1,
+      "strength": 0.36,
+      "matched_sample_steps": [
+        500,
+        600,
+        700,
+        800
+      ],
+      "mean_left_flap_delta_rad": 0.030789826249999992,
+      "mean_right_flap_delta_rad": -0.004748929249999985,
+      "max_abs_flap_delta_rad": 0.068250075,
+      "final_yaw_rad": 0.11098014150334916,
+      "prior_final_yaw_rad": 0.03911324382040729,
+      "sample_height_range_m": [
+        1.04241872,
+        1.36857009
+      ]
+    }
+  ],
+  "scope": "Matched baseline source until 9 s. 0/1 retain same targets after 9 s, remaining modes have different target commands. Sparse flap samples cannot measure stroke amplitude, aerodynamic forces, continuous extremes, or physical wing-generated turning. Previously used seed, two known direct body moments disabled only from 9 s onward."
+}
