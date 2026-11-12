@@ -1,0 +1,16 @@
+from pathlib import Path
+import hashlib,json,shlex,subprocess
+R=Path.cwd();A=R/"artifacts/crow-v15-contact-timed-wing-screen-20261112";B=R/"build/crow-v15-contact-timed-wing-screen-20261112";M=R/"build/crow-v15-matched-binary-gait-screen-20261112";W=R/"build/crow-v15-wide-contact-isolation-20261111";P=R/"build/crow-v15-gait-slip-observer-20261112";F=R/"artifacts/crow-v15-flight-feedback-freeze-20261110"
+lines=subprocess.check_output(["/opt/homebrew/bin/ninja","-C",str(R/"build"),"-t","commands"],text=True).splitlines();line=next(x for x in lines if " -c "+str(R/"src/metal/MetalWorld.mm") in x);args=shlex.split(line);obj=B/"MetalWorld.mm.o"
+for k,v in [("-o",str(obj)),("-MF",str(obj)+".d"),("-MT",str(obj))]:args[args.index(k)+1]=v
+args[-1]=str(B/"MetalWorld.mm");args[1:1]=["-I"+str(W/"include"),"-I"+str(R/"src/metal"),"-I"+str(R/"artifacts/crow-clearance-observer-20261109")];subprocess.run(args,cwd=R/"build",check=True)
+line=next(x for x in lines if x.startswith(": && /usr/bin/c++") and "-dynamiclib" in x and " -o lib/libmetalrobo.dylib " in x);args=shlex.split(line[len(": && "):-len(" && :")]);args[args.index("-o")+1]=str(B/"libmetalrobo.dylib");args[args.index("CMakeFiles/metalrobo.dir/src/c_api.cpp.o")]=str(P/"c_api.cpp.o");args[args.index("CMakeFiles/metalrobo.dir/src/core/TaskProgram.cpp.o")]=str(M/"TaskProgram.cpp.o")
+files=["src/core/CompiledMetalMultiArticulatedProgram.cpp","src/core/CompiledMetalMultiArticulatedContactProgram.cpp","src/metal/MetalArticulatedInverseMass.mm","src/metal/MetalArticulatedABA.mm","src/metal/MetalWorld.mm","src/metal/MetalMultiArticulatedContact.mm","src/metal/MetalMultiArticulatedABA.mm","src/metal/MetalMultiArticulatedInverseMass.mm"]
+for i,n in enumerate(files):
+ key="CMakeFiles/metalrobo.dir/"+n+".o";assert key in args;args[args.index(key)]=str(obj if i==4 else W/(str(i)+".o"))
+subprocess.run(args,cwd=R/"build",check=True)
+for label in ("wing700","wing702","wing700inv","wing702inv","wingramp"):
+ subprocess.run(["xcrun","-sdk","macosx","metal","-std=metal4.0","-O3","-fno-fast-math","-I",str(F),"-I",str(W/"include"),"-I",str(R/"include"),"-I",str(R/"src/metal"),"-c",str(A/(label+".metal")),"-o",str(B/(label+".air"))],check=True)
+ replaced={p.name:p for p in (W/"shaders").glob("*.air")};airs=[str((R/"build/crow-v15-walk-exact-bypass-20261112/World.air") if p.name=="MetalRoboWorld.air" else replaced.get(p.name,p)) for p in sorted((R/"build/shaders").glob("MetalRobo*.air")) if p.name not in ("MetalRoboLocomotionTask.air","MetalRoboFlappingWingDynamics.air")]
+ subprocess.run(["xcrun","-sdk","macosx","metallib",*airs,str(R/"build/crow-v15-wing-aero-alignment-20261110/aero.air"),str(B/(label+".air")),"-o",str(B/(label+".metallib"))],check=True)
+h=lambda p:hashlib.sha256(p.read_bytes()).hexdigest();(A/"hashes.json").write_text(json.dumps({"observer_host":h(B/"libmetalrobo.dylib"),"observer_source":h(B/"MetalWorld.mm"),"baseline_host":h(R/"build/crow-v15-stance-contact-velocity-audit-20261112/libmetalrobo.dylib"),"baseline_metal":h(R/"build/crow-v15-moderate-walk-flight-integration-20261112/flexed.metallib"),**{x+"_metal":h(B/(x+".metallib")) for x in ("wing700","wing702","wing700inv","wing702inv","wingramp")}},indent=2)+"\n")
