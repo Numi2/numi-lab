@@ -1,0 +1,60 @@
+--- a/observer.mm
++++ b/slip_observer.mm
+@@ -21427,6 +21427,7 @@
+             const unsigned long long crowTraceStep = crowTraceEnabled ? ++crowTraceSubmission : 0;
+             const bool crowTraceWindow = crowTraceEnabled && crowTraceStep >= 1 && crowTraceStep <= 5005;
+             NSMutableArray<id<MTLBuffer>>* crowTraceBuffers = crowTraceWindow ? [NSMutableArray array] : nil;
++            NSMutableArray<id<MTLBuffer>>* crowAeroBuffers = crowTraceWindow ? [NSMutableArray array] : nil;
+             const NSUInteger crowTraceCapacity = diagnostics.layout.contactDispatch.constraintCapacity;
+             const NSUInteger crowTraceLanes = batch.environmentCount;
+             const NSUInteger crowTraceVStride = diagnostics.layout.dispatch.vStride;
+@@ -21768,13 +21769,25 @@
+                         ) &&
+                         (
+                             !config.flappingWingProgram.valid() ||
+-                            encodeFlappingWingActuation(
++                            (encodeFlappingWingActuation(
+                                 *selectedState,
+                                 commandBuffer,
+                                 sourceQ,
+                                 sourceV,
+                                 batch.environmentCount
+-                            )
++                            ) && ([&]() -> bool {
++                                if (!(crowTraceWindow && crowTraceStep>=651 && crowTraceStep<=700)) return true;
++                                for (NSUInteger index : {static_cast<std::size_t>(kBodyWrenchPlaceholder), sourceQ, sourceV}) {
++                                    id<MTLBuffer> input = selectedState->buffers[index];
++                                    id<MTLBuffer> copy = [selectedState->device newBufferWithLength:input.length options:MTLResourceStorageModeShared];
++                                    if (copy == nil) throw std::bad_alloc();
++                                    id<MTLBlitCommandEncoder> blit = [commandBuffer blitCommandEncoder];
++                                    [blit copyFromBuffer:input sourceOffset:0 toBuffer:copy destinationOffset:0 size:input.length];
++                                    [blit endEncoding];
++                                    [crowAeroBuffers addObject:copy];
++                                }
++                                return true;
++                            })())
+                         ) &&
+                         (
+                             useHybridContact ||
+@@ -22402,6 +22415,21 @@
+                             state.nutrition.x,state.nutrition.y,state.commandAndPhase.y,state.commandAndPhase.z,
+                             state.threatGeometry.y,state.threatGeometry.z,state.threatGeometry.w);
+                     }
++                    for (NSUInteger sub=0; sub<crowAeroBuffers.count/3; ++sub) {
++                        const auto* wrenches=static_cast<const MRABABodyWrenchGPU*>(crowAeroBuffers[3*sub].contents);
++                        const auto* coords=static_cast<const float*>(crowAeroBuffers[3*sub+1].contents);
++                        const auto* velocity=static_cast<const float*>(crowAeroBuffers[3*sub+2].contents);
++                        for (NSUInteger lane=0;lane<crowTraceLanes;++lane) {
++                            std::fprintf(stderr,"CROW_AERO_STATE %llu %lu %lu",crowTraceStep,(unsigned long)sub,(unsigned long)lane);
++                            for (NSUInteger j=0;j<crowTraceQStride;++j) std::fprintf(stderr," %.9g",coords[lane*crowTraceQStride+j]);
++                            for (NSUInteger j=0;j<crowTraceVStride;++j) std::fprintf(stderr," %.9g",velocity[lane*crowTraceVStride+j]);
++                            std::fprintf(stderr,"\n");
++                            for (NSUInteger body : {0u,5u,6u,7u}) {
++                                const auto& w=wrenches[lane*diagnostics.layout.contactDispatch.bodyStateStride+body];
++                                std::fprintf(stderr,"CROW_AERO_WRENCH %llu %lu %lu %lu %.9g %.9g %.9g %.9g %.9g %.9g\n",crowTraceStep,(unsigned long)sub,(unsigned long)lane,(unsigned long)body,w.force.x,w.force.y,w.force.z,w.torque.x,w.torque.y,w.torque.z);
++                            }
++                        }
++                    }
+                     for (NSUInteger sub=0; sub<crowTraceBuffers.count/5; ++sub) {
+                         id<MTLBuffer> cb=crowTraceBuffers[5*sub], sb=crowTraceBuffers[5*sub+1], vb=crowTraceBuffers[5*sub+2], qb=crowTraceBuffers[5*sub+3], tb=crowTraceBuffers[5*sub+4];
+                         const auto* targets=static_cast<const float*>(tb.contents);

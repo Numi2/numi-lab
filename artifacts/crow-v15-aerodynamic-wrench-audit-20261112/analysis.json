@@ -1,0 +1,271 @@
+{
+  "sampling": {
+    "control_steps": [
+      651,
+      700
+    ],
+    "physics_substeps": 16,
+    "lanes": 8,
+    "states": 6400
+  },
+  "method": "sum world-frame body wrenches and moment arms about torso COM, project onto torso up axis; kinematics reconstructed from source q/v at wing-kernel time",
+  "rows": [
+    {
+      "lane": 0,
+      "crow_body_mean_yaw_nm": 0.00013269279157930344,
+      "crow_body_yaw_range_nm": [
+        -0.00013484270771417026,
+        0.0005631580477756689
+      ],
+      "crow_left_wing_mean_yaw_nm": 0.02074752502522608,
+      "crow_left_wing_yaw_range_nm": [
+        -0.0011860594612671013,
+        0.1268497214358138
+      ],
+      "crow_right_wing_mean_yaw_nm": -0.020870196433129942,
+      "crow_right_wing_yaw_range_nm": [
+        -0.12776171636863612,
+        0.0009520612952756584
+      ],
+      "crow_tail_mean_yaw_nm": -2.9569407692145662e-05,
+      "crow_tail_yaw_range_nm": [
+        -0.0001495546211642532,
+        -1.0621067561385618e-06
+      ],
+      "total_mean_yaw_nm": -1.9548024016703594e-05,
+      "total_yaw_range_nm": [
+        -0.0014788200471838667,
+        0.0010897740105107637
+      ],
+      "crow_left_wing_mean_fx_n": 0.10570953318875546,
+      "crow_left_wing_mean_fz_n": 2.1827616388011664,
+      "crow_right_wing_mean_fx_n": 0.10513680478711525,
+      "crow_right_wing_mean_fz_n": 2.1797537694142375
+    },
+    {
+      "lane": 1,
+      "crow_body_mean_yaw_nm": 0.0001312461928149907,
+      "crow_body_yaw_range_nm": [
+        -0.00013408435922502546,
+        0.0005607669151296874
+      ],
+      "crow_left_wing_mean_yaw_nm": 0.02074662626985503,
+      "crow_left_wing_yaw_range_nm": [
+        -0.0011842124155123901,
+        0.12688435027206618
+      ],
+      "crow_right_wing_mean_yaw_nm": -0.02087306890246305,
+      "crow_right_wing_yaw_range_nm": [
+        -0.12780903250981213,
+        0.0009501401968197202
+      ],
+      "crow_tail_mean_yaw_nm": -2.9689384717786094e-05,
+      "crow_tail_yaw_range_nm": [
+        -0.00014915431786944702,
+        -1.1129466592726882e-06
+      ],
+      "total_mean_yaw_nm": -2.4885824510814092e-05,
+      "total_yaw_range_nm": [
+        -0.0014774779144315687,
+        0.0010922681157347082
+      ],
+      "crow_left_wing_mean_fx_n": 0.10308127004377995,
+      "crow_left_wing_mean_fz_n": 2.1828304498031335,
+      "crow_right_wing_mean_fx_n": 0.10248491415663663,
+      "crow_right_wing_mean_fz_n": 2.1799067122837017
+    },
+    {
+      "lane": 2,
+      "crow_body_mean_yaw_nm": 8.347708852029227e-05,
+      "crow_body_yaw_range_nm": [
+        -6.771650633013052e-05,
+        0.00034982534404974795
+      ],
+      "crow_left_wing_mean_yaw_nm": 0.020632805759080854,
+      "crow_left_wing_yaw_range_nm": [
+        -0.0015395558000910869,
+        0.12658648552726617
+      ],
+      "crow_right_wing_mean_yaw_nm": -0.0207616382930947,
+      "crow_right_wing_yaw_range_nm": [
+        -0.12730839587033593,
+        0.0015341103431117642
+      ],
+      "crow_tail_mean_yaw_nm": -3.838638328523373e-05,
+      "crow_tail_yaw_range_nm": [
+        -0.00019563044198817105,
+        -2.388857664405599e-06
+      ],
+      "total_mean_yaw_nm": -8.374182877878701e-05,
+      "total_yaw_range_nm": [
+        -0.0014443248460458242,
+        0.0010087402446264208
+      ],
+      "crow_left_wing_mean_fx_n": 0.12785754116946338,
+      "crow_left_wing_mean_fz_n": 2.1790516264777042,
+      "crow_right_wing_mean_fx_n": 0.12770360668126127,
+      "crow_right_wing_mean_fz_n": 2.181449446610021
+    },
+    {
+      "lane": 3,
+      "crow_body_mean_yaw_nm": 9.434223326249275e-05,
+      "crow_body_yaw_range_nm": [
+        -9.657006944347885e-05,
+        0.00038412400645562305
+      ],
+      "crow_left_wing_mean_yaw_nm": 0.020621509734996137,
+      "crow_left_wing_yaw_range_nm": [
+        -0.0016447774147176322,
+        0.12677032457752413
+      ],
+      "crow_right_wing_mean_yaw_nm": -0.020876949823016296,
+      "crow_right_wing_yaw_range_nm": [
+        -0.12761353966312444,
+        0.0012650779344433975
+      ],
+      "crow_tail_mean_yaw_nm": -3.548244417053718e-05,
+      "crow_tail_yaw_range_nm": [
+        -0.00018403010687561376,
+        -2.472225157999029e-06
+      ],
+      "total_mean_yaw_nm": -0.00019658029892820453,
+      "total_yaw_range_nm": [
+        -0.002187462845717772,
+        0.0004524973308477128
+      ],
+      "crow_left_wing_mean_fx_n": 0.1191852939496171,
+      "crow_left_wing_mean_fz_n": 2.1808560933091825,
+      "crow_right_wing_mean_fx_n": 0.1181155820493865,
+      "crow_right_wing_mean_fz_n": 2.1803387368457225
+    },
+    {
+      "lane": 4,
+      "crow_body_mean_yaw_nm": 5.876537169097447e-05,
+      "crow_body_yaw_range_nm": [
+        -6.524979132987521e-05,
+        0.00025388623186288993
+      ],
+      "crow_left_wing_mean_yaw_nm": 0.02067109804181761,
+      "crow_left_wing_yaw_range_nm": [
+        -0.001424126127291011,
+        0.1266793404227671
+      ],
+      "crow_right_wing_mean_yaw_nm": -0.020716638436891543,
+      "crow_right_wing_yaw_range_nm": [
+        -0.12711637374026252,
+        0.0016557966109059853
+      ],
+      "crow_tail_mean_yaw_nm": -4.036987427091481e-05,
+      "crow_tail_yaw_range_nm": [
+        -0.00020132417606676765,
+        -2.6423168723319737e-06
+      ],
+      "total_mean_yaw_nm": -2.7144897653870597e-05,
+      "total_yaw_range_nm": [
+        -0.0008019037475710825,
+        0.001256301631130665
+      ],
+      "crow_left_wing_mean_fx_n": 0.13225160786856463,
+      "crow_left_wing_mean_fz_n": 2.1774840582545454,
+      "crow_right_wing_mean_fx_n": 0.13276167013651,
+      "crow_right_wing_mean_fz_n": 2.18282821312647
+    },
+    {
+      "lane": 5,
+      "crow_body_mean_yaw_nm": 7.05506589507558e-05,
+      "crow_body_yaw_range_nm": [
+        -7.11324453915744e-05,
+        0.0003043765073794839
+      ],
+      "crow_left_wing_mean_yaw_nm": 0.020651790021578572,
+      "crow_left_wing_yaw_range_nm": [
+        -0.001668814860630947,
+        0.12670383086614448
+      ],
+      "crow_right_wing_mean_yaw_nm": -0.02088961981833184,
+      "crow_right_wing_yaw_range_nm": [
+        -0.12762422907536836,
+        0.00118907275975529
+      ],
+      "crow_tail_mean_yaw_nm": -3.652257553575299e-05,
+      "crow_tail_yaw_range_nm": [
+        -0.00018757083830808562,
+        -2.5081535392582393e-06
+      ],
+      "total_mean_yaw_nm": -0.00020380171333826542,
+      "total_yaw_range_nm": [
+        -0.0016222763818428245,
+        0.0004246798065606907
+      ],
+      "crow_left_wing_mean_fx_n": 0.12551599813854286,
+      "crow_left_wing_mean_fz_n": 2.18056300562884,
+      "crow_right_wing_mean_fx_n": 0.12447499318840588,
+      "crow_right_wing_mean_fz_n": 2.180759175838411
+    },
+    {
+      "lane": 6,
+      "crow_body_mean_yaw_nm": 4.825934040132741e-05,
+      "crow_body_yaw_range_nm": [
+        -6.184290325416457e-05,
+        0.00022609846408469688
+      ],
+      "crow_left_wing_mean_yaw_nm": 0.020707224376399005,
+      "crow_left_wing_yaw_range_nm": [
+        -0.001300514954709505,
+        0.12673972026881986
+      ],
+      "crow_right_wing_mean_yaw_nm": -0.02071373321599796,
+      "crow_right_wing_yaw_range_nm": [
+        -0.12708349891095,
+        0.0016959737282999866
+      ],
+      "crow_tail_mean_yaw_nm": -4.401485342805374e-05,
+      "crow_tail_yaw_range_nm": [
+        -0.0002187083514478894,
+        -2.5524913002192425e-06
+      ],
+      "total_mean_yaw_nm": -2.264352625680847e-06,
+      "total_yaw_range_nm": [
+        -0.0007686512911598388,
+        0.0015229856297156081
+      ],
+      "crow_left_wing_mean_fx_n": 0.13866856965368363,
+      "crow_left_wing_mean_fz_n": 2.17694072537782,
+      "crow_right_wing_mean_fx_n": 0.13962931965908126,
+      "crow_right_wing_mean_fz_n": 2.184288992202251
+    },
+    {
+      "lane": 7,
+      "crow_body_mean_yaw_nm": 6.246379208831363e-05,
+      "crow_body_yaw_range_nm": [
+        -3.11542609231803e-05,
+        0.00024703497431981854
+      ],
+      "crow_left_wing_mean_yaw_nm": 0.020673889452919734,
+      "crow_left_wing_yaw_range_nm": [
+        -0.0016610820078184338,
+        0.1267991400284822
+      ],
+      "crow_right_wing_mean_yaw_nm": -0.020910009456355114,
+      "crow_right_wing_yaw_range_nm": [
+        -0.12778232104008364,
+        0.0010908566207203894
+      ],
+      "crow_tail_mean_yaw_nm": -3.614767419916249e-05,
+      "crow_tail_yaw_range_nm": [
+        -0.000186021095659629,
+        -2.644436307131054e-06
+      ],
+      "total_mean_yaw_nm": -0.00020980388554622866,
+      "total_yaw_range_nm": [
+        -0.0012053642522704563,
+        0.000422212381426444
+      ],
+      "crow_left_wing_mean_fx_n": 0.12461355463502675,
+      "crow_left_wing_mean_fz_n": 2.1809720287368224,
+      "crow_right_wing_mean_fx_n": 0.12354685627489255,
+      "crow_right_wing_mean_fz_n": 2.181283097717595
+    }
+  ],
+  "limitations": "Wrench buffer is captured immediately after wing-load kernel, but may contain previously accumulated physical actuator contributions; torso includes fuselage and any separately accumulated root wrenches. This is an uncalibrated model diagnostic, not measured crow aerodynamics."
+}
