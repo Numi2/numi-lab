@@ -1,0 +1,3 @@
+# Matched no-extension-command control
+
+Compare exactly the previous early-wing diagnostic with the same initial conditions, wing onsets and body-moment ablation, but retain the crouch leg target rather than commanding leg extension in the 6.96–7.40 s push window. This isolates the incremental effect of the extension target in this model. It is not wing-only flight: legs still have contact, passive forces and active holding forces; later controller actions and empirical aerodynamics remain. Eight used development lanes, 16 substeps, teacher off, 10 s. Compare prefix parity, actual foot impulses and unload/recontact timing, root height and later support. Inspect wing motion relative to first unload. Do not infer isolated muscle work or crow validity from this control.
