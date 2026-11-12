@@ -1,0 +1,39 @@
+{
+  "3": {
+    "counts": {
+      "own_positive": 40,
+      "front_positive": 40,
+      "nonrear_positive": 40
+    },
+    "nonrear_fraction_min": 0.6813142612081442,
+    "nonrear_fraction_median": 0.828858103461932
+  },
+  "2": {
+    "counts": {
+      "own_positive": 40,
+      "front_positive": 40,
+      "nonrear_positive": 40
+    },
+    "nonrear_fraction_min": 0.18338603234781156,
+    "nonrear_fraction_median": 0.4021170517175897
+  },
+  "1": {
+    "counts": {
+      "own_positive": 40,
+      "front_positive": 40,
+      "nonrear_positive": 40
+    },
+    "nonrear_fraction_min": 0.02513120123916377,
+    "nonrear_fraction_median": 0.06525784143611976
+  },
+  "0": {
+    "counts": {
+      "own_positive": 40,
+      "front_positive": 40,
+      "nonrear_positive": 40
+    },
+    "nonrear_fraction_min": 0.010868892020288779,
+    "nonrear_fraction_median": 0.012993005653576754
+  },
+  "method": "Sums normal impulse over each 20ms interval and all grouped toe segments in the preceding failed matched candidate. Total own foot includes rear; subtracting rear is a nonrear load estimate, not a per-substep or future support guarantee."
+}
