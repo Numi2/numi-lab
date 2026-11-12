@@ -1,0 +1,40 @@
+{
+  "validation": [
+    {
+      "arm": "sham",
+      "exact_retained_sample_and_substep_hashes": {
+        "CROW_SUPPORT_SAMPLE": "14d876da94467c3c89bc76918bac0b9dedbae3cb77225d3f31aba44b815a1282",
+        "CROW_TWO_TOE_SUBSTEP": "f07e333d002c7be8369292252ec07cc0b2e65579b51c9b4bc547cbed42145b07"
+      },
+      "counts": {
+        "CROW_TWO_TOE_SUBSTEP": 38528,
+        "CROW_SUPPORT_SAMPLE": 2408
+      },
+      "ground_records": 38400,
+      "maximum_endpoint_reconstruction_error_Ns": 5.492493296115064e-10
+    },
+    {
+      "arm": "candidate",
+      "exact_retained_sample_and_substep_hashes": {
+        "CROW_SUPPORT_SAMPLE": "9923793b4f6a278aa46d29484371cab9f84623bf2616bbd91bcfa8f067d58a5c",
+        "CROW_TWO_TOE_SUBSTEP": "22d019e4639b160c8f0ebfb1be423d58fa2bbca1185dc33bb3ecacbfd88c0f64"
+      },
+      "counts": {
+        "CROW_TWO_TOE_SUBSTEP": 38528,
+        "CROW_SUPPORT_SAMPLE": 2408
+      },
+      "ground_records": 38400,
+      "maximum_endpoint_reconstruction_error_Ns": 2.496195862858319e-10
+    }
+  ],
+  "net_difference_Ns": [
+    -0.0019805224633875212,
+    -0.0019150657591844589,
+    -0.001961991348212705,
+    -0.0036415286600316385,
+    -0.0013296357831660416,
+    -0.0016843554728781795,
+    -0.002448991794713716,
+    -0.003623950951505514
+  ]
+}

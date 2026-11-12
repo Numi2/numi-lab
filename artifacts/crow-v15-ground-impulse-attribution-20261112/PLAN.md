@@ -1,0 +1,5 @@
+# Ground impulse attribution for the rejected toe command
+
+Use the already-used seed 20261127 and exactly the tiny-toe same-binary experiment, with a host observer adding the signed world-x components of the impulses at every ground-contact substep, separately for each foot and its rear toes. Preserve all original outputs. Require exact sampled q/v/actions, contacts, and existing 16-substep contact records for each re-run versus its retained counterpart; require complete observer records, no overflow/errors, and verify the observer sum against independently reconstructed endpoint impulses. This adds read-only reporting to a completed physics transaction, not a new contact law.
+
+Compare first-divergence contact timing and cumulative forward ground impulse, foot contributions and COM trajectory for the candidate versus sham. Different impulses are a contact-side association, not proof that toe drive alone causes the final trajectory: initial and feedback dynamics, unrecorded non-ground loads, and sequential interactions matter. Inputs are one two-second development window and one seed. No biological, final walking, or full-sequence qualification is implied.

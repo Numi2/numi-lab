@@ -1,0 +1,7 @@
+# Ground impulse in the rejected rear-toe walking trial
+
+Summing the world-forward components of all modeled foot-ground contact impulses over the 100-interval walking window shows that the tiny rear-toe candidate produced 0.00133–0.00364 N s less net forward impulse than its matched no-toe control in every one of eight lanes. Rear-toe and other foot contacts contribute in both directions; the recorded difference is not evidence that the rear toe alone accounts for the total. This agrees with the independently observed reduction in simulated whole-body center-of-mass travel, but the dynamics also include other loads and evolving feedback. It does not prove a unique cause of the lower travel.
+
+For each arm, the new read-only observer exactly reproduced all previously recorded endpoint support samples and all existing substep contact lines, including the extra final boundary records, with no overflow or solver errors. The selected 300 intervals provide 38,400 new ground-impulse substep records per arm. Independent reconstruction from recorded endpoint normal and two tangent components agrees with the observer at the final substep of each walking interval to within 5.5e-10 N s. Rear-toe sums are subsets of their respective foot totals, not additional forces.
+
+This is an analysis of one previously used development seed and two seconds of a rejected controller, not a biological crow measurement or qualification of walking, takeoff, flight, landing or navigation. The observer measures contacts with the modeled ground, not all external forces.
