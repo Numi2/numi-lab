@@ -1,0 +1,12 @@
+{
+  "seed": 20261127,
+  "lane": 5,
+  "window_seconds": [
+    4,
+    6
+  ],
+  "input_sha256": {
+    "artifacts/crow-v15-knee-phase-advance-screen-20261112/candidate-20261127-rebound-baseline/replay.json.gz": "032d8c6a3cb6d7a35269ec26f16bb515ba0634f41972e1599a35227f21db5856",
+    "artifacts/crow-v15-knee-phase-advance-screen-20261112/candidate-20261127-rebound-phase/replay.json.gz": "87aad51d5bef9c8e131f6866cd0a2fca9465f10b94c7757722fed3576ba1e156"
+  }
+}

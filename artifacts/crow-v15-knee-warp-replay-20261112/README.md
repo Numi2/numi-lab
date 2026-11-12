@@ -1,0 +1,5 @@
+# Development walk replay, not a completed mission
+
+These four synchronized visualizations render actual v15 replay states from the matching 20261127 lane 5 walking screen, 4–6 s, at 50 fps. Left is the uniform related-corvid exploratory gait; right applies 0.16 knee timing warp. The candidate failed the predeclared contact-motion check and is not promoted. The narrow-perch scene and camera are presentation choices, and the video is neither two-layout navigation nor evidence of a completed takeoff or landing. The full matched trial, source, contact data and limitations are in `crow-v15-knee-phase-advance-screen-20261112`.
+
+The four native clips were captured on the Mac mini. The initial assembly attempts are retained in `compose.log` and `compose-retry.log`: Pillow and ffmpeg were unavailable there. The final four-up comparison was assembled on the user's desktop with ffmpeg using `compose.sh` and the existing `labels.png` from the prior related-corvid diagnostic. The unused alternate label script is retained as `labels-proposed-unused.py`. The output is H.264, 1280×720, 50 fps and two seconds long.
