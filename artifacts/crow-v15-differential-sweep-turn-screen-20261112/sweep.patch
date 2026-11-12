@@ -1,0 +1,15 @@
+--- a/bank-pitch.metal
++++ b/differential-sweep.metal
+@@ -5175,6 +5175,12 @@
+             const float correction=clamp(-gain*state.threatGeometry.z-.04f*state.threatGeometry.w,-.12f,.12f);
+             navigationTeacherRequested=clamp(navigationTeacherRequested+correction,-1.0f,1.0f);
+         }
++        // Research-only: bounded differential sweep; only after the matched prefix.
++        if (fixedFlightController && float(state.episode.x)*dispatch.timing.x >= 9.0f && (action==2u || action==3u)) {
++            const float gain = mode<2u ? -0.30f : mode<4u ? 0.0f : 0.30f;
++            const float residual=gain*(mode%2u==0u ? 1.0f : -1.0f);
++            navigationTeacherRequested=clamp(navigationTeacherRequested+(action==2u ? residual : -residual),-1.0f,1.0f);
++        }
+         const float navigationTeacherBlend = fixedFlightController
+             ? 1.0f
+             : avianNavigationTeacher
