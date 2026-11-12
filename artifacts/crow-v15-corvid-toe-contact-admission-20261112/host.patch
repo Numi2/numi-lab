@@ -1,0 +1,47 @@
+--- a/contact-observer.cpp
++++ b/ratio-toe-observer.cpp
+@@ -1,3 +1,4 @@
++#include <cstdlib>
+ #include "box_distance.hpp"
+ #include "metalrobo/RetinalObserver.hpp"
+ #include "metalrobo/CrowForaging.hpp"
+@@ -3399,8 +3400,38 @@
+   for(auto& role:p.roles){if(role.id=="whole_body")role.members=m.bodyNames;if(role.id=="all_joints")role.members=m.jointNames;if(role.id=="all_dofs")role.members=m.dofNames;}
+   std::string reason;crowToeNeed(m.valid(&reason),"invalid model: "+reason);return p;
+ }
++static RobotPack crowProportionedToeModel() {
++  auto p=makeAmericanCrowActiveHeadRobotPack(); auto& m=p.mechanics;
++  p.id="american_crow_corvid_ratio_toe_probe_v0"; m.name=p.id; p.sourceRevision+="+exploratory-toes-two-segment-v0";
++  constexpr float mass=0.00005f, hy=0.0025f, hz=0.0092f;
++  const float hxs[4]={.009f*.72f,.009f,.009f*.72f,.009f};
++  for (int side=0;side<2;side++) {
++    const std::string footName=side==0?"crow_left_foot":"crow_right_foot";
++    auto it=std::find(m.bodyNames.begin(),m.bodyNames.end(),footName); crowToeNeed(it!=m.bodyNames.end(),"foot missing"); const unsigned foot=static_cast<unsigned>(it-m.bodyNames.begin()); auto& parent=m.bodies.at(foot);
++    const float dx[4]={.002666667f+2*hxs[0],.002666667f+2*hxs[1],.002666667f+2*hxs[2],-.062f},dy[4]={-.012f,0,.012f,0};
++    float sx=0,sy=0,sz=0;
++    for(int t=0;t<4;t++) for(int seg=0;seg<2;seg++) { const float sign=t==3?-1.f:1.f; const float hx=hxs[t],ix=mass*(hy*hy+hz*hz)/3,iy=mass*(hx*hx+hz*hz)/3,iz=mass*(hx*hx+hy*hy)/3; const float x=dx[t]+sign*(seg==0?-hx:hx); sx+=ix+mass*dy[t]*dy[t]; sy+=iy+mass*x*x; sz+=iz+mass*(x*x+dy[t]*dy[t]); }
++    const float pm=parent.massAndInverseMass.x-8*mass;crowToeNeed(pm>0,"negative foot mass");parent.massAndInverseMass={pm,1/pm,0,0};crowToeDiagonal(parent,parent.inertiaRow0.x-sx,parent.inertiaRow1.y-sy,parent.inertiaRow2.z-sz);
++    for(unsigned si=0;si<m.shapeNames.size();si++)if(m.shapeNames[si]==(side==0?"crow_left_foot/sole":"crow_right_foot/sole"))m.shapes[si].dimensions.x=.010f;
++    for(int t=0;t<4;t++) {
++      const float sign=t==3?-1.f:1.f; const float hx=hxs[t],ix=mass*(hy*hy+hz*hz)/3,iy=mass*(hx*hx+hz*hz)/3,iz=mass*(hx*hx+hy*hy)/3;
++      const std::string digit=std::string("crow_")+(side==0?"left_":"right_")+(t==3?"rear_toe":("front_toe_"+std::to_string(t+1)));
++      unsigned previous=foot;
++      for(int seg=0;seg<2;seg++) {
++        const unsigned bi=m.bodies.size(),ji=m.joints.size(),qi=m.defaultQ.size(),vi=m.defaultV.size();const std::string name=digit+(seg==0?"_proximal":"_distal");
++        MRBodyPropertiesGPU b{};b.articulationIndex=0;b.parentBody=previous;b.inboundJoint=ji;b.motionType=MR_MOTION_DYNAMIC;b.massAndInverseMass={mass,1/mass,0,0};crowToeDiagonal(b,ix,iy,iz);b.dampingAndSpeedLimits={0,0,30,35};m.bodies.push_back(b);m.bodyNames.push_back(name);
++        MRJointDescriptorGPU j{};j.parentBody=previous;j.childBody=bi;j.jointType=MR_JOINT_REVOLUTE;j.qOffset=qi;j.nq=1;j.vOffset=vi;j.nv=1;j.axis0={0,sign,0,0};if(seg==0)j.parentAnchor={dx[t]-sign*2*hx,dy[t],0,0};else j.parentAnchor={sign*hx,0,0,0};j.childAnchor={-sign*hx,0,0,0};j.parentRotation=j.childRotation={0,0,0,1};m.joints.push_back(j);m.jointNames.push_back(name+"_flex");
++        MRDofPropertiesGPU d{};d.articulationIndex=0;d.jointIndex=ji;d.qIndex=qi;d.vIndex=vi;d.flags=MR_DOF_FLAG_ACTUATED|MR_DOF_FLAG_POSITION_LIMIT|MR_DOF_FLAG_VELOCITY_LIMIT|MR_DOF_FLAG_EFFORT_LIMIT|MR_DOF_FLAG_DRIVE;d.limits={-.3f,1.2f,12.f,.02f};d.drive={.1f,.003f,.00005f,0};m.dofs.push_back(d);m.dofNames.push_back(name+"_flex");m.defaultQ.push_back(0);m.defaultV.push_back(0);if(!m.actuatorProfiles.empty())m.actuatorProfiles.emplace_back();
++        MRShapeGPU shape=m.shapes.front();shape.bodyIndex=bi;shape.localPosition={0,0,0,1};shape.localRotation={0,0,0,1};shape.dimensions={hx,hy,hz,0};shape.slotGeneration=m.shapes.size()+1;shape.contactRestAndBoundingRadius.z=std::sqrt(hx*hx+hy*hy+hz*hz);m.shapes.push_back(shape);m.shapeNames.push_back(name+"/collision");previous=bi;
++      }
++    }
++  }
++  auto& a=m.articulations.at(0);a.bodyCount=m.world.bodyCount=m.bodies.size();a.jointCount=m.world.jointCount=m.joints.size();a.nq=m.world.nq=m.defaultQ.size();a.nv=m.world.nv=m.defaultV.size();m.world.shapeCount=m.shapes.size();
++  for(auto& role:p.roles){if(role.id=="whole_body")role.members=m.bodyNames;if(role.id=="all_joints")role.members=m.jointNames;if(role.id=="all_dofs")role.members=m.dofNames;}
++  std::string reason;crowToeNeed(m.valid(&reason),"invalid model: "+reason);return p;
++}
+ static RobotPack crowHipRollModel(){
+- auto p=crowToeModel();crowResearchWingInertia(p);auto &m=p.mechanics;p.id="crow_v15_experimental_hip_roll";p.sourceRevision+="+hip_roll_experiment";
++ auto p=std::getenv("CROW_EXPERIMENT_CORVID_TOES") != nullptr ? crowProportionedToeModel() : crowToeModel();crowResearchWingInertia(p);auto &m=p.mechanics;p.id="crow_v15_experimental_hip_roll";p.sourceRevision+="+hip_roll_experiment";
+  auto oldBodies=m.bodies;auto oldNames=m.bodyNames;auto oldJoints=m.joints;
+  auto map=[](unsigned i){return i+(i>=8u)+(i>=11u);};
+  m.bodies.clear();m.bodyNames.clear();

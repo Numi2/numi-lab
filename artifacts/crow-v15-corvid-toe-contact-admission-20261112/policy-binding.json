@@ -1,0 +1,29 @@
+{
+  "old_fingerprints": [
+    2801281168732241546,
+    11277588021153534235,
+    12261780384824823292,
+    10276987404240961652
+  ],
+  "new_fingerprints": [
+    367496596343462794,
+    7244599090961365296,
+    13637711706197618511,
+    17363147309583265685
+  ],
+  "reports": [
+    {
+      "actor": "landing",
+      "source_sha256": "967ebb5b36c0134f243b5c19a5e810d2e76b741bc4437ba9036d30916863e638",
+      "target_sha256": "71cb86852ea6092574174c65680686fbd4281f2bb2755c7b012863795cb4bd07",
+      "identical_layers_and_transforms": true
+    },
+    {
+      "actor": "route",
+      "source_sha256": "521f73cdb510d1a954dd70a7fc14d36871408c024ec782baa0e54c7959d57292",
+      "target_sha256": "b652655487326bac7bcd1c2a6022b8ff96382230437911d9ff875ff822f1e23a",
+      "identical_layers_and_transforms": true
+    }
+  ],
+  "scope": "Diagnostic rebinding to changed world/task and observation signatures. World and eight collision-envelope radii differ; all other diagnostic hash inputs match. Exact weights and transforms are checked. Sensor values, physical behavior and policy validity on the changed body are not assumed."
+}

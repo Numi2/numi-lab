@@ -1,0 +1,3 @@
+held {'low_toe_endpoints': 49, 'without_accepted_toe_contact': 49} {'count': 0, 'median_m_s': None, 'p95_m_s': None, 'over_0_01_fraction': None, 'max_m_s': None}
+control {'low_toe_endpoints': 192, 'without_accepted_toe_contact': 55, 'with_accepted_toe_contact': 137} {'count': 352, 'median_m_s': 0.04552674041902628, 'p95_m_s': 0.07160020964221263, 'over_0_01_fraction': 1.0, 'max_m_s': 0.07404418195854158}
+proportioned {'low_toe_endpoints': 190, 'without_accepted_toe_contact': 58, 'with_accepted_toe_contact': 132} {'count': 338, 'median_m_s': 0.045978023097623194, 'p95_m_s': 0.07501997635158748, 'over_0_01_fraction': 1.0, 'max_m_s': 0.07725471718484235}

@@ -1,0 +1,6 @@
+Traceback (most recent call last):
+  File "/Users/n/Developer/numi-crow-rl-20261107/artifacts/crow-v15-corvid-toe-contact-admission-20261112/run.py", line 3, in <module>
+    R=Path.cwd();A=R/'artifacts/crow-v15-corvid-toe-contact-admission-20261112';B=R/'build/crow-v15-corvid-toe-contact-admission-20261112';M=R/'build/crow-v15-matched-binary-gait-screen-20261112';J=R/'artifacts/crow-v15-hip-roll-journey-integration-20261111';L=B;name=sys.argv[1];assert name in ('control','candidate-preflight','candidate');seed=int(sys.argv[2]) if len(sys.argv)>2 else 20261126;assert seed in (20261126,20261127);tag=sys.argv[3] if len(sys.argv)>3 else '';substeps=int(sys.argv[4]) if len(sys.argv)>4 else 16;assert substeps == 16, "release threshold is calibrated only for this 16-substep diagnostic";assert all(c.isalnum() or c=='-' for c in tag);D=A/(name+'-'+str(seed)+(('-'+tag) if tag else ''));D.mkdir(exist_ok=False);cmd=json.loads((J/'rebound-command.json').read_text());
+  File "/Applications/Xcode-26.6.0.app/Contents/Developer/Library/Frameworks/Python3.framework/Versions/3.9/lib/python3.9/pathlib.py", line 1313, in mkdir
+    self._accessor.mkdir(self, mode)
+FileExistsError: [Errno 17] File exists: '/Users/n/Developer/numi-crow-rl-20261107/artifacts/crow-v15-corvid-toe-contact-admission-20261112/control-20261127'

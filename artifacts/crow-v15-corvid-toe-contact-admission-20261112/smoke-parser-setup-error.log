@@ -1,0 +1,1 @@
+First smoke checker treated the space-delimited CROW_PHASE_SAMPLE as JSON and raised JSONDecodeError. The run itself was unaffected; corrected checker parses numeric fields.

@@ -1,0 +1,4 @@
+Traceback (most recent call last):
+  File "/Users/n/Developer/numi-crow-rl-20261107/artifacts/crow-v15-corvid-toe-contact-admission-20261112/parity.py", line 12, in <module>
+    assert len(st)==2400 and len(sub)==38400,(name,len(st),len(sub));d[name]=(st,sub)
+AssertionError: ('reference', 2408, 38528)

@@ -1,0 +1,62 @@
+{
+  "entries": 32,
+  "changes": [
+    {
+      "index": 1,
+      "control_body": 19,
+      "candidate_body": 19,
+      "control_radius_m": 0.0131106824,
+      "candidate_radius_m": 0.0115273762
+    },
+    {
+      "index": 2,
+      "control_body": 20,
+      "candidate_body": 20,
+      "control_radius_m": 0.0131106824,
+      "candidate_radius_m": 0.0115273762
+    },
+    {
+      "index": 5,
+      "control_body": 23,
+      "candidate_body": 23,
+      "control_radius_m": 0.0131106824,
+      "candidate_radius_m": 0.0115273762
+    },
+    {
+      "index": 6,
+      "control_body": 24,
+      "candidate_body": 24,
+      "control_radius_m": 0.0131106824,
+      "candidate_radius_m": 0.0115273762
+    },
+    {
+      "index": 10,
+      "control_body": 27,
+      "candidate_body": 27,
+      "control_radius_m": 0.0131106824,
+      "candidate_radius_m": 0.0115273762
+    },
+    {
+      "index": 11,
+      "control_body": 28,
+      "candidate_body": 28,
+      "control_radius_m": 0.0131106824,
+      "candidate_radius_m": 0.0115273762
+    },
+    {
+      "index": 14,
+      "control_body": 31,
+      "candidate_body": 31,
+      "control_radius_m": 0.0131106824,
+      "candidate_radius_m": 0.0115273762
+    },
+    {
+      "index": 15,
+      "control_body": 32,
+      "candidate_body": 32,
+      "control_radius_m": 0.0131106824,
+      "candidate_radius_m": 0.0115273762
+    }
+  ],
+  "scope": "The world-bound and collision-radius fingerprints genuinely differ. Layout audit separately suppresses those two ingredients only for diagnosis, and must not be used as a production policy contract. The active Metal task source reads contactMemberRadii in its link-clearance reward branch; altered geometry can change observations and behavior through other pathways even when layout tables match."
+}

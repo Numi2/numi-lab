@@ -1,0 +1,1557 @@
+{
+  "control": {
+    "rows": [
+      {
+        "lane": 0,
+        "window_seconds": 2.0,
+        "forward_root_displacement_m": 0.03352665293,
+        "root_height_span_m": 0.0018602010000000058,
+        "whole_body_com_height_span_m": 0.0019710942589099834,
+        "root_roll_span_rad": 0.04472861209212313,
+        "root_pitch_span_rad": 0.039250671774292055,
+        "joint_spans_rad": {
+          "left_hip": 0.2699225693,
+          "left_knee": 0.37815275800000003,
+          "left_ankle": 0.15012943799999998,
+          "right_hip": 0.2691165656,
+          "right_knee": 0.379252225,
+          "right_ankle": 0.15112890299999998,
+          "neck_yaw": 0.00921695866,
+          "head_pitch": 0.015335079300000005
+        },
+        "head_world_axis_spans_m": [
+          0.033439793723847644,
+          0.013139863617308036,
+          0.0070139274833122545
+        ],
+        "head_relative_to_torso_axis_spans_m": [
+          0.00019135228517805358,
+          0.0003758074095656789,
+          0.0006265095128724363
+        ],
+        "foot_loaded_fraction_window": [
+          0.675625,
+          0.600625
+        ],
+        "both_loaded_fraction_window": 0.27625,
+        "neither_loaded_fraction_window": 0.0,
+        "sole_clear_but_toes_below_clearance_intervals": [
+          13,
+          11
+        ],
+        "foot_COM_motion_while_loaded_proxy_m": [
+          0.03519034183797766,
+          0.03283903005164087
+        ],
+        "support_qualified_swing_bouts": [
+          [
+            [
+              228,
+              236
+            ],
+            [
+              254,
+              261
+            ],
+            [
+              279,
+              286
+            ]
+          ],
+          [
+            [
+              218,
+              223
+            ],
+            [
+              241,
+              249
+            ],
+            [
+              266,
+              274
+            ],
+            [
+              291,
+              299
+            ]
+          ]
+        ],
+        "stride_metrics_status": "not calculated: touchdown/stride correspondence not yet validated",
+        "stride_cadence_hz": null,
+        "stride_duty_factor": null,
+        "stride_length_m": null,
+        "stride_phase_offset": null,
+        "both_zero_substeps": 0,
+        "nonfoot_intervals": [],
+        "toe_caps": 0
+      },
+      {
+        "lane": 1,
+        "window_seconds": 2.0,
+        "forward_root_displacement_m": 0.033857954649999994,
+        "root_height_span_m": 0.0018519620000000125,
+        "whole_body_com_height_span_m": 0.0019617480750203087,
+        "root_roll_span_rad": 0.0447505446197453,
+        "root_pitch_span_rad": 0.03924910346355121,
+        "joint_spans_rad": {
+          "left_hip": 0.2699164818,
+          "left_knee": 0.3781655729999999,
+          "left_ankle": 0.15013070399999998,
+          "right_hip": 0.26911883059999997,
+          "right_knee": 0.37928280200000003,
+          "right_ankle": 0.151131466,
+          "neck_yaw": 0.009089855939999999,
+          "head_pitch": 0.015318665699999998
+        },
+        "head_world_axis_spans_m": [
+          0.0336944346004929,
+          0.011515970566322734,
+          0.007015060154895003
+        ],
+        "head_relative_to_torso_axis_spans_m": [
+          0.00019126211568354368,
+          0.00037063684358581853,
+          0.0006258277068418583
+        ],
+        "foot_loaded_fraction_window": [
+          0.675,
+          0.600625
+        ],
+        "both_loaded_fraction_window": 0.275625,
+        "neither_loaded_fraction_window": 0.0,
+        "sole_clear_but_toes_below_clearance_intervals": [
+          14,
+          11
+        ],
+        "foot_COM_motion_while_loaded_proxy_m": [
+          0.03547277340683492,
+          0.03266671055769935
+        ],
+        "support_qualified_swing_bouts": [
+          [
+            [
+              228,
+              236
+            ],
+            [
+              254,
+              261
+            ],
+            [
+              279,
+              286
+            ]
+          ],
+          [
+            [
+              218,
+              223
+            ],
+            [
+              241,
+              249
+            ],
+            [
+              266,
+              274
+            ],
+            [
+              291,
+              299
+            ]
+          ]
+        ],
+        "stride_metrics_status": "not calculated: touchdown/stride correspondence not yet validated",
+        "stride_cadence_hz": null,
+        "stride_duty_factor": null,
+        "stride_length_m": null,
+        "stride_phase_offset": null,
+        "both_zero_substeps": 0,
+        "nonfoot_intervals": [],
+        "toe_caps": 0
+      },
+      {
+        "lane": 2,
+        "window_seconds": 2.0,
+        "forward_root_displacement_m": 0.03358387484,
+        "root_height_span_m": 0.001860394999999987,
+        "whole_body_com_height_span_m": 0.001971452429443077,
+        "root_roll_span_rad": 0.04470807312300769,
+        "root_pitch_span_rad": 0.03924504752461042,
+        "joint_spans_rad": {
+          "left_hip": 0.2699724137,
+          "left_knee": 0.378146618,
+          "left_ankle": 0.150126189,
+          "right_hip": 0.2690790076,
+          "right_knee": 0.379275024,
+          "right_ankle": 0.151130155,
+          "neck_yaw": 0.00921854051,
+          "head_pitch": 0.015272706700000006
+        },
+        "head_world_axis_spans_m": [
+          0.033526628235107464,
+          0.01289906304836172,
+          0.007014705182170788
+        ],
+        "head_relative_to_torso_axis_spans_m": [
+          0.0001906057552948648,
+          0.000375876748068191,
+          0.0006239530869595888
+        ],
+        "foot_loaded_fraction_window": [
+          0.67625,
+          0.6
+        ],
+        "both_loaded_fraction_window": 0.27625,
+        "neither_loaded_fraction_window": 0.0,
+        "sole_clear_but_toes_below_clearance_intervals": [
+          13,
+          11
+        ],
+        "foot_COM_motion_while_loaded_proxy_m": [
+          0.035441085890832974,
+          0.032827362251880765
+        ],
+        "support_qualified_swing_bouts": [
+          [
+            [
+              228,
+              236
+            ],
+            [
+              254,
+              261
+            ],
+            [
+              279,
+              286
+            ]
+          ],
+          [
+            [
+              218,
+              223
+            ],
+            [
+              241,
+              249
+            ],
+            [
+              266,
+              274
+            ],
+            [
+              291,
+              299
+            ]
+          ]
+        ],
+        "stride_metrics_status": "not calculated: touchdown/stride correspondence not yet validated",
+        "stride_cadence_hz": null,
+        "stride_duty_factor": null,
+        "stride_length_m": null,
+        "stride_phase_offset": null,
+        "both_zero_substeps": 0,
+        "nonfoot_intervals": [],
+        "toe_caps": 0
+      },
+      {
+        "lane": 3,
+        "window_seconds": 2.0,
+        "forward_root_displacement_m": 0.0334315933,
+        "root_height_span_m": 0.0018069149999999923,
+        "whole_body_com_height_span_m": 0.0019210392186347347,
+        "root_roll_span_rad": 0.0432462687070989,
+        "root_pitch_span_rad": 0.03893369642137752,
+        "joint_spans_rad": {
+          "left_hip": 0.26994249940000004,
+          "left_knee": 0.378137648,
+          "left_ankle": 0.15013416100000002,
+          "right_hip": 0.2690585028,
+          "right_knee": 0.37930408099999996,
+          "right_ankle": 0.151129276,
+          "neck_yaw": 0.00920450641,
+          "head_pitch": 0.014425583199999994
+        },
+        "head_world_axis_spans_m": [
+          0.03380219866313089,
+          0.012728590605936544,
+          0.006954601441302555
+        ],
+        "head_relative_to_torso_axis_spans_m": [
+          0.00018027365404441054,
+          0.00037530965672251496,
+          0.0005892631113367935
+        ],
+        "foot_loaded_fraction_window": [
+          0.67625,
+          0.590625
+        ],
+        "both_loaded_fraction_window": 0.266875,
+        "neither_loaded_fraction_window": 0.0,
+        "sole_clear_but_toes_below_clearance_intervals": [
+          13,
+          11
+        ],
+        "foot_COM_motion_while_loaded_proxy_m": [
+          0.03591289504132182,
+          0.02919201162340178
+        ],
+        "support_qualified_swing_bouts": [
+          [
+            [
+              228,
+              236
+            ],
+            [
+              254,
+              261
+            ],
+            [
+              279,
+              286
+            ]
+          ],
+          [
+            [
+              217,
+              223
+            ],
+            [
+              241,
+              249
+            ],
+            [
+              266,
+              274
+            ],
+            [
+              291,
+              299
+            ]
+          ]
+        ],
+        "stride_metrics_status": "not calculated: touchdown/stride correspondence not yet validated",
+        "stride_cadence_hz": null,
+        "stride_duty_factor": null,
+        "stride_length_m": null,
+        "stride_phase_offset": null,
+        "both_zero_substeps": 0,
+        "nonfoot_intervals": [],
+        "toe_caps": 0
+      },
+      {
+        "lane": 4,
+        "window_seconds": 2.0,
+        "forward_root_displacement_m": 0.033094546249999995,
+        "root_height_span_m": 0.0018150809999999962,
+        "whole_body_com_height_span_m": 0.0019241669004436412,
+        "root_roll_span_rad": 0.043651310243872095,
+        "root_pitch_span_rad": 0.0387314474499593,
+        "joint_spans_rad": {
+          "left_hip": 0.2699257583,
+          "left_knee": 0.37813433999999996,
+          "left_ankle": 0.15012559199999997,
+          "right_hip": 0.2690733226,
+          "right_knee": 0.379280537,
+          "right_ankle": 0.15112934999999997,
+          "neck_yaw": 0.009162033449999999,
+          "head_pitch": 0.014490410699999998
+        },
+        "head_world_axis_spans_m": [
+          0.03332215299508151,
+          0.012957466506632265,
+          0.00692280193297673
+        ],
+        "head_relative_to_torso_axis_spans_m": [
+          0.00018111420521549348,
+          0.00037358002696392023,
+          0.0005918994910152631
+        ],
+        "foot_loaded_fraction_window": [
+          0.676875,
+          0.59
+        ],
+        "both_loaded_fraction_window": 0.266875,
+        "neither_loaded_fraction_window": 0.0,
+        "sole_clear_but_toes_below_clearance_intervals": [
+          13,
+          12
+        ],
+        "foot_COM_motion_while_loaded_proxy_m": [
+          0.03545542048391213,
+          0.03074388655981471
+        ],
+        "support_qualified_swing_bouts": [
+          [
+            [
+              228,
+              236
+            ],
+            [
+              254,
+              261
+            ],
+            [
+              279,
+              286
+            ]
+          ],
+          [
+            [
+              217,
+              223
+            ],
+            [
+              241,
+              249
+            ],
+            [
+              266,
+              274
+            ],
+            [
+              291,
+              299
+            ]
+          ]
+        ],
+        "stride_metrics_status": "not calculated: touchdown/stride correspondence not yet validated",
+        "stride_cadence_hz": null,
+        "stride_duty_factor": null,
+        "stride_length_m": null,
+        "stride_phase_offset": null,
+        "both_zero_substeps": 0,
+        "nonfoot_intervals": [],
+        "toe_caps": 0
+      },
+      {
+        "lane": 5,
+        "window_seconds": 2.0,
+        "forward_root_displacement_m": 0.0319990795,
+        "root_height_span_m": 0.001822234000000006,
+        "whole_body_com_height_span_m": 0.0019328977653205737,
+        "root_roll_span_rad": 0.043576768447722736,
+        "root_pitch_span_rad": 0.03920217378838292,
+        "joint_spans_rad": {
+          "left_hip": 0.2699528639,
+          "left_knee": 0.37812250799999997,
+          "left_ankle": 0.15013010799999998,
+          "right_hip": 0.26904234250000003,
+          "right_knee": 0.37928184899999995,
+          "right_ankle": 0.15111932199999997,
+          "neck_yaw": 0.00918221148,
+          "head_pitch": 0.014498386499999995
+        },
+        "head_world_axis_spans_m": [
+          0.03238781823683429,
+          0.012797735807548463,
+          0.007010769601469291
+        ],
+        "head_relative_to_torso_axis_spans_m": [
+          0.00018138001402021042,
+          0.00037440094296509977,
+          0.0005921854057641951
+        ],
+        "foot_loaded_fraction_window": [
+          0.675625,
+          0.59125
+        ],
+        "both_loaded_fraction_window": 0.266875,
+        "neither_loaded_fraction_window": 0.0,
+        "sole_clear_but_toes_below_clearance_intervals": [
+          12,
+          12
+        ],
+        "foot_COM_motion_while_loaded_proxy_m": [
+          0.036693791951177106,
+          0.030639864218596248
+        ],
+        "support_qualified_swing_bouts": [
+          [
+            [
+              228,
+              236
+            ],
+            [
+              254,
+              261
+            ],
+            [
+              279,
+              286
+            ]
+          ],
+          [
+            [
+              217,
+              223
+            ],
+            [
+              241,
+              249
+            ],
+            [
+              266,
+              274
+            ],
+            [
+              291,
+              299
+            ]
+          ]
+        ],
+        "stride_metrics_status": "not calculated: touchdown/stride correspondence not yet validated",
+        "stride_cadence_hz": null,
+        "stride_duty_factor": null,
+        "stride_length_m": null,
+        "stride_phase_offset": null,
+        "both_zero_substeps": 0,
+        "nonfoot_intervals": [],
+        "toe_caps": 0
+      },
+      {
+        "lane": 6,
+        "window_seconds": 2.0,
+        "forward_root_displacement_m": 0.03293250291,
+        "root_height_span_m": 0.0018397719999999895,
+        "whole_body_com_height_span_m": 0.0019501918337778146,
+        "root_roll_span_rad": 0.04441035607729983,
+        "root_pitch_span_rad": 0.039044368163544334,
+        "joint_spans_rad": {
+          "left_hip": 0.26991853909999997,
+          "left_knee": 0.378118784,
+          "left_ankle": 0.15011641399999998,
+          "right_hip": 0.2690475737,
+          "right_knee": 0.37928044800000005,
+          "right_ankle": 0.151121139,
+          "neck_yaw": 0.0091387094,
+          "head_pitch": 0.014788322100000001
+        },
+        "head_world_axis_spans_m": [
+          0.033424392174898176,
+          0.013267357412795971,
+          0.006972756897322463
+        ],
+        "head_relative_to_torso_axis_spans_m": [
+          0.00018464383120575523,
+          0.00037263223642543426,
+          0.0006041264440618116
+        ],
+        "foot_loaded_fraction_window": [
+          0.675,
+          0.590625
+        ],
+        "both_loaded_fraction_window": 0.265625,
+        "neither_loaded_fraction_window": 0.0,
+        "sole_clear_but_toes_below_clearance_intervals": [
+          12,
+          11
+        ],
+        "foot_COM_motion_while_loaded_proxy_m": [
+          0.03490088046372318,
+          0.03137268143610301
+        ],
+        "support_qualified_swing_bouts": [
+          [
+            [
+              228,
+              236
+            ],
+            [
+              253,
+              261
+            ],
+            [
+              279,
+              286
+            ]
+          ],
+          [
+            [
+              218,
+              223
+            ],
+            [
+              241,
+              249
+            ],
+            [
+              266,
+              274
+            ],
+            [
+              291,
+              299
+            ]
+          ]
+        ],
+        "stride_metrics_status": "not calculated: touchdown/stride correspondence not yet validated",
+        "stride_cadence_hz": null,
+        "stride_duty_factor": null,
+        "stride_length_m": null,
+        "stride_phase_offset": null,
+        "both_zero_substeps": 0,
+        "nonfoot_intervals": [],
+        "toe_caps": 0
+      },
+      {
+        "lane": 7,
+        "window_seconds": 2.0,
+        "forward_root_displacement_m": 0.03286930731,
+        "root_height_span_m": 0.0018547329999999973,
+        "whole_body_com_height_span_m": 0.0019657250111626834,
+        "root_roll_span_rad": 0.04434196806782271,
+        "root_pitch_span_rad": 0.039328130335321725,
+        "joint_spans_rad": {
+          "left_hip": 0.2699187097,
+          "left_knee": 0.378118486,
+          "left_ankle": 0.150116518,
+          "right_hip": 0.2690451364,
+          "right_knee": 0.37928709399999994,
+          "right_ankle": 0.15112040999999998,
+          "neck_yaw": 0.00911404006,
+          "head_pitch": 0.014799989700000002
+        },
+        "head_world_axis_spans_m": [
+          0.033331591926348464,
+          0.012730113192217042,
+          0.007022122667268982
+        ],
+        "head_relative_to_torso_axis_spans_m": [
+          0.0001848603211047073,
+          0.00037162656954930183,
+          0.0006045912057400238
+        ],
+        "foot_loaded_fraction_window": [
+          0.675625,
+          0.590625
+        ],
+        "both_loaded_fraction_window": 0.26625,
+        "neither_loaded_fraction_window": 0.0,
+        "sole_clear_but_toes_below_clearance_intervals": [
+          12,
+          11
+        ],
+        "foot_COM_motion_while_loaded_proxy_m": [
+          0.03502943604932481,
+          0.03132551433832595
+        ],
+        "support_qualified_swing_bouts": [
+          [
+            [
+              228,
+              236
+            ],
+            [
+              253,
+              261
+            ],
+            [
+              279,
+              286
+            ]
+          ],
+          [
+            [
+              218,
+              223
+            ],
+            [
+              241,
+              249
+            ],
+            [
+              266,
+              274
+            ],
+            [
+              291,
+              299
+            ]
+          ]
+        ],
+        "stride_metrics_status": "not calculated: touchdown/stride correspondence not yet validated",
+        "stride_cadence_hz": null,
+        "stride_duty_factor": null,
+        "stride_length_m": null,
+        "stride_phase_offset": null,
+        "both_zero_substeps": 0,
+        "nonfoot_intervals": [],
+        "toe_caps": 0
+      }
+    ],
+    "episode": {
+      "boundary": "waypoint completion; does not establish supported landing",
+      "closed_by_environment": [
+        false,
+        false,
+        false,
+        false,
+        false,
+        false,
+        false,
+        false
+      ],
+      "closed_episode_count": 0,
+      "completion_seen_by_environment": [
+        false,
+        false,
+        false,
+        false,
+        false,
+        false,
+        false,
+        false
+      ],
+      "completion_seen_count": 0,
+      "environment_count": 8,
+      "first_completion_step_by_environment": [
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "horizon_censored_count": 8,
+      "maximum_waypoints_by_environment": [
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ],
+      "physical_failure_by_environment": [
+        false,
+        false,
+        false,
+        false,
+        false,
+        false,
+        false,
+        false
+      ],
+      "physical_failure_count": 0,
+      "safe_completion_by_environment": [
+        false,
+        false,
+        false,
+        false,
+        false,
+        false,
+        false,
+        false
+      ],
+      "safe_completion_count": 0,
+      "schema": "numi.crow-first-episode-evidence.v1",
+      "steps_by_environment": [
+        300,
+        300,
+        300,
+        300,
+        300,
+        300,
+        300,
+        300
+      ],
+      "termination_reason_by_environment": [
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ],
+      "unit": "first episode of each environment since context creation"
+    },
+    "errors": [],
+    "low_toe_count": 192
+  },
+  "candidate": {
+    "rows": [
+      {
+        "lane": 0,
+        "window_seconds": 2.0,
+        "forward_root_displacement_m": 0.032673107949999995,
+        "root_height_span_m": 0.0018425589999999936,
+        "whole_body_com_height_span_m": 0.0019483987915276946,
+        "root_roll_span_rad": 0.04456693065641168,
+        "root_pitch_span_rad": 0.03954889424995505,
+        "joint_spans_rad": {
+          "left_hip": 0.26994723870000004,
+          "left_knee": 0.37815761600000003,
+          "left_ankle": 0.150129407,
+          "right_hip": 0.2690962623,
+          "right_knee": 0.379258036,
+          "right_ankle": 0.15113531,
+          "neck_yaw": 0.009235976270000001,
+          "head_pitch": 0.015307571700000001
+        },
+        "head_world_axis_spans_m": [
+          0.032606634125138534,
+          0.013153248286245572,
+          0.007047080499370972
+        ],
+        "head_relative_to_torso_axis_spans_m": [
+          0.00019117505371743504,
+          0.0003765890725209693,
+          0.0006253288936030887
+        ],
+        "foot_loaded_fraction_window": [
+          0.674375,
+          0.60125
+        ],
+        "both_loaded_fraction_window": 0.275625,
+        "neither_loaded_fraction_window": 0.0,
+        "sole_clear_but_toes_below_clearance_intervals": [
+          12,
+          11
+        ],
+        "foot_COM_motion_while_loaded_proxy_m": [
+          0.036660678236644914,
+          0.032750763895875175
+        ],
+        "support_qualified_swing_bouts": [
+          [
+            [
+              228,
+              236
+            ],
+            [
+              254,
+              261
+            ],
+            [
+              279,
+              286
+            ]
+          ],
+          [
+            [
+              218,
+              223
+            ],
+            [
+              241,
+              249
+            ],
+            [
+              266,
+              274
+            ],
+            [
+              291,
+              299
+            ]
+          ]
+        ],
+        "stride_metrics_status": "not calculated: touchdown/stride correspondence not yet validated",
+        "stride_cadence_hz": null,
+        "stride_duty_factor": null,
+        "stride_length_m": null,
+        "stride_phase_offset": null,
+        "both_zero_substeps": 0,
+        "nonfoot_intervals": [],
+        "toe_caps": 0
+      },
+      {
+        "lane": 1,
+        "window_seconds": 2.0,
+        "forward_root_displacement_m": 0.03244704892,
+        "root_height_span_m": 0.0018168839999999908,
+        "whole_body_com_height_span_m": 0.0019255843213177026,
+        "root_roll_span_rad": 0.04359487359303187,
+        "root_pitch_span_rad": 0.039711897069724014,
+        "joint_spans_rad": {
+          "left_hip": 0.2699608132,
+          "left_knee": 0.3781173219999999,
+          "left_ankle": 0.15012609900000004,
+          "right_hip": 0.2691008823,
+          "right_knee": 0.379261434,
+          "right_ankle": 0.15114080900000001,
+          "neck_yaw": 0.00933325477,
+          "head_pitch": 0.014361146900000003
+        },
+        "head_world_axis_spans_m": [
+          0.03281109818165032,
+          0.011586846119001593,
+          0.007069283582376962
+        ],
+        "head_relative_to_torso_axis_spans_m": [
+          0.00017969183112301335,
+          0.00038057064921708157,
+          0.0005865809817457296
+        ],
+        "foot_loaded_fraction_window": [
+          0.675625,
+          0.59125
+        ],
+        "both_loaded_fraction_window": 0.266875,
+        "neither_loaded_fraction_window": 0.0,
+        "sole_clear_but_toes_below_clearance_intervals": [
+          13,
+          12
+        ],
+        "foot_COM_motion_while_loaded_proxy_m": [
+          0.037160416382155406,
+          0.03066831546748887
+        ],
+        "support_qualified_swing_bouts": [
+          [
+            [
+              228,
+              236
+            ],
+            [
+              254,
+              261
+            ],
+            [
+              279,
+              286
+            ]
+          ],
+          [
+            [
+              217,
+              223
+            ],
+            [
+              241,
+              249
+            ],
+            [
+              266,
+              274
+            ],
+            [
+              291,
+              299
+            ]
+          ]
+        ],
+        "stride_metrics_status": "not calculated: touchdown/stride correspondence not yet validated",
+        "stride_cadence_hz": null,
+        "stride_duty_factor": null,
+        "stride_length_m": null,
+        "stride_phase_offset": null,
+        "both_zero_substeps": 0,
+        "nonfoot_intervals": [],
+        "toe_caps": 0
+      },
+      {
+        "lane": 2,
+        "window_seconds": 2.0,
+        "forward_root_displacement_m": 0.032302343260000005,
+        "root_height_span_m": 0.001829847999999995,
+        "whole_body_com_height_span_m": 0.001933885347045694,
+        "root_roll_span_rad": 0.04355348108316707,
+        "root_pitch_span_rad": 0.03960161572598525,
+        "joint_spans_rad": {
+          "left_hip": 0.2699593006,
+          "left_knee": 0.37812599599999996,
+          "left_ankle": 0.150121048,
+          "right_hip": 0.2690371201,
+          "right_knee": 0.37927511399999997,
+          "right_ankle": 0.15114019799999998,
+          "neck_yaw": 0.009218019899999999,
+          "head_pitch": 0.014688823399999995
+        },
+        "head_world_axis_spans_m": [
+          0.032715177713402765,
+          0.01321740744171879,
+          0.0070441856497046595
+        ],
+        "head_relative_to_torso_axis_spans_m": [
+          0.0001835934300334352,
+          0.0003758632371814898,
+          0.0006000020256387573
+        ],
+        "foot_loaded_fraction_window": [
+          0.675625,
+          0.59125
+        ],
+        "both_loaded_fraction_window": 0.266875,
+        "neither_loaded_fraction_window": 0.0,
+        "sole_clear_but_toes_below_clearance_intervals": [
+          12,
+          12
+        ],
+        "foot_COM_motion_while_loaded_proxy_m": [
+          0.037163208416487105,
+          0.030599936605811184
+        ],
+        "support_qualified_swing_bouts": [
+          [
+            [
+              228,
+              236
+            ],
+            [
+              254,
+              261
+            ],
+            [
+              279,
+              286
+            ]
+          ],
+          [
+            [
+              217,
+              223
+            ],
+            [
+              241,
+              249
+            ],
+            [
+              266,
+              274
+            ],
+            [
+              291,
+              299
+            ]
+          ]
+        ],
+        "stride_metrics_status": "not calculated: touchdown/stride correspondence not yet validated",
+        "stride_cadence_hz": null,
+        "stride_duty_factor": null,
+        "stride_length_m": null,
+        "stride_phase_offset": null,
+        "both_zero_substeps": 0,
+        "nonfoot_intervals": [],
+        "toe_caps": 0
+      },
+      {
+        "lane": 3,
+        "window_seconds": 2.0,
+        "forward_root_displacement_m": 0.0324880686,
+        "root_height_span_m": 0.0018021759999999887,
+        "whole_body_com_height_span_m": 0.0019141387428369405,
+        "root_roll_span_rad": 0.04332689735800202,
+        "root_pitch_span_rad": 0.039071882956264806,
+        "joint_spans_rad": {
+          "left_hip": 0.26999015400000004,
+          "left_knee": 0.37813493600000003,
+          "left_ankle": 0.150132567,
+          "right_hip": 0.2690579073,
+          "right_knee": 0.37930110100000003,
+          "right_ankle": 0.151143223,
+          "neck_yaw": 0.009219418739999999,
+          "head_pitch": 0.014542445500000008
+        },
+        "head_world_axis_spans_m": [
+          0.032906750874143464,
+          0.012893817812224281,
+          0.006975931928956125
+        ],
+        "head_relative_to_torso_axis_spans_m": [
+          0.00018185068866147236,
+          0.00037591352779366697,
+          0.0005939962986194897
+        ],
+        "foot_loaded_fraction_window": [
+          0.675625,
+          0.5925
+        ],
+        "both_loaded_fraction_window": 0.268125,
+        "neither_loaded_fraction_window": 0.0,
+        "sole_clear_but_toes_below_clearance_intervals": [
+          13,
+          12
+        ],
+        "foot_COM_motion_while_loaded_proxy_m": [
+          0.03728777588740716,
+          0.030950728471776674
+        ],
+        "support_qualified_swing_bouts": [
+          [
+            [
+              228,
+              236
+            ],
+            [
+              254,
+              261
+            ],
+            [
+              279,
+              286
+            ]
+          ],
+          [
+            [
+              217,
+              223
+            ],
+            [
+              241,
+              249
+            ],
+            [
+              266,
+              274
+            ],
+            [
+              291,
+              299
+            ]
+          ]
+        ],
+        "stride_metrics_status": "not calculated: touchdown/stride correspondence not yet validated",
+        "stride_cadence_hz": null,
+        "stride_duty_factor": null,
+        "stride_length_m": null,
+        "stride_phase_offset": null,
+        "both_zero_substeps": 0,
+        "nonfoot_intervals": [],
+        "toe_caps": 0
+      },
+      {
+        "lane": 4,
+        "window_seconds": 2.0,
+        "forward_root_displacement_m": 0.03256389214,
+        "root_height_span_m": 0.001827300000000004,
+        "whole_body_com_height_span_m": 0.001930652390391252,
+        "root_roll_span_rad": 0.043660824756465585,
+        "root_pitch_span_rad": 0.03904680957673593,
+        "joint_spans_rad": {
+          "left_hip": 0.2699754168,
+          "left_knee": 0.37812754499999995,
+          "left_ankle": 0.15011857499999998,
+          "right_hip": 0.2690586075,
+          "right_knee": 0.37927603800000004,
+          "right_ankle": 0.15113841000000003,
+          "neck_yaw": 0.00916378712,
+          "head_pitch": 0.014822393600000004
+        },
+        "head_world_axis_spans_m": [
+          0.032840377084108335,
+          0.013109203698690557,
+          0.00696296165686644
+        ],
+        "head_relative_to_torso_axis_spans_m": [
+          0.0001853098200809422,
+          0.000373862965129668,
+          0.0006054415686842368
+        ],
+        "foot_loaded_fraction_window": [
+          0.675625,
+          0.5925
+        ],
+        "both_loaded_fraction_window": 0.268125,
+        "neither_loaded_fraction_window": 0.0,
+        "sole_clear_but_toes_below_clearance_intervals": [
+          12,
+          12
+        ],
+        "foot_COM_motion_while_loaded_proxy_m": [
+          0.03717432577750792,
+          0.0307393953642613
+        ],
+        "support_qualified_swing_bouts": [
+          [
+            [
+              228,
+              236
+            ],
+            [
+              254,
+              261
+            ],
+            [
+              279,
+              286
+            ]
+          ],
+          [
+            [
+              217,
+              223
+            ],
+            [
+              241,
+              249
+            ],
+            [
+              266,
+              274
+            ],
+            [
+              291,
+              299
+            ]
+          ]
+        ],
+        "stride_metrics_status": "not calculated: touchdown/stride correspondence not yet validated",
+        "stride_cadence_hz": null,
+        "stride_duty_factor": null,
+        "stride_length_m": null,
+        "stride_phase_offset": null,
+        "both_zero_substeps": 0,
+        "nonfoot_intervals": [],
+        "toe_caps": 0
+      },
+      {
+        "lane": 5,
+        "window_seconds": 2.0,
+        "forward_root_displacement_m": 0.0326225087,
+        "root_height_span_m": 0.0018499489999999896,
+        "whole_body_com_height_span_m": 0.001955742654832976,
+        "root_roll_span_rad": 0.0446396536997585,
+        "root_pitch_span_rad": 0.03944310363505057,
+        "joint_spans_rad": {
+          "left_hip": 0.2699457112,
+          "left_knee": 0.378160388,
+          "left_ankle": 0.15012233,
+          "right_hip": 0.2690520588,
+          "right_knee": 0.37927371200000004,
+          "right_ankle": 0.151133388,
+          "neck_yaw": 0.00920712854,
+          "head_pitch": 0.015452310400000002
+        },
+        "head_world_axis_spans_m": [
+          0.03254246409988612,
+          0.012914655547195241,
+          0.00704550461987169
+        ],
+        "head_relative_to_torso_axis_spans_m": [
+          0.00019296748473413006,
+          0.0003754164665749624,
+          0.0006312603504392972
+        ],
+        "foot_loaded_fraction_window": [
+          0.675625,
+          0.601875
+        ],
+        "both_loaded_fraction_window": 0.2775,
+        "neither_loaded_fraction_window": 0.0,
+        "sole_clear_but_toes_below_clearance_intervals": [
+          12,
+          11
+        ],
+        "foot_COM_motion_while_loaded_proxy_m": [
+          0.0365911567608813,
+          0.032707293896856796
+        ],
+        "support_qualified_swing_bouts": [
+          [
+            [
+              228,
+              236
+            ],
+            [
+              254,
+              261
+            ],
+            [
+              279,
+              286
+            ]
+          ],
+          [
+            [
+              218,
+              223
+            ],
+            [
+              241,
+              249
+            ],
+            [
+              266,
+              274
+            ],
+            [
+              291,
+              299
+            ]
+          ]
+        ],
+        "stride_metrics_status": "not calculated: touchdown/stride correspondence not yet validated",
+        "stride_cadence_hz": null,
+        "stride_duty_factor": null,
+        "stride_length_m": null,
+        "stride_phase_offset": null,
+        "both_zero_substeps": 0,
+        "nonfoot_intervals": [],
+        "toe_caps": 0
+      },
+      {
+        "lane": 6,
+        "window_seconds": 2.0,
+        "forward_root_displacement_m": 0.031857946169,
+        "root_height_span_m": 0.001831294000000011,
+        "whole_body_com_height_span_m": 0.0019371308780123941,
+        "root_roll_span_rad": 0.04422531145523555,
+        "root_pitch_span_rad": 0.03922111021168508,
+        "joint_spans_rad": {
+          "left_hip": 0.2699711026,
+          "left_knee": 0.37812206200000004,
+          "left_ankle": 0.150113776,
+          "right_hip": 0.2690379248,
+          "right_knee": 0.37929880600000004,
+          "right_ankle": 0.15112118399999996,
+          "neck_yaw": 0.009169843050000001,
+          "head_pitch": 0.01505225150000001
+        },
+        "head_world_axis_spans_m": [
+          0.03232271966143546,
+          0.013519734720058185,
+          0.006982101750892089
+        ],
+        "head_relative_to_torso_axis_spans_m": [
+          0.0001880530154081128,
+          0.00037390375053263883,
+          0.0006148642996893772
+        ],
+        "foot_loaded_fraction_window": [
+          0.675,
+          0.59125
+        ],
+        "both_loaded_fraction_window": 0.26625,
+        "neither_loaded_fraction_window": 0.0,
+        "sole_clear_but_toes_below_clearance_intervals": [
+          12,
+          11
+        ],
+        "foot_COM_motion_while_loaded_proxy_m": [
+          0.036345536121225576,
+          0.031390210627654146
+        ],
+        "support_qualified_swing_bouts": [
+          [
+            [
+              228,
+              236
+            ],
+            [
+              254,
+              261
+            ],
+            [
+              279,
+              286
+            ]
+          ],
+          [
+            [
+              218,
+              223
+            ],
+            [
+              241,
+              249
+            ],
+            [
+              266,
+              274
+            ],
+            [
+              291,
+              299
+            ]
+          ]
+        ],
+        "stride_metrics_status": "not calculated: touchdown/stride correspondence not yet validated",
+        "stride_cadence_hz": null,
+        "stride_duty_factor": null,
+        "stride_length_m": null,
+        "stride_phase_offset": null,
+        "both_zero_substeps": 0,
+        "nonfoot_intervals": [],
+        "toe_caps": 0
+      },
+      {
+        "lane": 7,
+        "window_seconds": 2.0,
+        "forward_root_displacement_m": 0.0318034217,
+        "root_height_span_m": 0.0018184629999999924,
+        "whole_body_com_height_span_m": 0.001923871402400773,
+        "root_roll_span_rad": 0.04419948594861374,
+        "root_pitch_span_rad": 0.03939639451158164,
+        "joint_spans_rad": {
+          "left_hip": 0.2699559107,
+          "left_knee": 0.37811630900000004,
+          "left_ankle": 0.150117874,
+          "right_hip": 0.2690354881,
+          "right_knee": 0.37928906100000004,
+          "right_ankle": 0.151120931,
+          "neck_yaw": 0.0092231608,
+          "head_pitch": 0.015108004200000004
+        },
+        "head_world_axis_spans_m": [
+          0.032284838027359736,
+          0.012731328610549833,
+          0.007024909082444242
+        ],
+        "head_relative_to_torso_axis_spans_m": [
+          0.00018877340321260538,
+          0.00037607523819212696,
+          0.000617152520618669
+        ],
+        "foot_loaded_fraction_window": [
+          0.675,
+          0.59125
+        ],
+        "both_loaded_fraction_window": 0.26625,
+        "neither_loaded_fraction_window": 0.0,
+        "sole_clear_but_toes_below_clearance_intervals": [
+          12,
+          11
+        ],
+        "foot_COM_motion_while_loaded_proxy_m": [
+          0.0362996608203962,
+          0.03134277258298611
+        ],
+        "support_qualified_swing_bouts": [
+          [
+            [
+              228,
+              236
+            ],
+            [
+              254,
+              261
+            ],
+            [
+              279,
+              286
+            ]
+          ],
+          [
+            [
+              218,
+              223
+            ],
+            [
+              241,
+              249
+            ],
+            [
+              266,
+              274
+            ],
+            [
+              291,
+              299
+            ]
+          ]
+        ],
+        "stride_metrics_status": "not calculated: touchdown/stride correspondence not yet validated",
+        "stride_cadence_hz": null,
+        "stride_duty_factor": null,
+        "stride_length_m": null,
+        "stride_phase_offset": null,
+        "both_zero_substeps": 0,
+        "nonfoot_intervals": [],
+        "toe_caps": 0
+      }
+    ],
+    "episode": {
+      "boundary": "waypoint completion; does not establish supported landing",
+      "closed_by_environment": [
+        false,
+        false,
+        false,
+        false,
+        false,
+        false,
+        false,
+        false
+      ],
+      "closed_episode_count": 0,
+      "completion_seen_by_environment": [
+        false,
+        false,
+        false,
+        false,
+        false,
+        false,
+        false,
+        false
+      ],
+      "completion_seen_count": 0,
+      "environment_count": 8,
+      "first_completion_step_by_environment": [
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "horizon_censored_count": 8,
+      "maximum_waypoints_by_environment": [
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ],
+      "physical_failure_by_environment": [
+        false,
+        false,
+        false,
+        false,
+        false,
+        false,
+        false,
+        false
+      ],
+      "physical_failure_count": 0,
+      "safe_completion_by_environment": [
+        false,
+        false,
+        false,
+        false,
+        false,
+        false,
+        false,
+        false
+      ],
+      "safe_completion_count": 0,
+      "schema": "numi.crow-first-episode-evidence.v1",
+      "steps_by_environment": [
+        300,
+        300,
+        300,
+        300,
+        300,
+        300,
+        300,
+        300
+      ],
+      "termination_reason_by_environment": [
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ],
+      "unit": "first episode of each environment since context creation"
+    },
+    "errors": [],
+    "low_toe_count": 190
+  },
+  "scope": "Development seed, 2 s walking after 4 s preparation. Candidate uses model-specific native FK and collision extents, validated against lane-5 replay. Geometry differs from control, so trajectories are not expected to match; results are exploratory and not a pre-admission pass or biological qualification."
+}

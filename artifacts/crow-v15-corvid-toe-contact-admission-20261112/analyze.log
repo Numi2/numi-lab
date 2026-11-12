@@ -1,0 +1,20 @@
+artifacts/crow-v15-corvid-toe-contact-admission-20261112/control-20261127 q_error 4.992523061631005e-10 position_error_m 1.6491288884286443e-08 rotation_error 2.9775649490101848e-08
+artifacts/crow-v15-corvid-toe-contact-admission-20261112/candidate-20261127 q_error 4.99450703017601e-10 position_error_m 1.5854497756278804e-08 rotation_error 2.980653149919713e-08
+control low-toe 192 errors 0
+0 travel 0.0335 bouts [3, 4] zero 0 caps 0 nonfoot 0
+1 travel 0.0339 bouts [3, 4] zero 0 caps 0 nonfoot 0
+2 travel 0.0336 bouts [3, 4] zero 0 caps 0 nonfoot 0
+3 travel 0.0334 bouts [3, 4] zero 0 caps 0 nonfoot 0
+4 travel 0.0331 bouts [3, 4] zero 0 caps 0 nonfoot 0
+5 travel 0.032 bouts [3, 4] zero 0 caps 0 nonfoot 0
+6 travel 0.0329 bouts [3, 4] zero 0 caps 0 nonfoot 0
+7 travel 0.0329 bouts [3, 4] zero 0 caps 0 nonfoot 0
+candidate low-toe 190 errors 0
+0 travel 0.0327 bouts [3, 4] zero 0 caps 0 nonfoot 0
+1 travel 0.0324 bouts [3, 4] zero 0 caps 0 nonfoot 0
+2 travel 0.0323 bouts [3, 4] zero 0 caps 0 nonfoot 0
+3 travel 0.0325 bouts [3, 4] zero 0 caps 0 nonfoot 0
+4 travel 0.0326 bouts [3, 4] zero 0 caps 0 nonfoot 0
+5 travel 0.0326 bouts [3, 4] zero 0 caps 0 nonfoot 0
+6 travel 0.0319 bouts [3, 4] zero 0 caps 0 nonfoot 0
+7 travel 0.0318 bouts [3, 4] zero 0 caps 0 nonfoot 0

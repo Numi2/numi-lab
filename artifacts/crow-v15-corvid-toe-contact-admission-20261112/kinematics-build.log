@@ -1,0 +1,12 @@
+In file included from artifacts/crow-v15-corvid-toe-contact-admission-20261112/kinematics.cpp:2:
+In file included from artifacts/crow-v15-corvid-toe-contact-admission-20261112/hip-roll-ratio.cpp:2:
+artifacts/crow-v15-corvid-toe-contact-admission-20261112/../crow-v15-corvid-toe-proportion-prototype-20261112/probe.cpp:79:78: warning: non-void function does not return a value in all control paths [-Wreturn-type]
+   79 |   } catch(const std::exception& e){std::cerr<<e.what()<<std::endl;return 1;} }
+      |                                                                              ^
+1 warning generated.
+In file included from artifacts/crow-v15-corvid-toe-contact-admission-20261112/kinematics-velocity.cpp:2:
+In file included from artifacts/crow-v15-corvid-toe-contact-admission-20261112/hip-roll-ratio.cpp:2:
+artifacts/crow-v15-corvid-toe-contact-admission-20261112/../crow-v15-corvid-toe-proportion-prototype-20261112/probe.cpp:79:78: warning: non-void function does not return a value in all control paths [-Wreturn-type]
+   79 |   } catch(const std::exception& e){std::cerr<<e.what()<<std::endl;return 1;} }
+      |                                                                              ^
+1 warning generated.
