@@ -12,7 +12,7 @@ def read(p):
     i=z.index("q");j=z.index("v");x[e,t]=[list(map(float,z[i+1:j])),list(map(float,z[j+1:]))]
  return x
 ref=read(R/"zero");result={}
-for arm in ("positive","negative"):
+for arm in ("mixed",):
  vals=read(A/arm);bad=[];n=0
  for k in sorted(set(ref)&set(vals)):
   n+=1

@@ -1,6 +1,6 @@
 from pathlib import Path
 import collections,gzip,json,math,sys
-root=Path("artifacts/crow-v15-perch-com-feedback-screen-20261112"); arm=sys.argv[1]; assert arm in ("positive","negative"); A=root/arm;states={};ends=collections.Counter();coverage=collections.Counter();speeds=collections.Counter();caps=collections.Counter();totals=collections.defaultdict(lambda:[0.]*37);overflow=[];errors=[];peak=collections.defaultdict(float)
+root=Path("artifacts/crow-v15-perch-com-feedback-screen-20261112"); arm=sys.argv[1]; assert arm == "mixed"; A=root/arm;states={};ends=collections.Counter();coverage=collections.Counter();speeds=collections.Counter();caps=collections.Counter();totals=collections.defaultdict(lambda:[0.]*37);overflow=[];errors=[];peak=collections.defaultdict(float)
 with gzip.open(A/"trace.log.gz","rt") as f:
  for line in f:
   z=line.split()
@@ -31,7 +31,7 @@ for e in range(8):
   if fall is None and q[2]<.1:fall=t
  missing=sum(coverage[e,t,k]!=1 for t in range(1,n+1) for k in range(32));missing_v=sum(speeds[e,t,k]!=1 for t in range(1,n+1) for k in range(32));complete=n==550 and len(vals)==550 and not missing and not missing_v and not overflow and not errors
  last=vals[-100:];window=complete and len(last)==100 and all(abs(z[1])<=.25 for z in last) and all(support[-100:]);passed=window and not nonfoot and not caps[e] and fall is None
- rows.append({"lane":e,"gain":{"positive":.5,"negative":-.5}[arm],"initial_pitch_rad":.04 if e%2==0 else -.04,"accepted_intervals":n,"fall_below_root_height_0_1m":fall,"max_abs_pitch_rad":max((abs(z[1]) for z in vals),default=None),"max_abs_pitch_rate_rad_s":max((abs(z[2]) for z in vals),default=None),"final_pitch_rad":vals[-1][1] if vals else None,"final_pitch_rate_rad_s":vals[-1][2] if vals else None,"final_100_supported_and_pitch_bound":window,"all_run_nonfoot_contact_intervals":nonfoot,"toe_speed_cap_substeps":caps[e],"peak_substep_toe_speed_rad_s":peak[e],"missing_contact_substeps":missing,"missing_velocity_substeps":missing_v,"pass":passed})
+ rows.append({"lane":e,"gain":(.5 if e%4<2 else -.5),"initial_pitch_rad":.04 if e%2==0 else -.04,"accepted_intervals":n,"fall_below_root_height_0_1m":fall,"max_abs_pitch_rad":max((abs(z[1]) for z in vals),default=None),"max_abs_pitch_rate_rad_s":max((abs(z[2]) for z in vals),default=None),"final_pitch_rad":vals[-1][1] if vals else None,"final_pitch_rate_rad_s":vals[-1][2] if vals else None,"final_100_supported_and_pitch_bound":window,"all_run_nonfoot_contact_intervals":nonfoot,"toe_speed_cap_substeps":caps[e],"peak_substep_toe_speed_rad_s":peak[e],"missing_contact_substeps":missing,"missing_velocity_substeps":missing_v,"pass":passed})
 parity=[]
 for e in range(2,8):
  base=e%2; times=range(1,min(10,ends[e],ends[base])+1);bad=next((t for t in times if states[e,t]!=states[base,t]),None);parity.append({"lane":e,"reference_lane":base,"matched_steps":len(list(times)) if bad is None else bad-1,"first_mismatch":bad})
