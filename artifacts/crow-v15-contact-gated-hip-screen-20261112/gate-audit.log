@@ -1,0 +1,74 @@
+[
+  {
+    "lane": 0,
+    "sample_count": 550,
+    "first_step": 0,
+    "last_step": 549,
+    "gate_nonzero_intervals": 18,
+    "gate_mean": 0.0037818180385454547,
+    "reconstruction_mismatches": []
+  },
+  {
+    "lane": 1,
+    "sample_count": 550,
+    "first_step": 0,
+    "last_step": 549,
+    "gate_nonzero_intervals": 540,
+    "gate_mean": 0.9600000002423636,
+    "reconstruction_mismatches": []
+  },
+  {
+    "lane": 2,
+    "sample_count": 550,
+    "first_step": 0,
+    "last_step": 549,
+    "gate_nonzero_intervals": 26,
+    "gate_mean": 0.008727271998545453,
+    "reconstruction_mismatches": []
+  },
+  {
+    "lane": 3,
+    "sample_count": 550,
+    "first_step": 0,
+    "last_step": 549,
+    "gate_nonzero_intervals": 540,
+    "gate_mean": 0.9600000002423636,
+    "reconstruction_mismatches": []
+  },
+  {
+    "lane": 4,
+    "sample_count": 550,
+    "first_step": 0,
+    "last_step": 549,
+    "gate_nonzero_intervals": 28,
+    "gate_mean": 0.008509090320363635,
+    "reconstruction_mismatches": []
+  },
+  {
+    "lane": 5,
+    "sample_count": 550,
+    "first_step": 0,
+    "last_step": 549,
+    "gate_nonzero_intervals": 540,
+    "gate_mean": 0.9600000002423636,
+    "reconstruction_mismatches": []
+  },
+  {
+    "lane": 6,
+    "sample_count": 550,
+    "first_step": 0,
+    "last_step": 549,
+    "gate_nonzero_intervals": 18,
+    "gate_mean": 0.0037818180385454547,
+    "reconstruction_mismatches": []
+  },
+  {
+    "lane": 7,
+    "sample_count": 550,
+    "first_step": 0,
+    "last_step": 549,
+    "gate_nonzero_intervals": 540,
+    "gate_mean": 0.9600000002423636,
+    "reconstruction_mismatches": []
+  }
+]
