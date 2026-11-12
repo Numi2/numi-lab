@@ -1,0 +1,3 @@
+# Terminal descent damping sensitivity
+
+On the same used development course and seed, preserve two control lanes and test terminal target vertical-speed damping coefficients 0.65, 0.95 and 1.25 in two lanes each, versus the original 0.35. The single shader change operates only in the existing final-goal height command and does not inject pose, velocity or extra force. The first-contact observation suggested, but did not prove, slower descent helps support. Verify matching prefixes and compare first-contact velocity, foot forces, supported hold, toe clearance, failures and all waypoints through 4400 steps. Paired development lanes are not independent biological or held-out mission evidence; the inherited older flight controller is not qualified.

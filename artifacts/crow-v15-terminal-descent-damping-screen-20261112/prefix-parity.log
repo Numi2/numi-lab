@@ -1,0 +1,18 @@
+{
+  "0-state": true,
+  "0-contact": true,
+  "1-state": true,
+  "1-contact": true,
+  "2-state": false,
+  "2-contact": false,
+  "3-state": false,
+  "3-contact": false,
+  "4-state": false,
+  "4-contact": false,
+  "5-state": false,
+  "5-contact": false,
+  "6-state": false,
+  "6-contact": false,
+  "7-state": false,
+  "7-contact": false
+}

@@ -1,0 +1,21 @@
+{
+  "first_state_divergence": {
+    "7": 2982,
+    "3": 3012,
+    "6": 3025,
+    "4": 3068,
+    "5": 3077,
+    "2": 3081
+  },
+  "compared_endpoints": {
+    "0": 3801,
+    "1": 3801,
+    "2": 3801,
+    "3": 3801,
+    "4": 3801,
+    "5": 3801,
+    "6": 3801,
+    "7": 3801
+  },
+  "scope": "Control endpoint record, including actor outputs; this is not a full-substep verification before each divergence."
+}

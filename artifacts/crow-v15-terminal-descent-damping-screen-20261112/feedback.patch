@@ -1,0 +1,33 @@
+--- a/reference.metal
++++ b/feedback.metal
+@@ -5003,7 +5003,7 @@
+             const float vx=state.commandExtension.z;
+             const float vz=state.threatGeometry.y;
+             const float height=state.threatTeacher.w>0.5f
+-                ? state.nutrition.z+.03f+clamp(-.35f*vz,0.0f,.35f) : 1.30f;
++                ? state.nutrition.z+.03f+clamp(-((environment%8u<2u) ? .35f : (environment%8u<4u) ? .65f : (environment%8u<6u) ? .95f : 1.25f)*vz,0.0f,.35f) : 1.30f;
+             oracleCommand=float4(clamp(.55f*(ex+.02f)+.10f-.65f*vx,-.10f,.35f),
+                 clamp(.80f*ey,-.30f,.30f),clamp(state.commandExtension.x,-.15f,.15f),height);
+         }
+@@ -5554,7 +5554,7 @@
+             const uint frontRamp=ramp>2u ? ramp-2u : 0u;
+             for (uint toe=0u;toe<4u;++toe) {
+                 const float extension=side==0u && seq>=170u && seq<255u ? -.20f*clamp(float(seq-170u)/35.0f,0.0f,1.0f)*(1.0f-returning) : 0.0f;
+-                const float proximal=(toe==3u ? min(.04f*float(ramp),1.15f) : min(.03f*float(frontRamp),1.05f))+extension;
++                const float perchTarget=(toe==3u ? min(.04f*float(ramp),1.15f) : min(.03f*float(frontRamp),1.05f))+extension; const float flightTarget=.025f*float((state.status.w>>23u)&31u); const float proximal=max(perchTarget,flightTarget);
+                 for(uint segment=0u;segment<2u;++segment) {
+                     const uint dof=22u+side*8u+toe*2u+segment;
+                     effortTrajectory[pass.controlStep*worldDispatch.effortStepStride + environment*worldDispatch.effortEnvironmentStride + dof]=proximal*(segment==0u ? 1.0f : .75f);
+@@ -9463,6 +9463,12 @@
+             const bool released=(previous&8192u)!=0u || (low && (previous&32768u)!=0u && state.airReturnTracking.y>.195f && state.threatGeometry.y>.05f);
+             const uint retract=released ? 4096u : 0u;
+             state.status.w=(previous & ~(4096u|8192u|16384u|32768u)) | low1 | low2 | retract | (released?8192u:0u);
++            // Toe flight state uses bits 23-27; release uses bits 16-19 and 28-31.
++            const uint oldToeFlight=(state.status.w>>23u)&31u;
++            const bool curlFlight=released && seconds>=7.4f && state.navigation.z<4.0f;
++            const uint nextToeFlight=curlFlight ? min(oldToeFlight+1u,14u) : (oldToeFlight>0u ? oldToeFlight-1u : 0u);
++            state.status.w=(state.status.w & ~(31u<<23u)) | (nextToeFlight<<23u);
++
+         }
+         if (program.counts0.w>=5u && dispatch.counts.w==30u) {
+             const float seconds=float(state.episode.x)*dispatch.timing.x;
