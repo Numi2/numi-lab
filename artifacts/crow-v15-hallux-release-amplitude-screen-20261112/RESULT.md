@@ -1,0 +1,7 @@
+# Increased hallux release amplitude: failed
+
+The matched 0.05-rad late-stance target completed all 300 steps in each lane with exact prewalk parity, no reported physical failure, reset, nonfoot contact, solver error, overflow or toe velocity cap. It retained three left and four right support-qualified clearance bouts per lane, with forward travel 1.22–1.48 times the no-extra-stroke held reference. Aggregate loaded endpoint contact-point median/p95 speeds were 0.00409/0.04421 m/s versus 0.00276/0.03484 m/s for held reference, within the predefined 1.5x limits.
+
+The candidate failed the support gate: seven lanes had 1–3 both-feet-zero-normal substeps, versus zero in the held reference. The contact-order gate also failed: all 40 complete runs with both toe groups had front-first toe-off, while related-magpie observations report the reverse. The matched 0.02-rad loaded-release control likewise had 40/40 front-first toe-off runs. Model digit identity and contact-run thresholds remain limitations. The sole-clear/toe-low gate failed at 181 endpoints versus 49 held and 183 matched control. Of the candidate low-toe endpoints, 131 had accepted toe contacts; those point-speed median/p95 values were 0.0468/0.0917 m/s. Sampled point speed is not integrated slip, and the logged contact point and body velocity can differ slightly in time.
+
+The candidate is not promoted. This used-seed short trial does not qualify real-crow gait or any full sequence.

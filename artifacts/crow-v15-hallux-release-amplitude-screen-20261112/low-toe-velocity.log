@@ -1,0 +1,3 @@
+held {'low_toe_endpoints': 49, 'without_accepted_toe_contact': 49} {'count': 0, 'median_m_s': None, 'p95_m_s': None, 'over_0_01_fraction': None, 'max_m_s': None}
+release_002_sham {'low_toe_endpoints': 183, 'without_accepted_toe_contact': 43, 'with_accepted_toe_contact': 140} {'count': 362, 'median_m_s': 0.04421295356800129, 'p95_m_s': 0.07053414597984374, 'over_0_01_fraction': 1.0, 'max_m_s': 0.073533755753315}
+release_005_candidate {'low_toe_endpoints': 181, 'without_accepted_toe_contact': 50, 'with_accepted_toe_contact': 131} {'count': 329, 'median_m_s': 0.04677880228603203, 'p95_m_s': 0.09171195338381209, 'over_0_01_fraction': 1.0, 'max_m_s': 0.13772505890275263}
