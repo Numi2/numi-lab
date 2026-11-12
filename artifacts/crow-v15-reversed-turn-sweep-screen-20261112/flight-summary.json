@@ -1,0 +1,133 @@
+{
+  "rows": [
+    {
+      "lane": 0,
+      "turn_command": 0,
+      "end_step": 1200,
+      "termination": 0,
+      "yaw_change_rad": -0.17176625553992703,
+      "trajectory_angle_rad": -0.1207346098786556,
+      "dx_m": 3.52923584,
+      "dy_m": -0.4281834584,
+      "max_abs_roll_rad": 0.0009095144435307864,
+      "height_range_m": [
+        1.00397694,
+        1.05904233
+      ],
+      "mean_abs_world_vy_m_s": 0.03558475885461666
+    },
+    {
+      "lane": 1,
+      "turn_command": 0,
+      "end_step": 1200,
+      "termination": 0,
+      "yaw_change_rad": -0.1722190863113418,
+      "trajectory_angle_rad": -0.12965645364646167,
+      "dx_m": 3.5252825000000003,
+      "dy_m": -0.4596542362,
+      "max_abs_roll_rad": 0.0009187203072966586,
+      "height_range_m": [
+        1.15445507,
+        1.20841825
+      ],
+      "mean_abs_world_vy_m_s": 0.038200642857166664
+    },
+    {
+      "lane": 2,
+      "turn_command": 0.15,
+      "end_step": 1200,
+      "termination": 0,
+      "yaw_change_rad": -0.17438885857509845,
+      "trajectory_angle_rad": -0.14801600982740332,
+      "dx_m": 6.03895379,
+      "dy_m": -0.900447357,
+      "max_abs_roll_rad": 0.0013711538059000682,
+      "height_range_m": [
+        1.01435649,
+        1.05973577
+      ],
+      "mean_abs_world_vy_m_s": 0.07489981426033333
+    },
+    {
+      "lane": 3,
+      "turn_command": -0.15,
+      "end_step": 1200,
+      "termination": 0,
+      "yaw_change_rad": 0.08220272963918268,
+      "trajectory_angle_rad": -0.03773838187248127,
+      "dx_m": 6.26891601,
+      "dy_m": -0.23669112099999998,
+      "max_abs_roll_rad": 0.00293517024898935,
+      "height_range_m": [
+        1.16359615,
+        1.20823646
+      ],
+      "mean_abs_world_vy_m_s": 0.020025343885050832
+    },
+    {
+      "lane": 4,
+      "turn_command": 0.15,
+      "end_step": 1200,
+      "termination": 0,
+      "yaw_change_rad": -0.17686933162476837,
+      "trajectory_angle_rad": -0.16942804355544014,
+      "dx_m": 5.99770534,
+      "dy_m": -1.0260158779000002,
+      "max_abs_roll_rad": 0.004016239689992131,
+      "height_range_m": [
+        1.01496601,
+        1.05943012
+      ],
+      "mean_abs_world_vy_m_s": 0.08536886071533334
+    },
+    {
+      "lane": 5,
+      "turn_command": -0.15,
+      "end_step": 1200,
+      "termination": 0,
+      "yaw_change_rad": 0.08380774033930537,
+      "trajectory_angle_rad": -0.0167002219059034,
+      "dx_m": 6.28436649,
+      "dy_m": -0.1049600728,
+      "max_abs_roll_rad": 0.004710360872251087,
+      "height_range_m": [
+        1.16257513,
+        1.20925438
+      ],
+      "mean_abs_world_vy_m_s": 0.013523088199070117
+    },
+    {
+      "lane": 6,
+      "turn_command": 0.15,
+      "end_step": 1200,
+      "termination": 0,
+      "yaw_change_rad": -0.1784993399890215,
+      "trajectory_angle_rad": -0.1899826415528468,
+      "dx_m": 5.9780978000000005,
+      "dy_m": -1.1495991895000002,
+      "max_abs_roll_rad": 0.006728546875526485,
+      "height_range_m": [
+        1.01470625,
+        1.05944717
+      ],
+      "mean_abs_world_vy_m_s": 0.09567320890566666
+    },
+    {
+      "lane": 7,
+      "turn_command": -0.15,
+      "end_step": 1200,
+      "termination": 0,
+      "yaw_change_rad": 0.0864798996749084,
+      "trajectory_angle_rad": 0.002052720692348063,
+      "dx_m": 6.26095474,
+      "dy_m": 0.0128520094,
+      "max_abs_roll_rad": 0.007325390127295092,
+      "height_range_m": [
+        1.16389585,
+        1.20791042
+      ],
+      "mean_abs_world_vy_m_s": 0.012617842275396666
+    }
+  ],
+  "scope": "Turn demand is a bounded constant relative-heading input, not a target-angle closed-loop maneuver. Yaw and path heading are 50 Hz samples; no biological validation."
+}
