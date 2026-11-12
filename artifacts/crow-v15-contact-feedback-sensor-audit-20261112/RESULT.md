@@ -1,0 +1,5 @@
+# Feedback signal was not measuring contact motion
+
+All six experimental lanes produced the same encoded value 524800 at all 99 audited frames, corresponding to the quantized zero-speed code. Independently reconstructing the final-substep, normal-impulse-weighted fore-aft velocities from recorded v15 q/v and contact points gave mean absolute values of 0.0139–0.0154 m/s and maximum per-sample disagreement of 0.276–0.285 m/s. The old feedback trial therefore does not test whether velocity feedback can improve gait; it only tests a near-zero signal. The offline reconstruction uses a higher contact impulse cutoff and the collision point and q/v may be offset by a physics substep, so it is not ground truth slip.
+
+The passive host observer reproduced all 2,400 accepted states and 38,400 contact substeps from the previous run exactly. The sensor audit exposed the task-state value after completion; it did not change the solver or controller. A separate experiment must fix scene-body access and validate the signal before judging feedback.

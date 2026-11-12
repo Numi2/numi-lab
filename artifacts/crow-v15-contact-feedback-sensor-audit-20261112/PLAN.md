@@ -1,0 +1,3 @@
+# Contact feedback sensor audit
+
+The gait feedback screen changed physical hip targets by about 0.00034 rad at many samples for gain 0.5, consistent with a quantized zero-speed reading. Add a passive host print of the already-copied task-state lane after completion; verify exact unchanged simulation states and substep contacts, decode the two 10-bit values, and compare them with independently reconstructed final-substep contact velocities. The observer must not alter the solver or controller. The existing point/velocity timestamp staggering and normal-impulse threshold differ, so report those limitations. This audit checks signal delivery, not biological gait realism.

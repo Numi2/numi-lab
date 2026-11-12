@@ -1,0 +1,10 @@
+--- a/observer.mm
++++ b/slip_observer.mm
+@@ -22397,6 +22397,7 @@
+                     const auto* crowStates=static_cast<const MRTaskStateGPU*>(crowTaskStateCopy.contents);
+                     for (NSUInteger lane=0;lane<crowTraceLanes;++lane) {
+                         const auto& state=crowStates[lane];
++                        if (crowTraceStep>=201 && crowTraceStep<=300) std::fprintf(stderr,"CROW_SENSOR_VALUE %llu %lu %.9g\n",crowTraceStep,(unsigned long)lane,state.airReturnTracking.x);
+                         std::fprintf(stderr,"CROW_PHASE_SAMPLE %llu %lu %u %.9g %.9g %.9g %.9g %.9g %.9g %.9g %.9g\n",
+                             crowTraceStep,(unsigned long)lane,state.status.w,state.threatTeacher.w,
+                             state.nutrition.x,state.nutrition.y,state.commandAndPhase.y,state.commandAndPhase.z,
