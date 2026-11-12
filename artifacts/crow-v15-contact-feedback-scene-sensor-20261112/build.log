@@ -1,0 +1,4 @@
+/Users/n/Developer/numi-crow-rl-20261107/artifacts/crow-v15-contact-feedback-scene-sensor-20261112/screen.metal:5107:30: warning: unused variable 'arm' [-Wunused-variable]
+                { const uint arm=environment%8u;
+                             ^
+1 warning generated.
