@@ -1,0 +1,326 @@
+{
+  "seed": 20261127,
+  "rows": [
+    {
+      "lane": 4,
+      "side": "left",
+      "joint": "knee",
+      "trial": "baseline",
+      "median_abs_error_rad": 0.002520382500000029,
+      "p95_abs_error_rad": 0.01987471144999997,
+      "median_signed_error_rad": 0.0014377834999999561,
+      "median_start_abs_error_rad": 0.010649800499999973
+    },
+    {
+      "lane": 4,
+      "side": "left",
+      "joint": "knee",
+      "trial": "candidate",
+      "median_abs_error_rad": 0.003235758000000033,
+      "p95_abs_error_rad": 0.02439268005000007,
+      "median_signed_error_rad": 0.0019298790000000232,
+      "median_start_abs_error_rad": 0.019695252499999982
+    },
+    {
+      "lane": 4,
+      "side": "left",
+      "joint": "ankle",
+      "trial": "baseline",
+      "median_abs_error_rad": 0.0020388065000000177,
+      "p95_abs_error_rad": 0.004821303149999996,
+      "median_signed_error_rad": -0.0002005994999999816,
+      "median_start_abs_error_rad": 0.009592786500000006
+    },
+    {
+      "lane": 4,
+      "side": "left",
+      "joint": "ankle",
+      "trial": "candidate",
+      "median_abs_error_rad": 0.0016779899999999903,
+      "p95_abs_error_rad": 0.005704411949999951,
+      "median_signed_error_rad": -0.00019386450000000166,
+      "median_start_abs_error_rad": 0.0075250865
+    },
+    {
+      "lane": 4,
+      "side": "right",
+      "joint": "knee",
+      "trial": "baseline",
+      "median_abs_error_rad": 0.0028524699999999403,
+      "p95_abs_error_rad": 0.029376858550000003,
+      "median_signed_error_rad": 0.0017123519999999726,
+      "median_start_abs_error_rad": 0.018088163500000032
+    },
+    {
+      "lane": 4,
+      "side": "right",
+      "joint": "knee",
+      "trial": "candidate",
+      "median_abs_error_rad": 0.0033049880000000087,
+      "p95_abs_error_rad": 0.02866876444999994,
+      "median_signed_error_rad": 0.0019284484999999574,
+      "median_start_abs_error_rad": 0.022203689999999998
+    },
+    {
+      "lane": 4,
+      "side": "right",
+      "joint": "ankle",
+      "trial": "baseline",
+      "median_abs_error_rad": 0.001837119499999984,
+      "p95_abs_error_rad": 0.010531580200000001,
+      "median_signed_error_rad": -3.0144499999967822e-05,
+      "median_start_abs_error_rad": 0.01033374649999999
+    },
+    {
+      "lane": 4,
+      "side": "right",
+      "joint": "ankle",
+      "trial": "candidate",
+      "median_abs_error_rad": 0.0018771439999999695,
+      "p95_abs_error_rad": 0.006017346049999962,
+      "median_signed_error_rad": -6.111000000003086e-05,
+      "median_start_abs_error_rad": 0.008439272499999956
+    },
+    {
+      "lane": 5,
+      "side": "left",
+      "joint": "knee",
+      "trial": "baseline",
+      "median_abs_error_rad": 0.0024096069999999803,
+      "p95_abs_error_rad": 0.03002886510000006,
+      "median_signed_error_rad": 0.0018934305000000151,
+      "median_start_abs_error_rad": 0.011251628999999985
+    },
+    {
+      "lane": 5,
+      "side": "left",
+      "joint": "knee",
+      "trial": "candidate",
+      "median_abs_error_rad": 0.003168255499999939,
+      "p95_abs_error_rad": 0.02435344785000002,
+      "median_signed_error_rad": 0.001916140500000052,
+      "median_start_abs_error_rad": 0.019696265500000032
+    },
+    {
+      "lane": 5,
+      "side": "left",
+      "joint": "ankle",
+      "trial": "baseline",
+      "median_abs_error_rad": 0.0020906329999999806,
+      "p95_abs_error_rad": 0.006761470499999983,
+      "median_signed_error_rad": -0.00027082850000001435,
+      "median_start_abs_error_rad": 0.011028915499999986
+    },
+    {
+      "lane": 5,
+      "side": "left",
+      "joint": "ankle",
+      "trial": "candidate",
+      "median_abs_error_rad": 0.0017544774999999901,
+      "p95_abs_error_rad": 0.006351437449999962,
+      "median_signed_error_rad": -0.0001231434999999781,
+      "median_start_abs_error_rad": 0.0073060539999999785
+    },
+    {
+      "lane": 5,
+      "side": "right",
+      "joint": "knee",
+      "trial": "baseline",
+      "median_abs_error_rad": 0.0026668610000000204,
+      "p95_abs_error_rad": 0.0290540303,
+      "median_signed_error_rad": 0.001711666500000042,
+      "median_start_abs_error_rad": 0.018078985000000047
+    },
+    {
+      "lane": 5,
+      "side": "right",
+      "joint": "knee",
+      "trial": "candidate",
+      "median_abs_error_rad": 0.0033413170000000103,
+      "p95_abs_error_rad": 0.027012261699999988,
+      "median_signed_error_rad": 0.001927345999999941,
+      "median_start_abs_error_rad": 0.022132820000000053
+    },
+    {
+      "lane": 5,
+      "side": "right",
+      "joint": "ankle",
+      "trial": "baseline",
+      "median_abs_error_rad": 0.0020067840000000114,
+      "p95_abs_error_rad": 0.01043605414999999,
+      "median_signed_error_rad": -3.194800000000386e-05,
+      "median_start_abs_error_rad": 0.012815564500000015
+    },
+    {
+      "lane": 5,
+      "side": "right",
+      "joint": "ankle",
+      "trial": "candidate",
+      "median_abs_error_rad": 0.0017916859999999868,
+      "p95_abs_error_rad": 0.005950763199999959,
+      "median_signed_error_rad": -0.00019489250000001568,
+      "median_start_abs_error_rad": 0.010017872000000011
+    },
+    {
+      "lane": 6,
+      "side": "left",
+      "joint": "knee",
+      "trial": "baseline",
+      "median_abs_error_rad": 0.002530843000000005,
+      "p95_abs_error_rad": 0.02000006509999997,
+      "median_signed_error_rad": 0.0016099514999999842,
+      "median_start_abs_error_rad": 0.010422915499999963
+    },
+    {
+      "lane": 6,
+      "side": "left",
+      "joint": "knee",
+      "trial": "candidate",
+      "median_abs_error_rad": 0.0026406350000000023,
+      "p95_abs_error_rad": 0.015562993250000013,
+      "median_signed_error_rad": 0.001392632499999935,
+      "median_start_abs_error_rad": 0.015177011499999948
+    },
+    {
+      "lane": 6,
+      "side": "left",
+      "joint": "ankle",
+      "trial": "baseline",
+      "median_abs_error_rad": 0.0019526930000000053,
+      "p95_abs_error_rad": 0.004531150999999992,
+      "median_signed_error_rad": -0.00011968649999999359,
+      "median_start_abs_error_rad": 0.010543360999999973
+    },
+    {
+      "lane": 6,
+      "side": "left",
+      "joint": "ankle",
+      "trial": "candidate",
+      "median_abs_error_rad": 0.0017130820000000324,
+      "p95_abs_error_rad": 0.006445886150000023,
+      "median_signed_error_rad": 0.00015614900000002208,
+      "median_start_abs_error_rad": 0.008633821999999958
+    },
+    {
+      "lane": 6,
+      "side": "right",
+      "joint": "knee",
+      "trial": "baseline",
+      "median_abs_error_rad": 0.002813488499999961,
+      "p95_abs_error_rad": 0.02673070475000003,
+      "median_signed_error_rad": 0.0015680184999999347,
+      "median_start_abs_error_rad": 0.014657860000000134
+    },
+    {
+      "lane": 6,
+      "side": "right",
+      "joint": "knee",
+      "trial": "candidate",
+      "median_abs_error_rad": 0.0029189290000000145,
+      "p95_abs_error_rad": 0.020690228000000036,
+      "median_signed_error_rad": 0.0014949450000000253,
+      "median_start_abs_error_rad": 0.01704826949999999
+    },
+    {
+      "lane": 6,
+      "side": "right",
+      "joint": "ankle",
+      "trial": "baseline",
+      "median_abs_error_rad": 0.0017949489999999901,
+      "p95_abs_error_rad": 0.005930214550000004,
+      "median_signed_error_rad": -1.476649999998525e-05,
+      "median_start_abs_error_rad": 0.010718658999999991
+    },
+    {
+      "lane": 6,
+      "side": "right",
+      "joint": "ankle",
+      "trial": "candidate",
+      "median_abs_error_rad": 0.0017350465000000037,
+      "p95_abs_error_rad": 0.0055586875999999895,
+      "median_signed_error_rad": 1.4309999999684297e-06,
+      "median_start_abs_error_rad": 0.009825020999999934
+    },
+    {
+      "lane": 7,
+      "side": "left",
+      "joint": "knee",
+      "trial": "baseline",
+      "median_abs_error_rad": 0.002448976500000033,
+      "p95_abs_error_rad": 0.019706833250000114,
+      "median_signed_error_rad": 0.0015235544999999684,
+      "median_start_abs_error_rad": 0.010701596999999896
+    },
+    {
+      "lane": 7,
+      "side": "left",
+      "joint": "knee",
+      "trial": "candidate",
+      "median_abs_error_rad": 0.0028049365000000215,
+      "p95_abs_error_rad": 0.015021926549999915,
+      "median_signed_error_rad": 0.0009629129999999542,
+      "median_start_abs_error_rad": 0.01544395049999997
+    },
+    {
+      "lane": 7,
+      "side": "left",
+      "joint": "ankle",
+      "trial": "baseline",
+      "median_abs_error_rad": 0.002033680499999996,
+      "p95_abs_error_rad": 0.005061043299999961,
+      "median_signed_error_rad": -0.00023521500000001083,
+      "median_start_abs_error_rad": 0.009414404500000001
+    },
+    {
+      "lane": 7,
+      "side": "left",
+      "joint": "ankle",
+      "trial": "candidate",
+      "median_abs_error_rad": 0.0016764549999999934,
+      "p95_abs_error_rad": 0.006431138550000026,
+      "median_signed_error_rad": 0.00015997849999999092,
+      "median_start_abs_error_rad": 0.008675069000000035
+    },
+    {
+      "lane": 7,
+      "side": "right",
+      "joint": "knee",
+      "trial": "baseline",
+      "median_abs_error_rad": 0.003246162000000108,
+      "p95_abs_error_rad": 0.029678645650000005,
+      "median_signed_error_rad": 0.0016271474999999813,
+      "median_start_abs_error_rad": 0.02067384350000001
+    },
+    {
+      "lane": 7,
+      "side": "right",
+      "joint": "knee",
+      "trial": "candidate",
+      "median_abs_error_rad": 0.002893329,
+      "p95_abs_error_rad": 0.020539621000000133,
+      "median_signed_error_rad": 0.0014702699999998847,
+      "median_start_abs_error_rad": 0.01701769249999996
+    },
+    {
+      "lane": 7,
+      "side": "right",
+      "joint": "ankle",
+      "trial": "baseline",
+      "median_abs_error_rad": 0.0018380584999999894,
+      "p95_abs_error_rad": 0.010389190749999987,
+      "median_signed_error_rad": -3.0606499999974446e-05,
+      "median_start_abs_error_rad": 0.010400712499999992
+    },
+    {
+      "lane": 7,
+      "side": "right",
+      "joint": "ankle",
+      "trial": "candidate",
+      "median_abs_error_rad": 0.001675992999999959,
+      "p95_abs_error_rad": 0.0058796495000000195,
+      "median_signed_error_rad": -2.974199999999927e-05,
+      "median_start_abs_error_rad": 0.008870437499999967
+    }
+  ],
+  "scope": "Recorded q at final substep minus target logged at first substep of the same control step; target constancy within that interval is unverified. q index is target velocity index + 1 for free-root 7-coordinate vs 6-velocity layout. One hundred samples per lane; short correlated development trial, not independent biological validation or proof of torque saturation."
+}
