@@ -1,0 +1,128 @@
+{
+  "arms": {
+    "baseline": [
+      {
+        "interval": 262,
+        "substep": 5,
+        "lane": 3,
+        "right_rear_proximal_normal_impulse": 0.00835870113,
+        "right_rear_distal_normal_impulse": 1.68644067e-06,
+        "right_foot_total_normal_impulse": 0.0108149089,
+        "right_foot_vertical_impulse": 0.0110222176
+      },
+      {
+        "interval": 262,
+        "substep": 6,
+        "lane": 3,
+        "right_rear_proximal_normal_impulse": 0.00436546514,
+        "right_rear_distal_normal_impulse": 3.08005298e-07,
+        "right_foot_total_normal_impulse": 0.00509182829,
+        "right_foot_vertical_impulse": 0.00544657558
+      }
+    ],
+    "double": [
+      {
+        "interval": 250,
+        "substep": 1,
+        "lane": 5,
+        "right_rear_proximal_normal_impulse": 0.00573102525,
+        "right_rear_distal_normal_impulse": 1.15932753e-05,
+        "right_foot_total_normal_impulse": 0.00574261928,
+        "right_foot_vertical_impulse": 0.00663002999
+      },
+      {
+        "interval": 250,
+        "substep": 2,
+        "lane": 5,
+        "right_rear_proximal_normal_impulse": 0.00310217612,
+        "right_rear_distal_normal_impulse": 2.59802482e-06,
+        "right_foot_total_normal_impulse": 0.00310477428,
+        "right_foot_vertical_impulse": 0.00359116355
+      },
+      {
+        "interval": 277,
+        "substep": 11,
+        "lane": 7,
+        "right_rear_proximal_normal_impulse": 0.0105955834,
+        "right_rear_distal_normal_impulse": 1.03768043e-05,
+        "right_foot_total_normal_impulse": 0.0156495031,
+        "right_foot_vertical_impulse": 0.0159069914
+      },
+      {
+        "interval": 277,
+        "substep": 12,
+        "lane": 7,
+        "right_rear_proximal_normal_impulse": 0.00367987878,
+        "right_rear_distal_normal_impulse": 2.30823844e-06,
+        "right_foot_total_normal_impulse": 0.00500602135,
+        "right_foot_vertical_impulse": 0.00518612145
+      },
+      {
+        "interval": 277,
+        "substep": 13,
+        "lane": 7,
+        "right_rear_proximal_normal_impulse": 0.00129947765,
+        "right_rear_distal_normal_impulse": 5.23035283e-07,
+        "right_foot_total_normal_impulse": 0.00258602132,
+        "right_foot_vertical_impulse": 0.00272437255
+      }
+    ],
+    "triple": [
+      {
+        "interval": 250,
+        "substep": 30,
+        "lane": 5,
+        "right_rear_proximal_normal_impulse": 0.0101238405,
+        "right_rear_distal_normal_impulse": 2.29305697e-05,
+        "right_foot_total_normal_impulse": 0.0140476963,
+        "right_foot_vertical_impulse": 0.0135945184
+      },
+      {
+        "interval": 250,
+        "substep": 31,
+        "lane": 5,
+        "right_rear_proximal_normal_impulse": 0.0020748158,
+        "right_rear_distal_normal_impulse": 2.44717603e-06,
+        "right_foot_total_normal_impulse": 0.00248500146,
+        "right_foot_vertical_impulse": 0.0025636619
+      },
+      {
+        "interval": 272,
+        "substep": 29,
+        "lane": 7,
+        "right_rear_proximal_normal_impulse": 0.00311981305,
+        "right_rear_distal_normal_impulse": 1.82700023e-05,
+        "right_foot_total_normal_impulse": 0.00545100868,
+        "right_foot_vertical_impulse": 0.00562787382
+      },
+      {
+        "interval": 272,
+        "substep": 30,
+        "lane": 7,
+        "right_rear_proximal_normal_impulse": 0.00110365602,
+        "right_rear_distal_normal_impulse": 4.17364936e-06,
+        "right_foot_total_normal_impulse": 0.00176157325,
+        "right_foot_vertical_impulse": 0.00186895952
+      },
+      {
+        "interval": 277,
+        "substep": 30,
+        "lane": 3,
+        "right_rear_proximal_normal_impulse": 0.00621055486,
+        "right_rear_distal_normal_impulse": 2.66180668e-05,
+        "right_foot_total_normal_impulse": 0.00867903978,
+        "right_foot_vertical_impulse": 0.00828455202
+      },
+      {
+        "interval": 277,
+        "substep": 31,
+        "lane": 3,
+        "right_rear_proximal_normal_impulse": 0.0012745834,
+        "right_rear_distal_normal_impulse": 2.83026816e-06,
+        "right_foot_total_normal_impulse": 0.00151848572,
+        "right_foot_vertical_impulse": 0.00155152893
+      }
+    ]
+  },
+  "scope": "Accepted contact and velocity sampled on the same 0.000625 s physics substep of the constructed-perch bench. Normal impulses are not isolated joint torque and do not establish causation or a full landing."
+}
