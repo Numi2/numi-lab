@@ -1,0 +1,20 @@
+{
+  "arm": "baseline",
+  "observer": {
+    "sha256": "30ad0d9af9a13b9ffb9d108d619e3242183c6317313d400f3c7dd42edb6fe62c",
+    "counts": {
+      "state": 2400,
+      "contact": 38400,
+      "toe": 38400
+    }
+  },
+  "previous": {
+    "sha256": "30ad0d9af9a13b9ffb9d108d619e3242183c6317313d400f3c7dd42edb6fe62c",
+    "counts": {
+      "state": 2400,
+      "contact": 38400,
+      "toe": 38400
+    }
+  },
+  "exact_match": true
+}

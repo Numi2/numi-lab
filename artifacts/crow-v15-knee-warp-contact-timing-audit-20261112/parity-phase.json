@@ -1,0 +1,20 @@
+{
+  "arm": "phase",
+  "observer": {
+    "sha256": "c962f7f2f5850d68158da63a6c1c95475f75fdefb037241029b57fba60d8d3a6",
+    "counts": {
+      "state": 2400,
+      "contact": 38400,
+      "toe": 38400
+    }
+  },
+  "previous": {
+    "sha256": "c962f7f2f5850d68158da63a6c1c95475f75fdefb037241029b57fba60d8d3a6",
+    "counts": {
+      "state": 2400,
+      "contact": 38400,
+      "toe": 38400
+    }
+  },
+  "exact_match": true
+}

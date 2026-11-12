@@ -1,0 +1,20 @@
+--- substep-observer.mm
++++ knee-contact-observer.mm
+@@ -22418,6 +22418,17 @@
+                                 for (NSUInteger j=0;j<crowTraceVStride;++j) std::fprintf(stderr," %.9g",velocities[lane*crowTraceVStride+j]);
+                                 std::fprintf(stderr,"\n");
+                             }
++                            if (lane==4 && crowTraceStep>=201 && crowTraceStep<=300) {
++                                std::fprintf(stderr,"CROW_SYNC_KIN %llu %lu %lu",crowTraceStep,(unsigned long)sub,(unsigned long)lane);
++                                for (NSUInteger j=0;j<crowTraceQStride;++j) std::fprintf(stderr," %.9g",coordinates[lane*crowTraceQStride+j]);
++                                for (NSUInteger j=0;j<crowTraceVStride;++j) std::fprintf(stderr," %.9g",velocities[lane*crowTraceVStride+j]);
++                                std::fprintf(stderr,"\n");
++                                for (NSUInteger ci=0;ci<std::min<NSUInteger>(statuses[lane].activeContacts,crowTraceCapacity);++ci) {
++                                    const auto& c=contacts[lane*crowTraceCapacity+ci];
++                                    if(c.impulses.x>0.f && ((c.bodyA<35u && c.bodyB==35u)||(c.bodyB<35u && c.bodyA==35u)))
++                                        std::fprintf(stderr,"CROW_SYNC_CONTACT %llu %lu %lu %u %u %.9g %.9g %.9g %.9g %.9g %.9g %.9g\n",crowTraceStep,(unsigned long)sub,(unsigned long)lane,c.bodyA,c.bodyB,c.impulses.x,c.pointAndSeparation.x,c.pointAndSeparation.y,c.pointAndSeparation.z,c.normal.x,c.normal.y,c.normal.z);
++                                }
++                            }
+                             float up[2]={}, normal[2]={}, toe[16]={}, signedX[16]={}, other=0;
+                             for(NSUInteger i=0;i<n;++i){const auto& c=contacts[lane*crowTraceCapacity+i];
+                                 if (crowTraceStep>=380u && crowTraceStep<=3800u && c.bodyA<35u && c.bodyB<35u && c.impulses.x>1.0e-7f) std::fprintf(stderr,"CROW_SELF_CONTACT %llu %lu %lu %u %u %.9g %.9g\n",crowTraceStep,(unsigned long)sub,(unsigned long)lane,c.bodyA,c.bodyB,c.impulses.x,c.pointAndSeparation.w);
