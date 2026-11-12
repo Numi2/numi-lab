@@ -1,0 +1,2 @@
+57a0bd7de33c585ff99a2a3330b8dbc04b17b7c145d0263aeb708fd69aba6401  artifacts/crow-v15-coordinated-ankle-contact-screen-20261112/PLAN.md
+990898b33e53276c79f0729d358ac8b69ef3c6c185646b460fdd294efa8a888f  artifacts/crow-v15-coordinated-ankle-contact-screen-20261112/screen.metal

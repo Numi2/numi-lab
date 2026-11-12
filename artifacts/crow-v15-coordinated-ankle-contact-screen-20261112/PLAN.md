@@ -1,0 +1,7 @@
+# Coordinated ankle and hip contact feedback, preregistered
+
+Test whether feedback through both supporting ankle and hip reduces the loaded-foot motion caused by the earlier knee recovery timing. This modifies only bounded joint targets on the v15 diagnostic body. The previously screened .16 knee warp is fixed. The fore-aft loaded-contact sensor uses the 1e-7 Ns cutoff; it temporarily aliases a power-state field and therefore is not production-qualified.
+
+Eight lanes: 0-1 uniform zero-warp controls; 2-3 knee warp .16 plus hip feedback +.5 and ankle zero; 4-5 same warp and hip plus ankle +.5; 6-7 same warp and hip plus ankle -.5. Two already-used seeds 20261126 and 20261127; lanes are correlated and no layout is held out. Retain source, binary hashes, traces, outcomes, and failures. Compare each lane with its corresponding original uniform-baseline lane; compare same-lane prior knee-only and hip-feedback runs where available. Require exact recorded pre-intervention parity.
+
+A candidate must have zero both-feet-unloaded substeps, zero toe-speed-cap substeps and nonfoot ground impulses, 50 Hz sampled contact point speed p95 at most 1.5 times its own baseline on each foot, at least .05 m forward displacement, both feet represented in recovery and no loss in recovery count, and median recovery knee minimum at least 5 percentage points earlier. Validate sensor availability and report limitations. Passing is a screening result, not evidence of biological fit, stable flight, or a completed mission. Sampled speed is not integrated material slip.
