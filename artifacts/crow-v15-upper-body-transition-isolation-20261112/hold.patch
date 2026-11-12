@@ -1,0 +1,11 @@
+--- a/long-gait.metal
++++ b/hold-upper-body.metal
+@@ -5074,7 +5074,7 @@
+         float navigationTeacherRequested = fixedFlightController
+             ? (avianNavigationTeacher && action >= 15u ? studentRequested : teacherRequested)
+             : legacyNavigationTeacherRequested;
+-        if (fixedFlightController && state.episode.z == 10u && action <= 6u && float(state.episode.x)*dispatch.timing.x >= 6.0f && (state.status.w & 8192u)==0u) navigationTeacherRequested=0.0f;
++        if (fixedFlightController && state.episode.z == 10u && action <= 6u && float(state.episode.x)*dispatch.timing.x >= 6.0f && (state.status.w & 8192u)==0u) navigationTeacherRequested=float(state.episode.x)*dispatch.timing.x < 10.0f ? actionHistory[delayBase + filterSlot*program.counts0.x + action] : 0.0f;
+         // Experimental gait ends before the launch crouch takes control.
+         if (fixedFlightController && state.episode.z == 10u && action >= 7u && action <= 12u) {
+             const float seconds=float(state.episode.x)*dispatch.timing.x;
