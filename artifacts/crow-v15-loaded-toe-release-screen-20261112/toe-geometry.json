@@ -1,0 +1,27 @@
+{
+  "source": "supporting-leg stroke lane 5 step 305",
+  "fk_sha256": "c7ad98414062d68d5112a067634dca427bbc22e476cd9aa05c968bfd31b2c9bf",
+  "rows": [
+    {
+      "proximal_offset_rad": -0.2,
+      "distal_offset_rad": -0.15000000000000002,
+      "clearance_m": 0.003830775193236647
+    },
+    {
+      "proximal_offset_rad": -0.1,
+      "distal_offset_rad": -0.07500000000000001,
+      "clearance_m": 0.0017092896945285468
+    },
+    {
+      "proximal_offset_rad": 0,
+      "distal_offset_rad": 0.0,
+      "clearance_m": -0.0011768767718353251
+    },
+    {
+      "proximal_offset_rad": 0.1,
+      "distal_offset_rad": 0.07500000000000001,
+      "clearance_m": -0.005841320080114884
+    }
+  ],
+  "scope": "Frozen-pose kinematics only; offsets from current joint states, not joint targets, forces, reachability or in-vivo data."
+}
