@@ -1,0 +1,17 @@
+artifacts/crow-v15-early-toe-release-screen-20261112/sham-20261126-paired q_error 4.999694547258571e-10 position_error_m 1.5787311384445568e-08 rotation_error 2.9783623063509514e-08
+artifacts/crow-v15-early-toe-release-screen-20261112/candidate-20261126-rebound q_error 4.995651115002886e-10 position_error_m 1.6151669122764378e-08 rotation_error 2.9787281770237795e-08
+artifacts/crow-v15-short-toe-swing-screen-20261112/candidate-20261126-rebound q_error 4.996490443609503e-10 position_error_m 1.5845341514864888e-08 rotation_error 2.9807201935902716e-08
+{
+  "sham": {
+    "events": 48,
+    "missing": 0
+  },
+  "early": {
+    "events": 48,
+    "missing": 0
+  },
+  "short": {
+    "events": 48,
+    "missing": 0
+  }
+}

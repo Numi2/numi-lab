@@ -1,0 +1,7 @@
+# Toe motion at the next loaded contact
+
+For each defined full-foot clearance bout in the seed-20261126 trials, the analysis searched the next 100 ms for three consecutive substeps in which that foot received at least half a modeled body weight of normal impulse. This is an explicit loaded-contact proxy, not validated anatomical touchdown. All 48 bouts per arm found such an event. Foot pose was checked against the accepted replay by the prior native forward-kinematics analysis.
+
+Across eight lane-level medians, right rear proximal toe velocity at this event was -1.767 rad/s in the no-extra-toe sham, +0.436 rad/s with the wider early-release command, and +0.009 rad/s with the shortened command. Corresponding left-toe medians were -1.999, +0.460 and -0.330 rad/s. These are post-substep joint velocities at different evolving physical states; they are not applied torques or real-crow measurements. They show that the interventions substantially change toe motion as loading begins, even though all three arms produce the defined clearance bouts. The shortened command had the worst forward travel, so simply making this velocity smaller is not established as a fix.
+
+The seed was already used for development; three repeated events per foot and lane are dependent. The exact event definitions, missing counts, traces, and lane-level observations are retained. This study does not establish biological gait, causal force attribution, sustained walking, or an autonomous sequence.

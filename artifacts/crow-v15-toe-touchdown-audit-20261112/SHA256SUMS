@@ -1,0 +1,8 @@
+a5a99c748e85751c5f19d189d180679c24f4e511f65bc88126b94e5fde89f49a  artifacts/crow-v15-toe-touchdown-audit-20261112/RESULT.md
+931ad725d58abe496f707806d7750c266cdd60da83eaa1948bb35a89e7860367  artifacts/crow-v15-toe-touchdown-audit-20261112/analysis.json
+a7703daa6c10bec6f033f183446e8cb3867dd757afdcd14bd4675714c263795e  artifacts/crow-v15-toe-touchdown-audit-20261112/analysis.log
+238c98becf994246b85a3947fa0e834c28142b91575d81bc9971e9005766491f  artifacts/crow-v15-toe-touchdown-audit-20261112/analyze.py
+7ebff3b08e6de9e24041f7c969ede651a5b28e121d2f6a864549ed94e6ef9047  artifacts/crow-v15-whole-gait-audit-20261111/audit.py
+d4211fe648f0dd85ce782d0a0a27a7bb57989a79f2bc9d95ec04a947b5d3bdc8  artifacts/crow-v15-early-toe-release-screen-20261112/sham-20261126-paired/run.stderr.gz
+f97504c692a20e7a1e51e91d4810932e5b55fb673087847534b7ffd46ab23fec  artifacts/crow-v15-early-toe-release-screen-20261112/candidate-20261126-rebound/run.stderr.gz
+e2f3aeb8cdd3ba1f6a1fa9125edb79f7ed6da23e28b9b94ac246f9891639905b  artifacts/crow-v15-short-toe-swing-screen-20261112/candidate-20261126-rebound/run.stderr.gz

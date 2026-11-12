@@ -1,0 +1,2469 @@
+{
+  "half_weight_substep_threshold_Ns": 0.0027594303750000005,
+  "arms": {
+    "sham": {
+      "events": [
+        {
+          "lane": 0,
+          "side": "left",
+          "clearance_bout": [
+            228,
+            235
+          ],
+          "loaded_contact": {
+            "interval": 238,
+            "substep": 8,
+            "delay_ms": 51.25,
+            "proximal_toe_position_rad": -0.0106882295,
+            "proximal_toe_velocity_rad_s": -2.54298711,
+            "proximal_target_rad": 0.0,
+            "foot_normal_impulse_Ns": 0.00304611726
+          }
+        },
+        {
+          "lane": 0,
+          "side": "left",
+          "clearance_bout": [
+            254,
+            260
+          ],
+          "loaded_contact": {
+            "interval": 263,
+            "substep": 5,
+            "delay_ms": 47.5,
+            "proximal_toe_position_rad": -0.00721215038,
+            "proximal_toe_velocity_rad_s": -1.63752329,
+            "proximal_target_rad": 0.0,
+            "foot_normal_impulse_Ns": 0.00454327324
+          }
+        },
+        {
+          "lane": 0,
+          "side": "left",
+          "clearance_bout": [
+            278,
+            285
+          ],
+          "loaded_contact": {
+            "interval": 288,
+            "substep": 4,
+            "delay_ms": 46.25,
+            "proximal_toe_position_rad": -0.00744125107,
+            "proximal_toe_velocity_rad_s": -1.17214775,
+            "proximal_target_rad": 0.0,
+            "foot_normal_impulse_Ns": 0.00485208072
+          }
+        },
+        {
+          "lane": 0,
+          "side": "right",
+          "clearance_bout": [
+            241,
+            247
+          ],
+          "loaded_contact": {
+            "interval": 250,
+            "substep": 7,
+            "delay_ms": 50.0,
+            "proximal_toe_position_rad": -0.0111127896,
+            "proximal_toe_velocity_rad_s": -2.6033361,
+            "proximal_target_rad": 0.0,
+            "foot_normal_impulse_Ns": 0.00331155746
+          }
+        },
+        {
+          "lane": 0,
+          "side": "right",
+          "clearance_bout": [
+            266,
+            273
+          ],
+          "loaded_contact": {
+            "interval": 275,
+            "substep": 13,
+            "delay_ms": 37.5,
+            "proximal_toe_position_rad": -0.0160079859,
+            "proximal_toe_velocity_rad_s": -1.65952766,
+            "proximal_target_rad": 0.0,
+            "foot_normal_impulse_Ns": 0.00281749316
+          }
+        },
+        {
+          "lane": 0,
+          "side": "right",
+          "clearance_bout": [
+            291,
+            298
+          ],
+          "loaded_contact": {
+            "interval": 300,
+            "substep": 13,
+            "delay_ms": 37.5,
+            "proximal_toe_position_rad": -0.0192351695,
+            "proximal_toe_velocity_rad_s": -1.66959858,
+            "proximal_target_rad": 0.0,
+            "foot_normal_impulse_Ns": 0.00330600818
+          }
+        },
+        {
+          "lane": 1,
+          "side": "left",
+          "clearance_bout": [
+            228,
+            236
+          ],
+          "loaded_contact": {
+            "interval": 238,
+            "substep": 9,
+            "delay_ms": 32.5,
+            "proximal_toe_position_rad": -0.0132577308,
+            "proximal_toe_velocity_rad_s": -2.43238497,
+            "proximal_target_rad": 0.0,
+            "foot_normal_impulse_Ns": 0.00369841256
+          }
+        },
+        {
+          "lane": 1,
+          "side": "left",
+          "clearance_bout": [
+            253,
+            260
+          ],
+          "loaded_contact": {
+            "interval": 263,
+            "substep": 5,
+            "delay_ms": 47.5,
+            "proximal_toe_position_rad": -0.00728501473,
+            "proximal_toe_velocity_rad_s": -1.63728952,
+            "proximal_target_rad": 0.0,
+            "foot_normal_impulse_Ns": 0.00431853533
+          }
+        },
+        {
+          "lane": 1,
+          "side": "left",
+          "clearance_bout": [
+            278,
+            285
+          ],
+          "loaded_contact": {
+            "interval": 288,
+            "substep": 4,
+            "delay_ms": 46.25,
+            "proximal_toe_position_rad": -0.00703393808,
+            "proximal_toe_velocity_rad_s": -1.17028046,
+            "proximal_target_rad": 0.0,
+            "foot_normal_impulse_Ns": 0.00321933674
+          }
+        },
+        {
+          "lane": 1,
+          "side": "right",
+          "clearance_bout": [
+            241,
+            247
+          ],
+          "loaded_contact": {
+            "interval": 250,
+            "substep": 6,
+            "delay_ms": 48.75,
+            "proximal_toe_position_rad": -0.0100729112,
+            "proximal_toe_velocity_rad_s": -2.30859995,
+            "proximal_target_rad": 0.0,
+            "foot_normal_impulse_Ns": 0.00315936212
+          }
+        },
+        {
+          "lane": 1,
+          "side": "right",
+          "clearance_bout": [
+            266,
+            273
+          ],
+          "loaded_contact": {
+            "interval": 275,
+            "substep": 13,
+            "delay_ms": 37.5,
+            "proximal_toe_position_rad": -0.016206054,
+            "proximal_toe_velocity_rad_s": -1.66146111,
+            "proximal_target_rad": 0.0,
+            "foot_normal_impulse_Ns": 0.00281646708
+          }
+        },
+        {
+          "lane": 1,
+          "side": "right",
+          "clearance_bout": [
+            291,
+            298
+          ],
+          "loaded_contact": {
+            "interval": 300,
+            "substep": 13,
+            "delay_ms": 37.5,
+            "proximal_toe_position_rad": -0.0181567296,
+            "proximal_toe_velocity_rad_s": -1.61339402,
+            "proximal_target_rad": 0.0,
+            "foot_normal_impulse_Ns": 0.00355971698
+          }
+        },
+        {
+          "lane": 2,
+          "side": "left",
+          "clearance_bout": [
+            228,
+            236
+          ],
+          "loaded_contact": {
+            "interval": 238,
+            "substep": 8,
+            "delay_ms": 31.25,
+            "proximal_toe_position_rad": -0.0104656303,
+            "proximal_toe_velocity_rad_s": -2.5149579,
+            "proximal_target_rad": 0.0,
+            "foot_normal_impulse_Ns": 0.00276231812
+          }
+        },
+        {
+          "lane": 2,
+          "side": "left",
+          "clearance_bout": [
+            254,
+            260
+          ],
+          "loaded_contact": {
+            "interval": 263,
+            "substep": 5,
+            "delay_ms": 47.5,
+            "proximal_toe_position_rad": -0.00717822276,
+            "proximal_toe_velocity_rad_s": -1.65531433,
+            "proximal_target_rad": 0.0,
+            "foot_normal_impulse_Ns": 0.00454060687
+          }
+        },
+        {
+          "lane": 2,
+          "side": "left",
+          "clearance_bout": [
+            281,
+            285
+          ],
+          "loaded_contact": {
+            "interval": 288,
+            "substep": 5,
+            "delay_ms": 47.5,
+            "proximal_toe_position_rad": -0.00738059171,
+            "proximal_toe_velocity_rad_s": -2.30879951,
+            "proximal_target_rad": 0.0,
+            "foot_normal_impulse_Ns": 0.00417405227
+          }
+        },
+        {
+          "lane": 2,
+          "side": "right",
+          "clearance_bout": [
+            241,
+            247
+          ],
+          "loaded_contact": {
+            "interval": 250,
+            "substep": 7,
+            "delay_ms": 50.0,
+            "proximal_toe_position_rad": -0.013201193,
+            "proximal_toe_velocity_rad_s": -2.5884912,
+            "proximal_target_rad": 0.0,
+            "foot_normal_impulse_Ns": 0.00422658492
+          }
+        },
+        {
+          "lane": 2,
+          "side": "right",
+          "clearance_bout": [
+            266,
+            273
+          ],
+          "loaded_contact": {
+            "interval": 275,
+            "substep": 13,
+            "delay_ms": 37.5,
+            "proximal_toe_position_rad": -0.0164879207,
+            "proximal_toe_velocity_rad_s": -1.64534473,
+            "proximal_target_rad": 0.0,
+            "foot_normal_impulse_Ns": 0.00281978678
+          }
+        },
+        {
+          "lane": 2,
+          "side": "right",
+          "clearance_bout": [
+            291,
+            297
+          ],
+          "loaded_contact": {
+            "interval": 300,
+            "substep": 10,
+            "delay_ms": 53.75,
+            "proximal_toe_position_rad": -0.0160956904,
+            "proximal_toe_velocity_rad_s": -2.22188926,
+            "proximal_target_rad": 0.0,
+            "foot_normal_impulse_Ns": 0.00331990211
+          }
+        },
+        {
+          "lane": 3,
+          "side": "left",
+          "clearance_bout": [
+            228,
+            236
+          ],
+          "loaded_contact": {
+            "interval": 238,
+            "substep": 9,
+            "delay_ms": 32.5,
+            "proximal_toe_position_rad": -0.0131453341,
+            "proximal_toe_velocity_rad_s": -2.40074492,
+            "proximal_target_rad": 0.0,
+            "foot_normal_impulse_Ns": 0.00344253355
+          }
+        },
+        {
+          "lane": 3,
+          "side": "left",
+          "clearance_bout": [
+            254,
+            260
+          ],
+          "loaded_contact": {
+            "interval": 263,
+            "substep": 4,
+            "delay_ms": 46.25,
+            "proximal_toe_position_rad": -0.00690158922,
+            "proximal_toe_velocity_rad_s": -1.16401076,
+            "proximal_target_rad": 0.0,
+            "foot_normal_impulse_Ns": 0.00317381835
+          }
+        },
+        {
+          "lane": 3,
+          "side": "left",
+          "clearance_bout": [
+            278,
+            285
+          ],
+          "loaded_contact": {
+            "interval": 288,
+            "substep": 4,
+            "delay_ms": 46.25,
+            "proximal_toe_position_rad": -0.00683955662,
+            "proximal_toe_velocity_rad_s": -1.16959739,
+            "proximal_target_rad": 0.0,
+            "foot_normal_impulse_Ns": 0.00291047548
+          }
+        },
+        {
+          "lane": 3,
+          "side": "right",
+          "clearance_bout": [
+            241,
+            247
+          ],
+          "loaded_contact": {
+            "interval": 250,
+            "substep": 10,
+            "delay_ms": 53.75,
+            "proximal_toe_position_rad": -0.014803526,
+            "proximal_toe_velocity_rad_s": -2.15573907,
+            "proximal_target_rad": 0.0,
+            "foot_normal_impulse_Ns": 0.00364207709
+          }
+        },
+        {
+          "lane": 3,
+          "side": "right",
+          "clearance_bout": [
+            266,
+            273
+          ],
+          "loaded_contact": {
+            "interval": 275,
+            "substep": 13,
+            "delay_ms": 37.5,
+            "proximal_toe_position_rad": -0.0183300581,
+            "proximal_toe_velocity_rad_s": -1.62068439,
+            "proximal_target_rad": 0.0,
+            "foot_normal_impulse_Ns": 0.00343046337
+          }
+        },
+        {
+          "lane": 3,
+          "side": "right",
+          "clearance_bout": [
+            291,
+            298
+          ],
+          "loaded_contact": {
+            "interval": 300,
+            "substep": 12,
+            "delay_ms": 36.25,
+            "proximal_toe_position_rad": -0.016709201,
+            "proximal_toe_velocity_rad_s": -1.82806802,
+            "proximal_target_rad": 0.0,
+            "foot_normal_impulse_Ns": 0.00311479485
+          }
+        },
+        {
+          "lane": 4,
+          "side": "left",
+          "clearance_bout": [
+            228,
+            235
+          ],
+          "loaded_contact": {
+            "interval": 238,
+            "substep": 9,
+            "delay_ms": 52.5,
+            "proximal_toe_position_rad": -0.0135830594,
+            "proximal_toe_velocity_rad_s": -2.4611721,
+            "proximal_target_rad": 0.0,
+            "foot_normal_impulse_Ns": 0.00377069833
+          }
+        },
+        {
+          "lane": 4,
+          "side": "left",
+          "clearance_bout": [
+            254,
+            261
+          ],
+          "loaded_contact": {
+            "interval": 263,
+            "substep": 10,
+            "delay_ms": 33.75,
+            "proximal_toe_position_rad": -0.0134065133,
+            "proximal_toe_velocity_rad_s": -2.24573803,
+            "proximal_target_rad": 0.0,
+            "foot_normal_impulse_Ns": 0.00299935718
+          }
+        },
+        {
+          "lane": 4,
+          "side": "left",
+          "clearance_bout": [
+            279,
+            285
+          ],
+          "loaded_contact": {
+            "interval": 288,
+            "substep": 4,
+            "delay_ms": 46.25,
+            "proximal_toe_position_rad": -0.0071270573,
+            "proximal_toe_velocity_rad_s": -1.1379137,
+            "proximal_target_rad": 0.0,
+            "foot_normal_impulse_Ns": 0.00366859138
+          }
+        },
+        {
+          "lane": 4,
+          "side": "right",
+          "clearance_bout": [
+            242,
+            247
+          ],
+          "loaded_contact": {
+            "interval": 250,
+            "substep": 5,
+            "delay_ms": 47.5,
+            "proximal_toe_position_rad": -0.00783690158,
+            "proximal_toe_velocity_rad_s": -1.29470813,
+            "proximal_target_rad": 0.0,
+            "foot_normal_impulse_Ns": 0.00336861541
+          }
+        },
+        {
+          "lane": 4,
+          "side": "right",
+          "clearance_bout": [
+            266,
+            272
+          ],
+          "loaded_contact": {
+            "interval": 275,
+            "substep": 9,
+            "delay_ms": 52.5,
+            "proximal_toe_position_rad": -0.0137631241,
+            "proximal_toe_velocity_rad_s": -2.36576581,
+            "proximal_target_rad": 0.0,
+            "foot_normal_impulse_Ns": 0.00360048702
+          }
+        },
+        {
+          "lane": 4,
+          "side": "right",
+          "clearance_bout": [
+            291,
+            298
+          ],
+          "loaded_contact": {
+            "interval": 300,
+            "substep": 13,
+            "delay_ms": 37.5,
+            "proximal_toe_position_rad": -0.0181791782,
+            "proximal_toe_velocity_rad_s": -1.62352371,
+            "proximal_target_rad": 0.0,
+            "foot_normal_impulse_Ns": 0.00314143347
+          }
+        },
+        {
+          "lane": 5,
+          "side": "left",
+          "clearance_bout": [
+            228,
+            236
+          ],
+          "loaded_contact": {
+            "interval": 238,
+            "substep": 9,
+            "delay_ms": 32.5,
+            "proximal_toe_position_rad": -0.0129853664,
+            "proximal_toe_velocity_rad_s": -2.38744354,
+            "proximal_target_rad": 0.0,
+            "foot_normal_impulse_Ns": 0.00353453262
+          }
+        },
+        {
+          "lane": 5,
+          "side": "left",
+          "clearance_bout": [
+            254,
+            260
+          ],
+          "loaded_contact": {
+            "interval": 263,
+            "substep": 5,
+            "delay_ms": 47.5,
+            "proximal_toe_position_rad": -0.00854778197,
+            "proximal_toe_velocity_rad_s": -1.87844658,
+            "proximal_target_rad": 0.0,
+            "foot_normal_impulse_Ns": 0.00615950441
+          }
+        },
+        {
+          "lane": 5,
+          "side": "left",
+          "clearance_bout": [
+            279,
+            285
+          ],
+          "loaded_contact": {
+            "interval": 288,
+            "substep": 4,
+            "delay_ms": 46.25,
+            "proximal_toe_position_rad": -0.00698928488,
+            "proximal_toe_velocity_rad_s": -1.133111,
+            "proximal_target_rad": 0.0,
+            "foot_normal_impulse_Ns": 0.00295039918
+          }
+        },
+        {
+          "lane": 5,
+          "side": "right",
+          "clearance_bout": [
+            241,
+            247
+          ],
+          "loaded_contact": {
+            "interval": 250,
+            "substep": 6,
+            "delay_ms": 48.75,
+            "proximal_toe_position_rad": -0.0107909385,
+            "proximal_toe_velocity_rad_s": -2.4188714,
+            "proximal_target_rad": 0.0,
+            "foot_normal_impulse_Ns": 0.00447137281
+          }
+        },
+        {
+          "lane": 5,
+          "side": "right",
+          "clearance_bout": [
+            266,
+            272
+          ],
+          "loaded_contact": {
+            "interval": 275,
+            "substep": 9,
+            "delay_ms": 52.5,
+            "proximal_toe_position_rad": -0.0147991991,
+            "proximal_toe_velocity_rad_s": -2.3867538,
+            "proximal_target_rad": 0.0,
+            "foot_normal_impulse_Ns": 0.00313896569
+          }
+        },
+        {
+          "lane": 5,
+          "side": "right",
+          "clearance_bout": [
+            291,
+            298
+          ],
+          "loaded_contact": {
+            "interval": 300,
+            "substep": 13,
+            "delay_ms": 37.5,
+            "proximal_toe_position_rad": -0.0176122375,
+            "proximal_toe_velocity_rad_s": -1.58790946,
+            "proximal_target_rad": 0.0,
+            "foot_normal_impulse_Ns": 0.00322789163
+          }
+        },
+        {
+          "lane": 6,
+          "side": "left",
+          "clearance_bout": [
+            228,
+            236
+          ],
+          "loaded_contact": {
+            "interval": 238,
+            "substep": 9,
+            "delay_ms": 32.5,
+            "proximal_toe_position_rad": -0.0124950977,
+            "proximal_toe_velocity_rad_s": -2.32694387,
+            "proximal_target_rad": 0.0,
+            "foot_normal_impulse_Ns": 0.00334169064
+          }
+        },
+        {
+          "lane": 6,
+          "side": "left",
+          "clearance_bout": [
+            254,
+            260
+          ],
+          "loaded_contact": {
+            "interval": 263,
+            "substep": 5,
+            "delay_ms": 47.5,
+            "proximal_toe_position_rad": -0.00785592571,
+            "proximal_toe_velocity_rad_s": -2.27128243,
+            "proximal_target_rad": 0.0,
+            "foot_normal_impulse_Ns": 0.00476482138
+          }
+        },
+        {
+          "lane": 6,
+          "side": "left",
+          "clearance_bout": [
+            279,
+            285
+          ],
+          "loaded_contact": {
+            "interval": 288,
+            "substep": 4,
+            "delay_ms": 46.25,
+            "proximal_toe_position_rad": -0.00688080769,
+            "proximal_toe_velocity_rad_s": -1.12885869,
+            "proximal_target_rad": 0.0,
+            "foot_normal_impulse_Ns": 0.00281556835
+          }
+        },
+        {
+          "lane": 6,
+          "side": "right",
+          "clearance_bout": [
+            245,
+            247
+          ],
+          "loaded_contact": {
+            "interval": 250,
+            "substep": 5,
+            "delay_ms": 47.5,
+            "proximal_toe_position_rad": -0.00885319803,
+            "proximal_toe_velocity_rad_s": -1.95671439,
+            "proximal_target_rad": 0.0,
+            "foot_normal_impulse_Ns": 0.00523402402
+          }
+        },
+        {
+          "lane": 6,
+          "side": "right",
+          "clearance_bout": [
+            266,
+            272
+          ],
+          "loaded_contact": {
+            "interval": 275,
+            "substep": 9,
+            "delay_ms": 52.5,
+            "proximal_toe_position_rad": -0.0146967806,
+            "proximal_toe_velocity_rad_s": -2.39351892,
+            "proximal_target_rad": 0.0,
+            "foot_normal_impulse_Ns": 0.00316898176
+          }
+        },
+        {
+          "lane": 6,
+          "side": "right",
+          "clearance_bout": [
+            291,
+            298
+          ],
+          "loaded_contact": {
+            "interval": 300,
+            "substep": 12,
+            "delay_ms": 36.25,
+            "proximal_toe_position_rad": -0.01707674,
+            "proximal_toe_velocity_rad_s": -1.83369005,
+            "proximal_target_rad": 0.0,
+            "foot_normal_impulse_Ns": 0.00300773024
+          }
+        },
+        {
+          "lane": 7,
+          "side": "left",
+          "clearance_bout": [
+            228,
+            236
+          ],
+          "loaded_contact": {
+            "interval": 238,
+            "substep": 9,
+            "delay_ms": 32.5,
+            "proximal_toe_position_rad": -0.0128726717,
+            "proximal_toe_velocity_rad_s": -2.3741436,
+            "proximal_target_rad": 0.0,
+            "foot_normal_impulse_Ns": 0.00346186734
+          }
+        },
+        {
+          "lane": 7,
+          "side": "left",
+          "clearance_bout": [
+            253,
+            260
+          ],
+          "loaded_contact": {
+            "interval": 263,
+            "substep": 5,
+            "delay_ms": 47.5,
+            "proximal_toe_position_rad": -0.00812060386,
+            "proximal_toe_velocity_rad_s": -2.11996627,
+            "proximal_target_rad": 0.0,
+            "foot_normal_impulse_Ns": 0.00489678141
+          }
+        },
+        {
+          "lane": 7,
+          "side": "left",
+          "clearance_bout": [
+            279,
+            285
+          ],
+          "loaded_contact": {
+            "interval": 288,
+            "substep": 4,
+            "delay_ms": 46.25,
+            "proximal_toe_position_rad": -0.0071485918,
+            "proximal_toe_velocity_rad_s": -1.12233889,
+            "proximal_target_rad": 0.0,
+            "foot_normal_impulse_Ns": 0.0036071185
+          }
+        },
+        {
+          "lane": 7,
+          "side": "right",
+          "clearance_bout": [
+            241,
+            247
+          ],
+          "loaded_contact": {
+            "interval": 250,
+            "substep": 5,
+            "delay_ms": 47.5,
+            "proximal_toe_position_rad": -0.00696995575,
+            "proximal_toe_velocity_rad_s": -1.7059871,
+            "proximal_target_rad": 0.0,
+            "foot_normal_impulse_Ns": 0.00344754197
+          }
+        },
+        {
+          "lane": 7,
+          "side": "right",
+          "clearance_bout": [
+            266,
+            272
+          ],
+          "loaded_contact": {
+            "interval": 275,
+            "substep": 9,
+            "delay_ms": 52.5,
+            "proximal_toe_position_rad": -0.015026262,
+            "proximal_toe_velocity_rad_s": -2.38647842,
+            "proximal_target_rad": 0.0,
+            "foot_normal_impulse_Ns": 0.00316361478
+          }
+        },
+        {
+          "lane": 7,
+          "side": "right",
+          "clearance_bout": [
+            291,
+            298
+          ],
+          "loaded_contact": {
+            "interval": 300,
+            "substep": 13,
+            "delay_ms": 37.5,
+            "proximal_toe_position_rad": -0.0177957732,
+            "proximal_toe_velocity_rad_s": -1.60671675,
+            "proximal_target_rad": 0.0,
+            "foot_normal_impulse_Ns": 0.00280006742
+          }
+        }
+      ],
+      "missing": 0
+    },
+    "early": {
+      "events": [
+        {
+          "lane": 0,
+          "side": "left",
+          "clearance_bout": [
+            228,
+            236
+          ],
+          "loaded_contact": {
+            "interval": 238,
+            "substep": 8,
+            "delay_ms": 31.25,
+            "proximal_toe_position_rad": -0.0113589587,
+            "proximal_toe_velocity_rad_s": 0.458152831,
+            "proximal_target_rad": 0.0,
+            "foot_normal_impulse_Ns": 0.00326170237
+          }
+        },
+        {
+          "lane": 0,
+          "side": "left",
+          "clearance_bout": [
+            253,
+            261
+          ],
+          "loaded_contact": {
+            "interval": 263,
+            "substep": 5,
+            "delay_ms": 27.5,
+            "proximal_toe_position_rad": -0.0127063822,
+            "proximal_toe_velocity_rad_s": 0.459670305,
+            "proximal_target_rad": 0.0,
+            "foot_normal_impulse_Ns": 0.00488878042
+          }
+        },
+        {
+          "lane": 0,
+          "side": "left",
+          "clearance_bout": [
+            278,
+            286
+          ],
+          "loaded_contact": {
+            "interval": 288,
+            "substep": 4,
+            "delay_ms": 26.25,
+            "proximal_toe_position_rad": -0.0132628493,
+            "proximal_toe_velocity_rad_s": 0.388245404,
+            "proximal_target_rad": 0.0,
+            "foot_normal_impulse_Ns": 0.00282907998
+          }
+        },
+        {
+          "lane": 0,
+          "side": "right",
+          "clearance_bout": [
+            242,
+            248
+          ],
+          "loaded_contact": {
+            "interval": 250,
+            "substep": 9,
+            "delay_ms": 32.5,
+            "proximal_toe_position_rad": -0.014448137,
+            "proximal_toe_velocity_rad_s": 0.429024369,
+            "proximal_target_rad": -0.000238465582,
+            "foot_normal_impulse_Ns": 0.00338318734
+          }
+        },
+        {
+          "lane": 0,
+          "side": "right",
+          "clearance_bout": [
+            266,
+            273
+          ],
+          "loaded_contact": {
+            "interval": 275,
+            "substep": 9,
+            "delay_ms": 32.5,
+            "proximal_toe_position_rad": -0.0144297332,
+            "proximal_toe_velocity_rad_s": 0.436456352,
+            "proximal_target_rad": -0.000238486071,
+            "foot_normal_impulse_Ns": 0.00342961354
+          }
+        },
+        {
+          "lane": 0,
+          "side": "right",
+          "clearance_bout": [
+            291,
+            298
+          ],
+          "loaded_contact": {
+            "interval": 300,
+            "substep": 10,
+            "delay_ms": 33.75,
+            "proximal_toe_position_rad": -0.0138623752,
+            "proximal_toe_velocity_rad_s": 0.485983104,
+            "proximal_target_rad": -0.00023844406,
+            "foot_normal_impulse_Ns": 0.00351019623
+          }
+        },
+        {
+          "lane": 1,
+          "side": "left",
+          "clearance_bout": [
+            228,
+            236
+          ],
+          "loaded_contact": {
+            "interval": 238,
+            "substep": 9,
+            "delay_ms": 32.5,
+            "proximal_toe_position_rad": -0.0108347582,
+            "proximal_toe_velocity_rad_s": 0.46762982,
+            "proximal_target_rad": 0.0,
+            "foot_normal_impulse_Ns": 0.00403603911
+          }
+        },
+        {
+          "lane": 1,
+          "side": "left",
+          "clearance_bout": [
+            254,
+            261
+          ],
+          "loaded_contact": {
+            "interval": 263,
+            "substep": 5,
+            "delay_ms": 27.5,
+            "proximal_toe_position_rad": -0.0126962243,
+            "proximal_toe_velocity_rad_s": 0.463498175,
+            "proximal_target_rad": 0.0,
+            "foot_normal_impulse_Ns": 0.00540430611
+          }
+        },
+        {
+          "lane": 1,
+          "side": "left",
+          "clearance_bout": [
+            279,
+            286
+          ],
+          "loaded_contact": {
+            "interval": 288,
+            "substep": 5,
+            "delay_ms": 27.5,
+            "proximal_toe_position_rad": -0.0126654664,
+            "proximal_toe_velocity_rad_s": 0.478453368,
+            "proximal_target_rad": 0.0,
+            "foot_normal_impulse_Ns": 0.00541267358
+          }
+        },
+        {
+          "lane": 1,
+          "side": "right",
+          "clearance_bout": [
+            242,
+            248
+          ],
+          "loaded_contact": {
+            "interval": 250,
+            "substep": 9,
+            "delay_ms": 32.5,
+            "proximal_toe_position_rad": -0.0144439414,
+            "proximal_toe_velocity_rad_s": 0.428979814,
+            "proximal_target_rad": -0.000238465582,
+            "foot_normal_impulse_Ns": 0.00336262211
+          }
+        },
+        {
+          "lane": 1,
+          "side": "right",
+          "clearance_bout": [
+            266,
+            273
+          ],
+          "loaded_contact": {
+            "interval": 275,
+            "substep": 9,
+            "delay_ms": 32.5,
+            "proximal_toe_position_rad": -0.0143835014,
+            "proximal_toe_velocity_rad_s": 0.454002142,
+            "proximal_target_rad": -0.000238486071,
+            "foot_normal_impulse_Ns": 0.0035406216
+          }
+        },
+        {
+          "lane": 1,
+          "side": "right",
+          "clearance_bout": [
+            291,
+            298
+          ],
+          "loaded_contact": {
+            "interval": 300,
+            "substep": 10,
+            "delay_ms": 33.75,
+            "proximal_toe_position_rad": -0.0138601195,
+            "proximal_toe_velocity_rad_s": 0.485555261,
+            "proximal_target_rad": -0.00023844406,
+            "foot_normal_impulse_Ns": 0.00361979147
+          }
+        },
+        {
+          "lane": 2,
+          "side": "left",
+          "clearance_bout": [
+            228,
+            236
+          ],
+          "loaded_contact": {
+            "interval": 238,
+            "substep": 8,
+            "delay_ms": 31.25,
+            "proximal_toe_position_rad": -0.0113633508,
+            "proximal_toe_velocity_rad_s": 0.455983907,
+            "proximal_target_rad": 0.0,
+            "foot_normal_impulse_Ns": 0.00313219544
+          }
+        },
+        {
+          "lane": 2,
+          "side": "left",
+          "clearance_bout": [
+            254,
+            261
+          ],
+          "loaded_contact": {
+            "interval": 263,
+            "substep": 5,
+            "delay_ms": 27.5,
+            "proximal_toe_position_rad": -0.0127014974,
+            "proximal_toe_velocity_rad_s": 0.461833715,
+            "proximal_target_rad": 0.0,
+            "foot_normal_impulse_Ns": 0.00488828495
+          }
+        },
+        {
+          "lane": 2,
+          "side": "left",
+          "clearance_bout": [
+            278,
+            286
+          ],
+          "loaded_contact": {
+            "interval": 288,
+            "substep": 5,
+            "delay_ms": 27.5,
+            "proximal_toe_position_rad": -0.0126658669,
+            "proximal_toe_velocity_rad_s": 0.478892118,
+            "proximal_target_rad": 0.0,
+            "foot_normal_impulse_Ns": 0.00514358561
+          }
+        },
+        {
+          "lane": 2,
+          "side": "right",
+          "clearance_bout": [
+            242,
+            248
+          ],
+          "loaded_contact": {
+            "interval": 250,
+            "substep": 9,
+            "delay_ms": 32.5,
+            "proximal_toe_position_rad": -0.0144513333,
+            "proximal_toe_velocity_rad_s": 0.427465558,
+            "proximal_target_rad": -0.000238465582,
+            "foot_normal_impulse_Ns": 0.00313618686
+          }
+        },
+        {
+          "lane": 2,
+          "side": "right",
+          "clearance_bout": [
+            266,
+            273
+          ],
+          "loaded_contact": {
+            "interval": 275,
+            "substep": 9,
+            "delay_ms": 32.5,
+            "proximal_toe_position_rad": -0.0144343283,
+            "proximal_toe_velocity_rad_s": 0.434162289,
+            "proximal_target_rad": -0.000238486071,
+            "foot_normal_impulse_Ns": 0.00338729518
+          }
+        },
+        {
+          "lane": 2,
+          "side": "right",
+          "clearance_bout": [
+            291,
+            298
+          ],
+          "loaded_contact": {
+            "interval": 300,
+            "substep": 9,
+            "delay_ms": 32.5,
+            "proximal_toe_position_rad": -0.0144462017,
+            "proximal_toe_velocity_rad_s": 0.429280221,
+            "proximal_target_rad": -0.00023844406,
+            "foot_normal_impulse_Ns": 0.00302701094
+          }
+        },
+        {
+          "lane": 3,
+          "side": "left",
+          "clearance_bout": [
+            228,
+            236
+          ],
+          "loaded_contact": {
+            "interval": 238,
+            "substep": 8,
+            "delay_ms": 31.25,
+            "proximal_toe_position_rad": -0.0113753444,
+            "proximal_toe_velocity_rad_s": 0.450131863,
+            "proximal_target_rad": 0.0,
+            "foot_normal_impulse_Ns": 0.00282686204
+          }
+        },
+        {
+          "lane": 3,
+          "side": "left",
+          "clearance_bout": [
+            253,
+            261
+          ],
+          "loaded_contact": {
+            "interval": 263,
+            "substep": 5,
+            "delay_ms": 27.5,
+            "proximal_toe_position_rad": -0.0126869399,
+            "proximal_toe_velocity_rad_s": 0.468508482,
+            "proximal_target_rad": 0.0,
+            "foot_normal_impulse_Ns": 0.00534955738
+          }
+        },
+        {
+          "lane": 3,
+          "side": "left",
+          "clearance_bout": [
+            279,
+            286
+          ],
+          "loaded_contact": {
+            "interval": 288,
+            "substep": 5,
+            "delay_ms": 27.5,
+            "proximal_toe_position_rad": -0.0126872035,
+            "proximal_toe_velocity_rad_s": 0.468592316,
+            "proximal_target_rad": 0.0,
+            "foot_normal_impulse_Ns": 0.004906822
+          }
+        },
+        {
+          "lane": 3,
+          "side": "right",
+          "clearance_bout": [
+            242,
+            248
+          ],
+          "loaded_contact": {
+            "interval": 250,
+            "substep": 8,
+            "delay_ms": 31.25,
+            "proximal_toe_position_rad": -0.014934808,
+            "proximal_toe_velocity_rad_s": 0.394212544,
+            "proximal_target_rad": -0.000238465582,
+            "foot_normal_impulse_Ns": 0.00281208893
+          }
+        },
+        {
+          "lane": 3,
+          "side": "right",
+          "clearance_bout": [
+            266,
+            273
+          ],
+          "loaded_contact": {
+            "interval": 275,
+            "substep": 9,
+            "delay_ms": 32.5,
+            "proximal_toe_position_rad": -0.0144315502,
+            "proximal_toe_velocity_rad_s": 0.434792995,
+            "proximal_target_rad": -0.000238486071,
+            "foot_normal_impulse_Ns": 0.00339473411
+          }
+        },
+        {
+          "lane": 3,
+          "side": "right",
+          "clearance_bout": [
+            291,
+            298
+          ],
+          "loaded_contact": {
+            "interval": 300,
+            "substep": 9,
+            "delay_ms": 32.5,
+            "proximal_toe_position_rad": -0.0144335264,
+            "proximal_toe_velocity_rad_s": 0.435258687,
+            "proximal_target_rad": -0.00023844406,
+            "foot_normal_impulse_Ns": 0.00322386925
+          }
+        },
+        {
+          "lane": 4,
+          "side": "left",
+          "clearance_bout": [
+            228,
+            236
+          ],
+          "loaded_contact": {
+            "interval": 238,
+            "substep": 8,
+            "delay_ms": 31.25,
+            "proximal_toe_position_rad": -0.0113635156,
+            "proximal_toe_velocity_rad_s": 0.456172168,
+            "proximal_target_rad": 0.0,
+            "foot_normal_impulse_Ns": 0.00309051294
+          }
+        },
+        {
+          "lane": 4,
+          "side": "left",
+          "clearance_bout": [
+            253,
+            261
+          ],
+          "loaded_contact": {
+            "interval": 263,
+            "substep": 5,
+            "delay_ms": 27.5,
+            "proximal_toe_position_rad": -0.0127105908,
+            "proximal_toe_velocity_rad_s": 0.458159536,
+            "proximal_target_rad": 0.0,
+            "foot_normal_impulse_Ns": 0.00481788209
+          }
+        },
+        {
+          "lane": 4,
+          "side": "left",
+          "clearance_bout": [
+            278,
+            286
+          ],
+          "loaded_contact": {
+            "interval": 288,
+            "substep": 4,
+            "delay_ms": 26.25,
+            "proximal_toe_position_rad": -0.0132547515,
+            "proximal_toe_velocity_rad_s": 0.394115776,
+            "proximal_target_rad": 0.0,
+            "foot_normal_impulse_Ns": 0.00288182078
+          }
+        },
+        {
+          "lane": 4,
+          "side": "right",
+          "clearance_bout": [
+            242,
+            248
+          ],
+          "loaded_contact": {
+            "interval": 250,
+            "substep": 9,
+            "delay_ms": 32.5,
+            "proximal_toe_position_rad": -0.0144282915,
+            "proximal_toe_velocity_rad_s": 0.4373613,
+            "proximal_target_rad": -0.000238465582,
+            "foot_normal_impulse_Ns": 0.00371550024
+          }
+        },
+        {
+          "lane": 4,
+          "side": "right",
+          "clearance_bout": [
+            266,
+            273
+          ],
+          "loaded_contact": {
+            "interval": 275,
+            "substep": 9,
+            "delay_ms": 32.5,
+            "proximal_toe_position_rad": -0.0143946819,
+            "proximal_toe_velocity_rad_s": 0.449048996,
+            "proximal_target_rad": -0.000238486071,
+            "foot_normal_impulse_Ns": 0.00348179229
+          }
+        },
+        {
+          "lane": 4,
+          "side": "right",
+          "clearance_bout": [
+            291,
+            298
+          ],
+          "loaded_contact": {
+            "interval": 300,
+            "substep": 10,
+            "delay_ms": 33.75,
+            "proximal_toe_position_rad": -0.0139493346,
+            "proximal_toe_velocity_rad_s": 0.454008937,
+            "proximal_target_rad": -0.00023844406,
+            "foot_normal_impulse_Ns": 0.00321079884
+          }
+        },
+        {
+          "lane": 5,
+          "side": "left",
+          "clearance_bout": [
+            228,
+            236
+          ],
+          "loaded_contact": {
+            "interval": 238,
+            "substep": 8,
+            "delay_ms": 31.25,
+            "proximal_toe_position_rad": -0.0113805914,
+            "proximal_toe_velocity_rad_s": 0.44740212,
+            "proximal_target_rad": 0.0,
+            "foot_normal_impulse_Ns": 0.00279489346
+          }
+        },
+        {
+          "lane": 5,
+          "side": "left",
+          "clearance_bout": [
+            254,
+            261
+          ],
+          "loaded_contact": {
+            "interval": 263,
+            "substep": 5,
+            "delay_ms": 27.5,
+            "proximal_toe_position_rad": -0.0126828309,
+            "proximal_toe_velocity_rad_s": 0.471240997,
+            "proximal_target_rad": 0.0,
+            "foot_normal_impulse_Ns": 0.0053980872
+          }
+        },
+        {
+          "lane": 5,
+          "side": "left",
+          "clearance_bout": [
+            279,
+            286
+          ],
+          "loaded_contact": {
+            "interval": 288,
+            "substep": 4,
+            "delay_ms": 26.25,
+            "proximal_toe_position_rad": -0.0132586733,
+            "proximal_toe_velocity_rad_s": 0.391872376,
+            "proximal_target_rad": 0.0,
+            "foot_normal_impulse_Ns": 0.0031191532
+          }
+        },
+        {
+          "lane": 5,
+          "side": "right",
+          "clearance_bout": [
+            242,
+            248
+          ],
+          "loaded_contact": {
+            "interval": 250,
+            "substep": 9,
+            "delay_ms": 32.5,
+            "proximal_toe_position_rad": -0.014452965,
+            "proximal_toe_velocity_rad_s": 0.424922705,
+            "proximal_target_rad": -0.000238465582,
+            "foot_normal_impulse_Ns": 0.00324141653
+          }
+        },
+        {
+          "lane": 5,
+          "side": "right",
+          "clearance_bout": [
+            266,
+            273
+          ],
+          "loaded_contact": {
+            "interval": 275,
+            "substep": 9,
+            "delay_ms": 32.5,
+            "proximal_toe_position_rad": -0.0144394236,
+            "proximal_toe_velocity_rad_s": 0.433006734,
+            "proximal_target_rad": -0.000238486071,
+            "foot_normal_impulse_Ns": 0.00325477775
+          }
+        },
+        {
+          "lane": 5,
+          "side": "right",
+          "clearance_bout": [
+            291,
+            298
+          ],
+          "loaded_contact": {
+            "interval": 300,
+            "substep": 10,
+            "delay_ms": 33.75,
+            "proximal_toe_position_rad": -0.0138641559,
+            "proximal_toe_velocity_rad_s": 0.484173924,
+            "proximal_target_rad": -0.00023844406,
+            "foot_normal_impulse_Ns": 0.00359280664
+          }
+        },
+        {
+          "lane": 6,
+          "side": "left",
+          "clearance_bout": [
+            228,
+            236
+          ],
+          "loaded_contact": {
+            "interval": 238,
+            "substep": 9,
+            "delay_ms": 32.5,
+            "proximal_toe_position_rad": -0.0108042043,
+            "proximal_toe_velocity_rad_s": 0.482327521,
+            "proximal_target_rad": 0.0,
+            "foot_normal_impulse_Ns": 0.00395563617
+          }
+        },
+        {
+          "lane": 6,
+          "side": "left",
+          "clearance_bout": [
+            254,
+            261
+          ],
+          "loaded_contact": {
+            "interval": 263,
+            "substep": 5,
+            "delay_ms": 27.5,
+            "proximal_toe_position_rad": -0.0126943784,
+            "proximal_toe_velocity_rad_s": 0.465482146,
+            "proximal_target_rad": 0.0,
+            "foot_normal_impulse_Ns": 0.00536570651
+          }
+        },
+        {
+          "lane": 6,
+          "side": "left",
+          "clearance_bout": [
+            278,
+            286
+          ],
+          "loaded_contact": {
+            "interval": 288,
+            "substep": 5,
+            "delay_ms": 27.5,
+            "proximal_toe_position_rad": -0.0126605621,
+            "proximal_toe_velocity_rad_s": 0.481694221,
+            "proximal_target_rad": 0.0,
+            "foot_normal_impulse_Ns": 0.00540349167
+          }
+        },
+        {
+          "lane": 6,
+          "side": "right",
+          "clearance_bout": [
+            242,
+            248
+          ],
+          "loaded_contact": {
+            "interval": 250,
+            "substep": 9,
+            "delay_ms": 32.5,
+            "proximal_toe_position_rad": -0.0144415768,
+            "proximal_toe_velocity_rad_s": 0.429961354,
+            "proximal_target_rad": -0.000238465582,
+            "foot_normal_impulse_Ns": 0.00359960319
+          }
+        },
+        {
+          "lane": 6,
+          "side": "right",
+          "clearance_bout": [
+            266,
+            273
+          ],
+          "loaded_contact": {
+            "interval": 275,
+            "substep": 9,
+            "delay_ms": 32.5,
+            "proximal_toe_position_rad": -0.0143601606,
+            "proximal_toe_velocity_rad_s": 0.462573081,
+            "proximal_target_rad": -0.000238486071,
+            "foot_normal_impulse_Ns": 0.00360228308
+          }
+        },
+        {
+          "lane": 6,
+          "side": "right",
+          "clearance_bout": [
+            291,
+            298
+          ],
+          "loaded_contact": {
+            "interval": 300,
+            "substep": 10,
+            "delay_ms": 33.75,
+            "proximal_toe_position_rad": -0.0138652315,
+            "proximal_toe_velocity_rad_s": 0.483677745,
+            "proximal_target_rad": -0.00023844406,
+            "foot_normal_impulse_Ns": 0.00353226671
+          }
+        },
+        {
+          "lane": 7,
+          "side": "left",
+          "clearance_bout": [
+            228,
+            236
+          ],
+          "loaded_contact": {
+            "interval": 238,
+            "substep": 8,
+            "delay_ms": 31.25,
+            "proximal_toe_position_rad": -0.0113784671,
+            "proximal_toe_velocity_rad_s": 0.448206931,
+            "proximal_target_rad": 0.0,
+            "foot_normal_impulse_Ns": 0.00279763481
+          }
+        },
+        {
+          "lane": 7,
+          "side": "left",
+          "clearance_bout": [
+            253,
+            261
+          ],
+          "loaded_contact": {
+            "interval": 263,
+            "substep": 5,
+            "delay_ms": 27.5,
+            "proximal_toe_position_rad": -0.0126735717,
+            "proximal_toe_velocity_rad_s": 0.478205979,
+            "proximal_target_rad": 0.0,
+            "foot_normal_impulse_Ns": 0.00524266064
+          }
+        },
+        {
+          "lane": 7,
+          "side": "left",
+          "clearance_bout": [
+            279,
+            286
+          ],
+          "loaded_contact": {
+            "interval": 288,
+            "substep": 4,
+            "delay_ms": 26.25,
+            "proximal_toe_position_rad": -0.0132479211,
+            "proximal_toe_velocity_rad_s": 0.399450481,
+            "proximal_target_rad": 0.0,
+            "foot_normal_impulse_Ns": 0.0035407492
+          }
+        },
+        {
+          "lane": 7,
+          "side": "right",
+          "clearance_bout": [
+            242,
+            248
+          ],
+          "loaded_contact": {
+            "interval": 250,
+            "substep": 7,
+            "delay_ms": 30.0,
+            "proximal_toe_position_rad": -0.01539589,
+            "proximal_toe_velocity_rad_s": 0.365438402,
+            "proximal_target_rad": -0.000238465582,
+            "foot_normal_impulse_Ns": 0.00293945405
+          }
+        },
+        {
+          "lane": 7,
+          "side": "right",
+          "clearance_bout": [
+            266,
+            273
+          ],
+          "loaded_contact": {
+            "interval": 275,
+            "substep": 9,
+            "delay_ms": 32.5,
+            "proximal_toe_position_rad": -0.0144471377,
+            "proximal_toe_velocity_rad_s": 0.429302812,
+            "proximal_target_rad": -0.000238486071,
+            "foot_normal_impulse_Ns": 0.00302994391
+          }
+        },
+        {
+          "lane": 7,
+          "side": "right",
+          "clearance_bout": [
+            291,
+            298
+          ],
+          "loaded_contact": {
+            "interval": 300,
+            "substep": 10,
+            "delay_ms": 33.75,
+            "proximal_toe_position_rad": -0.0138244294,
+            "proximal_toe_velocity_rad_s": 0.499291867,
+            "proximal_target_rad": -0.00023844406,
+            "foot_normal_impulse_Ns": 0.00368912285
+          }
+        }
+      ],
+      "missing": 0
+    },
+    "short": {
+      "events": [
+        {
+          "lane": 0,
+          "side": "left",
+          "clearance_bout": [
+            229,
+            236
+          ],
+          "loaded_contact": {
+            "interval": 238,
+            "substep": 9,
+            "delay_ms": 32.5,
+            "proximal_toe_position_rad": -0.00628656195,
+            "proximal_toe_velocity_rad_s": -0.562580645,
+            "proximal_target_rad": 0.0,
+            "foot_normal_impulse_Ns": 0.00474015484
+          }
+        },
+        {
+          "lane": 0,
+          "side": "left",
+          "clearance_bout": [
+            253,
+            261
+          ],
+          "loaded_contact": {
+            "interval": 263,
+            "substep": 5,
+            "delay_ms": 27.5,
+            "proximal_toe_position_rad": -0.00697215088,
+            "proximal_toe_velocity_rad_s": -0.196720988,
+            "proximal_target_rad": 0.0,
+            "foot_normal_impulse_Ns": 0.00687198574
+          }
+        },
+        {
+          "lane": 0,
+          "side": "left",
+          "clearance_bout": [
+            279,
+            286
+          ],
+          "loaded_contact": {
+            "interval": 288,
+            "substep": 5,
+            "delay_ms": 27.5,
+            "proximal_toe_position_rad": -0.00730428612,
+            "proximal_toe_velocity_rad_s": -0.376401961,
+            "proximal_target_rad": 0.0,
+            "foot_normal_impulse_Ns": 0.00728018582
+          }
+        },
+        {
+          "lane": 0,
+          "side": "right",
+          "clearance_bout": [
+            242,
+            248
+          ],
+          "loaded_contact": {
+            "interval": 250,
+            "substep": 7,
+            "delay_ms": 30.0,
+            "proximal_toe_position_rad": -0.00902320724,
+            "proximal_toe_velocity_rad_s": 0.0263132676,
+            "proximal_target_rad": 0.0,
+            "foot_normal_impulse_Ns": 0.00399926025
+          }
+        },
+        {
+          "lane": 0,
+          "side": "right",
+          "clearance_bout": [
+            266,
+            273
+          ],
+          "loaded_contact": {
+            "interval": 275,
+            "substep": 8,
+            "delay_ms": 31.25,
+            "proximal_toe_position_rad": -0.00859708153,
+            "proximal_toe_velocity_rad_s": 0.000255517662,
+            "proximal_target_rad": 0.0,
+            "foot_normal_impulse_Ns": 0.00383532373
+          }
+        },
+        {
+          "lane": 0,
+          "side": "right",
+          "clearance_bout": [
+            291,
+            298
+          ],
+          "loaded_contact": {
+            "interval": 300,
+            "substep": 9,
+            "delay_ms": 32.5,
+            "proximal_toe_position_rad": -0.00869381242,
+            "proximal_toe_velocity_rad_s": -0.25071466,
+            "proximal_target_rad": 0.0,
+            "foot_normal_impulse_Ns": 0.00439442089
+          }
+        },
+        {
+          "lane": 1,
+          "side": "left",
+          "clearance_bout": [
+            229,
+            236
+          ],
+          "loaded_contact": {
+            "interval": 238,
+            "substep": 9,
+            "delay_ms": 32.5,
+            "proximal_toe_position_rad": -0.00625790888,
+            "proximal_toe_velocity_rad_s": -0.557738662,
+            "proximal_target_rad": 0.0,
+            "foot_normal_impulse_Ns": 0.00453131599
+          }
+        },
+        {
+          "lane": 1,
+          "side": "left",
+          "clearance_bout": [
+            253,
+            261
+          ],
+          "loaded_contact": {
+            "interval": 263,
+            "substep": 5,
+            "delay_ms": 27.5,
+            "proximal_toe_position_rad": -0.00701342383,
+            "proximal_toe_velocity_rad_s": -0.217255011,
+            "proximal_target_rad": 0.0,
+            "foot_normal_impulse_Ns": 0.0067997165
+          }
+        },
+        {
+          "lane": 1,
+          "side": "left",
+          "clearance_bout": [
+            279,
+            286
+          ],
+          "loaded_contact": {
+            "interval": 288,
+            "substep": 5,
+            "delay_ms": 27.5,
+            "proximal_toe_position_rad": -0.00717295846,
+            "proximal_toe_velocity_rad_s": -0.304780662,
+            "proximal_target_rad": 0.0,
+            "foot_normal_impulse_Ns": 0.00709546031
+          }
+        },
+        {
+          "lane": 1,
+          "side": "right",
+          "clearance_bout": [
+            241,
+            248
+          ],
+          "loaded_contact": {
+            "interval": 250,
+            "substep": 7,
+            "delay_ms": 30.0,
+            "proximal_toe_position_rad": -0.00903970003,
+            "proximal_toe_velocity_rad_s": 0.00387525558,
+            "proximal_target_rad": 0.0,
+            "foot_normal_impulse_Ns": 0.00496581197
+          }
+        },
+        {
+          "lane": 1,
+          "side": "right",
+          "clearance_bout": [
+            266,
+            273
+          ],
+          "loaded_contact": {
+            "interval": 275,
+            "substep": 8,
+            "delay_ms": 31.25,
+            "proximal_toe_position_rad": -0.00855905935,
+            "proximal_toe_velocity_rad_s": 0.035017319,
+            "proximal_target_rad": 0.0,
+            "foot_normal_impulse_Ns": 0.00328987767
+          }
+        },
+        {
+          "lane": 1,
+          "side": "right",
+          "clearance_bout": [
+            291,
+            298
+          ],
+          "loaded_contact": {
+            "interval": 300,
+            "substep": 9,
+            "delay_ms": 32.5,
+            "proximal_toe_position_rad": -0.00879929028,
+            "proximal_toe_velocity_rad_s": -0.295221746,
+            "proximal_target_rad": 0.0,
+            "foot_normal_impulse_Ns": 0.00461201929
+          }
+        },
+        {
+          "lane": 2,
+          "side": "left",
+          "clearance_bout": [
+            229,
+            236
+          ],
+          "loaded_contact": {
+            "interval": 238,
+            "substep": 9,
+            "delay_ms": 32.5,
+            "proximal_toe_position_rad": -0.00613866327,
+            "proximal_toe_velocity_rad_s": -0.504597843,
+            "proximal_target_rad": 0.0,
+            "foot_normal_impulse_Ns": 0.0043838392
+          }
+        },
+        {
+          "lane": 2,
+          "side": "left",
+          "clearance_bout": [
+            253,
+            261
+          ],
+          "loaded_contact": {
+            "interval": 263,
+            "substep": 5,
+            "delay_ms": 27.5,
+            "proximal_toe_position_rad": -0.00695158867,
+            "proximal_toe_velocity_rad_s": -0.178799391,
+            "proximal_target_rad": 0.0,
+            "foot_normal_impulse_Ns": 0.00642516697
+          }
+        },
+        {
+          "lane": 2,
+          "side": "left",
+          "clearance_bout": [
+            279,
+            286
+          ],
+          "loaded_contact": {
+            "interval": 288,
+            "substep": 5,
+            "delay_ms": 27.5,
+            "proximal_toe_position_rad": -0.00713734375,
+            "proximal_toe_velocity_rad_s": -0.285621852,
+            "proximal_target_rad": 0.0,
+            "foot_normal_impulse_Ns": 0.00699879508
+          }
+        },
+        {
+          "lane": 2,
+          "side": "right",
+          "clearance_bout": [
+            241,
+            248
+          ],
+          "loaded_contact": {
+            "interval": 250,
+            "substep": 7,
+            "delay_ms": 30.0,
+            "proximal_toe_position_rad": -0.00933337491,
+            "proximal_toe_velocity_rad_s": -0.156073183,
+            "proximal_target_rad": 0.0,
+            "foot_normal_impulse_Ns": 0.00543308957
+          }
+        },
+        {
+          "lane": 2,
+          "side": "right",
+          "clearance_bout": [
+            266,
+            273
+          ],
+          "loaded_contact": {
+            "interval": 275,
+            "substep": 8,
+            "delay_ms": 31.25,
+            "proximal_toe_position_rad": -0.00856924336,
+            "proximal_toe_velocity_rad_s": 0.0266339034,
+            "proximal_target_rad": 0.0,
+            "foot_normal_impulse_Ns": 0.00335072447
+          }
+        },
+        {
+          "lane": 2,
+          "side": "right",
+          "clearance_bout": [
+            291,
+            298
+          ],
+          "loaded_contact": {
+            "interval": 300,
+            "substep": 9,
+            "delay_ms": 32.5,
+            "proximal_toe_position_rad": -0.00884123053,
+            "proximal_toe_velocity_rad_s": -0.314379036,
+            "proximal_target_rad": 0.0,
+            "foot_normal_impulse_Ns": 0.00466446485
+          }
+        },
+        {
+          "lane": 3,
+          "side": "left",
+          "clearance_bout": [
+            229,
+            236
+          ],
+          "loaded_contact": {
+            "interval": 238,
+            "substep": 9,
+            "delay_ms": 32.5,
+            "proximal_toe_position_rad": -0.00623924099,
+            "proximal_toe_velocity_rad_s": -0.548586547,
+            "proximal_target_rad": 0.0,
+            "foot_normal_impulse_Ns": 0.00445799716
+          }
+        },
+        {
+          "lane": 3,
+          "side": "left",
+          "clearance_bout": [
+            253,
+            261
+          ],
+          "loaded_contact": {
+            "interval": 263,
+            "substep": 5,
+            "delay_ms": 27.5,
+            "proximal_toe_position_rad": -0.00703865662,
+            "proximal_toe_velocity_rad_s": -0.23216112,
+            "proximal_target_rad": 0.0,
+            "foot_normal_impulse_Ns": 0.00680378778
+          }
+        },
+        {
+          "lane": 3,
+          "side": "left",
+          "clearance_bout": [
+            279,
+            286
+          ],
+          "loaded_contact": {
+            "interval": 288,
+            "substep": 5,
+            "delay_ms": 27.5,
+            "proximal_toe_position_rad": -0.0071334322,
+            "proximal_toe_velocity_rad_s": -0.282835603,
+            "proximal_target_rad": 0.0,
+            "foot_normal_impulse_Ns": 0.00705538224
+          }
+        },
+        {
+          "lane": 3,
+          "side": "right",
+          "clearance_bout": [
+            241,
+            248
+          ],
+          "loaded_contact": {
+            "interval": 250,
+            "substep": 7,
+            "delay_ms": 30.0,
+            "proximal_toe_position_rad": -0.00898193289,
+            "proximal_toe_velocity_rad_s": 0.0450087264,
+            "proximal_target_rad": 0.0,
+            "foot_normal_impulse_Ns": 0.00471582171
+          }
+        },
+        {
+          "lane": 3,
+          "side": "right",
+          "clearance_bout": [
+            266,
+            273
+          ],
+          "loaded_contact": {
+            "interval": 275,
+            "substep": 8,
+            "delay_ms": 31.25,
+            "proximal_toe_position_rad": -0.00859123748,
+            "proximal_toe_velocity_rad_s": 0.00890389085,
+            "proximal_target_rad": 0.0,
+            "foot_normal_impulse_Ns": 0.00341653125
+          }
+        },
+        {
+          "lane": 3,
+          "side": "right",
+          "clearance_bout": [
+            291,
+            298
+          ],
+          "loaded_contact": {
+            "interval": 300,
+            "substep": 9,
+            "delay_ms": 32.5,
+            "proximal_toe_position_rad": -0.00881112088,
+            "proximal_toe_velocity_rad_s": -0.301193744,
+            "proximal_target_rad": 0.0,
+            "foot_normal_impulse_Ns": 0.00463289535
+          }
+        },
+        {
+          "lane": 4,
+          "side": "left",
+          "clearance_bout": [
+            229,
+            236
+          ],
+          "loaded_contact": {
+            "interval": 238,
+            "substep": 9,
+            "delay_ms": 32.5,
+            "proximal_toe_position_rad": -0.00606730161,
+            "proximal_toe_velocity_rad_s": -0.473835319,
+            "proximal_target_rad": 0.0,
+            "foot_normal_impulse_Ns": 0.00406524166
+          }
+        },
+        {
+          "lane": 4,
+          "side": "left",
+          "clearance_bout": [
+            253,
+            261
+          ],
+          "loaded_contact": {
+            "interval": 263,
+            "substep": 5,
+            "delay_ms": 27.5,
+            "proximal_toe_position_rad": -0.00689864997,
+            "proximal_toe_velocity_rad_s": -0.145179033,
+            "proximal_target_rad": 0.0,
+            "foot_normal_impulse_Ns": 0.00648045633
+          }
+        },
+        {
+          "lane": 4,
+          "side": "left",
+          "clearance_bout": [
+            279,
+            286
+          ],
+          "loaded_contact": {
+            "interval": 288,
+            "substep": 5,
+            "delay_ms": 27.5,
+            "proximal_toe_position_rad": -0.00750857592,
+            "proximal_toe_velocity_rad_s": -0.491083264,
+            "proximal_target_rad": 0.0,
+            "foot_normal_impulse_Ns": 0.0073811328
+          }
+        },
+        {
+          "lane": 4,
+          "side": "right",
+          "clearance_bout": [
+            241,
+            248
+          ],
+          "loaded_contact": {
+            "interval": 250,
+            "substep": 6,
+            "delay_ms": 28.75,
+            "proximal_toe_position_rad": -0.009308137,
+            "proximal_toe_velocity_rad_s": 0.168711752,
+            "proximal_target_rad": 0.0,
+            "foot_normal_impulse_Ns": 0.0032513123
+          }
+        },
+        {
+          "lane": 4,
+          "side": "right",
+          "clearance_bout": [
+            266,
+            273
+          ],
+          "loaded_contact": {
+            "interval": 275,
+            "substep": 8,
+            "delay_ms": 31.25,
+            "proximal_toe_position_rad": -0.00851793401,
+            "proximal_toe_velocity_rad_s": 0.0665716827,
+            "proximal_target_rad": 0.0,
+            "foot_normal_impulse_Ns": 0.00299002812
+          }
+        },
+        {
+          "lane": 4,
+          "side": "right",
+          "clearance_bout": [
+            291,
+            298
+          ],
+          "loaded_contact": {
+            "interval": 300,
+            "substep": 9,
+            "delay_ms": 32.5,
+            "proximal_toe_position_rad": -0.00884487107,
+            "proximal_toe_velocity_rad_s": -0.316942692,
+            "proximal_target_rad": 0.0,
+            "foot_normal_impulse_Ns": 0.004611874
+          }
+        },
+        {
+          "lane": 5,
+          "side": "left",
+          "clearance_bout": [
+            229,
+            236
+          ],
+          "loaded_contact": {
+            "interval": 238,
+            "substep": 9,
+            "delay_ms": 32.5,
+            "proximal_toe_position_rad": -0.00624775188,
+            "proximal_toe_velocity_rad_s": -0.549002767,
+            "proximal_target_rad": 0.0,
+            "foot_normal_impulse_Ns": 0.00461733714
+          }
+        },
+        {
+          "lane": 5,
+          "side": "left",
+          "clearance_bout": [
+            253,
+            261
+          ],
+          "loaded_contact": {
+            "interval": 263,
+            "substep": 5,
+            "delay_ms": 27.5,
+            "proximal_toe_position_rad": -0.00711732451,
+            "proximal_toe_velocity_rad_s": -0.270961732,
+            "proximal_target_rad": 0.0,
+            "foot_normal_impulse_Ns": 0.00692005595
+          }
+        },
+        {
+          "lane": 5,
+          "side": "left",
+          "clearance_bout": [
+            279,
+            286
+          ],
+          "loaded_contact": {
+            "interval": 288,
+            "substep": 5,
+            "delay_ms": 27.5,
+            "proximal_toe_position_rad": -0.00726871705,
+            "proximal_toe_velocity_rad_s": -0.35589534,
+            "proximal_target_rad": 0.0,
+            "foot_normal_impulse_Ns": 0.00725723151
+          }
+        },
+        {
+          "lane": 5,
+          "side": "right",
+          "clearance_bout": [
+            242,
+            248
+          ],
+          "loaded_contact": {
+            "interval": 250,
+            "substep": 7,
+            "delay_ms": 30.0,
+            "proximal_toe_position_rad": -0.00897524506,
+            "proximal_toe_velocity_rad_s": 0.0541275442,
+            "proximal_target_rad": 0.0,
+            "foot_normal_impulse_Ns": 0.00429478986
+          }
+        },
+        {
+          "lane": 5,
+          "side": "right",
+          "clearance_bout": [
+            266,
+            273
+          ],
+          "loaded_contact": {
+            "interval": 275,
+            "substep": 8,
+            "delay_ms": 31.25,
+            "proximal_toe_position_rad": -0.00850762799,
+            "proximal_toe_velocity_rad_s": 0.0760066509,
+            "proximal_target_rad": 0.0,
+            "foot_normal_impulse_Ns": 0.00296145421
+          }
+        },
+        {
+          "lane": 5,
+          "side": "right",
+          "clearance_bout": [
+            291,
+            298
+          ],
+          "loaded_contact": {
+            "interval": 300,
+            "substep": 9,
+            "delay_ms": 32.5,
+            "proximal_toe_position_rad": -0.00867793895,
+            "proximal_toe_velocity_rad_s": -0.241037205,
+            "proximal_target_rad": 0.0,
+            "foot_normal_impulse_Ns": 0.00453038327
+          }
+        },
+        {
+          "lane": 6,
+          "side": "left",
+          "clearance_bout": [
+            229,
+            236
+          ],
+          "loaded_contact": {
+            "interval": 238,
+            "substep": 9,
+            "delay_ms": 32.5,
+            "proximal_toe_position_rad": -0.00620253757,
+            "proximal_toe_velocity_rad_s": -0.532704175,
+            "proximal_target_rad": 0.0,
+            "foot_normal_impulse_Ns": 0.00444342289
+          }
+        },
+        {
+          "lane": 6,
+          "side": "left",
+          "clearance_bout": [
+            253,
+            261
+          ],
+          "loaded_contact": {
+            "interval": 263,
+            "substep": 5,
+            "delay_ms": 27.5,
+            "proximal_toe_position_rad": -0.00708965678,
+            "proximal_toe_velocity_rad_s": -0.258568376,
+            "proximal_target_rad": 0.0,
+            "foot_normal_impulse_Ns": 0.00695237517
+          }
+        },
+        {
+          "lane": 6,
+          "side": "left",
+          "clearance_bout": [
+            279,
+            286
+          ],
+          "loaded_contact": {
+            "interval": 288,
+            "substep": 5,
+            "delay_ms": 27.5,
+            "proximal_toe_position_rad": -0.00717207044,
+            "proximal_toe_velocity_rad_s": -0.304701746,
+            "proximal_target_rad": 0.0,
+            "foot_normal_impulse_Ns": 0.00707035279
+          }
+        },
+        {
+          "lane": 6,
+          "side": "right",
+          "clearance_bout": [
+            241,
+            248
+          ],
+          "loaded_contact": {
+            "interval": 250,
+            "substep": 7,
+            "delay_ms": 30.0,
+            "proximal_toe_position_rad": -0.00902965851,
+            "proximal_toe_velocity_rad_s": 0.0089821294,
+            "proximal_target_rad": 0.0,
+            "foot_normal_impulse_Ns": 0.0049630776
+          }
+        },
+        {
+          "lane": 6,
+          "side": "right",
+          "clearance_bout": [
+            266,
+            273
+          ],
+          "loaded_contact": {
+            "interval": 275,
+            "substep": 8,
+            "delay_ms": 31.25,
+            "proximal_toe_position_rad": -0.00853233878,
+            "proximal_toe_velocity_rad_s": 0.0553344376,
+            "proximal_target_rad": 0.0,
+            "foot_normal_impulse_Ns": 0.00312351389
+          }
+        },
+        {
+          "lane": 6,
+          "side": "right",
+          "clearance_bout": [
+            291,
+            298
+          ],
+          "loaded_contact": {
+            "interval": 300,
+            "substep": 9,
+            "delay_ms": 32.5,
+            "proximal_toe_position_rad": -0.00885997154,
+            "proximal_toe_velocity_rad_s": -0.323287904,
+            "proximal_target_rad": 0.0,
+            "foot_normal_impulse_Ns": 0.00469568046
+          }
+        },
+        {
+          "lane": 7,
+          "side": "left",
+          "clearance_bout": [
+            229,
+            236
+          ],
+          "loaded_contact": {
+            "interval": 238,
+            "substep": 9,
+            "delay_ms": 32.5,
+            "proximal_toe_position_rad": -0.00618408062,
+            "proximal_toe_velocity_rad_s": -0.525059521,
+            "proximal_target_rad": 0.0,
+            "foot_normal_impulse_Ns": 0.00435619056
+          }
+        },
+        {
+          "lane": 7,
+          "side": "left",
+          "clearance_bout": [
+            253,
+            261
+          ],
+          "loaded_contact": {
+            "interval": 263,
+            "substep": 4,
+            "delay_ms": 26.25,
+            "proximal_toe_position_rad": -0.00686885184,
+            "proximal_toe_velocity_rad_s": 0.214376539,
+            "proximal_target_rad": 0.0,
+            "foot_normal_impulse_Ns": 0.00284705567
+          }
+        },
+        {
+          "lane": 7,
+          "side": "left",
+          "clearance_bout": [
+            279,
+            286
+          ],
+          "loaded_contact": {
+            "interval": 288,
+            "substep": 5,
+            "delay_ms": 27.5,
+            "proximal_toe_position_rad": -0.00741715264,
+            "proximal_toe_velocity_rad_s": -0.440035969,
+            "proximal_target_rad": 0.0,
+            "foot_normal_impulse_Ns": 0.00742923096
+          }
+        },
+        {
+          "lane": 7,
+          "side": "right",
+          "clearance_bout": [
+            241,
+            248
+          ],
+          "loaded_contact": {
+            "interval": 250,
+            "substep": 7,
+            "delay_ms": 30.0,
+            "proximal_toe_position_rad": -0.00896266662,
+            "proximal_toe_velocity_rad_s": 0.0733576715,
+            "proximal_target_rad": 0.0,
+            "foot_normal_impulse_Ns": 0.00420562178
+          }
+        },
+        {
+          "lane": 7,
+          "side": "right",
+          "clearance_bout": [
+            266,
+            273
+          ],
+          "loaded_contact": {
+            "interval": 275,
+            "substep": 8,
+            "delay_ms": 31.25,
+            "proximal_toe_position_rad": -0.00851356797,
+            "proximal_toe_velocity_rad_s": 0.0723898485,
+            "proximal_target_rad": 0.0,
+            "foot_normal_impulse_Ns": 0.00289162318
+          }
+        },
+        {
+          "lane": 7,
+          "side": "right",
+          "clearance_bout": [
+            291,
+            298
+          ],
+          "loaded_contact": {
+            "interval": 300,
+            "substep": 9,
+            "delay_ms": 32.5,
+            "proximal_toe_position_rad": -0.0086007053,
+            "proximal_toe_velocity_rad_s": -0.212270766,
+            "proximal_target_rad": 0.0,
+            "foot_normal_impulse_Ns": 0.00417786324
+          }
+        }
+      ],
+      "missing": 0
+    }
+  },
+  "scope": "Heuristic first 3-consecutive-substep half-weight foot normal impulse following each endpoint-defined full-foot clearance bout, within 100 ms. This is an instrumented event proxy, not ground-truth anatomical touchdown. Missing events remain missing. One previously used development seed; no applied torque or biological measurement."
+}
