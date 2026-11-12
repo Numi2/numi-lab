@@ -1,0 +1,10 @@
+{
+  "matched_controls": {
+    "0": 4,
+    "1": 5
+  },
+  "states_compared": 1100,
+  "contact_substeps_compared": 35200,
+  "difference_count": 0,
+  "differences": []
+}
