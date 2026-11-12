@@ -1,0 +1,11 @@
+--- a/smooth-task.metal
++++ b/support-aware-task.metal
+@@ -5575,7 +5575,7 @@
+             }
+         }
+     }
+-    if (program.interactionTiming.w < 0.5f || state.episode.x == 0u || float(state.episode.x)*dispatch.timing.x < 4.0f || float(state.episode.x)*dispatch.timing.x >= 6.0f) {
++    if (program.interactionTiming.w < 0.5f || (state.status.w & (1u<<22)) == 0u || state.episode.x == 0u || float(state.episode.x)*dispatch.timing.x < 4.0f || float(state.episode.x)*dispatch.timing.x >= 6.0f) {
+         for (uint i=0u; i<dispatch.counts.w; ++i) {
+             const uint e=environment*worldDispatch.effortEnvironmentStride+i;
+             effortTrajectory[worldDispatch.effortStepStride+e]=effortTrajectory[e];
