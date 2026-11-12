@@ -1,0 +1,4 @@
+Traceback (most recent call last):
+  File "/Users/n/Developer/numi-crow-rl-20261107/artifacts/crow-v15-tail-load-observer-20261112/analyze.py", line 14, in <module>
+    f,w,err=load(A/'bank.stderr.gz');rf,rw,rerr=load(B/'bank.stderr.gz');assert not err and not rerr and set(f)==set(rf) and all(f[k]==rf[k] for k in f);assert len(w)==len(rw)==9600 and set(w)==set(rw) and all(len(w[k])==109 and w[k][:22]==rw[k][:22] and w[k][28:]==rw[k][22:] for k in w)
+AssertionError
