@@ -1,0 +1,53 @@
+{
+  "rows": [
+    {
+      "lane": 2,
+      "step_direction": 1,
+      "height_difference_m": 0.19999987656499998,
+      "vertical_velocity_difference_m_s": 2.437075749998213e-07,
+      "mean_abs_left_flap_angle_difference_rad": 0.0019277302231500012,
+      "mean_abs_right_flap_angle_difference_rad": 0.0019154122300499995
+    },
+    {
+      "lane": 3,
+      "step_direction": -1,
+      "height_difference_m": -0.20000047093,
+      "vertical_velocity_difference_m_s": 1.437391699999542e-07,
+      "mean_abs_left_flap_angle_difference_rad": 0.002033775986975002,
+      "mean_abs_right_flap_angle_difference_rad": 0.002024289650750001
+    },
+    {
+      "lane": 4,
+      "step_direction": 1,
+      "height_difference_m": 0.200003388785,
+      "vertical_velocity_difference_m_s": 1.6180589650004444e-06,
+      "mean_abs_left_flap_angle_difference_rad": 0.002425576433774998,
+      "mean_abs_right_flap_angle_difference_rad": 0.0024215941123499987
+    },
+    {
+      "lane": 5,
+      "step_direction": -1,
+      "height_difference_m": -0.20000034072,
+      "vertical_velocity_difference_m_s": 1.6818966500063943e-07,
+      "mean_abs_left_flap_angle_difference_rad": 0.002465413479525001,
+      "mean_abs_right_flap_angle_difference_rad": 0.0024636866387750035
+    },
+    {
+      "lane": 6,
+      "step_direction": 1,
+      "height_difference_m": 0.199999917115,
+      "vertical_velocity_difference_m_s": 8.378652999992629e-07,
+      "mean_abs_left_flap_angle_difference_rad": 0.002752890665100001,
+      "mean_abs_right_flap_angle_difference_rad": 0.0027603086871749987
+    },
+    {
+      "lane": 7,
+      "step_direction": -1,
+      "height_difference_m": -0.20000019022,
+      "vertical_velocity_difference_m_s": -4.050339800008363e-07,
+      "mean_abs_left_flap_angle_difference_rad": 0.0030146970702499987,
+      "mean_abs_right_flap_angle_difference_rad": 0.0030077601108000015
+    }
+  ],
+  "scope": "Matched used-seed simulation; does not validate aerodynamics or unseen conditions"
+}
