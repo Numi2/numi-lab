@@ -1,0 +1,249 @@
+{
+  "rows": [
+    {
+      "lane": 0,
+      "prewalk_equal": {
+        "state": true,
+        "contact": true
+      },
+      "full_equal": {
+        "state": true,
+        "contact": true
+      },
+      "candidate_counts": {
+        "contacts": 1600,
+        "unloaded": 0,
+        "nonfoot": 0,
+        "overflow": 0,
+        "toe_coverage": 1600,
+        "toe_caps": 0
+      },
+      "loaded_contact_speed_ratio": {
+        "left": 1.0,
+        "right": 1.0
+      },
+      "late_ankle_by_side_deg": {
+        "left": null,
+        "right": null
+      },
+      "toe_strict_last": 0,
+      "front3_unobserved": 1,
+      "dx_m": 0.0810827985
+    },
+    {
+      "lane": 1,
+      "prewalk_equal": {
+        "state": true,
+        "contact": true
+      },
+      "full_equal": {
+        "state": true,
+        "contact": true
+      },
+      "candidate_counts": {
+        "contacts": 1600,
+        "unloaded": 0,
+        "nonfoot": 0,
+        "overflow": 0,
+        "toe_coverage": 1600,
+        "toe_caps": 0
+      },
+      "loaded_contact_speed_ratio": {
+        "left": 1.0,
+        "right": 1.0
+      },
+      "late_ankle_by_side_deg": {
+        "left": null,
+        "right": null
+      },
+      "toe_strict_last": 0,
+      "front3_unobserved": 1,
+      "dx_m": 0.0812218074
+    },
+    {
+      "lane": 2,
+      "prewalk_equal": {
+        "state": true,
+        "contact": true
+      },
+      "full_equal": {
+        "state": false,
+        "contact": false
+      },
+      "candidate_counts": {
+        "contacts": 1600,
+        "unloaded": 0,
+        "nonfoot": 0,
+        "overflow": 0,
+        "toe_coverage": 1600,
+        "toe_caps": 0
+      },
+      "loaded_contact_speed_ratio": {
+        "left": 1.0749522192419119,
+        "right": 1.0166959143488405
+      },
+      "late_ankle_by_side_deg": {
+        "left": null,
+        "right": null
+      },
+      "toe_strict_last": 0,
+      "front3_unobserved": 1,
+      "dx_m": 0.078986152
+    },
+    {
+      "lane": 3,
+      "prewalk_equal": {
+        "state": true,
+        "contact": true
+      },
+      "full_equal": {
+        "state": false,
+        "contact": false
+      },
+      "candidate_counts": {
+        "contacts": 1600,
+        "unloaded": 0,
+        "nonfoot": 0,
+        "overflow": 0,
+        "toe_coverage": 1600,
+        "toe_caps": 0
+      },
+      "loaded_contact_speed_ratio": {
+        "left": 1.0562178578336021,
+        "right": 1.0364209146698293
+      },
+      "late_ankle_by_side_deg": {
+        "left": null,
+        "right": null
+      },
+      "toe_strict_last": 0,
+      "front3_unobserved": 1,
+      "dx_m": 0.08061321540000001
+    },
+    {
+      "lane": 4,
+      "prewalk_equal": {
+        "state": true,
+        "contact": true
+      },
+      "full_equal": {
+        "state": false,
+        "contact": false
+      },
+      "candidate_counts": {
+        "contacts": 1600,
+        "unloaded": 0,
+        "nonfoot": 0,
+        "overflow": 0,
+        "toe_coverage": 1600,
+        "toe_caps": 0
+      },
+      "loaded_contact_speed_ratio": {
+        "left": 1.04472489512347,
+        "right": 1.0387776584990025
+      },
+      "late_ankle_by_side_deg": {
+        "left": null,
+        "right": null
+      },
+      "toe_strict_last": 0,
+      "front3_unobserved": 1,
+      "dx_m": 0.08066264447999999
+    },
+    {
+      "lane": 5,
+      "prewalk_equal": {
+        "state": true,
+        "contact": true
+      },
+      "full_equal": {
+        "state": false,
+        "contact": false
+      },
+      "candidate_counts": {
+        "contacts": 1600,
+        "unloaded": 0,
+        "nonfoot": 0,
+        "overflow": 0,
+        "toe_coverage": 1600,
+        "toe_caps": 0
+      },
+      "loaded_contact_speed_ratio": {
+        "left": 1.0826477228269908,
+        "right": 1.0565390954599425
+      },
+      "late_ankle_by_side_deg": {
+        "left": null,
+        "right": null
+      },
+      "toe_strict_last": 0,
+      "front3_unobserved": 3,
+      "dx_m": 0.0814146553
+    },
+    {
+      "lane": 6,
+      "prewalk_equal": {
+        "state": true,
+        "contact": true
+      },
+      "full_equal": {
+        "state": false,
+        "contact": false
+      },
+      "candidate_counts": {
+        "contacts": 1600,
+        "unloaded": 0,
+        "nonfoot": 0,
+        "overflow": 0,
+        "toe_coverage": 1600,
+        "toe_caps": 0
+      },
+      "loaded_contact_speed_ratio": {
+        "left": 1.068481171182213,
+        "right": 1.0721754843689058
+      },
+      "late_ankle_by_side_deg": {
+        "left": null,
+        "right": null
+      },
+      "toe_strict_last": 0,
+      "front3_unobserved": 3,
+      "dx_m": 0.08091068012000001
+    },
+    {
+      "lane": 7,
+      "prewalk_equal": {
+        "state": true,
+        "contact": true
+      },
+      "full_equal": {
+        "state": false,
+        "contact": false
+      },
+      "candidate_counts": {
+        "contacts": 1600,
+        "unloaded": 0,
+        "nonfoot": 0,
+        "overflow": 0,
+        "toe_coverage": 1600,
+        "toe_caps": 0
+      },
+      "loaded_contact_speed_ratio": {
+        "left": 1.1014317292068978,
+        "right": 1.118537953398084
+      },
+      "late_ankle_by_side_deg": {
+        "left": null,
+        "right": null
+      },
+      "toe_strict_last": 0,
+      "front3_unobserved": 3,
+      "dx_m": 0.08035718289999999
+    }
+  ],
+  "errors": {
+    "candidate": [],
+    "uniform": []
+  },
+  "scope": "Candidate vs same-lane uniform-gait reference. Contact-point integral is not material slip; starts are correlated."
+}

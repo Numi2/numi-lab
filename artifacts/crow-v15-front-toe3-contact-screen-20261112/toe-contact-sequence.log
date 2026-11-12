@@ -1,0 +1,4 @@
+rear_before_any_front yes 40 valid 40 missing 14
+rear_before_or_same_substep_as_any_front yes 40 valid 40 missing 14
+front3_last_or_tied_among_toes yes 29 valid 40 missing 14
+front3_strictly_last yes 0 valid 40 missing 14
