@@ -1,0 +1,5 @@
+# Wing reflection audit
+
+Independent articulated forward kinematics on 400 recorded states from the preceding open-flight experiment compared each torso-relative left wing orientation with the sagittal reflection of its right counterpart. The unmodified controls had a 0.049–0.050 rad mean reflection error over 13.02–15.00 s, with p95 0.080–0.081 rad. The recorded opposite-sign pronation coordinates therefore do not mean the wings themselves are oppositely oriented: they are approximately mirror-symmetric during this interval. In lane 5, all 150 checked torso/wing poses matched the recorded replay within the tolerance in `analysis.json`.
+
+This corrects the interpretation of the earlier coordinate-sign audit. Its opposite-sign command pattern mostly perturbed the bilateral wing motion and affected forward speed, so it does not by itself establish steering authority. Joint axes and coordinate signs must be interpreted through actual articulated transforms, not a source comment in isolation. This is a 25 Hz sample of orientations, not a validation of wing forces, feather motion or crow aerodynamics.

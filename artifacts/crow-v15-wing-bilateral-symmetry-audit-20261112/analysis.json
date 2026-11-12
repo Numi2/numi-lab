@@ -1,0 +1,71 @@
+{
+  "interval_s": [
+    13.02,
+    15.0
+  ],
+  "source": "accepted first-episode q/v, independent articulated forward kinematics on v15 body",
+  "method": "compare torso-relative left wing orientation with reflection of right wing orientation across sagittal plane, quaternion convention xyzw",
+  "validation": {
+    "replay_component_max_abs": 2.4009048704698444e-07,
+    "compared_bodies": 150
+  },
+  "rows": [
+    {
+      "lane": 0,
+      "samples": 50,
+      "mean_reflection_error_rad": 0.04923452861870043,
+      "p95_reflection_error_rad": 0.08148422794146681,
+      "max_reflection_error_rad": 0.10161803248145526
+    },
+    {
+      "lane": 1,
+      "samples": 50,
+      "mean_reflection_error_rad": 0.049668575357420565,
+      "p95_reflection_error_rad": 0.0799004716462183,
+      "max_reflection_error_rad": 0.10131429245737397
+    },
+    {
+      "lane": 2,
+      "samples": 50,
+      "mean_reflection_error_rad": 0.03884406768691111,
+      "p95_reflection_error_rad": 0.06015667228427281,
+      "max_reflection_error_rad": 0.07537358350564027
+    },
+    {
+      "lane": 3,
+      "samples": 50,
+      "mean_reflection_error_rad": 0.03951496072696771,
+      "p95_reflection_error_rad": 0.07902427645902743,
+      "max_reflection_error_rad": 0.08808669300632543
+    },
+    {
+      "lane": 4,
+      "samples": 50,
+      "mean_reflection_error_rad": 0.035057864855581565,
+      "p95_reflection_error_rad": 0.05745380416023391,
+      "max_reflection_error_rad": 0.07589438384173942
+    },
+    {
+      "lane": 5,
+      "samples": 50,
+      "mean_reflection_error_rad": 0.024230337453542777,
+      "p95_reflection_error_rad": 0.06107249096658306,
+      "max_reflection_error_rad": 0.0733525287248481
+    },
+    {
+      "lane": 6,
+      "samples": 50,
+      "mean_reflection_error_rad": 0.03407205136218207,
+      "p95_reflection_error_rad": 0.052649585297817596,
+      "max_reflection_error_rad": 0.0731903027903952
+    },
+    {
+      "lane": 7,
+      "samples": 50,
+      "mean_reflection_error_rad": 0.013280705689328183,
+      "p95_reflection_error_rad": 0.047491572204979036,
+      "max_reflection_error_rad": 0.05882487687470155
+    }
+  ],
+  "limitations": "Orientation symmetry only; does not validate wing surfaces, aerodynamic forces, or biological motion. Oscillatory flight sampled at 25 Hz; a high-frequency envelope may differ."
+}
