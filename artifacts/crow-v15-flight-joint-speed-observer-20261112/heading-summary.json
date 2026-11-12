@@ -1,0 +1,95 @@
+{
+  "rows": [
+    {
+      "lane": 2,
+      "normal_blend": 0.15,
+      "target_rad": 0.35,
+      "end_step": 1200,
+      "termination": 0,
+      "mean_abs_body_heading_error_rad": 0.36244902026242537,
+      "max_abs_body_heading_error_rad": 0.37550105966558844,
+      "final_body_heading_rad": 4.667327044162771e-05,
+      "mean_path_heading_rad": -0.01260209005717904,
+      "height_range_m": [
+        1.0273422,
+        1.04678082
+      ]
+    },
+    {
+      "lane": 3,
+      "normal_blend": 0.15,
+      "target_rad": -0.35,
+      "end_step": 1200,
+      "termination": 0,
+      "mean_abs_body_heading_error_rad": 0.07346580656952141,
+      "max_abs_body_heading_error_rad": 0.11202551061091444,
+      "final_body_heading_rad": -0.3134477549722982,
+      "mean_path_heading_rad": -0.26400100037704555,
+      "height_range_m": [
+        1.17888582,
+        1.19879341
+      ]
+    },
+    {
+      "lane": 4,
+      "normal_blend": 0.35,
+      "target_rad": 0.35,
+      "end_step": 1200,
+      "termination": 0,
+      "mean_abs_body_heading_error_rad": 0.16451408993134445,
+      "max_abs_body_heading_error_rad": 0.2079855912927292,
+      "final_body_heading_rad": 0.21924264862526943,
+      "mean_path_heading_rad": 0.17717577900542197,
+      "height_range_m": [
+        1.02458537,
+        1.04437923
+      ]
+    },
+    {
+      "lane": 5,
+      "normal_blend": 0.35,
+      "target_rad": -0.35,
+      "end_step": 1200,
+      "termination": 0,
+      "mean_abs_body_heading_error_rad": 0.01375376175965462,
+      "max_abs_body_heading_error_rad": 0.033106549724144674,
+      "final_body_heading_rad": -0.3726083668514385,
+      "mean_path_heading_rad": -0.3355014422191292,
+      "height_range_m": [
+        1.1766187,
+        1.19577312
+      ]
+    },
+    {
+      "lane": 6,
+      "normal_blend": 0.6,
+      "target_rad": 0.35,
+      "end_step": 1200,
+      "termination": 0,
+      "mean_abs_body_heading_error_rad": 0.06437612457183467,
+      "max_abs_body_heading_error_rad": 0.08720757521702553,
+      "final_body_heading_rad": 0.3004130495250087,
+      "mean_path_heading_rad": 0.2837777321902615,
+      "height_range_m": [
+        1.00815058,
+        1.0268662
+      ]
+    },
+    {
+      "lane": 7,
+      "normal_blend": 0.6,
+      "target_rad": -0.35,
+      "end_step": 1200,
+      "termination": 0,
+      "mean_abs_body_heading_error_rad": 0.016433391082980944,
+      "max_abs_body_heading_error_rad": 0.027136201265684223,
+      "final_body_heading_rad": -0.3770783643990703,
+      "mean_path_heading_rad": -0.3567696178915689,
+      "height_range_m": [
+        1.15843558,
+        1.17721951
+      ]
+    }
+  ],
+  "limits": "one used seed, fixed target, obstacle-free model, uncalibrated wing closure; 50 Hz samples, not biological or route qualification"
+}
