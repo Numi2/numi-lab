@@ -1,0 +1,1 @@
+{"status":"passed","bodies":33,"dofs":38,"toe_hinges":16,"invariant_cases":36,"gpu_lanes":12,"acceleration_scaled_error":5.8493140228417586e-08,"device":"Apple M4 Pro","boundary":"estimated free-space mechanics only; no contact or grip test"}

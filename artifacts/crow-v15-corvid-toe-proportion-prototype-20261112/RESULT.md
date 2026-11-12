@@ -1,0 +1,7 @@
+# Related-crow-informed toe free-space probe
+
+The isolated two-segment toe prototype uses 0.72 outer-to-middle longitudinal collision extent, with existing toe masses, heights and widths retained and local diagonal inertias recalculated. On 12 free-space GPU lanes, native GPU and independent CPU forward dynamics agreed to a maximum scaled acceleration error of 8.29e-8, below 5e-5; repeated GPU outputs matched and all 16 toe coordinates moved. The probe checked finite invariants in 36 configurations and unchanged total mass (0.450040 kg). Because toe geometry changes, maximum invariant differences from the original no-toe body are reported in the result rather than claimed to be zero.
+
+The first candidate and unchanged-model control both failed when the standalone probe used its default Metal library. Both passed after selecting the matching wider research Metal library explicitly. All outputs and both versions are retained. This confirms the successful check uses a compatible library, not that the default path works for this topology.
+
+This is a 33-body, 38-DoF precursor, not the later 40-DoF hip-roll v15 body used in the walking trials. It has no contact test and does not qualify walking, grasp, takeoff, flight, landing or biological accuracy. The 0.72 ratio is a provisional engineering value informed by hooded-crow skeletal ratios, with uncertain toe mapping and soft tissue; the box thicknesses and two-link anatomy remain simplified. The changes are not promoted into the current body.

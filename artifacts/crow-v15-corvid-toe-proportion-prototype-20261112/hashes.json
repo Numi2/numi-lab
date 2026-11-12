@@ -1,0 +1,18 @@
+{
+  "probe": {
+    "path": "build/crow-v15-corvid-toe-proportion-prototype-20261112/probe-explicit",
+    "sha256": "ca84a4a33961bff5e4f38ebf5e9baae18a4e2ffa3ec30f772ab87a8fb6e1588c"
+  },
+  "control_probe": {
+    "path": "build/crow-v15-corvid-toe-proportion-prototype-20261112/baseline-explicit",
+    "sha256": "59a52bd6d49b9befaf9215058224b060f9bb29a3ebf3d0b7c8a561086b66e70c"
+  },
+  "library": {
+    "path": "build/crow-v15-hip-roll-journey-integration-20261111/libmetalrobo.dylib",
+    "sha256": "d1e9bb9c6c6978318382731dd31df8a8aee22104dc23bbbab73eec5c7b81e615"
+  },
+  "explicit_metallib": {
+    "path": "build/crow-v15-wide-contact-isolation-20261111/MetalRobo.metallib",
+    "sha256": "835d0ff74b8338bba6987d88f3355a1344522eaa88fa8e82295b12ba58cedeb5"
+  }
+}
