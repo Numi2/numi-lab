@@ -1,0 +1,3 @@
+held {'total': 49, 'toe:rear_toe_distal': 49, 'no_own_normal': 35, 'opposite_supported': 49, 'positive_carrier': 49, 'loaded': 14}
+unloaded_toe_sham {'total': 192, 'toe:rear_toe_proximal': 103, 'loaded': 144, 'opposite_supported': 161, 'positive_carrier': 62, 'toe:rear_toe_distal': 89, 'no_own_normal': 48, 'negative_carrier': 130, 'opposite_not_supported': 31}
+loaded_toe_candidate {'total': 183, 'toe:rear_toe_proximal': 110, 'loaded': 142, 'opposite_supported': 153, 'positive_carrier': 51, 'toe:rear_toe_distal': 73, 'no_own_normal': 41, 'negative_carrier': 132, 'opposite_not_supported': 30}

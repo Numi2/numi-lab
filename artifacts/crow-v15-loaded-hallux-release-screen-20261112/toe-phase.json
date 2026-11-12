@@ -1,0 +1,441 @@
+{
+  "held": {
+    "counts": {
+      "total": 49,
+      "toe:rear_toe_distal": 49,
+      "no_own_normal": 35,
+      "opposite_supported": 49,
+      "positive_carrier": 49,
+      "loaded": 14
+    },
+    "examples": [
+      {
+        "lane": 0,
+        "step": 236,
+        "side": "left",
+        "limiting_toe": "rear_toe_distal",
+        "sole_gap_m": 0.001311158505047226,
+        "toe_gap_m": 0.0009985483755224726,
+        "own_interval_normal_impulse": 0.0,
+        "opposite_interval_normal_impulse": 0.08848928052999999,
+        "carrier": 0.30901699437495467
+      },
+      {
+        "lane": 0,
+        "step": 240,
+        "side": "right",
+        "limiting_toe": "rear_toe_distal",
+        "sole_gap_m": 0.001053009119770713,
+        "toe_gap_m": 0.0009162920256994955,
+        "own_interval_normal_impulse": 0.000155815942,
+        "opposite_interval_normal_impulse": 0.088269563286,
+        "carrier": 0.6374239897486849
+      },
+      {
+        "lane": 0,
+        "step": 248,
+        "side": "right",
+        "limiting_toe": "rear_toe_distal",
+        "sole_gap_m": 0.001015095099162651,
+        "toe_gap_m": 0.0008428138885224496,
+        "own_interval_normal_impulse": 0.0,
+        "opposite_interval_normal_impulse": 0.08676040776999999,
+        "carrier": 0.4257792915650758
+      },
+      {
+        "lane": 0,
+        "step": 261,
+        "side": "left",
+        "limiting_toe": "rear_toe_distal",
+        "sole_gap_m": 0.0010536232253977058,
+        "toe_gap_m": 0.0007999479180078543,
+        "own_interval_normal_impulse": 0.0,
+        "opposite_interval_normal_impulse": 0.08883924364,
+        "carrier": 0.3090169943749482
+      },
+      {
+        "lane": 0,
+        "step": 265,
+        "side": "right",
+        "limiting_toe": "rear_toe_distal",
+        "sole_gap_m": 0.0010062890348256723,
+        "toe_gap_m": 0.0008977552587467186,
+        "own_interval_normal_impulse": 0.000264100607,
+        "opposite_interval_normal_impulse": 0.07554459269399999,
+        "carrier": 0.6374239897486847
+      },
+      {
+        "lane": 0,
+        "step": 266,
+        "side": "right",
+        "limiting_toe": "rear_toe_distal",
+        "sole_gap_m": 0.001304191345350111,
+        "toe_gap_m": 0.0009832603253277037,
+        "own_interval_normal_impulse": 0.0,
+        "opposite_interval_normal_impulse": 0.07706931465,
+        "carrier": 0.8090169943749511
+      },
+      {
+        "lane": 0,
+        "step": 273,
+        "side": "right",
+        "limiting_toe": "rear_toe_distal",
+        "sole_gap_m": 0.0011800502964957032,
+        "toe_gap_m": 0.0009146004019759194,
+        "own_interval_normal_impulse": 0.0,
+        "opposite_interval_normal_impulse": 0.08895784338999999,
+        "carrier": 0.42577929156507605
+      },
+      {
+        "lane": 0,
+        "step": 286,
+        "side": "left",
+        "limiting_toe": "rear_toe_distal",
+        "sole_gap_m": 0.0010240615001552485,
+        "toe_gap_m": 0.000703961004661741,
+        "own_interval_normal_impulse": 0.0,
+        "opposite_interval_normal_impulse": 0.08843366149000001,
+        "carrier": 0.30901699437495517
+      },
+      {
+        "lane": 1,
+        "step": 240,
+        "side": "right",
+        "limiting_toe": "rear_toe_distal",
+        "sole_gap_m": 0.001044120952331225,
+        "toe_gap_m": 0.0009240933792362734,
+        "own_interval_normal_impulse": 0.000142621531,
+        "opposite_interval_normal_impulse": 0.08627022672,
+        "carrier": 0.6374239897486849
+      },
+      {
+        "lane": 1,
+        "step": 248,
+        "side": "right",
+        "limiting_toe": "rear_toe_distal",
+        "sole_gap_m": 0.001052791191051351,
+        "toe_gap_m": 0.0008275939392315725,
+        "own_interval_normal_impulse": 0.0,
+        "opposite_interval_normal_impulse": 0.08904725871000002,
+        "carrier": 0.4257792915650758
+      },
+      {
+        "lane": 1,
+        "step": 261,
+        "side": "left",
+        "limiting_toe": "rear_toe_distal",
+        "sole_gap_m": 0.0010576252518098798,
+        "toe_gap_m": 0.0007916646510529816,
+        "own_interval_normal_impulse": 0.0,
+        "opposite_interval_normal_impulse": 0.0896128509,
+        "carrier": 0.3090169943749482
+      },
+      {
+        "lane": 1,
+        "step": 265,
+        "side": "right",
+        "limiting_toe": "rear_toe_distal",
+        "sole_gap_m": 0.0010080158014565826,
+        "toe_gap_m": 0.0008853767410017289,
+        "own_interval_normal_impulse": 0.0002505942608,
+        "opposite_interval_normal_impulse": 0.075139280663,
+        "carrier": 0.6374239897486847
+      }
+    ]
+  },
+  "unloaded_toe_sham": {
+    "counts": {
+      "total": 192,
+      "toe:rear_toe_proximal": 103,
+      "loaded": 144,
+      "opposite_supported": 161,
+      "positive_carrier": 62,
+      "toe:rear_toe_distal": 89,
+      "no_own_normal": 48,
+      "negative_carrier": 130,
+      "opposite_not_supported": 31
+    },
+    "examples": [
+      {
+        "lane": 0,
+        "step": 217,
+        "side": "right",
+        "limiting_toe": "rear_toe_proximal",
+        "sole_gap_m": 0.0012403474089641795,
+        "toe_gap_m": 0.0008486301633722337,
+        "own_interval_normal_impulse": 3.750759142326888e-07,
+        "opposite_interval_normal_impulse": 0.08918856225,
+        "carrier": 0.9297764858882508
+      },
+      {
+        "lane": 0,
+        "step": 224,
+        "side": "right",
+        "limiting_toe": "rear_toe_distal",
+        "sole_gap_m": 0.00212249817713114,
+        "toe_gap_m": 0.0006806854789982147,
+        "own_interval_normal_impulse": 0.0,
+        "opposite_interval_normal_impulse": 0.09058147762,
+        "carrier": 0.18738131458572224
+      },
+      {
+        "lane": 0,
+        "step": 226,
+        "side": "right",
+        "limiting_toe": "rear_toe_proximal",
+        "sole_gap_m": 0.0012664986354693729,
+        "toe_gap_m": 0.0005293454564696352,
+        "own_interval_normal_impulse": 0.09588014727922098,
+        "opposite_interval_normal_impulse": 0.045717926952,
+        "carrier": -0.309016994374947
+      },
+      {
+        "lane": 0,
+        "step": 237,
+        "side": "left",
+        "limiting_toe": "rear_toe_distal",
+        "sole_gap_m": 0.0029770157602834017,
+        "toe_gap_m": 0.000542638339593754,
+        "own_interval_normal_impulse": 0.0,
+        "opposite_interval_normal_impulse": 0.08922652434,
+        "carrier": 0.06279051952931534
+      },
+      {
+        "lane": 0,
+        "step": 238,
+        "side": "left",
+        "limiting_toe": "rear_toe_proximal",
+        "sole_gap_m": 0.0015563954496467212,
+        "toe_gap_m": 0.00045684876538491445,
+        "own_interval_normal_impulse": 0.00845056215002,
+        "opposite_interval_normal_impulse": 0.0780827515,
+        "carrier": -0.1873813145857213
+      },
+      {
+        "lane": 0,
+        "step": 239,
+        "side": "left",
+        "limiting_toe": "rear_toe_proximal",
+        "sole_gap_m": 0.0014164132961620376,
+        "toe_gap_m": 0.00033513059644381393,
+        "own_interval_normal_impulse": 0.082241408182188,
+        "opposite_interval_normal_impulse": 0.05349362942199999,
+        "carrier": -0.4257792915650747
+      },
+      {
+        "lane": 0,
+        "step": 239,
+        "side": "right",
+        "limiting_toe": "rear_toe_proximal",
+        "sole_gap_m": 0.001336152645495501,
+        "toe_gap_m": 0.0009353545129177215,
+        "own_interval_normal_impulse": 0.05349362942199999,
+        "opposite_interval_normal_impulse": 0.082241408182188,
+        "carrier": 0.4257792915650747
+      },
+      {
+        "lane": 0,
+        "step": 250,
+        "side": "right",
+        "limiting_toe": "rear_toe_distal",
+        "sole_gap_m": 0.0019530002170453156,
+        "toe_gap_m": 0.0003363446720479179,
+        "own_interval_normal_impulse": 0.005833714369800001,
+        "opposite_interval_normal_impulse": 0.08346738992000001,
+        "carrier": -0.06279051952930703
+      },
+      {
+        "lane": 0,
+        "step": 251,
+        "side": "right",
+        "limiting_toe": "rear_toe_proximal",
+        "sole_gap_m": 0.0010666667301230098,
+        "toe_gap_m": 5.51398456146851e-05,
+        "own_interval_normal_impulse": 0.041773060825309,
+        "opposite_interval_normal_impulse": 0.07063016191,
+        "carrier": -0.3090169943749468
+      },
+      {
+        "lane": 0,
+        "step": 252,
+        "side": "right",
+        "limiting_toe": "rear_toe_proximal",
+        "sole_gap_m": 0.0012784361368751128,
+        "toe_gap_m": 0.0003455116913163754,
+        "own_interval_normal_impulse": 0.082162634103,
+        "opposite_interval_normal_impulse": 0.004065973952958043,
+        "carrier": -0.5358267949789949
+      },
+      {
+        "lane": 0,
+        "step": 253,
+        "side": "left",
+        "limiting_toe": "rear_toe_distal",
+        "sole_gap_m": 0.0025935985680800248,
+        "toe_gap_m": 0.0009672290942088161,
+        "own_interval_normal_impulse": 3.1159213121272e-10,
+        "opposite_interval_normal_impulse": 0.073873749618,
+        "carrier": 0.7289686274214139
+      },
+      {
+        "lane": 0,
+        "step": 262,
+        "side": "left",
+        "limiting_toe": "rear_toe_distal",
+        "sole_gap_m": 0.0028696799164685816,
+        "toe_gap_m": 0.0004047042919714267,
+        "own_interval_normal_impulse": 0.0,
+        "opposite_interval_normal_impulse": 0.08886270549000001,
+        "carrier": 0.06279051952931558
+      }
+    ]
+  },
+  "loaded_toe_candidate": {
+    "counts": {
+      "total": 183,
+      "toe:rear_toe_proximal": 110,
+      "loaded": 142,
+      "opposite_supported": 153,
+      "positive_carrier": 51,
+      "toe:rear_toe_distal": 73,
+      "no_own_normal": 41,
+      "negative_carrier": 132,
+      "opposite_not_supported": 30
+    },
+    "examples": [
+      {
+        "lane": 0,
+        "step": 217,
+        "side": "right",
+        "limiting_toe": "rear_toe_proximal",
+        "sole_gap_m": 0.0013731757044294877,
+        "toe_gap_m": 0.0009415213765628701,
+        "own_interval_normal_impulse": 1.3969066160316265e-07,
+        "opposite_interval_normal_impulse": 0.08864203468,
+        "carrier": 0.9297764858882508
+      },
+      {
+        "lane": 0,
+        "step": 224,
+        "side": "right",
+        "limiting_toe": "rear_toe_distal",
+        "sole_gap_m": 0.002152725779853282,
+        "toe_gap_m": 0.00064413929434738,
+        "own_interval_normal_impulse": 0.0,
+        "opposite_interval_normal_impulse": 0.09040737572,
+        "carrier": 0.18738131458572224
+      },
+      {
+        "lane": 0,
+        "step": 225,
+        "side": "right",
+        "limiting_toe": "rear_toe_proximal",
+        "sole_gap_m": 0.0010105067514298658,
+        "toe_gap_m": 0.00030900041238617927,
+        "own_interval_normal_impulse": 0.007201802108760001,
+        "opposite_interval_normal_impulse": 0.08173390012000001,
+        "carrier": -0.06279051952930727
+      },
+      {
+        "lane": 0,
+        "step": 226,
+        "side": "right",
+        "limiting_toe": "rear_toe_proximal",
+        "sole_gap_m": 0.0013095920956755595,
+        "toe_gap_m": 0.0005496431173784688,
+        "own_interval_normal_impulse": 0.09240180182836401,
+        "opposite_interval_normal_impulse": 0.05116793389,
+        "carrier": -0.309016994374947
+      },
+      {
+        "lane": 0,
+        "step": 237,
+        "side": "left",
+        "limiting_toe": "rear_toe_distal",
+        "sole_gap_m": 0.0029866324624165316,
+        "toe_gap_m": 0.0005436929098610495,
+        "own_interval_normal_impulse": 0.0,
+        "opposite_interval_normal_impulse": 0.08922298810999998,
+        "carrier": 0.06279051952931534
+      },
+      {
+        "lane": 0,
+        "step": 238,
+        "side": "left",
+        "limiting_toe": "rear_toe_proximal",
+        "sole_gap_m": 0.0015627241185640506,
+        "toe_gap_m": 0.0004576149480211584,
+        "own_interval_normal_impulse": 0.00844508980362,
+        "opposite_interval_normal_impulse": 0.07793681743000003,
+        "carrier": -0.1873813145857213
+      },
+      {
+        "lane": 0,
+        "step": 239,
+        "side": "left",
+        "limiting_toe": "rear_toe_proximal",
+        "sole_gap_m": 0.0014174809032319585,
+        "toe_gap_m": 0.0003326345704884881,
+        "own_interval_normal_impulse": 0.08205619026001301,
+        "opposite_interval_normal_impulse": 0.053686115339,
+        "carrier": -0.4257792915650747
+      },
+      {
+        "lane": 0,
+        "step": 239,
+        "side": "right",
+        "limiting_toe": "rear_toe_proximal",
+        "sole_gap_m": 0.0013345877748561566,
+        "toe_gap_m": 0.0009331353317603951,
+        "own_interval_normal_impulse": 0.053686115339,
+        "opposite_interval_normal_impulse": 0.08205619026001301,
+        "carrier": 0.4257792915650747
+      },
+      {
+        "lane": 0,
+        "step": 250,
+        "side": "right",
+        "limiting_toe": "rear_toe_distal",
+        "sole_gap_m": 0.0019493011318594319,
+        "toe_gap_m": 0.0003341546807458188,
+        "own_interval_normal_impulse": 0.0058097121505,
+        "opposite_interval_normal_impulse": 0.08347608940000001,
+        "carrier": -0.06279051952930703
+      },
+      {
+        "lane": 0,
+        "step": 251,
+        "side": "right",
+        "limiting_toe": "rear_toe_proximal",
+        "sole_gap_m": 0.0010685029816956248,
+        "toe_gap_m": 5.601866429081302e-05,
+        "own_interval_normal_impulse": 0.042075816367114,
+        "opposite_interval_normal_impulse": 0.07039431831,
+        "carrier": -0.3090169943749468
+      },
+      {
+        "lane": 0,
+        "step": 252,
+        "side": "right",
+        "limiting_toe": "rear_toe_proximal",
+        "sole_gap_m": 0.001277967966155565,
+        "toe_gap_m": 0.00034396555476992434,
+        "own_interval_normal_impulse": 0.08198368103499998,
+        "opposite_interval_normal_impulse": 0.00400930325056629,
+        "carrier": -0.5358267949789949
+      },
+      {
+        "lane": 0,
+        "step": 262,
+        "side": "left",
+        "limiting_toe": "rear_toe_distal",
+        "sole_gap_m": 0.002868708039509166,
+        "toe_gap_m": 0.0004026261251407967,
+        "own_interval_normal_impulse": 0.0,
+        "opposite_interval_normal_impulse": 0.08888065444,
+        "carrier": 0.06279051952931558
+      }
+    ]
+  },
+  "scope": "Endpoint geometric low-toe events joined to interval-summed foot normals; a loaded event may represent normal toe support and is not itself evidence of slip. Opposite support threshold is half body weight times 20 ms, not continuous support."
+}

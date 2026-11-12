@@ -1,0 +1,4 @@
+{
+  "lane_substeps": {},
+  "scope": "16 substeps per 20 ms step; zero normal threshold is not sufficient to prove a fall."
+}
