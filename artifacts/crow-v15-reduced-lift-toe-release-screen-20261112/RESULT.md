@@ -1,0 +1,7 @@
+# Rear-toe release with reduced lift: one short gate failed
+
+Eight matched development lanes completed all 300 steps with exact prewalk parity through step 200, no reset, reported physical failure, errors, overflow, nonfoot contact, or toe velocity caps. Both-foot-zero-normal samples remained zero in every lane. The candidate had three left and four right supported-clearance bouts per lane and traveled 1.11–1.32 times the no-extra-stroke held control. Its loaded endpoint contact-point median and p95 speeds were 0.00391 and 0.04300 m/s, versus 0.00276 and 0.03484 m/s for held control; both met the prespecified 1.5x limits.
+
+The sole-clear/toe-low count fell from 244 in the matched reduced-lift sham to 192 with toe release, but exceeded the held-control count of 49 and its predeclared limit of 59. Of the 192 candidate cases, 144 had some normal impulse on that foot during the same 20 ms interval and 48 did not, versus 159 and 85 for the matched sham and 14 and 35 for the held control. This count does not distinguish ordinary toe support from sliding, and endpoint geometry is not synchronized to each interval contact. Candidate remains unpromoted and the recorded gate remains failed.
+
+This was only a short screen on a previously used development seed. It does not establish real-crow gait, a longer stable walk, takeoff, qualified flight, supported landing or an autonomous sequence.

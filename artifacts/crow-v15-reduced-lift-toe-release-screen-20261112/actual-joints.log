@@ -1,0 +1,23 @@
+{
+  "rows": [
+    {
+      "side": "left",
+      "samples": 224,
+      "median_hip_difference_rad": 0.0,
+      "median_knee_difference_rad": 0.0,
+      "median_ankle_difference_rad": 0.0,
+      "min_knee_difference_rad": -1.1711999999997058e-05,
+      "max_knee_difference_rad": 1.2785999999986863e-05
+    },
+    {
+      "side": "right",
+      "samples": 192,
+      "median_hip_difference_rad": 2.3800000001350519e-07,
+      "median_knee_difference_rad": 1.1899999996511923e-07,
+      "median_ankle_difference_rad": 5.999999996841865e-08,
+      "min_knee_difference_rad": -1.6807999999923773e-05,
+      "max_knee_difference_rad": 2.26190000000015e-05
+    }
+  ],
+  "scope": "Endpoint joint-angle differences against matched reduced-lift sham at carrier > 0.7; trajectories diverge and include indirect dynamic effects. These are not isolated actuator tracking errors or in-vivo kinematics."
+}
