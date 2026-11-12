@@ -1,0 +1,1737 @@
+{
+  "source": "artifacts/crow-v15-small-support-stroke-20261112/candidate-20261127-rebound/run.stderr.gz",
+  "source_sha256": "7bbf52d837847ed94bd442af92ea164309a6d4c841db0ad1f481291e367b7f54",
+  "kinematics_sha256": "c7ad98414062d68d5112a067634dca427bbc22e476cd9aa05c968bfd31b2c9bf",
+  "ground_z_m": 0.0,
+  "rows": [
+    {
+      "step": 225,
+      "side": "left",
+      "paired_knee_offset_rad": -0.2,
+      "sole_gap_m": -0.0004080016567183792,
+      "minimum_toe_gap_m": -0.0003217982376838187,
+      "limiting_toe": "crow_left_front_toe_1_proximal",
+      "all_foot_minimum_gap_m": -0.0004080016567183792
+    },
+    {
+      "step": 225,
+      "side": "left",
+      "paired_knee_offset_rad": -0.1,
+      "sole_gap_m": -0.0003144113343196281,
+      "minimum_toe_gap_m": -0.0002282079152850676,
+      "limiting_toe": "crow_left_front_toe_1_proximal",
+      "all_foot_minimum_gap_m": -0.0003144113343196281
+    },
+    {
+      "step": 225,
+      "side": "left",
+      "paired_knee_offset_rad": 0.0,
+      "sole_gap_m": 0.000409702470948764,
+      "minimum_toe_gap_m": 0.0004959058899833245,
+      "limiting_toe": "crow_left_front_toe_1_proximal",
+      "all_foot_minimum_gap_m": 0.000409702470948764
+    },
+    {
+      "step": 225,
+      "side": "left",
+      "paired_knee_offset_rad": 0.1,
+      "sole_gap_m": 0.0017571046533047321,
+      "minimum_toe_gap_m": 0.001843308072339291,
+      "limiting_toe": "crow_left_front_toe_1_proximal",
+      "all_foot_minimum_gap_m": 0.0017571046533047321
+    },
+    {
+      "step": 225,
+      "side": "left",
+      "paired_knee_offset_rad": 0.2,
+      "sole_gap_m": 0.0037143324155341235,
+      "minimum_toe_gap_m": 0.003800535834568684,
+      "limiting_toe": "crow_left_front_toe_1_proximal",
+      "all_foot_minimum_gap_m": 0.0037143324155341235
+    },
+    {
+      "step": 225,
+      "side": "left",
+      "paired_knee_offset_rad": 0.3,
+      "sole_gap_m": 0.006261829784810257,
+      "minimum_toe_gap_m": 0.0063480332038448155,
+      "limiting_toe": "crow_left_front_toe_1_proximal",
+      "all_foot_minimum_gap_m": 0.006261829784810257
+    },
+    {
+      "step": 225,
+      "side": "right",
+      "paired_knee_offset_rad": -0.2,
+      "sole_gap_m": 2.4843326658585685e-05,
+      "minimum_toe_gap_m": -0.0008898677545328085,
+      "limiting_toe": "crow_right_rear_toe_proximal",
+      "all_foot_minimum_gap_m": -0.0008898677545328085
+    },
+    {
+      "step": 225,
+      "side": "right",
+      "paired_knee_offset_rad": -0.1,
+      "sole_gap_m": 8.595824888557244e-05,
+      "minimum_toe_gap_m": -0.0008287528323058201,
+      "limiting_toe": "crow_right_rear_toe_proximal",
+      "all_foot_minimum_gap_m": -0.0008287528323058201
+    },
+    {
+      "step": 225,
+      "side": "right",
+      "paired_knee_offset_rad": 0.0,
+      "sole_gap_m": 0.0007777054266626567,
+      "minimum_toe_gap_m": -0.00013700565452874104,
+      "limiting_toe": "crow_right_rear_toe_proximal",
+      "all_foot_minimum_gap_m": -0.00013700565452874104
+    },
+    {
+      "step": 225,
+      "side": "right",
+      "paired_knee_offset_rad": 0.1,
+      "sole_gap_m": 0.0020931731508506864,
+      "minimum_toe_gap_m": 0.0011784620696592887,
+      "limiting_toe": "crow_right_rear_toe_proximal",
+      "all_foot_minimum_gap_m": 0.0011784620696592887
+    },
+    {
+      "step": 225,
+      "side": "right",
+      "paired_knee_offset_rad": 0.2,
+      "sole_gap_m": 0.004019217702785415,
+      "minimum_toe_gap_m": 0.003104506621594021,
+      "limiting_toe": "crow_right_rear_toe_proximal",
+      "all_foot_minimum_gap_m": 0.003104506621594021
+    },
+    {
+      "step": 225,
+      "side": "right",
+      "paired_knee_offset_rad": 0.3,
+      "sole_gap_m": 0.006536594681969564,
+      "minimum_toe_gap_m": 0.005621883600778166,
+      "limiting_toe": "crow_right_rear_toe_proximal",
+      "all_foot_minimum_gap_m": 0.005621883600778166
+    },
+    {
+      "step": 230,
+      "side": "left",
+      "paired_knee_offset_rad": -0.2,
+      "sole_gap_m": 0.0018434921678767442,
+      "minimum_toe_gap_m": -8.624257975653471e-05,
+      "limiting_toe": "crow_left_rear_toe_distal",
+      "all_foot_minimum_gap_m": -8.624257975653471e-05
+    },
+    {
+      "step": 230,
+      "side": "left",
+      "paired_knee_offset_rad": -0.1,
+      "sole_gap_m": 0.0020315785144494197,
+      "minimum_toe_gap_m": 0.0001018437668161478,
+      "limiting_toe": "crow_left_rear_toe_distal",
+      "all_foot_minimum_gap_m": 0.0001018437668161478
+    },
+    {
+      "step": 230,
+      "side": "left",
+      "paired_knee_offset_rad": 0.0,
+      "sole_gap_m": 0.002849583759212907,
+      "minimum_toe_gap_m": 0.00091984901157963,
+      "limiting_toe": "crow_left_rear_toe_distal",
+      "all_foot_minimum_gap_m": 0.00091984901157963
+    },
+    {
+      "step": 230,
+      "side": "left",
+      "paired_knee_offset_rad": 0.1,
+      "sole_gap_m": 0.004289334664158139,
+      "minimum_toe_gap_m": 0.002359599916524858,
+      "limiting_toe": "crow_left_rear_toe_distal",
+      "all_foot_minimum_gap_m": 0.002359599916524858
+    },
+    {
+      "step": 230,
+      "side": "left",
+      "paired_knee_offset_rad": 0.2,
+      "sole_gap_m": 0.006336445714161247,
+      "minimum_toe_gap_m": 0.004406710966527979,
+      "limiting_toe": "crow_left_rear_toe_distal",
+      "all_foot_minimum_gap_m": 0.004406710966527979
+    },
+    {
+      "step": 230,
+      "side": "left",
+      "paired_knee_offset_rad": 0.3,
+      "sole_gap_m": 0.008970462852295559,
+      "minimum_toe_gap_m": 0.007040728104662282,
+      "limiting_toe": "crow_left_rear_toe_distal",
+      "all_foot_minimum_gap_m": 0.007040728104662282
+    },
+    {
+      "step": 230,
+      "side": "right",
+      "paired_knee_offset_rad": -0.2,
+      "sole_gap_m": -0.0007609082298209949,
+      "minimum_toe_gap_m": -0.0007032504417093573,
+      "limiting_toe": "crow_right_rear_toe_proximal",
+      "all_foot_minimum_gap_m": -0.0007609082298209949
+    },
+    {
+      "step": 230,
+      "side": "right",
+      "paired_knee_offset_rad": -0.1,
+      "sole_gap_m": -0.0007340702581849438,
+      "minimum_toe_gap_m": -0.0006764124700733062,
+      "limiting_toe": "crow_right_rear_toe_proximal",
+      "all_foot_minimum_gap_m": -0.0007340702581849438
+    },
+    {
+      "step": 230,
+      "side": "right",
+      "paired_knee_offset_rad": 0.0,
+      "sole_gap_m": -7.62675404338501e-05,
+      "minimum_toe_gap_m": -1.86097523222125e-05,
+      "limiting_toe": "crow_right_rear_toe_proximal",
+      "all_foot_minimum_gap_m": -7.62675404338501e-05
+    },
+    {
+      "step": 230,
+      "side": "right",
+      "paired_knee_offset_rad": 0.1,
+      "sole_gap_m": 0.001205927376117166,
+      "minimum_toe_gap_m": 0.0012635851642288018,
+      "limiting_toe": "crow_right_rear_toe_proximal",
+      "all_foot_minimum_gap_m": 0.001205927376117166
+    },
+    {
+      "step": 230,
+      "side": "right",
+      "paired_knee_offset_rad": 0.2,
+      "sole_gap_m": 0.003099703223699214,
+      "minimum_toe_gap_m": 0.0031573610118108535,
+      "limiting_toe": "crow_right_rear_toe_proximal",
+      "all_foot_minimum_gap_m": 0.003099703223699214
+    },
+    {
+      "step": 230,
+      "side": "right",
+      "paired_knee_offset_rad": 0.3,
+      "sole_gap_m": 0.005586138020042351,
+      "minimum_toe_gap_m": 0.005643795808153985,
+      "limiting_toe": "crow_right_rear_toe_proximal",
+      "all_foot_minimum_gap_m": 0.005586138020042351
+    },
+    {
+      "step": 235,
+      "side": "left",
+      "paired_knee_offset_rad": -0.2,
+      "sole_gap_m": 0.001602002826882637,
+      "minimum_toe_gap_m": -0.0009223660098185826,
+      "limiting_toe": "crow_left_rear_toe_distal",
+      "all_foot_minimum_gap_m": -0.0009223660098185826
+    },
+    {
+      "step": 235,
+      "side": "left",
+      "paired_knee_offset_rad": -0.1,
+      "sole_gap_m": 0.0018730728399108804,
+      "minimum_toe_gap_m": -0.0006512959967903392,
+      "limiting_toe": "crow_left_rear_toe_distal",
+      "all_foot_minimum_gap_m": -0.0006512959967903392
+    },
+    {
+      "step": 235,
+      "side": "left",
+      "paired_knee_offset_rad": 0.0,
+      "sole_gap_m": 0.002773366881902174,
+      "minimum_toe_gap_m": 0.00024899804520095783,
+      "limiting_toe": "crow_left_rear_toe_distal",
+      "all_foot_minimum_gap_m": 0.00024899804520095783
+    },
+    {
+      "step": 235,
+      "side": "left",
+      "paired_knee_offset_rad": 0.1,
+      "sole_gap_m": 0.004293889512386571,
+      "minimum_toe_gap_m": 0.001769520675685355,
+      "limiting_toe": "crow_left_rear_toe_distal",
+      "all_foot_minimum_gap_m": 0.001769520675685355
+    },
+    {
+      "step": 235,
+      "side": "left",
+      "paired_knee_offset_rad": 0.2,
+      "sole_gap_m": 0.006419448171858244,
+      "minimum_toe_gap_m": 0.00389507933515703,
+      "limiting_toe": "crow_left_rear_toe_distal",
+      "all_foot_minimum_gap_m": 0.00389507933515703
+    },
+    {
+      "step": 235,
+      "side": "left",
+      "paired_knee_offset_rad": 0.3,
+      "sole_gap_m": 0.009128804980808012,
+      "minimum_toe_gap_m": 0.006604436144106789,
+      "limiting_toe": "crow_left_rear_toe_distal",
+      "all_foot_minimum_gap_m": 0.006604436144106789
+    },
+    {
+      "step": 235,
+      "side": "right",
+      "paired_knee_offset_rad": -0.2,
+      "sole_gap_m": -0.0008159680193341942,
+      "minimum_toe_gap_m": -0.0007847047506668037,
+      "limiting_toe": "crow_right_front_toe_3_proximal",
+      "all_foot_minimum_gap_m": -0.0008159680193341942
+    },
+    {
+      "step": 235,
+      "side": "right",
+      "paired_knee_offset_rad": -0.1,
+      "sole_gap_m": -0.0007388011687440507,
+      "minimum_toe_gap_m": -0.0007075379000766602,
+      "limiting_toe": "crow_right_front_toe_3_proximal",
+      "all_foot_minimum_gap_m": -0.0007388011687440507
+    },
+    {
+      "step": 235,
+      "side": "right",
+      "paired_knee_offset_rad": 0.0,
+      "sole_gap_m": -3.0914847816468013e-05,
+      "minimum_toe_gap_m": 3.484208509207942e-07,
+      "limiting_toe": "crow_right_front_toe_3_proximal",
+      "all_foot_minimum_gap_m": -3.0914847816468013e-05
+    },
+    {
+      "step": 235,
+      "side": "right",
+      "paired_knee_offset_rad": 0.1,
+      "sole_gap_m": 0.0013006179773259116,
+      "minimum_toe_gap_m": 0.0013318812459933022,
+      "limiting_toe": "crow_right_front_toe_3_proximal",
+      "all_foot_minimum_gap_m": 0.0013006179773259116
+    },
+    {
+      "step": 235,
+      "side": "right",
+      "paired_knee_offset_rad": 0.2,
+      "sole_gap_m": 0.0032424930708405443,
+      "minimum_toe_gap_m": 0.003273756339507935,
+      "limiting_toe": "crow_right_front_toe_3_proximal",
+      "all_foot_minimum_gap_m": 0.0032424930708405443
+    },
+    {
+      "step": 235,
+      "side": "right",
+      "paired_knee_offset_rad": 0.3,
+      "sole_gap_m": 0.005775307858691563,
+      "minimum_toe_gap_m": 0.0058065711273589515,
+      "limiting_toe": "crow_right_front_toe_3_proximal",
+      "all_foot_minimum_gap_m": 0.005775307858691563
+    },
+    {
+      "step": 240,
+      "side": "left",
+      "paired_knee_offset_rad": -0.2,
+      "sole_gap_m": 0.0007717368886890862,
+      "minimum_toe_gap_m": -0.00032793611105740375,
+      "limiting_toe": "crow_left_rear_toe_proximal",
+      "all_foot_minimum_gap_m": -0.00032793611105740375
+    },
+    {
+      "step": 240,
+      "side": "left",
+      "paired_knee_offset_rad": -0.1,
+      "sole_gap_m": 0.0006107370021795171,
+      "minimum_toe_gap_m": -0.0004889359975669728,
+      "limiting_toe": "crow_left_rear_toe_proximal",
+      "all_foot_minimum_gap_m": -0.0004889359975669728
+    },
+    {
+      "step": 240,
+      "side": "left",
+      "paired_knee_offset_rad": 0.0,
+      "sole_gap_m": 0.0010814589897613323,
+      "minimum_toe_gap_m": -1.821400998515757e-05,
+      "limiting_toe": "crow_left_rear_toe_proximal",
+      "all_foot_minimum_gap_m": -1.821400998515757e-05
+    },
+    {
+      "step": 240,
+      "side": "left",
+      "paired_knee_offset_rad": 0.1,
+      "sole_gap_m": 0.002179199552934632,
+      "minimum_toe_gap_m": 0.0010795265531881437,
+      "limiting_toe": "crow_left_rear_toe_proximal",
+      "all_foot_minimum_gap_m": 0.0010795265531881437
+    },
+    {
+      "step": 240,
+      "side": "left",
+      "paired_knee_offset_rad": 0.2,
+      "sole_gap_m": 0.0038929904308569584,
+      "minimum_toe_gap_m": 0.002793317431110467,
+      "limiting_toe": "crow_left_rear_toe_proximal",
+      "all_foot_minimum_gap_m": 0.002793317431110467
+    },
+    {
+      "step": 240,
+      "side": "left",
+      "paired_knee_offset_rad": 0.3,
+      "sole_gap_m": 0.006205707991580061,
+      "minimum_toe_gap_m": 0.005106034991833567,
+      "limiting_toe": "crow_left_rear_toe_proximal",
+      "all_foot_minimum_gap_m": 0.005106034991833567
+    },
+    {
+      "step": 240,
+      "side": "right",
+      "paired_knee_offset_rad": -0.2,
+      "sole_gap_m": 0.0010831660088647943,
+      "minimum_toe_gap_m": -0.0003750743269263952,
+      "limiting_toe": "crow_right_rear_toe_distal",
+      "all_foot_minimum_gap_m": -0.0003750743269263952
+    },
+    {
+      "step": 240,
+      "side": "right",
+      "paired_knee_offset_rad": -0.1,
+      "sole_gap_m": 0.0010426109843190284,
+      "minimum_toe_gap_m": -0.0004156293514721611,
+      "limiting_toe": "crow_right_rear_toe_distal",
+      "all_foot_minimum_gap_m": -0.0004156293514721611
+    },
+    {
+      "step": 240,
+      "side": "right",
+      "paired_knee_offset_rad": 0.0,
+      "sole_gap_m": 0.0016333969272977478,
+      "minimum_toe_gap_m": 0.0001751565915065565,
+      "limiting_toe": "crow_right_rear_toe_distal",
+      "all_foot_minimum_gap_m": 0.0001751565915065565
+    },
+    {
+      "step": 240,
+      "side": "right",
+      "paired_knee_offset_rad": 0.1,
+      "sole_gap_m": 0.002849620899946571,
+      "minimum_toe_gap_m": 0.0013913805641553832,
+      "limiting_toe": "crow_right_rear_toe_distal",
+      "all_foot_minimum_gap_m": 0.0013913805641553832
+    },
+    {
+      "step": 240,
+      "side": "right",
+      "paired_knee_offset_rad": 0.2,
+      "sole_gap_m": 0.004679130794360999,
+      "minimum_toe_gap_m": 0.003220890458569806,
+      "limiting_toe": "crow_right_rear_toe_distal",
+      "all_foot_minimum_gap_m": 0.003220890458569806
+    },
+    {
+      "step": 240,
+      "side": "right",
+      "paired_knee_offset_rad": 0.3,
+      "sole_gap_m": 0.007103646752431593,
+      "minimum_toe_gap_m": 0.005645406416640401,
+      "limiting_toe": "crow_right_rear_toe_distal",
+      "all_foot_minimum_gap_m": 0.005645406416640401
+    },
+    {
+      "step": 245,
+      "side": "left",
+      "paired_knee_offset_rad": -0.2,
+      "sole_gap_m": -0.0008801943417622686,
+      "minimum_toe_gap_m": -0.0008483436978085901,
+      "limiting_toe": "crow_left_front_toe_1_proximal",
+      "all_foot_minimum_gap_m": -0.0008801943417622686
+    },
+    {
+      "step": 245,
+      "side": "left",
+      "paired_knee_offset_rad": -0.1,
+      "sole_gap_m": -0.0007864297075731944,
+      "minimum_toe_gap_m": -0.0007545790636195159,
+      "limiting_toe": "crow_left_front_toe_1_proximal",
+      "all_foot_minimum_gap_m": -0.0007864297075731944
+    },
+    {
+      "step": 245,
+      "side": "left",
+      "paired_knee_offset_rad": 0.0,
+      "sole_gap_m": -6.202516110256386e-05,
+      "minimum_toe_gap_m": -3.0174517148885346e-05,
+      "limiting_toe": "crow_left_front_toe_1_proximal",
+      "all_foot_minimum_gap_m": -6.202516110256386e-05
+    },
+    {
+      "step": 245,
+      "side": "left",
+      "paired_knee_offset_rad": 0.1,
+      "sole_gap_m": 0.001285781286877622,
+      "minimum_toe_gap_m": 0.0013176319308313006,
+      "limiting_toe": "crow_left_front_toe_1_proximal",
+      "all_foot_minimum_gap_m": 0.001285781286877622
+    },
+    {
+      "step": 245,
+      "side": "left",
+      "paired_knee_offset_rad": 0.2,
+      "sole_gap_m": 0.0032435227998647183,
+      "minimum_toe_gap_m": 0.003275373443818397,
+      "limiting_toe": "crow_left_front_toe_1_proximal",
+      "all_foot_minimum_gap_m": 0.0032435227998647183
+    },
+    {
+      "step": 245,
+      "side": "left",
+      "paired_knee_offset_rad": 0.3,
+      "sole_gap_m": 0.005791638271804256,
+      "minimum_toe_gap_m": 0.005823488915757935,
+      "limiting_toe": "crow_left_front_toe_1_proximal",
+      "all_foot_minimum_gap_m": 0.005791638271804256
+    },
+    {
+      "step": 245,
+      "side": "right",
+      "paired_knee_offset_rad": -0.2,
+      "sole_gap_m": 0.0018241677448549362,
+      "minimum_toe_gap_m": -0.0005208044484722122,
+      "limiting_toe": "crow_right_rear_toe_distal",
+      "all_foot_minimum_gap_m": -0.0005208044484722122
+    },
+    {
+      "step": 245,
+      "side": "right",
+      "paired_knee_offset_rad": -0.1,
+      "sole_gap_m": 0.0021414411270908804,
+      "minimum_toe_gap_m": -0.00020353106623626632,
+      "limiting_toe": "crow_right_rear_toe_distal",
+      "all_foot_minimum_gap_m": -0.00020353106623626632
+    },
+    {
+      "step": 245,
+      "side": "right",
+      "paired_knee_offset_rad": 0.0,
+      "sole_gap_m": 0.0030875102839888445,
+      "minimum_toe_gap_m": 0.0007425380906616961,
+      "limiting_toe": "crow_right_rear_toe_distal",
+      "all_foot_minimum_gap_m": 0.0007425380906616961
+    },
+    {
+      "step": 245,
+      "side": "right",
+      "paired_knee_offset_rad": 0.1,
+      "sole_gap_m": 0.0046529224052619614,
+      "minimum_toe_gap_m": 0.0023079502119348113,
+      "limiting_toe": "crow_right_rear_toe_distal",
+      "all_foot_minimum_gap_m": 0.0023079502119348113
+    },
+    {
+      "step": 245,
+      "side": "right",
+      "paired_knee_offset_rad": 0.2,
+      "sole_gap_m": 0.006822036410450965,
+      "minimum_toe_gap_m": 0.004477064217123822,
+      "limiting_toe": "crow_right_rear_toe_distal",
+      "all_foot_minimum_gap_m": 0.004477064217123822
+    },
+    {
+      "step": 245,
+      "side": "right",
+      "paired_knee_offset_rad": 0.3,
+      "sole_gap_m": 0.009573179229429744,
+      "minimum_toe_gap_m": 0.0072282070361026005,
+      "limiting_toe": "crow_right_rear_toe_distal",
+      "all_foot_minimum_gap_m": 0.0072282070361026005
+    },
+    {
+      "step": 250,
+      "side": "left",
+      "paired_knee_offset_rad": -0.2,
+      "sole_gap_m": -0.0001289554571857962,
+      "minimum_toe_gap_m": -0.0005667473996280974,
+      "limiting_toe": "crow_left_rear_toe_distal",
+      "all_foot_minimum_gap_m": -0.0005667473996280974
+    },
+    {
+      "step": 250,
+      "side": "left",
+      "paired_knee_offset_rad": -0.1,
+      "sole_gap_m": -0.0001464764959166285,
+      "minimum_toe_gap_m": -0.0005842684383589279,
+      "limiting_toe": "crow_left_rear_toe_distal",
+      "all_foot_minimum_gap_m": -0.0005842684383589279
+    },
+    {
+      "step": 250,
+      "side": "left",
+      "paired_knee_offset_rad": 0.0,
+      "sole_gap_m": 0.0004672047632834266,
+      "minimum_toe_gap_m": 2.9412820841127202e-05,
+      "limiting_toe": "crow_left_rear_toe_distal",
+      "all_foot_minimum_gap_m": 2.9412820841127202e-05
+    },
+    {
+      "step": 250,
+      "side": "left",
+      "paired_knee_offset_rad": 0.1,
+      "sole_gap_m": 0.00170595662012849,
+      "minimum_toe_gap_m": 0.0012681646776861906,
+      "limiting_toe": "crow_left_rear_toe_distal",
+      "all_foot_minimum_gap_m": 0.0012681646776861906
+    },
+    {
+      "step": 250,
+      "side": "left",
+      "paired_knee_offset_rad": 0.2,
+      "sole_gap_m": 0.0035574018755418924,
+      "minimum_toe_gap_m": 0.003119609933099593,
+      "limiting_toe": "crow_left_rear_toe_distal",
+      "all_foot_minimum_gap_m": 0.003119609933099593
+    },
+    {
+      "step": 250,
+      "side": "left",
+      "paired_knee_offset_rad": 0.3,
+      "sole_gap_m": 0.006003041500537954,
+      "minimum_toe_gap_m": 0.005565249558095653,
+      "limiting_toe": "crow_left_rear_toe_distal",
+      "all_foot_minimum_gap_m": 0.005565249558095653
+    },
+    {
+      "step": 250,
+      "side": "right",
+      "paired_knee_offset_rad": -0.2,
+      "sole_gap_m": 0.0004935053931067884,
+      "minimum_toe_gap_m": -0.0007174923696400999,
+      "limiting_toe": "crow_right_rear_toe_proximal",
+      "all_foot_minimum_gap_m": -0.0007174923696400999
+    },
+    {
+      "step": 250,
+      "side": "right",
+      "paired_knee_offset_rad": -0.1,
+      "sole_gap_m": 0.000528609677334646,
+      "minimum_toe_gap_m": -0.0006823880854122406,
+      "limiting_toe": "crow_right_rear_toe_proximal",
+      "all_foot_minimum_gap_m": -0.0006823880854122406
+    },
+    {
+      "step": 250,
+      "side": "right",
+      "paired_knee_offset_rad": 0.0,
+      "sole_gap_m": 0.0011945927813739633,
+      "minimum_toe_gap_m": -1.6404981372923275e-05,
+      "limiting_toe": "crow_right_rear_toe_proximal",
+      "all_foot_minimum_gap_m": -1.6404981372923275e-05
+    },
+    {
+      "step": 250,
+      "side": "right",
+      "paired_knee_offset_rad": 0.1,
+      "sole_gap_m": 0.0024848004221939245,
+      "minimum_toe_gap_m": 0.0012738026594470361,
+      "limiting_toe": "crow_right_rear_toe_proximal",
+      "all_foot_minimum_gap_m": 0.0012738026594470361
+    },
+    {
+      "step": 250,
+      "side": "right",
+      "paired_knee_offset_rad": 0.2,
+      "sole_gap_m": 0.004386341271533397,
+      "minimum_toe_gap_m": 0.003175343508786512,
+      "limiting_toe": "crow_right_rear_toe_proximal",
+      "all_foot_minimum_gap_m": 0.003175343508786512
+    },
+    {
+      "step": 250,
+      "side": "right",
+      "paired_knee_offset_rad": 0.3,
+      "sole_gap_m": 0.006880215761791597,
+      "minimum_toe_gap_m": 0.0056692179990447105,
+      "limiting_toe": "crow_right_rear_toe_proximal",
+      "all_foot_minimum_gap_m": 0.0056692179990447105
+    },
+    {
+      "step": 255,
+      "side": "left",
+      "paired_knee_offset_rad": -0.2,
+      "sole_gap_m": 0.0019203364122581858,
+      "minimum_toe_gap_m": -0.0007300664572084913,
+      "limiting_toe": "crow_left_rear_toe_distal",
+      "all_foot_minimum_gap_m": -0.0007300664572084913
+    },
+    {
+      "step": 255,
+      "side": "left",
+      "paired_knee_offset_rad": -0.1,
+      "sole_gap_m": 0.002052315603077802,
+      "minimum_toe_gap_m": -0.0005980872663888769,
+      "limiting_toe": "crow_left_rear_toe_distal",
+      "all_foot_minimum_gap_m": -0.0005980872663888769
+    },
+    {
+      "step": 255,
+      "side": "left",
+      "paired_knee_offset_rad": 0.0,
+      "sole_gap_m": 0.0028146695685228665,
+      "minimum_toe_gap_m": 0.0001642666990561894,
+      "limiting_toe": "crow_left_rear_toe_distal",
+      "all_foot_minimum_gap_m": 0.0001642666990561894
+    },
+    {
+      "step": 255,
+      "side": "left",
+      "paired_knee_offset_rad": 0.1,
+      "sole_gap_m": 0.004199781119771352,
+      "minimum_toe_gap_m": 0.0015493782503046751,
+      "limiting_toe": "crow_left_rear_toe_distal",
+      "all_foot_minimum_gap_m": 0.0015493782503046751
+    },
+    {
+      "step": 255,
+      "side": "left",
+      "paired_knee_offset_rad": 0.2,
+      "sole_gap_m": 0.0061938106800601914,
+      "minimum_toe_gap_m": 0.0035434078105935126,
+      "limiting_toe": "crow_left_rear_toe_distal",
+      "all_foot_minimum_gap_m": 0.0035434078105935126
+    },
+    {
+      "step": 255,
+      "side": "left",
+      "paired_knee_offset_rad": 0.3,
+      "sole_gap_m": 0.008776834565161535,
+      "minimum_toe_gap_m": 0.0061264316956948575,
+      "limiting_toe": "crow_left_rear_toe_distal",
+      "all_foot_minimum_gap_m": 0.0061264316956948575
+    },
+    {
+      "step": 255,
+      "side": "right",
+      "paired_knee_offset_rad": -0.2,
+      "sole_gap_m": -0.0003005386209065878,
+      "minimum_toe_gap_m": -0.0006300643702667041,
+      "limiting_toe": "crow_right_rear_toe_proximal",
+      "all_foot_minimum_gap_m": -0.0006300643702667041
+    },
+    {
+      "step": 255,
+      "side": "right",
+      "paired_knee_offset_rad": -0.1,
+      "sole_gap_m": -0.0003311988606462084,
+      "minimum_toe_gap_m": -0.0006607246100063229,
+      "limiting_toe": "crow_right_rear_toe_proximal",
+      "all_foot_minimum_gap_m": -0.0006607246100063229
+    },
+    {
+      "step": 255,
+      "side": "right",
+      "paired_knee_offset_rad": 0.0,
+      "sole_gap_m": 0.0002694407858136374,
+      "minimum_toe_gap_m": -6.0084963546478895e-05,
+      "limiting_toe": "crow_right_rear_toe_proximal",
+      "all_foot_minimum_gap_m": -6.0084963546478895e-05
+    },
+    {
+      "step": 255,
+      "side": "right",
+      "paired_knee_offset_rad": 0.1,
+      "sole_gap_m": 0.0014953789256705787,
+      "minimum_toe_gap_m": 0.0011658531763104624,
+      "limiting_toe": "crow_right_rear_toe_proximal",
+      "all_foot_minimum_gap_m": 0.0011658531763104624
+    },
+    {
+      "step": 255,
+      "side": "right",
+      "paired_knee_offset_rad": 0.2,
+      "sole_gap_m": 0.00333436639027245,
+      "minimum_toe_gap_m": 0.0030048406409123336,
+      "limiting_toe": "crow_right_rear_toe_proximal",
+      "all_foot_minimum_gap_m": 0.0030048406409123336
+    },
+    {
+      "step": 255,
+      "side": "right",
+      "paired_knee_offset_rad": 0.3,
+      "sole_gap_m": 0.005768028624761376,
+      "minimum_toe_gap_m": 0.0054385028754012615,
+      "limiting_toe": "crow_right_rear_toe_proximal",
+      "all_foot_minimum_gap_m": 0.0054385028754012615
+    },
+    {
+      "step": 260,
+      "side": "left",
+      "paired_knee_offset_rad": -0.2,
+      "sole_gap_m": 0.0013844476394243715,
+      "minimum_toe_gap_m": -0.0011094524394148972,
+      "limiting_toe": "crow_left_rear_toe_distal",
+      "all_foot_minimum_gap_m": -0.0011094524394148972
+    },
+    {
+      "step": 260,
+      "side": "left",
+      "paired_knee_offset_rad": -0.1,
+      "sole_gap_m": 0.0016427609106914893,
+      "minimum_toe_gap_m": -0.0008511391681477794,
+      "limiting_toe": "crow_left_rear_toe_distal",
+      "all_foot_minimum_gap_m": -0.0008511391681477794
+    },
+    {
+      "step": 260,
+      "side": "left",
+      "paired_knee_offset_rad": 0.0,
+      "sole_gap_m": 0.0025303943485723308,
+      "minimum_toe_gap_m": 3.649426973306377e-05,
+      "limiting_toe": "crow_left_rear_toe_distal",
+      "all_foot_minimum_gap_m": 3.649426973306377e-05
+    },
+    {
+      "step": 260,
+      "side": "left",
+      "paired_knee_offset_rad": 0.1,
+      "sole_gap_m": 0.004038479013168202,
+      "minimum_toe_gap_m": 0.001544578934328935,
+      "limiting_toe": "crow_left_rear_toe_distal",
+      "all_foot_minimum_gap_m": 0.001544578934328935
+    },
+    {
+      "step": 260,
+      "side": "left",
+      "paired_knee_offset_rad": 0.2,
+      "sole_gap_m": 0.006151946621016967,
+      "minimum_toe_gap_m": 0.0036580465421776984,
+      "limiting_toe": "crow_left_rear_toe_distal",
+      "all_foot_minimum_gap_m": 0.0036580465421776984
+    },
+    {
+      "step": 260,
+      "side": "left",
+      "paired_knee_offset_rad": 0.3,
+      "sole_gap_m": 0.008849680102400509,
+      "minimum_toe_gap_m": 0.006355780023561236,
+      "limiting_toe": "crow_left_rear_toe_distal",
+      "all_foot_minimum_gap_m": 0.006355780023561236
+    },
+    {
+      "step": 260,
+      "side": "right",
+      "paired_knee_offset_rad": -0.2,
+      "sole_gap_m": -0.000803657574947738,
+      "minimum_toe_gap_m": -0.0007616714989014586,
+      "limiting_toe": "crow_right_front_toe_3_proximal",
+      "all_foot_minimum_gap_m": -0.000803657574947738
+    },
+    {
+      "step": 260,
+      "side": "right",
+      "paired_knee_offset_rad": -0.1,
+      "sole_gap_m": -0.0007345578900954629,
+      "minimum_toe_gap_m": -0.0006925718140491834,
+      "limiting_toe": "crow_right_front_toe_3_proximal",
+      "all_foot_minimum_gap_m": -0.0007345578900954629
+    },
+    {
+      "step": 260,
+      "side": "right",
+      "paired_knee_offset_rad": 0.0,
+      "sole_gap_m": -3.4685280157289305e-05,
+      "minimum_toe_gap_m": 7.300795888990144e-06,
+      "limiting_toe": "crow_right_front_toe_3_proximal",
+      "all_foot_minimum_gap_m": -3.4685280157289305e-05
+    },
+    {
+      "step": 260,
+      "side": "right",
+      "paired_knee_offset_rad": 0.1,
+      "sole_gap_m": 0.001288967359095415,
+      "minimum_toe_gap_m": 0.0013309534351416945,
+      "limiting_toe": "crow_right_front_toe_3_proximal",
+      "all_foot_minimum_gap_m": 0.001288967359095415
+    },
+    {
+      "step": 260,
+      "side": "right",
+      "paired_knee_offset_rad": 0.2,
+      "sole_gap_m": 0.0032231745280326043,
+      "minimum_toe_gap_m": 0.0032651606040788837,
+      "limiting_toe": "crow_right_front_toe_3_proximal",
+      "all_foot_minimum_gap_m": 0.0032231745280326043
+    },
+    {
+      "step": 260,
+      "side": "right",
+      "paired_knee_offset_rad": 0.3,
+      "sole_gap_m": 0.0057486102679861675,
+      "minimum_toe_gap_m": 0.005790596344032447,
+      "limiting_toe": "crow_right_front_toe_3_proximal",
+      "all_foot_minimum_gap_m": 0.0057486102679861675
+    },
+    {
+      "step": 265,
+      "side": "left",
+      "paired_knee_offset_rad": -0.2,
+      "sole_gap_m": 0.0009275618993540291,
+      "minimum_toe_gap_m": -0.0002816705889533821,
+      "limiting_toe": "crow_left_rear_toe_proximal",
+      "all_foot_minimum_gap_m": -0.0002816705889533821
+    },
+    {
+      "step": 265,
+      "side": "left",
+      "paired_knee_offset_rad": -0.1,
+      "sole_gap_m": 0.0007321206072414543,
+      "minimum_toe_gap_m": -0.0004771118810659586,
+      "limiting_toe": "crow_left_rear_toe_proximal",
+      "all_foot_minimum_gap_m": -0.0004771118810659586
+    },
+    {
+      "step": 265,
+      "side": "left",
+      "paired_knee_offset_rad": 0.0,
+      "sole_gap_m": 0.0011684749814115797,
+      "minimum_toe_gap_m": -4.075750689583324e-05,
+      "limiting_toe": "crow_left_rear_toe_proximal",
+      "all_foot_minimum_gap_m": -4.075750689583324e-05
+    },
+    {
+      "step": 265,
+      "side": "left",
+      "paired_knee_offset_rad": 0.1,
+      "sole_gap_m": 0.002232265113197268,
+      "minimum_toe_gap_m": 0.0010230326248898587,
+      "limiting_toe": "crow_left_rear_toe_proximal",
+      "all_foot_minimum_gap_m": 0.0010230326248898587
+    },
+    {
+      "step": 265,
+      "side": "left",
+      "paired_knee_offset_rad": 0.2,
+      "sole_gap_m": 0.003912861963243959,
+      "minimum_toe_gap_m": 0.0027036294749365475,
+      "limiting_toe": "crow_left_rear_toe_proximal",
+      "all_foot_minimum_gap_m": 0.0027036294749365475
+    },
+    {
+      "step": 265,
+      "side": "left",
+      "paired_knee_offset_rad": 0.3,
+      "sole_gap_m": 0.006193473563357473,
+      "minimum_toe_gap_m": 0.004984241075050067,
+      "limiting_toe": "crow_left_rear_toe_proximal",
+      "all_foot_minimum_gap_m": 0.004984241075050067
+    },
+    {
+      "step": 265,
+      "side": "right",
+      "paired_knee_offset_rad": -0.2,
+      "sole_gap_m": 0.0012392217320247294,
+      "minimum_toe_gap_m": -0.0008967033545094726,
+      "limiting_toe": "crow_right_rear_toe_distal",
+      "all_foot_minimum_gap_m": -0.0008967033545094726
+    },
+    {
+      "step": 265,
+      "side": "right",
+      "paired_knee_offset_rad": -0.1,
+      "sole_gap_m": 0.0011577590955175465,
+      "minimum_toe_gap_m": -0.0009781659910166555,
+      "limiting_toe": "crow_right_rear_toe_distal",
+      "all_foot_minimum_gap_m": -0.0009781659910166555
+    },
+    {
+      "step": 265,
+      "side": "right",
+      "paired_knee_offset_rad": 0.0,
+      "sole_gap_m": 0.0017078013705247152,
+      "minimum_toe_gap_m": -0.0004281237160094851,
+      "limiting_toe": "crow_right_rear_toe_distal",
+      "all_foot_minimum_gap_m": -0.0004281237160094851
+    },
+    {
+      "step": 265,
+      "side": "right",
+      "paired_knee_offset_rad": 0.1,
+      "sole_gap_m": 0.0028838527164541904,
+      "minimum_toe_gap_m": 0.0007479276299199884,
+      "limiting_toe": "crow_right_rear_toe_distal",
+      "all_foot_minimum_gap_m": 0.0007479276299199884
+    },
+    {
+      "step": 265,
+      "side": "right",
+      "paired_knee_offset_rad": 0.2,
+      "sole_gap_m": 0.0046741624170083,
+      "minimum_toe_gap_m": 0.0025382373304741,
+      "limiting_toe": "crow_right_rear_toe_distal",
+      "all_foot_minimum_gap_m": 0.0025382373304741
+    },
+    {
+      "step": 265,
+      "side": "right",
+      "paired_knee_offset_rad": 0.3,
+      "sole_gap_m": 0.007060842289456854,
+      "minimum_toe_gap_m": 0.004924917202922657,
+      "limiting_toe": "crow_right_rear_toe_distal",
+      "all_foot_minimum_gap_m": 0.004924917202922657
+    },
+    {
+      "step": 270,
+      "side": "left",
+      "paired_knee_offset_rad": -0.2,
+      "sole_gap_m": -0.0008469230401301243,
+      "minimum_toe_gap_m": -0.0008195765210691607,
+      "limiting_toe": "crow_left_front_toe_1_proximal",
+      "all_foot_minimum_gap_m": -0.0008469230401301243
+    },
+    {
+      "step": 270,
+      "side": "left",
+      "paired_knee_offset_rad": -0.1,
+      "sole_gap_m": -0.0007649168898782779,
+      "minimum_toe_gap_m": -0.0007375703708173142,
+      "limiting_toe": "crow_left_front_toe_1_proximal",
+      "all_foot_minimum_gap_m": -0.0007649168898782779
+    },
+    {
+      "step": 270,
+      "side": "left",
+      "paired_knee_offset_rad": 0.0,
+      "sole_gap_m": -5.219868095775529e-05,
+      "minimum_toe_gap_m": -2.4852161896791666e-05,
+      "limiting_toe": "crow_left_front_toe_1_proximal",
+      "all_foot_minimum_gap_m": -5.219868095775529e-05
+    },
+    {
+      "step": 270,
+      "side": "left",
+      "paired_knee_offset_rad": 0.1,
+      "sole_gap_m": 0.0012841103418811967,
+      "minimum_toe_gap_m": 0.0013114568609421604,
+      "limiting_toe": "crow_left_front_toe_1_proximal",
+      "all_foot_minimum_gap_m": 0.0012841103418811967
+    },
+    {
+      "step": 270,
+      "side": "left",
+      "paired_knee_offset_rad": 0.2,
+      "sole_gap_m": 0.003230658220607415,
+      "minimum_toe_gap_m": 0.0032580047396683805,
+      "limiting_toe": "crow_left_front_toe_1_proximal",
+      "all_foot_minimum_gap_m": 0.003230658220607415
+    },
+    {
+      "step": 270,
+      "side": "left",
+      "paired_knee_offset_rad": 0.3,
+      "sole_gap_m": 0.005767995692259826,
+      "minimum_toe_gap_m": 0.005795342211320793,
+      "limiting_toe": "crow_left_front_toe_1_proximal",
+      "all_foot_minimum_gap_m": 0.005767995692259826
+    },
+    {
+      "step": 270,
+      "side": "right",
+      "paired_knee_offset_rad": -0.2,
+      "sole_gap_m": 0.0018283319568552104,
+      "minimum_toe_gap_m": -0.0007576182823617779,
+      "limiting_toe": "crow_right_rear_toe_distal",
+      "all_foot_minimum_gap_m": -0.0007576182823617779
+    },
+    {
+      "step": 270,
+      "side": "right",
+      "paired_knee_offset_rad": -0.1,
+      "sole_gap_m": 0.0021211166956073974,
+      "minimum_toe_gap_m": -0.0004648335436095892,
+      "limiting_toe": "crow_right_rear_toe_distal",
+      "all_foot_minimum_gap_m": -0.0004648335436095892
+    },
+    {
+      "step": 270,
+      "side": "right",
+      "paired_knee_offset_rad": 0.0,
+      "sole_gap_m": 0.0030429329936475964,
+      "minimum_toe_gap_m": 0.0004569827544306116,
+      "limiting_toe": "crow_right_rear_toe_distal",
+      "all_foot_minimum_gap_m": 0.0004569827544306116
+    },
+    {
+      "step": 270,
+      "side": "right",
+      "paired_knee_offset_rad": 0.1,
+      "sole_gap_m": 0.004584570367237736,
+      "minimum_toe_gap_m": 0.0019986201280207533,
+      "limiting_toe": "crow_right_rear_toe_distal",
+      "all_foot_minimum_gap_m": 0.0019986201280207533
+    },
+    {
+      "step": 270,
+      "side": "right",
+      "paired_knee_offset_rad": 0.2,
+      "sole_gap_m": 0.006730625285338463,
+      "minimum_toe_gap_m": 0.004144675046121479,
+      "limiting_toe": "crow_right_rear_toe_distal",
+      "all_foot_minimum_gap_m": 0.004144675046121479
+    },
+    {
+      "step": 270,
+      "side": "right",
+      "paired_knee_offset_rad": 0.3,
+      "sole_gap_m": 0.009459655076599575,
+      "minimum_toe_gap_m": 0.0068737048373825865,
+      "limiting_toe": "crow_right_rear_toe_distal",
+      "all_foot_minimum_gap_m": 0.0068737048373825865
+    },
+    {
+      "step": 275,
+      "side": "left",
+      "paired_knee_offset_rad": -0.2,
+      "sole_gap_m": -7.1985885630072854e-06,
+      "minimum_toe_gap_m": -0.0002568672895699609,
+      "limiting_toe": "crow_left_rear_toe_proximal",
+      "all_foot_minimum_gap_m": -0.0002568672895699609
+    },
+    {
+      "step": 275,
+      "side": "left",
+      "paired_knee_offset_rad": -0.1,
+      "sole_gap_m": -2.7409174925196664e-05,
+      "minimum_toe_gap_m": -0.0002770778759321503,
+      "limiting_toe": "crow_left_rear_toe_proximal",
+      "all_foot_minimum_gap_m": -0.0002770778759321503
+    },
+    {
+      "step": 275,
+      "side": "left",
+      "paired_knee_offset_rad": 0.0,
+      "sole_gap_m": 0.0005836015598945452,
+      "minimum_toe_gap_m": 0.0003339328588875916,
+      "limiting_toe": "crow_left_rear_toe_proximal",
+      "all_foot_minimum_gap_m": 0.0003339328588875916
+    },
+    {
+      "step": 275,
+      "side": "left",
+      "paired_knee_offset_rad": 0.1,
+      "sole_gap_m": 0.0018197285986071895,
+      "minimum_toe_gap_m": 0.0015700598976002376,
+      "limiting_toe": "crow_left_rear_toe_proximal",
+      "all_foot_minimum_gap_m": 0.0015700598976002376
+    },
+    {
+      "step": 275,
+      "side": "left",
+      "paired_knee_offset_rad": 0.2,
+      "sole_gap_m": 0.003668620968451176,
+      "minimum_toe_gap_m": 0.0034189522674442224,
+      "limiting_toe": "crow_left_rear_toe_proximal",
+      "all_foot_minimum_gap_m": 0.0034189522674442224
+    },
+    {
+      "step": 275,
+      "side": "left",
+      "paired_knee_offset_rad": 0.3,
+      "sole_gap_m": 0.0061118051480296195,
+      "minimum_toe_gap_m": 0.005862136447022666,
+      "limiting_toe": "crow_left_rear_toe_proximal",
+      "all_foot_minimum_gap_m": 0.005862136447022666
+    },
+    {
+      "step": 275,
+      "side": "right",
+      "paired_knee_offset_rad": -0.2,
+      "sole_gap_m": 0.0006364362324346035,
+      "minimum_toe_gap_m": -0.0005974623135513047,
+      "limiting_toe": "crow_right_rear_toe_proximal",
+      "all_foot_minimum_gap_m": -0.0005974623135513047
+    },
+    {
+      "step": 275,
+      "side": "right",
+      "paired_knee_offset_rad": -0.1,
+      "sole_gap_m": 0.0006681485462424891,
+      "minimum_toe_gap_m": -0.0005657499997434208,
+      "limiting_toe": "crow_right_rear_toe_proximal",
+      "all_foot_minimum_gap_m": -0.0005657499997434208
+    },
+    {
+      "step": 275,
+      "side": "right",
+      "paired_knee_offset_rad": 0.0,
+      "sole_gap_m": 0.0013307603571476867,
+      "minimum_toe_gap_m": 9.686181116177854e-05,
+      "limiting_toe": "crow_right_rear_toe_proximal",
+      "all_foot_minimum_gap_m": 9.686181116177854e-05
+    },
+    {
+      "step": 275,
+      "side": "right",
+      "paired_knee_offset_rad": 0.1,
+      "sole_gap_m": 0.0026176510669659453,
+      "minimum_toe_gap_m": 0.0013837525209800371,
+      "limiting_toe": "crow_right_rear_toe_proximal",
+      "all_foot_minimum_gap_m": 0.0013837525209800371
+    },
+    {
+      "step": 275,
+      "side": "right",
+      "paired_knee_offset_rad": 0.2,
+      "sole_gap_m": 0.004515962489114277,
+      "minimum_toe_gap_m": 0.003282063943128369,
+      "limiting_toe": "crow_right_rear_toe_proximal",
+      "all_foot_minimum_gap_m": 0.003282063943128369
+    },
+    {
+      "step": 275,
+      "side": "right",
+      "paired_knee_offset_rad": 0.3,
+      "sole_gap_m": 0.007006727323360919,
+      "minimum_toe_gap_m": 0.0057728287773750105,
+      "limiting_toe": "crow_right_rear_toe_proximal",
+      "all_foot_minimum_gap_m": 0.0057728287773750105
+    },
+    {
+      "step": 280,
+      "side": "left",
+      "paired_knee_offset_rad": -0.2,
+      "sole_gap_m": 0.001966417411801164,
+      "minimum_toe_gap_m": -0.0007400128813045137,
+      "limiting_toe": "crow_left_rear_toe_distal",
+      "all_foot_minimum_gap_m": -0.0007400128813045137
+    },
+    {
+      "step": 280,
+      "side": "left",
+      "paired_knee_offset_rad": -0.1,
+      "sole_gap_m": 0.002094301898116522,
+      "minimum_toe_gap_m": -0.0006121283949891594,
+      "limiting_toe": "crow_left_rear_toe_distal",
+      "all_foot_minimum_gap_m": -0.0006121283949891594
+    },
+    {
+      "step": 280,
+      "side": "left",
+      "paired_knee_offset_rad": 0.0,
+      "sole_gap_m": 0.0028525895891493604,
+      "minimum_toe_gap_m": 0.00014615929604368076,
+      "limiting_toe": "crow_left_rear_toe_distal",
+      "all_foot_minimum_gap_m": 0.00014615929604368076
+    },
+    {
+      "step": 280,
+      "side": "left",
+      "paired_knee_offset_rad": 0.1,
+      "sole_gap_m": 0.0042337039249474625,
+      "minimum_toe_gap_m": 0.0015272736318417846,
+      "limiting_toe": "crow_left_rear_toe_distal",
+      "all_foot_minimum_gap_m": 0.0015272736318417846
+    },
+    {
+      "step": 280,
+      "side": "left",
+      "paired_knee_offset_rad": 0.2,
+      "sole_gap_m": 0.006223845267603211,
+      "minimum_toe_gap_m": 0.0035174149744975364,
+      "limiting_toe": "crow_left_rear_toe_distal",
+      "all_foot_minimum_gap_m": 0.0035174149744975364
+    },
+    {
+      "step": 280,
+      "side": "left",
+      "paired_knee_offset_rad": 0.3,
+      "sole_gap_m": 0.00880312878267409,
+      "minimum_toe_gap_m": 0.006096698489568415,
+      "limiting_toe": "crow_left_rear_toe_distal",
+      "all_foot_minimum_gap_m": 0.006096698489568415
+    },
+    {
+      "step": 280,
+      "side": "right",
+      "paired_knee_offset_rad": -0.2,
+      "sole_gap_m": -0.000262154392081642,
+      "minimum_toe_gap_m": -0.0006207027904086317,
+      "limiting_toe": "crow_right_rear_toe_proximal",
+      "all_foot_minimum_gap_m": -0.0006207027904086317
+    },
+    {
+      "step": 280,
+      "side": "right",
+      "paired_knee_offset_rad": -0.1,
+      "sole_gap_m": -0.00029904650022002585,
+      "minimum_toe_gap_m": -0.0006575948985470172,
+      "limiting_toe": "crow_right_rear_toe_proximal",
+      "all_foot_minimum_gap_m": -0.0006575948985470172
+    },
+    {
+      "step": 280,
+      "side": "right",
+      "paired_knee_offset_rad": 0.0,
+      "sole_gap_m": 0.0002953870804384591,
+      "minimum_toe_gap_m": -6.316131788853055e-05,
+      "limiting_toe": "crow_right_rear_toe_proximal",
+      "all_foot_minimum_gap_m": -6.316131788853055e-05
+    },
+    {
+      "step": 280,
+      "side": "right",
+      "paired_knee_offset_rad": 0.1,
+      "sole_gap_m": 0.001515206966049511,
+      "minimum_toe_gap_m": 0.001156658567722518,
+      "limiting_toe": "crow_right_rear_toe_proximal",
+      "all_foot_minimum_gap_m": 0.001156658567722518
+    },
+    {
+      "step": 280,
+      "side": "right",
+      "paired_knee_offset_rad": 0.2,
+      "sole_gap_m": 0.003348225119534908,
+      "minimum_toe_gap_m": 0.002989676721207918,
+      "limiting_toe": "crow_right_rear_toe_proximal",
+      "all_foot_minimum_gap_m": 0.002989676721207918
+    },
+    {
+      "step": 280,
+      "side": "right",
+      "paired_knee_offset_rad": 0.3,
+      "sole_gap_m": 0.0057761266294203036,
+      "minimum_toe_gap_m": 0.005417578231093314,
+      "limiting_toe": "crow_right_rear_toe_proximal",
+      "all_foot_minimum_gap_m": 0.005417578231093314
+    },
+    {
+      "step": 285,
+      "side": "left",
+      "paired_knee_offset_rad": -0.2,
+      "sole_gap_m": 0.0014080831364043263,
+      "minimum_toe_gap_m": -0.0010703815436321016,
+      "limiting_toe": "crow_left_rear_toe_distal",
+      "all_foot_minimum_gap_m": -0.0010703815436321016
+    },
+    {
+      "step": 285,
+      "side": "left",
+      "paired_knee_offset_rad": -0.1,
+      "sole_gap_m": 0.001661958379838709,
+      "minimum_toe_gap_m": -0.0008165063001977155,
+      "limiting_toe": "crow_left_rear_toe_distal",
+      "all_foot_minimum_gap_m": -0.0008165063001977155
+    },
+    {
+      "step": 285,
+      "side": "left",
+      "paired_knee_offset_rad": 0.0,
+      "sole_gap_m": 0.002545194486490047,
+      "minimum_toe_gap_m": 6.672980645361891e-05,
+      "limiting_toe": "crow_left_rear_toe_distal",
+      "all_foot_minimum_gap_m": 6.672980645361891e-05
+    },
+    {
+      "step": 285,
+      "side": "left",
+      "paired_knee_offset_rad": 0.1,
+      "sole_gap_m": 0.004048966453139688,
+      "minimum_toe_gap_m": 0.0015705017731032517,
+      "limiting_toe": "crow_left_rear_toe_distal",
+      "all_foot_minimum_gap_m": 0.0015705017731032517
+    },
+    {
+      "step": 285,
+      "side": "left",
+      "paired_knee_offset_rad": 0.2,
+      "sole_gap_m": 0.006158249087377823,
+      "minimum_toe_gap_m": 0.003679784407341397,
+      "limiting_toe": "crow_left_rear_toe_distal",
+      "all_foot_minimum_gap_m": 0.003679784407341397
+    },
+    {
+      "step": 285,
+      "side": "left",
+      "paired_knee_offset_rad": 0.3,
+      "sole_gap_m": 0.008851967134359264,
+      "minimum_toe_gap_m": 0.006373502454322829,
+      "limiting_toe": "crow_left_rear_toe_distal",
+      "all_foot_minimum_gap_m": 0.006373502454322829
+    },
+    {
+      "step": 285,
+      "side": "right",
+      "paired_knee_offset_rad": -0.2,
+      "sole_gap_m": -0.0008017620475408264,
+      "minimum_toe_gap_m": -0.0007658009063735843,
+      "limiting_toe": "crow_right_rear_toe_distal",
+      "all_foot_minimum_gap_m": -0.0008017620475408264
+    },
+    {
+      "step": 285,
+      "side": "right",
+      "paired_knee_offset_rad": -0.1,
+      "sole_gap_m": -0.0007368868667684495,
+      "minimum_toe_gap_m": -0.0007009257256012074,
+      "limiting_toe": "crow_right_rear_toe_distal",
+      "all_foot_minimum_gap_m": -0.0007368868667684495
+    },
+    {
+      "step": 285,
+      "side": "right",
+      "paired_knee_offset_rad": 0.0,
+      "sole_gap_m": -4.121651578843123e-05,
+      "minimum_toe_gap_m": -5.255374621190856e-06,
+      "limiting_toe": "crow_right_rear_toe_distal",
+      "all_foot_minimum_gap_m": -4.121651578843123e-05
+    },
+    {
+      "step": 285,
+      "side": "right",
+      "paired_knee_offset_rad": 0.1,
+      "sole_gap_m": 0.001278298097210296,
+      "minimum_toe_gap_m": 0.0013142592383775312,
+      "limiting_toe": "crow_right_rear_toe_distal",
+      "all_foot_minimum_gap_m": 0.001278298097210296
+    },
+    {
+      "step": 285,
+      "side": "right",
+      "paired_knee_offset_rad": 0.2,
+      "sole_gap_m": 0.00320847281838817,
+      "minimum_toe_gap_m": 0.003244433959555414,
+      "limiting_toe": "crow_right_rear_toe_distal",
+      "all_foot_minimum_gap_m": 0.00320847281838817
+    },
+    {
+      "step": 285,
+      "side": "right",
+      "paired_knee_offset_rad": 0.3,
+      "sole_gap_m": 0.0057300219799621376,
+      "minimum_toe_gap_m": 0.005765983121129378,
+      "limiting_toe": "crow_right_rear_toe_distal",
+      "all_foot_minimum_gap_m": 0.0057300219799621376
+    },
+    {
+      "step": 290,
+      "side": "left",
+      "paired_knee_offset_rad": -0.2,
+      "sole_gap_m": 0.0007777994321556871,
+      "minimum_toe_gap_m": -0.00033195667255836794,
+      "limiting_toe": "crow_left_rear_toe_proximal",
+      "all_foot_minimum_gap_m": -0.00033195667255836794
+    },
+    {
+      "step": 290,
+      "side": "left",
+      "paired_knee_offset_rad": -0.1,
+      "sole_gap_m": 0.0005977029379351847,
+      "minimum_toe_gap_m": -0.0005120531667788704,
+      "limiting_toe": "crow_left_rear_toe_proximal",
+      "all_foot_minimum_gap_m": -0.0005120531667788704
+    },
+    {
+      "step": 290,
+      "side": "left",
+      "paired_knee_offset_rad": 0.0,
+      "sole_gap_m": 0.001049331553672669,
+      "minimum_toe_gap_m": -6.0424551041389496e-05,
+      "limiting_toe": "crow_left_rear_toe_proximal",
+      "all_foot_minimum_gap_m": -6.0424551041389496e-05
+    },
+    {
+      "step": 290,
+      "side": "left",
+      "paired_knee_offset_rad": 0.1,
+      "sole_gap_m": 0.0021281727555283354,
+      "minimum_toe_gap_m": 0.0010184166508142786,
+      "limiting_toe": "crow_left_rear_toe_proximal",
+      "all_foot_minimum_gap_m": 0.0010184166508142786
+    },
+    {
+      "step": 290,
+      "side": "left",
+      "paired_knee_offset_rad": 0.2,
+      "sole_gap_m": 0.003823447118830663,
+      "minimum_toe_gap_m": 0.002713691014116608,
+      "limiting_toe": "crow_left_rear_toe_proximal",
+      "all_foot_minimum_gap_m": 0.002713691014116608
+    },
+    {
+      "step": 290,
+      "side": "left",
+      "paired_knee_offset_rad": 0.3,
+      "sole_gap_m": 0.0061182160225247625,
+      "minimum_toe_gap_m": 0.005008459917810709,
+      "limiting_toe": "crow_left_rear_toe_proximal",
+      "all_foot_minimum_gap_m": 0.005008459917810709
+    },
+    {
+      "step": 290,
+      "side": "right",
+      "paired_knee_offset_rad": -0.2,
+      "sole_gap_m": 0.001352736422563828,
+      "minimum_toe_gap_m": -0.0004982397436561741,
+      "limiting_toe": "crow_right_rear_toe_distal",
+      "all_foot_minimum_gap_m": -0.0004982397436561741
+    },
+    {
+      "step": 290,
+      "side": "right",
+      "paired_knee_offset_rad": -0.1,
+      "sole_gap_m": 0.0012933326676369036,
+      "minimum_toe_gap_m": -0.0005576434985831037,
+      "limiting_toe": "crow_right_rear_toe_distal",
+      "all_foot_minimum_gap_m": -0.0005576434985831037
+    },
+    {
+      "step": 290,
+      "side": "right",
+      "paired_knee_offset_rad": 0.0,
+      "sole_gap_m": 0.0018653332950377167,
+      "minimum_toe_gap_m": 1.435712881771474e-05,
+      "limiting_toe": "crow_right_rear_toe_distal",
+      "all_foot_minimum_gap_m": 1.435712881771474e-05
+    },
+    {
+      "step": 290,
+      "side": "right",
+      "paired_knee_offset_rad": 0.1,
+      "sole_gap_m": 0.0030630230635755543,
+      "minimum_toe_gap_m": 0.0012120468973555436,
+      "limiting_toe": "crow_right_rear_toe_distal",
+      "all_foot_minimum_gap_m": 0.0012120468973555436
+    },
+    {
+      "step": 290,
+      "side": "right",
+      "paired_knee_offset_rad": 0.2,
+      "sole_gap_m": 0.004874435052986806,
+      "minimum_toe_gap_m": 0.0030234588867668055,
+      "limiting_toe": "crow_right_rear_toe_distal",
+      "all_foot_minimum_gap_m": 0.0030234588867668055
+    },
+    {
+      "step": 290,
+      "side": "right",
+      "paired_knee_offset_rad": 0.3,
+      "sole_gap_m": 0.007281470233446432,
+      "minimum_toe_gap_m": 0.005430494067226423,
+      "limiting_toe": "crow_right_rear_toe_distal",
+      "all_foot_minimum_gap_m": 0.005430494067226423
+    },
+    {
+      "step": 295,
+      "side": "left",
+      "paired_knee_offset_rad": -0.2,
+      "sole_gap_m": -0.0008839567683280418,
+      "minimum_toe_gap_m": -0.0008548246672737351,
+      "limiting_toe": "crow_left_front_toe_1_proximal",
+      "all_foot_minimum_gap_m": -0.0008839567683280418
+    },
+    {
+      "step": 295,
+      "side": "left",
+      "paired_knee_offset_rad": -0.1,
+      "sole_gap_m": -0.0007903206806653944,
+      "minimum_toe_gap_m": -0.0007611885796110877,
+      "limiting_toe": "crow_left_front_toe_1_proximal",
+      "all_foot_minimum_gap_m": -0.0007903206806653944
+    },
+    {
+      "step": 295,
+      "side": "left",
+      "paired_knee_offset_rad": 0.0,
+      "sole_gap_m": -6.604157083574085e-05,
+      "minimum_toe_gap_m": -3.690946978143414e-05,
+      "limiting_toe": "crow_left_front_toe_1_proximal",
+      "all_foot_minimum_gap_m": -6.604157083574085e-05
+    },
+    {
+      "step": 295,
+      "side": "left",
+      "paired_knee_offset_rad": 0.1,
+      "sole_gap_m": 0.0012816438037103212,
+      "minimum_toe_gap_m": 0.001310775904764628,
+      "limiting_toe": "crow_left_front_toe_1_proximal",
+      "all_foot_minimum_gap_m": 0.0012816438037103212
+    },
+    {
+      "step": 295,
+      "side": "left",
+      "paired_knee_offset_rad": 0.2,
+      "sole_gap_m": 0.0032392698161958985,
+      "minimum_toe_gap_m": 0.0032684019172502052,
+      "limiting_toe": "crow_left_front_toe_1_proximal",
+      "all_foot_minimum_gap_m": 0.0032392698161958985
+    },
+    {
+      "step": 295,
+      "side": "left",
+      "paired_knee_offset_rad": 0.3,
+      "sole_gap_m": 0.0057872765146093665,
+      "minimum_toe_gap_m": 0.005816408615663673,
+      "limiting_toe": "crow_left_front_toe_1_proximal",
+      "all_foot_minimum_gap_m": 0.0057872765146093665
+    },
+    {
+      "step": 295,
+      "side": "right",
+      "paired_knee_offset_rad": -0.2,
+      "sole_gap_m": 0.0020012987418372725,
+      "minimum_toe_gap_m": -0.00038498522736364095,
+      "limiting_toe": "crow_right_rear_toe_distal",
+      "all_foot_minimum_gap_m": -0.00038498522736364095
+    },
+    {
+      "step": 295,
+      "side": "right",
+      "paired_knee_offset_rad": -0.1,
+      "sole_gap_m": 0.002316607799820028,
+      "minimum_toe_gap_m": -6.967616938088374e-05,
+      "limiting_toe": "crow_right_rear_toe_distal",
+      "all_foot_minimum_gap_m": -6.967616938088374e-05
+    },
+    {
+      "step": 295,
+      "side": "right",
+      "paired_knee_offset_rad": 0.0,
+      "sole_gap_m": 0.003260737170118962,
+      "minimum_toe_gap_m": 0.0008744532009180486,
+      "limiting_toe": "crow_right_rear_toe_distal",
+      "all_foot_minimum_gap_m": 0.0008744532009180486
+    },
+    {
+      "step": 295,
+      "side": "right",
+      "paired_knee_offset_rad": 0.1,
+      "sole_gap_m": 0.0048242534241537335,
+      "minimum_toe_gap_m": 0.002437969454952813,
+      "limiting_toe": "crow_right_rear_toe_distal",
+      "all_foot_minimum_gap_m": 0.002437969454952813
+    },
+    {
+      "step": 295,
+      "side": "right",
+      "paired_knee_offset_rad": 0.2,
+      "sole_gap_m": 0.006991534424343776,
+      "minimum_toe_gap_m": 0.004605250455142864,
+      "limiting_toe": "crow_right_rear_toe_distal",
+      "all_foot_minimum_gap_m": 0.004605250455142864
+    },
+    {
+      "step": 295,
+      "side": "right",
+      "paired_knee_offset_rad": 0.3,
+      "sole_gap_m": 0.009740925415343039,
+      "minimum_toe_gap_m": 0.00735464144614212,
+      "limiting_toe": "crow_right_rear_toe_distal",
+      "all_foot_minimum_gap_m": 0.00735464144614212
+    },
+    {
+      "step": 300,
+      "side": "left",
+      "paired_knee_offset_rad": -0.2,
+      "sole_gap_m": -0.000172614027248906,
+      "minimum_toe_gap_m": -0.00041722395734109137,
+      "limiting_toe": "crow_left_rear_toe_proximal",
+      "all_foot_minimum_gap_m": -0.00041722395734109137
+    },
+    {
+      "step": 300,
+      "side": "left",
+      "paired_knee_offset_rad": -0.1,
+      "sole_gap_m": -0.0001944223045489621,
+      "minimum_toe_gap_m": -0.0004390322346411457,
+      "limiting_toe": "crow_left_rear_toe_proximal",
+      "all_foot_minimum_gap_m": -0.0004390322346411457
+    },
+    {
+      "step": 300,
+      "side": "left",
+      "paired_knee_offset_rad": 0.0,
+      "sole_gap_m": 0.00041499400198089474,
+      "minimum_toe_gap_m": 0.00017038407188871112,
+      "limiting_toe": "crow_left_rear_toe_proximal",
+      "all_foot_minimum_gap_m": 0.00017038407188871112
+    },
+    {
+      "step": 300,
+      "side": "left",
+      "paired_knee_offset_rad": 0.1,
+      "sole_gap_m": 0.0016495458060520902,
+      "minimum_toe_gap_m": 0.0014049358759599083,
+      "limiting_toe": "crow_left_rear_toe_proximal",
+      "all_foot_minimum_gap_m": 0.0014049358759599083
+    },
+    {
+      "step": 300,
+      "side": "left",
+      "paired_knee_offset_rad": 0.2,
+      "sole_gap_m": 0.0034968978741268843,
+      "minimum_toe_gap_m": 0.0032522879440347006,
+      "limiting_toe": "crow_left_rear_toe_proximal",
+      "all_foot_minimum_gap_m": 0.0032522879440347006
+    },
+    {
+      "step": 300,
+      "side": "left",
+      "paired_knee_offset_rad": 0.3,
+      "sole_gap_m": 0.005938592074994484,
+      "minimum_toe_gap_m": 0.0056939821449023004,
+      "limiting_toe": "crow_left_rear_toe_proximal",
+      "all_foot_minimum_gap_m": 0.0056939821449023004
+    },
+    {
+      "step": 300,
+      "side": "right",
+      "paired_knee_offset_rad": -0.2,
+      "sole_gap_m": 0.000545699568166056,
+      "minimum_toe_gap_m": -0.0007244958177750546,
+      "limiting_toe": "crow_right_rear_toe_proximal",
+      "all_foot_minimum_gap_m": -0.0007244958177750546
+    },
+    {
+      "step": 300,
+      "side": "right",
+      "paired_knee_offset_rad": -0.1,
+      "sole_gap_m": 0.000571317005436698,
+      "minimum_toe_gap_m": -0.0006988783805044127,
+      "limiting_toe": "crow_right_rear_toe_proximal",
+      "all_foot_minimum_gap_m": -0.0006988783805044127
+    },
+    {
+      "step": 300,
+      "side": "right",
+      "paired_knee_offset_rad": 0.0,
+      "sole_gap_m": 0.00122787270422451,
+      "minimum_toe_gap_m": -4.2322681716600724e-05,
+      "limiting_toe": "crow_right_rear_toe_proximal",
+      "all_foot_minimum_gap_m": -4.2322681716600724e-05
+    },
+    {
+      "step": 300,
+      "side": "right",
+      "paired_knee_offset_rad": 0.1,
+      "sole_gap_m": 0.002508806577015679,
+      "minimum_toe_gap_m": 0.0012386111910745665,
+      "limiting_toe": "crow_right_rear_toe_proximal",
+      "all_foot_minimum_gap_m": 0.0012386111910745665
+    },
+    {
+      "step": 300,
+      "side": "right",
+      "paired_knee_offset_rad": 0.2,
+      "sole_gap_m": 0.004401319955973697,
+      "minimum_toe_gap_m": 0.003131124570032581,
+      "limiting_toe": "crow_right_rear_toe_proximal",
+      "all_foot_minimum_gap_m": 0.003131124570032581
+    },
+    {
+      "step": 300,
+      "side": "right",
+      "paired_knee_offset_rad": 0.3,
+      "sole_gap_m": 0.006886503472997768,
+      "minimum_toe_gap_m": 0.005616308087056661,
+      "limiting_toe": "crow_right_rear_toe_proximal",
+      "all_foot_minimum_gap_m": 0.005616308087056661
+    }
+  ],
+  "scope": "Lane 5, 16 saved endpoint poses, torso and remaining joints fixed; ankle changes by the negative of the knee change; geometric perturbations are not actuator targets, dynamics, reachability, or biological data."
+}

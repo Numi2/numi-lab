@@ -1,0 +1,34 @@
+left
+225 -0.2:-8.8/rear_toe_distal -0.1:-4.0/rear_toe_distal +0.0:+0.4/front_toe_1_proximal +0.1:-5.3/front_toe_1_distal +0.2:-11.8/front_toe_1_distal
+230 -0.2:-8.7/rear_toe_distal -0.1:-4.0/rear_toe_distal +0.0:+0.9/rear_toe_distal +0.1:-2.4/front_toe_1_distal +0.2:-8.9/front_toe_1_distal
+235 -0.2:-9.4/rear_toe_distal -0.1:-4.7/rear_toe_distal +0.0:+0.2/rear_toe_distal +0.1:-2.1/front_toe_3_distal +0.2:-8.6/front_toe_3_distal
+240 -0.2:-9.2/rear_toe_distal -0.1:-4.4/rear_toe_distal +0.0:-0.0/rear_toe_proximal +0.1:-3.7/front_toe_3_distal +0.2:-10.2/front_toe_3_distal
+245 -0.2:-9.1/rear_toe_distal -0.1:-4.3/rear_toe_distal +0.0:-0.1/front_toe_1_proximal +0.1:-6.6/front_toe_1_distal +0.2:-13.0/front_toe_1_distal
+250 -0.2:-9.7/rear_toe_distal -0.1:-5.0/rear_toe_distal +0.0:+0.0/rear_toe_distal +0.1:-5.4/front_toe_1_distal +0.2:-11.9/front_toe_1_distal
+255 -0.2:-9.5/rear_toe_distal -0.1:-4.8/rear_toe_distal +0.0:+0.2/rear_toe_distal +0.1:-2.0/front_toe_1_distal +0.2:-8.5/front_toe_1_distal
+260 -0.2:-9.6/rear_toe_distal -0.1:-4.9/rear_toe_distal +0.0:+0.0/rear_toe_distal +0.1:-2.2/front_toe_3_distal +0.2:-8.7/front_toe_3_distal
+265 -0.2:-5.5/rear_toe_distal -0.1:-1.5/rear_toe_proximal +0.0:-0.0/rear_toe_proximal +0.1:-3.4/front_toe_3_distal +0.2:-9.9/front_toe_3_distal
+270 -0.2:-9.1/rear_toe_distal -0.1:-4.3/rear_toe_distal +0.0:-0.1/front_toe_1_proximal +0.1:-6.6/front_toe_3_distal +0.2:-13.0/front_toe_3_distal
+275 -0.2:-9.4/rear_toe_distal -0.1:-4.7/rear_toe_distal +0.0:+0.3/rear_toe_proximal +0.1:-5.4/front_toe_1_distal +0.2:-11.8/front_toe_1_distal
+280 -0.2:-9.5/rear_toe_distal -0.1:-4.8/rear_toe_distal +0.0:+0.1/rear_toe_distal +0.1:-1.9/front_toe_1_distal +0.2:-8.4/front_toe_1_distal
+285 -0.2:-9.6/rear_toe_distal -0.1:-4.9/rear_toe_distal +0.0:+0.1/rear_toe_distal +0.1:-2.2/front_toe_3_distal +0.2:-8.7/front_toe_3_distal
+290 -0.2:-8.8/rear_toe_distal -0.1:-4.0/rear_toe_distal +0.0:-0.1/rear_toe_proximal +0.1:-3.7/front_toe_3_distal +0.2:-10.2/front_toe_3_distal
+295 -0.2:-9.2/rear_toe_distal -0.1:-4.4/rear_toe_distal +0.0:-0.1/front_toe_1_proximal +0.1:-6.7/front_toe_3_distal +0.2:-13.0/front_toe_3_distal
+300 -0.2:-9.6/rear_toe_distal -0.1:-4.8/rear_toe_distal +0.0:+0.2/rear_toe_proximal +0.1:-5.5/front_toe_1_distal +0.2:-11.9/front_toe_1_distal
+right
+225 -0.2:-9.5/rear_toe_distal -0.1:-4.7/rear_toe_distal +0.0:-0.1/rear_toe_proximal +0.1:-4.0/front_toe_1_distal +0.2:-10.5/front_toe_1_distal
+230 -0.2:-8.9/rear_toe_distal -0.1:-4.1/rear_toe_distal +0.0:-0.1/rear_toe_proximal +0.1:-6.4/front_toe_1_distal +0.2:-12.8/front_toe_1_distal
+235 -0.2:-9.8/rear_toe_distal -0.1:-5.0/rear_toe_distal +0.0:-0.0/front_toe_3_proximal +0.1:-6.4/front_toe_2_distal +0.2:-12.8/front_toe_2_distal
+240 -0.2:-9.5/rear_toe_distal -0.1:-4.8/rear_toe_distal +0.0:+0.2/rear_toe_distal +0.1:-3.8/front_toe_3_distal +0.2:-10.2/front_toe_3_distal
+245 -0.2:-8.9/rear_toe_distal -0.1:-4.2/rear_toe_distal +0.0:+0.7/rear_toe_distal +0.1:-1.9/front_toe_1_distal +0.2:-8.4/front_toe_1_distal
+250 -0.2:-8.5/rear_toe_distal -0.1:-3.7/rear_toe_distal +0.0:-0.0/rear_toe_proximal +0.1:-3.3/front_toe_1_distal +0.2:-9.9/front_toe_1_distal
+255 -0.2:-9.4/rear_toe_distal -0.1:-4.6/rear_toe_distal +0.0:-0.1/rear_toe_proximal +0.1:-5.7/front_toe_1_distal +0.2:-12.1/front_toe_1_distal
+260 -0.2:-9.8/rear_toe_distal -0.1:-5.0/rear_toe_distal +0.0:-0.0/front_toe_3_proximal +0.1:-6.5/front_toe_3_distal +0.2:-12.9/front_toe_3_distal
+265 -0.2:-10.1/rear_toe_distal -0.1:-5.4/rear_toe_distal +0.0:-0.4/rear_toe_distal +0.1:-3.2/front_toe_3_distal +0.2:-9.7/front_toe_3_distal
+270 -0.2:-9.2/rear_toe_distal -0.1:-4.5/rear_toe_distal +0.0:+0.5/rear_toe_distal +0.1:-1.8/front_toe_1_distal +0.2:-8.3/front_toe_1_distal
+275 -0.2:-8.6/rear_toe_distal -0.1:-3.8/rear_toe_distal +0.0:+0.1/rear_toe_proximal +0.1:-3.2/front_toe_1_distal +0.2:-9.7/front_toe_1_distal
+280 -0.2:-9.5/rear_toe_distal -0.1:-4.7/rear_toe_distal +0.0:-0.1/rear_toe_proximal +0.1:-5.6/front_toe_1_distal +0.2:-12.1/front_toe_1_distal
+285 -0.2:-9.8/rear_toe_distal -0.1:-5.0/rear_toe_distal +0.0:-0.0/rear_toe_distal +0.1:-6.4/front_toe_3_distal +0.2:-12.8/front_toe_3_distal
+290 -0.2:-9.7/rear_toe_distal -0.1:-4.9/rear_toe_distal +0.0:+0.0/rear_toe_distal +0.1:-3.4/front_toe_3_distal +0.2:-9.9/front_toe_3_distal
+295 -0.2:-8.8/rear_toe_distal -0.1:-4.1/rear_toe_distal +0.0:+0.9/rear_toe_distal +0.1:-1.8/front_toe_1_distal +0.2:-8.2/front_toe_1_distal
+300 -0.2:-8.5/rear_toe_distal -0.1:-3.7/rear_toe_distal +0.0:-0.0/rear_toe_proximal +0.1:-3.2/front_toe_1_distal +0.2:-9.8/front_toe_1_distal
