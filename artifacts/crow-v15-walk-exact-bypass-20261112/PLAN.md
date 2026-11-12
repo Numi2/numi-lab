@@ -1,0 +1,5 @@
+# Exact bypass for walk-only target interpolation
+
+The walk-window-only candidate still differed from the retained sham at its first interval: the first inspected differences were tiny, yet contact trajectories diverged and exact parity failed. A plausible cause is evaluating floating-point interpolation even when the previous and current targets are equal, but this has not been proven.
+
+Keep the prior gait-window rule and physical 16-substep smoothing, but bypass the interpolation operation when the previous and current targets are bitwise equal. Test zero and 5 ms oscillator phase lead. The preceding 5 ms screen met its travel and contact gates, but failed pre-walk parity and therefore remains invalid. Require the same strict pre-walk q/v/action and per-substep contact parity and the same support, clearance, travel and full-substep motion criteria as the preceding screen. No numerical drift is automatically excused, and any pass remains limited to a used-seed two-second development trial. This is a research-only chunk-one implementation, not reset/rollback-safe production code.
