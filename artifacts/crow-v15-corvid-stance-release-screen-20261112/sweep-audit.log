@@ -1,0 +1,110 @@
+{
+  "parity": {
+    "lane7_endpoint_mismatches": 0,
+    "lane7_substep_mismatches": 0,
+    "all_lane_prewalk_endpoint_mismatches": 0,
+    "all_lane_prewalk_substep_mismatches": 0
+  },
+  "lanes": [
+    {
+      "lane": 0,
+      "stance_gain": 0,
+      "complete_both_toe_group_runs": 5,
+      "rear_first": 0,
+      "front_first": 5,
+      "both_groups_by_side": {
+        "left": 2,
+        "right": 3
+      }
+    },
+    {
+      "lane": 1,
+      "stance_gain": 0.025,
+      "complete_both_toe_group_runs": 8,
+      "rear_first": 0,
+      "front_first": 8,
+      "both_groups_by_side": {
+        "left": 4,
+        "right": 4
+      }
+    },
+    {
+      "lane": 2,
+      "stance_gain": 0.05,
+      "complete_both_toe_group_runs": 7,
+      "rear_first": 0,
+      "front_first": 7,
+      "both_groups_by_side": {
+        "left": 4,
+        "right": 3
+      }
+    },
+    {
+      "lane": 3,
+      "stance_gain": 0.075,
+      "complete_both_toe_group_runs": 12,
+      "rear_first": 1,
+      "front_first": 9,
+      "both_groups_by_side": {
+        "left": 8,
+        "right": 4
+      }
+    },
+    {
+      "lane": 4,
+      "stance_gain": 0.1,
+      "complete_both_toe_group_runs": 13,
+      "rear_first": 0,
+      "front_first": 9,
+      "both_groups_by_side": {
+        "left": 7,
+        "right": 6
+      }
+    },
+    {
+      "lane": 5,
+      "stance_gain": 0.15,
+      "complete_both_toe_group_runs": 6,
+      "rear_first": 0,
+      "front_first": 5,
+      "both_groups_by_side": {
+        "left": 3,
+        "right": 3
+      }
+    },
+    {
+      "lane": 6,
+      "stance_gain": 0.2,
+      "complete_both_toe_group_runs": 5,
+      "rear_first": 0,
+      "front_first": 5,
+      "both_groups_by_side": {
+        "left": 2,
+        "right": 3
+      }
+    },
+    {
+      "lane": 7,
+      "stance_gain": 0.25,
+      "complete_both_toe_group_runs": 5,
+      "rear_first": 0,
+      "front_first": 5,
+      "both_groups_by_side": {
+        "left": 2,
+        "right": 3
+      }
+    }
+  ],
+  "counts": {
+    "partial_runs": 26,
+    "complete_runs_with_both_toe_groups": 61,
+    "touchdown_front_first": 9,
+    "toeoff_front_first": 53,
+    "touchdown_same_substep": 6,
+    "touchdown_rear_first": 46,
+    "toeoff_same_substep": 7,
+    "toeoff_rear_first": 1,
+    "runs_without_both_toe_groups": 3
+  },
+  "scope": "Development sweep uses one distinct start per amplitude; no independent stance gain effect is established. Stances lacking either toe group cannot determine release order. Full eligibility also requires clearance, support, slip and replication."
+}

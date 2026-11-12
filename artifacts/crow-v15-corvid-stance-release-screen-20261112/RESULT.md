@@ -1,0 +1,9 @@
+# Supporting-leg stroke sweep: rejected
+
+All eight first episodes completed 300 steps without reported physical failure, solver error, overflow, nonfoot-ground contact or toe velocity caps. The unchanged 0.25-gain lane reproduced its retained own-support predecessor at all 300 endpoint and 4,800 contact-substep records; all lanes reproduced 1,600 prewalk endpoints and 25,600 prewalk substeps.
+
+Of 61 complete stances containing both toe groups, rear release was first in one, front release first in 53 and order unresolved at 1.25 ms resolution in seven. Three other complete foot-contact runs lacked a toe group; 26 runs were partial and excluded. The lane with the only rear-first sample also had only 9.6% of held forward travel and 135 both-feet-zero-normal substeps versus zero held. Each gain had one initial lane; these counts are not independent population estimates or proof that the stance gain alone caused the observed gait.
+
+The predeclared screen failed: lanes 0, 3 and 4 traveled less than 90% of held; lanes 1-5 had 37, 40, 135, 154 and 25 zero-normal-support substeps versus zero in corresponding held controls. Candidate sole-clear/toe-low endpoints totaled 95 versus 49 held, exceeding the 120% limit. Loaded point-speed median/p95 was 0.00345/0.05436 m/s versus 0.00276/0.03484 held; the p95 exceeded the 1.5x gate. All lanes had three supported full-foot-clearance bouts per foot. Contact point speed is sampled, not integrated slip, and one zero-normal substep is not itself proof of a fall.
+
+The related magpie gait offers a qualitative rear-first comparison, not measured American-crow angle, force, surface response or contact thresholds. All results are a two-second window on a previously used development seed and do not qualify biological gait, takeoff, flight, grip, landing or a full autonomous sequence.
