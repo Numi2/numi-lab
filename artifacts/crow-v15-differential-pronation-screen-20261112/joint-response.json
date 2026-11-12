@@ -1,0 +1,145 @@
+{
+  "interval_s": [
+    13,
+    24
+  ],
+  "source": "accepted 50 Hz endpoint coordinates; action target saturation is not recorded",
+  "rows": [
+    {
+      "lane": 0,
+      "mean_left_rad": -0.23962891314882032,
+      "mean_right_rad": 0.24052903150816696,
+      "mean_q_difference_rad": -0.4801579446569873,
+      "left_range_rad": [
+        -0.299844503,
+        -0.156515568
+      ],
+      "right_range_rad": [
+        0.158890784,
+        0.299926937
+      ],
+      "near_left_limit_count": 0,
+      "near_right_limit_count": 0,
+      "samples": 551
+    },
+    {
+      "lane": 1,
+      "mean_left_rad": -0.23940559944101633,
+      "mean_right_rad": 0.24030478764065336,
+      "mean_q_difference_rad": -0.4797103870816697,
+      "left_range_rad": [
+        -0.299823821,
+        -0.156503394
+      ],
+      "right_range_rad": [
+        0.159281909,
+        0.299836516
+      ],
+      "near_left_limit_count": 0,
+      "near_right_limit_count": 0,
+      "samples": 551
+    },
+    {
+      "lane": 2,
+      "mean_left_rad": -0.22268486192196008,
+      "mean_right_rad": 0.22364960164065337,
+      "mean_q_difference_rad": -0.4463344635626134,
+      "left_range_rad": [
+        -0.269866288,
+        -0.151585966
+      ],
+      "right_range_rad": [
+        0.151411444,
+        0.269969523
+      ],
+      "near_left_limit_count": 0,
+      "near_right_limit_count": 0,
+      "samples": 551
+    },
+    {
+      "lane": 3,
+      "mean_left_rad": -0.25665019862976407,
+      "mean_right_rad": 0.25747918020689653,
+      "mean_q_difference_rad": -0.5141293788366607,
+      "left_range_rad": [
+        -0.300140262,
+        -0.181701154
+      ],
+      "right_range_rad": [
+        0.180713236,
+        0.300181329
+      ],
+      "near_left_limit_count": 0,
+      "near_right_limit_count": 0,
+      "samples": 551
+    },
+    {
+      "lane": 4,
+      "mean_left_rad": -0.21493521963157894,
+      "mean_right_rad": 0.2156757432413793,
+      "mean_q_difference_rad": -0.43061096287295825,
+      "left_range_rad": [
+        -0.239891648,
+        -0.16061902
+      ],
+      "right_range_rad": [
+        0.161925867,
+        0.239947096
+      ],
+      "near_left_limit_count": 0,
+      "near_right_limit_count": 0,
+      "samples": 551
+    },
+    {
+      "lane": 5,
+      "mean_left_rad": -0.2715423203194192,
+      "mean_right_rad": 0.272142587092559,
+      "mean_q_difference_rad": -0.5436849074119782,
+      "left_range_rad": [
+        -0.300228566,
+        -0.201203838
+      ],
+      "right_range_rad": [
+        0.199918702,
+        0.300238758
+      ],
+      "near_left_limit_count": 0,
+      "near_right_limit_count": 0,
+      "samples": 551
+    },
+    {
+      "lane": 6,
+      "mean_left_rad": -0.19029139437023593,
+      "mean_right_rad": 0.19075814051724138,
+      "mean_q_difference_rad": -0.38104953488747734,
+      "left_range_rad": [
+        -0.209769428,
+        -0.134762362
+      ],
+      "right_range_rad": [
+        0.143177241,
+        0.209858209
+      ],
+      "near_left_limit_count": 0,
+      "near_right_limit_count": 0,
+      "samples": 551
+    },
+    {
+      "lane": 7,
+      "mean_left_rad": -0.2834030381343013,
+      "mean_right_rad": 0.28387779021052634,
+      "mean_q_difference_rad": -0.5672808283448276,
+      "left_range_rad": [
+        -0.300259769,
+        -0.222389236
+      ],
+      "right_range_rad": [
+        0.221131161,
+        0.300260216
+      ],
+      "near_left_limit_count": 0,
+      "near_right_limit_count": 0,
+      "samples": 551
+    }
+  ]
+}
