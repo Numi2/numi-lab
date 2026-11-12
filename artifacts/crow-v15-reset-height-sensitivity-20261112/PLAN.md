@@ -1,0 +1,3 @@
+# Reset height sensitivity
+
+Preserve original v15 non-root reset pose and the single set of sampled attitude, leg and velocity perturbations. Lower the sampled root height by 0, 2, 4 or 6 mm in paired lanes of eight previously used seed-20261127 starts, at reset only. Compare each lane to the identical-seed original-height baseline, and require exact parity for the two 0-mm controls. Observe first-substep upward contact impulses, first 20 ms root vertical velocity, all substep unloading, speed caps, gait and launch to 10 seconds. Two starts per magnitude are only an exploratory screen; joint motion and collision geometry are not independently calibrated, and apparent improvement cannot justify promotion without additional seed and perturbation tests.
