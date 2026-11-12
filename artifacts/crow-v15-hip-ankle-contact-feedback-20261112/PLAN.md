@@ -1,0 +1,3 @@
+# Hip and ankle contact-velocity feedback
+
+On the used 20261127 starts, apply the previously best positive hip feedback gain 0.5 to both legs, then vary the physical ankle target feedback over +0.5, -0.5, +1, -1, +2, -2 across candidate lanes. Two unmodified lanes remain matched controls. Use the independently audited materialized contact sensor and the unchanged two-foot integral, collective support, toe-speed, nonfoot and forward-progress criteria. Joint action signs and delayed velocity feedback are experimental; this is not a measured bird joint trajectory, a material-slip sensor, or a held-out test.
