@@ -1,0 +1,544 @@
+{
+  "action_carrier" : "v15_conditional_landing_goal_memory_rgbd_history",
+  "action_count" : 18,
+  "action_fingerprint" : "5306385544315808273",
+  "action_source" : "policy_pack",
+  "action_stream" : "",
+  "actor_observation_count" : 816,
+  "any_link_dodge_rate" : 0,
+  "any_link_projectile_hit_count" : 0,
+  "any_link_projectile_hit_rate" : 0,
+  "articulated_contact_responses" : "streamed_inverse_aba",
+  "benchmark" : "swift_native_task_rollout",
+  "benchmark_seed" : 20261126,
+  "birdflow_journey_student_authority" : 0,
+  "birdflow_journey_teacher" : false,
+  "birdflow_journey_variant" : "v15-conditional-landing-navigation",
+  "birdflow_navigation_course" : "training",
+  "birdflow_navigation_course_role" : "development-only",
+  "birdflow_navigation_curriculum" : false,
+  "birdflow_navigation_curriculum_stage" : -1,
+  "birdflow_pronation" : 0,
+  "birdflow_pronation_wave_phase" : 0,
+  "birdflow_stroke_amplitude" : 0,
+  "birdflow_sweep_wave_amplitude" : 0,
+  "birdflow_sweep_wave_phase" : 0,
+  "birdflow_tail_pitch" : 0,
+  "birdflow_wing_pulse_amplitude" : 0,
+  "birdflow_wing_pulse_duration_steps" : 0,
+  "birdflow_wing_pulse_secondary_amplitude" : 0,
+  "birdflow_wing_pulse_secondary_target" : "",
+  "birdflow_wing_pulse_start_step" : 0,
+  "birdflow_wing_pulse_target" : "wings",
+  "clean_horizon_environment_count" : 5,
+  "clean_horizon_environment_rate" : 0.83333333333333337,
+  "clean_projectile_miss_count" : 0,
+  "compiled_impact_event_count" : 0,
+  "completed_projectile_trial_count" : 0,
+  "control_steps_per_submission" : 1,
+  "critic_observation_count" : 106,
+  "crow_navigation_arrival_pack" : "",
+  "crow_navigation_arrival_payload_sha256" : "",
+  "crow_navigation_arrival_waypoint" : 3,
+  "crow_replay_pack" : "\/Users\/n\/Developer\/numi-crow-rl-20261107\/build\/crow-v15-differential-wingbeat-screen-20261112\/negative-replay.json",
+  "crow_replay_payload_sha256" : "6ac99265aecffd341ec023416335fb6381adc3b95a404100b6c6dc8324867ecf",
+  "device" : "Apple M4 Pro",
+  "difficulty_sampling_exponent_override" : 0,
+  "dynamic_sphere_count" : 0,
+  "elapsed_seconds" : 183.48258983299999,
+  "environment_control_steps_per_second" : 52.321040425348336,
+  "environments" : 6,
+  "failed_environment_steps" : 0,
+  "final_forward_progress_by_environment_m" : [
+    4.1141977785155177,
+    2.1878765504807234,
+    4.7076220097951591,
+    0.6864140136167407,
+    -52.142144040204585,
+    0.71402250020764768
+  ],
+  "final_state_json" : "",
+  "final_velocity_iterations" : 2,
+  "first_episode_navigation" : {
+    "boundary" : "waypoint completion; does not establish supported landing",
+    "closed_by_environment" : [
+      false,
+      false,
+      false,
+      false,
+      false,
+      true
+    ],
+    "closed_episode_count" : 1,
+    "completion_seen_by_environment" : [
+      false,
+      false,
+      false,
+      false,
+      false,
+      false
+    ],
+    "completion_seen_count" : 0,
+    "environment_count" : 6,
+    "first_completion_step_by_environment" : [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "horizon_censored_count" : 5,
+    "maximum_waypoints_by_environment" : [
+      0,
+      0,
+      0,
+      0,
+      0,
+      0
+    ],
+    "physical_failure_by_environment" : [
+      false,
+      false,
+      false,
+      false,
+      false,
+      true
+    ],
+    "physical_failure_count" : 1,
+    "safe_completion_by_environment" : [
+      false,
+      false,
+      false,
+      false,
+      false,
+      false
+    ],
+    "safe_completion_count" : 0,
+    "schema" : "numi.crow-first-episode-evidence.v1",
+    "steps_by_environment" : [
+      1600,
+      1600,
+      1600,
+      1600,
+      1600,
+      1020
+    ],
+    "termination_reason_by_environment" : [
+      0,
+      0,
+      0,
+      0,
+      0,
+      3
+    ],
+    "unit" : "first episode of each environment since context creation"
+  },
+  "foot_support_step_count" : 0,
+  "forward_progress_available" : true,
+  "gpu_milliseconds" : 177912.37924969755,
+  "height_or_tilt_termination_count" : 0,
+  "host_requested_resets" : 0,
+  "immutable_private_bytes" : 23388088,
+  "impact_sequence_enabled_steps" : 0,
+  "impact_sequence_metrics" : [
+
+  ],
+  "life_checkpoint_restored" : false,
+  "life_checkpoint_saved" : "",
+  "maximum_active_contacts" : 72,
+  "maximum_episode_steps" : 5000,
+  "maximum_forward_progress_m" : 4.7076220097951591,
+  "maximum_manifolds" : 18,
+  "maximum_navigation_completion_by_environment" : [
+    0,
+    0,
+    0,
+    0,
+    0,
+    0
+  ],
+  "maximum_navigation_progress_by_environment_m" : [
+    0.97820562124252319,
+    0.90173673629760742,
+    0.67741554975509644,
+    0.79797923564910889,
+    0.58767324686050415,
+    0.59850549697875977
+  ],
+  "maximum_navigation_waypoints_by_environment" : [
+    0,
+    0,
+    0,
+    0,
+    0,
+    0
+  ],
+  "maximum_root_height" : 1.7518095970153809,
+  "maximum_sampled_difficulty_band" : 10,
+  "maximum_tilt" : 1.0344650745391846,
+  "maximum_tilt_by_environment" : [
+    0.10241638123989105,
+    0.10187491774559021,
+    0.1270233541727066,
+    0.12573280930519104,
+    0.42450979351997375,
+    1.0344650745391846
+  ],
+  "mean_base_reward" : 0.021944553465085857,
+  "mean_contact_reward" : -2.0833332867672046e-06,
+  "mean_control_reward" : -1.0051944777018575e-06,
+  "mean_energy_reward" : 0,
+  "mean_final_forward_progress_m" : -6.6220018645981327,
+  "mean_joint_acceleration_reward" : 0,
+  "mean_joint_velocity_reward" : 0,
+  "mean_peak_forward_progress_m" : 2.3652654805919155,
+  "mean_posture_reward" : -0.00015551257687717766,
+  "mean_reward" : 0.055289048729840334,
+  "mean_root_height" : 0.81644510967346529,
+  "mean_root_height_by_environment" : [
+    0.75754763890057797,
+    0.76824635951779785,
+    0.75712333315983416,
+    0.77804505171254279,
+    1.1197056682500988,
+    0.71800260649994019
+  ],
+  "mean_task_reward" : 0.033503096656454547,
+  "mean_tilt" : 0.099910943497089372,
+  "mean_tilt_by_environment" : [
+    0.046426503420810263,
+    0.040997785639542601,
+    0.057515721396501365,
+    0.047567685796577948,
+    0.247146807808233,
+    0.15981115692087108
+  ],
+  "mean_tracking_score" : 0.79574554016037535,
+  "mean_tracking_score_by_environment" : [
+    0.90446595054119827,
+    0.89723038230091334,
+    0.79429426930844782,
+    0.78797264155000446,
+    0.62834965173155066,
+    0.76216034553013745
+  ],
+  "minimum_root_height_by_environment" : [
+    0.16303107142448425,
+    0.16302990913391113,
+    0.16302427649497986,
+    0.16303066909313202,
+    0.16303195059299469,
+    0.16302736103534698
+  ],
+  "minimum_sampled_difficulty_band" : 10,
+  "object_push_curriculum" : "",
+  "observation_fingerprint" : "15807381546928729743",
+  "outcomes" : {
+    "approach_pitch_full_envelope_fraction" : {
+      "direction" : 2,
+      "mean" : 0.022916666666666665,
+      "unit" : "ratio"
+    },
+    "approach_pitch_warning_fraction" : {
+      "direction" : 2,
+      "mean" : 0.032916666666666664,
+      "unit" : "ratio"
+    },
+    "done" : {
+      "direction" : 2,
+      "mean" : 0.00010416666666666667,
+      "unit" : "bool"
+    },
+    "figure_eight_tracking" : {
+      "direction" : 1,
+      "mean" : 0,
+      "unit" : "ratio"
+    },
+    "forward_flight_tracking" : {
+      "direction" : 1,
+      "mean" : 0.023821081652012278,
+      "unit" : "ratio"
+    },
+    "ground_support" : {
+      "direction" : 1,
+      "mean" : 0.0025581250222361028,
+      "unit" : "ratio"
+    },
+    "liftoff" : {
+      "direction" : 1,
+      "mean" : 0.019828106724889948,
+      "unit" : "ratio"
+    },
+    "navigation_completion" : {
+      "direction" : 1,
+      "mean" : 0,
+      "unit" : "ratio"
+    },
+    "navigation_progress" : {
+      "direction" : 1,
+      "mean" : -5.2487132472234466,
+      "unit" : "m"
+    },
+    "navigation_waypoints_reached" : {
+      "direction" : 1,
+      "mean" : 0,
+      "unit" : "count"
+    },
+    "physics_error" : {
+      "direction" : 2,
+      "mean" : 0,
+      "unit" : "bool"
+    },
+    "push_off" : {
+      "direction" : 1,
+      "mean" : 0.0017474123459154118,
+      "unit" : "m\/s"
+    },
+    "reward" : {
+      "direction" : 1,
+      "mean" : 0.055289048729840334,
+      "unit" : "reward"
+    },
+    "root_height" : {
+      "direction" : 0,
+      "mean" : 0.81644510967346529,
+      "unit" : "m"
+    },
+    "task_reward" : {
+      "direction" : 1,
+      "mean" : 0.033503096656454547,
+      "unit" : "reward"
+    },
+    "timeout" : {
+      "direction" : 0,
+      "mean" : 0,
+      "unit" : "bool"
+    },
+    "tracking" : {
+      "direction" : 1,
+      "mean" : 0.79574554016037535,
+      "unit" : "ratio"
+    },
+    "walking_contact" : {
+      "direction" : 1,
+      "mean" : 0.0077549996661643184,
+      "unit" : "ratio"
+    }
+  },
+  "peak_aliased_bytes" : 3756616,
+  "peak_forward_progress_by_environment_m" : [
+    4.1141977785155177,
+    2.1878765504807234,
+    4.7076220097951591,
+    1.4325993759557605,
+    0.88704876508563757,
+    0.86224840371869504
+  ],
+  "persistent_state_private_bytes" : 255476,
+  "physical_evidence" : {
+    "control_steps" : 1600,
+    "evidence_windows" : 0,
+    "last_balance_failure_rate" : 0,
+    "last_clean_miss_rate" : 0,
+    "last_completed_episode_count" : 0,
+    "last_contact_rate" : 0,
+    "last_mean_tracking_per_million" : 0,
+    "pending_completed_episode_count" : 1,
+    "pending_timeout_episode_count" : 0
+  },
+  "physics_error_count_by_environment" : [
+    0,
+    0,
+    0,
+    0,
+    0,
+    0
+  ],
+  "physics_substeps" : 16,
+  "policy_action_trace" : "",
+  "policy_rollout_fingerprint" : "9791350055416658558",
+  "policy_sample_count" : 9600,
+  "quiet_stand_step_count" : 0,
+  "reality_fingerprint" : "411248978545306837",
+  "recovery_brace_step_count" : 0,
+  "recovery_phase_rates" : {
+    "brace" : 0,
+    "foot_support" : 0,
+    "quiet_stand" : 0,
+    "rise" : 0,
+    "support_transfer" : 0,
+    "trunk_clear" : 0
+  },
+  "recovery_phase_rates_by_difficulty_band" : {
+    "10" : {
+      "brace" : 0,
+      "foot_support" : 0,
+      "mean_root_height" : 0.81644510967346529,
+      "mean_tilt" : 0.099910943497089372,
+      "quiet_stand" : 0,
+      "restored" : 0,
+      "rise" : 0,
+      "standing" : 0,
+      "support_transfer" : 0,
+      "transition_count" : 9600,
+      "trunk_clear" : 0
+    }
+  },
+  "recovery_rise_step_count" : 0,
+  "repeats" : 1,
+  "restored_step_count" : 0,
+  "retained_buffer_bytes" : 51689008,
+  "robot_fingerprint" : "15100829319006411524",
+  "rollout_pack" : "",
+  "rollout_pack_bytes" : 0,
+  "run_fingerprint" : "6667139518613606720",
+  "scene" : "terrain",
+  "scheduled_resets" : false,
+  "sensor_fingerprint" : "6278639732713616904",
+  "shared_boundary_bytes" : 23525020,
+  "solver_mode" : "temporal_cone",
+  "squat_cycle_completed_environment_count" : 0,
+  "squat_cycle_completed_environment_rate" : 0,
+  "squat_cycle_completed_environments" : [
+
+  ],
+  "squat_cycle_evidence" : {
+    "available" : false,
+    "bilateral_knee_excursion" : 0,
+    "bilateral_support_rate" : 0,
+    "completed" : false,
+    "environment" : 1,
+    "final_mean_knee_flexion" : 0.2437225878238678,
+    "final_pelvis_height" : 0.95155340433120728,
+    "initial_mean_knee_flexion" : 0.094406187534332275,
+    "initial_pelvis_height" : 0.18476195633411407,
+    "maximum_left_knee_flexion" : 0,
+    "maximum_right_knee_flexion" : 0,
+    "minimum_pelvis_height" : 0,
+    "pelvis_descent" : 0,
+    "returned_to_initial_pose" : false,
+    "termination_count" : 0
+  },
+  "squat_cycle_evidence_by_environment" : [
+    {
+      "available" : false,
+      "bilateral_knee_excursion" : 0,
+      "bilateral_support_rate" : 0,
+      "completed" : false,
+      "environment" : 0,
+      "pelvis_descent" : 0,
+      "returned_to_initial_pose" : false,
+      "termination_count" : 0
+    },
+    {
+      "available" : false,
+      "bilateral_knee_excursion" : 0,
+      "bilateral_support_rate" : 0,
+      "completed" : false,
+      "environment" : 1,
+      "pelvis_descent" : 0,
+      "returned_to_initial_pose" : false,
+      "termination_count" : 0
+    },
+    {
+      "available" : false,
+      "bilateral_knee_excursion" : 0,
+      "bilateral_support_rate" : 0,
+      "completed" : false,
+      "environment" : 2,
+      "pelvis_descent" : 0,
+      "returned_to_initial_pose" : false,
+      "termination_count" : 0
+    },
+    {
+      "available" : false,
+      "bilateral_knee_excursion" : 0,
+      "bilateral_support_rate" : 0,
+      "completed" : false,
+      "environment" : 3,
+      "pelvis_descent" : 0,
+      "returned_to_initial_pose" : false,
+      "termination_count" : 0
+    },
+    {
+      "available" : false,
+      "bilateral_knee_excursion" : 0,
+      "bilateral_support_rate" : 0,
+      "completed" : false,
+      "environment" : 4,
+      "pelvis_descent" : 0,
+      "returned_to_initial_pose" : false,
+      "termination_count" : 0
+    },
+    {
+      "available" : false,
+      "bilateral_knee_excursion" : 0,
+      "bilateral_support_rate" : 0,
+      "completed" : false,
+      "environment" : 5,
+      "pelvis_descent" : 0,
+      "returned_to_initial_pose" : false,
+      "termination_count" : 1
+    }
+  ],
+  "stage_high_water" : {
+    "articulation_point_queries" : 0,
+    "candidate_pairs" : 53,
+    "ccd_candidates" : 0,
+    "ccd_events" : 0,
+    "constraint_blocks" : 72,
+    "constraint_rows" : 216,
+    "dynamic_nodes" : 0,
+    "endpoint_runtime_records" : 0,
+    "hard_convex_pairs" : 0,
+    "island_constraint_references" : 0,
+    "island_node_references" : 0,
+    "islands" : 1,
+    "manifolds" : 18,
+    "mesh_triangle_candidates" : 0,
+    "operator_velocity_elements" : 0,
+    "quality_direct_tiles" : 0,
+    "quality_generalized_velocities" : 0,
+    "quality_krylov_vectors" : 0,
+    "quality_rows" : 0,
+    "raw_contacts" : 72,
+    "rod_candidate_pairs" : 0,
+    "rod_ccd_events" : 0,
+    "rod_factor_blocks" : 0,
+    "rod_manifolds" : 0,
+    "rod_raw_contacts" : 0,
+    "solver_tiles" : 3,
+    "spill_rows" : 120
+  },
+  "standing_step_count" : 0,
+  "state_trace" : "\/Users\/n\/Developer\/numi-crow-rl-20261107\/build\/crow-v15-differential-wingbeat-screen-20261112\/negative-trace.tsv",
+  "steps_per_repeat" : 1600,
+  "submission_count" : 1600,
+  "submission_milliseconds" : 181710.56641199981,
+  "support_transfer_step_count" : 0,
+  "task" : "american_crow_v15_conditional_landing_navigation_development_v1",
+  "task_fingerprint" : "4014310644627923811",
+  "teacher_fingerprint" : "5203601387005592688",
+  "termination_count" : 1,
+  "termination_count_by_environment" : [
+    0,
+    0,
+    0,
+    0,
+    0,
+    1
+  ],
+  "termination_reason_counts" : {
+    "3" : 1
+  },
+  "timeout_count" : 0,
+  "transient_private_bytes" : 3756616,
+  "trunk_clear_step_count" : 0,
+  "velocity_iterations" : 4,
+  "visual_observation" : true,
+  "visual_observation_config" : "\/Users\/n\/Developer\/numi-crow-rl-20261107\/artifacts\/crow-v15-hip-roll-journey-integration-20261111\/crow-navigation.hip-roll.visual-observation.json",
+  "visual_scene_fingerprint" : 3463062169546655020,
+  "world_fingerprint" : "6593411030356188635",
+  "world_source" : "american_crow_v15_conditional_landing_navigation_development_v1"
+}
