@@ -1,0 +1,111 @@
+{
+  "rows": [
+    {
+      "lane": 0,
+      "first_episode_steps": 4251,
+      "physical_failure": true,
+      "waypoints": 5,
+      "first_perch_foot_impulse_step": 3180,
+      "max_consecutive_half_weight_nonbody_intervals": 206,
+      "max_consecutive_half_weight_bilateral_opposed_intervals": 138,
+      "last_25_half_weight_bilateral_opposed": false,
+      "nonfoot_perch_impulse_intervals": 0,
+      "missing_or_duplicate_substeps": 0,
+      "toe_speed_limit_substeps": 16
+    },
+    {
+      "lane": 1,
+      "first_episode_steps": 5000,
+      "physical_failure": false,
+      "waypoints": 5,
+      "first_perch_foot_impulse_step": 3263,
+      "max_consecutive_half_weight_nonbody_intervals": 1,
+      "max_consecutive_half_weight_bilateral_opposed_intervals": 0,
+      "last_25_half_weight_bilateral_opposed": false,
+      "nonfoot_perch_impulse_intervals": 0,
+      "missing_or_duplicate_substeps": 0,
+      "toe_speed_limit_substeps": 19
+    },
+    {
+      "lane": 2,
+      "first_episode_steps": 4503,
+      "physical_failure": true,
+      "waypoints": 5,
+      "first_perch_foot_impulse_step": 3284,
+      "max_consecutive_half_weight_nonbody_intervals": 224,
+      "max_consecutive_half_weight_bilateral_opposed_intervals": 155,
+      "last_25_half_weight_bilateral_opposed": false,
+      "nonfoot_perch_impulse_intervals": 0,
+      "missing_or_duplicate_substeps": 0,
+      "toe_speed_limit_substeps": 21
+    },
+    {
+      "lane": 3,
+      "first_episode_steps": 4235,
+      "physical_failure": true,
+      "waypoints": 5,
+      "first_perch_foot_impulse_step": 3178,
+      "max_consecutive_half_weight_nonbody_intervals": 214,
+      "max_consecutive_half_weight_bilateral_opposed_intervals": 157,
+      "last_25_half_weight_bilateral_opposed": false,
+      "nonfoot_perch_impulse_intervals": 0,
+      "missing_or_duplicate_substeps": 0,
+      "toe_speed_limit_substeps": 11
+    },
+    {
+      "lane": 4,
+      "first_episode_steps": 5000,
+      "physical_failure": false,
+      "waypoints": 5,
+      "first_perch_foot_impulse_step": 3242,
+      "max_consecutive_half_weight_nonbody_intervals": 213,
+      "max_consecutive_half_weight_bilateral_opposed_intervals": 157,
+      "last_25_half_weight_bilateral_opposed": false,
+      "nonfoot_perch_impulse_intervals": 0,
+      "missing_or_duplicate_substeps": 0,
+      "toe_speed_limit_substeps": 11
+    },
+    {
+      "lane": 5,
+      "first_episode_steps": 5000,
+      "physical_failure": false,
+      "waypoints": 5,
+      "first_perch_foot_impulse_step": 3373,
+      "max_consecutive_half_weight_nonbody_intervals": 1,
+      "max_consecutive_half_weight_bilateral_opposed_intervals": 0,
+      "last_25_half_weight_bilateral_opposed": false,
+      "nonfoot_perch_impulse_intervals": 0,
+      "missing_or_duplicate_substeps": 0,
+      "toe_speed_limit_substeps": 0
+    },
+    {
+      "lane": 6,
+      "first_episode_steps": 4341,
+      "physical_failure": true,
+      "waypoints": 5,
+      "first_perch_foot_impulse_step": 3034,
+      "max_consecutive_half_weight_nonbody_intervals": 195,
+      "max_consecutive_half_weight_bilateral_opposed_intervals": 141,
+      "last_25_half_weight_bilateral_opposed": false,
+      "nonfoot_perch_impulse_intervals": 0,
+      "missing_or_duplicate_substeps": 0,
+      "toe_speed_limit_substeps": 0
+    },
+    {
+      "lane": 7,
+      "first_episode_steps": 3442,
+      "physical_failure": true,
+      "waypoints": 5,
+      "first_perch_foot_impulse_step": 3158,
+      "max_consecutive_half_weight_nonbody_intervals": 127,
+      "max_consecutive_half_weight_bilateral_opposed_intervals": 0,
+      "last_25_half_weight_bilateral_opposed": false,
+      "nonfoot_perch_impulse_intervals": 0,
+      "missing_or_duplicate_substeps": 0,
+      "toe_speed_limit_substeps": 0
+    }
+  ],
+  "substep_errors": [],
+  "contact_capacity_overflows": [],
+  "limitations": "Contact impulses sampled at physics-substep endpoints; opposite normal components do not alone establish biological grip. Zero contact messages require complete substep coverage and no overflow. First-episode step indexing needs alignment checks; q/vel stability and geometry clearance require independent evaluation."
+}
