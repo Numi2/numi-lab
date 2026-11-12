@@ -1,0 +1,285 @@
+{
+  "rows": [
+    {
+      "lane": 0,
+      "gain": -1,
+      "control_same_lane": {
+        "lane": 0,
+        "unloaded_substeps_0_to_2s": 91,
+        "unloaded_substeps_2_to_3s": 0,
+        "other_ground_normal_Ns": 0.0,
+        "max_abs_com_vertical_m_s": 0.1851784441152155,
+        "com_height_span_m": 0.010511652077026451,
+        "toe_speed_cap_substeps": 0
+      },
+      "first_q_or_v_difference_step": 4,
+      "first_substep_difference": [
+        4,
+        0
+      ],
+      "endpoint_differences_vs_control": 148,
+      "substep_differences_vs_control": 2357,
+      "unloaded_substeps_0_to_2s": 92,
+      "unloaded_substeps_2_to_3s": 0,
+      "max_abs_com_vertical_m_s": 0.1851784441152155,
+      "toe_speed_cap_substeps": 0
+    },
+    {
+      "lane": 1,
+      "gain": -0.5,
+      "control_same_lane": {
+        "lane": 1,
+        "unloaded_substeps_0_to_2s": 1342,
+        "unloaded_substeps_2_to_3s": 202,
+        "other_ground_normal_Ns": 0.0,
+        "max_abs_com_vertical_m_s": 0.3761200674860058,
+        "com_height_span_m": 0.010743161309581306,
+        "toe_speed_cap_substeps": 15
+      },
+      "first_q_or_v_difference_step": 8,
+      "first_substep_difference": [
+        8,
+        14
+      ],
+      "endpoint_differences_vs_control": 144,
+      "substep_differences_vs_control": 1879,
+      "unloaded_substeps_0_to_2s": 655,
+      "unloaded_substeps_2_to_3s": 0,
+      "max_abs_com_vertical_m_s": 0.3761200674860058,
+      "toe_speed_cap_substeps": 9
+    },
+    {
+      "lane": 2,
+      "gain": -0.25,
+      "control_same_lane": {
+        "lane": 2,
+        "unloaded_substeps_0_to_2s": 1302,
+        "unloaded_substeps_2_to_3s": 158,
+        "other_ground_normal_Ns": 0.0,
+        "max_abs_com_vertical_m_s": 0.3847567433108027,
+        "com_height_span_m": 0.01231609949345297,
+        "toe_speed_cap_substeps": 12
+      },
+      "first_q_or_v_difference_step": 11,
+      "first_substep_difference": [
+        11,
+        1
+      ],
+      "endpoint_differences_vs_control": 141,
+      "substep_differences_vs_control": 1345,
+      "unloaded_substeps_0_to_2s": 1305,
+      "unloaded_substeps_2_to_3s": 119,
+      "max_abs_com_vertical_m_s": 0.37894692991131135,
+      "toe_speed_cap_substeps": 13
+    },
+    {
+      "lane": 3,
+      "gain": 0,
+      "control_same_lane": {
+        "lane": 3,
+        "unloaded_substeps_0_to_2s": 39,
+        "unloaded_substeps_2_to_3s": 0,
+        "other_ground_normal_Ns": 0.0,
+        "max_abs_com_vertical_m_s": 0.20277325263204193,
+        "com_height_span_m": 0.009935229422979391,
+        "toe_speed_cap_substeps": 0
+      },
+      "first_q_or_v_difference_step": null,
+      "first_substep_difference": null,
+      "endpoint_differences_vs_control": 0,
+      "substep_differences_vs_control": 0,
+      "unloaded_substeps_0_to_2s": 39,
+      "unloaded_substeps_2_to_3s": 0,
+      "max_abs_com_vertical_m_s": 0.20277325263204193,
+      "toe_speed_cap_substeps": 0
+    },
+    {
+      "lane": 4,
+      "gain": 0.25,
+      "control_same_lane": {
+        "lane": 4,
+        "unloaded_substeps_0_to_2s": 38,
+        "unloaded_substeps_2_to_3s": 0,
+        "other_ground_normal_Ns": 0.0,
+        "max_abs_com_vertical_m_s": 0.21048485757029484,
+        "com_height_span_m": 0.00990520780196455,
+        "toe_speed_cap_substeps": 0
+      },
+      "first_q_or_v_difference_step": 4,
+      "first_substep_difference": [
+        4,
+        1
+      ],
+      "endpoint_differences_vs_control": 148,
+      "substep_differences_vs_control": 2367,
+      "unloaded_substeps_0_to_2s": 38,
+      "unloaded_substeps_2_to_3s": 0,
+      "max_abs_com_vertical_m_s": 0.21048485757029484,
+      "toe_speed_cap_substeps": 0
+    },
+    {
+      "lane": 5,
+      "gain": 0.5,
+      "control_same_lane": {
+        "lane": 5,
+        "unloaded_substeps_0_to_2s": 1272,
+        "unloaded_substeps_2_to_3s": 433,
+        "other_ground_normal_Ns": 0.0,
+        "max_abs_com_vertical_m_s": 0.39796771037764606,
+        "com_height_span_m": 0.010252457598779907,
+        "toe_speed_cap_substeps": 8
+      },
+      "first_q_or_v_difference_step": 8,
+      "first_substep_difference": [
+        8,
+        13
+      ],
+      "endpoint_differences_vs_control": 144,
+      "substep_differences_vs_control": 2072,
+      "unloaded_substeps_0_to_2s": 478,
+      "unloaded_substeps_2_to_3s": 0,
+      "max_abs_com_vertical_m_s": 0.39796771037764606,
+      "toe_speed_cap_substeps": 16
+    },
+    {
+      "lane": 6,
+      "gain": 1,
+      "control_same_lane": {
+        "lane": 6,
+        "unloaded_substeps_0_to_2s": 56,
+        "unloaded_substeps_2_to_3s": 0,
+        "other_ground_normal_Ns": 0.0,
+        "max_abs_com_vertical_m_s": 0.20686499869768477,
+        "com_height_span_m": 0.010638264936654096,
+        "toe_speed_cap_substeps": 0
+      },
+      "first_q_or_v_difference_step": 4,
+      "first_substep_difference": [
+        4,
+        0
+      ],
+      "endpoint_differences_vs_control": 148,
+      "substep_differences_vs_control": 2368,
+      "unloaded_substeps_0_to_2s": 54,
+      "unloaded_substeps_2_to_3s": 0,
+      "max_abs_com_vertical_m_s": 0.20686499869768477,
+      "toe_speed_cap_substeps": 0
+    },
+    {
+      "lane": 7,
+      "gain": 2,
+      "control_same_lane": {
+        "lane": 7,
+        "unloaded_substeps_0_to_2s": 1300,
+        "unloaded_substeps_2_to_3s": 70,
+        "other_ground_normal_Ns": 0.0,
+        "max_abs_com_vertical_m_s": 0.3177616495187638,
+        "com_height_span_m": 0.010630939436595238,
+        "toe_speed_cap_substeps": 13
+      },
+      "first_q_or_v_difference_step": 4,
+      "first_substep_difference": [
+        4,
+        0
+      ],
+      "endpoint_differences_vs_control": 148,
+      "substep_differences_vs_control": 1551,
+      "unloaded_substeps_0_to_2s": 1143,
+      "unloaded_substeps_2_to_3s": 194,
+      "max_abs_com_vertical_m_s": 0.3789888320136323,
+      "toe_speed_cap_substeps": 34
+    }
+  ],
+  "errors": [],
+  "episode": {
+    "boundary": "waypoint completion; does not establish supported landing",
+    "closed_by_environment": [
+      false,
+      false,
+      false,
+      false,
+      false,
+      false,
+      false,
+      false
+    ],
+    "closed_episode_count": 0,
+    "completion_seen_by_environment": [
+      false,
+      false,
+      false,
+      false,
+      false,
+      false,
+      false,
+      false
+    ],
+    "completion_seen_count": 0,
+    "environment_count": 8,
+    "first_completion_step_by_environment": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "horizon_censored_count": 8,
+    "maximum_waypoints_by_environment": [
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0
+    ],
+    "physical_failure_by_environment": [
+      false,
+      false,
+      false,
+      false,
+      false,
+      false,
+      false,
+      false
+    ],
+    "physical_failure_count": 0,
+    "safe_completion_by_environment": [
+      false,
+      false,
+      false,
+      false,
+      false,
+      false,
+      false,
+      false
+    ],
+    "safe_completion_count": 0,
+    "schema": "numi.crow-first-episode-evidence.v1",
+    "steps_by_environment": [
+      150,
+      150,
+      150,
+      150,
+      150,
+      150,
+      150,
+      150
+    ],
+    "termination_reason_by_environment": [
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0
+    ],
+    "unit": "first episode of each environment since context creation"
+  }
+}

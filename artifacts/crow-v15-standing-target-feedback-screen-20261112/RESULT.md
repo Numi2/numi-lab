@@ -1,0 +1,7 @@
+# Bounded physical knee-target feedback: mixed development screen
+
+Unlike the earlier masked-action test, direct bounded feedback into the existing knee position target changed sampled q/v by step 4–11 in all nonzero-gain lanes. The zero-gain lane exactly reproduced the control's 151 sampled states and 2,416 contact substeps. All 8 lanes ran for 150 intervals without reported physical failure or trace errors.
+
+For the one lane assigned gain -0.5, no-foot-normal-load substeps fell from 1,342 to 655 during 0–2 s and from 202 to zero during 2–3 s; toe-speed-cap substeps were 9 versus 15 over 0–3 s. For the one lane assigned +0.5, they fell from 1,272 to 478 and from 433 to zero, respectively, but toe-speed-cap substeps increased from 8 to 16. The gain +2 lane increased both later unloading and toe caps, and peak COM vertical speed. Initial peak absolute COM speed remained approximately 0.376 and 0.398 m/s in the two apparently improved lanes. The interventions end at 2 s; subsequent effects depend on carried state. Foot load is not the same as stability, and toe caps, motion quality and actuator work remain concerns.
+
+Each gain was applied to a different perturbed start and the experiments are exploratory. These observations do not establish a generally effective gain or a biological gait. Use matched all-start comparisons for -0.5 and +0.5, retain the zero-control lineage and report deterioration as well as improvements. No intervention is promoted.
