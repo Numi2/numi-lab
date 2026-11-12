@@ -1,0 +1,5 @@
+# Repeat short stride across starts
+
+The .125-radian no-feedback hip swing with gentle stance commands was repeated across six closely related development starts. All six progressed .073–.076 m in the two-second window without observed simultaneous unloading, toe speed caps or nonfoot ground impulse. Four of six satisfied the predeclared requirement of at least 25% reduction in the normal-weighted tangential contact-point-speed integral on both feet; the other two narrowly missed, with one foot at .758 and .767 of its baseline respectively. The two unchanged references and repeated lane 6 matched 903 states and 14448 contact substeps exactly.
+
+All six candidate lane medians showed hip extension, knee flexion and early ankle flexion by the chosen geometry, but only three showed positive late-stance ankle extension; each lane contributed six complete stance windows. Contact velocity is a proxy on changing contacts, the starts and seed were used in development, and walking was slow. This does not establish repeatability across unused conditions, full gait biological accuracy, takeoff, landing, or autonomous navigation.

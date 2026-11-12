@@ -1,0 +1,3 @@
+# Repeat promising gait across starts
+
+Replicate the .125-radian hip swing, no feedback, gentle knee and ankle stance commands from lane 6 of the preceding screen across six previously used starts. Keep two original-gait controls and test each candidate against the matching retained baseline, requiring >=25% lower contact-speed proxy in both feet, >=.05 m progress, no simultaneous unload, toe cap, or nonfoot contact. Compare physical joint-phase signs to related-corvid gait; require exact prefix and lane 6 replay parity. This is still development evidence, not a held-out or biological validation.
