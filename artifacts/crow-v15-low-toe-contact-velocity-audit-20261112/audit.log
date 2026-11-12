@@ -1,0 +1,3 @@
+held {'low_toe_endpoints': 49, 'without_accepted_toe_contact': 49} {'count': 0, 'median_m_s': None, 'p95_m_s': None, 'over_0_01_fraction': None, 'max_m_s': None}
+reduced_lift {'low_toe_endpoints': 244, 'without_accepted_toe_contact': 108, 'with_accepted_toe_contact': 136} {'count': 348, 'median_m_s': 0.04380314286064989, 'p95_m_s': 0.06907628880073556, 'over_0_01_fraction': 0.9942528735632183, 'max_m_s': 0.07088845629915677}
+toe_release {'low_toe_endpoints': 192, 'without_accepted_toe_contact': 55, 'with_accepted_toe_contact': 137} {'count': 352, 'median_m_s': 0.04552674041902628, 'p95_m_s': 0.07160020964221263, 'over_0_01_fraction': 1.0, 'max_m_s': 0.07404418195854158}

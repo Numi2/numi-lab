@@ -1,0 +1,7 @@
+# Low-toe contact-point velocity audit
+
+The sole-clear/toe-low endpoint count by itself does not prove dragging. Joining those endpoints to accepted toe-ground contacts and native body velocities gives a more specific warning in the retained, previously used seed. The held control had 49 low-toe endpoints and no accepted toe contact at those endpoints. The reduced-lift sham had 244 low-toe endpoints, of which 136 had accepted toe contacts; the toe-release candidate had 192, of which 137 had accepted toe contacts.
+
+Across accepted toe contact points in those low-toe endpoints, sampled ground-tangent speed median/p95 was 0.0438/0.0691 m/s for reduced lift and 0.0455/0.0716 m/s for toe release. Nearly all were above the descriptive 0.01 m/s threshold. The rear-toe proximal and distal segments accounted for these contacts, and 314/348 and 338/352 point samples respectively occurred in the negative-carrier phase. This suggests the added rear-toe motion at loaded stance deserves investigation; it does not establish the physical cause, a biological speed limit, or integrated slip distance.
+
+Samples are correlated, not independent trials. The logged accepted contact point and post-step body velocity may not refer to exactly the same instant within the last physics substep; no precise slip distance is claimed. Native kinematics were checked against replay for these runs by the preceding gait screen. A previous matched higher-friction intervention worsened an older gait, so friction should not be raised solely from this observation. Neither trial is promoted.
