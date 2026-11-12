@@ -1,0 +1,5 @@
+# Contact-moment diagnostic
+
+This added analysis samples retained first-episode contact impulses every 25 control intervals, excluding all post-failure resets. It reconstructs the summed foot-platform contact impulse and pitch angular impulse about the root origin, including normal and tangential impulses. The vertical-impulse-weighted contact x coordinate is relative to that origin, not the full-body center of mass; contact alone does not establish a total angular-momentum balance, causality or a stability margin.
+
+In the +0.8 exploratory lane 7, at steps 4000 and 4100 the vertical-impulse-weighted foot contact location was respectively approximately 0.040 m and 0.111 m ahead of the root, while pitch went from -0.156 to -0.493 rad and the foot-contact pitch angular impulse about the root was negative. That observation motivates checking landing geometry, body balance and actual center of mass; it does not show that moving one target alone will fix the fall. Other gain arms and sampled moments are retained in the JSON. This remains an older, unqualified controller on a used development layout.

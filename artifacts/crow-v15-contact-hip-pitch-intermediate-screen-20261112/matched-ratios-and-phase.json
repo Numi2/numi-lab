@@ -1,0 +1,122 @@
+[
+  {
+    "lane": 0,
+    "gain": 0,
+    "matched_contact_speed_integral_ratios": {
+      "left": 1.0,
+      "right": 1.0
+    },
+    "phase_medians_deg": {
+      "hip_change_deg": -3.4223652522605263,
+      "knee_change_deg": -5.654153532961857,
+      "ankle_mid_minus_early_deg": -1.722167887501314,
+      "ankle_late_minus_mid_deg": -0.48094383016547226
+    },
+    "stance_samples": 5
+  },
+  {
+    "lane": 1,
+    "gain": 0,
+    "matched_contact_speed_integral_ratios": {
+      "left": 1.0,
+      "right": 1.0
+    },
+    "phase_medians_deg": {
+      "hip_change_deg": -3.421849016212107,
+      "knee_change_deg": -5.654477184009892,
+      "ankle_mid_minus_early_deg": -1.7221685016303354,
+      "ankle_late_minus_mid_deg": -0.48303613543109236
+    },
+    "stance_samples": 5
+  },
+  {
+    "lane": 2,
+    "gain": -0.7,
+    "matched_contact_speed_integral_ratios": {
+      "left": 1.1162116759273155,
+      "right": 1.2892583644823399
+    },
+    "phase_medians_deg": {
+      "hip_change_deg": -3.3506237962807397,
+      "knee_change_deg": -6.31095476674605,
+      "ankle_mid_minus_early_deg": -1.732018605205397,
+      "ankle_late_minus_mid_deg": -0.41585067783992713
+    },
+    "stance_samples": 5
+  },
+  {
+    "lane": 3,
+    "gain": 0.7,
+    "matched_contact_speed_integral_ratios": {
+      "left": 1.1201129075738976,
+      "right": 1.0404096202296365
+    },
+    "phase_medians_deg": {
+      "hip_change_deg": -3.9546459610157676,
+      "knee_change_deg": -4.215705077032084,
+      "ankle_mid_minus_early_deg": -1.73440804159803,
+      "ankle_late_minus_mid_deg": 0.04260766173649699
+    },
+    "stance_samples": 5
+  },
+  {
+    "lane": 4,
+    "gain": -0.8,
+    "matched_contact_speed_integral_ratios": {
+      "left": 1.1330253496821467,
+      "right": 1.2910836636591405
+    },
+    "phase_medians_deg": {
+      "hip_change_deg": -2.825874171156805,
+      "knee_change_deg": -6.121196974557137,
+      "ankle_mid_minus_early_deg": -1.7204273404512094,
+      "ankle_late_minus_mid_deg": -0.17417681639919635
+    },
+    "stance_samples": 5
+  },
+  {
+    "lane": 5,
+    "gain": 0.8,
+    "matched_contact_speed_integral_ratios": {
+      "left": 1.2384936207255366,
+      "right": 1.3323546605358028
+    },
+    "phase_medians_deg": {
+      "hip_change_deg": -3.5365773206577007,
+      "knee_change_deg": -4.157872520598559,
+      "ankle_mid_minus_early_deg": -1.881522691483255,
+      "ankle_late_minus_mid_deg": 0.09004352494603296
+    },
+    "stance_samples": 6
+  },
+  {
+    "lane": 6,
+    "gain": -0.9,
+    "matched_contact_speed_integral_ratios": {
+      "left": 1.4879238112549926,
+      "right": 1.1821345622517658
+    },
+    "phase_medians_deg": {
+      "hip_change_deg": -3.110342932894568,
+      "knee_change_deg": -5.712848384413945,
+      "ankle_mid_minus_early_deg": -1.6102974201578775,
+      "ankle_late_minus_mid_deg": -0.5497772695300114
+    },
+    "stance_samples": 7
+  },
+  {
+    "lane": 7,
+    "gain": 0.9,
+    "matched_contact_speed_integral_ratios": {
+      "left": 1.1698967855767928,
+      "right": 1.3052740360646566
+    },
+    "phase_medians_deg": {
+      "hip_change_deg": -3.518808416128369,
+      "knee_change_deg": -4.436707348987241,
+      "ankle_mid_minus_early_deg": -1.7735389536379174,
+      "ankle_late_minus_mid_deg": 0.09226038775142342
+    },
+    "stance_samples": 6
+  }
+]

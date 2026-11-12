@@ -1,0 +1,1247 @@
+{
+  "scope": "Contact impulses sampled every 25 intervals and expressed about root origin, not full center of mass. Vertical weighted x is a diagnostic and can be misleading with negative vertical contact impulses; includes tangential impulse in contact moment. Applied motor and aerodynamic moments and the platform mass are not accounted. Development trajectory only.",
+  "rows": [
+    {
+      "lane": 5,
+      "step": 3750,
+      "root_x": 5.04345751,
+      "root_z": 1.01332188,
+      "root_pitch_rad": -0.16753497833357145,
+      "root_pitch_rate": -0.246070847,
+      "hip_q": [
+        -0.164595336,
+        -0.164824814
+      ],
+      "knee_q": [
+        0.279954791,
+        0.279797673
+      ],
+      "ankle_q": [
+        -0.15972057,
+        -0.159855232
+      ],
+      "vertical_foot_impulse_ns": 0.09317552180236371,
+      "vertical_impulse_weighted_contact_x_relative_root_m": 0.045870967031353516,
+      "foot_contact_pitch_angular_impulse_about_root_nms": -0.007377262811059338
+    },
+    {
+      "lane": 5,
+      "step": 3775,
+      "root_x": 5.03440666,
+      "root_z": 1.01119316,
+      "root_pitch_rad": -0.20785007410164846,
+      "root_pitch_rate": -0.0875305235,
+      "hip_q": [
+        -0.179659605,
+        -0.180467099
+      ],
+      "knee_q": [
+        0.280905962,
+        0.280468851
+      ],
+      "ankle_q": [
+        -0.158884659,
+        -0.159034804
+      ],
+      "vertical_foot_impulse_ns": 0.09230451317459776,
+      "vertical_impulse_weighted_contact_x_relative_root_m": 0.03796469463902419,
+      "foot_contact_pitch_angular_impulse_about_root_nms": -0.003159393395483992
+    },
+    {
+      "lane": 5,
+      "step": 3800,
+      "root_x": 5.02170801,
+      "root_z": 1.00699854,
+      "root_pitch_rad": -0.2701038063984353,
+      "root_pitch_rate": -0.149157152,
+      "hip_q": [
+        -0.182008073,
+        -0.182685137
+      ],
+      "knee_q": [
+        0.28069216,
+        0.279922903
+      ],
+      "ankle_q": [
+        -0.15901044,
+        -0.159713477
+      ],
+      "vertical_foot_impulse_ns": 0.08843411097087177,
+      "vertical_impulse_weighted_contact_x_relative_root_m": 0.05903401342195469,
+      "foot_contact_pitch_angular_impulse_about_root_nms": -0.004250030633143987
+    },
+    {
+      "lane": 5,
+      "step": 3825,
+      "root_x": 5.00575686,
+      "root_z": 0.997487247,
+      "root_pitch_rad": -0.367151315884767,
+      "root_pitch_rate": -0.251354665,
+      "hip_q": [
+        -0.174567699,
+        -0.173896432
+      ],
+      "knee_q": [
+        0.279775172,
+        0.280676007
+      ],
+      "ankle_q": [
+        -0.159449369,
+        -0.158903942
+      ],
+      "vertical_foot_impulse_ns": 0.09587199679907998,
+      "vertical_impulse_weighted_contact_x_relative_root_m": 0.08099535090807919,
+      "foot_contact_pitch_angular_impulse_about_root_nms": -0.0059615331879690914
+    },
+    {
+      "lane": 5,
+      "step": 3850,
+      "root_x": 4.9818964,
+      "root_z": 0.971268475,
+      "root_pitch_rad": -0.5442813313273539,
+      "root_pitch_rate": -0.301740408,
+      "hip_q": [
+        -0.160876483,
+        -0.161619321
+      ],
+      "knee_q": [
+        0.2800183,
+        0.279739052
+      ],
+      "ankle_q": [
+        -0.15932107,
+        -0.159845367
+      ],
+      "vertical_foot_impulse_ns": 0.07864547322739757,
+      "vertical_impulse_weighted_contact_x_relative_root_m": 0.11985734631310319,
+      "foot_contact_pitch_angular_impulse_about_root_nms": -0.006444283426035497
+    },
+    {
+      "lane": 5,
+      "step": 3875,
+      "root_x": 4.95074797,
+      "root_z": 0.936782598,
+      "root_pitch_rad": -0.7947380397268563,
+      "root_pitch_rate": -0.609684706,
+      "hip_q": [
+        -0.141469792,
+        -0.149634108
+      ],
+      "knee_q": [
+        0.280830771,
+        0.276959449
+      ],
+      "ankle_q": [
+        -0.159467459,
+        -0.160770223
+      ],
+      "vertical_foot_impulse_ns": 0.08436132250837805,
+      "vertical_impulse_weighted_contact_x_relative_root_m": 0.15373716286461914,
+      "foot_contact_pitch_angular_impulse_about_root_nms": -0.010993745484639815
+    },
+    {
+      "lane": 5,
+      "step": 3900,
+      "root_x": 4.90648699,
+      "root_z": 0.879160762,
+      "root_pitch_rad": -1.1535501046986587,
+      "root_pitch_rate": -0.780929685,
+      "hip_q": [
+        -0.117285587,
+        -0.130669147
+      ],
+      "knee_q": [
+        0.281811327,
+        0.275685519
+      ],
+      "ankle_q": [
+        -0.159154207,
+        -0.16025722
+      ],
+      "vertical_foot_impulse_ns": 0.08664952573151354,
+      "vertical_impulse_weighted_contact_x_relative_root_m": 0.18153006019817042,
+      "foot_contact_pitch_angular_impulse_about_root_nms": -0.013575042189232183
+    },
+    {
+      "lane": 6,
+      "step": 3750,
+      "root_x": 4.95235443,
+      "root_z": 1.01932037,
+      "root_pitch_rad": 0.13811106894561911,
+      "root_pitch_rate": 0.014323907,
+      "hip_q": [
+        -0.22154054,
+        -0.221494988
+      ],
+      "knee_q": [
+        0.929931462,
+        0.280373782
+      ],
+      "ankle_q": [
+        -0.485046804,
+        -0.160354868
+      ],
+      "vertical_foot_impulse_ns": 0.08584836574237739,
+      "vertical_impulse_weighted_contact_x_relative_root_m": 0.011712229895681325,
+      "foot_contact_pitch_angular_impulse_about_root_nms": -0.0013026403609412319
+    },
+    {
+      "lane": 6,
+      "step": 3775,
+      "root_x": 4.95426798,
+      "root_z": 1.01929438,
+      "root_pitch_rad": 0.15150128441277114,
+      "root_pitch_rate": 0.0218704604,
+      "hip_q": [
+        -0.222503945,
+        -0.222200811
+      ],
+      "knee_q": [
+        0.929870307,
+        0.28030163
+      ],
+      "ankle_q": [
+        -0.485169321,
+        -0.160709307
+      ],
+      "vertical_foot_impulse_ns": 0.09082506349903793,
+      "vertical_impulse_weighted_contact_x_relative_root_m": 0.012714680748305618,
+      "foot_contact_pitch_angular_impulse_about_root_nms": -0.001092442476723701
+    },
+    {
+      "lane": 6,
+      "step": 3800,
+      "root_x": 4.95493364,
+      "root_z": 1.0191586,
+      "root_pitch_rad": 0.15807241720898707,
+      "root_pitch_rate": 0.000637496123,
+      "hip_q": [
+        -0.222461268,
+        -0.222859696
+      ],
+      "knee_q": [
+        0.929961443,
+        0.280045211
+      ],
+      "ankle_q": [
+        -0.485567272,
+        -0.160648897
+      ],
+      "vertical_foot_impulse_ns": 0.08793634361329114,
+      "vertical_impulse_weighted_contact_x_relative_root_m": 0.015757648444606254,
+      "foot_contact_pitch_angular_impulse_about_root_nms": -0.0015875580544689504
+    },
+    {
+      "lane": 6,
+      "step": 3825,
+      "root_x": 4.95459557,
+      "root_z": 1.01896572,
+      "root_pitch_rad": 0.15814970574895754,
+      "root_pitch_rate": -0.00753049366,
+      "hip_q": [
+        -0.222710535,
+        -0.222301409
+      ],
+      "knee_q": [
+        0.929722667,
+        0.280085295
+      ],
+      "ankle_q": [
+        -0.485924155,
+        -0.160789117
+      ],
+      "vertical_foot_impulse_ns": 0.0890466693315498,
+      "vertical_impulse_weighted_contact_x_relative_root_m": 0.018211128768633067,
+      "foot_contact_pitch_angular_impulse_about_root_nms": -0.0015582343873982944
+    },
+    {
+      "lane": 6,
+      "step": 3850,
+      "root_x": 4.95365,
+      "root_z": 1.01855779,
+      "root_pitch_rad": 0.15391777010110097,
+      "root_pitch_rate": -0.012025401,
+      "hip_q": [
+        -0.222174674,
+        -0.221745133
+      ],
+      "knee_q": [
+        0.929682732,
+        0.280065209
+      ],
+      "ankle_q": [
+        -0.4862822,
+        -0.160692245
+      ],
+      "vertical_foot_impulse_ns": 0.0879943366459892,
+      "vertical_impulse_weighted_contact_x_relative_root_m": 0.01973954794745847,
+      "foot_contact_pitch_angular_impulse_about_root_nms": -0.001705282181356494
+    },
+    {
+      "lane": 6,
+      "step": 3875,
+      "root_x": 4.95237827,
+      "root_z": 1.01815653,
+      "root_pitch_rad": 0.14783112324818365,
+      "root_pitch_rate": -0.0116540808,
+      "hip_q": [
+        -0.221595377,
+        -0.22082682
+      ],
+      "knee_q": [
+        0.929643273,
+        0.280160934
+      ],
+      "ankle_q": [
+        -0.486655623,
+        -0.160509959
+      ],
+      "vertical_foot_impulse_ns": 0.08897753080583798,
+      "vertical_impulse_weighted_contact_x_relative_root_m": 0.01956557492121025,
+      "foot_contact_pitch_angular_impulse_about_root_nms": -0.001820993215234541
+    },
+    {
+      "lane": 6,
+      "step": 3900,
+      "root_x": 4.95123625,
+      "root_z": 1.01778197,
+      "root_pitch_rad": 0.1422263750005553,
+      "root_pitch_rate": -0.011021941,
+      "hip_q": [
+        -0.220938534,
+        -0.220514059
+      ],
+      "knee_q": [
+        0.929755867,
+        0.280064344
+      ],
+      "ankle_q": [
+        -0.486914396,
+        -0.160428211
+      ],
+      "vertical_foot_impulse_ns": 0.08942201790940164,
+      "vertical_impulse_weighted_contact_x_relative_root_m": 0.020416285011529922,
+      "foot_contact_pitch_angular_impulse_about_root_nms": -0.0019300355208820821
+    },
+    {
+      "lane": 6,
+      "step": 3925,
+      "root_x": 4.95054579,
+      "root_z": 1.01739657,
+      "root_pitch_rad": 0.13814689488234186,
+      "root_pitch_rate": -0.00589068653,
+      "hip_q": [
+        -0.220917642,
+        -0.219884396
+      ],
+      "knee_q": [
+        0.929637372,
+        0.280275345
+      ],
+      "ankle_q": [
+        -0.486974955,
+        -0.160280675
+      ],
+      "vertical_foot_impulse_ns": 0.08832464165728858,
+      "vertical_impulse_weighted_contact_x_relative_root_m": 0.020665501515354734,
+      "foot_contact_pitch_angular_impulse_about_root_nms": -0.0018559499974058736
+    },
+    {
+      "lane": 6,
+      "step": 3950,
+      "root_x": 4.94615889,
+      "root_z": 1.02451587,
+      "root_pitch_rad": 0.12018103295341137,
+      "root_pitch_rate": -0.101869963,
+      "hip_q": [
+        -0.203302518,
+        -0.202787265
+      ],
+      "knee_q": [
+        0.278956115,
+        0.279679388
+      ],
+      "ankle_q": [
+        -0.162221268,
+        -0.160315037
+      ],
+      "vertical_foot_impulse_ns": 0.08959207659329886,
+      "vertical_impulse_weighted_contact_x_relative_root_m": 0.03757127371217983,
+      "foot_contact_pitch_angular_impulse_about_root_nms": -0.003670959197894054
+    },
+    {
+      "lane": 6,
+      "step": 3975,
+      "root_x": 4.94730473,
+      "root_z": 1.02383018,
+      "root_pitch_rad": 0.08472322907326515,
+      "root_pitch_rate": 0.0193614345,
+      "hip_q": [
+        -0.184605777,
+        -0.18050833
+      ],
+      "knee_q": [
+        0.279166222,
+        0.281164616
+      ],
+      "ankle_q": [
+        -0.16105856,
+        -0.159426153
+      ],
+      "vertical_foot_impulse_ns": 0.08789181422689121,
+      "vertical_impulse_weighted_contact_x_relative_root_m": 0.017368498672317934,
+      "foot_contact_pitch_angular_impulse_about_root_nms": -0.0011312884625683296
+    },
+    {
+      "lane": 6,
+      "step": 4000,
+      "root_x": 4.94863129,
+      "root_z": 1.02356339,
+      "root_pitch_rad": 0.11967235459379051,
+      "root_pitch_rate": 0.0732685328,
+      "hip_q": [
+        -0.219979391,
+        -0.219643787
+      ],
+      "knee_q": [
+        0.280335754,
+        0.280682415
+      ],
+      "ankle_q": [
+        -0.160035342,
+        -0.159578532
+      ],
+      "vertical_foot_impulse_ns": 0.08821044200620365,
+      "vertical_impulse_weighted_contact_x_relative_root_m": 0.004456985577737882,
+      "foot_contact_pitch_angular_impulse_about_root_nms": -0.0004584042244329566
+    },
+    {
+      "lane": 6,
+      "step": 4025,
+      "root_x": 4.95270681,
+      "root_z": 1.0237931,
+      "root_pitch_rad": 0.14332623940777758,
+      "root_pitch_rate": 0.0144624105,
+      "hip_q": [
+        -0.221489221,
+        -0.2218398
+      ],
+      "knee_q": [
+        0.279918909,
+        0.280183315
+      ],
+      "ankle_q": [
+        -0.160774171,
+        -0.160028428
+      ],
+      "vertical_foot_impulse_ns": 0.08827127822052033,
+      "vertical_impulse_weighted_contact_x_relative_root_m": 0.016827585100480213,
+      "foot_contact_pitch_angular_impulse_about_root_nms": -0.0014939323742005587
+    },
+    {
+      "lane": 6,
+      "step": 4050,
+      "root_x": 4.95414495,
+      "root_z": 1.02364171,
+      "root_pitch_rad": 0.15054176977462225,
+      "root_pitch_rate": 0.00950125046,
+      "hip_q": [
+        -0.222566113,
+        -0.222180709
+      ],
+      "knee_q": [
+        0.279753506,
+        0.280279845
+      ],
+      "ankle_q": [
+        -0.160877511,
+        -0.159990326
+      ],
+      "vertical_foot_impulse_ns": 0.08898501062830073,
+      "vertical_impulse_weighted_contact_x_relative_root_m": 0.01594641149743481,
+      "foot_contact_pitch_angular_impulse_about_root_nms": -0.0014546866262761455
+    },
+    {
+      "lane": 6,
+      "step": 4075,
+      "root_x": 4.95559597,
+      "root_z": 1.02267611,
+      "root_pitch_rad": 0.15561541643249935,
+      "root_pitch_rate": 0.008636971,
+      "hip_q": [
+        -0.223449856,
+        -0.222845033
+      ],
+      "knee_q": [
+        0.279497981,
+        0.280468374
+      ],
+      "ankle_q": [
+        -0.161178008,
+        -0.159812227
+      ],
+      "vertical_foot_impulse_ns": 0.08793327971067937,
+      "vertical_impulse_weighted_contact_x_relative_root_m": 0.014092932351940313,
+      "foot_contact_pitch_angular_impulse_about_root_nms": -0.001341870980719614
+    },
+    {
+      "lane": 6,
+      "step": 4100,
+      "root_x": 4.95729065,
+      "root_z": 1.02094448,
+      "root_pitch_rad": 0.1589308341103271,
+      "root_pitch_rate": -0.0255132355,
+      "hip_q": [
+        -0.224287122,
+        -0.223868325
+      ],
+      "knee_q": [
+        0.27923131,
+        0.280228496
+      ],
+      "ankle_q": [
+        -0.161431491,
+        -0.160194695
+      ],
+      "vertical_foot_impulse_ns": 0.08868818320933135,
+      "vertical_impulse_weighted_contact_x_relative_root_m": 0.022046356735664574,
+      "foot_contact_pitch_angular_impulse_about_root_nms": -0.002154966365985203
+    },
+    {
+      "lane": 6,
+      "step": 4125,
+      "root_x": 4.95508337,
+      "root_z": 1.02004826,
+      "root_pitch_rad": 0.143866550005018,
+      "root_pitch_rate": -0.0342494622,
+      "hip_q": [
+        -0.222734705,
+        -0.22233744
+      ],
+      "knee_q": [
+        0.279307663,
+        0.280277938
+      ],
+      "ankle_q": [
+        -0.161183819,
+        -0.160144851
+      ],
+      "vertical_foot_impulse_ns": 0.08852265518199506,
+      "vertical_impulse_weighted_contact_x_relative_root_m": 0.022266550120459527,
+      "foot_contact_pitch_angular_impulse_about_root_nms": -0.0020837064304859527
+    },
+    {
+      "lane": 6,
+      "step": 4150,
+      "root_x": 4.95493269,
+      "root_z": 1.01996875,
+      "root_pitch_rad": 0.1435561978943164,
+      "root_pitch_rate": 0.0258409493,
+      "hip_q": [
+        -0.222740814,
+        -0.222696692
+      ],
+      "knee_q": [
+        0.279993832,
+        0.280298114
+      ],
+      "ankle_q": [
+        -0.15998064,
+        -0.160617828
+      ],
+      "vertical_foot_impulse_ns": 0.08859411132019214,
+      "vertical_impulse_weighted_contact_x_relative_root_m": 0.016156631311473824,
+      "foot_contact_pitch_angular_impulse_about_root_nms": -0.0012169529358538752
+    },
+    {
+      "lane": 6,
+      "step": 4175,
+      "root_x": 4.95685148,
+      "root_z": 1.01988733,
+      "root_pitch_rad": 0.157319360997093,
+      "root_pitch_rate": -0.0494817607,
+      "hip_q": [
+        -0.224963963,
+        -0.223166212
+      ],
+      "knee_q": [
+        0.386922568,
+        0.280452341
+      ],
+      "ankle_q": [
+        -0.218327671,
+        -0.160398871
+      ],
+      "vertical_foot_impulse_ns": 0.08927899968460248,
+      "vertical_impulse_weighted_contact_x_relative_root_m": 0.014562921152682762,
+      "foot_contact_pitch_angular_impulse_about_root_nms": -0.001805308183193685
+    },
+    {
+      "lane": 6,
+      "step": 4200,
+      "root_x": 4.95821857,
+      "root_z": 1.01931298,
+      "root_pitch_rad": 0.1683991027584273,
+      "root_pitch_rate": 0.0553655699,
+      "hip_q": [
+        -0.224462256,
+        -0.224853843
+      ],
+      "knee_q": [
+        0.930118382,
+        0.280356675
+      ],
+      "ankle_q": [
+        -0.485323876,
+        -0.16029346
+      ],
+      "vertical_foot_impulse_ns": 0.08850287298334172,
+      "vertical_impulse_weighted_contact_x_relative_root_m": 0.008151501067242606,
+      "foot_contact_pitch_angular_impulse_about_root_nms": -0.0006382985710939845
+    },
+    {
+      "lane": 6,
+      "step": 4225,
+      "root_x": 4.96131563,
+      "root_z": 1.01898491,
+      "root_pitch_rad": 0.19177009152298632,
+      "root_pitch_rate": 0.0368721113,
+      "hip_q": [
+        -0.225548059,
+        -0.226739332
+      ],
+      "knee_q": [
+        0.930212736,
+        0.279907614
+      ],
+      "ankle_q": [
+        -0.48580116,
+        -0.160585672
+      ],
+      "vertical_foot_impulse_ns": 0.08827949869638681,
+      "vertical_impulse_weighted_contact_x_relative_root_m": 0.011783530060235137,
+      "foot_contact_pitch_angular_impulse_about_root_nms": -0.0010106743905828098
+    },
+    {
+      "lane": 6,
+      "step": 4250,
+      "root_x": 4.96400118,
+      "root_z": 1.01867068,
+      "root_pitch_rad": 0.21195481793599438,
+      "root_pitch_rate": 0.0313629135,
+      "hip_q": [
+        -0.227170154,
+        -0.227842778
+      ],
+      "knee_q": [
+        0.930035174,
+        0.279896587
+      ],
+      "ankle_q": [
+        -0.48620674,
+        -0.160658941
+      ],
+      "vertical_foot_impulse_ns": 0.08766774477368529,
+      "vertical_impulse_weighted_contact_x_relative_root_m": 0.012063868283531676,
+      "foot_contact_pitch_angular_impulse_about_root_nms": -0.0010489771435766313
+    },
+    {
+      "lane": 6,
+      "step": 4275,
+      "root_x": 4.96630096,
+      "root_z": 1.0183574,
+      "root_pitch_rad": 0.22872494972737972,
+      "root_pitch_rate": 0.030758271,
+      "hip_q": [
+        -0.22832492,
+        -0.228948355
+      ],
+      "knee_q": [
+        0.929986358,
+        0.27981177
+      ],
+      "ankle_q": [
+        -0.486465603,
+        -0.160782531
+      ],
+      "vertical_foot_impulse_ns": 0.08803449063699219,
+      "vertical_impulse_weighted_contact_x_relative_root_m": 0.012460157778224179,
+      "foot_contact_pitch_angular_impulse_about_root_nms": -0.0011134091188170262
+    },
+    {
+      "lane": 6,
+      "step": 4300,
+      "root_x": 4.96852112,
+      "root_z": 1.018103,
+      "root_pitch_rad": 0.24415814643874895,
+      "root_pitch_rate": 0.0222126376,
+      "hip_q": [
+        -0.229536206,
+        -0.230203688
+      ],
+      "knee_q": [
+        0.929942191,
+        0.279679924
+      ],
+      "ankle_q": [
+        -0.486630678,
+        -0.160884306
+      ],
+      "vertical_foot_impulse_ns": 0.0867619948985688,
+      "vertical_impulse_weighted_contact_x_relative_root_m": 0.01222496052679034,
+      "foot_contact_pitch_angular_impulse_about_root_nms": -0.001158669778091408
+    },
+    {
+      "lane": 6,
+      "step": 4325,
+      "root_x": 4.97126436,
+      "root_z": 1.01792228,
+      "root_pitch_rad": 0.26202245674554947,
+      "root_pitch_rate": 0.04478072,
+      "hip_q": [
+        -0.23083584,
+        -0.231502771
+      ],
+      "knee_q": [
+        0.929983199,
+        0.279693007
+      ],
+      "ankle_q": [
+        -0.486644447,
+        -0.161015585
+      ],
+      "vertical_foot_impulse_ns": 0.08805466401489455,
+      "vertical_impulse_weighted_contact_x_relative_root_m": 0.009837468335847532,
+      "foot_contact_pitch_angular_impulse_about_root_nms": -0.0008970162016386946
+    },
+    {
+      "lane": 6,
+      "step": 4350,
+      "root_x": 4.97472906,
+      "root_z": 1.01775026,
+      "root_pitch_rad": 0.284742418141004,
+      "root_pitch_rate": 0.0411037207,
+      "hip_q": [
+        -0.23280637,
+        -0.233588427
+      ],
+      "knee_q": [
+        0.929975688,
+        0.279574603
+      ],
+      "ankle_q": [
+        -0.486666411,
+        -0.161123633
+      ],
+      "vertical_foot_impulse_ns": 0.08793785062293125,
+      "vertical_impulse_weighted_contact_x_relative_root_m": 0.007800072919361689,
+      "foot_contact_pitch_angular_impulse_about_root_nms": -0.0007847997728249903
+    },
+    {
+      "lane": 6,
+      "step": 4375,
+      "root_x": 4.97933483,
+      "root_z": 1.01742458,
+      "root_pitch_rad": 0.31433126186957605,
+      "root_pitch_rate": 0.0603938326,
+      "hip_q": [
+        -0.234955192,
+        -0.236268252
+      ],
+      "knee_q": [
+        0.930121124,
+        0.27947703
+      ],
+      "ankle_q": [
+        -0.486643523,
+        -0.161129728
+      ],
+      "vertical_foot_impulse_ns": 0.08714764513267384,
+      "vertical_impulse_weighted_contact_x_relative_root_m": 0.0029375111909049068,
+      "foot_contact_pitch_angular_impulse_about_root_nms": -0.00045137583962008446
+    },
+    {
+      "lane": 6,
+      "step": 4400,
+      "root_x": 4.9832468,
+      "root_z": 1.02858078,
+      "root_pitch_rad": 0.37564199027719875,
+      "root_pitch_rate": 0.123520039,
+      "hip_q": [
+        -0.237988442,
+        -0.241041869
+      ],
+      "knee_q": [
+        0.280134708,
+        0.279410601
+      ],
+      "ankle_q": [
+        -0.162090957,
+        -0.160249099
+      ],
+      "vertical_foot_impulse_ns": 0.08779531354453547,
+      "vertical_impulse_weighted_contact_x_relative_root_m": -0.008847216810401015,
+      "foot_contact_pitch_angular_impulse_about_root_nms": 0.0005212852107349301
+    },
+    {
+      "lane": 6,
+      "step": 4425,
+      "root_x": 5.00396442,
+      "root_z": 1.02960825,
+      "root_pitch_rad": 0.4251161053020229,
+      "root_pitch_rate": 0.182783663,
+      "hip_q": [
+        -0.252573878,
+        -0.248455554
+      ],
+      "knee_q": [
+        0.278790742,
+        0.281623125
+      ],
+      "ankle_q": [
+        -0.162071288,
+        -0.159276918
+      ],
+      "vertical_foot_impulse_ns": 0.08169949796177917,
+      "vertical_impulse_weighted_contact_x_relative_root_m": -0.02273956193844917,
+      "foot_contact_pitch_angular_impulse_about_root_nms": 0.001489755562367771
+    },
+    {
+      "lane": 6,
+      "step": 4450,
+      "root_x": 5.04791641,
+      "root_z": 1.01334417,
+      "root_pitch_rad": 0.6155169391060867,
+      "root_pitch_rate": 0.464553088,
+      "hip_q": [
+        -0.273010164,
+        -0.273425639
+      ],
+      "knee_q": [
+        0.281293869,
+        0.281279236
+      ],
+      "ankle_q": [
+        -0.160157815,
+        -0.159303442
+      ],
+      "vertical_foot_impulse_ns": 0.08227621073057265,
+      "vertical_impulse_weighted_contact_x_relative_root_m": -0.08372181358954389,
+      "foot_contact_pitch_angular_impulse_about_root_nms": 0.005850210851465554
+    },
+    {
+      "lane": 6,
+      "step": 4475,
+      "root_x": 5.1076169,
+      "root_z": 0.964734554,
+      "root_pitch_rad": 0.9282288445984442,
+      "root_pitch_rate": 0.739920914,
+      "hip_q": [
+        -0.277038991,
+        -0.27556774
+      ],
+      "knee_q": [
+        0.28174597,
+        0.282557935
+      ],
+      "ankle_q": [
+        -0.159330875,
+        -0.15909566
+      ],
+      "vertical_foot_impulse_ns": 0.08622635850784222,
+      "vertical_impulse_weighted_contact_x_relative_root_m": -0.12967237658001451,
+      "foot_contact_pitch_angular_impulse_about_root_nms": 0.011157617150603207
+    },
+    {
+      "lane": 7,
+      "step": 3750,
+      "root_x": 4.95114422,
+      "root_z": 1.06377411,
+      "root_pitch_rad": 0.0391730114058716,
+      "root_pitch_rate": 0.0100722872,
+      "hip_q": [
+        -0.190012425,
+        -0.190012351
+      ],
+      "knee_q": [
+        0.414993197,
+        0.414993227
+      ],
+      "ankle_q": [
+        -0.212006375,
+        -0.21200636
+      ],
+      "vertical_foot_impulse_ns": 0.0,
+      "vertical_impulse_weighted_contact_x_relative_root_m": null,
+      "foot_contact_pitch_angular_impulse_about_root_nms": 0.0
+    },
+    {
+      "lane": 7,
+      "step": 3775,
+      "root_x": 4.95515537,
+      "root_z": 1.04627764,
+      "root_pitch_rad": 0.016123806784226917,
+      "root_pitch_rate": -0.814924777,
+      "hip_q": [
+        -0.0950586051,
+        -0.0917095169
+      ],
+      "knee_q": [
+        0.276597559,
+        0.278024197
+      ],
+      "ankle_q": [
+        -0.161999673,
+        -0.161257237
+      ],
+      "vertical_foot_impulse_ns": 0.060030736142465006,
+      "vertical_impulse_weighted_contact_x_relative_root_m": 0.03248313209273235,
+      "foot_contact_pitch_angular_impulse_about_root_nms": -0.010669781634439083
+    },
+    {
+      "lane": 7,
+      "step": 3800,
+      "root_x": 4.95586872,
+      "root_z": 1.04989195,
+      "root_pitch_rad": 0.013175144824215708,
+      "root_pitch_rate": 0.86651814,
+      "hip_q": [
+        -0.144807398,
+        -0.140342891
+      ],
+      "knee_q": [
+        0.282491326,
+        0.284916967
+      ],
+      "ankle_q": [
+        -0.158993527,
+        -0.157955661
+      ],
+      "vertical_foot_impulse_ns": 0.09476536631668515,
+      "vertical_impulse_weighted_contact_x_relative_root_m": -0.003557028092648018,
+      "foot_contact_pitch_angular_impulse_about_root_nms": 0.013891384516410114
+    },
+    {
+      "lane": 7,
+      "step": 3825,
+      "root_x": 4.95552969,
+      "root_z": 1.04944956,
+      "root_pitch_rad": 0.002657749906578679,
+      "root_pitch_rate": -1.06956708,
+      "hip_q": [
+        -0.094423905,
+        -0.0930715799
+      ],
+      "knee_q": [
+        0.276343584,
+        0.276784539
+      ],
+      "ankle_q": [
+        -0.162234381,
+        -0.162151292
+      ],
+      "vertical_foot_impulse_ns": 0.09033034808885182,
+      "vertical_impulse_weighted_contact_x_relative_root_m": 0.037283161223394146,
+      "foot_contact_pitch_angular_impulse_about_root_nms": -0.018724350507692323
+    },
+    {
+      "lane": 7,
+      "step": 3850,
+      "root_x": 4.95357561,
+      "root_z": 1.05013871,
+      "root_pitch_rad": 0.0070245080826300535,
+      "root_pitch_rate": 0.931527197,
+      "hip_q": [
+        -0.140165672,
+        -0.14005506
+      ],
+      "knee_q": [
+        0.283571452,
+        0.284123033
+      ],
+      "ankle_q": [
+        -0.158703253,
+        -0.158108085
+      ],
+      "vertical_foot_impulse_ns": 0.08286072638795514,
+      "vertical_impulse_weighted_contact_x_relative_root_m": -0.004215591294190801,
+      "foot_contact_pitch_angular_impulse_about_root_nms": 0.015388256068139478
+    },
+    {
+      "lane": 7,
+      "step": 3875,
+      "root_x": 4.95258236,
+      "root_z": 1.05004394,
+      "root_pitch_rad": -0.008792267184966911,
+      "root_pitch_rate": -1.09006917,
+      "hip_q": [
+        -0.0929291248,
+        -0.0926049948
+      ],
+      "knee_q": [
+        0.276156932,
+        0.276298851
+      ],
+      "ankle_q": [
+        -0.162283659,
+        -0.162172616
+      ],
+      "vertical_foot_impulse_ns": 0.07940369027077185,
+      "vertical_impulse_weighted_contact_x_relative_root_m": 0.04053480390288122,
+      "foot_contact_pitch_angular_impulse_about_root_nms": -0.019010139207870147
+    },
+    {
+      "lane": 7,
+      "step": 3900,
+      "root_x": 4.95067835,
+      "root_z": 1.04993403,
+      "root_pitch_rad": -0.011009511257053855,
+      "root_pitch_rate": 0.840273857,
+      "hip_q": [
+        -0.138701826,
+        -0.137810111
+      ],
+      "knee_q": [
+        0.283851832,
+        0.284278989
+      ],
+      "ankle_q": [
+        -0.158375099,
+        -0.158191234
+      ],
+      "vertical_foot_impulse_ns": 0.1026974056001981,
+      "vertical_impulse_weighted_contact_x_relative_root_m": 0.00040487406589129193,
+      "foot_contact_pitch_angular_impulse_about_root_nms": 0.013417749789120796
+    },
+    {
+      "lane": 7,
+      "step": 3925,
+      "root_x": 4.94672728,
+      "root_z": 1.05094528,
+      "root_pitch_rad": -0.031906455841270345,
+      "root_pitch_rate": -1.1212256,
+      "hip_q": [
+        -0.0894088671,
+        -0.0898584425
+      ],
+      "knee_q": [
+        0.276235461,
+        0.275972128
+      ],
+      "ankle_q": [
+        -0.162393495,
+        -0.162813023
+      ],
+      "vertical_foot_impulse_ns": 0.07385987705421715,
+      "vertical_impulse_weighted_contact_x_relative_root_m": 0.05217791716280917,
+      "foot_contact_pitch_angular_impulse_about_root_nms": -0.019334814949640462
+    },
+    {
+      "lane": 7,
+      "step": 3950,
+      "root_x": 4.93805265,
+      "root_z": 1.04937291,
+      "root_pitch_rad": -0.06298902059720955,
+      "root_pitch_rate": 0.817264557,
+      "hip_q": [
+        -0.131755188,
+        -0.131540343
+      ],
+      "knee_q": [
+        0.28364861,
+        0.284144759
+      ],
+      "ankle_q": [
+        -0.158627659,
+        -0.158476427
+      ],
+      "vertical_foot_impulse_ns": 0.10870719341239136,
+      "vertical_impulse_weighted_contact_x_relative_root_m": 0.0159571679380619,
+      "foot_contact_pitch_angular_impulse_about_root_nms": 0.013729080161046705
+    },
+    {
+      "lane": 7,
+      "step": 3975,
+      "root_x": 4.9290309,
+      "root_z": 1.04672682,
+      "root_pitch_rad": -0.11939882214021905,
+      "root_pitch_rate": -1.07543504,
+      "hip_q": [
+        -0.0889830515,
+        -0.0887980387
+      ],
+      "knee_q": [
+        0.276560158,
+        0.276367247
+      ],
+      "ankle_q": [
+        -0.162003145,
+        -0.162036195
+      ],
+      "vertical_foot_impulse_ns": 0.04668557705696949,
+      "vertical_impulse_weighted_contact_x_relative_root_m": 0.06416824137708144,
+      "foot_contact_pitch_angular_impulse_about_root_nms": -0.02010417650408086
+    },
+    {
+      "lane": 7,
+      "step": 4000,
+      "root_x": 4.90834713,
+      "root_z": 1.04013288,
+      "root_pitch_rad": -0.1562371695180604,
+      "root_pitch_rate": -0.119163126,
+      "hip_q": [
+        -0.19131209,
+        -0.191918239
+      ],
+      "knee_q": [
+        0.280527323,
+        0.280199975
+      ],
+      "ankle_q": [
+        -0.159419164,
+        -0.159427345
+      ],
+      "vertical_foot_impulse_ns": 0.08782498590944718,
+      "vertical_impulse_weighted_contact_x_relative_root_m": 0.03995266081796878,
+      "foot_contact_pitch_angular_impulse_about_root_nms": -0.0035545368184567165
+    },
+    {
+      "lane": 7,
+      "step": 4025,
+      "root_x": 4.90313816,
+      "root_z": 1.03926826,
+      "root_pitch_rad": -0.1883642359471267,
+      "root_pitch_rate": -0.0469408445,
+      "hip_q": [
+        -0.190561995,
+        -0.190952972
+      ],
+      "knee_q": [
+        0.280897558,
+        0.28058821
+      ],
+      "ankle_q": [
+        -0.158832848,
+        -0.15910615
+      ],
+      "vertical_foot_impulse_ns": 0.08715723092392492,
+      "vertical_impulse_weighted_contact_x_relative_root_m": 0.035325772696398694,
+      "foot_contact_pitch_angular_impulse_about_root_nms": -0.0022255543134797125
+    },
+    {
+      "lane": 7,
+      "step": 4050,
+      "root_x": 4.89377069,
+      "root_z": 1.03567648,
+      "root_pitch_rad": -0.24295895039047663,
+      "root_pitch_rate": -0.140218019,
+      "hip_q": [
+        -0.184562996,
+        -0.185708344
+      ],
+      "knee_q": [
+        0.280715317,
+        0.279980034
+      ],
+      "ankle_q": [
+        -0.159284011,
+        -0.159449294
+      ],
+      "vertical_foot_impulse_ns": 0.08860110411960037,
+      "vertical_impulse_weighted_contact_x_relative_root_m": 0.05325076208479018,
+      "foot_contact_pitch_angular_impulse_about_root_nms": -0.0038746709060822585
+    },
+    {
+      "lane": 7,
+      "step": 4075,
+      "root_x": 4.87940598,
+      "root_z": 1.02815211,
+      "root_pitch_rad": -0.32337668874363906,
+      "root_pitch_rate": -0.206435978,
+      "hip_q": [
+        -0.177357808,
+        -0.177450165
+      ],
+      "knee_q": [
+        0.2802279,
+        0.280293286
+      ],
+      "ankle_q": [
+        -0.159230173,
+        -0.159240693
+      ],
+      "vertical_foot_impulse_ns": 0.08998480502851854,
+      "vertical_impulse_weighted_contact_x_relative_root_m": 0.06852731493612918,
+      "foot_contact_pitch_angular_impulse_about_root_nms": -0.005070324554484255
+    },
+    {
+      "lane": 7,
+      "step": 4100,
+      "root_x": 4.85542536,
+      "root_z": 1.00420415,
+      "root_pitch_rad": -0.49314695669637143,
+      "root_pitch_rate": -0.420892984,
+      "hip_q": [
+        -0.164416194,
+        -0.165690154
+      ],
+      "knee_q": [
+        0.279863507,
+        0.279222637
+      ],
+      "ankle_q": [
+        -0.159404829,
+        -0.159943059
+      ],
+      "vertical_foot_impulse_ns": 0.09355207751816033,
+      "vertical_impulse_weighted_contact_x_relative_root_m": 0.11051937132339429,
+      "foot_contact_pitch_angular_impulse_about_root_nms": -0.008427532639339845
+    },
+    {
+      "lane": 7,
+      "step": 4125,
+      "root_x": 4.82582998,
+      "root_z": 0.973622203,
+      "root_pitch_rad": -0.7256393814610713,
+      "root_pitch_rate": -0.5814417,
+      "hip_q": [
+        -0.146565452,
+        -0.152862534
+      ],
+      "knee_q": [
+        0.280402511,
+        0.277319819
+      ],
+      "ankle_q": [
+        -0.159572467,
+        -0.160843089
+      ],
+      "vertical_foot_impulse_ns": 0.08645657461830339,
+      "vertical_impulse_weighted_contact_x_relative_root_m": 0.1462873721876603,
+      "foot_contact_pitch_angular_impulse_about_root_nms": -0.010642187026586845
+    },
+    {
+      "lane": 7,
+      "step": 4150,
+      "root_x": 4.78435612,
+      "root_z": 0.920245409,
+      "root_pitch_rad": -1.0675564582035284,
+      "root_pitch_rate": -0.739378929,
+      "hip_q": [
+        -0.123531654,
+        -0.134782091
+      ],
+      "knee_q": [
+        0.28123939,
+        0.276236743
+      ],
+      "ankle_q": [
+        -0.159341201,
+        -0.160234064
+      ],
+      "vertical_foot_impulse_ns": 0.08759324446366622,
+      "vertical_impulse_weighted_contact_x_relative_root_m": 0.17235036764567457,
+      "foot_contact_pitch_angular_impulse_about_root_nms": -0.013090787879631546
+    }
+  ]
+}
