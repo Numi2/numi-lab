@@ -1,0 +1,52 @@
+{
+  "source_sha256": "0f1d6dd1063ac3ed332c529438a1bcb99b233368b47aa50f47aabb500e833666",
+  "form": "D_N = a * (U_m_s)^2 + b / (U_m_s)^2",
+  "a": 0.0014594331250329098,
+  "b": 8.89652423739225,
+  "training": {
+    "records": 53,
+    "provisional_groups": 11,
+    "group_ids": [
+      "130820151143",
+      "130820153347",
+      "130821120136",
+      "130821122912",
+      "130821150951",
+      "130821153538",
+      "130821174914",
+      "130827142702",
+      "130827145633",
+      "130827164012",
+      "130827171024"
+    ],
+    "airspeed_m_s": [
+      6.80928118115867,
+      11.7090558360368
+    ],
+    "record_mae_N": 0.026646788505160886,
+    "record_bias_N": 0.0009636008820013105,
+    "group_mean_error_mae_N": 0.009595800001624875,
+    "group_mean_error_bias_N": -0.0003141163123913819
+  },
+  "heldout_9_4_to_10_2": {
+    "records": 15,
+    "provisional_groups": 3,
+    "group_ids": [
+      "130822141325",
+      "130822161305",
+      "130822164029"
+    ],
+    "airspeed_m_s": [
+      9.69495074136795,
+      9.69900975378835
+    ],
+    "record_mae_N": 0.026884902119680094,
+    "record_bias_N": 0.005145056210501623,
+    "group_mean_error_mae_N": 0.014187235724194952,
+    "group_mean_error_bias_N": 0.0041316086396176325
+  },
+  "independent_birds": 1,
+  "model_scope": "one premoult jackdaw; steady glide only; no low-speed or powered flight validation",
+  "minimum_data_speed_m_s": 6.80928118115867,
+  "maximum_data_speed_m_s": 11.7090558360368
+}

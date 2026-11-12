@@ -1,0 +1,7 @@
+# Pre-moult jackdaw glide proxy
+
+Using the protocol in PLAN.md, the fitted drag polar is `D = 0.001459433125 U² + 8.896524237/U²` newtons. It was fitted to 53 observations in 11 provisional recording-ID groups. The reserved 9.4–10.2 m/s band contains 15 observations in 3 provisional groups, at 9.69495–9.69901 m/s; its record-level MAE is 0.026885 N and mean signed error is +0.005145 N. Absolute mean group error is 0.014187 N. One of the 69 pre-moult rows had no profile drag and was excluded; no missing value was filled. The remaining speed range is 6.80928–11.70906 m/s.
+
+This is a useful measured corvid proxy, not a crow-specific population result: all observations are from one jackdaw, repeated samples are correlated, and the ID grouping convention is provisional. The reserved band is now consumed by this analysis and is not an untouched final validation set. The two-term polar models total drag alone, not lift, wing torques, posture, flapping or walking. Its coefficients are specific to this measured bird and are not scaled to the crow body. `proxy.py` explicitly rejects flapping, moult and out-of-range airspeed; the diagnostic has not been connected as an applied force to v15 and does not establish native flight realism. It must not silently replace the existing slow-flight aerodynamics. The data source and license are preserved in the sibling corvid-flight-data registry.
+
+Reproduce with `python3 fit.py` and `PYTHONDONTWRITEBYTECODE=1 python3 -m unittest -v test_proxy` from this directory.
