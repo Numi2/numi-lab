@@ -1,0 +1,19 @@
+{
+  "valid_matched_replay": true,
+  "parity": {
+    "reference_state_samples": 117,
+    "state_mismatches": 0,
+    "reference_contact_samples": 148832,
+    "contact_mismatches": 0,
+    "same_first_episodes": true,
+    "examples": {
+      "states": [],
+      "contacts": []
+    }
+  },
+  "first_observed_positive_impulse_pair_in_logged_window": null,
+  "pair_count_in_window": 0,
+  "q_substep_count": 416,
+  "target_sample_count": 26,
+  "scope": "Observer only covers a prespecified window near a failure in one development lane. Body pair and positive impulse do not establish fatal cause or uniquely name collider shapes. No biological or flight qualification."
+}
