@@ -1,0 +1,3 @@
+# Height-reference diagnostic: rejected
+
+The attempted after-randomization offset was calculated relative to the model default height. Recorded first-step root heights changed by only -0.000157 m versus the single-perturbation reference, showing that this did not produce the intended approximately 10 mm move toward the observed supported pose. The actual randomized initial height differs from the model default, so this run cannot test the proposed supported reset. All eight remained in their first episodes through 10 seconds, with no observed non-root speed-cap hits from 4–10 seconds; early toe caps remained. Keep this failure as evidence, not a fix. The subsequent explicit 10 mm offset is a separate intervention and must be evaluated independently.
