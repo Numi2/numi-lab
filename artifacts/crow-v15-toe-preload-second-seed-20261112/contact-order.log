@@ -1,0 +1,2 @@
+zero {'partial_runs': 24, 'complete_runs_with_both_toe_groups': 48, 'touchdown_rear_first': 48, 'toeoff_rear_first': 48, 'runs_without_both_toe_groups': 2}
+low {'partial_runs': 24, 'complete_runs_with_both_toe_groups': 48, 'touchdown_rear_first': 48, 'toeoff_rear_first': 48, 'runs_without_both_toe_groups': 5}
