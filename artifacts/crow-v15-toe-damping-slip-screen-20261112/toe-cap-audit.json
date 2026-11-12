@@ -1,0 +1,18 @@
+{
+  "baseline": {
+    "seen_substeps": 38400,
+    "toe_cap_substeps_by_lane_and_phase": {
+      "5_early": 2,
+      "1_early": 9,
+      "2_early": 8
+    }
+  },
+  "candidate": {
+    "seen_substeps": 38400,
+    "toe_cap_substeps_by_lane_and_phase": {
+      "5_early": 4,
+      "1_early": 2,
+      "7_early": 2
+    }
+  }
+}

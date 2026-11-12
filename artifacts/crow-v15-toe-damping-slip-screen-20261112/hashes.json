@@ -1,0 +1,7 @@
+{
+  "reference_host_sha256": "678b528aad8ea31e9a51c71209071bfb8a8f046f591be29786f7ea4ed1edb133",
+  "candidate_host_sha256": "fb9ae9a258e3bab9dfdd4efdfff873c8eb1c927e5a0a7b91e704ec25ffbfc410",
+  "candidate_source_sha256": "91727cd3613ac3abb7243bc6e149c967f72ec5107e3d9d0abce1bf0264a14e69",
+  "toe_drive_damping_candidate": 0.03,
+  "reference": 0.003
+}
