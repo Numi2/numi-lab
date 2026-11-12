@@ -1,0 +1,9 @@
+# Sole-gated swing-lift screen: not admitted
+
+Eight 300-step first episodes and the preliminary smoke completed without reported physics failures or errors. All-lane prewalk endpoints and contact substeps exactly matched the preceding sole-contact run; lane 6 exactly matched that run through all 300 endpoints and 4,800 substeps. The comparison covers q/v, policy actions and logged contact samples, not full continuous states.
+
+Every lane had at least three supported-clearance bouts per foot and no recorded toe-speed caps or nonfoot ground intervals. Aggregate low-toe endpoints decreased from 247 in the preceding mixed front-gain screen to 208, but this is not a controlled aggregate improvement because the lane gains differ. The held reference had 49. Contact-point speed median/p95 was 0.00396/0.04356 m/s versus 0.00276/0.03484 held, within the predeclared 1.5x gate. Lane 3 traveled 88.7% of held, and lanes 5 and 7 had 23 and 77 both-feet-zero-normal substeps, respectively, versus zero held.
+
+Among 41 complete stances with both toe groups, 25 were rear-first, 12 front-first, and four unresolved at substep resolution; 12 more complete foot stances lacked a recorded toe group. Individual lane 7 had only 14 low-toe endpoints, but 77 unloaded substeps and 2/5 rear-first stances; lane 0 had 5/5 rear-first with no unloaded substeps but 38 low-toe endpoints. No tested lane demonstrates all requirements and the whole screen fails. Repeated starts, species comparison and the rest of the autonomous sequence remain necessary. The reference species is not an American crow, and these engineering input amplitudes are not biological measurements.
+
+The new source masks flight curl through 7.4 s to address the previous scratch-field exit hazard, but only 0–6 s was run here; it is not an integration or flight-boundary test and the scratch design remains diagnostic only. No controller is promoted.

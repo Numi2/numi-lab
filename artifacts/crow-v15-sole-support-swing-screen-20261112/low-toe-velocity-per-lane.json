@@ -1,0 +1,315 @@
+{
+  "held": {
+    "counts": {
+      "low_toe_endpoints": 49,
+      "without_accepted_toe_contact": 49
+    },
+    "sides": {
+      "left": 19,
+      "right": 30
+    },
+    "lanes": {
+      "0": 8,
+      "2": 7,
+      "5": 5,
+      "1": 7,
+      "3": 6,
+      "4": 6,
+      "6": 6,
+      "7": 4
+    },
+    "contact_speed": {
+      "count": 0,
+      "median_m_s": null,
+      "p95_m_s": null,
+      "over_0_01_fraction": null,
+      "max_m_s": null
+    },
+    "contact_normal_impulses": {
+      "count": 0,
+      "median": null,
+      "max": null
+    },
+    "contact_parts": {},
+    "contact_phases": {},
+    "samples": []
+  },
+  "opposite_support_sham": {
+    "counts": {
+      "low_toe_endpoints": 198,
+      "without_accepted_toe_contact": 64,
+      "with_accepted_toe_contact": 134
+    },
+    "sides": {
+      "right": 116,
+      "left": 82
+    },
+    "lanes": {
+      "0": 25,
+      "1": 24,
+      "2": 25,
+      "3": 25,
+      "4": 25,
+      "5": 24,
+      "6": 25,
+      "7": 25
+    },
+    "contact_speed": {
+      "count": 342,
+      "median_m_s": 0.045520567142230545,
+      "p95_m_s": 0.06992713136122534,
+      "over_0_01_fraction": 0.9473684210526315,
+      "max_m_s": 0.07115042312994398
+    },
+    "contact_normal_impulses": {
+      "count": 342,
+      "median": 8.435508425e-05,
+      "max": 0.00225078454
+    },
+    "contact_parts": {
+      "rear_toe_distal": 147,
+      "rear_toe_proximal": 195
+    },
+    "contact_phases": {
+      "negative_carrier": 321,
+      "positive_carrier": 21
+    },
+    "samples": [
+      {
+        "lane": 0,
+        "step": 225,
+        "side": "right",
+        "contact_speeds_m_s": [
+          0.04743400185214678
+        ],
+        "lowest_toe_gap_m": 0.0003136793204751784
+      },
+      {
+        "lane": 2,
+        "step": 225,
+        "side": "right",
+        "contact_speeds_m_s": [
+          0.04761010227058626
+        ],
+        "lowest_toe_gap_m": 0.0003147618311163166
+      },
+      {
+        "lane": 3,
+        "step": 225,
+        "side": "right",
+        "contact_speeds_m_s": [
+          0.04771227348019588
+        ],
+        "lowest_toe_gap_m": 0.0003261932112310108
+      },
+      {
+        "lane": 4,
+        "step": 225,
+        "side": "right",
+        "contact_speeds_m_s": [
+          0.047515592519615096
+        ],
+        "lowest_toe_gap_m": 0.0003087079254509087
+      },
+      {
+        "lane": 0,
+        "step": 226,
+        "side": "right",
+        "contact_speeds_m_s": [
+          0.044817612102778216,
+          0.044820151131174275
+        ],
+        "lowest_toe_gap_m": 0.0005631024705214129
+      },
+      {
+        "lane": 1,
+        "step": 226,
+        "side": "right",
+        "contact_speeds_m_s": [
+          0.045287807847059734,
+          0.04530264120205144
+        ],
+        "lowest_toe_gap_m": 0.0005758389049959293
+      },
+      {
+        "lane": 2,
+        "step": 226,
+        "side": "right",
+        "contact_speeds_m_s": [
+          0.0447921740869881,
+          0.0447958688759766
+        ],
+        "lowest_toe_gap_m": 0.0005602849503262997
+      },
+      {
+        "lane": 3,
+        "step": 226,
+        "side": "right",
+        "contact_speeds_m_s": [
+          0.04578939306665918,
+          0.045799900716248
+        ],
+        "lowest_toe_gap_m": 0.0005142956199888811
+      }
+    ]
+  },
+  "own_or_opposite_candidate": {
+    "counts": {
+      "low_toe_endpoints": 208,
+      "with_accepted_toe_contact": 151,
+      "without_accepted_toe_contact": 57
+    },
+    "sides": {
+      "right": 117,
+      "left": 91
+    },
+    "lanes": {
+      "0": 38,
+      "1": 27,
+      "2": 31,
+      "3": 22,
+      "5": 16,
+      "6": 38,
+      "7": 14,
+      "4": 22
+    },
+    "contact_speed": {
+      "count": 470,
+      "median_m_s": 0.03932165241513354,
+      "p95_m_s": 0.07842044494468316,
+      "over_0_01_fraction": 0.9340425531914893,
+      "max_m_s": 0.09256384338033383
+    },
+    "contact_normal_impulses": {
+      "count": 470,
+      "median": 3.21736534e-05,
+      "max": 0.00317529682
+    },
+    "contact_parts": {
+      "front_toe_1_distal": 53,
+      "front_toe_2_distal": 54,
+      "front_toe_3_distal": 40,
+      "rear_toe_distal": 127,
+      "rear_toe_proximal": 196
+    },
+    "contact_phases": {
+      "positive_carrier": 175,
+      "negative_carrier": 295
+    },
+    "samples": [
+      {
+        "lane": 0,
+        "step": 215,
+        "side": "right",
+        "contact_speeds_m_s": [
+          0.028598873493832947,
+          0.02904408158328546,
+          0.02522635169834474,
+          0.025675276517229506,
+          0.0290577988955677,
+          0.029505741033938424
+        ],
+        "lowest_toe_gap_m": 3.3609690072251494e-05
+      },
+      {
+        "lane": 1,
+        "step": 215,
+        "side": "right",
+        "contact_speeds_m_s": [
+          0.03363109405570471,
+          0.03412550312308646,
+          0.037180382776507974,
+          0.037672522764085344,
+          0.03898638428895969,
+          0.039478093515098706
+        ],
+        "lowest_toe_gap_m": 5.0284410939290675e-05
+      },
+      {
+        "lane": 2,
+        "step": 215,
+        "side": "right",
+        "contact_speeds_m_s": [
+          0.028732137959317637,
+          0.029183166376441284,
+          0.025815890617901252,
+          0.02627372622566614,
+          0.03506072533726685,
+          0.03550465816687729
+        ],
+        "lowest_toe_gap_m": 2.652216762494622e-05
+      },
+      {
+        "lane": 3,
+        "step": 215,
+        "side": "right",
+        "contact_speeds_m_s": [
+          0.012531559007204908,
+          0.012968085566964506,
+          0.012652390460309242,
+          0.01309077750439564,
+          0.020278151865751614,
+          0.020704992634802022
+        ],
+        "lowest_toe_gap_m": 5.658605298579193e-05
+      },
+      {
+        "lane": 5,
+        "step": 215,
+        "side": "right",
+        "contact_speeds_m_s": [
+          0.010971581882247549,
+          0.011452829463833105,
+          0.010553333129581184,
+          0.011037520229162464,
+          0.02726638565637629,
+          0.027718560852818205
+        ],
+        "lowest_toe_gap_m": 4.434803478118275e-05
+      },
+      {
+        "lane": 6,
+        "step": 215,
+        "side": "right",
+        "contact_speeds_m_s": [
+          0.038384698987199824,
+          0.03883859533141417,
+          0.03511856216804774,
+          0.03557921845899602,
+          0.03653737284204281,
+          0.03699756306893934
+        ],
+        "lowest_toe_gap_m": 3.139669916327019e-05
+      },
+      {
+        "lane": 7,
+        "step": 215,
+        "side": "right",
+        "contact_speeds_m_s": [
+          0.023430623889078118,
+          0.023804647359671003,
+          0.03767422905204996,
+          0.03806270687665365,
+          0.02676828388042493,
+          0.02715627925524887
+        ],
+        "lowest_toe_gap_m": 7.304226390368769e-05
+      },
+      {
+        "lane": 0,
+        "step": 216,
+        "side": "right",
+        "contact_speeds_m_s": [
+          0.029606585387940986,
+          0.029997617497043435,
+          0.017179370839375173,
+          0.017521516664534765,
+          0.02190531290397879,
+          0.02228231577055031
+        ],
+        "lowest_toe_gap_m": 7.467577637964608e-05
+      }
+    ]
+  },
+  "scope": "Previously used seed; 100 endpoints per lane. Foot-box and toe-box gap and positive accepted endpoint toe contacts are evaluated at the same logged state. Contact point speeds use native FK world linear/angular velocities and stored points. These sampled contacts are not integrated slip, kinetic friction, stance duty factor, or biological validation; low gaps without accepted contact are not demonstrated dragging."
+}
