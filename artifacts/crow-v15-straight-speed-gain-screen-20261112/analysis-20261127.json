@@ -1,0 +1,396 @@
+{
+  "seed": 20261127,
+  "rows": [
+    {
+      "lane": 0,
+      "first_episode_steps": 1200,
+      "reported_failure": false,
+      "termination_reason": 0,
+      "waypoints": 2,
+      "first_episode_coverage": {
+        "body": 19200,
+        "toe": 19200,
+        "contact": 19200
+      },
+      "expected_substeps": 19200,
+      "unloaded_by_period": {
+        "early": 110,
+        "walk_4_6": 0,
+        "takeoff_6_8": 761,
+        "flight_8plus": 12800
+      },
+      "nonfoot_ground_by_period": {
+        "early": 0,
+        "walk_4_6": 0,
+        "takeoff_6_8": 0,
+        "flight_8plus": 0
+      },
+      "speed_cap_hits": [],
+      "final_position_m": [
+        4.17864513,
+        0.191316351,
+        1.18517137
+      ],
+      "final_velocity_m_s": [
+        0.186504543,
+        0.194240868,
+        0.0936440974
+      ],
+      "final_attitude_rad": {
+        "yaw": -0.1049985859333322,
+        "pitch": 0.051107834344061055,
+        "roll": -0.018900912808716096
+      },
+      "first_scene_contact": null
+    },
+    {
+      "lane": 1,
+      "first_episode_steps": 1200,
+      "reported_failure": false,
+      "termination_reason": 0,
+      "waypoints": 2,
+      "first_episode_coverage": {
+        "body": 19200,
+        "toe": 19200,
+        "contact": 19200
+      },
+      "expected_substeps": 19200,
+      "unloaded_by_period": {
+        "early": 655,
+        "walk_4_6": 0,
+        "takeoff_6_8": 765,
+        "flight_8plus": 12800
+      },
+      "nonfoot_ground_by_period": {
+        "early": 0,
+        "walk_4_6": 0,
+        "takeoff_6_8": 0,
+        "flight_8plus": 0
+      },
+      "speed_cap_hits": [
+        {
+          "joint": "crow_neck_pitch",
+          "period": "early",
+          "limit_rad_s": 8.0,
+          "max_abs_rad_s": 8.0,
+          "hits": 1
+        },
+        {
+          "joint": "crow_left_rear_toe_proximal_flex",
+          "period": "early",
+          "limit_rad_s": 12.0,
+          "max_abs_rad_s": 12.0,
+          "hits": 5
+        },
+        {
+          "joint": "crow_right_rear_toe_proximal_flex",
+          "period": "early",
+          "limit_rad_s": 12.0,
+          "max_abs_rad_s": 12.0,
+          "hits": 7
+        }
+      ],
+      "final_position_m": [
+        4.25877619,
+        0.305685133,
+        1.18274939
+      ],
+      "final_velocity_m_s": [
+        0.183150813,
+        0.193686858,
+        0.0999415144
+      ],
+      "final_attitude_rad": {
+        "yaw": -0.10755579943100128,
+        "pitch": 0.05307219549713722,
+        "roll": -0.01917687171409473
+      },
+      "first_scene_contact": null
+    },
+    {
+      "lane": 2,
+      "first_episode_steps": 1200,
+      "reported_failure": false,
+      "termination_reason": 0,
+      "waypoints": 2,
+      "first_episode_coverage": {
+        "body": 19200,
+        "toe": 19200,
+        "contact": 19200
+      },
+      "expected_substeps": 19200,
+      "unloaded_by_period": {
+        "early": 648,
+        "walk_4_6": 0,
+        "takeoff_6_8": 730,
+        "flight_8plus": 12800
+      },
+      "nonfoot_ground_by_period": {
+        "early": 0,
+        "walk_4_6": 0,
+        "takeoff_6_8": 0,
+        "flight_8plus": 0
+      },
+      "speed_cap_hits": [
+        {
+          "joint": "crow_left_rear_toe_proximal_flex",
+          "period": "early",
+          "limit_rad_s": 12.0,
+          "max_abs_rad_s": 12.0,
+          "hits": 7
+        },
+        {
+          "joint": "crow_right_rear_toe_proximal_flex",
+          "period": "early",
+          "limit_rad_s": 12.0,
+          "max_abs_rad_s": 12.0,
+          "hits": 1
+        }
+      ],
+      "final_position_m": [
+        7.02044868,
+        -0.808791161,
+        1.04924929
+      ],
+      "final_velocity_m_s": [
+        0.471500486,
+        -0.112665385,
+        0.0829047486
+      ],
+      "final_attitude_rad": {
+        "yaw": -0.24552780535943663,
+        "pitch": 0.07512700596642406,
+        "roll": 0.0008500313648521276
+      },
+      "first_scene_contact": null
+    },
+    {
+      "lane": 3,
+      "first_episode_steps": 1200,
+      "reported_failure": false,
+      "termination_reason": 0,
+      "waypoints": 2,
+      "first_episode_coverage": {
+        "body": 19200,
+        "toe": 19200,
+        "contact": 19200
+      },
+      "expected_substeps": 19200,
+      "unloaded_by_period": {
+        "early": 39,
+        "walk_4_6": 0,
+        "takeoff_6_8": 727,
+        "flight_8plus": 12800
+      },
+      "nonfoot_ground_by_period": {
+        "early": 0,
+        "walk_4_6": 0,
+        "takeoff_6_8": 0,
+        "flight_8plus": 0
+      },
+      "speed_cap_hits": [],
+      "final_position_m": [
+        7.01460695,
+        -0.826513708,
+        1.04922128
+      ],
+      "final_velocity_m_s": [
+        0.471994072,
+        -0.111128867,
+        0.0829346478
+      ],
+      "final_attitude_rad": {
+        "yaw": -0.24221136886804398,
+        "pitch": 0.07508821266351845,
+        "roll": 0.0008507074085844946
+      },
+      "first_scene_contact": null
+    },
+    {
+      "lane": 4,
+      "first_episode_steps": 1200,
+      "reported_failure": false,
+      "termination_reason": 0,
+      "waypoints": 2,
+      "first_episode_coverage": {
+        "body": 19200,
+        "toe": 19200,
+        "contact": 19200
+      },
+      "expected_substeps": 19200,
+      "unloaded_by_period": {
+        "early": 38,
+        "walk_4_6": 0,
+        "takeoff_6_8": 726,
+        "flight_8plus": 12800
+      },
+      "nonfoot_ground_by_period": {
+        "early": 0,
+        "walk_4_6": 0,
+        "takeoff_6_8": 0,
+        "flight_8plus": 0
+      },
+      "speed_cap_hits": [],
+      "final_position_m": [
+        7.41357565,
+        -0.786305606,
+        1.04682887
+      ],
+      "final_velocity_m_s": [
+        0.475933641,
+        -0.106958561,
+        0.0869660899
+      ],
+      "final_attitude_rad": {
+        "yaw": -0.2321312028485989,
+        "pitch": 0.07112393820136396,
+        "roll": 0.00090510696846922
+      },
+      "first_scene_contact": null
+    },
+    {
+      "lane": 5,
+      "first_episode_steps": 1200,
+      "reported_failure": false,
+      "termination_reason": 0,
+      "waypoints": 1,
+      "first_episode_coverage": {
+        "body": 19200,
+        "toe": 19200,
+        "contact": 19200
+      },
+      "expected_substeps": 19200,
+      "unloaded_by_period": {
+        "early": 234,
+        "walk_4_6": 0,
+        "takeoff_6_8": 731,
+        "flight_8plus": 12800
+      },
+      "nonfoot_ground_by_period": {
+        "early": 0,
+        "walk_4_6": 0,
+        "takeoff_6_8": 0,
+        "flight_8plus": 0
+      },
+      "speed_cap_hits": [
+        {
+          "joint": "crow_neck_pitch",
+          "period": "early",
+          "limit_rad_s": 8.0,
+          "max_abs_rad_s": 8.0,
+          "hits": 2
+        },
+        {
+          "joint": "crow_right_rear_toe_proximal_flex",
+          "period": "early",
+          "limit_rad_s": 12.0,
+          "max_abs_rad_s": 12.0,
+          "hits": 2
+        }
+      ],
+      "final_position_m": [
+        7.48071289,
+        -0.834044397,
+        1.04664361
+      ],
+      "final_velocity_m_s": [
+        0.477679551,
+        -0.109507211,
+        0.0868167058
+      ],
+      "final_attitude_rad": {
+        "yaw": -0.2364283034608066,
+        "pitch": 0.07122782429315268,
+        "roll": 0.0009069290298390214
+      },
+      "first_scene_contact": null
+    },
+    {
+      "lane": 6,
+      "first_episode_steps": 1200,
+      "reported_failure": false,
+      "termination_reason": 0,
+      "waypoints": 2,
+      "first_episode_coverage": {
+        "body": 19200,
+        "toe": 19200,
+        "contact": 19200
+      },
+      "expected_substeps": 19200,
+      "unloaded_by_period": {
+        "early": 56,
+        "walk_4_6": 0,
+        "takeoff_6_8": 732,
+        "flight_8plus": 12800
+      },
+      "nonfoot_ground_by_period": {
+        "early": 0,
+        "walk_4_6": 0,
+        "takeoff_6_8": 0,
+        "flight_8plus": 0
+      },
+      "speed_cap_hits": [],
+      "final_position_m": [
+        7.6304369,
+        -0.851189375,
+        1.04834139
+      ],
+      "final_velocity_m_s": [
+        0.461417884,
+        -0.104307629,
+        0.086660035
+      ],
+      "final_attitude_rad": {
+        "yaw": -0.2331740287447399,
+        "pitch": 0.07350127929712319,
+        "roll": 0.0008715546315641768
+      },
+      "first_scene_contact": null
+    },
+    {
+      "lane": 7,
+      "first_episode_steps": 1200,
+      "reported_failure": false,
+      "termination_reason": 0,
+      "waypoints": 1,
+      "first_episode_coverage": {
+        "body": 19200,
+        "toe": 19200,
+        "contact": 19200
+      },
+      "expected_substeps": 19200,
+      "unloaded_by_period": {
+        "early": 188,
+        "walk_4_6": 0,
+        "takeoff_6_8": 730,
+        "flight_8plus": 12800
+      },
+      "nonfoot_ground_by_period": {
+        "early": 0,
+        "walk_4_6": 0,
+        "takeoff_6_8": 0,
+        "flight_8plus": 0
+      },
+      "speed_cap_hits": [],
+      "final_position_m": [
+        7.65826368,
+        -0.828445911,
+        1.04843354
+      ],
+      "final_velocity_m_s": [
+        0.461688638,
+        -0.103668474,
+        0.0864353254
+      ],
+      "final_attitude_rad": {
+        "yaw": -0.23170951197862635,
+        "pitch": 0.07381841635829618,
+        "roll": 0.0008686343726350009
+      },
+      "first_scene_contact": null
+    }
+  ],
+  "contact_overflows": [],
+  "substep_errors": [],
+  "scope": "Used development starts, first episodes only. Full-substep observed velocities compared with engineering velocity limits from the matching research model; final substep velocity at a limit indicates clamping but not its cause. Endpoint q/attitude and recorded collision impulses do not establish continuous clearance. No biological, perturbed-flight, mission or landing qualification."
+}

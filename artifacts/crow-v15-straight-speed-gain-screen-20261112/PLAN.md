@@ -1,0 +1,3 @@
+# Bounded speed-gain screen in commanded straight flight
+
+Keep the obstacle-free host, no body moments, smooth launch and 24-second continuous episodes. Controls 0–1 retain the prior actor-guided .24-gain law and must match the 24-second reference. In lanes 2–7 request .55 m/s, zero lateral/heading command and .95 m height after a .5 s transition at 9 s; use gains .40, .60 and .80 in pairs, with the same .18 normalized sweep limit. Verify pre-intervention state and contact parity; measure sampled body/world speed and error, altitude, lateral drift, attitudes, joint limits and first failures. This is a used-seed, two-start-per-gain development experiment, not flight qualification or biological calibration.
