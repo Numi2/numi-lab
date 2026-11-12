@@ -2,7 +2,7 @@ from pathlib import Path
 import collections,gzip,importlib.util,json,math,sys
 def mod(n,p):
  s=importlib.util.spec_from_file_location(n,p);m=importlib.util.module_from_spec(s);s.loader.exec_module(m);return m
-a=mod("a","artifacts/crow-v15-whole-gait-audit-20261111/audit.py");A=Path("artifacts/crow-v15-short-ramp-gait-screen-20261112");name=sys.argv[1];assert name in ("ramp2","ramp4","ramp8");C=A/(name+"-20261126");R=Path("artifacts/crow-v15-substep-target-interpolation-screen-20261112/sham-20261126")
+a=mod("a","artifacts/crow-v15-whole-gait-audit-20261111/audit.py");A=Path("artifacts/crow-v15-short-ramp-gait-screen-20261112");variant=sys.argv[1];assert variant in ("ramp2","ramp4","ramp8");C=A/(variant+"-20261126");R=Path("artifacts/crow-v15-substep-target-interpolation-screen-20261112/sham-20261126")
 old=json.loads(Path("artifacts/crow-v15-whole-gait-audit-20261111/audit.json").read_text());ref=next(z for z in old["rows"] if z["seed"]==20261126);crow=a.analyze(C,ref["ground_z_m"])
 def parse(p):
  st={};sub={};q={};caps=collections.Counter();bad=[]
@@ -54,4 +54,4 @@ for name,j in (("left_knee",15),("left_ankle",16),("right_knee",18),("right_ankl
  x=meanacc(c[2],j);y=meanacc(r[2],j);acc.append({"joint":name,"candidate_mean":x,"reference_mean":y,"fraction":x/y,"candidate_within_mean":meanwithin(c[2],j),"reference_within_mean":meanwithin(r[2],j),"pass":x<=.8*y})
 cu=sum(x["candidate_unloaded_substeps"] for x in rows);ru=sum(x["reference_unloaded_substeps"] for x in rows)
 out={"rows":rows,"boundary_acceleration":acc,"candidate_unloaded_substeps":cu,"reference_unloaded_substeps":ru,"candidate_errors":c[4],"reference_errors":r[4],"all_gates_pass":all(x["pass"] for x in rows) and all(x["pass"] for x in acc) and cu<=ru and not c[4] and not r[4],"limits":"Intervention starts at the first interval, so prefix mismatches are expected. Development seed only, 2s walking window. q second differences are sampled acceleration proxies, not actual torque or biological validation."}
-(A/(name+"-comparison.json")).write_text(json.dumps(out,indent=2)+chr(10));print(json.dumps(out,indent=2))
+(A/(variant+"-comparison.json")).write_text(json.dumps(out,indent=2)+chr(10));print(json.dumps(out,indent=2))
