@@ -1,0 +1,7 @@
+# Result: terminal hip pitch screen
+
+The continuous, teacher-off development-layout run used an older, unqualified flight controller. Two unchanged control lanes matched the earlier 3800-step source states and contacts; other lanes could diverge only after the contact-conditioned feedback began, with lanes 2–4 still matching throughout the comparison. Six signed gains were each tested on a single start, so this is an exploratory sensitivity test, not a held-out evaluation.
+
+No candidate demonstrated a stable landing through 4800 intervals. Lanes 2, 5, 6 and 7 ended in physical failure following supported periods; their final 25-interval maximum body tilts were respectively 1.188, 1.199, 1.200 and 1.190 radians. Lane 6 briefly showed unilateral toe release before renewed bilateral support and later fell. Lanes 3 and 4 were airborne at the horizon with no final-interval foot support. Both unchanged controls also failed the requested landing outcome: lane 0 physically failed and lane 1 was airborne at the horizon. The existing terminal-contact hip feedback settings should not be promoted. Contact alone does not establish stable landing, toe wrap, tracked slip, or biological realism.
+
+Raw native replay and diagnostic streams, including failures, are retained in this directory. The split compressed stderr manifest allows byte-for-byte reconstruction. The layout and starts were already used in development; this is not the requested unused-layout result.

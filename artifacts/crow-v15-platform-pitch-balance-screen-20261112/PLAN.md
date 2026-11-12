@@ -1,0 +1,3 @@
+# Platform pitch stabilization sensitivity
+
+The extended development trace showed the best partial regrip tipping forward after release. Test bounded pitch/rate feedback through the existing contact-conditioned bilateral hip position drives, using two unchanged controls and signed exploratory gains in six lanes. The feedback consumes accepted body orientation and angular velocity and requires existing contact; it adds no body wrench or prescribed pose. Compare matching prefixes, physical foot support, toe release, root speed and tilt through 4800 intervals. Different gain arms each have only one start, and this is an older unqualified development flight/controller, not a held-out mission. Do not promote from this screen alone.
