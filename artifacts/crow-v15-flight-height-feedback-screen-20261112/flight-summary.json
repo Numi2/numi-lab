@@ -1,0 +1,205 @@
+{
+  "rows": [
+    {
+      "lane": 0,
+      "gain": 0,
+      "end_step": 1200,
+      "termination": 0,
+      "samples": 600,
+      "height_range_m": [
+        1.00397694,
+        1.05904233
+      ],
+      "mean_height_error_m": 0.07749231499999998,
+      "mean_body_forward_m_s": 0.2958377394560553,
+      "mean_abs_forward_error_m_s": 0.25416226054394475,
+      "mean_abs_world_lateral_speed_m_s": 0.03558475885461666,
+      "final_position_m": [
+        4.8758235,
+        -0.476135492,
+        1.0396235
+      ],
+      "final_velocity_m_s": [
+        0.26386416,
+        -0.0559382141,
+        0.0964365602
+      ]
+    },
+    {
+      "lane": 1,
+      "gain": 0,
+      "end_step": 1200,
+      "termination": 0,
+      "samples": 600,
+      "height_range_m": [
+        1.15445507,
+        1.20841825
+      ],
+      "mean_height_error_m": 0.2274599204333334,
+      "mean_body_forward_m_s": 0.2958523078145137,
+      "mean_abs_forward_error_m_s": 0.25414769218548633,
+      "mean_abs_world_lateral_speed_m_s": 0.038200642857166664,
+      "final_position_m": [
+        4.8795042,
+        -0.438996017,
+        1.19003892
+      ],
+      "final_velocity_m_s": [
+        0.260327637,
+        -0.0577406697,
+        0.0963576362
+      ]
+    },
+    {
+      "lane": 2,
+      "gain": 0.4,
+      "end_step": 1200,
+      "termination": 0,
+      "samples": 600,
+      "height_range_m": [
+        0.990082681,
+        1.02646303
+      ],
+      "mean_height_error_m": 0.05542005182333343,
+      "mean_body_forward_m_s": 0.5083568382407415,
+      "mean_abs_forward_error_m_s": 0.06407721903123124,
+      "mean_abs_world_lateral_speed_m_s": 0.0675522936485,
+      "final_position_m": [
+        7.63606548,
+        -0.864634454,
+        1.0195266
+      ],
+      "final_velocity_m_s": [
+        0.459949374,
+        -0.105070315,
+        0.0860275999
+      ]
+    },
+    {
+      "lane": 3,
+      "gain": 0.4,
+      "end_step": 1200,
+      "termination": 0,
+      "samples": 600,
+      "height_range_m": [
+        0.990323067,
+        1.02633762
+      ],
+      "mean_height_error_m": 0.055464770801666674,
+      "mean_body_forward_m_s": 0.507691039065555,
+      "mean_abs_forward_error_m_s": 0.06363188176016156,
+      "mean_abs_world_lateral_speed_m_s": 0.06845972777333334,
+      "final_position_m": [
+        7.60881662,
+        -0.833907127,
+        1.01953411
+      ],
+      "final_velocity_m_s": [
+        0.459985644,
+        -0.106067888,
+        0.085933581
+      ]
+    },
+    {
+      "lane": 4,
+      "gain": 0.8,
+      "end_step": 1200,
+      "termination": 0,
+      "samples": 600,
+      "height_range_m": [
+        0.978368044,
+        1.00947988
+      ],
+      "mean_height_error_m": 0.04139069543000007,
+      "mean_body_forward_m_s": 0.5064939059189454,
+      "mean_abs_forward_error_m_s": 0.06367051738822212,
+      "mean_abs_world_lateral_speed_m_s": 0.06708950008133334,
+      "final_position_m": [
+        7.60416555,
+        -0.849260211,
+        1.00494111
+      ],
+      "final_velocity_m_s": [
+        0.459910333,
+        -0.104896836,
+        0.0857917741
+      ]
+    },
+    {
+      "lane": 5,
+      "gain": 0.8,
+      "end_step": 1200,
+      "termination": 0,
+      "samples": 600,
+      "height_range_m": [
+        0.978184044,
+        1.00980699
+      ],
+      "mean_height_error_m": 0.04135880038000006,
+      "mean_body_forward_m_s": 0.5071497855822569,
+      "mean_abs_forward_error_m_s": 0.06439964199428219,
+      "mean_abs_world_lateral_speed_m_s": 0.06844349046816667,
+      "final_position_m": [
+        7.63106298,
+        -0.884310722,
+        1.00492406
+      ],
+      "final_velocity_m_s": [
+        0.459404409,
+        -0.105916843,
+        0.0859657973
+      ]
+    },
+    {
+      "lane": 6,
+      "gain": 1.2,
+      "end_step": 1200,
+      "termination": 0,
+      "samples": 600,
+      "height_range_m": [
+        0.970995963,
+        0.999278128
+      ],
+      "mean_height_error_m": 0.03290273289000001,
+      "mean_body_forward_m_s": 0.5067112475944067,
+      "mean_abs_forward_error_m_s": 0.06420295352491948,
+      "mean_abs_world_lateral_speed_m_s": 0.06646123830116667,
+      "final_position_m": [
+        7.63748455,
+        -0.842030406,
+        0.996164441
+      ],
+      "final_velocity_m_s": [
+        0.459265828,
+        -0.104135692,
+        0.0860149413
+      ]
+    },
+    {
+      "lane": 7,
+      "gain": 1.2,
+      "end_step": 1200,
+      "termination": 0,
+      "samples": 600,
+      "height_range_m": [
+        0.970992267,
+        0.999348938
+      ],
+      "mean_height_error_m": 0.03290389257833337,
+      "mean_body_forward_m_s": 0.5066955601184172,
+      "mean_abs_forward_error_m_s": 0.06427890259965151,
+      "mean_abs_world_lateral_speed_m_s": 0.06961996686033334,
+      "final_position_m": [
+        7.56793404,
+        -0.871655405,
+        0.996161222
+      ],
+      "final_velocity_m_s": [
+        0.458588421,
+        -0.107009284,
+        0.0860439986
+      ]
+    }
+  ],
+  "scope": "Used seed. 50 Hz endpoint samples; body-forward velocity projected into yaw frame, not a continuous error bound."
+}

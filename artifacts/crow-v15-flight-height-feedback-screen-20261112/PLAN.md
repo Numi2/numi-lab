@@ -1,0 +1,3 @@
+# Common-mode flap height-feedback screen
+
+Keep obstacle collisions disabled, ground enabled, direct body moments disabled, no reset, gain .80 speed control. Controls 0–1 preserve their preceding second-seed fixed commands. Six remaining previously used seed-20261126 starts request .55 m/s, .95 m height, zero heading and lateral command; apply .4, .8 and 1.2 gains in pairs to accepted height error, bounded to +/- .20 normalized common-mode flap action and ramped 9–9.5 s. Check controls/prefix parity, 12–24 s height error and response, body-forward speed, lateral drift, contact, all joint limits and failures. Two lanes per gain are development evidence, not proof of real-crow aerodynamics or controller qualification.
