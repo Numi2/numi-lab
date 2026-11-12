@@ -1,0 +1,8 @@
+lane 0 sham mm [11.8, -2.1, 14.9, 29.6] candidate mm [11.2, 2.9, 9.5, 20.4] unloaded [0, 1, 0, 0] -> [0, 0, 4, 4]
+lane 1 sham mm [11.8, 5.0, 8.1, 23.9] candidate mm [11.4, 4.9, 21.0, 23.8] unloaded [0, 0, 0, 0] -> [0, 3, 0, 0]
+lane 2 sham mm [11.6, 4.1, 13.1, 21.9] candidate mm [11.3, 3.3, 14.0, 25.9] unloaded [0, 3, 0, 0] -> [0, 14, 0, 0]
+lane 3 sham mm [12.0, -1.6, 11.2, 23.5] candidate mm [11.2, 3.4, 9.2, 29.1] unloaded [0, 1, 0, 5] -> [0, 0, 4, 0]
+lane 4 sham mm [11.7, -5.0, 10.0, 23.9] candidate mm [10.7, 5.6, 10.6, 31.1] unloaded [0, 5, 0, 0] -> [0, 0, 0, 0]
+lane 5 sham mm [11.8, 5.8, 13.5, 16.6] candidate mm [11.5, 6.6, 11.8, 21.5] unloaded [0, 7, 0, 0] -> [0, 11, 0, 0]
+lane 6 sham mm [12.5, -2.0, 10.2, 21.6] candidate mm [11.9, 6.5, 18.9, 23.7] unloaded [0, 0, 0, 8] -> [0, 2, 0, 0]
+lane 7 sham mm [11.9, 5.0, 6.8, 18.2] candidate mm [11.9, 1.2, 11.5, 19.3] unloaded [0, 9, 0, 0] -> [0, 0, 0, 0]

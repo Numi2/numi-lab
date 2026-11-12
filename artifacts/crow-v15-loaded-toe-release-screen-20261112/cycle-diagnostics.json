@@ -1,0 +1,1113 @@
+{
+  "arms": {
+    "sham": [
+      {
+        "lane": 0,
+        "cycles": [
+          {
+            "steps": [
+              201,
+              225
+            ],
+            "forward_displacement_m": 0.0118327979,
+            "unsupported_substeps": 0,
+            "toe_normal_impulse": [
+              0.6454245572858738,
+              0.2855508788801251
+            ],
+            "foot_total_normal_impulse": [
+              1.4648700589289996,
+              0.7321691329804648
+            ]
+          },
+          {
+            "steps": [
+              226,
+              250
+            ],
+            "forward_displacement_m": -0.0021361912999999996,
+            "unsupported_substeps": 1,
+            "toe_normal_impulse": [
+              0.37083317244555564,
+              0.44938651456146195
+            ],
+            "foot_total_normal_impulse": [
+              1.0108885980454005,
+              1.179365830485605
+            ]
+          },
+          {
+            "steps": [
+              251,
+              275
+            ],
+            "forward_displacement_m": 0.0148685276,
+            "unsupported_substeps": 0,
+            "toe_normal_impulse": [
+              0.6323760726425368,
+              0.602582033034617
+            ],
+            "foot_total_normal_impulse": [
+              1.133042295310597,
+              1.1059973850406923
+            ]
+          },
+          {
+            "steps": [
+              276,
+              300
+            ],
+            "forward_displacement_m": 0.029550427599999998,
+            "unsupported_substeps": 0,
+            "toe_normal_impulse": [
+              0.8062680332265078,
+              0.7527074252176212
+            ],
+            "foot_total_normal_impulse": [
+              1.0662888141407838,
+              1.1487572864660238
+            ]
+          }
+        ]
+      },
+      {
+        "lane": 1,
+        "cycles": [
+          {
+            "steps": [
+              201,
+              225
+            ],
+            "forward_displacement_m": 0.01176705308,
+            "unsupported_substeps": 0,
+            "toe_normal_impulse": [
+              0.6548136810586844,
+              0.30623899658595016
+            ],
+            "foot_total_normal_impulse": [
+              1.4569448390799988,
+              0.735885303956669
+            ]
+          },
+          {
+            "steps": [
+              226,
+              250
+            ],
+            "forward_displacement_m": 0.0049635059999999995,
+            "unsupported_substeps": 0,
+            "toe_normal_impulse": [
+              0.41069478594371744,
+              0.42302435592944365
+            ],
+            "foot_total_normal_impulse": [
+              1.0527873327193227,
+              1.1442352849049493
+            ]
+          },
+          {
+            "steps": [
+              251,
+              275
+            ],
+            "forward_displacement_m": 0.008108733199999999,
+            "unsupported_substeps": 0,
+            "toe_normal_impulse": [
+              0.5674891054547001,
+              0.6310393692108343
+            ],
+            "foot_total_normal_impulse": [
+              1.0506478082606219,
+              1.19191869564168
+            ]
+          },
+          {
+            "steps": [
+              276,
+              300
+            ],
+            "forward_displacement_m": 0.023910479600000003,
+            "unsupported_substeps": 0,
+            "toe_normal_impulse": [
+              0.7741427408773487,
+              0.6918474303674462
+            ],
+            "foot_total_normal_impulse": [
+              1.0925227773820303,
+              1.1150562920726277
+            ]
+          }
+        ]
+      },
+      {
+        "lane": 2,
+        "cycles": [
+          {
+            "steps": [
+              201,
+              225
+            ],
+            "forward_displacement_m": 0.011641407359999998,
+            "unsupported_substeps": 0,
+            "toe_normal_impulse": [
+              0.6678403240226991,
+              0.3126489823470794
+            ],
+            "foot_total_normal_impulse": [
+              1.4578882403160007,
+              0.735441336760281
+            ]
+          },
+          {
+            "steps": [
+              226,
+              250
+            ],
+            "forward_displacement_m": 0.004056178100000002,
+            "unsupported_substeps": 3,
+            "toe_normal_impulse": [
+              0.4215264850327269,
+              0.40870155645664197
+            ],
+            "foot_total_normal_impulse": [
+              1.0593888223725052,
+              1.1574550234493348
+            ]
+          },
+          {
+            "steps": [
+              251,
+              275
+            ],
+            "forward_displacement_m": 0.013076586600000002,
+            "unsupported_substeps": 0,
+            "toe_normal_impulse": [
+              0.6344798842507967,
+              0.5027641345268892
+            ],
+            "foot_total_normal_impulse": [
+              1.1475132826496985,
+              1.0582578777465521
+            ]
+          },
+          {
+            "steps": [
+              276,
+              300
+            ],
+            "forward_displacement_m": 0.0218516775,
+            "unsupported_substeps": 0,
+            "toe_normal_impulse": [
+              0.7082081256466378,
+              0.757653392082061
+            ],
+            "foot_total_normal_impulse": [
+              1.03833854753234,
+              1.1835926428112655
+            ]
+          }
+        ]
+      },
+      {
+        "lane": 3,
+        "cycles": [
+          {
+            "steps": [
+              201,
+              225
+            ],
+            "forward_displacement_m": 0.01197747308,
+            "unsupported_substeps": 0,
+            "toe_normal_impulse": [
+              0.5903589651946045,
+              0.2146792631883765
+            ],
+            "foot_total_normal_impulse": [
+              1.4543261258269995,
+              0.7309724828494704
+            ]
+          },
+          {
+            "steps": [
+              226,
+              250
+            ],
+            "forward_displacement_m": -0.00163570279,
+            "unsupported_substeps": 1,
+            "toe_normal_impulse": [
+              0.5026023931468551,
+              0.4125313755039045
+            ],
+            "foot_total_normal_impulse": [
+              1.0693699498144769,
+              1.1509973140181522
+            ]
+          },
+          {
+            "steps": [
+              251,
+              275
+            ],
+            "forward_displacement_m": 0.01120612188,
+            "unsupported_substeps": 0,
+            "toe_normal_impulse": [
+              0.6040301212673304,
+              0.5179326629351017
+            ],
+            "foot_total_normal_impulse": [
+              1.1114110598684075,
+              1.0948801178086205
+            ]
+          },
+          {
+            "steps": [
+              276,
+              300
+            ],
+            "forward_displacement_m": 0.02347785513,
+            "unsupported_substeps": 5,
+            "toe_normal_impulse": [
+              0.7687695467613822,
+              0.7351948619186736
+            ],
+            "foot_total_normal_impulse": [
+              1.0692793076429177,
+              1.1623678195521299
+            ]
+          }
+        ]
+      },
+      {
+        "lane": 4,
+        "cycles": [
+          {
+            "steps": [
+              201,
+              225
+            ],
+            "forward_displacement_m": 0.0117149588,
+            "unsupported_substeps": 0,
+            "toe_normal_impulse": [
+              0.5935696206535507,
+              0.23419272030085714
+            ],
+            "foot_total_normal_impulse": [
+              1.4654616584949995,
+              0.7314335653693779
+            ]
+          },
+          {
+            "steps": [
+              226,
+              250
+            ],
+            "forward_displacement_m": -0.004964720399999999,
+            "unsupported_substeps": 5,
+            "toe_normal_impulse": [
+              0.4132662711503781,
+              0.43763808534307214
+            ],
+            "foot_total_normal_impulse": [
+              1.028896472620227,
+              1.1631501798442718
+            ]
+          },
+          {
+            "steps": [
+              251,
+              275
+            ],
+            "forward_displacement_m": 0.010022013399999998,
+            "unsupported_substeps": 0,
+            "toe_normal_impulse": [
+              0.5968036305999961,
+              0.5743843699096373
+            ],
+            "foot_total_normal_impulse": [
+              1.1112611196161002,
+              1.1134932750056334
+            ]
+          },
+          {
+            "steps": [
+              276,
+              300
+            ],
+            "forward_displacement_m": 0.0239419267,
+            "unsupported_substeps": 0,
+            "toe_normal_impulse": [
+              0.7083714761926542,
+              0.7417223504525259
+            ],
+            "foot_total_normal_impulse": [
+              1.0645008735454242,
+              1.1575452603989231
+            ]
+          }
+        ]
+      },
+      {
+        "lane": 5,
+        "cycles": [
+          {
+            "steps": [
+              201,
+              225
+            ],
+            "forward_displacement_m": 0.0118115489,
+            "unsupported_substeps": 0,
+            "toe_normal_impulse": [
+              0.6602936220084132,
+              0.31417333805805464
+            ],
+            "foot_total_normal_impulse": [
+              1.4569652821509989,
+              0.7383804201107506
+            ]
+          },
+          {
+            "steps": [
+              226,
+              250
+            ],
+            "forward_displacement_m": 0.005760766499999997,
+            "unsupported_substeps": 7,
+            "toe_normal_impulse": [
+              0.48042083357741605,
+              0.43886318142768854
+            ],
+            "foot_total_normal_impulse": [
+              1.0864916804583973,
+              1.115833036499525
+            ]
+          },
+          {
+            "steps": [
+              251,
+              275
+            ],
+            "forward_displacement_m": 0.013513062200000002,
+            "unsupported_substeps": 0,
+            "toe_normal_impulse": [
+              0.5331282417295978,
+              0.5802634457266247
+            ],
+            "foot_total_normal_impulse": [
+              1.0618381283414446,
+              1.1709857290241468
+            ]
+          },
+          {
+            "steps": [
+              276,
+              300
+            ],
+            "forward_displacement_m": 0.016619056500000007,
+            "unsupported_substeps": 0,
+            "toe_normal_impulse": [
+              0.6513356149841135,
+              0.7715928401593334
+            ],
+            "foot_total_normal_impulse": [
+              1.0504693356766641,
+              1.1593547781806062
+            ]
+          }
+        ]
+      },
+      {
+        "lane": 6,
+        "cycles": [
+          {
+            "steps": [
+              201,
+              225
+            ],
+            "forward_displacement_m": 0.012465364999999999,
+            "unsupported_substeps": 0,
+            "toe_normal_impulse": [
+              0.5951645127306969,
+              0.2135988027253447
+            ],
+            "foot_total_normal_impulse": [
+              1.4608863601530016,
+              0.7330310499414576
+            ]
+          },
+          {
+            "steps": [
+              226,
+              250
+            ],
+            "forward_displacement_m": -0.00202889182,
+            "unsupported_substeps": 0,
+            "toe_normal_impulse": [
+              0.40167603349232567,
+              0.415587897460451
+            ],
+            "foot_total_normal_impulse": [
+              1.045791635603399,
+              1.162457785692993
+            ]
+          },
+          {
+            "steps": [
+              251,
+              275
+            ],
+            "forward_displacement_m": 0.01022703482,
+            "unsupported_substeps": 0,
+            "toe_normal_impulse": [
+              0.603750975768677,
+              0.5615452148655004
+            ],
+            "foot_total_normal_impulse": [
+              1.0865105669332615,
+              1.1229333448245724
+            ]
+          },
+          {
+            "steps": [
+              276,
+              300
+            ],
+            "forward_displacement_m": 0.0215876195,
+            "unsupported_substeps": 8,
+            "toe_normal_impulse": [
+              0.7687358625039257,
+              0.7304080397277264
+            ],
+            "foot_total_normal_impulse": [
+              1.0908222810756418,
+              1.1379657380910049
+            ]
+          }
+        ]
+      },
+      {
+        "lane": 7,
+        "cycles": [
+          {
+            "steps": [
+              201,
+              225
+            ],
+            "forward_displacement_m": 0.01190801058,
+            "unsupported_substeps": 0,
+            "toe_normal_impulse": [
+              0.6958413490738667,
+              0.3713698791576333
+            ],
+            "foot_total_normal_impulse": [
+              1.4535034789789991,
+              0.7410647535441353
+            ]
+          },
+          {
+            "steps": [
+              226,
+              250
+            ],
+            "forward_displacement_m": 0.00495575136,
+            "unsupported_substeps": 9,
+            "toe_normal_impulse": [
+              0.49285386262757946,
+              0.41219713693251203
+            ],
+            "foot_total_normal_impulse": [
+              1.0795452055447334,
+              1.1092914403274032
+            ]
+          },
+          {
+            "steps": [
+              251,
+              275
+            ],
+            "forward_displacement_m": 0.006756052399999999,
+            "unsupported_substeps": 0,
+            "toe_normal_impulse": [
+              0.5768141189388777,
+              0.48083554310051585
+            ],
+            "foot_total_normal_impulse": [
+              1.144157078441512,
+              1.0896795585195225
+            ]
+          },
+          {
+            "steps": [
+              276,
+              300
+            ],
+            "forward_displacement_m": 0.018221283300000002,
+            "unsupported_substeps": 0,
+            "toe_normal_impulse": [
+              0.7053793009933984,
+              0.6936496276112709
+            ],
+            "foot_total_normal_impulse": [
+              1.055193601085099,
+              1.1697293112646217
+            ]
+          }
+        ]
+      }
+    ],
+    "candidate": [
+      {
+        "lane": 0,
+        "cycles": [
+          {
+            "steps": [
+              201,
+              225
+            ],
+            "forward_displacement_m": 0.011189676800000003,
+            "unsupported_substeps": 0,
+            "toe_normal_impulse": [
+              0.6366004802086729,
+              0.295828333300492
+            ],
+            "foot_total_normal_impulse": [
+              1.4489336594129996,
+              0.7276665307170339
+            ]
+          },
+          {
+            "steps": [
+              226,
+              250
+            ],
+            "forward_displacement_m": 0.0028981678999999982,
+            "unsupported_substeps": 0,
+            "toe_normal_impulse": [
+              0.39688433021517144,
+              0.3686759511955506
+            ],
+            "foot_total_normal_impulse": [
+              1.08561857102234,
+              1.1299140533106178
+            ]
+          },
+          {
+            "steps": [
+              251,
+              275
+            ],
+            "forward_displacement_m": 0.009514722900000001,
+            "unsupported_substeps": 4,
+            "toe_normal_impulse": [
+              0.6282987562221445,
+              0.5223877765857429
+            ],
+            "foot_total_normal_impulse": [
+              1.154782495677733,
+              1.0714777879834145
+            ]
+          },
+          {
+            "steps": [
+              276,
+              300
+            ],
+            "forward_displacement_m": 0.0204396346,
+            "unsupported_substeps": 4,
+            "toe_normal_impulse": [
+              0.7795294095533689,
+              0.6989749768328156
+            ],
+            "foot_total_normal_impulse": [
+              1.0922071623432206,
+              1.1502449649568272
+            ]
+          }
+        ]
+      },
+      {
+        "lane": 1,
+        "cycles": [
+          {
+            "steps": [
+              201,
+              225
+            ],
+            "forward_displacement_m": 0.011428826479999998,
+            "unsupported_substeps": 0,
+            "toe_normal_impulse": [
+              0.6399975084092762,
+              0.31589312294834987
+            ],
+            "foot_total_normal_impulse": [
+              1.4606553323610005,
+              0.7358503930237322
+            ]
+          },
+          {
+            "steps": [
+              226,
+              250
+            ],
+            "forward_displacement_m": 0.004858769500000002,
+            "unsupported_substeps": 3,
+            "toe_normal_impulse": [
+              0.4670740877982532,
+              0.41337494000877273
+            ],
+            "foot_total_normal_impulse": [
+              1.0872713737669053,
+              1.111937459984905
+            ]
+          },
+          {
+            "steps": [
+              251,
+              275
+            ],
+            "forward_displacement_m": 0.020955074599999998,
+            "unsupported_substeps": 0,
+            "toe_normal_impulse": [
+              0.5989579427506113,
+              0.6069149595790911
+            ],
+            "foot_total_normal_impulse": [
+              1.073187458375577,
+              1.1586496101581993
+            ]
+          },
+          {
+            "steps": [
+              276,
+              300
+            ],
+            "forward_displacement_m": 0.023829027999999995,
+            "unsupported_substeps": 0,
+            "toe_normal_impulse": [
+              0.676006755741596,
+              0.7076209569853509
+            ],
+            "foot_total_normal_impulse": [
+              1.04259485204264,
+              1.1710573417682648
+            ]
+          }
+        ]
+      },
+      {
+        "lane": 2,
+        "cycles": [
+          {
+            "steps": [
+              201,
+              225
+            ],
+            "forward_displacement_m": 0.011335471659999999,
+            "unsupported_substeps": 0,
+            "toe_normal_impulse": [
+              0.6690188067215761,
+              0.31920215204879876
+            ],
+            "foot_total_normal_impulse": [
+              1.4542297997950004,
+              0.7371236408112695
+            ]
+          },
+          {
+            "steps": [
+              226,
+              250
+            ],
+            "forward_displacement_m": 0.0033140797,
+            "unsupported_substeps": 14,
+            "toe_normal_impulse": [
+              0.4060802752275723,
+              0.4025025905367004
+            ],
+            "foot_total_normal_impulse": [
+              1.047008981853874,
+              1.1487613363444253
+            ]
+          },
+          {
+            "steps": [
+              251,
+              275
+            ],
+            "forward_displacement_m": 0.013965182000000003,
+            "unsupported_substeps": 0,
+            "toe_normal_impulse": [
+              0.6303267066267857,
+              0.5615664385881722
+            ],
+            "foot_total_normal_impulse": [
+              1.123851378173889,
+              1.1161376576107973
+            ]
+          },
+          {
+            "steps": [
+              276,
+              300
+            ],
+            "forward_displacement_m": 0.025866933199999997,
+            "unsupported_substeps": 0,
+            "toe_normal_impulse": [
+              0.697489645304437,
+              0.7412787087462466
+            ],
+            "foot_total_normal_impulse": [
+              1.0638634542119307,
+              1.1500385518899987
+            ]
+          }
+        ]
+      },
+      {
+        "lane": 3,
+        "cycles": [
+          {
+            "steps": [
+              201,
+              225
+            ],
+            "forward_displacement_m": 0.01123522692,
+            "unsupported_substeps": 0,
+            "toe_normal_impulse": [
+              0.6173148147920346,
+              0.21125181722867484
+            ],
+            "foot_total_normal_impulse": [
+              1.4629534043940002,
+              0.7219603602343326
+            ]
+          },
+          {
+            "steps": [
+              226,
+              250
+            ],
+            "forward_displacement_m": 0.003377887013,
+            "unsupported_substeps": 0,
+            "toe_normal_impulse": [
+              0.4640226783984895,
+              0.34742113229586896
+            ],
+            "foot_total_normal_impulse": [
+              1.1290593037242846,
+              1.071065832179383
+            ]
+          },
+          {
+            "steps": [
+              251,
+              275
+            ],
+            "forward_displacement_m": 0.009169500726999999,
+            "unsupported_substeps": 4,
+            "toe_normal_impulse": [
+              0.5690423604133871,
+              0.631184293385947
+            ],
+            "foot_total_normal_impulse": [
+              1.0524245561620909,
+              1.1956742196608756
+            ]
+          },
+          {
+            "steps": [
+              276,
+              300
+            ],
+            "forward_displacement_m": 0.02905483734,
+            "unsupported_substeps": 0,
+            "toe_normal_impulse": [
+              0.7360543026110294,
+              0.7098340861167495
+            ],
+            "foot_total_normal_impulse": [
+              1.0867298884497676,
+              1.1196649252337982
+            ]
+          }
+        ]
+      },
+      {
+        "lane": 4,
+        "cycles": [
+          {
+            "steps": [
+              201,
+              225
+            ],
+            "forward_displacement_m": 0.0107041777,
+            "unsupported_substeps": 0,
+            "toe_normal_impulse": [
+              0.6304595080018272,
+              0.23300226290204198
+            ],
+            "foot_total_normal_impulse": [
+              1.467267369171999,
+              0.7245227924249976
+            ]
+          },
+          {
+            "steps": [
+              226,
+              250
+            ],
+            "forward_displacement_m": 0.0055730482000000015,
+            "unsupported_substeps": 0,
+            "toe_normal_impulse": [
+              0.4585469474798975,
+              0.3731832969902192
+            ],
+            "foot_total_normal_impulse": [
+              1.110229480601694,
+              1.0995920960958672
+            ]
+          },
+          {
+            "steps": [
+              251,
+              275
+            ],
+            "forward_displacement_m": 0.0105639566,
+            "unsupported_substeps": 0,
+            "toe_normal_impulse": [
+              0.6060521234377819,
+              0.5901578370648055
+            ],
+            "foot_total_normal_impulse": [
+              1.0833364088414184,
+              1.1444180331864113
+            ]
+          },
+          {
+            "steps": [
+              276,
+              300
+            ],
+            "forward_displacement_m": 0.0310633518,
+            "unsupported_substeps": 0,
+            "toe_normal_impulse": [
+              0.6995476790197339,
+              0.7342192604676264
+            ],
+            "foot_total_normal_impulse": [
+              1.0568366360896282,
+              1.1516474475045841
+            ]
+          }
+        ]
+      },
+      {
+        "lane": 5,
+        "cycles": [
+          {
+            "steps": [
+              201,
+              225
+            ],
+            "forward_displacement_m": 0.011519990899999999,
+            "unsupported_substeps": 0,
+            "toe_normal_impulse": [
+              0.6459716715203812,
+              0.3197124802696118
+            ],
+            "foot_total_normal_impulse": [
+              1.4499358899369992,
+              0.7412022953877014
+            ]
+          },
+          {
+            "steps": [
+              226,
+              250
+            ],
+            "forward_displacement_m": 0.006621057200000002,
+            "unsupported_substeps": 11,
+            "toe_normal_impulse": [
+              0.4756951578279094,
+              0.4095294114977814
+            ],
+            "foot_total_normal_impulse": [
+              1.0966622896826403,
+              1.1139382854015827
+            ]
+          },
+          {
+            "steps": [
+              251,
+              275
+            ],
+            "forward_displacement_m": 0.011843170899999998,
+            "unsupported_substeps": 0,
+            "toe_normal_impulse": [
+              0.5924273665986981,
+              0.4972992001901789
+            ],
+            "foot_total_normal_impulse": [
+              1.152359070548049,
+              1.0695133730660151
+            ]
+          },
+          {
+            "steps": [
+              276,
+              300
+            ],
+            "forward_displacement_m": 0.0214755685,
+            "unsupported_substeps": 0,
+            "toe_normal_impulse": [
+              0.7094202587903629,
+              0.6842185710732525
+            ],
+            "foot_total_normal_impulse": [
+              1.0573069296992,
+              1.166674094698827
+            ]
+          }
+        ]
+      },
+      {
+        "lane": 6,
+        "cycles": [
+          {
+            "steps": [
+              201,
+              225
+            ],
+            "forward_displacement_m": 0.01187843806,
+            "unsupported_substeps": 0,
+            "toe_normal_impulse": [
+              0.6125217374194739,
+              0.21597591547142203
+            ],
+            "foot_total_normal_impulse": [
+              1.4606790245989993,
+              0.7259975904797735
+            ]
+          },
+          {
+            "steps": [
+              226,
+              250
+            ],
+            "forward_displacement_m": 0.00647356824,
+            "unsupported_substeps": 2,
+            "toe_normal_impulse": [
+              0.5419525180613394,
+              0.3577581829160141
+            ],
+            "foot_total_normal_impulse": [
+              1.1338822065665701,
+              1.0828308080724376
+            ]
+          },
+          {
+            "steps": [
+              251,
+              275
+            ],
+            "forward_displacement_m": 0.0189058353,
+            "unsupported_substeps": 0,
+            "toe_normal_impulse": [
+              0.5921374295593969,
+              0.6022694608645386
+            ],
+            "foot_total_normal_impulse": [
+              1.08534236987006,
+              1.1547722199522512
+            ]
+          },
+          {
+            "steps": [
+              276,
+              300
+            ],
+            "forward_displacement_m": 0.023714210800000003,
+            "unsupported_substeps": 0,
+            "toe_normal_impulse": [
+              0.7025282630845888,
+              0.6473925545630849
+            ],
+            "foot_total_normal_impulse": [
+              1.10008616337528,
+              1.106404866296377
+            ]
+          }
+        ]
+      },
+      {
+        "lane": 7,
+        "cycles": [
+          {
+            "steps": [
+              201,
+              225
+            ],
+            "forward_displacement_m": 0.0118890889,
+            "unsupported_substeps": 0,
+            "toe_normal_impulse": [
+              0.6835166936689923,
+              0.3672357430145651
+            ],
+            "foot_total_normal_impulse": [
+              1.4481351535800004,
+              0.7473861258079654
+            ]
+          },
+          {
+            "steps": [
+              226,
+              250
+            ],
+            "forward_displacement_m": 0.0012017399999999998,
+            "unsupported_substeps": 0,
+            "toe_normal_impulse": [
+              0.37768088249737297,
+              0.41487636021837937
+            ],
+            "foot_total_normal_impulse": [
+              1.04504905527198,
+              1.1599261168209412
+            ]
+          },
+          {
+            "steps": [
+              251,
+              275
+            ],
+            "forward_displacement_m": 0.011509416640000002,
+            "unsupported_substeps": 0,
+            "toe_normal_impulse": [
+              0.6231301613486782,
+              0.6218152872775854
+            ],
+            "foot_total_normal_impulse": [
+              1.0458828536329592,
+              1.1940886631041763
+            ]
+          },
+          {
+            "steps": [
+              276,
+              300
+            ],
+            "forward_displacement_m": 0.0192974284,
+            "unsupported_substeps": 0,
+            "toe_normal_impulse": [
+              0.71541218811356,
+              0.6692383241045781
+            ],
+            "foot_total_normal_impulse": [
+              1.0835734327784505,
+              1.119139898139691
+            ]
+          }
+        ]
+      }
+    ]
+  },
+  "scope": "Post-hoc .5-second blocks on development seed. Root displacement and normal impulses are simulated; the unsupported threshold is not a fall detector; a block is a controller period, not necessarily a valid biological stride."
+}
