@@ -1,0 +1,15 @@
+{
+  "inputs": [
+    {
+      "arm": "baseline",
+      "compressed_sha256": "cda2cbe6da4d59f47754572cc2568a99b4882106f854aba63c70668bd3ccfb0f",
+      "samples": 72
+    },
+    {
+      "arm": "enhanced",
+      "compressed_sha256": "11ac520c38fd5c736f6b6678c87733e9a6205e0dc2bf2cca4fea81a4063a2ab5",
+      "samples": 72
+    }
+  ],
+  "limits": "Sparse control endpoints, not complete microstep force histories. State comes from previously used development-seed flight episodes."
+}
