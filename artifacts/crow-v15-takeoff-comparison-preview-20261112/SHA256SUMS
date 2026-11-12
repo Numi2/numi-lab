@@ -1,0 +1,10 @@
+40eb6f6a78dcdab8b24de1218f275059b5f3cba3115ab2aeee96bd0b4d50ba79  artifacts/crow-v15-takeoff-comparison-preview-20261112/README.md
+6e7cfcf73e29e79f55c2b548365932bfc1fad9a4ce1a7048e8b12f27b811fd66  artifacts/crow-v15-takeoff-comparison-preview-20261112/after.mp4
+7d494d2a549706f00de3b07b9e1a2bdde18394fbb2918ae4a1a44b9b86f58136  artifacts/crow-v15-takeoff-comparison-preview-20261112/audit-after/numi-crow-replay-audit.json
+35e120add441f0e422e96f33c5a28adc6294d4cc3787a410d6da79675443834e  artifacts/crow-v15-takeoff-comparison-preview-20261112/audit-before/numi-crow-replay-audit.json
+660c0b1ca3d0f05eb39127119f6ccd7aa5615862fa8f5d74700a69d49f78a56f  artifacts/crow-v15-takeoff-comparison-preview-20261112/before.mp4
+6ba7c27c1f26bb9c84c2af4b7ce845d435a2c8d5baf2b2fbf3a0e147c5a34b41  artifacts/crow-v15-takeoff-comparison-preview-20261112/compose.sh
+64284f6ea28f79410af15ba887c017f38926e51cd5dd48bb5de6ff89d879a4a3  artifacts/crow-v15-takeoff-comparison-preview-20261112/labels.py
+a8e7d912f3856f6f3a05d192508b9adc43297a3824eb081322c5cac8206b467d  artifacts/crow-v15-takeoff-comparison-preview-20261112/render.log
+6d6952f5ee4e12ffeb135506193bac6009e7929e3e1c0bcd17d15b036867b644  artifacts/crow-v15-takeoff-comparison-preview-20261112/render.sh
+07742b78998498c5da402a69416b709b4fa918b81ec3cd1034b2e9da46381046  artifacts/crow-v15-takeoff-comparison-preview-20261112/takeoff-comparison.mp4
