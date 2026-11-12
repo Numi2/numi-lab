@@ -1,0 +1,3 @@
+# Heading feedback with wing-normal closure
+
+At the already-used 20261126 starts, use the experimental wing-normal blends 0.15, 0.35, 0.60 and apply a bounded accepted-body-heading feedback to the ordinary equal-sign pronation joint actions after 12 s. Paired lanes command +0.35/-0.35 rad. The action correction is limited to +/-0.20, includes a small yaw-rate term, and ramps in over 1 s. Two original-model lanes are controls. Check exact pre-command parity against the preceding normal-closure run, 20–24 s heading errors and path headings, survival, altitude, toe caps and measured body/wing joints where available. The altered aerodynamic closure is uncalibrated; these are open-space development maneuvers, not a frozen or biologically validated flight controller.

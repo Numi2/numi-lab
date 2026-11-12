@@ -1,0 +1,5 @@
+# Bounded heading feedback is asymmetric
+
+With altered wing-normal closures and ordinary pronation drives, all eight lanes reached 24 s in this obstacle-free used-seed screen. The 6,000 pre-command/control endpoint states and 96,000 substep contacts exactly match the preceding normal-closure run. For the last 4 s, mean absolute body-heading error for +0.35/-0.35 rad targets was 0.427/0.091 rad at blend 0.15, 0.276/0.038 rad at blend 0.35 and 0.154/0.015 rad at blend 0.60. Positive turns remained biased short; body and trajectory headings differed. These are paired but different starts, and there is no established biological accuracy criterion for these values.
+
+The measured aerodynamic closure is an estimated model, direct body-moment actions were disabled but other closures remain, and the observer did not record the body/wing joint-speed stream. This small, single-seed open-space test does not qualify flight, show safe turns with perturbed starts, establish a frozen controller, or validate the complete navigation or landing. See heading-summary.json and full toe/contact analysis.
