@@ -1,0 +1,69 @@
+{
+  "lanes": [
+    {
+      "lane": 0,
+      "release_samples": 0,
+      "negative_requested_samples": 0,
+      "any_floored_samples": 0,
+      "max_flight_fold": 0,
+      "example": null
+    },
+    {
+      "lane": 1,
+      "release_samples": 0,
+      "negative_requested_samples": 0,
+      "any_floored_samples": 0,
+      "max_flight_fold": 0,
+      "example": null
+    },
+    {
+      "lane": 2,
+      "release_samples": 0,
+      "negative_requested_samples": 0,
+      "any_floored_samples": 0,
+      "max_flight_fold": 0,
+      "example": null
+    },
+    {
+      "lane": 3,
+      "release_samples": 2,
+      "negative_requested_samples": 0,
+      "any_floored_samples": 0,
+      "max_flight_fold": 0,
+      "example": null
+    },
+    {
+      "lane": 4,
+      "release_samples": 0,
+      "negative_requested_samples": 0,
+      "any_floored_samples": 0,
+      "max_flight_fold": 0,
+      "example": null
+    },
+    {
+      "lane": 5,
+      "release_samples": 0,
+      "negative_requested_samples": 0,
+      "any_floored_samples": 0,
+      "max_flight_fold": 0,
+      "example": null
+    },
+    {
+      "lane": 6,
+      "release_samples": 0,
+      "negative_requested_samples": 0,
+      "any_floored_samples": 0,
+      "max_flight_fold": 0,
+      "example": null
+    },
+    {
+      "lane": 7,
+      "release_samples": 0,
+      "negative_requested_samples": 0,
+      "any_floored_samples": 0,
+      "max_flight_fold": 0,
+      "example": null
+    }
+  ],
+  "limitations": "Decodes endpoint packed status using the current downstroke shader expression. The expression is evaluated from a state during the task pass; timing relative to the host sample must be confirmed before asserting an exact applied target. Command targets are not measured toe positions or forces. Used development layout and seed only."
+}
