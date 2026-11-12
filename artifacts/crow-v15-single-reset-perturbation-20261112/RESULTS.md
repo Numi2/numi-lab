@@ -1,0 +1,5 @@
+# Single reset perturbation test
+
+The reference shader applies the same reset perturbation block twice with the same random channels, doubling roll, leg offsets and horizontal velocity. Removing the duplicate retains the originally stated perturbation rather than removing perturbations. In eight used-seed starts, the total first-four-second both-feet-unloaded count changed from 1,968 to 2,523 substeps; individual lanes improved or worsened substantially. Five of eight single-application starts still hit a toe or neck speed limit during those four seconds. All eight had continuous foot loading during the 4–6 second walking interval, and none hit an observed joint-speed limit in 4–10 seconds. All remained airborne during 8–10 seconds; none reached the first waypoint by 10 seconds. The comparator continued to 16 seconds and its endpoint must not be compared with the 10-second endpoint here.
+
+The edit removes duplicate perturbation in this diagnostic source only; it does not repair initial contact, establish a realistic gait, or qualify takeoff or flight. The different initial conditions prevent trajectory parity; seed and all other inputs are held fixed.

@@ -1,0 +1,3 @@
+# Single application of the authored start perturbation
+
+The reference research shader contains two byte-identical adjacent reset-perturbation blocks using identical random channels. Consequently roll, leg offsets and horizontal velocity are each applied twice at reset. Remove only the second application, retaining all other randomization. Compare eight previously used development starts against the same-seed double-perturbation run: initial bounce and unloading, all substep joint speed limits, walking, launch, altitude and progress. The perturbed starting states will necessarily differ, so this is an intervention comparison, not a claim of exact physical parity. Do not claim biological gait, stable launch, route completion or qualification from this test.
