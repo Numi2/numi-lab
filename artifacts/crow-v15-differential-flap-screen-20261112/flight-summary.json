@@ -1,0 +1,133 @@
+{
+  "rows": [
+    {
+      "lane": 0,
+      "flap_offset": 0,
+      "end_step": 1200,
+      "termination": 0,
+      "yaw_change_rad": -0.17176625553992703,
+      "trajectory_angle_rad": -0.1207346098786556,
+      "dx_m": 3.52923584,
+      "dy_m": -0.4281834584,
+      "max_abs_roll_rad": 0.0009095144435307864,
+      "height_range_m": [
+        1.00397694,
+        1.05904233
+      ],
+      "mean_abs_world_vy_m_s": 0.03558475885461666
+    },
+    {
+      "lane": 1,
+      "flap_offset": 0,
+      "end_step": 1200,
+      "termination": 0,
+      "yaw_change_rad": -0.1722190863113418,
+      "trajectory_angle_rad": -0.12965645364646167,
+      "dx_m": 3.5252825000000003,
+      "dy_m": -0.4596542362,
+      "max_abs_roll_rad": 0.0009187203072966586,
+      "height_range_m": [
+        1.15445507,
+        1.20841825
+      ],
+      "mean_abs_world_vy_m_s": 0.038200642857166664
+    },
+    {
+      "lane": 2,
+      "flap_offset": 0.1,
+      "end_step": 1200,
+      "termination": 0,
+      "yaw_change_rad": -0.15062904223951468,
+      "trajectory_angle_rad": -0.4626831596626638,
+      "dx_m": 5.61079979,
+      "dy_m": -2.798638988,
+      "max_abs_roll_rad": 0.035565867531774945,
+      "height_range_m": [
+        1.01527977,
+        1.05973577
+      ],
+      "mean_abs_world_vy_m_s": 0.23268282488783334
+    },
+    {
+      "lane": 3,
+      "flap_offset": -0.1,
+      "end_step": 1200,
+      "termination": 0,
+      "yaw_change_rad": -0.18092079678277875,
+      "trajectory_angle_rad": 0.17868447048498087,
+      "dx_m": 6.4995178000000005,
+      "dy_m": 1.1738828689999998,
+      "max_abs_roll_rad": 0.03370210646699478,
+      "height_range_m": [
+        1.16542685,
+        1.20823646
+      ],
+      "mean_abs_world_vy_m_s": 0.09996334724674
+    },
+    {
+      "lane": 4,
+      "flap_offset": 0.2,
+      "end_step": 1200,
+      "termination": 0,
+      "yaw_change_rad": -0.12901877542403972,
+      "trajectory_angle_rad": -0.7457011230822292,
+      "dx_m": 5.19394386,
+      "dy_m": -4.7971197379,
+      "max_abs_roll_rad": 0.07032072123645006,
+      "height_range_m": [
+        1.01897418,
+        1.05943012
+      ],
+      "mean_abs_world_vy_m_s": 0.39879753219183334
+    },
+    {
+      "lane": 5,
+      "flap_offset": -0.2,
+      "end_step": 1200,
+      "termination": 0,
+      "yaw_change_rad": -0.17700840396072992,
+      "trajectory_angle_rad": 0.431042624760015,
+      "dx_m": 6.99469268,
+      "dy_m": 3.2167441082000003,
+      "max_abs_roll_rad": 0.06849167445040776,
+      "height_range_m": [
+        1.16769099,
+        1.20925438
+      ],
+      "mean_abs_world_vy_m_s": 0.26921722898936834
+    },
+    {
+      "lane": 6,
+      "flap_offset": 0.3,
+      "end_step": 1200,
+      "termination": 0,
+      "yaw_change_rad": -0.36429249522607393,
+      "trajectory_angle_rad": -1.9447603273155387,
+      "dx_m": -10.15319931,
+      "dy_m": -25.8726020795,
+      "max_abs_roll_rad": 0.49116387873844924,
+      "height_range_m": [
+        1.0270654,
+        1.45438695
+      ],
+      "mean_abs_world_vy_m_s": 2.1457353652273334
+    },
+    {
+      "lane": 7,
+      "flap_offset": -0.3,
+      "end_step": 1200,
+      "termination": 0,
+      "yaw_change_rad": -0.6165703344781684,
+      "trajectory_angle_rad": 1.174074096962002,
+      "dx_m": 12.684708,
+      "dy_m": 30.2784728691,
+      "max_abs_roll_rad": 0.6763416978403203,
+      "height_range_m": [
+        1.00234628,
+        1.49161994
+      ],
+      "mean_abs_world_vy_m_s": 2.5180316208789266
+    }
+  ],
+  "scope": "Differential flap input is a bounded open-loop position offset, not a target-angle closed-loop maneuver. Yaw and path heading are 50 Hz samples; no biological validation."
+}
