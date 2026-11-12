@@ -1,0 +1,7 @@
+/Users/n/Developer/numi-crow-rl-20261107/artifacts/crow-v15-aero-closure-decomposition-20261112/closure.metal:312:25: warning: unused variable 'dragCoefficient' [-Wunused-variable]
+            const float dragCoefficient = wing.coefficients.y +
+                        ^
+/Users/n/Developer/numi-crow-rl-20261107/artifacts/crow-v15-aero-closure-decomposition-20261112/closure.metal:316:26: warning: unused variable 'liftDirection' [-Wunused-variable]
+            const float3 liftDirection = safeNormal(cross(span, flow));
+                         ^
+2 warnings generated.

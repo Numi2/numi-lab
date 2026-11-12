@@ -1,0 +1,7 @@
+# Stroke closure dominates the modeled wing vertical force
+
+The diagnostic evaluates a second copy of the same wing kernel with only its stroke-dependent closure term, in a zeroed scratch buffer at exactly the source q/v. Those diagnostic loads never enter the physics. All 9,600 endpoint states and 153,600 contact substeps exactly match the previous equal-sign pronation run. The diagnostic closure force remained parallel to its coded airframe-relative direction to within 5.2e-7 N.
+
+Across eight used development lanes during steps 651–700, the closure's mean world-vertical force was 98.7–99.0% of the original recorded mean world-vertical force on each wing (approximately 2.15–2.16 N closure versus 2.18 N total per wing). This is a ratio of signed mean vertical forces, not a fraction of total aerodynamic force, work, or real crow lift. The original body-wrench buffer can include previously accumulated actuator contributions; subtracting the closure is not certified as pure blade-element lift. The strong closure direction is tied to torso up plus forward, rather than directly to wing surface orientation. This is an important uncalibrated model limitation and a plausible reason to test more wing-sensitive formulations, but the measurement alone does not prove the cause of failed steering or validate an alternative.
+
+One one-second window, used seed and existing uncalibrated flight model do not qualify the flight controller or any downstream navigation. The initial preflight error and corrected run are retained in PRELIMINARY.md.

@@ -1,0 +1,88 @@
+--- a/observer.mm
++++ b/slip_observer.mm
+@@ -496,6 +496,7 @@
+     __strong id<MTLComputePipelineState> multicopterPipeline = nil;
+     __strong id<MTLComputePipelineState> multicopterCommitPipeline = nil;
+     __strong id<MTLComputePipelineState> flappingWingPipeline = nil;
++    __strong id<MTLComputePipelineState> crowClosurePipeline = nil;
+     __strong id<MTLComputePipelineState> policyDensePipeline = nil;
+     __strong id<MTLComputePipelineState> policySamplePipeline = nil;
+     __strong id<MTLComputePipelineState> policyResidualSamplePipeline = nil;
+@@ -6499,6 +6500,7 @@
+     __strong id<MTLComputePipelineState> multicopter = nil;
+     __strong id<MTLComputePipelineState> multicopterCommit = nil;
+     __strong id<MTLComputePipelineState> flappingWing = nil;
++    __strong id<MTLComputePipelineState> crowClosure = nil;
+     __strong id<MTLComputePipelineState> policyDense = nil;
+     __strong id<MTLComputePipelineState> policySample = nil;
+     __strong id<MTLComputePipelineState> policyResidualSample = nil;
+@@ -6626,6 +6628,7 @@
+     flappingWing = createContactPipeline(
+         @"mr_step_compiled_flapping_wings"
+     );
++    crowClosure = createContactPipeline(@"crow_flapping_closure_only");
+     taskImpactContact = createContactPipeline(
+         @"mr_locomotion_task_latch_impact_contact"
+     );
+@@ -6843,7 +6846,7 @@
+         taskEvidence == nil ||
+         multicopter == nil ||
+         multicopterCommit == nil ||
+-        flappingWing == nil ||
++        flappingWing == nil || crowClosure == nil ||
+         policyDense == nil ||
+         policySample == nil ||
+         policyResidualSample == nil ||
+@@ -7202,6 +7205,7 @@
+     context.multicopterPipeline = multicopter;
+     context.multicopterCommitPipeline = multicopterCommit;
+     context.flappingWingPipeline = flappingWing;
++    context.crowClosurePipeline = crowClosure;
+     context.policyDensePipeline = policyDense;
+     context.policySamplePipeline = policySample;
+     context.policyResidualSamplePipeline = policyResidualSample;
+@@ -21428,6 +21432,7 @@
+             const bool crowTraceWindow = crowTraceEnabled && crowTraceStep >= 1 && crowTraceStep <= 5005;
+             NSMutableArray<id<MTLBuffer>>* crowTraceBuffers = crowTraceWindow ? [NSMutableArray array] : nil;
+             NSMutableArray<id<MTLBuffer>>* crowAeroBuffers = crowTraceWindow ? [NSMutableArray array] : nil;
++            NSMutableArray<id<MTLBuffer>>* crowClosureBuffers = crowTraceWindow ? [NSMutableArray array] : nil;
+             const NSUInteger crowTraceCapacity = diagnostics.layout.contactDispatch.constraintCapacity;
+             const NSUInteger crowTraceLanes = batch.environmentCount;
+             const NSUInteger crowTraceVStride = diagnostics.layout.dispatch.vStride;
+@@ -21777,6 +21782,24 @@
+                                 batch.environmentCount
+                             ) && ([&]() -> bool {
+                                 if (!(crowTraceWindow && crowTraceStep>=651 && crowTraceStep<=700)) return true;
++                                id<MTLBuffer> scratch = [selectedState->device newBufferWithLength:selectedState->buffers[kBodyWrenchPlaceholder].length options:MTLResourceStorageModeShared];
++                                if (scratch == nil) throw std::bad_alloc();
++                                id<MTLBlitCommandEncoder> zero = [commandBuffer blitCommandEncoder];
++                                [zero fillBuffer:scratch range:NSMakeRange(0, scratch.length) value:0];
++                                [zero endEncoding];
++                                id<MTLComputeCommandEncoder> probe = [commandBuffer computeCommandEncoder];
++                                [probe setComputePipelineState:selectedState->crowClosurePipeline];
++                                [probe setBuffer:selectedState->buffers[kFlappingWingSpecs] offset:0 atIndex:0];
++                                [probe setBuffer:selectedState->buffers[kFlappingWingDispatch] offset:0 atIndex:1];
++                                [probe setBuffer:selectedState->buffers[sourceQ] offset:0 atIndex:2];
++                                [probe setBuffer:selectedState->buffers[sourceV] offset:0 atIndex:3];
++                                [probe setBuffer:scratch offset:0 atIndex:4];
++                                [probe setBuffer:selectedState->buffers[kFlappingTail] offset:0 atIndex:5];
++                                [probe setBuffer:selectedState->buffers[kFlappingFuselage] offset:0 atIndex:6];
++                                NSUInteger group = std::min<NSUInteger>(batch.environmentCount, selectedState->crowClosurePipeline.maxTotalThreadsPerThreadgroup);
++                                [probe dispatchThreads:MTLSizeMake(batch.environmentCount,1,1) threadsPerThreadgroup:MTLSizeMake(group,1,1)];
++                                [probe endEncoding];
++                                [crowClosureBuffers addObject:scratch];
+                                 for (NSUInteger index : {static_cast<std::size_t>(kBodyWrenchPlaceholder), sourceQ, sourceV}) {
+                                     id<MTLBuffer> input = selectedState->buffers[index];
+                                     id<MTLBuffer> copy = [selectedState->device newBufferWithLength:input.length options:MTLResourceStorageModeShared];
+@@ -22424,6 +22447,11 @@
+                             for (NSUInteger j=0;j<crowTraceQStride;++j) std::fprintf(stderr," %.9g",coords[lane*crowTraceQStride+j]);
+                             for (NSUInteger j=0;j<crowTraceVStride;++j) std::fprintf(stderr," %.9g",velocity[lane*crowTraceVStride+j]);
+                             std::fprintf(stderr,"\n");
++                            const auto* closure=static_cast<const MRABABodyWrenchGPU*>(crowClosureBuffers[sub].contents);
++                            for (NSUInteger body : {5u,6u}) {
++                                const auto& c=closure[lane*diagnostics.layout.contactDispatch.bodyStateStride+body];
++                                std::fprintf(stderr,"CROW_CLOSURE_WRENCH %llu %lu %lu %lu %.9g %.9g %.9g %.9g %.9g %.9g\n",crowTraceStep,(unsigned long)sub,(unsigned long)lane,(unsigned long)body,c.force.x,c.force.y,c.force.z,c.torque.x,c.torque.y,c.torque.z);
++                            }
+                             for (NSUInteger body : {0u,5u,6u,7u}) {
+                                 const auto& w=wrenches[lane*diagnostics.layout.contactDispatch.bodyStateStride+body];
+                                 std::fprintf(stderr,"CROW_AERO_WRENCH %llu %lu %lu %lu %.9g %.9g %.9g %.9g %.9g %.9g\n",crowTraceStep,(unsigned long)sub,(unsigned long)lane,(unsigned long)body,w.force.x,w.force.y,w.force.z,w.torque.x,w.torque.y,w.torque.z);
