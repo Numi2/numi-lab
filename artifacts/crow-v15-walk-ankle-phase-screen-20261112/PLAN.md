@@ -1,0 +1,5 @@
+# Knee and ankle timing screen
+
+The related-magpie study reports staggered knee and ankle extension in recovery. The current experimental controller drives their lift with the same carrier; this study motivates testing timing differences, not copying a magpie angle or claiming that motor targets equal anatomical joint angles. Sweep only ankle lift-carrier phase offsets [-1,-0.7,-0.4,0,0.4,0.7,1,1.3] radians while preserving hip phase -0.9, knee and toe drives, lift amplitude 0.25 and opposite-foot support gating. Lane 3 at zero offset must exactly reproduce its retained prior trace, and all pre-walk records must match. The different starts prevent a paired estimate across phase values; promising values require paired trials.
+
+Measure travel, loaded support, contact-point speed, toe contact order and missing groups, qualified clearance bouts and physical failures; classify low-toe samples by contact instead of treating them as drag. Retain every outcome and require full-sequence qualification before promoting a candidate. Without anatomically mapped joint angles and matched speed, the screen does not establish agreement with a real magpie or crow.
