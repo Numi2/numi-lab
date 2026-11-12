@@ -1,0 +1,11 @@
+--- previous/MetalWorld.mm
++++ observer/MetalWorld.mm
+@@ -21427,7 +21427,7 @@
+             const unsigned long long crowTraceStep = crowTraceEnabled ? ++crowTraceSubmission : 0;
+             const bool crowTraceWindow = crowTraceEnabled && crowTraceStep >= 1 && crowTraceStep <= 5005;
+             NSMutableArray<id<MTLBuffer>>* crowTraceBuffers = crowTraceWindow ? [NSMutableArray array] : nil;
+-            const bool crowWorkWindow = std::getenv("CROW_DRIVE_WORK_TRACE") != nullptr && crowTraceStep >= 535 && crowTraceStep <= 600;
++            const bool crowWorkWindow = std::getenv("CROW_DRIVE_WORK_TRACE") != nullptr && crowTraceStep >= 535 && crowTraceStep <= 625;
+             NSMutableArray<id<MTLBuffer>>* crowWorkBuffers = crowWorkWindow ? [NSMutableArray array] : nil;
+             const NSUInteger crowTraceCapacity = diagnostics.layout.contactDispatch.constraintCapacity;
+             const NSUInteger crowTraceLanes = batch.environmentCount;

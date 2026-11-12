@@ -1,0 +1,183 @@
+{
+  "rows": [
+    {
+      "lane": 0,
+      "drive_records": 58240,
+      "expected": 58240,
+      "complete": true,
+      "speed_limited_joints": [
+        {
+          "index": 14,
+          "name": "crow_left_knee_pitch",
+          "limit_rad_s": 22.0,
+          "peak_rad_s": 22.0,
+          "hits": 3,
+          "examples": [
+            [
+              573,
+              1
+            ],
+            [
+              573,
+              2
+            ],
+            [
+              573,
+              3
+            ]
+          ]
+        },
+        {
+          "index": 17,
+          "name": "crow_right_knee_pitch",
+          "limit_rad_s": 22.0,
+          "peak_rad_s": 22.0,
+          "hits": 3,
+          "examples": [
+            [
+              573,
+              1
+            ],
+            [
+              573,
+              2
+            ],
+            [
+              573,
+              3
+            ]
+          ]
+        }
+      ],
+      "all_joint_limit_hits": 6
+    },
+    {
+      "lane": 1,
+      "drive_records": 58240,
+      "expected": 58240,
+      "complete": true,
+      "speed_limited_joints": [
+        {
+          "index": 14,
+          "name": "crow_left_knee_pitch",
+          "limit_rad_s": 22.0,
+          "peak_rad_s": 22.0,
+          "hits": 3,
+          "examples": [
+            [
+              573,
+              1
+            ],
+            [
+              573,
+              2
+            ],
+            [
+              573,
+              3
+            ]
+          ]
+        },
+        {
+          "index": 17,
+          "name": "crow_right_knee_pitch",
+          "limit_rad_s": 22.0,
+          "peak_rad_s": 22.0,
+          "hits": 3,
+          "examples": [
+            [
+              573,
+              1
+            ],
+            [
+              573,
+              2
+            ],
+            [
+              573,
+              3
+            ]
+          ]
+        }
+      ],
+      "all_joint_limit_hits": 6
+    },
+    {
+      "lane": 2,
+      "drive_records": 58240,
+      "expected": 58240,
+      "complete": true,
+      "speed_limited_joints": [],
+      "all_joint_limit_hits": 0
+    },
+    {
+      "lane": 3,
+      "drive_records": 58240,
+      "expected": 58240,
+      "complete": true,
+      "speed_limited_joints": [],
+      "all_joint_limit_hits": 0
+    },
+    {
+      "lane": 4,
+      "drive_records": 58240,
+      "expected": 58240,
+      "complete": true,
+      "speed_limited_joints": [
+        {
+          "index": 14,
+          "name": "crow_left_knee_pitch",
+          "limit_rad_s": 22.0,
+          "peak_rad_s": 22.0,
+          "hits": 1,
+          "examples": [
+            [
+              557,
+              11
+            ]
+          ]
+        },
+        {
+          "index": 17,
+          "name": "crow_right_knee_pitch",
+          "limit_rad_s": 22.0,
+          "peak_rad_s": 22.0,
+          "hits": 1,
+          "examples": [
+            [
+              557,
+              11
+            ]
+          ]
+        }
+      ],
+      "all_joint_limit_hits": 2
+    },
+    {
+      "lane": 5,
+      "drive_records": 58240,
+      "expected": 58240,
+      "complete": true,
+      "speed_limited_joints": [],
+      "all_joint_limit_hits": 0
+    },
+    {
+      "lane": 6,
+      "drive_records": 58240,
+      "expected": 58240,
+      "complete": true,
+      "speed_limited_joints": [],
+      "all_joint_limit_hits": 0
+    },
+    {
+      "lane": 7,
+      "drive_records": 58240,
+      "expected": 58240,
+      "complete": true,
+      "speed_limited_joints": [],
+      "all_joint_limit_hits": 0
+    }
+  ],
+  "errors": [],
+  "scope": "Authored joint speed limits, endpoint velocities at each substep during steps 535\u2013625 only; not biological speed limits or full-flight observation."
+}
