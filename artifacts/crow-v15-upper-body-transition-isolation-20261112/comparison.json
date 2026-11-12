@@ -1,0 +1,501 @@
+{
+  "valid_matched_comparison": true,
+  "prediction_supported": true,
+  "baseline_unsupported_substeps": 846,
+  "held_unsupported_substeps": 0,
+  "rows": [
+    {
+      "lane": 0,
+      "prefix_state_mismatches": 0,
+      "prefix_substep_mismatches": 0,
+      "baseline": {
+        "unsupported_substeps_301_400": 58,
+        "longest_unsupported_seconds_301_400": 0.0275,
+        "nonfoot_intervals_301_500": [],
+        "root_displacement_sections_m": [
+          0.0253512273,
+          0.023851990679999997,
+          0.034012883019999995
+        ],
+        "upper_body_q_300": [
+          -0.00017762,
+          0.000219939,
+          0.349955946,
+          0.349956393,
+          -0.064058773,
+          -0.03618411,
+          0.268242449
+        ],
+        "upper_body_q_305": [
+          -6.0618e-05,
+          -1.9073e-05,
+          0.349982351,
+          0.349979877,
+          -0.001387738,
+          -0.000597573,
+          0.012095991
+        ]
+      },
+      "held": {
+        "unsupported_substeps_301_400": 0,
+        "longest_unsupported_seconds_301_400": 0.0,
+        "nonfoot_intervals_301_500": [],
+        "root_displacement_sections_m": [
+          0.0253512273,
+          0.0348410019,
+          0.0346998778
+        ],
+        "upper_body_q_300": [
+          -0.00017762,
+          0.000219939,
+          0.349955946,
+          0.349956393,
+          -0.064058773,
+          -0.03618411,
+          0.268242449
+        ],
+        "upper_body_q_305": [
+          -0.000589231,
+          0.000547605,
+          0.349967539,
+          0.349950373,
+          -0.048874211,
+          -0.023206413,
+          0.268434972
+        ]
+      }
+    },
+    {
+      "lane": 1,
+      "prefix_state_mismatches": 0,
+      "prefix_substep_mismatches": 0,
+      "baseline": {
+        "unsupported_substeps_301_400": 104,
+        "longest_unsupported_seconds_301_400": 0.02875,
+        "nonfoot_intervals_301_500": [],
+        "root_displacement_sections_m": [
+          0.02569086198,
+          0.022050112499999996,
+          0.0348505638
+        ],
+        "upper_body_q_300": [
+          0.000922306,
+          -0.000883446,
+          0.349955738,
+          0.349956959,
+          -0.067349009,
+          -0.032891929,
+          0.268079191
+        ],
+        "upper_body_q_305": [
+          -2.7437e-05,
+          -7.5817e-05,
+          0.349980652,
+          0.349977612,
+          -0.001482128,
+          -0.000502425,
+          0.012023295
+        ]
+      },
+      "held": {
+        "unsupported_substeps_301_400": 0,
+        "longest_unsupported_seconds_301_400": 0.0,
+        "nonfoot_intervals_301_500": [],
+        "root_displacement_sections_m": [
+          0.02569086198,
+          0.035325918299999995,
+          0.0352746625
+        ],
+        "upper_body_q_300": [
+          0.000922306,
+          -0.000883446,
+          0.349955738,
+          0.349956959,
+          -0.067349009,
+          -0.032891929,
+          0.268079191
+        ],
+        "upper_body_q_305": [
+          0.000473585,
+          -0.000488449,
+          0.349963844,
+          0.34994036,
+          -0.052208167,
+          -0.019871641,
+          0.268355161
+        ]
+      }
+    },
+    {
+      "lane": 2,
+      "prefix_state_mismatches": 0,
+      "prefix_substep_mismatches": 0,
+      "baseline": {
+        "unsupported_substeps_301_400": 59,
+        "longest_unsupported_seconds_301_400": 0.02875,
+        "nonfoot_intervals_301_500": [],
+        "root_displacement_sections_m": [
+          0.025710839759999996,
+          0.024898707900000004,
+          0.0324776359
+        ],
+        "upper_body_q_300": [
+          3.5246e-05,
+          2.282e-06,
+          0.349955499,
+          0.34995684,
+          -0.063254148,
+          -0.036987525,
+          0.268096179
+        ],
+        "upper_body_q_305": [
+          -5.7265e-05,
+          -3.6838e-05,
+          0.349981397,
+          0.349978596,
+          -0.001341854,
+          -0.000641083,
+          0.012055481
+        ]
+      },
+      "held": {
+        "unsupported_substeps_301_400": 0,
+        "longest_unsupported_seconds_301_400": 0.0,
+        "nonfoot_intervals_301_500": [],
+        "root_displacement_sections_m": [
+          0.025710839759999996,
+          0.0345819257,
+          0.034208886699999996
+        ],
+        "upper_body_q_300": [
+          3.5246e-05,
+          2.282e-06,
+          0.349955499,
+          0.34995684,
+          -0.063254148,
+          -0.036987525,
+          0.268096179
+        ],
+        "upper_body_q_305": [
+          -0.000451147,
+          0.000420268,
+          0.349965125,
+          0.349944651,
+          -0.047221463,
+          -0.024859138,
+          0.268364102
+        ]
+      }
+    },
+    {
+      "lane": 3,
+      "prefix_state_mismatches": 0,
+      "prefix_substep_mismatches": 0,
+      "baseline": {
+        "unsupported_substeps_301_400": 251,
+        "longest_unsupported_seconds_301_400": 0.04,
+        "nonfoot_intervals_301_500": [],
+        "root_displacement_sections_m": [
+          0.0291684429,
+          -0.01695712077,
+          0.03296583777
+        ],
+        "upper_body_q_300": [
+          -0.00027529,
+          0.000324646,
+          0.349955231,
+          0.349956334,
+          -0.062868461,
+          -0.037372403,
+          0.267675579
+        ],
+        "upper_body_q_305": [
+          -5.2626e-05,
+          -2.5792e-05,
+          0.349982947,
+          0.349980682,
+          -0.00131026,
+          -0.00067263,
+          0.012112878
+        ]
+      },
+      "held": {
+        "unsupported_substeps_301_400": 0,
+        "longest_unsupported_seconds_301_400": 0.0,
+        "nonfoot_intervals_301_500": [],
+        "root_displacement_sections_m": [
+          0.0291684429,
+          0.0343669289,
+          0.0340699479
+        ],
+        "upper_body_q_300": [
+          -0.00027529,
+          0.000324646,
+          0.349955231,
+          0.349956334,
+          -0.062868461,
+          -0.037372403,
+          0.267675579
+        ],
+        "upper_body_q_305": [
+          -0.000460512,
+          0.000375961,
+          0.349969864,
+          0.349955529,
+          -0.046111167,
+          -0.025968593,
+          0.268423915
+        ]
+      }
+    },
+    {
+      "lane": 4,
+      "prefix_state_mismatches": 0,
+      "prefix_substep_mismatches": 0,
+      "baseline": {
+        "unsupported_substeps_301_400": 97,
+        "longest_unsupported_seconds_301_400": 0.035,
+        "nonfoot_intervals_301_500": [],
+        "root_displacement_sections_m": [
+          0.0250741991,
+          0.022968172999999998,
+          0.035079632000000006
+        ],
+        "upper_body_q_300": [
+          -2.3913e-05,
+          6.7791e-05,
+          0.349955916,
+          0.349957198,
+          -0.062379789,
+          -0.037861627,
+          0.268181533
+        ],
+        "upper_body_q_305": [
+          -6.2798e-05,
+          -5.8331e-05,
+          0.349979103,
+          0.349975497,
+          -0.001304348,
+          -0.000676648,
+          0.011961937
+        ]
+      },
+      "held": {
+        "unsupported_substeps_301_400": 0,
+        "longest_unsupported_seconds_301_400": 0.0,
+        "nonfoot_intervals_301_500": [],
+        "root_displacement_sections_m": [
+          0.0250741991,
+          0.0352532901,
+          0.034848213200000006
+        ],
+        "upper_body_q_300": [
+          -2.3913e-05,
+          6.7791e-05,
+          0.349955916,
+          0.349957198,
+          -0.062379789,
+          -0.037861627,
+          0.268181533
+        ],
+        "upper_body_q_305": [
+          -0.000367461,
+          0.000358185,
+          0.349963605,
+          0.349939704,
+          -0.04584467,
+          -0.026236747,
+          0.268373787
+        ]
+      }
+    },
+    {
+      "lane": 5,
+      "prefix_state_mismatches": 0,
+      "prefix_substep_mismatches": 0,
+      "baseline": {
+        "unsupported_substeps_301_400": 158,
+        "longest_unsupported_seconds_301_400": 0.03875,
+        "nonfoot_intervals_301_500": [],
+        "root_displacement_sections_m": [
+          0.025502474999999997,
+          0.0249269195,
+          0.03416529330000001
+        ],
+        "upper_body_q_300": [
+          0.000138273,
+          -0.000104032,
+          0.34995535,
+          0.349957228,
+          -0.059912581,
+          -0.040329404,
+          0.268016696
+        ],
+        "upper_body_q_305": [
+          -4.9255e-05,
+          -5.3439e-05,
+          0.349980742,
+          0.349977762,
+          -0.00124665,
+          -0.000733079,
+          0.012024647
+        ]
+      },
+      "held": {
+        "unsupported_substeps_301_400": 0,
+        "longest_unsupported_seconds_301_400": 0.0,
+        "nonfoot_intervals_301_500": [],
+        "root_displacement_sections_m": [
+          0.025502474999999997,
+          0.03511596100000001,
+          0.034090682799999994
+        ],
+        "upper_body_q_300": [
+          0.000138273,
+          -0.000104032,
+          0.34995535,
+          0.349957228,
+          -0.059912581,
+          -0.040329404,
+          0.268016696
+        ],
+        "upper_body_q_305": [
+          -0.000243817,
+          0.000214661,
+          0.349964261,
+          0.349942535,
+          -0.043823816,
+          -0.028257061,
+          0.268338323
+        ]
+      }
+    },
+    {
+      "lane": 6,
+      "prefix_state_mismatches": 0,
+      "prefix_substep_mismatches": 0,
+      "baseline": {
+        "unsupported_substeps_301_400": 59,
+        "longest_unsupported_seconds_301_400": 0.0275,
+        "nonfoot_intervals_301_500": [],
+        "root_displacement_sections_m": [
+          0.026077762900000002,
+          0.024715302599999996,
+          0.0331562049
+        ],
+        "upper_body_q_300": [
+          -0.000429288,
+          0.000478509,
+          0.3499569,
+          0.349955469,
+          -0.060057849,
+          -0.040184423,
+          0.268613964
+        ],
+        "upper_body_q_305": [
+          -6.818e-05,
+          -6.442e-06,
+          0.349981964,
+          0.349979311,
+          -0.001210215,
+          -0.000771892,
+          0.012079257
+        ]
+      },
+      "held": {
+        "unsupported_substeps_301_400": 0,
+        "longest_unsupported_seconds_301_400": 0.0,
+        "nonfoot_intervals_301_500": [],
+        "root_displacement_sections_m": [
+          0.026077762900000002,
+          0.035546081199999996,
+          0.035235606100000004
+        ],
+        "upper_body_q_300": [
+          -0.000429288,
+          0.000478509,
+          0.3499569,
+          0.349955469,
+          -0.060057849,
+          -0.040184423,
+          0.268613964
+        ],
+        "upper_body_q_305": [
+          -0.00083334,
+          0.000803218,
+          0.34996751,
+          0.349950105,
+          -0.042529676,
+          -0.029552141,
+          0.268479109
+        ]
+      }
+    },
+    {
+      "lane": 7,
+      "prefix_state_mismatches": 0,
+      "prefix_substep_mismatches": 0,
+      "baseline": {
+        "unsupported_substeps_301_400": 60,
+        "longest_unsupported_seconds_301_400": 0.02875,
+        "nonfoot_intervals_301_500": [],
+        "root_displacement_sections_m": [
+          0.029710451639999996,
+          0.023623472,
+          0.034913748599999996
+        ],
+        "upper_body_q_300": [
+          0.000112582,
+          -4.7955e-05,
+          0.349957079,
+          0.349955142,
+          -0.057710987,
+          -0.042531934,
+          0.268758625
+        ],
+        "upper_body_q_305": [
+          -4.4577e-05,
+          -3.2566e-05,
+          0.349981666,
+          0.349978894,
+          -0.001170613,
+          -0.000808825,
+          0.012063611
+        ]
+      },
+      "held": {
+        "unsupported_substeps_301_400": 0,
+        "longest_unsupported_seconds_301_400": 0.0,
+        "nonfoot_intervals_301_500": [],
+        "root_displacement_sections_m": [
+          0.029710451639999996,
+          0.0355264079,
+          0.0337563157
+        ],
+        "upper_body_q_300": [
+          0.000112582,
+          -4.7955e-05,
+          0.349957079,
+          0.349955142,
+          -0.057710987,
+          -0.042531934,
+          0.268758625
+        ],
+        "upper_body_q_305": [
+          -0.000373958,
+          0.000338162,
+          0.349965811,
+          0.349946558,
+          -0.041119002,
+          -0.030961677,
+          0.268449396
+        ]
+      }
+    }
+  ],
+  "errors": {
+    "baseline": [],
+    "held": []
+  },
+  "limits": "One previously used seed; observational normal-impulse threshold, held policy commands after 6 seconds, not biological validation or proof of a unique causal mechanism."
+}
