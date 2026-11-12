@@ -1,0 +1,693 @@
+{
+  "substep_seconds": 0.00125,
+  "seed": 20261127,
+  "window_seconds": [
+    4,
+    6
+  ],
+  "recovery_count": 25,
+  "order_counts": {
+    "raw": {
+      "ankle_first": 16,
+      "same_substep": 9
+    },
+    "21ms_boxcar": {
+      "ankle_first": 25
+    }
+  },
+  "rejections": {
+    "partial_contact": 24,
+    "incomplete_pair": 38,
+    "missing_toe_group": 7
+  },
+  "max_joint_anchor_error_m": 2.0762755686191995e-09,
+  "max_replay_body_position_error_m": 1.971754654831416e-08,
+  "body_motion": [
+    {
+      "lane": 0,
+      "root_z_span_m": 0.0024183239999999995,
+      "roll_span_rad": 0.04063376342249836,
+      "pitch_span_rad": 0.0631402270265077,
+      "head_torso_local_span_m": [
+        0.0002719038795351292,
+        0.0003691666882227991,
+        0.0008928939080587311
+      ]
+    },
+    {
+      "lane": 1,
+      "root_z_span_m": 0.0024278020000000067,
+      "roll_span_rad": 0.040562824008860326,
+      "pitch_span_rad": 0.06534266087791227,
+      "head_torso_local_span_m": [
+        0.00027418128534845154,
+        0.00036520312974555244,
+        0.0009007463648346287
+      ]
+    },
+    {
+      "lane": 2,
+      "root_z_span_m": 0.002404838999999992,
+      "roll_span_rad": 0.04059280339932727,
+      "pitch_span_rad": 0.06396954016627338,
+      "head_torso_local_span_m": [
+        0.0002738573207395345,
+        0.0003749122765898574,
+        0.0008993572626365409
+      ]
+    },
+    {
+      "lane": 3,
+      "root_z_span_m": 0.002258032000000021,
+      "roll_span_rad": 0.041869290207201634,
+      "pitch_span_rad": 0.06452983519438273,
+      "head_torso_local_span_m": [
+        0.0002667307645572714,
+        0.0003601606005598358,
+        0.0008752336451081644
+      ]
+    },
+    {
+      "lane": 4,
+      "root_z_span_m": 0.002398848000000009,
+      "roll_span_rad": 0.04060585303156512,
+      "pitch_span_rad": 0.06493411062031863,
+      "head_torso_local_span_m": [
+        0.0002752642519023296,
+        0.00037116724519035006,
+        0.0009043831053970885
+      ]
+    },
+    {
+      "lane": 5,
+      "root_z_span_m": 0.002411679,
+      "roll_span_rad": 0.04056685379622305,
+      "pitch_span_rad": 0.06534031693037101,
+      "head_torso_local_span_m": [
+        0.00027598329367198304,
+        0.00037607170427903625,
+        0.0009067279592534921
+      ]
+    },
+    {
+      "lane": 6,
+      "root_z_span_m": 0.0024174750000000023,
+      "roll_span_rad": 0.0405963196189246,
+      "pitch_span_rad": 0.06492723991578792,
+      "head_torso_local_span_m": [
+        0.00027681668222914735,
+        0.00037086710577793896,
+        0.0009094791886591624
+      ]
+    },
+    {
+      "lane": 7,
+      "root_z_span_m": 0.002414286999999987,
+      "roll_span_rad": 0.040586763009210575,
+      "pitch_span_rad": 0.0653147356488692,
+      "head_torso_local_span_m": [
+        0.00027604779283557646,
+        0.0003699050501712589,
+        0.000906947647807993
+      ]
+    }
+  ],
+  "records": [
+    {
+      "lane": 0,
+      "side": "left",
+      "recovery_seconds": 0.2125,
+      "raw": {
+        "knee_min_deg": 113.9310330920408,
+        "ankle_min_deg": 58.03752707545334,
+        "ankle_minus_knee_minimum_seconds": -0.02,
+        "order": "ankle_first",
+        "knee_one_degree_index": 113,
+        "ankle_one_degree_index": 122,
+        "one_degree_order": "knee_first"
+      },
+      "21ms_boxcar": {
+        "knee_min_deg": 114.0115864760554,
+        "ankle_min_deg": 58.06800559759395,
+        "ankle_minus_knee_minimum_seconds": -0.00625,
+        "order": "ankle_first",
+        "knee_one_degree_index": 115,
+        "ankle_one_degree_index": 120,
+        "one_degree_order": "knee_first"
+      }
+    },
+    {
+      "lane": 0,
+      "side": "left",
+      "recovery_seconds": 0.1825,
+      "raw": {
+        "knee_min_deg": 113.91468832490358,
+        "ankle_min_deg": 58.03450816052883,
+        "ankle_minus_knee_minimum_seconds": -0.02,
+        "order": "ankle_first",
+        "knee_one_degree_index": 91,
+        "ankle_one_degree_index": 101,
+        "one_degree_order": "knee_first"
+      },
+      "21ms_boxcar": {
+        "knee_min_deg": 113.98845623710868,
+        "ankle_min_deg": 58.06626551107526,
+        "ankle_minus_knee_minimum_seconds": -0.00625,
+        "order": "ankle_first",
+        "knee_one_degree_index": 94,
+        "ankle_one_degree_index": 99,
+        "one_degree_order": "knee_first"
+      }
+    },
+    {
+      "lane": 0,
+      "side": "right",
+      "recovery_seconds": 0.18375,
+      "raw": {
+        "knee_min_deg": 113.84432337758697,
+        "ankle_min_deg": 57.966848260074784,
+        "ankle_minus_knee_minimum_seconds": 0.0,
+        "order": "same_substep",
+        "knee_one_degree_index": 94,
+        "ankle_one_degree_index": 96,
+        "one_degree_order": "knee_first"
+      },
+      "21ms_boxcar": {
+        "knee_min_deg": 114.01789996545266,
+        "ankle_min_deg": 58.04734849069823,
+        "ankle_minus_knee_minimum_seconds": -0.005,
+        "order": "ankle_first",
+        "knee_one_degree_index": 94,
+        "ankle_one_degree_index": 99,
+        "one_degree_order": "knee_first"
+      }
+    },
+    {
+      "lane": 1,
+      "side": "left",
+      "recovery_seconds": 0.2125,
+      "raw": {
+        "knee_min_deg": 113.93099871457288,
+        "ankle_min_deg": 58.03745534113915,
+        "ankle_minus_knee_minimum_seconds": -0.02,
+        "order": "ankle_first",
+        "knee_one_degree_index": 113,
+        "ankle_one_degree_index": 122,
+        "one_degree_order": "knee_first"
+      },
+      "21ms_boxcar": {
+        "knee_min_deg": 114.01159891260998,
+        "ankle_min_deg": 58.06795717929087,
+        "ankle_minus_knee_minimum_seconds": -0.00625,
+        "order": "ankle_first",
+        "knee_one_degree_index": 115,
+        "ankle_one_degree_index": 120,
+        "one_degree_order": "knee_first"
+      }
+    },
+    {
+      "lane": 1,
+      "side": "left",
+      "recovery_seconds": 0.1825,
+      "raw": {
+        "knee_min_deg": 113.91450383249222,
+        "ankle_min_deg": 58.03492819587792,
+        "ankle_minus_knee_minimum_seconds": -0.02,
+        "order": "ankle_first",
+        "knee_one_degree_index": 91,
+        "ankle_one_degree_index": 101,
+        "one_degree_order": "knee_first"
+      },
+      "21ms_boxcar": {
+        "knee_min_deg": 113.98807811866459,
+        "ankle_min_deg": 58.06657708214642,
+        "ankle_minus_knee_minimum_seconds": -0.00625,
+        "order": "ankle_first",
+        "knee_one_degree_index": 94,
+        "ankle_one_degree_index": 99,
+        "one_degree_order": "knee_first"
+      }
+    },
+    {
+      "lane": 1,
+      "side": "right",
+      "recovery_seconds": 0.18375,
+      "raw": {
+        "knee_min_deg": 113.84411883165268,
+        "ankle_min_deg": 57.96696439861723,
+        "ankle_minus_knee_minimum_seconds": 0.0,
+        "order": "same_substep",
+        "knee_one_degree_index": 94,
+        "ankle_one_degree_index": 96,
+        "one_degree_order": "knee_first"
+      },
+      "21ms_boxcar": {
+        "knee_min_deg": 114.01764968400461,
+        "ankle_min_deg": 58.04753592204027,
+        "ankle_minus_knee_minimum_seconds": -0.005,
+        "order": "ankle_first",
+        "knee_one_degree_index": 94,
+        "ankle_one_degree_index": 99,
+        "one_degree_order": "knee_first"
+      }
+    },
+    {
+      "lane": 2,
+      "side": "left",
+      "recovery_seconds": 0.2125,
+      "raw": {
+        "knee_min_deg": 113.93093053259477,
+        "ankle_min_deg": 58.03746559708346,
+        "ankle_minus_knee_minimum_seconds": -0.02,
+        "order": "ankle_first",
+        "knee_one_degree_index": 113,
+        "ankle_one_degree_index": 122,
+        "one_degree_order": "knee_first"
+      },
+      "21ms_boxcar": {
+        "knee_min_deg": 114.01156433292164,
+        "ankle_min_deg": 58.06796983154689,
+        "ankle_minus_knee_minimum_seconds": -0.00625,
+        "order": "ankle_first",
+        "knee_one_degree_index": 115,
+        "ankle_one_degree_index": 120,
+        "one_degree_order": "knee_first"
+      }
+    },
+    {
+      "lane": 2,
+      "side": "left",
+      "recovery_seconds": 0.1825,
+      "raw": {
+        "knee_min_deg": 113.9143124645873,
+        "ankle_min_deg": 58.034822313279825,
+        "ankle_minus_knee_minimum_seconds": -0.02,
+        "order": "ankle_first",
+        "knee_one_degree_index": 91,
+        "ankle_one_degree_index": 101,
+        "one_degree_order": "knee_first"
+      },
+      "21ms_boxcar": {
+        "knee_min_deg": 113.98799460163951,
+        "ankle_min_deg": 58.0665346933814,
+        "ankle_minus_knee_minimum_seconds": -0.00625,
+        "order": "ankle_first",
+        "knee_one_degree_index": 94,
+        "ankle_one_degree_index": 99,
+        "one_degree_order": "knee_first"
+      }
+    },
+    {
+      "lane": 2,
+      "side": "right",
+      "recovery_seconds": 0.18375,
+      "raw": {
+        "knee_min_deg": 113.84425519560885,
+        "ankle_min_deg": 57.966899482500665,
+        "ankle_minus_knee_minimum_seconds": 0.0,
+        "order": "same_substep",
+        "knee_one_degree_index": 94,
+        "ankle_one_degree_index": 96,
+        "one_degree_order": "knee_first"
+      },
+      "21ms_boxcar": {
+        "knee_min_deg": 114.01779386714959,
+        "ankle_min_deg": 58.04745496310588,
+        "ankle_minus_knee_minimum_seconds": -0.005,
+        "order": "ankle_first",
+        "knee_one_degree_index": 94,
+        "ankle_one_degree_index": 99,
+        "one_degree_order": "knee_first"
+      }
+    },
+    {
+      "lane": 3,
+      "side": "left",
+      "recovery_seconds": 0.195,
+      "raw": {
+        "knee_min_deg": 113.91416922513751,
+        "ankle_min_deg": 58.03377729555578,
+        "ankle_minus_knee_minimum_seconds": -0.02,
+        "order": "ankle_first",
+        "knee_one_degree_index": 99,
+        "ankle_one_degree_index": 109,
+        "one_degree_order": "knee_first"
+      },
+      "21ms_boxcar": {
+        "knee_min_deg": 113.98765547802918,
+        "ankle_min_deg": 58.06564074104009,
+        "ankle_minus_knee_minimum_seconds": -0.00625,
+        "order": "ankle_first",
+        "knee_one_degree_index": 102,
+        "ankle_one_degree_index": 107,
+        "one_degree_order": "knee_first"
+      }
+    },
+    {
+      "lane": 3,
+      "side": "left",
+      "recovery_seconds": 0.1925,
+      "raw": {
+        "knee_min_deg": 113.91355444141902,
+        "ankle_min_deg": 58.03412565388616,
+        "ankle_minus_knee_minimum_seconds": -0.02,
+        "order": "ankle_first",
+        "knee_one_degree_index": 98,
+        "ankle_one_degree_index": 108,
+        "one_degree_order": "knee_first"
+      },
+      "21ms_boxcar": {
+        "knee_min_deg": 113.98694480813779,
+        "ankle_min_deg": 58.06598627165549,
+        "ankle_minus_knee_minimum_seconds": -0.00625,
+        "order": "ankle_first",
+        "knee_one_degree_index": 101,
+        "ankle_one_degree_index": 106,
+        "one_degree_order": "knee_first"
+      }
+    },
+    {
+      "lane": 3,
+      "side": "right",
+      "recovery_seconds": 0.18375,
+      "raw": {
+        "knee_min_deg": 113.8441050806655,
+        "ankle_min_deg": 57.966967836363864,
+        "ankle_minus_knee_minimum_seconds": 0.0,
+        "order": "same_substep",
+        "knee_one_degree_index": 94,
+        "ankle_one_degree_index": 96,
+        "one_degree_order": "knee_first"
+      },
+      "21ms_boxcar": {
+        "knee_min_deg": 114.01762801271843,
+        "ankle_min_deg": 58.04754416252125,
+        "ankle_minus_knee_minimum_seconds": -0.005,
+        "order": "ankle_first",
+        "knee_one_degree_index": 94,
+        "ankle_one_degree_index": 99,
+        "one_degree_order": "knee_first"
+      }
+    },
+    {
+      "lane": 3,
+      "side": "right",
+      "recovery_seconds": 0.20375000000000001,
+      "raw": {
+        "knee_min_deg": 113.91055615325591,
+        "ankle_min_deg": 57.971868459396276,
+        "ankle_minus_knee_minimum_seconds": 0.0,
+        "order": "same_substep",
+        "knee_one_degree_index": 110,
+        "ankle_one_degree_index": 112,
+        "one_degree_order": "knee_first"
+      },
+      "21ms_boxcar": {
+        "knee_min_deg": 114.08702112250073,
+        "ankle_min_deg": 58.05431688823626,
+        "ankle_minus_knee_minimum_seconds": -0.005,
+        "order": "ankle_first",
+        "knee_one_degree_index": 110,
+        "ankle_one_degree_index": 115,
+        "one_degree_order": "knee_first"
+      }
+    },
+    {
+      "lane": 4,
+      "side": "left",
+      "recovery_seconds": 0.2125,
+      "raw": {
+        "knee_min_deg": 113.93064348073736,
+        "ankle_min_deg": 58.03743144879962,
+        "ankle_minus_knee_minimum_seconds": -0.02,
+        "order": "ankle_first",
+        "knee_one_degree_index": 113,
+        "ankle_one_degree_index": 122,
+        "one_degree_order": "knee_first"
+      },
+      "21ms_boxcar": {
+        "knee_min_deg": 114.01141286984226,
+        "ankle_min_deg": 58.06796741838324,
+        "ankle_minus_knee_minimum_seconds": -0.00625,
+        "order": "ankle_first",
+        "knee_one_degree_index": 115,
+        "ankle_one_degree_index": 120,
+        "one_degree_order": "knee_first"
+      }
+    },
+    {
+      "lane": 4,
+      "side": "left",
+      "recovery_seconds": 0.1825,
+      "raw": {
+        "knee_min_deg": 113.91428496261295,
+        "ankle_min_deg": 58.03482575102636,
+        "ankle_minus_knee_minimum_seconds": -0.02,
+        "order": "ankle_first",
+        "knee_one_degree_index": 91,
+        "ankle_one_degree_index": 101,
+        "one_degree_order": "knee_first"
+      },
+      "21ms_boxcar": {
+        "knee_min_deg": 113.98796683003796,
+        "ankle_min_deg": 58.066543334932845,
+        "ankle_minus_knee_minimum_seconds": -0.00625,
+        "order": "ankle_first",
+        "knee_one_degree_index": 94,
+        "ankle_one_degree_index": 99,
+        "one_degree_order": "knee_first"
+      }
+    },
+    {
+      "lane": 4,
+      "side": "right",
+      "recovery_seconds": 0.18375,
+      "raw": {
+        "knee_min_deg": 113.84408445418471,
+        "ankle_min_deg": 57.96697121681468,
+        "ankle_minus_knee_minimum_seconds": 0.0,
+        "order": "same_substep",
+        "knee_one_degree_index": 94,
+        "ankle_one_degree_index": 96,
+        "one_degree_order": "knee_first"
+      },
+      "21ms_boxcar": {
+        "knee_min_deg": 114.01763795522143,
+        "ankle_min_deg": 58.04749313220483,
+        "ankle_minus_knee_minimum_seconds": -0.005,
+        "order": "ankle_first",
+        "knee_one_degree_index": 94,
+        "ankle_one_degree_index": 99,
+        "one_degree_order": "knee_first"
+      }
+    },
+    {
+      "lane": 5,
+      "side": "left",
+      "recovery_seconds": 0.2125,
+      "raw": {
+        "knee_min_deg": 113.93071166271548,
+        "ankle_min_deg": 58.037451960688195,
+        "ankle_minus_knee_minimum_seconds": -0.02,
+        "order": "ankle_first",
+        "knee_one_degree_index": 113,
+        "ankle_one_degree_index": 122,
+        "one_degree_order": "knee_first"
+      },
+      "21ms_boxcar": {
+        "knee_min_deg": 114.01143541741682,
+        "ankle_min_deg": 58.0679819007338,
+        "ankle_minus_knee_minimum_seconds": -0.00625,
+        "order": "ankle_first",
+        "knee_one_degree_index": 115,
+        "ankle_one_degree_index": 120,
+        "one_degree_order": "knee_first"
+      }
+    },
+    {
+      "lane": 5,
+      "side": "left",
+      "recovery_seconds": 0.1825,
+      "raw": {
+        "knee_min_deg": 113.91439439755258,
+        "ankle_min_deg": 58.035020384784644,
+        "ankle_minus_knee_minimum_seconds": -0.02,
+        "order": "ankle_first",
+        "knee_one_degree_index": 91,
+        "ankle_one_degree_index": 101,
+        "one_degree_order": "knee_first"
+      },
+      "21ms_boxcar": {
+        "knee_min_deg": 113.98794192322539,
+        "ankle_min_deg": 58.06665643005839,
+        "ankle_minus_knee_minimum_seconds": -0.00625,
+        "order": "ankle_first",
+        "knee_one_degree_index": 94,
+        "ankle_one_degree_index": 99,
+        "one_degree_order": "knee_first"
+      }
+    },
+    {
+      "lane": 5,
+      "side": "right",
+      "recovery_seconds": 0.18375,
+      "raw": {
+        "knee_min_deg": 113.84411883165265,
+        "ankle_min_deg": 57.96695758041954,
+        "ankle_minus_knee_minimum_seconds": 0.0,
+        "order": "same_substep",
+        "knee_one_degree_index": 94,
+        "ankle_one_degree_index": 96,
+        "one_degree_order": "knee_first"
+      },
+      "21ms_boxcar": {
+        "knee_min_deg": 114.01767095084998,
+        "ankle_min_deg": 58.04748248530119,
+        "ankle_minus_knee_minimum_seconds": -0.005,
+        "order": "ankle_first",
+        "knee_one_degree_index": 94,
+        "ankle_one_degree_index": 99,
+        "one_degree_order": "knee_first"
+      }
+    },
+    {
+      "lane": 6,
+      "side": "left",
+      "recovery_seconds": 0.2125,
+      "raw": {
+        "knee_min_deg": 113.93070478722193,
+        "ankle_min_deg": 58.03747929077434,
+        "ankle_minus_knee_minimum_seconds": -0.02,
+        "order": "ankle_first",
+        "knee_one_degree_index": 113,
+        "ankle_one_degree_index": 122,
+        "one_degree_order": "knee_first"
+      },
+      "21ms_boxcar": {
+        "knee_min_deg": 114.01141445390205,
+        "ankle_min_deg": 58.067998162623745,
+        "ankle_minus_knee_minimum_seconds": -0.00625,
+        "order": "ankle_first",
+        "knee_one_degree_index": 115,
+        "ankle_one_degree_index": 120,
+        "one_degree_order": "knee_first"
+      }
+    },
+    {
+      "lane": 6,
+      "side": "left",
+      "recovery_seconds": 0.1825,
+      "raw": {
+        "knee_min_deg": 113.9143806465654,
+        "ankle_min_deg": 58.035071607210284,
+        "ankle_minus_knee_minimum_seconds": -0.02,
+        "order": "ankle_first",
+        "knee_one_degree_index": 91,
+        "ankle_one_degree_index": 101,
+        "one_degree_order": "knee_first"
+      },
+      "21ms_boxcar": {
+        "knee_min_deg": 113.98788129080889,
+        "ankle_min_deg": 58.06670343955922,
+        "ankle_minus_knee_minimum_seconds": -0.00625,
+        "order": "ankle_first",
+        "knee_one_degree_index": 94,
+        "ankle_one_degree_index": 99,
+        "one_degree_order": "knee_first"
+      }
+    },
+    {
+      "lane": 6,
+      "side": "right",
+      "recovery_seconds": 0.18375,
+      "raw": {
+        "knee_min_deg": 113.84409132967829,
+        "ankle_min_deg": 57.96697465456145,
+        "ankle_minus_knee_minimum_seconds": 0.0,
+        "order": "same_substep",
+        "knee_one_degree_index": 94,
+        "ankle_one_degree_index": 96,
+        "one_degree_order": "knee_first"
+      },
+      "21ms_boxcar": {
+        "knee_min_deg": 114.01764328035863,
+        "ankle_min_deg": 58.04750700115359,
+        "ankle_minus_knee_minimum_seconds": -0.005,
+        "order": "ankle_first",
+        "knee_one_degree_index": 94,
+        "ankle_one_degree_index": 99,
+        "one_degree_order": "knee_first"
+      }
+    },
+    {
+      "lane": 7,
+      "side": "left",
+      "recovery_seconds": 0.2125,
+      "raw": {
+        "knee_min_deg": 113.93074604018341,
+        "ankle_min_deg": 58.037434886546336,
+        "ankle_minus_knee_minimum_seconds": -0.02,
+        "order": "ankle_first",
+        "knee_one_degree_index": 113,
+        "ankle_one_degree_index": 122,
+        "one_degree_order": "knee_first"
+      },
+      "21ms_boxcar": {
+        "knee_min_deg": 114.01147640075116,
+        "ankle_min_deg": 58.067959791304084,
+        "ankle_minus_knee_minimum_seconds": -0.00625,
+        "order": "ankle_first",
+        "knee_one_degree_index": 115,
+        "ankle_one_degree_index": 120,
+        "one_degree_order": "knee_first"
+      }
+    },
+    {
+      "lane": 7,
+      "side": "left",
+      "recovery_seconds": 0.1825,
+      "raw": {
+        "knee_min_deg": 113.91438064656545,
+        "ankle_min_deg": 58.03503745892648,
+        "ankle_minus_knee_minimum_seconds": -0.02,
+        "order": "ankle_first",
+        "knee_one_degree_index": 91,
+        "ankle_one_degree_index": 101,
+        "one_degree_order": "knee_first"
+      },
+      "21ms_boxcar": {
+        "knee_min_deg": 113.98791546605644,
+        "ankle_min_deg": 58.066671498848,
+        "ankle_minus_knee_minimum_seconds": -0.00625,
+        "order": "ankle_first",
+        "knee_one_degree_index": 94,
+        "ankle_one_degree_index": 99,
+        "one_degree_order": "knee_first"
+      }
+    },
+    {
+      "lane": 7,
+      "side": "right",
+      "recovery_seconds": 0.18375,
+      "raw": {
+        "knee_min_deg": 113.84411883165261,
+        "ankle_min_deg": 57.96695758041951,
+        "ankle_minus_knee_minimum_seconds": 0.0,
+        "order": "same_substep",
+        "knee_one_degree_index": 94,
+        "ankle_one_degree_index": 96,
+        "one_degree_order": "knee_first"
+      },
+      "21ms_boxcar": {
+        "knee_min_deg": 114.01766421016998,
+        "ankle_min_deg": 58.04749755409085,
+        "ankle_minus_knee_minimum_seconds": -0.005,
+        "order": "ankle_first",
+        "knee_one_degree_index": 94,
+        "ankle_one_degree_index": 99,
+        "one_degree_order": "knee_first"
+      }
+    }
+  ],
+  "scope": "Development baseline, matched accepted contact substeps and 800 Hz q/v; 3D angle from thigh-shank-foot joint anchors and modeled rigid foot local axis; anatomical correspondence remains unverified. One-degree excursion from each window minimum after smoothing is a thresholded phase proxy, not extension onset. Group <=2 silent substeps, reject incomplete contacts, missing toe groups, contact or recovery under 40 ms; smoothing is a centered 21.25 ms boxcar without a biological sampling calibration. Minimum-angle ordering is a proxy for extension onset, not direct onset measurement. Different species, speeds, surfaces and anatomy prevent biological validation."
+}

@@ -1,0 +1,3 @@
+# Physical ankle segment gait phase audit
+
+Repeat the retained exactly matched 800 Hz gait reconstruction, retaining the existing contact and recovery segmentation. Define the modeled ankle angle using the rigid foot segment direction from the actual ankle anchor rather than a moving toe landmark. Compare knee and ankle minimum times and the first sustained one-degree extension excursion from each smoothed minimum; report incomplete excursions. Neither measure directly establishes biological onset, and crow versus magpie species, speed, surface and anatomy differ. Do not prescribe undocumented head or neck motion.
