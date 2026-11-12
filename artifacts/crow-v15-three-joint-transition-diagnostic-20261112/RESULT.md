@@ -1,0 +1,3 @@
+# Support transition inspection
+
+In lane 5 of the three-joint candidate, the brief zero-normal samples cluster at steps 265–266 and 290–291, one 0.5 s gait period apart. In each event, the root vertical velocity changes from about +0.116 m/s to -0.071 m/s over one 20 ms interval, alongside a sharp reduction in summed foot normal impulses; normal support resumes in the next interval. The matched small-stroke sham does not show the same local normal gap. These observations describe one recorded lane and do not identify the cause or prove a fall. The phase-aligned impulse transient motivates a smaller lift amplitude test, while retaining the same support and clearance gates.

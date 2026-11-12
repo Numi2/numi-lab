@@ -1,0 +1,13 @@
+--- three-joint/task.metal
++++ reduced/task.metal
+@@ -5088,8 +5088,8 @@
+             const float lift=max(swing,0.0f);
+             if (seconds >= begin && seconds < begin+6.0f)
+                 navigationTeacherRequested=0.80f*smoothstep(begin,begin+.50f,seconds)*(joint==0u ? -0.30f*swing : joint==1u ? 0.40f*lift : -0.15f*lift);
+-            if (program.interactionTiming.w>=0.5f && seconds>=begin && seconds<begin+6.0f && support>0.05f && lift>0.0f) {
+-                const float amplitude=0.20f*smoothstep(begin,begin+.50f,seconds)*lift;
++            if (seconds>=begin && seconds<begin+6.0f && support>0.05f && lift>0.0f) {
++                const float amplitude=(program.interactionTiming.w>=0.5f ? 0.15f : 0.20f)*smoothstep(begin,begin+.50f,seconds)*lift;
+                 navigationTeacherRequested += joint==0u ? -0.5f*amplitude/0.70f : joint==1u ? amplitude/0.75f : -0.5f*amplitude/0.65f;
+             }
+             else if (seconds>=2.0f && seconds<begin)
