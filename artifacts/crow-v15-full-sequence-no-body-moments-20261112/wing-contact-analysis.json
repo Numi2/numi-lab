@@ -1,0 +1,286 @@
+{
+  "rows": [
+    {
+      "lane": 0,
+      "initially_loaded": true,
+      "contact_transitions": [
+        [
+          354,
+          12,
+          "unloaded"
+        ],
+        [
+          354,
+          13,
+          "loaded"
+        ]
+      ],
+      "first_unloaded_substep": [
+        354,
+        12
+      ],
+      "last_substep_before_first_unload": [
+        354,
+        11
+      ],
+      "wing_center_delta_m_before_first_unload": {
+        "left": 2.449084648852018e-06,
+        "right": 2.4328715209943896e-06
+      },
+      "foot_upward_impulse_to_first_unload_Ns": 1.3298773476393317,
+      "model_weight_impulse_same_window_Ns": 1.3024511370000003,
+      "toe_velocity_caps_340_370": 0
+    },
+    {
+      "lane": 1,
+      "initially_loaded": true,
+      "contact_transitions": [
+        [
+          354,
+          12,
+          "unloaded"
+        ],
+        [
+          354,
+          13,
+          "loaded"
+        ]
+      ],
+      "first_unloaded_substep": [
+        354,
+        12
+      ],
+      "last_substep_before_first_unload": [
+        354,
+        11
+      ],
+      "wing_center_delta_m_before_first_unload": {
+        "left": 2.4470174197627204e-06,
+        "right": 2.4336121621573725e-06
+      },
+      "foot_upward_impulse_to_first_unload_Ns": 1.3298650283853009,
+      "model_weight_impulse_same_window_Ns": 1.3024511370000003,
+      "toe_velocity_caps_340_370": 0
+    },
+    {
+      "lane": 2,
+      "initially_loaded": true,
+      "contact_transitions": [
+        [
+          352,
+          3,
+          "unloaded"
+        ]
+      ],
+      "first_unloaded_substep": [
+        352,
+        3
+      ],
+      "last_substep_before_first_unload": [
+        352,
+        2
+      ],
+      "wing_center_delta_m_before_first_unload": {
+        "left": -0.02564598735248195,
+        "right": -0.02822891486824107
+      },
+      "foot_upward_impulse_to_first_unload_Ns": 1.1110305676854797,
+      "model_weight_impulse_same_window_Ns": 1.0761778462500002,
+      "toe_velocity_caps_340_370": 0
+    },
+    {
+      "lane": 3,
+      "initially_loaded": true,
+      "contact_transitions": [
+        [
+          352,
+          3,
+          "unloaded"
+        ]
+      ],
+      "first_unloaded_substep": [
+        352,
+        3
+      ],
+      "last_substep_before_first_unload": [
+        352,
+        2
+      ],
+      "wing_center_delta_m_before_first_unload": {
+        "left": -0.02575224282411929,
+        "right": -0.028396437005973586
+      },
+      "foot_upward_impulse_to_first_unload_Ns": 1.1074793297061079,
+      "model_weight_impulse_same_window_Ns": 1.0761778462500002,
+      "toe_velocity_caps_340_370": 0
+    },
+    {
+      "lane": 4,
+      "initially_loaded": true,
+      "contact_transitions": [
+        [
+          354,
+          10,
+          "unloaded"
+        ],
+        [
+          355,
+          0,
+          "loaded"
+        ],
+        [
+          356,
+          10,
+          "unloaded"
+        ]
+      ],
+      "first_unloaded_substep": [
+        354,
+        10
+      ],
+      "last_substep_before_first_unload": [
+        354,
+        9
+      ],
+      "wing_center_delta_m_before_first_unload": {
+        "left": -0.03602838896143572,
+        "right": -0.04049696360619444
+      },
+      "foot_upward_impulse_to_first_unload_Ns": 1.222743371283533,
+      "model_weight_impulse_same_window_Ns": 1.2914134155,
+      "toe_velocity_caps_340_370": 0
+    },
+    {
+      "lane": 5,
+      "initially_loaded": true,
+      "contact_transitions": [
+        [
+          352,
+          8,
+          "unloaded"
+        ],
+        [
+          352,
+          14,
+          "loaded"
+        ],
+        [
+          354,
+          9,
+          "unloaded"
+        ],
+        [
+          355,
+          0,
+          "loaded"
+        ],
+        [
+          355,
+          10,
+          "unloaded"
+        ],
+        [
+          355,
+          11,
+          "loaded"
+        ],
+        [
+          356,
+          10,
+          "unloaded"
+        ]
+      ],
+      "first_unloaded_substep": [
+        352,
+        8
+      ],
+      "last_substep_before_first_unload": [
+        352,
+        7
+      ],
+      "wing_center_delta_m_before_first_unload": {
+        "left": -0.014642944450158703,
+        "right": -0.015973790524815415
+      },
+      "foot_upward_impulse_to_first_unload_Ns": 1.1686184700504008,
+      "model_weight_impulse_same_window_Ns": 1.1037721500000002,
+      "toe_velocity_caps_340_370": 0
+    },
+    {
+      "lane": 6,
+      "initially_loaded": true,
+      "contact_transitions": [
+        [
+          354,
+          12,
+          "unloaded"
+        ],
+        [
+          354,
+          14,
+          "loaded"
+        ],
+        [
+          357,
+          10,
+          "unloaded"
+        ]
+      ],
+      "first_unloaded_substep": [
+        354,
+        12
+      ],
+      "last_substep_before_first_unload": [
+        354,
+        11
+      ],
+      "wing_center_delta_m_before_first_unload": {
+        "left": -0.014419435221338393,
+        "right": -0.01615770412524149
+      },
+      "foot_upward_impulse_to_first_unload_Ns": 1.3018803216197854,
+      "model_weight_impulse_same_window_Ns": 1.3024511370000003,
+      "toe_velocity_caps_340_370": 0
+    },
+    {
+      "lane": 7,
+      "initially_loaded": true,
+      "contact_transitions": [
+        [
+          354,
+          12,
+          "unloaded"
+        ],
+        [
+          354,
+          15,
+          "loaded"
+        ],
+        [
+          357,
+          10,
+          "unloaded"
+        ]
+      ],
+      "first_unloaded_substep": [
+        354,
+        12
+      ],
+      "last_substep_before_first_unload": [
+        354,
+        11
+      ],
+      "wing_center_delta_m_before_first_unload": {
+        "left": -0.014136343444609555,
+        "right": -0.016759660270546328
+      },
+      "foot_upward_impulse_to_first_unload_Ns": 1.3015662909624872,
+      "model_weight_impulse_same_window_Ns": 1.3024511370000003,
+      "toe_velocity_caps_340_370": 0
+    }
+  ],
+  "endpoint_substep_q_max_error": 0.0,
+  "replay_fk_position_error_m": 1.631060913161225e-08,
+  "replay_fk_orientation_error": 3.0995055876680035e-08,
+  "scope": "Used development seed; first-unload transitions are explicit and may be followed by recontact. Wing-center movement is relative to body, not feather or force; within-substep ordering cannot be resolved. Contact impulse includes body weight and non-muscle forces."
+}

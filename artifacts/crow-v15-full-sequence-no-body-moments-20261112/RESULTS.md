@@ -1,0 +1,7 @@
+# Body moments removed for the entire start: development screen
+
+The prior early-wing diagnostic is repeated with direct body-moment actions 13 and 14 suppressed from the start, instead of from 6.30 s. Eight teacher-off lanes, used development seed 20261127, 16 substeps and a 10 s horizon; empirical aerodynamic closures remain. Exact recorded states and contacts first diverge from the prior run at interval 102.
+
+All lanes complete the short horizon without reported failure, and all have no observed both-feet-unloaded substeps or toe-velocity caps in the 4–6 s walking window. The two lanes without early wings remain grounded at 10 s. The six early-wing lanes remain airborne without foot loads from 8–10 s; only the two fastest-onset lanes reach the first waypoint flag, and none reach the remaining route or a landing. The modeled wing centers move down before first foot unload; several lanes recontact. The absence of toe caps says nothing about the knee velocity cap: a separate matched earlier screen found that the push hits the 22 rad/s hard knee limit repeatedly. This candidate is therefore not qualified or promoted, and joint saturation must be checked directly here and in subsequent variants.
+
+These are previously used starts without robustness, realism, aerodynamic, leg-work, flight, unused-layout navigation, toe grip or landing qualification. See the synchronized contact-transition and analysis records.

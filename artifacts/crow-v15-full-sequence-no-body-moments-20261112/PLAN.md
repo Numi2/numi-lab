@@ -1,0 +1,3 @@
+# Remove direct body moments for the whole start
+
+Matched teacher-off eight-lane development screen: compare the early-wing launch with direct body-moment actions 13 and 14 suppressed from 0 s versus from 6.30 s. Other control inputs and empirical aerodynamic closures remain. Check initial grounded stability, contact and leg motion, first unloading/recontact, wing timing, toe limits and sustained flight through 10 s. The prior candidate had moment assistance before 6.30 s, so this is necessary before claiming a fully unassisted physical start. Used seed and no perturbation make it a screen, not qualification.
