@@ -1,0 +1,3 @@
+# Equal-sign wing pronation command identification
+
+The earlier antisymmetric actuator commands alter the same direction in command space as the existing speed correction, so their interpretation as pure left–right steering is not established. In matched open flight on development seed 20261126, test equal-sign offsets of ±0.1, ±0.2, and ±0.3 on the two ordinary pronation action lanes from 12–13 s, with two unchanged controls and artificial body moments disabled. Compare physical joint positions, trajectory, body attitude, speed, altitude, contact, and actuator saturation. Command signs alone do not establish aerodynamic symmetry; inspect axes and executed positions before interpreting. This is model identification, not a qualified flight controller or navigation.
