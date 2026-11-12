@@ -1,0 +1,63 @@
+{
+  "source": "retained obstacle-free continuous-launch development run, seed 20261126 lane 5",
+  "accepted_q_match_max_abs": 4.987182666837953e-09,
+  "accepted_v_match_max_abs": 4.994812119463177e-09,
+  "matched_steps": 301,
+  "total": {
+    "contact_samples": 4829,
+    "summed_sampled_normal_impulse_ns": 1.5966549325779822,
+    "impulse_weighted_mean_m_s": 0.009815675163545751,
+    "impulse_weighted_p50_m_s": 0.0035750743684591388,
+    "impulse_weighted_p90_m_s": 0.026340541788199445,
+    "impulse_weighted_p99_m_s": 0.07195860797065078,
+    "max_m_s": 0.145568813918619,
+    "impulse_fraction_above_0_05_m_s": 0.03291203857757781
+  },
+  "left": {
+    "contact_samples": 1950,
+    "summed_sampled_normal_impulse_ns": 0.8008943446000235,
+    "impulse_weighted_mean_m_s": 0.00964202525123651,
+    "impulse_weighted_p50_m_s": 0.0033400677876645486,
+    "impulse_weighted_p90_m_s": 0.026031354949533528,
+    "impulse_weighted_p99_m_s": 0.07978528409334967,
+    "max_m_s": 0.145568813918619,
+    "impulse_fraction_above_0_05_m_s": 0.04381208382684194
+  },
+  "right": {
+    "contact_samples": 2879,
+    "summed_sampled_normal_impulse_ns": 0.795760587977958,
+    "impulse_weighted_mean_m_s": 0.009990445358011078,
+    "impulse_weighted_p50_m_s": 0.003871098568731208,
+    "impulse_weighted_p90_m_s": 0.029635998501265203,
+    "impulse_weighted_p99_m_s": 0.07056010893753485,
+    "max_m_s": 0.13811218279158033,
+    "impulse_fraction_above_0_05_m_s": 0.02194167295768393
+  },
+  "body_center_of_mass_velocity_consistency": {
+    "crow_left_foot": {
+      "mean_velocity_difference_m_s": 0.05027879233812482,
+      "mean_reported_speed_m_s": 0.05323946603798182
+    },
+    "crow_right_foot": {
+      "mean_velocity_difference_m_s": 0.057834826674959615,
+      "mean_reported_speed_m_s": 0.05454913012756945
+    },
+    "crow_left_front_toe_1_proximal": {
+      "mean_velocity_difference_m_s": 0.05008409133971905,
+      "mean_reported_speed_m_s": 0.05300084286145745
+    },
+    "crow_left_front_toe_1_distal": {
+      "mean_velocity_difference_m_s": 0.05052120413550684,
+      "mean_reported_speed_m_s": 0.052960889213501325
+    },
+    "crow_right_front_toe_1_proximal": {
+      "mean_velocity_difference_m_s": 0.05766153664034607,
+      "mean_reported_speed_m_s": 0.05482685226476248
+    },
+    "crow_right_front_toe_1_distal": {
+      "mean_velocity_difference_m_s": 0.05894696994574891,
+      "mean_reported_speed_m_s": 0.05676244086654243
+    }
+  },
+  "limitations": "Final substep contact point and accepted endpoint body velocity, one development lane, not continuous slip distance or a biological target; normal impulse weighting only samples final substeps."
+}
