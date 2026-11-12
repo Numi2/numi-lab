@@ -1,0 +1,11 @@
+--- a/World.metal
++++ b/toe-interpolation-world.metal
+@@ -324,7 +324,7 @@
+                 coordinate
+             ];
+             if ((dispatch.flags & MR_METAL_WORLD_NATIVE_TASK) != 0u &&
+-                (dof.qIndex==15u || dof.qIndex==16u || dof.qIndex==18u || dof.qIndex==19u)) {
++                (dof.qIndex==15u || dof.qIndex==16u || dof.qIndex==18u || dof.qIndex==19u || dof.qIndex==29u || dof.qIndex==30u || dof.qIndex==37u || dof.qIndex==38u)) {
+                 const float previous=effortTrajectory[dispatch.effortStepStride+environment*dispatch.effortEnvironmentStride+coordinate];
+                 if (previous != target) target=mix(previous,target,float(pass.physicsSubstep+1u)/float(dispatch.physicsSubsteps));
+             }

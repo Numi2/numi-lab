@@ -1,0 +1,10 @@
+{
+  "unsmoothed": {
+    "minimum_rad_s": -0.270737499,
+    "maximum_rad_s": -0.036645636
+  },
+  "smoothed": {
+    "minimum_rad_s": -0.182400018,
+    "maximum_rad_s": -0.00698003871
+  }
+}
