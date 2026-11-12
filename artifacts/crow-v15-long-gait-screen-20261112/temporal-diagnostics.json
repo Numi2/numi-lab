@@ -1,0 +1,569 @@
+{
+  "arms": {
+    "sham": [
+      {
+        "lane": 0,
+        "two_second_sections": [
+          {
+            "steps": [
+              201,
+              300
+            ],
+            "root_displacement_m": 0.0253512273,
+            "mean_root_speed_m_s": 0.01267561365,
+            "unsupported_substeps": 0
+          },
+          {
+            "steps": [
+              301,
+              400
+            ],
+            "root_displacement_m": 0.023851990679999997,
+            "mean_root_speed_m_s": 0.011925995339999999,
+            "unsupported_substeps": 58
+          },
+          {
+            "steps": [
+              401,
+              500
+            ],
+            "root_displacement_m": 0.034012883019999995,
+            "mean_root_speed_m_s": 0.017006441509999998,
+            "unsupported_substeps": 0
+          }
+        ],
+        "unsupported_bouts": 3,
+        "longest_unsupported_s": 0.0275,
+        "first_unsupported_step": 305
+      },
+      {
+        "lane": 1,
+        "two_second_sections": [
+          {
+            "steps": [
+              201,
+              300
+            ],
+            "root_displacement_m": 0.02569086198,
+            "mean_root_speed_m_s": 0.01284543099,
+            "unsupported_substeps": 0
+          },
+          {
+            "steps": [
+              301,
+              400
+            ],
+            "root_displacement_m": 0.022050112499999996,
+            "mean_root_speed_m_s": 0.011025056249999998,
+            "unsupported_substeps": 104
+          },
+          {
+            "steps": [
+              401,
+              500
+            ],
+            "root_displacement_m": 0.0348505638,
+            "mean_root_speed_m_s": 0.0174252819,
+            "unsupported_substeps": 0
+          }
+        ],
+        "unsupported_bouts": 6,
+        "longest_unsupported_s": 0.02875,
+        "first_unsupported_step": 305
+      },
+      {
+        "lane": 2,
+        "two_second_sections": [
+          {
+            "steps": [
+              201,
+              300
+            ],
+            "root_displacement_m": 0.025710839759999996,
+            "mean_root_speed_m_s": 0.012855419879999998,
+            "unsupported_substeps": 0
+          },
+          {
+            "steps": [
+              301,
+              400
+            ],
+            "root_displacement_m": 0.024898707900000004,
+            "mean_root_speed_m_s": 0.012449353950000002,
+            "unsupported_substeps": 59
+          },
+          {
+            "steps": [
+              401,
+              500
+            ],
+            "root_displacement_m": 0.0324776359,
+            "mean_root_speed_m_s": 0.01623881795,
+            "unsupported_substeps": 0
+          }
+        ],
+        "unsupported_bouts": 3,
+        "longest_unsupported_s": 0.02875,
+        "first_unsupported_step": 305
+      },
+      {
+        "lane": 3,
+        "two_second_sections": [
+          {
+            "steps": [
+              201,
+              300
+            ],
+            "root_displacement_m": 0.0291684429,
+            "mean_root_speed_m_s": 0.01458422145,
+            "unsupported_substeps": 0
+          },
+          {
+            "steps": [
+              301,
+              400
+            ],
+            "root_displacement_m": -0.01695712077,
+            "mean_root_speed_m_s": -0.008478560385,
+            "unsupported_substeps": 251
+          },
+          {
+            "steps": [
+              401,
+              500
+            ],
+            "root_displacement_m": 0.03296583777,
+            "mean_root_speed_m_s": 0.016482918885,
+            "unsupported_substeps": 0
+          }
+        ],
+        "unsupported_bouts": 14,
+        "longest_unsupported_s": 0.04,
+        "first_unsupported_step": 305
+      },
+      {
+        "lane": 4,
+        "two_second_sections": [
+          {
+            "steps": [
+              201,
+              300
+            ],
+            "root_displacement_m": 0.0250741991,
+            "mean_root_speed_m_s": 0.01253709955,
+            "unsupported_substeps": 0
+          },
+          {
+            "steps": [
+              301,
+              400
+            ],
+            "root_displacement_m": 0.022968172999999998,
+            "mean_root_speed_m_s": 0.011484086499999999,
+            "unsupported_substeps": 97
+          },
+          {
+            "steps": [
+              401,
+              500
+            ],
+            "root_displacement_m": 0.035079632000000006,
+            "mean_root_speed_m_s": 0.017539816000000003,
+            "unsupported_substeps": 0
+          }
+        ],
+        "unsupported_bouts": 5,
+        "longest_unsupported_s": 0.035,
+        "first_unsupported_step": 305
+      },
+      {
+        "lane": 5,
+        "two_second_sections": [
+          {
+            "steps": [
+              201,
+              300
+            ],
+            "root_displacement_m": 0.025502474999999997,
+            "mean_root_speed_m_s": 0.012751237499999998,
+            "unsupported_substeps": 0
+          },
+          {
+            "steps": [
+              301,
+              400
+            ],
+            "root_displacement_m": 0.0249269195,
+            "mean_root_speed_m_s": 0.01246345975,
+            "unsupported_substeps": 158
+          },
+          {
+            "steps": [
+              401,
+              500
+            ],
+            "root_displacement_m": 0.03416529330000001,
+            "mean_root_speed_m_s": 0.017082646650000005,
+            "unsupported_substeps": 0
+          }
+        ],
+        "unsupported_bouts": 8,
+        "longest_unsupported_s": 0.03875,
+        "first_unsupported_step": 305
+      },
+      {
+        "lane": 6,
+        "two_second_sections": [
+          {
+            "steps": [
+              201,
+              300
+            ],
+            "root_displacement_m": 0.026077762900000002,
+            "mean_root_speed_m_s": 0.013038881450000001,
+            "unsupported_substeps": 0
+          },
+          {
+            "steps": [
+              301,
+              400
+            ],
+            "root_displacement_m": 0.024715302599999996,
+            "mean_root_speed_m_s": 0.012357651299999998,
+            "unsupported_substeps": 59
+          },
+          {
+            "steps": [
+              401,
+              500
+            ],
+            "root_displacement_m": 0.0331562049,
+            "mean_root_speed_m_s": 0.01657810245,
+            "unsupported_substeps": 0
+          }
+        ],
+        "unsupported_bouts": 3,
+        "longest_unsupported_s": 0.0275,
+        "first_unsupported_step": 305
+      },
+      {
+        "lane": 7,
+        "two_second_sections": [
+          {
+            "steps": [
+              201,
+              300
+            ],
+            "root_displacement_m": 0.029710451639999996,
+            "mean_root_speed_m_s": 0.014855225819999998,
+            "unsupported_substeps": 0
+          },
+          {
+            "steps": [
+              301,
+              400
+            ],
+            "root_displacement_m": 0.023623472,
+            "mean_root_speed_m_s": 0.011811736,
+            "unsupported_substeps": 60
+          },
+          {
+            "steps": [
+              401,
+              500
+            ],
+            "root_displacement_m": 0.034913748599999996,
+            "mean_root_speed_m_s": 0.017456874299999998,
+            "unsupported_substeps": 0
+          }
+        ],
+        "unsupported_bouts": 3,
+        "longest_unsupported_s": 0.02875,
+        "first_unsupported_step": 305
+      }
+    ],
+    "candidate": [
+      {
+        "lane": 0,
+        "two_second_sections": [
+          {
+            "steps": [
+              201,
+              300
+            ],
+            "root_displacement_m": 0.0276581021,
+            "mean_root_speed_m_s": 0.01382905105,
+            "unsupported_substeps": 0
+          },
+          {
+            "steps": [
+              301,
+              400
+            ],
+            "root_displacement_m": 0.01402855213,
+            "mean_root_speed_m_s": 0.007014276065,
+            "unsupported_substeps": 292
+          },
+          {
+            "steps": [
+              401,
+              500
+            ],
+            "root_displacement_m": 0.030763394970000003,
+            "mean_root_speed_m_s": 0.015381697485000002,
+            "unsupported_substeps": 0
+          }
+        ],
+        "unsupported_bouts": 14,
+        "longest_unsupported_s": 0.04125,
+        "first_unsupported_step": 305
+      },
+      {
+        "lane": 1,
+        "two_second_sections": [
+          {
+            "steps": [
+              201,
+              300
+            ],
+            "root_displacement_m": 0.02791822048,
+            "mean_root_speed_m_s": 0.01395911024,
+            "unsupported_substeps": 0
+          },
+          {
+            "steps": [
+              301,
+              400
+            ],
+            "root_displacement_m": 0.0239472725,
+            "mean_root_speed_m_s": 0.01197363625,
+            "unsupported_substeps": 49
+          },
+          {
+            "steps": [
+              401,
+              500
+            ],
+            "root_displacement_m": 0.031173340900000006,
+            "mean_root_speed_m_s": 0.015586670450000003,
+            "unsupported_substeps": 0
+          }
+        ],
+        "unsupported_bouts": 3,
+        "longest_unsupported_s": 0.025,
+        "first_unsupported_step": 305
+      },
+      {
+        "lane": 2,
+        "two_second_sections": [
+          {
+            "steps": [
+              201,
+              300
+            ],
+            "root_displacement_m": 0.02759217096,
+            "mean_root_speed_m_s": 0.01379608548,
+            "unsupported_substeps": 0
+          },
+          {
+            "steps": [
+              301,
+              400
+            ],
+            "root_displacement_m": 0.017330348500000002,
+            "mean_root_speed_m_s": 0.008665174250000001,
+            "unsupported_substeps": 88
+          },
+          {
+            "steps": [
+              401,
+              500
+            ],
+            "root_displacement_m": 0.031183827699999993,
+            "mean_root_speed_m_s": 0.015591913849999996,
+            "unsupported_substeps": 0
+          }
+        ],
+        "unsupported_bouts": 6,
+        "longest_unsupported_s": 0.03375,
+        "first_unsupported_step": 305
+      },
+      {
+        "lane": 3,
+        "two_second_sections": [
+          {
+            "steps": [
+              201,
+              300
+            ],
+            "root_displacement_m": 0.0266273125,
+            "mean_root_speed_m_s": 0.01331365625,
+            "unsupported_substeps": 0
+          },
+          {
+            "steps": [
+              301,
+              400
+            ],
+            "root_displacement_m": 0.02334991,
+            "mean_root_speed_m_s": 0.011674955,
+            "unsupported_substeps": 96
+          },
+          {
+            "steps": [
+              401,
+              500
+            ],
+            "root_displacement_m": 0.031113371300000005,
+            "mean_root_speed_m_s": 0.015556685650000002,
+            "unsupported_substeps": 0
+          }
+        ],
+        "unsupported_bouts": 6,
+        "longest_unsupported_s": 0.025,
+        "first_unsupported_step": 305
+      },
+      {
+        "lane": 4,
+        "two_second_sections": [
+          {
+            "steps": [
+              201,
+              300
+            ],
+            "root_displacement_m": 0.029129673,
+            "mean_root_speed_m_s": 0.0145648365,
+            "unsupported_substeps": 0
+          },
+          {
+            "steps": [
+              301,
+              400
+            ],
+            "root_displacement_m": 0.0233570934,
+            "mean_root_speed_m_s": 0.0116785467,
+            "unsupported_substeps": 65
+          },
+          {
+            "steps": [
+              401,
+              500
+            ],
+            "root_displacement_m": 0.031133279199999996,
+            "mean_root_speed_m_s": 0.015566639599999998,
+            "unsupported_substeps": 0
+          }
+        ],
+        "unsupported_bouts": 4,
+        "longest_unsupported_s": 0.0275,
+        "first_unsupported_step": 305
+      },
+      {
+        "lane": 5,
+        "two_second_sections": [
+          {
+            "steps": [
+              201,
+              300
+            ],
+            "root_displacement_m": 0.028235981299999997,
+            "mean_root_speed_m_s": 0.014117990649999999,
+            "unsupported_substeps": 0
+          },
+          {
+            "steps": [
+              301,
+              400
+            ],
+            "root_displacement_m": 0.022253770399999998,
+            "mean_root_speed_m_s": 0.011126885199999999,
+            "unsupported_substeps": 54
+          },
+          {
+            "steps": [
+              401,
+              500
+            ],
+            "root_displacement_m": 0.0305517166,
+            "mean_root_speed_m_s": 0.0152758583,
+            "unsupported_substeps": 0
+          }
+        ],
+        "unsupported_bouts": 4,
+        "longest_unsupported_s": 0.0275,
+        "first_unsupported_step": 305
+      },
+      {
+        "lane": 6,
+        "two_second_sections": [
+          {
+            "steps": [
+              201,
+              300
+            ],
+            "root_displacement_m": 0.0280376791,
+            "mean_root_speed_m_s": 0.01401883955,
+            "unsupported_substeps": 0
+          },
+          {
+            "steps": [
+              301,
+              400
+            ],
+            "root_displacement_m": 0.021352158899999998,
+            "mean_root_speed_m_s": 0.010676079449999999,
+            "unsupported_substeps": 70
+          },
+          {
+            "steps": [
+              401,
+              500
+            ],
+            "root_displacement_m": 0.031097512700000003,
+            "mean_root_speed_m_s": 0.015548756350000002,
+            "unsupported_substeps": 0
+          }
+        ],
+        "unsupported_bouts": 4,
+        "longest_unsupported_s": 0.02875,
+        "first_unsupported_step": 305
+      },
+      {
+        "lane": 7,
+        "two_second_sections": [
+          {
+            "steps": [
+              201,
+              300
+            ],
+            "root_displacement_m": 0.028743897140000002,
+            "mean_root_speed_m_s": 0.014371948570000001,
+            "unsupported_substeps": 0
+          },
+          {
+            "steps": [
+              301,
+              400
+            ],
+            "root_displacement_m": 0.021758101800000002,
+            "mean_root_speed_m_s": 0.010879050900000001,
+            "unsupported_substeps": 53
+          },
+          {
+            "steps": [
+              401,
+              500
+            ],
+            "root_displacement_m": 0.030901681700000003,
+            "mean_root_speed_m_s": 0.015450840850000001,
+            "unsupported_substeps": 0
+          }
+        ],
+        "unsupported_bouts": 3,
+        "longest_unsupported_s": 0.0275,
+        "first_unsupported_step": 305
+      }
+    ]
+  },
+  "scope": "Post-hoc diagnostic, ground-contact normal impulse <=1e-7 on both feet is called unsupported; threshold can include short contact fluctuations, not proof of flight or a fall. Root x displacement per 2 seconds is not crow measured speed."
+}
