@@ -1,0 +1,3 @@
+# Matched walking-to-launch handoff screen
+
+Compare the existing launch and experimental flight model with and without the same 4–6 s related-corvid stance candidate, using identical initial seeds, physical host, binary, and launch law. Both variants use 0.40 rad crouch; accepted-contact toe responses have the existing experiment flag. Retain 12 s of full substep evidence. Check exact parity before intervention, walking support, takeoff normal impulse and vertical velocity, toe limits and no unexpected contacts; do not promote the candidate or claim full route, held-out qualification or biological realism. Both direct body moments and the uncalibrated force closures must be reported as configured in this specific build.
