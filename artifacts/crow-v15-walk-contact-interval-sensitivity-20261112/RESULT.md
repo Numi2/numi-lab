@@ -1,0 +1,5 @@
+# Sensitivity of foot-contact grouping
+
+Using the retained eight-lane hip/lift trace and 1.25 ms normal-impulse samples, requiring uninterrupted contact produced 41 complete foot runs missing a toe group and 42 with both groups. Allowing two silent substeps yielded 35 missing and the same 42 both-group runs. Allowing 8 and 16 silent substeps yielded 10 and 6 missing runs respectively, while the 42 both-group runs still appeared rear-toe-first at release. The held baseline had 40 both-group and zero missing runs for every tested gap.
+
+The 35 missing runs at two-gap tolerance had median duration 17.5 ms and maximum 55 ms. Many can be short contact fragments, but changing the grouping threshold can also merge real unloading or distinct stances. The six runs still missing at 16-gap tolerance lasted 30–47.5 ms; they must not be dismissed as measurement noise. These are engineering threshold sensitivity findings on previously used starts, not validated strides, proof of toe grip or a biological comparison. See analysis.json for per-lane counts and the unrounded method.

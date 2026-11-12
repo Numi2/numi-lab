@@ -1,0 +1,10 @@
+held 0 {'partial': 32, 'both_groups': 40, 'rear_first': 14, 'front_first': 26} missing duration {'n': 0, 'median_s': None, 'max_s': None, 'below_10ms': 0, 'below_20ms': 0}
+held 2 {'partial': 32, 'both_groups': 40, 'rear_first': 14, 'front_first': 26} missing duration {'n': 0, 'median_s': None, 'max_s': None, 'below_10ms': 0, 'below_20ms': 0}
+held 4 {'partial': 32, 'both_groups': 40, 'rear_first': 14, 'front_first': 26} missing duration {'n': 0, 'median_s': None, 'max_s': None, 'below_10ms': 0, 'below_20ms': 0}
+held 8 {'partial': 32, 'both_groups': 40, 'rear_first': 14, 'front_first': 26} missing duration {'n': 0, 'median_s': None, 'max_s': None, 'below_10ms': 0, 'below_20ms': 0}
+held 16 {'partial': 32, 'both_groups': 40, 'rear_first': 14, 'front_first': 26} missing duration {'n': 0, 'median_s': None, 'max_s': None, 'below_10ms': 0, 'below_20ms': 0}
+phase_lift 0 {'partial': 28, 'missing_group': 41, 'both_groups': 42, 'rear_first': 42} missing duration {'n': 41, 'median_s': 0.0175, 'max_s': 0.055, 'below_10ms': 6, 'below_20ms': 23}
+phase_lift 2 {'partial': 28, 'missing_group': 35, 'both_groups': 42, 'rear_first': 42} missing duration {'n': 35, 'median_s': 0.0175, 'max_s': 0.055, 'below_10ms': 4, 'below_20ms': 20}
+phase_lift 4 {'partial': 28, 'both_groups': 42, 'rear_first': 42, 'missing_group': 21} missing duration {'n': 21, 'median_s': 0.0175, 'max_s': 0.0475, 'below_10ms': 4, 'below_20ms': 12}
+phase_lift 8 {'partial': 28, 'both_groups': 42, 'rear_first': 42, 'missing_group': 10} missing duration {'n': 10, 'median_s': 0.03375, 'max_s': 0.0475, 'below_10ms': 3, 'below_20ms': 3}
+phase_lift 16 {'partial': 28, 'both_groups': 42, 'rear_first': 42, 'missing_group': 6} missing duration {'n': 6, 'median_s': 0.0425, 'max_s': 0.0475, 'below_10ms': 0, 'below_20ms': 0}
