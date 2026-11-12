@@ -1,0 +1,5 @@
+# Rear-toe touchdown speed event
+
+In the retained crouched walking screen, one right rear-toe proximal coordinate reaches -12 rad/s at step 277, substeps 10–11, while its target is zero and the toe carries normal impulse. Its angle moves from -0.054 rad at substep 0 to -0.221 rad at substep 15 and reaches the configured -0.3 rad position limit in the next interval. This is consistent with contact loading driving the joint toward its extension limit; it does not by itself identify a solver defect or specify biological stiffness. The complete surrounding substeps and all walking speed-cap counts are in analysis.json. Position/velocity and contact samples follow the retained observer schedule, so fine-grained causal ordering remains limited.
+
+Prior damping changes on a different gait did not pass walking gates; do not assume added damping is a solution or raise the speed cap. Test touchdown configuration and support-aware toe motion with matched controls, explicitly measure actual toe trajectories, collisions, speed caps, support, walking, release, and grip. The landing approach and a real crow foot are not represented by this single event.

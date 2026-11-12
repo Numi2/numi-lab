@@ -1,0 +1,560 @@
+{
+  "scope": "Illustrative retained used-seed lane 4, 1.25 ms substeps, not causality or biological validation. Target is per-control-step position drive, not an applied force. Toe normal impulse is sum of two segments. q and contacts are recorded at solver substeps; timestamps require established observer ordering. Coordinate speed cap is 12 rad/s and negative configured position limit is -0.3 rad. Ground contact forcing the toe toward the bound is an inference from these coincident samples, not a solver diagnosis.",
+  "speed_cap_hits_by_lane_and_toe": [
+    {
+      "lane": 3,
+      "toe_coordinate": 14,
+      "hits": 8
+    },
+    {
+      "lane": 4,
+      "toe_coordinate": 14,
+      "hits": 2
+    },
+    {
+      "lane": 5,
+      "toe_coordinate": 6,
+      "hits": 7
+    },
+    {
+      "lane": 6,
+      "toe_coordinate": 6,
+      "hits": 6
+    },
+    {
+      "lane": 7,
+      "toe_coordinate": 6,
+      "hits": 4
+    }
+  ],
+  "samples": [
+    {
+      "step": 276,
+      "substep": 0,
+      "rear_toe_proximal_q_rad": 0.00108747138,
+      "rear_toe_proximal_velocity_rad_s": -0.00593792927,
+      "rear_toe_distal_velocity_rad_s": -0.0065960912,
+      "rear_toe_normal_impulse_Ns": 0.0,
+      "right_foot_normal_impulse_Ns": 0.0,
+      "left_foot_normal_impulse_Ns": 0.00555827143,
+      "rear_toe_position_target_rad": 0.0
+    },
+    {
+      "step": 276,
+      "substep": 1,
+      "rear_toe_proximal_q_rad": 0.00107819599,
+      "rear_toe_proximal_velocity_rad_s": -0.00742033869,
+      "rear_toe_distal_velocity_rad_s": -0.00759081682,
+      "rear_toe_normal_impulse_Ns": 0.0,
+      "right_foot_normal_impulse_Ns": 0.0,
+      "left_foot_normal_impulse_Ns": 0.00553859351,
+      "rear_toe_position_target_rad": 0.0
+    },
+    {
+      "step": 276,
+      "substep": 2,
+      "rear_toe_proximal_q_rad": 0.00106576202,
+      "rear_toe_proximal_velocity_rad_s": -0.00994720869,
+      "rear_toe_distal_velocity_rad_s": -0.00884253159,
+      "rear_toe_normal_impulse_Ns": 0.0,
+      "right_foot_normal_impulse_Ns": 0.0,
+      "left_foot_normal_impulse_Ns": 0.00535796722,
+      "rear_toe_position_target_rad": 0.0
+    },
+    {
+      "step": 276,
+      "substep": 3,
+      "rear_toe_proximal_q_rad": 0.00104901148,
+      "rear_toe_proximal_velocity_rad_s": -0.0134004075,
+      "rear_toe_distal_velocity_rad_s": -0.0103185093,
+      "rear_toe_normal_impulse_Ns": 0.0,
+      "right_foot_normal_impulse_Ns": 0.0,
+      "left_foot_normal_impulse_Ns": 0.00510228891,
+      "rear_toe_position_target_rad": 0.0
+    },
+    {
+      "step": 276,
+      "substep": 4,
+      "rear_toe_proximal_q_rad": 0.00102641003,
+      "rear_toe_proximal_velocity_rad_s": -0.0180811174,
+      "rear_toe_distal_velocity_rad_s": -0.0121095898,
+      "rear_toe_normal_impulse_Ns": 0.0,
+      "right_foot_normal_impulse_Ns": 0.0,
+      "left_foot_normal_impulse_Ns": 0.00480262702,
+      "rear_toe_position_target_rad": 0.0
+    },
+    {
+      "step": 276,
+      "substep": 5,
+      "rear_toe_proximal_q_rad": 0.000998860924,
+      "rear_toe_proximal_velocity_rad_s": -0.0220392402,
+      "rear_toe_distal_velocity_rad_s": -0.0136417532,
+      "rear_toe_normal_impulse_Ns": 0.0,
+      "right_foot_normal_impulse_Ns": 0.0,
+      "left_foot_normal_impulse_Ns": 0.00451317942,
+      "rear_toe_position_target_rad": 0.0
+    },
+    {
+      "step": 276,
+      "substep": 6,
+      "rear_toe_proximal_q_rad": -0.00168314774,
+      "rear_toe_proximal_velocity_rad_s": -2.14560699,
+      "rear_toe_distal_velocity_rad_s": -1.19085908,
+      "rear_toe_normal_impulse_Ns": 0.0026954764,
+      "right_foot_normal_impulse_Ns": 0.0026954764,
+      "left_foot_normal_impulse_Ns": 0.00414192304,
+      "rear_toe_position_target_rad": 0.0
+    },
+    {
+      "step": 276,
+      "substep": 7,
+      "rear_toe_proximal_q_rad": -0.00762896473,
+      "rear_toe_proximal_velocity_rad_s": -4.75665379,
+      "rear_toe_distal_velocity_rad_s": -2.63798451,
+      "rear_toe_normal_impulse_Ns": 0.00351645611,
+      "right_foot_normal_impulse_Ns": 0.00351645611,
+      "left_foot_normal_impulse_Ns": 0.00343027152,
+      "rear_toe_position_target_rad": 0.0
+    },
+    {
+      "step": 276,
+      "substep": 8,
+      "rear_toe_proximal_q_rad": -0.014246976,
+      "rear_toe_proximal_velocity_rad_s": -5.29440928,
+      "rear_toe_distal_velocity_rad_s": -2.93631101,
+      "rear_toe_normal_impulse_Ns": 0.00114197168,
+      "right_foot_normal_impulse_Ns": 0.00114197168,
+      "left_foot_normal_impulse_Ns": 0.00286182552,
+      "rear_toe_position_target_rad": 0.0
+    },
+    {
+      "step": 276,
+      "substep": 9,
+      "rear_toe_proximal_q_rad": -0.0206727628,
+      "rear_toe_proximal_velocity_rad_s": -5.14062881,
+      "rear_toe_distal_velocity_rad_s": -2.8515234,
+      "rear_toe_normal_impulse_Ns": 0.000334409764,
+      "right_foot_normal_impulse_Ns": 0.000334409764,
+      "left_foot_normal_impulse_Ns": 0.00289698783,
+      "rear_toe_position_target_rad": 0.0
+    },
+    {
+      "step": 276,
+      "substep": 10,
+      "rear_toe_proximal_q_rad": -0.0266682934,
+      "rear_toe_proximal_velocity_rad_s": -4.79642487,
+      "rear_toe_distal_velocity_rad_s": -2.66114187,
+      "rear_toe_normal_impulse_Ns": 9.77908639e-05,
+      "right_foot_normal_impulse_Ns": 9.77908639e-05,
+      "left_foot_normal_impulse_Ns": 0.00359620061,
+      "rear_toe_position_target_rad": 0.0
+    },
+    {
+      "step": 276,
+      "substep": 11,
+      "rear_toe_proximal_q_rad": -0.03218868,
+      "rear_toe_proximal_velocity_rad_s": -4.4163084,
+      "rear_toe_distal_velocity_rad_s": -2.45079494,
+      "rear_toe_normal_impulse_Ns": 3.82271246e-05,
+      "right_foot_normal_impulse_Ns": 3.82271246e-05,
+      "left_foot_normal_impulse_Ns": 0.00439372892,
+      "rear_toe_position_target_rad": 0.0
+    },
+    {
+      "step": 276,
+      "substep": 12,
+      "rear_toe_proximal_q_rad": -0.0372323692,
+      "rear_toe_proximal_velocity_rad_s": -4.03495216,
+      "rear_toe_distal_velocity_rad_s": -2.23969746,
+      "rear_toe_normal_impulse_Ns": 1.78668924e-05,
+      "right_foot_normal_impulse_Ns": 1.78668924e-05,
+      "left_foot_normal_impulse_Ns": 0.00497449795,
+      "rear_toe_position_target_rad": 0.0
+    },
+    {
+      "step": 276,
+      "substep": 13,
+      "rear_toe_proximal_q_rad": -0.0418099947,
+      "rear_toe_proximal_velocity_rad_s": -3.66210103,
+      "rear_toe_distal_velocity_rad_s": -2.03325653,
+      "rear_toe_normal_impulse_Ns": 8.34487764e-06,
+      "right_foot_normal_impulse_Ns": 8.34487764e-06,
+      "left_foot_normal_impulse_Ns": 0.00541862892,
+      "rear_toe_position_target_rad": 0.0
+    },
+    {
+      "step": 276,
+      "substep": 14,
+      "rear_toe_proximal_q_rad": -0.045937743,
+      "rear_toe_proximal_velocity_rad_s": -3.30219841,
+      "rear_toe_distal_velocity_rad_s": -1.83394694,
+      "rear_toe_normal_impulse_Ns": 3.89506704e-06,
+      "right_foot_normal_impulse_Ns": 3.89506704e-06,
+      "left_foot_normal_impulse_Ns": 0.00586741231,
+      "rear_toe_position_target_rad": 0.0
+    },
+    {
+      "step": 276,
+      "substep": 15,
+      "rear_toe_proximal_q_rad": -0.0496336557,
+      "rear_toe_proximal_velocity_rad_s": -2.95673037,
+      "rear_toe_distal_velocity_rad_s": -1.64260662,
+      "rear_toe_normal_impulse_Ns": 1.2410494e-06,
+      "right_foot_normal_impulse_Ns": 1.2410494e-06,
+      "left_foot_normal_impulse_Ns": 0.00658525294,
+      "rear_toe_position_target_rad": 0.0
+    },
+    {
+      "step": 277,
+      "substep": 0,
+      "rear_toe_proximal_q_rad": -0.0536138415,
+      "rear_toe_proximal_velocity_rad_s": -3.18414855,
+      "rear_toe_distal_velocity_rad_s": -1.68449342,
+      "rear_toe_normal_impulse_Ns": 0.00104468642,
+      "right_foot_normal_impulse_Ns": 0.00104468642,
+      "left_foot_normal_impulse_Ns": 0.00689070206,
+      "rear_toe_position_target_rad": 0.0
+    },
+    {
+      "step": 277,
+      "substep": 1,
+      "rear_toe_proximal_q_rad": -0.0583341867,
+      "rear_toe_proximal_velocity_rad_s": -3.7762773,
+      "rear_toe_distal_velocity_rad_s": -1.87729311,
+      "rear_toe_normal_impulse_Ns": 0.00176778948,
+      "right_foot_normal_impulse_Ns": 0.00176778948,
+      "left_foot_normal_impulse_Ns": 0.00649954891,
+      "rear_toe_position_target_rad": 0.0
+    },
+    {
+      "step": 277,
+      "substep": 2,
+      "rear_toe_proximal_q_rad": -0.0635221526,
+      "rear_toe_proximal_velocity_rad_s": -4.15037298,
+      "rear_toe_distal_velocity_rad_s": -1.98608875,
+      "rear_toe_normal_impulse_Ns": 0.00144894747,
+      "right_foot_normal_impulse_Ns": 0.00144894747,
+      "left_foot_normal_impulse_Ns": 0.00580961583,
+      "rear_toe_position_target_rad": 0.0
+    },
+    {
+      "step": 277,
+      "substep": 3,
+      "rear_toe_proximal_q_rad": -0.0689785331,
+      "rear_toe_proximal_velocity_rad_s": -4.36510563,
+      "rear_toe_distal_velocity_rad_s": -2.03388166,
+      "rear_toe_normal_impulse_Ns": 0.00120828138,
+      "right_foot_normal_impulse_Ns": 0.00120828138,
+      "left_foot_normal_impulse_Ns": 0.00525195058,
+      "rear_toe_position_target_rad": 0.0
+    },
+    {
+      "step": 277,
+      "substep": 4,
+      "rear_toe_proximal_q_rad": -0.0746430457,
+      "rear_toe_proximal_velocity_rad_s": -4.53160906,
+      "rear_toe_distal_velocity_rad_s": -2.10744715,
+      "rear_toe_normal_impulse_Ns": 0.000969782122,
+      "right_foot_normal_impulse_Ns": 0.000969782122,
+      "left_foot_normal_impulse_Ns": 0.00484981621,
+      "rear_toe_position_target_rad": 0.0
+    },
+    {
+      "step": 277,
+      "substep": 5,
+      "rear_toe_proximal_q_rad": -0.0823305175,
+      "rear_toe_proximal_velocity_rad_s": -6.14997625,
+      "rear_toe_distal_velocity_rad_s": -2.19889545,
+      "rear_toe_normal_impulse_Ns": 0.00497597665,
+      "right_foot_normal_impulse_Ns": 0.00497597689,
+      "left_foot_normal_impulse_Ns": 0.00438884366,
+      "rear_toe_position_target_rad": 0.0
+    },
+    {
+      "step": 277,
+      "substep": 6,
+      "rear_toe_proximal_q_rad": -0.0930209383,
+      "rear_toe_proximal_velocity_rad_s": -8.55233479,
+      "rear_toe_distal_velocity_rad_s": -2.08228731,
+      "rear_toe_normal_impulse_Ns": 0.00786398793,
+      "right_foot_normal_impulse_Ns": 0.00786398817,
+      "left_foot_normal_impulse_Ns": 0.00365807046,
+      "rear_toe_position_target_rad": 0.0
+    },
+    {
+      "step": 277,
+      "substep": 7,
+      "rear_toe_proximal_q_rad": -0.10570287,
+      "rear_toe_proximal_velocity_rad_s": -10.1455431,
+      "rear_toe_distal_velocity_rad_s": -1.9021188,
+      "rear_toe_normal_impulse_Ns": 0.00570605626,
+      "right_foot_normal_impulse_Ns": 0.00570605602,
+      "left_foot_normal_impulse_Ns": 0.00308149401,
+      "rear_toe_position_target_rad": 0.0
+    },
+    {
+      "step": 277,
+      "substep": 8,
+      "rear_toe_proximal_q_rad": -0.119667001,
+      "rear_toe_proximal_velocity_rad_s": -11.1713037,
+      "rear_toe_distal_velocity_rad_s": -1.69737887,
+      "rear_toe_normal_impulse_Ns": 0.00415622024,
+      "right_foot_normal_impulse_Ns": 0.00415622024,
+      "left_foot_normal_impulse_Ns": 0.00261903182,
+      "rear_toe_position_target_rad": 0.0
+    },
+    {
+      "step": 277,
+      "substep": 9,
+      "rear_toe_proximal_q_rad": -0.134409487,
+      "rear_toe_proximal_velocity_rad_s": -11.7939863,
+      "rear_toe_distal_velocity_rad_s": -1.4868201,
+      "rear_toe_normal_impulse_Ns": 0.00303718575,
+      "right_foot_normal_impulse_Ns": 0.00303718541,
+      "left_foot_normal_impulse_Ns": 0.00229180488,
+      "rear_toe_position_target_rad": 0.0
+    },
+    {
+      "step": 277,
+      "substep": 10,
+      "rear_toe_proximal_q_rad": -0.149409488,
+      "rear_toe_proximal_velocity_rad_s": -12.0,
+      "rear_toe_distal_velocity_rad_s": -1.2789923,
+      "rear_toe_normal_impulse_Ns": 0.0032407600700000002,
+      "right_foot_normal_impulse_Ns": 0.00324075995,
+      "left_foot_normal_impulse_Ns": 0.0024522515,
+      "rear_toe_position_target_rad": 0.0
+    },
+    {
+      "step": 277,
+      "substep": 11,
+      "rear_toe_proximal_q_rad": -0.164409488,
+      "rear_toe_proximal_velocity_rad_s": -12.0,
+      "rear_toe_distal_velocity_rad_s": -1.07774258,
+      "rear_toe_normal_impulse_Ns": 0.004475596591,
+      "right_foot_normal_impulse_Ns": 0.00447559636,
+      "left_foot_normal_impulse_Ns": 0.00278072455,
+      "rear_toe_position_target_rad": 0.0
+    },
+    {
+      "step": 277,
+      "substep": 12,
+      "rear_toe_proximal_q_rad": -0.17922087,
+      "rear_toe_proximal_velocity_rad_s": -11.8491087,
+      "rear_toe_distal_velocity_rad_s": -0.884859443,
+      "rear_toe_normal_impulse_Ns": 0.005946116929000001,
+      "right_foot_normal_impulse_Ns": 0.00594611699,
+      "left_foot_normal_impulse_Ns": 0.00271362695,
+      "rear_toe_position_target_rad": 0.0
+    },
+    {
+      "step": 277,
+      "substep": 13,
+      "rear_toe_proximal_q_rad": -0.193678647,
+      "rear_toe_proximal_velocity_rad_s": -11.5662241,
+      "rear_toe_distal_velocity_rad_s": -0.70116806,
+      "rear_toe_normal_impulse_Ns": 0.00650208432,
+      "right_foot_normal_impulse_Ns": 0.00650208397,
+      "left_foot_normal_impulse_Ns": 0.00236802013,
+      "rear_toe_position_target_rad": 0.0
+    },
+    {
+      "step": 277,
+      "substep": 14,
+      "rear_toe_proximal_q_rad": -0.207689092,
+      "rear_toe_proximal_velocity_rad_s": -11.2083511,
+      "rear_toe_distal_velocity_rad_s": -0.527029872,
+      "rear_toe_normal_impulse_Ns": 0.006183465535,
+      "right_foot_normal_impulse_Ns": 0.00618346594,
+      "left_foot_normal_impulse_Ns": 0.00189705181,
+      "rear_toe_position_target_rad": 0.0
+    },
+    {
+      "step": 277,
+      "substep": 15,
+      "rear_toe_proximal_q_rad": -0.221038714,
+      "rear_toe_proximal_velocity_rad_s": -10.679697,
+      "rear_toe_distal_velocity_rad_s": -0.357030004,
+      "rear_toe_normal_impulse_Ns": 0.00490472326,
+      "right_foot_normal_impulse_Ns": 0.00490472326,
+      "left_foot_normal_impulse_Ns": 0.0014280685,
+      "rear_toe_position_target_rad": 0.0
+    },
+    {
+      "step": 278,
+      "substep": 0,
+      "rear_toe_proximal_q_rad": -0.233654827,
+      "rear_toe_proximal_velocity_rad_s": -10.0928917,
+      "rear_toe_distal_velocity_rad_s": -0.198326617,
+      "rear_toe_normal_impulse_Ns": 0.00516811013,
+      "right_foot_normal_impulse_Ns": 0.00516811013,
+      "left_foot_normal_impulse_Ns": 0.00114618661,
+      "rear_toe_position_target_rad": 0.0
+    },
+    {
+      "step": 278,
+      "substep": 1,
+      "rear_toe_proximal_q_rad": -0.245385051,
+      "rear_toe_proximal_velocity_rad_s": -9.38418388,
+      "rear_toe_distal_velocity_rad_s": -0.0510268994,
+      "rear_toe_normal_impulse_Ns": 0.0080630891,
+      "right_foot_normal_impulse_Ns": 0.0080630891,
+      "left_foot_normal_impulse_Ns": 0.000926081091,
+      "rear_toe_position_target_rad": 0.0
+    },
+    {
+      "step": 278,
+      "substep": 2,
+      "rear_toe_proximal_q_rad": -0.256040603,
+      "rear_toe_proximal_velocity_rad_s": -8.52443027,
+      "rear_toe_distal_velocity_rad_s": 0.0860968828,
+      "rear_toe_normal_impulse_Ns": 0.0117295654,
+      "right_foot_normal_impulse_Ns": 0.0117295654,
+      "left_foot_normal_impulse_Ns": 0.000757617527,
+      "rear_toe_position_target_rad": 0.0
+    },
+    {
+      "step": 278,
+      "substep": 3,
+      "rear_toe_proximal_q_rad": -0.265604109,
+      "rear_toe_proximal_velocity_rad_s": -7.65080023,
+      "rear_toe_distal_velocity_rad_s": 0.213329971,
+      "rear_toe_normal_impulse_Ns": 0.011373857,
+      "right_foot_normal_impulse_Ns": 0.011373857,
+      "left_foot_normal_impulse_Ns": 0.000629485468,
+      "rear_toe_position_target_rad": 0.0
+    },
+    {
+      "step": 278,
+      "substep": 4,
+      "rear_toe_proximal_q_rad": -0.274180412,
+      "rear_toe_proximal_velocity_rad_s": -6.86103487,
+      "rear_toe_distal_velocity_rad_s": 0.330636024,
+      "rear_toe_normal_impulse_Ns": 0.00873319432,
+      "right_foot_normal_impulse_Ns": 0.00873319432,
+      "left_foot_normal_impulse_Ns": 7.9512698e-05,
+      "rear_toe_position_target_rad": 0.0
+    },
+    {
+      "step": 278,
+      "substep": 5,
+      "rear_toe_proximal_q_rad": -0.281892747,
+      "rear_toe_proximal_velocity_rad_s": -6.16985893,
+      "rear_toe_distal_velocity_rad_s": 0.438448817,
+      "rear_toe_normal_impulse_Ns": 0.00630724989,
+      "right_foot_normal_impulse_Ns": 0.00630724989,
+      "left_foot_normal_impulse_Ns": 5.02791954e-05,
+      "rear_toe_position_target_rad": 0.0
+    },
+    {
+      "step": 278,
+      "substep": 6,
+      "rear_toe_proximal_q_rad": -0.288839459,
+      "rear_toe_proximal_velocity_rad_s": -5.55738163,
+      "rear_toe_distal_velocity_rad_s": 0.537139535,
+      "rear_toe_normal_impulse_Ns": 0.0042668106,
+      "right_foot_normal_impulse_Ns": 0.0042668106,
+      "left_foot_normal_impulse_Ns": 1.25139322e-05,
+      "rear_toe_position_target_rad": 0.0
+    },
+    {
+      "step": 278,
+      "substep": 7,
+      "rear_toe_proximal_q_rad": -0.295084774,
+      "rear_toe_proximal_velocity_rad_s": -4.99625731,
+      "rear_toe_distal_velocity_rad_s": 0.627093792,
+      "rear_toe_normal_impulse_Ns": 0.00288747856,
+      "right_foot_normal_impulse_Ns": 0.00288747856,
+      "left_foot_normal_impulse_Ns": 5.74100477e-06,
+      "rear_toe_position_target_rad": 0.0
+    },
+    {
+      "step": 278,
+      "substep": 8,
+      "rear_toe_proximal_q_rad": -0.300000012,
+      "rear_toe_proximal_velocity_rad_s": -3.93218994,
+      "rear_toe_distal_velocity_rad_s": 0.708692491,
+      "rear_toe_normal_impulse_Ns": 0.00195451058,
+      "right_foot_normal_impulse_Ns": 0.00195451058,
+      "left_foot_normal_impulse_Ns": 2.6307232e-06,
+      "rear_toe_position_target_rad": 0.0
+    },
+    {
+      "step": 278,
+      "substep": 9,
+      "rear_toe_proximal_q_rad": -0.300000012,
+      "rear_toe_proximal_velocity_rad_s": 0.0,
+      "rear_toe_distal_velocity_rad_s": 0.782310367,
+      "rear_toe_normal_impulse_Ns": 0.00132323429,
+      "right_foot_normal_impulse_Ns": 0.00132323429,
+      "left_foot_normal_impulse_Ns": 1.20442871e-06,
+      "rear_toe_position_target_rad": 0.0
+    },
+    {
+      "step": 278,
+      "substep": 10,
+      "rear_toe_proximal_q_rad": -0.299384773,
+      "rear_toe_proximal_velocity_rad_s": 0.492194265,
+      "rear_toe_distal_velocity_rad_s": 0.848315775,
+      "rear_toe_normal_impulse_Ns": 0.00089609588,
+      "right_foot_normal_impulse_Ns": 0.00089609588,
+      "left_foot_normal_impulse_Ns": 5.5108427e-07,
+      "rear_toe_position_target_rad": 0.0
+    },
+    {
+      "step": 278,
+      "substep": 11,
+      "rear_toe_proximal_q_rad": -0.29816553,
+      "rear_toe_proximal_velocity_rad_s": 0.975386381,
+      "rear_toe_distal_velocity_rad_s": 0.907115579,
+      "rear_toe_normal_impulse_Ns": 0.000606984948,
+      "right_foot_normal_impulse_Ns": 0.000606984948,
+      "left_foot_normal_impulse_Ns": 0.00224136398,
+      "rear_toe_position_target_rad": 0.0
+    },
+    {
+      "step": 278,
+      "substep": 12,
+      "rear_toe_proximal_q_rad": -0.296349823,
+      "rear_toe_proximal_velocity_rad_s": 1.45255387,
+      "rear_toe_distal_velocity_rad_s": 0.959064066,
+      "rear_toe_normal_impulse_Ns": 0.000411240762,
+      "right_foot_normal_impulse_Ns": 0.000411240762,
+      "left_foot_normal_impulse_Ns": 0.00439243205,
+      "rear_toe_position_target_rad": 0.0
+    },
+    {
+      "step": 278,
+      "substep": 13,
+      "rear_toe_proximal_q_rad": -0.293943018,
+      "rear_toe_proximal_velocity_rad_s": 1.92544413,
+      "rear_toe_distal_velocity_rad_s": 1.00444531,
+      "rear_toe_normal_impulse_Ns": 0.000278680818,
+      "right_foot_normal_impulse_Ns": 0.000278680818,
+      "left_foot_normal_impulse_Ns": 0.00343233789,
+      "rear_toe_position_target_rad": 0.0
+    },
+    {
+      "step": 278,
+      "substep": 14,
+      "rear_toe_proximal_q_rad": -0.290948778,
+      "rear_toe_proximal_velocity_rad_s": 2.39539886,
+      "rear_toe_distal_velocity_rad_s": 1.04360414,
+      "rear_toe_normal_impulse_Ns": 0.000188894686,
+      "right_foot_normal_impulse_Ns": 0.000188894686,
+      "left_foot_normal_impulse_Ns": 0.00264175772,
+      "rear_toe_position_target_rad": 0.0
+    },
+    {
+      "step": 278,
+      "substep": 15,
+      "rear_toe_proximal_q_rad": -0.287370563,
+      "rear_toe_proximal_velocity_rad_s": 2.86258459,
+      "rear_toe_distal_velocity_rad_s": 1.07688475,
+      "rear_toe_normal_impulse_Ns": 0.000105451669,
+      "right_foot_normal_impulse_Ns": 0.000105451669,
+      "left_foot_normal_impulse_Ns": 0.00211571949,
+      "rear_toe_position_target_rad": 0.0
+    }
+  ]
+}
