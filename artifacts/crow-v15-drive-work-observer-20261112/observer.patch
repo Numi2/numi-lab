@@ -1,0 +1,48 @@
+--- a/MetalWorld.mm
++++ b/MetalWorld.mm
+@@ -21427,6 +21427,8 @@
+             const unsigned long long crowTraceStep = crowTraceEnabled ? ++crowTraceSubmission : 0;
+             const bool crowTraceWindow = crowTraceEnabled && crowTraceStep >= 1 && crowTraceStep <= 5005;
+             NSMutableArray<id<MTLBuffer>>* crowTraceBuffers = crowTraceWindow ? [NSMutableArray array] : nil;
++            const bool crowWorkWindow = std::getenv("CROW_DRIVE_WORK_TRACE") != nullptr && crowTraceStep >= 340 && crowTraceStep <= 365;
++            NSMutableArray<id<MTLBuffer>>* crowWorkBuffers = crowWorkWindow ? [NSMutableArray array] : nil;
+             const NSUInteger crowTraceCapacity = diagnostics.layout.contactDispatch.constraintCapacity;
+             const NSUInteger crowTraceLanes = batch.environmentCount;
+             const NSUInteger crowTraceVStride = diagnostics.layout.dispatch.vStride;
+@@ -21796,6 +21798,19 @@
+                                       batch.environmentCount
+                                   ))
+                         );
++                    // Diagnostic copies, after drive refresh/ABA and before contact.
++                    if (crowWorkWindow && controlStep == 0u) {
++                        const NSUInteger ids[4]={sourceV,kWorkingEffort,kDofs,kTaskControllerParameters};
++                        id<MTLBlitCommandEncoder> workBlit=[commandBuffer blitCommandEncoder];
++                        for (NSUInteger j=0;j<4;++j) {
++                            id<MTLBuffer> src=selectedState->buffers[ids[j]];
++                            id<MTLBuffer> copy=[selectedState->device newBufferWithLength:src.length options:MTLResourceStorageModeShared];
++                            if (copy==nil) throw std::bad_alloc();
++                            [workBlit copyFromBuffer:src sourceOffset:0 toBuffer:copy destinationOffset:0 size:src.length];
++                            [crowWorkBuffers addObject:copy];
++                        }
++                        [workBlit endEncoding];
++                    }
+                     const bool encodedBoundedDrive = encodedABA &&
+                         (useHybridContact || encodeBoundedDrivePrediction(
+                             *selectedState, commandBuffer, pass, sourceQ, sourceV,
+@@ -22427,6 +22442,16 @@
+                             std::fprintf(stderr,"CROW_TWO_TOE_SUBSTEP %llu %lu %lu %u %lu %.9g %.9g %.9g %.9g %.9g",crowTraceStep,(unsigned long)sub,(unsigned long)lane,statuses[lane].requiredConstraints,(unsigned long)crowTraceCapacity,up[0],up[1],normal[0],normal[1],other);
+                             for(int k=0;k<16;k++)std::fprintf(stderr," %.9g",toe[k]);for(int k=0;k<16;k++)std::fprintf(stderr," %.9g",signedX[k]);std::fprintf(stderr,"\n");
+                             std::fprintf(stderr,"CROW_TOE_V_SUBSTEP %llu %lu %lu",crowTraceStep,(unsigned long)sub,(unsigned long)lane);for(int k=0;k<16;k++)std::fprintf(stderr," %.9g",velocities[lane*crowTraceVStride+22+k]);std::fprintf(stderr,"\n");
++                            if (crowWorkWindow) {
++                                const auto* v0=static_cast<const float*>(crowWorkBuffers[4*sub].contents);
++                                const auto* effort=static_cast<const float*>(crowWorkBuffers[4*sub+1].contents);
++                                const auto* dofs=static_cast<const MRDofPropertiesGPU*>(crowWorkBuffers[4*sub+2].contents);
++                                const auto* ctrl=static_cast<const mr_float4*>(crowWorkBuffers[4*sub+3].contents);
++                                for(NSUInteger j=0;j<crowTraceVStride;++j) {
++                                    const auto& d=dofs[j]; const auto& c=ctrl[lane];
++                                    std::fprintf(stderr,"CROW_DRIVE_WORK %llu %lu %lu %lu %u %u %.9g %.9g %.9g %.9g %.9g %.9g %.9g %.9g\n",crowTraceStep,(unsigned long)sub,(unsigned long)lane,(unsigned long)j,d.flags,d.qIndex,effort[lane*crowTraceVStride+j],v0[lane*crowTraceVStride+j],velocities[lane*crowTraceVStride+j],d.drive.x,d.drive.y,c.x,c.y,c.w);
++                                }
++                            }
+                         }
+                     }
+                 }];

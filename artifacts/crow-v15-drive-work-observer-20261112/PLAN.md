@@ -1,0 +1,3 @@
+# Drive-work diagnostic observer
+
+Add read-only snapshots of the implicit-drive solver inputs and pre/post-contact generalized velocities at every substep of intervals 340–365. Compare the observer's q/v/action/contact outputs exactly against retained runs before using it. For implicit drives the input effort is a clamped pre-contact command; implicit effective armature and contact can change the realized effort. Any correction reconstructed from the solver must be explicitly identified, verified on a known case, and reported as a numerical model quantity rather than biological muscle work. Never infer exact energy merely from target angles or raw effort.

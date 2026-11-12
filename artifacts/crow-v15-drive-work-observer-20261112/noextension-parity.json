@@ -1,0 +1,10 @@
+{
+  "arm": "noextension",
+  "endpoint_count": 2960,
+  "endpoint_mismatches": 0,
+  "contact_substep_count": 47360,
+  "contact_substep_mismatches": 0,
+  "drive_records": 133120,
+  "first_mismatches": [],
+  "errors": []
+}
