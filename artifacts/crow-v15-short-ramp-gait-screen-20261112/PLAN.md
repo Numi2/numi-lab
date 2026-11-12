@@ -1,0 +1,5 @@
+# Short target-transition gait screen
+
+Full 16-substep interpolation substantially reduced boundary motion proxies but slowed forward progress below the required threshold. Test shorter 2-, 4- and 8-substep linear ramps in the same active implicit drive path, with otherwise identical chunk-one host and task. All arms share the previously verified sham and 20261126 development starts; reserve genuinely unused layouts.
+
+For each arm require all lanes to have at least two supported clearance bouts per foot and at least 90% of their matched baseline root travel, no new nonfoot contacts or excess toe-speed caps, no more total unsupported substeps, complete observations, and at least 20% lower mean boundary second-difference proxy for each of four joints. An arm must change the actual trajectory and pass every predeclared gate. The short ramp is an engineering tradeoff, not measured crow timing. Even a pass requires independent starts, longer tests, biological comparison and integration with contact-driven takeoff, flight and landing.
