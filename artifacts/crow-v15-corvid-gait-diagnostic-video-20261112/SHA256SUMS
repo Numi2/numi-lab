@@ -1,0 +1,16 @@
+356856fb3abee31624929fb9e81e986b172d55ff919a7df2b0bda9d65a52bf06  ./README.md
+fcbbf4dd2bb7dbd0814c0b10635f25d6083c92138fa6751d9932f39c6c586ed3  ./audit-baseline-front/numi-crow-replay-audit.json
+b806ae7bc533c66af10e1a14757b59dafe4c7bd5314244e5aef8e9e5d63c2573  ./audit-baseline-side/numi-crow-replay-audit.json
+ecad355507ce65e5a4ebee174b5f512551a3c9bf9c744d46bbb0c6ad72e0ea0a  ./audit-candidate-front/numi-crow-replay-audit.json
+7d68c52df93bdf761676b4f87fddd3b326d03a6972231f2c05658815ec2685ad  ./audit-candidate-side/numi-crow-replay-audit.json
+eb63867622ecd605c0a8b924eb1ff4af1aea21825d96fda36bf2c39f8d9f2c23  ./baseline-front.mp4
+df03cc1e1bb39b1301eb297d4cbc313adf0b247ce0992ba6b82d13fa5afd449f  ./baseline-side.mp4
+a128806c48932d16d21e010e7555a6be99359b47baf9ccbaf2bc8b03cb30416c  ./candidate-front.mp4
+fbea2d48007c0704f2ca98b956bcca352239e91dcd0de6baac368e5f8abbf88e  ./candidate-side.mp4
+4f6197a6c8d77121cf13770d5abc1fbc44ed4857cdfa3d649776f310a0f8ecb5  ./compose.sh
+1e912c7e04d7e07dfc62b79143ffcf4d615728fc75cb903b28ab1d01bc20d612  ./gait-comparison.mp4
+e435b6e51a8fee4adff35e376dbe77d1beb3dd532ede41aeebd19613c55d2c58  ./labels.png
+0655c50fa5878fbf33c0fc171dab3627c1e82837ce233c3e9bf684cde3fa911c  ./labels.py
+9c099501d821d4adcf1c98c92d5cac18bccb07135da28fa2934d24f82d981ced  ./render.log
+bc0b55337950ff77cbd80a1d9f639d3575ff56e38dec3cfccd085f4e4ffa79ee  ./render.sh
+a33b77a389bba744eab590718941e5b2599549b5ac97b1f9df01500c05e3eb9b  ./renderer-input.json

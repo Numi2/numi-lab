@@ -1,0 +1,14 @@
+{
+  "renderer_revision": "1d40006ecfd5865f9d8be0f56d151b706237b43b",
+  "renderer_executable_sha256": "76cf26347c2b158d1397ce3767f0c3a34c73f63c10e8f259dd692f4041ad2c1f",
+  "source_replay_gzip_sha256": {
+    "artifacts/crow-v15-substep-slip-observer-20261112/candidate-20261127-rebound-low/replay.json.gz": "89f5172dd63ee80912e35eb065452d15f43b95cca3bb7d62329361186c32808c",
+    "artifacts/crow-v15-corvid-stance-correction-screen-20261112/candidate-20261127-rebound-fine/replay.json.gz": "589e62283ad7631d1f567eed778f59966a19ea6e50b4913995cbdb4e4b76d1bd"
+  },
+  "seed": 20261127,
+  "environment": 5,
+  "frame_start": 200,
+  "frame_end": 299,
+  "fps": 50,
+  "note": "Single used development start; not the full mission or held-out layouts."
+}
