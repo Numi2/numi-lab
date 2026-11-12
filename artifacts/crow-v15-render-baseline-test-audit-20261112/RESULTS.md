@@ -1,0 +1,3 @@
+# Isolated standing-render test comparison
+
+The legacy standing-capture image audit was run in isolation on renderer 1d40006 and again with its three edited files temporarily restored to parent d7718eae2e56ef94ec8ee9ce725032bf09458414. Both runs failed the same two conditions: full-frame display RMSE below 0.01 and foreground gradient energy ratio above 0.74. This supports a pre-existing failure on this host, not a full-suite pass or proof of its cause. The committed files were restored immediately after the baseline test; this experiment did not change simulation physics. Two other broad-suite tests require absent old replay fixtures. Raw test output is retained here.

@@ -1,0 +1,41 @@
+[0/1] Planning build
+Building for debugging...
+[0/12] Write sources
+[2/12] Write swift-version-3CD7052B146186F2.txt
+[4/11] Emitting module BirdFlowVisualization
+[5/11] Compiling BirdFlowVisualization CrowNumiReplay.swift
+[6/11] Compiling BirdFlowVisualization CrowShowcaseCapture.swift
+[7/13] Compiling BirdFlowVisualization CrowStandingPose.swift
+[8/13] Compiling BirdFlowVisualization CrowFeatherArticulationDeformer.swift
+[8/14] Write Objects.LinkFileList
+[10/18] Linking birdflow-capture
+[11/18] Applying birdflow-capture
+[12/18] Linking birdflow-viewer
+[13/18] Applying birdflow-viewer
+[15/18] Compiling BirdFlowVisualizationTests CrowV15ReplayTests.swift
+[16/18] Compiling BirdFlowVisualizationTests CrowNumiReplayTests.swift
+[17/18] Emitting module BirdFlowVisualizationTests
+[17/19] Write Objects.LinkFileList
+[18/19] Linking BirdFlowMetalPackageTests
+Build complete! (5.40s)
+Test Suite 'Selected tests' started at 2026-11-12 11:09:34.713.
+Test Suite 'BirdFlowMetalPackageTests.xctest' started at 2026-11-12 11:09:34.719.
+Test Suite 'BirdFlowMetalPackageTests.xctest' passed at 2026-11-12 11:09:34.719.
+	 Executed 0 tests, with 0 failures (0 unexpected) in 0.000 (0.000) seconds
+Test Suite 'Selected tests' passed at 2026-11-12 11:09:34.719.
+	 Executed 0 tests, with 0 failures (0 unexpected) in 0.000 (0.006) seconds
+◇ Test run started.
+↳ Testing Library Version: 1902
+↳ Target Platform: arm64e-apple-macos14.0
+◇ Test "estimated standing crow capture keeps the reference private and moves subtly" started.
+captured estimated American crow standing 1/3
+captured estimated American crow standing 2/3
+captured estimated American crow standing 3/3
+✘ Test "estimated standing crow capture keeps the reference private and moves subtly" recorded an issue at OffscreenRendererTests.swift:1370:3: Expectation failed: audit.frames.allSatisfy {
+      $0.nativeFullFrameDisplayRMSE.map { $0 < 0.01 } == true
+    }
+✘ Test "estimated standing crow capture keeps the reference private and moves subtly" recorded an issue at OffscreenRendererTests.swift:1385:3: Expectation failed: audit.frames.allSatisfy {
+      $0.nativeForegroundGradientEnergyRatio.map { $0 > 0.74 } == true
+    }
+✘ Test "estimated standing crow capture keeps the reference private and moves subtly" failed after 4.334 seconds with 2 issues.
+✘ Test run with 1 test in 0 suites failed after 4.334 seconds with 2 issues.

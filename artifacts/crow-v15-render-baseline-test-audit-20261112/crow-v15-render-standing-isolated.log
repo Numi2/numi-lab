@@ -1,0 +1,25 @@
+[0/1] Planning build
+Building for debugging...
+[0/10] Write swift-version-3CD7052B146186F2.txt
+Build complete! (0.19s)
+Test Suite 'Selected tests' started at 2026-11-12 11:08:18.694.
+Test Suite 'BirdFlowMetalPackageTests.xctest' started at 2026-11-12 11:08:18.699.
+Test Suite 'BirdFlowMetalPackageTests.xctest' passed at 2026-11-12 11:08:18.699.
+	 Executed 0 tests, with 0 failures (0 unexpected) in 0.000 (0.000) seconds
+Test Suite 'Selected tests' passed at 2026-11-12 11:08:18.699.
+	 Executed 0 tests, with 0 failures (0 unexpected) in 0.000 (0.005) seconds
+◇ Test run started.
+↳ Testing Library Version: 1902
+↳ Target Platform: arm64e-apple-macos14.0
+◇ Test "estimated standing crow capture keeps the reference private and moves subtly" started.
+captured estimated American crow standing 1/3
+captured estimated American crow standing 2/3
+captured estimated American crow standing 3/3
+✘ Test "estimated standing crow capture keeps the reference private and moves subtly" recorded an issue at OffscreenRendererTests.swift:1370:3: Expectation failed: audit.frames.allSatisfy {
+      $0.nativeFullFrameDisplayRMSE.map { $0 < 0.01 } == true
+    }
+✘ Test "estimated standing crow capture keeps the reference private and moves subtly" recorded an issue at OffscreenRendererTests.swift:1385:3: Expectation failed: audit.frames.allSatisfy {
+      $0.nativeForegroundGradientEnergyRatio.map { $0 > 0.74 } == true
+    }
+✘ Test "estimated standing crow capture keeps the reference private and moves subtly" failed after 4.439 seconds with 2 issues.
+✘ Test run with 1 test in 0 suites failed after 4.439 seconds with 2 issues.
