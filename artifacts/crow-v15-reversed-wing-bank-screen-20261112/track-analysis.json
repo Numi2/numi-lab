@@ -1,0 +1,113 @@
+{
+  "rows": [
+    {
+      "lane": 0,
+      "samples": [
+        {
+          "step": 500,
+          "speed_m_s": 1.082226127009567,
+          "track_rad": 1.134217093997386,
+          "body_yaw_rad": 0.019436776393271068,
+          "track_minus_body_rad": 1.114780317604115,
+          "roll_rad": -0.2255216770215591
+        },
+        {
+          "step": 600,
+          "speed_m_s": 3.4643818901247583,
+          "track_rad": 2.013574699970616,
+          "body_yaw_rad": 0.06061081312003124,
+          "track_minus_body_rad": 1.9529638868505848,
+          "roll_rad": -0.47314500380625674
+        },
+        {
+          "step": 700,
+          "speed_m_s": 3.4463618680275987,
+          "track_rad": 2.2605117573403275,
+          "body_yaw_rad": 0.16833616169202834,
+          "track_minus_body_rad": 2.0921755956482992,
+          "roll_rad": -0.38838634638919
+        },
+        {
+          "step": 800,
+          "speed_m_s": 3.0966676965116915,
+          "track_rad": 2.3683854543922758,
+          "body_yaw_rad": 0.2592720723112835,
+          "track_minus_body_rad": 2.1091133820809924,
+          "roll_rad": -0.34590639781395643
+        }
+      ]
+    },
+    {
+      "lane": 1,
+      "samples": [
+        {
+          "step": 500,
+          "speed_m_s": 1.0929446537124667,
+          "track_rad": -1.130163243614805,
+          "body_yaw_rad": 0.018158964261851967,
+          "track_minus_body_rad": -1.148322207876657,
+          "roll_rad": 0.23440896180150625
+        },
+        {
+          "step": 600,
+          "speed_m_s": 3.654690496017046,
+          "track_rad": -2.102843475221613,
+          "body_yaw_rad": -0.05253892108419902,
+          "track_minus_body_rad": -2.0503045541374143,
+          "roll_rad": 0.4554536704122643
+        },
+        {
+          "step": 700,
+          "speed_m_s": 3.422630469760702,
+          "track_rad": -2.5832923785011723,
+          "body_yaw_rad": -0.18819888522551806,
+          "track_minus_body_rad": -2.3950934932756542,
+          "roll_rad": 0.23363849852498716
+        },
+        {
+          "step": 800,
+          "speed_m_s": 3.1768293395356193,
+          "track_rad": -2.992095068098786,
+          "body_yaw_rad": -0.25261376061337154,
+          "track_minus_body_rad": -2.7394813074854145,
+          "roll_rad": 0.0970167127545934
+        }
+      ]
+    },
+    {
+      "lane": 2,
+      "samples": [
+        {
+          "step": 500,
+          "speed_m_s": 2.525215251978562,
+          "track_rad": 1.5728084769253494,
+          "body_yaw_rad": -0.0018489446850531424,
+          "track_minus_body_rad": 1.5746574216104026,
+          "roll_rad": -0.7345363490064681
+        }
+      ]
+    },
+    {
+      "lane": 3,
+      "samples": [
+        {
+          "step": 500,
+          "speed_m_s": 2.5542760205522486,
+          "track_rad": -1.5616396496203315,
+          "body_yaw_rad": 0.029982938730218296,
+          "track_minus_body_rad": -1.59162258835055,
+          "roll_rad": 0.7394473761110627
+        }
+      ]
+    },
+    {
+      "lane": 4,
+      "samples": []
+    },
+    {
+      "lane": 5,
+      "samples": []
+    }
+  ],
+  "scope": "Sparse endpoint velocities after interval 500. Body heading need not equal flight-path direction during a turn; the observed divergence motivates longer synchronized kinematic and aerodynamic analysis, not a prespecified crow sideslip limit."
+}
