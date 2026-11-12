@@ -1,0 +1,98 @@
+[
+  {
+    "lane": 0,
+    "count": 12,
+    "end_step": 1600,
+    "fraction_abs_slip_over_45deg": 1.0,
+    "last_sample": {
+      "lane": 0,
+      "step": 1600,
+      "height_m": 1.04307413,
+      "yaw_rad": 0.3527106282674337,
+      "horizontal_speed_m_s": 0.7761886007063364,
+      "body_relative_forward_m_s": -0.1052358036349493,
+      "body_relative_lateral_m_s": -0.7690215663424316,
+      "velocity_direction_minus_yaw_rad": -1.7067953703973844
+    }
+  },
+  {
+    "lane": 1,
+    "count": 12,
+    "end_step": 1600,
+    "fraction_abs_slip_over_45deg": 0.9166666666666666,
+    "last_sample": {
+      "lane": 1,
+      "step": 1600,
+      "height_m": 0.995390117,
+      "yaw_rad": -0.2630301057509265,
+      "horizontal_speed_m_s": 0.8366071423201147,
+      "body_relative_forward_m_s": 0.23515011335839345,
+      "body_relative_lateral_m_s": 0.8028797760365891,
+      "velocity_direction_minus_yaw_rad": 1.2858812951335379
+    }
+  },
+  {
+    "lane": 2,
+    "count": 12,
+    "end_step": 1600,
+    "fraction_abs_slip_over_45deg": 1.0,
+    "last_sample": {
+      "lane": 2,
+      "step": 1600,
+      "height_m": 1.37842953,
+      "yaw_rad": 0.26830117412536486,
+      "horizontal_speed_m_s": 1.4550970377807348,
+      "body_relative_forward_m_s": -0.7687090310326442,
+      "body_relative_lateral_m_s": -1.2354731138179909,
+      "velocity_direction_minus_yaw_rad": -2.127378259069271
+    }
+  },
+  {
+    "lane": 3,
+    "count": 12,
+    "end_step": 1600,
+    "fraction_abs_slip_over_45deg": 1.0,
+    "last_sample": {
+      "lane": 3,
+      "step": 1600,
+      "height_m": 1.12985098,
+      "yaw_rad": -0.23807823527155747,
+      "horizontal_speed_m_s": 1.3569483274284586,
+      "body_relative_forward_m_s": 0.22921926360141848,
+      "body_relative_lateral_m_s": 1.337448052264055,
+      "velocity_direction_minus_yaw_rad": 1.40105985101777
+    }
+  },
+  {
+    "lane": 4,
+    "count": 10,
+    "end_step": 1466,
+    "fraction_abs_slip_over_45deg": 1.0,
+    "last_sample": {
+      "lane": 4,
+      "step": 1400,
+      "height_m": 0.467844635,
+      "yaw_rad": 0.27983613656333156,
+      "horizontal_speed_m_s": 7.1375227637627745,
+      "body_relative_forward_m_s": -7.136422262833187,
+      "body_relative_lateral_m_s": 0.12533351415584115,
+      "velocity_direction_minus_yaw_rad": 3.124031945171873
+    }
+  },
+  {
+    "lane": 5,
+    "count": 12,
+    "end_step": 1600,
+    "fraction_abs_slip_over_45deg": 1.0,
+    "last_sample": {
+      "lane": 5,
+      "step": 1600,
+      "height_m": 1.30340338,
+      "yaw_rad": -0.1540897566122336,
+      "horizontal_speed_m_s": 1.7770178245460806,
+      "body_relative_forward_m_s": 0.02496509223650417,
+      "body_relative_lateral_m_s": 1.7768424502257107,
+      "velocity_direction_minus_yaw_rad": 1.5567469947091928
+    }
+  }
+]
