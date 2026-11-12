@@ -1,0 +1,3 @@
+held {'low_toe_endpoints': 49, 'without_accepted_toe_contact': 49} {'count': 0, 'median_m_s': None, 'p95_m_s': None, 'over_0_01_fraction': None, 'max_m_s': None}
+opposite_support_sham {'low_toe_endpoints': 198, 'without_accepted_toe_contact': 64, 'with_accepted_toe_contact': 134} {'count': 342, 'median_m_s': 0.045520567142230545, 'p95_m_s': 0.06992713136122534, 'over_0_01_fraction': 0.9473684210526315, 'max_m_s': 0.07115042312994398}
+own_or_opposite_candidate {'low_toe_endpoints': 196, 'without_accepted_toe_contact': 64, 'with_accepted_toe_contact': 132} {'count': 330, 'median_m_s': 0.04601324862628553, 'p95_m_s': 0.06902215716111479, 'over_0_01_fraction': 0.8909090909090909, 'max_m_s': 0.06991114851825161}

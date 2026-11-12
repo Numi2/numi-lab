@@ -1,0 +1,8 @@
+{
+  "complete_runs": 40,
+  "rear_first_toeoff": 0,
+  "fraction_rear_first": 0.0,
+  "at_least_two_runs_per_foot_per_lane": true,
+  "required_fraction": 0.75,
+  "pass": false
+}
