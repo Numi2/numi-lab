@@ -1,0 +1,3 @@
+# Matched eight-start gait test
+
+Test hip phase -0.9 rad and lift 0.25 on all eight previously used starts, against their matching held controls. All pre-walk states and contacts must match the prior screen and lane 2 must exactly reproduce the same phase/lift settings. Assess per-lane displacement, continuous support, physical failures, toe velocity caps, supported clearance bouts, toe contact order and endpoint contact-point velocities. Low-toe geometry must be classified by actual loads and is not itself dragging. Do not treat gait speed as biological validation or this as a held-out qualification. A promising trial requires repeated matched starts and the contact-driven full journey, with independent layouts, before promotion.
