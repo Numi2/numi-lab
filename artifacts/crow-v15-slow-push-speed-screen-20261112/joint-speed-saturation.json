@@ -1,0 +1,549 @@
+{
+  "rows": [
+    {
+      "lane": 0,
+      "target_ramp_s": 0.04,
+      "first_episode_steps": 500,
+      "drive_records": 26240,
+      "nonfoot_ground_substeps": 0,
+      "joints": [
+        {
+          "index": 13,
+          "name": "crow_left_hip_pitch",
+          "limit_rad_s": 18.0,
+          "maximum_abs_rad_s": 8.12979507,
+          "limit_hits": 0
+        },
+        {
+          "index": 14,
+          "name": "crow_left_knee_pitch",
+          "limit_rad_s": 22.0,
+          "maximum_abs_rad_s": 22.0,
+          "limit_hits": 13
+        },
+        {
+          "index": 15,
+          "name": "crow_left_ankle_pitch",
+          "limit_rad_s": 24.0,
+          "maximum_abs_rad_s": 14.973999,
+          "limit_hits": 0
+        },
+        {
+          "index": 16,
+          "name": "crow_right_hip_pitch",
+          "limit_rad_s": 18.0,
+          "maximum_abs_rad_s": 8.10737133,
+          "limit_hits": 0
+        },
+        {
+          "index": 17,
+          "name": "crow_right_knee_pitch",
+          "limit_rad_s": 22.0,
+          "maximum_abs_rad_s": 22.0,
+          "limit_hits": 13
+        },
+        {
+          "index": 18,
+          "name": "crow_right_ankle_pitch",
+          "limit_rad_s": 24.0,
+          "maximum_abs_rad_s": 14.9202557,
+          "limit_hits": 0
+        },
+        {
+          "index": 38,
+          "name": "crow_left_hip_roll",
+          "limit_rad_s": 8.0,
+          "maximum_abs_rad_s": 0.253412902,
+          "limit_hits": 0
+        },
+        {
+          "index": 39,
+          "name": "crow_right_hip_roll",
+          "limit_rad_s": 8.0,
+          "maximum_abs_rad_s": 0.282357484,
+          "limit_hits": 0
+        }
+      ],
+      "total_joint_limit_hits": 26
+    },
+    {
+      "lane": 1,
+      "target_ramp_s": 0.04,
+      "first_episode_steps": 500,
+      "drive_records": 26240,
+      "nonfoot_ground_substeps": 0,
+      "joints": [
+        {
+          "index": 13,
+          "name": "crow_left_hip_pitch",
+          "limit_rad_s": 18.0,
+          "maximum_abs_rad_s": 8.13502026,
+          "limit_hits": 0
+        },
+        {
+          "index": 14,
+          "name": "crow_left_knee_pitch",
+          "limit_rad_s": 22.0,
+          "maximum_abs_rad_s": 22.0,
+          "limit_hits": 13
+        },
+        {
+          "index": 15,
+          "name": "crow_left_ankle_pitch",
+          "limit_rad_s": 24.0,
+          "maximum_abs_rad_s": 14.9760742,
+          "limit_hits": 0
+        },
+        {
+          "index": 16,
+          "name": "crow_right_hip_pitch",
+          "limit_rad_s": 18.0,
+          "maximum_abs_rad_s": 8.10820293,
+          "limit_hits": 0
+        },
+        {
+          "index": 17,
+          "name": "crow_right_knee_pitch",
+          "limit_rad_s": 22.0,
+          "maximum_abs_rad_s": 22.0,
+          "limit_hits": 13
+        },
+        {
+          "index": 18,
+          "name": "crow_right_ankle_pitch",
+          "limit_rad_s": 24.0,
+          "maximum_abs_rad_s": 14.9223289,
+          "limit_hits": 0
+        },
+        {
+          "index": 38,
+          "name": "crow_left_hip_roll",
+          "limit_rad_s": 8.0,
+          "maximum_abs_rad_s": 0.464321703,
+          "limit_hits": 0
+        },
+        {
+          "index": 39,
+          "name": "crow_right_hip_roll",
+          "limit_rad_s": 8.0,
+          "maximum_abs_rad_s": 0.4645603,
+          "limit_hits": 0
+        }
+      ],
+      "total_joint_limit_hits": 26
+    },
+    {
+      "lane": 2,
+      "target_ramp_s": 0.08,
+      "first_episode_steps": 500,
+      "drive_records": 26240,
+      "nonfoot_ground_substeps": 0,
+      "joints": [
+        {
+          "index": 13,
+          "name": "crow_left_hip_pitch",
+          "limit_rad_s": 18.0,
+          "maximum_abs_rad_s": 6.44168186,
+          "limit_hits": 0
+        },
+        {
+          "index": 14,
+          "name": "crow_left_knee_pitch",
+          "limit_rad_s": 22.0,
+          "maximum_abs_rad_s": 22.0,
+          "limit_hits": 2
+        },
+        {
+          "index": 15,
+          "name": "crow_left_ankle_pitch",
+          "limit_rad_s": 24.0,
+          "maximum_abs_rad_s": 11.3300085,
+          "limit_hits": 0
+        },
+        {
+          "index": 16,
+          "name": "crow_right_hip_pitch",
+          "limit_rad_s": 18.0,
+          "maximum_abs_rad_s": 6.45368671,
+          "limit_hits": 0
+        },
+        {
+          "index": 17,
+          "name": "crow_right_knee_pitch",
+          "limit_rad_s": 22.0,
+          "maximum_abs_rad_s": 22.0,
+          "limit_hits": 3
+        },
+        {
+          "index": 18,
+          "name": "crow_right_ankle_pitch",
+          "limit_rad_s": 24.0,
+          "maximum_abs_rad_s": 11.4363384,
+          "limit_hits": 0
+        },
+        {
+          "index": 38,
+          "name": "crow_left_hip_roll",
+          "limit_rad_s": 8.0,
+          "maximum_abs_rad_s": 0.449239105,
+          "limit_hits": 0
+        },
+        {
+          "index": 39,
+          "name": "crow_right_hip_roll",
+          "limit_rad_s": 8.0,
+          "maximum_abs_rad_s": 0.448565215,
+          "limit_hits": 0
+        }
+      ],
+      "total_joint_limit_hits": 5
+    },
+    {
+      "lane": 3,
+      "target_ramp_s": 0.08,
+      "first_episode_steps": 500,
+      "drive_records": 26240,
+      "nonfoot_ground_substeps": 0,
+      "joints": [
+        {
+          "index": 13,
+          "name": "crow_left_hip_pitch",
+          "limit_rad_s": 18.0,
+          "maximum_abs_rad_s": 6.44224882,
+          "limit_hits": 0
+        },
+        {
+          "index": 14,
+          "name": "crow_left_knee_pitch",
+          "limit_rad_s": 22.0,
+          "maximum_abs_rad_s": 22.0,
+          "limit_hits": 2
+        },
+        {
+          "index": 15,
+          "name": "crow_left_ankle_pitch",
+          "limit_rad_s": 24.0,
+          "maximum_abs_rad_s": 11.3002987,
+          "limit_hits": 0
+        },
+        {
+          "index": 16,
+          "name": "crow_right_hip_pitch",
+          "limit_rad_s": 18.0,
+          "maximum_abs_rad_s": 6.44050932,
+          "limit_hits": 0
+        },
+        {
+          "index": 17,
+          "name": "crow_right_knee_pitch",
+          "limit_rad_s": 22.0,
+          "maximum_abs_rad_s": 22.0,
+          "limit_hits": 3
+        },
+        {
+          "index": 18,
+          "name": "crow_right_ankle_pitch",
+          "limit_rad_s": 24.0,
+          "maximum_abs_rad_s": 11.4583426,
+          "limit_hits": 0
+        },
+        {
+          "index": 38,
+          "name": "crow_left_hip_roll",
+          "limit_rad_s": 8.0,
+          "maximum_abs_rad_s": 0.471532762,
+          "limit_hits": 0
+        },
+        {
+          "index": 39,
+          "name": "crow_right_hip_roll",
+          "limit_rad_s": 8.0,
+          "maximum_abs_rad_s": 0.470871449,
+          "limit_hits": 0
+        }
+      ],
+      "total_joint_limit_hits": 5
+    },
+    {
+      "lane": 4,
+      "target_ramp_s": 0.16,
+      "first_episode_steps": 500,
+      "drive_records": 26240,
+      "nonfoot_ground_substeps": 0,
+      "joints": [
+        {
+          "index": 13,
+          "name": "crow_left_hip_pitch",
+          "limit_rad_s": 18.0,
+          "maximum_abs_rad_s": 3.56008506,
+          "limit_hits": 0
+        },
+        {
+          "index": 14,
+          "name": "crow_left_knee_pitch",
+          "limit_rad_s": 22.0,
+          "maximum_abs_rad_s": 15.2652273,
+          "limit_hits": 0
+        },
+        {
+          "index": 15,
+          "name": "crow_left_ankle_pitch",
+          "limit_rad_s": 24.0,
+          "maximum_abs_rad_s": 7.95189095,
+          "limit_hits": 0
+        },
+        {
+          "index": 16,
+          "name": "crow_right_hip_pitch",
+          "limit_rad_s": 18.0,
+          "maximum_abs_rad_s": 3.49269176,
+          "limit_hits": 0
+        },
+        {
+          "index": 17,
+          "name": "crow_right_knee_pitch",
+          "limit_rad_s": 22.0,
+          "maximum_abs_rad_s": 14.7943602,
+          "limit_hits": 0
+        },
+        {
+          "index": 18,
+          "name": "crow_right_ankle_pitch",
+          "limit_rad_s": 24.0,
+          "maximum_abs_rad_s": 7.97744799,
+          "limit_hits": 0
+        },
+        {
+          "index": 38,
+          "name": "crow_left_hip_roll",
+          "limit_rad_s": 8.0,
+          "maximum_abs_rad_s": 0.393098682,
+          "limit_hits": 0
+        },
+        {
+          "index": 39,
+          "name": "crow_right_hip_roll",
+          "limit_rad_s": 8.0,
+          "maximum_abs_rad_s": 0.386077762,
+          "limit_hits": 0
+        }
+      ],
+      "total_joint_limit_hits": 0
+    },
+    {
+      "lane": 5,
+      "target_ramp_s": 0.16,
+      "first_episode_steps": 500,
+      "drive_records": 26240,
+      "nonfoot_ground_substeps": 0,
+      "joints": [
+        {
+          "index": 13,
+          "name": "crow_left_hip_pitch",
+          "limit_rad_s": 18.0,
+          "maximum_abs_rad_s": 3.43104124,
+          "limit_hits": 0
+        },
+        {
+          "index": 14,
+          "name": "crow_left_knee_pitch",
+          "limit_rad_s": 22.0,
+          "maximum_abs_rad_s": 15.8061075,
+          "limit_hits": 0
+        },
+        {
+          "index": 15,
+          "name": "crow_left_ankle_pitch",
+          "limit_rad_s": 24.0,
+          "maximum_abs_rad_s": 7.26640034,
+          "limit_hits": 0
+        },
+        {
+          "index": 16,
+          "name": "crow_right_hip_pitch",
+          "limit_rad_s": 18.0,
+          "maximum_abs_rad_s": 3.29278874,
+          "limit_hits": 0
+        },
+        {
+          "index": 17,
+          "name": "crow_right_knee_pitch",
+          "limit_rad_s": 22.0,
+          "maximum_abs_rad_s": 15.3016634,
+          "limit_hits": 0
+        },
+        {
+          "index": 18,
+          "name": "crow_right_ankle_pitch",
+          "limit_rad_s": 24.0,
+          "maximum_abs_rad_s": 7.4071393,
+          "limit_hits": 0
+        },
+        {
+          "index": 38,
+          "name": "crow_left_hip_roll",
+          "limit_rad_s": 8.0,
+          "maximum_abs_rad_s": 0.347852975,
+          "limit_hits": 0
+        },
+        {
+          "index": 39,
+          "name": "crow_right_hip_roll",
+          "limit_rad_s": 8.0,
+          "maximum_abs_rad_s": 0.297341287,
+          "limit_hits": 0
+        }
+      ],
+      "total_joint_limit_hits": 0
+    },
+    {
+      "lane": 6,
+      "target_ramp_s": 0.32,
+      "first_episode_steps": 500,
+      "drive_records": 26240,
+      "nonfoot_ground_substeps": 0,
+      "joints": [
+        {
+          "index": 13,
+          "name": "crow_left_hip_pitch",
+          "limit_rad_s": 18.0,
+          "maximum_abs_rad_s": 1.55946255,
+          "limit_hits": 0
+        },
+        {
+          "index": 14,
+          "name": "crow_left_knee_pitch",
+          "limit_rad_s": 22.0,
+          "maximum_abs_rad_s": 6.95513773,
+          "limit_hits": 0
+        },
+        {
+          "index": 15,
+          "name": "crow_left_ankle_pitch",
+          "limit_rad_s": 24.0,
+          "maximum_abs_rad_s": 4.09707499,
+          "limit_hits": 0
+        },
+        {
+          "index": 16,
+          "name": "crow_right_hip_pitch",
+          "limit_rad_s": 18.0,
+          "maximum_abs_rad_s": 1.44760001,
+          "limit_hits": 0
+        },
+        {
+          "index": 17,
+          "name": "crow_right_knee_pitch",
+          "limit_rad_s": 22.0,
+          "maximum_abs_rad_s": 6.87098122,
+          "limit_hits": 0
+        },
+        {
+          "index": 18,
+          "name": "crow_right_ankle_pitch",
+          "limit_rad_s": 24.0,
+          "maximum_abs_rad_s": 3.5290556,
+          "limit_hits": 0
+        },
+        {
+          "index": 28,
+          "name": "crow_left_rear_toe_proximal_flex",
+          "limit_rad_s": 12.0,
+          "maximum_abs_rad_s": 12.0,
+          "limit_hits": 2
+        },
+        {
+          "index": 38,
+          "name": "crow_left_hip_roll",
+          "limit_rad_s": 8.0,
+          "maximum_abs_rad_s": 0.58581543,
+          "limit_hits": 0
+        },
+        {
+          "index": 39,
+          "name": "crow_right_hip_roll",
+          "limit_rad_s": 8.0,
+          "maximum_abs_rad_s": 0.524745762,
+          "limit_hits": 0
+        }
+      ],
+      "total_joint_limit_hits": 2
+    },
+    {
+      "lane": 7,
+      "target_ramp_s": 0.32,
+      "first_episode_steps": 500,
+      "drive_records": 26240,
+      "nonfoot_ground_substeps": 0,
+      "joints": [
+        {
+          "index": 13,
+          "name": "crow_left_hip_pitch",
+          "limit_rad_s": 18.0,
+          "maximum_abs_rad_s": 1.57549775,
+          "limit_hits": 0
+        },
+        {
+          "index": 14,
+          "name": "crow_left_knee_pitch",
+          "limit_rad_s": 22.0,
+          "maximum_abs_rad_s": 7.13227081,
+          "limit_hits": 0
+        },
+        {
+          "index": 15,
+          "name": "crow_left_ankle_pitch",
+          "limit_rad_s": 24.0,
+          "maximum_abs_rad_s": 4.1244235,
+          "limit_hits": 0
+        },
+        {
+          "index": 16,
+          "name": "crow_right_hip_pitch",
+          "limit_rad_s": 18.0,
+          "maximum_abs_rad_s": 1.34762156,
+          "limit_hits": 0
+        },
+        {
+          "index": 17,
+          "name": "crow_right_knee_pitch",
+          "limit_rad_s": 22.0,
+          "maximum_abs_rad_s": 6.91366196,
+          "limit_hits": 0
+        },
+        {
+          "index": 18,
+          "name": "crow_right_ankle_pitch",
+          "limit_rad_s": 24.0,
+          "maximum_abs_rad_s": 3.55928135,
+          "limit_hits": 0
+        },
+        {
+          "index": 28,
+          "name": "crow_left_rear_toe_proximal_flex",
+          "limit_rad_s": 12.0,
+          "maximum_abs_rad_s": 12.0,
+          "limit_hits": 2
+        },
+        {
+          "index": 38,
+          "name": "crow_left_hip_roll",
+          "limit_rad_s": 8.0,
+          "maximum_abs_rad_s": 0.844814837,
+          "limit_hits": 0
+        },
+        {
+          "index": 39,
+          "name": "crow_right_hip_roll",
+          "limit_rad_s": 8.0,
+          "maximum_abs_rad_s": 1.10575831,
+          "limit_hits": 0
+        }
+      ],
+      "total_joint_limit_hits": 2
+    }
+  ],
+  "contact_overflows": [],
+  "substep_errors": [],
+  "scope": "All velocity-limited joints, substeps 340\u2013380 (6.8\u20137.6 s nominal); start/end velocities sampled, hit defined by endpoint within 0.0001 rad/s of authored speed limit. Other windows, impulsive clipping, biological realism, leg work and full mission remain unqualified."
+}
