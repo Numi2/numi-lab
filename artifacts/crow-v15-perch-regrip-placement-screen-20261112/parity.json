@@ -1,0 +1,28 @@
+{
+  "reference_lanes": {
+    "0": 0,
+    "1": 1,
+    "2": 2,
+    "3": 3,
+    "4": 2,
+    "5": 3,
+    "6": 2,
+    "7": 3
+  },
+  "states_compared": 3484,
+  "substeps_compared": 111488,
+  "reference_return_steps": {
+    "2": 252,
+    "3": 288
+  },
+  "candidate_return_steps": {
+    "2": 252,
+    "4": 252,
+    "6": 252,
+    "3": 288,
+    "5": 288,
+    "7": 288
+  },
+  "differences": [],
+  "difference_count": 0
+}
