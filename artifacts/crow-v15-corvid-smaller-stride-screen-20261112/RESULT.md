@@ -1,0 +1,5 @@
+# Smaller stride screen
+
+Pre-intervention and both reference lanes exactly matched the baseline. The .125 hip swing with no contact feedback (lane 6) reduced the left and right contact-point-speed integrals to .730 and .687 of baseline, with .075 m progress over two seconds, continuous collective support, no toe-speed cap and no nonfoot ground impulse. It passed this development screen. Its six retained complete stance windows had median hip and knee changes -2.88 and -2.83 degrees, early-to-middle ankle -1.88 degrees and middle-to-late ankle +.28 degrees; signs agree with the related magpie pattern but magnitudes, phase segmentation and speed differ.
+
+All other lanes failed: .10 had brief collective unloading despite reduced contact speeds, .07 had inadequate progress, and feedback did not improve the .125 case. Contact-point-speed is a proxy, not tracked material slip. One used start, six related windows and the tiny late ankle median cannot establish repeatability or real-crow gait; this is not full mission qualification.
