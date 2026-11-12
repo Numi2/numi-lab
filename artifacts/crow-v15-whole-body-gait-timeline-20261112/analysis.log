@@ -1,0 +1,16 @@
+{
+  "lane": 5,
+  "sampled_intervals": 100,
+  "contact_substeps": 1600,
+  "max_q_substep_endpoint_error": 4.995613089864293e-10,
+  "root_forward_displacement_m": 0.030841390136629343,
+  "trunk_vertical_range_m": 0.0018698275089263916,
+  "trunk_roll_range_rad": 0.04504653227444909,
+  "trunk_pitch_range_rad": 0.0177959308526242,
+  "head_world_x_range_m": 0.03225475549697876,
+  "head_minus_trunk_world_x_range_m": 0.0017329039983451366,
+  "left_contact_impulse_Ns": 4.685297288813601,
+  "right_contact_impulse_Ns": 4.143261419559967,
+  "unsupported_substeps": 0,
+  "nonfoot_ground_impulse_Ns": 0.0
+}
