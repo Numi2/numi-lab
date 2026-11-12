@@ -1,0 +1,330 @@
+{
+  "pre_intervention_parity": {
+    "state_samples": 2776,
+    "contact_substeps": 44416
+  },
+  "differences": [],
+  "rows": [
+    {
+      "lane": 0,
+      "extension": {
+        "position": [
+          0.758124352,
+          0.0205209572,
+          0.944925487
+        ],
+        "velocity": [
+          0.598536432,
+          0.00746000186,
+          0.0167544782
+        ],
+        "first_unloaded_substep": [
+          356,
+          4
+        ],
+        "unloaded_8_10_seconds": 1600,
+        "nonfoot_ground_substeps": 0
+      },
+      "crouch_hold": {
+        "position": [
+          -0.117902778,
+          -0.0564335063,
+          1.29903233
+        ],
+        "velocity": [
+          0.159084439,
+          -0.109785192,
+          -0.0307917558
+        ],
+        "first_unloaded_substep": [
+          352,
+          4
+        ],
+        "unloaded_8_10_seconds": 1600,
+        "nonfoot_ground_substeps": 0
+      },
+      "extension_minus_crouch_x_m": 0.87602713
+    },
+    {
+      "lane": 1,
+      "extension": {
+        "position": [
+          0.83000797,
+          0.0524798147,
+          1.05942094
+        ],
+        "velocity": [
+          0.596739769,
+          -0.0218320657,
+          0.159266159
+        ],
+        "first_unloaded_substep": [
+          356,
+          0
+        ],
+        "unloaded_8_10_seconds": 1600,
+        "nonfoot_ground_substeps": 0
+      },
+      "crouch_hold": {
+        "position": [
+          -0.0347961187,
+          0.0300769359,
+          1.0947659
+        ],
+        "velocity": [
+          0.17698437,
+          0.00741683459,
+          -0.208121032
+        ],
+        "first_unloaded_substep": [
+          352,
+          4
+        ],
+        "unloaded_8_10_seconds": 1600,
+        "nonfoot_ground_substeps": 0
+      },
+      "extension_minus_crouch_x_m": 0.8648040887
+    },
+    {
+      "lane": 2,
+      "extension": {
+        "position": [
+          0.746325314,
+          0.0160491467,
+          0.989258885
+        ],
+        "velocity": [
+          0.594981194,
+          -0.00777362799,
+          -0.0369088538
+        ],
+        "first_unloaded_substep": [
+          356,
+          0
+        ],
+        "unloaded_8_10_seconds": 1600,
+        "nonfoot_ground_substeps": 0
+      },
+      "crouch_hold": {
+        "position": [
+          -0.107399188,
+          0.00211001141,
+          1.23617804
+        ],
+        "velocity": [
+          0.176516458,
+          -0.0193417668,
+          -0.127304628
+        ],
+        "first_unloaded_substep": [
+          352,
+          4
+        ],
+        "unloaded_8_10_seconds": 1600,
+        "nonfoot_ground_substeps": 0
+      },
+      "extension_minus_crouch_x_m": 0.853724502
+    },
+    {
+      "lane": 3,
+      "extension": {
+        "position": [
+          0.739745677,
+          -0.0235766079,
+          0.991150022
+        ],
+        "velocity": [
+          0.591556489,
+          -0.00173322414,
+          -0.00805563852
+        ],
+        "first_unloaded_substep": [
+          356,
+          4
+        ],
+        "unloaded_8_10_seconds": 1600,
+        "nonfoot_ground_substeps": 0
+      },
+      "crouch_hold": {
+        "position": [
+          -0.115277246,
+          -0.0638864413,
+          1.24056876
+        ],
+        "velocity": [
+          0.173350975,
+          -0.0820039436,
+          -0.10974741
+        ],
+        "first_unloaded_substep": [
+          352,
+          4
+        ],
+        "unloaded_8_10_seconds": 1600,
+        "nonfoot_ground_substeps": 0
+      },
+      "extension_minus_crouch_x_m": 0.855022923
+    },
+    {
+      "lane": 4,
+      "extension": {
+        "position": [
+          0.755601108,
+          -0.00759622222,
+          1.02549946
+        ],
+        "velocity": [
+          0.588983417,
+          -0.0201983359,
+          -0.0507833511
+        ],
+        "first_unloaded_substep": [
+          356,
+          4
+        ],
+        "unloaded_8_10_seconds": 1600,
+        "nonfoot_ground_substeps": 0
+      },
+      "crouch_hold": {
+        "position": [
+          -0.105213158,
+          0.044679258,
+          1.24648857
+        ],
+        "velocity": [
+          0.18067275,
+          -0.0120979846,
+          -0.0654995218
+        ],
+        "first_unloaded_substep": [
+          352,
+          4
+        ],
+        "unloaded_8_10_seconds": 1600,
+        "nonfoot_ground_substeps": 0
+      },
+      "extension_minus_crouch_x_m": 0.860814266
+    },
+    {
+      "lane": 5,
+      "extension": {
+        "position": [
+          0.817873716,
+          -0.0218706969,
+          1.05354702
+        ],
+        "velocity": [
+          0.606124103,
+          -0.0192711204,
+          -0.108860068
+        ],
+        "first_unloaded_substep": [
+          356,
+          0
+        ],
+        "unloaded_8_10_seconds": 1600,
+        "nonfoot_ground_substeps": 0
+      },
+      "crouch_hold": {
+        "position": [
+          -0.022323316,
+          0.030922737,
+          1.18347776
+        ],
+        "velocity": [
+          0.203822136,
+          -0.00059821282,
+          -0.140757233
+        ],
+        "first_unloaded_substep": [
+          352,
+          4
+        ],
+        "unloaded_8_10_seconds": 1600,
+        "nonfoot_ground_substeps": 0
+      },
+      "extension_minus_crouch_x_m": 0.8401970320000001
+    },
+    {
+      "lane": 6,
+      "extension": {
+        "position": [
+          0.748469532,
+          -0.0403109416,
+          1.06063414
+        ],
+        "velocity": [
+          0.590718031,
+          -0.0325729474,
+          -0.108136952
+        ],
+        "first_unloaded_substep": [
+          355,
+          14
+        ],
+        "unloaded_8_10_seconds": 1600,
+        "nonfoot_ground_substeps": 0
+      },
+      "crouch_hold": {
+        "position": [
+          -0.103899457,
+          0.0289345346,
+          1.25345552
+        ],
+        "velocity": [
+          0.180721223,
+          -0.0322393142,
+          -0.0989944115
+        ],
+        "first_unloaded_substep": [
+          352,
+          4
+        ],
+        "unloaded_8_10_seconds": 1600,
+        "nonfoot_ground_substeps": 0
+      },
+      "extension_minus_crouch_x_m": 0.852368989
+    },
+    {
+      "lane": 7,
+      "extension": {
+        "position": [
+          0.782191217,
+          -0.0479481034,
+          1.11729956
+        ],
+        "velocity": [
+          0.571250021,
+          -0.0861029699,
+          -0.188755468
+        ],
+        "first_unloaded_substep": [
+          356,
+          0
+        ],
+        "unloaded_8_10_seconds": 1600,
+        "nonfoot_ground_substeps": 0
+      },
+      "crouch_hold": {
+        "position": [
+          -0.0740293562,
+          0.138326585,
+          1.21762919
+        ],
+        "velocity": [
+          0.191532984,
+          0.0281112641,
+          -0.104760684
+        ],
+        "first_unloaded_substep": [
+          352,
+          4
+        ],
+        "unloaded_8_10_seconds": 1600,
+        "nonfoot_ground_substeps": 0
+      },
+      "extension_minus_crouch_x_m": 0.8562205732
+    }
+  ],
+  "scope": "Active crouch hold is not passive leg removal; other dynamics including the wings and later leg actions remain active. All starts and layout are used for development."
+}

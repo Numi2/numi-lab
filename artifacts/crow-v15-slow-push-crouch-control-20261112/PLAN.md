@@ -1,0 +1,3 @@
+# Matched crouch-hold control for the smooth takeoff
+
+Compare eight previously used development starts against the same-seed, 160 ms leg-extension runs. Keep early wing onset, both direct body moments disabled from time zero, active posture holding, contacts, policy, host and all other inputs the same; retain 16 substeps and the first 10 s of each continuous episode. The sole intervention maintains the crouch target in the leg-extension window. Compare full pre-intervention state/action/contact parity, launch unloading and recontact, knee and toe speed limits, displacement, altitude and subsequent flight. Holding posture still uses active leg motors; differences do not identify muscle work or establish a leg-only takeoff.
