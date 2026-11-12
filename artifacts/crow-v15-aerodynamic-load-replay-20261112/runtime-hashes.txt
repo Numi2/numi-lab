@@ -1,0 +1,4 @@
+16b562585064f5bea89fd6c2416a2c6cedd575d5ac317ba2cfbb8d93b64dfee3  build/crow-v15-aerodynamic-load-replay-20261112/evaluate
+eb9efffd6ea46dfad5d27656cd5c99610b9d9db17f8ea342adf38eea3f1a249f  build/crow-v15-wing-steering-without-body-moments-20261112/baseline.metallib
+981e46c4733083d94b3988cb0cad016319a5c84a79df6c33be7e6c7abe4aa799  build/crow-v15-toe-velocity-substep-observer-20261111/libmetalrobo.dylib
+dd767d3e79909a2b3555c6f8c32ae911111fe08d0de2ef718642c65090ab0066  build/crow-v15-wing-aero-alignment-20261110/aero.air
