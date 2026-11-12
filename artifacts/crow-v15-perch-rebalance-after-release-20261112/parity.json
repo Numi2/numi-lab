@@ -1,0 +1,14 @@
+{
+  "states_compared": 3842,
+  "substeps_compared": 122944,
+  "reference_return_steps": {
+    "2": 252,
+    "3": 288
+  },
+  "candidate_return_steps": {
+    "2": 252,
+    "3": 288
+  },
+  "differences": [],
+  "difference_count": 0
+}
