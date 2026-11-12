@@ -1,0 +1,41 @@
+--- a/short-screen.metal
++++ b/long-screen.metal
+@@ -5082,9 +5082,9 @@
+             const float support=dispatch.counts.w==40u ? ((state.status.w & (leg==0u ? (1u<<21) : (1u<<20)))!=0u ? 1.0f : 0.0f) : (leg==0u ? state.nutrition.y : state.nutrition.x);
+             const float begin=4.0f;
+             const float carrier=sin(kTwoPi*(seconds+5.0f/1000.0f)/0.50f)*(leg==0u ? 1.0f : -1.0f);
+-            const float swing=seconds >= begin && seconds < begin+2.0f && support > 0.05f ? carrier : 0.0f;
++            const float swing=seconds >= begin && seconds < begin+6.0f && support > 0.05f ? carrier : 0.0f;
+             const float lift=max(swing,0.0f);
+-            if (seconds >= begin && seconds < begin+2.0f)
++            if (seconds >= begin && seconds < begin+6.0f)
+                 navigationTeacherRequested=0.80f*smoothstep(begin,begin+.50f,seconds)*(joint==0u ? -0.30f*swing : joint==1u ? 0.40f*lift : -0.15f*lift);
+             else if (seconds>=2.0f && seconds<begin)
+                 { const uint arm=environment%8u;
+@@ -5097,7 +5097,7 @@
+         if (fixedFlightController && state.episode.z == 10u && action >= 7u && action <= 12u) {
+             const float seconds=float(state.episode.x)*dispatch.timing.x;
+             const uint joint=(action-7u)%3u;
+-            if (seconds >= 6.3f && seconds < 7.4f) {
++            if (seconds >= 10.3f && seconds < 11.4f) {
+                 const float crouched=joint==0u ? -0.85f : joint==1u ? 1.00f : -0.50f;
+                 const float extended=joint==0u ? -0.50f : joint==1u ? -0.70f : 0.18f;
+                 const bool bilateral=dispatch.counts.w==40u ? (state.status.w & ((1u<<20)|(1u<<21)))==((1u<<20)|(1u<<21)) : (state.nutrition.x>0.05f && state.nutrition.y>0.05f);
+@@ -5178,7 +5178,7 @@
+         // Proposed latents stay only in the learner transaction; they cannot
+         // serve as actor-visible external memory during the delay.
+         const bool walkAirborneHold=fixedFlightController && state.episode.z==10u && action>=7u && action<=12u &&
+-            float(state.episode.x)*dispatch.timing.x>=4.0f && float(state.episode.x)*dispatch.timing.x<6.0f &&
++            float(state.episode.x)*dispatch.timing.x>=4.0f && float(state.episode.x)*dispatch.timing.x<10.0f &&
+             dispatch.counts.w==40u && (state.status.w & (1u<<22))==0u;
+         const float requested = walkAirborneHold ? actionHistory[delayBase + filterSlot*program.counts0.x + action] :
+             !actionAvailable ? 0.0f : actionSelected ? requestedBeforeAvailability :
+@@ -5558,7 +5558,7 @@
+                 const float walkingSeconds=float(state.episode.x)*dispatch.timing.x;
+                 const float carrier=sin(kTwoPi*(walkingSeconds+5.0f/1000.0f)/0.50f+0.50f)*(side==0u ? 1.0f : -1.0f);
+                 const bool oppositeSupported=(state.status.w & (side==0u ? (1u<<21) : (1u<<20)))!=0u;
+-                if (program.interactionTiming.w>=0.5f && walkingSeconds>=4.0f && walkingSeconds<6.0f && toe==3u && carrier>0.40f && oppositeSupported && (state.status.w & (side==0u ? (1u<<20) : (1u<<21)))==0u)
++                if (program.interactionTiming.w>=0.5f && walkingSeconds>=4.0f && walkingSeconds<10.0f && toe==3u && carrier>0.40f && oppositeSupported && (state.status.w & (side==0u ? (1u<<20) : (1u<<21)))==0u)
+                     proximal=min(proximal,-.02f*smoothstep(.40f,.80f,carrier));
+                 for(uint segment=0u;segment<2u;++segment) {
+                     const uint dof=22u+side*8u+toe*2u+segment;
