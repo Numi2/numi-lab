@@ -1,0 +1,12 @@
+--- a/bank-pitch.metal
++++ b/speed-pitch.metal
+@@ -5172,7 +5172,8 @@
+         // Add matched bilateral sweep feedback to the tested bank controller.
+         if (fixedFlightController && float(state.episode.x)*dispatch.timing.x >= 9.0f && (action==2u || action==3u)) {
+             const float gain=mode<2u ? .20f : mode<4u ? .40f : .80f;
+-            const float correction=clamp(-gain*state.threatGeometry.z-.04f*state.threatGeometry.w,-.12f,.12f);
++            const float pitchTarget=clamp(.20f*(.75f-state.commandExtension.z),-.18f,.18f);
++            const float correction=clamp(-gain*(state.threatGeometry.z-pitchTarget)-.04f*state.threatGeometry.w,-.12f,.12f);
+             navigationTeacherRequested=clamp(navigationTeacherRequested+correction,-1.0f,1.0f);
+         }
+         const float navigationTeacherBlend = fixedFlightController
