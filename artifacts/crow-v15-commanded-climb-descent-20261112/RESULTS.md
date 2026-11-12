@@ -1,0 +1,5 @@
+# Commanded climb and descent development screen
+
+With obstacle collisions disabled, ground enabled, teacher off, direct body moments disabled and no scheduled resets, both unchanged controls matched the prior 24-second run and the six intervention lanes matched through 9 s: 5,100 state samples and 81,600 contact substeps. All six intervention starts remained foot-unloaded from 8–24 s, without reported physical termination, nonfoot ground impulse or observed nonroot speed cap after 4 s. One hit a toe speed limit during early settling.
+
+On previously used seed 20261126, the six lanes' one-second mean root heights were 1.045–1.046 m before the maneuver, 1.335–1.336 m after the 1.25 m command, .876–.877 m after the .80 m command, and 1.078–1.079 m after the 1.00 m command. This demonstrates modeled response to the bounded climb/descent sequence, with a persistent approximately .08–.09 m high bias. These are 50 Hz samples of one-second windows, not continuous extrema, real-crow evidence, independent perturbed-flight recovery, obstacle navigation, landing or frozen-controller qualification.

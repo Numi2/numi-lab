@@ -1,0 +1,285 @@
+{
+  "rows": [
+    {
+      "lane": 0,
+      "end_step": 1200,
+      "termination": 0,
+      "segments": {
+        "before": {
+          "samples": 50,
+          "height_mean_m": 1.0304555246,
+          "vz_mean_m_s": -0.004718535687199999,
+          "world_vx_mean_m_s": 0.14256453928,
+          "world_abs_vy_mean_m_s": 0.0029816851346
+        },
+        "climb": {
+          "samples": 50,
+          "height_mean_m": 1.019978221,
+          "vz_mean_m_s": -0.018826148409599997,
+          "world_vx_mean_m_s": 0.3112846628,
+          "world_abs_vy_mean_m_s": 0.026016012800000002
+        },
+        "descent": {
+          "samples": 50,
+          "height_mean_m": 1.023174741,
+          "vz_mean_m_s": -0.037798510006,
+          "world_vx_mean_m_s": 0.2978529358,
+          "world_abs_vy_mean_m_s": 0.042122649766
+        },
+        "recovery": {
+          "samples": 50,
+          "height_mean_m": 1.0255531432,
+          "vz_mean_m_s": -0.0200357407548,
+          "world_vx_mean_m_s": 0.28656045084,
+          "world_abs_vy_mean_m_s": 0.058249613642
+        }
+      }
+    },
+    {
+      "lane": 1,
+      "end_step": 1200,
+      "termination": 0,
+      "segments": {
+        "before": {
+          "samples": 50,
+          "height_mean_m": 1.1817559788,
+          "vz_mean_m_s": -0.007206654912600001,
+          "world_vx_mean_m_s": 0.140380481924,
+          "world_abs_vy_mean_m_s": 0.0038933613342
+        },
+        "climb": {
+          "samples": 50,
+          "height_mean_m": 1.1712207252,
+          "vz_mean_m_s": -0.018523122212800003,
+          "world_vx_mean_m_s": 0.2983292603,
+          "world_abs_vy_mean_m_s": 0.027494734154
+        },
+        "descent": {
+          "samples": 50,
+          "height_mean_m": 1.173736949,
+          "vz_mean_m_s": -0.0372116536786,
+          "world_vx_mean_m_s": 0.29005065264,
+          "world_abs_vy_mean_m_s": 0.04369528323
+        },
+        "recovery": {
+          "samples": 50,
+          "height_mean_m": 1.175871692,
+          "vz_mean_m_s": -0.019696319497,
+          "world_vx_mean_m_s": 0.281848768,
+          "world_abs_vy_mean_m_s": 0.060013513788
+        }
+      }
+    },
+    {
+      "lane": 2,
+      "end_step": 1200,
+      "termination": 0,
+      "segments": {
+        "before": {
+          "samples": 50,
+          "height_mean_m": 1.045934758,
+          "vz_mean_m_s": -0.0249284687698,
+          "world_vx_mean_m_s": 0.33436578574,
+          "world_abs_vy_mean_m_s": 0.014556260726
+        },
+        "climb": {
+          "samples": 50,
+          "height_mean_m": 1.3354250222,
+          "vz_mean_m_s": -0.023860435909800002,
+          "world_vx_mean_m_s": 0.4545750457,
+          "world_abs_vy_mean_m_s": 0.045110826944
+        },
+        "descent": {
+          "samples": 50,
+          "height_mean_m": 0.87625945806,
+          "vz_mean_m_s": -0.0367491688606,
+          "world_vx_mean_m_s": 0.54433863278,
+          "world_abs_vy_mean_m_s": 0.086800521916
+        },
+        "recovery": {
+          "samples": 50,
+          "height_mean_m": 1.07841403,
+          "vz_mean_m_s": -0.0221775848382,
+          "world_vx_mean_m_s": 0.5399682689,
+          "world_abs_vy_mean_m_s": 0.11888186632
+        }
+      }
+    },
+    {
+      "lane": 3,
+      "end_step": 1200,
+      "termination": 0,
+      "segments": {
+        "before": {
+          "samples": 50,
+          "height_mean_m": 1.0455861526,
+          "vz_mean_m_s": -0.024868057389199998,
+          "world_vx_mean_m_s": 0.3372843677,
+          "world_abs_vy_mean_m_s": 0.015231351184
+        },
+        "climb": {
+          "samples": 50,
+          "height_mean_m": 1.335595112,
+          "vz_mean_m_s": -0.024127203447800002,
+          "world_vx_mean_m_s": 0.45384666266,
+          "world_abs_vy_mean_m_s": 0.045938202366
+        },
+        "descent": {
+          "samples": 50,
+          "height_mean_m": 0.87648391482,
+          "vz_mean_m_s": -0.0367314230174,
+          "world_vx_mean_m_s": 0.54185145376,
+          "world_abs_vy_mean_m_s": 0.08750273839
+        },
+        "recovery": {
+          "samples": 50,
+          "height_mean_m": 1.0785063768,
+          "vz_mean_m_s": -0.0220206448338,
+          "world_vx_mean_m_s": 0.53823799254,
+          "world_abs_vy_mean_m_s": 0.11967076824
+        }
+      }
+    },
+    {
+      "lane": 4,
+      "end_step": 1200,
+      "termination": 0,
+      "segments": {
+        "before": {
+          "samples": 50,
+          "height_mean_m": 1.0451239994000001,
+          "vz_mean_m_s": -0.0242461864496,
+          "world_vx_mean_m_s": 0.33906294048,
+          "world_abs_vy_mean_m_s": 0.014319086748
+        },
+        "climb": {
+          "samples": 50,
+          "height_mean_m": 1.3355411984,
+          "vz_mean_m_s": -0.0242342379708,
+          "world_vx_mean_m_s": 0.45494705678,
+          "world_abs_vy_mean_m_s": 0.04487407491
+        },
+        "descent": {
+          "samples": 50,
+          "height_mean_m": 0.87648483274,
+          "vz_mean_m_s": -0.036781934652600004,
+          "world_vx_mean_m_s": 0.54225642684,
+          "world_abs_vy_mean_m_s": 0.086151157322
+        },
+        "recovery": {
+          "samples": 50,
+          "height_mean_m": 1.0785112898,
+          "vz_mean_m_s": -0.0220429262252,
+          "world_vx_mean_m_s": 0.53858361732,
+          "world_abs_vy_mean_m_s": 0.11830706686
+        }
+      }
+    },
+    {
+      "lane": 5,
+      "end_step": 1200,
+      "termination": 0,
+      "segments": {
+        "before": {
+          "samples": 50,
+          "height_mean_m": 1.0453189248,
+          "vz_mean_m_s": -0.023130491496,
+          "world_vx_mean_m_s": 0.33296134054,
+          "world_abs_vy_mean_m_s": 0.014774020112
+        },
+        "climb": {
+          "samples": 50,
+          "height_mean_m": 1.3348554988,
+          "vz_mean_m_s": -0.0235846788862,
+          "world_vx_mean_m_s": 0.4591470575,
+          "world_abs_vy_mean_m_s": 0.046334801762
+        },
+        "descent": {
+          "samples": 50,
+          "height_mean_m": 0.87572841766,
+          "vz_mean_m_s": -0.036978308055,
+          "world_vx_mean_m_s": 0.55022789244,
+          "world_abs_vy_mean_m_s": 0.088683831396
+        },
+        "recovery": {
+          "samples": 50,
+          "height_mean_m": 1.0782527618,
+          "vz_mean_m_s": -0.0226165100274,
+          "world_vx_mean_m_s": 0.54300826782,
+          "world_abs_vy_mean_m_s": 0.12036290404
+        }
+      }
+    },
+    {
+      "lane": 6,
+      "end_step": 1200,
+      "termination": 0,
+      "segments": {
+        "before": {
+          "samples": 50,
+          "height_mean_m": 1.045621746,
+          "vz_mean_m_s": -0.0249967920004,
+          "world_vx_mean_m_s": 0.33754706444,
+          "world_abs_vy_mean_m_s": 0.0139316909598
+        },
+        "climb": {
+          "samples": 50,
+          "height_mean_m": 1.3356583832,
+          "vz_mean_m_s": -0.0241662861574,
+          "world_vx_mean_m_s": 0.45353926658,
+          "world_abs_vy_mean_m_s": 0.044167267156
+        },
+        "descent": {
+          "samples": 50,
+          "height_mean_m": 0.8765420973,
+          "vz_mean_m_s": -0.03671162678,
+          "world_vx_mean_m_s": 0.54151859108,
+          "world_abs_vy_mean_m_s": 0.08533968643
+        },
+        "recovery": {
+          "samples": 50,
+          "height_mean_m": 1.0785306866,
+          "vz_mean_m_s": -0.0219757491246,
+          "world_vx_mean_m_s": 0.53828212138,
+          "world_abs_vy_mean_m_s": 0.11755082936
+        }
+      }
+    },
+    {
+      "lane": 7,
+      "end_step": 1200,
+      "termination": 0,
+      "segments": {
+        "before": {
+          "samples": 50,
+          "height_mean_m": 1.0455130392,
+          "vz_mean_m_s": -0.025070744682,
+          "world_vx_mean_m_s": 0.33867876352,
+          "world_abs_vy_mean_m_s": 0.016034322026
+        },
+        "climb": {
+          "samples": 50,
+          "height_mean_m": 1.33572082,
+          "vz_mean_m_s": -0.0242800370378,
+          "world_vx_mean_m_s": 0.45307867232,
+          "world_abs_vy_mean_m_s": 0.047094627174
+        },
+        "descent": {
+          "samples": 50,
+          "height_mean_m": 0.87663026456,
+          "vz_mean_m_s": -0.036710287272,
+          "world_vx_mean_m_s": 0.5400629258,
+          "world_abs_vy_mean_m_s": 0.088710964914
+        },
+        "recovery": {
+          "samples": 50,
+          "height_mean_m": 1.0785721734,
+          "vz_mean_m_s": -0.0219187614408,
+          "world_vx_mean_m_s": 0.5368914175,
+          "world_abs_vy_mean_m_s": 0.12092821992
+        }
+      }
+    }
+  ],
+  "scope": "50 Hz endpoint samples, four one-second windows; no continuous extrema or biological validation."
+}
