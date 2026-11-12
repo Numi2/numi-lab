@@ -1,0 +1,8 @@
+{
+  "boost": {
+    "source_sha256": "df8345c11f6952788716f1deef448f3115f85ad55af1b6d30ed281f1fddcd5e4",
+    "air_sha256": "2fce7439a0f8bc573863aa1c4dd2ef5bc7a4086e550c1cc088cd8bc677debc69",
+    "metallib_sha256": "0a496b2982691a5b99625e1e0b86ddcb4f6a4f0ccf930a5afd46d61d41d011a6",
+    "task_air_sha256": "f769308fbfdff1731cb5de0594084e3b280a0661ced72c1028fa17a834d3eea0"
+  }
+}

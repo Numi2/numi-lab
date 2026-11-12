@@ -1,0 +1,3 @@
+# Restitution path positive control
+
+The zero-restitution run exactly matched the control over the tested standing trace. To determine whether that null result is informative, deliberately force restitution coefficient 1 and threshold 0 in the same two impact branches, preserving all else. This is an intentionally non-biological diagnostic that must not be adopted. If it changes the physical trace from the identical initial states, the tested shader path can influence this scene; if it does not, the zero result cannot rule out restitution in unmodified or other paths. Report failures and changes, do not score higher bouncing as physical improvement.

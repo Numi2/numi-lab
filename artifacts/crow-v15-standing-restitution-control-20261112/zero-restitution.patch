@@ -1,0 +1,20 @@
+--- a/MetalWorldContact.metal
++++ b/MetalWorldContact.metal
+@@ -5595,7 +5595,7 @@
+                 if (incoming <
+                     -sourceCone.restitutionThreshold) {
+                     restitutionVelocity =
+-                        -sourceCone.restitution * incoming;
++                        0.0f * incoming;
+                     stabilization = max(
+                         stabilization,
+                         restitutionVelocity
+@@ -11123,7 +11123,7 @@
+                          ].restitutionThreshold) {
+                     target[row] = max(
+                         target[row],
+-                        -contact.response.x *
++                        -0.0f *
+                             witness
+                                 .normalAndPreSolveVelocity.w
+                     );

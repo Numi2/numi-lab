@@ -1,0 +1,14 @@
+{
+  "control": {
+    "source_sha256": "24428d5fb60e536a8b3befb1895e58ae0711cf8d073c46ce5b50812e8face650",
+    "air_sha256": "a74df9b08fbe25efbc8a627df263b618f33294166a9ac27a62d5c3907e7caa39",
+    "metallib_sha256": "2ddd35e9edfdc921463ccf29eb860bc3ef63e23bee84de127a09764852050c76",
+    "task_air_sha256": "f769308fbfdff1731cb5de0594084e3b280a0661ced72c1028fa17a834d3eea0"
+  },
+  "zero": {
+    "source_sha256": "667c85f793fc8c16cf44ed8c537a86c6f881ec4f95d26d8adc001b63fab52a95",
+    "air_sha256": "7b04a881bd89371ec3723ccddf9e56f9e2057db9d0b403438a551cee916b3b9e",
+    "metallib_sha256": "dcc8da240bf3a5663a0858f9244457707089a484ddccb620b27e87f9f37612ae",
+    "task_air_sha256": "f769308fbfdff1731cb5de0594084e3b280a0661ced72c1028fa17a834d3eea0"
+  }
+}

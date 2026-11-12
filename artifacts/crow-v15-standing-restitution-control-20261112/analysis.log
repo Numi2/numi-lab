@@ -1,0 +1,158 @@
+{
+  "parity": {
+    "control_endpoint_mismatches": 0,
+    "control_substep_mismatches": 0
+  },
+  "zero_vs_control_endpoint_differences": 0,
+  "arms": {
+    "control": [
+      {
+        "lane": 0,
+        "unloaded_substeps_0_to_2s": 91,
+        "unloaded_substeps_2_to_3s": 0,
+        "other_ground_normal_Ns": 0.0,
+        "max_abs_com_vertical_m_s": 0.1851784441152155,
+        "com_height_span_m": 0.010511652077026451,
+        "toe_speed_cap_substeps": 0
+      },
+      {
+        "lane": 1,
+        "unloaded_substeps_0_to_2s": 1342,
+        "unloaded_substeps_2_to_3s": 202,
+        "other_ground_normal_Ns": 0.0,
+        "max_abs_com_vertical_m_s": 0.3761200674860058,
+        "com_height_span_m": 0.010743161309581306,
+        "toe_speed_cap_substeps": 15
+      },
+      {
+        "lane": 2,
+        "unloaded_substeps_0_to_2s": 1302,
+        "unloaded_substeps_2_to_3s": 158,
+        "other_ground_normal_Ns": 0.0,
+        "max_abs_com_vertical_m_s": 0.3847567433108027,
+        "com_height_span_m": 0.01231609949345297,
+        "toe_speed_cap_substeps": 12
+      },
+      {
+        "lane": 3,
+        "unloaded_substeps_0_to_2s": 39,
+        "unloaded_substeps_2_to_3s": 0,
+        "other_ground_normal_Ns": 0.0,
+        "max_abs_com_vertical_m_s": 0.20277325263204193,
+        "com_height_span_m": 0.009935229422979391,
+        "toe_speed_cap_substeps": 0
+      },
+      {
+        "lane": 4,
+        "unloaded_substeps_0_to_2s": 38,
+        "unloaded_substeps_2_to_3s": 0,
+        "other_ground_normal_Ns": 0.0,
+        "max_abs_com_vertical_m_s": 0.21048485757029484,
+        "com_height_span_m": 0.00990520780196455,
+        "toe_speed_cap_substeps": 0
+      },
+      {
+        "lane": 5,
+        "unloaded_substeps_0_to_2s": 1272,
+        "unloaded_substeps_2_to_3s": 433,
+        "other_ground_normal_Ns": 0.0,
+        "max_abs_com_vertical_m_s": 0.39796771037764606,
+        "com_height_span_m": 0.010252457598779907,
+        "toe_speed_cap_substeps": 8
+      },
+      {
+        "lane": 6,
+        "unloaded_substeps_0_to_2s": 56,
+        "unloaded_substeps_2_to_3s": 0,
+        "other_ground_normal_Ns": 0.0,
+        "max_abs_com_vertical_m_s": 0.20686499869768477,
+        "com_height_span_m": 0.010638264936654096,
+        "toe_speed_cap_substeps": 0
+      },
+      {
+        "lane": 7,
+        "unloaded_substeps_0_to_2s": 1300,
+        "unloaded_substeps_2_to_3s": 70,
+        "other_ground_normal_Ns": 0.0,
+        "max_abs_com_vertical_m_s": 0.3177616495187638,
+        "com_height_span_m": 0.010630939436595238,
+        "toe_speed_cap_substeps": 13
+      }
+    ],
+    "zero": [
+      {
+        "lane": 0,
+        "unloaded_substeps_0_to_2s": 91,
+        "unloaded_substeps_2_to_3s": 0,
+        "other_ground_normal_Ns": 0.0,
+        "max_abs_com_vertical_m_s": 0.1851784441152155,
+        "com_height_span_m": 0.010511652077026451,
+        "toe_speed_cap_substeps": 0
+      },
+      {
+        "lane": 1,
+        "unloaded_substeps_0_to_2s": 1342,
+        "unloaded_substeps_2_to_3s": 202,
+        "other_ground_normal_Ns": 0.0,
+        "max_abs_com_vertical_m_s": 0.3761200674860058,
+        "com_height_span_m": 0.010743161309581306,
+        "toe_speed_cap_substeps": 15
+      },
+      {
+        "lane": 2,
+        "unloaded_substeps_0_to_2s": 1302,
+        "unloaded_substeps_2_to_3s": 158,
+        "other_ground_normal_Ns": 0.0,
+        "max_abs_com_vertical_m_s": 0.3847567433108027,
+        "com_height_span_m": 0.01231609949345297,
+        "toe_speed_cap_substeps": 12
+      },
+      {
+        "lane": 3,
+        "unloaded_substeps_0_to_2s": 39,
+        "unloaded_substeps_2_to_3s": 0,
+        "other_ground_normal_Ns": 0.0,
+        "max_abs_com_vertical_m_s": 0.20277325263204193,
+        "com_height_span_m": 0.009935229422979391,
+        "toe_speed_cap_substeps": 0
+      },
+      {
+        "lane": 4,
+        "unloaded_substeps_0_to_2s": 38,
+        "unloaded_substeps_2_to_3s": 0,
+        "other_ground_normal_Ns": 0.0,
+        "max_abs_com_vertical_m_s": 0.21048485757029484,
+        "com_height_span_m": 0.00990520780196455,
+        "toe_speed_cap_substeps": 0
+      },
+      {
+        "lane": 5,
+        "unloaded_substeps_0_to_2s": 1272,
+        "unloaded_substeps_2_to_3s": 433,
+        "other_ground_normal_Ns": 0.0,
+        "max_abs_com_vertical_m_s": 0.39796771037764606,
+        "com_height_span_m": 0.010252457598779907,
+        "toe_speed_cap_substeps": 8
+      },
+      {
+        "lane": 6,
+        "unloaded_substeps_0_to_2s": 56,
+        "unloaded_substeps_2_to_3s": 0,
+        "other_ground_normal_Ns": 0.0,
+        "max_abs_com_vertical_m_s": 0.20686499869768477,
+        "com_height_span_m": 0.010638264936654096,
+        "toe_speed_cap_substeps": 0
+      },
+      {
+        "lane": 7,
+        "unloaded_substeps_0_to_2s": 1300,
+        "unloaded_substeps_2_to_3s": 70,
+        "other_ground_normal_Ns": 0.0,
+        "max_abs_com_vertical_m_s": 0.3177616495187638,
+        "com_height_span_m": 0.010630939436595238,
+        "toe_speed_cap_substeps": 13
+      }
+    ]
+  },
+  "scope": "Used development starts; diagnostic shader forces restitution contribution to zero in two new-impact branches, including nonfoot contacts. No proof all runtime paths are covered unless an independent positive control demonstrates sensitivity. COM reconstruction previously verified on the same source model and lane-5 replay. A zero foot normal is not proof of a solver defect or an unphysical takeoff. Other scene contacts and energy transfer must be audited separately."
+}
