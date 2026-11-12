@@ -1,0 +1,3 @@
+# Preliminary run and observer correction
+
+The initial `rebound-phase` run used the endpoint contact observer rather than the intended observer with substep velocities. The 4 s prefix matched all 1,600 states and 25,600 contact substeps; unchanged lanes 0–1 matched the reference for all 300 states and 4,800 substeps per lane. All lanes preserved at least one loaded foot across the measured 4–6 s, with one toe-speed cap in lane 3. Progress was 0.1299–0.1341 m in candidates versus 0.1307–0.1393 m in their corresponding reference lanes. Because the run did not record velocities at 800 Hz, no conclusion about the fine contact-motion gate can be drawn. Repeat using the correct passive observer and retain both runs.
