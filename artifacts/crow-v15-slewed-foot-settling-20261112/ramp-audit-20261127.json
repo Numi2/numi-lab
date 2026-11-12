@@ -1,0 +1,197 @@
+{
+  "seed": 20261127,
+  "rows": [
+    {
+      "lane": 2,
+      "side": "left",
+      "cap": 7,
+      "verified": 99,
+      "level_counts": {
+        "0": 38,
+        "1": 8,
+        "2": 7,
+        "3": 8,
+        "4": 8,
+        "5": 8,
+        "6": 8,
+        "7": 14
+      },
+      "violations": []
+    },
+    {
+      "lane": 2,
+      "side": "right",
+      "cap": 7,
+      "verified": 99,
+      "level_counts": {
+        "0": 38,
+        "1": 11,
+        "2": 8,
+        "3": 8,
+        "4": 8,
+        "5": 8,
+        "6": 8,
+        "7": 10
+      },
+      "violations": []
+    },
+    {
+      "lane": 3,
+      "side": "left",
+      "cap": 7,
+      "verified": 99,
+      "level_counts": {
+        "0": 38,
+        "1": 8,
+        "2": 7,
+        "3": 8,
+        "4": 8,
+        "5": 8,
+        "6": 8,
+        "7": 14
+      },
+      "violations": []
+    },
+    {
+      "lane": 3,
+      "side": "right",
+      "cap": 7,
+      "verified": 99,
+      "level_counts": {
+        "0": 36,
+        "1": 10,
+        "2": 8,
+        "3": 8,
+        "4": 8,
+        "5": 8,
+        "6": 8,
+        "7": 13
+      },
+      "violations": []
+    },
+    {
+      "lane": 4,
+      "side": "left",
+      "cap": 7,
+      "verified": 99,
+      "level_counts": {
+        "0": 40,
+        "1": 10,
+        "2": 7,
+        "3": 7,
+        "4": 8,
+        "5": 8,
+        "6": 8,
+        "7": 11
+      },
+      "violations": []
+    },
+    {
+      "lane": 4,
+      "side": "right",
+      "cap": 7,
+      "verified": 99,
+      "level_counts": {
+        "0": 37,
+        "1": 9,
+        "2": 8,
+        "3": 8,
+        "4": 8,
+        "5": 9,
+        "6": 8,
+        "7": 12
+      },
+      "violations": []
+    },
+    {
+      "lane": 5,
+      "side": "left",
+      "cap": 7,
+      "verified": 99,
+      "level_counts": {
+        "0": 39,
+        "1": 9,
+        "2": 7,
+        "3": 7,
+        "4": 8,
+        "5": 8,
+        "6": 8,
+        "7": 13
+      },
+      "violations": []
+    },
+    {
+      "lane": 5,
+      "side": "right",
+      "cap": 7,
+      "verified": 99,
+      "level_counts": {
+        "0": 41,
+        "1": 11,
+        "2": 9,
+        "3": 8,
+        "4": 8,
+        "5": 8,
+        "6": 6,
+        "7": 8
+      },
+      "violations": []
+    },
+    {
+      "lane": 6,
+      "side": "left",
+      "cap": 4,
+      "verified": 99,
+      "level_counts": {
+        "0": 51,
+        "1": 13,
+        "2": 10,
+        "3": 8,
+        "4": 17
+      },
+      "violations": []
+    },
+    {
+      "lane": 6,
+      "side": "right",
+      "cap": 4,
+      "verified": 99,
+      "level_counts": {
+        "0": 52,
+        "1": 9,
+        "2": 8,
+        "3": 8,
+        "4": 22
+      },
+      "violations": []
+    },
+    {
+      "lane": 7,
+      "side": "left",
+      "cap": 4,
+      "verified": 99,
+      "level_counts": {
+        "0": 46,
+        "1": 10,
+        "2": 9,
+        "3": 10,
+        "4": 24
+      },
+      "violations": []
+    },
+    {
+      "lane": 7,
+      "side": "right",
+      "cap": 4,
+      "verified": 99,
+      "level_counts": {
+        "0": 52,
+        "1": 9,
+        "2": 8,
+        "3": 8,
+        "4": 22
+      },
+      "violations": []
+    }
+  ]
+}

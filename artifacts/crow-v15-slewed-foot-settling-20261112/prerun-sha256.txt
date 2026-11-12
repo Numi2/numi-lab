@@ -1,0 +1,2 @@
+40286201857bc2a7f2a7919f3681ecc21a177d8278353417c2697cb8e3ee67b4  artifacts/crow-v15-slewed-foot-settling-20261112/PLAN.md
+f26c684585540d9d94a46592cab5309eb4e2d10558fc80375d8ba344e5090c90  artifacts/crow-v15-slewed-foot-settling-20261112/screen.metal
