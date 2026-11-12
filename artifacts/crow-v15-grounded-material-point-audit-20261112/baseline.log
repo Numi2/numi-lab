@@ -1,0 +1,48 @@
+{
+  "arm": "baseline",
+  "seed": 20261127,
+  "lane": 4,
+  "substep_seconds": 0.00125,
+  "contact_match_tolerance_m": 0.0005,
+  "min_states": 4,
+  "synthetic_transform_checks": "passed",
+  "available_body_substeps": 10010,
+  "discarded_short_episodes": 50,
+  "overall": {
+    "episodes": 209,
+    "body_substeps_covered": 9893,
+    "total_episode_duration_s": 12.105000000000013,
+    "median_duration_ms": 13.75,
+    "median_endpoint_displacement_mm": 0.7285579085689021,
+    "p90_endpoint_displacement_mm": 2.461393957997786,
+    "maximum_endpoint_displacement_mm": 6.8858561151022695,
+    "fraction_over_1mm": 0.41148325358851673,
+    "median_velocity_consistency_error_mm": 0.12043020240485368,
+    "p90_velocity_consistency_error_mm": 0.23084173970713354
+  },
+  "left": {
+    "episodes": 89,
+    "body_substeps_covered": 4740,
+    "total_episode_duration_s": 5.813750000000003,
+    "median_duration_ms": 22.5,
+    "median_endpoint_displacement_mm": 0.731889999655829,
+    "p90_endpoint_displacement_mm": 2.6960477472948643,
+    "maximum_endpoint_displacement_mm": 6.8858561151022695,
+    "fraction_over_1mm": 0.38202247191011235,
+    "median_velocity_consistency_error_mm": 0.08801123183268501,
+    "p90_velocity_consistency_error_mm": 0.22679713332560172
+  },
+  "right": {
+    "episodes": 120,
+    "body_substeps_covered": 5153,
+    "total_episode_duration_s": 6.291250000000003,
+    "median_duration_ms": 11.25,
+    "median_endpoint_displacement_mm": 0.7008076984671058,
+    "p90_endpoint_displacement_mm": 2.4547720112412024,
+    "maximum_endpoint_displacement_mm": 3.406257555975799,
+    "fraction_over_1mm": 0.43333333333333335,
+    "median_velocity_consistency_error_mm": 0.1653746240888831,
+    "p90_velocity_consistency_error_mm": 0.24422179922166415
+  },
+  "limits": "One used development lane. Matching a contact within 0.5 mm of the initial local anchor does not show that the same material point remains in contact. Solver contact and post-substep q/v may have staggered timing. Displacement is a local-patch proximity proxy, not exact slip, stance-integrated slip, biological validity, or independent replication."
+}

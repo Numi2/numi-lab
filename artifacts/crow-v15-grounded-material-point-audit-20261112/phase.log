@@ -1,0 +1,48 @@
+{
+  "arm": "phase",
+  "seed": 20261127,
+  "lane": 4,
+  "substep_seconds": 0.00125,
+  "contact_match_tolerance_m": 0.0005,
+  "min_states": 4,
+  "synthetic_transform_checks": "passed",
+  "available_body_substeps": 10692,
+  "discarded_short_episodes": 49,
+  "overall": {
+    "episodes": 232,
+    "body_substeps_covered": 10579,
+    "total_episode_duration_s": 12.933750000000014,
+    "median_duration_ms": 15.0,
+    "median_endpoint_displacement_mm": 0.8678973951209509,
+    "p90_endpoint_displacement_mm": 2.990188753305526,
+    "maximum_endpoint_displacement_mm": 7.5765522982564075,
+    "fraction_over_1mm": 0.4482758620689655,
+    "median_velocity_consistency_error_mm": 0.12187504290805552,
+    "p90_velocity_consistency_error_mm": 0.24136645317556948
+  },
+  "left": {
+    "episodes": 100,
+    "body_substeps_covered": 5146,
+    "total_episode_duration_s": 6.307500000000003,
+    "median_duration_ms": 20.0,
+    "median_endpoint_displacement_mm": 0.9495772304033553,
+    "p90_endpoint_displacement_mm": 2.907093830574865,
+    "maximum_endpoint_displacement_mm": 4.732433943143414,
+    "fraction_over_1mm": 0.5,
+    "median_velocity_consistency_error_mm": 0.09738136087109031,
+    "p90_velocity_consistency_error_mm": 0.25372254789776616
+  },
+  "right": {
+    "episodes": 132,
+    "body_substeps_covered": 5433,
+    "total_episode_duration_s": 6.626249999999998,
+    "median_duration_ms": 13.75,
+    "median_endpoint_displacement_mm": 0.8461493653335499,
+    "p90_endpoint_displacement_mm": 3.5650639330845912,
+    "maximum_endpoint_displacement_mm": 7.5765522982564075,
+    "fraction_over_1mm": 0.4090909090909091,
+    "median_velocity_consistency_error_mm": 0.14661439194807493,
+    "p90_velocity_consistency_error_mm": 0.22695935151709723
+  },
+  "limits": "One used development lane. Matching a contact within 0.5 mm of the initial local anchor does not show that the same material point remains in contact. Solver contact and post-substep q/v may have staggered timing. Displacement is a local-patch proximity proxy, not exact slip, stance-integrated slip, biological validity, or independent replication."
+}

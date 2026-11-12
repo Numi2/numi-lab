@@ -1,0 +1,27 @@
+{
+  "source_evidence_commit": "d19f45d9db0c0db1a15c692f421f0bc6edf93a73",
+  "verified_source_files": [
+    {
+      "path": "artifacts/crow-v15-knee-warp-contact-timing-audit-20261112/candidate-20261127-rebound-baseline-repaired/replay.json.gz",
+      "sha256": "032d8c6a3cb6d7a35269ec26f16bb515ba0634f41972e1599a35227f21db5856",
+      "bytes": 3357070
+    },
+    {
+      "path": "artifacts/crow-v15-knee-warp-contact-timing-audit-20261112/candidate-20261127-rebound-baseline-repaired/run.stderr.gz",
+      "sha256": "0b4e264b5a08d06f8c4b877a609ec2252ca00b1c823a839e7ef459306f7d204d",
+      "bytes": 28283298
+    },
+    {
+      "path": "artifacts/crow-v15-knee-warp-contact-timing-audit-20261112/candidate-20261127-rebound-phase-repaired/replay.json.gz",
+      "sha256": "87aad51d5bef9c8e131f6866cd0a2fca9465f10b94c7757722fed3576ba1e156",
+      "bytes": 3359222
+    },
+    {
+      "path": "artifacts/crow-v15-knee-warp-contact-timing-audit-20261112/candidate-20261127-rebound-phase-repaired/run.stderr.gz",
+      "sha256": "3beff27b6811e6c72fd558de27eb55d4c5415e26451ff688016cd10d28b8e712",
+      "bytes": 29175509
+    }
+  ],
+  "kinematics_binary_sha256": "5d816c5ee0cc23833b8bb1b5df2d1509fe48135aafd6072ae1b3f9f84d449481",
+  "known_value_checks": "passed translation, rotation and inverse transforms"
+}
