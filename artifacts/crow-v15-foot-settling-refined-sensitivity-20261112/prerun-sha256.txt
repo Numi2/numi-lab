@@ -1,0 +1,2 @@
+ac9e04e83f1baae0ef4a4abb177d565a914626e28ce2d9e54a6171c2a3657d20  artifacts/crow-v15-foot-settling-refined-sensitivity-20261112/PLAN.md
+65a5b614417b5d0fac0aad69896e803c80f72d012f79ed60262fccbb6d6be9f8  artifacts/crow-v15-foot-settling-refined-sensitivity-20261112/analyze.py
