@@ -1,0 +1,52 @@
+--- a/observer.mm
++++ b/slip_observer.mm
+@@ -22391,12 +22391,49 @@
+                 [taskStateBlit copyFromBuffer:sourceTaskState sourceOffset:0 toBuffer:crowTaskStateCopy destinationOffset:0 size:sourceTaskState.length];
+                 [taskStateBlit endEncoding];
+             }
++            id<MTLBuffer> crowFinalBodyCopy = nil;
++            id<MTLBuffer> crowFinalSceneCopy = nil;
++            if (crowTraceWindow) {
++                id<MTLBuffer> body = selectedState->buffers[kCandidateBodies];
++                id<MTLBuffer> scene = selectedState->buffers[sourceScene];
++                crowFinalBodyCopy = [selectedState->device newBufferWithLength:body.length options:MTLResourceStorageModeShared];
++                crowFinalSceneCopy = [selectedState->device newBufferWithLength:scene.length options:MTLResourceStorageModeShared];
++                if (crowFinalBodyCopy == nil || crowFinalSceneCopy == nil) throw std::bad_alloc();
++                id<MTLBlitCommandEncoder> blit = [commandBuffer blitCommandEncoder];
++                [blit copyFromBuffer:body sourceOffset:0 toBuffer:crowFinalBodyCopy destinationOffset:0 size:body.length];
++                [blit copyFromBuffer:scene sourceOffset:0 toBuffer:crowFinalSceneCopy destinationOffset:0 size:scene.length];
++                [blit endEncoding];
++            }
++            id<MTLBuffer> crowFinalStatusCopy = nil;
++            if (crowTraceWindow) {
++                id<MTLBuffer> source = selectedState->buffers[kContactStatuses];
++                crowFinalStatusCopy = [selectedState->device newBufferWithLength:source.length options:MTLResourceStorageModeShared];
++                if (crowFinalStatusCopy == nil) throw std::bad_alloc();
++                id<MTLBlitCommandEncoder> blit = [commandBuffer blitCommandEncoder];
++                [blit copyFromBuffer:source sourceOffset:0 toBuffer:crowFinalStatusCopy destinationOffset:0 size:source.length];
++                [blit endEncoding];
++            }
+             if (crowTraceWindow) {
+                 [commandBuffer addCompletedHandler:^(id<MTLCommandBuffer> completed) {
+                     if (completed.status != MTLCommandBufferStatusCompleted) { std::fprintf(stderr,"CROW_SUBSTEP_ERROR %llu\n",crowTraceStep); return; }
+                     const auto* crowStates=static_cast<const MRTaskStateGPU*>(crowTaskStateCopy.contents);
+                     for (NSUInteger lane=0;lane<crowTraceLanes;++lane) {
+                         const auto& state=crowStates[lane];
++                        if (crowTraceStep>=201 && crowTraceStep<=300) {
++                            const auto* finalStatuses=static_cast<const MRMetalWorldContactStatusGPU*>(crowFinalStatusCopy.contents);
++                            const auto& status=finalStatuses[lane];
++                            const auto* bodies=static_cast<const MRBodyStateGPU*>(crowFinalBodyCopy.contents);
++                            const auto* scenes=static_cast<const MRBodyStateGPU*>(crowFinalSceneCopy.contents);
++                            for (NSUInteger index : {0u,11u,15u}) {
++                                const auto& body=bodies[lane*diagnostics.layout.contactDispatch.bodyStateStride+index];
++                                std::fprintf(stderr,"CROW_FINAL_BODY %llu %lu %lu %.9g %.9g %.9g %.9g %.9g %.9g %.9g %.9g %.9g\n",crowTraceStep,(unsigned long)lane,(unsigned long)index,body.position.x,body.position.y,body.position.z,body.linearVelocityAndInverseMass.x,body.linearVelocityAndInverseMass.y,body.linearVelocityAndInverseMass.z,body.angularVelocity.x,body.angularVelocity.y,body.angularVelocity.z);
++                            }
++                            if (diagnostics.layout.contactDispatch.sceneBodyStride>0) {
++                                const auto& ground=scenes[lane*diagnostics.layout.contactDispatch.sceneBodyStride];
++                                std::fprintf(stderr,"CROW_FINAL_SCENE %llu %lu %.9g %.9g %.9g %.9g %.9g %.9g\n",crowTraceStep,(unsigned long)lane,ground.position.x,ground.position.y,ground.position.z,ground.linearVelocityAndInverseMass.x,ground.linearVelocityAndInverseMass.y,ground.linearVelocityAndInverseMass.z);
++                            }
++                            std::fprintf(stderr,"CROW_FINAL_CONTACT_STATUS %llu %lu %u %u %u %u %u\n",crowTraceStep,(unsigned long)lane,status.activeContacts,status.requiredConstraints,status.code,diagnostics.layout.contactDispatch.bodyStateStride,diagnostics.layout.contactDispatch.sceneBodyStride);
++                        }
+                         if (crowTraceStep>=201 && crowTraceStep<=300) std::fprintf(stderr,"CROW_SENSOR_VALUE %llu %lu %.9g\n",crowTraceStep,(unsigned long)lane,state.airReturnTracking.x);
+                         std::fprintf(stderr,"CROW_PHASE_SAMPLE %llu %lu %u %.9g %.9g %.9g %.9g %.9g %.9g %.9g %.9g\n",
+                             crowTraceStep,(unsigned long)lane,state.status.w,state.threatTeacher.w,
