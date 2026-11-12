@@ -1,0 +1,4 @@
+/Users/n/Developer/numi-crow-rl-20261107/artifacts/crow-v15-corvid-stance-velocity-screen-20261112/screen.metal:5115:30: warning: unused variable 'arm' [-Wunused-variable]
+                { const uint arm=environment%8u;
+                             ^
+1 warning generated.

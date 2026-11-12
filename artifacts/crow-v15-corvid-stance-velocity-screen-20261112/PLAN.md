@@ -1,0 +1,3 @@
+# Contact feedback on the gentle corvid-informed stance
+
+Keep the .10/.10 knee/ankle physical stance targets from the prior experiment and vary the audited delayed fore-aft contact-velocity hip feedback across 0, .25, .5, 1, 1.5 and 2; two lanes retain the baseline controller. The preceding .10/.10 case maintained support and corrected median knee direction but slightly increased contact-point speed. Require the unchanged two-foot motion reduction, collective support, toe limits, no nonfoot contact and progress gates, plus report stance-phase measures. This is a used-seed physical control sensitivity screen with no biological qualification.
