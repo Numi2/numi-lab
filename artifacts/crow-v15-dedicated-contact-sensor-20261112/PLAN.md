@@ -1,0 +1,5 @@
+# Dedicated sensor state research comparison, preregistered
+
+Move the diagnostic packed contact velocity into a separate per-environment GPU buffer rather than overwriting mechanical-power state. Publish a valid bit and clear invalid samples; initialize the persistent buffer and include it in the host checkpoint list. This changes host buffer and checkpoint schema and is an isolated research build, not a production migration. A dedicated lifecycle audit and compatible checkpoint versioning remain required.
+
+Run exactly the same matched negative-ankle intervention and controls on both already-used seeds. Require same-lane parity of recorded contact, state, q, v, sensor values and retained lane-5 replay including rewards, with the expected invalid sensor encoding handled explicitly outside its active interval. Any failure is retained and blocks promotion. Equality of formatted samples or a single replay cannot prove complete GPU state equivalence, reset/rollback correctness, biological gait or mission success.
