@@ -1,0 +1,5 @@
+# Smaller rear-toe extension after own-foot unloading
+
+The previous -0.20 rad command improved toe clearance but substantially reduced forward progress. Test a quarter-sized -0.05 rad rear proximal toe command using the same accepted opposite-support and own-unloaded conditions, and the baseline physical leg gait. Both arms share one build, policy, seed and simulator; establish exact pre-gait state and contact parity. This amount is an engineering hypothesis, not an American crow measurement.
+
+Before evaluation require all 300 intervals, every contact and toe substep, no solver errors or contact overflow, no added toe caps or nonfoot contacts, at least two support-qualified clearance bouts per foot per lane, no more both-feet-unloaded substeps than the sham, and positive forward progress at least 90% of sham in every lane. Require at least 20% fewer sole-clear-but-toe-low endpoints than a nonzero sham, and loaded-contact tangential-speed median and p95 at most 150% of sham. These are preliminary engineering gates, not biological validation or integrated slip. Even a pass would need independent starts, longer bouts and physical takeoff and landing transitions.
