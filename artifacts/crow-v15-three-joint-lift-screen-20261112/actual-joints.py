@@ -16,7 +16,7 @@ for side,j,sign in (("left",15,1),("right",18,-1)):
  for e in range(8):
   for t in range(201,301):
    carrier=math.sin(2*math.pi*(t*.02+.005)/.50)*sign
-   if carrier>.7:vals.append((c[e,t][j]-s[e,t][j],c[e,t][j+1]-s[e,t][j+1]))
- rows.append({"side":side,"samples":len(vals),"median_knee_difference_rad":statistics.median(x for x,y in vals),"median_ankle_difference_rad":statistics.median(y for x,y in vals),"min_knee_difference_rad":min(x for x,y in vals),"max_knee_difference_rad":max(x for x,y in vals)})
+   if carrier>.7:vals.append((c[e,t][j]-s[e,t][j],c[e,t][j+1]-s[e,t][j+1],c[e,t][j-1]-s[e,t][j-1]))
+ rows.append({"side":side,"samples":len(vals),"median_hip_difference_rad":statistics.median(h for x,y,h in vals),"median_knee_difference_rad":statistics.median(x for x,y,h in vals),"median_ankle_difference_rad":statistics.median(y for x,y,h in vals),"min_knee_difference_rad":min(x for x,y,h in vals),"max_knee_difference_rad":max(x for x,y,h in vals)})
 out={"rows":rows,"scope":"Endpoint joint-angle differences against matched small-stroke sham at carrier > 0.7; trajectories diverge and include indirect dynamic effects. These are not isolated actuator tracking errors or in-vivo kinematics."}
 (p/"actual-joints.json").write_text(json.dumps(out,indent=2)+"\n");print(json.dumps(out,indent=2))

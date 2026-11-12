@@ -1,0 +1,3 @@
+held {'total': 49, 'toe:rear_toe_distal': 49, 'no_own_normal': 35, 'opposite_supported': 49, 'positive_carrier': 49, 'loaded': 14}
+small_stroke {'total': 686, 'toe:rear_toe_distal': 551, 'no_own_normal': 366, 'opposite_supported': 536, 'positive_carrier': 550, 'loaded': 320, 'toe:rear_toe_proximal': 135, 'opposite_not_supported': 150, 'negative_carrier': 136}
+three_joint {'total': 201, 'toe:rear_toe_distal': 147, 'loaded': 132, 'opposite_supported': 174, 'positive_carrier': 102, 'no_own_normal': 69, 'negative_carrier': 99, 'toe:rear_toe_proximal': 54, 'opposite_not_supported': 27}

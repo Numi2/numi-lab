@@ -1,0 +1,23 @@
+{
+  "rows": [
+    {
+      "side": "left",
+      "samples": 224,
+      "median_hip_difference_rad": -0.054340921500000014,
+      "median_knee_difference_rad": 0.11586970099999996,
+      "median_ankle_difference_rad": -0.0633833555,
+      "min_knee_difference_rad": 0.00016340599999997707,
+      "max_knee_difference_rad": 0.19311869199999998
+    },
+    {
+      "side": "right",
+      "samples": 192,
+      "median_hip_difference_rad": -0.060482822500000005,
+      "median_knee_difference_rad": 0.12711893,
+      "median_ankle_difference_rad": -0.070368111,
+      "min_knee_difference_rad": -0.01800626500000002,
+      "max_knee_difference_rad": 0.19354379200000005
+    }
+  ],
+  "scope": "Endpoint joint-angle differences against matched small-stroke sham at carrier > 0.7; trajectories diverge and include indirect dynamic effects. These are not isolated actuator tracking errors or in-vivo kinematics."
+}
