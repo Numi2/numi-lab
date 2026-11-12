@@ -1,0 +1,153 @@
+{
+  "source": {
+    "0-state": {
+      "count": 370,
+      "sha256": "91c45f0b4439c90042d07db86c7aa8a7fbb1154e8794458f28e25f28f224be07"
+    },
+    "0-contact": {
+      "count": 5920,
+      "sha256": "c7f8506e84bf158b5064a644d8555a6a879c5d1a588c37ce17e4dd2b06159bd0"
+    },
+    "1-state": {
+      "count": 370,
+      "sha256": "ce1ca9b017418371564f6a47b017715de4637e23e186fcb9216ab67921449178"
+    },
+    "1-contact": {
+      "count": 5920,
+      "sha256": "82e6a5a12476f3b31c5323915c2563f3183a4b7c19a9bb55769c94b8bc337b20"
+    },
+    "2-state": {
+      "count": 370,
+      "sha256": "e595e2de05f8d88cdfe75b7a6b5022fc9f166414b9b8914bc91a754d33de87da"
+    },
+    "2-contact": {
+      "count": 5920,
+      "sha256": "9071c437b745ecaa1e69e1a08ec41c75d01602d471804612fdf56836ac79156c"
+    },
+    "3-state": {
+      "count": 370,
+      "sha256": "a1635ee7881a874d7f945f530caa4d24ed119a5c887cf0d6ab980ec212492e9a"
+    },
+    "3-contact": {
+      "count": 5920,
+      "sha256": "3a023ebe989e2002651711c9e4614945ea1ac77daede8b3ce82f5bc9968071f1"
+    },
+    "4-state": {
+      "count": 370,
+      "sha256": "32ffad45c428db986584c13867462712beed51b86ba4d14122b9fbc56aa379d5"
+    },
+    "4-contact": {
+      "count": 5920,
+      "sha256": "98cbedb6a389e18abf8f98988e89a81e4220cb702ac6b1ba1ebb5916a462eebe"
+    },
+    "5-state": {
+      "count": 370,
+      "sha256": "354babe255afe1c431450ce89278b742c38c2918beba11fb8faa81ff97b0c464"
+    },
+    "5-contact": {
+      "count": 5920,
+      "sha256": "f17f01b0de80e95f2e17b99330b1c1deba72908dae2f62076a3421a407328514"
+    },
+    "6-state": {
+      "count": 370,
+      "sha256": "b9510a3fceb25232dca79a32868987fb1e7df97ca7ec935afde255ddcea3477c"
+    },
+    "6-contact": {
+      "count": 5920,
+      "sha256": "a2a36c515cfa9e6735829b2c6cb439b6f73d28dbd6f7d6acaaeef54b0a5c5313"
+    },
+    "7-state": {
+      "count": 370,
+      "sha256": "813bce5fb4ed4bcff1c67c5b873791ed64d87ce3eac49d85fc5bbf65bf88be50"
+    },
+    "7-contact": {
+      "count": 5920,
+      "sha256": "9ddc9a4f807669cb23deec69aa0cde3e789ea9ff52ed324a0d20ba752df4985d"
+    }
+  },
+  "extended": {
+    "0-state": {
+      "count": 370,
+      "sha256": "91c45f0b4439c90042d07db86c7aa8a7fbb1154e8794458f28e25f28f224be07"
+    },
+    "0-contact": {
+      "count": 5920,
+      "sha256": "c7f8506e84bf158b5064a644d8555a6a879c5d1a588c37ce17e4dd2b06159bd0"
+    },
+    "1-state": {
+      "count": 370,
+      "sha256": "ce1ca9b017418371564f6a47b017715de4637e23e186fcb9216ab67921449178"
+    },
+    "1-contact": {
+      "count": 5920,
+      "sha256": "82e6a5a12476f3b31c5323915c2563f3183a4b7c19a9bb55769c94b8bc337b20"
+    },
+    "2-state": {
+      "count": 370,
+      "sha256": "e595e2de05f8d88cdfe75b7a6b5022fc9f166414b9b8914bc91a754d33de87da"
+    },
+    "2-contact": {
+      "count": 5920,
+      "sha256": "9071c437b745ecaa1e69e1a08ec41c75d01602d471804612fdf56836ac79156c"
+    },
+    "3-state": {
+      "count": 370,
+      "sha256": "a1635ee7881a874d7f945f530caa4d24ed119a5c887cf0d6ab980ec212492e9a"
+    },
+    "3-contact": {
+      "count": 5920,
+      "sha256": "3a023ebe989e2002651711c9e4614945ea1ac77daede8b3ce82f5bc9968071f1"
+    },
+    "4-state": {
+      "count": 370,
+      "sha256": "32ffad45c428db986584c13867462712beed51b86ba4d14122b9fbc56aa379d5"
+    },
+    "4-contact": {
+      "count": 5920,
+      "sha256": "98cbedb6a389e18abf8f98988e89a81e4220cb702ac6b1ba1ebb5916a462eebe"
+    },
+    "5-state": {
+      "count": 370,
+      "sha256": "354babe255afe1c431450ce89278b742c38c2918beba11fb8faa81ff97b0c464"
+    },
+    "5-contact": {
+      "count": 5920,
+      "sha256": "f17f01b0de80e95f2e17b99330b1c1deba72908dae2f62076a3421a407328514"
+    },
+    "6-state": {
+      "count": 370,
+      "sha256": "b9510a3fceb25232dca79a32868987fb1e7df97ca7ec935afde255ddcea3477c"
+    },
+    "6-contact": {
+      "count": 5920,
+      "sha256": "a2a36c515cfa9e6735829b2c6cb439b6f73d28dbd6f7d6acaaeef54b0a5c5313"
+    },
+    "7-state": {
+      "count": 370,
+      "sha256": "813bce5fb4ed4bcff1c67c5b873791ed64d87ce3eac49d85fc5bbf65bf88be50"
+    },
+    "7-contact": {
+      "count": 5920,
+      "sha256": "9ddc9a4f807669cb23deec69aa0cde3e789ea9ff52ed324a0d20ba752df4985d"
+    }
+  },
+  "identical": {
+    "0-state": true,
+    "0-contact": true,
+    "1-state": true,
+    "1-contact": true,
+    "2-state": true,
+    "2-contact": true,
+    "3-state": true,
+    "3-contact": true,
+    "4-state": true,
+    "4-contact": true,
+    "5-state": true,
+    "5-contact": true,
+    "6-state": true,
+    "6-contact": true,
+    "7-state": true,
+    "7-contact": true
+  },
+  "note": "Endpoints and contact substeps through step 370 precede 7.4-second toe-flight onset and terminal hip intervention."
+}

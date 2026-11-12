@@ -1,0 +1,153 @@
+{
+  "source": {
+    "0-state": {
+      "count": 3475,
+      "sha256": "89a3a51dc0a824e7ed270e5359581b46e6a2a3584b6e29302483cecdffe3c01f"
+    },
+    "0-contact": {
+      "count": 55600,
+      "sha256": "be64cb1937e2c1f641e73c12ad0c37dd67833cf3e85e3898b35e48dde197b2f7"
+    },
+    "1-state": {
+      "count": 3800,
+      "sha256": "caa07e4fb1a200723b6a60624b9d830178ac2c9e21ecea9b321cba589d9913b2"
+    },
+    "1-contact": {
+      "count": 60800,
+      "sha256": "7191fe0fae4378450d7ff0476c684ac7f4daded938399c58e01fd7214263291f"
+    },
+    "2-state": {
+      "count": 3800,
+      "sha256": "ddd0edf30c5c69535ff6a164496e8f4b8e21d9db29fc26f6ebf3ab9f0d56e29b"
+    },
+    "2-contact": {
+      "count": 60800,
+      "sha256": "4e7299c85eacff1515283bf9c1466bbac5f07b076d317a1c4b6c6930309e0fcb"
+    },
+    "3-state": {
+      "count": 3800,
+      "sha256": "689625d64605f925f66e42d55b62e0ab67b09f6d9f2e1969933df8b49fff0bab"
+    },
+    "3-contact": {
+      "count": 60800,
+      "sha256": "d1df185b224b66e15ab158b13106afdef190a5aafc83ad0b533ed0dbed9164a1"
+    },
+    "4-state": {
+      "count": 3800,
+      "sha256": "a0a63a925edb7089821ac9daeb4116e844006a4fac337ac017a8790bb92009fd"
+    },
+    "4-contact": {
+      "count": 60800,
+      "sha256": "b12a015e66ff5dc9c39fc606da1c86a6bdd4a3011b17bbd04fc5b3df97177317"
+    },
+    "5-state": {
+      "count": 3800,
+      "sha256": "b4f1e40eb61adaa23a4277e14c93841c5af923a654b1d1a6bc4f90d016bf03a5"
+    },
+    "5-contact": {
+      "count": 60800,
+      "sha256": "8d2d355c45de4c08f334e057f3d9931eaa5981911d1ca8b00116cbcd269a54c5"
+    },
+    "6-state": {
+      "count": 3798,
+      "sha256": "1cdb1f6a40e4877cb790d195d1f3551b29f44792522bce2ae8779419596da033"
+    },
+    "6-contact": {
+      "count": 60768,
+      "sha256": "5ad18bf14c5e836c88e3b4b469bf817ee9ac9a094053955c2a3746d67ce2e8d6"
+    },
+    "7-state": {
+      "count": 3800,
+      "sha256": "3b482f91ab26c5124a9815fc27a61063774dba864829e8c6bb52bff9f70a3e98"
+    },
+    "7-contact": {
+      "count": 60800,
+      "sha256": "bdc86fbec16c04ac525957d789a3c381912c649d0b21260f855bc8bae1a25060"
+    }
+  },
+  "extended": {
+    "0-state": {
+      "count": 3475,
+      "sha256": "94374e5e9c0030a09a7b9d113f742a13d834fc1b2d393f20bcede928d676712d"
+    },
+    "0-contact": {
+      "count": 55600,
+      "sha256": "140352fef7b96486d460eafe49371bf2509bf9d67a57a1ca04d9d251f98f519b"
+    },
+    "1-state": {
+      "count": 3800,
+      "sha256": "caa07e4fb1a200723b6a60624b9d830178ac2c9e21ecea9b321cba589d9913b2"
+    },
+    "1-contact": {
+      "count": 60800,
+      "sha256": "7191fe0fae4378450d7ff0476c684ac7f4daded938399c58e01fd7214263291f"
+    },
+    "2-state": {
+      "count": 3800,
+      "sha256": "ddd0edf30c5c69535ff6a164496e8f4b8e21d9db29fc26f6ebf3ab9f0d56e29b"
+    },
+    "2-contact": {
+      "count": 60800,
+      "sha256": "4e7299c85eacff1515283bf9c1466bbac5f07b076d317a1c4b6c6930309e0fcb"
+    },
+    "3-state": {
+      "count": 3800,
+      "sha256": "689625d64605f925f66e42d55b62e0ab67b09f6d9f2e1969933df8b49fff0bab"
+    },
+    "3-contact": {
+      "count": 60800,
+      "sha256": "d1df185b224b66e15ab158b13106afdef190a5aafc83ad0b533ed0dbed9164a1"
+    },
+    "4-state": {
+      "count": 3800,
+      "sha256": "a0a63a925edb7089821ac9daeb4116e844006a4fac337ac017a8790bb92009fd"
+    },
+    "4-contact": {
+      "count": 60800,
+      "sha256": "b12a015e66ff5dc9c39fc606da1c86a6bdd4a3011b17bbd04fc5b3df97177317"
+    },
+    "5-state": {
+      "count": 3800,
+      "sha256": "2dddf927158d80bc00be2f4057fcdc93c516bb0d6476559e75485b5c544e3365"
+    },
+    "5-contact": {
+      "count": 60800,
+      "sha256": "d405ed552060a5e82968e02556ba3b567a905bd8d63e01092628e4f3a7662cb2"
+    },
+    "6-state": {
+      "count": 3798,
+      "sha256": "e96e6bf934effb92664d41923ca492f7bc25d9218b7fce3bec2bda6bf69132fc"
+    },
+    "6-contact": {
+      "count": 60768,
+      "sha256": "4ce9262765ea98b6ad93a481796c1a8d8bb38167fb71d0ca09e9e041c23725b7"
+    },
+    "7-state": {
+      "count": 3800,
+      "sha256": "59e5e936bda0bb66c17fc3938274c604d1c94e7b8ea58120b22c6d99f47ca6ae"
+    },
+    "7-contact": {
+      "count": 60800,
+      "sha256": "c8270742fdf31bfda1a90d48917f55bef819ee6729721c90fb6b4b0f022b8397"
+    }
+  },
+  "identical": {
+    "0-state": false,
+    "0-contact": false,
+    "1-state": true,
+    "1-contact": true,
+    "2-state": true,
+    "2-contact": true,
+    "3-state": true,
+    "3-contact": true,
+    "4-state": true,
+    "4-contact": true,
+    "5-state": false,
+    "5-contact": false,
+    "6-state": false,
+    "6-contact": false,
+    "7-state": false,
+    "7-contact": false
+  },
+  "note": "Only first-episode state and full contact-substep lines through original termination/horizon are compared; per-lane episode ends differ after physical failure."
+}
