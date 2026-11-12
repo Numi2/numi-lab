@@ -1,0 +1,16 @@
+affcd84af99c0effa1e696547c757af77a7dd75fa145bbdbd4303ae12adb7b40  artifacts/crow-v15-perch-hip-placement-screen-20261112/PLAN.md
+2805b09accbef779e452428181d442d5453605695f817949ba261d559ff409ca  artifacts/crow-v15-perch-hip-placement-screen-20261112/RESULT.md
+c4915a882f7c385b3c52a698b8383401a03d3ddc981da97f08bdc57a1d48bf9d  artifacts/crow-v15-perch-hip-placement-screen-20261112/analyze.py
+c6d556ebb9e90149c57c61e4aa07b32b8a41996f1e46cbfc61b27ca34eab0fda  artifacts/crow-v15-perch-hip-placement-screen-20261112/compare-arms.py
+51d49dbd4de09b0c97d402959f43560ed30fdf915e33cb37381e2d93b6019859  artifacts/crow-v15-perch-hip-placement-screen-20261112/compile-check.log
+008c9342ef51067ffb4d8b34a6dd0d26ef565c318ca12ee54f2263b9a87f51f3  artifacts/crow-v15-perch-hip-placement-screen-20261112/inputs.json
+7e939a2ed2e751589713323dc49f345ca509daf1c6305ce6c4d8863aafa0f1cc  artifacts/crow-v15-perch-hip-placement-screen-20261112/mixed-analysis.log
+11fea3a23d4a4d6f1cc26ce416f46095ab2a7a1b2e5bb6568aae5920a7e97a88  artifacts/crow-v15-perch-hip-placement-screen-20261112/mixed/analysis.json
+506feb20c31965c4e57bcd4a447d0998b9b59963b2fb78ae5acf091181e183a2  artifacts/crow-v15-perch-hip-placement-screen-20261112/mixed/run-result.json
+c90c3607e09ae09ccd57a0b7b8d3d9494ab1da3cf08fb7e1e143595bfd36abf5  artifacts/crow-v15-perch-hip-placement-screen-20261112/mixed/substeps.log.gz
+ed42758ae0e73cb8b4bf736bbe805ad856bbc81a65fd793627712b098bb95e60  artifacts/crow-v15-perch-hip-placement-screen-20261112/mixed/trace.log.gz
+3b4bbfaba1e9c440d786c00c022b51a615e848776e57ef27902249e7aa1e5e94  artifacts/crow-v15-perch-hip-placement-screen-20261112/prefix-comparison.json
+3b4bbfaba1e9c440d786c00c022b51a615e848776e57ef27902249e7aa1e5e94  artifacts/crow-v15-perch-hip-placement-screen-20261112/prefix-comparison.log
+25ecfa7fd117909471307bacd3dee4566b1cdac95527a25ee9b967420bc2e8b9  artifacts/crow-v15-perch-hip-placement-screen-20261112/probe.cpp
+bdd6017bd11ab8f6f84149b32bfb76aa30236f7a804914b72b2d6b9f7aa91375  artifacts/crow-v15-perch-hip-placement-screen-20261112/run.log
+212d4e3d6e6e981b05ced4451a1f481a6ccf989028eef7058779a4931e2f079b  artifacts/crow-v15-perch-hip-placement-screen-20261112/run.py
