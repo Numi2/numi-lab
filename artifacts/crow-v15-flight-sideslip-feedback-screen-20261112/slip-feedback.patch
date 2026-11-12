@@ -1,0 +1,12 @@
+--- a/bank-pitch.metal
++++ b/bank-pitch-slip.metal
+@@ -5165,7 +5165,8 @@
+         // Exploratory bounded roll feedback; no direct body moment.
+         if (fixedFlightController && float(state.episode.x)*dispatch.timing.x >= 9.0f && (action == 0u || action == 1u)) {
+             const float bankLimit = mode<2u ? .12f : mode<4u ? .18f : .24f;
+-            const float targetBank = clamp(.50f*error, -bankLimit, bankLimit);
++            const float slipGain = mode<2u ? .15f : mode<4u ? .30f : .60f;
++            const float targetBank = clamp(.50f*error + slipGain*state.threatTeacher.x, -bankLimit, bankLimit);
+             const float correction = clamp(6.0f*(targetBank-state.threatTeacher.y)-.35f*state.threatTeacher.z,-.45f,.45f);
+             navigationTeacherRequested = clamp(navigationTeacherRequested + (action==0u ? correction : -correction),-1.0f,1.0f);
+         }
