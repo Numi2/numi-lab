@@ -1,0 +1,16 @@
+20261126 0 pass False failed ['knee_phase'] p95 {'left': 1.0, 'right': 1.0} dx 0.0732 knee advance 0.0
+20261126 1 pass False failed ['knee_phase'] p95 {'left': 1.0, 'right': 1.0} dx 0.0738 knee advance 0.0
+20261126 2 pass False failed ['contact_speed'] p95 {'left': 0.73, 'right': 1.71} dx 0.1123 knee advance 16.2
+20261126 3 pass False failed ['contact_speed', 'recovery_coverage'] p95 {'left': 0.81, 'right': 1.95} dx 0.1116 knee advance 10.1
+20261126 4 pass False failed ['support', 'toe_speed', 'contact_speed', 'recovery_coverage'] p95 {'left': 0.91, 'right': 2.3} dx 0.0558 knee advance 14.6
+20261126 5 pass False failed ['support', 'contact_speed'] p95 {'left': 0.6, 'right': 2.75} dx 0.08 knee advance 13.2
+20261126 6 pass False failed ['support', 'contact_speed', 'recovery_coverage', 'knee_phase'] p95 {'left': 0.95, 'right': 2.33} dx 0.0692 knee advance None
+20261126 7 pass False failed ['support', 'contact_speed', 'recovery_coverage', 'knee_phase'] p95 {'left': 1.17, 'right': 2.04} dx 0.056 knee advance None
+20261127 0 pass False failed ['knee_phase'] p95 {'left': 1.0, 'right': 1.0} dx 0.0764 knee advance 0.0
+20261127 1 pass False failed ['knee_phase'] p95 {'left': 1.0, 'right': 1.0} dx 0.073 knee advance 0.0
+20261127 2 pass False failed ['support', 'knee_phase'] p95 {'left': 0.98, 'right': 0.96} dx 0.113 knee advance 4.0
+20261127 3 pass False failed ['contact_speed', 'knee_phase'] p95 {'left': 0.79, 'right': 1.94} dx 0.1108 knee advance 2.3
+20261127 4 pass False failed ['support', 'contact_speed', 'recovery_coverage', 'knee_phase'] p95 {'left': 0.94, 'right': 2.9} dx 0.0526 knee advance -51.5
+20261127 5 pass False failed ['support', 'contact_speed'] p95 {'left': 1.1, 'right': 3.99} dx 0.0517 knee advance 12.1
+20261127 6 pass False failed ['support', 'contact_speed', 'progress', 'recovery_coverage'] p95 {'left': 1.22, 'right': 2.89} dx 0.0462 knee advance 13.8
+20261127 7 pass False failed ['support', 'contact_speed', 'recovery_coverage', 'knee_phase'] p95 {'left': 1.02, 'right': 3.41} dx 0.0525 knee advance None
