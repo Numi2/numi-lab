@@ -1,0 +1,17 @@
+{
+  "16": [
+    2801281168732241546,
+    10205657253310701228,
+    4287182078978984971,
+    3807034227416306949
+  ],
+  "32": [
+    1497260016572508426,
+    8839340777103626901,
+    4287182078978984971,
+    3807034227416306949
+  ],
+  "matching_observation_and_action_without_world": true,
+  "diagnostic_host_sha256": "e0a10c2f410a1d8bead500921399dbbf7cfa4c8e1e3560b75c1790dac14f9917",
+  "scope": "Diagnostic-only separately linked host omits world from actor hashes; includes contact radii and all other original hash inputs. This checks representation inputs only, not semantic or physical equivalence and not permission to replace production contract."
+}

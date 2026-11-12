@@ -1,12 +1,12 @@
 from pathlib import Path
 import gzip,hashlib,json,os,subprocess,sys,threading
 R=Path.cwd();A=R/'artifacts/crow-v15-takeoff-substep-comparison-20261112';B=R/'build/crow-v15-takeoff-substep-comparison-20261112';J=R/'artifacts/crow-v15-hip-roll-journey-integration-20261111';L=R/'build/crow-v15-landing-phase-observer-20261111';name=sys.argv[1];assert name == 'autonomous';seed=int(sys.argv[2]) if len(sys.argv)>2 else 20261126;assert seed in (20261126,20261127);tag=sys.argv[3] if len(sys.argv)>3 else '';substeps=int(sys.argv[4]) if len(sys.argv)>4 else 16;assert substeps == 32, "diagnostic is confined to pre-landing takeoff";assert all(c.isalnum() or c=='-' for c in tag);D=A/(name+'-'+str(seed)+(('-'+tag) if tag else ''));D.mkdir(exist_ok=False);cmd=json.loads((J/'rebound-command.json').read_text());
-for k,v in [('--seed',str(seed)),('--steps','2' if tag=='smoke' else '360'),('--physics-substeps',str(substeps)),('--metallib',str(R/'build/crow-v15-coordinated-takeoff-screen-20261112/feedback.metallib')),('--state-trace',str(B/(D.name+'-trace.tsv'))),('--crow-replay-pack',str(B/(D.name+'-replay.json')))]:cmd[cmd.index(k)+1]=v
+for k,v in [('--seed',str(seed)),('--steps','2' if tag in ('smoke','rebound-smoke') else '360'),('--physics-substeps',str(substeps)),('--metallib',str(R/'build/crow-v15-coordinated-takeoff-screen-20261112/feedback.metallib')),('--state-trace',str(B/(D.name+'-trace.tsv'))),('--crow-replay-pack',str(B/(D.name+'-replay.json')))]:cmd[cmd.index(k)+1]=v
 if substeps==32:
  for option,label in (('--policy-pack','landing'),('--base-policy-pack','route')):
   candidate=B/('phys32-'+label+'.policypack')
   if candidate.exists():cmd[cmd.index(option)+1]=str(candidate)
-cmd[cmd.index('--base-policy-pack')+1]=str(R/'build/crow-v15-near-slalom-student-imitation-20261111/route-imitation.policypack')
+cmd[cmd.index('--base-policy-pack')+1]=str(B/'phys32-route.policypack') if tag.startswith('rebound') else str(R/'build/crow-v15-near-slalom-student-imitation-20261111/route-imitation.policypack')
 cmd[cmd.index("--state-trace-environment")+1]="7"  # retain the prior release lane
 cmd.remove('--birdflow-journey-teacher')
 idx=cmd.index('--birdflow-journey-student-authority'); del cmd[idx:idx+2]

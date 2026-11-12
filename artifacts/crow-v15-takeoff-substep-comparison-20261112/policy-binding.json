@@ -1,0 +1,29 @@
+{
+  "old_fingerprints": [
+    2801281168732241546,
+    10205657253310701228,
+    12261780384824823292,
+    10276987404240961652
+  ],
+  "new_fingerprints": [
+    1497260016572508426,
+    8839340777103626901,
+    4921445392142307213,
+    13936985418269655791
+  ],
+  "reports": [
+    {
+      "actor": "landing",
+      "source_sha256": "e37af3f13003dc96cec6dcc92fdcb263e4a28c80c9491e8302bf83da155c898b",
+      "target_sha256": "fbe584ef15d0782806397cc6aa6aeaf9c71047ae2aeb6c5c4e01c4cabf27d3ca",
+      "identical_layers_and_transforms": true
+    },
+    {
+      "actor": "route",
+      "source_sha256": "109f5937dcc27da5c3f6bc2a9838b598e7071ac61887a697dd1219e88f8fb5ff",
+      "target_sha256": "e10df2170f2a5254b34ebdd0a18c266e9ce8037ae4587f3e691a3f89de4d18de",
+      "identical_layers_and_transforms": true
+    }
+  ],
+  "scope": "Diagnostic rebinding to changed substep world/task and observation signatures after a separate non-world layout audit including radii. Exact weights and transforms checked; this does not establish policy semantic or physical equivalence and is not production authorization."
+}
