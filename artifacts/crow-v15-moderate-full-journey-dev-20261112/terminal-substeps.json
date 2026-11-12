@@ -1,0 +1,368 @@
+{
+  "2": {
+    "episode_end": 688,
+    "reason": 3,
+    "contacts": [
+      {
+        "step": 688,
+        "substep": 6,
+        "pair": [
+          "crow_tail",
+          "crow_course_slalom_a"
+        ],
+        "normal_impulse_Ns": 0.0319834538
+      },
+      {
+        "step": 688,
+        "substep": 7,
+        "pair": [
+          "crow_tail",
+          "crow_course_slalom_a"
+        ],
+        "normal_impulse_Ns": 0.0134959668
+      },
+      {
+        "step": 688,
+        "substep": 8,
+        "pair": [
+          "crow_tail",
+          "crow_course_slalom_a"
+        ],
+        "normal_impulse_Ns": 0.00187088596
+      },
+      {
+        "step": 688,
+        "substep": 9,
+        "pair": [
+          "crow_tail",
+          "crow_course_slalom_a"
+        ],
+        "normal_impulse_Ns": 0.00224129995
+      },
+      {
+        "step": 688,
+        "substep": 10,
+        "pair": [
+          "crow_tail",
+          "crow_course_slalom_a"
+        ],
+        "normal_impulse_Ns": 0.000268860254
+      },
+      {
+        "step": 688,
+        "substep": 11,
+        "pair": [
+          "crow_tail",
+          "crow_course_slalom_a"
+        ],
+        "normal_impulse_Ns": 0.00596235599
+      },
+      {
+        "step": 688,
+        "substep": 12,
+        "pair": [
+          "crow_tail",
+          "crow_course_slalom_a"
+        ],
+        "normal_impulse_Ns": 0.000182492469
+      },
+      {
+        "step": 688,
+        "substep": 13,
+        "pair": [
+          "crow_tail",
+          "crow_course_slalom_a"
+        ],
+        "normal_impulse_Ns": 0.000412784168
+      },
+      {
+        "step": 688,
+        "substep": 14,
+        "pair": [
+          "crow_tail",
+          "crow_course_slalom_a"
+        ],
+        "normal_impulse_Ns": 0.00459917402
+      },
+      {
+        "step": 689,
+        "substep": 0,
+        "pair": [
+          "crow_tail",
+          "crow_course_slalom_a"
+        ],
+        "normal_impulse_Ns": 0.00103655551
+      },
+      {
+        "step": 689,
+        "substep": 2,
+        "pair": [
+          "crow_tail",
+          "crow_course_slalom_a"
+        ],
+        "normal_impulse_Ns": 0.000332900352
+      },
+      {
+        "step": 689,
+        "substep": 3,
+        "pair": [
+          "crow_tail",
+          "crow_course_slalom_a"
+        ],
+        "normal_impulse_Ns": 0.00230734423
+      },
+      {
+        "step": 689,
+        "substep": 4,
+        "pair": [
+          "crow_tail",
+          "crow_course_slalom_a"
+        ],
+        "normal_impulse_Ns": 0.00154594076
+      },
+      {
+        "step": 689,
+        "substep": 5,
+        "pair": [
+          "crow_tail",
+          "crow_course_slalom_a"
+        ],
+        "normal_impulse_Ns": 0.00155918289
+      },
+      {
+        "step": 689,
+        "substep": 6,
+        "pair": [
+          "crow_tail",
+          "crow_course_slalom_a"
+        ],
+        "normal_impulse_Ns": 0.00149234571
+      },
+      {
+        "step": 689,
+        "substep": 7,
+        "pair": [
+          "crow_tail",
+          "crow_course_slalom_a"
+        ],
+        "normal_impulse_Ns": 0.000856528815
+      },
+      {
+        "step": 689,
+        "substep": 8,
+        "pair": [
+          "crow_tail",
+          "crow_course_slalom_a"
+        ],
+        "normal_impulse_Ns": 0.00133641798
+      },
+      {
+        "step": 689,
+        "substep": 9,
+        "pair": [
+          "crow_tail",
+          "crow_course_slalom_a"
+        ],
+        "normal_impulse_Ns": 0.000990817673
+      },
+      {
+        "step": 689,
+        "substep": 10,
+        "pair": [
+          "crow_tail",
+          "crow_course_slalom_a"
+        ],
+        "normal_impulse_Ns": 0.000911166368
+      },
+      {
+        "step": 689,
+        "substep": 11,
+        "pair": [
+          "crow_tail",
+          "crow_course_slalom_a"
+        ],
+        "normal_impulse_Ns": 0.00126990222
+      },
+      {
+        "step": 689,
+        "substep": 12,
+        "pair": [
+          "crow_tail",
+          "crow_course_slalom_a"
+        ],
+        "normal_impulse_Ns": 0.000574012054
+      },
+      {
+        "step": 689,
+        "substep": 13,
+        "pair": [
+          "crow_tail",
+          "crow_course_slalom_a"
+        ],
+        "normal_impulse_Ns": 0.000913256546
+      },
+      {
+        "step": 689,
+        "substep": 14,
+        "pair": [
+          "crow_tail",
+          "crow_course_slalom_a"
+        ],
+        "normal_impulse_Ns": 0.00104176241
+      },
+      {
+        "step": 689,
+        "substep": 15,
+        "pair": [
+          "crow_tail",
+          "crow_course_slalom_a"
+        ],
+        "normal_impulse_Ns": 0.000605425565
+      }
+    ]
+  },
+  "3": {
+    "episode_end": 693,
+    "reason": 3,
+    "contacts": [
+      {
+        "step": 694,
+        "substep": 7,
+        "pair": [
+          "crow_tail",
+          "crow_course_slalom_a"
+        ],
+        "normal_impulse_Ns": 0.0410906859
+      },
+      {
+        "step": 694,
+        "substep": 8,
+        "pair": [
+          "crow_tail",
+          "crow_course_slalom_a"
+        ],
+        "normal_impulse_Ns": 0.0349832512
+      },
+      {
+        "step": 694,
+        "substep": 9,
+        "pair": [
+          "crow_tail",
+          "crow_course_slalom_a"
+        ],
+        "normal_impulse_Ns": 0.0102483863
+      },
+      {
+        "step": 694,
+        "substep": 10,
+        "pair": [
+          "crow_tail",
+          "crow_course_slalom_a"
+        ],
+        "normal_impulse_Ns": 0.00243236148
+      },
+      {
+        "step": 694,
+        "substep": 11,
+        "pair": [
+          "crow_tail",
+          "crow_course_slalom_a"
+        ],
+        "normal_impulse_Ns": 0.00197298126
+      },
+      {
+        "step": 694,
+        "substep": 12,
+        "pair": [
+          "crow_tail",
+          "crow_course_slalom_a"
+        ],
+        "normal_impulse_Ns": 0.00124330691
+      },
+      {
+        "step": 694,
+        "substep": 13,
+        "pair": [
+          "crow_tail",
+          "crow_course_slalom_a"
+        ],
+        "normal_impulse_Ns": 0.0010588594
+      },
+      {
+        "step": 694,
+        "substep": 14,
+        "pair": [
+          "crow_tail",
+          "crow_course_slalom_a"
+        ],
+        "normal_impulse_Ns": 0.000952189788
+      },
+      {
+        "step": 694,
+        "substep": 15,
+        "pair": [
+          "crow_tail",
+          "crow_course_slalom_a"
+        ],
+        "normal_impulse_Ns": 0.000781369279
+      }
+    ]
+  },
+  "0": {
+    "episode_end": 729,
+    "reason": 3,
+    "contacts": [
+      {
+        "step": 709,
+        "substep": 2,
+        "pair": [
+          "crow_tail",
+          "crow_course_slalom_a"
+        ],
+        "normal_impulse_Ns": 0.048613172
+      },
+      {
+        "step": 709,
+        "substep": 3,
+        "pair": [
+          "crow_tail",
+          "crow_course_slalom_a"
+        ],
+        "normal_impulse_Ns": 0.0422756076
+      },
+      {
+        "step": 709,
+        "substep": 4,
+        "pair": [
+          "crow_tail",
+          "crow_course_slalom_a"
+        ],
+        "normal_impulse_Ns": 0.00868456904
+      },
+      {
+        "step": 730,
+        "substep": 15,
+        "pair": [
+          "crow_tail",
+          "crow_course_slalom_a"
+        ],
+        "normal_impulse_Ns": 0.003413531
+      }
+    ]
+  },
+  "6": {
+    "episode_end": 801,
+    "reason": 3,
+    "contacts": [
+      {
+        "step": 802,
+        "substep": 15,
+        "pair": [
+          "crow_tail",
+          "crow_course_slalom_a"
+        ],
+        "normal_impulse_Ns": 0.0046311589
+      }
+    ]
+  }
+}

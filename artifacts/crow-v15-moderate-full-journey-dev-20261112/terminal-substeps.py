@@ -1,0 +1,11 @@
+from pathlib import Path
+import collections,json,subprocess
+A=Path("artifacts/crow-v15-moderate-full-journey-dev-20261112");D=A/"candidate-20261127-rebound-flexed";m=json.loads((D/"stderr-parts.json").read_text());first=json.loads((D/"run.stdout").read_text())["first_episode_navigation"];ends=first["steps_by_environment"];names=["crow_body","crow_left_wing_sweep","crow_right_wing_sweep","crow_left_wing_flap_link","crow_right_wing_flap_link","crow_left_wing","crow_right_wing","crow_tail","crow_left_hip_roll_link","crow_left_thigh","crow_left_shank","crow_left_foot","crow_right_hip_roll_link","crow_right_thigh","crow_right_shank","crow_right_foot","crow_neck_yaw_link","crow_head","crow_lower_beak","crow_left_front_toe_1_proximal","crow_left_front_toe_1_distal","crow_left_front_toe_2_proximal","crow_left_front_toe_2_distal","crow_left_front_toe_3_proximal","crow_left_front_toe_3_distal","crow_left_rear_toe_proximal","crow_left_rear_toe_distal","crow_right_front_toe_1_proximal","crow_right_front_toe_1_distal","crow_right_front_toe_2_proximal","crow_right_front_toe_2_distal","crow_right_front_toe_3_proximal","crow_right_front_toe_3_distal","crow_right_rear_toe_proximal","crow_right_rear_toe_distal","locomotion_ground","crow_course_gate_left","crow_course_gate_right","crow_course_slalom_a","crow_course_slalom_b","crow_course_perch"]
+cat=subprocess.Popen(["cat",*[str(D/p["name"]) for p in m["parts"]]],stdout=subprocess.PIPE);z=subprocess.Popen(["gzip","-dc"],stdin=cat.stdout,stdout=subprocess.PIPE,text=True);cat.stdout.close();hits=collections.defaultdict(list)
+for line in z.stdout:
+ if not line.startswith("CROW_SCENE_CONTACT "):continue
+ v=line.split();t,k,e,ba,bb=map(int,v[1:6]);normal=float(v[6])
+ if first["physical_failure_by_environment"][e] and ends[e]-25<=t<=ends[e]+1 and normal>1e-7 and 35 not in (ba,bb):hits[e].append({"step":t,"substep":k,"pair":[names[ba],names[bb]],"normal_impulse_Ns":normal})
+z.stdout.close();assert z.wait()==0 and cat.wait()==0
+out={str(e):{"episode_end":ends[e],"reason":first["termination_reason_by_environment"][e],"contacts":h} for e,h in hits.items()};(A/"terminal-substeps.json").write_text(json.dumps(out,indent=2)+"\n")
+for e,x in out.items():print(e,"end",x["episode_end"],"first",x["contacts"][:3],"last",x["contacts"][-3:])

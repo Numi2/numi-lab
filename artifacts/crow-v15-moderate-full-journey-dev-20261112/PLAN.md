@@ -1,0 +1,5 @@
+# Full continuous development journey diagnostic
+
+The 0.45 crouch has passed a small development walk screen but remains biologically unqualified. Test the actual full first episode on the existing training layout and previously used seed 20261127, teacher disabled and no scheduled resets, for up to 5,000 20 ms intervals in eight lanes. Use contact-gated release and suppress the two known direct body moments from 7.10 s. Observe full-start takeoff, all waypoint criteria, first failure and contact pair when available, continuous substeps, toe grip/release and sustained supported landing. There is no prior flight qualification, and other aerodynamic closures and launch assistance remain. The trajectory is a development diagnosis, not either reserved unused layout or a final demonstration. Record failures, censoring and incomplete/unsupported landings explicitly.
+
+Stream the compressed substep evidence to 32 MiB Git-sized parts rather than retaining a duplicate full archive on disk; record per-part and aggregate hashes and validate the stream. Archive the replay and commands with the result.
