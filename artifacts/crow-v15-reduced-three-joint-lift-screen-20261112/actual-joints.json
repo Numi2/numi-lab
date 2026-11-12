@@ -1,0 +1,23 @@
+{
+  "rows": [
+    {
+      "side": "left",
+      "samples": 224,
+      "median_hip_difference_rad": 0.012805745000000007,
+      "median_knee_difference_rad": -0.028859108999999994,
+      "median_ankle_difference_rad": 0.015798315499999993,
+      "min_knee_difference_rad": -0.04826539699999999,
+      "max_knee_difference_rad": -4.088799999996118e-05
+    },
+    {
+      "side": "right",
+      "samples": 192,
+      "median_hip_difference_rad": 0.014105066500000013,
+      "median_knee_difference_rad": -0.031713158500000005,
+      "median_ankle_difference_rad": 0.016983628500000014,
+      "min_knee_difference_rad": -0.048369408,
+      "max_knee_difference_rad": 0.060212195000000024
+    }
+  ],
+  "scope": "Endpoint joint-angle differences against matched 0.20-rad three-joint sham at carrier > 0.7; trajectories diverge and include indirect dynamic effects. These are not isolated actuator tracking errors or in-vivo kinematics."
+}

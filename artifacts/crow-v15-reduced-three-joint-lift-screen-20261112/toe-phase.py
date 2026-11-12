@@ -2,7 +2,7 @@ from pathlib import Path
 import importlib.util,json,math,collections
 p=Path("artifacts/crow-v15-reduced-three-joint-lift-screen-20261112");s=importlib.util.spec_from_file_location("audit","artifacts/crow-v15-whole-gait-audit-20261111/audit.py");a=importlib.util.module_from_spec(s);s.loader.exec_module(a)
 ground=next(x["ground_z_m"] for x in json.loads(Path("artifacts/crow-v15-whole-gait-audit-20261111/audit.json").read_text())["rows"] if x["seed"]==20261127)
-paths={"held":Path("artifacts/crow-v15-small-support-stroke-20261112/sham-20261127-paired"),"small_stroke":p/"sham-20261127-paired","three_joint":p/"candidate-20261127-rebound"};out={}
+paths={"held":Path("artifacts/crow-v15-small-support-stroke-20261112/sham-20261127-paired"),"three_joint_020":p/"sham-20261127-paired","three_joint_015":p/"candidate-20261127-rebound"};out={}
 for label,path in paths.items():
  sup,sub,bodies,com=a.load(path);counts=collections.Counter();examples=[]
  for e in range(8):

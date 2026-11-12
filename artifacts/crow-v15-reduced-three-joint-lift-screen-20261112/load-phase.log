@@ -1,0 +1,39 @@
+{
+  "sham": [
+    {
+      "side": "left",
+      "samples": 3584,
+      "own_normal_positive_fraction": 0.26199776785714285,
+      "opposite_normal_positive_fraction": 1.0,
+      "both_normal_positive_fraction": 0.26199776785714285,
+      "both_zero_fraction": 0.0
+    },
+    {
+      "side": "right",
+      "samples": 3072,
+      "own_normal_positive_fraction": 0.00390625,
+      "opposite_normal_positive_fraction": 0.9912109375,
+      "both_normal_positive_fraction": 0.00390625,
+      "both_zero_fraction": 0.0087890625
+    }
+  ],
+  "candidate": [
+    {
+      "side": "left",
+      "samples": 3584,
+      "own_normal_positive_fraction": 0.25,
+      "opposite_normal_positive_fraction": 1.0,
+      "both_normal_positive_fraction": 0.25,
+      "both_zero_fraction": 0.0
+    },
+    {
+      "side": "right",
+      "samples": 3072,
+      "own_normal_positive_fraction": 0.023763020833333332,
+      "opposite_normal_positive_fraction": 1.0,
+      "both_normal_positive_fraction": 0.023763020833333332,
+      "both_zero_fraction": 0.0
+    }
+  ],
+  "scope": "Descriptive, using interval command phase and each substep normal impulse; support gate is an accepted-state flag rather than these exact substep impulses. Not proof of cause."
+}

@@ -1,0 +1,3 @@
+held {'total': 49, 'toe:rear_toe_distal': 49, 'no_own_normal': 35, 'opposite_supported': 49, 'positive_carrier': 49, 'loaded': 14}
+three_joint_020 {'total': 201, 'toe:rear_toe_distal': 147, 'loaded': 132, 'opposite_supported': 174, 'positive_carrier': 102, 'no_own_normal': 69, 'negative_carrier': 99, 'toe:rear_toe_proximal': 54, 'opposite_not_supported': 27}
+three_joint_015 {'total': 244, 'toe:rear_toe_distal': 145, 'loaded': 159, 'opposite_supported': 212, 'positive_carrier': 121, 'no_own_normal': 85, 'toe:rear_toe_proximal': 99, 'negative_carrier': 123, 'opposite_not_supported': 32}

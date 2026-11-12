@@ -1,0 +1,18 @@
+artifacts/crow-v15-small-support-stroke-20261112/sham-20261127-paired q_error 4.994049063178352e-10 position_error_m 1.6398655941414724e-08 rotation_error 2.9792866307215784e-08
+artifacts/crow-v15-reduced-three-joint-lift-screen-20261112/candidate-20261127-rebound q_error 4.998207125961329e-10 position_error_m 1.57751296311817e-08 rotation_error 2.979144188649383e-08
+{
+  "sham": {
+    "count": 8329,
+    "median_m_s": 0.0027555170683266446,
+    "p95_m_s": 0.0348377125065742,
+    "max_m_s": 0.10688597397169214,
+    "fraction_over_0_01m_s": 0.22739824708848602
+  },
+  "candidate": {
+    "count": 8685,
+    "median_m_s": 0.0040174428494183035,
+    "p95_m_s": 0.04359087121520027,
+    "max_m_s": 0.11326643696682087,
+    "fraction_over_0_01m_s": 0.19458837075417387
+  }
+}
