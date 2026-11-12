@@ -1,0 +1,76 @@
+{
+  "synchronized_samples": 496,
+  "substep_seconds": 0.00125,
+  "kinematic_velocity_validation": {
+    "crow_body": {
+      "mean_difference_m_s": 0.0021884532906264547,
+      "median_difference_m_s": 0.0015695314811532844,
+      "p90_difference_m_s": 0.004842840166943349,
+      "mean_reported_speed_m_s": 0.06230682649714517
+    },
+    "crow_left_foot": {
+      "mean_difference_m_s": 0.013523973308192381,
+      "median_difference_m_s": 0.007071599208962212,
+      "p90_difference_m_s": 0.04167858464167736,
+      "mean_reported_speed_m_s": 0.10717548789227892
+    },
+    "crow_right_foot": {
+      "mean_difference_m_s": 0.011161213717012388,
+      "median_difference_m_s": 0.00563129884054198,
+      "p90_difference_m_s": 0.034383349701405476,
+      "mean_reported_speed_m_s": 0.09280929825221078
+    },
+    "crow_left_front_toe_1_proximal": {
+      "mean_difference_m_s": 0.013796026926935689,
+      "median_difference_m_s": 0.0070631688154561565,
+      "p90_difference_m_s": 0.04211504587683629,
+      "mean_reported_speed_m_s": 0.10552859027972612
+    },
+    "crow_left_front_toe_1_distal": {
+      "mean_difference_m_s": 0.014632834225432888,
+      "median_difference_m_s": 0.007003383096885285,
+      "p90_difference_m_s": 0.04824368000656523,
+      "mean_reported_speed_m_s": 0.10616374856933683
+    },
+    "crow_right_front_toe_1_proximal": {
+      "mean_difference_m_s": 0.011536154668341706,
+      "median_difference_m_s": 0.005660670903831413,
+      "p90_difference_m_s": 0.03420628111382016,
+      "mean_reported_speed_m_s": 0.09297292120282234
+    },
+    "crow_right_front_toe_1_distal": {
+      "mean_difference_m_s": 0.012540538143878576,
+      "median_difference_m_s": 0.006015683892212619,
+      "p90_difference_m_s": 0.03925125782230292,
+      "mean_reported_speed_m_s": 0.09642254858856684
+    }
+  },
+  "total": {
+    "samples": 7131,
+    "normal_impulse_ns": 2.770932998962211,
+    "mean_m_s": 0.02436168995153442,
+    "median_m_s": 0.0079428833070092,
+    "p90_m_s": 0.0647287328245225,
+    "p99_m_s": 0.24213800613023612,
+    "impulse_fraction_above_0_05_m_s": 0.1405662889842316
+  },
+  "left": {
+    "samples": 2092,
+    "normal_impulse_ns": 1.174476665801465,
+    "mean_m_s": 0.022506805180661255,
+    "median_m_s": 0.010849783782558521,
+    "p90_m_s": 0.0627787514745351,
+    "p99_m_s": 0.17488989905476143,
+    "impulse_fraction_above_0_05_m_s": 0.12638315207010042
+  },
+  "right": {
+    "samples": 5039,
+    "normal_impulse_ns": 1.5964563331607589,
+    "mean_m_s": 0.025726286549568312,
+    "median_m_s": 0.006503851989311051,
+    "p90_m_s": 0.065878838132844,
+    "p99_m_s": 0.2958153709819983,
+    "impulse_fraction_above_0_05_m_s": 0.15100050068642865
+  },
+  "scope": "One 0.62 s development walking interval in lane 5. Candidate point and post-substep body state have solver/integration timing differences. Contact-normal impulse weights. No biological or independent-start qualification."
+}

@@ -1,3 +1,5 @@
+**Follow-up:** The 1.25 ms `../crow-v15-synchronized-slip-observer-20261112/RESULT.md` measures substantially more contact-point speed in a short interval and narrows, but does not eliminate, the timing uncertainty. The video-rate figures below remain provisional.
+
 # Provisional contact-point velocity audit
 
 The retained obstacle-free run provides contact points plus full body replay for one development lane. After correcting the separate warmup submission, all 301 walking-window replay configurations and velocities matched the accepted trace within the printed precision. The model exports articulated body positions at the center of mass and their kinematically composed velocities. An exploratory final-substep point-speed calculation gives an impulse-weighted median near 0.0036 m/s and 90th percentile near 0.026 m/s; these are provisional diagnostic values, not a validated slip estimate or a real-crow target.
