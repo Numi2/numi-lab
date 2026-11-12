@@ -1,0 +1,5 @@
+# Constructed grip/release start envelope
+
+The previously identified placement adjustment passed five of eight constructed starts. Both repeated reference starts, the −4 mm fore-aft offset, the −3 mm height offset, and the −0.040 m/s velocity start completed single-foot release and 100 terminal intervals of supported opposed bilateral grip without a fall or nonfoot contact. The +6 mm fore-aft start, +3 mm height start, and −0.010 m/s velocity start fell forward before qualifying a release. Their first root-height falls occurred at control steps 113, 150 and 149 respectively. The failed forward-offset lane also had three nonfoot-contact intervals.
+
+The two unchanged starts reproduced all 1,100 endpoint states and 35,200 substep contact records exactly against the previously retained trials. All 140,800 substeps were present and endpoint contact impulses agreed within 1.37e-9 N s. These constructed starts use high, uncalibrated friction and are not autonomous landings or a representative arrival distribution. Observed support with no forward-toe opposition preceded the failures; the precise physical cause remains to be tested.

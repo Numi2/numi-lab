@@ -1,0 +1,3 @@
+# Constructed perch grip and release start envelope
+
+Keep the +0.02 rad returned-foot offset, one-second balance decay and delayed knee lift fixed across all eight lanes. Lanes 0–1 reproduce the previous successful starts and must match their reference state and contact records exactly. The other starts change fore-aft position (−4 and +6 mm), height (−3 and +3 mm), or fore-aft velocity (−0.040 and −0.010 m/s). Retain the same independently checked all-substep geometric release, supported opposite-foot grip, 100-interval bilateral opposed regrip, no fall and no nonfoot-contact criteria. This is a small development envelope, not a landing or species calibration.
