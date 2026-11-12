@@ -1,0 +1,3 @@
+# Hip timing and foot contact screen
+
+Test whether three hip phase offsets (-.65, -.80, -1.05 rad) combined with .34 stroke improve foot stability while keeping the rest of the contact-gated whole-leg gait fixed. Two controls reproduce the .30, -.90 baseline. On previously used seed 20261127, require exact prefix and controls, more than 5% extra 4–6 s displacement in both lanes of a setting, no both-feet-unloaded substeps, no toe-speed caps, no nonfoot impulse and each foot contact-point-speed p95 <=1.5x its matched baseline. The offset is a model experiment, not a measured corvid kinematic target.
