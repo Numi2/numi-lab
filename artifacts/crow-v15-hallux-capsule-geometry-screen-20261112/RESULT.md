@@ -1,0 +1,5 @@
+# Rounded rear-toe proxy: static geometry only
+
+At the 40 retained last-front-contact poses, the hypothetical capsule's median minimum ground gap is 0.589 mm versus 0.461 mm for the current boxes; none exceeds 1 mm. With an additional static -0.20 rad rear-proximal rotation, the capsule median minimum becomes 1.269 mm (40/40 over 1 mm) versus 0.713 mm for the boxes (0/40 over 1 mm). The -0.10 rad counterfactual has capsule median 0.897 mm (3/40 over 1 mm). These are per-pose geometric comparisons, not probabilities or contact outcomes.
+
+The capsule preserves neutral longitudinal extent and lowest height while using the existing toe proxy's width; those dimensions are not crow morphometry. The previous toe has 1 mm contact offset, but solver contact also depends on the ground shape, velocity and state; crossing 1 mm here does not establish contact release or load support. Static counterfactuals do not establish that muscles can achieve the specified angles, and altered capsule geometry can change friction, grip and stability. No model was changed or admitted by this study.
