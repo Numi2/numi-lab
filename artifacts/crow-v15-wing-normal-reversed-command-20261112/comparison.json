@@ -1,0 +1,125 @@
+{
+  "rows": [
+    {
+      "lane": 2,
+      "normal_blend": 0.15,
+      "original_offset": 0.2,
+      "original": {
+        "yaw_change_rad": -0.2550400428776988,
+        "trajectory_angle_rad": -0.17820656992586964,
+        "dx_m": 5.97458935,
+        "dy_m": -1.0761269965,
+        "end_height_m": 1.04704702
+      },
+      "reversed": {
+        "yaw_change_rad": -0.01320338856387207,
+        "trajectory_angle_rad": -0.06991871100239942,
+        "dx_m": 5.92788458,
+        "dy_m": -0.4151467685,
+        "end_height_m": 1.04766333
+      },
+      "yaw_difference_rad": -0.24183665431382675
+    },
+    {
+      "lane": 3,
+      "normal_blend": 0.15,
+      "original_offset": -0.2,
+      "original": {
+        "yaw_change_rad": -0.01329126984685737,
+        "trajectory_angle_rad": -0.07033115467591738,
+        "dx_m": 5.92380285,
+        "dy_m": -0.4173162024,
+        "end_height_m": 1.19765043
+      },
+      "reversed": {
+        "yaw_change_rad": -0.25535961231878024,
+        "trajectory_angle_rad": -0.1788759688524877,
+        "dx_m": 5.96954489,
+        "dy_m": -1.0793445464,
+        "end_height_m": 1.19703746
+      },
+      "yaw_difference_rad": 0.24206834247192288
+    },
+    {
+      "lane": 4,
+      "normal_blend": 0.35,
+      "original_offset": 0.2,
+      "original": {
+        "yaw_change_rad": -0.4198157496317866,
+        "trajectory_angle_rad": -0.24405911891854515,
+        "dx_m": 5.925114746,
+        "dy_m": -1.4754910850999998,
+        "end_height_m": 1.04315364
+      },
+      "reversed": {
+        "yaw_change_rad": 0.16790616756343968,
+        "trajectory_angle_rad": 0.011232629593228325,
+        "dx_m": 5.963925006,
+        "dy_m": 0.0669933781,
+        "end_height_m": 1.04417562
+      },
+      "yaw_difference_rad": -0.5877219171952263
+    },
+    {
+      "lane": 5,
+      "normal_blend": 0.35,
+      "original_offset": -0.2,
+      "original": {
+        "yaw_change_rad": 0.16793399857043811,
+        "trajectory_angle_rad": 0.013876608259741444,
+        "dx_m": 5.963261245,
+        "dy_m": 0.0827551521,
+        "end_height_m": 1.19417536
+      },
+      "reversed": {
+        "yaw_change_rad": -0.41989410860103443,
+        "trajectory_angle_rad": -0.2415120311840144,
+        "dx_m": 5.928357725,
+        "dy_m": -1.4602723529,
+        "end_height_m": 1.1931535
+      },
+      "yaw_difference_rad": 0.5878281071714726
+    },
+    {
+      "lane": 6,
+      "normal_blend": 0.6,
+      "original_offset": 0.2,
+      "original": {
+        "yaw_change_rad": -0.6028368862825597,
+        "trajectory_angle_rad": -0.31350692696613086,
+        "dx_m": 6.2223765239999995,
+        "dy_m": -2.0172860152,
+        "end_height_m": 1.02449191
+      },
+      "reversed": {
+        "yaw_change_rad": 0.3980850650994593,
+        "trajectory_angle_rad": 0.11528352828069423,
+        "dx_m": 6.344970404,
+        "dy_m": 0.7347283808,
+        "end_height_m": 1.02564549
+      },
+      "yaw_difference_rad": -1.000921951382019
+    },
+    {
+      "lane": 7,
+      "normal_blend": 0.6,
+      "original_offset": -0.2,
+      "original": {
+        "yaw_change_rad": 0.39806211282797516,
+        "trajectory_angle_rad": 0.11163709632653358,
+        "dx_m": 6.34897506,
+        "dy_m": 0.7117403689999999,
+        "end_height_m": 1.17563534
+      },
+      "reversed": {
+        "yaw_change_rad": -0.6027753732240705,
+        "trajectory_angle_rad": -0.3170374211173354,
+        "dx_m": 6.21614778,
+        "dy_m": -2.0395472669999997,
+        "end_height_m": 1.17449236
+      },
+      "yaw_difference_rad": 1.0008374860520457
+    }
+  ],
+  "limits": "one used seed, obstacle-free model, changed uncalibrated wing closure throughout, 50 Hz body snapshots; no biological or closed-loop flight qualification"
+}

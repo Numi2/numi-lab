@@ -1,0 +1,3 @@
+# Same-lane reversed pronation command
+
+Repeat each used-seed orientation-sensitive closure trial with only the post-12 s pronation-command sign reversed. For all six candidate lanes require exact q/v/action and contact parity through step 600, and compare signed body yaw and path heading changes over steps 601–1200 for each same-lane pair. Keep the two 24 s controls exact. Record survival, contacts, toe caps and the missing body-joint-speed observation explicitly. Altered aerodynamic closure is uncalibrated and active from start in both trials. This is not a frozen controller, independent layout, closed-loop heading test or real-bird validation.

@@ -1,0 +1,5 @@
+{
+  "state_samples": 6000,
+  "contact_substeps": 96000,
+  "differences": []
+}
