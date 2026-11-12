@@ -1,0 +1,6 @@
+{
+  "matched_frames": 149,
+  "com_position_max_error_m": 2.497094642173181e-09,
+  "com_vertical_velocity_max_error_m_s": 2.1064873179099664e-09,
+  "scope": "Lane-5 replay compared to host reconstructed model mass-weighted body positions and linear velocities. Does not verify the source of collision impulses or scene material at substeps."
+}

@@ -1,0 +1,9 @@
+0 unloaded 79 max_vz 0.1852 height_span 0.0105 otherN 0.0
+1 unloaded 1528 max_vz 0.3761 height_span 0.0107 otherN 0.0
+2 unloaded 1444 max_vz 0.3848 height_span 0.0123 otherN 0.0
+3 unloaded 23 max_vz 0.2028 height_span 0.0099 otherN 0.0
+4 unloaded 22 max_vz 0.2105 height_span 0.0099 otherN 0.0
+5 unloaded 1689 max_vz 0.398 height_span 0.0103 otherN 0.0
+6 unloaded 40 max_vz 0.2069 height_span 0.0106 otherN 0.0
+7 unloaded 1354 max_vz 0.3178 height_span 0.0106 otherN 0.0
+{'-1': {'n': 1192, 'mean_m_s': 0.002507063071400475, 'rms_m_s': 0.28348961518116544, 'max_abs_m_s': 0.8071020499598036}, '0': {'n': 1192, 'mean_m_s': 0.0011962764186950793, 'rms_m_s': 0.016071585956256164, 'max_abs_m_s': 0.1962}, '1': {'n': 1192, 'mean_m_s': -0.00011147029631970341, 'rms_m_s': 0.28154974849266934, 'max_abs_m_s': 0.8002218042417231}}

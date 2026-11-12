@@ -1,0 +1,65 @@
+material 0 friction 0.800000012 0.600000024 response 0.100000001 0.5 0 0 geometry 0.00999999978
+mass crow_body 0.279454112
+mass crow_left_wing_sweep 9.99999975e-06
+mass crow_right_wing_sweep 9.99999975e-06
+mass crow_left_wing_flap_link 9.99999975e-06
+mass crow_right_wing_flap_link 9.99999975e-06
+mass crow_left_wing 0.0357416905
+mass crow_right_wing 0.0357416905
+mass crow_tail 0.0140624996
+mass crow_left_hip_roll_link 9.99999975e-06
+mass crow_left_thigh 0.00984374993
+mass crow_left_shank 0.00703124981
+mass crow_left_foot 0.00522500044
+mass crow_right_hip_roll_link 9.99999975e-06
+mass crow_right_thigh 0.00984374993
+mass crow_right_shank 0.00703124981
+mass crow_right_foot 0.00522500044
+mass crow_neck_yaw_link 0.00100000005
+mass crow_head 0.0350000001
+mass crow_lower_beak 0.00400000019
+mass crow_left_front_toe_1_proximal 4.99999987e-05
+mass crow_left_front_toe_1_distal 4.99999987e-05
+mass crow_left_front_toe_2_proximal 4.99999987e-05
+mass crow_left_front_toe_2_distal 4.99999987e-05
+mass crow_left_front_toe_3_proximal 4.99999987e-05
+mass crow_left_front_toe_3_distal 4.99999987e-05
+mass crow_left_rear_toe_proximal 4.99999987e-05
+mass crow_left_rear_toe_distal 4.99999987e-05
+mass crow_right_front_toe_1_proximal 4.99999987e-05
+mass crow_right_front_toe_1_distal 4.99999987e-05
+mass crow_right_front_toe_2_proximal 4.99999987e-05
+mass crow_right_front_toe_2_distal 4.99999987e-05
+mass crow_right_front_toe_3_proximal 4.99999987e-05
+mass crow_right_front_toe_3_distal 4.99999987e-05
+mass crow_right_rear_toe_proximal 4.99999987e-05
+mass crow_right_rear_toe_distal 4.99999987e-05
+shape 0 crow_body/collision_body mat 0 body 0
+shape 1 crow_left_wing/collision mat 0 body 5
+shape 2 crow_right_wing/collision mat 0 body 6
+shape 3 crow_tail/collision mat 0 body 7
+shape 4 crow_left_thigh/collision mat 0 body 9
+shape 5 crow_left_shank/collision mat 0 body 10
+shape 6 crow_right_thigh/collision mat 0 body 13
+shape 7 crow_right_shank/collision mat 0 body 14
+shape 8 crow_left_foot/sole mat 0 body 11
+shape 9 crow_right_foot/sole mat 0 body 15
+shape 10 crow_head/collision mat 0 body 17
+shape 11 crow_head/upper_beak_collision mat 0 body 17
+shape 12 crow_lower_beak/collision mat 0 body 18
+shape 13 crow_left_front_toe_1_proximal/collision mat 0 body 19
+shape 14 crow_left_front_toe_1_distal/collision mat 0 body 20
+shape 15 crow_left_front_toe_2_proximal/collision mat 0 body 21
+shape 16 crow_left_front_toe_2_distal/collision mat 0 body 22
+shape 17 crow_left_front_toe_3_proximal/collision mat 0 body 23
+shape 18 crow_left_front_toe_3_distal/collision mat 0 body 24
+shape 19 crow_left_rear_toe_proximal/collision mat 0 body 25
+shape 20 crow_left_rear_toe_distal/collision mat 0 body 26
+shape 21 crow_right_front_toe_1_proximal/collision mat 0 body 27
+shape 22 crow_right_front_toe_1_distal/collision mat 0 body 28
+shape 23 crow_right_front_toe_2_proximal/collision mat 0 body 29
+shape 24 crow_right_front_toe_2_distal/collision mat 0 body 30
+shape 25 crow_right_front_toe_3_proximal/collision mat 0 body 31
+shape 26 crow_right_front_toe_3_distal/collision mat 0 body 32
+shape 27 crow_right_rear_toe_proximal/collision mat 0 body 33
+shape 28 crow_right_rear_toe_distal/collision mat 0 body 34
