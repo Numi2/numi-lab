@@ -1,0 +1,5 @@
+# Posthoc audit: all comparable launches contain an early support interruption
+
+The original transition screen only required no recontact **after the first three consecutively unloaded control intervals**. A separate examination of all contact substeps between push start and that event found an earlier fully unloaded control interval followed by renewed foot support in all six comparable lanes on each of the two used seeds. The resumption was at step 355 in eleven cases and step 356 in the remaining case. On seed 20261126 lane 3, the resumption step contained 0.3524 N s of modeled upward foot impulse; other resumption-step impulses ranged from 0.00015 to 0.0552 N s.
+
+This posthoc finding does not change whether the original narrow screen's predeclared criteria were met, but it exposes a missing requirement for a clean single push-off. It does not prove slipping, error in contact solving, biological realism or isolated muscle impulse. The next predeclared trial should require uninterrupted foot support until a single final release, report recontact and peak impulses, and retain full substeps. Do not freeze or promote the candidate on the earlier screen.
