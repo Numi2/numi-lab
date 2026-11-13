@@ -1,0 +1,35 @@
+{
+  "retired": [
+    {
+      "path": "/Users/n/Developer/numi-crow-rl-20261107/artifacts/crow-v15-uniform-flight-24s-screen-20261113/push-wing-012-20261126-rebound-uniform/run.stderr.gz.part00",
+      "bytes": 41943040,
+      "sha256": "3b71cd1753bc5ab3eafebb0c31f2eb84f0dabc5533afb69159cd3a4a0dc2f3fc"
+    },
+    {
+      "path": "/Users/n/Developer/numi-crow-rl-20261107/artifacts/crow-v15-uniform-flight-24s-screen-20261113/push-wing-012-20261126-rebound-uniform/run.stderr.gz.part01",
+      "bytes": 41943040,
+      "sha256": "1f9ec6f2b3caf830bbbcf4c58b6226cae87d2552342eacfe324e26cd99c93f03"
+    },
+    {
+      "path": "/Users/n/Developer/numi-crow-rl-20261107/artifacts/crow-v15-uniform-flight-24s-screen-20261113/push-wing-012-20261126-rebound-uniform/run.stderr.gz.part02",
+      "bytes": 27595572,
+      "sha256": "3d4b4b05e76638d4ef274966aaf7016f8d9a9f1ecebcfaa41ae170b7e6b068f0"
+    },
+    {
+      "path": "/Users/n/Developer/numi-crow-rl-20261107/artifacts/crow-v15-uniform-flight-24s-screen-20261113/push-wing-012-20261127-rebound-uniform/run.stderr.gz.part00",
+      "bytes": 41943040,
+      "sha256": "7046766494cad5d41ee6f757d671fa61186ac3fac50b59dcdb5e6fd244bb1814"
+    },
+    {
+      "path": "/Users/n/Developer/numi-crow-rl-20261107/artifacts/crow-v15-uniform-flight-24s-screen-20261113/push-wing-012-20261127-rebound-uniform/run.stderr.gz.part01",
+      "bytes": 41943040,
+      "sha256": "51d238e8863a599df13df9aa70bff1875143003772227bc5b27f7cd63ba5f395"
+    },
+    {
+      "path": "/Users/n/Developer/numi-crow-rl-20261107/artifacts/crow-v15-uniform-flight-24s-screen-20261113/push-wing-012-20261127-rebound-uniform/run.stderr.gz.part02",
+      "bytes": 34479893,
+      "sha256": "679038b49bfbfc543d8e57328903fd08cfba3cbcada43781b7b9f253f161136f"
+    }
+  ],
+  "note": "Only redundant split archive copies; original evidence logs remain for current analysis."
+}
