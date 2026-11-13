@@ -1,0 +1,19 @@
+--- a/wingheld.metal
++++ b/retraction.metal
+@@ -5133,6 +5133,16 @@
+                 if ((state.status.w & 4096u) != 0u) navigationTeacherRequested = crouched;
+             }
+         }
++        // Research-only joint-driven retraction timing screen; no contact bypass.
++        if (fixedFlightController && state.episode.z == 10u && action >= 7u && action <= 12u) {
++            const float seconds=float(state.episode.x)*dispatch.timing.x;
++            const uint arm=environment%8u, joint=(action-7u)%3u;
++            if (arm>=2u && seconds<7.4f) {
++                const float start=arm<4u ? 7.06f : arm<6u ? 7.10f : 7.14f;
++                const float crouched=joint==0u ? -0.85f : joint==1u ? 1.00f : -0.20f;
++                navigationTeacherRequested=mix(navigationTeacherRequested,crouched,smoothstep(start,start+0.10f,seconds));
++            }
++        }
+         // Keep the training-only teacher active through the final target.
+         // Ending at waypoint four taught an aggressive approach crossing but
+         // handed the student a poor terminal arrival geometry. Autonomous

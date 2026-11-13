@@ -1,0 +1,7 @@
+# Wing-held leg retraction: failed exploratory screen
+
+Both matched eight-lane runs completed 400 first-episode ticks on the used development seed. Their recorded states/actions and contact substeps matched through tick 345; target-history and corrected wing-drive metadata checks passed. The paired settings are correlated lanes, not independent trials.
+
+All six candidate push lanes exceeded the diagnostic toe-speed threshold in 7–13 substeps. Every candidate and every matched hold first recorded three unloaded control intervals at tick 375. Whole-body COM vertical velocity at that time was +0.398 to +0.420 m/s for push and +0.404 to +0.420 m/s for hold. The corresponding push and hold modeled vertical aerodynamic impulses over ticks 348–380 were below 0.0006 N s in absolute value. The positive late COM motion therefore does not by itself establish a causal leg-powered launch. The previous control window ends at 7.4 s, before that observation; investigate this handoff rather than attributing late unloading to the experimental retraction. No tested pair passes the preregistered screen.
+
+The early push-minus-hold foot normal impulse over 348–355 remained +0.081 to +0.113 N s, but this is contact impulse, not isolated muscle work. No nonfoot normal impulse was recorded in the diagnostic window; that does not establish a safe flight or landing. The aerodynamic closure and controller are research models, not biological calibration. No final layout or seed was used.

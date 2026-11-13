@@ -1,0 +1,12 @@
+push 2 release 375 COMvz 0.4018581457476434 rise 0.0325 toe 10 nonfoot 0.0 flap 0.805 aero 0.00046 pass False
+push 3 release 375 COMvz 0.4203461185581527 rise 0.0338 toe 12 nonfoot 0.0 flap 0.85 aero 0.00051 pass False
+push 4 release 375 COMvz 0.39925159963765244 rise 0.0317 toe 13 nonfoot 0.0 flap 0.985 aero 0.00049 pass False
+push 5 release 375 COMvz 0.4004936996565555 rise 0.0317 toe 11 nonfoot 0.0 flap 0.829 aero 0.00033 pass False
+push 6 release 375 COMvz 0.39753864355045526 rise 0.0308 toe 7 nonfoot 0.0 flap 0.845 aero 0.00025 pass False
+push 7 release 375 COMvz 0.3976940307959785 rise 0.0307 toe 8 nonfoot 0.0 flap 0.786 aero 0.00024 pass False
+hold 2 release 375 COMvz 0.41749190158658894 rise 0.0354 toe 12 nonfoot 0.0 flap 0.58 aero 0.00042 pass False
+hold 3 release 375 COMvz 0.42002088876858507 rise 0.0356 toe 12 nonfoot 0.0 flap 0.58 aero 0.00042 pass False
+hold 4 release 375 COMvz 0.41269959750240215 rise 0.035 toe 12 nonfoot 0.0 flap 0.58 aero 0.00041 pass False
+hold 5 release 375 COMvz 0.4092264486369101 rise 0.0348 toe 12 nonfoot 0.0 flap 0.581 aero 0.00041 pass False
+hold 6 release 375 COMvz 0.41344027510591597 rise 0.0351 toe 12 nonfoot 0.0 flap 0.581 aero 0.00041 pass False
+hold 7 release 375 COMvz 0.4036751751206763 rise 0.0344 toe 11 nonfoot 0.0 flap 0.581 aero 0.0004 pass False
