@@ -1,0 +1,593 @@
+{
+  "scope": "Posthoc frozen-pose FK finite difference at step 347 on six used development lanes; varies only three left proximal toe coordinates, not a dynamically controlled trajectory. Box dimensions and ground plane are model estimates. Baseline FK is consistent with previously replay-validated same states. Joint limits, penetrations, actuator dynamics and physical contact require separate validation.",
+  "rows": [
+    {
+      "lane": 2,
+      "delta_proximal_rad": -0.2,
+      "left_front_group_min_clearance_m": 0.002035739360754848,
+      "left_middle_group_min_clearance_m": 0.0020379144782070677,
+      "clearance_by_body_m": {
+        "crow_left_front_toe_1_proximal": 0.0020400862582453053,
+        "crow_left_front_toe_3_distal": 0.006121632473469694,
+        "crow_left_front_toe_3_proximal": 0.002035739360754848,
+        "crow_left_front_toe_1_distal": 0.006125551400921303,
+        "crow_left_front_toe_2_distal": 0.006123607636217769,
+        "crow_left_front_toe_2_proximal": 0.0020379144782070677
+      }
+    },
+    {
+      "lane": 2,
+      "delta_proximal_rad": -0.1,
+      "left_front_group_min_clearance_m": 0.0018720098102808953,
+      "left_middle_group_min_clearance_m": 0.0018741952517091574,
+      "clearance_by_body_m": {
+        "crow_left_front_toe_1_proximal": 0.0018763788025417134,
+        "crow_left_front_toe_3_distal": 0.004187439995764623,
+        "crow_left_front_toe_3_proximal": 0.0018720098102808953,
+        "crow_left_front_toe_1_distal": 0.004191373180600644,
+        "crow_left_front_toe_2_distal": 0.004189421812465306,
+        "crow_left_front_toe_2_proximal": 0.0018741952517091574
+      }
+    },
+    {
+      "lane": 2,
+      "delta_proximal_rad": -0.05,
+      "left_front_group_min_clearance_m": 0.0018242630982395723,
+      "left_middle_group_min_clearance_m": 0.0018264537587551043,
+      "clearance_by_body_m": {
+        "crow_left_front_toe_1_proximal": 0.0018286432600804932,
+        "crow_left_front_toe_3_distal": 0.0032446694516659116,
+        "crow_left_front_toe_3_proximal": 0.0018242630982395723,
+        "crow_left_front_toe_1_distal": 0.003248611517104502,
+        "crow_left_front_toe_2_distal": 0.003246655413898082,
+        "crow_left_front_toe_2_proximal": 0.0018264537587551043
+      }
+    },
+    {
+      "lane": 2,
+      "delta_proximal_rad": 0.0,
+      "left_front_group_min_clearance_m": 0.0017994398837184213,
+      "left_middle_group_min_clearance_m": 0.0018016357840221799,
+      "clearance_by_body_m": {
+        "crow_left_front_toe_1_proximal": 0.001803831259438721,
+        "crow_left_front_toe_3_distal": 0.0023212721289371328,
+        "crow_left_front_toe_3_proximal": 0.0017994398837184213,
+        "crow_left_front_toe_1_distal": 0.002325224214290423,
+        "crow_left_front_toe_2_distal": 0.002323262769040855,
+        "crow_left_front_toe_2_proximal": 0.0018016357840221799
+      }
+    },
+    {
+      "lane": 2,
+      "delta_proximal_rad": 0.05,
+      "left_front_group_min_clearance_m": 0.00104069521675656,
+      "left_middle_group_min_clearance_m": 0.0010424860547279206,
+      "clearance_by_body_m": {
+        "crow_left_front_toe_1_proximal": 0.001423510573558934,
+        "crow_left_front_toe_3_distal": 0.00104069521675656,
+        "crow_left_front_toe_3_proximal": 0.001419547360538665,
+        "crow_left_front_toe_1_distal": 0.0010442193744753248,
+        "crow_left_front_toe_2_distal": 0.0010424860547279206,
+        "crow_left_front_toe_2_proximal": 0.0014215431977863992
+      }
+    },
+    {
+      "lane": 2,
+      "delta_proximal_rad": 0.1,
+      "left_front_group_min_clearance_m": -0.0007360380782679317,
+      "left_middle_group_min_clearance_m": -0.0007342410621683955,
+      "clearance_by_body_m": {
+        "crow_left_front_toe_1_proximal": 0.0005457211517428048,
+        "crow_left_front_toe_3_distal": -0.0007360380782679317,
+        "crow_left_front_toe_3_proximal": 0.0005417457096380147,
+        "crow_left_front_toe_1_distal": -0.0007325006889736373,
+        "crow_left_front_toe_2_distal": -0.0007342410621683955,
+        "crow_left_front_toe_2_proximal": 0.0005437472609747841
+      }
+    },
+    {
+      "lane": 2,
+      "delta_proximal_rad": 0.2,
+      "left_front_group_min_clearance_m": -0.004197168301158689,
+      "left_middle_group_min_clearance_m": -0.004195355932934937,
+      "clearance_by_body_m": {
+        "crow_left_front_toe_1_proximal": -0.001129338450445742,
+        "crow_left_front_toe_3_distal": -0.004197168301158689,
+        "crow_left_front_toe_3_proximal": -0.00113334148517758,
+        "crow_left_front_toe_1_distal": -0.0041935980347860505,
+        "crow_left_front_toe_2_distal": -0.004195355932934937,
+        "crow_left_front_toe_2_proximal": -0.0011313270410519306
+      }
+    },
+    {
+      "lane": 3,
+      "delta_proximal_rad": -0.2,
+      "left_front_group_min_clearance_m": 0.0017683445205872589,
+      "left_middle_group_min_clearance_m": 0.0017731492092225784,
+      "clearance_by_body_m": {
+        "crow_left_front_toe_1_proximal": 0.0017683445205872589,
+        "crow_left_front_toe_3_distal": 0.0059240062063045384,
+        "crow_left_front_toe_3_proximal": 0.0017779533765864726,
+        "crow_left_front_toe_1_distal": 0.005914434771837151,
+        "crow_left_front_toe_2_distal": 0.005919222904629904,
+        "crow_left_front_toe_2_proximal": 0.0017731492092225784
+      }
+    },
+    {
+      "lane": 3,
+      "delta_proximal_rad": -0.1,
+      "left_front_group_min_clearance_m": 0.0016015071497170897,
+      "left_middle_group_min_clearance_m": 0.0016063126991023961,
+      "clearance_by_body_m": {
+        "crow_left_front_toe_1_proximal": 0.0016015071497170897,
+        "crow_left_front_toe_3_distal": 0.003987818284696701,
+        "crow_left_front_toe_3_proximal": 0.0016111179496754672,
+        "crow_left_front_toe_1_distal": 0.003978245705678807,
+        "crow_left_front_toe_2_distal": 0.003983034339394415,
+        "crow_left_front_toe_2_proximal": 0.0016063126991023961
+      }
+    },
+    {
+      "lane": 3,
+      "delta_proximal_rad": -0.05,
+      "left_front_group_min_clearance_m": 0.0015521891293378519,
+      "left_middle_group_min_clearance_m": 0.0015569951139734334,
+      "clearance_by_body_m": {
+        "crow_left_front_toe_1_proximal": 0.0015521891293378519,
+        "crow_left_front_toe_3_distal": 0.0030438035152494086,
+        "crow_left_front_toe_3_proximal": 0.0015618009122863336,
+        "crow_left_front_toe_1_distal": 0.0030342302100874498,
+        "crow_left_front_toe_2_distal": 0.0030390191623616454,
+        "crow_left_front_toe_2_proximal": 0.0015569951139734334
+      }
+    },
+    {
+      "lane": 3,
+      "delta_proximal_rad": 0.0,
+      "left_front_group_min_clearance_m": 0.0015257882357422505,
+      "left_middle_group_min_clearance_m": 0.001530594657430169,
+      "clearance_by_body_m": {
+        "crow_left_front_toe_1_proximal": 0.0015257882357422505,
+        "crow_left_front_toe_3_distal": 0.0021190016419602112,
+        "crow_left_front_toe_3_proximal": 0.0015354010057506712,
+        "crow_left_front_toe_1_distal": 0.0021094275104099336,
+        "crow_left_front_toe_2_distal": 0.0021142168256168044,
+        "crow_left_front_toe_2_proximal": 0.001530594657430169
+      }
+    },
+    {
+      "lane": 3,
+      "delta_proximal_rad": 0.05,
+      "left_front_group_min_clearance_m": 0.0008891106627830943,
+      "left_middle_group_min_clearance_m": 0.0008938842331460747,
+      "clearance_by_body_m": {
+        "crow_left_front_toe_1_proximal": 0.001206141835810394,
+        "crow_left_front_toe_3_distal": 0.0008986489786806506,
+        "crow_left_front_toe_3_proximal": 0.0012157169085567493,
+        "crow_left_front_toe_1_distal": 0.0008891106627830943,
+        "crow_left_front_toe_2_distal": 0.0008938842331460747,
+        "crow_left_front_toe_2_proximal": 0.0012109315658298848
+      }
+    },
+    {
+      "lane": 3,
+      "delta_proximal_rad": 0.1,
+      "left_front_group_min_clearance_m": -0.0008894748738589812,
+      "left_middle_group_min_clearance_m": -0.0008847008202399181,
+      "clearance_by_body_m": {
+        "crow_left_front_toe_1_proximal": 0.0003266247866511342,
+        "crow_left_front_toe_3_distal": -0.0008799354592617381,
+        "crow_left_front_toe_3_proximal": 0.0003362009295143995,
+        "crow_left_front_toe_1_distal": -0.0008894748738589812,
+        "crow_left_front_toe_2_distal": -0.0008847008202399181,
+        "crow_left_front_toe_2_proximal": 0.0003314149904986019
+      }
+    },
+    {
+      "lane": 3,
+      "delta_proximal_rad": 0.2,
+      "left_front_group_min_clearance_m": -0.0043552128989028435,
+      "left_middle_group_min_clearance_m": -0.004350437635344566,
+      "clearance_by_body_m": {
+        "crow_left_front_toe_1_proximal": -0.0013523347164198854,
+        "crow_left_front_toe_3_distal": -0.004345670735255619,
+        "crow_left_front_toe_3_proximal": -0.0013427561567759157,
+        "crow_left_front_toe_1_distal": -0.0043552128989028435,
+        "crow_left_front_toe_2_distal": -0.004350437635344566,
+        "crow_left_front_toe_2_proximal": -0.0013475434424664312
+      }
+    },
+    {
+      "lane": 4,
+      "delta_proximal_rad": -0.2,
+      "left_front_group_min_clearance_m": 0.0024807204790038614,
+      "left_middle_group_min_clearance_m": 0.00248475787852755,
+      "clearance_by_body_m": {
+        "crow_left_front_toe_1_proximal": 0.0024887852291164067,
+        "crow_left_front_toe_3_distal": 0.006882959331642152,
+        "crow_left_front_toe_3_proximal": 0.0024807204790038614,
+        "crow_left_front_toe_1_distal": 0.006891076484353173,
+        "crow_left_front_toe_2_distal": 0.006887060014931584,
+        "crow_left_front_toe_2_proximal": 0.00248475787852755
+      }
+    },
+    {
+      "lane": 4,
+      "delta_proximal_rad": -0.1,
+      "left_front_group_min_clearance_m": 0.0023006524569936498,
+      "left_middle_group_min_clearance_m": 0.002304686434136078,
+      "clearance_by_body_m": {
+        "crow_left_front_toe_1_proximal": 0.0023087143898324735,
+        "crow_left_front_toe_3_distal": 0.004938513072411322,
+        "crow_left_front_toe_3_proximal": 0.0023006524569936498,
+        "crow_left_front_toe_1_distal": 0.004946629358439378,
+        "crow_left_front_toe_2_distal": 0.004942612852836061,
+        "crow_left_front_toe_2_proximal": 0.002304686434136078
+      }
+    },
+    {
+      "lane": 4,
+      "delta_proximal_rad": -0.05,
+      "left_front_group_min_clearance_m": 0.0022446404125072046,
+      "left_middle_group_min_clearance_m": 0.00224867265712597,
+      "clearance_by_body_m": {
+        "crow_left_front_toe_1_proximal": 0.0022527009191480388,
+        "crow_left_front_toe_3_distal": 0.003989313981317131,
+        "crow_left_front_toe_3_proximal": 0.0022446404125072046,
+        "crow_left_front_toe_1_distal": 0.003997429613795973,
+        "crow_left_front_toe_2_distal": 0.003993413043739022,
+        "crow_left_front_toe_2_proximal": 0.00224867265712597
+      }
+    },
+    {
+      "lane": 4,
+      "delta_proximal_rad": 0.0,
+      "left_front_group_min_clearance_m": 0.002211515298780199,
+      "left_middle_group_min_clearance_m": 0.0022155458024165006,
+      "clearance_by_body_m": {
+        "crow_left_front_toe_1_proximal": 0.0022195743722598603,
+        "crow_left_front_toe_3_distal": 0.003058641045668784,
+        "crow_left_front_toe_3_proximal": 0.002211515298780199,
+        "crow_left_front_toe_1_distal": 0.00306675587984934,
+        "crow_left_front_toe_2_distal": 0.0030627392146193224,
+        "crow_left_front_toe_2_proximal": 0.0022155458024165006
+      }
+    },
+    {
+      "lane": 4,
+      "delta_proximal_rad": 0.05,
+      "left_front_group_min_clearance_m": 0.0020954345444952043,
+      "left_middle_group_min_clearance_m": 0.002099576353582896,
+      "clearance_by_body_m": {
+        "crow_left_front_toe_1_proximal": 0.0021569330585307165,
+        "crow_left_front_toe_3_distal": 0.0020954345444952043,
+        "crow_left_front_toe_3_proximal": 0.0021488191897457275,
+        "crow_left_front_toe_1_distal": 0.0021035877039125416,
+        "crow_left_front_toe_2_distal": 0.002099576353582896,
+        "crow_left_front_toe_2_proximal": 0.0021529162578898357
+      }
+    },
+    {
+      "lane": 4,
+      "delta_proximal_rad": 0.1,
+      "left_front_group_min_clearance_m": 0.0003091860717765304,
+      "left_middle_group_min_clearance_m": 0.0003133265810923089,
+      "clearance_by_body_m": {
+        "crow_left_front_toe_1_proximal": 0.0012702157642900357,
+        "crow_left_front_toe_3_distal": 0.0003091860717765304,
+        "crow_left_front_toe_3_proximal": 0.0012621034103118996,
+        "crow_left_front_toe_1_distal": 0.00031733809484918094,
+        "crow_left_front_toe_2_distal": 0.0003133265810923089,
+        "crow_left_front_toe_2_proximal": 0.0012661986382926926
+      }
+    },
+    {
+      "lane": 4,
+      "delta_proximal_rad": 0.2,
+      "left_front_group_min_clearance_m": -0.003175741803758789,
+      "left_middle_group_min_clearance_m": -0.0031716047272330548,
+      "clearance_by_body_m": {
+        "crow_left_front_toe_1_proximal": -0.0004250379610684484,
+        "crow_left_front_toe_3_distal": -0.003175741803758789,
+        "crow_left_front_toe_3_proximal": -0.0004331468798968348,
+        "crow_left_front_toe_1_distal": -0.0031675927570659146,
+        "crow_left_front_toe_2_distal": -0.0031716047272330548,
+        "crow_left_front_toe_2_proximal": -0.00042905582488181847
+      }
+    },
+    {
+      "lane": 5,
+      "delta_proximal_rad": -0.2,
+      "left_front_group_min_clearance_m": 0.0024392393804427096,
+      "left_middle_group_min_clearance_m": 0.0024427651737242966,
+      "clearance_by_body_m": {
+        "crow_left_front_toe_1_proximal": 0.002446290327731776,
+        "crow_left_front_toe_3_distal": 0.006825519985937549,
+        "crow_left_front_toe_3_proximal": 0.0024392393804427096,
+        "crow_left_front_toe_1_distal": 0.00683259035217044,
+        "crow_left_front_toe_2_distal": 0.006829057811976359,
+        "crow_left_front_toe_2_proximal": 0.0024427651737242966
+      }
+    },
+    {
+      "lane": 5,
+      "delta_proximal_rad": -0.1,
+      "left_front_group_min_clearance_m": 0.0022599958871933733,
+      "left_middle_group_min_clearance_m": 0.0022635210458297646,
+      "clearance_by_body_m": {
+        "crow_left_front_toe_1_proximal": 0.0022670458223869507,
+        "crow_left_front_toe_3_distal": 0.004881577164382714,
+        "crow_left_front_toe_3_proximal": 0.0022599958871933733,
+        "crow_left_front_toe_1_distal": 0.004888646980102067,
+        "crow_left_front_toe_2_distal": 0.004885114703200877,
+        "crow_left_front_toe_2_proximal": 0.0022635210458297646
+      }
+    },
+    {
+      "lane": 5,
+      "delta_proximal_rad": -0.05,
+      "left_front_group_min_clearance_m": 0.002204401232413101,
+      "left_middle_group_min_clearance_m": 0.00220792606979355,
+      "clearance_by_body_m": {
+        "crow_left_front_toe_1_proximal": 0.002211450655286251,
+        "crow_left_front_toe_3_distal": 0.003932695776819938,
+        "crow_left_front_toe_3_proximal": 0.002204401232413101,
+        "crow_left_front_toe_1_distal": 0.0039397652367311065,
+        "crow_left_front_toe_2_distal": 0.003936233121876435,
+        "crow_left_front_toe_2_proximal": 0.00220792606979355
+      }
+    },
+    {
+      "lane": 5,
+      "delta_proximal_rad": 0.0,
+      "left_front_group_min_clearance_m": 0.002171695536826111,
+      "left_middle_group_min_clearance_m": 0.002175220051397052,
+      "clearance_by_body_m": {
+        "crow_left_front_toe_1_proximal": 0.0021787444449012996,
+        "crow_left_front_toe_3_distal": 0.0030023835121678315,
+        "crow_left_front_toe_3_proximal": 0.002171695536826111,
+        "crow_left_front_toe_1_distal": 0.0030094525637111118,
+        "crow_left_front_toe_2_distal": 0.0030059206306464158,
+        "crow_left_front_toe_2_proximal": 0.002175220051397052
+      }
+    },
+    {
+      "lane": 5,
+      "delta_proximal_rad": 0.05,
+      "left_front_group_min_clearance_m": 0.0020231184671847466,
+      "left_middle_group_min_clearance_m": 0.002026665982704434,
+      "clearance_by_body_m": {
+        "crow_left_front_toe_1_proximal": 0.002100032576209448,
+        "crow_left_front_toe_3_distal": 0.0020231184671847466,
+        "crow_left_front_toe_3_proximal": 0.0020929639867782405,
+        "crow_left_front_toe_1_distal": 0.0020302058975181433,
+        "crow_left_front_toe_2_distal": 0.002026665982704434,
+        "crow_left_front_toe_2_proximal": 0.0020965008427513976
+      }
+    },
+    {
+      "lane": 5,
+      "delta_proximal_rad": 0.1,
+      "left_front_group_min_clearance_m": 0.00023733716749643058,
+      "left_middle_group_min_clearance_m": 0.00024088437720180648,
+      "clearance_by_body_m": {
+        "crow_left_front_toe_1_proximal": 0.001213759909594294,
+        "crow_left_front_toe_3_distal": 0.00023733716749643058,
+        "crow_left_front_toe_3_proximal": 0.0012066918651632078,
+        "crow_left_front_toe_1_distal": 0.00024442406033692646,
+        "crow_left_front_toe_2_distal": 0.00024088437720180648,
+        "crow_left_front_toe_2_proximal": 0.0012102283793881483
+      }
+    },
+    {
+      "lane": 5,
+      "delta_proximal_rad": 0.2,
+      "left_front_group_min_clearance_m": -0.0032464146233691146,
+      "left_middle_group_min_clearance_m": -0.0032428681968025026,
+      "clearance_by_body_m": {
+        "crow_left_front_toe_1_proximal": -0.00048048565499427334,
+        "crow_left_front_toe_3_distal": -0.0032464146233691146,
+        "crow_left_front_toe_3_proximal": -0.0004875524638446576,
+        "crow_left_front_toe_1_distal": -0.0032393290923295225,
+        "crow_left_front_toe_2_distal": -0.0032428681968025026,
+        "crow_left_front_toe_2_proximal": -0.00048401672440389655
+      }
+    },
+    {
+      "lane": 6,
+      "delta_proximal_rad": -0.2,
+      "left_front_group_min_clearance_m": 0.002281184638774903,
+      "left_middle_group_min_clearance_m": 0.002285129804309855,
+      "clearance_by_body_m": {
+        "crow_left_front_toe_1_proximal": 0.002289083170524283,
+        "crow_left_front_toe_3_distal": 0.00661347167890629,
+        "crow_left_front_toe_3_proximal": 0.002281184638774903,
+        "crow_left_front_toe_1_distal": 0.006620905910365163,
+        "crow_left_front_toe_2_distal": 0.006617150151696692,
+        "crow_left_front_toe_2_proximal": 0.002285129804309855
+      }
+    },
+    {
+      "lane": 6,
+      "delta_proximal_rad": -0.1,
+      "left_front_group_min_clearance_m": 0.0021047312175318973,
+      "left_middle_group_min_clearance_m": 0.002108689848565279,
+      "clearance_by_body_m": {
+        "crow_left_front_toe_1_proximal": 0.0021126533382496582,
+        "crow_left_front_toe_3_distal": 0.004671238880206555,
+        "crow_left_front_toe_3_proximal": 0.0021047312175318973,
+        "crow_left_front_toe_1_distal": 0.004678690810623323,
+        "crow_left_front_toe_2_distal": 0.004674928129589605,
+        "crow_left_front_toe_2_proximal": 0.002108689848565279
+      }
+    },
+    {
+      "lane": 6,
+      "delta_proximal_rad": -0.05,
+      "left_front_group_min_clearance_m": 0.0020505487223471605,
+      "left_middle_group_min_clearance_m": 0.002054514167959735,
+      "clearance_by_body_m": {
+        "crow_left_front_toe_1_proximal": 0.002058482780894374,
+        "crow_left_front_toe_3_distal": 0.003723435521085167,
+        "crow_left_front_toe_3_proximal": 0.0020505487223471605,
+        "crow_left_front_toe_1_distal": 0.0037308982042226577,
+        "crow_left_front_toe_2_distal": 0.0037271312493042125,
+        "crow_left_front_toe_2_proximal": 0.002054514167959735
+      }
+    },
+    {
+      "lane": 6,
+      "delta_proximal_rad": 0.0,
+      "left_front_group_min_clearance_m": 0.002019261904403869,
+      "left_middle_group_min_clearance_m": 0.0020232341964791737,
+      "clearance_by_body_m": {
+        "crow_left_front_toe_1_proximal": 0.0020272079566309564,
+        "crow_left_front_toe_3_distal": 0.002794346493430985,
+        "crow_left_front_toe_3_proximal": 0.002019261904403869,
+        "crow_left_front_toe_1_distal": 0.002801821163332656,
+        "crow_left_front_toe_2_distal": 0.002798049406522585,
+        "crow_left_front_toe_2_proximal": 0.0020232341964791737
+      }
+    },
+    {
+      "lane": 6,
+      "delta_proximal_rad": 0.05,
+      "left_front_group_min_clearance_m": 0.0017608670024886752,
+      "left_middle_group_min_clearance_m": 0.0017642601480784056,
+      "clearance_by_body_m": {
+        "crow_left_front_toe_1_proximal": 0.0018937789258640283,
+        "crow_left_front_toe_3_distal": 0.0017608670024886752,
+        "crow_left_front_toe_3_proximal": 0.0018862912987980835,
+        "crow_left_front_toe_1_distal": 0.0017678219484960657,
+        "crow_left_front_toe_2_distal": 0.0017642601480784056,
+        "crow_left_front_toe_2_proximal": 0.0018900019037059353
+      }
+    },
+    {
+      "lane": 6,
+      "delta_proximal_rad": 0.1,
+      "left_front_group_min_clearance_m": -2.3325631798154847e-05,
+      "left_middle_group_min_clearance_m": -1.9923437124780632e-05,
+      "clearance_by_body_m": {
+        "crow_left_front_toe_1_proximal": 0.0010090257745259401,
+        "crow_left_front_toe_3_distal": -2.3325631798154847e-05,
+        "crow_left_front_toe_3_proximal": 0.0010015253809995857,
+        "crow_left_front_toe_1_distal": -1.635547183313074e-05,
+        "crow_left_front_toe_2_distal": -1.9923437124780632e-05,
+        "crow_left_front_toe_2_proximal": 0.0010052432734323474
+      }
+    },
+    {
+      "lane": 6,
+      "delta_proximal_rad": 0.2,
+      "left_front_group_min_clearance_m": -0.003503083682338169,
+      "left_middle_group_min_clearance_m": -0.003499659096561388,
+      "clearance_by_body_m": {
+        "crow_left_front_toe_1_proximal": -0.0006817764026416893,
+        "crow_left_front_toe_3_distal": -0.003503083682338169,
+        "crow_left_front_toe_3_proximal": -0.0006893057136918707,
+        "crow_left_front_toe_1_distal": -0.003496075743361634,
+        "crow_left_front_toe_2_distal": -0.003499659096561388,
+        "crow_left_front_toe_2_proximal": -0.0006855713141378558
+      }
+    },
+    {
+      "lane": 7,
+      "delta_proximal_rad": -0.2,
+      "left_front_group_min_clearance_m": 0.0026342960488353953,
+      "left_middle_group_min_clearance_m": 0.0026379878059877623,
+      "clearance_by_body_m": {
+        "crow_left_front_toe_1_proximal": 0.0026416883994395107,
+        "crow_left_front_toe_3_distal": 0.00709257702055399,
+        "crow_left_front_toe_3_proximal": 0.0026342960488353953,
+        "crow_left_front_toe_1_distal": 0.007100141042831718,
+        "crow_left_front_toe_2_distal": 0.007096320821959431,
+        "crow_left_front_toe_2_proximal": 0.0026379878059877623
+      }
+    },
+    {
+      "lane": 7,
+      "delta_proximal_rad": -0.1,
+      "left_front_group_min_clearance_m": 0.0024513320103579667,
+      "left_middle_group_min_clearance_m": 0.0024550211331317937,
+      "clearance_by_body_m": {
+        "crow_left_front_toe_1_proximal": 0.0024587155976168035,
+        "crow_left_front_toe_3_distal": 0.005146375573112294,
+        "crow_left_front_toe_3_proximal": 0.0024513320103579667,
+        "crow_left_front_toe_1_distal": 0.0051539334812799285,
+        "crow_left_front_toe_2_distal": 0.00515011736346856,
+        "crow_left_front_toe_2_proximal": 0.0024550211331317937
+      }
+    },
+    {
+      "lane": 7,
+      "delta_proximal_rad": -0.05,
+      "left_front_group_min_clearance_m": 0.002393853724847945,
+      "left_middle_group_min_clearance_m": 0.0023975415136814338,
+      "clearance_by_body_m": {
+        "crow_left_front_toe_1_proximal": 0.002401232874710016,
+        "crow_left_front_toe_3_distal": 0.004196066888078897,
+        "crow_left_front_toe_3_proximal": 0.002393853724847945,
+        "crow_left_front_toe_1_distal": 0.004203621031285026,
+        "crow_left_front_toe_2_distal": 0.004199807459004843,
+        "crow_left_front_toe_2_proximal": 0.0023975415136814338
+      }
+    },
+    {
+      "lane": 7,
+      "delta_proximal_rad": 0.0,
+      "left_front_group_min_clearance_m": 0.002359255092238978,
+      "left_middle_group_min_clearance_m": 0.002362941540401906,
+      "clearance_by_body_m": {
+        "crow_left_front_toe_1_proximal": 0.002366629782315211,
+        "crow_left_front_toe_3_distal": 0.0032641332616129507,
+        "crow_left_front_toe_3_proximal": 0.002359255092238978,
+        "crow_left_front_toe_1_distal": 0.0032716831800762743,
+        "crow_left_front_toe_2_distal": 0.003267872474450614,
+        "crow_left_front_toe_2_proximal": 0.002362941540401906
+      }
+    },
+    {
+      "lane": 7,
+      "delta_proximal_rad": 0.05,
+      "left_front_group_min_clearance_m": 0.0023476225910939626,
+      "left_middle_group_min_clearance_m": 0.002351307695207092,
+      "clearance_by_body_m": {
+        "crow_left_front_toe_1_proximal": 0.0023549928101424377,
+        "crow_left_front_toe_3_distal": 0.0023529040424389615,
+        "crow_left_front_toe_3_proximal": 0.0023476225910939626,
+        "crow_left_front_toe_1_distal": 0.002360449286937851,
+        "crow_left_front_toe_2_distal": 0.002356641761924891,
+        "crow_left_front_toe_2_proximal": 0.002351307695207092
+      }
+    },
+    {
+      "lane": 7,
+      "delta_proximal_rad": 0.1,
+      "left_front_group_min_clearance_m": 0.0005694619731108994,
+      "left_middle_group_min_clearance_m": 0.0005732590568727509,
+      "clearance_by_body_m": {
+        "crow_left_front_toe_1_proximal": 0.0014721758578610574,
+        "crow_left_front_toe_3_distal": 0.0005694619731108994,
+        "crow_left_front_toe_3_proximal": 0.0014646352985525548,
+        "crow_left_front_toe_1_distal": 0.0005771935057722524,
+        "crow_left_front_toe_2_distal": 0.0005732590568727509,
+        "crow_left_front_toe_2_proximal": 0.0014683716091769897
+      }
+    },
+    {
+      "lane": 7,
+      "delta_proximal_rad": 0.2,
+      "left_front_group_min_clearance_m": -0.002919574270023949,
+      "left_middle_group_min_clearance_m": -0.002915781421924748,
+      "clearance_by_body_m": {
+        "crow_left_front_toe_1_proximal": -0.00022660864063124737,
+        "crow_left_front_toe_3_distal": -0.002919574270023949,
+        "crow_left_front_toe_3_proximal": -0.00023413856078597674,
+        "crow_left_front_toe_1_distal": -0.002911856128400968,
+        "crow_left_front_toe_2_distal": -0.002915781421924748,
+        "crow_left_front_toe_2_proximal": -0.00023040544844782698
+      }
+    }
+  ]
+}
