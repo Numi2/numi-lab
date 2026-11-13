@@ -1,0 +1,273 @@
+{
+  "same_shader_and_policy_bytes": true,
+  "same_scene_mask": true,
+  "observer_errors": [],
+  "duplicate_count": 0,
+  "rows": [
+    {
+      "prewindow_450_500_mean_aero_force_n": [
+        0.29914959972676736,
+        -0.048411034256421695,
+        4.163698594099738
+      ],
+      "prewindow_complete": true,
+      "lane": 2,
+      "original_first_episode_end": 669,
+      "rerun_first_episode_end": 669,
+      "first_foot_recontact": 570,
+      "state_parity_full_original_episode": true,
+      "missing_state_ticks": [],
+      "state_mismatches": {
+        "q": [],
+        "v": [],
+        "policy_action": [],
+        "contacts": []
+      },
+      "airborne_force_substeps": 1120,
+      "missing_force_substeps": [],
+      "missing_effort_substeps": [],
+      "missing_contact_substeps": [],
+      "airborne_without_recorded_normal_impulse": true,
+      "observer_complete_and_finite": true,
+      "world_mean_aero_force_newtons": [
+        0.5383329879632627,
+        -0.10857292018150629,
+        4.420098737010338
+      ],
+      "world_aero_impulse_ns": [
+        0.7536661831485678,
+        -0.1520020882541088,
+        6.188138231814474
+      ],
+      "max_abs_flap_drive_effort": [
+        3.0,
+        3.0
+      ],
+      "reference_body_weight_newtons": 4.415088600000001,
+      "root_vx_500": 0.408884257,
+      "root_vx_before_recontact": 1.04444373,
+      "valid_matched_observation": true
+    },
+    {
+      "prewindow_450_500_mean_aero_force_n": [
+        0.2990961355633736,
+        -0.04958478917493192,
+        4.163797529035974
+      ],
+      "prewindow_complete": true,
+      "lane": 3,
+      "original_first_episode_end": 668,
+      "rerun_first_episode_end": 668,
+      "first_foot_recontact": 570,
+      "state_parity_full_original_episode": true,
+      "missing_state_ticks": [],
+      "state_mismatches": {
+        "q": [],
+        "v": [],
+        "policy_action": [],
+        "contacts": []
+      },
+      "airborne_force_substeps": 1120,
+      "missing_force_substeps": [],
+      "missing_effort_substeps": [],
+      "missing_contact_substeps": [],
+      "airborne_without_recorded_normal_impulse": true,
+      "observer_complete_and_finite": true,
+      "world_mean_aero_force_newtons": [
+        0.5386407728411042,
+        -0.11057191625658139,
+        4.4202568828388
+      ],
+      "world_aero_impulse_ns": [
+        0.754097081977546,
+        -0.15480068275921394,
+        6.18835963597432
+      ],
+      "max_abs_flap_drive_effort": [
+        3.0,
+        3.0
+      ],
+      "reference_body_weight_newtons": 4.415088600000001,
+      "root_vx_500": 0.409004539,
+      "root_vx_before_recontact": 1.04528594,
+      "valid_matched_observation": true
+    },
+    {
+      "prewindow_450_500_mean_aero_force_n": [
+        0.2821770656202792,
+        -0.046866547701631164,
+        4.214153899878717
+      ],
+      "prewindow_complete": true,
+      "lane": 4,
+      "original_first_episode_end": 717,
+      "rerun_first_episode_end": 717,
+      "first_foot_recontact": 648,
+      "state_parity_full_original_episode": true,
+      "missing_state_ticks": [],
+      "state_mismatches": {
+        "q": [],
+        "v": [],
+        "policy_action": [],
+        "contacts": []
+      },
+      "airborne_force_substeps": 2368,
+      "missing_force_substeps": [],
+      "missing_effort_substeps": [],
+      "missing_contact_substeps": [],
+      "airborne_without_recorded_normal_impulse": true,
+      "observer_complete_and_finite": true,
+      "world_mean_aero_force_newtons": [
+        0.6014481441882633,
+        -0.13499683808004728,
+        4.3767672900189325
+      ],
+      "world_aero_impulse_ns": [
+        1.7802865067972593,
+        -0.39959064071693995,
+        12.95523117845604
+      ],
+      "max_abs_flap_drive_effort": [
+        3.0,
+        3.0
+      ],
+      "reference_body_weight_newtons": 4.415088600000001,
+      "root_vx_500": 0.251368761,
+      "root_vx_before_recontact": 1.79782557,
+      "valid_matched_observation": true
+    },
+    {
+      "prewindow_450_500_mean_aero_force_n": [
+        0.2831253856497356,
+        -0.04735312487594321,
+        4.214785594933723
+      ],
+      "prewindow_complete": true,
+      "lane": 5,
+      "original_first_episode_end": 715,
+      "rerun_first_episode_end": 715,
+      "first_foot_recontact": 648,
+      "state_parity_full_original_episode": true,
+      "missing_state_ticks": [],
+      "state_mismatches": {
+        "q": [],
+        "v": [],
+        "policy_action": [],
+        "contacts": []
+      },
+      "airborne_force_substeps": 2368,
+      "missing_force_substeps": [],
+      "missing_effort_substeps": [],
+      "missing_contact_substeps": [],
+      "airborne_without_recorded_normal_impulse": true,
+      "observer_complete_and_finite": true,
+      "world_mean_aero_force_newtons": [
+        0.6017028067597872,
+        -0.13548327665474053,
+        4.376669265074495
+      ],
+      "world_aero_impulse_ns": [
+        1.78104030800897,
+        -0.40103049889803194,
+        12.954941024620508
+      ],
+      "max_abs_flap_drive_effort": [
+        3.0,
+        3.0
+      ],
+      "reference_body_weight_newtons": 4.415088600000001,
+      "root_vx_500": 0.253085166,
+      "root_vx_before_recontact": 1.79870641,
+      "valid_matched_observation": true
+    },
+    {
+      "prewindow_450_500_mean_aero_force_n": [
+        0.33438464038680055,
+        -0.0737603308329601,
+        4.611531897350375
+      ],
+      "prewindow_complete": true,
+      "lane": 6,
+      "original_first_episode_end": 736,
+      "rerun_first_episode_end": 736,
+      "first_foot_recontact": 536,
+      "state_parity_full_original_episode": true,
+      "missing_state_ticks": [],
+      "state_mismatches": {
+        "q": [],
+        "v": [],
+        "policy_action": [],
+        "contacts": []
+      },
+      "airborne_force_substeps": 576,
+      "missing_force_substeps": [],
+      "missing_effort_substeps": [],
+      "missing_contact_substeps": [],
+      "airborne_without_recorded_normal_impulse": true,
+      "observer_complete_and_finite": true,
+      "world_mean_aero_force_newtons": [
+        0.27054841903139953,
+        -0.05095261461816139,
+        4.015781306887384
+      ],
+      "world_aero_impulse_ns": [
+        0.19479486170260768,
+        -0.0366858825250762,
+        2.8913625409589168
+      ],
+      "max_abs_flap_drive_effort": [
+        3.0,
+        3.0
+      ],
+      "reference_body_weight_newtons": 4.415088600000001,
+      "root_vx_500": 0.406000406,
+      "root_vx_before_recontact": 0.586781323,
+      "valid_matched_observation": true
+    },
+    {
+      "prewindow_450_500_mean_aero_force_n": [
+        0.3350893602352634,
+        -0.07348517227736799,
+        4.61056898239897
+      ],
+      "prewindow_complete": true,
+      "lane": 7,
+      "original_first_episode_end": 736,
+      "rerun_first_episode_end": 736,
+      "first_foot_recontact": 590,
+      "state_parity_full_original_episode": true,
+      "missing_state_ticks": [],
+      "state_mismatches": {
+        "q": [],
+        "v": [],
+        "policy_action": [],
+        "contacts": []
+      },
+      "airborne_force_substeps": 1440,
+      "missing_force_substeps": [],
+      "missing_effort_substeps": [],
+      "missing_contact_substeps": [],
+      "airborne_without_recorded_normal_impulse": true,
+      "observer_complete_and_finite": true,
+      "world_mean_aero_force_newtons": [
+        0.36915308739896796,
+        -0.0872662602399091,
+        4.284883869228745
+      ],
+      "world_aero_impulse_ns": [
+        0.6644755573181423,
+        -0.1570792684318364,
+        7.712790964611741
+      ],
+      "max_abs_flap_drive_effort": [
+        3.0,
+        3.0
+      ],
+      "reference_body_weight_newtons": 4.415088600000001,
+      "root_vx_500": 0.405628026,
+      "root_vx_before_recontact": 0.866396427,
+      "valid_matched_observation": true
+    }
+  ],
+  "scope": "Force increments are from the modeled aerodynamic kernel in world coordinates, not joint muscle work, measured animal force or a full independent momentum budget. Compare mean force to approximate 0.45006 kg model weight cautiously. Root speed is not COM speed."
+}
