@@ -1,0 +1,5 @@
+# Drive-target observer, preregistered
+
+The earlier knee-target interpretation incorrectly treated normalized action values as radians; see the correction in the in-range trial. The retained host already copies the drive target buffer but its logging window (201–300) cannot overlap its trace window (335–380), so no targets were logged. Change only the output condition to 335–380, leaving physics and control unchanged.
+
+Run the previously sampled -0.10 request condition with wing amplitude suppressed, seed 20261127, eight lanes, 400 steps and 16 substeps. Require all 3,208 endpoint and 5,888 contact-substep records to match the prior presolve observer; reject interpretation on mismatch, errors, overflow or missing target samples. The copied buffer is the position-target trajectory passed to the solver before its own joint-limit clamp; compare target coordinates 14 and 17 with the model knee limits and joint positions, per lane and step, over the window. Record that this is a used-seed observational check, not a takeoff demonstration. Do not infer the earlier -0.70 arm from this run.
