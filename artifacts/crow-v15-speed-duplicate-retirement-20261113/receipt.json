@@ -1,0 +1,9 @@
+{
+  "deleted": [
+    "artifacts/crow-v15-flight-speed-feedback-20261113/push-wing-20261126-rebound-speed/run.stderr.gz",
+    "artifacts/crow-v15-flight-speed-feedback-20261113/push-wing-20261126-rebound-speed/run.stderr.gz.part00",
+    "artifacts/crow-v15-flight-speed-feedback-20261113/push-wing-20261126-rebound-speed/run.stderr.gz.part01"
+  ],
+  "logical_bytes": 155724072,
+  "verified_commit": "d4d16bb5d4f633ebc87a5085edf1c5a961781fbb"
+}
