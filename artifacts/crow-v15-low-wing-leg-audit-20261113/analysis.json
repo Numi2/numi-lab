@@ -1,0 +1,2597 @@
+{
+  "scope": "Posthoc per-joint generalized working effort times accepted coordinate displacement; not isolated muscle work. Matched low-effort run, used development seed, one correlated cohort. No qualification.",
+  "rows": [
+    {
+      "arm": "push",
+      "lane": 2,
+      "ticks": [
+        348,
+        355
+      ],
+      "joints": [
+        {
+          "joint_v_index": 13,
+          "q_start": -0.714896739,
+          "q_end": -0.462733358,
+          "target_start": -0.714999974,
+          "target_end": -0.448391438,
+          "net_work_proxy": 0.03779498621118686,
+          "positive_work_proxy": 0.06417657175872017,
+          "max_abs_effort": 0.75
+        },
+        {
+          "joint_v_index": 14,
+          "q_start": 1.0313518,
+          "q_end": 0.574023247,
+          "target_start": 1.02999997,
+          "target_end": 0.550783396,
+          "net_work_proxy": 0.048230936595455846,
+          "positive_work_proxy": 0.1562661446606098,
+          "max_abs_effort": 0.75
+        },
+        {
+          "joint_v_index": 15,
+          "q_start": -0.484221518,
+          "q_end": 0.0208508912,
+          "target_start": -0.484999985,
+          "target_end": 0.0500453264,
+          "net_work_proxy": 0.052906688119566,
+          "positive_work_proxy": 0.14724035777554953,
+          "max_abs_effort": 0.600000024
+        },
+        {
+          "joint_v_index": 16,
+          "q_start": -0.714915454,
+          "q_end": -0.462733895,
+          "target_start": -0.714999974,
+          "target_end": -0.448391438,
+          "net_work_proxy": 0.03799203865960806,
+          "positive_work_proxy": 0.06421185475171347,
+          "max_abs_effort": 0.75
+        },
+        {
+          "joint_v_index": 17,
+          "q_start": 1.03136873,
+          "q_end": 0.574022353,
+          "target_start": 1.02999997,
+          "target_end": 0.550783396,
+          "net_work_proxy": 0.04874434452590745,
+          "positive_work_proxy": 0.15625566178173123,
+          "max_abs_effort": 0.75
+        },
+        {
+          "joint_v_index": 18,
+          "q_start": -0.484212667,
+          "q_end": 0.0208527669,
+          "target_start": -0.484999985,
+          "target_end": 0.0500453264,
+          "net_work_proxy": 0.053233180273336095,
+          "positive_work_proxy": 0.14721318632157232,
+          "max_abs_effort": 0.600000024
+        }
+      ],
+      "net_work_proxy": 0.2789021743850603,
+      "positive_work_proxy": 0.7353637770498965
+    },
+    {
+      "arm": "push",
+      "lane": 2,
+      "ticks": [
+        348,
+        357
+      ],
+      "joints": [
+        {
+          "joint_v_index": 13,
+          "q_start": -0.714896739,
+          "q_end": -0.312641859,
+          "target_start": -0.714999974,
+          "target_end": -0.300640225,
+          "net_work_proxy": 0.06892189042285125,
+          "positive_work_proxy": 0.10916079517481872,
+          "max_abs_effort": 0.75
+        },
+        {
+          "joint_v_index": 14,
+          "q_start": 1.0313518,
+          "q_end": 0.319520772,
+          "target_start": 1.02999997,
+          "target_end": 0.304181278,
+          "net_work_proxy": 0.038210445152621654,
+          "positive_work_proxy": 0.23427206966060976,
+          "max_abs_effort": 0.75
+        },
+        {
+          "joint_v_index": 15,
+          "q_start": -0.484221518,
+          "q_end": 0.283214062,
+          "target_start": -0.484999985,
+          "target_end": 0.303033024,
+          "net_work_proxy": 0.0994256692999416,
+          "positive_work_proxy": 0.23694284007796115,
+          "max_abs_effort": 0.600000024
+        },
+        {
+          "joint_v_index": 16,
+          "q_start": -0.714915454,
+          "q_end": -0.312617362,
+          "target_start": -0.714999974,
+          "target_end": -0.300640225,
+          "net_work_proxy": 0.06879226490121612,
+          "positive_work_proxy": 0.10916050590955835,
+          "max_abs_effort": 0.75
+        },
+        {
+          "joint_v_index": 17,
+          "q_start": 1.03136873,
+          "q_end": 0.319543839,
+          "target_start": 1.02999997,
+          "target_end": 0.304181278,
+          "net_work_proxy": 0.039076938517294886,
+          "positive_work_proxy": 0.23415266653173128,
+          "max_abs_effort": 0.75
+        },
+        {
+          "joint_v_index": 18,
+          "q_start": -0.484212667,
+          "q_end": 0.283259779,
+          "target_start": -0.484999985,
+          "target_end": 0.303033024,
+          "net_work_proxy": 0.09999196541499082,
+          "positive_work_proxy": 0.2368043645692633,
+          "max_abs_effort": 0.600000024
+        }
+      ],
+      "net_work_proxy": 0.41441917370891634,
+      "positive_work_proxy": 1.1604932419239427
+    },
+    {
+      "arm": "push",
+      "lane": 2,
+      "ticks": [
+        348,
+        365
+      ],
+      "joints": [
+        {
+          "joint_v_index": 13,
+          "q_start": -0.714896739,
+          "q_end": -0.706199527,
+          "target_start": -0.714999974,
+          "target_end": -0.707410693,
+          "net_work_proxy": 0.11258872452378534,
+          "positive_work_proxy": 0.2308591837684417,
+          "max_abs_effort": 0.75
+        },
+        {
+          "joint_v_index": 14,
+          "q_start": 1.0313518,
+          "q_end": 1.02491915,
+          "target_start": 1.02999997,
+          "target_end": 1.02510941,
+          "net_work_proxy": 0.07364319172593112,
+          "positive_work_proxy": 0.5134823637764676,
+          "max_abs_effort": 0.75
+        },
+        {
+          "joint_v_index": 15,
+          "q_start": -0.484221518,
+          "q_end": -0.482990026,
+          "target_start": -0.484999985,
+          "target_end": -0.483997136,
+          "net_work_proxy": 0.21460157797098506,
+          "positive_work_proxy": 0.5233382691796361,
+          "max_abs_effort": 0.600000024
+        },
+        {
+          "joint_v_index": 16,
+          "q_start": -0.714915454,
+          "q_end": -0.70609802,
+          "target_start": -0.714999974,
+          "target_end": -0.707410693,
+          "net_work_proxy": 0.11243742566343164,
+          "positive_work_proxy": 0.23086243720430114,
+          "max_abs_effort": 0.75
+        },
+        {
+          "joint_v_index": 17,
+          "q_start": 1.03136873,
+          "q_end": 1.02526116,
+          "target_start": 1.02999997,
+          "target_end": 1.02510941,
+          "net_work_proxy": 0.07420373127567514,
+          "positive_work_proxy": 0.5123383755791802,
+          "max_abs_effort": 0.75
+        },
+        {
+          "joint_v_index": 18,
+          "q_start": -0.484212667,
+          "q_end": -0.482729286,
+          "target_start": -0.484999985,
+          "target_end": -0.483997136,
+          "net_work_proxy": 0.21508735139733615,
+          "positive_work_proxy": 0.5228803670045803,
+          "max_abs_effort": 0.600000024
+        }
+      ],
+      "net_work_proxy": 0.8025620025571445,
+      "positive_work_proxy": 2.533760996512607
+    },
+    {
+      "arm": "push",
+      "lane": 3,
+      "ticks": [
+        348,
+        355
+      ],
+      "joints": [
+        {
+          "joint_v_index": 13,
+          "q_start": -0.714920044,
+          "q_end": -0.4628793,
+          "target_start": -0.714999974,
+          "target_end": -0.448391438,
+          "net_work_proxy": 0.0384607020240194,
+          "positive_work_proxy": 0.06447363296615083,
+          "max_abs_effort": 0.75
+        },
+        {
+          "joint_v_index": 14,
+          "q_start": 1.03134358,
+          "q_end": 0.573741496,
+          "target_start": 1.02999997,
+          "target_end": 0.550783396,
+          "net_work_proxy": 0.04626720912768032,
+          "positive_work_proxy": 0.15637845934242572,
+          "max_abs_effort": 0.75
+        },
+        {
+          "joint_v_index": 15,
+          "q_start": -0.48421964,
+          "q_end": 0.0186331309,
+          "target_start": -0.484999985,
+          "target_end": 0.0500453264,
+          "net_work_proxy": 0.05608164189488795,
+          "positive_work_proxy": 0.1468910657784364,
+          "max_abs_effort": 0.600000024
+        },
+        {
+          "joint_v_index": 16,
+          "q_start": -0.714899957,
+          "q_end": -0.462870598,
+          "target_start": -0.714999974,
+          "target_end": -0.448391438,
+          "net_work_proxy": 0.038548644864536734,
+          "positive_work_proxy": 0.06447660134885519,
+          "max_abs_effort": 0.75
+        },
+        {
+          "joint_v_index": 17,
+          "q_start": 1.03137517,
+          "q_end": 0.573779166,
+          "target_start": 1.02999997,
+          "target_end": 0.550783396,
+          "net_work_proxy": 0.046601433201719986,
+          "positive_work_proxy": 0.15639589734612855,
+          "max_abs_effort": 0.75
+        },
+        {
+          "joint_v_index": 18,
+          "q_start": -0.484209448,
+          "q_end": 0.0188066158,
+          "target_start": -0.484999985,
+          "target_end": 0.0500453264,
+          "net_work_proxy": 0.05529084766005505,
+          "positive_work_proxy": 0.1468305808185763,
+          "max_abs_effort": 0.600000024
+        }
+      ],
+      "net_work_proxy": 0.28125047877289944,
+      "positive_work_proxy": 0.735446237600573
+    },
+    {
+      "arm": "push",
+      "lane": 3,
+      "ticks": [
+        348,
+        357
+      ],
+      "joints": [
+        {
+          "joint_v_index": 13,
+          "q_start": -0.714920044,
+          "q_end": -0.312913686,
+          "target_start": -0.714999974,
+          "target_end": -0.300640225,
+          "net_work_proxy": 0.06828471056820683,
+          "positive_work_proxy": 0.1078417604161617,
+          "max_abs_effort": 0.75
+        },
+        {
+          "joint_v_index": 14,
+          "q_start": 1.03134358,
+          "q_end": 0.319549382,
+          "target_start": 1.02999997,
+          "target_end": 0.304181278,
+          "net_work_proxy": 0.03797856875168085,
+          "positive_work_proxy": 0.23444596384242578,
+          "max_abs_effort": 0.75
+        },
+        {
+          "joint_v_index": 15,
+          "q_start": -0.48421964,
+          "q_end": 0.283460319,
+          "target_start": -0.484999985,
+          "target_end": 0.303033024,
+          "net_work_proxy": 0.0997981798703166,
+          "positive_work_proxy": 0.2348810858991108,
+          "max_abs_effort": 0.600000024
+        },
+        {
+          "joint_v_index": 16,
+          "q_start": -0.714899957,
+          "q_end": -0.313476443,
+          "target_start": -0.714999974,
+          "target_end": -0.300640225,
+          "net_work_proxy": 0.07086881242469498,
+          "positive_work_proxy": 0.10811219192171552,
+          "max_abs_effort": 0.75
+        },
+        {
+          "joint_v_index": 17,
+          "q_start": 1.03137517,
+          "q_end": 0.319235742,
+          "target_start": 1.02999997,
+          "target_end": 0.304181278,
+          "net_work_proxy": 0.03563967561498233,
+          "positive_work_proxy": 0.23462433384612857,
+          "max_abs_effort": 0.75
+        },
+        {
+          "joint_v_index": 18,
+          "q_start": -0.484209448,
+          "q_end": 0.283260077,
+          "target_start": -0.484999985,
+          "target_end": 0.303033024,
+          "net_work_proxy": 0.09994246964092021,
+          "positive_work_proxy": 0.23595122234454122,
+          "max_abs_effort": 0.600000024
+        }
+      ],
+      "net_work_proxy": 0.41251241687080176,
+      "positive_work_proxy": 1.1558565582700835
+    },
+    {
+      "arm": "push",
+      "lane": 3,
+      "ticks": [
+        348,
+        365
+      ],
+      "joints": [
+        {
+          "joint_v_index": 13,
+          "q_start": -0.714920044,
+          "q_end": -0.228054643,
+          "target_start": -0.714999974,
+          "target_end": -0.22512567,
+          "net_work_proxy": 0.08429479889631472,
+          "positive_work_proxy": 0.12464036919584978,
+          "max_abs_effort": 0.75
+        },
+        {
+          "joint_v_index": 14,
+          "q_start": 1.03134358,
+          "q_end": 0.203162819,
+          "target_start": 1.02999997,
+          "target_end": 0.205033273,
+          "net_work_proxy": 0.02795148819953096,
+          "positive_work_proxy": 0.25350353983594065,
+          "max_abs_effort": 0.75
+        },
+        {
+          "joint_v_index": 15,
+          "q_start": -0.48421964,
+          "q_end": 0.377676278,
+          "target_start": -0.484999985,
+          "target_end": 0.379498214,
+          "net_work_proxy": 0.1124338501032698,
+          "positive_work_proxy": 0.2527605720014319,
+          "max_abs_effort": 0.600000024
+        },
+        {
+          "joint_v_index": 16,
+          "q_start": -0.714899957,
+          "q_end": -0.227913201,
+          "target_start": -0.714999974,
+          "target_end": -0.22512567,
+          "net_work_proxy": 0.0849016181578876,
+          "positive_work_proxy": 0.12399075475202206,
+          "max_abs_effort": 0.75
+        },
+        {
+          "joint_v_index": 17,
+          "q_start": 1.03137517,
+          "q_end": 0.203280032,
+          "target_start": 1.02999997,
+          "target_end": 0.205033273,
+          "net_work_proxy": 0.027250337396138934,
+          "positive_work_proxy": 0.2530073083876521,
+          "max_abs_effort": 0.75
+        },
+        {
+          "joint_v_index": 18,
+          "q_start": -0.484209448,
+          "q_end": 0.377931982,
+          "target_start": -0.484999985,
+          "target_end": 0.379498214,
+          "net_work_proxy": 0.11274865494815067,
+          "positive_work_proxy": 0.2547708631732345,
+          "max_abs_effort": 0.600000024
+        }
+      ],
+      "net_work_proxy": 0.44958074770129264,
+      "positive_work_proxy": 1.262673407346131
+    },
+    {
+      "arm": "push",
+      "lane": 4,
+      "ticks": [
+        348,
+        355
+      ],
+      "joints": [
+        {
+          "joint_v_index": 13,
+          "q_start": -0.714913249,
+          "q_end": -0.464854896,
+          "target_start": -0.714999974,
+          "target_end": -0.448391438,
+          "net_work_proxy": 0.04217673732718315,
+          "positive_work_proxy": 0.06390867769128183,
+          "max_abs_effort": 0.75
+        },
+        {
+          "joint_v_index": 14,
+          "q_start": 1.03115928,
+          "q_end": 0.567427039,
+          "target_start": 1.02999997,
+          "target_end": 0.550783396,
+          "net_work_proxy": 0.031013194035388776,
+          "positive_work_proxy": 0.15475544729791205,
+          "max_abs_effort": 0.75
+        },
+        {
+          "joint_v_index": 15,
+          "q_start": -0.484295517,
+          "q_end": 0.0164164025,
+          "target_start": -0.484999985,
+          "target_end": 0.0500453264,
+          "net_work_proxy": 0.08099195924919479,
+          "positive_work_proxy": 0.15446898119066244,
+          "max_abs_effort": 0.600000024
+        },
+        {
+          "joint_v_index": 16,
+          "q_start": -0.714895844,
+          "q_end": -0.464847565,
+          "target_start": -0.714999974,
+          "target_end": -0.448391438,
+          "net_work_proxy": 0.042990059486125734,
+          "positive_work_proxy": 0.06394171453339155,
+          "max_abs_effort": 0.75
+        },
+        {
+          "joint_v_index": 17,
+          "q_start": 1.03120053,
+          "q_end": 0.567471087,
+          "target_start": 1.02999997,
+          "target_end": 0.550783396,
+          "net_work_proxy": 0.030253768642729065,
+          "positive_work_proxy": 0.15456764095525288,
+          "max_abs_effort": 0.75
+        },
+        {
+          "joint_v_index": 18,
+          "q_start": -0.484281212,
+          "q_end": 0.0163327418,
+          "target_start": -0.484999985,
+          "target_end": 0.0500453264,
+          "net_work_proxy": 0.08198469180201857,
+          "positive_work_proxy": 0.1547350603144835,
+          "max_abs_effort": 0.600000024
+        }
+      ],
+      "net_work_proxy": 0.30941041054264007,
+      "positive_work_proxy": 0.7463775219829842
+    },
+    {
+      "arm": "push",
+      "lane": 4,
+      "ticks": [
+        348,
+        357
+      ],
+      "joints": [
+        {
+          "joint_v_index": 13,
+          "q_start": -0.714913249,
+          "q_end": -0.314157516,
+          "target_start": -0.714999974,
+          "target_end": -0.300640225,
+          "net_work_proxy": 0.07286799873611717,
+          "positive_work_proxy": 0.10962813525734934,
+          "max_abs_effort": 0.75
+        },
+        {
+          "joint_v_index": 14,
+          "q_start": 1.03115928,
+          "q_end": 0.316266239,
+          "target_start": 1.02999997,
+          "target_end": 0.304181278,
+          "net_work_proxy": 0.022861819025119506,
+          "positive_work_proxy": 0.23583755533642717,
+          "max_abs_effort": 0.75
+        },
+        {
+          "joint_v_index": 15,
+          "q_start": -0.484295517,
+          "q_end": 0.281966925,
+          "target_start": -0.484999985,
+          "target_end": 0.303033024,
+          "net_work_proxy": 0.11744943668356429,
+          "positive_work_proxy": 0.24180480924558986,
+          "max_abs_effort": 0.600000024
+        },
+        {
+          "joint_v_index": 16,
+          "q_start": -0.714895844,
+          "q_end": -0.314104736,
+          "target_start": -0.714999974,
+          "target_end": -0.300640225,
+          "net_work_proxy": 0.07409532383121885,
+          "positive_work_proxy": 0.10991829558691267,
+          "max_abs_effort": 0.75
+        },
+        {
+          "joint_v_index": 17,
+          "q_start": 1.03120053,
+          "q_end": 0.31612438,
+          "target_start": 1.02999997,
+          "target_end": 0.304181278,
+          "net_work_proxy": 0.021667569809050886,
+          "positive_work_proxy": 0.2355599102947454,
+          "max_abs_effort": 0.75
+        },
+        {
+          "joint_v_index": 18,
+          "q_start": -0.484281212,
+          "q_end": 0.282109618,
+          "target_start": -0.484999985,
+          "target_end": 0.303033024,
+          "net_work_proxy": 0.11801092454414087,
+          "positive_work_proxy": 0.24197664702766838,
+          "max_abs_effort": 0.600000024
+        }
+      ],
+      "net_work_proxy": 0.42695307262921156,
+      "positive_work_proxy": 1.174725352748693
+    },
+    {
+      "arm": "push",
+      "lane": 4,
+      "ticks": [
+        348,
+        365
+      ],
+      "joints": [
+        {
+          "joint_v_index": 13,
+          "q_start": -0.714913249,
+          "q_end": -0.695114315,
+          "target_start": -0.714999974,
+          "target_end": -0.698109746,
+          "net_work_proxy": 0.11134262244084871,
+          "positive_work_proxy": 0.23035176859737544,
+          "max_abs_effort": 0.75
+        },
+        {
+          "joint_v_index": 14,
+          "q_start": 1.03115928,
+          "q_end": 1.01536524,
+          "target_start": 1.02999997,
+          "target_end": 1.01670611,
+          "net_work_proxy": 0.06184953212185177,
+          "positive_work_proxy": 0.5239230510133668,
+          "max_abs_effort": 0.75
+        },
+        {
+          "joint_v_index": 15,
+          "q_start": -0.484295517,
+          "q_end": -0.478799701,
+          "target_start": -0.484999985,
+          "target_end": -0.48119539,
+          "net_work_proxy": 0.23769421332990168,
+          "positive_work_proxy": 0.5315948618276091,
+          "max_abs_effort": 0.600000024
+        },
+        {
+          "joint_v_index": 16,
+          "q_start": -0.714895844,
+          "q_end": -0.694014668,
+          "target_start": -0.714999974,
+          "target_end": -0.698109746,
+          "net_work_proxy": 0.11640079085435655,
+          "positive_work_proxy": 0.23263987758923707,
+          "max_abs_effort": 0.75
+        },
+        {
+          "joint_v_index": 17,
+          "q_start": 1.03120053,
+          "q_end": 1.01608264,
+          "target_start": 1.02999997,
+          "target_end": 1.01670611,
+          "net_work_proxy": 0.054036435832162,
+          "positive_work_proxy": 0.5185809126942388,
+          "max_abs_effort": 0.75
+        },
+        {
+          "joint_v_index": 18,
+          "q_start": -0.484281212,
+          "q_end": -0.478567481,
+          "target_start": -0.484999985,
+          "target_end": -0.48119539,
+          "net_work_proxy": 0.23800996407458216,
+          "positive_work_proxy": 0.5311948923249925,
+          "max_abs_effort": 0.600000024
+        }
+      ],
+      "net_work_proxy": 0.8193335586537028,
+      "positive_work_proxy": 2.5682853640468197
+    },
+    {
+      "arm": "push",
+      "lane": 5,
+      "ticks": [
+        348,
+        355
+      ],
+      "joints": [
+        {
+          "joint_v_index": 13,
+          "q_start": -0.714908659,
+          "q_end": -0.464839935,
+          "target_start": -0.714999974,
+          "target_end": -0.448391438,
+          "net_work_proxy": 0.042147753870409324,
+          "positive_work_proxy": 0.06387482774153636,
+          "max_abs_effort": 0.75
+        },
+        {
+          "joint_v_index": 14,
+          "q_start": 1.03116465,
+          "q_end": 0.567563951,
+          "target_start": 1.02999997,
+          "target_end": 0.550783396,
+          "net_work_proxy": 0.031114035618065757,
+          "positive_work_proxy": 0.15480307897584086,
+          "max_abs_effort": 0.75
+        },
+        {
+          "joint_v_index": 15,
+          "q_start": -0.484294236,
+          "q_end": 0.0163975861,
+          "target_start": -0.484999985,
+          "target_end": 0.0500453264,
+          "net_work_proxy": 0.08088072674441495,
+          "positive_work_proxy": 0.1546569639110265,
+          "max_abs_effort": 0.600000024
+        },
+        {
+          "joint_v_index": 16,
+          "q_start": -0.71490109,
+          "q_end": -0.46484229,
+          "target_start": -0.714999974,
+          "target_end": -0.448391438,
+          "net_work_proxy": 0.04297824988635826,
+          "positive_work_proxy": 0.06392753737511452,
+          "max_abs_effort": 0.75
+        },
+        {
+          "joint_v_index": 17,
+          "q_start": 1.03119469,
+          "q_end": 0.567665935,
+          "target_start": 1.02999997,
+          "target_end": 0.550783396,
+          "net_work_proxy": 0.030483997599135466,
+          "positive_work_proxy": 0.154639953094477,
+          "max_abs_effort": 0.75
+        },
+        {
+          "joint_v_index": 18,
+          "q_start": -0.484283149,
+          "q_end": 0.0162536725,
+          "target_start": -0.484999985,
+          "target_end": 0.0500453264,
+          "net_work_proxy": 0.08223388581151747,
+          "positive_work_proxy": 0.1553891567743307,
+          "max_abs_effort": 0.600000024
+        }
+      ],
+      "net_work_proxy": 0.30983864952990126,
+      "positive_work_proxy": 0.7472915178723261
+    },
+    {
+      "arm": "push",
+      "lane": 5,
+      "ticks": [
+        348,
+        357
+      ],
+      "joints": [
+        {
+          "joint_v_index": 13,
+          "q_start": -0.714908659,
+          "q_end": -0.314162552,
+          "target_start": -0.714999974,
+          "target_end": -0.300640225,
+          "net_work_proxy": 0.07342240125529653,
+          "positive_work_proxy": 0.10991466975352265,
+          "max_abs_effort": 0.75
+        },
+        {
+          "joint_v_index": 14,
+          "q_start": 1.03116465,
+          "q_end": 0.316117793,
+          "target_start": 1.02999997,
+          "target_end": 0.304181278,
+          "net_work_proxy": 0.022405137619143468,
+          "positive_work_proxy": 0.23573114860789007,
+          "max_abs_effort": 0.75
+        },
+        {
+          "joint_v_index": 15,
+          "q_start": -0.484294236,
+          "q_end": 0.282110304,
+          "target_start": -0.484999985,
+          "target_end": 0.303033024,
+          "net_work_proxy": 0.11659148653695643,
+          "positive_work_proxy": 0.2415937263543353,
+          "max_abs_effort": 0.600000024
+        },
+        {
+          "joint_v_index": 16,
+          "q_start": -0.71490109,
+          "q_end": -0.313809127,
+          "target_start": -0.714999974,
+          "target_end": -0.300640225,
+          "net_work_proxy": 0.07370168184706118,
+          "positive_work_proxy": 0.10932449015943894,
+          "max_abs_effort": 0.75
+        },
+        {
+          "joint_v_index": 17,
+          "q_start": 1.03119469,
+          "q_end": 0.31695956,
+          "target_start": 1.02999997,
+          "target_end": 0.304181278,
+          "net_work_proxy": 0.02220209208990912,
+          "positive_work_proxy": 0.23517644542030058,
+          "max_abs_effort": 0.75
+        },
+        {
+          "joint_v_index": 18,
+          "q_start": -0.484283149,
+          "q_end": 0.282236427,
+          "target_start": -0.484999985,
+          "target_end": 0.303033024,
+          "net_work_proxy": 0.11897963806235813,
+          "positive_work_proxy": 0.24272465424258463,
+          "max_abs_effort": 0.600000024
+        }
+      ],
+      "net_work_proxy": 0.4273024374107249,
+      "positive_work_proxy": 1.174465134538072
+    },
+    {
+      "arm": "push",
+      "lane": 5,
+      "ticks": [
+        348,
+        365
+      ],
+      "joints": [
+        {
+          "joint_v_index": 13,
+          "q_start": -0.714908659,
+          "q_end": -0.694309711,
+          "target_start": -0.714999974,
+          "target_end": -0.698109746,
+          "net_work_proxy": 0.11366645571989813,
+          "positive_work_proxy": 0.23025168565989299,
+          "max_abs_effort": 0.75
+        },
+        {
+          "joint_v_index": 14,
+          "q_start": 1.03116465,
+          "q_end": 1.01609015,
+          "target_start": 1.02999997,
+          "target_end": 1.01670611,
+          "net_work_proxy": 0.058018504833458835,
+          "positive_work_proxy": 0.5175058830411707,
+          "max_abs_effort": 0.75
+        },
+        {
+          "joint_v_index": 15,
+          "q_start": -0.484294236,
+          "q_end": -0.478541166,
+          "target_start": -0.484999985,
+          "target_end": -0.48119539,
+          "net_work_proxy": 0.23565513159003995,
+          "positive_work_proxy": 0.5336084972731474,
+          "max_abs_effort": 0.600000024
+        },
+        {
+          "joint_v_index": 16,
+          "q_start": -0.71490109,
+          "q_end": -0.694499552,
+          "target_start": -0.714999974,
+          "target_end": -0.698109746,
+          "net_work_proxy": 0.11224387783606088,
+          "positive_work_proxy": 0.22720661332287428,
+          "max_abs_effort": 0.75
+        },
+        {
+          "joint_v_index": 17,
+          "q_start": 1.03119469,
+          "q_end": 1.01602232,
+          "target_start": 1.02999997,
+          "target_end": 1.01670611,
+          "net_work_proxy": 0.056301701652525196,
+          "positive_work_proxy": 0.5150114995976538,
+          "max_abs_effort": 0.75
+        },
+        {
+          "joint_v_index": 18,
+          "q_start": -0.484283149,
+          "q_end": -0.478543878,
+          "target_start": -0.484999985,
+          "target_end": -0.48119539,
+          "net_work_proxy": 0.2407488060226989,
+          "positive_work_proxy": 0.5401836996936557,
+          "max_abs_effort": 0.600000024
+        }
+      ],
+      "net_work_proxy": 0.8166344776546819,
+      "positive_work_proxy": 2.5637678785883953
+    },
+    {
+      "arm": "push",
+      "lane": 6,
+      "ticks": [
+        348,
+        355
+      ],
+      "joints": [
+        {
+          "joint_v_index": 13,
+          "q_start": -0.71485132,
+          "q_end": -0.465471625,
+          "target_start": -0.714999974,
+          "target_end": -0.448391438,
+          "net_work_proxy": 0.048299628650945836,
+          "positive_work_proxy": 0.06717029428533668,
+          "max_abs_effort": 0.75
+        },
+        {
+          "joint_v_index": 14,
+          "q_start": 1.0309025,
+          "q_end": 0.567470253,
+          "target_start": 1.02999997,
+          "target_end": 0.550783396,
+          "net_work_proxy": 0.027492508685936706,
+          "positive_work_proxy": 0.15106672404211094,
+          "max_abs_effort": 0.75
+        },
+        {
+          "joint_v_index": 15,
+          "q_start": -0.484424025,
+          "q_end": 0.0129814725,
+          "target_start": -0.484999985,
+          "target_end": 0.0500453264,
+          "net_work_proxy": 0.08226340432218458,
+          "positive_work_proxy": 0.15465434777910156,
+          "max_abs_effort": 0.600000024
+        },
+        {
+          "joint_v_index": 16,
+          "q_start": -0.714776695,
+          "q_end": -0.465447009,
+          "target_start": -0.714999974,
+          "target_end": -0.448391438,
+          "net_work_proxy": 0.04839288187619682,
+          "positive_work_proxy": 0.06714639921284883,
+          "max_abs_effort": 0.75
+        },
+        {
+          "joint_v_index": 17,
+          "q_start": 1.03094327,
+          "q_end": 0.567563176,
+          "target_start": 1.02999997,
+          "target_end": 0.550783396,
+          "net_work_proxy": 0.02774434519336962,
+          "positive_work_proxy": 0.15110290544718538,
+          "max_abs_effort": 0.75
+        },
+        {
+          "joint_v_index": 18,
+          "q_start": -0.484415323,
+          "q_end": 0.0129452702,
+          "target_start": -0.484999985,
+          "target_end": 0.0500453264,
+          "net_work_proxy": 0.08191858387756026,
+          "positive_work_proxy": 0.1545986596501059,
+          "max_abs_effort": 0.600000024
+        }
+      ],
+      "net_work_proxy": 0.31611135260619383,
+      "positive_work_proxy": 0.7457393304166893
+    },
+    {
+      "arm": "push",
+      "lane": 6,
+      "ticks": [
+        348,
+        357
+      ],
+      "joints": [
+        {
+          "joint_v_index": 13,
+          "q_start": -0.71485132,
+          "q_end": -0.314427763,
+          "target_start": -0.714999974,
+          "target_end": -0.300640225,
+          "net_work_proxy": 0.07866793446263617,
+          "positive_work_proxy": 0.11158331370180345,
+          "max_abs_effort": 0.75
+        },
+        {
+          "joint_v_index": 14,
+          "q_start": 1.0309025,
+          "q_end": 0.316150188,
+          "target_start": 1.02999997,
+          "target_end": 0.304181278,
+          "net_work_proxy": 0.019274756512826847,
+          "positive_work_proxy": 0.2319564322205272,
+          "max_abs_effort": 0.75
+        },
+        {
+          "joint_v_index": 15,
+          "q_start": -0.484424025,
+          "q_end": 0.281752586,
+          "target_start": -0.484999985,
+          "target_end": 0.303033024,
+          "net_work_proxy": 0.11839395451332625,
+          "positive_work_proxy": 0.24129353597991055,
+          "max_abs_effort": 0.600000024
+        },
+        {
+          "joint_v_index": 16,
+          "q_start": -0.714776695,
+          "q_end": -0.314440936,
+          "target_start": -0.714999974,
+          "target_end": -0.300640225,
+          "net_work_proxy": 0.07882837283553619,
+          "positive_work_proxy": 0.11170081948546615,
+          "max_abs_effort": 0.75
+        },
+        {
+          "joint_v_index": 17,
+          "q_start": 1.03094327,
+          "q_end": 0.316086709,
+          "target_start": 1.02999997,
+          "target_end": 0.304181278,
+          "net_work_proxy": 0.019459910453741566,
+          "positive_work_proxy": 0.23201881466664792,
+          "max_abs_effort": 0.75
+        },
+        {
+          "joint_v_index": 18,
+          "q_start": -0.484415323,
+          "q_end": 0.281781375,
+          "target_start": -0.484999985,
+          "target_end": 0.303033024,
+          "net_work_proxy": 0.11792679697402024,
+          "positive_work_proxy": 0.24111628143961453,
+          "max_abs_effort": 0.600000024
+        }
+      ],
+      "net_work_proxy": 0.4325517257520873,
+      "positive_work_proxy": 1.16966919749397
+    },
+    {
+      "arm": "push",
+      "lane": 6,
+      "ticks": [
+        348,
+        365
+      ],
+      "joints": [
+        {
+          "joint_v_index": 13,
+          "q_start": -0.71485132,
+          "q_end": -0.530071974,
+          "target_start": -0.714999974,
+          "target_end": -0.528816104,
+          "net_work_proxy": 0.10495413434415478,
+          "positive_work_proxy": 0.19361503146065967,
+          "max_abs_effort": 0.75
+        },
+        {
+          "joint_v_index": 14,
+          "q_start": 1.0309025,
+          "q_end": 0.765525818,
+          "target_start": 1.02999997,
+          "target_end": 0.762986183,
+          "net_work_proxy": 0.06615912287497384,
+          "positive_work_proxy": 0.4470222429358048,
+          "max_abs_effort": 0.75
+        },
+        {
+          "joint_v_index": 15,
+          "q_start": -0.484424025,
+          "q_end": -0.275247693,
+          "target_start": -0.484999985,
+          "target_end": -0.277276754,
+          "net_work_proxy": 0.20859409536802284,
+          "positive_work_proxy": 0.4734236916208811,
+          "max_abs_effort": 0.600000024
+        },
+        {
+          "joint_v_index": 16,
+          "q_start": -0.714776695,
+          "q_end": -0.530203104,
+          "target_start": -0.714999974,
+          "target_end": -0.528816104,
+          "net_work_proxy": 0.10499024748585156,
+          "positive_work_proxy": 0.19381466793541974,
+          "max_abs_effort": 0.75
+        },
+        {
+          "joint_v_index": 17,
+          "q_start": 1.03094327,
+          "q_end": 0.765830815,
+          "target_start": 1.02999997,
+          "target_end": 0.762986183,
+          "net_work_proxy": 0.06603295468751441,
+          "positive_work_proxy": 0.44730445265532326,
+          "max_abs_effort": 0.75
+        },
+        {
+          "joint_v_index": 18,
+          "q_start": -0.484415323,
+          "q_end": -0.275080383,
+          "target_start": -0.484999985,
+          "target_end": -0.277276754,
+          "net_work_proxy": 0.20786283430533764,
+          "positive_work_proxy": 0.47329620029370517,
+          "max_abs_effort": 0.600000024
+        }
+      ],
+      "net_work_proxy": 0.7585933890658552,
+      "positive_work_proxy": 2.2284762869017936
+    },
+    {
+      "arm": "push",
+      "lane": 7,
+      "ticks": [
+        348,
+        355
+      ],
+      "joints": [
+        {
+          "joint_v_index": 13,
+          "q_start": -0.714787364,
+          "q_end": -0.464938641,
+          "target_start": -0.714999974,
+          "target_end": -0.448391438,
+          "net_work_proxy": 0.04171681396133235,
+          "positive_work_proxy": 0.065105828367558,
+          "max_abs_effort": 0.75
+        },
+        {
+          "joint_v_index": 14,
+          "q_start": 1.03094304,
+          "q_end": 0.567878067,
+          "target_start": 1.02999997,
+          "target_end": 0.550783396,
+          "net_work_proxy": 0.03288895699002202,
+          "positive_work_proxy": 0.15745077325460904,
+          "max_abs_effort": 0.75
+        },
+        {
+          "joint_v_index": 15,
+          "q_start": -0.484421611,
+          "q_end": 0.0164089762,
+          "target_start": -0.484999985,
+          "target_end": 0.0500453264,
+          "net_work_proxy": 0.08257885764580813,
+          "positive_work_proxy": 0.15716346855057328,
+          "max_abs_effort": 0.600000024
+        },
+        {
+          "joint_v_index": 16,
+          "q_start": -0.714804888,
+          "q_end": -0.464940846,
+          "target_start": -0.714999974,
+          "target_end": -0.448391438,
+          "net_work_proxy": 0.04176328597742127,
+          "positive_work_proxy": 0.06510511332326054,
+          "max_abs_effort": 0.75
+        },
+        {
+          "joint_v_index": 17,
+          "q_start": 1.03097153,
+          "q_end": 0.567911565,
+          "target_start": 1.02999997,
+          "target_end": 0.550783396,
+          "net_work_proxy": 0.033096794792377676,
+          "positive_work_proxy": 0.15752834574858646,
+          "max_abs_effort": 0.75
+        },
+        {
+          "joint_v_index": 18,
+          "q_start": -0.484402508,
+          "q_end": 0.0163768828,
+          "target_start": -0.484999985,
+          "target_end": 0.0500453264,
+          "net_work_proxy": 0.08284943597901259,
+          "positive_work_proxy": 0.15722261407172416,
+          "max_abs_effort": 0.600000024
+        }
+      ],
+      "net_work_proxy": 0.31489414534597404,
+      "positive_work_proxy": 0.7595761433163115
+    },
+    {
+      "arm": "push",
+      "lane": 7,
+      "ticks": [
+        348,
+        357
+      ],
+      "joints": [
+        {
+          "joint_v_index": 13,
+          "q_start": -0.714787364,
+          "q_end": -0.314550906,
+          "target_start": -0.714999974,
+          "target_end": -0.300640225,
+          "net_work_proxy": 0.07364320680914675,
+          "positive_work_proxy": 0.11130285254196721,
+          "max_abs_effort": 0.75
+        },
+        {
+          "joint_v_index": 14,
+          "q_start": 1.03094304,
+          "q_end": 0.315360725,
+          "target_start": 1.02999997,
+          "target_end": 0.304181278,
+          "net_work_proxy": 0.02269624263826965,
+          "positive_work_proxy": 0.2380400190326887,
+          "max_abs_effort": 0.75
+        },
+        {
+          "joint_v_index": 15,
+          "q_start": -0.484421611,
+          "q_end": 0.28172788,
+          "target_start": -0.484999985,
+          "target_end": 0.303033024,
+          "net_work_proxy": 0.12004047558919866,
+          "positive_work_proxy": 0.2446171396627402,
+          "max_abs_effort": 0.600000024
+        },
+        {
+          "joint_v_index": 16,
+          "q_start": -0.714804888,
+          "q_end": -0.314578325,
+          "target_start": -0.714999974,
+          "target_end": -0.300640225,
+          "net_work_proxy": 0.07396747658235636,
+          "positive_work_proxy": 0.11141717609746093,
+          "max_abs_effort": 0.75
+        },
+        {
+          "joint_v_index": 17,
+          "q_start": 1.03097153,
+          "q_end": 0.315286815,
+          "target_start": 1.02999997,
+          "target_end": 0.304181278,
+          "net_work_proxy": 0.022586721001119688,
+          "positive_work_proxy": 0.23792497930804846,
+          "max_abs_effort": 0.75
+        },
+        {
+          "joint_v_index": 18,
+          "q_start": -0.484402508,
+          "q_end": 0.281792402,
+          "target_start": -0.484999985,
+          "target_end": 0.303033024,
+          "net_work_proxy": 0.11997926789694462,
+          "positive_work_proxy": 0.24447961641911645,
+          "max_abs_effort": 0.600000024
+        }
+      ],
+      "net_work_proxy": 0.43291339051703576,
+      "positive_work_proxy": 1.187781783062022
+    },
+    {
+      "arm": "push",
+      "lane": 7,
+      "ticks": [
+        348,
+        365
+      ],
+      "joints": [
+        {
+          "joint_v_index": 13,
+          "q_start": -0.714787364,
+          "q_end": -0.227361634,
+          "target_start": -0.714999974,
+          "target_end": -0.22512567,
+          "net_work_proxy": 0.08683593586882483,
+          "positive_work_proxy": 0.12662267839297958,
+          "max_abs_effort": 0.75
+        },
+        {
+          "joint_v_index": 14,
+          "q_start": 1.03094304,
+          "q_end": 0.203409925,
+          "target_start": 1.02999997,
+          "target_end": 0.205033273,
+          "net_work_proxy": 0.017309949607001555,
+          "positive_work_proxy": 0.25808891625363717,
+          "max_abs_effort": 0.75
+        },
+        {
+          "joint_v_index": 15,
+          "q_start": -0.484421611,
+          "q_end": 0.377594024,
+          "target_start": -0.484999985,
+          "target_end": 0.379498214,
+          "net_work_proxy": 0.12830701067096123,
+          "positive_work_proxy": 0.2620953618035309,
+          "max_abs_effort": 0.600000024
+        },
+        {
+          "joint_v_index": 16,
+          "q_start": -0.714804888,
+          "q_end": -0.227389812,
+          "target_start": -0.714999974,
+          "target_end": -0.22512567,
+          "net_work_proxy": 0.08786897497143463,
+          "positive_work_proxy": 0.12721249468015053,
+          "max_abs_effort": 0.75
+        },
+        {
+          "joint_v_index": 17,
+          "q_start": 1.03097153,
+          "q_end": 0.203396589,
+          "target_start": 1.02999997,
+          "target_end": 0.205033273,
+          "net_work_proxy": 0.016479389538873908,
+          "positive_work_proxy": 0.25825768773953617,
+          "max_abs_effort": 0.75
+        },
+        {
+          "joint_v_index": 18,
+          "q_start": -0.484402508,
+          "q_end": 0.377593011,
+          "target_start": -0.484999985,
+          "target_end": 0.379498214,
+          "net_work_proxy": 0.12874148619540468,
+          "positive_work_proxy": 0.2618012905168674,
+          "max_abs_effort": 0.600000024
+        }
+      ],
+      "net_work_proxy": 0.46554274685250085,
+      "positive_work_proxy": 1.2940784293867018
+    },
+    {
+      "arm": "hold",
+      "lane": 2,
+      "ticks": [
+        348,
+        355
+      ],
+      "joints": [
+        {
+          "joint_v_index": 13,
+          "q_start": -0.714896739,
+          "q_end": -0.714853883,
+          "target_start": -0.714999974,
+          "target_end": -0.714999974,
+          "net_work_proxy": -3.402528761098278e-07,
+          "positive_work_proxy": 1.2215451014339545e-07,
+          "max_abs_effort": 0.0106792636
+        },
+        {
+          "joint_v_index": 14,
+          "q_start": 1.0313518,
+          "q_end": 1.03126931,
+          "target_start": 1.02999997,
+          "target_end": 1.02999997,
+          "net_work_proxy": 5.777574738766037e-06,
+          "positive_work_proxy": 2.2669675612413104e-05,
+          "max_abs_effort": 0.0869648233
+        },
+        {
+          "joint_v_index": 15,
+          "q_start": -0.484221518,
+          "q_end": -0.484265924,
+          "target_start": -0.484999985,
+          "target_end": -0.484999985,
+          "net_work_proxy": 1.817558731887088e-06,
+          "positive_work_proxy": 5.459628723722371e-06,
+          "max_abs_effort": 0.0463399626
+        },
+        {
+          "joint_v_index": 16,
+          "q_start": -0.714915454,
+          "q_end": -0.714871049,
+          "target_start": -0.714999974,
+          "target_end": -0.714999974,
+          "net_work_proxy": -3.099606571709783e-07,
+          "positive_work_proxy": 8.433022223600151e-08,
+          "max_abs_effort": 0.0100268191
+        },
+        {
+          "joint_v_index": 17,
+          "q_start": 1.03136873,
+          "q_end": 1.03128278,
+          "target_start": 1.02999997,
+          "target_end": 1.02999997,
+          "net_work_proxy": 6.257913654371459e-06,
+          "positive_work_proxy": 2.2644424924509725e-05,
+          "max_abs_effort": 0.0880442932
+        },
+        {
+          "joint_v_index": 18,
+          "q_start": -0.484212667,
+          "q_end": -0.484258503,
+          "target_start": -0.484999985,
+          "target_end": -0.484999985,
+          "net_work_proxy": 1.9188926695124587e-06,
+          "positive_work_proxy": 5.45835068959795e-06,
+          "max_abs_effort": 0.0468755513
+        }
+      ],
+      "net_work_proxy": 1.5121726261256237e-05,
+      "positive_work_proxy": 5.6438564682622545e-05
+    },
+    {
+      "arm": "hold",
+      "lane": 2,
+      "ticks": [
+        348,
+        357
+      ],
+      "joints": [
+        {
+          "joint_v_index": 13,
+          "q_start": -0.714896739,
+          "q_end": -0.714860678,
+          "target_start": -0.714999974,
+          "target_end": -0.714999974,
+          "net_work_proxy": -2.8758832445448877e-07,
+          "positive_work_proxy": 1.7481906179873432e-07,
+          "max_abs_effort": 0.0106792636
+        },
+        {
+          "joint_v_index": 14,
+          "q_start": 1.0313518,
+          "q_end": 1.03132021,
+          "target_start": 1.02999997,
+          "target_end": 1.02999997,
+          "net_work_proxy": 1.4504264838348227e-06,
+          "positive_work_proxy": 2.2669675612413104e-05,
+          "max_abs_effort": 0.0869648233
+        },
+        {
+          "joint_v_index": 15,
+          "q_start": -0.484221518,
+          "q_end": -0.484245092,
+          "target_start": -0.484999985,
+          "target_end": -0.484999985,
+          "net_work_proxy": 8.804050231119119e-07,
+          "positive_work_proxy": 5.459628723722371e-06,
+          "max_abs_effort": 0.0463399626
+        },
+        {
+          "joint_v_index": 16,
+          "q_start": -0.714915454,
+          "q_end": -0.714876711,
+          "target_start": -0.714999974,
+          "target_end": -0.714999974,
+          "net_work_proxy": -2.711478458002536e-07,
+          "positive_work_proxy": 1.2314303360672628e-07,
+          "max_abs_effort": 0.0100268191
+        },
+        {
+          "joint_v_index": 17,
+          "q_start": 1.03136873,
+          "q_end": 1.03133237,
+          "target_start": 1.02999997,
+          "target_end": 1.02999997,
+          "net_work_proxy": 2.0021008243870867e-06,
+          "positive_work_proxy": 2.2644424924509725e-05,
+          "max_abs_effort": 0.0880442932
+        },
+        {
+          "joint_v_index": 18,
+          "q_start": -0.484212667,
+          "q_end": -0.484238327,
+          "target_start": -0.484999985,
+          "target_end": -0.484999985,
+          "net_work_proxy": 1.0028783734732496e-06,
+          "positive_work_proxy": 5.45835068959795e-06,
+          "max_abs_effort": 0.0468755513
+        }
+      ],
+      "net_work_proxy": 4.777074534552329e-06,
+      "positive_work_proxy": 5.653004204564861e-05
+    },
+    {
+      "arm": "hold",
+      "lane": 2,
+      "ticks": [
+        348,
+        365
+      ],
+      "joints": [
+        {
+          "joint_v_index": 13,
+          "q_start": -0.714896739,
+          "q_end": -0.714845777,
+          "target_start": -0.714999974,
+          "target_end": -0.714999974,
+          "net_work_proxy": -4.975689908948012e-07,
+          "positive_work_proxy": 3.7316652042362423e-07,
+          "max_abs_effort": 0.0106792636
+        },
+        {
+          "joint_v_index": 14,
+          "q_start": 1.0313518,
+          "q_end": 1.03122842,
+          "target_start": 1.02999997,
+          "target_end": 1.02999997,
+          "net_work_proxy": 7.981557115388373e-06,
+          "positive_work_proxy": 4.218265663204137e-05,
+          "max_abs_effort": 0.0895001963
+        },
+        {
+          "joint_v_index": 15,
+          "q_start": -0.484221518,
+          "q_end": -0.48428908,
+          "target_start": -0.484999985,
+          "target_end": -0.484999985,
+          "net_work_proxy": 2.6466600329025584e-06,
+          "positive_work_proxy": 1.0092299332815463e-05,
+          "max_abs_effort": 0.0464399159
+        },
+        {
+          "joint_v_index": 16,
+          "q_start": -0.714915454,
+          "q_end": -0.714860201,
+          "target_start": -0.714999974,
+          "target_end": -0.714999974,
+          "net_work_proxy": -4.832177124382064e-07,
+          "positive_work_proxy": 2.925869091032466e-07,
+          "max_abs_effort": 0.0100268191
+        },
+        {
+          "joint_v_index": 17,
+          "q_start": 1.03136873,
+          "q_end": 1.03124428,
+          "target_start": 1.02999997,
+          "target_end": 1.02999997,
+          "net_work_proxy": 8.344897725919847e-06,
+          "positive_work_proxy": 4.1978131853951006e-05,
+          "max_abs_effort": 0.0903487429
+        },
+        {
+          "joint_v_index": 18,
+          "q_start": -0.484212667,
+          "q_end": -0.484281182,
+          "target_start": -0.484999985,
+          "target_end": -0.484999985,
+          "net_work_proxy": 2.7412949617729495e-06,
+          "positive_work_proxy": 1.0083011303584282e-05,
+          "max_abs_effort": 0.0468921326
+        }
+      ],
+      "net_work_proxy": 2.073362313265072e-05,
+      "positive_work_proxy": 0.00010500185255191899
+    },
+    {
+      "arm": "hold",
+      "lane": 3,
+      "ticks": [
+        348,
+        355
+      ],
+      "joints": [
+        {
+          "joint_v_index": 13,
+          "q_start": -0.714920044,
+          "q_end": -0.714877307,
+          "target_start": -0.714999974,
+          "target_end": -0.714999974,
+          "net_work_proxy": -2.8448082580836054e-07,
+          "positive_work_proxy": 1.0288593968456184e-07,
+          "max_abs_effort": 0.00940618757
+        },
+        {
+          "joint_v_index": 14,
+          "q_start": 1.03134358,
+          "q_end": 1.03126168,
+          "target_start": 1.02999997,
+          "target_end": 1.02999997,
+          "net_work_proxy": 5.684906639140667e-06,
+          "positive_work_proxy": 2.2478884763187794e-05,
+          "max_abs_effort": 0.0864280164
+        },
+        {
+          "joint_v_index": 15,
+          "q_start": -0.48421964,
+          "q_end": -0.48426351,
+          "target_start": -0.484999985,
+          "target_end": -0.484999985,
+          "net_work_proxy": 1.799396368502819e-06,
+          "positive_work_proxy": 5.458747572688042e-06,
+          "max_abs_effort": 0.0464541353
+        },
+        {
+          "joint_v_index": 16,
+          "q_start": -0.714899957,
+          "q_end": -0.71485579,
+          "target_start": -0.714999974,
+          "target_end": -0.714999974,
+          "net_work_proxy": -3.458375600885017e-07,
+          "positive_work_proxy": 9.407725587607951e-08,
+          "max_abs_effort": 0.0108477697
+        },
+        {
+          "joint_v_index": 17,
+          "q_start": 1.03137517,
+          "q_end": 1.03128874,
+          "target_start": 1.02999997,
+          "target_end": 1.02999997,
+          "net_work_proxy": 6.3311992754714014e-06,
+          "positive_work_proxy": 2.281633034348997e-05,
+          "max_abs_effort": 0.0884647742
+        },
+        {
+          "joint_v_index": 18,
+          "q_start": -0.484209448,
+          "q_end": -0.484255224,
+          "target_start": -0.484999985,
+          "target_end": -0.484999985,
+          "net_work_proxy": 1.924732311801322e-06,
+          "positive_work_proxy": 5.485456266467267e-06,
+          "max_abs_effort": 0.0470708609
+        }
+      ],
+      "net_work_proxy": 1.5109916209019347e-05,
+      "positive_work_proxy": 5.643638214139371e-05
+    },
+    {
+      "arm": "hold",
+      "lane": 3,
+      "ticks": [
+        348,
+        357
+      ],
+      "joints": [
+        {
+          "joint_v_index": 13,
+          "q_start": -0.714920044,
+          "q_end": -0.714884162,
+          "target_start": -0.714999974,
+          "target_end": -0.714999974,
+          "net_work_proxy": -2.4018034817873323e-07,
+          "positive_work_proxy": 1.4718641731418917e-07,
+          "max_abs_effort": 0.00940618757
+        },
+        {
+          "joint_v_index": 14,
+          "q_start": 1.03134358,
+          "q_end": 1.03131258,
+          "target_start": 1.02999997,
+          "target_end": 1.02999997,
+          "net_work_proxy": 1.3829055628054995e-06,
+          "positive_work_proxy": 2.2478884763187794e-05,
+          "max_abs_effort": 0.0864280164
+        },
+        {
+          "joint_v_index": 15,
+          "q_start": -0.48421964,
+          "q_end": -0.484242618,
+          "target_start": -0.484999985,
+          "target_end": -0.484999985,
+          "net_work_proxy": 8.564477007252678e-07,
+          "positive_work_proxy": 5.458747572688042e-06,
+          "max_abs_effort": 0.0464541353
+        },
+        {
+          "joint_v_index": 16,
+          "q_start": -0.714899957,
+          "q_end": -0.714861691,
+          "target_start": -0.714999974,
+          "target_end": -0.714999974,
+          "net_work_proxy": -3.0048573131255917e-07,
+          "positive_work_proxy": 1.3942908465202189e-07,
+          "max_abs_effort": 0.0108477697
+        },
+        {
+          "joint_v_index": 17,
+          "q_start": 1.03137517,
+          "q_end": 1.03133821,
+          "target_start": 1.02999997,
+          "target_end": 1.02999997,
+          "net_work_proxy": 2.0667618406619324e-06,
+          "positive_work_proxy": 2.281633034348997e-05,
+          "max_abs_effort": 0.0884647742
+        },
+        {
+          "joint_v_index": 18,
+          "q_start": -0.484209448,
+          "q_end": -0.484234959,
+          "target_start": -0.484999985,
+          "target_end": -0.484999985,
+          "net_work_proxy": 1.000627983632172e-06,
+          "positive_work_proxy": 5.485456266467267e-06,
+          "max_abs_effort": 0.0470708609
+        }
+      ],
+      "net_work_proxy": 4.766077008333579e-06,
+      "positive_work_proxy": 5.652603444779929e-05
+    },
+    {
+      "arm": "hold",
+      "lane": 3,
+      "ticks": [
+        348,
+        365
+      ],
+      "joints": [
+        {
+          "joint_v_index": 13,
+          "q_start": -0.714920044,
+          "q_end": -0.714869678,
+          "target_start": -0.714999974,
+          "target_end": -0.714999974,
+          "net_work_proxy": -4.2892422327976114e-07,
+          "positive_work_proxy": 3.0526117187477956e-07,
+          "max_abs_effort": 0.00940618757
+        },
+        {
+          "joint_v_index": 14,
+          "q_start": 1.03134358,
+          "q_end": 1.03122079,
+          "target_start": 1.02999997,
+          "target_end": 1.02999997,
+          "net_work_proxy": 7.869930600467622e-06,
+          "positive_work_proxy": 4.186133055793326e-05,
+          "max_abs_effort": 0.0889983177
+        },
+        {
+          "joint_v_index": 15,
+          "q_start": -0.48421964,
+          "q_end": -0.484286278,
+          "target_start": -0.484999985,
+          "target_end": -0.484999985,
+          "net_work_proxy": 2.6153276318834115e-06,
+          "positive_work_proxy": 1.0098384378738124e-05,
+          "max_abs_effort": 0.0466061383
+        },
+        {
+          "joint_v_index": 16,
+          "q_start": -0.714899957,
+          "q_end": -0.714846015,
+          "target_start": -0.714999974,
+          "target_end": -0.714999974,
+          "net_work_proxy": -5.181134458630304e-07,
+          "positive_work_proxy": 3.331530963463894e-07,
+          "max_abs_effort": 0.0108477697
+        },
+        {
+          "joint_v_index": 17,
+          "q_start": 1.03137517,
+          "q_end": 1.03124976,
+          "target_start": 1.02999997,
+          "target_end": 1.02999997,
+          "net_work_proxy": 8.469118752727239e-06,
+          "positive_work_proxy": 4.2274725414090344e-05,
+          "max_abs_effort": 0.0907169357
+        },
+        {
+          "joint_v_index": 18,
+          "q_start": -0.484209448,
+          "q_end": -0.484277576,
+          "target_start": -0.484999985,
+          "target_end": -0.484999985,
+          "net_work_proxy": 2.737379736101156e-06,
+          "positive_work_proxy": 1.0124789976629717e-05,
+          "max_abs_effort": 0.0471086986
+        }
+      ],
+      "net_work_proxy": 2.074471905203664e-05,
+      "positive_work_proxy": 0.0001049976445956126
+    },
+    {
+      "arm": "hold",
+      "lane": 4,
+      "ticks": [
+        348,
+        355
+      ],
+      "joints": [
+        {
+          "joint_v_index": 13,
+          "q_start": -0.714913249,
+          "q_end": -0.714850187,
+          "target_start": -0.714999974,
+          "target_end": -0.714999974,
+          "net_work_proxy": -8.09474008023861e-07,
+          "positive_work_proxy": 3.1615550106927806e-07,
+          "max_abs_effort": 0.0112598119
+        },
+        {
+          "joint_v_index": 14,
+          "q_start": 1.03115928,
+          "q_end": 1.03114438,
+          "target_start": 1.02999997,
+          "target_end": 1.02999997,
+          "net_work_proxy": -3.655630720316179e-06,
+          "positive_work_proxy": 2.6713689228000142e-05,
+          "max_abs_effort": 0.0817780644
+        },
+        {
+          "joint_v_index": 15,
+          "q_start": -0.484295517,
+          "q_end": -0.48431477,
+          "target_start": -0.484999985,
+          "target_end": -0.484999985,
+          "net_work_proxy": -1.0069405158586613e-08,
+          "positive_work_proxy": 7.3385582088791824e-06,
+          "max_abs_effort": 0.0440104045
+        },
+        {
+          "joint_v_index": 16,
+          "q_start": -0.714895844,
+          "q_end": -0.714839697,
+          "target_start": -0.714999974,
+          "target_end": -0.714999974,
+          "net_work_proxy": -7.607528460730892e-07,
+          "positive_work_proxy": 4.675192998715185e-07,
+          "max_abs_effort": 0.0133822123
+        },
+        {
+          "joint_v_index": 17,
+          "q_start": 1.03120053,
+          "q_end": 1.0311687,
+          "target_start": 1.02999997,
+          "target_end": 1.02999997,
+          "net_work_proxy": -2.1232015630225172e-06,
+          "positive_work_proxy": 2.9520349451317908e-05,
+          "max_abs_effort": 0.0838662982
+        },
+        {
+          "joint_v_index": 18,
+          "q_start": -0.484281212,
+          "q_end": -0.484306037,
+          "target_start": -0.484999985,
+          "target_end": -0.484999985,
+          "net_work_proxy": 1.938221831764077e-07,
+          "positive_work_proxy": 7.86408233714215e-06,
+          "max_abs_effort": 0.044732213
+        }
+      ],
+      "net_work_proxy": -7.165306359417825e-06,
+      "positive_work_proxy": 7.222035402628018e-05
+    },
+    {
+      "arm": "hold",
+      "lane": 4,
+      "ticks": [
+        348,
+        357
+      ],
+      "joints": [
+        {
+          "joint_v_index": 13,
+          "q_start": -0.714913249,
+          "q_end": -0.714833736,
+          "target_start": -0.714999974,
+          "target_end": -0.714999974,
+          "net_work_proxy": -1.215385024306456e-06,
+          "positive_work_proxy": 5.175671016499159e-07,
+          "max_abs_effort": 0.0127177155
+        },
+        {
+          "joint_v_index": 14,
+          "q_start": 1.03115928,
+          "q_end": 1.03111649,
+          "target_start": 1.02999997,
+          "target_end": 1.02999997,
+          "net_work_proxy": -4.399711807544168e-06,
+          "positive_work_proxy": 4.369040187985666e-05,
+          "max_abs_effort": 0.091146946
+        },
+        {
+          "joint_v_index": 15,
+          "q_start": -0.484295517,
+          "q_end": -0.484329343,
+          "target_start": -0.484999985,
+          "target_end": -0.484999985,
+          "net_work_proxy": 1.5741503364774417e-07,
+          "positive_work_proxy": 1.1429694555297594e-05,
+          "max_abs_effort": 0.0478290208
+        },
+        {
+          "joint_v_index": 16,
+          "q_start": -0.714895844,
+          "q_end": -0.714857817,
+          "target_start": -0.714999974,
+          "target_end": -0.714999974,
+          "net_work_proxy": -9.827834919580462e-07,
+          "positive_work_proxy": 7.319373002668157e-07,
+          "max_abs_effort": 0.0133822123
+        },
+        {
+          "joint_v_index": 17,
+          "q_start": 1.03120053,
+          "q_end": 1.03119946,
+          "target_start": 1.02999997,
+          "target_end": 1.02999997,
+          "net_work_proxy": -7.964449546698229e-06,
+          "positive_work_proxy": 4.7055453671225806e-05,
+          "max_abs_effort": 0.097315982
+        },
+        {
+          "joint_v_index": 18,
+          "q_start": -0.484281212,
+          "q_end": -0.484292895,
+          "target_start": -0.484999985,
+          "target_end": -0.484999985,
+          "net_work_proxy": -8.959555825769716e-07,
+          "positive_work_proxy": 1.2015893311055054e-05,
+          "max_abs_effort": 0.0502864867
+        }
+      ],
+      "net_work_proxy": -1.530087041943613e-05,
+      "positive_work_proxy": 0.00011544094781935185
+    },
+    {
+      "arm": "hold",
+      "lane": 4,
+      "ticks": [
+        348,
+        365
+      ],
+      "joints": [
+        {
+          "joint_v_index": 13,
+          "q_start": -0.714913249,
+          "q_end": -0.714897692,
+          "target_start": -0.714999974,
+          "target_end": -0.714999974,
+          "net_work_proxy": -1.0566206691188231e-06,
+          "positive_work_proxy": 8.67740089276018e-07,
+          "max_abs_effort": 0.0127177155
+        },
+        {
+          "joint_v_index": 14,
+          "q_start": 1.03115928,
+          "q_end": 1.03149247,
+          "target_start": 1.02999997,
+          "target_end": 1.02999997,
+          "net_work_proxy": -4.336110084601056e-05,
+          "positive_work_proxy": 6.548297161522291e-05,
+          "max_abs_effort": 0.0975286439
+        },
+        {
+          "joint_v_index": 15,
+          "q_start": -0.484295517,
+          "q_end": -0.484175444,
+          "target_start": -0.484999985,
+          "target_end": -0.484999985,
+          "net_work_proxy": -7.83757664142711e-06,
+          "positive_work_proxy": 1.6980651085195608e-05,
+          "max_abs_effort": 0.0496894158
+        },
+        {
+          "joint_v_index": 16,
+          "q_start": -0.714895844,
+          "q_end": -0.714891255,
+          "target_start": -0.714999974,
+          "target_end": -0.714999974,
+          "net_work_proxy": -1.0704754252841142e-06,
+          "positive_work_proxy": 1.0191186365362641e-06,
+          "max_abs_effort": 0.0133822123
+        },
+        {
+          "joint_v_index": 17,
+          "q_start": 1.03120053,
+          "q_end": 1.03153825,
+          "target_start": 1.02999997,
+          "target_end": 1.02999997,
+          "net_work_proxy": -4.474334176119918e-05,
+          "positive_work_proxy": 7.092341975241722e-05,
+          "max_abs_effort": 0.100400075
+        },
+        {
+          "joint_v_index": 18,
+          "q_start": -0.484281212,
+          "q_end": -0.484157652,
+          "target_start": -0.484999985,
+          "target_end": -0.484999985,
+          "net_work_proxy": -8.207123120127645e-06,
+          "positive_work_proxy": 1.7993159527435958e-05,
+          "max_abs_effort": 0.0507049821
+        }
+      ],
+      "net_work_proxy": -0.00010627623846316742,
+      "positive_work_proxy": 0.000173267060706084
+    },
+    {
+      "arm": "hold",
+      "lane": 5,
+      "ticks": [
+        348,
+        355
+      ],
+      "joints": [
+        {
+          "joint_v_index": 13,
+          "q_start": -0.714908659,
+          "q_end": -0.714847028,
+          "target_start": -0.714999974,
+          "target_end": -0.714999974,
+          "net_work_proxy": -8.165367558437936e-07,
+          "positive_work_proxy": 3.4797100410832334e-07,
+          "max_abs_effort": 0.0115843741
+        },
+        {
+          "joint_v_index": 14,
+          "q_start": 1.03116465,
+          "q_end": 1.03114557,
+          "target_start": 1.02999997,
+          "target_end": 1.02999997,
+          "net_work_proxy": -3.3460473998615578e-06,
+          "positive_work_proxy": 2.6718826630074193e-05,
+          "max_abs_effort": 0.0818126798
+        },
+        {
+          "joint_v_index": 15,
+          "q_start": -0.484294236,
+          "q_end": -0.484314919,
+          "target_start": -0.484999985,
+          "target_end": -0.484999985,
+          "net_work_proxy": 3.89499580830173e-08,
+          "positive_work_proxy": 7.364081998345602e-06,
+          "max_abs_effort": 0.0439812653
+        },
+        {
+          "joint_v_index": 16,
+          "q_start": -0.71490109,
+          "q_end": -0.71484226,
+          "target_start": -0.714999974,
+          "target_end": -0.714999974,
+          "net_work_proxy": -7.170504495827606e-07,
+          "positive_work_proxy": 4.209392432517675e-07,
+          "max_abs_effort": 0.0123499641
+        },
+        {
+          "joint_v_index": 17,
+          "q_start": 1.03119469,
+          "q_end": 1.03116763,
+          "target_start": 1.02999997,
+          "target_end": 1.02999997,
+          "net_work_proxy": -2.4679578577318956e-06,
+          "positive_work_proxy": 2.905267962240418e-05,
+          "max_abs_effort": 0.0838420764
+        },
+        {
+          "joint_v_index": 18,
+          "q_start": -0.484283149,
+          "q_end": -0.484306425,
+          "target_start": -0.484999985,
+          "target_end": -0.484999985,
+          "net_work_proxy": 1.2741671092054232e-07,
+          "positive_work_proxy": 7.866317977501406e-06,
+          "max_abs_effort": 0.0447305068
+        }
+      ],
+      "net_work_proxy": -7.181225794016448e-06,
+      "positive_work_proxy": 7.177081647568548e-05
+    },
+    {
+      "arm": "hold",
+      "lane": 5,
+      "ticks": [
+        348,
+        357
+      ],
+      "joints": [
+        {
+          "joint_v_index": 13,
+          "q_start": -0.714908659,
+          "q_end": -0.714830458,
+          "target_start": -0.714999974,
+          "target_end": -0.714999974,
+          "net_work_proxy": -1.226485824864354e-06,
+          "positive_work_proxy": 5.565589450044009e-07,
+          "max_abs_effort": 0.012897457
+        },
+        {
+          "joint_v_index": 14,
+          "q_start": 1.03116465,
+          "q_end": 1.03111684,
+          "target_start": 1.02999997,
+          "target_end": 1.02999997,
+          "net_work_proxy": -4.030818893889293e-06,
+          "positive_work_proxy": 4.3758220031059206e-05,
+          "max_abs_effort": 0.0912618712
+        },
+        {
+          "joint_v_index": 15,
+          "q_start": -0.484294236,
+          "q_end": -0.484329849,
+          "target_start": -0.484999985,
+          "target_end": -0.484999985,
+          "net_work_proxy": 2.2080898839284352e-07,
+          "positive_work_proxy": 1.1465088418819537e-05,
+          "max_abs_effort": 0.0478148721
+        },
+        {
+          "joint_v_index": 16,
+          "q_start": -0.71490109,
+          "q_end": -0.714860559,
+          "target_start": -0.714999974,
+          "target_end": -0.714999974,
+          "net_work_proxy": -9.404024875968371e-07,
+          "positive_work_proxy": 6.74188432206407e-07,
+          "max_abs_effort": 0.0123499641
+        },
+        {
+          "joint_v_index": 17,
+          "q_start": 1.03119469,
+          "q_end": 1.03119922,
+          "target_start": 1.02999997,
+          "target_end": 1.02999997,
+          "net_work_proxy": -8.369816377382254e-06,
+          "positive_work_proxy": 4.654892356327387e-05,
+          "max_abs_effort": 0.0972699746
+        },
+        {
+          "joint_v_index": 18,
+          "q_start": -0.484283149,
+          "q_end": -0.484292924,
+          "target_start": -0.484999985,
+          "target_end": -0.484999985,
+          "net_work_proxy": -9.776032785739646e-07,
+          "positive_work_proxy": 1.201241522137124e-05,
+          "max_abs_effort": 0.0502734855
+        }
+      ],
+      "net_work_proxy": -1.532431787391386e-05,
+      "positive_work_proxy": 0.00011501539461173466
+    },
+    {
+      "arm": "hold",
+      "lane": 5,
+      "ticks": [
+        348,
+        365
+      ],
+      "joints": [
+        {
+          "joint_v_index": 13,
+          "q_start": -0.714908659,
+          "q_end": -0.714895189,
+          "target_start": -0.714999974,
+          "target_end": -0.714999974,
+          "net_work_proxy": -1.0607224154661612e-06,
+          "positive_work_proxy": 9.28153028813698e-07,
+          "max_abs_effort": 0.012897457
+        },
+        {
+          "joint_v_index": 14,
+          "q_start": 1.03116465,
+          "q_end": 1.03149247,
+          "target_start": 1.02999997,
+          "target_end": 1.02999997,
+          "net_work_proxy": -4.2913924732300425e-05,
+          "positive_work_proxy": 6.550650014584346e-05,
+          "max_abs_effort": 0.0975402892
+        },
+        {
+          "joint_v_index": 15,
+          "q_start": -0.484294236,
+          "q_end": -0.48417604,
+          "target_start": -0.484999985,
+          "target_end": -0.484999985,
+          "net_work_proxy": -7.756721316462377e-06,
+          "positive_work_proxy": 1.700153468037263e-05,
+          "max_abs_effort": 0.0496563017
+        },
+        {
+          "joint_v_index": 16,
+          "q_start": -0.71490109,
+          "q_end": -0.714892209,
+          "target_start": -0.714999974,
+          "target_end": -0.714999974,
+          "net_work_proxy": -1.0396415380169575e-06,
+          "positive_work_proxy": 9.412539845541184e-07,
+          "max_abs_effort": 0.0123499641
+        },
+        {
+          "joint_v_index": 17,
+          "q_start": 1.03119469,
+          "q_end": 1.03153861,
+          "target_start": 1.02999997,
+          "target_end": 1.02999997,
+          "net_work_proxy": -4.527863256385114e-05,
+          "positive_work_proxy": 7.051187648262762e-05,
+          "max_abs_effort": 0.100418277
+        },
+        {
+          "joint_v_index": 18,
+          "q_start": -0.484283149,
+          "q_end": -0.484157741,
+          "target_start": -0.484999985,
+          "target_end": -0.484999985,
+          "net_work_proxy": -8.292750873067934e-06,
+          "positive_work_proxy": 1.800981468544226e-05,
+          "max_abs_effort": 0.05069682
+        }
+      ],
+      "net_work_proxy": -0.000106342393439165,
+      "positive_work_proxy": 0.00017289913300765379
+    },
+    {
+      "arm": "hold",
+      "lane": 6,
+      "ticks": [
+        348,
+        355
+      ],
+      "joints": [
+        {
+          "joint_v_index": 13,
+          "q_start": -0.71485132,
+          "q_end": -0.714897096,
+          "target_start": -0.714999974,
+          "target_end": -0.714999974,
+          "net_work_proxy": -5.217872850154846e-06,
+          "positive_work_proxy": 1.235717307817064e-06,
+          "max_abs_effort": 0.0283775236
+        },
+        {
+          "joint_v_index": 14,
+          "q_start": 1.0309025,
+          "q_end": 1.03136718,
+          "target_start": 1.02999997,
+          "target_end": 1.02999997,
+          "net_work_proxy": -3.833710839053219e-05,
+          "positive_work_proxy": 7.47376146873175e-06,
+          "max_abs_effort": 0.0889176577
+        },
+        {
+          "joint_v_index": 15,
+          "q_start": -0.484424025,
+          "q_end": -0.484218687,
+          "target_start": -0.484999985,
+          "target_end": -0.484999985,
+          "net_work_proxy": -1.1011159712812618e-05,
+          "positive_work_proxy": 5.198296892902355e-06,
+          "max_abs_effort": 0.0514851585
+        },
+        {
+          "joint_v_index": 16,
+          "q_start": -0.714776695,
+          "q_end": -0.714878678,
+          "target_start": -0.714999974,
+          "target_end": -0.714999974,
+          "net_work_proxy": -4.426317802448345e-06,
+          "positive_work_proxy": 1.7689873704340939e-06,
+          "max_abs_effort": 0.0319186375
+        },
+        {
+          "joint_v_index": 17,
+          "q_start": 1.03094327,
+          "q_end": 1.03139806,
+          "target_start": 1.02999997,
+          "target_end": 1.02999997,
+          "net_work_proxy": -3.887923701482412e-05,
+          "positive_work_proxy": 8.190421118346105e-06,
+          "max_abs_effort": 0.0911579654
+        },
+        {
+          "joint_v_index": 18,
+          "q_start": -0.484415323,
+          "q_end": -0.484208494,
+          "target_start": -0.484999985,
+          "target_end": -0.484999985,
+          "net_work_proxy": -1.1014733073536988e-05,
+          "positive_work_proxy": 5.277222199368464e-06,
+          "max_abs_effort": 0.0526417345
+        }
+      ],
+      "net_work_proxy": -0.0001088864288443091,
+      "positive_work_proxy": 2.9144406357599832e-05
+    },
+    {
+      "arm": "hold",
+      "lane": 6,
+      "ticks": [
+        348,
+        357
+      ],
+      "joints": [
+        {
+          "joint_v_index": 13,
+          "q_start": -0.71485132,
+          "q_end": -0.714838982,
+          "target_start": -0.714999974,
+          "target_end": -0.714999974,
+          "net_work_proxy": -5.8054488302928394e-06,
+          "positive_work_proxy": 1.2448007490911429e-06,
+          "max_abs_effort": 0.0283775236
+        },
+        {
+          "joint_v_index": 14,
+          "q_start": 1.0309025,
+          "q_end": 1.03109467,
+          "target_start": 1.02999997,
+          "target_end": 1.02999997,
+          "net_work_proxy": -1.8720363410233543e-05,
+          "positive_work_proxy": 2.7090506449030398e-05,
+          "max_abs_effort": 0.0889176577
+        },
+        {
+          "joint_v_index": 15,
+          "q_start": -0.484424025,
+          "q_end": -0.484338015,
+          "target_start": -0.484999985,
+          "target_end": -0.484999985,
+          "net_work_proxy": -6.20298327917438e-06,
+          "positive_work_proxy": 1.0006473326540587e-05,
+          "max_abs_effort": 0.0514851585
+        },
+        {
+          "joint_v_index": 16,
+          "q_start": -0.714776695,
+          "q_end": -0.714823008,
+          "target_start": -0.714999974,
+          "target_end": -0.714999974,
+          "net_work_proxy": -5.045101550948453e-06,
+          "positive_work_proxy": 1.7822782941262146e-06,
+          "max_abs_effort": 0.0319186375
+        },
+        {
+          "joint_v_index": 17,
+          "q_start": 1.03094327,
+          "q_end": 1.03112531,
+          "target_start": 1.02999997,
+          "target_end": 1.02999997,
+          "net_work_proxy": -1.8700225638197058e-05,
+          "positive_work_proxy": 2.836943249497316e-05,
+          "max_abs_effort": 0.0911579654
+        },
+        {
+          "joint_v_index": 18,
+          "q_start": -0.484415323,
+          "q_end": -0.484327525,
+          "target_start": -0.484999985,
+          "target_end": -0.484999985,
+          "net_work_proxy": -6.144111339287921e-06,
+          "positive_work_proxy": 1.0147843933617532e-05,
+          "max_abs_effort": 0.0526417345
+        }
+      ],
+      "net_work_proxy": -6.06182340481342e-05,
+      "positive_work_proxy": 7.864133524737902e-05
+    },
+    {
+      "arm": "hold",
+      "lane": 6,
+      "ticks": [
+        348,
+        365
+      ],
+      "joints": [
+        {
+          "joint_v_index": 13,
+          "q_start": -0.71485132,
+          "q_end": -0.715101779,
+          "target_start": -0.714999974,
+          "target_end": -0.714999974,
+          "net_work_proxy": -5.4727466544684795e-05,
+          "positive_work_proxy": 7.257524538256536e-06,
+          "max_abs_effort": 0.0631063953
+        },
+        {
+          "joint_v_index": 14,
+          "q_start": 1.0309025,
+          "q_end": 1.03146911,
+          "target_start": 1.02999997,
+          "target_end": 1.02999997,
+          "net_work_proxy": -0.0001445578730712991,
+          "positive_work_proxy": 0.00012002736283377551,
+          "max_abs_effort": 0.224246114
+        },
+        {
+          "joint_v_index": 15,
+          "q_start": -0.484424025,
+          "q_end": -0.484086484,
+          "target_start": -0.484999985,
+          "target_end": -0.484999985,
+          "net_work_proxy": -3.9940679616032864e-05,
+          "positive_work_proxy": 3.5468522683854836e-05,
+          "max_abs_effort": 0.105522223
+        },
+        {
+          "joint_v_index": 16,
+          "q_start": -0.714776695,
+          "q_end": -0.715126693,
+          "target_start": -0.714999974,
+          "target_end": -0.714999974,
+          "net_work_proxy": -6.89126367522462e-05,
+          "positive_work_proxy": 8.732751247567398e-06,
+          "max_abs_effort": 0.0772134215
+        },
+        {
+          "joint_v_index": 17,
+          "q_start": 1.03094327,
+          "q_end": 1.03147531,
+          "target_start": 1.02999997,
+          "target_end": 1.02999997,
+          "net_work_proxy": -0.000166921239239316,
+          "positive_work_proxy": 0.000137228664451859,
+          "max_abs_effort": 0.244931698
+        },
+        {
+          "joint_v_index": 18,
+          "q_start": -0.484415323,
+          "q_end": -0.484083474,
+          "target_start": -0.484999985,
+          "target_end": -0.484999985,
+          "net_work_proxy": -4.3471000834652515e-05,
+          "positive_work_proxy": 3.978848816182763e-05,
+          "max_abs_effort": 0.112677425
+        }
+      ],
+      "net_work_proxy": -0.0005185308960582315,
+      "positive_work_proxy": 0.0003485033139171409
+    },
+    {
+      "arm": "hold",
+      "lane": 7,
+      "ticks": [
+        348,
+        355
+      ],
+      "joints": [
+        {
+          "joint_v_index": 13,
+          "q_start": -0.714787364,
+          "q_end": -0.714888811,
+          "target_start": -0.714999974,
+          "target_end": -0.714999974,
+          "net_work_proxy": -4.095767282270086e-06,
+          "positive_work_proxy": 1.5592722589575292e-06,
+          "max_abs_effort": 0.0276359394
+        },
+        {
+          "joint_v_index": 14,
+          "q_start": 1.03094304,
+          "q_end": 1.031371,
+          "target_start": 1.02999997,
+          "target_end": 1.02999997,
+          "net_work_proxy": -3.685915274728255e-05,
+          "positive_work_proxy": 1.0858396494030994e-05,
+          "max_abs_effort": 0.0891586617
+        },
+        {
+          "joint_v_index": 15,
+          "q_start": -0.484421611,
+          "q_end": -0.484216899,
+          "target_start": -0.484999985,
+          "target_end": -0.484999985,
+          "net_work_proxy": -1.087928598434932e-05,
+          "positive_work_proxy": 4.965966009856115e-06,
+          "max_abs_effort": 0.0521781854
+        },
+        {
+          "joint_v_index": 16,
+          "q_start": -0.714804888,
+          "q_end": -0.714890659,
+          "target_start": -0.714999974,
+          "target_end": -0.714999974,
+          "net_work_proxy": -5.1183420346074e-06,
+          "positive_work_proxy": 1.4170293280920168e-06,
+          "max_abs_effort": 0.0275665428
+        },
+        {
+          "joint_v_index": 17,
+          "q_start": 1.03097153,
+          "q_end": 1.03139317,
+          "target_start": 1.02999997,
+          "target_end": 1.02999997,
+          "net_work_proxy": -3.765852480037663e-05,
+          "positive_work_proxy": 1.2036212985784084e-05,
+          "max_abs_effort": 0.0906918049
+        },
+        {
+          "joint_v_index": 18,
+          "q_start": -0.484402508,
+          "q_end": -0.48420772,
+          "target_start": -0.484999985,
+          "target_end": -0.484999985,
+          "net_work_proxy": -1.0217583897917078e-05,
+          "positive_work_proxy": 5.000006692728115e-06,
+          "max_abs_effort": 0.0528262071
+        }
+      ],
+      "net_work_proxy": -0.00010482865674680307,
+      "positive_work_proxy": 3.583688376944886e-05
+    },
+    {
+      "arm": "hold",
+      "lane": 7,
+      "ticks": [
+        348,
+        357
+      ],
+      "joints": [
+        {
+          "joint_v_index": 13,
+          "q_start": -0.714787364,
+          "q_end": -0.714831769,
+          "target_start": -0.714999974,
+          "target_end": -0.714999974,
+          "net_work_proxy": -4.69787524028884e-06,
+          "positive_work_proxy": 1.5692927607674277e-06,
+          "max_abs_effort": 0.0276359394
+        },
+        {
+          "joint_v_index": 14,
+          "q_start": 1.03094304,
+          "q_end": 1.03109825,
+          "target_start": 1.02999997,
+          "target_end": 1.02999997,
+          "net_work_proxy": -1.7158554568286574e-05,
+          "positive_work_proxy": 3.055899467302696e-05,
+          "max_abs_effort": 0.0891586617
+        },
+        {
+          "joint_v_index": 15,
+          "q_start": -0.484421611,
+          "q_end": -0.484336168,
+          "target_start": -0.484999985,
+          "target_end": -0.484999985,
+          "net_work_proxy": -6.06020834584425e-06,
+          "positive_work_proxy": 9.785043648361195e-06,
+          "max_abs_effort": 0.0521781854
+        },
+        {
+          "joint_v_index": 16,
+          "q_start": -0.714804888,
+          "q_end": -0.714834332,
+          "target_start": -0.714999974,
+          "target_end": -0.714999974,
+          "net_work_proxy": -5.707358646075105e-06,
+          "positive_work_proxy": 1.4268942328794424e-06,
+          "max_abs_effort": 0.0275665428
+        },
+        {
+          "joint_v_index": 17,
+          "q_start": 1.03097153,
+          "q_end": 1.03112066,
+          "target_start": 1.02999997,
+          "target_end": 1.02999997,
+          "net_work_proxy": -1.75797205524235e-05,
+          "positive_work_proxy": 3.211501723373721e-05,
+          "max_abs_effort": 0.0906918049
+        },
+        {
+          "joint_v_index": 18,
+          "q_start": -0.484402508,
+          "q_end": -0.48432675,
+          "target_start": -0.484999985,
+          "target_end": -0.484999985,
+          "net_work_proxy": -5.3414690951125536e-06,
+          "positive_work_proxy": 9.876121495532639e-06,
+          "max_abs_effort": 0.0528262071
+        }
+      ],
+      "net_work_proxy": -5.6545186448030824e-05,
+      "positive_work_proxy": 8.533136404430487e-05
+    },
+    {
+      "arm": "hold",
+      "lane": 7,
+      "ticks": [
+        348,
+        365
+      ],
+      "joints": [
+        {
+          "joint_v_index": 13,
+          "q_start": -0.714787364,
+          "q_end": -0.715096772,
+          "target_start": -0.714999974,
+          "target_end": -0.714999974,
+          "net_work_proxy": -5.2996206495115974e-05,
+          "positive_work_proxy": 7.797701063780838e-06,
+          "max_abs_effort": 0.0612195469
+        },
+        {
+          "joint_v_index": 14,
+          "q_start": 1.03094304,
+          "q_end": 1.03144562,
+          "target_start": 1.02999997,
+          "target_end": 1.02999997,
+          "net_work_proxy": -0.00013967182500995213,
+          "positive_work_proxy": 0.00012348801102593317,
+          "max_abs_effort": 0.223182276
+        },
+        {
+          "joint_v_index": 15,
+          "q_start": -0.484421611,
+          "q_end": -0.484093457,
+          "target_start": -0.484999985,
+          "target_end": -0.484999985,
+          "net_work_proxy": -3.9202382018490445e-05,
+          "positive_work_proxy": 3.55319658695445e-05,
+          "max_abs_effort": 0.110235125
+        },
+        {
+          "joint_v_index": 16,
+          "q_start": -0.714804888,
+          "q_end": -0.715119541,
+          "target_start": -0.714999974,
+          "target_end": -0.714999974,
+          "net_work_proxy": -6.837979217411656e-05,
+          "positive_work_proxy": 7.43886885720177e-06,
+          "max_abs_effort": 0.0767831504
+        },
+        {
+          "joint_v_index": 17,
+          "q_start": 1.03097153,
+          "q_end": 1.03145182,
+          "target_start": 1.02999997,
+          "target_end": 1.02999997,
+          "net_work_proxy": -0.00016130323243101322,
+          "positive_work_proxy": 0.00013946592883898312,
+          "max_abs_effort": 0.24408263
+        },
+        {
+          "joint_v_index": 18,
+          "q_start": -0.484402508,
+          "q_end": -0.484090239,
+          "target_start": -0.484999985,
+          "target_end": -0.484999985,
+          "net_work_proxy": -4.2146658544834014e-05,
+          "positive_work_proxy": 3.965169925090368e-05,
+          "max_abs_effort": 0.113082595
+        }
+      ],
+      "net_work_proxy": -0.0005037000966735223,
+      "positive_work_proxy": 0.0003533741749063471
+    }
+  ]
+}

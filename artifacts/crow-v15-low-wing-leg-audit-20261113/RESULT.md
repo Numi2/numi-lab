@@ -1,0 +1,5 @@
+# Posthoc leg-coordinate audit
+
+In the low-effort matched trial, the six comparable push lanes moved the first side's three leg coordinates approximately from (-0.715, 1.031, -0.484) to (-0.313, 0.315–0.320, 0.282–0.283) between the start of tick 348 and end of tick 357. The corresponding recorded targets at tick 357 were (-0.301, 0.304, 0.303). The second side is retained in analysis.json. In the hold arm the same coordinates remained approximately at their starting values.
+
+The push arm had about 0.412–0.433 net generalized-working-effort-times-coordinate-displacement over all six leg joints over this interval, while the hold-arm proxy was approximately zero. These observations indicate that the leg actuators did move close to their requested extension; they do not prove correct contact force direction, biologically realistic joint stiffness, or energy transfer to the whole bird. The proxy is not isolated muscle work. Data are the used-seed, correlated-lane posthoc analysis of the previously archived low-effort test. No launch or flight is qualified.
