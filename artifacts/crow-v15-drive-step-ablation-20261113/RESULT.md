@@ -1,0 +1,7 @@
+# Result: flap working-effort removal eliminates the initial spike
+
+The diagnostic run reproduced the baseline in all eight lanes for every recorded q/v/action/contact state through control step 368 and all contact substeps 335–368. Start flap q/v and aerodynamic kernel output at 369/substep 0 matched exactly. The working-effort entries for the two flap DOFs were zero in every substep of interval 369; no solver errors or overflow were reported, and both runs completed with all required wing and aero records.
+
+Across lanes 2–7 and both flap DOFs, zeroing those entries changed first-substep pre-contact flap velocity by -12.95461 to -12.95488 rad/s. Baseline working effort was 120 and the treated entry zero. The full aerodynamic output at the matched first substep was identical. This controlled, intentionally nonphysical intervention identifies the working-effort path as the dominant contribution to the original immediate acceleration at this state; it does not establish the correct effort limit, actuator physiology, or generalize to later diverged states. The previous aero-only ablation removed just about 0.0024 rad/s at the same sample.
+
+The model-construction inspection for the two flap DOFs reports position limits -1.35 to 1.35 rad, speed limit 90, effort limit 120, and drive parameters 800, 8, 0.00003, 0. These are existing model settings, not measured American crow physiology. The intervention was diagnostic only, on one used development seed; it qualifies neither the drive nor takeoff, flight, landing or the mission.
