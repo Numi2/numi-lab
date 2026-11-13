@@ -1,0 +1,3 @@
+# Wing-held hip-finish comparison: failed
+
+Matched push and held-leg first episodes completed for all lanes. Baseline lanes 0–3 reproduced the previous push and hold accepted states, actions, contacts and target histories exactly. The baseline push lanes 2/3 passed the earlier vertical hop gate but left with whole-body COM x velocities -0.311 and -0.287 m/s, failing the new -0.02 m/s minimum. Hip finish alternatives -0.50 and +0.20 did not provide three continuous unloaded intervals by the registered deadline in either paired lane. No tested pair passes. Full failures, controls, observer records, source and reproducible analysis are retained; this does not qualify takeoff.
