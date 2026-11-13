@@ -1,0 +1,8 @@
+{
+  "path": "artifacts/crow-v15-teacher-landing-flare-control-20261111/teacher-20261126/run.stderr.gz",
+  "sha256": "6e837d7175f616e22892c779ce795b5b8dca7437f8bbabb876458436278302d1",
+  "before_flag": "S",
+  "after_flag": "H",
+  "git_status_clean": true,
+  "restored_in_worktree": true
+}
