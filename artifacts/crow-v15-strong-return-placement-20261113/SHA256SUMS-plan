@@ -1,0 +1,9 @@
+543524380fe983b5140e913cfdcbf7612dadc1fecbd316a88b82aefd16449bba  artifacts/crow-v15-strong-return-placement-20261113/PLAN.md
+78ae1ba106dcb9893006532fce2f3694976b9050d3433913854260913febf06e  artifacts/crow-v15-strong-return-placement-20261113/probe.cpp
+59038790bd263bdbf8e929dc97cdb99bc4123f5cb6ccc743cc8afdd3611bd7a3  artifacts/crow-v15-strong-return-placement-20261113/run.py
+1a6a97bb8021406b64f79db70d1756120250d715f9afdd317b8ca200e861068f  artifacts/crow-v15-strong-return-placement-20261113/analyze.py
+4861e6edf869cdba104056c8cb58e3fd760fbba8f988caf9ed403c5864861801  artifacts/crow-v15-strong-return-placement-20261113/clearance-intervals.py
+87a474cd07c78d313b99fc3398b1264e3d50ed189141bcef836b6f30d5ef359a  artifacts/crow-v15-strong-return-placement-20261113/regrip-intervals.py
+ae5e7e7094916b509aad164a7fd04d8bfd499ef207fbb267244047a4dde4b812  artifacts/crow-v15-strong-return-placement-20261113/joint-check.py
+ea147f2f71f7fa1989e8a3ad0e3d2493cafab8b6aac9217c2c3498d7c7665ff2  artifacts/crow-v15-strong-return-placement-20261113/compare.py
+2971a302a5c02e4609c6086d718b8e98c5450225a14a542a903309b13081bec1  artifacts/crow-v15-strong-return-placement-20261113/geometry-audit.py
