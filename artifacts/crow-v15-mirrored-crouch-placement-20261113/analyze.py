@@ -23,6 +23,7 @@ def load(p):
  if d['run_result']['exit_code']!=0:d['errors'].append('nonzero exit')
  for e in range(8):
   if d['meta']['steps_by_environment'][e]<400:d['errors'].append(['early first-episode end',e])
+  if d['meta']['physical_failure_by_environment'][e]:d['errors'].append(['first-episode physical failure',e])
   if sum((e,t) in d['state'] for t in range(1,401))!=400:d['errors'].append(['missing state',e])
   if sum((e,t,k) in d['contact'] for t in range(335,401) for k in range(16))!=66*16:d['errors'].append(['missing contact',e])
   if sum((e,t,k) in d['work'] for t in range(335,401) for k in range(16))!=66*16:d['errors'].append(['missing effort',e])
