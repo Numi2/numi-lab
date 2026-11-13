@@ -1,0 +1,74 @@
+{
+  "steps": [
+    348,
+    365
+  ],
+  "rows": [
+    {
+      "lane": 2,
+      "push_net_j": 1.1702589452946746,
+      "hold_net_j": 3.9292523289527855e-06,
+      "net_difference_j": 1.1702550160423455,
+      "push_positive_j": 1.8789722284042298,
+      "hold_positive_j": 1.0674617275578176e-05,
+      "push_ground_impulse_ns": 1.5979505495244837,
+      "hold_ground_impulse_ns": 1.5893949080500003,
+      "impulse_difference_ns": 0.0085556414744834
+    },
+    {
+      "lane": 3,
+      "push_net_j": 1.1704961795666793,
+      "hold_net_j": 3.886201507637593e-06,
+      "net_difference_j": 1.1704922933651716,
+      "push_positive_j": 1.878792402845479,
+      "hold_positive_j": 1.0445342916616065e-05,
+      "push_ground_impulse_ns": 1.5978172133023185,
+      "hold_ground_impulse_ns": 1.5893945132500011,
+      "impulse_difference_ns": 0.008422700052317378
+    },
+    {
+      "lane": 4,
+      "push_net_j": 1.170524934378108,
+      "hold_net_j": 3.641985955752937e-06,
+      "net_difference_j": 1.1705212923921522,
+      "push_positive_j": 1.8788241462469455,
+      "hold_positive_j": 1.0630367521240764e-05,
+      "push_ground_impulse_ns": 1.597871552421809,
+      "hold_ground_impulse_ns": 1.5893920943899993,
+      "impulse_difference_ns": 0.008479458031809717
+    },
+    {
+      "lane": 5,
+      "push_net_j": 1.1705079279338035,
+      "hold_net_j": 3.93750336083561e-06,
+      "net_difference_j": 1.1705039904304426,
+      "push_positive_j": 1.878808625146074,
+      "hold_positive_j": 1.0433375608887206e-05,
+      "push_ground_impulse_ns": 1.5978189199092865,
+      "hold_ground_impulse_ns": 1.5893921729599998,
+      "impulse_difference_ns": 0.00842674694928669
+    },
+    {
+      "lane": 6,
+      "push_net_j": 1.17060184909302,
+      "hold_net_j": 3.941624408610572e-06,
+      "net_difference_j": 1.1705979074686113,
+      "push_positive_j": 1.8788104104500856,
+      "hold_positive_j": 1.052086773345251e-05,
+      "push_ground_impulse_ns": 1.5978817000973016,
+      "hold_ground_impulse_ns": 1.5893931164700004,
+      "impulse_difference_ns": 0.008488583627301205
+    },
+    {
+      "lane": 7,
+      "push_net_j": 1.1704507634372807,
+      "hold_net_j": 3.828332579178584e-06,
+      "net_difference_j": 1.1704469351047015,
+      "push_positive_j": 1.8788300886525924,
+      "hold_positive_j": 1.0493923123942109e-05,
+      "push_ground_impulse_ns": 1.5978294512521687,
+      "hold_ground_impulse_ns": 1.5893945087699994,
+      "impulse_difference_ns": 0.00843494248216925
+    }
+  ]
+}

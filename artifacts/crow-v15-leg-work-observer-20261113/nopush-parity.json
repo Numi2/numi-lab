@@ -1,0 +1,23 @@
+{
+  "support": {
+    "reference_keys": 3208,
+    "new_keys": 3208,
+    "shared_keys": 3208,
+    "mismatches": 0,
+    "first_mismatch": null,
+    "missing_reference": 0,
+    "missing_new": 0
+  },
+  "contact_substeps": {
+    "reference_keys": 5888,
+    "new_keys": 5888,
+    "shared_keys": 5888,
+    "mismatches": 0,
+    "first_mismatch": null,
+    "missing_reference": 0,
+    "missing_new": 0
+  },
+  "old_errors": [],
+  "new_errors": [],
+  "effort_samples": 5888
+}
