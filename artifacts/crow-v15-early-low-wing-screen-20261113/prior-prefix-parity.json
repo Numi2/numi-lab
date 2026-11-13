@@ -1,0 +1,5 @@
+{
+  "state_mismatches": 0,
+  "contact_mismatches": 0,
+  "scope": "Exact logged push-arm state/action/contact parity over first 345 intervals and contact substeps 335\u2013345. Does not establish equality of hidden state."
+}

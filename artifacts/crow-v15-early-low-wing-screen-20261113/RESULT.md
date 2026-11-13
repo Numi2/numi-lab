@@ -1,0 +1,7 @@
+# Earlier low-effort first stroke: failed paired launch screen
+
+Both arms completed all 400 ticks in all eight first episodes. Their logged state, action and contact prefixes matched exactly through tick 345, including recorded substep contacts from ticks 335–345. The push arm also exactly matched the prior later-stroke push arm through that prefix. These are recorded-field comparisons, not proof of identical unobserved state. The working-effort bounds were observed.
+
+Each of six comparable lanes had push-minus-hold upward foot impulse of 0.114–0.178 N s in ticks 348–355 and 0.0501–0.1211 N s in ticks 348–357. But no lane passed the full screen: all had at least five toe-speed threshold substeps, those with a three-interval release had prior support interruptions and subsequent foot recontact, and the maximum root rise was 0.0238–0.0346 m, below 0.05 m. Lane 3 never had a three-interval release; its empty pre-release-gap array is undefined rather than evidence of continuous support. Peak recorded modeled upward aerodynamic force ranged from about 0.98 to 4.25 N across bounds. Lanes 0 and 1 used the unchanged high-drive control and are not evidence for the low-effort bounds.
+
+Moving the stroke 40 ms earlier did not qualify takeoff; the comparison does not establish a unique physical cause. This is a used-seed correlated-lane developmental sensitivity test, not flight, supported landing, route or biological validation. Preserve the failed runs, all controls, source, binary, hashes, replay and substep evidence.
