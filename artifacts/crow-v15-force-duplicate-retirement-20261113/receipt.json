@@ -1,0 +1,12 @@
+{
+  "deleted": [
+    "artifacts/crow-v15-flight-force-observer-20261113/push-wing-20261126-rebound-force/run.stderr.gz",
+    "artifacts/crow-v15-flight-force-observer-20261113/push-wing-20261126-rebound-force/run.stderr.gz.part00",
+    "artifacts/crow-v15-flight-force-observer-20261113/push-wing-20261126-rebound-force/run.stderr.gz.part01",
+    "artifacts/crow-v15-flight-force-observer-20261113/push-wing-20261126-rebound-force/run.stderr.gz.part02",
+    "artifacts/crow-v15-flight-force-observer-20261113/push-wing-20261126-rebound-force/run.stderr.gz.part03",
+    "artifacts/crow-v15-flight-force-observer-20261113/push-wing-20261126-rebound-force/run.stderr.gz.part04"
+  ],
+  "logical_bytes": 366218756,
+  "verified_commit": "ce85ee5650cee944dc8e8d658d9805688e0f9972"
+}
