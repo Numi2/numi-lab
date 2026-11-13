@@ -1,0 +1,1 @@
+Run extract.py against the archived current-body grip-release trace, restore the executable fk.gz and its recorded runtime, execute it with states.tsv on stdin, then run analyze.py. This re-evaluates kinematics only; it does not advance the physical state.

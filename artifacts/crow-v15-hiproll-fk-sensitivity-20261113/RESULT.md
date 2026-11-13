@@ -1,0 +1,5 @@
+# Current-body hip-roll kinematics
+
+Reconstructed all 494 accepted two-lane states of the corrected-axis 35-body grip-release test. Native forward kinematics matched all 2,964 logged left/right foot coordinates within 6.49e-10 m. Inputs, native code, executable, runtime hash, output and analysis are retained.
+
+At lane 0 release step 100, whole-bird COM was 0.0361 m left of the right foot. A small right hip-roll variation has local COM-relative-to-right-foot derivative -0.1303 m/rad laterally; the left hip-roll derivative was +0.00383 m/rad. These are fixed-root kinematic derivatives, not evidence that contact-constrained motion follows the same relation. Lane 0 COM was 0.00265 m behind the right foot at release; after release it was 0.0127 m ahead at step 150 and 0.1283 m ahead by step 230, at which point the bird was falling. This forward evolution, loss of opposing contact and the untested one-foot weight transfer must be addressed together. Geometry alone cannot establish dynamic support or infer a biological parameter.
