@@ -1,0 +1,7 @@
+# Corrected-body wing-held leg-push isolation
+
+The matched push and crouched-hold tests used the corrected-axis v15 research body and the same actor packs, active neutral-wing targets, collision masks and used development seed. Joint-frame, host, pack, mask, target-history and paired pre-push state/contact checks passed. The corrected-axis whole-body center-of-mass calculation passed its uniform-translation check to 5.6e-17 m/s; input hashes, source and full telemetry are retained.
+
+Synchronized push lanes 2 and 3 both reached three unloaded intervals beginning at tick 376 with upward whole-body COM speed 0.472 and 0.430 m/s. Push-minus-matched-hold foot-normal impulse through release was +0.222 and +0.203 N s. Peak flap speed through release was 0.904 and 0.846 rad/s, and modeled vertical aero impulse was -0.00160 and -0.00138 N s. Neither push recorded a toe-speed threshold event or nonfoot normal impulse through release. Both corresponding crouched holds stayed grounded. This passes the preregistered developmental leg-hop isolation gate. The other four push lanes failed, including toe-speed threshold events; all are retained.
+
+Both successful hop lanes recontacted at tick 382. This is a short simulated hop with held wings and approximate aero, not muscle-work measurement or a sustained leg-powered takeoff. It does not qualify the transition, robust flight, navigation or landing; the two lanes are correlated and the final unused seeds/layouts were not used.

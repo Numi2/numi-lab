@@ -1,0 +1,26 @@
+{
+  "valid": true,
+  "same_host_and_packs": true,
+  "same_masks": true,
+  "same_joint_frames": true,
+  "pronation_axes": [
+    [
+      0.0,
+      1.0,
+      0.0
+    ],
+    [
+      0.0,
+      1.0,
+      0.0
+    ]
+  ],
+  "corrected_axes": true,
+  "wing_target_differences": [],
+  "missing_targets": [],
+  "observer_errors": {
+    "push": [],
+    "hold": []
+  },
+  "scope": "Matched corrected-body wing-held controls; not a full launch or biological validation."
+}

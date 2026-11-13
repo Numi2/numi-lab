@@ -5,6 +5,7 @@ dc8f96c48dd94e4239a7a56a378576847cc6325187587016e2a31fe9e98149d4  ./analyze-forc
 a604e40d0b753b2523ec2288a725a0f9c454ec7f4eedf721105f31b3515ffbf9  ./analyze.py
 dfd5dea29f7dbd0393e08022befc844cf23b680afd05810ad9554cee2eb9e84b  ./build.log
 5480bd9ae64e24ce5af320f97c05c05b773619f79c2085268c1cc03a8afcd263  ./build.py
+c59348a4495bacb167e2267f2696c9f61acbf1a6c50d3244f6c3b10c78efdec7  ./joint-speed-audit.py
 ae8ab4c55a68655dc7a3b6b27a5839366f6c0a500c3452905c54bc0ae838f0b7  ./pronation-small-20261126-rebound-small/RESULT.md
 145ba69f5adc5d0a178887b7056e85ec1f1c88ad1574a810f2f284e8b020883d  ./pronation-small-20261126-rebound-small/command.json
 3fb90111b292d184b021eecfd5871d9bcfb71e98d8ec997f2a995530dc83e45a  ./pronation-small-20261126-rebound-small/effort-analysis.json
@@ -13,7 +14,9 @@ e0d0e01da7e3545e40b2c88ec4c6249c59fe82231968db773f1e478780e192ac  ./pronation-sm
 b74c265bf4eb7773349aec03889c94e49631a4466327b038bb8816a11f6d8829  ./pronation-small-20261126-rebound-small/force-analysis.log
 7d549adfe76b963c9ee2fc3a3fd40d556a54307e81a339a051055a2bab54920c  ./pronation-small-20261126-rebound-small/gate.json
 7d549adfe76b963c9ee2fc3a3fd40d556a54307e81a339a051055a2bab54920c  ./pronation-small-20261126-rebound-small/gate.log
+63e4b0eeac380423c96199849d383a02519b57a6688633247cd64a42726e66cb  ./pronation-small-20261126-rebound-small/independent-github-download-20261126.json
 4eaa4ade637b53d42f6698024dde32b9c31241249cbc588d547465bbb6aa51e5  ./pronation-small-20261126-rebound-small/inputs.json
+600af1b55352792eeaf6b19d8599a9303e7bd0bd1d5875ed88e9ebafa81d5875  ./pronation-small-20261126-rebound-small/joint-speed-audit.json
 f8d51b79ba007440a0154f654910d0001f439132295122e8acddaee890a8bc68  ./pronation-small-20261126-rebound-small/matched-analysis.json
 7c4fabc67e253ca84844e61c0b68cd1ebd17500b19633b91c3b3eb1a48cf035e  ./pronation-small-20261126-rebound-small/matched-analysis.log
 817f5665de12eae4f9e3554bfd61ffb83044f12ee290ca5d069a08c713fb9e8f  ./pronation-small-20261126-rebound-small/replay.json.gz

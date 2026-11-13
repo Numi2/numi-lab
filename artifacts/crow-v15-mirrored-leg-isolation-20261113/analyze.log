@@ -1,0 +1,8 @@
+lane 0 early deltas 0.0 0.0 push release None hold release None push rise 0.0005 hold rise 0.0005 nonfoot through400 0.0 toe caps 0
+lane 1 early deltas 0.0 0.0 push release None hold release None push rise 0.0005 hold rise 0.0005 nonfoot through400 0.0 toe caps 0
+lane 2 early deltas 0.0 0.0 push release 376 hold release None push rise 0.0335 hold rise -0.0001 nonfoot through400 0.0 toe caps 0
+lane 3 early deltas 0.0 0.0 push release 376 hold release None push rise 0.0306 hold rise -0.0001 nonfoot through400 0.0 toe caps 0
+lane 4 early deltas 0.0 0.0 push release None hold release None push rise 0.0251 hold rise -0.0001 nonfoot through400 0.0 toe caps 10
+lane 5 early deltas 0.0 0.0 push release None hold release None push rise 0.0251 hold rise -0.0001 nonfoot through400 0.0 toe caps 10
+lane 6 early deltas 0.0 0.0 push release None hold release None push rise 0.0126 hold rise -0.0001 nonfoot through400 0.0 toe caps 2
+lane 7 early deltas 0.0 0.0 push release None hold release None push rise 0.0128 hold rise -0.0001 nonfoot through400 0.0 toe caps 2

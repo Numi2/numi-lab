@@ -1,0 +1,12 @@
+{'arm': 'push', 'lane': 2, 'max_abs_effort': [0.75, 0.75, 0.600000024, 0.75, 0.75, 0.600000024], 'saturated_substeps': [44, 73, 72, 44, 73, 73], 'bound_violations': []}
+{'arm': 'push', 'lane': 3, 'max_abs_effort': [0.75, 0.75, 0.600000024, 0.75, 0.75, 0.600000024], 'saturated_substeps': [33, 58, 57, 32, 59, 56], 'bound_violations': []}
+{'arm': 'push', 'lane': 4, 'max_abs_effort': [0.75, 0.75, 0.600000024, 0.75, 0.75, 0.600000024], 'saturated_substeps': [33, 49, 64, 35, 47, 62], 'bound_violations': []}
+{'arm': 'push', 'lane': 5, 'max_abs_effort': [0.75, 0.75, 0.600000024, 0.75, 0.75, 0.600000024], 'saturated_substeps': [33, 47, 65, 34, 47, 65], 'bound_violations': []}
+{'arm': 'push', 'lane': 6, 'max_abs_effort': [0.75, 0.75, 0.600000024, 0.75, 0.75, 0.600000024], 'saturated_substeps': [41, 49, 50, 41, 49, 50], 'bound_violations': []}
+{'arm': 'push', 'lane': 7, 'max_abs_effort': [0.75, 0.75, 0.600000024, 0.75, 0.75, 0.600000024], 'saturated_substeps': [52, 44, 44, 52, 44, 44], 'bound_violations': []}
+{'arm': 'hold', 'lane': 2, 'max_abs_effort': [0.0380959883, 0.069814235, 0.0528449081, 0.0370641649, 0.0711609125, 0.0531989262], 'saturated_substeps': [0, 0, 0, 0, 0, 0], 'bound_violations': []}
+{'arm': 'hold', 'lane': 3, 'max_abs_effort': [0.0363385864, 0.0708721653, 0.0529543124, 0.0390796736, 0.0700635239, 0.0530880578], 'saturated_substeps': [0, 0, 0, 0, 0, 0], 'bound_violations': []}
+{'arm': 'hold', 'lane': 4, 'max_abs_effort': [0.0301564857, 0.0746777728, 0.0535104126, 0.0450957827, 0.0663018227, 0.0525330156], 'saturated_substeps': [0, 0, 0, 0, 0, 0], 'bound_violations': []}
+{'arm': 'hold', 'lane': 5, 'max_abs_effort': [0.038379129, 0.0697228014, 0.0528390072, 0.0369700864, 0.0712159351, 0.0532008968], 'saturated_substeps': [0, 0, 0, 0, 0, 0], 'bound_violations': []}
+{'arm': 'hold', 'lane': 6, 'max_abs_effort': [0.0385200307, 0.069069244, 0.0526321158, 0.037036296, 0.0718338639, 0.053409446], 'saturated_substeps': [0, 0, 0, 0, 0, 0], 'bound_violations': []}
+{'arm': 'hold', 'lane': 7, 'max_abs_effort': [0.0348689295, 0.0719055086, 0.0531636812, 0.0406365693, 0.0690294281, 0.052878961], 'saturated_substeps': [0, 0, 0, 0, 0, 0], 'bound_violations': []}
