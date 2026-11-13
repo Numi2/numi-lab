@@ -1,0 +1,10 @@
+3b8af807a20a68a4a6ec59a5da3f88b45b13759a04e55d08225d0fb91d426532  artifacts/crow-v15-return-toe-closure-rate-20261113/PLAN.md
+8654c20eb7ac2fb232d149b8338b5eee7875c5803eb56a363b9fa4332a4f0ee0  artifacts/crow-v15-return-toe-closure-rate-20261113/probe.cpp
+0b2049f74f47669818871dd30a0504a553f3cea9665ec0ce1d25136de451b3c3  artifacts/crow-v15-return-toe-closure-rate-20261113/run.py
+dedf18aca4a7a6596ca8536339c420289b4624929cad7d4bda190788f09f2d47  artifacts/crow-v15-return-toe-closure-rate-20261113/analyze.py
+4ceec1cae6dfe017be5537bfa4f504ab7e7f7f5eb0b08210877612146b044706  artifacts/crow-v15-return-toe-closure-rate-20261113/clearance-intervals.py
+9cd3151d11390e2057cd3adc7007d739f353cc59d981d849641867851e626934  artifacts/crow-v15-return-toe-closure-rate-20261113/regrip-intervals.py
+8a37ceb7e8ac9e125a5ab81f5b2ae9f30be7da13a05f42b4212f74a152935b75  artifacts/crow-v15-return-toe-closure-rate-20261113/joint-check.py
+e0cd6c1a12a9e17d2867a04dc391b19cc70bfe3e5af6de9e0a004c5ec6693a04  artifacts/crow-v15-return-toe-closure-rate-20261113/geometry-audit.py
+17d8b5be24ef294b48b368817639d76fd2b980d294ffaec5228b0a1ab6a84f53  artifacts/crow-v15-return-toe-closure-rate-20261113/compare.py
+db873b3e0d36abae234566e15228a9ff48d4a575de38377e4130105db80edaef  artifacts/crow-v15-return-toe-closure-rate-20261113/toe-speed.py
