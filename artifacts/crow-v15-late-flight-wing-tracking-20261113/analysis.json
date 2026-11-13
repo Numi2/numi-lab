@@ -1,0 +1,72 @@
+{
+  "source_sha256": "9430f70b205ee0008606717ece227be84ad3a6619af3be87a78ec613fd2bc74f",
+  "scope": "Used seed, correlated lanes, both flapping DOFs ticks 376\u2013400. Effort times displacement is an observer-based work proxy, not independently validated muscle work or biological power; target error, saturation and force describe this simulated controller and model only.",
+  "rows": [
+    {
+      "lane": 2,
+      "bound": 2.5,
+      "fraction_at_effort_limit": 1.0,
+      "target_error_rms_rad": 0.8001924055539884,
+      "target_error_max_rad": 1.237803757,
+      "max_abs_wing_speed_rad_s": 13.1038656,
+      "effort_times_accepted_displacement_positive": 8.904785538750005,
+      "effort_times_accepted_displacement_negative_magnitude": 6.425801964500003,
+      "mean_modeled_vertical_aero_force_n": 1.1410352650171978
+    },
+    {
+      "lane": 3,
+      "bound": 2.5,
+      "fraction_at_effort_limit": 0.9975,
+      "target_error_rms_rad": 0.8028288856622773,
+      "target_error_max_rad": 1.290733099,
+      "max_abs_wing_speed_rad_s": 13.0881863,
+      "effort_times_accepted_displacement_positive": 8.882460299285215,
+      "effort_times_accepted_displacement_negative_magnitude": 6.426759065611441,
+      "mean_modeled_vertical_aero_force_n": 1.1377670660444281
+    },
+    {
+      "lane": 4,
+      "bound": 3,
+      "fraction_at_effort_limit": 1.0,
+      "target_error_rms_rad": 0.8938699325961333,
+      "target_error_max_rad": 1.480439484,
+      "max_abs_wing_speed_rad_s": 16.0953102,
+      "effort_times_accepted_displacement_positive": 12.767753271,
+      "effort_times_accepted_displacement_negative_magnitude": 10.128242478000004,
+      "mean_modeled_vertical_aero_force_n": 1.744180057422946
+    },
+    {
+      "lane": 5,
+      "bound": 3,
+      "fraction_at_effort_limit": 0.99875,
+      "target_error_rms_rad": 0.8937623412102722,
+      "target_error_max_rad": 1.50631696,
+      "max_abs_wing_speed_rad_s": 16.1390991,
+      "effort_times_accepted_displacement_positive": 12.647530067144555,
+      "effort_times_accepted_displacement_negative_magnitude": 10.087257767999999,
+      "mean_modeled_vertical_aero_force_n": 1.724677625308307
+    },
+    {
+      "lane": 6,
+      "bound": 4,
+      "fraction_at_effort_limit": 0.9975,
+      "target_error_rms_rad": 1.036659567432005,
+      "target_error_max_rad": 1.823865895,
+      "max_abs_wing_speed_rad_s": 21.7545528,
+      "effort_times_accepted_displacement_positive": 21.169575880968335,
+      "effort_times_accepted_displacement_negative_magnitude": 18.75159428480001,
+      "mean_modeled_vertical_aero_force_n": 3.1484618978393706
+    },
+    {
+      "lane": 7,
+      "bound": 4,
+      "fraction_at_effort_limit": 0.9975,
+      "target_error_rms_rad": 1.0545553130231768,
+      "target_error_max_rad": 1.900832652,
+      "max_abs_wing_speed_rad_s": 21.9841099,
+      "effort_times_accepted_displacement_positive": 20.985354015999988,
+      "effort_times_accepted_displacement_negative_magnitude": 18.96067309577054,
+      "mean_modeled_vertical_aero_force_n": 3.135920206243633
+    }
+  ]
+}
