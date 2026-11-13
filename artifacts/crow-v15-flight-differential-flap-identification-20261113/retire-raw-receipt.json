@@ -1,0 +1,10 @@
+{
+  "retired": [
+    {
+      "path": "/Users/n/Developer/numi-crow-rl-20261107/artifacts/crow-v15-flight-differential-flap-identification-20261113/flap-identification-20261126-rebound-flap/run.stderr.gz",
+      "bytes": 142207265,
+      "sha256": "79d512d53093f551c8ce4b88a64dd56cc6d8a402c88c6418609dfdde42273143"
+    }
+  ],
+  "archive_commit": "1b30d2ad536701e110b2380c413df311929bcca5"
+}
