@@ -1,0 +1,40 @@
+{
+  "archive_verified_at_commit": "17ad29c4b5317a4da62cb8725adad547a13f76ca",
+  "files": [
+    {
+      "path": "/tmp/crow-schedule27.gz",
+      "bytes": 250428286,
+      "sha256": "52fc9b1c20ec7ceead08abfef0fb59b57384b4b72c465d3d7cdc1fe8636d9953"
+    },
+    {
+      "path": "/tmp/crow-continuation.rfybzJ/repo/artifacts/crow-v15-leg-flight-height-schedule-20261113/signed-turn-20261127-rebound-schedule/run.stderr.gz.part000",
+      "bytes": 41943040,
+      "sha256": "7f4a525c7efc86774b61bffff54fcb42e282269f902049011388fe79c0d37234"
+    },
+    {
+      "path": "/tmp/crow-continuation.rfybzJ/repo/artifacts/crow-v15-leg-flight-height-schedule-20261113/signed-turn-20261127-rebound-schedule/run.stderr.gz.part001",
+      "bytes": 41943040,
+      "sha256": "efc3e9bda5f1ad6f5a11a5295d52d832e42783c29cca0a71c3b6b072b19264d5"
+    },
+    {
+      "path": "/tmp/crow-continuation.rfybzJ/repo/artifacts/crow-v15-leg-flight-height-schedule-20261113/signed-turn-20261127-rebound-schedule/run.stderr.gz.part002",
+      "bytes": 41943040,
+      "sha256": "c889b3711ce4a4adaadb7dfeae02945e9f3fbd6bd94320cff5364bc74702f3e5"
+    },
+    {
+      "path": "/tmp/crow-continuation.rfybzJ/repo/artifacts/crow-v15-leg-flight-height-schedule-20261113/signed-turn-20261127-rebound-schedule/run.stderr.gz.part003",
+      "bytes": 41943040,
+      "sha256": "a3ef1b7cb2c50a5beff243655c2f40df7e94977131fb6ef37c6d4f283b7a5a35"
+    },
+    {
+      "path": "/tmp/crow-continuation.rfybzJ/repo/artifacts/crow-v15-leg-flight-height-schedule-20261113/signed-turn-20261127-rebound-schedule/run.stderr.gz.part004",
+      "bytes": 41943040,
+      "sha256": "98818865f84327286e36bd2a852f89a3a55614133529b324f21e283ed35d9b2b"
+    },
+    {
+      "path": "/tmp/crow-continuation.rfybzJ/repo/artifacts/crow-v15-leg-flight-height-schedule-20261113/signed-turn-20261127-rebound-schedule/run.stderr.gz.part005",
+      "bytes": 40713086,
+      "sha256": "f89e854c0cc93c3687ae9b4b794dbdf45d48c93f8130bbf58981f0325e557732"
+    }
+  ]
+}
