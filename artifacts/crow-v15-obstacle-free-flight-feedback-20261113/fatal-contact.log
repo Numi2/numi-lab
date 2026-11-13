@@ -1,0 +1,6 @@
+2 end 692 trace 693 contacts []
+3 end 690 trace 691 contacts [('crow_lower_beak', 'locomotion_ground', 0.0917437077)]
+4 end 725 trace 726 contacts [('crow_right_front_toe_1_distal', 'locomotion_ground', 0.000817955704)]
+5 end 710 trace 711 contacts [('crow_lower_beak', 'locomotion_ground', 0.105551668), ('crow_right_front_toe_1_distal', 'locomotion_ground', 0.000560066081)]
+6 end 765 trace 766 contacts [('crow_lower_beak', 'locomotion_ground', 0.005756367)]
+7 end 774 trace 775 contacts [('crow_lower_beak', 'locomotion_ground', 0.102664284)]

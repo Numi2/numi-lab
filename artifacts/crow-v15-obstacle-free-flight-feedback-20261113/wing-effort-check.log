@@ -1,0 +1,6 @@
+{'arm': 'push', 'lane': 2, 'max_abs_flap_effort': [3.0, 3.0], 'within_3_bound': True}
+{'arm': 'push', 'lane': 3, 'max_abs_flap_effort': [3.0, 3.0], 'within_3_bound': True}
+{'arm': 'push', 'lane': 4, 'max_abs_flap_effort': [3.0, 3.0], 'within_3_bound': True}
+{'arm': 'push', 'lane': 5, 'max_abs_flap_effort': [3.0, 3.0], 'within_3_bound': True}
+{'arm': 'push', 'lane': 6, 'max_abs_flap_effort': [3.0, 3.0], 'within_3_bound': True}
+{'arm': 'push', 'lane': 7, 'max_abs_flap_effort': [3.0, 3.0], 'within_3_bound': True}

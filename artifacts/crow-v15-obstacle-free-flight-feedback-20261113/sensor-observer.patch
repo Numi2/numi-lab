@@ -1,0 +1,10 @@
+--- baseline/MetalWorld.mm
++++ sensor/MetalWorld.mm
+@@ -22477,6 +22477,7 @@
+                     const auto* crowStates=static_cast<const MRTaskStateGPU*>(crowTaskStateCopy.contents);
+                     for (NSUInteger lane=0;lane<crowTraceLanes;++lane) {
+                         const auto& state=crowStates[lane];
++                        std::fprintf(stderr,"CROW_FEEDBACK_SENSOR %llu %lu %.9g %.9g %.9g\n",crowTraceStep,(unsigned long)lane,state.commandExtension.z,state.airReturnTracking.y,state.threatGeometry.y);
+                         std::fprintf(stderr,"CROW_PHASE_SAMPLE %llu %lu %u %.9g %.9g %.9g %.9g %.9g %.9g %.9g %.9g\n",
+                             crowTraceStep,(unsigned long)lane,state.status.w,state.threatTeacher.w,
+                             state.nutrition.x,state.nutrition.y,state.commandAndPhase.y,state.commandAndPhase.z,
