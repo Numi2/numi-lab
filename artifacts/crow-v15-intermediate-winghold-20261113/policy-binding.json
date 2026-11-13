@@ -1,0 +1,29 @@
+{
+  "old_fingerprints": [
+    17891850696877010798,
+    15705698828380025115,
+    17302534426309478876,
+    9449770315401791956
+  ],
+  "new_fingerprints": [
+    14097770674163431938,
+    9387273234647585963,
+    17987893091873593072,
+    17201084694567446180
+  ],
+  "reports": [
+    {
+      "actor": "landing",
+      "source_sha256": "76485c667fd33326ebb569ff39d47a19a199387a02f633a3c07c35c4da68377e",
+      "target_sha256": "4fbaa0a55b9a9bd55aa0e094e4fb103af2da97222ac299742a7b14ed3668dbfc",
+      "identical_layers_and_transforms": true
+    },
+    {
+      "actor": "route",
+      "source_sha256": "0b4fb72c2822e4293976d93655feac2af571fe6db5fe6085c2aaefa9198fc14e",
+      "target_sha256": "e9a312cbc336f94804b075e63887bd3a80fb0258e9f53d0913c561354bdadf27",
+      "identical_layers_and_transforms": true
+    }
+  ],
+  "scope": "Diagnostic rebinding after wing damping metadata change. Exact layers and transforms checked; no retraining or validation under the changed dynamics is implied."
+}

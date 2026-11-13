@@ -1,0 +1,3 @@
+The initial copied-source c_api build omitted the clearance-observer include path and failed to find box_distance.hpp; no simulation was run. The next link consequently failed on the missing object. build-model.py adds that existing include path.
+The second compile exposed a missing wing_model.hpp include; the exact header directory was recovered from the previous host object dependency file and added. No model was run.
+The first rebind invocation used system Python without NumPy and failed before reading or modifying packs; the existing crow-analysis-venv with PYTHONPATH=python completed the verified rebind.
