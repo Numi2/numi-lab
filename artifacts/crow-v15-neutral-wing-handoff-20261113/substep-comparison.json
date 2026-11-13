@@ -1,0 +1,132 @@
+{
+  "reference": {
+    "rows": [
+      {
+        "lane": 2,
+        "max_substep_flap_speed_rad_s": 37.7589188,
+        "speed_step": 369,
+        "speed_substep": 3,
+        "force_at_speed_peak_n": 34.6940384558,
+        "max_vertical_aero_force_n": 34.6940384558,
+        "force_step": 369,
+        "force_substep": 3
+      },
+      {
+        "lane": 3,
+        "max_substep_flap_speed_rad_s": 37.9704552,
+        "speed_step": 369,
+        "speed_substep": 3,
+        "force_at_speed_peak_n": 34.9763833014,
+        "max_vertical_aero_force_n": 34.9763833014,
+        "force_step": 369,
+        "force_substep": 3
+      },
+      {
+        "lane": 4,
+        "max_substep_flap_speed_rad_s": 37.7293205,
+        "speed_step": 369,
+        "speed_substep": 3,
+        "force_at_speed_peak_n": 36.525897551,
+        "max_vertical_aero_force_n": 36.525897551,
+        "force_step": 369,
+        "force_substep": 3
+      },
+      {
+        "lane": 5,
+        "max_substep_flap_speed_rad_s": 37.8623466,
+        "speed_step": 369,
+        "speed_substep": 3,
+        "force_at_speed_peak_n": 34.8750199256,
+        "max_vertical_aero_force_n": 34.8750199256,
+        "force_step": 369,
+        "force_substep": 3
+      },
+      {
+        "lane": 6,
+        "max_substep_flap_speed_rad_s": 37.995121,
+        "speed_step": 369,
+        "speed_substep": 3,
+        "force_at_speed_peak_n": 36.9464008975,
+        "max_vertical_aero_force_n": 36.9464008975,
+        "force_step": 369,
+        "force_substep": 3
+      },
+      {
+        "lane": 7,
+        "max_substep_flap_speed_rad_s": 37.6829338,
+        "speed_step": 369,
+        "speed_substep": 3,
+        "force_at_speed_peak_n": 34.5783228232,
+        "max_vertical_aero_force_n": 34.5783228232,
+        "force_step": 369,
+        "force_substep": 3
+      }
+    ],
+    "records": 3584
+  },
+  "neutral": {
+    "rows": [
+      {
+        "lane": 2,
+        "max_substep_flap_speed_rad_s": 38.7227364,
+        "speed_step": 372,
+        "speed_substep": 3,
+        "force_at_speed_peak_n": 34.9935814552,
+        "max_vertical_aero_force_n": 34.9935814552,
+        "force_step": 372,
+        "force_substep": 3
+      },
+      {
+        "lane": 3,
+        "max_substep_flap_speed_rad_s": 38.8857727,
+        "speed_step": 372,
+        "speed_substep": 3,
+        "force_at_speed_peak_n": 35.3027722314,
+        "max_vertical_aero_force_n": 35.3027722314,
+        "force_step": 372,
+        "force_substep": 3
+      },
+      {
+        "lane": 4,
+        "max_substep_flap_speed_rad_s": 38.5052681,
+        "speed_step": 372,
+        "speed_substep": 3,
+        "force_at_speed_peak_n": 34.672202345,
+        "max_vertical_aero_force_n": 34.672202345,
+        "force_step": 372,
+        "force_substep": 3
+      },
+      {
+        "lane": 5,
+        "max_substep_flap_speed_rad_s": 38.4371872,
+        "speed_step": 372,
+        "speed_substep": 3,
+        "force_at_speed_peak_n": 34.0568956267,
+        "max_vertical_aero_force_n": 34.0568956267,
+        "force_step": 372,
+        "force_substep": 3
+      },
+      {
+        "lane": 6,
+        "max_substep_flap_speed_rad_s": 38.7254066,
+        "speed_step": 372,
+        "speed_substep": 3,
+        "force_at_speed_peak_n": 35.0932745486,
+        "max_vertical_aero_force_n": 35.0932745486,
+        "force_step": 372,
+        "force_substep": 3
+      },
+      {
+        "lane": 7,
+        "max_substep_flap_speed_rad_s": 38.0714149,
+        "speed_step": 372,
+        "speed_substep": 3,
+        "force_at_speed_peak_n": 33.4610526729,
+        "max_vertical_aero_force_n": 33.4610526729,
+        "force_step": 372,
+        "force_substep": 3
+      }
+    ],
+    "records": 3584
+  }
+}
