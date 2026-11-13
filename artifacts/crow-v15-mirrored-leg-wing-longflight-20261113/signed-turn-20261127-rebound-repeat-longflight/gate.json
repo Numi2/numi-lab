@@ -1,0 +1,108 @@
+{
+  "parity": [
+    {
+      "lane": 0,
+      "stop": 760,
+      "mismatches": []
+    },
+    {
+      "lane": 1,
+      "stop": 762,
+      "mismatches": []
+    },
+    {
+      "lane": 2,
+      "stop": 1800,
+      "mismatches": []
+    },
+    {
+      "lane": 3,
+      "stop": 1800,
+      "mismatches": []
+    },
+    {
+      "lane": 4,
+      "stop": 1800,
+      "mismatches": []
+    },
+    {
+      "lane": 5,
+      "stop": 1800,
+      "mismatches": []
+    },
+    {
+      "lane": 6,
+      "stop": 310,
+      "mismatches": []
+    },
+    {
+      "lane": 7,
+      "stop": 310,
+      "mismatches": []
+    }
+  ],
+  "rows": [
+    {
+      "lane": 6,
+      "checks": {
+        "shared": true,
+        "first_episode": true,
+        "coverage": true,
+        "release": true,
+        "no_ground_after_release": true,
+        "no_toe_cap": true,
+        "actuator_bounds": true,
+        "wing_target": true,
+        "forward_progress": true,
+        "height": true
+      },
+      "release": 375,
+      "first_recontact": null,
+      "first_recorded_ground": null,
+      "root_x_displacement_release_to_1800_m": 10.772921498,
+      "root_vx_550_1800_range": [
+        0.281090587,
+        0.617852986
+      ],
+      "height_range_450_1800": [
+        0.352823585,
+        0.81715095
+      ],
+      "toe_cap_count": 0,
+      "wing_target_error_max": 7.292952188949625e-05,
+      "passed": true
+    },
+    {
+      "lane": 7,
+      "checks": {
+        "shared": true,
+        "first_episode": true,
+        "coverage": true,
+        "release": true,
+        "no_ground_after_release": true,
+        "no_toe_cap": true,
+        "actuator_bounds": true,
+        "wing_target": true,
+        "forward_progress": true,
+        "height": true
+      },
+      "release": 380,
+      "first_recontact": null,
+      "first_recorded_ground": null,
+      "root_x_displacement_release_to_1800_m": 10.350325299,
+      "root_vx_550_1800_range": [
+        0.276328325,
+        0.613763571
+      ],
+      "height_range_450_1800": [
+        0.334902406,
+        0.563139558
+      ],
+      "toe_cap_count": 0,
+      "wing_target_error_max": 0.0001085773497684489,
+      "passed": true
+    }
+  ],
+  "passed_any": true,
+  "scope": "One used-seed 1800-step first-episode flight screen; no qualification of sustained flight, takeoff, landing, navigation, or biology."
+}
