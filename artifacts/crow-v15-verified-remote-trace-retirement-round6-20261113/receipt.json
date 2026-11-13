@@ -1,0 +1,30 @@
+{
+  "mode": "retired",
+  "rows": [
+    {
+      "path": "/Users/n/Developer/numi-crow-rl-20261107/artifacts/crow-v15-mirrored-height-trim-20261113/signed-turn-20261126-rebound-trim/run.stderr.gz",
+      "sha256": "ecc9f1c04d3a01d27c66409baa4148ed4aaf6b0177def630a6d6d1185e2a23bd",
+      "bytes": 246128666,
+      "device": 16777232,
+      "inode": 17099681,
+      "verified_commit": "6f8487d9beb56b68874385b259c3c195c2240eda"
+    },
+    {
+      "path": "/Users/n/Developer/numi-crow-rl-20261107/artifacts/crow-v15-mirrored-hip-ankle-crouch-20261113/push-wing-20261126-rebound-hipankle/run.stderr.gz",
+      "sha256": "08ac667d4bc9d31bd8c5387c3d5f6605513b08d0bba75c6782937169e83660f2",
+      "bytes": 35156072,
+      "device": 16777232,
+      "inode": 17099752,
+      "verified_commit": "af464c95481c245af8efbbde5bd5e50b67bc4fce"
+    },
+    {
+      "path": "/Users/n/Developer/numi-crow-rl-20261107/artifacts/crow-v15-mirrored-hip-ankle-crouch-20261113/hold-wing-20261126-rebound-hipankle/run.stderr.gz",
+      "sha256": "e1bf6d2cbad2d029e13c653308f6fe4cf4133968670b85e41a17391c52b487c8",
+      "bytes": 36887819,
+      "device": 16777232,
+      "inode": 17099777,
+      "verified_commit": "af464c95481c245af8efbbde5bd5e50b67bc4fce"
+    }
+  ],
+  "bytes": 318172557
+}
