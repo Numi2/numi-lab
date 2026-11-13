@@ -1,5 +1,5 @@
 1ca282b6edfaffd33312e06238c1d57becb302d960584e74117c7524bf95961b  artifacts/crow-v15-pronation-fixed-state-20261113/PLAN.md
-bb67d9f0adeb24cbd1bc82e81e19fd255777e4b8a21d16f82c43a5d1088e8497  artifacts/crow-v15-pronation-fixed-state-20261113/RESULT.md
+bf61c4215dcc50ec0ada20453af343dd071636e10ab57754cf33da24c72dcfc3  artifacts/crow-v15-pronation-fixed-state-20261113/RESULT.md
 1c8e9d46a44215c9f29c694badb3e886a3b69b3302f571250ff781278e538d82  artifacts/crow-v15-pronation-fixed-state-20261113/RUN.md
 fadf779efe266438d1b1c208e79ed166ad1d750e9f29f11ce48230e9817c114e  artifacts/crow-v15-pronation-fixed-state-20261113/fixed-state.mm
 32a4074377f650797679d9336cda56cf3f664db5d45ec9ce785d37e9e29184c7  artifacts/crow-v15-pronation-fixed-state-20261113/fixed-state.gz
@@ -9,3 +9,5 @@ fadf779efe266438d1b1c208e79ed166ad1d750e9f29f11ce48230e9817c114e  artifacts/crow
 65c01a65962b4ea72c9e571e4aac3e9979d201a7bf7260f7046d7c2dc18c8ac2  artifacts/crow-v15-pronation-fixed-state-20261113/moments.tsv.gz
 d205d5c9bfe3d4b7eb542106daa95ac4b25c0aa01af4bbdf3ac1bbb5d39aed32  artifacts/crow-v15-pronation-fixed-state-20261113/analyze.py
 12b0f01accccc9846fd085337c584a50ad0067d0f052eacacaf0086e134a1d9a  artifacts/crow-v15-pronation-fixed-state-20261113/analysis.json
+8beca6f500cd75f64b08d1fcc11216198dc316aed41fbab568039c3bd69a34dc  artifacts/crow-v15-pronation-fixed-state-20261113/exploratory-phase.py
+05af398810ab49b5baf27cfc6aa78d944ffece56c551f52f0eaf69a1a6478bae  artifacts/crow-v15-pronation-fixed-state-20261113/exploratory-phase.txt
