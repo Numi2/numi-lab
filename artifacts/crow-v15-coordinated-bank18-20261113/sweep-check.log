@@ -1,0 +1,25 @@
+{
+  "rows": [
+    {
+      "lane": 6,
+      "expected_count": 1366,
+      "samples": 1366,
+      "maximum_error_rad": 3.635150003303278e-07,
+      "max_accepted_position_abs_rad": 0.158560544,
+      "max_substep_speed_abs_rad_s": 2.37195897,
+      "max_target_abs_rad": 0.16050905,
+      "passed": true
+    },
+    {
+      "lane": 7,
+      "expected_count": 1366,
+      "samples": 1366,
+      "maximum_error_rad": 3.635100003299141e-07,
+      "max_accepted_position_abs_rad": 0.158681422,
+      "max_substep_speed_abs_rad_s": 2.37996244,
+      "max_target_abs_rad": 0.160450667,
+      "passed": true
+    }
+  ],
+  "passed": true
+}
