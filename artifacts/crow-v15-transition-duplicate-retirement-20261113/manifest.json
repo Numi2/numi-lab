@@ -1,0 +1,111 @@
+{
+  "purpose": "Retire only exact duplicate build outputs, after independent GitHub restore and identity/open handle recheck",
+  "host": "macmini",
+  "repo_root": "/Users/n/Developer/numi-crow-rl-20261107",
+  "files": [
+    {
+      "path": "build/crow-v15-transition-sweep-observer-20261113/push-wing-20261126-rebound-sweep-replay.json",
+      "size": 20030325,
+      "device": 16777232,
+      "inode": 17095646,
+      "links": 1,
+      "sha256": "09ced58f079783bea35072765ca5bcd6ef9cb1c45a84a7cc364d1470e513cff4",
+      "open_pids": [],
+      "lsof_exit": 1,
+      "commit": "1ab1d634e60fb50f3fd33b91d57525c34a1176ea",
+      "git_gzip": "artifacts/crow-v15-transition-sweep-observer-20261113/push-wing-20261126-rebound-sweep/replay.json.gz",
+      "independent_github_restore_sha256": "09ced58f079783bea35072765ca5bcd6ef9cb1c45a84a7cc364d1470e513cff4"
+    },
+    {
+      "path": "build/crow-v15-transition-sweep-observer-20261113/push-wing-20261126-rebound-sweep-trace.tsv",
+      "size": 432137,
+      "device": 16777232,
+      "inode": 17095645,
+      "links": 1,
+      "sha256": "3b127f2dd4fc27842f835773bec10f75a73ef1b059ab87ef98680d3f92cbecb3",
+      "open_pids": [],
+      "lsof_exit": 1,
+      "commit": "1ab1d634e60fb50f3fd33b91d57525c34a1176ea",
+      "git_gzip": "artifacts/crow-v15-transition-sweep-observer-20261113/push-wing-20261126-rebound-sweep/trace.tsv.gz",
+      "independent_github_restore_sha256": "3b127f2dd4fc27842f835773bec10f75a73ef1b059ab87ef98680d3f92cbecb3"
+    },
+    {
+      "path": "build/crow-v15-transition-sweep-observer-20261113/hold-wing-20261126-rebound-sweep-replay.json",
+      "size": 20022020,
+      "device": 16777232,
+      "inode": 17095673,
+      "links": 1,
+      "sha256": "4eb03402993cf6a52e770e617c4cb9325ee47c7aa2013a117f4135dc97d22160",
+      "open_pids": [],
+      "lsof_exit": 1,
+      "commit": "1ab1d634e60fb50f3fd33b91d57525c34a1176ea",
+      "git_gzip": "artifacts/crow-v15-transition-sweep-observer-20261113/hold-wing-20261126-rebound-sweep/replay.json.gz",
+      "independent_github_restore_sha256": "4eb03402993cf6a52e770e617c4cb9325ee47c7aa2013a117f4135dc97d22160"
+    },
+    {
+      "path": "build/crow-v15-transition-sweep-observer-20261113/hold-wing-20261126-rebound-sweep-trace.tsv",
+      "size": 432023,
+      "device": 16777232,
+      "inode": 17095671,
+      "links": 1,
+      "sha256": "851d1d763dc6894e2ae8a7c43ea36e70631ffbbc54f5f128c8579eb56bdb0608",
+      "open_pids": [],
+      "lsof_exit": 1,
+      "commit": "1ab1d634e60fb50f3fd33b91d57525c34a1176ea",
+      "git_gzip": "artifacts/crow-v15-transition-sweep-observer-20261113/hold-wing-20261126-rebound-sweep/trace.tsv.gz",
+      "independent_github_restore_sha256": "851d1d763dc6894e2ae8a7c43ea36e70631ffbbc54f5f128c8579eb56bdb0608"
+    },
+    {
+      "path": "build/crow-v15-posthop-wing-phase-20261113/push-wing-20261126-rebound-posthop-replay.json",
+      "size": 19961170,
+      "device": 16777232,
+      "inode": 17095888,
+      "links": 1,
+      "sha256": "0f192b6c61e0c8e6fad67844d70512b118976ff0f9a806a705cf900ddacf7e46",
+      "open_pids": [],
+      "lsof_exit": 1,
+      "commit": "1ab2083e9382a58e828b299c97a73c31c016cf76",
+      "git_gzip": "artifacts/crow-v15-posthop-wing-phase-20261113/push-wing-20261126-rebound-posthop/replay.json.gz",
+      "independent_github_restore_sha256": "0f192b6c61e0c8e6fad67844d70512b118976ff0f9a806a705cf900ddacf7e46"
+    },
+    {
+      "path": "build/crow-v15-posthop-wing-phase-20261113/push-wing-20261126-rebound-posthop-trace.tsv",
+      "size": 432150,
+      "device": 16777232,
+      "inode": 17095887,
+      "links": 1,
+      "sha256": "1ed6d9dce86b6201c65b13f99f73caa32abd8c4f293d939f48fcb8cd393bd9a4",
+      "open_pids": [],
+      "lsof_exit": 1,
+      "commit": "1ab2083e9382a58e828b299c97a73c31c016cf76",
+      "git_gzip": "artifacts/crow-v15-posthop-wing-phase-20261113/push-wing-20261126-rebound-posthop/trace.tsv.gz",
+      "independent_github_restore_sha256": "1ed6d9dce86b6201c65b13f99f73caa32abd8c4f293d939f48fcb8cd393bd9a4"
+    },
+    {
+      "path": "build/crow-v15-posthop-wing-phase-20261113/hold-wing-20261126-rebound-posthop-replay.json",
+      "size": 20009171,
+      "device": 16777232,
+      "inode": 17095902,
+      "links": 1,
+      "sha256": "65492028f74a620ecaef195d1a96e518fffe44e38f92b1f6189919797d3b1aaf",
+      "open_pids": [],
+      "lsof_exit": 1,
+      "commit": "1ab2083e9382a58e828b299c97a73c31c016cf76",
+      "git_gzip": "artifacts/crow-v15-posthop-wing-phase-20261113/hold-wing-20261126-rebound-posthop/replay.json.gz",
+      "independent_github_restore_sha256": "65492028f74a620ecaef195d1a96e518fffe44e38f92b1f6189919797d3b1aaf"
+    },
+    {
+      "path": "build/crow-v15-posthop-wing-phase-20261113/hold-wing-20261126-rebound-posthop-trace.tsv",
+      "size": 434871,
+      "device": 16777232,
+      "inode": 17095901,
+      "links": 1,
+      "sha256": "2a18c6f33e774b03e050b3e436d147b4af8e83c4bd6a2b6a4dca1c04ee651c51",
+      "open_pids": [],
+      "lsof_exit": 1,
+      "commit": "1ab2083e9382a58e828b299c97a73c31c016cf76",
+      "git_gzip": "artifacts/crow-v15-posthop-wing-phase-20261113/hold-wing-20261126-rebound-posthop/trace.tsv.gz",
+      "independent_github_restore_sha256": "2a18c6f33e774b03e050b3e436d147b4af8e83c4bd6a2b6a4dca1c04ee651c51"
+    }
+  ]
+}
