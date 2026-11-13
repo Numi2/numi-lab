@@ -1,0 +1,5 @@
+# Long walking failure reproduced
+
+A 600-step teacher-off rerun of the earlier 0.75-second walking cycle reproduced the retained lane-1 records exactly: 600 state/contact samples and 9,600 toe-contact and 9,600 toe-velocity substep records each have the same SHA-256 text digest as the original. The saved replay selects lane 1 and contains all 600 frames; host, shader, policies and source inputs matched the earlier receipt. This matches the sampled logs, not all internal simulator bits.
+
+The earlier analysis reported 34 consecutive substeps with neither foot carrying recorded normal load in lane 1, across steps 221–223. The saved lane-5 comparison had no such interval in the same eight-second walking window. No-load observations are not by themselves proof of a fall. These are correlated lanes from one previously exposed seed and an earlier development gait; neither is independent qualification or evidence of a natural crow gait. This reproduction does not establish takeoff, flight, navigation or landing. See PLAN.md, preflight.json, verification.json and the preserved command and logs for details.

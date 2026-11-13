@@ -1,0 +1,36 @@
+{
+  "original": {
+    "counts": {
+      "state": 600,
+      "contact": 9600,
+      "toe_velocity": 9600
+    },
+    "sha256": {
+      "state": "7e4ad8009ed06e4cdfdee94ce68f074d1eb60a7508d47ff446cd83476ac0bb74",
+      "contact": "2f8e8bf69aa433f9ccac04a3b97feb8e2574e1b928959a1ac5a0f29936d163f9",
+      "toe_velocity": "f9dd97211161d343d31abb8bf337fce442c0dd389f530f1f812bc2577fa6f670"
+    },
+    "errors": []
+  },
+  "repeat": {
+    "counts": {
+      "state": 600,
+      "contact": 9600,
+      "toe_velocity": 9600
+    },
+    "sha256": {
+      "state": "7e4ad8009ed06e4cdfdee94ce68f074d1eb60a7508d47ff446cd83476ac0bb74",
+      "contact": "2f8e8bf69aa433f9ccac04a3b97feb8e2574e1b928959a1ac5a0f29936d163f9",
+      "toe_velocity": "f9dd97211161d343d31abb8bf337fce442c0dd389f530f1f812bc2577fa6f670"
+    },
+    "errors": []
+  },
+  "replay": {
+    "environment": 1,
+    "frames": 600,
+    "first_step": 1,
+    "last_step": 600
+  },
+  "exact_records_match": true,
+  "scope": "Lane 1 recorded endpoint state/contact and toe substep aggregate/velocity text, not every simulator bit or policy memory. Both runs use the same previously exposed seed and source; this is reproduction, not a held-out trial."
+}

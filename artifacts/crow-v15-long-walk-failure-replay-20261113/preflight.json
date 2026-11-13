@@ -1,0 +1,38 @@
+{
+  "host_sha256": {
+    "path": "/Users/n/Developer/numi-crow-rl-20261107/build/crow-v15-autonomous-flight-fold-isolation-20261111/libmetalrobo.dylib",
+    "expected": "1be95d812c6e7b03256042f9d926752eea70c407a111d5eeae641e3aa2557580",
+    "actual": "1be95d812c6e7b03256042f9d926752eea70c407a111d5eeae641e3aa2557580",
+    "match": true
+  },
+  "metallib_sha256": {
+    "path": "/Users/n/Developer/numi-crow-rl-20261107/build/crow-v15-walk-hold-slower-cycle-20261111/feedback.metallib",
+    "expected": "51d2ca10e8ef4811a470ec90d0aa5d2ceee996b6fbb3a01ee63f2c81f4202bee",
+    "actual": "51d2ca10e8ef4811a470ec90d0aa5d2ceee996b6fbb3a01ee63f2c81f4202bee",
+    "match": true
+  },
+  "frozen_flight_sha256": {
+    "path": "/Users/n/Developer/numi-crow-rl-20261107/artifacts/crow-v15-flight-feedback-freeze-20261110/CrowFlightControllerResearchV2.metal",
+    "expected": "01bc92e4ec91c08d890da7b8691400f56490a2518d9ed47ae150bb997c65375c",
+    "actual": "01bc92e4ec91c08d890da7b8691400f56490a2518d9ed47ae150bb997c65375c",
+    "match": true
+  },
+  "landing_policy_sha256": {
+    "path": "/Users/n/Developer/numi-crow-rl-20261107/build/crow-v15-hip-roll-journey-integration-20261111/landing.policypack",
+    "expected": "e37af3f13003dc96cec6dcc92fdcb263e4a28c80c9491e8302bf83da155c898b",
+    "actual": "e37af3f13003dc96cec6dcc92fdcb263e4a28c80c9491e8302bf83da155c898b",
+    "match": true
+  },
+  "route_policy_sha256": {
+    "path": "/Users/n/Developer/numi-crow-rl-20261107/build/crow-v15-near-slalom-student-imitation-20261111/route-imitation.policypack",
+    "expected": "109f5937dcc27da5c3f6bc2a9838b598e7071ac61887a697dd1219e88f8fb5ff",
+    "actual": "109f5937dcc27da5c3f6bc2a9838b598e7071ac61887a697dd1219e88f8fb5ff",
+    "match": true
+  },
+  "original_log": {
+    "path": "/Users/n/Developer/numi-crow-rl-20261107/artifacts/crow-v15-walk-hold-slower-cycle-20261111/autonomous-20261126/run.stderr.gz.part000",
+    "actual": "7a501c5101388ff3927bbd851ce41e856ee38443cff48a1976f0740df554ca28",
+    "expected": "7a501c5101388ff3927bbd851ce41e856ee38443cff48a1976f0740df554ca28",
+    "match": true
+  }
+}
