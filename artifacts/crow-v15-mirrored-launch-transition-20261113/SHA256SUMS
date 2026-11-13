@@ -17,6 +17,7 @@ f7bafd31e54b64081afd0dd3b66640642a7bd5bf17e30a7867fe6c13ef1901d7  ./hold-wing-ha
 4d421d4b292e19a86b6ac5f496b659013d475f886abf1d8fe0b7dc1335c6bc36  ./hold-wing.metal
 bd7d9ccc39161434a590fc9f687d5ee48e74fca4160af5f7a4b6ccfcec839de4  ./hold-wing.metallib.gz
 b1c1457fec70029b8aeade8d8581878640dfc2ddbd5f4a9ba9588d8db4e72ef8  ./hold-wing.patch
+d7b826dc2d595f93562c3dbfb78806c685050044a6e8b8bc62c6857671c02946  ./independent-github-download.json
 54950cb320eb7bc9c6bab340b3ff5c21c5407e63880448d0e8d10ba51be345f2  ./push-build.log
 a168732ca6aa8352e79f986c4cd74e4fd478bd524acd13eeb522afbd45c3c2c5  ./push-wing-20261126-rebound-transition/command.json
 7987ef37ff530bf1e4c58c8bb303656fb05825c13c056990edaaa8904640c3d1  ./push-wing-20261126-rebound-transition/inputs.json

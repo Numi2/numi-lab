@@ -1,0 +1,17 @@
+{
+  "commit": "884595c4db93f4ac3599ad3564a305255174bb66",
+  "files": [
+    {
+      "file": "push-wing-20261126-rebound-transition/run.stderr.gz",
+      "bytes": 39536697,
+      "sha256": "d6c72618811ecd3c0794fa1bb0ee767cc24cf4cc9639ccb3b008f733ab47a14c",
+      "gzip_stream_valid": true
+    },
+    {
+      "file": "hold-wing-20261126-rebound-transition/run.stderr.gz",
+      "bytes": 39696530,
+      "sha256": "bb9a63c64482b817b58eb61f2b90c74cf98fe8e1506cad9b45ea18b9d06a1af7",
+      "gzip_stream_valid": true
+    }
+  ]
+}
