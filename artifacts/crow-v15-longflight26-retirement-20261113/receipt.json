@@ -1,0 +1,10 @@
+{
+  "path": "/Users/n/Developer/numi-crow-rl-20261107/artifacts/crow-v15-mirrored-leg-wing-longflight-20261113/signed-turn-20261126-rebound-longflight/run.stderr.gz",
+  "inode": 17100170,
+  "bytes": 247348878,
+  "mtime_ns": 1794582126537782281,
+  "sha256": "a2eb65a52b23b66dd854fc3cf522b996e8e01bf2251bbf295d1247c95afb4c93",
+  "remote_archive_commit": "698883015c032df1ab91bc5ce5ddfeeff0e650de",
+  "lsof_clear": true,
+  "retired": true
+}
