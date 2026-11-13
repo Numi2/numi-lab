@@ -1,0 +1,45 @@
+{
+  "commit": "535481711bf27cfaccff25381f6dd2d117cdbc84",
+  "source": "independent authenticated GitHub raw content",
+  "manifest": "artifacts/crow-v15-mirrored-altitude-screen-20261113/signed-turn-20261126-rebound-altitude/stderr-parts.json",
+  "bytes": 269175873,
+  "sha256": "1648c2f0998d021c0cbb566517afae970d89d4447653dd029f99fe7f92090eae",
+  "gzip_eof_verified": true,
+  "parts": [
+    {
+      "file": "run.stderr.gz.part000",
+      "bytes": 41943040,
+      "sha256": "d7607a5d06c40f109add13bce2f3f6b5fd232d35cfedb308e64b73a84cb7912c"
+    },
+    {
+      "file": "run.stderr.gz.part001",
+      "bytes": 41943040,
+      "sha256": "dc8f8db7b7b14032591c166fa8a0e21892a3b61aa6137df1380e64d8c59d6454"
+    },
+    {
+      "file": "run.stderr.gz.part002",
+      "bytes": 41943040,
+      "sha256": "eedf296e2cecffd282b55e3eddebddb47b54529c184649875abe50f560caae47"
+    },
+    {
+      "file": "run.stderr.gz.part003",
+      "bytes": 41943040,
+      "sha256": "58d1781c7353bd1866e6ce92eb90f0d4fd0c89132bb555b0a0b0fba6eca64efd"
+    },
+    {
+      "file": "run.stderr.gz.part004",
+      "bytes": 41943040,
+      "sha256": "991e0f93143f0ae39f5791cde9a3febfa06d2771502837f235df4bb55e177e37"
+    },
+    {
+      "file": "run.stderr.gz.part005",
+      "bytes": 41943040,
+      "sha256": "9c413a00e9c4c7c74bcc1b7d10723b5976858331f218a4e4fa1651cda98b8124"
+    },
+    {
+      "file": "run.stderr.gz.part006",
+      "bytes": 17517633,
+      "sha256": "080c97a52f7f692df2ce70c36d93a4c77be9fc04cdeb155b54d534f13be21d94"
+    }
+  ]
+}

@@ -1,0 +1,18 @@
+{
+  "commit": "ba66992c3e6e319a3d2f6e2bb1b32e7c18e6c3f3",
+  "source": "independent authenticated GitHub raw content",
+  "files": [
+    {
+      "path": "artifacts/crow-v15-mirrored-ankle-refine-20261113/push-wing-20261126-rebound-ankle/run.stderr.gz",
+      "bytes": 36429561,
+      "sha256": "d4436ce5ebdc986da3f3e466779f6ba44fe820cbde87060b0827438a6adce91e",
+      "gzip_eof_verified": true
+    },
+    {
+      "path": "artifacts/crow-v15-mirrored-ankle-refine-20261113/hold-wing-20261126-rebound-ankle/run.stderr.gz",
+      "bytes": 34137264,
+      "sha256": "c2c5d0123e4db86067a2545996f6c751305e00305abfc10b90229096fd04fadc",
+      "gzip_eof_verified": true
+    }
+  ]
+}
