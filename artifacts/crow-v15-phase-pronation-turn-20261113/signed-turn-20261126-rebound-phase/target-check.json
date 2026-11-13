@@ -1,0 +1,18 @@
+{
+  "6": {
+    "target_samples": 1202,
+    "max_abs_target_delta_error_rad": 7.773523124435244e-06,
+    "baseline_saturation_fraction": 0.5786551896207585,
+    "candidate_saturation_fraction": 0.6506362275449101,
+    "observed_effort_values_each": 16032,
+    "target_match": true
+  },
+  "7": {
+    "target_samples": 1202,
+    "max_abs_target_delta_error_rad": 8.045068663031785e-06,
+    "baseline_saturation_fraction": 0.5778443113772455,
+    "candidate_saturation_fraction": 0.6500124750499002,
+    "observed_effort_values_each": 16032,
+    "target_match": true
+  }
+}
