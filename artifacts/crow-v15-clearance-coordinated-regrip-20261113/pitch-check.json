@@ -1,0 +1,36 @@
+{
+  "0": {
+    "sample_count": 550,
+    "max_abs_correction_rad": 0.119999997,
+    "max_correction_slew_rad": 0.005000003000000003,
+    "unsupported_nonzero_desired_count": 0,
+    "pre_reference_nonzero_count": 0,
+    "hip_command_range_rad": [
+      -0.222951621,
+      -0.0354460478
+    ],
+    "hip_position_range_rad": [
+      -0.222067565,
+      -0.0360094123
+    ],
+    "position_limits_ok": true,
+    "scope": "accepted control-state kinematics and commands; not substep actuator effort"
+  },
+  "1": {
+    "sample_count": 550,
+    "max_abs_correction_rad": 0.119999997,
+    "max_correction_slew_rad": 0.005000003000000003,
+    "unsupported_nonzero_desired_count": 0,
+    "pre_reference_nonzero_count": 0,
+    "hip_command_range_rad": [
+      -0.232885718,
+      -0.035917379
+    ],
+    "hip_position_range_rad": [
+      -0.220846549,
+      -0.0361858085
+    ],
+    "position_limits_ok": true,
+    "scope": "accepted control-state kinematics and commands; not substep actuator effort"
+  }
+}

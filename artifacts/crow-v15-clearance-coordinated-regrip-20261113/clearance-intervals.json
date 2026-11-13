@@ -1,0 +1,240 @@
+{
+  "0": {
+    "passed_intervals": [
+      {
+        "step": 199,
+        "gap_m": 0.00192614936,
+        "right_up_impulse_Ns": 0.08785117043000001,
+        "root_pitch_rad": 0.14465318936855792,
+        "pitch_rate_rad_s": 0.112077653,
+        "root_speed_m_s": 0.009688806545155788,
+        "root_x_m": 0.00811734423
+      },
+      {
+        "step": 200,
+        "gap_m": 0.00220073364,
+        "right_up_impulse_Ns": 0.08854762020000001,
+        "root_pitch_rad": 0.14357815961274845,
+        "pitch_rate_rad_s": -0.0526068024,
+        "root_speed_m_s": 0.019636693817445823,
+        "root_x_m": 0.00841230527
+      },
+      {
+        "step": 201,
+        "gap_m": 0.00215079519,
+        "right_up_impulse_Ns": 0.08743207179999998,
+        "root_pitch_rad": 0.1456565022057761,
+        "pitch_rate_rad_s": 0.0994402245,
+        "root_speed_m_s": 0.0113199332885638,
+        "root_x_m": 0.00837125815
+      },
+      {
+        "step": 202,
+        "gap_m": 0.00230900152,
+        "right_up_impulse_Ns": 0.08916553643,
+        "root_pitch_rad": 0.14427822082340372,
+        "pitch_rate_rad_s": -0.0578257293,
+        "root_speed_m_s": 0.01789882448246212,
+        "root_x_m": 0.00865109544
+      },
+      {
+        "step": 203,
+        "gap_m": 0.00215393794,
+        "right_up_impulse_Ns": 0.08743908141999997,
+        "root_pitch_rad": 0.1463995286062891,
+        "pitch_rate_rad_s": 0.0866221637,
+        "root_speed_m_s": 0.013036545131610636,
+        "root_x_m": 0.00851698965
+      },
+      {
+        "step": 204,
+        "gap_m": 0.00231274497,
+        "right_up_impulse_Ns": 0.08923893885999999,
+        "root_pitch_rad": 0.14477257007031832,
+        "pitch_rate_rad_s": -0.0768700391,
+        "root_speed_m_s": 0.018855932171430525,
+        "root_x_m": 0.00877141859
+      },
+      {
+        "step": 205,
+        "gap_m": 0.00224275049,
+        "right_up_impulse_Ns": 0.08631939151000001,
+        "root_pitch_rad": 0.1469191948899876,
+        "pitch_rate_rad_s": 0.100035183,
+        "root_speed_m_s": 0.011905450554643163,
+        "root_x_m": 0.00868423376
+      },
+      {
+        "step": 206,
+        "gap_m": 0.00230199331,
+        "right_up_impulse_Ns": 0.09013153077,
+        "root_pitch_rad": 0.1456808784725896,
+        "pitch_rate_rad_s": -0.0586793162,
+        "root_speed_m_s": 0.014762725886573916,
+        "root_x_m": 0.00889969338
+      },
+      {
+        "step": 207,
+        "gap_m": 0.00197219104,
+        "right_up_impulse_Ns": 0.08748175797999999,
+        "root_pitch_rad": 0.14735108084025034,
+        "pitch_rate_rad_s": 0.0807429776,
+        "root_speed_m_s": 0.009845740772856522,
+        "root_x_m": 0.00883334503
+      },
+      {
+        "step": 208,
+        "gap_m": 0.00174498558,
+        "right_up_impulse_Ns": 0.08914634598,
+        "root_pitch_rad": 0.14597236338193945,
+        "pitch_rate_rad_s": -0.0629976541,
+        "root_speed_m_s": 0.019199932506689513,
+        "root_x_m": 0.00909386203
+      },
+      {
+        "step": 209,
+        "gap_m": 0.00136496872,
+        "right_up_impulse_Ns": 0.08605744365000001,
+        "root_pitch_rad": 0.14811811695713178,
+        "pitch_rate_rad_s": 0.101672783,
+        "root_speed_m_s": 0.013225289466409506,
+        "root_x_m": 0.00900385901
+      },
+      {
+        "step": 210,
+        "gap_m": 0.00117570162,
+        "right_up_impulse_Ns": 0.09102422780000002,
+        "root_pitch_rad": 0.1468299644649351,
+        "pitch_rate_rad_s": -0.0619355813,
+        "root_speed_m_s": 0.017282349225318117,
+        "root_x_m": 0.00922615547
+      }
+    ],
+    "streaks": [
+      [
+        199,
+        210,
+        12
+      ]
+    ]
+  },
+  "1": {
+    "passed_intervals": [
+      {
+        "step": 199,
+        "gap_m": 0.00192614936,
+        "right_up_impulse_Ns": 0.08785117043000001,
+        "root_pitch_rad": 0.14465318936855792,
+        "pitch_rate_rad_s": 0.112077653,
+        "root_speed_m_s": 0.009688806545155788,
+        "root_x_m": 0.00811734423
+      },
+      {
+        "step": 200,
+        "gap_m": 0.00220073364,
+        "right_up_impulse_Ns": 0.08854762020000001,
+        "root_pitch_rad": 0.14357815961274845,
+        "pitch_rate_rad_s": -0.0526068024,
+        "root_speed_m_s": 0.019636693817445823,
+        "root_x_m": 0.00841230527
+      },
+      {
+        "step": 201,
+        "gap_m": 0.00215079519,
+        "right_up_impulse_Ns": 0.08743207179999998,
+        "root_pitch_rad": 0.1456565022057761,
+        "pitch_rate_rad_s": 0.0994402245,
+        "root_speed_m_s": 0.0113199332885638,
+        "root_x_m": 0.00837125815
+      },
+      {
+        "step": 202,
+        "gap_m": 0.00230900152,
+        "right_up_impulse_Ns": 0.08916553643,
+        "root_pitch_rad": 0.14427822082340372,
+        "pitch_rate_rad_s": -0.0578257293,
+        "root_speed_m_s": 0.01789882448246212,
+        "root_x_m": 0.00865109544
+      },
+      {
+        "step": 203,
+        "gap_m": 0.00215393794,
+        "right_up_impulse_Ns": 0.08743908141999997,
+        "root_pitch_rad": 0.1463995286062891,
+        "pitch_rate_rad_s": 0.0866221637,
+        "root_speed_m_s": 0.013036545131610636,
+        "root_x_m": 0.00851698965
+      },
+      {
+        "step": 204,
+        "gap_m": 0.00231274497,
+        "right_up_impulse_Ns": 0.08923893885999999,
+        "root_pitch_rad": 0.14477257007031832,
+        "pitch_rate_rad_s": -0.0768700391,
+        "root_speed_m_s": 0.018855932171430525,
+        "root_x_m": 0.00877141859
+      },
+      {
+        "step": 205,
+        "gap_m": 0.00224275049,
+        "right_up_impulse_Ns": 0.08631939151000001,
+        "root_pitch_rad": 0.1469191948899876,
+        "pitch_rate_rad_s": 0.100035183,
+        "root_speed_m_s": 0.011905450554643163,
+        "root_x_m": 0.00868423376
+      },
+      {
+        "step": 206,
+        "gap_m": 0.00230199331,
+        "right_up_impulse_Ns": 0.09013153077,
+        "root_pitch_rad": 0.1456808784725896,
+        "pitch_rate_rad_s": -0.0586793162,
+        "root_speed_m_s": 0.014762725886573916,
+        "root_x_m": 0.00889969338
+      },
+      {
+        "step": 207,
+        "gap_m": 0.00197219104,
+        "right_up_impulse_Ns": 0.08748175797999999,
+        "root_pitch_rad": 0.14735108084025034,
+        "pitch_rate_rad_s": 0.0807429776,
+        "root_speed_m_s": 0.009845740772856522,
+        "root_x_m": 0.00883334503
+      },
+      {
+        "step": 208,
+        "gap_m": 0.00174498558,
+        "right_up_impulse_Ns": 0.08914634598,
+        "root_pitch_rad": 0.14597236338193945,
+        "pitch_rate_rad_s": -0.0629976541,
+        "root_speed_m_s": 0.019199932506689513,
+        "root_x_m": 0.00909386203
+      },
+      {
+        "step": 209,
+        "gap_m": 0.00136510283,
+        "right_up_impulse_Ns": 0.08642046479000001,
+        "root_pitch_rad": 0.14816658174791264,
+        "pitch_rate_rad_s": 0.106084198,
+        "root_speed_m_s": 0.013858757078735138,
+        "root_x_m": 0.00900451932
+      },
+      {
+        "step": 210,
+        "gap_m": 0.00117706507,
+        "right_up_impulse_Ns": 0.09097247386000001,
+        "root_pitch_rad": 0.14684296399549931,
+        "pitch_rate_rad_s": -0.0560859963,
+        "root_speed_m_s": 0.014439775813164642,
+        "root_x_m": 0.00921176467
+      }
+    ],
+    "streaks": [
+      [
+        199,
+        210,
+        12
+      ]
+    ]
+  }
+}
