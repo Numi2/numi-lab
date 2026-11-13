@@ -1,0 +1,59 @@
+{
+  "purpose": "retire redundant split copies; original retained for force comparisons",
+  "files": [
+    {
+      "absolute_path": "/Users/n/Developer/numi-crow-rl-20261107/artifacts/crow-v15-pronation-force-observer-20261113/pronation-yaw-20261126-rebound-force/run.stderr.gz.part00",
+      "device": 16777232,
+      "inode": 17098058,
+      "links": 1,
+      "bytes": 41943040,
+      "sha256": "cf1ff13e2d824854ca181a5ddb8471f4f8ac2c7884911450f3da4bea6f3a2929",
+      "lsof_exit": 1
+    },
+    {
+      "absolute_path": "/Users/n/Developer/numi-crow-rl-20261107/artifacts/crow-v15-pronation-force-observer-20261113/pronation-yaw-20261126-rebound-force/run.stderr.gz.part01",
+      "device": 16777232,
+      "inode": 17098059,
+      "links": 1,
+      "bytes": 41943040,
+      "sha256": "f4a5f17c07870bd9b22e7990fe18da190c332a97c5a98a70dc914fc7d311408d",
+      "lsof_exit": 1
+    },
+    {
+      "absolute_path": "/Users/n/Developer/numi-crow-rl-20261107/artifacts/crow-v15-pronation-force-observer-20261113/pronation-yaw-20261126-rebound-force/run.stderr.gz.part02",
+      "device": 16777232,
+      "inode": 17098060,
+      "links": 1,
+      "bytes": 41943040,
+      "sha256": "7acadb2ad4d5e9431e39d9ae7eef67456643d5bc4df74003ebb3ecc8f7ccd3e8",
+      "lsof_exit": 1
+    },
+    {
+      "absolute_path": "/Users/n/Developer/numi-crow-rl-20261107/artifacts/crow-v15-pronation-force-observer-20261113/pronation-yaw-20261126-rebound-force/run.stderr.gz.part03",
+      "device": 16777232,
+      "inode": 17098061,
+      "links": 1,
+      "bytes": 41943040,
+      "sha256": "6886964c092c48bed64b60cde458685a765b01dcf895bb486d1cbc0bb0290ab1",
+      "lsof_exit": 1
+    },
+    {
+      "absolute_path": "/Users/n/Developer/numi-crow-rl-20261107/artifacts/crow-v15-pronation-force-observer-20261113/pronation-yaw-20261126-rebound-force/run.stderr.gz.part04",
+      "device": 16777232,
+      "inode": 17098062,
+      "links": 1,
+      "bytes": 41943040,
+      "sha256": "3c62df30c95553b1b7e843c6601a5aec16e42e6420e60b8ab3d331fcfde0a41e",
+      "lsof_exit": 1
+    },
+    {
+      "absolute_path": "/Users/n/Developer/numi-crow-rl-20261107/artifacts/crow-v15-pronation-force-observer-20261113/pronation-yaw-20261126-rebound-force/run.stderr.gz.part05",
+      "device": 16777232,
+      "inode": 17098063,
+      "links": 1,
+      "bytes": 35482520,
+      "sha256": "c6e25f1c7c2cc38d8809458a0366517226ab2706bf96c97cc35ae25a4298e531",
+      "lsof_exit": 1
+    }
+  ]
+}

@@ -5,6 +5,7 @@ cce7838cf41ae817376a1160dc7d3f8a1e16776b04d58f19f3e9583bad3eb48c  ./PLAN.md
 6fe590a46a9fc0c08d7d54e84baa29dfdc85b5e7f5a0411d8b6ec6b459bf2155  ./build-model-observer.py
 13b693322c4f9a63705c75009e2d1cce1c42e1a9a4a7cfcb6693938435f556f3  ./build-observer.py
 02d04ed292d211671c4eea4ee758813b6e33aeb2fbc5dc31013346886c0dfc4a  ./c_api.cpp.gz
+079c9c867d75c6eb47c524890a13ddf3e42767809088fa2d66ec7caf93f06ab0  ./independent-github-download-20261126.json
 dd257a5c79b1db35bc2da3819f76fca596e784dfa5c89f6cd46c5550f6cb4b51  ./libmetalrobo.dylib.gz
 136f44589d1d66c03ddda82bdf55f649af1610e0060eaafbbd9dc6c9403d1c6e  ./model-build.log
 fd70cf5de5bf9bbc11427b7f625f33c9652ccfa6c33995f7ca2a76e3652858fb  ./model-observer-hashes.json
@@ -29,4 +30,5 @@ de76621a693c5425b78f5df6059e09134e4601b2579bbc0d51671f13d68ca76d  ./pronation-ya
 de4441f3b54985908d5033a7c75ba80da065058a26e8cf6e085a5a741095ff7f  ./pronation-yaw-20261126-rebound-force/stderr-parts.json
 ab2e830d5ef8484daca5bf182f0c72ba2ace72243d9b6b55bd0e865922bd8413  ./pronation-yaw-20261126-rebound-force/trace.tsv.gz
 83db8d04625fd0646985d077493fa733df5ee806c1464996ccb7e937de8caa2e  ./restore-stderr.py
+1ceef2bac1cdd95a11c1eabcb7d95e5c6db67cf05ef895efdff072b807c742f9  ./retirement-manifest-20261126.json
 09b300d5798013c0c65cd3dd5749c0568b21a6bf80fc4496427bc782316173ff  ./run.py
