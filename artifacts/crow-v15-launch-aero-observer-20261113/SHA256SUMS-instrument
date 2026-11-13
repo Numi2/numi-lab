@@ -1,0 +1,10 @@
+5ef9ac0db4a757454003d7981cce9c1ac2522b49908f2626c88aa75767ae41fc  artifacts/crow-v15-launch-aero-observer-20261113/PLAN.md
+9820199e775e5991ab74bbbb2e26d1c836f51b468f8947624f9d9827dbe1383a  artifacts/crow-v15-launch-aero-observer-20261113/build-observer.py
+243afa4d6066aa1300ee2e2119fa98144acd5759dcb28fadf5a1bffcb3fb9686  artifacts/crow-v15-launch-aero-observer-20261113/run.py
+12df55523e6ddbd13cb0d7f7a36d260d2d2a9ca44c951c6e3bb2602995c457d9  artifacts/crow-v15-launch-aero-observer-20261113/extract.py
+5fdf01e57baffff8601f43c6104e299886dbd5e71d97e58e08bd2a0709b236a6  artifacts/crow-v15-launch-aero-observer-20261113/analyze.py
+0e09566111cb8e05643c975d9ae316b6d97e109906ac86a999cb9e93b75c58a3  artifacts/crow-v15-launch-aero-observer-20261113/observer.patch
+47654b6a23a275bacb6142b611f6c9dceb0cdf25f1f6901724747fb751409b91  artifacts/crow-v15-launch-aero-observer-20261113/observer-source.gz
+2fb7a0d9593a19b2cb2624c28c9bdb4d23d5ae843ac220e0ba860eafed117aa3  artifacts/crow-v15-launch-aero-observer-20261113/observer.dylib.gz
+40f775a979a438dffc29ded9c692f70a14078192cf135268cc198f07c01d9b49  artifacts/crow-v15-launch-aero-observer-20261113/build.log
+f61fe82bf203f709acb4c7b477798e7f618d9bb9f97892669cafcfde310e7c5b  artifacts/crow-v15-launch-aero-observer-20261113/build-commands.json

@@ -1,0 +1,11 @@
+--- previous-observer.mm
++++ launch-observer.mm
+@@ -12726,7 +12726,7 @@
+     const std::uint32_t traceSubstep,
+     const std::size_t bodyStride
+ ) {
+-    const bool observe=std::getenv("CROW_AERO_WRENCH_TRACE")!=nullptr && traceStep>=650 && traceStep<=1150;
++    const bool observe=std::getenv("CROW_AERO_WRENCH_TRACE")!=nullptr && ((traceStep>=335 && traceStep<=400) || (traceStep>=650 && traceStep<=1150));
+     id<MTLBuffer> before=nil; id<MTLBuffer> after=nil; id<MTLBuffer> aq=nil; id<MTLBuffer> av=nil; id<MTLBuffer> ctrl=nil;
+     id<MTLBuffer> source=context.buffers[kBodyWrenchPlaceholder];
+     if (observe) {
