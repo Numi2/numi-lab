@@ -1,0 +1,24 @@
+{
+  "0": {
+    "stages": 450,
+    "first_nonzero_lift_zero_based": 205,
+    "max_lift_rad": 0.0399999991,
+    "peak_target_step_rad": 0.00999999982,
+    "lift_increments": 4,
+    "increases_without_support": 0,
+    "increases_without_posture": 0,
+    "increases_without_toe_open": 0,
+    "first_lift_open_streak": 5
+  },
+  "1": {
+    "stages": 450,
+    "first_nonzero_lift_zero_based": null,
+    "max_lift_rad": 0.0,
+    "peak_target_step_rad": 0.0,
+    "lift_increments": 0,
+    "increases_without_support": 0,
+    "increases_without_posture": 0,
+    "increases_without_toe_open": 0,
+    "first_lift_open_streak": null
+  }
+}

@@ -1,0 +1,32 @@
+{
+  "0": {
+    "command_count": 450,
+    "accepted_state_count": 450,
+    "command_range_rad": [
+      -0.231617481,
+      -0.114131406
+    ],
+    "position_range_rad": [
+      -0.212088183,
+      -0.115543716
+    ],
+    "max_control_state_speed_rad_s": 2.75292206,
+    "within_model_position_limits": true,
+    "scope": "control-state positions and targets; not a substep actuator-effort bound"
+  },
+  "1": {
+    "command_count": 450,
+    "accepted_state_count": 450,
+    "command_range_rad": [
+      -0.246669054,
+      -0.114131406
+    ],
+    "position_range_rad": [
+      -0.246103525,
+      -0.115543716
+    ],
+    "max_control_state_speed_rad_s": 2.49079776,
+    "within_model_position_limits": true,
+    "scope": "control-state positions and targets; not a substep actuator-effort bound"
+  }
+}
