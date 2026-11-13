@@ -1,0 +1,58 @@
+{
+  "rows": [
+    {
+      "lane": 6,
+      "samples": 8016,
+      "total_aero_yaw_moment_nm": {
+        "mean": -0.009205497147272127,
+        "minimum": -0.05447611171344273,
+        "maximum": 0.04096766647461481,
+        "rms": 0.01527729609649252
+      },
+      "body_com_torque_sum_nm": {
+        "mean": -0.0031191810528734764,
+        "minimum": -0.045053473382790005,
+        "maximum": 0.030378532566948002,
+        "rms": 0.0129573746626038
+      },
+      "moment_arm_sum_nm": {
+        "mean": -0.006086316094398651,
+        "minimum": -0.03289322550465717,
+        "maximum": 0.015493663144835123,
+        "rms": 0.009457994203998074
+      },
+      "maximum_force_residual_n": 5.729994256853388e-11
+    },
+    {
+      "lane": 7,
+      "samples": 8016,
+      "total_aero_yaw_moment_nm": {
+        "mean": 0.008657758346909041,
+        "minimum": -0.0391141371794603,
+        "maximum": 0.054685155780698796,
+        "rms": 0.014510406298670868
+      },
+      "body_com_torque_sum_nm": {
+        "mean": 0.0031403203188623474,
+        "minimum": -0.02784800532441699,
+        "maximum": 0.045226489368411,
+        "rms": 0.012377684715282247
+      },
+      "moment_arm_sum_nm": {
+        "mean": 0.005517438028046694,
+        "minimum": -0.015671252066266222,
+        "maximum": 0.02977291169843778,
+        "rms": 0.008758080883409262
+      },
+      "maximum_force_residual_n": 5.759837051755312e-11
+    }
+  ],
+  "source_sha256": "ba470be71b29bf6488782f7a35a66e375d6ced08606174323a8c904b8b1c96e9",
+  "kinematics_sha256": "95faf63412c759b3da202ea6c590f0deafb929e4e1e01c7450cfb95837c424ad",
+  "sample_ticks": [
+    650,
+    1150
+  ],
+  "substeps_per_control": 16,
+  "scope": "Posthoc modeled aerodynamic moment about instantaneous whole-body COM, not total angular momentum or proof of heading cause. Includes moment arms of all four observed aero bodies and their body-COM torques. One used seed and correlated lanes; not biological validation."
+}

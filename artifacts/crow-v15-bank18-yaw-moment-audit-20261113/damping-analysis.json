@@ -1,0 +1,16 @@
+{
+  "rows": [
+    {
+      "lane": 6,
+      "mean_damping_yaw_moment_nm": 0.00900121017617778,
+      "integrated_damping_yaw_impulse_nms": 0.09013384691347028
+    },
+    {
+      "lane": 7,
+      "mean_damping_yaw_moment_nm": -0.008468631890868557,
+      "integrated_damping_yaw_impulse_nms": -0.08480140917497192
+    }
+  ],
+  "binary_sha256": "d835599f1b1ffd9e9f17d8309907e3fcbcbdc1ae3a011c039ca25be13cc15046",
+  "scope": "Posthoc FK estimate using model body damping coefficients and CPU damping convention; assumes body damping enabled and is not yet validated against GPU kernel or complete external-wrench balance."
+}

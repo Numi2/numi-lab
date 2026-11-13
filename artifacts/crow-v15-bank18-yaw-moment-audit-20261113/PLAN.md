@@ -1,0 +1,3 @@
+# Turn yaw-moment follow-up
+
+Reconstruct aerodynamic yaw moments about the modeled whole-body center of mass and model linear-plus-angular body damping estimates for the retained ±0.18 rad bank, ±0.10 rad sweep trial over the same ticks 650–1150 and 16 substeps as the earlier ±0.12 rad bank audit. Use the identical model FK and damping executables, input hashes, force-sum check and assumptions. Compare signed integrated aero and estimated damping impulses, not only control gains or lateral displacement. This is posthoc model analysis, not a calibrated parameter estimate, a complete wrench balance, proof of cause or flight qualification.
