@@ -1,0 +1,126 @@
+{
+  "push": [
+    {
+      "lane": 2,
+      "max_abs_effort": 3.0,
+      "max_substep_flap_speed_rad_s": 17.5376759,
+      "speed_step": 359,
+      "speed_substep": 7,
+      "peak_vertical_aero_force_n": 6.77553284261,
+      "force_step": 359,
+      "force_substep": 7
+    },
+    {
+      "lane": 3,
+      "max_abs_effort": 3.0,
+      "max_substep_flap_speed_rad_s": 17.5271587,
+      "speed_step": 359,
+      "speed_substep": 7,
+      "peak_vertical_aero_force_n": 6.8037243383,
+      "force_step": 359,
+      "force_substep": 7
+    },
+    {
+      "lane": 4,
+      "max_abs_effort": 3.0,
+      "max_substep_flap_speed_rad_s": 17.476984,
+      "speed_step": 359,
+      "speed_substep": 7,
+      "peak_vertical_aero_force_n": 6.84526973311,
+      "force_step": 359,
+      "force_substep": 7
+    },
+    {
+      "lane": 5,
+      "max_abs_effort": 3.0,
+      "max_substep_flap_speed_rad_s": 17.4721222,
+      "speed_step": 359,
+      "speed_substep": 7,
+      "peak_vertical_aero_force_n": 6.88936707797,
+      "force_step": 359,
+      "force_substep": 7
+    },
+    {
+      "lane": 6,
+      "max_abs_effort": 3.0,
+      "max_substep_flap_speed_rad_s": 17.4277649,
+      "speed_step": 359,
+      "speed_substep": 7,
+      "peak_vertical_aero_force_n": 7.01174596976,
+      "force_step": 359,
+      "force_substep": 7
+    },
+    {
+      "lane": 7,
+      "max_abs_effort": 3.0,
+      "max_substep_flap_speed_rad_s": 17.4110966,
+      "speed_step": 359,
+      "speed_substep": 7,
+      "peak_vertical_aero_force_n": 7.02512985445,
+      "force_step": 359,
+      "force_substep": 7
+    }
+  ],
+  "hold": [
+    {
+      "lane": 2,
+      "max_abs_effort": 3.0,
+      "max_substep_flap_speed_rad_s": 17.2535667,
+      "speed_step": 359,
+      "speed_substep": 7,
+      "peak_vertical_aero_force_n": 7.25467813085,
+      "force_step": 359,
+      "force_substep": 7
+    },
+    {
+      "lane": 3,
+      "max_abs_effort": 3.0,
+      "max_substep_flap_speed_rad_s": 17.2545815,
+      "speed_step": 359,
+      "speed_substep": 7,
+      "peak_vertical_aero_force_n": 7.25293305516,
+      "force_step": 359,
+      "force_substep": 7
+    },
+    {
+      "lane": 4,
+      "max_abs_effort": 3.0,
+      "max_substep_flap_speed_rad_s": 17.2548637,
+      "speed_step": 359,
+      "speed_substep": 7,
+      "peak_vertical_aero_force_n": 7.25176006602,
+      "force_step": 359,
+      "force_substep": 7
+    },
+    {
+      "lane": 5,
+      "max_abs_effort": 3.0,
+      "max_substep_flap_speed_rad_s": 17.2557316,
+      "speed_step": 359,
+      "speed_substep": 7,
+      "peak_vertical_aero_force_n": 7.2497933961,
+      "force_step": 359,
+      "force_substep": 7
+    },
+    {
+      "lane": 6,
+      "max_abs_effort": 3.0,
+      "max_substep_flap_speed_rad_s": 17.2556725,
+      "speed_step": 359,
+      "speed_substep": 7,
+      "peak_vertical_aero_force_n": 7.25060464768,
+      "force_step": 359,
+      "force_substep": 7
+    },
+    {
+      "lane": 7,
+      "max_abs_effort": 3.0,
+      "max_substep_flap_speed_rad_s": 17.2542534,
+      "speed_step": 359,
+      "speed_substep": 7,
+      "peak_vertical_aero_force_n": 7.25358199864,
+      "force_step": 359,
+      "force_substep": 7
+    }
+  ]
+}

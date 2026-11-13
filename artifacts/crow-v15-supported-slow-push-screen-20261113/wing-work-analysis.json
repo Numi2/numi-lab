@@ -1,0 +1,66 @@
+{
+  "source": "low effort push-first trial, steps 348\u2013375, both flap DOFs, seed 20261126, selected post hoc",
+  "scope": "Working-effort times accepted angular displacement and an alternate trapezoid velocity approximation. Observer buffer timing, dissipative and coupled effects are not independently isolated; do not identify as full muscle work or use as biological validation. Difference between integrators is itself material.",
+  "rows": [
+    {
+      "lane": 2,
+      "working_effort_times_joint_displacement_net": 5.211015555809432,
+      "working_effort_times_joint_displacement_positive": 12.279751621780187,
+      "working_effort_times_joint_displacement_negative_magnitude": 7.068736065970755,
+      "trapezoid_velocity_net": 4.7709005347389635,
+      "trapezoid_velocity_positive": 12.041177040410581,
+      "trapezoid_velocity_negative_magnitude": 7.270276505671612,
+      "n_samples": 896
+    },
+    {
+      "lane": 3,
+      "working_effort_times_joint_displacement_net": 5.228249948840658,
+      "working_effort_times_joint_displacement_positive": 12.273986206032054,
+      "working_effort_times_joint_displacement_negative_magnitude": 7.045736257191393,
+      "trapezoid_velocity_net": 4.788655524896157,
+      "trapezoid_velocity_positive": 12.03580722901437,
+      "trapezoid_velocity_negative_magnitude": 7.247151704118218,
+      "n_samples": 896
+    },
+    {
+      "lane": 4,
+      "working_effort_times_joint_displacement_net": 5.044854542479449,
+      "working_effort_times_joint_displacement_positive": 12.228065740361016,
+      "working_effort_times_joint_displacement_negative_magnitude": 7.183211197881563,
+      "trapezoid_velocity_net": 4.605815944182287,
+      "trapezoid_velocity_positive": 11.990516637643683,
+      "trapezoid_velocity_negative_magnitude": 7.3847006934613955,
+      "n_samples": 896
+    },
+    {
+      "lane": 5,
+      "working_effort_times_joint_displacement_net": 5.044554420320092,
+      "working_effort_times_joint_displacement_positive": 12.232380261850876,
+      "working_effort_times_joint_displacement_negative_magnitude": 7.187825841530769,
+      "trapezoid_velocity_net": 4.60566093545712,
+      "trapezoid_velocity_positive": 11.995004696454489,
+      "trapezoid_velocity_negative_magnitude": 7.389343760997354,
+      "n_samples": 896
+    },
+    {
+      "lane": 6,
+      "working_effort_times_joint_displacement_net": 5.031344510695339,
+      "working_effort_times_joint_displacement_positive": 12.242747163408744,
+      "working_effort_times_joint_displacement_negative_magnitude": 7.2114026527134065,
+      "trapezoid_velocity_net": 4.5925683592211906,
+      "trapezoid_velocity_positive": 12.006367590197533,
+      "trapezoid_velocity_negative_magnitude": 7.413799230976344,
+      "n_samples": 896
+    },
+    {
+      "lane": 7,
+      "working_effort_times_joint_displacement_net": 5.035098050268685,
+      "working_effort_times_joint_displacement_positive": 12.23349394834674,
+      "working_effort_times_joint_displacement_negative_magnitude": 7.198395898078053,
+      "trapezoid_velocity_net": 4.596549992790845,
+      "trapezoid_velocity_positive": 11.997321185716329,
+      "trapezoid_velocity_negative_magnitude": 7.400771192925469,
+      "n_samples": 896
+    }
+  ]
+}

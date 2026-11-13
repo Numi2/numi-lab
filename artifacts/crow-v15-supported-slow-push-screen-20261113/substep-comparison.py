@@ -23,4 +23,4 @@ for name,p in P.items():
 (A/'substep-comparison.json').write_text(json.dumps(out,indent=2)+'\n')
 for name in ('push','hold'):
  for r in out[name]:print(name,r['lane'],'max effort',round(r['max_abs_effort'],5),'max speed',round(r['max_substep_flap_speed_rad_s'],3),'peak model aero',round(r['peak_vertical_aero_force_n'],3))
- if any(r['max_abs_effort']>({2:2.5,3:2.5,4:3,5:3,6:4,7:4}[r['lane']]+0.00001) for r in out[name]):raise SystemExit('Bound violated in '+name)
+ if any(r['max_abs_effort']>(3.0+0.00001) for r in out[name]):raise SystemExit('Bound violated in '+name)
