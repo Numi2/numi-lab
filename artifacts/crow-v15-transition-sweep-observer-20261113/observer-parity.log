@@ -1,0 +1,50 @@
+{
+  "valid": true,
+  "rows": [
+    {
+      "arm": "push",
+      "lane": 2,
+      "missing": [],
+      "mismatches": {
+        "q": [],
+        "v": [],
+        "policy_action": [],
+        "contacts": []
+      }
+    },
+    {
+      "arm": "push",
+      "lane": 3,
+      "missing": [],
+      "mismatches": {
+        "q": [],
+        "v": [],
+        "policy_action": [],
+        "contacts": []
+      }
+    },
+    {
+      "arm": "hold",
+      "lane": 2,
+      "missing": [],
+      "mismatches": {
+        "q": [],
+        "v": [],
+        "policy_action": [],
+        "contacts": []
+      }
+    },
+    {
+      "arm": "hold",
+      "lane": 3,
+      "missing": [],
+      "mismatches": {
+        "q": [],
+        "v": [],
+        "policy_action": [],
+        "contacts": []
+      }
+    }
+  ],
+  "scope": "Exact accepted-state and action equality on same candidate lanes versus prior shorter-window observer. Other lanes intentionally have altered target commands."
+}

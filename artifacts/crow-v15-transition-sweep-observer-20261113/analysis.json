@@ -1,0 +1,959 @@
+{
+  "valid_batch": true,
+  "errors": {
+    "push": [],
+    "hold": []
+  },
+  "matched_start_parity": [
+    {
+      "lane": 0,
+      "state_mismatches": 0,
+      "contact_mismatches": 0
+    },
+    {
+      "lane": 1,
+      "state_mismatches": 0,
+      "contact_mismatches": 0
+    },
+    {
+      "lane": 2,
+      "state_mismatches": 0,
+      "contact_mismatches": 0
+    },
+    {
+      "lane": 3,
+      "state_mismatches": 0,
+      "contact_mismatches": 0
+    },
+    {
+      "lane": 4,
+      "state_mismatches": 0,
+      "contact_mismatches": 0
+    },
+    {
+      "lane": 5,
+      "state_mismatches": 0,
+      "contact_mismatches": 0
+    },
+    {
+      "lane": 6,
+      "state_mismatches": 0,
+      "contact_mismatches": 0
+    },
+    {
+      "lane": 7,
+      "state_mismatches": 0,
+      "contact_mismatches": 0
+    }
+  ],
+  "wing_target_history": [
+    {
+      "lane": 0,
+      "arm": "push",
+      "missing": [],
+      "mismatches": []
+    },
+    {
+      "lane": 0,
+      "arm": "hold",
+      "missing": [],
+      "mismatches": []
+    },
+    {
+      "lane": 1,
+      "arm": "push",
+      "missing": [],
+      "mismatches": []
+    },
+    {
+      "lane": 1,
+      "arm": "hold",
+      "missing": [],
+      "mismatches": []
+    },
+    {
+      "lane": 2,
+      "arm": "push",
+      "missing": [],
+      "mismatches": []
+    },
+    {
+      "lane": 2,
+      "arm": "hold",
+      "missing": [],
+      "mismatches": []
+    },
+    {
+      "lane": 3,
+      "arm": "push",
+      "missing": [],
+      "mismatches": []
+    },
+    {
+      "lane": 3,
+      "arm": "hold",
+      "missing": [],
+      "mismatches": []
+    },
+    {
+      "lane": 4,
+      "arm": "push",
+      "missing": [],
+      "mismatches": []
+    },
+    {
+      "lane": 4,
+      "arm": "hold",
+      "missing": [],
+      "mismatches": []
+    },
+    {
+      "lane": 5,
+      "arm": "push",
+      "missing": [],
+      "mismatches": []
+    },
+    {
+      "lane": 5,
+      "arm": "hold",
+      "missing": [],
+      "mismatches": []
+    },
+    {
+      "lane": 6,
+      "arm": "push",
+      "missing": [],
+      "mismatches": []
+    },
+    {
+      "lane": 6,
+      "arm": "hold",
+      "missing": [],
+      "mismatches": []
+    },
+    {
+      "lane": 7,
+      "arm": "push",
+      "missing": [],
+      "mismatches": []
+    },
+    {
+      "lane": 7,
+      "arm": "hold",
+      "missing": [],
+      "mismatches": []
+    }
+  ],
+  "rows": [
+    {
+      "arm": "push",
+      "lane": 0,
+      "first_episode_end": 500,
+      "release": 414,
+      "recontact": 418,
+      "unloaded_through_end": false,
+      "peak_com_rise_m": 0.02579825281883341,
+      "root_dx_400_500_m": 0.010914340999999994,
+      "mean_root_vx_401_500_m_s": 0.005142487364800006,
+      "toe_threshold_substeps": 1,
+      "nonfoot_normal_impulse_ns": 0.0,
+      "pronation_target_range_rad": [
+        0.0,
+        0.0
+      ],
+      "pronation_actual_range_rad": [
+        -0.000332429103,
+        0.000332980213
+      ],
+      "mean_aero_force_xyz_401_to_end_n": [
+        -0.0019949509441569936,
+        2.609783784759151e-06,
+        0.0002873028790559373
+      ],
+      "sweep_target_range_rad": [
+        0.0,
+        0.0
+      ],
+      "sweep_actual_range_rad": [
+        -0.000396471267,
+        0.000664633
+      ],
+      "com_vz_at_release_m_s": 0.2896197069960796,
+      "nonfoot_normal_impulse_after_release_ns": 0.0,
+      "screen_pass": false,
+      "sampled_root_vx_450_500_range_m_s": [
+        -0.0339048617,
+        -0.00722062215
+      ],
+      "sweep_hit_modeled_stop": false,
+      "flap_target_range_rad": [
+        0.349999994,
+        0.349999994
+      ],
+      "flap_actual_range_rad": [
+        0.345443457,
+        0.348152012
+      ]
+    },
+    {
+      "arm": "push",
+      "lane": 1,
+      "first_episode_end": 500,
+      "release": 414,
+      "recontact": 418,
+      "unloaded_through_end": false,
+      "peak_com_rise_m": 0.02590675950720131,
+      "root_dx_400_500_m": 0.011150433999999987,
+      "mean_root_vx_401_500_m_s": 0.005490894194500007,
+      "toe_threshold_substeps": 0,
+      "nonfoot_normal_impulse_ns": 0.0,
+      "pronation_target_range_rad": [
+        0.0,
+        0.0
+      ],
+      "pronation_actual_range_rad": [
+        -0.000333752861,
+        0.000334440003
+      ],
+      "mean_aero_force_xyz_401_to_end_n": [
+        -0.0019919208532333805,
+        3.3622147213832787e-06,
+        0.0002746566226256932
+      ],
+      "sweep_target_range_rad": [
+        0.0,
+        0.0
+      ],
+      "sweep_actual_range_rad": [
+        -0.000294737285,
+        0.00066528254
+      ],
+      "com_vz_at_release_m_s": 0.2915103043113428,
+      "nonfoot_normal_impulse_after_release_ns": 0.0,
+      "screen_pass": false,
+      "sampled_root_vx_450_500_range_m_s": [
+        -0.0308425203,
+        -0.00722627388
+      ],
+      "sweep_hit_modeled_stop": false,
+      "flap_target_range_rad": [
+        0.349999994,
+        0.349999994
+      ],
+      "flap_actual_range_rad": [
+        0.345443159,
+        0.348161995
+      ]
+    },
+    {
+      "arm": "push",
+      "lane": 2,
+      "first_episode_end": 500,
+      "release": 375,
+      "recontact": 406,
+      "unloaded_through_end": false,
+      "peak_com_rise_m": 0.16276901407528155,
+      "root_dx_400_500_m": -0.7826272320000001,
+      "mean_root_vx_401_500_m_s": -0.39054151693,
+      "toe_threshold_substeps": 12,
+      "nonfoot_normal_impulse_ns": 0.0,
+      "pronation_target_range_rad": [
+        -0.179943234,
+        0.180000007
+      ],
+      "pronation_actual_range_rad": [
+        -0.225320056,
+        0.156792402
+      ],
+      "mean_aero_force_xyz_401_to_end_n": [
+        -0.07556110378671681,
+        -0.031091441914306836,
+        4.117662792404449
+      ],
+      "sweep_target_range_rad": [
+        0.0,
+        0.0799999982
+      ],
+      "sweep_actual_range_rad": [
+        0.000118314114,
+        0.0924341828
+      ],
+      "com_vz_at_release_m_s": 0.2682590613314594,
+      "nonfoot_normal_impulse_after_release_ns": 0.0,
+      "screen_pass": false,
+      "sampled_root_vx_450_500_range_m_s": [
+        -0.492395014,
+        -0.115780242
+      ],
+      "sweep_hit_modeled_stop": false,
+      "flap_target_range_rad": [
+        -0.349944919,
+        1.04994464
+      ],
+      "flap_actual_range_rad": [
+        -0.203828976,
+        1.1034317
+      ]
+    },
+    {
+      "arm": "push",
+      "lane": 3,
+      "first_episode_end": 500,
+      "release": 375,
+      "recontact": 406,
+      "unloaded_through_end": false,
+      "peak_com_rise_m": 0.16250566971427607,
+      "root_dx_400_500_m": -0.7852140670000001,
+      "mean_root_vx_401_500_m_s": -0.3918478487499999,
+      "toe_threshold_substeps": 12,
+      "nonfoot_normal_impulse_ns": 0.0,
+      "pronation_target_range_rad": [
+        -0.179943234,
+        0.180000007
+      ],
+      "pronation_actual_range_rad": [
+        -0.225552887,
+        0.156858519
+      ],
+      "mean_aero_force_xyz_401_to_end_n": [
+        -0.07594681908245084,
+        -0.031591039969226895,
+        4.117916702639908
+      ],
+      "sweep_target_range_rad": [
+        0.0,
+        0.0799999982
+      ],
+      "sweep_actual_range_rad": [
+        0.000120857374,
+        0.0923167914
+      ],
+      "com_vz_at_release_m_s": 0.26805372869711924,
+      "nonfoot_normal_impulse_after_release_ns": 0.0,
+      "screen_pass": false,
+      "sampled_root_vx_450_500_range_m_s": [
+        -0.493185699,
+        -0.117045186
+      ],
+      "sweep_hit_modeled_stop": false,
+      "flap_target_range_rad": [
+        -0.349944919,
+        1.04994464
+      ],
+      "flap_actual_range_rad": [
+        -0.203794301,
+        1.10343969
+      ]
+    },
+    {
+      "arm": "push",
+      "lane": 4,
+      "first_episode_end": 500,
+      "release": 375,
+      "recontact": 404,
+      "unloaded_through_end": false,
+      "peak_com_rise_m": 0.07669477305369526,
+      "root_dx_400_500_m": -0.41972994799999996,
+      "mean_root_vx_401_500_m_s": -0.2077160112922001,
+      "toe_threshold_substeps": 6,
+      "nonfoot_normal_impulse_ns": 0.0,
+      "pronation_target_range_rad": [
+        -0.179943234,
+        0.180000007
+      ],
+      "pronation_actual_range_rad": [
+        -0.225436792,
+        0.160397932
+      ],
+      "mean_aero_force_xyz_401_to_end_n": [
+        0.09533152492482727,
+        -0.035062871557692735,
+        4.036239391151563
+      ],
+      "sweep_target_range_rad": [
+        0.0,
+        0.119999997
+      ],
+      "sweep_actual_range_rad": [
+        0.00012007371,
+        0.147238851
+      ],
+      "com_vz_at_release_m_s": 0.269606559527313,
+      "nonfoot_normal_impulse_after_release_ns": 0.0,
+      "screen_pass": false,
+      "sampled_root_vx_450_500_range_m_s": [
+        -0.183048233,
+        0.237473056
+      ],
+      "sweep_hit_modeled_stop": false,
+      "flap_target_range_rad": [
+        -0.349944919,
+        1.04994464
+      ],
+      "flap_actual_range_rad": [
+        -0.193518087,
+        1.09501159
+      ]
+    },
+    {
+      "arm": "push",
+      "lane": 5,
+      "first_episode_end": 500,
+      "release": 375,
+      "recontact": 404,
+      "unloaded_through_end": false,
+      "peak_com_rise_m": 0.07606021125240545,
+      "root_dx_400_500_m": -0.4235640016,
+      "mean_root_vx_401_500_m_s": -0.20966745145730006,
+      "toe_threshold_substeps": 5,
+      "nonfoot_normal_impulse_ns": 0.0,
+      "pronation_target_range_rad": [
+        -0.179943234,
+        0.180000007
+      ],
+      "pronation_actual_range_rad": [
+        -0.225246429,
+        0.160366565
+      ],
+      "mean_aero_force_xyz_401_to_end_n": [
+        0.09447065959752615,
+        -0.03655884238574355,
+        4.036596557963351
+      ],
+      "sweep_target_range_rad": [
+        0.0,
+        0.119999997
+      ],
+      "sweep_actual_range_rad": [
+        0.000118995275,
+        0.146667972
+      ],
+      "com_vz_at_release_m_s": 0.2696741268411356,
+      "nonfoot_normal_impulse_after_release_ns": 0.0,
+      "screen_pass": false,
+      "sampled_root_vx_450_500_range_m_s": [
+        -0.183934763,
+        0.23115471
+      ],
+      "sweep_hit_modeled_stop": false,
+      "flap_target_range_rad": [
+        -0.349944919,
+        1.04994464
+      ],
+      "flap_actual_range_rad": [
+        -0.193525285,
+        1.09504306
+      ]
+    },
+    {
+      "arm": "push",
+      "lane": 6,
+      "first_episode_end": 500,
+      "release": 375,
+      "recontact": 403,
+      "unloaded_through_end": false,
+      "peak_com_rise_m": 0.07354287924510491,
+      "root_dx_400_500_m": -0.1874393748,
+      "mean_root_vx_401_500_m_s": -0.09020915394210008,
+      "toe_threshold_substeps": 2,
+      "nonfoot_normal_impulse_ns": 0.0,
+      "pronation_target_range_rad": [
+        -0.179943234,
+        0.180000007
+      ],
+      "pronation_actual_range_rad": [
+        -0.226504877,
+        0.164438158
+      ],
+      "mean_aero_force_xyz_401_to_end_n": [
+        0.25143333214577435,
+        -0.0335707038017089,
+        3.958913079384185
+      ],
+      "sweep_target_range_rad": [
+        0.0,
+        0.159999996
+      ],
+      "sweep_actual_range_rad": [
+        0.000120587174,
+        0.200000003
+      ],
+      "com_vz_at_release_m_s": 0.270360205206968,
+      "nonfoot_normal_impulse_after_release_ns": 0.0,
+      "screen_pass": false,
+      "sampled_root_vx_450_500_range_m_s": [
+        -0.170614466,
+        0.616587877
+      ],
+      "sweep_hit_modeled_stop": true,
+      "flap_target_range_rad": [
+        -0.349944919,
+        1.04994464
+      ],
+      "flap_actual_range_rad": [
+        -0.19301182,
+        1.09877181
+      ]
+    },
+    {
+      "arm": "push",
+      "lane": 7,
+      "first_episode_end": 500,
+      "release": 375,
+      "recontact": 404,
+      "unloaded_through_end": false,
+      "peak_com_rise_m": 0.12614670415284504,
+      "root_dx_400_500_m": -0.182832151,
+      "mean_root_vx_401_500_m_s": -0.08800775954509994,
+      "toe_threshold_substeps": 9,
+      "nonfoot_normal_impulse_ns": 0.0,
+      "pronation_target_range_rad": [
+        -0.179943234,
+        0.180000007
+      ],
+      "pronation_actual_range_rad": [
+        -0.228422329,
+        0.163784251
+      ],
+      "mean_aero_force_xyz_401_to_end_n": [
+        0.19185575276836808,
+        -0.03497815116021749,
+        3.9513641853112182
+      ],
+      "sweep_target_range_rad": [
+        0.0,
+        0.159999996
+      ],
+      "sweep_actual_range_rad": [
+        0.000119548968,
+        0.199488252
+      ],
+      "com_vz_at_release_m_s": 0.2704471303523253,
+      "nonfoot_normal_impulse_after_release_ns": 0.0,
+      "screen_pass": false,
+      "sampled_root_vx_450_500_range_m_s": [
+        -0.131793529,
+        0.423821807
+      ],
+      "sweep_hit_modeled_stop": false,
+      "flap_target_range_rad": [
+        -0.349944919,
+        1.04994464
+      ],
+      "flap_actual_range_rad": [
+        -0.193011254,
+        1.09884107
+      ]
+    },
+    {
+      "arm": "hold",
+      "lane": 0,
+      "first_episode_end": 500,
+      "release": 414,
+      "recontact": 418,
+      "unloaded_through_end": false,
+      "peak_com_rise_m": 0.02579825281883341,
+      "root_dx_400_500_m": 0.010914340999999994,
+      "mean_root_vx_401_500_m_s": 0.005142487364800006,
+      "toe_threshold_substeps": 1,
+      "nonfoot_normal_impulse_ns": 0.0,
+      "pronation_target_range_rad": [
+        0.0,
+        0.0
+      ],
+      "pronation_actual_range_rad": [
+        -0.000332429103,
+        0.000332980213
+      ],
+      "mean_aero_force_xyz_401_to_end_n": [
+        -0.0019949509441569936,
+        2.609783784759151e-06,
+        0.0002873028790559373
+      ],
+      "sweep_target_range_rad": [
+        0.0,
+        0.0
+      ],
+      "sweep_actual_range_rad": [
+        -0.000396471267,
+        0.000664633
+      ],
+      "com_vz_at_release_m_s": 0.2896197069960796,
+      "nonfoot_normal_impulse_after_release_ns": 0.0,
+      "screen_pass": false,
+      "sampled_root_vx_450_500_range_m_s": [
+        -0.0339048617,
+        -0.00722062215
+      ],
+      "sweep_hit_modeled_stop": false,
+      "flap_target_range_rad": [
+        0.349999994,
+        0.349999994
+      ],
+      "flap_actual_range_rad": [
+        0.345443457,
+        0.348152012
+      ]
+    },
+    {
+      "arm": "hold",
+      "lane": 1,
+      "first_episode_end": 500,
+      "release": 414,
+      "recontact": 418,
+      "unloaded_through_end": false,
+      "peak_com_rise_m": 0.02590675950720131,
+      "root_dx_400_500_m": 0.011150433999999987,
+      "mean_root_vx_401_500_m_s": 0.005490894194500007,
+      "toe_threshold_substeps": 0,
+      "nonfoot_normal_impulse_ns": 0.0,
+      "pronation_target_range_rad": [
+        0.0,
+        0.0
+      ],
+      "pronation_actual_range_rad": [
+        -0.000333752861,
+        0.000334440003
+      ],
+      "mean_aero_force_xyz_401_to_end_n": [
+        -0.0019919208532333805,
+        3.3622147213832787e-06,
+        0.0002746566226256932
+      ],
+      "sweep_target_range_rad": [
+        0.0,
+        0.0
+      ],
+      "sweep_actual_range_rad": [
+        -0.000294737285,
+        0.00066528254
+      ],
+      "com_vz_at_release_m_s": 0.2915103043113428,
+      "nonfoot_normal_impulse_after_release_ns": 0.0,
+      "screen_pass": false,
+      "sampled_root_vx_450_500_range_m_s": [
+        -0.0308425203,
+        -0.00722627388
+      ],
+      "sweep_hit_modeled_stop": false,
+      "flap_target_range_rad": [
+        0.349999994,
+        0.349999994
+      ],
+      "flap_actual_range_rad": [
+        0.345443159,
+        0.348161995
+      ]
+    },
+    {
+      "arm": "hold",
+      "lane": 2,
+      "first_episode_end": 500,
+      "release": 375,
+      "recontact": 397,
+      "unloaded_through_end": false,
+      "peak_com_rise_m": 0.1502900152060911,
+      "root_dx_400_500_m": -0.6457820684,
+      "mean_root_vx_401_500_m_s": -0.32261365136600006,
+      "toe_threshold_substeps": 13,
+      "nonfoot_normal_impulse_ns": 0.0,
+      "pronation_target_range_rad": [
+        -0.179943234,
+        0.180000007
+      ],
+      "pronation_actual_range_rad": [
+        -0.22840558,
+        0.157578558
+      ],
+      "mean_aero_force_xyz_401_to_end_n": [
+        -0.10840709079176034,
+        -0.03453484658554169,
+        4.072057784494827
+      ],
+      "sweep_target_range_rad": [
+        0.0,
+        0.0799999982
+      ],
+      "sweep_actual_range_rad": [
+        0.000118314114,
+        0.0924759284
+      ],
+      "com_vz_at_release_m_s": 0.17715722655815647,
+      "nonfoot_normal_impulse_after_release_ns": 0.0,
+      "screen_pass": false,
+      "sampled_root_vx_450_500_range_m_s": [
+        -0.303445935,
+        -0.0932221636
+      ],
+      "sweep_hit_modeled_stop": false,
+      "flap_target_range_rad": [
+        -0.349944919,
+        1.04994464
+      ],
+      "flap_actual_range_rad": [
+        -0.19630231,
+        1.10157716
+      ]
+    },
+    {
+      "arm": "hold",
+      "lane": 3,
+      "first_episode_end": 500,
+      "release": 375,
+      "recontact": 397,
+      "unloaded_through_end": false,
+      "peak_com_rise_m": 0.14997271970737155,
+      "root_dx_400_500_m": -0.645179972,
+      "mean_root_vx_401_500_m_s": -0.32217005014799993,
+      "toe_threshold_substeps": 15,
+      "nonfoot_normal_impulse_ns": 0.0,
+      "pronation_target_range_rad": [
+        -0.179943234,
+        0.180000007
+      ],
+      "pronation_actual_range_rad": [
+        -0.227695554,
+        0.157925874
+      ],
+      "mean_aero_force_xyz_401_to_end_n": [
+        -0.11040922207129981,
+        -0.034675452791820584,
+        4.072843786787014
+      ],
+      "sweep_target_range_rad": [
+        0.0,
+        0.0799999982
+      ],
+      "sweep_actual_range_rad": [
+        0.000120857374,
+        0.0923851356
+      ],
+      "com_vz_at_release_m_s": 0.17713452210381123,
+      "nonfoot_normal_impulse_after_release_ns": 0.0,
+      "screen_pass": false,
+      "sampled_root_vx_450_500_range_m_s": [
+        -0.300445348,
+        -0.0947904438
+      ],
+      "sweep_hit_modeled_stop": false,
+      "flap_target_range_rad": [
+        -0.349944919,
+        1.04994464
+      ],
+      "flap_actual_range_rad": [
+        -0.195967451,
+        1.10156763
+      ]
+    },
+    {
+      "arm": "hold",
+      "lane": 4,
+      "first_episode_end": 500,
+      "release": 375,
+      "recontact": 397,
+      "unloaded_through_end": false,
+      "peak_com_rise_m": 0.06655299556224017,
+      "root_dx_400_500_m": -0.4019282905,
+      "mean_root_vx_401_500_m_s": -0.20065333293299997,
+      "toe_threshold_substeps": 4,
+      "nonfoot_normal_impulse_ns": 0.0,
+      "pronation_target_range_rad": [
+        -0.179943234,
+        0.180000007
+      ],
+      "pronation_actual_range_rad": [
+        -0.224259332,
+        0.160886884
+      ],
+      "mean_aero_force_xyz_401_to_end_n": [
+        0.032359981728140134,
+        -0.036279821851962046,
+        4.031112927185721
+      ],
+      "sweep_target_range_rad": [
+        0.0,
+        0.119999997
+      ],
+      "sweep_actual_range_rad": [
+        0.00012007371,
+        0.146740764
+      ],
+      "com_vz_at_release_m_s": 0.17789752996228797,
+      "nonfoot_normal_impulse_after_release_ns": 0.0,
+      "screen_pass": false,
+      "sampled_root_vx_450_500_range_m_s": [
+        -0.210934669,
+        0.156027079
+      ],
+      "sweep_hit_modeled_stop": false,
+      "flap_target_range_rad": [
+        -0.349944919,
+        1.04994464
+      ],
+      "flap_actual_range_rad": [
+        -0.189466476,
+        1.09676743
+      ]
+    },
+    {
+      "arm": "hold",
+      "lane": 5,
+      "first_episode_end": 500,
+      "release": 375,
+      "recontact": 397,
+      "unloaded_through_end": false,
+      "peak_com_rise_m": 0.06660218784398969,
+      "root_dx_400_500_m": -0.4030176993,
+      "mean_root_vx_401_500_m_s": -0.20028264416159997,
+      "toe_threshold_substeps": 3,
+      "nonfoot_normal_impulse_ns": 0.0,
+      "pronation_target_range_rad": [
+        -0.179943234,
+        0.180000007
+      ],
+      "pronation_actual_range_rad": [
+        -0.224330008,
+        0.160974577
+      ],
+      "mean_aero_force_xyz_401_to_end_n": [
+        0.029863462524078677,
+        -0.0377765643029906,
+        4.031381901403144
+      ],
+      "sweep_target_range_rad": [
+        0.0,
+        0.119999997
+      ],
+      "sweep_actual_range_rad": [
+        0.000118995275,
+        0.145514652
+      ],
+      "com_vz_at_release_m_s": 0.17780143989202987,
+      "nonfoot_normal_impulse_after_release_ns": 0.0,
+      "screen_pass": false,
+      "sampled_root_vx_450_500_range_m_s": [
+        -0.205086678,
+        0.194036663
+      ],
+      "sweep_hit_modeled_stop": false,
+      "flap_target_range_rad": [
+        -0.349944919,
+        1.04994464
+      ],
+      "flap_actual_range_rad": [
+        -0.189471647,
+        1.09678245
+      ]
+    },
+    {
+      "arm": "hold",
+      "lane": 6,
+      "first_episode_end": 500,
+      "release": 375,
+      "recontact": 396,
+      "unloaded_through_end": false,
+      "peak_com_rise_m": 0.09474821929710342,
+      "root_dx_400_500_m": -0.1464859432,
+      "mean_root_vx_401_500_m_s": -0.07107202077600004,
+      "toe_threshold_substeps": 3,
+      "nonfoot_normal_impulse_ns": 0.0,
+      "pronation_target_range_rad": [
+        -0.179943234,
+        0.180000007
+      ],
+      "pronation_actual_range_rad": [
+        -0.226351067,
+        0.164083287
+      ],
+      "mean_aero_force_xyz_401_to_end_n": [
+        0.15833210999205719,
+        -0.03886143002887926,
+        3.943516526035055
+      ],
+      "sweep_target_range_rad": [
+        0.0,
+        0.159999996
+      ],
+      "sweep_actual_range_rad": [
+        0.000120587174,
+        0.196730584
+      ],
+      "com_vz_at_release_m_s": 0.17844615751584986,
+      "nonfoot_normal_impulse_after_release_ns": 0.0,
+      "screen_pass": false,
+      "sampled_root_vx_450_500_range_m_s": [
+        -0.142972484,
+        0.490950584
+      ],
+      "sweep_hit_modeled_stop": false,
+      "flap_target_range_rad": [
+        -0.349944919,
+        1.04994464
+      ],
+      "flap_actual_range_rad": [
+        -0.189693242,
+        1.09947169
+      ]
+    },
+    {
+      "arm": "hold",
+      "lane": 7,
+      "first_episode_end": 500,
+      "release": 375,
+      "recontact": 396,
+      "unloaded_through_end": false,
+      "peak_com_rise_m": 0.09470816193645357,
+      "root_dx_400_500_m": -0.144162357,
+      "mean_root_vx_401_500_m_s": -0.06980411255489997,
+      "toe_threshold_substeps": 3,
+      "nonfoot_normal_impulse_ns": 0.0,
+      "pronation_target_range_rad": [
+        -0.179943234,
+        0.180000007
+      ],
+      "pronation_actual_range_rad": [
+        -0.226781473,
+        0.163222551
+      ],
+      "mean_aero_force_xyz_401_to_end_n": [
+        0.15758826451336488,
+        -0.0385011161085664,
+        3.942202622432652
+      ],
+      "sweep_target_range_rad": [
+        0.0,
+        0.159999996
+      ],
+      "sweep_actual_range_rad": [
+        0.000119548968,
+        0.196305603
+      ],
+      "com_vz_at_release_m_s": 0.17861899890157,
+      "nonfoot_normal_impulse_after_release_ns": 0.0,
+      "screen_pass": false,
+      "sampled_root_vx_450_500_range_m_s": [
+        -0.141139716,
+        0.485645145
+      ],
+      "sweep_hit_modeled_stop": false,
+      "flap_target_range_rad": [
+        -0.349944919,
+        1.04994464
+      ],
+      "flap_actual_range_rad": [
+        -0.189789236,
+        1.09937632
+      ]
+    }
+  ],
+  "paired_push_screen_pass": {
+    "2-3": false,
+    "4-5": false,
+    "6-7": false
+  },
+  "source_sha256": {
+    "push": "ef19f547eb8c86da09f2cf14dff7332f081282c610191f30d0f21441ef9b0c29",
+    "hold": "95bfb04a6313c2954a4964a07ee62d88b7477345972fe75f92b68589bccfa249"
+  },
+  "scope": "Development layout and seed, correlated settings and first episodes only. A batch with any early termination is not valid for promotion; descriptive uncensored lanes are not independent qualification."
+}

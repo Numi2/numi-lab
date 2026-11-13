@@ -1,0 +1,36 @@
+{
+  "valid": true,
+  "rows": [
+    {
+      "lane": 2,
+      "missing_ticks": [],
+      "different_wing_target_ticks": []
+    },
+    {
+      "lane": 3,
+      "missing_ticks": [],
+      "different_wing_target_ticks": []
+    },
+    {
+      "lane": 4,
+      "missing_ticks": [],
+      "different_wing_target_ticks": []
+    },
+    {
+      "lane": 5,
+      "missing_ticks": [],
+      "different_wing_target_ticks": []
+    },
+    {
+      "lane": 6,
+      "missing_ticks": [],
+      "different_wing_target_ticks": []
+    },
+    {
+      "lane": 7,
+      "missing_ticks": [],
+      "different_wing_target_ticks": []
+    }
+  ],
+  "scope": "The target-pair observer checks the two flap target histories through tick 500, not physical wing equality or other wing joints."
+}
