@@ -1,5 +1,6 @@
-653b9b72cc5a85698e79f579e0404359a0e6b291b1419207220443638704cc24  artifacts/crow-v15-stabilized-return-placement-20261113/PLAN.md
-ea404d82ac10747d97c3951d9d9888471b1b74457663cccdc8373a14b0605adf  artifacts/crow-v15-stabilized-return-placement-20261113/probe.cpp
+f1a58d4a8b03bcf549372049a22d8d5bb736f3161b9cfb40b6ba05b625852e9c  artifacts/crow-v15-stabilized-return-placement-20261113/PLAN.md
+a78f6381704b58dd40f2d34b9fc3c47e1ddd8148dfc24fe3d133482a724d8697  artifacts/crow-v15-stabilized-return-placement-20261113/PRE-RUN-CLEARANCE-CORRECTION.md
+65d80e4615190cf886ab30d3d9a3a7f6f9611eed9414ac6a7e6071a83ef2294a  artifacts/crow-v15-stabilized-return-placement-20261113/probe.cpp
 9762e3fa0adaea3edeff4c00f203205621d70f045f6ef55950571271df2712fd  artifacts/crow-v15-stabilized-return-placement-20261113/run.py
 187c315128e6a3bb6810a26b75625d13bd533932a5dd13907a94154b8affd835  artifacts/crow-v15-stabilized-return-placement-20261113/analyze.py
 5cd39dbd7e893d017051295c09229123bc52c86f9490ee9d970d9feb2fda4c36  artifacts/crow-v15-stabilized-return-placement-20261113/contact-check.py
