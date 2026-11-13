@@ -1,0 +1,10 @@
+{
+  "path": "/Users/n/Developer/numi-crow-rl-20261107/artifacts/crow-v15-leg-flight-height-schedule-20261113/signed-turn-20261127-rebound-schedule/run.stderr.gz",
+  "inode": 17101076,
+  "bytes": 250428286,
+  "mtime_ns": 1794585938761790916,
+  "sha256": "52fc9b1c20ec7ceead08abfef0fb59b57384b4b72c465d3d7cdc1fe8636d9953",
+  "remote_archive_commit": "17ad29c4b5317a4da62cb8725adad547a13f76ca",
+  "lsof_clear": true,
+  "retired": false
+}
