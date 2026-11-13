@@ -1,0 +1,28 @@
+/Users/n/Developer/numi-crow-rl-20261107/artifacts/crow-v15-fast-ramp-leg-launch-20261113/push-wing.metal:5099:30: warning: unused variable 'arm' [-Wunused-variable]
+                { const uint arm=environment%8u;
+                             ^
+/Users/n/Developer/numi-crow-rl-20261107/artifacts/crow-v15-fast-ramp-leg-launch-20261113/push-wing.metal:5124:29: warning: unused variable 'extended' [-Wunused-variable]
+                const float extended=joint==0u ? -0.15f : joint==1u ? kneeExtension : 0.83f;
+                            ^
+/Users/n/Developer/numi-crow-rl-20261107/artifacts/crow-v15-fast-ramp-leg-launch-20261113/push-wing.metal:5524:28: warning: unused variable 'ticks' [-Wunused-variable]
+                const uint ticks=(state.status.w>>23u)&31u;
+                           ^
+3 warnings generated.
+Built candidate metallib: 7ec36af015ce55d795b19b6c505554f4b3f7289e0895ddf724f71a81b351ec6d
+/Users/n/Developer/numi-crow-rl-20261107/artifacts/crow-v15-fast-ramp-leg-launch-20261113/hold-wing.metal:5099:30: warning: unused variable 'arm' [-Wunused-variable]
+                { const uint arm=environment%8u;
+                             ^
+/Users/n/Developer/numi-crow-rl-20261107/artifacts/crow-v15-fast-ramp-leg-launch-20261113/hold-wing.metal:5124:29: warning: unused variable 'extended' [-Wunused-variable]
+                const float extended=joint==0u ? -0.15f : joint==1u ? kneeExtension : 0.83f;
+                            ^
+/Users/n/Developer/numi-crow-rl-20261107/artifacts/crow-v15-fast-ramp-leg-launch-20261113/hold-wing.metal:5125:28: warning: unused variable 'bilateral' [-Wunused-variable]
+                const bool bilateral=dispatch.counts.w==40u ? (state.status.w & ((1u<<20)|(1u<<21)))==((1u<<20)|(1u<<21)) : (state.nutrition.x>0.05f && state.nutrition.y>0.05f);
+                           ^
+/Users/n/Developer/numi-crow-rl-20261107/artifacts/crow-v15-fast-ramp-leg-launch-20261113/hold-wing.metal:5129:28: warning: unused variable 'pushStarted' [-Wunused-variable]
+                const bool pushStarted=experimentArm>=2u && (state.status.w & (1u<<19))!=0u;
+                           ^
+/Users/n/Developer/numi-crow-rl-20261107/artifacts/crow-v15-fast-ramp-leg-launch-20261113/hold-wing.metal:5518:28: warning: unused variable 'ticks' [-Wunused-variable]
+                const uint ticks=(state.status.w>>23u)&31u;
+                           ^
+5 warnings generated.
+Built candidate metallib: 61393f35b62d2d752ae5d64dbbe171447428cfcbf2c8de3ad3a9f55d76e1d6db

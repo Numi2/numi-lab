@@ -1,0 +1,275 @@
+{
+  "rows": [
+    {
+      "experiment": "crow-v15-consistent-wingheld-leg-control-20261113",
+      "ticks": [
+        348,
+        357
+      ],
+      "lane": 2,
+      "push_minus_hold_vertical_ns": 0.01117584463938981,
+      "push_minus_hold_normal_ns": 0.01117584463938981,
+      "max_per_substep_vertical_minus_normal_abs_ns": 0.0,
+      "source_logs_sha256": {
+        "push": "1bc84534bdf134a9da17a243468a394489136f048390ce35ae9edb9c55d75e21",
+        "hold": "192994028385ae1ec3749b47606153443ac5fc06c5daedb9d111bfbe3aa91290"
+      }
+    },
+    {
+      "experiment": "crow-v15-consistent-wingheld-leg-control-20261113",
+      "ticks": [
+        348,
+        357
+      ],
+      "lane": 3,
+      "push_minus_hold_vertical_ns": 0.04705962186340007,
+      "push_minus_hold_normal_ns": 0.04705962186340007,
+      "max_per_substep_vertical_minus_normal_abs_ns": 0.0,
+      "source_logs_sha256": {
+        "push": "1bc84534bdf134a9da17a243468a394489136f048390ce35ae9edb9c55d75e21",
+        "hold": "192994028385ae1ec3749b47606153443ac5fc06c5daedb9d111bfbe3aa91290"
+      }
+    },
+    {
+      "experiment": "crow-v15-consistent-wingheld-leg-control-20261113",
+      "ticks": [
+        348,
+        357
+      ],
+      "lane": 4,
+      "push_minus_hold_vertical_ns": 0.04349700024705916,
+      "push_minus_hold_normal_ns": 0.04349700024705916,
+      "max_per_substep_vertical_minus_normal_abs_ns": 0.0,
+      "source_logs_sha256": {
+        "push": "1bc84534bdf134a9da17a243468a394489136f048390ce35ae9edb9c55d75e21",
+        "hold": "192994028385ae1ec3749b47606153443ac5fc06c5daedb9d111bfbe3aa91290"
+      }
+    },
+    {
+      "experiment": "crow-v15-consistent-wingheld-leg-control-20261113",
+      "ticks": [
+        348,
+        357
+      ],
+      "lane": 5,
+      "push_minus_hold_vertical_ns": 0.021481024416090566,
+      "push_minus_hold_normal_ns": 0.021481024416090566,
+      "max_per_substep_vertical_minus_normal_abs_ns": 0.0,
+      "source_logs_sha256": {
+        "push": "1bc84534bdf134a9da17a243468a394489136f048390ce35ae9edb9c55d75e21",
+        "hold": "192994028385ae1ec3749b47606153443ac5fc06c5daedb9d111bfbe3aa91290"
+      }
+    },
+    {
+      "experiment": "crow-v15-consistent-wingheld-leg-control-20261113",
+      "ticks": [
+        348,
+        357
+      ],
+      "lane": 6,
+      "push_minus_hold_vertical_ns": 0.018737836413440068,
+      "push_minus_hold_normal_ns": 0.018737836413440068,
+      "max_per_substep_vertical_minus_normal_abs_ns": 0.0,
+      "source_logs_sha256": {
+        "push": "1bc84534bdf134a9da17a243468a394489136f048390ce35ae9edb9c55d75e21",
+        "hold": "192994028385ae1ec3749b47606153443ac5fc06c5daedb9d111bfbe3aa91290"
+      }
+    },
+    {
+      "experiment": "crow-v15-consistent-wingheld-leg-control-20261113",
+      "ticks": [
+        348,
+        357
+      ],
+      "lane": 7,
+      "push_minus_hold_vertical_ns": 0.02214358071750755,
+      "push_minus_hold_normal_ns": 0.02214358071750755,
+      "max_per_substep_vertical_minus_normal_abs_ns": 0.0,
+      "source_logs_sha256": {
+        "push": "1bc84534bdf134a9da17a243468a394489136f048390ce35ae9edb9c55d75e21",
+        "hold": "192994028385ae1ec3749b47606153443ac5fc06c5daedb9d111bfbe3aa91290"
+      }
+    },
+    {
+      "experiment": "crow-v15-wingheld-retraction-screen-20261113",
+      "ticks": [
+        348,
+        357
+      ],
+      "lane": 2,
+      "push_minus_hold_vertical_ns": -0.02253597419319997,
+      "push_minus_hold_normal_ns": -0.02253597419319997,
+      "max_per_substep_vertical_minus_normal_abs_ns": 0.0,
+      "source_logs_sha256": {
+        "push": "532ddfcbad35c266fd7c96ed39c3e747031903c44161403cd2bdfae69df928ec",
+        "hold": "192994028385ae1ec3749b47606153443ac5fc06c5daedb9d111bfbe3aa91290"
+      }
+    },
+    {
+      "experiment": "crow-v15-wingheld-retraction-screen-20261113",
+      "ticks": [
+        348,
+        357
+      ],
+      "lane": 3,
+      "push_minus_hold_vertical_ns": -0.021674355316600113,
+      "push_minus_hold_normal_ns": -0.021674355316600113,
+      "max_per_substep_vertical_minus_normal_abs_ns": 0.0,
+      "source_logs_sha256": {
+        "push": "532ddfcbad35c266fd7c96ed39c3e747031903c44161403cd2bdfae69df928ec",
+        "hold": "192994028385ae1ec3749b47606153443ac5fc06c5daedb9d111bfbe3aa91290"
+      }
+    },
+    {
+      "experiment": "crow-v15-wingheld-retraction-screen-20261113",
+      "ticks": [
+        348,
+        357
+      ],
+      "lane": 4,
+      "push_minus_hold_vertical_ns": 0.04349700024705916,
+      "push_minus_hold_normal_ns": 0.04349700024705916,
+      "max_per_substep_vertical_minus_normal_abs_ns": 0.0,
+      "source_logs_sha256": {
+        "push": "532ddfcbad35c266fd7c96ed39c3e747031903c44161403cd2bdfae69df928ec",
+        "hold": "192994028385ae1ec3749b47606153443ac5fc06c5daedb9d111bfbe3aa91290"
+      }
+    },
+    {
+      "experiment": "crow-v15-wingheld-retraction-screen-20261113",
+      "ticks": [
+        348,
+        357
+      ],
+      "lane": 5,
+      "push_minus_hold_vertical_ns": 0.021481024416090566,
+      "push_minus_hold_normal_ns": 0.021481024416090566,
+      "max_per_substep_vertical_minus_normal_abs_ns": 0.0,
+      "source_logs_sha256": {
+        "push": "532ddfcbad35c266fd7c96ed39c3e747031903c44161403cd2bdfae69df928ec",
+        "hold": "192994028385ae1ec3749b47606153443ac5fc06c5daedb9d111bfbe3aa91290"
+      }
+    },
+    {
+      "experiment": "crow-v15-wingheld-retraction-screen-20261113",
+      "ticks": [
+        348,
+        357
+      ],
+      "lane": 6,
+      "push_minus_hold_vertical_ns": 0.018737836413440068,
+      "push_minus_hold_normal_ns": 0.018737836413440068,
+      "max_per_substep_vertical_minus_normal_abs_ns": 0.0,
+      "source_logs_sha256": {
+        "push": "532ddfcbad35c266fd7c96ed39c3e747031903c44161403cd2bdfae69df928ec",
+        "hold": "192994028385ae1ec3749b47606153443ac5fc06c5daedb9d111bfbe3aa91290"
+      }
+    },
+    {
+      "experiment": "crow-v15-wingheld-retraction-screen-20261113",
+      "ticks": [
+        348,
+        357
+      ],
+      "lane": 7,
+      "push_minus_hold_vertical_ns": 0.02214358071750755,
+      "push_minus_hold_normal_ns": 0.02214358071750755,
+      "max_per_substep_vertical_minus_normal_abs_ns": 0.0,
+      "source_logs_sha256": {
+        "push": "532ddfcbad35c266fd7c96ed39c3e747031903c44161403cd2bdfae69df928ec",
+        "hold": "192994028385ae1ec3749b47606153443ac5fc06c5daedb9d111bfbe3aa91290"
+      }
+    },
+    {
+      "experiment": "crow-v15-ramped-leg-launch-20261113",
+      "ticks": [
+        371,
+        400
+      ],
+      "lane": 2,
+      "push_minus_hold_vertical_ns": 0.006907777483720956,
+      "push_minus_hold_normal_ns": 0.006907777483720956,
+      "max_per_substep_vertical_minus_normal_abs_ns": 0.0,
+      "source_logs_sha256": {
+        "push": "4195c8d3c42f7acc860e33827633fbb7feaf159e172bd6570f6753e8b446eecf",
+        "hold": "5d833877b8eb06d6953d6c9ed2d28087576679688417d37f16a0d6e5ff1de966"
+      }
+    },
+    {
+      "experiment": "crow-v15-ramped-leg-launch-20261113",
+      "ticks": [
+        371,
+        400
+      ],
+      "lane": 3,
+      "push_minus_hold_vertical_ns": 0.006903450777334896,
+      "push_minus_hold_normal_ns": 0.006903450777334896,
+      "max_per_substep_vertical_minus_normal_abs_ns": 0.0,
+      "source_logs_sha256": {
+        "push": "4195c8d3c42f7acc860e33827633fbb7feaf159e172bd6570f6753e8b446eecf",
+        "hold": "5d833877b8eb06d6953d6c9ed2d28087576679688417d37f16a0d6e5ff1de966"
+      }
+    },
+    {
+      "experiment": "crow-v15-ramped-leg-launch-20261113",
+      "ticks": [
+        371,
+        400
+      ],
+      "lane": 4,
+      "push_minus_hold_vertical_ns": 0.006760665743316796,
+      "push_minus_hold_normal_ns": 0.006760665743316796,
+      "max_per_substep_vertical_minus_normal_abs_ns": 0.0,
+      "source_logs_sha256": {
+        "push": "4195c8d3c42f7acc860e33827633fbb7feaf159e172bd6570f6753e8b446eecf",
+        "hold": "5d833877b8eb06d6953d6c9ed2d28087576679688417d37f16a0d6e5ff1de966"
+      }
+    },
+    {
+      "experiment": "crow-v15-ramped-leg-launch-20261113",
+      "ticks": [
+        371,
+        400
+      ],
+      "lane": 5,
+      "push_minus_hold_vertical_ns": 0.006750404923329789,
+      "push_minus_hold_normal_ns": 0.006750404923329789,
+      "max_per_substep_vertical_minus_normal_abs_ns": 0.0,
+      "source_logs_sha256": {
+        "push": "4195c8d3c42f7acc860e33827633fbb7feaf159e172bd6570f6753e8b446eecf",
+        "hold": "5d833877b8eb06d6953d6c9ed2d28087576679688417d37f16a0d6e5ff1de966"
+      }
+    },
+    {
+      "experiment": "crow-v15-ramped-leg-launch-20261113",
+      "ticks": [
+        371,
+        400
+      ],
+      "lane": 6,
+      "push_minus_hold_vertical_ns": 0.006639244494238028,
+      "push_minus_hold_normal_ns": 0.006639244494238028,
+      "max_per_substep_vertical_minus_normal_abs_ns": 0.0,
+      "source_logs_sha256": {
+        "push": "4195c8d3c42f7acc860e33827633fbb7feaf159e172bd6570f6753e8b446eecf",
+        "hold": "5d833877b8eb06d6953d6c9ed2d28087576679688417d37f16a0d6e5ff1de966"
+      }
+    },
+    {
+      "experiment": "crow-v15-ramped-leg-launch-20261113",
+      "ticks": [
+        371,
+        400
+      ],
+      "lane": 7,
+      "push_minus_hold_vertical_ns": 0.006715967948931478,
+      "push_minus_hold_normal_ns": 0.006715968178931497,
+      "max_per_substep_vertical_minus_normal_abs_ns": 2.299999999483271e-10,
+      "source_logs_sha256": {
+        "push": "4195c8d3c42f7acc860e33827633fbb7feaf159e172bd6570f6753e8b446eecf",
+        "hold": "5d833877b8eb06d6953d6c9ed2d28087576679688417d37f16a0d6e5ff1de966"
+      }
+    }
+  ],
+  "scope": "Recorded component meanings are vertical foot impulse, normal foot impulse, and other contact normal impulse. This verifies the specified flat-ground windows only; the quantities are not interchangeable on arbitrary terrain."
+}

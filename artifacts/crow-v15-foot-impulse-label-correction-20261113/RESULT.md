@@ -1,0 +1,5 @@
+# Correction: vertical versus contact-normal foot impulse
+
+The CROW_TWO_TOE_SUBSTEP record contains, in order, left/right vertical foot impulses, left/right contact-normal foot impulses, and nonfoot normal impulse. Several earlier analysis fields and reports used the label normal for the first two vertical-impulse fields. The values were computed from the recorded vertical components. For the flat-ground windows checked here, the maximum per-substep absolute difference between summed vertical and normal impulses was 2.3e-10 N s, and the maximum difference in push-minus-hold totals was also 2.3e-10 N s. These values do not change any of the quoted rounded values or pass/fail outcomes for those windows.
+
+The two components must not be treated as interchangeable for a sloped, curved, or otherwise different contact surface. Source log hashes, code, lane-wise values and observation windows are in analysis.json. The original reports and their labels are preserved in history; this correction accompanies them.
