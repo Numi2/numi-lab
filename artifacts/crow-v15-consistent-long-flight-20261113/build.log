@@ -1,0 +1,34 @@
+/Users/n/Developer/numi-crow-rl-20261107/artifacts/crow-v15-consistent-long-flight-20261113/push-wing.metal:5099:30: warning: unused variable 'arm' [-Wunused-variable]
+                { const uint arm=environment%8u;
+                             ^
+/Users/n/Developer/numi-crow-rl-20261107/artifacts/crow-v15-consistent-long-flight-20261113/push-wing.metal:5518:28: warning: unused variable 'ticks' [-Wunused-variable]
+                const uint ticks=(state.status.w>>23u)&31u;
+                           ^
+2 warnings generated.
+Built candidate metallib: e86c693533c78aa4c981d5d43eab5324d922dc0d463ed42a9a2b4de32d1a8fb3
+/Users/n/Developer/numi-crow-rl-20261107/artifacts/crow-v15-consistent-long-flight-20261113/hold-wing.metal:5099:30: warning: unused variable 'arm' [-Wunused-variable]
+                { const uint arm=environment%8u;
+                             ^
+/Users/n/Developer/numi-crow-rl-20261107/artifacts/crow-v15-consistent-long-flight-20261113/hold-wing.metal:5124:29: warning: unused variable 'extended' [-Wunused-variable]
+                const float extended=joint==0u ? -0.15f : joint==1u ? kneeExtension : 0.83f;
+                            ^
+/Users/n/Developer/numi-crow-rl-20261107/artifacts/crow-v15-consistent-long-flight-20261113/hold-wing.metal:5125:28: warning: unused variable 'bilateral' [-Wunused-variable]
+                const bool bilateral=dispatch.counts.w==40u ? (state.status.w & ((1u<<20)|(1u<<21)))==((1u<<20)|(1u<<21)) : (state.nutrition.x>0.05f && state.nutrition.y>0.05f);
+                           ^
+/Users/n/Developer/numi-crow-rl-20261107/artifacts/crow-v15-consistent-long-flight-20261113/hold-wing.metal:5129:28: warning: unused variable 'pushStarted' [-Wunused-variable]
+                const bool pushStarted=experimentArm>=2u && (state.status.w & (1u<<19))!=0u;
+                           ^
+/Users/n/Developer/numi-crow-rl-20261107/artifacts/crow-v15-consistent-long-flight-20261113/hold-wing.metal:5518:28: warning: unused variable 'ticks' [-Wunused-variable]
+                const uint ticks=(state.status.w>>23u)&31u;
+                           ^
+5 warnings generated.
+Built candidate metallib: 9d59e0ac6cfac3db7323800f7a3cd0999ea26327e95c5f06332b34d4fab636b6
+Observer built: 9f3c10fe18f79121cc357447fc46bc6bbf17a2b8212d4e4822e370b07da86cc6
+{
+  "build/crow-v15-consistent-long-flight-20261113/MetalWorld.mm": "99889e362b2a48b42c8de9101211d54ce1234a9964cae4fa0e15c376732d0a16",
+  "build/crow-v15-consistent-long-flight-20261113/libmetalrobo.dylib": "9f3c10fe18f79121cc357447fc46bc6bbf17a2b8212d4e4822e370b07da86cc6",
+  "build/crow-v15-consistent-long-flight-20261113/push-wing.metallib": "e86c693533c78aa4c981d5d43eab5324d922dc0d463ed42a9a2b4de32d1a8fb3",
+  "build/crow-v15-consistent-long-flight-20261113/hold-wing.metallib": "9d59e0ac6cfac3db7323800f7a3cd0999ea26327e95c5f06332b34d4fab636b6",
+  "build/crow-v15-consistent-long-flight-20261113/World.air": "60ee57f5c67c84ac0152539fbe3cad8bff788c171743353b759b4f724a00acff"
+}
+
