@@ -1,0 +1,158 @@
+{
+  "source": "bounded pre-release push on used seed 20261126, selected post hoc after failed screening",
+  "limitations": "substeps 348-375 only have pre-contact velocity and detailed pair logs; foot impulse is total over feet; post-presolve delta can include solver and subsequent processing",
+  "rows": [
+    {
+      "lane": 2,
+      "first_threshold_step": 389,
+      "substep": 15,
+      "velocity_dof": 26,
+      "end_velocity_rad_s": -12.0,
+      "first_three_unloaded_step": 372,
+      "foot_impulses": [
+        0.0254961662,
+        0.0,
+        0.0254961662,
+        0.0,
+        0.0
+      ],
+      "ground_body_pairs": []
+    },
+    {
+      "lane": 3,
+      "first_threshold_step": 390,
+      "substep": 11,
+      "velocity_dof": 28,
+      "end_velocity_rad_s": -12.0,
+      "first_three_unloaded_step": 372,
+      "foot_impulses": [
+        0.0986066461,
+        4.49789149e-15,
+        0.0986066461,
+        4.49789149e-15,
+        0.0
+      ],
+      "ground_body_pairs": []
+    },
+    {
+      "lane": 4,
+      "first_threshold_step": 368,
+      "substep": 14,
+      "velocity_dof": 28,
+      "end_velocity_rad_s": -12.0,
+      "first_three_unloaded_step": 355,
+      "foot_impulses": [
+        0.0155766997,
+        0.0143994484,
+        0.0155766997,
+        0.0143994484,
+        0.0
+      ],
+      "ground_body_pairs": [
+        [
+          26,
+          35
+        ],
+        [
+          34,
+          35
+        ]
+      ],
+      "start_velocity_rad_s": -6.04627323,
+      "precontact_velocity_rad_s": -5.59067345,
+      "post_presolve_delta_rad_s": -6.40932655
+    },
+    {
+      "lane": 5,
+      "first_threshold_step": 368,
+      "substep": 13,
+      "velocity_dof": 28,
+      "end_velocity_rad_s": -12.0,
+      "first_three_unloaded_step": 355,
+      "foot_impulses": [
+        0.0289137568,
+        0.0296106134,
+        0.0289137568,
+        0.0296106134,
+        0.0
+      ],
+      "ground_body_pairs": [
+        [
+          26,
+          35
+        ],
+        [
+          34,
+          35
+        ]
+      ],
+      "start_velocity_rad_s": -0.00795449037,
+      "precontact_velocity_rad_s": -0.00794616528,
+      "post_presolve_delta_rad_s": -11.99205383472
+    },
+    {
+      "lane": 6,
+      "first_threshold_step": 365,
+      "substep": 14,
+      "velocity_dof": 28,
+      "end_velocity_rad_s": -12.0,
+      "first_three_unloaded_step": 355,
+      "foot_impulses": [
+        0.0047256141,
+        0.00465321448,
+        0.0047256141,
+        0.00465321448,
+        0.0
+      ],
+      "ground_body_pairs": [
+        [
+          26,
+          35
+        ],
+        [
+          34,
+          35
+        ]
+      ],
+      "start_velocity_rad_s": -10.2207651,
+      "precontact_velocity_rad_s": -9.75902748,
+      "post_presolve_delta_rad_s": -2.2409725199999997
+    },
+    {
+      "lane": 7,
+      "first_threshold_step": 366,
+      "substep": 0,
+      "velocity_dof": 28,
+      "end_velocity_rad_s": -12.0,
+      "first_three_unloaded_step": 355,
+      "foot_impulses": [
+        0.0308957547,
+        0.030751504,
+        0.0308957547,
+        0.030751504,
+        0.0
+      ],
+      "ground_body_pairs": [
+        [
+          25,
+          35
+        ],
+        [
+          26,
+          35
+        ],
+        [
+          33,
+          35
+        ],
+        [
+          34,
+          35
+        ]
+      ],
+      "start_velocity_rad_s": -11.1567888,
+      "precontact_velocity_rad_s": -10.6942186,
+      "post_presolve_delta_rad_s": -1.3057814000000008
+    }
+  ]
+}
