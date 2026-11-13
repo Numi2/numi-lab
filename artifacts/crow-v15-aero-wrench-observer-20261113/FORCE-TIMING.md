@@ -1,0 +1,5 @@
+# Aerodynamic-force timing within the retained launch
+
+In the paired candidate's six comparable development lanes, simulated aero-kernel vertical force averaged about 0.006 N at step 357, approximately zero at step 358 and 0.090 N at step 359; the modeled bird's weight under the stated nominal gravity is approximately 4.42 N. The mean reached 2.18 N at step 361, 3.49 N at 362 and 4.18 N at 363. In the same 358–365 interval, whole-body vertical momentum fell and the feet later recontacted. These step means aggregate 16 substeps per lane, and the six lanes share a seed and controller.
+
+The force trace contains much larger transient outputs after recontact, including substep maxima near 37 N at step 369. Those are outputs of the empirical simulator kernel under this trajectory, not validated crow aerodynamic forces; they warrant a separate conditioning and timestep audit, not automatic gain amplification. The force trough and recontact correlation alone do not isolate target timing, aerodynamic closure, numerical integration or contact dynamics. The complete per-step means and extrema are in analysis.json and full per-substep forces are preserved in the trace.

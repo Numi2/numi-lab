@@ -497,5 +497,175 @@
       "com_delta_momentum_z_ns": -0.11339586085529108,
       "residual_ns": 0.010299649630958863
     }
+  ],
+  "force_profile_by_step": [
+    {
+      "step": 348,
+      "mean_aero_vertical_force_n": 2.57019114810521e-07,
+      "min_aero_vertical_force_n": 2.42809845563e-07,
+      "max_aero_vertical_force_n": 2.88103767954e-07
+    },
+    {
+      "step": 349,
+      "mean_aero_vertical_force_n": 2.6652560050173977e-07,
+      "min_aero_vertical_force_n": 2.51910834415e-07,
+      "max_aero_vertical_force_n": 2.99280022098e-07
+    },
+    {
+      "step": 350,
+      "mean_aero_vertical_force_n": 2.751683742807188e-07,
+      "min_aero_vertical_force_n": 2.61738956286e-07,
+      "max_aero_vertical_force_n": 3.07227670415e-07
+    },
+    {
+      "step": 351,
+      "mean_aero_vertical_force_n": 0.14197176789065064,
+      "min_aero_vertical_force_n": 2.6859818103e-07,
+      "max_aero_vertical_force_n": 0.453610792909
+    },
+    {
+      "step": 352,
+      "mean_aero_vertical_force_n": 0.9793752531993175,
+      "min_aero_vertical_force_n": 0.0150109312276,
+      "max_aero_vertical_force_n": 2.86614800582
+    },
+    {
+      "step": 353,
+      "mean_aero_vertical_force_n": 1.900209689717187,
+      "min_aero_vertical_force_n": 0.105511534843,
+      "max_aero_vertical_force_n": 5.87338020975
+    },
+    {
+      "step": 354,
+      "mean_aero_vertical_force_n": 2.006321164106083,
+      "min_aero_vertical_force_n": 0.197324079891,
+      "max_aero_vertical_force_n": 6.01129188226
+    },
+    {
+      "step": 355,
+      "mean_aero_vertical_force_n": 1.3730402503582295,
+      "min_aero_vertical_force_n": 0.163117568009,
+      "max_aero_vertical_force_n": 4.52359283529
+    },
+    {
+      "step": 356,
+      "mean_aero_vertical_force_n": 0.3118120015438906,
+      "min_aero_vertical_force_n": 0.0331467929936,
+      "max_aero_vertical_force_n": 1.02346129017
+    },
+    {
+      "step": 357,
+      "mean_aero_vertical_force_n": 0.006388187284870987,
+      "min_aero_vertical_force_n": -0.00141164344677,
+      "max_aero_vertical_force_n": 0.0295301184524
+    },
+    {
+      "step": 358,
+      "mean_aero_vertical_force_n": -8.538678049751114e-05,
+      "min_aero_vertical_force_n": -0.00122541538258,
+      "max_aero_vertical_force_n": 0.000187100129551
+    },
+    {
+      "step": 359,
+      "mean_aero_vertical_force_n": 0.09006624482005758,
+      "min_aero_vertical_force_n": -4.61387483526e-05,
+      "max_aero_vertical_force_n": 0.300983636007
+    },
+    {
+      "step": 360,
+      "mean_aero_vertical_force_n": 0.8709181894749664,
+      "min_aero_vertical_force_n": 0.00934518643771,
+      "max_aero_vertical_force_n": 2.86456205041
+    },
+    {
+      "step": 361,
+      "mean_aero_vertical_force_n": 2.1826616954651192,
+      "min_aero_vertical_force_n": 0.0933966148878,
+      "max_aero_vertical_force_n": 6.24698111031
+    },
+    {
+      "step": 362,
+      "mean_aero_vertical_force_n": 3.4876770817305207,
+      "min_aero_vertical_force_n": 0.249833527487,
+      "max_aero_vertical_force_n": 10.3988267102
+    },
+    {
+      "step": 363,
+      "mean_aero_vertical_force_n": 4.180455145432126,
+      "min_aero_vertical_force_n": 0.4176442686,
+      "max_aero_vertical_force_n": 12.5642034357
+    },
+    {
+      "step": 364,
+      "mean_aero_vertical_force_n": 3.455803844470126,
+      "min_aero_vertical_force_n": 0.492731642997,
+      "max_aero_vertical_force_n": 10.5498083257
+    },
+    {
+      "step": 365,
+      "mean_aero_vertical_force_n": 2.539814069993875,
+      "min_aero_vertical_force_n": 0.370461348677,
+      "max_aero_vertical_force_n": 7.16338247771
+    },
+    {
+      "step": 366,
+      "mean_aero_vertical_force_n": 1.317562061247833,
+      "min_aero_vertical_force_n": 0.171922228066,
+      "max_aero_vertical_force_n": 4.31535553144
+    },
+    {
+      "step": 367,
+      "mean_aero_vertical_force_n": 0.24706477954761763,
+      "min_aero_vertical_force_n": 0.0335776889697,
+      "max_aero_vertical_force_n": 0.79477098264
+    },
+    {
+      "step": 368,
+      "mean_aero_vertical_force_n": 1.7806685519818224,
+      "min_aero_vertical_force_n": 0.0259461707901,
+      "max_aero_vertical_force_n": 5.42925799103
+    },
+    {
+      "step": 369,
+      "mean_aero_vertical_force_n": 12.338202496624257,
+      "min_aero_vertical_force_n": 0.209757774064,
+      "max_aero_vertical_force_n": 36.9464008975
+    },
+    {
+      "step": 370,
+      "mean_aero_vertical_force_n": 9.309086050107394,
+      "min_aero_vertical_force_n": 1.17528879549,
+      "max_aero_vertical_force_n": 29.7449857811
+    },
+    {
+      "step": 371,
+      "mean_aero_vertical_force_n": 0.0629747140107209,
+      "min_aero_vertical_force_n": -0.0348954033107,
+      "max_aero_vertical_force_n": 1.12116204365
+    },
+    {
+      "step": 372,
+      "mean_aero_vertical_force_n": 6.6897157913800385,
+      "min_aero_vertical_force_n": -0.0347304937604,
+      "max_aero_vertical_force_n": 24.1180051267
+    },
+    {
+      "step": 373,
+      "mean_aero_vertical_force_n": 7.802934082590403,
+      "min_aero_vertical_force_n": 0.322069294751,
+      "max_aero_vertical_force_n": 24.3228808194
+    },
+    {
+      "step": 374,
+      "mean_aero_vertical_force_n": 2.3858332907511874,
+      "min_aero_vertical_force_n": 0.202615900896,
+      "max_aero_vertical_force_n": 8.2202119767
+    },
+    {
+      "step": 375,
+      "mean_aero_vertical_force_n": -0.011256156782630212,
+      "min_aero_vertical_force_n": -0.0435703843832,
+      "max_aero_vertical_force_n": 0.195189632941
+    }
   ]
 }

@@ -59,6 +59,10 @@ phase=[]
 for e in range(2,8):
  a=next(x for x in rows if x['lane']==e and x['end_step']==357);b=next(x for x in rows if x['lane']==e and x['end_step']==365)
  phase.append({'lane':e,'steps':[358,365],'aero_impulse_z_ns':b['aero_impulse_z_ns']-a['aero_impulse_z_ns'],'foot_impulse_z_ns':b['foot_impulse_z_ns']-a['foot_impulse_z_ns'],'assumed_gravity_impulse_z_ns':b['assumed_gravity_impulse_z_ns']-a['assumed_gravity_impulse_z_ns'],'com_delta_momentum_z_ns':b['com_delta_momentum_z_ns']-a['com_delta_momentum_z_ns'],'residual_ns':b['unattributed_residual_ns']-a['unattributed_residual_ns']})
-out={'scope':'Bracketed simulated aerodynamic kernel force; no biological validation. Delta of all body force slots before/after kernel, integrated using stated control dt and substeps. Gravity is assumed, not independently read from the runtime dispatch. Remaining residual can include other applied forces, dynamics and sampling/rounding.','parity':parity,'aero_records':len(aero),'body_strides':list(strides),'rows':rows,'phase_358_365':phase};(A/'analysis.json').write_text(json.dumps(out,indent=2)+'\n')
+force_profile=[]
+for t in range(348,376):
+ v=[aero[e,t,k][2] for e in range(2,8) for k in range(16)]
+ force_profile.append({'step':t,'mean_aero_vertical_force_n':sum(v)/len(v),'min_aero_vertical_force_n':min(v),'max_aero_vertical_force_n':max(v)})
+out={'scope':'Bracketed simulated aerodynamic kernel force; no biological validation. Delta of all body force slots before/after kernel, integrated using stated control dt and substeps. Gravity is assumed, not independently read from the runtime dispatch. Remaining residual can include other applied forces, dynamics and sampling/rounding.','parity':parity,'aero_records':len(aero),'body_strides':list(strides),'rows':rows,'phase_358_365':phase,'force_profile_by_step':force_profile};(A/'analysis.json').write_text(json.dumps(out,indent=2)+'\n')
 for x in rows:
  if x['lane']>=2 and x['end_step'] in (357,365,375):print(x['lane'],x['end_step'],'aero',round(x['aero_impulse_z_ns'],4),'feet',round(x['foot_impulse_z_ns'],4),'dp',round(x['com_delta_momentum_z_ns'],4),'residual',round(x['unattributed_residual_ns'],4))
