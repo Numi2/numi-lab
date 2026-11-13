@@ -1,0 +1,18 @@
+{
+  "0": {
+    "first_baseline_release_zero_based": 135,
+    "first_pitch_command_zero_based": 135,
+    "matched_preintervention_states": 135,
+    "missing": [],
+    "max_abs_qv_error": 0.0,
+    "prefix_match": true
+  },
+  "1": {
+    "first_baseline_release_zero_based": 157,
+    "first_pitch_command_zero_based": 157,
+    "matched_preintervention_states": 157,
+    "missing": [],
+    "max_abs_qv_error": 0.0,
+    "prefix_match": true
+  }
+}
