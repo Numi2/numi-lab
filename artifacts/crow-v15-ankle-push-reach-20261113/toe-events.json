@@ -1,0 +1,522 @@
+{
+  "threshold_rad_s": 11.99,
+  "configured_toe_velocity_limit_rad_s": 12.0,
+  "events": [
+    {
+      "lane": 4,
+      "step": 364,
+      "substep": 8,
+      "toe_dof_index": 6,
+      "velocity_rad_s": -12.0
+    },
+    {
+      "lane": 4,
+      "step": 364,
+      "substep": 9,
+      "toe_dof_index": 6,
+      "velocity_rad_s": -12.0
+    },
+    {
+      "lane": 4,
+      "step": 364,
+      "substep": 10,
+      "toe_dof_index": 6,
+      "velocity_rad_s": -12.0
+    },
+    {
+      "lane": 4,
+      "step": 364,
+      "substep": 10,
+      "toe_dof_index": 14,
+      "velocity_rad_s": -12.0
+    },
+    {
+      "lane": 4,
+      "step": 364,
+      "substep": 11,
+      "toe_dof_index": 6,
+      "velocity_rad_s": -12.0
+    },
+    {
+      "lane": 4,
+      "step": 364,
+      "substep": 11,
+      "toe_dof_index": 14,
+      "velocity_rad_s": -12.0
+    },
+    {
+      "lane": 4,
+      "step": 364,
+      "substep": 12,
+      "toe_dof_index": 6,
+      "velocity_rad_s": -12.0
+    },
+    {
+      "lane": 4,
+      "step": 364,
+      "substep": 12,
+      "toe_dof_index": 14,
+      "velocity_rad_s": -12.0
+    },
+    {
+      "lane": 4,
+      "step": 364,
+      "substep": 13,
+      "toe_dof_index": 6,
+      "velocity_rad_s": -12.0
+    },
+    {
+      "lane": 4,
+      "step": 364,
+      "substep": 13,
+      "toe_dof_index": 14,
+      "velocity_rad_s": -12.0
+    },
+    {
+      "lane": 4,
+      "step": 364,
+      "substep": 14,
+      "toe_dof_index": 14,
+      "velocity_rad_s": -12.0
+    },
+    {
+      "lane": 6,
+      "step": 365,
+      "substep": 5,
+      "toe_dof_index": 6,
+      "velocity_rad_s": -12.0
+    },
+    {
+      "lane": 6,
+      "step": 365,
+      "substep": 5,
+      "toe_dof_index": 14,
+      "velocity_rad_s": -12.0
+    },
+    {
+      "lane": 6,
+      "step": 365,
+      "substep": 6,
+      "toe_dof_index": 6,
+      "velocity_rad_s": -12.0
+    },
+    {
+      "lane": 6,
+      "step": 365,
+      "substep": 6,
+      "toe_dof_index": 14,
+      "velocity_rad_s": -12.0
+    },
+    {
+      "lane": 6,
+      "step": 365,
+      "substep": 7,
+      "toe_dof_index": 6,
+      "velocity_rad_s": -12.0
+    },
+    {
+      "lane": 6,
+      "step": 365,
+      "substep": 7,
+      "toe_dof_index": 14,
+      "velocity_rad_s": -12.0
+    },
+    {
+      "lane": 6,
+      "step": 365,
+      "substep": 8,
+      "toe_dof_index": 6,
+      "velocity_rad_s": -12.0
+    },
+    {
+      "lane": 6,
+      "step": 365,
+      "substep": 8,
+      "toe_dof_index": 14,
+      "velocity_rad_s": -12.0
+    },
+    {
+      "lane": 6,
+      "step": 365,
+      "substep": 9,
+      "toe_dof_index": 6,
+      "velocity_rad_s": -12.0
+    },
+    {
+      "lane": 6,
+      "step": 365,
+      "substep": 9,
+      "toe_dof_index": 14,
+      "velocity_rad_s": -12.0
+    },
+    {
+      "lane": 6,
+      "step": 365,
+      "substep": 10,
+      "toe_dof_index": 6,
+      "velocity_rad_s": -12.0
+    },
+    {
+      "lane": 6,
+      "step": 365,
+      "substep": 10,
+      "toe_dof_index": 14,
+      "velocity_rad_s": -12.0
+    },
+    {
+      "lane": 2,
+      "step": 374,
+      "substep": 11,
+      "toe_dof_index": 6,
+      "velocity_rad_s": -12.0
+    },
+    {
+      "lane": 2,
+      "step": 374,
+      "substep": 11,
+      "toe_dof_index": 14,
+      "velocity_rad_s": -12.0
+    },
+    {
+      "lane": 3,
+      "step": 374,
+      "substep": 11,
+      "toe_dof_index": 6,
+      "velocity_rad_s": -12.0
+    },
+    {
+      "lane": 3,
+      "step": 374,
+      "substep": 11,
+      "toe_dof_index": 14,
+      "velocity_rad_s": -12.0
+    },
+    {
+      "lane": 7,
+      "step": 374,
+      "substep": 11,
+      "toe_dof_index": 6,
+      "velocity_rad_s": -12.0
+    },
+    {
+      "lane": 7,
+      "step": 374,
+      "substep": 11,
+      "toe_dof_index": 14,
+      "velocity_rad_s": -12.0
+    },
+    {
+      "lane": 2,
+      "step": 374,
+      "substep": 12,
+      "toe_dof_index": 6,
+      "velocity_rad_s": -12.0
+    },
+    {
+      "lane": 2,
+      "step": 374,
+      "substep": 12,
+      "toe_dof_index": 14,
+      "velocity_rad_s": -12.0
+    },
+    {
+      "lane": 3,
+      "step": 374,
+      "substep": 12,
+      "toe_dof_index": 6,
+      "velocity_rad_s": -12.0
+    },
+    {
+      "lane": 3,
+      "step": 374,
+      "substep": 12,
+      "toe_dof_index": 14,
+      "velocity_rad_s": -12.0
+    },
+    {
+      "lane": 5,
+      "step": 374,
+      "substep": 12,
+      "toe_dof_index": 6,
+      "velocity_rad_s": -12.0
+    },
+    {
+      "lane": 5,
+      "step": 374,
+      "substep": 12,
+      "toe_dof_index": 14,
+      "velocity_rad_s": -12.0
+    },
+    {
+      "lane": 7,
+      "step": 374,
+      "substep": 12,
+      "toe_dof_index": 6,
+      "velocity_rad_s": -12.0
+    },
+    {
+      "lane": 7,
+      "step": 374,
+      "substep": 12,
+      "toe_dof_index": 14,
+      "velocity_rad_s": -12.0
+    },
+    {
+      "lane": 2,
+      "step": 374,
+      "substep": 13,
+      "toe_dof_index": 6,
+      "velocity_rad_s": -12.0
+    },
+    {
+      "lane": 2,
+      "step": 374,
+      "substep": 13,
+      "toe_dof_index": 14,
+      "velocity_rad_s": -12.0
+    },
+    {
+      "lane": 3,
+      "step": 374,
+      "substep": 13,
+      "toe_dof_index": 6,
+      "velocity_rad_s": -12.0
+    },
+    {
+      "lane": 3,
+      "step": 374,
+      "substep": 13,
+      "toe_dof_index": 14,
+      "velocity_rad_s": -12.0
+    },
+    {
+      "lane": 5,
+      "step": 374,
+      "substep": 13,
+      "toe_dof_index": 6,
+      "velocity_rad_s": -12.0
+    },
+    {
+      "lane": 5,
+      "step": 374,
+      "substep": 13,
+      "toe_dof_index": 14,
+      "velocity_rad_s": -12.0
+    },
+    {
+      "lane": 7,
+      "step": 374,
+      "substep": 13,
+      "toe_dof_index": 6,
+      "velocity_rad_s": -12.0
+    },
+    {
+      "lane": 7,
+      "step": 374,
+      "substep": 13,
+      "toe_dof_index": 14,
+      "velocity_rad_s": -12.0
+    },
+    {
+      "lane": 2,
+      "step": 374,
+      "substep": 14,
+      "toe_dof_index": 6,
+      "velocity_rad_s": -12.0
+    },
+    {
+      "lane": 2,
+      "step": 374,
+      "substep": 14,
+      "toe_dof_index": 14,
+      "velocity_rad_s": -12.0
+    },
+    {
+      "lane": 3,
+      "step": 374,
+      "substep": 14,
+      "toe_dof_index": 6,
+      "velocity_rad_s": -12.0
+    },
+    {
+      "lane": 3,
+      "step": 374,
+      "substep": 14,
+      "toe_dof_index": 14,
+      "velocity_rad_s": -12.0
+    },
+    {
+      "lane": 5,
+      "step": 374,
+      "substep": 14,
+      "toe_dof_index": 6,
+      "velocity_rad_s": -12.0
+    },
+    {
+      "lane": 5,
+      "step": 374,
+      "substep": 14,
+      "toe_dof_index": 14,
+      "velocity_rad_s": -12.0
+    },
+    {
+      "lane": 7,
+      "step": 374,
+      "substep": 14,
+      "toe_dof_index": 6,
+      "velocity_rad_s": -12.0
+    },
+    {
+      "lane": 7,
+      "step": 374,
+      "substep": 14,
+      "toe_dof_index": 14,
+      "velocity_rad_s": -12.0
+    },
+    {
+      "lane": 2,
+      "step": 374,
+      "substep": 15,
+      "toe_dof_index": 6,
+      "velocity_rad_s": -12.0
+    },
+    {
+      "lane": 2,
+      "step": 374,
+      "substep": 15,
+      "toe_dof_index": 14,
+      "velocity_rad_s": -12.0
+    },
+    {
+      "lane": 3,
+      "step": 374,
+      "substep": 15,
+      "toe_dof_index": 6,
+      "velocity_rad_s": -12.0
+    },
+    {
+      "lane": 3,
+      "step": 374,
+      "substep": 15,
+      "toe_dof_index": 14,
+      "velocity_rad_s": -12.0
+    },
+    {
+      "lane": 5,
+      "step": 374,
+      "substep": 15,
+      "toe_dof_index": 6,
+      "velocity_rad_s": -12.0
+    },
+    {
+      "lane": 5,
+      "step": 374,
+      "substep": 15,
+      "toe_dof_index": 14,
+      "velocity_rad_s": -12.0
+    },
+    {
+      "lane": 7,
+      "step": 374,
+      "substep": 15,
+      "toe_dof_index": 6,
+      "velocity_rad_s": -12.0
+    },
+    {
+      "lane": 7,
+      "step": 374,
+      "substep": 15,
+      "toe_dof_index": 14,
+      "velocity_rad_s": -12.0
+    },
+    {
+      "lane": 3,
+      "step": 375,
+      "substep": 0,
+      "toe_dof_index": 6,
+      "velocity_rad_s": -12.0
+    },
+    {
+      "lane": 3,
+      "step": 375,
+      "substep": 0,
+      "toe_dof_index": 14,
+      "velocity_rad_s": -12.0
+    },
+    {
+      "lane": 5,
+      "step": 375,
+      "substep": 0,
+      "toe_dof_index": 6,
+      "velocity_rad_s": -12.0
+    },
+    {
+      "lane": 5,
+      "step": 375,
+      "substep": 0,
+      "toe_dof_index": 14,
+      "velocity_rad_s": -12.0
+    },
+    {
+      "lane": 7,
+      "step": 375,
+      "substep": 0,
+      "toe_dof_index": 6,
+      "velocity_rad_s": -12.0
+    },
+    {
+      "lane": 7,
+      "step": 375,
+      "substep": 0,
+      "toe_dof_index": 14,
+      "velocity_rad_s": -12.0
+    },
+    {
+      "lane": 3,
+      "step": 375,
+      "substep": 1,
+      "toe_dof_index": 6,
+      "velocity_rad_s": -12.0
+    },
+    {
+      "lane": 3,
+      "step": 375,
+      "substep": 1,
+      "toe_dof_index": 14,
+      "velocity_rad_s": -12.0
+    },
+    {
+      "lane": 5,
+      "step": 375,
+      "substep": 1,
+      "toe_dof_index": 6,
+      "velocity_rad_s": -12.0
+    },
+    {
+      "lane": 5,
+      "step": 375,
+      "substep": 1,
+      "toe_dof_index": 14,
+      "velocity_rad_s": -12.0
+    },
+    {
+      "lane": 7,
+      "step": 375,
+      "substep": 1,
+      "toe_dof_index": 6,
+      "velocity_rad_s": -12.0
+    },
+    {
+      "lane": 7,
+      "step": 375,
+      "substep": 1,
+      "toe_dof_index": 14,
+      "velocity_rad_s": -12.0
+    }
+  ],
+  "counts_by_toe_dof": {
+    "6": 37,
+    "14": 36
+  },
+  "scope": "Posthoc recorded toe coordinate speeds at or above threshold, not a direct record of whether the solver actively clipped a velocity. Indices 0\u20137 left, 8\u201315 right: four proximal/distal pairs. Correlated lanes on one used seed."
+}

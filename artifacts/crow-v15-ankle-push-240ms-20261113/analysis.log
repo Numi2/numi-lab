@@ -1,0 +1,8 @@
+lane 0 delta impulse -0.03129 rise 0.05532 release 359 v375 0.20318 work 1.16482 other 0.0 toe caps 4 screens False True
+lane 1 delta impulse -0.00635 rise 0.05068 release 359 v375 0.25458 work 1.3208 other 0.0 toe caps 5 screens False True
+lane 2 delta impulse -0.10036 rise 0.02306 release None v375 0.06395 work 0.69022 other 0.0 toe caps 3 screens False False
+lane 3 delta impulse -0.15574 rise 0.02294 release None v375 -0.05872 work 0.72433 other 0.0 toe caps 6 screens False False
+lane 4 delta impulse -0.01083 rise 0.03081 release 361 v375 0.245 work 1.27905 other 0.0 toe caps 9 screens False False
+lane 5 delta impulse -0.02176 rise 0.03123 release 361 v375 0.22287 work 1.26071 other 0.0 toe caps 9 screens False False
+lane 6 delta impulse -0.15027 rise 0.02783 release None v375 -0.05393 work 0.74519 other 0.0 toe caps 7 screens False False
+lane 7 delta impulse -0.1499 rise 0.03002 release 361 v375 -0.05447 work 0.76625 other 0.0 toe caps 6 screens False False
