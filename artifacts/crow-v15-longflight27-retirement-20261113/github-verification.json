@@ -1,0 +1,40 @@
+{
+  "commit": "76ab0c15086ba3c042db8bffd91b4522fabbe162",
+  "source": "independent authenticated GitHub raw content",
+  "manifest": "artifacts/crow-v15-mirrored-leg-wing-longflight-20261113/signed-turn-20261127-rebound-repeat-longflight/stderr-parts.json",
+  "bytes": 250432146,
+  "sha256": "5504909b98ca16d2a0fd91bc717d4717430ca80fbfd582c637ca3ea318e3a515",
+  "gzip_eof_verified": true,
+  "parts": [
+    {
+      "file": "run.stderr.gz.part000",
+      "bytes": 41943040,
+      "sha256": "c2564fa0a6a001ceb677f0f7ea57e493aaef1804b84f028093061c624cc9bbea"
+    },
+    {
+      "file": "run.stderr.gz.part001",
+      "bytes": 41943040,
+      "sha256": "b7605ecb85d96949f3b9a1deb690f5ec8f3c637a135038c853101f18877f05e0"
+    },
+    {
+      "file": "run.stderr.gz.part002",
+      "bytes": 41943040,
+      "sha256": "49c2dca50b87309a6b88290c1b5504f822fa253a8163697335681b8de1fbfa3e"
+    },
+    {
+      "file": "run.stderr.gz.part003",
+      "bytes": 41943040,
+      "sha256": "9ffb25ad5e712550ce55673e9a97d95f52255f9a4fd6283b56e61c98e2fcc639"
+    },
+    {
+      "file": "run.stderr.gz.part004",
+      "bytes": 41943040,
+      "sha256": "3b4d8bbce1f870182465e786a72a4822612269e0dee3d94defbf4e13662db9bd"
+    },
+    {
+      "file": "run.stderr.gz.part005",
+      "bytes": 40716946,
+      "sha256": "de4d837acd5661e61b2fd750c386245c918f1a05d28d0df0c8ca5ec4522e65d2"
+    }
+  ]
+}
