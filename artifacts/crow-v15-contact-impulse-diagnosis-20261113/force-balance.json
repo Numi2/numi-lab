@@ -1,0 +1,146 @@
+{
+  "source": "Retained launch phase push and hold first episodes; tick 374 to 375",
+  "rows": [
+    {
+      "arm": "push",
+      "lane": 2,
+      "mass_kg": 0.4500599934908678,
+      "com_velocity_before_xz": [
+        0.05843170838544845,
+        0.16894378223865045
+      ],
+      "com_velocity_after_xz": [
+        -0.3131990356460602,
+        0.6798582995387774
+      ],
+      "observed_com_momentum_change_xz_ns": [
+        -0.16725613023982713,
+        0.229942184330485
+      ],
+      "ground_impulse_xz_ns": [
+        -0.16609491125066655,
+        0.319638307129924
+      ],
+      "ground_contact_records": 248,
+      "aerodynamic_impulse_xz_ns": [
+        -0.0006765393497155126,
+        -0.0004969551377143425
+      ],
+      "gravity_impulse_z_ns": -0.08830177072290826,
+      "predicted_momentum_change_xz_ns": [
+        -0.16677145060038207,
+        0.2308395812693014
+      ],
+      "residual_xz_ns": [
+        -0.0004846796394450681,
+        -0.0008973969388164083
+      ]
+    },
+    {
+      "arm": "push",
+      "lane": 3,
+      "mass_kg": 0.4500599934908678,
+      "com_velocity_before_xz": [
+        0.05847329257192535,
+        0.170438509347335
+      ],
+      "com_velocity_after_xz": [
+        -0.2895659217488248,
+        0.6366450426778346
+      ],
+      "observed_com_momentum_change_xz_ns": [
+        -0.15663852653176355,
+        0.20982090935612469
+      ],
+      "ground_impulse_xz_ns": [
+        -0.15592226654576793,
+        0.30038197032373926
+      ],
+      "ground_contact_records": 248,
+      "aerodynamic_impulse_xz_ns": [
+        -0.0006073050376107625,
+        -0.00044079974530167126
+      ],
+      "gravity_impulse_z_ns": -0.08830177072290826,
+      "predicted_momentum_change_xz_ns": [
+        -0.15652957158337868,
+        0.21163939985552935
+      ],
+      "residual_xz_ns": [
+        -0.00010895494838486508,
+        -0.0018184904994046625
+      ]
+    },
+    {
+      "arm": "hold",
+      "lane": 2,
+      "mass_kg": 0.4500599934908678,
+      "com_velocity_before_xz": [
+        -0.018036889255758318,
+        -0.00356241726420601
+      ],
+      "com_velocity_after_xz": [
+        -0.018222956326073892,
+        -0.003654645942670522
+      ],
+      "observed_com_momentum_change_xz_ns": [
+        -8.374134445509224e-05,
+        -4.1508438429409696e-05
+      ],
+      "ground_impulse_xz_ns": [
+        -0.00019297699273521362,
+        0.08824568615946947
+      ],
+      "ground_contact_records": 240,
+      "aerodynamic_impulse_xz_ns": [
+        -1.887902914177125e-07,
+        1.429035881415125e-06
+      ],
+      "gravity_impulse_z_ns": -0.08830177072290826,
+      "predicted_momentum_change_xz_ns": [
+        -0.00019316578302663133,
+        -5.465552755737346e-05
+      ],
+      "residual_xz_ns": [
+        0.00010942443857153909,
+        1.3147089127963766e-05
+      ]
+    },
+    {
+      "arm": "hold",
+      "lane": 3,
+      "mass_kg": 0.4500599934908678,
+      "com_velocity_before_xz": [
+        -0.018075937872069923,
+        -0.0035797513686929424
+      ],
+      "com_velocity_after_xz": [
+        -0.01826243989128264,
+        -0.003672494880721991
+      ],
+      "observed_com_momentum_change_xz_ns": [
+        -8.393709755290882e-05,
+        -4.174014442011386e-05
+      ],
+      "ground_impulse_xz_ns": [
+        -0.00019340708329192133,
+        0.08824536206999294
+      ],
+      "ground_contact_records": 256,
+      "aerodynamic_impulse_xz_ns": [
+        -1.904109007000125e-07,
+        1.4357944709785002e-06
+      ],
+      "gravity_impulse_z_ns": -0.08830177072290826,
+      "predicted_momentum_change_xz_ns": [
+        -0.00019359749419262134,
+        -5.497285844434374e-05
+      ],
+      "residual_xz_ns": [
+        0.00010966039663971252,
+        1.3232714024229883e-05
+      ]
+    }
+  ],
+  "scope": "Impulse reconstructed from logged contact basis and modeled external aerodynamic force; residual is reported, not assumed zero. This does not identify a solver defect or establish biological realism."
+}
