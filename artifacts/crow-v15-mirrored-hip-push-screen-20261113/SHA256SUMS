@@ -1,0 +1,17 @@
+001fb10eb81a8d47118b533890e1bf6f9650360f4d625eb65656128635cf341f  artifacts/crow-v15-mirrored-hip-push-screen-20261113/PLAN.md
+d4bd2ed3a7536e370e8a5c06fbe28b701dec0037275631f8c115485fb920b596  artifacts/crow-v15-mirrored-hip-push-screen-20261113/analyze.py
+9309ea9781584f8e5e01be6933c0bf95118fc73dc6345eb8c70dd8020c6ca73d  artifacts/crow-v15-mirrored-hip-push-screen-20261113/build.py
+11f5b21fd78459a51d82068e136b1065bf56569e4783e5caea6757f0f8fa1b5e  artifacts/crow-v15-mirrored-hip-push-screen-20261113/com-analyze.py
+2a1bdfce47b3663f9db76b5c29c4019fa12004d7c217d59c4bc54aded4b89419  artifacts/crow-v15-mirrored-hip-push-screen-20261113/hold-wing-build.log
+1e2b2b39dda2e0e9c73619ba29e7505eac94cde16dfc1a8627eaf96ea93ab04f  artifacts/crow-v15-mirrored-hip-push-screen-20261113/hold-wing-hashes.json
+a95952b5e5c338bb35e8e1f90493ce9152c04b98b18c207d093392fec846b127  artifacts/crow-v15-mirrored-hip-push-screen-20261113/hold-wing.air.gz
+9097c070be3e13978dedfb2fc9658424ddeba76040fde49fdc67c2357a5422af  artifacts/crow-v15-mirrored-hip-push-screen-20261113/hold-wing.metal
+80eafb54770c202bd4fc6c1ff99b0b00ea60e658e07acaabb02d34d82263ffca  artifacts/crow-v15-mirrored-hip-push-screen-20261113/hold-wing.metallib.gz
+0d5feae7beea1835a0df7639b825a319eed3dbd69fb3979d2b890035cda342bc  artifacts/crow-v15-mirrored-hip-push-screen-20261113/horizontal.py
+5bb756261269567daaf078619b851d6a1bd84ee0d15185a23473209bd23834fb  artifacts/crow-v15-mirrored-hip-push-screen-20261113/push-wing-build.log
+4a6d9d791c25b127587c8204e13974ac27423bb7a8cc362bed9b2c39718455fe  artifacts/crow-v15-mirrored-hip-push-screen-20261113/push-wing-hashes.json
+9a55ba2a7fb7316f63d74aa86eda270aef7c497b0bcb64fa3e74b23d3d8f85ef  artifacts/crow-v15-mirrored-hip-push-screen-20261113/push-wing.air.gz
+7b384aa9e75324891ae0bfc6d31e3e844afdda22626749b19fdfda4fdcca7c68  artifacts/crow-v15-mirrored-hip-push-screen-20261113/push-wing.metal
+19e12156735d3e584b555a2d1d67f78a17426ea513d7caa0bdd60ce0a6a87656  artifacts/crow-v15-mirrored-hip-push-screen-20261113/push-wing.metallib.gz
+1214bc422eb016c04aee81c425911c7696bb5aa078511a81a5a53051e2601291  artifacts/crow-v15-mirrored-hip-push-screen-20261113/run.py
+cbb308d373c6a97fdc20230f1b19e8dfa3df31f12cd93ff18012f708b7217923  artifacts/crow-v15-mirrored-hip-push-screen-20261113/screen.py
