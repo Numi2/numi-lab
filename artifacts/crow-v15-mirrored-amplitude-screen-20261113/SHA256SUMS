@@ -38,6 +38,7 @@ b952d30ecd24ce15a38a4b677e4cc66c70c2133a0440781aef710281926668dc  ./pronation-sm
 2b0beec4e9a3439cae42d5688f0364fc52ea98ee4b380fe410491ca9a62b48a8  ./pronation-small-20261127-rebound-repeat/force-analysis.log
 7d549adfe76b963c9ee2fc3a3fd40d556a54307e81a339a051055a2bab54920c  ./pronation-small-20261127-rebound-repeat/gate.json
 7d549adfe76b963c9ee2fc3a3fd40d556a54307e81a339a051055a2bab54920c  ./pronation-small-20261127-rebound-repeat/gate.log
+42a7a29b93f81757ce84b542f543b88ddc02d83fc4355fc7d1243e16336839e5  ./pronation-small-20261127-rebound-repeat/independent-github-download-20261127.json
 4eaa4ade637b53d42f6698024dde32b9c31241249cbc588d547465bbb6aa51e5  ./pronation-small-20261127-rebound-repeat/inputs.json
 600af1b55352792eeaf6b19d8599a9303e7bd0bd1d5875ed88e9ebafa81d5875  ./pronation-small-20261127-rebound-repeat/joint-speed-audit.json
 600af1b55352792eeaf6b19d8599a9303e7bd0bd1d5875ed88e9ebafa81d5875  ./pronation-small-20261127-rebound-repeat/joint-speed-audit.log
@@ -61,5 +62,6 @@ f6da4537ee403b0ed83fbbadf1c1aa7582e15d584aafcf0b7138536bfb8916c3  ./pronation-sm
 ad32dc5a18e45c5404721dc88f7c331332f929c84fd4f77c774104e6322f02aa  ./qualify.py
 83db8d04625fd0646985d077493fa733df5ee806c1464996ccb7e937de8caa2e  ./restore-stderr.py
 1d330e57c2dd8930ee71d1b5111a42b58b4adc73448cafde429df32e9ccb9a02  ./retirement-manifest-20261126.json
+49773a45aa8790a2a5935544e644267f8a747240d7391320b3e546ce995c2e5a  ./retirement-manifest-20261127.json
 3893d4217bfe4bb3532c905c1778c252b2ff651f9b9c017072b411b63bb6bcab  ./retirement-receipt-20261126.json
 6fec333496a1a15d14ba5f373a1dc7f6a5d29fa94237f3510252bdeba2da647b  ./run.py

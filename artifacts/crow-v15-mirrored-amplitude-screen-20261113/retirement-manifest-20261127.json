@@ -1,0 +1,59 @@
+{
+  "purpose": "retire independently restored redundant split copies; original retained for flight comparisons",
+  "files": [
+    {
+      "absolute_path": "/Users/n/Developer/numi-crow-rl-20261107/artifacts/crow-v15-mirrored-amplitude-screen-20261113/pronation-small-20261127-rebound-repeat/run.stderr.gz.part00",
+      "device": 16777232,
+      "inode": 17098661,
+      "links": 1,
+      "bytes": 41943040,
+      "sha256": "8c841fae712484d65c03cb453c6d41381e554e8cb7b8672cc08038077025e105",
+      "lsof_exit": 1
+    },
+    {
+      "absolute_path": "/Users/n/Developer/numi-crow-rl-20261107/artifacts/crow-v15-mirrored-amplitude-screen-20261113/pronation-small-20261127-rebound-repeat/run.stderr.gz.part01",
+      "device": 16777232,
+      "inode": 17098662,
+      "links": 1,
+      "bytes": 41943040,
+      "sha256": "5c8f682b8f53205f7fb29957ec4b10699efb30d1a2e46be8d57c7d04ac861719",
+      "lsof_exit": 1
+    },
+    {
+      "absolute_path": "/Users/n/Developer/numi-crow-rl-20261107/artifacts/crow-v15-mirrored-amplitude-screen-20261113/pronation-small-20261127-rebound-repeat/run.stderr.gz.part02",
+      "device": 16777232,
+      "inode": 17098663,
+      "links": 1,
+      "bytes": 41943040,
+      "sha256": "af6bf56b1297cdfada1b0217d861325340d33a48fe99bafd44e70456286bfa7d",
+      "lsof_exit": 1
+    },
+    {
+      "absolute_path": "/Users/n/Developer/numi-crow-rl-20261107/artifacts/crow-v15-mirrored-amplitude-screen-20261113/pronation-small-20261127-rebound-repeat/run.stderr.gz.part03",
+      "device": 16777232,
+      "inode": 17098664,
+      "links": 1,
+      "bytes": 41943040,
+      "sha256": "dd53acf055d2414b868373e9963bb1fa546324c553e4ddd3ff7a569d15035c3e",
+      "lsof_exit": 1
+    },
+    {
+      "absolute_path": "/Users/n/Developer/numi-crow-rl-20261107/artifacts/crow-v15-mirrored-amplitude-screen-20261113/pronation-small-20261127-rebound-repeat/run.stderr.gz.part04",
+      "device": 16777232,
+      "inode": 17098665,
+      "links": 1,
+      "bytes": 41943040,
+      "sha256": "38bae5b1f8ea06c84ca18cd90dd407490a0ed9b7394ef341322f1a38dec78d63",
+      "lsof_exit": 1
+    },
+    {
+      "absolute_path": "/Users/n/Developer/numi-crow-rl-20261107/artifacts/crow-v15-mirrored-amplitude-screen-20261113/pronation-small-20261127-rebound-repeat/run.stderr.gz.part05",
+      "device": 16777232,
+      "inode": 17098666,
+      "links": 1,
+      "bytes": 39350315,
+      "sha256": "626e08449c540992fecb29f603634fe0cca848a06e51e48932aa43fa751b2f53",
+      "lsof_exit": 1
+    }
+  ]
+}
