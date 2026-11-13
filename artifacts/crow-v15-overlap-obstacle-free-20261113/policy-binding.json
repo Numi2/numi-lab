@@ -1,0 +1,29 @@
+{
+  "old_fingerprints": [
+    14097770674163431938,
+    9387273234647585963,
+    17987893091873593072,
+    17201084694567446180
+  ],
+  "new_fingerprints": [
+    11826327759394690451,
+    15966079965425133542,
+    10850713200246877877,
+    10263629701270784699
+  ],
+  "reports": [
+    {
+      "actor": "landing",
+      "source_sha256": "4fbaa0a55b9a9bd55aa0e094e4fb103af2da97222ac299742a7b14ed3668dbfc",
+      "target_sha256": "b5251e0e294d8fd04e073beacdf2faf1805105f731e9a8f73a8882c2a22dbd4b",
+      "identical_layers_and_transforms": true
+    },
+    {
+      "actor": "route",
+      "source_sha256": "e9a312cbc336f94804b075e63887bd3a80fb0258e9f53d0913c561354bdadf27",
+      "target_sha256": "4dc1de804258c384df42faf979842bd9da38ba1a0030dc03005807d6643c7c24",
+      "identical_layers_and_transforms": true
+    }
+  ],
+  "scope": "Diagnostic rebinding after scene collision mask change. Exact layers and transforms checked; no retraining or validation under the changed dynamics is implied."
+}

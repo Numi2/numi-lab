@@ -1,0 +1,28 @@
+{
+  "original_name": "run.stderr.gz",
+  "original_size": 163227180,
+  "original_sha256": "04b7bb10fabc418c7f7cd4022d9d81ff66f1485d1a15275298ab288c771b9bdf",
+  "parts": [
+    {
+      "name": "run.stderr.gz.part000",
+      "size": 41943040,
+      "sha256": "5edc67d6e0e0e424d4db2e9b5cf81780ad5f009e86b1e9aabb589db1beccdd7a"
+    },
+    {
+      "name": "run.stderr.gz.part001",
+      "size": 41943040,
+      "sha256": "e57458a030c95a6385c08bbed56fa56479305fce96331fd13805363efe95793d"
+    },
+    {
+      "name": "run.stderr.gz.part002",
+      "size": 41943040,
+      "sha256": "1f599287ddf115a49f1468e9759a5b0e23776257203b857307db6beb702850d8"
+    },
+    {
+      "name": "run.stderr.gz.part003",
+      "size": 37398060,
+      "sha256": "d2d24c044119eb5a332ceddbb89738958ceb14fb2b2d26793b9c91fa4c0b1582"
+    }
+  ],
+  "note": "Concatenate listed parts in order to recover exact gzip; restore-stderr.py verifies the result."
+}

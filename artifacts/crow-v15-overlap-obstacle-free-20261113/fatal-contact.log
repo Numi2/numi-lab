@@ -1,0 +1,6 @@
+2 end 637 trace 638 contacts [('crow_right_front_toe_1_distal', 'locomotion_ground', 0.00506857829), ('crow_right_front_toe_1_distal', 'locomotion_ground', 0.00011772196)]
+3 end 635 trace 636 contacts [('crow_lower_beak', 'locomotion_ground', 0.0433788598)]
+4 end 655 trace 656 contacts [('crow_right_front_toe_1_distal', 'locomotion_ground', 0.00314554153)]
+5 end 654 trace 655 contacts [('crow_lower_beak', 'locomotion_ground', 0.101041242)]
+6 end 634 trace 635 contacts [('crow_left_front_toe_1_distal', 'locomotion_ground', 0.00260242214), ('crow_left_front_toe_1_distal', 'locomotion_ground', 8.00879025e-06), ('crow_right_front_toe_1_distal', 'locomotion_ground', 0.00296645379), ('crow_right_front_toe_1_distal', 'locomotion_ground', 0.000288765325)]
+7 end 657 trace 658 contacts [('crow_lower_beak', 'locomotion_ground', 0.0137579041), ('crow_right_front_toe_1_distal', 'locomotion_ground', 0.00310512655)]

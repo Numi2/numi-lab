@@ -1,0 +1,13 @@
+from pathlib import Path
+import gzip,hashlib,json,re,numpy as np
+from metalrobo.mlx_policy_learning import read_policy_pack
+from metalrobo.native import PolicyDenseLayerArtifact,write_policy_pack
+R=Path.cwd();A=R/'artifacts/crow-v15-overlap-obstacle-free-20261113';B=R/'build/crow-v15-overlap-obstacle-free-20261113';C=A/'push-wing-20261126-rebound-preflight';cmd=json.loads((C/'command.json').read_text());err=gzip.decompress((C/'run.stderr.gz').read_bytes()).decode();m=re.search(r'policy=\(world=(\d+),task=(\d+),observation=(\d+),action=(\d+)\) task=\(world=(\d+),task=(\d+),observation=(\d+),action=(\d+)\)',err);assert m,err
+old=list(map(int,m.groups()[:4]));world,task,obs,act=map(int,m.groups()[4:]);reports=[];h=lambda p:hashlib.sha256(p.read_bytes()).hexdigest()
+for option,label in [('--policy-pack','landing'),('--base-policy-pack','route')]:
+ source=B/(label+'-original.policypack');src=read_policy_pack(source,library_path=str(B/'libmetalrobo.dylib'));assert not src.critic_layers and len(src.action_log_standard_deviation)==0
+ layers=[PolicyDenseLayerArtifact(weights=x.weights.copy(),bias=x.bias.copy(),activation=x.activation) for x in src.layers];target=B/(label+'-candidate.policypack')
+ write_policy_pack(target,policy_id='crow_damped_wing_diagnostic_'+label,revision=src.revision+1,contract_version=src.contract_version,world_fingerprint=world,task_fingerprint=task,observation_fingerprint=obs,action_fingerprint=act,layers=layers,observation_mean=src.observation_mean,observation_inverse_standard_deviation=src.observation_inverse_standard_deviation,action_bias=src.action_bias,action_scale=src.action_scale,observation_clip=src.observation_clip,action_clip=src.action_clip,library_path=str(B/'libmetalrobo.dylib'))
+ dst=read_policy_pack(target,library_path=str(B/'libmetalrobo.dylib'));assert len(src.layers)==len(dst.layers) and all(np.array_equal(x.weights,y.weights) and np.array_equal(x.bias,y.bias) and x.activation==y.activation for x,y in zip(src.layers,dst.layers));assert all(np.array_equal(getattr(src,k),getattr(dst,k)) for k in ('observation_mean','observation_inverse_standard_deviation','action_bias','action_scale'));assert src.observation_clip==dst.observation_clip and src.action_clip==dst.action_clip
+ reports.append({'actor':label,'source_sha256':h(source),'target_sha256':h(target),'identical_layers_and_transforms':True})
+(A/'policy-binding.json').write_text(json.dumps({'old_fingerprints':old,'new_fingerprints':[world,task,obs,act],'reports':reports,'scope':'Diagnostic rebinding after scene collision mask change. Exact layers and transforms checked; no retraining or validation under the changed dynamics is implied.'},indent=2)+'\n');print('bound diagnostic policies')

@@ -1,0 +1,49 @@
+{
+  "valid": true,
+  "shapes": [
+    {
+      "name": "locomotion_ground/collision",
+      "old": 4294967295,
+      "new": 4294967295
+    },
+    {
+      "name": "crow_course_gate_left/collision",
+      "old": 4294967295,
+      "new": 0
+    },
+    {
+      "name": "crow_course_gate_right/collision",
+      "old": 4294967295,
+      "new": 0
+    },
+    {
+      "name": "crow_course_slalom_a/collision",
+      "old": 4294967295,
+      "new": 0
+    },
+    {
+      "name": "crow_course_slalom_b/collision",
+      "old": 4294967295,
+      "new": 0
+    },
+    {
+      "name": "crow_course_perch/collision",
+      "old": 4294967295,
+      "new": 0
+    }
+  ],
+  "actor_rebinding": [
+    {
+      "actor": "landing",
+      "source_sha256": "4fbaa0a55b9a9bd55aa0e094e4fb103af2da97222ac299742a7b14ed3668dbfc",
+      "target_sha256": "b5251e0e294d8fd04e073beacdf2faf1805105f731e9a8f73a8882c2a22dbd4b",
+      "identical_layers_and_transforms": true
+    },
+    {
+      "actor": "route",
+      "source_sha256": "e9a312cbc336f94804b075e63887bd3a80fb0258e9f53d0913c561354bdadf27",
+      "target_sha256": "4dc1de804258c384df42faf979842bd9da38ba1a0030dc03005807d6643c7c24",
+      "identical_layers_and_transforms": true
+    }
+  ]
+}

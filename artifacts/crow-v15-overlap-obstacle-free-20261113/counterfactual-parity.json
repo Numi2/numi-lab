@@ -1,0 +1,83 @@
+{
+  "rows": [
+    {
+      "lane": 2,
+      "through_tick": 574,
+      "missing_ticks": [],
+      "mismatches": {
+        "q": [],
+        "v": [],
+        "policy_action": [],
+        "contacts": []
+      },
+      "matched": true
+    },
+    {
+      "lane": 3,
+      "through_tick": 578,
+      "missing_ticks": [],
+      "mismatches": {
+        "q": [],
+        "v": [],
+        "policy_action": [],
+        "contacts": []
+      },
+      "matched": true
+    },
+    {
+      "lane": 4,
+      "through_tick": 584,
+      "missing_ticks": [],
+      "mismatches": {
+        "q": [],
+        "v": [],
+        "policy_action": [],
+        "contacts": []
+      },
+      "matched": true
+    },
+    {
+      "lane": 5,
+      "through_tick": 585,
+      "missing_ticks": [],
+      "mismatches": {
+        "q": [],
+        "v": [],
+        "policy_action": [],
+        "contacts": []
+      },
+      "matched": true
+    },
+    {
+      "lane": 6,
+      "through_tick": 586,
+      "missing_ticks": [],
+      "mismatches": {
+        "q": [],
+        "v": [],
+        "policy_action": [],
+        "contacts": []
+      },
+      "matched": true
+    },
+    {
+      "lane": 7,
+      "through_tick": 587,
+      "missing_ticks": [],
+      "mismatches": {
+        "q": [],
+        "v": [],
+        "policy_action": [],
+        "contacts": []
+      },
+      "matched": true
+    }
+  ],
+  "mask_valid": true,
+  "paired_matched_obstacle_free_screen_pass": {
+    "2-3": false,
+    "4-5": false,
+    "6-7": false
+  },
+  "scope": "Exact accepted-state/action/contact equality is checked only before the first scene contact recorded in the obstacle-present first episode. Later trajectories are counterfactual, not the same execution."
+}
