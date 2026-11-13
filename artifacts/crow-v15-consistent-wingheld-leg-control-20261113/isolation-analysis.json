@@ -1,0 +1,131 @@
+{
+  "rows": [
+    {
+      "lane": 2,
+      "early_delta_348_355_ns": 0.09043435640059999,
+      "early_delta_348_357_ns": 0.01117584463938981,
+      "delta_com_vz_365_m_s": -0.056171061586402546,
+      "push": {
+        "max_flap_speed_rad_s": 0.805243909,
+        "max_sweep_speed_rad_s": 0.167948857,
+        "max_pronation_speed_rad_s": 0.0151295504,
+        "vertical_aero_impulse_ns": -0.0001939246502713868,
+        "leg_effort_displacement_proxy_j": 0.43269143642986946
+      },
+      "hold": {
+        "max_flap_speed_rad_s": 0.000113668437,
+        "max_sweep_speed_rad_s": 0.000134950562,
+        "max_pronation_speed_rad_s": 9.9727622e-05,
+        "vertical_aero_impulse_ns": 1.7877931845475486e-05,
+        "leg_effort_displacement_proxy_j": -2.4047963928366182e-05
+      },
+      "isolation_pass": false
+    },
+    {
+      "lane": 3,
+      "early_delta_348_355_ns": 0.11279643056339994,
+      "early_delta_348_357_ns": 0.04705962186340007,
+      "delta_com_vz_365_m_s": -0.05285643328674704,
+      "push": {
+        "max_flap_speed_rad_s": 0.849548697,
+        "max_sweep_speed_rad_s": 0.130858019,
+        "max_pronation_speed_rad_s": 0.0181388687,
+        "vertical_aero_impulse_ns": -0.0002339233728479126,
+        "leg_effort_displacement_proxy_j": 0.423298323638666
+      },
+      "hold": {
+        "max_flap_speed_rad_s": 0.00010106893,
+        "max_sweep_speed_rad_s": 0.000122538942,
+        "max_pronation_speed_rad_s": 0.000102502978,
+        "vertical_aero_impulse_ns": 1.7884192864983126e-05,
+        "leg_effort_displacement_proxy_j": -2.5529384839186623e-05
+      },
+      "isolation_pass": false
+    },
+    {
+      "lane": 4,
+      "early_delta_348_355_ns": 0.08147783415803,
+      "early_delta_348_357_ns": 0.04349700024705916,
+      "delta_com_vz_365_m_s": -0.054884657288911544,
+      "push": {
+        "max_flap_speed_rad_s": 0.799123347,
+        "max_sweep_speed_rad_s": 0.196367502,
+        "max_pronation_speed_rad_s": 0.0156158935,
+        "vertical_aero_impulse_ns": -0.00020073403595116942,
+        "leg_effort_displacement_proxy_j": 0.4351968317540247
+      },
+      "hold": {
+        "max_flap_speed_rad_s": 0.000101667065,
+        "max_sweep_speed_rad_s": 0.000125785475,
+        "max_pronation_speed_rad_s": 0.000102131024,
+        "vertical_aero_impulse_ns": 1.7888895482229742e-05,
+        "leg_effort_displacement_proxy_j": -2.356998484655998e-05
+      },
+      "isolation_pass": false
+    },
+    {
+      "lane": 5,
+      "early_delta_348_355_ns": 0.10087688744808998,
+      "early_delta_348_357_ns": 0.021481024416090566,
+      "delta_com_vz_365_m_s": -0.053530385519710844,
+      "push": {
+        "max_flap_speed_rad_s": 0.828646243,
+        "max_sweep_speed_rad_s": 0.184859216,
+        "max_pronation_speed_rad_s": 0.0138653014,
+        "vertical_aero_impulse_ns": -0.0002814199880871878,
+        "leg_effort_displacement_proxy_j": 0.43034272517914657
+      },
+      "hold": {
+        "max_flap_speed_rad_s": 9.87941748e-05,
+        "max_sweep_speed_rad_s": 0.000133608046,
+        "max_pronation_speed_rad_s": 0.000102914113,
+        "vertical_aero_impulse_ns": 1.7890945999567628e-05,
+        "leg_effort_displacement_proxy_j": -2.5239795534347362e-05
+      },
+      "isolation_pass": false
+    },
+    {
+      "lane": 6,
+      "early_delta_348_355_ns": 0.090762069542,
+      "early_delta_348_357_ns": 0.018737836413440068,
+      "delta_com_vz_365_m_s": -0.05322855564641205,
+      "push": {
+        "max_flap_speed_rad_s": 0.844779015,
+        "max_sweep_speed_rad_s": 0.127610877,
+        "max_pronation_speed_rad_s": 0.0122717628,
+        "vertical_aero_impulse_ns": -0.0002923805438938461,
+        "leg_effort_displacement_proxy_j": 0.43086294554522686
+      },
+      "hold": {
+        "max_flap_speed_rad_s": 0.000105398605,
+        "max_sweep_speed_rad_s": 0.000118035365,
+        "max_pronation_speed_rad_s": 0.000102462705,
+        "vertical_aero_impulse_ns": 1.7889438210971007e-05,
+        "leg_effort_displacement_proxy_j": -2.5233696834491162e-05
+      },
+      "isolation_pass": false
+    },
+    {
+      "lane": 7,
+      "early_delta_348_355_ns": 0.09105848017710705,
+      "early_delta_348_357_ns": 0.02214358071750755,
+      "delta_com_vz_365_m_s": -0.052773075832992386,
+      "push": {
+        "max_flap_speed_rad_s": 0.785770297,
+        "max_sweep_speed_rad_s": 0.144033074,
+        "max_pronation_speed_rad_s": 0.0103609534,
+        "vertical_aero_impulse_ns": -0.0003401085967913302,
+        "leg_effort_displacement_proxy_j": 0.4312598966971713
+      },
+      "hold": {
+        "max_flap_speed_rad_s": 0.000140153221,
+        "max_sweep_speed_rad_s": 0.000178629401,
+        "max_pronation_speed_rad_s": 0.000102266116,
+        "vertical_aero_impulse_ns": 1.7907031726878364e-05,
+        "leg_effort_displacement_proxy_j": -2.2980736335789407e-05
+      },
+      "isolation_pass": false
+    }
+  ],
+  "scope": "Exploratory wing-held counterfactual in one training seed. Aero impulse includes wing and body; foot impulse difference does not isolate muscle force. No biological qualification."
+}

@@ -1,0 +1,18 @@
+{
+  "artifacts/crow-v15-consistent-wingheld-leg-control-20261113/hold-wing-20261126-rebound-wingheld/command.json": "742a00a5ce635339bbd533907ea597c11a359efd5b64964010bbcdeff69dc3c6",
+  "artifacts/crow-v15-consistent-wingheld-leg-control-20261113/hold-wing-20261126-rebound-wingheld/inputs.json": "4661670140b748da30476e853e1e4aa79c696372ef65e651d67e56e274e187d7",
+  "artifacts/crow-v15-consistent-wingheld-leg-control-20261113/hold-wing-20261126-rebound-wingheld/replay.json.gz": "bd75b4487e48076448608795fe55de1d321397a69edfcade2bb8852de6b38686",
+  "artifacts/crow-v15-consistent-wingheld-leg-control-20261113/hold-wing-20261126-rebound-wingheld/run-result.json": "81868a6e94ffc0178bf833deb1c9013d9fab4ee95ddb876a5e8ec4f1d26376d2",
+  "artifacts/crow-v15-consistent-wingheld-leg-control-20261113/hold-wing-20261126-rebound-wingheld/run.stderr.gz": "192994028385ae1ec3749b47606153443ac5fc06c5daedb9d111bfbe3aa91290",
+  "artifacts/crow-v15-consistent-wingheld-leg-control-20261113/hold-wing-20261126-rebound-wingheld/run.stdout": "7f7f7733071fc15fa44f4de71abae1877443c56c556073097ee903aff6a2e612",
+  "artifacts/crow-v15-consistent-wingheld-leg-control-20261113/hold-wing-20261126-rebound-wingheld/trace.tsv.gz": "42f2998bffaabfcb5ce4b0f392d00d59b79cc468e5b8a0321be2c6fd82d26194",
+  "artifacts/crow-v15-consistent-wingheld-leg-control-20261113/push-wing-20261126-rebound-wingheld/command.json": "b7b49fd3ebba70e2eea704e33b10c43c2b3c3afd53e8b65a09b648d4544e2533",
+  "artifacts/crow-v15-consistent-wingheld-leg-control-20261113/push-wing-20261126-rebound-wingheld/inputs.json": "8cce664327cb5729003815185c9c443eecd016dfa81aa60ba2b6d8102d68c545",
+  "artifacts/crow-v15-consistent-wingheld-leg-control-20261113/push-wing-20261126-rebound-wingheld/replay.json.gz": "605d781efb9885f68666a2aadc187173b92f0b42da0c9098c675a77e64d31e6c",
+  "artifacts/crow-v15-consistent-wingheld-leg-control-20261113/push-wing-20261126-rebound-wingheld/run-result.json": "81868a6e94ffc0178bf833deb1c9013d9fab4ee95ddb876a5e8ec4f1d26376d2",
+  "artifacts/crow-v15-consistent-wingheld-leg-control-20261113/push-wing-20261126-rebound-wingheld/run.stderr.gz": "1bc84534bdf134a9da17a243468a394489136f048390ce35ae9edb9c55d75e21",
+  "artifacts/crow-v15-consistent-wingheld-leg-control-20261113/push-wing-20261126-rebound-wingheld/run.stdout": "88c6920f110ddf390c2716dbc4a410768c814dc1e8a94a418536255509864084",
+  "artifacts/crow-v15-consistent-wingheld-leg-control-20261113/push-wing-20261126-rebound-wingheld/trace.tsv.gz": "ebf773f5c14c726c17c20db1079ecbae6d86a09533dabb270b6380827ce7fdbb",
+  "build/crow-v15-consistent-wingheld-leg-control-20261113/push-wing.metallib": "1f9402fa11ad3ab3f0cae10245e4a42de6788b897a5d9af7e8a30500a9feba51",
+  "build/crow-v15-consistent-wingheld-leg-control-20261113/hold-wing.metallib": "830640a02d02c00bd19402612a7bdaf4e0b83717886bcf3ad34434fdc726b029"
+}

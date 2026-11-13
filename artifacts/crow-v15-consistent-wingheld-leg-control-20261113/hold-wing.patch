@@ -1,0 +1,13 @@
+--- a/wing-on.metal
++++ b/wing-held.metal
+@@ -5525,6 +5525,10 @@
+                 targetCandidate=triggered;
+             }
+         }
++        // Research-only wing-held control: actual forces and motion remain observed.
++        if (fixedFlightController && state.episode.z==10u && action<=5u && float(state.episode.x)*dispatch.timing.x>=6.30f) {
++            targetCandidate=defaultQ[binding.indices.z];
++        }
+         // Exploratory, bounded knee target feedback through the existing position drive.
+         // The standing curriculum masks policy action; this explicit diagnostic target
+         // makes the intervention measurable without injecting any body force.

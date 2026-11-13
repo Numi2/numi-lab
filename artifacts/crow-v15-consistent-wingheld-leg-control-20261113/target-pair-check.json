@@ -1,0 +1,78 @@
+{
+  "valid": true,
+  "rows": [
+    {
+      "arm": "push",
+      "lane": 2,
+      "missing": [],
+      "previous_target_mismatches": []
+    },
+    {
+      "arm": "push",
+      "lane": 3,
+      "missing": [],
+      "previous_target_mismatches": []
+    },
+    {
+      "arm": "push",
+      "lane": 4,
+      "missing": [],
+      "previous_target_mismatches": []
+    },
+    {
+      "arm": "push",
+      "lane": 5,
+      "missing": [],
+      "previous_target_mismatches": []
+    },
+    {
+      "arm": "push",
+      "lane": 6,
+      "missing": [],
+      "previous_target_mismatches": []
+    },
+    {
+      "arm": "push",
+      "lane": 7,
+      "missing": [],
+      "previous_target_mismatches": []
+    },
+    {
+      "arm": "hold",
+      "lane": 2,
+      "missing": [],
+      "previous_target_mismatches": []
+    },
+    {
+      "arm": "hold",
+      "lane": 3,
+      "missing": [],
+      "previous_target_mismatches": []
+    },
+    {
+      "arm": "hold",
+      "lane": 4,
+      "missing": [],
+      "previous_target_mismatches": []
+    },
+    {
+      "arm": "hold",
+      "lane": 5,
+      "missing": [],
+      "previous_target_mismatches": []
+    },
+    {
+      "arm": "hold",
+      "lane": 6,
+      "missing": [],
+      "previous_target_mismatches": []
+    },
+    {
+      "arm": "hold",
+      "lane": 7,
+      "missing": [],
+      "previous_target_mismatches": []
+    }
+  ],
+  "scope": "Observer compares stored previous wing target against preceding control-step target for the declared instrumented window; this does not prove tracking or launch."
+}
