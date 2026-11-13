@@ -1,0 +1,14 @@
+e435e0b437f263d1de87dc2ea3d93672d499b69c080d14b9592fcb1e3d5e8680  artifacts/crow-v15-anticipatory-toe-regrip-20261113/PLAN.md
+b9f863ac488c54e6eab541c5576646a9a51afd914490e6a53eeafd665c027fa7  artifacts/crow-v15-anticipatory-toe-regrip-20261113/probe.cpp
+ea09d4928686382342d5bcb7d3482da79891e6ad02d25da9d3da0135389b2fbe  artifacts/crow-v15-anticipatory-toe-regrip-20261113/run.py
+cbcacfca97c22d5477e99c16a6478eaa1aa95eeb494f4531e7ce6d0abb59e1e0  artifacts/crow-v15-anticipatory-toe-regrip-20261113/analyze.py
+46997eadabd5bdcd771267e5696591a7117272900b383d8b2839f02edcb59580  artifacts/crow-v15-anticipatory-toe-regrip-20261113/contact-check.py
+3baba9f33f44cc55af9cd64cb712795a99ae43800f508b873d1e5ec4b3febb6d  artifacts/crow-v15-anticipatory-toe-regrip-20261113/prefix-check.py
+f3367c4be3ca931c541107aa9e6a0938ec7807c12435fa72812973a93cc49e13  artifacts/crow-v15-anticipatory-toe-regrip-20261113/hip-check.py
+5a4840c1023a236fdc3c5a7ff67ed6b8bbde527301c43500d8799cc813289b5b  artifacts/crow-v15-anticipatory-toe-regrip-20261113/stage-check.py
+a38cfc5b39278692d987068bf96300671634feb9ef4ab7f239650f48b22a70ad  artifacts/crow-v15-anticipatory-toe-regrip-20261113/pitch-check.py
+bec685a10404843e9c8bb2d19e63d8b7c7cfafad23fd4734118f1d7747373c25  artifacts/crow-v15-anticipatory-toe-regrip-20261113/failure-breakdown.py
+47e427f52a6a18f2e903dd80455415d59e56c98ca4b8444f64122d1bf1258e66  artifacts/crow-v15-anticipatory-toe-regrip-20261113/clearance-intervals.py
+38a0446cb28f0f0cbcadfdfa0b4383e2abb80c26bf4f7065310b7dc67a52aa45  artifacts/crow-v15-anticipatory-toe-regrip-20261113/regrip-intervals.py
+69b9dbe2f774ddbf925106fd4f12ae07119559f3e46776243f669ea0e0b016c1  artifacts/crow-v15-anticipatory-toe-regrip-20261113/toe-check.py
+1657640ecdf3cad564e2634d57ac9ccff7d0ca82633f055a79ab80b5e0a46ee3  artifacts/crow-v15-anticipatory-toe-regrip-20261113/joint-check.py
