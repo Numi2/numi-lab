@@ -1,0 +1,14 @@
+0875eb3353b06c4277d73c9665d78121e15901499a70cf86353b2935927d15fc  artifacts/crow-v15-supported-foot-placement-return-20261113/PLAN.md
+0c643070903cac95727bf61d32bf0c8e97d255344dc84cc9ff009401e836e853  artifacts/crow-v15-supported-foot-placement-return-20261113/probe.cpp
+2a026b065043ef66203f16946240cbb0b3597442f1c4915db2530589b149688f  artifacts/crow-v15-supported-foot-placement-return-20261113/run.py
+5889820821cdd74745e7e5ead76034193b5060e07da51b7fab1150e5df1ed6dc  artifacts/crow-v15-supported-foot-placement-return-20261113/analyze.py
+a55d3d246006574bbaf5f3018952354af0fb135f4a0bfd233a27ea14a5cc347c  artifacts/crow-v15-supported-foot-placement-return-20261113/contact-check.py
+6378274e8d0bae3c6cbe6fa2be87fa079a0cf012d86533c487f1381035a0733d  artifacts/crow-v15-supported-foot-placement-return-20261113/prefix-check.py
+c048234d88bd45b2e076a95f147333b707854756860c58ede8cf4d371b282164  artifacts/crow-v15-supported-foot-placement-return-20261113/hip-check.py
+06b941db317b71e60cccf7f9178253ba5ba9f91c12adf9728f08cd6ae6ddf456  artifacts/crow-v15-supported-foot-placement-return-20261113/stage-check.py
+a71686a3379c1e3781be46669df0d2487b00db682af0c4964171b314a115dff0  artifacts/crow-v15-supported-foot-placement-return-20261113/pitch-check.py
+e7312a064abca4946586b703fd1b0f6d4655b2af541f83b8ac7b11171b47d5fe  artifacts/crow-v15-supported-foot-placement-return-20261113/failure-breakdown.py
+929809906f4537404f26dd6ba40fa12600763f40a44d9c852ea027a39cc9dff0  artifacts/crow-v15-supported-foot-placement-return-20261113/clearance-intervals.py
+5f5f0dc5c2dae0a26f074501a91e74340b245b7cfb63270bbadee0c07c084953  artifacts/crow-v15-supported-foot-placement-return-20261113/regrip-intervals.py
+4c3476bc4882e44c2621e8f7bca8a1d04e9c099ba71851540c31b1ca8754668a  artifacts/crow-v15-supported-foot-placement-return-20261113/toe-check.py
+349563089c8c294cb47408ab69ba5db3f2fe3ea14c41586c5790f6d777134415  artifacts/crow-v15-supported-foot-placement-return-20261113/joint-check.py
