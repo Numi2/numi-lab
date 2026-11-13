@@ -1,0 +1,7 @@
+# Result: aerodynamic removal barely changed the first substep of the spike
+
+The ablated run reproduced the baseline in all eight lanes for every recorded q/v/action/contact state through control step 368 and all contact substeps 335–368. Start flap q/v at 369/substep 0 matched exactly; all 16 substeps of the specified interval logged zero aerodynamic-kernel output. Both runs completed, and all required wing/aero records were present with no reported solver error or overflow.
+
+Across lanes 2–7 and both flap DOFs, removing the whole aerodynamic kernel changed first-substep pre-contact flap velocity by -0.00233 to -0.00249 rad/s; the working-effort buffer was 120 in both arms. The prior baseline increased flap velocity approximately 12.95 rad/s in that first 1.25 ms substep. Thus the immediate effect at this matched state was very small compared with the observed acceleration, consistent with another pre-contact source such as the drive dominating at that instant. This intervention suppresses wing, tail and fuselage aerodynamic terms together; it does not isolate individual forces, establish the effort buffer meaning, or rule out important aerodynamic effects in subsequent substeps. Later trajectories differ because the state has evolved under the ablation and cannot be interpreted as independently matched causal samples.
+
+This was an intentionally nonphysical, single-step diagnostic on a used seed, not a proposed controller, and it qualifies neither flight nor the mission. Keep the full logs, source and binary hashes alongside this result.

@@ -1,0 +1,151 @@
+{
+  "parity_through_step": 368,
+  "errors": [],
+  "scope": "one-step whole-aerodynamic-kernel ablation; first-substep immediate effect at matched initial state; all later differences evolve from changed state",
+  "rows": [
+    {
+      "lane": 2,
+      "wing": 0,
+      "baseline_working_effort": 120.0,
+      "ablated_working_effort": 120.0,
+      "matched_q": -0.139975727,
+      "matched_v": 2.79349613,
+      "baseline_presolve_v": 15.738802,
+      "ablated_presolve_v": 15.7363853,
+      "aero_removal_presolve_delta_v": -0.0024166999999994943,
+      "baseline_total_vertical_aero_force": 0.216265568783
+    },
+    {
+      "lane": 2,
+      "wing": 1,
+      "baseline_working_effort": 120.0,
+      "ablated_working_effort": 120.0,
+      "matched_q": -0.139712557,
+      "matched_v": 2.79876924,
+      "baseline_presolve_v": 15.7439299,
+      "ablated_presolve_v": 15.7414436,
+      "aero_removal_presolve_delta_v": -0.002486299999999275,
+      "baseline_total_vertical_aero_force": 0.216265568783
+    },
+    {
+      "lane": 3,
+      "wing": 0,
+      "baseline_working_effort": 120.0,
+      "ablated_working_effort": 120.0,
+      "matched_q": -0.139503106,
+      "matched_v": 2.80302,
+      "baseline_presolve_v": 15.7483101,
+      "ablated_presolve_v": 15.7458763,
+      "aero_removal_presolve_delta_v": -0.002433799999998598,
+      "baseline_total_vertical_aero_force": 0.216703555412
+    },
+    {
+      "lane": 3,
+      "wing": 1,
+      "baseline_working_effort": 120.0,
+      "ablated_working_effort": 120.0,
+      "matched_q": -0.140024021,
+      "matched_v": 2.79216647,
+      "baseline_presolve_v": 15.7373199,
+      "ablated_presolve_v": 15.7348442,
+      "aero_removal_presolve_delta_v": -0.0024756999999997475,
+      "baseline_total_vertical_aero_force": 0.216703555412
+    },
+    {
+      "lane": 4,
+      "wing": 0,
+      "baseline_working_effort": 120.0,
+      "ablated_working_effort": 120.0,
+      "matched_q": -0.139509708,
+      "matched_v": 2.80653191,
+      "baseline_presolve_v": 15.753355,
+      "ablated_presolve_v": 15.750988,
+      "aero_removal_presolve_delta_v": -0.0023670000000013403,
+      "baseline_total_vertical_aero_force": 0.213878152844
+    },
+    {
+      "lane": 4,
+      "wing": 1,
+      "baseline_working_effort": 120.0,
+      "ablated_working_effort": 120.0,
+      "matched_q": -0.139105514,
+      "matched_v": 2.81490874,
+      "baseline_presolve_v": 15.7614861,
+      "ablated_presolve_v": 15.7590036,
+      "aero_removal_presolve_delta_v": -0.0024825000000010533,
+      "baseline_total_vertical_aero_force": 0.213878152844
+    },
+    {
+      "lane": 5,
+      "wing": 0,
+      "baseline_working_effort": 120.0,
+      "ablated_working_effort": 120.0,
+      "matched_q": -0.139432386,
+      "matched_v": 2.80462503,
+      "baseline_presolve_v": 15.7498932,
+      "ablated_presolve_v": 15.7474604,
+      "aero_removal_presolve_delta_v": -0.002432800000001123,
+      "baseline_total_vertical_aero_force": 0.216652641042
+    },
+    {
+      "lane": 5,
+      "wing": 1,
+      "baseline_working_effort": 120.0,
+      "ablated_working_effort": 120.0,
+      "matched_q": -0.13997604,
+      "matched_v": 2.7932899,
+      "baseline_presolve_v": 15.7384605,
+      "ablated_presolve_v": 15.7359858,
+      "aero_removal_presolve_delta_v": -0.002474700000000496,
+      "baseline_total_vertical_aero_force": 0.216652641042
+    },
+    {
+      "lane": 6,
+      "wing": 0,
+      "baseline_working_effort": 120.0,
+      "ablated_working_effort": 120.0,
+      "matched_q": -0.138973013,
+      "matched_v": 2.81716084,
+      "baseline_presolve_v": 15.7638512,
+      "ablated_presolve_v": 15.7615213,
+      "aero_removal_presolve_delta_v": -0.0023298999999994408,
+      "baseline_total_vertical_aero_force": 0.209757774064
+    },
+    {
+      "lane": 6,
+      "wing": 1,
+      "baseline_working_effort": 120.0,
+      "ablated_working_effort": 120.0,
+      "matched_q": -0.139299154,
+      "matched_v": 2.81035709,
+      "baseline_presolve_v": 15.7569647,
+      "ablated_presolve_v": 15.7545233,
+      "aero_removal_presolve_delta_v": -0.0024413999999985947,
+      "baseline_total_vertical_aero_force": 0.209757774064
+    },
+    {
+      "lane": 7,
+      "wing": 0,
+      "baseline_working_effort": 120.0,
+      "ablated_working_effort": 120.0,
+      "matched_q": -0.140238166,
+      "matched_v": 2.78802681,
+      "baseline_presolve_v": 15.7333269,
+      "ablated_presolve_v": 15.7309256,
+      "aero_removal_presolve_delta_v": -0.0024012999999989404,
+      "baseline_total_vertical_aero_force": 0.215174246754
+    },
+    {
+      "lane": 7,
+      "wing": 1,
+      "baseline_working_effort": 120.0,
+      "ablated_working_effort": 120.0,
+      "matched_q": -0.139678344,
+      "matched_v": 2.79941225,
+      "baseline_presolve_v": 15.7445345,
+      "ablated_presolve_v": 15.7420549,
+      "aero_removal_presolve_delta_v": -0.0024796000000009144,
+      "baseline_total_vertical_aero_force": 0.215174246754
+    }
+  ]
+}
