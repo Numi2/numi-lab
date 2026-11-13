@@ -1,0 +1,57 @@
+{
+  "verified_archive_commit": "4b46171616cff98c769d376ed3de9c8e63a5c91f",
+  "retired": [
+    {
+      "path": "/Users/n/Developer/numi-crow-rl-20261107/artifacts/crow-v15-low-wing-effort-screen-20261113/push-wing-20261126-rebound-low/run.stderr.gz",
+      "sha256": "1e84b25e3891af0bbb691c3b8106a7fa2b0886328d20671849f19076e619770a",
+      "size_bytes": 18190935
+    },
+    {
+      "path": "/Users/n/Developer/numi-crow-rl-20261107/artifacts/crow-v15-low-wing-effort-screen-20261113/hold-wing-20261126-rebound-low/run.stderr.gz",
+      "sha256": "a30e062d37843aca8860b0331a9d2371b581282f281bba3999034c9a06fc3720",
+      "size_bytes": 18651767
+    },
+    {
+      "path": "/Users/n/Developer/numi-crow-rl-20261107/artifacts/crow-v15-early-low-wing-screen-20261113/push-wing-20261126-rebound-early/run.stderr.gz",
+      "sha256": "486fc87d4920c6f5a0110e6450859fd7f0d82515325b58606970da1fc844c941",
+      "size_bytes": 17680444
+    },
+    {
+      "path": "/Users/n/Developer/numi-crow-rl-20261107/artifacts/crow-v15-early-low-wing-screen-20261113/hold-wing-20261126-rebound-early/run.stderr.gz",
+      "sha256": "3ec5745ed41bf4708e7a58c543f87674cd60ed88f59e154685937182f2ce7c58",
+      "size_bytes": 18608279
+    },
+    {
+      "path": "/Users/n/Developer/numi-crow-rl-20261107/artifacts/crow-v15-pronation-phase-screen-20261113/push-wing-20261126-rebound-phase/run.stderr.gz",
+      "sha256": "614384e59e1d907b35722434992bce29031210318a8c8c12cd293d10fc748d24",
+      "size_bytes": 16627405
+    },
+    {
+      "path": "/Users/n/Developer/numi-crow-rl-20261107/artifacts/crow-v15-pronation-phase-screen-20261113/hold-wing-20261126-rebound-phase/run.stderr.gz",
+      "sha256": "8202508099245a23ccdf61b1730a031541660291d6cacda4b238007efc90e44d",
+      "size_bytes": 18626405
+    },
+    {
+      "path": "/Users/n/Developer/numi-crow-rl-20261107/artifacts/crow-v15-preload-foot-placement-20261113/push-wing-20261126-rebound-preload/run.stderr.gz",
+      "sha256": "1818e0b2bcbe337849ac2e438ae84d857e597238096c0484b231a41721daa389",
+      "size_bytes": 16499881
+    },
+    {
+      "path": "/Users/n/Developer/numi-crow-rl-20261107/artifacts/crow-v15-preload-foot-placement-20261113/hold-wing-20261126-rebound-preload/run.stderr.gz",
+      "sha256": "3d13cf5edcf0791eede1d5641631096f5cfb7c6ff0a77a079d991d310b89c366",
+      "size_bytes": 18562001
+    },
+    {
+      "path": "/Users/n/Developer/numi-crow-rl-20261107/artifacts/crow-v15-front-toe-preload-reach-20261113/push-wing-20261126-rebound-reach/run.stderr.gz",
+      "sha256": "567f5f94bf2cef24e5fba91d39c3a08d927d8802e3ae929372a9b004e55ed722",
+      "size_bytes": 18954209
+    },
+    {
+      "path": "/Users/n/Developer/numi-crow-rl-20261107/artifacts/crow-v15-front-toe-preload-reach-20261113/hold-wing-20261126-rebound-reach/run.stderr.gz",
+      "sha256": "e63e7d9c05e1dd14a993561fe6e57c02d550f87151fa5db1d3b5fa437c8dbd56",
+      "size_bytes": 18555177
+    }
+  ],
+  "bytes_retired": 180956503,
+  "after_df_k": "Filesystem   1024-blocks      Used Available Capacity iused     ifree %iused  Mounted on\n/dev/disk3s5   482797652 413878096  41373592    91% 3600534 413735920    1%   /System/Volumes/Data\n"
+}
