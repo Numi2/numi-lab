@@ -1,0 +1,7 @@
+# Target-velocity wing feedback: rejected launch
+
+The research-only wing target-history change worked for the instrumented interval: for both push and hold arms, in every candidate lane and every sampled tick 336–400, the stored previous flap target equals the preceding tick's current target. Both arms completed 400-tick first episodes, with exact recorded state/action/contact parity through tick 345 and complete required telemetry. The wing feedback is active from the initial state, so comparison with prior controllers is matched-start rather than identical-state.
+
+Every candidate recontacts following its first three unloaded intervals; one has prior support gaps. All six retain 4–13 modeled toe-speed threshold substeps. Each has early push-minus-hold ground impulse above 0.05 N s in both windows; that is a contact contrast and does not prove leg-only flight. Whole-body COM peak rise from tick 350 through 400 is 0.0265–0.0311 m. Late modeled mean vertical aerodynamic force is only 0.62–0.90 N, versus roughly 4.42 N modeled weight. Target-error RMS is 0.55–0.61 rad and drive saturation ranges from 44% to 87%; decreased saturation does not by itself imply better lift or realistic work.
+
+The evidence verifies a previously unavailable target-history signal for this experimental controller; it does not justify promoting the controller, changing the production body or claiming biologically calibrated motion. Keep all traces, input hashes, source and the failed outcome. Takeoff, flight, landing and the full route remain unqualified.
