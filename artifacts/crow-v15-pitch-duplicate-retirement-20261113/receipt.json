@@ -1,0 +1,11 @@
+{
+  "deleted": [
+    "artifacts/crow-v15-flight-pitch-feedback-20261113/push-wing-20261126-rebound-pitch/run.stderr.gz",
+    "artifacts/crow-v15-flight-pitch-feedback-20261113/push-wing-20261126-rebound-pitch/run.stderr.gz.part00",
+    "artifacts/crow-v15-flight-pitch-feedback-20261113/push-wing-20261126-rebound-pitch/run.stderr.gz.part01",
+    "artifacts/crow-v15-flight-pitch-feedback-20261113/push-wing-20261126-rebound-pitch/run.stderr.gz.part02",
+    "artifacts/crow-v15-flight-pitch-feedback-20261113/push-wing-20261126-rebound-pitch/run.stderr.gz.part03"
+  ],
+  "logical_bytes": 293613450,
+  "verified_commit": "9c2fc2dac40d5a1e3e592b88205c669a13167b7c"
+}
