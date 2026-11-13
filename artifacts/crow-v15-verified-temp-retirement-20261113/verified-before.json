@@ -1,0 +1,110 @@
+{
+  "scope": "Eight exact uncompressed build outputs, not sole evidence; every gzip archive independently retrieved from GitHub, decompressed and compared with source SHA-256. The owning host must recheck hashes and open handles immediately before deletion.",
+  "before_df_k": "Filesystem   1024-blocks      Used Available Capacity iused     ifree %iused  Mounted on\n/dev/disk3s5   482797652 412639632  42612056    91% 3600349 426120560    1%   /System/Volumes/Data\n",
+  "rows": [
+    {
+      "host": "macmini",
+      "path": "/Users/n/Developer/numi-crow-rl-20261107/build/crow-v15-low-wing-effort-screen-20261113/push-wing-20261126-rebound-low-trace.tsv",
+      "archive_path": "artifacts/crow-v15-low-wing-effort-screen-20261113/push-wing-20261126-rebound-low/trace.tsv.gz",
+      "commit": "75c450c13525a1d799607cf8735506b70e923be9",
+      "sha256": "d6e7ca463615c6249debe74bbd917ec1b720eb75eaa3de33154ab6acc1334971",
+      "restored_sha256": "d6e7ca463615c6249debe74bbd917ec1b720eb75eaa3de33154ab6acc1334971",
+      "match": true,
+      "size_bytes": 351416,
+      "inode": 17092450,
+      "mtime_epoch": 1794545975,
+      "open_handles_at_check": 0
+    },
+    {
+      "host": "macmini",
+      "path": "/Users/n/Developer/numi-crow-rl-20261107/build/crow-v15-low-wing-effort-screen-20261113/push-wing-20261126-rebound-low-replay.json",
+      "archive_path": "artifacts/crow-v15-low-wing-effort-screen-20261113/push-wing-20261126-rebound-low/replay.json.gz",
+      "commit": "75c450c13525a1d799607cf8735506b70e923be9",
+      "sha256": "079964d656edcfa5847763b2bb938d349548ddd24508524d15d15a48e26680e7",
+      "restored_sha256": "079964d656edcfa5847763b2bb938d349548ddd24508524d15d15a48e26680e7",
+      "match": true,
+      "size_bytes": 16170764,
+      "inode": 17092451,
+      "mtime_epoch": 1794545976,
+      "open_handles_at_check": 0
+    },
+    {
+      "host": "macmini",
+      "path": "/Users/n/Developer/numi-crow-rl-20261107/build/crow-v15-low-wing-effort-screen-20261113/hold-wing-20261126-rebound-low-trace.tsv",
+      "archive_path": "artifacts/crow-v15-low-wing-effort-screen-20261113/hold-wing-20261126-rebound-low/trace.tsv.gz",
+      "commit": "75c450c13525a1d799607cf8735506b70e923be9",
+      "sha256": "1bc61d2339a64e0a3ffcab94c40e980678761e47b6d7e9e716715c6c9e796307",
+      "restored_sha256": "1bc61d2339a64e0a3ffcab94c40e980678761e47b6d7e9e716715c6c9e796307",
+      "match": true,
+      "size_bytes": 351653,
+      "inode": 17092490,
+      "mtime_epoch": 1794546060,
+      "open_handles_at_check": 0
+    },
+    {
+      "host": "macmini",
+      "path": "/Users/n/Developer/numi-crow-rl-20261107/build/crow-v15-low-wing-effort-screen-20261113/hold-wing-20261126-rebound-low-replay.json",
+      "archive_path": "artifacts/crow-v15-low-wing-effort-screen-20261113/hold-wing-20261126-rebound-low/replay.json.gz",
+      "commit": "75c450c13525a1d799607cf8735506b70e923be9",
+      "sha256": "b357a60bdffe46c136fb5eb4350056dae300f12e434c8964de4776f347d4cced",
+      "restored_sha256": "b357a60bdffe46c136fb5eb4350056dae300f12e434c8964de4776f347d4cced",
+      "match": true,
+      "size_bytes": 16183545,
+      "inode": 17092492,
+      "mtime_epoch": 1794546062,
+      "open_handles_at_check": 0
+    },
+    {
+      "host": "macmini",
+      "path": "/Users/n/Developer/numi-crow-rl-20261107/build/crow-v15-early-low-wing-screen-20261113/push-wing-20261126-rebound-early-trace.tsv",
+      "archive_path": "artifacts/crow-v15-early-low-wing-screen-20261113/push-wing-20261126-rebound-early/trace.tsv.gz",
+      "commit": "75c450c13525a1d799607cf8735506b70e923be9",
+      "sha256": "d80b19cd20af81e62b23dfb7b549504134f3e5b81739e64d361f5a63c2cd82c4",
+      "restored_sha256": "d80b19cd20af81e62b23dfb7b549504134f3e5b81739e64d361f5a63c2cd82c4",
+      "match": true,
+      "size_bytes": 351387,
+      "inode": 17092642,
+      "mtime_epoch": 1794546447,
+      "open_handles_at_check": 0
+    },
+    {
+      "host": "macmini",
+      "path": "/Users/n/Developer/numi-crow-rl-20261107/build/crow-v15-early-low-wing-screen-20261113/push-wing-20261126-rebound-early-replay.json",
+      "archive_path": "artifacts/crow-v15-early-low-wing-screen-20261113/push-wing-20261126-rebound-early/replay.json.gz",
+      "commit": "75c450c13525a1d799607cf8735506b70e923be9",
+      "sha256": "17c248aea9d7397c0234eca6acf51e83cd91dfc5b468fc56a4f3889891439524",
+      "restored_sha256": "17c248aea9d7397c0234eca6acf51e83cd91dfc5b468fc56a4f3889891439524",
+      "match": true,
+      "size_bytes": 16170279,
+      "inode": 17092643,
+      "mtime_epoch": 1794546449,
+      "open_handles_at_check": 0
+    },
+    {
+      "host": "macmini",
+      "path": "/Users/n/Developer/numi-crow-rl-20261107/build/crow-v15-early-low-wing-screen-20261113/hold-wing-20261126-rebound-early-trace.tsv",
+      "archive_path": "artifacts/crow-v15-early-low-wing-screen-20261113/hold-wing-20261126-rebound-early/trace.tsv.gz",
+      "commit": "75c450c13525a1d799607cf8735506b70e923be9",
+      "sha256": "f8475ed60d275d690b1016b3355105ff51c6f2e33a9bd8bd7bd246e319884200",
+      "restored_sha256": "f8475ed60d275d690b1016b3355105ff51c6f2e33a9bd8bd7bd246e319884200",
+      "match": true,
+      "size_bytes": 351621,
+      "inode": 17092678,
+      "mtime_epoch": 1794546534,
+      "open_handles_at_check": 0
+    },
+    {
+      "host": "macmini",
+      "path": "/Users/n/Developer/numi-crow-rl-20261107/build/crow-v15-early-low-wing-screen-20261113/hold-wing-20261126-rebound-early-replay.json",
+      "archive_path": "artifacts/crow-v15-early-low-wing-screen-20261113/hold-wing-20261126-rebound-early/replay.json.gz",
+      "commit": "75c450c13525a1d799607cf8735506b70e923be9",
+      "sha256": "b71e941a180cbb161d2de8c7647447d78103cd7fbf6801700aba7ce7da7ba502",
+      "restored_sha256": "b71e941a180cbb161d2de8c7647447d78103cd7fbf6801700aba7ce7da7ba502",
+      "match": true,
+      "size_bytes": 16182739,
+      "inode": 17092679,
+      "mtime_epoch": 1794546535,
+      "open_handles_at_check": 0
+    }
+  ]
+}
