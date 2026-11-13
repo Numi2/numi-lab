@@ -1,0 +1,4 @@
+#define CROW_HIP_ROLL_LIBRARY
+#include "../crow-v15-hip-roll-strong-drive-prototype-20261111/probe.cpp"
+#include <iomanip>
+int main(){try{auto robot=hipRollModel();const auto&m=robot.mechanics;std::cout<<std::setprecision(17);unsigned lane,step,sub;while(std::cin>>lane>>step>>sub){std::vector<double> q(m.defaultQ.size()),v(m.defaultV.size());for(auto&x:q)need(bool(std::cin>>x),"missing q");for(auto&x:v)need(bool(std::cin>>x),"missing v");std::vector<ArticulatedBodyKinematics> k(m.bodies.size());need(computeArticulatedBodyKinematics(m,0,q,v,k).succeeded(),"FK failed");for(unsigned i=0;i<k.size();++i)if(i==11||i==15||(i>=19&&i<=34)){std::cout<<"B "<<lane<<" "<<step<<" "<<sub<<" "<<i;for(auto x:k[i].centerOfMassPosition)std::cout<<" "<<x;for(auto x:k[i].linearVelocity)std::cout<<" "<<x;for(auto x:k[i].angularVelocity)std::cout<<" "<<x;std::cout<<"\n";}}return 0;}catch(const std::exception&e){std::cerr<<e.what()<<"\n";return 1;}}
