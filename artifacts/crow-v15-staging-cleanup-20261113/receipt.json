@@ -1,0 +1,8 @@
+{
+  "manifest_commit": "47cd4ea9bb873a1d40ba05c7267e0e730396d943",
+  "old_checkout_retired": true,
+  "retired_path": "/private/tmp/crow-continuation.rfybzJ/repo-retired",
+  "retired_allocated_du_bytes": 19288694784,
+  "replacement_allocated_du_kib": 50128,
+  "df_after": "Filesystem        Size    Used   Avail Capacity iused ifree %iused  Mounted on\n/dev/disk3s1s1   460Gi    12Gi    31Gi    28%    459k  325M    0%   /"
+}
