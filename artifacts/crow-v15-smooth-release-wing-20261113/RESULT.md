@@ -1,0 +1,9 @@
+# Result: smoother release-triggered wing drive still recontacts
+
+Both paired first episodes reached 400 intervals, with complete 335–400 contact, effort, toe, phase and target records, no reported error or overflow, and exact q/v/action/contact prefix parity through step 345 between arms and against the earlier no-moment, no-commanded-flapping push. The two direct body-moment requests remained zero at the application point from episode start.
+
+All six comparable push lanes gained at least +0.105 N s over the matched crouch in steps 348–355 and at least +0.066 N s in steps 348–357. Their root rise exceeded 0.53 m and no nonfoot ground impulse was recorded in steps 348–400. However, all six had a fully unloaded control interval before the first three-interval release at step 360, and every lane recontacted at steps 363–369. Each had 4–6 toe-speed threshold substeps. The preregistered screen fails, and no controller is promoted.
+
+For the push lanes, the largest sampled 20 ms flap-target change was 0.453–0.457 rad, compared with approximately 1.33 rad in the preceding triggered-stroke test; the highest sampled endpoint flap speed was 8.24–8.53 rad/s, compared with approximately 31.3–31.5 rad/s previously. Those comparisons are exploratory, include all step changes in the observation window, and do not establish a physiological speed limit or prove which change affected the recontact. The temporary contact timer is still based on last-substep support and the engineering release threshold; passive aerodynamics and empirical closures remain.
+
+These are correlated lanes from one used development seed. The results do not demonstrate a single clean leg-powered takeoff, qualified flight, navigation, toe grip or supported landing on unseen courses. Preserve both full runs and failed predecessors.
