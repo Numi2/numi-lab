@@ -1,0 +1,78 @@
+{
+  "retired": false,
+  "files": [
+    {
+      "path": "/private/tmp/crow-continuation.rfybzJ/repo/artifacts/crow-v15-phase-pronation-turn-20261113/signed-turn-20261126-rebound-phase/run.stderr.gz",
+      "inode": 204040956,
+      "bytes": 247736579,
+      "mtime_ns": 1794589336782294034,
+      "sha256": "dbe2f164b24d51d243502e5323463a4d703e4388b205449a9d976da024b90217",
+      "lsof_clear": true
+    },
+    {
+      "path": "/private/tmp/crow-continuation.rfybzJ/repo/artifacts/crow-v15-full-pronation-observer-20261113/signed-turn-20261126-rebound-observer/run.stderr.gz",
+      "inode": 204041828,
+      "bytes": 248347077,
+      "mtime_ns": 1794590231000602972,
+      "sha256": "582cc0abf1ea98521cf9b3b28c7926b70993910675928d04da6d1e967147f8a5",
+      "lsof_clear": true
+    },
+    {
+      "path": "/tmp/crow-leg-longflight-reference-20261126.gz",
+      "inode": 204040624,
+      "bytes": 247348878,
+      "mtime_ns": 1794588940838375422,
+      "sha256": "a2eb65a52b23b66dd854fc3cf522b996e8e01bf2251bbf295d1247c95afb4c93",
+      "lsof_clear": true
+    },
+    {
+      "path": "/private/tmp/crow-continuation.rfybzJ/repo/artifacts/crow-v15-full-pronation-observer-20261113/signed-turn-20261126-rebound-observer/run.stderr.gz.part000",
+      "inode": 204041883,
+      "bytes": 41943040,
+      "mtime_ns": 1794590377326453465,
+      "sha256": "edc5721b28c4fda4b089972dfdae92634a06db0aa11d6832de1ff035000c1766",
+      "lsof_clear": true
+    },
+    {
+      "path": "/private/tmp/crow-continuation.rfybzJ/repo/artifacts/crow-v15-full-pronation-observer-20261113/signed-turn-20261126-rebound-observer/run.stderr.gz.part001",
+      "inode": 204041884,
+      "bytes": 41943040,
+      "mtime_ns": 1794590377801099702,
+      "sha256": "e759e70a9cea9ed921aacab5e5d6ef8892dd93780c1322a8af45db34162089b6",
+      "lsof_clear": true
+    },
+    {
+      "path": "/private/tmp/crow-continuation.rfybzJ/repo/artifacts/crow-v15-full-pronation-observer-20261113/signed-turn-20261126-rebound-observer/run.stderr.gz.part002",
+      "inode": 204041885,
+      "bytes": 41943040,
+      "mtime_ns": 1794590378243040717,
+      "sha256": "41c6e1ff904a881bcdda7bb322abfb565dae373ae165a818c362818ab5a8d5ea",
+      "lsof_clear": true
+    },
+    {
+      "path": "/private/tmp/crow-continuation.rfybzJ/repo/artifacts/crow-v15-full-pronation-observer-20261113/signed-turn-20261126-rebound-observer/run.stderr.gz.part003",
+      "inode": 204041886,
+      "bytes": 41943040,
+      "mtime_ns": 1794590378689879184,
+      "sha256": "03937d6141146b93f88c6b60a114732f692ec73a27d944e81ce6af615f4dd736",
+      "lsof_clear": true
+    },
+    {
+      "path": "/private/tmp/crow-continuation.rfybzJ/repo/artifacts/crow-v15-full-pronation-observer-20261113/signed-turn-20261126-rebound-observer/run.stderr.gz.part004",
+      "inode": 204041887,
+      "bytes": 41943040,
+      "mtime_ns": 1794590379111994931,
+      "sha256": "56a7cd65d9fd9f62ee26eea874421794c6c7d7cefdaa356944e42c9062d03d0d",
+      "lsof_clear": true
+    },
+    {
+      "path": "/private/tmp/crow-continuation.rfybzJ/repo/artifacts/crow-v15-full-pronation-observer-20261113/signed-turn-20261126-rebound-observer/run.stderr.gz.part005",
+      "inode": 204041888,
+      "bytes": 38631877,
+      "mtime_ns": 1794590379540344299,
+      "sha256": "1b5f34b97d4a37a10c0cb79bc2faabdee39d94f6cdb4bc8e32f47432983bb014",
+      "lsof_clear": true
+    }
+  ],
+  "total_bytes": 991779611
+}

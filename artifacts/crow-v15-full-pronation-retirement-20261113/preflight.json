@@ -1,0 +1,10 @@
+{
+  "path": "/Users/n/Developer/numi-crow-rl-20261107/artifacts/crow-v15-full-pronation-observer-20261113/signed-turn-20261126-rebound-observer/run.stderr.gz",
+  "inode": 17101693,
+  "bytes": 248347077,
+  "mtime_ns": 1794590176087556928,
+  "sha256": "582cc0abf1ea98521cf9b3b28c7926b70993910675928d04da6d1e967147f8a5",
+  "remote_archive_commit": "2f896c66da68b3f8474f3cfbbf1d08a7f674e734",
+  "lsof_clear": true,
+  "retired": false
+}
