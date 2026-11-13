@@ -1,0 +1,196 @@
+{
+  "rows": [
+    {
+      "lane": 2,
+      "end": 669,
+      "timing_options": [
+        {
+          "offset": -2,
+          "max_abs_error": 0.003121810864952182,
+          "max_unsaturated_error": 0.003121810864952182,
+          "unsaturated_samples": 185,
+          "missing_ticks": []
+        },
+        {
+          "offset": -1,
+          "max_abs_error": 1.64299153327524e-08,
+          "max_unsaturated_error": 1.64299153327524e-08,
+          "unsaturated_samples": 184,
+          "missing_ticks": []
+        },
+        {
+          "offset": 0,
+          "max_abs_error": 0.0031218090998326384,
+          "max_unsaturated_error": 0.0031218090998326384,
+          "unsaturated_samples": 183,
+          "missing_ticks": []
+        }
+      ],
+      "validated_offsets": [
+        -1
+      ],
+      "target_pitch_law_valid": true
+    },
+    {
+      "lane": 3,
+      "end": 668,
+      "timing_options": [
+        {
+          "offset": -2,
+          "max_abs_error": 0.0031043453404132546,
+          "max_unsaturated_error": 0.0031043453404132546,
+          "unsaturated_samples": 187,
+          "missing_ticks": []
+        },
+        {
+          "offset": -1,
+          "max_abs_error": 1.3836344018441915e-08,
+          "max_unsaturated_error": 1.3836344018441915e-08,
+          "unsaturated_samples": 186,
+          "missing_ticks": []
+        },
+        {
+          "offset": 0,
+          "max_abs_error": 0.0031043367627685142,
+          "max_unsaturated_error": 0.0031043367627685142,
+          "unsaturated_samples": 185,
+          "missing_ticks": []
+        }
+      ],
+      "validated_offsets": [
+        -1
+      ],
+      "target_pitch_law_valid": true
+    },
+    {
+      "lane": 4,
+      "end": 717,
+      "timing_options": [
+        {
+          "offset": -2,
+          "max_abs_error": 0.0057202468126699435,
+          "max_unsaturated_error": 0.0057202468126699435,
+          "unsaturated_samples": 157,
+          "missing_ticks": []
+        },
+        {
+          "offset": -1,
+          "max_abs_error": 1.805597311596574e-08,
+          "max_unsaturated_error": 1.805597311596574e-08,
+          "unsaturated_samples": 156,
+          "missing_ticks": []
+        },
+        {
+          "offset": 0,
+          "max_abs_error": 0.005294619004682755,
+          "max_unsaturated_error": 0.005294619004682755,
+          "unsaturated_samples": 155,
+          "missing_ticks": []
+        }
+      ],
+      "validated_offsets": [
+        -1
+      ],
+      "target_pitch_law_valid": true
+    },
+    {
+      "lane": 5,
+      "end": 715,
+      "timing_options": [
+        {
+          "offset": -2,
+          "max_abs_error": 0.005733813025444234,
+          "max_unsaturated_error": 0.005733813025444234,
+          "unsaturated_samples": 157,
+          "missing_ticks": []
+        },
+        {
+          "offset": -1,
+          "max_abs_error": 1.770573188064617e-08,
+          "max_unsaturated_error": 1.770573188064617e-08,
+          "unsaturated_samples": 156,
+          "missing_ticks": []
+        },
+        {
+          "offset": 0,
+          "max_abs_error": 0.0052837046514202235,
+          "max_unsaturated_error": 0.0052837046514202235,
+          "unsaturated_samples": 155,
+          "missing_ticks": []
+        }
+      ],
+      "validated_offsets": [
+        -1
+      ],
+      "target_pitch_law_valid": true
+    },
+    {
+      "lane": 6,
+      "end": 736,
+      "timing_options": [
+        {
+          "offset": -2,
+          "max_abs_error": 0.008393224796850035,
+          "max_unsaturated_error": 0.008393224796850035,
+          "unsaturated_samples": 116,
+          "missing_ticks": []
+        },
+        {
+          "offset": -1,
+          "max_abs_error": 2.162728425167404e-08,
+          "max_unsaturated_error": 2.162728425167404e-08,
+          "unsaturated_samples": 115,
+          "missing_ticks": []
+        },
+        {
+          "offset": 0,
+          "max_abs_error": 0.008393229909262195,
+          "max_unsaturated_error": 0.008393229909262195,
+          "unsaturated_samples": 114,
+          "missing_ticks": []
+        }
+      ],
+      "validated_offsets": [
+        -1
+      ],
+      "target_pitch_law_valid": true
+    },
+    {
+      "lane": 7,
+      "end": 736,
+      "timing_options": [
+        {
+          "offset": -2,
+          "max_abs_error": 0.008383988390773006,
+          "max_unsaturated_error": 0.008383988390773006,
+          "unsaturated_samples": 120,
+          "missing_ticks": []
+        },
+        {
+          "offset": -1,
+          "max_abs_error": 1.76224194889385e-08,
+          "max_unsaturated_error": 1.76224194889385e-08,
+          "unsaturated_samples": 119,
+          "missing_ticks": []
+        },
+        {
+          "offset": 0,
+          "max_abs_error": 0.008383992157784292,
+          "max_unsaturated_error": 0.008383992157784292,
+          "unsaturated_samples": 118,
+          "missing_ticks": []
+        }
+      ],
+      "validated_offsets": [
+        -1
+      ],
+      "target_pitch_law_valid": true
+    }
+  ],
+  "validated_paired_exploratory_pass": {
+    "2-3": false,
+    "4-5": false,
+    "6-7": false
+  },
+  "scope": "Reconstructs full-blend sweep drive targets from accepted root orientation, checking offsets and requiring unsaturated samples. Does not qualify flight."
+}
