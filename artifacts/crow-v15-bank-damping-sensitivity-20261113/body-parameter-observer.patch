@@ -1,0 +1,37 @@
+--- /Users/n/Developer/numi-crow-rl-20261107/build/crow-v15-mirrored-pronation-20261113/MetalWorld.mm	2026-11-13 12:56:54
++++ /Users/n/Developer/numi-crow-rl-20261107/artifacts/crow-v15-bank-damping-sensitivity-20261113/MetalWorld-parameter-observer.mm	2026-11-13 16:16:18
+@@ -12727,7 +12727,7 @@
+     const std::size_t bodyStride
+ ) {
+     const bool observe=std::getenv("CROW_AERO_WRENCH_TRACE")!=nullptr && traceStep>=650 && traceStep<=1150;
+-    id<MTLBuffer> before=nil; id<MTLBuffer> after=nil; id<MTLBuffer> aq=nil; id<MTLBuffer> av=nil; id<MTLBuffer> ctrl=nil;
++    id<MTLBuffer> before=nil; id<MTLBuffer> after=nil; id<MTLBuffer> aq=nil; id<MTLBuffer> av=nil; id<MTLBuffer> ctrl=nil; id<MTLBuffer> bodyParametersSnapshot=nil;
+     id<MTLBuffer> source=context.buffers[kBodyWrenchPlaceholder];
+     if (observe) {
+         if (source==nil || source.length < environmentCount*bodyStride*sizeof(MRABABodyWrenchGPU)) throw std::runtime_error("aero observer buffer size");
+@@ -12744,6 +12744,13 @@
+         [blit copyFromBuffer:qs sourceOffset:0 toBuffer:aq destinationOffset:0 size:qs.length];
+         [blit copyFromBuffer:vs sourceOffset:0 toBuffer:av destinationOffset:0 size:vs.length];
+         id<MTLBuffer> cp=context.buffers[kTaskControllerParameters]; if(cp.length < environmentCount*sizeof(mr_float4)) throw std::runtime_error("controller buffer size"); ctrl=[context.device newBufferWithLength:cp.length options:MTLResourceStorageModeShared]; if(ctrl==nil) throw std::bad_alloc(); [blit copyFromBuffer:cp sourceOffset:0 toBuffer:ctrl destinationOffset:0 size:cp.length];
++        if (traceSubstep==0u && traceStep%10u==0u) {
++            id<MTLBuffer> params=context.buffers[kTaskBodyParameters];
++            if (params==nil || params.length<environmentCount*bodyStride*sizeof(mr_float4)) throw std::runtime_error("body parameter observer size");
++            bodyParametersSnapshot=[context.device newBufferWithLength:params.length options:MTLResourceStorageModeShared];
++            if (bodyParametersSnapshot==nil) throw std::bad_alloc();
++            [blit copyFromBuffer:params sourceOffset:0 toBuffer:bodyParametersSnapshot destinationOffset:0 size:params.length];
++        }
+         [blit endEncoding];
+     }
+     const bool encoded=encodeContactThreadKernel(
+@@ -12761,6 +12768,11 @@
+             const auto* a=static_cast<const MRABABodyWrenchGPU*>(before.contents);
+             const auto* b=static_cast<const MRABABodyWrenchGPU*>(after.contents);
+             for (std::size_t e=0;e<environmentCount;++e) {
++                if (bodyParametersSnapshot!=nil) {
++                    const auto* p=static_cast<const mr_float4*>(bodyParametersSnapshot.contents);
++                    const auto& v=p[e*bodyStride];
++                    std::fprintf(stderr,"CROW_TORSO_PARAMETERS %llu %u %lu %.9g %.9g %.9g %.9g\n",traceStep,traceSubstep,(unsigned long)e,v.x,v.y,v.z,v.w);
++                }
+                 const auto* qin=static_cast<const float*>(aq.contents);const auto* vin=static_cast<const float*>(av.contents);
+                 const auto* cp=static_cast<const mr_float4*>(ctrl.contents); const auto& cv=cp[e]; std::fprintf(stderr,"CROW_DRIVE_SCALES %llu %u %lu %.9g %.9g %.9g %.9g\n",traceStep,traceSubstep,(unsigned long)e,cv.x,cv.y,cv.z,cv.w);
+                 std::fprintf(stderr,"CROW_AERO_INPUT %llu %u %lu",traceStep,traceSubstep,(unsigned long)e);

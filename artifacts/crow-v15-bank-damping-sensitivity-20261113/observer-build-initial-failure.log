@@ -1,0 +1,10 @@
+/Users/n/Developer/numi-crow-rl-20261107/artifacts/crow-v15-bank-damping-sensitivity-20261113/MetalWorld-parameter-observer.mm:20314:10: fatal error: 'CCDFailureCapture.inc' file not found
+ 20314 | #include "CCDFailureCapture.inc"
+       |          ^~~~~~~~~~~~~~~~~~~~~~~
+1 error generated.
+Traceback (most recent call last):
+  File "/tmp/crow-build-scale-observer.py", line 24, in <module>
+    entries=json.loads((R/'build/compile_commands.json').read_text());c=shlex.split(next(x['command'] for x in entries if x['file'].endswith('/MetalWorld.mm')));c[c.index('-o')+1]=str(b/'MetalWorld.mm.o');c[c.index('-c')+1]=str(src);subprocess.run(c,cwd=R/'build',check=True)
+  File "/Applications/Xcode-26.6.0.app/Contents/Developer/Library/Frameworks/Python3.framework/Versions/3.9/lib/python3.9/subprocess.py", line 528, in run
+    raise CalledProcessError(retcode, process.args,
+subprocess.CalledProcessError: Command '['/usr/bin/clang++', '-DMETALROBO_BUILDING_LIBRARY=1', '-DMETALROBO_DEFAULT_METALLIB="/Users/n/Developer/numi-crow-rl-20261107/build/shaders/MetalRobo.metallib"', '-Dmetalrobo_EXPORTS', '-I/Users/n/Developer/numi-crow-rl-20261107/include', '-I/Users/n/Developer/numi-crow-rl-20261107/matter/include', '-I/Users/n/Developer/numi-crow-rl-20261107/src', '-I/Users/n/Developer/numi-crow-rl-20261107/build/generated', '-F/Applications/Xcode-26.6.0.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/System/Library/Frameworks', '-isystem', '/Library/Developer/CommandLineTools/SDKs/MacOSX26.sdk/usr/include/libxml2', '-x', 'objective-c++', '-O3', '-DNDEBUG', '-std=c++23', '-arch', 'arm64', '-fPIC', '-fobjc-arc', '-Wall', '-Wextra', '-Wpedantic', '-o', '/Users/n/Developer/numi-crow-rl-20261107/build/crow-v15-bank-damping-observer-20261113/MetalWorld.mm.o', '-c', '/Users/n/Developer/numi-crow-rl-20261107/artifacts/crow-v15-bank-damping-sensitivity-20261113/MetalWorld-parameter-observer.mm']' returned non-zero exit status 1.
