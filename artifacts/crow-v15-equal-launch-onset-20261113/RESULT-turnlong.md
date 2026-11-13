@@ -1,0 +1,7 @@
+# Matched fixed turn screen, seed 20261127
+
+Both candidate lanes passed the pre-registered 1,800-interval matched turn screen on the previously used development seed 20261127. The run had teacher mode off and task-body wrench assistance ablated. Candidate state, action and contact records were identical to the equal-onset straight reference through interval 600; non-candidate lanes matched their complete available first episodes. Each candidate remained continuously clear after its first unloading at interval 375, with complete uniquely indexed substep evidence and no recorded observer errors or physical failure through interval 1800.
+
+The fixed negative and positive differential profiles produced peak heading differences relative to their own straight baselines of -0.15377 and +0.15365 rad, respectively, at interval 1197. Maximum lateral differences during the measured window were 0.199 and 0.191 m. This approximately 8.8 degree response is limited authority, and pronation effort was saturated for 55.8% and 55.7% of the observed 600–1200 window. It is not a demonstrated general turn command, or evidence of adequate maneuvering for navigation.
+
+Comparison lanes 0 and 1 failed physically at intervals 760 and 762; all lane records and the replay are archived. No candidate completed a waypoint mission in this diagnostic. A two-lane same-seed, fixed-profile screen does not qualify turns over speeds, radii, heights, disturbances or layouts, and does not qualify flight, takeoff, landing or a continuous autonomous mission.
