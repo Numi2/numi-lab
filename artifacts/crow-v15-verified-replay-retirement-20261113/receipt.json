@@ -1,0 +1,78 @@
+{
+  "retired": [
+    {
+      "path": "/Users/n/Developer/numi-crow-rl-20261107/build/crow-v15-mirrored-leg-wing-longflight-20261113/signed-turn-20261126-rebound-longflight-trace.tsv",
+      "bytes": 1504633,
+      "sha256": "905d0b10deb4e37662a090d1246a46b87623c8a9ff12d83928564b721455ad8c",
+      "commit": "698883015c032df1ab91bc5ce5ddfeeff0e650de"
+    },
+    {
+      "path": "/Users/n/Developer/numi-crow-rl-20261107/build/crow-v15-mirrored-leg-wing-longflight-20261113/signed-turn-20261126-rebound-longflight-replay.json",
+      "bytes": 72446464,
+      "sha256": "44282c920527561efa44b17ca94f4bcb1b6b5e1583ba64476668084adb452680",
+      "commit": "698883015c032df1ab91bc5ce5ddfeeff0e650de"
+    },
+    {
+      "path": "/Users/n/Developer/numi-crow-rl-20261107/build/crow-v15-mirrored-leg-wing-longflight-20261113/signed-turn-20261127-rebound-repeat-longflight-trace.tsv",
+      "bytes": 1508953,
+      "sha256": "9de9a88c5910e7dbacdd1906be60d89a996b1395a54bda12938f80675cb8a70a",
+      "commit": "76ab0c15086ba3c042db8bffd91b4522fabbe162"
+    },
+    {
+      "path": "/Users/n/Developer/numi-crow-rl-20261107/build/crow-v15-mirrored-leg-wing-longflight-20261113/signed-turn-20261127-rebound-repeat-longflight-replay.json",
+      "bytes": 72088033,
+      "sha256": "4985cef65f293396957a54653c6023f551a884f70b820dbe25d626f3abff698b",
+      "commit": "76ab0c15086ba3c042db8bffd91b4522fabbe162"
+    },
+    {
+      "path": "/Users/n/Developer/numi-crow-rl-20261107/build/crow-v15-mirrored-height-switch-descent-20261113/signed-turn-20261126-rebound-descent-trace.tsv",
+      "bytes": 1504633,
+      "sha256": "905d0b10deb4e37662a090d1246a46b87623c8a9ff12d83928564b721455ad8c",
+      "commit": "dc5d376ff972e7a094b2577cbb61ac1974f8d5ce"
+    },
+    {
+      "path": "/Users/n/Developer/numi-crow-rl-20261107/build/crow-v15-mirrored-height-switch-descent-20261113/signed-turn-20261126-rebound-descent-replay.json",
+      "bytes": 72446463,
+      "sha256": "9f1c053346b45cd12b57dd3762982586962a065d254f079362bbb26105d93075",
+      "commit": "dc5d376ff972e7a094b2577cbb61ac1974f8d5ce"
+    },
+    {
+      "path": "/Users/n/Developer/numi-crow-rl-20261107/build/crow-v15-leg-flight-height-switch-20261113/signed-turn-20261126-rebound-leg-switch-trace.tsv",
+      "bytes": 1504633,
+      "sha256": "905d0b10deb4e37662a090d1246a46b87623c8a9ff12d83928564b721455ad8c",
+      "commit": "b6f4bf4ee224dd95fd3023452c8b8cafd2f51228"
+    },
+    {
+      "path": "/Users/n/Developer/numi-crow-rl-20261107/build/crow-v15-leg-flight-height-switch-20261113/signed-turn-20261126-rebound-leg-switch-replay.json",
+      "bytes": 72446463,
+      "sha256": "4044e0da555d13a6704a4c28606f00c0559400f19be018629bafa6ca03f821c0",
+      "commit": "b6f4bf4ee224dd95fd3023452c8b8cafd2f51228"
+    },
+    {
+      "path": "/Users/n/Developer/numi-crow-rl-20261107/build/crow-v15-leg-flight-height-switch-20261113/signed-turn-20261127-rebound-repeat-leg-switch-trace.tsv",
+      "bytes": 1508953,
+      "sha256": "9de9a88c5910e7dbacdd1906be60d89a996b1395a54bda12938f80675cb8a70a",
+      "commit": "f2b33e5adaeef1054865dd8340211df49bee42bb"
+    },
+    {
+      "path": "/Users/n/Developer/numi-crow-rl-20261107/build/crow-v15-leg-flight-height-switch-20261113/signed-turn-20261127-rebound-repeat-leg-switch-replay.json",
+      "bytes": 72088034,
+      "sha256": "72bad1ab4d3debc8f7a5465d94aa1304f0f5e3c9b7454e2d941eace939e9281d",
+      "commit": "f2b33e5adaeef1054865dd8340211df49bee42bb"
+    },
+    {
+      "path": "/Users/n/Developer/numi-crow-rl-20261107/build/crow-v15-bank-damping-sensitivity-20261113/signed-turn-20261126-rebound-damping-trace.tsv",
+      "bytes": 1504633,
+      "sha256": "905d0b10deb4e37662a090d1246a46b87623c8a9ff12d83928564b721455ad8c",
+      "commit": "c178cca9a1b9ecd5a0881b9f97f06b1958173a36"
+    },
+    {
+      "path": "/Users/n/Developer/numi-crow-rl-20261107/build/crow-v15-bank-damping-sensitivity-20261113/signed-turn-20261126-rebound-damping-replay.json",
+      "bytes": 72446464,
+      "sha256": "2902fb9e9c6f2ac3c738345f34c8c912b776854dbb070d4be86726c718eab1ee",
+      "commit": "c178cca9a1b9ecd5a0881b9f97f06b1958173a36"
+    }
+  ],
+  "bytes_retired": 442998359,
+  "df": "Filesystem   1024-blocks      Used Available Capacity iused     ifree %iused  Mounted on\n/dev/disk3s5   482797652 426491544  29810000    94% 3605431 298100000    1%   /System/Volumes/Data\n"
+}
