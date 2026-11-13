@@ -1,0 +1,15 @@
+--- a/fastramp.metal
++++ b/coordination.metal
+@@ -5133,9 +5133,9 @@
+                 if ((state.status.w & 4096u) != 0u) navigationTeacherRequested = crouched;
+                 // Explicit bounded supported extension; no body wrench.
+                 if (experimentArm>=2u && seconds>=7.4f && (bilateral || pushStarted) && (state.status.w & 4096u)==0u) {
+-                    const float duration=experimentArm<4u ? 0.04f : experimentArm<6u ? 0.06f : 0.08f;
+-                    const float finish=joint==0u ? -0.25f : joint==1u ? 0.29f : -0.09f;
+-                    navigationTeacherRequested=mix(crouched,finish,smoothstep(7.4f,7.4f+duration,seconds));
++                    const float delay=experimentArm<4u ? 0.0f : experimentArm<6u ? (joint==2u ? 0.08f : 0.0f) : (joint==2u ? 0.0f : 0.08f);
++                    const float finish=joint==0u ? -0.15f : joint==1u ? -0.10f : 0.83f;
++                    navigationTeacherRequested=mix(crouched,finish,smoothstep(7.4f+delay,7.48f+delay,seconds));
+                 }
+             }
+         }

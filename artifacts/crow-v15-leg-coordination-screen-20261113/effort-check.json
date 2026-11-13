@@ -1,0 +1,257 @@
+{
+  "rows": [
+    {
+      "arm": "push",
+      "lane": 2,
+      "max_abs_effort": [
+        0.75,
+        0.75,
+        0.600000024,
+        0.75,
+        0.75,
+        0.600000024
+      ],
+      "saturated_substeps": [
+        36,
+        67,
+        57,
+        36,
+        67,
+        58
+      ],
+      "bound_violations": []
+    },
+    {
+      "arm": "push",
+      "lane": 3,
+      "max_abs_effort": [
+        0.75,
+        0.75,
+        0.600000024,
+        0.75,
+        0.75,
+        0.600000024
+      ],
+      "saturated_substeps": [
+        36,
+        59,
+        56,
+        37,
+        59,
+        56
+      ],
+      "bound_violations": []
+    },
+    {
+      "arm": "push",
+      "lane": 4,
+      "max_abs_effort": [
+        0.75,
+        0.75,
+        0.600000024,
+        0.75,
+        0.75,
+        0.600000024
+      ],
+      "saturated_substeps": [
+        33,
+        48,
+        68,
+        32,
+        48,
+        68
+      ],
+      "bound_violations": []
+    },
+    {
+      "arm": "push",
+      "lane": 5,
+      "max_abs_effort": [
+        0.75,
+        0.75,
+        0.600000024,
+        0.75,
+        0.75,
+        0.600000024
+      ],
+      "saturated_substeps": [
+        34,
+        48,
+        69,
+        33,
+        48,
+        69
+      ],
+      "bound_violations": []
+    },
+    {
+      "arm": "push",
+      "lane": 6,
+      "max_abs_effort": [
+        0.75,
+        0.75,
+        0.600000024,
+        0.75,
+        0.75,
+        0.600000024
+      ],
+      "saturated_substeps": [
+        45,
+        45,
+        39,
+        46,
+        45,
+        39
+      ],
+      "bound_violations": []
+    },
+    {
+      "arm": "push",
+      "lane": 7,
+      "max_abs_effort": [
+        0.75,
+        0.75,
+        0.600000024,
+        0.75,
+        0.75,
+        0.600000024
+      ],
+      "saturated_substeps": [
+        52,
+        44,
+        41,
+        52,
+        44,
+        41
+      ],
+      "bound_violations": []
+    },
+    {
+      "arm": "hold",
+      "lane": 2,
+      "max_abs_effort": [
+        0.0385741368,
+        0.0695660263,
+        0.0528439134,
+        0.0369333774,
+        0.0713500828,
+        0.053203743
+      ],
+      "saturated_substeps": [
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ],
+      "bound_violations": []
+    },
+    {
+      "arm": "hold",
+      "lane": 3,
+      "max_abs_effort": [
+        0.0361342095,
+        0.0705664754,
+        0.0529107228,
+        0.0389824845,
+        0.0704058856,
+        0.0531449467
+      ],
+      "saturated_substeps": [
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ],
+      "bound_violations": []
+    },
+    {
+      "arm": "hold",
+      "lane": 4,
+      "max_abs_effort": [
+        0.0357080549,
+        0.071085684,
+        0.0529917814,
+        0.0399151891,
+        0.0698050931,
+        0.053058099
+      ],
+      "saturated_substeps": [
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ],
+      "bound_violations": []
+    },
+    {
+      "arm": "hold",
+      "lane": 5,
+      "max_abs_effort": [
+        0.0383481905,
+        0.0693332702,
+        0.0527193733,
+        0.0368507653,
+        0.0716202483,
+        0.0533223748
+      ],
+      "saturated_substeps": [
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ],
+      "bound_violations": []
+    },
+    {
+      "arm": "hold",
+      "lane": 6,
+      "max_abs_effort": [
+        0.0363800116,
+        0.0707733035,
+        0.0529566705,
+        0.0388102457,
+        0.0702000484,
+        0.0530998297
+      ],
+      "saturated_substeps": [
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ],
+      "bound_violations": []
+    },
+    {
+      "arm": "hold",
+      "lane": 7,
+      "max_abs_effort": [
+        0.042457968,
+        0.0665732324,
+        0.0522964709,
+        0.0330560394,
+        0.0743365809,
+        0.0537638739
+      ],
+      "saturated_substeps": [
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ],
+      "bound_violations": []
+    }
+  ],
+  "scope": "Applied generalized leg effort observations in ticks 370\u2013400; saturation and limits are model values, not measured crow strength."
+}
