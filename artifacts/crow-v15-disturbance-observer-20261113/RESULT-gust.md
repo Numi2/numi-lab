@@ -1,0 +1,7 @@
+# Matched pitch-disturbance screen was inconclusive
+
+The observational host first reproduced the straight-flight reference exactly through all eight first episodes. In the matched gust trial, the pre-aerodynamic observer measured opposite approximately 0.010 N m world-y torques for all 80 substeps of intervals 902–906 in candidates 6 and 7. It measured zero force and no task-body wrench in the other lanes; no pulse appeared outside the registered observation window. Input hashes, teacher-off mode, unchanged-lane and pre-pulse q/v/action/contact parity, continuous candidate flight, physical bounds, unique substep coverage and observer checks all passed.
+
+Neither lane met the predeclared minimum disturbance-response gate: maximum absolute pitch difference from the same-lane control was approximately 0.00115 rad and maximum world-y angular-velocity difference approximately 0.0117 rad/s. Differences at interval 1100 were smaller still, but the initial response was too weak for that to establish meaningful recovery. Both candidates remained airborne through 1,800 intervals; comparison lanes 0 and 1 physically failed at intervals 760 and 762 as in the control.
+
+The result is an inconclusive recovery experiment, not a passed recovery test, a flight-controller qualification, or evidence about perturbed starting states. Full control and gust traces, both failures, applied-wrench samples, binaries, code, analysis and replay are archived.
