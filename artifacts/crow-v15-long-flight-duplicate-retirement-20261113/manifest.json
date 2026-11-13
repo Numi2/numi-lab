@@ -1,0 +1,14 @@
+{
+  "purpose": "Retire four duplicate Mac mini build outputs only after independent GitHub restoration and rechecking exact files; archived compressed originals remain in Git.",
+  "host": "macmini",
+  "repo_root": "/Users/n/Developer/numi-crow-rl-20261107",
+  "github_commit": "d293c723e1bbcbb795211790ad0a9deb79ea7aa4",
+  "github_repository": "Numi2/numi-lab",
+  "files": [
+    {"path":"build/crow-v15-consistent-long-flight-20261113/push-wing-20261126-rebound-long-replay.json","device":16777232,"inode":17094489,"size":19707577,"links":1,"sha256":"ea6c0f378a293078d58cbaad88e4c75be56566a5d13e841d05a341ca1278980c","git_gzip":"artifacts/crow-v15-consistent-long-flight-20261113/push-wing-20261126-rebound-long/replay.json.gz"},
+    {"path":"build/crow-v15-consistent-long-flight-20261113/push-wing-20261126-rebound-long-trace.tsv","device":16777232,"inode":17094488,"size":433938,"links":1,"sha256":"089f2622fa708857b78aaeca4c0b219cf63dd14a54296a4318171aaeb76d0b49","git_gzip":"artifacts/crow-v15-consistent-long-flight-20261113/push-wing-20261126-rebound-long/trace.tsv.gz"},
+    {"path":"build/crow-v15-consistent-long-flight-20261113/hold-wing-20261126-rebound-long-replay.json","device":16777232,"inode":17094533,"size":19747851,"links":1,"sha256":"528a1767b4856e0c1ba918ae0b21f65d18046f66953e526ad858bea768b32e1c","git_gzip":"artifacts/crow-v15-consistent-long-flight-20261113/hold-wing-20261126-rebound-long/replay.json.gz"},
+    {"path":"build/crow-v15-consistent-long-flight-20261113/hold-wing-20261126-rebound-long-trace.tsv","device":16777232,"inode":17094532,"size":433442,"links":1,"sha256":"1fd8c7a19603c11c5a6b44d6abde766ba7f7d368c3da76f3c1bc80aba18e42e9","git_gzip":"artifacts/crow-v15-consistent-long-flight-20261113/hold-wing-20261126-rebound-long/trace.tsv.gz"}
+  ],
+  "verification": "Independently fetched each GitHub gzip at the immutable commit, decompressed and matched each raw SHA-256; all four had one link and no open handles during inspection. Recheck identity, content, link count and open handles before unlink. No artifact or research model is retired."
+}
