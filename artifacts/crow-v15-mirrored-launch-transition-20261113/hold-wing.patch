@@ -1,0 +1,19 @@
+--- /Users/n/Developer/numi-crow-rl-20261107/artifacts/crow-v15-posthop-wing-phase-20261113/hold-wing.metal	2026-11-13 09:27:50
++++ /Users/n/Developer/numi-crow-rl-20261107/artifacts/crow-v15-mirrored-launch-transition-20261113/hold-wing.metal	2026-11-13 14:00:14
+@@ -5529,13 +5529,13 @@
+         if (fixedFlightController && state.episode.z==10u && action<=5u && float(state.episode.x)*dispatch.timing.x>=6.30f) {
+             const float seconds=float(state.episode.x)*dispatch.timing.x;
+             const uint arm=environment%8u;
+-            const float start=7.56f;
++            const float start=arm<4u ? 7.48f : arm<6u ? 7.50f : 7.52f;
+             targetCandidate=defaultQ[binding.indices.z];
+             if (arm>=2u && seconds>=start && seconds<10.02f) {
+-                const float phase=kTwoPi*6.4f*(seconds-start)+(arm<4u ? 0.0f : arm<6u ? 1.57079632679f : -1.57079632679f);
++                const float phase=kTwoPi*6.4f*(seconds-start);
+                 if (action<=1u) targetCandidate+=0.70f*smoothstep(start,start+0.04f,seconds)*sin(phase);
+                 else if (action<=3u) targetCandidate+=0.12f*smoothstep(start,start+0.04f,seconds);
+-                else targetCandidate+=0.18f*smoothstep(start,start+0.04f,seconds)*sin(phase+1.57079632679f);
++                else targetCandidate+=0.08f*smoothstep(start,start+0.04f,seconds)*sin(phase+3.14159265359f);
+             }
+         }
+         // Exploratory, bounded knee target feedback through the existing position drive.
