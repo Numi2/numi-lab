@@ -1,0 +1,10 @@
+{
+  "commit": "3444633d5d6c9f233800bd094c73d6b967fe8fe9",
+  "archive": "artifacts/crow-v15-mirrored-bank-turn-20261113/signed-turn-20261126-rebound-bank",
+  "compressed_bytes": 246836848,
+  "sha256": "2fee002e1adea4d46409e7960a31e2e38573e1a01a3c040a32198c324dc363b0",
+  "uncompressed_bytes": 947973115,
+  "gzip_eof": true,
+  "all_parts_sha256_verified": true,
+  "source": "independent authenticated GitHub contents download"
+}
