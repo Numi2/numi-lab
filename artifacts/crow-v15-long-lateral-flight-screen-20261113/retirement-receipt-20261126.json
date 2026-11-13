@@ -1,0 +1,30 @@
+{
+  "retired": [
+    {
+      "path": "/Users/n/Developer/numi-crow-rl-20261107/artifacts/crow-v15-long-lateral-flight-screen-20261113/long-flight-20261126-rebound-long-fixed/run.stderr.gz.part00",
+      "bytes": 41943040,
+      "sha256": "9d7b5c9d9f0073e7470273bfa2e29440592eb4f75ac29056bf121aa978129870"
+    },
+    {
+      "path": "/Users/n/Developer/numi-crow-rl-20261107/artifacts/crow-v15-long-lateral-flight-screen-20261113/long-flight-20261126-rebound-long-fixed/run.stderr.gz.part01",
+      "bytes": 41943040,
+      "sha256": "a6c2b29d355415c0a6f5d17698e07c6ec159058b1b6dacc0ced8a58c7b9264d2"
+    },
+    {
+      "path": "/Users/n/Developer/numi-crow-rl-20261107/artifacts/crow-v15-long-lateral-flight-screen-20261113/long-flight-20261126-rebound-long-fixed/run.stderr.gz.part02",
+      "bytes": 41943040,
+      "sha256": "c5eed44fcb78460de20a1b36fec018a9a555f60af7bdac334780138aadde7569"
+    },
+    {
+      "path": "/Users/n/Developer/numi-crow-rl-20261107/artifacts/crow-v15-long-lateral-flight-screen-20261113/long-flight-20261126-rebound-long-fixed/run.stderr.gz.part03",
+      "bytes": 41943040,
+      "sha256": "6f9bc5dacee8a908a38c8b282eea4e46d359cc9dd6606b4d0cb1de6882115209"
+    },
+    {
+      "path": "/Users/n/Developer/numi-crow-rl-20261107/artifacts/crow-v15-long-lateral-flight-screen-20261113/long-flight-20261126-rebound-long-fixed/run.stderr.gz.part04",
+      "bytes": 21281324,
+      "sha256": "106e01bf91d3f7c0acea2c9e27275da07cc1da57749a9f88bf1f571cdf04d3af"
+    }
+  ],
+  "note": "Original retained for matched position-hold comparisons."
+}
