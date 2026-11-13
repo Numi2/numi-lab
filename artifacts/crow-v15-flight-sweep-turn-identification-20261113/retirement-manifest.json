@@ -1,0 +1,32 @@
+{
+  "purpose": "retire redundant split copies only; original research log retained",
+  "files": [
+    {
+      "absolute_path": "/Users/n/Developer/numi-crow-rl-20261107/artifacts/crow-v15-flight-sweep-turn-identification-20261113/turn-identification-20261126-rebound-sweep/run.stderr.gz.part00",
+      "device": 16777232,
+      "inode": 17097048,
+      "links": 1,
+      "bytes": 41943040,
+      "sha256": "3b71cd1753bc5ab3eafebb0c31f2eb84f0dabc5533afb69159cd3a4a0dc2f3fc",
+      "lsof_exit": 1
+    },
+    {
+      "absolute_path": "/Users/n/Developer/numi-crow-rl-20261107/artifacts/crow-v15-flight-sweep-turn-identification-20261113/turn-identification-20261126-rebound-sweep/run.stderr.gz.part01",
+      "device": 16777232,
+      "inode": 17097049,
+      "links": 1,
+      "bytes": 41943040,
+      "sha256": "d1e870ca57b2060d255e053a88972c546d9e8c85f97c71aa1414ee00ad7e64da",
+      "lsof_exit": 1
+    },
+    {
+      "absolute_path": "/Users/n/Developer/numi-crow-rl-20261107/artifacts/crow-v15-flight-sweep-turn-identification-20261113/turn-identification-20261126-rebound-sweep/run.stderr.gz.part02",
+      "device": 16777232,
+      "inode": 17097050,
+      "links": 1,
+      "bytes": 27727164,
+      "sha256": "b6efec88c70395b15ae6f1dcbb44fc573c34701e33132198a0ab125d63320bdd",
+      "lsof_exit": 1
+    }
+  ]
+}

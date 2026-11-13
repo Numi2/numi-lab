@@ -1,0 +1,24 @@
+{
+  "commit": "67367c726054ee5feaed979b14efafb3a5ac34bc",
+  "run": "turn-identification-20261126-rebound-sweep",
+  "parts": [
+    {
+      "file": "run.stderr.gz.part00",
+      "bytes": 41943040,
+      "sha256": "3b71cd1753bc5ab3eafebb0c31f2eb84f0dabc5533afb69159cd3a4a0dc2f3fc"
+    },
+    {
+      "file": "run.stderr.gz.part01",
+      "bytes": 41943040,
+      "sha256": "d1e870ca57b2060d255e053a88972c546d9e8c85f97c71aa1414ee00ad7e64da"
+    },
+    {
+      "file": "run.stderr.gz.part02",
+      "bytes": 27727164,
+      "sha256": "b6efec88c70395b15ae6f1dcbb44fc573c34701e33132198a0ab125d63320bdd"
+    }
+  ],
+  "bytes": 111613244,
+  "full_sha256": "0b2190eec2a74874561b27cc8248ee65e1161fca6ef69862292e751b88f21732",
+  "gzip_complete": true
+}
