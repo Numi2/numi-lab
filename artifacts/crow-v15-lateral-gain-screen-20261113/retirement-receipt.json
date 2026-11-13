@@ -1,0 +1,20 @@
+{
+  "retired": [
+    {
+      "path": "/Users/n/Developer/numi-crow-rl-20261107/artifacts/crow-v15-lateral-gain-screen-20261113/lateral-gains-20261126-rebound-gains/run.stderr.gz.part00",
+      "bytes": 41943040,
+      "sha256": "12b206ff5c7911cbebd62c5525d4850ddac84f18f325808690690e464d523b9b"
+    },
+    {
+      "path": "/Users/n/Developer/numi-crow-rl-20261107/artifacts/crow-v15-lateral-gain-screen-20261113/lateral-gains-20261126-rebound-gains/run.stderr.gz.part01",
+      "bytes": 41943040,
+      "sha256": "90af52e3f47bed51c3b2be0531271a8ba51678e1f7d64230f4cd8221d63ce8da"
+    },
+    {
+      "path": "/Users/n/Developer/numi-crow-rl-20261107/artifacts/crow-v15-lateral-gain-screen-20261113/lateral-gains-20261126-rebound-gains/run.stderr.gz.part02",
+      "bytes": 27998195,
+      "sha256": "6e2901bca7c47fa7e6f0924a6cc982f16fdd2decea41cd0ce30d7166e997b8ca"
+    }
+  ],
+  "note": "Original remains locally for the pending exact parity audit."
+}
