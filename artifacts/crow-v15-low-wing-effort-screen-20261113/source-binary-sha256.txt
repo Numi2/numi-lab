@@ -1,0 +1,5 @@
+9b2588c6d8b827eb0481e0008bf13769209eaa5c7c4a438893261607334037c5  artifacts/crow-v15-low-wing-effort-screen-20261113/World.metal
+a3f055370dbc157baf004f021182adbd6f7c1e68cf65b2db855a03d19cc2f5d4  artifacts/crow-v15-low-wing-effort-screen-20261113/push-wing.metal
+7091dd0b26eb992c2401f7c948f3c15e4cd79451942b4e1738cae1ec3b1799de  artifacts/crow-v15-low-wing-effort-screen-20261113/hold-wing.metal
+6f5e67c7ed838d70937dd70f2ee3c6bda9a4df271eb1c6a6be19e19eb7727667  build/crow-v15-low-wing-effort-screen-20261113/push-wing.metallib
+fa96ecb0283a099b5e0f3625dcad023c24a3cb64d61a3b6a46f9d921cb52b908  build/crow-v15-low-wing-effort-screen-20261113/hold-wing.metallib
