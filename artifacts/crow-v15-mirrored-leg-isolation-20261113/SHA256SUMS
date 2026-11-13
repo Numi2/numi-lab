@@ -21,6 +21,7 @@ a1cf353ab68da9998c229259fe4592f220b426ca3afa1cf14b88ca10b023a92c  ./hold-wing-20
 c2c5d0123e4db86067a2545996f6c751305e00305abfc10b90229096fd04fadc  ./hold-wing-20261126-rebound-mirrored/run.stderr.gz
 759a5051dfff3fec3e9bfda1a7d7ec68aa7f1782c6da2bf45d4db8e85ac298b4  ./hold-wing-20261126-rebound-mirrored/run.stdout
 f5616eebd5de6adec3ed0c999f44380847ef0bed81e33b80bc35957b7f83bfb2  ./hold-wing-20261126-rebound-mirrored/trace.tsv.gz
+22946bde12df267d5c730cdb11a05726fa7b3e17e2e12e528d19efa05df643f7  ./independent-github-download.json
 376c3510e47eb3251c73beacd033d26714d2dae420bca70663b5e3dcababab11  ./inputs.json
 64b8706951c7629041baf2da34454ce581010844011d2b4ea32456a59f9820a8  ./integrity.json
 64b8706951c7629041baf2da34454ce581010844011d2b4ea32456a59f9820a8  ./integrity.log
