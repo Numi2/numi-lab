@@ -1,0 +1,16 @@
+--- artifacts/crow-v15-position-flight-screen-20261113/position-flight.metal	2026-11-13 12:19:33
++++ artifacts/crow-v15-pronation-amplitude-screen-20261113/pronation-amplitude.metal	2026-11-13 13:07:33
+@@ -5566,7 +5566,12 @@
+                     targetCandidate+=amplitude*smoothstep(start,start+0.04f,seconds)*sin(phase);
+                 }
+                 else if (action<=3u) targetCandidate+=mix(0.12f,sweep,blend)*smoothstep(start,start+0.04f,seconds);
+-                else targetCandidate+=0.18f*smoothstep(start,start+0.04f,seconds)*sin(phase+1.57079632679f);
++                else {
++                    // Reduced symmetric twist is a joint-target experiment;
++                    // it does not change physical drive limits or body forces.
++                    const float twistAmplitude=arm<4u ? 0.18f : arm<6u ? 0.12f : 0.08f;
++                    targetCandidate+=twistAmplitude*smoothstep(start,start+0.04f,seconds)*sin(phase+1.57079632679f);
++                }
+             }
+         }
+         // Exploratory, bounded knee target feedback through the existing position drive.
