@@ -1,0 +1,5 @@
+b5e88dc7b65586b2ed5308500a2f746c34de83f71911587ba91b3f053249d667  artifacts/crow-v15-supported-slow-push-screen-20261113/World.metal
+c2a12cacc4918be8e52feec1a5d14a2ffa6ff983a629db9bf9ddd20bbb6b4b40  artifacts/crow-v15-supported-slow-push-screen-20261113/hold-wing.metal
+1897cee6b87cb9094865e52196ceb205784a619bd48c8b75b676b9926b4a1dbe  artifacts/crow-v15-supported-slow-push-screen-20261113/push-wing.metal
+1fb5c56a78709ea922253b3b49b1b352f569c3e621421022e2e2395aa1bc738d  build/crow-v15-supported-slow-push-screen-20261113/hold-wing.metallib
+cd104cd9428c5a48e82319165ba818fc8b5e20318db37da0fcd72823a1b16d60  build/crow-v15-supported-slow-push-screen-20261113/push-wing.metallib
