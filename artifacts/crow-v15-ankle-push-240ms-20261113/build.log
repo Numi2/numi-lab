@@ -1,0 +1,5 @@
+/Users/n/Developer/numi-crow-rl-20261107/artifacts/crow-v15-ankle-push-240ms-20261113/inrange.metal:5099:30: warning: unused variable 'arm' [-Wunused-variable]
+                { const uint arm=environment%8u;
+                             ^
+1 warning generated.
+Built candidate metallib: 144b4e40d2e647ecc0e3ef3371ffe91841d45290132e38ad376884bfa4cb2ab0
