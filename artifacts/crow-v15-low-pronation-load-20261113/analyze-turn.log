@@ -1,0 +1,156 @@
+{
+  "scope": "used seed 20261126, all-wrench-ablated matched low-pronation development screen, not qualification",
+  "mode": "turn",
+  "parity": [
+    {
+      "lane": 0,
+      "through": 760,
+      "mismatch_count": 0,
+      "first_mismatches": []
+    },
+    {
+      "lane": 1,
+      "through": 764,
+      "mismatch_count": 0,
+      "first_mismatches": []
+    },
+    {
+      "lane": 2,
+      "through": 1800,
+      "mismatch_count": 0,
+      "first_mismatches": []
+    },
+    {
+      "lane": 3,
+      "through": 1800,
+      "mismatch_count": 0,
+      "first_mismatches": []
+    },
+    {
+      "lane": 4,
+      "through": 1800,
+      "mismatch_count": 0,
+      "first_mismatches": []
+    },
+    {
+      "lane": 5,
+      "through": 1800,
+      "mismatch_count": 0,
+      "first_mismatches": []
+    },
+    {
+      "lane": 6,
+      "through": 600,
+      "mismatch_count": 0,
+      "first_mismatches": []
+    },
+    {
+      "lane": 7,
+      "through": 600,
+      "mismatch_count": 0,
+      "first_mismatches": []
+    }
+  ],
+  "rows": [
+    {
+      "lane": 6,
+      "checks": {
+        "flap_target_reconstructed": true,
+        "pronation_target_reconstructed": true,
+        "pre_onset_and_other_lane_parity": true,
+        "shared_inputs": true,
+        "teacher_off": true,
+        "first_episode": true,
+        "states_complete": true,
+        "release": true,
+        "no_later_ground": true,
+        "substep_coverage": true,
+        "no_toe_speed_cap": true,
+        "wing_effort": true,
+        "forward": true,
+        "height": true,
+        "pronation_full_window_bounds": true,
+        "turn_effort_full_window": true,
+        "signed_heading": true,
+        "lateral_deviation": true,
+        "reduced_saturation": true,
+        "no_observer_errors": true
+      },
+      "passed": true,
+      "release_tick": 375,
+      "first_later_ground": null,
+      "relative_yaw_extreme_tick_and_rad": [
+        1197,
+        -0.1536871300256606
+      ],
+      "max_abs_lateral_deviation_m": 0.1921402735,
+      "pronation_observed_substeps": 9616,
+      "pronation_effort_max_Nm": 0.150000006,
+      "pronation_effort_saturated_fraction": 0.5571443427620633,
+      "pronation_abs_target_max_rad": 0.0999952853,
+      "pronation_abs_position_max_rad": 0.0906906947,
+      "pronation_abs_speed_max_rad_s": 4.3870039,
+      "pronation_abs_tracking_error_max_rad": 0.09135486302000001,
+      "root_forward_displacement_m": 11.143392108,
+      "height_range_m": [
+        0.359544307,
+        0.838220716
+      ],
+      "forward_speed_range_m_s": [
+        0.295750529,
+        0.639527321
+      ]
+    },
+    {
+      "lane": 7,
+      "checks": {
+        "flap_target_reconstructed": true,
+        "pronation_target_reconstructed": true,
+        "pre_onset_and_other_lane_parity": true,
+        "shared_inputs": true,
+        "teacher_off": true,
+        "first_episode": true,
+        "states_complete": true,
+        "release": true,
+        "no_later_ground": true,
+        "substep_coverage": true,
+        "no_toe_speed_cap": true,
+        "wing_effort": true,
+        "forward": true,
+        "height": true,
+        "pronation_full_window_bounds": true,
+        "turn_effort_full_window": true,
+        "signed_heading": true,
+        "lateral_deviation": true,
+        "reduced_saturation": true,
+        "no_observer_errors": true
+      },
+      "passed": true,
+      "release_tick": 380,
+      "first_later_ground": null,
+      "relative_yaw_extreme_tick_and_rad": [
+        1198,
+        0.15328908200036384
+      ],
+      "max_abs_lateral_deviation_m": 0.1933334132,
+      "pronation_observed_substeps": 9616,
+      "pronation_effort_max_Nm": 0.150000006,
+      "pronation_effort_saturated_fraction": 0.55761231281198,
+      "pronation_abs_target_max_rad": 0.0999952629,
+      "pronation_abs_position_max_rad": 0.0906774402,
+      "pronation_abs_speed_max_rad_s": 4.40742731,
+      "pronation_abs_tracking_error_max_rad": 0.0913671311,
+      "root_forward_displacement_m": 10.980838942,
+      "height_range_m": [
+        0.337530166,
+        0.592218876
+      ],
+      "forward_speed_range_m_s": [
+        0.297613889,
+        0.630755603
+      ]
+    }
+  ],
+  "observer_errors": [],
+  "passed_both": true
+}
