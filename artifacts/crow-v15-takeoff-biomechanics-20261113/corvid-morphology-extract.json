@@ -27,5 +27,6 @@
       "behavior_group": "Perching"
     }
   ],
-  "scope": "Two reported comparative morphology rows, not American-crow gait, force or takeoff measurements. Leg-mass convention and original source specimen details require verification before model calibration."
+  "scope": "Two reported comparative morphology rows, not American-crow gait, force or takeoff measurements. Leg-mass convention and original source specimen details require verification before model calibration.",
+  "source_paper_compilation_definition": "The paper states leg mass is for both legs and compiles data from four prior publications; source-specific dissection details for these rows remain unverified."
 }
