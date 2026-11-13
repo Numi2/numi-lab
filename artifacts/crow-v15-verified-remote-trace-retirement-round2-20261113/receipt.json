@@ -1,0 +1,30 @@
+{
+  "mode": "retired",
+  "rows": [
+    {
+      "path": "/Users/n/Developer/numi-crow-rl-20261107/artifacts/crow-v15-mirrored-bank-turn-20261113/signed-turn-20261126-rebound-bank/run.stderr.gz",
+      "sha256": "2fee002e1adea4d46409e7960a31e2e38573e1a01a3c040a32198c324dc363b0",
+      "bytes": 246836848,
+      "device": 16777232,
+      "inode": 17099062,
+      "verified_commit": "3444633d5d6c9f233800bd094c73d6b967fe8fe9"
+    },
+    {
+      "path": "/Users/n/Developer/numi-crow-rl-20261107/artifacts/crow-v15-mirrored-hip-refine2-20261113/push-wing-20261126-rebound-refine2/run.stderr.gz",
+      "sha256": "3634d78e911017919f31c4aa192b1b031c9ae5ec4ea4cf33f37f75d1f592db8f",
+      "bytes": 35969824,
+      "device": 16777232,
+      "inode": 17099144,
+      "verified_commit": "a771f82099aa917af855ee59d3526358c69aa329"
+    },
+    {
+      "path": "/Users/n/Developer/numi-crow-rl-20261107/artifacts/crow-v15-mirrored-hip-refine2-20261113/hold-wing-20261126-rebound-refine2/run.stderr.gz",
+      "sha256": "c2c5d0123e4db86067a2545996f6c751305e00305abfc10b90229096fd04fadc",
+      "bytes": 34137264,
+      "device": 16777232,
+      "inode": 17099169,
+      "verified_commit": "a771f82099aa917af855ee59d3526358c69aa329"
+    }
+  ],
+  "bytes": 316943936
+}
