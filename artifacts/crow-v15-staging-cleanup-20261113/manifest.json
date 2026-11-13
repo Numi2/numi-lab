@@ -1,0 +1,15 @@
+{
+  "old_disposable_staging_checkout": "/private/tmp/crow-continuation.rfybzJ/repo",
+  "replacement_partial_checkout": "/private/tmp/crow-continuation.rfybzJ/repo-light",
+  "old_allocated_du_bytes": 19288694784,
+  "verified_parent_commit": "d99421c93d1f5e539add1d714fde1daf0e6dfdbf",
+  "identical_index_tree": "25320f4cb229a4ee65ebbf54492cded528360e6c",
+  "remote_ref": "https://github.com/Numi2/numi-lab/tree/agent/crow-v15-flight-evidence-20261112",
+  "tracked_modified_count": 0,
+  "untracked_count": 0,
+  "ignored_count": 0,
+  "open_handles": 0,
+  "git_alternates": false,
+  "independently_restored_example_blob_sha256": "626e08449c (full hash checked against archived stderr-parts.json)",
+  "purpose": "Retire verified duplicate local staging only; retain committed evidence on GitHub and Mac source artifacts."
+}
