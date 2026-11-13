@@ -1,0 +1,6 @@
+lane 2 end 1200 parity True release/recontact 376 None pulse delta RPY [0.0, 0.0, 0.0] recovery [0.0, 0.0, 0.0] missing contacts 0
+lane 3 end 1200 parity True release/recontact 376 None pulse delta RPY [0.0, 0.0, 0.0] recovery [0.0, 0.0, 0.0] missing contacts 0
+lane 4 end 1200 parity True release/recontact 376 None pulse delta RPY [0.008757204536678794, 0.0013779965181817994, -0.0023353367420675575] recovery [0.012110904517417987, 0.003656366546270258, -0.0013739306379734295] missing contacts 0
+lane 5 end 1200 parity True release/recontact 376 None pulse delta RPY [0.008580075645608818, 0.0013924989049365316, -0.0019468481575438722] recovery [0.01182907105240673, 0.003864254816737524, -0.0007629744242021483] missing contacts 0
+lane 6 end 1200 parity True release/recontact 376 None pulse delta RPY [-0.008927366964873317, -0.0015270906429419209, 0.002334052254717289] recovery [-0.012080607139789501, -0.00465826848610263, 9.595195169192831e-05] missing contacts 0
+lane 7 end 1200 parity True release/recontact 376 None pulse delta RPY [-0.009269251453970315, -0.00136194914749542, 0.0024378589896973768] recovery [-0.01261880537169263, -0.004517526741868613, 0.001140379268794756] missing contacts 0

@@ -1,0 +1,364 @@
+{
+  "rows": [
+    {
+      "lane": 2,
+      "end": 1200,
+      "termination_reason": 0,
+      "physical_failure": false,
+      "comparison_ticks": 1200,
+      "missing_comparison_ticks": [],
+      "different_comparison_ticks": [],
+      "exact_required_parity": true,
+      "release": 376,
+      "recontact": null,
+      "nonfoot_normal_impulse_after_release_ns": 0.0,
+      "first_ground_record_after_release": null,
+      "missing_contact_ticks": [],
+      "missing_toe_ticks": [],
+      "toe_speed_threshold_events": 0,
+      "missing_effort_substeps": 0,
+      "flap_effort_max_abs": 3.0,
+      "sampled_sweep_q_range": [
+        -0.0599335469,
+        0.128591061
+      ],
+      "pulse_sweep_target_range": [
+        -0.0611857064,
+        -0.0240040626
+      ],
+      "windows": {
+        "pulse": {
+          "samples": 51,
+          "mean_delta_roll_pitch_yaw_rad": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "mean_delta_height_m": 0.0,
+          "mean_delta_velocity_m_s": [
+            0.0,
+            0.0,
+            0.0
+          ]
+        },
+        "recovery": {
+          "samples": 51,
+          "mean_delta_roll_pitch_yaw_rad": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "mean_delta_height_m": 0.0,
+          "mean_delta_velocity_m_s": [
+            0.0,
+            0.0,
+            0.0
+          ]
+        }
+      }
+    },
+    {
+      "lane": 3,
+      "end": 1200,
+      "termination_reason": 0,
+      "physical_failure": false,
+      "comparison_ticks": 1200,
+      "missing_comparison_ticks": [],
+      "different_comparison_ticks": [],
+      "exact_required_parity": true,
+      "release": 376,
+      "recontact": null,
+      "nonfoot_normal_impulse_after_release_ns": 0.0,
+      "first_ground_record_after_release": null,
+      "missing_contact_ticks": [],
+      "missing_toe_ticks": [],
+      "toe_speed_threshold_events": 0,
+      "missing_effort_substeps": 0,
+      "flap_effort_max_abs": 3.0,
+      "sampled_sweep_q_range": [
+        -0.0598052479,
+        0.128136709
+      ],
+      "pulse_sweep_target_range": [
+        -0.0608948618,
+        -0.0240674336
+      ],
+      "windows": {
+        "pulse": {
+          "samples": 51,
+          "mean_delta_roll_pitch_yaw_rad": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "mean_delta_height_m": 0.0,
+          "mean_delta_velocity_m_s": [
+            0.0,
+            0.0,
+            0.0
+          ]
+        },
+        "recovery": {
+          "samples": 51,
+          "mean_delta_roll_pitch_yaw_rad": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "mean_delta_height_m": 0.0,
+          "mean_delta_velocity_m_s": [
+            0.0,
+            0.0,
+            0.0
+          ]
+        }
+      }
+    },
+    {
+      "lane": 4,
+      "end": 1200,
+      "termination_reason": 0,
+      "physical_failure": false,
+      "comparison_ticks": 600,
+      "missing_comparison_ticks": [],
+      "different_comparison_ticks": [],
+      "exact_required_parity": true,
+      "release": 376,
+      "recontact": null,
+      "nonfoot_normal_impulse_after_release_ns": 0.0,
+      "first_ground_record_after_release": null,
+      "missing_contact_ticks": [],
+      "missing_toe_ticks": [],
+      "toe_speed_threshold_events": 0,
+      "missing_effort_substeps": 0,
+      "flap_effort_max_abs": 3.0,
+      "sampled_sweep_q_range": [
+        -0.0743120015,
+        0.128737286
+      ],
+      "pulse_sweep_target_range": [
+        -0.075780347,
+        -0.0132554034
+      ],
+      "windows": {
+        "pulse": {
+          "samples": 51,
+          "mean_delta_roll_pitch_yaw_rad": [
+            0.008757204536678794,
+            0.0013779965181817994,
+            -0.0023353367420675575
+          ],
+          "mean_delta_height_m": -0.00423327962745098,
+          "mean_delta_velocity_m_s": [
+            -0.006039459274509808,
+            -0.04808165049019606,
+            -0.002428208664509806
+          ]
+        },
+        "recovery": {
+          "samples": 51,
+          "mean_delta_roll_pitch_yaw_rad": [
+            0.012110904517417987,
+            0.003656366546270258,
+            -0.0013739306379734295
+          ],
+          "mean_delta_height_m": -0.026516327647058822,
+          "mean_delta_velocity_m_s": [
+            -0.0068902198431372505,
+            -0.051653469803921555,
+            -0.006842559784313722
+          ]
+        }
+      }
+    },
+    {
+      "lane": 5,
+      "end": 1200,
+      "termination_reason": 0,
+      "physical_failure": false,
+      "comparison_ticks": 600,
+      "missing_comparison_ticks": [],
+      "different_comparison_ticks": [],
+      "exact_required_parity": true,
+      "release": 376,
+      "recontact": null,
+      "nonfoot_normal_impulse_after_release_ns": 0.0,
+      "first_ground_record_after_release": null,
+      "missing_contact_ticks": [],
+      "missing_toe_ticks": [],
+      "toe_speed_threshold_events": 0,
+      "missing_effort_substeps": 0,
+      "flap_effort_max_abs": 3.0,
+      "sampled_sweep_q_range": [
+        -0.0743343458,
+        0.128511295
+      ],
+      "pulse_sweep_target_range": [
+        -0.0758217573,
+        -0.0130483741
+      ],
+      "windows": {
+        "pulse": {
+          "samples": 51,
+          "mean_delta_roll_pitch_yaw_rad": [
+            0.008580075645608818,
+            0.0013924989049365316,
+            -0.0019468481575438722
+          ],
+          "mean_delta_height_m": -0.003674495392156868,
+          "mean_delta_velocity_m_s": [
+            -0.00524765372549019,
+            -0.04747491850980393,
+            -0.001968135052745099
+          ]
+        },
+        "recovery": {
+          "samples": 51,
+          "mean_delta_roll_pitch_yaw_rad": [
+            0.01182907105240673,
+            0.003864254816737524,
+            -0.0007629744242021483
+          ],
+          "mean_delta_height_m": -0.022496786725490197,
+          "mean_delta_velocity_m_s": [
+            -0.005468206058823528,
+            -0.050531581372549005,
+            -0.005962881551372551
+          ]
+        }
+      }
+    },
+    {
+      "lane": 6,
+      "end": 1200,
+      "termination_reason": 0,
+      "physical_failure": false,
+      "comparison_ticks": 600,
+      "missing_comparison_ticks": [],
+      "different_comparison_ticks": [],
+      "exact_required_parity": true,
+      "release": 376,
+      "recontact": null,
+      "nonfoot_normal_impulse_after_release_ns": 0.0,
+      "first_ground_record_after_release": null,
+      "missing_contact_ticks": [],
+      "missing_toe_ticks": [],
+      "toe_speed_threshold_events": 0,
+      "missing_effort_substeps": 0,
+      "flap_effort_max_abs": 3.0,
+      "sampled_sweep_q_range": [
+        -0.0716458187,
+        0.127583817
+      ],
+      "pulse_sweep_target_range": [
+        -0.0762354285,
+        -0.0128359338
+      ],
+      "windows": {
+        "pulse": {
+          "samples": 51,
+          "mean_delta_roll_pitch_yaw_rad": [
+            -0.008927366964873317,
+            -0.0015270906429419209,
+            0.002334052254717289
+          ],
+          "mean_delta_height_m": 0.002640517274509814,
+          "mean_delta_velocity_m_s": [
+            0.004696088784313726,
+            0.04835523576470591,
+            0.002092281466470586
+          ]
+        },
+        "recovery": {
+          "samples": 51,
+          "mean_delta_roll_pitch_yaw_rad": [
+            -0.012080607139789501,
+            -0.00465826848610263,
+            9.595195169192831e-05
+          ],
+          "mean_delta_height_m": 0.018534793588235295,
+          "mean_delta_velocity_m_s": [
+            0.0015631975098039216,
+            0.05214379431372551,
+            0.005943561295098042
+          ]
+        }
+      }
+    },
+    {
+      "lane": 7,
+      "end": 1200,
+      "termination_reason": 0,
+      "physical_failure": false,
+      "comparison_ticks": 600,
+      "missing_comparison_ticks": [],
+      "different_comparison_ticks": [],
+      "exact_required_parity": true,
+      "release": 376,
+      "recontact": null,
+      "nonfoot_normal_impulse_after_release_ns": 0.0,
+      "first_ground_record_after_release": null,
+      "missing_contact_ticks": [],
+      "missing_toe_ticks": [],
+      "toe_speed_threshold_events": 0,
+      "missing_effort_substeps": 0,
+      "flap_effort_max_abs": 3.0,
+      "sampled_sweep_q_range": [
+        -0.0715312064,
+        0.128179088
+      ],
+      "pulse_sweep_target_range": [
+        -0.0761755258,
+        -0.0130045312
+      ],
+      "windows": {
+        "pulse": {
+          "samples": 51,
+          "mean_delta_roll_pitch_yaw_rad": [
+            -0.009269251453970315,
+            -0.00136194914749542,
+            0.0024378589896973768
+          ],
+          "mean_delta_height_m": 0.004267377058823534,
+          "mean_delta_velocity_m_s": [
+            0.005442345921568637,
+            0.049616468843137244,
+            0.0022046169070588234
+          ]
+        },
+        "recovery": {
+          "samples": 51,
+          "mean_delta_roll_pitch_yaw_rad": [
+            -0.01261880537169263,
+            -0.004517526741868613,
+            0.001140379268794756
+          ],
+          "mean_delta_height_m": 0.02126775060784314,
+          "mean_delta_velocity_m_s": [
+            0.004249503431372546,
+            0.05397862274509805,
+            0.006854718137450986
+          ]
+        }
+      }
+    }
+  ],
+  "scene_mask_matches_baseline": true,
+  "observer_errors": [],
+  "duplicate_samples": [],
+  "input_hashes": {
+    "host_sha256": "de80132b428474d30655a17a0153a6595ea51985ff01364429592397cd9e94d9",
+    "metallib_sha256": "f2ede4d98bcc2a00450ddf520777e2503e6b78df216e778778e6d7a8bdf8903f",
+    "frozen_flight_sha256": "01bc92e4ec91c08d890da7b8691400f56490a2518d9ed47ae150bb997c65375c",
+    "landing_policy_sha256": "b5251e0e294d8fd04e073beacdf2faf1805105f731e9a8f73a8882c2a22dbd4b",
+    "route_policy_sha256": "4dc1de804258c384df42faf979842bd9da38ba1a0030dc03005807d6643c7c24"
+  },
+  "baseline_input_hashes": {
+    "host_sha256": "de80132b428474d30655a17a0153a6595ea51985ff01364429592397cd9e94d9",
+    "metallib_sha256": "6ca6a55c4285c75fe45cbb30db709c56f003a797f07f62e65f6f050abc6e4669",
+    "frozen_flight_sha256": "01bc92e4ec91c08d890da7b8691400f56490a2518d9ed47ae150bb997c65375c",
+    "landing_policy_sha256": "b5251e0e294d8fd04e073beacdf2faf1805105f731e9a8f73a8882c2a22dbd4b",
+    "route_policy_sha256": "4dc1de804258c384df42faf979842bd9da38ba1a0030dc03005807d6643c7c24"
+  },
+  "scope": "Used-seed open-loop actuator identification on uncalibrated obstacle-free research body; neither command-tracking qualification nor flight freeze."
+}
