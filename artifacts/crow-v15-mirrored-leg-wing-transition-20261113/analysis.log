@@ -1,0 +1,108 @@
+{
+  "parity": [
+    {
+      "lane": 0,
+      "stop": 500,
+      "mismatches": []
+    },
+    {
+      "lane": 1,
+      "stop": 500,
+      "mismatches": []
+    },
+    {
+      "lane": 2,
+      "stop": 500,
+      "mismatches": []
+    },
+    {
+      "lane": 3,
+      "stop": 500,
+      "mismatches": []
+    },
+    {
+      "lane": 4,
+      "stop": 500,
+      "mismatches": []
+    },
+    {
+      "lane": 5,
+      "stop": 500,
+      "mismatches": []
+    },
+    {
+      "lane": 6,
+      "stop": 310,
+      "mismatches": []
+    },
+    {
+      "lane": 7,
+      "stop": 310,
+      "mismatches": []
+    }
+  ],
+  "rows": [
+    {
+      "lane": 6,
+      "checks": {
+        "shared": true,
+        "first_episode": true,
+        "coverage": true,
+        "release": true,
+        "no_ground_after_release": true,
+        "no_toe_cap": true,
+        "actuator_bounds": true,
+        "wing_target": true,
+        "forward_progress": true,
+        "height": true
+      },
+      "release": 375,
+      "first_recontact": null,
+      "first_recorded_ground": null,
+      "root_x_displacement_m": 0.672787726,
+      "root_vx_450_500": [
+        0.473209321,
+        0.416313916
+      ],
+      "height_range_450_500": [
+        0.353927046,
+        0.387340784
+      ],
+      "toe_cap_count": 0,
+      "wing_target_error_max": 1.9785225859415834e-05,
+      "passed": true
+    },
+    {
+      "lane": 7,
+      "checks": {
+        "shared": true,
+        "first_episode": true,
+        "coverage": true,
+        "release": true,
+        "no_ground_after_release": true,
+        "no_toe_cap": true,
+        "actuator_bounds": true,
+        "wing_target": true,
+        "forward_progress": true,
+        "height": true
+      },
+      "release": 380,
+      "first_recontact": null,
+      "first_recorded_ground": null,
+      "root_x_displacement_m": 0.518273413,
+      "root_vx_450_500": [
+        0.461462677,
+        0.407029569
+      ],
+      "height_range_450_500": [
+        0.332687378,
+        0.364461094
+      ],
+      "toe_cap_count": 0,
+      "wing_target_error_max": 1.9770725829627855e-05,
+      "passed": true
+    }
+  ],
+  "passed_any": true,
+  "scope": "One used-seed 500-step transition screen; no qualification of sustained flight, takeoff, landing, navigation, or biology."
+}
