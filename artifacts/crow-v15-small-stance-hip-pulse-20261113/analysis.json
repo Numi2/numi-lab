@@ -1,0 +1,173 @@
+{
+  "pulse_counts": [
+    1,
+    1
+  ],
+  "matched_command_check": true,
+  "pulse_onsets_zero_based": [
+    211,
+    211
+  ],
+  "prefix_state_pairs": 211,
+  "prefix_max_abs_qv_difference": 0.0,
+  "missing_substeps": 0,
+  "errors": [],
+  "rows": [
+    {
+      "zero_based_step": 211,
+      "relative_x_difference_m": 0.0,
+      "relative_vx_difference_m_s": 0.0,
+      "right_hip_target_difference_rad": 0.005999996999999993,
+      "right_opposing_support": [
+        true,
+        true
+      ],
+      "pulse_active": [
+        1,
+        1
+      ]
+    },
+    {
+      "zero_based_step": 212,
+      "relative_x_difference_m": 0.0004236120999999999,
+      "relative_vx_difference_m_s": 0.012295316900000002,
+      "right_hip_target_difference_rad": -0.0019134585000000065,
+      "right_opposing_support": [
+        true,
+        true
+      ],
+      "pulse_active": [
+        0,
+        0
+      ]
+    },
+    {
+      "zero_based_step": 213,
+      "relative_x_difference_m": -1.3253000000004733e-06,
+      "relative_vx_difference_m_s": -0.004054896599999996,
+      "right_hip_target_difference_rad": 0.0038634990000000063,
+      "right_opposing_support": [
+        true,
+        true
+      ],
+      "pulse_active": [
+        0,
+        0
+      ]
+    },
+    {
+      "zero_based_step": 214,
+      "relative_x_difference_m": 0.0003121271999999998,
+      "relative_vx_difference_m_s": 0.004757827199999998,
+      "right_hip_target_difference_rad": 0.0009113252000000072,
+      "right_opposing_support": [
+        true,
+        true
+      ],
+      "pulse_active": [
+        0,
+        0
+      ]
+    },
+    {
+      "zero_based_step": 215,
+      "relative_x_difference_m": 0.00010631889999999922,
+      "relative_vx_difference_m_s": -0.013724772299999997,
+      "right_hip_target_difference_rad": 0.00031754380000000026,
+      "right_opposing_support": [
+        true,
+        true
+      ],
+      "pulse_active": [
+        0,
+        0
+      ]
+    },
+    {
+      "zero_based_step": 216,
+      "relative_x_difference_m": -6.17930000000079e-06,
+      "relative_vx_difference_m_s": -0.0080059525,
+      "right_hip_target_difference_rad": -3.4347199999992806e-05,
+      "right_opposing_support": [
+        true,
+        true
+      ],
+      "pulse_active": [
+        0,
+        0
+      ]
+    },
+    {
+      "zero_based_step": 217,
+      "relative_x_difference_m": -0.0001075194000000005,
+      "relative_vx_difference_m_s": -0.009089294799999995,
+      "right_hip_target_difference_rad": -0.0009132921999999988,
+      "right_opposing_support": [
+        true,
+        true
+      ],
+      "pulse_active": [
+        0,
+        0
+      ]
+    },
+    {
+      "zero_based_step": 218,
+      "relative_x_difference_m": -0.00021650640000000013,
+      "relative_vx_difference_m_s": -0.0022574645000000004,
+      "right_hip_target_difference_rad": 6.146730000000655e-05,
+      "right_opposing_support": [
+        true,
+        true
+      ],
+      "pulse_active": [
+        0,
+        0
+      ]
+    },
+    {
+      "zero_based_step": 219,
+      "relative_x_difference_m": -0.00023538059999999791,
+      "relative_vx_difference_m_s": -0.004036115500000003,
+      "right_hip_target_difference_rad": -0.002107456399999999,
+      "right_opposing_support": [
+        true,
+        true
+      ],
+      "pulse_active": [
+        0,
+        0
+      ]
+    },
+    {
+      "zero_based_step": 220,
+      "relative_x_difference_m": -0.0004084874000000009,
+      "relative_vx_difference_m_s": -0.0044134054999999985,
+      "right_hip_target_difference_rad": -0.0008545368999999942,
+      "right_opposing_support": [
+        true,
+        true
+      ],
+      "pulse_active": [
+        0,
+        0
+      ]
+    },
+    {
+      "zero_based_step": 221,
+      "relative_x_difference_m": -0.0003589150000000013,
+      "relative_vx_difference_m_s": -0.002963971400000001,
+      "right_hip_target_difference_rad": -0.0016104654000000107,
+      "right_opposing_support": [
+        true,
+        true
+      ],
+      "pulse_active": [
+        0,
+        0
+      ]
+    }
+  ],
+  "usable_for_sign_identification": true,
+  "scope": "matched target pulses on a constructed stance; balance values precede each step and support values are accepted endpoint observations"
+}
