@@ -1,0 +1,50 @@
+[
+  {
+    "run": "push-wing-012-20261126-rebound-uniform",
+    "commit": "db7116b8c35bf4e2603c460fd49d6b5606818d47",
+    "parts": [
+      {
+        "file": "run.stderr.gz.part00",
+        "bytes": 41943040,
+        "sha256": "3b71cd1753bc5ab3eafebb0c31f2eb84f0dabc5533afb69159cd3a4a0dc2f3fc"
+      },
+      {
+        "file": "run.stderr.gz.part01",
+        "bytes": 41943040,
+        "sha256": "1f9ec6f2b3caf830bbbcf4c58b6226cae87d2552342eacfe324e26cd99c93f03"
+      },
+      {
+        "file": "run.stderr.gz.part02",
+        "bytes": 27595572,
+        "sha256": "3d4b4b05e76638d4ef274966aaf7016f8d9a9f1ecebcfaa41ae170b7e6b068f0"
+      }
+    ],
+    "full_sha256": "80c94f830996f56b18e2ad494a4a610d621535a02bd6aa9ca15f641cfee1fbde",
+    "bytes": 111481652,
+    "gzip_complete": true
+  },
+  {
+    "run": "push-wing-012-20261127-rebound-uniform",
+    "commit": "db7116b8c35bf4e2603c460fd49d6b5606818d47",
+    "parts": [
+      {
+        "file": "run.stderr.gz.part00",
+        "bytes": 41943040,
+        "sha256": "7046766494cad5d41ee6f757d671fa61186ac3fac50b59dcdb5e6fd244bb1814"
+      },
+      {
+        "file": "run.stderr.gz.part01",
+        "bytes": 41943040,
+        "sha256": "51d238e8863a599df13df9aa70bff1875143003772227bc5b27f7cd63ba5f395"
+      },
+      {
+        "file": "run.stderr.gz.part02",
+        "bytes": 34479893,
+        "sha256": "679038b49bfbfc543d8e57328903fd08cfba3cbcada43781b7b9f253f161136f"
+      }
+    ],
+    "full_sha256": "544261ed2a368e6cfca2a9114fcd27abe3c2ecdc14dc3ec5c2114b061879fa95",
+    "bytes": 118365973,
+    "gzip_complete": true
+  }
+]
