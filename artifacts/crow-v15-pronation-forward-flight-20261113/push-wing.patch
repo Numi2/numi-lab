@@ -1,0 +1,23 @@
+--- a/long.metal
++++ b/pronation.metal
+@@ -5520,9 +5520,19 @@
+                 const float elapsed=max(seconds-7.04f,0.0f);
+                 const float frequency=6.4f;
+                 const float phase=cos(kTwoPi*frequency*elapsed);
+-                const float amplitude=environment%8u<4u ? 0.25f : environment%8u<6u ? 0.45f : 0.65f;
++                const float amplitude=0.65f;
+                 const float triggered=defaultQ[binding.indices.z]+amplitude*envelope*phase;
+                 targetCandidate=triggered;
++            }
++        }
++        // Research-only bounded wing pronation sensitivity, no direct body wrench.
++        if (fixedFlightController && state.episode.z==10u && (action==4u || action==5u) && environment%8u>=2u) {
++            const float seconds=float(state.episode.x)*dispatch.timing.x;
++            if (seconds>=7.04f && seconds<10.02f) {
++                const float offset=environment%8u<4u ? 0.0f : environment%8u<6u ? 1.57079632679f : -1.57079632679f;
++                const float phase=kTwoPi*6.4f*(seconds-7.04f)+offset;
++                const float coordinated=defaultQ[binding.indices.z]+0.18f*sin(phase);
++                targetCandidate=mix(targetCandidate,coordinated,smoothstep(7.04f,7.12f,seconds));
+             }
+         }
+         // Exploratory, bounded knee target feedback through the existing position drive.

@@ -1,0 +1,45 @@
+{
+  "valid": true,
+  "kernel_input_vs_kin_max_abs": 0.0,
+  "omitted_body_force_max_abs_n": 5.7060134395214845e-11,
+  "uniform_translation_error_m_s": 0.0,
+  "substep_s": 0.00125,
+  "window_ticks": [
+    476,
+    500
+  ],
+  "rows": [
+    {
+      "lane": 6,
+      "aero_signed_work_j_by_body": {
+        "0": -0.002557883606888649,
+        "5": -4.633815798176918,
+        "6": -4.647533946810952,
+        "7": 0.002275464939020225
+      },
+      "aero_signed_work_total_j": -9.281632163655738,
+      "max_instantaneous_aero_power_w": -0.0045090879650243314,
+      "positive_substeps": 0,
+      "wing_effort_displacement_proxy_j": 24.136258327377067
+    },
+    {
+      "lane": 7,
+      "aero_signed_work_j_by_body": {
+        "0": -0.002563784986095435,
+        "5": -4.633940020324861,
+        "6": -4.647621519749746,
+        "7": 0.002375475681079671
+      },
+      "aero_signed_work_total_j": -9.281749849379624,
+      "max_instantaneous_aero_power_w": -0.00452498172062997,
+      "positive_substeps": 0,
+      "wing_effort_displacement_proxy_j": 24.136173051212555
+    }
+  ],
+  "hashes": {
+    "new_log": "41dfc3c6a8b03302812ec9df4f669678c092be761d6ffff50ab53911dd175128",
+    "fk_binary": "01736bacf42dcb27d23bd32359def0ed7346a4976f719e9a304731655dbd8314",
+    "fk_library": "b8633c3735b73cf229b0ccd0ba6ce2bfaa01a44733b8c148bebe891ee1310e88"
+  },
+  "scope": "Signed work of modeled wrenches with substep-start COM twists in training seed, not complete energy balance or biological measurement. Wing effort times observed displacement is a discrete proxy, not independently measured muscle work. Correlated lanes. Wind configuration not assumed."
+}
