@@ -1,0 +1,24 @@
+{
+  "6": {
+    "samples": 8016,
+    "mean_differential_position_change_rad": 0.0415601904441012,
+    "mean_differential_target_change_rad": 0.04007871291909781,
+    "differential_position_change_range_rad": [
+      -0.0014360359999999982,
+      0.08824439929809999
+    ],
+    "joint_tracking_rms_rad": 0.04168094676940502,
+    "joint_tracking_mean_abs_rad": 0.0338490694699953
+  },
+  "7": {
+    "samples": 8016,
+    "mean_differential_position_change_rad": -0.04143388460775179,
+    "mean_differential_target_change_rad": -0.040078663718055886,
+    "differential_position_change_range_rad": [
+      -0.0882643569322,
+      0.001362906699999996
+    ],
+    "joint_tracking_rms_rad": 0.04172824338362003,
+    "joint_tracking_mean_abs_rad": 0.03387336025735856
+  }
+}
