@@ -1,0 +1,74 @@
+{
+  "6": {
+    "push": {
+      "contact_transitions_through_400": [
+        [
+          365,
+          true
+        ],
+        [
+          375,
+          false
+        ]
+      ],
+      "foot_normal_impulse_371_374_Ns": 0.680468996306,
+      "flap_displacement_371_374_rad": 0.236218482,
+      "modeled_aero_vertical_impulse_371_374_Ns": 7.610524002047966e-05
+    },
+    "hold": {
+      "contact_transitions_through_400": [
+        [
+          365,
+          true
+        ],
+        [
+          377,
+          false
+        ]
+      ],
+      "foot_normal_impulse_371_374_Ns": 0.432973044253,
+      "flap_displacement_371_374_rad": 0.237594753
+    },
+    "push_minus_hold_foot_normal_impulse_371_374_Ns": 0.247495952053
+  },
+  "7": {
+    "push": {
+      "contact_transitions_through_400": [
+        [
+          365,
+          true
+        ],
+        [
+          375,
+          false
+        ],
+        [
+          377,
+          true
+        ],
+        [
+          380,
+          false
+        ]
+      ],
+      "foot_normal_impulse_371_374_Ns": 0.5810370293179999,
+      "flap_displacement_371_374_rad": 0.0018986169999999913,
+      "modeled_aero_vertical_impulse_371_374_Ns": -0.00019722102584974617
+    },
+    "hold": {
+      "contact_transitions_through_400": [
+        [
+          365,
+          true
+        ],
+        [
+          379,
+          false
+        ]
+      ],
+      "foot_normal_impulse_371_374_Ns": 0.35257406022,
+      "flap_displacement_371_374_rad": 2.383999999966413e-06
+    },
+    "push_minus_hold_foot_normal_impulse_371_374_Ns": 0.22846296909799996
+  }
+}
