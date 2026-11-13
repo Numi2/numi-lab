@@ -1,0 +1,17 @@
+{
+  "verified_archive_commit": "b3aa715ea998658294b76543f7268ded43347bde",
+  "retired": [
+    {
+      "path": "/Users/n/Developer/numi-crow-rl-20261107/artifacts/crow-v15-front-toe-preload-screen-20261113/push-wing-20261126-rebound-toepreload/run.stderr.gz",
+      "sha256": "16b1eafc0c8966dd00d94b1a7f3ffacac500223d4b885f0874aa522f9da596d9",
+      "size_bytes": 19415095
+    },
+    {
+      "path": "/Users/n/Developer/numi-crow-rl-20261107/artifacts/crow-v15-front-toe-preload-screen-20261113/hold-wing-20261126-rebound-toepreload/run.stderr.gz",
+      "sha256": "a43d2d4a02cf321bb36754e6c2ff66c4b9aa4100c19cba879b586cc1bc6acd4f",
+      "size_bytes": 19256821
+    }
+  ],
+  "bytes_retired": 38671916,
+  "after_df_k": "Filesystem   1024-blocks      Used Available Capacity iused     ifree %iused  Mounted on\n/dev/disk3s5   482797652 413866596  41385092    91% 3600581 413850920    1%   /System/Volumes/Data\n"
+}
