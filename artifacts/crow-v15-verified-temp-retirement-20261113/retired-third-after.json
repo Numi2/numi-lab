@@ -1,0 +1,27 @@
+{
+  "verified_archive_commit": "aade42e5a3deebf357a3710f34606809686743b5",
+  "retired": [
+    {
+      "path": "/Users/n/Developer/numi-crow-rl-20261107/build/crow-v15-front-toe-preload-reach-20261113/push-wing-20261126-rebound-reach-trace.tsv",
+      "sha256": "763f7aeca96939924de9782ec063d6b3d39561a78f3611d2ec0506c5e856831b",
+      "size_bytes": 352335
+    },
+    {
+      "path": "/Users/n/Developer/numi-crow-rl-20261107/build/crow-v15-front-toe-preload-reach-20261113/push-wing-20261126-rebound-reach-replay.json",
+      "sha256": "f0d56826fe5169ab9db3bd6b51fca0d40dc7f45a63a822605da881bc63600659",
+      "size_bytes": 16094358
+    },
+    {
+      "path": "/Users/n/Developer/numi-crow-rl-20261107/build/crow-v15-front-toe-preload-reach-20261113/hold-wing-20261126-rebound-reach-trace.tsv",
+      "sha256": "52a2790af85d375e1756e1227dedb6786f9c98543b3931ff56d66be57721d082",
+      "size_bytes": 351541
+    },
+    {
+      "path": "/Users/n/Developer/numi-crow-rl-20261107/build/crow-v15-front-toe-preload-reach-20261113/hold-wing-20261126-rebound-reach-replay.json",
+      "sha256": "b782edc85cb8566d1f3bd6c8d522db56b989eb0e86dfe793e21fa166663dd844",
+      "size_bytes": 16131248
+    }
+  ],
+  "bytes_retired": 32929482,
+  "after_df_k": "Filesystem   1024-blocks      Used Available Capacity iused     ifree %iused  Mounted on\n/dev/disk3s5   482797652 413974796  41276892    91% 3600526 412768920    1%   /System/Volumes/Data\n"
+}
