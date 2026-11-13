@@ -1,0 +1,14 @@
+/Users/n/Developer/numi-crow-rl-20261107/build/crow-v15-consistent-wing-drive-20261113/c_api.cpp:3366:13: warning: unused function 'close' [-Wunused-function]
+ 3366 | static void close(double a, double b, const char* why) { crowToeNeed(std::abs(a-b)<=2e-7*(1+std::abs(a)),why); }
+      |             ^~~~~
+1 warning generated.
+Observer built: 7db3624905cf600533be6237b96f7913ba9e4136668a8db4d75fdd85ffdd72fe
+{
+  "build/crow-v15-consistent-wing-drive-20261113/c_api.cpp": "6ccc06573557fede2be0d323719b731daf5e73eb933589540b8bcbcb644cead6",
+  "build/crow-v15-consistent-wing-drive-20261113/c_api.cpp.o": "01be9a74c5fa36287691c7c2589f581321a8e50af534488b8944a282ebf0601d",
+  "build/crow-v15-consistent-wing-drive-20261113/MetalWorld.mm": "563626812c015a3a1171f497ed03282d77fee1e0c2e87a1ce1c9860ba3f22460",
+  "build/crow-v15-consistent-wing-drive-20261113/libmetalrobo.dylib": "7db3624905cf600533be6237b96f7913ba9e4136668a8db4d75fdd85ffdd72fe",
+  "build/crow-v15-consistent-wing-drive-20261113/push-wing.metallib": "682586ac051f0b019be429626dd642d3a3106cd39f72f26319fcabe2544b1d9e",
+  "build/crow-v15-consistent-wing-drive-20261113/hold-wing.metallib": "da4ed5f3b4fa1d13a523cee071d51de7803babbf993c1ea8d15fcb43951bc24c"
+}
+

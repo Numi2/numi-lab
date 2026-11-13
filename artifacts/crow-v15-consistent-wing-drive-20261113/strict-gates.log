@@ -1,0 +1,6 @@
+2 support True release None pre gaps None recontacts [] pass False
+3 support True release None pre gaps None recontacts [] pass False
+4 support True release 372 pre gaps [358, 361, 364, 365] recontacts [376, 377, 378, 379, 391, 392, 393, 394] pass False
+5 support True release 372 pre gaps [357, 358, 361, 364, 365] recontacts [376, 377, 378, 379, 391, 392, 393, 394] pass False
+6 support True release 357 pre gaps [] recontacts [] pass True
+7 support True release 357 pre gaps [] recontacts [] pass True

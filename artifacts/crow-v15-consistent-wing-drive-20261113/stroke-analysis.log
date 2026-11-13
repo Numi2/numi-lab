@@ -1,0 +1,395 @@
+{
+  "source_sha256": "796878913ae0a3ea384ba257d6af8bd065b2c8a388d6ccfb3262d0a34140dcf9",
+  "window_ticks": [
+    376,
+    400
+  ],
+  "phase_fit_hz": 6.4,
+  "rows": [
+    {
+      "lane": 2,
+      "half_amplitude_rad": 0.25,
+      "sides": [
+        {
+          "side": 0,
+          "target_fit": {
+            "mean": 0.35043025830671226,
+            "amplitude": 0.24287171365228732,
+            "phase_rad": -1.527973877028152
+          },
+          "actual_fit": {
+            "mean": 0.35669600282439423,
+            "amplitude": 0.25467275200859746,
+            "phase_rad": -1.8554213515426456
+          },
+          "actual_minus_target_phase_rad": -0.32744747451449374,
+          "actual_over_target_amplitude": 1.0485895956299192,
+          "pronation_min_rad": -0.0503250659,
+          "pronation_max_rad": -0.0499823205,
+          "force_by_flap_velocity_sign": [
+            {
+              "sign_flap_velocity": 1,
+              "n": 208,
+              "mean_wing_Fz_N": -0.006032908535416959
+            },
+            {
+              "sign_flap_velocity": -1,
+              "n": 192,
+              "mean_wing_Fz_N": 0.6579414561783337
+            }
+          ]
+        },
+        {
+          "side": 1,
+          "target_fit": {
+            "mean": 0.35043025830671226,
+            "amplitude": 0.24287171365228732,
+            "phase_rad": -1.527973877028152
+          },
+          "actual_fit": {
+            "mean": 0.35668700990118296,
+            "amplitude": 0.25469924702125357,
+            "phase_rad": -1.8553304143481502
+          },
+          "actual_minus_target_phase_rad": -0.32735653731999825,
+          "actual_over_target_amplitude": 1.0486986861957066,
+          "pronation_min_rad": -0.0222111009,
+          "pronation_max_rad": -0.0217513945,
+          "force_by_flap_velocity_sign": [
+            {
+              "sign_flap_velocity": 1,
+              "n": 208,
+              "mean_wing_Fz_N": -0.006354897426856381
+            },
+            {
+              "sign_flap_velocity": -1,
+              "n": 192,
+              "mean_wing_Fz_N": 0.6568245228470325
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "lane": 3,
+      "half_amplitude_rad": 0.25,
+      "sides": [
+        {
+          "side": 0,
+          "target_fit": {
+            "mean": 0.35043025830671226,
+            "amplitude": 0.24287171365228732,
+            "phase_rad": -1.527973877028152
+          },
+          "actual_fit": {
+            "mean": 0.35671121042582526,
+            "amplitude": 0.2546762200704832,
+            "phase_rad": -1.855426075163098
+          },
+          "actual_minus_target_phase_rad": -0.32745219813494586,
+          "actual_over_target_amplitude": 1.048603875028016,
+          "pronation_min_rad": -0.0486055799,
+          "pronation_max_rad": -0.0482575521,
+          "force_by_flap_velocity_sign": [
+            {
+              "sign_flap_velocity": 1,
+              "n": 208,
+              "mean_wing_Fz_N": -0.006155187848678041
+            },
+            {
+              "sign_flap_velocity": -1,
+              "n": 192,
+              "mean_wing_Fz_N": 0.6580798768723317
+            }
+          ]
+        },
+        {
+          "side": 1,
+          "target_fit": {
+            "mean": 0.35043025830671226,
+            "amplitude": 0.24287171365228732,
+            "phase_rad": -1.527973877028152
+          },
+          "actual_fit": {
+            "mean": 0.3566841278899072,
+            "amplitude": 0.25469936494055984,
+            "phase_rad": -1.8553955557207145
+          },
+          "actual_minus_target_phase_rad": -0.3274216786925628,
+          "actual_over_target_amplitude": 1.0486991717166612,
+          "pronation_min_rad": -0.0239352956,
+          "pronation_max_rad": -0.0234725308,
+          "force_by_flap_velocity_sign": [
+            {
+              "sign_flap_velocity": 1,
+              "n": 208,
+              "mean_wing_Fz_N": -0.006595839916933613
+            },
+            {
+              "sign_flap_velocity": -1,
+              "n": 192,
+              "mean_wing_Fz_N": 0.6569430692154613
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "lane": 4,
+      "half_amplitude_rad": 0.45,
+      "sides": [
+        {
+          "side": 0,
+          "target_fit": {
+            "mean": 0.3507744676357015,
+            "amplitude": 0.4371690741446265,
+            "phase_rad": -1.5279738791487985
+          },
+          "actual_fit": {
+            "mean": 0.3728880085260791,
+            "amplitude": 0.44866967487477716,
+            "phase_rad": -1.883361736154724
+          },
+          "actual_minus_target_phase_rad": -0.35538785700592523,
+          "actual_over_target_amplitude": 1.0263069860388752,
+          "pronation_min_rad": -0.274819493,
+          "pronation_max_rad": -0.12316177,
+          "force_by_flap_velocity_sign": [
+            {
+              "sign_flap_velocity": 1,
+              "n": 208,
+              "mean_wing_Fz_N": 0.09325559982272212
+            },
+            {
+              "sign_flap_velocity": -1,
+              "n": 192,
+              "mean_wing_Fz_N": 1.8389772957356303
+            }
+          ]
+        },
+        {
+          "side": 1,
+          "target_fit": {
+            "mean": 0.3507744676357015,
+            "amplitude": 0.4371690741446265,
+            "phase_rad": -1.5279738791487985
+          },
+          "actual_fit": {
+            "mean": 0.37293723058495837,
+            "amplitude": 0.4487251608513242,
+            "phase_rad": -1.883609094474349
+          },
+          "actual_minus_target_phase_rad": -0.35563521532555065,
+          "actual_over_target_amplitude": 1.026433907131488,
+          "pronation_min_rad": 0.0456364937,
+          "pronation_max_rad": 0.264476448,
+          "force_by_flap_velocity_sign": [
+            {
+              "sign_flap_velocity": 1,
+              "n": 208,
+              "mean_wing_Fz_N": 0.09233668827941546
+            },
+            {
+              "sign_flap_velocity": -1,
+              "n": 192,
+              "mean_wing_Fz_N": 1.8418053878790965
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "lane": 5,
+      "half_amplitude_rad": 0.45,
+      "sides": [
+        {
+          "side": 0,
+          "target_fit": {
+            "mean": 0.3507744676357015,
+            "amplitude": 0.4371690741446265,
+            "phase_rad": -1.5279738791487985
+          },
+          "actual_fit": {
+            "mean": 0.3727437941907297,
+            "amplitude": 0.4486426622582108,
+            "phase_rad": -1.8831508216019572
+          },
+          "actual_minus_target_phase_rad": -0.3551769424531588,
+          "actual_over_target_amplitude": 1.0262451961773227,
+          "pronation_min_rad": -0.266915351,
+          "pronation_max_rad": -0.112085395,
+          "force_by_flap_velocity_sign": [
+            {
+              "sign_flap_velocity": 1,
+              "n": 208,
+              "mean_wing_Fz_N": 0.09464350554286084
+            },
+            {
+              "sign_flap_velocity": -1,
+              "n": 192,
+              "mean_wing_Fz_N": 1.825842977369475
+            }
+          ]
+        },
+        {
+          "side": 1,
+          "target_fit": {
+            "mean": 0.3507744676357015,
+            "amplitude": 0.4371690741446265,
+            "phase_rad": -1.5279738791487985
+          },
+          "actual_fit": {
+            "mean": 0.3727918341381347,
+            "amplitude": 0.44869943999509876,
+            "phase_rad": -1.8834054977001995
+          },
+          "actual_minus_target_phase_rad": -0.35543161855140104,
+          "actual_over_target_amplitude": 1.02637507210004,
+          "pronation_min_rad": 0.0389403217,
+          "pronation_max_rad": 0.259484112,
+          "force_by_flap_velocity_sign": [
+            {
+              "sign_flap_velocity": 1,
+              "n": 208,
+              "mean_wing_Fz_N": 0.09375521948125141
+            },
+            {
+              "sign_flap_velocity": -1,
+              "n": 192,
+              "mean_wing_Fz_N": 1.82872280384108
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "lane": 6,
+      "half_amplitude_rad": 0.65,
+      "sides": [
+        {
+          "side": 0,
+          "target_fit": {
+            "mean": 0.3511186815645194,
+            "amplitude": 0.6314664378579337,
+            "phase_rad": -1.527973893517909
+          },
+          "actual_fit": {
+            "mean": 0.4037656850593075,
+            "amplitude": 0.6337151085564225,
+            "phase_rad": -1.941155280962942
+          },
+          "actual_minus_target_phase_rad": -0.4131813874450332,
+          "actual_over_target_amplitude": 1.003561029634634,
+          "pronation_min_rad": -0.127099723,
+          "pronation_max_rad": -0.0247204732,
+          "force_by_flap_velocity_sign": [
+            {
+              "sign_flap_velocity": 1,
+              "n": 206,
+              "mean_wing_Fz_N": 0.5912186913735322
+            },
+            {
+              "sign_flap_velocity": -1,
+              "n": 194,
+              "mean_wing_Fz_N": 3.740704053425955
+            }
+          ]
+        },
+        {
+          "side": 1,
+          "target_fit": {
+            "mean": 0.3511186815645194,
+            "amplitude": 0.6314664378579337,
+            "phase_rad": -1.527973893517909
+          },
+          "actual_fit": {
+            "mean": 0.4038230416177832,
+            "amplitude": 0.6337792359537087,
+            "phase_rad": -1.9412942640762476
+          },
+          "actual_minus_target_phase_rad": -0.41332037055833837,
+          "actual_over_target_amplitude": 1.0036625827710186,
+          "pronation_min_rad": 0.0243091788,
+          "pronation_max_rad": 0.124935836,
+          "force_by_flap_velocity_sign": [
+            {
+              "sign_flap_velocity": 1,
+              "n": 206,
+              "mean_wing_Fz_N": 0.5911298000030204
+            },
+            {
+              "sign_flap_velocity": -1,
+              "n": 194,
+              "mean_wing_Fz_N": 3.7417790047999033
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "lane": 7,
+      "half_amplitude_rad": 0.65,
+      "sides": [
+        {
+          "side": 0,
+          "target_fit": {
+            "mean": 0.3511186815645194,
+            "amplitude": 0.6314664378579337,
+            "phase_rad": -1.527973893517909
+          },
+          "actual_fit": {
+            "mean": 0.4038333556406568,
+            "amplitude": 0.6336655071717517,
+            "phase_rad": -1.9412405312486678
+          },
+          "actual_minus_target_phase_rad": -0.413266637730759,
+          "actual_over_target_amplitude": 1.0034824801160895,
+          "pronation_min_rad": -0.128109679,
+          "pronation_max_rad": -0.0264656208,
+          "force_by_flap_velocity_sign": [
+            {
+              "sign_flap_velocity": 1,
+              "n": 206,
+              "mean_wing_Fz_N": 0.5918488194306923
+            },
+            {
+              "sign_flap_velocity": -1,
+              "n": 194,
+              "mean_wing_Fz_N": 3.7438654685994477
+            }
+          ]
+        },
+        {
+          "side": 1,
+          "target_fit": {
+            "mean": 0.3511186815645194,
+            "amplitude": 0.6314664378579337,
+            "phase_rad": -1.527973893517909
+          },
+          "actual_fit": {
+            "mean": 0.4038932626960718,
+            "amplitude": 0.6337312574669955,
+            "phase_rad": -1.941378202332724
+          },
+          "actual_minus_target_phase_rad": -0.41340430881481494,
+          "actual_over_target_amplitude": 1.0035866032987353,
+          "pronation_min_rad": 0.0262248628,
+          "pronation_max_rad": 0.127242655,
+          "force_by_flap_velocity_sign": [
+            {
+              "sign_flap_velocity": 1,
+              "n": 206,
+              "mean_wing_Fz_N": 0.5921424494997989
+            },
+            {
+              "sign_flap_velocity": -1,
+              "n": 194,
+              "mean_wing_Fz_N": 3.7455192578597383
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "scope": "Posthoc sinusoidal fit and phase-stratified modeled forces in one used seed and correlated lanes; mean forces include moving body and contacts. Flap velocity sign is coordinate convention, not independently labelled biological upstroke/downstroke. Does not prove biological realism or causal effect."
+}

@@ -1,0 +1,23 @@
+from pathlib import Path
+import difflib,gzip,hashlib,json,shlex,shutil,subprocess
+R=Path.cwd();new='crow-v15-consistent-wing-drive-20261113';prev='crow-v15-passive-aero-flap-amplitude-20261113';A=R/'artifacts'/new;B=R/'build'/new;W=R/'build/crow-v15-wide-contact-isolation-20261111';base=(R/'build/crow-v15-gait-slip-observer-20261112/c_api.cpp').read_text();start=base.index('static RobotPack crowHipRollModel(){');end=base.index('\n}\n}',start)
+needle=' std::string why;crowToeNeed(m.valid(&why),"model invalid: "+why);return p;';assert base[start:end].count(needle)==1
+replacement=''' for(unsigned i : {8u,9u}){auto &d=m.dofs.at(i);crowToeNeed(d.vIndex==i && d.qIndex==i+1 && d.drive.x==800.f && d.drive.y==8.f,"unexpected wing drive metadata");std::fprintf(stderr,"CROW_MODEL_DRIVE %u %u %u %.9g %.9g %.9g %.9g\\n",i,d.qIndex,d.vIndex,d.drive.x,d.drive.y,d.drive.z,d.limits.w);d.drive.x=10.f;d.drive.y=0.1f;std::fprintf(stderr,"CROW_MODEL_DRIVE_NEW %u %.9g %.9g %.9g %.9g\\n",i,d.drive.x,d.drive.y,d.drive.z,d.limits.w);}
+'''+needle
+s=base[:start]+base[start:end].replace(needle,replacement)+base[end:];(B/'c_api.cpp').write_text(s);(A/'model-gains.patch').write_text(''.join(difflib.unified_diff(base.splitlines(True),s.splitlines(True),fromfile='a/v15.cpp',tofile='b/consistent-v15.cpp')))
+lines=subprocess.check_output(['/opt/homebrew/bin/ninja','-C',str(R/'build'),'-t','commands'],text=True).splitlines();line=next(x for x in lines if ' -c '+str(R/'src/c_api.cpp') in x);args=shlex.split(line);args[1:1]=['-I'+str(W/'include'),'-I'+str(R/'artifacts/crow-v15-two-segment-frozen-flight-contact-map-20261111'),'-I'+str(R/'artifacts/crow-clearance-observer-20261109')];obj=B/'c_api.cpp.o'
+for k,v in [('-o',str(obj)),('-MF',str(obj)+'.d'),('-MT',str(obj))]:args[args.index(k)+1]=v
+args[-1]=str(B/'c_api.cpp');subprocess.run(args,cwd=R/'build',check=True)
+s=gzip.decompress((R/'artifacts'/prev/'observer.mm.gz').read_bytes()).decode();needle='''            const bool crowCoupledDrive = selectedState->useCoupledDrives;''';rep=needle+'''
+            if (crowTraceStep==348) std::fprintf(stderr,"CROW_DRIVE_FLAGS %u %u %u %u %u %u\\n",crowActuationMode,unsigned(crowBoundedDrive),unsigned(crowCoupledDrive),diagnostics.layout.dispatch.flags,diagnostics.layout.abaDispatch.flags,diagnostics.layout.inverseMassDispatch.flags);''';assert s.count(needle)==1;s=s.replace(needle,rep)
+s=s.replace('id<MTLBuffer> before=nil; id<MTLBuffer> after=nil; id<MTLBuffer> aq=nil; id<MTLBuffer> av=nil;', 'id<MTLBuffer> before=nil; id<MTLBuffer> after=nil; id<MTLBuffer> aq=nil; id<MTLBuffer> av=nil; id<MTLBuffer> ctrl=nil;')
+needle='''[blit copyFromBuffer:vs sourceOffset:0 toBuffer:av destinationOffset:0 size:vs.length];''';rep=needle+'''
+        id<MTLBuffer> cp=context.buffers[kTaskControllerParameters]; if(cp.length < environmentCount*sizeof(mr_float4)) throw std::runtime_error("controller buffer size"); ctrl=[context.device newBufferWithLength:cp.length options:MTLResourceStorageModeShared]; if(ctrl==nil) throw std::bad_alloc(); [blit copyFromBuffer:cp sourceOffset:0 toBuffer:ctrl destinationOffset:0 size:cp.length];''';assert s.count(needle)==1;s=s.replace(needle,rep)
+needle='''const auto* qin=static_cast<const float*>(aq.contents);const auto* vin=static_cast<const float*>(av.contents);''';rep=needle+'''
+                const auto* cp=static_cast<const mr_float4*>(ctrl.contents); const auto& cv=cp[e]; std::fprintf(stderr,"CROW_DRIVE_SCALES %llu %u %lu %.9g %.9g %.9g %.9g\\n",traceStep,traceSubstep,(unsigned long)e,cv.x,cv.y,cv.z,cv.w);''';assert s.count(needle)==1;s=s.replace(needle,rep)
+(B/'MetalWorld.mm').write_text(s);(A/'observer.mm.gz').write_bytes(gzip.compress(s.encode(),mtime=0));build=(R/'artifacts'/prev/'build-observer.py').read_text().replace(prev,new).replace("P/'c_api.cpp.o'", "B/'c_api.cpp.o'");(A/'build-observer.py').write_text(build);subprocess.run(['python3',str(A/'build-observer.py')],check=True)
+for name in ('push-wing','hold-wing'):shutil.copyfile(R/'build'/prev/(name+'.metallib'),B/(name+'.metallib'))
+(A/'run.py').write_text((R/'artifacts'/prev/'run.py').read_text().replace(prev,new));
+for f in ('analyze.py','com-analyze.py','strict-gates.py','target-pair-check.py','wing-tracking.py','power.py'):
+ s=(R/'artifacts'/prev/f).read_text().replace(prev,new).replace('rebound-amplitude','rebound-consistent');(A/f).write_text(s)
+h=lambda p:hashlib.sha256(p.read_bytes()).hexdigest();(A/'build-hashes.json').write_text(json.dumps({str(p.relative_to(R)):h(p) for p in (B/'c_api.cpp',obj,B/'MetalWorld.mm',B/'libmetalrobo.dylib',B/'push-wing.metallib',B/'hold-wing.metallib')},indent=2)+'\n');print((A/'build-hashes.json').read_text())

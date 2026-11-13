@@ -1,0 +1,92 @@
+{
+  "scope": "Predeclared development screen, not biological or flight qualification.",
+  "rows": [
+    {
+      "lane": 2,
+      "support_340_347": true,
+      "strict_pass": false,
+      "first_release": null,
+      "interruptions_before_release": null,
+      "later_recontacts": null
+    },
+    {
+      "lane": 3,
+      "support_340_347": true,
+      "strict_pass": false,
+      "first_release": null,
+      "interruptions_before_release": null,
+      "later_recontacts": null
+    },
+    {
+      "lane": 4,
+      "support_340_347": true,
+      "strict_pass": false,
+      "first_release": 372,
+      "interruptions_before_release": [
+        358,
+        361,
+        364,
+        365
+      ],
+      "later_recontacts": [
+        376,
+        377,
+        378,
+        379,
+        391,
+        392,
+        393,
+        394,
+        395,
+        397,
+        398,
+        399,
+        400
+      ]
+    },
+    {
+      "lane": 5,
+      "support_340_347": true,
+      "strict_pass": false,
+      "first_release": 372,
+      "interruptions_before_release": [
+        357,
+        358,
+        361,
+        364,
+        365
+      ],
+      "later_recontacts": [
+        376,
+        377,
+        378,
+        379,
+        391,
+        392,
+        393,
+        394,
+        395,
+        397,
+        398,
+        399,
+        400
+      ]
+    },
+    {
+      "lane": 6,
+      "support_340_347": true,
+      "strict_pass": true,
+      "first_release": 357,
+      "interruptions_before_release": [],
+      "later_recontacts": []
+    },
+    {
+      "lane": 7,
+      "support_340_347": true,
+      "strict_pass": true,
+      "first_release": 357,
+      "interruptions_before_release": [],
+      "later_recontacts": []
+    }
+  ]
+}

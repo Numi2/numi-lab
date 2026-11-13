@@ -1,0 +1,123 @@
+{
+  "valid": true,
+  "kernel_input_vs_kin_max_abs": 0.0,
+  "omitted_body_force_max_abs_n": 5.849898343512905e-11,
+  "uniform_translation_error_m_s": 0.0,
+  "substep_s": 0.00125,
+  "window_ticks": [
+    376,
+    400
+  ],
+  "rows": [
+    {
+      "lane": 0,
+      "aero_signed_work_j_by_body": {
+        "0": -0.0002982862938090089,
+        "5": -0.2287984920608158,
+        "6": -0.22888602717995474,
+        "7": 2.5569229926985893e-05
+      },
+      "aero_signed_work_total_j": -0.45795723630465257,
+      "max_instantaneous_aero_power_w": -0.00014857520623728725,
+      "positive_substeps": 0,
+      "wing_effort_displacement_proxy_j": 2.369296334265012
+    },
+    {
+      "lane": 1,
+      "aero_signed_work_j_by_body": {
+        "0": -0.00032340152494002484,
+        "5": -0.22888355145422862,
+        "6": -0.22884641601727215,
+        "7": 1.9385020524603686e-05
+      },
+      "aero_signed_work_total_j": -0.45803398397591616,
+      "max_instantaneous_aero_power_w": -0.00015904390147375647,
+      "positive_substeps": 0,
+      "wing_effort_displacement_proxy_j": 2.368581382058849
+    },
+    {
+      "lane": 2,
+      "aero_signed_work_j_by_body": {
+        "0": -0.0003026532416110513,
+        "5": -0.4140051003057384,
+        "6": -0.41343585081468726,
+        "7": -9.37159882945292e-05
+      },
+      "aero_signed_work_total_j": -0.8278373203503313,
+      "max_instantaneous_aero_power_w": -9.288154137977548e-05,
+      "positive_substeps": 0,
+      "wing_effort_displacement_proxy_j": 3.580324638268759
+    },
+    {
+      "lane": 3,
+      "aero_signed_work_j_by_body": {
+        "0": -0.00030497480215544673,
+        "5": -0.4144578003993027,
+        "6": -0.4139038552420013,
+        "7": -9.307827097487385e-05
+      },
+      "aero_signed_work_total_j": -0.8287597087144343,
+      "max_instantaneous_aero_power_w": -0.00010075578702960752,
+      "positive_substeps": 0,
+      "wing_effort_displacement_proxy_j": 3.580846301770748
+    },
+    {
+      "lane": 4,
+      "aero_signed_work_j_by_body": {
+        "0": -0.004227752157622969,
+        "5": -1.7891110966231898,
+        "6": -1.7923056217760067,
+        "7": -0.012297358592693179
+      },
+      "aero_signed_work_total_j": -3.5979418291495127,
+      "max_instantaneous_aero_power_w": -0.0038040566632977944,
+      "positive_substeps": 0,
+      "wing_effort_displacement_proxy_j": 12.029488345435682
+    },
+    {
+      "lane": 5,
+      "aero_signed_work_j_by_body": {
+        "0": -0.004552199275780626,
+        "5": -1.7760214059789272,
+        "6": -1.7791617429141313,
+        "7": -0.012248004722550948
+      },
+      "aero_signed_work_total_j": -3.5719833528913902,
+      "max_instantaneous_aero_power_w": -0.00416371655536907,
+      "positive_substeps": 0,
+      "wing_effort_displacement_proxy_j": 12.020005216540811
+    },
+    {
+      "lane": 6,
+      "aero_signed_work_j_by_body": {
+        "0": -0.007741105579146473,
+        "5": -4.479920398964245,
+        "6": -4.483868580513907,
+        "7": -0.0036943958165169604
+      },
+      "aero_signed_work_total_j": -8.975224480873816,
+      "max_instantaneous_aero_power_w": -0.012355067605384506,
+      "positive_substeps": 0,
+      "wing_effort_displacement_proxy_j": 25.06217090884345
+    },
+    {
+      "lane": 7,
+      "aero_signed_work_j_by_body": {
+        "0": -0.007777837861711656,
+        "5": -4.485370588284891,
+        "6": -4.489575181985359,
+        "7": -0.0035285453779421404
+      },
+      "aero_signed_work_total_j": -8.986252153509904,
+      "max_instantaneous_aero_power_w": -0.012390832109039487,
+      "positive_substeps": 0,
+      "wing_effort_displacement_proxy_j": 25.06522286209142
+    }
+  ],
+  "hashes": {
+    "new_log": "796878913ae0a3ea384ba257d6af8bd065b2c8a388d6ccfb3262d0a34140dcf9",
+    "fk_binary": "01736bacf42dcb27d23bd32359def0ed7346a4976f719e9a304731655dbd8314",
+    "fk_library": "b8633c3735b73cf229b0ccd0ba6ce2bfaa01a44733b8c148bebe891ee1310e88"
+  },
+  "scope": "Signed work of modeled wrenches with substep-start COM twists in training seed, not complete energy balance or biological measurement. Wing effort times observed displacement is a discrete proxy, not independently measured muscle work. Correlated lanes. Wind configuration not assumed."
+}
