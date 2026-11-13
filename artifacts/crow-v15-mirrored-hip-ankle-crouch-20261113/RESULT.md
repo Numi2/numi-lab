@@ -1,0 +1,5 @@
+# Coordinated crouch passed the isolated leg-push screen
+
+On used development seed 20261126, lanes 6/7 passed the predeclared matched wing-held leg-push screen: bilateral support and settling before push; release at tick 375; COM vertical velocity +0.2907/+0.2904 m/s and horizontal velocity -0.00087/-0.00183 m/s; added normal foot impulse relative to matched held-leg controls +0.14046/+0.14029 Ns; no non-foot impulse or toe-speed threshold event through release; peak recorded flap speed 0.330 rad/s and small signed modeled vertical aerodynamic impulse. Both matched held-leg controls remained supported. The reference lanes 0–3 were exactly reproduced. Lanes 4/5 released upward but missed the >=-0.02 m/s release velocity criterion. All first episodes completed 400 intervals.
+
+This pass isolates a short modeled hop, not sustained takeoff: feet recontacted at tick 378 in both passing lanes, after the three unloaded control intervals used by the screen. It does not show a leg-to-wing transition, forward flight, biological force calibration, or mission completion. Full traces, controls, failures, metadata, source and binary hashes are retained.

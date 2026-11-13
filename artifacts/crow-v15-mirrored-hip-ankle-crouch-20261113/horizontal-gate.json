@@ -1,0 +1,162 @@
+{
+  "reference_parity": [
+    {
+      "arm": "push",
+      "lane": 0,
+      "state_mismatches": [],
+      "target_mismatches": []
+    },
+    {
+      "arm": "push",
+      "lane": 1,
+      "state_mismatches": [],
+      "target_mismatches": []
+    },
+    {
+      "arm": "push",
+      "lane": 2,
+      "state_mismatches": [],
+      "target_mismatches": []
+    },
+    {
+      "arm": "push",
+      "lane": 3,
+      "state_mismatches": [],
+      "target_mismatches": []
+    },
+    {
+      "arm": "hold",
+      "lane": 0,
+      "state_mismatches": [],
+      "target_mismatches": []
+    },
+    {
+      "arm": "hold",
+      "lane": 1,
+      "state_mismatches": [],
+      "target_mismatches": []
+    },
+    {
+      "arm": "hold",
+      "lane": 2,
+      "state_mismatches": [],
+      "target_mismatches": []
+    },
+    {
+      "arm": "hold",
+      "lane": 3,
+      "state_mismatches": [],
+      "target_mismatches": []
+    }
+  ],
+  "rows": [
+    {
+      "lane": 2,
+      "release": 376,
+      "push_com_vx": -0.31057318763904707,
+      "hold_com_vx": -0.01841215074841821,
+      "ground_x_impulse_difference_ns": -0.13060804037129994,
+      "checks": {
+        "bilateral_support_ticks_366_370": true,
+        "settled_supported_preparation": true,
+        "previous_screen": true,
+        "hold_supported_at_push_release": true,
+        "horizontal_com_velocity": false,
+        "minimum_foot_impulse_delta": true,
+        "reference_parity": true
+      },
+      "passed": false
+    },
+    {
+      "lane": 3,
+      "release": 376,
+      "push_com_vx": -0.2869904876049045,
+      "hold_com_vx": -0.018452070025724243,
+      "ground_x_impulse_difference_ns": -0.12039676308937906,
+      "checks": {
+        "bilateral_support_ticks_366_370": true,
+        "settled_supported_preparation": true,
+        "previous_screen": true,
+        "hold_supported_at_push_release": true,
+        "horizontal_com_velocity": false,
+        "minimum_foot_impulse_delta": true,
+        "reference_parity": true
+      },
+      "passed": false
+    },
+    {
+      "lane": 4,
+      "release": 375,
+      "push_com_vx": -0.028605981279116986,
+      "hold_com_vx": 0.004991905933468636,
+      "ground_x_impulse_difference_ns": -0.012523271822565211,
+      "checks": {
+        "bilateral_support_ticks_366_370": true,
+        "settled_supported_preparation": true,
+        "previous_screen": true,
+        "hold_supported_at_push_release": true,
+        "horizontal_com_velocity": false,
+        "minimum_foot_impulse_delta": true,
+        "reference_parity": true
+      },
+      "passed": false
+    },
+    {
+      "lane": 5,
+      "release": 375,
+      "push_com_vx": -0.030822844723370105,
+      "hold_com_vx": 0.004966433422137168,
+      "ground_x_impulse_difference_ns": -0.013402074002460424,
+      "checks": {
+        "bilateral_support_ticks_366_370": true,
+        "settled_supported_preparation": true,
+        "previous_screen": true,
+        "hold_supported_at_push_release": true,
+        "horizontal_com_velocity": false,
+        "minimum_foot_impulse_delta": true,
+        "reference_parity": true
+      },
+      "passed": false
+    },
+    {
+      "lane": 6,
+      "release": 375,
+      "push_com_vx": -0.0008722033152732938,
+      "hold_com_vx": 0.0266543554021723,
+      "ground_x_impulse_difference_ns": -0.01119053247128815,
+      "checks": {
+        "bilateral_support_ticks_366_370": true,
+        "settled_supported_preparation": true,
+        "previous_screen": true,
+        "hold_supported_at_push_release": true,
+        "horizontal_com_velocity": true,
+        "minimum_foot_impulse_delta": true,
+        "reference_parity": true
+      },
+      "passed": true
+    },
+    {
+      "lane": 7,
+      "release": 375,
+      "push_com_vx": -0.001832866102943905,
+      "hold_com_vx": 0.026652554155626902,
+      "ground_x_impulse_difference_ns": -0.011634736252482899,
+      "checks": {
+        "bilateral_support_ticks_366_370": true,
+        "settled_supported_preparation": true,
+        "previous_screen": true,
+        "hold_supported_at_push_release": true,
+        "horizontal_com_velocity": true,
+        "minimum_foot_impulse_delta": true,
+        "reference_parity": true
+      },
+      "passed": true
+    }
+  ],
+  "pairs": {
+    "2-3": false,
+    "4-5": false,
+    "6-7": true
+  },
+  "scope": "Wing-held used-seed screen only; no qualified takeoff or flight."
+}
