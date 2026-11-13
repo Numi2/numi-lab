@@ -1,0 +1,7 @@
+{
+  "artifacts/crow-v15-toe-regrip-fk-balance-20261113/probe.cpp": "f7bf301d19a6d80f4f1bdd5eb9d95122c5074a365ababdcf5a537fd98fe98294",
+  "artifacts/crow-v15-toe-regrip-fk-balance-20261113/wing_model.hpp": "ed2e2e09e260404eaf15a707882c098bdd17b294c3ccd055dcbe331057bd22c4",
+  "build/crow-v15-toe-regrip-fk-balance-20261113/probe": "3e6b20f5080d7ef5140a87748abf7ea072ea070c0ee52536b1bb14957b7b21ce",
+  "build/crow-v15-two-segment-substep-observer-20261111/libmetalrobo.dylib": "948e170d7e92eeee41826c1eaedfdec37831fff4f05210211ff72956e0e44032",
+  "build/crow-v15-wide-contact-isolation-20261111/MetalRobo.metallib": "835d0ff74b8338bba6987d88f3355a1344522eaa88fa8e82295b12ba58cedeb5"
+}
