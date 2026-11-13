@@ -1,0 +1,76 @@
+{
+  "purpose": "Retire only exact duplicate local compressed stderr and its verified Git archived parts. Recheck hash, device, inode, link count and absence of open handles immediately before unlink.",
+  "host": "macmini",
+  "repo_root": "/Users/n/Developer/numi-crow-rl-20261107",
+  "github_independent_fetch": {
+    "commit": "d1cc8ce4278f0be92d4bbf4e799f5ddd821421ce",
+    "remote_path": "artifacts/crow-v15-obstacle-free-flight-feedback-20261113/push-wing-20261126-rebound-feedback",
+    "parts": [
+      {
+        "file": "run.stderr.gz.part00",
+        "sha256": "b76dd31ae127b26051b4979b48d46154af6cc533e44148ae21fcb07fd223ee16",
+        "bytes": 41943040
+      },
+      {
+        "file": "run.stderr.gz.part01",
+        "sha256": "386980b6f1fff76351fecfff38e310bfaa8708bf32780fc35341af74151ec9d0",
+        "bytes": 41943040
+      },
+      {
+        "file": "run.stderr.gz.part02",
+        "sha256": "fddcc55a88b31e1d31a64ed4ebd8b0f5c89ea115284162c8e1c29f531887fc42",
+        "bytes": 41943040
+      },
+      {
+        "file": "run.stderr.gz.part03",
+        "sha256": "ef825269ab1b7b4d10facaeffd5955bcc29ba17bfaf631599546c0aab209b124",
+        "bytes": 13713633
+      }
+    ],
+    "concatenated_sha256": "38b09d2eb65a38564c1d72089e822a548799cb639a775f14d248a1769b9a48c3",
+    "bytes": 139542753
+  },
+  "verification": "Independently streamed all four immutable GitHub raw parts, verified each hash, and concatenated in order to match original compressed SHA-256; local original passed gzip integrity test. Exact restoration recipe and metadata remain in Git.",
+  "files": [
+    {
+      "path": "artifacts/crow-v15-obstacle-free-flight-feedback-20261113/push-wing-20261126-rebound-feedback/run.stderr.gz",
+      "device": 16777232,
+      "inode": 17096194,
+      "size": 139542753,
+      "links": 1,
+      "sha256": "38b09d2eb65a38564c1d72089e822a548799cb639a775f14d248a1769b9a48c3"
+    },
+    {
+      "path": "artifacts/crow-v15-obstacle-free-flight-feedback-20261113/push-wing-20261126-rebound-feedback/run.stderr.gz.part00",
+      "device": 16777232,
+      "inode": 17096230,
+      "size": 41943040,
+      "links": 1,
+      "sha256": "b76dd31ae127b26051b4979b48d46154af6cc533e44148ae21fcb07fd223ee16"
+    },
+    {
+      "path": "artifacts/crow-v15-obstacle-free-flight-feedback-20261113/push-wing-20261126-rebound-feedback/run.stderr.gz.part01",
+      "device": 16777232,
+      "inode": 17096231,
+      "size": 41943040,
+      "links": 1,
+      "sha256": "386980b6f1fff76351fecfff38e310bfaa8708bf32780fc35341af74151ec9d0"
+    },
+    {
+      "path": "artifacts/crow-v15-obstacle-free-flight-feedback-20261113/push-wing-20261126-rebound-feedback/run.stderr.gz.part02",
+      "device": 16777232,
+      "inode": 17096232,
+      "size": 41943040,
+      "links": 1,
+      "sha256": "fddcc55a88b31e1d31a64ed4ebd8b0f5c89ea115284162c8e1c29f531887fc42"
+    },
+    {
+      "path": "artifacts/crow-v15-obstacle-free-flight-feedback-20261113/push-wing-20261126-rebound-feedback/run.stderr.gz.part03",
+      "device": 16777232,
+      "inode": 17096233,
+      "size": 13713633,
+      "links": 1,
+      "sha256": "ef825269ab1b7b4d10facaeffd5955bcc29ba17bfaf631599546c0aab209b124"
+    }
+  ]
+}
