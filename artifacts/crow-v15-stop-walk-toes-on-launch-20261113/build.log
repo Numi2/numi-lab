@@ -1,0 +1,5 @@
+/Users/n/Developer/numi-crow-rl-20261107/artifacts/crow-v15-stop-walk-toes-on-launch-20261113/inrange.metal:5099:30: warning: unused variable 'arm' [-Wunused-variable]
+                { const uint arm=environment%8u;
+                             ^
+1 warning generated.
+Built candidate metallib: 030950ff91feb01a5d78146a5e224fb3f94e043f2145ade83f52c5866c560978

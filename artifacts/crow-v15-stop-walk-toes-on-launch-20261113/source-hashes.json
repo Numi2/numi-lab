@@ -1,0 +1,5 @@
+{
+  "parent_task_sha256": "b2cd178bb79c95a5f7a9c02a369ecc24fa9b1cc6976aafe98ce3efb8df4cbfb6",
+  "candidate_task_sha256": "ac65acdb570bd9bc5170081f53b5c160c435702eba243d0db474a5fa7d6d143f",
+  "one_change": "walkingSeconds>=4.0f && walkingSeconds<10.0f && toe==3u && carrier>0.40f -> walkingSeconds>=4.0f && walkingSeconds<6.96f && toe==3u && carrier>0.40f"
+}
