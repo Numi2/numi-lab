@@ -1,0 +1,8 @@
+c8dfd22acb5bcd92a446146a88fb3f7e00c8b35365188fd3651c4a73115b6853  artifacts/crow-v15-wing-transition-timing-20261113/PLAN.md
+c576757a32cfa5b95255da820365cc6d91d16e8ada2f0585fb41b196b3c7a4de  artifacts/crow-v15-wing-transition-timing-20261113/push.metal
+456141b47d9c4f537a566728c8697ebec4aaafe4924dc5f8f820ccc040d38807  artifacts/crow-v15-wing-transition-timing-20261113/hold.metal
+a3bbda61815ce984b8ee0f10d3504f69c46fd3c373537c4d6ea44e6701e3aa3d  artifacts/crow-v15-wing-transition-timing-20261113/build.py
+40d27603657111af100f08bde620685526f4ee686dc7ac91280d89317bacfd2c  artifacts/crow-v15-wing-transition-timing-20261113/run.py
+12df55523e6ddbd13cb0d7f7a36d260d2d2a9ca44c951c6e3bb2602995c457d9  artifacts/crow-v15-wing-transition-timing-20261113/extract.py
+af0ace8aff18beec3e344b72c9cc5a72d3c3f8dcfd102c9dc36a7c1059e80311  artifacts/crow-v15-wing-transition-timing-20261113/fk-input.py
+b8c7c622adbd97067726c5b460c8f0023d97129ec4a894c39044e6d32d3eeb0d  artifacts/crow-v15-wing-transition-timing-20261113/analyze.py
