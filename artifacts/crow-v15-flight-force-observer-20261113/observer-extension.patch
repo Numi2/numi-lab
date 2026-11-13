@@ -1,0 +1,20 @@
+--- prior/MetalWorld.mm
++++ force-observer/MetalWorld.mm
+@@ -12726,7 +12726,7 @@
+     const std::uint32_t traceSubstep,
+     const std::size_t bodyStride
+ ) {
+-    const bool observe=std::getenv("CROW_AERO_WRENCH_TRACE")!=nullptr && traceStep>=348 && traceStep<=500;
++    const bool observe=std::getenv("CROW_AERO_WRENCH_TRACE")!=nullptr && traceStep>=348 && traceStep<=900;
+     id<MTLBuffer> before=nil; id<MTLBuffer> after=nil; id<MTLBuffer> aq=nil; id<MTLBuffer> av=nil; id<MTLBuffer> ctrl=nil;
+     id<MTLBuffer> source=context.buffers[kBodyWrenchPlaceholder];
+     if (observe) {
+@@ -22505,7 +22505,7 @@
+                                 for (NSUInteger j=0;j<crowTraceVStride;++j) std::fprintf(stderr," %.9g",startV[lane*crowTraceVStride+j]);
+                                 std::fprintf(stderr,"\n");
+                             }
+-                            if (crowTraceStep>=348 && crowTraceStep<=500) {
++                            if (crowTraceStep>=348 && crowTraceStep<=900) {
+                                 std::fprintf(stderr,"CROW_WING_EFFORT %llu %lu %lu",crowTraceStep,(unsigned long)sub,(unsigned long)lane);
+                                 for (int j=8;j<=9;++j) std::fprintf(stderr," %.9g %.9g %.9g %.9g %.9g %.9g %.9g", effort[lane*diagnostics.layout.dispatch.effortEnvironmentStride+j],targets[lane*diagnostics.layout.dispatch.effortEnvironmentStride+j],startQ[lane*crowTraceQStride+j+1],coordinates[lane*crowTraceQStride+j+1],startV[lane*crowTraceVStride+j],preContactV[lane*crowTraceVStride+j],velocities[lane*crowTraceVStride+j]);
+                                 std::fprintf(stderr,"\n");
