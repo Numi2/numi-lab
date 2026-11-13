@@ -1,0 +1,25 @@
+--- artifacts/crow-v15-long-lateral-flight-screen-20261113/long-flight.metal	2026-11-13 12:02:24
++++ artifacts/crow-v15-position-flight-screen-20261113/position-flight.metal	2026-11-13 12:19:33
+@@ -5557,7 +5557,9 @@
+                             : state.threatTeacher.x;
+                         const float lateralGain=1.20f;
+                         const float bankLimit=0.18f;
+-                        const float targetBank=clamp(lateralGain*lateralSpeed,-bankLimit,bankLimit);
++                        const float positionGain = arm<4u ? 0.0f : arm<6u ? 0.10f : 0.20f;
++                        const float courseCorrection=clamp(positionGain*state.airReturnTracking.x,-0.20f,0.20f);
++                        const float targetBank=clamp(lateralGain*(lateralSpeed+courseCorrection),-bankLimit,bankLimit);
+                         const float delta=onset*clamp(0.08f*(targetBank-state.threatTeacher.y)-0.025f*state.threatTeacher.z,-0.025f,0.025f);
+                         amplitude+=(action==0u ? delta : -delta);
+                     }
+@@ -9650,6 +9652,11 @@
+             state.status.w=packed | launchRetractLatch | lowLoad1 | lowLoad2 | flightReleaseLatch;
+         }
+     }
++    // Development-only accepted world-Y course-position signal; this scratch
++    // component is overwritten by mechanicalPower before its next use in the
++    // update kernel. No body state, force, or actuator bound is modified.
++    if (state.episode.z==10u && environment%8u>=4u && state.episode.x>=450u)
++        state.airReturnTracking.x=rootWorldPosition(program,q).y;
+     taskStates[environment] = state;
+ 
+     const uint transitionIndex =
