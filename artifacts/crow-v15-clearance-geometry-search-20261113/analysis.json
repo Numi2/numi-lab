@@ -1,0 +1,42 @@
+{
+  "base_pose_components": 126,
+  "max_abs_pose_error": 5.521260532104222e-10,
+  "lanes": {
+    "0": {
+      "candidate_count": 125,
+      "initial_gap_m": 5.45009970664978e-05,
+      "max_gap_m": 0.010787799954414368,
+      "best_offsets_hip_knee_ankle_rad": [
+        -0.3,
+        0.15,
+        0.3
+      ],
+      "candidates_at_least_1mm": 39,
+      "within_0_15rad_and_1mm": 10,
+      "smallest_norm_clearance_candidate": [
+        -0.15,
+        0.0,
+        0.0,
+        0.0027007758617401123
+      ]
+    },
+    "1": {
+      "candidate_count": 125,
+      "initial_gap_m": 4.969537258148193e-06,
+      "max_gap_m": 0.011235669255256653,
+      "best_offsets_hip_knee_ankle_rad": [
+        -0.3,
+        0.15,
+        0.3
+      ],
+      "candidates_at_least_1mm": 40,
+      "within_0_15rad_and_1mm": 10,
+      "smallest_norm_clearance_candidate": [
+        -0.15,
+        0.0,
+        0.0,
+        0.003470607101917267
+      ]
+    }
+  }
+}

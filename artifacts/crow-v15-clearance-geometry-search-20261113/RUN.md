@@ -1,0 +1,1 @@
+Run extract.py using the archived staged-release trace and stage-check.json. Restore search.gz and the recorded corrected-body runtime, run it with states.tsv on stdin to produce results.tsv, then run analyze.py. The static search does not step the simulator.
