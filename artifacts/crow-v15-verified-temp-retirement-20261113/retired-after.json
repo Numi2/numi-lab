@@ -1,0 +1,47 @@
+{
+  "verified_archive_commit": "75c450c13525a1d799607cf8735506b70e923be9",
+  "retired": [
+    {
+      "path": "/Users/n/Developer/numi-crow-rl-20261107/build/crow-v15-low-wing-effort-screen-20261113/push-wing-20261126-rebound-low-trace.tsv",
+      "sha256": "d6e7ca463615c6249debe74bbd917ec1b720eb75eaa3de33154ab6acc1334971",
+      "size_bytes": 351416
+    },
+    {
+      "path": "/Users/n/Developer/numi-crow-rl-20261107/build/crow-v15-low-wing-effort-screen-20261113/push-wing-20261126-rebound-low-replay.json",
+      "sha256": "079964d656edcfa5847763b2bb938d349548ddd24508524d15d15a48e26680e7",
+      "size_bytes": 16170764
+    },
+    {
+      "path": "/Users/n/Developer/numi-crow-rl-20261107/build/crow-v15-low-wing-effort-screen-20261113/hold-wing-20261126-rebound-low-trace.tsv",
+      "sha256": "1bc61d2339a64e0a3ffcab94c40e980678761e47b6d7e9e716715c6c9e796307",
+      "size_bytes": 351653
+    },
+    {
+      "path": "/Users/n/Developer/numi-crow-rl-20261107/build/crow-v15-low-wing-effort-screen-20261113/hold-wing-20261126-rebound-low-replay.json",
+      "sha256": "b357a60bdffe46c136fb5eb4350056dae300f12e434c8964de4776f347d4cced",
+      "size_bytes": 16183545
+    },
+    {
+      "path": "/Users/n/Developer/numi-crow-rl-20261107/build/crow-v15-early-low-wing-screen-20261113/push-wing-20261126-rebound-early-trace.tsv",
+      "sha256": "d80b19cd20af81e62b23dfb7b549504134f3e5b81739e64d361f5a63c2cd82c4",
+      "size_bytes": 351387
+    },
+    {
+      "path": "/Users/n/Developer/numi-crow-rl-20261107/build/crow-v15-early-low-wing-screen-20261113/push-wing-20261126-rebound-early-replay.json",
+      "sha256": "17c248aea9d7397c0234eca6acf51e83cd91dfc5b468fc56a4f3889891439524",
+      "size_bytes": 16170279
+    },
+    {
+      "path": "/Users/n/Developer/numi-crow-rl-20261107/build/crow-v15-early-low-wing-screen-20261113/hold-wing-20261126-rebound-early-trace.tsv",
+      "sha256": "f8475ed60d275d690b1016b3355105ff51c6f2e33a9bd8bd7bd246e319884200",
+      "size_bytes": 351621
+    },
+    {
+      "path": "/Users/n/Developer/numi-crow-rl-20261107/build/crow-v15-early-low-wing-screen-20261113/hold-wing-20261126-rebound-early-replay.json",
+      "sha256": "b71e941a180cbb161d2de8c7647447d78103cd7fbf6801700aba7ce7da7ba502",
+      "size_bytes": 16182739
+    }
+  ],
+  "bytes_retired": 66113404,
+  "after_df_k": "Filesystem   1024-blocks      Used Available Capacity iused     ifree %iused  Mounted on\n/dev/disk3s5   482797652 412602432  42649256    91% 3600353 426492560    1%   /System/Volumes/Data\n"
+}
