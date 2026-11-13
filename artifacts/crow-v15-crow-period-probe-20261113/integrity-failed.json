@@ -1,0 +1,99 @@
+{
+  "parity": [
+    {
+      "lane": 0,
+      "state_mismatches": 0,
+      "contact_mismatches": 0
+    },
+    {
+      "lane": 1,
+      "state_mismatches": 0,
+      "contact_mismatches": 0
+    },
+    {
+      "lane": 2,
+      "state_mismatches": 0,
+      "contact_mismatches": 0
+    },
+    {
+      "lane": 3,
+      "state_mismatches": 0,
+      "contact_mismatches": 0
+    },
+    {
+      "lane": 4,
+      "state_mismatches": 0,
+      "contact_mismatches": 0
+    },
+    {
+      "lane": 5,
+      "state_mismatches": 0,
+      "contact_mismatches": 0
+    },
+    {
+      "lane": 6,
+      "state_mismatches": 0,
+      "contact_mismatches": 0
+    },
+    {
+      "lane": 7,
+      "state_mismatches": 0,
+      "contact_mismatches": 0
+    }
+  ],
+  "reference_parity": [
+    {
+      "lane": 0,
+      "state_mismatches": 0,
+      "contact_mismatches": 0
+    },
+    {
+      "lane": 1,
+      "state_mismatches": 0,
+      "contact_mismatches": 0
+    },
+    {
+      "lane": 2,
+      "state_mismatches": 0,
+      "contact_mismatches": 0
+    },
+    {
+      "lane": 3,
+      "state_mismatches": 0,
+      "contact_mismatches": 0
+    },
+    {
+      "lane": 4,
+      "state_mismatches": 0,
+      "contact_mismatches": 0
+    },
+    {
+      "lane": 5,
+      "state_mismatches": 0,
+      "contact_mismatches": 0
+    },
+    {
+      "lane": 6,
+      "state_mismatches": 0,
+      "contact_mismatches": 0
+    },
+    {
+      "lane": 7,
+      "state_mismatches": 0,
+      "contact_mismatches": 0
+    }
+  ],
+  "errors": {
+    "push": [
+      [
+        "early first-episode end",
+        2
+      ],
+      [
+        "early first-episode end",
+        3
+      ]
+    ],
+    "hold": []
+  }
+}

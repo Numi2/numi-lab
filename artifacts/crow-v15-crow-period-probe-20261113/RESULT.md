@@ -1,0 +1,7 @@
+# Result: failed frequency probe, two contact terminations
+
+Both processes completed, and all recorded q/v/action/contact prefixes matched between arms and against the previous prepared-wing push through step 345. However, push lanes 2 and 3 ended their first episodes at step 376 with contact termination (reason code 3); only 400-step first episodes were admissible. Consequently the preregistered full paired screen is invalid and cannot be scored using subsequent samples. The hold lanes survived 400 intervals. Preserve the integrity-failed result and all raw traces.
+
+At the next recorded support sample, step 377, lanes 2 and 3 each show left-wing and right-wing contacts with the ground. This nearby observation does not by itself establish the exact triggering collider or timing because first-episode termination and support samples have different reported boundaries. Additional first-failure instrumentation is needed before assigning the termination to a particular pair. There is no basis to dismiss it as a solver error.
+
+The cap observer was complete; during the observed 348–375 window, push lanes 4–5 reached approximately 40.0 rad/s substep flap speed and modeled vertical aerodynamic peaks around 42.3 N. These are model diagnostics, not biological limits or valid post-termination results for lanes 2–3. The 6.4 Hz crow study excludes first strokes; applying that period to the initial sinusoidal target was an exploratory sensitivity test, not a fit. No controller or mission was qualified.
