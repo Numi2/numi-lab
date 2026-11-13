@@ -1,0 +1,10 @@
+{
+  "trace": "artifacts/crow-v15-toe-regrip-fk-balance-20261113/trace.log.gz",
+  "sha256": "5942969c0901c2dcc8cee9d76e827faa32f0ae408f5bbf98e1853b5ff9a4224a",
+  "executable_sha256": "42dd3e09c4452b0d434dfe9fb44b6768ac61a9e5a0265445ab470ee69dfb105d",
+  "coordinate_frame": "world",
+  "perch_x_extent_m": [
+    -0.025,
+    0.025
+  ]
+}
