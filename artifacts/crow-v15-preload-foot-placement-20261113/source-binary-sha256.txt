@@ -1,0 +1,5 @@
+e32b265573acec8cdec850ea9ebef5babaacd6b21f2c4e01689e9248f16baf17  artifacts/crow-v15-preload-foot-placement-20261113/World.metal
+0f70626cd7615b34c0c5a8a1a95823ed5cde573f762d4e97372727e091ec2ba8  artifacts/crow-v15-preload-foot-placement-20261113/push-wing.metal
+e2ee41530192a03b290f640348c06ef584284af88625eeea15e470828898a39d  artifacts/crow-v15-preload-foot-placement-20261113/hold-wing.metal
+788cff7c8dcb0f1e6b2c61033e04249b251673ff5c8448588e3602461ca02075  build/crow-v15-preload-foot-placement-20261113/push-wing.metallib
+749bd03929f714458d51f0b60a2683d665f37c2a9d6ef8741433a2a55fff3bf8  build/crow-v15-preload-foot-placement-20261113/hold-wing.metallib
