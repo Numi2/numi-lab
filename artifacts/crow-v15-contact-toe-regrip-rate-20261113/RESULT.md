@@ -1,0 +1,5 @@
+# Contact-gated faster toe regrip: failed
+
+Both candidates exactly matched the previous supported-pitch lane 1 through 212 accepted states before the changed foretoe command. They completed all 450 intervals with 32-substep contact coverage and no native solver errors; the independent foot-impulse observer matched within 6.21e-10 N s. Foretoe targets respected the existing 1.05 rad cap and the respective 0.045/0.060 rad per interval ramp bounds.
+
+Both passed the independently reconstructed ten supported-clearance intervals and began return at step 209, but neither had any interval satisfying the combined bilateral opposing-toe support, posture and speed criteria. Both fell at step 322, the same as their matched control. Maximum accepted-state left-toe speeds before the first fall were 2.23 and 2.97 rad/s, respectively, below the modeled 12 rad/s threshold. Accepted-state threshold hits appeared only after the fall; substep toe speed and actuator torque were not recorded and cannot be ruled out. The two rates are rejected on this constructed state. These results do not establish an airborne landing, realistic toe grasp, navigation or biological fidelity.

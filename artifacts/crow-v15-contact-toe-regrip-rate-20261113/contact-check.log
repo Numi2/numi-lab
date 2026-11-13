@@ -1,0 +1,10 @@
+{
+  "accepted_state_records": 900,
+  "last_substep_records": 900,
+  "missing_last_substep": 0,
+  "nonzero_foot_samples": 1263,
+  "max_normal_impulse_error_ns": 6.210000001206917e-10,
+  "observer_errors": [],
+  "passed": true,
+  "scope": "Checks host end-of-interval foot normal impulse against the corrected last-substep observer. Does not by itself establish grip, flight, or model fidelity."
+}
