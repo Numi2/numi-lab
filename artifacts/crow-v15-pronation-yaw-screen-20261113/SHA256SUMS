@@ -1,5 +1,7 @@
 371a4dd3b2ebdd29fbb65499dc610d19ff797083aa4b1a8aad46978871b8310e  ./PLAN.md
 1d99be0848603352982cbf88aef00cd203d830f00f145bad73556cbb394b6cfa  ./analyze.py
+62cec2e1c9422b41fca6c93de45416c44ffe1a6b5fe5f6957c14361929b8b1f8  ./baseline-pronation-asymmetry.json
+f318af3ce87fbbf133a37cdc9e59b4e5d2b152a1604ee0777e5d271f061d6044  ./baseline-pronation-asymmetry.py
 36b1d7f51daf7bce3920af63171dc4fcb242a1f566f9473a361574b2f4a30e95  ./build.log
 185a57d010dc797ebf7f075fa225f9e09011ceee826cd06860db1c412b267f05  ./build.py
 1e2edecd7d876d7f8cc5688a1c30bebec50162009dc4d5aba4873e0023637e40  ./independent-github-download-20261126.json
