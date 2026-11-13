@@ -1,0 +1,10 @@
+--- build/crow-v15-long-lateral-flight-screen-20261113/c_api.cpp	2026-11-13 12:09:29
++++ build/crow-v15-pronation-force-observer-20261113/c_api.cpp	2026-11-13 12:56:54
+@@ -3420,6 +3420,7 @@
+  for(auto& r:p.roles){if(r.id=="whole_body")r.members=m.bodyNames;if(r.id=="all_joints")r.members=m.jointNames;if(r.id=="all_dofs")r.members=m.dofNames;}
+  for(unsigned i : {8u,9u}){auto &d=m.dofs.at(i);crowToeNeed(d.vIndex==i && d.qIndex==i+1 && d.drive.x==800.f && d.drive.y==8.f,"unexpected wing drive metadata");std::fprintf(stderr,"CROW_MODEL_DRIVE %u %u %u %.9g %.9g %.9g %.9g\n",i,d.qIndex,d.vIndex,d.drive.x,d.drive.y,d.drive.z,d.limits.w);d.drive.x=10.f;d.drive.y=0.65f;std::fprintf(stderr,"CROW_MODEL_DRIVE_NEW %u %.9g %.9g %.9g %.9g\n",i,d.drive.x,d.drive.y,d.drive.z,d.limits.w);}
+  for(unsigned i=6u;i<m.dofs.size();++i){const auto& d=m.dofs[i];std::fprintf(stderr,"CROW_MODEL_DOF_LIMIT %u %u %u %.9g %s\n",i,d.vIndex,d.flags,d.limits.z,m.dofNames[i].c_str());}
++ for(unsigned i=10u;i<=11u;++i){const auto& d=m.dofs[i];std::fprintf(stderr,"CROW_PRONATION_MODEL %u %u %.9g %.9g %.9g %.9g %.9g %.9g %.9g %.9g\n",i,d.flags,d.drive.x,d.drive.y,d.drive.z,d.drive.w,d.limits.x,d.limits.y,d.limits.z,d.limits.w);}
+  std::string why;crowToeNeed(m.valid(&why),"model invalid: "+why);return p;
+ }
+ }

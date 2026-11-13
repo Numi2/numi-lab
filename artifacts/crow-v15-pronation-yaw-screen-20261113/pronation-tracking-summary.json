@@ -1,0 +1,52 @@
+{
+  "6": {
+    "samples": 501,
+    "mean_actual_delta_left_right_rad": [
+      0.04361950582618163,
+      -0.0532103622166497
+    ],
+    "mean_abs_actual_minus_target_left_right_rad": [
+      0.08990337304478643,
+      0.17175095553703892
+    ],
+    "max_abs_actual_minus_target_left_right_rad": [
+      0.18427927,
+      0.360961177
+    ],
+    "actual_position_ranges_rad": [
+      [
+        -0.0971994251,
+        0.209142745
+      ],
+      [
+        -0.307474107,
+        0.0176618136
+      ]
+    ]
+  },
+  "7": {
+    "samples": 501,
+    "mean_actual_delta_left_right_rad": [
+      -0.04331354982337864,
+      0.054773961604843116
+    ],
+    "mean_abs_actual_minus_target_left_right_rad": [
+      0.09697334249987086,
+      0.1565719262416567
+    ],
+    "max_abs_actual_minus_target_left_right_rad": [
+      0.18168344483999999,
+      0.32752597299999997
+    ],
+    "actual_position_ranges_rad": [
+      [
+        -0.182615876,
+        0.126356617
+      ],
+      [
+        -0.199391872,
+        0.113123953
+      ]
+    ]
+  }
+}
