@@ -1,0 +1,5 @@
+# Supported COM preload: failed release gate
+
+The full 350-step run completed for all eight constructed perch lanes with complete 32-substep observations and no reported solver errors. All reproduced the retained q/v and toe-control records exactly until the preload intervention. All recorded hip targets stayed within model-declared bounds, and readiness was consistent with the predeclared contact and COM conditions. An additional accepted-state FK pass reproduced all 2,800 COM x and vx samples within 3e-8 m and 1.5e-8 m/s, respectively; both passes use the same kinematics implementation.
+
+No lane achieved 20 consecutive intervals of the required target COM and bilateral opposing grip, so no release was triggered and all lanes fail the preregistered grip/release screen. The two gain-2.0 lanes fell at one-based steps 243 and 237; none of the six lower-gain lanes crossed the 0.1 m root-height fall threshold during this run. These results do not establish a continuous flight landing, current flight-body integration, or biological realism.

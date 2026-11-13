@@ -1,0 +1,9 @@
+{
+  "logged_count": 2800,
+  "fk_count": 2800,
+  "missing_count": 0,
+  "max_com_x_error_m": 2.930700004899478e-08,
+  "max_com_vx_error_m_s": 1.459999998676409e-08,
+  "passed": true,
+  "scope": "Independent executable compares accepted-state FK values; same underlying kinematics implementation and model; no biological claim."
+}
