@@ -1,0 +1,7 @@
+valid True max FK translation error 5.551115123125783e-17
+2 dp -0.192 aero 0.571 feet 1.436 gravity -2.208 residual 0.0083 Vz 0.335 -> -0.093
+3 dp -0.197 aero 0.569 feet 1.433 gravity -2.208 residual 0.0081 Vz 0.337 -> -0.101
+4 dp -0.19 aero 0.872 feet 1.14 gravity -2.208 residual 0.0056 Vz 0.367 -> -0.054
+5 dp -0.181 aero 0.862 feet 1.159 gravity -2.208 residual 0.0054 Vz 0.342 -> -0.06
+6 dp -0.188 aero 1.574 feet 0.451 gravity -2.208 residual -0.0059 Vz 0.378 -> -0.04
+7 dp -0.266 aero 1.568 feet 0.382 gravity -2.208 residual -0.0088 Vz 0.477 -> -0.115

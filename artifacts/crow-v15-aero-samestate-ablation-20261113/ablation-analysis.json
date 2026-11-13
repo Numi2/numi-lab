@@ -1,0 +1,180 @@
+{
+  "valid": true,
+  "kernel_input_vs_kin_max_abs": 0.0,
+  "omitted_body_force_max_abs_n": 1.1425527191022411e-10,
+  "uniform_translation_error_m_s": 0.0,
+  "actual_dispatch_config": [
+    1.0,
+    8.0,
+    8.0,
+    0.0,
+    0.0,
+    0.0,
+    1.22500002
+  ],
+  "substep_s": 0.00125,
+  "window_ticks": [
+    376,
+    400
+  ],
+  "rows": [
+    {
+      "lane": 0,
+      "aero_signed_work_j_by_body": {
+        "0": -0.012495265044433712,
+        "5": 0.8388598996172875,
+        "6": 0.8194667835281098,
+        "7": -0.0046694821726606245
+      },
+      "aero_signed_work_total_j": 1.6411619359283027,
+      "ablation_work_total_j": -0.19214660107163561,
+      "unsteady_delta_work_j": 1.8333085369999385,
+      "ablation_work_j_by_body": {
+        "0": -0.012495265044433712,
+        "5": -0.08822342298475774,
+        "6": -0.08675843086978352,
+        "7": -0.0046694821726606245
+      },
+      "wing_effort_displacement_proxy_j": 82.47515880784483
+    },
+    {
+      "lane": 1,
+      "aero_signed_work_j_by_body": {
+        "0": -0.01037177327292833,
+        "5": 0.69613900212249,
+        "6": 0.6694060925001288,
+        "7": -0.003856617621362249
+      },
+      "aero_signed_work_total_j": 1.3513167037283282,
+      "ablation_work_total_j": -0.17992745794974468,
+      "unsteady_delta_work_j": 1.531244161678073,
+      "ablation_work_j_by_body": {
+        "0": -0.01037177327292833,
+        "5": -0.08220100990852243,
+        "6": -0.08349805714693169,
+        "7": -0.003856617621362249
+      },
+      "wing_effort_displacement_proxy_j": 81.05791526004809
+    },
+    {
+      "lane": 2,
+      "aero_signed_work_j_by_body": {
+        "0": -0.001018449004079715,
+        "5": -0.31914035866098633,
+        "6": -0.29214417008420734,
+        "7": -0.0018441114313282553
+      },
+      "aero_signed_work_total_j": -0.6141470891806017,
+      "ablation_work_total_j": -0.01942332877645205,
+      "unsteady_delta_work_j": -0.5947237604041496,
+      "ablation_work_j_by_body": {
+        "0": -0.001018449004079715,
+        "5": -0.008303892966175272,
+        "6": -0.008256875374868805,
+        "7": -0.0018441114313282553
+      },
+      "wing_effort_displacement_proxy_j": 2.478983574250001
+    },
+    {
+      "lane": 3,
+      "aero_signed_work_j_by_body": {
+        "0": -0.001027038278254562,
+        "5": -0.2776914316867103,
+        "6": -0.31365137387638165,
+        "7": -0.0016509190335284862
+      },
+      "aero_signed_work_total_j": -0.594020762874875,
+      "ablation_work_total_j": -0.019472138139493406,
+      "unsteady_delta_work_j": -0.5745486247353816,
+      "ablation_work_j_by_body": {
+        "0": -0.001027038278254562,
+        "5": -0.00837076750600737,
+        "6": -0.008423413321702987,
+        "7": -0.0016509190335284862
+      },
+      "wing_effort_displacement_proxy_j": 2.455701233673783
+    },
+    {
+      "lane": 4,
+      "aero_signed_work_j_by_body": {
+        "0": -0.0012338873427113822,
+        "5": -0.3510332665509163,
+        "6": -0.34900999049131387,
+        "7": -0.002901442784252053
+      },
+      "aero_signed_work_total_j": -0.7041785871691937,
+      "ablation_work_total_j": -0.03547060779118265,
+      "unsteady_delta_work_j": -0.6687079793780111,
+      "ablation_work_j_by_body": {
+        "0": -0.0012338873427113822,
+        "5": -0.015655336410909673,
+        "6": -0.015679941253309543,
+        "7": -0.002901442784252053
+      },
+      "wing_effort_displacement_proxy_j": 2.639510793000001
+    },
+    {
+      "lane": 5,
+      "aero_signed_work_j_by_body": {
+        "0": -0.00115562885880007,
+        "5": -0.3539087102052724,
+        "6": -0.30967540113919556,
+        "7": -0.0027771070250370245
+      },
+      "aero_signed_work_total_j": -0.667516847228305,
+      "ablation_work_total_j": -0.034817437002585036,
+      "unsteady_delta_work_j": -0.63269941022572,
+      "ablation_work_j_by_body": {
+        "0": -0.00115562885880007,
+        "5": -0.01543259641686006,
+        "6": -0.015452104701887884,
+        "7": -0.0027771070250370245
+      },
+      "wing_effort_displacement_proxy_j": 2.5602722991445566
+    },
+    {
+      "lane": 6,
+      "aero_signed_work_j_by_body": {
+        "0": -0.0030111620933383565,
+        "5": 0.20964136533363262,
+        "6": 0.18970868064071503,
+        "7": -0.0015052182889504885
+      },
+      "aero_signed_work_total_j": 0.3948336655920588,
+      "ablation_work_total_j": -0.08104589848132841,
+      "unsteady_delta_work_j": 0.4758795640733872,
+      "ablation_work_j_by_body": {
+        "0": -0.0030111620933383565,
+        "5": -0.03836597072667816,
+        "6": -0.038163547372361405,
+        "7": -0.0015052182889504885
+      },
+      "wing_effort_displacement_proxy_j": 2.41798159616832
+    },
+    {
+      "lane": 7,
+      "aero_signed_work_j_by_body": {
+        "0": -0.0039455561121401455,
+        "5": 0.37131945204298156,
+        "6": 0.43329372358026774,
+        "7": -0.0038300142756491897
+      },
+      "aero_signed_work_total_j": 0.7968376052354599,
+      "ablation_work_total_j": -0.08456089010169696,
+      "unsteady_delta_work_j": 0.8813984953371569,
+      "ablation_work_j_by_body": {
+        "0": -0.0039455561121401455,
+        "5": -0.03906741515841799,
+        "6": -0.03771790455548964,
+        "7": -0.0038300142756491897
+      },
+      "wing_effort_displacement_proxy_j": 2.0246809202294633
+    }
+  ],
+  "hashes": {
+    "new_log": "8c6daf3dab245d60fe6df6809e63de28407c18a57d34d99dec29280ede58228c",
+    "fk_binary": "01736bacf42dcb27d23bd32359def0ed7346a4976f719e9a304731655dbd8314",
+    "fk_library": "b8633c3735b73cf229b0ccd0ba6ce2bfaa01a44733b8c148bebe891ee1310e88"
+  },
+  "scope": "Signed work of modeled wrenches with substep-start COM twists in training seed, ablation is same-state diagnostic, not complete energy balance or biological measurement. Wing effort times observed displacement is a discrete proxy, not independently measured muscle work. Correlated lanes. Wind configuration not assumed."
+}

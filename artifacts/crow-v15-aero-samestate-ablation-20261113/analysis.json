@@ -1,0 +1,630 @@
+{
+  "valid": true,
+  "parity": [
+    {
+      "lane": 0,
+      "state_mismatches": 0,
+      "contact_substep_mismatches": 0
+    },
+    {
+      "lane": 1,
+      "state_mismatches": 0,
+      "contact_substep_mismatches": 0
+    },
+    {
+      "lane": 2,
+      "state_mismatches": 0,
+      "contact_substep_mismatches": 0
+    },
+    {
+      "lane": 3,
+      "state_mismatches": 0,
+      "contact_substep_mismatches": 0
+    },
+    {
+      "lane": 4,
+      "state_mismatches": 0,
+      "contact_substep_mismatches": 0
+    },
+    {
+      "lane": 5,
+      "state_mismatches": 0,
+      "contact_substep_mismatches": 0
+    },
+    {
+      "lane": 6,
+      "state_mismatches": 0,
+      "contact_substep_mismatches": 0
+    },
+    {
+      "lane": 7,
+      "state_mismatches": 0,
+      "contact_substep_mismatches": 0
+    }
+  ],
+  "source_sha256": {
+    "base": "e2f96a701bfd3ddeb0e3c231a25e20b16d927c8b7b5bfd3c88eba37c3ca45ee8",
+    "new": "8c6daf3dab245d60fe6df6809e63de28407c18a57d34d99dec29280ede58228c"
+  },
+  "fk_uniform_translation_error_m_s": 5.551115123125783e-17,
+  "dt_substep_s": 0.00125,
+  "rows": [
+    {
+      "lane": 0,
+      "mass_kg": 0.4500599934908678,
+      "com_z_375_m": 0.5785415447605297,
+      "com_z_400_m": 0.9134848928598209,
+      "com_vz_375_m_s": 0.7833884855133747,
+      "com_vz_400_m_s": 0.6533519206509611,
+      "delta_vertical_momentum_ns": -0.05852425553555265,
+      "foot_normal_impulse_ns": 0.0,
+      "nonfoot_normal_impulse_ns": 0.0,
+      "modeled_aero_vertical_impulse_ns": 2.2649765807115982,
+      "gravity_assuming_9_81_ns": -2.2075442680727067,
+      "remaining_residual_ns": -0.11595656817444411,
+      "max_abs_modeled_wing_effort": 120.0,
+      "windows": [
+        {
+          "steps": [
+            376,
+            380
+          ],
+          "mean_logged_vertical_aero_N": 3.6299176627715193,
+          "foot_normal_impulse_Ns": 0.0,
+          "start_com_z_m": 0.5785415447605297,
+          "end_com_z_m": 0.6533393452580417,
+          "end_com_vz_m_s": 0.554122146366457
+        },
+        {
+          "steps": [
+            381,
+            385
+          ],
+          "mean_logged_vertical_aero_N": 5.958815382835937,
+          "foot_normal_impulse_Ns": 0.0,
+          "start_com_z_m": 0.6533393452580417,
+          "end_com_z_m": 0.7241820634631437,
+          "end_com_vz_m_s": 0.8401562861080505
+        },
+        {
+          "steps": [
+            386,
+            390
+          ],
+          "mean_logged_vertical_aero_N": 3.7767059699586367,
+          "foot_normal_impulse_Ns": 0.0,
+          "start_com_z_m": 0.7241820634631437,
+          "end_com_z_m": 0.7932171492733324,
+          "end_com_vz_m_s": 0.6466251908739488
+        },
+        {
+          "steps": [
+            391,
+            395
+          ],
+          "mean_logged_vertical_aero_N": 5.59681976281381,
+          "foot_normal_impulse_Ns": 0.0,
+          "start_com_z_m": 0.7932171492733324,
+          "end_com_z_m": 0.8506955732613419,
+          "end_com_vz_m_s": 0.8627009294205927
+        },
+        {
+          "steps": [
+            396,
+            400
+          ],
+          "mean_logged_vertical_aero_N": 3.68750702873607,
+          "foot_normal_impulse_Ns": 0.0,
+          "start_com_z_m": 0.8506955732613419,
+          "end_com_z_m": 0.9134848928598209,
+          "end_com_vz_m_s": 0.6533519206509611
+        }
+      ]
+    },
+    {
+      "lane": 1,
+      "mass_kg": 0.4500599934908678,
+      "com_z_375_m": 0.5778089761501903,
+      "com_z_400_m": 0.8836867593815848,
+      "com_vz_375_m_s": 0.7735651660692991,
+      "com_vz_400_m_s": 0.5514926762410413,
+      "delta_vertical_momentum_ns": -0.09994594332660654,
+      "foot_normal_impulse_ns": 0.0,
+      "nonfoot_normal_impulse_ns": 0.0,
+      "modeled_aero_vertical_impulse_ns": 2.213319741451066,
+      "gravity_assuming_9_81_ns": -2.2075442680727067,
+      "remaining_residual_ns": -0.10572141670496604,
+      "max_abs_modeled_wing_effort": 120.0,
+      "windows": [
+        {
+          "steps": [
+            376,
+            380
+          ],
+          "mean_logged_vertical_aero_N": 3.586923617515603,
+          "foot_normal_impulse_Ns": 0.0,
+          "start_com_z_m": 0.5778089761501903,
+          "end_com_z_m": 0.6512696036351429,
+          "end_com_vz_m_s": 0.535920537361283
+        },
+        {
+          "steps": [
+            381,
+            385
+          ],
+          "mean_logged_vertical_aero_N": 5.773238783017616,
+          "foot_normal_impulse_Ns": 0.0,
+          "start_com_z_m": 0.6512696036351429,
+          "end_com_z_m": 0.7187303703959804,
+          "end_com_vz_m_s": 0.7835622340607398
+        },
+        {
+          "steps": [
+            386,
+            390
+          ],
+          "mean_logged_vertical_aero_N": 3.732589440468683,
+          "foot_normal_impulse_Ns": 0.0,
+          "start_com_z_m": 0.7187303703959804,
+          "end_com_z_m": 0.7818135370211271,
+          "end_com_vz_m_s": 0.5847976365945884
+        },
+        {
+          "steps": [
+            391,
+            395
+          ],
+          "mean_logged_vertical_aero_N": 5.376686413837118,
+          "foot_normal_impulse_Ns": 0.0,
+          "start_com_z_m": 0.7818135370211271,
+          "end_com_z_m": 0.8311312643330855,
+          "end_com_vz_m_s": 0.7583364954636396
+        },
+        {
+          "steps": [
+            396,
+            400
+          ],
+          "mean_logged_vertical_aero_N": 3.663759159671648,
+          "foot_normal_impulse_Ns": 0.0,
+          "start_com_z_m": 0.8311312643330855,
+          "end_com_z_m": 0.8836867593815848,
+          "end_com_vz_m_s": 0.5514926762410413
+        }
+      ]
+    },
+    {
+      "lane": 2,
+      "mass_kg": 0.4500599934908678,
+      "com_z_375_m": 0.19322875277420826,
+      "com_z_400_m": 0.17037403321153963,
+      "com_vz_375_m_s": 0.33452089456199474,
+      "com_vz_400_m_s": -0.09278866702418133,
+      "delta_vertical_momentum_ns": -0.19231493850605996,
+      "foot_normal_impulse_ns": 1.4363781838890557,
+      "nonfoot_normal_impulse_ns": 0.0,
+      "modeled_aero_vertical_impulse_ns": 0.5705176325085991,
+      "gravity_assuming_9_81_ns": -2.2075442680727067,
+      "remaining_residual_ns": 0.008333513168992002,
+      "max_abs_modeled_wing_effort": 2.5,
+      "windows": [
+        {
+          "steps": [
+            376,
+            380
+          ],
+          "mean_logged_vertical_aero_N": 1.4467816519308354,
+          "foot_normal_impulse_Ns": 0.0,
+          "start_com_z_m": 0.19322875277420826,
+          "end_com_z_m": 0.19714710535979466,
+          "end_com_vz_m_s": -0.325233136375768
+        },
+        {
+          "steps": [
+            381,
+            385
+          ],
+          "mean_logged_vertical_aero_N": 0.5147042592770108,
+          "foot_normal_impulse_Ns": 0.557079910998555,
+          "start_com_z_m": 0.19714710535979466,
+          "end_com_z_m": 0.18310830997841313,
+          "end_com_vz_m_s": 0.05328748825485369
+        },
+        {
+          "steps": [
+            386,
+            390
+          ],
+          "mean_logged_vertical_aero_N": 1.0106142194745584,
+          "foot_normal_impulse_Ns": 0.23602475131099998,
+          "start_com_z_m": 0.18310830997841313,
+          "end_com_z_m": 0.17173906641520115,
+          "end_com_vz_m_s": -0.1682140030354545
+        },
+        {
+          "steps": [
+            391,
+            395
+          ],
+          "mean_logged_vertical_aero_N": 1.1789505683062833,
+          "foot_normal_impulse_Ns": 0.3933156658444998,
+          "start_com_z_m": 0.17173906641520115,
+          "end_com_z_m": 0.17984854775686027,
+          "end_com_vz_m_s": -0.022199165356838284
+        },
+        {
+          "steps": [
+            396,
+            400
+          ],
+          "mean_logged_vertical_aero_N": 1.5541256260972998,
+          "foot_normal_impulse_Ns": 0.24995785573499998,
+          "start_com_z_m": 0.17984854775686027,
+          "end_com_z_m": 0.17037403321153963,
+          "end_com_vz_m_s": -0.09278866702418133
+        }
+      ]
+    },
+    {
+      "lane": 3,
+      "mass_kg": 0.4500599934908678,
+      "com_z_375_m": 0.19317885276130436,
+      "com_z_400_m": 0.17025256328842606,
+      "com_vz_375_m_s": 0.3370511603498437,
+      "com_vz_400_m_s": -0.10135050717754308,
+      "delta_vertical_momentum_ns": -0.19730705163376128,
+      "foot_normal_impulse_ns": 1.4332723544416144,
+      "nonfoot_normal_impulse_ns": 0.0,
+      "modeled_aero_vertical_impulse_ns": 0.5688835330222141,
+      "gravity_assuming_9_81_ns": -2.2075442680727067,
+      "remaining_residual_ns": 0.008081328975117041,
+      "max_abs_modeled_wing_effort": 2.5,
+      "windows": [
+        {
+          "steps": [
+            376,
+            380
+          ],
+          "mean_logged_vertical_aero_N": 1.4178754753454657,
+          "foot_normal_impulse_Ns": 0.0,
+          "start_com_z_m": 0.19317885276130436,
+          "end_com_z_m": 0.19711049800330452,
+          "end_com_vz_m_s": -0.3291820986902589
+        },
+        {
+          "steps": [
+            381,
+            385
+          ],
+          "mean_logged_vertical_aero_N": 0.5561392196763351,
+          "foot_normal_impulse_Ns": 0.5646507449226141,
+          "start_com_z_m": 0.19711049800330452,
+          "end_com_z_m": 0.18386849972560004,
+          "end_com_vz_m_s": 0.07416221904546016
+        },
+        {
+          "steps": [
+            386,
+            390
+          ],
+          "mean_logged_vertical_aero_N": 0.9513911970216627,
+          "foot_normal_impulse_Ns": 0.199689101019,
+          "start_com_z_m": 0.18386849972560004,
+          "end_com_z_m": 0.17581453789742266,
+          "end_com_vz_m_s": -0.24366976753349123
+        },
+        {
+          "steps": [
+            391,
+            395
+          ],
+          "mean_logged_vertical_aero_N": 1.1512212312315495,
+          "foot_normal_impulse_Ns": 0.4096949106759999,
+          "start_com_z_m": 0.17581453789742266,
+          "end_com_z_m": 0.18310795572495375,
+          "end_com_vz_m_s": -0.06686623984026278
+        },
+        {
+          "steps": [
+            396,
+            400
+          ],
+          "mean_logged_vertical_aero_N": 1.6122082069471286,
+          "foot_normal_impulse_Ns": 0.25923759782399997,
+          "start_com_z_m": 0.18310795572495375,
+          "end_com_z_m": 0.17025256328842606,
+          "end_com_vz_m_s": -0.10135050717754308
+        }
+      ]
+    },
+    {
+      "lane": 4,
+      "mass_kg": 0.4500599934908678,
+      "com_z_375_m": 0.189987177695765,
+      "com_z_400_m": 0.1757538845137858,
+      "com_vz_375_m_s": 0.3673974119428741,
+      "com_vz_400_m_s": -0.053679434895579844,
+      "delta_vertical_momentum_ns": -0.18950984294726972,
+      "foot_normal_impulse_ns": 1.140336890951848,
+      "nonfoot_normal_impulse_ns": 0.0,
+      "modeled_aero_vertical_impulse_ns": 0.8720900287114729,
+      "gravity_assuming_9_81_ns": -2.2075442680727067,
+      "remaining_residual_ns": 0.005607505462115969,
+      "max_abs_modeled_wing_effort": 3.0,
+      "windows": [
+        {
+          "steps": [
+            376,
+            380
+          ],
+          "mean_logged_vertical_aero_N": 1.594096082863776,
+          "foot_normal_impulse_Ns": 0.0,
+          "start_com_z_m": 0.189987177695765,
+          "end_com_z_m": 0.20303793230131817,
+          "end_com_vz_m_s": -0.26719530235484085
+        },
+        {
+          "steps": [
+            381,
+            385
+          ],
+          "mean_logged_vertical_aero_N": 2.1649563406535277,
+          "foot_normal_impulse_Ns": 0.2416663941028476,
+          "start_com_z_m": 0.20303793230131817,
+          "end_com_z_m": 0.18418837348595996,
+          "end_com_vz_m_s": -0.2197669767869479
+        },
+        {
+          "steps": [
+            386,
+            390
+          ],
+          "mean_logged_vertical_aero_N": 1.184026530616665,
+          "foot_normal_impulse_Ns": 0.3628072964930001,
+          "start_com_z_m": 0.18418837348595996,
+          "end_com_z_m": 0.17492809285400715,
+          "end_com_vz_m_s": -0.12234816825283971
+        },
+        {
+          "steps": [
+            391,
+            395
+          ],
+          "mean_logged_vertical_aero_N": 1.0712925397960953,
+          "foot_normal_impulse_Ns": 0.35537095251700007,
+          "start_com_z_m": 0.17492809285400715,
+          "end_com_z_m": 0.18356196065609315,
+          "end_com_vz_m_s": -0.0845524480231324
+        },
+        {
+          "steps": [
+            396,
+            400
+          ],
+          "mean_logged_vertical_aero_N": 2.7065287931846624,
+          "foot_normal_impulse_Ns": 0.18049224783900003,
+          "start_com_z_m": 0.18356196065609315,
+          "end_com_z_m": 0.1757538845137858,
+          "end_com_vz_m_s": -0.053679434895579844
+        }
+      ]
+    },
+    {
+      "lane": 5,
+      "mass_kg": 0.4500599934908678,
+      "com_z_375_m": 0.18924360545539948,
+      "com_z_400_m": 0.17536779293369475,
+      "com_vz_375_m_s": 0.3419254850218774,
+      "com_vz_400_m_s": -0.059707907055957014,
+      "delta_vertical_momentum_ns": -0.18075912182426532,
+      "foot_normal_impulse_ns": 1.1590280147255476,
+      "nonfoot_normal_impulse_ns": 0.0,
+      "modeled_aero_vertical_impulse_ns": 0.8623388126541541,
+      "gravity_assuming_9_81_ns": -2.2075442680727067,
+      "remaining_residual_ns": 0.005418318868739669,
+      "max_abs_modeled_wing_effort": 3.0,
+      "windows": [
+        {
+          "steps": [
+            376,
+            380
+          ],
+          "mean_logged_vertical_aero_N": 1.600985148851494,
+          "foot_normal_impulse_Ns": 0.0,
+          "start_com_z_m": 0.18924360545539948,
+          "end_com_z_m": 0.19994424799119545,
+          "end_com_vz_m_s": -0.2893492397639777
+        },
+        {
+          "steps": [
+            381,
+            385
+          ],
+          "mean_logged_vertical_aero_N": 2.1698888677916903,
+          "foot_normal_impulse_Ns": 0.33327896606754814,
+          "start_com_z_m": 0.19994424799119545,
+          "end_com_z_m": 0.18225977508931063,
+          "end_com_vz_m_s": -0.038179429849875816
+        },
+        {
+          "steps": [
+            386,
+            390
+          ],
+          "mean_logged_vertical_aero_N": 1.1978333176942857,
+          "foot_normal_impulse_Ns": 0.27434268849800003,
+          "start_com_z_m": 0.18225977508931063,
+          "end_com_z_m": 0.17551448843095613,
+          "end_com_vz_m_s": -0.13609484148934184
+        },
+        {
+          "steps": [
+            391,
+            395
+          ],
+          "mean_logged_vertical_aero_N": 1.0548476128312965,
+          "foot_normal_impulse_Ns": 0.377345695047,
+          "start_com_z_m": 0.17551448843095613,
+          "end_com_z_m": 0.18213110572604135,
+          "end_com_vz_m_s": -0.05171385680849746
+        },
+        {
+          "steps": [
+            396,
+            400
+          ],
+          "mean_logged_vertical_aero_N": 2.5998331793727756,
+          "foot_normal_impulse_Ns": 0.174060665113,
+          "start_com_z_m": 0.18213110572604135,
+          "end_com_z_m": 0.17536779293369475,
+          "end_com_vz_m_s": -0.059707907055957014
+        }
+      ]
+    },
+    {
+      "lane": 6,
+      "mass_kg": 0.4500599934908678,
+      "com_z_375_m": 0.1890775403563076,
+      "com_z_400_m": 0.20579735744198285,
+      "com_vz_375_m_s": 0.3778668309040424,
+      "com_vz_400_m_s": -0.04042405414900779,
+      "delta_vertical_momentum_ns": -0.1882559930042651,
+      "foot_normal_impulse_ns": 0.45091459166419007,
+      "nonfoot_normal_impulse_ns": 0.0,
+      "modeled_aero_vertical_impulse_ns": 1.5742309489196848,
+      "gravity_assuming_9_81_ns": -2.2075442680727067,
+      "remaining_residual_ns": -0.0058572655154334186,
+      "max_abs_modeled_wing_effort": 4.0,
+      "windows": [
+        {
+          "steps": [
+            376,
+            380
+          ],
+          "mean_logged_vertical_aero_N": 2.3452894251483127,
+          "foot_normal_impulse_Ns": 0.0,
+          "start_com_z_m": 0.1890775403563076,
+          "end_com_z_m": 0.21038512577520588,
+          "end_com_vz_m_s": -0.09723792540689935
+        },
+        {
+          "steps": [
+            381,
+            385
+          ],
+          "mean_logged_vertical_aero_N": 4.2804190596816065,
+          "foot_normal_impulse_Ns": 0.0,
+          "start_com_z_m": 0.21038512577520588,
+          "end_com_z_m": 0.2184821648548084,
+          "end_com_vz_m_s": -0.13792698081832314
+        },
+        {
+          "steps": [
+            386,
+            390
+          ],
+          "mean_logged_vertical_aero_N": 2.3343050878217326,
+          "foot_normal_impulse_Ns": 0.21656165825582,
+          "start_com_z_m": 0.2184821648548084,
+          "end_com_z_m": 0.19301927325612184,
+          "end_com_vz_m_s": -0.09718588656269535
+        },
+        {
+          "steps": [
+            391,
+            395
+          ],
+          "mean_logged_vertical_aero_N": 3.0572748829299243,
+          "foot_normal_impulse_Ns": 0.207437242811875,
+          "start_com_z_m": 0.19301927325612184,
+          "end_com_z_m": 0.20325871874792664,
+          "end_com_vz_m_s": 0.051342489642798715
+        },
+        {
+          "steps": [
+            396,
+            400
+          ],
+          "mean_logged_vertical_aero_N": 3.7250210336152896,
+          "foot_normal_impulse_Ns": 0.026915690596494957,
+          "start_com_z_m": 0.20325871874792664,
+          "end_com_z_m": 0.20579735744198285,
+          "end_com_vz_m_s": -0.04042405414900779
+        }
+      ]
+    },
+    {
+      "lane": 7,
+      "mass_kg": 0.4500599934908678,
+      "com_z_375_m": 0.19037011086552083,
+      "com_z_400_m": 0.20214368509487576,
+      "com_vz_375_m_s": 0.4769709154566777,
+      "com_vz_400_m_s": -0.11516606458460688,
+      "delta_vertical_momentum_ns": -0.26649716538308266,
+      "foot_normal_impulse_ns": 0.38186548528784636,
+      "nonfoot_normal_impulse_ns": 0.0,
+      "modeled_aero_vertical_impulse_ns": 1.5679601031218173,
+      "gravity_assuming_9_81_ns": -2.2075442680727067,
+      "remaining_residual_ns": -0.008778485720039697,
+      "max_abs_modeled_wing_effort": 4.0,
+      "windows": [
+        {
+          "steps": [
+            376,
+            380
+          ],
+          "mean_logged_vertical_aero_N": 2.250188258277219,
+          "foot_normal_impulse_Ns": 0.0,
+          "start_com_z_m": 0.19037011086552083,
+          "end_com_z_m": 0.2183259752953728,
+          "end_com_vz_m_s": -0.02446206290113954
+        },
+        {
+          "steps": [
+            381,
+            385
+          ],
+          "mean_logged_vertical_aero_N": 4.440852303529353,
+          "foot_normal_impulse_Ns": 0.0,
+          "start_com_z_m": 0.2183259752953728,
+          "end_com_z_m": 0.23663883182147186,
+          "end_com_vz_m_s": -0.03713215741730091
+        },
+        {
+          "steps": [
+            386,
+            390
+          ],
+          "mean_logged_vertical_aero_N": 2.38963678690482,
+          "foot_normal_impulse_Ns": 0.0,
+          "start_com_z_m": 0.23663883182147186,
+          "end_com_z_m": 0.21728770149213902,
+          "end_com_vz_m_s": -0.4698994174429622
+        },
+        {
+          "steps": [
+            391,
+            395
+          ],
+          "mean_logged_vertical_aero_N": 3.1819274352894817,
+          "foot_normal_impulse_Ns": 0.2952992847370906,
+          "start_com_z_m": 0.21728770149213902,
+          "end_com_z_m": 0.20604418767793084,
+          "end_com_vz_m_s": -0.09209977727984504
+        },
+        {
+          "steps": [
+            396,
+            400
+          ],
+          "mean_logged_vertical_aero_N": 3.4169962472172886,
+          "foot_normal_impulse_Ns": 0.08656620055075576,
+          "start_com_z_m": 0.20604418767793084,
+          "end_com_z_m": 0.20214368509487576,
+          "end_com_vz_m_s": -0.11516606458460688
+        }
+      ]
+    }
+  ],
+  "scope": "Modeled forces in ticks 376\u2013400 with endpoint COM velocity at 375 and 400, assumed gravity; does not by itself prove biological forces or complete energy accounting. Observer parity applies to logged states and contacts, not unobserved internal state."
+}
