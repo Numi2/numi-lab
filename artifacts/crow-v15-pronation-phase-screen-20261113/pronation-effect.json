@@ -1,0 +1,47 @@
+{
+  "scope": "Posthoc min/max demonstrates executed joint target and recorded endpoint response only; it does not validate aerodynamic effect or realism.",
+  "rows": [
+    {
+      "lane": 2,
+      "left_pronation_target_min_rad": -0.111186229,
+      "left_pronation_target_max_rad": 0.00996853691,
+      "left_pronation_q_min_rad": -0.107288063,
+      "left_pronation_q_max_rad": 0.00614687847
+    },
+    {
+      "lane": 3,
+      "left_pronation_target_min_rad": -0.110765539,
+      "left_pronation_target_max_rad": 0.00996853691,
+      "left_pronation_q_min_rad": -0.106946193,
+      "left_pronation_q_max_rad": 0.00614400674
+    },
+    {
+      "lane": 4,
+      "left_pronation_target_min_rad": -0.108798228,
+      "left_pronation_target_max_rad": 0.010350409,
+      "left_pronation_q_min_rad": -0.10403312,
+      "left_pronation_q_max_rad": 0.00622122269
+    },
+    {
+      "lane": 5,
+      "left_pronation_target_min_rad": -0.108798228,
+      "left_pronation_target_max_rad": 0.010350409,
+      "left_pronation_q_min_rad": -0.104038291,
+      "left_pronation_q_max_rad": 0.00621831045
+    },
+    {
+      "lane": 6,
+      "left_pronation_target_min_rad": -0.108287804,
+      "left_pronation_target_max_rad": 0.0108608361,
+      "left_pronation_q_min_rad": -0.105541117,
+      "left_pronation_q_max_rad": 0.00605652016
+    },
+    {
+      "lane": 7,
+      "left_pronation_target_min_rad": -0.1114503,
+      "left_pronation_target_max_rad": 0.0108608361,
+      "left_pronation_q_min_rad": -0.108119451,
+      "left_pronation_q_max_rad": 0.00611594878
+    }
+  ]
+}

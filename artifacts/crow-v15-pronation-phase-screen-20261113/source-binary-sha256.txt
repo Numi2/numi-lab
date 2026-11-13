@@ -1,0 +1,5 @@
+e32b265573acec8cdec850ea9ebef5babaacd6b21f2c4e01689e9248f16baf17  artifacts/crow-v15-pronation-phase-screen-20261113/World.metal
+8a0046f8f2fad73e38d6cf373ee99dc501868a1109ffe4c06538626dfaf308dd  artifacts/crow-v15-pronation-phase-screen-20261113/push-wing.metal
+6b270dab06734e18eecbddec914ebcd80460ba3ce5a1654596a374748a6fa67b  artifacts/crow-v15-pronation-phase-screen-20261113/hold-wing.metal
+aafcf51767a1cabb96f374f9a54fcbcc832b0dcb129b045e49c7ea5c53e7bab2  build/crow-v15-pronation-phase-screen-20261113/push-wing.metallib
+b7de9121716ca968b5ccbfcd66fad48fe595ac05529e169e0df866a699bf0f68  build/crow-v15-pronation-phase-screen-20261113/hold-wing.metallib
