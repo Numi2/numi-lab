@@ -1,0 +1,41 @@
+{
+  "purpose": "retire redundant split copies only; original research log retained",
+  "files": [
+    {
+      "absolute_path": "/Users/n/Developer/numi-crow-rl-20261107/artifacts/crow-v15-flight-differential-flap-identification-20261113/flap-identification-20261126-rebound-flap/run.stderr.gz.part00",
+      "device": 16777232,
+      "inode": 17097112,
+      "links": 1,
+      "bytes": 41943040,
+      "sha256": "3b71cd1753bc5ab3eafebb0c31f2eb84f0dabc5533afb69159cd3a4a0dc2f3fc",
+      "lsof_exit": 1
+    },
+    {
+      "absolute_path": "/Users/n/Developer/numi-crow-rl-20261107/artifacts/crow-v15-flight-differential-flap-identification-20261113/flap-identification-20261126-rebound-flap/run.stderr.gz.part01",
+      "device": 16777232,
+      "inode": 17097113,
+      "links": 1,
+      "bytes": 41943040,
+      "sha256": "2affeee835a5ef457a95d1a5138655883ce01ceb0e04d5932bcd4a5243264a9d",
+      "lsof_exit": 1
+    },
+    {
+      "absolute_path": "/Users/n/Developer/numi-crow-rl-20261107/artifacts/crow-v15-flight-differential-flap-identification-20261113/flap-identification-20261126-rebound-flap/run.stderr.gz.part02",
+      "device": 16777232,
+      "inode": 17097114,
+      "links": 1,
+      "bytes": 41943040,
+      "sha256": "df8cd9752eb4de6f31eb4f09112733a862d2309114f6a5e5df40956baeb9f19b",
+      "lsof_exit": 1
+    },
+    {
+      "absolute_path": "/Users/n/Developer/numi-crow-rl-20261107/artifacts/crow-v15-flight-differential-flap-identification-20261113/flap-identification-20261126-rebound-flap/run.stderr.gz.part03",
+      "device": 16777232,
+      "inode": 17097115,
+      "links": 1,
+      "bytes": 16378145,
+      "sha256": "4c88033fdd386b2e5978026fdd11a3b6ca905c93e48cd24d56b7f606d7cf3586",
+      "lsof_exit": 1
+    }
+  ]
+}

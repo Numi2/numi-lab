@@ -1,0 +1,29 @@
+{
+  "commit": "1b30d2ad536701e110b2380c413df311929bcca5",
+  "run": "flap-identification-20261126-rebound-flap",
+  "parts": [
+    {
+      "file": "run.stderr.gz.part00",
+      "bytes": 41943040,
+      "sha256": "3b71cd1753bc5ab3eafebb0c31f2eb84f0dabc5533afb69159cd3a4a0dc2f3fc"
+    },
+    {
+      "file": "run.stderr.gz.part01",
+      "bytes": 41943040,
+      "sha256": "2affeee835a5ef457a95d1a5138655883ce01ceb0e04d5932bcd4a5243264a9d"
+    },
+    {
+      "file": "run.stderr.gz.part02",
+      "bytes": 41943040,
+      "sha256": "df8cd9752eb4de6f31eb4f09112733a862d2309114f6a5e5df40956baeb9f19b"
+    },
+    {
+      "file": "run.stderr.gz.part03",
+      "bytes": 16378145,
+      "sha256": "4c88033fdd386b2e5978026fdd11a3b6ca905c93e48cd24d56b7f606d7cf3586"
+    }
+  ],
+  "bytes": 142207265,
+  "full_sha256": "79d512d53093f551c8ce4b88a64dd56cc6d8a402c88c6418609dfdde42273143",
+  "gzip_complete": true
+}
