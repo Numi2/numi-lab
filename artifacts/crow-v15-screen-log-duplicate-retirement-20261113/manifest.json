@@ -1,0 +1,149 @@
+{
+  "purpose": "Retire only exact duplicate compressed stderr and Git archived parts after exact file identity, hash, link count and absence of open handles are rechecked. The two current K=.12 comparison logs are excluded.",
+  "host": "macmini",
+  "repo_root": "/Users/n/Developer/numi-crow-rl-20261107",
+  "github_independent_fetch": [
+    {
+      "commit": "9c3854f4054c963276fd3715427c42784ea1bec6",
+      "remote_path": "artifacts/crow-v15-flight-speed-gain-screen-20261113/push-wing-20261126-rebound-gain",
+      "parts": [
+        {
+          "file": "run.stderr.gz.part00",
+          "sha256": "299967d91da994c90eaf021222d2fe2bd226ef608a6092967e28c07afb3b0d45",
+          "bytes": 41943040
+        },
+        {
+          "file": "run.stderr.gz.part01",
+          "sha256": "254968b8789644eeb956d1f10790006e1fdf5b17fd76a65f2be26ea53c336c08",
+          "bytes": 35950215
+        }
+      ],
+      "concatenated_sha256": "350c40eef106840d59f67bc61fe899cfd75eef5980189d9a041682f4d2dfd43a",
+      "bytes": 77893255
+    },
+    {
+      "commit": "aa78328689279729db120ad8eac91ed44dada74d",
+      "remote_path": "artifacts/crow-v15-uniform-flight-seed-screen-20261113/push-wing-008-20261126-rebound-uniform",
+      "parts": [
+        {
+          "file": "run.stderr.gz.part00",
+          "sha256": "0d34686a96a610d030e7a18de8d97fe940a3085a8dfffb15d5b7be0ec20c61e6",
+          "bytes": 41943040
+        },
+        {
+          "file": "run.stderr.gz.part01",
+          "sha256": "1849c7bcdf7a1575c585148f5273aa1fd13ea452e679d472449e5217acd90229",
+          "bytes": 35361835
+        }
+      ],
+      "concatenated_sha256": "83b185425815c30fd79e85a98f045e42292252573721d40f778dafd789f5091a",
+      "bytes": 77304875
+    },
+    {
+      "commit": "aa78328689279729db120ad8eac91ed44dada74d",
+      "remote_path": "artifacts/crow-v15-uniform-flight-seed-screen-20261113/push-wing-008-20261127-rebound-uniform",
+      "parts": [
+        {
+          "file": "run.stderr.gz.part00",
+          "sha256": "4188246b4edd6988a298e64ae09b18c829e888e321fcb308e7b988f71fa77841",
+          "bytes": 41943040
+        },
+        {
+          "file": "run.stderr.gz.part01",
+          "sha256": "5a952ac29dbeeb81fa2a8ce49e9e31ad4ef157aba1e20a3f92f905dd82397a2b",
+          "bytes": 41943040
+        },
+        {
+          "file": "run.stderr.gz.part02",
+          "sha256": "aff9c5f7e19f25277da38dad2a04985c6a0ea91d7b8835808748141997c564a4",
+          "bytes": 337296
+        }
+      ],
+      "concatenated_sha256": "986c6a52bf5112bc97e16c422f56b96d74f0042b208f625d4141faedae95f672",
+      "bytes": 84223376
+    }
+  ],
+  "verification": "Independently streamed each immutable GitHub raw part and matched ordered concatenation; each complete gzip restoration script was executed and passed gzip -t.",
+  "files": [
+    {
+      "path": "artifacts/crow-v15-flight-speed-gain-screen-20261113/push-wing-20261126-rebound-gain/run.stderr.gz",
+      "device": 16777232,
+      "inode": 17096674,
+      "size": 77893255,
+      "links": 1,
+      "sha256": "350c40eef106840d59f67bc61fe899cfd75eef5980189d9a041682f4d2dfd43a"
+    },
+    {
+      "path": "artifacts/crow-v15-flight-speed-gain-screen-20261113/push-wing-20261126-rebound-gain/run.stderr.gz.part00",
+      "device": 16777232,
+      "inode": 17096706,
+      "size": 41943040,
+      "links": 1,
+      "sha256": "299967d91da994c90eaf021222d2fe2bd226ef608a6092967e28c07afb3b0d45"
+    },
+    {
+      "path": "artifacts/crow-v15-flight-speed-gain-screen-20261113/push-wing-20261126-rebound-gain/run.stderr.gz.part01",
+      "device": 16777232,
+      "inode": 17096707,
+      "size": 35950215,
+      "links": 1,
+      "sha256": "254968b8789644eeb956d1f10790006e1fdf5b17fd76a65f2be26ea53c336c08"
+    },
+    {
+      "path": "artifacts/crow-v15-uniform-flight-seed-screen-20261113/push-wing-008-20261126-rebound-uniform/run.stderr.gz",
+      "device": 16777232,
+      "inode": 17096739,
+      "size": 77304875,
+      "links": 1,
+      "sha256": "83b185425815c30fd79e85a98f045e42292252573721d40f778dafd789f5091a"
+    },
+    {
+      "path": "artifacts/crow-v15-uniform-flight-seed-screen-20261113/push-wing-008-20261126-rebound-uniform/run.stderr.gz.part00",
+      "device": 16777232,
+      "inode": 17096778,
+      "size": 41943040,
+      "links": 1,
+      "sha256": "0d34686a96a610d030e7a18de8d97fe940a3085a8dfffb15d5b7be0ec20c61e6"
+    },
+    {
+      "path": "artifacts/crow-v15-uniform-flight-seed-screen-20261113/push-wing-008-20261126-rebound-uniform/run.stderr.gz.part01",
+      "device": 16777232,
+      "inode": 17096779,
+      "size": 35361835,
+      "links": 1,
+      "sha256": "1849c7bcdf7a1575c585148f5273aa1fd13ea452e679d472449e5217acd90229"
+    },
+    {
+      "path": "artifacts/crow-v15-uniform-flight-seed-screen-20261113/push-wing-008-20261127-rebound-uniform/run.stderr.gz",
+      "device": 16777232,
+      "inode": 17096763,
+      "size": 84223376,
+      "links": 1,
+      "sha256": "986c6a52bf5112bc97e16c422f56b96d74f0042b208f625d4141faedae95f672"
+    },
+    {
+      "path": "artifacts/crow-v15-uniform-flight-seed-screen-20261113/push-wing-008-20261127-rebound-uniform/run.stderr.gz.part00",
+      "device": 16777232,
+      "inode": 17096811,
+      "size": 41943040,
+      "links": 1,
+      "sha256": "4188246b4edd6988a298e64ae09b18c829e888e321fcb308e7b988f71fa77841"
+    },
+    {
+      "path": "artifacts/crow-v15-uniform-flight-seed-screen-20261113/push-wing-008-20261127-rebound-uniform/run.stderr.gz.part01",
+      "device": 16777232,
+      "inode": 17096812,
+      "size": 41943040,
+      "links": 1,
+      "sha256": "5a952ac29dbeeb81fa2a8ce49e9e31ad4ef157aba1e20a3f92f905dd82397a2b"
+    },
+    {
+      "path": "artifacts/crow-v15-uniform-flight-seed-screen-20261113/push-wing-008-20261127-rebound-uniform/run.stderr.gz.part02",
+      "device": 16777232,
+      "inode": 17096813,
+      "size": 337296,
+      "links": 1,
+      "sha256": "aff9c5f7e19f25277da38dad2a04985c6a0ea91d7b8835808748141997c564a4"
+    }
+  ]
+}
