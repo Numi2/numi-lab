@@ -1,0 +1,11 @@
+--- build/crow-v15-mirrored-pronation-20261113/MetalWorld.mm	2026-11-13 12:56:54
++++ artifacts/crow-v15-full-pronation-observer-20261113/MetalWorld-full-pronation-observer.mm	2026-11-13 18:08:04
+@@ -22510,7 +22510,7 @@
+                                 for (int j=8;j<=9;++j) std::fprintf(stderr," %.9g %.9g %.9g %.9g %.9g %.9g %.9g", effort[lane*diagnostics.layout.dispatch.effortEnvironmentStride+j],targets[lane*diagnostics.layout.dispatch.effortEnvironmentStride+j],startQ[lane*crowTraceQStride+j+1],coordinates[lane*crowTraceQStride+j+1],startV[lane*crowTraceVStride+j],preContactV[lane*crowTraceVStride+j],velocities[lane*crowTraceVStride+j]);
+                                 std::fprintf(stderr,"\n");
+                             }
+-                            if (crowTraceStep>=650 && crowTraceStep<=1150) {
++                            if (crowTraceStep>=600 && crowTraceStep<=1200) {
+                                 std::fprintf(stderr,"CROW_PRONATION_EFFORT %llu %lu %lu",crowTraceStep,(unsigned long)sub,(unsigned long)lane);
+                                 for (int j=10;j<=11;++j) std::fprintf(stderr," %.9g %.9g %.9g %.9g %.9g %.9g %.9g",effort[lane*diagnostics.layout.dispatch.effortEnvironmentStride+j],targets[lane*diagnostics.layout.dispatch.effortEnvironmentStride+j],startQ[lane*crowTraceQStride+j+1],coordinates[lane*crowTraceQStride+j+1],startV[lane*crowTraceVStride+j],preContactV[lane*crowTraceVStride+j],velocities[lane*crowTraceVStride+j]);
+                                 std::fprintf(stderr,"\n");
