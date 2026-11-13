@@ -1,0 +1,124 @@
+{
+  "valid": true,
+  "rows": [
+    {
+      "lane": 2,
+      "first_non_neutral_wing_target_tick": 381,
+      "release_first_of_three_ticks": 376,
+      "com_vz_at_release_m_s": 0.48355389815963207,
+      "prepush_state_mismatches": [],
+      "prewing_observation_complete": true,
+      "flap_speed_before_wing_target_rad_s": 0.897965968,
+      "toe_threshold_substeps_before_wing_target": 0,
+      "nonfoot_impulse_before_wing_target_ns": 0.0,
+      "aero_vertical_impulse_before_wing_target_ns": -0.0023270745553918754,
+      "matched_push_minus_hold_normal_impulse_to_release_ns": 0.2267366910826501,
+      "leg_release_before_wing_pass": true
+    },
+    {
+      "lane": 3,
+      "first_non_neutral_wing_target_tick": 381,
+      "release_first_of_three_ticks": 376,
+      "com_vz_at_release_m_s": 0.48707513443387573,
+      "prepush_state_mismatches": [],
+      "prewing_observation_complete": true,
+      "flap_speed_before_wing_target_rad_s": 0.901459277,
+      "toe_threshold_substeps_before_wing_target": 0,
+      "nonfoot_impulse_before_wing_target_ns": 0.0,
+      "aero_vertical_impulse_before_wing_target_ns": -0.002470907424960645,
+      "matched_push_minus_hold_normal_impulse_to_release_ns": 0.22849542991266697,
+      "leg_release_before_wing_pass": true
+    },
+    {
+      "lane": 4,
+      "first_non_neutral_wing_target_tick": 381,
+      "release_first_of_three_ticks": 376,
+      "com_vz_at_release_m_s": 0.4649017296473313,
+      "prepush_state_mismatches": [],
+      "prewing_observation_complete": true,
+      "flap_speed_before_wing_target_rad_s": 0.848654628,
+      "toe_threshold_substeps_before_wing_target": 0,
+      "nonfoot_impulse_before_wing_target_ns": 0.0,
+      "aero_vertical_impulse_before_wing_target_ns": -0.0019692815766416414,
+      "matched_push_minus_hold_normal_impulse_to_release_ns": 0.218353182731391,
+      "leg_release_before_wing_pass": true
+    },
+    {
+      "lane": 5,
+      "first_non_neutral_wing_target_tick": 381,
+      "release_first_of_three_ticks": 376,
+      "com_vz_at_release_m_s": 0.47398495734984314,
+      "prepush_state_mismatches": [],
+      "prewing_observation_complete": true,
+      "flap_speed_before_wing_target_rad_s": 0.861945927,
+      "toe_threshold_substeps_before_wing_target": 0,
+      "nonfoot_impulse_before_wing_target_ns": 0.0,
+      "aero_vertical_impulse_before_wing_target_ns": -0.0020800892671853075,
+      "matched_push_minus_hold_normal_impulse_to_release_ns": 0.22230653131253805,
+      "leg_release_before_wing_pass": true
+    },
+    {
+      "lane": 6,
+      "first_non_neutral_wing_target_tick": 381,
+      "release_first_of_three_ticks": 376,
+      "com_vz_at_release_m_s": 0.40759815979549724,
+      "prepush_state_mismatches": [],
+      "prewing_observation_complete": true,
+      "flap_speed_before_wing_target_rad_s": 0.798650205,
+      "toe_threshold_substeps_before_wing_target": 0,
+      "nonfoot_impulse_before_wing_target_ns": 0.0,
+      "aero_vertical_impulse_before_wing_target_ns": -0.0014896271384260236,
+      "matched_push_minus_hold_normal_impulse_to_release_ns": 0.193647127458754,
+      "leg_release_before_wing_pass": true
+    },
+    {
+      "lane": 7,
+      "first_non_neutral_wing_target_tick": 381,
+      "release_first_of_three_ticks": 376,
+      "com_vz_at_release_m_s": 0.48557994670832016,
+      "prepush_state_mismatches": [],
+      "prewing_observation_complete": true,
+      "flap_speed_before_wing_target_rad_s": 0.899270713,
+      "toe_threshold_substeps_before_wing_target": 0,
+      "nonfoot_impulse_before_wing_target_ns": 0.0,
+      "aero_vertical_impulse_before_wing_target_ns": -0.002445118638814847,
+      "matched_push_minus_hold_normal_impulse_to_release_ns": 0.22781700801209606,
+      "leg_release_before_wing_pass": true
+    }
+  ],
+  "reference_hop_parity": [
+    {
+      "arm": "push",
+      "lane": 2,
+      "through_tick": 380,
+      "missing": [],
+      "mismatches": []
+    },
+    {
+      "arm": "push",
+      "lane": 3,
+      "through_tick": 380,
+      "missing": [],
+      "mismatches": []
+    },
+    {
+      "arm": "hold",
+      "lane": 2,
+      "through_tick": 380,
+      "missing": [],
+      "mismatches": []
+    },
+    {
+      "arm": "hold",
+      "lane": 3,
+      "through_tick": 380,
+      "missing": [],
+      "mismatches": []
+    }
+  ],
+  "paired_complete_exploratory_screen_pass": {
+    "2-3": false,
+    "4-5": false,
+    "6-7": false
+  }
+}

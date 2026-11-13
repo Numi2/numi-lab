@@ -1,0 +1,7 @@
+# Post-hop wing phase screen: leg release established, transition fails
+
+All six push lanes first had three unloaded intervals at tick 376, before any wing target departed neutral at tick 381. The per-lane matched push-minus-hold foot-normal impulse through release was 0.194-0.228 N s; prewing peak flap speed was 0.799-0.901 rad/s, with no toe threshold or nonfoot normal impulse before wing onset. All passed the exploratory leg-release-before-wing check; lanes 2/3 also matched the earlier intermediate-damping hop exactly through tick 380. Matched wing targets, drive gains and full-horizon observation coverage passed their checks.
+
+All six push lanes recontacted at tick 382, one tick after first wing-target departure. They traveled -0.668 to -0.962 m in world x over ticks 400-500. Therefore every pair failed the predeclared sustained forward-flight screen. See analysis.json and leg-release-check.json for per-lane toe, contact, force, and hold data; unsuccessful and matched-control traces are retained.
+
+These are correlated development lanes on one used layout/seed with an uncalibrated body and research aero, not qualified flight, biological accuracy, landing, or a waypoint mission. The timed onset is not a general contact-triggered controller. The corresponding policy packs and c_api source are archived at 8673657e172e83e1b82d74badda49f37f366b15d; the exact new observer, task shaders, binaries and records are included here. Final layouts/seeds remain unused; no flight controller has been frozen.
