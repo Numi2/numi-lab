@@ -1,0 +1,11 @@
+/Users/n/Developer/numi-crow-rl-20261107/artifacts/crow-v15-long-lateral-flight-screen-20261113/long-flight.metal:5099:30: warning: unused variable 'arm' [-Wunused-variable]
+                { const uint arm=environment%8u;
+                             ^
+/Users/n/Developer/numi-crow-rl-20261107/artifacts/crow-v15-long-lateral-flight-screen-20261113/long-flight.metal:5124:29: warning: unused variable 'extended' [-Wunused-variable]
+                const float extended=joint==0u ? -0.15f : joint==1u ? kneeExtension : 0.83f;
+                            ^
+/Users/n/Developer/numi-crow-rl-20261107/artifacts/crow-v15-long-lateral-flight-screen-20261113/long-flight.metal:5524:28: warning: unused variable 'ticks' [-Wunused-variable]
+                const uint ticks=(state.status.w>>23u)&31u;
+                           ^
+3 warnings generated.
+Built candidate metallib: 6d41c4cf1b7cd5453267a89d97c6c768cf349fcc5029ae20a399342307ebe55f
