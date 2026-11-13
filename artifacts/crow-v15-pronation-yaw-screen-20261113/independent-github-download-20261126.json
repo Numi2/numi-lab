@@ -1,0 +1,34 @@
+{
+  "commit": "591a824c67dc5510766593e7291a474ded35b0c4",
+  "run": "pronation-yaw-20261126-rebound-pronation",
+  "parts": [
+    {
+      "file": "run.stderr.gz.part00",
+      "bytes": 41943040,
+      "sha256": "8344b559829921f210171c7b234cd5591757b9fd8d6c5bb77f222e87473069fe"
+    },
+    {
+      "file": "run.stderr.gz.part01",
+      "bytes": 41943040,
+      "sha256": "241978d86c02b01386a9a4cd0a1bb043f1c52a0ec47e470eb6688ca72c5dd5b2"
+    },
+    {
+      "file": "run.stderr.gz.part02",
+      "bytes": 41943040,
+      "sha256": "0b9e5fb16644d6b1213c13b82c7254101e4a4795a22b29b60ef0815c573a2771"
+    },
+    {
+      "file": "run.stderr.gz.part03",
+      "bytes": 41943040,
+      "sha256": "81c0894607797cd2e2ea9fd06a4c7ad17e6e98b5c56f4b41ad7e4533369e1630"
+    },
+    {
+      "file": "run.stderr.gz.part04",
+      "bytes": 22022433,
+      "sha256": "1d6c5e520ab7cde93748c48064a31c2b901bc76b7559aa05b1b61676b260b2c3"
+    }
+  ],
+  "bytes": 189794593,
+  "full_sha256": "52f46648953b4fdc8bfa224e25a2bc856f6ddcd0538c67e956c17824e2948d47",
+  "gzip_complete": true
+}

@@ -1,0 +1,50 @@
+{
+  "purpose": "retire redundant split copies; original retained for matched force-observer comparison",
+  "files": [
+    {
+      "absolute_path": "/Users/n/Developer/numi-crow-rl-20261107/artifacts/crow-v15-pronation-yaw-screen-20261113/pronation-yaw-20261126-rebound-pronation/run.stderr.gz.part00",
+      "device": 16777232,
+      "inode": 17097955,
+      "links": 1,
+      "bytes": 41943040,
+      "sha256": "8344b559829921f210171c7b234cd5591757b9fd8d6c5bb77f222e87473069fe",
+      "lsof_exit": 1
+    },
+    {
+      "absolute_path": "/Users/n/Developer/numi-crow-rl-20261107/artifacts/crow-v15-pronation-yaw-screen-20261113/pronation-yaw-20261126-rebound-pronation/run.stderr.gz.part01",
+      "device": 16777232,
+      "inode": 17097956,
+      "links": 1,
+      "bytes": 41943040,
+      "sha256": "241978d86c02b01386a9a4cd0a1bb043f1c52a0ec47e470eb6688ca72c5dd5b2",
+      "lsof_exit": 1
+    },
+    {
+      "absolute_path": "/Users/n/Developer/numi-crow-rl-20261107/artifacts/crow-v15-pronation-yaw-screen-20261113/pronation-yaw-20261126-rebound-pronation/run.stderr.gz.part02",
+      "device": 16777232,
+      "inode": 17097957,
+      "links": 1,
+      "bytes": 41943040,
+      "sha256": "0b9e5fb16644d6b1213c13b82c7254101e4a4795a22b29b60ef0815c573a2771",
+      "lsof_exit": 1
+    },
+    {
+      "absolute_path": "/Users/n/Developer/numi-crow-rl-20261107/artifacts/crow-v15-pronation-yaw-screen-20261113/pronation-yaw-20261126-rebound-pronation/run.stderr.gz.part03",
+      "device": 16777232,
+      "inode": 17097958,
+      "links": 1,
+      "bytes": 41943040,
+      "sha256": "81c0894607797cd2e2ea9fd06a4c7ad17e6e98b5c56f4b41ad7e4533369e1630",
+      "lsof_exit": 1
+    },
+    {
+      "absolute_path": "/Users/n/Developer/numi-crow-rl-20261107/artifacts/crow-v15-pronation-yaw-screen-20261113/pronation-yaw-20261126-rebound-pronation/run.stderr.gz.part04",
+      "device": 16777232,
+      "inode": 17097959,
+      "links": 1,
+      "bytes": 22022433,
+      "sha256": "1d6c5e520ab7cde93748c48064a31c2b901bc76b7559aa05b1b61676b260b2c3",
+      "lsof_exit": 1
+    }
+  ]
+}
