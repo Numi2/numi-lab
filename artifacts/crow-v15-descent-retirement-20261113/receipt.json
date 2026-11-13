@@ -1,0 +1,10 @@
+{
+  "path": "/Users/n/Developer/numi-crow-rl-20261107/artifacts/crow-v15-mirrored-height-switch-descent-20261113/signed-turn-20261126-rebound-descent/run.stderr.gz",
+  "inode": 17100348,
+  "bytes": 246124751,
+  "mtime_ns": 1794582940183387647,
+  "sha256": "7d176083f50495fae3d3b9ade0b7f0b6f2e76b34dc670c205b45f914d2d3e13f",
+  "remote_archive_commit": "dc5d376ff972e7a094b2577cbb61ac1974f8d5ce",
+  "lsof_clear": true,
+  "retired": true
+}
