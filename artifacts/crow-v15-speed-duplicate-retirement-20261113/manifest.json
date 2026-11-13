@@ -1,0 +1,50 @@
+{
+  "purpose": "Retire exact duplicate local compressed stderr and Git archived parts after exact file identity, hash, link count and absence of open handles are rechecked.",
+  "host": "macmini",
+  "repo_root": "/Users/n/Developer/numi-crow-rl-20261107",
+  "github_independent_fetch": {
+    "commit": "d4d16bb5d4f633ebc87a5085edf1c5a961781fbb",
+    "remote_path": "artifacts/crow-v15-flight-speed-feedback-20261113/push-wing-20261126-rebound-speed",
+    "parts": [
+      {
+        "file": "run.stderr.gz.part00",
+        "sha256": "80a33e275859451b049be86a679605a5e078a1835fd026101691454c15ae3dcd",
+        "bytes": 41943040
+      },
+      {
+        "file": "run.stderr.gz.part01",
+        "sha256": "d7f73cc836025967e28c8b9594d8bf441458ef129204de6cb25b07eabcce07f2",
+        "bytes": 35918996
+      }
+    ],
+    "concatenated_sha256": "a7a22d9358813ee6cd4410e6a9b13829bb7c7b892d29df383175a98bb41d4895",
+    "bytes": 77862036
+  },
+  "verification": "Independently streamed immutable GitHub raw parts and verified ordered concatenation; executed restoration and passed gzip -t.",
+  "files": [
+    {
+      "path": "artifacts/crow-v15-flight-speed-feedback-20261113/push-wing-20261126-rebound-speed/run.stderr.gz",
+      "device": 16777232,
+      "inode": 17096601,
+      "size": 77862036,
+      "links": 1,
+      "sha256": "a7a22d9358813ee6cd4410e6a9b13829bb7c7b892d29df383175a98bb41d4895"
+    },
+    {
+      "path": "artifacts/crow-v15-flight-speed-feedback-20261113/push-wing-20261126-rebound-speed/run.stderr.gz.part00",
+      "device": 16777232,
+      "inode": 17096635,
+      "size": 41943040,
+      "links": 1,
+      "sha256": "80a33e275859451b049be86a679605a5e078a1835fd026101691454c15ae3dcd"
+    },
+    {
+      "path": "artifacts/crow-v15-flight-speed-feedback-20261113/push-wing-20261126-rebound-speed/run.stderr.gz.part01",
+      "device": 16777232,
+      "inode": 17096636,
+      "size": 35918996,
+      "links": 1,
+      "sha256": "d7f73cc836025967e28c8b9594d8bf441458ef129204de6cb25b07eabcce07f2"
+    }
+  ]
+}
