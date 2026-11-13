@@ -1,0 +1,192 @@
+{
+  "name": "push-wing-012-20261127-rebound-uniform",
+  "gain": 0.12,
+  "mask_valid": true,
+  "policy_bytes_match": true,
+  "observer_errors": [],
+  "duplicates": [],
+  "rows": [
+    {
+      "lane": 2,
+      "main_gate": true,
+      "target_timing_options": [
+        {
+          "offset": -2,
+          "max_error": 0.011300655985739504,
+          "unsaturated_samples": 413,
+          "missing": []
+        },
+        {
+          "offset": -1,
+          "max_error": 7.088504894170455e-09,
+          "unsaturated_samples": 414,
+          "missing": []
+        },
+        {
+          "offset": 0,
+          "max_error": 0.011300654183220266,
+          "unsaturated_samples": 415,
+          "missing": []
+        }
+      ],
+      "validated_offsets": [
+        -1
+      ],
+      "observed_flap_effort_bounds_348_500": true,
+      "whole_episode_reference_parity": null,
+      "pass": true
+    },
+    {
+      "lane": 3,
+      "main_gate": true,
+      "target_timing_options": [
+        {
+          "offset": -2,
+          "max_error": 0.011401664460577991,
+          "unsaturated_samples": 413,
+          "missing": []
+        },
+        {
+          "offset": -1,
+          "max_error": 8.811683854803576e-09,
+          "unsaturated_samples": 414,
+          "missing": []
+        },
+        {
+          "offset": 0,
+          "max_error": 0.011401669828129811,
+          "unsaturated_samples": 415,
+          "missing": []
+        }
+      ],
+      "validated_offsets": [
+        -1
+      ],
+      "observed_flap_effort_bounds_348_500": true,
+      "whole_episode_reference_parity": null,
+      "pass": true
+    },
+    {
+      "lane": 4,
+      "main_gate": true,
+      "target_timing_options": [
+        {
+          "offset": -2,
+          "max_error": 0.011420290930203698,
+          "unsaturated_samples": 413,
+          "missing": []
+        },
+        {
+          "offset": -1,
+          "max_error": 7.108167901503926e-09,
+          "unsaturated_samples": 414,
+          "missing": []
+        },
+        {
+          "offset": 0,
+          "max_error": 0.011420298376787853,
+          "unsaturated_samples": 415,
+          "missing": []
+        }
+      ],
+      "validated_offsets": [
+        -1
+      ],
+      "observed_flap_effort_bounds_348_500": true,
+      "whole_episode_reference_parity": null,
+      "pass": true
+    },
+    {
+      "lane": 5,
+      "main_gate": true,
+      "target_timing_options": [
+        {
+          "offset": -2,
+          "max_error": 0.011424867046322312,
+          "unsaturated_samples": 413,
+          "missing": []
+        },
+        {
+          "offset": -1,
+          "max_error": 9.302999287585934e-09,
+          "unsaturated_samples": 414,
+          "missing": []
+        },
+        {
+          "offset": 0,
+          "max_error": 0.011424865303397945,
+          "unsaturated_samples": 415,
+          "missing": []
+        }
+      ],
+      "validated_offsets": [
+        -1
+      ],
+      "observed_flap_effort_bounds_348_500": true,
+      "whole_episode_reference_parity": null,
+      "pass": true
+    },
+    {
+      "lane": 6,
+      "main_gate": true,
+      "target_timing_options": [
+        {
+          "offset": -2,
+          "max_error": 0.011364340814227242,
+          "unsaturated_samples": 413,
+          "missing": []
+        },
+        {
+          "offset": -1,
+          "max_error": 7.221781998800747e-09,
+          "unsaturated_samples": 414,
+          "missing": []
+        },
+        {
+          "offset": 0,
+          "max_error": 0.011364341353822666,
+          "unsaturated_samples": 415,
+          "missing": []
+        }
+      ],
+      "validated_offsets": [
+        -1
+      ],
+      "observed_flap_effort_bounds_348_500": true,
+      "whole_episode_reference_parity": null,
+      "pass": true
+    },
+    {
+      "lane": 7,
+      "main_gate": true,
+      "target_timing_options": [
+        {
+          "offset": -2,
+          "max_error": 0.01141734193769095,
+          "unsaturated_samples": 413,
+          "missing": []
+        },
+        {
+          "offset": -1,
+          "max_error": 7.066508510289449e-09,
+          "unsaturated_samples": 414,
+          "missing": []
+        },
+        {
+          "offset": 0,
+          "max_error": 0.011417347683086589,
+          "unsaturated_samples": 415,
+          "missing": []
+        }
+      ],
+      "validated_offsets": [
+        -1
+      ],
+      "observed_flap_effort_bounds_348_500": true,
+      "whole_episode_reference_parity": null,
+      "pass": true
+    }
+  ],
+  "all_six_candidate_lanes_pass": true,
+  "scope": "Used-seed obstacle-free screen. Flap effort after tick 500 is unobserved. Passing is not flight qualification."
+}
