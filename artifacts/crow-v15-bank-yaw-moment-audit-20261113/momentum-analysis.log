@@ -1,0 +1,100 @@
+{
+  "rows": [
+    {
+      "lane": 6,
+      "samples": 8016,
+      "total_aero_yaw_moment_nm": {
+        "mean": -0.004990971365001402,
+        "minimum": -0.03719712649575147,
+        "maximum": 0.021937470129624045,
+        "rms": 0.01087920131239476
+      },
+      "body_com_torque_sum_nm": {
+        "mean": -0.0018954348291514893,
+        "minimum": -0.025318018801039004,
+        "maximum": 0.014821438599564002,
+        "rms": 0.006932869555051765
+      },
+      "moment_arm_sum_nm": {
+        "mean": -0.003095536535849913,
+        "minimum": -0.015407176098293292,
+        "maximum": 0.009581589223354232,
+        "rms": 0.005580643490402855
+      },
+      "maximum_force_residual_n": 5.739764219470089e-11
+    },
+    {
+      "lane": 7,
+      "samples": 8016,
+      "total_aero_yaw_moment_nm": {
+        "mean": 0.0043175442108210815,
+        "minimum": -0.018641856877198222,
+        "maximum": 0.03166581403463668,
+        "rms": 0.00943456279175812
+      },
+      "body_com_torque_sum_nm": {
+        "mean": 0.0017641859988924804,
+        "minimum": -0.011564855929414003,
+        "maximum": 0.021573845151529006,
+        "rms": 0.00588345792355415
+      },
+      "moment_arm_sum_nm": {
+        "mean": 0.002553358211928601,
+        "minimum": -0.008254831663898822,
+        "maximum": 0.013187122337238,
+        "rms": 0.0047407545398096395
+      },
+      "maximum_force_residual_n": 5.89110982218699e-11
+    }
+  ],
+  "source_sha256": "2fee002e1adea4d46409e7960a31e2e38573e1a01a3c040a32198c324dc363b0",
+  "kinematics_sha256": "95faf63412c759b3da202ea6c590f0deafb929e4e1e01c7450cfb95837c424ad",
+  "sample_ticks": [
+    650,
+    1150
+  ],
+  "substeps_per_control": 16,
+  "scope": "Posthoc modeled aerodynamic moment about instantaneous whole-body COM, not total angular momentum or proof of heading cause. Includes moment arms of all four observed aero bodies and their body-COM torques. One used seed and correlated lanes; not biological validation."
+}
+{
+  "rows": [
+    {
+      "lane": 6,
+      "sample_start": [
+        650,
+        0
+      ],
+      "sample_end": [
+        1150,
+        15
+      ],
+      "initial_world_z_angular_momentum": -6.137161355345891e-05,
+      "final_world_z_angular_momentum": -4.4927765299963936e-05,
+      "delta_world_z_angular_momentum": 1.6443848253494977e-05,
+      "integrated_observed_aero_yaw_impulse": -0.049996383040665685,
+      "difference_delta_momentum_minus_observed_aero_impulse": 0.05001282688891918,
+      "scope": "Difference can include other external wrenches, contact/constraint effects, numerical integration and observer convention; not proof of solver error."
+    },
+    {
+      "lane": 7,
+      "sample_start": [
+        650,
+        0
+      ],
+      "sample_end": [
+        1150,
+        15
+      ],
+      "initial_world_z_angular_momentum": 2.6508205186844096e-05,
+      "final_world_z_angular_momentum": 1.0854680307081888e-05,
+      "delta_world_z_angular_momentum": -1.5653524879762206e-05,
+      "integrated_observed_aero_yaw_impulse": 0.0432508039365312,
+      "difference_delta_momentum_minus_observed_aero_impulse": -0.04326645746141096,
+      "scope": "Difference can include other external wrenches, contact/constraint effects, numerical integration and observer convention; not proof of solver error."
+    }
+  ],
+  "velocity_translation_invariance_max_error": 9.351243737687476e-19,
+  "zero_velocity_momentum_max_error": 0.0,
+  "momentum_binary_sha256": "33037fa136a99b1981a7f5b019524734f83949f407b3643cd6dc5a960c39ebec",
+  "scope": "Posthoc modeled angular momentum about whole-body COM and observed aerodynamic moment only; used seed, not a full external torque audit or biological qualification."
+}

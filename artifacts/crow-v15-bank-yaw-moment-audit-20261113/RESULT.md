@@ -1,0 +1,5 @@
+# Posthoc bank yaw moment audit
+
+For used seed 20261126 and ticks 650–1150 (8,016 logged substeps per lane), model FK and observed aerodynamic wrenches yield mean yaw moments about the whole-body COM of -0.004991 and +0.004318 N m for lanes 6 and 7. This includes the force moment arms and body-COM torques for all four observed aerodynamic bodies; the summed force agrees with the total-force observer to less than 6e-11 N.
+
+A separate native FK estimate of whole-body angular momentum changes by +0.0000164 and -0.0000157 N m s, while the integrated observed aerodynamic moments are -0.049996 and +0.043251 N m s. This discrepancy is unresolved. The calculation is posthoc, and does not audit all external torques, damping, contact/constraints, integration or observer conventions; it does not establish a solver fault or explain weak heading. Its translation-velocity invariance and zero-velocity sanity checks pass. Source input is the separately archived bank trace with SHA-256 in analysis.json; see the scripts and JSON for all assumptions and exact results. These are correlated development lanes, not flight qualification.
