@@ -1,0 +1,22 @@
+{
+  "rows": [
+    {
+      "lane": 6,
+      "release": 375,
+      "release_com_vx_m_s": -0.024804455396811025,
+      "release_com_vz_m_s": 0.5820551199811528,
+      "com_x_displacement_release_to_1800_m": 10.586746666328787,
+      "com_vx_at_1800_m_s": 0.432410393260473
+    },
+    {
+      "lane": 7,
+      "release": 380,
+      "release_com_vx_m_s": -0.09824528905106573,
+      "release_com_vz_m_s": 0.9257870523820605,
+      "com_x_displacement_release_to_1800_m": 10.61755174121923,
+      "com_vx_at_1800_m_s": 0.31899780429120095
+    }
+  ],
+  "kinematics_sha256": "543203944cce27056406a8c9f3a8a9f55016f404ef310c11dbfa497c72e83aaf",
+  "scope": "Posthoc whole-body COM for the physical transition; released COM is not an isolated leg contribution while wings are active."
+}
