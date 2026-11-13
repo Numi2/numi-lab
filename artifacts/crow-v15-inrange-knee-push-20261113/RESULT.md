@@ -1,3 +1,5 @@
+**Correction, 2026-11-13:** The controller values discussed below are normalized action requests, not knee angles in radians. The shader filters and maps them through a default position and action scale before clamping. The actual drive-target trajectory has not yet been measured, so the previous assertion that the earlier request necessarily reached the knee limit is withdrawn. The recorded experimental outcomes and paired comparisons remain unchanged. See CORRECTION.md.
+
 # In-range knee target: valid command, failed launch
 
 A native inspection built from the replay-checked v15 model builder and linked against this trial's observer library reports both knee limits as -0.10 to 1.55 radians. The prior 160 ms controller requested -0.70 radians; its actual World shader clamps position targets to joint limits during implicit-drive evaluation. This experiment changed only the requested knee endpoint to -0.10 radians while keeping the model limits and other controls unchanged. The change corrects an out-of-range command, but does not establish that the model's joint limits are biologically accurate.
