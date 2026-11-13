@@ -1,0 +1,5 @@
+# Uniform K=.12, development seed 20261126
+
+All six candidate lanes passed the preregistered 900-tick development screen. They remained foot-unloaded after release, with zero recorded nonfoot normal impulse, no toe-speed threshold events or sampled modeled sweep stops and complete first-episode state/target/contact/toe observations. World-x displacement over ticks 500–900 was 2.424–2.448 m, height was 0.524–0.728 m, and x velocity over ticks 550–900 was 0.0891–0.4969 m/s. Policy hashes and disabled course/active ground masks matched; full-blend targets reconstructed from the preceding accepted state, and observed flap effort through tick 500 was bounded.
+
+The control lanes are preserved and are not counted as candidate successes. K=.12 uses a different onset from its earlier passing pair, so no exact parity with that earlier pair is asserted. This is one used seed and obstacle-free setup; it is not qualified or frozen flight, a maneuver, landing or navigation result. Complete the second seed and retain all outcomes and raw evidence. Preregistration e284d68765ee1dcd66f416572fdf652527e569ed.
