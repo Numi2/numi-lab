@@ -1,0 +1,5 @@
+# Height command switching: climb passed, descent missed final tracking limit
+
+On development seed 20261126, both candidate first episodes completed 1800 steps and passed the registered physical, contact, target, effort, coverage, speed, height and same-seed reference checks. Lane 6 switched from 0.55 m to 0.80 m: pre/post mean heights were 0.553/0.772 m, a +0.219 m change; window mean absolute errors were 0.0083/0.0278 m, meeting its registered limits. Lane 7 switched from 0.80 m to 0.55 m: means were 0.763/0.623 m, a -0.140 m change, but post-switch error was 0.0728 m and exceeded the 0.05 m limit. Therefore the combined switch screen failed. The previous fixed-reference event was reported separately in gate.json and was not retroactively changed. Both baseline failure lanes are retained.
+
+This is one correlated, used-seed research-body experiment; the controller is not frozen and disturbed recovery, turns, sustained takeoff, toe grip, landing, unseen layouts, autonomous navigation and biological realism remain unqualified.
