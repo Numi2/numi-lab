@@ -1,0 +1,65 @@
+{
+  "mask_and_policy_valid": true,
+  "rows": [
+    {
+      "lane": 2,
+      "mean_pitch_difference_475_525_rad": -0.16906153972838728,
+      "pitch_difference_at_500_rad": -0.15710174828459827,
+      "missing_ticks": [],
+      "both_unloaded_and_no_nonfoot_impulse": true,
+      "matched_preintervention": true,
+      "max_sampled_abs_sweep_position_rad": 0.200000003
+    },
+    {
+      "lane": 3,
+      "mean_pitch_difference_475_525_rad": -0.1694700589448169,
+      "pitch_difference_at_500_rad": -0.15751802353719518,
+      "missing_ticks": [],
+      "both_unloaded_and_no_nonfoot_impulse": true,
+      "matched_preintervention": true,
+      "max_sampled_abs_sweep_position_rad": 0.200000003
+    },
+    {
+      "lane": 4,
+      "mean_pitch_difference_475_525_rad": -0.03286605626705775,
+      "pitch_difference_at_500_rad": -0.03276550918214388,
+      "missing_ticks": [],
+      "both_unloaded_and_no_nonfoot_impulse": true,
+      "matched_preintervention": true,
+      "max_sampled_abs_sweep_position_rad": 0.200000003
+    },
+    {
+      "lane": 5,
+      "mean_pitch_difference_475_525_rad": -0.03282880845850138,
+      "pitch_difference_at_500_rad": -0.032393239983704525,
+      "missing_ticks": [],
+      "both_unloaded_and_no_nonfoot_impulse": true,
+      "matched_preintervention": true,
+      "max_sampled_abs_sweep_position_rad": 0.200000003
+    },
+    {
+      "lane": 6,
+      "mean_pitch_difference_475_525_rad": 0.1089062799830155,
+      "pitch_difference_at_500_rad": 0.11230600550814501,
+      "missing_ticks": [],
+      "both_unloaded_and_no_nonfoot_impulse": false,
+      "matched_preintervention": true,
+      "max_sampled_abs_sweep_position_rad": 0.200000003
+    },
+    {
+      "lane": 7,
+      "mean_pitch_difference_475_525_rad": 0.10106060627761848,
+      "pitch_difference_at_500_rad": 0.10742500094690688,
+      "missing_ticks": [],
+      "both_unloaded_and_no_nonfoot_impulse": false,
+      "matched_preintervention": true,
+      "max_sampled_abs_sweep_position_rad": 0.200000003
+    }
+  ],
+  "paired_pitch_authority_indication": {
+    "2-3": true,
+    "4-5": false,
+    "6-7": false
+  },
+  "scope": "Matched used-seed identification only; no biological or flight qualification."
+}
