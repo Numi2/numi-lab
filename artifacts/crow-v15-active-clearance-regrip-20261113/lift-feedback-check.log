@@ -1,0 +1,20 @@
+{
+  "0": {
+    "samples_in_release": 393,
+    "feedback_active_intervals": 54,
+    "first_active_zero_based": 208,
+    "peak_lift_rad": 0.150000006,
+    "max_feedback_increment_rad": 0.0030000070000000267,
+    "feedback_active_above_clearance_threshold": 0,
+    "scope": "control-state target and sensor; not substep contact effort"
+  },
+  "1": {
+    "samples_in_release": 393,
+    "feedback_active_intervals": 56,
+    "first_active_zero_based": 208,
+    "peak_lift_rad": 0.150000006,
+    "max_feedback_increment_rad": 0.005999998000000006,
+    "feedback_active_above_clearance_threshold": 0,
+    "scope": "control-state target and sensor; not substep contact effort"
+  }
+}
