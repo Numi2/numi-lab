@@ -1,0 +1,10 @@
+run.stderr.gz maximum impulse reconstruction error 1.0594230534510807e-08 materials {(0.8, 0.6)}
+run.stderr.gz maximum impulse reconstruction error 0.0248821164 materials set()
+Traceback (most recent call last):
+  File "/Users/n/Developer/numi-crow-rl-20261107/artifacts/crow-v15-ground-impulse-analysis-20261113/analyze.py", line 30, in <module>
+    D={name:load(path) for name,path in inputs.items()}
+  File "/Users/n/Developer/numi-crow-rl-20261107/artifacts/crow-v15-ground-impulse-analysis-20261113/analyze.py", line 30, in <dictcomp>
+    D={name:load(path) for name,path in inputs.items()}
+  File "/Users/n/Developer/numi-crow-rl-20261107/artifacts/crow-v15-ground-impulse-analysis-20261113/analyze.py", line 28, in load
+    assert max(residual)<2e-7
+AssertionError
