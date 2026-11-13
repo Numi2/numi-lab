@@ -1,0 +1,12 @@
+--- /Users/n/Developer/numi-crow-rl-20261107/artifacts/crow-v15-pronation-amplitude-screen-20261113/pronation-amplitude.metal	2026-11-13 13:07:33
++++ /Users/n/Developer/numi-crow-rl-20261107/artifacts/crow-v15-mirrored-phase-screen-20261113/pronation-phase.metal	2026-11-13 13:33:32
+@@ -5570,7 +5570,8 @@
+                     // Reduced symmetric twist is a joint-target experiment;
+                     // it does not change physical drive limits or body forces.
+                     const float twistAmplitude=arm<4u ? 0.18f : arm<6u ? 0.12f : 0.08f;
+-                    targetCandidate+=twistAmplitude*smoothstep(start,start+0.04f,seconds)*sin(phase+1.57079632679f);
++                    const float twistPhase=arm<4u ? 0.0f : arm<6u ? 3.14159265359f : -1.57079632679f;
++                    targetCandidate+=twistAmplitude*smoothstep(start,start+0.04f,seconds)*sin(phase+twistPhase);
+                 }
+             }
+         }

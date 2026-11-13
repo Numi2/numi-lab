@@ -1,0 +1,5 @@
+# Wing-frame audit result
+
+The unchanged runtime reports identity parent/child joint rotations, mirror-matched anchors, left pronation axis (0,+1,0), and right pronation axis (0,-1,0). In the recorded analytic fixture, equal 0.2-radian pronation at zero sweep/flap makes the forward chord's reflected vertical component differ by 0.3973; two additional nonzero sweep/flap cases also violate the reflection identity. Reversing the right axis in the fixture yields zero numerical matrix error for all three cases. The run compiler derives the aerodynamic pronation axis from the same physical joint axis, and the research aerodynamic kernel uses it in its wing orientation and stroke velocity.
+
+This establishes an axis/frame asymmetry in the model and motivates the separate corrected-body experiment. The fixture alone does not establish aerodynamic accuracy, cause of any specific flight failure, improved flight, or biological realism. The one-step inspection has unchanged dynamics and accepted policy packs; its command, host/model metadata, fixture and logs are retained.

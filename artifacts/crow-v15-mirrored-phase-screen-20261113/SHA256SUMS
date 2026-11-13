@@ -1,0 +1,11 @@
+005b9462975adc9c9890822094251aeb0467dfea9ca03f41630e26b8bd25339e  ./PLAN.md
+7a0bb72a2b76a51440dce26af50b6895e5de92cc317c2dc69d5e8b351e243b85  ./analyze-effort.py
+15cb1d9dd73d0ba40e18931ffa0f9dcde619c9ad9b70885fe47c19c44fd44db9  ./analyze.py
+645c8dddeb7a4044bc3ebf9cf9be7d8a24e457ad4386387143ca5f88fcabc692  ./build.log
+20c8ca22a679fcf422a74416db4d188c31be0d0bf6eebdc389c9c1d8d70b1135  ./build.py
+8d32f002ffe804b25f1512d07d59c97c6d1e365d5f7311bdb85a34ee670bd07d  ./phase.patch
+f7791bdf9ab16815937a274f70296fa0a2f43dcb12049d842170213e09066488  ./pronation-phase-hashes.json
+647d69e2bd9a2fe3f8cc5e2f41ceab489ab982e99c861cae7922eec68f34eedd  ./pronation-phase.air.gz
+df66ab83a1d613594b0716cf5c47d5aedad6f56cfae8ef315503ecf512bd08ff  ./pronation-phase.metal
+fbce6f1c53856d0c1d0b66d35615410feeeb550bb0b4a8a9838d223ad59c3f80  ./pronation-phase.metallib.gz
+f876d737a92fd72a9e9d73d71a6a238af8201d4627ceb068c2ec826fb97699b6  ./run.py
