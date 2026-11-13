@@ -1,0 +1,366 @@
+{
+  "shared": true,
+  "corrected_axes": [
+    [
+      0.0,
+      1.0,
+      0.0
+    ],
+    [
+      0.0,
+      1.0,
+      0.0
+    ]
+  ],
+  "com_translation_calibration_error": 5.551115123125783e-17,
+  "rows": [
+    {
+      "lane": 2,
+      "end": 500,
+      "hold_end": 500,
+      "first_leg_target_difference": 373,
+      "first_wing_target_departure": 377,
+      "prefix_differences": [],
+      "wing_target_differences": [],
+      "coverage": {
+        "push": {
+          "state": 0,
+          "target": 0,
+          "contact": 0,
+          "toe": 0,
+          "effort": 0,
+          "aero": 0
+        },
+        "hold": {
+          "state": 0,
+          "target": 0,
+          "contact": 0,
+          "toe": 0,
+          "effort": 0,
+          "aero": 0
+        }
+      },
+      "release_tick": 376,
+      "hold_supported_at_push_release": true,
+      "recontact": null,
+      "push_com_vz": 0.4722965856476952,
+      "hold_com_vz_at_push_release": -0.0037419033945581244,
+      "push_minus_hold_foot_impulse_ns": 0.22195656474548298,
+      "push_minus_hold_vertical_aero_impulse_ns": -0.001627778599706692,
+      "pre_release_nonfoot": 0.0,
+      "pre_release_toe_events": 0,
+      "post_release_nonfoot": 0.0,
+      "post_release_toe_events": 0,
+      "flap_effort_max": 3.0,
+      "sweep_max_abs": 0.15550743,
+      "forward_displacement_400_500": -0.5151324869999999,
+      "vx_range_450_500": [
+        -0.284124106,
+        0.471572131
+      ],
+      "checks": {
+        "shared": true,
+        "prefix": true,
+        "wing_targets": true,
+        "complete": true,
+        "release": true,
+        "pre_release_contacts": true,
+        "sustained_contacts": true,
+        "actuator": true,
+        "forward": false
+      },
+      "passed": false
+    },
+    {
+      "lane": 3,
+      "end": 500,
+      "hold_end": 500,
+      "first_leg_target_difference": 373,
+      "first_wing_target_departure": 377,
+      "prefix_differences": [],
+      "wing_target_differences": [],
+      "coverage": {
+        "push": {
+          "state": 0,
+          "target": 0,
+          "contact": 0,
+          "toe": 0,
+          "effort": 0,
+          "aero": 0
+        },
+        "hold": {
+          "state": 0,
+          "target": 0,
+          "contact": 0,
+          "toe": 0,
+          "effort": 0,
+          "aero": 0
+        }
+      },
+      "release_tick": 376,
+      "hold_supported_at_push_release": true,
+      "recontact": null,
+      "push_com_vz": 0.4300716451635414,
+      "hold_com_vz_at_push_release": -0.00375979255906326,
+      "push_minus_hold_foot_impulse_ns": 0.20338532638227397,
+      "push_minus_hold_vertical_aero_impulse_ns": -0.0014153154319091331,
+      "pre_release_nonfoot": 0.0,
+      "pre_release_toe_events": 0,
+      "post_release_nonfoot": 0.0,
+      "post_release_toe_events": 0,
+      "flap_effort_max": 3.0,
+      "sweep_max_abs": 0.155503079,
+      "forward_displacement_400_500": -0.512121439,
+      "vx_range_450_500": [
+        -0.28314811,
+        0.472697049
+      ],
+      "checks": {
+        "shared": true,
+        "prefix": true,
+        "wing_targets": true,
+        "complete": true,
+        "release": true,
+        "pre_release_contacts": true,
+        "sustained_contacts": true,
+        "actuator": true,
+        "forward": false
+      },
+      "passed": false
+    },
+    {
+      "lane": 4,
+      "end": 500,
+      "hold_end": 500,
+      "first_leg_target_difference": 373,
+      "first_wing_target_departure": 378,
+      "prefix_differences": [],
+      "wing_target_differences": [],
+      "coverage": {
+        "push": {
+          "state": 0,
+          "target": 0,
+          "contact": 0,
+          "toe": 0,
+          "effort": 0,
+          "aero": 0
+        },
+        "hold": {
+          "state": 0,
+          "target": 0,
+          "contact": 0,
+          "toe": 0,
+          "effort": 0,
+          "aero": 0
+        }
+      },
+      "release_tick": 376,
+      "hold_supported_at_push_release": true,
+      "recontact": 489,
+      "push_com_vz": 0.40494463688808296,
+      "hold_com_vz_at_push_release": -0.0037478212641949976,
+      "push_minus_hold_foot_impulse_ns": 0.19247520835083604,
+      "push_minus_hold_vertical_aero_impulse_ns": -0.0012870101912295594,
+      "pre_release_nonfoot": 0.0,
+      "pre_release_toe_events": 0,
+      "post_release_nonfoot": 0.0,
+      "post_release_toe_events": 0,
+      "flap_effort_max": 3.0,
+      "sweep_max_abs": 0.147415802,
+      "forward_displacement_400_500": -0.5349875390000001,
+      "vx_range_450_500": [
+        -0.304628491,
+        0.408537507
+      ],
+      "checks": {
+        "shared": true,
+        "prefix": true,
+        "wing_targets": true,
+        "complete": true,
+        "release": true,
+        "pre_release_contacts": true,
+        "sustained_contacts": false,
+        "actuator": true,
+        "forward": false
+      },
+      "passed": false
+    },
+    {
+      "lane": 5,
+      "end": 500,
+      "hold_end": 500,
+      "first_leg_target_difference": 373,
+      "first_wing_target_departure": 378,
+      "prefix_differences": [],
+      "wing_target_differences": [],
+      "coverage": {
+        "push": {
+          "state": 0,
+          "target": 0,
+          "contact": 0,
+          "toe": 0,
+          "effort": 0,
+          "aero": 0
+        },
+        "hold": {
+          "state": 0,
+          "target": 0,
+          "contact": 0,
+          "toe": 0,
+          "effort": 0,
+          "aero": 0
+        }
+      },
+      "release_tick": 376,
+      "hold_supported_at_push_release": true,
+      "recontact": 489,
+      "push_com_vz": 0.4070247007892795,
+      "hold_com_vz_at_push_release": -0.0037548676589958512,
+      "push_minus_hold_foot_impulse_ns": 0.19338461721905997,
+      "push_minus_hold_vertical_aero_impulse_ns": -0.0012964577997447296,
+      "pre_release_nonfoot": 0.0,
+      "pre_release_toe_events": 0,
+      "post_release_nonfoot": 0.0,
+      "post_release_toe_events": 0,
+      "flap_effort_max": 3.0,
+      "sweep_max_abs": 0.147310376,
+      "forward_displacement_400_500": -0.536307544,
+      "vx_range_450_500": [
+        -0.305245996,
+        0.406167328
+      ],
+      "checks": {
+        "shared": true,
+        "prefix": true,
+        "wing_targets": true,
+        "complete": true,
+        "release": true,
+        "pre_release_contacts": true,
+        "sustained_contacts": false,
+        "actuator": true,
+        "forward": false
+      },
+      "passed": false
+    },
+    {
+      "lane": 6,
+      "end": 500,
+      "hold_end": 500,
+      "first_leg_target_difference": 373,
+      "first_wing_target_departure": 379,
+      "prefix_differences": [],
+      "wing_target_differences": [],
+      "coverage": {
+        "push": {
+          "state": 0,
+          "target": 0,
+          "contact": 0,
+          "toe": 0,
+          "effort": 0,
+          "aero": 0
+        },
+        "hold": {
+          "state": 0,
+          "target": 0,
+          "contact": 0,
+          "toe": 0,
+          "effort": 0,
+          "aero": 0
+        }
+      },
+      "release_tick": 376,
+      "hold_supported_at_push_release": true,
+      "recontact": 389,
+      "push_com_vz": 0.44930691432859715,
+      "hold_com_vz_at_push_release": -0.0037697042555481656,
+      "push_minus_hold_foot_impulse_ns": 0.21362110454630995,
+      "push_minus_hold_vertical_aero_impulse_ns": -0.0014724251769289388,
+      "pre_release_nonfoot": 0.0,
+      "pre_release_toe_events": 0,
+      "post_release_nonfoot": 0.0,
+      "post_release_toe_events": 0,
+      "flap_effort_max": 3.0,
+      "sweep_max_abs": 0.149421558,
+      "forward_displacement_400_500": -0.546557747,
+      "vx_range_450_500": [
+        -0.348191261,
+        0.42531696
+      ],
+      "checks": {
+        "shared": true,
+        "prefix": true,
+        "wing_targets": true,
+        "complete": true,
+        "release": true,
+        "pre_release_contacts": true,
+        "sustained_contacts": false,
+        "actuator": true,
+        "forward": false
+      },
+      "passed": false
+    },
+    {
+      "lane": 7,
+      "end": 500,
+      "hold_end": 500,
+      "first_leg_target_difference": 373,
+      "first_wing_target_departure": 379,
+      "prefix_differences": [],
+      "wing_target_differences": [],
+      "coverage": {
+        "push": {
+          "state": 0,
+          "target": 0,
+          "contact": 0,
+          "toe": 0,
+          "effort": 0,
+          "aero": 0
+        },
+        "hold": {
+          "state": 0,
+          "target": 0,
+          "contact": 0,
+          "toe": 0,
+          "effort": 0,
+          "aero": 0
+        }
+      },
+      "release_tick": 376,
+      "hold_supported_at_push_release": true,
+      "recontact": 388,
+      "push_com_vz": 0.46326540045240966,
+      "hold_com_vz_at_push_release": -0.0037646798449051206,
+      "push_minus_hold_foot_impulse_ns": 0.220465687108776,
+      "push_minus_hold_vertical_aero_impulse_ns": -0.0015341300379482668,
+      "pre_release_nonfoot": 0.0,
+      "pre_release_toe_events": 0,
+      "post_release_nonfoot": 0.0,
+      "post_release_toe_events": 0,
+      "flap_effort_max": 3.0,
+      "sweep_max_abs": 0.149498463,
+      "forward_displacement_400_500": -0.583036989,
+      "vx_range_450_500": [
+        -0.359788775,
+        0.327910334
+      ],
+      "checks": {
+        "shared": true,
+        "prefix": true,
+        "wing_targets": true,
+        "complete": true,
+        "release": true,
+        "pre_release_contacts": true,
+        "sustained_contacts": false,
+        "actuator": true,
+        "forward": false
+      },
+      "passed": false
+    }
+  ],
+  "pairs": {
+    "2-3": false,
+    "4-5": false,
+    "6-7": false
+  },
+  "scope": "Used-seed timed onset developmental transition, not generalized contact-triggered takeoff or flight qualification."
+}
