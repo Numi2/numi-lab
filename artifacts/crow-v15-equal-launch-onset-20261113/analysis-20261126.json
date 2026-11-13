@@ -1,0 +1,105 @@
+{
+  "seed": 20261126,
+  "scope": "paired development seed screen; not qualified flight or landing",
+  "unchanged_inputs_except_task_shader": true,
+  "parity": [
+    {
+      "lane": 0,
+      "through": 500,
+      "mismatch_count": 0,
+      "first_mismatches": []
+    },
+    {
+      "lane": 1,
+      "through": 500,
+      "mismatch_count": 0,
+      "first_mismatches": []
+    },
+    {
+      "lane": 2,
+      "through": 500,
+      "mismatch_count": 0,
+      "first_mismatches": []
+    },
+    {
+      "lane": 3,
+      "through": 500,
+      "mismatch_count": 0,
+      "first_mismatches": []
+    },
+    {
+      "lane": 4,
+      "through": 500,
+      "mismatch_count": 0,
+      "first_mismatches": []
+    },
+    {
+      "lane": 5,
+      "through": 500,
+      "mismatch_count": 0,
+      "first_mismatches": []
+    },
+    {
+      "lane": 6,
+      "through": 500,
+      "mismatch_count": 0,
+      "first_mismatches": []
+    },
+    {
+      "lane": 7,
+      "through": 368,
+      "mismatch_count": 0,
+      "first_mismatches": []
+    }
+  ],
+  "rows": [
+    {
+      "lane": 6,
+      "missing_substeps": {
+        "contact": 0,
+        "toe": 0,
+        "leg": 0
+      },
+      "missing_launch_aero": 0,
+      "missing_states": 0,
+      "missing_targets": 0,
+      "first_unloaded_interval": 375,
+      "first_three_unloaded_intervals": 375,
+      "first_recontact": null,
+      "toe_speed_threshold_substeps": 0,
+      "nonfoot_abs_impulse_Ns": 0.0,
+      "modeled_pre_release_aero_vertical_impulse_Ns": 7.610524002047966e-05,
+      "max_pre_release_flap_displacement_rad": 0.236218482
+    },
+    {
+      "lane": 7,
+      "missing_substeps": {
+        "contact": 0,
+        "toe": 0,
+        "leg": 0
+      },
+      "missing_launch_aero": 0,
+      "missing_states": 0,
+      "missing_targets": 0,
+      "first_unloaded_interval": 375,
+      "first_three_unloaded_intervals": 375,
+      "first_recontact": null,
+      "toe_speed_threshold_substeps": 0,
+      "nonfoot_abs_impulse_Ns": 0.0,
+      "modeled_pre_release_aero_vertical_impulse_Ns": 7.184532001975385e-05,
+      "max_pre_release_flap_displacement_rad": 0.23621785599999995
+    }
+  ],
+  "observer_errors": [],
+  "physical_failure_by_environment": [
+    false,
+    false,
+    false,
+    false,
+    false,
+    false,
+    false,
+    false
+  ],
+  "passed_both": true
+}
