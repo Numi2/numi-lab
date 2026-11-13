@@ -1,0 +1,31 @@
+{
+  "dataset_url": "https://zenodo.org/records/13326013",
+  "dataset_doi": "10.5281/zenodo.13326013",
+  "workbook": "data_fig4.xlsx",
+  "workbook_md5": "753a0af915a93422c6f7e57ba86b8e0d",
+  "workbook_sha256": "825f2beaf56876e2770e54e1d66d40abd1acdd30c88c7e68b7b8185bb50ad3b3",
+  "worksheet": "bird_data",
+  "rows": [
+    {
+      "worksheet_row": 48,
+      "source_paper_code": 2,
+      "common_name": "Carrion crow",
+      "scientific_name": "Corvus corone",
+      "body_mass_kg": 0.575,
+      "leg_mass_kg_as_reported": 0.0906,
+      "leg_mass_percent_as_reported": 15.756521739130436,
+      "behavior_group": "Perching"
+    },
+    {
+      "worksheet_row": 51,
+      "source_paper_code": 1,
+      "common_name": "Common raven",
+      "scientific_name": "Corvus corax",
+      "body_mass_kg": 0.77838,
+      "leg_mass_kg_as_reported": 0.14011,
+      "leg_mass_percent_as_reported": 18.00020555512732,
+      "behavior_group": "Perching"
+    }
+  ],
+  "scope": "Two reported comparative morphology rows, not American-crow gait, force or takeoff measurements. Leg-mass convention and original source specimen details require verification before model calibration."
+}
