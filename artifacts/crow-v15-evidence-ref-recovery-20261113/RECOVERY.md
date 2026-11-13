@@ -1,0 +1,5 @@
+# Evidence branch restoration
+
+A malformed shell line caused scoped git add and commit-tree to fail; a subsequent push with an empty source accidentally deleted the evidence branch ref. The last known commit remained available on GitHub and in local Git. Restored refs/heads/agent/crow-v15-flight-evidence-20261112 directly to 21dca6556e6c410b96af1ae3397ba34e97c33c54 using the GitHub Git refs API. Verified the remote ref with git ls-remote and retrieved the 20261127 archived height-trace manifest from that immutable commit. Prior independent full GitHub hash/gzip verification of the archived traces also preceded this incident. This verifies restoration of the ref and sampled object availability; it is not a new verification of every historical object.
+
+Future publication uses shell error checking, validates the parent and newly created commit identifiers, verifies the remote parent, and refuses empty source refs before pushing. No research result was promoted or reclassified because of this error.

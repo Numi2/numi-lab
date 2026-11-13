@@ -1,0 +1,13 @@
+translation test max error 5.551115123125783e-17
+push 2 dp -0.0003 feet 1.589 gravity -1.5894 residual 0.0001
+push 3 dp -0.0003 feet 1.589 gravity -1.5894 residual 0.0001
+push 4 dp 0.0005 feet 1.5896 gravity -1.5894 residual 0.0003
+push 5 dp 0.0005 feet 1.5897 gravity -1.5894 residual 0.0003
+push 6 dp 0.0075 feet 1.5948 gravity -1.5894 residual 0.0021
+push 7 dp 0.0076 feet 1.5949 gravity -1.5894 residual 0.0021
+hold 2 dp -0.0003 feet 1.589 gravity -1.5894 residual 0.0001
+hold 3 dp -0.0003 feet 1.589 gravity -1.5894 residual 0.0001
+hold 4 dp 0.0005 feet 1.5896 gravity -1.5894 residual 0.0003
+hold 5 dp 0.0005 feet 1.5897 gravity -1.5894 residual 0.0003
+hold 6 dp 0.0075 feet 1.5948 gravity -1.5894 residual 0.0021
+hold 7 dp 0.0076 feet 1.5949 gravity -1.5894 residual 0.0021

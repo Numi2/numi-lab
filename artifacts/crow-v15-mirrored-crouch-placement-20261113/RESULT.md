@@ -1,0 +1,3 @@
+# Supported crouch placement failed the forward release gate
+
+All first episodes completed 400 intervals and baseline lanes 0–3 reproduced both matched references. Both candidate pairs satisfied the predeclared bilateral support and settling checks, then unloaded at tick 376 while meeting the low-wing-motion vertical release screen. However the -0.65 hip-preparation pair released with COM x velocities -0.265 and -0.265 m/s, and the -0.45 pair with -0.202 and -0.202 m/s; both miss the >= -0.02 m/s threshold. The latter pair also missed the >0.10 Ns push-versus-hold added foot impulse gate. These used-seed, correlated trials do not qualify leg-powered takeoff, flight, or biological movement. Full signed impulse and control checks are in horizontal-gate.json.
