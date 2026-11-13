@@ -1,0 +1,5 @@
+# Second development seed: matched leg and wing contribution
+
+On already-used development seed 20261126, the 7.42 s wing onset lane showed added foot impulse before first release and no later recontact in the original long flight screen, while its matching held-leg control also took off. Reuse the exact archived original push and held-leg metallibs, current launch-aero observer and identical teacher-off policy settings, now on already-used development seed 20261127, for paired 500-interval runs. This is not one of the reserved unused test seeds or layouts. Compare the same lane-specific wing and leg settings, first release, subsequent recontact, foot-normal impulse, pre-release modeled aero and actual wing kinematics; require matching unaffected lanes and pre-intervention states, full observer coverage, and intact bounds.
+
+This is a development test of reproducibility, not a flight qualification. Even successful paired data would require controlled straight flight, both turns, climbs, descents, disturbed-start recovery, then a frozen controller and a complete autonomous mission with supported landing on reserved unseen layouts and seeds. Retain failures.
