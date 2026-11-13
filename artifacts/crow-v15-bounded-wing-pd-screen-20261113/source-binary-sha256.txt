@@ -1,0 +1,5 @@
+752c86ac5e5b50fa42e4b561f1f47b9187080688ca7813b410739d5f473132fc  artifacts/crow-v15-bounded-wing-pd-screen-20261113/World.metal
+026b0f3fceaf9722ce2869e4847a2187f2b29deeb8d9351e3e77091137ce2674  artifacts/crow-v15-bounded-wing-pd-screen-20261113/hold-wing.metal
+7ee9805c2c0dad4f9d77d5e8e47c9a06ae0bd8ae5bc064516de44e6d8a8009eb  artifacts/crow-v15-bounded-wing-pd-screen-20261113/push-wing.metal
+f536f5fa9969ce3fdb6048cee5f2df65ba9208f4d9393f939c3b65125e3d14ed  build/crow-v15-bounded-wing-pd-screen-20261113/hold-wing.metallib
+230bced7cbd508c949e0686879ff8cbc40727b4598aca1a2ce2e4679e54c985a  build/crow-v15-bounded-wing-pd-screen-20261113/push-wing.metallib
