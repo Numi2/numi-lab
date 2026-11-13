@@ -1,0 +1,5 @@
+e26e22a4a23ecc08314a8c59e1b18245ca07a9fb6c2e5bd69bc68b1f1ae2657e  artifacts/crow-v15-supported-wing-transition-20261113/World.metal
+ca760ff8b4054ff1fc06e361d3350097b8fed40323211bd8b15737598e0b61ce  artifacts/crow-v15-supported-wing-transition-20261113/push-wing.metal
+c2a12cacc4918be8e52feec1a5d14a2ffa6ff983a629db9bf9ddd20bbb6b4b40  artifacts/crow-v15-supported-wing-transition-20261113/hold-wing.metal
+b2759b0ad2e40ec2ba13babfa7335855bb1245a7d2b62fbe60cd27b594bde475  build/crow-v15-supported-wing-transition-20261113/push-wing.metallib
+42e8e4f63f54481bdae592f27f0141f6e6103490dcf1116905c143beb156cc59  build/crow-v15-supported-wing-transition-20261113/hold-wing.metallib

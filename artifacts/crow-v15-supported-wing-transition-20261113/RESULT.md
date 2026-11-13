@@ -1,0 +1,7 @@
+# Wing-transition range with supported toe preparation: failed launch screen
+
+Both matched arms completed 400 ticks in all eight first episodes. Logged state, action and contact fields matched between arms through tick 345, including contact substeps 335–345. The intended wing working-effort bounds were observed. Lanes 2–7 used bounds 2.5, 3 and 4 in pairs with the same +0.23 rad front-toe preload. Lanes 0–1 were unchanged high-drive controls.
+
+All six test lanes met both early push-minus-hold foot impulse criteria and had support in ticks 340–347. No setting passed the full screen: each lane recontacted after its first three-interval release, and each recorded 10–36 toe-speed threshold substeps. At bound 2.5, rise was 0.0427–0.0428 m; at 3 it was 0.0491–0.0515 m; at 4 it was 0.0586–0.0679 m. The larger rise in the last pair is a model response, not a qualified launch. Peak substep flap speeds were about 15.9, 17.5 and 21.2 rad/s and peak modeled upward aero forces were approximately 5.9, 6.8 and 9.5 N respectively. Positive working-effort-times-displacement wing proxies over ticks 348–375 increased from about 9.1 to 12.3 to 20.4; buffer timing and coupled effects prevent treating them as measured biological muscle work.
+
+Every run is a used-seed, correlated-lane development result. Higher simulated lift came with renewed toe impacts and rising wing-work proxies; no flight, biological force calibration, landing or route is qualified. Preserve the matched arms, all source, binary, traces, replays and failures.
