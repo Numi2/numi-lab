@@ -1,0 +1,18 @@
+{
+  "commit": "7628d3f75b36ee7e14827cb9b1694cb45fb9098f",
+  "source": "independent authenticated GitHub raw content",
+  "files": [
+    {
+      "path": "artifacts/crow-v15-mirrored-hip-timing-20261113/push-wing-20261126-rebound-timing/run.stderr.gz",
+      "bytes": 34907224,
+      "sha256": "843dbd933d61d18bc5bea5113a349409385df6aa70ad6de36b50a42131a5561a",
+      "gzip_eof_verified": true
+    },
+    {
+      "path": "artifacts/crow-v15-mirrored-hip-timing-20261113/hold-wing-20261126-rebound-timing/run.stderr.gz",
+      "bytes": 34137264,
+      "sha256": "c2c5d0123e4db86067a2545996f6c751305e00305abfc10b90229096fd04fadc",
+      "gzip_eof_verified": true
+    }
+  ]
+}
