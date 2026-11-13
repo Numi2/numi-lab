@@ -1,0 +1,12 @@
+{
+  "deleted": [
+    "artifacts/crow-v15-overlap-long-flight-20261113/push-wing-20261126-rebound-long/run.stderr.gz",
+    "artifacts/crow-v15-overlap-long-flight-20261113/push-wing-20261126-rebound-long/run.stderr.gz.part000",
+    "artifacts/crow-v15-overlap-long-flight-20261113/push-wing-20261126-rebound-long/run.stderr.gz.part001",
+    "artifacts/crow-v15-overlap-long-flight-20261113/push-wing-20261126-rebound-long/run.stderr.gz.part002",
+    "artifacts/crow-v15-overlap-long-flight-20261113/push-wing-20261126-rebound-long/run.stderr.gz.part003",
+    "artifacts/crow-v15-overlap-long-flight-20261113/push-wing-20261126-rebound-long/run.stderr.gz.part004"
+  ],
+  "logical_bytes": 335651814,
+  "verified_commit": "3fb3cb0115910f8f61767bba3489245c1394fab9"
+}
