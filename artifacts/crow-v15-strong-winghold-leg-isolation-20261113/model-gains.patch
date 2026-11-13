@@ -1,0 +1,11 @@
+--- a/damped.cpp
++++ b/stronghold.cpp
+@@ -3418,7 +3418,7 @@
+  for(unsigned side=0;side<2;++side){unsigned oldJ=side==0?7u:10u;auto j=oldJoints[oldJ];j.childBody=map(j.childBody)-1u;j.parentBody=0;j.qOffset=newQ+side;j.vOffset=newV+side;j.axis0={1,0,0,0};j.childAnchor={0,0,0,0};m.joints.push_back(j);m.jointNames.push_back(side==0?"crow_left_hip_roll":"crow_right_hip_roll");auto d=m.dofs.at(oldJoints[oldJ].vOffset);d.jointIndex=newJointBase+side;d.qIndex=newQ+side;d.vIndex=newV+side;d.limits={-.35f,.35f,8.f,.22f};d.drive={8.f,.15f,.00005f,0};m.dofs.push_back(d);m.dofNames.push_back(side==0?"crow_left_hip_roll":"crow_right_hip_roll");m.defaultQ.push_back(0);m.defaultV.push_back(0);if(!m.actuatorProfiles.empty())m.actuatorProfiles.emplace_back();}
+  auto&a=m.articulations.at(0);a.bodyCount=m.world.bodyCount=m.bodies.size();a.jointCount=m.world.jointCount=m.joints.size();a.nq=m.world.nq=m.defaultQ.size();a.nv=m.world.nv=m.defaultV.size();
+  for(auto& r:p.roles){if(r.id=="whole_body")r.members=m.bodyNames;if(r.id=="all_joints")r.members=m.jointNames;if(r.id=="all_dofs")r.members=m.dofNames;}
+- for(unsigned i : {8u,9u}){auto &d=m.dofs.at(i);crowToeNeed(d.vIndex==i && d.qIndex==i+1 && d.drive.x==800.f && d.drive.y==8.f,"unexpected wing drive metadata");std::fprintf(stderr,"CROW_MODEL_DRIVE %u %u %u %.9g %.9g %.9g %.9g\n",i,d.qIndex,d.vIndex,d.drive.x,d.drive.y,d.drive.z,d.limits.w);d.drive.x=10.f;d.drive.y=0.5f;std::fprintf(stderr,"CROW_MODEL_DRIVE_NEW %u %.9g %.9g %.9g %.9g\n",i,d.drive.x,d.drive.y,d.drive.z,d.limits.w);}
++ for(unsigned i : {8u,9u}){auto &d=m.dofs.at(i);crowToeNeed(d.vIndex==i && d.qIndex==i+1 && d.drive.x==800.f && d.drive.y==8.f,"unexpected wing drive metadata");std::fprintf(stderr,"CROW_MODEL_DRIVE %u %u %u %.9g %.9g %.9g %.9g\n",i,d.qIndex,d.vIndex,d.drive.x,d.drive.y,d.drive.z,d.limits.w);d.drive.x=10.f;d.drive.y=1.0f;std::fprintf(stderr,"CROW_MODEL_DRIVE_NEW %u %.9g %.9g %.9g %.9g\n",i,d.drive.x,d.drive.y,d.drive.z,d.limits.w);}
+  std::string why;crowToeNeed(m.valid(&why),"model invalid: "+why);return p;
+ }
+ }
