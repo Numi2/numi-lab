@@ -1,0 +1,27 @@
+{
+  "seed": "20261127",
+  "rows": [
+    {
+      "lane": 0,
+      "kind": "no-push-wing-control",
+      "reference_end": 762,
+      "new_end": 762,
+      "missing_ticks": [],
+      "different_ticks": [],
+      "exact": true
+    },
+    {
+      "lane": 1,
+      "kind": "no-push-wing-control",
+      "reference_end": 761,
+      "new_end": 761,
+      "missing_ticks": [],
+      "different_ticks": [],
+      "exact": true
+    }
+  ],
+  "all_required_exact": true,
+  "all_six_preliminary_engineering_pass": true,
+  "validated_six_lane_screen_pass": true,
+  "scope": "Used-seed obstacle-free screening; not flight qualification or freeze."
+}
