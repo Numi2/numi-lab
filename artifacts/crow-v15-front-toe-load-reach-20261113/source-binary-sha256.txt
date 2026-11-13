@@ -1,0 +1,5 @@
+e32b265573acec8cdec850ea9ebef5babaacd6b21f2c4e01689e9248f16baf17  artifacts/crow-v15-front-toe-load-reach-20261113/World.metal
+46b1edd8075d9e596c6ee9047479a911e67b1a5ccfba31e3cd1fb98d853f3df3  artifacts/crow-v15-front-toe-load-reach-20261113/push-wing.metal
+fe79b101a8d974792f296ce36b725231f31e7209c99ce4875c0db63070abd7ea  artifacts/crow-v15-front-toe-load-reach-20261113/hold-wing.metal
+3381cf1df035efe96a846bbda83c78a7a5b3e43e37a730fabb7968ffc8f69e3a  build/crow-v15-front-toe-load-reach-20261113/push-wing.metallib
+e37d222aac2d8d53ae4ef7c53160dff68aa00e70a7e98044162c20ae0dcc8340  build/crow-v15-front-toe-load-reach-20261113/hold-wing.metallib
