@@ -1,0 +1,3 @@
+# Contact observer for current hip-roll research body
+
+The prior toe observer hard-coded a 33-body robot, foot bodies 10/13, toe bodies 17–32 and scene body 33. The flight research body adds two hip-roll proxy links, so these assumptions are wrong for it. Build a separate native observer mapping the 35-body model: foot bodies 11/15, toes 19–34 and scene body 35, with identical per-substep output and no solver changes. Require runtime body-name checks, a one-step smoke run and independent final-substep impulse comparison to the ordinary host contact evidence before drawing grip conclusions. Preserve the previous observer and failed screens. Observer compilation does not qualify flight or landing.
