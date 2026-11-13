@@ -1,0 +1,128 @@
+{
+  "scope": "observational host parity and uncalibrated model aero force; not biological or mission qualification",
+  "state_parity": {
+    "0": {
+      "mismatch_count": 0,
+      "first_mismatches": []
+    },
+    "1": {
+      "mismatch_count": 0,
+      "first_mismatches": []
+    },
+    "2": {
+      "mismatch_count": 0,
+      "first_mismatches": []
+    },
+    "3": {
+      "mismatch_count": 0,
+      "first_mismatches": []
+    },
+    "4": {
+      "mismatch_count": 0,
+      "first_mismatches": []
+    },
+    "5": {
+      "mismatch_count": 0,
+      "first_mismatches": []
+    },
+    "6": {
+      "mismatch_count": 0,
+      "first_mismatches": []
+    },
+    "7": {
+      "mismatch_count": 0,
+      "first_mismatches": []
+    }
+  },
+  "substep_and_target_parity": {
+    "target": {
+      "keys": 1328,
+      "mismatch_count": 0,
+      "first_mismatches": []
+    },
+    "contact": {
+      "keys": 21248,
+      "mismatch_count": 0,
+      "first_mismatches": []
+    },
+    "leg": {
+      "keys": 21248,
+      "mismatch_count": 0,
+      "first_mismatches": []
+    },
+    "toe": {
+      "keys": 21248,
+      "mismatch_count": 0,
+      "first_mismatches": []
+    }
+  },
+  "identical_physics_inputs": true,
+  "observer_errors": [],
+  "aero_coverage": [
+    {
+      "lane": 0,
+      "missing_substeps": 0,
+      "first_missing": []
+    },
+    {
+      "lane": 1,
+      "missing_substeps": 0,
+      "first_missing": []
+    },
+    {
+      "lane": 2,
+      "missing_substeps": 0,
+      "first_missing": []
+    },
+    {
+      "lane": 3,
+      "missing_substeps": 0,
+      "first_missing": []
+    },
+    {
+      "lane": 4,
+      "missing_substeps": 0,
+      "first_missing": []
+    },
+    {
+      "lane": 5,
+      "missing_substeps": 0,
+      "first_missing": []
+    },
+    {
+      "lane": 6,
+      "missing_substeps": 0,
+      "first_missing": []
+    },
+    {
+      "lane": 7,
+      "missing_substeps": 0,
+      "first_missing": []
+    }
+  ],
+  "launch_aero": [
+    {
+      "lane": 6,
+      "aero_vertical_impulse_371_390_Ns": 1.1970517292432072,
+      "body_left_wing_right_wing_tail_vertical_impulse_Ns": [
+        -0.006758674221999581,
+        0.620747158720253,
+        0.6215502250008949,
+        -0.03848698025575619
+      ],
+      "peak_abs_aero_vertical_force_N": 13.2598690093
+    },
+    {
+      "lane": 7,
+      "aero_vertical_impulse_371_390_Ns": 1.1890311979884205,
+      "body_left_wing_right_wing_tail_vertical_impulse_Ns": [
+        -0.0058179899842169015,
+        0.6187325957957228,
+        0.619458232297079,
+        -0.043341640120015484
+      ],
+      "peak_abs_aero_vertical_force_N": 13.3521568403
+    }
+  ],
+  "passed": true
+}
