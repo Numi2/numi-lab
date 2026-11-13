@@ -1,0 +1,5 @@
+# Post-hoc survivor analysis (trial remains failed)
+
+The original preregistered screen remains invalid because push lanes 2 and 3 terminated after 376 steps. This separate analysis excludes those lanes entirely and inspects only push lanes 4–7, whose first episodes lasted 400 steps. It does not alter or replace integrity-failed.json. All four maintained foot support in each control interval 340–347, then had three unsupported intervals beginning at steps 352–354, no subsequent foot recontact through 400, no toe threshold events, and zero logged nonfoot ground impulse. However, push-minus-hold early foot impulses in both windows were +0.0251, +0.0255, +0.0531 and +0.0141 N s for lanes 4, 5, 6 and 7 respectively. Only lane 6 exceeded the preregistered +0.05 threshold in its pair, so no engineering cap passed both assigned lanes. The large height attained by some survivors does not establish leg-powered takeoff.
+
+The other two comparable lanes terminated and must not be assessed after their first episodes. The single-seed, correlated survivor observations do not qualify flight, landing, biology, or either held-out layout.
