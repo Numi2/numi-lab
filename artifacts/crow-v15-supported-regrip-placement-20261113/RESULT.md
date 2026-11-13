@@ -1,0 +1,5 @@
+# Rate-limited return-foot placement: failed regrip
+
+Both candidates exactly reproduced the previous supported-pitch lane 1 q/v for the 208 accepted states before the first placement command. All 450 intervals and 32-substep observations completed without native solver error, and the observer agreed with accepted normal impulses within 6.21e-10 N s. The added hip offsets reached 0.045 and 0.075 rad, with maximum command increments 0.003001 rad or less. These are command and accepted-state checks, not measured actuator torque.
+
+Both lanes achieved ten independently qualified release intervals and entered return at step 209, but neither achieved any interval meeting all bilateral opposing-toe support, posture and velocity criteria. The returning left opposing contact failed in every analyzed pre-fall interval. They fell at steps 298 and 294, compared with step 322 in their matched control. This rejects both attempted placements on this constructed state; it does not prove why grip failed or establish an airborne landing, flight qualification, navigation or biology. Preserve the complete failed trajectories and do not promote the candidates.

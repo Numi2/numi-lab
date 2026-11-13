@@ -1,0 +1,18 @@
+{
+  "0": {
+    "samples": 450,
+    "first_nonzero_zero_based": 208,
+    "max_offset_rad": 0.0450000018,
+    "max_slew_rad": 0.0030000005000000024,
+    "within_cap": true,
+    "within_slew": true
+  },
+  "1": {
+    "samples": 450,
+    "first_nonzero_zero_based": 208,
+    "max_offset_rad": 0.075000003,
+    "max_slew_rad": 0.0030000024,
+    "within_cap": true,
+    "within_slew": true
+  }
+}

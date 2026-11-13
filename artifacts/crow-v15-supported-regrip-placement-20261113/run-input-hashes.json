@@ -1,0 +1,6 @@
+{
+  "artifacts/crow-v15-supported-regrip-placement-20261113/probe.cpp": "d133b41392ea98d44ef58355e45f0ec62b0abd49a77d07a1bea02e8f9014da86",
+  "build/crow-v15-supported-regrip-placement-20261113/probe": "e711b676c5a13263b2a638c5898f9c41f2fe31e1eaa13d28b7f1da8d103e4905",
+  "build/crow-v15-hiproll-toe-observer-20261113/libmetalrobo.dylib": "2401d8c6aa048f7a4a75b51d2fbc1498b97b66fd3e3e6aeb19b3014fa5af7aea",
+  "build/crow-v15-wide-contact-isolation-20261111/MetalRobo.metallib": "835d0ff74b8338bba6987d88f3355a1344522eaa88fa8e82295b12ba58cedeb5"
+}
