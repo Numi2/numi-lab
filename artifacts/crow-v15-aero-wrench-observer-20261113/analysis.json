@@ -1,0 +1,501 @@
+{
+  "scope": "Bracketed simulated aerodynamic kernel force; no biological validation. Delta of all body force slots before/after kernel, integrated using stated control dt and substeps. Gravity is assumed, not independently read from the runtime dispatch. Remaining residual can include other applied forces, dynamics and sampling/rounding.",
+  "parity": [
+    {
+      "lane": 0,
+      "state_mismatches": 0,
+      "first_state_mismatch": [],
+      "contact_mismatches": 0,
+      "first_contact_mismatch": []
+    },
+    {
+      "lane": 1,
+      "state_mismatches": 0,
+      "first_state_mismatch": [],
+      "contact_mismatches": 0,
+      "first_contact_mismatch": []
+    },
+    {
+      "lane": 2,
+      "state_mismatches": 0,
+      "first_state_mismatch": [],
+      "contact_mismatches": 0,
+      "first_contact_mismatch": []
+    },
+    {
+      "lane": 3,
+      "state_mismatches": 0,
+      "first_state_mismatch": [],
+      "contact_mismatches": 0,
+      "first_contact_mismatch": []
+    },
+    {
+      "lane": 4,
+      "state_mismatches": 0,
+      "first_state_mismatch": [],
+      "contact_mismatches": 0,
+      "first_contact_mismatch": []
+    },
+    {
+      "lane": 5,
+      "state_mismatches": 0,
+      "first_state_mismatch": [],
+      "contact_mismatches": 0,
+      "first_contact_mismatch": []
+    },
+    {
+      "lane": 6,
+      "state_mismatches": 0,
+      "first_state_mismatch": [],
+      "contact_mismatches": 0,
+      "first_contact_mismatch": []
+    },
+    {
+      "lane": 7,
+      "state_mismatches": 0,
+      "first_state_mismatch": [],
+      "contact_mismatches": 0,
+      "first_contact_mismatch": []
+    }
+  ],
+  "aero_records": 3584,
+  "body_strides": [
+    41
+  ],
+  "rows": [
+    {
+      "lane": 0,
+      "end_step": 357,
+      "aero_impulse_z_ns": 0.1250713952877364,
+      "aero_root_left_right_tail_z_ns": [
+        -0.0020751863359671835,
+        0.06419789566695058,
+        0.06397279169120418,
+        -0.001024105734427344
+      ],
+      "foot_impulse_z_ns": 1.1899764586302226,
+      "assumed_gravity_impulse_z_ns": -0.8830177072290826,
+      "com_delta_momentum_z_ns": 0.41503773229525115,
+      "unattributed_residual_ns": -0.0169924143936252
+    },
+    {
+      "lane": 0,
+      "end_step": 365,
+      "aero_impulse_z_ns": 0.3845283213431692,
+      "aero_root_left_right_tail_z_ns": [
+        -0.0035246083387990295,
+        0.19542404706240352,
+        0.19515954232425586,
+        -0.0025306597046874193
+      ],
+      "foot_impulse_z_ns": 1.1899764586302226,
+      "assumed_gravity_impulse_z_ns": -1.5894318730123487,
+      "com_delta_momentum_z_ns": -0.045399500833933244,
+      "unattributed_residual_ns": -0.030472407794976286
+    },
+    {
+      "lane": 0,
+      "end_step": 375,
+      "aero_impulse_z_ns": 1.380795215850019,
+      "aero_root_left_right_tail_z_ns": [
+        -0.0009793252885986268,
+        0.6990559649944433,
+        0.6903892766067731,
+        -0.007670700462648127
+      ],
+      "foot_impulse_z_ns": 1.1899764586302226,
+      "assumed_gravity_impulse_z_ns": -2.4724495802414315,
+      "com_delta_momentum_z_ns": 0.08112642551942702,
+      "unattributed_residual_ns": -0.01719566871938305
+    },
+    {
+      "lane": 1,
+      "end_step": 357,
+      "aero_impulse_z_ns": 0.12475470965322848,
+      "aero_root_left_right_tail_z_ns": [
+        -0.002213699648273267,
+        0.06416883945707172,
+        0.0639701182257726,
+        -0.0011705483813343283
+      ],
+      "foot_impulse_z_ns": 1.2068865102675685,
+      "assumed_gravity_impulse_z_ns": -0.8830177072290826,
+      "com_delta_momentum_z_ns": 0.43256080750923487,
+      "unattributed_residual_ns": -0.016062705182479542
+    },
+    {
+      "lane": 1,
+      "end_step": 365,
+      "aero_impulse_z_ns": 0.3791718092299581,
+      "aero_root_left_right_tail_z_ns": [
+        -0.0038750706624767583,
+        0.1930945236767256,
+        0.19284876992324929,
+        -0.002896413707504884
+      ],
+      "foot_impulse_z_ns": 1.2068865102675685,
+      "assumed_gravity_impulse_z_ns": -1.5894318730123487,
+      "com_delta_momentum_z_ns": -0.034737321269114566,
+      "unattributed_residual_ns": -0.031363767754292615
+    },
+    {
+      "lane": 1,
+      "end_step": 375,
+      "aero_impulse_z_ns": 1.3602549576950653,
+      "aero_root_left_right_tail_z_ns": [
+        -0.0014571593370880554,
+        0.6829919831078766,
+        0.686441769617083,
+        -0.00772163569267864
+      ],
+      "foot_impulse_z_ns": 1.2068865102675685,
+      "assumed_gravity_impulse_z_ns": -2.4724495802414315,
+      "com_delta_momentum_z_ns": 0.07583546496410629,
+      "unattributed_residual_ns": -0.01885642275709598
+    },
+    {
+      "lane": 2,
+      "end_step": 357,
+      "aero_impulse_z_ns": 0.1345727756004704,
+      "aero_root_left_right_tail_z_ns": [
+        -0.0003737623974573688,
+        0.06622565836591911,
+        0.06604704221104699,
+        0.00267383742103125
+      ],
+      "foot_impulse_z_ns": 0.826459154996164,
+      "assumed_gravity_impulse_z_ns": -0.8830177072290826,
+      "com_delta_momentum_z_ns": 0.06516707137950459,
+      "unattributed_residual_ns": -0.0128471519880472
+    },
+    {
+      "lane": 2,
+      "end_step": 365,
+      "aero_impulse_z_ns": 0.47150351585297506,
+      "aero_root_left_right_tail_z_ns": [
+        -0.00015104036844324146,
+        0.2342017703940055,
+        0.2343092047467705,
+        0.00314358108069616
+      ],
+      "foot_impulse_z_ns": 1.0729706135473926,
+      "assumed_gravity_impulse_z_ns": -1.5894318730123487,
+      "com_delta_momentum_z_ns": -0.04761839071814456,
+      "unattributed_residual_ns": -0.0026606471061636494
+    },
+    {
+      "lane": 2,
+      "end_step": 375,
+      "aero_impulse_z_ns": 1.3406552079887748,
+      "aero_root_left_right_tail_z_ns": [
+        -0.0029947329420808694,
+        0.6717087128345984,
+        0.670368324857899,
+        0.0015729032389114733
+      ],
+      "foot_impulse_z_ns": 1.341265953008393,
+      "assumed_gravity_impulse_z_ns": -2.4724495802414315,
+      "com_delta_momentum_z_ns": 0.18103938428231617,
+      "unattributed_residual_ns": -0.028432196473420213
+    },
+    {
+      "lane": 3,
+      "end_step": 357,
+      "aero_impulse_z_ns": 0.1347998399145704,
+      "aero_root_left_right_tail_z_ns": [
+        -0.000347477446532953,
+        0.06625466450390496,
+        0.0660764363174845,
+        0.002816216539672335
+      ],
+      "foot_impulse_z_ns": 0.8286071081859834,
+      "assumed_gravity_impulse_z_ns": -0.8830177072290826,
+      "com_delta_momentum_z_ns": 0.06783853483565214,
+      "unattributed_residual_ns": -0.012550706035818981
+    },
+    {
+      "lane": 3,
+      "end_step": 365,
+      "aero_impulse_z_ns": 0.4717683550831709,
+      "aero_root_left_right_tail_z_ns": [
+        -0.0001363287764371591,
+        0.23430631320080175,
+        0.23432087708947702,
+        0.003277493569259324
+      ],
+      "foot_impulse_z_ns": 1.0718468379689263,
+      "assumed_gravity_impulse_z_ns": -1.5894318730123487,
+      "com_delta_momentum_z_ns": -0.048356078276548156,
+      "unattributed_residual_ns": -0.0025393983162966816
+    },
+    {
+      "lane": 3,
+      "end_step": 375,
+      "aero_impulse_z_ns": 1.345444660684611,
+      "aero_root_left_right_tail_z_ns": [
+        -0.0030996329666682964,
+        0.674559568705822,
+        0.6726911466380695,
+        0.001293578307133575
+      ],
+      "foot_impulse_z_ns": 1.3447083933201185,
+      "assumed_gravity_impulse_z_ns": -2.4724495802414315,
+      "com_delta_momentum_z_ns": 0.18875518294993324,
+      "unattributed_residual_ns": -0.028948290813364697
+    },
+    {
+      "lane": 4,
+      "end_step": 357,
+      "aero_impulse_z_ns": 0.13455520800050944,
+      "aero_root_left_right_tail_z_ns": [
+        -0.0003587976614781375,
+        0.06621617888801287,
+        0.0660389103312692,
+        0.002658916442743934
+      ],
+      "foot_impulse_z_ns": 0.8281215525146156,
+      "assumed_gravity_impulse_z_ns": -0.8830177072290826,
+      "com_delta_momentum_z_ns": 0.06703040904846035,
+      "unattributed_residual_ns": -0.012628644237582143
+    },
+    {
+      "lane": 4,
+      "end_step": 365,
+      "aero_impulse_z_ns": 0.46912341147714304,
+      "aero_root_left_right_tail_z_ns": [
+        -0.00016032929999968508,
+        0.23304016270970374,
+        0.233164164856899,
+        0.0030794132106121593
+      ],
+      "foot_impulse_z_ns": 1.087169990342814,
+      "assumed_gravity_impulse_z_ns": -1.5894318730123487,
+      "com_delta_momentum_z_ns": -0.03614606361803308,
+      "unattributed_residual_ns": -0.0030075924256414144
+    },
+    {
+      "lane": 4,
+      "end_step": 375,
+      "aero_impulse_z_ns": 1.2439361926455403,
+      "aero_root_left_right_tail_z_ns": [
+        -0.005201585330854039,
+        0.6250885112582403,
+        0.6239784358706169,
+        7.083084748580234e-05
+      ],
+      "foot_impulse_z_ns": 1.5126886763172138,
+      "assumed_gravity_impulse_z_ns": -2.4724495802414315,
+      "com_delta_momentum_z_ns": 0.24382506088695222,
+      "unattributed_residual_ns": -0.04035022783437059
+    },
+    {
+      "lane": 5,
+      "end_step": 357,
+      "aero_impulse_z_ns": 0.13419921870166665,
+      "aero_root_left_right_tail_z_ns": [
+        -0.00036506072043217166,
+        0.06613851675939939,
+        0.06595311845672355,
+        0.002472644205945618
+      ],
+      "foot_impulse_z_ns": 0.825383216399251,
+      "assumed_gravity_impulse_z_ns": -0.8830177072290826,
+      "com_delta_momentum_z_ns": 0.06385632210690761,
+      "unattributed_residual_ns": -0.012708405764927488
+    },
+    {
+      "lane": 5,
+      "end_step": 365,
+      "aero_impulse_z_ns": 0.4707487085734683,
+      "aero_root_left_right_tail_z_ns": [
+        -0.0001481747975519575,
+        0.2340225990288684,
+        0.23421635087583537,
+        0.0026579334663983083
+      ],
+      "foot_impulse_z_ns": 1.0727376187070143,
+      "assumed_gravity_impulse_z_ns": -1.5894318730123487,
+      "com_delta_momentum_z_ns": -0.04849561357027429,
+      "unattributed_residual_ns": -0.0025500678384082764
+    },
+    {
+      "lane": 5,
+      "end_step": 375,
+      "aero_impulse_z_ns": 1.3438774648361327,
+      "aero_root_left_right_tail_z_ns": [
+        -0.0030215115190181923,
+        0.6735327750743302,
+        0.6720827964290874,
+        0.0012834048522392496
+      ],
+      "foot_impulse_z_ns": 1.3398639577890143,
+      "assumed_gravity_impulse_z_ns": -2.4724495802414315,
+      "com_delta_momentum_z_ns": 0.18291742121376298,
+      "unattributed_residual_ns": -0.02837442116995259
+    },
+    {
+      "lane": 6,
+      "end_step": 357,
+      "aero_impulse_z_ns": 0.13454625704770257,
+      "aero_root_left_right_tail_z_ns": [
+        -0.00037000839342576117,
+        0.06621198139966497,
+        0.0660294791945865,
+        0.0026748048468823488
+      ],
+      "foot_impulse_z_ns": 0.8319247449571648,
+      "assumed_gravity_impulse_z_ns": -0.8830177072290826,
+      "com_delta_momentum_z_ns": 0.07056795006302388,
+      "unattributed_residual_ns": -0.012885344712761038
+    },
+    {
+      "lane": 6,
+      "end_step": 365,
+      "aero_impulse_z_ns": 0.46950658946864054,
+      "aero_root_left_right_tail_z_ns": [
+        -0.00015952119544971518,
+        0.23319981310602306,
+        0.2332807415583563,
+        0.003185555999885381
+      ],
+      "foot_impulse_z_ns": 1.086535753091784,
+      "assumed_gravity_impulse_z_ns": -1.5894318730123487,
+      "com_delta_momentum_z_ns": -0.03650733804243086,
+      "unattributed_residual_ns": -0.003117807590506727
+    },
+    {
+      "lane": 6,
+      "end_step": 375,
+      "aero_impulse_z_ns": 1.2480219830797759,
+      "aero_root_left_right_tail_z_ns": [
+        -0.005200428784988692,
+        0.6273488499817501,
+        0.6254970265702199,
+        0.0003765353130732798
+      ],
+      "foot_impulse_z_ns": 1.5093986666543842,
+      "assumed_gravity_impulse_z_ns": -2.4724495802414315,
+      "com_delta_momentum_z_ns": 0.24459917578880322,
+      "unattributed_residual_ns": -0.04037189370392502
+    },
+    {
+      "lane": 7,
+      "end_step": 357,
+      "aero_impulse_z_ns": 0.13362099427267893,
+      "aero_root_left_right_tail_z_ns": [
+        -0.0003899902334071034,
+        0.06607047278846119,
+        0.06589319671985508,
+        0.002047314997742908
+      ],
+      "foot_impulse_z_ns": 0.8271825370930027,
+      "assumed_gravity_impulse_z_ns": -0.8830177072290826,
+      "com_delta_momentum_z_ns": 0.06478126498196463,
+      "unattributed_residual_ns": -0.013004559154634387
+    },
+    {
+      "lane": 7,
+      "end_step": 365,
+      "aero_impulse_z_ns": 0.4705210192349552,
+      "aero_root_left_right_tail_z_ns": [
+        -0.00016270459500284014,
+        0.2340268423340809,
+        0.2343672544862666,
+        0.002289627009615715
+      ],
+      "foot_impulse_z_ns": 1.0730011674277427,
+      "assumed_gravity_impulse_z_ns": -1.5894318730123487,
+      "com_delta_momentum_z_ns": -0.04861459587332644,
+      "unattributed_residual_ns": -0.002704909523675525
+    },
+    {
+      "lane": 7,
+      "end_step": 375,
+      "aero_impulse_z_ns": 1.3319703698305563,
+      "aero_root_left_right_tail_z_ns": [
+        -0.0031091557552803506,
+        0.6679579603804465,
+        0.6674579420707526,
+        -0.00033637686560901604
+      ],
+      "foot_impulse_z_ns": 1.3533394976277735,
+      "assumed_gravity_impulse_z_ns": -2.4724495802414315,
+      "com_delta_momentum_z_ns": 0.18379656430281233,
+      "unattributed_residual_ns": -0.02906372291408621
+    }
+  ],
+  "phase_358_365": [
+    {
+      "lane": 2,
+      "steps": [
+        358,
+        365
+      ],
+      "aero_impulse_z_ns": 0.3369307402525047,
+      "foot_impulse_z_ns": 0.2465114585512287,
+      "assumed_gravity_impulse_z_ns": -0.7064141657832661,
+      "com_delta_momentum_z_ns": -0.11278546209764914,
+      "residual_ns": 0.010186504881883551
+    },
+    {
+      "lane": 3,
+      "steps": [
+        358,
+        365
+      ],
+      "aero_impulse_z_ns": 0.3369685151686005,
+      "foot_impulse_z_ns": 0.24323972978294295,
+      "assumed_gravity_impulse_z_ns": -0.7064141657832661,
+      "com_delta_momentum_z_ns": -0.11619461311220029,
+      "residual_ns": 0.0100113077195223
+    },
+    {
+      "lane": 4,
+      "steps": [
+        358,
+        365
+      ],
+      "aero_impulse_z_ns": 0.33456820347663363,
+      "foot_impulse_z_ns": 0.2590484378281984,
+      "assumed_gravity_impulse_z_ns": -0.7064141657832661,
+      "com_delta_momentum_z_ns": -0.10317647266649344,
+      "residual_ns": 0.009621051811940728
+    },
+    {
+      "lane": 5,
+      "steps": [
+        358,
+        365
+      ],
+      "aero_impulse_z_ns": 0.33654948987180167,
+      "foot_impulse_z_ns": 0.2473544023077633,
+      "assumed_gravity_impulse_z_ns": -0.7064141657832661,
+      "com_delta_momentum_z_ns": -0.11235193567718191,
+      "residual_ns": 0.010158337926519212
+    },
+    {
+      "lane": 6,
+      "steps": [
+        358,
+        365
+      ],
+      "aero_impulse_z_ns": 0.334960332420938,
+      "foot_impulse_z_ns": 0.25461100813461923,
+      "assumed_gravity_impulse_z_ns": -0.7064141657832661,
+      "com_delta_momentum_z_ns": -0.10707528810545475,
+      "residual_ns": 0.00976753712225431
+    },
+    {
+      "lane": 7,
+      "steps": [
+        358,
+        365
+      ],
+      "aero_impulse_z_ns": 0.3369000249622763,
+      "foot_impulse_z_ns": 0.24581863033473994,
+      "assumed_gravity_impulse_z_ns": -0.7064141657832661,
+      "com_delta_momentum_z_ns": -0.11339586085529108,
+      "residual_ns": 0.010299649630958863
+    }
+  ]
+}
