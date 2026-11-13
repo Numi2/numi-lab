@@ -1,0 +1,5 @@
+# Diagnostic video: failed backward flight, development layout
+
+These two views replay the same accepted simulation states from push lane 5, training seed 20261126, ticks 1–500 (10 seconds at 50 Hz). They include walking, the development push and flapping; this is not an autonomous waypoint mission, supported landing, held-out layout or evidence of biological realism. The renderer uses an estimated crow mesh and a root-relative camera. In particular, the following camera hides the approximately one-meter negative course-x displacement over ticks 400–500; see the associated pronation experiment analysis and source replay. The corresponding no-leg-push hold recontacted the floor.
+
+The source replay, simulation logs, inputs and compiled model are in the separately archived crow-v15-pronation-forward-flight-20261113 artifact. Render command, source replay hash, renderer binary hash and renderer commit are retained here. All represented steps are accepted simulation states, not generated imagery.
