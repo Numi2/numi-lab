@@ -1,0 +1,12 @@
+push 2 release 376 COMvz 0.4722965856476952 delta impulse 0.22195656474548298 toe 0 nonfoot 0.0 flap 0.904268026 aero -0.0015954992679763265 pass True
+hold 2 release None COMvz None delta impulse -0.0022217463219930903 toe 0 nonfoot 0.0 flap 0.000123195801 aero 7.965753954948094e-05 pass False
+push 3 release 376 COMvz 0.4300716451635414 delta impulse 0.20338532638227397 toe 0 nonfoot 0.0 flap 0.846230567 aero -0.0013829806467497558 pass True
+hold 3 release None COMvz None delta impulse -0.0035247538407260828 toe 0 nonfoot 0.0 flap 0.000122737809 aero 7.996562057342085e-05 pass False
+push 4 release None COMvz None delta impulse -0.016949479552250093 toe 0 nonfoot 0.0 flap 0.284306139 aero 0.00041790833793592846 pass False
+hold 4 release None COMvz None delta impulse -0.016949479552250093 toe 0 nonfoot 0.0 flap 0.000122484096 aero 7.975114737092905e-05 pass False
+push 5 release None COMvz None delta impulse -0.016762489918300063 toe 0 nonfoot 0.0 flap 0.283593833 aero 0.0004141183695602541 pass False
+hold 5 release None COMvz None delta impulse -0.016762489918300063 toe 0 nonfoot 0.0 flap 0.000121199082 aero 7.98920850304894e-05 pass False
+push 6 release None COMvz None delta impulse -0.016727302441799964 toe 0 nonfoot 0.0 flap 0.288480371 aero 0.00025564182995578436 pass False
+hold 6 release None COMvz None delta impulse -0.016727302441799964 toe 0 nonfoot 0.0 flap 0.000119616074 aero 8.015807765985636e-05 pass False
+push 7 release None COMvz None delta impulse -0.013856360003100013 toe 0 nonfoot 0.0 flap 0.288706094 aero 0.00022750301994795734 pass False
+hold 7 release None COMvz None delta impulse -0.013856360003100013 toe 0 nonfoot 0.0 flap 0.000119511446 aero 8.005877349035109e-05 pass False

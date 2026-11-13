@@ -1,0 +1,3 @@
+# Second refined wing-held hip push: failed
+
+The same-lane baseline push and hold exactly reproduced their prior first episodes and target histories. Both alternative hip finishes, +0.14 and +0.17, failed to produce the required three consecutive unloaded intervals by tick 398 in all four candidate lanes. Baseline lanes still launched backward and therefore failed the combined horizontal gate. Neither new pair passed, even though no toe-speed threshold or nonfoot normal impulse was recorded through the screen. This used-seed test does not qualify takeoff; full controls and failures are retained.
