@@ -1,0 +1,6 @@
+2 end 574 trace 575 scene [('crow_right_wing', 'crow_course_gate_right', 0.118139058)]
+3 end 636 trace 637 scene [('crow_head', 'crow_course_slalom_b', 0.0146090789), ('crow_head', 'crow_course_slalom_b', 2.79470402e-20)]
+4 end 584 trace 585 scene [('crow_right_wing', 'crow_course_gate_right', 0.00270005455), ('crow_right_wing', 'crow_course_gate_right', 0.0234634615)]
+5 end 585 trace 586 scene [('crow_right_wing', 'crow_course_gate_right', 0.0308789276)]
+6 end 587 trace 588 scene [('crow_right_wing', 'crow_course_gate_right', 0.0168301053)]
+7 end 587 trace 588 scene [('crow_right_wing', 'crow_course_gate_right', 0.0165304057)]
