@@ -1,0 +1,5 @@
+# Failed development transition, two camera views
+
+Both videos show the same actual accepted-state replay, environment 5 on the used development training layout, seed 20261126, 500 ticks at 50 Hz. This is a failed leg-and-wing transition test, not an autonomous waypoint mission or supported landing. In the full-horizon trace this bird recontacted at tick 404, had 5 toe-speed threshold substeps, and moved -0.424 m in world x from ticks 400 to 500. The root-relative camera removes the trajectory and visually hides that backward movement. The wing hold control also lifted briefly. Accepted rigid-link and toe poses drive an estimated visual mesh; feathers, skin and appearance are not exact real-crow measurements. Lighting and research perch are presentation only.
+
+The source physics trace, controls, inputs, compiled model and results are retained at Git commit 1ab1d634e60fb50f3fd33b91d57525c34a1176ea in artifacts/crow-v15-transition-sweep-observer-20261113. Render command, immutable source hashes, renderer revision and camera audit are retained alongside these videos.
