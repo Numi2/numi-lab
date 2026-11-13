@@ -1,0 +1,101 @@
+{
+  "scope": "Posthoc 1.25 ms sampled substep forward kinematics. Wing-body COM relative to torso in world axes is a proxy for stroke phase, not a wingtip. Contact means summed measured foot normal impulse >1e-7 per substep; last contact is only in recorded 350\u2013365 and not necessarily physically exact toe-off. Does not measure aerodynamic force.",
+  "rows": [
+    {
+      "lane": 2,
+      "peak_relative_wing_com_step_substep": [
+        358,
+        15
+      ],
+      "last_foot_contact_step_substep_350_365": [
+        356,
+        9
+      ],
+      "peak_minus_last_contact_ms": 47.5,
+      "peak_relative_wing_com_z_m": [
+        0.08057725760806597,
+        0.08156896328914012
+      ]
+    },
+    {
+      "lane": 3,
+      "peak_relative_wing_com_step_substep": [
+        358,
+        15
+      ],
+      "last_foot_contact_step_substep_350_365": [
+        356,
+        9
+      ],
+      "peak_minus_last_contact_ms": 47.5,
+      "peak_relative_wing_com_z_m": [
+        0.08011184901748813,
+        0.08217640446260871
+      ]
+    },
+    {
+      "lane": 4,
+      "peak_relative_wing_com_step_substep": [
+        358,
+        15
+      ],
+      "last_foot_contact_step_substep_350_365": [
+        357,
+        13
+      ],
+      "peak_minus_last_contact_ms": 22.5,
+      "peak_relative_wing_com_z_m": [
+        0.07604769772951706,
+        0.07593230309195045
+      ]
+    },
+    {
+      "lane": 5,
+      "peak_relative_wing_com_step_substep": [
+        358,
+        15
+      ],
+      "last_foot_contact_step_substep_350_365": [
+        357,
+        6
+      ],
+      "peak_minus_last_contact_ms": 31.25,
+      "peak_relative_wing_com_z_m": [
+        0.07515977628270934,
+        0.07499002925042034
+      ]
+    },
+    {
+      "lane": 6,
+      "peak_relative_wing_com_step_substep": [
+        359,
+        15
+      ],
+      "last_foot_contact_step_substep_350_365": [
+        361,
+        3
+      ],
+      "peak_minus_last_contact_ms": -25.0,
+      "peak_relative_wing_com_z_m": [
+        0.04357687290303894,
+        0.047341473557531155
+      ]
+    },
+    {
+      "lane": 7,
+      "peak_relative_wing_com_step_substep": [
+        359,
+        15
+      ],
+      "last_foot_contact_step_substep_350_365": [
+        361,
+        3
+      ],
+      "peak_minus_last_contact_ms": -25.0,
+      "peak_relative_wing_com_z_m": [
+        0.04359073660672513,
+        0.047114742124981096
+      ]
+    }
+  ]
+}
