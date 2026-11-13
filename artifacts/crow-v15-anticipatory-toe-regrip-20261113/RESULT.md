@@ -1,0 +1,5 @@
+# Anticipatory supported foretoe return: failed
+
+Both 450-interval constructed-perch trials completed with all 32 contact substeps present, no observer errors, and exact q/v parity with the supported-pitch baseline for the 208 pre-intervention states. Each achieved the independently reconstructed ten-interval supported clearance and entered return at interval 209. The foretoe ramp stayed within its configured 0.045/0.060 rad per interval and 1.05 rad target cap.
+
+Neither lane had a single interval satisfying the combined bilateral upward support, opposing fore/rear toe normals, tilt and velocity gates; both fell below 0.1 m at intervals 322 and 321. Maximum accepted-state toe speed before falling was 2.23 and 2.97 rad/s; substep toe speed and actuator effort were not captured, so those bounds cannot be asserted. Earlier closure while supported is insufficient on this constructed state. It does not establish a supported landing or biological fidelity. The full traces, executed probe, sensor checks and failed outcomes are retained.
