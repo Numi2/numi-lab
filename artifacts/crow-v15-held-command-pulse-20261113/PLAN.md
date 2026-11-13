@@ -1,0 +1,5 @@
+# Held-command small stance-hip pulse
+
+The matched +/-0.003 rad pulse retained opposing endpoint contact over the local window, but feedback caused hip targets to diverge after the intervention. Repeat from the same physically attained stance. At the first eligible pulse, record each joint position target, subtract the pulse from the stored hip target, and hold all those targets for the next ten 20 ms intervals. Apply exactly one +/-0.003 rad hip pulse at the start, then apply the same held targets in both lanes. Preserve 235 intervals, full physical state, contact substeps, executable and input hashes.
+
+Require exact pre-pulse q/v parity, one matched pulse, all joint-command vectors identical throughout the response window except the 0.006 rad pulse difference, full substep observation and opposing stance toe normals at each accepted endpoint. Report the time series without assuming that a response at one state generalizes or proving uninterrupted toe grip between endpoints. The diagnostic changes control intentionally and is not a landing or walking qualification.
