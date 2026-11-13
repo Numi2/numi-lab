@@ -1,0 +1,8 @@
+4585cfa2e24ad8de7c46f20595d3d7ea3b9fbb87231eddd00adcc0a8d81b9999  artifacts/crow-v15-front-toe-friction-ablation-20261113/Collision.metal
+e26e22a4a23ecc08314a8c59e1b18245ca07a9fb6c2e5bd69bc68b1f1ae2657e  artifacts/crow-v15-front-toe-friction-ablation-20261113/World.metal
+ca760ff8b4054ff1fc06e361d3350097b8fed40323211bd8b15737598e0b61ce  artifacts/crow-v15-front-toe-friction-ablation-20261113/push-wing.metal
+74f7d90ef240422d18eb01fe1e0e98f7775949461500873044fb3edf80089de7  build/crow-v15-front-toe-friction-ablation-20261113/MetalRoboCollision.air
+1d649da4816d97324320e3a33c37017453647be7f64b319fd0998ae832659323  build/crow-v15-front-toe-friction-ablation-20261113/World.air
+040344bcf7c52368c3cc822932c35dfed6b4de976a818de49181f65ba30d8529  build/crow-v15-front-toe-friction-ablation-20261113/push-wing.air
+979fc37639c509e3c23378140ed4117cf46f49a9bc1ec0e905587e9406e8a71d  build/crow-v15-front-toe-friction-ablation-20261113/push-wing.metallib
+1364d738684124c25933b99a43f246fcf0ee139d0ac59b11ef8089a9bf1a1302  build/crow-v15-front-toe-friction-ablation-20261113/libmetalrobo.dylib

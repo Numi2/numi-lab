@@ -1,0 +1,1 @@
+Observer source is stored in deterministic gzip observer.mm.gz. Research-only; the diagnostic clock is the existing CROW_SUBSTEP_TRACE submission counter.
