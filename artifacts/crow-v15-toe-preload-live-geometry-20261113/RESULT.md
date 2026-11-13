@@ -1,0 +1,5 @@
+# Live toe-preload endpoint geometry
+
+Forward kinematics of accepted q/v matched the native lane-5 replay at five endpoints for each arm, with maximum body-position error 7.5e-9 m and quaternion-component distance 3.0e-8. At tick 347, estimated left middle-front-toe group clearance was 2.29–2.47 mm, 0.66–0.68 mm, and 0.14–0.17 mm across the +0.05, +0.10 and +0.15 rad preload pairs. Rear-toe group clearance was approximately zero, +0.01 mm and +0.04 mm respectively. Both arms matched before the push, and the full data contain right-side and other endpoint values.
+
+The toe joints reached close to their commanded targets, and the front gap narrowed, yet the matched hold controls logged positive normal impulse only on rear-toe bodies during the measured launch window. The remaining geometric gap, whole-body response and contact timing may matter; this observation does not isolate any cause. Estimated box clearance is not exact solver separation, q/contact samples can be staggered, and these are not measured crow feet. This posthoc used-seed analysis does not qualify walking, takeoff, landing or flight.
