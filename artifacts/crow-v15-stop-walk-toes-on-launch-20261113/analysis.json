@@ -1,0 +1,541 @@
+{
+  "parity": [
+    {
+      "lane": 0,
+      "endpoint_mismatches": 0,
+      "contact_mismatches": 0,
+      "first_endpoint": [],
+      "first_contact": []
+    },
+    {
+      "lane": 1,
+      "endpoint_mismatches": 0,
+      "contact_mismatches": 0,
+      "first_endpoint": [],
+      "first_contact": []
+    },
+    {
+      "lane": 2,
+      "endpoint_mismatches": 0,
+      "contact_mismatches": 0,
+      "first_endpoint": [],
+      "first_contact": []
+    },
+    {
+      "lane": 3,
+      "endpoint_mismatches": 0,
+      "contact_mismatches": 0,
+      "first_endpoint": [],
+      "first_contact": []
+    },
+    {
+      "lane": 4,
+      "endpoint_mismatches": 0,
+      "contact_mismatches": 0,
+      "first_endpoint": [],
+      "first_contact": []
+    },
+    {
+      "lane": 5,
+      "endpoint_mismatches": 0,
+      "contact_mismatches": 0,
+      "first_endpoint": [],
+      "first_contact": []
+    },
+    {
+      "lane": 6,
+      "endpoint_mismatches": 0,
+      "contact_mismatches": 0,
+      "first_endpoint": [],
+      "first_contact": []
+    },
+    {
+      "lane": 7,
+      "endpoint_mismatches": 0,
+      "contact_mismatches": 0,
+      "first_endpoint": [],
+      "first_contact": []
+    },
+    {
+      "lane": 0,
+      "reference": "baseline",
+      "endpoint_mismatches": 0,
+      "contact_mismatches": 0,
+      "first_endpoint": [],
+      "first_contact": []
+    },
+    {
+      "lane": 1,
+      "reference": "baseline",
+      "endpoint_mismatches": 0,
+      "contact_mismatches": 0,
+      "first_endpoint": [],
+      "first_contact": []
+    },
+    {
+      "lane": 2,
+      "reference": "baseline",
+      "endpoint_mismatches": 0,
+      "contact_mismatches": 0,
+      "first_endpoint": [],
+      "first_contact": []
+    },
+    {
+      "lane": 3,
+      "reference": "baseline",
+      "endpoint_mismatches": 0,
+      "contact_mismatches": 0,
+      "first_endpoint": [],
+      "first_contact": []
+    },
+    {
+      "lane": 4,
+      "reference": "baseline",
+      "endpoint_mismatches": 0,
+      "contact_mismatches": 0,
+      "first_endpoint": [],
+      "first_contact": []
+    },
+    {
+      "lane": 5,
+      "reference": "baseline",
+      "endpoint_mismatches": 0,
+      "contact_mismatches": 0,
+      "first_endpoint": [],
+      "first_contact": []
+    },
+    {
+      "lane": 6,
+      "reference": "baseline",
+      "endpoint_mismatches": 0,
+      "contact_mismatches": 0,
+      "first_endpoint": [],
+      "first_contact": []
+    },
+    {
+      "lane": 7,
+      "reference": "baseline",
+      "endpoint_mismatches": 0,
+      "contact_mismatches": 0,
+      "first_endpoint": [],
+      "first_contact": []
+    }
+  ],
+  "errors": {
+    "inrange": [],
+    "baseline": [],
+    "hold": [],
+    "prior_slow": []
+  },
+  "rows": [
+    {
+      "lane": 0,
+      "inrange": {
+        "upward_foot_impulse_ns": 2.504572384683691,
+        "root_vz375_m_s": 0.0516132638,
+        "maximum_root_rise_m": 0.026591642999999998,
+        "first_three_unloaded_intervals": null,
+        "net_leg_work_proxy_j": 0.7740708483518163,
+        "other_ground_impulse_ns": 0.0,
+        "toe_speed_cap_substeps": 3
+      },
+      "baseline": {
+        "upward_foot_impulse_ns": 2.5720082422039354,
+        "root_vz375_m_s": 0.192436218,
+        "maximum_root_rise_m": 0.028483913000000027,
+        "first_three_unloaded_intervals": 359,
+        "net_leg_work_proxy_j": 2.078275998497406,
+        "other_ground_impulse_ns": 0.0,
+        "toe_speed_cap_substeps": 12
+      },
+      "hold": {
+        "upward_foot_impulse_ns": 2.608774710677302,
+        "root_vz375_m_s": 0.280050814,
+        "maximum_root_rise_m": 0.02635659300000001,
+        "first_three_unloaded_intervals": 375,
+        "net_leg_work_proxy_j": 0.476510356510167,
+        "other_ground_impulse_ns": 0.0,
+        "toe_speed_cap_substeps": 0
+      },
+      "prior_slow": {
+        "upward_foot_impulse_ns": 2.3975578955641104,
+        "root_vz375_m_s": -0.199940547,
+        "maximum_root_rise_m": 0.018418566000000025,
+        "first_three_unloaded_intervals": null,
+        "net_leg_work_proxy_j": 1.165714782733856,
+        "other_ground_impulse_ns": 0.0,
+        "toe_speed_cap_substeps": 0
+      },
+      "early_impulse_ns": {
+        "inrange": 1.5902866358260914,
+        "baseline": 1.7170868255582235,
+        "hold": 1.5893957093800002,
+        "prior_slow": 1.5983129731100099
+      },
+      "early_impulse_difference_vs_baseline_ns": -0.12680018973213203,
+      "early_impulse_difference_vs_hold_ns": 0.0008909264460912336,
+      "impulse_difference_vs_baseline_ns": -0.06743585752024428,
+      "impulse_difference_vs_hold_ns": -0.10420232599361068,
+      "screen_impulse_pass": false,
+      "screen_lift_pass": false
+    },
+    {
+      "lane": 1,
+      "inrange": {
+        "upward_foot_impulse_ns": 2.584256270465838,
+        "root_vz375_m_s": 0.226366431,
+        "maximum_root_rise_m": 0.024204954,
+        "first_three_unloaded_intervals": 375,
+        "net_leg_work_proxy_j": 1.0227720658211674,
+        "other_ground_impulse_ns": 0.0,
+        "toe_speed_cap_substeps": 7
+      },
+      "baseline": {
+        "upward_foot_impulse_ns": 2.590971688795978,
+        "root_vz375_m_s": 0.241404727,
+        "maximum_root_rise_m": 0.024064824000000012,
+        "first_three_unloaded_intervals": 375,
+        "net_leg_work_proxy_j": 1.0202670958912237,
+        "other_ground_impulse_ns": 0.0,
+        "toe_speed_cap_substeps": 8
+      },
+      "hold": {
+        "upward_foot_impulse_ns": 2.6043764230021083,
+        "root_vz375_m_s": 0.270621568,
+        "maximum_root_rise_m": 0.025831491000000012,
+        "first_three_unloaded_intervals": 375,
+        "net_leg_work_proxy_j": 0.473759045240876,
+        "other_ground_impulse_ns": 0.0,
+        "toe_speed_cap_substeps": 0
+      },
+      "prior_slow": {
+        "upward_foot_impulse_ns": 2.397132932368411,
+        "root_vz375_m_s": -0.201805025,
+        "maximum_root_rise_m": 0.018531964000000012,
+        "first_three_unloaded_intervals": null,
+        "net_leg_work_proxy_j": 1.1727396413395816,
+        "other_ground_impulse_ns": 0.0,
+        "toe_speed_cap_substeps": 0
+      },
+      "early_impulse_ns": {
+        "inrange": 1.5912786355968378,
+        "baseline": 1.5910575840919798,
+        "hold": 1.589390261099999,
+        "prior_slow": 1.5988086053877106
+      },
+      "early_impulse_difference_vs_baseline_ns": 0.00022105150485796088,
+      "early_impulse_difference_vs_hold_ns": 0.0018883744968387628,
+      "impulse_difference_vs_baseline_ns": -0.0067154183301401105,
+      "impulse_difference_vs_hold_ns": -0.020120152536270197,
+      "screen_impulse_pass": false,
+      "screen_lift_pass": false
+    },
+    {
+      "lane": 2,
+      "inrange": {
+        "upward_foot_impulse_ns": 2.585277761112763,
+        "root_vz375_m_s": 0.226024553,
+        "maximum_root_rise_m": 0.026153073,
+        "first_three_unloaded_intervals": 357,
+        "net_leg_work_proxy_j": 1.0420266873591189,
+        "other_ground_impulse_ns": 0.0,
+        "toe_speed_cap_substeps": 6
+      },
+      "baseline": {
+        "upward_foot_impulse_ns": 2.4608762244491693,
+        "root_vz375_m_s": -0.0462183952,
+        "maximum_root_rise_m": 0.024175256999999978,
+        "first_three_unloaded_intervals": null,
+        "net_leg_work_proxy_j": 0.7876180807432284,
+        "other_ground_impulse_ns": 0.0,
+        "toe_speed_cap_substeps": 5
+      },
+      "hold": {
+        "upward_foot_impulse_ns": 2.6092121990967594,
+        "root_vz375_m_s": 0.280995846,
+        "maximum_root_rise_m": 0.026379585999999983,
+        "first_three_unloaded_intervals": 375,
+        "net_leg_work_proxy_j": 0.47747605797524334,
+        "other_ground_impulse_ns": 0.0,
+        "toe_speed_cap_substeps": 0
+      },
+      "prior_slow": {
+        "upward_foot_impulse_ns": 2.39765134943105,
+        "root_vz375_m_s": -0.199893221,
+        "maximum_root_rise_m": 0.018429592999999994,
+        "first_three_unloaded_intervals": null,
+        "net_leg_work_proxy_j": 1.1733568318615584,
+        "other_ground_impulse_ns": 0.0,
+        "toe_speed_cap_substeps": 0
+      },
+      "early_impulse_ns": {
+        "inrange": 1.49744711846451,
+        "baseline": 1.5988014383751985,
+        "hold": 1.5893949080500003,
+        "prior_slow": 1.5983825166246692
+      },
+      "early_impulse_difference_vs_baseline_ns": -0.10135431991068855,
+      "early_impulse_difference_vs_hold_ns": -0.09194778958549032,
+      "impulse_difference_vs_baseline_ns": 0.12440153666359377,
+      "impulse_difference_vs_hold_ns": -0.023934437983996304,
+      "screen_impulse_pass": false,
+      "screen_lift_pass": false
+    },
+    {
+      "lane": 3,
+      "inrange": {
+        "upward_foot_impulse_ns": 2.461913420246209,
+        "root_vz375_m_s": -0.0445495658,
+        "maximum_root_rise_m": 0.025208324000000004,
+        "first_three_unloaded_intervals": null,
+        "net_leg_work_proxy_j": 0.7797459073090148,
+        "other_ground_impulse_ns": 0.0,
+        "toe_speed_cap_substeps": 6
+      },
+      "baseline": {
+        "upward_foot_impulse_ns": 2.4650003689963973,
+        "root_vz375_m_s": -0.0342109799,
+        "maximum_root_rise_m": 0.027215109000000015,
+        "first_three_unloaded_intervals": null,
+        "net_leg_work_proxy_j": 0.7753254188735323,
+        "other_ground_impulse_ns": 0.0,
+        "toe_speed_cap_substeps": 7
+      },
+      "hold": {
+        "upward_foot_impulse_ns": 2.6085072906773017,
+        "root_vz375_m_s": 0.279495835,
+        "maximum_root_rise_m": 0.026288644,
+        "first_three_unloaded_intervals": 375,
+        "net_leg_work_proxy_j": 0.47672180204505654,
+        "other_ground_impulse_ns": 0.0,
+        "toe_speed_cap_substeps": 0
+      },
+      "prior_slow": {
+        "upward_foot_impulse_ns": 2.3972542024459758,
+        "root_vz375_m_s": -0.200327173,
+        "maximum_root_rise_m": 0.018447221000000014,
+        "first_three_unloaded_intervals": null,
+        "net_leg_work_proxy_j": 1.1707328322366075,
+        "other_ground_impulse_ns": 0.0,
+        "toe_speed_cap_substeps": 0
+      },
+      "early_impulse_ns": {
+        "inrange": 1.5903295367167483,
+        "baseline": 1.5893668056294672,
+        "hold": 1.5893945132500011,
+        "prior_slow": 1.59817427029139
+      },
+      "early_impulse_difference_vs_baseline_ns": 0.0009627310872810657,
+      "early_impulse_difference_vs_hold_ns": 0.0009350234667471202,
+      "impulse_difference_vs_baseline_ns": -0.003086948750188334,
+      "impulse_difference_vs_hold_ns": -0.14659387043109273,
+      "screen_impulse_pass": false,
+      "screen_lift_pass": false
+    },
+    {
+      "lane": 4,
+      "inrange": {
+        "upward_foot_impulse_ns": 2.5848479029558966,
+        "root_vz375_m_s": 0.226855561,
+        "maximum_root_rise_m": 0.038602934000000005,
+        "first_three_unloaded_intervals": 359,
+        "net_leg_work_proxy_j": 1.3608589521811971,
+        "other_ground_impulse_ns": 0.0,
+        "toe_speed_cap_substeps": 7
+      },
+      "baseline": {
+        "upward_foot_impulse_ns": 2.5848496876199647,
+        "root_vz375_m_s": 0.225625366,
+        "maximum_root_rise_m": 0.03354613499999998,
+        "first_three_unloaded_intervals": 358,
+        "net_leg_work_proxy_j": 1.3727814768003885,
+        "other_ground_impulse_ns": 0.0,
+        "toe_speed_cap_substeps": 7
+      },
+      "hold": {
+        "upward_foot_impulse_ns": 2.60559193678332,
+        "root_vz375_m_s": 0.273232609,
+        "maximum_root_rise_m": 0.025967746999999985,
+        "first_three_unloaded_intervals": 375,
+        "net_leg_work_proxy_j": 0.47452491535149455,
+        "other_ground_impulse_ns": 0.0,
+        "toe_speed_cap_substeps": 0
+      },
+      "prior_slow": {
+        "upward_foot_impulse_ns": 2.3975081854671885,
+        "root_vz375_m_s": -0.200498119,
+        "maximum_root_rise_m": 0.01850655699999998,
+        "first_three_unloaded_intervals": null,
+        "net_leg_work_proxy_j": 1.1724498890219381,
+        "other_ground_impulse_ns": 0.0,
+        "toe_speed_cap_substeps": 0
+      },
+      "early_impulse_ns": {
+        "inrange": 1.6316445863019235,
+        "baseline": 1.5701764903947444,
+        "hold": 1.5893920943899993,
+        "prior_slow": 1.5985937607160599
+      },
+      "early_impulse_difference_vs_baseline_ns": 0.061468095907179165,
+      "early_impulse_difference_vs_hold_ns": 0.04225249191192426,
+      "impulse_difference_vs_baseline_ns": -1.784664068082975e-06,
+      "impulse_difference_vs_hold_ns": -0.02074403382742318,
+      "screen_impulse_pass": false,
+      "screen_lift_pass": false
+    },
+    {
+      "lane": 5,
+      "inrange": {
+        "upward_foot_impulse_ns": 2.4753177316959536,
+        "root_vz375_m_s": -0.0145092905,
+        "maximum_root_rise_m": 0.041432425999999994,
+        "first_three_unloaded_intervals": 359,
+        "net_leg_work_proxy_j": 0.8708332574492548,
+        "other_ground_impulse_ns": 0.0,
+        "toe_speed_cap_substeps": 5
+      },
+      "baseline": {
+        "upward_foot_impulse_ns": 2.4769081876988293,
+        "root_vz375_m_s": -0.0107166758,
+        "maximum_root_rise_m": 0.025642737999999998,
+        "first_three_unloaded_intervals": null,
+        "net_leg_work_proxy_j": 0.7879733593267814,
+        "other_ground_impulse_ns": 0.0,
+        "toe_speed_cap_substeps": 6
+      },
+      "hold": {
+        "upward_foot_impulse_ns": 2.606335605500021,
+        "root_vz375_m_s": 0.274827868,
+        "maximum_root_rise_m": 0.026054843999999994,
+        "first_three_unloaded_intervals": 375,
+        "net_leg_work_proxy_j": 0.4748875848832787,
+        "other_ground_impulse_ns": 0.0,
+        "toe_speed_cap_substeps": 0
+      },
+      "prior_slow": {
+        "upward_foot_impulse_ns": 2.399246352667606,
+        "root_vz375_m_s": -0.196850151,
+        "maximum_root_rise_m": 0.01857998999999999,
+        "first_three_unloaded_intervals": null,
+        "net_leg_work_proxy_j": 1.1714815134840342,
+        "other_ground_impulse_ns": 0.0,
+        "toe_speed_cap_substeps": 0
+      },
+      "early_impulse_ns": {
+        "inrange": 1.6186674288848446,
+        "baseline": 1.5547351279979829,
+        "hold": 1.5893921729599998,
+        "prior_slow": 1.5984899111591389
+      },
+      "early_impulse_difference_vs_baseline_ns": 0.06393230088686175,
+      "early_impulse_difference_vs_hold_ns": 0.029275255924844812,
+      "impulse_difference_vs_baseline_ns": -0.001590456002875662,
+      "impulse_difference_vs_hold_ns": -0.13101787380406726,
+      "screen_impulse_pass": false,
+      "screen_lift_pass": false
+    },
+    {
+      "lane": 6,
+      "inrange": {
+        "upward_foot_impulse_ns": 2.5831993443562418,
+        "root_vz375_m_s": 0.225182235,
+        "maximum_root_rise_m": 0.03349617099999999,
+        "first_three_unloaded_intervals": 358,
+        "net_leg_work_proxy_j": 1.366479866615493,
+        "other_ground_impulse_ns": 0.0,
+        "toe_speed_cap_substeps": 6
+      },
+      "baseline": {
+        "upward_foot_impulse_ns": 2.587696616523159,
+        "root_vz375_m_s": 0.229670659,
+        "maximum_root_rise_m": 0.03525354,
+        "first_three_unloaded_intervals": 358,
+        "net_leg_work_proxy_j": 1.3980634128548124,
+        "other_ground_impulse_ns": 0.0,
+        "toe_speed_cap_substeps": 6
+      },
+      "hold": {
+        "upward_foot_impulse_ns": 2.607102284459909,
+        "root_vz375_m_s": 0.276479304,
+        "maximum_root_rise_m": 0.026130498000000002,
+        "first_three_unloaded_intervals": 375,
+        "net_leg_work_proxy_j": 0.4759122580486035,
+        "other_ground_impulse_ns": 0.0,
+        "toe_speed_cap_substeps": 0
+      },
+      "prior_slow": {
+        "upward_foot_impulse_ns": 2.3975143578674114,
+        "root_vz375_m_s": -0.20036082,
+        "maximum_root_rise_m": 0.018478647000000015,
+        "first_three_unloaded_intervals": null,
+        "net_leg_work_proxy_j": 1.1673844101526893,
+        "other_ground_impulse_ns": 0.0,
+        "toe_speed_cap_substeps": 0
+      },
+      "early_impulse_ns": {
+        "inrange": 1.5793628590580524,
+        "baseline": 1.6371961190385094,
+        "hold": 1.5893931164700004,
+        "prior_slow": 1.5985200832941897
+      },
+      "early_impulse_difference_vs_baseline_ns": -0.057833259980456964,
+      "early_impulse_difference_vs_hold_ns": -0.010030257411947963,
+      "impulse_difference_vs_baseline_ns": -0.004497272166917199,
+      "impulse_difference_vs_hold_ns": -0.023902940103667447,
+      "screen_impulse_pass": false,
+      "screen_lift_pass": false
+    },
+    {
+      "lane": 7,
+      "inrange": {
+        "upward_foot_impulse_ns": 2.468389141570934,
+        "root_vz375_m_s": -0.0263587832,
+        "maximum_root_rise_m": 0.026500522999999998,
+        "first_three_unloaded_intervals": null,
+        "net_leg_work_proxy_j": 0.771858015517434,
+        "other_ground_impulse_ns": 0.0,
+        "toe_speed_cap_substeps": 7
+      },
+      "baseline": {
+        "upward_foot_impulse_ns": 2.4606072665127297,
+        "root_vz375_m_s": -0.043655809,
+        "maximum_root_rise_m": 0.026657953999999984,
+        "first_three_unloaded_intervals": null,
+        "net_leg_work_proxy_j": 0.768742621855201,
+        "other_ground_impulse_ns": 0.0,
+        "toe_speed_cap_substeps": 7
+      },
+      "hold": {
+        "upward_foot_impulse_ns": 2.606592233451558,
+        "root_vz375_m_s": 0.275373548,
+        "maximum_root_rise_m": 0.026085316999999997,
+        "first_three_unloaded_intervals": 375,
+        "net_leg_work_proxy_j": 0.4749803571269164,
+        "other_ground_impulse_ns": 0.0,
+        "toe_speed_cap_substeps": 0
+      },
+      "prior_slow": {
+        "upward_foot_impulse_ns": 2.3995576981226914,
+        "root_vz375_m_s": -0.196346343,
+        "maximum_root_rise_m": 0.018574774999999988,
+        "first_three_unloaded_intervals": null,
+        "net_leg_work_proxy_j": 1.1710875712839888,
+        "other_ground_impulse_ns": 0.0,
+        "toe_speed_cap_substeps": 0
+      },
+      "early_impulse_ns": {
+        "inrange": 1.5868641233958147,
+        "baseline": 1.5884762997898985,
+        "hold": 1.5893945087699994,
+        "prior_slow": 1.5993795156523003
+      },
+      "early_impulse_difference_vs_baseline_ns": -0.0016121763940837308,
+      "early_impulse_difference_vs_hold_ns": -0.002530385374184707,
+      "impulse_difference_vs_baseline_ns": 0.007781875058204157,
+      "impulse_difference_vs_hold_ns": -0.1382030918806243,
+      "screen_impulse_pass": false,
+      "screen_lift_pass": false
+    }
+  ],
+  "scope": "One development seed, correlated lanes; modeled generalized leg effort, passive aero and active crouch controls. Screen only; no physical or mission qualification."
+}

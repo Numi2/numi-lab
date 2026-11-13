@@ -1,0 +1,25 @@
+translation test max error 5.551115123125783e-17
+no_walk_toes 2 dp -0.0959 feet 1.4974 gravity -1.5894 residual -0.0039
+no_walk_toes 3 dp -0.0086 feet 1.5903 gravity -1.5894 residual -0.0095
+no_walk_toes 4 dp 0.0392 feet 1.6316 gravity -1.5894 residual -0.003
+no_walk_toes 5 dp 0.0188 feet 1.6187 gravity -1.5894 residual -0.0105
+no_walk_toes 6 dp -0.0131 feet 1.5794 gravity -1.5894 residual -0.0031
+no_walk_toes 7 dp -0.0115 feet 1.5869 gravity -1.5894 residual -0.0089
+ankle 2 dp -0.0002 feet 1.5988 gravity -1.5894 residual -0.0096
+ankle 3 dp -0.0093 feet 1.5894 gravity -1.5894 residual -0.0092
+ankle 4 dp -0.0236 feet 1.5702 gravity -1.5894 residual -0.0043
+ankle 5 dp -0.0444 feet 1.5547 gravity -1.5894 residual -0.0097
+ankle 6 dp 0.043 feet 1.6372 gravity -1.5894 residual -0.0048
+ankle 7 dp -0.0101 feet 1.5885 gravity -1.5894 residual -0.0092
+hip 2 dp 0.0001 feet 1.5942 gravity -1.5894 residual -0.0047
+hip 3 dp 0.0001 feet 1.5941 gravity -1.5894 residual -0.0046
+hip 4 dp -0.0 feet 1.5936 gravity -1.5894 residual -0.0042
+hip 5 dp -0.0001 feet 1.5935 gravity -1.5894 residual -0.0042
+hip 6 dp 0.0 feet 1.5941 gravity -1.5894 residual -0.0046
+hip 7 dp -0.0 feet 1.5936 gravity -1.5894 residual -0.0042
+crouch 2 dp -0.0 feet 1.5894 gravity -1.5894 residual 0.0
+crouch 3 dp -0.0 feet 1.5894 gravity -1.5894 residual 0.0
+crouch 4 dp -0.0 feet 1.5894 gravity -1.5894 residual 0.0
+crouch 5 dp -0.0 feet 1.5894 gravity -1.5894 residual 0.0
+crouch 6 dp -0.0 feet 1.5894 gravity -1.5894 residual 0.0
+crouch 7 dp -0.0 feet 1.5894 gravity -1.5894 residual 0.0
