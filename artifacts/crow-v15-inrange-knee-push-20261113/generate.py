@@ -1,0 +1,19 @@
+from pathlib import Path
+import hashlib,json
+R=Path('/Users/n/Developer/numi-crow-rl-20261107');A=R/'artifacts/crow-v15-inrange-knee-push-20261113';B=R/'build/crow-v15-inrange-knee-push-20261113';A.mkdir(exist_ok=False);B.mkdir(exist_ok=False)
+s=(R/'artifacts/crow-v15-slow-leg-push-20261113/slow.metal').read_text();old='const float kneeExtension=-0.70f;';new='const float kneeExtension=-0.10f;';assert s.count(old)==1;s=s.replace(old,new);(A/'inrange.metal').write_text(s)
+run=(R/'artifacts/crow-v15-slow-leg-push-20261113/run.py').read_text();pairs=[("A=R/'artifacts/crow-v15-slow-leg-push-20261113'","A=R/'artifacts/crow-v15-inrange-knee-push-20261113'"),("B=R/'build/crow-v15-slow-leg-push-20261113'","B=R/'build/crow-v15-inrange-knee-push-20261113'"),("str(B/'slow.metallib')","str(B/'inrange.metallib')")]
+for a,b in pairs:assert run.count(a)==1;run=run.replace(a,b)
+(A/'run.py').write_text(run)
+h=lambda p:hashlib.sha256(p.read_bytes()).hexdigest();(A/'source-hashes.json').write_text(json.dumps({'baseline':h(R/'artifacts/crow-v15-slow-leg-push-20261113/slow.metal'),'candidate':h(A/'inrange.metal')},indent=2)+'\n')
+(A/'PLAN.md').write_text('''# In-range knee extension: pre-run development screen
+
+A native model inspection using the experiment's linked observer library and the replay-checked v15 model builder reports both knee coordinates limited to [-0.10, 1.55] radians. The previous launch controller requests -0.70 radians. The World shader used by this experiment linearly interpolates certain joint targets across substeps and clamps them to the model limit before computing implicit drive effort. Thus the 160 ms interpolation reaches an out-of-range request before its intended endpoint, even though the solver cannot use that target as requested. This is an engineering target mismatch, not evidence for altering the biological joint range.
+
+Make exactly one change to the previous 160 ms, wing-amplitude-suppressed source: request -0.10 rad knee extension instead of -0.70 rad. Retain the existing v15 body, joint limits, other six-joint commands, shader assembly, observer, direct-moment suppression after 6.3 s, prior episode history, development seed 20261127, 8 lanes, 400 steps and 16 substeps. The expected effect is a smooth in-range requested knee trajectory over the full nominal 160 ms, subject to substep interpolation and tracking. Record rather than assume the physical force result. The no-extension controller is an active crouch control; lanes 2–7 are the prespecified comparable lanes, 0–1 retained.
+
+Use exactly the earlier screen and measurement windows: require complete 400-step episodes, state/action/contact prefix equality with the crouch control through step 345, no substep errors or contact overflow, and complete steps 335–380. For each comparable lane compare against the same crouch control, also report the prior out-of-range 160 ms arm. Prespecified engineering screens require at least 0.05 N s extra signed upward foot impulse over steps 348–375 and, separately, root rise of at least 0.05 m from step 350 with three consecutive unloaded control intervals over steps 351–380. Report per-lane signed impulse, root velocity at step 375, rise, unloading, nonfoot contact, toe-speed caps and numerical generalized leg work. Retain outcomes even if the candidate fails.
+
+The declared screens do not establish isolated leg-powered takeoff or physical/crow realism. The prior 0.207–0.212 N s impulse deficit spans a late controller transition in the crouch arm; interpret any total difference with that limitation and report earlier window diagnostics separately. Flapping-amplitude suppression leaves passive aerodynamics and some wing movement, and earlier direct body moments remain. This is a short used-seed experiment, not sustained flight, autonomous navigation, grip, supported landing or held-out qualification.
+''')
+print('Prepared in-range knee candidate:',h(A/'inrange.metal'))

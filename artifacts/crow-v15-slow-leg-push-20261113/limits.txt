@@ -1,0 +1,6 @@
+13 crow_left_hip_pitch q=14 flags=62 lower=-0.850000023842 upper=0.850000023842 speed=18 effort=0.75 kp=55 kd=0.449999988079
+14 crow_left_knee_pitch q=15 flags=62 lower=-0.10000000149 upper=1.54999995232 speed=22 effort=0.75 kp=65 kd=0.5
+15 crow_left_ankle_pitch q=16 flags=62 lower=-0.899999976158 upper=0.699999988079 speed=24 effort=0.600000023842 kp=60 kd=0.449999988079
+16 crow_right_hip_pitch q=17 flags=62 lower=-0.850000023842 upper=0.850000023842 speed=18 effort=0.75 kp=55 kd=0.449999988079
+17 crow_right_knee_pitch q=18 flags=62 lower=-0.10000000149 upper=1.54999995232 speed=22 effort=0.75 kp=65 kd=0.5
+18 crow_right_ankle_pitch q=19 flags=62 lower=-0.899999976158 upper=0.699999988079 speed=24 effort=0.600000023842 kp=60 kd=0.449999988079
