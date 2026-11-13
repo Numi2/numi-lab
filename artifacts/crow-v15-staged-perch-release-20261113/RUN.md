@@ -1,0 +1,1 @@
+Run run.py in the recorded Mac mini crow checkout with the archived observer and metallib identified by run-input-hashes.json. From the evidence repository root run analyze.py with NumPy, then contact-check.py, prefix-check.py, joint-check.py, failure-breakdown.py and stage-check.py. The executed binary is preserved as probe.gz.
