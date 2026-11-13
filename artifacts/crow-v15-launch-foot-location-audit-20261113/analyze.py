@@ -18,5 +18,9 @@ for e in (2,3):
  for t in range(371,376):
   v=com[e,t-1]; cs=contacts[e,t];weight=sum(float(z[20]) for z in cs);assert weight>0
   center=sum(float(z[8])*float(z[20]) for z in cs)/weight
-  rows.append({"lane":e,"tick":t,"preceding_control_state_com_x_m":v[1],"normal_impulse_weighted_ground_point_x_m":center,"ground_point_minus_preceding_com_x_m":center-v[1],"normal_impulse_ns":weight,"contact_records":len(cs)})
+  by_body=collections.defaultdict(lambda:[0.,0.,0])
+  for z in cs:
+   a,b=map(int,z[4:6]);body=a if b==35 else b;j=float(z[20]);c=by_body[body];c[0]+=j;c[1]+=j*float(z[8]);c[2]+=1
+  body_rows=[{"body":body,"normal_impulse_ns":c[0],"weighted_contact_x_m":c[1]/c[0],"records":c[2]} for body,c in sorted(by_body.items())]
+  rows.append({"lane":e,"tick":t,"preceding_control_state_com_x_m":v[1],"normal_impulse_weighted_ground_point_x_m":center,"ground_point_minus_preceding_com_x_m":center-v[1],"normal_impulse_ns":weight,"contact_records":len(cs),"by_body":body_rows})
 h=lambda p:hashlib.sha256(p.read_bytes()).hexdigest();out={"rows":rows,"source_sha256":h(p),"kinematics_sha256":h(exe),"scope":"Posthoc coarse control-interval estimate using the previous accepted COM and contact points weighted by reported normal impulse; not instantaneous center of pressure or a proof of causation. Used-seed correlated lanes, modeled coordinates and forces, no biological calibration."};(d/"analysis.json").write_text(json.dumps(out,indent=2)+"\n");print(json.dumps(rows,indent=2))

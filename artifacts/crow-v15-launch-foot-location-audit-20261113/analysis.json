@@ -7,7 +7,33 @@
       "normal_impulse_weighted_ground_point_x_m": 0.1393318042311766,
       "ground_point_minus_preceding_com_x_m": 0.021889186336724223,
       "normal_impulse_ns": 0.08825763217959998,
-      "contact_records": 240
+      "contact_records": 240,
+      "by_body": [
+        {
+          "body": 25,
+          "normal_impulse_ns": 0.037941067589000003,
+          "weighted_contact_x_m": 0.1416418261014059,
+          "records": 64
+        },
+        {
+          "body": 26,
+          "normal_impulse_ns": 0.005910436045600002,
+          "weighted_contact_x_m": 0.1232150438470393,
+          "records": 48
+        },
+        {
+          "body": 33,
+          "normal_impulse_ns": 0.03788934570000001,
+          "weighted_contact_x_m": 0.1415158200213289,
+          "records": 64
+        },
+        {
+          "body": 34,
+          "normal_impulse_ns": 0.006516782845,
+          "weighted_contact_x_m": 0.12780179847953094,
+          "records": 64
+        }
+      ]
     },
     {
       "lane": 2,
@@ -16,7 +42,33 @@
       "normal_impulse_weighted_ground_point_x_m": 0.13922419629709995,
       "ground_point_minus_preceding_com_x_m": 0.022129193551506804,
       "normal_impulse_ns": 0.08824531130640005,
-      "contact_records": 240
+      "contact_records": 240,
+      "by_body": [
+        {
+          "body": 25,
+          "normal_impulse_ns": 0.037786907058,
+          "weighted_contact_x_m": 0.1415829361881859,
+          "records": 64
+        },
+        {
+          "body": 26,
+          "normal_impulse_ns": 0.006056552998399998,
+          "weighted_contact_x_m": 0.12324141910355466,
+          "records": 48
+        },
+        {
+          "body": 33,
+          "normal_impulse_ns": 0.03775577117800001,
+          "weighted_contact_x_m": 0.1414380345191589,
+          "records": 64
+        },
+        {
+          "body": 34,
+          "normal_impulse_ns": 0.006646080072,
+          "weighted_contact_x_m": 0.12780180649455675,
+          "records": 64
+        }
+      ]
     },
     {
       "lane": 2,
@@ -25,7 +77,33 @@
       "normal_impulse_weighted_ground_point_x_m": 0.1441221596618924,
       "ground_point_minus_preceding_com_x_m": 0.027378636397878853,
       "normal_impulse_ns": 0.11065174705773462,
-      "contact_records": 256
+      "contact_records": 256,
+      "by_body": [
+        {
+          "body": 25,
+          "normal_impulse_ns": 0.05340547271819002,
+          "weighted_contact_x_m": 0.14488166361173285,
+          "records": 64
+        },
+        {
+          "body": 26,
+          "normal_impulse_ns": 0.0021358983293036375,
+          "weighted_contact_x_m": 0.12470590040203562,
+          "records": 64
+        },
+        {
+          "body": 33,
+          "normal_impulse_ns": 0.05262147184112798,
+          "weighted_contact_x_m": 0.1449106188972216,
+          "records": 64
+        },
+        {
+          "body": 34,
+          "normal_impulse_ns": 0.0024889041691130006,
+          "weighted_contact_x_m": 0.12781763588332873,
+          "records": 64
+        }
+      ]
     },
     {
       "lane": 2,
@@ -34,7 +112,33 @@
       "normal_impulse_weighted_ground_point_x_m": 0.1421111507803345,
       "ground_point_minus_preceding_com_x_m": 0.02522627557445513,
       "normal_impulse_ns": 0.14464065977537577,
-      "contact_records": 216
+      "contact_records": 216,
+      "by_body": [
+        {
+          "body": 25,
+          "normal_impulse_ns": 0.06336165962052288,
+          "weighted_contact_x_m": 0.1462808665866734,
+          "records": 64
+        },
+        {
+          "body": 26,
+          "normal_impulse_ns": 0.009255847181923916,
+          "weighted_contact_x_m": 0.11577080582156445,
+          "records": 44
+        },
+        {
+          "body": 33,
+          "normal_impulse_ns": 0.06119000086420802,
+          "weighted_contact_x_m": 0.14554797627413396,
+          "records": 64
+        },
+        {
+          "body": 34,
+          "normal_impulse_ns": 0.010833152108720998,
+          "weighted_contact_x_m": 0.12081566276368746,
+          "records": 44
+        }
+      ]
     },
     {
       "lane": 2,
@@ -43,7 +147,105 @@
       "normal_impulse_weighted_ground_point_x_m": 0.20815230305411161,
       "ground_point_minus_preceding_com_x_m": 0.09037402623065209,
       "normal_impulse_ns": 0.3196383070775159,
-      "contact_records": 248
+      "contact_records": 248,
+      "by_body": [
+        {
+          "body": 11,
+          "normal_impulse_ns": 0.02899562847,
+          "weighted_contact_x_m": 0.19549607062155108,
+          "records": 12
+        },
+        {
+          "body": 15,
+          "normal_impulse_ns": 0.03013516111,
+          "weighted_contact_x_m": 0.19527662937706922,
+          "records": 12
+        },
+        {
+          "body": 19,
+          "normal_impulse_ns": 0.02461049507,
+          "weighted_contact_x_m": 0.2039154437713243,
+          "records": 12
+        },
+        {
+          "body": 20,
+          "normal_impulse_ns": 0.015700755884000002,
+          "weighted_contact_x_m": 0.22217852448025668,
+          "records": 12
+        },
+        {
+          "body": 21,
+          "normal_impulse_ns": 0.02498978786,
+          "weighted_contact_x_m": 0.2037957203040981,
+          "records": 12
+        },
+        {
+          "body": 22,
+          "normal_impulse_ns": 0.015760788466,
+          "weighted_contact_x_m": 0.22216122288490306,
+          "records": 12
+        },
+        {
+          "body": 23,
+          "normal_impulse_ns": 0.02540973481,
+          "weighted_contact_x_m": 0.20377430428910093,
+          "records": 12
+        },
+        {
+          "body": 24,
+          "normal_impulse_ns": 0.015967443536999998,
+          "weighted_contact_x_m": 0.22207838132068383,
+          "records": 12
+        },
+        {
+          "body": 25,
+          "normal_impulse_ns": 0.0002598056861031762,
+          "weighted_contact_x_m": 0.14919945265532752,
+          "records": 40
+        },
+        {
+          "body": 27,
+          "normal_impulse_ns": 0.028259025060000005,
+          "weighted_contact_x_m": 0.204605574473795,
+          "records": 12
+        },
+        {
+          "body": 28,
+          "normal_impulse_ns": 0.018241897343,
+          "weighted_contact_x_m": 0.2217728865807432,
+          "records": 12
+        },
+        {
+          "body": 29,
+          "normal_impulse_ns": 0.027883845840000004,
+          "weighted_contact_x_m": 0.20454650566048094,
+          "records": 12
+        },
+        {
+          "body": 30,
+          "normal_impulse_ns": 0.017952184818,
+          "weighted_contact_x_m": 0.22174361745949842,
+          "records": 12
+        },
+        {
+          "body": 31,
+          "normal_impulse_ns": 0.027578367039999996,
+          "weighted_contact_x_m": 0.20458958641066788,
+          "records": 12
+        },
+        {
+          "body": 32,
+          "normal_impulse_ns": 0.017843834064,
+          "weighted_contact_x_m": 0.2216463567454273,
+          "records": 12
+        },
+        {
+          "body": 33,
+          "normal_impulse_ns": 4.955201941277631e-05,
+          "weighted_contact_x_m": 0.14941140408541928,
+          "records": 40
+        }
+      ]
     },
     {
       "lane": 3,
@@ -52,7 +254,33 @@
       "normal_impulse_weighted_ground_point_x_m": 0.13418995820952276,
       "ground_point_minus_preceding_com_x_m": 0.021939029037982505,
       "normal_impulse_ns": 0.08825744037650007,
-      "contact_records": 256
+      "contact_records": 256,
+      "by_body": [
+        {
+          "body": 25,
+          "normal_impulse_ns": 0.03784832080299999,
+          "weighted_contact_x_m": 0.13705032029953257,
+          "records": 64
+        },
+        {
+          "body": 26,
+          "normal_impulse_ns": 0.005957326349600001,
+          "weighted_contact_x_m": 0.11830353902188967,
+          "records": 64
+        },
+        {
+          "body": 33,
+          "normal_impulse_ns": 0.03768338599,
+          "weighted_contact_x_m": 0.13596750345281605,
+          "records": 64
+        },
+        {
+          "body": 34,
+          "normal_impulse_ns": 0.0067684072339000015,
+          "weighted_contact_x_m": 0.12228121231105704,
+          "records": 64
+        }
+      ]
     },
     {
       "lane": 3,
@@ -61,7 +289,33 @@
       "normal_impulse_weighted_ground_point_x_m": 0.1340821322593793,
       "ground_point_minus_preceding_com_x_m": 0.022179578492592875,
       "normal_impulse_ns": 0.0882448024224,
-      "contact_records": 256
+      "contact_records": 256,
+      "by_body": [
+        {
+          "body": 25,
+          "normal_impulse_ns": 0.037694335723999994,
+          "weighted_contact_x_m": 0.13699193495579667,
+          "records": 64
+        },
+        {
+          "body": 26,
+          "normal_impulse_ns": 0.006103608981800002,
+          "weighted_contact_x_m": 0.11833318459952938,
+          "records": 64
+        },
+        {
+          "body": 33,
+          "normal_impulse_ns": 0.037548970478,
+          "weighted_contact_x_m": 0.1358888943792002,
+          "records": 64
+        },
+        {
+          "body": 34,
+          "normal_impulse_ns": 0.006897887238600001,
+          "weighted_contact_x_m": 0.12228145822382612,
+          "records": 64
+        }
+      ]
     },
     {
       "lane": 3,
@@ -70,7 +324,33 @@
       "normal_impulse_weighted_ground_point_x_m": 0.139009361013279,
       "ground_point_minus_preceding_com_x_m": 0.027459055366574128,
       "normal_impulse_ns": 0.11062081957960607,
-      "contact_records": 256
+      "contact_records": 256,
+      "by_body": [
+        {
+          "body": 25,
+          "normal_impulse_ns": 0.053442090051914005,
+          "weighted_contact_x_m": 0.1401872742804129,
+          "records": 64
+        },
+        {
+          "body": 26,
+          "normal_impulse_ns": 0.0021407966934514763,
+          "weighted_contact_x_m": 0.11992244161337126,
+          "records": 64
+        },
+        {
+          "body": 33,
+          "normal_impulse_ns": 0.052519607090249984,
+          "weighted_contact_x_m": 0.13939663434829597,
+          "records": 64
+        },
+        {
+          "body": 34,
+          "normal_impulse_ns": 0.0025183257439905927,
+          "weighted_contact_x_m": 0.12216151023429192,
+          "records": 64
+        }
+      ]
     },
     {
       "lane": 3,
@@ -79,7 +359,33 @@
       "normal_impulse_weighted_ground_point_x_m": 0.13706137000046972,
       "ground_point_minus_preceding_com_x_m": 0.025368957916520427,
       "normal_impulse_ns": 0.14535564114700353,
-      "contact_records": 216
+      "contact_records": 216,
+      "by_body": [
+        {
+          "body": 25,
+          "normal_impulse_ns": 0.06249327886217769,
+          "weighted_contact_x_m": 0.14141369886293326,
+          "records": 64
+        },
+        {
+          "body": 26,
+          "normal_impulse_ns": 0.009786018148468805,
+          "weighted_contact_x_m": 0.11180812977802375,
+          "records": 44
+        },
+        {
+          "body": 33,
+          "normal_impulse_ns": 0.0629107188657589,
+          "weighted_contact_x_m": 0.14054763674336396,
+          "records": 64
+        },
+        {
+          "body": 34,
+          "normal_impulse_ns": 0.010165625270597889,
+          "weighted_contact_x_m": 0.11304059659690703,
+          "records": 44
+        }
+      ]
     },
     {
       "lane": 3,
@@ -88,7 +394,105 @@
       "normal_impulse_weighted_ground_point_x_m": 0.20309933122501592,
       "ground_point_minus_preceding_com_x_m": 0.09051392392293842,
       "normal_impulse_ns": 0.30038197040787823,
-      "contact_records": 248
+      "contact_records": 248,
+      "by_body": [
+        {
+          "body": 11,
+          "normal_impulse_ns": 0.02835622141,
+          "weighted_contact_x_m": 0.1913719910621424,
+          "records": 12
+        },
+        {
+          "body": 15,
+          "normal_impulse_ns": 0.0303097707,
+          "weighted_contact_x_m": 0.1908826922071409,
+          "records": 12
+        },
+        {
+          "body": 19,
+          "normal_impulse_ns": 0.022666243359999998,
+          "weighted_contact_x_m": 0.19919959199316156,
+          "records": 12
+        },
+        {
+          "body": 20,
+          "normal_impulse_ns": 0.014712552955000001,
+          "weighted_contact_x_m": 0.2173525650456739,
+          "records": 12
+        },
+        {
+          "body": 21,
+          "normal_impulse_ns": 0.02305780084,
+          "weighted_contact_x_m": 0.1992029333505723,
+          "records": 12
+        },
+        {
+          "body": 22,
+          "normal_impulse_ns": 0.014781158935999999,
+          "weighted_contact_x_m": 0.21747149742034144,
+          "records": 12
+        },
+        {
+          "body": 23,
+          "normal_impulse_ns": 0.023491029749999996,
+          "weighted_contact_x_m": 0.19930511130617268,
+          "records": 12
+        },
+        {
+          "body": 24,
+          "normal_impulse_ns": 0.014987027204,
+          "weighted_contact_x_m": 0.21752488197327752,
+          "records": 12
+        },
+        {
+          "body": 25,
+          "normal_impulse_ns": 5.4522193050525575e-05,
+          "weighted_contact_x_m": 0.14460402926058208,
+          "records": 40
+        },
+        {
+          "body": 27,
+          "normal_impulse_ns": 0.02662320982,
+          "weighted_contact_x_m": 0.19812587449661695,
+          "records": 12
+        },
+        {
+          "body": 28,
+          "normal_impulse_ns": 0.016964141913,
+          "weighted_contact_x_m": 0.2172520079511454,
+          "records": 12
+        },
+        {
+          "body": 29,
+          "normal_impulse_ns": 0.02594234641,
+          "weighted_contact_x_m": 0.19825779587189213,
+          "records": 12
+        },
+        {
+          "body": 30,
+          "normal_impulse_ns": 0.01664634404,
+          "weighted_contact_x_m": 0.21737079280039057,
+          "records": 12
+        },
+        {
+          "body": 31,
+          "normal_impulse_ns": 0.025296109610000003,
+          "weighted_contact_x_m": 0.19849004168231316,
+          "records": 12
+        },
+        {
+          "body": 32,
+          "normal_impulse_ns": 0.016440754116,
+          "weighted_contact_x_m": 0.21740020785041977,
+          "records": 12
+        },
+        {
+          "body": 33,
+          "normal_impulse_ns": 5.273715082724839e-05,
+          "weighted_contact_x_m": 0.14394464686601807,
+          "records": 40
+        }
+      ]
     }
   ],
   "source_sha256": "332572d95b7153202937a05c529e549e3530f14b59637d14aedfcce03997a35e",

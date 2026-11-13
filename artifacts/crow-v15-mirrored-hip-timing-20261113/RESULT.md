@@ -1,0 +1,3 @@
+# Hip-timing candidates failed the release-direction gate
+
+With wings held, early hip extension lanes 4/5 both unloaded for three intervals at tick 376 and passed the vertical/contact/wing-motion checks, but whole-body COM x velocity was -0.193 and -0.183 m/s against the pre-registered minimum -0.02 m/s. Late hip extension lanes 6/7 did not achieve the specified release. Matching held-leg controls remained supported at the early-pair release; measured signed ground impulse differences were -0.0766 and -0.0720 Ns for those two lanes. Baseline lanes 0–3 matched the retained push and hold reference exactly. No tested pair passed; this is one correlated used-seed test, not a takeoff qualification or biological result.

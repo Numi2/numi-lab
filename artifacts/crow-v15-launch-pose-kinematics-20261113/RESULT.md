@@ -1,0 +1,3 @@
+# Crouched-pose hip sensitivity
+
+Offline forward kinematics of the retained tick-370 lane-2 pose: adding +0.10 rad to each hip-pitch coordinate moves each foot-body center of mass approximately 10.5 mm backward relative to whole-body COM; -0.10 rad moves it approximately 9.9 mm forward. The +0.10 perturbation also moves the foot-body centers about 6.3 mm downward. These are manually perturbed coordinates without contact resolution or muscle dynamics; body centers are not ground-contact points, and this is not an observed bird. A physical trial must establish whether any changed preparation remains supported and changes the signed ground impulse without impairing vertical push.

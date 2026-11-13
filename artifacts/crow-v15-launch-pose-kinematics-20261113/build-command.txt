@@ -1,0 +1,1 @@
+clang++ -std=c++20 -O2 -Iinclude artifacts/crow-v15-launch-pose-kinematics-20261113/kinematics.cpp -Lbuild/crow-v15-mirrored-leg-isolation-20261113 -lmetalrobo -Wl,-rpath,/Users/n/Developer/numi-crow-rl-20261107/build/crow-v15-mirrored-leg-isolation-20261113 -o build/crow-v15-launch-pose-kinematics-20261113/kinematics
