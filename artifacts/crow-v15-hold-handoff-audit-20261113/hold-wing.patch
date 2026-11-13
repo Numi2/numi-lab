@@ -1,0 +1,11 @@
+--- a/original-hold.metal
++++ b/extended-hold.metal
+@@ -5116,7 +5116,7 @@
+         if (fixedFlightController && state.episode.z == 10u && action >= 7u && action <= 12u) {
+             const float seconds=float(state.episode.x)*dispatch.timing.x;
+             const uint joint=(action-7u)%3u;
+-            if (seconds >= 6.3f && seconds < 7.4f) {
++            if (seconds >= 6.3f && seconds < 8.2f) {
+                 const float anklePrep=environment%8u<2u ? 0.0f : 0.30f;
+                 const float crouched=joint==0u ? -0.85f : joint==1u ? 1.00f : -0.50f+anklePrep;
+                 const uint experimentArm=environment%8u;

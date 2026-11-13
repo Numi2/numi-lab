@@ -1,0 +1,7 @@
+# Matched crouch handoff: late control lift was an artifact
+
+The two wing-held, crouched-hold first episodes completed 400 ticks per lane on the same used layout and seed. Sampled states, actions and contact substeps were identical through tick 372; the first changed leg target was tick 373. The sole code change extends the crouched-leg target window from 7.4 to 8.2 seconds. Toe and status timing were left unchanged.
+
+In all six candidate lanes the baseline unloaded for three consecutive ticks at 375, with COM vertical velocity +0.404 to +0.420 m/s. With the crouch target held continuous, none unloaded through tick 400 and peak COM height after tick 350 remained roughly 0.00004 m below its tick-350 value. Toe-speed threshold events over ticks 348–400 changed from 11–12 per baseline lane to zero in every extended-hold lane. Recorded modeled vertical aerodynamic impulse was under 0.001 N s in both cases. The contact histories and COM states therefore support the leg-target handoff as the cause of the baseline late lift in this matched model comparison, not the earlier experimental push. Coupled response after the intervention remains model-dependent; this does not prove any solver or biological mechanism.
+
+The abrupt transition should not be used as evidence of controlled takeoff. This diagnostic does not qualify walking, flight, landing, the full mission or held-out layouts. The baseline log and its SHA-256 are referenced by analysis.json and retained in the wing-held control artifact.
