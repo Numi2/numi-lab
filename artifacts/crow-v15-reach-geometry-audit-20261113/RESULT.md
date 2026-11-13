@@ -1,0 +1,5 @@
+# Posthoc larger-offset clearance geometry
+
+Native forward-kinematics reconstruction matched the lane-5 recorded replay at five endpoints in each arm: maximum position error 7.9e-9 m and quaternion-component distance 3.0e-8. At step 347 the reconstructed left middle-front-toe group clearance in the +0.25, +0.30 and +0.35 crouch-offset pairs ranged approximately 1.53–2.36 mm, while most rear-toe group clearances were near zero. One lane had 0.47 mm rear clearance and had already failed the continuous-support gate. Compared with the smaller-offset test, further ankle offset did not monotonically eliminate the front-toe gap. The full data include both sides, other sampled endpoints and paired controls.
+
+The reconstructed clearance uses the model's collision box dimensions and z=0 plane, and q samples can be staggered with solver contacts; it is not exact solver separation or real crow anatomy. The result explains why simple extrapolation of small-angle frozen-pose geometry failed to produce flat-foot preload and motivates examining toe geometry and whole-body contact. No controller or mission is qualified.

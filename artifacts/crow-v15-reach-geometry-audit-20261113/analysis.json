@@ -1,0 +1,1097 @@
+{
+  "scope": "Posthoc reconstructed collision-box clearance at selected control endpoints, ground z=0; contact signal and q samples may be staggered. Forward kinematics checked against selected native lane-5 replay frames. Not exact solver separation or biological geometry.",
+  "data": {
+    "push": {
+      "replay_position_max_error_m": 7.804726344554333e-09,
+      "replay_quaternion_max_error": 2.9564708966167797e-08,
+      "rows": [
+        {
+          "lane": 2,
+          "step": 340,
+          "side": "left",
+          "front_clearance_m": 0.0035964293251432005,
+          "rear_clearance_m": 0.0030157926517669804,
+          "sole_clearance_m": 0.003402594805126209,
+          "ankle_q": -0.32080248
+        },
+        {
+          "lane": 2,
+          "step": 340,
+          "side": "right",
+          "front_clearance_m": 0.0035856953248578904,
+          "rear_clearance_m": 0.0029964532503735323,
+          "sole_clearance_m": 0.003389431414831681,
+          "ankle_q": -0.320798814
+        },
+        {
+          "lane": 2,
+          "step": 345,
+          "side": "left",
+          "front_clearance_m": 0.0038554893132475097,
+          "rear_clearance_m": 0.001616191130773905,
+          "sole_clearance_m": 0.0035317755943144874,
+          "ankle_q": -0.321904898
+        },
+        {
+          "lane": 2,
+          "step": 345,
+          "side": "right",
+          "front_clearance_m": 0.0038547195656732976,
+          "rear_clearance_m": 0.0019454946444221292,
+          "sole_clearance_m": 0.0035309081523626773,
+          "ankle_q": -0.321913123
+        },
+        {
+          "lane": 2,
+          "step": 347,
+          "side": "left",
+          "front_clearance_m": 0.0018016357840221799,
+          "rear_clearance_m": 0.00047407984450167744,
+          "sole_clearance_m": 0.0014319871555805285,
+          "ankle_q": -0.321631223
+        },
+        {
+          "lane": 2,
+          "step": 347,
+          "side": "right",
+          "front_clearance_m": 0.0017909735981455205,
+          "rear_clearance_m": 0.0004666472991375122,
+          "sole_clearance_m": 0.00141980064794257,
+          "ankle_q": -0.321616769
+        },
+        {
+          "lane": 2,
+          "step": 350,
+          "side": "left",
+          "front_clearance_m": 0.0013279733413940186,
+          "rear_clearance_m": -5.365947341790314e-06,
+          "sole_clearance_m": 0.0009641851895229991,
+          "ankle_q": -0.321960777
+        },
+        {
+          "lane": 2,
+          "step": 350,
+          "side": "right",
+          "front_clearance_m": 0.0013233371729261846,
+          "rear_clearance_m": -5.9725644744653555e-06,
+          "sole_clearance_m": 0.0009585742282329397,
+          "ankle_q": -0.321939319
+        },
+        {
+          "lane": 2,
+          "step": 355,
+          "side": "left",
+          "front_clearance_m": 0.0014085144107002772,
+          "rear_clearance_m": 0.010089378351048292,
+          "sole_clearance_m": 0.002440074199326436,
+          "ankle_q": 0.0866246372
+        },
+        {
+          "lane": 2,
+          "step": 355,
+          "side": "right",
+          "front_clearance_m": 0.0013928478893448,
+          "rear_clearance_m": 0.010084790509241937,
+          "sole_clearance_m": 0.0024313828033057806,
+          "ankle_q": 0.0866401941
+        },
+        {
+          "lane": 3,
+          "step": 340,
+          "side": "left",
+          "front_clearance_m": 0.003552382981156489,
+          "rear_clearance_m": 0.0024752106918780117,
+          "sole_clearance_m": 0.0032772643825152107,
+          "ankle_q": -0.31872189
+        },
+        {
+          "lane": 3,
+          "step": 340,
+          "side": "right",
+          "front_clearance_m": 0.0035285050146735587,
+          "rear_clearance_m": 0.002522023593953841,
+          "sole_clearance_m": 0.0032491552931333822,
+          "ankle_q": -0.318721622
+        },
+        {
+          "lane": 3,
+          "step": 345,
+          "side": "left",
+          "front_clearance_m": 0.0013264089161290175,
+          "rear_clearance_m": 1.5547753208326742e-07,
+          "sole_clearance_m": 0.0009491469317510094,
+          "ankle_q": -0.321958393
+        },
+        {
+          "lane": 3,
+          "step": 345,
+          "side": "right",
+          "front_clearance_m": 0.0011857740571441493,
+          "rear_clearance_m": -6.804370800804135e-06,
+          "sole_clearance_m": 0.0008283342440043757,
+          "ankle_q": -0.321640611
+        },
+        {
+          "lane": 3,
+          "step": 347,
+          "side": "left",
+          "front_clearance_m": 0.001530594657430169,
+          "rear_clearance_m": 4.083396221753535e-06,
+          "sole_clearance_m": 0.00111171544691277,
+          "ankle_q": -0.322148651
+        },
+        {
+          "lane": 3,
+          "step": 347,
+          "side": "right",
+          "front_clearance_m": 0.0014053860007302004,
+          "rear_clearance_m": -7.579592952375314e-06,
+          "sole_clearance_m": 0.001011441620918754,
+          "ankle_q": -0.322042793
+        },
+        {
+          "lane": 3,
+          "step": 350,
+          "side": "left",
+          "front_clearance_m": 0.0016109314142966884,
+          "rear_clearance_m": -1.0276037974776137e-05,
+          "sole_clearance_m": 0.0011682863799407812,
+          "ankle_q": -0.321950525
+        },
+        {
+          "lane": 3,
+          "step": 350,
+          "side": "right",
+          "front_clearance_m": 0.0015543637638883879,
+          "rear_clearance_m": -1.188163524100394e-05,
+          "sole_clearance_m": 0.001128554610337543,
+          "ankle_q": -0.321899474
+        },
+        {
+          "lane": 3,
+          "step": 355,
+          "side": "left",
+          "front_clearance_m": -0.00010087895859000814,
+          "rear_clearance_m": 0.00961972363338347,
+          "sole_clearance_m": 0.0014667960176453412,
+          "ankle_q": 0.0898625404
+        },
+        {
+          "lane": 3,
+          "step": 355,
+          "side": "right",
+          "front_clearance_m": 0.0001142067110256103,
+          "rear_clearance_m": 0.00960564475510084,
+          "sole_clearance_m": 0.001440238408612569,
+          "ankle_q": 0.0899083912
+        },
+        {
+          "lane": 4,
+          "step": 340,
+          "side": "left",
+          "front_clearance_m": 0.0017797735041626996,
+          "rear_clearance_m": -2.9078708391923336e-06,
+          "sole_clearance_m": 0.0012968126015101,
+          "ankle_q": -0.289399087
+        },
+        {
+          "lane": 4,
+          "step": 340,
+          "side": "right",
+          "front_clearance_m": 0.0016824564837931953,
+          "rear_clearance_m": -6.8404925176578785e-06,
+          "sole_clearance_m": 0.0012157616024762365,
+          "ankle_q": -0.289302617
+        },
+        {
+          "lane": 4,
+          "step": 345,
+          "side": "left",
+          "front_clearance_m": 0.0020986106809372466,
+          "rear_clearance_m": -2.430188327441629e-06,
+          "sole_clearance_m": 0.0015266921481622009,
+          "ankle_q": -0.289434791
+        },
+        {
+          "lane": 4,
+          "step": 345,
+          "side": "right",
+          "front_clearance_m": 0.0020192192277182584,
+          "rear_clearance_m": -4.6283933964261226e-07,
+          "sole_clearance_m": 0.0014670795442337462,
+          "ankle_q": -0.289375544
+        },
+        {
+          "lane": 4,
+          "step": 347,
+          "side": "left",
+          "front_clearance_m": 0.0022155458024165006,
+          "rear_clearance_m": -2.383870938134011e-06,
+          "sole_clearance_m": 0.0016121526907114832,
+          "ankle_q": -0.289601922
+        },
+        {
+          "lane": 4,
+          "step": 347,
+          "side": "right",
+          "front_clearance_m": 0.0021677423754919746,
+          "rear_clearance_m": -3.1028510012291732e-06,
+          "sole_clearance_m": 0.0015761392647286564,
+          "ankle_q": -0.289535165
+        },
+        {
+          "lane": 4,
+          "step": 350,
+          "side": "left",
+          "front_clearance_m": 0.0023324493373994386,
+          "rear_clearance_m": -1.2349214328837704e-05,
+          "sole_clearance_m": 0.0016934715422638642,
+          "ankle_q": -0.289409161
+        },
+        {
+          "lane": 4,
+          "step": 350,
+          "side": "right",
+          "front_clearance_m": 0.002313906833078949,
+          "rear_clearance_m": -1.1398109222604189e-05,
+          "sole_clearance_m": 0.0016809670889164768,
+          "ankle_q": -0.289383411
+        },
+        {
+          "lane": 4,
+          "step": 355,
+          "side": "left",
+          "front_clearance_m": 0.0013002712419931447,
+          "rear_clearance_m": 0.01106730258623869,
+          "sole_clearance_m": 0.004138503372363584,
+          "ankle_q": 0.103685528
+        },
+        {
+          "lane": 4,
+          "step": 355,
+          "side": "right",
+          "front_clearance_m": 0.0013102192300244696,
+          "rear_clearance_m": 0.011067073922176849,
+          "sole_clearance_m": 0.004141334330809937,
+          "ankle_q": 0.103685513
+        },
+        {
+          "lane": 5,
+          "step": 340,
+          "side": "left",
+          "front_clearance_m": 0.0017203323218097071,
+          "rear_clearance_m": -1.0386083710518801e-05,
+          "sole_clearance_m": 0.0012470365467821768,
+          "ankle_q": -0.28933984
+        },
+        {
+          "lane": 5,
+          "step": 340,
+          "side": "right",
+          "front_clearance_m": 0.0017363547361898737,
+          "rear_clearance_m": -9.486214843028307e-06,
+          "sole_clearance_m": 0.0012603703930657642,
+          "ankle_q": -0.289381027
+        },
+        {
+          "lane": 5,
+          "step": 345,
+          "side": "left",
+          "front_clearance_m": 0.0020419218082353644,
+          "rear_clearance_m": -5.408399849452308e-06,
+          "sole_clearance_m": 0.0014854458804262928,
+          "ankle_q": -0.289395243
+        },
+        {
+          "lane": 5,
+          "step": 345,
+          "side": "right",
+          "front_clearance_m": 0.0020463540123320696,
+          "rear_clearance_m": -5.141134088356911e-06,
+          "sole_clearance_m": 0.0014889214664033958,
+          "ankle_q": -0.289410055
+        },
+        {
+          "lane": 5,
+          "step": 347,
+          "side": "left",
+          "front_clearance_m": 0.002175220051397052,
+          "rear_clearance_m": -3.7582733022224063e-06,
+          "sole_clearance_m": 0.001584016846078588,
+          "ankle_q": -0.289563745
+        },
+        {
+          "lane": 5,
+          "step": 347,
+          "side": "right",
+          "front_clearance_m": 0.0021729511670165163,
+          "rear_clearance_m": -3.05858247359736e-06,
+          "sole_clearance_m": 0.00158127596122014,
+          "ankle_q": -0.289574236
+        },
+        {
+          "lane": 5,
+          "step": 350,
+          "side": "left",
+          "front_clearance_m": 0.0023061031939148272,
+          "rear_clearance_m": -1.1686840238535334e-05,
+          "sole_clearance_m": 0.0016758010453147495,
+          "ankle_q": -0.28940174
+        },
+        {
+          "lane": 5,
+          "step": 350,
+          "side": "right",
+          "front_clearance_m": 0.0023053038756466904,
+          "rear_clearance_m": -1.1573266611842811e-05,
+          "sole_clearance_m": 0.0016748314117113056,
+          "ankle_q": -0.289391398
+        },
+        {
+          "lane": 5,
+          "step": 355,
+          "side": "left",
+          "front_clearance_m": 0.0006228857953801403,
+          "rear_clearance_m": 0.010400180537466013,
+          "sole_clearance_m": 0.003437903997659723,
+          "ankle_q": 0.103685088
+        },
+        {
+          "lane": 5,
+          "step": 355,
+          "side": "right",
+          "front_clearance_m": 0.0006295436910612826,
+          "rear_clearance_m": 0.010400069249019773,
+          "sole_clearance_m": 0.0034376605836092013,
+          "ankle_q": 0.103685044
+        },
+        {
+          "lane": 6,
+          "step": 340,
+          "side": "left",
+          "front_clearance_m": 0.0014417770388193696,
+          "rear_clearance_m": -4.827483522987924e-06,
+          "sole_clearance_m": 0.001044993375036515,
+          "ankle_q": -0.256845951
+        },
+        {
+          "lane": 6,
+          "step": 340,
+          "side": "right",
+          "front_clearance_m": 0.0014404012864466936,
+          "rear_clearance_m": -1.1543834814952553e-05,
+          "sole_clearance_m": 0.0010441217494065735,
+          "ankle_q": -0.256878167
+        },
+        {
+          "lane": 6,
+          "step": 345,
+          "side": "left",
+          "front_clearance_m": 0.0018574275029081214,
+          "rear_clearance_m": -4.687240609226734e-06,
+          "sole_clearance_m": 0.0013508076561803608,
+          "ankle_q": -0.256894767
+        },
+        {
+          "lane": 6,
+          "step": 345,
+          "side": "right",
+          "front_clearance_m": 0.0018590218629133352,
+          "rear_clearance_m": -5.0926779126582444e-06,
+          "sole_clearance_m": 0.0013507689474773349,
+          "ankle_q": -0.256908983
+        },
+        {
+          "lane": 6,
+          "step": 347,
+          "side": "left",
+          "front_clearance_m": 0.0020232341964791737,
+          "rear_clearance_m": -2.354927946977489e-06,
+          "sole_clearance_m": 0.0014709530314554846,
+          "ankle_q": -0.257083386
+        },
+        {
+          "lane": 6,
+          "step": 347,
+          "side": "right",
+          "front_clearance_m": 0.002022628117652218,
+          "rear_clearance_m": -5.881368166829604e-06,
+          "sole_clearance_m": 0.001469533856784765,
+          "ankle_q": -0.257111549
+        },
+        {
+          "lane": 6,
+          "step": 350,
+          "side": "left",
+          "front_clearance_m": 0.0022242843994020236,
+          "rear_clearance_m": -1.1479829830312108e-05,
+          "sole_clearance_m": 0.001615710987961599,
+          "ankle_q": -0.256899416
+        },
+        {
+          "lane": 6,
+          "step": 350,
+          "side": "right",
+          "front_clearance_m": 0.0022237804202081095,
+          "rear_clearance_m": -1.1684445275706584e-05,
+          "sole_clearance_m": 0.0016146311424791431,
+          "ankle_q": -0.256887585
+        },
+        {
+          "lane": 6,
+          "step": 355,
+          "side": "left",
+          "front_clearance_m": 0.0007052174255333492,
+          "rear_clearance_m": 0.009496487991400812,
+          "sole_clearance_m": 0.003458658314385908,
+          "ankle_q": 0.117544003
+        },
+        {
+          "lane": 6,
+          "step": 355,
+          "side": "right",
+          "front_clearance_m": 0.0007087029765818469,
+          "rear_clearance_m": 0.009494742537608123,
+          "sole_clearance_m": 0.003456303543579512,
+          "ankle_q": 0.117543936
+        },
+        {
+          "lane": 7,
+          "step": 340,
+          "side": "left",
+          "front_clearance_m": 0.0021063459245771795,
+          "rear_clearance_m": 0.001062366562726208,
+          "sole_clearance_m": 0.001818333496980927,
+          "ankle_q": -0.256064206
+        },
+        {
+          "lane": 7,
+          "step": 340,
+          "side": "right",
+          "front_clearance_m": 0.002057517827902233,
+          "rear_clearance_m": 0.000763128955421714,
+          "sole_clearance_m": 0.0017658800777282883,
+          "ankle_q": -0.256167918
+        },
+        {
+          "lane": 7,
+          "step": 345,
+          "side": "left",
+          "front_clearance_m": 0.0021838565363165915,
+          "rear_clearance_m": -2.6222893747054887e-06,
+          "sole_clearance_m": 0.001591829297775696,
+          "ankle_q": -0.256960452
+        },
+        {
+          "lane": 7,
+          "step": 345,
+          "side": "right",
+          "front_clearance_m": 0.002043839877005132,
+          "rear_clearance_m": -7.098182309827478e-07,
+          "sole_clearance_m": 0.001482596430462448,
+          "ankle_q": -0.256794214
+        },
+        {
+          "lane": 7,
+          "step": 347,
+          "side": "left",
+          "front_clearance_m": 0.002362941540401906,
+          "rear_clearance_m": -3.7888603550313704e-06,
+          "sole_clearance_m": 0.0017192602276559013,
+          "ankle_q": -0.257174164
+        },
+        {
+          "lane": 7,
+          "step": 347,
+          "side": "right",
+          "front_clearance_m": 0.0022705685097439334,
+          "rear_clearance_m": -4.743694069659146e-06,
+          "sole_clearance_m": 0.0016544588435712868,
+          "ankle_q": -0.256928056
+        },
+        {
+          "lane": 7,
+          "step": 350,
+          "side": "left",
+          "front_clearance_m": 0.002567253790985196,
+          "rear_clearance_m": -1.2005247479907055e-05,
+          "sole_clearance_m": 0.0018663650890185061,
+          "ankle_q": -0.256915212
+        },
+        {
+          "lane": 7,
+          "step": 350,
+          "side": "right",
+          "front_clearance_m": 0.002522013539550878,
+          "rear_clearance_m": -1.2632729434436732e-05,
+          "sole_clearance_m": 0.0018330393062590614,
+          "ankle_q": -0.256852567
+        },
+        {
+          "lane": 7,
+          "step": 355,
+          "side": "left",
+          "front_clearance_m": 0.0016917931180582147,
+          "rear_clearance_m": 0.0060087596886901525,
+          "sole_clearance_m": 0.0010476274181753977,
+          "ankle_q": 0.115840472
+        },
+        {
+          "lane": 7,
+          "step": 355,
+          "side": "right",
+          "front_clearance_m": 0.0016549361402472679,
+          "rear_clearance_m": 0.0058951090828580875,
+          "sole_clearance_m": 0.001015903686444223,
+          "ankle_q": 0.115639865
+        }
+      ]
+    },
+    "hold": {
+      "replay_position_max_error_m": 7.804726344554333e-09,
+      "replay_quaternion_max_error": 2.9564708966167797e-08,
+      "rows": [
+        {
+          "lane": 2,
+          "step": 340,
+          "side": "left",
+          "front_clearance_m": 0.0035964293251432005,
+          "rear_clearance_m": 0.0030157926517669804,
+          "sole_clearance_m": 0.003402594805126209,
+          "ankle_q": -0.32080248
+        },
+        {
+          "lane": 2,
+          "step": 340,
+          "side": "right",
+          "front_clearance_m": 0.0035856953248578904,
+          "rear_clearance_m": 0.0029964532503735323,
+          "sole_clearance_m": 0.003389431414831681,
+          "ankle_q": -0.320798814
+        },
+        {
+          "lane": 2,
+          "step": 345,
+          "side": "left",
+          "front_clearance_m": 0.0038554893132475097,
+          "rear_clearance_m": 0.001616191130773905,
+          "sole_clearance_m": 0.0035317755943144874,
+          "ankle_q": -0.321904898
+        },
+        {
+          "lane": 2,
+          "step": 345,
+          "side": "right",
+          "front_clearance_m": 0.0038547195656732976,
+          "rear_clearance_m": 0.0019454946444221292,
+          "sole_clearance_m": 0.0035309081523626773,
+          "ankle_q": -0.321913123
+        },
+        {
+          "lane": 2,
+          "step": 347,
+          "side": "left",
+          "front_clearance_m": 0.0018016357840221799,
+          "rear_clearance_m": 0.00047407984450167744,
+          "sole_clearance_m": 0.0014319871555805285,
+          "ankle_q": -0.321631223
+        },
+        {
+          "lane": 2,
+          "step": 347,
+          "side": "right",
+          "front_clearance_m": 0.0017909735981455205,
+          "rear_clearance_m": 0.0004666472991375122,
+          "sole_clearance_m": 0.00141980064794257,
+          "ankle_q": -0.321616769
+        },
+        {
+          "lane": 2,
+          "step": 350,
+          "side": "left",
+          "front_clearance_m": 0.0013279733413940186,
+          "rear_clearance_m": -5.365947341790314e-06,
+          "sole_clearance_m": 0.0009641851895229991,
+          "ankle_q": -0.321960777
+        },
+        {
+          "lane": 2,
+          "step": 350,
+          "side": "right",
+          "front_clearance_m": 0.0013233371729261846,
+          "rear_clearance_m": -5.9725644744653555e-06,
+          "sole_clearance_m": 0.0009585742282329397,
+          "ankle_q": -0.321939319
+        },
+        {
+          "lane": 2,
+          "step": 355,
+          "side": "left",
+          "front_clearance_m": 0.0015217175308315442,
+          "rear_clearance_m": -4.867082024805763e-06,
+          "sole_clearance_m": 0.0011054840840033532,
+          "ankle_q": -0.321997315
+        },
+        {
+          "lane": 2,
+          "step": 355,
+          "side": "right",
+          "front_clearance_m": 0.0015171206908643781,
+          "rear_clearance_m": -5.046573980338823e-06,
+          "sole_clearance_m": 0.0011018985530551438,
+          "ankle_q": -0.321983933
+        },
+        {
+          "lane": 3,
+          "step": 340,
+          "side": "left",
+          "front_clearance_m": 0.003552382981156489,
+          "rear_clearance_m": 0.0024752106918780117,
+          "sole_clearance_m": 0.0032772643825152107,
+          "ankle_q": -0.31872189
+        },
+        {
+          "lane": 3,
+          "step": 340,
+          "side": "right",
+          "front_clearance_m": 0.0035285050146735587,
+          "rear_clearance_m": 0.002522023593953841,
+          "sole_clearance_m": 0.0032491552931333822,
+          "ankle_q": -0.318721622
+        },
+        {
+          "lane": 3,
+          "step": 345,
+          "side": "left",
+          "front_clearance_m": 0.0013264089161290175,
+          "rear_clearance_m": 1.5547753208326742e-07,
+          "sole_clearance_m": 0.0009491469317510094,
+          "ankle_q": -0.321958393
+        },
+        {
+          "lane": 3,
+          "step": 345,
+          "side": "right",
+          "front_clearance_m": 0.0011857740571441493,
+          "rear_clearance_m": -6.804370800804135e-06,
+          "sole_clearance_m": 0.0008283342440043757,
+          "ankle_q": -0.321640611
+        },
+        {
+          "lane": 3,
+          "step": 347,
+          "side": "left",
+          "front_clearance_m": 0.001530594657430169,
+          "rear_clearance_m": 4.083396221753535e-06,
+          "sole_clearance_m": 0.00111171544691277,
+          "ankle_q": -0.322148651
+        },
+        {
+          "lane": 3,
+          "step": 347,
+          "side": "right",
+          "front_clearance_m": 0.0014053860007302004,
+          "rear_clearance_m": -7.579592952375314e-06,
+          "sole_clearance_m": 0.001011441620918754,
+          "ankle_q": -0.322042793
+        },
+        {
+          "lane": 3,
+          "step": 350,
+          "side": "left",
+          "front_clearance_m": 0.0016109314142966884,
+          "rear_clearance_m": -1.0276037974776137e-05,
+          "sole_clearance_m": 0.0011682863799407812,
+          "ankle_q": -0.321950525
+        },
+        {
+          "lane": 3,
+          "step": 350,
+          "side": "right",
+          "front_clearance_m": 0.0015543637638883879,
+          "rear_clearance_m": -1.188163524100394e-05,
+          "sole_clearance_m": 0.001128554610337543,
+          "ankle_q": -0.321899474
+        },
+        {
+          "lane": 3,
+          "step": 355,
+          "side": "left",
+          "front_clearance_m": 0.0017726046338453743,
+          "rear_clearance_m": -5.287359947578341e-06,
+          "sole_clearance_m": 0.0012891767761235452,
+          "ankle_q": -0.32200405
+        },
+        {
+          "lane": 3,
+          "step": 355,
+          "side": "right",
+          "front_clearance_m": 0.0017422082554095792,
+          "rear_clearance_m": -4.739678968050318e-06,
+          "sole_clearance_m": 0.0012660637631680717,
+          "ankle_q": -0.321960658
+        },
+        {
+          "lane": 4,
+          "step": 340,
+          "side": "left",
+          "front_clearance_m": 0.0017797735041626996,
+          "rear_clearance_m": -2.9078708391923336e-06,
+          "sole_clearance_m": 0.0012968126015101,
+          "ankle_q": -0.289399087
+        },
+        {
+          "lane": 4,
+          "step": 340,
+          "side": "right",
+          "front_clearance_m": 0.0016824564837931953,
+          "rear_clearance_m": -6.8404925176578785e-06,
+          "sole_clearance_m": 0.0012157616024762365,
+          "ankle_q": -0.289302617
+        },
+        {
+          "lane": 4,
+          "step": 345,
+          "side": "left",
+          "front_clearance_m": 0.0020986106809372466,
+          "rear_clearance_m": -2.430188327441629e-06,
+          "sole_clearance_m": 0.0015266921481622009,
+          "ankle_q": -0.289434791
+        },
+        {
+          "lane": 4,
+          "step": 345,
+          "side": "right",
+          "front_clearance_m": 0.0020192192277182584,
+          "rear_clearance_m": -4.6283933964261226e-07,
+          "sole_clearance_m": 0.0014670795442337462,
+          "ankle_q": -0.289375544
+        },
+        {
+          "lane": 4,
+          "step": 347,
+          "side": "left",
+          "front_clearance_m": 0.0022155458024165006,
+          "rear_clearance_m": -2.383870938134011e-06,
+          "sole_clearance_m": 0.0016121526907114832,
+          "ankle_q": -0.289601922
+        },
+        {
+          "lane": 4,
+          "step": 347,
+          "side": "right",
+          "front_clearance_m": 0.0021677423754919746,
+          "rear_clearance_m": -3.1028510012291732e-06,
+          "sole_clearance_m": 0.0015761392647286564,
+          "ankle_q": -0.289535165
+        },
+        {
+          "lane": 4,
+          "step": 350,
+          "side": "left",
+          "front_clearance_m": 0.0023324493373994386,
+          "rear_clearance_m": -1.2349214328837704e-05,
+          "sole_clearance_m": 0.0016934715422638642,
+          "ankle_q": -0.289409161
+        },
+        {
+          "lane": 4,
+          "step": 350,
+          "side": "right",
+          "front_clearance_m": 0.002313906833078949,
+          "rear_clearance_m": -1.1398109222604189e-05,
+          "sole_clearance_m": 0.0016809670889164768,
+          "ankle_q": -0.289383411
+        },
+        {
+          "lane": 4,
+          "step": 355,
+          "side": "left",
+          "front_clearance_m": 0.002667936980480059,
+          "rear_clearance_m": -5.102292592830057e-06,
+          "sole_clearance_m": 0.001941245930501238,
+          "ankle_q": -0.289458096
+        },
+        {
+          "lane": 4,
+          "step": 355,
+          "side": "right",
+          "front_clearance_m": 0.0026564353782622396,
+          "rear_clearance_m": -4.973694292533318e-06,
+          "sole_clearance_m": 0.0019328485911822707,
+          "ankle_q": -0.289438933
+        },
+        {
+          "lane": 5,
+          "step": 340,
+          "side": "left",
+          "front_clearance_m": 0.0017203323218097071,
+          "rear_clearance_m": -1.0386083710518801e-05,
+          "sole_clearance_m": 0.0012470365467821768,
+          "ankle_q": -0.28933984
+        },
+        {
+          "lane": 5,
+          "step": 340,
+          "side": "right",
+          "front_clearance_m": 0.0017363547361898737,
+          "rear_clearance_m": -9.486214843028307e-06,
+          "sole_clearance_m": 0.0012603703930657642,
+          "ankle_q": -0.289381027
+        },
+        {
+          "lane": 5,
+          "step": 345,
+          "side": "left",
+          "front_clearance_m": 0.0020419218082353644,
+          "rear_clearance_m": -5.408399849452308e-06,
+          "sole_clearance_m": 0.0014854458804262928,
+          "ankle_q": -0.289395243
+        },
+        {
+          "lane": 5,
+          "step": 345,
+          "side": "right",
+          "front_clearance_m": 0.0020463540123320696,
+          "rear_clearance_m": -5.141134088356911e-06,
+          "sole_clearance_m": 0.0014889214664033958,
+          "ankle_q": -0.289410055
+        },
+        {
+          "lane": 5,
+          "step": 347,
+          "side": "left",
+          "front_clearance_m": 0.002175220051397052,
+          "rear_clearance_m": -3.7582733022224063e-06,
+          "sole_clearance_m": 0.001584016846078588,
+          "ankle_q": -0.289563745
+        },
+        {
+          "lane": 5,
+          "step": 347,
+          "side": "right",
+          "front_clearance_m": 0.0021729511670165163,
+          "rear_clearance_m": -3.05858247359736e-06,
+          "sole_clearance_m": 0.00158127596122014,
+          "ankle_q": -0.289574236
+        },
+        {
+          "lane": 5,
+          "step": 350,
+          "side": "left",
+          "front_clearance_m": 0.0023061031939148272,
+          "rear_clearance_m": -1.1686840238535334e-05,
+          "sole_clearance_m": 0.0016758010453147495,
+          "ankle_q": -0.28940174
+        },
+        {
+          "lane": 5,
+          "step": 350,
+          "side": "right",
+          "front_clearance_m": 0.0023053038756466904,
+          "rear_clearance_m": -1.1573266611842811e-05,
+          "sole_clearance_m": 0.0016748314117113056,
+          "ankle_q": -0.289391398
+        },
+        {
+          "lane": 5,
+          "step": 355,
+          "side": "left",
+          "front_clearance_m": 0.0026447660028005547,
+          "rear_clearance_m": -5.132637593056183e-06,
+          "sole_clearance_m": 0.0019253015303500876,
+          "ankle_q": -0.289454073
+        },
+        {
+          "lane": 5,
+          "step": 355,
+          "side": "right",
+          "front_clearance_m": 0.002644056348697795,
+          "rear_clearance_m": -5.162641904617529e-06,
+          "sole_clearance_m": 0.0019243075381578517,
+          "ankle_q": -0.289443523
+        },
+        {
+          "lane": 6,
+          "step": 340,
+          "side": "left",
+          "front_clearance_m": 0.0014417770388193696,
+          "rear_clearance_m": -4.827483522987924e-06,
+          "sole_clearance_m": 0.001044993375036515,
+          "ankle_q": -0.256845951
+        },
+        {
+          "lane": 6,
+          "step": 340,
+          "side": "right",
+          "front_clearance_m": 0.0014404012864466936,
+          "rear_clearance_m": -1.1543834814952553e-05,
+          "sole_clearance_m": 0.0010441217494065735,
+          "ankle_q": -0.256878167
+        },
+        {
+          "lane": 6,
+          "step": 345,
+          "side": "left",
+          "front_clearance_m": 0.0018574275029081214,
+          "rear_clearance_m": -4.687240609226734e-06,
+          "sole_clearance_m": 0.0013508076561803608,
+          "ankle_q": -0.256894767
+        },
+        {
+          "lane": 6,
+          "step": 345,
+          "side": "right",
+          "front_clearance_m": 0.0018590218629133352,
+          "rear_clearance_m": -5.0926779126582444e-06,
+          "sole_clearance_m": 0.0013507689474773349,
+          "ankle_q": -0.256908983
+        },
+        {
+          "lane": 6,
+          "step": 347,
+          "side": "left",
+          "front_clearance_m": 0.0020232341964791737,
+          "rear_clearance_m": -2.354927946977489e-06,
+          "sole_clearance_m": 0.0014709530314554846,
+          "ankle_q": -0.257083386
+        },
+        {
+          "lane": 6,
+          "step": 347,
+          "side": "right",
+          "front_clearance_m": 0.002022628117652218,
+          "rear_clearance_m": -5.881368166829604e-06,
+          "sole_clearance_m": 0.001469533856784765,
+          "ankle_q": -0.257111549
+        },
+        {
+          "lane": 6,
+          "step": 350,
+          "side": "left",
+          "front_clearance_m": 0.0022242843994020236,
+          "rear_clearance_m": -1.1479829830312108e-05,
+          "sole_clearance_m": 0.001615710987961599,
+          "ankle_q": -0.256899416
+        },
+        {
+          "lane": 6,
+          "step": 350,
+          "side": "right",
+          "front_clearance_m": 0.0022237804202081095,
+          "rear_clearance_m": -1.1684445275706584e-05,
+          "sole_clearance_m": 0.0016146311424791431,
+          "ankle_q": -0.256887585
+        },
+        {
+          "lane": 6,
+          "step": 355,
+          "side": "left",
+          "front_clearance_m": 0.0026793995359295827,
+          "rear_clearance_m": -4.912623931298266e-06,
+          "sole_clearance_m": 0.0019501342943660932,
+          "ankle_q": -0.256947279
+        },
+        {
+          "lane": 6,
+          "step": 355,
+          "side": "right",
+          "front_clearance_m": 0.0026784090920227727,
+          "rear_clearance_m": -4.926306550129614e-06,
+          "sole_clearance_m": 0.001949198714389205,
+          "ankle_q": -0.256938457
+        },
+        {
+          "lane": 7,
+          "step": 340,
+          "side": "left",
+          "front_clearance_m": 0.0021063459245771795,
+          "rear_clearance_m": 0.001062366562726208,
+          "sole_clearance_m": 0.001818333496980927,
+          "ankle_q": -0.256064206
+        },
+        {
+          "lane": 7,
+          "step": 340,
+          "side": "right",
+          "front_clearance_m": 0.002057517827902233,
+          "rear_clearance_m": 0.000763128955421714,
+          "sole_clearance_m": 0.0017658800777282883,
+          "ankle_q": -0.256167918
+        },
+        {
+          "lane": 7,
+          "step": 345,
+          "side": "left",
+          "front_clearance_m": 0.0021838565363165915,
+          "rear_clearance_m": -2.6222893747054887e-06,
+          "sole_clearance_m": 0.001591829297775696,
+          "ankle_q": -0.256960452
+        },
+        {
+          "lane": 7,
+          "step": 345,
+          "side": "right",
+          "front_clearance_m": 0.002043839877005132,
+          "rear_clearance_m": -7.098182309827478e-07,
+          "sole_clearance_m": 0.001482596430462448,
+          "ankle_q": -0.256794214
+        },
+        {
+          "lane": 7,
+          "step": 347,
+          "side": "left",
+          "front_clearance_m": 0.002362941540401906,
+          "rear_clearance_m": -3.7888603550313704e-06,
+          "sole_clearance_m": 0.0017192602276559013,
+          "ankle_q": -0.257174164
+        },
+        {
+          "lane": 7,
+          "step": 347,
+          "side": "right",
+          "front_clearance_m": 0.0022705685097439334,
+          "rear_clearance_m": -4.743694069659146e-06,
+          "sole_clearance_m": 0.0016544588435712868,
+          "ankle_q": -0.256928056
+        },
+        {
+          "lane": 7,
+          "step": 350,
+          "side": "left",
+          "front_clearance_m": 0.002567253790985196,
+          "rear_clearance_m": -1.2005247479907055e-05,
+          "sole_clearance_m": 0.0018663650890185061,
+          "ankle_q": -0.256915212
+        },
+        {
+          "lane": 7,
+          "step": 350,
+          "side": "right",
+          "front_clearance_m": 0.002522013539550878,
+          "rear_clearance_m": -1.2632729434436732e-05,
+          "sole_clearance_m": 0.0018330393062590614,
+          "ankle_q": -0.256852567
+        },
+        {
+          "lane": 7,
+          "step": 355,
+          "side": "left",
+          "front_clearance_m": 0.0030277315986578564,
+          "rear_clearance_m": -5.091854145071115e-06,
+          "sole_clearance_m": 0.0022051674971421513,
+          "ankle_q": -0.256950259
+        },
+        {
+          "lane": 7,
+          "step": 355,
+          "side": "right",
+          "front_clearance_m": 0.003002066443904189,
+          "rear_clearance_m": -4.924476651561871e-06,
+          "sole_clearance_m": 0.002186308989654634,
+          "ankle_q": -0.256914794
+        }
+      ]
+    }
+  }
+}
