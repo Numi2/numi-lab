@@ -1,0 +1,70 @@
+{
+  "retired": true,
+  "files": [
+    {
+      "path": "/private/tmp/crow-continuation.rfybzJ/repo/artifacts/crow-v15-equal-launch-onset-20261113/straight-20261127-rebound-equallong/run.stderr.gz",
+      "inode": 204053387,
+      "bytes": 256108506,
+      "mtime_ns": 1794597139764699788,
+      "sha256": "dce0634f22a35a7d6ace7721cf82711ec05a422b71d974ba689d1de2c0c45090",
+      "lsof_clear": true
+    },
+    {
+      "path": "/private/tmp/crow-continuation.rfybzJ/repo/artifacts/crow-v15-equal-launch-onset-20261113/straight-20261127-rebound-equallong/run.stderr.gz.part000",
+      "inode": 204053642,
+      "bytes": 41943040,
+      "mtime_ns": 1794597188039514224,
+      "sha256": "723c52fb90c9dafe8d1ec5949bcc4dede0473fcc177dd6907593567951070c81",
+      "lsof_clear": true
+    },
+    {
+      "path": "/private/tmp/crow-continuation.rfybzJ/repo/artifacts/crow-v15-equal-launch-onset-20261113/straight-20261127-rebound-equallong/run.stderr.gz.part001",
+      "inode": 204053643,
+      "bytes": 41943040,
+      "mtime_ns": 1794597188206703714,
+      "sha256": "fc2dd873e2962e6fa3e4214deecc302b2f4c00975d92e1769828f76d9d629643",
+      "lsof_clear": true
+    },
+    {
+      "path": "/private/tmp/crow-continuation.rfybzJ/repo/artifacts/crow-v15-equal-launch-onset-20261113/straight-20261127-rebound-equallong/run.stderr.gz.part002",
+      "inode": 204053644,
+      "bytes": 41943040,
+      "mtime_ns": 1794597188357934586,
+      "sha256": "5f52272f983e225b768d17ddac6f7f85c85a7f87d90fe3e24bae4bc0b1556e4b",
+      "lsof_clear": true
+    },
+    {
+      "path": "/private/tmp/crow-continuation.rfybzJ/repo/artifacts/crow-v15-equal-launch-onset-20261113/straight-20261127-rebound-equallong/run.stderr.gz.part003",
+      "inode": 204053645,
+      "bytes": 41943040,
+      "mtime_ns": 1794597188509024915,
+      "sha256": "7a54a45ffdc22bfce0ed4ae0362998579bfba7dedf904e0ea760ec197bcdbb62",
+      "lsof_clear": true
+    },
+    {
+      "path": "/private/tmp/crow-continuation.rfybzJ/repo/artifacts/crow-v15-equal-launch-onset-20261113/straight-20261127-rebound-equallong/run.stderr.gz.part004",
+      "inode": 204053646,
+      "bytes": 41943040,
+      "mtime_ns": 1794597188658849284,
+      "sha256": "70703c712974e9eaaaba5f9a67c4830685aa9138845f86d9b9efede79c166d8c",
+      "lsof_clear": true
+    },
+    {
+      "path": "/private/tmp/crow-continuation.rfybzJ/repo/artifacts/crow-v15-equal-launch-onset-20261113/straight-20261127-rebound-equallong/run.stderr.gz.part005",
+      "inode": 204053647,
+      "bytes": 41943040,
+      "mtime_ns": 1794597188813605581,
+      "sha256": "51853c505e3b45d3ebef740f2ea34b29089e9b67222463f9211d8971ac989215",
+      "lsof_clear": true
+    },
+    {
+      "path": "/private/tmp/crow-continuation.rfybzJ/repo/artifacts/crow-v15-equal-launch-onset-20261113/straight-20261127-rebound-equallong/run.stderr.gz.part006",
+      "inode": 204053648,
+      "bytes": 4450266,
+      "mtime_ns": 1794597188957717979,
+      "sha256": "d862c7010bf90170ce7a35c8490eb45756555e9bcbadd273f58159de6ed20d80",
+      "lsof_clear": true
+    }
+  ],
+  "total_bytes": 512217012
+}
