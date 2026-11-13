@@ -1,0 +1,18 @@
+--- artifacts/crow-v15-position-flight-screen-20261113/position-flight.metal	2026-11-13 12:19:33
++++ artifacts/crow-v15-pronation-yaw-screen-20261113/pronation-yaw.metal	2026-11-13 12:45:35
+@@ -5566,7 +5566,14 @@
+                     targetCandidate+=amplitude*smoothstep(start,start+0.04f,seconds)*sin(phase);
+                 }
+                 else if (action<=3u) targetCandidate+=mix(0.12f,sweep,blend)*smoothstep(start,start+0.04f,seconds);
+-                else targetCandidate+=0.18f*smoothstep(start,start+0.04f,seconds)*sin(phase+1.57079632679f);
++                else {
++                    targetCandidate+=0.18f*smoothstep(start,start+0.04f,seconds)*sin(phase+1.57079632679f);
++                    // Small antisymmetric physical pronation-target pulse.
++                    // No external yaw torque or state change is introduced.
++                    const float env=smoothstep(12.0f,12.5f,seconds)*(1.0f-smoothstep(23.5f,24.0f,seconds));
++                    const float direction=arm==6u ? 1.0f : arm==7u ? -1.0f : 0.0f;
++                    targetCandidate+=(action==4u ? 1.0f : -1.0f)*direction*0.04f*env;
++                }
+             }
+         }
+         // Exploratory, bounded knee target feedback through the existing position drive.

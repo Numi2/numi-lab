@@ -1,0 +1,9 @@
+# Signed course-command response: FAIL
+
+On development seed 20261126, world-y commands of +0.5 and -0.5 m produced same-direction displacement versus each same-lane reference of 0.466 m and 0.470 m, but maximum same-direction body-yaw differences were only 0.00857 rad and 0.00837 rad. The preregistered threshold was 0.10 rad yaw and 0.20 m displacement for each sign; both signed-response gates failed. This is lateral translation with little heading change, not demonstrated turning.
+
+Both intervened lanes completed the 1800-tick episode with no first-ground record, foot recontact, nonfoot ground impulse or toe-speed threshold events. Sampled absolute y velocity reached 0.105 and 0.130 m/s over the full interval. During the command window maximum sampled absolute roll was 0.0207 and 0.0288 rad. In ticks 1550–1800 after command removal, maximum absolute yaw difference was 0.00238 and 0.00424 rad and maximum same-lane position difference was 0.129 and 0.131 m. These are sampled recovery measures, not an established disturbed-start recovery capability.
+
+Intervened lanes matched their own reference through tick 600; untouched lanes 2–5 matched through tick 1800, and controls 0–1 matched their first episodes. Host, policy, masks, metadata, observer coverage, and target reconstruction passed. Physical-bound screens passed, but the generic per-lane physical pass in analysis.json deliberately omits the straight-flight 1 m sideways threshold because this experiment commands displacement; it is not a flight qualification.
+
+The unchanged low yaw response motivates bounded physical wing-steering identification; do not strengthen a direct yaw torque or relabel sideslip as a turn. No final layouts or seeds were used; takeoff, flight qualification, frozen controller, mission and landing remain incomplete.
