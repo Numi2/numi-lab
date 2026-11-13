@@ -1,0 +1,54 @@
+{
+  "rows": [
+    {
+      "lane": 0,
+      "stop": 760,
+      "missing": [],
+      "different": []
+    },
+    {
+      "lane": 1,
+      "stop": 764,
+      "missing": [],
+      "different": []
+    },
+    {
+      "lane": 2,
+      "stop": 1800,
+      "missing": [],
+      "different": []
+    },
+    {
+      "lane": 3,
+      "stop": 1800,
+      "missing": [],
+      "different": []
+    },
+    {
+      "lane": 4,
+      "stop": 1800,
+      "missing": [],
+      "different": []
+    },
+    {
+      "lane": 5,
+      "stop": 1800,
+      "missing": [],
+      "different": []
+    },
+    {
+      "lane": 6,
+      "stop": 548,
+      "missing": [],
+      "different": []
+    },
+    {
+      "lane": 7,
+      "stop": 548,
+      "missing": [],
+      "different": []
+    }
+  ],
+  "matched": true,
+  "scope": "Same-seed bank trace versus damping sensitivity; exact state, action and contact parity before intervention for candidates, and reference first episode for lanes 0-5. Does not verify actual GPU body parameter."
+}
