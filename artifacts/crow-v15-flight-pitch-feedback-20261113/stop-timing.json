@@ -1,0 +1,101 @@
+{
+  "rows": [
+    {
+      "run": "push-wing-20261126-rebound-clear",
+      "lane": 2,
+      "first_foot_recontact": 553,
+      "first_sampled_sweep_stop": 514,
+      "stop_samples": 23,
+      "stop_samples_before_foot_recontact": 5
+    },
+    {
+      "run": "push-wing-20261126-rebound-clear",
+      "lane": 3,
+      "first_foot_recontact": 553,
+      "first_sampled_sweep_stop": 514,
+      "stop_samples": 23,
+      "stop_samples_before_foot_recontact": 5
+    },
+    {
+      "run": "push-wing-20261126-rebound-clear",
+      "lane": 4,
+      "first_foot_recontact": 585,
+      "first_sampled_sweep_stop": 524,
+      "stop_samples": 24,
+      "stop_samples_before_foot_recontact": 10
+    },
+    {
+      "run": "push-wing-20261126-rebound-clear",
+      "lane": 5,
+      "first_foot_recontact": 586,
+      "first_sampled_sweep_stop": 524,
+      "stop_samples": 24,
+      "stop_samples_before_foot_recontact": 10
+    },
+    {
+      "run": "push-wing-20261126-rebound-clear",
+      "lane": 6,
+      "first_foot_recontact": 520,
+      "first_sampled_sweep_stop": 526,
+      "stop_samples": 19,
+      "stop_samples_before_foot_recontact": 0
+    },
+    {
+      "run": "push-wing-20261126-rebound-clear",
+      "lane": 7,
+      "first_foot_recontact": 534,
+      "first_sampled_sweep_stop": 526,
+      "stop_samples": 23,
+      "stop_samples_before_foot_recontact": 1
+    },
+    {
+      "run": "push-wing-20261126-rebound-pitch",
+      "lane": 2,
+      "first_foot_recontact": 570,
+      "first_sampled_sweep_stop": 655,
+      "stop_samples": 1,
+      "stop_samples_before_foot_recontact": 0
+    },
+    {
+      "run": "push-wing-20261126-rebound-pitch",
+      "lane": 3,
+      "first_foot_recontact": 570,
+      "first_sampled_sweep_stop": 655,
+      "stop_samples": 1,
+      "stop_samples_before_foot_recontact": 0
+    },
+    {
+      "run": "push-wing-20261126-rebound-pitch",
+      "lane": 4,
+      "first_foot_recontact": 648,
+      "first_sampled_sweep_stop": 657,
+      "stop_samples": 3,
+      "stop_samples_before_foot_recontact": 0
+    },
+    {
+      "run": "push-wing-20261126-rebound-pitch",
+      "lane": 5,
+      "first_foot_recontact": 648,
+      "first_sampled_sweep_stop": 657,
+      "stop_samples": 3,
+      "stop_samples_before_foot_recontact": 0
+    },
+    {
+      "run": "push-wing-20261126-rebound-pitch",
+      "lane": 6,
+      "first_foot_recontact": 536,
+      "first_sampled_sweep_stop": 706,
+      "stop_samples": 2,
+      "stop_samples_before_foot_recontact": 0
+    },
+    {
+      "run": "push-wing-20261126-rebound-pitch",
+      "lane": 7,
+      "first_foot_recontact": 590,
+      "first_sampled_sweep_stop": 714,
+      "stop_samples": 1,
+      "stop_samples_before_foot_recontact": 0
+    }
+  ],
+  "scope": "Accepted control-step samples only, not a full substep stop observer."
+}
