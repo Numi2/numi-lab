@@ -1,0 +1,8 @@
+9072774a0562bef62f02a0cfeeb4345322713849ca6faecfd91635853faa9c69  artifacts/crow-v15-supported-return-geometry-20261113/PLAN.md
+db0a349ee1278502bc00cec8edb2be5c98feaa413c55616d96aee00ea1569bfe  artifacts/crow-v15-supported-return-geometry-20261113/probe.cpp
+1fecd1fdeb78732d7c53fa0f05c3e1f56bc64b7ef411b8e03b2838e6bf33b874  artifacts/crow-v15-supported-return-geometry-20261113/run.py
+cd0e596d28117b56322084241223acd970c6e480d3ae7a7db10508b39dffb7db  artifacts/crow-v15-supported-return-geometry-20261113/analyze.py
+3c68ab32655edc8fc84407af7cfbadd4a35420d71dd725e16fe3a37773e8446b  artifacts/crow-v15-supported-return-geometry-20261113/clearance-intervals.py
+f7d0a9bcde7262a6cb7c99c646e4c74655fd6e4d47f94974abe9feb5d7185c36  artifacts/crow-v15-supported-return-geometry-20261113/regrip-intervals.py
+02b97d91ad36c2511a17a1c87f7cc8e305db961666724e87a3ea5f3d209dd519  artifacts/crow-v15-supported-return-geometry-20261113/joint-check.py
+7aa863684b1bee5c5984839fd53b626acec7fdb7b9480b3374909c10d9ebc00a  artifacts/crow-v15-supported-return-geometry-20261113/compare.py
