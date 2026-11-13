@@ -1,0 +1,7 @@
+# Paired extension-withheld leg-work control: pre-run plan
+
+The observation-only push/no-flapping run reproduced all 3,208 recorded endpoint/action/contact records and 5,888 contact-substep records in the shared window of its original used-seed trial. The active mode was implicit position drive (1), with bounded and coupled modes disabled. The measured buffer is generalized working effort at the post-substep observation point; it may include non-muscle terms and is not isolated biological actuator torque.
+
+Before interpreting the leg-work proxy causally, rerun the matched no-extension/no-flapping arm from the four-arm factorial screen using the same observer, development seed, episode length, controlled wings and disabled direct body moments. Require exact endpoint/action/contact and shared-window substep parity against its separately archived original. Calculate the same six-joint generalized effort times observed coordinate change in steps 348–365 for both arms, positive and negative separately, and compare lane-paired values and foot impulses. Do not change the controller, seed, or this window in response to the outcome. Retain mode flags, metadata, output and mismatches even on failure.
+
+This is a closed-loop target comparison. Both arms retain active leg drives, contacts, passive aerodynamics and earlier control history. A positive numerical work proxy does not establish effective leg launch, biomechanical calibration or causal lift. Do not promote flight, count exposed layouts as unused or label any result as a qualified takeoff.

@@ -1,0 +1,8 @@
+Parity: {"support": {"reference_keys": 3208, "new_keys": 3208, "shared_keys": 3208, "mismatches": 0, "first_mismatch": null, "missing_reference": 0, "missing_new": 0}, "contact_substeps": {"reference_keys": 5888, "new_keys": 5888, "shared_keys": 5888, "mismatches": 0, "first_mismatch": null, "missing_reference": 0, "missing_new": 0}, "old_errors": [], "new_errors": [], "effort_samples": 5888}
+Modes: Counter({'(1, 0, 0)': 5888}) maximum within-step q continuity error: 0.0
+lane 2 positive 1.878972 negative -0.708713 net 1.170259 foot impulse 1.597951
+lane 3 positive 1.878792 negative -0.708296 net 1.170496 foot impulse 1.597817
+lane 4 positive 1.878824 negative -0.708299 net 1.170525 foot impulse 1.597872
+lane 5 positive 1.878809 negative -0.708301 net 1.170508 foot impulse 1.597819
+lane 6 positive 1.87881 negative -0.708209 net 1.170602 foot impulse 1.597882
+lane 7 positive 1.87883 negative -0.708379 net 1.170451 foot impulse 1.597829
