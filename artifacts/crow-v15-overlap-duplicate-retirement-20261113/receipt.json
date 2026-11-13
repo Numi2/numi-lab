@@ -1,0 +1,17 @@
+{
+  "removed": [
+    "build/crow-v15-intermediate-winghold-20261113/push-wing-20261126-rebound-intermediate-replay.json",
+    "build/crow-v15-intermediate-winghold-20261113/push-wing-20261126-rebound-intermediate-trace.tsv",
+    "build/crow-v15-intermediate-winghold-20261113/hold-wing-20261126-rebound-intermediate-replay.json",
+    "build/crow-v15-intermediate-winghold-20261113/hold-wing-20261126-rebound-intermediate-trace.tsv",
+    "build/crow-v15-overlap-leg-wing-20261113/push-wing-20261126-rebound-overlap-replay.json",
+    "build/crow-v15-overlap-leg-wing-20261113/push-wing-20261126-rebound-overlap-trace.tsv",
+    "build/crow-v15-overlap-leg-wing-20261113/hold-wing-20261126-rebound-overlap-replay.json",
+    "build/crow-v15-overlap-leg-wing-20261113/hold-wing-20261126-rebound-overlap-trace.tsv"
+  ],
+  "logical_bytes": 73754547,
+  "available_before_bytes": 38601248768,
+  "available_after_bytes": 38674980864,
+  "availability_delta_bytes": 73732096,
+  "note": "Concurrent filesystem activity may affect delta. See preceding manifest for restore and identity checks."
+}
