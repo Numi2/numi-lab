@@ -1,0 +1,18 @@
+{
+  "commit": "f4834e6c68cd9fd4374089158927d35f4e60188d",
+  "source": "independent authenticated GitHub raw content",
+  "files": [
+    {
+      "path": "artifacts/crow-v15-mirrored-crouch-placement-20261113/push-wing-20261126-rebound-placement/run.stderr.gz",
+      "bytes": 37495717,
+      "sha256": "727da4375cd8e0ec5f082775aefded5c648ddeffdee5ec014929a2d59e941759",
+      "gzip_eof_verified": true
+    },
+    {
+      "path": "artifacts/crow-v15-mirrored-crouch-placement-20261113/hold-wing-20261126-rebound-placement/run.stderr.gz",
+      "bytes": 36290326,
+      "sha256": "3a1f1e82af05952f4e1d95d201af3d7cffb251bb240c48bac65600546a46b6db",
+      "gzip_eof_verified": true
+    }
+  ]
+}
