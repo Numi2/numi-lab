@@ -1,0 +1,32 @@
+{
+  "purpose": "retire redundant split copies; original retained for future matched flight comparisons",
+  "files": [
+    {
+      "absolute_path": "/Users/n/Developer/numi-crow-rl-20261107/artifacts/crow-v15-lateral-uniform-confirmation-20261113/lateral-uniform-20261126-rebound-uniform/run.stderr.gz.part00",
+      "device": 16777232,
+      "inode": 17097485,
+      "links": 1,
+      "bytes": 41943040,
+      "sha256": "146a3bfe5edc354d75a63469818e97f97ee1dc0e488982dc4ed3bb3b6ca8595f",
+      "lsof_exit": 1
+    },
+    {
+      "absolute_path": "/Users/n/Developer/numi-crow-rl-20261107/artifacts/crow-v15-lateral-uniform-confirmation-20261113/lateral-uniform-20261126-rebound-uniform/run.stderr.gz.part01",
+      "device": 16777232,
+      "inode": 17097486,
+      "links": 1,
+      "bytes": 41943040,
+      "sha256": "ae585245cf9692a53459a20fe716a6d6715d444eb69ba8c9e46d2f407171172d",
+      "lsof_exit": 1
+    },
+    {
+      "absolute_path": "/Users/n/Developer/numi-crow-rl-20261107/artifacts/crow-v15-lateral-uniform-confirmation-20261113/lateral-uniform-20261126-rebound-uniform/run.stderr.gz.part02",
+      "device": 16777232,
+      "inode": 17097487,
+      "links": 1,
+      "bytes": 27737663,
+      "sha256": "909f199b89787ba7976c0e230804bc491e22b7ad6e7a65e38109c681d2999076",
+      "lsof_exit": 1
+    }
+  ]
+}
