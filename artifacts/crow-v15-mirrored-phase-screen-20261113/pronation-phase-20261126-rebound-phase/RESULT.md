@@ -1,0 +1,7 @@
+# Corrected-body pronation phase screen: no passing candidate
+
+All six candidate first episodes reached 1800 ticks with no recorded post-release ground contact. Host, actor packs and scene masks matched the corrected-body reference, each candidate matched its same-lane q/v/policy/contact prefix through tick 372, controls matched their complete first episodes, target reconstruction was within 0.000026 rad, and the force observer passed coverage and force-accounting checks. These are correlated lanes on one used development seed.
+
+The pi-phase 0.12-rad pair held sampled height between 0.562 and 0.741 m, with 0.061–0.086 m maximum lateral displacement and 7.38–7.55 m forward displacement, but briefly moved backward at -0.020 to -0.022 m/s after tick 550 and spent about 79.8–79.9% of the observed substeps at the modeled pronation effort clamp, exceeding the preregistered 75% limit. Both therefore failed. The zero-phase 0.18-rad pair exceeded the height, speed and effort bounds. The negative-pi/2 0.08-rad pair met speed and effort gates but exceeded the height bound. No candidate is selected. The source, full failed traces, measured force observations and exact gate decisions are retained.
+
+This is a research flight screen with direct world-position feedback and approximate aero, not qualified or frozen flight, biological validation, leg-powered takeoff, autonomous navigation or landing. The wing-only and overlapping launch controls do not establish a leg-powered transition. Final reserved layouts and seeds remain unused.
