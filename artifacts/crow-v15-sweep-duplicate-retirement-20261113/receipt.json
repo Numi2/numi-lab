@@ -1,0 +1,11 @@
+{
+  "deleted": [
+    "artifacts/crow-v15-flight-sweep-authority-20261113/push-wing-20261126-rebound-sweep/run.stderr.gz",
+    "artifacts/crow-v15-flight-sweep-authority-20261113/push-wing-20261126-rebound-sweep/run.stderr.gz.part00",
+    "artifacts/crow-v15-flight-sweep-authority-20261113/push-wing-20261126-rebound-sweep/run.stderr.gz.part01",
+    "artifacts/crow-v15-flight-sweep-authority-20261113/push-wing-20261126-rebound-sweep/run.stderr.gz.part02",
+    "artifacts/crow-v15-flight-sweep-authority-20261113/push-wing-20261126-rebound-sweep/run.stderr.gz.part03"
+  ],
+  "logical_bytes": 282562526,
+  "verified_commit": "4e3d6735a60acbb692aea97d84bed43d25d50e42"
+}
