@@ -667,5 +667,61 @@
       "min_aero_vertical_force_n": -0.0435703843832,
       "max_aero_vertical_force_n": 0.195189632941
     }
+  ],
+  "wing_substep_speed_peaks": [
+    {
+      "lane": 2,
+      "max_substep_wing_speed_rad_s": 37.7589188,
+      "step": 369,
+      "substep": 3,
+      "aero_vertical_force_n": 34.6940384558,
+      "foot_normal_impulse_ns": 0.0,
+      "root_vz_m_s": -0.381365359
+    },
+    {
+      "lane": 3,
+      "max_substep_wing_speed_rad_s": 37.9704552,
+      "step": 369,
+      "substep": 3,
+      "aero_vertical_force_n": 34.9763833014,
+      "foot_normal_impulse_ns": 0.0,
+      "root_vz_m_s": -0.394886881
+    },
+    {
+      "lane": 4,
+      "max_substep_wing_speed_rad_s": 37.7293205,
+      "step": 369,
+      "substep": 3,
+      "aero_vertical_force_n": 36.525897551,
+      "foot_normal_impulse_ns": 0.042830172900000005,
+      "root_vz_m_s": -0.176003858
+    },
+    {
+      "lane": 5,
+      "max_substep_wing_speed_rad_s": 37.8623466,
+      "step": 369,
+      "substep": 3,
+      "aero_vertical_force_n": 34.8750199256,
+      "foot_normal_impulse_ns": 0.0,
+      "root_vz_m_s": -0.386876911
+    },
+    {
+      "lane": 6,
+      "max_substep_wing_speed_rad_s": 37.995121,
+      "step": 369,
+      "substep": 3,
+      "aero_vertical_force_n": 36.9464008975,
+      "foot_normal_impulse_ns": 0.038767067700000005,
+      "root_vz_m_s": -0.167688459
+    },
+    {
+      "lane": 7,
+      "max_substep_wing_speed_rad_s": 37.6829338,
+      "step": 369,
+      "substep": 3,
+      "aero_vertical_force_n": 34.5783228232,
+      "foot_normal_impulse_ns": 0.0,
+      "root_vz_m_s": -0.390005916
+    }
   ]
 }

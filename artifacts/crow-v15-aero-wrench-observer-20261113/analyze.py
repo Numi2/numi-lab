@@ -35,13 +35,15 @@ for e in range(8):
  bad=[t for t in range(1,401) if any(D['observer']['state'][e,t][k]!=D['reference']['state'][e,t][k] for k in ('q','v','policy_action','contacts'))]
  bc=[(t,k) for t in range(335,401) for k in range(16) if D['observer']['contact'][e,t,k]!=D['reference']['contact'][e,t,k]]
  parity.append({'lane':e,'state_mismatches':len(bad),'first_state_mismatch':bad[:1],'contact_mismatches':len(bc),'first_contact_mismatch':bc[:1]})
-aero={};errs=[];strides=set()
+aero={};kin={};errs=[];strides=set()
 with gzip.open(arms['observer']/'run.stderr.gz','rt') as f:
  for line in f:
-  if line.startswith('CROW_AERO_OBSERVER_ERROR'):errs.append(line.strip())
+  if line.startswith('CROW_KIN_STATE '):
+   z=line.split();t,k,e,nq,nv=map(int,z[1:6]);v=list(map(float,z[6:]));assert len(v)==nq+nv and (e,t,k) not in kin;kin[e,t,k]=(v[:nq],v[nq:])
+  elif line.startswith('CROW_AERO_OBSERVER_ERROR'):errs.append(line.strip())
   elif line.startswith('CROW_AERO_FORCE '):
    z=line.split();t,k,e,stride=map(int,z[1:5]);v=list(map(float,z[5:]));assert len(v)==12 and all(map(math.isfinite,v)),(z,len(v));assert (e,t,k) not in aero;assert v[-1]==4.0,('status',v[-1]);aero[e,t,k]=v;strides.add(stride)
-if len(aero)!=8*28*16 or len(strides)!=1 or min(strides)<35 or errs or any(x['errors'] for x in D.values()) or any(x['state_mismatches'] or x['contact_mismatches'] for x in parity):
+if len(aero)!=8*28*16 or len(kin)!=8*28*16 or len(strides)!=1 or min(strides)<35 or errs or any(x['errors'] for x in D.values()) or any(x['state_mismatches'] or x['contact_mismatches'] for x in parity):
  (A/'integrity-failed.json').write_text(json.dumps({'parity':parity,'aero_records':len(aero),'strides':list(strides),'aero_errors':errs,'run_errors':{n:d['errors'] for n,d in D.items()}},indent=2)+'\n');raise SystemExit('Observer invalid; see integrity-failed.json')
 inputs=[];keys={}
 for e in range(8):
@@ -59,10 +61,14 @@ phase=[]
 for e in range(2,8):
  a=next(x for x in rows if x['lane']==e and x['end_step']==357);b=next(x for x in rows if x['lane']==e and x['end_step']==365)
  phase.append({'lane':e,'steps':[358,365],'aero_impulse_z_ns':b['aero_impulse_z_ns']-a['aero_impulse_z_ns'],'foot_impulse_z_ns':b['foot_impulse_z_ns']-a['foot_impulse_z_ns'],'assumed_gravity_impulse_z_ns':b['assumed_gravity_impulse_z_ns']-a['assumed_gravity_impulse_z_ns'],'com_delta_momentum_z_ns':b['com_delta_momentum_z_ns']-a['com_delta_momentum_z_ns'],'residual_ns':b['unattributed_residual_ns']-a['unattributed_residual_ns']})
+wing_transients=[]
+for e in range(2,8):
+ key=max((x for x in kin if x[0]==e),key=lambda x:max(abs(kin[x][1][8]),abs(kin[x][1][9])))
+ vmax=max(abs(kin[key][1][8]),abs(kin[key][1][9]));wing_transients.append({'lane':e,'max_substep_wing_speed_rad_s':vmax,'step':key[1],'substep':key[2],'aero_vertical_force_n':aero[key][2],'foot_normal_impulse_ns':sum(D['observer']['contact'][key][2:4]),'root_vz_m_s':kin[key][1][2]})
 force_profile=[]
 for t in range(348,376):
  v=[aero[e,t,k][2] for e in range(2,8) for k in range(16)]
  force_profile.append({'step':t,'mean_aero_vertical_force_n':sum(v)/len(v),'min_aero_vertical_force_n':min(v),'max_aero_vertical_force_n':max(v)})
-out={'scope':'Bracketed simulated aerodynamic kernel force; no biological validation. Delta of all body force slots before/after kernel, integrated using stated control dt and substeps. Gravity is assumed, not independently read from the runtime dispatch. Remaining residual can include other applied forces, dynamics and sampling/rounding.','parity':parity,'aero_records':len(aero),'body_strides':list(strides),'rows':rows,'phase_358_365':phase,'force_profile_by_step':force_profile};(A/'analysis.json').write_text(json.dumps(out,indent=2)+'\n')
+out={'scope':'Bracketed simulated aerodynamic kernel force; no biological validation. Delta of all body force slots before/after kernel, integrated using stated control dt and substeps. Gravity is assumed, not independently read from the runtime dispatch. Remaining residual can include other applied forces, dynamics and sampling/rounding.','parity':parity,'aero_records':len(aero),'body_strides':list(strides),'rows':rows,'phase_358_365':phase,'force_profile_by_step':force_profile,'wing_substep_speed_peaks':wing_transients};(A/'analysis.json').write_text(json.dumps(out,indent=2)+'\n')
 for x in rows:
  if x['lane']>=2 and x['end_step'] in (357,365,375):print(x['lane'],x['end_step'],'aero',round(x['aero_impulse_z_ns'],4),'feet',round(x['foot_impulse_z_ns'],4),'dp',round(x['com_delta_momentum_z_ns'],4),'residual',round(x['unattributed_residual_ns'],4))
