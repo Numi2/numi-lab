@@ -1,0 +1,38 @@
+{
+  "commit": "078f5d8bc93e62046e294ddf515219c696136eec",
+  "downloaded_parts": [
+    {
+      "file": "run.stderr.gz.part00",
+      "bytes": 41943040,
+      "sha256": "85999a774fe8e3491c8c4eda3a3f1888b48420a3aba45e380c17f12b45454cf7"
+    },
+    {
+      "file": "run.stderr.gz.part01",
+      "bytes": 41943040,
+      "sha256": "cbeb385a5f126b0f10d78a1aba02ec285d95e914d93d803823f9ac9fa9ebcd25"
+    },
+    {
+      "file": "run.stderr.gz.part02",
+      "bytes": 41943040,
+      "sha256": "da3b50ff8d8c0e090afc24952f0cd215bc6c742e0d5bcdeb1472c5fd51eedcce"
+    },
+    {
+      "file": "run.stderr.gz.part03",
+      "bytes": 41943040,
+      "sha256": "f79e81033c15bb8a06978dca522c02d3b8a4d4ff9d3afefc762e2e5839e80053"
+    },
+    {
+      "file": "run.stderr.gz.part04",
+      "bytes": 41943040,
+      "sha256": "f3e1013ebdb8e5918ab6fa97058d6a819299763acfbcadcaf9ebba4e73cfedb7"
+    },
+    {
+      "file": "run.stderr.gz.part05",
+      "bytes": 35504624,
+      "sha256": "c6a7094c1359cb458a54b010acb233a9cb5bb598e40a176b41f843e0cec3052e"
+    }
+  ],
+  "combined_bytes": 245219824,
+  "combined_sha256": "824fbdf2c505ae3f2edb927ec0b8e816f7a679d232e55a3cd1df46c1f7e81b3a",
+  "gzip_stream_valid": true
+}

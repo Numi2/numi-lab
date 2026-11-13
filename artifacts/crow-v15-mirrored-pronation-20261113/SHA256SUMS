@@ -20,6 +20,7 @@ e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855  ./preflight/ru
 2e000f6a8215887f9afbc8d08f3ae745548ea71660f0dbc9582fbe70b0f4182f  ./pronation-amplitude-20261126-rebound-mirrored/command.json
 fb1bf172ab1e5a3a40159c4ce84806d28c057dafe4eb5e3d9b0f9fa231bd8fc9  ./pronation-amplitude-20261126-rebound-mirrored/effort-analysis.json
 fb1bf172ab1e5a3a40159c4ce84806d28c057dafe4eb5e3d9b0f9fa231bd8fc9  ./pronation-amplitude-20261126-rebound-mirrored/effort-analysis.log
+4e25c919f768932f117849375333040e5b45923de6aad6e125af9f6ef8f699db  ./pronation-amplitude-20261126-rebound-mirrored/independent-github-download-20261126.json
 623de300ec58968f96751ecae776bfcbf35947c0b9f7daf2c6f05623aec07001  ./pronation-amplitude-20261126-rebound-mirrored/inputs.json
 22f447561c36141b6e5dd4df36107c5553ec935abe44a549647f25e86bc09067  ./pronation-amplitude-20261126-rebound-mirrored/matched-analysis.json
 558f9fdc5baf6d07f577517926bc785cf24a923966c8475376e610a4b022836f  ./pronation-amplitude-20261126-rebound-mirrored/matched-analysis.log
@@ -36,6 +37,7 @@ e6f0d0eb7f7afc356b1fca7deb5eeecf64da0a1306d251cc5c9d38255d022f74  ./pronation-am
 cf76fca1dded6ac67d9c3cbf5f004b5bcfffc46eb752fb5ee64239bc3c9f8310  ./pronation-amplitude-20261126-rebound-mirrored/trace.tsv.gz
 aa014be1b72c975418048150181362a61fae911fc55b38ef4b601493cbdbfa99  ./rebind.py
 83db8d04625fd0646985d077493fa733df5ee806c1464996ccb7e937de8caa2e  ./restore-stderr.py
+0dfa7fadbfbd93c4b90b4f2b64ee5ddff5f9b62c9968f6c56e0091cfda610f0c  ./retirement-manifest-20261126.json
 0193fa43376769d52b3bc89d497262d238f09f7eb5d673352c6746b3c4b93070  ./route-candidate.policypack
 4b7e3b664460942368cfd578771ec0f46c45f9c57133a76d590450505f8952de  ./run.py
 170f3240e6841da9fb1b0a2df71e8b7294384aec133313af0facf32c97e87546  ./variant.patch

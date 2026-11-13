@@ -1,0 +1,59 @@
+{
+  "purpose": "retire independently restored redundant split copies; original retained for matched phase comparisons",
+  "files": [
+    {
+      "absolute_path": "/Users/n/Developer/numi-crow-rl-20261107/artifacts/crow-v15-mirrored-pronation-20261113/pronation-amplitude-20261126-rebound-mirrored/run.stderr.gz.part00",
+      "device": 16777232,
+      "inode": 17098314,
+      "links": 1,
+      "bytes": 41943040,
+      "sha256": "85999a774fe8e3491c8c4eda3a3f1888b48420a3aba45e380c17f12b45454cf7",
+      "lsof_exit": 1
+    },
+    {
+      "absolute_path": "/Users/n/Developer/numi-crow-rl-20261107/artifacts/crow-v15-mirrored-pronation-20261113/pronation-amplitude-20261126-rebound-mirrored/run.stderr.gz.part01",
+      "device": 16777232,
+      "inode": 17098315,
+      "links": 1,
+      "bytes": 41943040,
+      "sha256": "cbeb385a5f126b0f10d78a1aba02ec285d95e914d93d803823f9ac9fa9ebcd25",
+      "lsof_exit": 1
+    },
+    {
+      "absolute_path": "/Users/n/Developer/numi-crow-rl-20261107/artifacts/crow-v15-mirrored-pronation-20261113/pronation-amplitude-20261126-rebound-mirrored/run.stderr.gz.part02",
+      "device": 16777232,
+      "inode": 17098316,
+      "links": 1,
+      "bytes": 41943040,
+      "sha256": "da3b50ff8d8c0e090afc24952f0cd215bc6c742e0d5bcdeb1472c5fd51eedcce",
+      "lsof_exit": 1
+    },
+    {
+      "absolute_path": "/Users/n/Developer/numi-crow-rl-20261107/artifacts/crow-v15-mirrored-pronation-20261113/pronation-amplitude-20261126-rebound-mirrored/run.stderr.gz.part03",
+      "device": 16777232,
+      "inode": 17098317,
+      "links": 1,
+      "bytes": 41943040,
+      "sha256": "f79e81033c15bb8a06978dca522c02d3b8a4d4ff9d3afefc762e2e5839e80053",
+      "lsof_exit": 1
+    },
+    {
+      "absolute_path": "/Users/n/Developer/numi-crow-rl-20261107/artifacts/crow-v15-mirrored-pronation-20261113/pronation-amplitude-20261126-rebound-mirrored/run.stderr.gz.part04",
+      "device": 16777232,
+      "inode": 17098318,
+      "links": 1,
+      "bytes": 41943040,
+      "sha256": "f3e1013ebdb8e5918ab6fa97058d6a819299763acfbcadcaf9ebba4e73cfedb7",
+      "lsof_exit": 1
+    },
+    {
+      "absolute_path": "/Users/n/Developer/numi-crow-rl-20261107/artifacts/crow-v15-mirrored-pronation-20261113/pronation-amplitude-20261126-rebound-mirrored/run.stderr.gz.part05",
+      "device": 16777232,
+      "inode": 17098319,
+      "links": 1,
+      "bytes": 35504624,
+      "sha256": "c6a7094c1359cb458a54b010acb233a9cb5bb598e40a176b41f843e0cec3052e",
+      "lsof_exit": 1
+    }
+  ]
+}
