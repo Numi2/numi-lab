@@ -1,0 +1,2954 @@
+{
+  "rows": [
+    {
+      "lane": 0,
+      "step": 335,
+      "left_target": 1.02994859,
+      "right_target": 1.02994859,
+      "left_q": 1.03130698,
+      "right_q": 1.03131831
+    },
+    {
+      "lane": 0,
+      "step": 336,
+      "left_target": 1.02998102,
+      "right_target": 1.02998102,
+      "left_q": 1.03135097,
+      "right_q": 1.03136241
+    },
+    {
+      "lane": 0,
+      "step": 337,
+      "left_target": 1.02999306,
+      "right_target": 1.02999306,
+      "left_q": 1.03136802,
+      "right_q": 1.03137994
+    },
+    {
+      "lane": 0,
+      "step": 338,
+      "left_target": 1.02999735,
+      "right_target": 1.02999735,
+      "left_q": 1.03137648,
+      "right_q": 1.03137183
+    },
+    {
+      "lane": 0,
+      "step": 339,
+      "left_target": 1.02999902,
+      "right_target": 1.02999902,
+      "left_q": 1.03137624,
+      "right_q": 1.0313673
+    },
+    {
+      "lane": 0,
+      "step": 340,
+      "left_target": 1.02999961,
+      "right_target": 1.02999961,
+      "left_q": 1.03137589,
+      "right_q": 1.03136802
+    },
+    {
+      "lane": 0,
+      "step": 341,
+      "left_target": 1.02999985,
+      "right_target": 1.02999985,
+      "left_q": 1.03137767,
+      "right_q": 1.03136683
+    },
+    {
+      "lane": 0,
+      "step": 342,
+      "left_target": 1.02999997,
+      "right_target": 1.02999997,
+      "left_q": 1.03137815,
+      "right_q": 1.03136683
+    },
+    {
+      "lane": 0,
+      "step": 343,
+      "left_target": 1.02999997,
+      "right_target": 1.02999997,
+      "left_q": 1.03137851,
+      "right_q": 1.03136683
+    },
+    {
+      "lane": 0,
+      "step": 344,
+      "left_target": 1.02999997,
+      "right_target": 1.02999997,
+      "left_q": 1.03137851,
+      "right_q": 1.03136683
+    },
+    {
+      "lane": 0,
+      "step": 345,
+      "left_target": 1.02999997,
+      "right_target": 1.02999997,
+      "left_q": 1.03137708,
+      "right_q": 1.0313766
+    },
+    {
+      "lane": 0,
+      "step": 346,
+      "left_target": 1.02999997,
+      "right_target": 1.02999997,
+      "left_q": 1.03137779,
+      "right_q": 1.03139091
+    },
+    {
+      "lane": 0,
+      "step": 347,
+      "left_target": 1.02999997,
+      "right_target": 1.02999997,
+      "left_q": 1.03137994,
+      "right_q": 1.03139377
+    },
+    {
+      "lane": 0,
+      "step": 348,
+      "left_target": 1.02999997,
+      "right_target": 1.02999997,
+      "left_q": 1.0313803,
+      "right_q": 1.03139436
+    },
+    {
+      "lane": 0,
+      "step": 349,
+      "left_target": 1.02999997,
+      "right_target": 1.02999997,
+      "left_q": 1.0313803,
+      "right_q": 1.03139508
+    },
+    {
+      "lane": 0,
+      "step": 350,
+      "left_target": 1.02999997,
+      "right_target": 1.02999997,
+      "left_q": 1.03137374,
+      "right_q": 1.0313971
+    },
+    {
+      "lane": 0,
+      "step": 351,
+      "left_target": 0.995369196,
+      "right_target": 0.995369196,
+      "left_q": 1.00045681,
+      "right_q": 1.0005821
+    },
+    {
+      "lane": 0,
+      "step": 352,
+      "left_target": 0.891329765,
+      "right_target": 0.891329765,
+      "left_q": 0.912009597,
+      "right_q": 0.912103593
+    },
+    {
+      "lane": 0,
+      "step": 353,
+      "left_target": 0.723977327,
+      "right_target": 0.723977327,
+      "left_q": 0.761716008,
+      "right_q": 0.762239873
+    },
+    {
+      "lane": 0,
+      "step": 354,
+      "left_target": 0.514443696,
+      "right_target": 0.514443696,
+      "left_q": 0.563254237,
+      "right_q": 0.563494742
+    },
+    {
+      "lane": 0,
+      "step": 355,
+      "left_target": 0.289392531,
+      "right_target": 0.289392531,
+      "left_q": 0.344612986,
+      "right_q": 0.343591899
+    },
+    {
+      "lane": 0,
+      "step": 356,
+      "left_target": 0.0775223076,
+      "right_target": 0.0775223076,
+      "left_q": 0.127688318,
+      "right_q": 0.127815008
+    },
+    {
+      "lane": 0,
+      "step": 357,
+      "left_target": -0.0917198658,
+      "right_target": -0.0917198658,
+      "left_q": -0.0573188066,
+      "right_q": -0.057361193
+    },
+    {
+      "lane": 0,
+      "step": 358,
+      "left_target": -0.100000001,
+      "right_target": -0.100000001,
+      "left_q": -0.0966313034,
+      "right_q": -0.0966317579
+    },
+    {
+      "lane": 0,
+      "step": 359,
+      "left_target": -0.100000001,
+      "right_target": -0.100000001,
+      "left_q": -0.100000001,
+      "right_q": -0.100000001
+    },
+    {
+      "lane": 0,
+      "step": 360,
+      "left_target": -0.100000001,
+      "right_target": -0.100000001,
+      "left_q": -0.100000001,
+      "right_q": -0.0999993831
+    },
+    {
+      "lane": 0,
+      "step": 361,
+      "left_target": -0.100000001,
+      "right_target": -0.100000001,
+      "left_q": -0.0999065712,
+      "right_q": -0.0998908579
+    },
+    {
+      "lane": 0,
+      "step": 362,
+      "left_target": -0.100000001,
+      "right_target": -0.100000001,
+      "left_q": -0.0998255238,
+      "right_q": -0.0998244509
+    },
+    {
+      "lane": 0,
+      "step": 363,
+      "left_target": -0.100000001,
+      "right_target": -0.100000001,
+      "left_q": -0.0997800529,
+      "right_q": -0.099798277
+    },
+    {
+      "lane": 0,
+      "step": 364,
+      "left_target": -0.100000001,
+      "right_target": -0.100000001,
+      "left_q": -0.0997632816,
+      "right_q": -0.0997935683
+    },
+    {
+      "lane": 0,
+      "step": 365,
+      "left_target": -0.100000001,
+      "right_target": -0.100000001,
+      "left_q": -0.0997598469,
+      "right_q": -0.0997950137
+    },
+    {
+      "lane": 0,
+      "step": 366,
+      "left_target": -0.100000001,
+      "right_target": -0.100000001,
+      "left_q": -0.0997619331,
+      "right_q": -0.0997976139
+    },
+    {
+      "lane": 0,
+      "step": 367,
+      "left_target": -0.100000001,
+      "right_target": -0.100000001,
+      "left_q": -0.0997660458,
+      "right_q": -0.0998002887
+    },
+    {
+      "lane": 0,
+      "step": 368,
+      "left_target": -0.100000001,
+      "right_target": -0.100000001,
+      "left_q": -0.0997707397,
+      "right_q": -0.0998029932
+    },
+    {
+      "lane": 0,
+      "step": 369,
+      "left_target": -0.100000001,
+      "right_target": -0.100000001,
+      "left_q": -0.0997753069,
+      "right_q": -0.0998059958
+    },
+    {
+      "lane": 0,
+      "step": 370,
+      "left_target": -0.100000001,
+      "right_target": -0.100000001,
+      "left_q": -0.0997794494,
+      "right_q": -0.0998095125
+    },
+    {
+      "lane": 0,
+      "step": 371,
+      "left_target": -0.100000001,
+      "right_target": -0.100000001,
+      "left_q": -0.0997831374,
+      "right_q": -0.0998135656
+    },
+    {
+      "lane": 0,
+      "step": 372,
+      "left_target": -0.100000001,
+      "right_target": -0.100000001,
+      "left_q": -0.0997864604,
+      "right_q": -0.0998181254
+    },
+    {
+      "lane": 0,
+      "step": 373,
+      "left_target": 0.172199592,
+      "right_target": 0.172199592,
+      "left_q": 0.0263953097,
+      "right_q": 0.026346067
+    },
+    {
+      "lane": 0,
+      "step": 374,
+      "left_target": 0.325678736,
+      "right_target": 0.325678736,
+      "left_q": 0.27163291,
+      "right_q": 0.271614313
+    },
+    {
+      "lane": 0,
+      "step": 375,
+      "left_target": 0.325678736,
+      "right_target": 0.325678736,
+      "left_q": 0.31983155,
+      "right_q": 0.319828689
+    },
+    {
+      "lane": 0,
+      "step": 376,
+      "left_target": 0.325678736,
+      "right_target": 0.325678736,
+      "left_q": 0.326923728,
+      "right_q": 0.326992393
+    },
+    {
+      "lane": 0,
+      "step": 377,
+      "left_target": 0.382140547,
+      "right_target": 0.382140547,
+      "left_q": 0.375156641,
+      "right_q": 0.375193149
+    },
+    {
+      "lane": 0,
+      "step": 378,
+      "left_target": 0.402911663,
+      "right_target": 0.402911663,
+      "left_q": 0.401730448,
+      "right_q": 0.401821136
+    },
+    {
+      "lane": 0,
+      "step": 379,
+      "left_target": 0.410552979,
+      "right_target": 0.410552979,
+      "left_q": 0.411085606,
+      "right_q": 0.4112297
+    },
+    {
+      "lane": 0,
+      "step": 380,
+      "left_target": 0.413364023,
+      "right_target": 0.413364023,
+      "left_q": 0.414248675,
+      "right_q": 0.414401323
+    },
+    {
+      "lane": 1,
+      "step": 335,
+      "left_target": 1.02994859,
+      "right_target": 1.02994859,
+      "left_q": 1.03127778,
+      "right_q": 1.03134918
+    },
+    {
+      "lane": 1,
+      "step": 336,
+      "left_target": 1.02998102,
+      "right_target": 1.02998102,
+      "left_q": 1.03132558,
+      "right_q": 1.03138947
+    },
+    {
+      "lane": 1,
+      "step": 337,
+      "left_target": 1.02999306,
+      "right_target": 1.02999306,
+      "left_q": 1.0313437,
+      "right_q": 1.03140604
+    },
+    {
+      "lane": 1,
+      "step": 338,
+      "left_target": 1.02999735,
+      "right_target": 1.02999735,
+      "left_q": 1.03135657,
+      "right_q": 1.03139412
+    },
+    {
+      "lane": 1,
+      "step": 339,
+      "left_target": 1.02999902,
+      "right_target": 1.02999902,
+      "left_q": 1.03135681,
+      "right_q": 1.031389
+    },
+    {
+      "lane": 1,
+      "step": 340,
+      "left_target": 1.02999961,
+      "right_target": 1.02999961,
+      "left_q": 1.03135729,
+      "right_q": 1.03138852
+    },
+    {
+      "lane": 1,
+      "step": 341,
+      "left_target": 1.02999985,
+      "right_target": 1.02999985,
+      "left_q": 1.03135967,
+      "right_q": 1.03138673
+    },
+    {
+      "lane": 1,
+      "step": 342,
+      "left_target": 1.02999997,
+      "right_target": 1.02999997,
+      "left_q": 1.0313617,
+      "right_q": 1.03138566
+    },
+    {
+      "lane": 1,
+      "step": 343,
+      "left_target": 1.02999997,
+      "right_target": 1.02999997,
+      "left_q": 1.03136241,
+      "right_q": 1.03138542
+    },
+    {
+      "lane": 1,
+      "step": 344,
+      "left_target": 1.02999997,
+      "right_target": 1.02999997,
+      "left_q": 1.03136253,
+      "right_q": 1.03138542
+    },
+    {
+      "lane": 1,
+      "step": 345,
+      "left_target": 1.02999997,
+      "right_target": 1.02999997,
+      "left_q": 1.03136134,
+      "right_q": 1.03139472
+    },
+    {
+      "lane": 1,
+      "step": 346,
+      "left_target": 1.02999997,
+      "right_target": 1.02999997,
+      "left_q": 1.03136075,
+      "right_q": 1.03141057
+    },
+    {
+      "lane": 1,
+      "step": 347,
+      "left_target": 1.02999997,
+      "right_target": 1.02999997,
+      "left_q": 1.03136456,
+      "right_q": 1.03141057
+    },
+    {
+      "lane": 1,
+      "step": 348,
+      "left_target": 1.02999997,
+      "right_target": 1.02999997,
+      "left_q": 1.03136539,
+      "right_q": 1.03141212
+    },
+    {
+      "lane": 1,
+      "step": 349,
+      "left_target": 1.02999997,
+      "right_target": 1.02999997,
+      "left_q": 1.03136551,
+      "right_q": 1.03141212
+    },
+    {
+      "lane": 1,
+      "step": 350,
+      "left_target": 1.02999997,
+      "right_target": 1.02999997,
+      "left_q": 1.03136027,
+      "right_q": 1.0314126
+    },
+    {
+      "lane": 1,
+      "step": 351,
+      "left_target": 0.995369196,
+      "right_target": 0.995369196,
+      "left_q": 1.00046885,
+      "right_q": 1.00058937
+    },
+    {
+      "lane": 1,
+      "step": 352,
+      "left_target": 0.891329765,
+      "right_target": 0.891329765,
+      "left_q": 0.912058115,
+      "right_q": 0.912032783
+    },
+    {
+      "lane": 1,
+      "step": 353,
+      "left_target": 0.723977327,
+      "right_target": 0.723977327,
+      "left_q": 0.762426198,
+      "right_q": 0.762414575
+    },
+    {
+      "lane": 1,
+      "step": 354,
+      "left_target": 0.514443696,
+      "right_target": 0.514443696,
+      "left_q": 0.563352406,
+      "right_q": 0.563362777
+    },
+    {
+      "lane": 1,
+      "step": 355,
+      "left_target": 0.289392531,
+      "right_target": 0.289392531,
+      "left_q": 0.346320361,
+      "right_q": 0.344695807
+    },
+    {
+      "lane": 1,
+      "step": 356,
+      "left_target": 0.0775223076,
+      "right_target": 0.0775223076,
+      "left_q": 0.128518716,
+      "right_q": 0.127524331
+    },
+    {
+      "lane": 1,
+      "step": 357,
+      "left_target": -0.0917198658,
+      "right_target": -0.0917198658,
+      "left_q": -0.0574199818,
+      "right_q": -0.0575030521
+    },
+    {
+      "lane": 1,
+      "step": 358,
+      "left_target": -0.100000001,
+      "right_target": -0.100000001,
+      "left_q": -0.0966360271,
+      "right_q": -0.0966463089
+    },
+    {
+      "lane": 1,
+      "step": 359,
+      "left_target": -0.100000001,
+      "right_target": -0.100000001,
+      "left_q": -0.100000001,
+      "right_q": -0.100000001
+    },
+    {
+      "lane": 1,
+      "step": 360,
+      "left_target": -0.100000001,
+      "right_target": -0.100000001,
+      "left_q": -0.100000001,
+      "right_q": -0.0999961719
+    },
+    {
+      "lane": 1,
+      "step": 361,
+      "left_target": -0.100000001,
+      "right_target": -0.100000001,
+      "left_q": -0.0998938829,
+      "right_q": -0.0998943895
+    },
+    {
+      "lane": 1,
+      "step": 362,
+      "left_target": -0.100000001,
+      "right_target": -0.100000001,
+      "left_q": -0.0998080969,
+      "right_q": -0.0998280421
+    },
+    {
+      "lane": 1,
+      "step": 363,
+      "left_target": -0.100000001,
+      "right_target": -0.100000001,
+      "left_q": -0.0997628942,
+      "right_q": -0.0998012125
+    },
+    {
+      "lane": 1,
+      "step": 364,
+      "left_target": -0.100000001,
+      "right_target": -0.100000001,
+      "left_q": -0.0997489467,
+      "right_q": -0.0997933298
+    },
+    {
+      "lane": 1,
+      "step": 365,
+      "left_target": -0.100000001,
+      "right_target": -0.100000001,
+      "left_q": -0.0997495726,
+      "right_q": -0.0997902825
+    },
+    {
+      "lane": 1,
+      "step": 366,
+      "left_target": -0.100000001,
+      "right_target": -0.100000001,
+      "left_q": -0.0997554734,
+      "right_q": -0.0997885987
+    },
+    {
+      "lane": 1,
+      "step": 367,
+      "left_target": -0.100000001,
+      "right_target": -0.100000001,
+      "left_q": -0.0997623056,
+      "right_q": -0.0997881368
+    },
+    {
+      "lane": 1,
+      "step": 368,
+      "left_target": -0.100000001,
+      "right_target": -0.100000001,
+      "left_q": -0.0997683853,
+      "right_q": -0.0997890308
+    },
+    {
+      "lane": 1,
+      "step": 369,
+      "left_target": -0.100000001,
+      "right_target": -0.100000001,
+      "left_q": -0.099773258,
+      "right_q": -0.0997913256
+    },
+    {
+      "lane": 1,
+      "step": 370,
+      "left_target": -0.100000001,
+      "right_target": -0.100000001,
+      "left_q": -0.0997769311,
+      "right_q": -0.0997949317
+    },
+    {
+      "lane": 1,
+      "step": 371,
+      "left_target": -0.100000001,
+      "right_target": -0.100000001,
+      "left_q": -0.0997796729,
+      "right_q": -0.0997995734
+    },
+    {
+      "lane": 1,
+      "step": 372,
+      "left_target": -0.100000001,
+      "right_target": -0.100000001,
+      "left_q": -0.0997818634,
+      "right_q": -0.0998048633
+    },
+    {
+      "lane": 1,
+      "step": 373,
+      "left_target": 0.172199592,
+      "right_target": 0.172199592,
+      "left_q": 0.0267028697,
+      "right_q": 0.0266560204
+    },
+    {
+      "lane": 1,
+      "step": 374,
+      "left_target": 0.325678736,
+      "right_target": 0.325678736,
+      "left_q": 0.271789253,
+      "right_q": 0.271770716
+    },
+    {
+      "lane": 1,
+      "step": 375,
+      "left_target": 0.325678736,
+      "right_target": 0.325678736,
+      "left_q": 0.319855362,
+      "right_q": 0.319851995
+    },
+    {
+      "lane": 1,
+      "step": 376,
+      "left_target": 0.325678736,
+      "right_target": 0.325678736,
+      "left_q": 0.326878905,
+      "right_q": 0.32692939
+    },
+    {
+      "lane": 1,
+      "step": 377,
+      "left_target": 0.382140547,
+      "right_target": 0.382140547,
+      "left_q": 0.375399858,
+      "right_q": 0.375455856
+    },
+    {
+      "lane": 1,
+      "step": 378,
+      "left_target": 0.402911663,
+      "right_target": 0.402911663,
+      "left_q": 0.401839823,
+      "right_q": 0.401930332
+    },
+    {
+      "lane": 1,
+      "step": 379,
+      "left_target": 0.410552979,
+      "right_target": 0.410552979,
+      "left_q": 0.411090612,
+      "right_q": 0.411203176
+    },
+    {
+      "lane": 1,
+      "step": 380,
+      "left_target": 0.413364023,
+      "right_target": 0.413364023,
+      "left_q": 0.414270073,
+      "right_q": 0.414373249
+    },
+    {
+      "lane": 2,
+      "step": 335,
+      "left_target": 1.02994859,
+      "right_target": 1.02994859,
+      "left_q": 1.03127825,
+      "right_q": 1.03134561
+    },
+    {
+      "lane": 2,
+      "step": 336,
+      "left_target": 1.02998102,
+      "right_target": 1.02998102,
+      "left_q": 1.03132164,
+      "right_q": 1.03139102
+    },
+    {
+      "lane": 2,
+      "step": 337,
+      "left_target": 1.02999306,
+      "right_target": 1.02999306,
+      "left_q": 1.03133821,
+      "right_q": 1.0314095
+    },
+    {
+      "lane": 2,
+      "step": 338,
+      "left_target": 1.02999735,
+      "right_target": 1.02999735,
+      "left_q": 1.03134751,
+      "right_q": 1.03140008
+    },
+    {
+      "lane": 2,
+      "step": 339,
+      "left_target": 1.02999902,
+      "right_target": 1.02999902,
+      "left_q": 1.03135145,
+      "right_q": 1.03139246
+    },
+    {
+      "lane": 2,
+      "step": 340,
+      "left_target": 1.02999961,
+      "right_target": 1.02999961,
+      "left_q": 1.03135157,
+      "right_q": 1.0313921
+    },
+    {
+      "lane": 2,
+      "step": 341,
+      "left_target": 1.02999985,
+      "right_target": 1.02999985,
+      "left_q": 1.03135347,
+      "right_q": 1.03139067
+    },
+    {
+      "lane": 2,
+      "step": 342,
+      "left_target": 1.02999997,
+      "right_target": 1.02999997,
+      "left_q": 1.03135431,
+      "right_q": 1.03139067
+    },
+    {
+      "lane": 2,
+      "step": 343,
+      "left_target": 1.02999997,
+      "right_target": 1.02999997,
+      "left_q": 1.03135502,
+      "right_q": 1.03139031
+    },
+    {
+      "lane": 2,
+      "step": 344,
+      "left_target": 1.02999997,
+      "right_target": 1.02999997,
+      "left_q": 1.03135514,
+      "right_q": 1.03139031
+    },
+    {
+      "lane": 2,
+      "step": 345,
+      "left_target": 1.02999997,
+      "right_target": 1.02999997,
+      "left_q": 1.03135395,
+      "right_q": 1.03139961
+    },
+    {
+      "lane": 2,
+      "step": 346,
+      "left_target": 1.02999997,
+      "right_target": 1.02999997,
+      "left_q": 1.03135455,
+      "right_q": 1.03141475
+    },
+    {
+      "lane": 2,
+      "step": 347,
+      "left_target": 1.02999997,
+      "right_target": 1.02999997,
+      "left_q": 1.03135729,
+      "right_q": 1.03141546
+    },
+    {
+      "lane": 2,
+      "step": 348,
+      "left_target": 1.02999997,
+      "right_target": 1.02999997,
+      "left_q": 1.03135896,
+      "right_q": 1.03141594
+    },
+    {
+      "lane": 2,
+      "step": 349,
+      "left_target": 1.02999997,
+      "right_target": 1.02999997,
+      "left_q": 1.03135896,
+      "right_q": 1.03141606
+    },
+    {
+      "lane": 2,
+      "step": 350,
+      "left_target": 1.02999997,
+      "right_target": 1.02999997,
+      "left_q": 1.03135371,
+      "right_q": 1.03141642
+    },
+    {
+      "lane": 2,
+      "step": 351,
+      "left_target": 0.995369196,
+      "right_target": 0.995369196,
+      "left_q": 1.00044334,
+      "right_q": 1.00059056
+    },
+    {
+      "lane": 2,
+      "step": 352,
+      "left_target": 0.891329765,
+      "right_target": 0.891329765,
+      "left_q": 0.912061214,
+      "right_q": 0.91212225
+    },
+    {
+      "lane": 2,
+      "step": 353,
+      "left_target": 0.723977327,
+      "right_target": 0.723977327,
+      "left_q": 0.761627138,
+      "right_q": 0.761784792
+    },
+    {
+      "lane": 2,
+      "step": 354,
+      "left_target": 0.514443696,
+      "right_target": 0.514443696,
+      "left_q": 0.563371956,
+      "right_q": 0.563557267
+    },
+    {
+      "lane": 2,
+      "step": 355,
+      "left_target": 0.289392531,
+      "right_target": 0.289392531,
+      "left_q": 0.344598204,
+      "right_q": 0.344796002
+    },
+    {
+      "lane": 2,
+      "step": 356,
+      "left_target": 0.0775223076,
+      "right_target": 0.0775223076,
+      "left_q": 0.128753811,
+      "right_q": 0.128662407
+    },
+    {
+      "lane": 2,
+      "step": 357,
+      "left_target": -0.0917198658,
+      "right_target": -0.0917198658,
+      "left_q": -0.0574422553,
+      "right_q": -0.0574901737
+    },
+    {
+      "lane": 2,
+      "step": 358,
+      "left_target": -0.100000001,
+      "right_target": -0.100000001,
+      "left_q": -0.0967158377,
+      "right_q": -0.0966940746
+    },
+    {
+      "lane": 2,
+      "step": 359,
+      "left_target": -0.100000001,
+      "right_target": -0.100000001,
+      "left_q": -0.100000001,
+      "right_q": -0.100000001
+    },
+    {
+      "lane": 2,
+      "step": 360,
+      "left_target": -0.100000001,
+      "right_target": -0.100000001,
+      "left_q": -0.100000001,
+      "right_q": -0.100000001
+    },
+    {
+      "lane": 2,
+      "step": 361,
+      "left_target": -0.100000001,
+      "right_target": -0.100000001,
+      "left_q": -0.0999033004,
+      "right_q": -0.0999035761
+    },
+    {
+      "lane": 2,
+      "step": 362,
+      "left_target": -0.100000001,
+      "right_target": -0.100000001,
+      "left_q": -0.0998231247,
+      "right_q": -0.0998326689
+    },
+    {
+      "lane": 2,
+      "step": 363,
+      "left_target": -0.100000001,
+      "right_target": -0.100000001,
+      "left_q": -0.0997806042,
+      "right_q": -0.0998001918
+    },
+    {
+      "lane": 2,
+      "step": 364,
+      "left_target": -0.100000001,
+      "right_target": -0.100000001,
+      "left_q": -0.0997652113,
+      "right_q": -0.0997925103
+    },
+    {
+      "lane": 2,
+      "step": 365,
+      "left_target": -0.100000001,
+      "right_target": -0.100000001,
+      "left_q": -0.0997611955,
+      "right_q": -0.0997938365
+    },
+    {
+      "lane": 2,
+      "step": 366,
+      "left_target": -0.100000001,
+      "right_target": -0.100000001,
+      "left_q": -0.0997616127,
+      "right_q": -0.0997978225
+    },
+    {
+      "lane": 2,
+      "step": 367,
+      "left_target": -0.100000001,
+      "right_target": -0.100000001,
+      "left_q": -0.0997638181,
+      "right_q": -0.0998023003
+    },
+    {
+      "lane": 2,
+      "step": 368,
+      "left_target": -0.100000001,
+      "right_target": -0.100000001,
+      "left_q": -0.0997668579,
+      "right_q": -0.0998066366
+    },
+    {
+      "lane": 2,
+      "step": 369,
+      "left_target": -0.100000001,
+      "right_target": -0.100000001,
+      "left_q": -0.0997702777,
+      "right_q": -0.0998107791
+    },
+    {
+      "lane": 2,
+      "step": 370,
+      "left_target": -0.100000001,
+      "right_target": -0.100000001,
+      "left_q": -0.0997738838,
+      "right_q": -0.0998148099
+    },
+    {
+      "lane": 2,
+      "step": 371,
+      "left_target": -0.100000001,
+      "right_target": -0.100000001,
+      "left_q": -0.0997775495,
+      "right_q": -0.0998188779
+    },
+    {
+      "lane": 2,
+      "step": 372,
+      "left_target": -0.100000001,
+      "right_target": -0.100000001,
+      "left_q": -0.0997812077,
+      "right_q": -0.0998231545
+    },
+    {
+      "lane": 2,
+      "step": 373,
+      "left_target": 0.172199592,
+      "right_target": 0.172199592,
+      "left_q": 0.0264111049,
+      "right_q": 0.0263343584
+    },
+    {
+      "lane": 2,
+      "step": 374,
+      "left_target": 0.325678736,
+      "right_target": 0.325678736,
+      "left_q": 0.271641284,
+      "right_q": 0.271605849
+    },
+    {
+      "lane": 2,
+      "step": 375,
+      "left_target": 0.325678736,
+      "right_target": 0.325678736,
+      "left_q": 0.319832802,
+      "right_q": 0.319827408
+    },
+    {
+      "lane": 2,
+      "step": 376,
+      "left_target": 0.325678736,
+      "right_target": 0.325678736,
+      "left_q": 0.326922506,
+      "right_q": 0.326987445
+    },
+    {
+      "lane": 2,
+      "step": 377,
+      "left_target": 0.382140547,
+      "right_target": 0.382140547,
+      "left_q": 0.3751131,
+      "right_q": 0.375152856
+    },
+    {
+      "lane": 2,
+      "step": 378,
+      "left_target": 0.402911663,
+      "right_target": 0.402911663,
+      "left_q": 0.40174824,
+      "right_q": 0.401833892
+    },
+    {
+      "lane": 2,
+      "step": 379,
+      "left_target": 0.410552979,
+      "right_target": 0.410552979,
+      "left_q": 0.411097884,
+      "right_q": 0.411237687
+    },
+    {
+      "lane": 2,
+      "step": 380,
+      "left_target": 0.413364023,
+      "right_target": 0.413364023,
+      "left_q": 0.41425547,
+      "right_q": 0.414405018
+    },
+    {
+      "lane": 3,
+      "step": 335,
+      "left_target": 1.02994859,
+      "right_target": 1.02994859,
+      "left_q": 1.03128791,
+      "right_q": 1.03133643
+    },
+    {
+      "lane": 3,
+      "step": 336,
+      "left_target": 1.02998102,
+      "right_target": 1.02998102,
+      "left_q": 1.03133368,
+      "right_q": 1.03137946
+    },
+    {
+      "lane": 3,
+      "step": 337,
+      "left_target": 1.02999306,
+      "right_target": 1.02999306,
+      "left_q": 1.03135216,
+      "right_q": 1.03139603
+    },
+    {
+      "lane": 3,
+      "step": 338,
+      "left_target": 1.02999735,
+      "right_target": 1.02999735,
+      "left_q": 1.03136218,
+      "right_q": 1.03138626
+    },
+    {
+      "lane": 3,
+      "step": 339,
+      "left_target": 1.02999902,
+      "right_target": 1.02999902,
+      "left_q": 1.03136444,
+      "right_q": 1.03137982
+    },
+    {
+      "lane": 3,
+      "step": 340,
+      "left_target": 1.02999961,
+      "right_target": 1.02999961,
+      "left_q": 1.03136349,
+      "right_q": 1.03138089
+    },
+    {
+      "lane": 3,
+      "step": 341,
+      "left_target": 1.02999985,
+      "right_target": 1.02999985,
+      "left_q": 1.03136408,
+      "right_q": 1.03138089
+    },
+    {
+      "lane": 3,
+      "step": 342,
+      "left_target": 1.02999997,
+      "right_target": 1.02999997,
+      "left_q": 1.03136444,
+      "right_q": 1.03138089
+    },
+    {
+      "lane": 3,
+      "step": 343,
+      "left_target": 1.02999997,
+      "right_target": 1.02999997,
+      "left_q": 1.0313648,
+      "right_q": 1.03138089
+    },
+    {
+      "lane": 3,
+      "step": 344,
+      "left_target": 1.02999997,
+      "right_target": 1.02999997,
+      "left_q": 1.03136492,
+      "right_q": 1.03138089
+    },
+    {
+      "lane": 3,
+      "step": 345,
+      "left_target": 1.02999997,
+      "right_target": 1.02999997,
+      "left_q": 1.03136361,
+      "right_q": 1.03139067
+    },
+    {
+      "lane": 3,
+      "step": 346,
+      "left_target": 1.02999997,
+      "right_target": 1.02999997,
+      "left_q": 1.03136373,
+      "right_q": 1.0314064
+    },
+    {
+      "lane": 3,
+      "step": 347,
+      "left_target": 1.02999997,
+      "right_target": 1.02999997,
+      "left_q": 1.03136635,
+      "right_q": 1.03140759
+    },
+    {
+      "lane": 3,
+      "step": 348,
+      "left_target": 1.02999997,
+      "right_target": 1.02999997,
+      "left_q": 1.03136766,
+      "right_q": 1.03140795
+    },
+    {
+      "lane": 3,
+      "step": 349,
+      "left_target": 1.02999997,
+      "right_target": 1.02999997,
+      "left_q": 1.0313679,
+      "right_q": 1.03140795
+    },
+    {
+      "lane": 3,
+      "step": 350,
+      "left_target": 1.02999997,
+      "right_target": 1.02999997,
+      "left_q": 1.03136182,
+      "right_q": 1.03140914
+    },
+    {
+      "lane": 3,
+      "step": 351,
+      "left_target": 0.995369196,
+      "right_target": 0.995369196,
+      "left_q": 1.00044799,
+      "right_q": 1.0005877
+    },
+    {
+      "lane": 3,
+      "step": 352,
+      "left_target": 0.891329765,
+      "right_target": 0.891329765,
+      "left_q": 0.912051022,
+      "right_q": 0.912123919
+    },
+    {
+      "lane": 3,
+      "step": 353,
+      "left_target": 0.723977327,
+      "right_target": 0.723977327,
+      "left_q": 0.761575103,
+      "right_q": 0.761754036
+    },
+    {
+      "lane": 3,
+      "step": 354,
+      "left_target": 0.514443696,
+      "right_target": 0.514443696,
+      "left_q": 0.563393295,
+      "right_q": 0.563595653
+    },
+    {
+      "lane": 3,
+      "step": 355,
+      "left_target": 0.289392531,
+      "right_target": 0.289392531,
+      "left_q": 0.34433493,
+      "right_q": 0.344510078
+    },
+    {
+      "lane": 3,
+      "step": 356,
+      "left_target": 0.0775223076,
+      "right_target": 0.0775223076,
+      "left_q": 0.126932874,
+      "right_q": 0.128265575
+    },
+    {
+      "lane": 3,
+      "step": 357,
+      "left_target": -0.0917198658,
+      "right_target": -0.0917198658,
+      "left_q": -0.0574901626,
+      "right_q": -0.0573810078
+    },
+    {
+      "lane": 3,
+      "step": 358,
+      "left_target": -0.100000001,
+      "right_target": -0.100000001,
+      "left_q": -0.0967571214,
+      "right_q": -0.096629709
+    },
+    {
+      "lane": 3,
+      "step": 359,
+      "left_target": -0.100000001,
+      "right_target": -0.100000001,
+      "left_q": -0.100000001,
+      "right_q": -0.100000001
+    },
+    {
+      "lane": 3,
+      "step": 360,
+      "left_target": -0.100000001,
+      "right_target": -0.100000001,
+      "left_q": -0.0999968275,
+      "right_q": -0.0999929085
+    },
+    {
+      "lane": 3,
+      "step": 361,
+      "left_target": -0.100000001,
+      "right_target": -0.100000001,
+      "left_q": -0.0998850912,
+      "right_q": -0.0998888388
+    },
+    {
+      "lane": 3,
+      "step": 362,
+      "left_target": -0.100000001,
+      "right_target": -0.100000001,
+      "left_q": -0.099809058,
+      "right_q": -0.0998234078
+    },
+    {
+      "lane": 3,
+      "step": 363,
+      "left_target": -0.100000001,
+      "right_target": -0.100000001,
+      "left_q": -0.0997706428,
+      "right_q": -0.0997983068
+    },
+    {
+      "lane": 3,
+      "step": 364,
+      "left_target": -0.100000001,
+      "right_target": -0.100000001,
+      "left_q": -0.099757418,
+      "right_q": -0.099793762
+    },
+    {
+      "lane": 3,
+      "step": 365,
+      "left_target": -0.100000001,
+      "right_target": -0.100000001,
+      "left_q": -0.0997553244,
+      "right_q": -0.0997952968
+    },
+    {
+      "lane": 3,
+      "step": 366,
+      "left_target": -0.100000001,
+      "right_target": -0.100000001,
+      "left_q": -0.0997575596,
+      "right_q": -0.0997982174
+    },
+    {
+      "lane": 3,
+      "step": 367,
+      "left_target": -0.100000001,
+      "right_target": -0.100000001,
+      "left_q": -0.09976127,
+      "right_q": -0.0998013541
+    },
+    {
+      "lane": 3,
+      "step": 368,
+      "left_target": -0.100000001,
+      "right_target": -0.100000001,
+      "left_q": -0.0997653604,
+      "right_q": -0.0998045504
+    },
+    {
+      "lane": 3,
+      "step": 369,
+      "left_target": -0.100000001,
+      "right_target": -0.100000001,
+      "left_q": -0.0997694656,
+      "right_q": -0.0998078883
+    },
+    {
+      "lane": 3,
+      "step": 370,
+      "left_target": -0.100000001,
+      "right_target": -0.100000001,
+      "left_q": -0.0997733623,
+      "right_q": -0.0998114944
+    },
+    {
+      "lane": 3,
+      "step": 371,
+      "left_target": -0.100000001,
+      "right_target": -0.100000001,
+      "left_q": -0.0997770503,
+      "right_q": -0.099815391
+    },
+    {
+      "lane": 3,
+      "step": 372,
+      "left_target": -0.100000001,
+      "right_target": -0.100000001,
+      "left_q": -0.0997805819,
+      "right_q": -0.0998195708
+    },
+    {
+      "lane": 3,
+      "step": 373,
+      "left_target": 0.172199592,
+      "right_target": 0.172199592,
+      "left_q": 0.0264754649,
+      "right_q": 0.0264082104
+    },
+    {
+      "lane": 3,
+      "step": 374,
+      "left_target": 0.325678736,
+      "right_target": 0.325678736,
+      "left_q": 0.271673709,
+      "right_q": 0.271646798
+    },
+    {
+      "lane": 3,
+      "step": 375,
+      "left_target": 0.325678736,
+      "right_target": 0.325678736,
+      "left_q": 0.319837421,
+      "right_q": 0.319833636
+    },
+    {
+      "lane": 3,
+      "step": 376,
+      "left_target": 0.325678736,
+      "right_target": 0.325678736,
+      "left_q": 0.326861531,
+      "right_q": 0.32696104
+    },
+    {
+      "lane": 3,
+      "step": 377,
+      "left_target": 0.382140547,
+      "right_target": 0.382140547,
+      "left_q": 0.375105828,
+      "right_q": 0.375159413
+    },
+    {
+      "lane": 3,
+      "step": 378,
+      "left_target": 0.402911663,
+      "right_target": 0.402911663,
+      "left_q": 0.401850432,
+      "right_q": 0.401925027
+    },
+    {
+      "lane": 3,
+      "step": 379,
+      "left_target": 0.410552979,
+      "right_target": 0.410552979,
+      "left_q": 0.411161721,
+      "right_q": 0.411302507
+    },
+    {
+      "lane": 3,
+      "step": 380,
+      "left_target": 0.413364023,
+      "right_target": 0.413364023,
+      "left_q": 0.414291471,
+      "right_q": 0.414449036
+    },
+    {
+      "lane": 4,
+      "step": 335,
+      "left_target": 1.02994859,
+      "right_target": 1.02994859,
+      "left_q": 1.03130579,
+      "right_q": 1.03131938
+    },
+    {
+      "lane": 4,
+      "step": 336,
+      "left_target": 1.02998102,
+      "right_target": 1.02998102,
+      "left_q": 1.03134906,
+      "right_q": 1.03136468
+    },
+    {
+      "lane": 4,
+      "step": 337,
+      "left_target": 1.02999306,
+      "right_target": 1.02999306,
+      "left_q": 1.03136563,
+      "right_q": 1.03138268
+    },
+    {
+      "lane": 4,
+      "step": 338,
+      "left_target": 1.02999735,
+      "right_target": 1.02999735,
+      "left_q": 1.03137517,
+      "right_q": 1.0313741
+    },
+    {
+      "lane": 4,
+      "step": 339,
+      "left_target": 1.02999902,
+      "right_target": 1.02999902,
+      "left_q": 1.03137672,
+      "right_q": 1.03136814
+    },
+    {
+      "lane": 4,
+      "step": 340,
+      "left_target": 1.02999961,
+      "right_target": 1.02999961,
+      "left_q": 1.03137672,
+      "right_q": 1.03136837
+    },
+    {
+      "lane": 4,
+      "step": 341,
+      "left_target": 1.02999985,
+      "right_target": 1.02999985,
+      "left_q": 1.03137732,
+      "right_q": 1.03136849
+    },
+    {
+      "lane": 4,
+      "step": 342,
+      "left_target": 1.02999997,
+      "right_target": 1.02999997,
+      "left_q": 1.03137767,
+      "right_q": 1.03136849
+    },
+    {
+      "lane": 4,
+      "step": 343,
+      "left_target": 1.02999997,
+      "right_target": 1.02999997,
+      "left_q": 1.03137803,
+      "right_q": 1.03136849
+    },
+    {
+      "lane": 4,
+      "step": 344,
+      "left_target": 1.02999997,
+      "right_target": 1.02999997,
+      "left_q": 1.03137815,
+      "right_q": 1.03136849
+    },
+    {
+      "lane": 4,
+      "step": 345,
+      "left_target": 1.02999997,
+      "right_target": 1.02999997,
+      "left_q": 1.03137672,
+      "right_q": 1.03137839
+    },
+    {
+      "lane": 4,
+      "step": 346,
+      "left_target": 1.02999997,
+      "right_target": 1.02999997,
+      "left_q": 1.03137696,
+      "right_q": 1.03139353
+    },
+    {
+      "lane": 4,
+      "step": 347,
+      "left_target": 1.02999997,
+      "right_target": 1.02999997,
+      "left_q": 1.03137982,
+      "right_q": 1.03139496
+    },
+    {
+      "lane": 4,
+      "step": 348,
+      "left_target": 1.02999997,
+      "right_target": 1.02999997,
+      "left_q": 1.03138077,
+      "right_q": 1.03139508
+    },
+    {
+      "lane": 4,
+      "step": 349,
+      "left_target": 1.02999997,
+      "right_target": 1.02999997,
+      "left_q": 1.03138077,
+      "right_q": 1.03139555
+    },
+    {
+      "lane": 4,
+      "step": 350,
+      "left_target": 1.02999997,
+      "right_target": 1.02999997,
+      "left_q": 1.031376,
+      "right_q": 1.03139591
+    },
+    {
+      "lane": 4,
+      "step": 351,
+      "left_target": 0.995369196,
+      "right_target": 0.995369196,
+      "left_q": 1.00048554,
+      "right_q": 1.00058031
+    },
+    {
+      "lane": 4,
+      "step": 352,
+      "left_target": 0.891329765,
+      "right_target": 0.891329765,
+      "left_q": 0.912066579,
+      "right_q": 0.91205442
+    },
+    {
+      "lane": 4,
+      "step": 353,
+      "left_target": 0.723977327,
+      "right_target": 0.723977327,
+      "left_q": 0.76222837,
+      "right_q": 0.762242019
+    },
+    {
+      "lane": 4,
+      "step": 354,
+      "left_target": 0.514443696,
+      "right_target": 0.514443696,
+      "left_q": 0.563314676,
+      "right_q": 0.563509822
+    },
+    {
+      "lane": 4,
+      "step": 355,
+      "left_target": 0.289392531,
+      "right_target": 0.289392531,
+      "left_q": 0.34575054,
+      "right_q": 0.345260262
+    },
+    {
+      "lane": 4,
+      "step": 356,
+      "left_target": 0.0775223076,
+      "right_target": 0.0775223076,
+      "left_q": 0.128620818,
+      "right_q": 0.128121123
+    },
+    {
+      "lane": 4,
+      "step": 357,
+      "left_target": -0.0917198658,
+      "right_target": -0.0917198658,
+      "left_q": -0.057451468,
+      "right_q": -0.0574846417
+    },
+    {
+      "lane": 4,
+      "step": 358,
+      "left_target": -0.100000001,
+      "right_target": -0.100000001,
+      "left_q": -0.0966887772,
+      "right_q": -0.0966786444
+    },
+    {
+      "lane": 4,
+      "step": 359,
+      "left_target": -0.100000001,
+      "right_target": -0.100000001,
+      "left_q": -0.100000001,
+      "right_q": -0.100000001
+    },
+    {
+      "lane": 4,
+      "step": 360,
+      "left_target": -0.100000001,
+      "right_target": -0.100000001,
+      "left_q": -0.100000001,
+      "right_q": -0.100000001
+    },
+    {
+      "lane": 4,
+      "step": 361,
+      "left_target": -0.100000001,
+      "right_target": -0.100000001,
+      "left_q": -0.0998729989,
+      "right_q": -0.0998979136
+    },
+    {
+      "lane": 4,
+      "step": 362,
+      "left_target": -0.100000001,
+      "right_target": -0.100000001,
+      "left_q": -0.0997914299,
+      "right_q": -0.0998381451
+    },
+    {
+      "lane": 4,
+      "step": 363,
+      "left_target": -0.100000001,
+      "right_target": -0.100000001,
+      "left_q": -0.0997513607,
+      "right_q": -0.0998110995
+    },
+    {
+      "lane": 4,
+      "step": 364,
+      "left_target": -0.100000001,
+      "right_target": -0.100000001,
+      "left_q": -0.0997399837,
+      "right_q": -0.0998033658
+    },
+    {
+      "lane": 4,
+      "step": 365,
+      "left_target": -0.100000001,
+      "right_target": -0.100000001,
+      "left_q": -0.0997406244,
+      "right_q": -0.0998019725
+    },
+    {
+      "lane": 4,
+      "step": 366,
+      "left_target": -0.100000001,
+      "right_target": -0.100000001,
+      "left_q": -0.0997453928,
+      "right_q": -0.0998025015
+    },
+    {
+      "lane": 4,
+      "step": 367,
+      "left_target": -0.100000001,
+      "right_target": -0.100000001,
+      "left_q": -0.0997512192,
+      "right_q": -0.0998037681
+    },
+    {
+      "lane": 4,
+      "step": 368,
+      "left_target": -0.100000001,
+      "right_target": -0.100000001,
+      "left_q": -0.0997569114,
+      "right_q": -0.099805586
+    },
+    {
+      "lane": 4,
+      "step": 369,
+      "left_target": -0.100000001,
+      "right_target": -0.100000001,
+      "left_q": -0.0997620746,
+      "right_q": -0.0998080075
+    },
+    {
+      "lane": 4,
+      "step": 370,
+      "left_target": -0.100000001,
+      "right_target": -0.100000001,
+      "left_q": -0.0997665823,
+      "right_q": -0.099811092
+    },
+    {
+      "lane": 4,
+      "step": 371,
+      "left_target": -0.100000001,
+      "right_target": -0.100000001,
+      "left_q": -0.099770546,
+      "right_q": -0.0998147801
+    },
+    {
+      "lane": 4,
+      "step": 372,
+      "left_target": -0.100000001,
+      "right_target": -0.100000001,
+      "left_q": -0.0997741371,
+      "right_q": -0.0998188928
+    },
+    {
+      "lane": 4,
+      "step": 373,
+      "left_target": 0.172199592,
+      "right_target": 0.172199592,
+      "left_q": 0.026598271,
+      "right_q": 0.026507806
+    },
+    {
+      "lane": 4,
+      "step": 374,
+      "left_target": 0.325678736,
+      "right_target": 0.325678736,
+      "left_q": 0.271736622,
+      "right_q": 0.271688461
+    },
+    {
+      "lane": 4,
+      "step": 375,
+      "left_target": 0.325678736,
+      "right_target": 0.325678736,
+      "left_q": 0.319846839,
+      "right_q": 0.31983918
+    },
+    {
+      "lane": 4,
+      "step": 376,
+      "left_target": 0.325678736,
+      "right_target": 0.325678736,
+      "left_q": 0.326704532,
+      "right_q": 0.326900959
+    },
+    {
+      "lane": 4,
+      "step": 377,
+      "left_target": 0.382140547,
+      "right_target": 0.382140547,
+      "left_q": 0.375283539,
+      "right_q": 0.375413686
+    },
+    {
+      "lane": 4,
+      "step": 378,
+      "left_target": 0.402911663,
+      "right_target": 0.402911663,
+      "left_q": 0.401814312,
+      "right_q": 0.401993662
+    },
+    {
+      "lane": 4,
+      "step": 379,
+      "left_target": 0.410552979,
+      "right_target": 0.410552979,
+      "left_q": 0.4111422,
+      "right_q": 0.411292791
+    },
+    {
+      "lane": 4,
+      "step": 380,
+      "left_target": 0.413364023,
+      "right_target": 0.413364023,
+      "left_q": 0.414302438,
+      "right_q": 0.414412111
+    },
+    {
+      "lane": 5,
+      "step": 335,
+      "left_target": 1.02994859,
+      "right_target": 1.02994859,
+      "left_q": 1.03127301,
+      "right_q": 1.0313518
+    },
+    {
+      "lane": 5,
+      "step": 336,
+      "left_target": 1.02998102,
+      "right_target": 1.02998102,
+      "left_q": 1.03132284,
+      "right_q": 1.0313915
+    },
+    {
+      "lane": 5,
+      "step": 337,
+      "left_target": 1.02999306,
+      "right_target": 1.02999306,
+      "left_q": 1.03134215,
+      "right_q": 1.03140581
+    },
+    {
+      "lane": 5,
+      "step": 338,
+      "left_target": 1.02999735,
+      "right_target": 1.02999735,
+      "left_q": 1.03135085,
+      "right_q": 1.03139794
+    },
+    {
+      "lane": 5,
+      "step": 339,
+      "left_target": 1.02999902,
+      "right_target": 1.02999902,
+      "left_q": 1.0313524,
+      "right_q": 1.03139234
+    },
+    {
+      "lane": 5,
+      "step": 340,
+      "left_target": 1.02999961,
+      "right_target": 1.02999961,
+      "left_q": 1.03135371,
+      "right_q": 1.03139067
+    },
+    {
+      "lane": 5,
+      "step": 341,
+      "left_target": 1.02999985,
+      "right_target": 1.02999985,
+      "left_q": 1.03135753,
+      "right_q": 1.03138781
+    },
+    {
+      "lane": 5,
+      "step": 342,
+      "left_target": 1.02999997,
+      "right_target": 1.02999997,
+      "left_q": 1.0313592,
+      "right_q": 1.03138685
+    },
+    {
+      "lane": 5,
+      "step": 343,
+      "left_target": 1.02999997,
+      "right_target": 1.02999997,
+      "left_q": 1.03135967,
+      "right_q": 1.03138661
+    },
+    {
+      "lane": 5,
+      "step": 344,
+      "left_target": 1.02999997,
+      "right_target": 1.02999997,
+      "left_q": 1.03135967,
+      "right_q": 1.03138661
+    },
+    {
+      "lane": 5,
+      "step": 345,
+      "left_target": 1.02999997,
+      "right_target": 1.02999997,
+      "left_q": 1.03135824,
+      "right_q": 1.03139663
+    },
+    {
+      "lane": 5,
+      "step": 346,
+      "left_target": 1.02999997,
+      "right_target": 1.02999997,
+      "left_q": 1.03135872,
+      "right_q": 1.03141177
+    },
+    {
+      "lane": 5,
+      "step": 347,
+      "left_target": 1.02999997,
+      "right_target": 1.02999997,
+      "left_q": 1.03136146,
+      "right_q": 1.0314126
+    },
+    {
+      "lane": 5,
+      "step": 348,
+      "left_target": 1.02999997,
+      "right_target": 1.02999997,
+      "left_q": 1.03136325,
+      "right_q": 1.0314126
+    },
+    {
+      "lane": 5,
+      "step": 349,
+      "left_target": 1.02999997,
+      "right_target": 1.02999997,
+      "left_q": 1.03136325,
+      "right_q": 1.03141272
+    },
+    {
+      "lane": 5,
+      "step": 350,
+      "left_target": 1.02999997,
+      "right_target": 1.02999997,
+      "left_q": 1.0313592,
+      "right_q": 1.03141212
+    },
+    {
+      "lane": 5,
+      "step": 351,
+      "left_target": 0.995369196,
+      "right_target": 0.995369196,
+      "left_q": 1.00048304,
+      "right_q": 1.00058746
+    },
+    {
+      "lane": 5,
+      "step": 352,
+      "left_target": 0.891329765,
+      "right_target": 0.891329765,
+      "left_q": 0.912062645,
+      "right_q": 0.91205883
+    },
+    {
+      "lane": 5,
+      "step": 353,
+      "left_target": 0.723977327,
+      "right_target": 0.723977327,
+      "left_q": 0.762404501,
+      "right_q": 0.762415588
+    },
+    {
+      "lane": 5,
+      "step": 354,
+      "left_target": 0.514443696,
+      "right_target": 0.514443696,
+      "left_q": 0.563439012,
+      "right_q": 0.563383043
+    },
+    {
+      "lane": 5,
+      "step": 355,
+      "left_target": 0.289392531,
+      "right_target": 0.289392531,
+      "left_q": 0.346232474,
+      "right_q": 0.345248014
+    },
+    {
+      "lane": 5,
+      "step": 356,
+      "left_target": 0.0775223076,
+      "right_target": 0.0775223076,
+      "left_q": 0.128124297,
+      "right_q": 0.127509698
+    },
+    {
+      "lane": 5,
+      "step": 357,
+      "left_target": -0.0917198658,
+      "right_target": -0.0917198658,
+      "left_q": -0.0574691184,
+      "right_q": -0.0574909784
+    },
+    {
+      "lane": 5,
+      "step": 358,
+      "left_target": -0.100000001,
+      "right_target": -0.100000001,
+      "left_q": -0.0969491079,
+      "right_q": -0.0969984829
+    },
+    {
+      "lane": 5,
+      "step": 359,
+      "left_target": -0.100000001,
+      "right_target": -0.100000001,
+      "left_q": -0.100000001,
+      "right_q": -0.100000001
+    },
+    {
+      "lane": 5,
+      "step": 360,
+      "left_target": -0.100000001,
+      "right_target": -0.100000001,
+      "left_q": -0.0999988317,
+      "right_q": -0.0999958441
+    },
+    {
+      "lane": 5,
+      "step": 361,
+      "left_target": -0.100000001,
+      "right_target": -0.100000001,
+      "left_q": -0.0998948887,
+      "right_q": -0.0999111012
+    },
+    {
+      "lane": 5,
+      "step": 362,
+      "left_target": -0.100000001,
+      "right_target": -0.100000001,
+      "left_q": -0.0998080447,
+      "right_q": -0.099838227
+    },
+    {
+      "lane": 5,
+      "step": 363,
+      "left_target": -0.100000001,
+      "right_target": -0.100000001,
+      "left_q": -0.0997662172,
+      "right_q": -0.0998066738
+    },
+    {
+      "lane": 5,
+      "step": 364,
+      "left_target": -0.100000001,
+      "right_target": -0.100000001,
+      "left_q": -0.0997524858,
+      "right_q": -0.0997970179
+    },
+    {
+      "lane": 5,
+      "step": 365,
+      "left_target": -0.100000001,
+      "right_target": -0.100000001,
+      "left_q": -0.0997508317,
+      "right_q": -0.0997949764
+    },
+    {
+      "lane": 5,
+      "step": 366,
+      "left_target": -0.100000001,
+      "right_target": -0.100000001,
+      "left_q": -0.0997535586,
+      "right_q": -0.0997958779
+    },
+    {
+      "lane": 5,
+      "step": 367,
+      "left_target": -0.100000001,
+      "right_target": -0.100000001,
+      "left_q": -0.0997576341,
+      "right_q": -0.0997981951
+    },
+    {
+      "lane": 5,
+      "step": 368,
+      "left_target": -0.100000001,
+      "right_target": -0.100000001,
+      "left_q": -0.0997620448,
+      "right_q": -0.0998012275
+    },
+    {
+      "lane": 5,
+      "step": 369,
+      "left_target": -0.100000001,
+      "right_target": -0.100000001,
+      "left_q": -0.0997663364,
+      "right_q": -0.0998048112
+    },
+    {
+      "lane": 5,
+      "step": 370,
+      "left_target": -0.100000001,
+      "right_target": -0.100000001,
+      "left_q": -0.0997703522,
+      "right_q": -0.0998088568
+    },
+    {
+      "lane": 5,
+      "step": 371,
+      "left_target": -0.100000001,
+      "right_target": -0.100000001,
+      "left_q": -0.0997741297,
+      "right_q": -0.0998132378
+    },
+    {
+      "lane": 5,
+      "step": 372,
+      "left_target": -0.100000001,
+      "right_target": -0.100000001,
+      "left_q": -0.0997777358,
+      "right_q": -0.0998177975
+    },
+    {
+      "lane": 5,
+      "step": 373,
+      "left_target": 0.172199592,
+      "right_target": 0.172199592,
+      "left_q": 0.0264615677,
+      "right_q": 0.0263973475
+    },
+    {
+      "lane": 5,
+      "step": 374,
+      "left_target": 0.325678736,
+      "right_target": 0.325678736,
+      "left_q": 0.271598548,
+      "right_q": 0.27157408
+    },
+    {
+      "lane": 5,
+      "step": 375,
+      "left_target": 0.325678736,
+      "right_target": 0.325678736,
+      "left_q": 0.319826245,
+      "right_q": 0.319822937
+    },
+    {
+      "lane": 5,
+      "step": 376,
+      "left_target": 0.325678736,
+      "right_target": 0.325678736,
+      "left_q": 0.327152342,
+      "right_q": 0.327152908
+    },
+    {
+      "lane": 5,
+      "step": 377,
+      "left_target": 0.382140547,
+      "right_target": 0.382140547,
+      "left_q": 0.374599189,
+      "right_q": 0.374560684
+    },
+    {
+      "lane": 5,
+      "step": 378,
+      "left_target": 0.382140547,
+      "right_target": 0.382140547,
+      "left_q": 0.383484662,
+      "right_q": 0.38348645
+    },
+    {
+      "lane": 5,
+      "step": 379,
+      "left_target": 0.402911663,
+      "right_target": 0.402911663,
+      "left_q": 0.401805282,
+      "right_q": 0.401869029
+    },
+    {
+      "lane": 5,
+      "step": 380,
+      "left_target": 0.410552979,
+      "right_target": 0.410552979,
+      "left_q": 0.410773367,
+      "right_q": 0.410892308
+    },
+    {
+      "lane": 6,
+      "step": 335,
+      "left_target": 1.02994859,
+      "right_target": 1.02994859,
+      "left_q": 1.03126109,
+      "right_q": 1.03136671
+    },
+    {
+      "lane": 6,
+      "step": 336,
+      "left_target": 1.02998102,
+      "right_target": 1.02998102,
+      "left_q": 1.03131223,
+      "right_q": 1.03140235
+    },
+    {
+      "lane": 6,
+      "step": 337,
+      "left_target": 1.02999306,
+      "right_target": 1.02999306,
+      "left_q": 1.03133512,
+      "right_q": 1.03141415
+    },
+    {
+      "lane": 6,
+      "step": 338,
+      "left_target": 1.02999735,
+      "right_target": 1.02999735,
+      "left_q": 1.03134477,
+      "right_q": 1.03140438
+    },
+    {
+      "lane": 6,
+      "step": 339,
+      "left_target": 1.02999902,
+      "right_target": 1.02999902,
+      "left_q": 1.03134942,
+      "right_q": 1.03139532
+    },
+    {
+      "lane": 6,
+      "step": 340,
+      "left_target": 1.02999961,
+      "right_target": 1.02999961,
+      "left_q": 1.03135014,
+      "right_q": 1.03139591
+    },
+    {
+      "lane": 6,
+      "step": 341,
+      "left_target": 1.02999985,
+      "right_target": 1.02999985,
+      "left_q": 1.03135121,
+      "right_q": 1.03139448
+    },
+    {
+      "lane": 6,
+      "step": 342,
+      "left_target": 1.02999997,
+      "right_target": 1.02999997,
+      "left_q": 1.03135276,
+      "right_q": 1.03139424
+    },
+    {
+      "lane": 6,
+      "step": 343,
+      "left_target": 1.02999997,
+      "right_target": 1.02999997,
+      "left_q": 1.03135371,
+      "right_q": 1.03139341
+    },
+    {
+      "lane": 6,
+      "step": 344,
+      "left_target": 1.02999997,
+      "right_target": 1.02999997,
+      "left_q": 1.03135419,
+      "right_q": 1.03139341
+    },
+    {
+      "lane": 6,
+      "step": 345,
+      "left_target": 1.02999997,
+      "right_target": 1.02999997,
+      "left_q": 1.03135312,
+      "right_q": 1.03140235
+    },
+    {
+      "lane": 6,
+      "step": 346,
+      "left_target": 1.02999997,
+      "right_target": 1.02999997,
+      "left_q": 1.03135228,
+      "right_q": 1.0314188
+    },
+    {
+      "lane": 6,
+      "step": 347,
+      "left_target": 1.02999997,
+      "right_target": 1.02999997,
+      "left_q": 1.03135633,
+      "right_q": 1.03141856
+    },
+    {
+      "lane": 6,
+      "step": 348,
+      "left_target": 1.02999997,
+      "right_target": 1.02999997,
+      "left_q": 1.03135681,
+      "right_q": 1.03142011
+    },
+    {
+      "lane": 6,
+      "step": 349,
+      "left_target": 1.02999997,
+      "right_target": 1.02999997,
+      "left_q": 1.03135681,
+      "right_q": 1.03142011
+    },
+    {
+      "lane": 6,
+      "step": 350,
+      "left_target": 1.02999997,
+      "right_target": 1.02999997,
+      "left_q": 1.03135037,
+      "right_q": 1.03142214
+    },
+    {
+      "lane": 6,
+      "step": 351,
+      "left_target": 0.995369196,
+      "right_target": 0.995369196,
+      "left_q": 1.00044549,
+      "right_q": 1.00059664
+    },
+    {
+      "lane": 6,
+      "step": 352,
+      "left_target": 0.891329765,
+      "right_target": 0.891329765,
+      "left_q": 0.912028313,
+      "right_q": 0.912133992
+    },
+    {
+      "lane": 6,
+      "step": 353,
+      "left_target": 0.723977327,
+      "right_target": 0.723977327,
+      "left_q": 0.761888325,
+      "right_q": 0.762157261
+    },
+    {
+      "lane": 6,
+      "step": 354,
+      "left_target": 0.514443696,
+      "right_target": 0.514443696,
+      "left_q": 0.563360155,
+      "right_q": 0.563800335
+    },
+    {
+      "lane": 6,
+      "step": 355,
+      "left_target": 0.289392531,
+      "right_target": 0.289392531,
+      "left_q": 0.344144225,
+      "right_q": 0.344095945
+    },
+    {
+      "lane": 6,
+      "step": 356,
+      "left_target": 0.0775223076,
+      "right_target": 0.0775223076,
+      "left_q": 0.127849773,
+      "right_q": 0.128152683
+    },
+    {
+      "lane": 6,
+      "step": 357,
+      "left_target": -0.0917198658,
+      "right_target": -0.0917198658,
+      "left_q": -0.0574733168,
+      "right_q": -0.0574299879
+    },
+    {
+      "lane": 6,
+      "step": 358,
+      "left_target": -0.100000001,
+      "right_target": -0.100000001,
+      "left_q": -0.0966432169,
+      "right_q": -0.0966362506
+    },
+    {
+      "lane": 6,
+      "step": 359,
+      "left_target": -0.100000001,
+      "right_target": -0.100000001,
+      "left_q": -0.100000001,
+      "right_q": -0.100000001
+    },
+    {
+      "lane": 6,
+      "step": 360,
+      "left_target": -0.100000001,
+      "right_target": -0.100000001,
+      "left_q": -0.100000001,
+      "right_q": -0.100000001
+    },
+    {
+      "lane": 6,
+      "step": 361,
+      "left_target": -0.100000001,
+      "right_target": -0.100000001,
+      "left_q": -0.0998828262,
+      "right_q": -0.0998930261
+    },
+    {
+      "lane": 6,
+      "step": 362,
+      "left_target": -0.100000001,
+      "right_target": -0.100000001,
+      "left_q": -0.0998024419,
+      "right_q": -0.0998310968
+    },
+    {
+      "lane": 6,
+      "step": 363,
+      "left_target": -0.100000001,
+      "right_target": -0.100000001,
+      "left_q": -0.0997613817,
+      "right_q": -0.0998045206
+    },
+    {
+      "lane": 6,
+      "step": 364,
+      "left_target": -0.100000001,
+      "right_target": -0.100000001,
+      "left_q": -0.0997484028,
+      "right_q": -0.0997980908
+    },
+    {
+      "lane": 6,
+      "step": 365,
+      "left_target": -0.100000001,
+      "right_target": -0.100000001,
+      "left_q": -0.099747479,
+      "right_q": -0.0997980684
+    },
+    {
+      "lane": 6,
+      "step": 366,
+      "left_target": -0.100000001,
+      "right_target": -0.100000001,
+      "left_q": -0.0997509733,
+      "right_q": -0.0997997746
+    },
+    {
+      "lane": 6,
+      "step": 367,
+      "left_target": -0.100000001,
+      "right_target": -0.100000001,
+      "left_q": -0.0997558758,
+      "right_q": -0.0998019278
+    },
+    {
+      "lane": 6,
+      "step": 368,
+      "left_target": -0.100000001,
+      "right_target": -0.100000001,
+      "left_q": -0.0997609496,
+      "right_q": -0.0998043418
+    },
+    {
+      "lane": 6,
+      "step": 369,
+      "left_target": -0.100000001,
+      "right_target": -0.100000001,
+      "left_q": -0.0997657478,
+      "right_q": -0.0998071358
+    },
+    {
+      "lane": 6,
+      "step": 370,
+      "left_target": -0.100000001,
+      "right_target": -0.100000001,
+      "left_q": -0.0997700617,
+      "right_q": -0.0998104438
+    },
+    {
+      "lane": 6,
+      "step": 371,
+      "left_target": -0.100000001,
+      "right_target": -0.100000001,
+      "left_q": -0.0997739434,
+      "right_q": -0.0998142213
+    },
+    {
+      "lane": 6,
+      "step": 372,
+      "left_target": -0.100000001,
+      "right_target": -0.100000001,
+      "left_q": -0.0997775123,
+      "right_q": -0.0998183936
+    },
+    {
+      "lane": 6,
+      "step": 373,
+      "left_target": 0.172199592,
+      "right_target": 0.172199592,
+      "left_q": 0.0265453234,
+      "right_q": 0.0264683217
+    },
+    {
+      "lane": 6,
+      "step": 374,
+      "left_target": 0.325678736,
+      "right_target": 0.325678736,
+      "left_q": 0.271708876,
+      "right_q": 0.271669865
+    },
+    {
+      "lane": 6,
+      "step": 375,
+      "left_target": 0.325678736,
+      "right_target": 0.325678736,
+      "left_q": 0.319842815,
+      "right_q": 0.319836646
+    },
+    {
+      "lane": 6,
+      "step": 376,
+      "left_target": 0.325678736,
+      "right_target": 0.325678736,
+      "left_q": 0.326715231,
+      "right_q": 0.326742232
+    },
+    {
+      "lane": 6,
+      "step": 377,
+      "left_target": 0.382140547,
+      "right_target": 0.382140547,
+      "left_q": 0.375345498,
+      "right_q": 0.375441074
+    },
+    {
+      "lane": 6,
+      "step": 378,
+      "left_target": 0.402911663,
+      "right_target": 0.402911663,
+      "left_q": 0.40185079,
+      "right_q": 0.401975393
+    },
+    {
+      "lane": 6,
+      "step": 379,
+      "left_target": 0.410552979,
+      "right_target": 0.410552979,
+      "left_q": 0.411139756,
+      "right_q": 0.411290497
+    },
+    {
+      "lane": 6,
+      "step": 380,
+      "left_target": 0.413364023,
+      "right_target": 0.413364023,
+      "left_q": 0.414288282,
+      "right_q": 0.414431483
+    },
+    {
+      "lane": 7,
+      "step": 335,
+      "left_target": 1.02994859,
+      "right_target": 1.02994859,
+      "left_q": 1.03129935,
+      "right_q": 1.03132641
+    },
+    {
+      "lane": 7,
+      "step": 336,
+      "left_target": 1.02998102,
+      "right_target": 1.02998102,
+      "left_q": 1.03134477,
+      "right_q": 1.03137028
+    },
+    {
+      "lane": 7,
+      "step": 337,
+      "left_target": 1.02999306,
+      "right_target": 1.02999306,
+      "left_q": 1.03136122,
+      "right_q": 1.03138709
+    },
+    {
+      "lane": 7,
+      "step": 338,
+      "left_target": 1.02999735,
+      "right_target": 1.02999735,
+      "left_q": 1.03137004,
+      "right_q": 1.0313791
+    },
+    {
+      "lane": 7,
+      "step": 339,
+      "left_target": 1.02999902,
+      "right_target": 1.02999902,
+      "left_q": 1.03137064,
+      "right_q": 1.03137374
+    },
+    {
+      "lane": 7,
+      "step": 340,
+      "left_target": 1.02999961,
+      "right_target": 1.02999961,
+      "left_q": 1.03137195,
+      "right_q": 1.03137207
+    },
+    {
+      "lane": 7,
+      "step": 341,
+      "left_target": 1.02999985,
+      "right_target": 1.02999985,
+      "left_q": 1.03137445,
+      "right_q": 1.03137016
+    },
+    {
+      "lane": 7,
+      "step": 342,
+      "left_target": 1.02999997,
+      "right_target": 1.02999997,
+      "left_q": 1.03137577,
+      "right_q": 1.03136992
+    },
+    {
+      "lane": 7,
+      "step": 343,
+      "left_target": 1.02999997,
+      "right_target": 1.02999997,
+      "left_q": 1.03137589,
+      "right_q": 1.03136992
+    },
+    {
+      "lane": 7,
+      "step": 344,
+      "left_target": 1.02999997,
+      "right_target": 1.02999997,
+      "left_q": 1.031376,
+      "right_q": 1.03136992
+    },
+    {
+      "lane": 7,
+      "step": 345,
+      "left_target": 1.02999997,
+      "right_target": 1.02999997,
+      "left_q": 1.03137457,
+      "right_q": 1.03137982
+    },
+    {
+      "lane": 7,
+      "step": 346,
+      "left_target": 1.02999997,
+      "right_target": 1.02999997,
+      "left_q": 1.03137326,
+      "right_q": 1.03139639
+    },
+    {
+      "lane": 7,
+      "step": 347,
+      "left_target": 1.02999997,
+      "right_target": 1.02999997,
+      "left_q": 1.03137755,
+      "right_q": 1.03139627
+    },
+    {
+      "lane": 7,
+      "step": 348,
+      "left_target": 1.02999997,
+      "right_target": 1.02999997,
+      "left_q": 1.03137779,
+      "right_q": 1.03139794
+    },
+    {
+      "lane": 7,
+      "step": 349,
+      "left_target": 1.02999997,
+      "right_target": 1.02999997,
+      "left_q": 1.03137779,
+      "right_q": 1.03139794
+    },
+    {
+      "lane": 7,
+      "step": 350,
+      "left_target": 1.02999997,
+      "right_target": 1.02999997,
+      "left_q": 1.03137279,
+      "right_q": 1.03139842
+    },
+    {
+      "lane": 7,
+      "step": 351,
+      "left_target": 0.995369196,
+      "right_target": 0.995369196,
+      "left_q": 1.00048709,
+      "right_q": 1.00057983
+    },
+    {
+      "lane": 7,
+      "step": 352,
+      "left_target": 0.891329765,
+      "right_target": 0.891329765,
+      "left_q": 0.912056565,
+      "right_q": 0.912029862
+    },
+    {
+      "lane": 7,
+      "step": 353,
+      "left_target": 0.723977327,
+      "right_target": 0.723977327,
+      "left_q": 0.762370706,
+      "right_q": 0.76235348
+    },
+    {
+      "lane": 7,
+      "step": 354,
+      "left_target": 0.514443696,
+      "right_target": 0.514443696,
+      "left_q": 0.563452899,
+      "right_q": 0.563538015
+    },
+    {
+      "lane": 7,
+      "step": 355,
+      "left_target": 0.289392531,
+      "right_target": 0.289392531,
+      "left_q": 0.346221745,
+      "right_q": 0.345083445
+    },
+    {
+      "lane": 7,
+      "step": 356,
+      "left_target": 0.0775223076,
+      "right_target": 0.0775223076,
+      "left_q": 0.128025964,
+      "right_q": 0.127383724
+    },
+    {
+      "lane": 7,
+      "step": 357,
+      "left_target": -0.0917198658,
+      "right_target": -0.0917198658,
+      "left_q": -0.0574732013,
+      "right_q": -0.057496693
+    },
+    {
+      "lane": 7,
+      "step": 358,
+      "left_target": -0.100000001,
+      "right_target": -0.100000001,
+      "left_q": -0.0969672278,
+      "right_q": -0.0970047712
+    },
+    {
+      "lane": 7,
+      "step": 359,
+      "left_target": -0.100000001,
+      "right_target": -0.100000001,
+      "left_q": -0.100000001,
+      "right_q": -0.100000001
+    },
+    {
+      "lane": 7,
+      "step": 360,
+      "left_target": -0.100000001,
+      "right_target": -0.100000001,
+      "left_q": -0.100000001,
+      "right_q": -0.100000001
+    },
+    {
+      "lane": 7,
+      "step": 361,
+      "left_target": -0.100000001,
+      "right_target": -0.100000001,
+      "left_q": -0.0998891518,
+      "right_q": -0.0998991206
+    },
+    {
+      "lane": 7,
+      "step": 362,
+      "left_target": -0.100000001,
+      "right_target": -0.100000001,
+      "left_q": -0.0998020321,
+      "right_q": -0.0998277962
+    },
+    {
+      "lane": 7,
+      "step": 363,
+      "left_target": -0.100000001,
+      "right_target": -0.100000001,
+      "left_q": -0.0997580513,
+      "right_q": -0.0997991338
+    },
+    {
+      "lane": 7,
+      "step": 364,
+      "left_target": -0.100000001,
+      "right_target": -0.100000001,
+      "left_q": -0.099745445,
+      "right_q": -0.0997909755
+    },
+    {
+      "lane": 7,
+      "step": 365,
+      "left_target": -0.100000001,
+      "right_target": -0.100000001,
+      "left_q": -0.0997450501,
+      "right_q": -0.0997914076
+    },
+    {
+      "lane": 7,
+      "step": 366,
+      "left_target": -0.100000001,
+      "right_target": -0.100000001,
+      "left_q": -0.0997485593,
+      "right_q": -0.0997955576
+    },
+    {
+      "lane": 7,
+      "step": 367,
+      "left_target": -0.100000001,
+      "right_target": -0.100000001,
+      "left_q": -0.0997537374,
+      "right_q": -0.099800393
+    },
+    {
+      "lane": 7,
+      "step": 368,
+      "left_target": -0.100000001,
+      "right_target": -0.100000001,
+      "left_q": -0.0997594222,
+      "right_q": -0.0998049974
+    },
+    {
+      "lane": 7,
+      "step": 369,
+      "left_target": -0.100000001,
+      "right_target": -0.100000001,
+      "left_q": -0.0997647718,
+      "right_q": -0.099809438
+    },
+    {
+      "lane": 7,
+      "step": 370,
+      "left_target": -0.100000001,
+      "right_target": -0.100000001,
+      "left_q": -0.0997696072,
+      "right_q": -0.0998137519
+    },
+    {
+      "lane": 7,
+      "step": 371,
+      "left_target": -0.100000001,
+      "right_target": -0.100000001,
+      "left_q": -0.0997739211,
+      "right_q": -0.0998179466
+    },
+    {
+      "lane": 7,
+      "step": 372,
+      "left_target": -0.100000001,
+      "right_target": -0.100000001,
+      "left_q": -0.099777855,
+      "right_q": -0.0998220667
+    },
+    {
+      "lane": 7,
+      "step": 373,
+      "left_target": 0.172199592,
+      "right_target": 0.172199592,
+      "left_q": 0.0264548175,
+      "right_q": 0.0263291337
+    },
+    {
+      "lane": 7,
+      "step": 374,
+      "left_target": 0.325678736,
+      "right_target": 0.325678736,
+      "left_q": 0.271606863,
+      "right_q": 0.271526814
+    },
+    {
+      "lane": 7,
+      "step": 375,
+      "left_target": 0.325678736,
+      "right_target": 0.325678736,
+      "left_q": 0.319827944,
+      "right_q": 0.319814891
+    },
+    {
+      "lane": 7,
+      "step": 376,
+      "left_target": 0.325678736,
+      "right_target": 0.325678736,
+      "left_q": 0.327281088,
+      "right_q": 0.327396512
+    },
+    {
+      "lane": 7,
+      "step": 377,
+      "left_target": 0.382140547,
+      "right_target": 0.382140547,
+      "left_q": 0.374633402,
+      "right_q": 0.374661982
+    },
+    {
+      "lane": 7,
+      "step": 378,
+      "left_target": 0.382140547,
+      "right_target": 0.382140547,
+      "left_q": 0.383499086,
+      "right_q": 0.383584589
+    },
+    {
+      "lane": 7,
+      "step": 379,
+      "left_target": 0.402911663,
+      "right_target": 0.402911663,
+      "left_q": 0.401770353,
+      "right_q": 0.401919127
+    },
+    {
+      "lane": 7,
+      "step": 380,
+      "left_target": 0.410552979,
+      "right_target": 0.410552979,
+      "left_q": 0.410743028,
+      "right_q": 0.410922199
+    }
+  ],
+  "candidate_target_lt_lower_count": 0,
+  "candidate_target_gt_upper_count": 0,
+  "target_min": -0.100000001,
+  "target_max": 1.02999997,
+  "host_sha256": "a90c209bb315ebcc7a7f20bd4db9c3301720e419317608c273614b3637581a26",
+  "scope": "Copied position targets prior to solver limit clamp, recorded at first substep; one used development seed. Knee joint position limits [-0.10,1.55] rad. Earlier -0.70 request condition measured."
+}
