@@ -46,7 +46,7 @@ def read(p):
    elif kind=='CROW_GROUND_CONTACT':
     t,k,e=map(int,z[1:4]);d['ground'].setdefault((e,t),line.strip())
  return d
-old=read(R);new=read(P);om=json.loads((R/'run.stdout').read_text())['first_episode_navigation'];nm=json.loads((P/'run.stdout').read_text())['first_episode_navigation'];ni=json.loads((P/'inputs.json').read_text());oi=json.loads((R/'inputs.json').read_text());same=ni['host_sha256']=='ccb518892aad37d58e38389ac1995c64e2fb4ee9900f66a622c075812cc0d221' and oi['host_sha256']=='a9eb6747e68b1ba48d9aeb60f46467f11f4b84740331d36f7597d3e82a165998' and all(ni[k]==oi[k] for k in ('landing_policy_sha256','route_policy_sha256'));masks=new['mask']==old['mask'];rows=[]
+old=read(R);new=read(P);om=json.loads((R/'run.stdout').read_text())['first_episode_navigation'];nm=json.loads((P/'run.stdout').read_text())['first_episode_navigation'];ni=json.loads((P/'inputs.json').read_text());oi=json.loads((R/'inputs.json').read_text());same=ni['host_sha256']=='16462e7877288ce2030998b2f4615d8bb290296c73713a2760a57296381fce76' and oi['host_sha256']=='a9eb6747e68b1ba48d9aeb60f46467f11f4b84740331d36f7597d3e82a165998' and all(ni[k]==oi[k] for k in ('landing_policy_sha256','route_policy_sha256'));masks=new['mask']==old['mask'];rows=[]
 def yaw(x):
  a,b,c,w=x['q'][3:7];return math.atan2(2*(w*c+a*b),1-2*(b*b+c*c))
 def roll(x):
