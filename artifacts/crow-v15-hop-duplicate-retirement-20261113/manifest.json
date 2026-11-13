@@ -1,0 +1,111 @@
+{
+  "purpose": "Retire only exact duplicate build outputs, after independent GitHub restore and identity/open handle recheck",
+  "host": "macmini",
+  "repo_root": "/Users/n/Developer/numi-crow-rl-20261107",
+  "files": [
+    {
+      "path": "build/crow-v15-strong-winghold-leg-isolation-20261113/push-wing-20261126-rebound-stronghold-replay.json",
+      "size": 16108383,
+      "device": 16777232,
+      "inode": 17095473,
+      "links": 1,
+      "sha256": "deacf306e913ab131386b3e771495f2f353403224624f2302c120b37870c9208",
+      "open_pids": [],
+      "lsof_exit": 1,
+      "commit": "f981eb868062d68263bb9b484a458e03a3d875fb",
+      "git_gzip": "artifacts/crow-v15-strong-winghold-leg-isolation-20261113/push-wing-20261126-rebound-stronghold/replay.json.gz",
+      "independent_github_restore_sha256": "deacf306e913ab131386b3e771495f2f353403224624f2302c120b37870c9208"
+    },
+    {
+      "path": "build/crow-v15-strong-winghold-leg-isolation-20261113/push-wing-20261126-rebound-stronghold-trace.tsv",
+      "size": 351339,
+      "device": 16777232,
+      "inode": 17095472,
+      "links": 1,
+      "sha256": "a38a9714d72fba1cb9f5dca8b3cb221fdab1f8bc6141591a289109831a33e333",
+      "open_pids": [],
+      "lsof_exit": 1,
+      "commit": "f981eb868062d68263bb9b484a458e03a3d875fb",
+      "git_gzip": "artifacts/crow-v15-strong-winghold-leg-isolation-20261113/push-wing-20261126-rebound-stronghold/trace.tsv.gz",
+      "independent_github_restore_sha256": "a38a9714d72fba1cb9f5dca8b3cb221fdab1f8bc6141591a289109831a33e333"
+    },
+    {
+      "path": "build/crow-v15-strong-winghold-leg-isolation-20261113/hold-wing-20261126-rebound-stronghold-replay.json",
+      "size": 16116716,
+      "device": 16777232,
+      "inode": 17095501,
+      "links": 1,
+      "sha256": "16daa0dee77fa154cbe41beeee007a51bc668bf2942920b1cbad209e8f229219",
+      "open_pids": [],
+      "lsof_exit": 1,
+      "commit": "f981eb868062d68263bb9b484a458e03a3d875fb",
+      "git_gzip": "artifacts/crow-v15-strong-winghold-leg-isolation-20261113/hold-wing-20261126-rebound-stronghold/replay.json.gz",
+      "independent_github_restore_sha256": "16daa0dee77fa154cbe41beeee007a51bc668bf2942920b1cbad209e8f229219"
+    },
+    {
+      "path": "build/crow-v15-strong-winghold-leg-isolation-20261113/hold-wing-20261126-rebound-stronghold-trace.tsv",
+      "size": 351471,
+      "device": 16777232,
+      "inode": 17095500,
+      "links": 1,
+      "sha256": "0b0bf01139425609be849a6b6d659badb39ee2a9edfd2158ca0e7cda8a8d2927",
+      "open_pids": [],
+      "lsof_exit": 1,
+      "commit": "f981eb868062d68263bb9b484a458e03a3d875fb",
+      "git_gzip": "artifacts/crow-v15-strong-winghold-leg-isolation-20261113/hold-wing-20261126-rebound-stronghold/trace.tsv.gz",
+      "independent_github_restore_sha256": "0b0bf01139425609be849a6b6d659badb39ee2a9edfd2158ca0e7cda8a8d2927"
+    },
+    {
+      "path": "build/crow-v15-hop-wing-transition-20261113/push-wing-20261126-rebound-transition-replay.json",
+      "size": 19950180,
+      "device": 16777232,
+      "inode": 17095569,
+      "links": 1,
+      "sha256": "185b9f332b09eee2077b3b29a9356d2379027435f59d1a1459579d07977e6587",
+      "open_pids": [],
+      "lsof_exit": 1,
+      "commit": "8864ddd13cf969ad88b9d0b1304ba41f129c5ec1",
+      "git_gzip": "artifacts/crow-v15-hop-wing-transition-20261113/push-wing-20261126-rebound-transition/replay.json.gz",
+      "independent_github_restore_sha256": "185b9f332b09eee2077b3b29a9356d2379027435f59d1a1459579d07977e6587"
+    },
+    {
+      "path": "build/crow-v15-hop-wing-transition-20261113/push-wing-20261126-rebound-transition-trace.tsv",
+      "size": 432478,
+      "device": 16777232,
+      "inode": 17095568,
+      "links": 1,
+      "sha256": "7ee7352e929652d0604b0f3e17d7ea6d2dab7d132294b816f2d6e5df06e09114",
+      "open_pids": [],
+      "lsof_exit": 1,
+      "commit": "8864ddd13cf969ad88b9d0b1304ba41f129c5ec1",
+      "git_gzip": "artifacts/crow-v15-hop-wing-transition-20261113/push-wing-20261126-rebound-transition/trace.tsv.gz",
+      "independent_github_restore_sha256": "7ee7352e929652d0604b0f3e17d7ea6d2dab7d132294b816f2d6e5df06e09114"
+    },
+    {
+      "path": "build/crow-v15-hop-wing-transition-20261113/hold-wing-20261126-rebound-transition-replay.json",
+      "size": 19987027,
+      "device": 16777232,
+      "inode": 17095583,
+      "links": 1,
+      "sha256": "ed5b209e3b94063b4f84c565ba1d7444b8f714ed787e2c55ada8e97c5675f9cd",
+      "open_pids": [],
+      "lsof_exit": 1,
+      "commit": "8864ddd13cf969ad88b9d0b1304ba41f129c5ec1",
+      "git_gzip": "artifacts/crow-v15-hop-wing-transition-20261113/hold-wing-20261126-rebound-transition/replay.json.gz",
+      "independent_github_restore_sha256": "ed5b209e3b94063b4f84c565ba1d7444b8f714ed787e2c55ada8e97c5675f9cd"
+    },
+    {
+      "path": "build/crow-v15-hop-wing-transition-20261113/hold-wing-20261126-rebound-transition-trace.tsv",
+      "size": 432456,
+      "device": 16777232,
+      "inode": 17095582,
+      "links": 1,
+      "sha256": "b4da525adb75474ed193cefb228d7cb5f64c5ceba1d91e5b40f07d1116cb678f",
+      "open_pids": [],
+      "lsof_exit": 1,
+      "commit": "8864ddd13cf969ad88b9d0b1304ba41f129c5ec1",
+      "git_gzip": "artifacts/crow-v15-hop-wing-transition-20261113/hold-wing-20261126-rebound-transition/trace.tsv.gz",
+      "independent_github_restore_sha256": "b4da525adb75474ed193cefb228d7cb5f64c5ceba1d91e5b40f07d1116cb678f"
+    }
+  ]
+}
