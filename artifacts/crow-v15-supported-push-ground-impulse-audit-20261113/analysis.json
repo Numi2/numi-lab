@@ -1,0 +1,189 @@
+{
+  "scope": "Posthoc sum of magnitudes of logged model contact-point impulses in ticks 351\u2013355, not resultant net impulse and not measured slip; points may be speculative or warm-started, and distribution does not establish causation.",
+  "logs_sha256": {
+    "push": "d3c909ad2a07b910efb29fd1982c8259d59675384d831faf295a5541a79f4a3d",
+    "hold": "2598cd551c024bef75dc21db32b75e93ce324d7b18947547b7cf2f8088d67e07"
+  },
+  "rows": [
+    {
+      "arm": "push",
+      "lane": 2,
+      "class": "front",
+      "normal_ns": 0.38034161910413034,
+      "tangential_magnitude_sum_ns": 0.16075385636572428,
+      "points": 1136.0,
+      "sliding_cone_near": 318.0,
+      "tangent_to_normal_sum_ratio": 0.42265649692602514
+    },
+    {
+      "arm": "push",
+      "lane": 2,
+      "class": "other",
+      "normal_ns": 0.01061586652905,
+      "tangential_magnitude_sum_ns": 0.0028740965956015802,
+      "points": 27.0,
+      "sliding_cone_near": 9.0,
+      "tangent_to_normal_sum_ratio": 0.27073593924120104
+    },
+    {
+      "arm": "push",
+      "lane": 2,
+      "class": "rear",
+      "normal_ns": 0.13059599482302467,
+      "tangential_magnitude_sum_ns": 0.024112663819998662,
+      "points": 444.0,
+      "sliding_cone_near": 63.0,
+      "tangent_to_normal_sum_ratio": 0.18463555373711577
+    },
+    {
+      "arm": "push",
+      "lane": 3,
+      "class": "front",
+      "normal_ns": 0.3715786674160019,
+      "tangential_magnitude_sum_ns": 0.15436099454809835,
+      "points": 1163.0,
+      "sliding_cone_near": 335.0,
+      "tangent_to_normal_sum_ratio": 0.415419420123177
+    },
+    {
+      "arm": "push",
+      "lane": 3,
+      "class": "other",
+      "normal_ns": 0.028306617098770005,
+      "tangential_magnitude_sum_ns": 0.006159178976012386,
+      "points": 32.0,
+      "sliding_cone_near": 8.0,
+      "tangent_to_normal_sum_ratio": 0.21758795671419237
+    },
+    {
+      "arm": "push",
+      "lane": 3,
+      "class": "rear",
+      "normal_ns": 0.12957799341800988,
+      "tangential_magnitude_sum_ns": 0.020633879531436687,
+      "points": 452.0,
+      "sliding_cone_near": 63.0,
+      "tangent_to_normal_sum_ratio": 0.15923907283293995
+    },
+    {
+      "arm": "push",
+      "lane": 4,
+      "class": "front",
+      "normal_ns": 0.33812449980570053,
+      "tangential_magnitude_sum_ns": 0.15736682262101706,
+      "points": 724.0,
+      "sliding_cone_near": 431.0,
+      "tangent_to_normal_sum_ratio": 0.46541088478192544
+    },
+    {
+      "arm": "push",
+      "lane": 4,
+      "class": "rear",
+      "normal_ns": 0.16993621236985978,
+      "tangential_magnitude_sum_ns": 0.04680926727544635,
+      "points": 744.0,
+      "sliding_cone_near": 216.0,
+      "tangent_to_normal_sum_ratio": 0.27545198649930913
+    },
+    {
+      "arm": "push",
+      "lane": 7,
+      "class": "front",
+      "normal_ns": 0.32258478546539704,
+      "tangential_magnitude_sum_ns": 0.16127773242620574,
+      "points": 672.0,
+      "sliding_cone_near": 424.0,
+      "tangent_to_normal_sum_ratio": 0.4999545536331739
+    },
+    {
+      "arm": "push",
+      "lane": 7,
+      "class": "rear",
+      "normal_ns": 0.18455789614417736,
+      "tangential_magnitude_sum_ns": 0.040889421872049435,
+      "points": 720.0,
+      "sliding_cone_near": 220.0,
+      "tangent_to_normal_sum_ratio": 0.22155335927814465
+    },
+    {
+      "arm": "hold",
+      "lane": 2,
+      "class": "front",
+      "normal_ns": 0.000984408047325727,
+      "tangential_magnitude_sum_ns": 0.0005692488966435137,
+      "points": 1440.0,
+      "sliding_cone_near": 1046.0,
+      "tangent_to_normal_sum_ratio": 0.5782651799626716
+    },
+    {
+      "arm": "hold",
+      "lane": 2,
+      "class": "rear",
+      "normal_ns": 0.4106124386523601,
+      "tangential_magnitude_sum_ns": 0.036982051524121734,
+      "points": 1280.0,
+      "sliding_cone_near": 59.0,
+      "tangent_to_normal_sum_ratio": 0.09006558994047457
+    },
+    {
+      "arm": "hold",
+      "lane": 3,
+      "class": "front",
+      "normal_ns": 0.0010739248365181826,
+      "tangential_magnitude_sum_ns": 0.000468206464120987,
+      "points": 1600.0,
+      "sliding_cone_near": 810.0,
+      "tangent_to_normal_sum_ratio": 0.43597694009850735
+    },
+    {
+      "arm": "hold",
+      "lane": 3,
+      "class": "rear",
+      "normal_ns": 0.41044357630115114,
+      "tangential_magnitude_sum_ns": 0.04205102821265947,
+      "points": 1280.0,
+      "sliding_cone_near": 69.0,
+      "tangent_to_normal_sum_ratio": 0.10245264060803753
+    },
+    {
+      "arm": "hold",
+      "lane": 4,
+      "class": "front",
+      "normal_ns": 6.40480893368878e-05,
+      "tangential_magnitude_sum_ns": 3.5088992476148994e-05,
+      "points": 960.0,
+      "sliding_cone_near": 480.0,
+      "tangent_to_normal_sum_ratio": 0.5478538523075015
+    },
+    {
+      "arm": "hold",
+      "lane": 4,
+      "class": "rear",
+      "normal_ns": 0.40393684093164267,
+      "tangential_magnitude_sum_ns": 0.03572130080612093,
+      "points": 1280.0,
+      "sliding_cone_near": 160.0,
+      "tangent_to_normal_sum_ratio": 0.08843288649713921
+    },
+    {
+      "arm": "hold",
+      "lane": 7,
+      "class": "front",
+      "normal_ns": 0.0037455264708421677,
+      "tangential_magnitude_sum_ns": 0.00224684209231167,
+      "points": 1520.0,
+      "sliding_cone_near": 1520.0,
+      "tangent_to_normal_sum_ratio": 0.599873505047336
+    },
+    {
+      "arm": "hold",
+      "lane": 7,
+      "class": "rear",
+      "normal_ns": 0.39642141667953373,
+      "tangential_magnitude_sum_ns": 0.052289022886252444,
+      "points": 1280.0,
+      "sliding_cone_near": 303.0,
+      "tangent_to_normal_sum_ratio": 0.1319026184917824
+    }
+  ]
+}

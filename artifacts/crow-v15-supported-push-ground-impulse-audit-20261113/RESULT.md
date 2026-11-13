@@ -1,0 +1,5 @@
+# Ground impulse distribution during supported toe acceleration
+
+In the same four push lanes whose front proximal toes first reach the model speed limit before release, logged front-toe ground contact points carry 0.323–0.380 N s of summed normal impulse over ticks 351–355, compared with 0.0001–0.0037 N s in their matched crouch-hold lanes. The sum of tangential impulse magnitudes on those push front-toe points is 0.415–0.500 times the sum of normal impulses; many individual points are close to or above 0.59 times their normal impulse. The documented model friction parameters are 0.8 static and 0.6 dynamic, not measured crow values.
+
+This is an association within one used seed and correlated lanes. Sums of magnitudes are not net force, actual slip or proof that friction causes toe acceleration; contact-point impulses can include solver and warm-start effects. The data support a targeted matched ablation and detailed normal/tangent impulse observation, not a blanket friction reduction, altered velocity limits or a solver-defect conclusion. They do not qualify takeoff, flight or landing.
