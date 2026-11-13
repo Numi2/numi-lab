@@ -1,0 +1,157 @@
+{
+  "rows": [
+    {
+      "lane": 2,
+      "joints": [
+        {
+          "samples": 8016,
+          "effort_saturation_fraction": 0.469436127744511,
+          "over_effort_limit": 0,
+          "position_range": [
+            -0.0547736436,
+            0.0570109226
+          ],
+          "position_mean": 0.0023887170967275026
+        },
+        {
+          "samples": 8016,
+          "effort_saturation_fraction": 0.46968562874251496,
+          "over_effort_limit": 0,
+          "position_range": [
+            -0.0547729246,
+            0.0570147038
+          ],
+          "position_mean": 0.002399574924492157
+        }
+      ]
+    },
+    {
+      "lane": 3,
+      "joints": [
+        {
+          "samples": 8016,
+          "effort_saturation_fraction": 0.468937125748503,
+          "over_effort_limit": 0,
+          "position_range": [
+            -0.0547777265,
+            0.0570216477
+          ],
+          "position_mean": 0.0023888722164780865
+        },
+        {
+          "samples": 8016,
+          "effort_saturation_fraction": 0.469436127744511,
+          "over_effort_limit": 0,
+          "position_range": [
+            -0.054777015,
+            0.057025943
+          ],
+          "position_mean": 0.0023996717638715844
+        }
+      ]
+    },
+    {
+      "lane": 4,
+      "joints": [
+        {
+          "samples": 8016,
+          "effort_saturation_fraction": 0.6967315369261478,
+          "over_effort_limit": 0,
+          "position_range": [
+            -0.0908883885,
+            0.095105812
+          ],
+          "position_mean": 0.0049210728526408055
+        },
+        {
+          "samples": 8016,
+          "effort_saturation_fraction": 0.6978542914171657,
+          "over_effort_limit": 0,
+          "position_range": [
+            -0.0908893645,
+            0.0951426774
+          ],
+          "position_mean": 0.0049421363927045405
+        }
+      ]
+    },
+    {
+      "lane": 5,
+      "joints": [
+        {
+          "samples": 8016,
+          "effort_saturation_fraction": 0.6968562874251497,
+          "over_effort_limit": 0,
+          "position_range": [
+            -0.0908766165,
+            0.0951047167
+          ],
+          "position_mean": 0.00493754569406638
+        },
+        {
+          "samples": 8016,
+          "effort_saturation_fraction": 0.6972305389221557,
+          "over_effort_limit": 0,
+          "position_range": [
+            -0.0908761621,
+            0.0951400995
+          ],
+          "position_mean": 0.004959424788717615
+        }
+      ]
+    },
+    {
+      "lane": 6,
+      "joints": [
+        {
+          "samples": 8016,
+          "effort_saturation_fraction": 0.5769710578842315,
+          "over_effort_limit": 0,
+          "position_range": [
+            -0.0729857758,
+            0.0759294853
+          ],
+          "position_mean": 0.0035024899343036177
+        },
+        {
+          "samples": 8016,
+          "effort_saturation_fraction": 0.5774700598802395,
+          "over_effort_limit": 0,
+          "position_range": [
+            -0.0729877651,
+            0.0759375617
+          ],
+          "position_mean": 0.0035130363738677768
+        }
+      ]
+    },
+    {
+      "lane": 7,
+      "joints": [
+        {
+          "samples": 8016,
+          "effort_saturation_fraction": 0.5770958083832335,
+          "over_effort_limit": 0,
+          "position_range": [
+            -0.072985217,
+            0.0759358257
+          ],
+          "position_mean": 0.0035003385176327222
+        },
+        {
+          "samples": 8016,
+          "effort_saturation_fraction": 0.5774700598802395,
+          "over_effort_limit": 0,
+          "position_range": [
+            -0.0729873329,
+            0.075943701
+          ],
+          "position_mean": 0.0035098500116809007
+        }
+      ]
+    }
+  ],
+  "errors": [],
+  "complete_650_1150": true,
+  "scope": "Modeled actuator effort, not biological muscle force; completeness only expected for lanes surviving the observation interval."
+}
