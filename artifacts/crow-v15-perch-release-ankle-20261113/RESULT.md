@@ -1,0 +1,5 @@
+# Reversed-ankle release: failed
+
+The reversed ankle target stayed within model joint-position limits and produced exact prerelease q/v parity with the stronger-transfer comparison through 135 and 157 accepted states. All 350 intervals and 22,400 observer substeps completed without solver rollback, and host/observer normal impulse agreed within 9.91e-10 N s. The control-state measurements do not establish substep actuator-effort bounds.
+
+Neither lane attained any interval satisfying all independent release conditions or returned to regrip. Before falling, geometric clearance failed 160 of 162 and 160 of 163 release intervals; the releasing foot retained contact for 159 and 157 intervals. Both fell, with root height below 0.1 m at one-based steps 298 and 321. The altered ankle alone did not repair the coupled support and release dynamics. The knee target was applied immediately on entering release while the toes were still opening; control-state knee speed peaked at 5.89 and 5.25 rad/s. This motivates testing staged, contact-observed toe opening and gradual leg movement, not weakening release gates. Result is a constructed-perch failure, not a flight landing.

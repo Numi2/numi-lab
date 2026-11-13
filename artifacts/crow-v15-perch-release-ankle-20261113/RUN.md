@@ -1,0 +1,1 @@
+On the recorded Mac mini run run.py with the archived corrected current-body observer and metallib named in run-input-hashes.json. From the evidence root run analyze.py with NumPy, followed by contact-check.py, prefix-check.py, joint-check.py and failure-breakdown.py. The analysis stops physical interpretation at first fall. probe.gz preserves the executed binary.
