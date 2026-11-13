@@ -1,0 +1,23 @@
+--- a/pronation.metal
++++ b/sweep.metal
+@@ -5529,10 +5529,19 @@
+         if (fixedFlightController && state.episode.z==10u && (action==4u || action==5u) && environment%8u>=2u) {
+             const float seconds=float(state.episode.x)*dispatch.timing.x;
+             if (seconds>=7.04f && seconds<10.02f) {
+-                const float offset=environment%8u<4u ? 0.0f : environment%8u<6u ? 1.57079632679f : -1.57079632679f;
++                const float offset=1.57079632679f;
+                 const float phase=kTwoPi*6.4f*(seconds-7.04f)+offset;
+                 const float coordinated=defaultQ[binding.indices.z]+0.18f*sin(phase);
+                 targetCandidate=mix(targetCandidate,coordinated,smoothstep(7.04f,7.12f,seconds));
++            }
++        }
++        // Bounded bilateral sweep sensitivity in the authored joint range.
++        if (fixedFlightController && state.episode.z==10u && (action==2u || action==3u) && environment%8u>=2u) {
++            const float seconds=float(state.episode.x)*dispatch.timing.x;
++            if (seconds>=7.04f && seconds<10.02f) {
++                const uint arm=environment%8u;
++                const float sweep=arm<4u ? -0.16f : arm<6u ? 0.16f : 0.16f*sin(kTwoPi*6.4f*(seconds-7.04f));
++                targetCandidate=mix(targetCandidate,defaultQ[binding.indices.z]+sweep,smoothstep(7.04f,7.24f,seconds));
+             }
+         }
+         // Exploratory, bounded knee target feedback through the existing position drive.
