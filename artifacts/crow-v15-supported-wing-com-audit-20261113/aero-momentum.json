@@ -1,0 +1,117 @@
+{
+  "scope": "Posthoc integration of recorded model aerodynamic force using assumed .00125s physics substep, and difference with independently reconstructed endpoint COM/contact/gravity balance. Force logger timing and applied-force equivalence require independent validation; residual is not a complete solver energy or momentum audit.",
+  "rows": [
+    {
+      "arm": "push",
+      "lane": 0,
+      "model_aero_vertical_impulse_ns": 1.7038551805444375,
+      "other_residual_after_aero_ns": -0.06469907863018776,
+      "unattributed_residual_before_aero_ns": 1.6391561019142498
+    },
+    {
+      "arm": "push",
+      "lane": 1,
+      "model_aero_vertical_impulse_ns": 1.704151992265175,
+      "other_residual_after_aero_ns": -0.06457397341605176,
+      "unattributed_residual_before_aero_ns": 1.6395780188491234
+    },
+    {
+      "arm": "push",
+      "lane": 2,
+      "model_aero_vertical_impulse_ns": 0.40102212917202523,
+      "other_residual_after_aero_ns": 0.003592795847934538,
+      "unattributed_residual_before_aero_ns": 0.40461492501995977
+    },
+    {
+      "arm": "push",
+      "lane": 3,
+      "model_aero_vertical_impulse_ns": 0.4012376022091798,
+      "other_residual_after_aero_ns": 0.003771216846080061,
+      "unattributed_residual_before_aero_ns": 0.40500881905525987
+    },
+    {
+      "arm": "push",
+      "lane": 4,
+      "model_aero_vertical_impulse_ns": 0.5001694393523588,
+      "other_residual_after_aero_ns": 0.0013785274241007173,
+      "unattributed_residual_before_aero_ns": 0.5015479667764595
+    },
+    {
+      "arm": "push",
+      "lane": 5,
+      "model_aero_vertical_impulse_ns": 0.5033781126831525,
+      "other_residual_after_aero_ns": 0.00029123942328013186,
+      "unattributed_residual_before_aero_ns": 0.5036693521064326
+    },
+    {
+      "arm": "push",
+      "lane": 6,
+      "model_aero_vertical_impulse_ns": 0.7508582481460769,
+      "other_residual_after_aero_ns": -0.008544835714369925,
+      "unattributed_residual_before_aero_ns": 0.742313412431707
+    },
+    {
+      "arm": "push",
+      "lane": 7,
+      "model_aero_vertical_impulse_ns": 0.7505932321284633,
+      "other_residual_after_aero_ns": -0.00917591620098468,
+      "unattributed_residual_before_aero_ns": 0.7414173159274786
+    },
+    {
+      "arm": "hold",
+      "lane": 0,
+      "model_aero_vertical_impulse_ns": 1.6904178150342757,
+      "other_residual_after_aero_ns": -0.06563929415539915,
+      "unattributed_residual_before_aero_ns": 1.6247785208788765
+    },
+    {
+      "arm": "hold",
+      "lane": 1,
+      "model_aero_vertical_impulse_ns": 1.6903617276874683,
+      "other_residual_after_aero_ns": -0.06563381993351891,
+      "unattributed_residual_before_aero_ns": 1.6247279077539494
+    },
+    {
+      "arm": "hold",
+      "lane": 2,
+      "model_aero_vertical_impulse_ns": 0.44723594160888025,
+      "other_residual_after_aero_ns": 0.005249119262063173,
+      "unattributed_residual_before_aero_ns": 0.4524850608709434
+    },
+    {
+      "arm": "hold",
+      "lane": 3,
+      "model_aero_vertical_impulse_ns": 0.4472336813483567,
+      "other_residual_after_aero_ns": 0.005251820304042254,
+      "unattributed_residual_before_aero_ns": 0.452485501652399
+    },
+    {
+      "arm": "hold",
+      "lane": 4,
+      "model_aero_vertical_impulse_ns": 0.5797694669369529,
+      "other_residual_after_aero_ns": 0.00287952063566399,
+      "unattributed_residual_before_aero_ns": 0.5826489875726168
+    },
+    {
+      "arm": "hold",
+      "lane": 5,
+      "model_aero_vertical_impulse_ns": 0.5796135534083742,
+      "other_residual_after_aero_ns": 0.0028795043738940596,
+      "unattributed_residual_before_aero_ns": 0.5824930577822682
+    },
+    {
+      "arm": "hold",
+      "lane": 6,
+      "model_aero_vertical_impulse_ns": 0.7727568057647245,
+      "other_residual_after_aero_ns": -0.0015785873669962314,
+      "unattributed_residual_before_aero_ns": 0.7711782183977283
+    },
+    {
+      "arm": "hold",
+      "lane": 7,
+      "model_aero_vertical_impulse_ns": 0.7720520850258692,
+      "other_residual_after_aero_ns": -0.0017581260597230308,
+      "unattributed_residual_before_aero_ns": 0.7702939589661462
+    }
+  ]
+}
