@@ -1,0 +1,24 @@
+{
+  "commit": "c5f953cc63121948f4da40017d5f7a8db16953bb",
+  "run": "bank-feedback-20261126-rebound-bank",
+  "parts": [
+    {
+      "file": "run.stderr.gz.part00",
+      "bytes": 41943040,
+      "sha256": "3b71cd1753bc5ab3eafebb0c31f2eb84f0dabc5533afb69159cd3a4a0dc2f3fc"
+    },
+    {
+      "file": "run.stderr.gz.part01",
+      "bytes": 41943040,
+      "sha256": "8c9bdb2e15fc3ae2dc67790c4307b0d7076b48d305c9ef8bc9be755734fb96e2"
+    },
+    {
+      "file": "run.stderr.gz.part02",
+      "bytes": 27905761,
+      "sha256": "eecd668dc71f038b4dd0ab90126323393ee8de29482fbeec449c6adf4ff44133"
+    }
+  ],
+  "bytes": 111791841,
+  "full_sha256": "c8b5af9118feb18486766288abaab336693b3752a39b98e4dcf75f3016a62170",
+  "gzip_complete": true
+}
