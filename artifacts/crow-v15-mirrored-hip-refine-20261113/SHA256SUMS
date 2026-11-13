@@ -1,0 +1,17 @@
+7a83aa2422a540c24152b0bbeb929ec27985de553230efc4c1c64f9bda9a1cb8  artifacts/crow-v15-mirrored-hip-refine-20261113/PLAN.md
+490245e149eac45e9364c1120ccf03441106c5a064a3010951514c0833dea342  artifacts/crow-v15-mirrored-hip-refine-20261113/analyze.py
+6735694148d24afc9df1d1addc5e7b9a0be3f197828336d78d28396f5348ef2a  artifacts/crow-v15-mirrored-hip-refine-20261113/build.py
+b270dc611dbe00d39f9cd4b6f8a8b417a11e903566063535b3f91756205402a5  artifacts/crow-v15-mirrored-hip-refine-20261113/com-analyze.py
+bcee1e88bdb5c0a2b8ea867ae9c1cbf57459621905c978bee537872becde6886  artifacts/crow-v15-mirrored-hip-refine-20261113/hold-wing-build.log
+1e2b2b39dda2e0e9c73619ba29e7505eac94cde16dfc1a8627eaf96ea93ab04f  artifacts/crow-v15-mirrored-hip-refine-20261113/hold-wing-hashes.json
+08bcade6f4318cdddaa85a17827abe9a31bd9bedd9a1c144d8092cf74101915b  artifacts/crow-v15-mirrored-hip-refine-20261113/hold-wing.air.gz
+9097c070be3e13978dedfb2fc9658424ddeba76040fde49fdc67c2357a5422af  artifacts/crow-v15-mirrored-hip-refine-20261113/hold-wing.metal
+80eafb54770c202bd4fc6c1ff99b0b00ea60e658e07acaabb02d34d82263ffca  artifacts/crow-v15-mirrored-hip-refine-20261113/hold-wing.metallib.gz
+6638b53cf7839f41e88ac3e6c38676247b8d01134868af2e083caa7598217d9f  artifacts/crow-v15-mirrored-hip-refine-20261113/horizontal.py
+112b069284771fe174341bbf6bf67e0d8875efc18bb4164c551c22c24bf968ff  artifacts/crow-v15-mirrored-hip-refine-20261113/push-wing-build.log
+fe93223abec93f4876a6247369c733993c0ea97e8152e8e05c79b38acefb37bd  artifacts/crow-v15-mirrored-hip-refine-20261113/push-wing-hashes.json
+5b1761165b404ca66f03f341e068581f7127c49a11b69702a3a44e59232a57bc  artifacts/crow-v15-mirrored-hip-refine-20261113/push-wing.air.gz
+ee4e9ec3ab56e2337bb5b2b93414a69131c170cd5c1e238398aac71ea8e2265e  artifacts/crow-v15-mirrored-hip-refine-20261113/push-wing.metal
+312619ab30522b1734eb22995104d726631beb519ac845e758049edaaa308301  artifacts/crow-v15-mirrored-hip-refine-20261113/push-wing.metallib.gz
+453667a3b4a52f9bb46c9f1c9702d9a28f31b577bb2a5156f20db0b14634237b  artifacts/crow-v15-mirrored-hip-refine-20261113/run.py
+c1de8a0a77edff7fbe0fa3398884b85f6560adf7d92f52dc4e4daf0456185565  artifacts/crow-v15-mirrored-hip-refine-20261113/screen.py
