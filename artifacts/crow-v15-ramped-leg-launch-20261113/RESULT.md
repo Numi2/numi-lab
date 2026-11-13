@@ -1,0 +1,7 @@
+# Supported ramped leg launch: failed screen
+
+The push and matched crouch-hold runs each completed 400 first-episode ticks on one used development seed. Their recorded accepted states, actions and contact substeps matched through tick 372; the first physical target difference occurred at 373. The target-history and corrected wing-drive checks passed. All lanes are correlated, and this is not a held-out test.
+
+No candidate lane reached three consecutive unloaded ticks before 400. The 0.12-second ramp had four and six toe-speed threshold substeps; the 0.24-second pair had six each; the 0.36-second pair had none. Their matched holds had no threshold events. Whole-body COM rose a maximum 0.0139–0.0144 m from tick 350; neither release nor leg-powered flight was demonstrated. Push-minus-hold total normal foot impulse from ticks 371–400 was only +0.0066 to +0.0069 N s. All lanes fail the preregistered screen.
+
+The posthoc timeline shows transient increases in upward COM velocity and oscillating contact impulse; near-zero net impulse over the full window alone does not describe those transients. The position targets did reach their intended endpoints, with hip and knee effort frequently at their existing limits. Foot impulse is not isolated muscle work. Wing holding remains active; no physical, biological, flight, landing or route qualification follows. Preserve the full trace and control for future diagnosis.

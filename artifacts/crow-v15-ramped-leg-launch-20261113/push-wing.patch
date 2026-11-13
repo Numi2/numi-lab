@@ -1,0 +1,33 @@
+--- a/wingheld-hold.metal
++++ b/ramped-push-wing.metal
+@@ -5116,7 +5116,7 @@
+         if (fixedFlightController && state.episode.z == 10u && action >= 7u && action <= 12u) {
+             const float seconds=float(state.episode.x)*dispatch.timing.x;
+             const uint joint=(action-7u)%3u;
+-            if (seconds >= 6.3f && seconds < 7.4f) {
++            if (seconds >= 6.3f && seconds < 8.2f) {
+                 const float anklePrep=environment%8u<2u ? 0.0f : 0.30f;
+                 const float crouched=joint==0u ? -0.85f : joint==1u ? 1.00f : -0.50f+anklePrep;
+                 const uint experimentArm=environment%8u;
+@@ -5131,6 +5131,12 @@
+                     ? mix(navigationTeacherRequested,crouched,smoothstep(6.3f,6.55f,seconds))
+                     : crouched;
+                 if ((state.status.w & 4096u) != 0u) navigationTeacherRequested = crouched;
++                // Explicit bounded supported extension; no body wrench.
++                if (experimentArm>=2u && seconds>=7.4f && (bilateral || pushStarted) && (state.status.w & 4096u)==0u) {
++                    const float duration=experimentArm<4u ? 0.12f : experimentArm<6u ? 0.24f : 0.36f;
++                    const float finish=joint==0u ? -0.25f : joint==1u ? 0.29f : -0.09f;
++                    navigationTeacherRequested=mix(crouched,finish,smoothstep(7.4f,7.4f+duration,seconds));
++                }
+             }
+         }
+         // Keep the training-only teacher active through the final target.
+@@ -9553,7 +9559,7 @@
+             // support during the launch window, then clear it before flight.
+             if (state.navigation.z<5.0f) {
+                 const bool bothLoaded=(state.status.w & ((1u<<20)|(1u<<21)))==((1u<<20)|(1u<<21));
+-                const bool pushing=seconds>=6.96f && seconds<7.4f &&
++                const bool pushing=seconds>=6.96f && seconds<8.2f &&
+                     ((state.status.w & (1u<<19))!=0u || bothLoaded);
+                 state.status.w=(state.status.w & ~(1u<<19)) | (pushing ? (1u<<19) : 0u);
+             }
