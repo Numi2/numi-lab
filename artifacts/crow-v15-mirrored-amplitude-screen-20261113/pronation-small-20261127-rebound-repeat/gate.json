@@ -1,0 +1,132 @@
+{
+  "shared": true,
+  "controls_match": true,
+  "rows": [
+    {
+      "lane": 2,
+      "checks": {
+        "shared_validity": true,
+        "matched_prefix": true,
+        "full_episode": true,
+        "observation_coverage": true,
+        "phase_target": true,
+        "release_and_no_ground": true,
+        "toe_and_flap_limits": true,
+        "height": true,
+        "speed": true,
+        "displacement": true,
+        "pronation_effort": true
+      },
+      "passed": true
+    },
+    {
+      "lane": 3,
+      "checks": {
+        "shared_validity": true,
+        "matched_prefix": true,
+        "full_episode": true,
+        "observation_coverage": true,
+        "phase_target": true,
+        "release_and_no_ground": true,
+        "toe_and_flap_limits": true,
+        "height": true,
+        "speed": true,
+        "displacement": true,
+        "pronation_effort": true
+      },
+      "passed": true
+    },
+    {
+      "lane": 4,
+      "checks": {
+        "shared_validity": true,
+        "matched_prefix": true,
+        "full_episode": true,
+        "observation_coverage": true,
+        "phase_target": true,
+        "release_and_no_ground": true,
+        "toe_and_flap_limits": true,
+        "height": true,
+        "speed": true,
+        "displacement": true,
+        "pronation_effort": true
+      },
+      "passed": true
+    },
+    {
+      "lane": 5,
+      "checks": {
+        "shared_validity": true,
+        "matched_prefix": true,
+        "full_episode": true,
+        "observation_coverage": true,
+        "phase_target": true,
+        "release_and_no_ground": true,
+        "toe_and_flap_limits": true,
+        "height": true,
+        "speed": true,
+        "displacement": true,
+        "pronation_effort": true
+      },
+      "passed": true
+    },
+    {
+      "lane": 6,
+      "checks": {
+        "shared_validity": true,
+        "matched_prefix": true,
+        "full_episode": true,
+        "observation_coverage": true,
+        "phase_target": true,
+        "release_and_no_ground": true,
+        "toe_and_flap_limits": true,
+        "height": true,
+        "speed": true,
+        "displacement": true,
+        "pronation_effort": true
+      },
+      "passed": true
+    },
+    {
+      "lane": 7,
+      "checks": {
+        "shared_validity": true,
+        "matched_prefix": true,
+        "full_episode": true,
+        "observation_coverage": true,
+        "phase_target": true,
+        "release_and_no_ground": true,
+        "toe_and_flap_limits": true,
+        "height": true,
+        "speed": true,
+        "displacement": true,
+        "pronation_effort": true
+      },
+      "passed": true
+    }
+  ],
+  "pairs": [
+    {
+      "lanes": [
+        2,
+        3
+      ],
+      "passed": true
+    },
+    {
+      "lanes": [
+        4,
+        5
+      ],
+      "passed": true
+    },
+    {
+      "lanes": [
+        6,
+        7
+      ],
+      "passed": true
+    }
+  ],
+  "scope": "Used-seed exploratory gate only. No flight, launch, landing or navigation qualification."
+}

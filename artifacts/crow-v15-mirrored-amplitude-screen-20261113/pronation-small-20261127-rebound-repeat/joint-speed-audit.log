@@ -1,0 +1,48 @@
+{
+  "counts": {
+    "0": 20816,
+    "1": 20816,
+    "2": 20816,
+    "3": 20816,
+    "4": 20816,
+    "5": 20816,
+    "6": 20816,
+    "7": 20816
+  },
+  "hits": [
+    {
+      "lane": 0,
+      "joint": 14,
+      "name": "crow_left_knee_pitch",
+      "at_limit_substeps": 2,
+      "max_speed": 22.0,
+      "limit": 22.0
+    },
+    {
+      "lane": 0,
+      "joint": 17,
+      "name": "crow_right_knee_pitch",
+      "at_limit_substeps": 2,
+      "max_speed": 22.0,
+      "limit": 22.0
+    },
+    {
+      "lane": 1,
+      "joint": 14,
+      "name": "crow_left_knee_pitch",
+      "at_limit_substeps": 2,
+      "max_speed": 22.0,
+      "limit": 22.0
+    },
+    {
+      "lane": 1,
+      "joint": 17,
+      "name": "crow_right_knee_pitch",
+      "at_limit_substeps": 2,
+      "max_speed": 22.0,
+      "limit": 22.0
+    }
+  ],
+  "errors": [],
+  "scope": "Additional observed joint-speed diagnostic; thresholds are current model limits, not anatomical calibration."
+}

@@ -1,0 +1,7 @@
+# Second development-seed straight-flight repeat
+
+All six candidate lanes passed the same 1800-tick obstacle-free engineering gates on used seed 20261127, with exact same-lane pre-intervention prefixes and full control first episodes against a same-seed reference. Host, actor packs, masks, target reconstruction, contact/force observation and actuator checks passed. No candidate body joint reached a recorded modeled speed limit in the additional diagnostic.
+
+Across the six lanes, sampled heights were 0.539–1.270 m, forward velocities after tick 550 were 0.027–0.521 m/s, forward displacement after tick 500 was 8.29–9.70 m, and maximum lateral displacement was 0.080–0.307 m. All reached tick 1800 without recorded post-release ground contact. The primary 0.08-radian pair passed both seeds; its two lanes on this seed had heights 0.539–1.074 m and maximum lateral displacement 0.080–0.088 m. Complete same-seed controls and raw observations are retained.
+
+The two seeds were already used in development, lanes are correlated, and world-position feedback, approximate aero, fixed 36.02s actuation horizon and wing-assisted launch remain. This is a repeat of a straight-flight engineering screen, not full flight qualification, a frozen controller, biological validation, a proven leg-powered transition, autonomous navigation or supported landing. Signed turns, vertical control and disturbed recovery remain to be tested before freeze, and final unused layouts/seeds remain untouched.
