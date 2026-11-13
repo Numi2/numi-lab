@@ -1,0 +1,7 @@
+# Grip and release on hip-roll research body: failed partial screen
+
+The corrected observer and native host numerically agreed on accepted last-substep foot normal impulses across 494 lane-interval states, including 910 nonzero foot samples; maximum absolute discrepancy was 9.47e-10 N s. The broader observer gate is false because the run terminated with an error. The one-step initialization smoke passed after correcting the host assertion to account for the ground as body 35; both initial mapping-assertion failures and the complete mapping report are retained.
+
+On the 35-bird-body research topology, lane 0 achieved ten intervals of strictly qualified foot release but crossed the root-height fall threshold at one-based step 231. Lane 1 achieved only nine qualified release intervals before the run ended, below the required ten. At zero-based control step 247, the native step rolled back in lane 0 at substep 9 with `MR_STEP_DID_NOT_CONVERGE` (status 11), after lane 0 had fallen. Both candidate screens fail; the rollback does not establish that the fall was caused by a solver defect. Remaining required observations are absent, and no final 100-interval supported bilateral opposing grip was demonstrated.
+
+This test uses constructed perch states, held-default hip-roll commands and a corrected-wing-axis research model, not an actual flight arrival or a qualified landing. The executed probe and observer library are archived with their input hashes; the observer's metallib and dependencies are indexed separately.
