@@ -1,0 +1,40 @@
+{
+  "archive_verified_at_commit": "4f9df4d42ed874387e9cf30ba43dd1387f7deb1b",
+  "files": [
+    {
+      "path": "/tmp/crow-damping-corrected.gz",
+      "bytes": 247115239,
+      "sha256": "d1ac33c3360f554bb2f7c9dfb45b247686e84dd7b6a82deb294771daaa155cf3"
+    },
+    {
+      "path": "/tmp/crow-continuation.rfybzJ/repo/artifacts/crow-v15-bank-damping-episode-trigger-20261113/signed-turn-20261126-rebound-observer-contract/run.stderr.gz.part000",
+      "bytes": 41943040,
+      "sha256": "d7d351872fa1531f8c351fd4de9f6bd33b62ee107d3b2fcc0cb197838cbf8fc0"
+    },
+    {
+      "path": "/tmp/crow-continuation.rfybzJ/repo/artifacts/crow-v15-bank-damping-episode-trigger-20261113/signed-turn-20261126-rebound-observer-contract/run.stderr.gz.part001",
+      "bytes": 41943040,
+      "sha256": "965a5254fe92f293d4243830db163c5dec3bf7ce29117b6d348db4987788af26"
+    },
+    {
+      "path": "/tmp/crow-continuation.rfybzJ/repo/artifacts/crow-v15-bank-damping-episode-trigger-20261113/signed-turn-20261126-rebound-observer-contract/run.stderr.gz.part002",
+      "bytes": 41943040,
+      "sha256": "59f18f3c99e2fb07e2dd2bd2ced81ae557db2724083e689c08c9f66a312fa708"
+    },
+    {
+      "path": "/tmp/crow-continuation.rfybzJ/repo/artifacts/crow-v15-bank-damping-episode-trigger-20261113/signed-turn-20261126-rebound-observer-contract/run.stderr.gz.part003",
+      "bytes": 41943040,
+      "sha256": "9d92654e202c148829a6bf136220c4e294461f0d0424c01a4a4cb69b94ac17c0"
+    },
+    {
+      "path": "/tmp/crow-continuation.rfybzJ/repo/artifacts/crow-v15-bank-damping-episode-trigger-20261113/signed-turn-20261126-rebound-observer-contract/run.stderr.gz.part004",
+      "bytes": 41943040,
+      "sha256": "ce79ca98fa31fe299005d47746e0cd92a6be063c90e5be5000e933a81ff04055"
+    },
+    {
+      "path": "/tmp/crow-continuation.rfybzJ/repo/artifacts/crow-v15-bank-damping-episode-trigger-20261113/signed-turn-20261126-rebound-observer-contract/run.stderr.gz.part005",
+      "bytes": 37400039,
+      "sha256": "e01116d8c02ae2b85fca154c119c1f46e0b100e8f2430113932342a3b8907b47"
+    }
+  ]
+}
