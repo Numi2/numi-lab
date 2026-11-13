@@ -1,0 +1,40 @@
+{
+  "commit": "b6f4bf4ee224dd95fd3023452c8b8cafd2f51228",
+  "source": "independent authenticated GitHub raw content",
+  "manifest": "artifacts/crow-v15-leg-flight-height-switch-20261113/signed-turn-20261126-rebound-leg-switch/stderr-parts.json",
+  "bytes": 247346082,
+  "sha256": "f92331c4e93c3ae0e98493159e9563e9c1f5c1d06d998ab4bc40806a4d9809b9",
+  "gzip_eof_verified": true,
+  "parts": [
+    {
+      "file": "run.stderr.gz.part000",
+      "bytes": 41943040,
+      "sha256": "5c19908e747bde3d1f5d174fe4cc376a33de5d7e6d385513b70545099f32a230"
+    },
+    {
+      "file": "run.stderr.gz.part001",
+      "bytes": 41943040,
+      "sha256": "b204b689684cf1236a9e9e0620bd76c9478f0a584fda774ab6f94c4e1202db5e"
+    },
+    {
+      "file": "run.stderr.gz.part002",
+      "bytes": 41943040,
+      "sha256": "7c7b06525a7d18f10d115ae31ff7afc383311e39e4b036aab21b6974b5942f56"
+    },
+    {
+      "file": "run.stderr.gz.part003",
+      "bytes": 41943040,
+      "sha256": "5680cd4938c4b377aa4969a9d96d0f071a394de4da7c390765f24139f20212c0"
+    },
+    {
+      "file": "run.stderr.gz.part004",
+      "bytes": 41943040,
+      "sha256": "7650c2d86cf8869c0684020476109ac0d463fb585b4771b2dc74ce0ab9e69d87"
+    },
+    {
+      "file": "run.stderr.gz.part005",
+      "bytes": 37630882,
+      "sha256": "cdc948de549b7657f17ee82cce1fae8a76e578d88d17e0eb5cab2ebe70eecbc0"
+    }
+  ]
+}

@@ -1,0 +1,10 @@
+{
+  "path": "/Users/n/Developer/numi-crow-rl-20261107/artifacts/crow-v15-leg-flight-height-switch-20261113/signed-turn-20261126-rebound-leg-switch/run.stderr.gz",
+  "inode": 17100568,
+  "bytes": 247346082,
+  "mtime_ns": 1794583723586462383,
+  "sha256": "f92331c4e93c3ae0e98493159e9563e9c1f5c1d06d998ab4bc40806a4d9809b9",
+  "remote_archive_commit": "b6f4bf4ee224dd95fd3023452c8b8cafd2f51228",
+  "lsof_clear": true,
+  "retired": false
+}
