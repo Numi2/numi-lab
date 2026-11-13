@@ -1,0 +1,3 @@
+events 74 pre-contact near limit 0 same-body normal impulse 58
+pre velocity range -11.5402718 0.000592113298
+sample [{'lane': 2, 'step': 363, 'substep': 12, 'toe_index': 6, 'begin_velocity_rad_s': -5.39639235, 'pre_contact_velocity_rad_s': -5.00070286, 'post_velocity_rad_s': -12.0, 'same_body_normal_impulse_ns': 7.20989101e-06}, {'lane': 2, 'step': 363, 'substep': 12, 'toe_index': 14, 'begin_velocity_rad_s': -5.60157728, 'pre_contact_velocity_rad_s': -5.19005346, 'post_velocity_rad_s': -12.0, 'same_body_normal_impulse_ns': 1.30835281e-06}, {'lane': 2, 'step': 363, 'substep': 13, 'toe_index': 6, 'begin_velocity_rad_s': -12.0, 'pre_contact_velocity_rad_s': -11.5357218, 'post_velocity_rad_s': -12.0, 'same_body_normal_impulse_ns': 0.00222591101}]

@@ -1,0 +1,748 @@
+{
+  "event_count": 74,
+  "events": [
+    {
+      "lane": 2,
+      "step": 363,
+      "substep": 12,
+      "toe_index": 6,
+      "begin_velocity_rad_s": -5.39639235,
+      "pre_contact_velocity_rad_s": -5.00070286,
+      "post_velocity_rad_s": -12.0,
+      "same_body_normal_impulse_ns": 7.20989101e-06
+    },
+    {
+      "lane": 2,
+      "step": 363,
+      "substep": 12,
+      "toe_index": 14,
+      "begin_velocity_rad_s": -5.60157728,
+      "pre_contact_velocity_rad_s": -5.19005346,
+      "post_velocity_rad_s": -12.0,
+      "same_body_normal_impulse_ns": 1.30835281e-06
+    },
+    {
+      "lane": 2,
+      "step": 363,
+      "substep": 13,
+      "toe_index": 6,
+      "begin_velocity_rad_s": -12.0,
+      "pre_contact_velocity_rad_s": -11.5357218,
+      "post_velocity_rad_s": -12.0,
+      "same_body_normal_impulse_ns": 0.00222591101
+    },
+    {
+      "lane": 2,
+      "step": 363,
+      "substep": 13,
+      "toe_index": 14,
+      "begin_velocity_rad_s": -12.0,
+      "pre_contact_velocity_rad_s": -11.5357103,
+      "post_velocity_rad_s": -12.0,
+      "same_body_normal_impulse_ns": 0.00250406191
+    },
+    {
+      "lane": 2,
+      "step": 363,
+      "substep": 14,
+      "toe_index": 6,
+      "begin_velocity_rad_s": -12.0,
+      "pre_contact_velocity_rad_s": -11.5356445,
+      "post_velocity_rad_s": -12.0,
+      "same_body_normal_impulse_ns": 0.0221446119
+    },
+    {
+      "lane": 2,
+      "step": 363,
+      "substep": 14,
+      "toe_index": 14,
+      "begin_velocity_rad_s": -12.0,
+      "pre_contact_velocity_rad_s": -11.5356836,
+      "post_velocity_rad_s": -12.0,
+      "same_body_normal_impulse_ns": 0.0235600714
+    },
+    {
+      "lane": 2,
+      "step": 363,
+      "substep": 15,
+      "toe_index": 6,
+      "begin_velocity_rad_s": -12.0,
+      "pre_contact_velocity_rad_s": -11.5381765,
+      "post_velocity_rad_s": -12.0,
+      "same_body_normal_impulse_ns": 0.0310440045
+    },
+    {
+      "lane": 2,
+      "step": 363,
+      "substep": 15,
+      "toe_index": 14,
+      "begin_velocity_rad_s": -12.0,
+      "pre_contact_velocity_rad_s": -11.5382652,
+      "post_velocity_rad_s": -12.0,
+      "same_body_normal_impulse_ns": 0.0320171639
+    },
+    {
+      "lane": 2,
+      "step": 364,
+      "substep": 0,
+      "toe_index": 6,
+      "begin_velocity_rad_s": -12.0,
+      "pre_contact_velocity_rad_s": -11.5368557,
+      "post_velocity_rad_s": -12.0,
+      "same_body_normal_impulse_ns": 0.0227913745
+    },
+    {
+      "lane": 2,
+      "step": 364,
+      "substep": 0,
+      "toe_index": 14,
+      "begin_velocity_rad_s": -12.0,
+      "pre_contact_velocity_rad_s": -11.536871,
+      "post_velocity_rad_s": -12.0,
+      "same_body_normal_impulse_ns": 0.0235197563
+    },
+    {
+      "lane": 2,
+      "step": 364,
+      "substep": 1,
+      "toe_index": 6,
+      "begin_velocity_rad_s": -12.0,
+      "pre_contact_velocity_rad_s": -11.5368481,
+      "post_velocity_rad_s": -12.0,
+      "same_body_normal_impulse_ns": 0.0167755708
+    },
+    {
+      "lane": 2,
+      "step": 364,
+      "substep": 1,
+      "toe_index": 14,
+      "begin_velocity_rad_s": -12.0,
+      "pre_contact_velocity_rad_s": -11.5368633,
+      "post_velocity_rad_s": -12.0,
+      "same_body_normal_impulse_ns": 0.0173213258
+    },
+    {
+      "lane": 6,
+      "step": 364,
+      "substep": 9,
+      "toe_index": 6,
+      "begin_velocity_rad_s": -10.1502771,
+      "pre_contact_velocity_rad_s": -9.68550396,
+      "post_velocity_rad_s": -12.0,
+      "same_body_normal_impulse_ns": 0.0
+    },
+    {
+      "lane": 6,
+      "step": 364,
+      "substep": 9,
+      "toe_index": 14,
+      "begin_velocity_rad_s": -7.14963293,
+      "pre_contact_velocity_rad_s": -6.68475676,
+      "post_velocity_rad_s": -12.0,
+      "same_body_normal_impulse_ns": 0.0
+    },
+    {
+      "lane": 6,
+      "step": 364,
+      "substep": 10,
+      "toe_index": 6,
+      "begin_velocity_rad_s": -12.0,
+      "pre_contact_velocity_rad_s": -11.536334,
+      "post_velocity_rad_s": -12.0,
+      "same_body_normal_impulse_ns": 0.0
+    },
+    {
+      "lane": 6,
+      "step": 364,
+      "substep": 10,
+      "toe_index": 14,
+      "begin_velocity_rad_s": -12.0,
+      "pre_contact_velocity_rad_s": -11.5368195,
+      "post_velocity_rad_s": -12.0,
+      "same_body_normal_impulse_ns": 0.0
+    },
+    {
+      "lane": 6,
+      "step": 364,
+      "substep": 11,
+      "toe_index": 6,
+      "begin_velocity_rad_s": -12.0,
+      "pre_contact_velocity_rad_s": -11.537322,
+      "post_velocity_rad_s": -12.0,
+      "same_body_normal_impulse_ns": 0.0240378361
+    },
+    {
+      "lane": 6,
+      "step": 364,
+      "substep": 11,
+      "toe_index": 14,
+      "begin_velocity_rad_s": -12.0,
+      "pre_contact_velocity_rad_s": -11.5373516,
+      "post_velocity_rad_s": -12.0,
+      "same_body_normal_impulse_ns": 0.0169498585
+    },
+    {
+      "lane": 6,
+      "step": 364,
+      "substep": 12,
+      "toe_index": 6,
+      "begin_velocity_rad_s": -12.0,
+      "pre_contact_velocity_rad_s": -11.5387192,
+      "post_velocity_rad_s": -12.0,
+      "same_body_normal_impulse_ns": 0.0481552407
+    },
+    {
+      "lane": 6,
+      "step": 364,
+      "substep": 12,
+      "toe_index": 14,
+      "begin_velocity_rad_s": -12.0,
+      "pre_contact_velocity_rad_s": -11.5383263,
+      "post_velocity_rad_s": -12.0,
+      "same_body_normal_impulse_ns": 0.0437207967
+    },
+    {
+      "lane": 6,
+      "step": 364,
+      "substep": 13,
+      "toe_index": 6,
+      "begin_velocity_rad_s": -12.0,
+      "pre_contact_velocity_rad_s": -11.540019,
+      "post_velocity_rad_s": -12.0,
+      "same_body_normal_impulse_ns": 0.0384648517
+    },
+    {
+      "lane": 6,
+      "step": 364,
+      "substep": 13,
+      "toe_index": 14,
+      "begin_velocity_rad_s": -12.0,
+      "pre_contact_velocity_rad_s": -11.5400219,
+      "post_velocity_rad_s": -12.0,
+      "same_body_normal_impulse_ns": 0.0363819301
+    },
+    {
+      "lane": 6,
+      "step": 364,
+      "substep": 14,
+      "toe_index": 6,
+      "begin_velocity_rad_s": -12.0,
+      "pre_contact_velocity_rad_s": -11.5402718,
+      "post_velocity_rad_s": -12.0,
+      "same_body_normal_impulse_ns": 0.0283910818
+    },
+    {
+      "lane": 6,
+      "step": 364,
+      "substep": 14,
+      "toe_index": 14,
+      "begin_velocity_rad_s": -12.0,
+      "pre_contact_velocity_rad_s": -11.540246,
+      "post_velocity_rad_s": -12.0,
+      "same_body_normal_impulse_ns": 0.0268836711
+    },
+    {
+      "lane": 4,
+      "step": 365,
+      "substep": 6,
+      "toe_index": 6,
+      "begin_velocity_rad_s": -0.0371393599,
+      "pre_contact_velocity_rad_s": -0.0326119289,
+      "post_velocity_rad_s": -12.0,
+      "same_body_normal_impulse_ns": 0.0
+    },
+    {
+      "lane": 4,
+      "step": 365,
+      "substep": 6,
+      "toe_index": 14,
+      "begin_velocity_rad_s": -0.037245959,
+      "pre_contact_velocity_rad_s": -0.0327116214,
+      "post_velocity_rad_s": -12.0,
+      "same_body_normal_impulse_ns": 0.0
+    },
+    {
+      "lane": 4,
+      "step": 365,
+      "substep": 7,
+      "toe_index": 6,
+      "begin_velocity_rad_s": -12.0,
+      "pre_contact_velocity_rad_s": -11.5353136,
+      "post_velocity_rad_s": -12.0,
+      "same_body_normal_impulse_ns": 0.0
+    },
+    {
+      "lane": 4,
+      "step": 365,
+      "substep": 7,
+      "toe_index": 14,
+      "begin_velocity_rad_s": -12.0,
+      "pre_contact_velocity_rad_s": -11.5352974,
+      "post_velocity_rad_s": -12.0,
+      "same_body_normal_impulse_ns": 0.0
+    },
+    {
+      "lane": 4,
+      "step": 365,
+      "substep": 8,
+      "toe_index": 6,
+      "begin_velocity_rad_s": -12.0,
+      "pre_contact_velocity_rad_s": -11.5348797,
+      "post_velocity_rad_s": -12.0,
+      "same_body_normal_impulse_ns": 0.0
+    },
+    {
+      "lane": 4,
+      "step": 365,
+      "substep": 8,
+      "toe_index": 14,
+      "begin_velocity_rad_s": -12.0,
+      "pre_contact_velocity_rad_s": -11.5348797,
+      "post_velocity_rad_s": -12.0,
+      "same_body_normal_impulse_ns": 0.0
+    },
+    {
+      "lane": 4,
+      "step": 365,
+      "substep": 9,
+      "toe_index": 6,
+      "begin_velocity_rad_s": -12.0,
+      "pre_contact_velocity_rad_s": -11.5362492,
+      "post_velocity_rad_s": -12.0,
+      "same_body_normal_impulse_ns": 0.0262963176
+    },
+    {
+      "lane": 4,
+      "step": 365,
+      "substep": 9,
+      "toe_index": 14,
+      "begin_velocity_rad_s": -12.0,
+      "pre_contact_velocity_rad_s": -11.5361967,
+      "post_velocity_rad_s": -12.0,
+      "same_body_normal_impulse_ns": 0.0254729595
+    },
+    {
+      "lane": 4,
+      "step": 365,
+      "substep": 10,
+      "toe_index": 6,
+      "begin_velocity_rad_s": -12.0,
+      "pre_contact_velocity_rad_s": -11.5392094,
+      "post_velocity_rad_s": -12.0,
+      "same_body_normal_impulse_ns": 0.0406270437
+    },
+    {
+      "lane": 4,
+      "step": 365,
+      "substep": 10,
+      "toe_index": 14,
+      "begin_velocity_rad_s": -12.0,
+      "pre_contact_velocity_rad_s": -11.5391703,
+      "post_velocity_rad_s": -12.0,
+      "same_body_normal_impulse_ns": 0.0402902141
+    },
+    {
+      "lane": 4,
+      "step": 365,
+      "substep": 11,
+      "toe_index": 6,
+      "begin_velocity_rad_s": -12.0,
+      "pre_contact_velocity_rad_s": -11.5401859,
+      "post_velocity_rad_s": -12.0,
+      "same_body_normal_impulse_ns": 0.0306039508
+    },
+    {
+      "lane": 4,
+      "step": 365,
+      "substep": 11,
+      "toe_index": 14,
+      "begin_velocity_rad_s": -12.0,
+      "pre_contact_velocity_rad_s": -11.5401888,
+      "post_velocity_rad_s": -12.0,
+      "same_body_normal_impulse_ns": 0.0305270441
+    },
+    {
+      "lane": 4,
+      "step": 365,
+      "substep": 12,
+      "toe_index": 6,
+      "begin_velocity_rad_s": -12.0,
+      "pre_contact_velocity_rad_s": -11.5402308,
+      "post_velocity_rad_s": -12.0,
+      "same_body_normal_impulse_ns": 0.0225015841
+    },
+    {
+      "lane": 4,
+      "step": 365,
+      "substep": 12,
+      "toe_index": 14,
+      "begin_velocity_rad_s": -12.0,
+      "pre_contact_velocity_rad_s": -11.5402174,
+      "post_velocity_rad_s": -12.0,
+      "same_body_normal_impulse_ns": 0.0224619154
+    },
+    {
+      "lane": 7,
+      "step": 374,
+      "substep": 11,
+      "toe_index": 6,
+      "begin_velocity_rad_s": -6.48995447,
+      "pre_contact_velocity_rad_s": -6.02509594,
+      "post_velocity_rad_s": -12.0,
+      "same_body_normal_impulse_ns": 0.0
+    },
+    {
+      "lane": 7,
+      "step": 374,
+      "substep": 11,
+      "toe_index": 14,
+      "begin_velocity_rad_s": -6.56649446,
+      "pre_contact_velocity_rad_s": -6.10163069,
+      "post_velocity_rad_s": -12.0,
+      "same_body_normal_impulse_ns": 0.0
+    },
+    {
+      "lane": 3,
+      "step": 374,
+      "substep": 12,
+      "toe_index": 6,
+      "begin_velocity_rad_s": -4.09530783,
+      "pre_contact_velocity_rad_s": -3.78497267,
+      "post_velocity_rad_s": -12.0,
+      "same_body_normal_impulse_ns": 0.0
+    },
+    {
+      "lane": 3,
+      "step": 374,
+      "substep": 12,
+      "toe_index": 14,
+      "begin_velocity_rad_s": -6.06787872,
+      "pre_contact_velocity_rad_s": -5.6089468,
+      "post_velocity_rad_s": -12.0,
+      "same_body_normal_impulse_ns": 0.0
+    },
+    {
+      "lane": 5,
+      "step": 374,
+      "substep": 12,
+      "toe_index": 6,
+      "begin_velocity_rad_s": -0.00148239126,
+      "pre_contact_velocity_rad_s": 0.000591641117,
+      "post_velocity_rad_s": -12.0,
+      "same_body_normal_impulse_ns": 0.00582630839
+    },
+    {
+      "lane": 5,
+      "step": 374,
+      "substep": 12,
+      "toe_index": 14,
+      "begin_velocity_rad_s": -0.00148225005,
+      "pre_contact_velocity_rad_s": 0.000592113298,
+      "post_velocity_rad_s": -12.0,
+      "same_body_normal_impulse_ns": 0.00592389563
+    },
+    {
+      "lane": 7,
+      "step": 374,
+      "substep": 12,
+      "toe_index": 6,
+      "begin_velocity_rad_s": -12.0,
+      "pre_contact_velocity_rad_s": -11.5349979,
+      "post_velocity_rad_s": -12.0,
+      "same_body_normal_impulse_ns": 0.00055693055
+    },
+    {
+      "lane": 7,
+      "step": 374,
+      "substep": 12,
+      "toe_index": 14,
+      "begin_velocity_rad_s": -12.0,
+      "pre_contact_velocity_rad_s": -11.5349894,
+      "post_velocity_rad_s": -12.0,
+      "same_body_normal_impulse_ns": 0.000578448526
+    },
+    {
+      "lane": 3,
+      "step": 374,
+      "substep": 13,
+      "toe_index": 6,
+      "begin_velocity_rad_s": -12.0,
+      "pre_contact_velocity_rad_s": -11.5348673,
+      "post_velocity_rad_s": -12.0,
+      "same_body_normal_impulse_ns": 0.0
+    },
+    {
+      "lane": 3,
+      "step": 374,
+      "substep": 13,
+      "toe_index": 14,
+      "begin_velocity_rad_s": -12.0,
+      "pre_contact_velocity_rad_s": -11.5348387,
+      "post_velocity_rad_s": -12.0,
+      "same_body_normal_impulse_ns": 0.0
+    },
+    {
+      "lane": 5,
+      "step": 374,
+      "substep": 13,
+      "toe_index": 6,
+      "begin_velocity_rad_s": -12.0,
+      "pre_contact_velocity_rad_s": -11.5353642,
+      "post_velocity_rad_s": -12.0,
+      "same_body_normal_impulse_ns": 0.00372374919
+    },
+    {
+      "lane": 5,
+      "step": 374,
+      "substep": 13,
+      "toe_index": 14,
+      "begin_velocity_rad_s": -12.0,
+      "pre_contact_velocity_rad_s": -11.5353661,
+      "post_velocity_rad_s": -12.0,
+      "same_body_normal_impulse_ns": 0.00378633756
+    },
+    {
+      "lane": 7,
+      "step": 374,
+      "substep": 13,
+      "toe_index": 6,
+      "begin_velocity_rad_s": -12.0,
+      "pre_contact_velocity_rad_s": -11.5351267,
+      "post_velocity_rad_s": -12.0,
+      "same_body_normal_impulse_ns": 0.00500203297
+    },
+    {
+      "lane": 7,
+      "step": 374,
+      "substep": 13,
+      "toe_index": 14,
+      "begin_velocity_rad_s": -12.0,
+      "pre_contact_velocity_rad_s": -11.5351229,
+      "post_velocity_rad_s": -12.0,
+      "same_body_normal_impulse_ns": 0.00501180347
+    },
+    {
+      "lane": 3,
+      "step": 374,
+      "substep": 14,
+      "toe_index": 6,
+      "begin_velocity_rad_s": -12.0,
+      "pre_contact_velocity_rad_s": -11.5349417,
+      "post_velocity_rad_s": -12.0,
+      "same_body_normal_impulse_ns": 0.00466872193
+    },
+    {
+      "lane": 3,
+      "step": 374,
+      "substep": 14,
+      "toe_index": 14,
+      "begin_velocity_rad_s": -12.0,
+      "pre_contact_velocity_rad_s": -11.5349541,
+      "post_velocity_rad_s": -12.0,
+      "same_body_normal_impulse_ns": 0.00513683632
+    },
+    {
+      "lane": 5,
+      "step": 374,
+      "substep": 14,
+      "toe_index": 6,
+      "begin_velocity_rad_s": -12.0,
+      "pre_contact_velocity_rad_s": -11.5351677,
+      "post_velocity_rad_s": -12.0,
+      "same_body_normal_impulse_ns": 0.0027168619
+    },
+    {
+      "lane": 5,
+      "step": 374,
+      "substep": 14,
+      "toe_index": 14,
+      "begin_velocity_rad_s": -12.0,
+      "pre_contact_velocity_rad_s": -11.5351696,
+      "post_velocity_rad_s": -12.0,
+      "same_body_normal_impulse_ns": 0.00276841177
+    },
+    {
+      "lane": 7,
+      "step": 374,
+      "substep": 14,
+      "toe_index": 6,
+      "begin_velocity_rad_s": -12.0,
+      "pre_contact_velocity_rad_s": -11.5355959,
+      "post_velocity_rad_s": -12.0,
+      "same_body_normal_impulse_ns": 0.00404409273
+    },
+    {
+      "lane": 7,
+      "step": 374,
+      "substep": 14,
+      "toe_index": 14,
+      "begin_velocity_rad_s": -12.0,
+      "pre_contact_velocity_rad_s": -11.535593,
+      "post_velocity_rad_s": -12.0,
+      "same_body_normal_impulse_ns": 0.00415805448
+    },
+    {
+      "lane": 3,
+      "step": 374,
+      "substep": 15,
+      "toe_index": 6,
+      "begin_velocity_rad_s": -12.0,
+      "pre_contact_velocity_rad_s": -11.5353212,
+      "post_velocity_rad_s": -12.0,
+      "same_body_normal_impulse_ns": 0.00294887275
+    },
+    {
+      "lane": 3,
+      "step": 374,
+      "substep": 15,
+      "toe_index": 14,
+      "begin_velocity_rad_s": -12.0,
+      "pre_contact_velocity_rad_s": -11.5353336,
+      "post_velocity_rad_s": -12.0,
+      "same_body_normal_impulse_ns": 0.00322358613
+    },
+    {
+      "lane": 5,
+      "step": 374,
+      "substep": 15,
+      "toe_index": 6,
+      "begin_velocity_rad_s": -12.0,
+      "pre_contact_velocity_rad_s": -11.5353212,
+      "post_velocity_rad_s": -12.0,
+      "same_body_normal_impulse_ns": 0.00166675961
+    },
+    {
+      "lane": 5,
+      "step": 374,
+      "substep": 15,
+      "toe_index": 14,
+      "begin_velocity_rad_s": -12.0,
+      "pre_contact_velocity_rad_s": -11.5353222,
+      "post_velocity_rad_s": -12.0,
+      "same_body_normal_impulse_ns": 0.00170537201
+    },
+    {
+      "lane": 7,
+      "step": 374,
+      "substep": 15,
+      "toe_index": 6,
+      "begin_velocity_rad_s": -12.0,
+      "pre_contact_velocity_rad_s": -11.5356054,
+      "post_velocity_rad_s": -12.0,
+      "same_body_normal_impulse_ns": 0.0146257058
+    },
+    {
+      "lane": 7,
+      "step": 374,
+      "substep": 15,
+      "toe_index": 14,
+      "begin_velocity_rad_s": -12.0,
+      "pre_contact_velocity_rad_s": -11.5356073,
+      "post_velocity_rad_s": -12.0,
+      "same_body_normal_impulse_ns": 0.0147631615
+    },
+    {
+      "lane": 3,
+      "step": 375,
+      "substep": 0,
+      "toe_index": 6,
+      "begin_velocity_rad_s": -12.0,
+      "pre_contact_velocity_rad_s": -11.5349922,
+      "post_velocity_rad_s": -12.0,
+      "same_body_normal_impulse_ns": 0.00790211838
+    },
+    {
+      "lane": 3,
+      "step": 375,
+      "substep": 0,
+      "toe_index": 14,
+      "begin_velocity_rad_s": -12.0,
+      "pre_contact_velocity_rad_s": -11.5347071,
+      "post_velocity_rad_s": -12.0,
+      "same_body_normal_impulse_ns": 0.0102335121
+    },
+    {
+      "lane": 5,
+      "step": 375,
+      "substep": 0,
+      "toe_index": 6,
+      "begin_velocity_rad_s": -12.0,
+      "pre_contact_velocity_rad_s": -11.5357485,
+      "post_velocity_rad_s": -12.0,
+      "same_body_normal_impulse_ns": 0.0128106847
+    },
+    {
+      "lane": 5,
+      "step": 375,
+      "substep": 0,
+      "toe_index": 14,
+      "begin_velocity_rad_s": -12.0,
+      "pre_contact_velocity_rad_s": -11.5357361,
+      "post_velocity_rad_s": -12.0,
+      "same_body_normal_impulse_ns": 0.0132260965
+    },
+    {
+      "lane": 7,
+      "step": 375,
+      "substep": 0,
+      "toe_index": 6,
+      "begin_velocity_rad_s": -12.0,
+      "pre_contact_velocity_rad_s": -11.5362635,
+      "post_velocity_rad_s": -12.0,
+      "same_body_normal_impulse_ns": 0.0108125396
+    },
+    {
+      "lane": 7,
+      "step": 375,
+      "substep": 0,
+      "toe_index": 14,
+      "begin_velocity_rad_s": -12.0,
+      "pre_contact_velocity_rad_s": -11.5362644,
+      "post_velocity_rad_s": -12.0,
+      "same_body_normal_impulse_ns": 0.0109184422
+    },
+    {
+      "lane": 3,
+      "step": 375,
+      "substep": 1,
+      "toe_index": 6,
+      "begin_velocity_rad_s": -12.0,
+      "pre_contact_velocity_rad_s": -11.5360708,
+      "post_velocity_rad_s": -12.0,
+      "same_body_normal_impulse_ns": 0.0105815567
+    },
+    {
+      "lane": 3,
+      "step": 375,
+      "substep": 1,
+      "toe_index": 14,
+      "begin_velocity_rad_s": -12.0,
+      "pre_contact_velocity_rad_s": -11.5362606,
+      "post_velocity_rad_s": -12.0,
+      "same_body_normal_impulse_ns": 0.0122249909
+    },
+    {
+      "lane": 7,
+      "step": 375,
+      "substep": 1,
+      "toe_index": 6,
+      "begin_velocity_rad_s": -12.0,
+      "pre_contact_velocity_rad_s": -11.5374107,
+      "post_velocity_rad_s": -12.0,
+      "same_body_normal_impulse_ns": 0.00802471861
+    },
+    {
+      "lane": 7,
+      "step": 375,
+      "substep": 1,
+      "toe_index": 14,
+      "begin_velocity_rad_s": -12.0,
+      "pre_contact_velocity_rad_s": -11.5374527,
+      "post_velocity_rad_s": -12.0,
+      "same_body_normal_impulse_ns": 0.00810643751
+    }
+  ],
+  "pre_contact_at_or_above_threshold": 0,
+  "same_body_positive_contact_impulse": 58,
+  "scope": "Posthoc selected events with post-substep rear proximal toe speeds >=11.99 rad/s; beginning and candidate pre-contact buffers are logged separately. Same-body normal impulse is only one contact proxy, may omit other constraints. Threshold proximity does not prove active clipping; comparisons are not independent."
+}
