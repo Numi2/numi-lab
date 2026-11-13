@@ -1,0 +1,917 @@
+{
+  "rows": [
+    {
+      "lane": 2,
+      "end": 1200,
+      "termination_reason": 0,
+      "physical_failure": false,
+      "comparison_ticks": 1200,
+      "missing_comparison_ticks": [],
+      "different_comparison_ticks": [],
+      "exact_required_parity": true,
+      "release": 376,
+      "recontact": null,
+      "nonfoot_normal_impulse_after_release_ns": 0.0,
+      "first_ground_record_after_release_or_termination_boundary": null,
+      "accepted_state_immediately_before_first_ground": null,
+      "missing_contact_ticks": [],
+      "missing_toe_ticks": [],
+      "toe_speed_threshold_events": 0,
+      "missing_effort_substeps": 0,
+      "flap_effort_max_abs": 3.0,
+      "sampled_sweep_q_range": [
+        -0.0599335469,
+        0.128591061
+      ],
+      "pulse_sweep_target_range": [
+        -0.0611857064,
+        -0.0240040626
+      ],
+      "pulse_flap_target_comparison_samples": 300,
+      "pulse_flap_target_delta_extrema": [
+        [
+          0.0,
+          0.0
+        ],
+        [
+          0.0,
+          0.0
+        ]
+      ],
+      "windows": {
+        "pulse": {
+          "samples": 51,
+          "mean_delta_roll_pitch_yaw_rad": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "mean_delta_height_m": 0.0,
+          "mean_delta_velocity_m_s": [
+            0.0,
+            0.0,
+            0.0
+          ]
+        },
+        "recovery": {
+          "samples": 51,
+          "mean_delta_roll_pitch_yaw_rad": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "mean_delta_height_m": 0.0,
+          "mean_delta_velocity_m_s": [
+            0.0,
+            0.0,
+            0.0
+          ]
+        }
+      }
+    },
+    {
+      "lane": 3,
+      "end": 1200,
+      "termination_reason": 0,
+      "physical_failure": false,
+      "comparison_ticks": 1200,
+      "missing_comparison_ticks": [],
+      "different_comparison_ticks": [],
+      "exact_required_parity": true,
+      "release": 376,
+      "recontact": null,
+      "nonfoot_normal_impulse_after_release_ns": 0.0,
+      "first_ground_record_after_release_or_termination_boundary": null,
+      "accepted_state_immediately_before_first_ground": null,
+      "missing_contact_ticks": [],
+      "missing_toe_ticks": [],
+      "toe_speed_threshold_events": 0,
+      "missing_effort_substeps": 0,
+      "flap_effort_max_abs": 3.0,
+      "sampled_sweep_q_range": [
+        -0.0598052479,
+        0.128136709
+      ],
+      "pulse_sweep_target_range": [
+        -0.0608948618,
+        -0.0240674336
+      ],
+      "pulse_flap_target_comparison_samples": 300,
+      "pulse_flap_target_delta_extrema": [
+        [
+          0.0,
+          0.0
+        ],
+        [
+          0.0,
+          0.0
+        ]
+      ],
+      "windows": {
+        "pulse": {
+          "samples": 51,
+          "mean_delta_roll_pitch_yaw_rad": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "mean_delta_height_m": 0.0,
+          "mean_delta_velocity_m_s": [
+            0.0,
+            0.0,
+            0.0
+          ]
+        },
+        "recovery": {
+          "samples": 51,
+          "mean_delta_roll_pitch_yaw_rad": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "mean_delta_height_m": 0.0,
+          "mean_delta_velocity_m_s": [
+            0.0,
+            0.0,
+            0.0
+          ]
+        }
+      }
+    },
+    {
+      "lane": 4,
+      "end": 808,
+      "termination_reason": 3,
+      "physical_failure": true,
+      "comparison_ticks": 600,
+      "missing_comparison_ticks": [],
+      "different_comparison_ticks": [],
+      "exact_required_parity": true,
+      "release": 376,
+      "recontact": null,
+      "nonfoot_normal_impulse_after_release_ns": 0.0,
+      "first_ground_record_after_release_or_termination_boundary": [
+        809,
+        "CROW_GROUND_CONTACT 809 13 4 6 35 8589934621 2305843014313967616 0.0456836298 -5.36379862 0.000194910579 0.000389181747 2.23517453e-08 -7.45058131e-08 -1 1.4901163e-08 1 -7.45058131e-08 0.800000012 0.600000024 0.329333007 -0.149347603 0.0736945122 -2.5407021"
+      ],
+      "accepted_state_immediately_before_first_ground": {
+        "step": 808,
+        "lane": 4,
+        "q": [
+          -0.0048414073,
+          -5.14732075,
+          0.241474882,
+          0.340578109,
+          0.083713904,
+          -0.0419446118,
+          0.935542166,
+          0.0328974798,
+          0.0266958158,
+          0.293952733,
+          0.276578069,
+          -0.11809881,
+          -0.13612026,
+          0.0977044702,
+          -0.190045774,
+          0.414930373,
+          -0.211948171,
+          -0.190064535,
+          0.414929301,
+          -0.211961165,
+          -0.017158607,
+          0.102749988,
+          0,
+          0.35030964,
+          0.262566507,
+          0.350310594,
+          0.262566715,
+          0.350311548,
+          0.262566835,
+          0.350363135,
+          0.262584925,
+          0.350299835,
+          0.262564689,
+          0.350300819,
+          0.262564868,
+          0.350301832,
+          0.262564957,
+          0.350348264,
+          0.262581229,
+          -0.00115025113,
+          -0.00115157093
+        ],
+        "v": [
+          -0.218878075,
+          -2.74368882,
+          -0.00580566237,
+          0.925270796,
+          0.0692030787,
+          0.0269921143,
+          0.25516358,
+          -0.0314693227,
+          -28.3943558,
+          -23.29813,
+          -4.92179775,
+          -5.46129894,
+          0.044749368,
+          -0.00786008686,
+          -0.00334009924,
+          -0.00296984147,
+          -0.009641435,
+          -0.00366642,
+          -0.00364812417,
+          0.320214242,
+          1.07582247,
+          0,
+          0.00603348482,
+          0.0013596362,
+          0.00621685572,
+          0.00139978551,
+          0.0064011151,
+          0.00144206395,
+          0.00631541433,
+          0.00141921209,
+          0.00445559155,
+          0.000999902026,
+          0.00463880831,
+          0.00104145275,
+          0.00482256664,
+          0.00108627905,
+          0.00478737755,
+          0.00107760914,
+          -0.285435319,
+          -0.285736561
+        ],
+        "policy_action": [
+          0.035717085,
+          0.284464538,
+          -0.0681398362,
+          -0.673106492,
+          0.129787281,
+          -0.490630031,
+          -0.455872774,
+          -0.943457603,
+          0.544230819,
+          0.267162353,
+          0.491960615,
+          0.789819539,
+          0.631796658,
+          1,
+          -0.188199401,
+          0.510254383,
+          0,
+          0
+        ],
+        "contacts": []
+      },
+      "missing_contact_ticks": [],
+      "missing_toe_ticks": [],
+      "toe_speed_threshold_events": 0,
+      "missing_effort_substeps": 0,
+      "flap_effort_max_abs": 3.0,
+      "sampled_sweep_q_range": [
+        -0.0486985892,
+        0.128737286
+      ],
+      "pulse_sweep_target_range": [
+        -0.0502301604,
+        0.0250000004
+      ],
+      "pulse_flap_target_comparison_samples": 208,
+      "pulse_flap_target_delta_extrema": [
+        [
+          -0.06999444999999999,
+          0.06999445000000004
+        ],
+        [
+          -0.06999445000000004,
+          0.06999444900000001
+        ]
+      ],
+      "windows": {
+        "pulse": {
+          "samples": 9,
+          "mean_delta_roll_pitch_yaw_rad": [
+            0.513865333623784,
+            0.023343495815902907,
+            0.024979537508991942
+          ],
+          "mean_delta_height_m": -0.38785094033333334,
+          "mean_delta_velocity_m_s": [
+            -0.6382806215555555,
+            -1.7799426120000001,
+            -0.3681497213688888
+          ]
+        },
+        "recovery": {
+          "samples": 0,
+          "mean_delta_roll_pitch_yaw_rad": [
+            null,
+            null,
+            null
+          ],
+          "mean_delta_height_m": null,
+          "mean_delta_velocity_m_s": [
+            null,
+            null,
+            null
+          ]
+        }
+      }
+    },
+    {
+      "lane": 5,
+      "end": 1019,
+      "termination_reason": 3,
+      "physical_failure": true,
+      "comparison_ticks": 600,
+      "missing_comparison_ticks": [],
+      "different_comparison_ticks": [],
+      "exact_required_parity": true,
+      "release": 376,
+      "recontact": null,
+      "nonfoot_normal_impulse_after_release_ns": 4.563573918063001,
+      "first_ground_record_after_release_or_termination_boundary": [
+        809,
+        "CROW_GROUND_CONTACT 809 13 5 6 35 8589934621 2305843014313967616 0.0555816032 -5.3665576 9.66598527e-05 0.000192679974 -7.4505806e-09 -1.04308128e-07 -1 -2.98023224e-08 1 -1.04308128e-07 0.800000012 0.600000024 0.372563779 -0.17305696 0.0849229842 -2.53991485"
+      ],
+      "accepted_state_immediately_before_first_ground": {
+        "step": 808,
+        "lane": 5,
+        "q": [
+          0.00496976171,
+          -5.15014172,
+          0.241329983,
+          0.340640724,
+          0.0839328691,
+          -0.041706685,
+          0.935510397,
+          0.0328709558,
+          0.0266973209,
+          0.293927312,
+          0.276577771,
+          -0.117054485,
+          -0.136106119,
+          0.100309923,
+          -0.190044388,
+          0.414931327,
+          -0.211947516,
+          -0.190063119,
+          0.414930224,
+          -0.211960509,
+          -0.017142294,
+          0.102884106,
+          0,
+          0.3503097,
+          0.262566537,
+          0.350310564,
+          0.262566745,
+          0.350311577,
+          0.262566835,
+          0.350362957,
+          0.262584925,
+          0.350299835,
+          0.262564719,
+          0.350300759,
+          0.262564927,
+          0.350301802,
+          0.262564957,
+          0.350348055,
+          0.26258114,
+          -0.0011498892,
+          -0.00115120946
+        ],
+        "v": [
+          -0.216724694,
+          -2.74496722,
+          -0.0059092897,
+          0.925000012,
+          0.0691111535,
+          0.025647277,
+          0.257535547,
+          -0.0316871628,
+          -28.3946171,
+          -23.298708,
+          -5.01990509,
+          -5.46384954,
+          0.126369178,
+          -0.00801017694,
+          -0.00341579597,
+          -0.00300665712,
+          -0.00978462957,
+          -0.00373704825,
+          -0.00368279172,
+          0.32011658,
+          1.07663405,
+          0,
+          0.0060295891,
+          0.00135772047,
+          0.00621532928,
+          0.00139865896,
+          0.00639798678,
+          0.00144135323,
+          0.00632357318,
+          0.00142021046,
+          0.00445191981,
+          0.000997922383,
+          0.00463762227,
+          0.00103923201,
+          0.00482064718,
+          0.00108424993,
+          0.00479680346,
+          0.00108127948,
+          -0.285431027,
+          -0.285732806
+        ],
+        "policy_action": [
+          0.0104146721,
+          0.332163185,
+          0.00951656699,
+          -0.596616864,
+          0.10416583,
+          -0.559251904,
+          -0.497568816,
+          -0.903402448,
+          0.544595718,
+          0.191012263,
+          0.53183794,
+          0.827929258,
+          0.624811947,
+          1,
+          -0.163903803,
+          0.552630484,
+          0,
+          0
+        ],
+        "contacts": []
+      },
+      "missing_contact_ticks": [],
+      "missing_toe_ticks": [],
+      "toe_speed_threshold_events": 0,
+      "missing_effort_substeps": 0,
+      "flap_effort_max_abs": 3.0,
+      "sampled_sweep_q_range": [
+        -0.0486998409,
+        0.128511295
+      ],
+      "pulse_sweep_target_range": [
+        -0.0503296964,
+        0.0250000004
+      ],
+      "pulse_flap_target_comparison_samples": 300,
+      "pulse_flap_target_delta_extrema": [
+        [
+          -0.06999450899999998,
+          0.06999445000000004
+        ],
+        [
+          -0.06999445000000004,
+          0.06999450899999998
+        ]
+      ],
+      "windows": {
+        "pulse": {
+          "samples": 51,
+          "mean_delta_roll_pitch_yaw_rad": [
+            0.5422826144295293,
+            0.04017264651438115,
+            0.018560695115896652
+          ],
+          "mean_delta_height_m": -0.3917076079019607,
+          "mean_delta_velocity_m_s": [
+            -0.8193050256078431,
+            -1.5952856741568633,
+            -0.06023096608372548
+          ]
+        },
+        "recovery": {
+          "samples": 0,
+          "mean_delta_roll_pitch_yaw_rad": [
+            null,
+            null,
+            null
+          ],
+          "mean_delta_height_m": null,
+          "mean_delta_velocity_m_s": [
+            null,
+            null,
+            null
+          ]
+        }
+      }
+    },
+    {
+      "lane": 6,
+      "end": 1200,
+      "termination_reason": 0,
+      "physical_failure": false,
+      "comparison_ticks": 600,
+      "missing_comparison_ticks": [],
+      "different_comparison_ticks": [],
+      "exact_required_parity": true,
+      "release": 376,
+      "recontact": 986,
+      "nonfoot_normal_impulse_after_release_ns": 2.596784383,
+      "first_ground_record_after_release_or_termination_boundary": [
+        887,
+        "CROW_GROUND_CONTACT 887 12 6 5 35 4294967325 2305843022903902208 1.43607891 3.78107667 5.06183169e-05 0.000101687379 9.31322663e-09 -4.47034907e-08 -1 -4.16333687e-16 1 -4.47034942e-08 0.800000012 0.600000024 0.408019841 0.218655258 0.110103361 -3.40008736"
+      ],
+      "accepted_state_immediately_before_first_ground": {
+        "step": 886,
+        "lane": 6,
+        "q": [
+          1.3531487,
+          3.53573394,
+          0.203909382,
+          -0.307628721,
+          0.114650585,
+          0.00633038254,
+          0.94455266,
+          0.0110733425,
+          0.0117417742,
+          0.34561336,
+          0.35662356,
+          -0.0374066904,
+          -0.130156055,
+          0.13923423,
+          -0.190010622,
+          0.41495207,
+          -0.21194768,
+          -0.189992011,
+          0.41495496,
+          -0.211939812,
+          0.0168136787,
+          0.103854053,
+          0,
+          0.35029608,
+          0.262563527,
+          0.350295395,
+          0.262563318,
+          0.350294799,
+          0.26256308,
+          0.350345582,
+          0.262580812,
+          0.35030213,
+          0.262564868,
+          0.350301474,
+          0.262564749,
+          0.350300759,
+          0.26256454,
+          0.350351036,
+          0.262582064,
+          5.033255e-05,
+          4.99769594e-05
+        ],
+        "v": [
+          0.251358211,
+          2.51303315,
+          0.0334025472,
+          -0.422894478,
+          0.181876093,
+          0.0527901947,
+          0.0896904096,
+          -0.782734752,
+          -23.6212349,
+          -27.4520702,
+          -4.43472433,
+          -6.06072521,
+          0.183007702,
+          -0.0077517936,
+          -0.00281398091,
+          -0.0036307245,
+          -0.00734852301,
+          -0.00280797645,
+          -0.00319326529,
+          -0.29935956,
+          1.25972378,
+          0,
+          0.00581463007,
+          0.00130891742,
+          0.00571068516,
+          0.00128574553,
+          0.00560266478,
+          0.00126369752,
+          0.00580776203,
+          0.00130574021,
+          0.00675147492,
+          0.001528327,
+          0.0066449563,
+          0.00150280027,
+          0.00654067518,
+          0.00147947716,
+          0.00666279718,
+          0.00149157899,
+          0.157162696,
+          0.157119855
+        ],
+        "policy_action": [
+          0.209930345,
+          1,
+          -0.0890595615,
+          0.105264515,
+          0.23725976,
+          1,
+          -0.578292012,
+          0.186734974,
+          0.419133902,
+          0.975150883,
+          -0.185756147,
+          0.806155026,
+          0.433156222,
+          1,
+          -0.606866717,
+          0.415408671,
+          0,
+          0
+        ],
+        "contacts": []
+      },
+      "missing_contact_ticks": [],
+      "missing_toe_ticks": [],
+      "toe_speed_threshold_events": 0,
+      "missing_effort_substeps": 0,
+      "flap_effort_max_abs": 3.0,
+      "sampled_sweep_q_range": [
+        -0.0884550437,
+        0.127583817
+      ],
+      "pulse_sweep_target_range": [
+        -0.0604261532,
+        0.0250000004
+      ],
+      "pulse_flap_target_comparison_samples": 300,
+      "pulse_flap_target_delta_extrema": [
+        [
+          -0.06999445000000004,
+          0.06999450899999998
+        ],
+        [
+          -0.06999450899999998,
+          0.06999445000000004
+        ]
+      ],
+      "windows": {
+        "pulse": {
+          "samples": 51,
+          "mean_delta_roll_pitch_yaw_rad": [
+            -0.6641250621348561,
+            0.023708382305995573,
+            -0.013607908704019813
+          ],
+          "mean_delta_height_m": -0.24919021368627445,
+          "mean_delta_velocity_m_s": [
+            -0.004360190725490193,
+            2.2160474621960793,
+            -0.1468629735394118
+          ]
+        },
+        "recovery": {
+          "samples": 51,
+          "mean_delta_roll_pitch_yaw_rad": [
+            -0.8271116371160085,
+            0.17061215621631243,
+            0.1205988290279247
+          ],
+          "mean_delta_height_m": -0.4540432639215686,
+          "mean_delta_velocity_m_s": [
+            0.4177197789607843,
+            3.127394435686275,
+            0.04560351474229417
+          ]
+        }
+      }
+    },
+    {
+      "lane": 7,
+      "end": 1200,
+      "termination_reason": 0,
+      "physical_failure": false,
+      "comparison_ticks": 600,
+      "missing_comparison_ticks": [],
+      "different_comparison_ticks": [],
+      "exact_required_parity": true,
+      "release": 376,
+      "recontact": 1056,
+      "nonfoot_normal_impulse_after_release_ns": 2.6041005989999997,
+      "first_ground_record_after_release_or_termination_boundary": [
+        887,
+        "CROW_GROUND_CONTACT 887 10 7 5 35 4294967325 2305843022903902208 1.40317142 3.77899146 0.000362082443 0.000724615413 2.04890984e-08 -2.98023259e-08 -1 3.72529074e-09 1 -2.98023259e-08 0.800000012 0.600000024 0.325003177 0.175504357 0.0849939585 -3.6897819"
+      ],
+      "accepted_state_immediately_before_first_ground": {
+        "step": 886,
+        "lane": 7,
+        "q": [
+          1.31879222,
+          3.53009868,
+          0.195724487,
+          -0.307879895,
+          0.114561088,
+          0.00647717528,
+          0.944480658,
+          0.011417699,
+          0.012130308,
+          0.345627725,
+          0.356654972,
+          -0.0383063704,
+          -0.128270715,
+          0.139349103,
+          -0.190010801,
+          0.414951861,
+          -0.211947814,
+          -0.189992145,
+          0.414954871,
+          -0.211939946,
+          0.0168185197,
+          0.103619829,
+          0,
+          0.350295991,
+          0.262563467,
+          0.350295305,
+          0.262563288,
+          0.35029465,
+          0.262563109,
+          0.350345135,
+          0.262580723,
+          0.350302041,
+          0.262564838,
+          0.350301355,
+          0.262564719,
+          0.35030067,
+          0.26256454,
+          0.350350678,
+          0.262581915,
+          5.06684519e-05,
+          5.03115662e-05
+        ],
+        "v": [
+          0.247787282,
+          2.51487207,
+          0.0319519527,
+          -0.423140258,
+          0.180901751,
+          0.0534121394,
+          0.0900862142,
+          -0.793503165,
+          -23.6211491,
+          -27.4523392,
+          -4.4421463,
+          -6.29000998,
+          0.174212158,
+          -0.00752452342,
+          -0.00270189089,
+          -0.00358758844,
+          -0.0070830686,
+          -0.00269756489,
+          -0.00315035204,
+          -0.300338298,
+          1.26409423,
+          0,
+          0.00582434284,
+          0.001312754,
+          0.00571946008,
+          0.00128881785,
+          0.00561249442,
+          0.00126543955,
+          0.00581523823,
+          0.00130765117,
+          0.00676190248,
+          0.00153039163,
+          0.00665530981,
+          0.00150569924,
+          0.00655094627,
+          0.0014813653,
+          0.00666904915,
+          0.0014935995,
+          0.157164827,
+          0.157122031
+        ],
+        "policy_action": [
+          0.211243615,
+          1,
+          0.0549206659,
+          0.0798935518,
+          0.193208739,
+          1,
+          -0.495763391,
+          0.166964009,
+          0.413991749,
+          0.842430174,
+          -0.0888150111,
+          0.837584198,
+          0.45277372,
+          1,
+          -0.519366026,
+          0.450918227,
+          0,
+          0
+        ],
+        "contacts": [
+          {
+            "a": 24,
+            "a_name": "crow_left_front_toe_3_distal",
+            "b": 35,
+            "b_name": "locomotion_ground",
+            "point": [
+              1.34427142,
+              3.45279384,
+              -7.86278324e-05
+            ],
+            "normal": [
+              -5.96046519e-08,
+              -5.96046519e-08,
+              -1
+            ],
+            "tangent_u": [
+              0.000527788012,
+              0.999999881,
+              -5.96361005e-08
+            ],
+            "tangent_v": [
+              0.999999881,
+              -0.000527788012,
+              -5.95731855e-08
+            ],
+            "impulses": [
+              0,
+              0,
+              0
+            ],
+            "separation": -0.000156844049
+          }
+        ]
+      },
+      "missing_contact_ticks": [],
+      "missing_toe_ticks": [],
+      "toe_speed_threshold_events": 0,
+      "missing_effort_substeps": 0,
+      "flap_effort_max_abs": 3.0,
+      "sampled_sweep_q_range": [
+        -0.0891439095,
+        0.128179088
+      ],
+      "pulse_sweep_target_range": [
+        -0.060266193,
+        0.0227843616
+      ],
+      "pulse_flap_target_comparison_samples": 300,
+      "pulse_flap_target_delta_extrema": [
+        [
+          -0.06999445000000004,
+          0.06999450899999998
+        ],
+        [
+          -0.06999450899999998,
+          0.06999445000000004
+        ]
+      ],
+      "windows": {
+        "pulse": {
+          "samples": 51,
+          "mean_delta_roll_pitch_yaw_rad": [
+            -0.6644799540378605,
+            0.024040181120357114,
+            -0.013370866906284355
+          ],
+          "mean_delta_height_m": -0.2482188664313725,
+          "mean_delta_velocity_m_s": [
+            -0.004196818490196073,
+            2.2175299064117646,
+            -0.14695846051901962
+          ]
+        },
+        "recovery": {
+          "samples": 51,
+          "mean_delta_roll_pitch_yaw_rad": [
+            -0.8348150580019572,
+            0.16613026958047897,
+            0.12192421782853333
+          ],
+          "mean_delta_height_m": -0.4545714154509804,
+          "mean_delta_velocity_m_s": [
+            0.39444602962745107,
+            3.142934033529413,
+            0.059309920824117644
+          ]
+        }
+      }
+    }
+  ],
+  "scene_mask_matches_baseline": true,
+  "observer_errors": [],
+  "duplicate_samples": [],
+  "input_hashes": {
+    "host_sha256": "de80132b428474d30655a17a0153a6595ea51985ff01364429592397cd9e94d9",
+    "metallib_sha256": "1a3e2b865b45a0168d4108b3a06d2375dc8cf4df8b7be14b2a6cce1fc4a3ceb9",
+    "frozen_flight_sha256": "01bc92e4ec91c08d890da7b8691400f56490a2518d9ed47ae150bb997c65375c",
+    "landing_policy_sha256": "b5251e0e294d8fd04e073beacdf2faf1805105f731e9a8f73a8882c2a22dbd4b",
+    "route_policy_sha256": "4dc1de804258c384df42faf979842bd9da38ba1a0030dc03005807d6643c7c24"
+  },
+  "baseline_input_hashes": {
+    "host_sha256": "de80132b428474d30655a17a0153a6595ea51985ff01364429592397cd9e94d9",
+    "metallib_sha256": "6ca6a55c4285c75fe45cbb30db709c56f003a797f07f62e65f6f050abc6e4669",
+    "frozen_flight_sha256": "01bc92e4ec91c08d890da7b8691400f56490a2518d9ed47ae150bb997c65375c",
+    "landing_policy_sha256": "b5251e0e294d8fd04e073beacdf2faf1805105f731e9a8f73a8882c2a22dbd4b",
+    "route_policy_sha256": "4dc1de804258c384df42faf979842bd9da38ba1a0030dc03005807d6643c7c24"
+  },
+  "scope": "Used-seed open-loop differential flap actuator identification on uncalibrated obstacle-free research body; neither command-tracking qualification nor flight freeze."
+}
