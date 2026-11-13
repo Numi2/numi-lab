@@ -1,0 +1,40 @@
+{
+  "commit": "6f8487d9beb56b68874385b259c3c195c2240eda",
+  "source": "independent authenticated GitHub raw content",
+  "manifest": "artifacts/crow-v15-mirrored-height-trim-20261113/signed-turn-20261126-rebound-trim/stderr-parts.json",
+  "bytes": 246128666,
+  "sha256": "ecc9f1c04d3a01d27c66409baa4148ed4aaf6b0177def630a6d6d1185e2a23bd",
+  "gzip_eof_verified": true,
+  "parts": [
+    {
+      "file": "run.stderr.gz.part000",
+      "bytes": 41943040,
+      "sha256": "3a4b2af02c9702b6baab6b167f0df3b205f3e62b5b9a678c08e96f7bb0836efd"
+    },
+    {
+      "file": "run.stderr.gz.part001",
+      "bytes": 41943040,
+      "sha256": "d6d29050435bb9398b02ef08fa7b584b48131f7b44f4dd2c300fe2cfc9789965"
+    },
+    {
+      "file": "run.stderr.gz.part002",
+      "bytes": 41943040,
+      "sha256": "f5d5dcf94229a25dd531188cc1d41d8779c0bf26ec9e23001a9b7c545ab537a7"
+    },
+    {
+      "file": "run.stderr.gz.part003",
+      "bytes": 41943040,
+      "sha256": "0abd4259190d385543cb710d45080ba0ec47bf5f8b2b89088493a8b0c8beb586"
+    },
+    {
+      "file": "run.stderr.gz.part004",
+      "bytes": 41943040,
+      "sha256": "d7e71722a93c0c60e8ce049abc5a0bf742a1ffdbff5011c0c9baef9e80c43e59"
+    },
+    {
+      "file": "run.stderr.gz.part005",
+      "bytes": 36413466,
+      "sha256": "d8f5af174e9314c1e6eff8e4835e9cfaabde8fb045e5bb50ac786d5aa4a8ffc9"
+    }
+  ]
+}

@@ -1,0 +1,18 @@
+{
+  "commit": "af464c95481c245af8efbbde5bd5e50b67bc4fce",
+  "source": "independent authenticated GitHub raw content",
+  "files": [
+    {
+      "path": "artifacts/crow-v15-mirrored-hip-ankle-crouch-20261113/push-wing-20261126-rebound-hipankle/run.stderr.gz",
+      "bytes": 35156072,
+      "sha256": "08ac667d4bc9d31bd8c5387c3d5f6605513b08d0bba75c6782937169e83660f2",
+      "gzip_eof_verified": true
+    },
+    {
+      "path": "artifacts/crow-v15-mirrored-hip-ankle-crouch-20261113/hold-wing-20261126-rebound-hipankle/run.stderr.gz",
+      "bytes": 36887819,
+      "sha256": "e1bf6d2cbad2d029e13c653308f6fe4cf4133968670b85e41a17391c52b487c8",
+      "gzip_eof_verified": true
+    }
+  ]
+}
