@@ -1,0 +1,7 @@
+# Result: pre-raised wings did not pass the clean takeoff screen
+
+Both arms completed 400 intervals, the push/hold state, action and contact prefixes matched through 345, and the prior range push matched through 337. All observed flap efforts obeyed the assigned bounds and no errors or overflow were reported. All six comparable push lanes maintained some foot support in every control interval 340–347; their two early push-minus-crouch impulse contrasts also exceeded 0.05 N s. The first-stroke counter was active by step 349 or 350.
+
+Lanes 2–4 released but later recontacted and recorded 7–8 toe threshold substeps. Lane 5 had an unsupported gap at step 370 followed by renewed support before the first three-interval release at 373; it did not recontact afterward and had zero toe threshold events. Lane 6 similarly had a gap at 363 before its first three-interval release at 370, with no later recontact and zero toe events. Lane 7 had three pre-release gaps and five toe events despite no recontact after the first three-interval release at 372. Every lane therefore failed the preregistered uninterrupted-support screen; no bound passed both assigned lanes.
+
+The reported flap speed, support and contact are simulated development-seed diagnostics, not physical or biological qualification. Apparent later uninterrupted flight in two lanes does not erase the earlier interruptions. The engineering cap modifies runtime actuation without changing the model descriptor fingerprint and is not promoted. Full sources, binaries, hashes and matched traces are retained.
