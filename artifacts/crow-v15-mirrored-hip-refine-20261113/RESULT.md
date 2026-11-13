@@ -1,0 +1,3 @@
+# Refined wing-held hip push: improved but failed horizontal gate
+
+The baseline push and hold first episodes matched the prior corrected-body reference exactly in lanes 0–3. Both interpolated hip-finish pairs unloaded at tick 376, passed the earlier vertical hop screen, kept the matched holds supported, and had no toe-speed threshold or nonfoot ground impulse through release. At -0.05, the push COM x velocity at release was -0.208/-0.194 m/s; at +0.05 it was -0.119/-0.123 m/s, improving over the -0.311/-0.287 m/s baseline but still missing the preregistered -0.02 m/s minimum. All pairs fail the combined gate. These are correlated used-seed short-hop diagnostics, not sustained takeoff or biological qualification. Full failures and controls are retained.
