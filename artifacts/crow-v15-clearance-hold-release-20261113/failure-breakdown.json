@@ -1,0 +1,38 @@
+{
+  "0": {
+    "first_fall": null,
+    "counts": {
+      "release_intervals": 212,
+      "clearance_failed": 204,
+      "left_no_contact_failed": 200,
+      "right_support_failed": 74,
+      "all_passed": 8,
+      "tilt_failed": 31,
+      "right_opposing_toes_failed": 19,
+      "speed_failed": 1
+    },
+    "first_failed_interval_by_check": {
+      "clearance": 136,
+      "left_no_contact": 136,
+      "right_support": 138,
+      "tilt": 317,
+      "right_opposing_toes": 328,
+      "speed": 347
+    }
+  },
+  "1": {
+    "first_fall": 330,
+    "counts": {
+      "release_intervals": 52,
+      "clearance_failed": 42,
+      "left_no_contact_failed": 41,
+      "right_support_failed": 15,
+      "all_passed": 10
+    },
+    "first_failed_interval_by_check": {
+      "clearance": 158,
+      "left_no_contact": 158,
+      "right_support": 161
+    }
+  }
+}

@@ -1,0 +1,20 @@
+{
+  "0": {
+    "return_step": null,
+    "qualifying_steps": [],
+    "streaks": [],
+    "failed_gate_counts": {}
+  },
+  "1": {
+    "return_step": 210,
+    "qualifying_steps": [],
+    "streaks": [],
+    "failed_gate_counts": {
+      "both_up": 1,
+      "left_opp": 101,
+      "right_opp": 93,
+      "tilt": 63,
+      "speed": 31
+    }
+  }
+}
