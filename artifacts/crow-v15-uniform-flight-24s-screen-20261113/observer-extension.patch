@@ -1,0 +1,36 @@
+--- prior/MetalWorld.mm
++++ flight24/MetalWorld.mm
+@@ -21477,7 +21477,7 @@
+             static unsigned long long crowTraceSubmission = 0;
+             const bool crowTraceEnabled = std::getenv("CROW_SUBSTEP_TRACE") != nullptr;
+             const unsigned long long crowTraceStep = crowTraceEnabled ? ++crowTraceSubmission : 0;
+-            const bool crowTraceWindow = crowTraceEnabled && crowTraceStep >= 335 && crowTraceStep <= 900;
++            const bool crowTraceWindow = crowTraceEnabled && crowTraceStep >= 335 && crowTraceStep <= 1200;
+             const unsigned crowActuationMode = static_cast<unsigned>(config.actuationMode);
+             const bool crowBoundedDrive = selectedState->useBoundedDrives;
+             const bool crowCoupledDrive = selectedState->useCoupledDrives;
+@@ -22505,7 +22505,7 @@
+                                 for (NSUInteger j=0;j<crowTraceVStride;++j) std::fprintf(stderr," %.9g",startV[lane*crowTraceVStride+j]);
+                                 std::fprintf(stderr,"\n");
+                             }
+-                            if (crowTraceStep>=348 && crowTraceStep<=500) {
++                            if (crowTraceStep>=348 && crowTraceStep<=1200) {
+                                 std::fprintf(stderr,"CROW_WING_EFFORT %llu %lu %lu",crowTraceStep,(unsigned long)sub,(unsigned long)lane);
+                                 for (int j=8;j<=9;++j) std::fprintf(stderr," %.9g %.9g %.9g %.9g %.9g %.9g %.9g", effort[lane*diagnostics.layout.dispatch.effortEnvironmentStride+j],targets[lane*diagnostics.layout.dispatch.effortEnvironmentStride+j],startQ[lane*crowTraceQStride+j+1],coordinates[lane*crowTraceQStride+j+1],startV[lane*crowTraceVStride+j],preContactV[lane*crowTraceVStride+j],velocities[lane*crowTraceVStride+j]);
+                                 std::fprintf(stderr,"\n");
+@@ -22513,12 +22513,12 @@
+                             std::fprintf(stderr,"CROW_LEG_EFFORT %llu %lu %lu %u %u %u",crowTraceStep,(unsigned long)sub,(unsigned long)lane,crowActuationMode,unsigned(crowBoundedDrive),unsigned(crowCoupledDrive));
+                             for (int j=13;j<=18;++j) std::fprintf(stderr," %.9g %.9g %.9g %.9g %.9g",effort[lane*diagnostics.layout.dispatch.effortEnvironmentStride+j],startQ[lane*crowTraceQStride+j+1],coordinates[lane*crowTraceQStride+j+1],startV[lane*crowTraceVStride+j],velocities[lane*crowTraceVStride+j]);
+                             std::fprintf(stderr,"\n");
+-                            if (sub==0 && crowTraceStep>=335 && crowTraceStep<=900) { std::fprintf(stderr,"CROW_DRIVE_TARGET %llu %lu",crowTraceStep,(unsigned long)lane); for (NSUInteger j=0;j<crowTraceVStride;++j) std::fprintf(stderr," %.9g",targets[lane*diagnostics.layout.dispatch.effortEnvironmentStride+j]); std::fprintf(stderr,"\n"); }
+-                            if (sub==0 && crowTraceStep>=335 && crowTraceStep<=900) { std::fprintf(stderr,"CROW_WING_TARGET_PAIR %llu %lu",crowTraceStep,(unsigned long)lane); for (NSUInteger j=8;j<=9;++j) std::fprintf(stderr," %.9g %.9g",targets[lane*diagnostics.layout.dispatch.effortEnvironmentStride+j],targets[diagnostics.layout.dispatch.effortStepStride+lane*diagnostics.layout.dispatch.effortEnvironmentStride+j]); std::fprintf(stderr,"\n"); }
++                            if (sub==0 && crowTraceStep>=335 && crowTraceStep<=1200) { std::fprintf(stderr,"CROW_DRIVE_TARGET %llu %lu",crowTraceStep,(unsigned long)lane); for (NSUInteger j=0;j<crowTraceVStride;++j) std::fprintf(stderr," %.9g",targets[lane*diagnostics.layout.dispatch.effortEnvironmentStride+j]); std::fprintf(stderr,"\n"); }
++                            if (sub==0 && crowTraceStep>=335 && crowTraceStep<=1200) { std::fprintf(stderr,"CROW_WING_TARGET_PAIR %llu %lu",crowTraceStep,(unsigned long)lane); for (NSUInteger j=8;j<=9;++j) std::fprintf(stderr," %.9g %.9g",targets[lane*diagnostics.layout.dispatch.effortEnvironmentStride+j],targets[diagnostics.layout.dispatch.effortStepStride+lane*diagnostics.layout.dispatch.effortEnvironmentStride+j]); std::fprintf(stderr,"\n"); }
+                             if (crowTraceStep >= 335 && crowTraceStep <= 365) { std::fprintf(stderr,"CROW_Q_SUBSTEP %llu %lu %lu",crowTraceStep,(unsigned long)sub,(unsigned long)lane); for (NSUInteger j=0;j<crowTraceQStride;++j) std::fprintf(stderr," %.9g",coordinates[lane*crowTraceQStride+j]); std::fprintf(stderr,"\n"); }
+                             float up[2]={}, normal[2]={}, toe[16]={}, signedX[16]={}, other=0;
+                             for(NSUInteger i=0;i<n;++i){const auto& c=contacts[lane*crowTraceCapacity+i];
+-                                if (crowTraceStep>=348 && crowTraceStep<=900 && ((c.bodyA<35u && c.bodyB==35u)||(c.bodyB<35u && c.bodyA==35u)) && c.impulses.x>0.f) {
++                                if (crowTraceStep>=348 && crowTraceStep<=1200 && ((c.bodyA<35u && c.bodyB==35u)||(c.bodyB<35u && c.bodyA==35u)) && c.impulses.x>0.f) {
+                                     std::fprintf(stderr,"CROW_GROUND_CONTACT %llu %lu %lu %u %u %llu %llu",crowTraceStep,(unsigned long)sub,(unsigned long)lane,c.bodyA,c.bodyB,(unsigned long long)c.pairKey,(unsigned long long)c.featureKey);
+                                     std::fprintf(stderr," %.9g %.9g %.9g %.9g",c.pointAndSeparation.x,c.pointAndSeparation.y,c.pointAndSeparation.z,c.pointAndSeparation.w);
+                                     std::fprintf(stderr," %.9g %.9g %.9g",c.normal.x,c.normal.y,c.normal.z);
