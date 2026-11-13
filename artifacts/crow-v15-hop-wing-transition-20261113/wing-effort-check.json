@@ -1,0 +1,113 @@
+{
+  "rows": [
+    {
+      "arm": "push",
+      "lane": 2,
+      "max_abs_flap_effort": [
+        3.0,
+        3.0
+      ],
+      "within_3_bound": true
+    },
+    {
+      "arm": "push",
+      "lane": 3,
+      "max_abs_flap_effort": [
+        3.0,
+        3.0
+      ],
+      "within_3_bound": true
+    },
+    {
+      "arm": "push",
+      "lane": 4,
+      "max_abs_flap_effort": [
+        3.0,
+        3.0
+      ],
+      "within_3_bound": true
+    },
+    {
+      "arm": "push",
+      "lane": 5,
+      "max_abs_flap_effort": [
+        3.0,
+        3.0
+      ],
+      "within_3_bound": true
+    },
+    {
+      "arm": "push",
+      "lane": 6,
+      "max_abs_flap_effort": [
+        3.0,
+        3.0
+      ],
+      "within_3_bound": true
+    },
+    {
+      "arm": "push",
+      "lane": 7,
+      "max_abs_flap_effort": [
+        3.0,
+        3.0
+      ],
+      "within_3_bound": true
+    },
+    {
+      "arm": "hold",
+      "lane": 2,
+      "max_abs_flap_effort": [
+        3.0,
+        3.0
+      ],
+      "within_3_bound": true
+    },
+    {
+      "arm": "hold",
+      "lane": 3,
+      "max_abs_flap_effort": [
+        3.0,
+        3.0
+      ],
+      "within_3_bound": true
+    },
+    {
+      "arm": "hold",
+      "lane": 4,
+      "max_abs_flap_effort": [
+        3.0,
+        3.0
+      ],
+      "within_3_bound": true
+    },
+    {
+      "arm": "hold",
+      "lane": 5,
+      "max_abs_flap_effort": [
+        3.0,
+        3.0
+      ],
+      "within_3_bound": true
+    },
+    {
+      "arm": "hold",
+      "lane": 6,
+      "max_abs_flap_effort": [
+        3.0,
+        3.0
+      ],
+      "within_3_bound": true
+    },
+    {
+      "arm": "hold",
+      "lane": 7,
+      "max_abs_flap_effort": [
+        3.0,
+        3.0
+      ],
+      "within_3_bound": true
+    }
+  ],
+  "scope": "Only ticks 348-400; flap actuators only; sweep effort is not measured by this observer."
+}
