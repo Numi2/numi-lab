@@ -1,0 +1,7 @@
+{
+  "host_sha256": "67cdc9be5ff89e261d8c1541d1fb4c50714af1d8e3cfbf2cf4c70139c666987d",
+  "metallib_sha256": "3738e10b84e7a93e4b162fe5c6cc3d9f97e3c42c90c4ccfb059ce7064e07929b",
+  "frozen_flight_sha256": "01bc92e4ec91c08d890da7b8691400f56490a2518d9ed47ae150bb997c65375c",
+  "landing_policy_sha256": "b5251e0e294d8fd04e073beacdf2faf1805105f731e9a8f73a8882c2a22dbd4b",
+  "route_policy_sha256": "4dc1de804258c384df42faf979842bd9da38ba1a0030dc03005807d6643c7c24"
+}

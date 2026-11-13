@@ -1,0 +1,47 @@
+{
+  "rows": [
+    {
+      "lane": 2,
+      "first_episode_steps": 900,
+      "termination_reason": 0,
+      "first_scene_contact": null,
+      "contact_termination_trace": null
+    },
+    {
+      "lane": 3,
+      "first_episode_steps": 900,
+      "termination_reason": 0,
+      "first_scene_contact": null,
+      "contact_termination_trace": null
+    },
+    {
+      "lane": 4,
+      "first_episode_steps": 900,
+      "termination_reason": 0,
+      "first_scene_contact": null,
+      "contact_termination_trace": null
+    },
+    {
+      "lane": 5,
+      "first_episode_steps": 900,
+      "termination_reason": 0,
+      "first_scene_contact": null,
+      "contact_termination_trace": null
+    },
+    {
+      "lane": 6,
+      "first_episode_steps": 900,
+      "termination_reason": 0,
+      "first_scene_contact": null,
+      "contact_termination_trace": null
+    },
+    {
+      "lane": 7,
+      "first_episode_steps": 900,
+      "termination_reason": 0,
+      "first_scene_contact": null,
+      "contact_termination_trace": null
+    }
+  ],
+  "scope": "CONTACT termination is code 3. Contact-trace step uses the host trace submission convention and can be one greater than first-episode step count. Earlier ground/toe contact is reported separately in analysis.json. These are modeled collider events, not evidence of solver failure."
+}
