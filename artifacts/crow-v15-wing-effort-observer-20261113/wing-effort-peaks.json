@@ -1,0 +1,162 @@
+{
+  "records": 3584,
+  "scope": "working effort buffer is not established as total wing actuator torque",
+  "rows": [
+    {
+      "lane": 2,
+      "step": 369,
+      "substep": 3,
+      "wings": [
+        {
+          "working_effort_buffer": -36.4653511,
+          "target_rad": 0.341973007,
+          "start_q_rad": -0.037233144,
+          "end_q_rad": 0.0053720884,
+          "start_v_rad_s": 37.7589188,
+          "presolve_v_rad_s": 34.0841866,
+          "end_v_rad_s": 34.0841866
+        },
+        {
+          "working_effort_buffer": -36.2749329,
+          "target_rad": 0.339128315,
+          "start_q_rad": -0.0372923352,
+          "end_q_rad": 0.0050022807,
+          "start_v_rad_s": 37.4901619,
+          "presolve_v_rad_s": 33.8356934,
+          "end_v_rad_s": 33.8356934
+        }
+      ],
+      "aero_vertical_force_n": 34.6940384558
+    },
+    {
+      "lane": 3,
+      "step": 369,
+      "substep": 3,
+      "wings": [
+        {
+          "working_effort_buffer": -36.6206551,
+          "target_rad": 0.344919145,
+          "start_q_rad": -0.0364726484,
+          "end_q_rad": 0.00637973333,
+          "start_v_rad_s": 37.9704552,
+          "presolve_v_rad_s": 34.2819061,
+          "end_v_rad_s": 34.2819061
+        },
+        {
+          "working_effort_buffer": -36.3781357,
+          "target_rad": 0.340589345,
+          "start_q_rad": -0.0374290012,
+          "end_q_rad": 0.00504593039,
+          "start_v_rad_s": 37.6436462,
+          "presolve_v_rad_s": 33.9799461,
+          "end_v_rad_s": 33.9799461
+        }
+      ],
+      "aero_vertical_force_n": 34.9763833014
+    },
+    {
+      "lane": 4,
+      "step": 369,
+      "substep": 3,
+      "wings": [
+        {
+          "working_effort_buffer": -35.9763527,
+          "target_rad": 0.342409492,
+          "start_q_rad": -0.0368112139,
+          "end_q_rad": 0.00578252645,
+          "start_v_rad_s": 37.7058792,
+          "presolve_v_rad_s": 34.0998497,
+          "end_v_rad_s": 34.0749931
+        },
+        {
+          "working_effort_buffer": -36.0244064,
+          "target_rad": 0.343062937,
+          "start_q_rad": -0.0363614,
+          "end_q_rad": 0.00626275782,
+          "start_v_rad_s": 37.7293205,
+          "presolve_v_rad_s": 34.1246147,
+          "end_v_rad_s": 34.0993271
+        }
+      ],
+      "aero_vertical_force_n": 36.525897551
+    },
+    {
+      "lane": 5,
+      "step": 369,
+      "substep": 3,
+      "wings": [
+        {
+          "working_effort_buffer": -36.5436859,
+          "target_rad": 0.343738914,
+          "start_q_rad": -0.0365328677,
+          "end_q_rad": 0.00619318569,
+          "start_v_rad_s": 37.8623466,
+          "presolve_v_rad_s": 34.1808434,
+          "end_v_rad_s": 34.1808434
+        },
+        {
+          "working_effort_buffer": -36.3517456,
+          "target_rad": 0.340132773,
+          "start_q_rad": -0.0374319516,
+          "end_q_rad": 0.00499195373,
+          "start_v_rad_s": 37.6003914,
+          "presolve_v_rad_s": 33.9391251,
+          "end_v_rad_s": 33.9391251
+        }
+      ],
+      "aero_vertical_force_n": 34.8750199256
+    },
+    {
+      "lane": 6,
+      "step": 369,
+      "substep": 3,
+      "wings": [
+        {
+          "working_effort_buffer": -36.2590103,
+          "target_rad": 0.346220672,
+          "start_q_rad": -0.035900671,
+          "end_q_rad": 0.00702826213,
+          "start_v_rad_s": 37.995121,
+          "presolve_v_rad_s": 34.3660011,
+          "end_v_rad_s": 34.3431473
+        },
+        {
+          "working_effort_buffer": -36.0572052,
+          "target_rad": 0.3426072,
+          "start_q_rad": -0.0365956984,
+          "end_q_rad": 0.00600673957,
+          "start_v_rad_s": 37.7132797,
+          "presolve_v_rad_s": 34.104496,
+          "end_v_rad_s": 34.0819511
+        }
+      ],
+      "aero_vertical_force_n": 36.9464008975
+    },
+    {
+      "lane": 7,
+      "step": 369,
+      "substep": 3,
+      "wings": [
+        {
+          "working_effort_buffer": -36.3996849,
+          "target_rad": 0.340828687,
+          "start_q_rad": -0.0376047343,
+          "end_q_rad": 0.00491190143,
+          "start_v_rad_s": 37.6829338,
+          "presolve_v_rad_s": 34.0133095,
+          "end_v_rad_s": 34.0133095
+        },
+        {
+          "working_effort_buffer": -36.2864113,
+          "target_rad": 0.33941704,
+          "start_q_rad": -0.0372302718,
+          "end_q_rad": 0.00508859102,
+          "start_v_rad_s": 37.5115852,
+          "presolve_v_rad_s": 33.8550911,
+          "end_v_rad_s": 33.8550911
+        }
+      ],
+      "aero_vertical_force_n": 34.5783228232
+    }
+  ]
+}
