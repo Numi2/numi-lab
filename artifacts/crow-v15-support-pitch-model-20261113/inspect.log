@@ -1,0 +1,6 @@
+crow_left_hip_pitch q 14 joint 7 parent 8 child 9 axis 0 1 0 bounds -0.850000024 0.850000024 effort 0.75
+crow_left_knee_pitch q 15 joint 8 parent 9 child 10 axis 0 1 0 bounds -0.100000001 1.54999995 effort 0.75
+crow_left_ankle_pitch q 16 joint 9 parent 10 child 11 axis 0 1 0 bounds -0.899999976 0.699999988 effort 0.600000024
+crow_right_hip_pitch q 17 joint 10 parent 12 child 13 axis 0 1 0 bounds -0.850000024 0.850000024 effort 0.75
+crow_right_knee_pitch q 18 joint 11 parent 13 child 14 axis 0 1 0 bounds -0.100000001 1.54999995 effort 0.75
+crow_right_ankle_pitch q 19 joint 12 parent 14 child 15 axis 0 1 0 bounds -0.899999976 0.699999988 effort 0.600000024

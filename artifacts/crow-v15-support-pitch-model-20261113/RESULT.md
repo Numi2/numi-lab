@@ -1,0 +1,3 @@
+# Supported-leg pitch axes
+
+The current hip-roll research model's left and right hip, knee and ankle pitch joints have +Y local axes. Both hip targets are bounded to +/-0.85 rad with modeled effort cap 0.75; knee and ankle bounds are recorded in inspect.log. A foot assumed rigidly fixed to the perch would require torso rotation in the opposite direction to hip rotation, suggesting a sign for a small supported-hip pitch feedback experiment. Actual toe contacts are compliant and may slip or detach, so that kinematic sign is a hypothesis rather than evidence that the closed-loop dynamics will stabilize. Source, executable and linked runtime hashes are retained.
