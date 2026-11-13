@@ -1,0 +1,7 @@
+# Result: no effort bound passed the strict takeoff screen
+
+Both arms completed 400 intervals, with exact recorded state/action/contact parity between arms and against the uncapped reference through step 345, no reported solver errors or overflow, and every observed flap effort within its assigned bound. The 4.0 lanes 2–3 never reached three consecutive unsupported intervals and had 7–8 toe-speed threshold substeps. The 8.0 lanes 4–5 released at step 355 but recontacted at steps 364–369 and had eight toe-threshold substeps each. The 16.0 lanes 6–7 had a support gap before release, recontacted, and had 3–4 toe-threshold substeps; lane 7 also missed the 348–357 impulse contrast by a small amount. No bound passed in both assigned lanes.
+
+Maximum substep flap speeds were 16.11–16.32 rad/s at bound 4, 32.50–32.57 at bound 8, and 28.84–28.96 at bound 16. Their associated model aero peaks were approximately 6.13–6.15 N, 22.67–22.71 N, and 22.09–22.18 N respectively. These are correlated development lanes with different evolving trajectories, not controlled measurements at a single shared state or biological limits. The substantial root rise in the 8.0 lanes occurs despite recontacts and cannot establish successful takeoff. The source, compiled metallibs, hashes, matched logs and failures are retained.
+
+The limits are engineering probes only, the metallib modifies actuation beyond its model descriptor fingerprint, and nothing here qualifies the controller, flight, landing, or either unused layout.
