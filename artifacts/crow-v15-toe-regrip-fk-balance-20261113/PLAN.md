@@ -1,0 +1,9 @@
+# FK-guided regrip foot-centering hypothesis
+
+In two retained constructed stationary-perch starts, after release and return the feet moved forward relative to their supported positions, neither recorded front-toe normal met the opposing-contact criterion, torso pitch increased, and the birds fell. Fixed forward- and rearward-hip offsets failed; correlation does not prove a cause. Test whether bounded closed-loop restoration of each foot's previously supported world-x position helps reacquire grip.
+
+Keep all pre-release, clearance, contact, toe and return rules unchanged. Store each foot's measured position at the onset of release. After the ten-interval clear-foot return latch, use finite-difference articulated FK to estimate each hip's local foot-x Jacobian and apply a bounded additive physical hip-position target correction. Eight lanes pair two prior constructed starts with gains 0, .25, .5 and 1; correction is limited to .10 rad and disabled when the Jacobian magnitude is <=.005 m/rad. No force, state reset or teleport is added. Log accepted foot positions, goals, Jacobians and commands for every interval.
+
+Require exact control and state parity with the zero-gain two-start control up to return, all 32 substeps, qualified clear release, final 100 consecutive bilateral supported opposing-grip intervals, no fall and no nonfoot impulse. Analyze each gain and retain failures. A pass remains a stationary constructed-state screen, not an airborne landing. Joint drive effort and full hardware-model limits require a separate audit before integration; final layouts and seeds remain untouched.
+
+Record actual physical hip target values and model-declared limits every interval; a candidate also fails if any target leaves its declared joint range. The executable and runtime inputs are hashed by the runner before launching.
