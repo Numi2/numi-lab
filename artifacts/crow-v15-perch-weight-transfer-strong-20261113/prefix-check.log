@@ -1,0 +1,20 @@
+{
+  "0": {
+    "weight_transfer_start_zero_based": 97,
+    "matched_preintervention_states": 97,
+    "missing": [],
+    "max_abs_qv_error": 0.0,
+    "prefix_match": true,
+    "max_abs_roll_target_rad": 0.237849697,
+    "max_readiness_streak": 18
+  },
+  "1": {
+    "weight_transfer_start_zero_based": 121,
+    "matched_preintervention_states": 121,
+    "missing": [],
+    "max_abs_qv_error": 0.0,
+    "prefix_match": true,
+    "max_abs_roll_target_rad": 0.25,
+    "max_readiness_streak": 75
+  }
+}
