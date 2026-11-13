@@ -1,0 +1,5 @@
+# Retained toe-release failure timing
+
+This posthoc analysis reads the previously archived stationary-perch release/regrip trace and verifies its SHA-256. In both constructed starts, the return latch first appears at zero-based steps 150 and 155. At those samples, recorded forward velocities are 0.097 and 0.082 m/s. Thirty intervals later, torso pitch is approximately 0.354 and 0.353 rad, and neither recorded front-toe x impulse passes the prior opposing-contact threshold. Root height drops below 0.1 m at zero-based steps 236 and 243; the original analysis reports one-based steps 237 and 244. These are endpoint snapshots and the state and phase may be sampled at different moments in an interval. The observation suggests examining forward balance and reacquisition together; it does not establish which caused the fall, establish airborne landing, or qualify grip and release.
+
+Run `python3 analyze.py /path/to/trace.log.gz`; input is the trace archived under `artifacts/crow-v15-toe-release-regrip-20261111/trace.log.gz`, hash recorded in `analysis.json`.
