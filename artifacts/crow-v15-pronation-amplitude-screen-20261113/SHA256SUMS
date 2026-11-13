@@ -10,6 +10,7 @@ b9b4df95c4d2023c35617aaeb689ab33bdbea924da1848986fc3a39afc090e29  ./pronation-am
 a8e9acf65bbf67344711fbc05ab58ee0c15f36197cc8f10abff7bacc3e705e37  ./pronation-amplitude-20261126-rebound-amplitude/analyze.log
 5838031c910e5a959cd623c2bda52e3a7a988c978e8e1c2b3bad8a86ba2655f3  ./pronation-amplitude-20261126-rebound-amplitude/command.json
 82fbdb1be2484a1a5b1a2b639358bc44cb0625c135fe21928fc23b0465c8dcd8  ./pronation-amplitude-20261126-rebound-amplitude/force-analysis.json
+dc2f9eec8cb1419298ff6c8719f12652582df0432a2bba7f60aa7f184bb43148  ./pronation-amplitude-20261126-rebound-amplitude/independent-github-download-20261126.json
 7ec212a000202baeac87dba3922eb86c39a4de498828ad689a4fcaebb7953b6a  ./pronation-amplitude-20261126-rebound-amplitude/inputs.json
 ee6204a8c67e7f4ac8a55ac13c725e906fd5424c0c50e9cc82d9902c558292c1  ./pronation-amplitude-20261126-rebound-amplitude/replay.json.gz
 81868a6e94ffc0178bf833deb1c9013d9fab4ee95ddb876a5e8ec4f1d26376d2  ./pronation-amplitude-20261126-rebound-amplitude/run-result.json
@@ -30,4 +31,5 @@ e669dcdbb4756939587407185094347dc378537dfabe8beb4d48678b4a21435b  ./pronation-am
 c856c676a5923ad240c36f6a97aa13ff8d84f9af6f2973c31fea843f108cb02b  ./pronation-amplitude.metallib.gz
 7ec3664e8f66bf4a0f31b93177c9306aa27bb93535eb74327e1b269ba331a45f  ./qualify.py
 83db8d04625fd0646985d077493fa733df5ee806c1464996ccb7e937de8caa2e  ./restore-stderr.py
+5ae4844d5443bfdfefaad6d5ccc4823c159e68def61c39f3d3007265318365ea  ./retirement-manifest-20261126.json
 2424b5a2bbd7e9c75d19518964426cd4b812799138590bd2965c7d09e0f8360e  ./run.py
