@@ -1,0 +1,7 @@
+# Continuous wingbeat sensitivity: rejected
+
+The candidate and retained common-bound crouch control have exact recorded state/action/contact parity through tick 345, complete 400-tick first episodes, and complete required force and effort observations. The six candidates preserve continuous support until their first three unloaded intervals, but every one then recontacts. Thus no setting passes the preregistered launch gate. Early push-minus-hold normal impulse is above 0.05 N s in both windows in each candidate lane; this difference is not isolated leg-muscle impulse.
+
+Across the 4.8, 5.6 and 6.4 Hz pairs, respectively, toe-speed threshold substeps are 5/0, 15/18 and 11/10. Whole-body COM peak rise from tick 350 through 400 is 0.031/0.032, 0.055/0.057 and 0.034/0.032 m; even the higher pair recontacts. During ticks 376–400, mean modeled vertical aerodynamic force ranges from 0.75 to 1.55 N versus approximately 4.42 N modeled weight. The observed flap drives remain at their 3.0 bound for at least 99.6% of joint-substeps, despite tracking RMS 0.58–0.72 rad. The saved effort-displacement values are timing-sensitive model work proxies, not calibrated muscle work.
+
+The candidate changes both wingbeat frequency and the late-controller handoff relative to the earlier trial; differences from that trial cannot be attributed to frequency alone. Within this used seed, the continuous targets show no qualifying solution. Do not promote any candidate or infer species-specific mechanics from these settings. Flight, landing and the full mission remain unqualified.
