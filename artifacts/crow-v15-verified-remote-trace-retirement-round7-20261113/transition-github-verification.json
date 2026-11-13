@@ -1,0 +1,12 @@
+{
+  "commit": "77e428b73ec2ef2818f3de7761e7575ffaead187",
+  "source": "independent authenticated GitHub raw content",
+  "files": [
+    {
+      "path": "artifacts/crow-v15-mirrored-leg-wing-transition-20261113/signed-turn-20261126-rebound-transition/run.stderr.gz",
+      "bytes": 28912465,
+      "sha256": "54f5f9678c1600f578ee6fe87f0b46fe21e359f8df378ff5b3ba6f2b6cc4d0ba",
+      "gzip_eof_verified": true
+    }
+  ]
+}

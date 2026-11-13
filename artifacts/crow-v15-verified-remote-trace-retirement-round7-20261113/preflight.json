@@ -1,0 +1,22 @@
+{
+  "mode": "checked",
+  "rows": [
+    {
+      "path": "/Users/n/Developer/numi-crow-rl-20261107/artifacts/crow-v15-mirrored-height-switch-20261113/signed-turn-20261126-rebound-switch/run.stderr.gz",
+      "sha256": "d8ba16d2da270f1835b06761921a37fca4d8e742e4f531e86307f8a73bd6d851",
+      "bytes": 246123913,
+      "device": 16777232,
+      "inode": 17099838,
+      "verified_commit": "b21bd37f378a8170a2c780d5f634ecc2e3103eac"
+    },
+    {
+      "path": "/Users/n/Developer/numi-crow-rl-20261107/artifacts/crow-v15-mirrored-leg-wing-transition-20261113/signed-turn-20261126-rebound-transition/run.stderr.gz",
+      "sha256": "54f5f9678c1600f578ee6fe87f0b46fe21e359f8df378ff5b3ba6f2b6cc4d0ba",
+      "bytes": 28912465,
+      "device": 16777232,
+      "inode": 17099892,
+      "verified_commit": "77e428b73ec2ef2818f3de7761e7575ffaead187"
+    }
+  ],
+  "bytes": 275036378
+}

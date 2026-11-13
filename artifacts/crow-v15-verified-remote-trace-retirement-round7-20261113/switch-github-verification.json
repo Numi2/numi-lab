@@ -1,0 +1,40 @@
+{
+  "commit": "b21bd37f378a8170a2c780d5f634ecc2e3103eac",
+  "source": "independent authenticated GitHub raw content",
+  "manifest": "artifacts/crow-v15-mirrored-height-switch-20261113/signed-turn-20261126-rebound-switch/stderr-parts.json",
+  "bytes": 246123913,
+  "sha256": "d8ba16d2da270f1835b06761921a37fca4d8e742e4f531e86307f8a73bd6d851",
+  "gzip_eof_verified": true,
+  "parts": [
+    {
+      "file": "run.stderr.gz.part000",
+      "bytes": 41943040,
+      "sha256": "bb77b8055367c88e7d8616f813d528e919c3e58c124a2e20841ab06a8f58e96f"
+    },
+    {
+      "file": "run.stderr.gz.part001",
+      "bytes": 41943040,
+      "sha256": "7601ba27e00cd5290e87cd52474a37dc573be308a97ee73645e963c906670bfc"
+    },
+    {
+      "file": "run.stderr.gz.part002",
+      "bytes": 41943040,
+      "sha256": "8950e0e84da3c10f0c5251bc7acf1a419b4f2141a975aa08afaca65fa3237bba"
+    },
+    {
+      "file": "run.stderr.gz.part003",
+      "bytes": 41943040,
+      "sha256": "7a5d97ea8363abb12863379ff887132fa267e87fa0409430fb858af3edc99a13"
+    },
+    {
+      "file": "run.stderr.gz.part004",
+      "bytes": 41943040,
+      "sha256": "58d91fbdb47906a29c697021b7980eb52dd99d54fe1d489d56e9b11fa585ed94"
+    },
+    {
+      "file": "run.stderr.gz.part005",
+      "bytes": 36408713,
+      "sha256": "45dabe7f0063e3a0b36ac529e1926e94f9cdbf1796458bf29e6d50c852326d10"
+    }
+  ]
+}
