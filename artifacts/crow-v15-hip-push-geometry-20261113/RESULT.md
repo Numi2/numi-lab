@@ -1,0 +1,9 @@
+# Geometry-guided hip extension: failed development screen
+
+The candidate changed only the normalized symmetric hip endpoint from -0.50 to -0.15, retaining the earlier -0.10 knee request and other settings. All eight first episodes completed 400 steps. Recorded state, policy actions and contacts matched both the earlier candidate and active crouch through step 345, including contact substeps 335–345. All required work and contact samples were present, and no observer error or overflow was recorded.
+
+All six prespecified comparable lanes 2–7 failed both screens. Their signed upward foot impulse over steps 348–375 was 0.1340–0.1476 Ns lower than the active crouch, and 0.0059–0.0163 Ns lower than the prior -0.10 candidate. Maximum root rise from step 350 was 0.01534–0.01535 m; none had three consecutive unloaded intervals. The net generalized leg-work proxy was 0.426–0.452 J; no nonfoot ground impulse or toe-speed-cap substeps were observed in steps 348–380. The proxy includes simulator effort terms and is not isolated muscle work.
+
+Control lane 0, which did not use the comparable latched controller, rose 0.0657 m and had three unloaded intervals; it also had 11 toe-speed-cap substeps. It is retained and is not evidence that this candidate succeeded. Control lane 1 did not pass either screen. All lanes are correlated and this seed was used for development. The active crouch also changes controller after 7.4 seconds, so its whole-window impulse difference is not a constant-command causal measurement.
+
+The posture-only finite difference predicted neither dynamics nor the measured force result; this trial does not establish a contact-force cause. Do not promote the candidate. It does not qualify leg-powered takeoff, flight, navigation, grip or supported landing. Full input hashes, source, binary, commands, replay, trace, raw logs and per-lane results are retained.

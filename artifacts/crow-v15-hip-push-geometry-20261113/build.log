@@ -1,0 +1,5 @@
+/Users/n/Developer/numi-crow-rl-20261107/artifacts/crow-v15-hip-push-geometry-20261113/inrange.metal:5099:30: warning: unused variable 'arm' [-Wunused-variable]
+                { const uint arm=environment%8u;
+                             ^
+1 warning generated.
+Built candidate metallib: d67e95be4cadf56418bab4d2f2ee14cde200406e568c3eb1bfdc525a53776de1
