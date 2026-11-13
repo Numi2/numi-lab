@@ -1,0 +1,7 @@
+{
+  "artifacts/crow-v15-energy-consistent-aero-20261113/research-aero.metal": "8072fe1e1c3499e71b18dc2bd1fe2b928dade0b79d70192ed6c3ead0006167c7",
+  "build/crow-v15-wing-aero-alignment-20261110/FlappingWingDynamics.metal": "3e798f247854bcecf5ebb473ee50e652c1fed8c8783a52733c1811b145e53c8c",
+  "build/crow-v15-energy-consistent-aero-20261113/aero.air": "635d55b3181bdc8bd4eb0e2cd6012ac4452fcc8070de3db161a88e1468c139d0",
+  "build/crow-v15-energy-consistent-aero-20261113/push-wing.metallib": "6f11449879d8f79e3342e0d115b332d191198b2004508f76c84c6600a83d246d",
+  "build/crow-v15-energy-consistent-aero-20261113/hold-wing.metallib": "ce6ba374dc9151425950019156946d51f988a2e288052a88690ea9d48f316e0b"
+}

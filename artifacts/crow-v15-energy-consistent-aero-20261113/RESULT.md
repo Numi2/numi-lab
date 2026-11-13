@@ -1,0 +1,9 @@
+# Result: energy-consistent research closure, failed launch
+
+This is a research-only aerodynamic closure, not a crow-calibrated model or production change. It retains the v15 blade-element forces but projects away only the component of the empirical fixed-direction unsteady term that would add energy to the wing relative to the local flow. The projection assumes a quasi-steady representation without a wake energy reservoir; it does not model real energy recovery from unsteady wakes.
+
+All eight push and hold episodes ran 400 ticks. Their recorded states, actions and contact samples match through tick 345 in each lane. The exact aerodynamic kernel input matched the recorded substep-start state, recorded body force sums matched the total within 1.4e-10 N, and the translation check passed. For ticks 376-400, none of 400 examined substeps per lane had total modeled aero power above 1e-6 W for either push or hold. This check supports the predicted energy behavior for the sampled still-air run only; it is not full validation of aerodynamic forces.
+
+All six bounded-effort push lanes recontact after a three-interval unload: release ticks 358-359, first recontact 362-365. Peak whole-body COM rise from tick 350 is 0.0305-0.0407 m. Toe-speed threshold substeps are 16-34. Push versus hold changes early measured normal ground impulse by 0.0785-0.1071 Ns through tick 355; it does not by itself establish leg-only impulse or powered flight. No bounded candidate passes the prior preliminary launch gates. Lane 0-1 are separate high-effort controls. No candidate is promoted or frozen, and no unused layout or seed is consumed.
+
+Source diff, GPU binaries by build hashes, commands, input hashes, full logs, replay, observer analysis and matched hold are retained. Full flight, landing and route qualification remain outstanding.

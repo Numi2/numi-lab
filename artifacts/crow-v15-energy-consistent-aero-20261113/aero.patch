@@ -1,0 +1,11 @@
+--- a/v15-aero.metal
++++ b/passive-research-aero.metal
+@@ -330,7 +330,7 @@
+                 liftCoefficient * liftDirection +
+                 dragCoefficient * flow +
+                 wing.unsteadyCoefficients.x * strokeFraction *
+-                    unsteadyDirection
++                    (unsteadyDirection - min(dot(unsteadyDirection, flow), 0.0f) * flow)
+             );
+             force += elementForce;
+             torque += cross(rootToPoint, elementForce);
