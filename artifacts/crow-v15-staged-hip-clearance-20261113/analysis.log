@@ -1,0 +1,42 @@
+{
+  "lanes": [
+    {
+      "states_observed": 450,
+      "lane": 0,
+      "knee_target_offset_rad": 0.0,
+      "initial_x_shift_m": 0.0,
+      "sensor_clearance_max_abs_error_m": 1.4841294486038015e-08,
+      "release_trigger_step": 136,
+      "return_step": null,
+      "terminal_100_bilateral_supported_grip": false,
+      "longest_qualified_release_intervals": 5,
+      "peak_minimum_left_clearance_m": 0.014629249937001952,
+      "maximum_right_upward_impulse_per_interval": 0.1627869949173894,
+      "nonfoot_impulse_intervals": 0,
+      "first_root_below_0_1m": 370,
+      "missing_pose_steps": [],
+      "pass": false
+    },
+    {
+      "states_observed": 450,
+      "lane": 1,
+      "knee_target_offset_rad": 0.0,
+      "initial_x_shift_m": 0.002,
+      "sensor_clearance_max_abs_error_m": 1.1831595530600056e-08,
+      "release_trigger_step": 158,
+      "return_step": null,
+      "terminal_100_bilateral_supported_grip": false,
+      "longest_qualified_release_intervals": 6,
+      "peak_minimum_left_clearance_m": 0.014124307854301618,
+      "maximum_right_upward_impulse_per_interval": 0.16728317267880202,
+      "nonfoot_impulse_intervals": 0,
+      "first_root_below_0_1m": 392,
+      "missing_pose_steps": [],
+      "pass": false
+    }
+  ],
+  "missing_substeps": 0,
+  "bad_substeps": 0,
+  "errors": [],
+  "scope": "constructed stationary grip-to-release development test"
+}
