@@ -1,0 +1,111 @@
+{
+  "purpose": "Retire only exact duplicate build outputs, after independent GitHub restore and identity/open handle recheck",
+  "host": "macmini",
+  "repo_root": "/Users/n/Developer/numi-crow-rl-20261107",
+  "files": [
+    {
+      "path": "build/crow-v15-intermediate-winghold-20261113/push-wing-20261126-rebound-intermediate-replay.json",
+      "size": 16103298,
+      "device": 16777232,
+      "inode": 17095771,
+      "links": 1,
+      "sha256": "29838dccb651a72242c23dd10a804a402c2d044c87a0bd98e5b238d85853497b",
+      "open_pids": [],
+      "lsof_exit": 1,
+      "commit": "8673657e172e83e1b82d74badda49f37f366b15d",
+      "git_gzip": "artifacts/crow-v15-intermediate-winghold-20261113/push-wing-20261126-rebound-intermediate/replay.json.gz",
+      "independent_github_restore_sha256": "29838dccb651a72242c23dd10a804a402c2d044c87a0bd98e5b238d85853497b"
+    },
+    {
+      "path": "build/crow-v15-intermediate-winghold-20261113/push-wing-20261126-rebound-intermediate-trace.tsv",
+      "size": 351445,
+      "device": 16777232,
+      "inode": 17095770,
+      "links": 1,
+      "sha256": "5da20dd5d1a2f3ac80f3dc0e40e443a0ce03a7db894dbcd82410ac0d0352c2bf",
+      "open_pids": [],
+      "lsof_exit": 1,
+      "commit": "8673657e172e83e1b82d74badda49f37f366b15d",
+      "git_gzip": "artifacts/crow-v15-intermediate-winghold-20261113/push-wing-20261126-rebound-intermediate/trace.tsv.gz",
+      "independent_github_restore_sha256": "5da20dd5d1a2f3ac80f3dc0e40e443a0ce03a7db894dbcd82410ac0d0352c2bf"
+    },
+    {
+      "path": "build/crow-v15-intermediate-winghold-20261113/hold-wing-20261126-rebound-intermediate-replay.json",
+      "size": 16110354,
+      "device": 16777232,
+      "inode": 17095785,
+      "links": 1,
+      "sha256": "b4806fc6ebba032e371ccb607b11a7d94270cb09a5b27f850432f2888a19d829",
+      "open_pids": [],
+      "lsof_exit": 1,
+      "commit": "8673657e172e83e1b82d74badda49f37f366b15d",
+      "git_gzip": "artifacts/crow-v15-intermediate-winghold-20261113/hold-wing-20261126-rebound-intermediate/replay.json.gz",
+      "independent_github_restore_sha256": "b4806fc6ebba032e371ccb607b11a7d94270cb09a5b27f850432f2888a19d829"
+    },
+    {
+      "path": "build/crow-v15-intermediate-winghold-20261113/hold-wing-20261126-rebound-intermediate-trace.tsv",
+      "size": 351581,
+      "device": 16777232,
+      "inode": 17095784,
+      "links": 1,
+      "sha256": "19943fd0ebae453f650cf2ca059ff78245fbf8b44cd45a4c781d75eb81967c06",
+      "open_pids": [],
+      "lsof_exit": 1,
+      "commit": "8673657e172e83e1b82d74badda49f37f366b15d",
+      "git_gzip": "artifacts/crow-v15-intermediate-winghold-20261113/hold-wing-20261126-rebound-intermediate/trace.tsv.gz",
+      "independent_github_restore_sha256": "19943fd0ebae453f650cf2ca059ff78245fbf8b44cd45a4c781d75eb81967c06"
+    },
+    {
+      "path": "build/crow-v15-overlap-leg-wing-20261113/push-wing-20261126-rebound-overlap-replay.json",
+      "size": 19960765,
+      "device": 16777232,
+      "inode": 17095972,
+      "links": 1,
+      "sha256": "42bff3fba8115763cb35c7c7e09603af9d66fc792d11528c696aad1b307b4d99",
+      "open_pids": [],
+      "lsof_exit": 1,
+      "commit": "d608bb67fdc447d55eb1a7596600aa8eb14efa8e",
+      "git_gzip": "artifacts/crow-v15-overlap-leg-wing-20261113/push-wing-20261126-rebound-overlap/replay.json.gz",
+      "independent_github_restore_sha256": "42bff3fba8115763cb35c7c7e09603af9d66fc792d11528c696aad1b307b4d99"
+    },
+    {
+      "path": "build/crow-v15-overlap-leg-wing-20261113/push-wing-20261126-rebound-overlap-trace.tsv",
+      "size": 432005,
+      "device": 16777232,
+      "inode": 17095971,
+      "links": 1,
+      "sha256": "512ef589256183fd1ee58c772444dc8839da83ccf9be99100e2da6ad567d5cf2",
+      "open_pids": [],
+      "lsof_exit": 1,
+      "commit": "d608bb67fdc447d55eb1a7596600aa8eb14efa8e",
+      "git_gzip": "artifacts/crow-v15-overlap-leg-wing-20261113/push-wing-20261126-rebound-overlap/trace.tsv.gz",
+      "independent_github_restore_sha256": "512ef589256183fd1ee58c772444dc8839da83ccf9be99100e2da6ad567d5cf2"
+    },
+    {
+      "path": "build/crow-v15-overlap-leg-wing-20261113/hold-wing-20261126-rebound-overlap-replay.json",
+      "size": 20013032,
+      "device": 16777232,
+      "inode": 17095988,
+      "links": 1,
+      "sha256": "6967c30d29b191cc382d8560d935587896066b29bb1cb6ab8865e32467d58a5e",
+      "open_pids": [],
+      "lsof_exit": 1,
+      "commit": "d608bb67fdc447d55eb1a7596600aa8eb14efa8e",
+      "git_gzip": "artifacts/crow-v15-overlap-leg-wing-20261113/hold-wing-20261126-rebound-overlap/replay.json.gz",
+      "independent_github_restore_sha256": "6967c30d29b191cc382d8560d935587896066b29bb1cb6ab8865e32467d58a5e"
+    },
+    {
+      "path": "build/crow-v15-overlap-leg-wing-20261113/hold-wing-20261126-rebound-overlap-trace.tsv",
+      "size": 432067,
+      "device": 16777232,
+      "inode": 17095987,
+      "links": 1,
+      "sha256": "6cf78839da2bd9a531c80e98c9daf577287ed97855103bbedbfe9fae0e5c1ffa",
+      "open_pids": [],
+      "lsof_exit": 1,
+      "commit": "d608bb67fdc447d55eb1a7596600aa8eb14efa8e",
+      "git_gzip": "artifacts/crow-v15-overlap-leg-wing-20261113/hold-wing-20261126-rebound-overlap/trace.tsv.gz",
+      "independent_github_restore_sha256": "6cf78839da2bd9a531c80e98c9daf577287ed97855103bbedbfe9fae0e5c1ffa"
+    }
+  ]
+}
