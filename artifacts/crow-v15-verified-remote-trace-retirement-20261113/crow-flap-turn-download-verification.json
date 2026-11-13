@@ -1,0 +1,10 @@
+{
+  "commit": "5f960871135499117ef9989a86d6a918f309ea0f",
+  "archive": "artifacts/crow-v15-mirrored-flap-turn-20261113/signed-turn-20261126-rebound-flap",
+  "compressed_bytes": 285026953,
+  "sha256": "e202418519cdf815f3b364e8d1964915b3871afc81a779cfa1dbc547554dd9d9",
+  "uncompressed_bytes": 1085326527,
+  "gzip_eof": true,
+  "all_parts_sha256_verified": true,
+  "source": "independent authenticated GitHub contents download"
+}

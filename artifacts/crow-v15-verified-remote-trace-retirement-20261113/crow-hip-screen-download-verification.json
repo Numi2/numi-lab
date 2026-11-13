@@ -1,0 +1,20 @@
+{
+  "commit": "21962150bd55f6dd017267badc444cedbc3234c4",
+  "source": "independent authenticated GitHub contents download",
+  "runs": [
+    {
+      "archive": "artifacts/crow-v15-mirrored-hip-push-screen-20261113/push-wing-20261126-rebound-hip/run.stderr.gz",
+      "sha256": "112c23a29f582b3a5fccdf94ac6c596dc454576bfffd8bda8cc65b4b80942a62",
+      "bytes": 35237966,
+      "uncompressed_bytes": 145381453,
+      "gzip_eof": true
+    },
+    {
+      "archive": "artifacts/crow-v15-mirrored-hip-push-screen-20261113/hold-wing-20261126-rebound-hip/run.stderr.gz",
+      "sha256": "c2c5d0123e4db86067a2545996f6c751305e00305abfc10b90229096fd04fadc",
+      "bytes": 34137264,
+      "uncompressed_bytes": 142980575,
+      "gzip_eof": true
+    }
+  ]
+}

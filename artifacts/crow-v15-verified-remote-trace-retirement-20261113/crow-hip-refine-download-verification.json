@@ -1,0 +1,20 @@
+{
+  "commit": "7c55fbe32bfcb7c340d07822068fccc8d2da5896",
+  "source": "independent authenticated GitHub contents download",
+  "runs": [
+    {
+      "archive": "artifacts/crow-v15-mirrored-hip-refine-20261113/push-wing-20261126-rebound-refine/run.stderr.gz",
+      "sha256": "ba39361abfad6d0c41961a4b3e94aab53388a81333ab2baeabda57a1786cd30b",
+      "bytes": 36605676,
+      "uncompressed_bytes": 151522263,
+      "gzip_eof": true
+    },
+    {
+      "archive": "artifacts/crow-v15-mirrored-hip-refine-20261113/hold-wing-20261126-rebound-refine/run.stderr.gz",
+      "sha256": "c2c5d0123e4db86067a2545996f6c751305e00305abfc10b90229096fd04fadc",
+      "bytes": 34137264,
+      "uncompressed_bytes": 142980575,
+      "gzip_eof": true
+    }
+  ]
+}

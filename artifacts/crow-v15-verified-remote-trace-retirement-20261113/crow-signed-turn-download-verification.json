@@ -1,0 +1,10 @@
+{
+  "commit": "fb94b31c21be1493d6ad88105eccbfd4b3829a6e",
+  "archive": "artifacts/crow-v15-mirrored-signed-turn-20261113/signed-turn-20261126-rebound-turn",
+  "compressed_bytes": 246102037,
+  "sha256": "87a9afdc35b3d1a0c293804ed613b152490cb7136006a0e7f3a4a92293098301",
+  "uncompressed_bytes": 948557135,
+  "gzip_eof": true,
+  "all_parts_sha256_verified": true,
+  "source": "independent authenticated GitHub contents download"
+}
