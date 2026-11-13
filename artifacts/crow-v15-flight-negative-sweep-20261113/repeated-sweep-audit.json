@@ -1,0 +1,23 @@
+{
+  "reference_commit": "4e3d6735a60acbb692aea97d84bed43d25d50e42",
+  "reference_log_sha256": "147eed793863ce915a318bc38f6ff0b5ab9d048b0a286dc30b813f3ecff9f3f0",
+  "rows": [
+    {
+      "lane": 2,
+      "reference_end": 827,
+      "new_end": 827,
+      "missing_ticks": [],
+      "different_ticks": [],
+      "full_first_episode_parity": true
+    },
+    {
+      "lane": 3,
+      "reference_end": 818,
+      "new_end": 818,
+      "missing_ticks": [],
+      "different_ticks": [],
+      "full_first_episode_parity": true
+    }
+  ],
+  "duplicates": []
+}
