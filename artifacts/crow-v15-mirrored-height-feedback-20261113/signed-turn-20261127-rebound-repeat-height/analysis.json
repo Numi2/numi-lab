@@ -1,0 +1,748 @@
+{
+  "rows": [
+    {
+      "lane": 0,
+      "end": 760,
+      "physical_failure": true,
+      "prefix_missing": 0,
+      "prefix_different": 0,
+      "release": 414,
+      "recontact": 418,
+      "first_ground": [
+        418,
+        "CROW_GROUND_CONTACT 418 15 0 26 35 85899345949 2305843010019000320 0.108287394 0.00033054431 0.00021200905 0.000424018159 7.33416528e-09 -5.95973688e-08 -1 4.54747394e-12 1 -5.95973724e-08 0.800000012 0.600000024 0.000800983282 -1.10603628e-06 0.0004805887 -0.536005974"
+      ],
+      "accepted_before_first_contact": {
+        "step": 417,
+        "lane": 0,
+        "q": [
+          0.130266115,
+          -0.033965461,
+          0.185884535,
+          3.10160394e-05,
+          -0.00158777705,
+          0.000280728476,
+          0.999998689,
+          2.86240611e-05,
+          2.80428285e-05,
+          0.348514348,
+          0.348518014,
+          -2.94467809e-05,
+          -2.95154168e-05,
+          0.117972575,
+          -0.296047539,
+          0.498199224,
+          -0.230991066,
+          -0.296047509,
+          0.498199284,
+          -0.230991066,
+          3.75941381e-05,
+          0.0625805333,
+          0.0182657856,
+          0.0229706243,
+          0.0172195043,
+          0.0229706094,
+          0.0172194988,
+          0.0229705982,
+          0.017219495,
+          0.0257420354,
+          0.0169500634,
+          0.0229704622,
+          0.0172194615,
+          0.0229704939,
+          0.0172194708,
+          0.0229705218,
+          0.0172194764,
+          0.0256360769,
+          0.0169153344,
+          -2.45950105e-05,
+          1.23154023e-05
+        ],
+        "v": [
+          0.227890506,
+          -0.00014535035,
+          -0.289230168,
+          0.00250734482,
+          0.0391680785,
+          -6.54380565e-05,
+          0.00144551764,
+          0.00153040793,
+          0.0227232184,
+          0.0228375532,
+          0.00134600431,
+          0.0013516309,
+          -1.57299888,
+          0.00349508948,
+          0.00211753533,
+          0.00113488501,
+          0.00350167649,
+          0.00210934808,
+          0.00113735313,
+          -0.000671513844,
+          -0.560999215,
+          -0.0118838856,
+          0.922735631,
+          0.693532765,
+          0.922736526,
+          0.693532944,
+          0.9227373,
+          0.693533242,
+          0.859013796,
+          0.755871117,
+          0.922732234,
+          0.69353193,
+          0.92273283,
+          0.693532109,
+          0.922733545,
+          0.693532288,
+          0.879458785,
+          0.760444462,
+          0.000211250575,
+          -0.00119526568
+        ],
+        "policy_action": [
+          0.0233205725,
+          0.126736104,
+          -0.112672023,
+          -0.754580498,
+          0.403706074,
+          0.122707427,
+          -0.118389376,
+          0.436237812,
+          0.566154242,
+          -0.00556482282,
+          0.240913987,
+          0.760342777,
+          0.508526564,
+          0.383969307,
+          -0.229347721,
+          0.555558383,
+          0,
+          0
+        ],
+        "contacts": []
+      },
+      "targets_before_first_contact": [
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.349999994,
+        0.349999994,
+        0.0,
+        0.0,
+        0.0938212499,
+        -0.295995682,
+        0.498231202,
+        -0.230968982,
+        -0.295995682,
+        0.498231202,
+        -0.230968982,
+        0.0,
+        0.0,
+        0.0,
+        0.0500000007,
+        0.0375000015,
+        0.0500000007,
+        0.0375000015,
+        0.0500000007,
+        0.0375000015,
+        0.0500000007,
+        0.0375000015,
+        0.0500000007,
+        0.0375000015,
+        0.0500000007,
+        0.0375000015,
+        0.0500000007,
+        0.0375000015,
+        0.0500000007,
+        0.0375000015,
+        0.0,
+        0.0
+      ],
+      "height_range": [
+        0.138029635,
+        0.171504974
+      ],
+      "vx_range": [
+        -0.0284615997,
+        0.0018150009
+      ],
+      "max_abs_vy": 0.000523125695,
+      "pronation_range": [
+        1.26634595e-05,
+        0.000156798269
+      ],
+      "height_difference_range": [
+        0.0,
+        0.0
+      ],
+      "roll_difference_range": [
+        0.0,
+        0.0
+      ],
+      "yaw_difference_range": [
+        0.0,
+        0.0
+      ],
+      "y_difference_range": [
+        0.0,
+        0.0
+      ],
+      "positive_signed_event": false,
+      "negative_signed_event": false,
+      "toe_events": 3,
+      "flap_effort_max": 0.557351172,
+      "nonfoot_impulse": 0.0,
+      "missing_states": 0,
+      "missing_contacts": 0,
+      "missing_toe": 0,
+      "missing_effort": 0,
+      "missing_body": 0,
+      "missing_target": 0,
+      "target_samples": 326,
+      "target_max_error": 0.0
+    },
+    {
+      "lane": 1,
+      "end": 762,
+      "physical_failure": true,
+      "prefix_missing": 0,
+      "prefix_different": 0,
+      "release": 414,
+      "recontact": 418,
+      "first_ground": [
+        418,
+        "CROW_GROUND_CONTACT 418 15 1 26 35 85899345949 2305843010019000320 0.163895115 0.0430925302 0.000124080689 0.0002481665 1.22236099e-09 -5.97210672e-08 -1 3.72056149e-07 1 -5.97210672e-08 0.800000012 0.600000024 0.0035180964 -6.70963855e-05 0.000715489849 -0.537316799"
+      ],
+      "accepted_before_first_contact": {
+        "step": 417,
+        "lane": 1,
+        "q": [
+          0.185004503,
+          0.00854742434,
+          0.1858228,
+          3.63762083e-05,
+          -0.00277624209,
+          -0.00543099595,
+          0.999981403,
+          2.95079171e-05,
+          2.88793326e-05,
+          0.348511517,
+          0.348515958,
+          -2.67173473e-05,
+          -2.67792657e-05,
+          0.140940905,
+          -0.296044707,
+          0.498201072,
+          -0.230989605,
+          -0.296044677,
+          0.498201072,
+          -0.230989605,
+          5.08774538e-05,
+          0.0628379658,
+          0.0183963161,
+          0.0229703691,
+          0.0172194391,
+          0.0229703505,
+          0.0172194336,
+          0.0229703356,
+          0.0172194298,
+          0.0256772898,
+          0.0169192459,
+          0.0229703151,
+          0.0172194261,
+          0.0229703374,
+          0.0172194336,
+          0.0229703579,
+          0.0172194354,
+          0.0259267483,
+          0.0169408694,
+          -2.22394465e-05,
+          1.14799523e-05
+        ],
+        "v": [
+          0.227044106,
+          -0.00291823922,
+          -0.288966328,
+          0.00261967373,
+          0.0387850441,
+          -7.97801476e-05,
+          0.00129345676,
+          0.00136560865,
+          0.0226684846,
+          0.0227799434,
+          0.00110224821,
+          0.00110658363,
+          -1.4744333,
+          0.00320022996,
+          0.00192020799,
+          0.000980437268,
+          0.00320678088,
+          0.00192151475,
+          0.000983876642,
+          -0.000555866165,
+          -0.561507523,
+          -0.013034408,
+          0.922766209,
+          0.69353956,
+          0.922766924,
+          0.693539679,
+          0.922767758,
+          0.693539977,
+          0.888114333,
+          0.760926366,
+          0.922759891,
+          0.693537891,
+          0.922760606,
+          0.69353807,
+          0.922761321,
+          0.693538308,
+          0.844204843,
+          0.755143523,
+          0.000203039483,
+          -0.00108188437
+        ],
+        "policy_action": [
+          0.0604920499,
+          0.26784116,
+          -0.207035884,
+          -0.755198419,
+          0.350393921,
+          0.176929682,
+          -0.149036765,
+          0.392888784,
+          0.566739917,
+          0.318552822,
+          0.276083559,
+          0.781790853,
+          0.501036108,
+          0.601714849,
+          -0.222628325,
+          0.485278815,
+          0,
+          0
+        ],
+        "contacts": []
+      },
+      "targets_before_first_contact": [
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.349999994,
+        0.349999994,
+        0.0,
+        0.0,
+        0.118304297,
+        -0.295995682,
+        0.498231202,
+        -0.230968982,
+        -0.295995682,
+        0.498231202,
+        -0.230968982,
+        0.0,
+        0.0,
+        0.0,
+        0.0500000007,
+        0.0375000015,
+        0.0500000007,
+        0.0375000015,
+        0.0500000007,
+        0.0375000015,
+        0.0500000007,
+        0.0375000015,
+        0.0500000007,
+        0.0375000015,
+        0.0500000007,
+        0.0375000015,
+        0.0500000007,
+        0.0375000015,
+        0.0500000007,
+        0.0375000015,
+        0.0,
+        0.0
+      ],
+      "height_range": [
+        0.137699127,
+        0.171514645
+      ],
+      "vx_range": [
+        -0.0292307232,
+        0.00181943318
+      ],
+      "max_abs_vy": 0.000308123912,
+      "pronation_range": [
+        1.26739324e-05,
+        0.000158096096
+      ],
+      "height_difference_range": [
+        0.0,
+        0.0
+      ],
+      "roll_difference_range": [
+        0.0,
+        0.0
+      ],
+      "yaw_difference_range": [
+        0.0,
+        0.0
+      ],
+      "y_difference_range": [
+        0.0,
+        0.0
+      ],
+      "positive_signed_event": false,
+      "negative_signed_event": false,
+      "toe_events": 0,
+      "flap_effort_max": 0.432308614,
+      "nonfoot_impulse": 0.0,
+      "missing_states": 0,
+      "missing_contacts": 0,
+      "missing_toe": 0,
+      "missing_effort": 0,
+      "missing_body": 0,
+      "missing_target": 0,
+      "target_samples": 328,
+      "target_max_error": 0.0
+    },
+    {
+      "lane": 2,
+      "end": 1800,
+      "physical_failure": false,
+      "prefix_missing": 0,
+      "prefix_different": 0,
+      "release": 376,
+      "recontact": null,
+      "first_ground": null,
+      "accepted_before_first_contact": null,
+      "targets_before_first_contact": null,
+      "height_range": [
+        0.5368855,
+        1.2700094
+      ],
+      "vx_range": [
+        0.105671875,
+        0.520851016
+      ],
+      "max_abs_vy": 0.0176091604,
+      "pronation_range": [
+        -0.0550109185,
+        0.057077419
+      ],
+      "height_difference_range": [
+        0.0,
+        0.0
+      ],
+      "roll_difference_range": [
+        0.0,
+        0.0
+      ],
+      "yaw_difference_range": [
+        0.0,
+        0.0
+      ],
+      "y_difference_range": [
+        0.0,
+        0.0
+      ],
+      "positive_signed_event": false,
+      "negative_signed_event": false,
+      "toe_events": 0,
+      "flap_effort_max": 3.0,
+      "nonfoot_impulse": 0.0,
+      "missing_states": 0,
+      "missing_contacts": 0,
+      "missing_toe": 0,
+      "missing_effort": 0,
+      "missing_body": 0,
+      "missing_target": 0,
+      "target_samples": 1366,
+      "target_max_error": 0.0
+    },
+    {
+      "lane": 3,
+      "end": 1800,
+      "physical_failure": false,
+      "prefix_missing": 0,
+      "prefix_different": 0,
+      "release": 376,
+      "recontact": null,
+      "first_ground": null,
+      "accepted_before_first_contact": null,
+      "targets_before_first_contact": null,
+      "height_range": [
+        0.539636075,
+        1.26965928
+      ],
+      "vx_range": [
+        0.106691726,
+        0.520895064
+      ],
+      "max_abs_vy": 0.0170618109,
+      "pronation_range": [
+        -0.0550110973,
+        0.057077419
+      ],
+      "height_difference_range": [
+        0.0,
+        0.0
+      ],
+      "roll_difference_range": [
+        0.0,
+        0.0
+      ],
+      "yaw_difference_range": [
+        0.0,
+        0.0
+      ],
+      "y_difference_range": [
+        0.0,
+        0.0
+      ],
+      "positive_signed_event": false,
+      "negative_signed_event": false,
+      "toe_events": 0,
+      "flap_effort_max": 3.0,
+      "nonfoot_impulse": 0.0,
+      "missing_states": 0,
+      "missing_contacts": 0,
+      "missing_toe": 0,
+      "missing_effort": 0,
+      "missing_body": 0,
+      "missing_target": 0,
+      "target_samples": 1366,
+      "target_max_error": 0.0
+    },
+    {
+      "lane": 4,
+      "end": 1800,
+      "physical_failure": false,
+      "prefix_missing": 0,
+      "prefix_different": 0,
+      "release": 376,
+      "recontact": null,
+      "first_ground": null,
+      "accepted_before_first_contact": null,
+      "targets_before_first_contact": null,
+      "height_range": [
+        0.544682801,
+        0.885891378
+      ],
+      "vx_range": [
+        0.027503632,
+        0.475433439
+      ],
+      "max_abs_vy": 0.0182944145,
+      "pronation_range": [
+        -0.0908752829,
+        0.0952631459
+      ],
+      "height_difference_range": [
+        0.0,
+        0.0
+      ],
+      "roll_difference_range": [
+        0.0,
+        0.0
+      ],
+      "yaw_difference_range": [
+        0.0,
+        0.0
+      ],
+      "y_difference_range": [
+        0.0,
+        0.0
+      ],
+      "positive_signed_event": false,
+      "negative_signed_event": false,
+      "toe_events": 0,
+      "flap_effort_max": 3.0,
+      "nonfoot_impulse": 0.0,
+      "missing_states": 0,
+      "missing_contacts": 0,
+      "missing_toe": 0,
+      "missing_effort": 0,
+      "missing_body": 0,
+      "missing_target": 0,
+      "target_samples": 1366,
+      "target_max_error": 0.0
+    },
+    {
+      "lane": 5,
+      "end": 1800,
+      "physical_failure": false,
+      "prefix_missing": 0,
+      "prefix_different": 0,
+      "release": 376,
+      "recontact": null,
+      "first_ground": null,
+      "accepted_before_first_contact": null,
+      "targets_before_first_contact": null,
+      "height_range": [
+        0.546687245,
+        0.831372619
+      ],
+      "vx_range": [
+        0.0277786683,
+        0.472376287
+      ],
+      "max_abs_vy": 0.017460797,
+      "pronation_range": [
+        -0.0908759013,
+        0.0953288972
+      ],
+      "height_difference_range": [
+        0.0,
+        0.0
+      ],
+      "roll_difference_range": [
+        0.0,
+        0.0
+      ],
+      "yaw_difference_range": [
+        0.0,
+        0.0
+      ],
+      "y_difference_range": [
+        0.0,
+        0.0
+      ],
+      "positive_signed_event": false,
+      "negative_signed_event": false,
+      "toe_events": 0,
+      "flap_effort_max": 3.0,
+      "nonfoot_impulse": 0.0,
+      "missing_states": 0,
+      "missing_contacts": 0,
+      "missing_toe": 0,
+      "missing_effort": 0,
+      "missing_body": 0,
+      "missing_target": 0,
+      "target_samples": 1366,
+      "target_max_error": 0.0
+    },
+    {
+      "lane": 6,
+      "end": 1800,
+      "physical_failure": false,
+      "prefix_missing": 0,
+      "prefix_different": 0,
+      "release": 376,
+      "recontact": null,
+      "first_ground": null,
+      "accepted_before_first_contact": null,
+      "targets_before_first_contact": null,
+      "height_range": [
+        0.54173857,
+        0.919439971
+      ],
+      "vx_range": [
+        0.0707773119,
+        0.497273117
+      ],
+      "max_abs_vy": 0.0214386061,
+      "pronation_range": [
+        -0.0729780644,
+        0.0759556144
+      ],
+      "height_difference_range": [
+        0.016987026000000016,
+        0.11143618799999999
+      ],
+      "roll_difference_range": [
+        -5.791523166163537e-05,
+        6.282934359834653e-06
+      ],
+      "yaw_difference_range": [
+        -2.2692116231655745e-05,
+        7.141343287523846e-06
+      ],
+      "y_difference_range": [
+        -0.00023891029999999203,
+        -4.6089299999996225e-05
+      ],
+      "positive_signed_event": true,
+      "negative_signed_event": false,
+      "toe_events": 0,
+      "flap_effort_max": 3.0,
+      "nonfoot_impulse": 0.0,
+      "missing_states": 0,
+      "missing_contacts": 0,
+      "missing_toe": 0,
+      "missing_effort": 0,
+      "missing_body": 0,
+      "missing_target": 0,
+      "target_samples": 551,
+      "target_max_error": 5.1292912380929145e-05
+    },
+    {
+      "lane": 7,
+      "end": 1800,
+      "physical_failure": false,
+      "prefix_missing": 0,
+      "prefix_different": 0,
+      "release": 376,
+      "recontact": null,
+      "first_ground": null,
+      "accepted_before_first_contact": null,
+      "targets_before_first_contact": null,
+      "height_range": [
+        0.538645446,
+        0.669993997
+      ],
+      "vx_range": [
+        0.0761494637,
+        0.502896905
+      ],
+      "max_abs_vy": 0.021110557,
+      "pronation_range": [
+        -0.0729709044,
+        0.0760238171
+      ],
+      "height_difference_range": [
+        -0.133429766,
+        -0.0029008989999999013
+      ],
+      "roll_difference_range": [
+        -3.755209302632729e-05,
+        3.943080239494516e-05
+      ],
+      "yaw_difference_range": [
+        -6.293112136622351e-06,
+        3.611935228035369e-05
+      ],
+      "y_difference_range": [
+        5.666200000000593e-06,
+        0.0005436056000000036
+      ],
+      "positive_signed_event": false,
+      "negative_signed_event": true,
+      "toe_events": 0,
+      "flap_effort_max": 3.0,
+      "nonfoot_impulse": 0.0,
+      "missing_states": 0,
+      "missing_contacts": 0,
+      "missing_toe": 0,
+      "missing_effort": 0,
+      "missing_body": 0,
+      "missing_target": 0,
+      "target_samples": 551,
+      "target_max_error": 5.1252157691639155e-05
+    }
+  ],
+  "shared_validity": true,
+  "unchanged_host_and_policies": true,
+  "scene_masks_match": true,
+  "observer_errors": [],
+  "duplicate_count": 0,
+  "scope": "Opposite bounded common flap amplitudes on one used seed; not qualified turns or navigation."
+}
