@@ -1,0 +1,5 @@
+# Continuous target-dependent height trim
+
+Two all-wrench-ablated leg-launch screens on used seed 20261127 missed opposite windows: constant -0.003 rad trim was too low at the high target (0.06388 m error), while -0.002 rad trim improved that window but was too high at the lower target (0.06075 m error). Both are retained failures. Test a bounded continuous engineering trim interpolated smoothly from -0.003 at 0.55 m to -0.002 at 0.80 m as a function only of the commanded height, with the same proportional gain, asymmetrical residual bounds, physical body and launch, and no other changed controls. This is a hypothesis for these development targets, not a biological model or proof for arbitrary altitudes.
+
+First test the already-used seed 20261127 under the exact preregistered leg-launch, no-recontact, drive, target reconstruction and both height-window gates. If both lanes pass, repeat the exact unchanged source and binary on previously used seed 20261126 with the same gates. Keep every failure and preserve unused layouts/seeds. Success is a narrow screen, not qualified turning, recovery, landing, navigation or biology.
