@@ -1,0 +1,17 @@
+{
+  "baseline": [
+    2801281168732241546,
+    11277588021153534235,
+    4287182078978984971,
+    3807034227416306949
+  ],
+  "modified": [
+    1171060607850314122,
+    5496314317819723244,
+    4287182078978984971,
+    3807034227416306949
+  ],
+  "same_observation_action_hashes_without_world": true,
+  "different_world_hashes": true,
+  "scope": "Diagnostic task compiler omitted only world fingerprint from action/observation hashes. Every other hash input, including contact radii, remained. It corroborates schema identity, not semantic or physical equivalence."
+}
