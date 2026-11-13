@@ -1,0 +1,378 @@
+{
+  "scope": "same used seed and delayed-wing paired extension versus held crouch; not flight or biological qualification",
+  "parity": [
+    {
+      "lane": 0,
+      "through": 500,
+      "mismatch_count": 0,
+      "first_mismatches": []
+    },
+    {
+      "lane": 1,
+      "through": 500,
+      "mismatch_count": 0,
+      "first_mismatches": []
+    },
+    {
+      "lane": 2,
+      "through": 500,
+      "mismatch_count": 0,
+      "first_mismatches": []
+    },
+    {
+      "lane": 3,
+      "through": 500,
+      "mismatch_count": 0,
+      "first_mismatches": []
+    },
+    {
+      "lane": 4,
+      "through": 500,
+      "mismatch_count": 0,
+      "first_mismatches": []
+    },
+    {
+      "lane": 5,
+      "through": 500,
+      "mismatch_count": 0,
+      "first_mismatches": []
+    },
+    {
+      "lane": 6,
+      "through": 368,
+      "mismatch_count": 0,
+      "first_mismatches": []
+    },
+    {
+      "lane": 7,
+      "through": 368,
+      "mismatch_count": 0,
+      "first_mismatches": []
+    }
+  ],
+  "rows": [
+    {
+      "lane": 6,
+      "wing_target_comparison_samples": 120,
+      "wing_target_max_abs_difference_rad": 0.0,
+      "leg_target_snapshots": {
+        "370": {
+          "push": [
+            -0.435000002,
+            1.02999997,
+            -0.679999948,
+            -0.435000002,
+            1.02999997,
+            -0.679999948
+          ],
+          "hold": [
+            -0.435000002,
+            1.02999997,
+            -0.679999948,
+            -0.435000002,
+            1.02999997,
+            -0.679999948
+          ]
+        },
+        "375": {
+          "push": [
+            -0.325101703,
+            0.739275098,
+            -0.257757038,
+            -0.325101703,
+            0.739275098,
+            -0.257757038
+          ],
+          "hold": [
+            -0.435000002,
+            1.02999997,
+            -0.679999948,
+            -0.435000002,
+            1.02999997,
+            -0.679999948
+          ]
+        },
+        "380": {
+          "push": [
+            -0.133475706,
+            0.277306288,
+            0.335221171,
+            -0.133475706,
+            0.277306288,
+            0.335221171
+          ],
+          "hold": [
+            -0.435000002,
+            1.02999997,
+            -0.679999948,
+            -0.435000002,
+            1.02999997,
+            -0.679999948
+          ]
+        },
+        "390": {
+          "push": [
+            -0.133475706,
+            0.277306288,
+            0.335221171,
+            -0.133475706,
+            0.277306288,
+            0.335221171
+          ],
+          "hold": [
+            -0.435000002,
+            1.02999997,
+            -0.679999948,
+            -0.435000002,
+            1.02999997,
+            -0.679999948
+          ]
+        }
+      },
+      "max_actual_flap_position_difference_371_400_rad": 0.0024912399999998946,
+      "max_actual_flap_velocity_difference_371_400_rad_s": 0.08059897552470001,
+      "push": {
+        "missing_aero_substeps_335_400": 0,
+        "modeled_aero_vertical_impulse_371_377_Ns": 0.037531581624737534,
+        "max_actual_flap_displacement_371_377_rad": 0.683904501,
+        "missing_substeps": {
+          "contact": 0,
+          "toe": 0,
+          "leg": 0
+        },
+        "missing_target_steps": 0,
+        "missing_states": 0,
+        "first_three_unloaded_intervals": 380,
+        "first_recontact": null,
+        "foot_normal_impulse_371_390_Ns": 0.8014693907258598,
+        "nonfoot_abs_impulse_371_500_Ns": 0.0,
+        "toe_threshold_substeps_371_500": 0,
+        "com_vz_step370_m_s": -0.004011697552070042,
+        "com_vz_step390_m_s": 0.3786158521900168,
+        "com_peak_rise_371_500_m_and_tick": [
+          0.20318978419311265,
+          500
+        ],
+        "com_vz_at_release_m_s": 0.9250188373898027,
+        "modeled_mass_kg": 0.4500599934908678
+      },
+      "hold": {
+        "missing_aero_substeps_335_400": 0,
+        "modeled_aero_vertical_impulse_371_377_Ns": 0.03281711263389607,
+        "max_actual_flap_displacement_371_377_rad": 0.6814217290000001,
+        "missing_substeps": {
+          "contact": 0,
+          "toe": 0,
+          "leg": 0
+        },
+        "missing_target_steps": 0,
+        "missing_states": 0,
+        "first_three_unloaded_intervals": 379,
+        "first_recontact": null,
+        "foot_normal_impulse_371_390_Ns": 0.7634675947456999,
+        "nonfoot_abs_impulse_371_500_Ns": 0.0,
+        "toe_threshold_substeps_371_500": 0,
+        "com_vz_step370_m_s": -0.004011697552070042,
+        "com_vz_step390_m_s": 0.31966886211457146,
+        "com_peak_rise_371_500_m_and_tick": [
+          0.15781690430303139,
+          500
+        ],
+        "com_vz_at_release_m_s": 0.5164585163803298,
+        "modeled_mass_kg": 0.4500599934908678
+      },
+      "push_minus_hold_foot_impulse_Ns": 0.03800179598015985,
+      "push_minus_hold_com_vz_step390_m_s": 0.05894699007544535
+    },
+    {
+      "lane": 7,
+      "wing_target_comparison_samples": 120,
+      "wing_target_max_abs_difference_rad": 0.0,
+      "leg_target_snapshots": {
+        "370": {
+          "push": [
+            -0.435000002,
+            1.02999997,
+            -0.679999948,
+            -0.435000002,
+            1.02999997,
+            -0.679999948
+          ],
+          "hold": [
+            -0.435000002,
+            1.02999997,
+            -0.679999948,
+            -0.435000002,
+            1.02999997,
+            -0.679999948
+          ]
+        },
+        "375": {
+          "push": [
+            -0.325101703,
+            0.739275098,
+            -0.257757038,
+            -0.325101703,
+            0.739275098,
+            -0.257757038
+          ],
+          "hold": [
+            -0.435000002,
+            1.02999997,
+            -0.679999948,
+            -0.435000002,
+            1.02999997,
+            -0.679999948
+          ]
+        },
+        "380": {
+          "push": [
+            -0.133475706,
+            0.277306288,
+            0.335221171,
+            -0.133475706,
+            0.277306288,
+            0.335221171
+          ],
+          "hold": [
+            -0.435000002,
+            1.02999997,
+            -0.679999948,
+            -0.435000002,
+            1.02999997,
+            -0.679999948
+          ]
+        },
+        "390": {
+          "push": [
+            -0.133475706,
+            0.277306288,
+            0.335221171,
+            -0.133475706,
+            0.277306288,
+            0.335221171
+          ],
+          "hold": [
+            -0.435000002,
+            1.02999997,
+            -0.679999948,
+            -0.435000002,
+            1.02999997,
+            -0.679999948
+          ]
+        }
+      },
+      "max_actual_flap_position_difference_371_400_rad": 0.007130432900000001,
+      "max_actual_flap_velocity_difference_371_400_rad_s": 0.12857819999999975,
+      "push": {
+        "missing_aero_substeps_335_400": 0,
+        "modeled_aero_vertical_impulse_371_377_Ns": -0.0006642699232669001,
+        "max_actual_flap_displacement_371_377_rad": 0.23965018899999996,
+        "missing_substeps": {
+          "contact": 0,
+          "toe": 0,
+          "leg": 0
+        },
+        "missing_target_steps": 0,
+        "missing_states": 0,
+        "first_three_unloaded_intervals": 380,
+        "first_recontact": null,
+        "foot_normal_impulse_371_390_Ns": 0.9805364448913999,
+        "nonfoot_abs_impulse_371_500_Ns": 0.0,
+        "toe_threshold_substeps_371_500": 0,
+        "com_vz_step370_m_s": -0.004012924326529793,
+        "com_vz_step390_m_s": 0.5990217949319482,
+        "com_peak_rise_371_500_m_and_tick": [
+          0.25760204831469863,
+          500
+        ],
+        "com_vz_at_release_m_s": 0.7742716768953395,
+        "modeled_mass_kg": 0.4500599934908678
+      },
+      "hold": {
+        "missing_aero_substeps_335_400": 0,
+        "modeled_aero_vertical_impulse_371_377_Ns": -0.0010290997410305038,
+        "max_actual_flap_displacement_371_377_rad": 0.23755154100000003,
+        "missing_substeps": {
+          "contact": 0,
+          "toe": 0,
+          "leg": 0
+        },
+        "missing_target_steps": 0,
+        "missing_states": 0,
+        "first_three_unloaded_intervals": 380,
+        "first_recontact": null,
+        "foot_normal_impulse_371_390_Ns": 0.8525750256091,
+        "nonfoot_abs_impulse_371_500_Ns": 0.0,
+        "toe_threshold_substeps_371_500": 0,
+        "com_vz_step370_m_s": -0.004012924326529793,
+        "com_vz_step390_m_s": 0.4720253133631343,
+        "com_peak_rise_371_500_m_and_tick": [
+          0.1580388595434853,
+          500
+        ],
+        "com_vz_at_release_m_s": 0.519023139910557,
+        "modeled_mass_kg": 0.4500599934908678
+      },
+      "push_minus_hold_foot_impulse_Ns": 0.12796141928229987,
+      "push_minus_hold_com_vz_step390_m_s": 0.12699648156881388
+    }
+  ],
+  "observer_errors": {
+    "push": [],
+    "hold": []
+  },
+  "aero_wrench_records_335_500": {
+    "push": 8448,
+    "hold": 8448
+  },
+  "com_velocity_translation_calibration_max_error": 5.551115123125783e-17,
+  "fk_executable_and_library_sha256": [
+    "543203944cce27056406a8c9f3a8a9f55016f404ef310c11dbfa497c72e83aaf",
+    "5c278558f4c9ae3cac66b2db510b864e324e313d75f11b605602433f9494d063"
+  ],
+  "first_episode_steps": {
+    "push": [
+      500,
+      500,
+      500,
+      500,
+      500,
+      500,
+      500,
+      500
+    ],
+    "hold": [
+      500,
+      500,
+      500,
+      500,
+      500,
+      500,
+      500,
+      500
+    ]
+  },
+  "physical_failure": {
+    "push": [
+      false,
+      false,
+      false,
+      false,
+      false,
+      false,
+      false,
+      false
+    ],
+    "hold": [
+      false,
+      false,
+      false,
+      false,
+      false,
+      false,
+      false,
+      false
+    ]
+  }
+}
