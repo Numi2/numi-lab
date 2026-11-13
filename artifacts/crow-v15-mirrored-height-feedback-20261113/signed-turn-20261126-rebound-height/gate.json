@@ -1,0 +1,41 @@
+{
+  "lanes": [
+    {
+      "lane": 6,
+      "checks": {
+        "shared": true,
+        "matched_prefix": true,
+        "full": true,
+        "coverage": true,
+        "targets": true,
+        "contact": true,
+        "bounds": true,
+        "height": true,
+        "speed": true
+      },
+      "positive_signed_event": true,
+      "negative_signed_event": false,
+      "passed_physical": true
+    },
+    {
+      "lane": 7,
+      "checks": {
+        "shared": true,
+        "matched_prefix": true,
+        "full": true,
+        "coverage": true,
+        "targets": true,
+        "contact": true,
+        "bounds": true,
+        "height": true,
+        "speed": true
+      },
+      "positive_signed_event": false,
+      "negative_signed_event": true,
+      "passed_physical": true
+    }
+  ],
+  "opposite_signed_height_difference": true,
+  "passed_identification": true,
+  "scope": "Used-seed relative altitude response identification, not qualified closed-loop turning, frozen flight or navigation."
+}

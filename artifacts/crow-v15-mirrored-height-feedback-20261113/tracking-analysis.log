@@ -1,0 +1,24 @@
+[
+  {
+    "lane": 6,
+    "target_m": 0.8,
+    "samples": 551,
+    "height_mean_m": 0.8963543913448276,
+    "height_min_m": 0.864045858,
+    "height_max_m": 0.919472456,
+    "height_mean_abs_error_m": 0.09635439134482754,
+    "vertical_speed_rms_m_s": 0.39516712159623285,
+    "last_height_m": 0.894565523
+  },
+  {
+    "lane": 7,
+    "target_m": 0.55,
+    "samples": 551,
+    "height_mean_m": 0.6567261460217786,
+    "height_min_m": 0.638668656,
+    "height_max_m": 0.673123121,
+    "height_mean_abs_error_m": 0.10672614602177855,
+    "vertical_speed_rms_m_s": 0.39625921378842,
+    "last_height_m": 0.648096502
+  }
+]
