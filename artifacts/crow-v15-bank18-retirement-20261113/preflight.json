@@ -1,0 +1,10 @@
+{
+  "path": "/Users/n/Developer/numi-crow-rl-20261107/artifacts/crow-v15-coordinated-bank18-20261113/signed-turn-20261126-rebound-bank18/run.stderr.gz",
+  "inode": 17101170,
+  "bytes": 247162437,
+  "mtime_ns": 1794586323845289254,
+  "sha256": "ba470be71b29bf6488782f7a35a66e375d6ced08606174323a8c904b8b1c96e9",
+  "remote_archive_commit": "8766f78753a8d4a8a94cdbadf89bd5852b32eb9c",
+  "lsof_clear": true,
+  "retired": false
+}
