@@ -1,0 +1,29 @@
+{
+  "old_fingerprints": [
+    2801281168732241546,
+    11277588021153534235,
+    12261780384824823292,
+    10276987404240961652
+  ],
+  "new_fingerprints": [
+    1171060607850314122,
+    5496314317819723244,
+    11396005148175064483,
+    9742760047741157505
+  ],
+  "reports": [
+    {
+      "actor": "landing",
+      "source_sha256": "967ebb5b36c0134f243b5c19a5e810d2e76b741bc4437ba9036d30916863e638",
+      "target_sha256": "0955600c99613afa126b7297f9b59054394f5a4a508242dcd849bd835d4473e5",
+      "identical_layers_and_transforms": true
+    },
+    {
+      "actor": "route",
+      "source_sha256": "521f73cdb510d1a954dd70a7fc14d36871408c024ec782baa0e54c7959d57292",
+      "target_sha256": "d811748ed539a9a57605bbfcf5404840deb49fcd93e84dac8cab0d68713c8afd",
+      "identical_layers_and_transforms": true
+    }
+  ],
+  "scope": "Diagnostic rebinding to changed world/task and observation signatures. Only the toe speed-limit parameter differs in the C API source; non-world observation and action hashes match. Exact weights and transforms are checked. Sensor values, physical behavior and policy validity on the changed body are not assumed."
+}
