@@ -1,0 +1,24 @@
+{
+  "rows": [
+    {
+      "lane": 6,
+      "expected": 51,
+      "samples": 51,
+      "values": [
+        0.5
+      ],
+      "passed": true
+    },
+    {
+      "lane": 7,
+      "expected": 51,
+      "samples": 51,
+      "values": [
+        0.5
+      ],
+      "passed": true
+    }
+  ],
+  "passed": true,
+  "scope": "Sampled GPU torso damping parameter readback, not biological calibration."
+}

@@ -1,0 +1,7 @@
+{
+  "existing_physical_and_signed_turn_gate": false,
+  "same_seed_full_reference_and_prefix_parity": true,
+  "actual_gpu_parameter_readback": true,
+  "passed": false,
+  "scope": "Used-seed observed damping-sensitivity identification only; no biological calibration, original-host promotion, frozen flight or navigation."
+}

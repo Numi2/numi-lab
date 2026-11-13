@@ -1,0 +1,3 @@
+# Candidate-prefix bookkeeping correction
+
+The preregistered plan specifies candidate parity through tick 548 because the damping intervention begins at episode step 550. The inherited analyzers erroneously compared candidates through tick 600, including 49 post-intervention states, and therefore falsely marked parity and the physical gate as failed. The initial scripts, logs and JSON are retained unchanged. Correct both candidate stop values to 548, rerun exactly the original registered physical and signed-yaw thresholds and require the independent matched bank-parity and GPU readback checks. This does not change the heading threshold or the final failed turn result.

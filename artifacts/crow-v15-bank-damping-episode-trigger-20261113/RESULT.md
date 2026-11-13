@@ -1,0 +1,7 @@
+# Instrumented damping sensitivity: turn gate failed
+
+On used seed 20261126, the torso damping scale was independently read from the GPU task buffer as 0.5 in both candidate lanes for all 51 sampled ticks (650–1150). Unchanged lanes 0–5 matched the original same-seed bank run through their first episodes; candidate prefixes matched through the preregistered tick 548. Both candidates completed 1,800 first-episode steps with the recorded physical, target, contact, speed and height gates passing.
+
+Peak relative yaw over the registered window was approximately -0.07463 and +0.06193 rad, compared with the original bank experiment's approximately -0.04003 and +0.03292 rad. Neither met the ±0.10 rad heading criterion, so the turn identification and combined gate failed. This experimental scale changes linear and angular torso damping, is not biologically calibrated, and is not promoted. These comparisons use a rebuilt observational host; exact reference and prefix parity and the readback bound the interpretation, but no original-host promotion trial was claimed.
+
+The inherited initial analyzers incorrectly compared candidates to tick 600 after intervention began at step 550. Their initial scripts, logs and reports are retained. The corrected 548 prefix is exactly the previously registered gate; the unchanged yaw threshold still fails. Two earlier observer initialization failures and the initial no-op damping trial are retained separately. This does not qualify flight, perturbed recovery, landing, navigation or biological realism.

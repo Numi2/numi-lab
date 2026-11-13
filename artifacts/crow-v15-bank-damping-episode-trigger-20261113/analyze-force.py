@@ -34,7 +34,7 @@ def read(p, detailed):
  return dict(state=state,tables=tables,model=model,mask=mask,errors=errors,dup=dup)
 old=read(R,False);new=read(P,True);im=json.loads((P/'inputs.json').read_text());ir=json.loads((R/'inputs.json').read_text());inputs=all(im[k]==ir[k] for k in ('landing_policy_sha256','route_policy_sha256'));mask=new['mask']==old['mask'];meta=json.loads((P/'run.stdout').read_text())['first_episode_navigation'];ometa=json.loads((R/'run.stdout').read_text())['first_episode_navigation'];model=new['model'];expected=[45.,.45,.00002,0.,-.35,.35,25.,.15];model_ok=all(i in model and model[i][0]&8 and model[i][0]&16 and len(model[i])==9 and all(abs(x-y)<1e-5 for x,y in zip(model[i][1:],expected)) for i in (10,11));parity=[]
 for e in range(8):
- stop=ometa['steps_by_environment'][e] if e<6 else 600;missing=[];different=[]
+ stop=ometa['steps_by_environment'][e] if e<6 else 548;missing=[];different=[]
  for t in range(1,stop+1):
   a=old['state'].get((e,t));b=new['state'].get((e,t))
   if a is None or b is None:missing.append(t)

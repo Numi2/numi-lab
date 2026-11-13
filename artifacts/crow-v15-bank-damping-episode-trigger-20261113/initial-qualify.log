@@ -1,0 +1,41 @@
+{
+  "lanes": [
+    {
+      "lane": 6,
+      "checks": {
+        "shared": false,
+        "matched_prefix": false,
+        "full": true,
+        "coverage": true,
+        "targets": true,
+        "contact": true,
+        "bounds": true,
+        "height": true,
+        "speed": true
+      },
+      "positive_signed_event": false,
+      "negative_signed_event": false,
+      "passed_physical": false
+    },
+    {
+      "lane": 7,
+      "checks": {
+        "shared": false,
+        "matched_prefix": false,
+        "full": true,
+        "coverage": true,
+        "targets": true,
+        "contact": true,
+        "bounds": true,
+        "height": true,
+        "speed": true
+      },
+      "positive_signed_event": false,
+      "negative_signed_event": false,
+      "passed_physical": false
+    }
+  ],
+  "opposite_signed_heading_and_displacement": false,
+  "passed_identification": false,
+  "scope": "Used-seed signed yaw response identification, not qualified closed-loop turning, frozen flight or navigation."
+}
