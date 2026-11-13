@@ -1,0 +1,7 @@
+lane 2 end 1800 prefix True dy 1.8979596055 vy 0.107787132 dx 10.498230580000001 first_ground None body_missing 0 feedback 4.808676734580075e-08 waveform 0.00013913467720114842 pass False
+lane 3 end 1800 prefix True dy 1.9253604066999999 vy 0.108700477 dx 10.48499203 first_ground None body_missing 0 feedback 4.8385212947366085e-08 waveform 0.00013913467720114842 pass False
+lane 4 end 1800 prefix True dy 0.6775023493000001 vy 0.0958060846 dx 10.55229956 first_ground None body_missing 0 feedback 4.6357237604155443e-08 waveform 0.00013913467720122474 pass True
+lane 5 end 1800 prefix True dy 0.6734421177 vy 0.0961525217 dx 10.553473051000001 first_ground None body_missing 0 feedback 4.230809480532116e-08 waveform 0.00013913467720114842 pass True
+lane 6 end 1800 prefix True dy 0.3233881073 vy 0.0912805498 dx 10.700448807999999 first_ground None body_missing 0 feedback 4.478694715093212e-08 waveform 0.00013913467720122474 pass True
+lane 7 end 1800 prefix True dy 0.3021679964 vy 0.087980859 dx 10.72418928 first_ground None body_missing 0 feedback 4.555470112244109e-08 waveform 0.00013913467720122474 pass True
+controls_exact True metadata_valid True reference_controls_exact True gain_pair_pass {'0.1': True, '0.2': True}
