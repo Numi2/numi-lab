@@ -1,0 +1,20 @@
+--- a/consistent.metal
++++ b/damped.metal
+@@ -252,7 +252,7 @@
+                 command *= controller.w;
+                 if (dispatch.nv==40u && environment%8u>=2u && (coordinate==8u || coordinate==9u)) {
+                     const float kp=10.0f;
+-                    const float kd=0.10f;
++                    const float kd=0.50f;
+                     const float previous=effortTrajectory[dispatch.effortStepStride+environment*dispatch.effortEnvironmentStride+coordinate];
+                     const float targetVelocity=clamp((target-previous)/(timestep*float(dispatch.physicsSubsteps)),-30.0f,30.0f);
+                     command=clamp(controller.w*(kp*(target-stateQ[qBase+dof.qIndex]-timestep*value)+kd*(targetVelocity-value)),-3.0f,3.0f);
+@@ -363,7 +363,7 @@
+             command *= controller.w;
+             if (dispatch.nv==40u && environment%8u>=2u && (coordinate==8u || coordinate==9u)) {
+                     const float kp=10.0f;
+-                    const float kd=0.10f;
++                    const float kd=0.50f;
+                     const float previous=effortTrajectory[dispatch.effortStepStride+environment*dispatch.effortEnvironmentStride+coordinate];
+                     const float targetVelocity=clamp((target-previous)/(timestep*float(dispatch.physicsSubsteps)),-30.0f,30.0f);
+                     command=clamp(controller.w*(kp*(target-stateQ[qBase+dof.qIndex]-timestep*velocity)+kd*(targetVelocity-velocity)),-3.0f,3.0f);

@@ -1,0 +1,7 @@
+# Damped wing hold: improved isolation but still failed
+
+The two 400-tick first-episode runs completed on the development seed and layout. The changed model fingerprint correctly rejected the original policy at preflight; the diagnostic rebind preserved its actor weights and transforms exactly. New-model push and hold state/action/contact prefixes matched before the first changed target. Recorded implicit solver flags and controller scales matched, and uploaded flap stiffness/damping were 10/0.50. The physical body, masses, inertias, contact geometry and limits were unchanged.
+
+For synchronized leg extension, both candidate lanes became unloaded at tick 376 with COM vertical velocities +0.484 and +0.478 m/s. Push-minus-hold contact-normal impulse through that release was +0.227 and +0.224 N s; modeled vertical aerodynamic impulse was -0.00162 and -0.00150 N s. There were no toe-speed threshold or nonfoot normal impulse events through release. Both lanes recontacted at tick 382, while matched crouched holds remained supported through 400.
+
+However, the physical wings reached 1.116 and 1.097 rad/s, above the preregistered 1 rad/s isolation limit. The synchronized pair fails despite improvement from 2.60–2.71 rad/s in the earlier lower-damping trial. The other timing pairs also fail. This result does not qualify leg-powered takeoff, flight, landing or biological realism; force and effort measures are simulation quantities.
