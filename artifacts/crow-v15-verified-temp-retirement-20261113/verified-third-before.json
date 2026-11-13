@@ -1,0 +1,58 @@
+{
+  "scope": "Four exact uncompressed build outputs, not sole evidence; every gzip archive independently retrieved from GitHub, decompressed and compared with source SHA-256. The owning host must recheck hashes and open handles immediately before deletion.",
+  "before_df_k": "Filesystem   1024-blocks      Used Available Capacity iused     ifree %iused  Mounted on\n/dev/disk3s5   482797652 413987504  41264184    91% 3600529 412641840    1%   /System/Volumes/Data\n",
+  "rows": [
+    {
+      "host": "macmini",
+      "path": "/Users/n/Developer/numi-crow-rl-20261107/build/crow-v15-front-toe-preload-reach-20261113/push-wing-20261126-rebound-reach-trace.tsv",
+      "archive_path": "artifacts/crow-v15-front-toe-preload-reach-20261113/push-wing-20261126-rebound-reach/trace.tsv.gz",
+      "commit": "aade42e5a3deebf357a3710f34606809686743b5",
+      "sha256": "763f7aeca96939924de9782ec063d6b3d39561a78f3611d2ec0506c5e856831b",
+      "restored_sha256": "763f7aeca96939924de9782ec063d6b3d39561a78f3611d2ec0506c5e856831b",
+      "match": true,
+      "size_bytes": 352335,
+      "inode": 17093024,
+      "mtime_epoch": 1794547463,
+      "open_handles_at_check": 0
+    },
+    {
+      "host": "macmini",
+      "path": "/Users/n/Developer/numi-crow-rl-20261107/build/crow-v15-front-toe-preload-reach-20261113/push-wing-20261126-rebound-reach-replay.json",
+      "archive_path": "artifacts/crow-v15-front-toe-preload-reach-20261113/push-wing-20261126-rebound-reach/replay.json.gz",
+      "commit": "aade42e5a3deebf357a3710f34606809686743b5",
+      "sha256": "f0d56826fe5169ab9db3bd6b51fca0d40dc7f45a63a822605da881bc63600659",
+      "restored_sha256": "f0d56826fe5169ab9db3bd6b51fca0d40dc7f45a63a822605da881bc63600659",
+      "match": true,
+      "size_bytes": 16094358,
+      "inode": 17093025,
+      "mtime_epoch": 1794547464,
+      "open_handles_at_check": 0
+    },
+    {
+      "host": "macmini",
+      "path": "/Users/n/Developer/numi-crow-rl-20261107/build/crow-v15-front-toe-preload-reach-20261113/hold-wing-20261126-rebound-reach-trace.tsv",
+      "archive_path": "artifacts/crow-v15-front-toe-preload-reach-20261113/hold-wing-20261126-rebound-reach/trace.tsv.gz",
+      "commit": "aade42e5a3deebf357a3710f34606809686743b5",
+      "sha256": "52a2790af85d375e1756e1227dedb6786f9c98543b3931ff56d66be57721d082",
+      "restored_sha256": "52a2790af85d375e1756e1227dedb6786f9c98543b3931ff56d66be57721d082",
+      "match": true,
+      "size_bytes": 351541,
+      "inode": 17093059,
+      "mtime_epoch": 1794547550,
+      "open_handles_at_check": 0
+    },
+    {
+      "host": "macmini",
+      "path": "/Users/n/Developer/numi-crow-rl-20261107/build/crow-v15-front-toe-preload-reach-20261113/hold-wing-20261126-rebound-reach-replay.json",
+      "archive_path": "artifacts/crow-v15-front-toe-preload-reach-20261113/hold-wing-20261126-rebound-reach/replay.json.gz",
+      "commit": "aade42e5a3deebf357a3710f34606809686743b5",
+      "sha256": "b782edc85cb8566d1f3bd6c8d522db56b989eb0e86dfe793e21fa166663dd844",
+      "restored_sha256": "b782edc85cb8566d1f3bd6c8d522db56b989eb0e86dfe793e21fa166663dd844",
+      "match": true,
+      "size_bytes": 16131248,
+      "inode": 17093060,
+      "mtime_epoch": 1794547552,
+      "open_handles_at_check": 0
+    }
+  ]
+}
