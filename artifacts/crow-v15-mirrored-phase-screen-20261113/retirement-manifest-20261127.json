@@ -1,0 +1,59 @@
+{
+  "purpose": "retire independently restored redundant split copies; original retained for matched comparisons",
+  "files": [
+    {
+      "absolute_path": "/Users/n/Developer/numi-crow-rl-20261107/artifacts/crow-v15-mirrored-phase-screen-20261113/pronation-phase-20261127-rebound-repeat/run.stderr.gz.part00",
+      "device": 16777232,
+      "inode": 17098608,
+      "links": 1,
+      "bytes": 41943040,
+      "sha256": "4b8e6f9740ab8f58d5c464306dfa2481f4dd91e8ac218ded2a213c28b7cabc7e",
+      "lsof_exit": 1
+    },
+    {
+      "absolute_path": "/Users/n/Developer/numi-crow-rl-20261107/artifacts/crow-v15-mirrored-phase-screen-20261113/pronation-phase-20261127-rebound-repeat/run.stderr.gz.part01",
+      "device": 16777232,
+      "inode": 17098609,
+      "links": 1,
+      "bytes": 41943040,
+      "sha256": "d19e753f39094732eaf637e043fc5b66fa940410f87cdb433a9876c28302bc84",
+      "lsof_exit": 1
+    },
+    {
+      "absolute_path": "/Users/n/Developer/numi-crow-rl-20261107/artifacts/crow-v15-mirrored-phase-screen-20261113/pronation-phase-20261127-rebound-repeat/run.stderr.gz.part02",
+      "device": 16777232,
+      "inode": 17098610,
+      "links": 1,
+      "bytes": 41943040,
+      "sha256": "b54712f4f18105c10c92e891fa2b8b7ef199dbc7af0791ef6054a20cc3307dd1",
+      "lsof_exit": 1
+    },
+    {
+      "absolute_path": "/Users/n/Developer/numi-crow-rl-20261107/artifacts/crow-v15-mirrored-phase-screen-20261113/pronation-phase-20261127-rebound-repeat/run.stderr.gz.part03",
+      "device": 16777232,
+      "inode": 17098611,
+      "links": 1,
+      "bytes": 41943040,
+      "sha256": "4ae1c782a7ac4ed14999c02dcbad7a2d156710dcdda6bdd81ef08d51b517aa0e",
+      "lsof_exit": 1
+    },
+    {
+      "absolute_path": "/Users/n/Developer/numi-crow-rl-20261107/artifacts/crow-v15-mirrored-phase-screen-20261113/pronation-phase-20261127-rebound-repeat/run.stderr.gz.part04",
+      "device": 16777232,
+      "inode": 17098612,
+      "links": 1,
+      "bytes": 41943040,
+      "sha256": "0cba5c1c66c25cb246b174ff78f243949421763890332ec60a9d3ffc0f434444",
+      "lsof_exit": 1
+    },
+    {
+      "absolute_path": "/Users/n/Developer/numi-crow-rl-20261107/artifacts/crow-v15-mirrored-phase-screen-20261113/pronation-phase-20261127-rebound-repeat/run.stderr.gz.part05",
+      "device": 16777232,
+      "inode": 17098613,
+      "links": 1,
+      "bytes": 38975272,
+      "sha256": "7e58f32a40672709a8121b2268379c38a4a6f30631950d01845d5ca1ff6aa01e",
+      "lsof_exit": 1
+    }
+  ]
+}
