@@ -1,0 +1,175 @@
+{
+  "held_commands_match": true,
+  "command_differences": [],
+  "pulse_counts": [
+    1,
+    1
+  ],
+  "matched_command_check": true,
+  "pulse_onsets_zero_based": [
+    211,
+    211
+  ],
+  "prefix_state_pairs": 211,
+  "prefix_max_abs_qv_difference": 0.0,
+  "missing_substeps": 0,
+  "errors": [],
+  "rows": [
+    {
+      "zero_based_step": 211,
+      "relative_x_difference_m": 0.0,
+      "relative_vx_difference_m_s": 0.0,
+      "right_hip_target_difference_rad": 0.005999996999999993,
+      "right_opposing_support": [
+        true,
+        true
+      ],
+      "pulse_active": [
+        1,
+        1
+      ]
+    },
+    {
+      "zero_based_step": 212,
+      "relative_x_difference_m": 0.0004236120999999999,
+      "relative_vx_difference_m_s": 0.012295316900000002,
+      "right_hip_target_difference_rad": 0.0,
+      "right_opposing_support": [
+        true,
+        true
+      ],
+      "pulse_active": [
+        0,
+        0
+      ]
+    },
+    {
+      "zero_based_step": 213,
+      "relative_x_difference_m": 0.00010458849999999895,
+      "relative_vx_difference_m_s": -0.010579354999999999,
+      "right_hip_target_difference_rad": 0.0,
+      "right_opposing_support": [
+        true,
+        true
+      ],
+      "pulse_active": [
+        0,
+        0
+      ]
+    },
+    {
+      "zero_based_step": 214,
+      "relative_x_difference_m": 3.3918799999999374e-05,
+      "relative_vx_difference_m_s": -0.000958910200000003,
+      "right_hip_target_difference_rad": 0.0,
+      "right_opposing_support": [
+        true,
+        true
+      ],
+      "pulse_active": [
+        0,
+        0
+      ]
+    },
+    {
+      "zero_based_step": 215,
+      "relative_x_difference_m": 2.8365300000001217e-05,
+      "relative_vx_difference_m_s": 0.002801563600000001,
+      "right_hip_target_difference_rad": 0.0,
+      "right_opposing_support": [
+        true,
+        true
+      ],
+      "pulse_active": [
+        0,
+        0
+      ]
+    },
+    {
+      "zero_based_step": 216,
+      "relative_x_difference_m": 2.0280499999998994e-05,
+      "relative_vx_difference_m_s": 0.0023070778999999993,
+      "right_hip_target_difference_rad": 0.0,
+      "right_opposing_support": [
+        true,
+        true
+      ],
+      "pulse_active": [
+        0,
+        0
+      ]
+    },
+    {
+      "zero_based_step": 217,
+      "relative_x_difference_m": 4.648420000000035e-05,
+      "relative_vx_difference_m_s": 0.0071966665999999985,
+      "right_hip_target_difference_rad": 0.0,
+      "right_opposing_support": [
+        true,
+        true
+      ],
+      "pulse_active": [
+        0,
+        0
+      ]
+    },
+    {
+      "zero_based_step": 218,
+      "relative_x_difference_m": 7.032050000000019e-05,
+      "relative_vx_difference_m_s": 0.004547096799999997,
+      "right_hip_target_difference_rad": 0.0,
+      "right_opposing_support": [
+        true,
+        true
+      ],
+      "pulse_active": [
+        0,
+        0
+      ]
+    },
+    {
+      "zero_based_step": 219,
+      "relative_x_difference_m": 6.748359999999946e-05,
+      "relative_vx_difference_m_s": 0.0010599271,
+      "right_hip_target_difference_rad": 0.0,
+      "right_opposing_support": [
+        true,
+        true
+      ],
+      "pulse_active": [
+        0,
+        0
+      ]
+    },
+    {
+      "zero_based_step": 220,
+      "relative_x_difference_m": 8.441600000000035e-05,
+      "relative_vx_difference_m_s": -0.0072933323,
+      "right_hip_target_difference_rad": 0.0,
+      "right_opposing_support": [
+        true,
+        true
+      ],
+      "pulse_active": [
+        0,
+        0
+      ]
+    },
+    {
+      "zero_based_step": 221,
+      "relative_x_difference_m": 8.318390000000044e-05,
+      "relative_vx_difference_m_s": -0.004671778500000001,
+      "right_hip_target_difference_rad": 0.0,
+      "right_opposing_support": [
+        true,
+        true
+      ],
+      "pulse_active": [
+        0,
+        0
+      ]
+    }
+  ],
+  "usable_for_sign_identification": true,
+  "scope": "matched target pulses with held position commands on a constructed stance; balance values precede each step and support values are accepted endpoint observations"
+}

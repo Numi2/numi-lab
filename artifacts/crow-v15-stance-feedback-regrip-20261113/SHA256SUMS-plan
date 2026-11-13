@@ -1,0 +1,7 @@
+9237ad6d288fdbea7ce48fcc6503ed8698be1a505342bf9cdf0da612af764496  artifacts/crow-v15-stance-feedback-regrip-20261113/PLAN.md
+e3df043fe55bdaa5521e90cfb823f9cdcce7a8f1afc0f17c575328617556d658  artifacts/crow-v15-stance-feedback-regrip-20261113/probe.cpp
+a9351c655a2b283553b25490c643d28568947731cd816e38d13e8443d20afe67  artifacts/crow-v15-stance-feedback-regrip-20261113/run.py
+6bcd84f0042457c6b364d16a0c9a08ab40066bdd768f54559af0b69b2f43b97d  artifacts/crow-v15-stance-feedback-regrip-20261113/analyze.py
+13d84c4e534d1e81a2f3e373b5a2674b48887f0efb87baea0fe5e0cd64b45b9b  artifacts/crow-v15-stance-feedback-regrip-20261113/clearance-intervals.py
+a9a4ec4bafa688957db8c92dd31a192353c503594606e3e64bc3c4b65e1a1a42  artifacts/crow-v15-stance-feedback-regrip-20261113/regrip-intervals.py
+37246879edf67a61616e127bf0540898b0f5911778904cd15d8c30334a0a68b4  artifacts/crow-v15-stance-feedback-regrip-20261113/compare.py
