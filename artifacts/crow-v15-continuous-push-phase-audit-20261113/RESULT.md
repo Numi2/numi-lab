@@ -1,0 +1,3 @@
+# Posthoc breakdown of paired early impulse
+
+In the continuous-target trial on used seed 20261126, the paired push-minus-crouch upward foot impulse over steps 348–355 was +0.1434 to +0.1582 N s in all six comparable lanes. Over steps 356–357 it ranged from -0.1663 to +0.0601 N s as the crouch arm accumulated later support impulse; the original 348–357 preregistered screen still fails in three lanes. The split was selected after inspecting traces, and wing drive targets begin departing their prior baseline near this interval. These coupled effects do not establish independent leg power. A future experiment must prespecify both windows and test the stricter no-interruption support criterion rather than replacing or relabeling the failed original screen.

@@ -1,0 +1,6 @@
+{'lane': 2, 'early_delta_ns': 0.1454581655715, 'late_delta_ns': -0.16630488681905553, 'whole_delta_ns': -0.020846721247555506}
+{'lane': 3, 'early_delta_ns': 0.14567275440380004, 'late_delta_ns': -0.15564492642846914, 'whole_delta_ns': -0.009972172024669072}
+{'lane': 4, 'early_delta_ns': 0.15152224617389998, 'late_delta_ns': -0.0012131668830080095, 'whole_delta_ns': 0.150309079290892}
+{'lane': 5, 'early_delta_ns': 0.14341343167552, 'late_delta_ns': 0.060058409905606694, 'whole_delta_ns': 0.20347184158112674}
+{'lane': 6, 'early_delta_ns': 0.14821293021819998, 'late_delta_ns': -0.069582472468, 'whole_delta_ns': 0.07863045775019997}
+{'lane': 7, 'early_delta_ns': 0.1581402443078, 'late_delta_ns': -0.10919503724600006, 'whole_delta_ns': 0.04894520706179997}
