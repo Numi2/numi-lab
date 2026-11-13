@@ -1,0 +1,14 @@
+{
+  "0": {
+    "first_command_difference_zero_based": 294,
+    "first_state_difference_zero_based": 294,
+    "identical_states_before_command_change": true,
+    "complete_state_records": 450
+  },
+  "1": {
+    "first_command_difference_zero_based": 211,
+    "first_state_difference_zero_based": 211,
+    "identical_states_before_command_change": true,
+    "complete_state_records": 450
+  }
+}
