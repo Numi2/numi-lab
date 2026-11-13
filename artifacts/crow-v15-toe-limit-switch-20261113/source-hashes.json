@@ -1,0 +1,5 @@
+{
+  "reference": "f312028b4c2c3d65f271a11325eff2886a45b380f3602c111f9b2fca001c6144",
+  "diagnostic": "6de47055a64218fd4b4d8d966e566a629a93dde51cfff6272e4a6cba775ee856",
+  "edit": "GPU buffer limit switch and readback"
+}
