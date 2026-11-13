@@ -1,6 +1,6 @@
 from pathlib import Path
 import gzip,numpy as np
-r=Path(open('/tmp/crow-continuation-path').read().strip())/'repo/artifacts'
+r=Path(__file__).resolve().parent.parent
 with gzip.open(r/'crow-v15-aero-sideslip-observer-20261113/samples.tsv.gz','rt') as f:s=np.loadtxt(f)
 with gzip.open(r/'crow-v15-pronation-fixed-state-20261113/moments.tsv.gz','rt') as f:a=np.loadtxt(f)
 p=a[4032:8064,4:];m=a[8064:12096,4:];d=(p-m)/.04
