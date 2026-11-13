@@ -6,6 +6,21 @@ efa8fbb806804756567106e282b0659f0252221dcd1df2715e9920280995f0fb  ./build-model-
 041553f5c08d618209565eb0156b2afb7b45b5ba4190d42dbd75369797cf9708  ./build-observer.py
 1b33139f89c388c0cc649818400006bd34027adf742040c1397da05a5423be46  ./build.log
 d467cd04bfb7a0559038fad48fa7fbf1c9a1a9360399c7b4a65f8ae2c7370a42  ./build.py
+24c7329943b75df677838f9cc24ab024b5ca7759359fb6f2077a566664af3ff0  ./long-flight-20261126-rebound-long-fixed/RESULT.md
+11d8b488ce56651f9d23e00c21cfa40fb79e7da4bfef6cfedf033fa72c274df8  ./long-flight-20261126-rebound-long-fixed/analysis.json
+eca7f737e3edb0b31b1156ea668adb922403102dcc10d184b6c944a117342a4c  ./long-flight-20261126-rebound-long-fixed/analyze.log
+b0d5772922e1a6823264c81f16fdcdec5a95a15ef105511c8629c687c312c83c  ./long-flight-20261126-rebound-long-fixed/command.json
+6ac97095664ed133d3519fd196b17ea997df7efc45aac57b0707cb6968414653  ./long-flight-20261126-rebound-long-fixed/inputs.json
+517d1dcd47cb383e02ea42136ddaf41c9d9527165b4ca2abf3f9dcdcb1d43dad  ./long-flight-20261126-rebound-long-fixed/replay.json.gz
+81868a6e94ffc0178bf833deb1c9013d9fab4ee95ddb876a5e8ec4f1d26376d2  ./long-flight-20261126-rebound-long-fixed/run-result.json
+9d7b5c9d9f0073e7470273bfa2e29440592eb4f75ac29056bf121aa978129870  ./long-flight-20261126-rebound-long-fixed/run.stderr.gz.part00
+a6c2b29d355415c0a6f5d17698e07c6ec159058b1b6dacc0ced8a58c7b9264d2  ./long-flight-20261126-rebound-long-fixed/run.stderr.gz.part01
+c5eed44fcb78460de20a1b36fec018a9a555f60af7bdac334780138aadde7569  ./long-flight-20261126-rebound-long-fixed/run.stderr.gz.part02
+6f9bc5dacee8a908a38c8b282eea4e46d359cc9dd6606b4d0cb1de6882115209  ./long-flight-20261126-rebound-long-fixed/run.stderr.gz.part03
+106e01bf91d3f7c0acea2c9e27275da07cc1da57749a9f88bf1f571cdf04d3af  ./long-flight-20261126-rebound-long-fixed/run.stderr.gz.part04
+c9df888146aa738a3cbd7543e6fe36082a3e2dec672ac2d60d9d339d208a4080  ./long-flight-20261126-rebound-long-fixed/run.stdout
+7220c5d4a724e5c032a31aeab9618ac3344a84e09a84d2a8664ac0c74bd35291  ./long-flight-20261126-rebound-long-fixed/stderr-parts.json
+72003913fb17a75e992aab0ba98afacf1d1b3a8ff1e3cfc365b9490de393e459  ./long-flight-20261126-rebound-long-fixed/trace.tsv.gz
 cd8dc9d18f47d48776c9d221ee0d10b1a382724781ab1cc291ef23fa031ceb35  ./long-flight-hashes.json
 594510617e62335662b73eab91e0ca1b5bafc005f95df26ec277c4c3441d6eee  ./long-flight.metal
 c7f6e98948d4efc7a98d966ae79912abfa33beceb0be0259d4cd2bb658e07a6e  ./long-flight.metallib.gz
@@ -21,4 +36,5 @@ ab9c73032cc71214693d6b74d8451e565f366da7a06a2337e7f463a00077a733  ./observer-cor
 3efac0a090e0b1f83038a4998ea129469a046046a240ef1e8296c8252c44487c  ./observer-extension.patch
 73b16105ccc4713696c6647fe11156ebbac5e40c75c4f40c2db1f4b6dc38f3e5  ./observer.dylib.gz
 c6727a11c85ea51433c40f6f8274c729e09461b5e51fac145449555563174148  ./observer.mm.gz
+83db8d04625fd0646985d077493fa733df5ee806c1464996ccb7e937de8caa2e  ./restore-stderr.py
 5d50131cf243c92771e39f3b1b032ca3250cca742e3e8cce4d89cf8929c31ce3  ./run.py
