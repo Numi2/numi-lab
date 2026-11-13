@@ -1,0 +1,1062 @@
+{
+  "rows": [
+    {
+      "lane": 2,
+      "end": 1200,
+      "termination_reason": 0,
+      "physical_failure": false,
+      "comparison_ticks": 1200,
+      "missing_comparison_ticks": [],
+      "different_comparison_ticks": [],
+      "exact_required_parity": true,
+      "release": 376,
+      "recontact": null,
+      "nonfoot_normal_impulse_after_release_ns": 0.0,
+      "first_ground_record_after_release_or_termination_boundary": null,
+      "accepted_state_immediately_before_first_ground": null,
+      "physical_wing_targets_before_first_ground": null,
+      "missing_contact_ticks": [],
+      "missing_toe_ticks": [],
+      "toe_speed_threshold_events": 0,
+      "missing_effort_substeps": 0,
+      "flap_effort_max_abs": 3.0,
+      "sampled_sweep_q_range": [
+        -0.0599335469,
+        0.128591061
+      ],
+      "pulse_sweep_target_range": [
+        -0.0611857064,
+        -0.0240040626
+      ],
+      "feedback_reconstruction_options": [],
+      "pulse_flap_target_comparison_samples": 300,
+      "pulse_flap_target_delta_extrema": [
+        [
+          0.0,
+          0.0
+        ],
+        [
+          0.0,
+          0.0
+        ]
+      ],
+      "windows": {
+        "pulse": {
+          "samples": 51,
+          "mean_roll_pitch_yaw_rad": [
+            0.1910266866331516,
+            0.1613737274664217,
+            -0.043154992486728924
+          ],
+          "mean_position_m": [
+            0.8802572827647057,
+            -2.439411868627451,
+            0.6760637188039215
+          ],
+          "mean_velocity_m_s": [
+            0.39557766449019605,
+            -0.6822905429607841,
+            0.055325328890980394
+          ],
+          "mean_delta_roll_pitch_yaw_rad": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "mean_delta_height_m": 0.0,
+          "mean_delta_velocity_m_s": [
+            0.0,
+            0.0,
+            0.0
+          ]
+        },
+        "recovery": {
+          "samples": 51,
+          "mean_roll_pitch_yaw_rad": [
+            0.3620640456848153,
+            0.1964891491541676,
+            -0.08817665870433618
+          ],
+          "mean_position_m": [
+            2.8940993101960784,
+            -8.610956089411767,
+            0.7149732264901959
+          ],
+          "mean_velocity_m_s": [
+            0.27447764837254907,
+            -1.3863323062745097,
+            -0.036227734976862755
+          ],
+          "mean_delta_roll_pitch_yaw_rad": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "mean_delta_height_m": 0.0,
+          "mean_delta_velocity_m_s": [
+            0.0,
+            0.0,
+            0.0
+          ]
+        }
+      },
+      "missing_state_ticks": [],
+      "missing_target_ticks": [],
+      "height_500_1200_m": [
+        0.532486796,
+        0.74030745
+      ],
+      "vx_550_1200_m_s": [
+        0.0937251449,
+        0.496851951
+      ],
+      "max_abs_vy_550_1200_m_s": 1.85992825,
+      "max_abs_lateral_displacement_500_1200_m": 10.7563419417,
+      "forward_displacement_500_1200_m": 4.29220736,
+      "sweep_targets_valid": true,
+      "feedback_reconstruction_valid": false
+    },
+    {
+      "lane": 3,
+      "end": 1200,
+      "termination_reason": 0,
+      "physical_failure": false,
+      "comparison_ticks": 1200,
+      "missing_comparison_ticks": [],
+      "different_comparison_ticks": [],
+      "exact_required_parity": true,
+      "release": 376,
+      "recontact": null,
+      "nonfoot_normal_impulse_after_release_ns": 0.0,
+      "first_ground_record_after_release_or_termination_boundary": null,
+      "accepted_state_immediately_before_first_ground": null,
+      "physical_wing_targets_before_first_ground": null,
+      "missing_contact_ticks": [],
+      "missing_toe_ticks": [],
+      "toe_speed_threshold_events": 0,
+      "missing_effort_substeps": 0,
+      "flap_effort_max_abs": 3.0,
+      "sampled_sweep_q_range": [
+        -0.0598052479,
+        0.128136709
+      ],
+      "pulse_sweep_target_range": [
+        -0.0608948618,
+        -0.0240674336
+      ],
+      "feedback_reconstruction_options": [],
+      "pulse_flap_target_comparison_samples": 300,
+      "pulse_flap_target_delta_extrema": [
+        [
+          0.0,
+          0.0
+        ],
+        [
+          0.0,
+          0.0
+        ]
+      ],
+      "windows": {
+        "pulse": {
+          "samples": 51,
+          "mean_roll_pitch_yaw_rad": [
+            0.19142791654825334,
+            0.1612445600176024,
+            -0.045660201624622664
+          ],
+          "mean_position_m": [
+            0.8645488856666668,
+            -2.403550652745098,
+            0.6763106829803924
+          ],
+          "mean_velocity_m_s": [
+            0.3924623938039214,
+            -0.6846829144509802,
+            0.055277536537843126
+          ],
+          "mean_delta_roll_pitch_yaw_rad": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "mean_delta_height_m": 0.0,
+          "mean_delta_velocity_m_s": [
+            0.0,
+            0.0,
+            0.0
+          ]
+        },
+        "recovery": {
+          "samples": 51,
+          "mean_roll_pitch_yaw_rad": [
+            0.3623228926247608,
+            0.1963176952972733,
+            -0.0910647853161563
+          ],
+          "mean_position_m": [
+            2.8632915811764703,
+            -8.588267813137255,
+            0.7169637306470588
+          ],
+          "mean_velocity_m_s": [
+            0.26961221823529413,
+            -1.3881113529411764,
+            -0.036065655189803925
+          ],
+          "mean_delta_roll_pitch_yaw_rad": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "mean_delta_height_m": 0.0,
+          "mean_delta_velocity_m_s": [
+            0.0,
+            0.0,
+            0.0
+          ]
+        }
+      },
+      "missing_state_ticks": [],
+      "missing_target_ticks": [],
+      "height_500_1200_m": [
+        0.534781694,
+        0.7436589
+      ],
+      "vx_550_1200_m_s": [
+        0.0946259648,
+        0.492293537
+      ],
+      "max_abs_vy_550_1200_m_s": 1.86187577,
+      "max_abs_lateral_displacement_500_1200_m": 10.7843064411,
+      "forward_displacement_500_1200_m": 4.26234746,
+      "sweep_targets_valid": true,
+      "feedback_reconstruction_valid": false
+    },
+    {
+      "lane": 4,
+      "end": 1200,
+      "termination_reason": 0,
+      "physical_failure": false,
+      "comparison_ticks": 450,
+      "missing_comparison_ticks": [],
+      "different_comparison_ticks": [],
+      "exact_required_parity": true,
+      "release": 376,
+      "recontact": null,
+      "nonfoot_normal_impulse_after_release_ns": 0.0,
+      "first_ground_record_after_release_or_termination_boundary": null,
+      "accepted_state_immediately_before_first_ground": null,
+      "physical_wing_targets_before_first_ground": null,
+      "missing_contact_ticks": [],
+      "missing_toe_ticks": [],
+      "toe_speed_threshold_events": 0,
+      "missing_effort_substeps": 0,
+      "flap_effort_max_abs": 3.0,
+      "sampled_sweep_q_range": [
+        -0.0627833977,
+        0.128737286
+      ],
+      "pulse_sweep_target_range": [
+        -0.0633397102,
+        -0.0244084932
+      ],
+      "feedback_reconstruction_options": [
+        {
+          "state_offset": -2,
+          "clock_offset": -3,
+          "samples": 483,
+          "mean_abs_error": 0.00046573484959602026,
+          "max_abs_error": 0.0016522674704378681
+        },
+        {
+          "state_offset": -2,
+          "clock_offset": -2,
+          "samples": 483,
+          "mean_abs_error": 0.0004663227927604274,
+          "max_abs_error": 0.0016522674704378681
+        },
+        {
+          "state_offset": -2,
+          "clock_offset": -1,
+          "samples": 483,
+          "mean_abs_error": 0.0004680502556448555,
+          "max_abs_error": 0.0016522674704378681
+        },
+        {
+          "state_offset": -2,
+          "clock_offset": 0,
+          "samples": 483,
+          "mean_abs_error": 0.0004699460542202372,
+          "max_abs_error": 0.0016522674704378681
+        },
+        {
+          "state_offset": -1,
+          "clock_offset": -3,
+          "samples": 483,
+          "mean_abs_error": 2.4965948476102563e-06,
+          "max_abs_error": 0.00018046793898227054
+        },
+        {
+          "state_offset": -1,
+          "clock_offset": -2,
+          "samples": 483,
+          "mean_abs_error": 1.7848904790621462e-08,
+          "max_abs_error": 6.35836894247177e-08
+        },
+        {
+          "state_offset": -1,
+          "clock_offset": -1,
+          "samples": 483,
+          "mean_abs_error": 2.488257449090679e-06,
+          "max_abs_error": 0.000179257903335589
+        },
+        {
+          "state_offset": -1,
+          "clock_offset": 0,
+          "samples": 483,
+          "mean_abs_error": 4.921140460086716e-06,
+          "max_abs_error": 0.00035507679735921616
+        },
+        {
+          "state_offset": 0,
+          "clock_offset": -3,
+          "samples": 483,
+          "mean_abs_error": 0.0009271470174109948,
+          "max_abs_error": 0.002222068532445165
+        },
+        {
+          "state_offset": 0,
+          "clock_offset": -2,
+          "samples": 483,
+          "mean_abs_error": 0.0009274258064562782,
+          "max_abs_error": 0.002222068532445165
+        },
+        {
+          "state_offset": 0,
+          "clock_offset": -1,
+          "samples": 483,
+          "mean_abs_error": 0.0009282582433282401,
+          "max_abs_error": 0.002222068532445165
+        },
+        {
+          "state_offset": 0,
+          "clock_offset": 0,
+          "samples": 483,
+          "mean_abs_error": 0.0009299545893712009,
+          "max_abs_error": 0.002222068532445165
+        }
+      ],
+      "pulse_flap_target_comparison_samples": 300,
+      "pulse_flap_target_delta_extrema": [
+        [
+          -0.00862001999999995,
+          0.009470462999999985
+        ],
+        [
+          -0.009470462000000013,
+          0.008619910000000175
+        ]
+      ],
+      "windows": {
+        "pulse": {
+          "samples": 51,
+          "mean_roll_pitch_yaw_rad": [
+            0.05692331988561954,
+            0.15888744506440092,
+            -0.046416807939813585
+          ],
+          "mean_position_m": [
+            0.9646382954117646,
+            -1.173103248627451,
+            0.6441190675098039
+          ],
+          "mean_velocity_m_s": [
+            0.43126096501960787,
+            -0.21571685315686273,
+            0.058218876125745084
+          ],
+          "mean_delta_roll_pitch_yaw_rad": [
+            -0.13556135896043445,
+            -0.0025980965524735784,
+            0.0015184492502982208
+          ],
+          "mean_delta_height_m": -0.02401529690196079,
+          "mean_delta_velocity_m_s": [
+            0.03998327731372548,
+            0.4742689129411764,
+            0.0027975524014313673
+          ]
+        },
+        "recovery": {
+          "samples": 51,
+          "mean_roll_pitch_yaw_rad": [
+            0.06313828633525014,
+            0.15915749988169775,
+            -0.06790059880034348
+          ],
+          "mean_position_m": [
+            3.5118403064705888,
+            -2.567375716078432,
+            0.7924380874901964
+          ],
+          "mean_velocity_m_s": [
+            0.41777707901960776,
+            -0.24643145501960775,
+            0.0076164830627450985
+          ],
+          "mean_delta_roll_pitch_yaw_rad": [
+            -0.3000364688325802,
+            -0.03823618694018931,
+            0.02464946002620423
+          ],
+          "mean_delta_height_m": 0.08251650188235299,
+          "mean_delta_velocity_m_s": [
+            0.1474804384509804,
+            1.1470998087058826,
+            0.04291158779941176
+          ]
+        }
+      },
+      "missing_state_ticks": [],
+      "missing_target_ticks": [],
+      "height_500_1200_m": [
+        0.523556471,
+        0.840718746
+      ],
+      "vx_550_1200_m_s": [
+        0.0938489437,
+        0.538136482
+      ],
+      "max_abs_vy_550_1200_m_s": 0.316492856,
+      "max_abs_lateral_displacement_500_1200_m": 2.8554717228,
+      "forward_displacement_500_1200_m": 5.132689241,
+      "sweep_targets_valid": true,
+      "feedback_reconstruction_valid": true,
+      "preliminary_engineering_pass": false
+    },
+    {
+      "lane": 5,
+      "end": 1200,
+      "termination_reason": 0,
+      "physical_failure": false,
+      "comparison_ticks": 450,
+      "missing_comparison_ticks": [],
+      "different_comparison_ticks": [],
+      "exact_required_parity": true,
+      "release": 376,
+      "recontact": null,
+      "nonfoot_normal_impulse_after_release_ns": 0.0,
+      "first_ground_record_after_release_or_termination_boundary": null,
+      "accepted_state_immediately_before_first_ground": null,
+      "physical_wing_targets_before_first_ground": null,
+      "missing_contact_ticks": [],
+      "missing_toe_ticks": [],
+      "toe_speed_threshold_events": 0,
+      "missing_effort_substeps": 0,
+      "flap_effort_max_abs": 3.0,
+      "sampled_sweep_q_range": [
+        -0.0625155196,
+        0.128511295
+      ],
+      "pulse_sweep_target_range": [
+        -0.0630631447,
+        -0.0241930392
+      ],
+      "feedback_reconstruction_options": [
+        {
+          "state_offset": -2,
+          "clock_offset": -3,
+          "samples": 483,
+          "mean_abs_error": 0.0004666356370074951,
+          "max_abs_error": 0.0016444839355035656
+        },
+        {
+          "state_offset": -2,
+          "clock_offset": -2,
+          "samples": 483,
+          "mean_abs_error": 0.0004672027507047079,
+          "max_abs_error": 0.0016444839355035656
+        },
+        {
+          "state_offset": -2,
+          "clock_offset": -1,
+          "samples": 483,
+          "mean_abs_error": 0.00046893830493950986,
+          "max_abs_error": 0.0016444839355035656
+        },
+        {
+          "state_offset": -2,
+          "clock_offset": 0,
+          "samples": 483,
+          "mean_abs_error": 0.0004708570434904195,
+          "max_abs_error": 0.0016444839355035656
+        },
+        {
+          "state_offset": -1,
+          "clock_offset": -3,
+          "samples": 483,
+          "mean_abs_error": 2.5126378879071695e-06,
+          "max_abs_error": 0.0001805490942962118
+        },
+        {
+          "state_offset": -1,
+          "clock_offset": -2,
+          "samples": 483,
+          "mean_abs_error": 1.8066237811008067e-08,
+          "max_abs_error": 7.426672654631261e-08
+        },
+        {
+          "state_offset": -1,
+          "clock_offset": -1,
+          "samples": 483,
+          "mean_abs_error": 2.504628482920763e-06,
+          "max_abs_error": 0.00017936086320047284
+        },
+        {
+          "state_offset": -1,
+          "clock_offset": 0,
+          "samples": 483,
+          "mean_abs_error": 4.953683826873621e-06,
+          "max_abs_error": 0.000355269744996195
+        },
+        {
+          "state_offset": 0,
+          "clock_offset": -3,
+          "samples": 483,
+          "mean_abs_error": 0.0009294365455127874,
+          "max_abs_error": 0.0022280061065617363
+        },
+        {
+          "state_offset": 0,
+          "clock_offset": -2,
+          "samples": 483,
+          "mean_abs_error": 0.000929719350799267,
+          "max_abs_error": 0.0022280061065617363
+        },
+        {
+          "state_offset": 0,
+          "clock_offset": -1,
+          "samples": 483,
+          "mean_abs_error": 0.0009305524106726499,
+          "max_abs_error": 0.0022280061065617363
+        },
+        {
+          "state_offset": 0,
+          "clock_offset": 0,
+          "samples": 483,
+          "mean_abs_error": 0.0009322516427584777,
+          "max_abs_error": 0.0022280061065617363
+        }
+      ],
+      "pulse_flap_target_comparison_samples": 300,
+      "pulse_flap_target_delta_extrema": [
+        [
+          -0.008639689999999867,
+          0.009467899999999974
+        ],
+        [
+          -0.009467929000000042,
+          0.008639580000000091
+        ]
+      ],
+      "windows": {
+        "pulse": {
+          "samples": 51,
+          "mean_roll_pitch_yaw_rad": [
+            0.05701030886249798,
+            0.1582681888225535,
+            -0.04431376605521498
+          ],
+          "mean_position_m": [
+            0.9810422717450978,
+            -1.171469433137255,
+            0.6441291827450978
+          ],
+          "mean_velocity_m_s": [
+            0.43035598301960787,
+            -0.21518106849019605,
+            0.058698634831490175
+          ],
+          "mean_delta_roll_pitch_yaw_rad": [
+            -0.1360049148835928,
+            -0.0030259227766277095,
+            0.0034389712445691144
+          ],
+          "mean_delta_height_m": -0.02231419319607843,
+          "mean_delta_velocity_m_s": [
+            0.039784104137254896,
+            0.4765257606862746,
+            0.00370943543992157
+          ]
+        },
+        "recovery": {
+          "samples": 51,
+          "mean_roll_pitch_yaw_rad": [
+            0.06326571206231685,
+            0.15918478114618254,
+            -0.0663336498455117
+          ],
+          "mean_position_m": [
+            3.521346798235295,
+            -2.5629920727450983,
+            0.7911702196470587
+          ],
+          "mean_velocity_m_s": [
+            0.4184001672549021,
+            -0.24632106549019617,
+            0.007662865431372547
+          ],
+          "mean_delta_roll_pitch_yaw_rad": [
+            -0.3005948655582445,
+            -0.03831085797296678,
+            0.026005129368885226
+          ],
+          "mean_delta_height_m": 0.08638563121568628,
+          "mean_delta_velocity_m_s": [
+            0.14844606588235298,
+            1.149841024117647,
+            0.04326715053196078
+          ]
+        }
+      },
+      "missing_state_ticks": [],
+      "missing_target_ticks": [],
+      "height_500_1200_m": [
+        0.523806393,
+        0.839519382
+      ],
+      "vx_550_1200_m_s": [
+        0.0952513516,
+        0.536468446
+      ],
+      "max_abs_vy_550_1200_m_s": 0.316424847,
+      "max_abs_lateral_displacement_500_1200_m": 2.8539441801999996,
+      "forward_displacement_500_1200_m": 5.137110289,
+      "sweep_targets_valid": true,
+      "feedback_reconstruction_valid": true,
+      "preliminary_engineering_pass": false
+    },
+    {
+      "lane": 6,
+      "end": 1200,
+      "termination_reason": 0,
+      "physical_failure": false,
+      "comparison_ticks": 450,
+      "missing_comparison_ticks": [],
+      "different_comparison_ticks": [],
+      "exact_required_parity": true,
+      "release": 376,
+      "recontact": null,
+      "nonfoot_normal_impulse_after_release_ns": 0.0,
+      "first_ground_record_after_release_or_termination_boundary": null,
+      "accepted_state_immediately_before_first_ground": null,
+      "physical_wing_targets_before_first_ground": null,
+      "missing_contact_ticks": [],
+      "missing_toe_ticks": [],
+      "toe_speed_threshold_events": 0,
+      "missing_effort_substeps": 0,
+      "flap_effort_max_abs": 3.0,
+      "sampled_sweep_q_range": [
+        -0.062686272,
+        0.127583817
+      ],
+      "pulse_sweep_target_range": [
+        -0.0634954721,
+        -0.0238728356
+      ],
+      "feedback_reconstruction_options": [
+        {
+          "state_offset": -2,
+          "clock_offset": -3,
+          "samples": 483,
+          "mean_abs_error": 0.00046523251510518506,
+          "max_abs_error": 0.0016328713417050889
+        },
+        {
+          "state_offset": -2,
+          "clock_offset": -2,
+          "samples": 483,
+          "mean_abs_error": 0.0004657936125881147,
+          "max_abs_error": 0.0016328713417050889
+        },
+        {
+          "state_offset": -2,
+          "clock_offset": -1,
+          "samples": 483,
+          "mean_abs_error": 0.0004674952010874843,
+          "max_abs_error": 0.0016328713417050889
+        },
+        {
+          "state_offset": -2,
+          "clock_offset": 0,
+          "samples": 483,
+          "mean_abs_error": 0.00046936327751201547,
+          "max_abs_error": 0.0016328713417050889
+        },
+        {
+          "state_offset": -1,
+          "clock_offset": -3,
+          "samples": 483,
+          "mean_abs_error": 2.459475010309795e-06,
+          "max_abs_error": 0.0001765892396158042
+        },
+        {
+          "state_offset": -1,
+          "clock_offset": -2,
+          "samples": 483,
+          "mean_abs_error": 1.801441945072516e-08,
+          "max_abs_error": 6.957657450179511e-08
+        },
+        {
+          "state_offset": -1,
+          "clock_offset": -1,
+          "samples": 483,
+          "mean_abs_error": 2.450702107719926e-06,
+          "max_abs_error": 0.00017544374409847463
+        },
+        {
+          "state_offset": -1,
+          "clock_offset": 0,
+          "samples": 483,
+          "mean_abs_error": 4.846448945921213e-06,
+          "max_abs_error": 0.0003475026917061641
+        },
+        {
+          "state_offset": 0,
+          "clock_offset": -3,
+          "samples": 483,
+          "mean_abs_error": 0.0009260006215032757,
+          "max_abs_error": 0.002216492615915361
+        },
+        {
+          "state_offset": 0,
+          "clock_offset": -2,
+          "samples": 483,
+          "mean_abs_error": 0.0009262572764878767,
+          "max_abs_error": 0.002216492615915361
+        },
+        {
+          "state_offset": 0,
+          "clock_offset": -1,
+          "samples": 483,
+          "mean_abs_error": 0.0009270729349181184,
+          "max_abs_error": 0.002216492615915361
+        },
+        {
+          "state_offset": 0,
+          "clock_offset": 0,
+          "samples": 483,
+          "mean_abs_error": 0.0009287397219238885,
+          "max_abs_error": 0.002216492615915361
+        }
+      ],
+      "pulse_flap_target_comparison_samples": 300,
+      "pulse_flap_target_delta_extrema": [
+        [
+          -0.008635759999999992,
+          0.009452224000000009
+        ],
+        [
+          -0.009452223000000037,
+          0.008635640000000055
+        ]
+      ],
+      "windows": {
+        "pulse": {
+          "samples": 51,
+          "mean_roll_pitch_yaw_rad": [
+            0.05691500791209271,
+            0.1589998411020748,
+            -0.04534295487407713
+          ],
+          "mean_position_m": [
+            0.9480923484509801,
+            -1.1538469198039216,
+            0.6627298067450983
+          ],
+          "mean_velocity_m_s": [
+            0.43212555429411764,
+            -0.21526237003921567,
+            0.05824943436607843
+          ],
+          "mean_delta_roll_pitch_yaw_rad": [
+            -0.13473442995040008,
+            -0.0028024795609928165,
+            0.001848726971215434
+          ],
+          "mean_delta_height_m": -0.02468115209803921,
+          "mean_delta_velocity_m_s": [
+            0.03875743701960783,
+            0.4711204530588236,
+            0.0031248172247058813
+          ]
+        },
+        "recovery": {
+          "samples": 51,
+          "mean_roll_pitch_yaw_rad": [
+            0.06321324218443106,
+            0.15927426008807002,
+            -0.06707915260877405
+          ],
+          "mean_position_m": [
+            3.495191205294118,
+            -2.5464034911764712,
+            0.8100897342549022
+          ],
+          "mean_velocity_m_s": [
+            0.4184447585294117,
+            -0.24646004215686276,
+            0.0077050513882352956
+          ],
+          "mean_delta_roll_pitch_yaw_rad": [
+            -0.29915846932718,
+            -0.03747094914245973,
+            0.02528154799624153
+          ],
+          "mean_delta_height_m": 0.0831031974509804,
+          "mean_delta_velocity_m_s": [
+            0.1487477660588235,
+            1.14355385627451,
+            0.04276852281549019
+          ]
+        }
+      },
+      "missing_state_ticks": [],
+      "missing_target_ticks": [],
+      "height_500_1200_m": [
+        0.540819049,
+        0.858377934
+      ],
+      "vx_550_1200_m_s": [
+        0.0913303867,
+        0.537771165
+      ],
+      "max_abs_vy_550_1200_m_s": 0.316420078,
+      "max_abs_lateral_displacement_500_1200_m": 2.8484456796,
+      "forward_displacement_500_1200_m": 5.12722457,
+      "sweep_targets_valid": true,
+      "feedback_reconstruction_valid": true,
+      "preliminary_engineering_pass": false
+    },
+    {
+      "lane": 7,
+      "end": 1200,
+      "termination_reason": 0,
+      "physical_failure": false,
+      "comparison_ticks": 450,
+      "missing_comparison_ticks": [],
+      "different_comparison_ticks": [],
+      "exact_required_parity": true,
+      "release": 376,
+      "recontact": null,
+      "nonfoot_normal_impulse_after_release_ns": 0.0,
+      "first_ground_record_after_release_or_termination_boundary": null,
+      "accepted_state_immediately_before_first_ground": null,
+      "physical_wing_targets_before_first_ground": null,
+      "missing_contact_ticks": [],
+      "missing_toe_ticks": [],
+      "toe_speed_threshold_events": 0,
+      "missing_effort_substeps": 0,
+      "flap_effort_max_abs": 3.0,
+      "sampled_sweep_q_range": [
+        -0.0626342818,
+        0.128179088
+      ],
+      "pulse_sweep_target_range": [
+        -0.0633130148,
+        -0.0242941249
+      ],
+      "feedback_reconstruction_options": [
+        {
+          "state_offset": -2,
+          "clock_offset": -3,
+          "samples": 483,
+          "mean_abs_error": 0.0004641434373158281,
+          "max_abs_error": 0.0016521359272121672
+        },
+        {
+          "state_offset": -2,
+          "clock_offset": -2,
+          "samples": 483,
+          "mean_abs_error": 0.00046472064425130395,
+          "max_abs_error": 0.0016521359272121672
+        },
+        {
+          "state_offset": -2,
+          "clock_offset": -1,
+          "samples": 483,
+          "mean_abs_error": 0.0004664173241538539,
+          "max_abs_error": 0.0016521359272121672
+        },
+        {
+          "state_offset": -2,
+          "clock_offset": 0,
+          "samples": 483,
+          "mean_abs_error": 0.0004682644803085527,
+          "max_abs_error": 0.0016521359272121672
+        },
+        {
+          "state_offset": -1,
+          "clock_offset": -3,
+          "samples": 483,
+          "mean_abs_error": 2.449531028139107e-06,
+          "max_abs_error": 0.0001777588475035674
+        },
+        {
+          "state_offset": -1,
+          "clock_offset": -2,
+          "samples": 483,
+          "mean_abs_error": 1.7743717177669633e-08,
+          "max_abs_error": 7.42595125391432e-08
+        },
+        {
+          "state_offset": -1,
+          "clock_offset": -1,
+          "samples": 483,
+          "mean_abs_error": 2.4408398103041405e-06,
+          "max_abs_error": 0.00017666492276649515
+        },
+        {
+          "state_offset": -1,
+          "clock_offset": 0,
+          "samples": 483,
+          "mean_abs_error": 4.826989737977432e-06,
+          "max_abs_error": 0.0003498918977431764
+        },
+        {
+          "state_offset": 0,
+          "clock_offset": -3,
+          "samples": 483,
+          "mean_abs_error": 0.0009228069146702032,
+          "max_abs_error": 0.002214289944207054
+        },
+        {
+          "state_offset": 0,
+          "clock_offset": -2,
+          "samples": 483,
+          "mean_abs_error": 0.0009230689511947053,
+          "max_abs_error": 0.002214289944207054
+        },
+        {
+          "state_offset": 0,
+          "clock_offset": -1,
+          "samples": 483,
+          "mean_abs_error": 0.0009238885390314187,
+          "max_abs_error": 0.002214289944207054
+        },
+        {
+          "state_offset": 0,
+          "clock_offset": 0,
+          "samples": 483,
+          "mean_abs_error": 0.000925548952575981,
+          "max_abs_error": 0.002214289944207054
+        }
+      ],
+      "pulse_flap_target_comparison_samples": 300,
+      "pulse_flap_target_delta_extrema": [
+        [
+          -0.008603689999999942,
+          0.009442925999999963
+        ],
+        [
+          -0.009442924999999991,
+          0.008603580000000166
+        ]
+      ],
+      "windows": {
+        "pulse": {
+          "samples": 51,
+          "mean_roll_pitch_yaw_rad": [
+            0.056723698075149064,
+            0.1586939900654142,
+            -0.04430940507109368
+          ],
+          "mean_position_m": [
+            0.9212610325490198,
+            -1.1641920080392159,
+            0.6555738320588236
+          ],
+          "mean_velocity_m_s": [
+            0.4315162669019608,
+            -0.21399772931372552,
+            0.05828141331941177
+          ],
+          "mean_delta_roll_pitch_yaw_rad": [
+            -0.134800061214987,
+            -0.0026796619413537435,
+            0.00299893910356695
+          ],
+          "mean_delta_height_m": -0.02308472694117648,
+          "mean_delta_velocity_m_s": [
+            0.03947293701960785,
+            0.4717048902352942,
+            0.00323422514156863
+          ]
+        },
+        "recovery": {
+          "samples": 51,
+          "mean_roll_pitch_yaw_rad": [
+            0.06303339864682866,
+            0.15921126393450258,
+            -0.06576451869351675
+          ],
+          "mean_position_m": [
+            3.466848026862744,
+            -2.5497888864705884,
+            0.8027882389411763
+          ],
+          "mean_velocity_m_s": [
+            0.418477064882353,
+            -0.2451834264313725,
+            0.007864479958823523
+          ],
+          "mean_delta_roll_pitch_yaw_rad": [
+            -0.29947544251189107,
+            -0.037528076240831446,
+            0.026710766640270986
+          ],
+          "mean_delta_height_m": 0.08507245196078429,
+          "mean_delta_velocity_m_s": [
+            0.1490490410392157,
+            1.1447539463137255,
+            0.04392532999705882
+          ]
+        }
+      },
+      "missing_state_ticks": [],
+      "missing_target_ticks": [],
+      "height_500_1200_m": [
+        0.534117162,
+        0.851265252
+      ],
+      "vx_550_1200_m_s": [
+        0.0939159989,
+        0.53753531
+      ],
+      "max_abs_vy_550_1200_m_s": 0.315112889,
+      "max_abs_lateral_displacement_500_1200_m": 2.8333158913,
+      "forward_displacement_500_1200_m": 5.136892919999999,
+      "sweep_targets_valid": true,
+      "feedback_reconstruction_valid": true,
+      "preliminary_engineering_pass": false
+    }
+  ],
+  "scene_mask_matches_baseline": true,
+  "observer_errors": [],
+  "duplicate_samples": [],
+  "input_hashes": {
+    "host_sha256": "de80132b428474d30655a17a0153a6595ea51985ff01364429592397cd9e94d9",
+    "metallib_sha256": "4912f381c572416747409bdeb9c29e0231d1455b77e333228171c6a420f1d503",
+    "frozen_flight_sha256": "01bc92e4ec91c08d890da7b8691400f56490a2518d9ed47ae150bb997c65375c",
+    "landing_policy_sha256": "b5251e0e294d8fd04e073beacdf2faf1805105f731e9a8f73a8882c2a22dbd4b",
+    "route_policy_sha256": "4dc1de804258c384df42faf979842bd9da38ba1a0030dc03005807d6643c7c24"
+  },
+  "baseline_input_hashes": {
+    "host_sha256": "de80132b428474d30655a17a0153a6595ea51985ff01364429592397cd9e94d9",
+    "metallib_sha256": "6ca6a55c4285c75fe45cbb30db709c56f003a797f07f62e65f6f050abc6e4669",
+    "frozen_flight_sha256": "01bc92e4ec91c08d890da7b8691400f56490a2518d9ed47ae150bb997c65375c",
+    "landing_policy_sha256": "b5251e0e294d8fd04e073beacdf2faf1805105f731e9a8f73a8882c2a22dbd4b",
+    "route_policy_sha256": "4dc1de804258c384df42faf979842bd9da38ba1a0030dc03005807d6643c7c24"
+  },
+  "scope": "Used-seed lateral feedback identification on uncalibrated obstacle-free research body; neither command-tracking qualification nor flight freeze."
+}
