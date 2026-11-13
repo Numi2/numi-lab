@@ -1,0 +1,126 @@
+{
+  "mask_valid": true,
+  "policy_pack_bytes_identical": true,
+  "rows": [
+    {
+      "lane": 2,
+      "first_wing_target_difference": 413,
+      "reference_parity_before_first_change": true,
+      "missing_reference_ticks": [],
+      "reference_mismatches": {
+        "q": [],
+        "v": [],
+        "policy_action": [],
+        "contacts": []
+      },
+      "sensor_missing_ticks": [],
+      "sensor_max_abs_error_yaw_speed_height_vz": [
+        6.884650671779013e-08,
+        0.0,
+        0.0
+      ],
+      "sensor_values_valid": true
+    },
+    {
+      "lane": 3,
+      "first_wing_target_difference": 413,
+      "reference_parity_before_first_change": true,
+      "missing_reference_ticks": [],
+      "reference_mismatches": {
+        "q": [],
+        "v": [],
+        "policy_action": [],
+        "contacts": []
+      },
+      "sensor_missing_ticks": [],
+      "sensor_max_abs_error_yaw_speed_height_vz": [
+        6.379031530778789e-08,
+        0.0,
+        0.0
+      ],
+      "sensor_values_valid": true
+    },
+    {
+      "lane": 4,
+      "first_wing_target_difference": 413,
+      "reference_parity_before_first_change": true,
+      "missing_reference_ticks": [],
+      "reference_mismatches": {
+        "q": [],
+        "v": [],
+        "policy_action": [],
+        "contacts": []
+      },
+      "sensor_missing_ticks": [],
+      "sensor_max_abs_error_yaw_speed_height_vz": [
+        7.343081054322909e-08,
+        0.0,
+        0.0
+      ],
+      "sensor_values_valid": true
+    },
+    {
+      "lane": 5,
+      "first_wing_target_difference": 413,
+      "reference_parity_before_first_change": true,
+      "missing_reference_ticks": [],
+      "reference_mismatches": {
+        "q": [],
+        "v": [],
+        "policy_action": [],
+        "contacts": []
+      },
+      "sensor_missing_ticks": [],
+      "sensor_max_abs_error_yaw_speed_height_vz": [
+        6.671560015547584e-08,
+        0.0,
+        0.0
+      ],
+      "sensor_values_valid": true
+    },
+    {
+      "lane": 6,
+      "first_wing_target_difference": 413,
+      "reference_parity_before_first_change": true,
+      "missing_reference_ticks": [],
+      "reference_mismatches": {
+        "q": [],
+        "v": [],
+        "policy_action": [],
+        "contacts": []
+      },
+      "sensor_missing_ticks": [],
+      "sensor_max_abs_error_yaw_speed_height_vz": [
+        6.758422621544469e-08,
+        0.0,
+        0.0
+      ],
+      "sensor_values_valid": true
+    },
+    {
+      "lane": 7,
+      "first_wing_target_difference": 413,
+      "reference_parity_before_first_change": true,
+      "missing_reference_ticks": [],
+      "reference_mismatches": {
+        "q": [],
+        "v": [],
+        "policy_action": [],
+        "contacts": []
+      },
+      "sensor_missing_ticks": [],
+      "sensor_max_abs_error_yaw_speed_height_vz": [
+        7.559291026471016e-08,
+        0.0,
+        0.0
+      ],
+      "sensor_values_valid": true
+    }
+  ],
+  "paired_sensor_validated_screen_pass": {
+    "2-3": false,
+    "4-5": true,
+    "6-7": true
+  },
+  "scope": "Task-state samples are compared to accepted root state at the same logged step. The subsequent action kernel consumes the persisted state; target and state parity enforce intervention timing."
+}

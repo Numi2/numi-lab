@@ -1,0 +1,76 @@
+{
+  "rows": [
+    {
+      "lane": 2,
+      "first_target_difference": 413,
+      "missing_ticks": [],
+      "differences": {
+        "q": [],
+        "v": [],
+        "policy_action": [],
+        "contacts": []
+      },
+      "parity_before_first_target_difference": true
+    },
+    {
+      "lane": 3,
+      "first_target_difference": 413,
+      "missing_ticks": [],
+      "differences": {
+        "q": [],
+        "v": [],
+        "policy_action": [],
+        "contacts": []
+      },
+      "parity_before_first_target_difference": true
+    },
+    {
+      "lane": 4,
+      "first_target_difference": 413,
+      "missing_ticks": [],
+      "differences": {
+        "q": [],
+        "v": [],
+        "policy_action": [],
+        "contacts": []
+      },
+      "parity_before_first_target_difference": true
+    },
+    {
+      "lane": 5,
+      "first_target_difference": 413,
+      "missing_ticks": [],
+      "differences": {
+        "q": [],
+        "v": [],
+        "policy_action": [],
+        "contacts": []
+      },
+      "parity_before_first_target_difference": true
+    },
+    {
+      "lane": 6,
+      "first_target_difference": 413,
+      "missing_ticks": [],
+      "differences": {
+        "q": [],
+        "v": [],
+        "policy_action": [],
+        "contacts": []
+      },
+      "parity_before_first_target_difference": true
+    },
+    {
+      "lane": 7,
+      "first_target_difference": 413,
+      "missing_ticks": [],
+      "differences": {
+        "q": [],
+        "v": [],
+        "policy_action": [],
+        "contacts": []
+      },
+      "parity_before_first_target_difference": true
+    }
+  ]
+}

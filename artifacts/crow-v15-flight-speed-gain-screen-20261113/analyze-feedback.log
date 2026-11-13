@@ -1,0 +1,6 @@
+lane 2 end 900 reason 0 release 375 recontact None dx 1.3289285899999999 height [0.43826282, 0.697935522] vx [-0.0246825181, 0.370484352] toe 0 reference_diff 88 pass False
+lane 3 end 900 reason 0 release 375 recontact None dx 1.31367749 height [0.437933534, 0.695814431] vx [-0.025979761, 0.365019351] toe 0 reference_diff 88 pass False
+lane 4 end 900 reason 0 release 376 recontact None dx 1.754672286 height [0.531525552, 0.751442492] vx [0.00433548447, 0.430706173] toe 0 reference_diff 88 pass True
+lane 5 end 900 reason 0 release 376 recontact None dx 1.7398506409999999 height [0.531797349, 0.753365695] vx [0.00192888256, 0.427543819] toe 0 reference_diff 88 pass True
+lane 6 end 900 reason 0 release 376 recontact None dx 2.463937457 height [0.346289665, 0.54266113] vx [0.0829640478, 0.492705613] toe 0 reference_diff 88 pass True
+lane 7 end 900 reason 0 release 376 recontact None dx 2.470171096 height [0.372894764, 0.567834854] vx [0.0849235505, 0.492233187] toe 0 reference_diff 88 pass True

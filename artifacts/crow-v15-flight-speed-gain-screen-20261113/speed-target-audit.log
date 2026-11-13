@@ -1,0 +1,178 @@
+{
+  "rows": [
+    {
+      "lane": 2,
+      "end": 900,
+      "timing_options": [
+        {
+          "offset": -2,
+          "max_abs_error": 0.005217248536920974,
+          "unsaturated_samples": 466,
+          "missing_ticks": []
+        },
+        {
+          "offset": -1,
+          "max_abs_error": 4.07909594296596e-09,
+          "unsaturated_samples": 466,
+          "missing_ticks": []
+        },
+        {
+          "offset": 0,
+          "max_abs_error": 0.005217245100765093,
+          "unsaturated_samples": 466,
+          "missing_ticks": []
+        }
+      ],
+      "validated_offsets": [
+        -1
+      ],
+      "target_speed_law_valid": true
+    },
+    {
+      "lane": 3,
+      "end": 900,
+      "timing_options": [
+        {
+          "offset": -2,
+          "max_abs_error": 0.005243477805664698,
+          "unsaturated_samples": 466,
+          "missing_ticks": []
+        },
+        {
+          "offset": -1,
+          "max_abs_error": 4.792821001187164e-09,
+          "unsaturated_samples": 466,
+          "missing_ticks": []
+        },
+        {
+          "offset": 0,
+          "max_abs_error": 0.00524347951912927,
+          "unsaturated_samples": 466,
+          "missing_ticks": []
+        }
+      ],
+      "validated_offsets": [
+        -1
+      ],
+      "target_speed_law_valid": true
+    },
+    {
+      "lane": 4,
+      "end": 900,
+      "timing_options": [
+        {
+          "offset": -2,
+          "max_abs_error": 0.007401355000134467,
+          "unsaturated_samples": 456,
+          "missing_ticks": []
+        },
+        {
+          "offset": -1,
+          "max_abs_error": 5.250770374054525e-09,
+          "unsaturated_samples": 457,
+          "missing_ticks": []
+        },
+        {
+          "offset": 0,
+          "max_abs_error": 0.007401353907752414,
+          "unsaturated_samples": 458,
+          "missing_ticks": []
+        }
+      ],
+      "validated_offsets": [
+        -1
+      ],
+      "target_speed_law_valid": true
+    },
+    {
+      "lane": 5,
+      "end": 900,
+      "timing_options": [
+        {
+          "offset": -2,
+          "max_abs_error": 0.007426551696690917,
+          "unsaturated_samples": 456,
+          "missing_ticks": []
+        },
+        {
+          "offset": -1,
+          "max_abs_error": 5.06575754954941e-09,
+          "unsaturated_samples": 457,
+          "missing_ticks": []
+        },
+        {
+          "offset": 0,
+          "max_abs_error": 0.0074265530217287185,
+          "unsaturated_samples": 458,
+          "missing_ticks": []
+        }
+      ],
+      "validated_offsets": [
+        -1
+      ],
+      "target_speed_law_valid": true
+    },
+    {
+      "lane": 6,
+      "end": 900,
+      "timing_options": [
+        {
+          "offset": -2,
+          "max_abs_error": 0.01143402043043077,
+          "unsaturated_samples": 418,
+          "missing_ticks": []
+        },
+        {
+          "offset": -1,
+          "max_abs_error": 7.531039208918955e-09,
+          "unsaturated_samples": 419,
+          "missing_ticks": []
+        },
+        {
+          "offset": 0,
+          "max_abs_error": 0.011434015877034853,
+          "unsaturated_samples": 420,
+          "missing_ticks": []
+        }
+      ],
+      "validated_offsets": [
+        -1
+      ],
+      "target_speed_law_valid": true
+    },
+    {
+      "lane": 7,
+      "end": 900,
+      "timing_options": [
+        {
+          "offset": -2,
+          "max_abs_error": 0.011379896336822216,
+          "unsaturated_samples": 418,
+          "missing_ticks": []
+        },
+        {
+          "offset": -1,
+          "max_abs_error": 1.0067174906203125e-08,
+          "unsaturated_samples": 419,
+          "missing_ticks": []
+        },
+        {
+          "offset": 0,
+          "max_abs_error": 0.01137990045102965,
+          "unsaturated_samples": 420,
+          "missing_ticks": []
+        }
+      ],
+      "validated_offsets": [
+        -1
+      ],
+      "target_speed_law_valid": true
+    }
+  ],
+  "validated_paired_exploratory_pass": {
+    "2-3": false,
+    "4-5": true,
+    "6-7": true
+  },
+  "scope": "Full-blend targets reconstructed from accepted root quaternion and velocity. A pass is development screening only."
+}
