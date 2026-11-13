@@ -1,0 +1,19 @@
+/Users/n/Developer/numi-crow-rl-20261107/artifacts/crow-v15-continuous-push-transition-20261113/push-wing.metal:5099:30: warning: unused variable 'arm' [-Wunused-variable]
+                { const uint arm=environment%8u;
+                             ^
+1 warning generated.
+Built candidate metallib: f978778cb9eed6795943c7198f4b7c86384883b00aed33ee9d8f016e88461e61
+/Users/n/Developer/numi-crow-rl-20261107/artifacts/crow-v15-continuous-push-transition-20261113/hold-wing.metal:5099:30: warning: unused variable 'arm' [-Wunused-variable]
+                { const uint arm=environment%8u;
+                             ^
+/Users/n/Developer/numi-crow-rl-20261107/artifacts/crow-v15-continuous-push-transition-20261113/hold-wing.metal:5123:29: warning: unused variable 'extended' [-Wunused-variable]
+                const float extended=joint==0u ? -0.15f : joint==1u ? kneeExtension : 0.83f;
+                            ^
+/Users/n/Developer/numi-crow-rl-20261107/artifacts/crow-v15-continuous-push-transition-20261113/hold-wing.metal:5124:28: warning: unused variable 'bilateral' [-Wunused-variable]
+                const bool bilateral=dispatch.counts.w==40u ? (state.status.w & ((1u<<20)|(1u<<21)))==((1u<<20)|(1u<<21)) : (state.nutrition.x>0.05f && state.nutrition.y>0.05f);
+                           ^
+/Users/n/Developer/numi-crow-rl-20261107/artifacts/crow-v15-continuous-push-transition-20261113/hold-wing.metal:5128:28: warning: unused variable 'pushStarted' [-Wunused-variable]
+                const bool pushStarted=experimentArm>=2u && (state.status.w & (1u<<19))!=0u;
+                           ^
+4 warnings generated.
+Built candidate metallib: ec62a4c3325fc81a2f85ab37fe8441c73577203aac87ebf586973731892fd9a7
