@@ -1,0 +1,287 @@
+{
+  "scope": "Posthoc first toe-speed threshold in supported-wing push arm, used seed and correlated lanes. Precontact state and body pairs exist only for substeps 348\u2013375. Recorded post-presolve change can include contact resolution and later substep processing; no unique cause is established.",
+  "rows": [
+    {
+      "lane": 2,
+      "first_threshold_step": 355,
+      "substep": 10,
+      "velocity_dof": 26,
+      "end_velocity_rad_s": -12.0,
+      "first_three_unloaded_step": 359,
+      "foot_impulses": [
+        0.00368316961,
+        0.00421591522,
+        0.00368316961,
+        0.00421591522,
+        0.0
+      ],
+      "ground_body_pairs": [
+        [
+          11,
+          35
+        ],
+        [
+          15,
+          35
+        ],
+        [
+          19,
+          35
+        ],
+        [
+          20,
+          35
+        ],
+        [
+          21,
+          35
+        ],
+        [
+          22,
+          35
+        ],
+        [
+          23,
+          35
+        ],
+        [
+          24,
+          35
+        ],
+        [
+          27,
+          35
+        ],
+        [
+          28,
+          35
+        ],
+        [
+          29,
+          35
+        ],
+        [
+          30,
+          35
+        ],
+        [
+          31,
+          35
+        ]
+      ],
+      "start_velocity_rad_s": -11.9562492,
+      "precontact_velocity_rad_s": -11.4937553,
+      "post_presolve_delta_rad_s": -0.5062446999999999,
+      "q_coordinate_rad": -0.0420669429
+    },
+    {
+      "lane": 3,
+      "first_threshold_step": 355,
+      "substep": 10,
+      "velocity_dof": 30,
+      "end_velocity_rad_s": -12.0,
+      "first_three_unloaded_step": 375,
+      "foot_impulses": [
+        0.0054668854,
+        0.00395122776,
+        0.0054668854,
+        0.00395122776,
+        0.0
+      ],
+      "ground_body_pairs": [
+        [
+          11,
+          35
+        ],
+        [
+          15,
+          35
+        ],
+        [
+          21,
+          35
+        ],
+        [
+          22,
+          35
+        ],
+        [
+          23,
+          35
+        ],
+        [
+          24,
+          35
+        ],
+        [
+          27,
+          35
+        ],
+        [
+          28,
+          35
+        ],
+        [
+          31,
+          35
+        ],
+        [
+          32,
+          35
+        ]
+      ],
+      "start_velocity_rad_s": -11.8849525,
+      "precontact_velocity_rad_s": -11.4229679,
+      "post_presolve_delta_rad_s": -0.5770321000000003,
+      "q_coordinate_rad": -0.0424497388
+    },
+    {
+      "lane": 4,
+      "first_threshold_step": 355,
+      "substep": 11,
+      "velocity_dof": 26,
+      "end_velocity_rad_s": -12.0,
+      "first_three_unloaded_step": 358,
+      "foot_impulses": [
+        0.00380466692,
+        0.0035053133,
+        0.00380466692,
+        0.0035053133,
+        0.0
+      ],
+      "ground_body_pairs": [
+        [
+          21,
+          35
+        ],
+        [
+          22,
+          35
+        ],
+        [
+          23,
+          35
+        ],
+        [
+          24,
+          35
+        ],
+        [
+          29,
+          35
+        ],
+        [
+          30,
+          35
+        ],
+        [
+          31,
+          35
+        ],
+        [
+          32,
+          35
+        ]
+      ],
+      "start_velocity_rad_s": -11.9148703,
+      "precontact_velocity_rad_s": -11.4522371,
+      "post_presolve_delta_rad_s": -0.5477629000000004,
+      "q_coordinate_rad": -0.0211582184
+    },
+    {
+      "lane": 5,
+      "first_threshold_step": 366,
+      "substep": 7,
+      "velocity_dof": 28,
+      "end_velocity_rad_s": -12.0,
+      "first_three_unloaded_step": 359,
+      "foot_impulses": [
+        0.00316892006,
+        0.00303374371,
+        0.00316892006,
+        0.00303374371,
+        0.0
+      ],
+      "ground_body_pairs": [
+        [
+          26,
+          35
+        ],
+        [
+          34,
+          35
+        ]
+      ],
+      "start_velocity_rad_s": -11.4022083,
+      "precontact_velocity_rad_s": -10.9366112,
+      "post_presolve_delta_rad_s": -1.0633888000000002,
+      "q_coordinate_rad": -0.022879947
+    },
+    {
+      "lane": 6,
+      "first_threshold_step": 369,
+      "substep": 5,
+      "velocity_dof": 28,
+      "end_velocity_rad_s": -12.0,
+      "first_three_unloaded_step": 358,
+      "foot_impulses": [
+        0.0302771702,
+        0.0284644086,
+        0.0302771702,
+        0.0284644086,
+        0.0
+      ],
+      "ground_body_pairs": [
+        [
+          26,
+          35
+        ],
+        [
+          34,
+          35
+        ]
+      ],
+      "start_velocity_rad_s": -0.00680757826,
+      "precontact_velocity_rad_s": -0.00557413884,
+      "post_presolve_delta_rad_s": -11.99442586116,
+      "q_coordinate_rad": 3.53334653e-05
+    },
+    {
+      "lane": 7,
+      "first_threshold_step": 355,
+      "substep": 9,
+      "velocity_dof": 32,
+      "end_velocity_rad_s": -12.0,
+      "first_three_unloaded_step": 358,
+      "foot_impulses": [
+        0.00302964053,
+        0.00447269855,
+        0.00302964053,
+        0.00447269855,
+        0.0
+      ],
+      "ground_body_pairs": [
+        [
+          19,
+          35
+        ],
+        [
+          20,
+          35
+        ],
+        [
+          29,
+          35
+        ],
+        [
+          30,
+          35
+        ]
+      ],
+      "start_velocity_rad_s": -11.8467865,
+      "precontact_velocity_rad_s": -11.3833885,
+      "post_presolve_delta_rad_s": -0.6166114999999994,
+      "q_coordinate_rad": -0.0107358927
+    }
+  ]
+}
