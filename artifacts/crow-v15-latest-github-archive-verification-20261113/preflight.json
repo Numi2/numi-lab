@@ -1,0 +1,70 @@
+{
+  "retired": false,
+  "files": [
+    {
+      "path": "/private/tmp/crow-continuation.rfybzJ/repo/artifacts/crow-v15-delayed-wing-leg-push-20261113/push-20261126-rebound-delay/run.stderr.gz",
+      "inode": 204048601,
+      "bytes": 34487998,
+      "mtime_ns": 1794594331451733238,
+      "sha256": "913c5bf2820d5379ffcb1f0982a6d00f23f79ed04aa42406cf4efc765f32183e",
+      "lsof_clear": true
+    },
+    {
+      "path": "/private/tmp/crow-continuation.rfybzJ/repo/artifacts/crow-v15-delayed-wing-leg-push-20261113/push-20261126-rebound-delay/replay.json.gz",
+      "inode": 204048704,
+      "bytes": 5353948,
+      "mtime_ns": 1794594332152463626,
+      "sha256": "292ae5501c83a990907fcc91f54032a3083e7e230f30da83543ff49a5e62b7a5",
+      "lsof_clear": true
+    },
+    {
+      "path": "/private/tmp/crow-continuation.rfybzJ/repo/artifacts/crow-v15-delayed-wing-leg-push-20261113/hold-20261126-rebound-delay/run.stderr.gz",
+      "inode": 204049366,
+      "bytes": 34591134,
+      "mtime_ns": 1794594459863783161,
+      "sha256": "a49f3b09d6425b96310b0104056b1f28a9f472caf3840a211f5f6c543004e689",
+      "lsof_clear": true
+    },
+    {
+      "path": "/private/tmp/crow-continuation.rfybzJ/repo/artifacts/crow-v15-delayed-wing-leg-push-20261113/hold-20261126-rebound-delay/replay.json.gz",
+      "inode": 204049418,
+      "bytes": 5353945,
+      "mtime_ns": 1794594461281670970,
+      "sha256": "c0691beffe83367effd3f42923ef5e86ac7439f5649cb7c2b035f0b6423c0d10",
+      "lsof_clear": true
+    },
+    {
+      "path": "/private/tmp/crow-continuation.rfybzJ/repo/artifacts/crow-v15-wing-transition-timing-20261113/push-20261126-rebound-delay/run.stderr.gz",
+      "inode": 204049633,
+      "bytes": 34458553,
+      "mtime_ns": 1794594609009830288,
+      "sha256": "c7b61281c823bd39fb1e2d07954f6b08c790b079de351673181b6798bd6f930c",
+      "lsof_clear": true
+    },
+    {
+      "path": "/private/tmp/crow-continuation.rfybzJ/repo/artifacts/crow-v15-wing-transition-timing-20261113/push-20261126-rebound-delay/replay.json.gz",
+      "inode": 204049639,
+      "bytes": 5353947,
+      "mtime_ns": 1794594610090795787,
+      "sha256": "5a547488d865d0cd2f31d8ce1a59321e7377f65889f379042bb0d4447ddf7d70",
+      "lsof_clear": true
+    },
+    {
+      "path": "/private/tmp/crow-continuation.rfybzJ/repo/artifacts/crow-v15-wing-transition-timing-20261113/hold-20261126-rebound-delay/run.stderr.gz",
+      "inode": 204049719,
+      "bytes": 34542703,
+      "mtime_ns": 1794594731851352447,
+      "sha256": "ed061ac6d2d4ea416a888febc181e66b5d041e45ca434ac9486c51e80bd88b61",
+      "lsof_clear": true
+    },
+    {
+      "path": "/private/tmp/crow-continuation.rfybzJ/repo/artifacts/crow-v15-wing-transition-timing-20261113/hold-20261126-rebound-delay/replay.json.gz",
+      "inode": 204049725,
+      "bytes": 5353946,
+      "mtime_ns": 1794594732792891192,
+      "sha256": "7bcdbbae8fd902753dde94e334c8fa3a23406d42d4f243d9abf0f767d0897ab6",
+      "lsof_clear": true
+    }
+  ],
+  "total_bytes": 159496174
+}
