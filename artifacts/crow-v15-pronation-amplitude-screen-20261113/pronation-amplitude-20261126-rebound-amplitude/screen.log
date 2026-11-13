@@ -1,0 +1,79 @@
+{
+  "common_prerequisites": true,
+  "lanes": {
+    "4": {
+      "passed": false,
+      "effort_limit_fraction_left_right": [
+        0.7037175648702595,
+        0.968937125748503
+      ],
+      "sampled_position_ranges": [
+        [
+          -0.107996061,
+          0.110685118
+        ],
+        [
+          -0.172166705,
+          0.0955755934
+        ]
+      ]
+    },
+    "5": {
+      "passed": false,
+      "effort_limit_fraction_left_right": [
+        0.7042165668662674,
+        0.9700598802395209
+      ],
+      "sampled_position_ranges": [
+        [
+          -0.107996784,
+          0.110708542
+        ],
+        [
+          -0.175439045,
+          0.0959183276
+        ]
+      ]
+    },
+    "6": {
+      "passed": false,
+      "effort_limit_fraction_left_right": [
+        0.4750499001996008,
+        0.654441117764471
+      ],
+      "sampled_position_ranges": [
+        [
+          -0.0719250068,
+          0.0739650354
+        ],
+        [
+          -0.0805682242,
+          0.0716541857
+        ]
+      ]
+    },
+    "7": {
+      "passed": false,
+      "effort_limit_fraction_left_right": [
+        0.4749251497005988,
+        0.6545658682634731
+      ],
+      "sampled_position_ranges": [
+        [
+          -0.0719231442,
+          0.0739677399
+        ],
+        [
+          -0.0805402547,
+          0.0716663897
+        ]
+      ]
+    }
+  },
+  "pair_pass": {
+    "0.12": false,
+    "0.08": false
+  },
+  "selected_amplitude_rad": null,
+  "scope": "One used-seed obstacle-free engineering screen, not biological calibration, qualified flight, or freeze."
+}

@@ -1,0 +1,561 @@
+{
+  "valid": true,
+  "policy_bytes_match": true,
+  "scene_mask_matches": true,
+  "model_metadata": {
+    "10": [
+      62,
+      45.0,
+      0.449999988,
+      1.99999995e-05,
+      0.0,
+      -0.349999994,
+      0.349999994,
+      25.0,
+      0.150000006
+    ],
+    "11": [
+      62,
+      45.0,
+      0.449999988,
+      1.99999995e-05,
+      0.0,
+      -0.349999994,
+      0.349999994,
+      25.0,
+      0.150000006
+    ]
+  },
+  "model_matches_expected": true,
+  "errors": [],
+  "duplicate_count": 0,
+  "parity": [
+    {
+      "lane": 0,
+      "stop": 763,
+      "end": 763,
+      "missing": [],
+      "different": [],
+      "exact": true
+    },
+    {
+      "lane": 1,
+      "stop": 761,
+      "end": 761,
+      "missing": [],
+      "different": [],
+      "exact": true
+    },
+    {
+      "lane": 2,
+      "stop": 1800,
+      "end": 1800,
+      "missing": [],
+      "different": [],
+      "exact": true
+    },
+    {
+      "lane": 3,
+      "stop": 1800,
+      "end": 1800,
+      "missing": [],
+      "different": [],
+      "exact": true
+    },
+    {
+      "lane": 4,
+      "stop": 372,
+      "end": 1800,
+      "missing": [],
+      "different": [],
+      "exact": true
+    },
+    {
+      "lane": 5,
+      "stop": 372,
+      "end": 1800,
+      "missing": [],
+      "different": [],
+      "exact": true
+    },
+    {
+      "lane": 6,
+      "stop": 372,
+      "end": 1800,
+      "missing": [],
+      "different": [],
+      "exact": true
+    },
+    {
+      "lane": 7,
+      "stop": 372,
+      "end": 1800,
+      "missing": [],
+      "different": [],
+      "exact": true
+    }
+  ],
+  "rows": [
+    {
+      "lane": 4,
+      "counts": {
+        "CROW_AERO_INPUT": 8016,
+        "CROW_KIN_STATE": 8016,
+        "CROW_AERO_WRENCH": 32064,
+        "CROW_AERO_FORCE": 8016,
+        "CROW_PRONATION_EFFORT": 8016
+      },
+      "complete": true,
+      "invalid_records": 0,
+      "kernel_input_vs_substep_start_max_abs": 0.0,
+      "max_unaccounted_world_force_n": 5.779021705620835e-11,
+      "pronation": [
+        {
+          "index": 10,
+          "samples": 8016,
+          "effort": {
+            "min": -0.150000006,
+            "max": 0.150000006,
+            "mean": -0.019989662418002433
+          },
+          "at_effort_limit_count": 5641,
+          "over_effort_limit_count": 0,
+          "position": {
+            "min": -0.107996061,
+            "max": 0.110685118,
+            "mean": 0.002051041242237113
+          },
+          "velocity": {
+            "min": -5.04799795,
+            "max": 5.40032959,
+            "mean": -0.00810492000667228
+          },
+          "mean_abs_end_position_minus_target": 0.05102432646276304,
+          "max_abs_end_position_minus_target": 0.1258593239
+        },
+        {
+          "index": 11,
+          "samples": 8016,
+          "effort": {
+            "min": -0.150000006,
+            "max": 0.150000006,
+            "mean": 0.04607514077240968
+          },
+          "at_effort_limit_count": 7767,
+          "over_effort_limit_count": 0,
+          "position": {
+            "min": -0.172166705,
+            "max": 0.0955755934,
+            "mean": -0.04847442080020182
+          },
+          "velocity": {
+            "min": -6.47925329,
+            "max": 5.24103117,
+            "mean": -0.006251148902581836
+          },
+          "mean_abs_end_position_minus_target": 0.10345394968373144,
+          "max_abs_end_position_minus_target": 0.25074408930000003
+        }
+      ],
+      "wing_force_n": {
+        "5": [
+          {
+            "min": -1.33723986149,
+            "max": 0.876776397228,
+            "mean": 0.0697794670048004
+          },
+          {
+            "min": -2.83826255798,
+            "max": 2.73281121254,
+            "mean": 0.09949645492701883
+          },
+          {
+            "min": -0.00179879902862,
+            "max": 7.42417526245,
+            "mean": 2.2156157208141365
+          }
+        ],
+        "6": [
+          {
+            "min": -2.03379225731,
+            "max": 1.00396943092,
+            "mean": 0.07713069459821363
+          },
+          {
+            "min": -2.75526285172,
+            "max": 2.69893836975,
+            "mean": -0.06625635684363274
+          },
+          {
+            "min": -0.00163931481075,
+            "max": 7.38687992096,
+            "mean": 2.223369647923229
+          }
+        ]
+      },
+      "wing_com_world_z_torque_nm": {
+        "5": {
+          "min": -0.155820935965,
+          "max": 0.120762750506,
+          "mean": -0.01790366917308922
+        },
+        "6": {
+          "min": -0.18787381053,
+          "max": 0.157459676266,
+          "mean": 0.007492610137829556
+        }
+      },
+      "root_world_z_torque_nm": {
+        "min": -0.00168112583924,
+        "max": 0.000760011258535,
+        "mean": -0.0002899172559135428
+      }
+    },
+    {
+      "lane": 5,
+      "counts": {
+        "CROW_AERO_INPUT": 8016,
+        "CROW_KIN_STATE": 8016,
+        "CROW_AERO_WRENCH": 32064,
+        "CROW_AERO_FORCE": 8016,
+        "CROW_PRONATION_EFFORT": 8016
+      },
+      "complete": true,
+      "invalid_records": 0,
+      "kernel_input_vs_substep_start_max_abs": 0.0,
+      "max_unaccounted_world_force_n": 5.689138049547182e-11,
+      "pronation": [
+        {
+          "index": 10,
+          "samples": 8016,
+          "effort": {
+            "min": -0.150000006,
+            "max": 0.150000006,
+            "mean": -0.01999244341319481
+          },
+          "at_effort_limit_count": 5645,
+          "over_effort_limit_count": 0,
+          "position": {
+            "min": -0.107996784,
+            "max": 0.110708542,
+            "mean": 0.0020525159885693115
+          },
+          "velocity": {
+            "min": -5.04673958,
+            "max": 5.39996338,
+            "mean": -0.008099870410038795
+          },
+          "mean_abs_end_position_minus_target": 0.05101858232738176,
+          "max_abs_end_position_minus_target": 0.12578202789999998
+        },
+        {
+          "index": 11,
+          "samples": 8016,
+          "effort": {
+            "min": -0.150000006,
+            "max": 0.150000006,
+            "mean": 0.046058596842015964
+          },
+          "at_effort_limit_count": 7776,
+          "over_effort_limit_count": 0,
+          "position": {
+            "min": -0.175439045,
+            "max": 0.0959183276,
+            "mean": -0.048781531727104005
+          },
+          "velocity": {
+            "min": -6.47369194,
+            "max": 5.31620121,
+            "mean": -0.006372397088017716
+          },
+          "mean_abs_end_position_minus_target": 0.10427718529553996,
+          "max_abs_end_position_minus_target": 0.2551502439
+        }
+      ],
+      "wing_force_n": {
+        "5": [
+          {
+            "min": -1.33159375191,
+            "max": 0.86853146553,
+            "mean": 0.06981528947804005
+          },
+          {
+            "min": -2.83737373352,
+            "max": 2.73449897766,
+            "mean": 0.09924204281465894
+          },
+          {
+            "min": -0.00181170192081,
+            "max": 7.42621135712,
+            "mean": 2.2158134471827595
+          }
+        ],
+        "6": [
+          {
+            "min": -2.02870726585,
+            "max": 0.995296597481,
+            "mean": 0.07679654216149619
+          },
+          {
+            "min": -2.75787901878,
+            "max": 2.69920825958,
+            "mean": -0.06634267929365101
+          },
+          {
+            "min": -0.001628630911,
+            "max": 7.38786029816,
+            "mean": 2.2234040676757116
+          }
+        ]
+      },
+      "wing_com_world_z_torque_nm": {
+        "5": {
+          "min": -0.155965104699,
+          "max": 0.120995908976,
+          "mean": -0.017881531922031478
+        },
+        "6": {
+          "min": -0.18807464838,
+          "max": 0.157745033503,
+          "mean": 0.007435159658923007
+        }
+      },
+      "root_world_z_torque_nm": {
+        "min": -0.00165807036683,
+        "max": 0.000768993108068,
+        "mean": -0.0002868934269801529
+      }
+    },
+    {
+      "lane": 6,
+      "counts": {
+        "CROW_AERO_INPUT": 8016,
+        "CROW_KIN_STATE": 8016,
+        "CROW_AERO_WRENCH": 32064,
+        "CROW_AERO_FORCE": 8016,
+        "CROW_PRONATION_EFFORT": 8016
+      },
+      "complete": true,
+      "invalid_records": 0,
+      "kernel_input_vs_substep_start_max_abs": 0.0,
+      "max_unaccounted_world_force_n": 5.7847060475069156e-11,
+      "pronation": [
+        {
+          "index": 10,
+          "samples": 8016,
+          "effort": {
+            "min": -0.150000006,
+            "max": 0.150000006,
+            "mean": -0.024085591196456133
+          },
+          "at_effort_limit_count": 3808,
+          "over_effort_limit_count": 0,
+          "position": {
+            "min": -0.0719250068,
+            "max": 0.0739650354,
+            "mean": 0.0014450795176782934
+          },
+          "velocity": {
+            "min": -3.59405828,
+            "max": 3.73730755,
+            "mean": -0.005302512462601548
+          },
+          "mean_abs_end_position_minus_target": 0.03024275813829027,
+          "max_abs_end_position_minus_target": 0.0767604355
+        },
+        {
+          "index": 11,
+          "samples": 8016,
+          "effort": {
+            "min": -0.150000006,
+            "max": 0.150000006,
+            "mean": 0.03990106854203433
+          },
+          "at_effort_limit_count": 5246,
+          "over_effort_limit_count": 0,
+          "position": {
+            "min": -0.0805682242,
+            "max": 0.0716541857,
+            "mean": -0.007335048406612119
+          },
+          "velocity": {
+            "min": -3.94249654,
+            "max": 4.60185337,
+            "mean": -0.005556342637078093
+          },
+          "mean_abs_end_position_minus_target": 0.03669161434609122,
+          "max_abs_end_position_minus_target": 0.1039941162
+        }
+      ],
+      "wing_force_n": {
+        "5": [
+          {
+            "min": -1.44796407223,
+            "max": 0.947719097137,
+            "mean": 0.06599437062586537
+          },
+          {
+            "min": -2.92601919174,
+            "max": 2.76652264595,
+            "mean": 0.10333951457085076
+          },
+          {
+            "min": -0.00123743328732,
+            "max": 7.38934087753,
+            "mean": 2.2234621301949473
+          }
+        ],
+        "6": [
+          {
+            "min": -2.17098498344,
+            "max": 1.09141373634,
+            "mean": 0.10141345683227138
+          },
+          {
+            "min": -2.80484032631,
+            "max": 2.70087385178,
+            "mean": -0.06773952335107465
+          },
+          {
+            "min": -0.00175826717168,
+            "max": 7.37360143661,
+            "mean": 2.219883176714029
+          }
+        ]
+      },
+      "wing_com_world_z_torque_nm": {
+        "5": {
+          "min": -0.16531291604,
+          "max": 0.131154164672,
+          "mean": -0.017579586444404733
+        },
+        "6": {
+          "min": -0.156305119395,
+          "max": 0.167105913162,
+          "mean": 0.012910021849169019
+        }
+      },
+      "root_world_z_torque_nm": {
+        "min": -0.00126835715491,
+        "max": 0.000342103594448,
+        "mean": -0.00030977139171674354
+      }
+    },
+    {
+      "lane": 7,
+      "counts": {
+        "CROW_AERO_INPUT": 8016,
+        "CROW_KIN_STATE": 8016,
+        "CROW_AERO_WRENCH": 32064,
+        "CROW_AERO_FORCE": 8016,
+        "CROW_PRONATION_EFFORT": 8016
+      },
+      "complete": true,
+      "invalid_records": 0,
+      "kernel_input_vs_substep_start_max_abs": 0.0,
+      "max_unaccounted_world_force_n": 5.909051026264933e-11,
+      "pronation": [
+        {
+          "index": 10,
+          "samples": 8016,
+          "effort": {
+            "min": -0.150000006,
+            "max": 0.150000006,
+            "mean": -0.024101778600783975
+          },
+          "at_effort_limit_count": 3807,
+          "over_effort_limit_count": 0,
+          "position": {
+            "min": -0.0719231442,
+            "max": 0.0739677399,
+            "mean": 0.0014459406352644586
+          },
+          "velocity": {
+            "min": -3.59176922,
+            "max": 3.73835897,
+            "mean": -0.005301807506963822
+          },
+          "mean_abs_end_position_minus_target": 0.030240246172702108,
+          "max_abs_end_position_minus_target": 0.0767469201
+        },
+        {
+          "index": 11,
+          "samples": 8016,
+          "effort": {
+            "min": -0.150000006,
+            "max": 0.150000006,
+            "mean": 0.039913265059853376
+          },
+          "at_effort_limit_count": 5247,
+          "over_effort_limit_count": 0,
+          "position": {
+            "min": -0.0805402547,
+            "max": 0.0716663897,
+            "mean": -0.007341860363443188
+          },
+          "velocity": {
+            "min": -3.94201589,
+            "max": 4.60134315,
+            "mean": -0.005556956320017465
+          },
+          "mean_abs_end_position_minus_target": 0.03669992450003645,
+          "max_abs_end_position_minus_target": 0.103967648
+        }
+      ],
+      "wing_force_n": {
+        "5": [
+          {
+            "min": -1.45087575912,
+            "max": 0.948558270931,
+            "mean": 0.06609932584451375
+          },
+          {
+            "min": -2.92911505699,
+            "max": 2.76475763321,
+            "mean": 0.10360636477301502
+          },
+          {
+            "min": -0.00125008320902,
+            "max": 7.38911390305,
+            "mean": 2.2235968185179575
+          }
+        ],
+        "6": [
+          {
+            "min": -2.17444968224,
+            "max": 1.09361886978,
+            "mean": 0.1017558622011976
+          },
+          {
+            "min": -2.80518555641,
+            "max": 2.69398355484,
+            "mean": -0.06762830865294875
+          },
+          {
+            "min": -0.00175763608422,
+            "max": 7.37309741974,
+            "mean": 2.219741831410499
+          }
+        ]
+      },
+      "wing_com_world_z_torque_nm": {
+        "5": {
+          "min": -0.165405631065,
+          "max": 0.131441056728,
+          "mean": -0.017625593881826516
+        },
+        "6": {
+          "min": -0.156315624714,
+          "max": 0.167196974158,
+          "mean": 0.012955609940869365
+        }
+      },
+      "root_world_z_torque_nm": {
+        "min": -0.00126879347954,
+        "max": 0.000344127271092,
+        "mean": -0.0003095620667278235
+      }
+    }
+  ],
+  "scope": "Modeled world-frame aerodynamic increments at each body COM; wing-COM torque is not net bird yaw torque. Control effort is modeled actuator output, not biological muscle work. Correlated lanes and a used seed."
+}
