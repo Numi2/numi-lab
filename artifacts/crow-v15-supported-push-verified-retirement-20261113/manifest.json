@@ -1,0 +1,90 @@
+[
+  {
+    "path": "/Users/n/Developer/numi-crow-rl-20261107/build/crow-v15-supported-wing-transition-20261113/push-wing-20261126-rebound-supportedwing-replay.json",
+    "archive": "artifacts/crow-v15-supported-wing-transition-20261113/push-wing-20261126-rebound-supportedwing/replay.json.gz",
+    "bytes": 16065012,
+    "inode": 17093287,
+    "mtime_ns": 1794548384445259266,
+    "sha256": "ffc868cb25a52315d6144c005872fd56dac3c0965b32dd38e53d081a7db351d8",
+    "restored_sha256": "ffc868cb25a52315d6144c005872fd56dac3c0965b32dd38e53d081a7db351d8",
+    "restored_bytes": 16065012,
+    "verified_commit": "653b8cbf0a5106aad571ce180813cd0b58d6c231"
+  },
+  {
+    "path": "/Users/n/Developer/numi-crow-rl-20261107/build/crow-v15-supported-wing-transition-20261113/push-wing-20261126-rebound-supportedwing-trace.tsv",
+    "archive": "artifacts/crow-v15-supported-wing-transition-20261113/push-wing-20261126-rebound-supportedwing/trace.tsv.gz",
+    "bytes": 350398,
+    "inode": 17093286,
+    "mtime_ns": 1794548383004255382,
+    "sha256": "a6297339ed62fd67be6e4ffe839e8ff3f4236424c78da64f26a685307f747de8",
+    "restored_sha256": "a6297339ed62fd67be6e4ffe839e8ff3f4236424c78da64f26a685307f747de8",
+    "restored_bytes": 350398,
+    "verified_commit": "653b8cbf0a5106aad571ce180813cd0b58d6c231"
+  },
+  {
+    "path": "/Users/n/Developer/numi-crow-rl-20261107/build/crow-v15-supported-wing-transition-20261113/hold-wing-20261126-rebound-supportedwing-replay.json",
+    "archive": "artifacts/crow-v15-supported-wing-transition-20261113/hold-wing-20261126-rebound-supportedwing/replay.json.gz",
+    "bytes": 16096138,
+    "inode": 17093302,
+    "mtime_ns": 1794548474238553977,
+    "sha256": "2bd0343159546798db0236b31d633d9728f5b2aca92586a048936ef9552e05a0",
+    "restored_sha256": "2bd0343159546798db0236b31d633d9728f5b2aca92586a048936ef9552e05a0",
+    "restored_bytes": 16096138,
+    "verified_commit": "653b8cbf0a5106aad571ce180813cd0b58d6c231"
+  },
+  {
+    "path": "/Users/n/Developer/numi-crow-rl-20261107/build/crow-v15-supported-wing-transition-20261113/hold-wing-20261126-rebound-supportedwing-trace.tsv",
+    "archive": "artifacts/crow-v15-supported-wing-transition-20261113/hold-wing-20261126-rebound-supportedwing/trace.tsv.gz",
+    "bytes": 350545,
+    "inode": 17093301,
+    "mtime_ns": 1794548472767052431,
+    "sha256": "1e47f9971688571b73875b8a14b8c3c8673a376c9e45ad9814cf36707a5f2d21",
+    "restored_sha256": "1e47f9971688571b73875b8a14b8c3c8673a376c9e45ad9814cf36707a5f2d21",
+    "restored_bytes": 350545,
+    "verified_commit": "653b8cbf0a5106aad571ce180813cd0b58d6c231"
+  },
+  {
+    "path": "/Users/n/Developer/numi-crow-rl-20261107/build/crow-v15-supported-slow-push-screen-20261113/push-wing-20261126-rebound-slowpush-replay.json",
+    "archive": "artifacts/crow-v15-supported-slow-push-screen-20261113/push-wing-20261126-rebound-slowpush/replay.json.gz",
+    "bytes": 16064383,
+    "inode": 17093380,
+    "mtime_ns": 1794549004738377565,
+    "sha256": "9c6a84646e6be377b41cdc8abd146f46d650cfcb2bd48ddb29e5450f25b47b58",
+    "restored_sha256": "9c6a84646e6be377b41cdc8abd146f46d650cfcb2bd48ddb29e5450f25b47b58",
+    "restored_bytes": 16064383,
+    "verified_commit": "653b8cbf0a5106aad571ce180813cd0b58d6c231"
+  },
+  {
+    "path": "/Users/n/Developer/numi-crow-rl-20261107/build/crow-v15-supported-slow-push-screen-20261113/push-wing-20261126-rebound-slowpush-trace.tsv",
+    "archive": "artifacts/crow-v15-supported-slow-push-screen-20261113/push-wing-20261126-rebound-slowpush/trace.tsv.gz",
+    "bytes": 350635,
+    "inode": 17093379,
+    "mtime_ns": 1794549003299229301,
+    "sha256": "a97872581dd9002a060b7bf536aa68396e445619e9289b73501dcd17bb3931f0",
+    "restored_sha256": "a97872581dd9002a060b7bf536aa68396e445619e9289b73501dcd17bb3931f0",
+    "restored_bytes": 350635,
+    "verified_commit": "653b8cbf0a5106aad571ce180813cd0b58d6c231"
+  },
+  {
+    "path": "/Users/n/Developer/numi-crow-rl-20261107/build/crow-v15-supported-slow-push-screen-20261113/hold-wing-20261126-rebound-slowpush-replay.json",
+    "archive": "artifacts/crow-v15-supported-slow-push-screen-20261113/hold-wing-20261126-rebound-slowpush/replay.json.gz",
+    "bytes": 16096139,
+    "inode": 17093395,
+    "mtime_ns": 1794549093216990291,
+    "sha256": "4f9f4c9263439cc03513dd52d34ec104ddf229fcbd5e76dd208d9369a1f95516",
+    "restored_sha256": "4f9f4c9263439cc03513dd52d34ec104ddf229fcbd5e76dd208d9369a1f95516",
+    "restored_bytes": 16096139,
+    "verified_commit": "653b8cbf0a5106aad571ce180813cd0b58d6c231"
+  },
+  {
+    "path": "/Users/n/Developer/numi-crow-rl-20261107/build/crow-v15-supported-slow-push-screen-20261113/hold-wing-20261126-rebound-slowpush-trace.tsv",
+    "archive": "artifacts/crow-v15-supported-slow-push-screen-20261113/hold-wing-20261126-rebound-slowpush/trace.tsv.gz",
+    "bytes": 350545,
+    "inode": 17093394,
+    "mtime_ns": 1794549091767306554,
+    "sha256": "1e47f9971688571b73875b8a14b8c3c8673a376c9e45ad9814cf36707a5f2d21",
+    "restored_sha256": "1e47f9971688571b73875b8a14b8c3c8673a376c9e45ad9814cf36707a5f2d21",
+    "restored_bytes": 350545,
+    "verified_commit": "653b8cbf0a5106aad571ce180813cd0b58d6c231"
+  }
+]

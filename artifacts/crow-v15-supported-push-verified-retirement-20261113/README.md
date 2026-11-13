@@ -1,0 +1,3 @@
+# Candidate retirement manifest
+
+The exact raw build outputs listed in `manifest.json` were independently fetched as compressed GitHub objects at the listed immutable commit, streamed through gzip, and verified by uncompressed length and SHA-256. This manifest authorizes only those exact paths and versions for retirement after a fresh inode, modification time, size, hash and open-handle check on macmini. This records recoverability, not scientific success. The source, compressed archive, failures, results and videos remain retained in Git. A separate receipt records actual retirement; this manifest by itself does not claim files were removed.
