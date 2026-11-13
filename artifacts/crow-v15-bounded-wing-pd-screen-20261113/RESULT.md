@@ -1,0 +1,7 @@
+# Bounded flap feedback-gain screen: rejected
+
+Both matched push and active-crouch hold arms completed 400-tick first episodes; all recorded pre-push state/action/contact prefixes matched through tick 345, and required force, effort and contact observations were present. Gain changes were active from the beginning, so comparisons with earlier trials are matched-start comparisons, not identical-state interventions.
+
+All six push lanes recontact after their first three unloaded intervals. The 20/0.6 pair also has intermittent support gaps before that release. Each lane has 4–10 toe-speed threshold substeps. Push-minus-hold normal impulse in both early windows exceeds 0.05 N s for every candidate, but this is a ground contact difference, not isolated leg-muscle force or leg-only flight. Whole-body COM rise from tick 350 through 400 is 0.0246–0.0344 m.
+
+For the 20/0.6, 80/1.2 and 200/3.0 feedback settings, flap effort saturation during ticks 376–400 is approximately 88%, 96.6% and 100%, respectively. Tracking error remains 0.57–0.59 rad RMS and mean modeled vertical aerodynamic force is 0.75–0.85 N against approximately 4.42 N model weight. These are model/controller metrics on one used seed with correlated lanes; the effort-displacement sums are not independently validated muscle work. No gain setting meets the preregistered launch gate or is promoted. This does not qualify takeoff, flight, landing or biology.
