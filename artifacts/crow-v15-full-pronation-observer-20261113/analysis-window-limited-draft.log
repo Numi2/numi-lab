@@ -1,0 +1,149 @@
+{
+  "scope": "used seed 20261126, all-wrench-ablated leg-launch development identification, not qualification",
+  "parity": [
+    {
+      "lane": 0,
+      "through": 760,
+      "mismatch_count": 0,
+      "first_mismatches": []
+    },
+    {
+      "lane": 1,
+      "through": 764,
+      "mismatch_count": 0,
+      "first_mismatches": []
+    },
+    {
+      "lane": 2,
+      "through": 1800,
+      "mismatch_count": 0,
+      "first_mismatches": []
+    },
+    {
+      "lane": 3,
+      "through": 1800,
+      "mismatch_count": 0,
+      "first_mismatches": []
+    },
+    {
+      "lane": 4,
+      "through": 1800,
+      "mismatch_count": 0,
+      "first_mismatches": []
+    },
+    {
+      "lane": 5,
+      "through": 1800,
+      "mismatch_count": 0,
+      "first_mismatches": []
+    },
+    {
+      "lane": 6,
+      "through": 600,
+      "mismatch_count": 0,
+      "first_mismatches": []
+    },
+    {
+      "lane": 7,
+      "through": 600,
+      "mismatch_count": 0,
+      "first_mismatches": []
+    }
+  ],
+  "rows": [
+    {
+      "lane": 6,
+      "checks": {
+        "pre_onset_and_other_lane_parity": true,
+        "shared_inputs": true,
+        "teacher_off": true,
+        "first_episode": true,
+        "states_complete": true,
+        "release": true,
+        "no_later_ground": true,
+        "substep_coverage": true,
+        "no_toe_speed_cap": true,
+        "wing_effort": true,
+        "forward": true,
+        "height": true,
+        "pronation_observer_available_window": true,
+        "turn_effort_full_window": true,
+        "signed_heading": true,
+        "lateral_deviation": true,
+        "no_observer_errors": true
+      },
+      "passed": true,
+      "release_tick": 375,
+      "first_later_ground": null,
+      "relative_yaw_extreme_tick_and_rad": [
+        1197,
+        -0.15470782581225162
+      ],
+      "max_abs_lateral_deviation_m": 0.173697826,
+      "pronation_observed_substeps": 8016,
+      "pronation_effort_max_Nm": 0.150000006,
+      "pronation_effort_saturated_fraction": 0.6506362275449101,
+      "pronation_abs_target_max_rad": 0.119993702,
+      "pronation_abs_position_max_rad": 0.109481096,
+      "pronation_abs_speed_max_rad_s": 5.06551743,
+      "pronation_abs_tracking_error_max_rad": 0.112962041957,
+      "root_forward_displacement_m": 10.600494465,
+      "height_range_m": [
+        0.353927046,
+        0.801917076
+      ],
+      "forward_speed_range_m_s": [
+        0.275599211,
+        0.617931128
+      ]
+    },
+    {
+      "lane": 7,
+      "checks": {
+        "pre_onset_and_other_lane_parity": true,
+        "shared_inputs": true,
+        "teacher_off": true,
+        "first_episode": true,
+        "states_complete": true,
+        "release": true,
+        "no_later_ground": true,
+        "substep_coverage": true,
+        "no_toe_speed_cap": true,
+        "wing_effort": true,
+        "forward": true,
+        "height": true,
+        "pronation_observer_available_window": true,
+        "turn_effort_full_window": true,
+        "signed_heading": true,
+        "lateral_deviation": true,
+        "no_observer_errors": true
+      },
+      "passed": true,
+      "release_tick": 380,
+      "first_later_ground": null,
+      "relative_yaw_extreme_tick_and_rad": [
+        1199,
+        0.15424736944980122
+      ],
+      "max_abs_lateral_deviation_m": 0.17513848440000002,
+      "pronation_observed_substeps": 8016,
+      "pronation_effort_max_Nm": 0.150000006,
+      "pronation_effort_saturated_fraction": 0.6500124750499002,
+      "pronation_abs_target_max_rad": 0.119993687,
+      "pronation_abs_position_max_rad": 0.109429225,
+      "pronation_abs_speed_max_rad_s": 5.07683802,
+      "pronation_abs_tracking_error_max_rad": 0.113006859323,
+      "root_forward_displacement_m": 10.397766919,
+      "height_range_m": [
+        0.332687378,
+        0.547407329
+      ],
+      "forward_speed_range_m_s": [
+        0.27838707,
+        0.606610119
+      ]
+    }
+  ],
+  "observer_errors": [],
+  "passed_both": true
+}

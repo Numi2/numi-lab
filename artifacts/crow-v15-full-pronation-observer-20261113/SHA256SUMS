@@ -1,4 +1,7 @@
 35b63cab40dd2a74927954446c7cee6bcc116bd8a43e2b287da914a0b5b6bb22  artifacts/crow-v15-full-pronation-observer-20261113/PLAN.md
+964bc0c42a694ecb522c2dee82645997b870980f699645daee6ca6a6f2d53383  artifacts/crow-v15-full-pronation-observer-20261113/RESULT.md
+8b15f2e84afcc71255716ab60ca07f09cbd0c639b5e83368a217ea22e3a8fba0  artifacts/crow-v15-full-pronation-observer-20261113/RUN.md
+536ee14de8b65da447af841274568b1cc39221441a24cf345e186199d8564b8a  artifacts/crow-v15-full-pronation-observer-20261113/ANALYSIS-CORRECTION.md
 07ab205610d2e923a48fbe226e07dbfc84f53755231ea44f8c15f9909d6f3651  artifacts/crow-v15-full-pronation-observer-20261113/build-observer.py
 40f775a979a438dffc29ded9c692f70a14078192cf135268cc198f07c01d9b49  artifacts/crow-v15-full-pronation-observer-20261113/build.log
 57227f05b250ffd88f1a153db1818a367363897250fa0fe20401a92834838658  artifacts/crow-v15-full-pronation-observer-20261113/build-commands.json
@@ -7,3 +10,13 @@ cd3c40c0dd8fb10a99c96bf1a7142add2f358008dc8b056d36ebf9ea6d560b44  artifacts/crow
 d5f11ce4f3b16777627edb388dcf7580a84dd87c94747552c335dbef778ed747  artifacts/crow-v15-full-pronation-observer-20261113/observer-source.gz
 5d2c03c846cbc58f27262189a9062491b3f646b4e1b95ad1fbafe6c6986fc278  artifacts/crow-v15-full-pronation-observer-20261113/observer.dylib.gz
 79cb833d1bf964f3f4ffab6a7ea12ed082fff7f74894aaf7e1a27efb389fa8a3  artifacts/crow-v15-full-pronation-observer-20261113/run.py
+d963487fdc8e98610d89b990c327c0614135c5724a410e827364be13e7c72f3e  artifacts/crow-v15-full-pronation-observer-20261113/runner.log
+cdcea444c60a4d42819d48a235ccc441eb84500965ac53aca499c7d22a15fa20  artifacts/crow-v15-full-pronation-observer-20261113/analyze.py
+01f02affd76b86f7d50adb379a54b69743a354d61ed7b7177b970146e804616e  artifacts/crow-v15-full-pronation-observer-20261113/analysis-full-window.log
+b49b3fc37241ab3a57603b8799f919f58aa2177fd94391cc35987776313a4334  artifacts/crow-v15-full-pronation-observer-20261113/analysis-window-limited-draft.log
+dd072b11b21723b97bb9a842e9a8cd77462b1031f2a4b9b90bc9088118ac3eb4  artifacts/crow-v15-full-pronation-observer-20261113/observer-parity.py
+f4918cc61ea9b5e7479fb3022ea05fe35fa584f07e2dc722beb23e4dc698c71e  artifacts/crow-v15-full-pronation-observer-20261113/observer-parity.log
+00dba2bcc3bdddd61598f2582e78f778f464b6230150d95d847d9d91f7f0956c  artifacts/crow-v15-full-pronation-observer-20261113/target-check.py
+429beb560093f59bf698f0dd2dae3bcba084ce6de9d24312f72fe657d4aada89  artifacts/crow-v15-full-pronation-observer-20261113/target-check.log
+a5fd41b8144eb4c611ee8c76b0752af312e275a2e6ba57e1aeb7c21a6b6b3780  artifacts/crow-v15-full-pronation-observer-20261113/split-stderr.py
+83db8d04625fd0646985d077493fa733df5ee806c1464996ccb7e937de8caa2e  artifacts/crow-v15-full-pronation-observer-20261113/restore-stderr.py

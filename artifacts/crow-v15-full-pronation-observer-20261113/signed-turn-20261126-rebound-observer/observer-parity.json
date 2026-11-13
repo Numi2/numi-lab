@@ -1,0 +1,16 @@
+{
+  "state_records": 14408,
+  "baseline_state_records": 14408,
+  "missing_state_keys": 0,
+  "state_mismatch_count": 0,
+  "first_state_mismatches": [],
+  "overlap_effort_records": 64128,
+  "baseline_overlap_effort_records": 64128,
+  "missing_effort_keys": 0,
+  "effort_mismatch_count": 0,
+  "first_effort_mismatches": [],
+  "same_first_episode_metadata": true,
+  "same_nonhost_inputs": true,
+  "observer_errors": [],
+  "passed": true
+}
