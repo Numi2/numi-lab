@@ -1,0 +1,20 @@
+{
+  "commit": "7281f66e311ee7f2a0310ecd97481ce916a420de",
+  "source": "independent authenticated GitHub contents download",
+  "runs": [
+    {
+      "archive": "artifacts/crow-v15-mirrored-launch-phase-20261113/push-wing-20261126-rebound-phase/run.stderr.gz",
+      "sha256": "c597e4a5e8d1cd2303ecfe784c39fe0be12a0665e32677b9c355add197c41705",
+      "bytes": 39499094,
+      "uncompressed_bytes": 164542535,
+      "gzip_eof": true
+    },
+    {
+      "archive": "artifacts/crow-v15-mirrored-launch-phase-20261113/hold-wing-20261126-rebound-phase/run.stderr.gz",
+      "sha256": "493817484c1856e89338b0c7d201904fda587b1bd8bc0d9a8ae02cd24a93e705",
+      "bytes": 39707451,
+      "uncompressed_bytes": 166112737,
+      "gzip_eof": true
+    }
+  ]
+}
