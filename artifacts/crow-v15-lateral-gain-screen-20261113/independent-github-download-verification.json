@@ -1,0 +1,24 @@
+{
+  "commit": "9eb92c3535671eb03563117bcf0123f3cfe0c2b6",
+  "run": "lateral-gains-20261126-rebound-gains",
+  "parts": [
+    {
+      "file": "run.stderr.gz.part00",
+      "bytes": 41943040,
+      "sha256": "12b206ff5c7911cbebd62c5525d4850ddac84f18f325808690690e464d523b9b"
+    },
+    {
+      "file": "run.stderr.gz.part01",
+      "bytes": 41943040,
+      "sha256": "90af52e3f47bed51c3b2be0531271a8ba51678e1f7d64230f4cd8221d63ce8da"
+    },
+    {
+      "file": "run.stderr.gz.part02",
+      "bytes": 27998195,
+      "sha256": "6e2901bca7c47fa7e6f0924a6cc982f16fdd2decea41cd0ce30d7166e997b8ca"
+    }
+  ],
+  "bytes": 111884275,
+  "full_sha256": "d4ed93802310a210462e1a3ed6173de93083d70c1b0e2db39317713e809a71ba",
+  "gzip_complete": true
+}
