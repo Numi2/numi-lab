@@ -1,0 +1,70 @@
+{
+  "retired": true,
+  "files": [
+    {
+      "path": "/private/tmp/crow-continuation.rfybzJ/repo/artifacts/crow-v15-equal-launch-onset-20261113/turn-20261127-rebound-turnlong/run.stderr.gz",
+      "inode": 204054623,
+      "bytes": 256496378,
+      "mtime_ns": 1794597667537934498,
+      "sha256": "e0e67365528abd5dd4f8853a777fa40109ee7570e60ca753a8bb1ac5cb9ff32a",
+      "lsof_clear": true
+    },
+    {
+      "path": "/private/tmp/crow-continuation.rfybzJ/repo/artifacts/crow-v15-equal-launch-onset-20261113/turn-20261127-rebound-turnlong/run.stderr.gz.part000",
+      "inode": 204054723,
+      "bytes": 41943040,
+      "mtime_ns": 1794597702729468742,
+      "sha256": "f6b17a5c66b379571f2247f25a388a4d1cce9e6b272c5317f8904e5d71605072",
+      "lsof_clear": true
+    },
+    {
+      "path": "/private/tmp/crow-continuation.rfybzJ/repo/artifacts/crow-v15-equal-launch-onset-20261113/turn-20261127-rebound-turnlong/run.stderr.gz.part001",
+      "inode": 204054724,
+      "bytes": 41943040,
+      "mtime_ns": 1794597702893218516,
+      "sha256": "b6fe070fba9f50822878529317e7172b503af3fbf7bc3b88289c4584e8a05ed3",
+      "lsof_clear": true
+    },
+    {
+      "path": "/private/tmp/crow-continuation.rfybzJ/repo/artifacts/crow-v15-equal-launch-onset-20261113/turn-20261127-rebound-turnlong/run.stderr.gz.part002",
+      "inode": 204054725,
+      "bytes": 41943040,
+      "mtime_ns": 1794597703035195034,
+      "sha256": "c3ae96cd464c8604538d299f8a69488b5aa1095c08645cbf3f2cdf80ebc43038",
+      "lsof_clear": true
+    },
+    {
+      "path": "/private/tmp/crow-continuation.rfybzJ/repo/artifacts/crow-v15-equal-launch-onset-20261113/turn-20261127-rebound-turnlong/run.stderr.gz.part003",
+      "inode": 204054726,
+      "bytes": 41943040,
+      "mtime_ns": 1794597703178628139,
+      "sha256": "c766ae39d2bd8114391b97cd30ad3da479402851aea30c780a418bd96d760828",
+      "lsof_clear": true
+    },
+    {
+      "path": "/private/tmp/crow-continuation.rfybzJ/repo/artifacts/crow-v15-equal-launch-onset-20261113/turn-20261127-rebound-turnlong/run.stderr.gz.part004",
+      "inode": 204054727,
+      "bytes": 41943040,
+      "mtime_ns": 1794597703319257030,
+      "sha256": "8049d073742b94c7ee3ef6b5096176aef323e2a3c7b8f5eab71e0a771c87e471",
+      "lsof_clear": true
+    },
+    {
+      "path": "/private/tmp/crow-continuation.rfybzJ/repo/artifacts/crow-v15-equal-launch-onset-20261113/turn-20261127-rebound-turnlong/run.stderr.gz.part005",
+      "inode": 204054728,
+      "bytes": 41943040,
+      "mtime_ns": 1794597703464233138,
+      "sha256": "d286b06850e8177a71ab473e395194a5a9eff86872c10ac8b57240d52e2bc09b",
+      "lsof_clear": true
+    },
+    {
+      "path": "/private/tmp/crow-continuation.rfybzJ/repo/artifacts/crow-v15-equal-launch-onset-20261113/turn-20261127-rebound-turnlong/run.stderr.gz.part006",
+      "inode": 204054729,
+      "bytes": 4838138,
+      "mtime_ns": 1794597703606501199,
+      "sha256": "2c1f16ed0deced67f596e9089fa086b100cdb0c4bd3d2ea1258d72809eeed5e2",
+      "lsof_clear": true
+    }
+  ],
+  "total_bytes": 512992756
+}
