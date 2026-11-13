@@ -5547,7 +5547,15 @@ kernel void mr_locomotion_task_apply_actions(
                     float amplitude=0.70f;
                     if (arm>=4u && seconds>9.0f) {
                         const float onset=smoothstep(9.0f,9.5f,seconds);
-                        const float targetBank=clamp(0.18f*state.threatTeacher.x,-0.10f,0.10f);
+                        // In this journey band the task may reuse threatTeacher.x for
+                        // pitch rate after publishing navigation feedback. Recover
+                        // the earlier yaw-frame lateral speed from tracking error.
+                        const bool trackingFeedbackReused =
+                            (program.schedule.w & MR_TASK_PROGRAM_AVIAN_CROW_NAVIGATION_TEACHER_FEEDBACK) == 0u;
+                        const float lateralSpeed = trackingFeedbackReused
+                            ? state.threatGeometry.y + state.commandAndPhase.y
+                            : state.threatTeacher.x;
+                        const float targetBank=clamp(0.18f*lateralSpeed,-0.10f,0.10f);
                         const float delta=onset*clamp(0.08f*(targetBank-state.threatTeacher.y)-0.025f*state.threatTeacher.z,-0.025f,0.025f);
                         amplitude+=(action==0u ? delta : -delta);
                     }
