@@ -1,0 +1,89 @@
+{
+  "purpose": "Retire exact duplicate local compressed stderr and its Git archived parts after exact file identity, hash, link count, and absence of open handles are rechecked.",
+  "host": "macmini",
+  "repo_root": "/Users/n/Developer/numi-crow-rl-20261107",
+  "github_independent_fetch": {
+    "commit": "3fb3cb0115910f8f61767bba3489245c1394fab9",
+    "remote_path": "artifacts/crow-v15-overlap-long-flight-20261113/push-wing-20261126-rebound-long",
+    "parts": [
+      {
+        "file": "run.stderr.gz.part000",
+        "sha256": "c72c664950bb2dcfca72fa114bc4f41e21702663b42cdfb34e2fed784ea56470",
+        "bytes": 41943040
+      },
+      {
+        "file": "run.stderr.gz.part001",
+        "sha256": "f6992d71be93826915675417b2bc9730be9a02ee71b71261c9067e004dfaf5f3",
+        "bytes": 41943040
+      },
+      {
+        "file": "run.stderr.gz.part002",
+        "sha256": "e17da37faeed99b37083124626830a6e7311a7113a35fbdd61d8b33d7c806149",
+        "bytes": 41943040
+      },
+      {
+        "file": "run.stderr.gz.part003",
+        "sha256": "cef9b074965e05cbdd55ce0e4c7743a3d587f7ca4033f380fe140b60dd719a25",
+        "bytes": 41943040
+      },
+      {
+        "file": "run.stderr.gz.part004",
+        "sha256": "3b69e9b042c9beb4a08097ebbc58e59f3307bcb730ebc937bf48eb0566b253ea",
+        "bytes": 53747
+      }
+    ],
+    "concatenated_sha256": "f3bae8a80feb523cb90ad6cb25037885ee43f0609a8d9fa33985fae8794cd4a2",
+    "bytes": 167825907
+  },
+  "verification": "Independently streamed immutable GitHub raw parts and matched each hash and ordered concatenation. Full archive restoration script was executed and passed gzip -t.",
+  "files": [
+    {
+      "path": "artifacts/crow-v15-overlap-long-flight-20261113/push-wing-20261126-rebound-long/run.stderr.gz",
+      "device": 16777232,
+      "inode": 17096034,
+      "size": 167825907,
+      "links": 1,
+      "sha256": "f3bae8a80feb523cb90ad6cb25037885ee43f0609a8d9fa33985fae8794cd4a2"
+    },
+    {
+      "path": "artifacts/crow-v15-overlap-long-flight-20261113/push-wing-20261126-rebound-long/run.stderr.gz.part000",
+      "device": 16777232,
+      "inode": 17096060,
+      "size": 41943040,
+      "links": 1,
+      "sha256": "c72c664950bb2dcfca72fa114bc4f41e21702663b42cdfb34e2fed784ea56470"
+    },
+    {
+      "path": "artifacts/crow-v15-overlap-long-flight-20261113/push-wing-20261126-rebound-long/run.stderr.gz.part001",
+      "device": 16777232,
+      "inode": 17096061,
+      "size": 41943040,
+      "links": 1,
+      "sha256": "f6992d71be93826915675417b2bc9730be9a02ee71b71261c9067e004dfaf5f3"
+    },
+    {
+      "path": "artifacts/crow-v15-overlap-long-flight-20261113/push-wing-20261126-rebound-long/run.stderr.gz.part002",
+      "device": 16777232,
+      "inode": 17096062,
+      "size": 41943040,
+      "links": 1,
+      "sha256": "e17da37faeed99b37083124626830a6e7311a7113a35fbdd61d8b33d7c806149"
+    },
+    {
+      "path": "artifacts/crow-v15-overlap-long-flight-20261113/push-wing-20261126-rebound-long/run.stderr.gz.part003",
+      "device": 16777232,
+      "inode": 17096063,
+      "size": 41943040,
+      "links": 1,
+      "sha256": "cef9b074965e05cbdd55ce0e4c7743a3d587f7ca4033f380fe140b60dd719a25"
+    },
+    {
+      "path": "artifacts/crow-v15-overlap-long-flight-20261113/push-wing-20261126-rebound-long/run.stderr.gz.part004",
+      "device": 16777232,
+      "inode": 17096064,
+      "size": 53747,
+      "links": 1,
+      "sha256": "3b69e9b042c9beb4a08097ebbc58e59f3307bcb730ebc937bf48eb0566b253ea"
+    }
+  ]
+}
