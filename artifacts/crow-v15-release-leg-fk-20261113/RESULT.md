@@ -1,0 +1,5 @@
+# Release-leg kinematics
+
+Native FK reconstructed all 643 accepted states before first fall in the stronger weight-transfer trial; all 3,858 logged left/right foot coordinates matched to 6.47e-10 m. The compiled model reports left knee limits [-0.10,1.55] rad and ankle limits [-0.90,0.70] rad. Exact input, executable and runtime hashes are retained.
+
+At lane 0 step 130, shortly before release, the vertical derivative of left-foot COM relative to whole-bird COM was -0.00989 m/rad for the knee and -0.02686 m/rad for the ankle. The actual release command reduced knee target by 0.15 rad but increased ankle target by 0.075 rad: locally those terms predict about +1.48 mm and -2.01 mm of relative foot height, respectively, so they oppose one another. At step 140 the knee/ankle tracked 0.1303/-0.0849 rad versus pre-release 0.2798/-0.1601 rad. Linear derivatives are fixed-state approximations; they do not establish contact-constrained lift, toe release or supported balance. The finding motivates testing reversed ankle motion with all contact and stability gates intact.

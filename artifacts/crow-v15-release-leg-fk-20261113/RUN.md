@@ -1,0 +1,1 @@
+Run extract.py on the archived strong weight-transfer trace, restore the exact fk.gz and its recorded runtime, execute on states.tsv, then run analyze.py. model-limits.cpp queries the same body model. Neither tool advances the simulator.
