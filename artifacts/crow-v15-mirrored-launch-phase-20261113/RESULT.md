@@ -1,0 +1,3 @@
+# Early-stroke phase test: failed
+
+The matched corrected-body push and held-leg control first episodes were complete. The preregistered previous reference was reproduced exactly for lanes 0–3 in both arms. All three tested flap phases failed the forward gate: displacement over ticks 400–500 ranged from -0.512 to -0.587 m. The baseline phase pair remained unloaded through tick 500; the other four lanes recontacted at ticks 396–404. The push-minus-hold foot impulse and release comparison are measured, but this scheduled stroke diagnostic is not a qualified leg-powered transition. Full runs, failed outcomes, plans and controls are preserved.

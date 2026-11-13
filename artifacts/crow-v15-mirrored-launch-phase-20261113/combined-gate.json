@@ -1,0 +1,67 @@
+{
+  "reference_valid": true,
+  "reference_rows": [
+    {
+      "arm": "push",
+      "lane": 0,
+      "state_differences": [],
+      "target_differences": [],
+      "host_and_packs_match": true
+    },
+    {
+      "arm": "push",
+      "lane": 1,
+      "state_differences": [],
+      "target_differences": [],
+      "host_and_packs_match": true
+    },
+    {
+      "arm": "push",
+      "lane": 2,
+      "state_differences": [],
+      "target_differences": [],
+      "host_and_packs_match": true
+    },
+    {
+      "arm": "push",
+      "lane": 3,
+      "state_differences": [],
+      "target_differences": [],
+      "host_and_packs_match": true
+    },
+    {
+      "arm": "hold",
+      "lane": 0,
+      "state_differences": [],
+      "target_differences": [],
+      "host_and_packs_match": true
+    },
+    {
+      "arm": "hold",
+      "lane": 1,
+      "state_differences": [],
+      "target_differences": [],
+      "host_and_packs_match": true
+    },
+    {
+      "arm": "hold",
+      "lane": 2,
+      "state_differences": [],
+      "target_differences": [],
+      "host_and_packs_match": true
+    },
+    {
+      "arm": "hold",
+      "lane": 3,
+      "state_differences": [],
+      "target_differences": [],
+      "host_and_packs_match": true
+    }
+  ],
+  "pairs": {
+    "2-3": false,
+    "4-5": false,
+    "6-7": false
+  },
+  "scope": "Paired same-lane first-episode comparison; no flight qualification."
+}
