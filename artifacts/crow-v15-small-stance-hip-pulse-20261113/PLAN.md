@@ -1,0 +1,5 @@
+# Small single-interval stance-hip identification
+
+The first paired +/-0.03 rad stance-hip experiment caused opposing support to break at its first resulting accepted state, and later pulses diverged. The matched no-pulse trace retained opposing stance normals throughout the same window. Repeat from the identical physically reached stance with a single +/-0.003 rad right-hip target pulse for one 20 ms interval, only after three clearance intervals and measured opposing stance support. Hold all model, material, actuation and other controls fixed. Record 235 intervals at 32 substeps, including the ten intervals following the pulse.
+
+Require exact pre-pulse q/v equality, correct opposite physical target difference, complete contact observations and opposing stance support in both lanes over the predeclared ten-interval response window before using any sign estimate. Record paired center-of-mass relative position and velocity at each interval and all support losses or solver errors. This estimates only a local response around one constructed stance, not a tuned controller, reliable landing or biological result.
