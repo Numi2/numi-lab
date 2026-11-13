@@ -1,0 +1,4 @@
+  File "/Users/n/Developer/numi-crow-rl-20261107/artifacts/crow-v15-aero-power-audit-20261113/analyze.py", line 9
+    x=json.loads(line.split( ,1)[1]);key=x[lane],x[step];assert key not in d[state];d[state][key]=x;continue
+                             ^
+SyntaxError: invalid syntax
