@@ -1,0 +1,24 @@
+{
+  "state": {
+    "reference": 3208,
+    "observed": 3208,
+    "shared": 3208,
+    "mismatches": 0,
+    "missing_reference": 0,
+    "missing_observed": 0,
+    "first_mismatch": null
+  },
+  "contact": {
+    "reference": 5888,
+    "observed": 5888,
+    "shared": 5888,
+    "mismatches": 0,
+    "missing_reference": 0,
+    "missing_observed": 0,
+    "first_mismatch": null
+  },
+  "reference_errors": [],
+  "audit_errors": [],
+  "kin_states": 3584,
+  "ground_contacts": 48903
+}

@@ -1,0 +1,70 @@
+{
+  "parity": {
+    "state": {
+      "reference": 3208,
+      "observed": 3208,
+      "shared": 3208,
+      "mismatches": 0,
+      "missing_reference": 0,
+      "missing_observed": 0,
+      "first_mismatch": null
+    },
+    "contact": {
+      "reference": 5888,
+      "observed": 5888,
+      "shared": 5888,
+      "mismatches": 0,
+      "missing_reference": 0,
+      "missing_observed": 0,
+      "first_mismatch": null
+    },
+    "reference_errors": [],
+    "audit_errors": [],
+    "kin_states": 3584,
+    "ground_contacts": 48903
+  },
+  "validation": {
+    "first_substep_vs_prior_endpoint_q_max_error": 0.0,
+    "first_substep_vs_prior_endpoint_v_max_error": 0.0,
+    "replay_q_max_error": 4.808349718388172e-09,
+    "replay_body_position_max_error_m": 1.3105534063845312e-08,
+    "replay_body_linear_velocity_max_error_m_s": 1.793458883127948e-09,
+    "replay_body_angular_velocity_max_error_rad_s": 6.234987176580971e-08,
+    "predicted_vs_solver_normal_velocity_rmse_same_sign_m_s": 0.07812200742477245,
+    "predicted_vs_solver_normal_velocity_rmse_opposite_sign_m_s": 0.029329110184349763,
+    "solver_normal_velocity_rms_m_s": 0.044529976179895056
+  },
+  "contacts_n": 30274,
+  "static_mu_values": [
+    0.800000012
+  ],
+  "dynamic_mu_values": [
+    0.600000024
+  ],
+  "friction_utilization": {
+    "n": 30274,
+    "p50": 0.24727488914344686,
+    "p90": 0.741942737388112,
+    "p99": 0.7499996868709435,
+    "max": 0.7500001540520058
+  },
+  "dynamic_friction_utilization_posthoc": {
+    "n": 30274,
+    "p50": 0.32969984394876656,
+    "p90": 0.9892569584527259,
+    "p99": 0.9999995574946029,
+    "max": 1.0000001804026704
+  },
+  "normal_impulse_weighted_fraction_dynamic_utilization_at_least_095_posthoc": 0.07758364666388431,
+  "normal_impulse_weighted_fraction_utilization_at_least_095": 0.0,
+  "predicted_tangent_speed_m_s": {
+    "n": 30274,
+    "p50": 0.0003580913772389654,
+    "p90": 0.11994427539717023,
+    "p99": 0.8668750225115216,
+    "max": 1.2257575794053666
+  },
+  "kinematics_sha256": "4e09f9cc0225af489d931de95a6ee236b2d9523aa2601ba015d73d06d3abfed3",
+  "observer_host_sha256": "bf3f7ee84760fc115bd8f037cab9ec3f0b235d82d758cf1d777a4b453d4e18bb",
+  "scope": "Used-seed in-range launch; six correlated lanes, positive normal impulses above 1e-7 Ns, contact samples not independent. Ratio uses static friction and recorded impulse basis. Point velocity combines pre-state FK with stored world contact point; interpret as estimated only to extent normal, replay and timing checks support it. Near-limit ratio does not prove sliding or a biological friction coefficient. No takeoff or mission qualification."
+}
