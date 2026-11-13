@@ -1,0 +1,40 @@
+{
+  "archive_verified_at_commit": "ecfb35bf57260ea72cd660a1791a8f2ac14beeab",
+  "files": [
+    {
+      "path": "/tmp/crow-bias27.gz",
+      "bytes": 250432760,
+      "sha256": "8b918271cb3daa04d317a4c34be87951199e90c39bfcc11987990cc20ef10a95"
+    },
+    {
+      "path": "/tmp/crow-continuation.rfybzJ/repo/artifacts/crow-v15-leg-flight-height-bias-20261113/signed-turn-20261127-rebound-bias/run.stderr.gz.part000",
+      "bytes": 41943040,
+      "sha256": "9d377a277316631060bcfc4af055578eb82594a0d65e7fa42bbbc0bd5a8cfd01"
+    },
+    {
+      "path": "/tmp/crow-continuation.rfybzJ/repo/artifacts/crow-v15-leg-flight-height-bias-20261113/signed-turn-20261127-rebound-bias/run.stderr.gz.part001",
+      "bytes": 41943040,
+      "sha256": "e0032a1355bcd2dda254d9abf3ee0303ee0420c7892c08daa783aeb71c230b21"
+    },
+    {
+      "path": "/tmp/crow-continuation.rfybzJ/repo/artifacts/crow-v15-leg-flight-height-bias-20261113/signed-turn-20261127-rebound-bias/run.stderr.gz.part002",
+      "bytes": 41943040,
+      "sha256": "dba210e3eee62dc6f2008291ac09a6845ba4553ffbf6991ba966d436ba7489b7"
+    },
+    {
+      "path": "/tmp/crow-continuation.rfybzJ/repo/artifacts/crow-v15-leg-flight-height-bias-20261113/signed-turn-20261127-rebound-bias/run.stderr.gz.part003",
+      "bytes": 41943040,
+      "sha256": "6651458e2b3f96273d9aa664c82b54c39673424dbf7aa09935205c942abcdbd8"
+    },
+    {
+      "path": "/tmp/crow-continuation.rfybzJ/repo/artifacts/crow-v15-leg-flight-height-bias-20261113/signed-turn-20261127-rebound-bias/run.stderr.gz.part004",
+      "bytes": 41943040,
+      "sha256": "dcbd432a7987e26d5b2a8c28e9c5edf67c2c9d475d25d3ef5976d4764c237bb1"
+    },
+    {
+      "path": "/tmp/crow-continuation.rfybzJ/repo/artifacts/crow-v15-leg-flight-height-bias-20261113/signed-turn-20261127-rebound-bias/run.stderr.gz.part005",
+      "bytes": 40717560,
+      "sha256": "bb07acfae231d22b2c0ed34293fe59984c502eeb15e04c41ba5a005607ccd6e6"
+    }
+  ]
+}
