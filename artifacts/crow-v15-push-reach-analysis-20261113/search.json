@@ -1,0 +1,299 @@
+{
+  "grid_per_joint": 13,
+  "samples": 2197,
+  "baseline_q": [
+    0.193805128,
+    0.016996542,
+    0.162825927,
+    1.15121984e-05,
+    0.0113365259,
+    -0.00100958894,
+    0.99993521,
+    0.000710538356,
+    -0.000754796376,
+    0.349960297,
+    0.349960297,
+    -0.0443789959,
+    -0.0276975278,
+    0.268722445,
+    -0.71490711,
+    1.03136146,
+    -0.484236777,
+    -0.714819014,
+    1.0314126,
+    -0.484226793,
+    0.000128926651,
+    0.0564035662,
+    0.00236713048,
+    0.000174639543,
+    4.36582377e-05,
+    0.000174638713,
+    4.36580522e-05,
+    0.000174637971,
+    4.36578484e-05,
+    -0.145162404,
+    -0.000336644618,
+    0.000174665402,
+    4.36656992e-05,
+    0.000174664674,
+    4.36655355e-05,
+    0.000174664092,
+    4.36653754e-05,
+    -0.144866869,
+    -0.00411946373,
+    -0.00040450567,
+    0.000273534242
+  ],
+  "best": {
+    "horizontal_10mm_angle_025rad": [
+      {
+        "hip": -0.1200000000000001,
+        "knee": -0.005833333333333329,
+        "ankle": 0.16500000000000004,
+        "estimated_com_rise_with_fixed_foot_m": 0.022141826839313997,
+        "mean_foot_com_horizontal_change_m": -0.0067258188706010025,
+        "joint_angle_sum_change_rad": 0.20694909366666647
+      },
+      {
+        "hip": -0.1200000000000001,
+        "knee": -0.1,
+        "ankle": 0.2733333333333332,
+        "estimated_com_rise_with_fixed_foot_m": 0.021674274177184025,
+        "mean_foot_com_horizontal_change_m": -0.0012323160307349257,
+        "joint_angle_sum_change_rad": 0.2211157603333329
+      },
+      {
+        "hip": -0.35333333333333333,
+        "knee": 0.37083333333333335,
+        "ankle": 0.05666666666666664,
+        "estimated_com_rise_with_fixed_foot_m": 0.020485772974789138,
+        "mean_foot_com_horizontal_change_m": -0.0025373792907676385,
+        "joint_angle_sum_change_rad": 0.24194909366666656
+      },
+      {
+        "hip": -0.23666666666666658,
+        "knee": 0.18250000000000002,
+        "ankle": 0.05666666666666664,
+        "estimated_com_rise_with_fixed_foot_m": 0.02036781018905666,
+        "mean_foot_com_horizontal_change_m": -0.003973834169416546,
+        "joint_angle_sum_change_rad": 0.17028242699999996
+      },
+      {
+        "hip": -0.23666666666666658,
+        "knee": 0.08833333333333335,
+        "ankle": 0.16500000000000004,
+        "estimated_com_rise_with_fixed_foot_m": 0.020312244152127984,
+        "mean_foot_com_horizontal_change_m": 0.0015806966427220626,
+        "joint_angle_sum_change_rad": 0.18444909366666673
+      },
+      {
+        "hip": -0.23666666666666658,
+        "knee": 0.2766666666666667,
+        "ankle": -0.05166666666666675,
+        "estimated_com_rise_with_fixed_foot_m": 0.019884020255296606,
+        "mean_foot_com_horizontal_change_m": -0.00955087384518119,
+        "joint_angle_sum_change_rad": 0.1561157603333333
+      },
+      {
+        "hip": -0.23666666666666658,
+        "knee": -0.005833333333333329,
+        "ankle": 0.2733333333333332,
+        "estimated_com_rise_with_fixed_foot_m": 0.019721216206289152,
+        "mean_foot_com_horizontal_change_m": 0.007062289987804005,
+        "joint_angle_sum_change_rad": 0.19861576033333317
+      },
+      {
+        "hip": -0.35333333333333333,
+        "knee": 0.4650000000000001,
+        "ankle": -0.05166666666666675,
+        "estimated_com_rise_with_fixed_foot_m": 0.019603878324010227,
+        "mean_foot_com_horizontal_change_m": -0.008065461024626436,
+        "joint_angle_sum_change_rad": 0.2277824269999999
+      },
+      {
+        "hip": -0.1200000000000001,
+        "knee": -0.005833333333333329,
+        "ankle": 0.05666666666666664,
+        "estimated_com_rise_with_fixed_foot_m": 0.019114135161633045,
+        "mean_foot_com_horizontal_change_m": -0.005731154924652954,
+        "joint_angle_sum_change_rad": 0.09861576033333308
+      },
+      {
+        "hip": -0.1200000000000001,
+        "knee": -0.1,
+        "ankle": 0.16500000000000004,
+        "estimated_com_rise_with_fixed_foot_m": 0.018660976938414328,
+        "mean_foot_com_horizontal_change_m": -0.00019486111739261402,
+        "joint_angle_sum_change_rad": 0.11278242699999974
+      }
+    ],
+    "horizontal_20mm_angle_05rad": [
+      {
+        "hip": -0.23666666666666658,
+        "knee": 0.18250000000000002,
+        "ankle": 0.3816666666666666,
+        "estimated_com_rise_with_fixed_foot_m": 0.02873707543794847,
+        "mean_foot_com_horizontal_change_m": -0.008517922541861733,
+        "joint_angle_sum_change_rad": 0.4952824269999999
+      },
+      {
+        "hip": -0.0033333333333334103,
+        "knee": -0.1,
+        "ankle": 0.3816666666666666,
+        "estimated_com_rise_with_fixed_foot_m": 0.02872437491133706,
+        "mean_foot_com_horizontal_change_m": -0.018191159474329185,
+        "joint_angle_sum_change_rad": 0.446115760333333
+      },
+      {
+        "hip": -0.23666666666666658,
+        "knee": 0.2766666666666667,
+        "ankle": 0.2733333333333332,
+        "estimated_com_rise_with_fixed_foot_m": 0.028316818229637372,
+        "mean_foot_com_horizontal_change_m": -0.01397594585604299,
+        "joint_angle_sum_change_rad": 0.48111576033333325
+      },
+      {
+        "hip": -0.1200000000000001,
+        "knee": -0.005833333333333329,
+        "ankle": 0.3816666666666666,
+        "estimated_com_rise_with_fixed_foot_m": 0.027787298403083735,
+        "mean_foot_com_horizontal_change_m": -0.009664296008847245,
+        "joint_angle_sum_change_rad": 0.42361576033333304
+      },
+      {
+        "hip": -0.1200000000000001,
+        "knee": 0.08833333333333335,
+        "ankle": 0.2733333333333332,
+        "estimated_com_rise_with_fixed_foot_m": 0.02775894433775923,
+        "mean_foot_com_horizontal_change_m": -0.015138401463083942,
+        "joint_angle_sum_change_rad": 0.4094490936666664
+      },
+      {
+        "hip": -0.23666666666666658,
+        "knee": 0.37083333333333335,
+        "ankle": 0.16500000000000004,
+        "estimated_com_rise_with_fixed_foot_m": 0.02735638091917829,
+        "mean_foot_com_horizontal_change_m": -0.019405010221705807,
+        "joint_angle_sum_change_rad": 0.4669490936666667
+      },
+      {
+        "hip": -0.1200000000000001,
+        "knee": -0.1,
+        "ankle": 0.49,
+        "estimated_com_rise_with_fixed_foot_m": 0.02727755213740103,
+        "mean_foot_com_horizontal_change_m": -0.004250472981136455,
+        "joint_angle_sum_change_rad": 0.4377824269999997
+      },
+      {
+        "hip": -0.35333333333333333,
+        "knee": 0.2766666666666667,
+        "ankle": 0.3816666666666666,
+        "estimated_com_rise_with_fixed_foot_m": 0.026322316587442274,
+        "mean_foot_com_horizontal_change_m": -0.000205510760520472,
+        "joint_angle_sum_change_rad": 0.4727824269999999
+      },
+      {
+        "hip": -0.23666666666666658,
+        "knee": 0.18250000000000002,
+        "ankle": 0.2733333333333332,
+        "estimated_com_rise_with_fixed_foot_m": 0.026117207373372864,
+        "mean_foot_com_horizontal_change_m": -0.00670338239859683,
+        "joint_angle_sum_change_rad": 0.3869490936666665
+      },
+      {
+        "hip": -0.35333333333333333,
+        "knee": 0.18250000000000002,
+        "ankle": 0.49,
+        "estimated_com_rise_with_fixed_foot_m": 0.026079259243755412,
+        "mean_foot_com_horizontal_change_m": 0.005226822347168453,
+        "joint_angle_sum_change_rad": 0.48694909366666655
+      }
+    ],
+    "unconstrained": [
+      {
+        "hip": -0.0033333333333334103,
+        "knee": 0.18250000000000002,
+        "ankle": 0.49,
+        "estimated_com_rise_with_fixed_foot_m": 0.035602374282338395,
+        "mean_foot_com_horizontal_change_m": -0.04349336631936179,
+        "joint_angle_sum_change_rad": 0.8369490936666665
+      },
+      {
+        "hip": -0.0033333333333334103,
+        "knee": 0.2766666666666667,
+        "ankle": 0.49,
+        "estimated_com_rise_with_fixed_foot_m": 0.03557687745203314,
+        "mean_foot_com_horizontal_change_m": -0.05143062642020439,
+        "joint_angle_sum_change_rad": 0.9311157603333332
+      },
+      {
+        "hip": -0.1200000000000001,
+        "knee": 0.37083333333333335,
+        "ankle": 0.49,
+        "estimated_com_rise_with_fixed_foot_m": 0.03538589284005772,
+        "mean_foot_com_horizontal_change_m": -0.04274118167247411,
+        "joint_angle_sum_change_rad": 0.9086157603333331
+      },
+      {
+        "hip": -0.1200000000000001,
+        "knee": 0.2766666666666667,
+        "ankle": 0.49,
+        "estimated_com_rise_with_fixed_foot_m": 0.035232809579508875,
+        "mean_foot_com_horizontal_change_m": -0.03480535695361349,
+        "joint_angle_sum_change_rad": 0.8144490936666665
+      },
+      {
+        "hip": 0.11333333333333329,
+        "knee": 0.08833333333333335,
+        "ankle": 0.49,
+        "estimated_com_rise_with_fixed_foot_m": 0.035136688649939754,
+        "mean_foot_com_horizontal_change_m": -0.052167916599407574,
+        "joint_angle_sum_change_rad": 0.8594490936666666
+      },
+      {
+        "hip": 0.11333333333333329,
+        "knee": 0.18250000000000002,
+        "ankle": 0.49,
+        "estimated_com_rise_with_fixed_foot_m": 0.03493262463600612,
+        "mean_foot_com_horizontal_change_m": -0.06010259401382262,
+        "joint_angle_sum_change_rad": 0.9536157603333332
+      },
+      {
+        "hip": -0.0033333333333334103,
+        "knee": 0.08833333333333335,
+        "ankle": 0.49,
+        "estimated_com_rise_with_fixed_foot_m": 0.034881435475345626,
+        "mean_foot_com_horizontal_change_m": -0.03558887400104495,
+        "joint_angle_sum_change_rad": 0.7427824269999999
+      },
+      {
+        "hip": -0.0033333333333334103,
+        "knee": 0.37083333333333335,
+        "ankle": 0.49,
+        "estimated_com_rise_with_fixed_foot_m": 0.03480517090701253,
+        "mean_foot_com_horizontal_change_m": -0.05933032374561384,
+        "joint_angle_sum_change_rad": 1.0252824269999998
+      },
+      {
+        "hip": -0.1200000000000001,
+        "knee": 0.4650000000000001,
+        "ankle": 0.49,
+        "estimated_com_rise_with_fixed_foot_m": 0.03479211017161768,
+        "mean_foot_com_horizontal_change_m": -0.05065624139227519,
+        "joint_angle_sum_change_rad": 1.0027824269999999
+      },
+      {
+        "hip": 0.11333333333333329,
+        "knee": -0.005833333333333329,
+        "ankle": 0.49,
+        "estimated_com_rise_with_fixed_foot_m": 0.034593768743597125,
+        "mean_foot_com_horizontal_change_m": -0.04424920532180242,
+        "joint_angle_sum_change_rad": 0.7652824269999998
+      }
+    ]
+  },
+  "scope": "Posthoc fixed-root symmetric v15 FK grid, held world body orientation, one used-seed posture. Foot COM approximates foot position, angle-sum is only a rough orientation proxy. Inferred COM rise assumes both feet fixed and vertical translation; no contact, momentum, forces, limits on speed, or dynamic feasibility are solved. Grid is not biological or takeoff qualification.",
+  "fk_sha256": "c7ad98414062d68d5112a067634dca427bbc22e476cd9aa05c968bfd31b2c9bf",
+  "lib_sha256": "d1e9bb9c6c6978318382731dd31df8a8aee22104dc23bbbab73eec5c7b81e615",
+  "posture_sha256": "c20d581ad8a8a0612f86ca1d7c7dbd21af1798defb83c4c53b117fb60087b04c"
+}
