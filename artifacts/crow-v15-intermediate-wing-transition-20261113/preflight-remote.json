@@ -1,0 +1,22 @@
+{
+  "retired": false,
+  "files": [
+    {
+      "path": "/Users/n/Developer/numi-crow-rl-20261107/artifacts/crow-v15-intermediate-wing-transition-20261113/push-20261126-rebound-intermediate/run.stderr.gz",
+      "bytes": 34464730,
+      "inode": 17102998,
+      "mtime_ns": 1794598537496322880,
+      "sha256": "b5d63d2e49f8a84f79aa95505ef23b4c7fd53db38937be26d0097174a5bcfbcc",
+      "lsof_clear": true
+    },
+    {
+      "path": "/Users/n/Developer/numi-crow-rl-20261107/artifacts/crow-v15-intermediate-wing-transition-20261113/hold-20261126-rebound-intermediate/run.stderr.gz",
+      "bytes": 34479268,
+      "inode": 17103107,
+      "mtime_ns": 1794598660223711400,
+      "sha256": "94776048df90fc69a3d2d853f883f2af9d23458251d55e5fe839f7996e447f57",
+      "lsof_clear": true
+    }
+  ],
+  "total_bytes": 68943998
+}
