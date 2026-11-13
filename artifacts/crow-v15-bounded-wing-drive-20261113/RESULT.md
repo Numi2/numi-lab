@@ -1,0 +1,7 @@
+# Result: bounded flap drive reduced the transient but failed takeoff
+
+Both arms completed 400 steps. Across all eight lanes, recorded state/action/contact prefixes matched one another and the uncapped smooth-release reference through step 345; no errors or overflow were recorded. The observed working-effort magnitude in steps 348–375 was at most 2.0 in both flap DOFs in all six comparable lanes. During that window, peak push-arm flap speed fell from 37.68–38.00 to 11.78–12.42 rad/s and peak simulated vertical aerodynamic force fell to 3.32–3.96 N. Neither number is a physiological calibration.
+
+All six lanes gained 0.1643–0.1873 N s of early foot impulse in 348–355 and 0.0918–0.0997 N s in 348–357 versus the matched active-crouch control. However, five never reached three consecutive unsupported control intervals through step 400; lane 2 released at 360 but had a preceding support gap and recontacted afterward. Maximum push-arm root rise was only 0.0274–0.0299 m, and two lanes also exceeded the toe-speed threshold screen. All six therefore failed the strict takeoff screen. A smaller spike alone is not success and this cap is not a crow-specific measured limit.
+
+The position-drive cap is an explicit shader intervention that bypasses the model descriptor fingerprint; it is development-only, not promoted and not a frozen controller. This used-seed result does not qualify takeoff, flight, landing, or either held-out layout. Both logs, metallibs, sources, hashes and analyses are retained.
