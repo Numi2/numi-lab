@@ -1,0 +1,1419 @@
+{
+  "valid_batch": true,
+  "errors": {
+    "push": [],
+    "hold": []
+  },
+  "matched_start_parity": [
+    {
+      "lane": 0,
+      "state_mismatches": 0,
+      "contact_mismatches": 0
+    },
+    {
+      "lane": 1,
+      "state_mismatches": 0,
+      "contact_mismatches": 0
+    },
+    {
+      "lane": 2,
+      "state_mismatches": 0,
+      "contact_mismatches": 0
+    },
+    {
+      "lane": 3,
+      "state_mismatches": 0,
+      "contact_mismatches": 0
+    },
+    {
+      "lane": 4,
+      "state_mismatches": 0,
+      "contact_mismatches": 0
+    },
+    {
+      "lane": 5,
+      "state_mismatches": 0,
+      "contact_mismatches": 0
+    },
+    {
+      "lane": 6,
+      "state_mismatches": 0,
+      "contact_mismatches": 0
+    },
+    {
+      "lane": 7,
+      "state_mismatches": 0,
+      "contact_mismatches": 0
+    }
+  ],
+  "wing_target_history": [
+    {
+      "lane": 0,
+      "arm": "push",
+      "missing": [],
+      "mismatches": [
+        343,
+        344,
+        345,
+        346,
+        347,
+        348,
+        349,
+        350,
+        355,
+        356,
+        357,
+        358,
+        359,
+        360,
+        361,
+        362,
+        363,
+        364,
+        365,
+        366,
+        367,
+        368,
+        369,
+        370,
+        371,
+        372,
+        373,
+        374,
+        375,
+        376,
+        377,
+        378,
+        379,
+        380,
+        381,
+        382,
+        383,
+        384,
+        385,
+        386,
+        387,
+        388,
+        389,
+        390,
+        391,
+        392,
+        393,
+        394,
+        395,
+        396,
+        397,
+        398,
+        399,
+        400,
+        401,
+        402,
+        403,
+        404,
+        405,
+        406,
+        407,
+        408,
+        409,
+        410,
+        411,
+        412,
+        413,
+        414,
+        415,
+        416,
+        417,
+        418,
+        419,
+        420,
+        421,
+        422,
+        423,
+        424,
+        425,
+        426,
+        427,
+        428,
+        429,
+        430,
+        431,
+        432,
+        433,
+        434,
+        435,
+        436,
+        437,
+        438,
+        439,
+        440,
+        441,
+        442,
+        443,
+        444,
+        445,
+        446,
+        447,
+        448,
+        449,
+        450,
+        451,
+        452,
+        453,
+        454,
+        455,
+        456,
+        457,
+        458,
+        459,
+        460,
+        461,
+        462,
+        463,
+        464,
+        465,
+        466,
+        467,
+        468,
+        469,
+        470,
+        471,
+        472,
+        473,
+        474,
+        475,
+        476,
+        477,
+        478,
+        479,
+        480,
+        481,
+        482,
+        483,
+        484,
+        485,
+        486,
+        487,
+        488,
+        489,
+        490,
+        491,
+        492,
+        493,
+        494,
+        495,
+        496,
+        497,
+        498,
+        499,
+        500
+      ]
+    },
+    {
+      "lane": 0,
+      "arm": "hold",
+      "missing": [],
+      "mismatches": [
+        343,
+        344,
+        345,
+        346,
+        347,
+        348,
+        349,
+        350,
+        355,
+        356,
+        357,
+        358,
+        359,
+        360,
+        361,
+        362,
+        363,
+        364,
+        365,
+        366,
+        367,
+        368,
+        369,
+        370,
+        371,
+        372,
+        373,
+        374,
+        375,
+        376,
+        377,
+        378,
+        379,
+        380,
+        381,
+        382,
+        383,
+        384,
+        385,
+        386,
+        387,
+        388,
+        389,
+        390,
+        391,
+        392,
+        393,
+        394,
+        395,
+        396,
+        397,
+        398,
+        399,
+        400,
+        401,
+        402,
+        403,
+        404,
+        405,
+        406,
+        407,
+        408,
+        409,
+        410,
+        411,
+        412,
+        413,
+        414,
+        415,
+        416,
+        417,
+        418,
+        419,
+        420,
+        421,
+        422,
+        423,
+        424,
+        425,
+        426,
+        427,
+        428,
+        429,
+        430,
+        431,
+        432,
+        433,
+        434,
+        435,
+        436,
+        437,
+        438,
+        439,
+        440,
+        441,
+        442,
+        443,
+        444,
+        445,
+        446,
+        447,
+        448,
+        449,
+        450,
+        451,
+        452,
+        453,
+        454,
+        455,
+        456,
+        457,
+        458,
+        459,
+        460,
+        461,
+        462,
+        463,
+        464,
+        465,
+        466,
+        467,
+        468,
+        469,
+        470,
+        471,
+        472,
+        473,
+        474,
+        475,
+        476,
+        477,
+        478,
+        479,
+        480,
+        481,
+        482,
+        483,
+        484,
+        485,
+        486,
+        487,
+        488,
+        489,
+        490,
+        491,
+        492,
+        493,
+        494,
+        495,
+        496,
+        497,
+        498,
+        499,
+        500
+      ]
+    },
+    {
+      "lane": 1,
+      "arm": "push",
+      "missing": [],
+      "mismatches": [
+        343,
+        344,
+        345,
+        346,
+        347,
+        348,
+        349,
+        350,
+        355,
+        356,
+        357,
+        358,
+        359,
+        360,
+        361,
+        362,
+        363,
+        364,
+        365,
+        366,
+        367,
+        368,
+        369,
+        370,
+        371,
+        372,
+        373,
+        374,
+        375,
+        376,
+        377,
+        378,
+        379,
+        380,
+        381,
+        382,
+        383,
+        384,
+        385,
+        386,
+        387,
+        388,
+        389,
+        390,
+        391,
+        392,
+        393,
+        394,
+        395,
+        396,
+        397,
+        398,
+        399,
+        400,
+        401,
+        402,
+        403,
+        404,
+        405,
+        406,
+        407,
+        408,
+        409,
+        410,
+        411,
+        412,
+        413,
+        414,
+        415,
+        416,
+        417,
+        418,
+        419,
+        420,
+        421,
+        422,
+        423,
+        424,
+        425,
+        426,
+        427,
+        428,
+        429,
+        430,
+        431,
+        432,
+        433,
+        434,
+        435,
+        436,
+        437,
+        438,
+        439,
+        440,
+        441,
+        442,
+        443,
+        444,
+        445,
+        446,
+        447,
+        448,
+        449,
+        450,
+        451,
+        452,
+        453,
+        454,
+        455,
+        456,
+        457,
+        458,
+        459,
+        460,
+        461,
+        462,
+        463,
+        464,
+        465,
+        466,
+        467,
+        468,
+        469,
+        470,
+        471,
+        472,
+        473,
+        474,
+        475,
+        476,
+        477,
+        478,
+        479,
+        480,
+        481,
+        482,
+        483,
+        484,
+        485,
+        486,
+        487,
+        488,
+        489,
+        490,
+        491,
+        492,
+        493,
+        494,
+        495,
+        496,
+        497,
+        498,
+        499,
+        500
+      ]
+    },
+    {
+      "lane": 1,
+      "arm": "hold",
+      "missing": [],
+      "mismatches": [
+        343,
+        344,
+        345,
+        346,
+        347,
+        348,
+        349,
+        350,
+        355,
+        356,
+        357,
+        358,
+        359,
+        360,
+        361,
+        362,
+        363,
+        364,
+        365,
+        366,
+        367,
+        368,
+        369,
+        370,
+        371,
+        372,
+        373,
+        374,
+        375,
+        376,
+        377,
+        378,
+        379,
+        380,
+        381,
+        382,
+        383,
+        384,
+        385,
+        386,
+        387,
+        388,
+        389,
+        390,
+        391,
+        392,
+        393,
+        394,
+        395,
+        396,
+        397,
+        398,
+        399,
+        400,
+        401,
+        402,
+        403,
+        404,
+        405,
+        406,
+        407,
+        408,
+        409,
+        410,
+        411,
+        412,
+        413,
+        414,
+        415,
+        416,
+        417,
+        418,
+        419,
+        420,
+        421,
+        422,
+        423,
+        424,
+        425,
+        426,
+        427,
+        428,
+        429,
+        430,
+        431,
+        432,
+        433,
+        434,
+        435,
+        436,
+        437,
+        438,
+        439,
+        440,
+        441,
+        442,
+        443,
+        444,
+        445,
+        446,
+        447,
+        448,
+        449,
+        450,
+        451,
+        452,
+        453,
+        454,
+        455,
+        456,
+        457,
+        458,
+        459,
+        460,
+        461,
+        462,
+        463,
+        464,
+        465,
+        466,
+        467,
+        468,
+        469,
+        470,
+        471,
+        472,
+        473,
+        474,
+        475,
+        476,
+        477,
+        478,
+        479,
+        480,
+        481,
+        482,
+        483,
+        484,
+        485,
+        486,
+        487,
+        488,
+        489,
+        490,
+        491,
+        492,
+        493,
+        494,
+        495,
+        496,
+        497,
+        498,
+        499,
+        500
+      ]
+    },
+    {
+      "lane": 2,
+      "arm": "push",
+      "missing": [],
+      "mismatches": []
+    },
+    {
+      "lane": 2,
+      "arm": "hold",
+      "missing": [],
+      "mismatches": []
+    },
+    {
+      "lane": 3,
+      "arm": "push",
+      "missing": [],
+      "mismatches": []
+    },
+    {
+      "lane": 3,
+      "arm": "hold",
+      "missing": [],
+      "mismatches": []
+    },
+    {
+      "lane": 4,
+      "arm": "push",
+      "missing": [],
+      "mismatches": []
+    },
+    {
+      "lane": 4,
+      "arm": "hold",
+      "missing": [],
+      "mismatches": []
+    },
+    {
+      "lane": 5,
+      "arm": "push",
+      "missing": [],
+      "mismatches": []
+    },
+    {
+      "lane": 5,
+      "arm": "hold",
+      "missing": [],
+      "mismatches": []
+    },
+    {
+      "lane": 6,
+      "arm": "push",
+      "missing": [],
+      "mismatches": []
+    },
+    {
+      "lane": 6,
+      "arm": "hold",
+      "missing": [],
+      "mismatches": []
+    },
+    {
+      "lane": 7,
+      "arm": "push",
+      "missing": [],
+      "mismatches": []
+    },
+    {
+      "lane": 7,
+      "arm": "hold",
+      "missing": [],
+      "mismatches": []
+    }
+  ],
+  "rows": [
+    {
+      "arm": "push",
+      "lane": 0,
+      "first_episode_end": 500,
+      "release": 357,
+      "recontact": 362,
+      "unloaded_through_end": false,
+      "peak_com_rise_m": 0.09386218408332109,
+      "root_dx_400_500_m": -0.1480146161,
+      "mean_root_vx_401_500_m_s": -0.0761622087556,
+      "toe_threshold_substeps": 52,
+      "nonfoot_normal_impulse_ns": 0.0,
+      "pronation_target_range_rad": [
+        -0.294193119,
+        0.294075727
+      ],
+      "pronation_actual_range_rad": [
+        -0.293212861,
+        0.292087346
+      ],
+      "mean_aero_force_xyz_401_to_end_n": [
+        -0.6065035326291616,
+        0.002025768802027778,
+        3.0907198508948994
+      ],
+      "sweep_target_range_rad": [
+        -0.0014158414,
+        0.0014158414
+      ],
+      "sweep_actual_range_rad": [
+        -0.00284621213,
+        0.0236390699
+      ],
+      "screen_pass": false,
+      "sampled_root_vx_450_500_range_m_s": [
+        -0.413191497,
+        0.0441219173
+      ],
+      "sweep_hit_modeled_stop": false
+    },
+    {
+      "arm": "push",
+      "lane": 1,
+      "first_episode_end": 500,
+      "release": 357,
+      "recontact": 362,
+      "unloaded_through_end": false,
+      "peak_com_rise_m": 0.07294394972282947,
+      "root_dx_400_500_m": -0.1676211528,
+      "mean_root_vx_401_500_m_s": -0.08472568959520001,
+      "toe_threshold_substeps": 54,
+      "nonfoot_normal_impulse_ns": 0.0,
+      "pronation_target_range_rad": [
+        -0.287519544,
+        0.290235579
+      ],
+      "pronation_actual_range_rad": [
+        -0.28149879,
+        0.28943491
+      ],
+      "mean_aero_force_xyz_401_to_end_n": [
+        -0.5929320457316605,
+        -0.00201769416140268,
+        3.090180784418658
+      ],
+      "sweep_target_range_rad": [
+        -0.00151572598,
+        0.00151572598
+      ],
+      "sweep_actual_range_rad": [
+        -0.00298490422,
+        0.0206266455
+      ],
+      "screen_pass": false,
+      "sampled_root_vx_450_500_range_m_s": [
+        -0.397435844,
+        0.0578803085
+      ],
+      "sweep_hit_modeled_stop": false
+    },
+    {
+      "arm": "push",
+      "lane": 2,
+      "first_episode_end": 500,
+      "release": 357,
+      "recontact": 433,
+      "unloaded_through_end": false,
+      "peak_com_rise_m": 0.06967365150260904,
+      "root_dx_400_500_m": -0.648356527,
+      "mean_root_vx_401_500_m_s": -0.3220817739543,
+      "toe_threshold_substeps": 3,
+      "nonfoot_normal_impulse_ns": 0.0,
+      "pronation_target_range_rad": [
+        -0.179943234,
+        0.180000007
+      ],
+      "pronation_actual_range_rad": [
+        -0.176204264,
+        0.167542711
+      ],
+      "mean_aero_force_xyz_401_to_end_n": [
+        0.01481940315588954,
+        -0.0054308341196539775,
+        4.366737894198054
+      ],
+      "sweep_target_range_rad": [
+        -0.000377345365,
+        0.0399999991
+      ],
+      "sweep_actual_range_rad": [
+        -0.000554446422,
+        0.0530333854
+      ],
+      "screen_pass": false,
+      "sampled_root_vx_450_500_range_m_s": [
+        -0.31108433,
+        0.0122257695
+      ],
+      "sweep_hit_modeled_stop": false
+    },
+    {
+      "arm": "push",
+      "lane": 3,
+      "first_episode_end": 500,
+      "release": 357,
+      "recontact": 425,
+      "unloaded_through_end": false,
+      "peak_com_rise_m": 0.07246669076342258,
+      "root_dx_400_500_m": -0.63469625,
+      "mean_root_vx_401_500_m_s": -0.3150107707423,
+      "toe_threshold_substeps": 0,
+      "nonfoot_normal_impulse_ns": 0.0,
+      "pronation_target_range_rad": [
+        -0.179943234,
+        0.180000007
+      ],
+      "pronation_actual_range_rad": [
+        -0.176089719,
+        0.175066054
+      ],
+      "mean_aero_force_xyz_401_to_end_n": [
+        0.027286550559269162,
+        -0.005356707768337295,
+        4.360158403640491
+      ],
+      "sweep_target_range_rad": [
+        -0.000255484571,
+        0.0399999991
+      ],
+      "sweep_actual_range_rad": [
+        -0.000309082825,
+        0.054307878
+      ],
+      "screen_pass": false,
+      "sampled_root_vx_450_500_range_m_s": [
+        -0.317526758,
+        0.0348154642
+      ],
+      "sweep_hit_modeled_stop": false
+    },
+    {
+      "arm": "push",
+      "lane": 4,
+      "first_episode_end": 500,
+      "release": 356,
+      "recontact": 410,
+      "unloaded_through_end": false,
+      "peak_com_rise_m": 0.07885024303184873,
+      "root_dx_400_500_m": -0.20062729700000004,
+      "mean_root_vx_401_500_m_s": -0.09764052443850009,
+      "toe_threshold_substeps": 0,
+      "nonfoot_normal_impulse_ns": 0.0,
+      "pronation_target_range_rad": [
+        -0.179943234,
+        0.180000007
+      ],
+      "pronation_actual_range_rad": [
+        -0.172614411,
+        0.171541452
+      ],
+      "mean_aero_force_xyz_401_to_end_n": [
+        0.20223426370879863,
+        -0.02447369559905949,
+        4.262569833267401
+      ],
+      "sweep_target_range_rad": [
+        -0.000291522651,
+        0.0799999982
+      ],
+      "sweep_actual_range_rad": [
+        -0.000780352508,
+        0.124479324
+      ],
+      "screen_pass": false,
+      "sampled_root_vx_450_500_range_m_s": [
+        -0.133721858,
+        0.409304053
+      ],
+      "sweep_hit_modeled_stop": false
+    },
+    {
+      "arm": "push",
+      "lane": 5,
+      "first_episode_end": 500,
+      "release": 356,
+      "recontact": 424,
+      "unloaded_through_end": false,
+      "peak_com_rise_m": 0.0826521898785052,
+      "root_dx_400_500_m": -0.22727441800000003,
+      "mean_root_vx_401_500_m_s": -0.11093442100239985,
+      "toe_threshold_substeps": 0,
+      "nonfoot_normal_impulse_ns": 0.0,
+      "pronation_target_range_rad": [
+        -0.179943234,
+        0.180000007
+      ],
+      "pronation_actual_range_rad": [
+        -0.172166139,
+        0.170597479
+      ],
+      "mean_aero_force_xyz_401_to_end_n": [
+        0.22424118711231877,
+        -0.02390501811265184,
+        4.283070220827774
+      ],
+      "sweep_target_range_rad": [
+        -0.000326504087,
+        0.0799999982
+      ],
+      "sweep_actual_range_rad": [
+        -0.00047018929,
+        0.117331304
+      ],
+      "screen_pass": false,
+      "sampled_root_vx_450_500_range_m_s": [
+        -0.113529772,
+        0.463993937
+      ],
+      "sweep_hit_modeled_stop": false
+    },
+    {
+      "arm": "push",
+      "lane": 6,
+      "first_episode_end": 500,
+      "release": 357,
+      "recontact": 402,
+      "unloaded_through_end": false,
+      "peak_com_rise_m": 0.07820360213699976,
+      "root_dx_400_500_m": 0.11081755099999999,
+      "mean_root_vx_401_500_m_s": 0.05847355877169998,
+      "toe_threshold_substeps": 0,
+      "nonfoot_normal_impulse_ns": 0.0,
+      "pronation_target_range_rad": [
+        -0.179943234,
+        0.180000007
+      ],
+      "pronation_actual_range_rad": [
+        -0.171099201,
+        0.173833549
+      ],
+      "mean_aero_force_xyz_401_to_end_n": [
+        0.3419727605803234,
+        -0.03354445032402595,
+        4.169886868520568
+      ],
+      "sweep_target_range_rad": [
+        -8.55673989e-06,
+        0.119999997
+      ],
+      "sweep_actual_range_rad": [
+        -0.000180892093,
+        0.185487062
+      ],
+      "screen_pass": false,
+      "sampled_root_vx_450_500_range_m_s": [
+        0.0218194686,
+        0.681785703
+      ],
+      "sweep_hit_modeled_stop": false
+    },
+    {
+      "arm": "push",
+      "lane": 7,
+      "first_episode_end": 500,
+      "release": 357,
+      "recontact": 394,
+      "unloaded_through_end": false,
+      "peak_com_rise_m": 0.06981161852754084,
+      "root_dx_400_500_m": 0.11228117300000001,
+      "mean_root_vx_401_500_m_s": 0.059926490355800055,
+      "toe_threshold_substeps": 3,
+      "nonfoot_normal_impulse_ns": 0.0,
+      "pronation_target_range_rad": [
+        -0.179943234,
+        0.180000007
+      ],
+      "pronation_actual_range_rad": [
+        -0.172156021,
+        0.174169809
+      ],
+      "mean_aero_force_xyz_401_to_end_n": [
+        0.35620448159208995,
+        -0.02925243560444854,
+        4.172173611606957
+      ],
+      "sweep_target_range_rad": [
+        -0.000484816555,
+        0.119999997
+      ],
+      "sweep_actual_range_rad": [
+        -0.000668348919,
+        0.177318349
+      ],
+      "screen_pass": false,
+      "sampled_root_vx_450_500_range_m_s": [
+        -0.0441980995,
+        0.810635149
+      ],
+      "sweep_hit_modeled_stop": false
+    },
+    {
+      "arm": "hold",
+      "lane": 0,
+      "first_episode_end": 500,
+      "release": 357,
+      "recontact": 362,
+      "unloaded_through_end": false,
+      "peak_com_rise_m": 0.04287878858943636,
+      "root_dx_400_500_m": -0.1425315929,
+      "mean_root_vx_401_500_m_s": -0.07384827994950005,
+      "toe_threshold_substeps": 46,
+      "nonfoot_normal_impulse_ns": 0.0,
+      "pronation_target_range_rad": [
+        -0.291767359,
+        0.297624379
+      ],
+      "pronation_actual_range_rad": [
+        -0.290267736,
+        0.296265632
+      ],
+      "mean_aero_force_xyz_401_to_end_n": [
+        -0.5520268368347171,
+        0.003410545063615035,
+        3.09922180885475
+      ],
+      "sweep_target_range_rad": [
+        -0.00155100471,
+        0.00155100471
+      ],
+      "sweep_actual_range_rad": [
+        -0.0024483169,
+        0.00537814619
+      ],
+      "screen_pass": false,
+      "sampled_root_vx_450_500_range_m_s": [
+        -0.315760702,
+        0.0716448426
+      ],
+      "sweep_hit_modeled_stop": false
+    },
+    {
+      "arm": "hold",
+      "lane": 1,
+      "first_episode_end": 500,
+      "release": 357,
+      "recontact": 362,
+      "unloaded_through_end": false,
+      "peak_com_rise_m": 0.04506189885105691,
+      "root_dx_400_500_m": -0.1259968545,
+      "mean_root_vx_401_500_m_s": -0.06574865501239997,
+      "toe_threshold_substeps": 44,
+      "nonfoot_normal_impulse_ns": 0.0,
+      "pronation_target_range_rad": [
+        -0.28866145,
+        0.291250169
+      ],
+      "pronation_actual_range_rad": [
+        -0.287425786,
+        0.289505869
+      ],
+      "mean_aero_force_xyz_401_to_end_n": [
+        -0.4845624138830572,
+        0.001778796175556189,
+        3.1028465124587217
+      ],
+      "sweep_target_range_rad": [
+        -0.0016872019,
+        0.0016872019
+      ],
+      "sweep_actual_range_rad": [
+        -0.00224207668,
+        0.00609469553
+      ],
+      "screen_pass": false,
+      "sampled_root_vx_450_500_range_m_s": [
+        -0.242441237,
+        0.0980534777
+      ],
+      "sweep_hit_modeled_stop": false
+    },
+    {
+      "arm": "hold",
+      "lane": 2,
+      "first_episode_end": 500,
+      "release": 356,
+      "recontact": 386,
+      "unloaded_through_end": false,
+      "peak_com_rise_m": 0.07129376197262227,
+      "root_dx_400_500_m": -0.5500484999999999,
+      "mean_root_vx_401_500_m_s": -0.2734689944429999,
+      "toe_threshold_substeps": 0,
+      "nonfoot_normal_impulse_ns": 0.0,
+      "pronation_target_range_rad": [
+        -0.179943234,
+        0.180000007
+      ],
+      "pronation_actual_range_rad": [
+        -0.172897711,
+        0.174819395
+      ],
+      "mean_aero_force_xyz_401_to_end_n": [
+        0.0007022567888937077,
+        -2.734024593354621e-06,
+        4.366459701422292
+      ],
+      "sweep_target_range_rad": [
+        -0.000377345365,
+        0.0399999991
+      ],
+      "sweep_actual_range_rad": [
+        -0.000376104988,
+        0.0561375096
+      ],
+      "screen_pass": false,
+      "sampled_root_vx_450_500_range_m_s": [
+        -0.292862296,
+        0.0450669713
+      ],
+      "sweep_hit_modeled_stop": false
+    },
+    {
+      "arm": "hold",
+      "lane": 3,
+      "first_episode_end": 500,
+      "release": 356,
+      "recontact": 386,
+      "unloaded_through_end": false,
+      "peak_com_rise_m": 0.07176232589820589,
+      "root_dx_400_500_m": -0.553189471,
+      "mean_root_vx_401_500_m_s": -0.2750385146249999,
+      "toe_threshold_substeps": 0,
+      "nonfoot_normal_impulse_ns": 0.0,
+      "pronation_target_range_rad": [
+        -0.179943234,
+        0.180000007
+      ],
+      "pronation_actual_range_rad": [
+        -0.175319508,
+        0.17386876
+      ],
+      "mean_aero_force_xyz_401_to_end_n": [
+        0.001257193894201086,
+        2.1653663355563528e-05,
+        4.365341774492936
+      ],
+      "sweep_target_range_rad": [
+        -0.000255484571,
+        0.0399999991
+      ],
+      "sweep_actual_range_rad": [
+        -0.000254693354,
+        0.0561983511
+      ],
+      "screen_pass": false,
+      "sampled_root_vx_450_500_range_m_s": [
+        -0.293230414,
+        0.044802662
+      ],
+      "sweep_hit_modeled_stop": false
+    },
+    {
+      "arm": "hold",
+      "lane": 4,
+      "first_episode_end": 500,
+      "release": 356,
+      "recontact": 385,
+      "unloaded_through_end": false,
+      "peak_com_rise_m": 0.1128282624255525,
+      "root_dx_400_500_m": -0.22968026999999996,
+      "mean_root_vx_401_500_m_s": -0.11384930455430003,
+      "toe_threshold_substeps": 10,
+      "nonfoot_normal_impulse_ns": 0.0,
+      "pronation_target_range_rad": [
+        -0.179943234,
+        0.180000007
+      ],
+      "pronation_actual_range_rad": [
+        -0.170369372,
+        0.173381284
+      ],
+      "mean_aero_force_xyz_401_to_end_n": [
+        0.14688818925008115,
+        -0.012773678187463467,
+        4.291811864129093
+      ],
+      "sweep_target_range_rad": [
+        -0.000291522651,
+        0.0799999982
+      ],
+      "sweep_actual_range_rad": [
+        -0.00024277567,
+        0.117923528
+      ],
+      "screen_pass": false,
+      "sampled_root_vx_450_500_range_m_s": [
+        -0.130401373,
+        0.345923871
+      ],
+      "sweep_hit_modeled_stop": false
+    },
+    {
+      "arm": "hold",
+      "lane": 5,
+      "first_episode_end": 500,
+      "release": 356,
+      "recontact": 385,
+      "unloaded_through_end": false,
+      "peak_com_rise_m": 0.11388083041236724,
+      "root_dx_400_500_m": -0.22796840999999998,
+      "mean_root_vx_401_500_m_s": -0.11294753273330004,
+      "toe_threshold_substeps": 12,
+      "nonfoot_normal_impulse_ns": 0.0,
+      "pronation_target_range_rad": [
+        -0.179943234,
+        0.180000007
+      ],
+      "pronation_actual_range_rad": [
+        -0.170388177,
+        0.174787417
+      ],
+      "mean_aero_force_xyz_401_to_end_n": [
+        0.1479571942867085,
+        -0.011711403505921512,
+        4.291826347330462
+      ],
+      "sweep_target_range_rad": [
+        -0.000326504087,
+        0.0799999982
+      ],
+      "sweep_actual_range_rad": [
+        -0.000321179454,
+        0.116718896
+      ],
+      "screen_pass": false,
+      "sampled_root_vx_450_500_range_m_s": [
+        -0.134903893,
+        0.345467716
+      ],
+      "sweep_hit_modeled_stop": false
+    },
+    {
+      "arm": "hold",
+      "lane": 6,
+      "first_episode_end": 500,
+      "release": 356,
+      "recontact": 385,
+      "unloaded_through_end": false,
+      "peak_com_rise_m": 0.06863058591734605,
+      "root_dx_400_500_m": 0.20971397339999998,
+      "mean_root_vx_401_500_m_s": 0.10726287033670001,
+      "toe_threshold_substeps": 0,
+      "nonfoot_normal_impulse_ns": 0.0,
+      "pronation_target_range_rad": [
+        -0.179943234,
+        0.180000007
+      ],
+      "pronation_actual_range_rad": [
+        -0.170816287,
+        0.176804826
+      ],
+      "mean_aero_force_xyz_401_to_end_n": [
+        0.33440556411468053,
+        -0.027699860691972753,
+        4.164492126511769
+      ],
+      "sweep_target_range_rad": [
+        -8.55673989e-06,
+        0.119999997
+      ],
+      "sweep_actual_range_rad": [
+        -1.15475327e-08,
+        0.185369864
+      ],
+      "screen_pass": false,
+      "sampled_root_vx_450_500_range_m_s": [
+        0.047248058,
+        0.782206655
+      ],
+      "sweep_hit_modeled_stop": false
+    },
+    {
+      "arm": "hold",
+      "lane": 7,
+      "first_episode_end": 500,
+      "release": 356,
+      "recontact": 385,
+      "unloaded_through_end": false,
+      "peak_com_rise_m": 0.06607270004436303,
+      "root_dx_400_500_m": 0.2098760381,
+      "mean_root_vx_401_500_m_s": 0.10728125814090003,
+      "toe_threshold_substeps": 0,
+      "nonfoot_normal_impulse_ns": 0.0,
+      "pronation_target_range_rad": [
+        -0.179943234,
+        0.180000007
+      ],
+      "pronation_actual_range_rad": [
+        -0.171050936,
+        0.176361367
+      ],
+      "mean_aero_force_xyz_401_to_end_n": [
+        0.3386876565503107,
+        -0.030003709506174005,
+        4.174725310504961
+      ],
+      "sweep_target_range_rad": [
+        -0.000484816555,
+        0.119999997
+      ],
+      "sweep_actual_range_rad": [
+        -0.000454206602,
+        0.187610939
+      ],
+      "screen_pass": false,
+      "sampled_root_vx_450_500_range_m_s": [
+        0.0455974787,
+        0.757597983
+      ],
+      "sweep_hit_modeled_stop": false
+    }
+  ],
+  "paired_push_screen_pass": {
+    "2-3": false,
+    "4-5": false,
+    "6-7": false
+  },
+  "source_sha256": {
+    "push": "51bd4e933c79d61d086232f1784242c7402522e6d4a31525c189651dac11a0f7",
+    "hold": "b3580150c5ebd5926e01bad946bb0af1ae74668cf838b9746ee1b7300698361b"
+  },
+  "scope": "Development layout and seed, correlated settings and first episodes only. A batch with any early termination is not valid for promotion; descriptive uncensored lanes are not independent qualification."
+}

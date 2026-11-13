@@ -1,0 +1,11 @@
+--- a/sweep.metal
++++ b/trim.metal
+@@ -5540,7 +5540,7 @@
+             const float seconds=float(state.episode.x)*dispatch.timing.x;
+             if (seconds>=7.04f && seconds<10.02f) {
+                 const uint arm=environment%8u;
+-                const float sweep=arm<4u ? -0.16f : arm<6u ? 0.16f : 0.16f*sin(kTwoPi*6.4f*(seconds-7.04f));
++                const float sweep=arm<4u ? 0.04f : arm<6u ? 0.08f : 0.12f;
+                 targetCandidate=mix(targetCandidate,defaultQ[binding.indices.z]+sweep,smoothstep(7.04f,7.24f,seconds));
+             }
+         }
