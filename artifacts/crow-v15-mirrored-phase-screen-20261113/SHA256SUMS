@@ -51,4 +51,5 @@ c996f1ad4275e999d91f5bf580d5141dbf47bd36f922b1e1aeffd9deb5ccdbbc  ./qualify.py
 2d8aa61b72e5758ef46c0b32d1cbac6a0b7a075dd30396e73e4c59f3c866f53b  ./retirement-manifest-20261126.json
 67fde4a5c9efa531e75e6f8abd31ba732397bc486cffe3e869bcc932ccd5d3ff  ./retirement-manifest-20261127.json
 75dafc740cd88933aec34ab39899510bbc7a19dd07d4ed3a67b258f312406563  ./retirement-receipt-20261126.json
+4ed226fa99ad0d3fc569eae6a4b4312dd708183be191c3a68e68513a8b1737ca  ./retirement-receipt-20261127.json
 f876d737a92fd72a9e9d73d71a6a238af8201d4627ceb068c2ec826fb97699b6  ./run.py
