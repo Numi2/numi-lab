@@ -6,7 +6,10 @@ ce9a63e434ed3d4ba3251b91bc136a6aba3c2a49f4ab759ed402bc75069a842a  ./attitude-sum
 8ace9395219a533f25135f76a2e8f5a83665e23df29829bfe15ec6b218b881c9  ./attitude-summary.py
 3c2fd22cfd7cc75d2cd566122f6edb51bdfbf7de0cd6f5cc731c69a6a84c1a32  ./build.log
 aa0e990a1bed218e7e708ecab7d5d0c2c7c8bcbd7e1e4c50d73e3016c22c9083  ./build.py
+a548c0e91443be3c2b1fdf67c2fe24fad8544bc26b1f7c0b28a82cf67cd84bba  ./effort-saturation-summary.json
+fcc93a48b9445c51c4e2808dcd9906ac1dae5a8780aae882a44dd616031b3571  ./effort-saturation-summary.py
 e6f8204ac28acdff92d0d3364a21f633c7e6bcbed04640f720dbf547b6190aba  ./independent-github-download-20261126.json
+55dff79b6ce304a4bb8df61d525a5ef7147d90d9f930362b4222e4cb18c77aed  ./independent-github-download-20261127.json
 1da441555f3604d52efea077133d0ba3a0e76370aaf9ad60122bad91e0784855  ./position-control.patch
 ad0d4d071b483ac9449b0762454599b15a1f390a1c1e2f87166dc08e5610aae6  ./position-flight-20261126-rebound-position/RESULT.md
 e5953f6628e82289aa2c5cb49c660676754b689944af8d08bd9f7d4d6d23e2ff  ./position-flight-20261126-rebound-position/analysis.json
@@ -44,5 +47,6 @@ fab9982e269b391904aea907d55c38bea8abd6b01ac1f243a108aaac51c26fc6  ./position-fli
 4b1469b298ece70e1859d70fa69abf1260b48610f41c98697ec6000f577c60f9  ./position-flight.metallib.gz
 83db8d04625fd0646985d077493fa733df5ee806c1464996ccb7e937de8caa2e  ./restore-stderr.py
 2ac287cb10bd2533745a133a57fdf8373a4f7422729517edf99b909b7f5bf89c  ./retirement-manifest-20261126.json
+09bcf0422dea0ec52c7cf087a31b1d703e80516342a77c9af5fbdffa4d3644c4  ./retirement-manifest-20261127.json
 0631509e7d23d0a75fd64986102f31b04a023ee2b8d7f28fe65ddfaa5407dff8  ./retirement-receipt-20261126.json
 97bfcf605ce9295c54520b43efad6693665f9ce49eaab7bf65b09e22188f2aca  ./run.py
