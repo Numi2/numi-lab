@@ -1,0 +1,220 @@
+{
+  "variant": "008",
+  "seeds": [
+    20261126,
+    20261127
+  ],
+  "rows": [
+    {
+      "lane": 2,
+      "samples": [
+        {
+          "tick": 1,
+          "both_present": true,
+          "exact_state_match": false
+        },
+        {
+          "tick": 100,
+          "both_present": true,
+          "exact_state_match": false
+        },
+        {
+          "tick": 300,
+          "both_present": true,
+          "exact_state_match": false
+        },
+        {
+          "tick": 500,
+          "both_present": true,
+          "exact_state_match": false
+        },
+        {
+          "tick": 700,
+          "both_present": true,
+          "exact_state_match": false
+        },
+        {
+          "tick": 900,
+          "both_present": true,
+          "exact_state_match": false
+        }
+      ]
+    },
+    {
+      "lane": 3,
+      "samples": [
+        {
+          "tick": 1,
+          "both_present": true,
+          "exact_state_match": false
+        },
+        {
+          "tick": 100,
+          "both_present": true,
+          "exact_state_match": false
+        },
+        {
+          "tick": 300,
+          "both_present": true,
+          "exact_state_match": false
+        },
+        {
+          "tick": 500,
+          "both_present": true,
+          "exact_state_match": false
+        },
+        {
+          "tick": 700,
+          "both_present": true,
+          "exact_state_match": false
+        },
+        {
+          "tick": 900,
+          "both_present": true,
+          "exact_state_match": false
+        }
+      ]
+    },
+    {
+      "lane": 4,
+      "samples": [
+        {
+          "tick": 1,
+          "both_present": true,
+          "exact_state_match": false
+        },
+        {
+          "tick": 100,
+          "both_present": true,
+          "exact_state_match": false
+        },
+        {
+          "tick": 300,
+          "both_present": true,
+          "exact_state_match": false
+        },
+        {
+          "tick": 500,
+          "both_present": true,
+          "exact_state_match": false
+        },
+        {
+          "tick": 700,
+          "both_present": true,
+          "exact_state_match": false
+        },
+        {
+          "tick": 900,
+          "both_present": true,
+          "exact_state_match": false
+        }
+      ]
+    },
+    {
+      "lane": 5,
+      "samples": [
+        {
+          "tick": 1,
+          "both_present": true,
+          "exact_state_match": false
+        },
+        {
+          "tick": 100,
+          "both_present": true,
+          "exact_state_match": false
+        },
+        {
+          "tick": 300,
+          "both_present": true,
+          "exact_state_match": false
+        },
+        {
+          "tick": 500,
+          "both_present": true,
+          "exact_state_match": false
+        },
+        {
+          "tick": 700,
+          "both_present": true,
+          "exact_state_match": false
+        },
+        {
+          "tick": 900,
+          "both_present": true,
+          "exact_state_match": false
+        }
+      ]
+    },
+    {
+      "lane": 6,
+      "samples": [
+        {
+          "tick": 1,
+          "both_present": true,
+          "exact_state_match": false
+        },
+        {
+          "tick": 100,
+          "both_present": true,
+          "exact_state_match": false
+        },
+        {
+          "tick": 300,
+          "both_present": true,
+          "exact_state_match": false
+        },
+        {
+          "tick": 500,
+          "both_present": true,
+          "exact_state_match": false
+        },
+        {
+          "tick": 700,
+          "both_present": true,
+          "exact_state_match": false
+        },
+        {
+          "tick": 900,
+          "both_present": true,
+          "exact_state_match": false
+        }
+      ]
+    },
+    {
+      "lane": 7,
+      "samples": [
+        {
+          "tick": 1,
+          "both_present": true,
+          "exact_state_match": false
+        },
+        {
+          "tick": 100,
+          "both_present": true,
+          "exact_state_match": false
+        },
+        {
+          "tick": 300,
+          "both_present": true,
+          "exact_state_match": false
+        },
+        {
+          "tick": 500,
+          "both_present": true,
+          "exact_state_match": false
+        },
+        {
+          "tick": 700,
+          "both_present": true,
+          "exact_state_match": false
+        },
+        {
+          "tick": 900,
+          "both_present": true,
+          "exact_state_match": false
+        }
+      ]
+    }
+  ],
+  "scope": "Compare sampled accepted states only, not independence or full-distribution coverage."
+}
