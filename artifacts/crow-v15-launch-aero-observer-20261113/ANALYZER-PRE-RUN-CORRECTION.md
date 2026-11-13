@@ -1,0 +1,1 @@
+The pre-run analyzer initially expected 14 aero-force payload values. Inspection of the emitted format shows 13: body stride, three net force components, four vertical and four forward component values, and completion status. Corrected before any observational replay. The original draft remains in its Git commit.
