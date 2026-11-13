@@ -1,0 +1,110 @@
+{
+  "scope": "Eight exact uncompressed build outputs, not sole evidence; every gzip archive independently retrieved from GitHub, decompressed and compared with source SHA-256. The owning host must recheck hashes and open handles immediately before deletion.",
+  "before_df_k": "Filesystem   1024-blocks      Used Available Capacity iused     ifree %iused  Mounted on\n/dev/disk3s5   482797652 413414292  41837396    91% 3600474 418373960    1%   /System/Volumes/Data\n",
+  "rows": [
+    {
+      "host": "macmini",
+      "path": "/Users/n/Developer/numi-crow-rl-20261107/build/crow-v15-pronation-phase-screen-20261113/push-wing-20261126-rebound-phase-trace.tsv",
+      "archive_path": "artifacts/crow-v15-pronation-phase-screen-20261113/push-wing-20261126-rebound-phase/trace.tsv.gz",
+      "commit": "50dda995a661232002c1afe0bf403281d3b539f3",
+      "sha256": "b20b6c6eef86e895cec8f3a442a493cd51c59cc631df138b5a3027c2a6ee4186",
+      "restored_sha256": "b20b6c6eef86e895cec8f3a442a493cd51c59cc631df138b5a3027c2a6ee4186",
+      "match": true,
+      "size_bytes": 351314,
+      "inode": 17092739,
+      "mtime_epoch": 1794546786,
+      "open_handles_at_check": 0
+    },
+    {
+      "host": "macmini",
+      "path": "/Users/n/Developer/numi-crow-rl-20261107/build/crow-v15-pronation-phase-screen-20261113/push-wing-20261126-rebound-phase-replay.json",
+      "archive_path": "artifacts/crow-v15-pronation-phase-screen-20261113/push-wing-20261126-rebound-phase/replay.json.gz",
+      "commit": "50dda995a661232002c1afe0bf403281d3b539f3",
+      "sha256": "659b372daff2c89ad4ab3f35b0c8c6610402071143ca34c9eaadf347fcafa38b",
+      "restored_sha256": "659b372daff2c89ad4ab3f35b0c8c6610402071143ca34c9eaadf347fcafa38b",
+      "match": true,
+      "size_bytes": 16164779,
+      "inode": 17092740,
+      "mtime_epoch": 1794546787,
+      "open_handles_at_check": 0
+    },
+    {
+      "host": "macmini",
+      "path": "/Users/n/Developer/numi-crow-rl-20261107/build/crow-v15-pronation-phase-screen-20261113/hold-wing-20261126-rebound-phase-trace.tsv",
+      "archive_path": "artifacts/crow-v15-pronation-phase-screen-20261113/hold-wing-20261126-rebound-phase/trace.tsv.gz",
+      "commit": "50dda995a661232002c1afe0bf403281d3b539f3",
+      "sha256": "5899d06c1333b0cb00c560d1867fbf62b397404776fd0460ace8a47fa7e6fafc",
+      "restored_sha256": "5899d06c1333b0cb00c560d1867fbf62b397404776fd0460ace8a47fa7e6fafc",
+      "match": true,
+      "size_bytes": 351664,
+      "inode": 17092767,
+      "mtime_epoch": 1794546872,
+      "open_handles_at_check": 0
+    },
+    {
+      "host": "macmini",
+      "path": "/Users/n/Developer/numi-crow-rl-20261107/build/crow-v15-pronation-phase-screen-20261113/hold-wing-20261126-rebound-phase-replay.json",
+      "archive_path": "artifacts/crow-v15-pronation-phase-screen-20261113/hold-wing-20261126-rebound-phase/replay.json.gz",
+      "commit": "50dda995a661232002c1afe0bf403281d3b539f3",
+      "sha256": "554744f251d86561b24c3fce8d8d1dffe25d8480b071c457e129ac10d0afadb4",
+      "restored_sha256": "554744f251d86561b24c3fce8d8d1dffe25d8480b071c457e129ac10d0afadb4",
+      "match": true,
+      "size_bytes": 16179532,
+      "inode": 17092768,
+      "mtime_epoch": 1794546874,
+      "open_handles_at_check": 0
+    },
+    {
+      "host": "macmini",
+      "path": "/Users/n/Developer/numi-crow-rl-20261107/build/crow-v15-preload-foot-placement-20261113/push-wing-20261126-rebound-preload-trace.tsv",
+      "archive_path": "artifacts/crow-v15-preload-foot-placement-20261113/push-wing-20261126-rebound-preload/trace.tsv.gz",
+      "commit": "50dda995a661232002c1afe0bf403281d3b539f3",
+      "sha256": "916ab2f74580dbacacf6d17fdfd97a6acf8430336a2470463137a8d0dd63e9e0",
+      "restored_sha256": "916ab2f74580dbacacf6d17fdfd97a6acf8430336a2470463137a8d0dd63e9e0",
+      "match": true,
+      "size_bytes": 351476,
+      "inode": 17092911,
+      "mtime_epoch": 1794547140,
+      "open_handles_at_check": 0
+    },
+    {
+      "host": "macmini",
+      "path": "/Users/n/Developer/numi-crow-rl-20261107/build/crow-v15-preload-foot-placement-20261113/push-wing-20261126-rebound-preload-replay.json",
+      "archive_path": "artifacts/crow-v15-preload-foot-placement-20261113/push-wing-20261126-rebound-preload/replay.json.gz",
+      "commit": "50dda995a661232002c1afe0bf403281d3b539f3",
+      "sha256": "cc4e4e8e8dcf26226a61c070c00f41d51c1affe5371d55fc17a7b548eebc4425",
+      "restored_sha256": "cc4e4e8e8dcf26226a61c070c00f41d51c1affe5371d55fc17a7b548eebc4425",
+      "match": true,
+      "size_bytes": 16165457,
+      "inode": 17092912,
+      "mtime_epoch": 1794547142,
+      "open_handles_at_check": 0
+    },
+    {
+      "host": "macmini",
+      "path": "/Users/n/Developer/numi-crow-rl-20261107/build/crow-v15-preload-foot-placement-20261113/hold-wing-20261126-rebound-preload-trace.tsv",
+      "archive_path": "artifacts/crow-v15-preload-foot-placement-20261113/hold-wing-20261126-rebound-preload/trace.tsv.gz",
+      "commit": "50dda995a661232002c1afe0bf403281d3b539f3",
+      "sha256": "7b27fbaa00a9cb309538e3cfaaa2ac2dede2526dea677103a5766239a5e44a6d",
+      "restored_sha256": "7b27fbaa00a9cb309538e3cfaaa2ac2dede2526dea677103a5766239a5e44a6d",
+      "match": true,
+      "size_bytes": 351758,
+      "inode": 17092935,
+      "mtime_epoch": 1794547226,
+      "open_handles_at_check": 0
+    },
+    {
+      "host": "macmini",
+      "path": "/Users/n/Developer/numi-crow-rl-20261107/build/crow-v15-preload-foot-placement-20261113/hold-wing-20261126-rebound-preload-replay.json",
+      "archive_path": "artifacts/crow-v15-preload-foot-placement-20261113/hold-wing-20261126-rebound-preload/replay.json.gz",
+      "commit": "50dda995a661232002c1afe0bf403281d3b539f3",
+      "sha256": "f15bf4578af04240d94a34267f787e636eef9fb1491512409f351c54188ac42d",
+      "restored_sha256": "f15bf4578af04240d94a34267f787e636eef9fb1491512409f351c54188ac42d",
+      "match": true,
+      "size_bytes": 16184042,
+      "inode": 17092936,
+      "mtime_epoch": 1794547227,
+      "open_handles_at_check": 0
+    }
+  ]
+}
