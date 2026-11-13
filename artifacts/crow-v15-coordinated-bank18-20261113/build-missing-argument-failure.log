@@ -1,0 +1,4 @@
+Traceback (most recent call last):
+  File "/Users/n/Developer/numi-crow-rl-20261107/artifacts/crow-v15-coordinated-bank18-20261113/build.py", line 3, in <module>
+    name=sys.argv[1];assert name == "signed-turn"
+IndexError: list index out of range

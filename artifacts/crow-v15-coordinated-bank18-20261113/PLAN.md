@@ -1,0 +1,5 @@
+# Coordinated bank envelope sensitivity
+
+On used seed 20261126, 0.12 rad requested bank with 0.10 rad differential sweep produced only -0.073/+0.067 rad relative heading with 5 m of lateral drift. Test whether the existing bank controller can achieve the registered 0.10 rad signed heading response using the already configured 0.18 rad bank limit while leaving sweep at 0.10 rad and all physical model and damping parameters unchanged. This is a bounded control identification trial, not evidence that the resulting large drift is acceptable for navigation.
+
+Require matched references and candidate prefixes, complete first episodes, all existing physical/contact/speed/height and joint-target checks, sweep positions and velocities within model limits, and the unchanged opposite-signed 0.10 rad heading plus 0.20 m displacement gate. Record maximum drift and all failures. Sweep effort remains uninstrumented and blocks promotion. The earlier narrower body-wrench ablation applies, so a pass would still require a separate all-wrench-ablated leg-launch integration, effort instrumentation, and closed-loop navigation testing. Leave final layouts and seeds unused.
