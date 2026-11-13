@@ -1,0 +1,27 @@
+{
+  "rows": [
+    {
+      "lane": 6,
+      "target_m": 0.8,
+      "samples": 551,
+      "height_mean_m": 0.7986784397894737,
+      "height_min_m": 0.773032665,
+      "height_max_m": 0.819662333,
+      "height_mean_abs_error_m": 0.009162851408348462,
+      "vertical_speed_rms_m_s": 0.39553005448975936,
+      "last_height_m": 0.794937193
+    },
+    {
+      "lane": 7,
+      "target_m": 0.55,
+      "samples": 551,
+      "height_mean_m": 0.5621610526225045,
+      "height_min_m": 0.546705723,
+      "height_max_m": 0.577639401,
+      "height_mean_abs_error_m": 0.012322950034482723,
+      "vertical_speed_rms_m_s": 0.3965369697967963,
+      "last_height_m": 0.549954474
+    }
+  ],
+  "scope": "Posthoc fixed-window root-height tracking; body motion contains wingbeat oscillations. One used seed; not qualified altitude tracking."
+}
