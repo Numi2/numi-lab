@@ -1,0 +1,10 @@
+{
+  "commit": "5431bd104c9631407f8e17fdbe28f6a47f615233",
+  "archive": "artifacts/crow-v15-mirrored-sweep-turn-20261113/signed-turn-20261126-rebound-sweep",
+  "compressed_bytes": 246414177,
+  "sha256": "da768a4f721415be145bee4b678e9af6ee74e61f06e4a0a2190aa878ea0f9a0c",
+  "uncompressed_bytes": 948354638,
+  "gzip_eof": true,
+  "all_parts_sha256_verified": true,
+  "source": "independent authenticated GitHub contents download"
+}
