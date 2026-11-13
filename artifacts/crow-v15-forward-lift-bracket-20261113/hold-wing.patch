@@ -1,0 +1,20 @@
+--- a/sweep-trim.metal
++++ b/lift-bracket.metal
+@@ -5520,7 +5520,7 @@
+                 const float elapsed=max(seconds-7.04f,0.0f);
+                 const float frequency=6.4f;
+                 const float phase=cos(kTwoPi*frequency*elapsed);
+-                const float amplitude=0.65f;
++                const float amplitude=environment%8u<2u ? 0.65f : environment%8u<4u ? 0.70f : environment%8u<6u ? 0.75f : 0.80f;
+                 const float triggered=defaultQ[binding.indices.z]+amplitude*envelope*phase;
+                 targetCandidate=triggered;
+             }
+@@ -5540,7 +5540,7 @@
+             const float seconds=float(state.episode.x)*dispatch.timing.x;
+             if (seconds>=7.04f && seconds<10.02f) {
+                 const uint arm=environment%8u;
+-                const float sweep=arm<4u ? 0.04f : arm<6u ? 0.08f : 0.12f;
++                const float sweep=0.12f;
+                 targetCandidate=mix(targetCandidate,defaultQ[binding.indices.z]+sweep,smoothstep(7.04f,7.24f,seconds));
+             }
+         }

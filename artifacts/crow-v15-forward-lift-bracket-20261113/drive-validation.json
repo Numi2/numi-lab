@@ -1,0 +1,112 @@
+{
+  "valid": true,
+  "rows": [
+    {
+      "arm": "push",
+      "flags": [
+        1,
+        0,
+        0,
+        247,
+        7,
+        1
+      ],
+      "old_dofs": {
+        "8": [
+          9.0,
+          8.0,
+          800.0,
+          8.0,
+          2.99999992e-05,
+          120.0
+        ],
+        "9": [
+          10.0,
+          9.0,
+          800.0,
+          8.0,
+          2.99999992e-05,
+          120.0
+        ]
+      },
+      "new_dofs": {
+        "8": [
+          10.0,
+          0.100000001,
+          2.99999992e-05,
+          120.0
+        ],
+        "9": [
+          10.0,
+          0.100000001,
+          2.99999992e-05,
+          120.0
+        ]
+      },
+      "distinct_scales": [
+        [
+          1.0,
+          1.0,
+          0.0,
+          1.0
+        ]
+      ],
+      "unit_gain_scales": true,
+      "log_sha256": "fd42072c762b3c5f4b9754082de0a13eeeb003e397f8e99b6c01e80de4800886"
+    },
+    {
+      "arm": "hold",
+      "flags": [
+        1,
+        0,
+        0,
+        247,
+        7,
+        1
+      ],
+      "old_dofs": {
+        "8": [
+          9.0,
+          8.0,
+          800.0,
+          8.0,
+          2.99999992e-05,
+          120.0
+        ],
+        "9": [
+          10.0,
+          9.0,
+          800.0,
+          8.0,
+          2.99999992e-05,
+          120.0
+        ]
+      },
+      "new_dofs": {
+        "8": [
+          10.0,
+          0.100000001,
+          2.99999992e-05,
+          120.0
+        ],
+        "9": [
+          10.0,
+          0.100000001,
+          2.99999992e-05,
+          120.0
+        ]
+      },
+      "distinct_scales": [
+        [
+          1.0,
+          1.0,
+          0.0,
+          1.0
+        ]
+      ],
+      "unit_gain_scales": true,
+      "log_sha256": "912a5fd04fbbfccab20908868969bb2e6b87d7e585d9f5e7cfbeb81909beeb52"
+    }
+  ],
+  "scope": "Checks uploaded model gains, host dispatch flags, and sampled controller scales. It does not independently inspect every GPU internal value or qualify dynamics."
+}

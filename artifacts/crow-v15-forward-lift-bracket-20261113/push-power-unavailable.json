@@ -1,0 +1,14 @@
+{
+  "valid": false,
+  "reason": "lane 6 or 7 first episode ended before tick 500; post-reset samples excluded",
+  "first_episode_steps": [
+    500,
+    500,
+    500,
+    500,
+    500,
+    500,
+    488,
+    488
+  ]
+}
