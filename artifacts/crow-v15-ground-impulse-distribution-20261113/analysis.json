@@ -1,0 +1,1685 @@
+{
+  "scope": "Posthoc distribution of positive ground-contact normal impulses and tangential magnitudes by body. Contact friction parameters are recorded, but the 0.59 ratio is descriptive and not proof of sliding or friction saturation; sign, basis, body velocity and solver law require separate interpretation. Correlated used-seed lanes only.",
+  "rows": [
+    {
+      "lane": 2,
+      "ticks": "348-355",
+      "ground_body": 11,
+      "normal": 0.0560131068748,
+      "absolute_tangent_bound": 0.0083162879076037,
+      "contacts": 24,
+      "above_ratio_0_59": 2,
+      "normal_above_ratio_0_59": 0.00233758951
+    },
+    {
+      "lane": 2,
+      "ticks": "348-355",
+      "ground_body": 15,
+      "normal": 0.05589244834249999,
+      "absolute_tangent_bound": 0.008300682465526626,
+      "contacts": 24,
+      "above_ratio_0_59": 2,
+      "normal_above_ratio_0_59": 0.0023363753
+    },
+    {
+      "lane": 2,
+      "ticks": "348-355",
+      "ground_body": 19,
+      "normal": 0.00440934679193,
+      "absolute_tangent_bound": 0.0026456077837411977,
+      "contacts": 38,
+      "above_ratio_0_59": 38,
+      "normal_above_ratio_0_59": 0.00440934679193
+    },
+    {
+      "lane": 2,
+      "ticks": "348-355",
+      "ground_body": 20,
+      "normal": 0.01946821148370001,
+      "absolute_tangent_bound": 0.011680384580017205,
+      "contacts": 64,
+      "above_ratio_0_59": 64,
+      "normal_above_ratio_0_59": 0.01946821148370001
+    },
+    {
+      "lane": 2,
+      "ticks": "348-355",
+      "ground_body": 21,
+      "normal": 0.004526229173870001,
+      "absolute_tangent_bound": 0.0027157373728962696,
+      "contacts": 38,
+      "above_ratio_0_59": 38,
+      "normal_above_ratio_0_59": 0.004526229173870001
+    },
+    {
+      "lane": 2,
+      "ticks": "348-355",
+      "ground_body": 22,
+      "normal": 0.019703468989899997,
+      "absolute_tangent_bound": 0.011818493675356232,
+      "contacts": 64,
+      "above_ratio_0_59": 64,
+      "normal_above_ratio_0_59": 0.019703468989899997
+    },
+    {
+      "lane": 2,
+      "ticks": "348-355",
+      "ground_body": 23,
+      "normal": 0.0046339562688400004,
+      "absolute_tangent_bound": 0.0027803737207055777,
+      "contacts": 38,
+      "above_ratio_0_59": 38,
+      "normal_above_ratio_0_59": 0.0046339562688400004
+    },
+    {
+      "lane": 2,
+      "ticks": "348-355",
+      "ground_body": 24,
+      "normal": 0.019825653582580004,
+      "absolute_tangent_bound": 0.011886988385544191,
+      "contacts": 64,
+      "above_ratio_0_59": 64,
+      "normal_above_ratio_0_59": 0.019825653582580004
+    },
+    {
+      "lane": 2,
+      "ticks": "348-355",
+      "ground_body": 25,
+      "normal": 0.223875837436224,
+      "absolute_tangent_bound": 0.028495660979349302,
+      "contacts": 376,
+      "above_ratio_0_59": 0,
+      "normal_above_ratio_0_59": 0.0
+    },
+    {
+      "lane": 2,
+      "ticks": "348-355",
+      "ground_body": 26,
+      "normal": 0.03943514070509285,
+      "absolute_tangent_bound": 0.008999507948811316,
+      "contacts": 364,
+      "above_ratio_0_59": 15,
+      "normal_above_ratio_0_59": 0.000369762601967
+    },
+    {
+      "lane": 2,
+      "ticks": "348-355",
+      "ground_body": 27,
+      "normal": 0.004824192571500001,
+      "absolute_tangent_bound": 0.0028945154102384086,
+      "contacts": 38,
+      "above_ratio_0_59": 38,
+      "normal_above_ratio_0_59": 0.004824192571500001
+    },
+    {
+      "lane": 2,
+      "ticks": "348-355",
+      "ground_body": 28,
+      "normal": 0.020070549707600006,
+      "absolute_tangent_bound": 0.012035544623729374,
+      "contacts": 60,
+      "above_ratio_0_59": 60,
+      "normal_above_ratio_0_59": 0.020070549707600006
+    },
+    {
+      "lane": 2,
+      "ticks": "348-355",
+      "ground_body": 29,
+      "normal": 0.004672827350549996,
+      "absolute_tangent_bound": 0.0028036960528874185,
+      "contacts": 38,
+      "above_ratio_0_59": 38,
+      "normal_above_ratio_0_59": 0.004672827350549996
+    },
+    {
+      "lane": 2,
+      "ticks": "348-355",
+      "ground_body": 30,
+      "normal": 0.019912519450499988,
+      "absolute_tangent_bound": 0.011944374661540347,
+      "contacts": 64,
+      "above_ratio_0_59": 64,
+      "normal_above_ratio_0_59": 0.019912519450499988
+    },
+    {
+      "lane": 2,
+      "ticks": "348-355",
+      "ground_body": 31,
+      "normal": 0.004509634185890001,
+      "absolute_tangent_bound": 0.0027057805764952227,
+      "contacts": 38,
+      "above_ratio_0_59": 38,
+      "normal_above_ratio_0_59": 0.004509634185890001
+    },
+    {
+      "lane": 2,
+      "ticks": "348-355",
+      "ground_body": 32,
+      "normal": 0.01959108027365999,
+      "absolute_tangent_bound": 0.011754108908968601,
+      "contacts": 64,
+      "above_ratio_0_59": 64,
+      "normal_above_ratio_0_59": 0.01959108027365999
+    },
+    {
+      "lane": 2,
+      "ticks": "348-355",
+      "ground_body": 33,
+      "normal": 0.2301417033874887,
+      "absolute_tangent_bound": 0.029449282984650237,
+      "contacts": 376,
+      "above_ratio_0_59": 0,
+      "normal_above_ratio_0_59": 0.0
+    },
+    {
+      "lane": 2,
+      "ticks": "348-355",
+      "ground_body": 34,
+      "normal": 0.039358026458457485,
+      "absolute_tangent_bound": 0.008925518985413638,
+      "contacts": 364,
+      "above_ratio_0_59": 15,
+      "normal_above_ratio_0_59": 0.000422650159485
+    },
+    {
+      "lane": 2,
+      "ticks": "356-365",
+      "ground_body": 20,
+      "normal": 0.02439142366867788,
+      "absolute_tangent_bound": 0.00663022880096194,
+      "contacts": 127,
+      "above_ratio_0_59": 3,
+      "normal_above_ratio_0_59": 0.00177602348149
+    },
+    {
+      "lane": 2,
+      "ticks": "356-365",
+      "ground_body": 22,
+      "normal": 0.023979733806569,
+      "absolute_tangent_bound": 0.005970166057039366,
+      "contacts": 126,
+      "above_ratio_0_59": 2,
+      "normal_above_ratio_0_59": 0.001580689103
+    },
+    {
+      "lane": 2,
+      "ticks": "356-365",
+      "ground_body": 24,
+      "normal": 0.023606946800015835,
+      "absolute_tangent_bound": 0.005781147326909857,
+      "contacts": 126,
+      "above_ratio_0_59": 2,
+      "normal_above_ratio_0_59": 0.001421121938
+    },
+    {
+      "lane": 2,
+      "ticks": "356-365",
+      "ground_body": 25,
+      "normal": 0.11028898443699996,
+      "absolute_tangent_bound": 0.005952050460090748,
+      "contacts": 36,
+      "above_ratio_0_59": 0,
+      "normal_above_ratio_0_59": 0.0
+    },
+    {
+      "lane": 2,
+      "ticks": "356-365",
+      "ground_body": 26,
+      "normal": 0.0803182106712,
+      "absolute_tangent_bound": 0.035719414525303785,
+      "contacts": 32,
+      "above_ratio_0_59": 0,
+      "normal_above_ratio_0_59": 0.0
+    },
+    {
+      "lane": 2,
+      "ticks": "356-365",
+      "ground_body": 28,
+      "normal": 0.023016447383440622,
+      "absolute_tangent_bound": 0.006101681655447648,
+      "contacts": 130,
+      "above_ratio_0_59": 2,
+      "normal_above_ratio_0_59": 0.0010280011919999998
+    },
+    {
+      "lane": 2,
+      "ticks": "356-365",
+      "ground_body": 30,
+      "normal": 0.022982578378585118,
+      "absolute_tangent_bound": 0.004770803997990122,
+      "contacts": 130,
+      "above_ratio_0_59": 2,
+      "normal_above_ratio_0_59": 0.001277144416
+    },
+    {
+      "lane": 2,
+      "ticks": "356-365",
+      "ground_body": 32,
+      "normal": 0.023589440859666834,
+      "absolute_tangent_bound": 0.0062498584832407006,
+      "contacts": 128,
+      "above_ratio_0_59": 2,
+      "normal_above_ratio_0_59": 0.001575917879
+    },
+    {
+      "lane": 2,
+      "ticks": "356-365",
+      "ground_body": 33,
+      "normal": 0.1278954242849,
+      "absolute_tangent_bound": 0.006871900033937573,
+      "contacts": 36,
+      "above_ratio_0_59": 0,
+      "normal_above_ratio_0_59": 0.0
+    },
+    {
+      "lane": 2,
+      "ticks": "356-365",
+      "ground_body": 34,
+      "normal": 0.08121746508959998,
+      "absolute_tangent_bound": 0.03621321078347795,
+      "contacts": 32,
+      "above_ratio_0_59": 0,
+      "normal_above_ratio_0_59": 0.0
+    },
+    {
+      "lane": 3,
+      "ticks": "348-355",
+      "ground_body": 11,
+      "normal": 0.057728833860999994,
+      "absolute_tangent_bound": 0.008069141380696932,
+      "contacts": 22,
+      "above_ratio_0_59": 0,
+      "normal_above_ratio_0_59": 0.0
+    },
+    {
+      "lane": 3,
+      "ticks": "348-355",
+      "ground_body": 15,
+      "normal": 0.057545712065000004,
+      "absolute_tangent_bound": 0.008024418062008569,
+      "contacts": 22,
+      "above_ratio_0_59": 0,
+      "normal_above_ratio_0_59": 0.0
+    },
+    {
+      "lane": 3,
+      "ticks": "348-355",
+      "ground_body": 19,
+      "normal": 0.006508170906169999,
+      "absolute_tangent_bound": 0.002347048258220037,
+      "contacts": 50,
+      "above_ratio_0_59": 36,
+      "normal_above_ratio_0_59": 0.00106113816117
+    },
+    {
+      "lane": 3,
+      "ticks": "348-355",
+      "ground_body": 20,
+      "normal": 0.018919440479690013,
+      "absolute_tangent_bound": 0.011351444431775897,
+      "contacts": 56,
+      "above_ratio_0_59": 56,
+      "normal_above_ratio_0_59": 0.018919440479690013
+    },
+    {
+      "lane": 3,
+      "ticks": "348-355",
+      "ground_body": 21,
+      "normal": 0.006990240754269999,
+      "absolute_tangent_bound": 0.002415041353018094,
+      "contacts": 52,
+      "above_ratio_0_59": 38,
+      "normal_above_ratio_0_59": 0.0011717243872699996
+    },
+    {
+      "lane": 3,
+      "ticks": "348-355",
+      "ground_body": 22,
+      "normal": 0.019182110079319997,
+      "absolute_tangent_bound": 0.01150858462901676,
+      "contacts": 56,
+      "above_ratio_0_59": 56,
+      "normal_above_ratio_0_59": 0.019182110079319997
+    },
+    {
+      "lane": 3,
+      "ticks": "348-355",
+      "ground_body": 23,
+      "normal": 0.007315136092210003,
+      "absolute_tangent_bound": 0.0025142412762670105,
+      "contacts": 52,
+      "above_ratio_0_59": 38,
+      "normal_above_ratio_0_59": 0.00128815352921
+    },
+    {
+      "lane": 3,
+      "ticks": "348-355",
+      "ground_body": 24,
+      "normal": 0.01928042680090001,
+      "absolute_tangent_bound": 0.011564677067895924,
+      "contacts": 56,
+      "above_ratio_0_59": 56,
+      "normal_above_ratio_0_59": 0.01928042680090001
+    },
+    {
+      "lane": 3,
+      "ticks": "348-355",
+      "ground_body": 25,
+      "normal": 0.2227639062123328,
+      "absolute_tangent_bound": 0.028302722268493043,
+      "contacts": 376,
+      "above_ratio_0_59": 0,
+      "normal_above_ratio_0_59": 0.0
+    },
+    {
+      "lane": 3,
+      "ticks": "348-355",
+      "ground_body": 26,
+      "normal": 0.04007024343091699,
+      "absolute_tangent_bound": 0.009119601818253184,
+      "contacts": 364,
+      "above_ratio_0_59": 15,
+      "normal_above_ratio_0_59": 0.000455559158077
+    },
+    {
+      "lane": 3,
+      "ticks": "348-355",
+      "ground_body": 27,
+      "normal": 0.007855541768360001,
+      "absolute_tangent_bound": 0.002619908609495459,
+      "contacts": 52,
+      "above_ratio_0_59": 38,
+      "normal_above_ratio_0_59": 0.00153632601436
+    },
+    {
+      "lane": 3,
+      "ticks": "348-355",
+      "ground_body": 28,
+      "normal": 0.01953806994270001,
+      "absolute_tangent_bound": 0.01171912136221581,
+      "contacts": 56,
+      "above_ratio_0_59": 56,
+      "normal_above_ratio_0_59": 0.01953806994270001
+    },
+    {
+      "lane": 3,
+      "ticks": "348-355",
+      "ground_body": 29,
+      "normal": 0.00730203038436,
+      "absolute_tangent_bound": 0.0025080198803293487,
+      "contacts": 52,
+      "above_ratio_0_59": 38,
+      "normal_above_ratio_0_59": 0.0013505448903599999
+    },
+    {
+      "lane": 3,
+      "ticks": "348-355",
+      "ground_body": 30,
+      "normal": 0.019348087358499994,
+      "absolute_tangent_bound": 0.01160817739944703,
+      "contacts": 56,
+      "above_ratio_0_59": 56,
+      "normal_above_ratio_0_59": 0.019348087358499994
+    },
+    {
+      "lane": 3,
+      "ticks": "348-355",
+      "ground_body": 31,
+      "normal": 0.00658596918243,
+      "absolute_tangent_bound": 0.0024262591131564847,
+      "contacts": 52,
+      "above_ratio_0_59": 38,
+      "normal_above_ratio_0_59": 0.00117168808343
+    },
+    {
+      "lane": 3,
+      "ticks": "348-355",
+      "ground_body": 32,
+      "normal": 0.01899001427689,
+      "absolute_tangent_bound": 0.011393788632731734,
+      "contacts": 56,
+      "above_ratio_0_59": 56,
+      "normal_above_ratio_0_59": 0.01899001427689
+    },
+    {
+      "lane": 3,
+      "ticks": "348-355",
+      "ground_body": 33,
+      "normal": 0.22913131443278523,
+      "absolute_tangent_bound": 0.029259115053135946,
+      "contacts": 376,
+      "above_ratio_0_59": 0,
+      "normal_above_ratio_0_59": 0.0
+    },
+    {
+      "lane": 3,
+      "ticks": "348-355",
+      "ground_body": 34,
+      "normal": 0.04014623161786033,
+      "absolute_tangent_bound": 0.009116906087009437,
+      "contacts": 364,
+      "above_ratio_0_59": 15,
+      "normal_above_ratio_0_59": 0.0005175180523920001
+    },
+    {
+      "lane": 3,
+      "ticks": "356-365",
+      "ground_body": 20,
+      "normal": 0.018427268214188754,
+      "absolute_tangent_bound": 0.004463778576776163,
+      "contacts": 64,
+      "above_ratio_0_59": 0,
+      "normal_above_ratio_0_59": 0.0
+    },
+    {
+      "lane": 3,
+      "ticks": "356-365",
+      "ground_body": 22,
+      "normal": 0.018024097460971687,
+      "absolute_tangent_bound": 0.004468945009639991,
+      "contacts": 66,
+      "above_ratio_0_59": 0,
+      "normal_above_ratio_0_59": 0.0
+    },
+    {
+      "lane": 3,
+      "ticks": "356-365",
+      "ground_body": 24,
+      "normal": 0.01785341368576965,
+      "absolute_tangent_bound": 0.004743752992473816,
+      "contacts": 66,
+      "above_ratio_0_59": 0,
+      "normal_above_ratio_0_59": 0.0
+    },
+    {
+      "lane": 3,
+      "ticks": "356-365",
+      "ground_body": 25,
+      "normal": 0.134276993739052,
+      "absolute_tangent_bound": 0.008117486385308877,
+      "contacts": 44,
+      "above_ratio_0_59": 0,
+      "normal_above_ratio_0_59": 0.0
+    },
+    {
+      "lane": 3,
+      "ticks": "356-365",
+      "ground_body": 26,
+      "normal": 0.0721902064652,
+      "absolute_tangent_bound": 0.036173233477913014,
+      "contacts": 28,
+      "above_ratio_0_59": 0,
+      "normal_above_ratio_0_59": 0.0
+    },
+    {
+      "lane": 3,
+      "ticks": "356-365",
+      "ground_body": 28,
+      "normal": 0.01874987419951583,
+      "absolute_tangent_bound": 0.00596780639344536,
+      "contacts": 66,
+      "above_ratio_0_59": 0,
+      "normal_above_ratio_0_59": 0.0
+    },
+    {
+      "lane": 3,
+      "ticks": "356-365",
+      "ground_body": 30,
+      "normal": 0.01840574995984655,
+      "absolute_tangent_bound": 0.00598831530491893,
+      "contacts": 64,
+      "above_ratio_0_59": 0,
+      "normal_above_ratio_0_59": 0.0
+    },
+    {
+      "lane": 3,
+      "ticks": "356-365",
+      "ground_body": 32,
+      "normal": 0.018729220265590006,
+      "absolute_tangent_bound": 0.005056277446789641,
+      "contacts": 62,
+      "above_ratio_0_59": 0,
+      "normal_above_ratio_0_59": 0.0
+    },
+    {
+      "lane": 3,
+      "ticks": "356-365",
+      "ground_body": 33,
+      "normal": 0.143146507484322,
+      "absolute_tangent_bound": 0.010084918931181786,
+      "contacts": 44,
+      "above_ratio_0_59": 0,
+      "normal_above_ratio_0_59": 0.0
+    },
+    {
+      "lane": 3,
+      "ticks": "356-365",
+      "ground_body": 34,
+      "normal": 0.07288903138979998,
+      "absolute_tangent_bound": 0.03616175299571353,
+      "contacts": 28,
+      "above_ratio_0_59": 0,
+      "normal_above_ratio_0_59": 0.0
+    },
+    {
+      "lane": 4,
+      "ticks": "348-355",
+      "ground_body": 11,
+      "normal": 0.057667062731,
+      "absolute_tangent_bound": 0.007730507752981365,
+      "contacts": 22,
+      "above_ratio_0_59": 0,
+      "normal_above_ratio_0_59": 0.0
+    },
+    {
+      "lane": 4,
+      "ticks": "348-355",
+      "ground_body": 15,
+      "normal": 0.057157822230999994,
+      "absolute_tangent_bound": 0.007643016311053773,
+      "contacts": 22,
+      "above_ratio_0_59": 0,
+      "normal_above_ratio_0_59": 0.0
+    },
+    {
+      "lane": 4,
+      "ticks": "348-355",
+      "ground_body": 19,
+      "normal": 0.00622451686924,
+      "absolute_tangent_bound": 0.0021320577652020963,
+      "contacts": 52,
+      "above_ratio_0_59": 38,
+      "normal_above_ratio_0_59": 0.00101425314324
+    },
+    {
+      "lane": 4,
+      "ticks": "348-355",
+      "ground_body": 20,
+      "normal": 0.018885681484810013,
+      "absolute_tangent_bound": 0.011331196632061278,
+      "contacts": 56,
+      "above_ratio_0_59": 56,
+      "normal_above_ratio_0_59": 0.018885681484810013
+    },
+    {
+      "lane": 4,
+      "ticks": "348-355",
+      "ground_body": 21,
+      "normal": 0.006958612495629998,
+      "absolute_tangent_bound": 0.0021171606115443766,
+      "contacts": 52,
+      "above_ratio_0_59": 38,
+      "normal_above_ratio_0_59": 0.00117208515363
+    },
+    {
+      "lane": 4,
+      "ticks": "348-355",
+      "ground_body": 22,
+      "normal": 0.019156703002450003,
+      "absolute_tangent_bound": 0.011493383938317472,
+      "contacts": 56,
+      "above_ratio_0_59": 56,
+      "normal_above_ratio_0_59": 0.019156703002450003
+    },
+    {
+      "lane": 4,
+      "ticks": "348-355",
+      "ground_body": 23,
+      "normal": 0.007475394187530001,
+      "absolute_tangent_bound": 0.0021621348335628347,
+      "contacts": 52,
+      "above_ratio_0_59": 38,
+      "normal_above_ratio_0_59": 0.00132550668953
+    },
+    {
+      "lane": 4,
+      "ticks": "348-355",
+      "ground_body": 24,
+      "normal": 0.01926664861268,
+      "absolute_tangent_bound": 0.011556585128568952,
+      "contacts": 56,
+      "above_ratio_0_59": 56,
+      "normal_above_ratio_0_59": 0.01926664861268
+    },
+    {
+      "lane": 4,
+      "ticks": "348-355",
+      "ground_body": 25,
+      "normal": 0.2228363458233761,
+      "absolute_tangent_bound": 0.02839528598780203,
+      "contacts": 376,
+      "above_ratio_0_59": 0,
+      "normal_above_ratio_0_59": 0.0
+    },
+    {
+      "lane": 4,
+      "ticks": "348-355",
+      "ground_body": 26,
+      "normal": 0.04008132331524129,
+      "absolute_tangent_bound": 0.009175842402829901,
+      "contacts": 364,
+      "above_ratio_0_59": 15,
+      "normal_above_ratio_0_59": 0.00045060470762100006
+    },
+    {
+      "lane": 4,
+      "ticks": "348-355",
+      "ground_body": 27,
+      "normal": 0.00834439138166,
+      "absolute_tangent_bound": 0.0021960654268420865,
+      "contacts": 52,
+      "above_ratio_0_59": 38,
+      "normal_above_ratio_0_59": 0.0016610611846599997
+    },
+    {
+      "lane": 4,
+      "ticks": "348-355",
+      "ground_body": 28,
+      "normal": 0.01951488609072999,
+      "absolute_tangent_bound": 0.011705367644120342,
+      "contacts": 56,
+      "above_ratio_0_59": 56,
+      "normal_above_ratio_0_59": 0.01951488609072999
+    },
+    {
+      "lane": 4,
+      "ticks": "348-355",
+      "ground_body": 29,
+      "normal": 0.007356053268429999,
+      "absolute_tangent_bound": 0.002196227600426561,
+      "contacts": 52,
+      "above_ratio_0_59": 38,
+      "normal_above_ratio_0_59": 0.00139540791043
+    },
+    {
+      "lane": 4,
+      "ticks": "348-355",
+      "ground_body": 30,
+      "normal": 0.019312404459680004,
+      "absolute_tangent_bound": 0.011586810372928646,
+      "contacts": 56,
+      "above_ratio_0_59": 56,
+      "normal_above_ratio_0_59": 0.019312404459680004
+    },
+    {
+      "lane": 4,
+      "ticks": "348-355",
+      "ground_body": 31,
+      "normal": 0.006340925973169998,
+      "absolute_tangent_bound": 0.002217678363605298,
+      "contacts": 52,
+      "above_ratio_0_59": 38,
+      "normal_above_ratio_0_59": 0.00115909935017
+    },
+    {
+      "lane": 4,
+      "ticks": "348-355",
+      "ground_body": 32,
+      "normal": 0.018945109584219993,
+      "absolute_tangent_bound": 0.01136685401966577,
+      "contacts": 56,
+      "above_ratio_0_59": 56,
+      "normal_above_ratio_0_59": 0.018945109584219993
+    },
+    {
+      "lane": 4,
+      "ticks": "348-355",
+      "ground_body": 33,
+      "normal": 0.22920527302258467,
+      "absolute_tangent_bound": 0.029379360738615978,
+      "contacts": 376,
+      "above_ratio_0_59": 0,
+      "normal_above_ratio_0_59": 0.0
+    },
+    {
+      "lane": 4,
+      "ticks": "348-355",
+      "ground_body": 34,
+      "normal": 0.03994508541245238,
+      "absolute_tangent_bound": 0.009089996467136659,
+      "contacts": 364,
+      "above_ratio_0_59": 15,
+      "normal_above_ratio_0_59": 0.000497514192026
+    },
+    {
+      "lane": 4,
+      "ticks": "356-365",
+      "ground_body": 20,
+      "normal": 0.018818223720177062,
+      "absolute_tangent_bound": 0.004839066326483858,
+      "contacts": 64,
+      "above_ratio_0_59": 0,
+      "normal_above_ratio_0_59": 0.0
+    },
+    {
+      "lane": 4,
+      "ticks": "356-365",
+      "ground_body": 22,
+      "normal": 0.01790742698198142,
+      "absolute_tangent_bound": 0.004212183659697945,
+      "contacts": 66,
+      "above_ratio_0_59": 0,
+      "normal_above_ratio_0_59": 0.0
+    },
+    {
+      "lane": 4,
+      "ticks": "356-365",
+      "ground_body": 24,
+      "normal": 0.017279927534078456,
+      "absolute_tangent_bound": 0.004257160938387119,
+      "contacts": 66,
+      "above_ratio_0_59": 0,
+      "normal_above_ratio_0_59": 0.0
+    },
+    {
+      "lane": 4,
+      "ticks": "356-365",
+      "ground_body": 25,
+      "normal": 0.13764179439805102,
+      "absolute_tangent_bound": 0.008465238468226015,
+      "contacts": 44,
+      "above_ratio_0_59": 0,
+      "normal_above_ratio_0_59": 0.0
+    },
+    {
+      "lane": 4,
+      "ticks": "356-365",
+      "ground_body": 26,
+      "normal": 0.0729656635158,
+      "absolute_tangent_bound": 0.036815956419569924,
+      "contacts": 28,
+      "above_ratio_0_59": 0,
+      "normal_above_ratio_0_59": 0.0
+    },
+    {
+      "lane": 4,
+      "ticks": "356-365",
+      "ground_body": 28,
+      "normal": 0.018764218552144354,
+      "absolute_tangent_bound": 0.006347553375246574,
+      "contacts": 66,
+      "above_ratio_0_59": 0,
+      "normal_above_ratio_0_59": 0.0
+    },
+    {
+      "lane": 4,
+      "ticks": "356-365",
+      "ground_body": 30,
+      "normal": 0.018589429544709712,
+      "absolute_tangent_bound": 0.006502888914045427,
+      "contacts": 62,
+      "above_ratio_0_59": 0,
+      "normal_above_ratio_0_59": 0.0
+    },
+    {
+      "lane": 4,
+      "ticks": "356-365",
+      "ground_body": 32,
+      "normal": 0.019069321390695226,
+      "absolute_tangent_bound": 0.0057723520209602,
+      "contacts": 60,
+      "above_ratio_0_59": 0,
+      "normal_above_ratio_0_59": 0.0
+    },
+    {
+      "lane": 4,
+      "ticks": "356-365",
+      "ground_body": 33,
+      "normal": 0.13989940810719304,
+      "absolute_tangent_bound": 0.008718281014113356,
+      "contacts": 44,
+      "above_ratio_0_59": 0,
+      "normal_above_ratio_0_59": 0.0
+    },
+    {
+      "lane": 4,
+      "ticks": "356-365",
+      "ground_body": 34,
+      "normal": 0.07271878237439999,
+      "absolute_tangent_bound": 0.036638265964019624,
+      "contacts": 28,
+      "above_ratio_0_59": 0,
+      "normal_above_ratio_0_59": 0.0
+    },
+    {
+      "lane": 5,
+      "ticks": "348-355",
+      "ground_body": 11,
+      "normal": 0.0578781209585,
+      "absolute_tangent_bound": 0.008545136059280358,
+      "contacts": 24,
+      "above_ratio_0_59": 0,
+      "normal_above_ratio_0_59": 0.0
+    },
+    {
+      "lane": 5,
+      "ticks": "348-355",
+      "ground_body": 15,
+      "normal": 0.0576683145327,
+      "absolute_tangent_bound": 0.008533807468982815,
+      "contacts": 24,
+      "above_ratio_0_59": 0,
+      "normal_above_ratio_0_59": 0.0
+    },
+    {
+      "lane": 5,
+      "ticks": "348-355",
+      "ground_body": 19,
+      "normal": 0.00483500731585,
+      "absolute_tangent_bound": 0.00184035881640474,
+      "contacts": 50,
+      "above_ratio_0_59": 36,
+      "normal_above_ratio_0_59": 0.0014276054538499999
+    },
+    {
+      "lane": 5,
+      "ticks": "348-355",
+      "ground_body": 20,
+      "normal": 0.0189514183983,
+      "absolute_tangent_bound": 0.011370609952400662,
+      "contacts": 56,
+      "above_ratio_0_59": 56,
+      "normal_above_ratio_0_59": 0.0189514183983
+    },
+    {
+      "lane": 5,
+      "ticks": "348-355",
+      "ground_body": 21,
+      "normal": 0.005679693062039999,
+      "absolute_tangent_bound": 0.0021234621014955555,
+      "contacts": 50,
+      "above_ratio_0_59": 36,
+      "normal_above_ratio_0_59": 0.00152092936804
+    },
+    {
+      "lane": 5,
+      "ticks": "348-355",
+      "ground_body": 22,
+      "normal": 0.01922287993050001,
+      "absolute_tangent_bound": 0.01153292858715282,
+      "contacts": 56,
+      "above_ratio_0_59": 56,
+      "normal_above_ratio_0_59": 0.01922287993050001
+    },
+    {
+      "lane": 5,
+      "ticks": "348-355",
+      "ground_body": 23,
+      "normal": 0.006396040525850001,
+      "absolute_tangent_bound": 0.0024433132172493512,
+      "contacts": 50,
+      "above_ratio_0_59": 36,
+      "normal_above_ratio_0_59": 0.0016134571048500002
+    },
+    {
+      "lane": 5,
+      "ticks": "348-355",
+      "ground_body": 24,
+      "normal": 0.019322966913299995,
+      "absolute_tangent_bound": 0.01158972187152724,
+      "contacts": 56,
+      "above_ratio_0_59": 56,
+      "normal_above_ratio_0_59": 0.019322966913299995
+    },
+    {
+      "lane": 5,
+      "ticks": "348-355",
+      "ground_body": 25,
+      "normal": 0.22275270913423184,
+      "absolute_tangent_bound": 0.02811900165026858,
+      "contacts": 376,
+      "above_ratio_0_59": 0,
+      "normal_above_ratio_0_59": 0.0
+    },
+    {
+      "lane": 5,
+      "ticks": "348-355",
+      "ground_body": 26,
+      "normal": 0.04007538817115882,
+      "absolute_tangent_bound": 0.00902537398069766,
+      "contacts": 364,
+      "above_ratio_0_59": 15,
+      "normal_above_ratio_0_59": 0.0004680566025889999
+    },
+    {
+      "lane": 5,
+      "ticks": "348-355",
+      "ground_body": 27,
+      "normal": 0.007541978821620002,
+      "absolute_tangent_bound": 0.0029126072176634144,
+      "contacts": 50,
+      "above_ratio_0_59": 36,
+      "normal_above_ratio_0_59": 0.0017989560016199995
+    },
+    {
+      "lane": 5,
+      "ticks": "348-355",
+      "ground_body": 28,
+      "normal": 0.019578644895499996,
+      "absolute_tangent_bound": 0.011742960701694213,
+      "contacts": 56,
+      "above_ratio_0_59": 56,
+      "normal_above_ratio_0_59": 0.019578644895499996
+    },
+    {
+      "lane": 5,
+      "ticks": "348-355",
+      "ground_body": 29,
+      "normal": 0.00648759986159,
+      "absolute_tangent_bound": 0.0024476105858625146,
+      "contacts": 50,
+      "above_ratio_0_59": 36,
+      "normal_above_ratio_0_59": 0.0016611355945899992
+    },
+    {
+      "lane": 5,
+      "ticks": "348-355",
+      "ground_body": 30,
+      "normal": 0.019388399754199998,
+      "absolute_tangent_bound": 0.011632240716302911,
+      "contacts": 56,
+      "above_ratio_0_59": 56,
+      "normal_above_ratio_0_59": 0.019388399754199998
+    },
+    {
+      "lane": 5,
+      "ticks": "348-355",
+      "ground_body": 31,
+      "normal": 0.00529041710007,
+      "absolute_tangent_bound": 0.002027836219426401,
+      "contacts": 50,
+      "above_ratio_0_59": 36,
+      "normal_above_ratio_0_59": 0.00152281576907
+    },
+    {
+      "lane": 5,
+      "ticks": "348-355",
+      "ground_body": 32,
+      "normal": 0.0190226571679,
+      "absolute_tangent_bound": 0.011413358757644232,
+      "contacts": 56,
+      "above_ratio_0_59": 56,
+      "normal_above_ratio_0_59": 0.0190226571679
+    },
+    {
+      "lane": 5,
+      "ticks": "348-355",
+      "ground_body": 33,
+      "normal": 0.22921626699037967,
+      "absolute_tangent_bound": 0.028848151242612724,
+      "contacts": 376,
+      "above_ratio_0_59": 0,
+      "normal_above_ratio_0_59": 0.0
+    },
+    {
+      "lane": 5,
+      "ticks": "348-355",
+      "ground_body": 34,
+      "normal": 0.04006409904921675,
+      "absolute_tangent_bound": 0.008998565887030685,
+      "contacts": 364,
+      "above_ratio_0_59": 15,
+      "normal_above_ratio_0_59": 0.0005018595055680001
+    },
+    {
+      "lane": 5,
+      "ticks": "356-365",
+      "ground_body": 20,
+      "normal": 0.01972495629402652,
+      "absolute_tangent_bound": 0.006825296537796195,
+      "contacts": 66,
+      "above_ratio_0_59": 2,
+      "normal_above_ratio_0_59": 0.0023777782900000002
+    },
+    {
+      "lane": 5,
+      "ticks": "356-365",
+      "ground_body": 22,
+      "normal": 0.0195765650613112,
+      "absolute_tangent_bound": 0.006628840358479369,
+      "contacts": 66,
+      "above_ratio_0_59": 2,
+      "normal_above_ratio_0_59": 0.0021219364099999997
+    },
+    {
+      "lane": 5,
+      "ticks": "356-365",
+      "ground_body": 24,
+      "normal": 0.01956036346166625,
+      "absolute_tangent_bound": 0.006936512420732775,
+      "contacts": 66,
+      "above_ratio_0_59": 2,
+      "normal_above_ratio_0_59": 0.0020555791
+    },
+    {
+      "lane": 5,
+      "ticks": "356-365",
+      "ground_body": 25,
+      "normal": 0.13154245722565402,
+      "absolute_tangent_bound": 0.007322025027112399,
+      "contacts": 44,
+      "above_ratio_0_59": 0,
+      "normal_above_ratio_0_59": 0.0
+    },
+    {
+      "lane": 5,
+      "ticks": "356-365",
+      "ground_body": 26,
+      "normal": 0.07305505708310002,
+      "absolute_tangent_bound": 0.036521519565427964,
+      "contacts": 28,
+      "above_ratio_0_59": 0,
+      "normal_above_ratio_0_59": 0.0
+    },
+    {
+      "lane": 5,
+      "ticks": "356-365",
+      "ground_body": 28,
+      "normal": 0.020175444432100106,
+      "absolute_tangent_bound": 0.0072907281791118935,
+      "contacts": 66,
+      "above_ratio_0_59": 2,
+      "normal_above_ratio_0_59": 0.0018851943320000002
+    },
+    {
+      "lane": 5,
+      "ticks": "356-365",
+      "ground_body": 30,
+      "normal": 0.020102031200063913,
+      "absolute_tangent_bound": 0.006889788343388112,
+      "contacts": 66,
+      "above_ratio_0_59": 2,
+      "normal_above_ratio_0_59": 0.0020328793899999998
+    },
+    {
+      "lane": 5,
+      "ticks": "356-365",
+      "ground_body": 32,
+      "normal": 0.019997679440604287,
+      "absolute_tangent_bound": 0.006708044808881369,
+      "contacts": 66,
+      "above_ratio_0_59": 2,
+      "normal_above_ratio_0_59": 0.00237523869
+    },
+    {
+      "lane": 5,
+      "ticks": "356-365",
+      "ground_body": 33,
+      "normal": 0.133511460068179,
+      "absolute_tangent_bound": 0.007581972372158606,
+      "contacts": 44,
+      "above_ratio_0_59": 0,
+      "normal_above_ratio_0_59": 0.0
+    },
+    {
+      "lane": 5,
+      "ticks": "356-365",
+      "ground_body": 34,
+      "normal": 0.07301292228500002,
+      "absolute_tangent_bound": 0.03649999483137867,
+      "contacts": 28,
+      "above_ratio_0_59": 0,
+      "normal_above_ratio_0_59": 0.0
+    },
+    {
+      "lane": 6,
+      "ticks": "348-355",
+      "ground_body": 11,
+      "normal": 0.05370440309789999,
+      "absolute_tangent_bound": 0.007628155801909563,
+      "contacts": 24,
+      "above_ratio_0_59": 2,
+      "normal_above_ratio_0_59": 0.000612320655
+    },
+    {
+      "lane": 6,
+      "ticks": "348-355",
+      "ground_body": 15,
+      "normal": 0.054316380153800005,
+      "absolute_tangent_bound": 0.007717226448343453,
+      "contacts": 24,
+      "above_ratio_0_59": 2,
+      "normal_above_ratio_0_59": 0.000772575644
+    },
+    {
+      "lane": 6,
+      "ticks": "348-355",
+      "ground_body": 19,
+      "normal": 0.006004889245060004,
+      "absolute_tangent_bound": 0.0022100401438774776,
+      "contacts": 50,
+      "above_ratio_0_59": 36,
+      "normal_above_ratio_0_59": 0.0026760402070600004
+    },
+    {
+      "lane": 6,
+      "ticks": "348-355",
+      "ground_body": 20,
+      "normal": 0.019078558365499994,
+      "absolute_tangent_bound": 0.011446821428297876,
+      "contacts": 60,
+      "above_ratio_0_59": 60,
+      "normal_above_ratio_0_59": 0.019078558365499994
+    },
+    {
+      "lane": 6,
+      "ticks": "348-355",
+      "ground_body": 21,
+      "normal": 0.006818175204999999,
+      "absolute_tangent_bound": 0.002125692043203533,
+      "contacts": 50,
+      "above_ratio_0_59": 36,
+      "normal_above_ratio_0_59": 0.0027823834290000003
+    },
+    {
+      "lane": 6,
+      "ticks": "348-355",
+      "ground_body": 22,
+      "normal": 0.019375963209600007,
+      "absolute_tangent_bound": 0.011623879514646863,
+      "contacts": 60,
+      "above_ratio_0_59": 60,
+      "normal_above_ratio_0_59": 0.019375963209600007
+    },
+    {
+      "lane": 6,
+      "ticks": "348-355",
+      "ground_body": 23,
+      "normal": 0.007524467620020001,
+      "absolute_tangent_bound": 0.0022329370665322757,
+      "contacts": 50,
+      "above_ratio_0_59": 36,
+      "normal_above_ratio_0_59": 0.0028854473590199992
+    },
+    {
+      "lane": 6,
+      "ticks": "348-355",
+      "ground_body": 24,
+      "normal": 0.019469634515400007,
+      "absolute_tangent_bound": 0.011674391357317626,
+      "contacts": 60,
+      "above_ratio_0_59": 60,
+      "normal_above_ratio_0_59": 0.019469634515400007
+    },
+    {
+      "lane": 6,
+      "ticks": "348-355",
+      "ground_body": 25,
+      "normal": 0.22306653629564752,
+      "absolute_tangent_bound": 0.028191747831314565,
+      "contacts": 376,
+      "above_ratio_0_59": 0,
+      "normal_above_ratio_0_59": 0.0
+    },
+    {
+      "lane": 6,
+      "ticks": "348-355",
+      "ground_body": 26,
+      "normal": 0.03995515892823226,
+      "absolute_tangent_bound": 0.00901544044345818,
+      "contacts": 364,
+      "above_ratio_0_59": 15,
+      "normal_above_ratio_0_59": 0.00043120029406499996
+    },
+    {
+      "lane": 6,
+      "ticks": "348-355",
+      "ground_body": 27,
+      "normal": 0.00747466277495,
+      "absolute_tangent_bound": 0.002274122258908276,
+      "contacts": 50,
+      "above_ratio_0_59": 36,
+      "normal_above_ratio_0_59": 0.00307101965595
+    },
+    {
+      "lane": 6,
+      "ticks": "348-355",
+      "ground_body": 28,
+      "normal": 0.019657175145800003,
+      "absolute_tangent_bound": 0.01178662392275666,
+      "contacts": 56,
+      "above_ratio_0_59": 56,
+      "normal_above_ratio_0_59": 0.019657175145800003
+    },
+    {
+      "lane": 6,
+      "ticks": "348-355",
+      "ground_body": 29,
+      "normal": 0.006443660009530001,
+      "absolute_tangent_bound": 0.002143105780242203,
+      "contacts": 50,
+      "above_ratio_0_59": 36,
+      "normal_above_ratio_0_59": 0.00292360765153
+    },
+    {
+      "lane": 6,
+      "ticks": "348-355",
+      "ground_body": 30,
+      "normal": 0.019542176903899998,
+      "absolute_tangent_bound": 0.011723584929402243,
+      "contacts": 60,
+      "above_ratio_0_59": 60,
+      "normal_above_ratio_0_59": 0.019542176903899998
+    },
+    {
+      "lane": 6,
+      "ticks": "348-355",
+      "ground_body": 31,
+      "normal": 0.005461725065409998,
+      "absolute_tangent_bound": 0.0021843094789379906,
+      "contacts": 50,
+      "above_ratio_0_59": 36,
+      "normal_above_ratio_0_59": 0.00277112218041
+    },
+    {
+      "lane": 6,
+      "ticks": "348-355",
+      "ground_body": 32,
+      "normal": 0.0191484509013,
+      "absolute_tangent_bound": 0.011488773810505578,
+      "contacts": 60,
+      "above_ratio_0_59": 60,
+      "normal_above_ratio_0_59": 0.0191484509013
+    },
+    {
+      "lane": 6,
+      "ticks": "348-355",
+      "ground_body": 33,
+      "normal": 0.22979957877111257,
+      "absolute_tangent_bound": 0.02861151696137575,
+      "contacts": 376,
+      "above_ratio_0_59": 0,
+      "normal_above_ratio_0_59": 0.0
+    },
+    {
+      "lane": 6,
+      "ticks": "348-355",
+      "ground_body": 34,
+      "normal": 0.039402929886556415,
+      "absolute_tangent_bound": 0.008525742142057764,
+      "contacts": 364,
+      "above_ratio_0_59": 15,
+      "normal_above_ratio_0_59": 0.0004810850925870001
+    },
+    {
+      "lane": 6,
+      "ticks": "356-365",
+      "ground_body": 20,
+      "normal": 0.02003244828315266,
+      "absolute_tangent_bound": 0.00566332832832196,
+      "contacts": 66,
+      "above_ratio_0_59": 0,
+      "normal_above_ratio_0_59": 0.0
+    },
+    {
+      "lane": 6,
+      "ticks": "356-365",
+      "ground_body": 22,
+      "normal": 0.01970487175249366,
+      "absolute_tangent_bound": 0.0057732114235233166,
+      "contacts": 66,
+      "above_ratio_0_59": 0,
+      "normal_above_ratio_0_59": 0.0
+    },
+    {
+      "lane": 6,
+      "ticks": "356-365",
+      "ground_body": 24,
+      "normal": 0.019652754351634855,
+      "absolute_tangent_bound": 0.005596474429115461,
+      "contacts": 68,
+      "above_ratio_0_59": 0,
+      "normal_above_ratio_0_59": 0.0
+    },
+    {
+      "lane": 6,
+      "ticks": "356-365",
+      "ground_body": 25,
+      "normal": 0.13258730622069706,
+      "absolute_tangent_bound": 0.007250336363923582,
+      "contacts": 44,
+      "above_ratio_0_59": 0,
+      "normal_above_ratio_0_59": 0.0
+    },
+    {
+      "lane": 6,
+      "ticks": "356-365",
+      "ground_body": 26,
+      "normal": 0.07202571130289999,
+      "absolute_tangent_bound": 0.03596340508758898,
+      "contacts": 28,
+      "above_ratio_0_59": 0,
+      "normal_above_ratio_0_59": 0.0
+    },
+    {
+      "lane": 6,
+      "ticks": "356-365",
+      "ground_body": 28,
+      "normal": 0.020734840532294005,
+      "absolute_tangent_bound": 0.007091537626418086,
+      "contacts": 68,
+      "above_ratio_0_59": 0,
+      "normal_above_ratio_0_59": 0.0
+    },
+    {
+      "lane": 6,
+      "ticks": "356-365",
+      "ground_body": 30,
+      "normal": 0.020778865810294676,
+      "absolute_tangent_bound": 0.00668765034736531,
+      "contacts": 68,
+      "above_ratio_0_59": 0,
+      "normal_above_ratio_0_59": 0.0
+    },
+    {
+      "lane": 6,
+      "ticks": "356-365",
+      "ground_body": 32,
+      "normal": 0.020989640149742184,
+      "absolute_tangent_bound": 0.006472688191218224,
+      "contacts": 66,
+      "above_ratio_0_59": 0,
+      "normal_above_ratio_0_59": 0.0
+    },
+    {
+      "lane": 6,
+      "ticks": "356-365",
+      "ground_body": 33,
+      "normal": 0.13800178362178298,
+      "absolute_tangent_bound": 0.008083376594648098,
+      "contacts": 44,
+      "above_ratio_0_59": 0,
+      "normal_above_ratio_0_59": 0.0
+    },
+    {
+      "lane": 6,
+      "ticks": "356-365",
+      "ground_body": 34,
+      "normal": 0.0727409457547,
+      "absolute_tangent_bound": 0.03612431239896272,
+      "contacts": 28,
+      "above_ratio_0_59": 0,
+      "normal_above_ratio_0_59": 0.0
+    },
+    {
+      "lane": 7,
+      "ticks": "348-355",
+      "ground_body": 11,
+      "normal": 0.04836697637030001,
+      "absolute_tangent_bound": 0.008093079327101908,
+      "contacts": 42,
+      "above_ratio_0_59": 0,
+      "normal_above_ratio_0_59": 0.0
+    },
+    {
+      "lane": 7,
+      "ticks": "348-355",
+      "ground_body": 15,
+      "normal": 0.049285315201000005,
+      "absolute_tangent_bound": 0.008129743851923546,
+      "contacts": 42,
+      "above_ratio_0_59": 0,
+      "normal_above_ratio_0_59": 0.0
+    },
+    {
+      "lane": 7,
+      "ticks": "348-355",
+      "ground_body": 19,
+      "normal": 0.00630428343765,
+      "absolute_tangent_bound": 0.0037821049337047876,
+      "contacts": 38,
+      "above_ratio_0_59": 38,
+      "normal_above_ratio_0_59": 0.00630428343765
+    },
+    {
+      "lane": 7,
+      "ticks": "348-355",
+      "ground_body": 20,
+      "normal": 0.019988608520999998,
+      "absolute_tangent_bound": 0.011991272818183948,
+      "contacts": 26,
+      "above_ratio_0_59": 26,
+      "normal_above_ratio_0_59": 0.019988608520999998
+    },
+    {
+      "lane": 7,
+      "ticks": "348-355",
+      "ground_body": 21,
+      "normal": 0.00642512021225,
+      "absolute_tangent_bound": 0.0038528793802199784,
+      "contacts": 38,
+      "above_ratio_0_59": 38,
+      "normal_above_ratio_0_59": 0.00642512021225
+    },
+    {
+      "lane": 7,
+      "ticks": "348-355",
+      "ground_body": 22,
+      "normal": 0.020220539629,
+      "absolute_tangent_bound": 0.012129490709601185,
+      "contacts": 26,
+      "above_ratio_0_59": 26,
+      "normal_above_ratio_0_59": 0.020220539629
+    },
+    {
+      "lane": 7,
+      "ticks": "348-355",
+      "ground_body": 23,
+      "normal": 0.006532551537730001,
+      "absolute_tangent_bound": 0.003914337365876359,
+      "contacts": 38,
+      "above_ratio_0_59": 38,
+      "normal_above_ratio_0_59": 0.006532551537730001
+    },
+    {
+      "lane": 7,
+      "ticks": "348-355",
+      "ground_body": 24,
+      "normal": 0.020454810575000003,
+      "absolute_tangent_bound": 0.0122659744355803,
+      "contacts": 26,
+      "above_ratio_0_59": 26,
+      "normal_above_ratio_0_59": 0.020454810575000003
+    },
+    {
+      "lane": 7,
+      "ticks": "348-355",
+      "ground_body": 25,
+      "normal": 0.21861029521352593,
+      "absolute_tangent_bound": 0.024979933270742723,
+      "contacts": 380,
+      "above_ratio_0_59": 2,
+      "normal_above_ratio_0_59": 2.049811746e-05
+    },
+    {
+      "lane": 7,
+      "ticks": "348-355",
+      "ground_body": 26,
+      "normal": 0.04165725073734733,
+      "absolute_tangent_bound": 0.00806782197620892,
+      "contacts": 364,
+      "above_ratio_0_59": 74,
+      "normal_above_ratio_0_59": 0.0029468474966067833
+    },
+    {
+      "lane": 7,
+      "ticks": "348-355",
+      "ground_body": 27,
+      "normal": 0.0066066096711,
+      "absolute_tangent_bound": 0.003958700803124576,
+      "contacts": 38,
+      "above_ratio_0_59": 38,
+      "normal_above_ratio_0_59": 0.0066066096711
+    },
+    {
+      "lane": 7,
+      "ticks": "348-355",
+      "ground_body": 28,
+      "normal": 0.020698079525999998,
+      "absolute_tangent_bound": 0.01241178480699717,
+      "contacts": 26,
+      "above_ratio_0_59": 26,
+      "normal_above_ratio_0_59": 0.020698079525999998
+    },
+    {
+      "lane": 7,
+      "ticks": "348-355",
+      "ground_body": 29,
+      "normal": 0.0064612460737099985,
+      "absolute_tangent_bound": 0.0038745333950524225,
+      "contacts": 38,
+      "above_ratio_0_59": 38,
+      "normal_above_ratio_0_59": 0.0064612460737099985
+    },
+    {
+      "lane": 7,
+      "ticks": "348-355",
+      "ground_body": 30,
+      "normal": 0.020370047560000003,
+      "absolute_tangent_bound": 0.01221911567378584,
+      "contacts": 26,
+      "above_ratio_0_59": 26,
+      "normal_above_ratio_0_59": 0.020370047560000003
+    },
+    {
+      "lane": 7,
+      "ticks": "348-355",
+      "ground_body": 31,
+      "normal": 0.0063017011866,
+      "absolute_tangent_bound": 0.0037805554725900818,
+      "contacts": 38,
+      "above_ratio_0_59": 38,
+      "normal_above_ratio_0_59": 0.0063017011866
+    },
+    {
+      "lane": 7,
+      "ticks": "348-355",
+      "ground_body": 32,
+      "normal": 0.020042462709,
+      "absolute_tangent_bound": 0.01202358809520086,
+      "contacts": 26,
+      "above_ratio_0_59": 26,
+      "normal_above_ratio_0_59": 0.020042462709
+    },
+    {
+      "lane": 7,
+      "ticks": "348-355",
+      "ground_body": 33,
+      "normal": 0.22360344407002303,
+      "absolute_tangent_bound": 0.025267136744336366,
+      "contacts": 380,
+      "above_ratio_0_59": 2,
+      "normal_above_ratio_0_59": 2.829275401e-05
+    },
+    {
+      "lane": 7,
+      "ticks": "348-355",
+      "ground_body": 34,
+      "normal": 0.04221097735107266,
+      "absolute_tangent_bound": 0.008452972087737338,
+      "contacts": 364,
+      "above_ratio_0_59": 133,
+      "normal_above_ratio_0_59": 0.0035916230606044654
+    },
+    {
+      "lane": 7,
+      "ticks": "356-365",
+      "ground_body": 20,
+      "normal": 0.0217157394742785,
+      "absolute_tangent_bound": 0.005889718931680381,
+      "contacts": 84,
+      "above_ratio_0_59": 2,
+      "normal_above_ratio_0_59": 0.001232311188
+    },
+    {
+      "lane": 7,
+      "ticks": "356-365",
+      "ground_body": 22,
+      "normal": 0.021710538581892834,
+      "absolute_tangent_bound": 0.004852739931306463,
+      "contacts": 86,
+      "above_ratio_0_59": 2,
+      "normal_above_ratio_0_59": 0.000916544552
+    },
+    {
+      "lane": 7,
+      "ticks": "356-365",
+      "ground_body": 24,
+      "normal": 0.021751332783249894,
+      "absolute_tangent_bound": 0.0044281081661510764,
+      "contacts": 86,
+      "above_ratio_0_59": 2,
+      "normal_above_ratio_0_59": 0.000580134016
+    },
+    {
+      "lane": 7,
+      "ticks": "356-365",
+      "ground_body": 25,
+      "normal": 0.13891985769654402,
+      "absolute_tangent_bound": 0.00881400762068779,
+      "contacts": 36,
+      "above_ratio_0_59": 0,
+      "normal_above_ratio_0_59": 0.0
+    },
+    {
+      "lane": 7,
+      "ticks": "356-365",
+      "ground_body": 26,
+      "normal": 0.065197866321,
+      "absolute_tangent_bound": 0.03451489011468195,
+      "contacts": 20,
+      "above_ratio_0_59": 10,
+      "normal_above_ratio_0_59": 0.024478455101
+    },
+    {
+      "lane": 7,
+      "ticks": "356-365",
+      "ground_body": 28,
+      "normal": 0.02246181221855469,
+      "absolute_tangent_bound": 0.005221716437140659,
+      "contacts": 86,
+      "above_ratio_0_59": 2,
+      "normal_above_ratio_0_59": 0.0001633884312
+    },
+    {
+      "lane": 7,
+      "ticks": "356-365",
+      "ground_body": 30,
+      "normal": 0.02241636352736199,
+      "absolute_tangent_bound": 0.005036881248037759,
+      "contacts": 84,
+      "above_ratio_0_59": 2,
+      "normal_above_ratio_0_59": 0.0006571638230000001
+    },
+    {
+      "lane": 7,
+      "ticks": "356-365",
+      "ground_body": 32,
+      "normal": 0.02262896211864701,
+      "absolute_tangent_bound": 0.005913854364344009,
+      "contacts": 80,
+      "above_ratio_0_59": 2,
+      "normal_above_ratio_0_59": 0.001109874342
+    },
+    {
+      "lane": 7,
+      "ticks": "356-365",
+      "ground_body": 33,
+      "normal": 0.14503767434062503,
+      "absolute_tangent_bound": 0.00956667913243032,
+      "contacts": 36,
+      "above_ratio_0_59": 0,
+      "normal_above_ratio_0_59": 0.0
+    },
+    {
+      "lane": 7,
+      "ticks": "356-365",
+      "ground_body": 34,
+      "normal": 0.06559823603,
+      "absolute_tangent_bound": 0.034790408674374176,
+      "contacts": 22,
+      "above_ratio_0_59": 14,
+      "normal_above_ratio_0_59": 0.043800040600000006
+    }
+  ]
+}
