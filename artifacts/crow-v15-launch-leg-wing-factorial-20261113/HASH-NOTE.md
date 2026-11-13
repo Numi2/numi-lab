@@ -1,0 +1,3 @@
+# Host hash label correction
+
+The inherited build.py writes the hash of build/crow-v15-matched-binary-gait-screen-20261112/libmetalrobo.dylib under the generic key `host` in each shader hash file. That file is not the runtime host used by run.py. The actual loaded diagnostic library is build/crow-v15-contact-timed-wing-screen-20261112/libmetalrobo.dylib, recorded independently as `host_sha256` in each run's inputs.json. The mismatch was found before interpreting any trial; preserve the inherited build script and mislabeled outputs for reproducibility. Shader and source hashes remain correctly labeled. Do not identify the executable host from the build hash files.

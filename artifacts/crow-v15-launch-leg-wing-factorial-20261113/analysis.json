@@ -1,0 +1,1891 @@
+{
+  "parity": {
+    "push-wing vs nopush-wing": {
+      "prefix_last_step": 345,
+      "rows": [
+        {
+          "lane": 0,
+          "first_state_difference": 351,
+          "first_contact_difference": [
+            351,
+            0
+          ],
+          "prefix_pass": true
+        },
+        {
+          "lane": 1,
+          "first_state_difference": 351,
+          "first_contact_difference": [
+            351,
+            0
+          ],
+          "prefix_pass": true
+        },
+        {
+          "lane": 2,
+          "first_state_difference": 351,
+          "first_contact_difference": [
+            351,
+            1
+          ],
+          "prefix_pass": true
+        },
+        {
+          "lane": 3,
+          "first_state_difference": 351,
+          "first_contact_difference": [
+            351,
+            1
+          ],
+          "prefix_pass": true
+        },
+        {
+          "lane": 4,
+          "first_state_difference": 351,
+          "first_contact_difference": [
+            351,
+            1
+          ],
+          "prefix_pass": true
+        },
+        {
+          "lane": 5,
+          "first_state_difference": 351,
+          "first_contact_difference": [
+            351,
+            1
+          ],
+          "prefix_pass": true
+        },
+        {
+          "lane": 6,
+          "first_state_difference": 351,
+          "first_contact_difference": [
+            351,
+            0
+          ],
+          "prefix_pass": true
+        },
+        {
+          "lane": 7,
+          "first_state_difference": 351,
+          "first_contact_difference": [
+            351,
+            0
+          ],
+          "prefix_pass": true
+        }
+      ]
+    },
+    "push-nowings vs nopush-nowings": {
+      "prefix_last_step": 345,
+      "rows": [
+        {
+          "lane": 0,
+          "first_state_difference": 351,
+          "first_contact_difference": [
+            351,
+            0
+          ],
+          "prefix_pass": true
+        },
+        {
+          "lane": 1,
+          "first_state_difference": 351,
+          "first_contact_difference": [
+            351,
+            0
+          ],
+          "prefix_pass": true
+        },
+        {
+          "lane": 2,
+          "first_state_difference": 351,
+          "first_contact_difference": [
+            351,
+            0
+          ],
+          "prefix_pass": true
+        },
+        {
+          "lane": 3,
+          "first_state_difference": 351,
+          "first_contact_difference": [
+            351,
+            0
+          ],
+          "prefix_pass": true
+        },
+        {
+          "lane": 4,
+          "first_state_difference": 351,
+          "first_contact_difference": [
+            351,
+            0
+          ],
+          "prefix_pass": true
+        },
+        {
+          "lane": 5,
+          "first_state_difference": 351,
+          "first_contact_difference": [
+            351,
+            0
+          ],
+          "prefix_pass": true
+        },
+        {
+          "lane": 6,
+          "first_state_difference": 351,
+          "first_contact_difference": [
+            351,
+            0
+          ],
+          "prefix_pass": true
+        },
+        {
+          "lane": 7,
+          "first_state_difference": 351,
+          "first_contact_difference": [
+            351,
+            0
+          ],
+          "prefix_pass": true
+        }
+      ]
+    },
+    "push-wing vs push-nowings": {
+      "prefix_last_step": 315,
+      "rows": [
+        {
+          "lane": 0,
+          "first_state_difference": null,
+          "first_contact_difference": null,
+          "prefix_pass": true
+        },
+        {
+          "lane": 1,
+          "first_state_difference": null,
+          "first_contact_difference": null,
+          "prefix_pass": true
+        },
+        {
+          "lane": 2,
+          "first_state_difference": 351,
+          "first_contact_difference": [
+            351,
+            0
+          ],
+          "prefix_pass": true
+        },
+        {
+          "lane": 3,
+          "first_state_difference": 351,
+          "first_contact_difference": [
+            351,
+            0
+          ],
+          "prefix_pass": true
+        },
+        {
+          "lane": 4,
+          "first_state_difference": 351,
+          "first_contact_difference": [
+            351,
+            0
+          ],
+          "prefix_pass": true
+        },
+        {
+          "lane": 5,
+          "first_state_difference": 351,
+          "first_contact_difference": [
+            351,
+            0
+          ],
+          "prefix_pass": true
+        },
+        {
+          "lane": 6,
+          "first_state_difference": 351,
+          "first_contact_difference": [
+            351,
+            0
+          ],
+          "prefix_pass": true
+        },
+        {
+          "lane": 7,
+          "first_state_difference": 351,
+          "first_contact_difference": [
+            351,
+            0
+          ],
+          "prefix_pass": true
+        }
+      ]
+    },
+    "nopush-wing vs nopush-nowings": {
+      "prefix_last_step": 315,
+      "rows": [
+        {
+          "lane": 0,
+          "first_state_difference": 377,
+          "first_contact_difference": [
+            379,
+            14
+          ],
+          "prefix_pass": true
+        },
+        {
+          "lane": 1,
+          "first_state_difference": 377,
+          "first_contact_difference": [
+            379,
+            12
+          ],
+          "prefix_pass": true
+        },
+        {
+          "lane": 2,
+          "first_state_difference": 351,
+          "first_contact_difference": [
+            351,
+            0
+          ],
+          "prefix_pass": true
+        },
+        {
+          "lane": 3,
+          "first_state_difference": 351,
+          "first_contact_difference": [
+            351,
+            0
+          ],
+          "prefix_pass": true
+        },
+        {
+          "lane": 4,
+          "first_state_difference": 351,
+          "first_contact_difference": [
+            351,
+            0
+          ],
+          "prefix_pass": true
+        },
+        {
+          "lane": 5,
+          "first_state_difference": 351,
+          "first_contact_difference": [
+            351,
+            0
+          ],
+          "prefix_pass": true
+        },
+        {
+          "lane": 6,
+          "first_state_difference": 351,
+          "first_contact_difference": [
+            351,
+            0
+          ],
+          "prefix_pass": true
+        },
+        {
+          "lane": 7,
+          "first_state_difference": 351,
+          "first_contact_difference": [
+            351,
+            0
+          ],
+          "prefix_pass": true
+        }
+      ]
+    }
+  },
+  "arms": {
+    "push-wing": [
+      {
+        "lane": 0,
+        "foot_upward_impulse_348_365_ns": [
+          0.7925945736002018,
+          0.8053566080021496
+        ],
+        "foot_upward_impulse_348_400_ns": [
+          2.3259007421643205,
+          2.3632432581833056
+        ],
+        "states": {
+          "345": {
+            "height_m": 0.162790731,
+            "vertical_velocity_m_s": 0.00048707542,
+            "wing_joint_q": [
+              -0.00127848005,
+              0.00123682956
+            ]
+          },
+          "365": {
+            "height_m": 0.176404312,
+            "vertical_velocity_m_s": -0.00445804978,
+            "wing_joint_q": [
+              -0.00131293805,
+              0.00120799674
+            ]
+          },
+          "380": {
+            "height_m": 0.175583452,
+            "vertical_velocity_m_s": -0.00298139779,
+            "wing_joint_q": [
+              -0.00138983352,
+              0.00110991299
+            ]
+          },
+          "400": {
+            "height_m": 0.175534129,
+            "vertical_velocity_m_s": 2.58985092e-05,
+            "wing_joint_q": [
+              -0.00124169781,
+              0.00127334101
+            ]
+          }
+        },
+        "first_two_unloaded_intervals": null,
+        "first_recontact_interval": null,
+        "toe_speed_cap_substeps": 0,
+        "nonfoot_ground_impulse_348_400_ns": 0.0
+      },
+      {
+        "lane": 1,
+        "foot_upward_impulse_348_365_ns": [
+          0.7926585902420278,
+          0.8055637797340407
+        ],
+        "foot_upward_impulse_348_400_ns": [
+          2.3263206337877094,
+          2.3631105321869126
+        ],
+        "states": {
+          "345": {
+            "height_m": 0.162840337,
+            "vertical_velocity_m_s": 0.000506421842,
+            "wing_joint_q": [
+              -0.000968753418,
+              0.000922510517
+            ]
+          },
+          "365": {
+            "height_m": 0.176548123,
+            "vertical_velocity_m_s": -0.00439101458,
+            "wing_joint_q": [
+              -0.00100351835,
+              0.000893194694
+            ]
+          },
+          "380": {
+            "height_m": 0.175462782,
+            "vertical_velocity_m_s": 0.00138566084,
+            "wing_joint_q": [
+              -0.00111773552,
+              0.000750488893
+            ]
+          },
+          "400": {
+            "height_m": 0.17553468,
+            "vertical_velocity_m_s": 3.39897597e-05,
+            "wing_joint_q": [
+              -0.000931164948,
+              0.000960423378
+            ]
+          }
+        },
+        "first_two_unloaded_intervals": null,
+        "first_recontact_interval": null,
+        "toe_speed_cap_substeps": 0,
+        "nonfoot_ground_impulse_348_400_ns": 0.0
+      },
+      {
+        "lane": 2,
+        "foot_upward_impulse_348_365_ns": [
+          0.21787256504243996,
+          0.182195754313
+        ],
+        "foot_upward_impulse_348_400_ns": [
+          0.21787256504243996,
+          0.182195754313
+        ],
+        "states": {
+          "345": {
+            "height_m": 0.162783623,
+            "vertical_velocity_m_s": 0.000484586635,
+            "wing_joint_q": [
+              -0.000836691412,
+              0.000795724452
+            ]
+          },
+          "365": {
+            "height_m": 0.373212278,
+            "vertical_velocity_m_s": 0.468465686,
+            "wing_joint_q": [
+              0.000393022929,
+              -0.000147031256
+            ]
+          },
+          "380": {
+            "height_m": 0.594230652,
+            "vertical_velocity_m_s": 0.649104714,
+            "wing_joint_q": [
+              0.00110013178,
+              6.37476696e-05
+            ]
+          },
+          "400": {
+            "height_m": 0.782882631,
+            "vertical_velocity_m_s": 0.476581872,
+            "wing_joint_q": [
+              0.00361288711,
+              0.000320799416
+            ]
+          }
+        },
+        "first_two_unloaded_intervals": 353,
+        "first_recontact_interval": null,
+        "toe_speed_cap_substeps": 0,
+        "nonfoot_ground_impulse_348_400_ns": 0.0
+      },
+      {
+        "lane": 3,
+        "foot_upward_impulse_348_365_ns": [
+          0.21148124880459995,
+          0.18515889491
+        ],
+        "foot_upward_impulse_348_400_ns": [
+          0.21148124880459995,
+          0.18515889491
+        ],
+        "states": {
+          "345": {
+            "height_m": 0.162805036,
+            "vertical_velocity_m_s": 0.00049310585,
+            "wing_joint_q": [
+              -0.000227184239,
+              0.000184239441
+            ]
+          },
+          "365": {
+            "height_m": 0.375776619,
+            "vertical_velocity_m_s": 0.472716808,
+            "wing_joint_q": [
+              0.000438251795,
+              -0.000191087092
+            ]
+          },
+          "380": {
+            "height_m": 0.598779261,
+            "vertical_velocity_m_s": 0.655646145,
+            "wing_joint_q": [
+              0.00113343471,
+              5.86437272e-05
+            ]
+          },
+          "400": {
+            "height_m": 0.785225928,
+            "vertical_velocity_m_s": 0.465111732,
+            "wing_joint_q": [
+              0.00360475737,
+              0.000269147829
+            ]
+          }
+        },
+        "first_two_unloaded_intervals": 353,
+        "first_recontact_interval": null,
+        "toe_speed_cap_substeps": 0,
+        "nonfoot_ground_impulse_348_400_ns": 0.0
+      },
+      {
+        "lane": 4,
+        "foot_upward_impulse_348_365_ns": [
+          0.301953577534992,
+          0.2995122025520642
+        ],
+        "foot_upward_impulse_348_400_ns": [
+          0.301953577534992,
+          0.2995122025520642
+        ],
+        "states": {
+          "345": {
+            "height_m": 0.162821352,
+            "vertical_velocity_m_s": 0.000497443485,
+            "wing_joint_q": [
+              -0.000322841777,
+              0.000278446212
+            ]
+          },
+          "365": {
+            "height_m": 0.320156097,
+            "vertical_velocity_m_s": 0.406914502,
+            "wing_joint_q": [
+              0.000367554778,
+              -0.000244070456
+            ]
+          },
+          "380": {
+            "height_m": 0.554882109,
+            "vertical_velocity_m_s": 0.748680234,
+            "wing_joint_q": [
+              0.000944338623,
+              0.000351806491
+            ]
+          },
+          "400": {
+            "height_m": 0.783990622,
+            "vertical_velocity_m_s": 0.589714825,
+            "wing_joint_q": [
+              0.00479123648,
+              0.000277213083
+            ]
+          }
+        },
+        "first_two_unloaded_intervals": 357,
+        "first_recontact_interval": null,
+        "toe_speed_cap_substeps": 0,
+        "nonfoot_ground_impulse_348_400_ns": 0.0
+      },
+      {
+        "lane": 5,
+        "foot_upward_impulse_348_365_ns": [
+          0.2930560836967461,
+          0.2988201310595496
+        ],
+        "foot_upward_impulse_348_400_ns": [
+          0.2930560836967461,
+          0.2988201310595496
+        ],
+        "states": {
+          "345": {
+            "height_m": 0.162805244,
+            "vertical_velocity_m_s": 0.000492249208,
+            "wing_joint_q": [
+              0.000710943306,
+              -0.000754006265
+            ]
+          },
+          "365": {
+            "height_m": 0.323954016,
+            "vertical_velocity_m_s": 0.417066067,
+            "wing_joint_q": [
+              0.000520921079,
+              -0.000375520263
+            ]
+          },
+          "380": {
+            "height_m": 0.55612725,
+            "vertical_velocity_m_s": 0.722186863,
+            "wing_joint_q": [
+              0.0011599994,
+              6.93958209e-05
+            ]
+          },
+          "400": {
+            "height_m": 0.76837343,
+            "vertical_velocity_m_s": 0.536359906,
+            "wing_joint_q": [
+              0.00427059224,
+              0.00030797525
+            ]
+          }
+        },
+        "first_two_unloaded_intervals": 357,
+        "first_recontact_interval": null,
+        "toe_speed_cap_substeps": 0,
+        "nonfoot_ground_impulse_348_400_ns": 0.0
+      },
+      {
+        "lane": 6,
+        "foot_upward_impulse_348_365_ns": [
+          0.4217816834451676,
+          0.4061325903486221
+        ],
+        "foot_upward_impulse_348_400_ns": [
+          0.4217816834451676,
+          0.4061325903486221
+        ],
+        "states": {
+          "345": {
+            "height_m": 0.162819758,
+            "vertical_velocity_m_s": 0.000500837516,
+            "wing_joint_q": [
+              -0.000689658569,
+              0.00064531184
+            ]
+          },
+          "365": {
+            "height_m": 0.261756092,
+            "vertical_velocity_m_s": 0.26774478,
+            "wing_joint_q": [
+              0.000150055479,
+              -0.000437694689
+            ]
+          },
+          "380": {
+            "height_m": 0.504419565,
+            "vertical_velocity_m_s": 0.883027136,
+            "wing_joint_q": [
+              0.00115280005,
+              0.000790666614
+            ]
+          },
+          "400": {
+            "height_m": 0.769882739,
+            "vertical_velocity_m_s": 0.66160512,
+            "wing_joint_q": [
+              0.00512973359,
+              0.000701324956
+            ]
+          }
+        },
+        "first_two_unloaded_intervals": 358,
+        "first_recontact_interval": null,
+        "toe_speed_cap_substeps": 0,
+        "nonfoot_ground_impulse_348_400_ns": 0.0
+      },
+      {
+        "lane": 7,
+        "foot_upward_impulse_348_365_ns": [
+          0.4303610369295103,
+          0.41590134346645813
+        ],
+        "foot_upward_impulse_348_400_ns": [
+          0.4303610369295103,
+          0.41590134346645813
+        ],
+        "states": {
+          "345": {
+            "height_m": 0.16279611,
+            "vertical_velocity_m_s": 0.000488580787,
+            "wing_joint_q": [
+              -6.16879552e-05,
+              1.94667045e-05
+            ]
+          },
+          "365": {
+            "height_m": 0.269064993,
+            "vertical_velocity_m_s": 0.289523005,
+            "wing_joint_q": [
+              0.000244988216,
+              -0.000481157535
+            ]
+          },
+          "380": {
+            "height_m": 0.506782711,
+            "vertical_velocity_m_s": 0.807230294,
+            "wing_joint_q": [
+              0.0010041754,
+              0.000481714378
+            ]
+          },
+          "400": {
+            "height_m": 0.740496039,
+            "vertical_velocity_m_s": 0.584307194,
+            "wing_joint_q": [
+              0.00273045385,
+              0.00233014254
+            ]
+          }
+        },
+        "first_two_unloaded_intervals": 358,
+        "first_recontact_interval": null,
+        "toe_speed_cap_substeps": 0,
+        "nonfoot_ground_impulse_348_400_ns": 0.0
+      }
+    ],
+    "nopush-wing": [
+      {
+        "lane": 0,
+        "foot_upward_impulse_348_365_ns": [
+          0.7892882260699998,
+          0.8001074833099998
+        ],
+        "foot_upward_impulse_348_400_ns": [
+          1.2955290258567007,
+          1.3132456848206004
+        ],
+        "states": {
+          "345": {
+            "height_m": 0.162790731,
+            "vertical_velocity_m_s": 0.00048707542,
+            "wing_joint_q": [
+              -0.00127848005,
+              0.00123682956
+            ]
+          },
+          "365": {
+            "height_m": 0.163007885,
+            "vertical_velocity_m_s": 0.000573615194,
+            "wing_joint_q": [
+              -0.00128865964,
+              0.00122487743
+            ]
+          },
+          "380": {
+            "height_m": 0.209683895,
+            "vertical_velocity_m_s": 0.0849195272,
+            "wing_joint_q": [
+              -9.44044732e-05,
+              -0.00121415162
+            ]
+          },
+          "400": {
+            "height_m": 0.493031442,
+            "vertical_velocity_m_s": 0.937416255,
+            "wing_joint_q": [
+              0.00110430201,
+              3.36133962e-05
+            ]
+          }
+        },
+        "first_two_unloaded_intervals": 375,
+        "first_recontact_interval": null,
+        "toe_speed_cap_substeps": 0,
+        "nonfoot_ground_impulse_348_400_ns": 0.0
+      },
+      {
+        "lane": 1,
+        "foot_upward_impulse_348_365_ns": [
+          0.7891683222099993,
+          0.8002219388899994
+        ],
+        "foot_upward_impulse_348_400_ns": [
+          1.2937798097876294,
+          1.3105966132144797
+        ],
+        "states": {
+          "345": {
+            "height_m": 0.162840337,
+            "vertical_velocity_m_s": 0.000506421842,
+            "wing_joint_q": [
+              -0.000968753418,
+              0.000922510517
+            ]
+          },
+          "365": {
+            "height_m": 0.163066924,
+            "vertical_velocity_m_s": 0.000595126185,
+            "wing_joint_q": [
+              -0.0009807155,
+              0.000911206647
+            ]
+          },
+          "380": {
+            "height_m": 0.208432093,
+            "vertical_velocity_m_s": 0.0795097947,
+            "wing_joint_q": [
+              0.000166717888,
+              -0.00136989588
+            ]
+          },
+          "400": {
+            "height_m": 0.495438844,
+            "vertical_velocity_m_s": 0.94883126,
+            "wing_joint_q": [
+              0.000765671837,
+              0.00035229887
+            ]
+          }
+        },
+        "first_two_unloaded_intervals": 375,
+        "first_recontact_interval": null,
+        "toe_speed_cap_substeps": 0,
+        "nonfoot_ground_impulse_348_400_ns": 0.0
+      },
+      {
+        "lane": 2,
+        "foot_upward_impulse_348_365_ns": [
+          0.136503733368,
+          0.13816921604
+        ],
+        "foot_upward_impulse_348_400_ns": [
+          0.136503733368,
+          0.13816921604
+        ],
+        "states": {
+          "345": {
+            "height_m": 0.162783623,
+            "vertical_velocity_m_s": 0.000484586635,
+            "wing_joint_q": [
+              -0.000836691412,
+              0.000795724452
+            ]
+          },
+          "365": {
+            "height_m": 0.33678776,
+            "vertical_velocity_m_s": 0.45724988,
+            "wing_joint_q": [
+              7.92344217e-05,
+              7.6440163e-05
+            ]
+          },
+          "380": {
+            "height_m": 0.594650865,
+            "vertical_velocity_m_s": 0.874555528,
+            "wing_joint_q": [
+              0.000404141989,
+              0.00138695841
+            ]
+          },
+          "400": {
+            "height_m": 0.876151025,
+            "vertical_velocity_m_s": 0.729379654,
+            "wing_joint_q": [
+              0.00207332033,
+              0.0039275391
+            ]
+          }
+        },
+        "first_two_unloaded_intervals": 352,
+        "first_recontact_interval": null,
+        "toe_speed_cap_substeps": 0,
+        "nonfoot_ground_impulse_348_400_ns": 0.0
+      },
+      {
+        "lane": 3,
+        "foot_upward_impulse_348_365_ns": [
+          0.13604219767799997,
+          0.138639655506
+        ],
+        "foot_upward_impulse_348_400_ns": [
+          0.13604219767799997,
+          0.138639655506
+        ],
+        "states": {
+          "345": {
+            "height_m": 0.162805036,
+            "vertical_velocity_m_s": 0.00049310585,
+            "wing_joint_q": [
+              -0.000227184239,
+              0.000184239441
+            ]
+          },
+          "365": {
+            "height_m": 0.34109509,
+            "vertical_velocity_m_s": 0.460904986,
+            "wing_joint_q": [
+              0.000152062028,
+              1.70192288e-05
+            ]
+          },
+          "380": {
+            "height_m": 0.600027859,
+            "vertical_velocity_m_s": 0.880568802,
+            "wing_joint_q": [
+              0.000519811118,
+              0.00133938272
+            ]
+          },
+          "400": {
+            "height_m": 0.882825673,
+            "vertical_velocity_m_s": 0.743193209,
+            "wing_joint_q": [
+              0.00217046496,
+              0.00412448868
+            ]
+          }
+        },
+        "first_two_unloaded_intervals": 352,
+        "first_recontact_interval": null,
+        "toe_speed_cap_substeps": 0,
+        "nonfoot_ground_impulse_348_400_ns": 0.0
+      },
+      {
+        "lane": 4,
+        "foot_upward_impulse_348_365_ns": [
+          0.3712348742119999,
+          0.26410307237190006
+        ],
+        "foot_upward_impulse_348_400_ns": [
+          0.3712348742119999,
+          0.26410307237190006
+        ],
+        "states": {
+          "345": {
+            "height_m": 0.162821352,
+            "vertical_velocity_m_s": 0.000497443485,
+            "wing_joint_q": [
+              -0.000322841777,
+              0.000278446212
+            ]
+          },
+          "365": {
+            "height_m": 0.326407343,
+            "vertical_velocity_m_s": 0.453181565,
+            "wing_joint_q": [
+              0.000247207296,
+              -2.60998913e-05
+            ]
+          },
+          "380": {
+            "height_m": 0.583310843,
+            "vertical_velocity_m_s": 0.884986758,
+            "wing_joint_q": [
+              0.000744021381,
+              0.00100994564
+            ]
+          },
+          "400": {
+            "height_m": 0.871043682,
+            "vertical_velocity_m_s": 0.783656836,
+            "wing_joint_q": [
+              0.0035059501,
+              0.00325501664
+            ]
+          }
+        },
+        "first_two_unloaded_intervals": 356,
+        "first_recontact_interval": null,
+        "toe_speed_cap_substeps": 6,
+        "nonfoot_ground_impulse_348_400_ns": 0.0
+      },
+      {
+        "lane": 5,
+        "foot_upward_impulse_348_365_ns": [
+          0.34261479637700004,
+          0.27604933371100004
+        ],
+        "foot_upward_impulse_348_400_ns": [
+          0.34261479637700004,
+          0.27604933371100004
+        ],
+        "states": {
+          "345": {
+            "height_m": 0.162805244,
+            "vertical_velocity_m_s": 0.000492249208,
+            "wing_joint_q": [
+              0.000710943306,
+              -0.000754006265
+            ]
+          },
+          "365": {
+            "height_m": 0.325505108,
+            "vertical_velocity_m_s": 0.453183174,
+            "wing_joint_q": [
+              0.000320745894,
+              -9.91229463e-05
+            ]
+          },
+          "380": {
+            "height_m": 0.583554864,
+            "vertical_velocity_m_s": 0.892280102,
+            "wing_joint_q": [
+              0.000828938908,
+              0.000988627551
+            ]
+          },
+          "400": {
+            "height_m": 0.883900583,
+            "vertical_velocity_m_s": 0.846407533,
+            "wing_joint_q": [
+              0.0038399084,
+              0.00434526149
+            ]
+          }
+        },
+        "first_two_unloaded_intervals": 356,
+        "first_recontact_interval": null,
+        "toe_speed_cap_substeps": 6,
+        "nonfoot_ground_impulse_348_400_ns": 0.0
+      },
+      {
+        "lane": 6,
+        "foot_upward_impulse_348_365_ns": [
+          0.4023709446516998,
+          0.3692342753261369
+        ],
+        "foot_upward_impulse_348_400_ns": [
+          0.4023709446516998,
+          0.3692342753261369
+        ],
+        "states": {
+          "345": {
+            "height_m": 0.162819758,
+            "vertical_velocity_m_s": 0.000500837516,
+            "wing_joint_q": [
+              -0.000689658569,
+              0.00064531184
+            ]
+          },
+          "365": {
+            "height_m": 0.237827569,
+            "vertical_velocity_m_s": 0.244215459,
+            "wing_joint_q": [
+              -0.000353525713,
+              -0.000462928292
+            ]
+          },
+          "380": {
+            "height_m": 0.501531601,
+            "vertical_velocity_m_s": 1.00961435,
+            "wing_joint_q": [
+              0.00165802136,
+              0.00145159394
+            ]
+          },
+          "400": {
+            "height_m": 0.84608078,
+            "vertical_velocity_m_s": 0.926579356,
+            "wing_joint_q": [
+              0.00469086785,
+              0.00513442047
+            ]
+          }
+        },
+        "first_two_unloaded_intervals": 358,
+        "first_recontact_interval": null,
+        "toe_speed_cap_substeps": 0,
+        "nonfoot_ground_impulse_348_400_ns": 0.0
+      },
+      {
+        "lane": 7,
+        "foot_upward_impulse_348_365_ns": [
+          0.4052225384639,
+          0.36536134386076274
+        ],
+        "foot_upward_impulse_348_400_ns": [
+          0.4052225384639,
+          0.36536134386076274
+        ],
+        "states": {
+          "345": {
+            "height_m": 0.16279611,
+            "vertical_velocity_m_s": 0.000488580787,
+            "wing_joint_q": [
+              -6.16879552e-05,
+              1.94667045e-05
+            ]
+          },
+          "365": {
+            "height_m": 0.24032481,
+            "vertical_velocity_m_s": 0.254924476,
+            "wing_joint_q": [
+              -0.000278076099,
+              -0.000457848655
+            ]
+          },
+          "380": {
+            "height_m": 0.503707051,
+            "vertical_velocity_m_s": 0.999818385,
+            "wing_joint_q": [
+              0.00148869317,
+              0.00149758765
+            ]
+          },
+          "400": {
+            "height_m": 0.846825719,
+            "vertical_velocity_m_s": 0.956550837,
+            "wing_joint_q": [
+              0.00468535209,
+              0.00664531626
+            ]
+          }
+        },
+        "first_two_unloaded_intervals": 358,
+        "first_recontact_interval": null,
+        "toe_speed_cap_substeps": 0,
+        "nonfoot_ground_impulse_348_400_ns": 0.0
+      }
+    ],
+    "push-nowings": [
+      {
+        "lane": 0,
+        "foot_upward_impulse_348_365_ns": [
+          0.7925945736002018,
+          0.8053566080021496
+        ],
+        "foot_upward_impulse_348_400_ns": [
+          2.3259007421643205,
+          2.3632432581833056
+        ],
+        "states": {
+          "345": {
+            "height_m": 0.162790731,
+            "vertical_velocity_m_s": 0.00048707542,
+            "wing_joint_q": [
+              -0.00127848005,
+              0.00123682956
+            ]
+          },
+          "365": {
+            "height_m": 0.176404312,
+            "vertical_velocity_m_s": -0.00445804978,
+            "wing_joint_q": [
+              -0.00131293805,
+              0.00120799674
+            ]
+          },
+          "380": {
+            "height_m": 0.175583452,
+            "vertical_velocity_m_s": -0.00298139779,
+            "wing_joint_q": [
+              -0.00138983352,
+              0.00110991299
+            ]
+          },
+          "400": {
+            "height_m": 0.175534129,
+            "vertical_velocity_m_s": 2.58985092e-05,
+            "wing_joint_q": [
+              -0.00124169781,
+              0.00127334101
+            ]
+          }
+        },
+        "first_two_unloaded_intervals": null,
+        "first_recontact_interval": null,
+        "toe_speed_cap_substeps": 0,
+        "nonfoot_ground_impulse_348_400_ns": 0.0
+      },
+      {
+        "lane": 1,
+        "foot_upward_impulse_348_365_ns": [
+          0.7926585902420278,
+          0.8055637797340407
+        ],
+        "foot_upward_impulse_348_400_ns": [
+          2.3263206337877094,
+          2.3631105321869126
+        ],
+        "states": {
+          "345": {
+            "height_m": 0.162840337,
+            "vertical_velocity_m_s": 0.000506421842,
+            "wing_joint_q": [
+              -0.000968753418,
+              0.000922510517
+            ]
+          },
+          "365": {
+            "height_m": 0.176548123,
+            "vertical_velocity_m_s": -0.00439101458,
+            "wing_joint_q": [
+              -0.00100351835,
+              0.000893194694
+            ]
+          },
+          "380": {
+            "height_m": 0.175462782,
+            "vertical_velocity_m_s": 0.00138566084,
+            "wing_joint_q": [
+              -0.00111773552,
+              0.000750488893
+            ]
+          },
+          "400": {
+            "height_m": 0.17553468,
+            "vertical_velocity_m_s": 3.39897597e-05,
+            "wing_joint_q": [
+              -0.000931164948,
+              0.000960423378
+            ]
+          }
+        },
+        "first_two_unloaded_intervals": null,
+        "first_recontact_interval": null,
+        "toe_speed_cap_substeps": 0,
+        "nonfoot_ground_impulse_348_400_ns": 0.0
+      },
+      {
+        "lane": 2,
+        "foot_upward_impulse_348_365_ns": [
+          0.7931096789950632,
+          0.8048408705294203
+        ],
+        "foot_upward_impulse_348_400_ns": [
+          2.325622608865906,
+          2.3634968070158284
+        ],
+        "states": {
+          "345": {
+            "height_m": 0.162783623,
+            "vertical_velocity_m_s": 0.000484586635,
+            "wing_joint_q": [
+              -0.000836691412,
+              0.000795724452
+            ]
+          },
+          "365": {
+            "height_m": 0.176382586,
+            "vertical_velocity_m_s": -0.00446551526,
+            "wing_joint_q": [
+              -0.000871259428,
+              0.000767056132
+            ]
+          },
+          "380": {
+            "height_m": 0.175580263,
+            "vertical_velocity_m_s": -0.00395169156,
+            "wing_joint_q": [
+              -0.000908133923,
+              0.000713041052
+            ]
+          },
+          "400": {
+            "height_m": 0.175538406,
+            "vertical_velocity_m_s": -2.49212135e-05,
+            "wing_joint_q": [
+              -0.000800318725,
+              0.000832085148
+            ]
+          }
+        },
+        "first_two_unloaded_intervals": null,
+        "first_recontact_interval": null,
+        "toe_speed_cap_substeps": 0,
+        "nonfoot_ground_impulse_348_400_ns": 0.0
+      },
+      {
+        "lane": 3,
+        "foot_upward_impulse_348_365_ns": [
+          0.7920764997820209,
+          0.8057407135202966
+        ],
+        "foot_upward_impulse_348_400_ns": [
+          2.3251571151106223,
+          2.3639886764363065
+        ],
+        "states": {
+          "345": {
+            "height_m": 0.162805036,
+            "vertical_velocity_m_s": 0.00049310585,
+            "wing_joint_q": [
+              -0.000227184239,
+              0.000184239441
+            ]
+          },
+          "365": {
+            "height_m": 0.176446751,
+            "vertical_velocity_m_s": -0.00473620091,
+            "wing_joint_q": [
+              -0.000259879074,
+              0.000156884984
+            ]
+          },
+          "380": {
+            "height_m": 0.175593391,
+            "vertical_velocity_m_s": -0.00341992546,
+            "wing_joint_q": [
+              -0.00033272861,
+              6.3613872e-05
+            ]
+          },
+          "400": {
+            "height_m": 0.175535083,
+            "vertical_velocity_m_s": 3.07163464e-05,
+            "wing_joint_q": [
+              -0.00018992812,
+              0.000220304399
+            ]
+          }
+        },
+        "first_two_unloaded_intervals": null,
+        "first_recontact_interval": null,
+        "toe_speed_cap_substeps": 0,
+        "nonfoot_ground_impulse_348_400_ns": 0.0
+      },
+      {
+        "lane": 4,
+        "foot_upward_impulse_348_365_ns": [
+          0.79227130010943,
+          0.8056002523123793
+        ],
+        "foot_upward_impulse_348_400_ns": [
+          2.3123689354042347,
+          2.376762447784354
+        ],
+        "states": {
+          "345": {
+            "height_m": 0.162821352,
+            "vertical_velocity_m_s": 0.000497443485,
+            "wing_joint_q": [
+              -0.000322841777,
+              0.000278446212
+            ]
+          },
+          "365": {
+            "height_m": 0.1764943,
+            "vertical_velocity_m_s": -0.00461005606,
+            "wing_joint_q": [
+              -0.00035623947,
+              0.000250368001
+            ]
+          },
+          "380": {
+            "height_m": 0.175477937,
+            "vertical_velocity_m_s": 0.000413328002,
+            "wing_joint_q": [
+              -0.000441446929,
+              0.000139024152
+            ]
+          },
+          "400": {
+            "height_m": 0.175535396,
+            "vertical_velocity_m_s": 3.09908937e-05,
+            "wing_joint_q": [
+              -0.000285395421,
+              0.000314709469
+            ]
+          }
+        },
+        "first_two_unloaded_intervals": null,
+        "first_recontact_interval": null,
+        "toe_speed_cap_substeps": 0,
+        "nonfoot_ground_impulse_348_400_ns": 0.0
+      },
+      {
+        "lane": 5,
+        "foot_upward_impulse_348_365_ns": [
+          0.793352828440409,
+          0.8044660914688768
+        ],
+        "foot_upward_impulse_348_400_ns": [
+          2.32700291942436,
+          2.3621431171614744
+        ],
+        "states": {
+          "345": {
+            "height_m": 0.162805244,
+            "vertical_velocity_m_s": 0.000492249208,
+            "wing_joint_q": [
+              0.000710943306,
+              -0.000754006265
+            ]
+          },
+          "365": {
+            "height_m": 0.176451355,
+            "vertical_velocity_m_s": -0.00472352374,
+            "wing_joint_q": [
+              0.000677966338,
+              -0.000781217997
+            ]
+          },
+          "380": {
+            "height_m": 0.175595194,
+            "vertical_velocity_m_s": -0.00323741324,
+            "wing_joint_q": [
+              0.000605284062,
+              -0.000874962541
+            ]
+          },
+          "400": {
+            "height_m": 0.175534695,
+            "vertical_velocity_m_s": 3.99325036e-05,
+            "wing_joint_q": [
+              0.000747891609,
+              -0.000717615301
+            ]
+          }
+        },
+        "first_two_unloaded_intervals": null,
+        "first_recontact_interval": null,
+        "toe_speed_cap_substeps": 0,
+        "nonfoot_ground_impulse_348_400_ns": 0.0
+      },
+      {
+        "lane": 6,
+        "foot_upward_impulse_348_365_ns": [
+          0.7922108475118146,
+          0.805670852585488
+        ],
+        "foot_upward_impulse_348_400_ns": [
+          2.3125477284609026,
+          2.3765891649680744
+        ],
+        "states": {
+          "345": {
+            "height_m": 0.162819758,
+            "vertical_velocity_m_s": 0.000500837516,
+            "wing_joint_q": [
+              -0.000689658569,
+              0.00064531184
+            ]
+          },
+          "365": {
+            "height_m": 0.176493764,
+            "vertical_velocity_m_s": -0.00460344506,
+            "wing_joint_q": [
+              -0.000723279372,
+              0.000617307145
+            ]
+          },
+          "380": {
+            "height_m": 0.175477847,
+            "vertical_velocity_m_s": 0.000413825881,
+            "wing_joint_q": [
+              -0.000808487821,
+              0.000505965378
+            ]
+          },
+          "400": {
+            "height_m": 0.17553544,
+            "vertical_velocity_m_s": 3.01324453e-05,
+            "wing_joint_q": [
+              -0.000652540708,
+              0.000681836449
+            ]
+          }
+        },
+        "first_two_unloaded_intervals": null,
+        "first_recontact_interval": null,
+        "toe_speed_cap_substeps": 0,
+        "nonfoot_ground_impulse_348_400_ns": 0.0
+      },
+      {
+        "lane": 7,
+        "foot_upward_impulse_348_365_ns": [
+          0.792319821831853,
+          0.805509629420316
+        ],
+        "foot_upward_impulse_348_400_ns": [
+          2.3260995760926932,
+          2.3630287375777264
+        ],
+        "states": {
+          "345": {
+            "height_m": 0.16279611,
+            "vertical_velocity_m_s": 0.000488580787,
+            "wing_joint_q": [
+              -6.16879552e-05,
+              1.94667045e-05
+            ]
+          },
+          "365": {
+            "height_m": 0.176424071,
+            "vertical_velocity_m_s": -0.00469877524,
+            "wing_joint_q": [
+              -9.4442752e-05,
+              -8.47355204e-06
+            ]
+          },
+          "380": {
+            "height_m": 0.175589636,
+            "vertical_velocity_m_s": -0.00394176506,
+            "wing_joint_q": [
+              -0.000142716468,
+              -7.78993563e-05
+            ]
+          },
+          "400": {
+            "height_m": 0.175535575,
+            "vertical_velocity_m_s": 1.80982333e-05,
+            "wing_joint_q": [
+              -2.3889259e-05,
+              5.55450715e-05
+            ]
+          }
+        },
+        "first_two_unloaded_intervals": null,
+        "first_recontact_interval": null,
+        "toe_speed_cap_substeps": 0,
+        "nonfoot_ground_impulse_348_400_ns": 0.0
+      }
+    ],
+    "nopush-nowings": [
+      {
+        "lane": 0,
+        "foot_upward_impulse_348_365_ns": [
+          0.7892882260699998,
+          0.8001074833099998
+        ],
+        "foot_upward_impulse_348_400_ns": [
+          2.337910814256698,
+          2.350580633118968
+        ],
+        "states": {
+          "345": {
+            "height_m": 0.162790731,
+            "vertical_velocity_m_s": 0.00048707542,
+            "wing_joint_q": [
+              -0.00127848005,
+              0.00123682956
+            ]
+          },
+          "365": {
+            "height_m": 0.163007885,
+            "vertical_velocity_m_s": 0.000573615194,
+            "wing_joint_q": [
+              -0.00128865964,
+              0.00122487743
+            ]
+          },
+          "380": {
+            "height_m": 0.176432237,
+            "vertical_velocity_m_s": 0.178678274,
+            "wing_joint_q": [
+              -0.000113722119,
+              0.00142667023
+            ]
+          },
+          "400": {
+            "height_m": 0.176248074,
+            "vertical_velocity_m_s": -0.000653252937,
+            "wing_joint_q": [
+              0.000541882531,
+              -0.00041764346
+            ]
+          }
+        },
+        "first_two_unloaded_intervals": 375,
+        "first_recontact_interval": 379,
+        "toe_speed_cap_substeps": 0,
+        "nonfoot_ground_impulse_348_400_ns": 0.0
+      },
+      {
+        "lane": 1,
+        "foot_upward_impulse_348_365_ns": [
+          0.7891683222099993,
+          0.8002219388899994
+        ],
+        "foot_upward_impulse_348_400_ns": [
+          2.388243512251629,
+          2.294756040702477
+        ],
+        "states": {
+          "345": {
+            "height_m": 0.162840337,
+            "vertical_velocity_m_s": 0.000506421842,
+            "wing_joint_q": [
+              -0.000968753418,
+              0.000922510517
+            ]
+          },
+          "365": {
+            "height_m": 0.163066924,
+            "vertical_velocity_m_s": 0.000595126185,
+            "wing_joint_q": [
+              -0.0009807155,
+              0.000911206647
+            ]
+          },
+          "380": {
+            "height_m": 0.176888153,
+            "vertical_velocity_m_s": 0.176365674,
+            "wing_joint_q": [
+              0.000223642128,
+              0.00116418395
+            ]
+          },
+          "400": {
+            "height_m": 0.175696358,
+            "vertical_velocity_m_s": -0.0121309496,
+            "wing_joint_q": [
+              0.00177934277,
+              -0.00157796568
+            ]
+          }
+        },
+        "first_two_unloaded_intervals": 375,
+        "first_recontact_interval": 379,
+        "toe_speed_cap_substeps": 0,
+        "nonfoot_ground_impulse_348_400_ns": 0.0
+      },
+      {
+        "lane": 2,
+        "foot_upward_impulse_348_365_ns": [
+          0.7889358979700012,
+          0.8004590100799999
+        ],
+        "foot_upward_impulse_348_400_ns": [
+          2.354251038335099,
+          2.3311008913886626
+        ],
+        "states": {
+          "345": {
+            "height_m": 0.162783623,
+            "vertical_velocity_m_s": 0.000484586635,
+            "wing_joint_q": [
+              -0.000836691412,
+              0.000795724452
+            ]
+          },
+          "365": {
+            "height_m": 0.163000003,
+            "vertical_velocity_m_s": 0.000567878596,
+            "wing_joint_q": [
+              -0.000848203665,
+              0.000785308832
+            ]
+          },
+          "380": {
+            "height_m": 0.17638877,
+            "vertical_velocity_m_s": 0.174652189,
+            "wing_joint_q": [
+              0.000262328918,
+              0.00114274933
+            ]
+          },
+          "400": {
+            "height_m": 0.175642386,
+            "vertical_velocity_m_s": -0.00713770185,
+            "wing_joint_q": [
+              0.00146958511,
+              -0.00127667002
+            ]
+          }
+        },
+        "first_two_unloaded_intervals": 375,
+        "first_recontact_interval": 379,
+        "toe_speed_cap_substeps": 0,
+        "nonfoot_ground_impulse_348_400_ns": 0.0
+      },
+      {
+        "lane": 3,
+        "foot_upward_impulse_348_365_ns": [
+          0.7874106794500004,
+          0.8019838338000002
+        ],
+        "foot_upward_impulse_348_400_ns": [
+          2.327882738554801,
+          2.3522091346807987
+        ],
+        "states": {
+          "345": {
+            "height_m": 0.162805036,
+            "vertical_velocity_m_s": 0.00049310585,
+            "wing_joint_q": [
+              -0.000227184239,
+              0.000184239441
+            ]
+          },
+          "365": {
+            "height_m": 0.16302453,
+            "vertical_velocity_m_s": 0.000580122462,
+            "wing_joint_q": [
+              -0.000238816487,
+              0.000173435372
+            ]
+          },
+          "380": {
+            "height_m": 0.176510528,
+            "vertical_velocity_m_s": 0.187836021,
+            "wing_joint_q": [
+              0.000154557696,
+              0.00118773838
+            ]
+          },
+          "400": {
+            "height_m": 0.175558373,
+            "vertical_velocity_m_s": -0.0186315738,
+            "wing_joint_q": [
+              0.00201986567,
+              -0.00184776657
+            ]
+          }
+        },
+        "first_two_unloaded_intervals": 375,
+        "first_recontact_interval": 379,
+        "toe_speed_cap_substeps": 0,
+        "nonfoot_ground_impulse_348_400_ns": 0.0
+      },
+      {
+        "lane": 4,
+        "foot_upward_impulse_348_365_ns": [
+          0.7886401528500001,
+          0.8007519415400004
+        ],
+        "foot_upward_impulse_348_400_ns": [
+          2.377285890764239,
+          2.305787037410079
+        ],
+        "states": {
+          "345": {
+            "height_m": 0.162821352,
+            "vertical_velocity_m_s": 0.000497443485,
+            "wing_joint_q": [
+              -0.000322841777,
+              0.000278446212
+            ]
+          },
+          "365": {
+            "height_m": 0.163043723,
+            "vertical_velocity_m_s": 0.00059300987,
+            "wing_joint_q": [
+              -0.000334667828,
+              0.000267072784
+            ]
+          },
+          "380": {
+            "height_m": 0.176819399,
+            "vertical_velocity_m_s": 0.18045114,
+            "wing_joint_q": [
+              -2.90896005e-05,
+              0.00133744651
+            ]
+          },
+          "400": {
+            "height_m": 0.176003262,
+            "vertical_velocity_m_s": -0.0123970052,
+            "wing_joint_q": [
+              0.00101004622,
+              -0.000834464503
+            ]
+          }
+        },
+        "first_two_unloaded_intervals": 375,
+        "first_recontact_interval": 379,
+        "toe_speed_cap_substeps": 0,
+        "nonfoot_ground_impulse_348_400_ns": 0.0
+      },
+      {
+        "lane": 5,
+        "foot_upward_impulse_348_365_ns": [
+          0.7915417026300005,
+          0.7978504703300001
+        ],
+        "foot_upward_impulse_348_400_ns": [
+          2.331162334242002,
+          2.3524326403190203
+        ],
+        "states": {
+          "345": {
+            "height_m": 0.162805244,
+            "vertical_velocity_m_s": 0.000492249208,
+            "wing_joint_q": [
+              0.000710943306,
+              -0.000754006265
+            ]
+          },
+          "365": {
+            "height_m": 0.163026571,
+            "vertical_velocity_m_s": 0.000580492895,
+            "wing_joint_q": [
+              0.000699225755,
+              -0.00076471793
+            ]
+          },
+          "380": {
+            "height_m": 0.176970646,
+            "vertical_velocity_m_s": 0.202162549,
+            "wing_joint_q": [
+              0.000511937076,
+              0.000940809201
+            ]
+          },
+          "400": {
+            "height_m": 0.17553784,
+            "vertical_velocity_m_s": -0.0108156903,
+            "wing_joint_q": [
+              0.00195562537,
+              -0.00176765001
+            ]
+          }
+        },
+        "first_two_unloaded_intervals": 375,
+        "first_recontact_interval": 379,
+        "toe_speed_cap_substeps": 0,
+        "nonfoot_ground_impulse_348_400_ns": 0.0
+      },
+      {
+        "lane": 6,
+        "foot_upward_impulse_348_365_ns": [
+          0.7876323027699998,
+          0.8017608137000003
+        ],
+        "foot_upward_impulse_348_400_ns": [
+          2.3384551323783196,
+          2.346632359495389
+        ],
+        "states": {
+          "345": {
+            "height_m": 0.162819758,
+            "vertical_velocity_m_s": 0.000500837516,
+            "wing_joint_q": [
+              -0.000689658569,
+              0.00064531184
+            ]
+          },
+          "365": {
+            "height_m": 0.163042784,
+            "vertical_velocity_m_s": 0.000586890732,
+            "wing_joint_q": [
+              -0.000701262325,
+              0.000634178112
+            ]
+          },
+          "380": {
+            "height_m": 0.17685245,
+            "vertical_velocity_m_s": 0.186969087,
+            "wing_joint_q": [
+              0.00014282261,
+              0.00130580133
+            ]
+          },
+          "400": {
+            "height_m": 0.17529273,
+            "vertical_velocity_m_s": -0.00711149117,
+            "wing_joint_q": [
+              0.00103407528,
+              -0.000883375586
+            ]
+          }
+        },
+        "first_two_unloaded_intervals": 375,
+        "first_recontact_interval": 379,
+        "toe_speed_cap_substeps": 0,
+        "nonfoot_ground_impulse_348_400_ns": 0.0
+      },
+      {
+        "lane": 7,
+        "foot_upward_impulse_348_365_ns": [
+          0.78646202222,
+          0.8029324865500002
+        ],
+        "foot_upward_impulse_348_400_ns": [
+          2.3219666958812604,
+          2.3607818688313005
+        ],
+        "states": {
+          "345": {
+            "height_m": 0.16279611,
+            "vertical_velocity_m_s": 0.000488580787,
+            "wing_joint_q": [
+              -6.16879552e-05,
+              1.94667045e-05
+            ]
+          },
+          "365": {
+            "height_m": 0.163015798,
+            "vertical_velocity_m_s": 0.000576384133,
+            "wing_joint_q": [
+              -7.28571395e-05,
+              8.4425601e-06
+            ]
+          },
+          "380": {
+            "height_m": 0.176959828,
+            "vertical_velocity_m_s": 0.193337545,
+            "wing_joint_q": [
+              -1.29247501e-05,
+              0.00127977738
+            ]
+          },
+          "400": {
+            "height_m": 0.175324783,
+            "vertical_velocity_m_s": -0.012557786,
+            "wing_joint_q": [
+              0.00126264419,
+              -0.00114724576
+            ]
+          }
+        },
+        "first_two_unloaded_intervals": 375,
+        "first_recontact_interval": 379,
+        "toe_speed_cap_substeps": 0,
+        "nonfoot_ground_impulse_348_400_ns": 0.0
+      }
+    ]
+  },
+  "errors": {
+    "push-wing": [],
+    "nopush-wing": [],
+    "push-nowings": [],
+    "nopush-nowings": []
+  },
+  "scope": "Ground impulse includes weight, passive aerodynamics and coupled contact; root velocity is not center-of-mass velocity. Flapping suppression leaves passive aerodynamic forces and other wing actuation. Prefix identity is at recorded endpoints and contact aggregates only. Used seed and correlated lanes, not a biological or held-out mission qualification."
+}
