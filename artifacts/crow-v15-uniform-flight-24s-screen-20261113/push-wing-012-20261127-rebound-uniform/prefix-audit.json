@@ -1,0 +1,44 @@
+{
+  "seed": "20261127",
+  "rows": [
+    {
+      "lane": 2,
+      "missing_ticks": [],
+      "different_ticks": [],
+      "exact_900_tick_parity": true
+    },
+    {
+      "lane": 3,
+      "missing_ticks": [],
+      "different_ticks": [],
+      "exact_900_tick_parity": true
+    },
+    {
+      "lane": 4,
+      "missing_ticks": [],
+      "different_ticks": [],
+      "exact_900_tick_parity": true
+    },
+    {
+      "lane": 5,
+      "missing_ticks": [],
+      "different_ticks": [],
+      "exact_900_tick_parity": true
+    },
+    {
+      "lane": 6,
+      "missing_ticks": [],
+      "different_ticks": [],
+      "exact_900_tick_parity": true
+    },
+    {
+      "lane": 7,
+      "missing_ticks": [],
+      "different_ticks": [],
+      "exact_900_tick_parity": true
+    }
+  ],
+  "all_six_exact_prefix": true,
+  "validated_six_lane_24s_pass": true,
+  "scope": "Prefix parity does not establish physical flight qualification."
+}
