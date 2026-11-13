@@ -1,0 +1,7 @@
+In file included from /Users/n/Developer/numi-crow-rl-20261107/artifacts/crow-v15-supported-foot-placement-return-20261113/probe.cpp:2:
+In file included from /Users/n/Developer/numi-crow-rl-20261107/artifacts/crow-v15-supported-foot-placement-return-20261113/../crow-v15-hip-roll-strong-drive-prototype-20261111/probe.cpp:2:
+/Users/n/Developer/numi-crow-rl-20261107/artifacts/crow-v15-supported-foot-placement-return-20261113/../crow-v15-hip-roll-strong-drive-prototype-20261111/../crow-v15-two-segment-toe-prototype-20261111/probe.cpp:75:78: warning: non-void function does not return a value in all control paths [-Wreturn-type]
+   75 |   } catch(const std::exception& e){std::cerr<<e.what()<<std::endl;return 1;} }
+      |                                                                              ^
+1 warning generated.
+exit 1

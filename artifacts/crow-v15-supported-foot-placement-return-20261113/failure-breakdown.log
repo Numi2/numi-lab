@@ -1,0 +1,32 @@
+{
+  "0": {
+    "first_fall": 314,
+    "counts": {
+      "release_intervals": 51,
+      "clearance_failed": 41,
+      "left_no_contact_failed": 40,
+      "right_support_failed": 15,
+      "all_passed": 10
+    },
+    "first_failed_interval_by_check": {
+      "clearance": 158,
+      "left_no_contact": 158,
+      "right_support": 159
+    }
+  },
+  "1": {
+    "first_fall": 311,
+    "counts": {
+      "release_intervals": 51,
+      "clearance_failed": 41,
+      "left_no_contact_failed": 40,
+      "right_support_failed": 15,
+      "all_passed": 10
+    },
+    "first_failed_interval_by_check": {
+      "clearance": 158,
+      "left_no_contact": 158,
+      "right_support": 159
+    }
+  }
+}

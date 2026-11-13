@@ -1,0 +1,12 @@
+{
+  "accepted_state_records": 652,
+  "last_substep_records": 654,
+  "missing_last_substep": 0,
+  "nonzero_foot_samples": 1232,
+  "max_normal_impulse_error_ns": 6.210000001206917e-10,
+  "observer_errors": [
+    "failure native step failed 326: one or more MetalWorld control steps rolled back after a GPU environment failure: status=11 environment=0 control_step=0 aba_status=0 failing_substep=19 failing_index=4294967295 aba_diagnostic_0=0.003861 aba_diagnostic_1=0.645678 aba_diagnostic_2=384.788300 aba_diagnostic_3=0.000000 contact_status=11 required_pairs=14 pair_capacity=512 required_raw_contacts=4 raw_contact_capacity=2048 required_manifolds=2 manifold_capacity=512 required_constraints=5 constraint_capacity=2048 failing_constraint=4294967295 failing_stable_key=0,0 diagnostic_0=1.000000 diagnostic_1=0.000670 diagnostic_2=0.003767 diagnostic_3=0.670865 contact_residuals=0.000000,0.000000,0.000000,0.000000 contact_quality_certificates=0.000000,0.000000,0.000000,0.000000 contact_quality_diagnostics=0.000000,0.000000,0.000000,0.000000 solver_iterations=12 quality_newton=0 quality_pcg=0 quality_backtracks=0 quality_path=0"
+  ],
+  "passed": false,
+  "scope": "Checks host end-of-interval foot normal impulse against the corrected last-substep observer. Does not by itself establish grip, flight, or model fidelity."
+}
