@@ -1,0 +1,8 @@
+{
+  "first_placement_zero_based": 220,
+  "prefix_pairs": 220,
+  "prefix_exact": true,
+  "maximum_progress": 1.0,
+  "max_step": 0.05000001200000004,
+  "bounds_valid": true
+}
