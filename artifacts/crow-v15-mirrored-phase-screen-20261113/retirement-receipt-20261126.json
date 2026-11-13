@@ -1,0 +1,36 @@
+{
+  "files": [
+    {
+      "absolute_path": "/Users/n/Developer/numi-crow-rl-20261107/artifacts/crow-v15-mirrored-phase-screen-20261113/pronation-phase-20261126-rebound-phase/run.stderr.gz.part00",
+      "bytes": 41943040,
+      "removed": true
+    },
+    {
+      "absolute_path": "/Users/n/Developer/numi-crow-rl-20261107/artifacts/crow-v15-mirrored-phase-screen-20261113/pronation-phase-20261126-rebound-phase/run.stderr.gz.part01",
+      "bytes": 41943040,
+      "removed": true
+    },
+    {
+      "absolute_path": "/Users/n/Developer/numi-crow-rl-20261107/artifacts/crow-v15-mirrored-phase-screen-20261113/pronation-phase-20261126-rebound-phase/run.stderr.gz.part02",
+      "bytes": 41943040,
+      "removed": true
+    },
+    {
+      "absolute_path": "/Users/n/Developer/numi-crow-rl-20261107/artifacts/crow-v15-mirrored-phase-screen-20261113/pronation-phase-20261126-rebound-phase/run.stderr.gz.part03",
+      "bytes": 41943040,
+      "removed": true
+    },
+    {
+      "absolute_path": "/Users/n/Developer/numi-crow-rl-20261107/artifacts/crow-v15-mirrored-phase-screen-20261113/pronation-phase-20261126-rebound-phase/run.stderr.gz.part04",
+      "bytes": 41943040,
+      "removed": true
+    },
+    {
+      "absolute_path": "/Users/n/Developer/numi-crow-rl-20261107/artifacts/crow-v15-mirrored-phase-screen-20261113/pronation-phase-20261126-rebound-phase/run.stderr.gz.part05",
+      "bytes": 34932497,
+      "removed": true
+    }
+  ],
+  "bytes_released": 244647697,
+  "original_retained": true
+}
