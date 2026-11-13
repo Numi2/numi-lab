@@ -1,0 +1,74 @@
+{
+  "rows": [
+    {
+      "lane": 6,
+      "samples": 8016,
+      "total_aero_yaw_moment_nm": {
+        "mean": -0.004990971365001402,
+        "minimum": -0.03719712649575147,
+        "maximum": 0.021937470129624045,
+        "rms": 0.01087920131239476
+      },
+      "body_com_torque_sum_nm": {
+        "mean": -0.0018954348291514893,
+        "minimum": -0.025318018801039004,
+        "maximum": 0.014821438599564002,
+        "rms": 0.006932869555051765
+      },
+      "moment_arm_sum_nm": {
+        "mean": -0.003095536535849913,
+        "minimum": -0.015407176098293292,
+        "maximum": 0.009581589223354232,
+        "rms": 0.005580643490402855
+      },
+      "maximum_force_residual_n": 5.739764219470089e-11
+    },
+    {
+      "lane": 7,
+      "samples": 8016,
+      "total_aero_yaw_moment_nm": {
+        "mean": 0.0043175442108210815,
+        "minimum": -0.018641856877198222,
+        "maximum": 0.03166581403463668,
+        "rms": 0.00943456279175812
+      },
+      "body_com_torque_sum_nm": {
+        "mean": 0.0017641859988924804,
+        "minimum": -0.011564855929414003,
+        "maximum": 0.021573845151529006,
+        "rms": 0.00588345792355415
+      },
+      "moment_arm_sum_nm": {
+        "mean": 0.002553358211928601,
+        "minimum": -0.008254831663898822,
+        "maximum": 0.013187122337238,
+        "rms": 0.0047407545398096395
+      },
+      "maximum_force_residual_n": 5.89110982218699e-11
+    }
+  ],
+  "source_sha256": "2fee002e1adea4d46409e7960a31e2e38573e1a01a3c040a32198c324dc363b0",
+  "kinematics_sha256": "95faf63412c759b3da202ea6c590f0deafb929e4e1e01c7450cfb95837c424ad",
+  "sample_ticks": [
+    650,
+    1150
+  ],
+  "substeps_per_control": 16,
+  "scope": "Posthoc modeled aerodynamic moment about instantaneous whole-body COM, not total angular momentum or proof of heading cause. Includes moment arms of all four observed aero bodies and their body-COM torques. One used seed and correlated lanes; not biological validation."
+}
+{
+  "rows": [
+    {
+      "lane": 6,
+      "mean_damping_yaw_moment_nm": 0.00487721158035358,
+      "integrated_damping_yaw_impulse_nms": 0.048836563785240594
+    },
+    {
+      "lane": 7,
+      "mean_damping_yaw_moment_nm": -0.004222992338832868,
+      "integrated_damping_yaw_impulse_nms": -0.04228652084195673
+    }
+  ],
+  "binary_sha256": "d835599f1b1ffd9e9f17d8309907e3fcbcbdc1ae3a011c039ca25be13cc15046",
+  "scope": "Posthoc FK estimate using model body damping coefficients and CPU damping convention; assumes body damping enabled and is not yet validated against GPU kernel or complete external-wrench balance."
+}
