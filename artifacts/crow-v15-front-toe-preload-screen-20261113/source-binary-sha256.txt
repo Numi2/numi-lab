@@ -1,0 +1,5 @@
+e32b265573acec8cdec850ea9ebef5babaacd6b21f2c4e01689e9248f16baf17  artifacts/crow-v15-front-toe-preload-screen-20261113/World.metal
+a718e72b617d068fd0ed9e0e6ec46aed867503158a7c3385700362049a735eeb  artifacts/crow-v15-front-toe-preload-screen-20261113/push-wing.metal
+b19649e2a2015503d43d531f00762fda16090ba661ce91e7dafb671db0a704f4  artifacts/crow-v15-front-toe-preload-screen-20261113/hold-wing.metal
+c1d5bc4cb7d18b6e60897d03f9a58279facdc59016dbb6a7ce1d3b25615917c2  build/crow-v15-front-toe-preload-screen-20261113/push-wing.metallib
+dea9e5639a3a8578487e28c09e729b0333fdbfaf2843786820285ef81ac8c1ac  build/crow-v15-front-toe-preload-screen-20261113/hold-wing.metallib
