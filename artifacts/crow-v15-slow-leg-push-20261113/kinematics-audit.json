@@ -1,0 +1,264 @@
+{
+  "verification": [
+    {
+      "arm": "slow",
+      "q_error_max": 4.6337891301817535e-09,
+      "body_position_error_m_max": 1.4275219657707512e-08
+    },
+    {
+      "arm": "hold",
+      "q_error_max": 4.6337891301817535e-09,
+      "body_position_error_m_max": 1.3755480723526225e-08
+    },
+    {
+      "arm": "fast",
+      "q_error_max": 4.6337891301817535e-09,
+      "body_position_error_m_max": 1.3326529395751737e-08
+    }
+  ],
+  "kinematics_executable_sha256": "c7ad98414062d68d5112a067634dca427bbc22e476cd9aa05c968bfd31b2c9bf",
+  "dylib_sha256": "d1e9bb9c6c6978318382731dd31df8a8aee22104dc23bbbab73eec5c7b81e615",
+  "rows": [
+    {
+      "arm": "slow",
+      "lane": 0,
+      "modeled_mass_kg": 0.4500599934908678,
+      "com_max_rise_m": 0.017884070426144316,
+      "com_z350_m": 0.1649704501991013,
+      "com_z375_m": 0.1808618495379075,
+      "left_foot_max_horizontal_origin_displacement_m": 0.026272696969082625,
+      "right_foot_max_horizontal_origin_displacement_m": 0.02635030869460815
+    },
+    {
+      "arm": "slow",
+      "lane": 1,
+      "modeled_mass_kg": 0.4500599934908678,
+      "com_max_rise_m": 0.017954587303645547,
+      "com_z350_m": 0.16497415525374523,
+      "com_z375_m": 0.18089861593641254,
+      "left_foot_max_horizontal_origin_displacement_m": 0.028113552466551953,
+      "right_foot_max_horizontal_origin_displacement_m": 0.02809742335308956
+    },
+    {
+      "arm": "slow",
+      "lane": 2,
+      "modeled_mass_kg": 0.4500599934908678,
+      "com_max_rise_m": 0.017887150400636403,
+      "com_z350_m": 0.16497046558003256,
+      "com_z375_m": 0.18086582469980883,
+      "left_foot_max_horizontal_origin_displacement_m": 0.027007679540630648,
+      "right_foot_max_horizontal_origin_displacement_m": 0.027059550057118676
+    },
+    {
+      "arm": "slow",
+      "lane": 3,
+      "modeled_mass_kg": 0.4500599934908678,
+      "com_max_rise_m": 0.01790397446096756,
+      "com_z350_m": 0.16497203674308927,
+      "com_z375_m": 0.1808754939573049,
+      "left_foot_max_horizontal_origin_displacement_m": 0.024721793616000295,
+      "right_foot_max_horizontal_origin_displacement_m": 0.024804115798019923
+    },
+    {
+      "arm": "slow",
+      "lane": 4,
+      "modeled_mass_kg": 0.4500599934908678,
+      "com_max_rise_m": 0.017944024786532425,
+      "com_z350_m": 0.1649736762604617,
+      "com_z375_m": 0.18091390819333006,
+      "left_foot_max_horizontal_origin_displacement_m": 0.02624094937250814,
+      "right_foot_max_horizontal_origin_displacement_m": 0.026203939564799734
+    },
+    {
+      "arm": "slow",
+      "lane": 5,
+      "modeled_mass_kg": 0.4500599934908678,
+      "com_max_rise_m": 0.01801970544488113,
+      "com_z350_m": 0.16497099674086915,
+      "com_z375_m": 0.18106128605552846,
+      "left_foot_max_horizontal_origin_displacement_m": 0.028541358575030647,
+      "right_foot_max_horizontal_origin_displacement_m": 0.02852953597501177
+    },
+    {
+      "arm": "slow",
+      "lane": 6,
+      "modeled_mass_kg": 0.4500599934908678,
+      "com_max_rise_m": 0.01792949337447647,
+      "com_z350_m": 0.16497247790848255,
+      "com_z375_m": 0.18090097029162738,
+      "left_foot_max_horizontal_origin_displacement_m": 0.02584400703142217,
+      "right_foot_max_horizontal_origin_displacement_m": 0.025821241690812766
+    },
+    {
+      "arm": "slow",
+      "lane": 7,
+      "modeled_mass_kg": 0.4500599934908678,
+      "com_max_rise_m": 0.018017671218146486,
+      "com_z350_m": 0.1649701260640386,
+      "com_z375_m": 0.18106858537572826,
+      "left_foot_max_horizontal_origin_displacement_m": 0.02889939207607851,
+      "right_foot_max_horizontal_origin_displacement_m": 0.028926370591444442
+    },
+    {
+      "arm": "hold",
+      "lane": 0,
+      "modeled_mass_kg": 0.4500599934908678,
+      "com_max_rise_m": 0.02555357995825147,
+      "com_z350_m": 0.1649704501991013,
+      "com_z375_m": 0.18692756651942086,
+      "left_foot_max_horizontal_origin_displacement_m": 0.018730677247500063,
+      "right_foot_max_horizontal_origin_displacement_m": 0.018761781690577115
+    },
+    {
+      "arm": "hold",
+      "lane": 1,
+      "modeled_mass_kg": 0.4500599934908678,
+      "com_max_rise_m": 0.025013462426497796,
+      "com_z350_m": 0.16497415525374523,
+      "com_z375_m": 0.1865795058093769,
+      "left_foot_max_horizontal_origin_displacement_m": 0.01822307591804292,
+      "right_foot_max_horizontal_origin_displacement_m": 0.018174140273866143
+    },
+    {
+      "arm": "hold",
+      "lane": 2,
+      "modeled_mass_kg": 0.4500599934908678,
+      "com_max_rise_m": 0.025580244360511734,
+      "com_z350_m": 0.16497046558003256,
+      "com_z375_m": 0.1869348501896787,
+      "left_foot_max_horizontal_origin_displacement_m": 0.018360074001132532,
+      "right_foot_max_horizontal_origin_displacement_m": 0.018558880975190525
+    },
+    {
+      "arm": "hold",
+      "lane": 3,
+      "modeled_mass_kg": 0.4500599934908678,
+      "com_max_rise_m": 0.02548385070972048,
+      "com_z350_m": 0.16497203674308927,
+      "com_z375_m": 0.18686994007222035,
+      "left_foot_max_horizontal_origin_displacement_m": 0.01871455752165428,
+      "right_foot_max_horizontal_origin_displacement_m": 0.01881688189267295
+    },
+    {
+      "arm": "hold",
+      "lane": 4,
+      "modeled_mass_kg": 0.4500599934908678,
+      "com_max_rise_m": 0.025155444001262378,
+      "com_z350_m": 0.1649736762604617,
+      "com_z375_m": 0.18666878934288364,
+      "left_foot_max_horizontal_origin_displacement_m": 0.018276533311826097,
+      "right_foot_max_horizontal_origin_displacement_m": 0.01823611653306802
+    },
+    {
+      "arm": "hold",
+      "lane": 5,
+      "modeled_mass_kg": 0.4500599934908678,
+      "com_max_rise_m": 0.025246305706799532,
+      "com_z350_m": 0.16497099674086915,
+      "com_z375_m": 0.1867250654564591,
+      "left_foot_max_horizontal_origin_displacement_m": 0.018396475339334806,
+      "right_foot_max_horizontal_origin_displacement_m": 0.01841783018831746
+    },
+    {
+      "arm": "hold",
+      "lane": 6,
+      "modeled_mass_kg": 0.4500599934908678,
+      "com_max_rise_m": 0.025320399801387616,
+      "com_z350_m": 0.16497247790848255,
+      "com_z375_m": 0.18676729141665546,
+      "left_foot_max_horizontal_origin_displacement_m": 0.01865226582731196,
+      "right_foot_max_horizontal_origin_displacement_m": 0.018676531518798008
+    },
+    {
+      "arm": "hold",
+      "lane": 7,
+      "modeled_mass_kg": 0.4500599934908678,
+      "com_max_rise_m": 0.025278792959016444,
+      "com_z350_m": 0.1649701260640386,
+      "com_z375_m": 0.18674586260918588,
+      "left_foot_max_horizontal_origin_displacement_m": 0.018411832491482465,
+      "right_foot_max_horizontal_origin_displacement_m": 0.018475317680870268
+    },
+    {
+      "arm": "fast",
+      "lane": 0,
+      "modeled_mass_kg": 0.4500599934908678,
+      "com_max_rise_m": 0.017695505990196675,
+      "com_z350_m": 0.1649704501991013,
+      "com_z375_m": 0.18075770732961335,
+      "left_foot_max_horizontal_origin_displacement_m": 0.03620655859923703,
+      "right_foot_max_horizontal_origin_displacement_m": 0.036271653772726474
+    },
+    {
+      "arm": "fast",
+      "lane": 1,
+      "modeled_mass_kg": 0.4500599934908678,
+      "com_max_rise_m": 0.01772980384643416,
+      "com_z350_m": 0.16497415525374523,
+      "com_z375_m": 0.18072799790969793,
+      "left_foot_max_horizontal_origin_displacement_m": 0.03654469201199785,
+      "right_foot_max_horizontal_origin_displacement_m": 0.03661998896936346
+    },
+    {
+      "arm": "fast",
+      "lane": 2,
+      "modeled_mass_kg": 0.4500599934908678,
+      "com_max_rise_m": 0.017732866491772414,
+      "com_z350_m": 0.16497046558003256,
+      "com_z375_m": 0.18086123987534083,
+      "left_foot_max_horizontal_origin_displacement_m": 0.03622657437735926,
+      "right_foot_max_horizontal_origin_displacement_m": 0.03630542175122449
+    },
+    {
+      "arm": "fast",
+      "lane": 3,
+      "modeled_mass_kg": 0.4500599934908678,
+      "com_max_rise_m": 0.01771830080898823,
+      "com_z350_m": 0.16497203674308927,
+      "com_z375_m": 0.1807787245511484,
+      "left_foot_max_horizontal_origin_displacement_m": 0.0362289014175407,
+      "right_foot_max_horizontal_origin_displacement_m": 0.036294959903380865
+    },
+    {
+      "arm": "fast",
+      "lane": 4,
+      "modeled_mass_kg": 0.4500599934908678,
+      "com_max_rise_m": 0.017700606847654787,
+      "com_z350_m": 0.1649736762604617,
+      "com_z375_m": 0.18070805827171044,
+      "left_foot_max_horizontal_origin_displacement_m": 0.03620334458144975,
+      "right_foot_max_horizontal_origin_displacement_m": 0.03626634947403473
+    },
+    {
+      "arm": "fast",
+      "lane": 5,
+      "modeled_mass_kg": 0.4500599934908678,
+      "com_max_rise_m": 0.01771715524230827,
+      "com_z350_m": 0.16497099674086915,
+      "com_z375_m": 0.1807702943361364,
+      "left_foot_max_horizontal_origin_displacement_m": 0.03621658447783978,
+      "right_foot_max_horizontal_origin_displacement_m": 0.036288937044071184
+    },
+    {
+      "arm": "fast",
+      "lane": 6,
+      "modeled_mass_kg": 0.4500599934908678,
+      "com_max_rise_m": 0.01770172518621685,
+      "com_z350_m": 0.16497247790848255,
+      "com_z375_m": 0.1807082426985364,
+      "left_foot_max_horizontal_origin_displacement_m": 0.036209803510123886,
+      "right_foot_max_horizontal_origin_displacement_m": 0.036285779282760416
+    },
+    {
+      "arm": "fast",
+      "lane": 7,
+      "modeled_mass_kg": 0.4500599934908678,
+      "com_max_rise_m": 0.017732881356387564,
+      "com_z350_m": 0.1649701260640386,
+      "com_z375_m": 0.18082606666242892,
+      "left_foot_max_horizontal_origin_displacement_m": 0.03621955789771763,
+      "right_foot_max_horizontal_origin_displacement_m": 0.03627890045664368
+    }
+  ],
+  "scope": "Post-hoc whole-body FK analysis of existing recorded development endpoints. COM uses simulated model mass; selected lane-5 FK body poses and q verified against replay. Foot origin displacement does not measure contact-point slip or ground work, and maxima are not necessarily during loaded intervals. No biological or takeoff qualification."
+}
