@@ -1,0 +1,19 @@
+--- artifacts/crow-v15-uniform-flight-24s-screen-20261113/push-wing-012.metal	2026-11-13 11:00:02
++++ artifacts/crow-v15-flight-sweep-turn-identification-20261113/turn-identification.metal	2026-11-13 11:09:21
+@@ -5544,7 +5544,15 @@
+                 const float speedGain=0.12f;
+                 const float sweep=clamp(-0.04f+speedGain*(0.35f-state.commandExtension.z),-0.09f,0.025f);
+                 if (action<=1u) targetCandidate+=0.70f*smoothstep(start,start+0.04f,seconds)*sin(phase);
+-                else if (action<=3u) targetCandidate+=mix(0.12f,sweep,blend)*smoothstep(start,start+0.04f,seconds);
++                else if (action<=3u) {
++                    const float common=mix(0.12f,sweep,blend)*smoothstep(start,start+0.04f,seconds);
++                    if (arm>=4u && seconds>12.0f && seconds<18.0f) {
++                        const float pulse=smoothstep(12.0f,12.5f,seconds)*(1.0f-smoothstep(17.5f,18.0f,seconds));
++                        const float direction=arm<6u ? 1.0f : -1.0f;
++                        const float side=action==2u ? 1.0f : -1.0f;
++                        targetCandidate+=clamp(common + side*direction*0.015f*pulse,-0.09f,0.025f);
++                    } else targetCandidate+=common;
++                }
+                 else targetCandidate+=0.18f*smoothstep(start,start+0.04f,seconds)*sin(phase+1.57079632679f);
+             }
+         }
