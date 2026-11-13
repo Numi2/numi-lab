@@ -1,0 +1,5 @@
+{
+  "parent_task_sha256": "975494942ac1b4fa23c026816b12e566be78c5c1c5e991569134c6c2e72a0064",
+  "candidate_task_sha256": "ba0615f180bc733f10daa092bfd627099e99acec998c5b629cda2db1abbd746c",
+  "one_change": "const float extended=joint==0u ? -0.50f : joint==1u ? kneeExtension : 0.18f; -> const float extended=joint==0u ? -0.15f : joint==1u ? kneeExtension : 0.18f;"
+}
