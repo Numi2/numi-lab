@@ -1,0 +1,25 @@
+{
+  "retired": [
+    {
+      "path": "/Users/n/Developer/numi-crow-rl-20261107/artifacts/crow-v15-lateral-stabilization-screen-20261113/lateral-feedback-20261126-rebound-lateral/run.stderr.gz.part00",
+      "bytes": 41943040,
+      "sha256": "2d61e8505dd5e6a98e400e5a4ac2977759079e3f987bb711ec90e347bdca33b3"
+    },
+    {
+      "path": "/Users/n/Developer/numi-crow-rl-20261107/artifacts/crow-v15-lateral-stabilization-screen-20261113/lateral-feedback-20261126-rebound-lateral/run.stderr.gz.part01",
+      "bytes": 41943040,
+      "sha256": "3b30f5e03186ac2521c50ac9979d93d9fc13ebf90295f5ae45f4c654e8d25596"
+    },
+    {
+      "path": "/Users/n/Developer/numi-crow-rl-20261107/artifacts/crow-v15-lateral-stabilization-screen-20261113/lateral-feedback-20261126-rebound-lateral/run.stderr.gz.part02",
+      "bytes": 27882094,
+      "sha256": "4051c2a7fab73a073ba60bf86f98f24cdbb4d6b5ab761b0cfe21686c80eae661"
+    },
+    {
+      "path": "/Users/n/Developer/numi-crow-rl-20261107/artifacts/crow-v15-lateral-stabilization-screen-20261113/lateral-feedback-20261126-rebound-lateral/run.stderr.gz",
+      "bytes": 111768174,
+      "sha256": "e26f738c884d3f8272752ce0a70c8a2557e740a8f22ed773eee20f75ec7839fc"
+    }
+  ],
+  "archive_commit": "af93f1619a667dd8675a1985bca68c266d0c11bb"
+}
