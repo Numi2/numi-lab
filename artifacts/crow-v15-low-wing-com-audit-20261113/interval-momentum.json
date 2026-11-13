@@ -1,0 +1,341 @@
+{
+  "scope": "Posthoc COM endpoint and foot impulse comparison. Gravity assumed; aerodynamic, body wrench and other residual forces not isolated.",
+  "rows": [
+    {
+      "arm": "push",
+      "lane": 2,
+      "steps": [
+        348,
+        355
+      ],
+      "delta_com_momentum_ns": 0.09423779972981532,
+      "foot_impulse_ns": 0.7244337147784001,
+      "assumed_gravity_impulse_ns": -0.7064141657832661,
+      "residual_ns": 0.07621825073468125,
+      "com_vz_before": 0.0512953327054616,
+      "com_vz_after": 0.2606847498781913
+    },
+    {
+      "arm": "push",
+      "lane": 2,
+      "steps": [
+        356,
+        365
+      ],
+      "delta_com_momentum_ns": -0.14756000405670638,
+      "foot_impulse_ns": 0.6896207611539145,
+      "assumed_gravity_impulse_ns": -0.8830177072290826,
+      "residual_ns": 0.04583694201846167,
+      "com_vz_before": 0.2606847498781913,
+      "com_vz_after": -0.06718265933577726
+    },
+    {
+      "arm": "push",
+      "lane": 3,
+      "steps": [
+        348,
+        355
+      ],
+      "delta_com_momentum_ns": 0.10469498653289346,
+      "foot_impulse_ns": 0.7338266009024,
+      "assumed_gravity_impulse_ns": -0.7064141657832661,
+      "residual_ns": 0.0772825514137595,
+      "com_vz_before": 0.051298388888826645,
+      "com_vz_after": 0.2839229012806792
+    },
+    {
+      "arm": "push",
+      "lane": 3,
+      "steps": [
+        356,
+        365
+      ],
+      "delta_com_momentum_ns": -0.15506329549856687,
+      "foot_impulse_ns": 0.6875762608498099,
+      "assumed_gravity_impulse_ns": -0.8830177072290826,
+      "residual_ns": 0.04037815088070573,
+      "com_vz_before": 0.2839229012806792,
+      "com_vz_after": -0.0606162662552446
+    },
+    {
+      "arm": "push",
+      "lane": 4,
+      "steps": [
+        348,
+        355
+      ],
+      "delta_com_momentum_ns": 0.0939362364504553,
+      "foot_impulse_ns": 0.7183997635691001,
+      "assumed_gravity_impulse_ns": -0.7064141657832661,
+      "residual_ns": 0.08195063866462138,
+      "com_vz_before": 0.10199540363733077,
+      "com_vz_after": 0.31071476951974036
+    },
+    {
+      "arm": "push",
+      "lane": 4,
+      "steps": [
+        356,
+        365
+      ],
+      "delta_com_momentum_ns": -0.14390513265976726,
+      "foot_impulse_ns": 0.5665589920153972,
+      "assumed_gravity_impulse_ns": -0.8830177072290826,
+      "residual_ns": 0.17255358255391817,
+      "com_vz_before": 0.31071476951974036,
+      "com_vz_after": -0.009031785919622929
+    },
+    {
+      "arm": "push",
+      "lane": 5,
+      "steps": [
+        348,
+        355
+      ],
+      "delta_com_momentum_ns": 0.09576833852033005,
+      "foot_impulse_ns": 0.7202603210765002,
+      "assumed_gravity_impulse_ns": -0.7064141657832661,
+      "residual_ns": 0.08192218322709599,
+      "com_vz_before": 0.10199526165098877,
+      "com_vz_after": 0.31478542275264043
+    },
+    {
+      "arm": "push",
+      "lane": 5,
+      "steps": [
+        356,
+        365
+      ],
+      "delta_com_momentum_ns": -0.14575582227000763,
+      "foot_impulse_ns": 0.5648554597524926,
+      "assumed_gravity_impulse_ns": -0.8830177072290826,
+      "residual_ns": 0.17240642520658234,
+      "com_vz_before": 0.31478542275264043,
+      "com_vz_after": -0.009073228045134128
+    },
+    {
+      "arm": "push",
+      "lane": 6,
+      "steps": [
+        348,
+        355
+      ],
+      "delta_com_momentum_ns": 0.1263650787147366,
+      "foot_impulse_ns": 0.8089971451456,
+      "assumed_gravity_impulse_ns": -0.7064141657832661,
+      "residual_ns": 0.02378209935240272,
+      "com_vz_before": 0.0862658112952235,
+      "com_vz_after": 0.36703966487548106
+    },
+    {
+      "arm": "push",
+      "lane": 6,
+      "steps": [
+        356,
+        365
+      ],
+      "delta_com_momentum_ns": -0.11291814223544303,
+      "foot_impulse_ns": 0.49453633859388796,
+      "assumed_gravity_impulse_ns": -0.8830177072290826,
+      "residual_ns": 0.2755632263997516,
+      "com_vz_before": 0.36703966487548106,
+      "com_vz_after": 0.11614390904613237
+    },
+    {
+      "arm": "push",
+      "lane": 7,
+      "steps": [
+        348,
+        355
+      ],
+      "delta_com_momentum_ns": 0.1210692600614068,
+      "foot_impulse_ns": 0.8038466095564002,
+      "assumed_gravity_impulse_ns": -0.7064141657832661,
+      "residual_ns": 0.023636816288272744,
+      "com_vz_before": 0.08570353196091401,
+      "com_vz_after": 0.3547104683969637
+    },
+    {
+      "arm": "push",
+      "lane": 7,
+      "steps": [
+        356,
+        365
+      ],
+      "delta_com_momentum_ns": -0.2316156631432743,
+      "foot_impulse_ns": 0.38254865216298994,
+      "assumed_gravity_impulse_ns": -0.8830177072290826,
+      "residual_ns": 0.2688533919228183,
+      "com_vz_before": 0.3547104683969637,
+      "com_vz_after": -0.15992239498366928
+    },
+    {
+      "arm": "hold",
+      "lane": 2,
+      "steps": [
+        348,
+        355
+      ],
+      "delta_com_momentum_ns": -0.01460262747573158,
+      "foot_impulse_ns": 0.6103179057800003,
+      "assumed_gravity_impulse_ns": -0.7064141657832661,
+      "residual_ns": 0.08149363252753417,
+      "com_vz_before": 0.0512953327054616,
+      "com_vz_after": 0.01884937508441861
+    },
+    {
+      "arm": "hold",
+      "lane": 2,
+      "steps": [
+        356,
+        365
+      ],
+      "delta_com_momentum_ns": -0.03175648011700917,
+      "foot_impulse_ns": 0.8093938575700003,
+      "assumed_gravity_impulse_ns": -0.8830177072290826,
+      "residual_ns": 0.04186736954207315,
+      "com_vz_before": 0.01884937508441861,
+      "com_vz_after": -0.051711173678628784
+    },
+    {
+      "arm": "hold",
+      "lane": 3,
+      "steps": [
+        348,
+        355
+      ],
+      "delta_com_momentum_ns": -0.014602801359440674,
+      "foot_impulse_ns": 0.6103267601099996,
+      "assumed_gravity_impulse_ns": -0.7064141657832661,
+      "residual_ns": 0.08148460431382576,
+      "com_vz_before": 0.051298388888826645,
+      "com_vz_after": 0.018852044911049862
+    },
+    {
+      "arm": "hold",
+      "lane": 3,
+      "steps": [
+        356,
+        365
+      ],
+      "delta_com_momentum_ns": -0.031756585700865265,
+      "foot_impulse_ns": 0.8093903978100002,
+      "assumed_gravity_impulse_ns": -0.8830177072290826,
+      "residual_ns": 0.041870723718217095,
+      "com_vz_before": 0.018852044911049862,
+      "com_vz_after": -0.05170873845151232
+    },
+    {
+      "arm": "hold",
+      "lane": 4,
+      "steps": [
+        348,
+        355
+      ],
+      "delta_com_momentum_ns": -0.06954369209798643,
+      "foot_impulse_ns": 0.5475742077999998,
+      "assumed_gravity_impulse_ns": -0.7064141657832661,
+      "residual_ns": 0.08929626588527995,
+      "com_vz_before": 0.10199540363733077,
+      "com_vz_after": -0.05252553380164102
+    },
+    {
+      "arm": "hold",
+      "lane": 4,
+      "steps": [
+        356,
+        365
+      ],
+      "delta_com_momentum_ns": 0.022332841200315274,
+      "foot_impulse_ns": 0.7298475927599999,
+      "assumed_gravity_impulse_ns": -0.8830177072290826,
+      "residual_ns": 0.175502955669398,
+      "com_vz_before": -0.05252553380164102,
+      "com_vz_after": -0.0029036133392339757
+    },
+    {
+      "arm": "hold",
+      "lane": 5,
+      "steps": [
+        348,
+        355
+      ],
+      "delta_com_momentum_ns": -0.06954498451158492,
+      "foot_impulse_ns": 0.54758758737,
+      "assumed_gravity_impulse_ns": -0.7064141657832661,
+      "residual_ns": 0.08928159390168111,
+      "com_vz_before": 0.10199526165098877,
+      "com_vz_after": -0.052528547435357086
+    },
+    {
+      "arm": "hold",
+      "lane": 5,
+      "steps": [
+        356,
+        365
+      ],
+      "delta_com_momentum_ns": 0.022337317367738876,
+      "foot_impulse_ns": 0.7299682459199998,
+      "assumed_gravity_impulse_ns": -0.8830177072290826,
+      "residual_ns": 0.17538677867682173,
+      "com_vz_before": -0.052528547435357086,
+      "com_vz_after": -0.0028966812601820963
+    },
+    {
+      "arm": "hold",
+      "lane": 6,
+      "steps": [
+        348,
+        355
+      ],
+      "delta_com_momentum_ns": -0.038794989028330326,
+      "foot_impulse_ns": 0.6394277582900003,
+      "assumed_gravity_impulse_ns": -0.7064141657832661,
+      "residual_ns": 0.028191418464935447,
+      "com_vz_before": 0.0862658112952235,
+      "com_vz_after": 6.621659803893671e-05
+    },
+    {
+      "arm": "hold",
+      "lane": 6,
+      "steps": [
+        356,
+        365
+      ],
+      "delta_com_momentum_ns": 0.011856427177212851,
+      "foot_impulse_ns": 0.6179995793820003,
+      "assumed_gravity_impulse_ns": -0.8830177072290826,
+      "residual_ns": 0.27687455502429503,
+      "com_vz_before": 6.621659803893671e-05,
+      "com_vz_after": 0.026410320381290292
+    },
+    {
+      "arm": "hold",
+      "lane": 7,
+      "steps": [
+        348,
+        355
+      ],
+      "delta_com_momentum_ns": -0.03854145641619024,
+      "foot_impulse_ns": 0.6396719068600001,
+      "assumed_gravity_impulse_ns": -0.7064141657832661,
+      "residual_ns": 0.028200802507075795,
+      "com_vz_before": 0.08570353196091401,
+      "com_vz_after": 6.726796587334553e-05
+    },
+    {
+      "arm": "hold",
+      "lane": 7,
+      "steps": [
+        356,
+        365
+      ],
+      "delta_com_momentum_ns": 0.011055303514278603,
+      "foot_impulse_ns": 0.6172100927420001,
+      "assumed_gravity_impulse_ns": -0.8830177072290826,
+      "residual_ns": 0.2768629180013611,
+      "com_vz_before": 6.726796587334553e-05,
+      "com_vz_after": 0.0246313342551889
+    }
+  ]
+}
