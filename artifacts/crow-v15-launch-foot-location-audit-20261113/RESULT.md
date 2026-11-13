@@ -1,0 +1,3 @@
+# Post-hoc push geometry audit
+
+During ticks 371–375 in the prior two wing-held baseline push lanes, contact-point x coordinates weighted by modeled normal impulse lay approximately 2.2–2.7 cm ahead of the preceding accepted whole-body COM until tick 374, then about 9.0–9.1 cm ahead at tick 375, the interval with the largest total logged normal impulse. This is an interval-aggregated spatial comparison, not an instantaneous center of pressure, not a measured crow geometry, and not proof that location alone caused the negative horizontal impulse. The changing contact set and within-tick body motion are not separately controlled. It motivates testing coordinated limb and body posture and comparing actual contact impulses; it does not qualify the push, takeoff or flight.

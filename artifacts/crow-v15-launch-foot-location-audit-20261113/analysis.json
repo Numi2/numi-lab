@@ -1,0 +1,97 @@
+{
+  "rows": [
+    {
+      "lane": 2,
+      "tick": 371,
+      "preceding_control_state_com_x_m": 0.11744261789445239,
+      "normal_impulse_weighted_ground_point_x_m": 0.1393318042311766,
+      "ground_point_minus_preceding_com_x_m": 0.021889186336724223,
+      "normal_impulse_ns": 0.08825763217959998,
+      "contact_records": 240
+    },
+    {
+      "lane": 2,
+      "tick": 372,
+      "preceding_control_state_com_x_m": 0.11709500274559315,
+      "normal_impulse_weighted_ground_point_x_m": 0.13922419629709995,
+      "ground_point_minus_preceding_com_x_m": 0.022129193551506804,
+      "normal_impulse_ns": 0.08824531130640005,
+      "contact_records": 240
+    },
+    {
+      "lane": 2,
+      "tick": 373,
+      "preceding_control_state_com_x_m": 0.11674352326401355,
+      "normal_impulse_weighted_ground_point_x_m": 0.1441221596618924,
+      "ground_point_minus_preceding_com_x_m": 0.027378636397878853,
+      "normal_impulse_ns": 0.11065174705773462,
+      "contact_records": 256
+    },
+    {
+      "lane": 2,
+      "tick": 374,
+      "preceding_control_state_com_x_m": 0.11688487520587938,
+      "normal_impulse_weighted_ground_point_x_m": 0.1421111507803345,
+      "ground_point_minus_preceding_com_x_m": 0.02522627557445513,
+      "normal_impulse_ns": 0.14464065977537577,
+      "contact_records": 216
+    },
+    {
+      "lane": 2,
+      "tick": 375,
+      "preceding_control_state_com_x_m": 0.11777827682345952,
+      "normal_impulse_weighted_ground_point_x_m": 0.20815230305411161,
+      "ground_point_minus_preceding_com_x_m": 0.09037402623065209,
+      "normal_impulse_ns": 0.3196383070775159,
+      "contact_records": 248
+    },
+    {
+      "lane": 3,
+      "tick": 371,
+      "preceding_control_state_com_x_m": 0.11225092917154025,
+      "normal_impulse_weighted_ground_point_x_m": 0.13418995820952276,
+      "ground_point_minus_preceding_com_x_m": 0.021939029037982505,
+      "normal_impulse_ns": 0.08825744037650007,
+      "contact_records": 256
+    },
+    {
+      "lane": 3,
+      "tick": 372,
+      "preceding_control_state_com_x_m": 0.11190255376678641,
+      "normal_impulse_weighted_ground_point_x_m": 0.1340821322593793,
+      "ground_point_minus_preceding_com_x_m": 0.022179578492592875,
+      "normal_impulse_ns": 0.0882448024224,
+      "contact_records": 256
+    },
+    {
+      "lane": 3,
+      "tick": 373,
+      "preceding_control_state_com_x_m": 0.11155030564670486,
+      "normal_impulse_weighted_ground_point_x_m": 0.139009361013279,
+      "ground_point_minus_preceding_com_x_m": 0.027459055366574128,
+      "normal_impulse_ns": 0.11062081957960607,
+      "contact_records": 256
+    },
+    {
+      "lane": 3,
+      "tick": 374,
+      "preceding_control_state_com_x_m": 0.1116924120839493,
+      "normal_impulse_weighted_ground_point_x_m": 0.13706137000046972,
+      "ground_point_minus_preceding_com_x_m": 0.025368957916520427,
+      "normal_impulse_ns": 0.14535564114700353,
+      "contact_records": 216
+    },
+    {
+      "lane": 3,
+      "tick": 375,
+      "preceding_control_state_com_x_m": 0.1125854073020775,
+      "normal_impulse_weighted_ground_point_x_m": 0.20309933122501592,
+      "ground_point_minus_preceding_com_x_m": 0.09051392392293842,
+      "normal_impulse_ns": 0.30038197040787823,
+      "contact_records": 248
+    }
+  ],
+  "source_sha256": "332572d95b7153202937a05c529e549e3530f14b59637d14aedfcce03997a35e",
+  "kinematics_sha256": "543203944cce27056406a8c9f3a8a9f55016f404ef310c11dbfa497c72e83aaf",
+  "scope": "Posthoc coarse control-interval estimate using the previous accepted COM and contact points weighted by reported normal impulse; not instantaneous center of pressure or a proof of causation. Used-seed correlated lanes, modeled coordinates and forces, no biological calibration."
+}
