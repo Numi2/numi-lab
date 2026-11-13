@@ -1,0 +1,28 @@
+{
+  "retired": [
+    {
+      "path": "build/crow-v15-consistent-long-flight-20261113/push-wing-20261126-rebound-long-replay.json",
+      "logical_bytes": 19707577,
+      "allocated_blocks_before": 38496
+    },
+    {
+      "path": "build/crow-v15-consistent-long-flight-20261113/push-wing-20261126-rebound-long-trace.tsv",
+      "logical_bytes": 433938,
+      "allocated_blocks_before": 848
+    },
+    {
+      "path": "build/crow-v15-consistent-long-flight-20261113/hold-wing-20261126-rebound-long-replay.json",
+      "logical_bytes": 19747851,
+      "allocated_blocks_before": 38576
+    },
+    {
+      "path": "build/crow-v15-consistent-long-flight-20261113/hold-wing-20261126-rebound-long-trace.tsv",
+      "logical_bytes": 433442,
+      "allocated_blocks_before": 848
+    }
+  ],
+  "logical_bytes": 40322808,
+  "available_bytes_before": 39480205312,
+  "available_bytes_after": 39520522240,
+  "note": "Concurrent activity can affect free-space change; exact byte restoration was verified from GitHub before unlink."
+}
