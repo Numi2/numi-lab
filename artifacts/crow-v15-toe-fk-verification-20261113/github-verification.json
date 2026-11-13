@@ -1,0 +1,24 @@
+{
+  "commit": "9fdd47455745792e7563902eedae14cf0f265efc",
+  "source": "independent GitHub raw",
+  "files": [
+    {
+      "name": "trace.log.gz",
+      "sha256": "5942969c0901c2dcc8cee9d76e827faa32f0ae408f5bbf98e1853b5ff9a4224a",
+      "bytes": 1717341,
+      "gzip_eof_verified": true
+    },
+    {
+      "name": "substeps.log.gz",
+      "sha256": "7f18890d0274fc67193f21ac90b70100e3cfbeca12a31732a040b0f9fa0ab395",
+      "bytes": 2596696,
+      "gzip_eof_verified": true
+    },
+    {
+      "name": "probe.gz",
+      "sha256": "623339c950555b12a2fb4588f7eaa86e1b48cea7d8c81800928268d674971c1d",
+      "bytes": 41020,
+      "gzip_eof_verified": true
+    }
+  ]
+}
