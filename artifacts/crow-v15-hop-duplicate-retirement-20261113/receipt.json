@@ -1,0 +1,17 @@
+{
+  "removed": [
+    "build/crow-v15-strong-winghold-leg-isolation-20261113/push-wing-20261126-rebound-stronghold-replay.json",
+    "build/crow-v15-strong-winghold-leg-isolation-20261113/push-wing-20261126-rebound-stronghold-trace.tsv",
+    "build/crow-v15-strong-winghold-leg-isolation-20261113/hold-wing-20261126-rebound-stronghold-replay.json",
+    "build/crow-v15-strong-winghold-leg-isolation-20261113/hold-wing-20261126-rebound-stronghold-trace.tsv",
+    "build/crow-v15-hop-wing-transition-20261113/push-wing-20261126-rebound-transition-replay.json",
+    "build/crow-v15-hop-wing-transition-20261113/push-wing-20261126-rebound-transition-trace.tsv",
+    "build/crow-v15-hop-wing-transition-20261113/hold-wing-20261126-rebound-transition-replay.json",
+    "build/crow-v15-hop-wing-transition-20261113/hold-wing-20261126-rebound-transition-trace.tsv"
+  ],
+  "logical_bytes": 73730050,
+  "available_before_bytes": 39177482240,
+  "available_after_bytes": 39251193856,
+  "availability_delta_bytes": 73711616,
+  "note": "Concurrent filesystem activity can affect availability delta. Independently restored hashes and exact identity/open-handle checks are in the preceding manifest."
+}
