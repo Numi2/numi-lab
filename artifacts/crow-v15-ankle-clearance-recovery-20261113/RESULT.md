@@ -1,0 +1,5 @@
+# Supported ankle clearance recovery: failed
+
+Both 550-interval trials completed, with all 32 substeps observed and no observer error or bad substep. Each matched the prior supported-pitch lane exactly for the 208 accepted states before intervention. After 12 qualifying open-foot clearance intervals, both completed their respective +0.075 and +0.15 rad ankle adjustments over 50 intervals while measured opposite-foot support, posture and toe-opening gates held. Accepted joint positions and targets stayed within modeled bounds. Continuing the adjustment through renewed contact was pre-registered and occurred for 48 increments in each lane.
+
+Neither candidate recovered a new clearance streak, entered return/regrip, or achieved terminal bilateral opposing-toe support; their root heights fell below 0.1 m at zero-based intervals 329 and 330. This is a failed constructed stationary release/regrip test, not a landing. Root-below-threshold is the recorded failure criterion; no solver defect is implied. Control-rate joint checks do not establish substep effort bounds. Raw traces, executed probe, observers and analysis are retained.

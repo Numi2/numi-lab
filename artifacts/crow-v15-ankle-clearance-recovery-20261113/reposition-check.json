@@ -1,0 +1,46 @@
+{
+  "0": {
+    "samples": 550,
+    "first_started_zero_based": 208,
+    "first_motion_zero_based": 208,
+    "first_full_zero_based": 257,
+    "max_fraction": 1.0,
+    "max_fraction_slew": 0.02000001100000004,
+    "increments_without_support": 0,
+    "increments_without_posture": 0,
+    "increments_without_open_toes": 0,
+    "increments_without_clearance": 48,
+    "knee_target_range_rad": [
+      0.28,
+      0.280000001
+    ],
+    "ankle_target_range_rad": [
+      -0.16,
+      -0.0849999934
+    ],
+    "target_position_limits_ok": true,
+    "scope": "commanded targets and accepted support state, not substep effort"
+  },
+  "1": {
+    "samples": 550,
+    "first_started_zero_based": 208,
+    "first_motion_zero_based": 208,
+    "first_full_zero_based": 257,
+    "max_fraction": 1.0,
+    "max_fraction_slew": 0.02000001100000004,
+    "increments_without_support": 0,
+    "increments_without_posture": 0,
+    "increments_without_open_toes": 0,
+    "increments_without_clearance": 48,
+    "knee_target_range_rad": [
+      0.28,
+      0.280000001
+    ],
+    "ankle_target_range_rad": [
+      -0.16,
+      -0.00999999046
+    ],
+    "target_position_limits_ok": true,
+    "scope": "commanded targets and accepted support state, not substep effort"
+  }
+}
