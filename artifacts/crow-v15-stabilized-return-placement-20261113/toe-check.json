@@ -1,0 +1,28 @@
+{
+  "0": {
+    "control_samples": 450,
+    "states": 450,
+    "max_front_target_rad": 1.04999995,
+    "max_increase_per_interval_rad": 0.045000017,
+    "target_cap_ok": true,
+    "rate_cap_ok": true,
+    "max_accepted_left_toe_speed_rad_s": 12.0,
+    "max_accepted_left_toe_speed_before_fall_rad_s": 8.3248558,
+    "accepted_speed_cap_samples_before_fall": 0,
+    "accepted_speed_cap_samples_after_fall": 4,
+    "scope": "accepted states only; no substep toe-speed or torque bound"
+  },
+  "1": {
+    "control_samples": 450,
+    "states": 450,
+    "max_front_target_rad": 1.04999995,
+    "max_increase_per_interval_rad": 0.06000000300000008,
+    "target_cap_ok": true,
+    "rate_cap_ok": true,
+    "max_accepted_left_toe_speed_rad_s": 12.0,
+    "max_accepted_left_toe_speed_before_fall_rad_s": 7.05147076,
+    "accepted_speed_cap_samples_before_fall": 0,
+    "accepted_speed_cap_samples_after_fall": 3,
+    "scope": "accepted states only; no substep toe-speed or torque bound"
+  }
+}

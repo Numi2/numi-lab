@@ -1,0 +1,62 @@
+{
+  "0": {
+    "prep_samples": 329,
+    "max_fraction": 1.0,
+    "max_slew": 0.02500000600000002,
+    "increments_without_50_supported": 0,
+    "target_ranges_rad": {
+      "18": [
+        0.28,
+        0.355000019
+      ],
+      "19": [
+        -0.310000002,
+        -0.159999996
+      ]
+    },
+    "accepted_knee_range_rad": [
+      0.279878378,
+      0.355982661
+    ],
+    "accepted_ankle_range_rad": [
+      -0.310778886,
+      -0.159969211
+    ],
+    "accepted_peak_speeds_rad_s": [
+      0.40895009,
+      0.375937432
+    ],
+    "within_model_position_limits": true,
+    "scope": "accepted states and logged target gates, not substep actuator effort"
+  },
+  "1": {
+    "prep_samples": 329,
+    "max_fraction": 1.0,
+    "max_slew": 0.02500000600000002,
+    "increments_without_50_supported": 0,
+    "target_ranges_rad": {
+      "18": [
+        0.28,
+        0.355000019
+      ],
+      "19": [
+        -0.310000002,
+        -0.159999996
+      ]
+    },
+    "accepted_knee_range_rad": [
+      0.279878378,
+      0.356542826
+    ],
+    "accepted_ankle_range_rad": [
+      -0.310658842,
+      -0.159969211
+    ],
+    "accepted_peak_speeds_rad_s": [
+      0.265829951,
+      0.375937432
+    ],
+    "within_model_position_limits": true,
+    "scope": "accepted states and logged target gates, not substep actuator effort"
+  }
+}

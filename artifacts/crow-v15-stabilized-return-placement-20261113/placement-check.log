@@ -1,0 +1,38 @@
+{
+  "0": {
+    "samples": 450,
+    "max_fraction": 0.0,
+    "max_slew": 0.0,
+    "increments_without_support": 0,
+    "increments_without_posture": 0,
+    "target_ranges_rad": {
+      "15": [
+        0.28,
+        0.280000001
+      ],
+      "16": [
+        -0.16,
+        -0.159999996
+      ]
+    },
+    "scope": "logged targets and accepted support gates, not substep torque"
+  },
+  "1": {
+    "samples": 450,
+    "max_fraction": 0.0,
+    "max_slew": 0.0,
+    "increments_without_support": 0,
+    "increments_without_posture": 0,
+    "target_ranges_rad": {
+      "15": [
+        0.28,
+        0.280000001
+      ],
+      "16": [
+        -0.16,
+        -0.159999996
+      ]
+    },
+    "scope": "logged targets and accepted support gates, not substep torque"
+  }
+}

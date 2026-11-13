@@ -1,0 +1,32 @@
+{
+  "0": {
+    "first_fall": 306,
+    "counts": {
+      "release_intervals": 50,
+      "clearance_failed": 38,
+      "left_no_contact_failed": 39,
+      "right_support_failed": 15,
+      "all_passed": 11
+    },
+    "first_failed_interval_by_check": {
+      "clearance": 171,
+      "left_no_contact": 171,
+      "right_support": 171
+    }
+  },
+  "1": {
+    "first_fall": 305,
+    "counts": {
+      "release_intervals": 50,
+      "clearance_failed": 38,
+      "left_no_contact_failed": 39,
+      "right_support_failed": 15,
+      "all_passed": 11
+    },
+    "first_failed_interval_by_check": {
+      "clearance": 171,
+      "left_no_contact": 171,
+      "right_support": 171
+    }
+  }
+}

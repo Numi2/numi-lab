@@ -1,0 +1,42 @@
+{
+  "lanes": [
+    {
+      "states_observed": 450,
+      "lane": 0,
+      "stance_knee_target_offset_rad": 0.075,
+      "initial_x_shift_m": 0.002,
+      "sensor_clearance_max_abs_error_m": 1.3109517497489169e-08,
+      "release_trigger_step": 171,
+      "return_step": 221,
+      "terminal_100_bilateral_supported_grip": false,
+      "longest_qualified_release_intervals": 14,
+      "peak_minimum_left_clearance_m": 0.00400118999667938,
+      "maximum_right_upward_impulse_per_interval": 0.11716576105974948,
+      "nonfoot_impulse_intervals": 0,
+      "first_root_below_0_1m": 306,
+      "missing_pose_steps": [],
+      "pass": false
+    },
+    {
+      "states_observed": 450,
+      "lane": 1,
+      "stance_knee_target_offset_rad": 0.075,
+      "initial_x_shift_m": 0.002,
+      "sensor_clearance_max_abs_error_m": 1.3109517497489169e-08,
+      "release_trigger_step": 171,
+      "return_step": 221,
+      "terminal_100_bilateral_supported_grip": false,
+      "longest_qualified_release_intervals": 14,
+      "peak_minimum_left_clearance_m": 0.00400118999667938,
+      "maximum_right_upward_impulse_per_interval": 0.12379633987135727,
+      "nonfoot_impulse_intervals": 0,
+      "first_root_below_0_1m": 305,
+      "missing_pose_steps": [],
+      "pass": false
+    }
+  ],
+  "missing_substeps": 0,
+  "bad_substeps": 0,
+  "errors": [],
+  "scope": "constructed stationary grip-to-release development test"
+}

@@ -1,0 +1,5 @@
+# Stance preposition plus return placement: placement blocked, failed
+
+Both constructed-state candidates exactly matched the prior baseline through 121 accepted states before stance preposition. Raising the internal clearance requirement to twelve resulted in eleven independently verified consecutive clearance intervals in each lane, satisfying the declared independent ten-interval clearance test. All 450 intervals completed with 32-substep contact coverage and no observer errors.
+
+Neither returning-foot knee/ankle adjustment advanced at all: by return, the measured posture gate prevented it. Neither lane produced an interval meeting the combined bilateral opposing-grip, tilt and speed criteria; root height fell below 0.1 m at intervals 306 and 305. The placement hypothesis was not physically exercised, so this test cannot establish whether it would work under a stable stance. It does establish that this controller does not maintain the required posture long enough to attempt it. The source, executed probe, physical observations and failed outcomes are archived; this is not an airborne landing.
