@@ -1,0 +1,13 @@
+--- artifacts/crow-v15-position-flight-screen-20261113/position-flight.metal	2026-11-13 12:19:33
++++ artifacts/crow-v15-turn-response-screen-20261113/turn-response.metal	2026-11-13 12:34:42
+@@ -5558,7 +5558,9 @@
+                         const float lateralGain=1.20f;
+                         const float bankLimit=0.18f;
+                         const float positionGain = arm<4u ? 0.0f : arm<6u ? 0.10f : 0.20f;
+-                        const float courseCorrection=clamp(positionGain*state.airReturnTracking.x,-0.20f,0.20f);
++                        const float commandEnvelope=smoothstep(12.0f,12.5f,seconds)*(1.0f-smoothstep(23.5f,24.0f,seconds));
++                        const float commandedY=arm==6u ? 0.50f*commandEnvelope : arm==7u ? -0.50f*commandEnvelope : 0.0f;
++                        const float courseCorrection=clamp(positionGain*(state.airReturnTracking.x-commandedY),-0.20f,0.20f);
+                         const float targetBank=clamp(lateralGain*(lateralSpeed+courseCorrection),-bankLimit,bankLimit);
+                         const float delta=onset*clamp(0.08f*(targetBank-state.threatTeacher.y)-0.025f*state.threatTeacher.z,-0.025f,0.025f);
+                         amplitude+=(action==0u ? delta : -delta);

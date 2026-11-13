@@ -1,0 +1,1243 @@
+{
+  "seed": "20261127",
+  "rows": [
+    {
+      "lane": 2,
+      "end": 1800,
+      "termination_reason": 0,
+      "physical_failure": false,
+      "missing_prefix_ticks": [],
+      "different_prefix_ticks": [],
+      "exact_required_prefix": true,
+      "missing_state_ticks": [],
+      "missing_contact_ticks": [],
+      "missing_toe_ticks": [],
+      "missing_body_velocity_ticks": [],
+      "missing_effort_ticks": [],
+      "missing_target_ticks": [],
+      "release": 376,
+      "recontact": null,
+      "first_ground_record": null,
+      "accepted_state_before_ground": null,
+      "wing_targets_before_ground": null,
+      "nonfoot_impulse_ns": 0.0,
+      "toe_threshold_events": 0,
+      "flap_effort_max": 3.0,
+      "body_joint_speeds": [
+        {
+          "v_index": 6,
+          "name": "crow_left_wing_sweep",
+          "max_abs_rad_s": 1.94463742,
+          "limit_rad_s": 15.0,
+          "at_limit_substeps": 0
+        },
+        {
+          "v_index": 7,
+          "name": "crow_right_wing_sweep",
+          "max_abs_rad_s": 2.44339776,
+          "limit_rad_s": 15.0,
+          "at_limit_substeps": 0
+        },
+        {
+          "v_index": 8,
+          "name": "crow_left_wing_flap",
+          "max_abs_rad_s": 30.2152081,
+          "limit_rad_s": 90.0,
+          "at_limit_substeps": 0
+        },
+        {
+          "v_index": 9,
+          "name": "crow_right_wing_flap",
+          "max_abs_rad_s": 30.9043655,
+          "limit_rad_s": 90.0,
+          "at_limit_substeps": 0
+        },
+        {
+          "v_index": 10,
+          "name": "crow_left_wing_pronation",
+          "max_abs_rad_s": 6.65706825,
+          "limit_rad_s": 25.0,
+          "at_limit_substeps": 0
+        },
+        {
+          "v_index": 11,
+          "name": "crow_right_wing_pronation",
+          "max_abs_rad_s": 7.62000561,
+          "limit_rad_s": 25.0,
+          "at_limit_substeps": 0
+        },
+        {
+          "v_index": 12,
+          "name": "crow_tail_pitch",
+          "max_abs_rad_s": 7.21764755,
+          "limit_rad_s": 18.0,
+          "at_limit_substeps": 0
+        },
+        {
+          "v_index": 13,
+          "name": "crow_left_hip_pitch",
+          "max_abs_rad_s": 8.3718338,
+          "limit_rad_s": 18.0,
+          "at_limit_substeps": 0
+        },
+        {
+          "v_index": 14,
+          "name": "crow_left_knee_pitch",
+          "max_abs_rad_s": 3.83810592,
+          "limit_rad_s": 22.0,
+          "at_limit_substeps": 0
+        },
+        {
+          "v_index": 15,
+          "name": "crow_left_ankle_pitch",
+          "max_abs_rad_s": 17.9103146,
+          "limit_rad_s": 24.0,
+          "at_limit_substeps": 0
+        },
+        {
+          "v_index": 16,
+          "name": "crow_right_hip_pitch",
+          "max_abs_rad_s": 8.37134361,
+          "limit_rad_s": 18.0,
+          "at_limit_substeps": 0
+        },
+        {
+          "v_index": 17,
+          "name": "crow_right_knee_pitch",
+          "max_abs_rad_s": 3.83656907,
+          "limit_rad_s": 22.0,
+          "at_limit_substeps": 0
+        },
+        {
+          "v_index": 18,
+          "name": "crow_right_ankle_pitch",
+          "max_abs_rad_s": 17.9083309,
+          "limit_rad_s": 24.0,
+          "at_limit_substeps": 0
+        },
+        {
+          "v_index": 19,
+          "name": "crow_neck_yaw",
+          "max_abs_rad_s": 0.214288265,
+          "limit_rad_s": 8.0,
+          "at_limit_substeps": 0
+        },
+        {
+          "v_index": 20,
+          "name": "crow_neck_pitch",
+          "max_abs_rad_s": 2.90054631,
+          "limit_rad_s": 8.0,
+          "at_limit_substeps": 0
+        },
+        {
+          "v_index": 21,
+          "name": "crow_beak_open",
+          "max_abs_rad_s": 1.48932016,
+          "limit_rad_s": 10.0,
+          "at_limit_substeps": 0
+        },
+        {
+          "v_index": 38,
+          "name": "crow_left_hip_roll",
+          "max_abs_rad_s": 0.0377221182,
+          "limit_rad_s": 8.0,
+          "at_limit_substeps": 0
+        },
+        {
+          "v_index": 39,
+          "name": "crow_right_hip_roll",
+          "max_abs_rad_s": 0.0377134196,
+          "limit_rad_s": 8.0,
+          "at_limit_substeps": 0
+        }
+      ],
+      "height_range_m": [
+        0.529986918,
+        1.01155496
+      ],
+      "vx_range_m_s": [
+        0.0983760282,
+        0.551401496
+      ],
+      "max_abs_vy_m_s": 0.109663531,
+      "max_abs_y_displacement_m": 1.9290257059,
+      "forward_displacement_m": 10.479769,
+      "feedback_samples": 874,
+      "feedback_max_error_rad": 4.19925201278204e-08,
+      "waveform_max_error": 0.00013913467720122474,
+      "sweep_targets_valid": true,
+      "preliminary_engineering_pass": false
+    },
+    {
+      "lane": 3,
+      "end": 1800,
+      "termination_reason": 0,
+      "physical_failure": false,
+      "missing_prefix_ticks": [],
+      "different_prefix_ticks": [],
+      "exact_required_prefix": true,
+      "missing_state_ticks": [],
+      "missing_contact_ticks": [],
+      "missing_toe_ticks": [],
+      "missing_body_velocity_ticks": [],
+      "missing_effort_ticks": [],
+      "missing_target_ticks": [],
+      "release": 376,
+      "recontact": null,
+      "first_ground_record": null,
+      "accepted_state_before_ground": null,
+      "wing_targets_before_ground": null,
+      "nonfoot_impulse_ns": 0.0,
+      "toe_threshold_events": 0,
+      "flap_effort_max": 3.0,
+      "body_joint_speeds": [
+        {
+          "v_index": 6,
+          "name": "crow_left_wing_sweep",
+          "max_abs_rad_s": 1.94097924,
+          "limit_rad_s": 15.0,
+          "at_limit_substeps": 0
+        },
+        {
+          "v_index": 7,
+          "name": "crow_right_wing_sweep",
+          "max_abs_rad_s": 2.44215822,
+          "limit_rad_s": 15.0,
+          "at_limit_substeps": 0
+        },
+        {
+          "v_index": 8,
+          "name": "crow_left_wing_flap",
+          "max_abs_rad_s": 30.2159271,
+          "limit_rad_s": 90.0,
+          "at_limit_substeps": 0
+        },
+        {
+          "v_index": 9,
+          "name": "crow_right_wing_flap",
+          "max_abs_rad_s": 30.900816,
+          "limit_rad_s": 90.0,
+          "at_limit_substeps": 0
+        },
+        {
+          "v_index": 10,
+          "name": "crow_left_wing_pronation",
+          "max_abs_rad_s": 6.65763903,
+          "limit_rad_s": 25.0,
+          "at_limit_substeps": 0
+        },
+        {
+          "v_index": 11,
+          "name": "crow_right_wing_pronation",
+          "max_abs_rad_s": 7.61849499,
+          "limit_rad_s": 25.0,
+          "at_limit_substeps": 0
+        },
+        {
+          "v_index": 12,
+          "name": "crow_tail_pitch",
+          "max_abs_rad_s": 7.19778442,
+          "limit_rad_s": 18.0,
+          "at_limit_substeps": 0
+        },
+        {
+          "v_index": 13,
+          "name": "crow_left_hip_pitch",
+          "max_abs_rad_s": 8.37180805,
+          "limit_rad_s": 18.0,
+          "at_limit_substeps": 0
+        },
+        {
+          "v_index": 14,
+          "name": "crow_left_knee_pitch",
+          "max_abs_rad_s": 3.83814549,
+          "limit_rad_s": 22.0,
+          "at_limit_substeps": 0
+        },
+        {
+          "v_index": 15,
+          "name": "crow_left_ankle_pitch",
+          "max_abs_rad_s": 17.9105873,
+          "limit_rad_s": 24.0,
+          "at_limit_substeps": 0
+        },
+        {
+          "v_index": 16,
+          "name": "crow_right_hip_pitch",
+          "max_abs_rad_s": 8.37130356,
+          "limit_rad_s": 18.0,
+          "at_limit_substeps": 0
+        },
+        {
+          "v_index": 17,
+          "name": "crow_right_knee_pitch",
+          "max_abs_rad_s": 3.83660936,
+          "limit_rad_s": 22.0,
+          "at_limit_substeps": 0
+        },
+        {
+          "v_index": 18,
+          "name": "crow_right_ankle_pitch",
+          "max_abs_rad_s": 17.9085865,
+          "limit_rad_s": 24.0,
+          "at_limit_substeps": 0
+        },
+        {
+          "v_index": 19,
+          "name": "crow_neck_yaw",
+          "max_abs_rad_s": 0.214305624,
+          "limit_rad_s": 8.0,
+          "at_limit_substeps": 0
+        },
+        {
+          "v_index": 20,
+          "name": "crow_neck_pitch",
+          "max_abs_rad_s": 2.90615678,
+          "limit_rad_s": 8.0,
+          "at_limit_substeps": 0
+        },
+        {
+          "v_index": 21,
+          "name": "crow_beak_open",
+          "max_abs_rad_s": 1.49199665,
+          "limit_rad_s": 10.0,
+          "at_limit_substeps": 0
+        },
+        {
+          "v_index": 38,
+          "name": "crow_left_hip_roll",
+          "max_abs_rad_s": 0.0373844169,
+          "limit_rad_s": 8.0,
+          "at_limit_substeps": 0
+        },
+        {
+          "v_index": 39,
+          "name": "crow_right_hip_roll",
+          "max_abs_rad_s": 0.037375696,
+          "limit_rad_s": 8.0,
+          "at_limit_substeps": 0
+        }
+      ],
+      "height_range_m": [
+        0.534334004,
+        1.01669562
+      ],
+      "vx_range_m_s": [
+        0.0970976651,
+        0.55245465
+      ],
+      "max_abs_vy_m_s": 0.107573859,
+      "max_abs_y_displacement_m": 1.8846421789,
+      "forward_displacement_m": 10.499250049999999,
+      "feedback_samples": 874,
+      "feedback_max_error_rad": 4.2773189101730225e-08,
+      "waveform_max_error": 0.00013913467720114842,
+      "sweep_targets_valid": true,
+      "preliminary_engineering_pass": false
+    },
+    {
+      "lane": 4,
+      "end": 1800,
+      "termination_reason": 0,
+      "physical_failure": false,
+      "missing_prefix_ticks": [],
+      "different_prefix_ticks": [],
+      "exact_required_prefix": true,
+      "missing_state_ticks": [],
+      "missing_contact_ticks": [],
+      "missing_toe_ticks": [],
+      "missing_body_velocity_ticks": [],
+      "missing_effort_ticks": [],
+      "missing_target_ticks": [],
+      "release": 376,
+      "recontact": null,
+      "first_ground_record": null,
+      "accepted_state_before_ground": null,
+      "wing_targets_before_ground": null,
+      "nonfoot_impulse_ns": 0.0,
+      "toe_threshold_events": 0,
+      "flap_effort_max": 3.0,
+      "body_joint_speeds": [
+        {
+          "v_index": 6,
+          "name": "crow_left_wing_sweep",
+          "max_abs_rad_s": 2.00925803,
+          "limit_rad_s": 15.0,
+          "at_limit_substeps": 0
+        },
+        {
+          "v_index": 7,
+          "name": "crow_right_wing_sweep",
+          "max_abs_rad_s": 2.44617796,
+          "limit_rad_s": 15.0,
+          "at_limit_substeps": 0
+        },
+        {
+          "v_index": 8,
+          "name": "crow_left_wing_flap",
+          "max_abs_rad_s": 30.2759628,
+          "limit_rad_s": 90.0,
+          "at_limit_substeps": 0
+        },
+        {
+          "v_index": 9,
+          "name": "crow_right_wing_flap",
+          "max_abs_rad_s": 30.9219093,
+          "limit_rad_s": 90.0,
+          "at_limit_substeps": 0
+        },
+        {
+          "v_index": 10,
+          "name": "crow_left_wing_pronation",
+          "max_abs_rad_s": 6.68498659,
+          "limit_rad_s": 25.0,
+          "at_limit_substeps": 0
+        },
+        {
+          "v_index": 11,
+          "name": "crow_right_wing_pronation",
+          "max_abs_rad_s": 7.69051838,
+          "limit_rad_s": 25.0,
+          "at_limit_substeps": 0
+        },
+        {
+          "v_index": 12,
+          "name": "crow_tail_pitch",
+          "max_abs_rad_s": 7.00528669,
+          "limit_rad_s": 18.0,
+          "at_limit_substeps": 0
+        },
+        {
+          "v_index": 13,
+          "name": "crow_left_hip_pitch",
+          "max_abs_rad_s": 8.37137794,
+          "limit_rad_s": 18.0,
+          "at_limit_substeps": 0
+        },
+        {
+          "v_index": 14,
+          "name": "crow_left_knee_pitch",
+          "max_abs_rad_s": 3.83769274,
+          "limit_rad_s": 22.0,
+          "at_limit_substeps": 0
+        },
+        {
+          "v_index": 15,
+          "name": "crow_left_ankle_pitch",
+          "max_abs_rad_s": 17.9105301,
+          "limit_rad_s": 24.0,
+          "at_limit_substeps": 0
+        },
+        {
+          "v_index": 16,
+          "name": "crow_right_hip_pitch",
+          "max_abs_rad_s": 8.37086582,
+          "limit_rad_s": 18.0,
+          "at_limit_substeps": 0
+        },
+        {
+          "v_index": 17,
+          "name": "crow_right_knee_pitch",
+          "max_abs_rad_s": 3.83613801,
+          "limit_rad_s": 22.0,
+          "at_limit_substeps": 0
+        },
+        {
+          "v_index": 18,
+          "name": "crow_right_ankle_pitch",
+          "max_abs_rad_s": 17.908514,
+          "limit_rad_s": 24.0,
+          "at_limit_substeps": 0
+        },
+        {
+          "v_index": 19,
+          "name": "crow_neck_yaw",
+          "max_abs_rad_s": 0.217968941,
+          "limit_rad_s": 8.0,
+          "at_limit_substeps": 0
+        },
+        {
+          "v_index": 20,
+          "name": "crow_neck_pitch",
+          "max_abs_rad_s": 2.90117002,
+          "limit_rad_s": 8.0,
+          "at_limit_substeps": 0
+        },
+        {
+          "v_index": 21,
+          "name": "crow_beak_open",
+          "max_abs_rad_s": 1.49579048,
+          "limit_rad_s": 10.0,
+          "at_limit_substeps": 0
+        },
+        {
+          "v_index": 38,
+          "name": "crow_left_hip_roll",
+          "max_abs_rad_s": 0.0389878228,
+          "limit_rad_s": 8.0,
+          "at_limit_substeps": 0
+        },
+        {
+          "v_index": 39,
+          "name": "crow_right_hip_roll",
+          "max_abs_rad_s": 0.038978193,
+          "limit_rad_s": 8.0,
+          "at_limit_substeps": 0
+        }
+      ],
+      "height_range_m": [
+        0.53743571,
+        1.03658402
+      ],
+      "vx_range_m_s": [
+        0.0928637162,
+        0.570445001
+      ],
+      "max_abs_vy_m_s": 0.0995501876,
+      "max_abs_y_displacement_m": 0.7350577227999999,
+      "forward_displacement_m": 10.67972445,
+      "feedback_samples": 874,
+      "feedback_max_error_rad": 3.8984958594667773e-08,
+      "waveform_max_error": 0.00013913467720122474,
+      "sweep_targets_valid": true,
+      "preliminary_engineering_pass": true
+    },
+    {
+      "lane": 5,
+      "end": 1800,
+      "termination_reason": 0,
+      "physical_failure": false,
+      "missing_prefix_ticks": [],
+      "different_prefix_ticks": [],
+      "exact_required_prefix": true,
+      "missing_state_ticks": [],
+      "missing_contact_ticks": [],
+      "missing_toe_ticks": [],
+      "missing_body_velocity_ticks": [],
+      "missing_effort_ticks": [],
+      "missing_target_ticks": [],
+      "release": 376,
+      "recontact": null,
+      "first_ground_record": null,
+      "accepted_state_before_ground": null,
+      "wing_targets_before_ground": null,
+      "nonfoot_impulse_ns": 0.0,
+      "toe_threshold_events": 0,
+      "flap_effort_max": 3.0,
+      "body_joint_speeds": [
+        {
+          "v_index": 6,
+          "name": "crow_left_wing_sweep",
+          "max_abs_rad_s": 2.00456309,
+          "limit_rad_s": 15.0,
+          "at_limit_substeps": 0
+        },
+        {
+          "v_index": 7,
+          "name": "crow_right_wing_sweep",
+          "max_abs_rad_s": 2.44689202,
+          "limit_rad_s": 15.0,
+          "at_limit_substeps": 0
+        },
+        {
+          "v_index": 8,
+          "name": "crow_left_wing_flap",
+          "max_abs_rad_s": 30.2773438,
+          "limit_rad_s": 90.0,
+          "at_limit_substeps": 0
+        },
+        {
+          "v_index": 9,
+          "name": "crow_right_wing_flap",
+          "max_abs_rad_s": 30.9293003,
+          "limit_rad_s": 90.0,
+          "at_limit_substeps": 0
+        },
+        {
+          "v_index": 10,
+          "name": "crow_left_wing_pronation",
+          "max_abs_rad_s": 6.68660927,
+          "limit_rad_s": 25.0,
+          "at_limit_substeps": 0
+        },
+        {
+          "v_index": 11,
+          "name": "crow_right_wing_pronation",
+          "max_abs_rad_s": 7.59716845,
+          "limit_rad_s": 25.0,
+          "at_limit_substeps": 0
+        },
+        {
+          "v_index": 12,
+          "name": "crow_tail_pitch",
+          "max_abs_rad_s": 7.44611025,
+          "limit_rad_s": 18.0,
+          "at_limit_substeps": 0
+        },
+        {
+          "v_index": 13,
+          "name": "crow_left_hip_pitch",
+          "max_abs_rad_s": 8.37133694,
+          "limit_rad_s": 18.0,
+          "at_limit_substeps": 0
+        },
+        {
+          "v_index": 14,
+          "name": "crow_left_knee_pitch",
+          "max_abs_rad_s": 3.83794308,
+          "limit_rad_s": 22.0,
+          "at_limit_substeps": 0
+        },
+        {
+          "v_index": 15,
+          "name": "crow_left_ankle_pitch",
+          "max_abs_rad_s": 17.9098873,
+          "limit_rad_s": 24.0,
+          "at_limit_substeps": 0
+        },
+        {
+          "v_index": 16,
+          "name": "crow_right_hip_pitch",
+          "max_abs_rad_s": 8.37090111,
+          "limit_rad_s": 18.0,
+          "at_limit_substeps": 0
+        },
+        {
+          "v_index": 17,
+          "name": "crow_right_knee_pitch",
+          "max_abs_rad_s": 3.83640313,
+          "limit_rad_s": 22.0,
+          "at_limit_substeps": 0
+        },
+        {
+          "v_index": 18,
+          "name": "crow_right_ankle_pitch",
+          "max_abs_rad_s": 17.9078598,
+          "limit_rad_s": 24.0,
+          "at_limit_substeps": 0
+        },
+        {
+          "v_index": 19,
+          "name": "crow_neck_yaw",
+          "max_abs_rad_s": 0.219285086,
+          "limit_rad_s": 8.0,
+          "at_limit_substeps": 0
+        },
+        {
+          "v_index": 20,
+          "name": "crow_neck_pitch",
+          "max_abs_rad_s": 2.90659142,
+          "limit_rad_s": 8.0,
+          "at_limit_substeps": 0
+        },
+        {
+          "v_index": 21,
+          "name": "crow_beak_open",
+          "max_abs_rad_s": 1.49889672,
+          "limit_rad_s": 10.0,
+          "at_limit_substeps": 0
+        },
+        {
+          "v_index": 38,
+          "name": "crow_left_hip_roll",
+          "max_abs_rad_s": 0.0392444432,
+          "limit_rad_s": 8.0,
+          "at_limit_substeps": 0
+        },
+        {
+          "v_index": 39,
+          "name": "crow_right_hip_roll",
+          "max_abs_rad_s": 0.039234791,
+          "limit_rad_s": 8.0,
+          "at_limit_substeps": 0
+        }
+      ],
+      "height_range_m": [
+        0.531003714,
+        1.02764869
+      ],
+      "vx_range_m_s": [
+        0.0999498591,
+        0.569904387
+      ],
+      "max_abs_vy_m_s": 0.0976753533,
+      "max_abs_y_displacement_m": 0.7103187289999999,
+      "forward_displacement_m": 10.697925152,
+      "feedback_samples": 874,
+      "feedback_max_error_rad": 4.511010076591049e-08,
+      "waveform_max_error": 0.00013913467720114842,
+      "sweep_targets_valid": true,
+      "preliminary_engineering_pass": true
+    },
+    {
+      "lane": 6,
+      "end": 1800,
+      "termination_reason": 0,
+      "physical_failure": false,
+      "missing_prefix_ticks": [],
+      "different_prefix_ticks": [],
+      "exact_required_prefix": true,
+      "missing_state_ticks": [],
+      "missing_contact_ticks": [],
+      "missing_toe_ticks": [],
+      "missing_body_velocity_ticks": [],
+      "missing_effort_ticks": [],
+      "missing_target_ticks": [],
+      "release": 376,
+      "recontact": null,
+      "first_ground_record": null,
+      "accepted_state_before_ground": null,
+      "wing_targets_before_ground": null,
+      "nonfoot_impulse_ns": 0.0,
+      "toe_threshold_events": 0,
+      "flap_effort_max": 3.0,
+      "body_joint_speeds": [
+        {
+          "v_index": 6,
+          "name": "crow_left_wing_sweep",
+          "max_abs_rad_s": 2.01062179,
+          "limit_rad_s": 15.0,
+          "at_limit_substeps": 0
+        },
+        {
+          "v_index": 7,
+          "name": "crow_right_wing_sweep",
+          "max_abs_rad_s": 2.44792557,
+          "limit_rad_s": 15.0,
+          "at_limit_substeps": 0
+        },
+        {
+          "v_index": 8,
+          "name": "crow_left_wing_flap",
+          "max_abs_rad_s": 30.2861843,
+          "limit_rad_s": 90.0,
+          "at_limit_substeps": 0
+        },
+        {
+          "v_index": 9,
+          "name": "crow_right_wing_flap",
+          "max_abs_rad_s": 30.9528961,
+          "limit_rad_s": 90.0,
+          "at_limit_substeps": 0
+        },
+        {
+          "v_index": 10,
+          "name": "crow_left_wing_pronation",
+          "max_abs_rad_s": 6.68101072,
+          "limit_rad_s": 25.0,
+          "at_limit_substeps": 0
+        },
+        {
+          "v_index": 11,
+          "name": "crow_right_wing_pronation",
+          "max_abs_rad_s": 7.59831238,
+          "limit_rad_s": 25.0,
+          "at_limit_substeps": 0
+        },
+        {
+          "v_index": 12,
+          "name": "crow_tail_pitch",
+          "max_abs_rad_s": 6.94478273,
+          "limit_rad_s": 18.0,
+          "at_limit_substeps": 0
+        },
+        {
+          "v_index": 13,
+          "name": "crow_left_hip_pitch",
+          "max_abs_rad_s": 8.37126923,
+          "limit_rad_s": 18.0,
+          "at_limit_substeps": 0
+        },
+        {
+          "v_index": 14,
+          "name": "crow_left_knee_pitch",
+          "max_abs_rad_s": 3.83763623,
+          "limit_rad_s": 22.0,
+          "at_limit_substeps": 0
+        },
+        {
+          "v_index": 15,
+          "name": "crow_left_ankle_pitch",
+          "max_abs_rad_s": 17.9096928,
+          "limit_rad_s": 24.0,
+          "at_limit_substeps": 0
+        },
+        {
+          "v_index": 16,
+          "name": "crow_right_hip_pitch",
+          "max_abs_rad_s": 8.37089443,
+          "limit_rad_s": 18.0,
+          "at_limit_substeps": 0
+        },
+        {
+          "v_index": 17,
+          "name": "crow_right_knee_pitch",
+          "max_abs_rad_s": 3.83609653,
+          "limit_rad_s": 22.0,
+          "at_limit_substeps": 0
+        },
+        {
+          "v_index": 18,
+          "name": "crow_right_ankle_pitch",
+          "max_abs_rad_s": 17.9076443,
+          "limit_rad_s": 24.0,
+          "at_limit_substeps": 0
+        },
+        {
+          "v_index": 19,
+          "name": "crow_neck_yaw",
+          "max_abs_rad_s": 0.223242953,
+          "limit_rad_s": 8.0,
+          "at_limit_substeps": 0
+        },
+        {
+          "v_index": 20,
+          "name": "crow_neck_pitch",
+          "max_abs_rad_s": 2.91177392,
+          "limit_rad_s": 8.0,
+          "at_limit_substeps": 0
+        },
+        {
+          "v_index": 21,
+          "name": "crow_beak_open",
+          "max_abs_rad_s": 1.49777079,
+          "limit_rad_s": 10.0,
+          "at_limit_substeps": 0
+        },
+        {
+          "v_index": 38,
+          "name": "crow_left_hip_roll",
+          "max_abs_rad_s": 0.0411088057,
+          "limit_rad_s": 8.0,
+          "at_limit_substeps": 0
+        },
+        {
+          "v_index": 39,
+          "name": "crow_right_hip_roll",
+          "max_abs_rad_s": 0.0410979837,
+          "limit_rad_s": 8.0,
+          "at_limit_substeps": 0
+        }
+      ],
+      "height_range_m": [
+        0.531665266,
+        1.02527475
+      ],
+      "vx_range_m_s": [
+        0.0996768326,
+        0.571710169
+      ],
+      "max_abs_vy_m_s": 0.0966846123,
+      "max_abs_y_displacement_m": 0.3605243971,
+      "forward_displacement_m": 10.7357195,
+      "feedback_samples": 874,
+      "feedback_max_error_rad": 4.335043946035455e-08,
+      "waveform_max_error": 0.00013913467720122474,
+      "sweep_targets_valid": true,
+      "preliminary_engineering_pass": true
+    },
+    {
+      "lane": 7,
+      "end": 1800,
+      "termination_reason": 0,
+      "physical_failure": false,
+      "missing_prefix_ticks": [],
+      "different_prefix_ticks": [],
+      "exact_required_prefix": true,
+      "missing_state_ticks": [],
+      "missing_contact_ticks": [],
+      "missing_toe_ticks": [],
+      "missing_body_velocity_ticks": [],
+      "missing_effort_ticks": [],
+      "missing_target_ticks": [],
+      "release": 376,
+      "recontact": null,
+      "first_ground_record": null,
+      "accepted_state_before_ground": null,
+      "wing_targets_before_ground": null,
+      "nonfoot_impulse_ns": 0.0,
+      "toe_threshold_events": 0,
+      "flap_effort_max": 3.0,
+      "body_joint_speeds": [
+        {
+          "v_index": 6,
+          "name": "crow_left_wing_sweep",
+          "max_abs_rad_s": 2.01037002,
+          "limit_rad_s": 15.0,
+          "at_limit_substeps": 0
+        },
+        {
+          "v_index": 7,
+          "name": "crow_right_wing_sweep",
+          "max_abs_rad_s": 2.44544172,
+          "limit_rad_s": 15.0,
+          "at_limit_substeps": 0
+        },
+        {
+          "v_index": 8,
+          "name": "crow_left_wing_flap",
+          "max_abs_rad_s": 30.2860374,
+          "limit_rad_s": 90.0,
+          "at_limit_substeps": 0
+        },
+        {
+          "v_index": 9,
+          "name": "crow_right_wing_flap",
+          "max_abs_rad_s": 30.9501553,
+          "limit_rad_s": 90.0,
+          "at_limit_substeps": 0
+        },
+        {
+          "v_index": 10,
+          "name": "crow_left_wing_pronation",
+          "max_abs_rad_s": 6.68380022,
+          "limit_rad_s": 25.0,
+          "at_limit_substeps": 0
+        },
+        {
+          "v_index": 11,
+          "name": "crow_right_wing_pronation",
+          "max_abs_rad_s": 7.63394737,
+          "limit_rad_s": 25.0,
+          "at_limit_substeps": 0
+        },
+        {
+          "v_index": 12,
+          "name": "crow_tail_pitch",
+          "max_abs_rad_s": 7.42625904,
+          "limit_rad_s": 18.0,
+          "at_limit_substeps": 0
+        },
+        {
+          "v_index": 13,
+          "name": "crow_left_hip_pitch",
+          "max_abs_rad_s": 8.3716259,
+          "limit_rad_s": 18.0,
+          "at_limit_substeps": 0
+        },
+        {
+          "v_index": 14,
+          "name": "crow_left_knee_pitch",
+          "max_abs_rad_s": 3.83792949,
+          "limit_rad_s": 22.0,
+          "at_limit_substeps": 0
+        },
+        {
+          "v_index": 15,
+          "name": "crow_left_ankle_pitch",
+          "max_abs_rad_s": 17.9101067,
+          "limit_rad_s": 24.0,
+          "at_limit_substeps": 0
+        },
+        {
+          "v_index": 16,
+          "name": "crow_right_hip_pitch",
+          "max_abs_rad_s": 8.3711729,
+          "limit_rad_s": 18.0,
+          "at_limit_substeps": 0
+        },
+        {
+          "v_index": 17,
+          "name": "crow_right_knee_pitch",
+          "max_abs_rad_s": 3.83639598,
+          "limit_rad_s": 22.0,
+          "at_limit_substeps": 0
+        },
+        {
+          "v_index": 18,
+          "name": "crow_right_ankle_pitch",
+          "max_abs_rad_s": 17.9081039,
+          "limit_rad_s": 24.0,
+          "at_limit_substeps": 0
+        },
+        {
+          "v_index": 19,
+          "name": "crow_neck_yaw",
+          "max_abs_rad_s": 0.221143588,
+          "limit_rad_s": 8.0,
+          "at_limit_substeps": 0
+        },
+        {
+          "v_index": 20,
+          "name": "crow_neck_pitch",
+          "max_abs_rad_s": 2.92126703,
+          "limit_rad_s": 8.0,
+          "at_limit_substeps": 0
+        },
+        {
+          "v_index": 21,
+          "name": "crow_beak_open",
+          "max_abs_rad_s": 1.49567258,
+          "limit_rad_s": 10.0,
+          "at_limit_substeps": 0
+        },
+        {
+          "v_index": 38,
+          "name": "crow_left_hip_roll",
+          "max_abs_rad_s": 0.0401289873,
+          "limit_rad_s": 8.0,
+          "at_limit_substeps": 0
+        },
+        {
+          "v_index": 39,
+          "name": "crow_right_hip_roll",
+          "max_abs_rad_s": 0.0401189439,
+          "limit_rad_s": 8.0,
+          "at_limit_substeps": 0
+        }
+      ],
+      "height_range_m": [
+        0.529466867,
+        1.02609897
+      ],
+      "vx_range_m_s": [
+        0.1002663,
+        0.571629643
+      ],
+      "max_abs_vy_m_s": 0.0998350307,
+      "max_abs_y_displacement_m": 0.3792572743,
+      "forward_displacement_m": 10.739625101000001,
+      "feedback_samples": 874,
+      "feedback_max_error_rad": 4.508151252302639e-08,
+      "waveform_max_error": 0.00013913467720114842,
+      "sweep_targets_valid": true,
+      "preliminary_engineering_pass": true
+    }
+  ],
+  "controls": [
+    {
+      "lane": 0,
+      "old_end": 762,
+      "new_end": 762,
+      "missing_ticks": [],
+      "different_ticks": [],
+      "exact": true
+    },
+    {
+      "lane": 1,
+      "old_end": 761,
+      "new_end": 761,
+      "missing_ticks": [],
+      "different_ticks": [],
+      "exact": true
+    }
+  ],
+  "model_metadata": {
+    "6": [
+      6,
+      62,
+      15.0,
+      "crow_left_wing_sweep"
+    ],
+    "7": [
+      7,
+      62,
+      15.0,
+      "crow_right_wing_sweep"
+    ],
+    "8": [
+      8,
+      62,
+      90.0,
+      "crow_left_wing_flap"
+    ],
+    "9": [
+      9,
+      62,
+      90.0,
+      "crow_right_wing_flap"
+    ],
+    "10": [
+      10,
+      62,
+      25.0,
+      "crow_left_wing_pronation"
+    ],
+    "11": [
+      11,
+      62,
+      25.0,
+      "crow_right_wing_pronation"
+    ],
+    "12": [
+      12,
+      62,
+      18.0,
+      "crow_tail_pitch"
+    ],
+    "13": [
+      13,
+      62,
+      18.0,
+      "crow_left_hip_pitch"
+    ],
+    "14": [
+      14,
+      62,
+      22.0,
+      "crow_left_knee_pitch"
+    ],
+    "15": [
+      15,
+      62,
+      24.0,
+      "crow_left_ankle_pitch"
+    ],
+    "16": [
+      16,
+      62,
+      18.0,
+      "crow_right_hip_pitch"
+    ],
+    "17": [
+      17,
+      62,
+      22.0,
+      "crow_right_knee_pitch"
+    ],
+    "18": [
+      18,
+      62,
+      24.0,
+      "crow_right_ankle_pitch"
+    ],
+    "19": [
+      19,
+      62,
+      8.0,
+      "crow_neck_yaw"
+    ],
+    "20": [
+      20,
+      62,
+      8.0,
+      "crow_neck_pitch"
+    ],
+    "21": [
+      21,
+      62,
+      10.0,
+      "crow_beak_open"
+    ],
+    "22": [
+      22,
+      62,
+      12.0,
+      "crow_left_front_toe_1_proximal_flex"
+    ],
+    "23": [
+      23,
+      62,
+      12.0,
+      "crow_left_front_toe_1_distal_flex"
+    ],
+    "24": [
+      24,
+      62,
+      12.0,
+      "crow_left_front_toe_2_proximal_flex"
+    ],
+    "25": [
+      25,
+      62,
+      12.0,
+      "crow_left_front_toe_2_distal_flex"
+    ],
+    "26": [
+      26,
+      62,
+      12.0,
+      "crow_left_front_toe_3_proximal_flex"
+    ],
+    "27": [
+      27,
+      62,
+      12.0,
+      "crow_left_front_toe_3_distal_flex"
+    ],
+    "28": [
+      28,
+      62,
+      12.0,
+      "crow_left_rear_toe_proximal_flex"
+    ],
+    "29": [
+      29,
+      62,
+      12.0,
+      "crow_left_rear_toe_distal_flex"
+    ],
+    "30": [
+      30,
+      62,
+      12.0,
+      "crow_right_front_toe_1_proximal_flex"
+    ],
+    "31": [
+      31,
+      62,
+      12.0,
+      "crow_right_front_toe_1_distal_flex"
+    ],
+    "32": [
+      32,
+      62,
+      12.0,
+      "crow_right_front_toe_2_proximal_flex"
+    ],
+    "33": [
+      33,
+      62,
+      12.0,
+      "crow_right_front_toe_2_distal_flex"
+    ],
+    "34": [
+      34,
+      62,
+      12.0,
+      "crow_right_front_toe_3_proximal_flex"
+    ],
+    "35": [
+      35,
+      62,
+      12.0,
+      "crow_right_front_toe_3_distal_flex"
+    ],
+    "36": [
+      36,
+      62,
+      12.0,
+      "crow_right_rear_toe_proximal_flex"
+    ],
+    "37": [
+      37,
+      62,
+      12.0,
+      "crow_right_rear_toe_distal_flex"
+    ],
+    "38": [
+      38,
+      62,
+      8.0,
+      "crow_left_hip_roll"
+    ],
+    "39": [
+      39,
+      62,
+      8.0,
+      "crow_right_hip_roll"
+    ]
+  },
+  "model_metadata_valid": true,
+  "model_metadata_errors": [],
+  "scene_mask_matches_baseline": true,
+  "policy_bytes_and_seed26_host_match": true,
+  "observer_errors": [],
+  "duplicates": [],
+  "reference_controls_exact": true,
+  "gain_pair_pass": {
+    "0.1": true,
+    "0.2": true
+  },
+  "scope": "Used-seed obstacle-free 36-second position-hold development screen; not flight qualification or freeze. Speed caps are current model engineering limits, not biological data."
+}
