@@ -1,0 +1,16 @@
+{
+  "source_sha256": "2fee002e1adea4d46409e7960a31e2e38573e1a01a3c040a32198c324dc363b0",
+  "samples_sha256": "3a3dfcaf94d04544232b55acb264f47d326b7880d6b2c0ecb91bfb0140e9460c",
+  "count": 4032,
+  "lanes": [
+    6,
+    7
+  ],
+  "ticks": [
+    650,
+    1150,
+    4
+  ],
+  "substeps": 16,
+  "fields": "lane tick substep q[41] v[40] four body wrenches [force xyz, torque xyz]"
+}
