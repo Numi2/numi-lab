@@ -1,0 +1,1 @@
+The first preparation stopped before any rollout because the build script tried to hash the observer dylib before it had been built. Preparation was reordered to build the observer before linking and hashing the two candidates; no simulation was run in the failed build attempt.

@@ -1,0 +1,26 @@
+Observer built: 561fa0a48f8687847a00bd3552cebec0562674fa68c84fb94df671bc0381411d
+/Users/n/Developer/numi-crow-rl-20261107/artifacts/crow-v15-passive-aero-flap-amplitude-20261113/push-wing.metal:5099:30: warning: unused variable 'arm' [-Wunused-variable]
+                { const uint arm=environment%8u;
+                             ^
+/Users/n/Developer/numi-crow-rl-20261107/artifacts/crow-v15-passive-aero-flap-amplitude-20261113/push-wing.metal:5518:28: warning: unused variable 'ticks' [-Wunused-variable]
+                const uint ticks=(state.status.w>>23u)&31u;
+                           ^
+2 warnings generated.
+Built candidate metallib: 682586ac051f0b019be429626dd642d3a3106cd39f72f26319fcabe2544b1d9e
+/Users/n/Developer/numi-crow-rl-20261107/artifacts/crow-v15-passive-aero-flap-amplitude-20261113/hold-wing.metal:5099:30: warning: unused variable 'arm' [-Wunused-variable]
+                { const uint arm=environment%8u;
+                             ^
+/Users/n/Developer/numi-crow-rl-20261107/artifacts/crow-v15-passive-aero-flap-amplitude-20261113/hold-wing.metal:5124:29: warning: unused variable 'extended' [-Wunused-variable]
+                const float extended=joint==0u ? -0.15f : joint==1u ? kneeExtension : 0.83f;
+                            ^
+/Users/n/Developer/numi-crow-rl-20261107/artifacts/crow-v15-passive-aero-flap-amplitude-20261113/hold-wing.metal:5125:28: warning: unused variable 'bilateral' [-Wunused-variable]
+                const bool bilateral=dispatch.counts.w==40u ? (state.status.w & ((1u<<20)|(1u<<21)))==((1u<<20)|(1u<<21)) : (state.nutrition.x>0.05f && state.nutrition.y>0.05f);
+                           ^
+/Users/n/Developer/numi-crow-rl-20261107/artifacts/crow-v15-passive-aero-flap-amplitude-20261113/hold-wing.metal:5129:28: warning: unused variable 'pushStarted' [-Wunused-variable]
+                const bool pushStarted=experimentArm>=2u && (state.status.w & (1u<<19))!=0u;
+                           ^
+/Users/n/Developer/numi-crow-rl-20261107/artifacts/crow-v15-passive-aero-flap-amplitude-20261113/hold-wing.metal:5518:28: warning: unused variable 'ticks' [-Wunused-variable]
+                const uint ticks=(state.status.w>>23u)&31u;
+                           ^
+5 warnings generated.
+Built candidate metallib: da4ed5f3b4fa1d13a523cee071d51de7803babbf993c1ea8d15fcb43951bc24c
