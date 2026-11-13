@@ -1,0 +1,67 @@
+{
+  "rows": [
+    {
+      "lane": 6,
+      "windows": [
+        {
+          "ticks": [
+            1000,
+            1150
+          ],
+          "target_m": 0.55,
+          "samples": 151,
+          "mean_m": 0.52567511002649,
+          "mean_absolute_error_m": 0.024324889973509976
+        },
+        {
+          "ticks": [
+            1550,
+            1800
+          ],
+          "target_m": 0.8,
+          "samples": 251,
+          "mean_m": 0.7897803462828685,
+          "mean_absolute_error_m": 0.016109754705179297
+        }
+      ],
+      "height_change_m": 0.2641052362563785,
+      "late_target_expected_samples": 526,
+      "late_target_samples": 526,
+      "late_target_max_error": 7.307394895579578e-05,
+      "passed": true
+    },
+    {
+      "lane": 7,
+      "windows": [
+        {
+          "ticks": [
+            1000,
+            1150
+          ],
+          "target_m": 0.8,
+          "samples": 151,
+          "mean_m": 0.7604965204503311,
+          "mean_absolute_error_m": 0.039503479549668916
+        },
+        {
+          "ticks": [
+            1550,
+            1800
+          ],
+          "target_m": 0.55,
+          "samples": 251,
+          "mean_m": 0.5834155662231075,
+          "mean_absolute_error_m": 0.03342237293227087
+        }
+      ],
+      "height_change_m": -0.17708095422722359,
+      "late_target_expected_samples": 526,
+      "late_target_samples": 526,
+      "late_target_max_error": 0.0001084636992889354,
+      "passed": true
+    }
+  ],
+  "base_physical_checks_pass": true,
+  "passed_switch_screen": true,
+  "scope": "Separately preregistered within-episode opposite height switches on one used development seed. Not frozen flight, biological validation, takeoff or navigation."
+}
