@@ -1,0 +1,5 @@
+# Rear-toe collision geometry after active lift
+
+Corrected-v15 forward kinematics reproduced 378 logged foot/toe position and orientation components across six retained states within 5.13e-10. The rear proximal toe was the minimum-gap shape after the attempted lift. At zero-based step 212 its baseline rear-proximal gap was -0.000043 m. An isolated hypothetical +0.15 rad ankle offset at the identical root and other-joint pose predicted +0.00253 m for that segment and +0.00139 m minimum across all foot/toe boxes. At step 208 the same fixed-state ankle offset predicted a negative minimum gap of -0.000409 m elsewhere, so it cannot be applied as an instantaneous pose change or assumed safe. A -0.2 rad rear-proximal toe offset alone yielded only +0.000224 m minimum gap at step 212.
+
+These are static box calculations, not measured dynamic clearance, valid contacts, actuator tracking or a biological prediction. They motivate a small rate-limited ankle test under measured support with complete actual contact evidence. Full candidates, executable, input states, logged poses and hashes are retained.
