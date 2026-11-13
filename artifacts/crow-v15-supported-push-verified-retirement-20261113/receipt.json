@@ -1,0 +1,18 @@
+{
+  "timestamp_utc": "2026-11-13T05:55:49Z",
+  "manifest_verified_commit": "653b8cbf0a5106aad571ce180813cd0b58d6c231",
+  "logical_bytes_removed": 65723795,
+  "removed": [
+    "/Users/n/Developer/numi-crow-rl-20261107/build/crow-v15-supported-wing-transition-20261113/push-wing-20261126-rebound-supportedwing-replay.json",
+    "/Users/n/Developer/numi-crow-rl-20261107/build/crow-v15-supported-wing-transition-20261113/push-wing-20261126-rebound-supportedwing-trace.tsv",
+    "/Users/n/Developer/numi-crow-rl-20261107/build/crow-v15-supported-wing-transition-20261113/hold-wing-20261126-rebound-supportedwing-replay.json",
+    "/Users/n/Developer/numi-crow-rl-20261107/build/crow-v15-supported-wing-transition-20261113/hold-wing-20261126-rebound-supportedwing-trace.tsv",
+    "/Users/n/Developer/numi-crow-rl-20261107/build/crow-v15-supported-slow-push-screen-20261113/push-wing-20261126-rebound-slowpush-replay.json",
+    "/Users/n/Developer/numi-crow-rl-20261107/build/crow-v15-supported-slow-push-screen-20261113/push-wing-20261126-rebound-slowpush-trace.tsv",
+    "/Users/n/Developer/numi-crow-rl-20261107/build/crow-v15-supported-slow-push-screen-20261113/hold-wing-20261126-rebound-slowpush-replay.json",
+    "/Users/n/Developer/numi-crow-rl-20261107/build/crow-v15-supported-slow-push-screen-20261113/hold-wing-20261126-rebound-slowpush-trace.tsv"
+  ],
+  "df_before": "Filesystem     1024-blocks      Used Available Capacity iused     ifree %iused  Mounted on\n/dev/disk3s1s1   482797652  12344560  41217924    24%  458734 412179240    0%   /\n",
+  "df_after": "Filesystem     1024-blocks      Used Available Capacity iused     ifree %iused  Mounted on\n/dev/disk3s1s1   482797652  12344560  41282092    24%  458734 412820920    0%   /\n",
+  "scope": "Exact manifest entries only, independently restored and verified from immutable GitHub commit, metadata and SHA-256 checked, open handles checked twice. No claim about APFS physical recovery."
+}
