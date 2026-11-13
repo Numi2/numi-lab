@@ -1,0 +1,7 @@
+# Fixed-state aerodynamic sensitivity
+
+The native Metal flapping-wing kernel reproduced the retained zero-wind force and torque components exactly at all 4,032 sampled accepted q/v states: maximum absolute component error 0 across 96,768 component comparisons. This passes the preregistered 1e-5 numerical-observer threshold. The sample spans both correlated development lanes, 16 substeps every fourth control interval from ticks 650–1150.
+
+At those same fixed states, centered ±0.10 m/s world-y wind perturbations gave mean whole-body-COM aerodynamic yaw-moment sensitivities of -0.01227 and -0.01268 N m per (m/s) in the two lanes. Centered ±0.10 rad/s world-z angular-rate perturbations gave -0.07224 and -0.07187 N m per (rad/s). Individual instantaneous wind sensitivities changed sign over the stroke; all sampled yaw-rate sensitivities were negative. These are finite-difference results for the implemented aerodynamic kernel, not measured crow coefficients.
+
+The calculation holds q/v fixed and excludes the separate body-damping force and the future coupled motion. It does not demonstrate dynamic weathercock stability, gust recovery, acceptable steering authority, biological realism, qualified flight or navigation. The sample and output traces, numerical checks, source and executable are archived with hashes; the baseline's exact match is an instrumentation check, not a validation against nature.

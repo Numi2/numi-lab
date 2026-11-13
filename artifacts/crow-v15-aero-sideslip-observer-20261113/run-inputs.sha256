@@ -1,0 +1,5 @@
+473f19ee4c442425809b4e0beeb300b804724db8c9ebee2786c61272ae4c94d8  artifacts/crow-v15-aero-sideslip-observer-20261113/fixed-state.mm
+3a3dfcaf94d04544232b55acb264f47d326b7880d6b2c0ecb91bfb0140e9460c  artifacts/crow-v15-aero-sideslip-observer-20261113/samples.tsv.gz
+399de830ab60438b9f15db02c9a4f388c05a0ac35610f1bb35dcf50020917703  build/crow-v15-aero-sideslip-observer-20261113/fixed-state
+5c278558f4c9ae3cac66b2db510b864e324e313d75f11b605602433f9494d063  build/crow-v15-mirrored-leg-isolation-20261113/libmetalrobo.dylib
+6c3dd0e2e33004cf0b8d6ef58c8a4bb9483e8e75de890b439be875a20f1d9fb0  build/crow-v15-mirrored-bank-turn-20261113/signed-turn.metallib

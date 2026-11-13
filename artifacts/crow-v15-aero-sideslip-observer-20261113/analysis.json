@@ -1,0 +1,31 @@
+{
+  "baseline_max_abs_error": 0.0,
+  "baseline_rms_error": 0.0,
+  "baseline_observations": 96768,
+  "record_count": 20160,
+  "duplicates": 0,
+  "baseline_passed": true,
+  "lanes": [
+    {
+      "lane": 6,
+      "samples": 2016,
+      "yaw_moment_sensitivity_to_world_y_wind_mean_nms": -0.01227199244026789,
+      "yaw_moment_sensitivity_to_world_y_wind_min": -0.07274858557379998,
+      "yaw_moment_sensitivity_to_world_y_wind_max": 0.05866472664005,
+      "yaw_moment_sensitivity_to_world_z_yaw_rate_mean_nms": -0.07223584795548176,
+      "yaw_moment_sensitivity_to_world_z_yaw_rate_min": -0.2743361591875,
+      "yaw_moment_sensitivity_to_world_z_yaw_rate_max": -0.005020701186700001
+    },
+    {
+      "lane": 7,
+      "samples": 2016,
+      "yaw_moment_sensitivity_to_world_y_wind_mean_nms": -0.012683035534793064,
+      "yaw_moment_sensitivity_to_world_y_wind_min": -0.07402938682554999,
+      "yaw_moment_sensitivity_to_world_y_wind_max": 0.060284903134949996,
+      "yaw_moment_sensitivity_to_world_z_yaw_rate_mean_nms": -0.07187154439830581,
+      "yaw_moment_sensitivity_to_world_z_yaw_rate_min": -0.27350442296399996,
+      "yaw_moment_sensitivity_to_world_z_yaw_rate_max": -0.0045257233379
+    }
+  ],
+  "scope": "Fixed accepted-state instantaneous model sensitivity; not gust recovery, a dynamic identification, measured crow data or calibration."
+}
