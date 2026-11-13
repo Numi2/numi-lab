@@ -1,0 +1,2 @@
+{"state": {"reference": 3208, "observed": 3208, "shared": 3208, "mismatches": 0, "missing_reference": 0, "missing_observed": 0, "first_mismatch": null}, "contact": {"reference": 5888, "observed": 5888, "shared": 5888, "mismatches": 0, "missing_reference": 0, "missing_observed": 0, "first_mismatch": null}, "reference_errors": [], "audit_errors": [], "target_samples": 368}
+{'target_min': 0.205000028, 'target_max': 1.02999997, 'candidate_target_lt_lower_count': 0, 'candidate_target_gt_upper_count': 0}
