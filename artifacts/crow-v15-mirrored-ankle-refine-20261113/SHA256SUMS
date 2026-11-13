@@ -1,0 +1,17 @@
+bddac77da5181d7e898c8feb646aafc795f070155148bca92cc9bc03fd9dc9c5  artifacts/crow-v15-mirrored-ankle-refine-20261113/PLAN.md
+8b07c164392bede484536f1c62877010c5388d49d22d0b952306f40aadec1ffb  artifacts/crow-v15-mirrored-ankle-refine-20261113/analyze.py
+92930077f106b468ae82dd56bf6e8ac48896519f8d0fbd7ec86e908ad367f20d  artifacts/crow-v15-mirrored-ankle-refine-20261113/build.py
+b56f9d85bd5f6c1bb9ce41de171fcb037e2ff4a6091b55a0a2fcaa4d8844915c  artifacts/crow-v15-mirrored-ankle-refine-20261113/com-analyze.py
+0b2217352f88c3911b2d7f7a8f1680076f463f16b29cc9209817f3d368556c40  artifacts/crow-v15-mirrored-ankle-refine-20261113/hold-wing-build.log
+1e2b2b39dda2e0e9c73619ba29e7505eac94cde16dfc1a8627eaf96ea93ab04f  artifacts/crow-v15-mirrored-ankle-refine-20261113/hold-wing-hashes.json
+3067bf73a3ec8db141947de60c00d9a3f9c3df33623973c624f02523c59a76e8  artifacts/crow-v15-mirrored-ankle-refine-20261113/hold-wing.air.gz
+9097c070be3e13978dedfb2fc9658424ddeba76040fde49fdc67c2357a5422af  artifacts/crow-v15-mirrored-ankle-refine-20261113/hold-wing.metal
+80eafb54770c202bd4fc6c1ff99b0b00ea60e658e07acaabb02d34d82263ffca  artifacts/crow-v15-mirrored-ankle-refine-20261113/hold-wing.metallib.gz
+02a23c7343c211f45aeea0bb0d364b92630044def9305f99ea3ddf2a3b40f84e  artifacts/crow-v15-mirrored-ankle-refine-20261113/horizontal.py
+497dcef7c33f7950f1415a5c1e785bba0631f17aff6a94aaeb4c71bb2381d262  artifacts/crow-v15-mirrored-ankle-refine-20261113/push-wing-build.log
+074915ae2b087557a1ff701162f58226a9f83f8d2f789a006a171267b08738e9  artifacts/crow-v15-mirrored-ankle-refine-20261113/push-wing-hashes.json
+fa6e008fecba484a6685d80cdbf036a7cc4807b558dc9f8629092ce2f4a55485  artifacts/crow-v15-mirrored-ankle-refine-20261113/push-wing.air.gz
+341d434cc0bd2978cf0d993b84f86476723bec3bca839246d1c0e98efcc1210a  artifacts/crow-v15-mirrored-ankle-refine-20261113/push-wing.metal
+10358693867df55bda0639fddc22ec84669c4baaec25094ac8a7965b8ddae616  artifacts/crow-v15-mirrored-ankle-refine-20261113/push-wing.metallib.gz
+52565f236a6463d2fedbe100b7134b641109fe29ea6b553d3a4a3e0806c2fdf7  artifacts/crow-v15-mirrored-ankle-refine-20261113/run.py
+9cd0ab2a6cf43c0c574d75fef47e47e342d18bba7a3a1551d4280d8a0bebe7f3  artifacts/crow-v15-mirrored-ankle-refine-20261113/screen.py
