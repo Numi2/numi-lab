@@ -1,0 +1,17 @@
+{
+  "removed": [
+    "build/crow-v15-transition-sweep-observer-20261113/push-wing-20261126-rebound-sweep-replay.json",
+    "build/crow-v15-transition-sweep-observer-20261113/push-wing-20261126-rebound-sweep-trace.tsv",
+    "build/crow-v15-transition-sweep-observer-20261113/hold-wing-20261126-rebound-sweep-replay.json",
+    "build/crow-v15-transition-sweep-observer-20261113/hold-wing-20261126-rebound-sweep-trace.tsv",
+    "build/crow-v15-posthop-wing-phase-20261113/push-wing-20261126-rebound-posthop-replay.json",
+    "build/crow-v15-posthop-wing-phase-20261113/push-wing-20261126-rebound-posthop-trace.tsv",
+    "build/crow-v15-posthop-wing-phase-20261113/hold-wing-20261126-rebound-posthop-replay.json",
+    "build/crow-v15-posthop-wing-phase-20261113/hold-wing-20261126-rebound-posthop-trace.tsv"
+  ],
+  "logical_bytes": 81753867,
+  "available_before_bytes": 38699417600,
+  "available_after_bytes": 38781153280,
+  "availability_delta_bytes": 81735680,
+  "note": "Concurrent filesystem activity may affect delta. See preceding manifest for restore and identity checks."
+}
