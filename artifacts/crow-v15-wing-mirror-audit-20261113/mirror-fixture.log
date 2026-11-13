@@ -1,0 +1,276 @@
+{
+  "joints": {
+    "0": {
+      "parent": 0,
+      "child": 1,
+      "q_index": 7,
+      "v_index": 6,
+      "axis": [
+        0.0,
+        0.0,
+        1.0
+      ],
+      "parent_anchor": [
+        -0.00377425551,
+        0.0371583328,
+        0.0290732086
+      ],
+      "child_anchor": [
+        -0.0224249996,
+        -0.0905762836,
+        0.0119098602
+      ],
+      "parent_rotation": [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ],
+      "child_rotation": [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ]
+    },
+    "1": {
+      "parent": 0,
+      "child": 2,
+      "q_index": 8,
+      "v_index": 7,
+      "axis": [
+        0.0,
+        0.0,
+        -1.0
+      ],
+      "parent_anchor": [
+        -0.00377425551,
+        -0.0371583328,
+        0.0290732086
+      ],
+      "child_anchor": [
+        -0.0224249996,
+        0.0905762836,
+        0.0119098602
+      ],
+      "parent_rotation": [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ],
+      "child_rotation": [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ]
+    },
+    "2": {
+      "parent": 1,
+      "child": 3,
+      "q_index": 9,
+      "v_index": 8,
+      "axis": [
+        1.0,
+        0.0,
+        0.0
+      ],
+      "parent_anchor": [
+        -0.0224249996,
+        -0.0905762836,
+        0.0119098602
+      ],
+      "child_anchor": [
+        -0.0224249996,
+        -0.081001021,
+        0.0422462076
+      ],
+      "parent_rotation": [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ],
+      "child_rotation": [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ]
+    },
+    "3": {
+      "parent": 2,
+      "child": 4,
+      "q_index": 10,
+      "v_index": 9,
+      "axis": [
+        -1.0,
+        0.0,
+        0.0
+      ],
+      "parent_anchor": [
+        -0.0224249996,
+        0.0905762836,
+        0.0119098602
+      ],
+      "child_anchor": [
+        -0.0224249996,
+        0.081001021,
+        0.0422462076
+      ],
+      "parent_rotation": [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ],
+      "child_rotation": [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ]
+    },
+    "4": {
+      "parent": 3,
+      "child": 5,
+      "q_index": 11,
+      "v_index": 10,
+      "axis": [
+        0.0,
+        1.0,
+        0.0
+      ],
+      "parent_anchor": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "child_anchor": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "parent_rotation": [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ],
+      "child_rotation": [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ]
+    },
+    "5": {
+      "parent": 4,
+      "child": 6,
+      "q_index": 12,
+      "v_index": 11,
+      "axis": [
+        0.0,
+        -1.0,
+        0.0
+      ],
+      "parent_anchor": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "child_anchor": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "parent_rotation": [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ],
+      "child_rotation": [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ]
+    }
+  },
+  "cases": [
+    {
+      "joint_coordinates": [
+        0.0,
+        0.0,
+        0.2
+      ],
+      "actual": {
+        "max_matrix_error": 0.39733866159012243,
+        "forward_chord_error": [
+          0.0,
+          0.0,
+          0.39733866159012243
+        ]
+      },
+      "hypothetical_right_axis_reversed": {
+        "max_matrix_error": 0.0,
+        "forward_chord_error": [
+          0.0,
+          0.0,
+          0.0
+        ]
+      }
+    },
+    {
+      "joint_coordinates": [
+        0.08,
+        0.35,
+        0.2
+      ],
+      "actual": {
+        "max_matrix_error": 0.3960678558530331,
+        "forward_chord_error": [
+          0.010888101817227103,
+          0.13581079937558682,
+          0.37324909645705995
+        ]
+      },
+      "hypothetical_right_axis_reversed": {
+        "max_matrix_error": 0.0,
+        "forward_chord_error": [
+          0.0,
+          0.0,
+          0.0
+        ]
+      }
+    },
+    {
+      "joint_coordinates": [
+        -0.05,
+        -0.3,
+        -0.18
+      ],
+      "actual": {
+        "max_matrix_error": 0.35761166615488327,
+        "forward_chord_error": [
+          -0.005288481476913631,
+          0.10568147348659707,
+          -0.3420669682525635
+        ]
+      },
+      "hypothetical_right_axis_reversed": {
+        "max_matrix_error": 0.0,
+        "forward_chord_error": [
+          0.0,
+          0.0,
+          0.0
+        ]
+      }
+    }
+  ],
+  "actual_symmetric": false,
+  "hypothetical_symmetric": true,
+  "scope": "Analytic joint-frame rotation symmetry at equal coordinates; not a dynamic or aerodynamic validation."
+}

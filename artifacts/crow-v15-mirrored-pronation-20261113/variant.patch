@@ -1,0 +1,11 @@
+--- /Users/n/Developer/numi-crow-rl-20261107/build/crow-v15-wing-mirror-audit-20261113/c_api.cpp	2026-11-13 13:20:15
++++ /Users/n/Developer/numi-crow-rl-20261107/build/crow-v15-mirrored-pronation-20261113/c_api.cpp	2026-11-13 13:24:29
+@@ -3421,6 +3421,8 @@
+  for(unsigned i : {8u,9u}){auto &d=m.dofs.at(i);crowToeNeed(d.vIndex==i && d.qIndex==i+1 && d.drive.x==800.f && d.drive.y==8.f,"unexpected wing drive metadata");std::fprintf(stderr,"CROW_MODEL_DRIVE %u %u %u %.9g %.9g %.9g %.9g\n",i,d.qIndex,d.vIndex,d.drive.x,d.drive.y,d.drive.z,d.limits.w);d.drive.x=10.f;d.drive.y=0.65f;std::fprintf(stderr,"CROW_MODEL_DRIVE_NEW %u %.9g %.9g %.9g %.9g\n",i,d.drive.x,d.drive.y,d.drive.z,d.limits.w);}
+  for(unsigned i=6u;i<m.dofs.size();++i){const auto& d=m.dofs[i];std::fprintf(stderr,"CROW_MODEL_DOF_LIMIT %u %u %u %.9g %s\n",i,d.vIndex,d.flags,d.limits.z,m.dofNames[i].c_str());}
+  for(unsigned i=10u;i<=11u;++i){const auto& d=m.dofs[i];std::fprintf(stderr,"CROW_PRONATION_MODEL %u %u %.9g %.9g %.9g %.9g %.9g %.9g %.9g %.9g\n",i,d.flags,d.drive.x,d.drive.y,d.drive.z,d.drive.w,d.limits.x,d.limits.y,d.limits.z,d.limits.w);}
++ crowToeNeed(m.joints.at(4).axis0.x==0.f && m.joints.at(4).axis0.y==1.f && m.joints.at(4).axis0.z==0.f && m.joints.at(5).axis0.x==0.f && m.joints.at(5).axis0.y==-1.f && m.joints.at(5).axis0.z==0.f,"unexpected pronation axes");
++ m.joints.at(5).axis0.y=1.f; p.sourceRevision+="+right_pronation_mirror_axis";
+  for(unsigned i=0u;i<6u;++i){const auto& j=m.joints[i];std::fprintf(stderr,"CROW_WING_FRAME %u %u %u %u %u %.9g %.9g %.9g %.9g %.9g %.9g %.9g %.9g %.9g %.9g %.9g %.9g %.9g %.9g %.9g %.9g %.9g\n",i,j.parentBody,j.childBody,j.qOffset,j.vOffset,j.axis0.x,j.axis0.y,j.axis0.z,j.parentAnchor.x,j.parentAnchor.y,j.parentAnchor.z,j.childAnchor.x,j.childAnchor.y,j.childAnchor.z,j.parentRotation.x,j.parentRotation.y,j.parentRotation.z,j.parentRotation.w,j.childRotation.x,j.childRotation.y,j.childRotation.z,j.childRotation.w);}
+  std::string why;crowToeNeed(m.valid(&why),"model invalid: "+why);return p;
+ }
