@@ -1,0 +1,118 @@
+{
+  "retired": false,
+  "files": [
+    {
+      "path": "/private/tmp/crow-continuation.rfybzJ/repo/artifacts/crow-v15-low-pronation-load-20261113/low-straight-20261126-rebound-low-straight/run.stderr.gz",
+      "inode": 204043379,
+      "bytes": 247942665,
+      "mtime_ns": 1794591643172933075,
+      "sha256": "78b3af3996ee84d73510f13b39d5b033298126414a7000ae08f5fffc916fc5df",
+      "lsof_clear": true
+    },
+    {
+      "path": "/private/tmp/crow-continuation.rfybzJ/repo/artifacts/crow-v15-low-pronation-load-20261113/low-straight-20261126-rebound-low-straight/run.stderr.gz.part000",
+      "inode": 204043398,
+      "bytes": 41943040,
+      "mtime_ns": 1794591659011100976,
+      "sha256": "288ca7512e652cf16a855692373170f7b2765db690211667a9187f47b6c81fa3",
+      "lsof_clear": true
+    },
+    {
+      "path": "/private/tmp/crow-continuation.rfybzJ/repo/artifacts/crow-v15-low-pronation-load-20261113/low-straight-20261126-rebound-low-straight/run.stderr.gz.part001",
+      "inode": 204043399,
+      "bytes": 41943040,
+      "mtime_ns": 1794591659326632494,
+      "sha256": "d79b42189c4945f975d1e500f6d91e5dd5991b1b240ec000d67f84dbb03b2ce8",
+      "lsof_clear": true
+    },
+    {
+      "path": "/private/tmp/crow-continuation.rfybzJ/repo/artifacts/crow-v15-low-pronation-load-20261113/low-straight-20261126-rebound-low-straight/run.stderr.gz.part002",
+      "inode": 204043400,
+      "bytes": 41943040,
+      "mtime_ns": 1794591659619929393,
+      "sha256": "48bc77d545229c4e78e130100434cf162fd403a75b8f22ba183734449a5fbc2b",
+      "lsof_clear": true
+    },
+    {
+      "path": "/private/tmp/crow-continuation.rfybzJ/repo/artifacts/crow-v15-low-pronation-load-20261113/low-straight-20261126-rebound-low-straight/run.stderr.gz.part003",
+      "inode": 204043401,
+      "bytes": 41943040,
+      "mtime_ns": 1794591659938366416,
+      "sha256": "75bda0e5e622584140c6be31512f2d849f756476dcf5c9b4bc69a72e95d37dc9",
+      "lsof_clear": true
+    },
+    {
+      "path": "/private/tmp/crow-continuation.rfybzJ/repo/artifacts/crow-v15-low-pronation-load-20261113/low-straight-20261126-rebound-low-straight/run.stderr.gz.part004",
+      "inode": 204043402,
+      "bytes": 41943040,
+      "mtime_ns": 1794591660280819104,
+      "sha256": "eb3d27eb3e7bb294823195836054a859d4318baa355a9aceecbe4d5aab1a5807",
+      "lsof_clear": true
+    },
+    {
+      "path": "/private/tmp/crow-continuation.rfybzJ/repo/artifacts/crow-v15-low-pronation-load-20261113/low-straight-20261126-rebound-low-straight/run.stderr.gz.part005",
+      "inode": 204043403,
+      "bytes": 38227465,
+      "mtime_ns": 1794591660626917256,
+      "sha256": "4f5ba95bc62b436dd6d7e981e2dd2246dc5fd6b10d8ecbf33271e8d1075ac6a9",
+      "lsof_clear": true
+    },
+    {
+      "path": "/private/tmp/crow-continuation.rfybzJ/repo/artifacts/crow-v15-low-pronation-load-20261113/low-turn-20261126-rebound-low-turn/run.stderr.gz",
+      "inode": 204044092,
+      "bytes": 248357355,
+      "mtime_ns": 1794592239038653822,
+      "sha256": "05bcd764f1b8fb92017db66459257f1c5ddca65a0221dc4d595426f6f32d9cc4",
+      "lsof_clear": true
+    },
+    {
+      "path": "/private/tmp/crow-continuation.rfybzJ/repo/artifacts/crow-v15-low-pronation-load-20261113/low-turn-20261126-rebound-low-turn/run.stderr.gz.part000",
+      "inode": 204044141,
+      "bytes": 41943040,
+      "mtime_ns": 1794592251658414686,
+      "sha256": "04d409bb1b3f9844c884b5762239a21d26f6d56c3e15dec2572c89f725280ebb",
+      "lsof_clear": true
+    },
+    {
+      "path": "/private/tmp/crow-continuation.rfybzJ/repo/artifacts/crow-v15-low-pronation-load-20261113/low-turn-20261126-rebound-low-turn/run.stderr.gz.part001",
+      "inode": 204044142,
+      "bytes": 41943040,
+      "mtime_ns": 1794592251889481398,
+      "sha256": "b61347baa0da4043be5025b49a0560b5d36ecd4114b91b447801e851ccf8dac7",
+      "lsof_clear": true
+    },
+    {
+      "path": "/private/tmp/crow-continuation.rfybzJ/repo/artifacts/crow-v15-low-pronation-load-20261113/low-turn-20261126-rebound-low-turn/run.stderr.gz.part002",
+      "inode": 204044143,
+      "bytes": 41943040,
+      "mtime_ns": 1794592252119785445,
+      "sha256": "4b917a27696318cc7f928a156d10fe266c294946e449f7e9cabb30c55d5b2c38",
+      "lsof_clear": true
+    },
+    {
+      "path": "/private/tmp/crow-continuation.rfybzJ/repo/artifacts/crow-v15-low-pronation-load-20261113/low-turn-20261126-rebound-low-turn/run.stderr.gz.part003",
+      "inode": 204044144,
+      "bytes": 41943040,
+      "mtime_ns": 1794592252391353680,
+      "sha256": "2bd15462c58eb8ee5d303413bfbfb730884276d618a78b0b8c62304102a2b102",
+      "lsof_clear": true
+    },
+    {
+      "path": "/private/tmp/crow-continuation.rfybzJ/repo/artifacts/crow-v15-low-pronation-load-20261113/low-turn-20261126-rebound-low-turn/run.stderr.gz.part004",
+      "inode": 204044145,
+      "bytes": 41943040,
+      "mtime_ns": 1794592252651831067,
+      "sha256": "4fe773cb6a0be5cee1f20c07652c8e3b334060a9699fabef5049ad1a2a673a07",
+      "lsof_clear": true
+    },
+    {
+      "path": "/private/tmp/crow-continuation.rfybzJ/repo/artifacts/crow-v15-low-pronation-load-20261113/low-turn-20261126-rebound-low-turn/run.stderr.gz.part005",
+      "inode": 204044146,
+      "bytes": 38642155,
+      "mtime_ns": 1794592252924342133,
+      "sha256": "ad5269ec7c6ab2f8a55f9852062417a823380d5225e7c448c71e05bcf90a182a",
+      "lsof_clear": true
+    }
+  ],
+  "total_bytes": 992600040
+}
