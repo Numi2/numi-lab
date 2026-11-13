@@ -1,0 +1,7 @@
+# Matched altitude response on development seed 20261127
+
+Both candidates passed the registered 1,800-interval altitude-response screen with teacher mode off and task-body wrench assistance ablated. Both were continuously clear after initial unloading at interval 375, with no recorded candidate physical failure, missing or duplicate observed substeps, observer errors, or contact-capacity overflows. The complete q/v/action/contact prefix matched each candidate's same-seed straight-flight baseline through interval 600; other lanes matched their available first episodes. Recorded flap and pronation targets matched the reconstructed commands.
+
+With the high setpoint at 0.95 m, lane 6 reached a maximum height difference of +0.13628 m versus its straight baseline at interval 1200, and its measured height ranged from 0.358 to 1.013 m. With the low setpoint at 0.65 m, lane 7 reached a minimum difference of -0.13085 m at interval 1200, and its height ranged from 0.358 to 0.697 m. In the 600–1200 observer window, pronation effort saturated approximately 47.1% and 46.9% of samples, respectively. The full analysis records all bounds and comparison metrics.
+
+The screen uses a single previously exposed seed, two correlated lanes and fixed setpoints; it does not establish a general climb/descent command envelope, robustness to disturbances, full flight qualification, landing, navigation or biological realism. Control lanes 0 and 1 physically failed at intervals 760 and 762; their data and the complete candidate replays are retained.
