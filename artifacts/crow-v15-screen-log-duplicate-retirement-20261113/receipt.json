@@ -1,0 +1,19 @@
+{
+  "deleted": [
+    "artifacts/crow-v15-flight-speed-gain-screen-20261113/push-wing-20261126-rebound-gain/run.stderr.gz",
+    "artifacts/crow-v15-flight-speed-gain-screen-20261113/push-wing-20261126-rebound-gain/run.stderr.gz.part00",
+    "artifacts/crow-v15-flight-speed-gain-screen-20261113/push-wing-20261126-rebound-gain/run.stderr.gz.part01",
+    "artifacts/crow-v15-uniform-flight-seed-screen-20261113/push-wing-008-20261126-rebound-uniform/run.stderr.gz",
+    "artifacts/crow-v15-uniform-flight-seed-screen-20261113/push-wing-008-20261126-rebound-uniform/run.stderr.gz.part00",
+    "artifacts/crow-v15-uniform-flight-seed-screen-20261113/push-wing-008-20261126-rebound-uniform/run.stderr.gz.part01",
+    "artifacts/crow-v15-uniform-flight-seed-screen-20261113/push-wing-008-20261127-rebound-uniform/run.stderr.gz",
+    "artifacts/crow-v15-uniform-flight-seed-screen-20261113/push-wing-008-20261127-rebound-uniform/run.stderr.gz.part00",
+    "artifacts/crow-v15-uniform-flight-seed-screen-20261113/push-wing-008-20261127-rebound-uniform/run.stderr.gz.part01",
+    "artifacts/crow-v15-uniform-flight-seed-screen-20261113/push-wing-008-20261127-rebound-uniform/run.stderr.gz.part02"
+  ],
+  "logical_bytes": 478843012,
+  "verified_commits": [
+    "9c3854f4054c963276fd3715427c42784ea1bec6",
+    "aa78328689279729db120ad8eac91ed44dada74d"
+  ]
+}
