@@ -1,0 +1,22 @@
+{
+  "retired": false,
+  "files": [
+    {
+      "path": "/Users/n/Developer/numi-crow-rl-20261107/artifacts/crow-v15-stance-pitch-authority-20261114/prebuild-probe.gz",
+      "inode": 17111560,
+      "bytes": 50641,
+      "mtime_ns": 1794650065582142570,
+      "sha256": "3450b782dcc3170e02e81da97e7120a717e1bace75b4a8d22789cd69eaa176b7",
+      "lsof_clear": true
+    },
+    {
+      "path": "/Users/n/Developer/numi-crow-rl-20261107/artifacts/crow-v15-stance-pitch-authority-20261114/prebuild-probe.sha256",
+      "inode": 17111559,
+      "bytes": 119,
+      "mtime_ns": 1794650065578523946,
+      "sha256": "bb88bfcdcdbac3a60eada3431106482ddf20c04d97912286b07139cae36e7b3e",
+      "lsof_clear": true
+    }
+  ],
+  "total_bytes": 50760
+}
