@@ -7,3 +7,4 @@ Every lane's recorded state through interval 500 and logged targets over interva
 Full source, compiled metallib, binary/input hashes, replay, recorded observations, analysis and the exact original compressed trace split into manifest-verified ordered parts are retained. The eight lanes share a used seed and are correlated. Neither flight, toe grip, landing, the full mission, nor a genuinely unused layout has been qualified. This trial is rejected; it does not establish biological realism.
 
 The four trace parts were independently streamed from GitHub in order, reproducing their individual and aggregate hashes and gzip EOF; see remote-verification.json.
+The independently verified duplicate original was removed from the native host to conserve space; the complete ordered parts remain in Git. See retirement-receipt.json.

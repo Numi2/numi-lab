@@ -1,0 +1,10 @@
+{
+  "date": "2026-11-14",
+  "host": "macmini",
+  "path": "/Users/n/Developer/numi-crow-rl-20261107/artifacts/crow-v15-role6-wing-handoff-20261114/push-20261126-rebound-role6/run.stderr.gz",
+  "bytes": 132198339,
+  "sha256": "0ed30c961a14ac573dba5b56afdea4bf333e87f390a94b8680f0d085e8fe754f",
+  "open_handles": 0,
+  "verified_archive_commit": "88d89f5f",
+  "verification": "GitHub ordered parts streamed, part and aggregate hashes and gzip EOF checked independently; host original hash and no open handles checked before unlink"
+}
