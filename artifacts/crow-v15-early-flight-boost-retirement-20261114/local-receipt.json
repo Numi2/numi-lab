@@ -1,0 +1,22 @@
+{
+  "retired": true,
+  "files": [
+    {
+      "path": "/Users/home/Documents/Codex/2026-11-07/c/crow-research-staging/artifacts/crow-v15-early-flight-boost-20261114/push-20261126-rebound-phase/run.stderr.gz",
+      "inode": 204348911,
+      "bytes": 34365985,
+      "mtime_ns": 1794642313209131733,
+      "sha256": "daa5b53b6edac101d4486ce181a5ce0001aedceb9ae5464c737233aa93671c2b",
+      "lsof_clear": true
+    },
+    {
+      "path": "/Users/home/Documents/Codex/2026-11-07/c/crow-research-staging/artifacts/crow-v15-early-flight-boost-20261114/hold-20261126-rebound-phase/run.stderr.gz",
+      "inode": 204349023,
+      "bytes": 34381673,
+      "mtime_ns": 1794642322288889768,
+      "sha256": "2585bf4f015492971480d58514b27e98976c09c39465ea7cdd993e299a568a73",
+      "lsof_clear": true
+    }
+  ],
+  "total_bytes": 68747658
+}
