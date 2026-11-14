@@ -1,0 +1,45 @@
+{
+  "rows": [
+    {
+      "lane": 0,
+      "first_observation_q_max_abs_difference": 0.014659564000000002,
+      "first_observation_v_max_abs_difference": 0.479360372
+    },
+    {
+      "lane": 1,
+      "first_observation_q_max_abs_difference": 0.006414503750000001,
+      "first_observation_v_max_abs_difference": 0.747814595
+    },
+    {
+      "lane": 2,
+      "first_observation_q_max_abs_difference": 0.19964535219750001,
+      "first_observation_v_max_abs_difference": 7.48645299872
+    },
+    {
+      "lane": 3,
+      "first_observation_q_max_abs_difference": 0.0166769419,
+      "first_observation_v_max_abs_difference": 0.781523822
+    },
+    {
+      "lane": 4,
+      "first_observation_q_max_abs_difference": 0.0239319727,
+      "first_observation_v_max_abs_difference": 0.8481467420000001
+    },
+    {
+      "lane": 5,
+      "first_observation_q_max_abs_difference": 0.027736350899999998,
+      "first_observation_v_max_abs_difference": 0.6993279139999999
+    },
+    {
+      "lane": 6,
+      "first_observation_q_max_abs_difference": 0.024267420199999997,
+      "first_observation_v_max_abs_difference": 0.8121538130000001
+    },
+    {
+      "lane": 7,
+      "first_observation_q_max_abs_difference": 0.0276415758,
+      "first_observation_v_max_abs_difference": 0.9482388509999999
+    }
+  ],
+  "scope": "first logged post-step observations, not independently captured reset states"
+}
