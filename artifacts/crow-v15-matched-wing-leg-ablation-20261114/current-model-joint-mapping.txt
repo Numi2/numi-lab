@@ -1,0 +1,37 @@
+b21f0e61e5fe4a942b2926a760323fe1dc7dc8f546f9f1ae5708789524a6e870  src/core/RunProgram.cpp
+        mechanics.jointNames = {
+            "dove_left_wing_flap", "dove_right_wing_flap", "dove_tail_pitch",
+            "dove_left_hip_pitch", "dove_left_knee_pitch",
+            "dove_left_ankle_pitch", "dove_right_hip_pitch",
+            "dove_right_knee_pitch", "dove_right_ankle_pitch"};
+        mechanics.dofNames = {
+            "root_x", "root_y", "root_z", "root_rx", "root_ry", "root_rz",
+            "dove_left_wing_flap", "dove_right_wing_flap",
+            "dove_tail_pitch",
+            "dove_left_hip_pitch", "dove_left_knee_pitch",
+            "dove_left_ankle_pitch", "dove_right_hip_pitch",
+            "dove_right_knee_pitch", "dove_right_ankle_pitch",
+        };
+        mechanics.defaultQ = {
+            0.0f, 0.0f, 0.163f, 0.0f, 0.0f, 0.0f, 1.0f,
+            0.35f, 0.35f, 0.0f,
+                {"crow_left_wing_sweep", "crow_right_wing_sweep",
+                 "crow_left_wing_flap_link", "crow_right_wing_flap_link"}
+            );
+            mechanics.jointNames.insert(
+                mechanics.jointNames.begin(),
+                {"crow_left_wing_sweep", "crow_right_wing_sweep"}
+            );
+            mechanics.jointNames.insert(
+                mechanics.jointNames.begin() + 4,
+                {"crow_left_wing_pronation", "crow_right_wing_pronation"}
+            );
+            mechanics.dofNames.insert(
+                mechanics.dofNames.begin() + 6,
+                {"crow_left_wing_sweep", "crow_right_wing_sweep"}
+            );
+            mechanics.dofNames.insert(
+                mechanics.dofNames.begin() + 10,
+                {"crow_left_wing_pronation", "crow_right_wing_pronation"}
+            );
+            mechanics.defaultQ.insert(

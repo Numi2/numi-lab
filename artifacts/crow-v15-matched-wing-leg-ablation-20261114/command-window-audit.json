@@ -1,0 +1,122 @@
+[
+  {
+    "lane": 0,
+    "first_wing_difference": null,
+    "first_tail_difference": 376,
+    "intervals_371_to_376": {
+      "push": {
+        "vertical_aero_impulse_Ns": 0.03949749558024435,
+        "upward_foot_impulse_Ns": 0.6563794803073082
+      },
+      "hold": {
+        "vertical_aero_impulse_Ns": 0.03976608355790635,
+        "upward_foot_impulse_Ns": 0.5537296471932
+      }
+    }
+  },
+  {
+    "lane": 1,
+    "first_wing_difference": null,
+    "first_tail_difference": 376,
+    "intervals_371_to_376": {
+      "push": {
+        "vertical_aero_impulse_Ns": 0.03927744024136939,
+        "upward_foot_impulse_Ns": 0.6578745275636478
+      },
+      "hold": {
+        "vertical_aero_impulse_Ns": 0.039727391157774974,
+        "upward_foot_impulse_Ns": 0.5538225274321
+      }
+    }
+  },
+  {
+    "lane": 2,
+    "first_wing_difference": null,
+    "first_tail_difference": 376,
+    "intervals_371_to_376": {
+      "push": {
+        "vertical_aero_impulse_Ns": 0.03930374860723708,
+        "upward_foot_impulse_Ns": 0.6600920429356681
+      },
+      "hold": {
+        "vertical_aero_impulse_Ns": 0.03975774137815949,
+        "upward_foot_impulse_Ns": 0.5537662449799
+      }
+    }
+  },
+  {
+    "lane": 3,
+    "first_wing_difference": null,
+    "first_tail_difference": 376,
+    "intervals_371_to_376": {
+      "push": {
+        "vertical_aero_impulse_Ns": 0.03962176716322938,
+        "upward_foot_impulse_Ns": 0.6550745866579385
+      },
+      "hold": {
+        "vertical_aero_impulse_Ns": 0.03976349011993266,
+        "upward_foot_impulse_Ns": 0.5537323836775
+      }
+    }
+  },
+  {
+    "lane": 4,
+    "first_wing_difference": null,
+    "first_tail_difference": 376,
+    "intervals_371_to_376": {
+      "push": {
+        "vertical_aero_impulse_Ns": 0.03940916899151949,
+        "upward_foot_impulse_Ns": 0.658010130972526
+      },
+      "hold": {
+        "vertical_aero_impulse_Ns": 0.039745941052977796,
+        "upward_foot_impulse_Ns": 0.5538029515651
+      }
+    }
+  },
+  {
+    "lane": 5,
+    "first_wing_difference": null,
+    "first_tail_difference": 376,
+    "intervals_371_to_376": {
+      "push": {
+        "vertical_aero_impulse_Ns": 0.039389376268948825,
+        "upward_foot_impulse_Ns": 0.6576940721071785
+      },
+      "hold": {
+        "vertical_aero_impulse_Ns": 0.039760463954697116,
+        "upward_foot_impulse_Ns": 0.5537546941951
+      }
+    }
+  },
+  {
+    "lane": 6,
+    "first_wing_difference": null,
+    "first_tail_difference": 376,
+    "intervals_371_to_376": {
+      "push": {
+        "vertical_aero_impulse_Ns": 0.03945122249165112,
+        "upward_foot_impulse_Ns": 0.6574315221764689
+      },
+      "hold": {
+        "vertical_aero_impulse_Ns": 0.03973800035885487,
+        "upward_foot_impulse_Ns": 0.5538295959516
+      }
+    }
+  },
+  {
+    "lane": 7,
+    "first_wing_difference": null,
+    "first_tail_difference": 376,
+    "intervals_371_to_376": {
+      "push": {
+        "vertical_aero_impulse_Ns": 0.03954779460920623,
+        "upward_foot_impulse_Ns": 0.6555324081846999
+      },
+      "hold": {
+        "vertical_aero_impulse_Ns": 0.03976070982767735,
+        "upward_foot_impulse_Ns": 0.5537488902518
+      }
+    }
+  }
+]
