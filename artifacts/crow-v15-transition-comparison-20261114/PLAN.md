@@ -1,0 +1,3 @@
+# Compare measured transition timing
+
+Using retained windows for the 7.42 s phase-zero continuous push trial and 7.46 s / 7.50 s phase-shifted push failures, compare each candidate lane's accepted observer root height and vertical velocity, flap angles, foot load and signed modeled vertical aero impulse in intervals 369-395. Retain input compressed hashes and avoid interpreting observer state and contact as exactly simultaneous: the one-frame offset was directly checked for different lanes, not these candidate lanes. This is observational diagnosis of used-seed trials, not causation, qualification or a new simulation.
