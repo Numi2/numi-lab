@@ -1,0 +1,6 @@
+{
+  "artifacts/crow-v15-stance-grip-fk-grid-20261114/kinematics.cpp": "abea8acd2b0736f70a32560dfcfec06f6177873acf6d87fd28c00f05442b8c20",
+  "artifacts/crow-v15-stance-grip-fk-grid-20261114/input.tsv": "b276edf37cfed781447e4314fa416ef744f87e356a57c568f1dd3a5977dcdbc1",
+  "build/crow-v15-stance-grip-fk-grid-20261114/kinematics": "7d9d71e51d358667bc7ec4b2b7c61c38411f93278bf781f6ecb81becf798c061",
+  "build/crow-v15-hiproll-toe-observer-20261113/libmetalrobo.dylib": "2401d8c6aa048f7a4a75b51d2fbc1498b97b66fd3e3e6aeb19b3014fa5af7aea"
+}

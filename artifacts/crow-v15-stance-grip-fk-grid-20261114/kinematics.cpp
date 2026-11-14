@@ -14,7 +14,7 @@ int main(){try {
  std::cout<<std::setprecision(17);int lane,step;
  while(std::cin>>lane>>step){std::vector<double> q(m.defaultQ.size()),v(m.defaultV.size());for(auto&x:q)need(bool(std::cin>>x),"q missing");for(auto&x:v)need(bool(std::cin>>x),"v missing");
   for(int i=-12;i<=12;i++)for(int j=-6;j<=6;j++)for(int n=-10;n<=10;n++){const double dh=.01*i,dk=.02*j,da=.02*n;auto p=q;p[17]+=dh;p[18]+=dk;p[19]+=da;if(p[17]<-.85||p[17]>.85||p[18]<-.1||p[18]>1.55||p[19]<-.9||p[19]>.7)continue;std::vector<ArticulatedBodyKinematics> k(m.bodies.size());need(computeArticulatedBodyKinematics(m,0,p,v,k).succeeded(),"FK failed");
-   float foot=shapePerchGap(k[12],.01f,.01725f,.0092f),front=1.f,rear=1.f;for(int b=27;b<33;b++)front=std::min(front,shapePerchGap(k[b],.009f,.0025f,.0092f));for(int b=33;b<35;b++)rear=std::min(rear,shapePerchGap(k[b],.009f,.0025f,.0092f));
+   float foot=shapePerchGap(k[15],.01f,.01725f,.0092f),front=1.f,rear=1.f;for(int b=27;b<33;b++)front=std::min(front,shapePerchGap(k[b],.009f,.0025f,.0092f));for(int b=33;b<35;b++)rear=std::min(rear,shapePerchGap(k[b],.009f,.0025f,.0092f));
    std::cout<<lane<<" "<<step<<" "<<dh<<" "<<dk<<" "<<da<<" "<<foot<<" "<<front<<" "<<rear<<"\n";
   }
  }return 0;}catch(const std::exception&e){std::cerr<<e.what()<<std::endl;return 1;}}

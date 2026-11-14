@@ -1,0 +1,5 @@
+Traceback (most recent call last):
+  File "/Users/home/Documents/Codex/2026-11-07/c/crow-evidence-recovery-20261114/artifacts/crow-v15-stance-grip-fk-grid-20261114/analyze.py", line 12, in <module>
+    groups=bytick[t]['groups'];o['zero_gap_error_m']={g:abs(o['zero'][g+'_m']-groups[g]['min_box_gap_m']) for g in ('foot','front','rear')};assert max(o['zero_gap_error_m'].values())<1.e-6
+                                                                                                                                                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError
