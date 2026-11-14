@@ -1,0 +1,12 @@
+12872d0210f1305dd7db59874da2e196ab05fe8e49dbb1cefb66f7d6be7ddd23  artifacts/crow-v15-stance-front-closure-20261114/PLAN.md
+058e18f69cb3b92003442e66bc890e5b0c7da15414a52380d0f4ed453d6ee5ac  artifacts/crow-v15-stance-front-closure-20261114/probe.cpp
+a4b41e379a2d2e3757e2845bd01ba8bf90ce110951caef8ef740950d23bc3469  artifacts/crow-v15-stance-front-closure-20261114/run.py
+4ae5f468298a24856c31b3e12d82fc59fd69cd832696a8d5bdc2bcda956555fb  artifacts/crow-v15-stance-front-closure-20261114/analyze.py
+a8fa3c6a94b3f34ca3f293495084bce62ee41a6ffc4b0e2e0fba61e673ea3ac3  artifacts/crow-v15-stance-front-closure-20261114/compare.py
+7f57ee211facd416413685a898f51b3bfb6c9f08680cec843afa6a40ebfa466a  artifacts/crow-v15-stance-front-closure-20261114/correction-check.py
+2eb6fa55f61a51d8e92b23fb8c0f8001844790c2b7f5c0067d0a446406bec3af  artifacts/crow-v15-stance-front-closure-20261114/hip-check.py
+bbb4c6050b13f4350802879cbf759feeb49d9ad7c875dd49d7f0336bd501fcab  artifacts/crow-v15-stance-front-closure-20261114/clearance-intervals.py
+31cfd1e19ea69d43c470c442018ed2d3a0aaf50bb76f544617f39745558b4268  artifacts/crow-v15-stance-front-closure-20261114/regrip-intervals.py
+24554c82d50c47a37229dbf85f2ac7a5c6c94830aa7d6feaaf259678fda23009  artifacts/crow-v15-stance-front-closure-20261114/joint-check.py
+01d9b552ec6862c170f17b2ad2041512f926072cd34cae2f33b1212f401ff380  artifacts/crow-v15-stance-front-closure-20261114/toe-speed.py
+e5f3321609126f6219870bb05b73d8221a6c4553e879894441d089c5e2caf53f  artifacts/crow-v15-stance-front-closure-20261114/geometry-audit.py
