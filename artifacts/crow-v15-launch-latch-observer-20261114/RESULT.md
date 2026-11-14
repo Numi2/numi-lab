@@ -1,0 +1,7 @@
+# Launch latch replay identifies a downstream hold
+
+The observer-only native replay reproduced all 4,008 recorded state/action/contact samples and 1,336 drive-target records exactly against the uninstrumented push run, with no missing records or observer errors. All 3,328 requested latch samples were present. The observer step was two greater than the sampled task episode counter in this window.
+
+At observer step 376 (episode 374), the first-low lane 1 already had release and retract bits set while the two-low lane 0 had its first-low bit set but neither release nor retract. Both had stored height above 0.170 m, upward feedback above 0.05 m/s and neither loaded-foot bit set. At observer step 377 both lanes had release and retract set. Thus the earlier latch did fire; it was not absent. The logged leg targets nevertheless stayed the same through the critical airborne window.
+
+Source inspection identifies a downstream `walkAirborneHold` condition that holds the leg action history while the support bit is absent. Its push exemption ends at 7.4 s, so the release/retract request can be held through the brief airborne interval and only reach the position drives after support returns. This source-level explanation is a testable hypothesis, not by itself proof of a working fix or of leg-powered sustained flight. The observer has not established the other launch, landing or navigation requirements.
