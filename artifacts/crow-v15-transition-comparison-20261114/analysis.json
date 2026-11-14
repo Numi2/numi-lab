@@ -1,0 +1,2278 @@
+{
+  "source_sha256": {
+    "near": "c8c63e014994bb4da40d4e35a45a548be043a2f2f439a884a7caa77a741c2692",
+    "earlyphase": "f7d579fea0b1d5bed5591b0d79d939fb64b1acd1646bf3e836509695e212e5b1",
+    "latephase": "653cdec96d91262d571abfacc1a0a69d8268efb82811062789eb936712a2454b"
+  },
+  "rows": [
+    {
+      "trial": "near",
+      "lane": 6,
+      "interval": 369,
+      "observer_root_height_m": 0.162705377,
+      "observer_vertical_velocity_m_s": -0.00166746241,
+      "observer_flap_q_rad": [
+        0.34683311,
+        0.34683305
+      ],
+      "foot_load_sum_Ns": 0.08750000154,
+      "positive_aero_vertical_Ns": 1.9947632416972502e-08,
+      "negative_aero_vertical_Ns": -1.434323657178625e-08
+    },
+    {
+      "trial": "near",
+      "lane": 6,
+      "interval": 370,
+      "observer_root_height_m": 0.162658915,
+      "observer_vertical_velocity_m_s": -0.00181957323,
+      "observer_flap_q_rad": [
+        0.346834809,
+        0.346834451
+      ],
+      "foot_load_sum_Ns": 0.0878200794,
+      "positive_aero_vertical_Ns": 8.94384078264875e-08,
+      "negative_aero_vertical_Ns": 0
+    },
+    {
+      "trial": "near",
+      "lane": 6,
+      "interval": 371,
+      "observer_root_height_m": 0.162624225,
+      "observer_vertical_velocity_m_s": -0.00172292895,
+      "observer_flap_q_rad": [
+        0.346834093,
+        0.346833527
+      ],
+      "foot_load_sum_Ns": 0.08812443141,
+      "positive_aero_vertical_Ns": 1.233112200793375e-07,
+      "negative_aero_vertical_Ns": 0
+    },
+    {
+      "trial": "near",
+      "lane": 6,
+      "interval": 372,
+      "observer_root_height_m": 0.162588671,
+      "observer_vertical_velocity_m_s": -0.00183391699,
+      "observer_flap_q_rad": [
+        0.346833616,
+        0.34683305
+      ],
+      "foot_load_sum_Ns": 0.08812925385,
+      "positive_aero_vertical_Ns": 1.30897228061175e-07,
+      "negative_aero_vertical_Ns": 0
+    },
+    {
+      "trial": "near",
+      "lane": 6,
+      "interval": 373,
+      "observer_root_height_m": 0.165163696,
+      "observer_vertical_velocity_m_s": 0.186050415,
+      "observer_flap_q_rad": [
+        0.346091062,
+        0.346093893
+      ],
+      "foot_load_sum_Ns": 0.171811561077,
+      "positive_aero_vertical_Ns": 4.072899503171638e-06,
+      "negative_aero_vertical_Ns": -2.02030375112325e-05
+    },
+    {
+      "trial": "near",
+      "lane": 6,
+      "interval": 374,
+      "observer_root_height_m": 0.172931209,
+      "observer_vertical_velocity_m_s": 0.503129303,
+      "observer_flap_q_rad": [
+        0.344932824,
+        0.344954729
+      ],
+      "foot_load_sum_Ns": 0.23314380092,
+      "positive_aero_vertical_Ns": 0,
+      "negative_aero_vertical_Ns": -0.00018005881149176252
+    },
+    {
+      "trial": "near",
+      "lane": 6,
+      "interval": 375,
+      "observer_root_height_m": 0.177955925,
+      "observer_vertical_velocity_m_s": 0.194040135,
+      "observer_flap_q_rad": [
+        0.585060954,
+        0.585040331
+      ],
+      "foot_load_sum_Ns": 0.037175965707893,
+      "positive_aero_vertical_Ns": 0.00056409828015625,
+      "negative_aero_vertical_Ns": -0.00013567433736165
+    },
+    {
+      "trial": "near",
+      "lane": 6,
+      "interval": 376,
+      "observer_root_height_m": 0.178302333,
+      "observer_vertical_velocity_m_s": 0.0344568677,
+      "observer_flap_q_rad": [
+        1.03079486,
+        1.03080249
+      ],
+      "foot_load_sum_Ns": 0.0187276887790567,
+      "positive_aero_vertical_Ns": 0.040060065712285,
+      "negative_aero_vertical_Ns": 0
+    },
+    {
+      "trial": "near",
+      "lane": 6,
+      "interval": 377,
+      "observer_root_height_m": 0.184234291,
+      "observer_vertical_velocity_m_s": 0.362791568,
+      "observer_flap_q_rad": [
+        0.948095918,
+        0.948147714
+      ],
+      "foot_load_sum_Ns": 2.22346996910791e-05,
+      "positive_aero_vertical_Ns": 0.04458404138782713,
+      "negative_aero_vertical_Ns": 0
+    },
+    {
+      "trial": "near",
+      "lane": 6,
+      "interval": 378,
+      "observer_root_height_m": 0.196835846,
+      "observer_vertical_velocity_m_s": 0.836214244,
+      "observer_flap_q_rad": [
+        0.494033813,
+        0.494272172
+      ],
+      "foot_load_sum_Ns": 0.0,
+      "positive_aero_vertical_Ns": 0.2072499897767625,
+      "negative_aero_vertical_Ns": 0
+    },
+    {
+      "trial": "near",
+      "lane": 6,
+      "interval": 379,
+      "observer_root_height_m": 0.217043787,
+      "observer_vertical_velocity_m_s": 1.09269392,
+      "observer_flap_q_rad": [
+        -0.0178982187,
+        -0.0175210591
+      ],
+      "foot_load_sum_Ns": 0.0,
+      "positive_aero_vertical_Ns": 0.2346095256552625,
+      "negative_aero_vertical_Ns": 0
+    },
+    {
+      "trial": "near",
+      "lane": 6,
+      "interval": 380,
+      "observer_root_height_m": 0.234307095,
+      "observer_vertical_velocity_m_s": 0.762131095,
+      "observer_flap_q_rad": [
+        -0.231581271,
+        -0.231269315
+      ],
+      "foot_load_sum_Ns": 0.0,
+      "positive_aero_vertical_Ns": 0.04256971796045,
+      "negative_aero_vertical_Ns": 0
+    },
+    {
+      "trial": "near",
+      "lane": 6,
+      "interval": 381,
+      "observer_root_height_m": 0.243395969,
+      "observer_vertical_velocity_m_s": 0.332701296,
+      "observer_flap_q_rad": [
+        -0.043919839,
+        -0.0437012427
+      ],
+      "foot_load_sum_Ns": 0.0,
+      "positive_aero_vertical_Ns": 0.01365123783311625,
+      "negative_aero_vertical_Ns": -5.4024556302500006e-05
+    },
+    {
+      "trial": "near",
+      "lane": 6,
+      "interval": 382,
+      "observer_root_height_m": 0.244533405,
+      "observer_vertical_velocity_m_s": -0.0451326407,
+      "observer_flap_q_rad": [
+        0.453554332,
+        0.453698128
+      ],
+      "foot_load_sum_Ns": 0.0,
+      "positive_aero_vertical_Ns": 0.016165402767282625,
+      "negative_aero_vertical_Ns": 0
+    },
+    {
+      "trial": "near",
+      "lane": 6,
+      "interval": 383,
+      "observer_root_height_m": 0.24229838,
+      "observer_vertical_velocity_m_s": -0.0936252996,
+      "observer_flap_q_rad": [
+        0.948656738,
+        0.948760986
+      ],
+      "foot_load_sum_Ns": 0.0,
+      "positive_aero_vertical_Ns": 0.03146888161883062,
+      "negative_aero_vertical_Ns": 0
+    },
+    {
+      "trial": "near",
+      "lane": 6,
+      "interval": 384,
+      "observer_root_height_m": 0.242768496,
+      "observer_vertical_velocity_m_s": -0.0361106619,
+      "observer_flap_q_rad": [
+        1.08699298,
+        1.08708072
+      ],
+      "foot_load_sum_Ns": 0.0,
+      "positive_aero_vertical_Ns": 0.0139103947750225,
+      "negative_aero_vertical_Ns": 0
+    },
+    {
+      "trial": "near",
+      "lane": 6,
+      "interval": 385,
+      "observer_root_height_m": 0.245769814,
+      "observer_vertical_velocity_m_s": 0.220350757,
+      "observer_flap_q_rad": [
+        0.839851797,
+        0.839966893
+      ],
+      "foot_load_sum_Ns": 0.0,
+      "positive_aero_vertical_Ns": 0.08353181378442476,
+      "negative_aero_vertical_Ns": 0
+    },
+    {
+      "trial": "near",
+      "lane": 6,
+      "interval": 386,
+      "observer_root_height_m": 0.255580872,
+      "observer_vertical_velocity_m_s": 0.70263207,
+      "observer_flap_q_rad": [
+        0.373646289,
+        0.374026895
+      ],
+      "foot_load_sum_Ns": 0.0,
+      "positive_aero_vertical_Ns": 0.2267322688993125,
+      "negative_aero_vertical_Ns": 0
+    },
+    {
+      "trial": "near",
+      "lane": 6,
+      "interval": 387,
+      "observer_root_height_m": 0.27217114,
+      "observer_vertical_velocity_m_s": 0.88002795,
+      "observer_flap_q_rad": [
+        -0.105510913,
+        -0.105101869
+      ],
+      "foot_load_sum_Ns": 0.0,
+      "positive_aero_vertical_Ns": 0.2208490650797,
+      "negative_aero_vertical_Ns": 0
+    },
+    {
+      "trial": "near",
+      "lane": 6,
+      "interval": 388,
+      "observer_root_height_m": 0.284603834,
+      "observer_vertical_velocity_m_s": 0.508965909,
+      "observer_flap_q_rad": [
+        -0.237722814,
+        -0.23739849
+      ],
+      "foot_load_sum_Ns": 0.0,
+      "positive_aero_vertical_Ns": 0.024586825618755,
+      "negative_aero_vertical_Ns": 0
+    },
+    {
+      "trial": "near",
+      "lane": 6,
+      "interval": 389,
+      "observer_root_height_m": 0.288812816,
+      "observer_vertical_velocity_m_s": 0.0955753401,
+      "observer_flap_q_rad": [
+        0.0215502512,
+        0.0217734929
+      ],
+      "foot_load_sum_Ns": 0.0,
+      "positive_aero_vertical_Ns": 0.02158102039409875,
+      "negative_aero_vertical_Ns": -9.406069293612499e-06
+    },
+    {
+      "trial": "near",
+      "lane": 6,
+      "interval": 390,
+      "observer_root_height_m": 0.285586923,
+      "observer_vertical_velocity_m_s": -0.244792759,
+      "observer_flap_q_rad": [
+        0.553028762,
+        0.553181946
+      ],
+      "foot_load_sum_Ns": 0.0,
+      "positive_aero_vertical_Ns": 0.013188238376205001,
+      "negative_aero_vertical_Ns": 0
+    },
+    {
+      "trial": "near",
+      "lane": 6,
+      "interval": 391,
+      "observer_root_height_m": 0.280600905,
+      "observer_vertical_velocity_m_s": -0.231811732,
+      "observer_flap_q_rad": [
+        0.99884671,
+        0.99895668
+      ],
+      "foot_load_sum_Ns": 0.0,
+      "positive_aero_vertical_Ns": 0.0369197564362525,
+      "negative_aero_vertical_Ns": 0
+    },
+    {
+      "trial": "near",
+      "lane": 6,
+      "interval": 392,
+      "observer_root_height_m": 0.278438896,
+      "observer_vertical_velocity_m_s": -0.171772987,
+      "observer_flap_q_rad": [
+        1.06239998,
+        1.06249237
+      ],
+      "foot_load_sum_Ns": 0.0,
+      "positive_aero_vertical_Ns": 0.009220534982213001,
+      "negative_aero_vertical_Ns": 0
+    },
+    {
+      "trial": "near",
+      "lane": 6,
+      "interval": 393,
+      "observer_root_height_m": 0.279382646,
+      "observer_vertical_velocity_m_s": 0.174385235,
+      "observer_flap_q_rad": [
+        0.757790685,
+        0.757928193
+      ],
+      "foot_load_sum_Ns": 0.0,
+      "positive_aero_vertical_Ns": 0.12344045155421475,
+      "negative_aero_vertical_Ns": 0
+    },
+    {
+      "trial": "near",
+      "lane": 6,
+      "interval": 394,
+      "observer_root_height_m": 0.288181514,
+      "observer_vertical_velocity_m_s": 0.650240362,
+      "observer_flap_q_rad": [
+        0.279239833,
+        0.2797409
+      ],
+      "foot_load_sum_Ns": 0.0,
+      "positive_aero_vertical_Ns": 0.244280486941225,
+      "negative_aero_vertical_Ns": 0
+    },
+    {
+      "trial": "near",
+      "lane": 6,
+      "interval": 395,
+      "observer_root_height_m": 0.30214417,
+      "observer_vertical_velocity_m_s": 0.721012712,
+      "observer_flap_q_rad": [
+        -0.15307194,
+        -0.152616248
+      ],
+      "foot_load_sum_Ns": 0.0,
+      "positive_aero_vertical_Ns": 0.18895285720933752,
+      "negative_aero_vertical_Ns": 0
+    },
+    {
+      "trial": "near",
+      "lane": 7,
+      "interval": 369,
+      "observer_root_height_m": 0.162705317,
+      "observer_vertical_velocity_m_s": -0.0016735075,
+      "observer_flap_q_rad": [
+        0.346832931,
+        0.346833408
+      ],
+      "foot_load_sum_Ns": 0.08750890639,
+      "positive_aero_vertical_Ns": 1.978981938323e-08,
+      "negative_aero_vertical_Ns": -1.40024521044775e-08
+    },
+    {
+      "trial": "near",
+      "lane": 7,
+      "interval": 370,
+      "observer_root_height_m": 0.162658855,
+      "observer_vertical_velocity_m_s": -0.00182046031,
+      "observer_flap_q_rad": [
+        0.34683466,
+        0.346834689
+      ],
+      "foot_load_sum_Ns": 0.08782230387,
+      "positive_aero_vertical_Ns": 8.942328449281251e-08,
+      "negative_aero_vertical_Ns": 0
+    },
+    {
+      "trial": "near",
+      "lane": 7,
+      "interval": 371,
+      "observer_root_height_m": 0.162624165,
+      "observer_vertical_velocity_m_s": -0.00172352407,
+      "observer_flap_q_rad": [
+        0.346833974,
+        0.346833736
+      ],
+      "foot_load_sum_Ns": 0.08812457694999999,
+      "positive_aero_vertical_Ns": 1.232941981044125e-07,
+      "negative_aero_vertical_Ns": 0
+    },
+    {
+      "trial": "near",
+      "lane": 7,
+      "interval": 372,
+      "observer_root_height_m": 0.162588567,
+      "observer_vertical_velocity_m_s": -0.00183525891,
+      "observer_flap_q_rad": [
+        0.346833497,
+        0.346833259
+      ],
+      "foot_load_sum_Ns": 0.08812904916,
+      "positive_aero_vertical_Ns": 1.308867819460625e-07,
+      "negative_aero_vertical_Ns": 0
+    },
+    {
+      "trial": "near",
+      "lane": 7,
+      "interval": 373,
+      "observer_root_height_m": 0.165164471,
+      "observer_vertical_velocity_m_s": 0.186137229,
+      "observer_flap_q_rad": [
+        0.346090734,
+        0.346093506
+      ],
+      "foot_load_sum_Ns": 0.17185032339,
+      "positive_aero_vertical_Ns": 4.0739467294772375e-06,
+      "negative_aero_vertical_Ns": -2.0248053278911376e-05
+    },
+    {
+      "trial": "near",
+      "lane": 7,
+      "interval": 374,
+      "observer_root_height_m": 0.173466116,
+      "observer_vertical_velocity_m_s": 0.54652226,
+      "observer_flap_q_rad": [
+        0.583052516,
+        0.583048463
+      ],
+      "foot_load_sum_Ns": 0.332443828546,
+      "positive_aero_vertical_Ns": 0.000404933208774375,
+      "negative_aero_vertical_Ns": -0.0003171679631852375
+    },
+    {
+      "trial": "near",
+      "lane": 7,
+      "interval": 375,
+      "observer_root_height_m": 0.179965004,
+      "observer_vertical_velocity_m_s": 0.317522556,
+      "observer_flap_q_rad": [
+        1.02916884,
+        1.02915311
+      ],
+      "foot_load_sum_Ns": 0.0,
+      "positive_aero_vertical_Ns": 0.0373045083117935,
+      "negative_aero_vertical_Ns": 0
+    },
+    {
+      "trial": "near",
+      "lane": 7,
+      "interval": 376,
+      "observer_root_height_m": 0.191437557,
+      "observer_vertical_velocity_m_s": 0.630107939,
+      "observer_flap_q_rad": [
+        0.945266008,
+        0.945318639
+      ],
+      "foot_load_sum_Ns": 0.0,
+      "positive_aero_vertical_Ns": 0.038933797417535,
+      "negative_aero_vertical_Ns": -1.16740352677875e-05
+    },
+    {
+      "trial": "near",
+      "lane": 7,
+      "interval": 377,
+      "observer_root_height_m": 0.209147215,
+      "observer_vertical_velocity_m_s": 1.06821835,
+      "observer_flap_q_rad": [
+        0.485025734,
+        0.485236168
+      ],
+      "foot_load_sum_Ns": 0.0,
+      "positive_aero_vertical_Ns": 0.192742206745325,
+      "negative_aero_vertical_Ns": 0
+    },
+    {
+      "trial": "near",
+      "lane": 7,
+      "interval": 378,
+      "observer_root_height_m": 0.23356767,
+      "observer_vertical_velocity_m_s": 1.2814486,
+      "observer_flap_q_rad": [
+        -0.0294042006,
+        -0.0290570315
+      ],
+      "foot_load_sum_Ns": 0.0,
+      "positive_aero_vertical_Ns": 0.21810767272965,
+      "negative_aero_vertical_Ns": 0
+    },
+    {
+      "trial": "near",
+      "lane": 7,
+      "interval": 379,
+      "observer_root_height_m": 0.254449904,
+      "observer_vertical_velocity_m_s": 0.937561095,
+      "observer_flap_q_rad": [
+        -0.241208747,
+        -0.24092558
+      ],
+      "foot_load_sum_Ns": 0.0,
+      "positive_aero_vertical_Ns": 0.0374715344701175,
+      "negative_aero_vertical_Ns": 0
+    },
+    {
+      "trial": "near",
+      "lane": 7,
+      "interval": 380,
+      "observer_root_height_m": 0.267024994,
+      "observer_vertical_velocity_m_s": 0.504612625,
+      "observer_flap_q_rad": [
+        -0.0516914167,
+        -0.0514958464
+      ],
+      "foot_load_sum_Ns": 0.0,
+      "positive_aero_vertical_Ns": 0.012588273416971,
+      "negative_aero_vertical_Ns": -0.000117235652796875
+    },
+    {
+      "trial": "near",
+      "lane": 7,
+      "interval": 381,
+      "observer_root_height_m": 0.271563232,
+      "observer_vertical_velocity_m_s": 0.122789524,
+      "observer_flap_q_rad": [
+        0.447410613,
+        0.44754076
+      ],
+      "foot_load_sum_Ns": 0.0,
+      "positive_aero_vertical_Ns": 0.015766875721236,
+      "negative_aero_vertical_Ns": 0
+    },
+    {
+      "trial": "near",
+      "lane": 7,
+      "interval": 382,
+      "observer_root_height_m": 0.272638142,
+      "observer_vertical_velocity_m_s": 0.0690676644,
+      "observer_flap_q_rad": [
+        0.943884552,
+        0.94397676
+      ],
+      "foot_load_sum_Ns": 0.0,
+      "positive_aero_vertical_Ns": 0.03018459425593975,
+      "negative_aero_vertical_Ns": 0
+    },
+    {
+      "trial": "near",
+      "lane": 7,
+      "interval": 383,
+      "observer_root_height_m": 0.276301205,
+      "observer_vertical_velocity_m_s": 0.121524744,
+      "observer_flap_q_rad": [
+        1.08319736,
+        1.08327532
+      ],
+      "foot_load_sum_Ns": 0.0,
+      "positive_aero_vertical_Ns": 0.0126694210931125,
+      "negative_aero_vertical_Ns": 0
+    },
+    {
+      "trial": "near",
+      "lane": 7,
+      "interval": 384,
+      "observer_root_height_m": 0.282343268,
+      "observer_vertical_velocity_m_s": 0.362932444,
+      "observer_flap_q_rad": [
+        0.836083531,
+        0.836191773
+      ],
+      "foot_load_sum_Ns": 0.0,
+      "positive_aero_vertical_Ns": 0.0773406223885657,
+      "negative_aero_vertical_Ns": 0
+    },
+    {
+      "trial": "near",
+      "lane": 7,
+      "interval": 385,
+      "observer_root_height_m": 0.294872016,
+      "observer_vertical_velocity_m_s": 0.826247275,
+      "observer_flap_q_rad": [
+        0.365676612,
+        0.36604172
+      ],
+      "foot_load_sum_Ns": 0.0,
+      "positive_aero_vertical_Ns": 0.21917572511938752,
+      "negative_aero_vertical_Ns": 0
+    },
+    {
+      "trial": "near",
+      "lane": 7,
+      "interval": 386,
+      "observer_root_height_m": 0.313661516,
+      "observer_vertical_velocity_m_s": 0.979247928,
+      "observer_flap_q_rad": [
+        -0.113132134,
+        -0.112740248
+      ],
+      "foot_load_sum_Ns": 0.0,
+      "positive_aero_vertical_Ns": 0.211224206355475,
+      "negative_aero_vertical_Ns": 0
+    },
+    {
+      "trial": "near",
+      "lane": 7,
+      "interval": 387,
+      "observer_root_height_m": 0.328039795,
+      "observer_vertical_velocity_m_s": 0.604138017,
+      "observer_flap_q_rad": [
+        -0.243958026,
+        -0.24364993
+      ],
+      "foot_load_sum_Ns": 0.0,
+      "positive_aero_vertical_Ns": 0.02284494589082125,
+      "negative_aero_vertical_Ns": 0
+    },
+    {
+      "trial": "near",
+      "lane": 7,
+      "interval": 388,
+      "observer_root_height_m": 0.334110707,
+      "observer_vertical_velocity_m_s": 0.188051507,
+      "observer_flap_q_rad": [
+        0.0166410711,
+        0.0168583691
+      ],
+      "foot_load_sum_Ns": 0.0,
+      "positive_aero_vertical_Ns": 0.0211846708678125,
+      "negative_aero_vertical_Ns": -3.565178776625e-05
+    },
+    {
+      "trial": "near",
+      "lane": 7,
+      "interval": 389,
+      "observer_root_height_m": 0.332735747,
+      "observer_vertical_velocity_m_s": -0.153278932,
+      "observer_flap_q_rad": [
+        0.549165964,
+        0.549314141
+      ],
+      "foot_load_sum_Ns": 0.0,
+      "positive_aero_vertical_Ns": 0.01326777834080375,
+      "negative_aero_vertical_Ns": 0
+    },
+    {
+      "trial": "near",
+      "lane": 7,
+      "interval": 390,
+      "observer_root_height_m": 0.32955116,
+      "observer_vertical_velocity_m_s": -0.143126503,
+      "observer_flap_q_rad": [
+        0.995841146,
+        0.995947063
+      ],
+      "foot_load_sum_Ns": 0.0,
+      "positive_aero_vertical_Ns": 0.036175843400725,
+      "negative_aero_vertical_Ns": 0
+    },
+    {
+      "trial": "near",
+      "lane": 7,
+      "interval": 391,
+      "observer_root_height_m": 0.329156131,
+      "observer_vertical_velocity_m_s": -0.0842360482,
+      "observer_flap_q_rad": [
+        1.06000388,
+        1.06009257
+      ],
+      "foot_load_sum_Ns": 0.0,
+      "positive_aero_vertical_Ns": 0.009087386763403588,
+      "negative_aero_vertical_Ns": 0
+    },
+    {
+      "trial": "near",
+      "lane": 7,
+      "interval": 392,
+      "observer_root_height_m": 0.331789166,
+      "observer_vertical_velocity_m_s": 0.252293795,
+      "observer_flap_q_rad": [
+        0.755398154,
+        0.755537868
+      ],
+      "foot_load_sum_Ns": 0.0,
+      "positive_aero_vertical_Ns": 0.11941344797235237,
+      "negative_aero_vertical_Ns": 0
+    },
+    {
+      "trial": "near",
+      "lane": 7,
+      "interval": 393,
+      "observer_root_height_m": 0.34206742,
+      "observer_vertical_velocity_m_s": 0.717703283,
+      "observer_flap_q_rad": [
+        0.274135709,
+        0.274638861
+      ],
+      "foot_load_sum_Ns": 0.0,
+      "positive_aero_vertical_Ns": 0.2404025286821625,
+      "negative_aero_vertical_Ns": 0
+    },
+    {
+      "trial": "near",
+      "lane": 7,
+      "interval": 394,
+      "observer_root_height_m": 0.357244432,
+      "observer_vertical_velocity_m_s": 0.776051223,
+      "observer_flap_q_rad": [
+        -0.157627925,
+        -0.157172844
+      ],
+      "foot_load_sum_Ns": 0.0,
+      "positive_aero_vertical_Ns": 0.183819909512475,
+      "negative_aero_vertical_Ns": 0
+    },
+    {
+      "trial": "near",
+      "lane": 7,
+      "interval": 395,
+      "observer_root_height_m": 0.367261022,
+      "observer_vertical_velocity_m_s": 0.381331652,
+      "observer_flap_q_rad": [
+        -0.213049039,
+        -0.212709278
+      ],
+      "foot_load_sum_Ns": 0.0,
+      "positive_aero_vertical_Ns": 0.01558812622098625,
+      "negative_aero_vertical_Ns": -0.00016234468523185
+    },
+    {
+      "trial": "earlyphase",
+      "lane": 6,
+      "interval": 369,
+      "observer_root_height_m": 0.162705377,
+      "observer_vertical_velocity_m_s": -0.00166746241,
+      "observer_flap_q_rad": [
+        0.34683311,
+        0.34683305
+      ],
+      "foot_load_sum_Ns": 0.08750000154,
+      "positive_aero_vertical_Ns": 1.9947632416972502e-08,
+      "negative_aero_vertical_Ns": -1.434323657178625e-08
+    },
+    {
+      "trial": "earlyphase",
+      "lane": 6,
+      "interval": 370,
+      "observer_root_height_m": 0.162658915,
+      "observer_vertical_velocity_m_s": -0.00181957323,
+      "observer_flap_q_rad": [
+        0.346834809,
+        0.346834451
+      ],
+      "foot_load_sum_Ns": 0.0878200794,
+      "positive_aero_vertical_Ns": 8.94384078264875e-08,
+      "negative_aero_vertical_Ns": 0
+    },
+    {
+      "trial": "earlyphase",
+      "lane": 6,
+      "interval": 371,
+      "observer_root_height_m": 0.162624225,
+      "observer_vertical_velocity_m_s": -0.00172292895,
+      "observer_flap_q_rad": [
+        0.346834093,
+        0.346833527
+      ],
+      "foot_load_sum_Ns": 0.08812443141,
+      "positive_aero_vertical_Ns": 1.233112200793375e-07,
+      "negative_aero_vertical_Ns": 0
+    },
+    {
+      "trial": "earlyphase",
+      "lane": 6,
+      "interval": 372,
+      "observer_root_height_m": 0.162588671,
+      "observer_vertical_velocity_m_s": -0.00183391699,
+      "observer_flap_q_rad": [
+        0.346833616,
+        0.34683305
+      ],
+      "foot_load_sum_Ns": 0.08812925385,
+      "positive_aero_vertical_Ns": 1.30897228061175e-07,
+      "negative_aero_vertical_Ns": 0
+    },
+    {
+      "trial": "earlyphase",
+      "lane": 6,
+      "interval": 373,
+      "observer_root_height_m": 0.165163696,
+      "observer_vertical_velocity_m_s": 0.186050415,
+      "observer_flap_q_rad": [
+        0.346091062,
+        0.346093893
+      ],
+      "foot_load_sum_Ns": 0.171811561077,
+      "positive_aero_vertical_Ns": 4.072899503171638e-06,
+      "negative_aero_vertical_Ns": -2.02030375112325e-05
+    },
+    {
+      "trial": "earlyphase",
+      "lane": 6,
+      "interval": 374,
+      "observer_root_height_m": 0.172931209,
+      "observer_vertical_velocity_m_s": 0.503129303,
+      "observer_flap_q_rad": [
+        0.344932824,
+        0.344954729
+      ],
+      "foot_load_sum_Ns": 0.23314380092,
+      "positive_aero_vertical_Ns": 0,
+      "negative_aero_vertical_Ns": -0.00018005881149176252
+    },
+    {
+      "trial": "earlyphase",
+      "lane": 6,
+      "interval": 375,
+      "observer_root_height_m": 0.180624843,
+      "observer_vertical_velocity_m_s": 0.28558135,
+      "observer_flap_q_rad": [
+        0.346255511,
+        0.346268833
+      ],
+      "foot_load_sum_Ns": 0.0,
+      "positive_aero_vertical_Ns": 0,
+      "negative_aero_vertical_Ns": -0.0001900748401117125
+    },
+    {
+      "trial": "earlyphase",
+      "lane": 6,
+      "interval": 376,
+      "observer_root_height_m": 0.180830985,
+      "observer_vertical_velocity_m_s": -0.0805107206,
+      "observer_flap_q_rad": [
+        0.578812838,
+        0.578815162
+      ],
+      "foot_load_sum_Ns": 0.0,
+      "positive_aero_vertical_Ns": 0.0002775678981925,
+      "negative_aero_vertical_Ns": -0.0003363776238085
+    },
+    {
+      "trial": "earlyphase",
+      "lane": 6,
+      "interval": 377,
+      "observer_root_height_m": 0.183965042,
+      "observer_vertical_velocity_m_s": 0.207045779,
+      "observer_flap_q_rad": [
+        0.404652655,
+        0.404704034
+      ],
+      "foot_load_sum_Ns": 0.0,
+      "positive_aero_vertical_Ns": 0.0550091418959301,
+      "negative_aero_vertical_Ns": 0
+    },
+    {
+      "trial": "earlyphase",
+      "lane": 6,
+      "interval": 378,
+      "observer_root_height_m": 0.192883879,
+      "observer_vertical_velocity_m_s": 0.605426729,
+      "observer_flap_q_rad": [
+        -0.0352020599,
+        -0.0350210443
+      ],
+      "foot_load_sum_Ns": 0.0,
+      "positive_aero_vertical_Ns": 0.21484432858751248,
+      "negative_aero_vertical_Ns": 0
+    },
+    {
+      "trial": "earlyphase",
+      "lane": 6,
+      "interval": 379,
+      "observer_root_height_m": 0.201229647,
+      "observer_vertical_velocity_m_s": 0.338716418,
+      "observer_flap_q_rad": [
+        -0.256471038,
+        -0.256322324
+      ],
+      "foot_load_sum_Ns": 0.0,
+      "positive_aero_vertical_Ns": 0.0622672135115375,
+      "negative_aero_vertical_Ns": 0
+    },
+    {
+      "trial": "earlyphase",
+      "lane": 6,
+      "interval": 380,
+      "observer_root_height_m": 0.202142537,
+      "observer_vertical_velocity_m_s": -0.0664346889,
+      "observer_flap_q_rad": [
+        -0.0795838088,
+        -0.0794878751
+      ],
+      "foot_load_sum_Ns": 0.0,
+      "positive_aero_vertical_Ns": 0.018416007335539275,
+      "negative_aero_vertical_Ns": 0
+    },
+    {
+      "trial": "earlyphase",
+      "lane": 6,
+      "interval": 381,
+      "observer_root_height_m": 0.195430145,
+      "observer_vertical_velocity_m_s": -0.435435325,
+      "observer_flap_q_rad": [
+        0.413248986,
+        0.413302273
+      ],
+      "foot_load_sum_Ns": 0.0,
+      "positive_aero_vertical_Ns": 0.021722896612495,
+      "negative_aero_vertical_Ns": 0
+    },
+    {
+      "trial": "earlyphase",
+      "lane": 6,
+      "interval": 382,
+      "observer_root_height_m": 0.185379475,
+      "observer_vertical_velocity_m_s": -0.297803849,
+      "observer_flap_q_rad": [
+        0.921731353,
+        0.921762407
+      ],
+      "foot_load_sum_Ns": 0.08159255430000001,
+      "positive_aero_vertical_Ns": 0.028929464728550375,
+      "negative_aero_vertical_Ns": 0
+    },
+    {
+      "trial": "earlyphase",
+      "lane": 6,
+      "interval": 383,
+      "observer_root_height_m": 0.182536319,
+      "observer_vertical_velocity_m_s": -0.200734153,
+      "observer_flap_q_rad": [
+        1.08025825,
+        1.08032882
+      ],
+      "foot_load_sum_Ns": 0.030784299641000004,
+      "positive_aero_vertical_Ns": 0.01441282903931375,
+      "negative_aero_vertical_Ns": 0
+    },
+    {
+      "trial": "earlyphase",
+      "lane": 6,
+      "interval": 384,
+      "observer_root_height_m": 0.182364032,
+      "observer_vertical_velocity_m_s": 0.0584285334,
+      "observer_flap_q_rad": [
+        0.851812124,
+        0.851913869
+      ],
+      "foot_load_sum_Ns": 0.0,
+      "positive_aero_vertical_Ns": 0.07932016814563025,
+      "negative_aero_vertical_Ns": 0
+    },
+    {
+      "trial": "earlyphase",
+      "lane": 6,
+      "interval": 385,
+      "observer_root_height_m": 0.189070582,
+      "observer_vertical_velocity_m_s": 0.558841884,
+      "observer_flap_q_rad": [
+        0.396831006,
+        0.39723736
+      ],
+      "foot_load_sum_Ns": 0.0,
+      "positive_aero_vertical_Ns": 0.22981142811042501,
+      "negative_aero_vertical_Ns": 0
+    },
+    {
+      "trial": "earlyphase",
+      "lane": 6,
+      "interval": 386,
+      "observer_root_height_m": 0.203377724,
+      "observer_vertical_velocity_m_s": 0.787965536,
+      "observer_flap_q_rad": [
+        -0.0885919333,
+        -0.0881112665
+      ],
+      "foot_load_sum_Ns": 0.0,
+      "positive_aero_vertical_Ns": 0.2377314892018,
+      "negative_aero_vertical_Ns": 0
+    },
+    {
+      "trial": "earlyphase",
+      "lane": 6,
+      "interval": 387,
+      "observer_root_height_m": 0.21419546,
+      "observer_vertical_velocity_m_s": 0.434053093,
+      "observer_flap_q_rad": [
+        -0.239740029,
+        -0.239364997
+      ],
+      "foot_load_sum_Ns": 0.0,
+      "positive_aero_vertical_Ns": 0.031013373736062503,
+      "negative_aero_vertical_Ns": 0
+    },
+    {
+      "trial": "earlyphase",
+      "lane": 6,
+      "interval": 388,
+      "observer_root_height_m": 0.216910541,
+      "observer_vertical_velocity_m_s": 0.0225610044,
+      "observer_flap_q_rad": [
+        0.0025997553,
+        0.00286304904
+      ],
+      "foot_load_sum_Ns": 0.0,
+      "positive_aero_vertical_Ns": 0.021372138529574,
+      "negative_aero_vertical_Ns": -1.4401087391875e-05
+    },
+    {
+      "trial": "earlyphase",
+      "lane": 6,
+      "interval": 389,
+      "observer_root_height_m": 0.212155581,
+      "observer_vertical_velocity_m_s": -0.324824393,
+      "observer_flap_q_rad": [
+        0.527175963,
+        0.527361095
+      ],
+      "foot_load_sum_Ns": 0.0,
+      "positive_aero_vertical_Ns": 0.014537088926696251,
+      "negative_aero_vertical_Ns": 0
+    },
+    {
+      "trial": "earlyphase",
+      "lane": 6,
+      "interval": 390,
+      "observer_root_height_m": 0.205303058,
+      "observer_vertical_velocity_m_s": -0.323325247,
+      "observer_flap_q_rad": [
+        0.986835539,
+        0.986968875
+      ],
+      "foot_load_sum_Ns": 0.0,
+      "positive_aero_vertical_Ns": 0.035751059811455,
+      "negative_aero_vertical_Ns": 0
+    },
+    {
+      "trial": "earlyphase",
+      "lane": 6,
+      "interval": 391,
+      "observer_root_height_m": 0.201297224,
+      "observer_vertical_velocity_m_s": -0.262709647,
+      "observer_flap_q_rad": [
+        1.06946206,
+        1.06957221
+      ],
+      "foot_load_sum_Ns": 0.0,
+      "positive_aero_vertical_Ns": 0.0101348853834535,
+      "negative_aero_vertical_Ns": 0
+    },
+    {
+      "trial": "earlyphase",
+      "lane": 6,
+      "interval": 392,
+      "observer_root_height_m": 0.200354859,
+      "observer_vertical_velocity_m_s": 0.0739580616,
+      "observer_flap_q_rad": [
+        0.779326618,
+        0.779465258
+      ],
+      "foot_load_sum_Ns": 0.0,
+      "positive_aero_vertical_Ns": 0.11812767450678263,
+      "negative_aero_vertical_Ns": 0
+    },
+    {
+      "trial": "earlyphase",
+      "lane": 6,
+      "interval": 393,
+      "observer_root_height_m": 0.207290336,
+      "observer_vertical_velocity_m_s": 0.566781461,
+      "observer_flap_q_rad": [
+        0.308370054,
+        0.308904648
+      ],
+      "foot_load_sum_Ns": 0.0,
+      "positive_aero_vertical_Ns": 0.246111135470775,
+      "negative_aero_vertical_Ns": 0
+    },
+    {
+      "trial": "earlyphase",
+      "lane": 6,
+      "interval": 394,
+      "observer_root_height_m": 0.220258638,
+      "observer_vertical_velocity_m_s": 0.686402917,
+      "observer_flap_q_rad": [
+        -0.137170136,
+        -0.136675701
+      ],
+      "foot_load_sum_Ns": 0.0,
+      "positive_aero_vertical_Ns": 0.20578371281505,
+      "negative_aero_vertical_Ns": 0
+    },
+    {
+      "trial": "earlyphase",
+      "lane": 6,
+      "interval": 395,
+      "observer_root_height_m": 0.228533,
+      "observer_vertical_velocity_m_s": 0.297900826,
+      "observer_flap_q_rad": [
+        -0.213349879,
+        -0.212972328
+      ],
+      "foot_load_sum_Ns": 0.0,
+      "positive_aero_vertical_Ns": 0.018337040524926625,
+      "negative_aero_vertical_Ns": 0
+    },
+    {
+      "trial": "earlyphase",
+      "lane": 7,
+      "interval": 369,
+      "observer_root_height_m": 0.162705317,
+      "observer_vertical_velocity_m_s": -0.0016735075,
+      "observer_flap_q_rad": [
+        0.346832931,
+        0.346833408
+      ],
+      "foot_load_sum_Ns": 0.08750890639,
+      "positive_aero_vertical_Ns": 1.978981938323e-08,
+      "negative_aero_vertical_Ns": -1.40024521044775e-08
+    },
+    {
+      "trial": "earlyphase",
+      "lane": 7,
+      "interval": 370,
+      "observer_root_height_m": 0.162658855,
+      "observer_vertical_velocity_m_s": -0.00182046031,
+      "observer_flap_q_rad": [
+        0.34683466,
+        0.346834689
+      ],
+      "foot_load_sum_Ns": 0.08782230387,
+      "positive_aero_vertical_Ns": 8.942328449281251e-08,
+      "negative_aero_vertical_Ns": 0
+    },
+    {
+      "trial": "earlyphase",
+      "lane": 7,
+      "interval": 371,
+      "observer_root_height_m": 0.162624165,
+      "observer_vertical_velocity_m_s": -0.00172352407,
+      "observer_flap_q_rad": [
+        0.346833974,
+        0.346833736
+      ],
+      "foot_load_sum_Ns": 0.08812457694999999,
+      "positive_aero_vertical_Ns": 1.232941981044125e-07,
+      "negative_aero_vertical_Ns": 0
+    },
+    {
+      "trial": "earlyphase",
+      "lane": 7,
+      "interval": 372,
+      "observer_root_height_m": 0.162588567,
+      "observer_vertical_velocity_m_s": -0.00183525891,
+      "observer_flap_q_rad": [
+        0.346833497,
+        0.346833259
+      ],
+      "foot_load_sum_Ns": 0.08812904916,
+      "positive_aero_vertical_Ns": 1.308867819460625e-07,
+      "negative_aero_vertical_Ns": 0
+    },
+    {
+      "trial": "earlyphase",
+      "lane": 7,
+      "interval": 373,
+      "observer_root_height_m": 0.165164471,
+      "observer_vertical_velocity_m_s": 0.186137229,
+      "observer_flap_q_rad": [
+        0.346090734,
+        0.346093506
+      ],
+      "foot_load_sum_Ns": 0.17185032339,
+      "positive_aero_vertical_Ns": 4.0739467294772375e-06,
+      "negative_aero_vertical_Ns": -2.0248053278911376e-05
+    },
+    {
+      "trial": "earlyphase",
+      "lane": 7,
+      "interval": 374,
+      "observer_root_height_m": 0.172929302,
+      "observer_vertical_velocity_m_s": 0.502785742,
+      "observer_flap_q_rad": [
+        0.344936043,
+        0.344955146
+      ],
+      "foot_load_sum_Ns": 0.232933079818,
+      "positive_aero_vertical_Ns": 0,
+      "negative_aero_vertical_Ns": -0.0001813011002803625
+    },
+    {
+      "trial": "earlyphase",
+      "lane": 7,
+      "interval": 375,
+      "observer_root_height_m": 0.180615842,
+      "observer_vertical_velocity_m_s": 0.285217911,
+      "observer_flap_q_rad": [
+        0.346257627,
+        0.346269131
+      ],
+      "foot_load_sum_Ns": 0.0,
+      "positive_aero_vertical_Ns": 0,
+      "negative_aero_vertical_Ns": -0.0001912611238959625
+    },
+    {
+      "trial": "earlyphase",
+      "lane": 7,
+      "interval": 376,
+      "observer_root_height_m": 0.188424096,
+      "observer_vertical_velocity_m_s": 0.355965644,
+      "observer_flap_q_rad": [
+        0.123643734,
+        0.123667918
+      ],
+      "foot_load_sum_Ns": 0.0,
+      "positive_aero_vertical_Ns": 0.05134034190501,
+      "negative_aero_vertical_Ns": -6.4302688315375e-06
+    },
+    {
+      "trial": "earlyphase",
+      "lane": 7,
+      "interval": 377,
+      "observer_root_height_m": 0.187928438,
+      "observer_vertical_velocity_m_s": -0.17395632,
+      "observer_flap_q_rad": [
+        0.313640773,
+        0.313628644
+      ],
+      "foot_load_sum_Ns": 0.0,
+      "positive_aero_vertical_Ns": 0.0070283282389991255,
+      "negative_aero_vertical_Ns": -1.4247100116375001e-05
+    },
+    {
+      "trial": "earlyphase",
+      "lane": 7,
+      "interval": 378,
+      "observer_root_height_m": 0.180879712,
+      "observer_vertical_velocity_m_s": -0.210790381,
+      "observer_flap_q_rad": [
+        0.809705853,
+        0.809690177
+      ],
+      "foot_load_sum_Ns": 0.12078041362,
+      "positive_aero_vertical_Ns": 0.010282471171671876,
+      "negative_aero_vertical_Ns": -0.00047863099229356255
+    },
+    {
+      "trial": "earlyphase",
+      "lane": 7,
+      "interval": 379,
+      "observer_root_height_m": 0.178623319,
+      "observer_vertical_velocity_m_s": -0.165023416,
+      "observer_flap_q_rad": [
+        1.02653682,
+        1.02652907
+      ],
+      "foot_load_sum_Ns": 0.0015778553574999998,
+      "positive_aero_vertical_Ns": 0.01644394044164,
+      "negative_aero_vertical_Ns": 0
+    },
+    {
+      "trial": "earlyphase",
+      "lane": 7,
+      "interval": 380,
+      "observer_root_height_m": 0.179009497,
+      "observer_vertical_velocity_m_s": 0.0527541116,
+      "observer_flap_q_rad": [
+        0.843093336,
+        0.843133986
+      ],
+      "foot_load_sum_Ns": 0.0,
+      "positive_aero_vertical_Ns": 0.05645518878370037,
+      "negative_aero_vertical_Ns": 0
+    },
+    {
+      "trial": "earlyphase",
+      "lane": 7,
+      "interval": 381,
+      "observer_root_height_m": 0.185525075,
+      "observer_vertical_velocity_m_s": 0.534983635,
+      "observer_flap_q_rad": [
+        0.403772116,
+        0.404035389
+      ],
+      "foot_load_sum_Ns": 0.0,
+      "positive_aero_vertical_Ns": 0.21428696739025,
+      "negative_aero_vertical_Ns": 0
+    },
+    {
+      "trial": "earlyphase",
+      "lane": 7,
+      "interval": 382,
+      "observer_root_height_m": 0.199696377,
+      "observer_vertical_velocity_m_s": 0.793976128,
+      "observer_flap_q_rad": [
+        -0.0864013135,
+        -0.0860280171
+      ],
+      "foot_load_sum_Ns": 0.0,
+      "positive_aero_vertical_Ns": 0.2411959538821,
+      "negative_aero_vertical_Ns": 0
+    },
+    {
+      "trial": "earlyphase",
+      "lane": 7,
+      "interval": 383,
+      "observer_root_height_m": 0.211045593,
+      "observer_vertical_velocity_m_s": 0.46813938,
+      "observer_flap_q_rad": [
+        -0.268683851,
+        -0.268387467
+      ],
+      "foot_load_sum_Ns": 0.0,
+      "positive_aero_vertical_Ns": 0.03991450772504,
+      "negative_aero_vertical_Ns": 0
+    },
+    {
+      "trial": "earlyphase",
+      "lane": 7,
+      "interval": 384,
+      "observer_root_height_m": 0.214525059,
+      "observer_vertical_velocity_m_s": 0.0620732233,
+      "observer_flap_q_rad": [
+        -0.0547245853,
+        -0.0545188189
+      ],
+      "foot_load_sum_Ns": 0.0,
+      "positive_aero_vertical_Ns": 0.020544618627310125,
+      "negative_aero_vertical_Ns": -1.7877846985375e-05
+    },
+    {
+      "trial": "earlyphase",
+      "lane": 7,
+      "interval": 385,
+      "observer_root_height_m": 0.210495934,
+      "observer_vertical_velocity_m_s": -0.296359301,
+      "observer_flap_q_rad": [
+        0.458821952,
+        0.458965302
+      ],
+      "foot_load_sum_Ns": 0.0,
+      "positive_aero_vertical_Ns": 0.019769873581845874,
+      "negative_aero_vertical_Ns": 0
+    },
+    {
+      "trial": "earlyphase",
+      "lane": 7,
+      "interval": 386,
+      "observer_root_height_m": 0.203539699,
+      "observer_vertical_velocity_m_s": -0.329345345,
+      "observer_flap_q_rad": [
+        0.947994471,
+        0.948094845
+      ],
+      "foot_load_sum_Ns": 0.0,
+      "positive_aero_vertical_Ns": 0.03138229054166,
+      "negative_aero_vertical_Ns": 0
+    },
+    {
+      "trial": "earlyphase",
+      "lane": 7,
+      "interval": 387,
+      "observer_root_height_m": 0.19941175,
+      "observer_vertical_velocity_m_s": -0.26580593,
+      "observer_flap_q_rad": [
+        1.07132459,
+        1.07140505
+      ],
+      "foot_load_sum_Ns": 0.0,
+      "positive_aero_vertical_Ns": 0.0125600989811925,
+      "negative_aero_vertical_Ns": 0
+    },
+    {
+      "trial": "earlyphase",
+      "lane": 7,
+      "interval": 388,
+      "observer_root_height_m": 0.198119029,
+      "observer_vertical_velocity_m_s": 0.0292752311,
+      "observer_flap_q_rad": [
+        0.812393308,
+        0.812496185
+      ],
+      "foot_load_sum_Ns": 0.0,
+      "positive_aero_vertical_Ns": 0.09893679414985738,
+      "negative_aero_vertical_Ns": 0
+    },
+    {
+      "trial": "earlyphase",
+      "lane": 7,
+      "interval": 389,
+      "observer_root_height_m": 0.2042633,
+      "observer_vertical_velocity_m_s": 0.53167814,
+      "observer_flap_q_rad": [
+        0.35045433,
+        0.350888938
+      ],
+      "foot_load_sum_Ns": 0.0,
+      "positive_aero_vertical_Ns": 0.239429204423375,
+      "negative_aero_vertical_Ns": 0
+    },
+    {
+      "trial": "earlyphase",
+      "lane": 7,
+      "interval": 390,
+      "observer_root_height_m": 0.217425108,
+      "observer_vertical_velocity_m_s": 0.713193953,
+      "observer_flap_q_rad": [
+        -0.11717061,
+        -0.116734914
+      ],
+      "foot_load_sum_Ns": 0.0,
+      "positive_aero_vertical_Ns": 0.2255429081654125,
+      "negative_aero_vertical_Ns": 0
+    },
+    {
+      "trial": "earlyphase",
+      "lane": 7,
+      "interval": 391,
+      "observer_root_height_m": 0.226499662,
+      "observer_vertical_velocity_m_s": 0.340683401,
+      "observer_flap_q_rad": [
+        -0.230486989,
+        -0.230151176
+      ],
+      "foot_load_sum_Ns": 0.0,
+      "positive_aero_vertical_Ns": 0.02355073533719,
+      "negative_aero_vertical_Ns": 0
+    },
+    {
+      "trial": "earlyphase",
+      "lane": 7,
+      "interval": 392,
+      "observer_root_height_m": 0.227374911,
+      "observer_vertical_velocity_m_s": -0.0677295923,
+      "observer_flap_q_rad": [
+        0.0450519249,
+        0.0452903099
+      ],
+      "foot_load_sum_Ns": 0.0,
+      "positive_aero_vertical_Ns": 0.02407236407240125,
+      "negative_aero_vertical_Ns": -9.1668859386125e-06
+    },
+    {
+      "trial": "earlyphase",
+      "lane": 7,
+      "interval": 393,
+      "observer_root_height_m": 0.220989108,
+      "observer_vertical_velocity_m_s": -0.394339949,
+      "observer_flap_q_rad": [
+        0.582154632,
+        0.582327545
+      ],
+      "foot_load_sum_Ns": 0.0,
+      "positive_aero_vertical_Ns": 0.01268495886171,
+      "negative_aero_vertical_Ns": 0
+    },
+    {
+      "trial": "earlyphase",
+      "lane": 7,
+      "interval": 394,
+      "observer_root_height_m": 0.213328943,
+      "observer_vertical_velocity_m_s": -0.365555465,
+      "observer_flap_q_rad": [
+        1.01287174,
+        1.01299286
+      ],
+      "foot_load_sum_Ns": 0.0,
+      "positive_aero_vertical_Ns": 0.0383684854715825,
+      "negative_aero_vertical_Ns": 0
+    },
+    {
+      "trial": "earlyphase",
+      "lane": 7,
+      "interval": 395,
+      "observer_root_height_m": 0.208531722,
+      "observer_vertical_velocity_m_s": -0.302275956,
+      "observer_flap_q_rad": [
+        1.05683327,
+        1.05693054
+      ],
+      "foot_load_sum_Ns": 0.0,
+      "positive_aero_vertical_Ns": 0.008741214799454024,
+      "negative_aero_vertical_Ns": 0
+    },
+    {
+      "trial": "latephase",
+      "lane": 6,
+      "interval": 369,
+      "observer_root_height_m": 0.162705377,
+      "observer_vertical_velocity_m_s": -0.00166746241,
+      "observer_flap_q_rad": [
+        0.34683311,
+        0.34683305
+      ],
+      "foot_load_sum_Ns": 0.08750000154,
+      "positive_aero_vertical_Ns": 1.9947632416972502e-08,
+      "negative_aero_vertical_Ns": -1.434323657178625e-08
+    },
+    {
+      "trial": "latephase",
+      "lane": 6,
+      "interval": 370,
+      "observer_root_height_m": 0.162658915,
+      "observer_vertical_velocity_m_s": -0.00181957323,
+      "observer_flap_q_rad": [
+        0.346834809,
+        0.346834451
+      ],
+      "foot_load_sum_Ns": 0.0878200794,
+      "positive_aero_vertical_Ns": 8.94384078264875e-08,
+      "negative_aero_vertical_Ns": 0
+    },
+    {
+      "trial": "latephase",
+      "lane": 6,
+      "interval": 371,
+      "observer_root_height_m": 0.162624225,
+      "observer_vertical_velocity_m_s": -0.00172292895,
+      "observer_flap_q_rad": [
+        0.346834093,
+        0.346833527
+      ],
+      "foot_load_sum_Ns": 0.08812443141,
+      "positive_aero_vertical_Ns": 1.233112200793375e-07,
+      "negative_aero_vertical_Ns": 0
+    },
+    {
+      "trial": "latephase",
+      "lane": 6,
+      "interval": 372,
+      "observer_root_height_m": 0.162588671,
+      "observer_vertical_velocity_m_s": -0.00183391699,
+      "observer_flap_q_rad": [
+        0.346833616,
+        0.34683305
+      ],
+      "foot_load_sum_Ns": 0.08812925385,
+      "positive_aero_vertical_Ns": 1.30897228061175e-07,
+      "negative_aero_vertical_Ns": 0
+    },
+    {
+      "trial": "latephase",
+      "lane": 6,
+      "interval": 373,
+      "observer_root_height_m": 0.165163696,
+      "observer_vertical_velocity_m_s": 0.186050415,
+      "observer_flap_q_rad": [
+        0.346091062,
+        0.346093893
+      ],
+      "foot_load_sum_Ns": 0.171811561077,
+      "positive_aero_vertical_Ns": 4.072899503171638e-06,
+      "negative_aero_vertical_Ns": -2.02030375112325e-05
+    },
+    {
+      "trial": "latephase",
+      "lane": 6,
+      "interval": 374,
+      "observer_root_height_m": 0.172931209,
+      "observer_vertical_velocity_m_s": 0.503129303,
+      "observer_flap_q_rad": [
+        0.344932824,
+        0.344954729
+      ],
+      "foot_load_sum_Ns": 0.23314380092,
+      "positive_aero_vertical_Ns": 0,
+      "negative_aero_vertical_Ns": -0.00018005881149176252
+    },
+    {
+      "trial": "latephase",
+      "lane": 6,
+      "interval": 375,
+      "observer_root_height_m": 0.180624843,
+      "observer_vertical_velocity_m_s": 0.28558135,
+      "observer_flap_q_rad": [
+        0.346255511,
+        0.346268833
+      ],
+      "foot_load_sum_Ns": 0.0,
+      "positive_aero_vertical_Ns": 0,
+      "negative_aero_vertical_Ns": -0.0001900748401117125
+    },
+    {
+      "trial": "latephase",
+      "lane": 6,
+      "interval": 376,
+      "observer_root_height_m": 0.184230208,
+      "observer_vertical_velocity_m_s": 0.0879133418,
+      "observer_flap_q_rad": [
+        0.347191274,
+        0.347201318
+      ],
+      "foot_load_sum_Ns": 0.0,
+      "positive_aero_vertical_Ns": 0,
+      "negative_aero_vertical_Ns": -5.327562376351375e-05
+    },
+    {
+      "trial": "latephase",
+      "lane": 6,
+      "interval": 377,
+      "observer_root_height_m": 0.183911487,
+      "observer_vertical_velocity_m_s": -0.107216306,
+      "observer_flap_q_rad": [
+        0.347894371,
+        0.347901791
+      ],
+      "foot_load_sum_Ns": 0.0,
+      "positive_aero_vertical_Ns": 2.77342248722375e-06,
+      "negative_aero_vertical_Ns": -2.0586291549825e-06
+    },
+    {
+      "trial": "latephase",
+      "lane": 6,
+      "interval": 378,
+      "observer_root_height_m": 0.178958893,
+      "observer_vertical_velocity_m_s": -0.2115639,
+      "observer_flap_q_rad": [
+        0.57904774,
+        0.579052448
+      ],
+      "foot_load_sum_Ns": 0.115391509146,
+      "positive_aero_vertical_Ns": 0.0001457736260999025,
+      "negative_aero_vertical_Ns": -0.0006744332521338
+    },
+    {
+      "trial": "latephase",
+      "lane": 6,
+      "interval": 379,
+      "observer_root_height_m": 0.182261586,
+      "observer_vertical_velocity_m_s": 0.374872565,
+      "observer_flap_q_rad": [
+        0.402875632,
+        0.402879477
+      ],
+      "foot_load_sum_Ns": 0.1277166092201,
+      "positive_aero_vertical_Ns": 0.05726535324871269,
+      "negative_aero_vertical_Ns": 0
+    },
+    {
+      "trial": "latephase",
+      "lane": 6,
+      "interval": 380,
+      "observer_root_height_m": 0.194271818,
+      "observer_vertical_velocity_m_s": 0.744626045,
+      "observer_flap_q_rad": [
+        -0.0403814539,
+        -0.0403040759
+      ],
+      "foot_load_sum_Ns": 3.4324372409781858e-06,
+      "positive_aero_vertical_Ns": 0.2113162593420625,
+      "negative_aero_vertical_Ns": 0
+    },
+    {
+      "trial": "latephase",
+      "lane": 6,
+      "interval": 381,
+      "observer_root_height_m": 0.205211654,
+      "observer_vertical_velocity_m_s": 0.465643555,
+      "observer_flap_q_rad": [
+        -0.261027992,
+        -0.260959595
+      ],
+      "foot_load_sum_Ns": 0.0,
+      "positive_aero_vertical_Ns": 0.059448669713387504,
+      "negative_aero_vertical_Ns": 0
+    },
+    {
+      "trial": "latephase",
+      "lane": 6,
+      "interval": 382,
+      "observer_root_height_m": 0.208672449,
+      "observer_vertical_velocity_m_s": 0.0598381236,
+      "observer_flap_q_rad": [
+        -0.0834420174,
+        -0.0834084973
+      ],
+      "foot_load_sum_Ns": 0.0,
+      "positive_aero_vertical_Ns": 0.01748218168796225,
+      "negative_aero_vertical_Ns": -7.208387105487499e-06
+    },
+    {
+      "trial": "latephase",
+      "lane": 6,
+      "interval": 383,
+      "observer_root_height_m": 0.204490483,
+      "observer_vertical_velocity_m_s": -0.310342163,
+      "observer_flap_q_rad": [
+        0.410029888,
+        0.410030067
+      ],
+      "foot_load_sum_Ns": 0.0,
+      "positive_aero_vertical_Ns": 0.021938288887179875,
+      "negative_aero_vertical_Ns": 0
+    },
+    {
+      "trial": "latephase",
+      "lane": 6,
+      "interval": 384,
+      "observer_root_height_m": 0.202040061,
+      "observer_vertical_velocity_m_s": -0.0752390996,
+      "observer_flap_q_rad": [
+        0.918410659,
+        0.918418288
+      ],
+      "foot_load_sum_Ns": 0.14080852084360002,
+      "positive_aero_vertical_Ns": 0.024493126676349165,
+      "negative_aero_vertical_Ns": -1.1722734197975002e-05
+    },
+    {
+      "trial": "latephase",
+      "lane": 6,
+      "interval": 385,
+      "observer_root_height_m": 0.202654049,
+      "observer_vertical_velocity_m_s": -0.0364512838,
+      "observer_flap_q_rad": [
+        1.07925391,
+        1.0792824
+      ],
+      "foot_load_sum_Ns": 0.00042797362480400005,
+      "positive_aero_vertical_Ns": 0.015011233476361251,
+      "negative_aero_vertical_Ns": 0
+    },
+    {
+      "trial": "latephase",
+      "lane": 6,
+      "interval": 386,
+      "observer_root_height_m": 0.205534458,
+      "observer_vertical_velocity_m_s": 0.210059285,
+      "observer_flap_q_rad": [
+        0.850530088,
+        0.850601494
+      ],
+      "foot_load_sum_Ns": 0.0,
+      "positive_aero_vertical_Ns": 0.07442363066296563,
+      "negative_aero_vertical_Ns": 0
+    },
+    {
+      "trial": "latephase",
+      "lane": 6,
+      "interval": 387,
+      "observer_root_height_m": 0.215209886,
+      "observer_vertical_velocity_m_s": 0.692338824,
+      "observer_flap_q_rad": [
+        0.390012503,
+        0.390444934
+      ],
+      "foot_load_sum_Ns": 0.0,
+      "positive_aero_vertical_Ns": 0.2164061390020125,
+      "negative_aero_vertical_Ns": 0
+    },
+    {
+      "trial": "latephase",
+      "lane": 6,
+      "interval": 388,
+      "observer_root_height_m": 0.231828436,
+      "observer_vertical_velocity_m_s": 0.890485168,
+      "observer_flap_q_rad": [
+        -0.0957670659,
+        -0.0952907577
+      ],
+      "foot_load_sum_Ns": 0.0,
+      "positive_aero_vertical_Ns": 0.22731261715985002,
+      "negative_aero_vertical_Ns": 0
+    },
+    {
+      "trial": "latephase",
+      "lane": 6,
+      "interval": 389,
+      "observer_root_height_m": 0.244632751,
+      "observer_vertical_velocity_m_s": 0.530986488,
+      "observer_flap_q_rad": [
+        -0.245584741,
+        -0.245213345
+      ],
+      "foot_load_sum_Ns": 0.0,
+      "positive_aero_vertical_Ns": 0.0288305939047075,
+      "negative_aero_vertical_Ns": 0
+    },
+    {
+      "trial": "latephase",
+      "lane": 6,
+      "interval": 390,
+      "observer_root_height_m": 0.249287173,
+      "observer_vertical_velocity_m_s": 0.117807284,
+      "observer_flap_q_rad": [
+        -0.00208373484,
+        -0.00182457606
+      ],
+      "foot_load_sum_Ns": 0.0,
+      "positive_aero_vertical_Ns": 0.02075366381059175,
+      "negative_aero_vertical_Ns": -2.6768186944500003e-05
+    },
+    {
+      "trial": "latephase",
+      "lane": 6,
+      "interval": 391,
+      "observer_root_height_m": 0.2464277,
+      "observer_vertical_velocity_m_s": -0.231476054,
+      "observer_flap_q_rad": [
+        0.523489356,
+        0.523670197
+      ],
+      "foot_load_sum_Ns": 0.0,
+      "positive_aero_vertical_Ns": 0.014680521885084374,
+      "negative_aero_vertical_Ns": 0
+    },
+    {
+      "trial": "latephase",
+      "lane": 6,
+      "interval": 392,
+      "observer_root_height_m": 0.241394892,
+      "observer_vertical_velocity_m_s": -0.233959943,
+      "observer_flap_q_rad": [
+        0.983965874,
+        0.984096766
+      ],
+      "foot_load_sum_Ns": 0.0,
+      "positive_aero_vertical_Ns": 0.034801814263902504,
+      "negative_aero_vertical_Ns": 0
+    },
+    {
+      "trial": "latephase",
+      "lane": 6,
+      "interval": 393,
+      "observer_root_height_m": 0.239168584,
+      "observer_vertical_velocity_m_s": -0.174229383,
+      "observer_flap_q_rad": [
+        1.06716251,
+        1.06727242
+      ],
+      "foot_load_sum_Ns": 0.0,
+      "positive_aero_vertical_Ns": 0.01000917240447925,
+      "negative_aero_vertical_Ns": 0
+    },
+    {
+      "trial": "latephase",
+      "lane": 6,
+      "interval": 394,
+      "observer_root_height_m": 0.239951015,
+      "observer_vertical_velocity_m_s": 0.155112013,
+      "observer_flap_q_rad": [
+        0.777197242,
+        0.777340531
+      ],
+      "foot_load_sum_Ns": 0.0,
+      "positive_aero_vertical_Ns": 0.11507992251207214,
+      "negative_aero_vertical_Ns": 0
+    },
+    {
+      "trial": "latephase",
+      "lane": 6,
+      "interval": 395,
+      "observer_root_height_m": 0.248436019,
+      "observer_vertical_velocity_m_s": 0.63946563,
+      "observer_flap_q_rad": [
+        0.303462476,
+        0.303958356
+      ],
+      "foot_load_sum_Ns": 0.0,
+      "positive_aero_vertical_Ns": 0.242412595586575,
+      "negative_aero_vertical_Ns": 0
+    },
+    {
+      "trial": "latephase",
+      "lane": 7,
+      "interval": 369,
+      "observer_root_height_m": 0.162705317,
+      "observer_vertical_velocity_m_s": -0.0016735075,
+      "observer_flap_q_rad": [
+        0.346832931,
+        0.346833408
+      ],
+      "foot_load_sum_Ns": 0.08750890639,
+      "positive_aero_vertical_Ns": 1.978981938323e-08,
+      "negative_aero_vertical_Ns": -1.40024521044775e-08
+    },
+    {
+      "trial": "latephase",
+      "lane": 7,
+      "interval": 370,
+      "observer_root_height_m": 0.162658855,
+      "observer_vertical_velocity_m_s": -0.00182046031,
+      "observer_flap_q_rad": [
+        0.34683466,
+        0.346834689
+      ],
+      "foot_load_sum_Ns": 0.08782230387,
+      "positive_aero_vertical_Ns": 8.942328449281251e-08,
+      "negative_aero_vertical_Ns": 0
+    },
+    {
+      "trial": "latephase",
+      "lane": 7,
+      "interval": 371,
+      "observer_root_height_m": 0.162624165,
+      "observer_vertical_velocity_m_s": -0.00172352407,
+      "observer_flap_q_rad": [
+        0.346833974,
+        0.346833736
+      ],
+      "foot_load_sum_Ns": 0.08812457694999999,
+      "positive_aero_vertical_Ns": 1.232941981044125e-07,
+      "negative_aero_vertical_Ns": 0
+    },
+    {
+      "trial": "latephase",
+      "lane": 7,
+      "interval": 372,
+      "observer_root_height_m": 0.162588567,
+      "observer_vertical_velocity_m_s": -0.00183525891,
+      "observer_flap_q_rad": [
+        0.346833497,
+        0.346833259
+      ],
+      "foot_load_sum_Ns": 0.08812904916,
+      "positive_aero_vertical_Ns": 1.308867819460625e-07,
+      "negative_aero_vertical_Ns": 0
+    },
+    {
+      "trial": "latephase",
+      "lane": 7,
+      "interval": 373,
+      "observer_root_height_m": 0.165164471,
+      "observer_vertical_velocity_m_s": 0.186137229,
+      "observer_flap_q_rad": [
+        0.346090734,
+        0.346093506
+      ],
+      "foot_load_sum_Ns": 0.17185032339,
+      "positive_aero_vertical_Ns": 4.0739467294772375e-06,
+      "negative_aero_vertical_Ns": -2.0248053278911376e-05
+    },
+    {
+      "trial": "latephase",
+      "lane": 7,
+      "interval": 374,
+      "observer_root_height_m": 0.172929302,
+      "observer_vertical_velocity_m_s": 0.502785742,
+      "observer_flap_q_rad": [
+        0.344936043,
+        0.344955146
+      ],
+      "foot_load_sum_Ns": 0.232933079818,
+      "positive_aero_vertical_Ns": 0,
+      "negative_aero_vertical_Ns": -0.0001813011002803625
+    },
+    {
+      "trial": "latephase",
+      "lane": 7,
+      "interval": 375,
+      "observer_root_height_m": 0.180615842,
+      "observer_vertical_velocity_m_s": 0.285217911,
+      "observer_flap_q_rad": [
+        0.346257627,
+        0.346269131
+      ],
+      "foot_load_sum_Ns": 0.0,
+      "positive_aero_vertical_Ns": 0,
+      "negative_aero_vertical_Ns": -0.0001912611238959625
+    },
+    {
+      "trial": "latephase",
+      "lane": 7,
+      "interval": 376,
+      "observer_root_height_m": 0.184213892,
+      "observer_vertical_velocity_m_s": 0.0875461623,
+      "observer_flap_q_rad": [
+        0.347192794,
+        0.347201526
+      ],
+      "foot_load_sum_Ns": 0.0,
+      "positive_aero_vertical_Ns": 0,
+      "negative_aero_vertical_Ns": -5.365373817766625e-05
+    },
+    {
+      "trial": "latephase",
+      "lane": 7,
+      "interval": 377,
+      "observer_root_height_m": 0.183887854,
+      "observer_vertical_velocity_m_s": -0.107579842,
+      "observer_flap_q_rad": [
+        0.347895533,
+        0.347902
+      ],
+      "foot_load_sum_Ns": 0.0,
+      "positive_aero_vertical_Ns": 2.8714026701955e-06,
+      "negative_aero_vertical_Ns": -2.1008001745850514e-06
+    },
+    {
+      "trial": "latephase",
+      "lane": 7,
+      "interval": 378,
+      "observer_root_height_m": 0.18418017,
+      "observer_vertical_velocity_m_s": 0.00063984486,
+      "observer_flap_q_rad": [
+        0.127016574,
+        0.12703748
+      ],
+      "foot_load_sum_Ns": 0.0,
+      "positive_aero_vertical_Ns": 0.06634176246315329,
+      "negative_aero_vertical_Ns": 0
+    },
+    {
+      "trial": "latephase",
+      "lane": 7,
+      "interval": 379,
+      "observer_root_height_m": 0.179238096,
+      "observer_vertical_velocity_m_s": -0.247713104,
+      "observer_flap_q_rad": [
+        0.316819817,
+        0.316823721
+      ],
+      "foot_load_sum_Ns": 0.12241968578000001,
+      "positive_aero_vertical_Ns": 0.007887076709260513,
+      "negative_aero_vertical_Ns": -2.01080256375e-06
+    },
+    {
+      "trial": "latephase",
+      "lane": 7,
+      "interval": 380,
+      "observer_root_height_m": 0.180580676,
+      "observer_vertical_velocity_m_s": 0.33597374,
+      "observer_flap_q_rad": [
+        0.807992995,
+        0.807976484
+      ],
+      "foot_load_sum_Ns": 0.39748413597390003,
+      "positive_aero_vertical_Ns": 0.014674594097724,
+      "negative_aero_vertical_Ns": -3.67013612412625e-05
+    },
+    {
+      "trial": "latephase",
+      "lane": 7,
+      "interval": 381,
+      "observer_root_height_m": 0.189231932,
+      "observer_vertical_velocity_m_s": 0.371582121,
+      "observer_flap_q_rad": [
+        1.0248028,
+        1.02480054
+      ],
+      "foot_load_sum_Ns": 0.0,
+      "positive_aero_vertical_Ns": 0.012333880354995,
+      "negative_aero_vertical_Ns": 0
+    },
+    {
+      "trial": "latephase",
+      "lane": 7,
+      "interval": 382,
+      "observer_root_height_m": 0.200080767,
+      "observer_vertical_velocity_m_s": 0.552392364,
+      "observer_flap_q_rad": [
+        0.839755535,
+        0.839924037
+      ],
+      "foot_load_sum_Ns": 0.00859198401247593,
+      "positive_aero_vertical_Ns": 0.044757623589544,
+      "negative_aero_vertical_Ns": -1.3932234724e-05
+    },
+    {
+      "trial": "latephase",
+      "lane": 7,
+      "interval": 383,
+      "observer_root_height_m": 0.216181353,
+      "observer_vertical_velocity_m_s": 0.974824369,
+      "observer_flap_q_rad": [
+        0.388425887,
+        0.388701022
+      ],
+      "foot_load_sum_Ns": 0.0,
+      "positive_aero_vertical_Ns": 0.189703796791225,
+      "negative_aero_vertical_Ns": 0
+    },
+    {
+      "trial": "latephase",
+      "lane": 7,
+      "interval": 384,
+      "observer_root_height_m": 0.238364369,
+      "observer_vertical_velocity_m_s": 1.15637255,
+      "observer_flap_q_rad": [
+        -0.10522452,
+        -0.104874738
+      ],
+      "foot_load_sum_Ns": 0.0,
+      "positive_aero_vertical_Ns": 0.21092855880970002,
+      "negative_aero_vertical_Ns": 0
+    },
+    {
+      "trial": "latephase",
+      "lane": 7,
+      "interval": 385,
+      "observer_root_height_m": 0.256691754,
+      "observer_vertical_velocity_m_s": 0.807713866,
+      "observer_flap_q_rad": [
+        -0.284404635,
+        -0.284119546
+      ],
+      "foot_load_sum_Ns": 0.0,
+      "positive_aero_vertical_Ns": 0.03153423747048375,
+      "negative_aero_vertical_Ns": 0
+    },
+    {
+      "trial": "latephase",
+      "lane": 7,
+      "interval": 386,
+      "observer_root_height_m": 0.266918302,
+      "observer_vertical_velocity_m_s": 0.393576473,
+      "observer_flap_q_rad": [
+        -0.0674975365,
+        -0.0672990158
+      ],
+      "foot_load_sum_Ns": 0.0,
+      "positive_aero_vertical_Ns": 0.017820209641080127,
+      "negative_aero_vertical_Ns": -0.00010153594892475
+    },
+    {
+      "trial": "latephase",
+      "lane": 7,
+      "interval": 387,
+      "observer_root_height_m": 0.269469023,
+      "observer_vertical_velocity_m_s": 0.0284870546,
+      "observer_flap_q_rad": [
+        0.448592186,
+        0.448721319
+      ],
+      "foot_load_sum_Ns": 0.0,
+      "positive_aero_vertical_Ns": 0.01944588240637025,
+      "negative_aero_vertical_Ns": 0
+    },
+    {
+      "trial": "latephase",
+      "lane": 7,
+      "interval": 388,
+      "observer_root_height_m": 0.268896759,
+      "observer_vertical_velocity_m_s": -0.0155603876,
+      "observer_flap_q_rad": [
+        0.940006852,
+        0.94010061
+      ],
+      "foot_load_sum_Ns": 0.0,
+      "positive_aero_vertical_Ns": 0.028752997085293375,
+      "negative_aero_vertical_Ns": 0
+    },
+    {
+      "trial": "latephase",
+      "lane": 7,
+      "interval": 389,
+      "observer_root_height_m": 0.270984173,
+      "observer_vertical_velocity_m_s": 0.041973073,
+      "observer_flap_q_rad": [
+        1.06490695,
+        1.06498659
+      ],
+      "foot_load_sum_Ns": 0.0,
+      "positive_aero_vertical_Ns": 0.01154063793130375,
+      "negative_aero_vertical_Ns": 0
+    },
+    {
+      "trial": "latephase",
+      "lane": 7,
+      "interval": 390,
+      "observer_root_height_m": 0.275654256,
+      "observer_vertical_velocity_m_s": 0.309257627,
+      "observer_flap_q_rad": [
+        0.806005359,
+        0.806118965
+      ],
+      "foot_load_sum_Ns": 0.0,
+      "positive_aero_vertical_Ns": 0.08769176873035205,
+      "negative_aero_vertical_Ns": 0
+    },
+    {
+      "trial": "latephase",
+      "lane": 7,
+      "interval": 391,
+      "observer_root_height_m": 0.287142843,
+      "observer_vertical_velocity_m_s": 0.777452946,
+      "observer_flap_q_rad": [
+        0.335260659,
+        0.335644394
+      ],
+      "foot_load_sum_Ns": 0.0,
+      "positive_aero_vertical_Ns": 0.22583817220275001,
+      "negative_aero_vertical_Ns": 0
+    },
+    {
+      "trial": "latephase",
+      "lane": 7,
+      "interval": 392,
+      "observer_root_height_m": 0.304677159,
+      "observer_vertical_velocity_m_s": 0.912074149,
+      "observer_flap_q_rad": [
+        -0.131422579,
+        -0.131031856
+      ],
+      "foot_load_sum_Ns": 0.0,
+      "positive_aero_vertical_Ns": 0.207339241292725,
+      "negative_aero_vertical_Ns": 0
+    },
+    {
+      "trial": "latephase",
+      "lane": 7,
+      "interval": 393,
+      "observer_root_height_m": 0.317627937,
+      "observer_vertical_velocity_m_s": 0.531971157,
+      "observer_flap_q_rad": [
+        -0.242084578,
+        -0.241779312
+      ],
+      "foot_load_sum_Ns": 0.0,
+      "positive_aero_vertical_Ns": 0.020673503500868752,
+      "negative_aero_vertical_Ns": 0
+    },
+    {
+      "trial": "latephase",
+      "lane": 7,
+      "interval": 394,
+      "observer_root_height_m": 0.322335631,
+      "observer_vertical_velocity_m_s": 0.121486738,
+      "observer_flap_q_rad": [
+        0.035871163,
+        0.0360823683
+      ],
+      "foot_load_sum_Ns": 0.0,
+      "positive_aero_vertical_Ns": 0.02340233708636975,
+      "negative_aero_vertical_Ns": -3.5005414974875e-05
+    },
+    {
+      "trial": "latephase",
+      "lane": 7,
+      "interval": 395,
+      "observer_root_height_m": 0.319733381,
+      "observer_vertical_velocity_m_s": -0.208953381,
+      "observer_flap_q_rad": [
+        0.574937224,
+        0.575082064
+      ],
+      "foot_load_sum_Ns": 0.0,
+      "positive_aero_vertical_Ns": 0.012435219437815,
+      "negative_aero_vertical_Ns": 0
+    }
+  ],
+  "scope": "used-seed association only; observer state epoch offset inferred for candidate lanes"
+}
