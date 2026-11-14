@@ -1,0 +1,78 @@
+{
+  "rows": [
+    {
+      "lane": 0,
+      "target_change_samples": 2548,
+      "max_absolute_target_change_rad": 0.040000000970000005,
+      "slew_pass": true,
+      "heading_samples": 1276,
+      "max_abs_posthandoff_heading_change_rad": 0.3159265296403082,
+      "minimum_heading_movement_pass": true
+    },
+    {
+      "lane": 1,
+      "target_change_samples": 2548,
+      "max_absolute_target_change_rad": 0.040000000699999996,
+      "slew_pass": true,
+      "heading_samples": 1276,
+      "max_abs_posthandoff_heading_change_rad": 0.10577709133014235,
+      "minimum_heading_movement_pass": true
+    },
+    {
+      "lane": 2,
+      "target_change_samples": 2548,
+      "max_absolute_target_change_rad": 0.04000000095,
+      "slew_pass": true,
+      "heading_samples": 1276,
+      "max_abs_posthandoff_heading_change_rad": 0.16008844389222743,
+      "minimum_heading_movement_pass": true
+    },
+    {
+      "lane": 3,
+      "target_change_samples": 2548,
+      "max_absolute_target_change_rad": 0.04000000101,
+      "slew_pass": true,
+      "heading_samples": 1276,
+      "max_abs_posthandoff_heading_change_rad": 0.1756323843133054,
+      "minimum_heading_movement_pass": true
+    },
+    {
+      "lane": 4,
+      "target_change_samples": 2548,
+      "max_absolute_target_change_rad": 0.039999999485,
+      "slew_pass": true,
+      "heading_samples": 1276,
+      "max_abs_posthandoff_heading_change_rad": 0.07868920974952731,
+      "minimum_heading_movement_pass": true
+    },
+    {
+      "lane": 5,
+      "target_change_samples": 2548,
+      "max_absolute_target_change_rad": 0.04000000006,
+      "slew_pass": true,
+      "heading_samples": 1276,
+      "max_abs_posthandoff_heading_change_rad": 0.18390501067928566,
+      "minimum_heading_movement_pass": true
+    },
+    {
+      "lane": 6,
+      "target_change_samples": 2548,
+      "max_absolute_target_change_rad": 0.04000000001,
+      "slew_pass": true,
+      "heading_samples": 1276,
+      "max_abs_posthandoff_heading_change_rad": 0.1530366168673889,
+      "minimum_heading_movement_pass": true
+    },
+    {
+      "lane": 7,
+      "target_change_samples": 2548,
+      "max_absolute_target_change_rad": 0.04000000099999999,
+      "slew_pass": true,
+      "heading_samples": 1276,
+      "max_abs_posthandoff_heading_change_rad": 0.18256717960504876,
+      "minimum_heading_movement_pass": true
+    }
+  ],
+  "all_pass": true,
+  "scope": "measured target changes and heading movement only; not requested-heading accuracy or navigation qualification"
+}

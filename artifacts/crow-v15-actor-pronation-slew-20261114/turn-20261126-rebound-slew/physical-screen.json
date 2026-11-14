@@ -1,0 +1,340 @@
+{
+  "excluded_script_specific_checks": [
+    "flap_target_reconstructed",
+    "lateral_deviation",
+    "pronation_target_reconstructed",
+    "signed_heading"
+  ],
+  "lanes": [
+    {
+      "lane": 0,
+      "safety_checks": {
+        "continuous_from_first_unloaded": true,
+        "all_lanes_reference_parity_through_500": true,
+        "expected_turn_shader": true,
+        "expected_straight_shader": true,
+        "shared_inputs": true,
+        "teacher_off": true,
+        "first_episode": true,
+        "states_complete": true,
+        "release": true,
+        "no_later_ground": true,
+        "substep_coverage": true,
+        "no_toe_speed_cap": true,
+        "wing_effort": true,
+        "forward": true,
+        "height": true,
+        "pronation_full_window_bounds": true,
+        "turn_effort_full_window": true,
+        "no_observer_errors": true,
+        "turn_posture_coverage": true,
+        "finite_state_and_policy": true,
+        "finite_contact_substeps": true,
+        "unique_substep_indices": true,
+        "finite_pronation_window": true,
+        "saturation_below_33_percent": true,
+        "tracking_error_below_008_rad": true
+      },
+      "failed_safety_checks": [],
+      "observed_height_range_m": [
+        0.413140714,
+        0.83281678
+      ],
+      "observed_forward_speed_range_m_s": [
+        0.334193647,
+        0.673932374
+      ],
+      "observed_max_tilt_rad": 0.20763336006571154,
+      "observed_max_heading_change_rad": 0.3178719052384036
+    },
+    {
+      "lane": 1,
+      "safety_checks": {
+        "continuous_from_first_unloaded": true,
+        "all_lanes_reference_parity_through_500": true,
+        "expected_turn_shader": true,
+        "expected_straight_shader": true,
+        "shared_inputs": true,
+        "teacher_off": true,
+        "first_episode": true,
+        "states_complete": true,
+        "release": true,
+        "no_later_ground": true,
+        "substep_coverage": true,
+        "no_toe_speed_cap": true,
+        "wing_effort": true,
+        "forward": true,
+        "height": true,
+        "pronation_full_window_bounds": true,
+        "turn_effort_full_window": true,
+        "no_observer_errors": true,
+        "turn_posture_coverage": true,
+        "finite_state_and_policy": true,
+        "finite_contact_substeps": true,
+        "unique_substep_indices": true,
+        "finite_pronation_window": true,
+        "saturation_below_33_percent": true,
+        "tracking_error_below_008_rad": true
+      },
+      "failed_safety_checks": [],
+      "observed_height_range_m": [
+        0.408545762,
+        0.826651812
+      ],
+      "observed_forward_speed_range_m_s": [
+        0.338437766,
+        0.673887253
+      ],
+      "observed_max_tilt_rad": 0.20440273146208437,
+      "observed_max_heading_change_rad": 0.10931091477033616
+    },
+    {
+      "lane": 2,
+      "safety_checks": {
+        "continuous_from_first_unloaded": true,
+        "all_lanes_reference_parity_through_500": true,
+        "expected_turn_shader": true,
+        "expected_straight_shader": true,
+        "shared_inputs": true,
+        "teacher_off": true,
+        "first_episode": true,
+        "states_complete": true,
+        "release": true,
+        "no_later_ground": true,
+        "substep_coverage": true,
+        "no_toe_speed_cap": true,
+        "wing_effort": true,
+        "forward": true,
+        "height": true,
+        "pronation_full_window_bounds": true,
+        "turn_effort_full_window": true,
+        "no_observer_errors": true,
+        "turn_posture_coverage": true,
+        "finite_state_and_policy": true,
+        "finite_contact_substeps": true,
+        "unique_substep_indices": true,
+        "finite_pronation_window": true,
+        "saturation_below_33_percent": true,
+        "tracking_error_below_008_rad": true
+      },
+      "failed_safety_checks": [],
+      "observed_height_range_m": [
+        0.413574576,
+        0.828831375
+      ],
+      "observed_forward_speed_range_m_s": [
+        0.345527291,
+        0.669061363
+      ],
+      "observed_max_tilt_rad": 0.2077162254186199,
+      "observed_max_heading_change_rad": 0.16325267005200317
+    },
+    {
+      "lane": 3,
+      "safety_checks": {
+        "continuous_from_first_unloaded": true,
+        "all_lanes_reference_parity_through_500": true,
+        "expected_turn_shader": true,
+        "expected_straight_shader": true,
+        "shared_inputs": true,
+        "teacher_off": true,
+        "first_episode": true,
+        "states_complete": true,
+        "release": true,
+        "no_later_ground": true,
+        "substep_coverage": true,
+        "no_toe_speed_cap": true,
+        "wing_effort": true,
+        "forward": true,
+        "height": true,
+        "pronation_full_window_bounds": true,
+        "turn_effort_full_window": true,
+        "no_observer_errors": true,
+        "turn_posture_coverage": true,
+        "finite_state_and_policy": true,
+        "finite_contact_substeps": true,
+        "unique_substep_indices": true,
+        "finite_pronation_window": true,
+        "saturation_below_33_percent": true,
+        "tracking_error_below_008_rad": true
+      },
+      "failed_safety_checks": [],
+      "observed_height_range_m": [
+        0.414140105,
+        0.829293549
+      ],
+      "observed_forward_speed_range_m_s": [
+        0.346450925,
+        0.67353189
+      ],
+      "observed_max_tilt_rad": 0.20450476996156366,
+      "observed_max_heading_change_rad": 0.17863103417162884
+    },
+    {
+      "lane": 4,
+      "safety_checks": {
+        "continuous_from_first_unloaded": true,
+        "all_lanes_reference_parity_through_500": true,
+        "expected_turn_shader": true,
+        "expected_straight_shader": true,
+        "shared_inputs": true,
+        "teacher_off": true,
+        "first_episode": true,
+        "states_complete": true,
+        "release": true,
+        "no_later_ground": true,
+        "substep_coverage": true,
+        "no_toe_speed_cap": true,
+        "wing_effort": true,
+        "forward": true,
+        "height": true,
+        "pronation_full_window_bounds": true,
+        "turn_effort_full_window": true,
+        "no_observer_errors": true,
+        "turn_posture_coverage": true,
+        "finite_state_and_policy": true,
+        "finite_contact_substeps": true,
+        "unique_substep_indices": true,
+        "finite_pronation_window": true,
+        "saturation_below_33_percent": true,
+        "tracking_error_below_008_rad": true
+      },
+      "failed_safety_checks": [],
+      "observed_height_range_m": [
+        0.412046194,
+        0.828661263
+      ],
+      "observed_forward_speed_range_m_s": [
+        0.3383452,
+        0.671297014
+      ],
+      "observed_max_tilt_rad": 0.20775671135284104,
+      "observed_max_heading_change_rad": 0.08189614206987317
+    },
+    {
+      "lane": 5,
+      "safety_checks": {
+        "continuous_from_first_unloaded": true,
+        "all_lanes_reference_parity_through_500": true,
+        "expected_turn_shader": true,
+        "expected_straight_shader": true,
+        "shared_inputs": true,
+        "teacher_off": true,
+        "first_episode": true,
+        "states_complete": true,
+        "release": true,
+        "no_later_ground": true,
+        "substep_coverage": true,
+        "no_toe_speed_cap": true,
+        "wing_effort": true,
+        "forward": true,
+        "height": true,
+        "pronation_full_window_bounds": true,
+        "turn_effort_full_window": true,
+        "no_observer_errors": true,
+        "turn_posture_coverage": true,
+        "finite_state_and_policy": true,
+        "finite_contact_substeps": true,
+        "unique_substep_indices": true,
+        "finite_pronation_window": true,
+        "saturation_below_33_percent": true,
+        "tracking_error_below_008_rad": true
+      },
+      "failed_safety_checks": [],
+      "observed_height_range_m": [
+        0.413756609,
+        0.832469344
+      ],
+      "observed_forward_speed_range_m_s": [
+        0.346966654,
+        0.673397005
+      ],
+      "observed_max_tilt_rad": 0.20755870330809673,
+      "observed_max_heading_change_rad": 0.18647174831951752
+    },
+    {
+      "lane": 6,
+      "safety_checks": {
+        "continuous_from_first_unloaded": true,
+        "all_lanes_reference_parity_through_500": true,
+        "expected_turn_shader": true,
+        "expected_straight_shader": true,
+        "shared_inputs": true,
+        "teacher_off": true,
+        "first_episode": true,
+        "states_complete": true,
+        "release": true,
+        "no_later_ground": true,
+        "substep_coverage": true,
+        "no_toe_speed_cap": true,
+        "wing_effort": true,
+        "forward": true,
+        "height": true,
+        "pronation_full_window_bounds": true,
+        "turn_effort_full_window": true,
+        "no_observer_errors": true,
+        "turn_posture_coverage": true,
+        "finite_state_and_policy": true,
+        "finite_contact_substeps": true,
+        "unique_substep_indices": true,
+        "finite_pronation_window": true,
+        "saturation_below_33_percent": true,
+        "tracking_error_below_008_rad": true
+      },
+      "failed_safety_checks": [],
+      "observed_height_range_m": [
+        0.414817125,
+        0.829188943
+      ],
+      "observed_forward_speed_range_m_s": [
+        0.346426517,
+        0.676862299
+      ],
+      "observed_max_tilt_rad": 0.20464788878451487,
+      "observed_max_heading_change_rad": 0.15602279914219208
+    },
+    {
+      "lane": 7,
+      "safety_checks": {
+        "continuous_from_first_unloaded": true,
+        "all_lanes_reference_parity_through_500": true,
+        "expected_turn_shader": true,
+        "expected_straight_shader": true,
+        "shared_inputs": true,
+        "teacher_off": true,
+        "first_episode": true,
+        "states_complete": true,
+        "release": true,
+        "no_later_ground": true,
+        "substep_coverage": true,
+        "no_toe_speed_cap": true,
+        "wing_effort": true,
+        "forward": true,
+        "height": true,
+        "pronation_full_window_bounds": true,
+        "turn_effort_full_window": true,
+        "no_observer_errors": true,
+        "turn_posture_coverage": true,
+        "finite_state_and_policy": true,
+        "finite_contact_substeps": true,
+        "unique_substep_indices": true,
+        "finite_pronation_window": true,
+        "saturation_below_33_percent": true,
+        "tracking_error_below_008_rad": true
+      },
+      "failed_safety_checks": [],
+      "observed_height_range_m": [
+        0.4119322,
+        0.830876827
+      ],
+      "observed_forward_speed_range_m_s": [
+        0.346777111,
+        0.670085371
+      ],
+      "observed_max_tilt_rad": 0.2080422133750249,
+      "observed_max_heading_change_rad": 0.18539292823349562
+    }
+  ],
+  "all_physical_screen_checks_pass": true,
+  "scope": "used-seed exploratory actor handoff; no arbitrary-command, mission, landing or biological qualification"
+}
