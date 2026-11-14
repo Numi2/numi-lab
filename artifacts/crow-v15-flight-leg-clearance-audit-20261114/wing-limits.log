@@ -1,0 +1,12 @@
+In file included from artifacts/crow-v15-flight-leg-clearance-audit-20261114/wing-limits.cpp:2:
+In file included from artifacts/crow-v15-flight-leg-clearance-audit-20261114/../crow-v15-hip-roll-strong-drive-prototype-20261111/probe.cpp:2:
+artifacts/crow-v15-flight-leg-clearance-audit-20261114/../crow-v15-hip-roll-strong-drive-prototype-20261111/../crow-v15-two-segment-toe-prototype-20261111/probe.cpp:75:78: warning: non-void function does not return a value in all control paths [-Wreturn-type]
+   75 |   } catch(const std::exception& e){std::cerr<<e.what()<<std::endl;return 1;} }
+      |                                                                              ^
+1 warning generated.
+crow_left_wing_flap 9 -1.35 1.35 90 120
+crow_right_wing_flap 10 -1.35 1.35 90 120
+crow_left_wing_pronation 11 -0.35 0.35 25 0.15
+crow_right_wing_pronation 12 -0.35 0.35 25 0.15
+crow_tail_pitch 13 -0.55 0.55 18 0.35
+0c2f17a48abb3bb06b8eff514110f341fb47fe136ededb2e913d2db98c1be786  build/crow-v15-flight-leg-clearance-audit-20261114/wing-limits
