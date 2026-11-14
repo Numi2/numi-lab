@@ -1,0 +1,20 @@
+{
+  "state": {
+    "previous_count": 14408,
+    "replay_count": 14408,
+    "mismatch_or_missing_count": 0,
+    "first_mismatches": []
+  },
+  "wrench": {
+    "previous_count": 2048,
+    "replay_count": 2048,
+    "mismatch_or_missing_count": 0,
+    "first_mismatches": []
+  },
+  "duplicates": [
+    [],
+    []
+  ],
+  "exact_full_state_and_wrench_parity": true,
+  "scope": "matched replay under two observational hosts, same used seed and same physical disturbance; not an independent robustness trial"
+}

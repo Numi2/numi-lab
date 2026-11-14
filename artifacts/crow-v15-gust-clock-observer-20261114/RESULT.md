@@ -1,0 +1,7 @@
+# Directly clocked finite-gust recovery screen passed
+
+All eight used-seed development lanes passed the preregistered screen. The native observer recorded every required task-clock and root-wrench sample and directly verified that observer steps 702–706 corresponded to episode steps 700–704. Those five steps carried the requested signed 0.08 N lateral force and 0.004 N m roll torque, with the tested components zero outside the pulse. All lanes matched the undisturbed reference in q/v/action/contact through interval 690 and showed a maximum lateral-speed or roll-rate response of 0.0165–0.0176 in the registered response window. All physical and individual height-cycle gates passed; the different observer-host identity is recorded explicitly.
+
+During intervals 850–900, the largest lane-wise mean deviations from the no-gust reference were 0.000208 m in height, 0.000379 rad in attitude and 0.00153 m/s in translational velocity. The observational replay exactly matched the earlier gust run in all 14,408 recorded state records and 2,048 sampled pre-aero root-wrench records; it is the same trajectory, not a second independent seed.
+
+This demonstrates recovery from this small, finite, measured gust on one previously used seed with correlated lanes. It does not establish a general disturbance envelope, disturbed-start qualification, a frozen mission controller, leg-powered takeoff, landing or biological realism. The earlier run's failed preregistered timing gate remains unchanged.
