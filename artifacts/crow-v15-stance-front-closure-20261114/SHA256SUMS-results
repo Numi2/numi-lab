@@ -1,4 +1,4 @@
-c29a76fcd4b1d5733a67f24f17a02932d334ae464a9f0155700dc9de5740bb5a  artifacts/crow-v15-stance-front-closure-20261114/RESULT.md
+a6ea2308625143452f22fcc7ff683210e0d8223cc89c86d3c8a1568f246123be  artifacts/crow-v15-stance-front-closure-20261114/RESULT.md
 71f5af07ddad60b771cd45fe96f4d7f66bdcd27a7497c3ed4bc5f68080871ea8  artifacts/crow-v15-stance-front-closure-20261114/probe.gz
 f576e049205125285069e74bad5fa5e9b1679596a861a6a59a7cc6c09a3782de  artifacts/crow-v15-stance-front-closure-20261114/runner.log
 f674cc06e431db0f72e06e315f0e30fbfd910396700009cd97970dc04e00f8f3  artifacts/crow-v15-stance-front-closure-20261114/run-input-hashes.json
@@ -22,3 +22,6 @@ b81488158134ca6ffb394ed2255c417e6cd53b951734a48c658b4ce53eebca72  artifacts/crow
 b81488158134ca6ffb394ed2255c417e6cd53b951734a48c658b4ce53eebca72  artifacts/crow-v15-stance-front-closure-20261114/toe-speed.log
 ec7f68cc3601a87285e85542453e0c10fac4e37b7eaaa779e1bc6a36694b6f1f  artifacts/crow-v15-stance-front-closure-20261114/geometry-analysis.json
 ec7f68cc3601a87285e85542453e0c10fac4e37b7eaaa779e1bc6a36694b6f1f  artifacts/crow-v15-stance-front-closure-20261114/geometry-audit.log
+b334d21cb893c36b87a9070ad907162688684530b6dcac6f6285bb0e942f6632  artifacts/crow-v15-stance-front-closure-20261114/bilateral-toe-audit.py
+e855f2210f1db68262475593a0e732e6acff27047f6ffe332b5d859fb4734c2c  artifacts/crow-v15-stance-front-closure-20261114/bilateral-toe-audit.json
+e855f2210f1db68262475593a0e732e6acff27047f6ffe332b5d859fb4734c2c  artifacts/crow-v15-stance-front-closure-20261114/bilateral-toe-audit.log
