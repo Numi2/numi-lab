@@ -1,0 +1,7 @@
+# Dynamic geometry-feedback regrip: failed
+
+The additional contact-guarded geometry correction did not recover a bilateral supported grip. Both lanes had zero qualifying bilateral grip intervals. They achieved at most 41 strict release intervals, short of the 100-interval gate; the test program's early return limits that release observation. The control root first fell below 0.1 m at one-based interval 361 and the feedback lane at 360. Neither lane had a non-foot support impulse. This was a constructed stationary perch test, not walking, flight, or an airborne landing.
+
+The control reproduced the preceding geometry-guided candidate exactly in logged states, commands and events across 450 intervals; the feedback lane matched for the first 309, with its first intervention at zero-based interval 309. Contact and state epochs have not been independently synchronized. The extra offsets reached their configured 0.06, -0.06 and -0.03 rad bounds. The privileged geometric sensor's largest reconstructed clearance error was 1.06e-8 m; it is not an autonomous input.
+
+Both lanes had complete unique contact and toe-velocity substep observations with no recorded observer errors. Before the detected fall, the control and candidate had 13 and 33 substeps respectively at or above 11.99 rad/s, reaching the configured 12 rad/s speed limit. This does not measure actuator effort. The observed probe binary hash matches the prebuild binary hash. Raw traces, inputs, audits, and failure are retained alongside this report; no controller is promoted.

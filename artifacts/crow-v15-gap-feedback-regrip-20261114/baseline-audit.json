@@ -1,0 +1,23 @@
+{
+  "first_candidate_intervention_zero_based": 309,
+  "peak_geometry_offsets_rad": [
+    0.0599999987,
+    0.0599999987,
+    0.0299999993
+  ],
+  "rows": [
+    {
+      "lane": 0,
+      "comparison_intervals": 450,
+      "mismatch_count": 0,
+      "first_mismatches": []
+    },
+    {
+      "lane": 1,
+      "comparison_intervals": 309,
+      "mismatch_count": 0,
+      "first_mismatches": []
+    }
+  ],
+  "scope": "Exact logged state, command and event parity; contact/state epochs remain unverified."
+}
