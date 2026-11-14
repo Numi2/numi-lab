@@ -1,0 +1,15 @@
+{
+  "archive_commit": "a0af9e43",
+  "removed": "/Users/n/Developer/numi-crow-rl-20261107/artifacts/crow-v15-release-turn-descent-20261114/push-20261126-rebound-descent/run.stderr.gz",
+  "bytes": 163414890,
+  "sha256": "96d904e3630ed0cc9d42ac124b0e644ed1330fc35c0cfae4f87a498b30af9168",
+  "checks": [
+    "regular file",
+    "not symlink",
+    "single link",
+    "exact size and sha256",
+    "lsof no open handles",
+    "independent GitHub streamed part and aggregate verification with gzip EOF"
+  ],
+  "retired": true
+}
