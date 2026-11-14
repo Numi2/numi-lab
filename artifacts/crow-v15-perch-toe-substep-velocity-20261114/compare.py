@@ -24,7 +24,7 @@ def subs(p):
  return c,v,errs
 a,av=state(A);b,bv=state(B);c,v,err=subs(A);bc,_,berr=subs(B);rows=[]
 for e in (0,1):
- statebad=[t for t in range(450) if a.get((e,t))!=b.get((e,t))];cbad=[(t,k) for t in range(1,451) for k in range(32) if c.get((e,t,k))!=bc.get((e,t,k)) or (e,t,k) not in c];vmissing=[(t,k) for t in range(1,451) for k in range(32) if (e,t,k) not in v or len(v[e,t,k])!=16 or not all(map(math.isfinite,v[e,t,k]))];epoch=[]
+ statebad=[t for t in range(450) if (e,t) not in a or (e,t) not in b or a[e,t]!=b[e,t]];cbad=[(t,k) for t in range(1,451) for k in range(32) if c.get((e,t,k))!=bc.get((e,t,k)) or (e,t,k) not in c];vmissing=[(t,k) for t in range(1,451) for k in range(32) if (e,t,k) not in v or len(v[e,t,k])!=16 or not all(map(math.isfinite,v[e,t,k]))];epoch=[]
  for t in range(1,451):
   if (e,t,31) in v and (e,t-1) in av:epoch.extend(abs(x-y) for x,y in zip(v[e,t,31],av[e,t-1][22:38]))
  # Parse root z directly from the first three values after the q marker.
