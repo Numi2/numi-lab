@@ -1,0 +1,32 @@
+{
+  "0": {
+    "samples": 450,
+    "knee_position_range_rad": [
+      0.279678941,
+      0.340704799
+    ],
+    "ankle_position_range_rad": [
+      -0.280896634,
+      -0.159921184
+    ],
+    "peak_abs_knee_speed_rad_s": 0.366858274,
+    "peak_abs_ankle_speed_rad_s": 0.56599313,
+    "within_position_limits": true,
+    "scope": "accepted control states, not substep actuator effort measurements"
+  },
+  "1": {
+    "samples": 450,
+    "knee_position_range_rad": [
+      0.279678941,
+      0.310639024
+    ],
+    "ankle_position_range_rad": [
+      -0.222514957,
+      -0.159927532
+    ],
+    "peak_abs_knee_speed_rad_s": 0.425125957,
+    "peak_abs_ankle_speed_rad_s": 0.56599313,
+    "within_position_limits": true,
+    "scope": "accepted control states, not substep actuator effort measurements"
+  }
+}
