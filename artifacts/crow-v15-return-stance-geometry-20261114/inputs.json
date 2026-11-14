@@ -1,0 +1,12 @@
+{
+  "source": "artifacts/crow-v15-pitch-normal-support-20261114/trace.log.gz",
+  "source_sha256": "83505618117e9959be0024ed237e65b1dd8fbee5308d85afc0ab6eba34d59e5f",
+  "lane": 0,
+  "steps": [
+    295,
+    300,
+    302,
+    304,
+    306
+  ]
+}
