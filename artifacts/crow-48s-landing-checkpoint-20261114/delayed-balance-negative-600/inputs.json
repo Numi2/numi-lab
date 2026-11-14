@@ -1,0 +1,6 @@
+{
+  "restart_sha256": "0d7924f157a770181a9793b7acf6a71464f1d06512c22899550ffee52ba0d66c",
+  "host_sha256": "0fd3ec2d0b7c489fd93244451af225b8fbbdb2a606044e14d2621708c578b2a8",
+  "metallib_sha256": "1b5c749f4ab6e0baa15782862385d747894c73b04f925be599b6d64d2499dbe9",
+  "scope": "12-second delayed contact-gated balance diagnostic; first episode only"
+}

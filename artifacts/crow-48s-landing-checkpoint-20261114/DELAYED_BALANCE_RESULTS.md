@@ -1,0 +1,3 @@
+# Delayed hip-feedback screen
+
+Both arms matched the control's printed q/v exactly through observer sample 150; their first control action changes followed the planned delay. The positive arm's longest first-episode qualified streak was 314 intervals (74–387), followed by a tilt termination at replay step 457. The negative arm's longest was 325 intervals (74–398), followed by a tilt termination at step 493. Neither passed the no-termination or terminal 250-interval hold requirement; each had one automatic reset. These modest extensions over the 307-interval control are exploratory results from one shared starting state, and neither demonstrates stable branch landing.

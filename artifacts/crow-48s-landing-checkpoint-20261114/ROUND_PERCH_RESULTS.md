@@ -1,0 +1,5 @@
+# First round-perch trial
+
+The native host admitted a static capsule (type 1), radius 0.025 m, half-length 0.695 m, enabled collision group 1/mask 0xffffffff. Its new world/task contract rejected the old policy pack as expected; diagnostic packs were rebound with unchanged tensors. GPU reset readback matched the checkpoint q and v within 3.55e-8 and 2.37e-8 respectively. The replay confirmed the capsule center [17.745, 0.460, 0.230] m.
+
+Before first termination, full-substep records show first positive foot/toe–perch impulse at interval 11 and a maximum recorded penetration of approximately 0.523 mm for the right foot; there was no measured ground or nonfoot impulse. Both feet met all support gates for intervals 46–68 (23 intervals). The body pitched forward from 0.17 rad at interval 10 to 0.51 rad at 100, and the first episode terminated for tilt at replay step 154. This fails the landing and terminal hold criteria. It establishes actual round-collider contact in this observed trajectory only; it is not a general no-tunneling qualification.

@@ -1,0 +1,5 @@
+# Round-perch fore-aft position screen
+
+The radius-0.025 m capsule at x=17.745 m made physical foot contact but the body drifted forward and first terminated for tilt at step 154. Test the falsifiable geometry hypothesis that placing the round perch slightly forward produces a more centered load: compare static capsule centers x=17.755 and x=17.765 m against the retained x=17.745 control. Keep y=0.46, z=0.23, shape, material, q/v, forced landing phase, policy tensors, round host, seed and full-substep observer identical. This is one developmental start and a deliberately relocated fixture.
+
+Run 400 intervals per x, without suppressing termination. Only the first episode counts. Require no done/reset, no ground or nonfoot impulse, all 16 substeps, and >=250 consecutive terminal intervals of bilateral opposed toe forces, upward support, tilt <=0.35 rad and speed <=0.12 m/s. Report first failure and compare pitch drift and contact pairs, not just success flags. A local pass does not imply the original course was continuously navigated or general collision robustness. Preserve failures.
