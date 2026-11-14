@@ -1,0 +1,5 @@
+# Matched zero-twist straight control on second used seed
+
+Using the same preregistered matched-straight binary, repeat the teacher-off, 1800-interval training-layout comparison on used seed 20261127. Require the same complete, continuous first-episode flight, finite unique contact/toe/actuator substeps, no later ground or nonfoot contact or toe-speed threshold, bounded forward speed and height, correct target reconstruction and source identities as the seed-26 plan. Compare q/v/actions/contacts with the existing seed-27 release-latch turn through interval 500 and unchanged lanes through their first episodes.
+
+Independently restore the seed-27 0.07-rad candidate and verify its archived raw trace, then compare it with this matched straight run. Require exact q/v/action/contact parity through 600 intervals before turn onset and report signed relative yaw and lateral trajectory. Retain all failures. These are development seeds and a scripted, obstacle-free comparison, not disturbed-start qualification, frozen flight, biological validation, landing or unused-layout navigation.
