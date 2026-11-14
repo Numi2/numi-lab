@@ -1,0 +1,70 @@
+{
+  "retired": false,
+  "files": [
+    {
+      "path": "/Users/home/Documents/Codex/2026-11-07/c/crow-research-staging/artifacts/crow-v15-earlier-height-capture-20261114/turn-20261126-rebound-earlier/run.stderr.gz",
+      "inode": 204388830,
+      "bytes": 253730015,
+      "mtime_ns": 1794649501350285478,
+      "sha256": "1ae4021f4bec661c2c0955fb960bdf94ba6dbd4fcc146302d554717c56dc951e",
+      "lsof_clear": true
+    },
+    {
+      "path": "/Users/home/Documents/Codex/2026-11-07/c/crow-research-staging/artifacts/crow-v15-earlier-height-capture-20261114/turn-20261126-rebound-earlier/run.stderr.gz.part000",
+      "inode": 204389480,
+      "bytes": 41943040,
+      "mtime_ns": 1794649526213706378,
+      "sha256": "eaf627ed1eba078b7d1fd51b2e5c5ccbceba1a766568a8401815937c6c0919db",
+      "lsof_clear": true
+    },
+    {
+      "path": "/Users/home/Documents/Codex/2026-11-07/c/crow-research-staging/artifacts/crow-v15-earlier-height-capture-20261114/turn-20261126-rebound-earlier/run.stderr.gz.part001",
+      "inode": 204389481,
+      "bytes": 41943040,
+      "mtime_ns": 1794649526393091134,
+      "sha256": "e8cbbaebf58a49be25e8c6ea828ca80b74661ce7edaf3a9bf3b7eb879472a68a",
+      "lsof_clear": true
+    },
+    {
+      "path": "/Users/home/Documents/Codex/2026-11-07/c/crow-research-staging/artifacts/crow-v15-earlier-height-capture-20261114/turn-20261126-rebound-earlier/run.stderr.gz.part002",
+      "inode": 204389513,
+      "bytes": 41943040,
+      "mtime_ns": 1794649526553171498,
+      "sha256": "b3e93e098d3fdb3146713ed3ce39e63f667c972f56505d3f8af62568e1eefad3",
+      "lsof_clear": true
+    },
+    {
+      "path": "/Users/home/Documents/Codex/2026-11-07/c/crow-research-staging/artifacts/crow-v15-earlier-height-capture-20261114/turn-20261126-rebound-earlier/run.stderr.gz.part003",
+      "inode": 204389517,
+      "bytes": 41943040,
+      "mtime_ns": 1794649526737405340,
+      "sha256": "df5702fc008e994051d139a24d6ee43f6e2cce8f00820696d8b418705d0ed9f9",
+      "lsof_clear": true
+    },
+    {
+      "path": "/Users/home/Documents/Codex/2026-11-07/c/crow-research-staging/artifacts/crow-v15-earlier-height-capture-20261114/turn-20261126-rebound-earlier/run.stderr.gz.part004",
+      "inode": 204389522,
+      "bytes": 41943040,
+      "mtime_ns": 1794649526889108926,
+      "sha256": "e84359b96b313b2582a09097b703703b25cf5d48cf3be51e2aced1ac01563feb",
+      "lsof_clear": true
+    },
+    {
+      "path": "/Users/home/Documents/Codex/2026-11-07/c/crow-research-staging/artifacts/crow-v15-earlier-height-capture-20261114/turn-20261126-rebound-earlier/run.stderr.gz.part005",
+      "inode": 204389529,
+      "bytes": 41943040,
+      "mtime_ns": 1794649527118741687,
+      "sha256": "bfe8f05758928870410aefd9c92fbb3db94b79539a48150cb4767d83a6100189",
+      "lsof_clear": true
+    },
+    {
+      "path": "/Users/home/Documents/Codex/2026-11-07/c/crow-research-staging/artifacts/crow-v15-earlier-height-capture-20261114/turn-20261126-rebound-earlier/run.stderr.gz.part006",
+      "inode": 204389539,
+      "bytes": 2071775,
+      "mtime_ns": 1794649527273653096,
+      "sha256": "aa22ee1d3336b5bc30d62bf4a7f1dc18d9118c3f9bb0981b8ba79e633f487fb3",
+      "lsof_clear": true
+    }
+  ],
+  "total_bytes": 507460030
+}

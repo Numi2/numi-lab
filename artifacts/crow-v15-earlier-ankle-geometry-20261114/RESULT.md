@@ -1,0 +1,5 @@
+# Fixed-state clearance diagnosis
+
+At tick 292 in the earlier-ankle candidate the released foot is 0.975 mm above the perch, the front toe 12.717 mm, and the rear toe 2.034 mm. The native v15 kinematics estimate local clearance derivatives with respect to released hip, knee and ankle. For the hip they are respectively -147.65, -152.74 and +30.75 mm/rad; a hypothetical -0.02 rad hip displacement thus raises foot clearance about 2.95 mm while reducing rear-toe clearance about 0.61 mm. The ankle derivative for the foot is -24.34 mm/rad, so increasing ankle flexion further would reduce its clearance locally. Reconstruction agrees with the recorded geometry to within 10 nm across sampled states.
+
+This is fixed-state geometry, not an attainable dynamic motion or contact-stability prediction. In the actual trace, posture subsequently deteriorates before the 100-interval target, so clearance alone cannot establish a stable release. The construction keeps toes open and does not evaluate regrip or landing.
