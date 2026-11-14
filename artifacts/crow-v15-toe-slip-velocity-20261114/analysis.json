@@ -1,0 +1,268 @@
+{
+  "trace_prior_first_difference": null,
+  "trace_paired_first_difference": null,
+  "qv_samples": 252,
+  "body_samples": 2520,
+  "selected_contact_samples": 1982,
+  "unselected_left_toe_samples": 720,
+  "pose_position_error_max_m": 5.66890950051162e-10,
+  "finite_difference_velocity_error_m_s_p50": 0.03516674509356349,
+  "finite_difference_velocity_error_m_s_p95": 0.06272406048637422,
+  "finite_difference_velocity_error_m_s_max": 0.10267165882445456,
+  "errors": [],
+  "rows": [
+    {
+      "lane": 0,
+      "intervals": [
+        290,
+        300
+      ],
+      "group": "right_foot",
+      "samples": 60,
+      "speed_m_s_p50": 0.009157065695537916,
+      "speed_m_s_p95": 0.017221674233228988,
+      "fraction_speed_ge_0_001": 1.0,
+      "fraction_speed_ge_0_01": 0.43333333333333335,
+      "fraction_speed_ge_0_01_and_dynamic_ratio_ge_0_95": 0.0
+    },
+    {
+      "lane": 0,
+      "intervals": [
+        290,
+        300
+      ],
+      "group": "right_front",
+      "samples": 172,
+      "speed_m_s_p50": 0.018709502664605287,
+      "speed_m_s_p95": 0.03151835778999228,
+      "fraction_speed_ge_0_001": 1.0,
+      "fraction_speed_ge_0_01": 0.9825581395348837,
+      "fraction_speed_ge_0_01_and_dynamic_ratio_ge_0_95": 0.9825581395348837
+    },
+    {
+      "lane": 0,
+      "intervals": [
+        290,
+        300
+      ],
+      "group": "right_rear",
+      "samples": 60,
+      "speed_m_s_p50": 0.007159765871847677,
+      "speed_m_s_p95": 0.014952378715725512,
+      "fraction_speed_ge_0_001": 1.0,
+      "fraction_speed_ge_0_01": 0.3333333333333333,
+      "fraction_speed_ge_0_01_and_dynamic_ratio_ge_0_95": 0.3333333333333333
+    },
+    {
+      "lane": 0,
+      "intervals": [
+        300,
+        305
+      ],
+      "group": "right_foot",
+      "samples": 30,
+      "speed_m_s_p50": 0.0067438001287426766,
+      "speed_m_s_p95": 0.023788834717195863,
+      "fraction_speed_ge_0_001": 0.9666666666666667,
+      "fraction_speed_ge_0_01": 0.4666666666666667,
+      "fraction_speed_ge_0_01_and_dynamic_ratio_ge_0_95": 0.0
+    },
+    {
+      "lane": 0,
+      "intervals": [
+        300,
+        305
+      ],
+      "group": "right_front",
+      "samples": 37,
+      "speed_m_s_p50": 0.025271199473118473,
+      "speed_m_s_p95": 0.03707888436600368,
+      "fraction_speed_ge_0_001": 1.0,
+      "fraction_speed_ge_0_01": 1.0,
+      "fraction_speed_ge_0_01_and_dynamic_ratio_ge_0_95": 1.0
+    },
+    {
+      "lane": 0,
+      "intervals": [
+        300,
+        305
+      ],
+      "group": "right_rear",
+      "samples": 30,
+      "speed_m_s_p50": 0.028323528811095348,
+      "speed_m_s_p95": 0.03849220059334576,
+      "fraction_speed_ge_0_001": 1.0,
+      "fraction_speed_ge_0_01": 0.9333333333333333,
+      "fraction_speed_ge_0_01_and_dynamic_ratio_ge_0_95": 0.8666666666666667
+    },
+    {
+      "lane": 0,
+      "intervals": [
+        305,
+        311
+      ],
+      "group": "right_foot",
+      "samples": 14,
+      "speed_m_s_p50": 0.007242875968043534,
+      "speed_m_s_p95": 0.02400962015333174,
+      "fraction_speed_ge_0_001": 0.9285714285714286,
+      "fraction_speed_ge_0_01": 0.5,
+      "fraction_speed_ge_0_01_and_dynamic_ratio_ge_0_95": 0.0
+    },
+    {
+      "lane": 0,
+      "intervals": [
+        305,
+        311
+      ],
+      "group": "right_front",
+      "samples": 2,
+      "speed_m_s_p50": 0.03725086404030691,
+      "speed_m_s_p95": 0.03725086404030691,
+      "fraction_speed_ge_0_001": 1.0,
+      "fraction_speed_ge_0_01": 1.0,
+      "fraction_speed_ge_0_01_and_dynamic_ratio_ge_0_95": 1.0
+    },
+    {
+      "lane": 0,
+      "intervals": [
+        305,
+        311
+      ],
+      "group": "right_rear",
+      "samples": 31,
+      "speed_m_s_p50": 0.03450958730382638,
+      "speed_m_s_p95": 0.052037293210478,
+      "fraction_speed_ge_0_001": 1.0,
+      "fraction_speed_ge_0_01": 0.8709677419354839,
+      "fraction_speed_ge_0_01_and_dynamic_ratio_ge_0_95": 0.5483870967741935
+    },
+    {
+      "lane": 1,
+      "intervals": [
+        290,
+        300
+      ],
+      "group": "right_foot",
+      "samples": 60,
+      "speed_m_s_p50": 0.009157065695537916,
+      "speed_m_s_p95": 0.017221674233228988,
+      "fraction_speed_ge_0_001": 1.0,
+      "fraction_speed_ge_0_01": 0.43333333333333335,
+      "fraction_speed_ge_0_01_and_dynamic_ratio_ge_0_95": 0.0
+    },
+    {
+      "lane": 1,
+      "intervals": [
+        290,
+        300
+      ],
+      "group": "right_front",
+      "samples": 172,
+      "speed_m_s_p50": 0.018709502664605287,
+      "speed_m_s_p95": 0.03151835778999228,
+      "fraction_speed_ge_0_001": 1.0,
+      "fraction_speed_ge_0_01": 0.9825581395348837,
+      "fraction_speed_ge_0_01_and_dynamic_ratio_ge_0_95": 0.9825581395348837
+    },
+    {
+      "lane": 1,
+      "intervals": [
+        290,
+        300
+      ],
+      "group": "right_rear",
+      "samples": 60,
+      "speed_m_s_p50": 0.007159765871847677,
+      "speed_m_s_p95": 0.014952378715725512,
+      "fraction_speed_ge_0_001": 1.0,
+      "fraction_speed_ge_0_01": 0.3333333333333333,
+      "fraction_speed_ge_0_01_and_dynamic_ratio_ge_0_95": 0.3333333333333333
+    },
+    {
+      "lane": 1,
+      "intervals": [
+        300,
+        305
+      ],
+      "group": "right_foot",
+      "samples": 30,
+      "speed_m_s_p50": 0.0067438001287426766,
+      "speed_m_s_p95": 0.023788834717195863,
+      "fraction_speed_ge_0_001": 0.9666666666666667,
+      "fraction_speed_ge_0_01": 0.4666666666666667,
+      "fraction_speed_ge_0_01_and_dynamic_ratio_ge_0_95": 0.0
+    },
+    {
+      "lane": 1,
+      "intervals": [
+        300,
+        305
+      ],
+      "group": "right_front",
+      "samples": 37,
+      "speed_m_s_p50": 0.025271199473118473,
+      "speed_m_s_p95": 0.03707888436600368,
+      "fraction_speed_ge_0_001": 1.0,
+      "fraction_speed_ge_0_01": 1.0,
+      "fraction_speed_ge_0_01_and_dynamic_ratio_ge_0_95": 1.0
+    },
+    {
+      "lane": 1,
+      "intervals": [
+        300,
+        305
+      ],
+      "group": "right_rear",
+      "samples": 30,
+      "speed_m_s_p50": 0.028323528811095348,
+      "speed_m_s_p95": 0.03849220059334576,
+      "fraction_speed_ge_0_001": 1.0,
+      "fraction_speed_ge_0_01": 0.9333333333333333,
+      "fraction_speed_ge_0_01_and_dynamic_ratio_ge_0_95": 0.8666666666666667
+    },
+    {
+      "lane": 1,
+      "intervals": [
+        305,
+        311
+      ],
+      "group": "right_foot",
+      "samples": 14,
+      "speed_m_s_p50": 0.007242875968043534,
+      "speed_m_s_p95": 0.02400962015333174,
+      "fraction_speed_ge_0_001": 0.9285714285714286,
+      "fraction_speed_ge_0_01": 0.5,
+      "fraction_speed_ge_0_01_and_dynamic_ratio_ge_0_95": 0.0
+    },
+    {
+      "lane": 1,
+      "intervals": [
+        305,
+        311
+      ],
+      "group": "right_front",
+      "samples": 2,
+      "speed_m_s_p50": 0.03725086404030691,
+      "speed_m_s_p95": 0.03725086404030691,
+      "fraction_speed_ge_0_001": 1.0,
+      "fraction_speed_ge_0_01": 1.0,
+      "fraction_speed_ge_0_01_and_dynamic_ratio_ge_0_95": 1.0
+    },
+    {
+      "lane": 1,
+      "intervals": [
+        305,
+        311
+      ],
+      "group": "right_rear",
+      "samples": 31,
+      "speed_m_s_p50": 0.03450958730382638,
+      "speed_m_s_p95": 0.052037293210478,
+      "fraction_speed_ge_0_001": 1.0,
+      "fraction_speed_ge_0_01": 0.8709677419354839,
+      "fraction_speed_ge_0_01_and_dynamic_ratio_ge_0_95": 0.5483870967741935
+    }
+  ],
+  "limitations": "Post-solve generalized state is paired with solver contact geometry; exact pre-solve contact point timing is not established. Contact rows within lanes and steps are correlated. This estimates relative motion against stationary ground in the constructed model, not biological friction."
+}
