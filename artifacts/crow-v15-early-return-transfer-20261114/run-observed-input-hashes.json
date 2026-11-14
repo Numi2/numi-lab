@@ -1,0 +1,6 @@
+{
+  "artifacts/crow-v15-early-return-transfer-20261114/probe.cpp": "d7268c7fc239f9adc6066da518056b830884ea7b8bb70eeeed925c715e8c7022",
+  "build/crow-v15-early-return-transfer-20261114/probe": "805e4b09aa706c985d46287ef67fddbd9639cfb2ff7e01c9c793cbc7eb91de0a",
+  "build/crow-v15-perch-toe-substep-velocity-20261114/libmetalrobo.dylib": "e951669314cc97fcf193094b4a4bd76e9d3deb46b726b28cadf074d118c970a3",
+  "build/crow-v15-wide-contact-isolation-20261111/MetalRobo.metallib": "835d0ff74b8338bba6987d88f3355a1344522eaa88fa8e82295b12ba58cedeb5"
+}
