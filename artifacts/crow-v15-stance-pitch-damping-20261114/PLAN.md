@@ -1,0 +1,7 @@
+# Stance pitch and angular-rate feedback
+
+The coordinated clearance trial did not improve the 33-interval candidate streak or prevent the fall. In the retained early-balance control, root pitch and forward COM offset increased during release; a more negative bounded stance-hip command was previously associated with a smaller forward COM offset. Test a physical joint-target response rather than adding a body force.
+
+Both lanes reproduce the early-balance candidate with its original clearance caps. Lane 1 adds -0.50 times pitch change since release and -0.04 times measured pitch rate to the existing fore-aft COM command; its correction bound expands from +/-0.06 to +/-0.10 rad, retaining the 0.002-rad-per-interval slew, contact gate, physical actuator, contact, geometry and toe limits. Lane 0 stays unchanged. The sign and magnitude are a hypothesis, not an established biological or dynamic controller.
+
+Require exact 450-state lane-0 reproduction of the archived early-balance candidate, identical paired prefix, reconstructed contact-gated feedback and target bounds, all substeps, no errors, nonfoot support or stance-toe speed threshold, and at least 100 consecutive intervals meeting the unchanged clearance, stance contact, posture, load and speed criteria. Preserve failure and check both toes. Toes stay open; regrip is not tested. State/contact timing is not independently synchronized for this probe.
