@@ -1,0 +1,39 @@
+{
+  "rows": [
+    {
+      "lane": 6,
+      "scripted_height_targets_m": [
+        0.55,
+        0.8
+      ],
+      "early_and_late_window_mean_height_m": [
+        0.6123488262178218,
+        0.8616421412079208
+      ],
+      "late_minus_early_m": 0.249293314990099
+    },
+    {
+      "lane": 7,
+      "scripted_height_targets_m": [
+        0.8,
+        0.55
+      ],
+      "early_and_late_window_mean_height_m": [
+        0.8607806038118812,
+        0.6094080109702971
+      ],
+      "late_minus_early_m": -0.2513725928415841
+    }
+  ],
+  "windows_inclusive": [
+    [
+      1050,
+      1150
+    ],
+    [
+      1650,
+      1750
+    ]
+  ],
+  "scope": "post-hoc exploratory window choice on one used seed; not a preregistered climb or descent qualification"
+}

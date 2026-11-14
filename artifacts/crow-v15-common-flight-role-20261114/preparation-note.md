@@ -1,0 +1,1 @@
+Initial preparation asserted 26 role-selector occurrences and stopped before writing a shader; the source actually has 27. The corrected script asserts all 27 before substitution. No native run occurred in the initial attempt.
