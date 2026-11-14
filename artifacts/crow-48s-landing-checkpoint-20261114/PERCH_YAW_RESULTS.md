@@ -1,0 +1,3 @@
+# Perch alignment screen
+
+The +0.20-rad aligned fixture produced one uninterrupted 42-interval bilateral qualified streak at intervals 39–80, then terminated for tilt at replay step 160. The -0.20-rad fixture produced no qualified bilateral streak and terminated for tilt at step 148. At x=17.73 m, the +yaw trial therefore produced the bilateral contact absent from the zero-yaw and opposite-yaw controls, consistent with a fixture-alignment effect in this one developmental start. It did not meet the landing gate, and all later auto-reset episodes are excluded. The replay verifies the intended signed perch quaternions. The separate x=17.745 m zero-yaw fixture achieved a much longer first-episode grip but also failed its end stability requirement.

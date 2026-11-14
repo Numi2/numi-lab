@@ -1,0 +1,7 @@
+# Delay balance feedback until after capture
+
+The uncontrolled x=17.745 fixture held the full bilateral support gate for intervals 74-380 but drifted above the tilt threshold afterward. The immediately activated positive hip-feedback arm terminated for tilt at step 159, disrupting that capture. Test whether delaying a smaller feedback signal until 3.0 s after the reconstructed state preserves the early capture and arrests the later drift. An opposite sign is retained as a mechanism control.
+
+Use the same x=17.745 m static box, manually selected landing phase, seed, q/v, full-substep observer and policy. Until reconstructed episode tick 2550 (150 intervals after 2400), use the identical baseline targets. Then, only with both contact ramps >=12, add `clamp(sign * (0.20*(pitch-0.10) + 0.025*pitchRate), -0.08, 0.08)` rad to both hip position targets. Compare + and - signs over 600 intervals, without changing forces, simulator state or termination handling.
+
+Validity requires the initial accepted q/v to match the baseline through the first 150 intervals within 1e-6. Require no task termination, no state jump, no ground or nonfoot impulse, all substeps, and a terminal 250-interval streak meeting bilateral opposed impulse and upward support, root tilt <=0.35 rad and speed <=0.12 m/s. Reject any arm breaking capture, terminating, or failing the terminal streak. The start, moved box and forced phase remain developmental, not a continuous original-course or natural-branch qualification.
