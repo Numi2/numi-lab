@@ -1,0 +1,7 @@
+# Earlier height feedback: lower transient in development screen
+
+On used seed 20261126, enabling the existing bounded flap-height feedback from 9.0–9.5 s rather than 12.0–12.5 s reduced peak root height over steps 450–1000 from 0.8947 to 0.7637 m in lane 6 and from 1.3961 to 1.2286 m in lane 7. Both reductions exceeded the registered 0.10 m criterion. The lane 7 peak remains 0.43 m above its initial 0.80 m height target, so a real obstacle-clearance margin has not been demonstrated.
+
+Both lanes remained continuously unloaded through the 1800-step first episode, passed the prior physical, target, signed-turn and lateral-deviation screens, and had 0.0203/0.0184 m and 0.0111/0.0151 m steady-window height errors. Candidate states/actions/contacts matched the straight reference through step 450 and unchanged lanes matched through their first episodes; those reference prefixes also match the previous turn trial before onset. Teacher was off; unchanged lanes 0 and 1 physically failed at steps 760 and 764 as before. Input identities, reconstructed targets and unique substep checks passed. Full trace, baseline and failure data are retained.
+
+This is one used-seed, scripted, obstacle-free development test, not a general or frozen flight controller, a leg-powered takeoff, disturbed-start qualification, grip, landing, unused-layout navigation or biological validation. Observer state/contact epochs remain inferred. The reduced peak must be checked on other starts and physical layouts.
