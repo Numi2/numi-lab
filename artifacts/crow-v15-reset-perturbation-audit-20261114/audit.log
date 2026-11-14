@@ -1,0 +1,14 @@
+{
+  "duplicate_blocks": 2,
+  "byte_identical": true,
+  "differences": {
+    "6": {
+      "max_abs_q": 0.08466947080000001,
+      "max_abs_v": 1.846047994
+    },
+    "7": {
+      "max_abs_q": 0.0685640201,
+      "max_abs_v": 2.0535886
+    }
+  }
+}
