@@ -1,0 +1,168 @@
+{
+  "scope": "used seed 20261126, reduced twist matched long-flight development screen, not qualification",
+  "mode": "turn",
+  "parity": [
+    {
+      "lane": 0,
+      "through": 760,
+      "mismatch_count": 0,
+      "first_mismatches": []
+    },
+    {
+      "lane": 1,
+      "through": 764,
+      "mismatch_count": 0,
+      "first_mismatches": []
+    },
+    {
+      "lane": 2,
+      "through": 1800,
+      "mismatch_count": 0,
+      "first_mismatches": []
+    },
+    {
+      "lane": 3,
+      "through": 1800,
+      "mismatch_count": 0,
+      "first_mismatches": []
+    },
+    {
+      "lane": 4,
+      "through": 1800,
+      "mismatch_count": 0,
+      "first_mismatches": []
+    },
+    {
+      "lane": 5,
+      "through": 1800,
+      "mismatch_count": 0,
+      "first_mismatches": []
+    },
+    {
+      "lane": 6,
+      "through": 500,
+      "mismatch_count": 0,
+      "first_mismatches": []
+    },
+    {
+      "lane": 7,
+      "through": 500,
+      "mismatch_count": 0,
+      "first_mismatches": []
+    }
+  ],
+  "rows": [
+    {
+      "lane": 6,
+      "checks": {
+        "continuous_from_first_unloaded": true,
+        "flap_target_reconstructed": true,
+        "pronation_target_reconstructed": true,
+        "pre_onset_and_other_lane_parity": true,
+        "expected_turn_shader": true,
+        "expected_straight_shader": true,
+        "shared_inputs": true,
+        "teacher_off": true,
+        "first_episode": true,
+        "states_complete": true,
+        "release": true,
+        "no_later_ground": true,
+        "substep_coverage": true,
+        "no_toe_speed_cap": true,
+        "wing_effort": true,
+        "forward": true,
+        "height": true,
+        "pronation_full_window_bounds": true,
+        "turn_effort_full_window": true,
+        "signed_heading": true,
+        "lateral_deviation": true,
+        "no_observer_errors": true,
+        "unique_substep_indices": true,
+        "finite_pronation_window": true,
+        "saturation_below_33_percent": false,
+        "tracking_error_below_008_rad": false
+      },
+      "passed": false,
+      "release_tick": 377,
+      "first_later_ground": null,
+      "relative_yaw_extreme_tick_and_rad": [
+        1197,
+        -0.2900231853597517
+      ],
+      "max_abs_lateral_deviation_m": 0.3915069364,
+      "pronation_observed_substeps": 9616,
+      "pronation_effort_max_Nm": 0.150000006,
+      "pronation_effort_saturated_fraction": 0.4794093178036606,
+      "pronation_abs_target_max_rad": 0.109997645,
+      "pronation_abs_position_max_rad": 0.105717093,
+      "pronation_abs_speed_max_rad_s": 4.56436396,
+      "pronation_abs_tracking_error_max_rad": 0.10277133481,
+      "root_forward_displacement_m": 12.137954145999998,
+      "height_range_m": [
+        0.413253278,
+        0.857043028
+      ],
+      "forward_speed_range_m_s": [
+        0.328361899,
+        0.647361696
+      ]
+    },
+    {
+      "lane": 7,
+      "checks": {
+        "continuous_from_first_unloaded": true,
+        "flap_target_reconstructed": true,
+        "pronation_target_reconstructed": true,
+        "pre_onset_and_other_lane_parity": true,
+        "expected_turn_shader": true,
+        "expected_straight_shader": true,
+        "shared_inputs": true,
+        "teacher_off": true,
+        "first_episode": true,
+        "states_complete": true,
+        "release": true,
+        "no_later_ground": true,
+        "substep_coverage": true,
+        "no_toe_speed_cap": true,
+        "wing_effort": true,
+        "forward": true,
+        "height": true,
+        "pronation_full_window_bounds": true,
+        "turn_effort_full_window": true,
+        "signed_heading": true,
+        "lateral_deviation": true,
+        "no_observer_errors": true,
+        "unique_substep_indices": true,
+        "finite_pronation_window": true,
+        "saturation_below_33_percent": false,
+        "tracking_error_below_008_rad": false
+      },
+      "passed": false,
+      "release_tick": 376,
+      "first_later_ground": null,
+      "relative_yaw_extreme_tick_and_rad": [
+        1197,
+        0.28886904346305364
+      ],
+      "max_abs_lateral_deviation_m": 0.36976341570000004,
+      "pronation_observed_substeps": 9616,
+      "pronation_effort_max_Nm": 0.150000006,
+      "pronation_effort_saturated_fraction": 0.48060524126455906,
+      "pronation_abs_target_max_rad": 0.109997645,
+      "pronation_abs_position_max_rad": 0.105577424,
+      "pronation_abs_speed_max_rad_s": 4.56081915,
+      "pronation_abs_tracking_error_max_rad": 0.10279582977,
+      "root_forward_displacement_m": 11.757887272,
+      "height_range_m": [
+        0.546584427,
+        1.21446145
+      ],
+      "forward_speed_range_m_s": [
+        0.313283086,
+        0.658810616
+      ]
+    }
+  ],
+  "observer_errors": [],
+  "passed_both": false
+}
