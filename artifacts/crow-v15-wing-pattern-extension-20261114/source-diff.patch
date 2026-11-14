@@ -1,0 +1,11 @@
+--- artifacts/crow-v15-release-gated-wing-20261114/push.metal	2026-11-14 19:00:55
++++ artifacts/crow-v15-wing-pattern-extension-20261114/push.metal	2026-11-14 19:31:09
+@@ -5805,7 +5805,7 @@
+         // Diagnostic counterfactual: identical open-loop wing commands in both arms.
+         if (fixedFlightController && state.episode.z==10u && action<=5u) {
+             const float t=float(state.episode.x)*dispatch.timing.x;
+-            if (t>=6.30f && t<10.02f) {
++            if (t>=6.30f && t<16.02f) {
+                 const float onset=7.50f;
+                 const float phase=kTwoPi*6.4f*(t-onset);
+                 const float ramp=((state.status.w & 8192u)!=0u ? 1.0f : 0.0f)*smoothstep(onset,onset+0.04f,t);
