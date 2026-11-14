@@ -1,0 +1,19 @@
+{
+  "rows": [
+    {
+      "lane": 6,
+      "missing": [],
+      "count": 664,
+      "max_difference_rad": 0.00010567900000002517,
+      "match": false
+    },
+    {
+      "lane": 7,
+      "missing": [],
+      "count": 664,
+      "max_difference_rad": 0.0001783400000001656,
+      "match": false
+    }
+  ],
+  "scope": "Supplemental check added after run; full wing target comparison through interval 500."
+}

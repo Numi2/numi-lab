@@ -1,0 +1,41 @@
+{
+  "old_push_lane6_preboost_steps": 395,
+  "missing": [],
+  "differences": [],
+  "exact": true,
+  "height_450_to_500": [
+    {
+      "arm": "push",
+      "lane": 6,
+      "count": 51,
+      "min_height_m": 0.407702088,
+      "below_floor": [],
+      "passes_height": true
+    },
+    {
+      "arm": "push",
+      "lane": 7,
+      "count": 51,
+      "min_height_m": 0.564476848,
+      "below_floor": [],
+      "passes_height": true
+    },
+    {
+      "arm": "hold",
+      "lane": 6,
+      "count": 51,
+      "min_height_m": 0.376946986,
+      "below_floor": [],
+      "passes_height": true
+    },
+    {
+      "arm": "hold",
+      "lane": 7,
+      "count": 51,
+      "min_height_m": 0.482555151,
+      "below_floor": [],
+      "passes_height": true
+    }
+  ],
+  "scope": "Used-seed development screen. State and contact timing in these candidate lanes remains inferred."
+}
