@@ -1,0 +1,18 @@
+{
+  "commit": "53827c83",
+  "files": [
+    {
+      "name": "trace.log.gz",
+      "bytes": 1149653,
+      "sha256": "eb73ac63fc2552c71a03371264fc19262475b5ef2158c51a63b7c5f77cdb84ee",
+      "gzip_eof": true
+    },
+    {
+      "name": "substeps.log.gz",
+      "bytes": 9097111,
+      "sha256": "63c5aa6daa1f5568301d78100ccdb881ca90b9c6a7fce6207cdba3a584f93ba6",
+      "gzip_eof": true
+    }
+  ],
+  "method": "independent GitHub API streaming"
+}
