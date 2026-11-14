@@ -1,0 +1,5 @@
+# Test retaining clearance feedback under moderate COM offset
+
+The retained ankle-feedback candidate crosses the strict 15-mm fore-aft COM posture gate just before the released rear toe loses clearance; once outside it the clearance corrections stop. Both lanes reproduce that candidate, but lane 1 allows the already-used placement envelope (40-mm fore-aft, 35-mm lateral, 0.08-m/s relative speeds and tilt below 0.35 rad) for the clearance-control posture gate. The physical joint limits, target bounds, rates and contact and open-toe gates remain unchanged. This tests an association rather than asserting that gate choice causes the fall.
+
+Compare exact 450-state control parity with the ankle candidate and paired prefix, reconstruct posture and feedback decisions, record all contact substeps, joint and toe speeds, nonfoot support and errors. Success still requires the original strict 100 consecutive intervals with clearance, opposing stance contact, tilt and root speed criteria; its criteria are not relaxed. Toes stay open, so no regrip is claimed. Probe contact/state epoch alignment remains independently unverified.
