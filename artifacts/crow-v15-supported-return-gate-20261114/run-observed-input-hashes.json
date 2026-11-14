@@ -1,0 +1,6 @@
+{
+  "artifacts/crow-v15-supported-return-gate-20261114/probe.cpp": "9fc1092818f9040f8c7ff8367338591add6f44a6fdb38a215300656d1d0291c5",
+  "build/crow-v15-supported-return-gate-20261114/probe": "d1f24c67baa5a9bed6e4c9db7f981d5d0051b18aa890e39ec9d6d289c6e0de1b",
+  "build/crow-v15-perch-toe-substep-velocity-20261114/libmetalrobo.dylib": "e951669314cc97fcf193094b4a4bd76e9d3deb46b726b28cadf074d118c970a3",
+  "build/crow-v15-wide-contact-isolation-20261111/MetalRobo.metallib": "835d0ff74b8338bba6987d88f3355a1344522eaa88fa8e82295b12ba58cedeb5"
+}
