@@ -1,0 +1,19 @@
+{
+  "source_commit": "87c8fe7e",
+  "files": [
+    {
+      "arm": "push",
+      "path": "crow-v15-upward-trigger-seed27-20261114/push-20261127-rebound-phase/run.stderr.gz",
+      "bytes": 34314366,
+      "sha256": "73383343bedb94c1d73fe13622b4fa6f2c3547fbf2eb10478b50fdab26f5b862",
+      "gzip_eof": true
+    },
+    {
+      "arm": "hold",
+      "path": "crow-v15-upward-trigger-seed27-20261114/hold-20261127-rebound-phase/run.stderr.gz",
+      "bytes": 39208470,
+      "sha256": "0104134e6f9add341bc26ab8d39bafc37885664fc2155af5cfd0cef1cfe83a95",
+      "gzip_eof": true
+    }
+  ]
+}
