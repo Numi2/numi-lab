@@ -1,0 +1,22 @@
+{
+  "retired": false,
+  "files": [
+    {
+      "path": "/Users/n/Developer/numi-crow-rl-20261107/artifacts/crow-v15-matched-nonleg-ablation-20261114/push-20261126-rebound-nonleg/run.stderr.gz",
+      "inode": 17114175,
+      "bytes": 37854022,
+      "mtime_ns": 1794666712205413720,
+      "sha256": "5982184e1eb5749a004674d8ec419629fbdd19a503695f64bd19629e459c6250",
+      "lsof_clear": true
+    },
+    {
+      "path": "/Users/n/Developer/numi-crow-rl-20261107/artifacts/crow-v15-matched-nonleg-ablation-20261114/hold-20261126-rebound-nonleg/run.stderr.gz",
+      "inode": 17114210,
+      "bytes": 37882272,
+      "mtime_ns": 1794666804863906941,
+      "sha256": "4093bfa621609d429a7ea18e8e37c2fab45d494bf6da8265c9c8b1e528bc018d",
+      "lsof_clear": true
+    }
+  ],
+  "total_bytes": 75736294
+}
