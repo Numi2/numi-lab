@@ -1,0 +1,2 @@
+c255a10cd5063779d0e4e2c15de10e3ee7593bfb6cbce6c235b9057097314ec1  artifacts/crow-v15-stance-distal-toe-coupling-20261114/trace.log.gz
+fc15d3ab7594773f63d1ff4eabd2cf00e698a47db5d6bd17f9a6bdbd44a5cce9  artifacts/crow-v15-stance-distal-toe-coupling-20261114/substeps.log.gz
