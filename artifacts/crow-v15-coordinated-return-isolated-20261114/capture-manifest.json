@@ -1,0 +1,12 @@
+{
+  "trace.log.gz": {
+    "sha256": "fcacbff75e5928f53121c28c6775926e99d5198624a309fe6e3aeacc3f294503",
+    "bytes": 990372,
+    "gzip_test_exit": 0
+  },
+  "substeps.log.gz": {
+    "sha256": "4ea12750ac6052afd8d03ebc139d02587c069e2ea4498752c2a57045157e60f9",
+    "bytes": 3105809,
+    "gzip_test_exit": 0
+  }
+}
