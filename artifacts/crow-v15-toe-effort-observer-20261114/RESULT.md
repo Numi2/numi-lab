@@ -1,0 +1,7 @@
+# Stance toe drive effort observer
+
+The observation-only native build reproduced the earlier lane-0 control's logged 450-interval state, position targets, body poses, endpoint contact records and controller events exactly; the two lanes matched each other. All 28,800 effort and toe-velocity substep records were finite and complete, with no observer errors. The observer asserts the probe is not using bounded or coupled drive mode; its captured kWorkingEffort comes from the modeled implicit-drive refresh, not from contact impulse.
+
+In the five observed trace intervals [300,305), the stance right rear proximal toe coordinate v36 was at +0.02 N m, the nominal DOF effort cap, in all 160 substeps; its distal coordinate did not reach that cap. The three stance foretoe segments had fallen below the nominal cap during that interval, and their modeled drive effort became nearly zero in [305,310), near the previously observed foretoe contact loss and angular limits. In the preceding [290,300) window, some foretoe samples also reached the nominal cap. These grouped measurements do not establish the available speed-dependent motor envelope or a cause for grip loss; observer force, contact and state epochs have not been independently aligned. They do show that simply treating all toe drives as uniformly underpowered would be unsupported.
+
+This is a constructed stationary failure, not a reliable grip, walking, landing, or full mission. Preserve the complete source, binary identities, traces, and prior control comparison.

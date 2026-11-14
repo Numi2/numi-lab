@@ -1,0 +1,17 @@
+{
+  "source_commit": "4b0f306e",
+  "arms": {
+    "push": {
+      "path": "artifacts/crow-v15-tucked-wing-phase-20261114/push-20261126-rebound-nonleg/run.stderr.gz",
+      "bytes": 39519289,
+      "sha256": "613dca7dab32279521818de4c707445c42528366ef7279eba815ff3af52dcf4d",
+      "gzip_eof": true
+    },
+    "hold": {
+      "path": "artifacts/crow-v15-tucked-wing-phase-20261114/hold-20261126-rebound-nonleg/run.stderr.gz",
+      "bytes": 38961657,
+      "sha256": "79640870b76cc9b5f65e77c98eb8003013163830bb4d0556c8060a4a882e8ed3",
+      "gzip_eof": true
+    }
+  }
+}

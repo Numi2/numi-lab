@@ -1,6 +1,6 @@
 from pathlib import Path
 import collections,gzip,json,math
-A=Path('artifacts/crow-v15-toe-effort-observer-20261114');P=Path('artifacts/crow-v15-pitch-normal-support-20261114/trace.log.gz');kinds=('step','control','event','hipcommand','jointtarget','rearKnee','rearAnkle','rightHipCommand','balance','pitchcontrol','stage')
+A=Path('artifacts/crow-v15-toe-effort-observer-20261114');P=Path('artifacts/crow-v15-pitch-normal-support-20261114/trace.log.gz');kinds=('step','control','event','hipcommand','jointtarget','rearKnee','rearAnkle','rightHipCommand','balance','pitchcontrol','stage','pose','contact','stancetarget','pitchSupport')
 def load(p):
  d={}
  with gzip.open(p,'rt') as f:
@@ -26,5 +26,8 @@ for e in range(2):
   for group,inds in (('left_front',range(0,6)),('left_rear',range(6,8)),('right_front',range(8,14)),('right_rear',range(14,16))):
    a=[eff[e,t,s][i] for t in range(lo,hi) for s in range(32) for i in inds if (e,t,s) in eff];v=[vel[e,t,s][i] for t in range(lo,hi) for s in range(32) for i in inds if (e,t,s) in vel]
    rows.append({'lane':e,'trace_steps_inclusive_exclusive':[lo,hi],'group':group,'n':len(a),'mean_effort_Nm':sum(a)/len(a) if a else None,'max_abs_effort_Nm':max(map(abs,a),default=None),'fraction_abs_at_least_0_0199_Nm':sum(abs(x)>=.0199 for x in a)/len(a) if a else None,'max_abs_velocity_rad_s':max(map(abs,v),default=None)})
-out={'prior_lane0_first_differing_zero_based':next(iter(prior),None),'between_lane_first_differing_zero_based':next(iter(paired),None),'effort_records':len(eff),'velocity_records':len(vel),'missing_records':len(missing),'bad':bad,'errors':errors,'rows':rows,'limitations':'Working effort is the implicit-drive refresh buffer, sampled at end of each encoded substep; pre-contact working effort is not contact impulse and trace epoch alignment needs separate proof. 0.0199 Nm threshold refers to nominal 0.02 Nm model DOF cap, not actual speed-dependent motor envelope.'}
+digits=[]
+for i in range(8,16):
+ a=[eff[0,t,k][i] for t in range(300,305) for k in range(32) if (0,t,k) in eff];digits.append({'coordinate_v':22+i,'mean_effort_Nm':sum(a)/len(a),'max_abs_effort_Nm':max(map(abs,a)),'fraction_abs_at_least_0_0199_Nm':sum(abs(x)>=.0199 for x in a)/len(a)})
+out={'stance_digit_300_305':digits,'prior_lane0_first_differing_zero_based':next(iter(prior),None),'between_lane_first_differing_zero_based':next(iter(paired),None),'effort_records':len(eff),'velocity_records':len(vel),'missing_records':len(missing),'bad':bad,'errors':errors,'rows':rows,'limitations':'Working effort is the implicit-drive refresh buffer, sampled at end of each encoded substep; pre-contact working effort is not contact impulse and trace epoch alignment needs separate proof. 0.0199 Nm threshold refers to nominal 0.02 Nm model DOF cap, not actual speed-dependent motor envelope.'}
 (A/'analysis.json').write_text(json.dumps(out,indent=2)+'\n');print(json.dumps(out,indent=2))

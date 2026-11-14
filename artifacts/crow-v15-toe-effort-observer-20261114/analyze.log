@@ -1,0 +1,582 @@
+{
+  "stance_digit_300_305": [
+    {
+      "coordinate_v": 30,
+      "mean_effort_Nm": 0.009744420225124995,
+      "max_abs_effort_Nm": 0.0163549855,
+      "fraction_abs_at_least_0_0199_Nm": 0.0
+    },
+    {
+      "coordinate_v": 31,
+      "mean_effort_Nm": 0.006121794629812499,
+      "max_abs_effort_Nm": 0.0106181167,
+      "fraction_abs_at_least_0_0199_Nm": 0.0
+    },
+    {
+      "coordinate_v": 32,
+      "mean_effort_Nm": 0.00590118943691437,
+      "max_abs_effort_Nm": 0.0133639071,
+      "fraction_abs_at_least_0_0199_Nm": 0.0
+    },
+    {
+      "coordinate_v": 33,
+      "mean_effort_Nm": 0.0035083868208508743,
+      "max_abs_effort_Nm": 0.00809167698,
+      "fraction_abs_at_least_0_0199_Nm": 0.0
+    },
+    {
+      "coordinate_v": 34,
+      "mean_effort_Nm": 0.0021237445065068767,
+      "max_abs_effort_Nm": 0.00867873989,
+      "fraction_abs_at_least_0_0199_Nm": 0.0
+    },
+    {
+      "coordinate_v": 35,
+      "mean_effort_Nm": 0.0011660809714495617,
+      "max_abs_effort_Nm": 0.00489117298,
+      "fraction_abs_at_least_0_0199_Nm": 0.0
+    },
+    {
+      "coordinate_v": 36,
+      "mean_effort_Nm": 0.019999999599999988,
+      "max_abs_effort_Nm": 0.0199999996,
+      "fraction_abs_at_least_0_0199_Nm": 1.0
+    },
+    {
+      "coordinate_v": 37,
+      "mean_effort_Nm": 0.011936227856874999,
+      "max_abs_effort_Nm": 0.0128535824,
+      "fraction_abs_at_least_0_0199_Nm": 0.0
+    }
+  ],
+  "prior_lane0_first_differing_zero_based": null,
+  "between_lane_first_differing_zero_based": null,
+  "effort_records": 28800,
+  "velocity_records": 28800,
+  "missing_records": 0,
+  "bad": [],
+  "errors": [],
+  "rows": [
+    {
+      "lane": 0,
+      "trace_steps_inclusive_exclusive": [
+        270,
+        290
+      ],
+      "group": "left_front",
+      "n": 3840,
+      "mean_effort_Nm": 0.0002318576224679221,
+      "max_abs_effort_Nm": 0.00503974641,
+      "fraction_abs_at_least_0_0199_Nm": 0.0,
+      "max_abs_velocity_rad_s": 2.45139217
+    },
+    {
+      "lane": 0,
+      "trace_steps_inclusive_exclusive": [
+        270,
+        290
+      ],
+      "group": "left_rear",
+      "n": 1280,
+      "mean_effort_Nm": 7.36940506888484e-05,
+      "max_abs_effort_Nm": 0.00447823852,
+      "fraction_abs_at_least_0_0199_Nm": 0.0,
+      "max_abs_velocity_rad_s": 2.17912602
+    },
+    {
+      "lane": 0,
+      "trace_steps_inclusive_exclusive": [
+        270,
+        290
+      ],
+      "group": "right_front",
+      "n": 3840,
+      "mean_effort_Nm": 0.016279880717354846,
+      "max_abs_effort_Nm": 0.0199999996,
+      "fraction_abs_at_least_0_0199_Nm": 0.3567708333333333,
+      "max_abs_velocity_rad_s": 1.39151931
+    },
+    {
+      "lane": 0,
+      "trace_steps_inclusive_exclusive": [
+        270,
+        290
+      ],
+      "group": "right_rear",
+      "n": 1280,
+      "mean_effort_Nm": 0.01672272853828114,
+      "max_abs_effort_Nm": 0.0199999996,
+      "fraction_abs_at_least_0_0199_Nm": 0.5,
+      "max_abs_velocity_rad_s": 0.903686464
+    },
+    {
+      "lane": 0,
+      "trace_steps_inclusive_exclusive": [
+        290,
+        300
+      ],
+      "group": "left_front",
+      "n": 1920,
+      "mean_effort_Nm": 0.0020276651910813956,
+      "max_abs_effort_Nm": 0.0199270509,
+      "fraction_abs_at_least_0_0199_Nm": 0.0005208333333333333,
+      "max_abs_velocity_rad_s": 2.44655585
+    },
+    {
+      "lane": 0,
+      "trace_steps_inclusive_exclusive": [
+        290,
+        300
+      ],
+      "group": "left_rear",
+      "n": 640,
+      "mean_effort_Nm": 0.012044994873848523,
+      "max_abs_effort_Nm": 0.0199999996,
+      "fraction_abs_at_least_0_0199_Nm": 0.3109375,
+      "max_abs_velocity_rad_s": 2.88323855
+    },
+    {
+      "lane": 0,
+      "trace_steps_inclusive_exclusive": [
+        290,
+        300
+      ],
+      "group": "right_front",
+      "n": 1920,
+      "mean_effort_Nm": 0.015011206267822883,
+      "max_abs_effort_Nm": 0.0199999996,
+      "fraction_abs_at_least_0_0199_Nm": 0.2526041666666667,
+      "max_abs_velocity_rad_s": 1.52434659
+    },
+    {
+      "lane": 0,
+      "trace_steps_inclusive_exclusive": [
+        290,
+        300
+      ],
+      "group": "right_rear",
+      "n": 640,
+      "mean_effort_Nm": 0.016339936114687533,
+      "max_abs_effort_Nm": 0.0199999996,
+      "fraction_abs_at_least_0_0199_Nm": 0.5,
+      "max_abs_velocity_rad_s": 1.91856492
+    },
+    {
+      "lane": 0,
+      "trace_steps_inclusive_exclusive": [
+        300,
+        305
+      ],
+      "group": "left_front",
+      "n": 960,
+      "mean_effort_Nm": 0.00989818200491666,
+      "max_abs_effort_Nm": 0.0199999996,
+      "fraction_abs_at_least_0_0199_Nm": 0.005208333333333333,
+      "max_abs_velocity_rad_s": 1.39358544
+    },
+    {
+      "lane": 0,
+      "trace_steps_inclusive_exclusive": [
+        300,
+        305
+      ],
+      "group": "left_rear",
+      "n": 320,
+      "mean_effort_Nm": 0.015257986469000026,
+      "max_abs_effort_Nm": 0.0199999996,
+      "fraction_abs_at_least_0_0199_Nm": 0.5,
+      "max_abs_velocity_rad_s": 2.7663393
+    },
+    {
+      "lane": 0,
+      "trace_steps_inclusive_exclusive": [
+        300,
+        305
+      ],
+      "group": "right_front",
+      "n": 960,
+      "mean_effort_Nm": 0.0047609360984432,
+      "max_abs_effort_Nm": 0.0163549855,
+      "fraction_abs_at_least_0_0199_Nm": 0.0,
+      "max_abs_velocity_rad_s": 1.97477508
+    },
+    {
+      "lane": 0,
+      "trace_steps_inclusive_exclusive": [
+        300,
+        305
+      ],
+      "group": "right_rear",
+      "n": 320,
+      "mean_effort_Nm": 0.015968113728437542,
+      "max_abs_effort_Nm": 0.0199999996,
+      "fraction_abs_at_least_0_0199_Nm": 0.5,
+      "max_abs_velocity_rad_s": 2.17404771
+    },
+    {
+      "lane": 0,
+      "trace_steps_inclusive_exclusive": [
+        305,
+        310
+      ],
+      "group": "left_front",
+      "n": 960,
+      "mean_effort_Nm": 0.006138137522312905,
+      "max_abs_effort_Nm": 0.0199999996,
+      "fraction_abs_at_least_0_0199_Nm": 0.009375,
+      "max_abs_velocity_rad_s": 3.39843535
+    },
+    {
+      "lane": 0,
+      "trace_steps_inclusive_exclusive": [
+        305,
+        310
+      ],
+      "group": "left_rear",
+      "n": 320,
+      "mean_effort_Nm": 0.015788193529437538,
+      "max_abs_effort_Nm": 0.0199999996,
+      "fraction_abs_at_least_0_0199_Nm": 0.5,
+      "max_abs_velocity_rad_s": 5.23816395
+    },
+    {
+      "lane": 0,
+      "trace_steps_inclusive_exclusive": [
+        305,
+        310
+      ],
+      "group": "right_front",
+      "n": 960,
+      "mean_effort_Nm": -8.611438556565493e-05,
+      "max_abs_effort_Nm": 0.00381979044,
+      "fraction_abs_at_least_0_0199_Nm": 0.0,
+      "max_abs_velocity_rad_s": 1.60788977
+    },
+    {
+      "lane": 0,
+      "trace_steps_inclusive_exclusive": [
+        305,
+        310
+      ],
+      "group": "right_rear",
+      "n": 320,
+      "mean_effort_Nm": 0.01243325752403624,
+      "max_abs_effort_Nm": 0.0199999996,
+      "fraction_abs_at_least_0_0199_Nm": 0.5,
+      "max_abs_velocity_rad_s": 5.67138577
+    },
+    {
+      "lane": 0,
+      "trace_steps_inclusive_exclusive": [
+        310,
+        330
+      ],
+      "group": "left_front",
+      "n": 3840,
+      "mean_effort_Nm": 0.0008775929757873203,
+      "max_abs_effort_Nm": 0.0140209245,
+      "fraction_abs_at_least_0_0199_Nm": 0.0,
+      "max_abs_velocity_rad_s": 2.8650043
+    },
+    {
+      "lane": 0,
+      "trace_steps_inclusive_exclusive": [
+        310,
+        330
+      ],
+      "group": "left_rear",
+      "n": 1280,
+      "mean_effort_Nm": 0.014455160318168046,
+      "max_abs_effort_Nm": 0.0199999996,
+      "fraction_abs_at_least_0_0199_Nm": 0.5,
+      "max_abs_velocity_rad_s": 3.36205626
+    },
+    {
+      "lane": 0,
+      "trace_steps_inclusive_exclusive": [
+        310,
+        330
+      ],
+      "group": "right_front",
+      "n": 3840,
+      "mean_effort_Nm": 2.9292408611483796e-06,
+      "max_abs_effort_Nm": 1.3942632e-05,
+      "fraction_abs_at_least_0_0199_Nm": 0.0,
+      "max_abs_velocity_rad_s": 0.00452038739
+    },
+    {
+      "lane": 0,
+      "trace_steps_inclusive_exclusive": [
+        310,
+        330
+      ],
+      "group": "right_rear",
+      "n": 1280,
+      "mean_effort_Nm": 0.012495987862404651,
+      "max_abs_effort_Nm": 0.0199999996,
+      "fraction_abs_at_least_0_0199_Nm": 0.5,
+      "max_abs_velocity_rad_s": 2.48109961
+    },
+    {
+      "lane": 1,
+      "trace_steps_inclusive_exclusive": [
+        270,
+        290
+      ],
+      "group": "left_front",
+      "n": 3840,
+      "mean_effort_Nm": 0.0002318576224679221,
+      "max_abs_effort_Nm": 0.00503974641,
+      "fraction_abs_at_least_0_0199_Nm": 0.0,
+      "max_abs_velocity_rad_s": 2.45139217
+    },
+    {
+      "lane": 1,
+      "trace_steps_inclusive_exclusive": [
+        270,
+        290
+      ],
+      "group": "left_rear",
+      "n": 1280,
+      "mean_effort_Nm": 7.36940506888484e-05,
+      "max_abs_effort_Nm": 0.00447823852,
+      "fraction_abs_at_least_0_0199_Nm": 0.0,
+      "max_abs_velocity_rad_s": 2.17912602
+    },
+    {
+      "lane": 1,
+      "trace_steps_inclusive_exclusive": [
+        270,
+        290
+      ],
+      "group": "right_front",
+      "n": 3840,
+      "mean_effort_Nm": 0.016279880717354846,
+      "max_abs_effort_Nm": 0.0199999996,
+      "fraction_abs_at_least_0_0199_Nm": 0.3567708333333333,
+      "max_abs_velocity_rad_s": 1.39151931
+    },
+    {
+      "lane": 1,
+      "trace_steps_inclusive_exclusive": [
+        270,
+        290
+      ],
+      "group": "right_rear",
+      "n": 1280,
+      "mean_effort_Nm": 0.01672272853828114,
+      "max_abs_effort_Nm": 0.0199999996,
+      "fraction_abs_at_least_0_0199_Nm": 0.5,
+      "max_abs_velocity_rad_s": 0.903686464
+    },
+    {
+      "lane": 1,
+      "trace_steps_inclusive_exclusive": [
+        290,
+        300
+      ],
+      "group": "left_front",
+      "n": 1920,
+      "mean_effort_Nm": 0.0020276651910813956,
+      "max_abs_effort_Nm": 0.0199270509,
+      "fraction_abs_at_least_0_0199_Nm": 0.0005208333333333333,
+      "max_abs_velocity_rad_s": 2.44655585
+    },
+    {
+      "lane": 1,
+      "trace_steps_inclusive_exclusive": [
+        290,
+        300
+      ],
+      "group": "left_rear",
+      "n": 640,
+      "mean_effort_Nm": 0.012044994873848523,
+      "max_abs_effort_Nm": 0.0199999996,
+      "fraction_abs_at_least_0_0199_Nm": 0.3109375,
+      "max_abs_velocity_rad_s": 2.88323855
+    },
+    {
+      "lane": 1,
+      "trace_steps_inclusive_exclusive": [
+        290,
+        300
+      ],
+      "group": "right_front",
+      "n": 1920,
+      "mean_effort_Nm": 0.015011206267822883,
+      "max_abs_effort_Nm": 0.0199999996,
+      "fraction_abs_at_least_0_0199_Nm": 0.2526041666666667,
+      "max_abs_velocity_rad_s": 1.52434659
+    },
+    {
+      "lane": 1,
+      "trace_steps_inclusive_exclusive": [
+        290,
+        300
+      ],
+      "group": "right_rear",
+      "n": 640,
+      "mean_effort_Nm": 0.016339936114687533,
+      "max_abs_effort_Nm": 0.0199999996,
+      "fraction_abs_at_least_0_0199_Nm": 0.5,
+      "max_abs_velocity_rad_s": 1.91856492
+    },
+    {
+      "lane": 1,
+      "trace_steps_inclusive_exclusive": [
+        300,
+        305
+      ],
+      "group": "left_front",
+      "n": 960,
+      "mean_effort_Nm": 0.00989818200491666,
+      "max_abs_effort_Nm": 0.0199999996,
+      "fraction_abs_at_least_0_0199_Nm": 0.005208333333333333,
+      "max_abs_velocity_rad_s": 1.39358544
+    },
+    {
+      "lane": 1,
+      "trace_steps_inclusive_exclusive": [
+        300,
+        305
+      ],
+      "group": "left_rear",
+      "n": 320,
+      "mean_effort_Nm": 0.015257986469000026,
+      "max_abs_effort_Nm": 0.0199999996,
+      "fraction_abs_at_least_0_0199_Nm": 0.5,
+      "max_abs_velocity_rad_s": 2.7663393
+    },
+    {
+      "lane": 1,
+      "trace_steps_inclusive_exclusive": [
+        300,
+        305
+      ],
+      "group": "right_front",
+      "n": 960,
+      "mean_effort_Nm": 0.0047609360984432,
+      "max_abs_effort_Nm": 0.0163549855,
+      "fraction_abs_at_least_0_0199_Nm": 0.0,
+      "max_abs_velocity_rad_s": 1.97477508
+    },
+    {
+      "lane": 1,
+      "trace_steps_inclusive_exclusive": [
+        300,
+        305
+      ],
+      "group": "right_rear",
+      "n": 320,
+      "mean_effort_Nm": 0.015968113728437542,
+      "max_abs_effort_Nm": 0.0199999996,
+      "fraction_abs_at_least_0_0199_Nm": 0.5,
+      "max_abs_velocity_rad_s": 2.17404771
+    },
+    {
+      "lane": 1,
+      "trace_steps_inclusive_exclusive": [
+        305,
+        310
+      ],
+      "group": "left_front",
+      "n": 960,
+      "mean_effort_Nm": 0.006138137522312905,
+      "max_abs_effort_Nm": 0.0199999996,
+      "fraction_abs_at_least_0_0199_Nm": 0.009375,
+      "max_abs_velocity_rad_s": 3.39843535
+    },
+    {
+      "lane": 1,
+      "trace_steps_inclusive_exclusive": [
+        305,
+        310
+      ],
+      "group": "left_rear",
+      "n": 320,
+      "mean_effort_Nm": 0.015788193529437538,
+      "max_abs_effort_Nm": 0.0199999996,
+      "fraction_abs_at_least_0_0199_Nm": 0.5,
+      "max_abs_velocity_rad_s": 5.23816395
+    },
+    {
+      "lane": 1,
+      "trace_steps_inclusive_exclusive": [
+        305,
+        310
+      ],
+      "group": "right_front",
+      "n": 960,
+      "mean_effort_Nm": -8.611438556565493e-05,
+      "max_abs_effort_Nm": 0.00381979044,
+      "fraction_abs_at_least_0_0199_Nm": 0.0,
+      "max_abs_velocity_rad_s": 1.60788977
+    },
+    {
+      "lane": 1,
+      "trace_steps_inclusive_exclusive": [
+        305,
+        310
+      ],
+      "group": "right_rear",
+      "n": 320,
+      "mean_effort_Nm": 0.01243325752403624,
+      "max_abs_effort_Nm": 0.0199999996,
+      "fraction_abs_at_least_0_0199_Nm": 0.5,
+      "max_abs_velocity_rad_s": 5.67138577
+    },
+    {
+      "lane": 1,
+      "trace_steps_inclusive_exclusive": [
+        310,
+        330
+      ],
+      "group": "left_front",
+      "n": 3840,
+      "mean_effort_Nm": 0.0008775929757873203,
+      "max_abs_effort_Nm": 0.0140209245,
+      "fraction_abs_at_least_0_0199_Nm": 0.0,
+      "max_abs_velocity_rad_s": 2.8650043
+    },
+    {
+      "lane": 1,
+      "trace_steps_inclusive_exclusive": [
+        310,
+        330
+      ],
+      "group": "left_rear",
+      "n": 1280,
+      "mean_effort_Nm": 0.014455160318168046,
+      "max_abs_effort_Nm": 0.0199999996,
+      "fraction_abs_at_least_0_0199_Nm": 0.5,
+      "max_abs_velocity_rad_s": 3.36205626
+    },
+    {
+      "lane": 1,
+      "trace_steps_inclusive_exclusive": [
+        310,
+        330
+      ],
+      "group": "right_front",
+      "n": 3840,
+      "mean_effort_Nm": 2.9292408611483796e-06,
+      "max_abs_effort_Nm": 1.3942632e-05,
+      "fraction_abs_at_least_0_0199_Nm": 0.0,
+      "max_abs_velocity_rad_s": 0.00452038739
+    },
+    {
+      "lane": 1,
+      "trace_steps_inclusive_exclusive": [
+        310,
+        330
+      ],
+      "group": "right_rear",
+      "n": 1280,
+      "mean_effort_Nm": 0.012495987862404651,
+      "max_abs_effort_Nm": 0.0199999996,
+      "fraction_abs_at_least_0_0199_Nm": 0.5,
+      "max_abs_velocity_rad_s": 2.48109961
+    }
+  ],
+  "limitations": "Working effort is the implicit-drive refresh buffer, sampled at end of each encoded substep; pre-contact working effort is not contact impulse and trace epoch alignment needs separate proof. 0.0199 Nm threshold refers to nominal 0.02 Nm model DOF cap, not actual speed-dependent motor envelope."
+}
