@@ -1,0 +1,7 @@
+# Stance friction impulse observer
+
+The observation-only build reproduced the preceding control's 450-interval logged state, targets, poses and endpoint contacts exactly, and the two lanes matched. It recorded 359,212 individual positive-normal foot/toe contact records across 28,800 substeps, with no observer errors or missing aggregate records. Summed per-contact normals matched the previous per-side normal totals within 1.06e-9 N s.
+
+The effective coefficients at these contacts were 0.8 static and 0.6 dynamic. With a 1e-6 N s minimum normal impulse, the stance right foretoe and rear-toe contacts were very often near the dynamic boundary: in trace intervals [290,300), respectively 907/907 foretoe and 320/320 rear-toe contacts had tangential impulse magnitude at least 95% of dynamic coefficient times normal impulse. At [300,305), 178/178 foretoe and 145/160 rear-toe contacts met that threshold. Their median dynamic ratios were approximately 1.0. The same contacts are around 0.75 of the static coefficient bound; looking only at the static ratio would obscure the dynamic boundary. These are contact counts, not independent trials or time fractions.
+
+This is consistent with friction-limited contact but does not prove sliding, because relative tangential contact velocity is not logged and contact/state epochs remain unverified. Nor does it justify changing friction or establish the cause of the subsequent fall. Preserve all raw contact records, both lanes, source/binary identities and this failed constructed grip trial.
