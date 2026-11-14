@@ -1,0 +1,5 @@
+# Contact-gated stance recentering: failed grip
+
+Both lanes used the same 1.0 distal coupling and had identical logged states and targets through zero-based interval 300. Once both feet met the measured contact gate, the candidate reduced the stance preparation. The control's longest qualifying bilateral-grip streak was 11 intervals; the candidate's was five, with a second four-interval streak. The first post-return stance gate loss occurred at interval 304 versus 301. The root fell below 0.1 m at one-based interval 370 in control and 371 in the candidate; both reached the modeled toe-speed cap before falling and failed the terminal 100-interval grip requirement. All 450 states per lane and the required toe substeps were present and finite; no observer error was reported.
+
+This recentering did not solve grip or balance and degraded the maximum uninterrupted grip streak. Contact/state epochs remain unverified. The constructed trial is not walking or landing qualification; full failure data are retained.

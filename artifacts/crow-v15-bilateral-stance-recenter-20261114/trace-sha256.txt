@@ -1,0 +1,2 @@
+24af11271b7d5dd911a3e900569898a5d1f7296f930a9f8a57b25282aa049d1c  artifacts/crow-v15-bilateral-stance-recenter-20261114/trace.log.gz
+ec7eaeecb6d6017d205d49ddacc870d76163d2cee2eb963b7f27b398cb836c73  artifacts/crow-v15-bilateral-stance-recenter-20261114/substeps.log.gz
