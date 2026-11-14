@@ -1,0 +1,46 @@
+{
+  "retired": true,
+  "files": [
+    {
+      "path": "/Users/home/Documents/Codex/2026-11-07/c/crow-research-staging/artifacts/crow-v15-early-height-bias-20261114/altitude-20261126-rebound-earlyheight/run.stderr.gz",
+      "inode": 204494341,
+      "bytes": 151968869,
+      "mtime_ns": 1794666406158107867,
+      "sha256": "b5b0791e32c308e49aff98a69ca6eee0cb45e080ac46b108c357860dbadf547b",
+      "lsof_clear": true
+    },
+    {
+      "path": "/Users/home/Documents/Codex/2026-11-07/c/crow-research-staging/artifacts/crow-v15-early-height-bias-20261114/altitude-20261126-rebound-earlyheight/run.stderr.gz.part000",
+      "inode": 204495158,
+      "bytes": 41943040,
+      "mtime_ns": 1794666507860184259,
+      "sha256": "190c82de0d6dea14d73e5c65951f6522fbad57381b40cd9284b64833378cad1e",
+      "lsof_clear": true
+    },
+    {
+      "path": "/Users/home/Documents/Codex/2026-11-07/c/crow-research-staging/artifacts/crow-v15-early-height-bias-20261114/altitude-20261126-rebound-earlyheight/run.stderr.gz.part001",
+      "inode": 204495179,
+      "bytes": 41943040,
+      "mtime_ns": 1794666508163718334,
+      "sha256": "2ab397b349a9722f9c88da926e46aa524f8297575b4200d716dd1cc37280ea68",
+      "lsof_clear": true
+    },
+    {
+      "path": "/Users/home/Documents/Codex/2026-11-07/c/crow-research-staging/artifacts/crow-v15-early-height-bias-20261114/altitude-20261126-rebound-earlyheight/run.stderr.gz.part002",
+      "inode": 204495186,
+      "bytes": 41943040,
+      "mtime_ns": 1794666508434953948,
+      "sha256": "9fc6cdce32ccfd2acd9d0b4afaf4ad78899235ea079f11c24e7ac85bc81c811e",
+      "lsof_clear": true
+    },
+    {
+      "path": "/Users/home/Documents/Codex/2026-11-07/c/crow-research-staging/artifacts/crow-v15-early-height-bias-20261114/altitude-20261126-rebound-earlyheight/run.stderr.gz.part003",
+      "inode": 204495197,
+      "bytes": 26139749,
+      "mtime_ns": 1794666508673192140,
+      "sha256": "d24deeabd61c9dbe3d7ebd8d8b8bc35d6ec39fd369b89b4afd66574d5661507e",
+      "lsof_clear": true
+    }
+  ],
+  "total_bytes": 303937738
+}
