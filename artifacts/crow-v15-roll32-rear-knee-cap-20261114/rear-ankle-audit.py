@@ -1,6 +1,6 @@
 from pathlib import Path
 import gzip,json
-A=Path('artifacts/crow-v15-rear-clearance-knee-20261114');stage={};events={};ankle={}
+A=Path('artifacts/crow-v15-roll32-rear-knee-cap-20261114');stage={};events={};ankle={}
 with gzip.open(A/'trace.log.gz','rt') as f:
  for l in f:
   x=l.split()

@@ -1,6 +1,6 @@
 from pathlib import Path
 import gzip,json
-A=Path('artifacts/crow-v15-rear-clearance-knee-20261114');B=Path('artifacts/crow-v15-stance-roll-authority-20261114')
+A=Path('artifacts/crow-v15-rear-clearance-knee-20261114');B=Path('artifacts/crow-v15-early-clearance-feedback-20261114')
 def read(p):
  s={};u={}
  with gzip.open(p/'trace.log.gz','rt') as f:
@@ -9,7 +9,7 @@ def read(p):
    if not x:continue
    if x[0]=='step':
     q=x.index('q');v=x.index('v');s[int(x[1]),int(x[2])]=list(map(float,x[q+1:v]+x[v+1:]))
-   elif x[0] in ('control','hipcommand','jointtarget','rearKnee','rearAnkle','rightHipCommand'):
+   elif x[0] in ('control','hipcommand','jointtarget','rearKnee'):
     key=(int(x[1]),int(x[2]));u.setdefault(key,[]).append((x[0],x[3:]))
  return s,u
 s,u=read(A);ref,_=read(B);on=next((t for t in range(450) if u.get((0,t))!=u.get((1,t))),None);pre=[max(abs(a-b) for a,b in zip(s[0,t],s[1,t])) for t in range(on or 0)];base=[max(abs(a-b) for a,b in zip(s[0,t],ref[1,t])) for t in range(450)]

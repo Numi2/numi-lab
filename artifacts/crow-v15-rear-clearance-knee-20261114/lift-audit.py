@@ -12,7 +12,7 @@ for t in range(1,450):
  s=stage[1,t];prev=stage[1,t-1];event=events[1,t-1];active |= bool(prev[4]) and bool(event[0])
  if not active:continue
  samples+=1;old=prev[5];now=s[5];gate=bool(s[0]) and bool(s[1]) and bool(s[2]);clearance=event[10];target=old
- if gate and clearance<.003:target=min(.28,old+.005)
+ if gate and clearance<.003:target=min(.15,old+.005)
  elif gate and clearance>.005:target=max(0,old-.005)
  max_step=max(max_step,abs(now-old))
  if abs(now-target)>2e-7:bad.append({'tick':t,'expected':target,'actual':now,'gate':gate,'clearance':clearance})

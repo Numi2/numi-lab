@@ -1,6 +1,6 @@
 from pathlib import Path
 import gzip,hashlib,subprocess
-R=Path.cwd(); A=R/'artifacts/crow-v15-rear-clearance-knee-20261114'; B=R/'build/crow-v15-rear-clearance-knee-20261114'; P=R/'build/crow-v15-hiproll-toe-observer-20261113'; W=R/'build/crow-v15-wide-contact-isolation-20261111'
+R=Path.cwd(); A=R/'artifacts/crow-v15-roll32-rear-knee-cap-20261114'; B=R/'build/crow-v15-roll32-rear-knee-cap-20261114'; P=R/'build/crow-v15-hiproll-toe-observer-20261113'; W=R/'build/crow-v15-wide-contact-isolation-20261111'
 subprocess.run(['xcrun','clang++','-std=c++20','-O2','-I'+str(W/'include'),'-Iinclude',str(A/'probe.cpp'),'-L'+str(P),'-lmetalrobo','-Wl,-rpath,'+str(P),'-o',str(B/'probe')],check=True)
 b=(B/'probe').read_bytes();(A/'prebuild-probe.sha256').write_text(hashlib.sha256(b).hexdigest()+'  '+str((B/'probe').relative_to(R))+'\n')
 with (A/'prebuild-probe.gz').open('wb') as f:

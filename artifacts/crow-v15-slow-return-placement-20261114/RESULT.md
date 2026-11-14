@@ -1,0 +1,5 @@
+# Slower return placement: failed regrip
+
+Reducing placement progress from 0.05 to 0.005 per interval delayed the first root height below 0.1 m from interval 329 to 335, but neither lane produced any interval satisfying all bilateral opposing-toe grip, upright and speed criteria. Candidate accepted-state left-toe speed reached the 12 rad/s threshold at zero-based tick 333, before its fall. The slower-placement candidate therefore fails the original gates and is not promoted. The initial strict-release streaks were 13 and 14 intervals, far below 100; return was deliberately requested early.
+
+The control reproduced every archived prior-return q/v state and logged target exactly. The two lanes matched through tick 253 and first differed at the return command at tick 254. All 32 contact substeps were present with no recorded native/observer errors or nonfoot support. Runtime and prebuilt executable hashes match. Accepted-state samples do not bound substep speeds or drive efforts; contact/state epochs remain independently unverified. This constructed perch probe is not walking or airborne landing.
