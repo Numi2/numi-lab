@@ -1,6 +1,6 @@
 from pathlib import Path
 import gzip,json
-A=Path('artifacts/crow-v15-clearance-feedback-20261114');B=Path('artifacts/crow-v15-stance-front-com-balance-20261114')
+A=Path('artifacts/crow-v15-clearance-feedback-20261114');B=Path('artifacts/crow-v15-single-stance-isolation-20261114')
 def read(p):
  s={};u={}
  with gzip.open(p/'trace.log.gz','rt') as f:
