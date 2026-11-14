@@ -1,0 +1,3 @@
+# Earlier height bias correction
+
+In the registered teacher-off training-layout trial on used seed 20261126, all eight lanes pass the logged physical gates and the stronger 50 mm mean-absolute-error gate in all three windows. Level-flight window errors span 28.7–39.2 mm; climb 8.3–10.0 mm; descent 7.9–8.9 mm. State, action and contact prefixes match the prior straight reference through interval 490. Finished trace and replay SHA-256 hashes match the native copies. The correction and schedule were developed on this seed, and this is a scripted altitude cycle, not general command tracking, perturbed-start recovery, leg-power proof, landing or autonomous mission qualification.
