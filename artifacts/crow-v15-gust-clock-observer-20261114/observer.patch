@@ -1,0 +1,28 @@
+--- prior-observer.mm
++++ clock-observer.mm
+@@ -12727,7 +12727,7 @@
+     const std::size_t bodyStride
+ ) {
+     const bool observe=std::getenv("CROW_AERO_WRENCH_TRACE")!=nullptr && ((traceStep>=335 && traceStep<=400) || (traceStep>=650 && traceStep<=1150));
+-    id<MTLBuffer> before=nil; id<MTLBuffer> after=nil; id<MTLBuffer> aq=nil; id<MTLBuffer> av=nil; id<MTLBuffer> ctrl=nil;
++    id<MTLBuffer> before=nil; id<MTLBuffer> after=nil; id<MTLBuffer> aq=nil; id<MTLBuffer> av=nil; id<MTLBuffer> ctrl=nil; id<MTLBuffer> taskClock=nil;
+     id<MTLBuffer> source=context.buffers[kBodyWrenchPlaceholder];
+     if (observe) {
+         if (source==nil || source.length < environmentCount*bodyStride*sizeof(MRABABodyWrenchGPU)) throw std::runtime_error("aero observer buffer size");
+@@ -12744,6 +12744,7 @@
+         [blit copyFromBuffer:qs sourceOffset:0 toBuffer:aq destinationOffset:0 size:qs.length];
+         [blit copyFromBuffer:vs sourceOffset:0 toBuffer:av destinationOffset:0 size:vs.length];
+         id<MTLBuffer> cp=context.buffers[kTaskControllerParameters]; if(cp.length < environmentCount*sizeof(mr_float4)) throw std::runtime_error("controller buffer size"); ctrl=[context.device newBufferWithLength:cp.length options:MTLResourceStorageModeShared]; if(ctrl==nil) throw std::bad_alloc(); [blit copyFromBuffer:cp sourceOffset:0 toBuffer:ctrl destinationOffset:0 size:cp.length];
++        if (traceStep>=695 && traceStep<=710) { id<MTLBuffer> ts=context.buffers[kTaskState]; if(ts.length < environmentCount*sizeof(MRTaskStateGPU)) throw std::runtime_error("task clock buffer size"); taskClock=[context.device newBufferWithLength:ts.length options:MTLResourceStorageModeShared]; if(taskClock==nil) throw std::bad_alloc(); [blit copyFromBuffer:ts sourceOffset:0 toBuffer:taskClock destinationOffset:0 size:ts.length]; }
+         [blit endEncoding];
+     }
+     const bool encoded=encodeContactThreadKernel(
+@@ -12761,7 +12762,7 @@
+             const auto* a=static_cast<const MRABABodyWrenchGPU*>(before.contents);
+             const auto* b=static_cast<const MRABABodyWrenchGPU*>(after.contents);
+             for (std::size_t e=0;e<environmentCount;++e) {
+-                if (traceStep>=695 && traceStep<=710) { const auto& w=a[e*bodyStride]; std::fprintf(stderr,"CROW_PRE_AERO_ROOT %llu %u %lu %.9g %.9g %.9g %.9g %.9g %.9g\n",traceStep,traceSubstep,(unsigned long)e,double(w.force.x),double(w.force.y),double(w.force.z),double(w.torque.x),double(w.torque.y),double(w.torque.z)); }
++                if (traceStep>=695 && traceStep<=710) { const auto* tc=static_cast<const MRTaskStateGPU*>(taskClock.contents); std::fprintf(stderr,"CROW_GUST_CLOCK %llu %u %lu %u\n",traceStep,traceSubstep,(unsigned long)e,tc[e].episode.x); const auto& w=a[e*bodyStride]; std::fprintf(stderr,"CROW_PRE_AERO_ROOT %llu %u %lu %.9g %.9g %.9g %.9g %.9g %.9g\n",traceStep,traceSubstep,(unsigned long)e,double(w.force.x),double(w.force.y),double(w.force.z),double(w.torque.x),double(w.torque.y),double(w.torque.z)); }
+                 const auto* qin=static_cast<const float*>(aq.contents);const auto* vin=static_cast<const float*>(av.contents);
+                 const auto* cp=static_cast<const mr_float4*>(ctrl.contents); const auto& cv=cp[e]; std::fprintf(stderr,"CROW_DRIVE_SCALES %llu %u %lu %.9g %.9g %.9g %.9g\n",traceStep,traceSubstep,(unsigned long)e,cv.x,cv.y,cv.z,cv.w);
+                 std::fprintf(stderr,"CROW_AERO_INPUT %llu %u %lu",traceStep,traceSubstep,(unsigned long)e);
