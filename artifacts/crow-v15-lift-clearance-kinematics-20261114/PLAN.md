@@ -1,0 +1,3 @@
+# Rear-toe clearance kinematics in early-lift test
+
+The failed early clearance-feedback test drove the released hip target while its foot and front toes cleared the perch, but the rear toe remained in contact. For both retained lanes at zero-based ticks 220–290 by tens, reuse the hashed native v15 FK executable to compute local +/-0.02 rad hip, knee and ankle collider gap sensitivities. Cross-check unperturbed gaps against retained independent body-pose geometry. These are fixed-state hypothetical perturbations, not physical motion, force or proof of grip; use the result only to select a bounded paired control test.
