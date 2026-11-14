@@ -1,0 +1,5 @@
+# Coordinated clearance: failed release/support trial
+
+Widening the candidate's hip, knee and ankle target-correction caps did not meet the 100-interval single-support requirement. The longest qualifying streak was 33 intervals versus 34 in the matched control. The control exactly reproduced all 450 states of the prior early-balance candidate; the two lanes had an exact 225-state prefix. The candidate's longest streak was intervals 234–266; clearance was below the gate by interval 270 and stance upward support failed at 272. Root height first fell below 0.1 m at interval 349 versus 350 in the control. Accepted-state stance-toe speed reached 12 rad/s before each fall.
+
+All 450 states and 32 contact substeps were present without reported native or observer errors or nonfoot support. The reconstructed pitch, hip, knee and ankle target feedback audits passed. These are target checks and accepted-state toe speeds, not actuator-effort or substep-speed proof. Toes remained open and regrip was not tested. This is a constructed perching probe, not walking, landing, or biological qualification; its state/contact epoch alignment is independently unverified.
