@@ -1,0 +1,70 @@
+{
+  "retired": false,
+  "files": [
+    {
+      "path": "/Users/home/Documents/Codex/2026-11-07/c/crow-research-staging/artifacts/crow-v15-long-leg-wing-transition-20261114/push-20261127-rebound-long/run.stderr.gz",
+      "inode": 204346026,
+      "bytes": 256201430,
+      "mtime_ns": 1794641712530355066,
+      "sha256": "df5e2471870395e7c92618b95c1f184a7d2c2b55421094b3247eca3d170d68b2",
+      "lsof_clear": true
+    },
+    {
+      "path": "/Users/home/Documents/Codex/2026-11-07/c/crow-research-staging/artifacts/crow-v15-long-leg-wing-transition-20261114/push-20261127-rebound-long/run.stderr.gz.part000",
+      "inode": 204346233,
+      "bytes": 41943040,
+      "mtime_ns": 1794641725082913415,
+      "sha256": "ad1d82cde220128bf35f245f1d67d4f2bc4cd8e83fc6b1c5b1becbd36f9a6d5a",
+      "lsof_clear": true
+    },
+    {
+      "path": "/Users/home/Documents/Codex/2026-11-07/c/crow-research-staging/artifacts/crow-v15-long-leg-wing-transition-20261114/push-20261127-rebound-long/run.stderr.gz.part001",
+      "inode": 204346251,
+      "bytes": 41943040,
+      "mtime_ns": 1794641725273552984,
+      "sha256": "ddc0a98b1dc9e49e4c4fdea002e5c649279ecfa9d6cb3a71650dab344c1b2ed6",
+      "lsof_clear": true
+    },
+    {
+      "path": "/Users/home/Documents/Codex/2026-11-07/c/crow-research-staging/artifacts/crow-v15-long-leg-wing-transition-20261114/push-20261127-rebound-long/run.stderr.gz.part002",
+      "inode": 204346255,
+      "bytes": 41943040,
+      "mtime_ns": 1794641725461535953,
+      "sha256": "e826b7371435b1101c538727bfd8e3f4a8b81cca0e279bdaee5c0e6d9ac8c255",
+      "lsof_clear": true
+    },
+    {
+      "path": "/Users/home/Documents/Codex/2026-11-07/c/crow-research-staging/artifacts/crow-v15-long-leg-wing-transition-20261114/push-20261127-rebound-long/run.stderr.gz.part003",
+      "inode": 204346266,
+      "bytes": 41943040,
+      "mtime_ns": 1794641725653165527,
+      "sha256": "c7d5e3a73552ddb0a4287cd7a8ea65f7adc6abe37f77e4c401c5868f8e2706ea",
+      "lsof_clear": true
+    },
+    {
+      "path": "/Users/home/Documents/Codex/2026-11-07/c/crow-research-staging/artifacts/crow-v15-long-leg-wing-transition-20261114/push-20261127-rebound-long/run.stderr.gz.part004",
+      "inode": 204346272,
+      "bytes": 41943040,
+      "mtime_ns": 1794641725835922591,
+      "sha256": "ab01bcb483d446cb62ca4d5a2a44e020aa7ea13158db475be55e2e3caac91b35",
+      "lsof_clear": true
+    },
+    {
+      "path": "/Users/home/Documents/Codex/2026-11-07/c/crow-research-staging/artifacts/crow-v15-long-leg-wing-transition-20261114/push-20261127-rebound-long/run.stderr.gz.part005",
+      "inode": 204346279,
+      "bytes": 41943040,
+      "mtime_ns": 1794641726024786399,
+      "sha256": "bf43f3cb1c9545d248ab157ac5c900fffb50324c8f01406fdd695c8c6e2d9508",
+      "lsof_clear": true
+    },
+    {
+      "path": "/Users/home/Documents/Codex/2026-11-07/c/crow-research-staging/artifacts/crow-v15-long-leg-wing-transition-20261114/push-20261127-rebound-long/run.stderr.gz.part006",
+      "inode": 204346288,
+      "bytes": 4543190,
+      "mtime_ns": 1794641726176226698,
+      "sha256": "389d3a32c7cca1dce37833b61a232d4305b1080ca5ec72bee22925581adcf0d0",
+      "lsof_clear": true
+    }
+  ],
+  "total_bytes": 512402860
+}
