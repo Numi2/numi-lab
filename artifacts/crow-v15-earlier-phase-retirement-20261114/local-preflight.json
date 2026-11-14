@@ -1,0 +1,22 @@
+{
+  "retired": false,
+  "files": [
+    {
+      "path": "/Users/home/Documents/Codex/2026-11-07/c/crow-research-staging/artifacts/crow-v15-earlier-phase-transition-20261114/push-20261126-rebound-phase/run.stderr.gz",
+      "inode": 204329825,
+      "bytes": 34436401,
+      "mtime_ns": 1794639221538016769,
+      "sha256": "9e0769a0ca50868010011ee8a9a45c82dd95ae12016a0334f0e8158826893a3c",
+      "lsof_clear": true
+    },
+    {
+      "path": "/Users/home/Documents/Codex/2026-11-07/c/crow-research-staging/artifacts/crow-v15-earlier-phase-transition-20261114/hold-20261126-rebound-phase/run.stderr.gz",
+      "inode": 204331068,
+      "bytes": 34491245,
+      "mtime_ns": 1794639361039169934,
+      "sha256": "4f3bbd6624329ec9b3323193ddf61cc2900e09def3b38f85c40b300bb2ac766a",
+      "lsof_clear": true
+    }
+  ],
+  "total_bytes": 68927646
+}

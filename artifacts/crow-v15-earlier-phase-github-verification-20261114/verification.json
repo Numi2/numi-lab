@@ -1,0 +1,19 @@
+{
+  "source_commit": "03f4effa",
+  "files": [
+    {
+      "arm": "push",
+      "path": "crow-v15-earlier-phase-transition-20261114/push-20261126-rebound-phase/run.stderr.gz",
+      "bytes": 34436401,
+      "sha256": "9e0769a0ca50868010011ee8a9a45c82dd95ae12016a0334f0e8158826893a3c",
+      "gzip_eof": true
+    },
+    {
+      "arm": "hold",
+      "path": "crow-v15-earlier-phase-transition-20261114/hold-20261126-rebound-phase/run.stderr.gz",
+      "bytes": 34491245,
+      "sha256": "4f3bbd6624329ec9b3323193ddf61cc2900e09def3b38f85c40b300bb2ac766a",
+      "gzip_eof": true
+    }
+  ]
+}
