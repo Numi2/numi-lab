@@ -1,0 +1,13 @@
+{
+  "0": {
+    "samples": 450,
+    "maximum_accepted_toe_speed_rad_s": 12.0,
+    "threshold_12_rad_s_reached": true
+  },
+  "1": {
+    "samples": 450,
+    "maximum_accepted_toe_speed_rad_s": 12.0,
+    "threshold_12_rad_s_reached": true
+  },
+  "scope": "accepted control states only; substep toe speed and effort not measured"
+}
