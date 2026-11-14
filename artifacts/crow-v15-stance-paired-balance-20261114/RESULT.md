@@ -1,0 +1,3 @@
+# Paired effect of widened stance-hip correction
+
+In the archived matched trial, the two lanes were identical through 261 recorded states. At zero-based ticks 270 and 290 the wider-limit candidate's pitch correction was 0.00674 and 0.02063 rad more negative than control, while its model COM was respectively 0.526 and 2.114 mm less far forward relative to the support foot. The toe-clearance gate had already failed before these differences grew. This paired association motivates testing earlier feedback; it is not proof of stable release, grip or landing, nor does it independently synchronize contact and state epochs.

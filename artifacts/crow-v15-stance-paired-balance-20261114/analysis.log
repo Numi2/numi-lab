@@ -1,0 +1,55 @@
+{
+  "source": "artifacts/crow-v15-stance-pitch-authority-20261114/trace.log.gz",
+  "rows": [
+    {
+      "zero_based_tick": 260,
+      "candidate_minus_control_pitch_correction_rad": 0.0,
+      "candidate_minus_control_body_pitch_rad": 0.0,
+      "candidate_minus_control_com_x_m": 0.0,
+      "candidate_minus_control_clearance_m": 0.0
+    },
+    {
+      "zero_based_tick": 265,
+      "candidate_minus_control_pitch_correction_rad": -0.0017182827000000005,
+      "candidate_minus_control_body_pitch_rad": 0.0003471680000000088,
+      "candidate_minus_control_com_x_m": -0.00014616180000000256,
+      "candidate_minus_control_clearance_m": -6.556510000000005e-07
+    },
+    {
+      "zero_based_tick": 270,
+      "candidate_minus_control_pitch_correction_rad": -0.0067367851,
+      "candidate_minus_control_body_pitch_rad": 0.0011840459999999942,
+      "candidate_minus_control_com_x_m": -0.0005256626999999986,
+      "candidate_minus_control_clearance_m": 4.239380400000004e-06
+    },
+    {
+      "zero_based_tick": 275,
+      "candidate_minus_control_pitch_correction_rad": -0.009936625100000002,
+      "candidate_minus_control_body_pitch_rad": 0.0022809209999999913,
+      "candidate_minus_control_com_x_m": -0.000804083399999999,
+      "candidate_minus_control_clearance_m": 4.217028600000003e-06
+    },
+    {
+      "zero_based_tick": 280,
+      "candidate_minus_control_pitch_correction_rad": -0.014498759,
+      "candidate_minus_control_body_pitch_rad": 0.002566336999999974,
+      "candidate_minus_control_com_x_m": -0.0011815354000000028,
+      "candidate_minus_control_clearance_m": 7.838010800000002e-06
+    },
+    {
+      "zero_based_tick": 290,
+      "candidate_minus_control_pitch_correction_rad": -0.020629789600000004,
+      "candidate_minus_control_body_pitch_rad": 0.0034781099999999787,
+      "candidate_minus_control_com_x_m": -0.0021141263999999993,
+      "candidate_minus_control_clearance_m": -1.6689301000000006e-06
+    },
+    {
+      "zero_based_tick": 300,
+      "candidate_minus_control_pitch_correction_rad": -0.023087233300000003,
+      "candidate_minus_control_body_pitch_rad": 0.009569079000000036,
+      "candidate_minus_control_com_x_m": -0.0012370721000000001,
+      "candidate_minus_control_clearance_m": 2.3901461999999997e-05
+    }
+  ],
+  "scope": "Paired, identical-prefix state association; other dynamic responses and contact changes can mediate it. Not proof of a stable intervention."
+}
