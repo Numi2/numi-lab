@@ -1,0 +1,5 @@
+# Bounded stance pitch authority experiment
+
+In the earlier-ankle trial the stance pitch target reached its 0.10 rad bound around interval 300 as body pitch continued to grow; this is an association, not proof of actuator inadequacy. Test increased correction authority from 0.10 to 0.14 rad in candidate lane 1, while lane 0 reproduces the earlier-ankle candidate. The pitch feedback gain, 0.002 rad/interval slew, physical drive and speed limits, contacts, geometry and all other gates stay unchanged. This is separate from the released-hip test and does not attribute any change to both.
+
+Require exact control reproduction of all 450 earlier-ankle candidate states, exact paired prefix, reconstructed commands and valid hip targets and joint bounds, 32 complete substeps, no observer/native errors, nonfoot support or accepted-state toe-speed threshold before failure, and 100 consecutive unchanged clearance, stance-contact, posture, load and speed gates. Preserve failures. Toes stay open; regrip, walking and landing are not tested; contact/state epochs are not independently verified.

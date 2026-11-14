@@ -1,0 +1,3 @@
+# Restored earlier stance experiment
+
+The proposed +/-0.14 rad stance-correction test was accidentally prepared in an already occupied directory for a previous +/-0.06 rad experiment. Commit 4af0f4ed captured that collision; its earlier complete state is retained in the parent commit. The new test was stopped before execution, re-registered under crow-v15-stance-pitch-cap14-20261114, and the prior tracked source and analysis were restored exactly from the parent. The prior native probe was reconstructed from its archived gzip and checked against the earlier run-input SHA-256 before restoration on the Mac mini. No prior run or trace was intentionally removed. The collision and repair remain in Git history.
