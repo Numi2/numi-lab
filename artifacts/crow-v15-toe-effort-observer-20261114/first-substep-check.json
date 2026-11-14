@@ -1,0 +1,74 @@
+{
+  "coordinate": "right_front_toe_1_proximal v30 q31",
+  "formula": "clamp(.1*(target-q-(.02/32)*v)-.003*v, -.02, .02)",
+  "samples": 449,
+  "unsaturated_samples": 301,
+  "max_abs_error_Nm": 6.6291708402412325e-09,
+  "max_unsaturated_abs_error_Nm": 6.6291708402412325e-09,
+  "examples": [
+    {
+      "trace_step": 270,
+      "predicted_Nm": 0.019583291200100002,
+      "observed_Nm": 0.0195832867,
+      "abs_error_Nm": 4.500100000970342e-09,
+      "nominal_saturated": false
+    },
+    {
+      "trace_step": 290,
+      "predicted_Nm": 0.02,
+      "observed_Nm": 0.0199999996,
+      "abs_error_Nm": 4.0000000187112583e-10,
+      "nominal_saturated": true
+    },
+    {
+      "trace_step": 300,
+      "predicted_Nm": 0.016354981491375004,
+      "observed_Nm": 0.0163549855,
+      "abs_error_Nm": 4.008624994444876e-09,
+      "nominal_saturated": false
+    },
+    {
+      "trace_step": 302,
+      "predicted_Nm": 0.012059993570875002,
+      "observed_Nm": 0.0120599912,
+      "abs_error_Nm": 2.370875001531103e-09,
+      "nominal_saturated": false
+    },
+    {
+      "trace_step": 303,
+      "predicted_Nm": 0.00837149519375,
+      "observed_Nm": 0.00837149192,
+      "abs_error_Nm": 3.2737500002544273e-09,
+      "nominal_saturated": false
+    },
+    {
+      "trace_step": 304,
+      "predicted_Nm": 0.007868714200125016,
+      "observed_Nm": 0.00786871556,
+      "abs_error_Nm": 1.3598749834531354e-09,
+      "nominal_saturated": false
+    },
+    {
+      "trace_step": 305,
+      "predicted_Nm": 0.003819786238750009,
+      "observed_Nm": 0.00381979044,
+      "abs_error_Nm": 4.201249991127309e-09,
+      "nominal_saturated": false
+    },
+    {
+      "trace_step": 306,
+      "predicted_Nm": 0.0011873401837500098,
+      "observed_Nm": 0.00118733407,
+      "abs_error_Nm": 6.1137500099398695e-09,
+      "nominal_saturated": false
+    },
+    {
+      "trace_step": 310,
+      "predicted_Nm": 0.0,
+      "observed_Nm": 0.0,
+      "abs_error_Nm": 0.0,
+      "nominal_saturated": false
+    }
+  ],
+  "limitations": "Compares the first substep of each control interval only; this validates the effort against the preceding accepted state under the nominal cap but does not align contact observer epochs or validate later substeps."
+}
