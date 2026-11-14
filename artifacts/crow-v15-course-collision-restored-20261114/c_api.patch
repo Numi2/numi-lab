@@ -1,0 +1,28 @@
+--- prior-c_api.cpp
++++ collision-restored-c_api.cpp
+@@ -3578,16 +3578,18 @@
+             }
+             if (!foundPerch) throw std::logic_error("navigation perch shape not found");
+         }
+-        // Diagnostic only: preserve the ground and disable exactly the five course colliders.
++        // Collision-on candidate: keep the authored masks and expose them in the run log.
+         if (activeNavigation) {
+-            unsigned removed=0;
++            unsigned found=0;
+             for (auto& object:manifest.scene.objects) for (std::size_t i=0;i<object.mechanics.shapeNames.size();++i) {
+-                const auto& name=object.mechanics.shapeNames[i]; auto& shape=object.mechanics.shapes.at(i);
+-                const auto before=shape.collisionMask;
+-                if (name.starts_with("crow_course_")) {shape.collisionMask=0u; ++removed;}
+-                std::fprintf(stderr,"CROW_SCENE_MASK %s %u %u\n",name.c_str(),unsigned(before),unsigned(shape.collisionMask));
++                const auto& name=object.mechanics.shapeNames[i]; const auto& shape=object.mechanics.shapes.at(i);
++                if (name.starts_with("crow_course_")) {
++                    if (shape.collisionMask == 0u) throw std::logic_error("course collider unexpectedly disabled");
++                    ++found;
++                    std::fprintf(stderr,"CROW_SCENE_MASK_RESTORED %s %u\n",name.c_str(),unsigned(shape.collisionMask));
++                }
+             }
+-            if (removed!=5u) throw std::logic_error("expected five collision-disabled course shapes");
++            if (found!=5u) throw std::logic_error("expected five enabled course shapes");
+         }
+         manifest.sensors.id = cueConfig ? "camera_admission_proprioception" : journey
+             ? activeNavigation ? "american_crow_active_head_navigation_rgbd_sensors"

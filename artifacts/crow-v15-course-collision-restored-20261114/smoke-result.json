@@ -1,0 +1,11 @@
+{
+  "exit_code": 1,
+  "mask_lines": [
+    "CROW_SCENE_MASK_RESTORED crow_course_gate_left/collision 4294967295",
+    "CROW_SCENE_MASK_RESTORED crow_course_gate_right/collision 4294967295",
+    "CROW_SCENE_MASK_RESTORED crow_course_slalom_a/collision 4294967295",
+    "CROW_SCENE_MASK_RESTORED crow_course_slalom_b/collision 4294967295",
+    "CROW_SCENE_MASK_RESTORED crow_course_perch/collision 4294967295"
+  ],
+  "scope": "Manifest and policy-contract smoke only; no physical contact test."
+}

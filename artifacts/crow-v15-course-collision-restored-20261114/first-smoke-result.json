@@ -1,0 +1,5 @@
+{
+  "exit_code": 1,
+  "mask_lines": [],
+  "scope": "Manifest and policy-contract smoke only; no physical contact test."
+}

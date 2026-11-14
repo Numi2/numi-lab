@@ -1,0 +1,11 @@
+# Latest crow flight and toe diagnostics
+
+The five synchronized views show all 2,400 accepted states of lane 5, development seed 20261127, training layout, at 50 Hz. They are body-relative inspection renders with the course hidden. This was a fixed-profile flight diagnostic, not a navigation qualification; the replay reports one waypoint, no completed mission and no landing. The controller has not been qualified for general flight.
+
+The retained `CROW_SCENE_MASK` lines show that this run's diagnostic host set all five course colliders to mask zero, including the perch. The ground retained its mask. The bird can therefore pass through those disabled obstacles; the flight video must not be presented as demonstrating obstacle avoidance or rigid perch contact.
+
+The separate nine-second diagram uses the actual retained foot and toe body-center positions from lane 0 of `crow-v15-grip-balance-gate-fix-20261114` and fixed 0.02 s control intervals. The lines joining centers are schematic, not rendered surfaces or contact forces. The rectangular perch cross-section is the probe's modeled 0.05 m by 0.11 m box. That stationary release/regrip test had only 11 consecutive qualifying intervals and fell at interval 370; it did not meet its 100-interval terminal grip requirement. Contact and position observer epochs have not been independently verified. The toe test is a different recording from the 48-second flight.
+
+Capture renderer commit `1d40006ecfd5865f9d8be0f56d151b706237b43b`; executable SHA-256 `76cf26347c2b158d1397ce3767f0c3a34c73f63c10e8f259dd692f4041ad2c1f`; recorded replay gzip SHA-256 `272e358377f13145acab957e87af73b77f9c05f4733aa8d66e76ee9636425a49`. The input stderr is split into parts for Git and can be restored by concatenating in lexical order. Its SHA-256 is `fe125c4643d6e06f8151f5508979ab13f8bc7abd2fdfc1ff47fcab64c1a98b2b`.
+
+A separate candidate host was built with the five course masks left enabled. An initial one-environment smoke run failed due to an invalid trace-environment argument; the corrected smoke run printed all five nonzero masks and then correctly rejected the old policy contract. This checks manifest construction only. Collision detection, penetration, impulse transfer, grip and controller performance with the restored masks remain unqualified. The candidate does not replace or alter the old diagnostic host.
