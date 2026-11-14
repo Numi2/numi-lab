@@ -1,0 +1,200 @@
+{
+  "rows": [
+    {
+      "substep_tick_minus_event_tick": -2,
+      "pairs": 894,
+      "max_abs_difference_Ns": 0.004178010687,
+      "mean_abs_difference_Ns": 0.00021418250146394664,
+      "fraction_values_within_1e-8": 0.4121923937360179,
+      "channels": [
+        {
+          "name": "left_up_normal_vs_total",
+          "max_abs_difference_Ns": 0.004178010687,
+          "fraction_within_1e-8": 0.28523489932885904
+        },
+        {
+          "name": "right_up_normal_vs_total",
+          "max_abs_difference_Ns": 0.00356621691,
+          "fraction_within_1e-8": 0.20022371364653244
+        },
+        {
+          "name": "left_front_normal_x",
+          "max_abs_difference_Ns": 0.0028333711633199998,
+          "fraction_within_1e-8": 0.7158836689038032
+        },
+        {
+          "name": "left_rear_normal_x",
+          "max_abs_difference_Ns": 0.00158954532823,
+          "fraction_within_1e-8": 0.5268456375838926
+        },
+        {
+          "name": "right_front_normal_x",
+          "max_abs_difference_Ns": 0.0018116648120000002,
+          "fraction_within_1e-8": 0.4798657718120805
+        },
+        {
+          "name": "right_rear_normal_x",
+          "max_abs_difference_Ns": 0.00163319303933,
+          "fraction_within_1e-8": 0.2651006711409396
+        }
+      ]
+    },
+    {
+      "substep_tick_minus_event_tick": -1,
+      "pairs": 896,
+      "max_abs_difference_Ns": 0.00333186821,
+      "mean_abs_difference_Ns": 0.00020688997844661773,
+      "fraction_values_within_1e-8": 0.41685267857142855,
+      "channels": [
+        {
+          "name": "left_up_normal_vs_total",
+          "max_abs_difference_Ns": 0.00333186821,
+          "fraction_within_1e-8": 0.28683035714285715
+        },
+        {
+          "name": "right_up_normal_vs_total",
+          "max_abs_difference_Ns": 0.00304758898,
+          "fraction_within_1e-8": 0.20424107142857142
+        },
+        {
+          "name": "left_front_normal_x",
+          "max_abs_difference_Ns": 0.0022974531332999996,
+          "fraction_within_1e-8": 0.7209821428571429
+        },
+        {
+          "name": "left_rear_normal_x",
+          "max_abs_difference_Ns": 0.0015954597669586286,
+          "fraction_within_1e-8": 0.5345982142857143
+        },
+        {
+          "name": "right_front_normal_x",
+          "max_abs_difference_Ns": 0.0012886974509999998,
+          "fraction_within_1e-8": 0.48325892857142855
+        },
+        {
+          "name": "right_rear_normal_x",
+          "max_abs_difference_Ns": 0.001438204287,
+          "fraction_within_1e-8": 0.27120535714285715
+        }
+      ]
+    },
+    {
+      "substep_tick_minus_event_tick": 0,
+      "pairs": 898,
+      "max_abs_difference_Ns": 0.00333186821,
+      "mean_abs_difference_Ns": 0.00019925155211376365,
+      "fraction_values_within_1e-8": 0.4214922048997773,
+      "channels": [
+        {
+          "name": "left_up_normal_vs_total",
+          "max_abs_difference_Ns": 0.00333186821,
+          "fraction_within_1e-8": 0.2906458797327394
+        },
+        {
+          "name": "right_up_normal_vs_total",
+          "max_abs_difference_Ns": 0.003325578347,
+          "fraction_within_1e-8": 0.2071269487750557
+        },
+        {
+          "name": "left_front_normal_x",
+          "max_abs_difference_Ns": 0.0028144178353,
+          "fraction_within_1e-8": 0.7260579064587973
+        },
+        {
+          "name": "left_rear_normal_x",
+          "max_abs_difference_Ns": 0.001595459652854922,
+          "fraction_within_1e-8": 0.5434298440979956
+        },
+        {
+          "name": "right_front_normal_x",
+          "max_abs_difference_Ns": 0.0013000099890000001,
+          "fraction_within_1e-8": 0.4844097995545657
+        },
+        {
+          "name": "right_rear_normal_x",
+          "max_abs_difference_Ns": 0.0017540809959,
+          "fraction_within_1e-8": 0.27728285077951004
+        }
+      ]
+    },
+    {
+      "substep_tick_minus_event_tick": 1,
+      "pairs": 900,
+      "max_abs_difference_Ns": 0.0016552386799999997,
+      "mean_abs_difference_Ns": 7.464318123597841e-05,
+      "fraction_values_within_1e-8": 0.7846296296296297,
+      "channels": [
+        {
+          "name": "left_up_normal_vs_total",
+          "max_abs_difference_Ns": 0.00112524314,
+          "fraction_within_1e-8": 0.4177777777777778
+        },
+        {
+          "name": "right_up_normal_vs_total",
+          "max_abs_difference_Ns": 0.0016552386799999997,
+          "fraction_within_1e-8": 0.29
+        },
+        {
+          "name": "left_front_normal_x",
+          "max_abs_difference_Ns": 1.480000000591425e-10,
+          "fraction_within_1e-8": 1.0
+        },
+        {
+          "name": "left_rear_normal_x",
+          "max_abs_difference_Ns": 5.0499999906632176e-11,
+          "fraction_within_1e-8": 1.0
+        },
+        {
+          "name": "right_front_normal_x",
+          "max_abs_difference_Ns": 3.723000002904542e-10,
+          "fraction_within_1e-8": 1.0
+        },
+        {
+          "name": "right_rear_normal_x",
+          "max_abs_difference_Ns": 7.199999992914263e-11,
+          "fraction_within_1e-8": 1.0
+        }
+      ]
+    },
+    {
+      "substep_tick_minus_event_tick": 2,
+      "pairs": 898,
+      "max_abs_difference_Ns": 0.003472230948,
+      "mean_abs_difference_Ns": 0.0002012928325105403,
+      "fraction_values_within_1e-8": 0.42112100965107646,
+      "channels": [
+        {
+          "name": "left_up_normal_vs_total",
+          "max_abs_difference_Ns": 0.00333186821,
+          "fraction_within_1e-8": 0.2884187082405345
+        },
+        {
+          "name": "right_up_normal_vs_total",
+          "max_abs_difference_Ns": 0.003472230948,
+          "fraction_within_1e-8": 0.2071269487750557
+        },
+        {
+          "name": "left_front_normal_x",
+          "max_abs_difference_Ns": 0.00281441783382327,
+          "fraction_within_1e-8": 0.7260579064587973
+        },
+        {
+          "name": "left_rear_normal_x",
+          "max_abs_difference_Ns": 0.001595459652854922,
+          "fraction_within_1e-8": 0.5434298440979956
+        },
+        {
+          "name": "right_front_normal_x",
+          "max_abs_difference_Ns": 0.001300010165,
+          "fraction_within_1e-8": 0.4844097995545657
+        },
+        {
+          "name": "right_rear_normal_x",
+          "max_abs_difference_Ns": 0.0017540809959,
+          "fraction_within_1e-8": 0.27728285077951004
+        }
+      ]
+    }
+  ],
+  "scope": "Endpoint up fields include normal impulse only; substep up fields include normal and tangential impulses, so those differ by definition. Four signed toe-normal-x groups are directly comparable. Exact contact-to-q epoch alignment remains unproven."
+}

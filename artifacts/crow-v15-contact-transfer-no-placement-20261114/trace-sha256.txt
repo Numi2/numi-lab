@@ -1,0 +1,2 @@
+cad89479c5e4ba912891fa0fec13ee694e2f95b0f7f3f46aafb1b14475e0a8ee  artifacts/crow-v15-contact-transfer-no-placement-20261114/trace.log.gz
+b69e3f205b4b5443176e26792fdcd7fa1a965e3116a1ef524cd83638880d280c  artifacts/crow-v15-contact-transfer-no-placement-20261114/substeps.log.gz
