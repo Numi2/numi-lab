@@ -1,0 +1,5 @@
+# Wider lateral command: failed support
+
+The candidate's lateral hip-roll command bound increased from 0.25 to 0.30 rad within the existing 0.35 rad joint limit. It achieved 33 consecutive intervals satisfying the release/support criteria, versus 34 for its matched control, and root height fell below 0.1 m at step 379 versus 378. Both failed the required 100-interval release gate; extra roll command authority did not improve this trial.
+
+The control exactly reproduced all 450 prior-candidate states and the lanes matched for 267 states before the first logged control difference. The prebuilt and run binary hashes match; feedback reconstruction passed, all 32 contact substeps were present, with no recorded errors or nonfoot support. The accepted-state stance-toe speed reached the 12 rad/s threshold only after root-height failure, and substep toe extrema and effort are not established. Toes remained open; regrip and landing were not tested. This constructed perch test has independently unverified contact/state epochs and does not establish walking or biological realism.

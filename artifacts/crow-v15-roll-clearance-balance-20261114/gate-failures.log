@@ -1,0 +1,324 @@
+{
+  "0": {
+    "failure_counts_before_height_gate": {
+      "clearance": 101,
+      "released_foot_unloaded": 96,
+      "stance_upward": 49,
+      "tilt": 77,
+      "stance_rear": 27,
+      "speed": 26,
+      "stance_front": 24
+    },
+    "first_failure_intervals": {
+      "clearance": 230,
+      "released_foot_unloaded": 230,
+      "stance_upward": 231,
+      "tilt": 301,
+      "stance_rear": 351,
+      "speed": 352,
+      "stance_front": 354
+    },
+    "samples": [
+      {
+        "interval": 230,
+        "failed": [
+          "clearance",
+          "released_foot_unloaded"
+        ],
+        "tilt_rad": 0.21228111688315957,
+        "speed_m_s": 0.01186419834623478,
+        "stance_front_Ns": 0.062152561316,
+        "stance_rear_Ns": -0.014803672500999999,
+        "clearance_m": -3.16724181e-05
+      },
+      {
+        "interval": 235,
+        "failed": [
+          "clearance",
+          "released_foot_unloaded",
+          "stance_upward"
+        ],
+        "tilt_rad": 0.2158285363239834,
+        "speed_m_s": 0.007931215388430465,
+        "stance_front_Ns": 0.051987751677999995,
+        "stance_rear_Ns": -0.019837819886999997,
+        "clearance_m": -4.30941582e-05
+      },
+      {
+        "interval": 240,
+        "failed": [
+          "clearance"
+        ],
+        "tilt_rad": 0.21923980410845503,
+        "speed_m_s": 0.008217892914057218,
+        "stance_front_Ns": 0.067059357846,
+        "stance_rear_Ns": -0.018154810998999998,
+        "clearance_m": 0.000721324002
+      },
+      {
+        "interval": 250,
+        "failed": [],
+        "tilt_rad": 0.22641560465894142,
+        "speed_m_s": 0.004172477162294949,
+        "stance_front_Ns": 0.051965002075599995,
+        "stance_rear_Ns": -0.019799256288,
+        "clearance_m": 0.00369186909
+      },
+      {
+        "interval": 260,
+        "failed": [],
+        "tilt_rad": 0.2406341542488871,
+        "speed_m_s": 0.009691219485874534,
+        "stance_front_Ns": 0.06895325567573,
+        "stance_rear_Ns": -0.024689223759,
+        "clearance_m": 0.00309880637
+      },
+      {
+        "interval": 270,
+        "failed": [],
+        "tilt_rad": 0.2627234700732015,
+        "speed_m_s": 0.02067866997177429,
+        "stance_front_Ns": 0.065621057638,
+        "stance_rear_Ns": -0.019401004598,
+        "clearance_m": 0.0023470372
+      },
+      {
+        "interval": 280,
+        "failed": [
+          "clearance",
+          "released_foot_unloaded"
+        ],
+        "tilt_rad": 0.288081757588806,
+        "speed_m_s": 0.020616932756176095,
+        "stance_front_Ns": 0.0323707834873,
+        "stance_rear_Ns": -0.019318482867999996,
+        "clearance_m": -6.34267926e-05
+      },
+      {
+        "interval": 290,
+        "failed": [
+          "clearance",
+          "released_foot_unloaded"
+        ],
+        "tilt_rad": 0.31613954464190125,
+        "speed_m_s": 0.02638124190753612,
+        "stance_front_Ns": 0.024187746144899994,
+        "stance_rear_Ns": -0.019478020754999995,
+        "clearance_m": -5.94928861e-05
+      },
+      {
+        "interval": 300,
+        "failed": [
+          "clearance",
+          "released_foot_unloaded"
+        ],
+        "tilt_rad": 0.3485332236511827,
+        "speed_m_s": 0.036757939374230476,
+        "stance_front_Ns": 0.016962138960099998,
+        "stance_rear_Ns": -0.021737567095,
+        "clearance_m": -7.17937946e-05
+      },
+      {
+        "interval": 310,
+        "failed": [
+          "clearance",
+          "released_foot_unloaded",
+          "tilt"
+        ],
+        "tilt_rad": 0.38609346305088,
+        "speed_m_s": 0.045031265322901665,
+        "stance_front_Ns": 0.010209609130697593,
+        "stance_rear_Ns": -0.018056006810999996,
+        "clearance_m": -8.59871507e-05
+      },
+      {
+        "interval": 320,
+        "failed": [
+          "clearance",
+          "released_foot_unloaded",
+          "tilt"
+        ],
+        "tilt_rad": 0.430941263356003,
+        "speed_m_s": 0.05403466614885913,
+        "stance_front_Ns": 0.00289059734728272,
+        "stance_rear_Ns": -0.015945113700000003,
+        "clearance_m": -9.44435596e-05
+      },
+      {
+        "interval": 330,
+        "failed": [
+          "clearance",
+          "released_foot_unloaded",
+          "stance_upward",
+          "tilt"
+        ],
+        "tilt_rad": 0.4814441473347362,
+        "speed_m_s": 0.08459211722007073,
+        "stance_front_Ns": 0.006562178222041778,
+        "stance_rear_Ns": -0.0150509518,
+        "clearance_m": -0.000149335712
+      }
+    ]
+  },
+  "1": {
+    "failure_counts_before_height_gate": {
+      "clearance": 103,
+      "released_foot_unloaded": 97,
+      "stance_upward": 46,
+      "tilt": 78,
+      "stance_rear": 27,
+      "speed": 26,
+      "stance_front": 24
+    },
+    "first_failure_intervals": {
+      "clearance": 230,
+      "released_foot_unloaded": 230,
+      "stance_upward": 231,
+      "tilt": 301,
+      "stance_rear": 352,
+      "speed": 353,
+      "stance_front": 355
+    },
+    "samples": [
+      {
+        "interval": 230,
+        "failed": [
+          "clearance",
+          "released_foot_unloaded"
+        ],
+        "tilt_rad": 0.21228111688315957,
+        "speed_m_s": 0.01186419834623478,
+        "stance_front_Ns": 0.062152561316,
+        "stance_rear_Ns": -0.014803672500999999,
+        "clearance_m": -3.16724181e-05
+      },
+      {
+        "interval": 235,
+        "failed": [
+          "clearance",
+          "released_foot_unloaded",
+          "stance_upward"
+        ],
+        "tilt_rad": 0.2158285363239834,
+        "speed_m_s": 0.007931215388430465,
+        "stance_front_Ns": 0.051987751677999995,
+        "stance_rear_Ns": -0.019837819886999997,
+        "clearance_m": -4.30941582e-05
+      },
+      {
+        "interval": 240,
+        "failed": [
+          "clearance"
+        ],
+        "tilt_rad": 0.21923980410845503,
+        "speed_m_s": 0.008217892914057218,
+        "stance_front_Ns": 0.067059357846,
+        "stance_rear_Ns": -0.018154810998999998,
+        "clearance_m": 0.000721324002
+      },
+      {
+        "interval": 250,
+        "failed": [],
+        "tilt_rad": 0.22641560465894142,
+        "speed_m_s": 0.004172477162294949,
+        "stance_front_Ns": 0.051965002075599995,
+        "stance_rear_Ns": -0.019799256288,
+        "clearance_m": 0.00369186909
+      },
+      {
+        "interval": 260,
+        "failed": [],
+        "tilt_rad": 0.2406341542488871,
+        "speed_m_s": 0.009691219485874534,
+        "stance_front_Ns": 0.06895325567573,
+        "stance_rear_Ns": -0.024689223759,
+        "clearance_m": 0.00309880637
+      },
+      {
+        "interval": 270,
+        "failed": [],
+        "tilt_rad": 0.2634976149258205,
+        "speed_m_s": 0.012153261366005792,
+        "stance_front_Ns": 0.070309151053,
+        "stance_rear_Ns": -0.018059981172000004,
+        "clearance_m": 0.00226763636
+      },
+      {
+        "interval": 280,
+        "failed": [
+          "clearance",
+          "released_foot_unloaded"
+        ],
+        "tilt_rad": 0.29129915464049516,
+        "speed_m_s": 0.018620594119996697,
+        "stance_front_Ns": 0.03396021720344,
+        "stance_rear_Ns": -0.021017680322000003,
+        "clearance_m": -5.94705343e-05
+      },
+      {
+        "interval": 290,
+        "failed": [
+          "clearance",
+          "released_foot_unloaded"
+        ],
+        "tilt_rad": 0.31872575524182556,
+        "speed_m_s": 0.023176176945923728,
+        "stance_front_Ns": 0.024899804573,
+        "stance_rear_Ns": -0.018506018215,
+        "clearance_m": -5.7734549e-05
+      },
+      {
+        "interval": 300,
+        "failed": [
+          "clearance",
+          "released_foot_unloaded"
+        ],
+        "tilt_rad": 0.34975372786474135,
+        "speed_m_s": 0.03331775457556659,
+        "stance_front_Ns": 0.0176103233312,
+        "stance_rear_Ns": -0.020027946156,
+        "clearance_m": -6.84857368e-05
+      },
+      {
+        "interval": 310,
+        "failed": [
+          "clearance",
+          "released_foot_unloaded",
+          "tilt"
+        ],
+        "tilt_rad": 0.3847901901066075,
+        "speed_m_s": 0.04038994959109981,
+        "stance_front_Ns": 0.0122790385126342,
+        "stance_rear_Ns": -0.018763904432000007,
+        "clearance_m": -8.12113285e-05
+      },
+      {
+        "interval": 320,
+        "failed": [
+          "clearance",
+          "released_foot_unloaded",
+          "tilt"
+        ],
+        "tilt_rad": 0.42645103391459527,
+        "speed_m_s": 0.04822128132061232,
+        "stance_front_Ns": 0.005561883982597987,
+        "stance_rear_Ns": -0.018940778303,
+        "clearance_m": -8.70861113e-05
+      },
+      {
+        "interval": 330,
+        "failed": [
+          "clearance",
+          "released_foot_unloaded",
+          "stance_upward",
+          "tilt"
+        ],
+        "tilt_rad": 0.4730461407672169,
+        "speed_m_s": 0.08882781655879891,
+        "stance_front_Ns": 0.0056587084741851,
+        "stance_rear_Ns": -0.014877253374,
+        "clearance_m": -0.000152010471
+      }
+    ]
+  }
+}
