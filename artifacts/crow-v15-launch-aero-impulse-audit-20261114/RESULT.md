@@ -1,0 +1,5 @@
+# Early modeled aerodynamic impulse
+
+In development seed 20261126, the phase-zero strong-tuck push lanes 3 and 7 had zero observed normal-only foot impulse during trace intervals [376,396). The recorded total vertical aerodynamic force integrated to approximately 1.367 N s across these intervals, versus approximately 1.766 N s of gravity impulse for the 0.45006 kg modeled mass. For the shorter eight-interval windows [376,384) and [384,392), the values were approximately 0.597 versus 0.706 and 0.688 versus 0.706 N s, respectively. The first later contact was recorded in interval 396.
+
+The force observer's source identifies the integrated field as total vertical aerodynamic force. This is a modeled force estimate, not a biological measurement; contact, state and aerodynamic observer clocks have not been independently aligned, and the reported comparison is not a closed whole-body momentum balance. It suggests investigating first-stroke timing and sustained lift while preserving the no-recontact and matched-leg checks.

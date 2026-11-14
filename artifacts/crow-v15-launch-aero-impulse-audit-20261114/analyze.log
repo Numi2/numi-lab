@@ -1,0 +1,89 @@
+{
+  "source_raw_sha256": "7927860566d0472b462e981c5c405199d642ddc8e1abd3743de0df033bc49c72",
+  "source_window_sha256": "2a3267126235bdf2937be9216d4feab8fcc3a1f94d9a6bd390fa59920c3e3c4f",
+  "rows": [
+    {
+      "lane": 0,
+      "interval_start_inclusive": 376,
+      "interval_end_exclusive": 384,
+      "aero_samples": 128,
+      "vertical_aero_impulse_Ns": 0.58909315042445,
+      "gravity_impulse_Ns_assuming_mass_0_45006kg": 0.7064141760000001,
+      "upward_foot_contact_impulse_Ns": 0.0
+    },
+    {
+      "lane": 0,
+      "interval_start_inclusive": 384,
+      "interval_end_exclusive": 392,
+      "aero_samples": 128,
+      "vertical_aero_impulse_Ns": 0.6691521922310171,
+      "gravity_impulse_Ns_assuming_mass_0_45006kg": 0.7064141760000001,
+      "upward_foot_contact_impulse_Ns": 0.06224551471088605
+    },
+    {
+      "lane": 0,
+      "interval_start_inclusive": 376,
+      "interval_end_exclusive": 396,
+      "aero_samples": 320,
+      "vertical_aero_impulse_Ns": 1.3423804056007327,
+      "gravity_impulse_Ns_assuming_mass_0_45006kg": 1.7660354400000002,
+      "upward_foot_contact_impulse_Ns": 0.06224551471088605
+    },
+    {
+      "lane": 3,
+      "interval_start_inclusive": 376,
+      "interval_end_exclusive": 384,
+      "aero_samples": 128,
+      "vertical_aero_impulse_Ns": 0.5969062210901899,
+      "gravity_impulse_Ns_assuming_mass_0_45006kg": 0.7064141760000001,
+      "upward_foot_contact_impulse_Ns": 0.0
+    },
+    {
+      "lane": 3,
+      "interval_start_inclusive": 384,
+      "interval_end_exclusive": 392,
+      "aero_samples": 128,
+      "vertical_aero_impulse_Ns": 0.6878204539964792,
+      "gravity_impulse_Ns_assuming_mass_0_45006kg": 0.7064141760000001,
+      "upward_foot_contact_impulse_Ns": 0.0
+    },
+    {
+      "lane": 3,
+      "interval_start_inclusive": 376,
+      "interval_end_exclusive": 396,
+      "aero_samples": 320,
+      "vertical_aero_impulse_Ns": 1.3671874162659823,
+      "gravity_impulse_Ns_assuming_mass_0_45006kg": 1.7660354400000002,
+      "upward_foot_contact_impulse_Ns": 0.0
+    },
+    {
+      "lane": 7,
+      "interval_start_inclusive": 376,
+      "interval_end_exclusive": 384,
+      "aero_samples": 128,
+      "vertical_aero_impulse_Ns": 0.596937459061143,
+      "gravity_impulse_Ns_assuming_mass_0_45006kg": 0.7064141760000001,
+      "upward_foot_contact_impulse_Ns": 0.0
+    },
+    {
+      "lane": 7,
+      "interval_start_inclusive": 384,
+      "interval_end_exclusive": 392,
+      "aero_samples": 128,
+      "vertical_aero_impulse_Ns": 0.6878363135411779,
+      "gravity_impulse_Ns_assuming_mass_0_45006kg": 0.7064141760000001,
+      "upward_foot_contact_impulse_Ns": 0.0
+    },
+    {
+      "lane": 7,
+      "interval_start_inclusive": 376,
+      "interval_end_exclusive": 396,
+      "aero_samples": 320,
+      "vertical_aero_impulse_Ns": 1.3672345047322965,
+      "gravity_impulse_Ns_assuming_mass_0_45006kg": 1.7660354400000002,
+      "upward_foot_contact_impulse_Ns": 0.0
+    }
+  ],
+  "trace_schema": "observer.mm CROW_AERO_FORCE prints stride,total xyz; index 6 is total z",
+  "limitations": "Model force estimate and normal-only foot impulses, not biological measurements; contact/state/aero observer epochs are not independently synchronized and other forces are not a closed momentum balance."
+}
