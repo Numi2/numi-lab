@@ -1,0 +1,3 @@
+# Combined scripted turns and altitude cycle
+
+The teacher-off 1800-interval development run passed all registered checks in eight lanes. Each lane's state, action and contact prefix matches its same-seed corrected-height reference through interval 600. Alternating left/right relative yaw extrema ranged from -0.2588 to -0.2586 and +0.2586 to +0.2588 rad. Across lanes, level mean absolute height error was 27.8–38.5 mm, climb 8.4–10.4 mm and descent 7.9–9.4 mm. The complete finished native trace and replay match their source hashes. These are fixed scripted commands on one used training seed; they do not qualify arbitrary commands, disturbed starts, biological realism, leg-powered takeoff, landing or unused-layout navigation.
