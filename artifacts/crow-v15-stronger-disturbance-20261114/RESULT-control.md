@@ -1,0 +1,3 @@
+# Wider disturbance observer parity control
+
+The no-disturbance control on used seed 20261127 reproduced the previously archived first-episode state, action, contact, length and failure outcomes exactly in all eight lanes. Two lanes failed at intervals 760 and 762 as before; the other six reached 1800. The expected control shader and policy inputs matched, teacher authority was off, every one of the 8 x 51 x 16 pre-aerodynamic wrench samples was present and all were zero, with no observer errors. This validates the wider observer for the registered matched stronger disturbance screen; it is not flight or disturbed-start qualification. Full trace parts, replay, inputs and failure outcomes are retained.
