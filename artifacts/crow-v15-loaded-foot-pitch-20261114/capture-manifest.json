@@ -5,8 +5,8 @@
       "sha256": "f80b5646467cead9ad19dbf99cbe98cfa6233d68eaaab9513c144b1ebad60ec2"
     },
     "RESULT.md": {
-      "bytes": 1594,
-      "sha256": "ee0c11aa0389c3e43b11650d04097e2a01ec8ce3b5fb67254f20fc9d6b44f49e"
+      "bytes": 1679,
+      "sha256": "77a3af102ce1227abe29de42005455b52fdaa627c160ab07e4ab99cd7685707e"
     },
     "analysis.json": {
       "bytes": 1412,
@@ -134,6 +134,10 @@
     "velocity-audit.py": {
       "bytes": 1807,
       "sha256": "40f2429cdc0c80ed5fab51b683add244e12dfb69bef87baa3123536f17708f2f"
+    },
+    "analyze-first-attempt-reconstructed.log": {
+      "bytes": 388,
+      "sha256": "1cd64865b3386479fdcc6a6405d9ee09bc01c7ab728de0efd752171fd28dad37"
     }
   },
   "scope": "local capture; not independent remote restore"
