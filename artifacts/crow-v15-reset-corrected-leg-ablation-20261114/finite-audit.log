@@ -1,0 +1,10 @@
+{
+  "counts": {
+    "states": 4008,
+    "targets": 1336,
+    "contact_substeps": 21376
+  },
+  "invalid_count": 0,
+  "examples": [],
+  "scope": "all logged lanes, finite values and contact record width only"
+}
