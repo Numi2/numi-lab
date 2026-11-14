@@ -1,0 +1,53 @@
+{
+  "rows": [
+    {
+      "lane": 0,
+      "actuator_samples": 45152,
+      "saturated_fraction": 0.23821757618710135,
+      "max_abs_effort_Nm": 0.150000006
+    },
+    {
+      "lane": 1,
+      "actuator_samples": 45152,
+      "saturated_fraction": 0.16645995747696668,
+      "max_abs_effort_Nm": 0.150000006
+    },
+    {
+      "lane": 2,
+      "actuator_samples": 45152,
+      "saturated_fraction": 0.2336330616583983,
+      "max_abs_effort_Nm": 0.150000006
+    },
+    {
+      "lane": 3,
+      "actuator_samples": 45152,
+      "saturated_fraction": 0.23894844082211197,
+      "max_abs_effort_Nm": 0.150000006
+    },
+    {
+      "lane": 4,
+      "actuator_samples": 45152,
+      "saturated_fraction": 0.16008150248051028,
+      "max_abs_effort_Nm": 0.150000006
+    },
+    {
+      "lane": 5,
+      "actuator_samples": 45152,
+      "saturated_fraction": 0.23908132530120482,
+      "max_abs_effort_Nm": 0.150000006
+    },
+    {
+      "lane": 6,
+      "actuator_samples": 45152,
+      "saturated_fraction": 0.23059886605244506,
+      "max_abs_effort_Nm": 0.150000006
+    },
+    {
+      "lane": 7,
+      "actuator_samples": 45152,
+      "saturated_fraction": 0.23766389085754783,
+      "max_abs_effort_Nm": 0.150000006
+    }
+  ],
+  "scope": "full 390-1800 substep effort saturation, descriptive; no preregistered full-window fraction gate"
+}

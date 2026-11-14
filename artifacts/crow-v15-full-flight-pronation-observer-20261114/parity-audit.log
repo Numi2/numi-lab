@@ -1,0 +1,189 @@
+{
+  "base_state_count": 14408,
+  "observer_state_count": 14408,
+  "state_hash_equal": true,
+  "base_state_sha256": "56be00d2229fa476d77ef55c3647eb58215191d0b9192e3f4a16c4db92219d5a",
+  "observer_state_sha256": "56be00d2229fa476d77ef55c3647eb58215191d0b9192e3f4a16c4db92219d5a",
+  "overlap_counts": [
+    76928,
+    76928
+  ],
+  "overlap_hash_equal": true,
+  "base_overlap_sha256": "97b412bafae7e5a227434f4215c12d121dcc1c1bc811b6ec86e7ce97986ec583",
+  "observer_overlap_sha256": "97b412bafae7e5a227434f4215c12d121dcc1c1bc811b6ec86e7ce97986ec583",
+  "expected_full_substeps": 180608,
+  "observed_unique_full_substeps": 180608,
+  "missing_or_nonunique_full_substeps": 0,
+  "duplicate_excess": 0,
+  "observer_errors": [],
+  "worst_full_window_tracking_by_lane_side": [
+    {
+      "lane": 0,
+      "side": 0,
+      "interval": 965,
+      "substep": 0,
+      "effort_Nm": -0.150000006,
+      "target_rad": 0.0,
+      "position_rad": 0.0647854134,
+      "tracking_error_rad": 0.0647854134
+    },
+    {
+      "lane": 0,
+      "side": 1,
+      "interval": 499,
+      "substep": 0,
+      "effort_Nm": -0.150000006,
+      "target_rad": -0.0432179607,
+      "position_rad": 0.0161618982,
+      "tracking_error_rad": 0.0593798589
+    },
+    {
+      "lane": 1,
+      "side": 0,
+      "interval": 499,
+      "substep": 0,
+      "effort_Nm": -0.150000006,
+      "target_rad": -0.0432179607,
+      "position_rad": 0.0160608906,
+      "tracking_error_rad": 0.059278851300000004
+    },
+    {
+      "lane": 1,
+      "side": 1,
+      "interval": 499,
+      "substep": 0,
+      "effort_Nm": -0.150000006,
+      "target_rad": -0.0432179607,
+      "position_rad": 0.0161142666,
+      "tracking_error_rad": 0.0593322273
+    },
+    {
+      "lane": 2,
+      "side": 0,
+      "interval": 499,
+      "substep": 0,
+      "effort_Nm": -0.150000006,
+      "target_rad": -0.0432179607,
+      "position_rad": 0.0161083192,
+      "tracking_error_rad": 0.0593262799
+    },
+    {
+      "lane": 2,
+      "side": 1,
+      "interval": 499,
+      "substep": 0,
+      "effort_Nm": -0.150000006,
+      "target_rad": -0.0432179607,
+      "position_rad": 0.0161622334,
+      "tracking_error_rad": 0.059380194100000006
+    },
+    {
+      "lane": 3,
+      "side": 0,
+      "interval": 499,
+      "substep": 0,
+      "effort_Nm": -0.150000006,
+      "target_rad": -0.0432179607,
+      "position_rad": 0.0160689335,
+      "tracking_error_rad": 0.0592868942
+    },
+    {
+      "lane": 3,
+      "side": 1,
+      "interval": 499,
+      "substep": 0,
+      "effort_Nm": -0.150000006,
+      "target_rad": -0.0432179607,
+      "position_rad": 0.0161206163,
+      "tracking_error_rad": 0.059338577
+    },
+    {
+      "lane": 4,
+      "side": 0,
+      "interval": 499,
+      "substep": 0,
+      "effort_Nm": -0.150000006,
+      "target_rad": -0.0432179607,
+      "position_rad": 0.0161078665,
+      "tracking_error_rad": 0.0593258272
+    },
+    {
+      "lane": 4,
+      "side": 1,
+      "interval": 499,
+      "substep": 0,
+      "effort_Nm": -0.150000006,
+      "target_rad": -0.0432179607,
+      "position_rad": 0.0161611661,
+      "tracking_error_rad": 0.0593791268
+    },
+    {
+      "lane": 5,
+      "side": 0,
+      "interval": 499,
+      "substep": 0,
+      "effort_Nm": -0.150000006,
+      "target_rad": -0.0432179607,
+      "position_rad": 0.0161163155,
+      "tracking_error_rad": 0.0593342762
+    },
+    {
+      "lane": 5,
+      "side": 1,
+      "interval": 499,
+      "substep": 0,
+      "effort_Nm": -0.150000006,
+      "target_rad": -0.0432179607,
+      "position_rad": 0.0161700211,
+      "tracking_error_rad": 0.0593879818
+    },
+    {
+      "lane": 6,
+      "side": 0,
+      "interval": 499,
+      "substep": 0,
+      "effort_Nm": -0.150000006,
+      "target_rad": -0.0432179607,
+      "position_rad": 0.0160724334,
+      "tracking_error_rad": 0.059290394100000005
+    },
+    {
+      "lane": 6,
+      "side": 1,
+      "interval": 499,
+      "substep": 0,
+      "effort_Nm": -0.150000006,
+      "target_rad": -0.0432179607,
+      "position_rad": 0.0161261782,
+      "tracking_error_rad": 0.0593441389
+    },
+    {
+      "lane": 7,
+      "side": 0,
+      "interval": 499,
+      "substep": 0,
+      "effort_Nm": -0.150000006,
+      "target_rad": -0.0432179607,
+      "position_rad": 0.0160985906,
+      "tracking_error_rad": 0.059316551300000006
+    },
+    {
+      "lane": 7,
+      "side": 1,
+      "interval": 499,
+      "substep": 0,
+      "effort_Nm": -0.150000006,
+      "target_rad": -0.0432179607,
+      "position_rad": 0.0161524918,
+      "tracking_error_rad": 0.059370452500000004
+    }
+  ],
+  "max_tracking_error_rad": 0.0647854134,
+  "max_full_window_effort_Nm": 0.150000006,
+  "max_full_window_speed_rad_s": 3.40894437,
+  "nonfinite_full_samples": 0,
+  "instrumentation_parity_pass": true,
+  "tracking_below_008_all_observed": true,
+  "effort_and_speed_in_bounds": true,
+  "scope": "observer parity and sampled full-flight pronation position tracking; not controller qualification or navigation"
+}

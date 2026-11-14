@@ -1,0 +1,5 @@
+# Full-flight pronation observation: matched development replay
+
+On the same used-seed actor-slew trial, the extended read-only observer reproduced all 14,408 recorded state/action/contact samples exactly and matched all 76,928 overlapping original pronation substep records byte-for-byte. All 180,608 expected unique lane/interval/substep samples were present for intervals 390–1800, with no observer errors or nonfinite values. Maximum pronation tracking error was 0.06479 rad, below the registered 0.08 rad screen; maximum observed effort was 0.150000006 N m and speed 3.409 rad/s, within the screen's existing bounds.
+
+As descriptive follow-up, the fraction of sampled actuator efforts at the modeled cap ranged from 16.0% to 23.9% by lane; no full-window saturation-fraction gate was registered for this run. The trace and native hashes are preserved. This is one used-seed replay of the same physical trajectory, not an independent flight trial, flight qualification, biological calibration, command-accuracy test, landing or navigation success.
