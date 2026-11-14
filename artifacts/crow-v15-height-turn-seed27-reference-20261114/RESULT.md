@@ -1,0 +1,7 @@
+# Combined turns and height: second development seed
+
+On used seed 20261127, both candidate lanes passed the previously registered combined-turn physical screen through 1800 steps. Relative yaw extrema were -0.28875 and +0.28700 rad, maximum lateral deviations were 0.349 and 0.330 m, and both remained continuously unloaded with no recorded later ground or nonfoot impulse, physical failure, toe threshold or observer error. Candidate q/v/action/contact prefixes matched the restored same-seed stronger-height straight reference through 600; other lanes matched through their first episodes. Unchanged lanes 0 and 1 failed physically at steps 760 and 762 as in that reference. Input, target and substep checks passed; teacher was off.
+
+The independently applied straight-flight height windows had mean absolute errors of 0.0202/0.0184 m and 0.0153/0.0155 m. Those windows do not bound transients: lane 7 reached 1.400 m at step 614. Pronation effort saturated for about 66.3% of the turn window. These reproduce the first seed's limitations and are not general turn or clearance qualification.
+
+This used-seed obstacle-free scripted test does not qualify or freeze a general flight controller, disturbed recovery, leg-powered takeoff, grip, landing, navigation, unseen layouts or biological realism. Contact/state epochs remain inferred. The full compressed trace and failures are retained in ordered hashed Git parts.
