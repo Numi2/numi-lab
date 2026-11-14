@@ -1,0 +1,17 @@
+{
+  "source_commit": "75be3c53",
+  "arms": {
+    "push": {
+      "path": "artifacts/crow-v15-wings-held-leg-push-20261114/push-20261126-rebound-nonleg/run.stderr.gz",
+      "bytes": 60480344,
+      "sha256": "5c330a45c52e99db9ded78a2d4c51587c36f49d1681663a9a00d2285797b41b1",
+      "gzip_eof": true
+    },
+    "hold": {
+      "path": "artifacts/crow-v15-wings-held-leg-push-20261114/hold-20261126-rebound-nonleg/run.stderr.gz",
+      "bytes": 64030157,
+      "sha256": "2ceb7d20361ed0e75c0fe1725649195fc476ba05c75681e01d7977caa0c98aa8",
+      "gzip_eof": true
+    }
+  }
+}
