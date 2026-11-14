@@ -1,0 +1,22 @@
+{
+  "retired": false,
+  "files": [
+    {
+      "path": "/Users/n/Developer/numi-crow-rl-20261107/artifacts/crow-v15-post-hop-phase-transition-20261114/push-20261126-rebound-phase/run.stderr.gz",
+      "inode": 17110084,
+      "bytes": 34498392,
+      "mtime_ns": 1794638761348909404,
+      "sha256": "1f799ef5d840c6741da62f5a2447794a65d9b360f09e98f809a0e01cf8f19baa",
+      "lsof_clear": true
+    },
+    {
+      "path": "/Users/n/Developer/numi-crow-rl-20261107/artifacts/crow-v15-post-hop-phase-transition-20261114/hold-20261126-rebound-phase/run.stderr.gz",
+      "inode": 17110102,
+      "bytes": 34557425,
+      "mtime_ns": 1794638883823979255,
+      "sha256": "3bfb040e162d9d6db415ad5a295eac18fe841e1ed803e4f9bfc114bbcd8b4fdc",
+      "lsof_clear": true
+    }
+  ],
+  "total_bytes": 69055817
+}
